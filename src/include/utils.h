@@ -873,6 +873,13 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define IS_ZOMBIE(ch)  	        IS_CLASS(ch, CLASS_ZOMBIE)
 #define IS_UNDEAD(ch)	     	(GET_RACE(ch) == RACE_UNDEAD || \
                                  IS_CLASS(ch, CLASS_VAMPIRE))
+#define NON_CORPOREAL_MOB(ch) NON_CORPOREAL_UNDEAD(ch)  \
+            || (GET_RACE(ch) == RACE_ELEMENTAL &&       \
+                (                                       \
+                GET_CLASS(ch) == CLASS_AIR ||           \
+                GET_CLASS(ch) == CLASS_WATER ||         \
+                GET_CLASS(ch) == CLASS_FIRE             \
+                ))
 #define NON_CORPOREAL_UNDEAD(ch) \
                                 (IS_SHADOW(ch) || IS_WIGHT(ch) ||   \
 				 IS_WRAITH(ch) || IS_SPECTRE(ch) || \
