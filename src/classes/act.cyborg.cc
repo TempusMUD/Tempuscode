@@ -1321,6 +1321,10 @@ ACMD(do_discharge)
         mudlog(buf, NRM, LVL_GRGOD, TRUE);
         return;
     }
+    if (vict == ch) {
+        send_to_char("Let's not try that shall we...\r\n", ch);
+        return;
+    }
 
     GET_MOVE(ch) -= amount;
 
@@ -1377,10 +1381,7 @@ ACMD(do_discharge)
     return;
     }
 
-    if (vict == ch) {
-        send_to_char("Let's not try that shall we...\r\n", ch);
-        return;
-    }
+
     if (!peaceful_room_ok(ch, vict, true))
         return;
 
