@@ -487,6 +487,7 @@ ASPELL(song_instant_audience)
     // 1205 - 1209
     int limit = MAX(1, (ch->getLevelBonus(SONG_INSTANT_AUDIENCE) / 33));
     struct affected_type af;
+    bool success = false;
 
     extern void add_follower(struct Creature *ch, struct Creature *leader);
 
@@ -501,6 +502,7 @@ ASPELL(song_instant_audience)
         if (!bard_can_charm_more(ch))
             break;
 
+        success = true;
         int vnum = number(1205, 1209);
 
         member = read_mobile(vnum);
@@ -542,9 +544,16 @@ ASPELL(song_instant_audience)
         affect_to_char(member, &af);
     }
 
-    act("You have gathered an audience!", false, ch, NULL, NULL, TO_CHAR);
-    act("$n's playing has gathered an audience!", false, ch, NULL, NULL, TO_ROOM);
-    gain_skill_prof(ch, SONG_INSTANT_AUDIENCE);
+    if (success) {
+        act("You have gathered an audience!", false, ch, NULL, NULL, TO_CHAR);
+        act("$n's playing has gathered an audience!", false, ch, NULL, NULL, TO_ROOM);
+        gain_skill_prof(ch, SONG_INSTANT_AUDIENCE);
+    }
+    else {
+        act("No one came to hear your music!", false, ch, NULL, NULL, TO_CHAR);
+        act("No one came to hear $n's music!!", false, ch, NULL, NULL, TO_ROOM);
+        gain_skill_prof(ch, SONG_INSTANT_AUDIENCE);
+    }
 }
 
 ASPELL(song_exposure_overture)
