@@ -43,6 +43,7 @@ extern const char *time_frames[];
 extern const char *genders[];
 extern const char *position_types[];
 extern const char *player_bits[];
+extern const char *player2_bits[];
 extern const char *action_bits[];
 extern const char *action_bits_desc[];
 extern const char *action2_bits[];

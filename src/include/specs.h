@@ -190,6 +190,7 @@ SPECIAL(cloak_of_deception);
 SPECIAL(newspaper);
 SPECIAL(sunstation);
 SPECIAL(horn_of_geryon);
+SPECIAL(unholy_compact);
 SPECIAL(telescope);
 SPECIAL(tester_util);
 SPECIAL(questor_util);

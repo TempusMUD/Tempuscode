@@ -251,6 +251,8 @@
 #define PLR_LOG         (1 << 28)  /* log all cmds */
 #define PLR_POLC        (1 << 29)  /* player approved for port olc      */
 #define PLR_NOPK        (1 << 30)  /* player cannot pk */
+// Player Flags Mark II
+#define PLR2_SOULLESS	(1 << 0)	// Signing the Unholy Compact.
 
 /* Mobile flags: used by char_data.char_specials.act */
 #define MOB_SPEC         (1 << 0)  /* Mob has a callable spec-proc	*/
@@ -762,7 +764,8 @@ struct player_special_data_saved {
     int columns;
     int hold_load_room;
     int quest_id;
-    int spare_i[3];
+	int plr2_bits;
+    int spare_i[2];
     long	mana_shield_low;
     long	mana_shield_pct;
     long	spare19;
