@@ -34,6 +34,7 @@
 #include "bomb.h"
 #include "guns.h"
 #include "fight.h"
+#include "security.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -2757,7 +2758,7 @@ perform_wear(struct char_data *ch, struct obj_data *obj, int where)
 		return 0;
 	}
 	if (!OBJ_APPROVED(obj) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
-		!PLR_FLAGGED(ch, PLR_TESTER)) {
+		!Security::isTester(ch)) {
 		act("$p has not been approved for mortal use.",
 			FALSE, ch, obj, 0, TO_CHAR);
 		return 0;

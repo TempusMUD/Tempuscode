@@ -41,6 +41,7 @@
 #include "mobact.h"
 #include "combat.h"
 #include "events.h"
+#include "security.h"
 
 #include <iostream>
 #include <algorithm>
@@ -466,7 +467,7 @@ gain_kill_exp(struct char_data *ch, struct char_data *victim)
 		return;
 
 	if (IS_NPC(victim) && MOB2_FLAGGED(victim, MOB2_UNAPPROVED)
-		&& !PLR_FLAGGED(ch, PLR_TESTER))
+		&& !Security::isTester(ch))
 		return;
 
 	if ((IS_NPC(ch) && IS_PET(ch)) || IS_NPC(victim) && IS_PET(victim))
@@ -893,11 +894,11 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 
 	if (ch) {
 		if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED)
-			&& !PLR_FLAGGED(victim, PLR_TESTER))
+			&& !Security::isTester(ch))
 			dam = 0;
 
-		if (PLR_FLAGGED(ch, PLR_TESTER) && !IS_MOB(victim) &&
-			!PLR_FLAGGED(victim, PLR_TESTER))
+		if (Security::isTester(ch) && !IS_MOB(victim) &&
+			!Security::isTester(ch))
 			dam = 0;
 
 		if (IS_MOB(victim) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
@@ -1457,7 +1458,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 
 	if (ch && ch != victim
 		&& !(MOB2_FLAGGED(victim, MOB2_UNAPPROVED) ||
-			PLR_FLAGGED(ch, PLR_TESTER) || IS_PET(ch) || IS_PET(victim))) {
+			Security::isTester(ch) || IS_PET(ch) || IS_PET(victim))) {
 		// Gaining XP for damage dealt.
 		int exp;
 		exp = MIN(GET_LEVEL(ch) * GET_LEVEL(ch) * GET_LEVEL(ch),

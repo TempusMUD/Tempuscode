@@ -355,6 +355,7 @@ ACMD(do_syslog);
 ACMD(do_tag);
 ACMD(do_taunt);
 ACMD(do_teleport);
+ACMD(do_tester);
 ACMD(do_tell);
 ACMD(do_time);
 ACMD(do_title);
@@ -1193,7 +1194,7 @@ struct command_info cmd_info[] = {
 	//    { "tempus"   , POS_DEAD    , do_help     , 0, 0 , 0 },
 	{"tempus", POS_DEAD, do_hcollect_help, 0, 0, 0},
 	{"terrorize", POS_FIGHTING, do_intimidate, 5, SKILL_TERRORIZE, 0},
-	{"tester", POS_FIGHTING, do_gen_tog, 1, SCMD_TESTER, 0},
+	{"tester", POS_FIGHTING, do_tester, 0, 0, 0},
 	{"tackle", POS_RESTING, do_action, 0, 0, 0},
 	{"take", POS_RESTING, do_get, 0, 0, 0},
 	{"talk", POS_RESTING, do_say, 0, 0, 0},

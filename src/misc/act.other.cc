@@ -39,6 +39,7 @@
 #include "constants.h"
 #include "fight.h"
 #include "char_class.h"
+#include "security.h"
 
 /* extern variables */
 extern struct descriptor_data *descriptor_list;
@@ -110,7 +111,7 @@ ACMD(do_quit)
 		}
 
 		if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR ||
-			PLR_FLAGGED(ch, PLR_TESTER)) {
+			Security::isTester(ch)) {
 			if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 				sprintf(buf, "%s has departed from the known multiverse.",
 					GET_NAME(ch));
@@ -122,7 +123,7 @@ ACMD(do_quit)
 				send_to_char("\r\nYou flicker out of reality...\r\n", ch);
 				act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
 				sprintf(buf, "%s has left the game%s.", GET_NAME(ch),
-					PLR_FLAGGED(ch, PLR_TESTER) ? " (tester)" : " naked");
+						Security::isTester(ch) ? " (tester)" : " naked");
 				mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
 			}
 			Crash_rentsave(ch, 0, RENT_RENTED);
@@ -1325,9 +1326,6 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_AUTOWRAP:
 		result = PRF2_TOG_CHK(ch, PRF2_NOWRAP);
-		break;
-	case SCMD_TESTER:
-		return;
 		break;
 
 	default:

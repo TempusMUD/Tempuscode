@@ -766,7 +766,7 @@ list_one_char(struct char_data *i, struct char_data *ch, byte is_group)
 
 	if (AFF2_FLAGGED(i, AFF2_MOUNTED) ||
 		(MOB2_FLAGGED(i, MOB2_UNAPPROVED) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
-			!IS_NPC(ch) && !PLR_FLAGGED(ch, PLR_TESTER)))
+			!IS_NPC(ch) && !Security::isTester(ch)))
 		return;
 
 	if (AFF_FLAGGED(i, AFF_HIDE)) {
@@ -3223,7 +3223,7 @@ ACMD(do_who)
 		if (who_remort && (!IS_REMORT(tch) ||
 				(!IS_REMORT(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR)))
 			continue;
-		if (who_tester && !PLR_FLAGGED(tch, PLR_TESTER))
+		if (who_tester && !Security::isTester(tch))
 			continue;
 
 		if (GET_LEVEL(tch) >= LVL_AMBASSADOR) {
@@ -3372,7 +3372,7 @@ ACMD(do_who)
 		else {
 			++num_can_see;
 			sprintf(buf2, "%s%s%s%s%s%s", buf2,
-				PLR_FLAGGED(tch, PLR_TESTER) ?
+					Security::isTester(tch) ?
 				tester_buf : PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf : "",
 				(GET_LEVEL(tch) >= LVL_AMBASSADOR ? CCNRM_GRN(ch, C_NRM) : ""),
 				GET_NAME(tch), GET_TITLE(tch), CCNRM(ch, C_NRM));
@@ -3919,7 +3919,7 @@ ACMD(do_where)
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR ||
 		(IS_MOB(ch) && ch->desc && ch->desc->original &&
 			GET_LEVEL(ch->desc->original) >= LVL_AMBASSADOR)
-		|| PLR_FLAGGED(ch, PLR_TESTER))
+		|| Security::isTester(ch))
 		perform_immort_where(ch, argument);
 	else {
 

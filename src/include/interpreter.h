@@ -144,6 +144,7 @@ struct set_struct {
 #define SCMD_AREAS	10
 
 /* do_gen_tog */
+#define CMD_TESTER 1
 #define SCMD_NOSUMMON   0
 #define SCMD_NOHASSLE   1
 #define SCMD_BRIEF      2
@@ -193,7 +194,6 @@ struct set_struct {
 #define SCMD_PKILLER    46
 #define SCMD_NOGECHO	47
 #define SCMD_AUTOWRAP   48
-#define SCMD_TESTER     49
 
 /* do_wizutil */
 #define SCMD_REROLL	0
@@ -205,6 +205,9 @@ struct set_struct {
 #define SCMD_UNAFFECT	6
 #define SCMD_COUNCIL    7
 #define SCMD_NOPOST     8
+
+/* do_set */
+#define SCMD_TESTER_SET 1
 
 /* do_spec_com */
 #define SCMD_WHISPER	0

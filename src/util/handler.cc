@@ -34,6 +34,7 @@
 #include "char_class.h"
 #include "help.h"
 #include "fight.h"
+#include "security.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -2301,12 +2302,12 @@ is_wierd(CHAR * ch, struct obj_data *obj, CHAR * vict)
 	if (obj) {
 		if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
 			return 1;
-		if (!OBJ_APPROVED(obj) && !PLR_FLAGGED(ch, PLR_TESTER))
+		if (!OBJ_APPROVED(obj) && !Security::isTester(ch))
 			return 1;
 	}
 
 	if (vict && IS_NPC(vict)) {
-		if (MOB_UNAPPROVED(vict) && !PLR_FLAGGED(ch, PLR_TESTER))
+		if (MOB_UNAPPROVED(vict) && !Security::isTester(ch))
 			return 1;
 	}
 

@@ -35,6 +35,7 @@
 #include "login.h"
 #include "matrix.h"
 #include "bomb.h"
+#include "security.h"
 
 extern char *motd;
 extern char *ansi_motd;
@@ -307,7 +308,7 @@ nanny(struct descriptor_data * d, char *arg)
 					return;
 				}
 				if (GET_LEVEL(d->character) < restrict &&
-					(!PLR_FLAGGED(d->character, PLR_TESTER) || restrict > LVL_ETERNAL)) {
+					(Security::isTester(d->character) || restrict > LVL_ETERNAL)) {
 					SEND_TO_Q("The game is temporarily restricted.. try again later.\r\n", d);
 					set_desc_state( CON_CLOSE,d );
 					sprintf(buf, "Request for login denied for %s [%s] (wizlock)",
