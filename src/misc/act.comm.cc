@@ -852,6 +852,8 @@ ACMD(do_gen_comm)
 		gs_channel_desc = "";
 	}
 
+	argument = tmp_gsub(argument, "$$", "$");
+
 	plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
 	color_emit = tmp_sprintf("%s%%s %ss,%s%s '%s'%s\r\n", chan->desc_color,
 		chan->name, KNRM, chan->text_color, argument, KNRM);
