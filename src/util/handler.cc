@@ -979,6 +979,8 @@ char_from_room( Creature *ch, bool check_specials)
 		stop_fighting(ch);
 	}
 
+	if (GET_RACE(ch) == RACE_ELEMENTAL && IS_CLASS(ch, CLASS_FIRE))
+		ch->in_room->light--;
 	if (ch->equipment[WEAR_LIGHT] != NULL)
 		if (GET_OBJ_TYPE(ch->equipment[WEAR_LIGHT]) == ITEM_LIGHT)
 			if (GET_OBJ_VAL(ch->equipment[WEAR_LIGHT], 2))	/* Light is ON */
@@ -1059,6 +1061,9 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 
 	room->people.add(ch);
 	ch->in_room = room;
+
+	if (GET_RACE(ch) == RACE_ELEMENTAL && IS_CLASS(ch, CLASS_FIRE))
+		room->light++;
 
 	if (GET_EQ(ch, WEAR_LIGHT))
 		if (GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT)
