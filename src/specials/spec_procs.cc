@@ -326,12 +326,13 @@ SPECIAL(guild)
 	send_to_char("You do not seem to be able to practice now.\r\n", ch);
 	return 1;
     }
-
+    /*  Lame upper level trainer thing.
     if (GET_MOB_VNUM(master) ==  25015 && GET_LEVEL(ch) < 43) {
 	sprintf(buf2, "You are not ready to train with me, %s.", GET_NAME(ch));
 	do_say(master, buf2, 0, 0);
 	return 1;
     }
+    */
     
     skill_num = find_skill_num(argument);
 
