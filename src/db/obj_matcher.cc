@@ -292,7 +292,7 @@ bool ObjectWornMatcher::init( char_data *ch, Tokenizer &tokens ) {
 		} else {
 			worn = atoi(arg);
 		}
-		if ( worn < 0 || worn > NUM_WEAR_FLAGS ) {
+		if ( worn < 0 || worn > NUM_WEARS ) {
 			send_to_char(ch, "That's not a valid wear position: %s\r\n", arg);
 			return false;
 		}
