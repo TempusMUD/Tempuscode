@@ -26,6 +26,7 @@ struct ShopData {
 	long revenue;			// Amount added to money every reset
 	bool steal_ok;
 	bool attack_ok;
+	SPECIAL(*func);
 	Reaction reaction;
 };
 
