@@ -2413,7 +2413,11 @@ ASPELL(spell_id_insinuation)
 		act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ch, TO_VICT);
 		act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_CHAR);
 		//set_fighting(victim, ch, true);
+//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//             __FILE__, __LINE__, &(*ch), &(*victim));
         ch->addCombat(victim, true);
+//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//             __FILE__, __LINE__, &(*victim), &(*ch));
         victim->addCombat(ch, false);
 		return;
 	}
@@ -2453,7 +2457,11 @@ ASPELL(spell_id_insinuation)
 	act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ulv, TO_CHAR);
 
 	//set_fighting(victim, ulv, false);
+//    slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//         __FILE__, __LINE__, &(*victim), &(*ulv));
     victim->addCombat(ulv, false);
+//    slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//         __FILE__, __LINE__, &(*ulv), &(*victim));
     ulv->addCombat(victim, false);
 	gain_skill_prof(ch, SPELL_ID_INSINUATION);
 }

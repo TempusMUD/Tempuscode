@@ -39,6 +39,7 @@ Creature::Creature(bool pc)
 	}
 
     this->fighting = new list<CharCombat>();
+    this->fighting->clear();
 
 	clear();
 }
@@ -50,38 +51,46 @@ Creature::~Creature(void)
 		delete player_specials;
 		free(player.title);
 	}
-    delete this->fighting;
-    this->fighting = NULL;
+    if (this->fighting != NULL) {
+        //This REALLY does not belong here.
+        CreatureList::iterator it = characterList.begin();
+        for (; it != characterList.end(); ++it) {
+            if ((*it)->findCombat(this))
+                (*it)->removeCombat(this);
+        }
+        this->removeAllCombat();
+        delete this->fighting;
+        this->fighting = NULL;
+    }
 }
 
-Creature::Creature(const Creature &c, bool is_npc)
+Creature::Creature(const Creature &c)
 {
     memset((char *)this, 0, sizeof(Creature));
 
-    this->player_specials = c.player_specials;
-    //todo: duplicate affects
-    //this->affected = c.affected;
-    this->account = c.account;
-    /* todo: duplicate equipment?
-    this->carrying = c.carrying;
-    for (int x = 0; x < NUM_WEARS; x++) {
-        this->equipment[x] = c.equipment[x];
-        this->implants[x] = c.implants[x];
+    if (!IS_NPC(&c)) {
+		slog("Creature::Creature(const Creature &c) called on a player!");
+        raise(SIGSEGV);
     }
-    */
+    this->in_room = c.in_room;
+//    *(this->player_specials) = *(c.player_specials);
+	this->player_specials = &dummy_mob;
+    //todo: duplicate affects
 
-    if (is_npc)
-        SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
+    this->account = c.account;
+    
+    //todo: duplicate equipment?
 
-    this->fighting = new list<CharCombat>( *(c.fighting) );
+    this->fighting = new list<CharCombat>(*(c.fighting));
+    this->fighting->clear();
 
-    memcpy(&this->player, &c.player, sizeof(struct char_player_data));
-    memcpy(&this->real_abils, &c.real_abils, sizeof(struct char_ability_data));
-    memcpy(&this->aff_abils, &c.aff_abils, sizeof(struct char_ability_data));
-    memcpy(&this->points, &c.points, sizeof(struct char_point_data));
-    memcpy(&this->language_data, &c.language_data, sizeof(struct char_language_data));
-    memcpy(&this->mob_specials, &c.mob_specials, sizeof(struct mob_special_data));
-    memcpy(&this->char_specials, &c.char_specials, sizeof(struct char_special_data));
+    this->player = c.player;
+    this->real_abils = c.real_abils;
+    this->aff_abils = c.aff_abils;
+    this->points = c.points;
+    this->language_data = c.language_data;
+    this->mob_specials =  c.mob_specials;
+    this->char_specials = c.char_specials;
 }
 
 void
@@ -552,14 +561,20 @@ Creature::extract(cxn_state con_state)
 
 
 	// remove fighters, defenders, hunters and mounters
-	this->removeAllCombat();
-    this->getCombatList()->erase(getCombatList()->begin(), getCombatList()->end());
 
 	for (cit = characterList.begin(); cit != characterList.end(); ++cit) {
 		if (this == DEFENDING((*cit)))
 			stop_defending(*cit);
+
 		if (this == HUNTING((*cit)))
 			HUNTING((*cit)) = NULL;
+            
+        (*cit)->removeCombat(this);
+        if (!(*cit)->numCombatants())
+            combatList.remove(*cit);
+
+        this->removeCombat((*cit));
+
 		if (this == MOUNTED((*cit))) {
 			MOUNTED((*cit)) = NULL;
 			if ((*cit)->getPosition() == POS_MOUNTED) {
@@ -850,16 +865,24 @@ Creature::clear(void)
     //
     // next remove all the combat this creature might be involved in
     //
-    if (this->getCombatList()) {
+/*    if (this->getCombatList()) {
         removeAllCombat();
         delete this->fighting;
-    }
+    } */
 
+    CreatureList::iterator it = characterList.begin();
+    for (; it != characterList.end(); ++it) {
+        (*it)->removeCombat(this);
+        this->removeCombat(*it);
+    }
+    delete this->fighting;
+    this->fighting = NULL;
 	// At this point, everything should be freed, so we null the entire
 	// structure just to be sure
 	memset((char *)this, 0, sizeof(Creature));
 
     this->fighting = new list<CharCombat>();
+    this->fighting->clear();
 	// And we reset all the values to their initial settings
 	this->setPosition(POS_STANDING);
 	GET_CLASS(this) = -1;
@@ -1050,20 +1073,6 @@ Creature::die(void)
 	obj_data *obj, *next_obj;
 	int pos;
 
-    // Remove any combat this character might have been involved in
-    // And make sure all defending creatures stop defending
-    removeAllCombat();
-    combatList.remove(this);
-
-    CreatureList::iterator ci = combatList.begin();
-    for (; ci != combatList.end(); ++ci) {
-        if ((*ci)->findCombat(this))
-            (*ci)->removeCombat(this);
-/*        if (DEFENDING((*ci)) == this)
-            stop_defending((*ci));*/
-    }
-
-
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
 	// their stuff to the room
 	for (pos = 0;pos < NUM_WEARS;pos++) {
@@ -1103,14 +1112,6 @@ Creature::arena_die(void)
     // And make sure all defending creatures stop defending
     removeAllCombat();
     combatList.remove(this);
-
-    CreatureList::iterator ci = combatList.begin();
-    for (; ci != combatList.end(); ++ci) {
-        if ((*ci)->findCombat(this))
-            (*ci)->removeCombat(this);
-/*        if (DEFENDING((*ci)) == this)
-            stop_defending((*ci)); */
-    }
 
 	// Rent them out
 	if (!IS_NPC(this)) {
@@ -1275,10 +1276,11 @@ Creature::getCombatList()
 void
 Creature::addCombat(Creature *ch, bool initiated)
 {
+//    slog("Creature::addCombat() :: this=0x%x, ch=0x%x", &(*this), &(*ch));
     if (!ch)
         return;
 
-    if (this == ch || findCombat(ch))
+    if (this == ch)
         return;
 
     if (!isOkToAttack(ch))
@@ -1311,7 +1313,7 @@ Creature::addCombat(Creature *ch, bool initiated)
             getCombatList()->push_front(CharCombat(ch, ini)); 
             return;
         }
-    } 
+    }
 
     getCombatList()->push_back(CharCombat(ch, initiated));
 

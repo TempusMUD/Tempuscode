@@ -10,11 +10,13 @@
 #include <signal.h>
 
 #include <list>
+#include "structs.h"
 #include "constants.h"
 #include "macros.h"
 #include "account.h"
 #include "desc_data.h"
 #include "safe_list.h"
+#include "interpreter.h"
 
 /* char and mob-related defines *****************************************/
 
@@ -649,6 +651,14 @@ typedef struct memory_rec_struct memory_rec;
 
 /* These data contain information about a players time data */
 struct time_data {
+    time_data &operator=(const time_data &c) {
+        this->birth = c.birth;
+        this->death = c.death;
+        this->logon = c.logon;
+        this->played = c.played;
+
+        return *this;
+    }
 	time_t birth;//This represents the characters age
 	time_t death;// when did we die
 	time_t logon;// Time of the last logon (used to calculate played)
@@ -663,6 +673,34 @@ typedef struct weapon_spec {
 
 /* general player-related info, usually PC's and NPC's */
 struct char_player_data {
+    char_player_data &operator=(const char_player_data &c) {
+        memcpy(&this->passwd, &c.passwd, MAX_PWD_LENGTH +1);
+        if (c.name) 
+            this->name = strdup(c.name);
+        if (c.short_descr)
+            this->short_descr = strdup(c.short_descr);
+        if (c.long_descr)
+            this->long_descr = strdup(c.long_descr);
+        if (c.description)
+            this->description = strdup(c.description);
+        if (c.title)
+            this->title = strdup(c.title);
+        
+        this->char_class = c.char_class;
+        this->remort_char_class = c.remort_char_class;
+        this->weight = c.weight;
+        this->height = c.height;
+        this->hometown = c.hometown;
+        this->sex = c.sex;
+        this->race = c.race;
+        this->level = c.level;
+        this->age_adjust = c.age_adjust;
+
+        this->time = c.time;
+
+        return *this;
+    }
+
 	char passwd[MAX_PWD_LENGTH + 1];	/* character's password      */
 	char *name;					/* PC / NPC s name (kill ...  )         */
 	char *short_descr;			/* for NPC 'actions'                    */
@@ -692,6 +730,17 @@ struct char_player_data {
 
 /* Char's abilities.  Used in char_file_u *DO*NOT*CHANGE* */
 struct char_ability_data {
+    char_ability_data &operator=(const char_ability_data &c) {
+        this->str = c.str;
+        this->str_add = c.str_add;
+        this->intel = c.intel;
+        this->wis = c.wis;
+        this->dex = c.dex;
+        this->con = c.con;
+        this->cha = c.cha;
+
+        return *this;
+    }
 	sbyte str;
 	sbyte str_add;				/* 000 - 100 if strength 18             */
 	sbyte intel;
@@ -704,6 +753,24 @@ struct char_ability_data {
 
 /* Char's points.  Used in char_file_u *DO*NOT*CHANGE* */
 struct char_point_data {
+    char_point_data &operator=(const char_point_data &c) {
+        this->mana = c.mana;
+        this->max_mana = c.max_mana;
+        this->hit = c.hit;
+        this->max_hit = c.max_hit;
+        this->move = c.move;
+        this->max_move = c.move;
+
+        this->armor = c.armor;
+        this->gold = c.gold;
+        this->cash = c.cash;
+        this->exp = c.exp;
+
+        this->hitroll = c.hitroll;
+        this->damroll = c.damroll;
+
+        return *this;
+    }
 	int mana;
 	int max_mana;			/* Max move for PC/NPC               */
 	int hit;
@@ -730,6 +797,23 @@ struct char_point_data {
  * in player_special_data.
  */
 struct char_special_data_saved {
+    char_special_data_saved &operator=(const char_special_data_saved &c) {
+        this->alignment = c.alignment;
+        this->idnum = c.idnum;
+        this->act = c.act;
+        this->act2 = c.act2;
+        
+        this->affected_by = c.affected_by;
+        this->affected2_by = c.affected2_by;
+        this->affected3_by = c.affected3_by;
+
+        this->remort_generation = c.remort_generation;
+
+        for (int i = 0; i < 10; i++)
+            this->apply_saving_throw[i] = c.apply_saving_throw[i];
+
+        return *this;
+    }
 	int alignment;				/* +-1000 for alignments                */
 	long idnum;					/* player's idnum; -1 for mobiles    */
 	long act;					/* act flag for NPC's; player flag for PC's */
@@ -808,6 +892,29 @@ struct char_special_data {
 		return worn_weight;
 	}
 
+    char_special_data &operator=(const char_special_data &c) {
+        this->defending = c.defending;
+        this->hunting = c.hunting;
+        this->mounted = c.mounted;
+
+        this->carry_weight = c.carry_weight;
+        this->worn_weight = c.worn_weight;
+        this->timer = c.timer;
+        this->meditate_timer = c.meditate_timer;
+        this->cur_flow_pulse = c.cur_flow_pulse;
+
+        this->breath_count = c.breath_count;
+        this->fall_count = c.fall_count;
+        this->position = c.position;
+        this->carry_items = c.carry_items;
+        this->weapon_proficiency = c.weapon_proficiency;
+        
+        if (c.mood_str)
+            this->mood_str = strdup(c.mood_str);
+        this->saved = c.saved;
+
+        return *this;
+    }
 //	struct Creature *fighting;	/* Opponent                */
 	struct Creature *defending;	/* Char defended by this char */
 	struct Creature *hunting;	/* Char hunted by this char        */
@@ -892,6 +999,59 @@ struct player_special_data_saved {
 static const int MAX_IMPRINT_ROOMS = 6;
 
 struct player_special_data {
+    player_special_data &operator=(const player_special_data &c) {
+        this->saved = c.saved;
+        if (c.poofin)
+            this->poofin = strdup(c.poofin);
+        if (c.poofout)
+            this->poofout = strdup(c.poofout);
+        
+        alias_data *head = NULL;
+        alias_data *tail = NULL;
+        alias_data *cur_alias = c.aliases;
+        while (cur_alias) {
+            alias_data *new_alias = new alias_data;
+            new_alias->alias = strdup(cur_alias->alias);
+            new_alias->replacement = strdup(cur_alias->replacement);
+            new_alias->type = cur_alias->type;
+            new_alias->next = NULL;
+
+            if (!head)
+                head = new_alias;
+            else if (tail)
+                tail->next = new_alias;
+
+            tail = new_alias;
+        }
+        this->aliases = head;
+        this->last_tell_from = c.last_tell_from;
+        this->last_tell_to = c.last_tell_to;
+
+        for (int i = 0; i < MAX_IMPRINT_ROOMS; i++)
+            this->imprint_rooms[i] = c.imprint_rooms[i];
+
+        for (int i = 0; i < NUM_WEARS; i++)
+            this->soilage[i] = c.soilage[i];
+
+        // These should never be copied since only one person can edit
+        // at once
+        this->olc_obj = NULL;
+        this->olc_mob = NULL;
+        this->olc_shop = NULL;
+        this->olc_help = NULL;
+        this->olc_srch = NULL;
+        this->olc_help_item = NULL;
+         
+        this->was_in_room = c.was_in_room;
+        this->thaw_time = c.thaw_time;
+        this->freezer_id = c.freezer_id;
+        this->rentcode = c.rentcode;
+        this->rent_per_day = c.rent_per_day;
+        this->rent_currency = c.rent_currency;
+        this->desc_mode = c.desc_mode;
+
+        return *this;
+    }
 
 	struct player_special_data_saved saved;
 	char *poofin;				/* Description on arrival of a god.     */
@@ -939,6 +1099,50 @@ struct mob_shared_data {
 
 /* Specials used by NPCs, not PCs */
 struct mob_special_data {
+    mob_special_data &operator=(const mob_special_data &c) {
+        memory_rec *mhead = NULL;
+        memory_rec *mtail = NULL;
+        memory_rec *cur_rec = c.memory;
+        while (cur_rec) {
+            memory_rec *new_rec = new memory_rec;
+            new_rec->id = cur_rec->id;
+            new_rec->next = NULL;
+
+            if (!mhead)
+                mhead = new_rec;
+            else if (mtail)
+                mtail->next = new_rec;
+
+            mtail = new_rec;
+        }
+        this->memory = mhead;
+
+        extra_descr_data *head = NULL;
+//        extra_descr_data *tail = NULL;
+//        extra_descr_data *cur_data = c.response;
+/*        while (cur_data) {
+            extra_descr_data *new_data = new extra_descr_data;
+            new_data->keyword = strdup(cur_data->keyword);
+            new_data->description = strdup(cur_data->description);
+
+            if (!head)
+                head = new_data;
+            else if (tail)
+                tail->next = new_data;
+
+            tail = new_data;
+        }*/
+        this->response = head;
+
+        this->func_data = c.func_data;
+        this->shared = c.shared;
+        this->wait_state = c.wait_state;
+        this->last_direction = c.last_direction;
+        this->mob_idnum = c.mob_idnum;
+        this->prog_state = c.prog_state;
+
+        return *this;
+    }
 	memory_rec *memory;			/* List of attackers to remember           */
 	struct extra_descr_data *response;	/* for response processing */
 	void *func_data;			// Mobile-specific data used for specials
@@ -971,6 +1175,12 @@ struct follow_type {
 };
 
 struct char_language_data {
+    char_language_data &operator=(const char_language_data &c) {
+        this->known_languages = c.known_languages;
+        this->current_language = c.current_language;
+
+        return *this;
+    }
     long long known_languages;
     char current_language;
 };
@@ -982,7 +1192,7 @@ struct Creature {
   	Creature(bool pc);	// constructor
 	~Creature(void);
 
-    Creature(const Creature &c, bool is_npc); // Copy constructor
+    Creature(const Creature &c); // Copy constructor
 
 	// Reset creature to initial state
 	void clear();    

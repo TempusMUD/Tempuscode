@@ -2725,7 +2725,11 @@ detect_opponent_master(Creature *ch, Creature *opp)
 
 	ch->removeCombat(opp);
 	//set_fighting(ch, opp->master, false);
+//    slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//         __FILE__, __LINE__, &(*ch), &(*opp));
     ch->addCombat(opp->master, false);
+//    slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//         __FILE__, __LINE__, &(*opp), &(*ch));
     opp->master->addCombat(ch, false);
 	return true;
 }
@@ -2744,7 +2748,7 @@ int
 mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 {
 
-	register struct Creature *vict = NULL, *new_mob = NULL;
+	struct Creature *vict = NULL, *new_mob = NULL;
 	int num = 0, prob = 0, dam = 0;
 	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
 	int return_flags = 0;
@@ -2913,7 +2917,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 		else if (random_binary()) {
 			act("$n releases a deafening scream!!", FALSE, ch, 0, 0, TO_ROOM);
-            list<CharCombat>::iterator li = ch->getCombatList()->end();
+            list<CharCombat>::iterator li = ch->getCombatList()->begin();
             for (; li != ch->getCombatList()->end(); ++li) {
 			    call_magic(ch, li->getOpponent(), 0, SPELL_FEAR, GET_LEVEL(ch),
 				    CAST_BREATH, &return_flags);
@@ -3121,14 +3125,16 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	if (IS_DRAGON(ch)) {
-		if (random_number_zero_low(GET_LEVEL(ch)) > 40) {
+		if (random_number_zero_low(GET_LEVEL(ch)) > 10) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", FALSE, ch, 0, 0, TO_ROOM);
-            list<CharCombat>::iterator li = ch->getCombatList()->begin();
-            for (; li != ch->getCombatList()->end(); ++li) {
-                if ((vict = li->getOpponent())) {
+            CreatureList::iterator it = ch->in_room->people.begin();
+            for (; it != ch->in_room->people.end(); it++) {
+                vict = *it;
+                if (vict->findCombat(ch)) {
                     if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
-                        !IS_AFFECTED(vict, AFF_CONFIDENCE))
+                        !IS_AFFECTED(vict, AFF_CONFIDENCE)) {
                         do_flee(vict, "", 0, 0, 0);
+                    }
                 }
             }
 			return 0;

@@ -132,7 +132,11 @@ SPECIAL(guard)
 			&& IS_PC(ch)
 			&& !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
 		//set_fighting(self, ch, true);
+//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//             __FILE__, __LINE__, &(*self), &(*ch));
         self->addCombat(ch, false);
+//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//             __FILE__, __LINE__, &(*ch), &(*self));
         ch->addCombat(self, false);
     }
 

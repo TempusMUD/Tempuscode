@@ -1197,7 +1197,7 @@ renum_world(void)
             rooms[room->number] = room;
         }
     }
-    
+	slog("%d rooms loaded.\r\n", rooms.size());
     // lookup each room's doors and reconnect the to_room pointers
     for( zone_data* zone = zone_table; zone; zone = zone->next) {
 		for( room_data* room = zone->world; room; room = room->next) {
@@ -2333,7 +2333,7 @@ read_mobile(int vnum)
 		sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
 		return (NULL);
 	}
-    mob = new Creature(*tmp_mob, true);
+    mob = new Creature(*tmp_mob);
     tmp_mob->mob_specials.shared->number++;
     tmp_mob->mob_specials.shared->loaded++;
     

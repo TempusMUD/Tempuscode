@@ -152,7 +152,7 @@ update_pos(struct Creature *victim)
 	} else if (GET_HIT(victim) > 0) {
 		if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
 			// Flying?
-			if (victim->in_room->isOpenAir()
+			if (victim->in_room && victim->in_room->isOpenAir()
 				&& !IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL)
 				&& victim->getPosition() != POS_FLYING)
 				victim->setPosition(POS_FLYING, 1);

@@ -1049,6 +1049,9 @@ ACMD(do_hit)
     } else if (ch->findCombat(vict)) {
 		act("Ok, you will now concentrate your attacks on $N!", 
             0, ch, 0, vict, TO_CHAR);
+
+//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//             __FILE__, __LINE__, &(*ch), &(*vict));
         ch->addCombat(vict, true);
     }
 	else if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master == vict))
@@ -1639,7 +1642,11 @@ ACMD(do_stun)
 		act("$N tried to stun you!", FALSE, vict, 0, ch, TO_CHAR);
 		send_to_char(ch, "Uh-oh!  You failed.\r\n");
         //set_fighting(vict, ch, false);
+//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//             __FILE__, __LINE__, &(*ch), &(*vict));
         ch->addCombat(vict, true);
+//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//             __FILE__, __LINE__, &(*vict), &(*ch));
         vict->addCombat(ch, false);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		return;
@@ -1763,7 +1770,11 @@ ACMD(do_tag)
             tmp_ch->removeCombat(ch);
 
             //set_fighting(vict, tmp_ch, true);
+//            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                 __FILE__, __LINE__, &(*vict), &(*tmp_ch));
             vict->addCombat(tmp_ch, true);
+//            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                 __FILE__, __LINE__, &(*tmp_ch), &(*vict));
             tmp_ch->addCombat(vict, false);
 			gain_skill_prof(ch, SKILL_TAG);
 		}
@@ -1821,7 +1832,11 @@ ACMD(do_rescue)
         vict->removeCombat(tmp_ch);
         
         //set_fighting(ch, tmp_ch, true);
+//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//             __FILE__, __LINE__, &(*ch), &(*tmp_ch));
         ch->addCombat(tmp_ch, true);
+//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//             __FILE__, __LINE__, &(*tmp_ch), &(*ch));
         tmp_ch->addCombat(ch, false);
 		WAIT_STATE(vict, 2 * PULSE_VIOLENCE);
 		gain_skill_prof(ch, SKILL_RESCUE);
@@ -2622,7 +2637,11 @@ ACMD(do_ceasefire)
         if (f) {
             act("You start defending yourself against $N", FALSE, ch, 0, f,
                 TO_CHAR);
+//            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                 __FILE__, __LINE__, &(*ch), &(*f));
             ch->addCombat(f, false);
+//            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                 __FILE__, __LINE__, &(*f), &(*ch));
             f->addCombat(ch, false);
         }
     }
@@ -2699,18 +2718,28 @@ ACCMD(do_disarm)
 
 		GET_EXP(ch) += MIN(100, weap->getWeight());
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (IS_NPC(vict) && !vict->numCombatants() && can_see_creature(vict, ch))
+		if (IS_NPC(vict) && !vict->numCombatants() && can_see_creature(vict, ch)) {
             //set_fighting(ch, vict, true);
-            ch->addCombat(vict, false);
-            vict->addCombat(ch, true);
+//            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                 __FILE__, __LINE__, &(*ch), &(*vict));
+            ch->addCombat(vict, true);
+//            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                 __FILE__, __LINE__, &(*vict), &(*ch));
+            vict->addCombat(ch, false);
+        }
 	} else {
 		send_to_char(ch, "You fail the disarm!\r\n");
 		act("$n tries to disarm you!", FALSE, ch, 0, vict, TO_VICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (IS_NPC(vict) && !vict->numCombatants())
+		if (IS_NPC(vict) && !vict->numCombatants()) {
             //set_fighting(ch, vict, true);
+//            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                 __FILE__, __LINE__, &(*ch), &(*vict));
             ch->addCombat(vict, true);
+//            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                 __FILE__, __LINE__, &(*vict), &(*ch));
             vict->addCombat(ch, false);
+        }
 	}
 }
 

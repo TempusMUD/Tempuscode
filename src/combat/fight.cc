@@ -1924,6 +1924,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							(!IS_MAGE(ch) || attacktype > MAX_SPELLS ||
 								!SPELL_IS_MAGIC(attacktype))) {
 							//set_fighting(ch, victim, TRUE);
+//                            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, true)",
+ //                                __FILE__, __LINE__, &(*ch), &(*victim));
                             ch->addCombat(victim, true);
 						}
 
@@ -1937,14 +1939,20 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					}
 					// make the victim retailiate against the attacker
 					if (ch->findCombat(victim)) {
-						if (!victim->findCombat(ch))
+						if (!victim->findCombat(ch)) {
 							//set_fighting(victim, ch, FALSE);
+//                            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                                 __FILE__, __LINE__, &(*victim), &(*ch));
                             victim->addCombat(ch, false);
+                        }
 					} else {
 						if (!victim->numCombatants() && 
-                            ch->in_room == victim->in_room)
+                            ch->in_room == victim->in_room) {
 //							set_fighting(victim, ch, FALSE);
+//                            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
+//                                 __FILE__, __LINE__, &(*victim), &(*ch));
                             victim->addCombat(ch, false);
+                        }
 					}
 				}
 			}
@@ -2852,7 +2860,7 @@ perform_violence(void)
             for (; li != ch->getCombatList()->end(); ++li) {
                 if (li->getOpponent() == next_combat_list) {
                     hit(ch, li->getOpponent(), TYPE_UNDEFINED);
-                    continue;
+                    break;
                 }
             }
 
