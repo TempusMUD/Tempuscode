@@ -649,7 +649,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 
 		/* Mostly clerics */
-	case SPELL_DISPEL_EVIL:
+/*	case SPELL_DISPEL_EVIL:
 		dam = dice(6, 8) + (level >> 2);
 		if (IS_EVIL(ch)) {
 			victim = ch;
@@ -670,7 +670,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			dam = 0;
 			return 0;
 		}
-		break;
+		break; */
 
 	case SPELL_DISRUPTION:
 		dam = dice(level, 6) + (level << 1);

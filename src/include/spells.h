@@ -825,6 +825,9 @@ ASPELL(spell_call_bird);
 ASPELL(spell_call_reptile);
 ASPELL(spell_call_beast);
 ASPELL(spell_call_predator);
+ASPELL(spell_dispel_evil);
+ASPELL(spell_dispel_good);
+
 
 /* basic magic calling functions */
 

@@ -1264,6 +1264,10 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 			MANUAL_SPELL(spell_call_beast); break;
 		case SPELL_CALL_PREDATOR:
 			MANUAL_SPELL(spell_call_predator); break;
+        case SPELL_DISPEL_EVIL:
+            MANUAL_SPELL(spell_dispel_evil); break;
+        case SPELL_DISPEL_GOOD:
+            MANUAL_SPELL(spell_dispel_good); break;
 		}
 
 	knock_door = NULL;
@@ -2774,13 +2778,13 @@ mag_assign_spells(void)
 		X, X, 90, 60, 3, POS_STANDING, TAR_CHAR_ROOM, FALSE,
 		MAG_MAGIC | MAG_MANUAL);
 
-	spello(SPELL_DISPEL_EVIL, X, 20, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
-		X, 40, 25, 3, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
-		MAG_DIVINE | MAG_DAMAGE | MAG_GOOD);
+	spello(SPELL_DISPEL_EVIL, X, 20, X, X, X, X, X, X, X, X, X, X, X, X, X, X, 
+        X, 40, 25, 3, POS_FIGHTING, TAR_CHAR_ROOM | TAR_OBJ_INV, FALSE,
+		MAG_DIVINE | MAG_MANUAL | MAG_GOOD);
 
-	spello(SPELL_DISPEL_GOOD, X, 20, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
-		X, 40, 25, 3, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
-		MAG_DIVINE | MAG_DAMAGE | MAG_EVIL);
+	spello(SPELL_DISPEL_GOOD, X, 20, X, X, X, X, X, X, X, X, X, X, X, X, X, X, 
+        X, 40, 25, 3, POS_FIGHTING, TAR_CHAR_ROOM | TAR_OBJ_INV, FALSE,
+		MAG_DIVINE | MAG_MANUAL | MAG_EVIL);
 
 	spello(SPELL_DISPEL_MAGIC, 39, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 90, 55, 5, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM,
