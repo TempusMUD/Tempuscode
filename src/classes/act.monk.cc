@@ -304,7 +304,14 @@ ACMD(do_whirlwind)
 		if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80)+GET_DEX(vict)) {
 			dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
 		}
-		bool killedFirst = damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
+        
+        bool killedFirst = false;
+		int my_return_flags = damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
+        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
+            return;
+        } else if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
+            killedFirst = true;
+        }
 		GET_MOVE(ch) -= 3;
 		
 		//attack up to hits-1 more victims at random
@@ -320,8 +327,10 @@ ACMD(do_whirlwind)
 					if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80)+GET_DEX(vict)) {
 						dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
 					}
-					
-					if (damage(ch, newVict, dam, SKILL_WHIRLWIND, -1)) {
+					int my_return_flags = damage(ch, newVict, dam, SKILL_WHIRLWIND, -1);
+                    if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
+                        return;
+                    } else if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
                         combatIter = combatList->begin();
                     }
 					i++;
@@ -341,10 +350,10 @@ ACMD(do_whirlwind)
 					}
 					GET_MOVE(ch) -= 3;
 					int my_return_flags = damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
-                    if (IS_SET(my_return_flags, DAM_VICT_KILLED))
-                        break;
-                    else if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
+                    if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
                         return;
+                    else if (IS_SET(my_return_flags, DAM_VICT_KILLED))
+                        break;
 				}
 			}
 		}
