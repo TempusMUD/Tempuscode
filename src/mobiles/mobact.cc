@@ -4634,6 +4634,7 @@ int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
         return 0;
     } else if ((GET_LEVEL(ch) > 21) && random_fractional_5() &&
         GET_RACE(vict) == RACE_UNDEAD &&
+		!ch->isFighting() &&
         !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
         cast_spell(ch, ch, NULL, SPELL_INVIS_TO_UNDEAD);
         WAIT_STATE(ch, PULSE_VIOLENCE);
