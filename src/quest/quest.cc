@@ -2539,10 +2539,14 @@ do_qcontrol_award( CHAR *ch, char *argument, int com)
     }
    
     if ( (vict = get_char_in_world_by_idnum( idnum ) ) ) {
-	if( !idnum_in_quest( idnum, quest) ){
-	    send_to_char( "No such player in the quest.\r\n", ch);
-	    return;
-	}
+        if( !idnum_in_quest( idnum, quest) ){
+            send_to_char( "No such player in the quest.\r\n", ch);
+            return;
+        }
+        if(!vict->desc) {
+            send_to_char("You can't award quest points to a linkless player.\r\n",ch);
+            return;
+        }
     }
 
     if( ( award <= 0 ) ){
