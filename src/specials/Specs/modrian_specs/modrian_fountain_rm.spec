@@ -6,5 +6,5 @@
 
 SPECIAL(modrian_fountain_rm)
 {
-  return 0;
+	return 0;
 }

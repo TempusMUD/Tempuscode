@@ -20,34 +20,35 @@
 SPECIAL(multi_healer)
 {
 
-  struct Creature *vict = NULL;
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
-  if (cmd)
-    return FALSE;
+	struct Creature *vict = NULL;
+	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+		return 0;
+	if (cmd)
+		return FALSE;
 
-    CreatureList::iterator it = ch->in_room->people.begin();
-    for( ; it != ch->in_room->people.end(); ++it ) {
-    vict = *it;
-    if (ch == vict || IS_NPC(vict) || !number(0, 2) || !CAN_SEE(ch, vict))
-      continue;
-    if (!MODE_OK(vict))
-      continue;
+	CreatureList::iterator it = ch->in_room->people.begin();
+	for (; it != ch->in_room->people.end(); ++it) {
+		vict = *it;
+		if (ch == vict || IS_NPC(vict) || !number(0, 2) || !CAN_SEE(ch, vict))
+			continue;
+		if (!MODE_OK(vict))
+			continue;
 
-    if (IS_POISONED(vict)){
-      cast_spell(ch, vict, 0, SPELL_REMOVE_POISON);
-    }else if (IS_SICK(vict)){
-      cast_spell(ch, vict, 0, SPELL_REMOVE_SICKNESS);
-    }else if (GET_HIT(vict) < GET_MAX_HIT(vict)) {
-      cast_spell(ch, vict, 0,
-                 GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
-                 GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
-                 GET_LEVEL(vict) <= 30 ? SPELL_HEAL : SPELL_GREATER_HEAL);
-    } else if (affected_by_spell(vict, SPELL_BLINDNESS) || 
-             affected_by_spell(vict, SKILL_GOUGE)) {
-    }else{
-      continue;
-    }
-    return 1;
-  }
-  return 0;
+		if (IS_POISONED(vict)) {
+			cast_spell(ch, vict, 0, SPELL_REMOVE_POISON);
+		} else if (IS_SICK(vict)) {
+			cast_spell(ch, vict, 0, SPELL_REMOVE_SICKNESS);
+		} else if (GET_HIT(vict) < GET_MAX_HIT(vict)) {
+			cast_spell(ch, vict, 0,
+				GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
+				GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
+				GET_LEVEL(vict) <= 30 ? SPELL_HEAL : SPELL_GREATER_HEAL);
+		} else if (affected_by_spell(vict, SPELL_BLINDNESS) ||
+			affected_by_spell(vict, SKILL_GOUGE)) {
+		} else {
+			continue;
+		}
+		return 1;
+	}
+	return 0;
 }

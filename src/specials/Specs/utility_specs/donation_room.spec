@@ -6,18 +6,18 @@
 
 SPECIAL(donation_room)
 {
-  if (!CMD_IS("get") && !CMD_IS("take"))
-    return 0;
+	if (!CMD_IS("get") && !CMD_IS("take"))
+		return 0;
 
-  if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
-    send_to_char(ch, "Very funny, asshole.\r\n");
-    return 1;
-  }
+	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
+		send_to_char(ch, "Very funny, asshole.\r\n");
+		return 1;
+	}
 
-  skip_spaces(&argument);
-  if (argument && !strn_cmp(argument, "all", 3)) {
-    send_to_char(ch, "One at a time, please.\r\n");
-    return 1;
-  }
-  return 0;
+	skip_spaces(&argument);
+	if (argument && !strn_cmp(argument, "all", 3)) {
+		send_to_char(ch, "One at a time, please.\r\n");
+		return 1;
+	}
+	return 0;
 }

@@ -4,16 +4,16 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-list<long> implanter_sessions; // ids of players with implant sessions
+list < long >implanter_sessions;	// ids of players with implant sessions
 
-void implanter_implant(Creature *me, Creature *ch, char *args);
-void implanter_extract(Creature *me, Creature *ch, char *args);
-void implanter_repair(Creature *me, Creature *ch, char *args);
-void implanter_redeem(Creature *me, Creature *ch, char *args);
-bool implanter_in_session(Creature *ch);
-void implanter_end_sess(Creature *me, Creature *ch);
-void implanter_show_args(Creature *me, Creature *ch);
-void implanter_show_pos(Creature *me, Creature *ch, obj_data *obj);
+void implanter_implant(Creature * me, Creature * ch, char *args);
+void implanter_extract(Creature * me, Creature * ch, char *args);
+void implanter_repair(Creature * me, Creature * ch, char *args);
+void implanter_redeem(Creature * me, Creature * ch, char *args);
+bool implanter_in_session(Creature * ch);
+void implanter_end_sess(Creature * me, Creature * ch);
+void implanter_show_args(Creature * me, Creature * ch);
+void implanter_show_pos(Creature * me, Creature * ch, obj_data * obj);
 
 const long TICKET_VNUM = 92277;
 
@@ -59,7 +59,7 @@ SPECIAL(implanter)
 
 
 void
-implanter_implant(Creature *me, Creature *ch, char *args)
+implanter_implant(Creature * me, Creature * ch, char *args)
 {
 	extern const int wear_bitvectors[];
 	struct obj_data *implant = NULL;
@@ -127,7 +127,8 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 	}
 
 	if (GET_IMPLANT(ch, pos)) {
-		msg = tmp_sprintf("You are already implanted with %s in that position.",
+		msg =
+			tmp_sprintf("You are already implanted with %s in that position.",
 			GET_IMPLANT(ch, pos)->short_description);
 		perform_tell(me, ch, msg);
 		return;
@@ -139,8 +140,7 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 			if ((GET_EQ(ch, i) && IS_INTERFACE(GET_EQ(ch, i)) &&
 					INTERFACE_TYPE(GET_EQ(ch, i)) == INTERFACE_CHIPS) ||
 				(GET_IMPLANT(ch, i) && IS_INTERFACE(GET_IMPLANT(ch, i)) &&
-					INTERFACE_TYPE(GET_IMPLANT(ch, i)) == INTERFACE_CHIPS))
-			{
+					INTERFACE_TYPE(GET_IMPLANT(ch, i)) == INTERFACE_CHIPS)) {
 				perform_tell(me, ch,
 					"You are already using an interface.\r\n");
 				return;
@@ -151,10 +151,10 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 	if (IS_OBJ_STAT2(implant, ITEM2_SINGULAR)) {
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_IMPLANT(ch, i) != NULL &&
-				GET_OBJ_VNUM(GET_IMPLANT(ch, i)) == GET_OBJ_VNUM(implant))
-			{
-				msg = tmp_sprintf(
-					"You'll have to get %s removed if you want that put in.",
+				GET_OBJ_VNUM(GET_IMPLANT(ch, i)) == GET_OBJ_VNUM(implant)) {
+				msg =
+					tmp_sprintf
+					("You'll have to get %s removed if you want that put in.",
 					GET_IMPLANT(ch, i)->short_description);
 				perform_tell(me, ch, msg);
 				return;
@@ -186,8 +186,7 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 
 	msg = tmp_sprintf("$n implants $p in your %s.", wear_implantpos[pos]);
 	act(msg, FALSE, me, implant, ch, TO_VICT);
-	act("$n implants $p in $N.", FALSE, me, implant, ch,
-		TO_NOTVICT);
+	act("$n implants $p in $N.", FALSE, me, implant, ch, TO_NOTVICT);
 
 	GET_HIT(ch) = 1;
 	GET_MOVE(ch) = 1;
@@ -203,7 +202,7 @@ implanter_implant(Creature *me, Creature *ch, char *args)
 }
 
 void
-implanter_extract(Creature *me, Creature *ch, char *args)
+implanter_extract(Creature * me, Creature * ch, char *args)
 {
 	struct obj_data *implant = NULL, *obj = NULL;
 	char *targ_str, *obj_str, *pos_str, *msg;
@@ -247,12 +246,12 @@ implanter_extract(Creature *me, Creature *ch, char *args)
 
 	if (!obj) {
 		if (!*pos_str) {
-			perform_tell(me, ch,
-				"Extract an implant from what position?");
+			perform_tell(me, ch, "Extract an implant from what position?");
 			return;
 		}
 		if ((pos = search_block(pos_str, wear_implantpos, 0)) < 0) {
-			msg = tmp_sprintf("'%s' is not a valid implant position.", pos_str);
+			msg =
+				tmp_sprintf("'%s' is not a valid implant position.", pos_str);
 			perform_tell(me, ch, msg);
 			return;
 		}
@@ -288,10 +287,10 @@ implanter_extract(Creature *me, Creature *ch, char *args)
 		GET_CASH(ch) -= cost;
 
 	if (!obj) {
-		msg = tmp_sprintf("$n extracts $p from your %s.", wear_implantpos[pos]);
+		msg =
+			tmp_sprintf("$n extracts $p from your %s.", wear_implantpos[pos]);
 		act(msg, FALSE, me, implant, ch, TO_VICT);
-		act("$n extracts $p from $N.", FALSE, me, implant, ch,
-			TO_NOTVICT);
+		act("$n extracts $p from $N.", FALSE, me, implant, ch, TO_NOTVICT);
 
 		obj_to_char((implant = unequip_char(ch, pos, MODE_IMPLANT)), ch);
 		SET_BIT(GET_OBJ_WEAR(implant), ITEM_WEAR_TAKE);
@@ -300,8 +299,7 @@ implanter_extract(Creature *me, Creature *ch, char *args)
 		WAIT_STATE(ch, 10 RL_SEC);
 		save_char(ch, NULL);
 	} else {
-		act("$n extracts $p from $P.", FALSE, me, implant, obj,
-			TO_ROOM);
+		act("$n extracts $p from $P.", FALSE, me, implant, obj, TO_ROOM);
 		obj_from_obj(implant);
 		SET_BIT(GET_OBJ_WEAR(implant), ITEM_WEAR_TAKE);
 		obj_to_char(implant, ch);
@@ -312,7 +310,7 @@ implanter_extract(Creature *me, Creature *ch, char *args)
 }
 
 void
-implanter_repair(Creature *me, Creature *ch, char *args)
+implanter_repair(Creature * me, Creature * ch, char *args)
 {
 	struct obj_data *implant = NULL, *proto_implant = NULL;
 	char *obj_str, *pos_str, *msg;
@@ -329,13 +327,11 @@ implanter_repair(Creature *me, Creature *ch, char *args)
 	}
 
 	if (!*pos_str) {
-		perform_tell(me, ch,
-			"Repair an implant in what position?");
+		perform_tell(me, ch, "Repair an implant in what position?");
 		return;
 	}
 	if ((pos = search_block(pos_str, wear_implantpos, 0)) < 0) {
-		msg = tmp_sprintf("'%s' is not a valid implant position.",
-			pos_str);
+		msg = tmp_sprintf("'%s' is not a valid implant position.", pos_str);
 		perform_tell(me, ch, msg);
 		return;
 	}
@@ -358,7 +354,8 @@ implanter_repair(Creature *me, Creature *ch, char *args)
 	}
 
 	if (GET_OBJ_DAM(implant) == GET_OBJ_MAX_DAM(implant)) {
-		perform_tell(me, ch, "Don't waste my time! It's in perfectly good condition.");
+		perform_tell(me, ch,
+			"Don't waste my time! It's in perfectly good condition.");
 		return;
 	}
 
@@ -369,7 +366,6 @@ implanter_repair(Creature *me, Creature *ch, char *args)
 		perform_tell(me, ch, msg);
 		return;
 	}
-
 	// implant repairs cost 1.5 the amount of insertion/extraction
 	cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) >> 1;
 	if (!IS_CYBORG(ch))
@@ -387,11 +383,11 @@ implanter_repair(Creature *me, Creature *ch, char *args)
 		GET_CASH(ch) -= cost;
 
 	act("$n repairs $p.", FALSE, me, implant, ch, TO_VICT);
-	act("$n repairs $p inside $N.", FALSE, me, implant, ch,
-		TO_NOTVICT);
-	
+	act("$n repairs $p inside $N.", FALSE, me, implant, ch, TO_NOTVICT);
+
 	if (IS_OBJ_STAT2(implant, ITEM2_BROKEN)) {
-		GET_OBJ_MAX_DAM(implant) -= ((GET_OBJ_MAX_DAM(implant) * 15) / 100) + 1;
+		GET_OBJ_MAX_DAM(implant) -=
+			((GET_OBJ_MAX_DAM(implant) * 15) / 100) + 1;
 		REMOVE_BIT(GET_OBJ_EXTRA2(implant), ITEM2_BROKEN);
 	}
 	GET_OBJ_DAM(implant) = GET_OBJ_MAX_DAM(implant);
@@ -403,10 +399,13 @@ implanter_repair(Creature *me, Creature *ch, char *args)
 
 	return;
 }
-void implanter_redeem(Creature *me, Creature *ch, char *args)
+
+void
+implanter_redeem(Creature * me, Creature * ch, char *args)
 {
 	if (implanter_in_session(ch)) {
-		perform_tell(me, ch, "You've already redeemed your implanting session!");
+		perform_tell(me, ch,
+			"You've already redeemed your implanting session!");
 		return;
 	}
 
@@ -436,20 +435,21 @@ void implanter_redeem(Creature *me, Creature *ch, char *args)
 
 	implanter_sessions.push_back(GET_IDNUM(ch));
 	perform_tell(me, ch, "Alright.  So ya got connections.");
-	perform_tell(me, ch, "Act like you're buyin' stuff so I won't get in trouble, right?");
+	perform_tell(me, ch,
+		"Act like you're buyin' stuff so I won't get in trouble, right?");
 	perform_tell(me, ch, "I'll only do this for ya until ya leave.");
-	
+
 	mudlog(LVL_AMBASSADOR, BRF, true,
 		"Implant session redeemed by %s", GET_NAME(ch));
 }
 
 bool
-implanter_in_session(Creature *ch)
+implanter_in_session(Creature * ch)
 {
 	if (implanter_sessions.empty())
 		return false;
 
-	list<long>::iterator it;
+	list < long >::iterator it;
 
 	it = implanter_sessions.begin();
 	while (it != implanter_sessions.end())
@@ -460,32 +460,30 @@ implanter_in_session(Creature *ch)
 	return false;
 }
 
-void implanter_end_sess(Creature *me, Creature *ch)
+void
+implanter_end_sess(Creature * me, Creature * ch)
 {
 	implanter_sessions.remove(GET_IDNUM(ch));
 }
 
 void
-implanter_show_args(Creature *me, Creature *ch)
+implanter_show_args(Creature * me, Creature * ch)
 {
 	perform_tell(me, ch, "buy implant <implant> <position> or");
-	perform_tell(me, ch,
-		"buy extract <'me' | object> <implant> [pos] or");
-	perform_tell(me, ch,
-		"buy repair <implant> [pos] or");
-	perform_tell(me, ch,
-		"redeem < ticket | qpoint >");
+	perform_tell(me, ch, "buy extract <'me' | object> <implant> [pos] or");
+	perform_tell(me, ch, "buy repair <implant> [pos] or");
+	perform_tell(me, ch, "redeem < ticket | qpoint >");
 	return;
 }
 
 void
-implanter_show_pos(Creature *me, Creature *ch, obj_data *obj)
+implanter_show_pos(Creature * me, Creature * ch, obj_data * obj)
 {
 	int pos;
 	bool not_first = false;
 
 	strcpy(buf, "You can implant it in these positions: ");
-	for (pos = 0; wear_eqpos[pos][0] != '\n'; pos++ )
+	for (pos = 0; wear_eqpos[pos][0] != '\n'; pos++)
 		if (!ILLEGAL_IMPLANTPOS(pos) && CAN_WEAR(obj, wear_bitvectors[pos])) {
 			if (not_first)
 				strcat(buf, ", ");
@@ -494,6 +492,6 @@ implanter_show_pos(Creature *me, Creature *ch, obj_data *obj)
 
 			strcat(buf, wear_eqpos[pos]);
 		}
-	
+
 	perform_tell(me, ch, buf);
 }

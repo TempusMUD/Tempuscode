@@ -3793,7 +3793,7 @@ do_show_stats(struct Creature *ch)
 }
 
 void
-show_wizcommands(CHAR * ch)
+show_wizcommands(Creature *ch)
 {
 	if (IS_PC(ch))
 		Security::sendAvailableCommands(ch, GET_IDNUM(ch));
@@ -3802,7 +3802,7 @@ show_wizcommands(CHAR * ch)
 }
 
 void
-show_player(CHAR * ch, char *value)
+show_player(Creature *ch, char *value)
 {
 	struct char_file_u vbuf;
 	struct rent_info rent;
@@ -3928,7 +3928,7 @@ show_player(CHAR * ch, char *value)
 }
 
 void
-show_multi(CHAR * ch, char *arg)
+show_multi(Creature *ch, char *arg)
 {
 	struct char_file_u *whole_file, *cur_pl;
 	struct char_file_u chdata;
@@ -3987,7 +3987,7 @@ show_multi(CHAR * ch, char *arg)
 }
 
 void
-show_zoneusage(CHAR * ch, char *value)
+show_zoneusage(Creature *ch, char *value)
 {
 	int i;
 	struct zone_data *zone;
@@ -4015,7 +4015,7 @@ show_zoneusage(CHAR * ch, char *value)
 }
 
 void
-show_topzones(CHAR * ch, char *value)
+show_topzones(Creature *ch, char *value)
 {
 	int i, j, num_zones = 50;
 	struct zone_data *zone, **topzones = NULL;
@@ -4065,9 +4065,9 @@ show_topzones(CHAR * ch, char *value)
 }
 
 void
-show_mobkills(CHAR * ch, char *value, char *arg)
+show_mobkills(Creature *ch, char *value, char *arg)
 {
-	CHAR *mob = NULL;
+	Creature *mob = NULL;
 	float ratio;
 	float thresh;
 	int i = 0;
@@ -4108,7 +4108,7 @@ show_mobkills(CHAR * ch, char *value, char *arg)
 #define MLEVELS_USAGE "Usage: show mlevels <real | proto> [remort] [expand]\r\n"
 
 void
-show_mlevels(CHAR * ch, char *value, char *arg)
+show_mlevels(Creature *ch, char *value, char *arg)
 {
 
 	int remort = 0;
@@ -4117,7 +4117,7 @@ show_mlevels(CHAR * ch, char *value, char *arg)
 	int i, j;
 	int max = 0;
 	int to = 0;
-	CHAR *mob = NULL;
+	Creature *mob = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	if (!*value) {
 		send_to_char(ch, MLEVELS_USAGE);

@@ -619,7 +619,7 @@ path_activity(void)
 			continue;
 		}
 
-		if (o->type == PMOBILE && (ch = (CHAR *) o->object) &&
+		if (o->type == PMOBILE && (ch = (Creature *) o->object) &&
 			((FIGHTING(ch) || GET_MOB_WAIT(ch) > 0)))
 			continue;
 
@@ -630,7 +630,7 @@ path_activity(void)
 
 			room = real_room(o->phead->path[o->pos].data);
 			if ((o->type == PMOBILE) && room) {
-				ch = (CHAR *) o->object;
+				ch = (Creature *) o->object;
 				if ((room == ch->in_room) && (o->phead->length != 1)) {
 					PATH_MOVE(o);
 					break;

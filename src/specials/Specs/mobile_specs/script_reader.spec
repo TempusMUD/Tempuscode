@@ -17,88 +17,85 @@
 
 SPECIAL(mob_read_script)
 {
-    struct obj_data *obj = GET_IMPLANT( ch, WEAR_HOLD );
-    char *desc = NULL, *c, buf[EXDSCR_LENGTH];
-    int which = 0;
-    int found = 0;
-    if(spec_mode != SPECIAL_TICK) return FALSE;
+	struct obj_data *obj = GET_IMPLANT(ch, WEAR_HOLD);
+	char *desc = NULL, *c, buf[EXDSCR_LENGTH];
+	int which = 0;
+	int found = 0;
+	if (spec_mode != SPECIAL_TICK)
+		return FALSE;
 
-    if ( !SCRIPT_FLAGGED( MODE_ALONE ) ) {
-        CreatureList::iterator it = ch->in_room->people.begin();
-        for( ; it != ch->in_room->people.end(); ++it ) {
-            if ( (*it)->desc && CAN_SEE( ch, (*it) ) ) {
-                found = 1;
-                break;
-            }
-        }
-    
-        if ( !found ) {
-            SCRIPT_COUNTER = 0;
-            CUR_WAIT = 0;
-            return 0;
-        }
-    }
+	if (!SCRIPT_FLAGGED(MODE_ALONE)) {
+		CreatureList::iterator it = ch->in_room->people.begin();
+		for (; it != ch->in_room->people.end(); ++it) {
+			if ((*it)->desc && CAN_SEE(ch, (*it))) {
+				found = 1;
+				break;
+			}
+		}
 
-    if ( CUR_WAIT > 0 ) {
-        CUR_WAIT--;
-        return 0;
-    }
-    
-    if ( TOP_MESSAGE < 0 )
-        return 0;
+		if (!found) {
+			SCRIPT_COUNTER = 0;
+			CUR_WAIT = 0;
+			return 0;
+		}
+	}
 
-    if ( SCRIPT_FLAGGED( MODE_RANDOM ) ) {
+	if (CUR_WAIT > 0) {
+		CUR_WAIT--;
+		return 0;
+	}
 
-        which = number( 0, TOP_MESSAGE );
-        sprintf( buf, "%d", which );
+	if (TOP_MESSAGE < 0)
+		return 0;
 
-        CUR_WAIT = WAIT_TIME;
+	if (SCRIPT_FLAGGED(MODE_RANDOM)) {
 
-        if ( which == LAST_SCRIPT_ACTION )
-            return 0;
+		which = number(0, TOP_MESSAGE);
+		sprintf(buf, "%d", which);
 
-        if ( ( desc = find_exdesc( buf, obj->ex_description, 1 ) ) ) {
-            strcpy( buf, desc );
-            if ( ( c = strrchr( buf, '\n' ) ) )
-                *c = '\0';
-            if ( ( c = strrchr( buf, '\r' ) ) )
-                *c = '\0';
-            command_interpreter( ch, buf );
-            LAST_SCRIPT_ACTION = which;
-            return 1;
-        }
-        return 0;
-    }
+		CUR_WAIT = WAIT_TIME;
 
-    /* ordered mode */
-  
-    if ( SCRIPT_COUNTER > TOP_MESSAGE ) {
+		if (which == LAST_SCRIPT_ACTION)
+			return 0;
 
-        SCRIPT_COUNTER = 0;
-        CUR_WAIT = WAIT_TIME << 1;
+		if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
+			strcpy(buf, desc);
+			if ((c = strrchr(buf, '\n')))
+				*c = '\0';
+			if ((c = strrchr(buf, '\r')))
+				*c = '\0';
+			command_interpreter(ch, buf);
+			LAST_SCRIPT_ACTION = which;
+			return 1;
+		}
+		return 0;
+	}
 
-        return 0;
-    }
+	/* ordered mode */
 
-    sprintf( buf, "%d", SCRIPT_COUNTER );
+	if (SCRIPT_COUNTER > TOP_MESSAGE) {
 
-    CUR_WAIT = WAIT_TIME;
-    SCRIPT_COUNTER++;
+		SCRIPT_COUNTER = 0;
+		CUR_WAIT = WAIT_TIME << 1;
 
-    if ( ( desc = find_exdesc( buf, obj->ex_description,1 ) ) ) {
-        strcpy( buf, desc );
-        if ( ( c = strrchr( buf, '\n' ) ) )
-            *c = '\0';
-        if ( ( c = strrchr( buf, '\r' ) ) )
-            *c = '\0';
-    
-        command_interpreter( ch, buf );
-        return 1;
-    } 
-  
-    return 0;
+		return 0;
+	}
+
+	sprintf(buf, "%d", SCRIPT_COUNTER);
+
+	CUR_WAIT = WAIT_TIME;
+	SCRIPT_COUNTER++;
+
+	if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
+		strcpy(buf, desc);
+		if ((c = strrchr(buf, '\n')))
+			*c = '\0';
+		if ((c = strrchr(buf, '\r')))
+			*c = '\0';
+
+		command_interpreter(ch, buf);
+		return 1;
+	}
+
+	return 0;
 }
-    
-    
-  
-  

@@ -63,23 +63,26 @@ SPECIAL(unspecializer)
 	prac_cost = GET_WEAP_SPEC(ch, i).level;
 	cash_cost = GET_WEAP_SPEC(ch, i).level * 200000;
 
-	msg = tmp_sprintf(
-		"The service of complete neural erasure of the weapon specialization of\r\n"
+	msg =
+		tmp_sprintf
+		("The service of complete neural erasure of the weapon specialization of\r\n"
 		"'%s' will cost you %d pracs and %d credits....\r\n",
 		o_proto->short_description, prac_cost, cash_cost);
 	perform_tell(self, ch, msg);
 
 	if (GET_PRACTICES(ch) < prac_cost) {
-		msg = tmp_sprintf(
-			"You don't have enough spare neurons!  It costs %d pracs, you know\r\n",
+		msg =
+			tmp_sprintf
+			("You don't have enough spare neurons!  It costs %d pracs, you know\r\n",
 			prac_cost);
 		perform_tell(self, ch, msg);
 		return 1;
 	}
 
 	if (GET_CASH(ch) < cash_cost) {
-		msg = tmp_sprintf(
-			"You don't have enough cash!  I need %d credits for the job.\r\n",
+		msg =
+			tmp_sprintf
+			("You don't have enough cash!  I need %d credits for the job.\r\n",
 			cash_cost);
 		perform_tell(self, ch, msg);
 		return 1;

@@ -2372,7 +2372,7 @@ create_money(int amount, int mode)
 
 // is_wierd helps to ignore 'special' items that shouldnt be there
 int
-is_wierd(CHAR * ch, struct obj_data *obj, CHAR * vict)
+is_wierd(Creature *ch, struct obj_data *obj, Creature *vict)
 {
 	if (PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		return 0;

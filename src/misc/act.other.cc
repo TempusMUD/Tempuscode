@@ -59,7 +59,7 @@ void weather_change(void);
 void Crash_rentsave(struct Creature *ch, int cost, int rentcode);
 int Crash_rentcost(struct Creature *ch, int display, int factor);
 void Crash_cursesave(struct Creature *ch);
-int drag_object(CHAR * ch, struct obj_data *obj, char *argument);
+int drag_object(Creature *ch, struct obj_data *obj, char *argument);
 void ice_room(struct room_data *room, int amount);
 ACMD(do_drag_char);
 

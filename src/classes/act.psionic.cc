@@ -243,7 +243,7 @@ int
 mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 {
 
-	CHAR *vict = 0;
+	Creature *vict = 0;
 
 	if (!FIGHTING(ch))
 		return 0;

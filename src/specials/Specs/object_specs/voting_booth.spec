@@ -6,17 +6,15 @@
 
 #include "boards.h"
 
-struct voting_option
-	{
+struct voting_option {
 	struct voting_option *next;
 	char idx;
 	char *descrip;
 	int count;
 	long weight;
-	};
+};
 
-struct voting_poll
-	{
+struct voting_poll {
 	char *header;
 	char *descrip;
 	time_t creation_time;
@@ -25,7 +23,7 @@ struct voting_poll
 	struct voting_poll *next;
 	struct voting_option *options;
 	struct memory_rec_struct *memory;
-	};
+};
 
 struct voting_poll *voting_poll_list = NULL;
 struct voting_poll *voting_new_poll = NULL;
@@ -38,28 +36,27 @@ static int VOTING_CMD_REMOVE;
 int voting_loaded = 0;
 
 void
-voting_booth_save(void) {
+voting_booth_save(void)
+{
 	FILE *ouf;
 	struct voting_poll *poll;
 	struct voting_option *opt;
 	struct memory_rec_struct *mem;
-	
+
 	if (!voting_poll_list)
 		return;
 
-	ouf = fopen("etc/voting.booth","w");
-	for (poll = voting_poll_list;poll;poll = poll->next) {
+	ouf = fopen("etc/voting.booth", "w");
+	for (poll = voting_poll_list; poll; poll = poll->next) {
 		fprintf(ouf, "# %ld %d %ld\n",
-			poll->creation_time,
-			poll->count,
-			poll->weight);
-		fprintf(ouf,"%s~\n",poll->header);
-		fprintf(ouf, "%s~\n",poll->descrip);
-		for (opt = poll->options;opt;opt = opt->next) {
+			poll->creation_time, poll->count, poll->weight);
+		fprintf(ouf, "%s~\n", poll->header);
+		fprintf(ouf, "%s~\n", poll->descrip);
+		for (opt = poll->options; opt; opt = opt->next) {
 			fprintf(ouf, "O %d %ld\n", opt->count, opt->weight);
-			fprintf(ouf, "%s~\n",opt->descrip);
+			fprintf(ouf, "%s~\n", opt->descrip);
 		}
-		for (mem = poll->memory;mem;mem = mem->next) {
+		for (mem = poll->memory; mem; mem = mem->next) {
 			fprintf(ouf, "M %ld\n", mem->id);
 		}
 	}
@@ -67,14 +64,15 @@ voting_booth_save(void) {
 }
 
 void
-voting_booth_load(void) {
+voting_booth_load(void)
+{
 	struct voting_poll *prev_poll = NULL;
-	struct voting_option *new_opt,*prev_opt = NULL;
-	struct memory_rec_struct *new_mem,*prev_mem = NULL;
+	struct voting_option *new_opt, *prev_opt = NULL;
+	struct memory_rec_struct *new_mem, *prev_mem = NULL;
 	FILE *inf;
 	char opt_idx = 'a';
 
-	inf = fopen("etc/voting.booth","r");
+	inf = fopen("etc/voting.booth", "r");
 	if (!inf) {
 		slog("/etc/voting.booth not found.");
 		return;
@@ -84,8 +82,7 @@ voting_booth_load(void) {
 			CREATE(voting_new_poll, struct voting_poll, 1);
 			sscanf(buf, "# %ld %d %ld\n",
 				&voting_new_poll->creation_time,
-				&voting_new_poll->count,
-				&voting_new_poll->weight);
+				&voting_new_poll->count, &voting_new_poll->weight);
 			voting_new_poll->header = fread_string(inf, buf2);
 			voting_new_poll->descrip = fread_string(inf, buf2);
 			prev_opt = NULL;
@@ -98,9 +95,7 @@ voting_booth_load(void) {
 			prev_poll = voting_new_poll;
 		} else if ('O' == buf[0]) {
 			CREATE(new_opt, struct voting_option, 1);
-			sscanf(buf, "O %d %ld",
-				&new_opt->count,
-				&new_opt->weight);
+			sscanf(buf, "O %d %ld", &new_opt->count, &new_opt->weight);
 			new_opt->descrip = fread_string(inf, buf2);
 			new_opt->idx = opt_idx++;
 			if (prev_opt)
@@ -124,7 +119,8 @@ voting_booth_load(void) {
 }
 
 void
-voting_booth_read(Creature *ch, struct obj_data *obj, char *argument) {
+voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
+{
 	struct voting_poll *poll;
 	struct voting_option *opt;
 	struct memory_rec_struct *memory;
@@ -147,44 +143,43 @@ voting_booth_read(Creature *ch, struct obj_data *obj, char *argument) {
 		send_to_char(ch, "That poll does not exist.\r\n");
 		return;
 	}
-	
+
 	memory = poll->memory;
 	while (memory && memory->next && memory->id != GET_IDNUM(ch))
 		memory = memory->next;
 
-	for (opt = poll->options;opt;opt = opt->next) {
+	for (opt = poll->options; opt; opt = opt->next) {
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-			if ( opt->count != poll->count)
+			if (opt->count != poll->count)
 				sprintf(buf, "%3d/%4ld (%2d%%/%2ld%%) %c) %s",
-					opt->count,opt->weight,
-					((poll->count) ? ((opt->count * 100)/poll->count):0),
-					((poll->weight) ? ((opt->weight * 100)/poll->weight):0),
-					opt->idx,opt->descrip);
+					opt->count, opt->weight,
+					((poll->count) ? ((opt->count * 100) / poll->count) : 0),
+					((poll->weight) ? ((opt->weight * 100) /
+							poll->weight) : 0), opt->idx, opt->descrip);
 			else
 				sprintf(buf, "%3d/%4ld (all/all) %c) %s",
-					opt->count,opt->weight,
-					opt->idx,opt->descrip);
+					opt->count, opt->weight, opt->idx, opt->descrip);
 		} else if (memory && memory->id == GET_IDNUM(ch)) {
-			if ( opt->count != poll->count)
+			if (opt->count != poll->count)
 				sprintf(buf, "(%2d%%) %c) %s",
-					((poll->count) ? ((opt->count * 100)/poll->count):0),
-					opt->idx,opt->descrip);
+					((poll->count) ? ((opt->count * 100) / poll->count) : 0),
+					opt->idx, opt->descrip);
 			else
-				sprintf(buf, "(all) %c) %s",
-					opt->idx,opt->descrip);
+				sprintf(buf, "(all) %c) %s", opt->idx, opt->descrip);
 		} else
-			send_to_char(ch, "      %c) %s",opt->idx,opt->descrip);
+			send_to_char(ch, "      %c) %s", opt->idx, opt->descrip);
 	}
 }
 
 void
-voting_booth_vote(Creature *ch, struct obj_data *obj, char *argument) {
+voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
+{
 	struct voting_poll *poll;
 	struct voting_option *opt;
-	struct memory_rec_struct *memory,*new_memory;
+	struct memory_rec_struct *memory, *new_memory;
 	char poll_str[MAX_INPUT_LENGTH];
 	char answer_str[MAX_INPUT_LENGTH];
-	int poll_num,answer;
+	int poll_num, answer;
 
 	if (PLR_FLAGGED(ch, PLR_NOPOST)) {
 		send_to_char(ch, "You cannot vote.\r\n");
@@ -213,7 +208,7 @@ voting_booth_vote(Creature *ch, struct obj_data *obj, char *argument) {
 		send_to_char(ch, "That poll does not exist.\r\n");
 		return;
 	}
-	
+
 	memory = poll->memory;
 	while (memory && memory->next && memory->id != GET_IDNUM(ch))
 		memory = memory->next;
@@ -230,7 +225,8 @@ voting_booth_vote(Creature *ch, struct obj_data *obj, char *argument) {
 
 	answer = *answer_str;
 	if (!answer) {
-		send_to_char(ch, "Specify your answer with the letter of your choice..\r\n");
+		send_to_char(ch,
+			"Specify your answer with the letter of your choice..\r\n");
 		return;
 	}
 
@@ -238,24 +234,28 @@ voting_booth_vote(Creature *ch, struct obj_data *obj, char *argument) {
 	while (opt && opt->idx != answer)
 		opt = opt->next;
 
-	if ( !opt ) {
-		send_to_char(ch, "Option %s for poll '%s' does not exist.\r\n",answer_str,
-			poll->header);
+	if (!opt) {
+		send_to_char(ch, "Option %s for poll '%s' does not exist.\r\n",
+			answer_str, poll->header);
 		return;
 	}
 
 	opt->count++;
-	opt->weight += GET_LEVEL(ch) + ((GET_LEVEL(ch) < LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50):0);
+	opt->weight +=
+		GET_LEVEL(ch) + ((GET_LEVEL(ch) <
+			LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50) : 0);
 	poll->count++;
-	poll->weight += GET_LEVEL(ch) + ((GET_LEVEL(ch) < LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50):0);
-	
-	send_to_char(ch, "You have voted for %c) %s",opt->idx,opt->descrip);
+	poll->weight +=
+		GET_LEVEL(ch) + ((GET_LEVEL(ch) <
+			LVL_AMBASSADOR) ? (GET_REMORT_GEN(ch) * 50) : 0);
+
+	send_to_char(ch, "You have voted for %c) %s", opt->idx, opt->descrip);
 	act("$n votes on $P.", TRUE, ch, 0, obj, TO_ROOM);
 
 	CREATE(new_memory, struct memory_rec_struct, 1);
 	if (memory)
 		memory->next = new_memory;
-	else	
+	else
 		poll->memory = new_memory;
 	new_memory->next = NULL;
 	new_memory->id = GET_IDNUM(ch);
@@ -264,7 +264,8 @@ voting_booth_vote(Creature *ch, struct obj_data *obj, char *argument) {
 }
 
 void
-voting_booth_list(Creature *ch, struct obj_data *obj) {
+voting_booth_list(Creature * ch, struct obj_data *obj)
+{
 	struct voting_poll *poll;
 	int poll_count = 0;
 
@@ -274,8 +275,10 @@ voting_booth_list(Creature *ch, struct obj_data *obj) {
 		poll = poll->next;
 	}
 
-	send_to_char(ch, "This is a voting booth.  Usage: READ <poll #>, VOTE <poll #> <answer>\r\n");
-	send_to_char(ch, "You can look at polls after voting to see current poll results.\r\n");
+	send_to_char(ch,
+		"This is a voting booth.  Usage: READ <poll #>, VOTE <poll #> <answer>\r\n");
+	send_to_char(ch,
+		"You can look at polls after voting to see current poll results.\r\n");
 
 	poll = voting_poll_list;
 
@@ -296,10 +299,11 @@ voting_booth_list(Creature *ch, struct obj_data *obj) {
 }
 
 void
-voting_booth_remove(Creature *ch, struct obj_data *obj, char *argument) {
-	struct voting_poll *poll,*prev_poll;
-	struct voting_option *opt,*next_opt;
-	struct memory_rec_struct *mem,*next_mem;
+voting_booth_remove(Creature * ch, struct obj_data *obj, char *argument)
+{
+	struct voting_poll *poll, *prev_poll;
+	struct voting_option *opt, *next_opt;
+	struct memory_rec_struct *mem, *next_mem;
 	int poll_num;
 
 	skip_spaces(&argument);
@@ -316,7 +320,7 @@ voting_booth_remove(Creature *ch, struct obj_data *obj, char *argument) {
 	} else {
 		prev_poll = voting_poll_list;
 
-		poll_num--;	// stop at the prev_poll before
+		poll_num--;				// stop at the prev_poll before
 		while (prev_poll && --poll_num)
 			prev_poll = prev_poll->next;
 
@@ -328,13 +332,13 @@ voting_booth_remove(Creature *ch, struct obj_data *obj, char *argument) {
 		poll = prev_poll->next;
 		prev_poll->next = poll->next;
 	}
-	
-	for (mem = poll->memory;mem;mem = next_mem) {
+
+	for (mem = poll->memory; mem; mem = next_mem) {
 		next_mem = mem->next;
 		free(mem);
 	}
 
-	for (opt = poll->options;opt;opt = next_opt) {
+	for (opt = poll->options; opt; opt = next_opt) {
 		next_opt = opt->next;
 		free(opt->descrip);
 		free(opt);
@@ -347,7 +351,8 @@ voting_booth_remove(Creature *ch, struct obj_data *obj, char *argument) {
 }
 
 void
-voting_booth_write(Creature *ch, struct obj_data *obj, char *argument) {
+voting_booth_write(Creature * ch, struct obj_data *obj, char *argument)
+{
 	struct mail_recipient_data *n_mail_to;
 
 	skip_spaces(&argument);
@@ -355,8 +360,8 @@ voting_booth_write(Creature *ch, struct obj_data *obj, char *argument) {
 		send_to_char(ch, "We must have a headline!\r\n");
 		return;
 	}
-	
-	CREATE(voting_new_poll, struct voting_poll,1);
+
+	CREATE(voting_new_poll, struct voting_poll, 1);
 	voting_new_poll->next = NULL;
 	voting_new_poll->header = str_dup(argument);
 	voting_new_poll->descrip = NULL;
@@ -367,9 +372,7 @@ voting_booth_write(Creature *ch, struct obj_data *obj, char *argument) {
 	voting_new_poll->memory = NULL;
 
 	start_text_editor(ch->desc,
-		&(voting_new_poll->descrip),
-		true,
-		MAX_MESSAGE_LENGTH);
+		&(voting_new_poll->descrip), true, MAX_MESSAGE_LENGTH);
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 
 	act("$n starts to add a poll.", TRUE, ch, 0, 0, TO_ROOM);
@@ -380,16 +383,17 @@ voting_booth_write(Creature *ch, struct obj_data *obj, char *argument) {
 }
 
 void
-voting_add_poll( void ) {
+voting_add_poll(void)
+{
 	struct voting_poll *prev_poll;
-	struct voting_option *prev_option,*new_option;
-	char *read_pt,*line_pt;
+	struct voting_option *prev_option, *new_option;
+	char *read_pt, *line_pt;
 	int reading_desc = 1;
 	char opt_idx = 'a';
 	char *main_buf;
 
-	if ( !voting_new_poll->descrip ) {
-		slog( "ERROR: voting_add_poll called with NULL buffer" );
+	if (!voting_new_poll->descrip) {
+		slog("ERROR: voting_add_poll called with NULL buffer");
 		return;
 	}
 
@@ -404,10 +408,10 @@ voting_add_poll( void ) {
 	main_buf = voting_new_poll->descrip;
 	read_pt = voting_new_poll->descrip;
 	buf[0] = '\0';
-	while ( *read_pt ) {
+	while (*read_pt) {
 		line_pt = read_pt;
 
-		while ( *read_pt && *read_pt != '\r' && *read_pt != '\n' )
+		while (*read_pt && *read_pt != '\r' && *read_pt != '\n')
 			read_pt++;
 		if (*read_pt) {
 			*read_pt++ = '\0';
@@ -434,12 +438,12 @@ voting_add_poll( void ) {
 				}
 			}
 
-		strcat(buf, line_pt);
-		strcat(buf, "\r\n");
+			strcat(buf, line_pt);
+			strcat(buf, "\r\n");
 
-		while (*read_pt && ('\r' == *read_pt || '\n' == *read_pt))
-			read_pt++;
-		line_pt = read_pt;
+			while (*read_pt && ('\r' == *read_pt || '\n' == *read_pt))
+				read_pt++;
+			line_pt = read_pt;
 		}
 	}
 
@@ -465,7 +469,7 @@ voting_add_poll( void ) {
 	if (!prev_poll)
 		voting_poll_list = voting_new_poll;
 	else {
-		while ( prev_poll->next )
+		while (prev_poll->next)
 			prev_poll = prev_poll->next;
 		prev_poll->next = voting_new_poll;
 	}
@@ -476,7 +480,8 @@ voting_add_poll( void ) {
 }
 
 void
-voting_booth_init( void ) {
+voting_booth_init(void)
+{
 	struct voting_poll *cur_poll;
 	struct voting_option *cur_opt;
 	struct memory_rec_struct *cur_mem;
@@ -495,17 +500,17 @@ voting_booth_init( void ) {
 
 	// integrity check
 	poll_idx = 0;
-	for (cur_poll = voting_poll_list;cur_poll;cur_poll = cur_poll->next) {
+	for (cur_poll = voting_poll_list; cur_poll; cur_poll = cur_poll->next) {
 		poll_idx++;
 		vote_check = 0;
-		for (cur_mem = cur_poll->memory;cur_mem;cur_mem = cur_mem->next)
+		for (cur_mem = cur_poll->memory; cur_mem; cur_mem = cur_mem->next)
 			vote_check++;
 		if (vote_check != cur_poll->count) {
 			slog("ERROR: memory mismatch for voting booth %i", poll_idx);
 		}
 		vote_check = 0;
 		weight_check = 0;
-		for (cur_opt = cur_poll->options;cur_opt;cur_opt = cur_opt->next) {
+		for (cur_opt = cur_poll->options; cur_opt; cur_opt = cur_opt->next) {
 			vote_check += cur_opt->count;
 			weight_check += cur_opt->weight;
 		}
@@ -518,8 +523,9 @@ voting_booth_init( void ) {
 	}
 }
 
-SPECIAL(voting_booth) {
-	struct obj_data *obj = (struct obj_data *) me;
+SPECIAL(voting_booth)
+{
+	struct obj_data *obj = (struct obj_data *)me;
 
 	if (!voting_loaded) {
 		voting_booth_init();
@@ -528,33 +534,33 @@ SPECIAL(voting_booth) {
 
 	if (!ch->desc)
 		return 0;
-	
+
 	if (cmd != VOTING_CMD_VOTE && cmd != VOTING_CMD_LOOK &&
 		cmd != VOTING_CMD_EXAMINE && cmd != VOTING_CMD_REMOVE &&
 		cmd != VOTING_CMD_READ && cmd != VOTING_CMD_WRITE)
 		return 0;
-		
-		if (VOTING_CMD_VOTE == cmd)
-			voting_booth_vote(ch, obj, argument);
-		else if (VOTING_CMD_READ == cmd) {
-			skip_spaces(&argument);
-			if (!isnumber(argument))
-				return 0;
-			voting_booth_read(ch, obj, argument);
-		} else if (VOTING_CMD_LOOK == cmd || VOTING_CMD_EXAMINE == cmd) {
-			skip_spaces(&argument);
-			if ( !isname(argument, obj->name) && !isname(argument,"voting booth") )
-				return 0;
-			voting_booth_list(ch, obj);
-		} else if (VOTING_CMD_REMOVE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-			skip_spaces(&argument);
-			if (!isnumber(argument))
-				return 0;
-			voting_booth_remove(ch, obj, argument);
-		} else if (VOTING_CMD_WRITE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR)
-			voting_booth_write(ch, obj, argument);
-		else
+
+	if (VOTING_CMD_VOTE == cmd)
+		voting_booth_vote(ch, obj, argument);
+	else if (VOTING_CMD_READ == cmd) {
+		skip_spaces(&argument);
+		if (!isnumber(argument))
 			return 0;
+		voting_booth_read(ch, obj, argument);
+	} else if (VOTING_CMD_LOOK == cmd || VOTING_CMD_EXAMINE == cmd) {
+		skip_spaces(&argument);
+		if (!isname(argument, obj->name) && !isname(argument, "voting booth"))
+			return 0;
+		voting_booth_list(ch, obj);
+	} else if (VOTING_CMD_REMOVE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+		skip_spaces(&argument);
+		if (!isnumber(argument))
+			return 0;
+		voting_booth_remove(ch, obj, argument);
+	} else if (VOTING_CMD_WRITE == cmd && GET_LEVEL(ch) >= LVL_AMBASSADOR)
+		voting_booth_write(ch, obj, argument);
+	else
+		return 0;
 
 	return 1;
 }

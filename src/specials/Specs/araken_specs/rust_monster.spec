@@ -7,87 +7,86 @@
 SPECIAL(rust_monster)
 {
 
-  struct obj_data *obj = NULL;
-  int i, count = 0;
+	struct obj_data *obj = NULL;
+	int i, count = 0;
 
-  if (cmd)
-    return 0;
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
+	if (cmd)
+		return 0;
+	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+		return 0;
 
-  if (!FIGHTING(ch)) {
+	if (!FIGHTING(ch)) {
 
-    for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
+		for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
 
-      if (IS_MAT(obj, MAT_RUST)) {
+			if (IS_MAT(obj, MAT_RUST)) {
 
-	act("$n hungrily devours $p.", TRUE, ch, obj, 0, TO_ROOM);
-	extract_obj(obj);
-	GET_HIT(ch) = MAX(GET_MAX_HIT(ch), GET_HIT(ch) + 10);
-	return 1;
-      }
+				act("$n hungrily devours $p.", TRUE, ch, obj, 0, TO_ROOM);
+				extract_obj(obj);
+				GET_HIT(ch) = MAX(GET_MAX_HIT(ch), GET_HIT(ch) + 10);
+				return 1;
+			}
 
-      if (IS_FERROUS(obj)) {
+			if (IS_FERROUS(obj)) {
 
-	act("$n flays $p with $s antennae.", TRUE, ch, obj, 0, TO_ROOM);
-	if ((!IS_OBJ_STAT(obj, ITEM_MAGIC | ITEM_MAGIC_NODISPEL) || 
-	     mag_savingthrow(ch, 40, SAVING_ROD))) {
-	  
-	  act("$p spontaneously oxidizes and crumbles into a pile of rust!",
-	      FALSE, ch, obj, 0, TO_ROOM);
+				act("$n flays $p with $s antennae.", TRUE, ch, obj, 0,
+					TO_ROOM);
+				if ((!IS_OBJ_STAT(obj, ITEM_MAGIC | ITEM_MAGIC_NODISPEL)
+						|| mag_savingthrow(ch, 40, SAVING_ROD))) {
 
-	  extract_obj(obj);
+					act("$p spontaneously oxidizes and crumbles into a pile of rust!", FALSE, ch, obj, 0, TO_ROOM);
 
-	  if ((obj = read_object(RUSTPILE)))
-	    obj_to_room(obj, ch->in_room);
+					extract_obj(obj);
 
-	  WAIT_STATE(ch, 2 RL_SEC);
+					if ((obj = read_object(RUSTPILE)))
+						obj_to_room(obj, ch->in_room);
 
-	  return 1;
+					WAIT_STATE(ch, 2 RL_SEC);
+
+					return 1;
+				}
+				return 1;
+			}
+		}
+		return 0;
 	}
-	return 1;
-      }
-    }
-    return 0;
-  }
 
 
-  while (count < 35) {
+	while (count < 35) {
 
-    i = number(2, NUM_WEARS-2);
-    count++;
-    
-    if ((!(obj = GET_EQ(FIGHTING(ch), i)) &&
-	 !(obj = GET_EQ(FIGHTING(ch), i-1)) &&
-	 !(obj = GET_EQ(FIGHTING(ch), i+1)) &&
-	 !(obj = GET_EQ(FIGHTING(ch), i-2)) &&
-	 !(obj = GET_EQ(FIGHTING(ch), i+2))) ||
-	!IS_FERROUS(obj) || !number(0, 2))
-      continue;
+		i = number(2, NUM_WEARS - 2);
+		count++;
 
-    act("$n flays $p with $s antennae.", TRUE,ch,obj,FIGHTING(ch),TO_VICT);
-    act("$n flays $N with $s antennae.",TRUE,ch,obj,FIGHTING(ch),TO_NOTVICT);
-    
-    if ((!IS_OBJ_STAT(obj, ITEM_MAGIC) || 
-	 mag_savingthrow(ch, 40, SAVING_ROD)) &&
-	(!IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) || 
-	 mag_savingthrow(ch, 40, SAVING_ROD))) {
-      
-      act("$p spontaneously oxidizes and crumbles into a pile of rust!",
-	  FALSE, ch, obj, 0, TO_ROOM);
-      
-      extract_obj(obj);
-      
-      if ((obj = read_object(RUSTPILE)))
-	obj_to_room(obj, ch->in_room);
-      
-      WAIT_STATE(ch, 2 RL_SEC);
-      
-    }
-    return 1;
-  }
-  return 0;
+		if ((!(obj = GET_EQ(FIGHTING(ch), i)) &&
+				!(obj = GET_EQ(FIGHTING(ch), i - 1)) &&
+				!(obj = GET_EQ(FIGHTING(ch), i + 1)) &&
+				!(obj = GET_EQ(FIGHTING(ch), i - 2)) &&
+				!(obj = GET_EQ(FIGHTING(ch), i + 2))) ||
+			!IS_FERROUS(obj) || !number(0, 2))
+			continue;
+
+		act("$n flays $p with $s antennae.", TRUE, ch, obj, FIGHTING(ch),
+			TO_VICT);
+		act("$n flays $N with $s antennae.", TRUE, ch, obj, FIGHTING(ch),
+			TO_NOTVICT);
+
+		if ((!IS_OBJ_STAT(obj, ITEM_MAGIC) ||
+				mag_savingthrow(ch, 40, SAVING_ROD)) &&
+			(!IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) ||
+				mag_savingthrow(ch, 40, SAVING_ROD))) {
+
+			act("$p spontaneously oxidizes and crumbles into a pile of rust!",
+				FALSE, ch, obj, 0, TO_ROOM);
+
+			extract_obj(obj);
+
+			if ((obj = read_object(RUSTPILE)))
+				obj_to_room(obj, ch->in_room);
+
+			WAIT_STATE(ch, 2 RL_SEC);
+
+		}
+		return 1;
+	}
+	return 0;
 }
-
-
-	  
-	    

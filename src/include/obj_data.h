@@ -343,7 +343,6 @@ struct obj_data {
 	struct obj_data *next_content;	/* For 'contains' lists             */
 	struct obj_data *next;		/* For the object list              */
 };
-typedef struct obj_data OBJ;
 /* ======================================================================= */
 
 

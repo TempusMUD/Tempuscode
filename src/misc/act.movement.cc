@@ -2565,7 +2565,7 @@ ACMD(do_translocate)
 
 
 int
-drag_object(CHAR * ch, struct obj_data *obj, char *argument)
+drag_object(Creature *ch, struct obj_data *obj, char *argument)
 {
 
 	int max_drag = 0;

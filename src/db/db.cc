@@ -3202,12 +3202,18 @@ save_char(struct Creature *ch, struct room_data *load_room)
 	if (IS_NPC(ch) || !ch->desc || GET_PFILEPOS(ch) < 0)
 		return;
 
-	char_to_store(ch, &st);
-	if (ch->desc && STATE(ch->desc) == CON_PLAYING)
-		save_aliases(ch);
+	ch->player.time.played += time(0) - ch->player.time.logon;
+	ch->player.time.logon = time(0);
 
+	char_to_store(ch, &st);
+
+	// This must be updated here because the last host isn't stored anywhere
+	// in the creature record
 	strncpy(st.host, ch->desc->host, HOST_LENGTH);
 	st.host[HOST_LENGTH] = '\0';
+
+	if (STATE(ch->desc) == CON_PLAYING)
+		save_aliases(ch);
 
 	if (load_room) {
 		if (PLR_FLAGGED(ch, PLR_LOADROOM) &&
@@ -3249,32 +3255,57 @@ save_char(struct Creature *ch, struct room_data *load_room)
 		ch->points.hit, ch->points.mana, ch->points.move,
 		ch->points.max_hit, ch->points.max_mana, ch->points.max_move);
 
-	fprintf(ouf, "<STATS LEVEL=\"%d\" SEX=\"%s\" RACE=\"%s\" HEIGHT=\"%d\" WEIGHT=\"%d\" ALIGN=\"%d\" CLASS=\"%s\"",
+	fprintf(ouf, "<STATS LEVEL=\"%d\" SEX=\"%s\" RACE=\"%s\" HEIGHT=\"%d\" WEIGHT=\"%d\" ALIGN=\"%d\"/>\n",
 		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
-		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch),
-		pc_char_class_types[GET_CLASS(ch)]);
+		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
 	
+	fprintf(ouf, "<CLASS NAME=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
+	if (IS_CYBORG(ch) && ch->player_specials->saved.broken_component) {
+		fprintf(ouf, " BROKEN=\"%d\"",
+			ch->player_specials->saved.broken_component);
+	}else if (IS_MAGE(ch) && GET_SKILL(ch, SPELL_MANA_SHIELD) > 0) {
+		fprintf(ouf, " MANASH_LOW=\"%ld\" MANASH_PCT=\"%ld\"",	
+			ch->player_specials->saved.mana_shield_low,
+			ch->player_specials->saved.mana_shield_pct);
+	}
 	if (GET_REMORT_GEN(ch))
 		fprintf(ouf, " REMORT=\"%s\" GEN=\"%d\"",
 			pc_char_class_types[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
 	fprintf(ouf, "/>\n");
 
-	fprintf(ouf, "<TIME BIRTH=\"%ld\" DEATH=\"%ld\" PLAYED=\"%d\" LOGON=\"%ld\"/>\n",
+
+	fprintf(ouf, "<TIME BIRTH=\"%ld\" DEATH=\"%ld\" PLAYED=\"%d\"/>\n",
 		ch->player.time.birth,
 		ch->player.time.death,
-		ch->player.time.played,
-		(long int)ch->player.time.logon);
+		ch->player.time.played);
+
+	fprintf(ouf, "<LASTLOGIN TIME=\"%ld\" HOST=\"%s\"/>\n",
+		(long int)ch->player.time.logon, ch->desc->host);
 
 	fprintf(ouf, "<ATTR STR=\"%d\" INT=\"%d\" WIS=\"%d\" DEX=\"%d\" CON=\"%d\" CHA=\"%d\"/>\n",
 		ch->real_abils.str, ch->real_abils.intel, ch->real_abils.wis,
 		ch->real_abils.dex, ch->real_abils.con, ch->real_abils.cha);
+	fprintf(ouf, "<SAVE PARA=\"%d\" ROD=\"%d\" PETRI=\"%d\" BREATH=\"%d\" SPELL=\"%d\" CHEM=\"%d\" PSI=\"%d\" PHY=\"%d\"/>\n",
+		GET_SAVE(ch, SAVING_PARA), GET_SAVE(ch, SAVING_ROD),
+		GET_SAVE(ch, SAVING_PETRI), GET_SAVE(ch, SAVING_BREATH),
+		GET_SAVE(ch, SAVING_SPELL), GET_SAVE(ch, SAVING_CHEM),
+		GET_SAVE(ch, SAVING_PSI), GET_SAVE(ch, SAVING_PHY));
 	fprintf(ouf, "<CONDITION HUNGER=\"%d\" THIRST=\"%d\" DRUNK=\"%d\"/>\n",
 		ch->player_specials->saved.conditions[0],
 		ch->player_specials->saved.conditions[1],
 		ch->player_specials->saved.conditions[2]);
 
-	fprintf(ouf, "<PFLAGS FLAG1=\"%ld\" FLAG2=\"%ld\"/>\n",
-		ch->char_specials.saved.act, ch->char_specials.saved.act2);
+	fprintf(ouf, "<PLAYER INVIS=\"%d\" WIMPY=\"%d\" PRACS=\"%d\" QP=\"%d\" LP=\"%d\"/>\n",
+		ch->player_specials->saved.invis_level,
+		ch->player_specials->saved.wimp_level,
+		ch->player_specials->saved.spells_to_learn,
+		ch->player_specials->saved.quest_points,
+		ch->player_specials->saved.life_points);
+		
+	fprintf(ouf, "<ACCOUNT FLAG1=\"%ld\" FLAG2=\"%ld\" PASSWORD=\"%s\" BAD_PWS=\"%d\"/>\n",
+		ch->char_specials.saved.act, ch->char_specials.saved.act2,
+		ch->player.passwd, ch->player_specials->saved.bad_pws);
+
 	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\"/>\n",
 		ch->player_specials->saved.pref, ch->player_specials->saved.pref2);
 
@@ -3292,10 +3323,15 @@ save_char(struct Creature *ch, struct room_data *load_room)
 
 	if (GET_TITLE(ch) && *GET_TITLE(ch))
 		fprintf(ouf, "<TITLE>%s</TITLE>\n", GET_TITLE(ch));
-	if (POOFIN(ch) && *POOFIN(ch))
-		fprintf(ouf, "<POOFIN>%s</POOFIN>\n", POOFIN(ch));
-	if (POOFOUT(ch) && *POOFOUT(ch))
-		fprintf(ouf, "<POOFOUT>%s</POOFOUT>\n", POOFOUT(ch));
+
+	if (GET_LEVEL(ch) >= LVL_IMMORT) {
+		fprintf(ouf, "<IMMORT BADGE=\"%d\"/>\n",
+			ch->player_specials->saved.occupation);
+		if (POOFIN(ch) && *POOFIN(ch))
+			fprintf(ouf, "<POOFIN>%s</POOFIN>\n", POOFIN(ch));
+		if (POOFOUT(ch) && *POOFOUT(ch))
+			fprintf(ouf, "<POOFOUT>%s</POOFOUT>\n", POOFOUT(ch));
+	}
 	if (ch->player.description && *ch->player.description)
 		fprintf(ouf, "<DESCRIPTION>%s</DESCRIPTION>\n", ch->player.description);
 	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
@@ -3306,6 +3342,12 @@ save_char(struct Creature *ch, struct room_data *load_room)
 			cur_aff->type, cur_aff->duration, cur_aff->modifier,
 			cur_aff->location, cur_aff->level,
 			(cur_aff->is_instant) ? "yes":"no", cur_aff->bitvector);
+
+	for (idx = 0;idx < MAX_SKILLS;idx++)
+		if (ch->player_specials->saved.skills[idx] > 0)
+			fprintf(ouf, "<SKILL NAME=\"%s\" LEVEL=\"%d\"/>\n",
+				spell_to_str(idx), GET_SKILL(ch, idx));
+
 	fprintf(ouf, "</CREATURE>\n");
 	fclose(ouf);
 }
@@ -3474,8 +3516,7 @@ char_to_store(struct Creature *ch, struct char_file_u *st)
 	st->birth = ch->player.time.birth;
 	st->death = ch->player.time.death;
 	st->played = ch->player.time.played;
-	st->played += (long)(time(0) - ch->player.time.logon);
-	st->last_logon = time(0);
+	st->last_logon = ch->player.time.logon;
 
 	ch->player.time.played = st->played;
 	ch->player.time.logon = time(0);

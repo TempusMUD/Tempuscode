@@ -27,7 +27,7 @@
 // external variables
 
 // external functions
-int check_editors(CHAR * ch, char **buffer);	// quest.c
+int check_editors(Creature *ch, char **buffer);	// quest.c
 
 // local variables
 dynamic_text_file *dyntext_list = NULL;
@@ -277,7 +277,7 @@ save_dyntext_control(dynamic_text_file * dyntext)
 }
 
 int
-push_update_to_history(CHAR * ch, dynamic_text_file * dyntext)
+push_update_to_history(Creature *ch, dynamic_text_file * dyntext)
 {
 	int i;
 
@@ -306,7 +306,7 @@ char *dynedit_options[][2] = {
 };
 
 void
-show_dynedit_options(CHAR * ch)
+show_dynedit_options(Creature *ch)
 {
 	int i = 0;
 
@@ -319,7 +319,7 @@ show_dynedit_options(CHAR * ch)
 }
 
 void
-set_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *argument)
+set_dyntext(Creature *ch, dynamic_text_file * dyntext, char *argument)
 {
 
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
@@ -357,7 +357,7 @@ set_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *argument)
 }
 
 void
-show_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *argument)
+show_dyntext(Creature *ch, dynamic_text_file * dyntext, char *argument)
 {
 	int i;
 
@@ -427,7 +427,7 @@ show_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *argument)
 }
 
 int
-dyntext_edit_ok(CHAR * ch, dynamic_text_file * dyntext)
+dyntext_edit_ok(Creature *ch, dynamic_text_file * dyntext)
 {
 	int i;
 
@@ -443,7 +443,7 @@ dyntext_edit_ok(CHAR * ch, dynamic_text_file * dyntext)
 }
 
 int
-dynedit_check_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *arg)
+dynedit_check_dyntext(Creature *ch, dynamic_text_file * dyntext, char *arg)
 {
 	if (!dyntext) {
 		if (*arg) {
@@ -886,7 +886,7 @@ ACMD(do_dyntext_show)
 
 
 void
-check_dyntext_updates(CHAR * ch, int mode)
+check_dyntext_updates(Creature *ch, int mode)
 {
 	dynamic_text_file *dyntext = NULL;
 

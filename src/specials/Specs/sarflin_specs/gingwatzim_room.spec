@@ -6,11 +6,11 @@
 
 SPECIAL(gingwatzim)
 {
-  if (cmd != 5) return 0;
-  
-  char_from_room(ch,false);
-  char_to_room(ch,real_room(8343),false);
-  look_at_room(ch,real_room(8343),0);
-  return 1;
-}   
+	if (cmd != 5)
+		return 0;
 
+	char_from_room(ch, false);
+	char_to_room(ch, real_room(8343), false);
+	look_at_room(ch, real_room(8343), 0);
+	return 1;
+}

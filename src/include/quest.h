@@ -95,8 +95,8 @@ class Quest {
 		bool removeBan( long id );
 		bool isBanned( long id );
 		bool isPlaying( long id );
-		bool canLeave( CHAR *ch );
-		bool canJoin( CHAR *ch );
+		bool canLeave( Creature *ch );
+		bool canJoin( Creature *ch );
 		qplayer_data &getPlayer( long id );
 		qplayer_data &getPlayer( int index ) { return players[index]; }
 		qplayer_data &getBan( long id );
@@ -118,7 +118,7 @@ class Quest {
 
 	private: // utils
 		void clearDescs();
-		bool levelOK( CHAR *ch );
+		bool levelOK( Creature *ch );
 	private: // data
 		int max_players; // max number of players
 		int awarded; // qps awarded
@@ -144,58 +144,58 @@ class Quest {
 };
 
 // qcontrol subfunctions  
-void do_qcontrol_show(CHAR * ch, char *argument);
-void do_qcontrol_options(CHAR * ch);
-void do_qcontrol_create(CHAR * ch, char *argument, int com);
-void do_qcontrol_end(CHAR * ch, char *argument, int com);
-void do_qcontrol_add(CHAR * ch, char *argument, int com);
-void do_qcontrol_kick(CHAR * ch, char *argument, int com);
-void do_qcontrol_flags(CHAR * ch, char *argument, int com);
-void do_qcontrol_comment(CHAR * ch, char *argument, int com);
-void do_qcontrol_desc(CHAR * ch, char *argument, int com);
-void do_qcontrol_update(CHAR * ch, char *argument, int com);
-void do_qcontrol_ban(CHAR * ch, char *argument, int com);
-void do_qcontrol_unban(CHAR * ch, char *argument, int com);
-void do_qcontrol_level(CHAR * ch, char *argument, int com);
-void do_qcontrol_minlev(CHAR * ch, char *argument, int com);
-void do_qcontrol_maxlev(CHAR * ch, char *argument, int com);
-void do_qcontrol_mingen(CHAR * ch, char *argument, int com);
-void do_qcontrol_maxgen(CHAR * ch, char *argument, int com);
-void do_qcontrol_mute(CHAR * ch, char *argument, int com);
-void do_qcontrol_unmute(CHAR * ch, char *argument, int com);
-void do_qcontrol_award(CHAR * ch, char *argument, int com);
-void do_qcontrol_penalize(CHAR * ch, char *argument, int com);
-void do_qcontrol_save(CHAR * ch, char *argument, int com);
-void do_qcontrol_mload(CHAR * ch, char *argument, int com);	//Load mobile.
-void do_qcontrol_purge(CHAR * ch, char *argument, int com);	//Purge mobile.
-void do_qcontrol_trans(CHAR * ch, char *argument, int com);	//trans whole quest
+void do_qcontrol_show(Creature * ch, char *argument);
+void do_qcontrol_options(Creature *ch);
+void do_qcontrol_create(Creature *ch, char *argument, int com);
+void do_qcontrol_end(Creature *ch, char *argument, int com);
+void do_qcontrol_add(Creature *ch, char *argument, int com);
+void do_qcontrol_kick(Creature *ch, char *argument, int com);
+void do_qcontrol_flags(Creature *ch, char *argument, int com);
+void do_qcontrol_comment(Creature *ch, char *argument, int com);
+void do_qcontrol_desc(Creature *ch, char *argument, int com);
+void do_qcontrol_update(Creature *ch, char *argument, int com);
+void do_qcontrol_ban(Creature *ch, char *argument, int com);
+void do_qcontrol_unban(Creature *ch, char *argument, int com);
+void do_qcontrol_level(Creature *ch, char *argument, int com);
+void do_qcontrol_minlev(Creature *ch, char *argument, int com);
+void do_qcontrol_maxlev(Creature *ch, char *argument, int com);
+void do_qcontrol_mingen(Creature *ch, char *argument, int com);
+void do_qcontrol_maxgen(Creature *ch, char *argument, int com);
+void do_qcontrol_mute(Creature *ch, char *argument, int com);
+void do_qcontrol_unmute(Creature *ch, char *argument, int com);
+void do_qcontrol_award(Creature *ch, char *argument, int com);
+void do_qcontrol_penalize(Creature *ch, char *argument, int com);
+void do_qcontrol_save(Creature *ch, char *argument, int com);
+void do_qcontrol_mload(Creature *ch, char *argument, int com);	//Load mobile.
+void do_qcontrol_purge(Creature *ch, char *argument, int com);	//Purge mobile.
+void do_qcontrol_trans(Creature *ch, char *argument, int com);	//trans whole quest
 
 // utility functions
-void do_qcontrol_usage(CHAR * ch, int com);
-Quest *find_quest(CHAR * ch, char *argument);
-char *list_active_quests(CHAR * ch, char *outbuf);
-char *list_inactive_quests(CHAR * ch, char *outbuf);
+void do_qcontrol_usage(Creature *ch, int com);
+Quest *find_quest(Creature *ch, char *argument);
+char *list_active_quests(Creature *ch, char *outbuf);
+char *list_inactive_quests(Creature *ch, char *outbuf);
 Quest *quest_by_vnum(int vnum);
 void qp_reload(int sig = 0);
 
-void qlog(CHAR * ch, char *str, int type, int level, int file);
+void qlog(Creature *ch, char *str, int type, int level, int file);
 
-CHAR *check_char_vis(CHAR * ch, char *name);
-void list_quest_players(CHAR * ch, Quest * quest, char *outbuf);
-void list_quest_bans(CHAR * ch, Quest * quest, char *outbuf);
+Creature *check_char_vis(Creature *ch, char *name);
+void list_quest_players(Creature *ch, Quest * quest, char *outbuf);
+void list_quest_bans(Creature *ch, Quest * quest, char *outbuf);
 int boot_quests(void);
-int check_editors(CHAR * ch, char **buffer);
+int check_editors(Creature *ch, char **buffer);
 void save_quests();
 
 // quest subfunctions and utils
-void do_quest_list(CHAR * ch);
-void do_quest_join(CHAR * ch, char *argument);
-void do_quest_info(CHAR * ch, char *argument);
-void do_quest_status(CHAR * ch, char *argument);
-void do_quest_who(CHAR * ch, char *argument);
-void do_quest_leave(CHAR * ch, char *argument);
-void do_quest_current(CHAR * ch, char *argument);
-void do_quest_ignore(CHAR * ch, char *argument);
+void do_quest_list(Creature *ch);
+void do_quest_join(Creature *ch, char *argument);
+void do_quest_info(Creature *ch, char *argument);
+void do_quest_status(Creature *ch, char *argument);
+void do_quest_who(Creature *ch, char *argument);
+void do_quest_leave(Creature *ch, char *argument);
+void do_quest_current(Creature *ch, char *argument);
+void do_quest_ignore(Creature *ch, char *argument);
 
 // external FILES
 extern FILE *player_fl;

@@ -507,7 +507,7 @@ ACMD(do_recharge)
 //       
 
 void
-perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
+perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 {
 	struct affected_type af[3];
 	char *to_room[2], *to_char[2];
@@ -3293,7 +3293,7 @@ ACMD(do_overdrain)
 
 ACMD(do_de_energize)
 {
-	CHAR *vict;
+	Creature *vict;
 	int move = 0;
 
 	skip_spaces(&argument);

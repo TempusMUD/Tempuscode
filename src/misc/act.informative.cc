@@ -3905,11 +3905,13 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 
 	if (str <= 3)
 		strcat(buff, "You can barely stand up under your own weight.");
+	else if (str <= 4)
+		strcat(buff, "You couldn't beat your way out of a paper bag.");
 	else if (str <= 5)
 		strcat(buff, "You are laughed at by ten year olds.");
 	else if (str <= 6)
 		strcat(buff, "You are a weakling.");
-	else if (str <= 5)
+	else if (str <= 7)
 		strcat(buff, "You can pick up large rocks without breathing too hard.");
 	else if (str <= 8)
 		strcat(buff, "You are not very strong.");
@@ -3944,7 +3946,7 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else if (str == 23)
 		strcat(buff, "You have the strength of a cloud giant!");
 	else if (str == 24)
-		strcat(buff, "You are possessed for a herculean might!");
+		strcat(buff, "You possess a herculean might!");
 	else if (str == 25)
 		strcat(buff, "You have the strength of a god!");
 	else

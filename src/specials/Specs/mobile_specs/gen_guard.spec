@@ -26,61 +26,63 @@
     ( !IS_SET( GUARD_MODE, MODE_NONEUTRAL ) || !IS_NEUTRAL( ch ) ) &&    \
     ( !IS_SET( GUARD_MODE, MODE_NOEVIL )    || !IS_EVIL( ch ) ) )
 
-SPECIAL( gen_guard ) {
-    struct Creature *guard = ( struct Creature * ) me;
-    struct obj_data    *obj = GET_IMPLANT( guard, WEAR_ASS );
-    char *desc = NULL, *c, buf[EXDSCR_LENGTH];
-    if( spec_mode != SPECIAL_CMD ) return 0;
+SPECIAL(gen_guard)
+{
+	struct Creature *guard = (struct Creature *)me;
+	struct obj_data *obj = GET_IMPLANT(guard, WEAR_ASS);
+	char *desc = NULL, *c, buf[EXDSCR_LENGTH];
+	if (spec_mode != SPECIAL_CMD)
+		return 0;
 
-    // the worst conditional statement in coding history
-    if ( !cmd || cmd > DOWN + 1 || !obj || GET_LEVEL( ch ) > LVL_IMMORT ||
-         !IS_SET( GUARD_MODE, ( 1 << ( cmd-1 ) ) ) ||
-         // flag stuff:
-         ( GUARD_ALIGN_OK( ch ) &&
-           // clan allow
-           ( ( IS_SET( GUARD_MODE, MODE_CLAN_ALLOW ) && 
-               GET_CLAN( ch ) == GET_OBJ_VAL( obj, 0 ) ) ||
-             // char_class allow
-             ( IS_SET( GUARD_MODE, MODE_CLASS_ALLOW ) &&
-               ( GET_CLASS( guard ) == GET_CLASS( ch ) ||
-                 ( IS_REMORT( guard ) && 
-                   GET_REMORT_CLASS( guard ) == GET_REMORT_CLASS( ch ) ) ) ) ||
-             // race allow
-             ( IS_SET( GUARD_MODE, MODE_RACE_ALLOW ) && 
-               GET_RACE( ch ) == GET_RACE( guard ) ) ) ) ||
-         // end flag stuff
-         !AWAKE( guard ) || !CAN_SEE( guard, ch ) ||
-         ( AFF_FLAGGED( guard, AFF_CHARM ) && ch == guard->master ) ||
-         affected_by_spell( guard, SPELL_FEAR ) ||
-         affected_by_spell( guard, SKILL_INTIMIDATE ) )
-        return 0;
-    
-    if ( ( desc = find_exdesc( "to_vict", obj->ex_description ) ) ) {
-        strcpy( buf, desc );
-        if ( ( c = strrchr( buf, '\n' ) ) )
-            *c = '\0';
-        if ( ( c = strrchr( buf, '\r' ) ) )
-            *c = '\0';
-    } else
-        strcpy( buf, "You are blocked by $n." );
+	// the worst conditional statement in coding history
+	if (!cmd || cmd > DOWN + 1 || !obj || GET_LEVEL(ch) > LVL_IMMORT ||
+		!IS_SET(GUARD_MODE, (1 << (cmd - 1))) ||
+		// flag stuff:
+		(GUARD_ALIGN_OK(ch) &&
+			// clan allow
+			((IS_SET(GUARD_MODE, MODE_CLAN_ALLOW) &&
+					GET_CLAN(ch) == GET_OBJ_VAL(obj, 0)) ||
+				// char_class allow
+				(IS_SET(GUARD_MODE, MODE_CLASS_ALLOW) &&
+					(GET_CLASS(guard) == GET_CLASS(ch) ||
+						(IS_REMORT(guard) &&
+							GET_REMORT_CLASS(guard) == GET_REMORT_CLASS(ch))))
+				||
+				// race allow
+				(IS_SET(GUARD_MODE, MODE_RACE_ALLOW) &&
+					GET_RACE(ch) == GET_RACE(guard)))) ||
+		// end flag stuff
+		!AWAKE(guard) || !CAN_SEE(guard, ch) ||
+		(AFF_FLAGGED(guard, AFF_CHARM) && ch == guard->master) ||
+		affected_by_spell(guard, SPELL_FEAR) ||
+		affected_by_spell(guard, SKILL_INTIMIDATE))
+		return 0;
 
-    act( buf, FALSE, guard, 0, ch, TO_VICT );
+	if ((desc = find_exdesc("to_vict", obj->ex_description))) {
+		strcpy(buf, desc);
+		if ((c = strrchr(buf, '\n')))
+			*c = '\0';
+		if ((c = strrchr(buf, '\r')))
+			*c = '\0';
+	} else
+		strcpy(buf, "You are blocked by $n.");
 
-    if ( ( desc = find_exdesc( "to_room", obj->ex_description ) ) ) {
-        strcpy( buf, desc );
-        if ( ( c = strrchr( buf, '\n' ) ) )
-            *c = '\0';
-        if ( ( c = strrchr( buf, '\r' ) ) )
-            *c = '\0';
-    } else
-        strcpy( buf, "$N is blocked by $n." );
+	act(buf, FALSE, guard, 0, ch, TO_VICT);
 
-    act( buf, FALSE, guard, 0, ch, TO_NOTVICT );
-  
-    if ( MOB_FLAGGED( guard, MOB_HELPER ) &&
-         !PRF_FLAGGED( ch, PRF_NOHASSLE ) && !FIGHTING( guard ) )
-        hit( guard, ch, TYPE_UNDEFINED );
-  
-    return 1;
+	if ((desc = find_exdesc("to_room", obj->ex_description))) {
+		strcpy(buf, desc);
+		if ((c = strrchr(buf, '\n')))
+			*c = '\0';
+		if ((c = strrchr(buf, '\r')))
+			*c = '\0';
+	} else
+		strcpy(buf, "$N is blocked by $n.");
+
+	act(buf, FALSE, guard, 0, ch, TO_NOTVICT);
+
+	if (MOB_FLAGGED(guard, MOB_HELPER) &&
+		!PRF_FLAGGED(ch, PRF_NOHASSLE) && !FIGHTING(guard))
+		hit(guard, ch, TYPE_UNDEFINED);
+
+	return 1;
 }
-

@@ -39,7 +39,7 @@ int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
 int House_can_enter(struct Creature *ch, room_num real_room);
 int clan_house_can_enter(struct Creature *ch, struct room_data *room);
-int room_tele_ok(CHAR * ch, struct room_data *room);
+int room_tele_ok(Creature *ch, struct room_data *room);
 
 int
 search_trans_character(Creature * ch,

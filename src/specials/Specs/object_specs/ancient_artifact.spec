@@ -2,7 +2,7 @@
 
 SPECIAL(ancient_artifact)
 {
-	obj_data *obj = (obj_data *)me;
+	obj_data *obj = (obj_data *) me;
 
 	if (spec_mode != SPECIAL_COMBAT)
 		return 0;
@@ -11,9 +11,10 @@ SPECIAL(ancient_artifact)
 	if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_INT(ch))))
 		return 0;
 
-	if ((number(0,1) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
+	if ((number(0, 1) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
 		// mega-blast makes mob lose 10% of current hp
-		strcpy(buf, "A bright blue beam erupts from $p with a screaming roar!");
+		strcpy(buf,
+			"A bright blue beam erupts from $p with a screaming roar!");
 		send_to_char(ch, CCCYN(ch, C_NRM));
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		send_to_char(ch, CCNRM(ch, C_NRM));

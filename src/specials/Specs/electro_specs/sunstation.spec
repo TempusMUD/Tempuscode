@@ -4,17 +4,17 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-void set_desc_state(int state,struct descriptor_data *d );
+void set_desc_state(int state, struct descriptor_data *d);
 
 SPECIAL(sunstation)
 {
-  struct obj_data *sun = (struct obj_data *) me;
-  
-  if (!ch->desc || !CMD_IS("login"))
-    return 0;
+	struct obj_data *sun = (struct obj_data *)me;
 
-  act("You log in on $p.", FALSE, ch, sun, 0, TO_CHAR);
-  act("$n logs in on $p.", FALSE, ch, sun, 0, TO_ROOM);
-  set_desc_state(CON_NETWORK,ch->desc);
-  return 1;
+	if (!ch->desc || !CMD_IS("login"))
+		return 0;
+
+	act("You log in on $p.", FALSE, ch, sun, 0, TO_CHAR);
+	act("$n logs in on $p.", FALSE, ch, sun, 0, TO_ROOM);
+	set_desc_state(CON_NETWORK, ch->desc);
+	return 1;
 }

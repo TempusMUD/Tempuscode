@@ -575,7 +575,7 @@ HelpCollection::Show(Creature * ch)
 
 // Blah blah print out the hcollect commands.
 void
-do_hcollect_cmds(CHAR * ch)
+do_hcollect_cmds(Creature *ch)
 {
 	strcpy(gHelpbuf, "hcollect commands:\r\n");
 	for (int i = 0; hc_cmds[i].keyword; i++) {
@@ -589,7 +589,7 @@ do_hcollect_cmds(CHAR * ch)
 
 // blah blah usage blah
 void
-do_hcollect_usage(CHAR * ch, int com)
+do_hcollect_usage(Creature *ch, int com)
 {
 	if (com < 0) {
 		do_hcollect_cmds(ch);
@@ -601,7 +601,7 @@ do_hcollect_usage(CHAR * ch, int com)
 
 // group command listing
 void
-do_group_cmds(CHAR * ch)
+do_group_cmds(Creature *ch)
 {
 	strcpy(gHelpbuf, "hcollect group commands:\r\n");
 	for (int i = 0; grp_cmds[i].keyword; i++) {
@@ -614,7 +614,7 @@ do_group_cmds(CHAR * ch)
 }
 
 void
-do_group_usage(CHAR * ch, int com)
+do_group_usage(Creature *ch, int com)
 {
 	if (com < 0) {
 		do_group_cmds(ch);
@@ -732,7 +732,7 @@ ACMD(do_hcollect_help)
 
 // 'qcontrol help'
 void
-do_qcontrol_help( CHAR *ch, char *argument )
+do_qcontrol_help( Creature *ch, char *argument )
 {
 	HelpItem *cur = NULL;
 	skip_spaces(&argument);

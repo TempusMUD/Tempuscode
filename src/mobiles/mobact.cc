@@ -3909,8 +3909,8 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 
 
 	int prob = 0;
-	CHAR *new_mob = NULL;
-	CHAR *vict = NULL;
+	Creature *new_mob = NULL;
+	Creature *vict = NULL;
 	int num = 0;
 	int return_flags = 0;
 

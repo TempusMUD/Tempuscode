@@ -2507,7 +2507,7 @@ ACMD(do_approve)
 
 /** Could this person edit this zone if it were unapproved. **/
 bool
-CAN_EDIT_ZONE(CHAR * ch, struct zone_data * zone)
+CAN_EDIT_ZONE(Creature *ch, struct zone_data * zone)
 {
 	if (Security::isMember(ch, "OLCWorldWrite") 
 		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
@@ -2527,7 +2527,7 @@ CAN_EDIT_ZONE(CHAR * ch, struct zone_data * zone)
 
 /** Can this person edit this zone given these bits set on it. **/
 bool
-OLC_EDIT_OK(CHAR * ch, struct zone_data * zone, int bits)
+OLC_EDIT_OK(Creature *ch, struct zone_data * zone, int bits)
 {
 
 	if (Security::isMember(ch, "OLCWorldWrite")

@@ -180,10 +180,10 @@
 static timewarp_data *timewarp_list = NULL;
 static int num_timewarp_data = 0;
 
-CHAR *
-check_char_room_vis(CHAR * ch, char *argument)
+Creature *
+check_char_room_vis(Creature *ch, char *argument)
 {
-	CHAR *vict = NULL;
+	Creature *vict = NULL;
 
 	if (!(vict = get_char_room_vis(ch, argument))) {
 		send_to_char(ch, "There's no one named '%s' here.\r\n", argument);
@@ -218,7 +218,7 @@ char *lecture_topics[NUM_TOPICS] = {
 
 ACMD(do_lecture)
 {
-	CHAR *vict = NULL;
+	Creature *vict = NULL;
 	int prob, index, wait, percent;
 
 	skip_spaces(&argument);
@@ -323,7 +323,7 @@ ACMD(do_lecture)
 
 ACMD(do_evaluate)
 {
-	CHAR *vict = NULL;
+	Creature *vict = NULL;
 	int delta, cost;
 
 	if (CHECK_SKILL(ch, SKILL_EVALUATE) < 30) {
@@ -363,7 +363,7 @@ ACMD(do_evaluate)
 }
 
 void
-add_rad_sickness(CHAR * ch, int level)
+add_rad_sickness(Creature *ch, int level)
 {
 
 	struct affected_type *af = NULL, newaff;
@@ -414,7 +414,7 @@ ASPELL(spell_nuclear_wasteland)
 }
 
 void
-push_imprint(CHAR * ch, int max)
+push_imprint(Creature *ch, int max)
 {
 
 	int tmp[MAX_IMPRINT_ROOMS];
@@ -433,7 +433,7 @@ push_imprint(CHAR * ch, int max)
 }
 
 int
-pop_imprint(CHAR * ch)
+pop_imprint(Creature *ch)
 {
 	int i = 0;
 	int ret = -1;
@@ -452,7 +452,7 @@ pop_imprint(CHAR * ch)
 }
 
 void
-show_imprint_rooms(CHAR * ch)
+show_imprint_rooms(Creature *ch)
 {
 	int i;
 	for (i = 0; i < MAX_IMPRINT_ROOMS; i++) {
@@ -618,7 +618,7 @@ boot_timewarp_data(void)
 }
 
 void
-show_timewarps(CHAR * ch)
+show_timewarps(Creature *ch)
 {
 	int i;
 	struct zone_data *zn = NULL;
@@ -660,7 +660,7 @@ timewarp_target(struct zone_data *zSrc)
 }
 
 int
-room_tele_ok(CHAR * ch, struct room_data *room)
+room_tele_ok(Creature *ch, struct room_data *room)
 {
 
 	if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL))
@@ -683,7 +683,7 @@ room_tele_ok(CHAR * ch, struct room_data *room)
 
 
 struct room_data *
-random_room(CHAR * ch, struct zone_data *zone)
+random_room(Creature *ch, struct zone_data *zone)
 {
 
 	struct room_data *room;
@@ -706,7 +706,7 @@ random_room(CHAR * ch, struct zone_data *zone)
 
 // tmode == TRUE, choose other time frame
 int
-zone_tele_ok(CHAR * ch, struct zone_data *zone, int tmode)
+zone_tele_ok(Creature *ch, struct zone_data *zone, int tmode)
 {
 
 	if (!IS_APPR(ch->in_room->zone))
@@ -730,7 +730,7 @@ zone_tele_ok(CHAR * ch, struct zone_data *zone, int tmode)
 
 // choose a random teleportable zone.  mode == TRUE means only choose other times (timewarp)
 struct zone_data *
-random_zone(CHAR * ch, int mode)
+random_zone(Creature *ch, int mode)
 {
 	struct zone_data *zone = NULL;
 	int num_zones = 0;

@@ -160,7 +160,7 @@ ACMD(do_dismiss)
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		CREATE(vict, CHAR, 1);
+		CREATE(vict, Creature, 1);
 		clear_char(vict);
 		in_file = true;
 

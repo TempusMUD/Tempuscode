@@ -215,7 +215,7 @@ typedef struct dynamic_text_file {
 extern dynamic_text_file *dyntext_list;
 #endif
 
-void check_dyntext_updates(CHAR * ch, int mode);
+void check_dyntext_updates(Creature *ch, int mode);
 #define CHECKDYN_UNRENT    0
 #define CHECKDYN_RECONNECT 1
 

@@ -46,7 +46,7 @@ int total_coins = 0;
 int total_credits = 0;
 extern struct obj_data *dam_object;
 
-int char_hands_free(CHAR * ch);
+int char_hands_free(Creature *ch);
 int empty_to_obj(struct obj_data *obj, struct obj_data *container,
 	struct Creature *ch);
 bool junkable(struct obj_data *obj);
@@ -105,7 +105,7 @@ get_random_uncovered_implant(Creature * ch, int type = -1)
 //
 
 int
-explode_sigil(CHAR * ch, OBJ * obj)
+explode_sigil(Creature *ch, obj_data *obj)
 {
 
 	int ret = 0;
@@ -3026,7 +3026,7 @@ perform_remove(struct Creature *ch, int pos)
 
 
 int
-char_hands_free(CHAR * ch)
+char_hands_free(Creature *ch)
 {
 	struct obj_data *obj;
 	int hands_free;

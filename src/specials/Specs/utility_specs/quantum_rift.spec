@@ -7,18 +7,18 @@
 
 SPECIAL(quantum_rift)
 {
-	struct obj_data *rift = (struct obj_data *) me;
+	struct obj_data *rift = (struct obj_data *)me;
 	char arg1[MAX_INPUT_LENGTH];
 
-    if( spec_mode != SPECIAL_CMD )
-        return 0;
+	if (spec_mode != SPECIAL_CMD)
+		return 0;
 	if (!CMD_IS("enter") || !CAN_SEE_OBJ(ch, rift) || !AWAKE(ch))
 		return 0;
-	one_argument(argument,arg1);
-	if(!isname(arg1, rift->name))
+	one_argument(argument, arg1);
+	if (!isname(arg1, rift->name))
 		return 0;
-	
+
 	// Everytime someone enters, lower the timer by one.
-    GET_OBJ_TIMER( rift ) = MAX(0,GET_OBJ_TIMER( rift ) - 1);
-    return 1;
+	GET_OBJ_TIMER(rift) = MAX(0, GET_OBJ_TIMER(rift) - 1);
+	return 1;
 }

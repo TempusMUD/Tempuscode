@@ -55,7 +55,7 @@ can_edit_house(struct Creature *ch, struct house_control_rec *house)
 	struct char_file_u tmp_store;
 	struct Creature *vict;
 	int player_i = 0;
-	CHAR cbuf;
+	Creature cbuf;
 
 	if (GET_IDNUM(ch) == house->landlord)
 		return 1;
@@ -770,7 +770,7 @@ const char *hc_list_houses_args[] = {
 #define HC_LIST_HOUSES_DEFAULT ( HC_LIST_HOUSES_ATRIUM | HC_LIST_HOUSES_ROOMS | HC_LIST_HOUSES_OWNER | HC_LIST_HOUSES_MODE | HC_LIST_HOUSES_LANDLORD )
 
 int
-hcontrol_list_houses_modebits(CHAR * ch, char *args)
+hcontrol_list_houses_modebits(Creature *ch, char *args)
 {
 	int retval = HC_LIST_HOUSES_DEFAULT;
 	char tmparg[MAX_INPUT_LENGTH];

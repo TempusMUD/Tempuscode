@@ -296,7 +296,7 @@ check_toughguy(struct Creature *ch, struct Creature *vict, int mode)
 void
 check_object_killer(struct obj_data *obj, struct Creature *vict)
 {
-	CHAR cbuf;
+	Creature cbuf;
 	struct Creature *killer = NULL;
 	int player_i = 0;
 	struct char_file_u tmp_store;
@@ -641,7 +641,7 @@ apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 
 
 int
-choose_random_limb(CHAR * victim)
+choose_random_limb(Creature *victim)
 {
 	int prob;
 	int i;

@@ -168,7 +168,7 @@ int char_class_race_hit_bonus(struct Creature *ch, struct Creature *vict);
 int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
 
-int choose_random_limb(CHAR * victim);
+int choose_random_limb(Creature *victim);
 
 extern FILE *player_fl;
 

@@ -6,51 +6,58 @@
 
 SPECIAL(chest_mimic)
 {
-  struct Creature *mimic = (struct Creature *) me;
+	struct Creature *mimic = (struct Creature *)me;
 
-  if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
-  skip_spaces(&argument);
-  
-  if (!(CMD_IS("open") || CMD_IS("pick") || CMD_IS("unlock") ||
-        CMD_IS("look") || CMD_IS("examine"))) 
-    return 0;
+	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+		return 0;
+	skip_spaces(&argument);
 
-  if (!*argument)  
-    return 0;
+	if (!(CMD_IS("open") || CMD_IS("pick") || CMD_IS("unlock") ||
+			CMD_IS("look") || CMD_IS("examine")))
+		return 0;
 
-  if (!strncasecmp(argument, "in chest", 8)) {
-    send_to_char(ch, "It seems to be closed.");
-    act("$n looks at the bulging chest by the wall.", TRUE, ch, 0, 0, TO_ROOM);
-    return 1;
-  }
+	if (!*argument)
+		return 0;
 
-  if (strncasecmp(argument, "chest", 5) && 
-      strncasecmp(argument, "at bulging", 10) &&
-      strncasecmp(argument, "at chest", 8) &&
-      strncasecmp(argument, "at mimic", 8) &&
-      strncasecmp(argument, "bulging", 7) &&
-      strncasecmp(argument, "mimic", 5)) {
-    return 0;
-  }
+	if (!strncasecmp(argument, "in chest", 8)) {
+		send_to_char(ch, "It seems to be closed.");
+		act("$n looks at the bulging chest by the wall.", TRUE, ch, 0, 0,
+			TO_ROOM);
+		return 1;
+	}
 
-  if (ch->getPosition() == POS_FIGHTING)  
-    return 0;
-  if (CMD_IS("open") || CMD_IS("pick") || CMD_IS("unlock")) {
-    if (strncasecmp(argument, "chest", 5) && 
-        strncasecmp(argument, "bulging", 7) &&
-        strncasecmp(argument, "mimic", 5)) {
-      return 0;
-    }
-    send_to_char(ch, "The chest lurches forward suddenly!  It has sharp teeth!!\r\n");
-    act("$n attempts to open the bulging chest.", FALSE, ch, 0, 0, TO_ROOM);
-    act("The chest lurches forward suddenly and snaps at $n!", FALSE, ch, 0, 0, TO_ROOM);
-    hit(mimic, ch, TYPE_BITE);
-    return TRUE;
+	if (strncasecmp(argument, "chest", 5) &&
+		strncasecmp(argument, "at bulging", 10) &&
+		strncasecmp(argument, "at chest", 8) &&
+		strncasecmp(argument, "at mimic", 8) &&
+		strncasecmp(argument, "bulging", 7) &&
+		strncasecmp(argument, "mimic", 5)) {
+		return 0;
+	}
 
-  } else if (CMD_IS("look") || CMD_IS("examine")) {
-    send_to_char(ch, "The chest appears to be full of jewels and precious metals.\r\n");
-    act("$n looks at the bulging chest by the wall.", TRUE, ch, 0, 0, TO_ROOM);
-    return TRUE;
-  } else return FALSE;
+	if (ch->getPosition() == POS_FIGHTING)
+		return 0;
+	if (CMD_IS("open") || CMD_IS("pick") || CMD_IS("unlock")) {
+		if (strncasecmp(argument, "chest", 5) &&
+			strncasecmp(argument, "bulging", 7) &&
+			strncasecmp(argument, "mimic", 5)) {
+			return 0;
+		}
+		send_to_char(ch,
+			"The chest lurches forward suddenly!  It has sharp teeth!!\r\n");
+		act("$n attempts to open the bulging chest.", FALSE, ch, 0, 0,
+			TO_ROOM);
+		act("The chest lurches forward suddenly and snaps at $n!", FALSE, ch,
+			0, 0, TO_ROOM);
+		hit(mimic, ch, TYPE_BITE);
+		return TRUE;
+
+	} else if (CMD_IS("look") || CMD_IS("examine")) {
+		send_to_char(ch,
+			"The chest appears to be full of jewels and precious metals.\r\n");
+		act("$n looks at the bulging chest by the wall.", TRUE, ch, 0, 0,
+			TO_ROOM);
+		return TRUE;
+	} else
+		return FALSE;
 }
-

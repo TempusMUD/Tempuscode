@@ -54,8 +54,8 @@ SPECIAL(labyrinth_clock)
 			return 0;
 		}
 
-		char_from_room(ch,false);
-		char_to_room(ch, to_room,false);
+		char_from_room(ch, false);
+		char_to_room(ch, to_room, false);
 		look_at_room(ch, ch->in_room, 0);
 
 		act("$n suddenly appears near you.", TRUE, ch, 0, 0, TO_ROOM);
@@ -116,8 +116,8 @@ SPECIAL(cuckoo)
 		}
 
 		act("$n disappears back into the clock.", FALSE, bird, 0, 0, TO_ROOM);
-		char_from_room(bird,false);
-		char_to_room(bird, to_room,false);
+		char_from_room(bird, false);
+		char_to_room(bird, to_room, false);
 		return 1;
 	}
 
@@ -138,8 +138,8 @@ SPECIAL(cuckoo)
 				return 0;
 			}
 
-			char_from_room(bird,false);
-			char_to_room(bird, r_clock_room,false);
+			char_from_room(bird, false);
+			char_to_room(bird, r_clock_room, false);
 			act("$n suddenly pops out of the clock and says 'Cuckoo! Cuckoo!'.", TRUE, bird, 0, 0, TO_ROOM);
 			return 1;
 		}
@@ -227,8 +227,8 @@ SPECIAL(rabbit_hole)
 
 	send_to_char(ch, "You climb through the hole.\r\n\r\n");
 	act("$n steps into the hole.", TRUE, ch, 0, 0, TO_ROOM);
-	char_from_room(ch,false);
-	char_to_room(ch, to_room,false);
+	char_from_room(ch, false);
+	char_to_room(ch, to_room, false);
 	look_at_room(ch, ch->in_room, 0);
 	act("$n steps out of the hole.", TRUE, ch, 0, 0, TO_ROOM);
 
@@ -275,8 +275,8 @@ SPECIAL(gollum)
 				"$N stares at you and gestures with his arms.\r\n",
 				TRUE, ch, 0, gollum, TO_CHAR);
 			act("$n disappears.", TRUE, ch, 0, 0, TO_ROOM);
-			char_from_room(ch,false);
-			char_to_room(ch, to_room,false);
+			char_from_room(ch, false);
+			char_to_room(ch, to_room, false);
 			look_at_room(ch, ch->in_room, 0);
 			act("$n suddenly appears near you.", TRUE, ch, 0, 0, TO_ROOM);
 			return 1;
@@ -359,12 +359,12 @@ SPECIAL(pendulum_timer_mob)
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
 					if (vict->getPosition() > POS_SITTING) {
-						send_to_char(vict, 
+						send_to_char(vict,
 							"You are carried north by the pendulum.\r\n");
 						act("$n is pushed from the room by the pendulum.",
 							TRUE, vict, 0, 0, TO_ROOM);
-						char_from_room(vict,false);
-						char_to_room(vict, to_room,false);
+						char_from_room(vict, false);
+						char_to_room(vict, to_room, false);
 						look_at_room(vict, vict->in_room, 0);
 						act("$n is pushed into the room by the pendulum.",
 							TRUE, vict, 0, 0, TO_ROOM);
@@ -407,12 +407,12 @@ SPECIAL(pendulum_timer_mob)
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
 					if (vict->getPosition() > POS_SITTING) {
-						send_to_char(vict, 
+						send_to_char(vict,
 							"You are carried south by the pendulum.\r\n");
 						act("$n is pushed from the room by the pendulum.",
 							TRUE, vict, 0, 0, TO_ROOM);
-						char_from_room(vict,false);
-						char_to_room(vict, to_room,false);
+						char_from_room(vict, false);
+						char_to_room(vict, to_room, false);
 						look_at_room(vict, vict->in_room, 0);
 						act("$n is pushed into the room by the pendulum.",
 							TRUE, vict, 0, 0, TO_ROOM);
@@ -532,7 +532,8 @@ SPECIAL(astrolabe)
 	if (CMD_IS("adjust")) {
 		act("$n fiddles with some controls on $p.",
 			TRUE, ch, astrolabe, 0, TO_ROOM);
-		send_to_char(ch, "You fiddle with some controls on your astrolabe.\r\n");
+		send_to_char(ch,
+			"You fiddle with some controls on your astrolabe.\r\n");
 		ROOM_NUMBER(astrolabe) = ch->in_room->number;
 		sprintf(buf, "$p is good for %d more use%s.",
 			MAX(1, NUM_USES(astrolabe)), NUM_USES(astrolabe) > 1 ? "s" : "");
@@ -555,13 +556,13 @@ SPECIAL(astrolabe)
 					ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) ||
 			ROOM_FLAGGED(to_room, ROOM_NOTEL | ROOM_NORECALL | ROOM_NOMAGIC) ||
 			ROOM_FLAGGED(ch->in_room, ROOM_NORECALL | ROOM_NOMAGIC)) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You are unable to see your destination from here.\r\n");
 			return 1;
 		}
 
-		char_from_room(ch,false);
-		char_to_room(ch, to_room,false);
+		char_from_room(ch, false);
+		char_to_room(ch, to_room, false);
 		look_at_room(ch, ch->in_room, 0);
 		act("$n suddenly appears near you.", TRUE, ch, 0, 0, TO_ROOM);
 		NUM_USES(astrolabe)--;

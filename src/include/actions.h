@@ -97,9 +97,9 @@ extern const char *component_names[][3];
 
 void perform_monk_meditate(struct Creature *ch);
 
-void add_rad_sickness(CHAR * ch, int level);
+void add_rad_sickness(Creature *ch, int level);
 int boot_timewarp_data(void);
-void show_timewarps(CHAR * ch);
+void show_timewarps(Creature *ch);
 
 typedef struct timewarp_data {
 	int from;
