@@ -1044,7 +1044,7 @@ SPECIAL(vendor)
 		return true;
 	}
 
-	if (!IS_EVIL(self) && GET_REPUTATION(ch) > CRIMINAL_REP) {
+	if (!IS_EVIL(self) && IS_CRIMINAL(ch)) {
 		do_say(self, tmp_sprintf("%s I don't deal with CRIMINALS.",
 			GET_NAME(ch)), 0, SCMD_SAY_TO, 0);
 		return true;
