@@ -2758,12 +2758,15 @@ Fireball: like harder bones, skin, organ membranecs
 				done = 1;
 		}
 	}
-
+    
     // Lingering song causes a bards songs to last longer
-    for (int x = 0; x < 8; x++) {
-        if (IS_BARD(ch) && SPELL_IS_BARD(aff_array[x].type)) {
-            if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+    if (IS_BARD(ch) && SPELL_IS_BARD(spellnum)) {
+        //we do the check first so that we get all of the applies of a given spell
+        //prevents multiple wear off messages
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120)) {
+            for (int x = 0; x < 8; x++) {
                 aff_array[x].duration = (int)(aff_array[x].duration * 1.5);
+            }
         }
     }
 
