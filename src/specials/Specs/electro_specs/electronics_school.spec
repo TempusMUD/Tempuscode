@@ -58,6 +58,11 @@ SPECIAL(electronics_school)
 		return 0;
 
 	cred_cost = (GET_LEVEL(ch) << 6) + 2000;
+	
+	if (!can_see_creature(self, ch)) {
+		do_say(self, "I can't train ya if I can't see ya, see?", 0, 0, 0);
+		return 1;
+	}
 
 	if (IS_CYBORG(ch)) {
 		do_say(self, tmp_sprintf(
