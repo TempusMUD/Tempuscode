@@ -655,9 +655,9 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 	}
 	if (!CMD_IS("glance")) {
 		if (description)
-			send_to_char(ch, description);
+			send_to_char(ch, "%s", description);
 		else if (!mob && i->player.description)
-			send_to_char(ch, i->player.description);
+			send_to_char(ch, "%s", i->player.description);
 		else
 			act("You see nothing special about $m.", FALSE, i, 0, ch, TO_VICT);
 
