@@ -36,6 +36,7 @@
 #include "materials.h"
 #include "tokenizer.h"
 #include "tmpstr.h"
+#include "house.h"
 
 extern struct obj_data *object_list;
 
@@ -51,7 +52,6 @@ extern struct apply_mod_defaults *apmd;
 void weight_change_object(struct obj_data *obj, int weight);
 void add_follower(struct Creature *ch, struct Creature *leader);
 void zone_weather_change(struct zone_data *zone);
-int House_can_enter(struct Creature *ch, room_num real_room);
 int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 
 
@@ -1242,7 +1242,7 @@ ASPELL(spell_identify)
 			}
 		}
 		if (GET_OBJ_SIGIL_IDNUM(obj)) {
-			char *name;
+			const char *name;
 
 			name = get_name_by_id(GET_OBJ_SIGIL_IDNUM(obj));
 
