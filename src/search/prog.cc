@@ -53,6 +53,7 @@ void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
 void prog_do_echo(prog_env *env, prog_evt *evt, char *args);
 void prog_do_mobflag(prog_env *env, prog_evt *evt, char *args);
 void prog_do_ldesc(prog_env *env, prog_evt *evt, char *args);
+void prog_do_damage(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -92,6 +93,7 @@ prog_command prog_cmds[] = {
 	{ "halt",		false,	prog_do_halt },
 	{ "mobflag",	true,	prog_do_mobflag },
 	{ "ldesc",      true,   prog_do_ldesc },
+	{ "damage",     true,   prog_do_damage },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -669,6 +671,86 @@ prog_do_ldesc(prog_env *env, prog_evt *evt, char *args)
 	// do nothing
 	break;
   }
+}
+
+void
+prog_do_damage(prog_env *env, prog_evt *evt, char *args)
+{
+	room_data *room;
+	Creature *mob;
+	obj_data *obj;
+	int damage_amt;
+	char *target_arg;
+	int damage_type;
+
+	target_arg = tmp_getword(&args);
+
+	damage_amt = atoi(tmp_getword(&args));
+	if (!*args)
+	  return;
+	damage_type = str_to_spell(args);
+	if (damage_type == -1)
+	  return;
+
+	search_nomessage = true;
+	if (!strcmp(target_arg, "self")) {
+		// Trans the owner of the prog
+		switch (env->owner_type) {
+		case PROG_TYPE_OBJECT:
+		  obj = (obj_data *)env->owner;
+		  damage_eq((obj->worn_by) ? obj->worn_by : obj->carried_by,
+					obj,
+					damage_amt,
+					damage_type);
+		  break;
+		case PROG_TYPE_MOBILE:
+		  mob = (Creature *)env->owner;
+		  damage(NULL, mob, damage_amt, damage_type, WEAR_RANDOM);
+		  break;
+		case PROG_TYPE_ROOM:
+		  break;
+		}
+		search_nomessage = false;
+		return;
+	} else if (!strcmp(target_arg, "target")) {
+		// Transport the target, which is always a creature
+		if (!env->target)
+			return;
+		damage(NULL, env->target, damage_amt, damage_type, WEAR_RANDOM);
+		search_nomessage = false;
+		return;
+	}
+
+	// The rest of the options deal with multiple creatures
+
+	bool players = false, mobs = false;
+	
+	if (!strcmp(target_arg, "mobiles"))
+		mobs = true;
+	else if (!strcmp(target_arg, "players"))
+		players = true;
+	else if (strcmp(target_arg, "all"))
+		errlog("Bad trans argument 1");
+
+	switch (env->owner_type) {
+	case PROG_TYPE_MOBILE:
+		room = ((Creature *)env->owner)->in_room; break;
+	case PROG_TYPE_OBJECT:
+		room = ((obj_data *)env->owner)->find_room(); break;
+	case PROG_TYPE_ROOM:
+		room = ((room_data *)env->owner); break;
+	default:
+		room = NULL;
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+	}
+
+	for (CreatureList::iterator it = room->people.begin();
+			it != room->people.end();
+			++it)
+		if ((!players || IS_PC(*it)) &&
+				(!mobs || IS_NPC(*it)))
+		  damage(NULL, *it, damage_amt, damage_type, WEAR_RANDOM);
+	search_nomessage = false;
 }
 
 void
