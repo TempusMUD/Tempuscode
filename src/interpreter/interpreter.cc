@@ -93,7 +93,7 @@ ACMD(do_alter);
 ACMD(do_analyze);
 ACMD(do_approve);
 ACMD(do_arm);
-ACMD(do_auction);
+//ACMD(do_auction);
 ACMD(do_unapprove);
 ACMD(do_assist);
 ACMD(do_assimilate);
@@ -459,7 +459,7 @@ extern const struct command_info cmd_info[] = {
     { "assimilate",POS_RESTING , do_assimilate, 0, 0 },
     { "ask"      , POS_RESTING , do_spec_comm, 0, SCMD_ASK },
     { "auction"  , POS_SLEEPING, do_gen_comm , 0, SCMD_AUCTION },
-    { "auction1" , POS_SLEEPING, do_auction  , 0, SCMD_AUCTION }, 
+//    { "auction1" , POS_SLEEPING, do_auction  , 0, SCMD_AUCTION }, 
     { "autodiagnose",POS_DEAD  , do_gen_tog  , 1, SCMD_AUTO_DIAGNOSE },
     { "autoexits" , POS_DEAD   , do_gen_tog  , 1, SCMD_AUTOEXIT },
     { "autoloot"  , POS_DEAD   , do_gen_tog  , 1, SCMD_AUTOLOOT },
