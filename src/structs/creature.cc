@@ -1486,4 +1486,27 @@ Creature::hasDefender(Creature *vict)
 
     return def;
 }
+
+void
+Creature::ignite(Creature *ch)
+{
+    affected_type af;
+    
+    memset(&af, 0x0, sizeof(affected_type));
+    af.type = SPELL_ABLAZE;
+    af.duration = -1;
+    af.bitvector = AFF2_ABLAZE;
+    af.aff_index = 2;
+    
+    if (ch)
+        af.owner = ch->getIdNum();
+
+    affect_to_char(this, &af);
+}
+
+void
+Creature::extinguish()
+{
+    affect_from_char(this, SPELL_ABLAZE);
+}
 #undef __Creature_cc__

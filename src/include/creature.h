@@ -1200,7 +1200,7 @@ struct Creature {
 
     long getIdNum() {
         if (char_specials.saved.act & MOB_ISNPC)
-            return mob_specials.mob_idnum;
+            return -mob_specials.mob_idnum;
 
         return char_specials.saved.idnum;
     }
@@ -1273,6 +1273,7 @@ struct Creature {
 	bool isNewbie();
 	int getLevelBonus(int skill);
 	int getLevelBonus(bool primary);
+
 	// Various combat utility functions
 	bool affBySanc(Creature * attacker = NULL);
 	float getDamReduction(Creature * attacker = NULL);
@@ -1343,6 +1344,9 @@ struct Creature {
 	void gain_reputation(int amt);
 	void set_reputation(int amt);
 	int get_reputation(void);
+
+    void ignite(Creature *ch);
+    void extinguish();
   private:
     bool saveObjects(void);
     /** Extracts all unrentable objects carried or worn by this creature **/

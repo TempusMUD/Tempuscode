@@ -2782,7 +2782,9 @@ ASPELL(spell_animate_dead)
 
 	SET_BIT(AFF2_FLAGS(zombie), AFF2_FLAGS(orig_char));
 	REMOVE_BIT(AFF2_FLAGS(zombie),
-		AFF2_MEDITATE | AFF2_INTIMIDATED | AFF2_ABLAZE);
+		AFF2_MEDITATE | AFF2_INTIMIDATED);
+
+    zombie->extinguish();
 
 	SET_BIT(AFF3_FLAGS(zombie), AFF3_FLAGS(orig_char));
 	REMOVE_BIT(AFF3_FLAGS(zombie),

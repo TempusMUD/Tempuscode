@@ -1325,7 +1325,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						SPELL_FIRE_SHIELD, -1);
 
 					if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
-						SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
+                        ch->ignite(victim);
 					}
 
 				}
@@ -1701,7 +1701,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					FALSE, victim, 0, 0, TO_ROOM);
 				act("Your body suddenly ignites into flame!",
 					FALSE, victim, 0, 0, TO_CHAR);
-				SET_BIT(AFF2_FLAGS(victim), AFF2_ABLAZE);
+                victim->ignite(ch);
 			}
 		}
 		// transfer sickness if applicable
@@ -2505,7 +2505,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
                     FALSE, victim, 0, 0, TO_ROOM);
                 act("Your body suddenly ignites into flame!",
                     FALSE, victim, 0, 0, TO_CHAR);
-                SET_BIT(AFF2_FLAGS(victim), AFF2_ABLAZE);
+                victim->ignite(ch);
             }
         }
 
@@ -2862,14 +2862,14 @@ perform_violence(void)
 			// rarely enough that nobody should notice
 			//
 
-            list<CharCombat>::iterator li;
+/*            list<CharCombat>::iterator li;
             li = ch->getCombatList()->begin();
             for (; li != ch->getCombatList()->end(); ++li) {
                 if (li->getOpponent() == next_combat_list) {
                     hit(ch, li->getOpponent(), TYPE_UNDEFINED);
                     break;
                 }
-            }
+            } */
 
 
 			if (MOB_FLAGGED(ch, MOB_SPEC) && ch->in_room &&

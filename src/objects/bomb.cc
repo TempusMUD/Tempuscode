@@ -337,7 +337,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 
 		if (bomb_type == BOMB_INCENDIARY &&
 			!CHAR_WITHSTANDS_FIRE(vict) && !AFF2_FLAGGED(vict, AFF2_ABLAZE))
-			SET_BIT(AFF2_FLAGS(vict), AFF2_ABLAZE);
+            vict->ignite(NULL);
 
 		if ((bomb_type == BOMB_ARTIFACT || bomb_type == BOMB_FLASH) &&
 			AWAKE(vict) && GET_LEVEL(vict) < LVL_AMBASSADOR &&

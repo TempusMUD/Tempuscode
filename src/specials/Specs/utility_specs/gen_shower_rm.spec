@@ -29,7 +29,7 @@ SPECIAL(gen_shower_rm)
 
 	if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
 		send_to_char(ch, "The flames surrounding you are extinguished in a burst of steam!\r\n");
-		REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
+        ch->extinguish();
 	}
 
 	if (acid_cleaned)

@@ -801,8 +801,7 @@ ACMD(do_pinch)
 			if (retval)
 				return;
 
-			SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
-
+            ch->ignite(vict);
 		}
 		//
 		// victim is simply on fire
@@ -815,7 +814,8 @@ ACMD(do_pinch)
 				FALSE, ch, 0, vict, TO_NOTVICT);
 			act("$n bursts into flames on contact with you!",
 				FALSE, ch, 0, vict, TO_VICT);
-			SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
+
+            ch->ignite(vict);
 		}
 	}
 	//

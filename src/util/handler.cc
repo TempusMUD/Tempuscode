@@ -1160,7 +1160,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 		!IS_AFFECTED_2(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch)) {
 		act("$n suddenly bursts into flames!", FALSE, ch, 0, 0, TO_ROOM);
 		act("You suddenly burst into flames!", FALSE, ch, 0, 0, TO_CHAR);
-		SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
+        ch->ignite(NULL);
 	}
 
 	long spec_rc = 0;

@@ -482,7 +482,7 @@ burn_update(void)
 				send_to_char(ch, 
 					"The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n");
 				act("The flames on $n sizzle and die, leaving a cloud of steam.", FALSE, ch, 0, 0, TO_ROOM);
-				REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
+                ch->extinguish();
 			}
 			// 
 			// Sect types that don't have oxygen
@@ -493,11 +493,11 @@ burn_update(void)
 					"The flames on your body die in the absence of oxygen.\r\n");
 				act("The flames on $n die in the absence of oxygen.", FALSE,
 					ch, 0, 0, TO_ROOM);
-				REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
+                ch->extinguish();
 			} 
             
             else if (!random_fractional_3() && !CHAR_WITHSTANDS_FIRE(ch)) {
-                if ((af = affected_by_spell(ch, AFF2_ABLAZE)))
+                if ((af = affected_by_spell(ch, SPELL_ABLAZE)))
                     damager = get_char_in_world_by_idnum(af->owner);
                 if (!damager)
                     damager = ch;
@@ -521,7 +521,7 @@ burn_update(void)
 			send_to_char(ch, "Your body suddenly bursts into flames!\r\n");
 			act("$n suddenly bursts into flames!", FALSE, ch, 0, 0, TO_ROOM);
 			GET_MANA(ch) = 0;
-			SET_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
+            ch->ignite(NULL);
 			if (damage(ch, ch, dice(4, 5), TYPE_ABLAZE, -1))
 				continue;
 		}
