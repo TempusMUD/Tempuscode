@@ -19,6 +19,7 @@
 //
 
 /* handling the affected-structures */
+bool obj_gives_affects(obj_data *obj, Creature *ch, bool internal);
 void affect_total(struct Creature *ch);
 void affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 	int index, bool add);
