@@ -1183,6 +1183,32 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         send_to_char(ch, "**This object currently has no description**\r\n");
     }
 
+	if (j->creation_time) {
+		switch (j->creation_method) {
+		case CREATED_ZONE:
+			send_to_char(ch, "Created by zone #%ld on %s\r\n",
+				j->creator, tmp_ctime(j->creation_time));
+			break;
+		case CREATED_MOB:
+			send_to_char(ch, "Loaded onto mob #%ld on %s\r\n",
+				j->creator, tmp_ctime(j->creation_time));
+		case CREATED_SEARCH:
+			send_to_char(ch, "Created by search in room #%ld on %s\r\n",
+				j->creator, tmp_ctime(j->creation_time));
+		case CREATED_IMM:
+			send_to_char(ch, "Loaded by %s on %s\r\n",
+				playerIndex.getName(j->creator),
+				tmp_ctime(j->creation_time));
+			break;
+		default:
+			send_to_char(ch, "Created on %s\r\n", tmp_ctime(j->creation_time));
+			break;
+		}
+	}
+
+	if (j->unique_id)
+		send_to_char(ch, "Unique object id: %ld\r\n", j->unique_id);
+
 	if( j->shared->owner_id != 0 ) {
 		if( playerIndex.exists(j->shared->owner_id) ) {
 			send_to_char(ch,"Oedit Owned By: %s[%ld]\r\n",
@@ -2447,6 +2473,8 @@ ACMD(do_oload)
 
     for(int i = 0; i < quantity; i++) {
         obj = read_object(number);
+		obj->creation_method = CREATED_IMM;
+		obj->creator = GET_IDNUM(ch);
         obj_to_room(obj, ch->in_room);
     }
     act("$n makes a strange magical gesture.", TRUE, ch, 0, 0, TO_ROOM);
@@ -2546,6 +2574,8 @@ ACMD(do_pload)
     if (vict) {
         for(int i=0; i < quantity; i++) {
             obj = read_object(number);
+			obj->creation_method = CREATED_IMM;
+			obj->creator = GET_IDNUM(ch);
             obj_to_char(obj, vict);
         }
         
@@ -2575,6 +2605,8 @@ ACMD(do_pload)
             TO_ROOM);
         for(int i=0; i < quantity; i++) {
             obj = read_object(number);
+			obj->creation_method = CREATED_IMM;
+			obj->creator = GET_IDNUM(ch);
             obj_to_char(obj, ch);
         }
         
