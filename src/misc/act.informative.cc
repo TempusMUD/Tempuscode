@@ -916,8 +916,8 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 		is_group = false;
 		if (ch == i)
 			continue;
-		
-		if (ch->in_room != i->in_room && AFF_FLAGGED(i, AFF_HIDE | AFF_SNEAK))
+        
+        if (ch->in_room != i->in_room && AFF_FLAGGED(i, AFF_HIDE | AFF_SNEAK))
 			continue;
 
 		if (room_is_dark(ch->in_room) && !has_dark_sight(ch) &&
@@ -944,7 +944,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 
 		// skip those you can't see for in-game reasons
 		if (!can_see_creature(ch, i)) {
-			if (!IS_IMMORT(i))
+			if (!IS_IMMORT(i) && !(IS_NPC(i) && MOB_FLAGGED(i, MOB_UTILITY)))
 				unseen++;
 			continue;
 		}

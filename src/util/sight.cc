@@ -185,7 +185,12 @@ can_see_creature(Creature *self, Creature *vict)
 	// Immortals players can always see non-immortal players
 	if (IS_IMMORT(self) && !IS_IMMORT(vict))
 		return true;
-
+    
+    //only immortals can see utility mobs
+    if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_UTILITY) && !IS_IMMORT(self)) {
+        return false;
+    }
+	
 	// Nothing at all gets through immort invis
 	if (IS_IMMORT(vict) && GET_LEVEL(self) < GET_INVIS_LVL(vict))
 		return false;

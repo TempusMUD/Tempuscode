@@ -434,7 +434,7 @@ ACMD(do_snatch)
 
 
 	// NO NO With Imp's and Shopkeepers!
-	if (!ok_damage_vendor(ch, vict))
+	if (!ok_damage_vendor(ch, vict) || (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_UTILITY)))
 		percent = 121;			// Failure
 
 	// Mod the percentage based on position and flags

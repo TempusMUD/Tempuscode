@@ -324,7 +324,8 @@ static const int MOB_PET = (1 << 20);	// Mob is a conjured pet and shouldn't
 										 // get nor give any xp in any way.
 static const int MOB_SOULLESS = (1 << 21);	// Mobile is Soulless - Unholy compact.
 static const int MOB_SPIRIT_TRACKER = (1 << 22);	// Can track through !track
-#define NUM_MOB_FLAGS             23
+static const int MOB_UTILITY = (1 << 23); //Can't be seen, hit, etc...
+#define NUM_MOB_FLAGS             24
 
 static const int MOB2_SCRIPT = (1 << 0);
 static const int MOB2_MOUNT = (1 << 1);

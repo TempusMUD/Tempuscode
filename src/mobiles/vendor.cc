@@ -70,6 +70,7 @@ same_obj(obj_data *obj1, obj_data *obj2)
 	return (TRUE);
 }
 
+//checks for both vendors and utility mobs
 bool
 ok_damage_vendor(struct Creature *ch, struct Creature *victim)
 {
@@ -93,6 +94,10 @@ ok_damage_vendor(struct Creature *ch, struct Creature *victim)
 		return shop.attack_ok;
 	}
 
+    if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_UTILITY)) { //utility mobs shouldn't be attacked either
+        return false;
+    }
+    
 	return true;
 }
 

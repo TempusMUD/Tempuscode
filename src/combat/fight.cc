@@ -787,7 +787,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 	/* vendor protection */
 	if (!ok_damage_vendor(ch, victim)) {
-		DAM_RETURN(0);
+		DAM_RETURN(0); //we don't want to return DAM_ATTACK_FAILED because we shouldn't interfere with mass attacks
 	}
 
 	/* newbie protection and PLR_NOPK check */
