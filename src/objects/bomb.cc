@@ -663,13 +663,7 @@ ACMD(do_bomb)
 				strcat(buf, buf2);
 		}
 		bomb_rooms = next_elem;
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		free(rad_elem);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 	}
 
 	page_string(ch->desc, buf, 1);

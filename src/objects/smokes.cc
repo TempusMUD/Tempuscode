@@ -362,22 +362,10 @@ ACMD(do_convert)
 		gain_skill_prof(ch, SKILL_PIPEMAKING);
 
 		sprintf(buf, "a pipe made from %s", obj->short_description);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		obj->short_description = str_dup(buf);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		strcpy(buf, "pipe ");
 		strcat(buf, obj->name);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		obj->name = str_dup(buf);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 
 	}
 }

@@ -126,7 +126,7 @@ display_status(struct char_data *ch, struct obj_data *car,
 			QRED, QGRN, QNRM);
 	}
 
-	sprintf(buf,
+	send_to_char(ch,
 		"%s*******************************************************%s\r\n",
 		QBLU, QNRM);
 }

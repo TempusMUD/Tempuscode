@@ -283,9 +283,8 @@ SPECIAL(gen_board)
 		return 0;
 
 	if ((board_type = find_board(obj)) == -1) {
-		sprintf(buf, "SYSERR: board vnum %d is degenerate.",
+		slog(buf, "SYSERR: board vnum %d is degenerate.",
 			GET_OBJ_VNUM(obj));
-		slog(buf);
 		return 0;
 	}
 	if (cmd == CMD_WRITE) {
@@ -359,17 +358,11 @@ Board_write_message(int board_type, struct char_data *ch, struct obj_data *obj,
 	sprintf(buf2, "(%s)", GET_NAME(ch));
 	sprintf(buf, "%6.10s %-12s :: %s", tmstr, buf2, arg);
 	len = strlen(buf) + 1;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	if (!(NEW_MSG_INDEX(board_type).heading =
 			(char *)malloc(sizeof(char) * len))) {
 		send_to_char(ch, "The board is malfunctioning - sorry.\r\n");
 		return;
 	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	strcpy(NEW_MSG_INDEX(board_type).heading, buf);
 	NEW_MSG_INDEX(board_type).heading[len - 1] = '\0';
 	NEW_MSG_INDEX(board_type).level = GET_LEVEL(ch);
@@ -570,24 +563,12 @@ Board_remove_msg(int board_type, struct char_data *ch, struct obj_data *obj,
 			return 1;
 		}
 	if (msg_storage[slot_num]) {
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		free(msg_storage[slot_num]);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 	}
 	msg_storage[slot_num] = 0;
 	msg_storage_taken[slot_num] = 0;
 	if (MSG_HEADING(board_type, ind)) {
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 		free(MSG_HEADING(board_type, ind));
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 	}
 
 	for (; ind < num_of_msgs[board_type] - 1; ind++) {
