@@ -54,7 +54,7 @@ obj_data::saveToXML(FILE *ouf)
           proto->name == NULL || 
           strcmp(s, proto->name) ) )
     {
-        fprintf( ouf, "%s<short_desc>%s</short_desc>\n",
+        fprintf( ouf, "%s<name>%s</name>\n",
                  indent.c_str(), xmlEncodeTmp(s) );
     }
 
