@@ -382,6 +382,8 @@ struct obj_shared_data {
 	int cost;					/* Value when sold (gp.)            */
 	int cost_per_day;			/* Cost to keep pr. real day        */
 	int house_count;
+	/** The player id of the owner of this (oedited) object **/
+	long owner_id;
 	struct obj_data *proto;		/* pointer to prototype */
 	SPECIAL(*func);
 	char *func_param;
