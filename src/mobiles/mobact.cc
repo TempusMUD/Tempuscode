@@ -268,11 +268,21 @@ burn_update(void)
 				MIN(GET_MAX_MANA(ch),
 				GET_MANA(ch) + 1 + random_number_zero_low(GET_WIS(ch) >> 2));
 
+		// mana leak
+		if (AFF3_FLAGGED(ch, AFF3_MANA_LEAK))
+			GET_MANA(ch) = MAX(0, GET_MANA(ch) - 
+                               (1 + random_number_zero_low(GET_WIS(ch) >> 2)));
+
 		// energy tap
 		if (AFF3_FLAGGED(ch, AFF3_ENERGY_TAP))
 			GET_MOVE(ch) =
 				MIN(GET_MAX_MOVE(ch),
-				GET_MOVE(ch) + 1 + random_number_zero_low((GET_CON(ch) >> 2)));
+				GET_MOVE(ch) + 1 + random_number_zero_low(GET_CON(ch) >> 2));
+
+		// energy leak
+		if (AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK))
+			GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 
+                               (1 + random_number_zero_low(GET_CON(ch) >> 2)));
 
 		// Signed the Unholy Compact - Soulless
 		if (PLR2_FLAGGED(ch, PLR2_SOULLESS) &&
