@@ -3878,6 +3878,10 @@ mag_assign_spells(void)
             150, 75, 5, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
             FALSE, MAG_BARD | MAG_AFFECTS);
 
+    remort_spello(SONG_LICHS_LYRICS, CLASS_BARD, 45, 5,
+            300, 200, 25, POS_FIGHTING, TAR_IGNORE, TRUE,
+            MAG_BARD | MAG_AREAS);
+        
     remort_spello(SPELL_FIRE_BREATHING, 
             CLASS_MAGE, 35, 1, 
             280, 180, 10, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,

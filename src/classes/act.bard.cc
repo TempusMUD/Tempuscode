@@ -264,7 +264,7 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Lich's Lyrics", // 390
-      "",
+      "Let the body die while the soul survives,\nFeed me your life and let me thrive!",
       false,
       ITEM_PERCUSSION
     },

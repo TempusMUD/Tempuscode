@@ -53,6 +53,8 @@ int general_search(struct Creature *ch, struct special_search_data *srch,
 int smart_mobile_move(struct Creature *ch, int dir);
 bool perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_flags);
 
+extern int max_npc_corpse_time, max_pc_corpse_time;
+
 ACMD(do_flee);
 ACMD(do_sleeper);
 ACMD(do_stun);
@@ -521,6 +523,53 @@ burn_update(void)
 				if (damage(ch, ch, thedam, TYPE_ANGUISH, -1))
 					continue;
 		}
+        //Lich's Lyrics rotting flesh
+        if ((af = affected_by_spell(ch, SONG_LICHS_LYRICS)) && !random_fractional_10()) {
+            int dam = 0;
+            if ((GET_CON(ch) >> 1) + 85 > random_number_zero_low(100) || IS_AFFECTED_2(ch, AFF2_PETRIFIED)) {
+                dam = (af->level >> 3) + dice(2,5);
+                send_to_char(ch, "You feel your life force being drawn away!\r\n");
+                act("$n begins to pale as $s life force fades.", FALSE, ch, 0, 0, TO_ROOM);
+            } else {
+                dam = (af->level) + dice(4,5);
+                send_to_char(ch, "A large chunk of your decaying flesh rots off and falls to the ground!\r\n");
+                act("A large chunk of $n's decaying flesh rots off and falls to the ground!", FALSE, ch, 0, 0, TO_ROOM);
+                //lets make rotted flesh!!!
+                obj_data *flesh = create_obj();
+                char desc[MAX_INPUT_LENGTH];
+                
+                flesh->shared = null_obj_shared;
+                flesh->in_room = NULL;
+                flesh->aliases = str_dup("decaying flesh hunk");
+                sprintf(desc, "A decaying hunk of %s's flesh is lying here.", GET_NAME(ch));
+                flesh->line_desc = str_dup(desc);
+                sprintf(desc, "a decaying hunk of %s's flesh", GET_NAME(ch));
+                flesh->name = str_dup(desc);
+                GET_OBJ_TYPE(flesh) = ITEM_FOOD;
+                GET_OBJ_WEAR(flesh) = ITEM_WEAR_TAKE;
+                GET_OBJ_EXTRA(flesh) = ITEM_NODONATE + ITEM_NOSELL;
+                GET_OBJ_EXTRA2(flesh) = ITEM2_BODY_PART;
+                GET_OBJ_VAL(flesh, 0) = 3;
+                GET_OBJ_VAL(flesh, 3) = 3;
+                flesh->setWeight(2);
+                flesh->worn_on = -1;
+                if (IS_NPC(ch)) {
+                    GET_OBJ_TIMER(flesh) = max_npc_corpse_time;
+                } else {
+                    GET_OBJ_TIMER(flesh) = max_pc_corpse_time;
+                }
+                obj_to_room(flesh, ch->in_room);
+            }
+            damager = get_char_in_world_by_idnum(af->owner);
+            if (damager && damager->in_room == ch->in_room) {
+                GET_HIT(damager) += (dam >> 2);
+                GET_HIT(damager) = MIN(GET_HIT(damager), GET_MAX_HIT(damager)); 
+                act("You absorb some of $n's life force!", FALSE, ch, 0, damager, TO_VICT);
+            }
+            if (damage(damager, ch, dam, SONG_LICHS_LYRICS, WEAR_RANDOM)) {
+                continue;
+            }
+        }
 		// burning character
 		if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
 			if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||

@@ -850,6 +850,10 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SONG_DIRGE:
 		dam = dice((level >> 2), (level >> 2)) + (level << 2);
 		break;
+        
+    case SONG_LICHS_LYRICS:
+        dam = dice(level >> 1, 4);
+        break;
 		
 	}							/* switch(spellnum) */
 
@@ -2697,7 +2701,7 @@ Fireball: like harder bones, skin, organ membranecs
     break;
 
 	case SONG_FORTISSIMO:
-        aff_array[0].duration = GET_CHA(ch) + ch->getLevelBonus(SONG_FORTISSIMO) >> 3; 
+        aff_array[0].duration = GET_CHA(ch) + (ch->getLevelBonus(SONG_FORTISSIMO) >> 3); 
         aff_array[0].location = APPLY_CASTER;
         
 		if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
@@ -2711,6 +2715,22 @@ Fireball: like harder bones, skin, organ membranecs
 
         to_vict = "The air around you begins to vibrate with an increased intensity.";
     break;
+    
+    case SONG_LICHS_LYRICS:
+        aff_array[0].duration = (GET_CHA(ch) >> 3) + (ch->getLevelBonus(SONG_LICHS_LYRICS) >> 4);
+        aff_array[0].location = APPLY_CASTER;
+        
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        if (IS_NPC(ch))
+            aff_array[0].modifier = -(ch->getIdNum());
+        else
+            aff_array[0].modifier = ch->getIdNum();
+
+        to_vict = "Your flesh begins to rot and decay!";
+        to_room = "$n's flesh begins to rot and decay!";
+        break;
 
 	default:
 		errlog("unknown spell %d in mag_affects.", spellnum);
@@ -3017,6 +3037,10 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		to_room = "$n's dirge tugs at the souls of the undead, beckoning them back to the grave.";
 		to_next_room = "Chilling music can be heard in the distance.";
         break;
+    case SONG_LICHS_LYRICS:
+        to_char = "Your enchanting voice beckons to the life force of your victims.";
+        to_room = "$n's voice begins to suck in the life force of $s surroundings!";
+        to_next_room = "You feel a chill deep in your soul.";
 	}
 
 	if (to_char != NULL)
@@ -3065,7 +3089,8 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		//          flying chars if spell is earthquake
 		//			undead chars if spell is sonic disruption
 		//			non-undead chars if spell is dirge
-		
+		//          non-living chars if spell is lich's lyric
+        
 		if ((*it) == ch)
 			continue;
 		if (!IS_NPC((*it)) && PRF_FLAGGED((*it), PRF_NOHASSLE))
@@ -3080,6 +3105,9 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		if (spellnum == SONG_DIRGE && !IS_UNDEAD(*it)) {
 			continue;
 		}
+        if (spellnum == SONG_LICHS_LYRICS && !LIFE_FORM(*it)) {
+            continue;
+        }
 
 		if (spellnum == SPELL_MASS_HYSTERIA) {
 			call_magic(ch, (*it), 0, NULL, SPELL_FEAR, level, CAST_PSIONIC);
@@ -3111,6 +3139,9 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 				}
 			}
 		}
+        if (spellnum == SONG_LICHS_LYRICS) {
+            mag_affects(level, ch, *it, 0, SONG_LICHS_LYRICS, savetype);
+        }
 		int retval = mag_damage(level, ch, (*it), spellnum, 1);
 		return_value |= retval;
 		if (retval == 0) {
