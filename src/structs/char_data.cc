@@ -7,7 +7,7 @@ int char_data::modifyCarriedWeight( int mod_weight ) {
 }
 
 int char_data::modifyWornWeight( int mod_weight ) {
-    return ( setWornWeight( getCarriedWeight() + mod_weight ) );
+    return ( setWornWeight( getWornWeight() + mod_weight ) );
 }
 
 short char_player_data::modifyWeight( short mod_weight ) {
