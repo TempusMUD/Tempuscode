@@ -496,10 +496,6 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		perform_tell(recep, ch, "I don't deal with KILLERS and THIEVES.");
 		return 1;
 	}
-	if (PLR_FLAGGED(ch, PLR_QUESTOR)) {
-		send_to_char(ch, "Please remove your questor flag first.\r\n");
-		return 1;
-	}
 	if (CMD_IS("rent")) {
 		if (!(cost = Crash_offer_rent(ch, recep, FALSE, mode)))
 			return TRUE;
