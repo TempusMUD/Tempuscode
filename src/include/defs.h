@@ -77,6 +77,7 @@ int (name)(struct char_data *ch, void *me, int cmd, char *argument, int spec_mod
 #define PLANE_COSTAL        41
 #define PLANE_HEAVEN        43
 #define PLANE_DOOM          50
+#define PLANE_SHADOW        51
 #define PLANE_ELEM_WATER    70
 #define PLANE_ELEM_FIRE     71
 #define PLANE_ELEM_AIR      72

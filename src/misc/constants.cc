@@ -636,7 +636,7 @@ extern const char *planes[] =
   "48",
   "49",
   "DOOM",
-  "51",
+  "Shadow",
   "52",
   "53",
   "54",

@@ -224,6 +224,11 @@ int CHECK_SKILL(struct char_data *ch, int i);
                                  (ch->in_room->zone->plane == PLANE_HELL_5)
 #define HELL_PLANE(zone, num)  ((zone)->plane == (PLANE_HELL_1 - 1 + num))
 
+/******************* SHADOW PLANE STUFF *******************/
+#define SHADOW_ZONE(zone)     ((zone)->plane == PLANE_SHADOW)
+#define ZONE_IS_SHADE(zone)   ((zone)->number == 198)
+/***************** END  SHADOW PLANE STUFF *****************/    
+
 #define ZONE_IS_HELL(zone) \
                           (zone->plane >= PLANE_HELL_1 && zone->plane <= PLANE_HELL_9)
 

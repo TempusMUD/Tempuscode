@@ -188,6 +188,7 @@ SPECIAL(new_mavernal_talker);
 SPECIAL(boulder_thrower);
 SPECIAL(windy_room);
 
+// utility specs
 SPECIAL(gen_board);
 SPECIAL(wagon_obj);
 SPECIAL(fountain_heal);
@@ -228,6 +229,7 @@ SPECIAL(djinn_lamp);
 SPECIAL(improve_stat_book);
 SPECIAL(improve_prac_book);
 SPECIAL(life_point_potion);
+SPECIAL(shade_zone);
 
 SPECIAL(chastity_belt);
 SPECIAL(anti_spank_device);
