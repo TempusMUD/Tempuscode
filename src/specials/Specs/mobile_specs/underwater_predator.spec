@@ -26,7 +26,7 @@ SPECIAL(underwater_predator)
 			((troom = EXIT(pred, DOWN)->to_room) != NULL) &&
 			(SECT_TYPE(troom) == SECT_UNDERWATER
 				|| SECT_TYPE(troom) == SECT_DEEP_OCEAN) &&
-			!ROOM_FLAGGED(troom, ROOM_GODROOM | ROOM_DEATH | ROOM_PEACEFUL)) {
+			!ROOM_FLAGGED(troom, ROOM_GODROOM | ROOM_DEATH)) {
 
 			if ((STRENGTH_APPLY_INDEX(pred) + number(1, 6) >
 					STRENGTH_APPLY_INDEX(vict))) {
@@ -51,8 +51,7 @@ SPECIAL(underwater_predator)
 			|| SECT_TYPE(pred->in_room) == SECT_DEEP_OCEAN) &&
 		EXIT(pred, UP) &&
 		((troom = EXIT(pred, UP)->to_room) != NULL) &&
-		!ROOM_FLAGGED(troom, ROOM_NOMOB | ROOM_PEACEFUL |
-			ROOM_DEATH | ROOM_GODROOM)) {
+		!ROOM_FLAGGED(troom, ROOM_NOMOB | ROOM_DEATH | ROOM_GODROOM)) {
 		CreatureList::iterator it = troom->people.begin();
 		for (; it != troom->people.end(); ++it) {
 			vict = *it;

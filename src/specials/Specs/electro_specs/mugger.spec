@@ -62,61 +62,58 @@ SPECIAL(mugger)
 
 	// We're not mugging anyone, so look for a new victim
 	if (!mug) {
-		if (!ROOM_FLAGGED(self->in_room, ROOM_PEACEFUL)) {
-			
-			found_vict = NULL;
-			for (it = ch->in_room->people.begin(); it != ch->in_room->people.end();++it) {
-				vict = *it;
-				if (check_infiltrate(vict, ch))
-					continue;
-				if (IS_NPC(vict)
-					&& can_see_creature(ch, vict)
-					&& cityguard == GET_MOB_SPEC(vict)) {
-					act("$n glances warily at $N", true, ch, 0, vict, TO_ROOM);
-					return 1;
-				}
-				if (vict == self
-						|| !can_see_creature(self, vict)
-						|| IS_NPC(vict)
-						|| !AWAKE(vict)
-						|| GET_LEVEL(vict) < 7
-						|| GET_LEVEL(vict) > (GET_LEVEL(self) + 5)
-						|| GET_LEVEL(vict) + 15 < GET_LEVEL(self))
-					continue;
-				if (!found_vict
-						|| GET_LEVEL(vict) < GET_LEVEL(found_vict)
-						|| GET_HIT(vict) < GET_HIT(found_vict)
-						|| !random_fractional_3())
-					found_vict = vict;
-			}
-
-			if (!found_vict)
-				return 0;
-			
-			vict = found_vict;
-			act("You examine $N.", true, ch, 0, vict, TO_CHAR);
-			act("$n examines you.", true, ch, 0, vict, TO_VICT);
-			act("$n examines $N.", true, ch, 0, vict, TO_NOTVICT);
-
-			for (idx = 0;idx < MUG_MAX;idx++) {
-				obj = GET_EQ(vict, mug_eq[idx]);
-				if (!obj
-						|| IS_OBJ_STAT(obj, ITEM_NODROP)
-						|| IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)
-						|| !can_see_object(self, obj)
-						|| !obj->shared->proto
-						|| obj->name != obj->shared->proto->name)
-					continue;
-
-				do_say(self, tmp_sprintf("%s I see you are using %s.  I believe I could appreciate it much more than you.  Give it to me now.", GET_NAME(vict), obj->name), 0, SCMD_SAY_TO, 0);
-				CREATE(mug, mob_mugger_data, 1);
-				mug->idnum = GET_IDNUM(vict);
-				mug->vnum = GET_OBJ_VNUM(obj);
-				mug->timer = 0;
-				mug->deaths = GET_PC_DEATHS(vict);
-				self->mob_specials.func_data = mug;
+		found_vict = NULL;
+		for (it = ch->in_room->people.begin(); it != ch->in_room->people.end();++it) {
+			vict = *it;
+			if (check_infiltrate(vict, ch))
+				continue;
+			if (IS_NPC(vict)
+				&& can_see_creature(ch, vict)
+				&& cityguard == GET_MOB_SPEC(vict)) {
+				act("$n glances warily at $N", true, ch, 0, vict, TO_ROOM);
 				return 1;
 			}
+			if (vict == self
+					|| !can_see_creature(self, vict)
+					|| IS_NPC(vict)
+					|| !AWAKE(vict)
+					|| GET_LEVEL(vict) < 7
+					|| GET_LEVEL(vict) > (GET_LEVEL(self) + 5)
+					|| GET_LEVEL(vict) + 15 < GET_LEVEL(self))
+				continue;
+			if (!found_vict
+					|| GET_LEVEL(vict) < GET_LEVEL(found_vict)
+					|| GET_HIT(vict) < GET_HIT(found_vict)
+					|| !random_fractional_3())
+				found_vict = vict;
+		}
+
+		if (!found_vict)
+			return 0;
+		
+		vict = found_vict;
+		act("You examine $N.", true, ch, 0, vict, TO_CHAR);
+		act("$n examines you.", true, ch, 0, vict, TO_VICT);
+		act("$n examines $N.", true, ch, 0, vict, TO_NOTVICT);
+
+		for (idx = 0;idx < MUG_MAX;idx++) {
+			obj = GET_EQ(vict, mug_eq[idx]);
+			if (!obj
+					|| IS_OBJ_STAT(obj, ITEM_NODROP)
+					|| IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)
+					|| !can_see_object(self, obj)
+					|| !obj->shared->proto
+					|| obj->name != obj->shared->proto->name)
+				continue;
+
+			do_say(self, tmp_sprintf("%s I see you are using %s.  I believe I could appreciate it much more than you.  Give it to me now.", GET_NAME(vict), obj->name), 0, SCMD_SAY_TO, 0);
+			CREATE(mug, mob_mugger_data, 1);
+			mug->idnum = GET_IDNUM(vict);
+			mug->vnum = GET_OBJ_VNUM(obj);
+			mug->timer = 0;
+			mug->deaths = GET_PC_DEATHS(vict);
+			self->mob_specials.func_data = mug;
+			return 1;
 		}
 		return 0;
 	}
@@ -188,28 +185,25 @@ SPECIAL(mugger)
 		self->mob_specials.func_data = NULL;
 	}
 
-	if (!ROOM_FLAGGED(self->in_room, ROOM_PEACEFUL)) {
-		switch (mug->timer) {
-		case 1:
-			do_say(ch, tmp_sprintf("%s I'm warning you.  Give %s to me now or face the consequences!", GET_NAME(vict), obj->name), 0, SCMD_SAY_TO, 0);
-			// Fall through
-		case 2:
-		case 3:
-			do_say(ch, tmp_sprintf("%s You've got %d seconds to give it to me!",
-				GET_NAME(vict), (5 - mug->timer) * 4), 0, SCMD_SAY_TO, 0);
-			break;
-		case 4:
-			do_say(ch, tmp_sprintf("%s You have 4 seconds to give %s to me, OR ELSE!",
-				GET_NAME(vict), obj->name), 0, SCMD_SAY_TO, 0);
-			break;
-		case 5:
-			do_say(ch, tmp_sprintf("%s You asked for it!", GET_NAME(vict)),
-				0, SCMD_SAY_TO, 0);
-			mug->timer = 3;
-			best_attack(self, vict);
-			break;
-
-		}
+	switch (mug->timer) {
+	case 1:
+		do_say(ch, tmp_sprintf("%s I'm warning you.  Give %s to me now or face the consequences!", GET_NAME(vict), obj->name), 0, SCMD_SAY_TO, 0);
+		// Fall through
+	case 2:
+	case 3:
+		do_say(ch, tmp_sprintf("%s You've got %d seconds to give it to me!",
+			GET_NAME(vict), (5 - mug->timer) * 4), 0, SCMD_SAY_TO, 0);
+		break;
+	case 4:
+		do_say(ch, tmp_sprintf("%s You have 4 seconds to give %s to me, OR ELSE!",
+			GET_NAME(vict), obj->name), 0, SCMD_SAY_TO, 0);
+		break;
+	case 5:
+		do_say(ch, tmp_sprintf("%s You asked for it!", GET_NAME(vict)),
+			0, SCMD_SAY_TO, 0);
+		mug->timer = 3;
+		best_attack(self, vict);
+		break;
 
 		mug->timer++;
 		return 1;

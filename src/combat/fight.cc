@@ -2255,12 +2255,6 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		return 0;
 	}
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
-		!(PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(victim) == ch) &&
-		!PLR_FLAGGED(victim, PLR_KILLER) && GET_LEVEL(ch) < LVL_CREATOR) {
-		send_to_char(ch, "This room just has such a peaceful, easy feeling...\r\n");
-		return 0;
-	}
 	if (LVL_AMBASSADOR <= GET_LEVEL(ch) && GET_LEVEL(ch) < LVL_GOD &&
 		IS_NPC(victim) && !mini_mud) {
 		send_to_char(ch, "You are not allowed to attack mobiles!\r\n");

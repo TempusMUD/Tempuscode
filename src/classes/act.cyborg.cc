@@ -2411,11 +2411,6 @@ ACMD(do_insert)
 			return;
 		}
 
-		if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-			send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
-			return;
-		}
-
 		if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 				!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 				!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
@@ -2682,12 +2677,6 @@ ACMD(do_extract)
 		} else
 			gain_skill_prof(ch, SKILL_CYBO_SURGERY);
 
-		return;
-	}
-
-	if (GET_LEVEL(ch) < LVL_IMMORT
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-		send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
 		return;
 	}
 

@@ -23,7 +23,7 @@ SPECIAL(slaver)
 	if (!r_pit_lip || !r_slave_pit)
 		return 0;
 
-	if (!FIGHTING(slaver) && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
+	if (!FIGHTING(slaver)) {
 
 		CreatureList::iterator it = slaver->in_room->people.begin();
 		for (; it != slaver->in_room->people.end(); ++it) {

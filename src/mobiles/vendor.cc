@@ -1030,6 +1030,12 @@ SPECIAL(vendor)
 		return true;
 	}
 
+	if (!IS_EVIL(self) && GET_REPUTATION(ch) > CRIMINAL_REP) {
+		do_say(self, tmp_sprintf("%s I don't deal with CRIMINALS.",
+			GET_NAME(ch)), 0, SCMD_SAY_TO, 0);
+		return true;
+	}
+
 	if (CMD_IS("buy")) {
 		vendor_sell(ch, argument, self, shop);
 	} else if (CMD_IS("sell")) {

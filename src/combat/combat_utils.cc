@@ -426,9 +426,6 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 	int is_desc = 0;
 	struct descriptor_data *d = NULL;
 
-	if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL))
-		return;
-
 	if( IS_NPC(vict) ) {
 		slog("Checking object killer %s -> %s. (NPC)",
 			obj->name, GET_NAME(vict));
@@ -793,23 +790,6 @@ choose_random_limb(Creature *victim)
 bool
 peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 {
-	if (vict && IS_SET(ROOM_FLAGS(ch->in_room), ROOM_PEACEFUL) &&
-		!PLR_FLAGGED(vict, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD &&
-		!(PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(vict) == ch)
-		) {
-		send_to_char(ch, 
-			"The universal forces of order prevent violence here!\r\n");
-		if (mssg) {
-			if (!number(0, 1))
-				act("$n seems to be violently disturbed.", FALSE, ch, 0, 0,
-					TO_ROOM);
-			else
-				act("$n becomes violently agitated for a moment.",
-					FALSE, ch, 0, 0, TO_ROOM);
-		}
-
-		return false;
-	}
 	if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master == vict)) {
 		if (mssg)
 			act("$N is just such a good friend, you simply can't hurt $M.",

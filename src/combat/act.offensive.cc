@@ -3013,7 +3013,7 @@ ACMD(do_beguile)
 	act("$n looks deeply into $N's eyes with an enigmatic look.",
 		TRUE, ch, 0, vict, TO_NOTVICT);
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || !can_see_creature(vict, ch))
+	if (!can_see_creature(vict, ch))
 		return;
 
 	if (GET_INT(vict) < 4) {

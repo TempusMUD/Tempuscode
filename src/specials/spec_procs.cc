@@ -1326,15 +1326,9 @@ drag_char_to_jail(struct Creature *ch, struct Creature *evil,
 	sprintf(buf, "$n drags $N in from %s, punching and kicking!",
 		from_dirs[dir]);
 	act(buf, FALSE, ch, 0, evil, TO_NOTVICT);
-	if (!(ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))) {
-		hit(ch, evil, TYPE_UNDEFINED);
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-		return TRUE;
-	} else {
-		drag_char_to_jail(ch, evil, r_jail_room);
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-		return TRUE;
-	}
+	hit(ch, evil, TYPE_UNDEFINED);
+	WAIT_STATE(ch, PULSE_VIOLENCE);
+	return TRUE;
 }
 
 SPECIAL(cityguard)
@@ -1343,6 +1337,7 @@ SPECIAL(cityguard)
 	struct Creature *tch, *evil;
 	int max_evil = 0;
 	struct room_data *r_jail_room = real_room(3100);
+	CreatureList::iterator it, nit;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
@@ -1376,9 +1371,12 @@ SPECIAL(cityguard)
 	if (cmd || !AWAKE(ch))
 		return FALSE;
 
-	if (GET_MOB_WAIT(ch) <= 5 && (ch->in_room->zone->number == 30 ||
-			ch->in_room->zone->number == 32) &&
-		FIGHTING(ch) && ch->getPosition() >= POS_FIGHTING && !number(0, 1)) {
+	if (GET_MOB_WAIT(ch) <= 5
+			&& (ch->in_room->zone->number == 30
+				|| ch->in_room->zone->number == 32)
+			&& FIGHTING(ch)
+			&& ch->getPosition() >= POS_FIGHTING
+			&& !number(0, 1)) {
 		evil = FIGHTING(ch);
 		if (drag_char_to_jail(ch, evil, r_jail_room))
 			return TRUE;
@@ -1388,57 +1386,48 @@ SPECIAL(cityguard)
 	if (FIGHTING(ch))
 		return 0;
 
-	tch = NULL;
-	CreatureList::iterator it = ch->in_room->people.begin();
-	CreatureList::iterator nit = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		++nit;
-		if (!IS_NPC((*it)) && can_see_creature(ch, (*it))
-			&& !PRF_FLAGGED((*it), PRF_NOHASSLE)) {
-			if (IS_SET(PLR_FLAGS((*it)), PLR_KILLER)
-				&& (nit != ch->in_room->people.end() || !number(0, 2))) {
-				max_evil = 1;
-				tch = (*it);
-				break;
-			}
-			if (IS_SET(PLR_FLAGS((*it)), PLR_THIEF)
-				&& (nit != ch->in_room->people.end() || !number(0, 2))) {
-				max_evil = 0;
-				tch = (*it);
-				break;
+	if (!IS_EVIL(ch)) {
+		tch = NULL;
+		it = ch->in_room->people.begin();
+		for (; it != ch->in_room->people.end(); ++it) {
+			if (!IS_NPC((*it)) && can_see_creature(ch, (*it))
+					&& !PRF_FLAGGED((*it), PRF_NOHASSLE)) {
+				if (GET_REPUTATION(*it) > CRIMINAL_REP && !number(0, 4)) {
+					max_evil = 1;
+					tch = (*it);
+				} else if (GET_REPUTATION(*it) > (CRIMINAL_REP / 2) && !number(0,10)) {
+					tch = (*it);
+				}
 			}
 		}
-	}
-	if (tch) {
-		if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-			if (max_evil)
-				act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
-			else
-				act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
-			hit(ch, tch, TYPE_UNDEFINED);
-			return true;
-		} else if (!number(0, 3)) {
-			act("$n growls at you.", FALSE, ch, 0, tch, TO_VICT);
-			act("$n growls at $N.", FALSE, ch, 0, tch, TO_NOTVICT);
-		} else if (!number(0, 2)) {
-			act("$n cracks $s knuckles.", FALSE, ch, 0, tch, TO_ROOM);
-		} else if (!number(0, 1) && GET_EQ(ch, WEAR_WIELD) &&
-			(GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
-				(TYPE_SLASH - TYPE_HIT) ||
-				GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
-				(TYPE_PIERCE - TYPE_HIT) ||
-				GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
-				(TYPE_STAB - TYPE_HIT))) {
-			act("$n sharpens $p while watching $N.",
-				FALSE, ch, GET_EQ(ch, WEAR_WIELD), tch, TO_NOTVICT);
-			act("$n sharpens $p while watching you.",
-				FALSE, ch, GET_EQ(ch, WEAR_WIELD), tch, TO_VICT);
+		if (tch) {
+			if (max_evil) {
+				act("$n screams 'HEY!!!  You're one of those CRIMINALS!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
+				hit(ch, tch, TYPE_UNDEFINED);
+				return true;
+			} else if (!number(0, 3)) {
+				act("$n growls at you.", FALSE, ch, 0, tch, TO_VICT);
+				act("$n growls at $N.", FALSE, ch, 0, tch, TO_NOTVICT);
+			} else if (!number(0, 2)) {
+				act("$n cracks $s knuckles.", FALSE, ch, 0, tch, TO_ROOM);
+			} else if (!number(0, 1) && GET_EQ(ch, WEAR_WIELD) &&
+				(GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
+					(TYPE_SLASH - TYPE_HIT) ||
+					GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
+					(TYPE_PIERCE - TYPE_HIT) ||
+					GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
+					(TYPE_STAB - TYPE_HIT))) {
+				act("$n sharpens $p while watching $N.",
+					FALSE, ch, GET_EQ(ch, WEAR_WIELD), tch, TO_NOTVICT);
+				act("$n sharpens $p while watching you.",
+					FALSE, ch, GET_EQ(ch, WEAR_WIELD), tch, TO_VICT);
+			}
 		}
 	}
 
 	if (!number(0, 11)) {
-		CreatureList::iterator it = ch->in_room->people.begin();
-		CreatureList::iterator nit = ch->in_room->people.begin();
+		it = ch->in_room->people.begin();
+		nit = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			++nit;
 			tch = *it;

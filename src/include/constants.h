@@ -58,6 +58,8 @@ const int MAX_SKILLS =        		700;	// char_file_u *DO*NOT*CHANGE*
 const int MAX_AFFECT =        		96;		// char_file_u *DO*NOT*CHANGE*
 const int MAX_OBJ_AFFECT =    		6;		// obj_file_elem *DO*NOT*CHANGE*
 
+const int CRIMINAL_REP =            300;	// minimum rep to be a criminal
+
 #ifndef __constants_cc__
 
 extern const struct str_app_type str_app[];

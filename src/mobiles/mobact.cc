@@ -233,9 +233,6 @@ burn_update(void)
 					if (IS_MONK(ch))
 						dam -= (GET_LEVEL(ch) * dam) / 100;
 
-					if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
-						dam = 0;
-
 					ch->setPosition(POS_RESTING);
 
 					if (dam
@@ -504,7 +501,6 @@ burn_update(void)
 		}
 		// radioactive room
 		if (ROOM_FLAGGED(ch->in_room, ROOM_RADIOACTIVE)
-			&& !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 			&& !CHAR_WITHSTANDS_RAD(ch)) {
 
 			if (affected_by_spell(ch, SKILL_RADIONEGATION)) {
@@ -1594,8 +1590,7 @@ mobile_activity(void)
 		// barbs go BERSERK (berserk)
 		//
 
-		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AFF2_FLAGGED(ch, AFF2_BERSERK) &&
-			!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AFF2_FLAGGED(ch, AFF2_BERSERK)) {
 
 			int return_flags = 0;
 			if (perform_barb_berserk(ch, 0, &return_flags))
@@ -1994,9 +1989,7 @@ mobile_activity(void)
 
 		/*Racially aggressive Mobs */
 
-		if (IS_RACIALLY_AGGRO(ch) &&
-			!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-			&& random_fractional_4()) {
+		if (IS_RACIALLY_AGGRO(ch) && random_fractional_4()) {
 			found = FALSE;
 			vict = NULL;
 			room_data *room = ch->in_room;
@@ -2037,9 +2030,8 @@ mobile_activity(void)
 
 		/* Aggressive Mobs */
 
-		if ((MOB_FLAGGED(ch, MOB_AGGRESSIVE) ||
-				MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN)) &&
-			!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+		if (MOB_FLAGGED(ch, MOB_AGGRESSIVE)
+				|| MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN)) {
 			found = FALSE;
 			vict = NULL;
 			it = ch->in_room->people.begin();
@@ -2109,7 +2101,7 @@ mobile_activity(void)
 					if(! CAN_GO(ch, dir) )
 						continue;
 					room_data *tmp_room = EXIT(ch, dir)->to_room;
-					if ( !ROOM_FLAGGED(tmp_room, ROOM_DEATH | ROOM_NOMOB | ROOM_PEACEFUL) 
+					if ( !ROOM_FLAGGED(tmp_room, ROOM_DEATH | ROOM_NOMOB) 
 						&& tmp_room != ch->in_room 
 						&& CHAR_LIKES_ROOM(ch, tmp_room) 
 						&& tmp_room->people.size() > 0 
@@ -2182,46 +2174,9 @@ mobile_activity(void)
 						!CAN_DETECT_DISGUISE(ch, vict, af_ptr->duration)))
 					continue;
 				if (char_in_memory(vict, ch)) {
-
 					found = TRUE;
 
-					if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-						if (AWAKE(vict) && !IS_UNDEAD(ch) && !IS_DRAGON(ch) &&
-							!IS_DEVIL(ch) && GET_HIT(ch) > GET_HIT(vict) &&
-							((GET_LEVEL(vict) + ((50 * GET_HIT(vict)) /
-										MAX(1, GET_MAX_HIT(vict)))) >
-								GET_LEVEL(ch) + (GET_MORALE(ch) >> 1) +
-								random_percentage())) {
-							if (!IS_ANIMAL(ch) && !IS_SLIME(ch)
-								&& !IS_PUDDING(ch)) {
-								if (random_fractional_4())
-									do_say(ch, "Oh, shit!", 0, 0, 0);
-								else if (random_fractional_3())
-									act("$n screams in terror!", FALSE, ch, 0,
-										0, TO_ROOM);
-								else if (random_binary())
-									do_gen_comm(ch, "Run away!  Run away!", 0,
-										SCMD_SHOUT, 0);
-							}
-							do_flee(ch, "", 0, 0, 0);
-							break;
-						}
-						if (IS_ANIMAL(ch)) {
-							act("$n snarls and attacks $N!!", FALSE, ch, 0,
-								vict, TO_NOTVICT);
-							act("$n snarls and attacks you!!", FALSE, ch, 0,
-								vict, TO_VICT);
-						} else {
-							if (random_binary())
-								act("'Hey!  You're the fiend that attacked me!!!', exclaims $n.", FALSE, ch, 0, 0, TO_ROOM);
-							else
-								act("'Hey!  You're the punk I've been looking for!!!', exclaims $n.", FALSE, ch, 0, 0, TO_ROOM);
-						}
-						best_attack(ch, vict);
-
-					}
-
-					else if (ch->getPosition() != POS_FIGHTING) {
+					if (ch->getPosition() != POS_FIGHTING) {
 						switch (random_number_zero_low(20)) {
 						case 0:
 							if ((!IS_ANIMAL(ch) && !IS_DEVIL(ch)
@@ -2253,6 +2208,40 @@ mobile_activity(void)
 							perform_tell(ch, vict, "Let's rumble.");
 							break;
 						case 5:	// look for help
+							break;
+						case 6:
+							if (AWAKE(vict) && !IS_UNDEAD(ch) && !IS_DRAGON(ch) &&
+								!IS_DEVIL(ch) && GET_HIT(ch) > GET_HIT(vict) &&
+								((GET_LEVEL(vict) + ((50 * GET_HIT(vict)) /
+											MAX(1, GET_MAX_HIT(vict)))) >
+									GET_LEVEL(ch) + (GET_MORALE(ch) >> 1) +
+									random_percentage())) {
+								if (!IS_ANIMAL(ch) && !IS_SLIME(ch)
+									&& !IS_PUDDING(ch)) {
+									if (random_fractional_4())
+										do_say(ch, "Oh, shit!", 0, 0, 0);
+									else if (random_fractional_3())
+										act("$n screams in terror!", FALSE, ch, 0,
+											0, TO_ROOM);
+									else if (random_binary())
+										do_gen_comm(ch, "Run away!  Run away!", 0,
+											SCMD_SHOUT, 0);
+								}
+								do_flee(ch, "", 0, 0, 0);
+								break;
+							}
+							if (IS_ANIMAL(ch)) {
+								act("$n snarls and attacks $N!!", FALSE, ch, 0,
+									vict, TO_NOTVICT);
+								act("$n snarls and attacks you!!", FALSE, ch, 0,
+									vict, TO_VICT);
+							} else {
+								if (random_binary())
+									act("'Hey!  You're the fiend that attacked me!!!', exclaims $n.", FALSE, ch, 0, 0, TO_ROOM);
+								else
+									act("'Hey!  You're the punk I've been looking for!!!', exclaims $n.", FALSE, ch, 0, 0, TO_ROOM);
+							}
+							best_attack(ch, vict);
 							break;
 						}
 					}
@@ -2855,7 +2844,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 					if (CAN_GO(ch, dir) &&
 						!ROOM_FLAGGED(EXIT(ch, dir)->to_room,
 							ROOM_DEATH | ROOM_NOMOB |
-							ROOM_PEACEFUL | ROOM_NOTRACK) &&
+							ROOM_NOTRACK) &&
 						EXIT(ch, dir)->to_room != ch->in_room &&
 						CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room)
 						&& random_binary()) {
@@ -4739,8 +4728,7 @@ int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vic
 		// barbs go BERSERK (berserk)
 		//
 
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF2_FLAGGED(ch, AFF2_BERSERK) &&
-		!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF2_FLAGGED(ch, AFF2_BERSERK)) {
         do_berserk(ch, "", 0, 0, 0);
 
 		if (!perform_barb_berserk(ch, 0, &return_flags)){

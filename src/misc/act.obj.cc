@@ -115,12 +115,6 @@ explode_sigil(Creature *ch, obj_data *obj)
 	int ret = 0;
 	int dam = 0;
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-		act("$p feels rather warm to the touch, and shudders violently.",
-			FALSE, ch, obj, 0, TO_CHAR);
-		return 0;
-	}
-
 	dam = number(GET_OBJ_SIGIL_LEVEL(obj), GET_OBJ_SIGIL_LEVEL(obj) << 2);
 	if (mag_savingthrow(ch, GET_OBJ_SIGIL_LEVEL(obj), SAVING_SPELL))
 		dam >>= 1;

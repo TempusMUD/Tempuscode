@@ -47,9 +47,6 @@ ASPELL(spell_dispel_evil)
                 return;
             }
         }
-        if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
-            return;
-
         if (IS_EVIL(victim)) {
             dam = dice(10, 15) + ch->getLevelBonus(SPELL_DISPEL_EVIL);
             retval = damage(ch, victim, dam, SPELL_DISPEL_EVIL, WEAR_RANDOM);
@@ -118,8 +115,6 @@ ASPELL(spell_dispel_good)
                 return;
             }
         }
-        if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
-            return;
 
         if (IS_GOOD(victim)) {
             dam = dice(15, 20) + ch->getLevelBonus(SPELL_DISPEL_GOOD);

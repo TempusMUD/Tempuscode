@@ -165,7 +165,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 	int dam, damage_type = 0;
 	char dname[128];
 
-	if (ROOM_FLAGGED(room, ROOM_PEACEFUL) || power <= bomb_power * 0.25)
+	if (power <= bomb_power * 0.25)
 		dam = 0;
 	else
 		dam = dice(power, MAX(10, (power >> 1)));

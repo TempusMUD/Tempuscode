@@ -197,9 +197,7 @@ ACMD(do_battlecry)
 			SKILL_CRY_FROM_BEYOND));
 	int did = 0;
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
-		send_to_char(ch, "You just feel too damn peaceful here to do that.\r\n");
-	else if (CHECK_SKILL(ch, skillnum) < number(50, 110)) {
+	if (CHECK_SKILL(ch, skillnum) < number(50, 110)) {
 		send_to_char(ch, "You emit a feeble warbling sound.\r\n");
 		act("$n makes a feeble warbling sound.", FALSE, ch, 0, 0, TO_ROOM);
 	} else if (GET_MANA(ch) < 5)

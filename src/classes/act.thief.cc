@@ -54,14 +54,6 @@ ACMD(do_steal)
 		return;
 	}
 
-	if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_PEACEFUL) &&
-		!PLR_FLAGGED(vict, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char(ch, 
-			"The universal forces of order prevent those acts here.\r\n");
-		act("$n looks kinda sketchy for a moment.", FALSE, ch, 0, vict,
-			TO_ROOM);
-		return;
-	}
 	if (vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT) {
 		send_to_char(ch, "You cannot steal from newbies!\r\n");
 		return;

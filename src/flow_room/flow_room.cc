@@ -459,7 +459,6 @@ dynamic_object_pulse()
 			// radioactive objects worn/carried                           (RADIOACTIVE)
 			if (OBJ_IS_RAD(obj) && ((vict = obj->carried_by)
 					|| (vict = obj->worn_by))
-				&& !ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)
 				&& !CHAR_WITHSTANDS_RAD(vict)) {
 
 				if (affected_by_spell(vict, SKILL_RADIONEGATION)) {

@@ -169,8 +169,7 @@ ASPELL(spell_recall)
 				GET_PLANE(victim->in_room) > MAX_PRIME_PLANE) ||
 			(GET_PLANE(load_room) > MAX_PRIME_PLANE &&
 				GET_PLANE(victim->in_room) <= MAX_PRIME_PLANE)) &&
-		GET_PLANE(victim->in_room) != PLANE_ASTRAL &&
-		!ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
+		GET_PLANE(victim->in_room) != PLANE_ASTRAL) {
 		if (number(0, 120) >
 			(CHECK_SKILL(ch, SPELL_WORD_OF_RECALL) + GET_INT(ch)) ||
 			((IS_KNIGHT(ch) || IS_CLERIC(ch)) && IS_NEUTRAL(ch))) {
@@ -224,14 +223,6 @@ ASPELL(spell_local_teleport)
 		}
 	}
 
-	if (ch != victim && (ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) &&
-			!PLR_FLAGGED(victim, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD)) {
-		act("You feel strange as $n attempts to teleport you.",
-			FALSE, ch, 0, victim, TO_VICT);
-		act("You fail.  $N is in a non-violence zone!.",
-			FALSE, ch, 0, victim, TO_CHAR);
-		return;
-	}
 	if (GET_LEVEL(victim) > LVL_AMBASSADOR
 		&& GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		act("$N sneers at you with disgust.\r\n", FALSE, ch, 0, victim,
@@ -417,14 +408,6 @@ ASPELL(spell_teleport)
 		return;
 	}
 
-	if (ch != victim && (ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) &&
-			!PLR_FLAGGED(victim, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD)) {
-		act("You feel strange as $n attempts to teleport you.",
-			FALSE, ch, 0, victim, TO_VICT);
-		act("You fail.  $N is in a non-violence zone!.",
-			FALSE, ch, 0, victim, TO_CHAR);
-		return;
-	}
 	if (GET_LEVEL(victim) > LVL_AMBASSADOR &&
 		GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		act("$N sneers at you with disgust.\r\n", FALSE, ch, 0, victim,
@@ -533,14 +516,6 @@ ASPELL(spell_astral_spell)
 		return;
 	}
 
-	if (ch != victim && (ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) &&
-			GET_LEVEL(ch) < LVL_GRGOD)) {
-		act("You feel strange as $n attempts to send you into the astral.",
-			FALSE, ch, 0, victim, TO_VICT);
-		act("You fail.  $N is in a non-violence zone!.",
-			FALSE, ch, 0, victim, TO_CHAR);
-		return;
-	}
 	if (GET_LEVEL(victim) > LVL_AMBASSADOR
 		&& GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		act("$N sneers at you with disgust.\r\n", FALSE, ch, 0, victim,
@@ -645,22 +620,6 @@ ASPELL(spell_summon)
 
 	if (GET_LEVEL(victim) > MIN(LVL_AMBASSADOR - 1, level + GET_INT(ch))) {
 		send_to_char(ch, SUMMON_FAIL);
-		return;
-	}
-
-	if (ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) &&
-		!PLR_FLAGGED(victim, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD) {
-		send_to_char(victim, "A strange vortex of energy opens up but fails to draw you in.\r\n");
-		act("$n has attempted to summon you!", FALSE, ch, 0, victim, TO_VICT);
-		act("You fail.  $N is in a non-violence zone!.", FALSE, ch, 0, victim,
-			TO_CHAR);
-		return;
-	}
-
-	if (IS_MOB(victim) && ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
-		GET_LEVEL(ch) < LVL_GRGOD) {
-		act("The universal forces of order prevent you from summoning $M.",
-			FALSE, ch, 0, victim, TO_VICT);
 		return;
 	}
 
@@ -2309,9 +2268,6 @@ ASPELL(spell_gust_of_wind)
 	if (!victim)
 		return;
 
-	if (!IS_NPC(victim) && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))
-		return;
-
 	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
 		ch->master->in_room == ch->in_room) {
 		if (ch == victim) {
@@ -2695,11 +2651,6 @@ ASPELL(spell_animate_dead)
 		return;
 	}
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-		send_to_char(ch, "You cannot cast that here.\r\n");
-		return;
-	}
-
 	if (!obj) {
 		send_to_char(ch, "You cannot animate that.\r\n");
 		return;
@@ -2876,11 +2827,6 @@ ASPELL(spell_unholy_stalker)
 	int distance = 0;
 	struct Creature *stalker = NULL;
 	float mult = (float)level / 70;
-
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-		send_to_char(ch, "You cannot cast that here.\r\n");
-		return;
-	}
 
 	if (victim->in_room != ch->in_room) {
 
@@ -3099,9 +3045,6 @@ ASPELL(spell_sun_ray)
 	send_to_room("A brilliant ray of sunlight bathes the area!\r\n",
 		ch->in_room);
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-		return;
-	}
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
@@ -3172,9 +3115,6 @@ ASPELL(spell_inferno)
 	send_to_room("A raging firestorm fills the room with a hellish inferno!\r\n",
                     ch->in_room);
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-		return;
-	}
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 		CreatureList::iterator it = ch->in_room->people.begin();

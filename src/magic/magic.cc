@@ -2546,10 +2546,6 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN))
 		return 0;
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && GET_LEVEL(ch) < LVL_GOD) {
-		send_to_char(ch, "This is a non-violence zone!\r\n");
-		return 0;
-	}
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
