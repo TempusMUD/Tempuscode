@@ -446,10 +446,11 @@
 #define AFF3_PSYCHIC_CRUSH      (1 << 18)
 #define AFF3_DOUBLE_DAMAGE      (1 << 19)
 #define AFF3_ACIDITY            (1 << 20)
-#define AFF3_HAMSTRUNG		    (1 << 21)    /* Bleeding badly from the leg */
-#define AFF3_GRAVITY_WELL       (1 << 22)    /* Pissed off a phyz and got hit by gravity well */
-#define AFF3_SYMBOL_OF_PAIN     (1 << 23)    /* Char's mind is burning with pain */
-#define NUM_AFF3_FLAGS          24
+#define AFF3_HAMSTRUNG		    (1 << 21)    // Bleeding badly from the leg 
+#define AFF3_GRAVITY_WELL       (1 << 22)    // Pissed off a phyz and got hit by gravity well
+#define AFF3_SYMBOL_OF_PAIN     (1 << 23)    // Char's mind is burning with pain
+#define AFF3_EMP_SHIELD         (1 << 24)    // EMP SHIELDING
+#define NUM_AFF3_FLAGS          25
 
 #define ARRAY_AFF_1        1
 #define ARRAY_AFF_2        2

@@ -326,6 +326,9 @@ extern const char *spells[];
 #define SPELL_TRANSDIMENSIONALITY  339  // randomly teleport to another plane
 #define SPELL_AREA_STASIS          340  // sets !phy room flag
 #define SPELL_ELECTROSTATIC_FIELD  341  // protective static field does damage to attackers
+#define SPELL_EMP_PULSE            342  // Shuts off devices, communicators
+                                        // deactivats all cyborg programs
+                                        // blocked by emp shield
 
   /*********************  MONK ZENS  *******************/
 #define ZEN_HEALING                401

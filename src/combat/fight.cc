@@ -2074,6 +2074,8 @@ perform_violence( void )
 	    if ( GET_MOB_WAIT( ch ) > 0 ) {
 			GET_MOB_WAIT( ch ) = MAX( GET_MOB_WAIT( ch) - SEG_VIOLENCE, 0 ) ;
         } else if ( GET_MOB_WAIT( ch ) == 0 ) {
+            update_pos( ch );
+            /*
             if ( ch->getPosition() < POS_FIGHTING 
             && ch->getPosition() > POS_STUNNED ) {
                 if(!IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL) || number(1,20) < GET_STR(ch)) {
@@ -2081,7 +2083,7 @@ perform_violence( void )
                     act( "$n scrambles to $s feet!", TRUE, ch, 0, 0, TO_ROOM );
                 }
                 GET_MOB_WAIT( ch ) += PULSE_VIOLENCE;
-            }
+            }*/
 	    }
 	    if ( ch->getPosition() <= POS_SITTING )
             continue;

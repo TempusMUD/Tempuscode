@@ -896,12 +896,12 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 
 	} else if ( ch->in_room->isOpenAir() ) {
 	    if (GET_DEX(ch) + number(0, 10) < GET_OBJ_TIMER(obj)) {
-		if (apply_soil_to_char(ch, obj, SOIL_BLOOD, WEAR_RANDOM))
+		if (apply_soil_to_char(ch, NULL, SOIL_BLOOD, WEAR_RANDOM))
 		    send_to_char("You fly through the mist of blood.\r\n", ch);
 	    }
 	} else if (ch->getPosition() < POS_FLYING && 
 		   GET_DEX(ch) + number(0, 10) < GET_OBJ_TIMER(obj)) {
-	    if (apply_soil_to_char(ch, obj, SOIL_BLOOD, WEAR_FEET)) {
+	    if (apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_BLOOD, WEAR_FEET)) {
 		sprintf(buf, 
 			"You walk through the blood and get it all over your %s.\r\n", 
 			GET_EQ(ch,WEAR_FEET) ? 
