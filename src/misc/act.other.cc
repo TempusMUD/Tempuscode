@@ -1537,20 +1537,14 @@ ACMD(do_compare)
 
 ACMD(do_screen)
 {
-	int leng;
-	if (!ch->desc) {
-		send_to_char(ch, "Your SCREEN is default 22 as an NPC.  Sorry.\r\n");
-		return;
-	}
-    if(!*arg) {
+	skip_spaces(&argument);
+    if(!*argument) {
         send_to_char(ch, "Your current screen length is: %d lines.\r\n",
             ch->desc->account->get_term_height());
         return;
     }
-	if (isdigit(*arg)) {
-		leng = atoi(arg);
-		leng = MIN(leng, 200);
-		leng = MAX(leng, 0);
+	if (isnumber(argument)) {
+		ch->desc->account->set_term_height(atoi(argument));
 		send_to_char(ch, "Your screen length will now be %d lines.\r\n",
 			GET_PAGE_LENGTH(ch));
 		return;
