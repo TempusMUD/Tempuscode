@@ -2674,6 +2674,8 @@ Reaction::add_reaction(decision_t action, char *arg)
 		new_reaction[1] = atoi(arg);
 		if (new_reaction[1] < 1 || new_reaction[1] > 49)
 			return false;
+	else if (is_abbrev(condition, "clanleader"))
+		new_reaction[0] |= 0x0d;
 	} else
 		return false;
 
@@ -2749,6 +2751,10 @@ Reaction::react(Creature *ch)
 			if (GET_LEVEL(ch) < *(++read_pt)) match = true; break;
 		case 12:
 			if (GET_LEVEL(ch) > *(++read_pt)) match = true; break;
+		case 13:
+			if (IS_PC(ch) && PLR_FLAGGED(ch, PLR_CLAN_LEADER))
+				match = true;
+			break;
 		default:
 			slog("SYSERR: Invalid reaction code %x", *read_pt);
 			return UNDECIDED;
