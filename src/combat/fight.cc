@@ -452,7 +452,7 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 		slog("%s Killed %s(%d) for exp: %d.", GET_NAME(ch),
 			GET_NAME(victim), GET_EXP(victim), exp);
 	}
-/*	if (exp > ((exp_scale[GET_LEVEL(ch) + 1] - GET_EXP(ch)) / 10)) {
+	if (exp > ((exp_scale[GET_LEVEL(ch) + 1] - GET_EXP(ch)) / 10)) {
 		send_to_char(ch, "%s%sYou have gained much experience.%s\r\n",
 			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
 	} else if (exp > 1) {
@@ -463,19 +463,7 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
 	} else
 		send_to_char(ch, "You have gained trivial experience.\r\n");
-*/
-    if (exp < 0) {
-        send_to_char(ch, "%s%sYou have lost experience.%s\r\n",
-                     CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
-    }
-    else if (exp > 1) {
-        send_to_char(ch, "%s%sYou have gained %s%s%d%s%s experience.%s\r\n",
-                     CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCRED(ch, C_NRM),
-                     CCBLD(ch, C_CMP), exp, CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
-    }
-    else {
-		send_to_char(ch, "You have gained trivial experience.\r\n");
-    }
+
 	gain_exp(ch, exp);
 	change_alignment(ch, victim);
 
@@ -799,7 +787,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	struct room_affect_data rm_aff;
 	struct affected_type *af = NULL;
 	bool deflected = false;
-    int return_flags = 0;
 
 
 	if (victim->getPosition() <= POS_DEAD) {
@@ -1638,20 +1625,13 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 	// Use send_to_char -- act(  ) doesn't send message if you are DEAD.
 	switch (victim->getPosition()) {
+
 		// Mortally wounded
 	case POS_MORTALLYW:
 		act("$n is mortally wounded, and will die soon, if not aided.",
 			TRUE, victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
 			"You are mortally wounded, and will die soon, if not aided.\r\n");
-
-/*        if (!IS_NPC(ch) && IS_CLERIC(ch) && IS_EVIL(ch) && (CHECK_SKILL(ch, SPELL_DEATH_KNELL) > 90)) {
-			stop_fighting(victim);
-			stop_fighting(ch);
-            call_magic(ch, victim, 0, SPELL_DEATH_KNELL, 
-                       GET_LEVEL(ch), CAST_SPELL, &return_flags);
-        }
-        victim->setPosition(POS_DEAD);*/
 		break;
 
 		// Incapacitated
@@ -1660,15 +1640,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
 			"You are incapacitated and will slowly die, if not aided.\r\n");
-
-/*        if (!IS_NPC(ch) && IS_CLERIC(ch) && IS_EVIL(ch) && (CHECK_SKILL(ch, SPELL_DEATH_KNELL) > 90)) {
-			stop_fighting(victim);
-			stop_fighting(ch);
-            call_magic(ch, victim, 0, SPELL_DEATH_KNELL, 
-                       GET_LEVEL(ch), CAST_SPELL, &return_flags);
-        }
-        
-        victim->setPosition(POS_DEAD); */
 		break;
 
 		// Stunned
@@ -1677,15 +1648,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			TRUE, victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
 			"You're stunned, but will probably regain consciousness again.\r\n");
-
-/*        if (!IS_NPC(ch) && IS_CLERIC(ch) && IS_EVIL(ch) && (CHECK_SKILL(ch, SPELL_DEATH_KNELL) > 90)) {
-			stop_fighting(victim);
-			stop_fighting(ch);
-            call_magic(ch, victim, 0, SPELL_DEATH_KNELL, 
-                       GET_LEVEL(ch), CAST_SPELL, &return_flags);
-        }
-
-        victim->setPosition(POS_DEAD); */
 		break;
 
 		// Dead
