@@ -1023,7 +1023,7 @@ struct command_info cmd_info[] = {
 	{"piledrive", POS_FIGHTING, do_offensive_skill, 0, SKILL_PILEDRIVE, 0, 0},
 	{"pimp", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"pimpslap", POS_RESTING, do_action, 0, 0, 0, 0},
-	{"pinch", POS_RESTING, do_pinch, 0, 0, 0, 0},
+	{"pinch", POS_FIGHTING, do_pinch, 0, 0, 0, 0},
 	{"piss", POS_STANDING, do_action, 0, 0, 0, 0},
 	{"pissed", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"pistolwhip", POS_FIGHTING, do_pistolwhip, 1, 0, 0, 0},
