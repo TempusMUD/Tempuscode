@@ -217,7 +217,9 @@ const char *spells[] = {
     "envenom",	/* 155 */
 	"elemental branding", 
     "thorn skin casting",
-	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
+	"fire breath", 
+    "frost breath", 
+    "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 175 */
@@ -3524,6 +3526,16 @@ mag_assign_spells(void)
 		MAG_PHYSICS | MAG_AFFECTS);
 
 	/* ALL REMORT SKILLS HERE */
+    remort_spello(SPELL_FROST_BREATHING, 
+            CLASS_MAGE, 35, 1, 
+            280, 180, 10, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
+            FALSE, MAG_MAGIC | MAG_AFFECTS);
+
+    remort_spello(SPELL_FIRE_BREATHING, 
+            CLASS_MAGE, 35, 1, 
+            280, 180, 10, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
+            FALSE, MAG_MAGIC | MAG_AFFECTS);
+
 	remort_spello(SPELL_VESTIGIAL_RUNE,
 		CLASS_MAGE, 45, 1,
 		450, 380, 10, POS_STANDING, TAR_OBJ_ROOM | TAR_OBJ_INV, FALSE,

@@ -1,4 +1,5 @@
 /* ************************************************************************
+            dam = dice(level, 15) + level;
 *   File: magic.c                                       Part of CircleMUD *
 *  Usage: low-level functions for magic; spell template code              *
 *                                                                         *
@@ -785,6 +786,10 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		dam = dice(level, 15) + level;
 		break;
 	case SPELL_FIRE_BREATH:
+		audible = TRUE;
+		dam = dice(level, 15) + level;
+		break;
+	case SPELL_FROST_BREATH:
 		audible = TRUE;
 		dam = dice(level, 15) + level;
 		break;
@@ -2322,6 +2327,19 @@ Fireball: like harder bones, skin, organ membranecs
 		if (!IS_AFFECTED_3(ch, AFF3_DIVINE_POWER))
 			accum_affect = 1;
 		break;
+
+    case SPELL_FIRE_BREATHING:
+		af.duration = 10 + ch->getLevelBonus(SPELL_FIRE_BREATHING)/4;
+		to_room = "$n's eyes begin to glow a deep red.";
+		to_vict = "A warm tingling begins in the back of your throat.";
+		break;
+
+    case SPELL_FROST_BREATHING:
+		af.duration = 10 + ch->getLevelBonus(SPELL_FROST_BREATHING)/4;
+		to_room = "$n's eyes begin to glow a deep blue.";
+		to_vict = "A cold tingling begins in the back of your throat.";
+		break;
+
 	default:
 		slog("SYSERR: unknown spell %d in mag_affects.", spellnum);
 		break;

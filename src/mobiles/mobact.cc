@@ -3806,20 +3806,41 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 
 ACMD(do_breathe)
 {								// Breath Weapon Attack
-	struct Creature *vict = NULL;
-	if (!IS_NPC(ch)) {
-		act("You breathe heavily.", FALSE, ch, 0, 0, TO_CHAR);
-		act("$n seems to be out of breath.", FALSE, ch, 0, 0, TO_ROOM);
-		return;
+    struct affected_type *fire = affected_by_spell( ch, SPELL_FIRE_BREATHING );
+    struct affected_type *frost = affected_by_spell( ch, SPELL_FROST_BREATHING );
+
+	if (IS_PC(ch) && fire == NULL && frost == NULL ) {
+        act("You breathe heavily.", FALSE, ch, 0, 0, TO_CHAR);
+        act("$n seems to be out of breath.", FALSE, ch, 0, 0, TO_ROOM);
+        return;
 	}
+    // Find the victim
 	skip_spaces(&argument);
-	vict = get_char_room_vis(ch, argument);
+	Creature *vict = get_char_room_vis(ch, argument);
 	if (vict == NULL)
 		vict = FIGHTING(ch);
 	if (vict == NULL) {
 		act("Breathe on whom?", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
+
+    if( IS_PC(ch) ) {
+        if( fire != NULL ) {
+            call_magic(ch, vict, 0, SPELL_FIRE_BREATH, GET_LEVEL(ch), CAST_BREATH);
+            fire->duration -= 5;
+            if( fire->duration <= 0 )
+                affect_remove( ch, fire );
+        } else if( frost != NULL ) {
+            call_magic(ch, vict, 0, SPELL_FROST_BREATH, GET_LEVEL(ch), CAST_BREATH);
+            frost->duration -= 5;
+            if( frost->duration <= 0 )
+                affect_remove( ch, frost );
+        } else {
+            send_to_char(ch, "ERROR: No breath type found.\r\n" );
+        }
+        return;
+    }
+
 	switch (GET_CLASS(ch)) {
 	case CLASS_GREEN:
 		call_magic(ch, vict, 0, SPELL_GAS_BREATH, GET_LEVEL(ch), CAST_BREATH);

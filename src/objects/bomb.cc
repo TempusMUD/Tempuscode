@@ -782,6 +782,7 @@ sound_gunshots(struct room_data *room, int type, int power, int num)
 				sprintf(buf, "You hear a %sfiery blast from %s.\r\n",
 					LOUD ? "deafening " : "", from_dirs[dir]);
 				break;
+			case SPELL_FROST_BREATH:
 			case SPELL_HELL_FROST:
 			case SPELL_CONE_COLD:
 			case SPELL_ICY_BLAST:
