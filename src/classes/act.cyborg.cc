@@ -2163,14 +2163,153 @@ obj_cond_color(struct obj_data *obj, struct Creature *ch)
 // n should run between 1 and 7
 #define ALEV(n)    (CHECK_SKILL(ch, SKILL_ANALYZE) > number(50, 50+(n*10)))
 
+
+void
+perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
+{
+	char buf3[MAX_STRING_LENGTH];
+	sprintf(buf, "       %s***************************************\r\n",
+		CCGRN(ch, C_NRM));
+	sprintf(buf, "%s       %s>>>     OBJECT ANALYSIS RESULTS:    <<<\r\n",
+		buf, CCCYN(ch, C_NRM));
+	sprintf(buf,
+		"%s       %s***************************************%s\r\n", buf,
+		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+	sprintf(buf, "%sDescription:          %s%s%s\r\n", buf, CCCYN(ch,
+			C_NRM), obj->name, CCNRM(ch, C_NRM));
+	sprintf(buf, "%sItem Classification:  %s%s%s\r\n", buf, CCCYN(ch,
+			C_NRM), item_types[(int)GET_OBJ_TYPE(obj)], CCNRM(ch, C_NRM));
+	sprintf(buf, "%sMaterial Composition: %s%s%s\r\n", buf, CCCYN(ch,
+			C_NRM), material_names[GET_OBJ_MATERIAL(obj)], CCNRM(ch,
+			C_NRM));
+	// give detailed item damage info
+	if (ALEV(5) || !checklev)
+		sprintf(buf3, "  [%4d/%4d]", GET_OBJ_DAM(obj),
+			GET_OBJ_MAX_DAM(obj));
+	else
+		strcpy(buf3, "");
+	sprintf(buf, "%sCondition:            %s%-15s%s%s\r\n", buf,
+		CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM), buf3);
+	sprintf(buf, "%sCommerce Value:       %s%d coins%s\r\n", buf,
+		CCCYN(ch, C_NRM), GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
+	sprintf(buf, "%sWeight:               %s%d pounds%s\r\n", buf,
+		CCCYN(ch, C_NRM), obj->getWeight(), CCNRM(ch, C_NRM));
+
+	sprintf(buf, "%sIntrinsic Properties: %s", buf, CCCYN(ch, C_NRM));
+	sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf2);
+	strcat(buf, buf2);
+	sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf2);
+	strcat(buf, buf2);
+	sprintf(buf, "%s%s\r\n", buf, CCNRM(ch, C_NRM));
+
+	sprintf(buf, "%sInherent Properties:  %s", buf, CCCYN(ch, C_NRM));
+	sprintbit(GET_OBJ_EXTRA3(obj), extra3_bits, buf2);
+	strcat(buf, buf2);
+	sprintf(buf, "%s%s\r\n", buf, CCNRM(ch, C_NRM));
+
+	// check for affections
+	int found = 0;
+	strcpy(buf2, "Apply:               ");
+	strcat(buf2, CCCYN(ch, C_NRM));
+	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+		if (obj->affected[i].modifier) {
+			sprinttype(obj->affected[i].location, apply_types, buf3);
+			sprintf(buf2, "%s%s %+d to %s", buf2, found++ ? "," : "",
+				obj->affected[i].modifier, buf3);
+		}
+	}
+	if (found)
+		strcat(buf, strcat(strcat(buf2, CCNRM(ch, C_NRM)), "\r\n"));
+
+	switch (GET_OBJ_TYPE(obj)) {
+	case ITEM_ARMOR:
+		if (ALEV(4) || !checklev)
+			sprintf(buf3, "  [%d]", GET_OBJ_VAL(obj, 0));
+		else
+			strcpy(buf3, "");
+		sprintf(buf, "%sProtective Quality:   %s%-15s%s%s\r\n", buf,
+			CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0) < 2 ? "poor" :
+			GET_OBJ_VAL(obj, 0) < 4 ? "minimal" :
+			GET_OBJ_VAL(obj, 0) < 6 ? "moderate" :
+			GET_OBJ_VAL(obj, 0) < 8 ? "good" :
+			GET_OBJ_VAL(obj, 0) < 10 ? "excellent" :
+			"extraordinary", CCNRM(ch, C_NRM), buf3);
+		break;
+	case ITEM_LIGHT:
+		sprintf(buf, "%sDuration remaining:   %s%d hours%s\r\n", buf,
+			CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 2), CCNRM(ch, C_NRM));
+		break;
+	case ITEM_WAND:
+	case ITEM_SCROLL:
+	case ITEM_STAFF:
+		sprintf(buf, "%s%sERROR:%s no further information available.\r\n",
+			buf, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		break;
+	case ITEM_WEAPON:
+		sprintf(buf, "%sDamage Dice:          %s%dd%d%s\r\n", buf,
+			CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
+			CCNRM(ch, C_NRM));
+		break;
+	case ITEM_CONTAINER:
+		if (GET_OBJ_VAL(obj, 3))
+			strcat(buf, "Item is a corpse.\r\n");
+		else
+			sprintf(buf, "%sCapacity:            %s%d pounds%s\r\n", buf,
+				CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0), CCNRM(ch, C_NRM));
+		break;
+	case ITEM_VEHICLE:
+		if (obj->contains && GET_OBJ_TYPE(obj->contains) == ITEM_ENGINE)
+			sprintf(buf, "%sVehicle is equipped with:     %s%s%s\r\n", buf,
+				CCCYN(ch, C_NRM), obj->contains->name,
+				CCNRM(ch, C_NRM));
+		else
+			strcat(buf, "Vehicle is not equipped with an engine.\r\n");
+		break;
+	case ITEM_ENGINE:
+		sprintf(buf,
+			"%sMax Fuel: %s%d%s, Current Fuel: %s%d%s, Type: %s%s%s, "
+			"Eff: %s%d%s\r\n", buf, CCCYN(ch, C_NRM), MAX_ENERGY(obj),
+			CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CUR_ENERGY(obj), CCNRM(ch,
+				C_NRM), CCCYN(ch, C_NRM), IS_SET(ENGINE_STATE(obj),
+				ENG_PETROL) ? "Petrol" : IS_SET(ENGINE_STATE(obj),
+				ENG_ELECTRIC) ? "Elect" : IS_SET(ENGINE_STATE(obj),
+				ENG_MAGIC) ? "Magic" : "Fucked", CCNRM(ch, C_NRM),
+			CCCYN(ch, C_NRM), USE_RATE(obj), CCNRM(ch, C_NRM));
+		break;
+	case ITEM_BATTERY:
+		sprintf(buf,
+			"%sMax Energy: %s%d%s, Current Energy: %s%d%s, Recharge Rate: %s%d%s\r\n",
+			buf, CCCYN(ch, C_NRM), MAX_ENERGY(obj), CCNRM(ch, C_NRM),
+			CCCYN(ch, C_NRM), CUR_ENERGY(obj), CCNRM(ch, C_NRM), CCCYN(ch,
+				C_NRM), RECH_RATE(obj), CCNRM(ch, C_NRM));
+		break;
+
+	case ITEM_BOMB:
+		if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) > 50 && obj->contains)
+			sprintf(buf, "%sFuse: %s.  Fuse State: %sactive.\r\n", buf,
+				obj->contains->name,
+				FUSE_STATE(obj->contains) ? "" : "in");
+		break;
+	case ITEM_MICROCHIP:
+		if (SKILLCHIP(obj)) {
+			if (CHIP_DATA(obj) > 0 && CHIP_DATA(obj) < MAX_SKILLS) {
+				sprintf(buf, "%s%sData Contained: %s\'%s\'%s\r\n",
+					buf, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+					spell_to_str(CHIP_DATA(obj)), CCNRM(ch, C_NRM));
+			}
+		}
+		break;
+
+	}
+	page_string(ch->desc, buf);
+}
+
+
 ACMD(do_analyze)
 {
 
 	struct obj_data *obj = NULL;
 	struct Creature *vict = NULL;
-	char buf3[MAX_STRING_LENGTH];
-	int i, found = 0;
-
 	skip_spaces(&argument);
 
 	if (!*argument ||
@@ -2199,176 +2338,8 @@ ACMD(do_analyze)
 
 	if (obj) {
 
-		sprintf(buf, "       %s***************************************\r\n",
-			CCGRN(ch, C_NRM));
-		sprintf(buf, "%s       %s>>>     OBJECT ANALYSIS RESULTS:    <<<\r\n",
-			buf, CCCYN(ch, C_NRM));
-		sprintf(buf,
-			"%s       %s***************************************%s\r\n", buf,
-			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(buf, "%sDescription:          %s%s%s\r\n", buf, CCCYN(ch,
-				C_NRM), obj->name, CCNRM(ch, C_NRM));
-		sprintf(buf, "%sItem Classification:  %s%s%s\r\n", buf, CCCYN(ch,
-				C_NRM), item_types[(int)GET_OBJ_TYPE(obj)], CCNRM(ch, C_NRM));
-		sprintf(buf, "%sMaterial Composition: %s%s%s\r\n", buf, CCCYN(ch,
-				C_NRM), material_names[GET_OBJ_MATERIAL(obj)], CCNRM(ch,
-				C_NRM));
-		// give detailed item damage info
-		if (ALEV(5))
-			sprintf(buf3, "  [%4d/%4d]", GET_OBJ_DAM(obj),
-				GET_OBJ_MAX_DAM(obj));
-		else
-			strcpy(buf3, "");
-		sprintf(buf, "%sCondition:            %s%-15s%s%s\r\n", buf,
-			CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM), buf3);
-		sprintf(buf, "%sCommerce Value:       %s%d coins%s\r\n", buf,
-			CCCYN(ch, C_NRM), GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
-		sprintf(buf, "%sWeight:               %s%d pounds%s\r\n", buf,
-			CCCYN(ch, C_NRM), obj->getWeight(), CCNRM(ch, C_NRM));
-
-		sprintf(buf, "%sIntrinsic Properties: %s", buf, CCCYN(ch, C_NRM));
-		sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf2);
-		strcat(buf, buf2);
-		sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf2);
-		strcat(buf, buf2);
-		sprintf(buf, "%s%s\r\n", buf, CCNRM(ch, C_NRM));
-
-		sprintf(buf, "%sInherent Properties:  %s", buf, CCCYN(ch, C_NRM));
-		sprintbit(GET_OBJ_EXTRA3(obj), extra3_bits, buf2);
-		strcat(buf, buf2);
-		sprintf(buf, "%s%s\r\n", buf, CCNRM(ch, C_NRM));
-
-		// check for affections
-		found = 0;
-		strcpy(buf2, "Apply:               ");
-		strcat(buf2, CCCYN(ch, C_NRM));
-		for (i = 0; i < MAX_OBJ_AFFECT; i++) {
-			if (obj->affected[i].modifier) {
-				sprinttype(obj->affected[i].location, apply_types, buf3);
-				sprintf(buf2, "%s%s %+d to %s", buf2, found++ ? "," : "",
-					obj->affected[i].modifier, buf3);
-			}
-		}
-		if (found)
-			strcat(buf, strcat(strcat(buf2, CCNRM(ch, C_NRM)), "\r\n"));
-
-		switch (GET_OBJ_TYPE(obj)) {
-		case ITEM_ARMOR:
-			if (ALEV(4))
-				sprintf(buf3, "  [%d]", GET_OBJ_VAL(obj, 0));
-			else
-				strcpy(buf3, "");
-			sprintf(buf, "%sProtective Quality:   %s%-15s%s%s\r\n", buf,
-				CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0) < 2 ? "poor" :
-				GET_OBJ_VAL(obj, 0) < 4 ? "minimal" :
-				GET_OBJ_VAL(obj, 0) < 6 ? "moderate" :
-				GET_OBJ_VAL(obj, 0) < 8 ? "good" :
-				GET_OBJ_VAL(obj, 0) < 10 ? "excellent" :
-				"extraordinary", CCNRM(ch, C_NRM), buf3);
-			break;
-		case ITEM_LIGHT:
-			sprintf(buf, "%sDuration remaining:   %s%d hours%s\r\n", buf,
-				CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 2), CCNRM(ch, C_NRM));
-			break;
-		case ITEM_WAND:
-		case ITEM_SCROLL:
-		case ITEM_STAFF:
-			sprintf(buf, "%s%sERROR:%s no further information available.\r\n",
-				buf, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-			break;
-		case ITEM_WEAPON:
-			sprintf(buf, "%sDamage Dice:          %s%dd%d%s\r\n", buf,
-				CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-				CCNRM(ch, C_NRM));
-			break;
-		case ITEM_CONTAINER:
-			if (GET_OBJ_VAL(obj, 3))
-				strcat(buf, "Item is a corpse.\r\n");
-			else
-				sprintf(buf, "%sCapacity:            %s%d pounds%s\r\n", buf,
-					CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0), CCNRM(ch, C_NRM));
-			break;
-		case ITEM_VEHICLE:
-			if (obj->contains && GET_OBJ_TYPE(obj->contains) == ITEM_ENGINE)
-				sprintf(buf, "%sVehicle is equipped with:     %s%s%s\r\n", buf,
-					CCCYN(ch, C_NRM), obj->contains->name,
-					CCNRM(ch, C_NRM));
-			else
-				strcat(buf, "Vehicle is not equipped with an engine.\r\n");
-			break;
-		case ITEM_ENGINE:
-			sprintf(buf,
-				"%sMax Fuel: %s%d%s, Current Fuel: %s%d%s, Type: %s%s%s, "
-				"Eff: %s%d%s\r\n", buf, CCCYN(ch, C_NRM), MAX_ENERGY(obj),
-				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CUR_ENERGY(obj), CCNRM(ch,
-					C_NRM), CCCYN(ch, C_NRM), IS_SET(ENGINE_STATE(obj),
-					ENG_PETROL) ? "Petrol" : IS_SET(ENGINE_STATE(obj),
-					ENG_ELECTRIC) ? "Elect" : IS_SET(ENGINE_STATE(obj),
-					ENG_MAGIC) ? "Magic" : "Fucked", CCNRM(ch, C_NRM),
-				CCCYN(ch, C_NRM), USE_RATE(obj), CCNRM(ch, C_NRM));
-			break;
-		case ITEM_BATTERY:
-			sprintf(buf,
-				"%sMax Energy: %s%d%s, Current Energy: %s%d%s, Recharge Rate: %s%d%s\r\n",
-				buf, CCCYN(ch, C_NRM), MAX_ENERGY(obj), CCNRM(ch, C_NRM),
-				CCCYN(ch, C_NRM), CUR_ENERGY(obj), CCNRM(ch, C_NRM), CCCYN(ch,
-					C_NRM), RECH_RATE(obj), CCNRM(ch, C_NRM));
-			break;
-
-		case ITEM_BOMB:
-			if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) > 50 && obj->contains)
-				sprintf(buf, "%sFuse: %s.  Fuse State: %sactive.\r\n", buf,
-					obj->contains->name,
-					FUSE_STATE(obj->contains) ? "" : "in");
-			break;
-		case ITEM_MICROCHIP:
-			if (SKILLCHIP(obj)) {
-				if (CHIP_DATA(obj) > 0 && CHIP_DATA(obj) < MAX_SKILLS) {
-					sprintf(buf, "%s%sData Contained: %s\'%s\'%s\r\n",
-						buf, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-						spell_to_str(CHIP_DATA(obj)), CCNRM(ch, C_NRM));
-				}
-			}
-			break;
-
-		}
-
-
+		perform_analyze(ch,obj);
 		GET_MOVE(ch) -= 10;
-		page_string(ch->desc, buf);
-		return;
-	}
-
-	if (vict) {
-
-		sprintf(buf, "       %s***************************************\r\n",
-			CCGRN(ch, C_NRM));
-		sprintf(buf, "%s       %s>>>     ENTITY ANALYSIS RESULTS:    <<<\r\n",
-			buf, CCCYN(ch, C_NRM));
-		sprintf(buf,
-			"%s       %s***************************************%s\r\n", buf,
-			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(buf, "%sName:                  %s%s%s\r\n", buf, CCCYN(ch,
-				C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
-		sprintf(buf, "%sRacial Classification: %s%s%s\r\n", buf, CCCYN(ch,
-				C_NRM), player_race[(int)GET_RACE(vict)], CCNRM(ch, C_NRM));
-		if (GET_CLASS(vict) < NUM_CLASSES) {
-			sprintf(buf, "%sPrimary Occupation:    %s%s%s\r\n", buf, CCCYN(ch,
-					C_NRM), pc_char_class_types[(int)GET_CLASS(vict)],
-				CCNRM(ch, C_NRM));
-		} else {
-			sprintf(buf, "%sPrimary Type:          %s%s%s\r\n", buf, CCCYN(ch,
-					C_NRM), pc_char_class_types[(int)GET_CLASS(vict)],
-				CCNRM(ch, C_NRM));
-		}
-		if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
-			sprintf(buf, "%sSecondary Occupation:  %s%s%s\r\n", buf,
-				CCCYN(ch, C_NRM),
-				pc_char_class_types[(int)GET_REMORT_CLASS(vict)], CCNRM(ch,
-					C_NRM));
-
-		GET_MOVE(ch) -= 10;
-		page_string(ch->desc, buf);
 		return;
 	}
 
