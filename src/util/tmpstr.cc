@@ -521,6 +521,8 @@ tmp_ctime(time_t val)
 	result = cur_buf->data + cur_buf->used;
 	strcpy(result, ctime(&val));
 	cur_buf->used += strlen(result) + 1;
+	// last byte is, sadly, a newline.  we remove it here
+	result[16] = '\0';
 
 	return result;
 }
