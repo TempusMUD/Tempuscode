@@ -179,7 +179,7 @@ Account::set(const char *key, const char *val)
 	else if (!strcmp(key, "reputation"))
 		_reputation = atoi(val);
 	else if (!strcmp(key, "quest_points"))
-		_reputation = atoi(val);
+		_quest_points = atoi(val);
 	else if (!strcmp(key, "bank_past"))
 		_bank_past = atoll(val);
 	else if (!strcmp(key, "bank_future"))
