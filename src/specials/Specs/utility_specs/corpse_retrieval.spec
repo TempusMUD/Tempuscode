@@ -12,6 +12,7 @@ SPECIAL(corpse_retrieval)
 	char buf2[MAX_STRING_LENGTH];
 	ACMD(do_say);
 	int price;
+	int amt_carried;
 
 	if (!CMD_IS("retrieve"))
 		return 0;
@@ -42,19 +43,23 @@ SPECIAL(corpse_retrieval)
 		return 1;
 	}
 
-	if (corpse->contains)
+	if (corpse->contains) {
 		price = GET_LEVEL(ch) * 4000;
-	else
+	} else {
 		price = GET_LEVEL(ch) * 100;
+	}
 
-	if (retriever->in_room->zone->time_frame == TIME_ELECTRO)
-		currency = "creds";
-	else
+	if (retriever->in_room->zone->time_frame == TIME_ELECTRO) {
+		amt_carried = GET_CASH(ch);
+		currency = "credits";
+	} else {
+		amt_carried = GET_GOLD(ch);
 		currency = "coins";
+	}
 
-	if (price > GET_GOLD(ch)) {
+	if (price > amt_carried) {
 		perform_tell(retriever, ch,
-			tmp_sprintf("You don't have enough gold.  It costs %d %s.",
+			tmp_sprintf("You don't have enough money.  It costs %d %s.",
 				price, currency));
 		return 1;
 	} 
