@@ -389,7 +389,8 @@ Creature::getLevelBonus(int skill)
 	// if neither, *SPLAT*
 	if (pLevel < 50) {			// primary gets skill
 		primary = true;
-	} else if (sLevel < 50) {	// secondary gets skill
+	// secondary gets skill or wierdo mob class
+	} else if( sLevel < 50 || (IS_NPC(this) && player.char_class > NUM_CLASSES ) ) {	
 		primary = false;
 	} else {					// Dont get the skill at all
 		return (getLevelBonus(false)) / 2;
