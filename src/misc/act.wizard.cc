@@ -6455,10 +6455,11 @@ const char *show_obj_keys[] = {
     "affect",
     "extra",
     "worn",
+    "cost",
     "\n"
 };
 
-#define NUM_SHOW_OBJ 7
+#define NUM_SHOW_OBJ 8
 
 void 
 do_show_objects(struct char_data *ch, char *value, char *arg)
@@ -6774,6 +6775,52 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 	     
 	}    
 	page_string(ch->desc, buf, 1);
+	return;
+
+    case 7: /* Cost */
+	if ( ! *arg ){
+            send_to_char( "Show with a cost greater than what?\r\n", ch );
+            return;
+        }
+
+        arg1 = arg;
+        skip_spaces( &arg1 );
+
+        if( ! is_number( arg1 ) ){
+	    send_to_char( "Usage: show obj cost <cost>.\r\n", ch );
+	    return;
+	}
+
+	else{
+	    i = atoi( arg1 );
+	}
+
+	if ( i < 0 ){
+            send_to_char( "Cost must be positive.\r\n", ch );
+            return;
+        }
+
+	sprintf( buf, "Objects with cost greater than or equal to %d:\r\n", i );
+	
+	for ( obj = obj_proto, j = 1; obj; obj = obj->next ){
+	  
+	    if( GET_OBJ_COST( obj ) >= i  ){
+		sprintf( buf2, "%3d. [%5d] %s%-34s%s  [%s%5d%s]\r\n",
+			 j, GET_OBJ_VNUM( obj ), CCGRN( ch, C_NRM ),
+			 obj->short_description, CCNRM( ch, C_NRM ),
+			 CCCYN( ch, C_NRM ),  GET_OBJ_COST( obj ), CCNRM( ch, C_NRM ) );
+		
+		if ( ( strlen( buf ) + strlen( buf2 ) + 128 ) > MAX_STRING_LENGTH ){
+		    strcat( buf, "**OVERFLOW**\r\n" );
+		    break;
+		}
+		
+		strcat( buf, buf2 );
+		j++;
+	    }
+	    
+	}    
+	page_string( ch->desc, buf, 1 );
 	return;
 
 
