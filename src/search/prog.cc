@@ -1170,7 +1170,7 @@ char *prog_get_alias_list(char *args)
             return NULL;
         }
 
-        str = GET_NAME(mob);
+        str = mob->player.name;
     }
     else {
         obj = real_object_proto(vnum);
