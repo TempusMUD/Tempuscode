@@ -2017,8 +2017,8 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.duration = 8 + level;
 		af.bitvector = AFF2_FLUORESCENT;
 		af.aff_index = 2;
-		to_vict = "The area around you is illuminated with flourescent atoms.";
-		to_room = "The light of flourescing atoms surrounds $n.";
+		to_vict = "The area around you is illuminated with fluorescent atoms.";
+		to_room = "The light of fluorescing atoms surrounds $n.";
 		break;
     
 	case SPELL_TEMPORAL_COMPRESSION:
@@ -3606,7 +3606,7 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 			GET_OBJ_VAL(obj, 2) = LIQ_SLIME;
 			break;
 		} else {
-			send_to_char(ch, "Your deity fills it with crytal clear water.\r\n");
+			send_to_char(ch, "Your deity fills it with crystal clear water.\r\n");
 			GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj, 0);
 			GET_OBJ_VAL(obj, 2) = LIQ_CLEARWATER;
             int weight = real_object_proto(GET_OBJ_VNUM(obj))->getWeight();
