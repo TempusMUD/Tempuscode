@@ -66,6 +66,7 @@ SPECIAL(phantasmic_sword);
 SPECIAL(newbie_healer);
 SPECIAL(newbie_improve);
 SPECIAL(newbie_fly);
+SPECIAL(newbie_fodder);
 SPECIAL(gen_locker);
 SPECIAL(guard);
 SPECIAL(newbie_gold_coupler);
