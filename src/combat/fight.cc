@@ -1872,6 +1872,65 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 #undef DAM_RETURN
 
+// Pick the next weapon that the creature will strike with
+obj_data *
+get_next_weap(struct Creature *ch)
+{
+	obj_data *cur_weap;
+	int dual_prob;
+
+	if (GET_EQ(ch, WEAR_WIELD_2) && GET_EQ(ch, WEAR_WIELD)) {
+		dual_prob = (GET_EQ(ch, WEAR_WIELD)->getWeight() -
+			GET_EQ(ch, WEAR_WIELD_2)->getWeight()) * 2;
+	}
+
+	// Check dual wield
+	cur_weap = GET_EQ(ch, WEAR_WIELD_2);
+	if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON)) {
+		if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
+			if ((CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) * 2 / 3) + dual_prob > number(50, 150))
+				return cur_weap;
+		} else {
+			if ((CHECK_SKILL(ch, SKILL_SECOND_WEAPON) * 2 / 3) + dual_prob > number(50, 150))
+				return cur_weap;
+		}
+	}
+
+	// Check normal wield
+	cur_weap = GET_EQ(ch, WEAR_WIELD);
+	if (cur_weap && !number(0, 1))
+		return cur_weap;
+
+	// Check equipment on hands
+	cur_weap = GET_EQ(ch, WEAR_HANDS);
+	if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) && !number(0, 5))
+		return cur_weap;
+
+	// Check for implanted weapons in hands
+	cur_weap = GET_IMPLANT(ch, WEAR_HANDS);
+	if (cur_weap && !GET_EQ(ch, WEAR_HANDS) &&
+			IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) && !number(0, 2))
+		return cur_weap;
+
+	// Check for weapon on feet
+	cur_weap = GET_EQ(ch, WEAR_FEET);
+	if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) &&
+			CHECK_SKILL(ch, SKILL_KICK) > number(10, 170))
+		return cur_weap;
+
+	// Check equipment on head
+	cur_weap = GET_EQ(ch, WEAR_HEAD);
+	if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) && !number(0, 2))
+		return cur_weap;
+	
+
+	cur_weap = GET_EQ(ch, WEAR_WIELD);
+	if (cur_weap)
+		return cur_weap;
+
+	return GET_EQ(ch, WEAR_HANDS);
+}
+
 //
 // generic hit
 //
@@ -1883,7 +1942,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 {
 
 	int w_type = 0, victim_ac, calc_thaco, dam, tmp_dam, diceroll, skill = 0;
-	int i, metal_wt, dual_prob = 0;
+	int i, metal_wt;
 	byte limb;
 	struct obj_data *weap = NULL;
 	int retval;
@@ -1972,36 +2031,11 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 	if ((type != SKILL_BACKSTAB && type != SKILL_CIRCLE &&
 			type != SKILL_BEHEAD) || !cur_weap) {
-
-		if (GET_EQ(ch, WEAR_WIELD_2) && GET_EQ(ch, WEAR_WIELD)) {
-			dual_prob = (GET_EQ(ch, WEAR_WIELD)->getWeight() -
-				GET_EQ(ch, WEAR_WIELD_2)->getWeight()) * 2;
-		}
-		if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W) {
+		if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W)
 			cur_weap = get_random_uncovered_implant(ch, ITEM_WEAPON);
-			if (!cur_weap)
-				return 0;
-		} else if (!(((cur_weap = GET_EQ(ch, WEAR_WIELD_2)) &&
-					IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) &&
-					((CHECK_SKILL(ch,
-								SKILL_SECOND_WEAPON) * 2 / 3) + dual_prob) >
-					number(50, 150)) || ((cur_weap = GET_EQ(ch, WEAR_WIELD))
-					&& !number(0, 1)) || ((cur_weap = GET_EQ(ch, WEAR_HANDS))
-					&& (!cur_weap || !number(0, 5))
-					&& IS_OBJ_TYPE(cur_weap, ITEM_WEAPON))
-				|| ((cur_weap = GET_IMPLANT(ch, WEAR_HANDS))
-					&& IS_OBJ_TYPE(cur_weap, ITEM_WEAPON)
-					&& !GET_EQ(ch, WEAR_HANDS) && (!cur_weap || !number(0, 2)))
-				|| ((cur_weap = GET_EQ(ch, WEAR_FEET))
-					&& CHECK_SKILL(ch, SKILL_KICK) > number(10, 170)
-					&& IS_OBJ_TYPE(cur_weap, ITEM_WEAPON))
-				|| ((cur_weap = GET_EQ(ch, WEAR_HEAD))
-					&& IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) && !number(0, 2)))
-			&& !(cur_weap = GET_EQ(ch, WEAR_WIELD)))
-			cur_weap = GET_EQ(ch, WEAR_HANDS);
-
+		else
+			cur_weap = get_next_weap(ch);
 		if (cur_weap) {
-
 			if (IS_ENERGY_GUN(cur_weap) || IS_GUN(cur_weap)) {
 				w_type = TYPE_BLUDGEON;
 			} else if (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON))
