@@ -119,6 +119,8 @@ award_bounty(Creature *killer, Creature *vict)
 		send_to_char(killer, "You have been paid %d gold coins for killing %s!\r\n",
 			amt, GET_NAME(vict));
 		GET_GOLD(killer) += amt;
+		mudlog(LVL_IMMORT, CMP, true, "%s paid %d gold for killing %s",
+			GET_NAME(killer), amt, GET_NAME(vict));
 	} else {
 		if (killer->master)
 			killer = killer->master;
@@ -129,6 +131,9 @@ award_bounty(Creature *killer, Creature *vict)
 				count++;
 
 		amt /= count;
+
+		mudlog(LVL_IMMORT, CMP, true, "%s's group paid %d gold each for killing %s",
+			GET_NAME(killer), amt, GET_NAME(vict));
 
 		send_to_char(killer, "You have been paid %d gold coins for your part in killing %s!\r\n",
 			amt, GET_NAME(vict));
