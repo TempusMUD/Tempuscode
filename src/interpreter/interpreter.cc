@@ -120,6 +120,7 @@ ACMD(do_disembark);
 ACMD(do_disguise);
 ACCMD(do_disarm);
 ACMD(do_discharge);
+ACMD(do_distrust);
 ACMD(do_dismiss);
 ACMD(do_distance);
 ACMD(do_drain);
@@ -150,6 +151,7 @@ ACMD(do_throw);
 ACMD(do_trigger);
 ACMD(do_transmit);
 ACMD(do_translocate);
+ACMD(do_trust);
 ACMD(do_tornado_kick);
 ACMD(do_toss_mail);
 ACMD(do_tune);
@@ -628,6 +630,7 @@ struct command_info cmd_info[] = {
 	{"disbelieve", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"disgusted", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"distance", POS_DEAD, do_distance, LVL_IMMORT, 0, 0, 0},
+	{"distrust", POS_DEAD, do_distrust, 0, 0, 0, 0},
 	{"discharge", POS_FIGHTING, do_discharge, 0, 0, 0, 0},
 	{"disco", POS_STANDING, do_action, 0, 0, 0, 0},
 	{"dismount", POS_MOUNTED, do_dismount, 0, 0, 0, 0},
@@ -914,7 +917,6 @@ struct command_info cmd_info[] = {
 	{"nohassle", POS_DEAD, do_gen_tog, LVL_AMBASSADOR, SCMD_NOHASSLE, 0, 0},
 	{"noholler", POS_DEAD, do_gen_tog, LVL_IMMORT, SCMD_NOHOLLER, 0, 0},
 	{"noimmchat", POS_DEAD, do_gen_tog, LVL_AMBASSADOR, SCMD_NOIMMCHAT, 0, 0},
-	{"noidentify", POS_DEAD, do_gen_tog, 1, SCMD_NOIDENTIFY, 0, 0},
 	{"nomusic", POS_DEAD, do_gen_tog, 0, SCMD_NOMUSIC, 0, 0},
 	{"nonewbie", POS_DEAD, do_gen_tog, 0, SCMD_NEWBIE_HELP, 0, 0},
 	{"noogie", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -923,7 +925,6 @@ struct command_info cmd_info[] = {
 	{"noshout", POS_SLEEPING, do_gen_tog, 1, SCMD_DEAF, 0, 0},
 	{"nosing", POS_DEAD, do_gen_tog, 0, SCMD_NOMUSIC, 0, 0},
 	{"nospew", POS_DEAD, do_gen_tog, 1, SCMD_NOSPEW, 0, 0},
-	{"nosummon", POS_DEAD, do_gen_tog, 1, SCMD_NOSUMMON, 0, 0},
 	{"notell", POS_DEAD, do_gen_tog, 1, SCMD_NOTELL, 0, 0},
 	{"notitle", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_NOTITLE, 0, 0},
 	{"nopost", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_NOPOST, 0, 0},
@@ -1235,6 +1236,7 @@ struct command_info cmd_info[] = {
 	{"transfer", POS_SLEEPING, do_trans, LVL_IMMORT, 0, 0, 0},
 	{"translocate", POS_RESTING, do_translocate, 20, ZEN_TRANSLOCATION, 0, 0},
 	{"transmit", POS_SLEEPING, do_transmit, 0, 0, 0, 0},
+	{"trust", POS_DEAD, do_trust, 0, 0, 0, 0},
 	{"taunt", POS_STANDING, do_taunt, 0, 0, 0, 0},
 	{"trigger", POS_SITTING, do_trigger, 1, 0, 0, 0},
 	{"triggers", POS_SLEEPING, do_skills, 0, SCMD_SPELLS_ONLY, 0, 0},

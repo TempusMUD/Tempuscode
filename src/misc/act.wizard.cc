@@ -5377,9 +5377,7 @@ ACMD(do_set)
             GET_NAME(vict), GET_TITLE(vict));
         break;
     case 3:
-        SET_OR_REMOVE(PRF_FLAGS(vict), PRF_SUMMONABLE);
-        on = !on;                /* so output will be correct */
-        break;
+		send_to_char(ch, "Nosummon disabled.\r\n"); break;
     case 4:
         vict->points.max_hit = RANGE(1, 30000);
         affect_total(vict);

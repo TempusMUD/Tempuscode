@@ -2290,8 +2290,6 @@ affs_to_str(struct Creature *ch, byte mode)
 		str = tmp_strcat(str, "Your skin is as hard as granite.\r\n");
 	if (IS_AFFECTED(ch, AFF_INFRAVISION))
 		str = tmp_strcat(str, "Your eyes are glowing red.\r\n");
-	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
-		str = tmp_strcat(str, "You are summonable by other players.\r\n");
 	if (IS_AFFECTED(ch, AFF_REJUV))
 		str = tmp_strcat(str, "You feel like your body will heal with a good rest.\r\n");
 	if (IS_AFFECTED(ch, AFF_REGEN))
@@ -4439,15 +4437,13 @@ show_all_toggles(Creature *ch)
 		"-- GAMEPLAY ------------------------------------------------------------------\r\n"
 		"      Autosplit: %-3s    "
 		"       Autoloot: %-3s    "
-		"Identify Resist: %-3s\r\n"
-		"     Wimp Level: %-3s    "
+		"     Wimp Level: %-3s\r\n"
 		"           Deaf: %-3s    "
-		"         NoTell: %-3s\r\n"
-		"       On Quest: %-3s    "
-		"  Summon Resist: %-3s    "
-		"   Show Affects: %-3s\r\n"
+		"         NoTell: %-3s    "
+		"       On Quest: %-3s\r\n"
+		"   Show Affects: %-3s    "
 		"      Clan hide: %-3s    "
-		"      Anonymous: %-3s    "
+		"      Anonymous: %-3s\r\n"
 		"        PKILLER: %-3s\r\n"
 		,
 		ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
@@ -4477,12 +4473,10 @@ show_all_toggles(Creature *ch)
 
 		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)),
 		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOLOOT)),
-		ONOFF(PRF_FLAGGED(ch, PRF_NOIDENTIFY)),
 		buf2,
 		YESNO(PRF_FLAGGED(ch, PRF_DEAF)),
 		ONOFF(PRF_FLAGGED(ch, PRF_NOTELL)),
 		YESNO(GET_QUEST(ch)),
-		ONOFF(!PRF_FLAGGED(ch, PRF_SUMMONABLE)),
 		YESNO(!PRF2_FLAGGED(ch, PRF2_NOAFFECTS)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_CLAN_HIDE)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_ANONYMOUS)),

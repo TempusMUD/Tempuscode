@@ -40,6 +40,7 @@
 #include "fight.h"
 #include "char_class.h"
 #include "security.h"
+#include "player_table.h"
 
 /* extern variables */
 extern struct descriptor_data *descriptor_list;
@@ -1097,9 +1098,6 @@ ACMD(do_gen_tog)
 		return;
 
 	switch (subcmd) {
-	case SCMD_NOSUMMON:
-		result = PRF_TOG_CHK(ch, PRF_SUMMONABLE);
-		break;
 	case SCMD_NOHASSLE:
 		result = PRF_TOG_CHK(ch, PRF_NOHASSLE);
 		break;
@@ -1159,9 +1157,6 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_NOCLANSAY:
 		result = PRF_TOG_CHK(ch, PRF_NOCLANSAY);
-		break;
-	case SCMD_NOIDENTIFY:
-		result = PRF_TOG_CHK(ch, PRF_NOIDENTIFY);
 		break;
 	case SCMD_DEBUG:
 		result = PRF2_TOG_CHK(ch, PRF2_DEBUG);
@@ -2227,3 +2222,96 @@ ice_room(struct room_data *room, int amount)
 		obj_to_room(ice, room);
 	}
 }
+
+ACMD(do_trust)
+{
+	long idnum;
+
+	skip_spaces(&argument);
+
+	if (IS_NPC(ch)) {
+		send_to_char(ch, "Mobiles don't trust anyone.\r\n");
+		return;
+	}
+
+	if (!*argument) {
+		if (ch->account->trustsNobody()) {
+			send_to_char(ch, "You don't trust anyone right now.\r\n");
+			return;
+		}
+		send_to_char(ch, "Trusted friends:\r\n");
+		ch->account->displayTrusted(ch);
+		return;
+	}
+
+	if (!playerIndex.exists(argument)) {
+		send_to_char(ch, "That player doesn't exist.\r\n");
+		return;
+	}
+
+	idnum = playerIndex.getID(argument);
+
+	if (idnum == GET_IDNUM(ch)) {
+		send_to_char(ch, "Don't you already trust yourself?\r\n");
+		return;
+	}
+
+	if (ch->account->get_idnum() == playerIndex.getAccountID(idnum)) {
+		send_to_char(ch, "You automatically trust characters in your own account.\r\n");
+		return;
+	}
+
+	if (ch->trusts(idnum)) {
+		send_to_char(ch, "You already trust %s.\r\n", 
+			playerIndex.getName(idnum));
+		return;
+	}
+
+	ch->account->trust(idnum);
+	send_to_char(ch, "%s is now a trusted friend to you.\r\n",
+		playerIndex.getName(idnum));
+}
+
+ACMD(do_distrust)
+{
+	long idnum;
+
+	if (IS_NPC(ch)) {
+		send_to_char(ch, "Mobiles distrust everyone already!\r\n");
+		return;
+	}
+
+	skip_spaces(&argument);
+
+	if (!*argument) {
+		send_to_char(ch, "You must specify who to distrust.\r\n");
+		return;
+	}
+
+	if (!playerIndex.exists(argument)) {
+		send_to_char(ch, "That player doesn't exist.\r\n");
+		return;
+	}
+
+	idnum = playerIndex.getID(argument);
+	if (idnum == GET_IDNUM(ch)) {
+		send_to_char(ch, "If you can't trust yourself, who can you trust?\r\n");
+		return;
+	}
+
+	if (ch->account->get_idnum() == playerIndex.getAccountID(idnum)) {
+		send_to_char(ch, "You can't distrust characters in your own account.\r\n");
+		return;
+	}
+
+	if (ch->distrusts(idnum)) {
+		send_to_char(ch, "You already don't trust %s.\r\n", 
+			playerIndex.getName(idnum));
+		return;
+	}
+
+	ch->account->distrust(idnum);
+	send_to_char(ch, "You are no longer trusting of %s.\r\n",
+		playerIndex.getName(idnum));
+}
+

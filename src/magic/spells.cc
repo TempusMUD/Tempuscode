@@ -131,8 +131,7 @@ ASPELL(spell_recall)
 		}
 	}
 
-	if (ch != victim &&
-		!PRF_FLAGGED(victim, PRF_SUMMONABLE) &&
+	if (victim->distrusts(ch) &&
 		mag_savingthrow(victim, level, SAVING_SPELL)) {
 		act("$N resists the spell!", FALSE, ch, 0, victim, TO_CHAR);
 		send_to_char(victim, 
@@ -232,8 +231,7 @@ ASPELL(spell_local_teleport)
 			TO_VICT);
 		return;
 	}
-	if (!IS_NPC(victim) && !PRF_FLAGGED(victim, PRF_SUMMONABLE)
-		&& victim != ch) {
+	if (victim->distrusts(ch)) {
 		if (mag_savingthrow(victim, level, SAVING_SPELL)
 			&& !PLR_FLAGGED(victim, PLR_KILLER)) {
 
@@ -431,8 +429,7 @@ ASPELL(spell_teleport)
 			TO_VICT);
 		return;
 	}
-	if (!IS_NPC(victim) && !PRF_FLAGGED(victim, PRF_SUMMONABLE)
-		&& victim != ch) {
+	if (victim->distrusts(ch)) {
 		if (mag_savingthrow(victim, level, SAVING_SPELL)
 			&& !PLR_FLAGGED(victim, PLR_KILLER)) {
 
@@ -555,8 +552,7 @@ ASPELL(spell_astral_spell)
 			TO_VICT);
 		return;
 	}
-	if (!IS_NPC(victim) && !PRF_FLAGGED(victim, PRF_SUMMONABLE)
-		&& victim != ch) {
+	if (victim->distrusts(ch)) {
 		if (mag_savingthrow(victim, level, SAVING_SPELL)
 			&& !PLR_FLAGGED(victim, PLR_KILLER)) {
 
@@ -636,14 +632,14 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	if ((ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)
-			&& !PRF_FLAGGED(victim, PRF_SUMMONABLE))) {
-		send_to_char(ch, "They must choose to enter this place.\r\n");
+	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)
+			&& victim->distrusts(ch)) {
+		send_to_char(ch, "They must trust you to be summoned to this place.\r\n");
 		return;
 	}
 	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW)
-		&& !PRF_FLAGGED(victim, PRF_SUMMONABLE)) {
-		send_to_char(ch, "They must choose to enter this lawless place.\r\n");
+		&& victim->distrusts(ch)) {
+		send_to_char(ch, "They must trust you to be summoned to this lawless place.\r\n");
 		return;
 	}
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {
@@ -676,7 +672,7 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	if (!IS_NPC(victim) && !PRF_FLAGGED(victim, PRF_SUMMONABLE)) {
+	if (victim->distrusts(ch)) {
 		if (mag_savingthrow(victim, level, SAVING_SPELL) &&
 			!PLR_FLAGGED(victim, PLR_KILLER)) {
 
@@ -804,7 +800,7 @@ ASPELL(spell_summon)
 		mudlog(LVL_AMBASSADOR, BRF, true,
 			"%s has%s summoned %s to %s (%d)",
 			GET_NAME(ch),
-			(!PRF_FLAGGED(victim, PRF_SUMMONABLE)) ? " forcibly":"",
+			(victim->distrusts(ch)) ? " forcibly":"",
 			GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 	}
 }
@@ -1259,8 +1255,7 @@ ASPELL(spell_identify)
 		}
 
 	} else if (victim) {		/* victim */
-		if (victim != ch && (PRF_FLAGGED(victim, PRF_NOIDENTIFY)
-				|| IS_NPC(victim))) {
+		if (victim->distrusts(ch)) {
 			if (mag_savingthrow(victim, level, SAVING_SPELL)) {
 				act("$N resists your spell!", FALSE, ch, 0, victim, TO_CHAR);
 				return;
@@ -1380,8 +1375,7 @@ ASPELL(spell_minor_identify)
 			}
 		}
 	} else if (victim) {		/* victim */
-		if (victim != ch &&
-			(PRF_FLAGGED(victim, PRF_NOIDENTIFY) || IS_NPC(victim))) {
+		if (victim->distrusts(ch)) {
 			if (mag_savingthrow(victim, level, SAVING_SPELL)) {
 				act("$N resists your spell!", FALSE, ch, 0, victim, TO_CHAR);
 				return;
