@@ -1774,9 +1774,9 @@ void
 HouseControl::displayHouses( list<House*> houses, Creature *ch )
 {
     string output;
-    send_to_char(ch,"ID   Size Owner  Landlord  Type Rooms\r\n");
-    send_to_char(ch,"---- ---- ------ --------- ---- -----"
-                    "------------------------------------------\r\n");
+    send_to_char(ch,"ID   Size Owner  Landlord   Type Rooms\r\n");
+    send_to_char(ch,"---- ---- ------ ---------- ---- -----"
+                    "-----------------------------------------\r\n");
     list<House*>::iterator cur = houses.begin();
     
 
@@ -1799,7 +1799,7 @@ HouseControl::displayHouses( list<House*> houses, Creature *ch )
 		const char* landlord = "none";
 		if( playerIndex.exists(house->getLandlord()) )
 			landlord = playerIndex.getName(house->getLandlord());
-        send_to_char( ch, "%4d %4d %6d %-9s %4s %-45s\r\n",
+        send_to_char( ch, "%4d %4d %6d %-10s %4s %-45s\r\n",
                       house->getID(),
 					  house->getRoomCount(),
                       house->getOwnerID(), 
