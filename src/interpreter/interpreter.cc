@@ -209,6 +209,7 @@ ACMD(do_hcontrol);
 ACMD(do_hedit);
 ACMD(do_headbutt);
 ACMD(do_help);
+ACMD(do_hcollect_help);
 ACMD(do_hide);
 ACMD(do_hit);
 ACMD(do_house);
@@ -386,6 +387,7 @@ ACMD(do_olist);
 ACMD(do_mlist);
 ACMD(do_xlist);
 ACMD(do_help_collection_command);
+ACMD(do_immhelp);
 
 
 /* This is the Master Command List(tm).
@@ -537,7 +539,7 @@ extern const struct command_info cmd_info[] = {
     { "cinfo"    , POS_SLEEPING, do_cinfo    ,  LVL_CAN_CLAN, 0 },
     { "cedit"    , POS_DEAD,     do_cedit,      LVL_GRGOD,  0 },
     { "circle"   , POS_FIGHTING, do_circle   , 0, 0 },
-    { "cities"   , POS_SLEEPING, do_help     , 0, SCMD_CITIES },
+    { "cities"   , POS_SLEEPING, do_hcollect_help     , 0, SCMD_CITIES },
     { "clanlist" , POS_MORTALLYW, do_clanlist, LVL_CAN_CLAN, 0 },
     { "claw"     , POS_FIGHTING, do_offensive_skill, 0, SKILL_CLAW },
     { "cling"    , POS_RESTING , do_action   , 0, 0 },
@@ -720,8 +722,10 @@ extern const struct command_info cmd_info[] = {
     { "gtell"    , POS_SLEEPING, do_gsay     , 0, 0 },
     { "gunset"   , POS_RESTING , do_gunset   , 0, 0 },
 
-    { "help"     , POS_DEAD    , do_help     , 0, 0 },
-    { "?"        , POS_DEAD    , do_help     , 0, 0 },
+//    { "help"     , POS_DEAD    , do_help     , 0, 0 },
+    { "help"     , POS_DEAD    , do_hcollect_help,0, 0 },
+//    { "?"        , POS_DEAD    , do_help     , 0, 0 },
+    { "?"        , POS_DEAD    , do_hcollect_help,0, 0 },
     { "hedit"    , POS_RESTING , do_hedit    , 20, 0 },
     { "hack"     , POS_STANDING, do_gen_door , 1, SCMD_HACK },
     { "halt"     , POS_DEAD    , do_gen_tog  , LVL_AMBASSADOR, SCMD_HALT },
@@ -776,6 +780,7 @@ extern const struct command_info cmd_info[] = {
     { "imotd"    , POS_DEAD    , do_gen_ps   , LVL_AMBASSADOR, SCMD_IMOTD },
     { "immlist"  , POS_DEAD    , do_gen_ps   , 0, SCMD_IMMLIST },
     { "immortals", POS_DEAD    , do_gen_ps   , 0, SCMD_IMMLIST },
+    { "immhelp"  , POS_DEAD    , do_immhelp  , LVL_IMMORT, 0 },
     { "impale"   , POS_FIGHTING, do_impale   , 0, 0 },
     { "implants" , POS_SLEEPING, do_equipment, 0, SCMD_IMPLANTS },
     { "improve"  , POS_STANDING, do_improve  , 0, 0 },
@@ -844,7 +849,7 @@ extern const struct command_info cmd_info[] = {
     { "miss"     , POS_RESTING ,  do_action  , 0, 0 },
     { "mount"    , POS_STANDING, do_mount    , 0, 0 },
     { "moan"     , POS_RESTING , do_action   , 0, 0 },
-    { "modrian"  , POS_DEAD    , do_help     , 0, SCMD_MODRIAN },
+    { "modrian"  , POS_DEAD    , do_hcollect_help     , 0, SCMD_MODRIAN },
     { "mosh"     , POS_FIGHTING, do_action   , 0 ,0 },
     { "motd"     , POS_DEAD    , do_gen_ps   , 0, SCMD_MOTD },
     { "moo"      , POS_RESTING , do_action   , 0, 0 },
@@ -1081,7 +1086,7 @@ extern const struct command_info cmd_info[] = {
     { "sleep"    , POS_SLEEPING, do_sleep    , 0, 0 },
     { "sleeper"  , POS_FIGHTING, do_sleeper  , 0, 0 },
     { "slap"     , POS_RESTING , do_action   , 0, 0 },
-    { "slist"    , POS_SLEEPING, do_help     , 0, SCMD_SKILLS },
+    { "slist"    , POS_SLEEPING, do_hcollect_help     , 0, SCMD_SKILLS },
     { "sling"    , POS_FIGHTING, do_not_here , 0, 0 },
     { "slowns"   , POS_DEAD    , do_gen_tog  , LVL_GRGOD, SCMD_SLOWNS },
     { "slay"     , POS_RESTING , do_kill     , 0, SCMD_SLAY },
@@ -1149,7 +1154,8 @@ extern const struct command_info cmd_info[] = {
     { "syslog"   , POS_DEAD    , do_syslog   , LVL_AMBASSADOR, 0 },
 
     { "tell"     , POS_DEAD    , do_tell     , 0, 0 },
-    { "tempus"   , POS_DEAD    , do_help     , 0, 0 },
+//    { "tempus"   , POS_DEAD    , do_help     , 0, 0 },
+    { "tempus"   , POS_DEAD    , do_hcollect_help     , 0, 0 },
     { "terrorize", POS_FIGHTING, do_intimidate, 5, SKILL_TERRORIZE },
     { "tackle"   , POS_RESTING , do_action   , 0, 0 },
     { "take"     , POS_RESTING , do_get      , 0, 0 },

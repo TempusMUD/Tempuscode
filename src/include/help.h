@@ -130,6 +130,7 @@ class HelpCollection {
     void Show(char_data *ch);
     int GetTop(void);
     void Push(HelpItem *n);
+    HelpItem *find_item_by_id(int id);
     
     // Data
     HelpItem *items;

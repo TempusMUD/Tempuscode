@@ -26,6 +26,7 @@ static char gHelpbuf[MAX_STRING_LENGTH];
 static char linebuf[MAX_STRING_LENGTH];
 static fstream help_file;
 static fstream index_file;
+extern const char *pc_char_class_types[];
 
 char *one_word(char *argument, char *first_arg);
 static const struct hcollect_command {
@@ -531,6 +532,11 @@ void do_group_usage(CHAR *ch, int com) {
         send_to_char(buf, ch);
     }
 }
+HelpItem *HelpCollection::find_item_by_id(int id) {
+    HelpItem *cur;
+    for(cur = items;cur && cur->idnum != id;cur = cur->Next());
+    return cur;
+}
 // Group command parser. 
 // Yeah yeah. Prolly doesn't need it but here it is.
 static void do_group_command(char_data *ch, char *argument) {
@@ -573,6 +579,33 @@ static void do_group_command(char_data *ch, char *argument) {
             break;
         default:
             do_group_cmds(ch);
+    }
+}
+ACMD(do_immhelp) {
+    Help->GetTopic(ch,argument,2,false,HGROUP_IMMHELP);
+    return;
+}
+ACMD(do_hcollect_help) {
+    HelpItem *cur = NULL;
+    skip_spaces(&argument);
+
+    // Take care of all the special cases.
+    if(subcmd == SCMD_CITIES) {
+        cur = Help->find_item_by_id(62);
+    } else if( subcmd == SCMD_MODRIAN ) {
+        cur = Help->find_item_by_id(196);
+    } else if( subcmd == SCMD_SKILLS ) {
+        sprintf(buf, "Type 'Help %s' to see the skills available to your char_class.\r\n", pc_char_class_types[(int)GET_CLASS(ch)]);
+        send_to_char(buf, ch);
+    } else if(!argument || !*argument) {
+        cur = Help->find_item_by_id(666);
+    }
+    // If we have a special case, do it, otherwise try to get it normally.
+    if(cur) {
+        cur->Show( ch, gHelpbuf,2);
+        page_string(ch->desc,gHelpbuf,1);
+    } else {
+        Help->GetTopic(ch,argument,2,false);
     }
 }
 // Main command parser for hcollect.
