@@ -666,7 +666,7 @@ STRENGTH_APPLY_INDEX(Creature *ch)
                          (IS_AFFECTED_2(ch, AFF2_TELEKINESIS) ? \
                           (GET_LEVEL(ch) >> 2) : 0))
 
-#define AWAKE(ch) (ch->getPosition() > POS_SLEEPING && !IS_AFFECTED_2(ch, AFF2_MEDITATE))
+#define AWAKE(ch) ((ch)->getPosition() > POS_SLEEPING && !IS_AFFECTED_2(ch, AFF2_MEDITATE))
 
 #define IS_GOOD(ch)    (GET_ALIGNMENT(ch) >= 350)
 #define IS_EVIL(ch)    (GET_ALIGNMENT(ch) <= -350)

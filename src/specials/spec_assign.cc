@@ -189,6 +189,7 @@ const struct spec_func_data spec_list[] = {
 	{"unspecializer", unspecializer, SPEC_MOB | SPEC_RES},
 	{"pit_keeper", pit_keeper, SPEC_MOB | SPEC_RES},
 	{"cremator", cremator, SPEC_MOB | SPEC_RES},
+	{"mugger", mugger, SPEC_MOB | SPEC_RES},
 
 	//  {"lord_vader",      lord_vader,            SPEC_MOB | SPEC_RES },
 	/** objects **/
