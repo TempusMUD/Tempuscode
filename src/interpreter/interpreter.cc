@@ -1372,7 +1372,9 @@ struct command_info cmd_info[] = {
 	{"loudly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"lovingly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"lustily", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"maliciously", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"merrily", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"mockingly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"nervously", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"nicely", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"outrageously", POS_DEAD, do_mood, 0, 0, 0, 0},
@@ -1386,6 +1388,7 @@ struct command_info cmd_info[] = {
 	{"ruthlessly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"sadly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"savagely", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"seductively", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"sheepishly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"shyly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"skeptically", POS_DEAD, do_mood, 0, 0, 0, 0},
@@ -1393,6 +1396,7 @@ struct command_info cmd_info[] = {
 	{"slyly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"softly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"solemnly", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"stoically", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"sweetly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"viciously", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"warily", POS_DEAD, do_mood, 0, 0, 0, 0},
@@ -1400,6 +1404,7 @@ struct command_info cmd_info[] = {
 	{"wearily", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"wildly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"wisely", POS_DEAD, do_mood, 0, 0, 0, 0},
+	{"wishfully", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"valiantly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"\n", 0, 0, 0, 0, 0, 0}
 };								/* this must be last */
@@ -1704,7 +1709,7 @@ ACMD(do_unalias)
 	repl = any_one_arg(argument, arg);	/* vintage */
 
 	if (!*arg) {				/* no argument specified -- what a dumbass */
-		send_to_char(ch, "Unalias what?\r\n");
+		send_to_char(ch, "You must specify something to unalias.\r\n");
 		return;
 	} else {
 		if ((a = find_alias(GET_ALIASES(ch), arg)) != NULL) {
