@@ -747,29 +747,24 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 	}
 
 
-	/* object has reached broken state */
-	if ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 3)) {
-
+	if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 3))
+			&& (GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 3)) {
+		/* object has reached broken state */
 		SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
 		strcpy(buf2, "$p has been severely damaged!!");
-
+	} else if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 2))
+			&& ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 2))) {
 		/* object looking rough ( 25% ) */
-	} else if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 2)) &&
-		((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 2))) {
-
 		sprintf(buf2, "$p is starting to look pretty %s.",
 			IS_METAL_TYPE(obj) ? "mangled" :
 			(IS_LEATHER_TYPE(obj) || IS_CLOTH_TYPE(obj)) ? "ripped up" :
 			"bad");
-
-		/* object starting to wear ( 50% ) */
 	} else if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 1)) &&
 		((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 1))) {
-
+		/* object starting to wear ( 50% ) */
 		strcpy(buf2, "$p is starting to show signs of wear.");
-
-		/* just tally the damage and end */
 	} else {
+		/* just tally the damage and end */
 		GET_OBJ_DAM(obj) -= eq_dam;
 		return NULL;
 	}
