@@ -70,6 +70,30 @@ extern int shutdown_mode;
 extern int current_mob_idnum;
 extern struct last_command_data last_cmd[NUM_SAVE_CMDS];
 
+//these structs used in do_return()
+extern struct room_data * r_immort_start_room;
+extern struct room_data * r_frozen_start_room;
+extern struct room_data * r_mortal_start_room;
+extern struct room_data * r_electro_start_room;
+extern struct room_data * r_new_thalos_start_room;
+extern struct room_data * r_elven_start_room;
+extern struct room_data * r_istan_start_room;
+extern struct room_data * r_arena_start_room;
+extern struct room_data * r_city_start_room;
+extern struct room_data * r_doom_start_room;
+extern struct room_data * r_monk_start_room;
+extern struct room_data * r_tower_modrian_start_room;
+extern struct room_data * r_solace_start_room;
+extern struct room_data * r_mavernal_start_room;
+extern struct room_data * r_dwarven_caverns_start_room;
+extern struct room_data * r_human_square_start_room;
+extern struct room_data * r_skullport_start_room;
+extern struct room_data * r_skullport_newbie_start_room;
+extern struct room_data * r_drow_isle_start_room;
+extern struct room_data * r_astral_manse_start_room;
+extern struct room_data * r_zul_dane_start_room;
+extern struct room_data * r_zul_dane_newbie_start_room;
+
 char *how_good(int percent);
 extern char *prac_types[];
 int spell_sort_info[MAX_SPELLS+1];
@@ -2236,11 +2260,50 @@ ACMD(do_rswitch)
     }
 }
 
+// This NASTY macro written by Nothing, spank me next time you see me if you want... :P
+#define GET_START_ROOM(ch) (GET_HOME(ch) == HOME_NEWBIE_TOWER ? r_tower_modrian_start_room :\
+                            GET_HOME(ch) == HOME_ELECTRO ? r_electro_start_room :\
+                            GET_HOME(ch) == HOME_NEW_THALOS ? r_new_thalos_start_room :\
+                            GET_HOME(ch) == HOME_ELVEN_VILLAGE ? r_elven_start_room :\
+                            GET_HOME(ch) == HOME_ISTAN ? r_istan_start_room :\
+                            GET_HOME(ch) == HOME_ARENA ? r_arena_start_room :\
+                            GET_HOME(ch) == HOME_CITY ? r_city_start_room :\
+                            GET_HOME(ch) == HOME_DOOM ? r_doom_start_room :\
+                            GET_HOME(ch) == HOME_MONK ? r_monk_start_room :\
+                            GET_HOME(ch) == HOME_SKULLPORT_NEWBIE ? r_skullport_newbie_start_room :\
+                            GET_HOME(ch) == HOME_SOLACE_COVE ? r_solace_start_room :\
+                            GET_HOME(ch) == HOME_MAVERNAL ? r_mavernal_start_room :\
+                            GET_HOME(ch) == HOME_DWARVEN_CAVERNS ? r_dwarven_caverns_start_room :\
+                            GET_HOME(ch) == HOME_HUMAN_SQUARE ? r_human_square_start_room :\
+                            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :\
+                            GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :\
+                            GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :\
+                            GET_HOME(ch) == HOME_ZUL_DANE ? r_zul_dane_newbie_start_room :\
+                            r_mortal_start_room)
 ACMD(do_return)
 {
     struct char_data *orig = NULL;
     bool cloud_found = false;
   
+    if (!IS_NPC(ch) && (CHECK_REMORT_CLASS(ch) < 0) && (GET_LEVEL(ch) < LVL_IMMORT)) {
+        if (FIGHTING(ch)) {
+            send_to_char("No way!  You're fighting for your life!\r\n", ch);
+        }
+        else if (GET_LEVEL(ch) <= 5) {
+            act("A whirling globe of multi-colored light appears and whisks you away!",
+                FALSE, ch, NULL, NULL, TO_CHAR);
+            act("A whirling globe of multi-colored light appears and whisks $n away!",
+                FALSE, ch, NULL, NULL, TO_ROOM);
+            char_from_room(ch);
+            char_to_room(ch, GET_START_ROOM(ch));
+            act("A whirling globe of multi-colored light appears and deposits $n on the floor!",
+                FALSE, ch, NULL, NULL, TO_ROOM);
+        }
+        else
+            send_to_char("There is no need to return.\r\n", ch);
+        return;    
+    }
+    
     if (ch->desc && (orig = ch->desc->original)) {
     
 	if (IS_MOB(ch) && GET_MOB_VNUM(ch) == 1518) {
@@ -2274,6 +2337,7 @@ ACMD(do_return)
     } else 
 	send_to_char("There is no need to return.\r\n", ch);
 }
+#undef GET_START_ROOM(ch)
 
 ACMD(do_mload)
 {

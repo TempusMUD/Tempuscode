@@ -1785,7 +1785,7 @@ ACMD(do_cast)
         }
         else {
             send_to_char("You feel your concentration slipping!\r\n", ch);
-            WAIT_STATE(ch, 1 RL_SEC);
+            WAIT_STATE(ch, 2 RL_SEC);
             spellnum = number(1, MAX_SPELLS);
             if (!SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum)) {
                 send_to_char("Your concentration slips away entirely.\r\n", ch);
@@ -2054,7 +2054,7 @@ ACMD(do_trigger)
         } 
         else {
             send_to_char("You feel your concentration slipping!\r\n", ch);
-            WAIT_STATE(ch, 1 RL_SEC);
+            WAIT_STATE(ch, 2 RL_SEC);
             spellnum = number(1, MAX_SPELLS);
             if (!SPELL_IS_PSIONIC(spellnum)) {
                 send_to_char("Your concentration slips away entirely.\r\n", ch);
@@ -2249,7 +2249,7 @@ ACMD(do_alter)
         } 
         else {
             send_to_char("You feel your concentration slipping!\r\n", ch);
-            WAIT_STATE(ch, 1 RL_SEC);
+            WAIT_STATE(ch, 2 RL_SEC);
             spellnum = number(1, MAX_SPELLS);
             if (!SPELL_IS_PHYSICS(spellnum)) {
                 send_to_char("Your concentration slips away entirely.\r\n", ch);
