@@ -293,7 +293,9 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node)
 			obj_data *obj;
 			CREATE(obj, struct obj_data, 1);
 			obj->clear();
-			obj->loadFromXML(this,victim,cur);
+			if(! obj->loadFromXML(this,victim,cur) ) {
+				extract_obj(obj);
+			}
 		} 
 	}
 	if (!OBJ_APPROVED(this)) {
