@@ -9,14 +9,20 @@ struct room_list_struct {
 	struct room_data *room;
 	struct room_list_struct *next;
 };
-
-// From act.wizard.cc
+int
+player_in_room ( struct room_data *room ) {
+	struct char_data *c;
+	for(c = room->people;c;c = c->next_in_room) {
+		if(!IS_NPC(c) && GET_LEVEL(c) < LVL_AMBASSADOR)
+			return 1;
+	}
+	return 0;
+}
 
 SPECIAL(fate)
 {
 	static int timers[3] = {0,0,0};
 	struct char_data *fate = (struct char_data *) me;
-	struct char_data *c = NULL;
 	struct room_data *dest = NULL;
 	dynamic_text_file *dyntext = NULL;
 	char dyn_name[64];
@@ -50,10 +56,8 @@ SPECIAL(fate)
 	}
 
 	// If there is a player in the room, don't do anything.
-	for(c = fate->in_room->people;c;c = c->next_in_room) {
-		if(!IS_NPC(c) && GET_LEVEL(c) < LVL_AMBASSADOR)
-			return 0;
-	}
+	if(player_in_room(fate->in_room))
+		return 0;
 
 	// Don't want the zone goin to sleep and trapping her.
 	if (fate->in_room) {
@@ -105,7 +109,8 @@ SPECIAL(fate)
 	while(*roomlist_buf) {
 		roomlist_buf = one_argument(roomlist_buf,s);
 		temp_room = real_room(atoi(s));
-		if(temp_room && temp_room != fate->in_room) {
+		if(temp_room && temp_room != fate->in_room
+			&& !player_in_room(temp_room)) {
 			cur_room_list_item = new room_list_struct;
 			cur_room_list_item->room = temp_room;
 			cur_room_list_item->next = roomlist;
