@@ -220,8 +220,8 @@ tarrasque_fight(struct Creature *tarr)
 		if (tarr->findCombat(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE))
 			vict = NULL;
 		vict2 = get_char_random_vis(tarr, tarr->in_room);
-		if (tarr->findCombat(vict2) || vict == vict2 ||
-				PRF_FLAGGED(vict2, PRF_NOHASSLE))
+		if ( vict2 && (tarr->findCombat(vict2) || vict == vict2 ||
+				PRF_FLAGGED(vict2, PRF_NOHASSLE)))
 			vict2 = NULL;
 	}
 
