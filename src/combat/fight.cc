@@ -136,11 +136,14 @@ stop_fighting( struct char_data * ch )
     ch->next_fighting = NULL;
     FIGHTING( ch ) = NULL;
 
-    if ( ch->in_room && ch->in_room->isOpenAir() )
+    if ( ch->in_room && ch->in_room->isOpenAir() ) {
         ch->setPosition( POS_FLYING );
-    else if ( !IS_NPC( ch ) )
-        ch->setPosition( POS_STANDING );
-    else {
+    } else if ( !IS_NPC( ch ) ) {
+        if(ch->getPosition() >= POS_FIGHTING)
+            ch->setPosition( POS_STANDING );
+        else if(ch->getPosition() >= POS_RESTING)
+            ch->setPosition( POS_SITTING);
+    } else {
         if ( IS_AFFECTED( ch, AFF_CHARM ) && IS_UNDEAD( ch ) )
             ch->setPosition( POS_STANDING );
         else if ( !HUNTING( ch ) )
