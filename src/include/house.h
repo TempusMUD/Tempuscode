@@ -57,59 +57,61 @@ class House
 		bool load( const char* filename );
 		
 		// retrieves this house's unique identifier
-		int getID() { return id; }
+		int getID() const { return id; }
 		// retrieves the unique id of the account that owns this house
-		int getOwnerID() { return ownerID; }
+		int getOwnerID() const { return ownerID; }
 		// returns true if the given creature belongs to the owner account
-		bool isOwner( Creature *ch );
+		bool isOwner( Creature *ch ) const ;
 		// sets the owner account id to the given id
 		void setOwnerID( int id ) { ownerID = id; }
 		// retrieves the player id of the builder and maintainer of this house
-		long getLandlord() { return landlord; }
+		long getLandlord() const { return landlord; }
 		// sets the builder and maintainer of this house
 		void setLandlord( long lord ) { landlord = lord; }
 		// retrieves the date this house was created
-		time_t getCreated() { return created; }
+		time_t getCreated() const { return created; }
 		// retrieves the enumerated type of this house
-		Type getType() { return type; }
+		Type getType() const { return type; }
 		// sets the enumerated type of this house
 		void setType( Type type ) { this->type = type; }
 
 		// retrieves the number of characters that are guests of this house
-		unsigned int getGuestCount() { return guests.size(); }
+		unsigned int getGuestCount() const { return guests.size(); }
 		// retrieves the idnum of the character at the given index
-		long getGuest( int index ) { return guests[index]; }
+		long getGuest( int index ) const { return guests[index]; }
 		// adds the given guest id to this houses guest list
 		bool addGuest( long guest );
 		// Removes the given guest id from this houses guest list
 		bool removeGuest( long guest );
 		// returns true if the given creature is a guest of this house.
-		bool isGuest( Creature *c ); // todo use sorted/binary search
+		bool isGuest( Creature *c ) const; // todo use sorted/binary search
 		// returns true if the given player id is a guest of this house.
-		bool isGuest( long idnum );// todo use sorted/binary search
+		bool isGuest( long idnum ) const;// todo use sorted/binary search
 
 		// retrieves the number of rooms saved as part of this house
-		unsigned int getRoomCount() { return rooms.size(); }
+		unsigned int getRoomCount() const { return rooms.size(); }
 		// retrieves the room_num of the room at the given index
-		room_num getRoom( int index ) { return rooms[index]; }
+		room_num getRoom( int index ) const { return rooms[index]; }
 		// adds the given room to this houses room list
 		bool addRoom( room_num room );
 		// removes the given room from this houses room list
 		bool removeRoom( room_num room );
 		// returns true if the given room is part of this house
-		bool hasRoom( room_num room );
+		bool hasRoom( room_num room ) const;
 		// returns true if the given room is part of this house
-		bool hasRoom( room_data *room );
+		bool hasRoom( room_data *room ) const;
 
 		// retrieves the rent charged per day on this house
-		int getRentalRate() { return rentalRate; }
+		int getRentalRate() const { return rentalRate; }
 		// sets the rent charged per day on this house
 		void setRentalRate( int rate ) { rentalRate = rate; }
 
 		// calculates the daily rent cost for this house
-		int calcRentCost();
+		int calcRentCost() const;
 		// counts the objects contained in this house
-		int calcObjectCount();
+		int calcObjectCount() const;
+        // counts the objects contained in the given room
+        int calcObjectCount( room_data* room ) const;
 
 		void listRooms( Creature *ch, bool showContents = false );
 		void listGuests( Creature *ch );
@@ -159,7 +161,7 @@ class HouseControl : private std::vector<House*>
 		// retrieves the house with the given unique id
 		House* findHouseById( int id );
 		// returns the number of houses in this house control
-		unsigned int getHouseCount();
+		unsigned int getHouseCount() const ;
 		// returns the house at the given index
 		House* getHouse( int index );
 		// attemps to create a house owned by owner with the given room range
