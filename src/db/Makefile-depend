@@ -1,5 +1,5 @@
 $(OBJ)/account.o : account.cc \
-	$(INCLUDE)/xml_utils.h $(INCLUDE)/utils.h $(INCLUDE)/desc_data.h $(INCLUDE)/interpreter.h $(INCLUDE)/player_table.h $(INCLUDE)/tmpstr.h $(INCLUDE)/account.h $(INCLUDE)/comm.h 
+	$(INCLUDE)/xml_utils.h $(INCLUDE)/utils.h $(INCLUDE)/desc_data.h $(INCLUDE)/interpreter.h $(INCLUDE)/player_table.h $(INCLUDE)/tmpstr.h $(INCLUDE)/account.h $(INCLUDE)/comm.h $(INCLUDE)/security.h 
 	$(CXX) -c $(CXXFLAGS) account.cc           -o $(OBJ)/account.o
 $(OBJ)/analysis.o : analysis.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/screen.h $(INCLUDE)/tokenizer.h $(INCLUDE)/obj_matcher.h $(INCLUDE)/tmpstr.h 
