@@ -156,6 +156,7 @@ static inline bool load_remort_questions() {
     cur = cur->xmlChildrenNode;
 
     // Write out the tree with ID's
+    /*
     int id = 0;
     while (cur != NULL) {
         sprintf(buf,"%d",id);
@@ -166,7 +167,7 @@ static inline bool load_remort_questions() {
         cur = cur->next;
     }
     xmlSaveFile("text/remort_quiz_new.xml",doc);
-    
+    */
     // Sort them by gen
     sort(remortQuestions.begin(),remortQuestions.end());
     xmlFreeDoc(doc);
