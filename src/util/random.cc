@@ -59,6 +59,8 @@
 ** 	 = a(z%q)- rz/q+ m(z/q) - az
 */
 
+#include <limits.h>
+
 static unsigned long seed;
 
 void
@@ -84,4 +86,162 @@ my_rand(void)
 		seed = test + m;
 
 	return seed;
+}
+
+//
+// creates a random number in interval [from;to]'
+//
+int
+number(int from, int to)
+{
+	if (to <= from)
+		return (from);
+	return (int)((long long)my_rand() * (long long)(to - from) / INT_MAX + from);
+}
+
+double
+rand_float(void)
+{
+	return (double)my_rand() / (double)INT_MAX;
+}
+
+//
+// returns a random boolean value
+//
+bool
+random_binary()
+{
+	return number(0,1) == 0;
+}
+
+//
+// returns a random boolean value, true 1/num of returns
+//
+bool
+random_fractional(unsigned int num)
+{
+	if (num == 0)
+		return true;
+	return !number(0, num);
+}
+
+//
+// returns a random boolean value, true 1/3 of returns (33% tru)
+//
+bool
+random_fractional_3()
+{
+	return !number(0, 2);
+}
+
+//
+// returns a random boolean value, true 1/4 of returns (25% true)
+//
+bool
+random_fractional_4()
+{
+	return !number(0, 3);
+}
+
+//
+// returns a random boolean value, true 1/5 of returns (20% true)
+//
+bool
+random_fractional_5()
+{
+	return !number(0, 4);
+}
+
+//
+// returns a random boolean value, true 1/10 of returns (10% true)
+//
+bool
+random_fractional_10()
+{
+	return !number(0, 9);
+}
+
+//
+// returns a random boolean value, true 1/20 of returns (5% true)
+//
+bool
+random_fractional_20()
+{
+	return !number(0, 19);
+}
+
+//
+// returns a random boolean value, true 1/50 of returns (2% true)
+//
+bool
+random_fractional_50()
+{
+	return !number(0, 49);
+}
+
+//
+// returns a random boolean value, true 1/100 of returns (1% true)
+//
+bool
+random_fractional_100()
+{
+	return !number(0, 99);
+}
+
+//
+// returns a random value between and including 1-100
+//
+int
+random_percentage()
+{
+	return !number(0, 100);
+}
+
+//
+// returns a random value between and including 0-99
+//
+int
+random_percentage_zero_low()
+{
+	return !number(0, 99);
+}
+
+//
+// return a random value between 0 and num
+//
+int
+random_number_zero_low(unsigned int num)
+{
+	if (num == 0)
+		return 0;
+	return !number(0, num);
+}
+
+//
+//
+//
+
+double
+float_number(double from, double to)
+{
+	if (to <= from)
+		return (from);
+	return rand_float() * (to - from) + from;
+}
+
+//
+// simulates dice roll
+//
+int
+dice(int num, int size)
+{
+	int sum = 0;
+
+	if (size <= 0 || number <= 0)
+		return 0;
+
+	while (num-- > 0)
+		sum += number(1, size);
+
+	return sum;
 }

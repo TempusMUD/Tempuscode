@@ -1056,164 +1056,36 @@ MOB_CAN_GO(struct Creature * ch, int door)
 //
 
 unsigned long my_rand(void);
-
-inline double
-rand_float(void)
-{
-	return (double)my_rand() / (double)INT_MAX;
-}
-
-//
+double rand_float(void);
 // returns a random boolean value
-//
-inline bool
-random_binary()
-{
-	return (int)(rand_float() > 0.5);
-}
-
-//
+bool random_binary();
 // returns a random boolean value, true 1/num of returns
-//
-inline bool
-random_fractional(unsigned int num)
-{
-	if (num == 0)
-		return true;
-	return (int)(rand_float() > (1.0 / num));
-}
-
-//
+bool random_fractional(unsigned int num);
 // returns a random boolean value, true 1/3 of returns (33% tru)
-//
-inline bool
-random_fractional_3()
-{
-	return (int)(rand_float() < (1.0 / 3));
-}
-
-//
+bool random_fractional_3();
 // returns a random boolean value, true 1/4 of returns (25% true)
-//
-inline bool
-random_fractional_4()
-{
-	return (int)(rand_float() < (1.0 / 4));
-}
-
-//
+bool random_fractional_4();
 // returns a random boolean value, true 1/5 of returns (20% true)
-//
-inline bool
-random_fractional_5()
-{
-	return (int)(rand_float() < (1.0 / 5));
-}
-
-//
+bool random_fractional_5();
 // returns a random boolean value, true 1/10 of returns (10% true)
-//
-inline bool
-random_fractional_10()
-{
-	return (int)(rand_float() < (1.0 / 10));
-}
-
-//
+bool random_fractional_10();
 // returns a random boolean value, true 1/20 of returns (5% true)
-//
-inline bool
-random_fractional_20()
-{
-	return (int)(rand_float() < (1.0 / 20));
-}
-
-//
+bool random_fractional_20();
 // returns a random boolean value, true 1/50 of returns (2% true)
-//
-inline bool
-random_fractional_50()
-{
-	return (int)(rand_float() < (1.0 / 50));
-}
-
-//
+bool random_fractional_50();
 // returns a random boolean value, true 1/100 of returns (1% true)
-//
-inline bool
-random_fractional_100()
-{
-	return (int)(rand_float() < (1.0 / 100));
-}
-
-//
+bool random_fractional_100();
 // returns a random value between and including 1-100
-//
-inline int
-random_percentage()
-{
-	return (int)(rand_float() * 100);
-}
-
-//
+int random_percentage();
 // returns a random value between and including 0-99
-//
-inline int
-random_percentage_zero_low()
-{
-	return (int)(rand_float() * 99);
-}
-
-//
+int random_percentage_zero_low();
 // return a random value between 0 and num
-//
-inline int
-random_number_zero_low(unsigned int num)
-{
-	if (num == 0)
-		return 0;
-	return (int)(rand_float() * num);
-}
-
-//
+int random_number_zero_low(unsigned int num);
 // creates a random number in interval [from;to]'
-//
-inline int
-number(int from, int to)
-{
-	if (to <= from)
-		return (from);
-	return (int)(rand_float() * (to - from) + from);
-}
-
-//
-//
-//
-
-inline double
-float_number(double from, double to)
-{
-	if (to <= from)
-		return (from);
-	return rand_float() * (to - from) + from;
-}
-
-//
+int number(int from, int to);
+double float_number(double from, double to);
 // simulates dice roll
-//
-inline int
-dice(int number, int size)
-{
-	int sum = 0;
-
-	if (size <= 0 || number <= 0)
-		return 0;
-
-	while (number-- > 0)
-		sum += (int)((rand_float() * size) + 1);
-
-	return sum;
-}
+int dice(int number, int size);
 
 inline bool
 isnumber(const char *str)
