@@ -2647,7 +2647,13 @@ randomize_object(struct obj_data *obj)
 			GET_OBJ_VAL(obj, 0));
 		break;
 	// Weapon damage dice
-	case ITEM_WEAPON:
+	case ITEM_ENERGY_GUN:
+        GET_OBJ_VAL(obj, 0) = rand_value( //randomize the drain rate
+			GET_OBJ_VAL(obj, 0),
+			GET_OBJ_VAL(obj, 0) / 4,
+			1, -1);
+            //no break here because we want to randomize the damage dice as well
+    case ITEM_WEAPON:
 		GET_OBJ_VAL(obj, 1) = rand_value(
 			GET_OBJ_VAL(obj, 1),
 			GET_OBJ_VAL(obj, 1) / 4,
