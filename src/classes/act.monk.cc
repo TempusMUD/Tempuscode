@@ -340,14 +340,14 @@ ACMD(do_combo)
 	GET_DAMROLL(ch);
 
     GET_MOVE(ch) -=20;
-    WAIT_STATE(ch, (4 + count) RL_SEC);
 
     //
     // failure
     //
 
     if (percent > prob)  {
-	int retval = damage(ch, vict, 0, which_attack[number(0, HOW_MANY - 1)], -1);
+        WAIT_STATE(ch,4 RL_SEC);
+        int retval = damage(ch, vict, 0, which_attack[number(0, HOW_MANY - 1)], -1);
         ACMD_set_return_flags( retval );
         return;
     }  
@@ -360,13 +360,13 @@ ACMD(do_combo)
         int retval = 0;
 
         GET_MOVE( ch ) -= 20;
-	gain_skill_prof(ch, SKILL_COMBO);
+        gain_skill_prof(ch, SKILL_COMBO);
         
         //
         // lead with a throat strike
         //
 
-	retval = damage(ch, vict, dam, SKILL_THROAT_STRIKE,WEAR_NECK_1);
+        retval = damage(ch, vict, dam, SKILL_THROAT_STRIKE,WEAR_NECK_1);
 
         if ( retval ) {
             ACMD_set_return_flags( retval );
@@ -377,18 +377,17 @@ ACMD(do_combo)
         // try to throw up to 8 more attacks
         //
 
-	for (i = 0, count = 0; i < 8 && !dead && vict->in_room == ch->in_room; 
-	     i++, count++) {
-	    if (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_COMBO) > 
-		number(100, 120 + (count << 3))) {
-		retval = damage(ch, vict, dam + (count << 3),
-                                which_attack[number(0, HOW_MANY -1)], -1);
-                if ( retval ) {
-                    ACMD_set_return_flags( retval );
-                    return;
-                }
+        for (i = 0, count = 0; i < 8 && !dead && vict->in_room == ch->in_room; i++, count++) {
+            if (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_COMBO) > number(100, 120 + (count << 3))) {
+                    retval = damage(ch, vict, dam + (count << 3), which_attack[number(0, HOW_MANY -1)], -1);
+                    if ( retval ) {
+                        ACMD_set_return_flags( retval );
+                        return;
+                    }
             }
         }
+        if ( !IS_SET( retval, DAM_ATTACKER_KILLED ) )
+            WAIT_STATE(ch, (4 + count) RL_SEC);
     }
 }
 
