@@ -524,7 +524,7 @@ check_idling(struct char_data * ch)
 		ch->desc->repeat_cmd_count = 0;
 
     if ((ch->char_specials.timer) > 10 && !PLR_FLAGGED(ch, PLR_OLC)) {
-		if (STATE(ch->desc) == CON_NETWORK) {
+		if (ch->desc && STATE(ch->desc) == CON_NETWORK) {
 			send_to_char("Idle limit reached.  Connection reset by peer.\r\n",ch);
 			set_desc_state(CON_PLAYING, ch->desc);
 		} else if (GET_WAS_IN(ch) == NULL && ch->in_room != NULL) {
