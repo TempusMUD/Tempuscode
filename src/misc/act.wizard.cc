@@ -7546,8 +7546,6 @@ static const char* CODER_UTIL_USAGE =
 					"Commands: \r\n"
 					"      export - Exports the current player file to XML.\r\n"
 					"      rebuild - Rebuilds the player table from xml.\r\n"
-					"      osave <object> - Saves the given object to your equipment file.\r\n"
-					"      oload - Loads your equipment file onto the ground.\r\n"
 					"      tick - forces a mud-wide tick to occur.\r\n"
 					;
 
@@ -7571,12 +7569,6 @@ ACMD(do_coderutil)
 		playerIndex.clear();
 		build_player_table();
 		send_to_char(ch, "Reloaded.\r\n");
-	} else if( strcmp( token, "osave" )  == 0 ) {
-		//ch->saveObjects();
-		send_to_char(ch, "Removed.\r\n");
-	} else if( strcmp( token, "oload" )  == 0 ) {
-		ch->loadObjects();
-		send_to_char(ch, "Loaded.\r\n");
 	} else if ( strcmp( token, "tick" ) == 0 ) {
 		point_update();
 	} else {
