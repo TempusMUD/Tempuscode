@@ -2402,7 +2402,7 @@ do_create_zone(struct Creature *ch, int num)
 }
 
 
-int
+bool
 save_zone(struct Creature *ch, struct zone_data *zone)
 {
 	char fname[64], comment[MAX_TITLE_LENGTH];
@@ -2419,7 +2419,7 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 
 	sprintf(fname, "world/zon/olc/%d.zon", zone->number);
 	if (!(zone_file = fopen(fname, "w")))
-		return 1;
+		return false;
 
 	fprintf(zone_file, "#%d\n", zone->number);
 	fprintf(zone_file, "%s~\n", zone->name);
@@ -2529,22 +2529,16 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 		sprintf(fname, "world/zon/olc/%d.zon", zone->number);
 		if (!(zone_file = fopen(fname, "r"))) {
 			slog("SYSERR: Failure to reopen olc zon file.");
-			send_to_char(ch, 
-				"OLC Error: Failure to duplicate zon file in main dir."
-				"\r\n");
 			fclose(realfile);
-			return 0;
+			return false;
 		}
 		do {
 			tmp = fread(buf, 1, 512, zone_file);
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
-				slog("SYSERR: Failure to duplicate olc zon file in the main wld dir.");
-				send_to_char(ch, 
-					"OLC Error: Failure to duplicate zon file in main dir."
-					"\r\n");
 				fclose(realfile);
 				fclose(zone_file);
-				return 0;
+				slog("SYSERR: Failure to duplicate olc zon file in the main wld dir.");
+				return false;
 			}
 		} while (tmp == 512);
 		fclose(realfile);
@@ -2552,7 +2546,7 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 
 	fclose(zone_file);
 
-	return (0);
+	return true;
 }
 
 

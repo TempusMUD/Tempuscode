@@ -1309,36 +1309,24 @@ write_mob_index(struct Creature *ch, struct zone_data *zone)
 	return (1);
 }
 
-int
-save_mobs(struct Creature *ch)
+bool
+save_mobs(struct Creature *ch, struct zone_data *zone)
 {
-	int m_vnum, espec_mob = 0;
+	int espec_mob = 0;
 	unsigned int i, tmp;
 	room_num low = 0;
 	room_num high = 0;
 	char fname[64];
 	char sbuf1[64], sbuf2[64], sbuf3[64], sbuf4[64], sbuf5[64];
 	struct extra_descr_data *reply;
-	struct zone_data *zone;
 	struct Creature *mob;
 	FILE *file;
 	FILE *realfile;
 
-	if (GET_OLC_MOB(ch)) {
-		mob = GET_OLC_MOB(ch);
-		m_vnum = mob->mob_specials.shared->vnum;
-		for (zone = zone_table; zone; zone = zone->next) {
-			if (m_vnum >= zone->number * 100 && m_vnum <= zone->top)
-				break;
-		}
-
-		if (!zone) {
-			slog("OLC: ERROR finding zone for mobile %d.", m_vnum);
-			send_to_char(ch, "Unable to match mobile with zone error..\r\n");
-			return 1;
-		}
-	} else
-		zone = ch->in_room->zone;
+	if (!zone) {
+		slog("SYSERR: save_mob() called with NULL zone");
+		return false;
+	}
 
 	sprintf(fname, "world/mob/%d.mob", zone->number);
 	if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
@@ -1349,12 +1337,12 @@ save_mobs(struct Creature *ch)
 	sprintf(fname, "world/mob/olc/%d.mob", zone->number);
 	if (!(file = fopen(fname, "w"))) {
 		slog("OLC: ERROR while saving mobile file - %s", strerror(errno));
-		return 1;
+		return false;
 	}
 
 	if ((write_mob_index(ch, zone)) != 1) {
 		fclose(file);
-		return (1);
+		return false;
 	}
 
 	low = zone->number * 100;
@@ -1531,7 +1519,7 @@ save_mobs(struct Creature *ch)
 				"OLC Error: Failure to duplicate mob file in main dir."
 				"\r\n");
 			fclose(realfile);
-			return 1;
+			return false;
 		}
 		do {
 			tmp = fread(buf, 1, 512, file);
@@ -1542,7 +1530,7 @@ save_mobs(struct Creature *ch)
 					"\r\n");
 				fclose(realfile);
 				fclose(file);
-				return 1;
+				return false;
 			}
 		} while (tmp == 512);
 
@@ -1552,7 +1540,7 @@ save_mobs(struct Creature *ch)
 
 	do_specassign_save(ch, SPEC_MOB);
 	REMOVE_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-	return 0;
+	return true;
 }
 
 

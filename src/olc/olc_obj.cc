@@ -144,10 +144,9 @@ write_obj_index(struct Creature *ch, struct zone_data *zone)
 }
 
 
-int
-save_objs(struct Creature *ch)
+bool
+save_objs(struct Creature *ch, struct zone_data *zone)
 {
-	int o_vnum;
 	size_t i, tmp;
 	int aff_idx;
 	room_num low = 0;
@@ -155,24 +154,14 @@ save_objs(struct Creature *ch)
 	char fname[64];
 	char sbuf1[64], sbuf2[64], sbuf3[64], sbuf4[64];
 	struct extra_descr_data *desc;
-	struct zone_data *zone;
 	struct obj_data *obj;
 	FILE *file;
 	FILE *realfile;
 
-	if (GET_OLC_OBJ(ch)) {
-		obj = GET_OLC_OBJ(ch);
-		o_vnum = obj->shared->vnum;
-		for (zone = zone_table; zone; zone = zone->next)
-			if (o_vnum >= zone->number * 100 && o_vnum <= zone->top)
-				break;
-		if (!zone) {
-			slog("OLC: ERROR finding zone for object %d.", o_vnum);
-			send_to_char(ch, "Unable to match object with zone error..\r\n");
-			return 1;
-		}
-	} else
-		zone = ch->in_room->zone;
+	if (!zone) {
+		slog("SYSERR: save_obj() called with NULL zone");
+		return false;
+	}
 
 	sprintf(fname, "world/obj/%d.obj", zone->number);
 	if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
@@ -183,11 +172,11 @@ save_objs(struct Creature *ch)
 
 	sprintf(fname, "world/obj/olc/%d.obj", zone->number);
 	if (!(file = fopen(fname, "w")))
-		return 1;
+		return false;
 
 	if ((write_obj_index(ch, zone)) != 1) {
 		fclose(file);
-		return (1);
+		return false;
 	}
 
 	low = zone->number * 100;
@@ -316,23 +305,17 @@ save_objs(struct Creature *ch)
 		fclose(file);
 		sprintf(fname, "world/obj/olc/%d.obj", zone->number);
 		if (!(file = fopen(fname, "r"))) {
-			slog("SYSERR: Failure to reopen olc obj file.");
-			send_to_char(ch, 
-				"OLC Error: Failure to duplicate obj file in main dir."
-				"\r\n");
 			fclose(realfile);
-			return 1;
+			slog("SYSERR: Failure to reopen olc obj file.");
+			return false;
 		}
 		do {
 			tmp = fread(buf, 1, 512, file);
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
-				slog("SYSERR: Failure to duplicate olc obj file in the main wld dir.");
-				send_to_char(ch, 
-					"OLC Error: Failure to duplicate obj file in main dir."
-					"\r\n");
 				fclose(realfile);
 				fclose(file);
-				return 1;
+				slog("SYSERR: Failure to duplicate olc obj file in the main wld dir.");
+				return false;
 			}
 		} while (tmp == 512);
 		fclose(realfile);
@@ -341,7 +324,7 @@ save_objs(struct Creature *ch)
 	fclose(file);
 
 	REMOVE_BIT(zone->flags, ZONE_OBJS_MODIFIED);
-	return 0;
+	return true;
 }
 
 

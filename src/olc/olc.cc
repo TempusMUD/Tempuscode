@@ -180,9 +180,11 @@ ACMD(do_zonepurge);
 ACMD(do_zreset);
 
 int prototype_obj_value(struct obj_data *obj);
-int save_objs(struct Creature *ch);
-int save_wld(struct Creature *ch);
-int save_mobs(struct Creature *ch);
+bool save_objs(struct Creature *ch, struct zone_data *zone);
+bool save_wld(struct Creature *ch, struct zone_data *zone);
+bool save_mobs(struct Creature *ch, struct zone_data *zone);
+bool save_zone(struct Creature *ch, struct zone_data *zone);
+
 int save_shops(struct Creature *ch);
 struct room_data *do_create_room(struct Creature *ch, int vnum);
 struct obj_data *do_create_obj(struct Creature *ch, int vnum);
@@ -220,7 +222,6 @@ void do_mob_mset(struct Creature *ch, char *argument);
 void do_shop_sedit(struct Creature *ch, char *argument);
 void do_shop_sstat(struct Creature *ch);
 void do_shop_sset(struct Creature *ch, char *argument);
-int save_zone(struct Creature *ch, struct zone_data *zone);
 void do_olc_xset(struct Creature *ch, char *argument);
 void do_olc_rset(struct Creature *ch, char *argument);
 void do_olc_xstat(struct Creature *ch);
@@ -336,7 +337,7 @@ ACMD(do_olc)
 	room_num vnum;
 	struct room_data *rnum, *room;
 	int edir;
-	int i = 0, j, k, found;
+	int i = 0, j, k;
 	byte one_way = FALSE;
 	struct extra_descr_data *desc, *ndesc, *temp;
 	struct obj_data *tmp_obj = NULL, *obj = NULL;
@@ -400,10 +401,13 @@ ACMD(do_olc)
 
 	switch (olc_command) {
 	case 0:					/* rsave */
-		if (!save_wld(ch))
-			send_to_char(ch, "World file saved.\r\n");
+		zone = ch->in_room->zone;
+		if (save_wld(ch, zone))
+			send_to_char(ch, "You save the rooms for zone #%d (%s).\r\n",
+				zone->number, zone->name);
 		else
-			send_to_char(ch, "An error occured while saving.\r\n");
+			send_to_char(ch, "The rooms for zone #%d (%s) could not be saved.\r\n",
+				zone->number, zone->name);
 		break;
 	case 1:					/* rmimic */
 		if (!*argument) {
@@ -656,10 +660,24 @@ ACMD(do_olc)
 		show_olc_help(ch, argument);
 		break;
 	case 11:		   /*************** osave *********************/
-		if (!save_objs(ch))
-			send_to_char(ch, "Object file saved.\r\n");
+		zone = ch->in_room->zone;
+		if (GET_OLC_OBJ(ch)) {
+			int o_vnum = GET_OLC_OBJ(ch)->shared->vnum;
+			for (zone = zone_table; zone; zone = zone->next)
+				if (o_vnum >= zone->number * 100 && o_vnum <= zone->top)
+					break;
+			if (!zone) {
+				send_to_char(ch, "Couldn't find a zone for object %d", o_vnum);
+				return;
+			}
+		}
+
+		if (save_objs(ch, zone))
+			send_to_char(ch, "You save the objects in zone #%d (%s).\r\n",
+				zone->number, zone->name);
 		else
-			send_to_char(ch, "An error occured while saving.\r\n");
+			send_to_char(ch, "The objects for zone #%d (%s) could not be saved.\r\n",
+				zone->number, zone->name);
 		break;
 	case 12:		   /*************** oedit *********************/
 		if (!*argument) {
@@ -1023,37 +1041,29 @@ ACMD(do_olc)
 		if (GET_LEVEL(ch) < LVL_LUCIFER)
 			return;
 		if (!*argument)
-			send_to_char(ch, "Usage: olc supersave <world | objects>\r\n");
+			send_to_char(ch, "Usage: olc supersave <world|objects|zones>\r\n");
 		else if (is_abbrev(argument, "world")) {
-			for (k = 0, zone = zone_table; zone; zone = zone->next) {
-				if ((room = zone->world)) {
-					char_from_room(ch,false);
-					char_to_room(ch, room,false);
-					save_wld(ch);
-					slog("SAVEWLD Super: Zone %d, rooms %d-%d.\n",
-						zone->number, zone->number * 100, zone->top);
-					k++;
-				}
-			}
-			send_to_char(ch, "Done. %d zone saved.\r\n", k);
+			for (i = 1, zone = zone_table; zone; zone = zone->next, i++)
+				save_wld(ch, zone);
+			slog("SUPERSAVE: %d wld files saved.\r\n", i);
+			send_to_char(ch, "Done. %d wld file%s saved.\r\n", i,
+				(i == 1) ? "":"s");
 			return;
 		} else if (is_abbrev(argument, "zones")) {
-			for (zone = zone_table, i = 0; zone; zone = zone->next, i++)
+			for (i = 1, zone = zone_table; zone; zone = zone->next, i++)
 				save_zone(ch, zone);
-			send_to_char(ch, "SAVEZON Super: %d zones saved.\r\n", i + 1);
+			slog("SUPERSAVE: %d zon files saved.\r\n", i);
+			send_to_char(ch, "Done. %d zone%s saved.\r\n", i,
+				(i == 1) ? "":"s");
 			return;
 
 		} else if (is_abbrev(argument, "objects")) {
-			room = ch->in_room;
-			for (zone = zone_table, i = 0; zone; zone = zone->next, i++) {
-				if (zone->world) {
-					ch->in_room = zone->world;
-					save_objs(ch);
-				}
-			}
+			for (i = 1, zone = zone_table; zone; zone = zone->next, i++)
+				save_objs(ch, zone);
 
-			ch->in_room = room;
-			send_to_char(ch, "objs saved.\r\n");
+			slog("SUPERSAVE: %d obj files saved.\r\n", i);
+			send_to_char(ch, "Done. %d obj file%s saved.\r\n", i,
+				(i == 1) ? "":"s");
 			return;
 
 		} else if (is_abbrev(argument, "shops")) {
@@ -1068,14 +1078,11 @@ ACMD(do_olc)
 			return;
 
 		} else if (is_abbrev(argument, "mobiles")) {
-			room = ch->in_room;
-			for (zone = zone_table, i = 0; zone; zone = zone->next, i++)
-				if (zone->world) {
-					ch->in_room = zone->world;
-					save_mobs(ch);
-				}
-			ch->in_room = room;
-			send_to_char(ch, "mobs saved.\r\n");
+			for (zone = zone_table, i = 1; zone; zone = zone->next, i++)
+				save_mobs(ch, zone);
+			slog("SUPERSAVE: %d mob files saved.\r\n", i);
+			send_to_char(ch, "Done. %d mob file%s saved.\r\n", i,
+				(i == 1) ? "":"s");
 			return;
 
 		} else
@@ -1316,27 +1323,24 @@ ACMD(do_olc)
 			do_zcmd(ch, argument);
 		break;
 	case 24:		 /******** zsave ********/
-		if (!*argument)
-			if (!save_zone(ch, ch->in_room->zone))
-				send_to_char(ch, "Zone saved to disk.\r\n");
-			else
-				send_to_char(ch, "SYSERR: Could not save zone!!\r\n");
-		else if (is_number(argument)) {
+		zone = ch->in_room->zone;
+		if (*argument) {
 			i = atoi(argument);
-			for (found = 0, zone = zone_table; zone && found != 1;
-				zone = zone->next)
-				if (zone->number == i) {
-					if (!save_zone(ch, zone))
-						send_to_char(ch, "Zone saved to disk.\r\n");
-					else
-						send_to_char(ch, 
-							"SYSERR: Could not save zone to disk!!\r\n");
-					found = 1;
-				}
-			if (found != 1)
-				send_to_char(ch, "Save which zone?\r\n");
-		} else
-			send_to_char(ch, "Save which zone?\r\n");
+			for (zone = zone_table; zone; zone = zone->next)
+				if (zone->number == i)
+					break;
+			if (!zone) {
+				send_to_char(ch, "That zone could not be found.\r\n");
+				return;
+			}
+		}
+
+		if (save_zone(ch, zone))
+			send_to_char(ch, "You save the zone information of zone #%d (%s).\r\n",
+				zone->number, zone->name);
+		else
+			send_to_char(ch, "The zone information of zone #%d (%s) could not be saved.\r\n",
+				zone->number, zone->name);
 		break;
 	case 25:					/* zmob */
 		if (!*argument)
@@ -1382,10 +1386,24 @@ ACMD(do_olc)
 		do_mob_mset(ch, argument);
 		break;
 	case 36:					/* msave */
-		if (!save_mobs(ch))
-			send_to_char(ch, "Mobile file saved.\r\n");
+		zone = ch->in_room->zone;
+		if (GET_OLC_MOB(ch)) {
+			int m_vnum = GET_OLC_MOB(ch)->mob_specials.shared->vnum;
+			for (zone = zone_table; zone; zone = zone->next)
+				if (m_vnum >= zone->number * 100 && m_vnum <= zone->top)
+					break;
+			if (!zone) {
+				send_to_char(ch, "Couldn't find a zone for mobile #%d", m_vnum);
+				return;
+			}
+		}
+
+		if (save_mobs(ch, zone))
+			send_to_char(ch, "You save the mobiles in zone #%d (%s).\r\n",
+				zone->number, zone->name);
 		else
-			send_to_char(ch, "An error occured while saving.\r\n");
+			send_to_char(ch, "The mobiles of zone #%d (%s) could not be saved.\r\n",
+				zone->number, zone->name);
 		break;
 	case 37:					/* sedit */
 		do_shop_sedit(ch, argument);
@@ -2323,7 +2341,7 @@ ACMD(do_unapprove)
 			obj->shared->vnum, obj->short_description);
 
 		GET_OLC_OBJ(ch) = obj;
-		save_objs(ch);
+		save_objs(ch, zone);
 		GET_OLC_OBJ(ch) = NULL;
 
 	} else {	 /** approve mobs */
@@ -2362,7 +2380,7 @@ ACMD(do_unapprove)
 			rnum, GET_NAME(mob));
 
 		GET_OLC_MOB(ch) = mob;
-		save_mobs(ch);
+		save_mobs(ch, zone);
 		GET_OLC_MOB(ch) = NULL;
 	}
 }
@@ -2461,7 +2479,7 @@ ACMD(do_approve)
 			obj->shared->vnum, obj->short_description);
 
 		GET_OLC_OBJ(ch) = obj;
-		save_objs(ch);
+		save_objs(ch, zone);
 		GET_OLC_OBJ(ch) = NULL;
 
 	} else {	 /** approve mobs */
@@ -2500,7 +2518,7 @@ ACMD(do_approve)
 			GET_NAME(mob));
 
 		GET_OLC_MOB(ch) = mob;
-		save_mobs(ch);
+		save_mobs(ch, zone);
 		GET_OLC_MOB(ch) = NULL;
 	}
 }

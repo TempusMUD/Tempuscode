@@ -4,7 +4,7 @@
 // Copyright 2000 by John Watson, all rights reserved.
 //
 void do_olc_rset(struct Creature *ch, char *argument);
-int save_wld(struct Creature *ch);
+bool save_wld(struct Creature *ch, struct zone_data *zone);
 
 /**
  *    a util for editing various descriptions.
@@ -66,7 +66,7 @@ SPECIAL(typo_util)
 		do_olc_rset(ch, arg1);
 		break;
 	case 3:					// Save
-		if (save_wld(ch) == 0) {
+		if (save_wld(ch, ch->in_room->zone) == 0) {
 		}
 		break;
 	default:

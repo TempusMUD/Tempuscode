@@ -318,55 +318,50 @@ save_room(struct Creature *ch, struct room_data *room, FILE * file)
 	return 0;
 }
 
-int
-save_wld(struct Creature *ch)
+bool
+save_wld(struct Creature *ch, struct zone_data *zone)
 {
 	FILE *file = 0;
-	char temp_fname[1024];
-	char real_fname[1024];
-	struct zone_data *zone = ch->in_room->zone;
+	char *tmp_fname, *real_fname;
 
-	sprintf(temp_fname, "world/wld/%d.wld", zone->number);
-	if ((access(temp_fname, F_OK) >= 0) && (access(temp_fname, W_OK) < 0)) {
+	real_fname = tmp_sprintf("world/wld/%d.wld", zone->number);
+	tmp_fname = tmp_sprintf("%s.tmp", real_fname);
+
+	if ((access(real_fname, F_OK) >= 0) && (access(real_fname, W_OK) < 0)) {
 		mudlog(0, BRF, true,
 			"OLC: ERROR - Main world file for zone %d is read-only.",
 			zone->number);
+		return false;
 	}
 
-	sprintf(real_fname, "world/wld/%d.wld", zone->number);
-	sprintf(temp_fname, "%s.tmp", real_fname);
-
-	if (!(file = fopen(temp_fname, "w")))
-		return 1;
+	if (!(file = fopen(tmp_fname, "w")))
+		return false;
 
 	if ((write_wld_index(ch, zone)) != 1) {
 		fclose(file);
-		return (1);
+		return false;
 	}
 
 	for (struct room_data * room = zone->world; room; room = room->next) {
 
 		if (save_room(ch, room, file)) {
 			send_to_char(ch, "Error saving room #%d.\r\n", room->number);
-			return 1;
+			return false;
 		}
 	}
 
 	fprintf(file, "$~\n");
 	fclose(file);
 
-	if (rename(temp_fname, real_fname)) {
+	if (rename(tmp_fname, real_fname)) {
 		slog("SYSERR: Error copying %s -> %s in save_wld: %s.",
-			temp_fname, real_fname, strerror(errno));
-		send_to_char(ch, 
-			"There was an error copying the temporary .wld file during the save.\r\n"
-			"World Save Failed.\r\n");
-		return 1;
+			tmp_fname, real_fname, strerror(errno));
+		return false;
 	}
 
 	slog("OLC: %s rsaved %d.", GET_NAME(ch), zone->number);
 
-	return 0;
+	return true;
 }
 
 
@@ -1172,10 +1167,10 @@ ACMD(do_hedit)
 		do_olc_rexdesc(ch, argument, true);
 		break;
 	case 4:					/* save  */
-		if (!save_wld(ch))
-			send_to_char(ch, "World file saved.\r\n");
+		if (save_wld(ch, ch->in_room->zone))
+			send_to_char(ch, "Your house modifications have been saved.\r\n");
 		else {
-			send_to_char(ch, "An error occured while saving.\r\n");
+			send_to_char(ch, "An error occured while saving your house modifications.\r\n");
 			slog("SYSERR: Error hedit save in house room %d.",
 				ch->in_room->number);
 		}

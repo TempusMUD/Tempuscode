@@ -36,7 +36,7 @@ extern struct descriptor_data *descriptor_list;
 extern struct room_data *world;
 extern struct spell_info_type spell_info[];
 int check_mob_reaction(struct Creature *ch, struct Creature *vict);
-int save_wld(struct Creature *ch);
+char *save_wld(struct Creature *ch, zone_data *zone);
 
 struct clan_data *clan_list;
 extern FILE *player_fl;
@@ -625,10 +625,10 @@ ACMD(do_clanpasswd)
 
 	free(srch->keywords);
 	srch->keywords = str_dup(argument);
-	save_wld(ch);
-
-	send_to_char(ch, "New clanpasswd set here to '%s'.\r\n", argument);
-
+	if (!save_wld(ch, ch->in_room->zone))
+		send_to_char(ch, "New clan password set here to '%s'.\r\n", argument);
+	else
+		send_to_char(ch, "There was a problem saving your clan password.\r\n");
 }
 
 struct clan_data *
