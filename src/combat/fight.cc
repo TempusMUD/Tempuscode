@@ -69,10 +69,6 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 		slog("SYSERR: FIGHTING(ch) != NULL in set_fighting().");
 		return;
 	}
-	combatList.add(ch);
-
-	ch->setFighting(vict);
-	update_pos(ch);
 
 	if (aggr && !IS_NPC(vict)) {
 		if (IS_NPC(ch)) {
@@ -85,11 +81,11 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 			bool isArena = ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && 
 						   ROOM_FLAGGED(vict->in_room, ROOM_ARENA);
 			if( !isArena ) {
-				if (PLR_FLAGGED(ch, PLR_NOPK)) {
+				if (!PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 					send_to_char(ch, "A small dark shape flies in from the future and sticks to your tongue.\r\n");
 					return;
 				}
-				if (PLR_FLAGGED(vict, PLR_NOPK)) {
+				if (!PRF2_FLAGGED(vict, PRF2_PKILLER)) {
 					send_to_char(ch, 
 						"A small dark shape flies in from the future and sticks to your eye.\r\n");
 					return;
@@ -105,8 +101,8 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 			check_killer(ch, vict, "normal");
 
 			if (vict->isNewbie() &&
-				GET_LEVEL(ch) < LVL_IMMORT &&
-				!ROOM_FLAGGED(vict->in_room, ROOM_ARENA)) {
+					GET_LEVEL(ch) < LVL_IMMORT &&
+					!ROOM_FLAGGED(vict->in_room, ROOM_ARENA)) {
 				act("$N is currently under new character protection.",
 					FALSE, ch, 0, vict, TO_CHAR);
 				act("You are protected by the gods against $n's attack!",
@@ -119,6 +115,11 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 			}
 		}
 	}
+
+	combatList.add(ch);
+
+	ch->setFighting(vict);
+	update_pos(ch);
 }
 
 
@@ -253,6 +254,8 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 			GET_LEVEL(ch) < LVL_AMBASSADOR) {
 
 		int loss = MAX(1, GET_SEVERITY(ch) / 2); // lose 1 level per 2, min 1
+		int old_hit, old_mana, old_move;
+		int lvl;
 
 		//
 		// Unaffect the character before all the stuff is subtracted. Bug was being abused
@@ -261,17 +264,57 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		while (ch->affected)
 			affect_remove(ch, ch->affected);
 
-		GET_MAX_HIT(ch) = MAX(20, GET_MAX_HIT(ch) - loss);
-		GET_MAX_MANA(ch) = MAX(20, GET_MAX_MANA(ch) - loss);
-		GET_MAX_MOVE(ch) = MAX(20, GET_MAX_MOVE(ch) - loss);
-
 		GET_REMORT_GEN(ch) -= MIN(GET_REMORT_GEN(ch), loss / 50);
-		GET_LEVEL(ch) -= loss % 50;
+		if (GET_LEVEL(ch) <= (loss % 50)) {
+			GET_REMORT_GEN(ch) -= 1;
+			lvl = 49 - (loss % 50) + GET_LEVEL(ch);
+		} else
+			lvl = GET_LEVEL(ch) - (loss % 50);
+		
+		lvl = MIN(49, MAX(1, lvl));
+		// Initialize their character to a level 1 of that gen, without
+		// messing with skills/spells and such
+		GET_LEVEL(ch) = 1;
+		GET_EXP(ch) = 1;
+		GET_MAX_HIT(ch) = 20;
+		GET_MAX_MANA(ch) = 100;
+		GET_MAX_MOVE(ch) = 82;
+		old_hit = GET_HIT(ch);
+		old_mana = GET_MANA(ch);
+		old_move = GET_MOVE(ch);
+
+		advance_level(ch, 0);
+		GET_MAX_MOVE(ch) += GET_CON(ch);
+
+		// 
+		while (--lvl) {
+			GET_LEVEL(ch)++;
+			advance_level(ch, 0);
+		}
+
+		GET_HIT(ch) = MIN(old_hit, GET_MAX_HIT(ch));
+		GET_MANA(ch) = MIN(old_mana, GET_MAX_MANA(ch));
+		GET_MOVE(ch) = MIN(old_move, GET_MAX_MOVE(ch));
+
+		// Remove all the skills that they shouldn't have
+		for (int i = 1;i < MAX_SPELLS;i++)
+			if (!ABLE_TO_LEARN(ch, i))
+				SET_SKILL(ch, i, 0);
+
+		// They're now that level, but without experience, and with extra
+		// life points, pracs, and such.  Make it all sane.
 		GET_EXP(ch) = exp_scale[GET_LEVEL(ch)];
 		GET_LIFE_POINTS(ch) = 0;
 		GET_PRACTICES(ch) = 0;
-		GET_CHA(ch) = MAX(3, GET_CHA(ch) - 2);
 		GET_SEVERITY(ch) = 0;
+
+		// And they get uglier, too!
+		GET_CHA(ch) = MAX(3, GET_CHA(ch) - 2);
+
+		mudlog(LVL_AMBASSADOR, NRM, true,
+			"%s losing %d levels for outlaw flag: now gen %d, lvl %d",
+				GET_NAME(ch), loss, GET_REMORT_GEN(ch), GET_LEVEL(ch));
+
 	}
 
 	if (!IS_NPC(ch) && (!ch->in_room)
