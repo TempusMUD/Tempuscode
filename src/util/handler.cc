@@ -2547,6 +2547,8 @@ find_all_dots(char *arg)
 //       7 == race (next byte is race + 1)
 //       8 == class (next byte is class + 1)
 //       9 == clan (next byte is clan + 1)
+//       a == level less than (next byte is number compared to)
+//       b == level greater than (next byte is number compared to)
 // so 0x12 means 'accept align'
 // and 0x01 means 'deny all'
 
@@ -2554,15 +2556,17 @@ int parse_char_class(char *);
 int parse_race(char *);
 
 bool
-Reaction::add_reaction(decision_t action, char *condition)
+Reaction::add_reaction(decision_t action, char *arg)
 {
 	char *tmp;
 	clan_data *clan;
+	char *condition;
 	char new_reaction[3];
 	
 	if (action != ALLOW && action != DENY)
 		return false;
 
+	condition = tmp_getword(&arg);
 	new_reaction[0] = (action == ALLOW) ? 0x10:0x00;
 	new_reaction[1] = new_reaction[2] = '\0';
 	if (is_abbrev(condition, "all"))
@@ -2584,6 +2588,16 @@ Reaction::add_reaction(decision_t action, char *condition)
 	else if ((clan = clan_by_name(condition)) != NULL) {
 		new_reaction[0] |= 0x09;
 		new_reaction[1] = clan->number + 1;
+	} else if (is_abbrev(condition, "lvl<")) {
+		new_reaction[0] |= 0x0a;
+		new_reaction[1] = atoi(arg);
+		if (new_reaction[1] < 1 || new_reaction[1] > 49)
+			return false;
+	} else if (is_abbrev(condition, "lvl>")) {
+		new_reaction[0] |= 0x0b;
+		new_reaction[1] = atoi(arg);
+		if (new_reaction[1] < 1 || new_reaction[1] > 49)
+			return false;
 	} else
 		return false;
 
@@ -2650,6 +2664,10 @@ Reaction::react(Creature *ch)
 			if (GET_RACE(ch) + 1 == *(++read_pt)) return action; break;
 		case 9:
 			if (GET_CLAN(ch) + 1 == *(++read_pt)) return action; break;
+		case 10:
+			if (GET_LEVEL(ch) < *(++read_pt)) return action; break;
+		case 11:
+			if (GET_LEVEL(ch) > *(++read_pt)) return action; break;
 		default:
 			slog("SYSERR: Invalid reaction code %x", *read_pt);
 			return UNDECIDED;
