@@ -191,7 +191,7 @@ obj_data::saveToXML(FILE *ouf)
 }
 
 bool
-obj_data::loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node)
+obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xmlNodePtr node)
 {
 
 	clear();
@@ -293,7 +293,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node)
 			obj_data *obj;
 			CREATE(obj, struct obj_data, 1);
 			obj->clear();
-			if(! obj->loadFromXML(this,victim,cur) ) {
+			if(! obj->loadFromXML(this,victim,room,cur) ) {
 				extract_obj(obj);
 			}
 		} 
@@ -303,9 +303,11 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node)
 			 vnum, GET_NAME(victim) );
 		return false;
 	}
-
-	if( container ) {
+	if( victim != NULL ) {
+	} else if( container != NULL ) {
 		obj_to_obj( this, container );
+	} else if( room != NULL ) {
+		obj_to_room( this, room );
 	}
 	return true;
 }
