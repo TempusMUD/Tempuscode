@@ -476,7 +476,7 @@ do_qcontrol_oload(Creature *ch, char *argument, int com)
 
 	GET_QUEST_POINTS(ch) -= (obj->shared->cost / 100000);
 	obj_to_char(obj, ch);
-	ch->saveToXML();
+	ch->crashSave();
 	act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
 		0, 0, TO_ROOM);
 	act("$n has created $p!", FALSE, ch, obj, 0, TO_ROOM);
@@ -2040,6 +2040,7 @@ do_quest_join(Creature *ch, char *argument)
 	}
 
 	GET_QUEST(ch) = quest->getVnum();
+	ch->crashSave();
 
 	sprintf(buf, "joined quest %d '%s'.", quest->getVnum(),quest->name);
 	qlog(ch, buf, QLOG_COMP, 0, TRUE);
@@ -2255,6 +2256,7 @@ do_quest_current(Creature *ch, char *argument)
 	}
 
 	GET_QUEST(ch) = quest->getVnum();
+	ch->crashSave();
 
 	send_to_char(ch, "Ok, you are now currently active in '%s'.\r\n", quest->name);
 }
@@ -2380,7 +2382,7 @@ qp_reload(int sig)
 					GET_QUEST_POINTS(immortal));
 
 				GET_QUEST_POINTS(immortal) = GET_QUEST_ALLOWANCE(immortal);
-				immortal->saveToXML();
+				immortal->crashSave();
 				offline++;
 			}
 		}
@@ -2402,7 +2404,7 @@ qp_reload(int sig)
 
 			GET_QUEST_POINTS(immortal) = GET_QUEST_ALLOWANCE(immortal);
 			send_to_char(immortal, "Your quest points have been restored!\r\n");
-			immortal->saveToXML();
+			immortal->crashSave();
 			online++;
 		}
 	}
@@ -2480,8 +2482,8 @@ do_qcontrol_award(Creature *ch, char *argument, int com)
 		GET_QUEST_POINTS(ch) -= award;
 		GET_QUEST_POINTS(vict) += award;
 		quest->addAwarded(award);
-		ch->saveToXML();
-		vict->saveToXML();
+		ch->crashSave();
+		vict->crashSave();
 		sprintf(buf, "awarded player %s %d qpoints.", GET_NAME(vict), award);
 		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
 			TRUE);
@@ -2556,8 +2558,8 @@ do_qcontrol_penalize(Creature *ch, char *argument, int com)
 		GET_QUEST_POINTS(vict) -= penalty;
 		GET_QUEST_POINTS(ch) += penalty;
 		quest->addPenalized(penalty);
-		vict->saveToXML();
-		ch->saveToXML();
+		vict->crashSave();
+		ch->crashSave();
 		send_to_char(vict, "%d of your quest points have been taken by %s!\r\n",
 			penalty, GET_NAME(ch));
 		send_to_char(ch, "%d quest points transferred from %s.\r\n", penalty,
@@ -2776,11 +2778,8 @@ bool Quest::removePlayer( long id ) {
 		vict = new Creature(true);
 		if (vict->loadFromXML(id)) {
 			//HERE
-			if (GET_LEVEL(vict) < LVL_AMBASSADOR && GET_QUEST(vict)) {
-				GET_QUEST(vict) = 0;
-			}
-
-			vict->saveToXML();
+			GET_QUEST(vict) = 0;
+			vict->crashSave();
 			delete vict;
 		} else {
 			//send_to_char(ch, "Error loading char from file.\r\n");
@@ -2789,10 +2788,8 @@ bool Quest::removePlayer( long id ) {
 			return false;
 		}
 	} else {
-		if (GET_LEVEL(vict) < LVL_AMBASSADOR && GET_QUEST(vict)) {
-			GET_QUEST(vict) = 0;
-			vict->saveToXML();
-		}
+		GET_QUEST(vict) = 0;
+		vict->crashSave();
 	}
 	
 	players.erase(it);
