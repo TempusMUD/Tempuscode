@@ -262,7 +262,7 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 
 	ct = time(NULL);
 	ctm = localtime(&ct);
-	strftime(timebuf, 24, "%b %d %T - ", ctm);
+	strftime(timebuf, 24, "%T - ", ctm);
 
 	if (file) {
 		char *tm_str;
@@ -284,7 +284,7 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 			if ((GET_LEVEL(i->character) >= level) && (tp >= type)) {
 				send_to_char(i->character, "%s[ %s%s ]%s\r\n",
 					CCGRN(i->character, C_NRM),
-					timebuf, msg,
+					msg, timebuf,
 					CCNRM(i->character, C_NRM));
 			}
 		}
