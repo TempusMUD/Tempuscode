@@ -2809,9 +2809,10 @@ ACMD(do_cyberscan)
 	send_to_char(ch, "CYBERSCAN RESULTS:\r\n");
 	for (i = 0; i < NUM_WEARS; i++) {
 		if ((obj = GET_IMPLANT(vict, i)) && can_see_object(ch, obj) &&
-			((CHECK_SKILL(ch, SKILL_CYBERSCAN) +
-					(AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 50 : 0) >
-					number(50, 120)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
+				!IS_OBJ_TYPE(obj, ITEM_SCRIPT) &&
+				((CHECK_SKILL(ch, SKILL_CYBERSCAN) +
+						(AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 50 : 0) >
+						number(50, 120)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 
 			send_to_char(ch, "[%12s] - %s -\r\n", wear_implantpos[i],
 				obj->name);
