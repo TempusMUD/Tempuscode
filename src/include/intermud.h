@@ -13,7 +13,7 @@
 ** 
 */
 
-#define MUDSOCK_PATH "/home0/realm/TempusMUD/bin/mudsock"
+#define MUDSOCK_PATH "/tmp/intermud_sock"
 
 /* BOOTMASTER_IP is the IP number of the so called boot server.  After you
 ** start your mud, the intermud server will send a startup message to the
