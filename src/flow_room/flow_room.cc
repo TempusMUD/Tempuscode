@@ -199,7 +199,7 @@ flow_room(int pulse)
 				}
 
 			// Alignment ambience
-			if (!(pulse % (2 RL_SEC))) {
+			if (!(pulse % (4 RL_SEC))) {
 				if (zone->flags & ZONE_EVIL_AMBIENCE) {
 					it = rnum->people.begin();
 					while (it != rnum->people.end()) {

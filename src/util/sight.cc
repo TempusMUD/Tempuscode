@@ -108,8 +108,7 @@ bool
 INVIS_OK(Creature *sub, Creature *obj)
 {
 	// Can't see invis'd immortals
-	if (GET_LEVEL(obj) >= LVL_AMBASSADOR &&
-		GET_LEVEL(sub) < GET_INVIS_LVL(obj))
+	if (IS_IMMORT(obj) && GET_LEVEL(sub) < GET_INVIS_LVL(obj))
 		return false;
 
 	// Holy is the light that shines on the chosen

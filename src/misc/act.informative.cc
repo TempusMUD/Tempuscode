@@ -3335,8 +3335,8 @@ ACMD(do_who)
 			}
 			if (GET_INVIS_LVL(tch) && !IS_MORT(ch))
 				sprintf(buf2, "%s %s(%si%d%s)%s",
-					buf2, CCMAG(ch, C_NRM), CCRED(ch, C_NRM),
-					GET_INVIS_LVL(tch), CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
+					buf2, CCBLU(ch, C_NRM), CCMAG(ch, C_NRM),
+					GET_INVIS_LVL(tch), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 			else if (!who_i && IS_AFFECTED(tch, AFF_INVISIBLE)) {
 				sprintf(buf2, "%s %s(invis)%s",
 					buf2, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
