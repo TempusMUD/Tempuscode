@@ -130,7 +130,7 @@ prog_next_handler(prog_env *env)
 	}
 	// if we reached the end of the prog, terminate the program
 	if (!line)
-		env->exec_pt = 0;
+		env->exec_pt = -1;
 }
 
 void
@@ -433,7 +433,7 @@ prog_execute(prog_env *env)
 		}
 
 		// prog exit
-		if (!env->exec_pt)
+		if (env->exec_pt < 0)
 			return;
 
 		if (env->wait > 0)
@@ -444,7 +444,7 @@ prog_execute(prog_env *env)
 		line = prog_get_statement(&exec, 0);
 	}
 
-	env->exec_pt = 0;
+	env->exec_pt = -1;
 }
 
 prog_env *
