@@ -822,11 +822,13 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	case SKILL_SCREAM:
+        if (IS_UNDEAD(vict))
+            prob = 0;
         if (ch->getLevel() < 51 && !IS_BARD(ch))
             prob = 0;
 
-        *dam = GET_CON(ch) * (10 + (ch->getLevelBonus(SKILL_SCREAM) / 3));
-		*dam += dice(20, (CHECK_SKILL(ch, SKILL_SCREAM) / 3));
+        *dam = GET_CON(ch) * ((10 + (ch->getLevelBonus(SKILL_SCREAM)) / 4));
+		*dam += dice(17, (CHECK_SKILL(ch, SKILL_SCREAM) / 3));
 
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))
 			*dam >>= 1;
