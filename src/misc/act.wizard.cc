@@ -4867,7 +4867,7 @@ ACMD(do_set)
 	{ "damroll", 	LVL_GRGOD, 	BOTH, 	NUMBER },
 	{ "invis",		LVL_GRGOD, 	PC, 	NUMBER },
 	{ "nohassle", 	LVL_GRGOD, 	PC, 	BINARY },  /* 25 */
-	{ "frozen",		LVL_FREEZE, 	PC, 	BINARY },
+	{ "frozen",		LVL_GRGOD, 	PC, 	BINARY },
 	{ "practices", 	LVL_GRGOD, 	PC, 	NUMBER },
 	{ "lessons", 	LVL_GRGOD, 	PC, 	NUMBER },
 	{ "drunk",		LVL_CREATOR, 	BOTH, 	MISC },
