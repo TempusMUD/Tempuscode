@@ -62,6 +62,7 @@ using namespace std;
 #include "prog.h"
 #include "mobile_map.h"
 #include "object_map.h"
+#include "house.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -4003,9 +4004,14 @@ show_account(Creature *ch, char *value)
 	if (account->get_email_addr() && *account->get_email_addr())
 		send_to_desc(ch->desc, " &c<%s>&n",
 			account->get_email_addr());
+	House *h = Housing.findHouseByOwner( account->get_idnum() );
+    if (h)
+        send_to_desc(ch->desc, " &y House: &n%d", h->getID());
 	if (account->is_quest_banned())
 		send_to_desc(ch->desc, " &y(QBANNED)&n");
-	send_to_desc(ch->desc, "\r\n\r\n");
+    send_to_desc(ch->desc, "\r\n\r\n");
+    
+    
     
     last = account->get_login_time();
     creation = account->get_creation_time();
