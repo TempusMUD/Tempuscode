@@ -918,10 +918,10 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                     eq_dam <<= 5;
                 } else if( (obj && IS_BURNABLE_TYPE(obj))) {
                     apply_soil_to_char(victim, GET_EQ(victim,location), SOIL_CHAR, location);
-                    eq_dam <<= 10;
+                    eq_dam <<= 3;
                 } else if ( impl && IS_BURNABLE_TYPE(impl)) {
                     apply_soil_to_char(victim, GET_IMPLANT(victim,location), SOIL_CHAR, location);
-                    eq_dam <<= 10;
+                    eq_dam <<= 3;
                 }
             }
             if ( weap ) {
