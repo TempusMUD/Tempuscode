@@ -5650,6 +5650,11 @@ ACMD(do_set)
 			send_to_char("Better not -- could be a long winter!\r\n", ch);
 			return;
 		}
+		sprintf(buf, "(GC) %s set %s %sfrozen.", 
+				GET_NAME(ch), 
+				GET_NAME(vict),
+				PLR_FLAGGED(vict, PLR_FROZEN) ? "" : "UN-"); 
+		slog(buf);
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_FROZEN);
 		break;
 	case 27:
@@ -5713,6 +5718,10 @@ ACMD(do_set)
 
 		break;
 	case 38:
+		sprintf(buf, "(GC) %s set %s %sdeleted.", 
+				GET_NAME(ch), 
+				GET_NAME(vict),
+				PLR_FLAGGED(vict, PLR_DELETED) ? "" : "UN-"); 
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_DELETED);
 		break;
 	case 39:
@@ -5972,6 +5981,10 @@ ACMD(do_set)
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOPOST);
 		break;
 	case 88:
+		sprintf(buf, "(GC) %s %slogall'd %s.", 
+				GET_NAME(ch), 
+				PLR_FLAGGED(vict, PLR_LOG) ? "" : "UN-", GET_NAME(vict));
+		slog(buf);
 		SET_OR_REMOVE(PLR_FLAGS(vict), PLR_LOG);
 		break;
 	case 89:
@@ -6040,6 +6053,10 @@ ACMD(do_set)
 			send_to_char("Just kill the bugger!\r\n", ch);
 			break;
 		} else {
+			sprintf(buf, "(GC) %s set %s %sburied.", 
+					GET_NAME(ch), 
+					GET_NAME(vict),
+					PLR2_FLAGGED(vict, PLR2_BURIED) ? "" : "UN-"); 
 			SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_BURIED);
 		}
 	case 98:					// Set Speed
