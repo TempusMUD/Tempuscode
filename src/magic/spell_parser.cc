@@ -3375,10 +3375,10 @@ mag_assign_spells(void)
                       /* Ma Cl Th Wa Br Ps Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
     spello(SKILL_SNATCH, X, X, X, X, X, X, X, X,  X,  X, 40, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
-    spello(SKILL_ARCHERY, X, X, 14, 5, 24, X, X,  X,  X,  9, X, X, X, 10,X,X, X,
+    spello(SKILL_ARCHERY, X, X, 14, 5, 24, X, X,  X,  X,  9, X, X, X, X,X,X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_BOW_FLETCH,X,X, X, 10, X, X, X,  X,  X, 17, X, X, X, 20, X,X,X,
+    spello(SKILL_BOW_FLETCH,X,X, X, 10, X, X, X,  X,  X, 17, X, X, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     /*                        M C T Wa Br ps Ph cy Kn Rn Hd M v mr 1 2 3*/
@@ -3394,11 +3394,11 @@ mag_assign_spells(void)
     spello(SKILL_CIRCLE, X, X, 33, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_HIDE, X, X, 3, X, X, X, X, X, X, 15, X, X, X,X,X,X,X,
+    spello(SKILL_HIDE, X, X, 3, X, X, X, X, X, X, 15, X, X, X,30,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
                    /* Ma Cl Th Wa Br Syk Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
-    spello(SKILL_KICK, X, X, X, 1, 2,  X, X, 3,  X, 3, X, X, X,1,X,X,X,
+    spello(SKILL_KICK, X, X, X, 1, 2,  X, X, 3,  X, 3, X, X, X, 1,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_BASH, X, X, X, 1, 10, X, X, X, 9, 14, X, X, X,1, X,X,X,
@@ -3407,7 +3407,7 @@ mag_assign_spells(void)
     spello(SKILL_BREAK_DOOR, X, X, X, X, 26, X, X, X, X, X, X, X, X,1, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_HEADBUTT, X, X, X, 1, 13, X, X, X, X, 16, X, X, X,1, X,X,X,
+    spello(SKILL_HEADBUTT, X, X, X, 1, 13, X, X, X, X, 16, X, X, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_HOTWIRE, X, X, X, X,  X, X, X,  X, X, X, X, X, X,X,X,X,X,
@@ -3423,10 +3423,10 @@ mag_assign_spells(void)
            0, 0, 0, 0, 0, 0, 0);
 
                       /* Ma Cl  Th  Wa Bar Syk Ph Cyb Kni Ran Hood Bnt */
-    spello(SKILL_CONCEAL, X, X, 15, X,  X, X,  X,  X, X,  X,  16, X, X,1, X,X,X,
+    spello(SKILL_CONCEAL, X, X, 15, X,  X, X,  X,  X, X,  X,  16, X, X, 30, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_PLANT, X, X, 20, X,  X, X, X,  X, X, X, X, X, X,40, X,X,X,
+    spello(SKILL_PLANT, X, X, 20, X,  X, X, X,  X, X, X, X, X, X, 35, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_PICK_LOCK, X, X, 1, X, X, X, X, X, X, X, X, X, X,X, X,X,X,
@@ -3452,14 +3452,14 @@ mag_assign_spells(void)
     spello(SKILL_PILEDRIVE, X, X, X, 1, 30, X, X, X, X, X, 20, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
-    spello(SKILL_SLEEPER, X, X, X, 1, 25, X, X, X, X, X, X, X, X,30, X,X,X,
+    spello(SKILL_SLEEPER, X, X, X, 1, 25, X, X, X, X, X, X, X, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
-    spello(SKILL_ELBOW, X, X, X, 1, 8, X, X, 9, X, X, X, X, X,10, X,X,X,
+    spello(SKILL_ELBOW, X, X, X, 1, 8, X, X, 9, X, X, X, X, X,X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
     /*  Ma Cl Th Wa  Br Sy Ph Cy Kn  Rn Hd Bt Vm*/
-    spello(SKILL_KNEE, X, X, X, 1, 6, X, X, X, X, X, X, X, X,5, X,X,X,
+    spello(SKILL_KNEE, X, X, X, 1, 6, X, X, X, X, X, X, X, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     /*  Ma Cl Th Wa  Br Sy Ph  Cy Kn  Rn Hd Bt Vm*/
@@ -3478,16 +3478,16 @@ mag_assign_spells(void)
     spello(SKILL_CRY_FROM_BEYOND, X, X, X, 1, 42, X, X, X, X, X, X, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
-    spello(SKILL_STOMP, X, X, 5, 1, 4, X, X, X, X, X, X, X, X,8, X,X,X,
+    spello(SKILL_STOMP, X, X, 5, 1, 4, X, X, X, X, X, X, X, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
     spello(SKILL_BODYSLAM, X, X, X, 1, 20, X, X, X, X, X, X, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
-    spello(SKILL_CHOKE, X, X, 23, 1, 16, X, X, X, X, X, X, X, X,20, X,X,X,
+    spello(SKILL_CHOKE, X, X, 23, 1, 16, X, X, X, X, X, X, X, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
-    spello(SKILL_CLOTHESLINE, X, X, X, 1, 18, X, X, X, X, X, X, X, X,20, X,X,X,
+    spello(SKILL_CLOTHESLINE, X, X, X, 1, 18, X, X, X, X, X, X, X, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
     /* Ma  Cl  Th  Wa Bar  Cyb Kni Ran Hood Bnt */
@@ -3495,7 +3495,7 @@ mag_assign_spells(void)
     spello(SKILL_TAG, X, X, X, 1, 27, X, X, X, X, X, X, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
-    spello(SKILL_INTIMIDATE, X, X, X, 1, 35, X, X, X, X, X, X, X, X,35, X,X,X,
+    spello(SKILL_INTIMIDATE, X, X, X, 1, 35, X, X, X, X, X, X, X, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
     /* Ma Cl Th Wa  Ba Sy  Ph Cyb Kn Rn Hd Bt */
@@ -3515,7 +3515,7 @@ mag_assign_spells(void)
            0, 0, 0, 0, 0, 0, 0);
  
                          /* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn  Hd Mn  V Mr*/
-    spello(SKILL_DBL_ATTACK, X, X,45,30,37, X, X, X,25, 30, 42, 24, X,27, X,X,X,
+    spello(SKILL_DBL_ATTACK, X, X,45,30,37, X, X, X,25, 30, 42, 24, X,25, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
     spello(SKILL_NIGHT_VISION, X, X, X,  X,  X, X,  X, X, X, 2, X, X, X,X,X,X,X,
@@ -3539,7 +3539,7 @@ mag_assign_spells(void)
     spello(SKILL_HOLY_TOUCH,X,X,X,X,X,X,X,X,2,X,X,X, X,X,X,X,X,
            30, 10, 1, 0, 0, 0, 0);
 
-    spello(SKILL_BANDAGE, X, X, X, 1, 34, X, X, X, X, 10, X, 17, X,5, X,X,X,
+    spello(SKILL_BANDAGE, X, X, X, 1, 34, X, X, X, X, 10, X, 17, X,3, X,X,X,
            40, 30, 1, 0, 0, 0, 0);
 
     spello(SKILL_FIRSTAID, X, X, X, 1, X, X, X, X, X, 19, X, 30, X,20, X,X,X,
@@ -3549,21 +3549,21 @@ mag_assign_spells(void)
            90, 80, 1, 0, 0, 0, 0);
 
     /* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn  Hd Mnk Vam */
-    spello(SKILL_LEATHERWORKING,X, X, 32,1, 26, X, X, X,29, 28, X, 32, X,30, X,X,X,
+    spello(SKILL_LEATHERWORKING,X, X, 32,1, 26, X, X, X,29, 28, X, 32, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
  
     /* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn  Hd Mnk Vam */
-    spello(SKILL_METALWORKING, X, X, X, 1, 41, X, X, X,32, 36, X, X, X,30, X,X,X,
+    spello(SKILL_METALWORKING, X, X, X, 1, 41, X, X, X,32, 36, X, X, X,X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     /* Ma Cl Th Wa Ba Sy Ph Cy Kn  Rn  Hd Mnk Vam */
-    spello(SKILL_CONSIDER, X, X, 11, 1, 9, X, X, X, 13, 18, X, 13, X,10, X,X,X,
+    spello(SKILL_CONSIDER, X, X, 11, 1, 9, X, X, X, 13, 18, X, 13, X,15, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_GLANCE, X, X, 4, X, X, X, X, X, X, X, X, X, 14,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_SHOOT, X, X, 10, X,  X, X, X,  20, X, 26, 20, X, 10,5,X,X,X,
+    spello(SKILL_SHOOT, X, X, 10, X,  X, X, X,  20, X, 26, 20, X, 10,3,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_BEHEAD, X, X, X, X,  X, X, X,  X, 40, X, X, X, X,X,X,X,X,
@@ -3578,16 +3578,16 @@ mag_assign_spells(void)
         spello(SKILL_DEMOLITIONS,X, X, X, 1, X, X, X, X, X, X, 20, X, X,X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_SPINKICK, X, X, X, 1, 17, X, X, X, X, X, X, X, X, 20,X,X,X,
+    spello(SKILL_SPINKICK, X, X, X, 1, 17, X, X, X, X, X, X, X, X, X ,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_ROUNDHOUSE,X,X, X, 1, 19, X, X,  X, X, 20, X, X, X,20,X,X,X,
+    spello(SKILL_ROUNDHOUSE,X,X, X, 1, 19, X, X,  X, X, 20, X, X, X, 5,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_SIDEKICK, X, X, X, 1, 29, X, X,  X, X, 35, X, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_SPINFIST, X, X, X, 1, 7, X, X,  X, 6, 7, X, X, X,10,X,X,X,
+    spello(SKILL_SPINFIST, X, X, X, 1, 7, X, X,  X, 6, 7, X, X, X, X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_JAB, X, X, 6, 1, X, X, X, X, X, X, X, X, X,X,X,X,X,
@@ -3596,14 +3596,14 @@ mag_assign_spells(void)
     spello(SKILL_HOOK, X, X, X, 1, 23, X, X,  X, 22, 23, X, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_SWEEPKICK, X, X, X, 1, 28, X, X,  X, X, 27, X, 25, X, 30,X,X,X,
+    spello(SKILL_SWEEPKICK, X, X, X, 1, 28, X, X,  X, X, 27, X, 25, X, X ,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
                    /* Ma Cl Th  Wa Ba Sy Ph Cy Kn Rn Hd Mk Vm Mr 1 2 3 */
     spello(SKILL_TRIP, X, X, 18, 1, X, X, X, X, X, X,15, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_UPPERCUT, X, X, X, 1, 11, X, X,  X, 15, 13, X, X, X,20, X,X,X,
+    spello(SKILL_UPPERCUT, X, X, X, 1, 11, X, X,  X, 15, 13, X, X, X, X, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_GROINKICK, X, X, 12, 1, X, X, X,  X, X, X, 7, X, X,X,X,X,X,
@@ -3627,13 +3627,13 @@ mag_assign_spells(void)
     spello(SKILL_TORNADO_KICK, X, X, X, X, 45, X, X,  X, X, X, X, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_TRIPLE_ATTACK, X, X, X, 40, 48, X, X, X, 45, 43,X,41,X,46,X,X,X,
+    spello(SKILL_TRIPLE_ATTACK, X, X, X, 40, 48, X, X, X, 45, 43,X,41,X,38,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
-    spello(SKILL_SWIMMING, 1, 1, 1, 1, 1, 2, 1, X, 1, 1, 1, 7, X,2, X,X,X,
+    spello(SKILL_SWIMMING, 1, 1, 1, 1, 1, 2, 1, X, 1, 1, 1, 7, X, 1, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
                        /* Ma Cl Th Wa Ba Sy Ph  C Kn Rn Hd Mk Vm Mr 1 2 3 */
-    spello(SKILL_THROWING, X, X, 7,5, 15, X, X, X, X, 9, 3, X, X,5,X,X,X,
+    spello(SKILL_THROWING, X, X, 7,5, 15, X, X, X, X, 9, 3, X, X, X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_RIDING, 1, 1, 1, 1, 1, X, X, X, 1, 1, X, X, X,X,X,X,X,
@@ -3642,13 +3642,13 @@ mag_assign_spells(void)
     spello(SKILL_PIPEMAKING,40, X, X, 1, X, X, X, X, X, 15, 13, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_SECOND_WEAPON, X, X, X, X, X, X, X, X, X, 14, X, X, X,25,X,X,X,
+    spello(SKILL_SECOND_WEAPON, X, X, X, X, X, X, X, X, X, 14, X, X, X,18,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
     /* Ma Cl Th Wa Ba Sy Ph  C Kn  Rn Hd Mk Vm Mr 1 2 3 */
-    spello(SKILL_SCANNING, X, X, 31, X, X, X, X, X, X, 24, X, X, X,25,X,X,X,
+    spello(SKILL_SCANNING, X, X, 31, X, X, X, X, X, X, 24, X, X, X,22,X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_RETREAT, X, X,16,16, X, X, X,X,X, 18,17,33, X, 20, X,X,X,
+    spello(SKILL_RETREAT, X, X,16,16, X, X, X,X,X, 18,17,33, X, 22, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 /**********************   MERC SKILLS  ********************/        
     spello(SKILL_GUNSMITHING, X, X, X, X, X, X, X, X,X, X, X, X, X, 20, X, X, X,
@@ -3657,19 +3657,19 @@ mag_assign_spells(void)
     spello(SKILL_PISTOLWHIP, X, X, X, X, X, X, X, X, X, X, X, X, X, 20, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_CROSSFACE, X, X, X, X, X, X, X, X, X, X, X, X, X, 25, X, X, X,
+    spello(SKILL_CROSSFACE, X, X, X, X, X, X, X, X, X, X, X, X, X, 26, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_WRENCH, X, X, X, X, X, X, X, X, X, X, X, X, X, 27, X, X, X,
+    spello(SKILL_WRENCH, X, X, X, X, X, X, X, X, X, X, X, X, X, 5, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_ELUSION, X, X, X, X, X, X, X, X, X, X, X, X, X,9, X, X, X,
+    spello(SKILL_ELUSION, X, X, X, X, X, X, X, X, X, X, X, X, X, 10, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_SNIPE,   X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_INFILTRATE, X, X, X, X, X, X, X, X, X, X, X, X, X, 22, X, X, X,
+    spello(SKILL_INFILTRATE, X, X, X, X, X, X, X, X, X, X, X, X, X, 27, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
 /**********************   MERC DEVICES   *********************/
