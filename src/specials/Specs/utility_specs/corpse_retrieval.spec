@@ -85,11 +85,11 @@ SPECIAL(corpse_retrieval)
 					price);
 				perform_tell(retriever, ch, buf2);
 				GET_GOLD(ch) -= price;
+				obj_to_char(corpse, ch);
 				act("$n makes some strange gestures and howls at $s head!",
 					FALSE, retriever, 0, 0, TO_ROOM);
 				act("$p appears in your hands!", FALSE, ch, corpse, 0,
 					TO_CHAR);
-				obj_to_char(corpse, ch);
 			}
 			return 1;
 		}
