@@ -77,6 +77,7 @@ SPECIAL(shop_keeper);
 vector <Devil> devils;
 vector <Target> targets;
 vector <HuntGroup> hunters;
+vector <int> blindSpots;
 
 bool
 load_hunter_data()
@@ -110,16 +111,27 @@ load_hunter_data()
 		if ((!xmlStrcmp(cur->name, (const xmlChar *)"HUNTGROUP"))) {
 			hunters.push_back(HuntGroup(cur, devils));
 		}
+		if ((!xmlStrcmp(cur->name, (const xmlChar *)"BLINDSPOT"))) {
+			blindSpots.push_back( xmlGetIntProp(cur,"ID") );
+		}
 		cur = cur->next;
 	}
 	sort(targets.begin(), targets.end());
 	sort(hunters.begin(), hunters.end());
+    sort(blindSpots.begin(), blindSpots.end());
 	//cerr << "Targets: " << endl << targets << endl;
 	//cerr << "Hunters: " << hunters<<endl;
 	//cerr << "Devils:" <<endl<< devils<<endl;
 	//cerr << "Hell Hunter Data Load Complete:"<<endl;
 	xmlFreeDoc(doc);
 	return true;
+}
+
+bool isBlindSpot( zone_data *zone )
+{
+    return find( blindSpots.begin(), 
+                 blindSpots.end(), 
+                 zone->number ) != blindSpots.end();
 }
 
 SPECIAL(hell_hunter_brain)
@@ -153,6 +165,8 @@ SPECIAL(hell_hunter_brain)
 		} else if (CMD_IS("status")) {
 			sprintf(buf, "Counter is at %d, freq %d.\r\n", counter, freq);
 			send_to_char(buf, ch);
+            sprintf( buf, "     [vnum] %30s exist/housed\r\n","Object Name");
+            send_to_char(buf,ch);
 			for (i = 0; i < targets.size(); i++) {
 				if (!(obj = real_object_proto(targets[i].o_vnum)))
 					continue;
@@ -161,19 +175,24 @@ SPECIAL(hell_hunter_brain)
 					obj->shared->number, obj->shared->house_count);
 				send_to_char(buf, ch);
 			}
+            //TODO: Add blind spots to status
 			return 1;
 		} else if (CMD_IS("activate")) {
 			skip_spaces(&argument);
 
-			if (*argument) {
+			if (*argument && isdigit(*argument)) {
 				freq = atoi(argument);
 				sprintf(buf, "Frequency set to %d.\n", freq);
 				counter = freq;
 				send_to_char(buf, ch);
 				return 1;
-			}
-
-			counter = 1;
+			} else if( *argument && strcmp(argument,"now") == 1 ){
+				sprintf(buf, "Counter set to 1.\r\n");
+                counter = 1;
+                return 1;
+            } else {
+                return 0;
+            } 
 		} else {
 			return 0;
 		}
@@ -202,7 +221,7 @@ SPECIAL(hell_hunter_brain)
 				// ignore shopkeepers
 				(IS_NPC(vict) && shop_keeper == GET_MOB_SPEC(vict)) ||
 				// don't go to heaven
-				vict->in_room->zone->number == 430)) {
+                isBlindSpot( vict->in_room->zone))) {
 			continue;
 		}
 		if (vict && IS_SOULLESS(vict)) {
@@ -254,7 +273,8 @@ SPECIAL(hell_hunter_brain)
 
 					if (!IS_NPC(vict) && GET_REMORT_GEN(vict)) {
 						// hps GENx
-						GET_MAX_HIT(mob) = GET_HIT(mob) =
+						/*
+                         * GET_MAX_HIT(mob) = GET_HIT(mob) =
 							MIN(10000, (GET_MAX_HIT(mob) + GET_MAX_HIT(vict)));
 						// damroll GENx/3
 						GET_DAMROLL(mob) =
@@ -262,6 +282,7 @@ SPECIAL(hell_hunter_brain)
 						// hitroll GENx/3
 						GET_HITROLL(mob) =
 							MIN(50, (GET_HITROLL(mob) + GET_REMORT_GEN(vict)));
+                        */
 					}
 				}
 
