@@ -312,7 +312,6 @@ burn_update(void)
 				}
 			}
 
-
 			if (!obj_found || !repaired) {
 				if (!obj_found)
 					send_to_char(ch, "NOTICE: Implants not found.  Nanite reconstruction halted.\r\n");
@@ -321,6 +320,44 @@ burn_update(void)
 				affect_from_char(ch, SKILL_NANITE_RECONSTRUCTION);
 			}
 		}
+
+        // Irresistable Dance
+        if (affected_by_spell(ch, SONG_IRRESISTABLE_DANCE)) {
+            if (random_fractional_5()) {
+                int message = number(0, 3);
+                
+                switch(message) {
+                    case 0:
+                        send_to_char(ch, "You dance around to the rhythm "
+                                         "pounding in your head!\r\n");
+                        act("$n dances uncontrollably to the rhythm pounding in $s head!",
+                            true, ch, NULL, NULL, TO_ROOM);
+                    break;
+                    case 1:
+                        send_to_char(ch, "You dance around uncontrollably!\r\n");
+                        act("$n dances around as if on strings!",
+                            true, ch, NULL, NULL, TO_ROOM);
+                    break;
+                    case 2:
+                        send_to_char(ch, "You almost break your leg with your "
+                                         "violent dance!\r\n");
+                        act("$n almost breaks $s leg with $s violent dance!",
+                            true, ch, NULL, NULL, TO_ROOM);
+                    break;
+                    case 3:
+                        send_to_char(ch, "Dance you fool!\r\n");
+                        act("$n skanks about like a fool!",
+                            true, ch, NULL, NULL, TO_ROOM);
+                    break;
+                    default:
+                        send_to_char(ch, "You dance around to the rhythm "
+                                         "pounding in your head\r\n");
+                        act("$n dances uncontrollably to the rhythm pounding in $s head!",
+                            true, ch, NULL, NULL, TO_ROOM);
+                    break;
+                }
+            }
+        }
 
 		// Signed the Unholy Compact - Soulless
 		if (PLR2_FLAGGED(ch, PLR2_SOULLESS) &&
