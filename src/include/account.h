@@ -76,6 +76,8 @@ class Account {
 
         inline time_t get_login_time() { return _login_time; }
         inline time_t get_creation_time() { return _creation_time; }
+		inline time_t get_entry_time() { return _entry_time; }
+		void update_last_entry(void);
         
 	private:
 		// Internal
@@ -84,10 +86,11 @@ class Account {
 		char *_password;
 		// Administration
 		char *_email;
-		time_t _creation_time;
+		time_t _creation_time;		// time account was created
 		char *_creation_addr;
-		time_t _login_time;
+		time_t _login_time;			// last time account was logged into
 		char *_login_addr;
+		time_t _entry_time;			// last time char entered game
 		// Account-wide references
 		unsigned char _ansi_level;
 		unsigned int _term_height;

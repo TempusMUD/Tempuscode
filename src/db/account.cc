@@ -103,6 +103,7 @@ Account::Account(void)
 	_email = NULL;
 	_creation_time = now;
 	_login_time = now;
+	_entry_time = 0;
 	_creation_addr = NULL;
 	_login_addr = NULL;
 	_ansi_level = 0;
@@ -151,6 +152,8 @@ Account::load_from_xml(xmlDocPtr doc, xmlNodePtr root)
 		} else if (xmlMatches(node->name, "lastlogin")) {
 			_login_time = xmlGetIntProp(node, "time");
 			_login_addr = xmlGetProp(node, "addr");
+		} else if (xmlMatches(node->name, "lastentry")) {
+			_entry_time = xmlGetIntProp(node, "time");
 		} else if (xmlMatches(node->name, "bank")) {
 			_bank_past = xmlGetLongLongProp(node, "past");
 			_bank_future = xmlGetLongLongProp(node, "future");
@@ -191,6 +194,7 @@ Account::save_to_xml(void)
 		_creation_addr);
 	fprintf(ouf, "\t<lastlogin time=\"%lu\" addr=\"%s\"/>\n", _login_time,
 		_login_addr);
+	fprintf(ouf, "\t<lastentry time=\"%lu\"/>\n", _entry_time);
 	fprintf(ouf, "\t<display ansi=\"%u\" height=\"%u\" width=\"%u\"/>\n",
 		_ansi_level, _term_height, _term_width);
 	fprintf(ouf, "\t<bank past=\"%lld\" future=\"%lld\"/>\n",
@@ -597,4 +601,10 @@ Account::is_logged_in() const
 		}
 	}
     return false;
+}
+
+void
+Account::update_last_entry(void)
+{
+	_entry_time = time(0);
 }
