@@ -10,43 +10,6 @@
 #include "screen.h"
 #include "utils.h"
 
-const char *GUARD_HELP =
-"Required Directives:\r\n"
-"    guard <direction to block> <room number> {REQUIRED}\r\n"
-"        The guard will block the exit from denied creatures while in\r\n"
-"        the specified room.\r\n"
-"\r\n"    
-"Optional Directives:\r\n"
-"    allow [not] <class>|<align>|<race>|<clan>|player|all\r\n"
-"    deny [not] <class>|<align>|<race>|<clan>|player|all\r\n"
-"        These two directives determine who the guard should block.\r\n"
-"        They are processed in the order given in the spec-param.\r\n"
-"        A creature matching the 'allow' directive will immediately be\r\n"
-"        let through, while a creature matching a 'deny' directive will\r\n"
-"        be blocked.  If none of the allow/deny directives match, the\r\n"
-"        default is to deny access.\r\n"
-"    tovict <message sent to blocked creature>\r\n"
-"    toroom <message sent to everyone else>\r\n"
-"        These are emits shown when the guard blocks a creature.  Within\r\n"
-"        them, $n refers to the guard, and $N refers to the creature being\r\n"
-"        blocked.\r\n"
-"    attack yes|no\r\n"
-"        If this directive is set to yes, the guard will begin attacking\r\n"
-"        any creature blocked, if not already in combat.  The default is\r\n"
-"        not to attack.\r\n"
-"    fallible yes|no\r\n"
-"        If this directive is set to yes, there is a chance the guard\r\n"
-"        will not notice sneaking, infiltrating, or invisible creatures.\r\n"
-"        The default is to always block.\r\n"
-"\r\n"
-"Example:\r\n"
-"    For a guard that allows all humans or good knights to pass:\r\n"
-"\r\n"
-"                allow human\r\n"
-"                deny not good\r\n"
-"                allow knight\r\n";
-
-
 SPECIAL(guard)
 {
 	struct Creature *self = (struct Creature *)me;
@@ -60,11 +23,6 @@ SPECIAL(guard)
 	long room_num = -1;
 
 
-	if (spec_mode == SPECIAL_HELP) {
-		page_string(ch->desc, GUARD_HELP);
-		return 1;
-	}
-	
 	if (spec_mode != SPECIAL_CMD || !IS_MOVE(cmd) || !GET_MOB_PARAM(self))
 		return 0;
 
