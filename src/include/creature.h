@@ -266,30 +266,29 @@ static const int PLR_NOSHOUT = (1 << 8);	/* Player not allowed to shout/goss    
 static const int PLR_NOTITLE = (1 << 9);	/* Player not allowed to set title    */
 static const int PLR_DELETED = (1 << 10);	/* Player deleted - space reusable    */
 static const int PLR_LOADROOM = (1 << 11);	/* Player uses nonstandard loadroom    */
-static const int PLR_NOWIZLIST = (1 << 12);	/* Player shouldn't be on wizlist    */
+static const int PLR_UNUSED1 = (1 << 12);	/* Player shouldn't be on wizlist    */
 static const int PLR_NODELETE = (1 << 13);	/* Player shouldn't be deleted    */
 static const int PLR_INVSTART = (1 << 14);	/* Player should enter game wizinvis    */
 static const int PLR_CRYO = (1 << 15);	/* Player is cryo-saved (purge prog)    */
 static const int PLR_AFK = (1 << 16);	/* Player is away from keyboard      */
 static const int PLR_CLAN_LEADER = (1 << 17);	/* The head of the respective clan   */
-static const int PLR_UNUSED = (1 << 18);
+static const int PLR_UNUSED2 = (1 << 18);
 static const int PLR_OLC = (1 << 19);	/* Player is descripting olc         */
 static const int PLR_HALT = (1 << 20);	/* Player is halted                  */
 static const int PLR_OLCGOD = (1 << 21);	/* Player can edit at will           */
 static const int PLR_TESTER = (1 << 22);	/* Player is a tester                */
-static const int PLR_QUESTOR = (1 << 23);	/* Quest god                         */
+static const int PLR_UNUSED3 = (1 << 23);	/* Quest god                         */
 static const int PLR_MORTALIZED = (1 << 24);	/* God can be killed                 */
-static const int PLR_UNUSED2 = (1 << 25);
+static const int PLR_UNUSED4 = (1 << 25);
 static const int PLR_COUNCIL = (1 << 26);
 static const int PLR_NOPOST = (1 << 27);
 static const int PLR_LOG = (1 << 28);	/* log all cmds */
-static const int PLR_POLC = (1 << 29);	/* player approved for port olc      */
+static const int PLR_UNUSED5 = (1 << 29);	/* player approved for port olc      */
 static const int PLR_NOPK = (1 << 30);	/* player cannot pk */
 
 // Player Flags Mark II
 static const int PLR2_SOULLESS = (1 << 0);	// Signing the Unholy Compact.
 static const int PLR2_BURIED = (1 << 1);	// Player has died way too many times.
-static const int PLR2_COMBAT = (1 << 2);	// The player is engaged in a combat    
 
 /* Mobile flags: used by Creature.char_specials.act */
 static const int MOB_SPEC = (1 << 0);	/* Mob has a callable spec-proc    */
