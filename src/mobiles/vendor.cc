@@ -673,7 +673,7 @@ SPECIAL(vendor)
 
 	// Initialize default values
 	shop.room = -1;
-	shop.msg_denied = "I'm not buying that.";
+	shop.msg_denied = "I'm not doing business with YOU!";
 	shop.msg_badobj = "I don't buy that sort of thing.";
 	shop.msg_selfbroke = "Sorry, but I don't have the cash.";
 	shop.msg_buyerbroke = "You don't have enough money to buy this!";
