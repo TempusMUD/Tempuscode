@@ -2525,7 +2525,7 @@ extern const char *spell_wear_off_msg[] = {
     "The power of the dieties no longer flows in your veins.", 
     "!UNUSED!", 
     "!SONIC DISRUPTION!",	/* 375 */
-	"!UNUSED!", 
+	"Your mirror images waver and disappear.", 
     "!clarifying harmonies!", 
     "The swallow's wings return you gently to the ground.", 
     "You no longer feel compelled to dance.", 

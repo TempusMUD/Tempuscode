@@ -844,7 +844,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	
 	case SONG_SONIC_DISRUPTION:
-		dam = dice((level >> 1), 8) + (3*level);
+		dam = dice((level >> 1), 8) + (3 * level);
 		break;
 	
 	case SONG_DIRGE:
@@ -2380,9 +2380,6 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].modifier = 15 + ch->getLevelBonus(SONG_DRIFTERS_DITTY);
 		aff_array[0].location = APPLY_MOVE;
 
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
 		to_vict = "The song bolsters your spirit!";
 		accum_duration = 1;
 		break;
@@ -2392,9 +2389,6 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_ARIA_OF_ARMAMENT) >> 2;
 		aff_array[0].modifier = -((ch->getLevelBonus(SONG_ARIA_OF_ARMAMENT) >> 2) + 20);
 
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
 		accum_duration = 1;
 		to_vict = "You feel the song form a protective shield around you.";
 		break;
@@ -2403,9 +2397,6 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].location = APPLY_AC;
 		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) >> 3;
 		aff_array[0].modifier = (ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) >> 2) + number(5, 20);
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
         aff_array[1].location = APPLY_DEX;
         aff_array[1].duration = aff_array[0].duration;
         aff_array[1].modifier = -(1 + ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) / 25);
@@ -2419,9 +2410,6 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[0].duration = (ch->getLevelBonus(SONG_MELODY_OF_METTLE) >> 2) + 10;
         aff_array[0].modifier = 1 + (ch->getLevelBonus(SONG_MELODY_OF_METTLE) >> 1) / 25;
 
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
         aff_array[1].location = APPLY_HIT;
         aff_array[1].duration = aff_array[0].duration;
         aff_array[1].modifier = 50 + MIN(ch->getLevelBonus(SONG_MELODY_OF_METTLE), 125);
@@ -2433,9 +2421,6 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[0].duration = (ch->getLevelBonus(SONG_REGALERS_RHAPSODY) >> 2) + 10;
         aff_array[0].modifier = 1;
 
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
         aff_array[1].location = APPLY_NOTHIRST;
         aff_array[1].duration = aff_array[0].duration;
         aff_array[1].modifier = 1;
@@ -2446,9 +2431,6 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[0].location = APPLY_SAVING_PSI;
         aff_array[0].duration = (ch->getLevelBonus(SONG_DEFENSE_DITTY) >> 3) + 20;
         aff_array[0].modifier = 1 + ch->getLevelBonus(SONG_DEFENSE_DITTY) / 10;
-
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
 
         if (number(0, 120) < ch->getLevelBonus(SONG_DEFENSE_DITTY)) {
             aff_array[1].location = APPLY_SAVING_PHY;
@@ -2469,9 +2451,6 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].location = APPLY_HITROLL;
 		aff_array[0].bitvector = AFF_CONFIDENCE;
 
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
 		aff_array[1].location = APPLY_SAVING_SPELL;
 		aff_array[1].modifier = -dice(1, (level >> 3) + 1);
 		aff_array[1].duration = aff_array[0].duration;
@@ -2484,18 +2463,12 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[0].duration = 6 + ch->getLevelBonus(SONG_VERSE_OF_VALOR) >> 3;
         aff_array[0].modifier = 5 + ch->getLevelBonus(SONG_VERSE_OF_VALOR) / 25 + number(0, 6);
 
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
         to_vict = "The valor of heros gone comes crashing into your mind!";
         break;
 
 	case SONG_WHITE_NOISE:
 		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_WHITE_NOISE) / 25;
 		aff_array[0].bitvector = AFF_CONFUSION;
-
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
 
 		if (victim->getPosition() > POS_SLEEPING)
 			to_room = "$n stops suddenly and stares around as if confused.";
@@ -2506,9 +2479,6 @@ Fireball: like harder bones, skin, organ membranecs
 	case SONG_CHANT_OF_LIGHT:
 		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_CHANT_OF_LIGHT) >> 2;
 		aff_array[0].bitvector = AFF_GLOWLIGHT;
-
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
 
 		aff_array[1].duration = aff_array[0].duration;
 		aff_array[1].bitvector = AFF2_ENDURE_COLD;
@@ -2523,9 +2493,6 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].modifier = -(4 + (ch->getLevelBonus(SONG_IRRESISTABLE_DANCE) / 20));
 		aff_array[0].location = APPLY_HITROLL;
 
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
         if (victim->getPosition() > POS_SITTING) {
             to_vict = "You begin to dance uncontrollably!";
             to_room = "$n begins to dance uncontrollably!";
@@ -2537,9 +2504,6 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].modifier = -(2 + (ch->getLevelBonus(SONG_INSIDIOUS_RHYTHM) / 20));
 		aff_array[0].location = APPLY_INT;
 
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
         to_vict = "$N's music snakes it's way into your brain, dulling your senses.";
         to_room = "Tme music causes $n's eyes glaze over.";
         break;
@@ -2548,9 +2512,6 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].location = APPLY_CHA;
 		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) >> 2;
 		aff_array[0].modifier = 5 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) / 20;
-
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
 
 		accum_duration = 1;
 		to_vict = "The song lifts your spirits and puts a smile on your face.";
@@ -2561,9 +2522,6 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].bitvector = AFF2_TELEKINESIS;
 		aff_array[0].aff_index = 2;
 
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
 		to_vict = "You feel the weight of the world lifted from your shoulders.";
 		break;
 
@@ -2571,9 +2529,6 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].modifier = dice(2, (ch->getLevelBonus(SONG_GUIHARIAS_GLORY) >> 4) + 1);
 		aff_array[0].duration = 3 + (ch->getLevelBonus(SONG_GUIHARIAS_GLORY) >> 3);
 		aff_array[0].location = APPLY_DAMROLL;
-
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
 
 		to_vict = "You feel the power of dieties flowing in your veins!";
 		break;
@@ -2586,9 +2541,6 @@ Fireball: like harder bones, skin, organ membranecs
 		}
 		aff_array[0].duration = 5 + ch->getLevelBonus(SONG_UNLADEN_SWALLOW_SONG) / 10;
 		aff_array[0].bitvector = AFF_INFLIGHT;
-
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
 
 		accum_duration = true;
 		to_vict = "The music lifts you off your feet and sustains you.";
@@ -2606,9 +2558,6 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[0].duration = 1 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) >> 2;
         aff_array[0].modifier = 1 + ch->getLevelBonus(SONG_POWER_OVERTURE) / 30 + number(0, 2);
         aff_array[0].location = APPLY_STR;
-
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
 
         aff_array[1].duration = aff_array[0].duration;
         aff_array[1].modifier = aff_array[0].modifier + number(0, 5);
@@ -2638,9 +2587,6 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[2].type = SKILL_BERSERK;
         
         aff_array[0].duration = 1 + (ch->getLevelBonus(SONG_RHYTHM_OF_RAGE) >> 5);
-
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
 
         aff_array[1].duration = aff_array[0].duration;
         aff_array[2].duration = aff_array[0].duration;
@@ -2692,21 +2638,15 @@ Fireball: like harder bones, skin, organ membranecs
         else
             aff_array[0].modifier = ch->getIdNum();
 
-		if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
 		
         to_vict = "A gossimer shield of music forms around you.";
         to_room = "A gossimer shield of music forms around $n";
     break;
 
 	case SONG_FORTISSIMO:
-        aff_array[0].duration = GET_CHA(ch) + (ch->getLevelBonus(SONG_FORTISSIMO) >> 3); 
+        aff_array[0].duration = 1 + GET_CHA(ch) + (ch->getLevelBonus(SONG_FORTISSIMO) >> 3); 
         aff_array[0].location = APPLY_CASTER;
         
-		if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
 		
 		if (IS_NPC(ch))
             aff_array[0].modifier = -(ch->getIdNum());
@@ -2717,12 +2657,10 @@ Fireball: like harder bones, skin, organ membranecs
     break;
     
     case SONG_LICHS_LYRICS:
-        aff_array[0].duration = (GET_CHA(ch) >> 3) + (ch->getLevelBonus(SONG_LICHS_LYRICS) >> 4);
+        aff_array[0].duration = 1 + (GET_CHA(ch) >> 3) + 
+                                (ch->getLevelBonus(SONG_LICHS_LYRICS) >> 4);
         aff_array[0].location = APPLY_CASTER;
         
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
         if (IS_NPC(ch))
             aff_array[0].modifier = -(ch->getIdNum());
         else
@@ -2733,18 +2671,26 @@ Fireball: like harder bones, skin, organ membranecs
         break;
 
     case SONG_MISDIRECTION_MELISMA:
-        aff_array[0].duration = (GET_CHA(ch) >> 2) + (ch->getLevelBonus(SONG_LICHS_LYRICS) >> 4);
+        aff_array[0].duration = 1 + (GET_CHA(ch) >> 2) + 
+                                (ch->getLevelBonus(SONG_MISDIRECTION_MELISMA) >> 4);
         aff_array[0].location = APPLY_CASTER;
         
-        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
-            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
-
         if (IS_NPC(ch))
             aff_array[0].modifier = -(ch->getIdNum());
         else
             aff_array[0].modifier = ch->getIdNum();
 
         to_vict = "You begin misdirecting attempts to track you.";
+        break;
+
+    case SONG_MIRROR_IMAGE_MELODY:
+        aff_array[0].duration = 1 + (GET_CHA(ch) >> 2) + 
+                               (ch->getLevelBonus(SONG_MIRROR_IMAGE_MELODY) >> 3);
+        aff_array[0].location = APPLY_CASTER;
+        aff_array[0].modifier = 1 + (GET_CHA(ch) >> 3) + 
+                                (ch->getLevelBonus(SONG_MIRROR_IMAGE_MELODY) / 33);
+        to_vict = "Mirror images of yourself begin moving around you.";
+        to_room = "Mirror images of $n begin moving around $m.";
         break;
 
     default:
@@ -2787,6 +2733,14 @@ Fireball: like harder bones, skin, organ membranecs
 		}
 	}
 
+    // Lingering song causes a bards songs to last longer
+    for (int x = 0; x < 8; x++) {
+        if (IS_BARD(ch) && SPELL_IS_BARD(aff_array[x].type)) {
+            if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+                aff_array[x].duration = (int)(aff_array[x].duration * 1.5);
+        }
+    }
+
 	/* If the victim is already affected by this spell, and the spell does
 	 * not have an accumulative effect, then fail the spell.
 	 */
@@ -2799,8 +2753,7 @@ Fireball: like harder bones, skin, organ membranecs
 	if (af2.bitvector || af2.location || af2.duration)
 		affect_join(victim, &af2, accum_duration, FALSE, accum_affect, FALSE);
 
-	int x = 0;
-	for (; x < 8; x++) {
+	for (int x = 0; x < 8; x++) {
 		if (aff_array[x].bitvector || aff_array[x].location || aff_array[x].duration)
 			affect_join(victim, &aff_array[x], accum_duration, FALSE,
 				accum_affect, FALSE);

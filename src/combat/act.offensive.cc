@@ -958,6 +958,7 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 		prob -= (prob * (ABS(GET_ALIGNMENT(ch)))) / 1000;
 		dam -= (dam * (ABS(GET_ALIGNMENT(ch)))) / 2000;
 	}
+
 	//
 	// skill failure
 	//

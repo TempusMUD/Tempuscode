@@ -644,6 +644,9 @@ desc_char_trailers(Creature *ch, Creature *i)
     if (affected_by_spell(i, SONG_WOUNDING_WHISPERS))
         acc_strcat("...", HSSH(i), 
                    " is surrounded by whirling slivers of sound.\r\n", NULL);
+    if (affected_by_spell(i, SONG_MIRROR_IMAGE_MELODY))
+        acc_strcat("...", HSSH(i), " is surrounded by mirror images.\r\n", NULL);
+
 	return acc_get_string();
 }
 
@@ -2513,6 +2516,8 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are immune to the effects of radiation.\r\n", NULL);
 	if (affected_by_spell(ch, SONG_WOUNDING_WHISPERS))
 		acc_strcat("You are surrounded by whirling slivers of sound.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_MIRROR_IMAGE_MELODY))
+        acc_strcat("You are surrounded by mirror images.\r\n", NULL);
 	// vampiric regeneration
 
 	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {

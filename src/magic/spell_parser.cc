@@ -337,7 +337,7 @@ const char *spells[] = {
     "lullaby", 
     "verse of vulnerability", 
     "exposure overture", 
-    "verse of vibration",	/* 355 */
+    "!UNUSED!",	/* 355 */
 	"regalers rhapsody", 
     "melody of mettle", 
     "lustration melisma", 
@@ -349,7 +349,7 @@ const char *spells[] = {
     "song of silence", 
     "drifters ditty",	/* 365 */
 	"unravelling diapason", 
-    "rhapsody of depression", 
+    "!UNUSED!", 
     "chant of light", 
     "aria of asylum", 
     "white noise",	/* 370 */
@@ -3844,6 +3844,10 @@ mag_assign_spells(void)
 		MAG_BARD | MAG_AREAS);
 
 	spello(SONG_MISDIRECTION_MELISMA, X, X, X, X, X, X, X, X, X, X, 34, X, X, X,
+           X, X, X, 75, 50, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
+           MAG_BARD | MAG_AFFECTS);
+
+	spello(SONG_MIRROR_IMAGE_MELODY, X, X, X, X, X, X, X, X, X, X, 46, X, X, X,
            X, X, X, 75, 50, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
            MAG_BARD | MAG_AFFECTS);
 

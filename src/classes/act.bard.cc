@@ -154,7 +154,7 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Chant of Light",
-      "Oh cold of night, come into the light,\nFeed me the rapture of warm delight.", // 368
+      "Oh sun, sweet kiss of warmth and bright,\nRepel the frigid cold of night!", // 368
       false,
       ITEM_PERCUSSION
     },
@@ -304,13 +304,10 @@ struct bard_song songs[] = {
 /*
     static const int SKILL_VENTRILOQUISM = 673; // makes objects talk
     static const int SONG_LULLABY = 352; // puts a room to sleep
-    static const int SONG_VERSE_OF_VIBRATION = 355; // motor spasm++
     static const int SONG_SONG_SHIELD = 361; // self only, like psi shield
     static const int SONG_HYMN_OF_PEACE = 363; // stops fighting in room, counters req of rage
     static const int SONG_SONG_OF_SILENCE = 364; // Area, disallow speaking, casting. singing
-    static const int SONG_RHAPSODY_OF_DEPRESSION = 367; // slow a target
     static const int SONG_SIRENS_SONG = 374; // single target, charm
-    static const int SONG_MIRROR_IMAGE_MELODY = 376; // causes multiple images of the singer
     static const int SONG_SHATTER = 382; // target; damage persons/objects, penetrate WALL O SOUND
     static const int SONG_PURPLE_HAZE = 385; // area, pauses fighting for short time
     static const int SONG_GHOST_INSTRUMENT = 389; // causes instrument to replay next some played
@@ -341,6 +338,7 @@ struct bard_song songs[] = {
     static const int SONG_POWER_OVERTURE = 372; // self only, increase strength and hitroll
     static const int SONG_GUIHARIAS_GLORY = 373; // self/group, + damroll
     static const int SONG_SONIC_DISRUPTION = 375; // area, medium damage
+    static const int SONG_MIRROR_IMAGE_MELODY = 376; // causes multiple images of the singer
     static const int SONG_CLARIFYING_HARMONIES = 377; // identify
     static const int SONG_UNLADEN_SWALLOW_SONG = 378; // group flight
     static const int SONG_IRRESISTABLE_DANCE = 379; // Target, -hitroll
