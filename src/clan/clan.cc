@@ -66,17 +66,32 @@ ACMD(do_enroll)
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL;
 	int count = 0;
-	char *msg;
+	char *msg, *member_str;
 
-	skip_spaces(&argument);
+	member_str = tmp_getword(&argument);
+
+	if (Security::isMember(ch, "Clan")) {
+		char *clan_str = tmp_getword(&argument);
+
+		if (!*clan_str) {
+			send_to_char(ch, "Enroll them into which clan?\r\n");
+			return;
+		} else {
+			clan = clan_by_name(clan_str);
+			if (!clan) {
+				send_to_char(ch, "That clan doesn't exist.\r\n");
+				return;
+			}
+		}
+	}
 
 	if (!clan)
 		send_to_char(ch, "Hmm... You need to be in a clan yourself, first.\r\n");
-	else if (!*argument)
+	else if (!*member_str)
 		send_to_char(ch, "Ummm... enroll who?\r\n");
-	else if (!(vict = get_char_room_vis(ch, argument)))
+	else if (!(vict = get_char_room_vis(ch, member_str)))
 		send_to_char(ch, "Enroll who?\r\n");
-	else if (vict == ch)
+	else if (vict == ch && !Security::isMember(ch, "Clan"))
 		send_to_char(ch, "Yeah, yeah, yeah... enroll yourself, huh?\r\n");
 	else if (!IS_IMMORT(ch) && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
 		send_to_char(ch, "You are not the leader of the clan!\r\n");
@@ -145,7 +160,7 @@ ACMD(do_dismiss)
 	arg = tmp_getword(&argument);
 	skip_spaces(&argument);
 
-	if (!clan) {
+	if (!clan && !Security::isMember(ch, "Clan")) {
 		send_to_char(ch, "Try joining a clan first.\r\n");
 		return;
 	} else if (!*arg) {
@@ -177,22 +192,24 @@ ACMD(do_dismiss)
 			delete vict;
 		return;
 	}
+
+	clan = real_clan(GET_CLAN(vict));
 	if (vict == ch)
 		send_to_char(ch, "Thats real damn funny.\r\n");
 	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && !IS_IMMORT(ch))
 		send_to_char(ch, "You are not the leader of the clan!\r\n");
-	else if (GET_LEVEL(vict) >= LVL_GRGOD && GET_LEVEL(ch) < LVL_GRGOD)
-		send_to_char(ch, "I don't think you should do that.\r\n");
-	else if (GET_CLAN(vict) != GET_CLAN(ch))
+	else if (GET_CLAN(vict) != GET_CLAN(ch) && !Security::isMember(ch, "Clan"))
 		send_to_char(ch, "Umm, why dont you check the clan list, okay?\r\n");
-	else if ((member = real_clanmember(GET_IDNUM(ch), clan)) &&
-		(member2 = real_clanmember(GET_IDNUM(vict), clan)) &&
-		(member->rank <= member2->rank && member->rank < clan->top_rank))
+	else if (!Security::isMember(ch, "Clan") &&
+			(member = real_clanmember(GET_IDNUM(ch), clan)) &&
+			(member2 = real_clanmember(GET_IDNUM(vict), clan)) &&
+			(member->rank <= member2->rank && member->rank < clan->top_rank))
 		send_to_char(ch, "You don't have the rank for that.\r\n");
 	else if (PLR_FLAGGED(ch, PLR_FROZEN))
 		send_to_char(ch, "You are frozen solid, and can't lift a finger!\r\n");
-	else if (PLR_FLAGGED(vict, PLR_CLAN_LEADER) &&
-		(GET_IDNUM(ch) != clan->owner && GET_LEVEL(ch) < LVL_IMMORT))
+	else if (!Security::isMember(ch, "Clan") &&
+			PLR_FLAGGED(vict, PLR_CLAN_LEADER) &&
+			(GET_IDNUM(ch) != clan->owner && GET_LEVEL(ch) < LVL_IMMORT))
 		send_to_char(ch, "You cannot dismiss co-leaders.\r\n");
 	else {
 		send_to_char(vict, "You have been dismissed from clan %s by %s!\r\n",
@@ -559,7 +576,7 @@ ACMD(do_promote)
 					TO_CHAR);
 			else {
 				SET_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
-				msg = tmp_sprintf("%s has promoted %s to clan leader status.",
+				tmp_sprintf("%s has promoted %s to clan leader status.",
 					GET_NAME(ch), GET_NAME(vict));
 				slog("%s", msg);
 				msg = tmp_strcat(msg, "\r\n",NULL);
