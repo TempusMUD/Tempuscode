@@ -87,7 +87,7 @@ float char_data::getDamReduction(char_data *attacker = NULL)
     /********************************************************************/
     if (IS_AFFECTED_2(ch, AFF2_BESERK)) {
         if (IS_BARB(ch))
-            dam_reduction += (ch->getLevelBonus(SKILL_BESERK)) / 5;
+            dam_reduction += (ch->getLevelBonus(SKILL_BESERK)) / 6;
         else
             dam_reduction += 7;
     } 
