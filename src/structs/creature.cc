@@ -1170,26 +1170,35 @@ Creature::distrusts(Creature *ch)
 int
 Creature::get_reputation(void)
 {
+	Account *acct;
+
 	if (IS_NPC(this))
 		return 0;
-	if (account && GET_LEVEL(this) < LVL_AMBASSADOR)
+	
+	acct = account;
+	if (!acct)
+		acct = Account::retrieve(playerIndex.getAccountID(GET_IDNUM(this)));
+	if (acct && GET_LEVEL(this) < LVL_AMBASSADOR)
 		return MAX(0, MIN(1000, (player_specials->saved.reputation * 95 / 100)
-			+ (account->get_reputation() * 5 / 100)));
+			+ (acct->get_reputation() * 5 / 100)));
 	return player_specials->saved.reputation;
 }
 
 void
 Creature::gain_reputation(int amt)
 {
+	Account *acct;
+
 	if (IS_NPC(this))
 		return;
 
-	if (account) {
-		account->gain_reputation(amt);
-		player_specials->saved.reputation += amt;
-	} else {
-		player_specials->saved.reputation += amt;
-	}
+	acct = account;
+	if (!acct)
+		acct = Account::retrieve(playerIndex.getAccountID(GET_IDNUM(this)));
+	if (acct && GET_LEVEL(this) < LVL_AMBASSADOR)
+		acct->gain_reputation(amt);
+
+	player_specials->saved.reputation += amt;
 }
 
 void
