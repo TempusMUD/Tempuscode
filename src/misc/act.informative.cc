@@ -2631,8 +2631,8 @@ ACMD(do_time)
     char *suf;
     int weekday, day;
     struct time_info_data local_time;
-    extern const char *weekdays[];
-    extern const char *month_name[];
+    extern const char *weekdays[7];
+    extern const char *month_name[16];
 
     if (ch->in_room->zone->time_frame == TIME_TIMELESS) {
 	send_to_char("Time has no meaning here.\r\n", ch);
@@ -2687,7 +2687,7 @@ show_mud_date_to_char(struct char_data *ch)
 {
     char *suf;
     struct time_info_data local_time;
-    extern const char *month_name[];
+    extern const char *month_name[16];
     int day;
 
     if (!ch->in_room) {

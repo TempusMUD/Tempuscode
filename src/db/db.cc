@@ -201,7 +201,7 @@ void Read_Invalid_List(void);
 void Read_Nasty_List(void);
 void boot_the_shops(FILE * shop_f, char *filename, int rec_count);
 struct help_index_element *build_help_index(FILE * fl, int *num);
-void add_alias(struct char_data *ch, struct alias *a);
+void add_alias(struct char_data *ch, struct alias_data *a);
 void boot_clans(void);
 void add_follower(struct char_data * ch, struct char_data * leader);
 bool circle_follow(struct char_data * ch, struct char_data * victim);
@@ -2997,7 +2997,7 @@ load_char(char *name, struct char_file_u * char_element)
 void 
 save_aliases(struct char_data *ch)
 {
-    struct alias *a;
+    struct alias_data *a;
     FILE *file_handle = NULL;
 
     strcpy(buf,GET_NAME(ch));
@@ -3032,7 +3032,7 @@ save_aliases(struct char_data *ch)
 void 
 read_alias(struct char_data *ch)
 {
-    struct alias *a;
+    struct alias_data *a;
     char buf[MAX_STRING_LENGTH];
     FILE *file_handle = NULL;
     char *t,*a_,*r;
@@ -3071,7 +3071,7 @@ read_alias(struct char_data *ch)
 	r = strtok(NULL,"\n");
 
 	if ((t != NULL) && (isdigit(t[0])) && (a_ != NULL) && ( r != NULL)) {
-	    CREATE(a, struct alias, 1);
+	    CREATE(a, struct alias_data, 1);
 	    a->type = atoi(t);
 #ifdef DMALLOC
 	    dmalloc_verify(0);
@@ -3480,9 +3480,9 @@ free_char(struct char_data * ch)
 {
     int i;
     struct char_data *tmp_mob;
-    struct alias *a;
+    struct alias_data *a;
 
-    void free_alias(struct alias * a);
+    void free_alias(struct alias_data * a);
 
     while ((a = GET_ALIASES(ch)) != NULL) {
 	GET_ALIASES(ch) = (GET_ALIASES(ch))->next;

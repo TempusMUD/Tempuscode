@@ -1463,8 +1463,8 @@ command_interpreter(struct char_data * ch, char *argument)
   **************************************************************************/
 
 
-struct alias *
-find_alias(struct alias * alias_list, char *str)
+struct alias_data *
+find_alias(struct alias_data * alias_list, char *str)
 {
     while (alias_list != NULL) {
     if (*str == *alias_list->alias)    /* hey, every little bit counts :-) */
@@ -1479,7 +1479,7 @@ find_alias(struct alias * alias_list, char *str)
 
 
 void 
-free_alias(struct alias * a)
+free_alias(struct alias_data * a)
 {
     if (a->alias)
     free(a->alias);
@@ -1489,9 +1489,9 @@ free_alias(struct alias * a)
 }
 
 void 
-add_alias(struct char_data *ch, struct alias *a)
+add_alias(struct char_data *ch, struct alias_data *a)
 {
-    struct alias *this_alias = GET_ALIASES(ch);
+    struct alias_data *this_alias = GET_ALIASES(ch);
 
     if ((!this_alias) || (strcmp(a->alias, this_alias->alias) < 0))  {
     a->next = this_alias;
@@ -1516,7 +1516,7 @@ add_alias(struct char_data *ch, struct alias *a)
 ACMD(do_alias)
 {
     char *repl;
-    struct alias *a, *temp;
+    struct alias_data *a, *temp;
 
     if (IS_NPC(ch))
     return;
@@ -1565,7 +1565,7 @@ ACMD(do_alias)
 #endif
         }
 
-        CREATE(a, struct alias, 1);
+        CREATE(a, struct alias_data, 1);
         a->alias = str_dup(arg);
         delete_doubledollar(repl);
         a->replacement = str_dup(repl);
@@ -1583,7 +1583,7 @@ ACMD(do_alias)
 ACMD(do_unalias)
 {
     char *repl;
-    struct alias *a, *temp;
+    struct alias_data *a, *temp;
 
     if (IS_NPC(ch))
     return;
@@ -1621,7 +1621,7 @@ ACMD(do_unalias)
 #define NUM_TOKENS       9
 
 void 
-perform_complex_alias(struct txt_q *input_q, char *orig, struct alias *a)
+perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a)
 {
     struct txt_q temp_queue;
     char *tokens[NUM_TOKENS], *temp, *write_point;
@@ -1686,7 +1686,7 @@ int
 perform_alias(struct descriptor_data * d, char *orig)
 {
     char first_arg[MAX_INPUT_LENGTH], *ptr;
-    struct alias *a, *tmp;
+    struct alias_data *a, *tmp;
 
     /* bail out immediately if the guy doesn't have any aliases */
     if ((tmp = GET_ALIASES(d->character)) == NULL)

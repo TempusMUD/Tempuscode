@@ -54,11 +54,11 @@ extern const struct command_info cmd_info[];
 #define CMD_IS(cmd_name) (!strcmp(cmd_name, cmd_info[cmd].command))
 #define IS_MOVE(cmdnum) (cmdnum >= 1 && cmdnum <= 6)
 
-struct alias {
+struct alias_data {
   char *alias;
   char *replacement;
   int type;
-  struct alias *next;
+  struct alias_data *next;
 };
 
 #define ALIAS_SIMPLE	0

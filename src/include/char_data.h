@@ -791,7 +791,7 @@ struct player_special_data {
     struct player_special_data_saved saved;
     char	*poofin;		/* Description on arrival of a god.     */
     char	*poofout;		/* Description upon a god's exit.       */
-    struct alias *aliases;	/* Character's aliases			*/
+    struct alias_data *aliases;	/* Character's aliases			*/
     long last_tell;		/* idnum of last tell from		*/
     int imprint_rooms[MAX_IMPRINT_ROOMS];
     unsigned int soilage[NUM_WEARS];     

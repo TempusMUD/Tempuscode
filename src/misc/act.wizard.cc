@@ -556,7 +556,7 @@ void do_stat_memory(struct char_data * ch)
 {
     int    sum = 0, total = 0;
     int    i = 0, j = 0;
-    struct alias *al;
+    struct alias_data*al;
     struct extra_descr_data *tmpdesc;
     struct special_search_data *tmpsearch;
     struct affected_type *af;
@@ -618,7 +618,7 @@ void do_stat_memory(struct char_data * ch)
 	    CHARADD (sum, mob->player_specials->poofout);
 	    al = mob->player_specials->aliases;
 	    while (al) {
-		sum += sizeof(struct alias);
+		sum += sizeof(struct alias_data);
 		CHARADD (sum, al->alias);
 		CHARADD (sum, al->replacement);
 		al = al->next;
@@ -698,7 +698,7 @@ void do_stat_memory(struct char_data * ch)
 	    CHARADD (sum, chars->player_specials->poofout);
 	    al = chars->player_specials->aliases;
 	    while (al) {
-		sum += sizeof(struct alias);
+		sum += sizeof(struct alias_data);
 		CHARADD (sum, al->alias);
 		CHARADD (sum, al->replacement);
 		al = al->next;
@@ -3997,7 +3997,7 @@ ACMD(do_show)
     int                     sfc_mode = 0;
     struct char_data       *vict;
     struct obj_data        *obj;
-    struct alias           *a;
+    struct alias_data          *a;
     struct zone_data       *zone = NULL;
     struct room_data       *room = NULL, *tmp_room = NULL;
     struct descriptor_data *tmp_d = NULL;
