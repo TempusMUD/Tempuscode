@@ -197,14 +197,14 @@ template <class T> class SafeList:protected list <T> {
 			return;
 		}
 
-		list < iterator * >::iterator sit = _iterators.begin();
+		list <iterator *>::iterator sit = _iterators.begin();
 		for (; sit != _iterators.end(); ++sit) {
 			if (*sit != &it && *(*sit) == it) {
 				(*sit)->save();
 			}
 		}
 	}
-	list < iterator * >_iterators;
+	list <iterator *>_iterators;
 	iterator _end;
 };
 

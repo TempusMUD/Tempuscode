@@ -10,10 +10,11 @@
 #include "tmpstr.h"
 #include "screen.h"
 #include "handler.h"
+#include "shop.h"
 
 SPECIAL(artisan);
 
-struct craft_component {
+struct CraftComponent {
 	short item;
 	short material;
 	short weight;
@@ -21,7 +22,7 @@ struct craft_component {
 	short amount;
 };
 
-class craft_item {
+class CraftItem {
 	public:
 		char *next_requirement(Creature *keeper);
 		obj_data *create(Creature *keeper, Creature *recipient);
@@ -29,32 +30,26 @@ class craft_item {
 		short vnum;	// object to be offered when all components are held
 		long cost; // -1 means to use default cost
 		int fail_pct;
-		vector<craft_component *> required;
-};
-
-struct craftshop {
-		short room;
-		short keeper_vnum;
-		vector<craft_item *> items;
+		vector<CraftComponent *> required;
 };
 
 static int cmd_slap, cmd_smirk, cmd_cry;
-vector<craftshop *> shop_list;
+vector<Craftshop *> shop_list;
 
 void
-craft_parse_item(craftshop *shop, xmlNodePtr node)
+Craftshop::parse_item(xmlNodePtr node)
 {
 	xmlNodePtr sub_node;
-	craft_item *new_item;
-	craft_component *compon;
+	CraftItem *new_item;
+	CraftComponent *compon;
 	
-	new_item = new craft_item;
+	new_item = new CraftItem;
 	new_item->vnum = xmlGetIntProp(node, "vnum");
 	new_item->cost = xmlGetIntProp(node, "cost");
 	new_item->fail_pct = xmlGetIntProp(node, "failure", 0);
 	for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
 		if (xmlMatches(sub_node->name, "requires")) {
-			compon = new craft_component;
+			compon = new CraftComponent;
 			compon->item = xmlGetIntProp(sub_node, "item");
 			compon->material = xmlGetIntProp(sub_node, "material");
 			compon->weight = xmlGetIntProp(sub_node, "weight");
@@ -65,36 +60,33 @@ craft_parse_item(craftshop *shop, xmlNodePtr node)
 			slog("Invalid XML tag while parsing artisan");
 		}
 	}
-	shop->items.insert(shop->items.end(), new_item);
+	items.insert(items.end(), new_item);
 	return;
 }
 
-void
-craftshop_load(xmlNodePtr node)
+Craftshop::Craftshop(xmlNodePtr node)
 {
 	xmlNodePtr sub_node;
-	craftshop *new_shop;
 	xmlChar *prop;
 
-	new_shop = new craftshop;
-	new_shop->room = xmlGetIntProp(node, "room");
-	new_shop->keeper_vnum = xmlGetIntProp(node, "keeper");
+	room = xmlGetIntProp(node, "room");
+	keeper_vnum = xmlGetIntProp(node, "keeper");
 	for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
 		prop = NULL;
 		if (xmlMatches(sub_node->name, "item")) {
-			craft_parse_item(new_shop, sub_node);
+			parse_item(sub_node);
 		} else {
 			slog("Invalid XML tag while parsing artisan");
 		}
 	}
 
-	shop_list.insert(shop_list.end(), new_shop);
+	shop_list.insert(shop_list.end(), this);
 }
 
-craftshop *
-craftshop_find(Creature *keeper)
+Craftshop *
+Craftshop::find(Creature *keeper)
 {
-	vector<craftshop *>::iterator shop;
+	vector<Craftshop *>::iterator shop;
 
 	for (shop = shop_list.begin(); shop != shop_list.end(); shop++)
 		if (keeper->mob_specials.shared->vnum == shop[0]->keeper_vnum &&
@@ -105,10 +97,10 @@ craftshop_find(Creature *keeper)
 }
 
 char *
-craft_item::next_requirement(Creature *keeper)
+CraftItem::next_requirement(Creature *keeper)
 {
 	obj_data *obj;
-	vector<craft_component *>::iterator compon;
+	vector<CraftComponent *>::iterator compon;
 
 	for (compon = required.begin();compon != required.end();compon++ ) {
 		// Item components are all we support right now
@@ -127,10 +119,10 @@ craft_item::next_requirement(Creature *keeper)
 }
 
 obj_data *
-craft_item::create(Creature *keeper, Creature *recipient)
+CraftItem::create(Creature *keeper, Creature *recipient)
 {
 	obj_data *obj;
-	vector<craft_component *>::iterator compon;
+	vector<CraftComponent *>::iterator compon;
 
 	for (compon = required.begin();compon != required.end();compon++ ) {
 		// Item components are all we support right now
@@ -157,7 +149,7 @@ craft_item::create(Creature *keeper, Creature *recipient)
 }
 
 char *
-list_commission_item(Creature *ch, Creature *keeper, int idx, craft_item *item, char *msg)
+list_commission_item(Creature *ch, Creature *keeper, int idx, CraftItem *item, char *msg)
 {
 	obj_data *obj;
 	char *needed;
@@ -181,16 +173,13 @@ list_commission_item(Creature *ch, Creature *keeper, int idx, craft_item *item, 
 }
 
 void
-craftshop_list(Creature *keeper, Creature *ch)
+Craftshop::list(Creature *keeper, Creature *ch)
 {
-	craftshop *shop;
-	vector<craft_item *>::iterator item;
+	vector<CraftItem *>::iterator item;
 	char *msg = "";
 	int idx = 0;
 
-	shop = craftshop_find(keeper);
-
-	if (shop->items.empty()) {
+	if (items.empty()) {
 		msg = tmp_sprintf("%s I'm not in business right now.", GET_NAME(ch));
 		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
 		return;
@@ -201,7 +190,7 @@ craftshop_list(Creature *keeper, Creature *ch)
 		" ##               Item                                               Cost\r\n-------------------------------------------------------------------------\r\n",
 		CCNRM(ch, C_NRM),
 		NULL);
-	for (item = shop->items.begin();item != shop->items.end();item++) {
+	for (item = items.begin();item != items.end();item++) {
 		idx++;
 		msg = list_commission_item(ch, keeper, idx, *item, msg);
 	}
@@ -210,10 +199,10 @@ craftshop_list(Creature *keeper, Creature *ch)
 }
 
 void
-craftshop_buy(craftshop *shop, Creature *keeper, Creature *ch, char *arguments)
+Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 {
-	vector<craft_item *>::iterator item_itr;
-	craft_item *item;
+	vector<CraftItem *>::iterator item_itr;
+	CraftItem *item;
 	obj_data *obj;
 	char *arg, *msg, *needed_str;
 
@@ -225,10 +214,10 @@ craftshop_buy(craftshop *shop, Creature *keeper, Creature *ch, char *arguments)
 
 		arg++;
 		num = (unsigned int)atoi(arg) - 1;
-		if (num >= 0 && num < shop->items.size())
-			item = shop->items[atoi(arg)];
+		if (num >= 0 && num < items.size())
+			item = items[num];
 	} else {
-		for (item_itr= shop->items.begin();item_itr!= shop->items.end();item_itr++) {
+		for (item_itr= items.begin();item_itr!= items.end();item_itr++) {
 			if (isname(arg, real_object_proto(item_itr[0]->vnum)->name)) {
 				item = *item_itr;
 				break;
@@ -252,7 +241,9 @@ craftshop_buy(craftshop *shop, Creature *keeper, Creature *ch, char *arguments)
 	}
 
 	if (item->cost > GET_GOLD(ch)) {
-		msg = tmp_sprintf("%s You don't have enough money for me to make that.  It costs %ld.", GET_NAME(ch), item->cost);
+		msg = tmp_sprintf("%s You don't have enough money", GET_NAME(ch));
+		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		msg = tmp_sprintf("%s It costs %ld.", GET_NAME(ch), item->cost);
 		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
 		return;
 	}
@@ -306,7 +297,7 @@ craftshop_buy(craftshop *shop, Creature *keeper, Creature *ch, char *arguments)
 void
 assign_artisans(void)
 {
-	vector<craftshop *>::iterator shop;
+	vector<Craftshop *>::iterator shop;
 	Creature *mob;
 
 	for (shop = shop_list.begin(); shop != shop_list.end(); shop++) {
@@ -326,7 +317,7 @@ SPECIAL(artisan)
 {
 	struct Creature *keeper = (Creature *)me;
 	char *msg;
-	craftshop *shop;
+	Craftshop *shop;
 
 	if (spec_mode != SPECIAL_CMD)
 		return false;
@@ -344,7 +335,7 @@ SPECIAL(artisan)
 	if (!CMD_IS("list") && !CMD_IS("buy") && !CMD_IS("sell"))
 		return false;
 
-	shop = craftshop_find(keeper);
+	shop = Craftshop::find(keeper);
 
 	if (!shop || shop->room != keeper->in_room->number) {
 		msg = tmp_sprintf("%s Sorry!  I don't have my tools!", GET_NAME(ch));
@@ -363,9 +354,9 @@ SPECIAL(artisan)
 */
 
 	if (CMD_IS("list"))
-		craftshop_list(keeper, ch);
+		shop->list(keeper, ch);
 	else if (CMD_IS("buy"))
-		craftshop_buy(shop, keeper, ch, argument);
+		shop->buy(keeper, ch, argument);
 	else if (CMD_IS("sell")) {
 		msg = tmp_sprintf("%s I don't sell things, I make them.", GET_NAME(ch));
 		do_say(keeper, buf, 0, SCMD_SAY_TO, NULL);

@@ -4,10 +4,10 @@
 #include "creature.h"
 #include "safe_list.h"
 
-class CreatureList:public SafeList < Creature * > {
+class CreatureList:public SafeList <Creature *> {
   public:
 	CreatureList(bool prepend = false)
-	:SafeList < Creature * >(prepend) {
+	:SafeList <Creature *>(prepend) {
 	} ~CreatureList() {
 	}
 	inline operator bool() {

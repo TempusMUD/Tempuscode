@@ -4,8 +4,8 @@
 #include "utils.h"
 #include "xml_utils.h"
 #include "db.h"
+#include "shop.h"
 
-void craftshop_load(xmlNodePtr node);
 void load_xml_object(xmlNodePtr node);
 void load_xml_mobile(xmlNodePtr node);
 void load_xml_zone(xmlNodePtr node);
@@ -57,7 +57,7 @@ xml_boot(void)
 		while (node) {
 			// Parse different nodes here.
 			if (xmlMatches(node->name, "craftshop"))
-				craftshop_load(node);
+				new Craftshop(node);
 			else if (xmlMatches(node->name, "object"))
 				load_xml_object(node);
 			else if (xmlMatches(node->name, "mobile"))

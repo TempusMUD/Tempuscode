@@ -4,6 +4,11 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#ifndef _SHOP_H_
+#define _SHOP_H_
+
+#include <vector>
+#include "xml_utils.h"
 
 struct shop_buy_data {
 	int type;
@@ -12,6 +17,21 @@ struct shop_buy_data {
 
 #define BUY_TYPE(i)		((i).type)
 #define BUY_WORD(i)		((i).keywords)
+
+class CraftItem;
+
+struct Craftshop {
+	static Craftshop *find(Creature *keeper);
+	Craftshop(xmlNodePtr node);
+
+	void parse_item(xmlNodePtr node);
+	void list(Creature *keeper, Creature *ch);
+	void buy(Creature *keeper, Creature *ch, char *args);
+	short room;
+	short keeper_vnum;
+	vector<CraftItem *> items;
+};
+
 
 
 struct shop_data {
@@ -185,3 +205,5 @@ struct stack_data {
 
 int ok_damage_shopkeeper(struct Creature *ch, struct Creature *victim);
 bool shop_check_message_format(char *format_buf);
+
+#endif
