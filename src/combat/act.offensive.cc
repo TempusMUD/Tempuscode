@@ -1143,7 +1143,7 @@ ACMD(do_order)
 					GET_CHA(ch) < number(0, GET_INT(vict))) &&
 				(GET_LEVEL(ch) < LVL_CREATOR ||
 					GET_LEVEL(vict) >= GET_LEVEL(ch))
-				&& !MOB2_FLAGGED(k->follower, MOB2_FAMILIAR)
+				&& !MOB2_FLAGGED(vict, MOB2_FAMILIAR)
 				&& (!IS_VAMPIRE(ch) || !IS_EVIL(ch) || !IS_UNDEAD(vict) ||
 					!IS_NPC(vict) ||
 					(GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_CONTROL_UNDEAD)) <
