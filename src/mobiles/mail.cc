@@ -309,7 +309,7 @@ recieve_mail(char_data * ch)
 
 SPECIAL(postmaster)
 {
-	if (!ch->desc || IS_NPC(ch))
+	if (!ch || !ch->desc || IS_NPC(ch))
 		return 0;				/* so mobs don't get caught here */
 
 	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")))
