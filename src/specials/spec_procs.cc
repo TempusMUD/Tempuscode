@@ -1717,6 +1717,7 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/newspaper.spec"
 #include "Specs/utility_specs/questor_util.spec"
 #include "Specs/utility_specs/prac_manual.spec"
+#include "Specs/utility_specs/life_point_potion.spec"
 #include "Specs/utility_specs/jail_locker.spec"
 #include "Specs/utility_specs/repairer.spec"
 #include "Specs/utility_specs/telescope.spec"
