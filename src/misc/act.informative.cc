@@ -642,6 +642,9 @@ desc_char_trailers(Creature *ch, Creature *i)
     if (affected_by_spell(i, SPELL_REPULSION_FIELD))
         desc = tmp_strcat(desc, "...", HSSH(i), " is surrounded by a ",
                           "repulsive field.\r\n", NULL); 
+    if (affected_by_spell(i, SPELL_VACUUM_SHROUD))
+        desc = tmp_strcat(desc, "...", HSSH(i), " is existing in a total ",
+                          "vacuum.\r\n", NULL);
 	return desc;
 }
 
@@ -2465,6 +2468,8 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are emitting an attraction field.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_REPULSION_FIELD))
         acc_strcat("You are emitting a repulsion field.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_VACUUM_SHROUD))
+        acc_strcat("You are existing in a total vacuum.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_CHEMICAL_STABILITY))
 		acc_strcat("You feel chemically inert.\r\n", NULL);
 

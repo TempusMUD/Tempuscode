@@ -656,31 +656,6 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		dam = dice(ch->getLevelBonus(SPELL_ELECTRIC_ARC), 7);
 		break;
 
-
-		/* Mostly clerics */
-/*	case SPELL_DISPEL_EVIL:
-		dam = dice(6, 8) + (level >> 2);
-		if (IS_EVIL(ch)) {
-			victim = ch;
-			dam = GET_HIT(ch) - 1;
-		} else if (IS_GOOD(victim)) {
-			act("The gods protect $N.", FALSE, ch, 0, victim, TO_CHAR);
-			dam = 0;
-			return 0;
-		}
-		break;
-	case SPELL_DISPEL_GOOD:
-		dam = dice(6, 8) + (level >> 2);
-		if (IS_GOOD(ch)) {
-			victim = ch;
-			dam = GET_HIT(ch) - 1;
-		} else if (IS_EVIL(victim)) {
-			act("The gods protect $N.", FALSE, ch, 0, victim, TO_CHAR);
-			dam = 0;
-			return 0;
-		}
-		break; */
-
 	case SPELL_DISRUPTION:
 		dam = dice(level, 6) + (level << 1);
 		break;
@@ -1836,7 +1811,20 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "You feel your energy capacity rise.";
 		accum_duration = 1;
 		break;
-
+	case SPELL_VACUUM_SHROUD:
+        af.type = SPELL_VACUUM_SHROUD;
+		af.bitvector = AFF3_NOBREATHE;
+		af.aff_index = 3;
+		af.duration = 
+                     MAX(15, ch->getLevelBonus(SPELL_VACUUM_SHROUD) >> 2);
+        af2.type = SPELL_VACUUM_SHROUD;
+		af2.bitvector = AFF2_PROT_FIRE;
+		af2.aff_index = 2;
+		af2.duration = 
+                     MAX(15, ch->getLevelBonus(SPELL_VACUUM_SHROUD) >> 2); 
+		to_vict = "A total vacuum springs into existance around your body.";
+        accum_affect = TRUE;
+		break;
 	case SPELL_CHEMICAL_STABILITY:
 		af.duration = (level >> 2);
 		to_room = "$n begins looking more chemically inert.";

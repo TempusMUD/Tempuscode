@@ -57,7 +57,7 @@
   complete
 
   #define SPELL_TIDAL_SPACEWARP      315  // fly
-  incomplete
+  complete
 
   #define SPELL_FISSION_BLAST        316  // full-room damage
   complete
@@ -69,7 +69,7 @@
   complete
 
   #define SPELL_VACUUM_SHROUD        319  // eliminates breathing and fire
-  incomplete
+  complete
 
   #define SPELL_DENSIFY              320  // increase weight of obj & char
   complete
