@@ -125,7 +125,7 @@ ACMD(do_distance);
 ACMD(do_drain);
 ACMD(do_dynedit);
 ACMD(do_dyntext_show);
-ACMD(do_beserk);
+ACMD(do_berserk);
 ACMD(do_board);
 ACMD(do_bomb);
 ACMD(do_bandage);
@@ -499,7 +499,7 @@ struct command_info cmd_info[] = {
 	{"beer", POS_RESTING, do_action, 0, 0, 0},
 	{"beg", POS_RESTING, do_action, 0, 0, 0},
 	{"beguile", POS_STANDING, do_beguile, 0, 0, 0},
-	{"beserk", POS_FIGHTING, do_beserk, 0, 0, 0},
+	{"berserk", POS_FIGHTING, do_berserk, 0, 0, 0},
 	{"bellow", POS_RESTING, do_say, 0, SCMD_BELLOW, 0},
 	{"belly", POS_RESTING, do_action, 0, 0, 0},
 	{"bearhug", POS_FIGHTING, do_offensive_skill, 0, SKILL_BEARHUG, 0},

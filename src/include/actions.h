@@ -22,7 +22,7 @@ ASPELL(spell_area_stasis);
 
 #define TIMEWARP_FILE "etc/timewarps"
 
-int perform_barb_beserk(struct Creature *ch,
+int perform_barb_berserk(struct Creature *ch,
 	struct Creature **who_was_attacked,
 	//struct Creature *precious_ch,
 	int *return_flags);

@@ -2415,7 +2415,7 @@ perform_violence(void)
 			prob = (int)(prob * 0.70);
 		if (SECT(ch->in_room) == SECT_ELEMENTAL_OOZE)
 			prob = (int)(prob * 0.70);
-		if (IS_AFFECTED_2(ch, AFF2_BESERK))
+		if (IS_AFFECTED_2(ch, AFF2_BERSERK))
 			prob += (GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2)) >> 1;
 		if (IS_MONK(ch))
 			prob += GET_LEVEL(ch) >> 2;

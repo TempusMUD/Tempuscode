@@ -1087,7 +1087,7 @@ do_start(struct Creature *ch, int mode)
 {
 	void advance_level(struct Creature *ch, byte keep_internal);
 	byte new_player = 0;
-	int i, j;
+	int i;
 	obj_data *implant_save[NUM_WEARS];
 
 	// remove implant affects

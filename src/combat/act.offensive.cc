@@ -1164,7 +1164,7 @@ ACMD(do_flee)
 		send_to_char(ch, "You are solid stone!\r\n");
 		return;
 	}
-	if (IS_AFFECTED_2(ch, AFF2_BESERK) && FIGHTING(ch) &&
+	if (IS_AFFECTED_2(ch, AFF2_BERSERK) && FIGHTING(ch) &&
 		!number(0, 1 + (GET_INT(ch) >> 2))) {
 		send_to_char(ch, "You are too enraged to flee!\r\n");
 		return;

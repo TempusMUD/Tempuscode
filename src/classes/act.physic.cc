@@ -286,7 +286,7 @@ ACMD(do_lecture)
 		percent += 20;
 	if( AFF_FLAGGED(vict, AFF_ADRENALINE) )
 		percent += 20;
-	if( IS_AFFECTED_2(vict, AFF2_BESERK) )
+	if( IS_AFFECTED_2(vict, AFF2_BERSERK) )
 		percent += 50;
 
 

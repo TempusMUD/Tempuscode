@@ -281,7 +281,7 @@ affect_update(void)
 	static struct affected_type *af, *next;
 	static struct Creature *i;
 	int found = 0;
-	char assimilate_found = 0, beserk_found = 0,
+	char assimilate_found = 0, berserk_found = 0,
 		kata_found = 0, hamstring_found = 0;
 	int METABOLISM = 0;
 	ACMD(do_stand);
@@ -290,7 +290,7 @@ affect_update(void)
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 
-		hamstring_found = kata_found = beserk_found = assimilate_found = 0;
+		hamstring_found = kata_found = berserk_found = assimilate_found = 0;
 
 		if (affected_by_spell(i, SPELL_METABOLISM))
 			METABOLISM = 1;
@@ -375,8 +375,8 @@ affect_update(void)
 					}
 				}
 				// skill-specific messages here
-				else if (af->type == SKILL_BESERK)
-					beserk_found++;
+				else if (af->type == SKILL_BERSERK)
+					berserk_found++;
 				else if (af->type == SKILL_KATA)
 					kata_found++;
 				else if (af->type == SKILL_ASSIMILATE)
@@ -394,8 +394,8 @@ affect_update(void)
 					assimilate_found,
 					assimilate_found > 1 ? "s have" : " has");
 			}
-			if (beserk_found)
-				send_to_char(i, "You are no longer beserk.\r\n");
+			if (berserk_found)
+				send_to_char(i, "You are no longer berserk.\r\n");
 			if (kata_found)
 				send_to_char(i, "Your kata has worn off.\r\n");
 			if (hamstring_found)
@@ -2868,7 +2868,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_MELATONIC_FLOOD:
 		spell = SPELL_MOTOR_SPASM;
 		spell2 = SPELL_ADRENALINE;
-		spell3 = SKILL_BESERK;
+		spell3 = SKILL_BERSERK;
 		break;
 	case SPELL_INTELLECT:
 		spell = SPELL_CONFUSION;

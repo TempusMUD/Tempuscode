@@ -1534,14 +1534,14 @@ mobile_activity(void)
 			continue;
 
 		//
-		// barbs go BESERK (berserk)
+		// barbs go BERSERK (berserk)
 		//
 
-		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AFF2_FLAGGED(ch, AFF2_BESERK) &&
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AFF2_FLAGGED(ch, AFF2_BERSERK) &&
 			!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 
 			int return_flags = 0;
-			if (perform_barb_beserk(ch, 0, &return_flags))
+			if (perform_barb_berserk(ch, 0, &return_flags))
 				continue;
 		}
 		//

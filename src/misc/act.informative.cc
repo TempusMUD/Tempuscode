@@ -2320,8 +2320,8 @@ affs_to_str(struct Creature *ch, byte mode)
 		else
 			str = tmp_strcat(str, "A sickly light is following you.\r\n");
 	}
-	if (IS_AFFECTED_2(ch, AFF2_BESERK))
-		str = tmp_strcat(str, "You are BESERK!\r\n");
+	if (IS_AFFECTED_2(ch, AFF2_BERSERK))
+		str = tmp_strcat(str, "You are BERSERK!\r\n");
 	if (IS_AFFECTED(ch, AFF_PROTECT_GOOD))
 		str = tmp_strcat(str, "You are protected from good.\r\n");
 	if (IS_AFFECTED(ch, AFF_PROTECT_EVIL))

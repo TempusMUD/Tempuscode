@@ -777,8 +777,8 @@ ACMD(do_meditate)
 		send_to_char(ch, "You are not in the proper position to meditate.\r\n");
 	else if (IS_AFFECTED(ch, AFF_POISON))
 		send_to_char(ch, "You cannot meditate while you are poisoned!\r\n");
-	else if (IS_AFFECTED_2(ch, AFF2_BESERK))
-		send_to_char(ch, "You cannot meditate while BESERK!\r\n");
+	else if (IS_AFFECTED_2(ch, AFF2_BERSERK))
+		send_to_char(ch, "You cannot meditate while BERSERK!\r\n");
 	else {
 		send_to_char(ch, "You begin to meditate.\r\n");
 		MEDITATE_TIMER(ch) = 0;

@@ -219,9 +219,9 @@ Creature::getDamReduction(Creature *attacker)
 	}
 	//**************************** Berserk *****************************
 	//******************************************************************
-	if (IS_AFFECTED_2(ch, AFF2_BESERK)) {
+	if (IS_AFFECTED_2(ch, AFF2_BERSERK)) {
 		if (IS_BARB(ch))
-			dam_reduction += (ch->getLevelBonus(SKILL_BESERK)) / 6;
+			dam_reduction += (ch->getLevelBonus(SKILL_BERSERK)) / 6;
 		else
 			dam_reduction += 7;
 	}

@@ -2091,8 +2091,8 @@ ACMD(do_rest)
 
 ACMD(do_sleep)
 {
-	if (IS_AFFECTED_2(ch, AFF2_BESERK)) {
-		send_to_char(ch, "What, sleep while in a beserk rage??\r\n");
+	if (IS_AFFECTED_2(ch, AFF2_BERSERK)) {
+		send_to_char(ch, "What, sleep while in a berserk rage??\r\n");
 		return;
 	}
 	if (AFF_FLAGGED(ch, AFF_ADRENALINE)) {

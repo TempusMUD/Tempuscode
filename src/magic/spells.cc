@@ -2848,7 +2848,7 @@ ASPELL(spell_animate_dead)
 	if (isname(GET_NAME(zombie), "headless"))
 		SET_BIT(AFF2_FLAGS(zombie), AFF2_NECK_PROTECTED);
 
-	REMOVE_BIT(AFF2_FLAGS(zombie), AFF2_BESERK);
+	REMOVE_BIT(AFF2_FLAGS(zombie), AFF2_BERSERK);
 
 	//
 	// transfer equipment and delete the corpse

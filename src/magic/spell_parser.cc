@@ -357,7 +357,7 @@ const char *spells[] = {
 	"sleeper",
 	"elbow",
 	"kneethrust",
-	"beserk",					/* 515 */
+	"berserk",					/* 515 */
 	"stomp",
 	"bodyslam",
 	"choke",
@@ -3655,7 +3655,7 @@ mag_assign_spells(void)
 	spello(SKILL_AUTOPSY, X, X, X, 1, X, X, X, 40, X, 36, X, X, X, 10, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	spello(SKILL_BESERK, X, X, X, 1, 22, X, X, X, X, X, X, X, X, X, X, X, X,
+	spello(SKILL_BERSERK, X, X, X, 1, 22, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, MAG_BIOLOGIC);
 
 	spello(SKILL_BATTLE_CRY, X, X, X, 1, 33, X, X, X, X, X, X, X, X, X, X, X,

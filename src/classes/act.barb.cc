@@ -32,7 +32,7 @@ ACMD(do_charge)
 	struct affected_type af;
 	struct Creature *vict = NULL;
 	one_argument(argument, buf);
-	// Check for beserk.
+	// Check for berserk.
 	// 
 
 	if (CHECK_SKILL(ch, SKILL_CHARGE) < 50) {
@@ -67,7 +67,7 @@ ACMD(do_charge)
 }
 
 //
-// perform_barb_beserk randomly selects and attacks somebody in the room
+// perform_barb_berserk randomly selects and attacks somebody in the room
 // who_was attacked is used to return a pointer to the person attacked
 // precious_ch is never attacked
 // sets return_flags value like damage() retval
@@ -75,7 +75,7 @@ ACMD(do_charge)
 //
 
 int
-perform_barb_beserk(struct Creature *ch, struct Creature **who_was_attacked,
+perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
 	//struct Creature *precious_ch,
 	int *return_flags)
 {
@@ -101,10 +101,10 @@ perform_barb_beserk(struct Creature *ch, struct Creature **who_was_attacked,
 				break;
 			}
 		}
-		act("You go beserk and attack $N!", FALSE, ch, 0, vict, TO_CHAR);
-		act("$n attacks $N in a BESERK rage!!", FALSE, ch, 0, vict,
+		act("You go berserk and attack $N!", FALSE, ch, 0, vict, TO_CHAR);
+		act("$n attacks $N in a BERSERK rage!!", FALSE, ch, 0, vict,
 			TO_NOTVICT);
-		act("$n attacks you in a BESERK rage!!", FALSE, ch, 0, vict, TO_VICT);
+		act("$n attacks you in a BERSERK rage!!", FALSE, ch, 0, vict, TO_VICT);
 		*return_flags = hit(ch, vict, TYPE_UNDEFINED);
 
 		if (!IS_SET(*return_flags, DAM_VICT_KILLED) && who_was_attacked)
@@ -122,33 +122,33 @@ ACMD(do_corner)
 	return;
 }
 
-ACMD(do_beserk)
+ACMD(do_berserk)
 {
 	struct affected_type af, af2, af3;
 	byte percent;
 	percent = (number(1, 101) - GET_LEVEL(ch));
 
-	if (IS_AFFECTED_2(ch, AFF2_BESERK)) {
-		if (percent > CHECK_SKILL(ch, SKILL_BESERK)) {
+	if (IS_AFFECTED_2(ch, AFF2_BERSERK)) {
+		if (percent > CHECK_SKILL(ch, SKILL_BERSERK)) {
 			send_to_char(ch, "You cannot calm down!!\r\n");
 			return;
 		} else {
-			affect_from_char(ch, SKILL_BESERK);
-			send_to_char(ch, "You are no longer beserk.\r\n");
+			affect_from_char(ch, SKILL_BERSERK);
+			send_to_char(ch, "You are no longer berserk.\r\n");
 			act("$n calms down by taking deep breaths.", TRUE, ch, 0, 0,
 				TO_ROOM);
 		}
 		return;
-	} else if (CHECK_SKILL(ch, SKILL_BESERK) > number(0, 101)) {
+	} else if (CHECK_SKILL(ch, SKILL_BERSERK) > number(0, 101)) {
 		if (GET_MANA(ch) < 50) {
 			send_to_char(ch, "You cannot summon the energy to do so.\r\n");
 			return;
 		}
 		af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
 		af.is_instant = af2.is_instant = af3.is_instant = 0;
-		af.type = SKILL_BESERK;
-		af2.type = SKILL_BESERK;
-		af3.type = SKILL_BESERK;
+		af.type = SKILL_BERSERK;
+		af2.type = SKILL_BERSERK;
+		af3.type = SKILL_BERSERK;
 		af.duration = MAX(2, 20 - GET_INT(ch));
 		af2.duration = af.duration;
 		af3.duration = af.duration;
@@ -159,15 +159,15 @@ ACMD(do_beserk)
 		af2.modifier = -(5 + (GET_LEVEL(ch) >> 5));
 		af3.modifier = (2 + GET_REMORT_GEN(ch) + (GET_LEVEL(ch) >> 4));
 		af.aff_index = 2;
-		af.bitvector = AFF2_BESERK;
+		af.bitvector = AFF2_BERSERK;
 		af2.bitvector = 0;
 		af3.bitvector = 0;
 		affect_to_char(ch, &af);
 		affect_to_char(ch, &af2);
 		affect_to_char(ch, &af3);
 
-		send_to_char(ch, "You go BESERK!\r\n");
-		act("$n goes BESERK! Run for cover!", TRUE, ch, 0, ch, TO_ROOM);
+		send_to_char(ch, "You go BERSERK!\r\n");
+		act("$n goes BERSERK! Run for cover!", TRUE, ch, 0, ch, TO_ROOM);
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == (*it) || !CAN_SEE(ch, (*it)) ||
@@ -177,14 +177,14 @@ ACMD(do_beserk)
 				(!IS_NPC((*it)) && IS_REMORT(ch) &&
 					!PLR_FLAGGED((*it), PLR_REMORT_TOUGHGUY)))
 				continue;
-			if (percent < CHECK_SKILL(ch, SKILL_BESERK))
+			if (percent < CHECK_SKILL(ch, SKILL_BERSERK))
 				continue;
 			else {
-				act("You attack $N in your beserk rage!!!",
+				act("You attack $N in your berserk rage!!!",
 					FALSE, ch, 0, (*it), TO_CHAR);
-				act("$n attacks you in $s beserk rage!!!",
+				act("$n attacks you in $s berserk rage!!!",
 					FALSE, (*it), 0, ch, TO_CHAR);
-				act("$n attacks $N in $s beserk rage!!!",
+				act("$n attacks $N in $s berserk rage!!!",
 					TRUE, ch, 0, (*it), TO_ROOM);
 				hit(ch, (*it), TYPE_UNDEFINED);
 				break;
