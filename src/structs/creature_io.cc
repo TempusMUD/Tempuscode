@@ -410,11 +410,11 @@ Creature::saveToXML()
 	// we restore the eq and affects
 	for (pos = 0;pos < NUM_WEARS;pos++) {
 		if (GET_EQ(this, pos))
-			saved_eq[pos] = unequip_char(this, pos, MODE_EQ);
+			saved_eq[pos] = unequip_char(this, pos, MODE_EQ, true);
 		else
 			saved_eq[pos] = NULL;
 		if (GET_IMPLANT(this, pos))
-			saved_impl[pos] = unequip_char(this, pos, MODE_IMPLANT);
+			saved_impl[pos] = unequip_char(this, pos, MODE_IMPLANT, true);
 		else
 			saved_impl[pos] = NULL;
 	}
@@ -559,10 +559,12 @@ Creature::saveToXML()
 			cur_aff->bitvector,
 			cur_aff->aff_index );
 
-	for (idx = 0;idx < MAX_SKILLS;idx++)
-		if (ch->player_specials->saved.skills[idx] > 0)
-			fprintf(ouf, "<skill name=\"%s\" level=\"%d\"/>\n",
-				spell_to_str(idx), GET_SKILL(ch, idx));
+	if (GET_LEVEL(ch) < 50) {
+		for (idx = 0;idx < MAX_SKILLS;idx++)
+			if (ch->player_specials->saved.skills[idx] > 0)
+				fprintf(ouf, "<skill name=\"%s\" level=\"%d\"/>\n",
+					spell_to_str(idx), GET_SKILL(ch, idx));
+	}
 
 	fprintf(ouf, "</creature>\n");
 	fclose(ouf);
@@ -590,6 +592,7 @@ Creature::loadFromXML( long id )
 bool
 Creature::loadFromXML( const char *path )
 {
+	int idx;
     
 	if( access(path, W_OK) ) {
 		slog("SYSERR: Unable to open xml player file '%s': %s", path, strerror(errno) );
@@ -870,6 +873,11 @@ Creature::loadFromXML( const char *path )
 		GET_MANA(this) = GET_MAX_MANA(this);
 	}
 
+	if (GET_LEVEL(this) >= 50) {
+		for (idx = 0;idx < MAX_SKILLS;idx++)
+			if (player_specials->saved.skills[idx] < 100)
+				player_specials->saved.skills[idx] = 100;
+	}
 	//read_alias(ch);
     return true;
 }
