@@ -689,32 +689,32 @@ find_char_class_bitvector(char arg)
 void
 roll_real_abils(struct Creature *ch)
 {
-	int i, j, k, temp;
+	int i, j, k;
 	ubyte table[6];
-	ubyte rolls[4];
 	// Zero out table
 	for (i = 0; i < 6; i++) {
-		table[i] = 0;
+		table[i] = 11;
 	}
 
-	// Roll the dice best 3 out of four, ordered highest to lowest
-	for (i = 0; i < 6; i++) {
-		for (j = 0; j < 4; j++) {
-			rolls[j] = number(1, 6);
-		}
+	// Increment and decrement randomly
+	for (i = 0; i < 24; i++) {
+		do { j = number(0, 5); } while (table[j] == 18);
+		table[j] += 1;
+		do { j = number(0, 5); } while (table[j] == 3);
+		table[j] -= 1;
+	}
 
-		temp = rolls[0] + rolls[1] + rolls[2] + rolls[3] -
-			MIN(rolls[0], MIN(rolls[1], MIN(rolls[2], rolls[3])));
 
-		for (k = 0; k < 6; k++) {
-			if (table[k] < temp) {
-				temp ^= table[k];
-				table[k] ^= temp;
-				temp ^= table[k];
+	// Sort the table
+	for (j = 0;j < 6;j++) {
+		for (k = j; k < 6; k++) {
+			if (table[k] > table[j]) {
+				table[j] ^= table[k];
+				table[k] ^= table[j];
+				table[j] ^= table[k];
 			}
 		}
 	}
-
 	ch->real_abils.str_add = 0;
 
 	switch (GET_CLASS(ch)) {
