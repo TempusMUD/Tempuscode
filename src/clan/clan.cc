@@ -1442,6 +1442,9 @@ delete_clan(struct clan_data *clan)
 		clan->room_list = rm_list->next;
 		free(rm_list);
 	}
+	sql_exec("delete from clan_rooms where clan=%d", clan->number);
+	sql_exec("delete from clan_members where clan=%d", clan->number);
+	sql_exec("delete from clan_ranks where clan=%d", clan->number);
 	sql_exec("delete from clans where idnum=%d", clan->number);
 
 	free(clan);
