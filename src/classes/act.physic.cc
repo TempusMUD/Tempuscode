@@ -821,7 +821,8 @@ ACMD( do_econvert ) {
 
     struct obj_data *obj = 0;
     struct obj_data *battery = 0;
-    char arg1[ MAX_INPUT_LENGTH ], arg2[ MAX_INPUT_LENGTH ];
+    char arg1[ MAX_INPUT_LENGTH ], arg2[ MAX_INPUT_LENGTH ],arg3[ MAX_INPUT_LENGTH ];
+
     int num_points = 0;
     int i;
 	int wait;
@@ -846,18 +847,24 @@ ACMD( do_econvert ) {
 
     // check for a battery to store in
     if ( *arg2 ) {
-	
-	if ( ! ( battery = get_object_in_equip_vis( ch, arg2, ch->equipment, &i ) ) &&
-	     ! ( battery = get_obj_in_list_vis( ch, arg2, ch->carrying ) ) ) {
-	    sprintf( buf2, "You don't seem to have %s '%s' to store the energy in.\r\n", AN(arg2), arg2);
-	    send_to_char(buf2, ch);
-	    return;
-	}
-    
-	if ( !IS_BATTERY( battery ) ) {
-	    act( "Sorry, $p is not a battery.",  FALSE, ch, battery, 0, TO_CHAR);
-	    return;
-	}
+        argument = one_argument( argument, arg3 );
+        // Is it an internal energy destination?
+        if (!strcmp(arg2,"internal") && *arg3 &&
+            ( battery = get_object_in_equip_vis( ch, arg3, ch->implants, &i ) ) ) {
+
+        } else if ( ( battery = get_object_in_equip_vis( ch, arg2, ch->equipment, &i ) ) ||
+             ( battery = get_obj_in_list_vis( ch, arg2, ch->carrying ) ) ) {
+
+        } else {
+            sprintf( buf2, "You don't seem to have %s '%s' to store the energy in.\r\n", AN(arg2), arg2);
+            send_to_char(buf2, ch);
+            return;
+        }
+        
+        if ( !IS_BATTERY( battery ) ) {
+            act( "Sorry, $p is not a battery.",  FALSE, ch, battery, 0, TO_CHAR);
+            return;
+        }
     }
 
     // how many points is this worth?
@@ -877,21 +884,21 @@ ACMD( do_econvert ) {
     extract_obj( obj );
 
     if ( battery ) {
-	if ( CUR_ENERGY( battery ) >= MAX_ENERGY( battery ) ) {
-	    act( "The newly converted energy dissipates into the void, because\r\n"
-		 "$p is already maxed out.", FALSE, ch, battery, 0, TO_CHAR );
-	    return;
-	}
-	
-	num_points = MIN( num_points, MAX_ENERGY( battery ) - CUR_ENERGY( battery ) );
-	CUR_ENERGY( battery ) += num_points;
-	sprintf( buf, "You have increased $n's energy level by %d to %d units.", 
-		 num_points, CUR_ENERGY( battery ) );
-	act( buf, FALSE, ch, battery, 0, TO_CHAR );
-	
-	if ( num_points > number( 50, 300 ) )
-	    gain_skill_prof( ch, SKILL_ENERGY_CONVERSION );
-	return;
+        if ( CUR_ENERGY( battery ) >= MAX_ENERGY( battery ) ) {
+            act( "The newly converted energy dissipates into the void, because\r\n"
+             "$p is already maxed out.", FALSE, ch, battery, 0, TO_CHAR );
+            return;
+        }
+        
+        num_points = MIN( num_points, MAX_ENERGY( battery ) - CUR_ENERGY( battery ) );
+        CUR_ENERGY( battery ) += num_points;
+        sprintf( buf, "You have increased $p's energy level by %d to %d units.", 
+             num_points, CUR_ENERGY( battery ) );
+        act( buf, FALSE, ch, battery, 0, TO_CHAR );
+        
+        if ( num_points > number( 50, 300 ) )
+            gain_skill_prof( ch, SKILL_ENERGY_CONVERSION );
+        return;
     }
     
     if ( GET_MANA( ch ) >= GET_MAX_MANA( ch ) ) {
