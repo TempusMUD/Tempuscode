@@ -48,19 +48,28 @@ appear(struct Creature *ch, struct Creature *vict)
 	int found = 0;
 	//  int could_see = can_see_creature( vict, ch );
 
-	if (!AFF_FLAGGED(vict, AFF_DETECT_INVIS)) {
-		if (affected_by_spell(ch, SPELL_INVISIBLE)) {
-			affect_from_char(ch, SPELL_INVISIBLE);
-			send_to_char(ch, "Your invisibility spell has expired.\r\n");
-			found = 1;
-		}
-		if (affected_by_spell(ch, SPELL_TRANSMITTANCE)) {
-			affect_from_char(ch, SPELL_TRANSMITTANCE);
-			send_to_char(ch, "Your transparency has expired.\r\n");
-			found = 1;
-		}
-	}
+    // Sonic imagery and retina detects transparent creatures
+	if (affected_by_spell(ch, SPELL_TRANSMITTANCE) &&
+    !affected_by_spell(ch, SPELL_DIMENSIONAL_SHIFT) &&
+    !(IS_AFFECTED_3(vict, AFF3_SONIC_IMAGERY) ||
+    IS_AFFECTED(vict, AFF_RETINA) ||
+    affected_by_spell(vict, ZEN_AWARENESS)))
+    {
+        affect_from_char(ch, SPELL_TRANSMITTANCE);
+        send_to_char(ch, "Your transparency has expired.\r\n");
+        found = 1;
+    }
 
+	// True seeing and detect invisibility counteract all magical invis
+	if (affected_by_spell(ch, SPELL_INVISIBLE) &&
+    (IS_AFFECTED_2(vict, AFF2_TRUE_SEEING) ||
+    AFF_FLAGGED(vict, AFF_DETECT_INVIS)))
+    {
+        affect_from_char(ch, SPELL_INVISIBLE);
+        send_to_char(ch, "Your invisibility spell has expired.\r\n");
+        found = 1;
+    }
+	
 	if (IS_ANIMAL(vict) && affected_by_spell(ch, SPELL_ANIMAL_KIN)) {
 		affect_from_char(ch, SPELL_ANIMAL_KIN);
 		send_to_char(ch, "You no longer feel kinship with animals.\r\n");

@@ -406,7 +406,10 @@ const char *spells[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 485 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 490 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 495 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 500 */
+	"!UNUSED!", "!UNUSED!", 
+    "dimensional shift", 
+    "dimensional void", //negative effects from dimensional shift interaction 
+    "!UNUSED!",	/* 500 */
 	/* SKILLS */
 
 	"backstab",					/* 501 */
@@ -3716,6 +3719,11 @@ mag_assign_spells(void)
 		X, X, 150, 70, 10, POS_FIGHTING, TAR_IGNORE, TRUE,
 		MAG_PHYSICS | MAG_AREAS);
 
+    //not a castable spell but we want nullphy to get rid of it
+    spello(SPELL_DIMENSIONAL_VOID, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
+		X, X, 0, 0, 0, POS_FIGHTING, TAR_IGNORE, TRUE,
+		MAG_PHYSICS);
+
 //	spello(SKILL_AMBUSH, X, X, X, X, X, X, X, X, X, 29, 12, X, X, 39, X, X, X,
 	spello(SKILL_AMBUSH, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, POS_STANDING, TAR_IGNORE, true, MAG_MANUAL);
@@ -4046,6 +4054,10 @@ mag_assign_spells(void)
 	remort_spello(SKILL_WORMHOLE, CLASS_PHYSIC, 30, 1, 50, 20, 2, 0, 0, 0, 0);
 
     remort_spello(SPELL_GAUSS_SHIELD, CLASS_PHYSIC, 32, 3, 90, 70, 1,
+                  POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
+                  MAG_PHYSICS | MAG_AFFECTS);
+                  
+    remort_spello(SPELL_DIMENSIONAL_SHIFT, CLASS_PHYSIC, 35, 4, 100, 65, 3,
                   POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
                   MAG_PHYSICS | MAG_AFFECTS);
 

@@ -380,6 +380,8 @@ static const int SPELL_EMP_PULSE = 342;	// Shuts off devices, communicators
 static const int SPELL_QUANTUM_RIFT = 343;	// Shuts off devices, communicators
 static const int SPELL_ITEM_REPULSION_FIELD = 344;
 static const int SPELL_ITEM_ATTRACTION_FIELD = 345;
+static const int SPELL_DIMENSIONAL_SHIFT = 498; //added at top of spells to avoid interference with future bard songs
+static const int SPELL_DIMENSIONAL_VOID = 499; //This is the negative affect thrown by dimensional shift
 
 // *********************** Bard songs HERE man
 

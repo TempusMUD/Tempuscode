@@ -952,6 +952,89 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
         }
     }
 
+    // Dimensional Shift
+    if (ch && attacktype != SKILL_ENERGY_WEAPONS &&
+    attacktype != SKILL_ARCHERY &&
+    attacktype != SKILL_PROJ_WEAPONS &&
+    !SPELL_IS_PSIONIC(attacktype) &&
+    !SPELL_IS_BARD(attacktype) &&
+    !SPELL_IS_PHYSICS(attacktype) &&
+    !SPELL_IS_MAGIC(attacktype)) {
+        
+        struct affected_type *paf;
+        if ((paf = affected_by_spell(victim, SPELL_DIMENSIONAL_SHIFT)) &&
+        !mag_savingthrow(ch, GET_LEVEL(ch), SAVING_PHY) &&
+        !number(0,100)) { //1% chance of working
+            paf->duration--;
+            
+            char *buf = "You become caught in a dimensional void trying to reach $N!";
+            act(buf, false, ch, NULL, victim, TO_CHAR);
+            
+            act("$n becomes caught in a dimensional void trying to reach $N!", 
+            false, ch, NULL, victim, TO_NOTVICT);
+            
+            buf = "$N becomes caught in a dimensional void trying to reach you!";
+            act(buf, false, victim, NULL, ch, TO_CHAR);
+            
+            //ok they hit the void and don't manage to land the attack
+            //now, does anything else happen to them?
+            
+            struct affected_type shiftAf;
+            shiftAf.is_instant = 0;
+            shiftAf.bitvector = 0;
+            shiftAf.location = APPLY_NONE;
+            shiftAf.modifier = 0;
+            shiftAf.aff_index = 0;
+            shiftAf.owner = victim->getIdNum();
+            shiftAf.duration = 0;
+            shiftAf.level = victim->getLevelBonus(SPELL_DIMENSIONAL_SHIFT);
+            shiftAf.type = SPELL_DIMENSIONAL_VOID;
+            bool applyAffect = false;
+            
+            if (victim->isOkToAttack(ch)) {
+                switch (number(0,14)) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    act("You become disoriented!", false, ch, NULL, victim, TO_CHAR);
+                    act("$n becomes disoriented!", false, ch, NULL, victim, TO_ROOM);
+                    shiftAf.location = APPLY_DEX;
+                    shiftAf.modifier = -(1+victim->getLevelBonus(SPELL_DIMENSIONAL_SHIFT)/40);
+                    shiftAf.duration = number(1,-shiftAf.modifier);
+                    applyAffect = true;
+                    break;
+                    case 4:
+                    case 5:
+                    case 6:
+                    act("You lose your footing and fall down!", false, ch, NULL, victim, TO_CHAR);
+                    act("$n stumbles and falls down!", false, ch, NULL, victim, TO_ROOM);
+                    ch->setPosition(POS_SITTING);
+                    break;
+                    case 7:
+                    case 8:
+                    act("The interdimensional vastness is too much for your mind to handle!", false, ch, NULL, victim, TO_CHAR);
+                    act("$n looks dazed and confused.", false, ch, NULL, victim, TO_ROOM);
+                    shiftAf.bitvector = AFF_CONFUSION;
+                    shiftAf.duration = 1+victim->getLevelBonus(SPELL_DIMENSIONAL_SHIFT)/40;
+                    shiftAf.aff_index = 1;
+                    applyAffect = true;
+                    break;
+                    //9-14 no extra affect
+                }
+                WAIT_STATE(ch, 2 RL_SEC); //couple seconds to recover from the experience
+                if (applyAffect) {
+                    affect_join(ch, &shiftAf, true, false, true, false);
+                }
+                
+                ch->addCombat(victim, true);
+                victim->addCombat(ch, false);
+            }
+            
+            DAM_RETURN(DAM_ATTACK_FAILED);
+        }
+    } // end dimensional shift
+			
 	/** check for armor **/
 	if (location != -1) {
 

@@ -647,6 +647,9 @@ desc_char_trailers(Creature *ch, Creature *i)
     if (affected_by_spell(i, SONG_MIRROR_IMAGE_MELODY))
         acc_strcat("...", HSSH(i), " is surrounded by mirror images.\r\n", NULL);
 
+    if (affected_by_spell(i, SPELL_DIMENSIONAL_SHIFT))
+        acc_strcat("...", HSSH(i), " is shifted into a parallel dimension.\r\n", NULL);
+
 	return acc_get_string();
 }
 
@@ -2496,6 +2499,10 @@ acc_append_affects(struct Creature *ch, byte mode)
         acc_strcat("You are protected from electromagnetic attacks.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_GAUSS_SHIELD))
         acc_strcat("You feel somewhat protected from metal.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_DIMENSIONAL_SHIFT))
+        acc_strcat("You are traversing a parallel dimension.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_DIMENSIONAL_VOID))
+        acc_strcat("You are disoriented from your foray into the interdimensional void!\r\n", NULL);
 
 	if (IS_AFFECTED_3(ch, AFF3_DAMAGE_CONTROL))
 		acc_strcat("Your Damage Control process is running.\r\n", NULL);

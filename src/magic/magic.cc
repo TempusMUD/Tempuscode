@@ -2098,7 +2098,14 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
                               ch->getLevelBonus(SPELL_TEMPORAL_DILATION) / 25);
 		to_vict = "Time seems to speed up around you as your movements slow to a crawl.";
 		break;
-
+        
+    case SPELL_DIMENSIONAL_SHIFT:
+        af.duration = number(1+ch->getLevelBonus(SPELL_DIMENSIONAL_SHIFT)/15,
+                            1+ch->getLevelBonus(SPELL_DIMENSIONAL_SHIFT)/9);
+        af.aff_index = 0;
+        to_vict = "You step into an infinitesimally different plane of the multiverse.";
+        break;
+        
 	case SPELL_TAINT:
 		if (HAS_SYMBOL(victim)) {
 			send_to_char(ch, "Your rune of taint fails to form.\r\n");
