@@ -18,6 +18,8 @@
 #include <iostream>
 #include <fstream>
 #include <list>
+#include <vector>
+#include <algorithm>
 #include <string.h>
 using namespace std;
 
@@ -4102,52 +4104,88 @@ show_zoneusage(Creature *ch, char *value)
     page_string(ch->desc, buf);
 }
 
+bool 
+zoneEntryLessThan(const struct zone_data* a, const struct zone_data* b)
+{
+   return a->enter_count < b->enter_count;
+}
+
 void
 show_topzones(Creature *ch, char *value)
 {
-    int i, j, num_zones = 50;
-    struct zone_data *zone, **topzones = NULL;
-
-    skip_spaces(&value);
-
-    if (*value)
-        num_zones = atoi(value);
-
-    num_zones = MIN(top_of_zone_table, num_zones);
-
-    if (!(topzones =
-            (struct zone_data **)malloc(num_zones *
-                sizeof(struct zone_data *)))) {
-        send_to_char(ch, "Allocation error.\r\n");
-        return;
+    int i, num_zones = 0;
+    struct zone_data *zone; 
+    vector<zone_data*> zone_list;
+    
+    char *temp = NULL;
+    char *lower = tmp_tolower(value);
+    int lessThan=INT_MAX, greaterThan=-1; 
+    bool reverse = false;
+    
+    temp = strstr(lower, "limit ");
+    if (temp && strlen(temp) > 6) {
+        num_zones = atoi(temp+6);
     }
-
-    for (i = 0; i < num_zones; i++) {
-        topzones[i] = zone_table;
-        for (zone = zone_table; zone; zone = zone->next)
-            if (zone->enter_count >= topzones[i]->enter_count &&
-                zone->number < 700) {
-                for (j = 0; j < i; j++)
-                    if (topzones[j] == zone)
-                        break;
-
-                if (j == i)
-                    topzones[j] = zone;
-            }
+    temp = NULL;
+    if (!num_zones) {
+        if (ch && ch->desc && ch->desc->account)
+            num_zones = ch->desc->account->get_term_height()-3;
+        else
+            num_zones = 50;
     }
+    
+    temp = strstr(lower, ">");
+    if (temp && strlen(temp) > 1) {
+        greaterThan = atoi(temp+1);
+    }
+    temp = NULL;
+    temp = strstr(lower, "<");
+    if (temp && strlen(temp) > 1) {
+        lessThan = atoi(temp+1);
+    }
+    temp = NULL;
+    
+    temp = strstr(lower, "reverse");
+    if (temp) {
+        reverse = true;
+    }
+    temp = NULL;
+    
+    
+    for (i=0, zone=zone_table; i < top_of_zone_table; zone = zone->next, i++) {
+        if (zone->enter_count > greaterThan && zone->enter_count < lessThan
+                && zone->number < 700) {
+            zone_list.push_back(zone);
+        }
+    }
+    
+    sort(zone_list.begin(), zone_list.end(), zoneEntryLessThan);
+    
+    num_zones = MIN((int)zone_list.size(), num_zones);
 
-    sprintf(buf, "TOP %d zones:\r\n", num_zones);
+    sprintf(buf, "Usage Options: [limit #] [>#] [<#] [reverse]\r\nTOP %d zones:\r\n", num_zones);
 
-    for (i = 0; i < num_zones; i++)
-        sprintf(buf,
-            "%s%2d.[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s accesses.  Owner: %s%s%s\r\n",
-            buf, i, CCYEL(ch, C_NRM), topzones[i]->number, CCNRM(ch, C_NRM),
-            CCCYN(ch, C_NRM), topzones[i]->name, CCNRM(ch, C_NRM), CCGRN(ch,
-                C_NRM), CCNRM(ch, C_NRM), topzones[i]->enter_count, CCGRN(ch,
-                C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
-            playerIndex.getName(topzones[i]->owner_idnum), CCNRM(ch, C_NRM));
-
-    free(topzones);
+    
+    if (reverse) {
+        for (i = 0; i < num_zones; i++)
+            sprintf(buf,
+        "%s%2d.[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s accesses.  Owner: %s%s%s\r\n",
+        buf, i+1, CCYEL(ch, C_NRM), zone_list[i]->number, CCNRM(ch, C_NRM),
+        CCCYN(ch, C_NRM), zone_list[i]->name, CCNRM(ch, C_NRM), CCGRN(ch,
+        C_NRM), CCNRM(ch, C_NRM), zone_list[i]->enter_count, CCGRN(ch,
+        C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+        playerIndex.getName(zone_list[i]->owner_idnum), CCNRM(ch, C_NRM));
+    } else {
+        for (i = zone_list.size()-1; i >= (int)zone_list.size()-num_zones; i--)
+            sprintf(buf,
+        "%s%2d.[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s accesses.  Owner: %s%s%s\r\n",
+        buf, zone_list.size()-i, CCYEL(ch, C_NRM), zone_list[i]->number, CCNRM(ch, C_NRM),
+        CCCYN(ch, C_NRM), zone_list[i]->name, CCNRM(ch, C_NRM), CCGRN(ch,
+        C_NRM), CCNRM(ch, C_NRM), zone_list[i]->enter_count, CCGRN(ch,
+        C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+        playerIndex.getName(zone_list[i]->owner_idnum), CCNRM(ch, C_NRM));
+    }
+        
     page_string(ch->desc, buf);
 
 }
@@ -5089,7 +5127,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
     case 22:                    // topzones
-        show_topzones(ch, value);
+        show_topzones(ch, tmp_strcat(value, arg));
         break;
     case 23:                    /* nomaterial */
         strcpy(buf, "Objects without material types:\r\n");
