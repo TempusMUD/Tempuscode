@@ -7416,9 +7416,13 @@ ACMD(do_coderutil)
         send_to_char( ch, CODER_UTIL_USAGE );
         return;
     }
-    if (strcmp(token, "tick") == 0)
+    if (strcmp(token, "tick") == 0) {
         point_update();
-	if (strcmp(token, "recalc") == 0) {
+		send_to_char(ch, "*tick*\r\n");
+	} else if (strcmp(token, "sunday") == 0) {
+		last_sunday_time = time(0);
+		send_to_char(ch, "Ok, it's now Sunday (kinda).\r\n");
+	} else if (strcmp(token, "recalc") == 0) {
 		tokens.next(token);
 		recalc_all_mobs(ch, token);
 	} else
