@@ -124,65 +124,64 @@ int
 throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 {
 	room_num jail_cells[6] = { 10908, 10910, 10911, 10921, 10920, 10919 };
-	struct room_data *cell_rnum = NULL;
+	struct room_data *locker_room, *cell_room;
 	struct obj_data *locker = NULL, *torch = NULL, *obj = NULL, *next_obj =
 		NULL;
 	int i, count = 0, found = false;
 
 	while (count < 12) {
 		count++;
-		cell_rnum = real_room(jail_cells[number(0, 5)]);
-		if (cell_rnum == NULL || cell_rnum->people)
+		cell_room = real_room(jail_cells[number(0, 5)]);
+		if (cell_room == NULL || cell_room->people)
 			continue;
 
-		if (cell_rnum->people)
+		if (cell_room->people)
 			continue;
 	}
 
-	if (cell_rnum == NULL)
+	if (cell_room == NULL)
 		return 0;
 
-	for (locker = (real_room(ch->in_room->number + 1))->contents; locker;
-		locker = locker->next_content) {
-		if (GET_OBJ_VNUM(locker) == 3178 && !locker->contains) {
-			for (i = 0; i < NUM_WEARS; i++) {
-				if (GET_EQ(vict, i) && can_see_object(ch, GET_EQ(vict, i))) {
-					found = 1;
-					if (GET_OBJ_TYPE(GET_EQ(vict, i)) == ITEM_KEY &&
-						!GET_OBJ_VAL(GET_EQ(vict, i), 1))
-						extract_obj(GET_EQ(vict, i));
-					else if (IS_NPC(vict))
-						extract_obj(GET_EQ(vict, i));
-					else if (!IS_OBJ_STAT2(GET_EQ(vict, i), ITEM2_NOREMOVE) &&
-						!IS_OBJ_STAT(GET_EQ(vict, i), ITEM_NODROP))
-						obj_to_obj(unequip_char(vict, i, MODE_EQ), locker);
-				}
+	locker_room = real_room(ch->in_room->number + 1);
+	if (locker_room)
+		locker = read_object(3178);
+	if (locker && locker_room) {
+		obj_to_room(locker, locker_room);
+
+		for (i = 0; i < NUM_WEARS; i++) {
+			if (GET_EQ(vict, i) && can_see_object(ch, GET_EQ(vict, i))) {
+				found = 1;
+				if (GET_OBJ_TYPE(GET_EQ(vict, i)) == ITEM_KEY &&
+					!GET_OBJ_VAL(GET_EQ(vict, i), 1))
+					extract_obj(GET_EQ(vict, i));
+				else if (IS_NPC(vict))
+					extract_obj(GET_EQ(vict, i));
+				else if (!IS_OBJ_STAT2(GET_EQ(vict, i), ITEM2_NOREMOVE) &&
+					!IS_OBJ_STAT(GET_EQ(vict, i), ITEM_NODROP))
+					obj_to_obj(unequip_char(vict, i, MODE_EQ), locker);
 			}
-			for (obj = vict->carrying; obj; obj = next_obj) {
-				next_obj = obj->next_content;
-				if (!IS_OBJ_STAT(obj, ITEM_NODROP) && can_see_object(ch, obj)) {
-					found = 1;
-					if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1))
-						extract_obj(obj);
-					else if (IS_NPC(vict))
-						extract_obj(obj);
-					else if (!IS_OBJ_STAT(obj, ITEM_NODROP)) {
-						obj_from_char(obj);
-						obj_to_obj(obj, locker);
-					}
-				}
-			}
-			if (found) {
-				GET_OBJ_VAL(locker, 0) = GET_IDNUM(vict);
-				act("$n removes all your gear and stores it in a strongbox.",
-					false, ch, 0, vict, TO_VICT);
-				House* house = Housing.findHouseByRoom( locker->in_room->number );
-				if( house != NULL )
-					house->save();
-				ch->saveToXML();
-			}
-			break;
 		}
+		for (obj = vict->carrying; obj; obj = next_obj) {
+			next_obj = obj->next_content;
+			if (!IS_OBJ_STAT(obj, ITEM_NODROP) && can_see_object(ch, obj)) {
+				found = 1;
+				if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1))
+					extract_obj(obj);
+				else if (IS_NPC(vict))
+					extract_obj(obj);
+				else if (!IS_OBJ_STAT(obj, ITEM_NODROP)) {
+					obj_from_char(obj);
+					obj_to_obj(obj, locker);
+				}
+			}
+		}
+		GET_OBJ_VAL(locker, 0) = GET_IDNUM(vict);
+		act("$n removes all your gear and stores it in a strongbox.",
+			false, ch, 0, vict, TO_VICT);
+		House* house = Housing.findHouseByRoom( locker->in_room->number );
+		if( house != NULL )
+			house->save();
+		ch->saveToXML();
 	}
 
 	if (FIGHTING(ch))
@@ -196,9 +195,9 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 		ch, 0, vict, TO_VICT);
 
 	char_from_room(vict,false);
-	char_to_room(vict, cell_rnum,false);
+	char_to_room(vict, cell_room,false);
 	if (IS_NPC(vict))
-		cell_rnum->zone->enter_count++;
+		cell_room->zone->enter_count++;
 
 	look_at_room(vict, vict->in_room, 1);
 	act("$n is thrown into the cell, and the door slams shut behind $m!",
