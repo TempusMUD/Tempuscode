@@ -48,7 +48,7 @@ has_mail ( long id ) {
     if (!get_name_by_id(id))
         return 0;
     get_filename( get_name_by_id(id), fname, PLAYER_MAIL_FILE);
-    mail_file.open(fname, ios::in);
+    mail_file.open(fname, ios::in | ios::nocreate);
 
     if (!mail_file.is_open())
         return 0;
@@ -155,7 +155,7 @@ recieve_mail(char_data *ch) {
 
     get_filename(GET_NAME(ch), fname, PLAYER_MAIL_FILE);
 
-    mail_file.open(fname, ios::in);
+    mail_file.open(fname, ios::in | ios::nocreate);
 
     if (!mail_file.is_open()) {
         return 0;
