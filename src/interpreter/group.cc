@@ -185,10 +185,23 @@ namespace Security {
         sort( members.begin(), members.end() );
         return true;
     }
-
+	
+	bool Group::sendPublicMember( Creature *ch, char *dest, char* prefix ) {
+		if( members.size() == 0 )
+			return false;
+		const char* name = playerIndex.getName(members[0]);
+		if(!name) 
+			return false;
+		strcat(dest, prefix);
+		strcat(dest, CCYEL_BLD(ch,C_NRM) );
+		strcat(dest, tmp_capitalize(name) );
+		strcat(dest, CCNRM(ch,C_NRM) );
+		return true;
+	}
+	
     /* Sends a list of this group's members to the given character. */
     bool Group::sendPublicMemberList( Creature *ch, char *str, char* adminGroup ) {
-        vector<long>::iterator it = members.begin();
+        vector<long>::iterator it;
         int pos = 0;
 		const char *name;
 		Group* group = NULL;
@@ -197,11 +210,35 @@ namespace Security {
 			group = &( Security::getGroup(adminGroup) );
 
         strcat(str, "        ");
+
+		it = members.begin();
         for( ; it != members.end(); ++it ) {
 			name = playerIndex.getName(*it);
 			if (!name)
 				continue;
 			admin = (group != NULL) && (group->member(*it));
+			if(! admin )
+				continue;
+            strcat(str,
+				tmp_sprintf("%s%-15s%s", 
+					admin ? CCYEL_BLD(ch,C_NRM) : "", 
+					tmp_capitalize(name),
+					admin ? CCNRM(ch,C_NRM) : ""));
+			pos++;
+            if (pos > 3 ) {
+                pos = 0;
+                strcat(str,"\r\n        ");
+            } 
+        }
+
+		it = members.begin();
+        for( ; it != members.end(); ++it ) {
+			name = playerIndex.getName(*it);
+			if (!name)
+				continue;
+			admin = (group != NULL) && (group->member(*it));
+			if( admin )
+				continue;
             strcat(str,
 				tmp_sprintf("%s%-15s%s", 
 					admin ? CCYEL_BLD(ch,C_NRM) : "", 
