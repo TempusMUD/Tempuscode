@@ -773,12 +773,14 @@ prog_do_opurge(prog_env *env, prog_evt *evt, char *args)
 		obj_list = next_obj;
 	}
 
-	for (obj = obj_list->next_content;obj->next_content;obj = next_obj) {
-		if (GET_OBJ_VNUM(obj->next_content) == vnum) {
-			next_obj = obj->next_content->next_content;
-			extract_obj(obj->next_content);
-		} else
-			next_obj = obj->next_content;
+	if (obj_list) {
+		for (obj = obj_list->next_content;obj->next_content;obj = next_obj) {
+			if (GET_OBJ_VNUM(obj->next_content) == vnum) {
+				next_obj = obj->next_content->next_content;
+				extract_obj(obj->next_content);
+			} else
+				next_obj = obj->next_content;
+		}
 	}
 
 	switch (env->owner_type) {
