@@ -42,6 +42,7 @@ class Tokenizer {
                 out[i - begin] = data[i];
             }
             out[index - begin] = '\0';
+            return true;
         }
 
     private:
