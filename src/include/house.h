@@ -2,7 +2,17 @@
 #define _HOUSE_H_
 
 #include <vector>
+#include <string>
+#include <list>
+#include "defs.h"
+#include "xml_utils.h"
 #include "tmpstr.h"
+
+using namespace std;
+
+class Creature;
+class obj_data;
+class room_data;
 
 static inline char* 
 get_house_file_path( int id )
