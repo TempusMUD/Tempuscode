@@ -244,29 +244,21 @@ show_home_help_past(struct descriptor_data *d, int home)
 int
 parse_pc_race(struct descriptor_data *d, char *arg)
 {
+	int idx, last_match;
+
 	skip_spaces(&arg);
-	half_chop(arg, buf, buf2);
 
-	if (is_abbrev(buf, "human"))
-		return RACE_HUMAN;
-	else if (is_abbrev(buf, "elf") || is_abbrev(buf, "elven"))
-		return RACE_ELF;
-	else if (is_abbrev(buf, "halfling"))
-		return RACE_HALFLING;
-	else if (is_abbrev(buf, "half orc") || is_abbrev(buf, "half orcen"))
-		return RACE_HALF_ORC;
-	else if (is_abbrev(buf, "tabaxi"))
-		return RACE_TABAXI;
-	else if (is_abbrev(buf, "dwarf") || is_abbrev(buf, "dwarven"))
-		return RACE_DWARF;
-	else if (is_abbrev(buf, "minotaur"))
-		return RACE_MINOTAUR;
-	else if (is_abbrev(buf, "drow"))
-		return RACE_DROW;
-	else if (is_abbrev(buf, "orc"))
-		return RACE_ORC;
-
-	return (-1);
+	last_match = -1;
+	for (idx = 0;idx < NUM_PC_RACES;idx++) {
+		if (!is_abbrev(arg, player_race[race_restr[idx][0]]))
+			continue;
+		last_match = race_restr[idx][0];
+		if (race_restr[idx][GET_CLASS(d->creature)+1] != 2)
+			continue;
+		return race_restr[idx][0];
+	}
+	
+	return last_match;
 }
 
 void
