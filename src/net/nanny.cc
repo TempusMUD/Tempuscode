@@ -154,6 +154,10 @@ handle_input(struct descriptor_data *d)
 		if (d->account->authenticate(arg))
 			d->account->login(d);
 		else {
+			slog("PASSWORD: account %s[%d] failed to authenticate. [%s]",
+				d->account->get_name();
+				d->account->get_idnum();
+				d->host);
 			send_to_desc(d, "Invalid password.\r\n");
 			set_desc_state(CXN_ACCOUNT_LOGIN, d);
 		}
