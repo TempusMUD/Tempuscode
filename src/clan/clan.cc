@@ -104,13 +104,7 @@ ACMD(do_enroll)
     else if ((member = real_clanmember(GET_IDNUM(vict), clan))) {
 	send_to_char("Something wierd just happened... try again.\r\n", ch);
 	REMOVE_MEMBER_FROM_CLAN(member, clan);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	free(member);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	LOG_CLANSAVE(ch, "do_enroll");
 	save_clans();
     } else {
@@ -258,13 +252,7 @@ ACMD(do_resign)
         clan->owner = 0;
 	if ((member = real_clanmember(GET_IDNUM(ch), clan))) {
 	    REMOVE_MEMBER_FROM_CLAN(member, clan);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif      
 	    free(member);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	}
     }
 }
@@ -409,13 +397,7 @@ ACMD(do_clanlist)
 		    break;
 		} else
 		    strcat(outbuf, buf);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif	
 		free_char(i);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
 	    }
 	}
     }
@@ -1099,19 +1081,20 @@ ACMD(do_cedit)
 	// cedit add member
 	else if (is_abbrev(arg2, "member")) {
 	    if (!is_number(arg3)) {
-		if ((i = get_id_by_name(arg3)) < 0) {
-		    send_to_char("There exists no player with that name.\r\n", ch);
-		    return;
-		}
+    		if ((i = get_id_by_name(arg3)) < 0) {
+    		    send_to_char("There exists no player with that name.\r\n", ch);
+    		    return;
+    		}
 	    } else if ((i = atoi(arg3)) < 0) {
-		send_to_char("Real funny... reeeeeaaal funny.\r\n", ch);
-		return;
+	    	send_to_char("Real funny... reeeeeaaal funny.\r\n", ch);
+	    	return;
 	    }
-	    for (member = clan->member_list; member; member = member->next)
-		if (member->idnum == i) {
-		    send_to_char("That player is already on the member list.\r\n", ch);
-		    return;
-		}
+	    for (member = clan->member_list; member; member = member->next) {
+    		if (member->idnum == i) {
+    		    send_to_char("That player is already on the member list.\r\n", ch);
+    		    return;
+    		}
+        }
 	    CREATE(member, struct clanmember_data, 1);
       
 	    member->idnum = i;
@@ -1125,9 +1108,9 @@ ACMD(do_cedit)
 	    slog(buf);
 
 	    return;
-	} else 
+	} else { 
 	    send_to_char("Invalid command, punk.\r\n", ch);
-
+    }
 	break;
     case 6:               /** remove ***/
 
@@ -1162,13 +1145,7 @@ ACMD(do_cedit)
 	    }
 
 	    REMOVE_ROOM_FROM_CLAN(rm_list, clan);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    free(rm_list);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    send_to_char("Room removed and memory freed.  Thank you.. Call again.\r\n", ch);
 
 	    sprintf(buf, "(cedit) %s removed room %d from clan %d.", GET_NAME(ch), room->number, clan->number);
@@ -1199,13 +1176,7 @@ ACMD(do_cedit)
 	    }
 
 	    REMOVE_MEMBER_FROM_CLAN(member, clan);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    free(member);
-#ifdef DMALLOC
-	    dmalloc_verify(0);
-#endif
 	    send_to_char("Member removed from the sacred list.\r\n", ch);
 
 	    sprintf(buf, "(cedit) %s removed member %d from clan %d.", GET_NAME(ch), i, clan->number);
@@ -1372,8 +1343,8 @@ save_clans(void)
     FILE *file = NULL;
 
     if (!(file = fopen(CLAN_FILE, "w"))) {
-	slog("Error opening clan file for write.");
-	return 1;
+	    slog("Error opening clan file for write.");
+	    return 1;
     }
 
     for (clan = clan_list; clan; clan = clan->next) {
@@ -1384,10 +1355,10 @@ save_clans(void)
 
 	for (i = 0; i < NUM_CLAN_RANKS; i++)
 	    if (clan->ranknames[i]) {
-		strncpy(hdr.ranknames[i], clan->ranknames[i], MAX_CLAN_RANKNAME);
-	    } else
-		hdr.ranknames[i][0] = '\0';
-    
+		    strncpy(hdr.ranknames[i], clan->ranknames[i], MAX_CLAN_RANKNAME);
+	    } else {
+		    hdr.ranknames[i][0] = '\0';
+        }
 	for (j = 0, rm_list = clan->room_list; rm_list; 
 	     j++, rm_list = rm_list->next);
 	hdr.num_rooms = (ubyte) j;

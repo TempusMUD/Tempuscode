@@ -324,6 +324,15 @@ ACMD(do_snatch)
         act("$n looks really aggrivated.", FALSE, ch, 0, vict, TO_ROOM);
         return;
     }
+    if(vict->isNewbie()) {
+        send_to_char("You cannot snatch from newbies!\r\n",ch);
+        return;
+    }
+    if (!IS_MOB(vict) && ch->isNewbie()) {
+        send_to_char("You can't snatch from players. You're a newbie!\r\n", ch);
+        return;
+    }
+
     if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
         send_to_char("You cannot snatch from linkless players!!!\r\n", ch);
         sprintf(buf, "%s attemted to snatch from linkless %s.", GET_NAME(ch),

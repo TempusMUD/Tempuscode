@@ -62,6 +62,10 @@ ACMD(do_steal)
         act("$n looks kinda sketchy for a moment.", FALSE, ch, 0, vict, TO_ROOM);
         return;
     }
+    if(vict->isNewbie()) {
+        send_to_char("You cannot steal from newbies!\r\n",ch);
+        return;
+    }
     if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
         send_to_char("You cannot steal from linkless players!!!\r\n", ch);
         sprintf(buf, "%s attemted to steal from linkless %s.", GET_NAME(ch),
@@ -69,8 +73,8 @@ ACMD(do_steal)
         mudlog(buf, CMP, GET_LEVEL(ch), TRUE);
         return;
     }
-    if (!IS_MOB(vict) && GET_LEVEL(ch) < 10) {
-        send_to_char("You cannot steal from players until you reach level 10.\r\n", ch);
+    if (!IS_MOB(vict) && ch->isNewbie()) {
+        send_to_char("You can't steal from players. You're a newbie!\r\n", ch);
         return;
     }
     if ((GET_LEVEL(vict) + 5) < GET_LEVEL(ch) && !IS_MOB(vict) &&
