@@ -146,7 +146,7 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 	}
 
 	memory = poll->memory;
-	while (memory && memory->next && memory->id != GET_IDNUM(ch))
+	while (memory && memory->next && memory->id != ch->account->get_idnum())
 		memory = memory->next;
 
 	send_to_char(ch, "%s", poll->descrip);
@@ -162,7 +162,7 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 			else
 				msg = tmp_sprintf("%3d/%4ld (all/all) %c) %s",
 					opt->count, opt->weight, opt->idx, opt->descrip);
-		} else if (memory && memory->id == GET_IDNUM(ch)) {
+		} else if (memory && memory->id == ch->account->get_idnum()) {
 			if (opt->count != poll->count)
 				msg = tmp_sprintf("(%2d%%) %c) %s",
 					((poll->count) ? ((opt->count * 100) / poll->count) : 0),
@@ -191,7 +191,7 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	}
 
 	if (GET_LEVEL(ch) < 10) {
-		send_to_char(ch, "You cannot vote yet.\r\n");
+		send_to_char(ch, "You cannot vote yet.  Try it when you've gotten your 10th level.\r\n");
 		return;
 	}
 
@@ -214,10 +214,10 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	}
 
 	memory = poll->memory;
-	while (memory && memory->next && memory->id != GET_IDNUM(ch))
+	while (memory && memory->next && memory->id != ch->account->get_idnum())
 		memory = memory->next;
 
-	if (memory && memory->id == GET_IDNUM(ch)) {
+	if (memory && memory->id == ch->account->get_idnum()) {
 		send_to_char(ch, "You have already voted on that issue!\r\n");
 		return;
 	}
@@ -262,7 +262,7 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	else
 		poll->memory = new_memory;
 	new_memory->next = NULL;
-	new_memory->id = GET_IDNUM(ch);
+	new_memory->id = ch->account->get_idnum();
 
 	voting_booth_save();
 }
