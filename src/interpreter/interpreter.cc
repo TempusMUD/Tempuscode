@@ -527,8 +527,8 @@ struct command_info cmd_info[] = {
 	{"breathe", POS_SITTING, do_breathe, 0, 0, 0},
 	{"brief", POS_DEAD, do_gen_tog, 0, SCMD_BRIEF, 0},
 	{"buff", POS_DEAD, do_action, 0, 0, 0},
-	{"burn", POS_RESTING, do_action, 0, 0, 0},
 	{"burp", POS_RESTING, do_action, 0, 0, 0},
+	{"burn", POS_RESTING, do_action, 0, 0, 0},
 	{"buy", POS_STANDING, do_not_here, 0, 0, 0},
 	{"bug", POS_DEAD, do_gen_write, 0, SCMD_BUG, 0},
 
