@@ -1530,6 +1530,48 @@ extern const char *extra2_names[] = {
   "\n"
 };
 
+extern const char *extra3_bits[] = {
+    "MAGE",
+    "CLE",
+    "THI",
+    "WAR",
+    "BAR",
+    "PSI",
+    "PHY",
+    "CYB",
+    "KNI",
+    "RAN",
+    "HOOD",
+    "MONK",
+    "VAMP",
+    "MER",
+    "SPR1",
+    "SPR2",
+    "SPR3",
+    ""
+    "\n"
+};
+extern const char *extra3_names[] = {
+    "mage",
+    "cleric",
+    "thief",
+    "warrior",
+    "barbarian",
+    "psionic",
+    "physic",
+    "cyborg",
+    "knight",
+    "ranger",
+    "hood",
+    "monk",
+    "vampire",
+    "mercenary",
+    "spare1",
+    "spare2",
+    "spare3",
+    ""
+    "\n"
+};
 /* APPLY_x */
 extern const char *apply_types[] = {
   "NONE",

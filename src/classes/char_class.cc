@@ -1410,6 +1410,8 @@ advance_level(struct char_data * ch, byte keep_internal)
 
 int 
 invalid_char_class(struct char_data *ch, struct obj_data *obj) {
+    int invalid = 0;
+    int foundreq = 0;
     if ((IS_OBJ_STAT(obj, ITEM_ANTI_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
 	(IS_OBJ_STAT(obj, ITEM_ANTI_CLERIC)     && IS_CLERIC(ch)) ||
 	(IS_OBJ_STAT(obj, ITEM_ANTI_WARRIOR)    && IS_WARRIOR(ch)) ||
@@ -1423,9 +1425,95 @@ invalid_char_class(struct char_data *ch, struct obj_data *obj) {
 	(IS_OBJ_STAT(obj, ITEM_ANTI_HOOD)       && IS_HOOD(ch)) ||
 	(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC)       && IS_MERC(ch)) ||
 	(IS_OBJ_STAT(obj, ITEM_ANTI_MONK)       && IS_MONK(ch)))
-	return 1;
-    else
-	return 0;
+        invalid = 1;
+    if(!invalid) {
+        if(IS_OBJ_STAT3(obj, ITEM3_REQ_MAGE))
+            if(IS_MAGE(ch)) 
+                {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_CLERIC))
+            if(IS_CLERIC(ch)) 
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_THIEF))
+            if(IS_THIEF(ch))
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_WARRIOR)) 
+            if(IS_WARRIOR(ch)) 
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_BARB)) 
+            if(IS_BARB(ch) )
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_PSIONIC)) 
+            if( IS_PSIONIC(ch) )
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_PHYSIC)) 
+            if(IS_PHYSIC(ch) )
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_CYBORG)) 
+            if(IS_CYBORG(ch) )
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_KNIGHT))
+            if(IS_KNIGHT(ch) )
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_RANGER))
+            if(IS_RANGER(ch) )
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_HOOD))
+            if(IS_HOOD(ch) )
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_MONK))
+            if(IS_MONK(ch))
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_VAMPIRE))
+            if(IS_VAMPIRE(ch))
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_MERCENARY)) 
+            if(IS_MERC(ch) )
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE1))
+            if(IS_SPARE1(ch))
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE2)) 
+            if(IS_SPARE2(ch) )
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+        if(!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE3)) 
+            if(IS_SPARE3(ch))
+               {foundreq = 1; invalid = 0; }
+            else 
+                invalid = 1; 
+    }
+return invalid;
 }
 
 int 

@@ -70,6 +70,7 @@ const char *olc_oset_keys[] = {
     "path",
     "soilage",   // 20
     "sigil",
+    "extra3",
     "\n"
 };
 
@@ -1069,6 +1070,52 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 	}
 
 	send_to_char("Sigil set.\r\n", ch);
+	break;
+    case 22:        /************* obj extra3 flags ***********/
+	tmp_flags = 0;
+	argument = one_argument(arg2, arg1);
+
+	if (*arg1 == '+')
+	    state = 1;
+	else if (*arg1 == '-')
+	    state = 2;
+	else {
+	    send_to_char("Usage: olc oset extra3 [+/-] [FLAG, FLAG, ...]\r\n", ch);
+	    return;
+	}
+      
+	argument = one_argument(argument, arg1);
+    
+	cur_flags = obj_p->obj_flags.extra3_flags;
+    
+	while (*arg1) {
+	    if ((flag = search_block(arg1, extra3_names,FALSE)) == -1) {
+		sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
+		send_to_char(buf, ch);
+	    }
+	    else 
+		tmp_flags = tmp_flags|(1 << flag);
+	
+	    argument = one_argument(argument, arg1);
+	}
+      
+	if (state == 1)
+	    cur_flags = cur_flags | tmp_flags;
+	else {
+	    tmp_flags = cur_flags & tmp_flags;
+	    cur_flags = cur_flags ^ tmp_flags;
+	}
+    
+	obj_p->obj_flags.extra3_flags = cur_flags;
+      
+	if (tmp_flags == 0 && cur_flags == 0) {
+	    send_to_char("Extra3 flags set\r\n", ch);
+	}
+	else if (tmp_flags == 0)
+	    send_to_char("Extra3 flags not altered.\r\n", ch);
+	else {
+	    send_to_char("Extra3 flags set.\r\n", ch);
+	}
 	break;
 
 

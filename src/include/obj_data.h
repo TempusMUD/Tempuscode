@@ -185,6 +185,26 @@
 #define ITEM2_UNAPPROVED        (1 << 30)
 #define NUM_EXTRA2_FLAGS         31
 
+// extra3 flags
+
+#define ITEM3_REQ_MAGE          (1 << 0)
+#define ITEM3_REQ_CLERIC        (1 << 1)
+#define ITEM3_REQ_THIEF         (1 << 2)
+#define ITEM3_REQ_WARRIOR       (1 << 3)
+#define ITEM3_REQ_BARB          (1 << 4)
+#define ITEM3_REQ_PSIONIC       (1 << 5)
+#define ITEM3_REQ_PHYSIC        (1 << 6)
+#define ITEM3_REQ_CYBORG        (1 << 7)
+#define ITEM3_REQ_KNIGHT        (1 << 8)
+#define ITEM3_REQ_RANGER        (1 << 9)
+#define ITEM3_REQ_HOOD          (1 << 10)
+#define ITEM3_REQ_MONK          (1 << 11)
+#define ITEM3_REQ_VAMPIRE       (1 << 12)
+#define ITEM3_REQ_MERCENARY     (1 << 13)
+#define ITEM3_REQ_SPARE1        (1 << 14)
+#define ITEM3_REQ_SPARE2        (1 << 15)
+#define ITEM3_REQ_SPARE3        (1 << 16)
+#define NUM_ITEM3_FLAGS         17
 
 
 /* Container flags - value[1] */
@@ -256,6 +276,7 @@ struct obj_flag_data {
     int	wear_flags;	/* Where you can wear it	    */
     int	extra_flags;	/* If it hums, glows, etc.	    */
     int  extra2_flags;   /* More of the same...              */
+    int extra3_flags; // More, same, different
 private:
     int	weight;		/* Weight what else                 */
 public:
@@ -338,7 +359,7 @@ struct obj_file_elem {
     byte  sigil_level;
     int   soilage;
     int   sigil_idnum;
-    int   spareint3;
+    int   extra3_flags;
     int   spareint4;
     struct obj_affected_type affected[MAX_OBJ_AFFECT];
 };

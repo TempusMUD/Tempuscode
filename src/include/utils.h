@@ -612,6 +612,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 
 #define GET_OBJ_EXTRA(obj)	((obj)->obj_flags.extra_flags)
 #define GET_OBJ_EXTRA2(obj)	((obj)->obj_flags.extra2_flags)
+#define GET_OBJ_EXTRA3(obj)	((obj)->obj_flags.extra3_flags)
 #define GET_OBJ_WEAR(obj)	((obj)->obj_flags.wear_flags)
 #define GET_OBJ_VAL(obj, val)	((obj)->obj_flags.value[(val)])
 //#define GET_OBJ_WEIGHT(obj)	((obj)->obj_flags.weight)
@@ -627,6 +628,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define GET_OBJ_VNUM(obj)	((obj)->shared->vnum) 
 #define IS_OBJ_STAT(obj,stat)	(IS_SET((obj)->obj_flags.extra_flags,stat))
 #define IS_OBJ_STAT2(obj,stat)	(IS_SET((obj)->obj_flags.extra2_flags,stat))
+#define IS_OBJ_STAT3(obj,stat)	(IS_SET((obj)->obj_flags.extra3_flags,stat))
 
 #define GET_OBJ_SPEC(obj) ((obj) ? (obj)->shared->func : NULL)
 

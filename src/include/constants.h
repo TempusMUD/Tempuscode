@@ -68,6 +68,8 @@ extern const char *extra_bits[];
 extern const char *extra_names[];
 extern const char *extra2_bits[];
 extern const char *extra2_names[];
+extern const char *extra3_bits[];
+extern const char *extra3_names[];
 extern const char *apply_types[];
 extern const char *container_bits[];
 extern const char *drinks[];

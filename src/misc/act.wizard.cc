@@ -1137,6 +1137,11 @@ do_stat_object(struct char_data * ch, struct obj_data * j)
     sprintbit(GET_OBJ_EXTRA2(j), extra2_bits, buf);
     strcat(buf, "\r\n");
     send_to_char(buf, ch);
+    
+    send_to_char("Extra3 flags   : ", ch);
+    sprintbit(GET_OBJ_EXTRA3(j), extra3_bits, buf);
+    strcat(buf, "\r\n");
+    send_to_char(buf, ch);
 
     sprintf(buf, "Weight: %d, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
 	    j->getWeight(), GET_OBJ_COST(j),

@@ -96,6 +96,7 @@ Obj_from_store( FILE * fl )
     GET_OBJ_VAL   ( obj, 3 ) = object.value[3];
     GET_OBJ_EXTRA ( obj )    = object.extra_flags;
     GET_OBJ_EXTRA2( obj )    = object.extra2_flags;
+    GET_OBJ_EXTRA3( obj )    = object.extra3_flags;
     GET_OBJ_TYPE  ( obj )    = object.type; 
     obj->soilage             = object.soilage;
 
@@ -180,7 +181,6 @@ Obj_to_store( struct obj_data * obj, FILE * fl )
     object.sigil_level  = GET_OBJ_SIGIL_LEVEL( obj );
     object.soilage      = obj->soilage;
     object.sigil_idnum  = GET_OBJ_SIGIL_IDNUM( obj );
-    object.spareint3    = 0;
     object.spareint4    = 0;
     object.value[0]     = GET_OBJ_VAL( obj, 0 );
     object.value[1]     = GET_OBJ_VAL( obj, 1 );
@@ -191,6 +191,7 @@ Obj_to_store( struct obj_data * obj, FILE * fl )
     object.bitvector[2] = obj->obj_flags.bitvector[2];
     object.extra_flags  = GET_OBJ_EXTRA( obj );
     object.extra2_flags = GET_OBJ_EXTRA2( obj );
+    object.extra3_flags = GET_OBJ_EXTRA3( obj );
     object.weight       = obj->getWeight();
     object.timer        = GET_OBJ_TIMER( obj );
     object.worn_on_position = obj->worn_on;
