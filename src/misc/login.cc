@@ -131,7 +131,7 @@ show_char_class_menu(struct descriptor_data *d, bool remort)
 	if (valid_class_race(ch, CLASS_CLERIC, remort) &&
 			GET_CLASS(ch) != CLASS_MONK)
 		left_col = tmp_strcat(left_col,
-			"&gCleric&n\r\n    Servant of Diety\r\n");
+			"&gCleric&n\r\n    Servant of Deity\r\n");
 	if (valid_class_race(ch, CLASS_THIEF, remort))
 		left_col = tmp_strcat(left_col,
 			"&gThief&n\r\n    Stealthy Rogue\r\n");
