@@ -2814,7 +2814,8 @@ ACMD(do_gecho)
 	sprintf(buf2, "[%s-g] %s\r\n", GET_NAME(ch), argument);
 	for (pt = descriptor_list; pt; pt = pt->next) {
 	    if (!pt->connected && pt->character && pt->character != ch &&
-		!PRF2_FLAGGED(pt->character, PRF2_NOGECHO) ) {
+		!PRF2_FLAGGED(pt->character, PRF2_NOGECHO) &&
+        !PLR_FLAGGED(pt->character, PLR_OLC | PLR_WRITING ) ) {
 			if (GET_LEVEL(pt->character) > GET_LEVEL(ch))
 				send_to_char(buf2, pt->character);
 			else
