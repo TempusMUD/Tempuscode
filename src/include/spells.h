@@ -111,13 +111,6 @@ static const int MAG_MERCENARY = (1 << 27);
 
 static const int TYPE_UNDEFINED = -1;
 static const int SPELL_RESERVED_DBC = 0;	/* SKILL NUMBER ZERO -- RESERVED */
-#define SPELL_LEVEL(spl, char_class)        (spell_info[spl].min_level[char_class])
-#define SPELL_GEN(spl, char_class)          (spell_info[spl].gen[char_class])
-#define ABLE_TO_LEARN(ch, spl) \
-((GET_REMORT_GEN(ch) >= SPELL_GEN(spl, GET_CLASS(ch)) && \
-  GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_CLASS(ch))) || \
- (IS_REMORT(ch) && GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_REMORT_CLASS(ch)) && \
-  !SPELL_GEN(spl, GET_REMORT_CLASS(ch))))
 
 static const int UNHOLY_STALKER_VNUM = 1513;
 static const int ZOMBIE_VNUM = 1512;
@@ -720,6 +713,7 @@ struct spell_info_type {
 	sh_int targets;				/* See below for use with TAR_XXX  */
 };
 
+extern struct spell_info_type spell_info[];
 /* Possible Targets:
 
    bit 0 : IGNORE TARGET
@@ -755,6 +749,19 @@ void	spellname(byte level, struct Creature *ch, \
 		  struct Creature *victim, struct obj_data *obj)
 
 #define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict);
+
+static inline int SPELL_LEVEL( int spell, int char_class ) {
+	return spell_info[spell].min_level[char_class];
+}
+static inline int SPELL_GEN( int spell, int char_class ) {
+	    return spell_info[spell].gen[char_class];
+}
+
+#define ABLE_TO_LEARN(ch, spl) \
+((GET_REMORT_GEN(ch) >= SPELL_GEN(spl, GET_CLASS(ch)) && \
+  GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_CLASS(ch))) || \
+ (IS_REMORT(ch) && GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_REMORT_CLASS(ch)) && \
+  !SPELL_GEN(spl, GET_REMORT_CLASS(ch))))
 
 ASPELL(spell_astral_spell);
 ASPELL(spell_create_water);
