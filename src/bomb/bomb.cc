@@ -456,7 +456,7 @@ detonate_bomb(struct obj_data *bomb)
         obj_from_obj(bomb);
     }
 
-    if(ch && (bomb->carried_by || bomb->worn_on) ){
+    if(ch && (bomb->carried_by || bomb->worn_by) ){
         obj_from_char(bomb);
     }
     dam_object = bomb;

@@ -2962,6 +2962,10 @@ int mobile_battle_activity( struct char_data *ch,
             break;     
         }
         if (new_mob) {
+            if(IS_PET(ch))
+                SET_BIT(MOB_FLAGS(new_mob),MOB_PET);
+            WAIT_STATE(ch, 5 RL_SEC);
+            GET_MOVE(ch) -= 100;
             char_to_room(new_mob, ch->in_room);
             act("$n gestures, a glowing portal appears with a whine!", 
                 FALSE, ch, 0, 0, TO_ROOM);
@@ -3853,6 +3857,8 @@ int mob_fight_devil( struct char_data * ch,
         break;
     }
     if ( new_mob ) {
+        if(IS_PET(ch))
+            SET_BIT(MOB_FLAGS(new_mob),MOB_PET);
         WAIT_STATE(ch, 5 RL_SEC);
         GET_MOVE(ch) -= 100;
         char_to_room(new_mob, ch->in_room);
