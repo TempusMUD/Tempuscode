@@ -641,7 +641,7 @@ show_timewarps(CHAR * ch)
 	}
 
 	sprintf(buf, "%s  %d total.\r\n", buf, num_timewarp_data);
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 // function to find the matchint zone in the timewarp info

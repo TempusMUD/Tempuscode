@@ -233,7 +233,7 @@ list_skills(struct char_data *ch, int mode, int type)
 		}
 
 		if (type != 2 && type != 3) {
-			page_string(ch->desc, buf2, 1);
+			page_string(ch->desc, buf2);
 			return;
 		}
 
@@ -271,7 +271,7 @@ list_skills(struct char_data *ch, int mode, int type)
 			strcat(buf2, buf);
 		}
 	}
-	page_string(ch->desc, buf2, 1);
+	page_string(ch->desc, buf2);
 }
 
 SPECIAL(guild)
@@ -2076,6 +2076,6 @@ SPECIAL(weapon_lister)
 	for (i = 0; i < 60; i++)
 		sprintf(buf3, "%s%2d -- [ %2d] weapons\r\n", buf3, i, avg_dam[i]);
 
-	page_string(ch->desc, buf3, 1);
+	page_string(ch->desc, buf3);
 	return 1;
 }

@@ -165,7 +165,7 @@ ACMD(do_ban)
 				site, ban_node->name);
 			strcat(buf2, buf);
 		}
-		page_string(ch->desc, buf2, 1);
+		page_string(ch->desc, buf2);
 		return;
 	}
 	two_arguments(argument, flag, site);

@@ -185,7 +185,7 @@ perform_net_who(struct char_data *ch, char *arg)
         continue;
     }
     sprintf(buf, "%s\r\n%d users detected.\r\n", buf, count);
-    page_string(ch->desc, buf, 1);
+    page_string(ch->desc, buf);
 }
 
 void perform_net_finger(struct char_data *ch, char *arg)
@@ -232,7 +232,7 @@ perform_net_list(struct char_data * ch, int char_class) {
         } 
     }
 
-    page_string(ch->desc, buf2, 1);
+    page_string(ch->desc, buf2);
 }
 
 void

@@ -950,7 +950,7 @@ ASPELL(spell_locate_object)
 			strcat(buf, buf2);
 		}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 	}
 
 }

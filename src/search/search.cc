@@ -784,7 +784,7 @@ show_searches(struct char_data *ch, char *value, char *argument)
 			}
 		}
 	}
-	page_string(ch->desc, outbuf, 1);
+	page_string(ch->desc, outbuf);
 }
 
 int

@@ -228,7 +228,7 @@ do_ccontrol_options(CHAR * ch)
 		}
 
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 void
@@ -424,7 +424,7 @@ do_ccontrol_show(CHAR * ch, char *argument)
 		}
 
 		strcat(buf, "\r\n");
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 
 		send_to_char(ch, "------------------------\r\n");
 
@@ -1447,7 +1447,7 @@ list_combat_players(CHAR * ch, combat_data * combat, char *outbuf)
 	if (outbuf)
 		strcpy(outbuf, buf);
 	else
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 
 }
 

@@ -416,7 +416,7 @@ Crash_listrent(struct char_data *ch, char *name)
 			}
 		}
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 	fclose(fl);
 }
 

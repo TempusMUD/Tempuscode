@@ -291,7 +291,7 @@ do_shop_sset(struct char_data *ch, char *argument)
 			i++;
 		}
 		strcat(buf, CCNRM(ch, C_NRM));
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 

@@ -70,7 +70,7 @@ SPECIAL(master_communicator)
 	
       }	
     }
-    page_string(ch->desc, buf, 1);
+    page_string(ch->desc, buf);
   }
   
   send_to_char(ch, MASTER_COMM_USAGE);

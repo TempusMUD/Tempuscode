@@ -719,7 +719,7 @@ hcontrol_list_house_rooms(struct char_data *ch, room_num atrium_vnum)
 			slog(errorbuf);
 		}
 	}
-	page_string(ch->desc, buf, 0);
+	page_string(ch->desc, buf);
 }
 
 void
@@ -740,7 +740,7 @@ hcontrol_list_house_guests(struct char_data *ch, room_num vnum)
 			strcat(buf, CAP(buf2));
 		}
 		strcat(buf, "\r\n");
-		page_string(ch->desc, buf, 0);
+		page_string(ch->desc, buf);
 	} else
 		send_to_char(ch, "No guests defined.\r\n");
 }
@@ -942,7 +942,7 @@ hcontrol_list_houses(struct char_data *ch, char *args)
 
 	}
 
-	page_string(ch->desc, outbuf, 1);
+	page_string(ch->desc, outbuf);
 }
 
 void

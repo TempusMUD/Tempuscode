@@ -84,7 +84,7 @@ implanter_implant(char_data *me, char_data *ch, char *args)
 		strcpy(buf, "Valid positions are:\r\n");
 		for (i = 0; i < NUM_WEARS; i++)
 			sprintf(buf, "%s  %s\r\n", buf, wear_implantpos[i]);
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 
@@ -96,7 +96,7 @@ implanter_implant(char_data *me, char_data *ch, char *args)
 			if (!ILLEGAL_IMPLANTPOS(pos))
 				sprintf(buf, "%s  %s\r\n", buf, wear_implantpos[i]);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 	if (implant->getWeight() > GET_STR(ch)) {

@@ -334,11 +334,11 @@ show_file(struct char_data *ch, char *fname, int lines)
 		delete[]logbuf;
 	}
 	file.close();
-	page_string(ch->desc, buf, 0);
+	page_string(ch->desc, buf);
 }
 
 void
-page_string(struct descriptor_data *d, char *str, int keep_internal)
+page_string(struct descriptor_data *d, char *str)
 {
 	if (!d || !str)
 		return;
@@ -346,14 +346,9 @@ page_string(struct descriptor_data *d, char *str, int keep_internal)
 	if (d->showstr_head)
 		free(d->showstr_head);
 
-	if (keep_internal) {
-		CREATE(d->showstr_head, char, strlen(str) + 1);
-		strcpy(d->showstr_head, str);
-		d->showstr_point = d->showstr_head;
-	} else {
-		d->showstr_head = NULL;
-		d->showstr_point = str;
-	}
+	CREATE(d->showstr_head, char, strlen(str) + 1);
+	strcpy(d->showstr_head, str);
+	d->showstr_point = d->showstr_head;
 
 	show_string(d);
 }

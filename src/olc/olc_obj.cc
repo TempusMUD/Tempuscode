@@ -539,7 +539,7 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 			i++;
 		}
 		strcat(buf, CCNRM(ch, C_NRM));
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 	// what zone is it a member of

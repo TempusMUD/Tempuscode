@@ -2423,7 +2423,7 @@ vnum_mobile(char *searchname, struct char_data *ch)
 		}
 	}
 	if (found)
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 	return (found);
 }
 
@@ -2449,7 +2449,7 @@ vnum_object(char *searchname, struct char_data *ch)
 		}
 	}
 	if (found)
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 
 	return (found);
 }

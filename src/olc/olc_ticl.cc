@@ -240,7 +240,7 @@ do_ticl_tstat(struct char_data *ch)
 		send_to_char(ch, "%s", buf);
 
 		if (ticl->code != NULL)
-			page_string(ch->desc, ticl->code, 1);
+			page_string(ch->desc, ticl->code);
 	}
 }
 
@@ -269,7 +269,7 @@ do_ticl_tset(struct char_data *ch, char *argument)
 			i++;
 		}
 		strcat(buf, CCNRM(ch, C_NRM));
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 

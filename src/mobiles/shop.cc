@@ -1018,7 +1018,7 @@ shopping_list(char *arg, struct char_data *ch,
 	else if (!(*name) || isname(name, last_obj->name))
 		strcat(buf, list_object(last_obj, ch, cnt, index, shop));
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 
@@ -1630,7 +1630,7 @@ list_all_shops(struct char_data *ch, struct zone_data *zone)
 		sprintf(END_OF(buf), "%s\r\n", buf2);
 	}
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 

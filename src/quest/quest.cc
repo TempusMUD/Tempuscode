@@ -260,7 +260,7 @@ do_qcontrol_help(struct char_data *ch, char *argument)
 			sprintf(buf, "%s %2d. %s\r\n", buf, i, qtypes[i]);
 			i++;
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 
@@ -273,7 +273,7 @@ do_qcontrol_help(struct char_data *ch, char *argument)
 			sprintf(buf, "%s %2d. %s\r\n", buf, i, quest_bits[i]);
 			i++;
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 
@@ -489,7 +489,7 @@ do_qcontrol_show(CHAR * ch, char *argument)
 		list_inactive_quests(ch, buf2);
 		strcat(buf, buf2);
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 
@@ -531,7 +531,7 @@ do_qcontrol_show(CHAR * ch, char *argument)
 			quest->minlev / 50, quest->minlev % 50, quest->minlev,
 			quest->maxlev / 50, quest->maxlev % 50, quest->maxlev,
 			quest->max_players, quest->awarded);
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	}
@@ -577,7 +577,7 @@ do_qcontrol_show(CHAR * ch, char *argument)
 		strcat(buf, buf2);
 	}
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 
 }
 
@@ -594,7 +594,7 @@ do_qcontrol_options(CHAR * ch)
 			qc_options[i].usage);
 		i++;
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 void
@@ -1651,7 +1651,7 @@ list_active_quests(CHAR * ch, char *outbuf)
 	if (outbuf)
 		strcpy(outbuf, buf);
 	else
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 }
 
 void
@@ -1685,7 +1685,7 @@ list_inactive_quests(CHAR * ch, char *outbuf)
 	if (outbuf)
 		strcpy(outbuf, buf);
 	else
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 
 }
 
@@ -1744,7 +1744,7 @@ list_quest_players(CHAR * ch, quest_data * quest, char *outbuf)
 	if (outbuf)
 		strcpy(outbuf, buf);
 	else
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 
 }
 
@@ -1772,7 +1772,7 @@ list_quest_bans(CHAR * ch, quest_data * quest, char *outbuf)
 	if (outbuf)
 		strcpy(outbuf, buf);
 	else
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 
 }
 
@@ -2126,7 +2126,7 @@ do_quest_info(CHAR * ch, char *argument)
 		quest->minlev / 50, quest->minlev % 50,
 		quest->maxlev / 50, quest->maxlev % 50,
 		quest->num_players, quest->max_players);
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 
 }
 
@@ -2168,7 +2168,7 @@ do_quest_status(CHAR * ch, char *argument)
 	}
 	if (!found)
 		strcat(buf, "None.\r\n");
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 void

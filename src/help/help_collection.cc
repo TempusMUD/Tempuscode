@@ -206,7 +206,7 @@ HelpCollection::GetTopic(char_data * ch,
 			}
 		}
 	}
-	page_string(ch->desc, gHelpbuf, 1);
+	page_string(ch->desc, gHelpbuf);
 	return;
 }
 
@@ -245,7 +245,7 @@ HelpCollection::List(char_data * ch, char *args)
 			break;
 		}
 	}
-	page_string(ch->desc, gHelpbuf, 1);
+	page_string(ch->desc, gHelpbuf);
 }
 
 // Create an item. (calls Edit)
@@ -584,7 +584,7 @@ do_hcollect_cmds(CHAR * ch)
 		sprintf(gHelpbuf, "%s  %-15s %s\r\n", gHelpbuf,
 			hc_cmds[i].keyword, hc_cmds[i].usage);
 	}
-	page_string(ch->desc, gHelpbuf, 1);
+	page_string(ch->desc, gHelpbuf);
 }
 
 // blah blah usage blah
@@ -610,7 +610,7 @@ do_group_cmds(CHAR * ch)
 		sprintf(gHelpbuf, "%s  %-15s %s\r\n", gHelpbuf,
 			grp_cmds[i].keyword, grp_cmds[i].usage);
 	}
-	page_string(ch->desc, gHelpbuf, 1);
+	page_string(ch->desc, gHelpbuf);
 }
 
 void
@@ -691,7 +691,7 @@ ACMD(do_immhelp)
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
 		cur->Show(ch, gHelpbuf, 2);
-		page_string(ch->desc, gHelpbuf, 1);
+		page_string(ch->desc, gHelpbuf);
 	} else {
 		Help->GetTopic(ch, argument, 2, false, HGROUP_IMMHELP);
 	}
@@ -724,7 +724,7 @@ ACMD(do_hcollect_help)
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
 		cur->Show(ch, gHelpbuf, 2);
-		page_string(ch->desc, gHelpbuf, 1);
+		page_string(ch->desc, gHelpbuf);
 	} else {
 		Help->GetTopic(ch, argument, 2, false);
 	}
@@ -743,7 +743,7 @@ ACMD(do_olchelp)
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
 		cur->Show(ch, gHelpbuf, 2);
-		page_string(ch->desc, gHelpbuf, 1);
+		page_string(ch->desc, gHelpbuf);
 	} else {
 		Help->GetTopic(ch, argument, 2, false, HGROUP_OLC);
 	}
@@ -824,7 +824,7 @@ ACMD(do_help_collection_command)
 				cur = cur->Next());
 			if (cur) {
 				cur->Show(ch, gHelpbuf, 3);
-				page_string(ch->desc, gHelpbuf, 1);
+				page_string(ch->desc, gHelpbuf);
 				break;
 			} else {
 				send_to_char(ch, "There is no item: %d.\r\n", id);
@@ -833,7 +833,7 @@ ACMD(do_help_collection_command)
 		}
 		if (GET_OLC_HELP(ch)) {
 			GET_OLC_HELP(ch)->Show(ch, gHelpbuf, 3);
-			page_string(ch->desc, gHelpbuf, 1);
+			page_string(ch->desc, gHelpbuf);
 		} else {
 			send_to_char(ch, "Stat what item?\r\n");
 		}

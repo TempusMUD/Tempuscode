@@ -407,7 +407,7 @@ ACMD(do_clanlist)
 			}
 		}
 	}
-	page_string(ch->desc, outbuf, 1);
+	page_string(ch->desc, outbuf);
 }
 
 ACMD(do_cinfo)
@@ -460,7 +460,7 @@ ACMD(do_cinfo)
 			if (!found)
 				strcat(outbuf, "None.\r\n");
 		}
-		page_string(ch->desc, outbuf, 1);
+		page_string(ch->desc, outbuf);
 	}
 }
 
@@ -1570,7 +1570,7 @@ do_show_clan(struct char_data *ch, struct clan_data *clan)
 			}
 		}
 	}
-	page_string(ch->desc, outbuf, 1);
+	page_string(ch->desc, outbuf);
 }
 
 int

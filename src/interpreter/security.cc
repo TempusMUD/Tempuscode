@@ -77,7 +77,7 @@ void send_access_options( char_data *ch ) {
         sprintf(out_buf, "%s  %-15s %s\r\n", out_buf, access_cmds[i].command, access_cmds[i].usage);
         i++;
     }
-    page_string(ch->desc, out_buf, 1);
+    page_string(ch->desc, out_buf);
 }
 
 /**

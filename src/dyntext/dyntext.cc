@@ -399,13 +399,13 @@ show_dyntext(CHAR * ch, dynamic_text_file * dyntext, char *argument)
 			if (!dyntext->buffer) {
 				send_to_char(ch, "There is no old text buffer.\r\n");
 			} else {
-				page_string(ch->desc, dyntext->buffer, 1);
+				page_string(ch->desc, dyntext->buffer);
 			}
 		} else if (is_abbrev(argument, "new")) {
 			if (!dyntext->tmp_buffer) {
 				send_to_char(ch, "There is no new text buffer.\r\n");
 			} else {
-				page_string(ch->desc, dyntext->tmp_buffer, 1);
+				page_string(ch->desc, dyntext->tmp_buffer);
 			}
 		} else if (is_abbrev(argument, "perms")) {
 			send_to_char(ch, "Permissions defined:\r\n");
@@ -890,7 +890,7 @@ ACMD(do_dyntext_show)
 
 	strcat(buf, strcat(buf2, dyntext->buffer));
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 

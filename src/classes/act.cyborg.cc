@@ -1671,7 +1671,7 @@ ACMD(do_status)
 			}
 
 
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 		}
 		return;
 
@@ -1818,7 +1818,7 @@ ACMD(do_status)
 						COMM_UNIT_SEND_OK(bul->worn_by, ch) ? "" : "  (mute)");
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	default:
@@ -2334,7 +2334,7 @@ ACMD(do_analyze)
 
 
 		GET_MOVE(ch) -= 10;
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 
@@ -2367,7 +2367,7 @@ ACMD(do_analyze)
 					C_NRM));
 
 		GET_MOVE(ch) -= 10;
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 

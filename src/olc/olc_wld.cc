@@ -756,7 +756,7 @@ do_olc_rset(struct char_data *ch, char *argument)
 	int state = 0;
 
 	if (!*argument) {
-		page_string(ch->desc, OLC_RSET_USAGE, 1);
+		page_string(ch->desc, OLC_RSET_USAGE);
 		return;
 	}
 
@@ -1213,14 +1213,14 @@ ACMD(do_hedit)
 					"%s"
 					"- Totals -------------------------  %4d        %5d\r\n",
 					buf, tot_num, tot_cost);
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 			return;
 		}
 		// not brief mode
 		if (local) {
 			*buf = 0;
 			print_room_contents_to_buf(ch, buf, ch->in_room);
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 		} else
 			hcontrol_list_house_rooms(ch, h->house_rooms[0]);
 		break;

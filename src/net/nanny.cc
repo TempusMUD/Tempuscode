@@ -1026,7 +1026,7 @@ nanny(struct descriptor_data * d, char *arg)
 
 			case '3':
 				SEND_TO_Q("\033[H\033[J", d);
-				page_string(d, background, 0);
+				page_string(d, background);
 				set_desc_state( CON_RMOTD,d );
 				break;
 

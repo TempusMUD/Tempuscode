@@ -366,7 +366,7 @@ ACMD(do_olc)
 	skip_spaces(&argument);
 
 	if (!*mode_arg) {
-		page_string(ch->desc, OLC_USAGE, 1);
+		page_string(ch->desc, OLC_USAGE);
 		return;
 	}
 	if ((olc_command = search_block(mode_arg, olc_commands, FALSE)) < 0) {
@@ -644,7 +644,7 @@ ACMD(do_olc)
 		if (!olc_guide)
 			send_to_char(ch, "Sorry, the olc guide is not loaded into memory.\r\n");
 		else
-			page_string(ch->desc, olc_guide, 1);
+			page_string(ch->desc, olc_guide);
 		break;
 	case 9:		   /*************** rsearch ******************/
 		break;
@@ -1294,14 +1294,14 @@ ACMD(do_olc)
 		break;
 	case 22:
 		if (!*argument) {
-			page_string(ch->desc, OLC_ZSET_USAGE, 1);
+			page_string(ch->desc, OLC_ZSET_USAGE);
 			return;
 		} else
 			do_zset_command(ch, argument);
 		break;
 	case 23:					/* zcmd */
 		if (!*argument) {
-			page_string(ch->desc, OLC_ZCMD_USAGE, 1);
+			page_string(ch->desc, OLC_ZCMD_USAGE);
 			return;
 		} else
 			do_zcmd(ch, argument);
@@ -1521,7 +1521,7 @@ ACMD(do_olc)
 				}
 			}
 
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 			return;
 		}
 		if (is_abbrev(arg1, "nodesc")) {
@@ -1535,7 +1535,7 @@ ACMD(do_olc)
 				}
 			}
 
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 			return;
 		}
 
@@ -1588,7 +1588,7 @@ ACMD(do_olc)
 				}
 			}
 
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 			return;
 		}
 
@@ -1717,7 +1717,7 @@ show_olc_help(struct char_data *ch, char *arg)
 			i++;
 		}
 		strcat(buf, CCNRM(ch, C_NRM));
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	} else if ((which_help = search_block(arg1, olc_help_keys, FALSE)) < 0) {
 		send_to_char(ch, 
@@ -1734,7 +1734,7 @@ show_olc_help(struct char_data *ch, char *arg)
 					C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 1:		  /********* rsector **********/
 		strcpy(buf, "ROOM SECTOR TYPES:\r\n");
@@ -1743,7 +1743,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				sector_types[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 2:
 		strcpy(buf, "ROOM FLOW TYPES:\r\n");
@@ -1753,7 +1753,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				char_flow_msg[i][2]);
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 3:
 		strcpy(buf, "DOOR FLAGS:\r\n");
@@ -1763,7 +1763,7 @@ show_olc_help(struct char_data *ch, char *arg)
 					C_NRM), exit_bits[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 4:
 		strcpy(buf, "ITEM TYPES:\r\n");
@@ -1772,7 +1772,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				item_types[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 5:
 		strcpy(buf, "OBJ EXTRA1 FLAGS:\r\n");
@@ -1783,7 +1783,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				extra_bits[i], extra_names[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 6:
 		strcpy(buf, "OBJ EXTRA2 FLAGS:\r\n");
@@ -1794,7 +1794,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				extra2_bits[i], extra2_names[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 7:
 		strcpy(buf, "OBJ WEAR FLAGS:\r\n");
@@ -1804,7 +1804,7 @@ show_olc_help(struct char_data *ch, char *arg)
 					C_NRM), wear_bits[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 8:
 		strcpy(buf, "##  LIQUID            Drunk     Hunger   Thirst\r\n");
@@ -1815,7 +1815,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				(int)drink_aff[i][2]);
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 9:
 		strcpy(buf, "ITEM APPLIES:\r\n");
@@ -1824,7 +1824,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), apply_types[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 10:
 		strcpy(buf, "RACES:\r\n");
@@ -1833,7 +1833,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), player_race[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 11:
 		strcpy(buf, "AFF FLAGS:\r\n");
@@ -1843,7 +1843,7 @@ show_olc_help(struct char_data *ch, char *arg)
 					C_NRM), affected_bits_desc[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 12:
 		strcpy(buf, "AFF2 FLAGS:\r\n");
@@ -1853,7 +1853,7 @@ show_olc_help(struct char_data *ch, char *arg)
 					C_NRM), affected2_bits_desc[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 13:
 		strcpy(buf, "AFF3 FLAGS:\r\n");
@@ -1863,7 +1863,7 @@ show_olc_help(struct char_data *ch, char *arg)
 					C_NRM), affected3_bits_desc[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 14:
 		if (*arg2) {
@@ -1897,7 +1897,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				item_value_types[i][0], item_value_types[i][1],
 				item_value_types[i][2], item_value_types[i][3]);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 15:	   /** spells **/
 		if (*arg2) {
@@ -1925,7 +1925,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				strcat(buf, buf2);
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 16:
@@ -1937,7 +1937,7 @@ show_olc_help(struct char_data *ch, char *arg)
 			strcat(buf, buf2);
 		}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 17:/** chemicals **/
@@ -1957,7 +1957,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				strcat(buf, buf2);
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 19:					/* materials */
 		if (*arg2) {
@@ -1990,7 +1990,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				strcat(buf, buf2);
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 20:		   /** bomb types **/
@@ -2000,7 +2000,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), bomb_types[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 21:		   /** fuse types **/
 		strcpy(buf, "FUSE TYPES:\r\n");
@@ -2009,7 +2009,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), fuse_types[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 22:		   /** mob flags **/
 		strcpy(buf, "MOB FLAGS:\r\n");
@@ -2018,7 +2018,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), action_bits_desc[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 23:		   /** mob flags2 **/
 		strcpy(buf, "MOB FLAGS2:\r\n");
@@ -2027,7 +2027,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), action2_bits_desc[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 24:		   /** position **/
 		strcpy(buf, "POSITIONS:\r\n");
@@ -2036,7 +2036,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), position_types[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 25:		   /** sex **/
 		strcpy(buf, "GENDERS:\r\n");
@@ -2045,7 +2045,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), genders[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 26:		   /** char_class **/
 		strcpy(buf, "CLASSES:\r\n");
@@ -2057,7 +2057,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				strcat(buf, buf2);
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 27:		   /** itemtypes **/
 		strcpy(buf, "ITEM TYPES:\r\n");
@@ -2068,7 +2068,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				strcat(buf, buf2);
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 28:		   /** sflags **/
 		strcpy(buf, "SHOP FLAGS:\r\n");
@@ -2079,7 +2079,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				strcat(buf, buf2);
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 29:		   /** tradewith **/
 		strcpy(buf, "TRADE WITH:\r\n");
@@ -2088,7 +2088,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), trade_letters[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 30: /** implantpos **/
@@ -2098,7 +2098,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), wear_implantpos[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 31: /** smokes **/
@@ -2108,7 +2108,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), smoke_types[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 32: /** temper **/
@@ -2118,7 +2118,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), temper_str[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 33: /** vehicles **/
@@ -2129,7 +2129,7 @@ show_olc_help(struct char_data *ch, char *arg)
 					C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 34: /** engines **/
@@ -2139,7 +2139,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				(1 << i), CCCYN(ch, C_NRM), engine_flags[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 35:  /** searches **/
@@ -2157,7 +2157,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				gun_damage[i][0] * gun_damage[i][1]);
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 37: /** interfaces **/
@@ -2168,7 +2168,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), interface_types[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 38: /**  microchips **/
@@ -2179,7 +2179,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				i, CCCYN(ch, C_NRM), microchip_types[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 39: /** searchflags **/
@@ -2190,7 +2190,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				searchflag_help[i]);
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 40:
 		strcpy(buf, "OBJ EXTRA3 FLAGS:\r\n");
@@ -2201,7 +2201,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				extra3_bits[i], extra3_names[i], CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 41:
@@ -2212,7 +2212,7 @@ show_olc_help(struct char_data *ch, char *arg)
 				CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	default:
 		send_to_char(ch, 

@@ -249,7 +249,7 @@ do_olc_ihandler(struct char_data *ch, char *arg)
 			i++;
 		}
 		strcat(buf, CCNRM(ch, C_NRM));
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 
@@ -301,7 +301,7 @@ do_olc_ihandler(struct char_data *ch, char *arg)
 				CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 
@@ -366,7 +366,7 @@ do_olc_iset(struct char_data *ch, char *arg)
 			i++;
 		}
 		strcat(buf, CCNRM(ch, C_NRM));
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	}
 
@@ -580,7 +580,7 @@ do_olc_ilist(struct char_data *ch, char *argument)
 	}
 	char *tmp_buf = new char[buf1.length() + 1];
 	strcpy(tmp_buf, buf1.c_str());
-	page_string(ch->desc, tmp_buf, 1);
+	page_string(ch->desc, tmp_buf);
 }
 
 class CIScript *
@@ -700,5 +700,5 @@ do_olc_istat(struct char_data *ch, char *arg)
 		send_to_char(ch, 
 			"    There are no event handlers defined for this iscript.\r\n");
 	else
-		page_string(ch->desc, buf1, 1);
+		page_string(ch->desc, buf1);
 }

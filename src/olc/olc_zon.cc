@@ -2850,7 +2850,7 @@ do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg)
 			strcat(out_buf, buf);
 	}
 
-	page_string(ch->desc, out_buf, 1);
+	page_string(ch->desc, out_buf);
 }
 
 /*

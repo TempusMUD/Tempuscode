@@ -1580,7 +1580,7 @@ ACMD(do_alias)
 				a = a->next;
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 	} else {					/* otherwise, add or display aliases */
 		if (!*repl) {
 			if ((a = find_alias(GET_ALIASES(ch), arg)) == NULL) {

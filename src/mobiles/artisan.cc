@@ -203,7 +203,7 @@ craftshop_list(char_data *keeper, char_data *ch)
 			}
 		}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 	} else {
 		sprintf(buf, "%s I'm not carrying anything!", GET_NAME(ch));
 		do_gen_comm(keeper, buf, 0, SCMD_SAY_TO, NULL);

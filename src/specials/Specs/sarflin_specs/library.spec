@@ -32,7 +32,7 @@ void read_page(FILE *fh,int page,struct char_data *ch)
       text_string = fread_string(fh,buf);
       text_string++;
 
-      page_string(ch->desc,text_string,0);
+      page_string(ch->desc,text_string);
       text_string--;
 
       free (text_string);
@@ -70,7 +70,7 @@ SPECIAL(library)
       return 1;
     }
     text_string = fread_string(book,buf);
-    page_string(ch->desc,text_string,0);
+    page_string(ch->desc,text_string);
     free (text_string);
     fclose(book);
     return 1;

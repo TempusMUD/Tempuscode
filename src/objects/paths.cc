@@ -83,7 +83,7 @@ show_pathobjs(struct char_data *ch)
 		else
 			strcat(buf, "ERROR!\r\n");
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 void
@@ -120,7 +120,7 @@ show_path(struct char_data *ch, char *arg)
 		strcat(outbuf, buf);
 	}
 
-	page_string(ch->desc, outbuf, 1);
+	page_string(ch->desc, outbuf);
 }
 
 int

@@ -433,7 +433,7 @@ Board_show_board(int board_type, struct char_data *ch, struct obj_data *obj,
 			}
 		}
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 
 	return 1;
 }
@@ -491,7 +491,7 @@ Board_display_msg(int board_type, struct char_data *ch, struct obj_data *obj,
 		MSG_HEADING(board_type, ind), CCNRM(ch, C_CMP),
 		msg_storage[MSG_SLOTNUM(board_type, ind)]);
 
-	page_string(ch->desc, buffer, 1);
+	page_string(ch->desc, buffer);
 
 	return 1;
 }

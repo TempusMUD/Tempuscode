@@ -470,7 +470,7 @@ do_show_specials(struct char_data *ch, char *arg)
 		} else
 			strcat(outbuf, buf);
 	}
-	page_string(ch->desc, outbuf, 1);
+	page_string(ch->desc, outbuf);
 }
 
 //

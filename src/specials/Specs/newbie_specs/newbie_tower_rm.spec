@@ -23,7 +23,7 @@ SPECIAL(newbie_tower_rm)
         cur = Help->find_item_by_id(196);
         if(cur) {
             cur->Show( ch, buf,2);
-            page_string(ch->desc,buf,1);
+            page_string(ch->desc,buf);
         }
       /*
       send_to_char(ch, "This map may be viewed at any time by typing 'help modrian'.\r\n");
@@ -39,7 +39,7 @@ SPECIAL(newbie_tower_rm)
         cur = Help->find_item_by_id(196);
         if(cur) {
             cur->Show( ch, buf,2);
-            page_string(ch->desc,buf,1);
+            page_string(ch->desc,buf);
         }
       return 1;
     }

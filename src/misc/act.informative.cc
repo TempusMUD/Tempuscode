@@ -151,7 +151,7 @@ show_obj_to_char(struct obj_data *object, struct char_data *ch,
 			if (object->action_description) {
 				strcpy(buf, "There is something written upon it:\r\n\r\n");
 				strcat(buf, object->action_description);
-				page_string(ch->desc, buf, 1);
+				page_string(ch->desc, buf);
 			} else {
 				act("It's blank.", FALSE, ch, 0, 0, TO_CHAR);
 			}
@@ -348,7 +348,7 @@ show_obj_to_char(struct obj_data *object, struct char_data *ch,
 		strcat(buf, "\r\n");
 	}
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 
 	if (GET_OBJ_TYPE(object) == ITEM_VEHICLE && mode == 6) {
 		if (CAR_OPENABLE(object)) {
@@ -800,22 +800,24 @@ list_one_char(struct char_data *i, struct char_data *ch, byte is_group)
 		else
 			*buf = '\0';
 
-		if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
-			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
-			if (IS_EVIL(i)) {
-				sprintf(buf2, "%s%s(Red Aura)%s ",
-					CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-				strcat(buf, buf2);
-			} else if (IS_GOOD(i)) {
-				sprintf(buf2, "%s%s(Blue Aura)%s ",
-					CCBLD(ch, C_CMP), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-				strcat(buf, buf2);
-			}
-		}
 		strcat(buf, CCYEL(ch, C_NRM));
 		if (is_group)
 			strcat(buf, CCBLD(ch, C_CMP));
 		strcat(buf, i->player.long_descr);
+
+		if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
+			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
+			if (IS_EVIL(i)) {
+				sprintf(buf2, " %s%s(Red Aura)%s ",
+					CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+				strcat(buf, buf2);
+			} else if (IS_GOOD(i)) {
+				sprintf(buf2, " %s%s(Blue Aura)%s ",
+					CCBLD(ch, C_CMP), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+				strcat(buf, buf2);
+			}
+		}
+
 		send_to_char(ch, "%s", buf);
 
 		if (IN_ROOM(ch) != IN_ROOM(i))
@@ -943,17 +945,19 @@ list_one_char(struct char_data *i, struct char_data *ch, byte is_group)
 			sprintf(buf, "%s %s%s(Red Aura)%s", buf,
 				CCRED(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 		else if (IS_GOOD(i))
-			send_to_char(ch, "%s %s%s(Blue Aura)%s", buf,
+			sprintf(buf, "%s %s%s(Blue Aura)%s", buf,
 				CCBLU(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 	}
 	strcat(buf, "\r\n");
 
+	send_to_char(ch, "%s", buf);
 	if (!PRF2_FLAGGED(ch, PRF2_NOTRAILERS))
 		show_trailers_to_char(ch, i);
 
+/*
 	send_to_char(ch, CCNRM(ch, C_NRM));
 	send_to_char(ch, CCYEL(ch, C_NRM));
-
+*/
 }
 
 void
@@ -1717,7 +1721,7 @@ look_at_target(struct char_data *ch, char *arg, int cmd)
 	}
 	/* Does the argument match an extra desc in the room? */
 	if ((desc = find_exdesc(arg, ch->in_room->ex_description)) != NULL) {
-		page_string(ch->desc, desc, 1);
+		page_string(ch->desc, desc);
 		return;
 	}
 	/* Does the argument match a door keyword anywhere in the room? */
@@ -1737,7 +1741,7 @@ look_at_target(struct char_data *ch, char *arg, int cmd)
 				isname(arg, GET_EQ(ch, j)->name)))
 			if ((desc =
 					find_exdesc(arg, GET_EQ(ch, j)->ex_description)) != NULL) {
-				page_string(ch->desc, desc, 1);
+				page_string(ch->desc, desc);
 				found = 1;
 				bits = 1;
 				found_obj = GET_EQ(ch, j);
@@ -1747,7 +1751,7 @@ look_at_target(struct char_data *ch, char *arg, int cmd)
 		if (CAN_SEE_OBJ(ch, obj) &&
 			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->name)))
 			if ((desc = find_exdesc(arg, obj->ex_description)) != NULL) {
-				page_string(ch->desc, desc, 1);
+				page_string(ch->desc, desc);
 				found = bits = 1;
 				found_obj = obj;
 				break;
@@ -1759,7 +1763,7 @@ look_at_target(struct char_data *ch, char *arg, int cmd)
 		if (CAN_SEE_OBJ(ch, obj) &&
 			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->name)))
 			if ((desc = find_exdesc(arg, obj->ex_description)) != NULL) {
-				page_string(ch->desc, desc, 1);
+				page_string(ch->desc, desc);
 				found = bits = 1;
 				found_obj = obj;
 				break;
@@ -2478,7 +2482,7 @@ ACMD(do_affects)
 {
 	strcpy(buf, "Current affects:\r\n");
 	print_affs_to_string(ch, buf, 0);
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 ACMD(do_experience)
@@ -2669,7 +2673,7 @@ ACMD(do_score)
 	buf[0] = '\0';
 	print_affs_to_string(ch, buf, PRF2_FLAGGED(ch, PRF2_NOAFFECTS));
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 
@@ -2701,7 +2705,7 @@ ACMD(do_equipment)
 				sprintf(outbuf, "%s-%s- is in %s condition.\r\n", outbuf,
 					obj->short_description, obj_cond_color(obj, ch));
 			}
-			page_string(ch->desc, outbuf, 1);
+			page_string(ch->desc, outbuf);
 			return;
 		}
 
@@ -2747,7 +2751,7 @@ ACMD(do_equipment)
 							outbuf, obj->short_description, obj_cond_color(obj,
 								ch));
 					}
-					page_string(ch->desc, outbuf, 1);
+					page_string(ch->desc, outbuf);
 					return;
 				}
 				if (*buf2) {
@@ -3397,7 +3401,7 @@ ACMD(do_who)
 		sprintf(buf2, "%s%d total detected in game.\r\n", buf2, tot_num);
 
 	strcat(buf2, CCNRM(ch, C_CMP));
-	page_string(ch->desc, buf2, 1);
+	page_string(ch->desc, buf2);
 }
 
 
@@ -3573,7 +3577,7 @@ ACMD(do_users)
 
 	sprintf(line, "\r\n%d visible sockets connected.\r\n", num_can_see);
 	strcat(out_buf, line);
-	page_string(ch->desc, out_buf, 1);
+	page_string(ch->desc, out_buf);
 }
 
 
@@ -3585,35 +3589,35 @@ ACMD(do_gen_ps)
 
 	switch (subcmd) {
 	case SCMD_CREDITS:
-		page_string(ch->desc, credits, 0);
+		page_string(ch->desc, credits);
 		break;
 	case SCMD_INFO:
-		page_string(ch->desc, info, 0);
+		page_string(ch->desc, info);
 		break;
     /*
 	case SCMD_WIZLIST:
 		if (clr(ch, C_NRM))
-			page_string(ch->desc, ansi_wizlist, 0);
+			page_string(ch->desc, ansi_wizlist);
 		else
-			page_string(ch->desc, wizlist, 0);
+			page_string(ch->desc, wizlist);
 	case SCMD_IMMLIST:
 		if (clr(ch, C_NRM))
-			page_string(ch->desc, ansi_immlist, 0);
+			page_string(ch->desc, ansi_immlist);
 		else
-			page_string(ch->desc, immlist, 0);
+			page_string(ch->desc, immlist);
 		break;
     */
 	case SCMD_MOTD:
 		if (clr(ch, C_NRM))
-			page_string(ch->desc, ansi_motd, 0);
+			page_string(ch->desc, ansi_motd);
 		else
-			page_string(ch->desc, motd, 0);
+			page_string(ch->desc, motd);
 		break;
 	case SCMD_IMOTD:
 		if (clr(ch, C_NRM))
-			page_string(ch->desc, ansi_imotd, 0);
+			page_string(ch->desc, ansi_imotd);
 		else
-			page_string(ch->desc, imotd, 0);
+			page_string(ch->desc, imotd);
 		break;
 	case SCMD_CLEAR:
 		send_to_char(ch, "\033[H\033[J");
@@ -3631,13 +3635,13 @@ ACMD(do_gen_ps)
 				"Do you want a list of low, mid, high, or remort level areas?\r\n"
 				"Usage: areas < low | mid | high | remort >\r\n");
 		else if (is_abbrev(argument, "low"))
-			page_string(ch->desc, areas_low, 0);
+			page_string(ch->desc, areas_low);
 		else if (is_abbrev(argument, "mid"))
-			page_string(ch->desc, areas_mid, 0);
+			page_string(ch->desc, areas_mid);
 		else if (is_abbrev(argument, "high"))
-			page_string(ch->desc, areas_high, 0);
+			page_string(ch->desc, areas_high);
 		else if (is_abbrev(argument, "remort"))
-			page_string(ch->desc, areas_remort, 0);
+			page_string(ch->desc, areas_remort);
 		else
 			send_to_char(ch, "Usage: areas < low | mid | high | remort >\r\n");
 		break;
@@ -3779,7 +3783,7 @@ perform_immort_where(struct char_data *ch, char *arg)
 				}
 			}
 		}
-		page_string(ch->desc, main_buf, 1);
+		page_string(ch->desc, main_buf);
 	} else {
 		main_buf[0] = '\0';
 		list <string> outList;
@@ -3824,7 +3828,7 @@ perform_immort_where(struct char_data *ch, char *arg)
 				}
 				strcat(main_buf, (*it).c_str());
 			}
-			page_string(ch->desc, main_buf, 1);
+			page_string(ch->desc, main_buf);
 		} else {
 			send_to_char(ch, "Couldn't find any such thing.\r\n");
 		}
@@ -4116,7 +4120,7 @@ ACMD(do_levels)
 		strcat(buf, CCNRM(ch, C_NRM));
 		strcat(buf, "\r\n");
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 
@@ -4508,7 +4512,7 @@ ACMD(do_commands)
 	}
 
 	strcat(buf, "\r\n");
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 ACMD(do_soilage)
@@ -4571,7 +4575,7 @@ ACMD(do_soilage)
 
 		}
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 
 }
 

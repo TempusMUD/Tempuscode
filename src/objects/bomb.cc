@@ -666,7 +666,7 @@ ACMD(do_bomb)
 		free(rad_elem);
 	}
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 //

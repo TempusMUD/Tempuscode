@@ -175,7 +175,7 @@ show_char_class_skills(struct char_data *ch, int con, int immort, int bits)
 			}
 		}
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 void
@@ -213,7 +213,7 @@ list_residents_to_char(struct char_data *ch, int town)
 		if (!found)
 			strcat(buf, "None online.\r\n");
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 	return;
 }
 
@@ -899,7 +899,7 @@ do_stat_trails(struct char_data *ch)
 			trail->track, buf2);
 	}
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 void
@@ -1075,7 +1075,7 @@ do_stat_room(struct char_data *ch, char *roomstr)
 		}
 	}
 
-	page_string(ch->desc, out_buf, 1);
+	page_string(ch->desc, out_buf);
 }
 
 
@@ -1836,7 +1836,7 @@ do_stat_character(struct char_data *ch, struct char_data *k)
 			strcat(outbuf, strcat(buf, "\r\n"));
 		}
 	}
-	page_string(ch->desc, outbuf, 1);
+	page_string(ch->desc, outbuf);
 }
 
 
@@ -1890,7 +1890,7 @@ do_stat_ticl(struct char_data *ch, int vnum)
 		send_to_char(ch, "%s", buf);
 
 		if (ticl->code != NULL)
-			page_string(ch->desc, ticl->code, 1);
+			page_string(ch->desc, ticl->code);
 	}
 }
 
@@ -3682,7 +3682,7 @@ list_skills_to_char(struct char_data *ch, struct char_data *vict)
 			strcat(buf2, buf);
 		}
 	}
-	page_string(ch->desc, buf2, 1);
+	page_string(ch->desc, buf2);
 }
 
 void
@@ -3788,7 +3788,7 @@ show_wizcommands(CHAR * ch)
 	   if (found % 4)
 	   strcat(outbuf, "\r\n");
 	   }
-	   page_string(ch->desc, outbuf, 1);
+	   page_string(ch->desc, outbuf);
 	 */
 }
 
@@ -3973,7 +3973,7 @@ show_multi(CHAR * ch, char *arg)
 		}
 	}
 	free(whole_file);
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 void
@@ -4001,7 +4001,7 @@ show_zoneusage(CHAR * ch, char *value)
 			get_name_by_id(zone->owner_idnum), CCNRM(ch, C_NRM));
 	}
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 void
@@ -4050,7 +4050,7 @@ show_topzones(CHAR * ch, char *value)
 			get_name_by_id(topzones[i]->owner_idnum), CCNRM(ch, C_NRM));
 
 	free(topzones);
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 
 }
 
@@ -4092,7 +4092,7 @@ show_mobkills(CHAR * ch, char *value, char *arg)
 			}
 		}
 	}
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 #define MLEVELS_USAGE "Usage: show mlevels <real | proto> [remort] [expand]\r\n"
@@ -4214,7 +4214,7 @@ show_mlevels(CHAR * ch, char *value, char *arg)
 		}
 	}
 
-	page_string(ch->desc, buf, 1);
+	page_string(ch->desc, buf);
 }
 
 #define SFC_OBJ 1
@@ -4400,7 +4400,7 @@ ACMD(do_show)
 				send_to_char(ch, usage);
 				return;
 			}
-			page_string(ch->desc, buf, 0);
+			page_string(ch->desc, buf);
 			break;
 		}
 
@@ -4437,7 +4437,7 @@ ACMD(do_show)
 					else
 						strcat(buf, "\r\n");
 				}
-		page_string(ch->desc, buf, 0);
+		page_string(ch->desc, buf);
 		break;
 	case 7:
 #define GOD_ROOMS_ZONE 12
@@ -4555,7 +4555,7 @@ ACMD(do_show)
 					a = a->next;
 				}
 			}
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 		}
 		break;
 	case 16:
@@ -4568,7 +4568,7 @@ ACMD(do_show)
 		send_to_char(ch, "Command not implemented yet.\r\n");
 		break;
 	case 19:					// questguide
-		page_string(ch->desc, quest_guide, 1);
+		page_string(ch->desc, quest_guide);
 		break;
 	case 20:					// zoneusage 
 		show_zoneusage(ch, value);
@@ -4580,7 +4580,7 @@ ACMD(do_show)
 				sprintf(buf, "%s%-30s -- [%4d]\r\n", buf, home_towns[i],
 					population_record[i]);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 22:					// topzones
 		show_topzones(ch, value);
@@ -4600,7 +4600,7 @@ ACMD(do_show)
 				i++;
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 24:  /** objects **/
@@ -4636,7 +4636,7 @@ ACMD(do_show)
 			}
 		}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 26:  /** quiz **/
@@ -4657,7 +4657,7 @@ ACMD(do_show)
 		   }
 		   strcat(buf2, buf);
 		   }
-		   page_string(ch->desc, buf2, 1);
+		   page_string(ch->desc, buf2);
 		   break;
 		 */
 	case 27:	 /** clans **/
@@ -4689,7 +4689,7 @@ ACMD(do_show)
 						strcat(buf2, buf);
 				}
 
-			page_string(ch->desc, buf2, 1);
+			page_string(ch->desc, buf2);
 			return;
 		}
 		if (!(vict = get_char_vis(ch, value))) {
@@ -4739,7 +4739,7 @@ ACMD(do_show)
 			str_app[35].wield_w,
 			str_app[36].tohit, str_app[36].todam, str_app[36].carry_w,
 			str_app[36].wield_w);
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 34:					/* timezones */
@@ -4769,7 +4769,7 @@ ACMD(do_show)
 				break;
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 35:					/* char_class */
 		if (!*value) {
@@ -4792,7 +4792,7 @@ ACMD(do_show)
 			if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED))
 				sprintf(buf, "%s %3d. %s\r\n", buf, zone->number, zone->name);
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 37:
 		strcpy(buf, "Elevator list:\r\n");
@@ -4802,7 +4802,7 @@ ACMD(do_show)
 				sprintf(buf, "%s Room:[%5d] Key:[%5d] [%s]\r\n", buf,
 					e_elem->rm_vnum, e_elem->key, e_elem->name);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 38:
@@ -4833,7 +4833,7 @@ ACMD(do_show)
 			else if (sfc_mode == SFC_ROOM && !real_room(i))
 				sprintf(buf, "%s[%5d]\r\n", buf, i);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	case 39:					/* exp_percent */
@@ -4882,7 +4882,7 @@ ACMD(do_show)
 					percent, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 40:					/* demand_items */
@@ -4912,7 +4912,7 @@ ACMD(do_show)
 			}
 		}
 		if (i)
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 		else
 			send_to_char(ch, "No items.\r\n");
 		break;
@@ -4938,7 +4938,7 @@ ACMD(do_show)
 				"ERROR!!", vict->in_room->number);
 		}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 43:					/* quad */
@@ -4961,7 +4961,7 @@ ACMD(do_show)
 
 		}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 44:
@@ -4986,7 +4986,7 @@ ACMD(do_show)
 				GET_NAME(HUNTING(vict)), HUNTING(vict)->in_room->number);
 		}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 46:					/* last_cmd */
@@ -4997,7 +4997,7 @@ ACMD(do_show)
 				i, last_cmd[i].idnum, get_name_by_id(last_cmd[i].idnum),
 				last_cmd[i].string);
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 47:					// duperooms
@@ -5039,7 +5039,7 @@ ACMD(do_show)
 			"%s------------------------------------------------------\r\n"
 			" Totals:                              %4d/%3d  %6d\r\n", buf, k,
 			tot_rms, con);
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 48:					// specialization
@@ -5056,7 +5056,7 @@ ACMD(do_show)
 				obj ? obj->short_description : "--- ---",
 				GET_WEAP_SPEC(vict, i).level);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 49:					// p_index
 		j = k = 0;
@@ -5082,7 +5082,7 @@ ACMD(do_show)
 			sprintf(buf, "%s %3d. [%5ld] %s\r\n", buf, i, player_table[i].id,
 				player_table[i].name);
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 #define ZEXITS_USAGE "Usage: zexit <f|t> <zone>\r\n"
@@ -5119,7 +5119,7 @@ ACMD(do_show)
 					}
 				}
 			}
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 			return;
 		}
 		// check for exits TO zone k, a slow operation
@@ -5150,7 +5150,7 @@ ACMD(do_show)
 					}
 				}
 			}
-			page_string(ch->desc, buf, 1);
+			page_string(ch->desc, buf);
 			return;
 		}
 
@@ -6107,7 +6107,7 @@ ACMD(do_rlist)
 	if (!found)
 		send_to_char(ch, "No rooms where found in those parameters.\r\n");
 	else
-		page_string(ch->desc, out_list, 1);
+		page_string(ch->desc, out_list);
 }
 
 
@@ -6196,7 +6196,7 @@ ACMD(do_xlist)
 			strcat(outbuf, buf);
 		}
 	}
-	page_string(ch->desc, outbuf, 1);
+	page_string(ch->desc, outbuf);
 }
 
 ACMD(do_mlist)
@@ -6251,7 +6251,7 @@ ACMD(do_mlist)
 	if (!found)
 		send_to_char(ch, "No mobiles where found in those parameters.\r\n");
 	else
-		page_string(ch->desc, out_list, 1);
+		page_string(ch->desc, out_list);
 }
 
 
@@ -6307,7 +6307,7 @@ ACMD(do_olist)
 	if (!found)
 		send_to_char(ch, "No objects where found in those parameters.\r\n");
 	else
-		page_string(ch->desc, out_list, 1);
+		page_string(ch->desc, out_list);
 }
 
 
@@ -6790,7 +6790,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 					buf, ++i, GET_MOB_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
 					GET_HITROLL(mob));
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 2:					/* gold */
 		arg = two_arguments(arg, arg1, arg2);
@@ -6821,7 +6821,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 					buf, ++i, GET_MOB_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
 					GET_GOLD(mob));
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 	case 3:					/* flags */
 
@@ -6861,7 +6861,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 			}
 		}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	case 4:					/* extreme gold */
 
@@ -6916,7 +6916,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 			}
 
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		break;
 
 	case 5:					// special
@@ -6951,7 +6951,7 @@ do_show_mobiles(struct char_data *ch, char *value, char *arg)
 				strcat(buf, buf2);
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 
@@ -7043,7 +7043,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				j++;
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	case 1:					/* material */
@@ -7087,7 +7087,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				j++;
 			}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	case 2:					/* apply */
@@ -7136,7 +7136,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 					break;
 				}
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	case 3:					/* special */
@@ -7171,7 +7171,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				strcat(buf, buf2);
 			}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	case 4:					/* affect */
@@ -7210,7 +7210,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				strcat(buf, buf2);
 			}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	case 5:					/* extra */
@@ -7258,7 +7258,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 				strcat(buf, buf2);
 			}
 
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	case 6:					/* Worn */
@@ -7310,7 +7310,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 			}
 
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 
 	case 7:					/* Cost */
@@ -7354,7 +7354,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 			}
 
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 		return;
 	case 8:					// spell, you know, like casting and stuff.
 
@@ -7465,7 +7465,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
 			strcat(buf, buf2);
 			j++;
 		}
-		page_string(ch->desc, buf, 1);
+		page_string(ch->desc, buf);
 
 		break;					// end case 8, or was it 9? I forget.
 	case 9:

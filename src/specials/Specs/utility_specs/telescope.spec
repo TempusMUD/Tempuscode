@@ -33,7 +33,7 @@ SPECIAL(telescope)
     return 0;
 
   if ((desc = find_exdesc(arg2, scope->ex_description)) != NULL) {
-    page_string(ch->desc, desc, 1);
+    page_string(ch->desc, desc);
   } else 
     act("You cannot look at that with $p.", FALSE, ch, scope, 0, TO_CHAR);
 
