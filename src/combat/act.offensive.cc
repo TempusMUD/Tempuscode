@@ -761,6 +761,8 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 		if (NULL_PSI(vict))
 			prob = 0;
+        if (ch->getLevel() < 51 && !IS_PSIONIC(ch))
+            prob = 0;
 
 		*dam = dice(ch->getLevelBonus(SKILL_PSIBLAST) / 2, GET_INT(ch) + 1);
 
