@@ -3305,14 +3305,14 @@ ACMD(do_last)
         return;
     }
 	pid = playerIndex.getID(arg);
-    if (pid < 0) {
+    if (pid <= 0) {
         send_to_char(ch, "There is no such player.\r\n");
         return;
     }
 	vict = new Creature;
 	if (!vict->loadFromXML(pid)) {
 		send_to_char(ch, "There was an error.\r\n");
-		slog("problems loading character.");
+		slog("Unable to load character for 'LAST'.");
 		delete vict;
 		return;
 	}
@@ -7457,8 +7457,6 @@ static const char *tester_cmds[] = {
 static const char* CODER_UTIL_USAGE = 
                     "Usage: coderutil <command> <args>\r\n"
                     "Commands: \r\n"
-                    "      export - Exports the current player file to XML.\r\n"
-                    "      rebuild - Rebuilds the player table from xml.\r\n"
                     "      tick - forces a mud-wide tick to occur.\r\n"
                     ;
 
@@ -7471,12 +7469,7 @@ ACMD(do_coderutil)
         send_to_char( ch, CODER_UTIL_USAGE );
         return;
     }
-
-    if( strcmp( token, "reload" )  == 0 ) {
-        playerIndex.clear();
-        build_player_table();
-        send_to_char(ch, "Reloaded.\r\n");
-    } else if ( strcmp( token, "tick" ) == 0 ) {
+    if ( strcmp( token, "tick" ) == 0 ) {
         point_update();
     } else {
         send_to_char( ch, CODER_UTIL_USAGE );
