@@ -711,6 +711,7 @@ struct command_info cmd_info[] = {
 	{"fidget", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"fill", POS_STANDING, do_pour, 0, SCMD_FILL, 0, 0},
 	{"firstaid", POS_STANDING, do_firstaid, 0, 0, 0, 0},
+	{"fight", POS_RESTING, do_kill, 0, 0, 0, 0},
     {"fired", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"five", POS_STANDING, do_action, 0, 0, 0, 0},
 	{"feed", POS_RESTING, do_feed, 0, 0, 0, 0},
