@@ -20,6 +20,8 @@
 #define FATE_VNUM_HIGH 1207
 #endif
 
+#define JAIL_LOCKER_VNUM 3178
+
 SPECIAL(postmaster);
 SPECIAL(cityguard);
 SPECIAL(receptionist);
