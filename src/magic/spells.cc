@@ -2082,28 +2082,33 @@ ASPELL(spell_death_knell)
     af3.modifier = 5 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 15);
     
     // Affect the character
-    affect_to_char(ch, &af);   
-    affect_to_char(ch, &af2);   
-    affect_to_char(ch, &af3);   
+    if (!affected_by_spell(ch, SPELL_DEATH_KNELL)) {
+        affect_to_char(ch, &af);   
+        affect_to_char(ch, &af2);   
+        affect_to_char(ch, &af3);   
    
-    // Impose a wait state on the casting character
-    WAIT_STATE(ch, PULSE_VIOLENCE);
+        // Impose a wait state on the casting character
+        WAIT_STATE(ch, PULSE_VIOLENCE);
     
-    // Set currhit
-    GET_HIT(ch) += af2.modifier;
+        // Set currhit
+        GET_HIT(ch) += af2.modifier;
  
-    // Messages
-    act("$N withers and crumbles to dust as you drain $s lifeforce!",
-        FALSE, ch, 0, victim, TO_CHAR);
-    act("$N withers and crumbles to dust as $n drains $s lifeforce!",
-        FALSE, ch, 0, victim, TO_ROOM);
+        // Messages
+        act("$N withers and crumbles to dust as you drain $s lifeforce!",
+            FALSE, ch, 0, victim, TO_CHAR);
+        act("$N withers and crumbles to dust as $n drains $s lifeforce!",
+            FALSE, ch, 0, victim, TO_ROOM);
     
-    // Up the chars skill proficiency
-    gain_skill_prof(ch, SPELL_DEATH_KNELL);
+        // Up the chars skill proficiency
+        gain_skill_prof(ch, SPELL_DEATH_KNELL);
     
-    // Kill the affected mob, since we know he already has -1 hp or less
-    // 15 points of damage should do it.
-    damage(ch, victim, 15, SPELL_DEATH_KNELL, 0);
+        // Kill the affected mob, since we know he already has -1 hp or less
+        // 15 points of damage should do it.
+        damage(ch, victim, 15, SPELL_DEATH_KNELL, 0);
+    }
+    else
+        act("Nothing seems to happen.",
+            FALSE, ch, 0, victim, TO_CHAR);
     return;
 }
 
