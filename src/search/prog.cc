@@ -233,7 +233,7 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 {
 	obj_data *obj;
 	int vnum;
-	char *arg, *str;
+	char *arg, *str, *arg2;
 	bool result = false, not_flag = false;
 
 	arg = tmp_getword(&args);
@@ -244,6 +244,8 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 
 	if (!strcmp(arg, "argument")) {
 		result = (evt->args && !strcasecmp(args, evt->args));
+    // Mobs using "alias"
+    // 1200 3062 90800
 	} else if (!strcmp(arg, "alias")) {
 		if (evt->args) {
 			str = evt->args;
@@ -268,7 +270,30 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 				arg = tmp_getword(&str);
 			}
 		}
-	} else if (!strcmp(arg, "fighting")) {
+	} else if (!strcmp(arg, "abbrev")) {
+        if (evt->args) {
+            str = evt->args;
+            arg = tmp_getword(&str);
+            while (*arg) {
+                char *tmp_args = args;
+                char *cmp = tmp_getword(&tmp_args);
+                while (*cmp) {
+                    int length = 0;
+                    arg2 = tmp_peekword(&tmp_args);
+                    if (is_number(arg2)) {
+                        length = atoi(arg2);
+                        tmp_getword(&tmp_args);
+                    }
+                    if (is_abbrev(arg, cmp, length)) {
+                        result = true;
+                        break;
+                    }
+                    cmp = tmp_getword(&tmp_args);
+                }
+                arg = tmp_getword(&str);
+            }
+        }
+    } else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
 				&& ((Creature *)env->owner)->isFighting());
 	} else if (!strcmp(arg, "randomly")) {
