@@ -243,6 +243,7 @@ handle_input(struct descriptor_data *d, char *arg)
 					show_character_detail(d);
 					delete d->creature;
 					d->creature = NULL;
+					set_desc_state(CXN_WAIT_MENU, d);
 				} else {
                     slog("Error loading character %d to show statistics.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
@@ -624,7 +625,7 @@ handle_input(struct descriptor_data *d, char *arg)
 	case CXN_NEWPW_PROMPT:
 		if (arg[0]) {
 			d->account->set_password(arg);
-			set_desc_state(CXN_PW_VERIFY, d);
+			set_desc_state(CXN_NEWPW_VERIFY, d);
 		} else {
 			send_to_desc(d, "\r\nPassword change cancelled!\r\n\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
@@ -865,7 +866,7 @@ send_menu(descriptor_data *d)
 	case CXN_DELETE_VERIFY:
 	case CXN_AFTERLIFE:
 	case CXN_REMORT_AFTERLIFE:
-		break;
+	case CXN_DELETE_PW:
 		// These states don't have menus
 		break;
 	case CXN_OLDPW_PROMPT:
@@ -878,7 +879,7 @@ send_menu(descriptor_data *d)
 	case CXN_ACCOUNT_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d,"&n\r\n                                ACCOUNT CREATION\r\n*******************************************************************************&n\r\n");
-		send_to_desc(d, "\r\n\r\n    On TempusMUD, you have an account, which is a handy way of keeping\r\ntrack of all your characters here.  All your characters share a bank\r\naccount, and you can see at a single glance which of your cahracter have\r\nreceived mail.\r\n\r\n");
+		send_to_desc(d, "\r\n\r\n    On TempusMUD, you have an account, which is a handy way of keeping\r\ntrack of all your characters here.  All your characters share a bank\r\naccount, and you can see at a single glance which of your character have\r\nreceived mail.  Quest points are also shared by all your characters.\r\n\r\n");
 		break;
 	case CXN_ANSI_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
@@ -1156,10 +1157,6 @@ send_menu(descriptor_data *d)
 		}
 		delete tmp_ch;
 		send_to_desc(d, "&n\r\n");
-		break;
-	case CXN_DELETE_PW:
-		send_to_desc(d, "You have chosen to delete '%s'\r\n",
-			GET_NAME(d->creature));
 		break;
 	case CXN_NETWORK:
 		SEND_TO_Q("\e[H\e[J",d );
