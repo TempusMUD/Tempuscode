@@ -940,7 +940,6 @@ bool LIGHT_OK(Creature *sub);
 bool LIGHT_OK_ROOM(Creature *sub, room_data *room);
 bool ROOM_OK(Creature *sub);
 bool INVIS_OK(Creature *sub, Creature *obj);
-bool MORT_CAN_SEE(Creature *sub, Creature *obj);
 bool MOB_UNAPPROVED(Creature *ch);
 bool CHAR_CAN_SEE(Creature *ch, room_data *room = NULL);
 bool INVIS_OK(Creature *sub, Creature *obj);
@@ -952,7 +951,7 @@ static inline bool APPROVED_OK_OBJ( Creature *sub, obj_data *obj )  {
 		return true;
 	if( sub->getLevel() >= LVL_IMMORT || sub->isTester() )
 		return true;
-	if( MOB_UNAPPROVED(sub) )
+	if( MOB2_FLAGGED(sub, MOB2_UNAPPROVED) )
 		return true;
 	return false;
 }

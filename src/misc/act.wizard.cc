@@ -6959,7 +6959,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
 				&& strlen(buf) < (MAX_STRING_LENGTH - 128)); ++mit) {
 			mob = *mit;
 
-			if (MOB_UNAPPROVED(mob))
+			if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
 				continue;
 			if (GET_GOLD(mob) >= k &&
 				(!j || shop_keeper != mob->mob_specials.shared->func))
@@ -7047,7 +7047,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
 		for (k = 0; mit != mobilePrototypes.end(); ++mit) {
 			mob = *mit;
 			if (shop_keeper == mob->mob_specials.shared->func ||
-				MOB_UNAPPROVED(mob))
+				MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
 				continue;
 
 			if (i && (GET_CASH(mob) > (GET_LEVEL(mob) * l))) {

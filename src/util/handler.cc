@@ -2432,12 +2432,12 @@ is_wierd(Creature *ch, struct obj_data *obj, Creature *vict)
 	if (obj) {
 		if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
 			return 1;
-		if (!OBJ_APPROVED(obj) && !ch->isTester() && !MOB_UNAPPROVED(ch))
+		if (!OBJ_APPROVED(obj) && !ch->isTester() && !MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
 			return 1;
 	}
 
 	if (vict && IS_NPC(vict)) {
-		if (MOB_UNAPPROVED(vict) && !ch->isTester() && !MOB_UNAPPROVED(ch))
+		if (MOB2_FLAGGED(vict, MOB2_UNAPPROVED) && !ch->isTester() && !MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
 			return 1;
 	}
 

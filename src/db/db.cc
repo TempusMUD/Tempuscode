@@ -2570,7 +2570,7 @@ read_mobile(int vnum)
 	MOB_IDNUM(mob) = (++current_mob_idnum);
 
 	// unapproved mobs load without money or exp
-	if (MOB_UNAPPROVED(mob))
+	if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
 		GET_GOLD(mob) = GET_CASH(mob) = GET_EXP(mob) = 0;
 
 	return mob;
