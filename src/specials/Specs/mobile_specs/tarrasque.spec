@@ -83,15 +83,12 @@ tarrasque_lash(Creature *tarr, Creature *vict)
 bool
 tarrasque_gore(Creature *tarr, Creature *vict)
 {
-	bool is_dead;
-
 	WAIT_STATE(tarr, 2 RL_SEC);
 
 	act("$n charges forward!!", FALSE, tarr, 0, 0, TO_ROOM);
 
-	is_dead = damage(tarr, vict, (GET_DEX(vict) < number(5, 28)) ?
+	return damage(tarr, vict, (GET_DEX(vict) < number(5, 28)) ?
 			(dice(30, 20) + 300) : 0, TYPE_GORE_HORNS, WEAR_BODY);
-	return is_dead;
 }
 
 bool
@@ -237,12 +234,12 @@ tarrasque_fight(struct Creature *tarr)
 
 		tarrasque_gore(tarr, FIGHTING(tarr));
 		if (vict) {
-			tarrasque_trample(tarr, vict);
-			tarr->setFighting(vict);
+			if (!tarrasque_trample(tarr, vict))
+				set_fighting(tarr, vict, 0);
 		}
 		if (vict2) {
-			tarrasque_trample(tarr, vict2);
-			tarr->setFighting(vict2);
+			if (!tarrasque_trample(tarr, vict2))
+				set_fighting(tarr, vict2, 0);
 		}
 		return 1;
 	}
