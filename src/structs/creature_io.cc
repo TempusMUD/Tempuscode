@@ -132,31 +132,70 @@ Creature::payRent(time_t last_time, int code, int currency)
 	day_count = (float)(time(NULL) - last_time) / SECS_PER_REAL_DAY;
 	cost = (int)(calcDailyRent() * day_count);
 
+	// First we get as much as we can out of their hand
 	if (currency == TIME_ELECTRO) {
 		if (cost < GET_CASH(this) + GET_ECONET(this)) {
 			GET_ECONET(this) -= MAX(cost - GET_CASH(this), 0);
 			GET_CASH(this) = MAX(GET_CASH(this) - cost, 0);
 			cost = 0;
+		} else {
+			cost -= GET_CASH(this) + GET_ECONET(this);
+			GET_ECONET(this) = 0;
+			GET_CASH(this) = 0;
 		}
 	} else {
-		if (cost < GET_CASH(this) + GET_ECONET(this)) {
+		if (cost < GET_GOLD(this) + GET_BANK_GOLD(this)) {
 			GET_BANK_GOLD(this) -= MAX(cost - GET_GOLD(this), 0);
 			GET_GOLD(this) = MAX(GET_GOLD(this) - cost, 0);
 			cost = 0;
+		} else {
+			cost -= GET_GOLD(this) + GET_BANK_GOLD(this);
+			GET_BANK_GOLD(this) = 0;
+			GET_GOLD(this) = 0;
 		}
 	}
 
+	// If they didn't have enough, try the cross-time money
+	if (cost > 0) {
+		if (currency == TIME_ELECTRO) {
+			if (cost < GET_GOLD(this) + GET_BANK_GOLD(this)) {
+				GET_BANK_GOLD(this) -= MAX(cost - GET_GOLD(this), 0);
+				GET_GOLD(this) = MAX(GET_GOLD(this) - cost, 0);
+				cost = 0;
+			} else {
+				cost -= GET_GOLD(this) + GET_BANK_GOLD(this);
+				GET_BANK_GOLD(this) = 0;
+				GET_GOLD(this) = 0;
+			}
+		} else {
+			if (cost < GET_CASH(this) + GET_ECONET(this)) {
+				GET_ECONET(this) -= MAX(cost - GET_CASH(this), 0);
+				GET_CASH(this) = MAX(GET_CASH(this) - cost, 0);
+				cost = 0;
+			} else {
+				cost -= GET_CASH(this) + GET_ECONET(this);
+				GET_ECONET(this) = 0;
+				GET_CASH(this) = 0;
+			}
+		}
+	}
+
+	// If they still don't have enough, start selling stuff
 	if (cost > 0) {
 		obj_data *doomed_obj, *tmp_obj;
 		
-		doomed_obj = findCostliestObj();
-		while (cost > 0 && doomed_obj) {
+		while (cost > 0) {
+			doomed_obj = findCostliestObj();
+			if (!doomed_obj)
+				break;
+
 			slog("%s sold for %d %s to cover %s's rent",
 				tmp_capitalize(doomed_obj->short_description),
-				GET_OBJ_COST(doomed_obj), (currency) ? "creds":"gold",
+				GET_OBJ_COST(doomed_obj),
+				(currency == TIME_ELECTRO) ? "creds":"gold",
 				GET_NAME(this));
 			send_to_char(this,
-				"%s has been sold to cover the cost of your rent.",
+				"%s has been sold to cover the cost of your rent.\r\n",
 				tmp_capitalize(OBJS(doomed_obj, this)));
 
 			// Credit player with value of object
@@ -173,13 +212,26 @@ Creature::payRent(time_t last_time, int code, int currency)
 			extract_obj(doomed_obj);
 		}
 
-		// If there's any money left over, give em a consolation prize
 		if (cost < 0) {
+			// If there's any money left over, give em a consolation prize
 			if (currency == TIME_ELECTRO)
 				GET_CASH(this) -= cost;
 			else
 				GET_GOLD(this) -= cost;
+		} else if (cost > 0) {
+			// If they've sold all they have, they wake up in prison!
+			int room_num;
+
+			room_num = number(10919, 10921);
+			if (!real_room(room_num))
+				slog("SYSERR: Can't send %s to jail - room #%d doesn't exist!",
+					GET_NAME(this), room_num);
+			else {
+				send_to_char(this, "You were unable to pay your rent and have been put in JAIL!\r\n");
+				char_to_room(this, real_room(room_num));
+			}
 		}
+
 		return true;
 	}
 	return false;
@@ -435,7 +487,8 @@ Creature::loadObjects()
 		}
 	}
 
-	payRent(rent.time, rent.rentcode, rent.currency);
+	if (payRent(rent.time, rent.rentcode, rent.currency))
+		return 2;
 	return 0;
 }
 
