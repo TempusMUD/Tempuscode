@@ -51,6 +51,7 @@
 extern HelpCollection *Help;
 extern int restrict;
 extern int mini_mud;
+extern int mud_moved;
 extern int olc_lock;
 extern int no_rent_check;
 extern int no_initial_zreset;
@@ -215,7 +216,10 @@ main(int argc, char **argv)
               }
             */
             break;
-      
+        case 'x': // Mud Moved
+            mini_mud = 1;
+            mud_moved = 1;
+            break;
         default:
             sprintf(buf, "SYSERR: Unknown option -%c in argument string.", *(argv[pos] + 1));
             slog(buf);
@@ -1019,6 +1023,7 @@ new_descriptor(int s)
     struct sockaddr_in peer;
     struct hostent *from;
     extern char *GREETINGS;
+    extern char *MUD_MOVED_MSG;
 
     /* accept the new connection */
     i = sizeof(peer);
@@ -1062,13 +1067,7 @@ new_descriptor(int s)
         close(desc);
         sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
         mudlog(buf2, CMP, LVL_GOD, TRUE);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         free(newd);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         return 0;
     }
 
@@ -1095,8 +1094,10 @@ new_descriptor(int s)
 
     /* prepend to list */
     descriptor_list = newd;
-
-    if (!mini_mud) {
+    if( mud_moved ) {
+        SEND_TO_Q("\033[H\033[J", newd);
+        SEND_TO_Q(MUD_MOVED_MSG, newd);
+    } else if (!mini_mud) {
         SEND_TO_Q("\033[H\033[J", newd);  
         SEND_TO_Q(GREETINGS, newd);
     } else
