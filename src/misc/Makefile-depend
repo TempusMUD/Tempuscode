@@ -20,7 +20,7 @@ $(OBJ)/config.o : config.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h 
 	$(CXX) -c $(CXXFLAGS) config.cc            -o $(OBJ)/config.o
 $(OBJ)/limits.o : limits.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/vehicle.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/fight.h $(INCLUDE)/screen.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/vehicle.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/fight.h $(INCLUDE)/screen.h $(INCLUDE)/prog.h 
 	$(CXX) -c $(CXXFLAGS) limits.cc            -o $(OBJ)/limits.o
 $(OBJ)/login.o : login.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/login.h $(INCLUDE)/char_class.h $(INCLUDE)/creature.h $(INCLUDE)/help.h 

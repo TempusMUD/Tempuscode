@@ -1,4 +1,4 @@
 $(OBJ)/act.social.o : act.social.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/creature.h $(INCLUDE)/room_data.h $(INCLUDE)/macros.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h 
 	$(CXX) -c $(CXXFLAGS) act.social.cc        -o $(OBJ)/act.social.o
 OBJFILES= $(OBJ)/act.social.o

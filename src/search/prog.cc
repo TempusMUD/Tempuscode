@@ -221,6 +221,8 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 		matched = (evt->kind == PROG_EVT_LEAVE);
 	} else if (!strcmp("load", arg)) {
 		matched = (evt->kind == PROG_EVT_LOAD);
+	} else if (!strcmp("tick", arg)) {
+		matched = (evt->kind == PROG_EVT_TICK);
 	}
 
 
@@ -354,6 +356,23 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
 				result = true;
 			obj = obj->next_content;
 		}
+	} else if (!strcasecmp(arg, "hour")) {
+		result = time_info.hours == atoi(tmp_getword(&args));
+	} else if (!strcasecmp(arg, "phase")) {
+		str = tmp_getword(&args);
+		vnum = get_lunar_phase(lunar_day);
+		if (strcasecmp(str, "full"))
+			result = vnum == MOON_FULL;
+		else if (strcasecmp(str, "waning"))
+			result = vnum == MOON_WANE_GIBBOUS
+				|| vnum == MOON_WANE_CRESCENT
+				|| vnum == MOON_LAST_QUARTER;
+		else if (strcasecmp(str, "new"))
+			result = vnum == MOON_NEW;
+		else if (strcasecmp(str, "waxing"))
+			result = vnum == MOON_WAX_GIBBOUS
+				|| vnum == MOON_WAX_CRESCENT
+				|| vnum == MOON_FIRST_QUARTER;
 	}
 
 	return (not_flag) ? (!result):result;
@@ -1137,12 +1156,30 @@ trigger_prog_load(Creature *owner)
 	if (!GET_MOB_PROG(owner))
 		return;
 	
-	// Are we already running a prog?
-	if (find_prog_by_owner(owner))
-		return;
-	
 	evt.phase = PROG_EVT_AFTER;
 	evt.kind = PROG_EVT_LOAD;
+	evt.cmd = -1;
+	evt.subject = owner;
+	evt.object = NULL;
+	evt.object_type = PROG_TYPE_NONE;
+	evt.args = NULL;
+
+	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, GET_MOB_PROG(owner), &evt);
+	prog_execute(env);
+}
+
+void
+trigger_prog_tick(Creature *owner)
+{
+	prog_env *env;
+	prog_evt evt;
+
+	// Do we have a mobile program?
+	if (!GET_MOB_PROG(owner))
+		return;
+	
+	evt.phase = PROG_EVT_HANDLE;
+	evt.kind = PROG_EVT_TICK;
 	evt.cmd = -1;
 	evt.subject = owner;
 	evt.object = NULL;

@@ -32,6 +32,7 @@
 #include "specs.h"
 #include "fight.h"
 #include "screen.h"
+#include "prog.h"
 
 extern struct obj_data *object_list;
 extern struct room_data *world;
@@ -639,6 +640,10 @@ point_update(void)
 			continue;
 		}
 
+		// progs
+		if (IS_NPC(i) && GET_MOB_PROG(i))
+			trigger_prog_tick(i);
+
 		if (!IS_NPC(i)) {
 			update_char_objects(i);
 			if (check_idling(i))
@@ -685,7 +690,6 @@ point_update(void)
 			drunk += 1;
 
 		gain_condition(i, DRUNK, -drunk);
-
         /* player frozen */
 		if (PLR_FLAGGED(i, PLR_FROZEN) && i->player_specials->thaw_time > -1) {
 			time_t now;
