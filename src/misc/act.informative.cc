@@ -1165,7 +1165,7 @@ ACMD(do_exits)
 	int door;
 
 	if (!PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-		if (check_sight_self(ch)) {
+		if (!check_sight_self(ch)) {
 			send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
 			return;
 		}
@@ -1216,7 +1216,7 @@ ACMD(do_exits)
 			send_to_char(ch, "%s%s%-8s%s - Out of range\r\n",
 				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM),
 				tmp_capitalize(dirs[door]), CCNRM(ch, C_SPR));
-		} else if (check_sight_room(ch, EXIT(ch, door)->to_room) &&
+		} else if (!check_sight_room(ch, EXIT(ch, door)->to_room) &&
 				!ROOM_FLAGGED(EXIT(ch, door)->to_room, ROOM_DEATH)) {
 			send_to_char(ch, "%s%s%-8s%s - Too dark to tell\r\n",
 				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM),
