@@ -137,8 +137,6 @@ class HelpCollection {
     // Returns a show list of items it found
     HelpItem *FindItems( char *args, bool find_no_approve=false ); 
     int top_id;
-    fstream help_file;
-    fstream index_file;
     bool need_save;
 };
 

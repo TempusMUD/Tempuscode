@@ -20,7 +20,7 @@ extern const char *help_group_names[];
 extern const char *help_group_bits[];
 extern const char *Help_Directory;
 HelpGroup::HelpGroup( void ) {
-    build_group_list( );
+//    build_group_list( );
 }
 void HelpGroup::Show(char_data *ch) {
     char linebuf[256];
@@ -279,6 +279,9 @@ void HelpGroup::Members(char_data *ch, char *args) {
     } else {
         send_to_char("Invalid group name.\r\n",ch);
     }
+}
+void HelpGroup::Load() {
+    build_group_list();
 }
 void HelpGroup::build_group_list() {
     ifstream file;

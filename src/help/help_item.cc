@@ -18,7 +18,7 @@ using namespace std;
 
 extern const char *Help_Directory;
 extern HelpCollection *Help;
-extern char gHelpbuf[MAX_HELP_TEXT_LENGTH];
+extern char gHelpbuf[];
 char *one_word(char *argument, char *first_arg);
 extern const char *help_group_names[];
 extern const char *help_group_bits[];
@@ -261,7 +261,7 @@ bool HelpItem::Save(){
     }
     file.seekp(0);
     file << idnum << " " 
-         << (text ? strlen(text) + 1 : 0) 
+         << (text ? strlen(text) : 0) 
          << endl << name << endl;
     if(text) {
         file.write(text,strlen(text));
@@ -295,8 +295,10 @@ bool HelpItem::LoadText() {
     help_file.getline(fname,256,'\n'); // then burn up the name since we dont really need it.
     if(di > MAX_HELP_TEXT_LENGTH - 1)
         di = MAX_HELP_TEXT_LENGTH -1;
-    if(di > 0)
+    if(di > 0) {
         help_file.read(text,di);
+        text[di] = '\0';
+    }
     help_file.close();
     return true;
 }
@@ -309,10 +311,12 @@ void HelpItem::Show( char_data *ch, char *buffer,int mode=0 ){
     switch ( mode ) {
         case 0: // 0 == One Line Listing.
             sprintf(buffer,"Name: %s\r\n    (%s)\r\n",name,keys);
+            strcpy(buffer,"");
             break;
         case 1: // 1 == One Line Stat
             sprintbit(flags, help_bit_descs, bitbuf);
             sprintbit(groups, help_group_bits, groupbuf);
+            strcpy(buffer,"");
             sprintf(buffer,"%s%3d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s "
                     //"\r\n        %sKeywords: [ %s%s%s ]\r\n",
                     "\r\n",
@@ -326,6 +330,7 @@ void HelpItem::Show( char_data *ch, char *buffer,int mode=0 ){
         case 2: // 2 == Entire Entry  
             if(!text)
                 LoadText();
+            strcpy(buffer,"");
             sprintf(buffer,"    %s%s%s\r\n%s\r\n",
                 CCCYN(ch,C_NRM),name,CCNRM(ch,C_NRM),text);
             counter++;
@@ -335,8 +340,9 @@ void HelpItem::Show( char_data *ch, char *buffer,int mode=0 ){
                 LoadText();
             sprintbit(flags, help_bit_descs, bitbuf);
             sprintbit(groups, help_group_bits, groupbuf);
+            strcpy(buffer,"");
             sprintf(buffer,
-            "%s%3d. %s%-20s %sGroups: %s%-20s %sFlags:%s %s \r\n        %s"
+            "%s%d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s \r\n        %s"
                     "Keywords: [ %s%s%s ]\r\n%s%s\r\n",
                     CCCYN(ch,C_NRM),idnum, CCYEL(ch,C_NRM),
                     name, CCCYN(ch,C_NRM),CCNRM(ch,C_NRM),

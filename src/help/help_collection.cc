@@ -24,6 +24,9 @@ HelpCollection *Help = NULL;
 // Since one_word isnt int he header file...
 static char gHelpbuf[MAX_STRING_LENGTH];
 static char linebuf[MAX_STRING_LENGTH];
+static fstream help_file;
+static fstream index_file;
+
 char *one_word(char *argument, char *first_arg);
 static const struct hcollect_command {
     char *keyword;
@@ -320,6 +323,7 @@ bool HelpCollection::LoadIndex() {
     char fname[256],*s;
     HelpItem *n;
     int num_items = 0;
+    Groups.Load();
     s = fname;
     sprintf(fname,"%s/%s",Help_Directory,"index");
     index_file.open(fname,ios::in | ios::nocreate);
@@ -613,8 +617,8 @@ ACMD(do_help_collection_command) {
                 }
                 for(cur = Help->items; cur && cur->idnum != id; cur = cur->Next());
                 if(cur) {
-                    cur->Show(ch,linebuf,3);
-                    send_to_char(linebuf,ch);
+                    cur->Show(ch,gHelpbuf,3);
+                    page_string(ch->desc,gHelpbuf,1);
                     break;
                 } else {
                     sprintf(buf,"There is no item: %d.\r\n",id);
@@ -623,8 +627,8 @@ ACMD(do_help_collection_command) {
                 }
             }
             if(GET_OLC_HELP(ch)) {
-                GET_OLC_HELP(ch)->Show(ch,linebuf,3);
-                send_to_char(linebuf,ch);
+                GET_OLC_HELP(ch)->Show(ch,gHelpbuf,3);
+                page_string(ch->desc,gHelpbuf,1);
             } else {
                 send_to_char("Stat what item?\r\n",ch);
             }
