@@ -908,7 +908,7 @@ int Account::hasCharGen(int gen)
         if (!tmp_ch->loadFromXML(this->get_char_by_index(idx)))
             return 0;
 
-        if (GET_REMORT_GEN(ch) >= gen) {
+        if (GET_REMORT_GEN(tmp_ch) >= gen) {
             delete tmp_ch;
             return idx;
         }

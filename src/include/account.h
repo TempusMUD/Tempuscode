@@ -97,6 +97,7 @@ class Account {
 		void displayTrusted(Creature *ch);
 
         int hasCharLevel(int level);
+        int hasCharGen(int level);
 
 		class cmp {
 			public:
