@@ -3198,40 +3198,47 @@ store_to_char(struct char_file_u * st, struct char_data * ch)
     if (ch->player_specials == NULL)
 	CREATE(ch->player_specials, struct player_special_data, 1);
 
-    GET_SEX(ch) = st->sex;
-    GET_CLASS(ch) = st->char_class;
+    GET_SEX(ch)          = st->sex;
+    GET_CLASS(ch)        = st->char_class;
     GET_REMORT_CLASS(ch) = st->remort_char_class;
-    GET_RACE(ch)  = st->race;
-    GET_LEVEL(ch) = st->level;
+    GET_RACE(ch)         = st->race;
+    GET_LEVEL(ch)        = st->level;
 
-    ch->player.short_descr = NULL;
-    ch->player.long_descr = NULL;
-    ch->player.title = str_dup(st->title);
-    ch->player.description = str_dup(st->description);
-    ch->player.hometown = st->hometown;
-    ch->player.time.birth = st->birth;
-    ch->player.time.death = st->death;
-    ch->player.time.played = st->played;
-    ch->player.time.logon = time(0);
+    ch->player.short_descr  = NULL;
+    ch->player.long_descr   = NULL;
+    ch->player.title        = str_dup(st->title);
+    ch->player.description  = str_dup(st->description);
+    ch->player.hometown     = st->hometown;
+    ch->player.time.birth   = st->birth;
+    ch->player.time.death   = st->death;
+    ch->player.time.played  = st->played;
+    ch->player.time.logon   = time(0);
 
-    ch->player.weight = st->weight;
-    ch->player.height = st->height;
+    ch->player.weight       = st->weight;
+    ch->player.height       = st->height;
 
-    ch->real_abils = st->abilities;
-    ch->aff_abils = st->abilities;
-    ch->points = st->points;
+    ch->real_abils          = st->abilities;
+    ch->aff_abils           = st->abilities;
+    ch->points              = st->points;
     ch->char_specials.saved = st->char_specials_saved;
+
+    if ( IS_SET( ch->char_specials.saved.act, MOB_ISNPC ) ) {
+        REMOVE_BIT( ch->char_specials.saved.act, MOB_ISNPC );
+        sprintf( buf, "SYSERR: store_to_char %s loaded with MOB_ISNPC bit set!", GET_NAME( ch ) );
+        slog( buf );
+    }
+
     ch->player_specials->saved = st->player_specials_saved;
 
     if (ch->points.max_mana < 100)
 	ch->points.max_mana = 100;
 
     ch->char_specials.carry_weight = 0;
-    ch->char_specials.carry_items = 0;
-    ch->char_specials.worn_weight = 0;
-    ch->points.armor = 100;
-    ch->points.hitroll = 0;
-    ch->points.damroll = 0;
+    ch->char_specials.carry_items  = 0;
+    ch->char_specials.worn_weight  = 0;
+    ch->points.armor               = 100;
+    ch->points.hitroll             = 0;
+    ch->points.damroll             = 0;
 
     CREATE(ch->player.name, char, strlen(st->name) + 1);
     strcpy(ch->player.name, st->name);
