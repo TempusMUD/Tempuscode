@@ -43,8 +43,9 @@ ASPELL(spell_charm);
 ACMD(do_say);
 /* extern functions */
 void raw_kill(struct char_data *ch, struct char_data *killer, int attacktype);
-int find_door(struct char_data *ch, char *type, char *dir, const char *cmdname);
 void appear(struct char_data * ch, struct char_data *vict);
+int find_door(struct char_data *ch, char *type, char *dir, const char *cmdname);
+void update_pos( struct char_data * victim );
 
 
 int 
