@@ -55,5 +55,19 @@ room_data::room_data(room_num n, zone_data *z)
 		dir_option[i] = NULL;
 }
 
+int
+room_data::countExits(void)
+{
+	int idx, result = 0;
+
+	for (idx = 0;idx < NUM_OF_DIRS; idx++)
+		if (dir_option[idx] &&
+				dir_option[idx]->to_room &&
+				dir_option[idx]->to_room != this)
+			result++;
+
+	return result;
+}
+
 
 #undef __room_data_cc__
