@@ -1788,7 +1788,7 @@ SPECIAL(bank)
 	ch->saveToXML();
 	if (clan) {
 		if (clan->bank_account > 0)
-			send_to_char(ch, "The current clan balance is %d %s%s.\r\n",
+			send_to_char(ch, "The current clan balance is %lld %s%s.\r\n",
 				clan->bank_account, CURRENCY(ch),
 				PLURAL(clan->bank_account));
 		else

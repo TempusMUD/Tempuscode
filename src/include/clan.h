@@ -59,7 +59,7 @@ struct room_list_elem {
 
 struct clan_data {
 	int number;
-	int bank_account;
+	long long int bank_account;
 	byte top_rank;
 	long owner;
 	int flags;

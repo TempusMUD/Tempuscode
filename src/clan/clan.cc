@@ -147,7 +147,8 @@ ACMD(do_enroll)
 		member->next = clan->member_list;
 		clan->member_list = member;
 		sort_clanmembers(clan);
-		save_clans();
+		sql_exec("insert into clan members (clan, player, rank) values (%d, %ld, %d)",
+			clan->number, GET_IDNUM(vict), 0);
 	}
 }
 
@@ -237,6 +238,7 @@ ACMD(do_dismiss)
 			delete vict;
 			send_to_char(ch, "Player dismissed.\r\n");
 		}
+		sql_exec("delete from clan_members where player=%ld", GET_IDNUM(vict));
 	}
 }
 
@@ -273,6 +275,7 @@ ACMD(do_resign)
 			REMOVE_MEMBER_FROM_CLAN(member, clan);
 			free(member);
 		}
+		sql_exec("delete from clan_members where player=%ld", GET_IDNUM(ch));
 	}
 }
 
@@ -444,7 +447,7 @@ ACMD(do_cinfo)
 			i++;
 		acc_sprintf("Information on clan %s%s%s:\r\n\r\n"
 			"Clan badge: '%s%s%s', Clan headcount: %d, "
-			"Clan bank account: %d\r\nClan ranks:\r\n",
+			"Clan bank account: %lld\r\nClan ranks:\r\n",
 			CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
 			CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM),
 			i, clan->bank_account);
@@ -495,6 +498,8 @@ ACMD(do_demote)
 			send_to_char(ch, "You already at the bottom of the totem pole.\r\n");
 		else {
 			member1->rank--;
+			sql_exec("update clan_members set rank=%d where player=%ld",
+				member1->rank, GET_IDNUM(ch));
 			msg = tmp_sprintf("%s has demoted self to clan rank %s (%d)",
 				GET_NAME(ch), clan->ranknames[(int)member1->rank],
 				member1->rank);
@@ -525,6 +530,8 @@ ACMD(do_demote)
 		}
 	} else {
 		member2->rank--;
+		sql_exec("update clan_members set rank=%d where player=%ld",
+			member2->rank, GET_IDNUM(ch));
 		msg = tmp_sprintf("%s has demoted %s to clan rank %s (%d)",
 			GET_NAME(ch), GET_NAME(vict),
 			clan->ranknames[(int)member2->rank], member2->rank);
@@ -574,6 +581,8 @@ ACMD(do_promote)
 				return;
 			}
 			member2->rank++;
+			sql_exec("update clan_members set rank=%d where player=%ld",
+				member2->rank, GET_IDNUM(ch));
 			msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
 				GET_NAME(ch), GET_NAME(vict),
 				clan->ranknames[(int)member2->rank] ?
@@ -606,6 +615,8 @@ ACMD(do_promote)
 					TO_CHAR);
 			else {
 				member2->rank++;
+				sql_exec("update clan_members set rank=%d where player=%ld",
+					member2->rank, GET_IDNUM(ch));
 				msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
 					GET_NAME(ch), GET_NAME(vict),
 					clan->ranknames[(int)member2->rank] ?
@@ -753,6 +764,7 @@ ACMD(do_cedit)
 	struct room_list_elem *rm_list = NULL;
 	struct room_data *room = NULL;
 	int cedit_command, i, j;
+	long long int money;
 	char *arg1, *arg2, *arg3;
 
 	skip_spaces(&argument);
@@ -879,6 +891,8 @@ ACMD(do_cedit)
 				free(clan->name);
 			}
 			clan->name = str_dup(argument);
+			sql_exec("update clans set name='%s' where idnum=%d",
+				clan->name, clan->number);
 			slog("(cedit) %s set clan %d name to '%s'.", GET_NAME(ch),
 				clan->number, clan->name);
 
@@ -894,6 +908,8 @@ ACMD(do_cedit)
 				free(clan->badge);
 			}
 			clan->badge = str_dup(argument);
+			sql_exec("update clans set badge='%s' where idnum=%d",
+                clan->badge, clan->number);
 			slog("(cedit) %s set clan %d badge to '%s'.", GET_NAME(ch),
 				clan->number, clan->badge);
 
@@ -917,10 +933,27 @@ ACMD(do_cedit)
 					return;
 				}
 				clan->top_rank = i;
-				send_to_char(ch, "Top rank of clan set.\r\n");
+				// Free memory from strings taken by newly invalid clan
+				// names
+				i += 1;
+				while (i < 10) {
+					if (clan->ranknames[i]) {
+						free(clan->ranknames[i]);
+						clan->ranknames[i] = NULL;
+					}
+				}
+
+				for (member = clan->member_list; member; member = member->next)
+					if (member->rank > clan->top_rank)
+						member->rank = clan->top_rank;
+				sql_exec("update clan_members set rank=%d where clan=%d and rank > %d",
+					clan->top_rank, clan->number, clan->top_rank);
+				sql_exec("delete from clan_ranks where clan=%d and rank > %d",
+					clan->number, clan->top_rank);
 
 				slog("(cedit) %s set clan %d top to %d.", GET_NAME(ch),
 					clan->number, clan->top_rank);
+				send_to_char(ch, "Top rank of clan set.\r\n");
 
 				return;
 			}
@@ -941,6 +974,11 @@ ACMD(do_cedit)
 			}
 			if (clan->ranknames[i]) {
 				free(clan->ranknames[i]);
+				sql_exec("update clan_ranks set name='%s' where clan=%d and rank=%d",
+					tmp_sqlescape(argument), clan->number, i);
+			} else {
+				sql_exec("insert into clan_ranks (clan, rank, name) values (%d, %d, '%s'",
+					clan->number, i, tmp_sqlescape(argument));
 			}
 			clan->ranknames[i] = str_dup(argument);
 
@@ -962,17 +1000,19 @@ ACMD(do_cedit)
 					"Try setting the bank account to an appropriate number asswipe.\r\n");
 				return;
 			} 
-			i = atoi(argument);
-			if( i < 0 ) {
+			money = atoll(argument);
+			if( money < 0 ) {
 				send_to_char(ch, 
 					"This clan has no overdraft protection. Negative value invalid.\r\n");
 				return;
 			}
-			slog("(cedit) %s set clan %d bank from %d to %d.", GET_NAME(ch),
-				clan->number, clan->bank_account, i );
-			send_to_char(ch, "Clan bank account set from %d to %d\r\n",
-					clan->bank_account, i );
-			clan->bank_account = i;
+			slog("(cedit) %s set clan %d bank from %lld to %lld.", GET_NAME(ch),
+				clan->number, clan->bank_account, money );
+			send_to_char(ch, "Clan bank account set from %lld to %lld\r\n",
+					clan->bank_account, money );
+			clan->bank_account = money;
+			sql_exec("update clans set bank=%lld where clan=%d",
+				money, clan->number);
 
 			return;
 
@@ -991,6 +1031,8 @@ ACMD(do_cedit)
 			send_to_char(ch, "Clan owner set.\r\n");
 			slog("(cedit) %s set clan %d owner to %s.", GET_NAME(ch),
 				clan->number, argument);
+			sql_exec("update clans set owner=%d where clan=%d",
+				i, clan->number);
 			return;
 		}
 		// cedit set member
@@ -1021,6 +1063,8 @@ ACMD(do_cedit)
 
 			j = atoi(arg1);
 
+			sql_exec("update clan_members set rank=%d where player=%d",
+				j, i);
 			for (member = clan->member_list; member; member = member->next)
 				if (member->idnum == i) {
 					member->rank = j;
@@ -1089,6 +1133,8 @@ ACMD(do_cedit)
 
 			slog("(cedit) %s added room %d to clan %d.", GET_NAME(ch),
 				room->number, clan->number);
+			sql_exec("insert into clan_rooms (clan, room) values (%d, %d)",
+				clan->number, room->number);
 
 			return;
 		}
@@ -1121,6 +1167,8 @@ ACMD(do_cedit)
 
 			slog("(cedit) %s added member %d to clan %d.",
 				GET_NAME(ch), (int)member->idnum, clan->number);
+			sql_exec("insert into clan_members (clan, player, rank) values (%d, %d, 0)",
+				clan->number, i);
 
 			return;
 		} else {
@@ -1167,6 +1215,8 @@ ACMD(do_cedit)
 
 			slog("(cedit) %s removed room %d from clan %d.",
 				GET_NAME(ch), room->number, clan->number);
+			sql_exec("delete from clan_rooms where clan=%d and room=%d",
+				clan->number, room->number);
 
 			return;
 
@@ -1197,6 +1247,9 @@ ACMD(do_cedit)
 
 			slog("(cedit) %s removed member %d from clan %d.",
 				GET_NAME(ch), i, clan->number);
+			sql_exec("delete from clan_members where clan=%d and player=%d",
+				clan->number, i);
+
 
 			return;
 		} else
@@ -1434,6 +1487,38 @@ boot_old_clans()
 	slog("CLAN: Clans booted from binary files.");
 }
 
+bool
+sql_boot_clans(void)
+{
+	clan_data *clan;
+	PGresult *res;
+	int clan_idx, clan_count;
+
+	slog("Reading clans");
+
+	res = sql_query("select idnum, name, badge, bank, owner, flags from clans");
+	clan_count = PQntuples(res);
+	if (clan_count == 0) {
+		slog("WARNING: No clans loaded");
+		PQclear(res);
+		return false;
+	}
+
+	for (clan_idx = 0;clan_idx < clan_count;clan_idx++) {
+		CREATE(clan, struct clan_data, 1);
+
+		clan->number = atoi(PQgetvalue(res, clan_idx, 0));
+		clan->name = str_dup(PQgetvalue(res, clan_idx, 1));
+		clan->badge = str_dup(PQgetvalue(res, clan_idx, 2));
+		clan->bank_account = atoll(PQgetvalue(res, clan_idx, 3));
+		clan->owner = atoi(PQgetvalue(res, clan_idx, 4));
+		clan->flags = atoi(PQgetvalue(res, clan_idx, 5));
+		clan->member_list = NULL;
+		clan->room_list = NULL;
+		clan->next = NULL;
+	}
+	return true;
+}
 
 bool
 boot_clans()
@@ -1494,7 +1579,7 @@ save_clans()
 		char *badge = xmlEncodeTmp(clan->badge);
 		fprintf( ouf, "    <clan id=\"%d\" name=\"%s\" badge=\"%s\">\n", 
 					clan->number, name, badge);
-		fprintf( ouf, "        <data owner=\"%ld\" top_rank=\"%d\" bank=\"%d\" flags=\"%d\" />\n",
+		fprintf( ouf, "        <data owner=\"%ld\" top_rank=\"%d\" bank=\"%lld\" flags=\"%d\" />\n",
 					clan->owner, clan->top_rank, clan->bank_account, clan->flags );
 
 		for( int i = 0; i <= clan->top_rank; i++ ) {
@@ -1618,7 +1703,7 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
 	acc_string_clear();
 	if (clan) {
 		acc_sprintf(
-			"CLAN %d - Name: %s%s%s, Badge: %s%s%s, Top Rank: %d, Bank: %d\r\n",
+			"CLAN %d - Name: %s%s%s, Badge: %s%s%s, Top Rank: %d, Bank: %lld\r\n",
 			clan->number, CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
 			CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), clan->top_rank,
 			clan->bank_account);
