@@ -1136,7 +1136,7 @@ ACMD(do_activate)
 					act("$p is already switched on.", FALSE, ch, obj, 0,
 						TO_CHAR);
 				} else if (CUR_ENERGY(obj) == 0) {
-					act("$p is deleted of energy.", FALSE, ch, obj, 0,
+					act("$p is depleted of energy.", FALSE, ch, obj, 0,
 						TO_CHAR);
 				} else {
 					act("$n switches $p on.", TRUE, ch, obj, 0, TO_ROOM);
