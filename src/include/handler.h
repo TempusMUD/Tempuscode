@@ -27,7 +27,7 @@ void	affect_join(struct char_data *ch, struct affected_type *af,
 void check_interface(struct char_data *ch, struct obj_data *obj, int mode);
 
 void    check_flying(struct char_data *ch);
-int     can_travel_sector(struct char_data *ch, int sect_type, bool active);
+bool     can_travel_sector(struct char_data *ch, int sect_type, bool active);
 
 
 /* utility */

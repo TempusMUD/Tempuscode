@@ -15,9 +15,10 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <string>
+#include <cstdlib>
+#include <iostream>
 
 #include "structs.h"
 #include "utils.h"
@@ -100,33 +101,32 @@ int mag_manacost(struct char_data * ch, int spellnum);
  *   1 : If succes.
  *   0 : If fail
  */
-int 
-can_travel_sector(struct char_data *ch, int sector_type, bool active)
+bool can_travel_sector(struct char_data *ch, int sector_type, bool active)
 {
     struct obj_data *obj;
     int i;
 
     if (GET_LEVEL(ch) > LVL_ELEMENT)
-	return 1;
-
+	return true;
+    
     if ( sector_type == SECT_UNDERWATER ||
 	 sector_type == SECT_PITCH_SUB ||
 	 sector_type == SECT_WATER_NOSWIM ) {
    
 	if (IS_RACE(ch, RACE_FISH))
-	    return 1;
+	    return true;
 
 	if (sector_type == SECT_WATER_NOSWIM) {
 	    if (IS_AFFECTED(ch, AFF_WATERWALK) || GET_POS(ch) >= POS_FLYING ||
 		(IS_ELEMENTAL(ch) && GET_CLASS(ch) == CLASS_WATER))
-		return 1;
+		return true;
 	    for (obj = ch->carrying; obj; obj = obj->next_content)
 		if (GET_OBJ_TYPE(obj) == ITEM_BOAT)
-		    return 1;
+		    return true;
 	    for (i = 0; i < NUM_WEARS; i++) {
 		if (ch->equipment[i] &&
 		    GET_OBJ_TYPE(ch->equipment[i]) == ITEM_BOAT) 
-		    return 1;
+		    return true;
 	    }
 	}
     
@@ -135,7 +135,7 @@ can_travel_sector(struct char_data *ch, int sector_type, bool active)
 	      sector_type == SECT_WATER_NOSWIM) && 
 	     (IS_AFFECTED(ch, AFF_WATERBREATH) || 
 	      (IS_ELEMENTAL(ch) && GET_CLASS(ch) == CLASS_WATER))))
-	    return 1;
+	    return true;
 
 	if ((obj = ch->equipment[WEAR_FACE]) && 
 	    GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK &&
@@ -153,16 +153,16 @@ can_travel_sector(struct char_data *ch, int sector_type, bool active)
 		    act("A warning indicator reads: $p air level low.",
 			FALSE, ch, obj->aux_obj, 0, TO_CHAR);
 	    }
-	    return 1;
+	    return true;
 	}
 	ch->modifyBreathCount( 1 );
 	
 	if ( ch->getBreathCount() < ch->getBreathThreshold() &&
 	     ch->getBreathCount() > ( ch->getBreathThreshold() - 2 ) ) {
 	    send_to_char("You are running out of breath.\r\n", ch);
-	    return 1;
+	    return true;
 	}
-	return 0;
+	return false;
     }
 
     if ( sector_type == SECT_FLYING ||
@@ -173,17 +173,17 @@ can_travel_sector(struct char_data *ch, int sector_type, bool active)
 
 	if (IS_AFFECTED(ch, AFF_INFLIGHT) || 
 	    (IS_ELEMENTAL(ch) && GET_CLASS(ch) == CLASS_AIR))
-	    return 1;
+	    return true;
 	for (i = 0; i < NUM_WEARS; i++) {
 	    if (ch->equipment[i]) {
 		if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_WINGS)
-		    return 1;
+		    return true;
 	    }
 	}
-	return 0;
+	return false;
     }
 
-    return 0;
+    return true;
 }
 
 /* count the people in the room */
@@ -1035,6 +1035,7 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
 	}
 	return 1;
     }
+
     return 0;
 }
 

@@ -15,9 +15,10 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <iostream>
 
 #include "structs.h"
 #include "utils.h"
@@ -846,6 +847,31 @@ best_attack(struct char_data *ch, struct char_data *vict)
    SECT_TYPE(room) == SECT_UNDERWATER)) ||		\
  GET_CLASS(ch) != CLASS_WATER)
 
+inline bool CHAR_LIKES_ROOM( struct char_data *ch, struct room_data *room ) {
+
+    if ( ELEMENTAL_LIKES_ROOM(ch, room) &&
+
+	 ( CHAR_WITHSTANDS_FIRE(ch) ||                    
+	   !ROOM_FLAGGED(room, ROOM_FLAME_FILLED) ) &&
+	 
+	 ( CHAR_WITHSTANDS_COLD(ch) ||                     
+	   !ROOM_FLAGGED(room, ROOM_ICE_COLD) ) &&
+	 
+	 (!IS_EVIL(ch) || !ROOM_FLAGGED(room, ROOM_HOLYOCEAN) ) &&
+	 
+	 ( can_travel_sector(ch, room->sector_type, 0) ) &&
+	 
+	 ( (!MOB2_FLAGGED(ch, MOB2_STAY_SECT) ||
+	    ch->in_room->sector_type == room->sector_type ) &&
+	   (!LIGHT_OK(ch) || IS_LIGHT(room) || CAN_SEE_IN_DARK(ch) || 
+	    (GET_EQ(ch, WEAR_LIGHT) &&                          
+	     GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 0) ) ) ) ) {
+	return true;
+    }
+   return false;
+}
+			    
+/*
 #define CHAR_LIKES_ROOM(ch, room) \
     (ELEMENTAL_LIKES_ROOM(ch, room) &&                \
      (CHAR_WITHSTANDS_FIRE(ch) ||                     \
@@ -860,7 +886,7 @@ best_attack(struct char_data *ch, struct char_data *vict)
      (!LIGHT_OK(ch) || IS_LIGHT(room) || CAN_SEE_IN_DARK(ch) || \
       (GET_EQ(ch, WEAR_LIGHT) &&                          \
        GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 0))))
-		
+*/		
 
 #define CHECK_STATUS \
     if (found) {              \
@@ -885,7 +911,7 @@ mobile_activity(void)
     struct obj_data *obj, *best_obj, *i;
     struct affected_type *af_ptr = NULL;
     struct char_data *tmp_vict = NULL;
-    int dir, door, found, max, k;
+    int dir, found, max, k;
     byte ok_vict=0, ok_fvict=0;
     static unsigned int count = 0;
     struct mob_mugger_data *new_mug = NULL;
@@ -903,7 +929,11 @@ mobile_activity(void)
 	      ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN))) ||
 	    IS_AFFECTED_2(ch, AFF2_PETRIFIED))
 	    continue;
-    
+
+	//
+	// poison 2 tick
+	//
+
 	if (HAS_POISON_2(ch) &&
 	    GET_LEVEL(ch) < LVL_AMBASSADOR && !(count % 2)) {
 	    if (damage(ch, ch, dice(4, 3) + 
@@ -912,17 +942,29 @@ mobile_activity(void)
 		continue;
 	}
 
+	//
+	// bleed
+	//
+
 	if (GET_HIT(ch) && 
 	    CHAR_HAS_BLOOD(ch) &&
 	    GET_HIT(ch) < ((GET_MAX_HIT(ch) >> 3) + 
 			   number(0, GET_MAX_HIT(ch) >> 4)))
 	    add_blood_to_room(ch->in_room, 1); 
-    
+
+	//
+	// Zen of Motion effect
+	//
+
 	if (IS_NEUTRAL(ch) && affected_by_spell(ch, ZEN_MOTION))
 	    GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), 
 			       GET_MOVE(ch) + 
 			       number(0, CHECK_SKILL(ch, ZEN_MOTION) >> 3));
     
+	//
+	// Deplete scuba tanks
+	//
+	
 	if ((obj = ch->equipment[WEAR_FACE]) && 
 	    GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK &&
 	    !CAR_CLOSED(obj) &&
@@ -940,6 +982,10 @@ mobile_activity(void)
 	    }
 	}
 
+	//
+	// Check for mob spec
+	//
+
 	if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) && 
 	    GET_MOB_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
 	    if (ch->mob_specials.shared->func == NULL) {
@@ -953,16 +999,27 @@ mobile_activity(void)
 		}
 	    }
 	}
-  
+
+	//
+	// nothing below this conditional affects FIGHTING characters
+	//
+	
 	if (FIGHTING(ch) || GET_POS(ch) == POS_FIGHTING)
 	    continue;
+
+	//
+	// meditate
+	// 
 
 	if (IS_NEUTRAL(ch) && GET_POS(ch) == POS_SITTING && IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
 
 	    perform_monk_meditate(ch);
 	}
 
-	/* Check if we've gotten knocked down. */
+	//
+	// Check if we've gotten knocked down.
+	//
+
 	if (IS_NPC(ch) && !MOB2_FLAGGED(ch, MOB2_MOUNT) &&
 	    !AFF_FLAGGED(ch, AFF_SLEEP) &&
 	    GET_MOB_WAIT(ch) < 30 &&
@@ -987,8 +1044,16 @@ mobile_activity(void)
 	    continue;
 	}
 
+	//
+	// nothing below this conditional affects characters who are asleep or in a wait state
+	//
+	
 	if (!AWAKE(ch) || GET_MOB_WAIT(ch) > 0 || CHECK_WAIT(ch))
 	    continue;
+
+	//
+	// barbs go BESERK (berserk)
+	//
 
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && AFF2_FLAGGED(ch, AFF2_BESERK) &&
 	    !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
@@ -998,6 +1063,10 @@ mobile_activity(void)
 	
 	CHECK_STATUS;
       
+	//
+	// drunk effects
+	//
+	
 	if (GET_COND(ch, DRUNK) > 8 && !number(0, 10)) {
 	    found = FALSE;
 	    act("$n burps loudly.", FALSE, ch, 0, 0, TO_ROOM);
@@ -1010,6 +1079,10 @@ mobile_activity(void)
 	    found = TRUE;
 	}
 	
+	//
+	// nothing below this conditional affects PCs
+	//
+
 	if (!IS_MOB(ch) || ch->desc) 
 	    continue;
 	
@@ -1239,6 +1312,7 @@ mobile_activity(void)
 	}
     
 	/* Scavenger (picking up objects) */
+
 	if (MOB_FLAGGED(ch, MOB_SCAVENGER)) {
 	    if (ch->in_room->contents && !number(0, 11)) {
 		max = 1;
@@ -1349,6 +1423,7 @@ mobile_activity(void)
 	    }      
 	}
 	/* Looter */
+
 	if (MOB2_FLAGGED(ch, MOB2_LOOTER)) {
 	    if (ch->in_room->contents && !number(0, 1)) {
 		for (i = ch->in_room->contents; i; i = i->next_content) {
@@ -1380,6 +1455,7 @@ mobile_activity(void)
 	    }
 	}
 	/* Helper Mobs */
+
 	if (MOB_FLAGGED(ch, MOB_HELPER) && !number(0, 1)) {
 	    found = FALSE;
 	    if (IS_AFFECTED(ch, AFF_CHARM))
@@ -1469,6 +1545,7 @@ mobile_activity(void)
 	CHECK_STATUS;
 
 	/*Racially aggressive Mobs */
+
 	if (IS_RACIALLY_AGGRO(ch) && 
 	    !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !number(0, 3)) {
 	    found = FALSE;
@@ -1493,6 +1570,7 @@ mobile_activity(void)
 	CHECK_STATUS;
 
 	/* Aggressive Mobs */
+
 	if ((MOB_FLAGGED(ch, MOB_AGGRESSIVE) ||
 	     MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN)) &&
 	    !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
@@ -1587,6 +1665,7 @@ mobile_activity(void)
 	CHECK_STATUS;
 
 	/* Mob Memory */
+
 	if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch) && 
 	    !AFF_FLAGGED(ch, AFF_CHARM)) {
 	    found = FALSE;
@@ -1677,6 +1756,7 @@ mobile_activity(void)
 	}
 
 	// mob movement -- follow the leader
+
 	if (GET_MOB_LEADER(ch) > 0 && ch->master && 
 	    ch->in_room != ch->master->in_room) {
 	    if (smart_mobile_move(ch, find_first_step(ch->in_room, ch->master->in_room, FALSE)))
@@ -1684,24 +1764,29 @@ mobile_activity(void)
 	}
 
 	/* Mob Movement */
-	if (!MOB_FLAGGED(ch, MOB_SENTINEL) && 
-	    (GET_POS(ch) >= POS_STANDING) &&
-	    ((door = 
-	      number(0, (GET_MOB_VNUM(ch) == 24800 ? NUM_OF_DIRS-1 :20))) < 
-	     NUM_OF_DIRS) && 
-	    MOB_CAN_GO(ch, door) &&
-	    (rev_dir[door] !=  ch->mob_specials.last_direction ||
-	     !number(0, 1)) &&
-	    EXIT(ch, door)->to_room != ch->in_room &&
-	    !ROOM_FLAGGED(EXIT(ch, door)->to_room, ROOM_NOMOB | ROOM_DEATH) &&
-	    !IS_SET(EXIT(ch, door)->exit_info, EX_NOMOB) &&
-	    CHAR_LIKES_ROOM(ch, EXIT(ch, door)->to_room) &&
-	    (!MOB2_FLAGGED(ch, MOB2_STAY_SECT) ||
-	     (EXIT(ch, door)->to_room->sector_type == ch->in_room->sector_type)) 
-	    && (!MOB_FLAGGED(ch, MOB_STAY_ZONE) ||
-		(EXIT(ch, door)->to_room->zone == ch->in_room->zone))) {
-	    if (perform_move(ch, door, MOVE_NORM, 1))
-		continue;
+	if ( !MOB_FLAGGED(ch, MOB_SENTINEL) && GET_POS(ch) >= POS_STANDING ) {
+	    
+	    int door = number( 0, 
+			       // tarrasque moves more.  maybe a flag is order?
+			       ( GET_MOB_VNUM(ch) == 24800 ? NUM_OF_DIRS-1 :20 ) );
+
+	    if ( ( door < NUM_OF_DIRS ) &&
+		 
+		 ( MOB_CAN_GO(ch, door) ) &&
+		 
+		 ( rev_dir[door] !=  ch->mob_specials.last_direction || !number(0, 1) ) &&
+		 
+		 ( EXIT(ch, door)->to_room != ch->in_room ) &&
+		 ( !ROOM_FLAGGED(EXIT(ch, door)->to_room, ROOM_NOMOB | ROOM_DEATH) &&
+		   !IS_SET(EXIT(ch, door)->exit_info, EX_NOMOB) ) &&
+		 ( CHAR_LIKES_ROOM(ch, EXIT(ch, door)->to_room) ) &&
+		 ( !MOB2_FLAGGED(ch, MOB2_STAY_SECT) ||
+		   ( EXIT(ch, door)->to_room->sector_type == ch->in_room->sector_type ) ) &&
+		 (!MOB_FLAGGED(ch, MOB_STAY_ZONE) ||
+		  (EXIT(ch, door)->to_room->zone == ch->in_room->zone) ) ) {
+		if (perform_move(ch, door, MOVE_NORM, 1))
+		    continue;
+	    }
 	}
 
 	if (GET_CLASS(ch) == CLASS_THIEF && !number(0, 1)) {
@@ -1932,6 +2017,8 @@ mobile_activity(void)
 	}
 	/* Add new mobile actions here */
   				/* end for() */
+
+
     }
 }
 

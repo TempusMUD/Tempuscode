@@ -15,6 +15,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#include <iostream>
 
 /* external declarations and prototypes **********************************/
 
@@ -797,13 +798,14 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 			  !IS_SET(EXIT(ch, door)->exit_info, \
 				  EX_CLOSED | EX_NOPASS))
 
+/*
 #define MOB_CAN_GO(ch, door) (EXIT(ch,door) && \
 			  EXIT(ch,door)->to_room && \
 			  (!IS_SET(EXIT(ch, door)->exit_info,             \
 				   EX_CLOSED | EX_NOPASS | EX_HIDDEN) ||  \
 			   GET_LEVEL(ch) >= LVL_IMMORT ||                 \
 			   NON_CORPOREAL_UNDEAD(ch)))
-
+*/
 
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])
 #define LEV_ABBR(ch) (IS_NPC(ch) ? "--" : level_abbrevs[(int)GET_LEVEL(ch)-50])
@@ -950,3 +952,15 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #else
 #define CRYPT(a,b) ((char *) crypt((a),(b)))
 #endif
+
+inline bool MOB_CAN_GO( struct char_data *ch, int door ) {
+    if ( EXIT( ch, door ) &&
+	 EXIT(ch,door)->to_room &&
+	 (!IS_SET(EXIT(ch, door)->exit_info,            
+		  EX_CLOSED | EX_NOPASS | EX_HIDDEN) || 
+	  GET_LEVEL(ch) >= LVL_IMMORT ||                
+	  NON_CORPOREAL_UNDEAD(ch) ) ) {
+	return true;
+    }
+    return false;
+}

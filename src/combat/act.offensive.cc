@@ -1541,9 +1541,9 @@ ACMD(do_rescue)
 	return;
     }
 
-    // check for NOPK flag
+    // check for PKILLER flag
     if ( !IS_NPC( ch ) && !IS_NPC( tmp_ch ) &&
-	 PLR_FLAGGED( ch, PLR_NOPK ) ) {
+	 !PRF2_FLAGGED( ch, PRF2_PKILLER ) ) {
 	act( "That rescue would entail attacking $N, but you are flagged NO PK.",
 	     FALSE, ch, 0, tmp_ch, TO_CHAR );
 	return;
