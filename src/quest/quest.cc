@@ -2844,13 +2844,13 @@ bool Quest::removePlayer( long id ) {
 		// load the char from file
 		CREATE(vict, Creature, 1);
 		clear_char(vict);
-		long player_i = load_char(arg1, &tmp_store);
+		long player_i = load_char(get_name_by_id(id), &tmp_store);
 		if( player_i > -1 ) {
 			store_to_char(&tmp_store, vict);
 			//HERE
 			if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
 				REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
-				vict->player_specials->saved.quest_id = -1;
+				vict->player_specials->saved.quest_id = 0;
 			}
 
 			char_to_store(vict, &tmp_store);
@@ -2866,7 +2866,7 @@ bool Quest::removePlayer( long id ) {
 	} else {
 		if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
 			REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
-			vict->player_specials->saved.quest_id = -1;
+			vict->player_specials->saved.quest_id = 0;
 			save_char(vict,NULL);
 		}
 	}
