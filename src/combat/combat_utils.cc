@@ -37,6 +37,7 @@
 #include "security.h"
 #include "house.h"
 #include "quest.h"
+#include "player_table.h"
 
 #include <iostream>
 
@@ -259,45 +260,6 @@ ok_to_damage(struct Creature *ch, struct Creature *vict)
 {
 	// Boom.  no killers.
 	return true;
-
-	// NPCs don't get killers
-	if (IS_NPC(ch) || IS_NPC(vict))
-		return true;
-
-	// No killer for attacking yourself
-	if (ch == vict)
-		return true;
-
-	// We don't care if the victim is a killer or thief
-	if (PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF))
-		return true;
-
-	// We can't really penalize them if victim is disguised
-	if (affected_by_spell(vict, SKILL_DISGUISE))
-		return true;
-
-	// We don't worry about arena combat
-	if (is_arena_combat(ch, vict))
-		return true;
-
-	// You don't get a killer for attacking someone with a higher
-	// reputation than you, but you do get a reputation...  Since it's
-	// not the player's fault, tho, we can't have a rep adjustment.  If
-	// we were really cool, we would be able to skip the check when needed,
-	// but we're not that cool yet, so for right now just skip everyone
-	// that isn't already at the player's rank
-	if (GET_REPUTATION_RANK(ch) == GET_REPUTATION_RANK(vict))
-		return true;
-
-	// What is proper behavior for a god is not for a mortal
-	if (GET_LEVEL(ch) >= LVL_POWER)
-		return true;
-
-	// Lawless... Not wrong to pk in lawless zones
-	if (vict->in_room && ZONE_FLAGGED(vict->in_room->zone, ZONE_NOLAW))
-		return true;
-	
-	return false;
 }
 
 void
@@ -345,89 +307,59 @@ void
 check_killer(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg)
 {
-	Creature *perp;
-
-	// the attacker is considered to be innocent if charmed.  If you're
-	// going to charm a player, you had better keep control of them
-	perp = ch;
-	while (IS_AFFECTED(perp, AFF_CHARM) && perp->master &&
-			perp->in_room == perp->master->in_room)
-		perp = perp->master;
-
-	if (ok_to_damage(perp, vict))
-		return;
-
-	GET_SEVERITY(perp) += (GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50) - 
-						  (GET_LEVEL(vict) + GET_REMORT_GEN(vict) * 50);
-
-    if( GET_LEVEL(perp) > 50 ) {
-        return;
-    }
-	if (PLR_FLAGGED(perp, PLR_KILLER | PLR_THIEF))
-		return;
-
-	// If we get to this point, perp gets a killer
-	SET_BIT(PLR_FLAGS(perp), PLR_KILLER);
-	if (perp == ch) {
-		mudlog(LVL_AMBASSADOR, BRF, true,
-			"PC KILLER set on %s for attack on %s at %d. %s",
-			GET_NAME(perp), GET_NAME(vict), vict->in_room->number,
-			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
-		send_to_char(ch, "If you want to be a PLAYER KILLER, so be it...\r\n");
-	} else {
-		mudlog(LVL_AMBASSADOR, BRF, true,
-			"PC KILLER set on %s for %s's attack on %s at %d. %s",
-			GET_NAME(perp), GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
-			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
-		send_to_char(ch, "Your slave's actions have made you into a PLAYER KILLER...\r\n");
-	}
-
-	slog("KILLER set from: %s", debug_msg ? debug_msg : "unknown");
+	return;
 }
 
 void
 check_thief(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg)
 {
-	if (ok_to_damage(ch, vict))
+	Creature *perp;
+	int gain;
+
+	// First we need to find the perp
+	perp = ch;
+	while (IS_AFFECTED(perp, AFF_CHARM) && perp->master &&
+			perp->in_room == perp->master->in_room)
+		perp = perp->master;
+	
+	if (perp == vict)
 		return;
 
-	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF))
+	// We don't care about NPCs
+	if (IS_NPC(perp))
 		return;
 
-	// If we get to this point, ch gets a killer
-	SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
-	GET_SEVERITY(ch) += (GET_LEVEL(ch) + GET_REMORT_GEN(ch) * 50) - 
-		(GET_LEVEL(vict) + GET_REMORT_GEN(ch));
-	mudlog(LVL_AMBASSADOR, BRF, true,
-		"PC THIEF set on %s for stealing from %s at %d. %s",
-		GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
-		PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
-	send_to_char(ch, "You have been marked as a THIEF!\r\n");
+	// Criminals have NO protection vs psteal
+	if (IS_CRIMINAL(vict))
+		return;
+	
+	// adjust for level/gen difference
+	gain += ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
+		- (GET_LEVEL(vict) + GET_REMORT_GEN(vict) * 50)) / 5;
 
-	slog("THIEF set from: %s", debug_msg ? debug_msg : "unknown");
+	// Additional adjustment for killing an innocent
+	if (GET_REPUTATION(vict) == 0)
+		gain *= 2;
+
+	// Additional adjustment for killing a lower gen
+	if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(vict))
+		gain += (GET_REMORT_GEN(perp) - GET_REMORT_GEN(vict)) * 9;
+	
+	gain /= 10;
+
+	perp->gain_reputation(MAX(1, gain));
 }
+
 void
 check_object_killer(struct obj_data *obj, struct Creature *vict)
 {
 	Creature cbuf(true);
 	struct Creature *killer = NULL;
 	int obj_id;
-	int is_file = 0;
-	int is_desc = 0;
-	struct descriptor_data *d = NULL;
 
-	if( IS_NPC(vict) ) {
-		slog("Checking object killer %s -> %s. (NPC)",
-			obj->name, GET_NAME(vict));
+	if (IS_NPC(vict))
 		return;
-	}
-	// Lawless... Not wrong to pk in lawless zones.
-	if (vict->in_room && ZONE_FLAGGED(vict->in_room->zone, ZONE_NOLAW)) {
-		slog("Checking object killer %s -> %s. (!LAW. Poor schmuck.)",
-			obj->name, GET_NAME(vict));
-		return;
-	}
 
 	slog("Checking object killer %s -> %s. ", obj->name,
 		GET_NAME(vict));
@@ -443,49 +375,27 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 
 	if (!obj_id)
 		return;
-	CreatureList::iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		if (!IS_NPC(*cit) && GET_IDNUM(*cit) == obj_id) {
-			killer = *cit;
-			break;
-		}
-	}
-	// see if the sonuvabitch is still connected
-	if (!killer) {
-		for (d = descriptor_list; d; d = d->next) {
-			if (!IS_PLAYING(d) && d->creature
-				&& GET_IDNUM(d->creature) == obj_id) {
-				is_desc = 1;
-				killer = d->creature;
-				break;
-			}
-		}
-	}
+
+	killer = get_char_in_world_by_idnum(obj_id);
+
 	// load the bastich from file.
 	if (!killer) {
-
 		cbuf.clear();
 		if (cbuf.loadFromXML(obj_id)) {
-			is_file = 1;
 			killer = &cbuf;
+			cbuf.account = Account::retrieve(playerIndex.getAccountID(obj_id));
 		}
 	}
-	// the piece o shit has a bogus killer idnum on it!x
+
+	// the piece o shit has a bogus killer idnum on it!
 	if (!killer) {
 		slog("SYSERR: bogus idnum %d on object %s damaging %s.",
 			obj_id, obj->name, GET_NAME(vict));
 		return;
 	}
 
-	if (!ok_to_damage(killer, vict)) {
-		if (is_desc)
-			send_to_desc(killer->desc,
-				"KILLER bit set for damaging %s with %s.!\r\n",
-				GET_NAME(vict), obj->name);
-		else if (!is_file)
-			act("KILLER bit set for damaging $N with $p!", FALSE, killer, obj,
-				vict, TO_CHAR);
-	}
+	count_pkill(killer, vict);
+
 	// save the sonuvabitch to file
 	killer->saveToXML();
 }
