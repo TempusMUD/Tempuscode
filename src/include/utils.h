@@ -1164,6 +1164,8 @@ random_percentage_zero_low()
 inline int
 random_number_zero_low(unsigned int num)
 {
+	if (num == 0)
+		return 0;
 	return (my_rand() / (INT_MAX / num));
 }
 
