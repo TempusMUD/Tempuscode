@@ -126,68 +126,77 @@ report_unrentables(struct Creature *ch, struct Creature *recep,
 }
 
 void
-append_obj_rent(obj_data *obj, const char *currency_str, int count, char *str)
+append_obj_rent(char *str, const char *currency_str, int count, obj_data *obj)
 {
 	if (count == 1)
-		sprintf(str + strlen(str), "%10d %s for %s\r\n", GET_OBJ_RENT(obj),
-			currency_str, obj->short_description);
+		sprintf(str + strlen(str), "%10d %s for %s\r\n",
+			GET_OBJ_RENT(obj),
+			currency_str,
+			obj->short_description);
 	else
 		sprintf(str + strlen(str), "%10d %s for %s (x%d)\r\n",
-			GET_OBJ_RENT(obj) * count, currency_str, obj->short_description,
+			GET_OBJ_RENT(obj) * count,
+			currency_str,
+			obj->short_description,
 			count);
-		
 }
 
 long
-calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
+tally_obj_rent(obj_data *obj, const char *currency_str, char *display)
 {
-	extern int min_rent_cost;
-	obj_data *cur_obj, *last_obj;
-	int pos;
+	obj_data *last_obj, *cur_obj;
 	long total_cost = 0;
-	long level_adj;
-	long count;
+	int count = 0;
 
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
-		return 0;
-
-	for (pos = 0;pos < NUM_WEARS;pos++) {
-		cur_obj = GET_EQ(ch, pos);
-		if (cur_obj && !cur_obj->isUnrentable()) {
-			total_cost += GET_OBJ_RENT(cur_obj);
-			if (display)
-				append_obj_rent(cur_obj, currency_str, 1, display);
-		}
-		cur_obj = GET_IMPLANT(ch, pos);
-		if (cur_obj && !cur_obj->isUnrentable()) {
-			total_cost += GET_OBJ_RENT(cur_obj);
-			if (display)
-				append_obj_rent(cur_obj, currency_str, 1, display);
-		}
-	}
-
-	last_obj = cur_obj = ch->carrying;
-	count = 0;
+	last_obj = cur_obj = obj;
 	while (cur_obj) {
 		if (!cur_obj->isUnrentable()) {
 			total_cost += GET_OBJ_RENT(cur_obj);
 			if (last_obj->shared != cur_obj->shared && display) {
-				append_obj_rent(last_obj, currency_str, count, display);
+				append_obj_rent(display, currency_str, count, last_obj);
 				count = 1;
 				last_obj = cur_obj;
 			} else {
 				count++;
 			}
 		}
+		
 		if (cur_obj->contains)
 			cur_obj = cur_obj->contains;	// descend into obj
 		else if (!cur_obj->next_content && cur_obj->in_obj)
 			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
 		else
 			cur_obj = cur_obj->next_content; // go to next obj
-	}
+	}	
 	if (last_obj && display)
-		append_obj_rent(last_obj, currency_str, count, display);
+		append_obj_rent(display, currency_str, count, last_obj);
+
+	return total_cost;
+}
+
+long
+calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
+{
+	extern int min_rent_cost;
+	obj_data *cur_obj;
+	int pos;
+	long total_cost = 0;
+	long level_adj;
+
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+		return 0;
+
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		cur_obj = GET_EQ(ch, pos);
+		if (cur_obj)
+			total_cost += tally_obj_rent(cur_obj, currency_str, display);
+		cur_obj = GET_IMPLANT(ch, pos);
+		if (cur_obj)
+			total_cost += tally_obj_rent(cur_obj, currency_str, display);
+	}
+
+	if (ch->carrying)
+		total_cost += tally_obj_rent(ch->carrying, currency_str, display);
 
 	level_adj = (3 * total_cost * (10 + GET_LEVEL(ch))) / 100 +
 				min_rent_cost * GET_LEVEL(ch) - total_cost;
