@@ -2229,7 +2229,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!Cure Critic!",			/* 15 */
 	"!Cure Light!",
 	"You feel more optimistic.",
-	"You feel less aware.",
+	"You feel less aware of scrying attempts.",
 	"Your eyes stop tingling.",
 	"The detect magic wears off.",	/* 20 */
 	"The detect poison wears off.",
@@ -2255,7 +2255,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!Ventriloquate!",
 	"!Word of Recall!",
 	"!Remove Poison!",
-	"You feel less aware of your suroundings.",
+	"You feel less aware of your surroundings.",
 	"!Animate Dead!",			/* 45 */
 	"!Dispel Good!",
 	"!Group Armor!",
@@ -2465,7 +2465,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 395 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 400 */
 	"!zen healing!",
-	"You feel less aware.",
+	"You feel your heightened awareness fade.",
 	"You are no longer oblivious to pain.",
 	"Your motions begin to feel less free.",
 	"You become separate from the zen of translocation.",	/* 405 */
