@@ -2412,7 +2412,8 @@ mobile_activity(void)
 
 		/* Mob Movement */
 		if (!MOB_FLAGGED(ch, MOB_SENTINEL)
-			&& ch->getPosition() >= POS_STANDING) {
+			&& ch->getPosition() >= POS_STANDING 
+			&& !IS_AFFECTED_2(ch, AFF2_MOUNTED) ){
 
 			// tarrasque moves more.  maybe a flag is order?
 			int door =
