@@ -64,6 +64,7 @@ class Account {
 		void exhume_char( Creature *exhumer, long id );
 
 		inline int get_reputation(void) { return _reputation; }
+		void set_reputation(int amt);
 		void gain_reputation(int amt);
 
 		inline int get_quest_points(void) { return _quest_points; }
