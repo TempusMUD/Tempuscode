@@ -503,14 +503,6 @@ ACMD(do_pinch)
 	act("$n grabs a nerve on your body!", FALSE, ch, 0, vict, TO_VICT);
 	act("$n suddenly grabs $N!", FALSE, ch, 0, vict, TO_NOTVICT);
 
-	if (which_pinch != SKILL_PINCH_ZETA) {
-		check_toughguy(ch, vict, 0);
-		check_killer(ch, vict);
-	}
-
-	if (!IS_NPC(vict) && !vict->desc)
-		prob = 0;
-
 	if (percent > prob || IS_UNDEAD(vict)) {
 		send_to_char("You fail the pinch!\r\n", ch);
 		act("You quickly shake off $n's attack!", FALSE, ch, 0, vict, TO_VICT);
@@ -519,6 +511,9 @@ ACMD(do_pinch)
 			hit(vict, ch, TYPE_UNDEFINED);
 		return;
 	}
+
+	if (!IS_NPC(vict) && !vict->desc)
+		prob = 0;
 
 	af.type = which_pinch;
 	af.location = APPLY_NONE;
@@ -688,12 +683,17 @@ ACMD(do_pinch)
 	// the victim should attack the monk if they can
 	//
 
-	if (IS_NPC(vict) && !vict->isFighting()
-		&& vict->getPosition() >= POS_FIGHTING) {
-		int retval = hit(vict, ch, TYPE_UNDEFINED);
-		retval = SWAP_DAM_RETVAL(retval);
-		ACMD_set_return_flags(retval);
+	if (which_pinch != SKILL_PINCH_ZETA) {
+		check_toughguy(ch, vict, 0);
+		check_killer(ch, vict);
+		if (IS_NPC(vict) && !vict->isFighting()
+			&& vict->getPosition() >= POS_FIGHTING) {
+			int retval = hit(vict, ch, TYPE_UNDEFINED);
+			retval = SWAP_DAM_RETVAL(retval);
+			ACMD_set_return_flags(retval);
+		}
 	}
+
 }
 
 ACMD(do_meditate)
