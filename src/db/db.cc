@@ -894,11 +894,15 @@ parse_room(FILE * fl, int vnum_nr)
 				safe_exit(1);
 			}
 
-			if ((sscanf(line, "%d %d %d %d %d",
-						t + 5, t + 1, t + 2, t + 3, t + 4) != 5)) {
-				fprintf(stderr, "Search Field format error in room #%d\n",
-					vnum_nr);
-				safe_exit(1);
+			if ((sscanf(line, "%d %d %d %d %d %d",
+						t + 5, t + 1, t + 2, t + 3, t + 4, t + 6) != 6)) {
+				if ((sscanf(line, "%d %d %d %d %d",
+							t + 5, t + 1, t + 2, t + 3, t + 4) != 5)) {
+					fprintf(stderr, "Search Field format error in room #%d\n",
+						vnum_nr);
+					safe_exit(1);
+				}
+				t[6] = 0;
 			}
 
 			new_search->command = t[5];
@@ -906,6 +910,7 @@ parse_room(FILE * fl, int vnum_nr)
 			new_search->arg[1] = t[2];
 			new_search->arg[2] = t[3];
 			new_search->flags = t[4];
+			new_search->fail_chance = t[6];
 
 			/*** place the search at the top of the list ***/
 
@@ -2698,7 +2703,6 @@ reset_zone(struct zone_data *zone)
 	struct room_data *room;
 	struct special_search_data *srch = NULL;
 	PHead *p_head = NULL;
-	struct Creature *vkeeper = NULL;
 
 	// Send SPECIAL_RESET notification to all mobiles with specials
 	CreatureList::iterator cit = characterList.begin();
