@@ -1667,7 +1667,7 @@ ACMD(do_enter)
 			return;
 		}
 
-		if (room->people.size() < (unsigned)MAX_OCCUPANTS(room)) {
+		if (room->people.size() >= (unsigned)MAX_OCCUPANTS(room)) {
 			act("$p is already full of people.", FALSE, ch,
 				car, 0, TO_CHAR);
 			return;
