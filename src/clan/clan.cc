@@ -824,6 +824,9 @@ ACMD(do_cedit)
 			} else if (real_clan(atoi(arg1))) {
 				send_to_char(ch, "A clan already exists with that vnum.\r\n");
 				break;
+			} else if (clan_number > 255) {
+				send_to_char(ch, "The clan number must be less than 255.\r\n");
+				break;
 			} else if ((clan = create_clan(atoi(arg1)))) {
 				send_to_char(ch, "Clan created.\r\n");
 				slog("(cedit) %s created clan %d.", GET_NAME(ch),
