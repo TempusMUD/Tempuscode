@@ -261,7 +261,7 @@ extern const char *lunar_phases[];
 extern int lunar_day;
 extern struct obj_shared_data *null_obj_shared;
 extern struct shop_data *shop_index;
-extern struct obj_data *obj_proto;
+//extern struct obj_data *obj_proto;
 extern struct room_data *world;
 extern struct obj_data *object_list;
 #endif							// __db_c__

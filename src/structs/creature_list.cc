@@ -5,8 +5,6 @@
  *  Global CreatureList objects stored here.
 **/
 
-/** The list of mobile prototypes or "virtual mobiles" **/
-CreatureList mobilePrototypes(false);
 /** The list of in-game characters. (i.e. players & mobs) **/
 CreatureList characterList(false);
 /** The list of characters currently involved in combat **/

@@ -59,12 +59,13 @@ using namespace std;
 #include "language.h"
 #include "prog.h"
 #include "mobile_map.h"
+#include "object_map.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
 extern struct descriptor_data *descriptor_list;
 extern struct Creature *mob_proto;
-extern struct obj_data *obj_proto;
+//extern struct obj_data *obj_proto;
 extern struct zone_data *zone_table;
 extern int top_of_zone_table;
 extern int restrict;
@@ -900,10 +901,14 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         if (obj->in_room && obj->in_room->zone == zone)
             numo++;
 
-    for (obj = obj_proto; obj; obj = obj->next)
+//    for (obj = obj_proto; obj; obj = obj->next)
+    ObjectMap::iterator oi = objectPrototypes.begin();
+    for (; oi != objectPrototypes.end(); ++oi) {
+        obj = oi->second;
         if (GET_OBJ_VNUM(obj) >= zone->number * 100 &&
             GET_OBJ_VNUM(obj) <= zone->top)
             numo_proto++;
+    }
 
     for (plr = descriptor_list; plr; plr = plr->next)
         if (plr->creature && plr->creature->in_room &&
@@ -4781,6 +4786,7 @@ ACMD(do_show)
     struct Creature *mob = NULL;
     CreatureList::iterator cit;
     MobileMap::iterator mit;
+    ObjectMap::iterator oi;
 
     void show_shops(struct Creature *ch, char *value);
 
@@ -5085,7 +5091,10 @@ ACMD(do_show)
         break;
     case 23:                    /* nomaterial */
         strcpy(buf, "Objects without material types:\r\n");
-        for (obj = obj_proto, i = 1; obj; obj = obj->next) {
+//        for (obj = obj_proto, i = 1; obj; obj = obj->next) {
+        oi = objectPrototypes.begin();
+        for (i = 1; oi != objectPrototypes.end(); ++oi) {
+            obj = oi->second;
             if (GET_OBJ_MATERIAL(obj) == MAT_NONE &&
                 !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
                 if (strlen(buf) > (MAX_STRING_LENGTH - 130)) {
@@ -5100,7 +5109,7 @@ ACMD(do_show)
         }
         page_string(ch->desc, buf);
         break;
-
+    
     case 24:  /** objects **/
         do_show_objects(ch, value, arg);
         break;
@@ -5369,7 +5378,10 @@ ACMD(do_show)
         }
 
         strcpy(buf, "");
-        for (obj = obj_proto, i = 0; obj; obj = obj->next) {
+        //for (obj = obj_proto, i = 0; obj; obj = obj->next) {
+        oi = objectPrototypes.begin();
+        for (; oi != objectPrototypes.end(); ++oi) {
+            obj = oi->second;
             if (obj->shared->number >= k) {
                 if (strlen(buf) + 256 > MAX_STRING_LENGTH) {
                     strcat(buf, "**OVERFOW**\r\n");
@@ -6888,7 +6900,7 @@ ACMD(do_mlist)
 
 ACMD(do_olist)
 {
-    extern struct obj_data *obj_proto;
+//    extern struct obj_data *obj_proto;
     struct obj_data *obj = NULL;
     char out_list[MAX_STRING_LENGTH];
 
@@ -6918,20 +6930,23 @@ ACMD(do_olist)
     }
 
     strcpy(out_list, "");
-    for (obj = obj_proto; obj && (obj->shared->vnum <= last); obj = obj->next) {
-        if (obj->shared->vnum >= first) {
-            sprintf(buf, "%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
-                CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
-                obj->name, CCNRM(ch, C_NRM),
-                !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "", (!(obj->line_desc)
-                    || !(*(obj->line_desc))) ? "(nodesc)" : "");
-            if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
-                strcat(out_list, buf);
-            else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {
-                strcat(out_list, "**OVERFLOW**\r\n");
-                break;
-            }
+//    for (obj = obj_proto; obj && (obj->shared->vnum <= last); obj = obj->next) {
+//        if (obj->shared->vnum >= first) {
+    ObjectMap::iterator oi;
+    for (oi = objectPrototypes.lower_bound(first);
+         oi != objectPrototypes.upper_bound(last); ++oi) {
+        obj = oi->second;
+        sprintf(buf, "%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
+            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
+            CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
+            obj->name, CCNRM(ch, C_NRM),
+            !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "", (!(obj->line_desc)
+                || !(*(obj->line_desc))) ? "(nodesc)" : "");
+        if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
+            strcat(out_list, buf);
+        else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {
+            strcat(out_list, "**OVERFLOW**\r\n");
+            break;
         }
     }
 
@@ -8584,7 +8599,10 @@ verify_tempus_integrity(Creature *ch)
 	}
 
 	// Check prototype objects
-	for (obj = obj_proto;obj;obj = obj->next) {
+//	for (obj = obj_proto;obj;obj = obj->next) {
+    ObjectMap::iterator oi = objectPrototypes.begin();
+    for (; oi != objectPrototypes.end(); ++oi) {
+        obj = oi->second;
 		check_tempus_pointer(ch, obj, sizeof(obj_data),
 			"object proto", -1);
 		check_tempus_pointer(ch, obj->name, 0,

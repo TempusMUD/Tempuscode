@@ -30,7 +30,6 @@ class CreatureList:public SafeList <Creature *> {
 };
 
 /* prototypes for mobs		 */
-extern CreatureList mobilePrototypes;
 extern CreatureList characterList;
 extern CreatureList combatList;
 

@@ -27,9 +27,11 @@
 #include "comm.h"
 #include "vendor.h"
 #include "tmpstr.h"
+#include "mobile_map.h"
+#include "object_map.h"
 
 extern int mini_mud;
-extern struct obj_data *obj_proto;
+//extern struct obj_data *obj_proto;
 extern struct zone_data *zone_table;
 extern struct Creature *mob_proto;
 extern struct shop_data *shop_index;
@@ -338,10 +340,9 @@ do_specassign_save(struct Creature *ch, int mode)
 			errlog("Error opening mob spec file for write.");
 			return 1;
 		}
-		CreatureList::iterator mit = mobilePrototypes.begin();
+		MobileMap::iterator mit = mobilePrototypes.begin();
 		for (; mit != mobilePrototypes.end(); ++mit) {
-			mob = *mit;
-			//for (mob = mob_proto; mob; mob = mob->next) {
+			mob = mit->second;
 			if (mob->mob_specials.shared->func) {
 				if ((index = find_spec_index_ptr(mob->mob_specials.shared->
 							func)) < 0)
@@ -359,7 +360,10 @@ do_specassign_save(struct Creature *ch, int mode)
 			errlog("Error opening obj spec file for write.");
 			return 1;
 		}
-		for (obj = obj_proto; obj; obj = obj->next) {
+//		for (obj = obj_proto; obj; obj = obj->next) {
+    ObjectMap::iterator oi = objectPrototypes.begin();
+    for (; oi != objectPrototypes.end(); ++oi) {
+        obj = oi->second;
 			if (obj->shared->func) {
 				if ((index = find_spec_index_ptr(obj->shared->func)) < 0)
 					continue;

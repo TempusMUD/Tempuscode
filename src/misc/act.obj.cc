@@ -39,11 +39,12 @@
 #include "player_table.h"
 #include "prog.h"
 #include "actions.h"
+#include "object_map.h"
 
 /* extern variables */
 extern struct room_data *world;
 extern struct obj_data *object_list;
-extern struct obj_data *obj_proto;
+//extern struct obj_data *obj_proto;
 int total_coins = 0;
 int total_credits = 0;
 extern struct obj_data *dam_object;
@@ -3682,17 +3683,19 @@ ACMD(do_objupdate)
 {
 	return;
 
-	struct obj_data *obj = NULL;
+/*	struct obj_data *obj = NULL;
 
 	if (GET_IDNUM(ch) != 1)
 		return;
 
-	for (obj = obj_proto; obj; obj = obj->next) {
+//	for (obj = obj_proto; obj; obj = obj->next) {
+    ObjectMap::iterator = objectPrototypes.end();
+    for (; oi != objectPrototypes.end(); ++oi) {
+        obj = oi->second;
 
 		// reduce cost/value by half
 		GET_OBJ_COST(obj) >>= 1;
 
-		/*
 		   if (GET_OBJ_TYPE(obj)==ITEM_LIGHT || GET_OBJ_TYPE(obj)==ITEM_ARMOR ||
 		   GET_OBJ_TYPE(obj)==ITEM_CONTAINER) {
 
@@ -3707,8 +3710,7 @@ ACMD(do_objupdate)
 
 		   GET_OBJ_MAX_DAM(obj) = set_maxdamage(obj);
 		   GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj);
-		 */
-	}
+	}*/
 }
 
 

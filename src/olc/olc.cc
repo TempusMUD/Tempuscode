@@ -42,6 +42,7 @@
 #include "char_class.h"
 #include "events.h"
 #include "language.h"
+#include "mobile_map.h"
 
 extern const char *language_names[];
 extern const char *race_language[][2];
@@ -152,7 +153,7 @@ OLCIMP(Creature * ch)
 "  (default !toroom only)\n"
 
 extern struct room_data *world;
-extern struct obj_data *obj_proto;
+//extern struct obj_data *obj_proto;
 extern struct Creature *mob_proto;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
@@ -1560,7 +1561,7 @@ recalc_all_mobs(Creature *ch, const char *argument)
 
 	struct Creature *mob;
 	struct zone_data *zone;
-	CreatureList::iterator mit = mobilePrototypes.begin();
+	MobileMap::iterator mit = mobilePrototypes.begin();
 	int count = 0;
 	FILE *outfile;
 	bool exptest = false;
@@ -1597,7 +1598,7 @@ recalc_all_mobs(Creature *ch, const char *argument)
 				"id", "name", "old","new","base","fact" );
 	}
 	for (;mit != mobilePrototypes.end(); ++mit) {
-		mob = *mit;
+		mob = mit->second;
 		for (zone = zone_table;zone;zone = zone->next)
 			if (GET_MOB_VNUM(mob) >= zone->number * 100 &&
 					GET_MOB_VNUM(mob) <= zone->top)

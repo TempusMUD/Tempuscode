@@ -12,6 +12,11 @@
 
 
 /* The cardinal directions: used as index to room_data.dir_option[] */
+
+#include "defs.h"
+#include "macros.h"
+#include "creature_list.h"
+
 #define NORTH          0
 #define EAST           1
 #define SOUTH          2

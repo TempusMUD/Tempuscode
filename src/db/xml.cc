@@ -7,6 +7,8 @@
 #include "vendor.h"
 #include "tmpstr.h"
 #include "comm.h"
+#include "mobile_map.h"
+#include "object_map.h"
 
 void load_xml_object(xmlNodePtr node);
 void load_xml_mobile(xmlNodePtr node);
@@ -223,14 +225,15 @@ load_xml_object(xmlNodePtr node)
 
 	top_of_objt++;
 	obj->next = NULL;
-	if (obj_proto) {
+/*	if (obj_proto) {
 		tmp_obj = obj_proto;
 		while (tmp_obj->next)
 			tmp_obj = tmp_obj->next;
 		tmp_obj->next = obj;
 	} else {
 		obj_proto = obj;
-	}
+	}*/
+    objectPrototypes.add(obj);
 }
 
 void

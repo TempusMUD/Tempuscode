@@ -32,6 +32,7 @@ using namespace std;
 #include "tokenizer.h"
 #include "obj_matcher.h"
 #include "tmpstr.h"
+#include "object_map.h"
 
 /**
  * A table of ObjectMatcher objects used to do matching searches
@@ -152,6 +153,8 @@ do_show_objects( Creature *ch, char *value, char *arg ) {
 	ObjectMatcherTable matcherTable;
 	list<obj_data*> objects;
 	Tokenizer tokens(value);
+    obj_data *obj = NULL;
+
 	tokens.append(arg);
 	if(! tokens.hasNext() ) {
 		send_to_char(ch, "Show objects: utility to search the object prototype list.\r\n");
@@ -163,7 +166,10 @@ do_show_objects( Creature *ch, char *value, char *arg ) {
 		return;
 	}
 	
-	for (obj_data *obj = obj_proto; obj != NULL ; obj = obj->next) {
+//	for (obj_data *obj = obj_proto; obj != NULL ; obj = obj->next) {
+    ObjectMap::iterator oi = objectPrototypes.begin();
+    for (; oi != objectPrototypes.end(); ++oi) {
+        obj = oi->second;    
 		for( int i = 0; i < matcherTable.size(); i++  ) {
 			if( matcherTable.isMatch(obj) ) {
 				objects.push_back(obj);

@@ -41,6 +41,7 @@
 #include "tokenizer.h"
 #include "player_table.h"
 #include "events.h"
+#include "object_map.h"
 
 
 /*   external vars  */
@@ -1797,7 +1798,10 @@ SPECIAL(weapon_lister)
 		avg_dam[i] = 0;
 
 	strcpy(buf3, "");
-	for (obj = obj_proto; obj; obj = obj->next) {
+//	for (obj = obj_proto; obj; obj = obj->next) {
+    ObjectMap::iterator oi = objectPrototypes.begin();
+    for (; oi != objectPrototypes.end(); oi++) {
+        obj = oi->second;
 		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
 			continue;
 

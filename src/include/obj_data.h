@@ -26,6 +26,7 @@
 #include "defs.h"
 #include "constants.h"
 #include "xml_utils.h"
+#include "macros.h"
 
 /* object-related defines ********************************************/
 struct Creature;

@@ -24,6 +24,7 @@
 #include "flow_room.h"
 #include "specs.h"
 #include "language.h"
+#include "mobile_map.h"
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
@@ -142,16 +143,16 @@ do_create_mob(struct Creature *ch, int vnum)
 		send_to_char(ch, "Mobile OLC is not approved for this zone.\r\n");
 		return NULL;
 	}
-	CreatureList::iterator mit = mobilePrototypes.begin();
-	CreatureList::iterator nit;
+	MobileMap::iterator mit = mobilePrototypes.begin();
+	MobileMap::iterator nit;
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		//for (mob = mob_proto; mob; mob = mob->next)
-		mob = *mit;
+		mob = mit->second;
 		nit = mit;
 		++nit;
 		if (vnum > mob->mob_specials.shared->vnum &&
 			(nit != mobilePrototypes.end() ||
-				vnum < (*nit)->mob_specials.shared->vnum))
+				vnum < (nit->second)->mob_specials.shared->vnum))
 			break;
 
 	}
@@ -257,15 +258,8 @@ do_create_mob(struct Creature *ch, int vnum)
 
 	   }
 	 */
-	mit = mobilePrototypes.begin();
-	for (; mit != mobilePrototypes.end(); ++mit) {
-		if (vnum <= (*mit)->mob_specials.shared->vnum)
-			break;
-	}
-	if (mit != mobilePrototypes.end())
-		mobilePrototypes.insert(mit, new_mob);
-	else
-		mobilePrototypes.add(new_mob);
+
+	mobilePrototypes.add(new_mob);
 	top_of_mobt++;
 
 	return (new_mob);
@@ -1460,9 +1454,9 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 	low = zone->number * 100;
 	high = zone->top;
 
-	CreatureList::iterator mit = mobilePrototypes.begin();
+	MobileMap::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
-		mob = *mit;
+		mob = mit->second;
 		if (mob->mob_specials.shared->vnum < low)
 			continue;
 		if (mob->mob_specials.shared->vnum > high)

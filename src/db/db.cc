@@ -55,6 +55,8 @@ using namespace std;
 #include "specs.h"
 #include "language.h"
 #include "prog.h"
+#include "mobile_map.h"
+#include "object_map.h"
 
 #define ZONE_ERROR(message) \
 { zerrlog(zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); last_cmd = 0; }
@@ -1908,7 +1910,7 @@ parse_object(FILE * obj_f, int nr)
 	char *tmpptr;
 	char f1[256], f2[256], f3[256], f4[256];
 	struct extra_descr_data *new_descr;
-	struct obj_data *obj = NULL, *tmp_obj = NULL;
+	struct obj_data *obj = NULL;// *tmp_obj = NULL;
 
 	CREATE(obj, struct obj_data, 1);
 	
@@ -2071,15 +2073,16 @@ parse_object(FILE * obj_f, int nr)
 
 			obj->next = NULL;
 
-			if (obj_proto) {
+/*			if (obj_proto) {
 				for (tmp_obj = obj_proto; tmp_obj; tmp_obj = tmp_obj->next)
 					if (!tmp_obj->next) {
 						tmp_obj->next = obj;
 						break;
 					}
 			} else
-				obj_proto = obj;
+				obj_proto = obj;*/
 
+            objectPrototypes.add(obj);
 			return line;
 			break;
 		default:
@@ -2302,10 +2305,9 @@ vnum_mobile(char *searchname, struct Creature *ch)
 
 	strcpy(buf, "");
 
-	CreatureList::iterator mit = mobilePrototypes.begin();
+	MobileMap::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
-		//for (mobile = mob_proto; mobile; mobile = mobile->next) {
-		mobile = *mit;
+		mobile = mit->second;
 		if (namelist_match(searchname, mobile->player.name)) {
 			sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -2332,7 +2334,10 @@ vnum_object(char *searchname, struct Creature *ch)
 	int found = 0;
 
 	strcpy(buf, "");
-	for (obj = obj_proto; obj; obj = obj->next) {
+    ObjectMap::iterator oi = objectPrototypes.begin();
+//	for (obj = obj_proto; obj; obj = obj->next) {
+    for (; oi != objectPrototypes.end(); ++oi) {
+        obj = oi->second;
 		if (namelist_match(searchname, obj->aliases)) {
 			sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
@@ -2355,32 +2360,17 @@ vnum_object(char *searchname, struct Creature *ch)
 struct Creature *
 read_mobile(int vnum)
 {
-	int found = 0;
 	struct Creature *mob = NULL, *tmp_mob;
 
-	CreatureList::iterator mit = mobilePrototypes.begin();
-	for (; mit != mobilePrototypes.end(); ++mit) {
-		tmp_mob = *mit;
-		if (tmp_mob->mob_specials.shared->vnum >= vnum) {
-			if (tmp_mob->mob_specials.shared->vnum == vnum) {
-				mob = new Creature(false);
-				*mob = *tmp_mob;
-				tmp_mob->mob_specials.shared->number++;
-				tmp_mob->mob_specials.shared->loaded++;
-				found = 1;
-				break;
-			} else {
-				sprintf(buf, "Mobile (V) %d does not exist in database.",
-					vnum);
-				return (NULL);
-			}
-		}
-	}
-
-	if (!found) {
+	if (!(tmp_mob = mobilePrototypes.find(vnum))) {
 		sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
 		return (NULL);
 	}
+    mob = new Creature(false);
+    *mob = *tmp_mob;
+    tmp_mob->mob_specials.shared->number++;
+    tmp_mob->mob_specials.shared->loaded++;
+    
 	characterList.add(mob);
 	if (!mob->points.max_hit) {
 		mob->points.max_hit = dice(mob->points.hit, mob->points.mana) +
@@ -2704,9 +2694,9 @@ struct obj_data *
 read_object(int vnum)
 {
 	struct obj_data *obj = NULL, *tmp_obj = NULL;
-	int found = 0;
+//	int found = 0;
 
-	for (tmp_obj = obj_proto; tmp_obj; tmp_obj = tmp_obj->next) {
+/*	for (tmp_obj = obj_proto; tmp_obj; tmp_obj = tmp_obj->next) {
 		if (tmp_obj->shared->vnum >= vnum) {
 			if (tmp_obj->shared->vnum == vnum) {
 				CREATE(obj, struct obj_data, 1);
@@ -2720,11 +2710,15 @@ read_object(int vnum)
 				return NULL;
 			}
 		}
-	}
-	if (!found) {
+	} */
+	if (!(tmp_obj = objectPrototypes.find(vnum))) {
 		slog("Object (V) %d does not exist in database.", vnum);
 		return NULL;
 	}
+    CREATE(obj, struct obj_data, 1);
+    *obj = *tmp_obj;
+    tmp_obj->shared->number++;
+
 #ifdef TRACK_OBJS
 	// temp debugging
 	obj->obj_flags.tracker.lost_time = time(0);
@@ -3457,7 +3451,7 @@ real_zone(int number)
 struct Creature *
 real_mobile_proto(int vnum)
 {
-	struct Creature *mobile = NULL;
+/*	struct Creature *mobile = NULL;
 
 	CreatureList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
@@ -3469,13 +3463,15 @@ real_mobile_proto(int vnum)
 				return NULL;
 		}
 	}
-	return (NULL);
+	return (NULL); */
+
+    return mobilePrototypes.find(vnum);
 }
 
 struct obj_data *
 real_object_proto(int vnum)
 {
-	struct obj_data *object = NULL;
+/*	struct obj_data *object = NULL;
 
 	for (object = obj_proto; object; object = object->next)
 		if (object->shared->vnum >= vnum) {
@@ -3484,7 +3480,9 @@ real_object_proto(int vnum)
 			else
 				return NULL;
 		}
-	return (NULL);
+	return (NULL);*/
+
+    return objectPrototypes.find(vnum);
 }
 
 #include <dirent.h>

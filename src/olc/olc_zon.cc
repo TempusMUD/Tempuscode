@@ -21,6 +21,7 @@
 #include "flow_room.h"
 #include "paths.h"
 #include "player_table.h"
+#include "mobile_map.h"
 
 #define NUM_ZSET_COMMANDS 13
 
@@ -2173,9 +2174,9 @@ do_zset_command(struct Creature *ch, char *argument)
 			else {
 				j = zone->number * 100;
 				k = zone->top;
-				CreatureList::iterator mit = mobilePrototypes.begin();
+				MobileMap::iterator mit = mobilePrototypes.begin();
 				for (; mit != mobilePrototypes.end(); ++mit) {
-					vict = *mit;
+					vict = mit->second;
 					if (GET_MOB_VNUM(vict) > k)
 						break;
 					if (GET_MOB_VNUM(vict) < j)

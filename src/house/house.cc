@@ -26,6 +26,7 @@ using namespace std;
 #include "accstr.h"
 #include "player_table.h"
 #include "clan.h"
+#include "object_map.h"
 
 // usage message
 #define HCONTROL_FIND_FORMAT \
@@ -57,7 +58,7 @@ using namespace std;
 
 extern room_data *world;
 extern struct descriptor_data *descriptor_list;
-extern obj_data *obj_proto;	/* prototypes for objs                 */
+//extern obj_data *obj_proto;	/* prototypes for objs                 */
 extern int no_plrtext;
 void extract_norents( obj_data *obj );
 
@@ -506,8 +507,12 @@ void
 HouseControl::countObjects()
 {
 	obj_data *obj = NULL;
-	for (obj = obj_proto; obj; obj = obj->next)
+//	for (obj = obj_proto; obj; obj = obj->next)
+    ObjectMap::iterator oi = objectPrototypes.begin();
+    for (; oi != objectPrototypes.end(); ++oi) {
+        obj = oi->second;
 		obj->shared->house_count = 0;
+    }
 
 	for( unsigned int i = 0; i < getHouseCount(); i++) {
 		House *house = getHouse(i);
