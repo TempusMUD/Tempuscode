@@ -284,8 +284,7 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 			if ((GET_LEVEL(i->character) >= level) && (tp >= type)) {
 				send_to_char(i->character, "%s[ %s%s ]%s\r\n",
 					CCGRN(i->character, C_NRM),
-					(tp >= CMP) ? timebuf:"",
-					msg,
+					timebuf, msg,
 					CCNRM(i->character, C_NRM));
 			}
 		}
