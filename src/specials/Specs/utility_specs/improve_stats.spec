@@ -81,9 +81,11 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
     return TRUE;
   }
 
-  if (REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 22) && 
-      (mode != MODE_STR || !GET_REMORT_GEN(ch) || 
-       ch->real_abils.str_add >= 100)) {
+    if ( (mode == MODE_STR && 
+             (  (!IS_REMORT(ch) && REAL_STAT == 18 && ch->real_abils.str_add >= 100)
+             || ( IS_REMORT(ch) && REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 25)) 
+             )
+         ) || (mode != MODE_STR && REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 22)) ) {
     sprintf(buf, "%sYour %s cannot be improved further.%s\r\n",
 	    CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
     send_to_char(buf, ch);
@@ -109,32 +111,34 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
   GET_GOLD(ch) = MAX(0, GET_GOLD(ch) - gold);
   GET_LIFE_POINTS(ch) -= life_cost;
   
-  if (mode == MODE_STR) {
+    if (mode == MODE_STR) {
+        if (REAL_STAT == 18)
+            REAL_STAT += (ch->real_abils.str_add / 10);
+        else if (REAL_STAT > 18)
+            REAL_STAT += 10;
 
-    if (REAL_STAT == 18)
-      REAL_STAT += (ch->real_abils.str_add / 10);
-    else if (REAL_STAT > 18)
-      REAL_STAT += 10;
+        REAL_STAT += 1;
+        ch->real_abils.str_add = 0;    
 
+        if (REAL_STAT > 18) {
+            if (REAL_STAT > 28) {
+                REAL_STAT = 18 + (REAL_STAT - 28);
+            } else {
+                ch->real_abils.str_add = (REAL_STAT - 18) * 10;
+                REAL_STAT = 18;
+            }
+        } else
+          ch->real_abils.str_add = 0;
+    } else {
     REAL_STAT += 1;
-    ch->real_abils.str_add = 0;    
-    
-    if (REAL_STAT > 18) {
-      if (REAL_STAT > 28) {
-	REAL_STAT = 18 + (REAL_STAT - 28);
-      } else {
-	ch->real_abils.str_add = (REAL_STAT - 18) * 10;
-	REAL_STAT = 18;
-      }
-    } else
-      ch->real_abils.str_add = 0;
-
-  } else {
-    REAL_STAT += 1;
-  }
-
-  sprintf(buf, "%s improved %s at %d.", 
-	  GET_NAME(ch), improve_modes[mode], ch->in_room->number);
+    }
+  if(mode != MODE_STR)
+      sprintf(buf, "%s improved %s to %d at %d.", 
+          GET_NAME(ch), improve_modes[mode], REAL_STAT,ch->in_room->number);
+  else
+      sprintf(buf, "%s improved %s to %d/%d at %d.", 
+          GET_NAME(ch), improve_modes[mode], REAL_STAT,ch->real_abils.str_add,
+          ch->in_room->number);
   slog(buf);
 
   send_to_char("You begin your training.\r\n", ch);
