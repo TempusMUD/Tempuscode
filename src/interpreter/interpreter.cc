@@ -2123,7 +2123,7 @@ _parse_name(char *arg, char *name)
 void 
 nanny(struct descriptor_data * d, char *arg)
 {
-    char buf[128];
+    char buf[MAX_STRING_LENGTH];
     char arg1[MAX_INPUT_LENGTH];
     int player_i, load_result=0;
     char tmp_name[MAX_INPUT_LENGTH];
