@@ -10,12 +10,18 @@ class Tokenizer {
          * Note:  input is copied into the Tokenizer rather than used
          * directly.
          */
-        Tokenizer( const char *input, char delimiter ) {
+        Tokenizer(const char *input, char delimiter = ' ') {
             index = 0;
-            length = strlen(input);
-            delim = delimiter;
-            data = new char[ length + 1 ];
-            strcpy( data, input );
+			if (input) {
+				length = strlen(input);
+				delim = delimiter;
+				data = new char[ length + 1 ];
+				strcpy( data, input );
+			} else {
+				length = 0;
+				delim = delimiter;
+				data = NULL;
+			}
         }
 
         /*

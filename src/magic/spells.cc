@@ -881,8 +881,7 @@ ASPELL(spell_locate_object)
     char buf3[MAX_STRING_LENGTH];
     void * ptr;
     char terms[MAX_LOCATE_TERMS][MAX_STRING_LENGTH];
-    char *c;
-    int term_idx, term_count = 1;
+    int term_idx, term_count = 0;
     int found;
     
     j = level >> 1;
@@ -892,8 +891,7 @@ ASPELL(spell_locate_object)
 
     // Grab the search terms
     Tokenizer tokens(locate_buf,' ');
-    //terms[0] = c = strtok(locate_buf, " ");
-    while (term_count <= MAX_LOCATE_TERMS && tokens.next( terms[term_count] ) ){
+    while (term_count <= MAX_LOCATE_TERMS && tokens.next( terms[term_count] ) ) {
             term_count++;
     }
 
