@@ -1,0 +1,318 @@
+/* Memory debugging macros */
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <malloc.h>
+#include <sys/resource.h>
+#include "utils.h"
+
+#define _DBG_MEM_BLKS	64000
+
+enum _dbg_mem_blk_status { _dbg_allocated, _dbg_alloc_failed, _dbg_deallocated,
+	_dbg_bad_dealloc, _dbg_bad_realloc, _dbg_corrupted
+};
+
+struct _dbg_mem_blk {
+	unsigned long magic;
+	struct _dbg_mem_blk *next, *prev;
+	unsigned long long serial_num;
+	size_t size;
+	const void *alloc_addr;
+	enum _dbg_mem_blk_status status;
+	unsigned char data[0];	// four extra bytes on end of block
+};
+
+const unsigned long _dbg_magic = 0xAABBCCDD;
+struct _dbg_mem_blk *_dbg_mem_list = NULL;
+int _dbg_enabled = 0;
+int _dbg_serial_num = 0;
+
+typedef void *(*malloc_hook_t)(size_t, const void *);
+typedef void *(*realloc_hook_t)(void *, size_t, const void *);
+typedef void (*free_hook_t)(void *, const void *);
+
+malloc_hook_t old_malloc_hook;
+realloc_hook_t old_realloc_hook;
+free_hook_t old_free_hook;
+
+void *_dbg_alloc(size_t size, const void *return_addr);
+void *_dbg_realloc(void *ptr, size_t size, const void *addr);
+void _dbg_free(void *ptr, const void *return_addr);
+
+void _dbg_dump(void);
+
+void
+dbg_enable_tracking(bool dump_on_exit)
+{
+	if (_dbg_enabled)
+		return;
+	_dbg_enabled = 1;
+
+	old_malloc_hook = __malloc_hook;
+	old_realloc_hook = __realloc_hook;
+	old_free_hook = __free_hook;
+	__malloc_hook = _dbg_alloc;
+	__realloc_hook = _dbg_realloc;
+	__free_hook = _dbg_free;
+
+	if (dump_on_exit)
+		atexit(_dbg_dump);
+}
+
+void
+dbg_disable_tracking(void)
+{
+	if (!_dbg_enabled)
+		return;
+	_dbg_enabled = 0;
+	__malloc_hook = old_malloc_hook;
+	__realloc_hook = old_realloc_hook;
+	__free_hook = old_free_hook;
+}
+
+void *
+_dbg_alloc(size_t size, const void *return_addr)
+{
+	_dbg_mem_blk *new_blk;
+	
+	__malloc_hook = old_malloc_hook;
+	new_blk = (struct _dbg_mem_blk *)malloc(size + 4 +
+			sizeof(struct _dbg_mem_blk));
+	__malloc_hook = _dbg_alloc;
+
+	if (!new_blk)
+		return NULL;
+
+	new_blk->magic = _dbg_magic;
+	new_blk->serial_num = ++_dbg_serial_num;
+	new_blk->size = size;
+	new_blk->status = _dbg_allocated;
+	new_blk->alloc_addr = return_addr;
+
+	*((unsigned long *)(new_blk->data + size)) = _dbg_magic;
+
+	new_blk->prev = NULL;
+	new_blk->next = _dbg_mem_list;
+	if (_dbg_mem_list)
+		_dbg_mem_list->prev = new_blk;
+	_dbg_mem_list = new_blk;
+
+	return new_blk->data;
+}
+
+void
+_dbg_free(void *ptr, const void *return_addr)
+{
+	struct _dbg_mem_blk *cur_blk;
+
+	if (!ptr) {
+		slog("DEBUG: Attempt to deallocate NULL ptr (%p)",
+			return_addr);
+		return;
+	}
+
+	cur_blk = (struct _dbg_mem_blk *)((char *)ptr - sizeof(struct _dbg_mem_blk));
+
+	if (cur_blk->magic != _dbg_magic) {
+		slog("DEBUG: free called on unregistered memory block at %p",
+			return_addr);
+		return;
+	}
+
+	if (*((unsigned long *)(cur_blk->data + cur_blk->size)) != _dbg_magic) {
+		slog("DEBUG: Buffer overrun detected at (%p)\n         Block %lld was allocated at %p",
+			return_addr, cur_blk->serial_num, cur_blk->alloc_addr);
+		return;
+	}
+	
+	// Now check for unfreed blocks that might be in the struct
+	unsigned long *search_ptr;
+	struct _dbg_mem_blk *search_blk;
+	struct rusage usage;
+	size_t hi_bound, lo_bound;
+
+	getrusage(RUSAGE_SELF, &usage);
+	lo_bound = (size_t)sbrk(0);
+	hi_bound = lo_bound + usage.ru_idrss;
+	for (search_ptr = (unsigned long *)ptr;
+			search_ptr < (unsigned long *)((char *)ptr + cur_blk->size);
+			search_ptr++) {
+		if (*search_ptr > lo_bound && *search_ptr < hi_bound) {
+			search_blk = (struct _dbg_mem_blk *)((char *)*search_ptr -
+				sizeof(struct _dbg_mem_blk));
+			if (search_blk->magic == _dbg_magic &&
+					search_blk->status == _dbg_allocated)
+				slog("DEBUG: Possible leak 0x%lx freeing %p, alloced at %p, freed %p",
+					*search_ptr, ptr, search_blk->alloc_addr,
+					return_addr);
+		}
+	}
+
+	// Remove from list of memory blocks
+	if (cur_blk->prev)
+		cur_blk->prev->next = cur_blk->next;
+	else
+		_dbg_mem_list = cur_blk->next;
+	if (cur_blk->next)
+		cur_blk->next->prev = cur_blk->prev;
+
+	__free_hook = old_free_hook;
+	free(cur_blk);
+	__free_hook = _dbg_free;
+}
+
+void *
+_dbg_realloc(void *ptr, size_t size, const void *addr)
+{
+	struct _dbg_mem_blk *cur_blk;
+	void *new_ptr;
+
+	if (!ptr) {
+		new_ptr = _dbg_alloc(size, addr);
+		return new_ptr;
+	}
+
+	if (!size) {
+		_dbg_free(ptr, addr);
+		return NULL;
+	}
+
+	new_ptr = _dbg_alloc(size, addr);
+	cur_blk = (struct _dbg_mem_blk *)((char *)ptr - sizeof(struct _dbg_mem_blk));
+	memcpy(new_ptr, ptr, cur_blk->size);
+	_dbg_free(ptr, addr);
+
+	return new_ptr;
+}
+
+void
+_dbg_dump(void)
+{
+	FILE *ouf;
+	struct _dbg_mem_blk *cur_blk;
+	unsigned long total_bytes = 0;
+	unsigned int block_count = 0;
+
+	if (!_dbg_mem_list)
+		return;
+
+	ouf = fopen("memusage.dat", "w");
+	if (!ouf)
+		return;
+
+	for (cur_blk = _dbg_mem_list; cur_blk; cur_blk = cur_blk->next) {
+		if (cur_blk->status == _dbg_deallocated)
+			continue;
+
+		total_bytes += cur_blk->size;
+		block_count++;
+		if (cur_blk->status == _dbg_allocated) {
+			if (cur_blk->magic &&
+					*((unsigned long *)(cur_blk->data + cur_blk->size)) !=
+					0xAABBCCDD)
+				cur_blk->status = _dbg_corrupted;
+		}
+
+		fprintf(ouf, "%10llu %4i %p %p %s\n",
+			cur_blk->serial_num, cur_blk->size, cur_blk->data,
+			cur_blk->alloc_addr,
+			(cur_blk->status == _dbg_corrupted) ? "OVERFLOWED":"");
+		
+		/*
+		if (cur_blk->status == _dbg_allocated) {
+			unsigned int i;
+
+			printf("  [ ");
+			for (i = 0; i < cur_blk->size; i++) {
+				printf("%02x ", cur_blk->data[i]);
+				if (i != cur_blk->size - 1 && !((i + 1) % 16))
+					printf("]\n  [ ");
+			}
+			printf("]\n");
+		}
+		*/
+	}
+	if (total_bytes || block_count) {
+		fprintf(ouf, "Total bytes: %lu\n", total_bytes);
+		fprintf(ouf, "Block count: %u\n", block_count);
+	} else
+		fprintf(ouf, "No memory leaks detected.\n");
+	fclose(ouf);
+}
+
+#ifdef __cplusplus
+void *
+operator new(size_t size)
+{
+		dbg_enable_tracking(false);
+	if (_dbg_enabled)
+		return _dbg_alloc(size, __builtin_return_address(0));
+	else
+		return malloc(size);
+}
+
+void *
+operator new[] (size_t size) {
+		dbg_enable_tracking(false);
+	if (_dbg_enabled)
+		return _dbg_alloc(size, __builtin_return_address(0));
+	else
+		return malloc(size);
+}
+
+void
+operator delete(void *ptr)
+{
+	if (ptr) {
+		if (_dbg_enabled)
+			_dbg_free(ptr, __builtin_return_address(0));
+		else
+			free(ptr);
+	}
+}
+
+void
+operator delete[] (void *ptr) {
+	if (ptr) {
+		if (_dbg_enabled)
+			_dbg_free(ptr, __builtin_return_address(0));
+		else
+			free(ptr);
+	}
+}
+
+#endif
+
+void
+dbg_check_now(char *str, bool abort_now)
+{
+	struct _dbg_mem_blk *cur_blk;
+	unsigned long total_bytes = 0;
+	unsigned int block_count = 0;
+
+	if (!_dbg_mem_list)
+		return;
+	for (cur_blk = _dbg_mem_list; cur_blk; cur_blk = cur_blk->next) {
+		if (cur_blk->status != _dbg_allocated)
+			continue;
+
+		total_bytes += cur_blk->size;
+		block_count++;
+		if (cur_blk->status == _dbg_allocated) {
+			if (cur_blk->magic != _dbg_magic) {
+				slog("Header corruption detected: %s (%p)",
+					str, cur_blk->alloc_addr);
+			}
+			
+			if (*((unsigned long *)
+					(cur_blk->data + cur_blk->size)) != 0xAABBCCDD) {
+				cur_blk->status = _dbg_corrupted;
+				slog("Footer corruption detected: %s (%p)",
+					str, cur_blk->alloc_addr);
+				if (abort_now)
+					abort();
+			}
+		}
+	}
+}
