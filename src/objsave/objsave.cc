@@ -538,7 +538,9 @@ Crash_load( struct char_data * ch )
     if ( !feof( fl ) )
 	fread( &rent, sizeof( struct rent_info ), 1, fl );
 
-    if ( rent.rentcode == RENT_RENTED || rent.rentcode == RENT_TIMEDOUT ) {
+    if ( rent.rentcode == RENT_RENTED || 
+        rent.rentcode == RENT_TIMEDOUT  || 
+        rent.rentcode == RENT_FORCED) {
 
 		num_of_days = ( float ) ( time( 0 ) - rent.time ) / SECS_PER_REAL_DAY;
 		cost = ( int ) ( rent.net_cost_per_diem * num_of_days );
