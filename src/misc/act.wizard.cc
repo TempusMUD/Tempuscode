@@ -1628,6 +1628,9 @@ do_stat_character(struct char_data * ch, struct char_data * k)
 	    sprintbit(PLR_FLAGS(k) & ~PLR_LOG, player_bits, buf2);
 	sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	strcat(outbuf, buf);
+	sprintbit(PLR2_FLAGS(k), player2_bits, buf2);
+	sprintf(buf, "PLR2: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+	strcat(outbuf, buf);
 	sprintbit(PRF_FLAGS(k), preference_bits, buf2);
 	sprintf(buf, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	strcat(outbuf, buf);

@@ -664,7 +664,11 @@ extern const char *position_types[] = {
   "\n"
 };
 
-
+// PLR2_x
+extern const char *player2_bits[] = {
+	"SOULLESS",
+	"\n"
+};
 /* PLR_x */
 extern const char *player_bits[] = {
   "KILLER",
@@ -698,6 +702,7 @@ extern const char *player_bits[] = {
   "KRN",
   "POLC",
   "NOPK",
+  "SOULLESS",
   "\n"
 };
 

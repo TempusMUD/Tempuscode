@@ -540,6 +540,9 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
     if (IS_AFFECTED_2(i, AFF2_ENERGY_FIELD))
 	act("...$e is covered by a crackling field of energy!", 
 	    FALSE, i, 0, ch, TO_VICT);
+    if ( PLR2_FLAGGED(ch, PLR2_SOULLESS) )
+	act("...a deep red pentagram has been burnt into $s forehead!", 
+	    FALSE, i, 0, ch, TO_VICT);
     if (IS_AFFECTED_3(i, AFF3_PRISMATIC_SPHERE))
 	act("...$e is surrounded by a prismatic sphere of light!", 
 	    FALSE, i, 0, ch, TO_VICT);
@@ -2075,7 +2078,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 
     if (mode)    /* Only asked for bad affs? */
 	return;
-
+	if (PLR2_FLAGGED(ch, PLR2_SOULLESS))
+	strcat(str, "A deep despair clouds your soulless mind.\r\n");
     if (IS_AFFECTED(ch, AFF_SNEAK))
 	strcat(str, "You are sneaking.\r\n");
     if (IS_AFFECTED(ch, AFF_INVISIBLE))
@@ -2083,8 +2087,7 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
     if (IS_AFFECTED_2(ch, AFF2_TRANSPARENT))
 	strcat(str, "You are transparent.\r\n");
     if (IS_AFFECTED(ch, AFF_DETECT_INVIS))
-	strcat(str, 
-	       "You are sensitive to the presence of invisible things.\r\n");
+	strcat(str, "You are sensitive to the presence of invisible things.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) 
 	strcat(str, "You are seeing truly.\r\n");
     if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))

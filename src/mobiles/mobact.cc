@@ -215,6 +215,14 @@ void burn_update(void) {
 	if (AFF3_FLAGGED(ch, AFF3_ENERGY_TAP))
 	    GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 1 + random_number_zero_low( (GET_CON(ch) >> 2)));
 
+	// Signed the Unholy Compact - Soulless
+	if ( PLR2_FLAGGED(ch,PLR2_SOULLESS) && 
+		GET_POS(ch) == POS_SLEEPING &&
+		!random_fractional_5() ) {
+		send_to_char("The torturous cries of hell wake you from your dreams.\r\n",ch);
+	    act("$n bolts upright, screaming in agony!", TRUE, ch, 0, 0, TO_ROOM);
+		GET_POS(ch) = POS_SITTING;
+	}
 	// affected by sleep spell
 	if (AFF_FLAGGED(ch, AFF_SLEEP) && GET_POS(ch) > POS_SLEEPING && GET_LEVEL(ch) < LVL_AMBASSADOR) {
 	    send_to_char("You suddenly fall into a deep sleep.\r\n", ch);
@@ -295,6 +303,14 @@ void burn_update(void) {
 		affect_remove(ch, af);
 	    } else
 		GET_MOVE(ch) -= 1;
+	}
+	// Soulless Goodie Two Shoes - Unholy Compact sellouts.
+	if ( PLR2_FLAGGED(ch, PLR2_SOULLESS) && IS_GOOD(ch) && random_fractional_10()) {
+		int thedam;
+		thedam = dice ( 2, 3 );
+		if(GET_HIT(ch) + 1 > thedam)
+			if( damage( ch, ch, thedam , TYPE_ANGUISH, -1) )
+				continue;
 	}
 
 	// burning character
