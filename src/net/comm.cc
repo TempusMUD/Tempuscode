@@ -263,6 +263,8 @@ init_game(int port)
     void my_srand(unsigned long initial_seed);
 
     my_srand(time(0));
+    
+    boot_db();
 
     slog("Opening mother connection.");
     mother_desc = init_socket(port);
@@ -273,7 +275,6 @@ init_game(int port)
 
     avail_descs = get_avail_descs();
 
-    boot_db();
 
     slog("Signal trapping.");
     signal_setup();
