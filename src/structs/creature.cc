@@ -51,14 +51,8 @@ Creature::~Creature(void)
 		delete player_specials;
 		free(player.title);
 	}
+    
     if (this->fighting != NULL) {
-        //This REALLY does not belong here.
-        CreatureList::iterator it = characterList.begin();
-        for (; it != characterList.end(); ++it) {
-            if ((*it)->findCombat(this))
-                (*it)->removeCombat(this);
-        }
-        this->removeAllCombat();
         delete this->fighting;
         this->fighting = NULL;
     }
@@ -1381,7 +1375,7 @@ Creature::findCombat(Creature *ch)
         return NULL;
 
     CombatDataList::iterator li = getCombatList()->begin();
-    for (; li != getCombatList()->end(); ++li) {
+    for (; li != getCombatList()->end(); li++) {
         if (li->getOpponent() == ch)
             return (li->getOpponent());
     }   
