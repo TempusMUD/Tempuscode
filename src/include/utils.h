@@ -443,6 +443,9 @@ COMM_NOTOK_ZONES(Creature *ch, Creature *tch)
 			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
 		return true;
 
+	if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame)
+		return false;
+
 	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
 			tch->in_room->zone->time_frame == TIME_TIMELESS)
 		return false;
