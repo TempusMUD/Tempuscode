@@ -1306,9 +1306,14 @@ ASPELL(spell_identify)
             }
         }
         if (GET_OBJ_SIGIL_IDNUM(obj)) {
+			char *name;
 
-            sprintf(buf, "You detect a warding sigil bearing the mark of %s.\r\n",
-                    CAP(get_name_by_id(GET_OBJ_SIGIL_IDNUM(obj))));
+			name = get_name_by_id(GET_OBJ_SIGIL_IDNUM(obj));
+
+			if (name)
+				sprintf(buf, "You detect a warding sigil bearing the mark of %s.\r\n", name);
+			else
+				sprintf(buf, "You detect an warding sigil with an unfamiliar marking.\r\n");
             send_to_char(buf, ch);
 
         }
