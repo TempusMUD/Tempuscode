@@ -867,8 +867,7 @@ save_shops(struct char_data *ch)
 			if (s_vnum >= zone->number * 100 && s_vnum <= zone->top)
 				break;
 		if (!zone) {
-			sprintf(buf, "OLC: ERROR finding zone for shop %d.", s_vnum);
-			slog(buf);
+			slog("OLC: ERROR finding zone for shop %d.", s_vnum);
 			send_to_char("Unable to match shop with zone error..\r\n", ch);
 			return 1;
 		}

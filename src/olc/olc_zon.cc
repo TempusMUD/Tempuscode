@@ -2492,9 +2492,7 @@ do_create_zone(struct char_data *ch, int num)
 
 	fclose(index);
 
-	sprintf(buf, "Zone %d created by %s.", new_zone->number, GET_NAME(ch));
-	slog(buf);
-
+	slog("Zone %d created by %s.", new_zone->number, GET_NAME(ch));
 	return (0);
 }
 
@@ -2617,8 +2615,7 @@ save_zone(struct char_data *ch, struct zone_data *zone)
 	fprintf(zone_file, "*\n");
 	fprintf(zone_file, "$\n");
 
-	sprintf(buf, "OLC: %s zsaved %d.", GET_NAME(ch), zone->number);
-	slog(buf);
+	slog("OLC: %s zsaved %d.", GET_NAME(ch), zone->number);
 
 	sprintf(fname, "world/zon/%d.zon", zone->number);
 	realfile = fopen(fname, "w");

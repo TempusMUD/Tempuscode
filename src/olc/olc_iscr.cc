@@ -149,8 +149,7 @@ do_olc_isave(struct char_data *ch)
 		}
 
 		if (!zone) {
-			sprintf(buf, "OLC:  ERROR finding zone for iscript %d.", svnum);
-			slog(buf);
+			slog("OLC:  ERROR finding zone for iscript %d.", svnum);
 			send_to_char("Unable to match iscript with zone error.\r\n", ch);
 			return 1;
 		}
@@ -201,8 +200,7 @@ do_olc_isave(struct char_data *ch)
 	ofile << "$" << endl;
 	ofile.close();
 
-	sprintf(buf, "OLC:  %s isaved %d.", GET_NAME(ch), zone->number);
-	slog(buf);
+	slog("OLC:  %s isaved %d.", GET_NAME(ch), zone->number);
 
 	sprintf(fname, "world/iscr/%d.iscr", zone->number);
 	ofstream realfile(fname);
@@ -224,8 +222,7 @@ do_olc_isave(struct char_data *ch)
 		realfile.close();
 		ifile.close();
 	} else {
-		sprintf(buf, "SYSERR: Failure to open main iscript file: %s", fname);
-		slog(buf);
+		slog("SYSERR: Failure to open main iscript file: %s", fname);
 		send_to_char("OLC Error:  Failure to open main iscript file.\r\n", ch);
 	}
 	return 0;

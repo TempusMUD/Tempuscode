@@ -913,9 +913,8 @@ ACMD(do_olc)
 			GET_OBJ_TIMER(tmp_obj) = GET_LEVEL(ch);
 			act("$p appears in your hands.", FALSE, ch, tmp_obj, 0, TO_CHAR);
 			act("$n creates $p in $s hands.", TRUE, ch, tmp_obj, 0, TO_ROOM);
-			sprintf(buf, "OLC: %s oloaded [%d] %s.", GET_NAME(ch),
+			slog("OLC: %s oloaded [%d] %s.", GET_NAME(ch),
 				GET_OBJ_VNUM(tmp_obj), tmp_obj->short_description);
-			slog(buf);
 		}
 		break;
 	case 17:	 /********** omimic ************/
@@ -1047,9 +1046,8 @@ ACMD(do_olc)
 					char_from_room(ch);
 					char_to_room(ch, room);
 					save_wld(ch);
-					sprintf(buf, "SAVEWLD Super: Zone %d, rooms %d-%d.\n",
+					slog("SAVEWLD Super: Zone %d, rooms %d-%d.\n",
 						zone->number, zone->number * 100, zone->top);
-					slog(buf);
 					k++;
 				}
 			}
@@ -1533,9 +1531,8 @@ ACMD(do_olc)
 			char_to_room(tmp_mob, ch->in_room);
 			act("$N appears next to you.", FALSE, ch, 0, tmp_mob, TO_CHAR);
 			act("$n creates $N in $s hands.", TRUE, ch, 0, tmp_mob, TO_ROOM);
-			sprintf(buf, "OLC: %s mloaded [%d] %s.", GET_NAME(ch),
+			slog("OLC: %s mloaded [%d] %s.", GET_NAME(ch),
 				GET_MOB_VNUM(tmp_mob), GET_NAME(tmp_mob));
-			slog(buf);
 		}
 
 		break;
@@ -2327,9 +2324,8 @@ ACMD(do_unapprove)
 		}
 
 		send_to_char("Zone approved for olc.\r\n", ch);
-		sprintf(buf, "%s approved zone [%d] %s for OLC.", GET_NAME(ch),
+		slog("%s approved zone [%d] %s for OLC.", GET_NAME(ch),
 			zone->number, zone->name);
-		slog(buf);
 
 		SET_BIT(zone->flags, ZONE_MOBS_APPROVED |
 			ZONE_OBJS_APPROVED |
@@ -2373,9 +2369,8 @@ ACMD(do_unapprove)
 
 		SET_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
 		send_to_char("Object unapproved.\r\n", ch);
-		sprintf(buf, "%s unapproved object [%d] %s.", GET_NAME(ch),
+		slog("%s unapproved object [%d] %s.", GET_NAME(ch),
 			obj->shared->vnum, obj->short_description);
-		slog(buf);
 
 		GET_OLC_OBJ(ch) = obj;
 		save_objs(ch);
@@ -2415,9 +2410,8 @@ ACMD(do_unapprove)
 
 		SET_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
 		send_to_char("Mobile unapproved.\r\n", ch);
-		sprintf(buf, "%s unapproved mobile [%d] %s.", GET_NAME(ch),
+		slog("%s unapproved mobile [%d] %s.", GET_NAME(ch),
 			rnum, GET_NAME(mob));
-		slog(buf);
 
 		GET_OLC_MOB(ch) = mob;
 		save_mobs(ch);
@@ -2473,9 +2467,8 @@ ACMD(do_approve)
 		send_to_char("Zone approved for full inclusion in the game.\r\n"
 			"Zone modification from this point must be approved by an olc god.\r\n",
 			ch);
-		sprintf(buf, "%s approved zone [%d] %s.", GET_NAME(ch), zone->number,
+		slog("%s approved zone [%d] %s.", GET_NAME(ch), zone->number,
 			zone->name);
-		slog(buf);
 
 		REMOVE_BIT(zone->flags, ZONE_MOBS_APPROVED |
 			ZONE_OBJS_APPROVED |
@@ -2520,9 +2513,8 @@ ACMD(do_approve)
 		REMOVE_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
 		send_to_char("Object approved for full inclusion in the game.\r\n",
 			ch);
-		sprintf(buf, "%s approved object [%d] %s.", GET_NAME(ch),
+		slog("%s approved object [%d] %s.", GET_NAME(ch),
 			obj->shared->vnum, obj->short_description);
-		slog(buf);
 
 		GET_OLC_OBJ(ch) = obj;
 		save_objs(ch);
@@ -2563,9 +2555,8 @@ ACMD(do_approve)
 		REMOVE_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
 		send_to_char("Mobile approved for full inclusion in the game.\r\n",
 			ch);
-		sprintf(buf, "%s approved mobile [%d] %s.", GET_NAME(ch), rnum,
+		slog("%s approved mobile [%d] %s.", GET_NAME(ch), rnum,
 			GET_NAME(mob));
-		slog(buf);
 
 		GET_OLC_MOB(ch) = mob;
 		save_mobs(ch);

@@ -224,9 +224,8 @@ save_room(struct char_data *ch, struct room_data *room, FILE * file)
 	desc = room->ex_description;
 	while (desc != NULL) {
 		if (!desc->keyword || !desc->description) {
-			sprintf(buf, "OLCERROR: ExDesc with null %s, room #%d.",
+			slog("OLCERROR: ExDesc with null %s, room #%d.",
 				!desc->keyword ? "keyword" : "desc", room->number);
-			slog(buf);
 			sprintf(buf, "I didn't save your bogus extra desc in room %d.\r\n",
 				room->number);
 			send_to_char(buf, ch);
@@ -354,17 +353,15 @@ save_wld(struct char_data *ch)
 	fclose(file);
 
 	if (rename(temp_fname, real_fname)) {
-		sprintf(buf, "SYSERR: Error copying %s -> %s in save_wld: %s.",
+		slog("SYSERR: Error copying %s -> %s in save_wld: %s.",
 			temp_fname, real_fname, strerror(errno));
-		slog(buf);
 		send_to_char
 			("There was an error copying the temporary .wld file during the save.\r\n"
 			"World Save Failed.\r\n", ch);
 		return 1;
 	}
 
-	sprintf(buf, "OLC: %s rsaved %d.", GET_NAME(ch), zone->number);
-	slog(buf);
+	slog("OLC: %s rsaved %d.", GET_NAME(ch), zone->number);
 
 	return 0;
 }
@@ -1185,9 +1182,8 @@ ACMD(do_hedit)
 			send_to_char("World file saved.\r\n", ch);
 		else {
 			send_to_char("An error occured while saving.\r\n", ch);
-			sprintf(buf, "SYSERR: Error hedit save in house room %d.",
+			slog("SYSERR: Error hedit save in house room %d.",
 				ch->in_room->number);
-			slog(buf);
 		}
 		WAIT_STATE(ch, 8 RL_SEC);
 		break;

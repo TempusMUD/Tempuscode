@@ -1358,8 +1358,7 @@ save_mobs(struct char_data *ch)
 		}
 
 		if (!zone) {
-			sprintf(buf, "OLC: ERROR finding zone for mobile %d.", m_vnum);
-			slog(buf);
+			slog("OLC: ERROR finding zone for mobile %d.", m_vnum);
 			send_to_char("Unable to match mobile with zone error..\r\n", ch);
 			return 1;
 		}
@@ -1514,10 +1513,8 @@ save_mobs(struct char_data *ch)
 		reply = mob->mob_specials.response;
 		while (reply != NULL) {
 			if (!reply->keyword || !reply->description) {
-				sprintf(buf,
-					"OLCERROR: Response with no kywrd or desc, mob #%d.\n",
+				slog("OLCERROR: Response with no kywrd or desc, mob #%d.\n",
 					mob->mob_specials.shared->vnum);
-				slog(buf);
 				sprintf(buf,
 					"I didn't save your bogus response for mob %d.\r\n",
 					mob->mob_specials.shared->vnum);
@@ -1538,8 +1535,7 @@ save_mobs(struct char_data *ch)
 
 	fprintf(file, "$\n");
 
-	sprintf(buf, "OLC: %s msaved %d.", GET_NAME(ch), zone->number);
-	slog(buf);
+	slog("OLC: %s msaved %d.", GET_NAME(ch), zone->number);
 
 	sprintf(fname, "world/mob/%d.mob", zone->number);
 	realfile = fopen(fname, "w");

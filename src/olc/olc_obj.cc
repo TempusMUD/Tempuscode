@@ -171,8 +171,7 @@ save_objs(struct char_data *ch)
 			if (o_vnum >= zone->number * 100 && o_vnum <= zone->top)
 				break;
 		if (!zone) {
-			sprintf(buf, "OLC: ERROR finding zone for object %d.", o_vnum);
-			slog(buf);
+			slog("OLC: ERROR finding zone for object %d.", o_vnum);
 			send_to_char("Unable to match object with zone error..\r\n", ch);
 			return 1;
 		}
@@ -266,10 +265,8 @@ save_objs(struct char_data *ch)
 		desc = obj->ex_description;
 		while (desc != NULL) {
 			if (!desc->keyword || !desc->description) {
-				sprintf(buf,
-					"OLCERROR: Extra Desc with no kywrd or desc, obj #%d.\n",
+				slog("OLCERROR: Extra Desc with no kywrd or desc, obj #%d.\n",
 					obj->shared->vnum);
-				slog(buf);
 				sprintf(buf,
 					"I didn't save your bogus extra desc in obj %d.\r\n",
 					obj->shared->vnum);
@@ -309,8 +306,7 @@ save_objs(struct char_data *ch)
 
 	fprintf(file, "$\n");
 
-	sprintf(buf, "OLC: %s osaved %d.", GET_NAME(ch), zone->number);
-	slog(buf);
+	slog("OLC: %s osaved %d.", GET_NAME(ch), zone->number);
 
 	sprintf(fname, "world/obj/%d.obj", zone->number);
 	realfile = fopen(fname, "w");
@@ -556,9 +552,8 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 			&& GET_OBJ_VNUM(obj_p) <= zone->top)
 			break;
 	if (!zone) {
-		sprintf(buf, "OLC: ERROR finding zone for object %d.",
+		slog("OLC: ERROR finding zone for object %d.",
 			GET_OBJ_VNUM(obj_p));
-		slog(buf);
 		send_to_char("Unable to match object with zone error..\r\n", ch);
 		return;
 	}

@@ -400,8 +400,7 @@ save_ticls(struct char_data *ch)
 			if (t_vnum >= zone->number * 100 && t_vnum <= zone->top)
 				break;
 		if (!zone) {
-			sprintf(buf, "OLC: ERROR finding zone for TICL %d.", t_vnum);
-			slog(buf);
+			slog("OLC: ERROR finding zone for TICL %d.", t_vnum);
 			send_to_char("Unable to match TICL with zone error..\r\n", ch);
 			return 1;
 		}
