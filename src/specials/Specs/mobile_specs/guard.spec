@@ -12,12 +12,13 @@ const char *GUARD_HELP =
 "\r\n" 
 "    The directives are listed here:\r\n"
 "\r\n"
+"                dir <direction to block> [<more directions>...]\r\n"
+"                roomnum <room number to guard in>\r\n"
 "                allow [not] <class>|<align>|<race>|<clan>|all\r\n"
 "                deny [not] <class>|<align>|<race>|<clan>|all\r\n"
 "                tovict <message sent to blocked creature>\r\n"
 "                toroom <message sent to everyone else>\r\n"
 "                attack yes|no\r\n"
-"                dir <direction to block> [<more directions>...]\r\n"
 "\r\n"
 "Example:\r\n"
 "    For a guard that allows all mages, but\r\n"
@@ -25,7 +26,11 @@ const char *GUARD_HELP =
 "\r\n"
 "                allow mage\r\n"
 "                deny evil\r\n"
-"                allow all\r\n";
+"                allow all\r\n"
+"\r\n"
+"Obviously, due to the limitation of one specparam per vnum, it is not\r\n"
+"possible to make mobs that operate in more than one room reliably.\r\n";
+
 
 SPECIAL(guard)
 {
@@ -37,6 +42,7 @@ SPECIAL(guard)
 	char *dir_str, *str, *line, *param_key;
 	bool got_dir = false, attack = false;
 	char *err = NULL;
+	long room_num = -1;
 
 
 	if (spec_mode == SPECIAL_HELP) {
@@ -72,6 +78,8 @@ SPECIAL(guard)
 			to_vict = line;
 		} else if (!strcmp(param_key, "toroom")) {
 			to_room = line;
+		} else if (!strcmp(param_key, "roomnum")) {
+			room_num = atoi(line);
 		} else if (!strcmp(param_key, "attack")) {
 			attack = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 				is_abbrev(line, "1") || is_abbrev(line, "true"));
@@ -82,7 +90,11 @@ SPECIAL(guard)
 	}
 	if (!got_dir)
 		err = "no direction";
+	else if (room_num != -1 && self->in_room->number != room_num)
+		return false;
 	else if (dir == -1)
+		return false;
+	else if (!EXIT(ch, dir-1) || !EXIT(ch, dir-1)->to_room)
 		return false;
 
 	if (err) {
