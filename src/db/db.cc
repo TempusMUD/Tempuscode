@@ -2573,19 +2573,19 @@ randomize_object(struct obj_data *obj)
 	for (idx = 0;idx < 32;idx++) {
 		bit = (1 << idx);
 		if (IS_SET(obj->obj_flags.bitvector[0], bit)) {
-			if (!number(0, 3))
+			if (!number(0, 10))
 				REMOVE_BIT(obj->obj_flags.bitvector[0], bit);
 			else
 				total_affs++;
 		}
 		if (IS_SET(obj->obj_flags.bitvector[1], bit)) {
-			if (!number(0, 3))
+			if (!number(0, 10))
 				REMOVE_BIT(obj->obj_flags.bitvector[1], bit);
 			else
 				total_affs++;
 		}
 		if (IS_SET(obj->obj_flags.bitvector[2], bit)) {
-			if (!number(0, 3))
+			if (!number(0, 10))
 				REMOVE_BIT(obj->obj_flags.bitvector[2], bit);
 			else
 				total_affs++;
