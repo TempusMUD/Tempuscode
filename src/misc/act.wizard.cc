@@ -93,6 +93,7 @@ void do_show_objects(struct char_data *ch, char *value, char *arg);
 void do_show_mobiles(struct char_data *ch, char *value, char *arg);
 void show_searches(struct char_data *ch, char *value, char *arg);
 void do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg);
+const char *stristr( const char *haystack,const char *needle );
 
 int find_distance(struct room_data *src, struct room_data *target);
 int parse_char_class(char *arg);
@@ -4237,6 +4238,10 @@ ACMD(do_show)
                 send_to_char("That is not a valid zone.\r\n", ch);
                 return;
             }
+		} else if (*value && !is_number(value)) {
+            for (zone = zone_table;zone;zone = zone->next)
+				if ( stristr( zone->name,value ) )
+					print_zone_to_buf( ch,buf,zone );
         } else
             for (zone = zone_table; zone; zone = zone->next)
                 print_zone_to_buf(ch, buf, zone);

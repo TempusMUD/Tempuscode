@@ -871,3 +871,29 @@ bool CAN_GO(obj_data *obj, int door ) {
              !IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
              exit->to_room != NULL );
 }
+
+const char *stristr( const char *haystack,const char *needle )
+{
+	const char *read_pt,*search_pt;
+
+	while ( *haystack )
+		{
+		search_pt = haystack;
+		read_pt = needle;
+		while ( tolower(*search_pt) == tolower(*read_pt) && *search_pt && *read_pt )
+			{
+			search_pt++;
+			read_pt++;
+			}
+
+		if ( !*read_pt )
+			return haystack;
+		
+		if ( !*search_pt )
+			return NULL;
+
+		haystack++;
+		}
+
+	return NULL;
+}
