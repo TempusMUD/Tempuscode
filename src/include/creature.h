@@ -1158,7 +1158,6 @@ struct Creature {
 
 	struct follow_type *followers;	/* List of chars followers       */
 	struct Creature *master;	/* Who is char following?        */
-	char host[HOST_LENGTH + 1];	/* host of last logon */
 };
 
 /* ====================================================================== */

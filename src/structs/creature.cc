@@ -79,7 +79,6 @@ Creature::Creature(const Creature &c)
     memcpy(&this->language_data, &c.language_data, sizeof(struct char_language_data));
     memcpy(&this->mob_specials, &c.mob_specials, sizeof(struct mob_special_data));
     memcpy(&this->char_specials, &c.char_specials, sizeof(struct char_special_data));
-    memcpy(&this->host, &c.host, sizeof(host));
 }
 
 void

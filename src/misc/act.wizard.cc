@@ -3323,11 +3323,11 @@ ACMD(do_last)
 		delete vict;
         return;
     }
-    send_to_char(ch, "[%5ld] [%2d %s] %-12s : %-18s : %-20s",
+
+    send_to_char(ch, "[%5ld] [%2d %s] %-12s : %-20s",
         GET_IDNUM(vict), GET_LEVEL(vict),
         char_class_abbrevs[GET_CLASS(vict)], GET_NAME(vict),
-        GET_LEVEL(ch) > LVL_ETERNAL ? vict->host : "Unknown",
-        ctime(&(vict->player.time.logon)));
+        ctime(&(vict->player.time.logon)) );
     if (GET_LEVEL(ch) >= GET_LEVEL(vict) && has_mail(GET_IDNUM(vict)))
         send_to_char(ch, "Player has unread mail.\r\n");
 	delete vict;

@@ -514,10 +514,6 @@ Creature::saveToXML()
 		ch->player.time.birth, ch->player.time.death, ch->player.time.played,
 		ch->player.time.logon);
 
-	char *host = "";
-	if( desc != NULL ) {
-		host = xmlEncodeTmp( desc->host );
-	}
 	fprintf(ouf, "<carnage pkills=\"%d\" akills=\"%d\" mkills=\"%d\" deaths=\"%d\" reputation=\"%d\"",
 		GET_PKILLS(ch), GET_ARENAKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch),
 		ch->player_specials->saved.reputation);
