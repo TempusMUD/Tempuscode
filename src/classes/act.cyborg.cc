@@ -2103,14 +2103,12 @@ obj_cond(struct obj_data *obj)
 
 	int num;
 
-	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
-		return "<broken>";
-
-	if (GET_OBJ_MAX_DAM(obj) == 0)
-		return "frail";
-
 	if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
 		num = 0;
+	else if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
+		return "<broken>";
+	else if (GET_OBJ_MAX_DAM(obj) == 0)
+		return "frail";
 	else
 		num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
 			GET_OBJ_MAX_DAM(obj));
@@ -2138,15 +2136,13 @@ obj_cond_color(struct obj_data *obj, struct Creature *ch)
 {
 	int num;
 
-	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
-		return "<broken>";
-
-	if (GET_OBJ_MAX_DAM(obj) == 0) {
-		return tmp_sprintf("%sfrail%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-
 	if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
 		num = 0;
-	} else
+	else if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
+		return "<broken>";
+	else if (GET_OBJ_MAX_DAM(obj) == 0)
+		return tmp_sprintf("%sfrail%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+	else
 		num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
 			GET_OBJ_MAX_DAM(obj));
 
@@ -3166,36 +3162,34 @@ ACMD(do_transmit)
 
 	struct obj_data *obj = NULL;
 	int i;
-	char *arg1, *arg2;
+	char *arg;
 
-	arg1 = tmp_getword(&argument);
-	arg2 = tmp_getword(&argument);
+	arg = tmp_getword(&argument);
 
-	if (!*arg1) {
+	if (!*arg) {
 		send_to_char(ch, "Usage:  transmit [internal] <device> <message>\r\n");
 		return;
 	}
 
-	if (!strncmp(arg1, "internal", 8)) {
+	if (!strncmp(arg, "internal", 8)) {
 
-		arg1 = arg2;
-		arg2 = tmp_getword(&argument);
+		arg = tmp_getword(&argument);
 
-		if (!*arg2) {
+		if (!*arg) {
 			send_to_char(ch, "Transmit with which implant?\r\n");
 			return;
 		}
 
-		if (!(obj = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
-			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg2),
-				arg2);
+		if (!(obj = get_object_in_equip_vis(ch, arg, ch->implants, &i))) {
+			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg),
+				arg);
 			return;
 		}
 
-	} else if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
-		!(obj = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
-		!(obj = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
-		send_to_char(ch, "You can't seem to find %s '%s'.\r\n", AN(arg1), arg1);
+	} else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)) &&
+		!(obj = get_object_in_equip_all(ch, arg, ch->equipment, &i)) &&
+		!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+		send_to_char(ch, "You can't seem to find %s '%s'.\r\n", AN(arg), arg);
 		return;
 	}
 
