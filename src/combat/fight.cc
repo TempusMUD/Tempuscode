@@ -424,7 +424,7 @@ perform_gain_kill_exp(struct char_data *ch, struct char_data *victim,
      
 	if (IS_GOOD(ch) && (IS_CLERIC(ch) || IS_KNIGHT(ch)) && IS_GOOD(victim)) {	// good clerics & knights penalized
         // I've never liked this...it's unfair...lets change it 1/22/02
-        exp -= (exp * 33) / 100;
+        exp -= (exp * 50) / 100;
 /*		exp = -exp;
 		act("You feel a sharp pang of remorse for $N's death.",
 			FALSE, ch, 0, victim, TO_CHAR); */
