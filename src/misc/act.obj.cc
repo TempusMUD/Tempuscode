@@ -2042,9 +2042,9 @@ ACMD(do_drink)
 		send_to_char(ch, "You have to be holding that to drink from it.\r\n");
 		return;
 	}
-	if ((GET_COND(ch, DRUNK) > 10) && (GET_COND(ch, THIRST) > 0)) {
+	if (GET_COND(ch, DRUNK) > GET_CON(ch) * 2 || GET_COND(ch, DRUNK) == 24) {
 		/* The pig is drunk */
-		send_to_char(ch, "You can't seem to get close enough to your mouth.\r\n");
+		send_to_char(ch, "You can't seem to get it close enough to your mouth.\r\n");
 		act("$n tries to drink but misses $s mouth!", TRUE, ch, 0, 0, TO_ROOM);
 		return;
 	}
@@ -2068,12 +2068,7 @@ ACMD(do_drink)
 		else
 			send_to_char(ch, "You drink the %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
 
-		if (drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] > 0)
-			amount =
-				(25 - GET_COND(ch, THIRST)) / drink_aff[GET_OBJ_VAL(temp,
-					2)][DRUNK];
-		else
-			amount = number(3, 10);
+		amount = number(1, 3);
 
 	} else {
 		act("$n sips from $p.", TRUE, ch, temp, 0, TO_ROOM);
@@ -2106,8 +2101,14 @@ ACMD(do_drink)
 	gain_condition(ch, FULL, full);
 	gain_condition(ch, THIRST, thirst);
 
-	if (GET_COND(ch, DRUNK) > 10)
+	if (GET_COND(ch, DRUNK) > GET_CON(ch) * 2 || GET_COND(ch, DRUNK) == 24)
+		send_to_char(ch, "You are on the verge of passing out!\r\n");
+	else if (GET_COND(ch, DRUNK) > GET_CON(ch) * 3 / 4)
+		send_to_char(ch, "You are feeling no pain.\r\n");
+	else if (GET_COND(ch, DRUNK) > GET_CON(ch))
 		send_to_char(ch, "You feel pretty damn drunk.\r\n");
+	else if (GET_COND(ch, DRUNK) > GET_CON(ch) / 2)
+		send_to_char(ch, "You feel pretty good.\r\n");
 
 	if (GET_COND(ch, THIRST) > 20)
 		send_to_char(ch, "Your thirst has been quenched.\r\n");

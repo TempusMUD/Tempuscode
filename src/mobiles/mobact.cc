@@ -1534,12 +1534,12 @@ mobile_activity(void)
 		// drunk effects
 		//
 
-		if (GET_COND(ch, DRUNK) > 8 && random_fractional_10()) {
+		if (GET_COND(ch, DRUNK) > GET_CON(ch) && random_fractional_10()) {
 			found = FALSE;
 			act("$n burps loudly.", FALSE, ch, 0, 0, TO_ROOM);
 			send_to_char(ch, "You burp loudly.\r\n");
 			found = TRUE;
-		} else if (GET_COND(ch, DRUNK) > 4 && random_fractional_10()) {
+		} else if (GET_COND(ch, DRUNK) > GET_CON(ch) / 2 && random_fractional_10()) {
 			found = FALSE;
 			act("$n hiccups.", FALSE, ch, 0, 0, TO_ROOM);
 			send_to_char(ch, "You hiccup.\r\n");
