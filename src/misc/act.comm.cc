@@ -1103,12 +1103,15 @@ ACMD(do_gen_comm)
 
 	/* now send all the strings out */
 	for (i = descriptor_list; i; i = i->next) {
+        const char *language_str = "";
         char *buf4 = argument;
-		if (!PRF_FLAGGED(i->creature, PRF_NASTY))
-            buf4 = filtered_msg;
-        char *language_str = "";
-        char *translated = translate_string(argument, GET_LANGUAGE(ch));
-        int language_idx = GET_LANGUAGE(ch);
+        char *translated;
+        int language_idx;
+
+		if (STATE(i) != CXN_PLAYING || i == ch->desc || !i->creature ||
+				PLR_FLAGGED(i->creature, PLR_WRITING) ||
+				PLR_FLAGGED(i->creature, PLR_OLC))
+			continue;
 
         if (GET_LANGUAGE(i->creature) != GET_LANGUAGE(ch)) {
             if (GET_LANGUAGE(ch) == LANGUAGE_COMMON)
@@ -1118,14 +1121,14 @@ ACMD(do_gen_comm)
                                        language_names[language_idx]);
         }
 
-        if ((!can_speak_language(i->creature, GET_LANGUAGE(ch))) && 
-            strcmp(chan->name, "newbie"))
+        if ((!can_speak_language(i->creature, GET_LANGUAGE(ch)))
+				&& strcmp(chan->name, "newbie"))
             buf4 = tmp_sprintf("%s", translated);
 
-		if (STATE(i) != CXN_PLAYING || i == ch->desc || !i->creature ||
-				PLR_FLAGGED(i->creature, PLR_WRITING) ||
-				PLR_FLAGGED(i->creature, PLR_OLC))
-			continue;
+		if (!PRF_FLAGGED(i->creature, PRF_NASTY))
+            buf4 = filtered_msg;
+		translated = translate_string(argument, GET_LANGUAGE(ch));
+		language_idx = GET_LANGUAGE(ch);
 
 		if (chan->deaf_vector == 1 &&
 				PRF_FLAGGED(i->creature, chan->deaf_flag))
