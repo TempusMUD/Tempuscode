@@ -2616,6 +2616,9 @@ Reaction::react(Creature *ch)
 	char *read_pt;
 	decision_t action;
 
+	if (!_reaction)
+		return UNDECIDED;
+
 	for (read_pt = _reaction;*read_pt;read_pt++) {
 		action = ((*read_pt) >> 4) ? ALLOW:DENY;
 		switch (*read_pt & 0xF) {

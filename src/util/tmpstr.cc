@@ -11,6 +11,7 @@ struct tmp_str_pool {
 	struct tmp_str_pool *next;		// Ptr to next in linked list
 	size_t space;					// Amount of space allocated
 	size_t used;					// Amount of space used in pool
+	unsigned long underflow;		// Buffer underflow detection
 	char data[0];					// The actual data
 };
 
@@ -51,6 +52,11 @@ tmp_gc_strings(void)
 	for(cur_buf = tmp_list_head->next;cur_buf;cur_buf = next_buf) {
 		next_buf = cur_buf->next;
 
+		if (cur_buf->underflow != 0xddccbbaa)
+			slog("WARNING: buffer underflow detected in tmpstr module");
+		if (*((unsigned long *)&cur_buf->data[cur_buf->space]) != 0xaabbccdd)
+			slog("WARNING: buffer overflow detected in tmpstr module");
+
 		wanted += cur_buf->used;
 		free(cur_buf);
 	}
@@ -68,12 +74,10 @@ tmp_gc_strings(void)
 
 // Allocate a new string pool
 struct tmp_str_pool *
-tmp_alloc_pool(size_t size_req )
+tmp_alloc_pool(size_t size_req)
 {
 	struct tmp_str_pool *new_buf;
 	size_t size = MAX(size_req,DEFAULT_POOL_SIZE);
-	//if (size < DEFAULT_POOL_SIZE)
-	//	size = DEFAULT_POOL_SIZE;
 
 	fprintf(stderr, "NOTICE: tmpstr pool allocated %d bytes for req of %d bytes\n", 
 			size, size_req );
@@ -82,12 +86,16 @@ tmp_alloc_pool(size_t size_req )
 		(long)__builtin_return_address(1),
 		(long)__builtin_return_address(2));
 
-	new_buf = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size);
+	new_buf = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size + 4);
 	new_buf->next = NULL;
 	tmp_list_tail->next = new_buf;
 	tmp_list_tail = new_buf;
 	new_buf->space = size;
 	new_buf->used = 0;
+
+	// Add buffer overflow detection
+	new_buf->underflow = 0xddccbbaa;
+	*((unsigned long *)&new_buf->data[new_buf->space]) = 0xaabbccdd;
 
 	return new_buf;
 }
