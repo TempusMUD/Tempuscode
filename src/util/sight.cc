@@ -3,12 +3,7 @@
 #include "defs.h"
 #include "creature.h"
 #include "utils.h"
-
-bool
-NIGHT_VIS(Creature *ch)
-{
-	return (CHECK_SKILL(ch, 605) >= 70);
-}
+#include "spells.h"
 
 bool
 IS_RACE_INFRA(Creature *ch)
@@ -33,8 +28,10 @@ CAN_SEE_IN_DARK(Creature *ch)
 {
 	return (AFF_FLAGGED(ch, AFF_INFRAVISION) ||
 		PRF_FLAGGED(ch, PRF_HOLYLIGHT) ||
+		AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ||
 		AFF_FLAGGED(ch, AFF_RETINA) ||
-		IS_RACE_INFRA(ch) || NIGHT_VIS(ch));
+		IS_RACE_INFRA(ch) ||
+		CHECK_SKILL(ch, SKILL_NIGHT_VISION));
 }
 
 
@@ -42,9 +39,8 @@ bool
 LIGHT_OK(Creature *sub)
 {
 	return ((!IS_AFFECTED(sub, AFF_BLIND) && 
-                          (IS_LIGHT((sub)->in_room) || 
-                           CAN_SEE_IN_DARK(sub))) ||
-                         AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY));
+                          (IS_LIGHT(sub->in_room) || 
+                           CAN_SEE_IN_DARK(sub))));
 }
 
 bool
@@ -52,36 +48,22 @@ LIGHT_OK_ROOM(Creature *sub, room_data *room)
 {
 	return ((!IS_AFFECTED(sub, AFF_BLIND) && 
 		(IS_LIGHT(room) ||  
-		CAN_SEE_IN_DARK(sub))) || 
-		AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY));
+		CAN_SEE_IN_DARK(sub))));
 }
 
 bool
 ROOM_OK(Creature *sub)
 {
-	return (!sub->in_room ||                   
-		!ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED) || 
+	if (!sub->in_room) {
+		slog("SYSERR: ROOM_OK called on mob without room");
+		return false;
+	}	
+
+	return (!ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED) || 
 		AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY));
 }
 
-bool
-MORT_CAN_SEE(Creature *sub, Creature *obj)
-{
-	return (LIGHT_OK(sub) && ROOM_OK(sub) && INVIS_OK(sub, obj) &&     
-		(GET_LEVEL(sub) > LVL_IMMORT || sub->isTester() || !MOB_UNAPPROVED(obj)) && 
-		(!obj->isTester()  || sub->isTester() || IS_NPC(sub)));
-}
-
-/* End of CAN_SEE */
-
-bool
-MOB_UNAPPROVED(Creature *ch)
-{
-	return (MOB2_FLAGGED(ch, MOB2_UNAPPROVED));
-}
-
-/* Can subject see character "obj"? */
-
+// Can subject see in room?
 bool
 CHAR_CAN_SEE(Creature *ch, room_data *room)
 {
@@ -93,14 +75,9 @@ CHAR_CAN_SEE(Creature *ch, room_data *room)
 		if (!AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
 			return false;
 	}
-	if (IS_DARK(room)) {
-		if (!AFF_FLAGGED(ch, AFF_INFRAVISION) &&
-				!AFF_FLAGGED(ch, AFF_RETINA) &&
-				!IS_RACE_INFRA(ch) &&
-				!AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) &&
-				CHECK_SKILL(ch, 605) < 70)
-			return false;
-	}
+	if (IS_DARK(room) && !CAN_SEE_IN_DARK(ch))
+		return false;
+
 	return true;
 }
 
@@ -159,7 +136,9 @@ CAN_SEE(Creature *sub, Creature *obj)
 		return false;
 
 	// Mortals can't see unapproved mobs
-	if (!MOB_UNAPPROVED(sub) && MOB_UNAPPROVED(obj) &&
+	
+	if (!MOB2_FLAGGED(sub, MOB2_UNAPPROVED) &&
+			MOB2_FLAGGED(obj, MOB2_UNAPPROVED) &&
 			!IS_IMMORT(sub) && !sub->isTester())
 		return false;
 
