@@ -1591,7 +1591,7 @@ look_in_obj(struct char_data *ch, char *arg)
 	else {
 		if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 			if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED) &&
-				!GET_OBJ_VAL(obj, 3))
+				!GET_OBJ_VAL(obj, 3) && GET_LEVEL(ch) < LVL_GOD)
 				send_to_char(ch, "It is closed.\r\n");
 			else {
 				send_to_char(ch, obj->short_description);

@@ -314,6 +314,8 @@ implanter_extract(char_data *me, char_data *ch, char *args)
 
 void implanter_redeem(char_data *me, char_data *ch, char *args)
 {
+	char *msg;
+
 	if (implanter_in_session(ch)) {
 		perform_tell(me, ch, "You've already redeemed your implanting session!");
 		return;
@@ -347,6 +349,9 @@ void implanter_redeem(char_data *me, char_data *ch, char *args)
 	perform_tell(me, ch, "Alright.  So ya got connections.");
 	perform_tell(me, ch, "Act like you're buyin' stuff so I won't get in trouble, right?");
 	perform_tell(me, ch, "I'll only do this for ya until ya leave.");
+	
+	msg = tmp_strcat("Implant session redeemed by ", GET_NAME(ch), NULL);
+	mudlog(msg, BRF, LVL_AMBASSADOR, TRUE);
 }
 
 bool

@@ -502,6 +502,7 @@ damage_eq(struct char_data *ch, struct obj_data *obj, int eq_dam, int type =
 	if (GET_OBJ_DAM(obj) < 0 || GET_OBJ_MAX_DAM(obj) < 0 ||
 		(ch && GET_LEVEL(ch) < LVL_IMMORT && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) ||
 		(ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) ||
+		(obj->in_room && ROOM_FLAGGED(obj->in_room, ROOM_ARENA)) ||
 		(GET_OBJ_TYPE(obj) == ITEM_KEY) || (GET_OBJ_TYPE(obj) == ITEM_SCRIPT)
 		|| obj->in_room == zone_table->world)
 		return NULL;

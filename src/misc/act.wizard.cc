@@ -5952,7 +5952,7 @@ ACMD(do_set)
 		send_to_char(ch, "%s's %s set to %d.\r\n", GET_NAME(vict),
 			fields[l].cmd, value);
 	} else
-		send_to_char(ch, "%s", buf);
+		send_to_char(ch, "%s\r\n", buf);
 
 	if (!is_file && !IS_NPC(vict))
 		save_char(vict, NULL);

@@ -28,6 +28,7 @@
 #include "house.h"
 #include "clan.h"
 #include "char_class.h"
+#include "tmpstr.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -43,12 +44,6 @@ int player_i = 0;
 
 
 #define NAME(x) ((temp = get_name_by_id(x)) == NULL ? "<UNDEF>" : temp)
-
-#define LOG_CLANSAVE(ch, string)
-/*
-{sprintf(buf, "%s clan-saved from %s", ch ? GET_NAME(ch) : "NULL", string);\
- slog(buf);}
-*/
 
 void
 REMOVE_ROOM_FROM_CLAN(struct room_list_elem *rm_list, struct clan_data *clan)
@@ -70,6 +65,7 @@ ACMD(do_enroll)
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL;
 	int count = 0;
+	char *msg;
 
 	skip_spaces(&argument);
 
@@ -108,7 +104,6 @@ ACMD(do_enroll)
 		send_to_char(ch, "Something wierd just happened... try again.\r\n");
 		REMOVE_MEMBER_FROM_CLAN(member, clan);
 		free(member);
-		LOG_CLANSAVE(ch, "do_enroll");
 		save_clans();
 	} else {
 
@@ -122,11 +117,11 @@ ACMD(do_enroll)
 		REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
 		send_to_char(vict, "You have been inducted into clan %s by %s!\r\n",
 			clan->name, GET_NAME(ch));
-		sprintf(buf, "%s has been inducted into clan %s by %s!",
+		msg = tmp_sprintf("%s has been inducted into clan %s by %s!",
 			GET_NAME(vict), clan->name, GET_NAME(ch));
-		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
-		strcat(buf, "\r\n");
-		send_to_clan(buf, GET_CLAN(ch));
+		mudlog(msg, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
+		msg = tmp_strcat(msg, "\r\n", NULL);
+		send_to_clan(msg, GET_CLAN(ch));
 		GET_CLAN(vict) = clan->number;
 		CREATE(member, struct clanmember_data, 1);
 		member->idnum = GET_IDNUM(vict);
@@ -134,7 +129,6 @@ ACMD(do_enroll)
 		member->next = clan->member_list;
 		clan->member_list = member;
 		sort_clanmembers(clan);
-		LOG_CLANSAVE(ch, "do_induct");
 		save_clans();
 	}
 }
@@ -144,19 +138,19 @@ ACMD(do_dismiss)
 	struct char_data *vict;
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL, *member2 = NULL;
-	char arg[MAX_INPUT_LENGTH];
 	bool in_file = false;
 	long idnum = -1;
 	struct char_file_u tmp_store;
+	char *arg, *msg;
 
 
-	one_argument(argument, arg);
+	arg = tmp_getword(&argument);
 	skip_spaces(&argument);
 
 	if (!clan) {
 		send_to_char(ch, "Try joining a clan first.\r\n");
 		return;
-	} else if (!*argument) {
+	} else if (!*arg) {
 		send_to_char(ch, "Ummm... dismiss who?\r\n");
 		return;
 	}
@@ -209,11 +203,11 @@ ACMD(do_dismiss)
 		send_to_char(vict, "You have been dismissed from clan %s by %s!\r\n",
 			clan->name, GET_NAME(ch));
 		GET_CLAN(vict) = 0;
-		sprintf(buf, "%s has been dismissed from clan %s by %s!",
+		msg = tmp_sprintf("%s has been dismissed from clan %s by %s!",
 			GET_NAME(vict), clan->name, GET_NAME(ch));
-		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
-		strcat(buf, "\r\n");
-		send_to_clan(buf, GET_CLAN(ch));
+		mudlog(msg, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
+		msg = tmp_strcat(msg, "\r\n", NULL);
+		send_to_clan(msg, GET_CLAN(ch));
 		if ((member = real_clanmember(GET_IDNUM(vict), clan))) {
 			REMOVE_MEMBER_FROM_CLAN(member, clan);
 			free(member);
@@ -235,6 +229,7 @@ ACMD(do_resign)
 
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL;
+	char *msg;
 
 	if (IS_NPC(ch))
 		send_to_char(ch, "NPC's cannot resign...\r\n");
@@ -242,11 +237,11 @@ ACMD(do_resign)
 		send_to_char(ch, "You need to be in a clan before you resign from it.\r\n");
 	else {
 		send_to_char(ch, "You have resigned from clan %s.\r\n", clan->name);
-		sprintf(buf, "%s has resigned from clan %s.", GET_NAME(ch),
+		msg = tmp_sprintf("%s has resigned from clan %s.", GET_NAME(ch),
 			clan->name);
-		mudlog(buf, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
-		strcat(buf, "\r\n");
-		send_to_clan(buf, GET_CLAN(ch));
+		mudlog(msg, NRM, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), 1);
+		msg = tmp_strcat(msg, "\r\n", NULL);
+		send_to_clan(msg, GET_CLAN(ch));
 		GET_CLAN(ch) = 0;
 		REMOVE_BIT(PLR_FLAGS(ch), PLR_CLAN_LEADER);
 		if (clan->owner == GET_IDNUM(ch))
@@ -269,7 +264,7 @@ ACMD(do_clanlist)
 	bool complete = 0;
 	int visible = 1;
 	int found = 0;
-	char namebuf[128], outbuf[MAX_STRING_LENGTH];
+	char *name, *line, *msg = "";
 
 	if (!clan) {
 		send_to_char(ch, "You are not a member of any clan.\r\n");
@@ -297,7 +292,7 @@ ACMD(do_clanlist)
 		argument = one_argument(argument, arg);
 	}
 
-	sprintf(outbuf, "Members of clan %s :\r\n", clan->name);
+	msg = tmp_strcat("Members of clan ", clan->name, " :\r\n", NULL);
 	for (member = clan->member_list; member; member = member->next, found = 0) {
 		for (d = descriptor_list; d && !found; d = d->next) {
 			if (IS_PLAYING(d)) {
@@ -306,11 +301,12 @@ ACMD(do_clanlist)
 				if (i && GET_CLAN(i) == GET_CLAN(ch) &&
 					GET_IDNUM(i) == member->idnum && (visible = CAN_SEE(ch, i))
 					&& GET_LEVEL(i) >= min_lev && (i->in_room != NULL)) {
-					sprintf(namebuf, "%s %s (online)", GET_NAME(i),
+					name = tmp_strcat(GET_NAME(i), " ",
 						clan->ranknames[(int)member->rank] ? clan->
-						ranknames[(int)member->rank] : "the member");
+						ranknames[(int)member->rank] : "the member",
+						" (online)", NULL);
 					if (d->original)
-						sprintf(buf,
+						line = tmp_sprintf(
 							"%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s %s(in %s)%s\r\n",
 							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(i),
 							char_class_abbrevs[(int)GET_CLASS(i)], CCGRN(ch,
@@ -318,7 +314,7 @@ ACMD(do_clanlist)
 							(GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,
 									C_NRM) : (PLR_FLAGGED(i,
 										PLR_CLAN_LEADER) ? CCCYN(ch,
-										C_NRM) : "")), namebuf,
+										C_NRM) : "")), name,
 							((GET_LEVEL(i) >= LVL_AMBASSADOR
 									|| PLR_FLAGGED(i,
 										PLR_CLAN_LEADER)) ? CCNRM(ch,
@@ -334,11 +330,11 @@ ACMD(do_clanlist)
 								C_CMP), GET_NAME(d->character), CCNRM(ch,
 								C_CMP));
 					else if (GET_LEVEL(i) >= LVL_AMBASSADOR)
-						sprintf(buf, "%s[%s%s%s]%s %-40s%s - %s%s%s\r\n",
+						line = tmp_sprintf("%s[%s%s%s]%s %-40s%s - %s%s%s\r\n",
 							CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
 							level_abbrevs[(int)(GET_LEVEL(i) -
 									LVL_AMBASSADOR)], CCYEL_BLD(ch, C_NRM),
-							CCNRM_GRN(ch, C_SPR), namebuf, CCNRM(ch, C_SPR),
+							CCNRM_GRN(ch, C_SPR), name, CCNRM(ch, C_SPR),
 							CCCYN(ch, C_NRM),
 							(i->in_room->zone ==
 								ch->in_room->zone) ? ((LIGHT_OK(ch)
@@ -347,12 +343,12 @@ ACMD(do_clanlist)
 								name : "You cannot tell...") : i->in_room->
 							zone->name, CCNRM(ch, C_NRM));
 					else
-						sprintf(buf, "%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s\r\n",
+						line = tmp_sprintf("%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s\r\n",
 							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(i),
 							char_class_abbrevs[(int)GET_CLASS(i)], CCGRN(ch,
 								C_NRM), CCNRM(ch, C_NRM), (PLR_FLAGGED(i,
 									PLR_CLAN_LEADER) ? CCCYN(ch, C_NRM) : ""),
-							namebuf, (PLR_FLAGGED(i,
+							name, (PLR_FLAGGED(i,
 									PLR_CLAN_LEADER) ? CCNRM(ch, C_NRM) : ""),
 							CCCYN(ch, C_NRM),
 							(i->in_room->zone ==
@@ -363,11 +359,7 @@ ACMD(do_clanlist)
 							zone->name, CCNRM(ch, C_NRM));
 
 					++found;
-					if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
-						strcat(outbuf, "**OVERFLOW**\r\n");
-						break;
-					} else
-						strcat(outbuf, buf);
+					msg = tmp_strcat(msg, line, NULL);
 				}
 			}
 		}
@@ -380,34 +372,30 @@ ACMD(do_clanlist)
 				CREATE(i, struct char_data, 1);
 				clear_char(i);
 				store_to_char(&tmp_store, i);
-				sprintf(namebuf, "%s %s", GET_NAME(i),
+				name = tmp_strcat(GET_NAME(i), " ",
 					clan->ranknames[(int)member->rank] ?
-					clan->ranknames[(int)member->rank] : "the member");
+					clan->ranknames[(int)member->rank] : "the member", NULL);
 
 				if (GET_LEVEL(i) >= LVL_AMBASSADOR)
-					sprintf(buf, "%s[%s%s%s]%s %-40s%s\r\n",
+					line = tmp_sprintf("%s[%s%s%s]%s %-40s%s\r\n",
 						CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
 						level_abbrevs[(int)(GET_LEVEL(i) - LVL_AMBASSADOR)],
 						CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
-						namebuf, CCNRM(ch, C_SPR));
+						name, CCNRM(ch, C_SPR));
 				else
-					sprintf(buf, "%s[%s%2d %s%s]%s %s%-40s%s\r\n",
+					line = tmp_sprintf("%s[%s%2d %s%s]%s %s%-40s%s\r\n",
 						CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(i),
 						char_class_abbrevs[(int)GET_CLASS(i)], CCGRN(ch,
 							C_NRM), CCNRM(ch, C_NRM), (PLR_FLAGGED(i,
 								PLR_CLAN_LEADER) ? CCCYN(ch, C_NRM) : ""),
-						namebuf, CCNRM(ch, C_NRM));
+						name, CCNRM(ch, C_NRM));
 
-				if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
-					strcat(outbuf, "**OVERFLOW**\r\n");
-					break;
-				} else
-					strcat(outbuf, buf);
 				free_char(i);
+				msg = tmp_strcat(msg, line, NULL);
 			}
 		}
 	}
-	page_string(ch->desc, outbuf);
+	page_string(ch->desc, msg);
 }
 
 ACMD(do_cinfo)
@@ -415,52 +403,40 @@ ACMD(do_cinfo)
 
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct room_list_elem *rm_list = NULL;
-	char outbuf[MAX_STRING_LENGTH];
 	int found = 0;
-	bool overflow = false;
 	int i;
+	char *msg = "";
 
 	if (!clan)
 		send_to_char(ch, "You are not a member of any clan.\r\n");
 	else {
-		sprintf(outbuf,
-			"Information on clan %s%s%s:\r\n\r\n"
+		msg = tmp_sprintf("Information on clan %s%s%s:\r\n\r\n"
 			"Clan badge: '%s%s%s', Clan bank account: %d\r\n"
 			"Clan ranks:\r\n",
 			CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
 			CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM),
 			clan->bank_account);
 		for (i = clan->top_rank; i >= 0; i--) {
-			sprintf(buf, " (%2d)  %s%s%s\r\n", i, CCYEL(ch, C_NRM),
+			msg = tmp_sprintf("%s (%2d)  %s%s%s\r\n", msg, i, CCYEL(ch, C_NRM),
 				clan->ranknames[i] ? clan->ranknames[i] : "the Member",
 				CCNRM(ch, C_NRM));
-			if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
-				overflow = true;
-				strcat(outbuf, "**OVERFLOW**\r\n");
-				break;
-			} else
-				strcat(outbuf, buf);
 		}
 
-		if (!overflow) {
-			strcat(outbuf, "Clan rooms:\r\n");
-			for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
-				if (rm_list->room
-					&& ROOM_FLAGGED(rm_list->room, ROOM_CLAN_HOUSE)) {
-					sprintf(buf, "     %s%s%s\r\n", CCCYN(ch, C_NRM),
-						rm_list->room->name, CCNRM(ch, C_NRM));
-					++found;
-					if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
-						strcat(outbuf, "**OVERFLOW**\r\n");
-						break;
-					} else
-						strcat(outbuf, buf);
-				}
+		msg = tmp_strcat(msg, "Clan rooms:\r\n", NULL);
+		for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
+			if (rm_list->room
+				&& ROOM_FLAGGED(rm_list->room, ROOM_CLAN_HOUSE)) {
+				msg = tmp_strcat(msg,
+					CCCYN(ch, C_NRM),
+					rm_list->room->name,
+					CCNRM(ch, C_NRM), NULL);
+				++found;
 			}
-			if (!found)
-				strcat(outbuf, "None.\r\n");
 		}
-		page_string(ch->desc, outbuf);
+		if (!found)
+			msg = tmp_strcat(msg, "None.\r\n", NULL);
+
+		page_string(ch->desc, msg);
 	}
 }
 
@@ -469,6 +445,7 @@ ACMD(do_demote)
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member1, *member2;
 	struct char_data *vict = NULL;
+	char *msg;
 
 	skip_spaces(&argument);
 
@@ -485,14 +462,13 @@ ACMD(do_demote)
 			send_to_char(ch, "You already at the bottom of the totem pole.\r\n");
 		else {
 			member1->rank--;
-			sprintf(buf, "%s has demoted self to clan rank %s (%d)",
+			msg = tmp_sprintf("%s has demoted self to clan rank %s (%d)",
 				GET_NAME(ch), clan->ranknames[(int)member1->rank],
 				member1->rank);
-			slog(buf);
-			strcat(buf, "\r\n");
-			send_to_clan(buf, clan->number);
+			slog("%s", msg);
+			msg = tmp_strcat(msg, "\r\n", NULL);
+			send_to_clan(msg, clan->number);
 			sort_clanmembers(clan);
-			LOG_CLANSAVE(ch, "do_demote (self)");
 			save_clans();
 		}
 	} else if (real_clan(GET_CLAN(vict)) != clan) {
@@ -512,19 +488,17 @@ ACMD(do_demote)
 		if (member2->rank < 0) {
 			slog("SYSERR: clan member with rank < 0");
 			member2->rank = 0;
-			LOG_CLANSAVE(NULL, "do_demote (error)");
 			save_clans();
 		}
 	} else {
 		member2->rank--;
-		sprintf(buf, "%s has demoted %s to clan rank %s (%d)",
+		msg = tmp_sprintf("%s has demoted %s to clan rank %s (%d)",
 			GET_NAME(ch), GET_NAME(vict),
 			clan->ranknames[(int)member2->rank], member2->rank);
-		slog(buf);
-		strcat(buf, "\r\n");
-		send_to_clan(buf, clan->number);
+		slog("%s", msg);
+		msg = tmp_strcat(msg, "\r\n", NULL);
+		send_to_clan(msg, clan->number);
 		sort_clanmembers(clan);
-		LOG_CLANSAVE(ch, "do_demote (normal)");
 		save_clans();
 	}
 }
@@ -534,6 +508,7 @@ ACMD(do_promote)
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member1, *member2;
 	struct char_data *vict = NULL;
+	char *msg;
 
 	skip_spaces(&argument);
 
@@ -564,15 +539,14 @@ ACMD(do_promote)
 				return;
 			}
 			member2->rank++;
-			sprintf(buf, "%s has promoted %s to clan rank %s (%d)",
+			msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
 				GET_NAME(ch), GET_NAME(vict),
 				clan->ranknames[(int)member2->rank] ?
 				clan->ranknames[(int)member2->rank] : "member", member2->rank);
-			slog(buf);
-			strcat(buf, "\r\n");
-			send_to_clan(buf, clan->number);
+			slog("%s", msg);
+			msg = tmp_strcat(msg, "\r\n", NULL);
+			send_to_clan(msg, clan->number);
 			sort_clanmembers(clan);
-			LOG_CLANSAVE(ch, "do_promote (nonleader)");
 			save_clans();
 		}
 	} else if (PLR_FLAGGED(ch, PLR_CLAN_LEADER) ||
@@ -584,11 +558,11 @@ ACMD(do_promote)
 					TO_CHAR);
 			else {
 				SET_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
-				sprintf(buf, "%s has promoted %s to clan leader status.",
+				msg = tmp_sprintf("%s has promoted %s to clan leader status.",
 					GET_NAME(ch), GET_NAME(vict));
-				slog(buf);
-				strcat(buf, "\r\n");
-				send_to_clan(buf, clan->number);
+				slog("%s", msg);
+				msg = tmp_strcat(msg, "\r\n", NULL);
+				send_to_clan(msg, clan->number);
 				save_char(vict, NULL);
 			}
 		} else {
@@ -597,16 +571,15 @@ ACMD(do_promote)
 					TO_CHAR);
 			else {
 				member2->rank++;
-				sprintf(buf, "%s has promoted %s to clan rank %s (%d)",
+				msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
 					GET_NAME(ch), GET_NAME(vict),
 					clan->ranknames[(int)member2->rank] ?
 					clan->ranknames[(int)member2->rank] : "member",
 					member2->rank);
-				slog(buf);
-				strcat(buf, "\r\n");
-				send_to_clan(buf, clan->number);
+				slog("%s", msg);
+				msg = tmp_strcat(msg, "\r\n", NULL);
+				send_to_clan(msg, clan->number);
 				sort_clanmembers(clan);
-				LOG_CLANSAVE(ch, "do_promote (leader)");
 				save_clans();
 			}
 		}
@@ -732,12 +705,11 @@ ACMD(do_cedit)
 	struct room_list_elem *rm_list = NULL;
 	struct room_data *room = NULL;
 	int cedit_command, i, j;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
-		arg3[MAX_INPUT_LENGTH];
+	char *arg1, *arg2, *arg3;
 
 	skip_spaces(&argument);
 
-	argument = one_argument(argument, arg1);
+	arg1 = tmp_getword(&argument);
 	for (cedit_command = 0; cedit_keys[cedit_command].keyword; cedit_command++)
 		if (!strcasecmp(arg1, cedit_keys[cedit_command].keyword))
 			break;
@@ -758,7 +730,7 @@ ACMD(do_cedit)
 		return;
 	}
 
-	argument = one_argument(argument, arg1);
+	arg1 = tmp_getword(&argument);
 	if (*arg1) {
 		if (is_number(arg1))
 			clan = real_clan(atoi(arg1));
@@ -777,10 +749,9 @@ ACMD(do_cedit)
 	switch (cedit_command) {
 
 	case 0:			 /*** save ***/
-		if (!save_clans()) {
+		if (!save_clans())
 			send_to_char(ch, "Clans saved successfully.\r\n");
-			LOG_CLANSAVE(ch, "cedit save");
-		} else
+		else
 			send_to_char(ch, "ERROR in clan save.\r\n");
 		break;
 
@@ -804,9 +775,8 @@ ACMD(do_cedit)
 				break;
 			} else if ((clan = create_clan(atoi(arg1)))) {
 				send_to_char(ch, "Clan created.\r\n");
-				sprintf(buf, "(cedit) %s created clan %d.", GET_NAME(ch),
+				slog("(cedit) %s created clan %d.", GET_NAME(ch),
 					clan->number);
-				slog(buf);
 			} else {
 				send_to_char(ch, "There was an error creating the clan.\r\n");
 			}
@@ -824,8 +794,7 @@ ACMD(do_cedit)
 			i = clan->number;
 			if (!delete_clan(clan)) {
 				send_to_char(ch, "Clan deleted.  Sucked anyway.\r\n");
-				sprintf(buf, "(cedit) %s deleted clan %d.", GET_NAME(ch), i);
-				slog(buf);
+				slog("(cedit) %s deleted clan %d.", GET_NAME(ch), i);
 			} else
 				send_to_char(ch, "ERROR occured while deleting clan.\r\n");
 		}
@@ -838,7 +807,7 @@ ACMD(do_cedit)
 			return;
 		}
 
-		half_chop(argument, arg2, argument);
+		arg2 = tmp_getword(&argument);
 		skip_spaces(&argument);
 
 		if (!*argument || !*arg2) {
@@ -861,9 +830,8 @@ ACMD(do_cedit)
 				free(clan->name);
 			}
 			clan->name = str_dup(argument);
-			sprintf(buf, "(cedit) %s set clan %d name to '%s'.", GET_NAME(ch),
+			slog("(cedit) %s set clan %d name to '%s'.", GET_NAME(ch),
 				clan->number, clan->name);
-			slog(buf);
 
 		}
 		// cedit set badge
@@ -877,15 +845,14 @@ ACMD(do_cedit)
 				free(clan->badge);
 			}
 			clan->badge = str_dup(argument);
-			sprintf(buf, "(cedit) %s set clan %d name to '%s'.", GET_NAME(ch),
-				clan->number, clan->name);
-			slog(buf);
+			slog("(cedit) %s set clan %d badge to '%s'.", GET_NAME(ch),
+				clan->number, clan->badge);
 
 		}
 		// cedit set rank
 		else if (is_abbrev(arg2, "rank")) {
 
-			argument = one_argument(argument, arg3);
+			arg3 = tmp_getword(&argument);
 			skip_spaces(&argument);
 
 			if (is_abbrev(arg3, "top")) {
@@ -903,9 +870,8 @@ ACMD(do_cedit)
 				clan->top_rank = i;
 				send_to_char(ch, "Top rank of clan set.\r\n");
 
-				sprintf(buf, "(cedit) %s set clan %d top to %d.", GET_NAME(ch),
+				slog("(cedit) %s set clan %d top to %d.", GET_NAME(ch),
 					clan->number, clan->top_rank);
-				slog(buf);
 
 				return;
 			}
@@ -930,9 +896,8 @@ ACMD(do_cedit)
 			clan->ranknames[i] = str_dup(argument);
 
 			send_to_char(ch, "Rank title set.\r\n");
-			sprintf(buf, "(cedit) %s set clan %d rank %d to '%s'.",
+			slog("(cedit) %s set clan %d rank %d to '%s'.",
 				GET_NAME(ch), clan->number, i, clan->ranknames[i]);
-			slog(buf);
 
 			return;
 
@@ -950,9 +915,8 @@ ACMD(do_cedit)
 			}
 			clan->bank_account = i;
 			send_to_char(ch, "Clan bank account set.\r\n");
-			sprintf(buf, "(cedit) %s set clan %d bank to %d.", GET_NAME(ch),
+			slog("(cedit) %s set clan %d bank to %d.", GET_NAME(ch),
 				clan->number, clan->bank_account);
-			slog(buf);
 
 			return;
 
@@ -969,9 +933,8 @@ ACMD(do_cedit)
 			}
 			clan->owner = i;
 			send_to_char(ch, "Clan owner set.\r\n");
-			sprintf(buf, "(cedit) %s set clan %d owner to %s.", GET_NAME(ch),
+			slog("(cedit) %s set clan %d owner to %s.", GET_NAME(ch),
 				clan->number, argument);
-			slog(buf);
 			return;
 		}
 		// cedit set member
@@ -981,7 +944,8 @@ ACMD(do_cedit)
 					"Usage: cedit set <clan> member <member> <rank>\r\n");
 				return;
 			}
-			argument = two_arguments(argument, arg3, arg1);
+			arg3 = tmp_getword(&argument);
+			arg1 = tmp_getword(&argument);
 
 			if (!is_number(arg3)) {
 				if ((i = get_id_by_name(arg3)) < 0) {
@@ -1005,10 +969,8 @@ ACMD(do_cedit)
 				if (member->idnum == i) {
 					member->rank = j;
 					send_to_char(ch, "Member rank set.\r\n");
-					sprintf(buf,
-						"(cedit) %s set clan %d member %d rank to %d.",
+					slog("(cedit) %s set clan %d member %d rank to %d.",
 						GET_NAME(ch), clan->number, i, member->rank);
-					slog(buf);
 					break;
 				}
 
@@ -1038,7 +1000,8 @@ ACMD(do_cedit)
 			send_to_char(ch, "Usage: cedit add <clan> <room|member> <number>\r\n");
 			return;
 		}
-		argument = two_arguments(argument, arg2, arg3);
+		arg2 = tmp_getword(&argument);
+		arg3 = tmp_getword(&argument);
 
 		if (!*arg3 || !*arg2) {
 			send_to_char(ch, "Usage: cedit add <clan> <room|member> <number>\r\n");
@@ -1068,9 +1031,8 @@ ACMD(do_cedit)
 			clan->room_list = rm_list;
 			send_to_char(ch, "Room added.\r\n");
 
-			sprintf(buf, "(cedit) %s added room %d to clan %d.", GET_NAME(ch),
+			slog("(cedit) %s added room %d to clan %d.", GET_NAME(ch),
 				room->number, clan->number);
-			slog(buf);
 
 			return;
 		}
@@ -1101,9 +1063,8 @@ ACMD(do_cedit)
 
 			send_to_char(ch, "Clan member added to list.\r\n");;
 
-			sprintf(buf, "(cedit) %s added member %d to clan %d.",
+			slog("(cedit) %s added member %d to clan %d.",
 				GET_NAME(ch), (int)member->idnum, clan->number);
-			slog(buf);
 
 			return;
 		} else {
@@ -1117,7 +1078,8 @@ ACMD(do_cedit)
 				"Usage: cedit remove <clan> <room|member> <number>\r\n");
 			return;
 		}
-		argument = two_arguments(argument, arg2, arg3);
+		arg2 = tmp_getword(&argument);
+		arg3 = tmp_getword(&argument);
 
 		if (!*arg3 || !*arg2) {
 			send_to_char(ch, 
@@ -1147,9 +1109,8 @@ ACMD(do_cedit)
 			send_to_char(ch, 
 				"Room removed and memory freed.  Thank you.. Call again.\r\n");
 
-			sprintf(buf, "(cedit) %s removed room %d from clan %d.",
+			slog("(cedit) %s removed room %d from clan %d.",
 				GET_NAME(ch), room->number, clan->number);
-			slog(buf);
 
 			return;
 
@@ -1178,9 +1139,8 @@ ACMD(do_cedit)
 			free(member);
 			send_to_char(ch, "Member removed from the sacred list.\r\n");
 
-			sprintf(buf, "(cedit) %s removed member %d from clan %d.",
+			slog("(cedit) %s removed member %d from clan %d.",
 				GET_NAME(ch), i, clan->number);
-			slog(buf);
 
 			return;
 		} else
@@ -1228,18 +1188,15 @@ boot_clans()
 	clan_list = NULL;
 
 	if (!(file = fopen(CLAN_FILE, "r"))) {
-		sprintf(buf, "Unable to open clan file '%s' for read.\n", CLAN_FILE);
-		slog(buf);
+		slog("Unable to open clan file '%s' for read.\n", CLAN_FILE);
 		return;
 	}
 
 	while (fread(&clan_hdr, sizeof(struct clan_file_elem_hdr), 1, file)) {
 
 		if (clan_hdr.number < last) {
-			sprintf(buf,
-				"Format error in clan file.  Clan %d after clan %d.\n",
+			slog("Format error in clan file.  Clan %d after clan %d.\n",
 				clan_hdr.number, last);
-			slog(buf);
 			return;
 		}
 
@@ -1275,14 +1232,13 @@ boot_clans()
 			fread(&member_rank, sizeof(byte), 1, file);
 
 			if (!get_name_by_id(member_id)) {
-				sprintf(buf, "Clan(%2d) member (%4ld) nonex.",
+				slog("Clan(%2d) member (%4ld) nonex.",
 					clan->number, member_id);
-				slog(buf);
 				continue;
 			}
 			if (load_char(get_name_by_id(member_id), &tmp_store) > -1) {
 				if (tmp_store.player_specials_saved.clan != clan->number) {
-					sprintf(buf, "Clan(%2d) member (%4ld) nolonger.",
+					slog("Clan(%2d) member (%4ld) nolonger.",
 						clan->number, member_id);
 					continue;
 				}
@@ -1480,97 +1436,67 @@ delete_clan(struct clan_data *clan)
 void
 do_show_clan(struct char_data *ch, struct clan_data *clan)
 {
-	char outbuf[MAX_STRING_LENGTH];
-	bool overflow = false;
 	struct clanmember_data *member = NULL;
 	struct room_list_elem *rm_list = NULL;
 	int i, num_rooms = 0, num_members = 0;
+	char *msg;
 
 	if (clan) {
-		sprintf(outbuf,
+		msg = tmp_sprintf(
 			"CLAN %d - Name: %s%s%s, Badge: %s%s%s, Top Rank: %d, Bank: %d\r\n",
 			clan->number, CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
 			CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), clan->top_rank,
 			clan->bank_account);
 
 		if (GET_LEVEL(ch) > LVL_AMBASSADOR)
-			sprintf(outbuf, "%sOwner: %ld (%s), Flags: %d\r\n",
-				outbuf, clan->owner, get_name_by_id(clan->owner), clan->flags);
+			msg = tmp_sprintf("%sOwner: %ld (%s), Flags: %d\r\n",
+				msg, clan->owner, get_name_by_id(clan->owner), clan->flags);
 
 		for (i = clan->top_rank; i >= 0; i--) {
-			sprintf(buf, "Rank %2d: %s%s%s\r\n", i, CCYEL(ch, C_NRM),
+			msg = tmp_sprintf("%sRank %2d: %s%s%s\r\n", msg, i,
+				CCYEL(ch, C_NRM),
 				clan->ranknames[i] ? clan->ranknames[i] : !(i) ? "recruit" :
 				"member", CCNRM(ch, C_NRM));
-			if (strlen(buf) + strlen(outbuf) < MAX_STRING_LENGTH - 128)
-				strcat(outbuf, buf);
-			else {
-				overflow = true;
-				break;
-			}
 		}
-		if (!overflow) {
-			strcat(outbuf, "ROOMS:\r\n");
+		
+		msg = tmp_strcat(msg, "ROOMS:\r\n", NULL);
 
-			for (rm_list = clan->room_list, num_rooms = 0;
-				rm_list; rm_list = rm_list->next) {
-				num_rooms++;
-				sprintf(buf, "%3d) %5d.  %s%s%s\r\n", num_rooms,
-					rm_list->room->number,
-					CCCYN(ch, C_NRM), rm_list->room->name, CCNRM(ch, C_NRM));
-				if (strlen(buf) + strlen(outbuf) < MAX_STRING_LENGTH - 128)
-					strcat(outbuf, buf);
-				else {
-					overflow = true;
-					break;
-				}
-			}
-			if (!num_rooms)
-				strcat(outbuf, "None.\r\n");
+		for (rm_list = clan->room_list, num_rooms = 0;
+			rm_list; rm_list = rm_list->next) {
+			num_rooms++;
+			msg = tmp_sprintf("%s%3d) %5d.  %s%s%s\r\n", msg, num_rooms,
+				rm_list->room->number,
+				CCCYN(ch, C_NRM), rm_list->room->name, CCNRM(ch, C_NRM));
 		}
-		if (!overflow) {
-			strcat(outbuf, "MEMBERS:\r\n");
+		if (!num_rooms)
+			msg = tmp_strcat(msg, "None.\r\n", NULL);
+
+		msg = tmp_strcat(msg, "MEMBERS:\r\n", NULL);
 
 			for (member = clan->member_list, num_members = 0;
 				member; member = member->next) {
 				num_members++;
-				sprintf(buf, "%3d) %5d -  %s%20s%s  Rank: %d\r\n", num_members,
-					(int)member->idnum,
+				msg = tmp_sprintf("%s%3d) %5d -  %s%20s%s  Rank: %d\r\n", msg,
+					num_members, (int)member->idnum,
 					CCYEL(ch, C_NRM), get_name_by_id(member->idnum),
 					CCNRM(ch, C_NRM), member->rank);
-				if (strlen(buf) + strlen(outbuf) < MAX_STRING_LENGTH - 128)
-					strcat(outbuf, buf);
-				else {
-					overflow = true;
-					break;
-				}
 			}
-			if (!num_members)
-				strcat(outbuf, "None.\r\n");
-		}
-
-		if (overflow)
-			strcat(outbuf, "**OVERFLOW**\r\n");
+			msg = tmp_strcat(msg, "None.\r\n", NULL);
 
 	} else {
-
-		strcpy(outbuf, "CLANS:\r\n");
+		msg = tmp_strdup("CLANS:\r\n");
 		for (clan = clan_list; clan; clan = clan->next) {
 			for (member = clan->member_list, num_members = 0; member;
 				num_members++, member = member->next);
 
-			sprintf(buf, " %3d - %s%20s%s  %s%20s%s  (%3d members)\r\n",
+			msg = tmp_sprintf("%s %3d - %s%20s%s  %s%20s%s  (%3d members)\r\n",
+				msg,
 				clan->number,
 				CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
 				CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), num_members);
-			if (strlen(buf) + strlen(outbuf) < MAX_STRING_LENGTH - 128)
-				strcat(outbuf, buf);
-			else {
-				strcat(outbuf, "**OVERFLOW**\r\n");
-				break;
-			}
 		}
 	}
-	page_string(ch->desc, outbuf);
+	page_string(ch->desc, msg);
 }
 
 int
