@@ -2512,6 +2512,8 @@ ACMD(do_ceasefire)
         } else
             stop_fighting(ch);
     }
+
+	ch->setPosition(POS_STANDING);
 }
 
 ACCMD(do_disarm)
