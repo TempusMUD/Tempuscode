@@ -3478,7 +3478,7 @@ mag_assign_spells(void)
     spello(SKILL_DAMAGE_CONTROL, X, X, X, X, X, X, X, 12, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE); 
 
-    spello(SKILL_ELECTRONICS, X, X, X, X, X, X, X, 6, X, X, X, X, X,X,X,X,X,
+    spello(SKILL_ELECTRONICS, X, X, X, X, X, X,  13, 6, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0); 
 
     spello(SKILL_HACKING, X, X, X, X, X, X, X, 20, X, X, X, X, X,X,X,X,X,
