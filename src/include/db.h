@@ -70,7 +70,6 @@
 #define OLC_GUIDE_FILE  "text/olc_creation_guide"	/* tips for creators  */
 #define QUEST_GUIDE_FILE "text/quest_guide"	/* quest guidelines         */
 #define QUEST_LIST_FILE  "text/quest_list"	/* list of quests           */
-#define REMORT_QUIZ_FILE "text/remort_quiz"
 
 #define IDEA_FILE	"misc/ideas"	/* for the 'idea'-command   */
 #define TYPO_FILE	"misc/typos"	/*         'typo'       */
@@ -162,15 +161,6 @@ struct player_index_element {
 struct help_index_element {
 	char *keyword;
 	long pos;
-};
-
-#define MAX_REMORT_QUESTIONS   600
-
-struct remort_question_data {
-	char *question;
-	char *answer;
-	byte points;
-	bool asked;
 };
 
 /* global buffering system */
