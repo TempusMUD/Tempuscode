@@ -18,6 +18,10 @@
 
 struct board_data {
 	const char *name;
+	const char *deny_read;
+	const char *deny_post;
+	const char *deny_remove;
+	const char *not_author;
 	Reaction *read_perms;
 	Reaction *post_perms;
 	Reaction *remove_perms;
@@ -60,7 +64,7 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 	}
 
 	if (ALLOW != board->post_perms->react(player)) {
-		send_to_char(ch, "Try as you might, you cannot bring yourself to write on this board.\r\n");
+		send_to_char(ch, "%s\r\n", board->deny_post);
 		return;
 	}
 
@@ -135,13 +139,13 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 
 	if (ALLOW != board->read_perms->react(player)
 			|| ALLOW != board->post_perms->react(player)) {
-		send_to_char(ch, "You may not delete anything on this board.\r\n");
+		send_to_char(ch, "%s\r\n", board->deny_remove);
 		return;
 	}
 
 	if (GET_IDNUM(player) != atol(PQgetvalue(res, 0, 1)) &&
 			ALLOW != board->remove_perms->react(player)) {
-		send_to_char(ch, "You may only remove your own messages on this board.\r\n");
+		send_to_char(ch, "%s\r\n", board->not_author);
 		return;
 	}
 
@@ -171,7 +175,7 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 	}
 
 	if (ALLOW != board->read_perms->react(player)) {
-		send_to_char(ch, "Try as you might, you cannot bring yourself to read this board.\r\n");
+		send_to_char(ch, "%s\r\n", board->deny_read);
 		return;
 	}
 	
@@ -247,6 +251,10 @@ gen_board_load(obj_data *self, char *param, int *err_line)
 
 	CREATE(board, board_data, 1);
 	board->name = "world";
+	board->deny_read = "Try as you might, you cannot bring yourself to read this board";
+	board->deny_post = "Try as you might, you cannot bring yourself to write on this board";
+	board->deny_remove = "Try as you might, you cannot bring yourself to delete anything on this board.";
+	board->not_author = "You can only delete your own posts on this board.";
 	board->read_perms = new Reaction;
 	board->post_perms = new Reaction;
 	board->remove_perms = new Reaction;
@@ -258,6 +266,14 @@ gen_board_load(obj_data *self, char *param, int *err_line)
 		param_key = tmp_getword(&line);
 		if (!strcmp(param_key, "board"))
 			board->name = strdup(tmp_tolower(line));
+		else if (!strcmp(param_key, "deny-read"))
+			board->deny_read = strdup(line);
+		else if (!strcmp(param_key, "deny-post"))
+			board->deny_post = strdup(line);
+		else if (!strcmp(param_key, "deny-remove"))
+			board->deny_remove = strdup(line);
+		else if (!strcmp(param_key, "not-author"))
+			board->not_author = strdup(line);
 		else if (!strcmp(param_key, "read")) {
 			if (!board->read_perms->add_reaction(line)) {
 				err = "invalid read permission";
