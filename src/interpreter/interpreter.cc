@@ -842,6 +842,7 @@ struct command_info cmd_info[] = {
 	{"loadroom", POS_SLEEPING, do_loadroom, 0, 0, 0},
 	{"logall", POS_RESTING, do_gen_tog, LVL_IMMORT, SCMD_LOGALL, 0},
 	{"login", POS_RESTING, do_not_here, 0, 0, 0},
+	{"logdeaths", POS_RESTING, do_gen_tog, LVL_IMMORT, SCMD_DEATHLOG, 0},
 	{"laces", POS_RESTING, do_action, 0, 0, 0},
 	{"lag", POS_RESTING, do_action, 0, 0, 0},
 	{"laugh", POS_RESTING, do_action, 0, 0, 0},
