@@ -2993,6 +2993,9 @@ import_old_character(descriptor_data *d)
     // class
     GET_CLASS(d->creature) = GET_CLASS(d->original);
 
+	// align
+	GET_ALIGNMENT(d->creature) = GET_ALIGNMENT(d->original);
+
 
     // Immortal level adjustment
     if( GET_LEVEL(d->original) >= LVL_IMMORT ) 
