@@ -639,7 +639,10 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	break;
 
     case SPELL_SYMBOL_OF_PAIN:
-	dam = dice(level, 10) + (level * 6);
+	dam = dice(level, 14) + (level * 5);
+    if(IS_GOOD(victim)) {
+        dam += 2000;
+    }
 	break;
 
     case SPELL_ICE_STORM:
@@ -699,11 +702,11 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	break;
 
     case SPELL_FISSION_BLAST:
-	if( IS_PHYSIC( ch ) ){ 
-		dam = dice(level, 17) + level; 	
-	}
-	else
+	if( GET_CLASS( ch ) == CLASS_PHYSIC ){ 
+		dam = dice(level + GET_REMORT_GEN(ch), 15) + level; 	
+	} else {
 		dam = dice(level, 13) + level;
+    }
 	break; 
 
     }				/* switch(spellnum) */
