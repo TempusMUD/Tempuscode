@@ -70,6 +70,7 @@ ACMD(do_fly);
 ACMD(do_extinguish);
 ACMD(do_pinch);
 ACMD(do_combo);
+ACMD(do_berserk);
 
 // for mobile_activity
 ACMD(do_repair);
@@ -1213,8 +1214,8 @@ best_attack(struct Creature *ch, struct Creature *vict)
 	//
 
 	if (cur_class == CLASS_BARB || cur_class == CLASS_WARRIOR) {
-		if (GET_LEVEL(ch) >= 25 && vict->getPosition() > POS_SLEEPING)
-			do_sleeper(ch, fname(vict->player.name), 0, 0, &return_flags);
+		if (GET_LEVEL(ch) >= 25 && vict->getPosition() > POS_SITTING)
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
 		else
 			return_flags = hit(ch, vict, TYPE_UNDEFINED);
 		return return_flags;
@@ -3490,10 +3491,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			return 0;
 		}
 
-		if ((GET_LEVEL(ch) > 37) && vict->getPosition() > POS_SLEEPING &&
+		if ((GET_LEVEL(ch) > 37) && vict->getPosition() > POS_SITTING &&
 			random_fractional_5()) {
-
-			do_sleeper(ch, GET_NAME(vict), 0, 0, 0);
+			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
 			return 0;
 		} else if ((GET_LEVEL(ch) >= 20) &&
 			GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
@@ -4760,6 +4760,10 @@ int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
  *******************************************************************************/
 
 void barbarian_activity(struct Creature *ch){
+    if (AFF2_FLAGGED(ch, AFF2_BERSERK)){
+        do_berserk( ch, "", 0, 0, 0 );
+        return;
+    }
     if (ch->getPosition() != POS_FIGHTING && random_fractional_20()) {
         if (random_fractional_50())
             act("$n grunts and scratches $s ear.", FALSE, ch, 0, 0,
@@ -4827,6 +4831,19 @@ int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vic
         return 0;
     }
 
+		//
+		// barbs go BERSERK (berserk)
+		//
+
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF2_FLAGGED(ch, AFF2_BERSERK) &&
+		!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        do_berserk(ch, "", 0, 0, 0);
+
+		int return_flags = 0;
+		if (!perform_barb_berserk(ch, 0, &return_flags)){
+            return return_flags;
+        }
+	}
     if (random_fractional_4()) {
         if( GET_LEVEL(ch) >= 30 && GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD)) ){
             do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLEAVE, 0);
