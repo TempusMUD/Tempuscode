@@ -2903,7 +2903,7 @@ mag_assign_spells(void)
 	   100, 50, 2, POS_SITTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE, 
 	   MAG_PHYSICS | MAG_DAMAGE | MAG_AFFECTS );
 
-    spello(SPELL_GRAVITY_WELL, X, X, X, X, X, X, 43, X, X, X, X, X, X,X,X,X,X, 
+    spello(SPELL_GRAVITY_WELL, X, X, X, X, X, X, 38, X, X, X, X, X, X,X,X,X,X, 
 	   130, 70, 4, POS_SITTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE, 
 	   MAG_PHYSICS | MAG_DAMAGE | MAG_AFFECTS );
 
@@ -2924,7 +2924,7 @@ mag_assign_spells(void)
 	   100,20,2, POS_SITTING, TAR_CHAR_ROOM, FALSE, 
 	   MAG_PHYSICS | MAG_MANUAL);
 
-    spello(SPELL_REPULSION_FIELD, X, X, X, X, X, X, 4, X, X, X, X, X, X,X,X,X,X,
+    spello(SPELL_REPULSION_FIELD, X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
 	   30,20,1, POS_SITTING, TAR_CHAR_ROOM, FALSE, 
 	   MAG_PHYSICS | MAG_MANUAL);
 
@@ -2933,7 +2933,7 @@ mag_assign_spells(void)
 	   TAR_CHAR_ROOM | TAR_OBJ_ROOM | TAR_OBJ_EQUIP | TAR_OBJ_INV, FALSE, 
 	   MAG_PHYSICS | MAG_AFFECTS | MAG_ALTER_OBJS);
 
-    spello(SPELL_TIME_WARP, X, X, X, X, X, X, 40, X, X, X, X, X, X,X,X,X,X, 
+    spello(SPELL_TIME_WARP, X, X, X, X, X, X, 35, X, X, X, X, X, X,X,X,X,X, 
 	   100, 50, 8, POS_SITTING, TAR_CHAR_ROOM, FALSE, 
 	   MAG_PHYSICS | MAG_MANUAL);
 
