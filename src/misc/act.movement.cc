@@ -1054,14 +1054,16 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
     //
 
     for (srch = ch->in_room->search, found = 0; srch; srch = srch->next) {
-	if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER) && SRCH_OK(ch, srch)) {
-	    found = general_search(ch, srch, found);
-	    
-	    if ( found == 2 )
-		return 2;
-	}
-	
+        if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER) && SRCH_OK(ch, srch)) { 
+            if (STATE(ch->desc) != CON_AFTERLIFE)
+                found = general_search(ch, srch, found);
+            else
+                return DAM_VICT_KILLED;
+        }
     }
+
+    if (found == 2)
+        return 2;
 
     if ( IS_NPC(ch) )
 	ch->mob_specials.last_direction = dir;
