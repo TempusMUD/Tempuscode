@@ -458,7 +458,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
    ((GET_HITROLL(ch) <= 50) ?  \
     (5 + (((GET_HITROLL(ch) - 5)) / 3)) : 20))
 
-#define GET_POS(ch)	  ((ch)->char_specials.position)
+//#define GET_POS(ch)	  ((ch)->char_specials.position)
 #define GET_IDNUM(ch)	  ((ch)->char_specials.saved.idnum)
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
@@ -737,7 +737,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
       (((!IS_AFFECTED(obj,AFF_INVISIBLE) && !IS_AFFECTED_2(obj,AFF2_TRANSPARENT)) ||\
 	IS_AFFECTED(sub, AFF_DETECT_INVIS) || \
 	IS_AFFECTED_2(sub, AFF2_TRUE_SEEING)) && \
-       (!IS_UNDEAD(sub) || !IS_AFFECTED_2(obj, AFF2_INVIS_TO_UNDEAD)) &&  \
+       (!IS_UNDEAD(sub) || !IS_AFFECTED_2(obj, AFF2_INVIS_TO_UNDEAD) || AFF2_FLAGGED(sub, AFF2_TRUE_SEEING)) && \
        (!IS_ANIMAL(sub) || !IS_AFFECTED_2(obj, AFF2_INVIS_TO_ANIMALS) || \
 	AFF_FLAGGED(sub, AFF_DETECT_INVIS) || AFF2_FLAGGED(sub, AFF2_TRUE_SEEING)) && \
        (IS_NPC(sub) || IS_NPC(obj) || \
