@@ -670,6 +670,20 @@ ACMD(do_gen_comm)
                                       subcmd == SCMD_HOLLER))
 	return;
   
+    if ((GET_COND(ch, DRUNK) > 5) && (number(0, 3) >= 2)) {
+        sprintf(buf1, "You try to %s, but somehow it just doesn't come out right.\r\n",
+                subcmd == SCMD_GOSSIP ? "gossip" : 
+                subcmd == SCMD_AUCTION ? "auction" :
+                subcmd == SCMD_GRATZ ? "congratulate" :
+                subcmd == SCMD_MUSIC ? "sing" :
+                subcmd == SCMD_SPEW ? "spew" :
+                subcmd == SCMD_DREAM ? "dream" :
+                subcmd == SCMD_PROJECT ? "project" :
+                subcmd == SCMD_NEWBIE ? "newbie" :
+                "speak");
+        send_to_char(buf1, ch);
+        return;
+    }
     if (subcmd == SCMD_PROJECT && !IS_NPC(ch) && CHECK_REMORT_CLASS(ch) < 0 && 
 	GET_LEVEL(ch) < LVL_AMBASSADOR) {
 	send_to_char("You do not know how to project yourself that way.\r\n", ch);

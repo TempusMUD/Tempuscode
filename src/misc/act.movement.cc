@@ -1088,9 +1088,10 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
     if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->in_room == NULL )
         return 1;
 
-    if (IS_AFFECTED_2(ch, AFF2_VERTIGO) && GET_LEVEL(ch) < LVL_AMBASSADOR && 
+    if ((IS_AFFECTED_2(ch, AFF2_VERTIGO) && GET_LEVEL(ch) < LVL_AMBASSADOR && 
         number(0, 60) > (GET_LEVEL(ch) + GET_DEX(ch)) && 
-        ch->getPosition() >= POS_FIGHTING) {
+        ch->getPosition() >= POS_FIGHTING) || ((GET_COND(ch, DRUNK) > 5) && 
+        (number(1, 35) > GET_DEX(ch)))) {
         if (ch->getPosition() == POS_MOUNTED && MOUNTED(ch) && 
             CHECK_SKILL(ch, SKILL_RIDING) < number(50, 150)) {
             act("$n sways and falls from the back of $N!", 
@@ -1131,7 +1132,8 @@ perform_move(struct char_data *ch, int dir, int mode, int need_specials_check)
         }
         return 1;
     }        
-
+    if ((GET_COND(ch, DRUNK) > 15) && (number(2, 60) > (GET_DEX(ch) + GET_INT(ch))))
+        dir = number(0, 7);
     if ( ! EXIT( ch, dir ) || EXIT( ch, dir )->to_room == NULL || 
          ( ( IS_SET(EXIT( ch, dir )->exit_info, EX_NOPASS ) ||
              ( IS_SET( EXIT( ch, dir )->exit_info, EX_SECRET | EX_HIDDEN ) &&

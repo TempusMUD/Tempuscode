@@ -1753,7 +1753,7 @@ ACMD(do_cast)
     struct char_data *tch = NULL, *vict = NULL;
     struct obj_data *tobj = NULL, *holy_symbol = NULL, *metal = NULL;
 
-    int mana, spellnum, i, target = 0, prob = 0, metal_wt = 0, num_eq = 0;
+    int mana, spellnum, i, target = 0, prob = 0, metal_wt = 0, num_eq = 0, temp = 0;
 
     if (IS_NPC(ch))
         return;
@@ -1777,6 +1777,23 @@ ACMD(do_cast)
     if (!(find_spell_targets(ch,argument,&tch,&tobj,&target,&spellnum,cmd)))
         return;
 
+    // Drunk bastards don't cast very well, do they... -- Nothing 1/22/2001 
+    if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
+        if (temp < 34) {    
+            send_to_char("Your mind is too clouded to cast any spells!\r\n", ch);
+            return;
+        }
+        else {
+            send_to_char("You feel your concentration slipping!\r\n", ch);
+            WAIT_STATE(ch, 1 RL_SEC);
+            spellnum = number(1, MAX_SPELLS);
+            if (!SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum)) {
+                send_to_char("Your concentration slips away entirely.\r\n", ch);
+                return;
+            } 
+        }
+    }
+    
     if (!SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum)) {
         act("That is not a spell.", FALSE, ch, 0, 0, TO_CHAR);
         return;
@@ -2007,11 +2024,11 @@ ACMD(do_trigger)
 {
     struct char_data *tch = NULL;
     struct obj_data *tobj = NULL;
-    int mana, spellnum, target = 0, prob = 0;
+    int mana, spellnum, target = 0, prob = 0, temp = 0;
 
     if (IS_NPC(ch))
         return;
-
+   
     if (!IS_PSYCHIC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char("You are not able to trigger the mind.\r\n", ch);
         return;
@@ -2028,7 +2045,24 @@ ACMD(do_trigger)
 
     if (!(find_spell_targets(ch, argument, &tch, &tobj, &target, &spellnum, cmd)))
         return;
-
+    
+    // Drunk bastards don't trigger very well, do they... -- Nothing 1/22/2001
+    if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
+        if (temp < 34) {
+            send_to_char("Your mind is too clouded to make any triggers!\r\n", ch);
+            return;
+        } 
+        else {
+            send_to_char("You feel your concentration slipping!\r\n", ch);
+            WAIT_STATE(ch, 1 RL_SEC);
+            spellnum = number(1, MAX_SPELLS);
+            if (!SPELL_IS_PSIONIC(spellnum)) {
+                send_to_char("Your concentration slips away entirely.\r\n", ch);
+                return;
+            }
+        }
+    }
+    
     if (!SPELL_IS_PSIONIC(spellnum)) {
         act("That is not a psionic trigger.", FALSE, ch, 0, 0, TO_CHAR);
         return;
@@ -2184,11 +2218,11 @@ ACMD(do_alter)
 {
     struct char_data *tch = NULL;
     struct obj_data *tobj = NULL;
-    int mana, spellnum, target = 0;
+    int mana, spellnum, target = 0, temp = 0;
 
     if (IS_NPC(ch))
         return;
-
+    
     if (GET_CLASS(ch) != CLASS_PHYSIC &&
         GET_REMORT_CLASS(ch) != CLASS_PHYSIC  && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char("You are not able to alter the fabric of reality.\r\n", ch);
@@ -2207,6 +2241,23 @@ ACMD(do_alter)
     if (!(find_spell_targets(ch, argument, &tch, &tobj, &target, &spellnum, cmd)))
         return;
 
+    // Drunk bastards don't cast very well, do they... -- Nothing 1/22/2001
+    if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
+        if (temp < 34) {
+            send_to_char("Your mind is too clouded to alter the fabric of reality!\r\n", ch);
+            return;
+        } 
+        else {
+            send_to_char("You feel your concentration slipping!\r\n", ch);
+            WAIT_STATE(ch, 1 RL_SEC);
+            spellnum = number(1, MAX_SPELLS);
+            if (!SPELL_IS_PHYSICS(spellnum)) {
+                send_to_char("Your concentration slips away entirely.\r\n", ch);
+                return;
+            }
+        }
+    }
+    
     if (!SPELL_IS_PHYSICS(spellnum)) {
         act("That is not a physical alteration.", FALSE, ch, 0, 0, TO_CHAR);
         return;

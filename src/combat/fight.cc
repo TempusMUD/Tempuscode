@@ -1215,14 +1215,19 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
          (!ch || !IS_GOOD(victim) || !affected_by_spell(ch, SPELL_MALEFIC_VIOLATION)) && 
          (!(attacktype == TYPE_BLEED ) && ! (attacktype == SPELL_POISON))) {
         
-// Changed by Nothing, this causes remort class physics (including clerics) to only get
-// 20 percent damage reduction from sanctuary...I don't think that's what was intended here
-//        if (IS_VAMPIRE(victim) || IS_CYBORG(victim) || IS_PHYSIC(victim)) {
+        // Changed by Nothing, the following line causes remort class physics or cyborgs
+        // (including cler/phyz, cler/borg) to only get 20 percent damage reduction 
+        // from sanctuary...I don't think that's what was intended here.  This code now
+        // only causes PRIME borgs, vampires and phyz to get a reduced benefit from sanc
+        // following line commented out and changed to the below --Nothing 1/17/2001
+        //        if (IS_VAMPIRE(victim) || IS_CYBORG(victim) || IS_PHYSIC(victim)) {
         if (IS_VAMPIRE(victim) || 
               GET_CLASS(victim) == CLASS_CYBORG || 
               GET_CLASS(victim) == CLASS_PHYSIC) 
             dam = (int)(dam * 0.80);
-// Only primary clerics and knights should get the full benefit of Sanctuary        
+        // Only primary clerics and knights should get the full benefit of Sanctuary
+        // Note, this code cleaned slightly and changed so that only PRIME clerics and
+        // knights actually get the full benefit of Sanctuary --Nothing 1/17/2001
         else if ((GET_CLASS(victim) == CLASS_CLERIC || 
                  GET_CLASS(victim) == CLASS_KNIGHT) && !IS_NEUTRAL(victim)) 
             dam >>= 1;
@@ -2390,7 +2395,9 @@ void perform_violence( void ) {
         prob -=
             ( ( ( ( IS_CARRYING_W( ch ) + IS_WEARING_W( ch ) ) << 5 ) * prob ) / 
               ( CAN_CARRY_W( ch ) * 85 ) );
-                  
+        
+        if (GET_COND(ch, DRUNK) > 5)
+            prob -= (int)((prob * 0.15) + (prob * (GET_COND(ch, DRUNK) / 100)));
         die_roll = number( 0, 300);
 
         if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) {

@@ -147,7 +147,7 @@ int calc_skill_prob( struct char_data *ch, struct char_data *vict, int skillnum,
     if (!CAN_SEE(ch, vict))
         prob -= 20;
     if (GET_COND(ch, DRUNK))
-        prob -= GET_COND(ch, DRUNK);
+        prob -= (GET_COND(ch, DRUNK) * 2);
     if (IS_SICK(ch))
         prob -= 5;
     if (IS_AFFECTED_2(vict, AFF2_DISPLACEMENT) && 
