@@ -2,6 +2,11 @@
 #include <fstream>
 #include <string>
 using namespace std;
+#include "structs.h"
+#include "char_data.h"
+#include "utils.h"
+#include "interpreter.h"
+#include "comm.h"
 //#include "Mapper.h"
 #include <signal.h>
 
@@ -179,18 +184,18 @@ void Mapper::display(char *buf,int bRows,int bCols) {
                     break;
                 default:
                     line += ' ';
-                    //*w++ = ' ';
+                    // *w++ = ' ';
                     break;
             }
         }
-        //*w = '\0';
+        // *w = '\0';
         //w = line;
         strcpy(buf,line.c_str());
         strcat(buf,"\r\n");
         send_to_char(buf, ch);
         //mapFile << line << endl;
         //mapFile.flush();
-        //*w = '\0';
+        // *w = '\0';
         line = "";
     }
 }*/
