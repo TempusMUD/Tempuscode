@@ -195,10 +195,7 @@ ACMD(do_say)
 	}
 
 	/* NOT say_to stuff: ********************************************* */
-	if (GET_MOOD(ch))
-		cur_mood = tmp_strcat(" ", GET_MOOD(ch));
-	else
-		cur_mood = "";
+	cur_mood = GET_MOOD(ch) ? GET_MOOD(ch):"";
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (!AWAKE((*it)) || (*it) == ch ||

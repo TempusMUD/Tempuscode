@@ -91,7 +91,7 @@ find_action(int cmd)
 ACMD(do_mood)
 {
 	skip_spaces(&argument);
-	GET_MOOD(ch) = cmd_info[cmd].command;
+	GET_MOOD(ch) = tmp_strcat(" ", cmd_info[cmd].command);
 	command_interpreter(ch, argument);
 	GET_MOOD(ch) = NULL;
 }

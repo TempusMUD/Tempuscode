@@ -1839,7 +1839,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				CHECK_NULL(vict_obj, OBJS((struct obj_data *)vict_obj, to));
 				break;
 			case 'a':
-				i = GET_MOOD(ch) ? tmp_strcat(" ", GET_MOOD(ch)):"";
+				i = GET_MOOD(ch) ? GET_MOOD(ch):"";
 				break;
 			case 'A':
 				CHECK_NULL(vict_obj, SANA((struct obj_data *)vict_obj));
