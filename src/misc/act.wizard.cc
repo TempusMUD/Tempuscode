@@ -58,6 +58,7 @@ using namespace std;
 #include "boards.h"
 #include "language.h"
 #include "prog.h"
+#include "mobile_map.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -682,10 +683,9 @@ do_stat_memory(struct Creature *ch)
 
     sum = top_of_mobt * (sizeof(struct Creature));
 
-    CreatureList::iterator mit = mobilePrototypes.begin();
+    MobileMap::iterator mit = mobilePrototypes.begin();
     for (; mit != mobilePrototypes.end(); ++mit) {
-        //for (mob = mob_proto; mob; mob = mob->next) {
-        mob = *mit;
+        mob = mit->second;
         CHARADD(sum, mob->player.name);
         CHARADD(sum, mob->player.short_descr);
         CHARADD(sum, mob->player.long_descr);
@@ -841,21 +841,23 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
     send_to_char(ch, "TimeFrame: [%s]  Plane: [%s]   ",
         time_frames[zone->time_frame], planes[zone->plane]);
 
-    CreatureList::iterator mit = characterList.begin();
-    for (; mit != characterList.end(); ++mit)
-        if (IS_NPC((*mit)) && (*mit)->in_room && (*mit)->in_room->zone == zone) {
+    CreatureList::iterator cit = characterList.begin();
+    for (; cit != characterList.end(); ++cit)
+        if (IS_NPC((*cit)) && (*cit)->in_room && (*cit)->in_room->zone == zone) {
             numm++;
-            av_lev += GET_LEVEL((*mit));
+            av_lev += GET_LEVEL((*cit));
         }
 
     if (numm)
         av_lev /= numm;
-    mit = mobilePrototypes.begin();
+    MobileMap::iterator mit = mobilePrototypes.begin();
+    Creature *mob;
     for (; mit != mobilePrototypes.end(); ++mit)
-        if (GET_MOB_VNUM((*mit)) >= zone->number * 100 &&
-            GET_MOB_VNUM((*mit)) <= zone->top && IS_NPC((*mit))) {
+        mob = mit->second;
+        if (GET_MOB_VNUM(mob) >= zone->number * 100 &&
+            GET_MOB_VNUM(mob) <= zone->top && IS_NPC(mob)) {
             numm_proto++;
-            av_lev_proto += GET_LEVEL((*mit));
+            av_lev_proto += GET_LEVEL(mob);
         }
 
     if (numm_proto)
@@ -4162,10 +4164,9 @@ show_mobkills(Creature *ch, char *value, char *arg)
     sprintf(buf, "Mobiles with mobkills ratio >= %f:\r\n", thresh);
     strcat(buf,
         " ---- -Vnum-- -Name------------------------- -Kills- -Loaded- -Ratio-\r\n");
-    CreatureList::iterator cit = mobilePrototypes.begin();
-    for (; cit != mobilePrototypes.end(); ++cit) {
-        //for (mob = mob_proto; mob; mob = mob->next) {
-        mob = *cit;
+    MobileMap::iterator mit = mobilePrototypes.begin();
+    for (; mit != mobilePrototypes.end(); ++mit) {
+        mob = mit->second;
         if (!mob->mob_specials.shared->loaded)
             continue;
         ratio = (float)((float)mob->mob_specials.shared->kills /
@@ -4616,9 +4617,9 @@ show_mlevels(Creature *ch, char *value, char *arg)
     // scan the existing mobs
     if (!strcmp(value, "real")) {
         strcat(buf, "real mobiles:\r\n");
-        CreatureList::iterator cit = mobilePrototypes.begin();
-        for (; cit != mobilePrototypes.end(); ++cit) {
-            mob = *cit;
+        MobileMap::iterator mit = mobilePrototypes.begin();
+        for (; mit != mobilePrototypes.end(); ++mit) {
+            mob = mit->second;
             if (IS_NPC(mob) && GET_LEVEL(mob) < 50 &&
                 ((remort && IS_REMORT(mob)) || (!remort && !IS_REMORT(mob)))) {
                 if (expand)
@@ -4629,10 +4630,9 @@ show_mlevels(Creature *ch, char *value, char *arg)
         }
     } else if (!strcmp(value, "proto")) {
         strcat(buf, "mobile protos:\r\n");
-        CreatureList::iterator cit = mobilePrototypes.begin();
-        for (; cit != mobilePrototypes.end(); ++cit) {
-            //for (mob = mob_proto; mob; mob = mob->next) {
-            mob = *cit;
+        MobileMap::iterator mit = mobilePrototypes.begin();
+        for (; mit != mobilePrototypes.end(); ++mit) {
+            mob = mit->second;
             if (GET_LEVEL(mob) < 50 &&
                 ((remort && IS_REMORT(mob)) || (!remort && !IS_REMORT(mob)))) {
                 if (expand)
@@ -4780,7 +4780,7 @@ ACMD(do_show)
     extern char *quest_guide;
     struct Creature *mob = NULL;
     CreatureList::iterator cit;
-    CreatureList::iterator mit;
+    MobileMap::iterator mit;
 
     void show_shops(struct Creature *ch, char *value);
 
@@ -5329,8 +5329,7 @@ ACMD(do_show)
         strcpy(buf, "Mobs with exp in given range:\r\n");
         mit = mobilePrototypes.begin();
         for (; mit != mobilePrototypes.end(); ++mit) {
-            //for (mob = mob_proto, i = 0; mob; mob = mob->next) {
-            mob = *mit;
+            mob = mit->second;
             percent = GET_EXP(mob) * 100;
             if ((j = mobile_experience(mob)))
                 percent /= j;
@@ -6238,10 +6237,11 @@ ACMD(do_set)
         } else if (!clan_by_name(argument)) {
             send_to_char(ch, "There is no such clan.\r\n");
             return;
-        } else
+        } else {
             if (clan && (clan->owner == GET_IDNUM(ch)))
                 clan->owner = 0;
             GET_CLAN(vict) = clan_by_name(argument)->number;
+        }
         break;
     }
     case 54:
@@ -6857,17 +6857,19 @@ ACMD(do_mlist)
     }
 
     strcpy(out_list, "");
-    CreatureList::iterator mit = mobilePrototypes.begin();
+    MobileMap::iterator mit = mobilePrototypes.begin();
+    Creature *mob;
     for (;
         mit != mobilePrototypes.end()
-        && ((*mit)->mob_specials.shared->vnum <= last); ++mit) {
-        if ((*mit)->mob_specials.shared->vnum >= first) {
+        && ((mit->second)->mob_specials.shared->vnum <= last); ++mit) {
+        mob = mit->second;
+        if (mob->mob_specials.shared->vnum >= first) {
             sprintf(buf, "%5d. %s[%s%5d%s]%s %-40s%s  [%2d] <%3d> %s\r\n",
                 ++found, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                (*mit)->mob_specials.shared->vnum, CCGRN(ch, C_NRM), CCYEL(ch,
-                    C_NRM), (*mit)->player.short_descr, CCNRM(ch, C_NRM),
-                (*mit)->player.level, MOB_SHARED((*mit))->number,
-                MOB2_FLAGGED((*mit), MOB2_UNAPPROVED) ? "(!ap)" : "");
+                mob->mob_specials.shared->vnum, CCGRN(ch, C_NRM), CCYEL(ch,
+                    C_NRM), mob->player.short_descr, CCNRM(ch, C_NRM),
+                mob->player.level, MOB_SHARED(mob)->number,
+                MOB2_FLAGGED((mob), MOB2_UNAPPROVED) ? "(!ap)" : "");
             if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
                 strcat(out_list, buf);
             else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {
@@ -7387,7 +7389,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
     int i, j, k, l, command;
     struct Creature *mob = NULL;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-    CreatureList::iterator mit;
+    MobileMap::iterator mit;
     if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
         send_to_char(ch, 
             "Show mobiles:  utility to search the mobile prototype list.\r\n"
@@ -7412,7 +7414,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
         for (i = 0;
             (mit != mobilePrototypes.end()
                 && strlen(buf) < (MAX_STRING_LENGTH - 128)); ++mit) {
-            mob = *mit;
+            mob = mit->second;
             if (GET_HITROLL(mob) >= k)
                 sprintf(buf,
                     "%s %3d. [%5d] %-30s (%2d) %2d\r\n",
@@ -7439,7 +7441,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
         for (i = 0;
             (mit != mobilePrototypes.end()
                 && strlen(buf) < (MAX_STRING_LENGTH - 128)); ++mit) {
-            mob = *mit;
+            mob = mit->second;
 
             if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
                 continue;
@@ -7473,7 +7475,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
 
         mit = mobilePrototypes.begin();
         for (k = 0; mit != mobilePrototypes.end(); ++mit) {
-            mob = *mit;
+            mob = mit->second;
 
             if ((i == 1 && MOB_FLAGGED(mob, (1 << j))) ||
                 (i == 2 && MOB2_FLAGGED(mob, (1 << j)))) {
@@ -7527,7 +7529,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
 
         mit = mobilePrototypes.begin();
         for (k = 0; mit != mobilePrototypes.end(); ++mit) {
-            mob = *mit;
+            mob = mit->second;
             if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
                 continue;
 
@@ -7566,7 +7568,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
 
         mit = mobilePrototypes.begin();
         for (j = 0; mit != mobilePrototypes.end(); ++mit) {
-            mob = *mit;
+            mob = mit->second;
             if (spec_list[i].func == GET_MOB_SPEC(mob)) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
@@ -8521,7 +8523,7 @@ check_tempus_pointer(Creature *ch, void *ptr, size_t expected_len, const char *s
 void
 verify_tempus_integrity(Creature *ch)
 {
-	CreatureList::iterator cit;
+	MobileMap::iterator cit;
 	Creature *vict;
 	obj_data *obj;
 	room_data *room;
@@ -8532,7 +8534,7 @@ verify_tempus_integrity(Creature *ch)
 
 	// Check prototype mobs
 	for (cit = mobilePrototypes.begin();cit != mobilePrototypes.end();cit++) {
-		vict = *cit;
+		vict = cit->second;
 
 		check_tempus_pointer(ch, vict->player.name, 0,
 			"aliases of creature proto", MOB_IDNUM(vict));
