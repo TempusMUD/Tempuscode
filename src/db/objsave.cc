@@ -53,208 +53,12 @@ SPECIAL(cryogenicist);
 void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
 int write_plrtext(struct obj_data *obj, FILE * fl);
 
-struct obj_data *
-Obj_from_store(FILE * fl, bool allow_inroom)
-{
-
-	struct obj_data *obj, *tmpo;
-	struct obj_file_elem object;
-	int j, tmpsize;
-
-	if ((tmpsize = fread(&object, sizeof(struct obj_file_elem), 1, fl)) != 1) {
-		if (ferror(fl)) {
-			slog("Error reading object in Obj_from_store: %s.",
-				strerror(errno));
-		}
-		return NULL;
-	}
-
-	if (object.item_number < 0) {
-		slog("Obj_from_store found object vnum %d in file.  short_desc=%s. name=%s",
-			object.item_number, object.short_desc, object.name);
-		return NULL;
-	}
-
-	obj = read_object(object.item_number);
-
-	if (!obj) {
-		slog("Object %d no longer in database.", object.item_number);
-		return NULL;
-	}
-
-	if (!OBJ_APPROVED(obj)) {
-		slog("Obj %s being junked from rent.", obj->short_description);
-		extract_obj(obj);
-		return NULL;
-	}
-
-	if (object.short_desc[0] != 0) {
-		obj->short_description = str_dup(object.short_desc);
-		sprintf(buf, "%s has been left here.", obj->short_description);
-		obj->description = str_dup(CAP(buf));
-	}
-	if (object.name[0] != 0) {
-		obj->name = str_dup(object.name);
-	}
-
-
-	GET_OBJ_VAL(obj, 0) = object.value[0];
-	GET_OBJ_VAL(obj, 1) = object.value[1];
-	GET_OBJ_VAL(obj, 2) = object.value[2];
-	GET_OBJ_VAL(obj, 3) = object.value[3];
-	GET_OBJ_EXTRA(obj) = object.extra_flags;
-	GET_OBJ_EXTRA2(obj) = object.extra2_flags;
-	GET_OBJ_EXTRA3(obj) = object.extra3_flags;
-	GET_OBJ_TYPE(obj) = object.type;
-	obj->soilage = object.soilage;
-
-	GET_OBJ_SIGIL_IDNUM(obj) = object.sigil_idnum;
-	GET_OBJ_SIGIL_LEVEL(obj) = object.sigil_level;
-
-	obj->obj_flags.bitvector[0] = object.bitvector[0];
-	obj->obj_flags.bitvector[1] = object.bitvector[1];
-	obj->obj_flags.bitvector[2] = object.bitvector[2];
-
-	obj->setWeight(object.weight);
-	GET_OBJ_TIMER(obj) = object.timer;
-
-	obj->worn_on = object.worn_on_position;
-
-	obj->obj_flags.wear_flags = object.wear_flags;
-	obj->obj_flags.max_dam = object.max_dam;
-	obj->obj_flags.damage = object.damage;
-	obj->obj_flags.material = object.material;
-
-	if (allow_inroom == false) {
-		if (object.in_room_vnum >= 0) {
-			slog("Obj_from_store loading object %s found non-negative inroom %d!  JUNKING.",
-				obj->short_description, object.in_room_vnum);
-			extract_obj(obj);
-			return NULL;
-		}
-		obj->in_room = NULL;
-	} else {
-		obj->in_room = real_room(object.in_room_vnum);
-	}
-
-	// read player text
-	obj->plrtext_len = object.plrtext_len;
-
-	if (obj->plrtext_len) {
-		CREATE(obj->action_description, char, object.plrtext_len);
-
-		if (!fread(obj->action_description, object.plrtext_len, 1, fl)) {
-			obj->plrtext_len = 0;
-			slog("Error reading Obj %s's plrtext.",
-				obj->short_description);
-			return NULL;
-		}
-	}
-
-	for (j = 0; j < 3; j++)
-		obj->obj_flags.bitvector[j] = object.bitvector[j];
-
-	for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		obj->affected[j] = object.affected[j];
-
-	obj->contains = NULL;
-
-	for (j = 0; j < object.contains; j++) {
-		if ((tmpo = Obj_from_store(fl, false)) == NULL) {
-			perror("SYSERR: Error in obj file: contain field: ");
-		} else {
-			tmpo->in_obj = obj;
-			tmpo->next_content = obj->contains;
-			obj->contains = tmpo;
-		}
-	}
-
-	return obj;
-}
-
-
-
-/**
- * Deletes .objs files for all known players if they are
- * too old.  
- *
- * Calls Crash_clean_file for every character in the player table.
- *
-**/
 void
-update_obj_file(void)
-{
-}
-
-
-
-
-int
-Crash_load(struct Creature *ch)
-/* return values:
-		-1 - dangerous failure - don't allow char to enter
-        0 - successful load, keep char in rent room.
-        1 - load failure or load of crash items -- put char in temple.
-        2 - rented equipment lost ( no $ )
-*/
-{
-	if (ch->loadObjects())
-		return 0;
-	return 1;
-}
-
-/*
- * Stores the given object list into the given file
- * recursively via obj->next_content
- */
-int
-store_obj_list(struct obj_data *obj, FILE * fp)
-{
-	int result;
-
-	if (obj) {
-		store_obj_list(obj->next_content, fp);
-		result = obj->save(fp);
-
-		if (!result)
-			return 0;
-	}
-	return TRUE;
-}
-
-
-void
-Crash_restore_weight(struct obj_data *obj)
+extract_norents(struct obj_data *obj)
 {
 	if (obj) {
-		Crash_restore_weight(obj->contains);
-		Crash_restore_weight(obj->next_content);
-		if (obj->in_obj)
-			obj->in_obj->modifyWeight(obj->getWeight());
-	}
-}
-
-/**
- * recursively extracts all the objects in 
- * ch list and thier contents.
- */
-void
-extract_object_list(obj_data * head)
-{
-	if (!head)
-		return;
-	extract_object_list(head->contains);
-	extract_object_list(head->next_content);
-	extract_obj(head);
-}
-
-
-void
-Crash_extract_norents(struct obj_data *obj)
-{
-	if (obj) {
-		Crash_extract_norents(obj->contains);
-		Crash_extract_norents(obj->next_content);
+		extract_norents(obj->contains);
+		extract_norents(obj->next_content);
 		if (obj->isUnrentable() &&
 			(!obj->worn_by || !IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)) &&
 			!IS_OBJ_STAT(obj, ITEM_NODROP))
@@ -262,24 +66,12 @@ Crash_extract_norents(struct obj_data *obj)
 	}
 }
 
-void
-Crash_calculate_rent(struct obj_data *obj, int *cost)
-{
-	if (obj) {
-		*cost += MAX(0, GET_OBJ_RENT(obj));
-		Crash_calculate_rent(obj->contains, cost);
-		Crash_calculate_rent(obj->next_content, cost);
-	}
-}
-
-
-
 /* ************************************************************************
 * Routines used for the receptionist                                          *
 ************************************************************************* */
 
 void
-Crash_rent_deadline(struct Creature *ch, struct Creature *recep, long cost)
+rent_deadline(struct Creature *ch, struct Creature *recep, long cost)
 {
 	long rent_deadline;
 
@@ -302,7 +94,7 @@ Crash_rent_deadline(struct Creature *ch, struct Creature *recep, long cost)
 }
 
 int
-Crash_report_unrentables(struct Creature *ch, struct Creature *recep,
+report_unrentables(struct Creature *ch, struct Creature *recep,
 	struct obj_data *obj)
 {
 	int has_norents = 0;
@@ -327,99 +119,17 @@ Crash_report_unrentables(struct Creature *ch, struct Creature *recep,
 			else
 				send_to_char(ch, strcat(buf2, "\r\n"));
 		}
-		has_norents += Crash_report_unrentables(ch, recep, obj->contains);
-		has_norents += Crash_report_unrentables(ch, recep, obj->next_content);
+		has_norents += report_unrentables(ch, recep, obj->contains);
+		has_norents += report_unrentables(ch, recep, obj->next_content);
 	}
 	return (has_norents);
 }
 
-
-
-void
-Crash_report_rent(struct Creature *ch, struct Creature *recep,
-	struct obj_data *obj, long *cost, long *nitems, int display, int factor)
-{
-
-	char curr[64];
-	if (ch->in_room->zone->time_frame == TIME_ELECTRO)
-		strcpy(curr, "credits");
-	else
-		strcpy(curr, "coins");
-
-	if (obj) {
-		if (!(obj->isUnrentable())) {
-			(*nitems)++;
-			*cost += (GET_OBJ_RENT(obj) * factor);
-			if (display) {
-				if (recep) {
-					sprintf(buf2, "%5d %s for %s...",
-						(GET_OBJ_RENT(obj) * factor), curr, OBJS(obj, ch));
-					perform_tell(recep, ch, buf2);
-				} else {
-					send_to_char(ch, "Rent cost: %5d %s for %s.\r\n",
-						(GET_OBJ_RENT(obj) * factor), curr, OBJS(obj, ch));
-				}
-			}
-		}
-		Crash_report_rent(ch, recep, obj->contains, cost, nitems, display,
-			factor);
-		Crash_report_rent(ch, recep, obj->next_content, cost, nitems, display,
-			factor);
-	}
-}
-
-
 int
-Crash_rentcost(struct Creature *ch, int display, int factor)
-{
-//  extern int max_obj_save;        /* change in config.c */
-	int i;
-	long totalcost = 0, numitems = 0, norent = 0;
-	char curr[64];
-
-	if (ch->in_room->zone->time_frame == TIME_ELECTRO)
-		strcpy(curr, "credits");
-	else
-		strcpy(curr, "coins");
-
-	norent = Crash_report_unrentables(ch, NULL, ch->carrying);
-	for (i = 0; i < NUM_WEARS; i++)
-		norent += Crash_report_unrentables(ch, NULL, GET_EQ(ch, i));
-
-	Crash_report_rent(ch, NULL, ch->carrying, &totalcost, &numitems,
-		display, factor);
-
-	for (i = 0; i < NUM_WEARS; i++)
-		Crash_report_rent(ch, NULL, GET_EQ(ch, i), &totalcost, &numitems,
-			display, factor);
-
-/* 
-  if ( !norent &&
-       numitems > ( max_obj_save << 1 ) + GET_LEVEL( ch ) + ( GET_REMORT_GEN( ch ) << 3 ) ) {
-      sprintf( buf, "Sorry, you cannot store more than %d items.\r\n"
-              "You are carrying %ld.\r\n",
-              ( max_obj_save << 1 ) + GET_LEVEL( ch ) + ( GET_REMORT_GEN( ch ) << 3 ),
-              numitems );
-      norent++;
-  }
-*/
-	totalcost = (int)(totalcost * (0.30) * ((10 + GET_LEVEL(ch)) / 10));
-
-	if (!norent) {
-		send_to_char(ch, "It will cost you %ld %s per day to rent.\r\n",
-			totalcost, curr);
-		Crash_rent_deadline(ch, NULL, totalcost);
-	}
-
-	return (totalcost * (norent ? -1 : 1));
-}
-
-
-int
-Crash_offer_rent(struct Creature *ch, struct Creature *receptionist,
+offer_rent(struct Creature *ch, struct Creature *receptionist,
 	int display, int factor)
 {
-	long totalcost = 0, total_money;
+	long total_money;
 	char curr[64];
 
 	if (receptionist->in_room->zone->time_frame == TIME_ELECTRO) {
@@ -433,22 +143,10 @@ Crash_offer_rent(struct Creature *ch, struct Creature *receptionist,
 	if (ch->displayUnrentables())
 		return 0;
 
-	totalcost = ch->calcDailyRent();
-
-	// receptionist's fee
-	totalcost = (int)(totalcost * (0.30) * ((10 + GET_LEVEL(ch)) / 10));
-
-	// level fee
-	totalcost += (min_rent_cost * GET_LEVEL(ch)) * factor;
-
-	if (display) {
-		perform_tell(receptionist, ch, tmp_sprintf(
-			"Rent will cost you %ld %s per day.", totalcost, curr));
-		perform_tell(receptionist, ch, tmp_sprintf(
-			"You can rent for %ld days with the money you have.",
-			total_money / totalcost));
-	}
-	return totalcost;
+	if (display)
+		send_to_char(ch, "%s writes up a bill and shows it to you:\r\n",
+			PERS(receptionist, ch));
+	return ch->calcDailyRent(factor, display, curr);
 }
 
 int
@@ -460,32 +158,35 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 	char *action_table[] = { "smile", "dance", "sigh", "blush", "burp",
 		"cough", "fart", "twiddle", "yawn"
 	};
-	char curr[64];
+	const char *curr;
+	char *msg;
 
 	ACMD(do_action);
 
 	if (recep->in_room->zone->time_frame == TIME_ELECTRO)
-		strcpy(curr, "credits");
+		curr = "credits";
 	else
-		strcpy(curr, "coins");
+		curr = "coins";
 
 	if (!ch->desc || IS_NPC(ch))
-		return FALSE;
+		return false;
 
 	if (!cmd && !number(0, 5)) {
 		do_action(recep, "", find_command(action_table[number(0, 8)]), 0, 0);
-		return FALSE;
+		return false;
 	}
+
 	if (!CMD_IS("offer") && !CMD_IS("rent"))
-		return FALSE;
+		return false;
+
 	if (!AWAKE(recep)) {
-		act("$E is unable to talk to you...", FALSE, ch, 0, recep, TO_CHAR);
-		return TRUE;
+		act("$E is unable to talk to you...", false, ch, 0, recep, TO_CHAR);
+		return true;
 	}
 	if (!can_see_creature(recep, ch) && GET_LEVEL(ch) <= LVL_AMBASSADOR) {
-		act("$n says, 'I don't deal with people I can't see!'", FALSE, recep,
+		act("$n says, 'I don't deal with people I can't see!'", false, recep,
 			0, 0, TO_ROOM);
-		return TRUE;
+		return true;
 	}
 	if (free_rent) {
 		perform_tell(recep, ch,
@@ -497,45 +198,56 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		return 1;
 	}
 	if (CMD_IS("rent")) {
-		if (!(cost = Crash_offer_rent(ch, recep, FALSE, mode)))
-			return TRUE;
+
+		if (!(cost = offer_rent(ch, recep, false, mode)))
+			return true;
+
 		if (mode == RENT_FACTOR)
-			sprintf(buf2, "Rent will cost you %d %s per day.", cost, curr);
+			msg = tmp_sprintf("Rent will cost you %d %s per day.", cost, curr);
 		else if (mode == CRYO_FACTOR)
-			sprintf(buf2, "It will cost you %d %s to be frozen.", cost, curr);
-		perform_tell(recep, ch, buf2);
+			msg = tmp_sprintf("It will cost you %d %s to be frozen.", cost,
+				curr);
+		else
+			msg = "Please report this word: Arbaxyl";
+		perform_tell(recep, ch, msg);
+
 		if ((recep->in_room->zone->time_frame == TIME_ELECTRO &&
 				cost > GET_CASH(ch)) ||
 			(recep->in_room->zone->time_frame != TIME_ELECTRO &&
 				cost > GET_GOLD(ch))) {
 			perform_tell(recep, ch, "...which I see you can't afford.");
-			return TRUE;
+			return true;
 		}
-		if (cost && (mode == RENT_FACTOR))
-			Crash_rent_deadline(ch, recep, cost);
+
+		if (cost && mode == RENT_FACTOR)
+			rent_deadline(ch, recep, cost);
 
 		act("$n helps $N into $S private chamber.",
-			FALSE, recep, 0, ch, TO_NOTVICT);
+			false, recep, 0, ch, TO_NOTVICT);
 
 		if (mode == RENT_FACTOR) {
-			act("$n stores your belongings and helps you into your private chamber.", FALSE, recep, 0, ch, TO_VICT);
+			act("$n stores your belongings and helps you into your private chamber.", false, recep, 0, ch, TO_VICT);
 			ch->rent();
 		} else {				/* cryo */
-			act("$n stores your belongings and helps you into your private chamber.\r\n" "A white mist appears in the room, chilling you to the bone...\r\n" "You begin to lose consciousness...", FALSE, recep, 0, ch, TO_VICT);
+			act("$n stores your belongings and helps you into your private chamber.\r\nA white mist appears in the room, chilling you to the bone...\r\nYou begin to lose consciousness...", false, recep, 0, ch, TO_VICT);
+			if (recep->in_room->zone->time_frame == TIME_ELECTRO)
+				GET_CASH(ch) -= cost;
+			else
+				GET_GOLD(ch) -= cost;
 			ch->cryo();
 		}
 
 	} else {
-		Crash_offer_rent(ch, recep, TRUE, mode);
-		act("$N gives $n an offer.", FALSE, ch, 0, recep, TO_ROOM);
+		offer_rent(ch, recep, true, mode);
+		act("$N gives $n an offer.", false, ch, 0, recep, TO_ROOM);
 	}
-	return TRUE;
+	return true;
 }
 
 
 SPECIAL(receptionist)
 {
-	if (spec_mode != SPECIAL_CMD)
+	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	return (gen_receptionist(ch, (struct Creature *)me, cmd, argument,
 			RENT_FACTOR));
@@ -544,7 +256,7 @@ SPECIAL(receptionist)
 
 SPECIAL(cryogenicist)
 {
-	if (spec_mode != SPECIAL_CMD)
+	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	return (gen_receptionist(ch, (struct Creature *)me, cmd, argument,
 			CRYO_FACTOR));

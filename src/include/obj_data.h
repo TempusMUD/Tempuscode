@@ -333,6 +333,7 @@ struct obj_data {
 					  xmlNodePtr node);
 
 	void saveToXML( FILE* ouf );
+	void display_rent(Creature *ch, const char *currency_str);
 
 	room_data *in_room;	/* In what room -1 when conta/carr    */
 	int cur_flow_pulse;			/* Keep track of flowing pulse        */

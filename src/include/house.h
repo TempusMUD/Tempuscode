@@ -189,5 +189,4 @@ House_can_enter( Creature *ch, room_num room )
 char* print_room_contents(Creature *ch, room_data *real_house_room, bool showContents = false);
 int recurs_obj_cost(struct obj_data *obj, bool mode, struct obj_data *top_o);
 int recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o);
-int Crash_rentcost(struct Creature *ch, int display, int factor);
 #endif

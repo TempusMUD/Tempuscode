@@ -150,7 +150,7 @@ ACMD(do_quit)
 				return;
 			}
 			if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
-				cost = ch->calcDailyRent();
+				cost = ch->calcDailyRent(false);
 
 				if (cost < 0) {
 					send_to_char(ch, "Unable to rent.\r\n");

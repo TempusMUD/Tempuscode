@@ -17,7 +17,7 @@
 #include "security.h"
 #include "fight.h"
 
-void Crash_extract_norents(struct obj_data *obj);
+void extract_norents(struct obj_data *obj);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 
@@ -493,12 +493,12 @@ Creature::extractUnrentables()
 {
     for (int j = 0; j < NUM_WEARS; j++) {
 		if (GET_EQ(this, j))
-			Crash_extract_norents(GET_EQ(this, j));
+			extract_norents(GET_EQ(this, j));
 		if (GET_IMPLANT(this, j))
-			Crash_extract_norents(GET_EQ(this, j));
+			extract_norents(GET_EQ(this, j));
 	}
 
-	Crash_extract_norents(carrying);
+	extract_norents(carrying);
 }
 
 /**
@@ -861,7 +861,7 @@ Creature::rent(void)
 {
 	player_specials->rentcode = RENT_RENTED;
 	player_specials->rent_per_day =
-		(GET_LEVEL(this) < LVL_IMMORT) ? calcDailyRent():0;
+		(GET_LEVEL(this) < LVL_IMMORT) ? calcDailyRent(1):0;
 	player_specials->desc_mode = CXN_UNKNOWN;
 	player_specials->rent_currency = in_room->zone->time_frame;
 	GET_LOADROOM(this) = in_room->number;
@@ -949,7 +949,7 @@ Creature::quit(void)
 	}
 
 	player_specials->rentcode = RENT_QUIT;
-	player_specials->rent_per_day = calcDailyRent() * 3;
+	player_specials->rent_per_day = calcDailyRent(3);
 	player_specials->desc_mode = CXN_UNKNOWN;
 	player_specials->rent_currency = in_room->zone->time_frame;
 	GET_LOADROOM(this) = 0;
@@ -967,7 +967,7 @@ Creature::idle(void)
 	if (IS_NPC(this))
 		return false;
 	player_specials->rentcode = RENT_FORCED;
-	player_specials->rent_per_day = calcDailyRent() * 3;
+	player_specials->rent_per_day = calcDailyRent(3);
 	player_specials->desc_mode = CXN_UNKNOWN;
 	player_specials->rent_currency = in_room->zone->time_frame;
 	GET_LOADROOM(this) = 0;
@@ -1027,7 +1027,7 @@ Creature::arena_die(void)
 	if (!IS_NPC(this)) {
 		player_specials->rentcode = RENT_RENTED;
 		player_specials->rent_per_day =
-			(GET_LEVEL(this) < LVL_IMMORT) ? calcDailyRent():0;
+			(GET_LEVEL(this) < LVL_IMMORT) ? calcDailyRent(1):0;
 		player_specials->desc_mode = CXN_UNKNOWN;
 		player_specials->rent_currency = in_room->zone->time_frame;
 		GET_LOADROOM(this) = in_room->zone->respawn_pt;

@@ -57,7 +57,7 @@ extern room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern obj_data *obj_proto;	/* prototypes for objs                 */
 extern int no_plrtext;
-void Crash_extract_norents( obj_data *obj );
+void extract_norents( obj_data *obj );
 
 HouseControl Housing;
 
@@ -578,7 +578,7 @@ House::loadRoom( xmlNodePtr roomNode )
 			}
 		}
 	}
-	Crash_extract_norents( room->contents );
+	extract_norents( room->contents );
 	return true;
 }
 

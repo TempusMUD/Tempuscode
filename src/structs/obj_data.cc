@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "handler.h"
 #include "db.h"
+#include "comm.h"
 
 extern int no_plrtext;
 
@@ -215,10 +216,17 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 		shared = null_obj_shared;
 	}
 
-	short_description = shared->proto->short_description;
-	name = shared->proto->name;
-	description = shared->proto->description;
-	action_description  = shared->proto->action_description;
+	if (shared->proto) {
+		short_description = shared->proto->short_description;
+		name = shared->proto->name;
+		description = shared->proto->description;
+		action_description  = shared->proto->action_description;
+	} else {
+		short_description = "something unique";
+		name = "something unique";
+		description = "";
+		action_description  = "";
+	}
 
 	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
 		if( xmlMatches( cur->name, "name" ) ) {
@@ -392,5 +400,13 @@ obj_flag_data::setWeight(int new_weight)
 {
 	return ((weight = new_weight));
 }
+
+void
+obj_data::display_rent(Creature *ch, const char *currency_str)
+{
+	send_to_char(ch, "%10d %s for %s\r\n", GET_OBJ_RENT(this), currency_str,
+		short_description);
+}
+
 
 #undef __obj_data_cc__
