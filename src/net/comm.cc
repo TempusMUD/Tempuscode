@@ -1050,7 +1050,7 @@ process_output(struct descriptor_data * d)
         SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
         SEND_TO_Q(d->output, d->snoop_by);
         SEND_TO_Q(CCRED(d->snoop_by->character, C_NRM), d->snoop_by);
-        SEND_TO_Q("}\r\n", d->snoop_by);
+        SEND_TO_Q(" } ", d->snoop_by);
         SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
     }
     /*
