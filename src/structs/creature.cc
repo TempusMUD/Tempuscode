@@ -379,7 +379,7 @@ Creature::getDamReduction(Creature *attacker)
 
         // We found the aria of asylum singer
         if (af && af->modifier == GET_IDNUM(ch)) {
-            dam_reduction += 5 + (((1000 - GET_ALIGNMENT(ch)) / 100) + 
+            dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT(ch))) / 100) + 
                                   (ch->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
         } else if (af && ch->in_room) {
 
@@ -387,11 +387,11 @@ Creature::getDamReduction(Creature *attacker)
             for (; it != ch->in_room->people.end(); ++it) {
                 if (IS_NPC((*it))
                     && af->modifier == (short int)-MOB_IDNUM((*it))) {
-                    dam_reduction += 5 + (((1000 - GET_ALIGNMENT((*it))) / 100) + 
+                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) + 
                                          ((*it)->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
                     break;
                 } else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
-                    dam_reduction += 5 + (((1000 - GET_ALIGNMENT((*it))) / 100) + 
+                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) + 
                                          ((*it)->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
                     break;
                 }
