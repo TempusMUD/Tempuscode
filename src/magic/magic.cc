@@ -717,7 +717,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		dam = dice(level, 4) + (level << 1);
 		break;
 	case SPELL_ENTROPY_FIELD:
-		dam = dice(level / 5, 3);
+		dam = 10+dice(level / 5, 3);
 		if (!GET_CLASS(ch) == CLASS_PHYSIC)
 			dam = dam >> 1;
 		break;
