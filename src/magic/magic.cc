@@ -2860,8 +2860,10 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_STONE_TO_FLESH:
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_PETRIFIED);
 		spell = SPELL_PETRIFY;
+		spell2 = SPELL_STONESKIN;
 		to_vict = "You feel freed as your body changes back to flesh.";
 		to_room = "$n's body changes back from stone.";
+		to_vict2 = tmp_strdup(spell_wear_off_msg[SPELL_STONESKIN]);
 		break;
 	case SPELL_REMOVE_SICKNESS:
 		REMOVE_BIT(AFF3_FLAGS(victim), AFF3_SICKNESS);
