@@ -5402,31 +5402,42 @@ ACMD(do_show)
             send_to_char(ch, "No items.\r\n");
         break;
 
-    case 42:                    /* fighting */
-        strcpy(buf, "Broken for now.  Bug it if you use it.\r\n");
+    case 42: {                   /* fighting */
+        strcpy(buf, "Fighting characters:\r\n");
 
-/*        strcpy(buf, "Fighting characters:\r\n");
-
+        list<CharCombat>::iterator it;
         cit = combatList.begin();
         for (; cit != combatList.end(); ++cit) {
             vict = *cit;
-
+    
             if (!can_see_creature(ch, vict))
                 continue;
 
             if (strlen(buf) > MAX_STRING_LENGTH - 128)
                 break;
 
-            sprintf(buf, "%s %3d. %s%28s%s -- %28s   [%6d]\r\n", buf, ++i,
-                IS_NPC(vict) ? "" : CCYEL(ch, C_NRM),
-                GET_NAME(vict), IS_NPC(vict) ? "" : CCNRM(ch, C_NRM),
-                FIGHTING(vict) ? GET_NAME(FIGHTING(vict)) :
-                "ERROR!!", vict->in_room->number);
-        }*/
+            sprintf(buf, "%s%3d: %s[%s%5d%s] %s%s%s\r\n", buf, ++i,
+                    CCRED(ch, C_NRM), 
+                    CCGRN(ch, C_NRM),
+                    vict->in_room->number,
+                    CCRED(ch, C_NRM),
+                    IS_NPC(vict) ? CCCYN(ch, C_NRM) : CCYEL(ch, C_NRM),
+                    GET_NAME(vict),
+                    CCNRM(ch, C_NRM)); 
+
+            it = vict->getCombatList()->begin();
+            for (; it != vict->getCombatList()->end(); ++it) {
+                sprintf(buf, "%s             - %s%s%s\r\n", buf,
+                        CCWHT(ch, C_NRM), 
+                        GET_NAME(it->getOpponent()),
+                        CCNRM(ch, C_NRM));
+            }
+
+        }
 
         page_string(ch->desc, buf);
         break;
-
+    }
     case 43:                    /* quad */
 
         strcpy(buf, "Characters with Quad Damage:\r\n");
