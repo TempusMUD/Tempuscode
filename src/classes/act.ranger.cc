@@ -243,7 +243,8 @@ ACMD(do_autopsy)
 			act("The killer seems to have been $N.", FALSE, ch, corpse, vict,
 				TO_CHAR);
 		else {
-			send_to_char(ch, "The killer seems to have been %s.\r\n", name);
+			send_to_char(ch, "The killer seems to have been %s.\r\n",
+				tmp_capitalize(name));
 		}
 		gain_skill_prof(ch, SKILL_AUTOPSY);
 	}
