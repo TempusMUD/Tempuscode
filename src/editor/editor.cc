@@ -190,7 +190,9 @@ CTextEditor::SaveText(char *inStr)
 	}
 	// Save the board if we were writing to a board
 	if (desc->mail_to && desc->mail_to->recpt_idnum >= BOARD_MAGIC) {
-		Board_save_board(desc->mail_to->recpt_idnum - BOARD_MAGIC);
+		gen_board_save(desc->mail_to->recpt_idnum - BOARD_MAGIC, *target);
+		free(*target);
+		free(target);
 		next_mail = desc->mail_to->next;
 		free(desc->mail_to);
 		desc->mail_to = next_mail;
