@@ -774,10 +774,12 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 
 	if (ch) {
-		if (affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+		if( ( IS_NPC(ch) || IS_NPC(victim) ) && 
+			  affected_by_spell(ch, SPELL_QUAD_DAMAGE) ) {
 			dam <<= 2;
-		else if (AFF3_FLAGGED(ch, AFF3_DOUBLE_DAMAGE))
+		} else if (AFF3_FLAGGED(ch, AFF3_DOUBLE_DAMAGE)) {
 			dam <<= 1;
+		}
 		if (IS_AFFECTED_3(ch, AFF3_INST_AFF)) {	// In combat instant affects
 			// Charging into combat gives a damage bonus
 			if ((af = affected_by_spell(ch, SKILL_CHARGE))) {
