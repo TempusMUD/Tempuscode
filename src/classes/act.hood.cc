@@ -149,12 +149,12 @@ ACMD(do_hamstring)
             af.modifier = 0 - ( level/2 + dice( 7, 7 ) + dice( gen ,5 ) ) \
                               * ( CHECK_SKILL( ch ,SKILL_HAMSTRING ) )/1000;
             affect_to_char(vict, &af);
-            WAIT_STATE(vict, 4 RL_SEC);
+            WAIT_STATE(vict, 3 RL_SEC);
             retval = damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
             if ( ! IS_SET( retval, DAM_VICT_KILLED ) && ! IS_SET(retval, DAM_ATTACK_FAILED ))
                 vict->setPosition( POS_RESTING );
         } else {
-            WAIT_STATE(vict, 3 RL_SEC);
+            WAIT_STATE(vict, 2 RL_SEC);
             retval = damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS);
             if ( ! IS_SET( retval, DAM_VICT_KILLED ) && ! IS_SET(retval, DAM_ATTACK_FAILED ))
                 vict->setPosition( POS_SITTING );
