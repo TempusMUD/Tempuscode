@@ -516,40 +516,40 @@ Crash_load( struct char_data * ch )
 
     if ( rent.rentcode == RENT_RENTED || rent.rentcode == RENT_TIMEDOUT ) {
 
-	num_of_days = ( float ) ( time( 0 ) - rent.time ) / SECS_PER_REAL_DAY;
-	cost = ( int ) ( rent.net_cost_per_diem * num_of_days );
+		num_of_days = ( float ) ( time( 0 ) - rent.time ) / SECS_PER_REAL_DAY;
+		cost = ( int ) ( rent.net_cost_per_diem * num_of_days );
 
-	// immortals dont have to pay rent
-	if ( GET_LEVEL( ch ) < LVL_IMMORT ) {
-	    // costs credits
-	    if ( rent.currency == TIME_ELECTRO ) {
-		if ( cost < GET_CASH( ch ) + GET_ECONET( ch ) ) {
-		    GET_ECONET( ch ) -= MAX( cost - GET_CASH( ch ), 0 );
-		    GET_CASH  ( ch )  = MAX( GET_CASH( ch ) - cost, 0 );
-		    cost = 0;
-		    save_char( ch, NULL );
-		} else {
-		    sprintf( buf, 
-			     "%s entering game, some rented eq lost ( no gold ). -- %d/day, %f days",
-			     GET_NAME( ch ), rent.net_cost_per_diem, num_of_days );
-		    mudlog( buf, BRF, MAX( LVL_AMBASSADOR, GET_INVIS_LEV( ch ) ), TRUE );
+		// immortals dont have to pay rent
+		if ( GET_LEVEL( ch ) < LVL_IMMORT ) {
+			// costs credits
+			if ( rent.currency == TIME_ELECTRO ) {
+				if ( cost < GET_CASH( ch ) + GET_ECONET( ch ) ) {
+					GET_ECONET( ch ) -= MAX( cost - GET_CASH( ch ), 0 );
+					GET_CASH  ( ch )  = MAX( GET_CASH( ch ) - cost, 0 );
+					cost = 0;
+					save_char( ch, NULL );
+				} else {
+					sprintf( buf, 
+						 "%s entering game, some rented eq lost ( no creds ). -- %d/day, %f days",
+						 GET_NAME( ch ), rent.net_cost_per_diem, num_of_days );
+					mudlog( buf, BRF, MAX( LVL_AMBASSADOR, GET_INVIS_LEV( ch ) ), TRUE );
+				}
+			}
+			// default costs gold
+			else {
+				if ( cost < GET_GOLD( ch ) + GET_BANK_GOLD( ch ) ) {
+					GET_BANK_GOLD( ch ) -= MAX( cost - GET_GOLD( ch ), 0 );
+					GET_GOLD( ch ) = MAX( GET_GOLD( ch ) - cost, 0 );
+					save_char( ch, NULL );
+					cost = 0;
+				} else {
+					sprintf( buf, 
+						 "%s entering game, some rented eq lost ( no gold ). -- %d/day, %f days",
+						 GET_NAME( ch ), rent.net_cost_per_diem, num_of_days );
+					mudlog( buf, BRF, MAX( LVL_AMBASSADOR, GET_INVIS_LEV( ch ) ), TRUE );
+				}
+			}
 		}
-	    }
-	    // default costs gold
-	    else {
-		if ( cost < GET_GOLD( ch ) + GET_BANK_GOLD( ch ) ) {
-		    GET_BANK_GOLD( ch ) -= MAX( cost - GET_GOLD( ch ), 0 );
-		    GET_GOLD( ch ) = MAX( GET_GOLD( ch ) - cost, 0 );
-		    save_char( ch, NULL );
-		    cost = 0;
-		} else {
-		    sprintf( buf, 
-			     "%s entering game, some rented eq lost ( no creds ). -- %d/day, %f days",
-			     GET_NAME( ch ), rent.net_cost_per_diem, num_of_days );
-		    mudlog( buf, BRF, MAX( LVL_AMBASSADOR, GET_INVIS_LEV( ch ) ), TRUE );
-		}
-	    }
-	}
     }
     // set buf in the switch and log it at the end
     switch ( orig_rent_code = rent.rentcode ) {
