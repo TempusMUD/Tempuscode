@@ -1850,6 +1850,7 @@ SPECIAL(cave_bear)
 #include "Specs/newbie_specs/newbie_fly.spec"
 #include "Specs/newbie_specs/newbie_gold_coupler.spec"
 #include "Specs/newbie_specs/newbie_fodder.spec"
+#include "Specs/newbie_specs/guardian_angel.spec"
 
 /* GENERAL UTIL SPECS */
 #include "Specs/utility_specs/gen_locker.spec"

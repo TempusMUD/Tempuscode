@@ -272,6 +272,7 @@ const struct spec_func_data spec_list[] = {
 	{"quest_sphere", quest_sphere, SPEC_OBJ | SPEC_RES},
 	{"demonic_overmind", demonic_overmind, SPEC_MOB | SPEC_RES},
 	{"demonic_guard", demonic_guard, SPEC_MOB | SPEC_RES},
+	{"guardian_angel", guardian_angel, SPEC_MOB | SPEC_RES},
 	{NULL, NULL, 0}				//terminator
 };
 

@@ -276,6 +276,7 @@ SPECIAL(quest_sphere);
 SPECIAL(demonic_overmind);
 SPECIAL(demonic_guard);
 SPECIAL(mugger);
+SPECIAL(guardian_angel);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2
