@@ -4521,6 +4521,7 @@ ACMD(do_show)
 		}
 		break;
 	case 13:					/* spells */
+		send_to_char(ch, "Try using 'spells list <class>' instead.\r\n");
 		break;
 
 	case 14:

@@ -705,6 +705,8 @@ game_loop(int mother_desc)
 			} else if (shutdown_count <= 0) {
 				Crash_save_all();
 				House_save_all(TRUE);
+				xmlCleanupParser();
+
 				autosave_zones(ZONE_RESETSAVE);
 				send_to_all(":: Tempus REBOOTING ::\r\n\r\n"
 					"You feel your reality fading, as the universe spins away\r\n"
