@@ -3022,245 +3022,245 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 	if (obj == NULL)
 		return;
 
-	switch (spellnum) {
-	case SPELL_GREATER_INVIS:
-	case SPELL_INVISIBLE:
-		if (!IS_OBJ_STAT(obj, ITEM_NOINVIS | ITEM_INVISIBLE)) {
-			SET_BIT(obj->obj_flags.extra_flags, ITEM_INVISIBLE);
-			to_char = "$p turns invisible.";
-		}
-		break;
-	case SPELL_BLUR:
-		if (!IS_OBJ_STAT(obj, ITEM_BLURRED)) {
-			SET_BIT(obj->obj_flags.extra_flags, ITEM_BLURRED);
-			to_char = "The image of $p becomes blurred.";
-		}
-		break;
-	case SPELL_CURSE:
-		if (!IS_OBJ_STAT(obj, ITEM_NODROP)) {
-			SET_BIT(obj->obj_flags.extra_flags, ITEM_NODROP);
-			to_char = "$p becomes cursed.";
-		}
-		break;
+    switch (spellnum) {
+    case SPELL_GREATER_INVIS:
+    case SPELL_INVISIBLE:
+        if (!IS_OBJ_STAT(obj, ITEM_NOINVIS | ITEM_INVISIBLE)) {
+            SET_BIT(obj->obj_flags.extra_flags, ITEM_INVISIBLE);
+            to_char = "$p turns invisible.";
+        }
+        break;
+    case SPELL_BLUR:
+        if (!IS_OBJ_STAT(obj, ITEM_BLURRED)) {
+            SET_BIT(obj->obj_flags.extra_flags, ITEM_BLURRED);
+            to_char = "The image of $p becomes blurred.";
+        }
+        break;
+    case SPELL_CURSE:
+        if (!IS_OBJ_STAT(obj, ITEM_NODROP)) {
+            SET_BIT(obj->obj_flags.extra_flags, ITEM_NODROP);
+            to_char = "$p becomes cursed.";
+        }
+        break;
 
-	case SPELL_REMOVE_CURSE:
-		if (IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM) &&
-			GET_LEVEL(ch) < LVL_ELEMENT) {
-			to_char = "$p vibrates fiercly, then stops.";
-		} else if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
-			REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_NODROP);
-			to_char = "$p briefly glows blue.";
-		}
-		break;
-	case SPELL_DISPEL_MAGIC:
-		if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
-			act("$p is not magical.", FALSE, ch, obj, 0, TO_CHAR);
-			return;
-		}
+    case SPELL_REMOVE_CURSE:
+        if (IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM) &&
+            GET_LEVEL(ch) < LVL_ELEMENT) {
+            to_char = "$p vibrates fiercly, then stops.";
+        } else if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
+            REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_NODROP);
+            to_char = "$p briefly glows blue.";
+        }
+        break;
+    case SPELL_DISPEL_MAGIC:
+        if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
+            act("$p is not magical.", FALSE, ch, obj, 0, TO_CHAR);
+            return;
+        }
 
-		if ((!IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) &&
-				!IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM)) ||
-			GET_LEVEL(ch) > LVL_ELEMENT) {
-			if (IS_OBJ_STAT(obj, ITEM_MAGIC) && (IS_MAGE(ch)
-					|| IS_VAMPIRE(ch)))
-				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
-			if (IS_OBJ_STAT(obj, ITEM_BLESS) && IS_CLERIC(ch))
-				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_BLESS);
-			if (IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_CLERIC(ch))
-				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_EVIL_BLESS);
-			for (i = 0; i < MAX_OBJ_AFFECT; i++)
-				if ((level + GET_INT(ch)) > number(0, 100)) {
-					obj->affected[i].location = APPLY_NONE;
-					obj->affected[i].modifier = 0;
-				}
+        if ((!IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) &&
+                !IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM)) ||
+            GET_LEVEL(ch) > LVL_ELEMENT) {
+            if (IS_OBJ_STAT(obj, ITEM_MAGIC) && (IS_MAGE(ch)
+                    || IS_VAMPIRE(ch)))
+                REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
+            if (IS_OBJ_STAT(obj, ITEM_BLESS) && IS_CLERIC(ch))
+                REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_BLESS);
+            if (IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_CLERIC(ch))
+                REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_EVIL_BLESS);
+            for (i = 0; i < MAX_OBJ_AFFECT; i++)
+                if ((level + GET_INT(ch)) > number(0, 100)) {
+                    obj->affected[i].location = APPLY_NONE;
+                    obj->affected[i].modifier = 0;
+                }
 
-			if (IS_OBJ_TYPE(obj, ITEM_WEAPON) &&
-				IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON) &&
-				(GET_OBJ_VAL(obj, 0) > 0 &&
-					GET_OBJ_VAL(obj, 0) < MAX_SPELLS) &&
-				(SPELL_IS_MAGIC(GET_OBJ_VAL(obj, 0)) ||
-					SPELL_IS_DIVINE(GET_OBJ_VAL(obj, 0))) &&
-				number(level, level << 1) >
-				spell_info[GET_OBJ_VAL(obj,
-						0)].min_level[(int)GET_CLASS(ch)]) {
-				REMOVE_BIT(GET_OBJ_EXTRA2(obj), ITEM2_CAST_WEAPON);
-				GET_OBJ_VAL(obj, 0) = 0;
-			}
+            if (IS_OBJ_TYPE(obj, ITEM_WEAPON) &&
+                IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON) &&
+                (GET_OBJ_VAL(obj, 0) > 0 &&
+                    GET_OBJ_VAL(obj, 0) < MAX_SPELLS) &&
+                (SPELL_IS_MAGIC(GET_OBJ_VAL(obj, 0)) ||
+                    SPELL_IS_DIVINE(GET_OBJ_VAL(obj, 0))) &&
+                number(level, level << 1) >
+                spell_info[GET_OBJ_VAL(obj,
+                        0)].min_level[(int)GET_CLASS(ch)]) {
+                REMOVE_BIT(GET_OBJ_EXTRA2(obj), ITEM2_CAST_WEAPON);
+                GET_OBJ_VAL(obj, 0) = 0;
+            }
 
-			for (i = 0; i < 32; i++) {
-				if (IS_SET(obj->obj_flags.bitvector[0], (1 << i)) &&
-					level > number(0, 100))
-					REMOVE_BIT(obj->obj_flags.bitvector[0], (1 << i));
-				if (IS_SET(obj->obj_flags.bitvector[1], (1 << i)) &&
-					level > number(0, 100))
-					REMOVE_BIT(obj->obj_flags.bitvector[1], (1 << i));
-				if (IS_SET(obj->obj_flags.bitvector[2], (1 << i)) &&
-					level > number(0, 100))
-					REMOVE_BIT(obj->obj_flags.bitvector[2], (1 << i));
-			}
+            for (i = 0; i < 32; i++) {
+                if (IS_SET(obj->obj_flags.bitvector[0], (1 << i)) &&
+                    level > number(0, 100))
+                    REMOVE_BIT(obj->obj_flags.bitvector[0], (1 << i));
+                if (IS_SET(obj->obj_flags.bitvector[1], (1 << i)) &&
+                    level > number(0, 100))
+                    REMOVE_BIT(obj->obj_flags.bitvector[1], (1 << i));
+                if (IS_SET(obj->obj_flags.bitvector[2], (1 << i)) &&
+                    level > number(0, 100))
+                    REMOVE_BIT(obj->obj_flags.bitvector[2], (1 << i));
+            }
 
-			if (GET_OBJ_SIGIL_IDNUM(obj) == GET_IDNUM(ch) ||
-				level > GET_OBJ_SIGIL_LEVEL(obj)) {
-				GET_OBJ_SIGIL_IDNUM(obj) = 0;
-				GET_OBJ_SIGIL_LEVEL(obj) = 0;
-			}
+            if (GET_OBJ_SIGIL_IDNUM(obj) == GET_IDNUM(ch) ||
+                level > GET_OBJ_SIGIL_LEVEL(obj)) {
+                GET_OBJ_SIGIL_IDNUM(obj) = 0;
+                GET_OBJ_SIGIL_LEVEL(obj) = 0;
+            }
 
-			to_char = "All the magic that $p ever had is gone.";
-		}
-		break;
-	case SPELL_ENCHANT_WEAPON:
-	case SPELL_ENCHANT_ARMOR:
-	case SPELL_GREATER_ENCHANT:
-	case SPELL_MAGICAL_VESTMENT:
-		if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
-			SET_BIT(obj->obj_flags.extra_flags, ITEM_GLOW);
-			SET_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
-		}
-		break;
+            to_char = "All the magic that $p ever had is gone.";
+        }
+        break;
+    case SPELL_ENCHANT_WEAPON:
+    case SPELL_ENCHANT_ARMOR:
+    case SPELL_GREATER_ENCHANT:
+    case SPELL_MAGICAL_VESTMENT:
+        if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
+            SET_BIT(obj->obj_flags.extra_flags, ITEM_GLOW);
+            SET_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
+        }
+        break;
 
-		// physic mag_alter_objs items
-	case SPELL_HALFLIFE:
-		if (!IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) && !OBJ_IS_RAD(obj)) {
-			SET_BIT(obj->obj_flags.extra2_flags, ITEM2_RADIOACTIVE);
-			to_char = "$p begins to emit radioactive decay particles.";
-		}
-		break;
-
-
-	case SPELL_ATTRACTION_FIELD:
-		if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
-			for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
-				if (!obj->affected[i].location && j < 0)
-					j = i;
-				if (obj->affected[i].location == APPLY_HITROLL) {
-					obj->affected[i].modifier =
-						MAX(obj->affected[i].modifier, (level / 6) + number(1,
-							2));
-					break;
-				}
-			}
-			if (i >= MAX_OBJ_AFFECT) {
-				if (j < 0)
-					j = 0;
-				obj->affected[j].location = APPLY_HITROLL;
-				obj->affected[j].modifier =
-					MAX(obj->affected[j].modifier, (level / 6) + number(1, 2));
-			}
-			if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
-				sprintf(buf, " imm %sattract", GET_NAME(ch));
-				strcpy(buf2, obj->name);
-				strcat(buf2, buf);
-				obj->name = str_dup(buf2);
-				mudlog(GET_LEVEL(ch), CMP, true,
-					"ENCHANT: %s attraction fielded by %s.",
-					obj->short_description, GET_NAME(ch));
-			}
-		} else {
-			for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
-				if (!obj->affected[i].location && j < 0)
-					j = i;
-				if (obj->affected[i].location == APPLY_AC) {
-					obj->affected[i].modifier =
-						MAX(obj->affected[i].modifier, (level >> 3) + number(1,
-							2));
-					break;
-				}
-			}
-			if (i >= MAX_OBJ_AFFECT) {
-				if (j < 0)
-					j = 0;
-				obj->affected[j].location = APPLY_AC;
-				obj->affected[j].modifier =
-					MAX(obj->affected[j].modifier, (level >> 3) + number(1,
-						2));
-			}
-		}
-		to_char = "$p begins to emit an attraction field.";
-		break;
-	case SPELL_TRANSMITTANCE:
-		if (!IS_OBJ_STAT(obj,
-				ITEM_NOINVIS | ITEM_INVISIBLE | ITEM_TRANSPARENT)) {
-			SET_BIT(obj->obj_flags.extra_flags, ITEM_TRANSPARENT);
-			to_char = "$p becomes transparent.";
-		}
-		break;
+        // physic mag_alter_objs items
+    case SPELL_HALFLIFE:
+        if (!IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) && !OBJ_IS_RAD(obj)) {
+            SET_BIT(obj->obj_flags.extra2_flags, ITEM2_RADIOACTIVE);
+            to_char = "$p begins to emit radioactive decay particles.";
+        }
+        break;
 
 
-	case SPELL_DENSIFY:
-		obj->modifyWeight(level + GET_INT(ch));
-		to_char = "$p becomes denser.";
-		break;
+    case SPELL_ATTRACTION_FIELD:
+        if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
+            for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
+                if (!obj->affected[i].location && j < 0)
+                    j = i;
+                if (obj->affected[i].location == APPLY_HITROLL) {
+                    obj->affected[i].modifier =
+                        MAX(obj->affected[i].modifier, (level / 6) + number(1,
+                            2));
+                    break;
+                }
+            }
+            if (i >= MAX_OBJ_AFFECT) {
+                if (j < 0)
+                    j = 0;
+                obj->affected[j].location = APPLY_HITROLL;
+                obj->affected[j].modifier =
+                    MAX(obj->affected[j].modifier, (level / 6) + number(1, 2));
+            }
+            if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
+                sprintf(buf, " imm %sattract", GET_NAME(ch));
+                strcpy(buf2, obj->name);
+                strcat(buf2, buf);
+                obj->name = str_dup(buf2);
+                mudlog(GET_LEVEL(ch), CMP, true,
+                    "ENCHANT: %s attraction fielded by %s.",
+                    obj->short_description, GET_NAME(ch));
+            }
+        } else {
+            for (i = 0, j = -1; i < MAX_OBJ_AFFECT; i++) {
+                if (!obj->affected[i].location && j < 0)
+                    j = i;
+                if (obj->affected[i].location == APPLY_AC) {
+                    obj->affected[i].modifier =
+                        MAX(obj->affected[i].modifier, (level >> 3) + number(1,
+                            2));
+                    break;
+                }
+            }
+            if (i >= MAX_OBJ_AFFECT) {
+                if (j < 0)
+                    j = 0;
+                obj->affected[j].location = APPLY_AC;
+                obj->affected[j].modifier =
+                    MAX(obj->affected[j].modifier, (level >> 3) + number(1,
+                        2));
+            }
+        }
+        to_char = "$p begins to emit an attraction field.";
+        break;
+    case SPELL_TRANSMITTANCE:
+        if (!IS_OBJ_STAT(obj,
+                ITEM_NOINVIS | ITEM_INVISIBLE | ITEM_TRANSPARENT)) {
+            SET_BIT(obj->obj_flags.extra_flags, ITEM_TRANSPARENT);
+            to_char = "$p becomes transparent.";
+        }
+        break;
 
-	case SPELL_LATTICE_HARDENING:
-		if (IS_OBJ_STAT3(obj, ITEM3_LATTICE_HARDENED)) {
-			act("$p's molecular lattice has already been strengthened.",
-				TRUE, ch, obj, 0, TO_CHAR);
-			return;
-		}
-		if (obj->obj_flags.max_dam < 0 || obj->obj_flags.damage < 0) {
-			act("$p's molecular lattice cannot be strengthened.",
-				TRUE, ch, obj, 0, TO_CHAR);
-			return;
-		}
-		int increase;
-		if (GET_CLASS(ch) == CLASS_PHYSIC)
-			increase =
-				obj->obj_flags.max_dam * (GET_LEVEL(ch) +
-				(GET_REMORT_GEN(ch) * 2)) / 200;
-		else
-			increase =
-				obj->obj_flags.max_dam * (GET_LEVEL(ch) +
-				(GET_REMORT_GEN(ch) * 2)) / 240;
-		obj->obj_flags.max_dam += increase;
-		obj->obj_flags.damage =
-			MIN(obj->obj_flags.damage + increase, obj->obj_flags.max_dam);
-		SET_BIT(obj->obj_flags.extra3_flags, ITEM3_LATTICE_HARDENED);
-		to_char = "$p's molecular lattice strengthens.";
-		if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
-			sprintf(buf, " imm %shardening", GET_NAME(ch));
-			strcpy(buf2, obj->name);
-			strcat(buf2, buf);
-			obj->name = str_dup(buf2);
-			mudlog(GET_LEVEL(ch), CMP, true,
-				"ENCHANT: %s lattice hardened by %s.",
-				obj->short_description, GET_NAME(ch));
-		}
-		break;
 
-	case SPELL_WARDING_SIGIL:
+    case SPELL_DENSIFY:
+        obj->modifyWeight(level + GET_INT(ch));
+        to_char = "$p becomes denser.";
+        break;
 
-		// can't sigilize money
-		if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
-			to_char = "Slaaaave.... to the traffic light!";
-			break;
-		}
-		// item has a sigil, try to remove it
-		if (GET_OBJ_SIGIL_IDNUM(obj)) {
-			// sigil was planted by someone else
-			if (GET_OBJ_SIGIL_IDNUM(obj) != GET_IDNUM(ch)) {
-				if (level <= GET_OBJ_SIGIL_LEVEL(obj)) {
-					to_char = "You fail to remove the sigil.";
-					break;
-				}
-			}
-			GET_OBJ_SIGIL_IDNUM(obj) = 0;
-			GET_OBJ_SIGIL_LEVEL(obj) = 0;
-			to_char = "You have dispelled the sigil.";
-		}
-		// there is no sigil, add one
-		else {
-			GET_OBJ_SIGIL_IDNUM(obj) = GET_IDNUM(ch);
-			GET_OBJ_SIGIL_LEVEL(obj) = level;
-			to_char = "A sigil of warding has been magically etched upon $p.";
-			to_room = "A glowing sigil appears upon $p, then fades.";
-		}
-		break;
+    case SPELL_LATTICE_HARDENING:
+        if (IS_OBJ_STAT3(obj, ITEM3_LATTICE_HARDENED)) {
+            act("$p's molecular lattice has already been strengthened.",
+                TRUE, ch, obj, 0, TO_CHAR);
+            return;
+        }
+        if (obj->obj_flags.max_dam < 0 || obj->obj_flags.damage < 0) {
+            act("$p's molecular lattice cannot be strengthened.",
+                TRUE, ch, obj, 0, TO_CHAR);
+            return;
+        }
+        int increase;
+        if (GET_CLASS(ch) == CLASS_PHYSIC)
+            increase =
+                obj->obj_flags.max_dam * (GET_LEVEL(ch) +
+                (GET_REMORT_GEN(ch) * 2)) / 200;
+        else
+            increase =
+                obj->obj_flags.max_dam * (GET_LEVEL(ch) +
+                (GET_REMORT_GEN(ch) * 2)) / 240;
+        obj->obj_flags.max_dam += increase;
+        obj->obj_flags.damage =
+            MIN(obj->obj_flags.damage + increase, obj->obj_flags.max_dam);
+        SET_BIT(obj->obj_flags.extra3_flags, ITEM3_LATTICE_HARDENED);
+        to_char = "$p's molecular lattice strengthens.";
+        if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->name)) {
+            sprintf(buf, " imm %shardening", GET_NAME(ch));
+            strcpy(buf2, obj->name);
+            strcat(buf2, buf);
+            obj->name = str_dup(buf2);
+            mudlog(GET_LEVEL(ch), CMP, true,
+                "ENCHANT: %s lattice hardened by %s.",
+                obj->short_description, GET_NAME(ch));
+        }
+        break;
 
-	default:
-		slog("SYSERR: Unknown spellnum in mag_alter_objs.");
-		break;
+    case SPELL_WARDING_SIGIL:
 
-	}
+        // can't sigilize money
+        if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
+            to_char = "Slaaaave.... to the traffic light!";
+            break;
+        }
+        // item has a sigil, try to remove it
+        if (GET_OBJ_SIGIL_IDNUM(obj)) {
+            // sigil was planted by someone else
+            if (GET_OBJ_SIGIL_IDNUM(obj) != GET_IDNUM(ch)) {
+                if (level <= GET_OBJ_SIGIL_LEVEL(obj)) {
+                    to_char = "You fail to remove the sigil.";
+                    break;
+                }
+            }
+            GET_OBJ_SIGIL_IDNUM(obj) = 0;
+            GET_OBJ_SIGIL_LEVEL(obj) = 0;
+            to_char = "You have dispelled the sigil.";
+        }
+        // there is no sigil, add one
+        else {
+            GET_OBJ_SIGIL_IDNUM(obj) = GET_IDNUM(ch);
+            GET_OBJ_SIGIL_LEVEL(obj) = level;
+            to_char = "A sigil of warding has been magically etched upon $p.";
+            to_room = "A glowing sigil appears upon $p, then fades.";
+        }
+        break;
+
+    default:
+        slog("SYSERR: Unknown spellnum in mag_alter_objs.");
+        break;
+
+    }
 	if (to_char == NULL)
 		send_to_char(ch, NOEFFECT);
 	else
@@ -3279,6 +3279,7 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 	int spellnum)
 {
 	int i;
+
 	switch (spellnum) {
 	case SPELL_CREATE_WATER:
 		if (!obj) {

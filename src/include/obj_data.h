@@ -207,7 +207,9 @@ static const int ITEM3_REQ_SPARE3 = (1 << 16);
 static const int ITEM3_LATTICE_HARDENED = (1 << 17);
 static const int ITEM3_STAY_ZONE = (1 << 18);
 static const int ITEM3_HUNTED = (1 << 19);
-static const int NUM_EXTRA3_FLAGS = 20;
+static const int ITEM3_NOMAG = (1 << 20);
+static const int ITEM3_NOSCI = (1 << 21);
+static const int NUM_EXTRA3_FLAGS = 22;
 
 
 /* Container flags - value[1] */
