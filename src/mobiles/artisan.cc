@@ -15,11 +15,11 @@
 SPECIAL(artisan);
 
 struct CraftComponent {
-	short item;
-	short material;
-	short weight;
-	short value;
-	short amount;
+	int item;
+	int material;
+	int weight;
+	int value;
+	int amount;
 };
 
 class CraftItem {
@@ -27,7 +27,7 @@ class CraftItem {
 		char *next_requirement(Creature *keeper);
 		obj_data *create(Creature *keeper, Creature *recipient);
 
-		short vnum;	// object to be offered when all components are held
+		int vnum;	// object to be offered when all components are held
 		long cost; // -1 means to use default cost
 		int fail_pct;
 		vector<CraftComponent *> required;

@@ -27,8 +27,8 @@ struct Craftshop {
 	void parse_item(xmlNodePtr node);
 	void list(Creature *keeper, Creature *ch);
 	void buy(Creature *keeper, Creature *ch, char *args);
-	short room;
-	short keeper_vnum;
+	int room;
+	int keeper_vnum;
 	vector<CraftItem *> items;
 };
 
