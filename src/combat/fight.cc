@@ -1228,10 +1228,16 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     // damage reduction ranges up to about 35%
     if (IS_AFFECTED_2(victim, AFF2_OBLIVITY)) {
         if (IS_NEUTRAL(victim) && CHECK_SKILL(victim, ZEN_OBLIVITY) > 60) {
-            dam_reduction += ((GET_LEVEL(victim) + 
-                               victim->getLevelBonus(ZEN_OBLIVITY)) * 10 +
-                             (1000 - abs(GET_ALIGNMENT(victim)) + 
-                               (CHECK_SKILL(victim, ZEN_OBLIVITY) * 10)) / 100);
+            dam_reduction += (((GET_LEVEL(victim) + 
+                               victim->getLevelBonus(ZEN_OBLIVITY)) * 10) +
+                             (1000 - abs(GET_ALIGNMENT(victim))) + 
+                               (CHECK_SKILL(victim, ZEN_OBLIVITY) * 10)) / 100;
+            sprintf(buf, "(((%d + %d) * 10) + (1000 - %d) + (%d * 10)) / 100 == %d\r\n",
+                        GET_LEVEL(victim), victim->getLevelBonus(ZEN_OBLIVITY),
+                        abs(GET_ALIGNMENT(victim)), CHECK_SKILL(victim, ZEN_OBLIVITY),
+                        (((GET_LEVEL(victim) + victim->getLevelBonus(ZEN_OBLIVITY)) * 10) + (1000 - abs(GET_ALIGNMENT(victim))) + (CHECK_SKILL(victim, ZEN_OBLIVITY) * 10)) / 100);
+                    if (!IS_NPC(victim))    
+                        send_to_char(buf, victim);
         }
     } 
     
