@@ -7072,6 +7072,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
                 break;
             case ITEM_SCROLL:  // val 1,2,3
             case ITEM_POTION: // val 1,2,3
+            case ITEM_PILL:   // ""
                 if(GET_OBJ_VAL(obj,1) != i && GET_OBJ_VAL(obj,2) != i 
                     && GET_OBJ_VAL(obj,3) != i)
                     continue;
@@ -7104,6 +7105,7 @@ do_show_objects(struct char_data *ch, char *value, char *arg)
                 break;
             case ITEM_SCROLL:  // val 1,2,3
             case ITEM_POTION: // val 1,2,3
+            case ITEM_PILL:   // ""
                 spell1 = GET_OBJ_VAL(obj,1);
                 spell2 = GET_OBJ_VAL(obj,2);
                 spell3 = GET_OBJ_VAL(obj,3);
