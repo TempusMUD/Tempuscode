@@ -2789,7 +2789,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	
 	if (!IS_NPC(ch) && GET_MOVE(ch) > 20) {
 		GET_MOVE(ch)--;
-		if (IS_DROW(ch) && OUTSIDE(ch) && ch->in_room && PRIME_MATERIAL_ROOM(ch->in_room) &&
+		if (IS_DROW(ch) && ch->in_room && OUTSIDE(ch) && PRIME_MATERIAL_ROOM(ch->in_room) &&
 			ch->in_room->zone->weather->sunlight == SUN_LIGHT)
 			GET_MOVE(ch)--;
 		if (IS_CYBORG(ch) && GET_BROKE(ch))
