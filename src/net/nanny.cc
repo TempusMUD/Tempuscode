@@ -1512,6 +1512,10 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort)
 			continue;
 		}
 
+		if(PLR_FLAGGED(tmp_ch, PLR_DELETED)) {
+			continue;
+		}
+
 		switch( GET_SEX(tmp_ch) ) {
 			case SEX_MALE:
 				sex_color = "&b";
