@@ -10,9 +10,9 @@
 
 /* preamble *************************************************************/
 
-#define NOWHERE    -1    /* nil reference for room-database	*/
-#define NOTHING	   -1    /* nil reference for objects		*/
-#define NOBODY	   -1    /* nil reference for mobiles		*/
+#define NOWHERE    -1    /* nil reference for room-database        */
+#define NOTHING           -1    /* nil reference for objects                */
+#define NOBODY           -1    /* nil reference for mobiles                */
 
 #define SPECIAL_NONE   0
 #define SPECIAL_DEATH  1
@@ -60,17 +60,17 @@ int (name)(struct char_data *ch, void *me, int cmd, char *argument, int spec_mod
 #define PLANE_WESTERN        4
 #define PLANE_MORBIDIAN      5
 #define MAX_PRIME_PLANE      9
-#define PLANE_ASTRAL	    10
-#define PLANE_HELL_1	    11
-#define PLANE_HELL_2	    12
-#define PLANE_HELL_3	    13
-#define PLANE_HELL_4	    14
-#define PLANE_HELL_5	    15
-#define PLANE_HELL_6	    16
-#define PLANE_HELL_7	    17
-#define PLANE_HELL_8	    18
-#define PLANE_HELL_9	    19
-#define PLANE_GHENNA	    20
+#define PLANE_ASTRAL            10
+#define PLANE_HELL_1            11
+#define PLANE_HELL_2            12
+#define PLANE_HELL_3            13
+#define PLANE_HELL_4            14
+#define PLANE_HELL_5            15
+#define PLANE_HELL_6            16
+#define PLANE_HELL_7            17
+#define PLANE_HELL_8            18
+#define PLANE_HELL_9            19
+#define PLANE_GHENNA            20
 #define PLANE_ABYSS         25
 #define PLANE_OLC           39
 #define PLANE_OLYMPUS       40
@@ -101,37 +101,36 @@ int (name)(struct char_data *ch, void *me, int cmd, char *argument, int spec_mod
 #define RENT_TIMEDOUT   5
 
 
-#define OPT_USEC	100000	/* 10 passes per second */
-#define PASSES_PER_SEC	(1000000 / OPT_USEC)
-#define RL_SEC		* PASSES_PER_SEC
+#define OPT_USEC        100000        /* 10 passes per second */
+#define PASSES_PER_SEC  (1000000 / OPT_USEC)
+#define RL_SEC          * PASSES_PER_SEC
 
 #define PULSE_ZONE      (10 RL_SEC)
 #define PULSE_MOBILE    (4 RL_SEC)
 #define PULSE_VIOLENCE  (2 RL_SEC)
 #define SEG_VIOLENCE    (7)
-#define SEG_QUEUE    (7)
+#define SEG_QUEUE       (7)
 #define FIRE_TICK       (3 RL_SEC)
 #define PULSE_FLOWS     (1 RL_SEC)
 
-#define SMALL_BUFSIZE		1024
-#define LARGE_BUFSIZE		(32 * 1024)
-#define GARBAGE_SPACE		64
-
-#define MAX_STRING_LENGTH	65536
-#define MAX_INPUT_LENGTH	256	/* Max length per *line* of input */
-#define MAX_RAW_INPUT_LENGTH	512	/* Max size of *raw* input */
-#define MAX_MESSAGES		150 
-#define MAX_POOF_LENGTH         256 /*Used in char_file_u *DO*NOT*CHANGE**/
-#define MAX_NAME_LENGTH		20  /* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_PWD_LENGTH		10  /* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_TITLE_LENGTH	60  /* Used in char_file_u *DO*NOT*CHANGE* */
-#define HOST_LENGTH		63  /* Used in char_file_u *DO*NOT*CHANGE* */
-#define EXDSCR_LENGTH		240 /* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_CHAR_DESC           1023 // used in char_file_u
-#define MAX_TONGUE		3   /* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_SKILLS		700 /* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_AFFECT		96  /* Used in char_file_u *DO*NOT*CHANGE* */
-#define MAX_OBJ_AFFECT		6 /* Used in obj_file_elem *DO*NOT*CHANGE* */
+#define SMALL_BUFSIZE        1024
+#define LARGE_BUFSIZE        65536
+#define GARBAGE_SPACE        64
+#define MAX_STRING_LENGTH    65536
+#define MAX_INPUT_LENGTH     256        /* Max length per *line* of input */
+#define MAX_RAW_INPUT_LENGTH 512        /* Max size of *raw* input */
+#define MAX_MESSAGES         150 
+#define MAX_POOF_LENGTH      256 /*Used in char_file_u *DO*NOT*CHANGE**/
+#define MAX_NAME_LENGTH      20  /* Used in char_file_u *DO*NOT*CHANGE* */
+#define MAX_PWD_LENGTH       10  /* Used in char_file_u *DO*NOT*CHANGE* */
+#define MAX_TITLE_LENGTH     60  /* Used in char_file_u *DO*NOT*CHANGE* */
+#define HOST_LENGTH          63  /* Used in char_file_u *DO*NOT*CHANGE* */
+#define EXDSCR_LENGTH        240 /* Used in char_file_u *DO*NOT*CHANGE* */
+#define MAX_CHAR_DESC        1023 // used in char_file_u
+#define MAX_TONGUE           3   /* Used in char_file_u *DO*NOT*CHANGE* */
+#define MAX_SKILLS           700 /* Used in char_file_u *DO*NOT*CHANGE* */
+#define MAX_AFFECT           96  /* Used in char_file_u *DO*NOT*CHANGE* */
+#define MAX_OBJ_AFFECT       6 /* Used in obj_file_elem *DO*NOT*CHANGE* */
 
 /***********************************************************************
  * Structures                                                          *
@@ -147,8 +146,8 @@ typedef struct Link {
 
 /* Extra description: used in objects, mobiles, and rooms */
 struct extra_descr_data {
-  char	*keyword;                 /* Keyword in look/examine          */
-  char	*description;             /* What to see                      */
+  char        *keyword;                 /* Keyword in look/examine          */
+  char        *description;             /* What to see                      */
   struct extra_descr_data *next; /* Next in list                      */
 };
 
@@ -167,27 +166,27 @@ struct time_info_data {
 
 
 struct msg_type {
-   char	*attacker_msg;  /* message to attacker */
-   char	*victim_msg;    /* message to victim   */
-   char	*room_msg;      /* message to room     */
+   char        *attacker_msg;  /* message to attacker */
+   char        *victim_msg;    /* message to victim   */
+   char        *room_msg;      /* message to room     */
 };
 
 
 struct message_type {
-   struct msg_type die_msg;	/* messages when death			*/
-   struct msg_type miss_msg;	/* messages when miss			*/
-   struct msg_type hit_msg;	/* messages when hit			*/
-   struct msg_type god_msg;	/* messages when hit on god		*/
-   struct message_type *next;	/* to next messages of this kind.	*/
+   struct msg_type die_msg;        /* messages when death                        */
+   struct msg_type miss_msg;        /* messages when miss                        */
+   struct msg_type hit_msg;        /* messages when hit                        */
+   struct msg_type god_msg;        /* messages when hit on god                */
+   struct message_type *next;        /* to next messages of this kind.        */
 };
 
 
 struct message_list {
-   int	a_type;			/* Attack type				*/
-   int	number_of_attacks;	/* How many attack messages to chose from. */
-   struct message_type *msg;	/* List of messages.			*/
+   int        a_type;                        /* Attack type                                */
+   int        number_of_attacks;        /* How many attack messages to chose from. */
+   struct message_type *msg;        /* List of messages.                        */
 };
 
-#endif __defs_h__
+#endif 
 
 
