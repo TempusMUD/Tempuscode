@@ -1295,7 +1295,7 @@ extern const char *item_value_types[][4] = {
   {"Max energ","Cur Energ","State",    "Rate     "},  /* device     */
   {"Type",     "v1",       "Max",      "Cur"      },  /* interface  */
   {"Align",    "Class",    "Min level","Max level"},  /* holy symb  */
-  {"Room",     "Doorstate","Flags",    "Special"},  /* vehicle    */
+  {"Room/KeyNum", "Doorstate","Flags",   "Special"},  /* vehicle */
   {"Max energ","Cur Energ","Enginstat","Rate     "},  /* engine     */
   {"Max charg","Cur charg","Rate",     "Cost/unit"},  /* battery    */
   {"Max ROF",  "Cur ROF",  "discharge","gun type"},  /* raygun     */
