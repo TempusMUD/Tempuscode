@@ -401,6 +401,7 @@ Account::delete_char(Creature *ch)
 
 	for (group = Security::groups.begin();group != Security::groups.end();group++)
 		group->removeMember(GET_IDNUM(ch));
+	sql_exec("delete from sgroup_members where player=%ld", GET_IDNUM(ch));
 
 	// Remove character from trusted lists - we have to take the accounts
 	// in memory into consideration when we do this, so we have to go
