@@ -1769,12 +1769,15 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         if (MOB_SHARED(k)->move_buf)
             sprintf(outbuf, "%sMove_buf: %s\r\n", outbuf,
                 MOB_SHARED(k)->move_buf);
-        if (GET_MOB_PARAM(k))
-            sprintf(outbuf, "%sSpec_param: \r\n%s\r\n", outbuf,
-                GET_MOB_PARAM(k));
-		if( GET_LOAD_PARAM(k) ) {
-            sprintf(outbuf, "%sLoad_param: \r\n%s\r\n", outbuf,
-                GET_LOAD_PARAM(k));
+		if( k->mob_specials.shared->proto == k ) {
+			if (GET_MOB_PARAM(k) && strlen( GET_MOB_PARAM(k)) > 0 ) {
+				sprintf(outbuf, "%sSpec_param: \r\n%s\r\n", outbuf,
+					GET_MOB_PARAM(k));
+			}
+			if( GET_LOAD_PARAM(k) && strlen( GET_LOAD_PARAM(k) ) > 0 ) {
+				sprintf(outbuf, "%sLoad_param: \r\n%s\r\n", outbuf,
+					GET_LOAD_PARAM(k));
+			}
 		}
         if (k->mob_specials.mug) {
             sprintf(buf,
