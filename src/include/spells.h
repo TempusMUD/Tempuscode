@@ -493,10 +493,12 @@ extern const char *spells[];
 #define SKILL_CONTROL_UNDEAD        657
 #define SKILL_TERRORIZE             658
 
-  /***************  Hood Skill... yeah. Just one ********/
+  /***************  Hood Skillz... yeah. Just two ********/
   /***************   Ok. now they have 2.  *****/
 #define SKILL_HAMSTRING				666
 #define SKILL_SNATCH				667
+#define SKILL_DRAG                              668
+
 
 #define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
 
@@ -604,6 +606,8 @@ extern const char *spells[];
 #define TYPE_RIP                     816
 #define TYPE_CHOP                    817
 #define TYPE_SHOOT                   818
+
+
 #define TOP_ATTACKTYPE               819
 /* new attack types can be added here - up to TYPE_SUFFERING */
 #define TYPE_BLEED					 897 // Open wound

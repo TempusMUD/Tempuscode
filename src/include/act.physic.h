@@ -24,6 +24,7 @@ ASPELL(spell_nuclear_wasteland);
 ASPELL(spell_spacetime_imprint);
 ASPELL(spell_spacetime_recall);
 ASPELL(spell_time_warp);
+ASPELL(spell_area_stasis);
 
 //extern timewarp_data *timewarp_list;
 //extern int num_timewarp_data;

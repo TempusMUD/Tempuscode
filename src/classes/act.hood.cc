@@ -24,6 +24,8 @@ SPECIAL(shop_keeper);
 int check_mob_reaction(struct char_data *ch, struct char_data *vict);
 int apply_soil_to_char(struct char_data *ch,struct obj_data *obj,int type,int pos);
 void add_blood_to_room(struct room_data *rm, int amount);
+int House_can_enter( struct char_data *ch, room_num real_room );
+int clan_house_can_enter( struct char_data *ch, struct room_data *room);
 
 
 ACMD(do_hamstring)
@@ -150,6 +152,144 @@ ACMD(do_hamstring)
 	}
 	WAIT_STATE(ch, 2 RL_SEC);
 }
+
+
+
+ACMD(do_drag)
+{
+    struct char_data *vict = NULL;
+    struct room_data *target_room = NULL;
+    struct room_data *location = NULL;
+
+    int percent, prob;
+
+    char arg2[ MAX_INPUT_LENGTH ];
+
+    int dir = -1;
+
+    location = ch->in_room;
+
+    two_arguments( argument, arg, arg2 );
+
+    if(!(vict = get_char_room_vis( ch, arg ) ) ) {
+	send_to_char( "Who do you want to drag?\r\n", ch );
+	WAIT_STATE( ch, 3 );
+	return;
+    }
+
+    if ( vict == ch ) {
+	send_to_char( "You can't drag yourself!\r\n", ch );
+        return;
+    }
+
+    if ( ! *arg2 ) {
+	send_to_char( "Which direction do you wish to drag them?\r\n", ch );
+	WAIT_STATE( ch, 3 );
+        return;
+     }
+
+
+    if( ! peaceful_room_ok( ch, vict, true ) ) {
+	return;
+    }
+
+// Find out which direction the player wants to drag in	
+    if( is_abbrev( arg2, "north" ) ) {
+        dir = 0;
+    }
+
+    if( is_abbrev( arg2, "east" ) ) {
+        dir = 1;
+    }
+
+    if( is_abbrev( arg2, "south" ) ) {
+        dir = 2;
+    }
+
+    if( is_abbrev( arg2, "west" ) ) {
+	dir = 3;
+    }	
+ 
+    if( is_abbrev( arg2, "up" ) ) {
+	dir = 4;
+    }
+
+    if( is_abbrev( arg2, "down" ) ) {
+	dir = 5;
+    }
+    
+    if( is_abbrev( arg2, "future" ) ) {
+	dir = 6;
+    }
+    
+    if( is_abbrev( arg2, "past" ) ) {
+	dir = 7;
+    }
+    
+    
+    if (EXIT(ch, dir) &&  (target_room = EXIT( ch, dir )->to_room ) != NULL ) {
+	
+	if ( CAN_GO( ch, dir ) && ( ROOM_FLAGGED( target_room, ROOM_HOUSE ) && 
+				    ! House_can_enter( ch, target_room->number ) ) ||
+	     ( ROOM_FLAGGED( target_room, ROOM_CLAN_HOUSE ) && ! clan_house_can_enter( ch, target_room ) ) ) {
+	    act( "You are unable to drag $M there", FALSE, ch, 0, vict, TO_CHAR );
+	    return;
+	}
+    }
+    
+    
+    
+    if( ! CAN_GO( ch, dir ) || ! can_travel_sector( ch, SECT_TYPE( EXIT(ch, dir)->to_room ), 0) || ! CAN_GO( vict, dir ) ) {
+	send_to_char( "Sorry you can't go in that direction.\r\n", ch );  
+	return;
+    }
+ 
+	    
+
+    
+    percent = ( ( GET_LEVEL( vict ) ) + number( 1, 101 ) );
+    percent -= ( GET_WEIGHT( ch ) - GET_WEIGHT( vict ) )/5;
+    
+    if( GET_STR( ch ) >= 19 ) {	
+	percent -= (GET_STR(ch) * 2);
+    } 
+    
+    else { 
+	percent -= ( GET_STR( ch ) );	
+    }
+    
+    
+    prob = MAX( 0, ( GET_LEVEL( ch ) + ( CHECK_SKILL( ch, SKILL_DRAG )/2 ) - GET_STR( vict ) ) );
+    
+    if( MOB_FLAGGED( vict, MOB_SENTINEL ) ) {
+	percent = 101;
+    }
+    
+    if( prob > percent ) {
+	sprintf( buf, "You drag $N to the %s.", to_dirs[ dir ] );
+	act( buf, FALSE, ch, 0, vict, TO_CHAR );
+	sprintf( buf, "$n grabs you and drags you %s.", to_dirs[ dir ] );
+	act( buf, FALSE, ch, 0, vict, TO_VICT );
+	sprintf( buf, "$n drags $N to the %s.", to_dirs[ dir ] );
+	act( buf, FALSE, ch, 0, vict, TO_NOTVICT );
+	
+	perform_move( ch, dir, MOVE_NORM, 1 );
+	perform_move( vict, dir, MOVE_DRAG, 1 );
+	
+	WAIT_STATE( ch, ( PULSE_VIOLENCE * 2 ) );
+	WAIT_STATE( vict, PULSE_VIOLENCE );
+	return;
+	
+	
+    }
+    
+    else {
+	act( "$n grabs $N but fails to move $m", FALSE, ch, 0, vict, TO_NOTVICT );
+	act( "You attempt to man-handle $N but you fail!", FALSE, ch, 0, vict, TO_CHAR );
+	act( "$n attempts to drag you, but you hold your ground.", FALSE, ch, 0, vict, TO_VICT );
+	return;
+    }
+}
 ACMD(do_snatch)
 {	
 	//send_to_char("We don't want to talk about that right now.\r\n",ch);
@@ -266,6 +406,10 @@ ACMD(do_snatch)
 
 	// Roll the dice...
 	percent = number( 1, 100);
+
+    if (GET_POS(vict) < POS_SLEEPING)
+	percent = -15;		// ALWAYS SUCCESS
+
 	if (GET_POS(vict) < POS_FIGHTING)
 		percent -= 30;
     if (GET_POS(vict) <= POS_SLEEPING)
@@ -457,3 +601,4 @@ ACMD(do_snatch)
 		hit(vict, ch, TYPE_UNDEFINED);
 	WAIT_STATE(ch,4 RL_SEC);
 }
+

@@ -856,5 +856,25 @@ ACMD( do_econvert ) {
 }
     
     
+ASPELL(spell_area_stasis)
+{
+    
+    struct room_affect_data rm_aff;
+
+    if ( ROOM_FLAGGED( ch->in_room, ROOM_NOPHYSIC ) ) {
+	send_to_char( "The surrounding construct of spacetime is already stable.\r\n", ch );
+	return;
+    }
+
+    send_to_room( "A shockwave ripples through the room stableizing spacetime.\r\n", ch->in_room );
+
+    rm_aff.description = str_dup( "The room seems to be physically stable.\r\n" );
+    rm_aff.level = level;
+    rm_aff.type = RM_AFF_FLAGS;
+    rm_aff.flags = ROOM_NOPHYSIC;
+    rm_aff.duration = level;
+    affect_to_room( ch->in_room, &rm_aff );
+}
+
 
    

@@ -153,6 +153,7 @@ ACMD(do_dc);
 ACMD(do_diagnose);
 ACMD(do_dismount);
 ACMD(do_display);
+ACMD(do_drag);
 ACMD(do_drink);
 ACMD(do_drive);
 ACMD(do_drop);
@@ -600,6 +601,7 @@ extern const struct command_info cmd_info[] = {
     { "dodge"    , POS_FIGHTING, do_evade    , 0, 0 },
     { "doh"      , POS_RESTING , do_action   , 0, 0 },
     { "donate"   , POS_RESTING , do_drop     , 0, SCMD_DONATE },
+    { "drag"     , POS_STANDING, do_drag     , 0, SKILL_DRAG },
     { "dump"     , POS_RESTING , do_action   , 0, 0 },
     { "guildonate",POS_RESTING , do_drop     , 0, SCMD_GUILD_DONATE },
     { "drive"    , POS_SITTING , do_drive    , 0, 0 },
@@ -775,7 +777,7 @@ extern const struct command_info cmd_info[] = {
     { "jump"     , POS_STANDING, do_move     , 0, SCMD_JUMP },
     { "junk"     , POS_RESTING , do_drop     , 0, SCMD_JUNK },
 
-    { "kill"     , POS_RESTING , do_kill     , 0, 0 },
+    { "kill"     , POS_STANDING, do_kill     , 0, 0 },
     { "kia"      , POS_FIGHTING, do_battlecry, 1, SCMD_KIA },
     { "kata"     , POS_STANDING, do_kata     , 0, 0 },
     { "kiss"     , POS_RESTING , do_action   , 0, 0 },

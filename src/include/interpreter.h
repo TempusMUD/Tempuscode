@@ -326,6 +326,7 @@ struct alias {
 #define MOVE_RUSH   4
 #define MOVE_FLEE   5
 #define MOVE_RETREAT 6
+#define MOVE_DRAG   7
 
 /* do_return */
 #define SCMD_RETURN 0

@@ -686,6 +686,17 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	dam = dice((level >> 3), 8) + level;
 	break;
 
+    case SPELL_FISSION_BLAST:
+        if( IS_PHYSIC( ch ) ){ 
+	  dam = dice(level, 17) + level; 	
+        }
+        else
+         dam = dice(level, 13) + level;
+
+         sprintf(buf, "Dam: %d\r\n", dam);
+         send_to_char(buf, ch);
+         break; 
+
     }				/* switch(spellnum) */
 
     // this if statement
@@ -2103,7 +2114,13 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
 	to_char = "You begin to induce hysteria on the group of people around you.";
 	to_room = "A wave of psychic power begins rolling off of $n.";
 	break;
-    }
+    case SPELL_FISSION_BLAST:
+        to_char = "You begin splitting atoms and the room erupts into a fission blast!";  
+        to_room = "The room erupts in a blinding flash of light.";  
+        to_next_room = "A blinding flash of light briefly envelopes you.";
+        break;
+  
+ }
 
     if (to_char != NULL)
 	act(to_char, FALSE, ch, 0, 0, TO_CHAR);
@@ -2160,7 +2177,13 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
 	    call_magic(ch, tch, 0, SPELL_FEAR, level, CAST_PSIONIC);
 	    continue;
 	}
-
+       
+        if (spellnum == SPELL_FISSION_BLAST) {
+           if( !( mag_savingthrow( tch, level, SAVING_PHY ) ) ){ 
+	      add_rad_sickness( tch, level );
+           }
+        }
+ 
 	if (!mag_damage(level, ch, tch, spellnum, 1)) {
 	    if (spellnum == SPELL_EARTHQUAKE && number(10, 20) > GET_DEX(ch)) {
 		send_to_char("You stumble and fall to the ground!\r\n", ch);

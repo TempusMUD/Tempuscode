@@ -294,7 +294,7 @@ const char *spells[] =
     "!UNUSED!", 
     "radioimmunity", 
     "!UNUSED!", 
-    "!UNUSED!",	/* 340 */
+    "area stasis",	/* 340 */
     "electrostatic field",
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 345 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 350 */
@@ -494,7 +494,7 @@ const char *spells[] =
     "!UNUSED!", 
     "!UNUSED!",	/* 660 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
-    "hamstring", "snatch", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 670 */
+    "hamstring", "snatch", "drag", "!UNUSED!", "!UNUSED!",	/* 670 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!",
     "energy conversion",
@@ -1045,7 +1045,7 @@ call_magic(struct char_data * caster, struct char_data * cvict,
 	case SPELL_CONTROL_UNDEAD:  MANUAL_SPELL(spell_control_undead);  break;
 	case SPELL_INFERNO:         MANUAL_SPELL(spell_inferno); break;
 	case SPELL_BANISHMENT:      MANUAL_SPELL(spell_banishment); break;
-     
+        case SPELL_AREA_STASIS:     MANUAL_SPELL(spell_area_stasis); break;     
 	}
   
     knock_door = NULL;
@@ -2920,6 +2920,18 @@ mag_assign_spells(void)
 	   POS_STANDING, TAR_CHAR_ROOM, FALSE,
 	   MAG_PHYSICS | MAG_UNAFFECTS );
 
+    spello(SPELL_AREA_STASIS, X, X, X, X, X, X, 40, X,X,X,X,X,X,X,X,X,X,
+           100,50,5, 
+           POS_SITTING, TAR_IGNORE, FALSE,
+           MAG_PHYSICS | MAG_MANUAL);
+    
+    spello(SPELL_FISSION_BLAST, X, 43, X, X, X, X, X, X, X, X, X, X,X,X,X,X,X,
+           150, 70, 10,
+           POS_FIGHTING, TAR_IGNORE, TRUE,
+           MAG_PHYSICS | MAG_AREAS);
+
+
+
     /* Ma Cl Th Wa Bar Sy Ph Cb Kn Rn Hd Mnk Max Min Chn */
     spello(ZEN_HEALING,X,X,X, X, X, X, X, X, X, X, X, 36, X,X,X,X,X, 30, 9, 2, 
 	   0, 0, 0, 0);
@@ -3063,6 +3075,10 @@ mag_assign_spells(void)
 
     spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X,  X, 32, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
+    
+    spello(SKILL_DRAG, X, X, X, X, 40, X, X, X, X, X, 30, X, X, X, X, X,X,
+           0, 0, 0, 0, 0, 0, 0);
+
                       /* Ma Cl Th Wa Br Ps Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
     spello(SKILL_SNATCH, X, X, X, X, X, X, X, X,  X,  X, 40, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);

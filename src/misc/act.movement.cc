@@ -689,6 +689,8 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 		sprintf(buf, "$n leaps in from %s.", from_dirs[dir]);
 	} else if (mode == MOVE_FLEE) {
 	    sprintf(buf, "$n runs in from %s.", from_dirs[dir]);
+	} else if (mode == MOVE_DRAG) {
+	    sprintf(buf, "$n is dragged in from %s.", from_dirs[dir]);
 	} else if (GET_POS(ch) == POS_FLYING ||
 		   ch->in_room->isOpenAir() ) {
 	    if (!IS_AFFECTED_2(ch, AFF2_ABLAZE))
