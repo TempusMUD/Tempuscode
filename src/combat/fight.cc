@@ -2925,53 +2925,50 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	 ( !ch || !IS_GOOD( victim ) || 
 	   !affected_by_spell( ch, SPELL_MALEFIC_VIOLATION ) ) && 
 	 ( !(  attacktype == TYPE_BLEED ) && ! ( attacktype == SPELL_POISON ) ) ) {
-	if ( IS_VAMPIRE( victim ) || IS_CYBORG( victim ) || IS_PHYSIC( victim ) )
-	    dam = ( int ) ( dam * 0.80 );
-	else if ( IS_CLERIC( victim ) || IS_KNIGHT( victim ) ) {
-	    if ( IS_NEUTRAL( victim ) )    /***** weaker affects while neutral *****/
-		dam = ( int ) ( dam * 0.60 );
-	    else     
-		dam >>= 1;
-	} else
-	    dam = ( int ) ( dam * 0.60 );
-    }
-    else if ( IS_AFFECTED( victim, AFF_NOPAIN ) )
-	dam >>= 1;          /* 1/2 damage when NoPain */
-    else if ( IS_AFFECTED_2( victim, AFF2_BESERK ) ) {
-	if ( IS_BARB( victim ) ) 
-	    dam -= ( dam * ( 10 + GET_REMORT_GEN( victim ) ) ) / 50;
-	else
-	    dam = ( int ) ( dam * 0.80 );
-    }
-    else if ( IS_AFFECTED_2( victim, AFF2_OBLIVITY ) &&
+		if ( IS_VAMPIRE( victim ) || IS_CYBORG( victim ) || IS_PHYSIC( victim ) )
+			dam = ( int ) ( dam * 0.80 );
+		else if ( IS_CLERIC( victim ) || IS_KNIGHT( victim ) ) {
+			if ( IS_NEUTRAL( victim ) )    /***** weaker affects while neutral *****/
+				dam = ( int ) ( dam * 0.60 );
+			else     
+				dam >>= 1;
+		} else
+			dam = ( int ) ( dam * 0.60 );
+    } else if ( IS_AFFECTED_2( victim, AFF2_OBLIVITY ) &&
 	      CHECK_SKILL( victim, ZEN_OBLIVITY ) > 60 ) {
+		// damage reduction ranges from about 35 to 60%
+		dam -= ( dam * 
+			 ( ( GET_LEVEL( victim ) * 10 ) +
+			   ( CHECK_SKILL( victim, ZEN_OBLIVITY ) - 60 ) +
+			   ( GET_REMORT_GEN( victim ) << 2 ) ) ) / 1000;
     
-	// damage reduction ranges from about 35 to 50%
-	dam -= ( dam * 
-		 ( ( GET_LEVEL( victim ) << 3 ) +
-		   ( CHECK_SKILL( victim, ZEN_OBLIVITY ) - 60 ) +
-		   ( GET_REMORT_GEN( victim ) << 2 ) ) ) / 1000;
-    
+	} else if ( IS_AFFECTED( victim, AFF_NOPAIN ) ) {
+		dam >>= 1;          /* 1/2 damage when NoPain */
+    } else if ( IS_AFFECTED_2( victim, AFF2_BESERK ) ) {
+		if ( IS_BARB( victim ) ) 
+			dam -= ( dam * ( 10 + GET_REMORT_GEN( victim ) ) ) / 50;
+		else
+			dam = ( int ) ( dam * 0.80 );
     } else if ( AFF3_FLAGGED( victim, AFF3_DAMAGE_CONTROL ) ) {
-	if ( GET_LEVEL( victim ) < 30 )
-	    dam = ( int ) ( dam * 0.90 );
-	else if ( GET_LEVEL( victim ) < 35 ) 
-	    dam = ( int ) ( dam * 0.85 );
-	else if ( GET_LEVEL( victim ) < 40 ) 
-	    dam = ( int ) ( dam * 0.80 );
-	else if ( GET_LEVEL( victim ) < 45 ) 
-	    dam = ( int ) ( dam * 0.75 );
-	else if ( GET_LEVEL( victim ) < 47 ) 
-	    dam = ( int ) ( dam * 0.70 );
-	else if ( GET_LEVEL( victim ) < 49 ) 
-	    dam = ( int ) ( dam * 0.65 );
-	else 
-	    dam = ( int ) ( dam * 0.60 ); 
-    }
-    else if ( GET_COND( victim, DRUNK ) > 5 )
-	dam = ( int ) ( dam * 0.86 );
+		if ( GET_LEVEL( victim ) < 30 )
+			dam = ( int ) ( dam * 0.90 );
+		else if ( GET_LEVEL( victim ) < 35 ) 
+			dam = ( int ) ( dam * 0.85 );
+		else if ( GET_LEVEL( victim ) < 40 ) 
+			dam = ( int ) ( dam * 0.80 );
+		else if ( GET_LEVEL( victim ) < 45 ) 
+			dam = ( int ) ( dam * 0.75 );
+		else if ( GET_LEVEL( victim ) < 47 ) 
+			dam = ( int ) ( dam * 0.70 );
+		else if ( GET_LEVEL( victim ) < 49 ) 
+			dam = ( int ) ( dam * 0.65 );
+		else 
+			dam = ( int ) ( dam * 0.60 ); 
+    } 
+	// Damn alchoholics
+	if ( GET_COND( victim, DRUNK ) > 5 && !IS_AFFECTED( victim, AFF_NOPAIN ) )
+		dam = ( int ) ( dam * 0.86 );
 
-    
     if ( ( af = affected_by_spell( victim, SPELL_SHIELD_OF_RIGHTEOUSNESS ) ) &&
 	 IS_GOOD( victim ) ) {
 	if ( !IS_NPC( victim ) ) {
@@ -3004,7 +3001,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
 
     if ( IS_AFFECTED_2( victim, AFF2_PETRIFIED ) )
-	dam = ( int ) ( dam * 0.2 );
+		dam = ( int ) ( dam * 0.2 );
 
 
     if ( ch ) {
