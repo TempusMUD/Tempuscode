@@ -141,11 +141,13 @@ vendor_get_value(obj_data *obj, int percent)
 	unsigned long cost;
 
 	// Adjust cost for wear and tear on a direct percentage basis
-	if (GET_OBJ_DAM(obj) != -1 && GET_OBJ_MAX_DAM(obj) != -1)
+	if (GET_OBJ_DAM(obj) != -1 && GET_OBJ_MAX_DAM(obj) != -1 &&
+			GET_OBJ_MAX_DAM(obj) != 0)
 		percent = percent *  GET_OBJ_DAM(obj) / GET_OBJ_MAX_DAM(obj);
 
 	// Adjust cost for missing charges
-	if (GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF)
+	if ((GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) &&
+			GET_OBJ_VAL(obj, 1) != 0)
 		percent = percent * GET_OBJ_VAL(obj, 2) / GET_OBJ_VAL(obj, 1);
 
 	cost = GET_OBJ_COST(obj) * percent / 100;
@@ -285,7 +287,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 	}
 	
-	if (cost * num > amt_carried) {
+	if (cost * num > amt_carried && cost > 0) {
 		num = amt_carried / cost;
 		do_say(self,
 			tmp_sprintf("%s You only have enough to buy %d.",
@@ -320,8 +322,9 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 	}
 
-	if (IS_CARRYING_N(ch) + num > CAN_CARRY_N(ch) ||
-			IS_CARRYING_W(ch) + obj->getWeight() * num > CAN_CARRY_W(ch)) {
+	if ((IS_CARRYING_N(ch) + num > CAN_CARRY_N(ch) ||
+			IS_CARRYING_W(ch) + obj->getWeight() * num > CAN_CARRY_W(ch)) &&
+			obj->getWeight() > 0) {
 		num = MIN(num, CAN_CARRY_N(ch) - IS_CARRYING_N(ch));
 		num = MIN(num, (CAN_CARRY_W(ch) - IS_CARRYING_W(ch))
 			/ obj->getWeight());
@@ -460,7 +463,7 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 	}
 
-	if (amt_carried < cost * num) {
+	if (amt_carried < cost * num && cost > 0) {
 		num = amt_carried / cost;
 		do_say(self, tmp_sprintf("%s I can only afford to buy %d.",
 			GET_NAME(ch), num),
