@@ -1107,6 +1107,8 @@ ACMD(do_gen_tog)
 			"You close your mind to the echoing thoughts of the gods.\r\n"},
 		{"TEDII will now wrap your text at 76 columns.\r\n",
 			"TEDII will not wrap your text at 76 colums next time.\r\n"},
+		{"Your world writing ability is now deactivated.\r\n",
+			"Your world writing ability is now activated.\r\n" },
 		{"\n", "\n"}
 	};
 
@@ -1315,6 +1317,9 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_AUTOWRAP:
 		result = PRF2_TOG_CHK(ch, PRF2_NOWRAP);
+		break;
+	case SCMD_WORLDWRITE:
+		result = PRF2_TOG_CHK(ch, PRF2_WORLDWRITE);
 		break;
 
 	default:

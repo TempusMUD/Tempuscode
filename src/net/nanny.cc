@@ -197,6 +197,7 @@ nanny(struct descriptor_data * d, char *arg)
 						REMOVE_BIT(PLR_FLAGS(d->character),
 								   PLR_WRITING | PLR_MAILING | PLR_OLC |
 								   PLR_QUESTOR);
+						REMOVE_BIT(PRF2_FLAGS(d->character), PRF2_WORLDWRITE);
 
 						// make sure clan is valid
 						if ((clan = real_clan(GET_CLAN(d->character)))) {

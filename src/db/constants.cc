@@ -900,6 +900,8 @@ extern const char *preference2_bits[] = {
 	"PK",
 	"NOGECHO",
 	"NOWRAP",
+	"DSPALGN",
+	"WLDWRIT",
 	"\n"
 };
 

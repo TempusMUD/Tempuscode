@@ -2500,7 +2500,8 @@ ACMD(do_approve)
 bool
 CAN_EDIT_ZONE(CHAR * ch, struct zone_data * zone)
 {
-	if (Security::isMember(ch, "OLCWorldWrite"))
+	if (Security::isMember(ch, "OLCWorldWrite") 
+		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
 		return true;
 
 	if (Security::isMember(ch, "OLCProofer") && !IS_APPR(zone))
@@ -2520,7 +2521,8 @@ bool
 OLC_EDIT_OK(CHAR * ch, struct zone_data * zone, int bits)
 {
 
-	if (Security::isMember(ch, "OLCWorldWrite"))
+	if (Security::isMember(ch, "OLCWorldWrite")
+		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
 		return true;
 
 	if (ZONE_FLAGGED(zone, ZONE_FULLCONTROL))

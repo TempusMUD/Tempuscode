@@ -196,6 +196,7 @@ struct set_struct {
 #define SCMD_PKILLER    46
 #define SCMD_NOGECHO	47
 #define SCMD_AUTOWRAP   48
+#define SCMD_WORLDWRITE 49
 
 /* do_wizutil */
 #define SCMD_REROLL	0

@@ -1318,6 +1318,7 @@ struct command_info cmd_info[] = {
 	{"wormhole", POS_STANDING, do_translocate, 0, SKILL_WORMHOLE, 0},
 	{"worry", POS_RESTING, do_action, 0, 0, 0},
 	{"worship", POS_RESTING, do_action, 0, 0, 0},
+	{"worldwrite", POS_DEAD, do_gen_tog, LVL_IMMORT, SCMD_WORLDWRITE, 0},
 	{"wrench", POS_FIGHTING, do_wrench, 0, 0, 0},
 	{"wrestle", POS_RESTING, do_action, 0, 0, 0},
 	{"write", POS_RESTING, do_write, 1, 0, 0},

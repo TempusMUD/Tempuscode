@@ -350,6 +350,8 @@ static const int PRF_NOCLANSAY = (1 << 28);	/* Doesnt hear clan says and such   
 static const int PRF_NOIDENTIFY = (1 << 29);	/* Saving throw is made when id'd     */
 static const int PRF_NODREAM = (1 << 30);
 
+// PRF 2 Flags
+
 static const int PRF2_FIGHT_DEBUG = (1 << 0);	/* Sees info on fight.              */
 static const int PRF2_NEWBIE_HELPER = (1 << 1);	/* sees newbie arrivals             */
 static const int PRF2_AUTO_DIAGNOSE = (1 << 2);	/* automatically see condition of enemy */
@@ -371,6 +373,7 @@ static const int PRF2_PKILLER = (1 << 17);	// player can attack other players
 static const int PRF2_NOGECHO = (1 << 18);	// Silly Gecho things
 static const int PRF2_NOWRAP = (1 << 19);	// turns off autowrap temporarily.
 static const int PRF2_DISPALIGN = (1 << 20);
+static const int PRF2_WORLDWRITE = (1 << 21); // allows worldwrite to work
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
