@@ -1585,7 +1585,7 @@ int
 get_number(char **name)
 {
 	char *read_pt, *write_pt;
-	int i;
+	int i = 0;
 
 	if ((read_pt = strchr(*name, '.'))) {
 		*read_pt++ = '\0';
