@@ -551,7 +551,7 @@ ACMD(do_page)
         if (!str_cmp(arg, "all")) {
             if (GET_LEVEL(ch) > LVL_GOD) {
                 for (d = descriptor_list; d; d = d->next)
-                    if (!d->connected && d->character) {
+                    if (d->connected == CON_PLAYING && d->character) {
                         send_to_char(CCYEL(d->character, C_NRM), d->character);
                         send_to_char(CCBLD(d->character, C_SPR), d->character);
                         act(buf, FALSE, ch, 0, d->character, TO_VICT);
@@ -786,7 +786,7 @@ ACMD(do_gen_comm)
 
     /* now send all the strings out */
     for (i = descriptor_list; i; i = i->next) {
-        if (!i->connected && i != ch->desc && i->character &&
+        if (i->connected == CON_PLAYING && i != ch->desc && i->character &&
             !PRF_FLAGGED(i->character, channels[subcmd]) &&
             !PLR_FLAGGED(i->character, PLR_WRITING) &&
             !PLR_FLAGGED(i->character, PLR_OLC) &&
@@ -916,7 +916,7 @@ ACMD(do_qcomm)
 
         if (subcmd == SCMD_QSAY) {
             for (i = descriptor_list; i; i = i->next)
-                if (!i->connected && i != ch->desc &&
+                if (i->connected == CON_PLAYING && i != ch->desc &&
                     PRF_FLAGGED(i->character, PRF_QUEST) && 
                     i->character->in_room != NULL &&
                     !ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && 
@@ -932,7 +932,7 @@ ACMD(do_qcomm)
             strcpy(buf, argument);
 
             for (i = descriptor_list; i; i = i->next)
-                if (!i->connected && i != ch->desc &&
+                if (i->connected == CON_PLAYING && i != ch->desc &&
                     PRF_FLAGGED(i->character, PRF_QUEST) && 
                     i->character->in_room != NULL &&
                     !ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && 
@@ -979,7 +979,7 @@ ACMD(do_clan_comm)
 
         if (subcmd == SCMD_CLAN_SAY) {
             for (i = descriptor_list; i; i = i->next)
-                if (!i->connected && i != ch->desc && i->character && 
+                if (i->connected == CON_PLAYING && i != ch->desc && i->character && 
                     GET_CLAN(i->character) && 
                     GET_CLAN(i->character) == GET_CLAN(ch) && 
                     !PRF_FLAGGED(i->character, PRF_NOCLANSAY) && 
@@ -995,7 +995,7 @@ ACMD(do_clan_comm)
                 }
         } else {
             for (i = descriptor_list; i; i = i->next)
-                if (!i->connected && i != ch->desc && i->character && 
+                if (i->connected == CON_PLAYING && i != ch->desc && i->character && 
                     GET_CLAN(i->character) && 
                     GET_CLAN(i->character) == GET_CLAN(ch) && 
                     !PRF_FLAGGED(i->character, PRF_NOCLANSAY) && 

@@ -76,7 +76,7 @@ show_menu(struct descriptor_data *d)
 void 
 show_char_class_menu(struct descriptor_data *d) 
 {
-    strcpy(buf, "\r\nSelect a char_class:\r\n");
+    strcpy(buf, "\r\nSelect a character class:\r\n");
     strcat(buf, "  Cleric\r\n");
     strcat(buf, "  Thief\r\n");
     strcat(buf, "  Barbarian\r\n");
@@ -99,10 +99,8 @@ void
 show_char_class_menu_past(struct descriptor_data *d)
 {
 
-    sprintf(buf, "\r\n%sChoose a char_class for your profession.\r\n\r\n",
-	    CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sMage%s      --  Delver in Magical Arts\r\n", 
-	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+    sprintf(buf, "                %sMage%s      --  Delver in Magical Arts\r\n", 
+	    CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
     sprintf(buf, "%s                %sBarbarian%s --  Uncivilized Warrior\r\n", 
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
     sprintf(buf, "%s                %sKnight%s    --  Defender of the Faith\r\n", 
@@ -128,11 +126,8 @@ show_char_class_menu_past(struct descriptor_data *d)
 void 
 show_char_class_menu_future(struct descriptor_data *d)
 {
-
-    sprintf(buf, "\r\n%sChoose your profession.\r\n\r\n",
-	    CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sCyborg%s      --  The Electronically Advanced\r\n", 
-	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+    sprintf(buf, "                %sCyborg%s      --  The Electronically Advanced\r\n", 
+	    CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
     sprintf(buf, "%s                %sPsionic%s     --  Mind Traveller\r\n", 
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
     sprintf(buf, "%s                %sMercenary%s   --  Gun for Hire\r\n", 
@@ -158,7 +153,7 @@ show_past_home_menu(struct descriptor_data *d)
 {
 
 #ifdef HOME_NEWBIE_ONLY
-    /*
+	/*
     SEND_TO_Q("\033[H\033[J", d);
     SEND_TO_Q(CCYEL(d->character, C_NRM), d);
     SEND_TO_Q("                           Welcome to TempusMUD!\r\n",d);
@@ -166,7 +161,7 @@ show_past_home_menu(struct descriptor_data *d)
     SEND_TO_Q("                       in our Newbie Academy. Have fun!  \r\n\r\n",d);
     SEND_TO_Q("                             *** PRESS RETURN: ***", d);
     SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-    */
+	*/
 #else 
     sprintf(buf, "\r\n\r\n%sWhat city would you like to make your starting hometown?%s\r\n\r\n", CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
     sprintf(buf, "%s    %sNew Thalos%s       -- Desert City.             Population [%d]\r\n", buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
@@ -387,16 +382,12 @@ parse_future_home(struct descriptor_data *d, char *arg)
 void 
 show_time_menu(struct descriptor_data *d)
 {
-    sprintf(buf, "%sFrom what time period do you hail?%s\r\n\r\n", 
-	    CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-    sprintf(buf, "%s         %sPast%s     - the era of Modrian%s\r\n", 
-	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
+    sprintf(buf, "\r\n\r\n         %sPast%s     - the era of Modrian%s\r\n", 
+	    CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
 	     CCNRM(d->character, C_NRM));
-    sprintf(buf, "%s         %sFuture%s   - era of Electro Centralis%s  (under construction)\r\n\r\n"
-	    "%sYour choice:%s ",
+    sprintf(buf, "%s         %sFuture%s   - era of Electro Centralis%s  (under construction)\r\n\r\n%s",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM), 
-	    CCNRM(d->character, C_NRM), CCCYN(d->character, C_NRM),
-	    CCNRM(d->character, C_NRM));
+		CCYEL(d->character, C_NRM),CCNRM(d->character, C_NRM));
   
     SEND_TO_Q(buf, d);
 }
@@ -408,26 +399,23 @@ show_time_menu(struct descriptor_data *d)
 void 
 show_race_menu_past(struct descriptor_data *d)
 {
-    sprintf(buf, "\r\n%sNow, what race are you a member of?\r\n", CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s%sType '%shelp <race>%s' for information.\r\n\r\n",
-	    buf, CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-	    CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sHuman%s    --  Homo Sapiens\r\n",
+    sprintf(buf, "\r\n\r\n                    %sHuman%s    --  Homo Sapiens\r\n",
+	    CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+    sprintf(buf, "%s                    %sElven%s    --  Ancient Woodland Race\r\n",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sElven%s    --  Ancient Woodland Race\r\n",
+    sprintf(buf, "%s                    %sDrow%s     --  The Dark Elf\r\n",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sDrow%s     --  The Dark Elf\r\n",
+    sprintf(buf, "%s                    %sDwarven%s  --  Short and Stout\r\n",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sDwarven%s  --  Short and Stout\r\n",
+    sprintf(buf, "%s                    %sHalf Orc%s --  Mean, Ugly Bastards\r\n",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sHalf Orc%s --  Mean, Ugly Bastards\r\n",
+    sprintf(buf, "%s                    %sTabaxi%s   --  Lithe Cat-person\r\n",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sTabaxi%s   --  Lithe Cat-person\r\n",
+    sprintf(buf, "%s                    %sMinotaur%s --  Powerful Bull-Man\r\n\r\n",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sMinotaur%s --  Powerful Bull-Man\r\n\r\n"
-	    "Your choice:%s ",
-	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-	    CCNRM(d->character, C_NRM));
+    sprintf(buf, "%s\r\n%s                 Type '%shelp <race>%s' for information.%s\r\n",buf,
+	    CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
+	    CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
 
     SEND_TO_Q(buf, d);
 }
@@ -582,23 +570,19 @@ show_race_restrict_past(struct descriptor_data *d)
 void 
 show_race_menu_future(struct descriptor_data *d)
 {
-    sprintf(buf, "\r\n%sNow, what race are you a member of?\r\n", 
-	    CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s%sType '%shelp <race>%s' for information.\r\n\r\n",
-	    buf, CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-	    CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sHuman%s    --  Homo Sapiens\r\n",
-	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+    sprintf(buf, "\r\n\r\n                %sHuman%s    --  Homo Sapiens\r\n",
+	    CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
     sprintf(buf, "%s                %sElven%s    --  Ancient Woodland Race\r\n",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
     sprintf(buf, "%s                %sOrc%s      --  Full blooded monsters\r\n",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
     sprintf(buf, "%s                %sHalf Orc%s --  Mean, Ugly Bastards\r\n",
 	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-    sprintf(buf, "%s                %sTabaxi%s   --  Lithe Cat-person\r\n\r\n"
-	    "Your choice:%s ",
-	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-	    CCNRM(d->character, C_NRM));
+    sprintf(buf, "%s                %sTabaxi%s   --  Lithe Cat-person\r\n",
+	    buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+    sprintf(buf, "%s\r\n%s                 Type '%shelp <race>%s' for information.%s\r\n",buf,
+	    CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
+	    CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
 
     SEND_TO_Q(buf, d);
 }

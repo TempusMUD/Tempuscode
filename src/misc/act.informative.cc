@@ -2202,8 +2202,6 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
         strcat(str, "You have been charmed!\r\n");
     if (affected_by_spell(ch, SPELL_ARMOR))
         strcat(str, "You feel protected.\r\n");
-    if (affected_by_spell(ch, SPELL_DIVINE_POWER))
-        strcat(str, "You feel the power of your diety coursing through your veins.\r\n");
     if (affected_by_spell(ch, SPELL_BARKSKIN))
         strcat(str, "Your skin is thick and tough like tree bark.\r\n");
     if (affected_by_spell(ch, SPELL_STONESKIN))
@@ -3050,7 +3048,7 @@ ACMD(do_who)
             "" : "\r\n");
 
     for (d = descriptor_list; d; d = d->next) {
-        if (d->connected && STATE(d) < CON_NET_MENU1)
+        if (d->connected != CON_PLAYING && STATE(d) < CON_NET_MENU1)
             continue;
 
         if (d->original)
@@ -3419,11 +3417,11 @@ ACMD(do_users)
     one_argument(argument, arg);
 
     for (d = descriptor_list; d; d = d->next) {
-        if (d->connected && playing)
+        if (d->connected != CON_PLAYING && playing)
             continue;
-        if (!d->connected && deadweight)
+        if (d->connected == CON_PLAYING && deadweight)
             continue;
-        if (!d->connected) {
+        if (d->connected == CON_PLAYING) {
             if (d->original)
                 tch = d->original;
             else if (!(tch = d->character))
@@ -3458,12 +3456,12 @@ ACMD(do_users)
         timeptr += 11;
         *(timeptr + 8) = '\0';
 
-        if (!d->connected && d->original)
+        if (d->connected == CON_PLAYING && d->original)
             strcpy(state, "Switched");
         else
             strcpy(state, connected_types[d->connected]);
 
-        if (d->character && !d->connected && 
+        if (d->character && d->connected == CON_PLAYING && 
             (GET_LEVEL(d->character) < GET_LEVEL(ch) || GET_LEVEL(ch) >= LVL_LUCIFER))
             sprintf(idletime, "%2d", d->character->char_specials.timer *
                     SECS_PER_MUD_HOUR / SECS_PER_REAL_MIN);
@@ -3498,11 +3496,11 @@ ACMD(do_users)
             strcat(line, CCNRM(ch, C_SPR));
         }
 
-        if (d->connected) {
+        if (d->connected != CON_PLAYING) {
             sprintf(line2, "%s%s%s", CCCYN(ch, C_SPR), line, CCNRM(ch, C_SPR));
             strcpy(line, line2);
         }
-        if (d->connected || (!d->connected && CAN_SEE(ch, d->character))) {
+        if (d->connected != CON_PLAYING || (d->connected == CON_PLAYING && CAN_SEE(ch, d->character))) {
             strcat(out_buf, line);
             num_can_see++;
         }
@@ -3601,7 +3599,7 @@ perform_mortal_where(struct char_data * ch, char *arg)
     if (!*arg) {
         send_to_char("Players in your Zone\r\n--------------------\r\n", ch);
         for (d = descriptor_list; d; d = d->next) {
-            if (!d->connected) {
+            if (d->connected == CON_PLAYING) {
                 i = (d->original ? d->original : d->character);
                 if (i && CAN_SEE(ch, i) && (i->in_room != NULL) &&
                     (ch->in_room->zone == i->in_room->zone)) {
@@ -3689,7 +3687,7 @@ perform_immort_where(struct char_data * ch, char *arg)
     if (!*arg) {
         strcpy(main_buf, "Players\r\n-------\r\n");
         for (d = descriptor_list; d; d = d->next) {
-            if (!d->connected) {
+            if (d->connected == CON_PLAYING) {
                 i = (d->original ? d->original : d->character);
                 if (i && CAN_SEE(ch, i) && (i->in_room != NULL)) {
                     if (d->original)
@@ -3791,7 +3789,7 @@ print_attributes_to_buf(struct char_data *ch, char *buff)
     sprintf(buf2, " %s%s(augmented)%s\r\n", 
             CCBLD(ch, C_SPR), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 
-    sprintf(buff, "%s%sSTR:%s ", 
+    sprintf(buff, "          %s%sSTR:%s ", 
             CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
   
     if (str <= 5)
@@ -3840,7 +3838,7 @@ print_attributes_to_buf(struct char_data *ch, char *buff)
     else 
         strcat(buff, "\r\n");
 
-    sprintf(buff, "%s%s%sINT:%s ", buff,
+    sprintf(buff, "%s          %s%sINT:%s ", buff,
             CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (intel <= 5)
@@ -3868,7 +3866,7 @@ print_attributes_to_buf(struct char_data *ch, char *buff)
     else 
         strcat(buff, "\r\n");
 
-    sprintf(buff, "%s%s%sWIS:%s ", buff, 
+    sprintf(buff, "%s          %s%sWIS:%s ", buff, 
             CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (wis <= 5)
@@ -3893,7 +3891,7 @@ print_attributes_to_buf(struct char_data *ch, char *buff)
     else 
         strcat(buff, "\r\n");
 
-    sprintf(buff, "%s%s%sDEX:%s ", buff,
+    sprintf(buff, "%s          %s%sDEX:%s ", buff,
             CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (dex <= 5)
@@ -3915,7 +3913,7 @@ print_attributes_to_buf(struct char_data *ch, char *buff)
     else 
         strcat(buff, "\r\n");
 
-    sprintf(buff, "%s%s%sCON:%s ", buff,
+    sprintf(buff, "%s          %s%sCON:%s ", buff,
             CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
   
     if (con <= 5)
@@ -3940,7 +3938,7 @@ print_attributes_to_buf(struct char_data *ch, char *buff)
     else 
         strcat(buff, "\r\n");
 
-    sprintf(buff, "%s%s%sCHA:%s ", buff,
+    sprintf(buff, "%s          %s%sCHA:%s ", buff,
             CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (cha <= 5)
@@ -3967,14 +3965,14 @@ print_attributes_to_buf(struct char_data *ch, char *buff)
 
 ACMD(do_attributes)
 {
-    sprintf(buf, "\r\n%s**********************%sAttributes%s***********************%s\r\n",
+    sprintf(buf, "\r\n%s********************************** %sAttributes %s*********************************%s\r\n",
             CCBLU(ch, C_SPR), CCYEL(ch, C_SPR), CCBLU(ch, C_SPR), CCWHT(ch, C_SPR));
     send_to_char(buf, ch);
-    sprintf(buf, "Name:  %s%20s%s  Race: %s%10s%s\r\n", CCRED(ch, C_SPR), GET_NAME(ch),
+    sprintf(buf, "        Name:  %s%20s%s        Race: %s%10s%s\r\n", CCRED(ch, C_SPR), GET_NAME(ch),
             CCWHT(ch, C_SPR), CCRED(ch, C_SPR), player_race[(int)GET_RACE(ch)], 
             CCWHT(ch, C_SPR));
     send_to_char(buf, ch);
-    sprintf(buf, "Class: %s%20s%s  Level: %s%9d%s\r\n\r\n", CCRED(ch, C_SPR), 
+    sprintf(buf, "        Class: %s%20s%s        Level: %s%9d%s\r\n\r\n", CCRED(ch, C_SPR), 
             pc_char_class_types[(int)GET_CLASS(ch)], CCWHT(ch, C_SPR), 
             CCRED(ch, C_SPR), GET_LEVEL(ch), CCWHT(ch, C_SPR));
     send_to_char(buf, ch);
@@ -3982,7 +3980,7 @@ ACMD(do_attributes)
     print_attributes_to_buf(ch, buf);
 
     send_to_char(buf, ch);
-    sprintf(buf, "\r\n%s*********************************************************%s\r\n",
+    sprintf(buf, "\r\n%s*******************************************************************************%s\r\n",
             CCBLU(ch, C_SPR), CCWHT(ch, C_SPR));
     send_to_char(buf, ch);
 }
@@ -4561,9 +4559,9 @@ ACMD(do_specializations)
     for (obj = NULL, i = 0; i < MAX_WEAPON_SPEC;obj = NULL) {
         if (GET_WEAP_SPEC(ch, i).level &&
             GET_WEAP_SPEC(ch, i).vnum > 0 &&
-            (obj = real_object_proto((GET_WEAP_SPEC(ch, i)).vnum)))
-            sprintf(buf, "%s %2d. %-30s [%d]\r\n", buf, ++i, 
-                         obj->short_description, (GET_WEAP_SPEC(ch, i)).level);
+            (obj = real_object_proto(GET_WEAP_SPEC(ch, i).vnum)))
+            sprintf(buf, "%s %2d. %-30s [%d]\r\n", buf, ++i, obj->short_description,
+                    GET_WEAP_SPEC(ch, i).level);
         else
             break;
     }

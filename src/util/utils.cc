@@ -396,45 +396,6 @@ age(struct char_data * ch)
 
 
 
-/*
- * Turn off echoing (specific to telnet client)
- */
-void 
-echo_off(struct descriptor_data *d)
-{
-    char off_string[] =
-    {
-        (char) IAC,
-        (char) WILL,
-        (char) TELOPT_ECHO,
-        (char) 0,
-    };
-
-    SEND_TO_Q(off_string, d);
-}
-
-
-/*
- * Turn on echoing (specific to telnet client)
- */
-void 
-echo_on(struct descriptor_data *d)
-{
-    char on_string[] =
-    {
-        (char) IAC,
-        (char) WONT,
-        (char) TELOPT_ECHO,
-        (char) TELOPT_NAOFFD,
-        (char) TELOPT_NAOCRD,
-        (char) 0,
-    };
-
-    SEND_TO_Q(on_string, d);
-}
-
-
-
 /* Check if making CH follow VICTIM will create an illegal */
 /* Follow "Loop/circle"                                    */
 bool 

@@ -14,46 +14,47 @@
 #include "editor.h"
 
 /* Modes of connectedness: used by descriptor_data.state */
-#define CON_PLAYING	 0		/* Playing - Nominal state	*/
-#define CON_CLOSE	 1		/* Disconnecting		*/
-#define CON_GET_NAME	 2		/* By what name ..?		*/
-#define CON_NAME_CNFRM	 3		/* Did I get that right, x?	*/
-#define CON_PASSWORD	 4		/* Password:			*/
-#define CON_NEWPASSWD	 5		/* Give me a password for x	*/
-#define CON_CNFPASSWD	 6		/* Please retype password:	*/
-#define CON_QSEX	 7		/* Sex?				*/
-#define CON_QCLASS	 8		/* Class?			*/
-#define CON_RMOTD	 9		/* PRESS RETURN after MOTD	*/
-#define CON_MENU	 10		/* Your choice: (main menu)	*/
-#define CON_EXDESC	 11		/* Enter a new description:	*/
-#define CON_CHPWD_GETOLD 12		/* Changing passwd: get old	*/
-#define CON_CHPWD_GETNEW 13		/* Changing passwd: get new	*/
-#define CON_CHPWD_VRFY   14		/* Verify new password		*/
-#define CON_DELCNF1	 15		/* Delete confirmation 1	*/
-#define CON_DELCNF2	 16		/* Delete confirmation 2	*/
-#define CON_QHOME        17             /* Hometown Query		*/
-#define CON_RACE_PAST	 18		/* Racial Query			*/
-#define CON_QALIGN       19		/* Alignment Query		*/
-#define CON_QCOLOR       20		/* Start with color?            */
-#define CON_QTIME_FRAME  21             /* Query for overall time frame */
-#define CON_AFTERLIFE    22             /* After dies, before menu      */
-#define CON_QHOME_PAST   23
-#define CON_QHOME_FUTURE 24
-#define CON_QREROLL      25             
-#define CON_RACEHELP_P   26
-#define CON_CLASSHELP_P  27
-#define CON_HOMEHELP_P   28
-#define CON_HOMEHELP_F   29
-#define CON_RACE_FUTURE  30
-#define CON_RACEHELP_F   31
-#define CON_CLASSHELP_F  32
-#define CON_REMORT_REROLL 33
-#define CON_NET_MENU1    50             /* First net menu state         */
-#define CON_NET_PROGMENU1 51            /* State which char_class of skill   */
-#define CON_NET_PROG_CYB  52            /* State which char_class of skill   */
-#define CON_NET_PROG_MNK  53            /* State which char_class of skill   */
-#define CON_NET_PROG_HOOD 54
-#define CON_PORT_OLC      55            /* Using port olc interface     */
+enum
+	{
+	CON_PLAYING,		// Playing - Nominal state	
+	CON_CLOSE,			// Disconnecting		
+	CON_GET_NAME,		// By what name ..?		
+	CON_NAME_CNFRM,		// Did I get that right, x?	
+	CON_PASSWORD,		// Password:			
+	CON_NEWPASSWD,		// Give me a password for x	
+	CON_CNFPASSWD,		// Please retype password:	
+	CON_QSEX,			// Sex?				
+	CON_QCLASS_PAST,	// Class past?			
+	CON_QCLASS_FUTURE,	// Class future?			
+	CON_RMOTD,			// PRESS RETURN after MOTD	
+	CON_MENU,			// Your choice: (main menu)	
+	CON_EXDESC,			// Enter a new description:	
+	CON_CHPWD_GETOLD,	// Changing passwd: get old	
+	CON_CHPWD_GETNEW,	// Changing passwd: get new	
+	CON_CHPWD_VRFY,		// Verify new password		
+	CON_DELCNF1,		// Delete confirmation 1	
+	CON_DELCNF2,		// Delete confirmation 2	
+	CON_RACE_PAST,		// Racial Query			
+	CON_QALIGN,			// Alignment Query		
+	CON_QCOLOR,			// Start with color?
+	CON_QTIME_FRAME,	// Query for overall time frame
+	CON_AFTERLIFE,		// After dies, before menu
+	CON_QREROLL,		// Reroll statistics
+	CON_RACEHELP_P,	
+	CON_CLASSHELP_P,	
+	CON_HOMEHELP_P,	
+	CON_HOMEHELP_F,	
+	CON_RACE_FUTURE,	
+	CON_RACEHELP_F,	
+	CON_CLASSHELP_F,	
+	CON_REMORT_REROLL,	
+	CON_NET_MENU1,		// First net menu state
+	CON_NET_PROGMENU1,	// State which char_class of skill
+	CON_NET_PROG_CYB,	// State which char_class of skill
+	CON_NET_PROG_MNK,	// State which char_class of skill
+	CON_NET_PROG_HOOD,	
+	CON_PORT_OLC,		// Using port olc interface
+	};
 
 
 /* descriptor-related structures ******************************************/
@@ -88,7 +89,7 @@ struct descriptor_data {
    char	*showstr_point;		/*		-			*/
    char	**str;			/* for the modify-str system		*/
    byte	bad_pws;		/* number of bad pw attemps this login	*/
-   byte	prompt_mode;		/* control of prompt-printing		*/
+   bool need_prompt;		/* control of prompt-printing		*/
    int	max_str;		/*		-			*/
    int  repeat_cmd_count;       /* how many times has this command been */
    // We know if text_editor != NULL

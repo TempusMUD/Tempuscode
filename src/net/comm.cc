@@ -134,7 +134,6 @@ void init_intermud_socket(void);
 void incoming_intermud_message(int intermud_desc);
 void weather_and_time(int mode);
 void House_checkrent(void);
-char *diag_conditions(struct char_data *ch);
 void autosave_zones(int SAVE_TYPE);
 void mem_cleanup(void);
 void retire_trails(void);
@@ -577,7 +576,6 @@ game_loop(int mother_desc)
                 }
       
                 d->wait = 1;
-                d->prompt_mode = 1;
 
 
                 if (d->text_editor)                        /* writing boards, mail, etc.        */
@@ -588,7 +586,7 @@ game_loop(int mother_desc)
                     nanny(d, comm);
                 else {                                /* else: we're playing normally */
                     if (aliased) /* to prevent recursive aliases */
-                        d->prompt_mode = 0;
+                        d->need_prompt = false;
                     else {
                         if (perform_alias(d, comm))        /* run it through aliasing system */
                             get_from_q(&d->input, comm, &aliased);
@@ -598,14 +596,18 @@ game_loop(int mother_desc)
             }
         }
 
+        /* give each descriptor an appropriate prompt */
+        for (d = descriptor_list; d; d = d->next) {
+            if (d->need_prompt)
+                make_prompt(d);
+        }
+
         /* send queued output out to the operating system (ultimately to user) */
         for (d = descriptor_list; d; d = next_d) {
             next_d = d->next;
             if (FD_ISSET(d->descriptor, &output_set) && *(d->output)) {
                 if (process_output(d) < 0)
                     close_socket(d);
-                else if (!d->prompt_mode)
-                    d->prompt_mode = 2;
             }
         }
 
@@ -616,13 +618,6 @@ game_loop(int mother_desc)
                 close_socket(d);
         }
 
-        /* give each descriptor an appropriate prompt */
-        for (d = descriptor_list; d; d = d->next) {
-            if (d->prompt_mode) {
-                make_prompt(d);
-                d->prompt_mode = 0;
-            }
-        }
 
         /* handle heartbeat stuff */
         /* Note: pulse now changes every 0.10 seconds  */
@@ -808,89 +803,6 @@ record_usage(void)
 
 
 void 
-make_prompt(struct descriptor_data * d)
-{
-        char prompt[MAX_INPUT_LENGTH];
-    char colorbuf[ 100 ];        
-  
-    if (d->text_editor) {
-            sprintf(prompt, "%-2d%s]%s ",
-        d->editor_cur_lnum, 
-        CCBLU_BLD(d->character,C_NRM), 
-        CCNRM(d->character,C_NRM));
-            write_to_descriptor(d->descriptor, prompt);
-        }
-    else if (d->showstr_point) {
-        sprintf(buf, " %s%s******%s  Press return to continue, q to quit  %s******%s",
-                CCBLD(d->character, C_CMP), 
-                CCRED(d->character, C_NRM), CCWHT(d->character, C_NRM),
-                CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM));
-        write_to_descriptor(d->descriptor, buf);
-    } else if (!d->connected && (d->prompt_mode != 2 ||
-                                 PRF2_FLAGGED(d->character, PRF2_AUTOPROMPT))) {
-
-        *prompt = '\0';
-
-        if (GET_INVIS_LEV(d->character))
-            sprintf(prompt, "%s(%si%d%s)%s ", CCMAG(d->character, C_NRM),
-                    CCRED(d->character, C_NRM), GET_INVIS_LEV(d->character), 
-                    CCMAG(d->character, C_NRM), CCNRM(d->character, C_NRM));
-        else if (GET_REMORT_INVIS(d->character) && 
-                 GET_LEVEL(d->character) < LVL_AMBASSADOR)
-            sprintf(prompt, "%s(%sr%d%s)%s ", CCBLU(d->character, C_NRM),
-                    CCMAG(d->character, C_NRM), GET_REMORT_INVIS(d->character), 
-                    CCBLU(d->character, C_NRM), CCNRM(d->character, C_NRM));
-
-        if (PRF_FLAGGED(d->character, PRF_DISPHP))
-            sprintf(prompt, "%s%s%s< %s%d%s%sH%s ", prompt, 
-                    CCWHT(d->character, C_SPR), CCBLD(d->character, C_CMP), 
-                    CCGRN(d->character, C_SPR), GET_HIT(d->character), 
-                    CCNRM(d->character, C_SPR),
-                    CCYEL_BLD(d->character, C_CMP), CCNRM(d->character, C_SPR));
-
-        if (PRF_FLAGGED(d->character, PRF_DISPMANA))
-            sprintf(prompt, "%s%s%s%d%s%sM%s ", prompt, 
-                    CCBLD(d->character, C_CMP), CCMAG(d->character, C_SPR),
-                    GET_MANA(d->character), CCNRM(d->character, C_SPR),
-                    CCYEL_BLD(d->character, C_CMP), CCNRM(d->character, C_SPR));
-    
-        if (PRF_FLAGGED(d->character, PRF_DISPMOVE))
-            sprintf(prompt, "%s%s%s%d%s%sV%s ", prompt,
-                    CCCYN(d->character, C_SPR), CCBLD(d->character, C_CMP), 
-                    GET_MOVE(d->character), CCNRM(d->character, C_SPR),
-                    CCYEL_BLD(d->character, C_CMP), CCNRM(d->character, C_SPR));
-
-        if ( PRF2_FLAGGED( d->character, PRF2_DISPALIGN ) ) {
-             
-            if( IS_GOOD( d->character ) ) {
-            sprintf( colorbuf, "%s", CCCYN( d->character, C_SPR ) );
-        } else if ( IS_EVIL( d->character ) ) {
-            sprintf( colorbuf, "%s", CCRED( d->character, C_SPR ) );
-            } else {
-            sprintf( colorbuf, "%s", CCWHT(d->character, C_SPR ) );
-            } 
-
-            sprintf( prompt, "%s%s%s%d%s%sA%s ", prompt,
-                    colorbuf, CCBLD( d->character,C_CMP ),
-                    GET_ALIGNMENT( d->character ), CCNRM( d->character, C_SPR ),
-                    CCYEL_BLD( d->character, C_CMP ), CCNRM( d->character,C_SPR ) );    
-        }
-
-        if (FIGHTING(d->character) && 
-            PRF2_FLAGGED(d->character, PRF2_AUTO_DIAGNOSE)) 
-            sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->character, C_NRM),
-                    diag_conditions(FIGHTING(d->character)),
-                    CCNRM(d->character, C_NRM));
-    
-        sprintf(prompt, "%s%s%s>%s ", prompt, CCWHT(d->character, C_NRM),
-                CCBLD(d->character, C_CMP), CCNRM(d->character, C_NRM));
-        write_to_descriptor(d->descriptor, prompt);
-        d->output_broken = FALSE;
-    }
-}
-
-
-void 
 write_to_q(char *txt, struct txt_q * queue, int aliased)
 {
     struct txt_block *new_txt_block;
@@ -963,6 +875,12 @@ write_to_output(const char *txt, struct descriptor_data * t)
     /* if we're in the overflow state already, ignore this new output */
     if (t->bufptr < 0)
         return;
+
+	if ( !t->need_prompt && ( !t->character || PRF2_FLAGGED(t->character,PRF2_AUTOPROMPT) ) )
+		{
+		t->need_prompt = true;
+		write_to_output( "\r\n",t );
+		}
 
     /* if we have enough space, just write to buffer and that's it! */
     if (t->bufspace >= size) {
@@ -1107,62 +1025,41 @@ new_descriptor(int s)
 
 
 int 
-process_output(struct descriptor_data * t)
+process_output(struct descriptor_data * d)
 {
-    static char i[LARGE_BUFSIZE + GARBAGE_SPACE];
     static int result;
 
-    /* we may need this \r\n for later -- see below */
-    strcpy(i, "\r\n");
 
-    /* now, append the 'real' output */
-    strcpy(i + 2, t->output);
+	result = write_to_descriptor( d->descriptor,d->output );
 
     /* if we're in the overflow state, notify the user */
-    if (t->bufptr < 0)
-        strcat(i, "**OVERFLOW**");
-
-    /* add the extra CRLF if the person isn't in compact mode */
-    if (!t->connected && t->character && !PRF_FLAGGED(t->character, PRF_COMPACT))
-        strcat(i + 2, "\r\n");
-
-    /*
-     * now, send the output.  If this is an 'interruption', use the prepended
-     * CRLF, otherwise send the straight output sans CRLF.
-     */
-    if (!t->prompt_mode && 
-        (!t->character || !t->output_broken ||
-         PRF2_FLAGGED(t->character, PRF2_AUTOPROMPT)))
-        /* && !t->connected) */
-        result = write_to_descriptor(t->descriptor, i);
-    else
-        result = write_to_descriptor(t->descriptor, i + 2);
-    t->output_broken = TRUE;
+	if ( !result && d->bufptr < 0 )
+		result = write_to_descriptor( d->descriptor,"**OVERFLOW**" );
 
     /* handle snooping: prepend "% " and send to snooper */
-    if (t->snoop_by && t->snoop_by->character) {
-        SEND_TO_Q(CCRED(t->snoop_by->character, C_NRM), t->snoop_by);
-        SEND_TO_Q("% ", t->snoop_by);
-        SEND_TO_Q(CCNRM(t->snoop_by->character, C_NRM), t->snoop_by);
-        SEND_TO_Q(t->output, t->snoop_by);
-        SEND_TO_Q(CCRED(t->snoop_by->character, C_NRM), t->snoop_by);
-        SEND_TO_Q("%%", t->snoop_by);
-        SEND_TO_Q(CCNRM(t->snoop_by->character, C_NRM), t->snoop_by);
+    if (d->snoop_by && d->snoop_by->character) {
+        SEND_TO_Q(CCRED(d->snoop_by->character, C_NRM), d->snoop_by);
+        SEND_TO_Q("% ", d->snoop_by);
+        SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
+        SEND_TO_Q(d->output, d->snoop_by);
+        SEND_TO_Q(CCRED(d->snoop_by->character, C_NRM), d->snoop_by);
+        SEND_TO_Q("%%", d->snoop_by);
+        SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
     }
     /*
      * if we were using a large buffer, put the large buffer on the buffer pool
      * and switch back to the small one
      */
-    if (t->large_outbuf) {
-        t->large_outbuf->next = bufpool;
-        bufpool = t->large_outbuf;
-        t->large_outbuf = NULL;
-        t->output = t->small_outbuf;
+    if (d->large_outbuf) {
+        d->large_outbuf->next = bufpool;
+        bufpool = d->large_outbuf;
+        d->large_outbuf = NULL;
+        d->output = d->small_outbuf;
     }
     /* reset total bufspace back to that of a small buffer */
-    t->bufspace = SMALL_BUFSIZE - 1;
-    t->bufptr = 0;
-    *(t->output) = '\0';
+    d->bufspace = SMALL_BUFSIZE - 1;
+    d->bufptr = 0;
+    *(d->output) = '\0';
 
     return result;
 }
@@ -1270,6 +1167,9 @@ process_input(struct descriptor_data * t)
      */
     
     read_point = t->inbuf;
+
+	// And since we have one newline, we're guaranteed to need a prompt
+	t->need_prompt = true;
     
     while (nl_pos != NULL) {
         write_point = tmp;

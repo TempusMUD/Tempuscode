@@ -238,7 +238,7 @@ ACMD(do_interwiz)
 	    sprintf(message, "%s@%s: %s\r\n", GET_NAME(ch), MUDNAME, argument); 
     
 	for (d = descriptor_list; d; d = d->next)  {
-	    if (!d->connected && d->character &&
+	    if (d->connected == CON_PLAYING && d->character &&
 		(!PRF_FLAGGED(d->character, PRF_NOINTWIZ)) &&
 		(!d->showstr_point || PRF2_FLAGGED(d->character, PRF2_LIGHT_READ)) &&
 		(!PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC)) &&
@@ -425,7 +425,7 @@ void serv_recv_mudlistrpy(char *serv_message)
     strcpy(message2, "MUD's currently connected to the network\r\n"
 	   "---------------------------------------------------------\r\n\r\n");
     for (d = descriptor_list; d; d = d->next)
-	if (!d->connected && (str_cmp(To, GET_NAME(d->character)) == 0)) {
+	if (d->connected == CON_PLAYING && (str_cmp(To, GET_NAME(d->character)) == 0)) {
 	    send_to_char(message2, d->character);
 	    while (Remote_Mud != NULL) {
 		Mud_Port = strtok(NULL, "|");
@@ -455,7 +455,7 @@ void serv_recv_intertell(char *serv_message)
     sprintf(message2, "%s@%s tells you, '%s'\r\n", From, Remote_Mud, Text);
     
     for (d = descriptor_list; d; d = d->next)
-	if (!d->connected && d->character &&
+	if (d->connected == CON_PLAYING && d->character &&
 	    (str_cmp(To, GET_NAME(d->character)) == 0))  {
 	    if (GET_INVIS_LEV(d->character) == GET_LEVEL(d->character))
 		continue;
@@ -501,7 +501,7 @@ void serv_recv_intertellrpy(char *serv_message)
     sprintf(message2, "%s@%s tells you, '%s'\r\n", From, Remote_Mud, Text);
     
     for (d = descriptor_list; d; d = d->next)
-	if (!d->connected && d->character &&
+	if (d->connected == CON_PLAYING && d->character &&
 	    (str_cmp(To, GET_NAME(d->character)) == 0))  {
 	    if (PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC) ||
 		(d->showstr_point && !PRF2_FLAGGED(d->character, PRF2_LIGHT_READ)))
@@ -537,7 +537,7 @@ void serv_recv_interwhoreq(char *serv_message)
 	    }
   
     for (d = descriptor_list; d; d = d->next)
-	if (!d->connected &&  d->character &&
+	if (d->connected == CON_PLAYING &&  d->character &&
 	    GET_LEVEL(d->character) >= LVL_AMBASSADOR && 
 	    (!ch || GET_INVIS_LEV(d->character) <= GET_LEVEL(ch))) {
 	    sprintf(message2, "%s[%7s] %s %s", message2, 
@@ -576,7 +576,7 @@ void serv_recv_interwhorpy(char *serv_message)
     Remote_Mud = strtok(NULL, "|");
     
     for (d = descriptor_list; d; d = d->next)
-	if (!d->connected && (str_cmp(To, GET_NAME(d->character)) == 0) &&
+	if (d->connected == CON_PLAYING && (str_cmp(To, GET_NAME(d->character)) == 0) &&
 	    (!PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC)))  {
         
 	    sprintf(message2, "Players on-line at %s\r\n"
@@ -616,7 +616,7 @@ void serv_recv_interpage(char *serv_message)
     sprintf(message2, "\007\007*%s@%s* %s\r\n", From, Remote_Mud, Text);
     
     for (d = descriptor_list; d; d = d->next)
-	if (!d->connected && (str_cmp(To, GET_NAME(d->character)) == 0))  {
+	if (d->connected == CON_PLAYING && (str_cmp(To, GET_NAME(d->character)) == 0))  {
 	    if (GET_INVIS_LEV(d->character) == GET_LEVEL(d->character) ||
 		(ch && GET_INVIS_LEV(d->character) > GET_LEVEL(ch)))
 		continue;
@@ -680,7 +680,7 @@ void serv_recv_mudinfo(char *serv_message)
     }
     
     for (d = descriptor_list; d; d = d->next)
-	if (!d->connected && (str_cmp(To, GET_NAME(d->character)) == 0)) {
+	if (d->connected == CON_PLAYING && (str_cmp(To, GET_NAME(d->character)) == 0)) {
 	    sprintf(message2, "MUD: %s\r\n\r\n"
 		    "Intermud Version: %s\r\n\r\n"
 		    "Mud Type: %s         Version: %s\r\n\r\n"
@@ -707,7 +707,7 @@ void serv_recv_stats(char *serv_message)
 	   "-------------------------------------------------------------------------\r\n\r\n");
     
     for (d = descriptor_list; d; d = d->next)
-	if (!d->connected && (str_cmp(To, GET_NAME(d->character)) == 0)) {
+	if (d->connected == CON_PLAYING && (str_cmp(To, GET_NAME(d->character)) == 0)) {
 	    send_to_char(message2, d->character);
 	    while (Remote_Mud != NULL) {
 		KB_in = strtok(NULL, "|");
@@ -747,7 +747,7 @@ void serv_recv_interwiz(char *serv_message)
 	sprintf(message2, "%s@%s: %s\r\n", From, Remote_Mud, Text);
     
     for (d = descriptor_list; d; d = d->next)  
-	if (!d->connected && (!PRF_FLAGGED(d->character, PRF_NOINTWIZ)) &&
+	if (d->connected == CON_PLAYING && (!PRF_FLAGGED(d->character, PRF_NOINTWIZ)) &&
 	    (!PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC)) &&
 	    (GET_LEVEL(d->character) >= LVL_AMBASSADOR))  {
 	    send_to_char(CCMAG(d->character, C_NRM), d->character);

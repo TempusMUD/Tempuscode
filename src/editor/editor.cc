@@ -29,6 +29,7 @@ static char editbuf[MAX_STRING_LENGTH * 2];
 static char tedii_out_buf[MAX_STRING_LENGTH];
 extern struct descriptor_data *descriptor_list;
 
+void set_desc_state( int state,struct descriptor_data *d );
 
 /* Sets up text editor params and echo's passed in message.
 */
@@ -182,8 +183,7 @@ void CTextEditor::SaveText( char *inStr) {
     // If editing thier description.
     if (desc->connected == CON_EXDESC) {
         SEND_TO_Q("\033[H\033[J", desc);
-        show_menu(desc);
-        desc->connected = CON_MENU;
+		set_desc_state( CON_MENU,desc );
     }
     // Remove the "using the editor" bits.
     if (desc->connected == CON_PLAYING && desc->character && !IS_NPC(desc->character)) {
@@ -256,7 +256,7 @@ void CTextEditor::ExportMail( void ) {
         stored_mail = store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(desc->character),*target, cc_list);
         if( stored_mail == 1 ) {
             for (r_d = descriptor_list; r_d; r_d = r_d->next) {
-                if (!r_d->connected && r_d->character && r_d->character != desc->character &&
+                if (r_d->connected == CON_PLAYING && r_d->character && r_d->character != desc->character &&
                 GET_IDNUM(r_d->character) == desc->mail_to->recpt_idnum &&
                 !PLR_FLAGGED(r_d->character,PLR_WRITING|PLR_MAILING|PLR_OLC)) {
                     send_to_char("A strange voice in your head says, 'You have new mail.'\r\n", r_d->character);

@@ -13,6 +13,8 @@
 #include "paths.h"
 #include "login.h"
 
+int set_desc_state( int state,struct descriptor_data *d );
+
 extern struct descriptor_data *descriptor_list;
 
 bool char_data::isFighting(){
@@ -454,14 +456,10 @@ void char_data::extract( char mode ) {
 
     if (desc) { // PC's have descriptors. Take care of them
         if (mode) { // Afterlife or Remort-Reroll
-            STATE(desc) = CON_AFTERLIFE;
-            SEND_TO_Q("\r\n\r\nPress RETURN to continue into the afterlife.\r\n", 
-                      desc);
+			set_desc_state( CON_AFTERLIFE,desc );
             desc->wait = 0;
         } else { // Menu 
-            SEND_TO_Q("\r\n\r\n\r\n", desc);
-            show_menu(desc);
-            STATE(desc) = CON_MENU;
+			set_desc_state( CON_MENU,desc );
         }
     } else {  /* if a player gets purged from within the game */
         if (!freed)

@@ -101,7 +101,7 @@ ACMD(do_quit)
 	for (d = descriptor_list; d; d = next_d) {
 	    next_d = d->next;
 	    if (d == ch->desc)
-		continue;
+			continue;
 	    if (d->character && (GET_IDNUM(d->character) == GET_IDNUM(ch)))
 		close_socket(d);
 	}

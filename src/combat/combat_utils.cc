@@ -336,7 +336,7 @@ check_object_killer( struct obj_data * obj, struct char_data * vict )
     if ( !killer ) {
 
         for ( d = descriptor_list; d; d = d->next ) {
-            if ( d->connected && d->character && GET_IDNUM( d->character ) == obj_id ) {
+            if ( d->connected != CON_PLAYING && d->character && GET_IDNUM( d->character ) == obj_id ) {
                 is_desc = 1;
                 killer = d->character;
                 break;

@@ -289,8 +289,7 @@ char *GREETINGS =
 ".   .   .   .   .   .   . Welcome to the Mothership .   .   .   .   .   .   . \r\n"
 "\r\n"
 ".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-"\r\n"
-"By what name do you wish to be known? ";
+"\r\n";
 
 char *MUD_MOVED_MSG =
 
