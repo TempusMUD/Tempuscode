@@ -110,6 +110,7 @@ SPECIAL(demonic_overmind)
 				continue;
 			if (GET_REPUTATION(cur_desc->creature) < 700)
 				continue;
+
 			vict = cur_desc->creature;
 
 			for (cur_rec = criminal_list;cur_rec;cur_rec = cur_rec->next)
@@ -117,32 +118,53 @@ SPECIAL(demonic_overmind)
 					break;
 
 			// grace periods:
-			// reputation 700 : 1.75 - 2.25 hours : 1575 - 2025 updates
-			// reputation 1000: 15 - 20 minutes : 225 - 300 updates
+			// reputation 700 : 3 - 4 hours : 2025 - 4500 updates
+			// reputation 1000: 30 - 60 minutes : 427 - 947 updates
 
 			// Reputation 700 -- 
-			//    Min: 78750 / (700 - 650) = 1575 = 1.75 hours
-			//    Av:  90000 / (700 - 650)  = 1800 = 2.0 hours
-			//    Max: 101250 / (700 - 650) = 2025 = 2.25 hours
+			//    Min: 162000 / (700 - 620) = 2025 = 2.25 hours
+			//    Max: 360000 / (700 - 620) = 4500 = 5 hours
 
 			// Reputation 1000 -- 
-			//    Min: 78750 / (1000 - 650) = 225 = 15 minutes
-			//    Av:  90000 / (1000 - 650)  = 257 = 17 minutes
-			//    Max: 101250 / (1000 - 650) = 289 = 19 minutes
+			//    Min: 162000 / (1000 - 620) = 427 = 28 minutes
+			//    Max: 360000 / (1000 - 620) = 947 = 63 minutes
+
+			// Calculation of the grace is pretty damn hard.  here's how
+			// I did it.
+			//
+			// I solved two simultaneous equations of the form
+			//   a - tb = 700t where t=min time for 700 rep
+			//   a - tb = 1000t where t=min time for 1000 rep
+			// and
+			//   a - tb = 700t where t=max time for 700 rep
+			//   a - tb = 1000t where t=max time for 700 rep
+
+			// this gave me the grace to start with and the amount to
+			// subtract from the decrementing.  However, the latter value
+			// rarely comes out equal, so I took the midpoint of that.
+			// It's an approximate method with a large error, but it works
+			// well enough.
 
 			if (!cur_rec) {
 				cur_rec = new criminal_rec;
 				cur_rec->idnum = GET_IDNUM(vict);
-				cur_rec->grace = number(78750, 101250);
+				cur_rec->grace = number(162000, 360000);
 				cur_rec->next = criminal_list;
 				criminal_list = cur_rec;
 			}
 
 			if (cur_rec->grace > 0) {
-				cur_rec->grace -= GET_REPUTATION(vict) - 650;
+				cur_rec->grace -= GET_REPUTATION(vict) - 620;
 				continue;
 			}
 			
+			// If they're in an arena or a quest, their grace still
+			// decrements.  They just get attacked as soon as they leave
+			if (GET_QUEST(cur_desc->creature))
+				continue;
+			if (ROOM_FLAGGED(cur_desc->creature->in_room, ROOM_ARENA))
+				continue;
+
 			// Their grace has run out.  Get em.
 			cur_rec->grace = number(78750, 101250);
 			summoned = summoned || summon_criminal_demons(vict);
