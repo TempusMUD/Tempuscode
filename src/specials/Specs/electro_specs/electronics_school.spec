@@ -46,7 +46,7 @@ electronics_raoe(Creature *self)
 SPECIAL(electronics_school)
 {
 	Creature *self = (Creature *)me;
-	int cred_cost = 0, prac_cost = 0;
+	int cred_cost = 0;
 
 	if (spec_mode == SPECIAL_TICK) {
 		if (!number(0, 20))
@@ -57,8 +57,7 @@ SPECIAL(electronics_school)
 	if (!CMD_IS("learn") && !CMD_IS("train") && !CMD_IS("offer"))
 		return 0;
 
-	cred_cost = (GET_LEVEL(ch) << 6) + 2000;
-	prac_cost = MAX(3, 21 - GET_INT(ch));
+	cred_cost = GET_SKILL_COST(ch, SKILL_ELECTRONICS);
 
 	if (IS_CYBORG(ch)) {
 		do_say(self, tmp_sprintf(
@@ -71,9 +70,6 @@ SPECIAL(electronics_school)
 		do_say(self, tmp_sprintf(
 			"%s Yeah, I'll give you a lesson for %d creds.",
 			GET_NAME(ch), cred_cost), 0, SCMD_SAY_TO, NULL);
-		do_say(self, tmp_sprintf(
-			"%s You'll also need %d practice sessions",
-			GET_NAME(ch), prac_cost), 0, SCMD_SAY_TO, NULL);
 		return 1;
 	}
 
@@ -91,14 +87,7 @@ SPECIAL(electronics_school)
 		return 1;
 	}
 
-	if (GET_PRACTICES(ch) < prac_cost) {
-		do_say(self, tmp_sprintf("%s Come back when you have more practices!",
-			GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
-		return 1;
-	}
 
-
-	GET_PRACTICES(ch) -= prac_cost;
 	GET_CASH(ch) -= cred_cost;
 
 	GET_SKILL(ch, SKILL_ELECTRONICS) =

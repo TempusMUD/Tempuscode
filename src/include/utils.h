@@ -557,7 +557,6 @@ char *CURRENCY(Creature * ch);
 #define GET_COND(ch, i)                ((ch)->player_specials->saved.conditions[(i)])
 #define GET_LOADROOM(ch)        ((ch)->player_specials->saved.load_room)
 #define GET_HOMEROOM(ch)		((ch)->player_specials->saved.home_room)
-#define GET_PRACTICES(ch)        ((ch)->player_specials->saved.spells_to_learn)
 #define GET_LIFE_POINTS(ch)     ((ch)->player_specials->saved.life_points)
 #define GET_MOBKILLS(ch)        ((ch)->player_specials->saved.mobkills)
 #define GET_MSHIELD_LOW(ch)     ((ch)->player_specials->saved.mana_shield_low)
@@ -798,6 +797,7 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 #define IT_THEM(buf)           (PLUR(buf) ? "them" : "it")
 
 #define GET_SKILL(ch, i)        ((ch)->player_specials->saved.skills[i])
+long GET_SKILL_COST(Creature *ch, int skill);
 #define KNOCKDOWN_SKILL(i) \
           (i == SPELL_EARTHQUAKE  || i == SPELL_PSYCHIC_SURGE || \
            i == SPELL_EGO_WHIP    || i == SKILL_BASH ||          \

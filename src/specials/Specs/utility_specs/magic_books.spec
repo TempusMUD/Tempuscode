@@ -98,6 +98,9 @@ SPECIAL(improve_prac_book)
 	if (ch != obj->carried_by && ch != obj->worn_by)
 		return 0;
 
+	send_to_char(ch, "The script is indecipherable.  You feel no wiser than before.\r\n");
+	return 1;
+
 	act("You spend several hours studying the writings within $p,\r\n"
 		"which afterwards fades from existence.\r\n",
 		FALSE, ch, obj, 0, TO_CHAR);
@@ -112,13 +115,11 @@ SPECIAL(improve_prac_book)
 		GET_HIT(ch) = 1;
 		GET_MANA(ch) = 1;
 		GET_MOVE(ch) = 1;
-		GET_PRACTICES(ch) = MAX(0, GET_PRACTICES(ch) - 1);
 	} else if (invalid_char_class(ch, obj)) {
 		send_to_char(ch, "You feel no different than before.\r\n");
 	} else {
 		send_to_char(ch,
 			"You feel an increased ability to learn new skills.\r\n");
-		GET_PRACTICES(ch) += MIN(10, GET_OBJ_VAL(obj, 0));
 	}
 	extract_obj(obj);
 	ch->saveToXML();

@@ -99,7 +99,7 @@ SPECIAL(quest_sphere)
 	obj_data *targ_obj = NULL;
 	char *line, *key, *param, *targ_str;
 	bool quad = false, nobreak = false, need_targ = false;
-	int enchant_lvl = 0, pracs = 0, lp = 0;
+	int enchant_lvl = 0, lp = 0;
 
 	if (spec_mode == SPECIAL_TICK) {
 		// The only place spheres can exist indefinitely is in the hands
@@ -166,9 +166,7 @@ SPECIAL(quest_sphere)
 		else if (!strcmp(key, "nobreak")) {
 			nobreak = true;
 			need_targ = true;
-		} else if (!strcmp(key, "pracs"))
-			pracs = (*line) ? atoi(line):2;
-		else if (!strcmp(key, "lp"))
+		} else if (!strcmp(key, "lp"))
 			lp = (*line) ? atoi(line):2;
 		else if (!strcmp(key, "enchant")) {
 			enchant_lvl = (*line) ? atoi(line):51;
@@ -222,10 +220,6 @@ SPECIAL(quest_sphere)
 	if (lp) {
 		send_to_char(ch, "You gain %d lifepoints!\r\n", lp);
 		GET_LIFE_POINTS(ch) += lp;
-	}
-	if (pracs) {
-		send_to_char(ch, "You gain %d practice sessions!\r\n", pracs);
-		GET_PRACTICES(ch) += pracs;
 	}
 
 	act("$p disappears from your hands in a puff of smoke!",

@@ -14,7 +14,7 @@ SPECIAL(unspecializer)
 	int mode = 0;
 	struct obj_data *o_proto = NULL;
 	int cash_cost = 0;
-	int prac_cost = 0;
+	int lp_cost = 0;
 	int i;
 
 	if (spec_mode != SPECIAL_CMD)
@@ -60,29 +60,27 @@ SPECIAL(unspecializer)
 		return 1;
 	}
 
-	prac_cost = GET_WEAP_SPEC(ch, i).level;
+	lp_cost = GET_WEAP_SPEC(ch, i).level;
 	cash_cost = GET_WEAP_SPEC(ch, i).level * 200000;
 
 	msg =
 		tmp_sprintf
 		("The service of complete neural erasure of the weapon specialization of\r\n"
-		"'%s' will cost you %d pracs and %d credits....\r\n",
-		o_proto->name, prac_cost, cash_cost);
+		"'%s' will cost you %d life points and %d credits....\r\n",
+		o_proto->name, lp_cost, cash_cost);
 	perform_tell(self, ch, msg);
 
-	if (GET_PRACTICES(ch) < prac_cost) {
-		msg =
-			tmp_sprintf
-			("You don't have enough spare neurons!  It costs %d pracs, you know\r\n",
-			prac_cost);
+	if (GET_LIFE_POINTS(ch) < lp_cost) {
+		msg = tmp_sprintf(
+			"You don't have enough spare neurons!  It costs %d pracs, you know\r\n",
+			lp_cost);
 		perform_tell(self, ch, msg);
 		return 1;
 	}
 
 	if (GET_CASH(ch) < cash_cost) {
-		msg =
-			tmp_sprintf
-			("You don't have enough cash!  I need %d credits for the job.\r\n",
+		msg = tmp_sprintf(
+			"You don't have enough cash!  I need %d credits for the job.\r\n",
 			cash_cost);
 		perform_tell(self, ch, msg);
 		return 1;
@@ -91,7 +89,7 @@ SPECIAL(unspecializer)
 	if (mode == U_MODE_OFFER)
 		return 1;
 
-	GET_PRACTICES(ch) -= prac_cost;
+	GET_LIFE_POINTS(ch) -= lp_cost;
 	GET_CASH(ch) -= cash_cost;
 
 	GET_WEAP_SPEC(ch, i).level = GET_WEAP_SPEC(ch, i).vnum = 0;

@@ -300,7 +300,6 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		// life points, pracs, and such.  Make it all sane.
 		GET_EXP(ch) = exp_scale[GET_LEVEL(ch)];
 		GET_LIFE_POINTS(ch) = 0;
-		GET_PRACTICES(ch) = 0;
 		GET_SEVERITY(ch) = 0;
 		GET_INVIS_LVL(ch) = MIN(GET_LEVEL(ch), GET_INVIS_LVL(ch));
 

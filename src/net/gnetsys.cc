@@ -54,7 +54,6 @@ perform_net_help(descriptor_data *d) {
 	SEND_TO_Q("                 ? - synonym for help\r\n", d);
 	if ( IS_CYBORG(d->creature) ) {
 		SEND_TO_Q("              list - lists programs executing locally\r\n", d);
-		SEND_TO_Q("            status - displays local system status\r\n", d);
 		SEND_TO_Q("    load <program> - loads and executes programs into local memory\r\n", d);
 	}
 }
@@ -108,13 +107,10 @@ perform_net_wall(descriptor_data *d,char *arg) {
 }
 
 void
-perform_net_load(descriptor_data *d,char *arg) {
-	int skill_num,percent;
-
-	if ( !GET_PRACTICES(d->creature)) {
-		SEND_TO_Q("Error: No data storage units free\r\n",d);
-		return;
-	}
+perform_net_load(descriptor_data *d,char *arg)
+{
+	int skill_num, percent;
+	long int cost;
 
 	skip_spaces(&arg);
 	if ( !*arg ) {
@@ -130,12 +126,10 @@ perform_net_load(descriptor_data *d,char *arg) {
 		return;
 	}
 
-	if ( (SPELL_GEN(skill_num, CLASS_CYBORG ) > 0 && GET_CLASS(d->creature) != CLASS_CYBORG) ||
+	if ((SPELL_GEN(skill_num, CLASS_CYBORG ) > 0 && GET_CLASS(d->creature) != CLASS_CYBORG) ||
 		 (GET_REMORT_GEN(d->creature) < SPELL_GEN(skill_num,CLASS_CYBORG)) ||
 		 (GET_LEVEL(d->creature) < SPELL_LEVEL(skill_num,CLASS_CYBORG))) {
-		SEND_TO_Q("Error: resources unavailable to load '",d);
-		SEND_TO_Q(arg,d);
-		SEND_TO_Q("'\r\n",d);
+		send_to_desc(d, "Error: resources unavailable to load '%s'\r\n", arg);
 		return;
 	}
 
@@ -144,27 +138,28 @@ perform_net_load(descriptor_data *d,char *arg) {
 		return;
 	}
 
+	cost = GET_SKILL_COST(d->creature, skill_num);
+	send_to_desc(d, "Program cost: %10ld  Account balance; %lld\r\n",
+		cost, d->account->get_future_bank());
+
+	if (d->account->get_future_bank() < cost) {
+		send_to_desc(d, "Error: insufficient funds in your account\r\n");
+		return;
+	}
+
+	d->account->withdraw_future_bank(cost);
 	percent = MIN(MAXGAIN(d->creature),
 				  MAX(MINGAIN(d->creature),
 					  INT_APP(GET_INT(d->creature))));
 	percent = MIN(LEARNED(d->creature) - 
 				GET_SKILL(d->creature,skill_num),percent);
-	GET_PRACTICES(d->creature)--;
 	SET_SKILL(d->creature, skill_num, GET_SKILL(d->creature, skill_num) + percent);
-	sprintf(buf, "Program download: %s terminating, %d percent transfer.\r\n", spell_to_str(skill_num), percent);
-	SEND_TO_Q(buf, d);
+	send_to_desc(d, "Program download: %s terminating, %d percent transfer.\r\n", spell_to_str(skill_num), percent);
 	if (GET_SKILL(d->creature, skill_num) >= LEARNED( d->creature))
-		strcpy(buf,"Program fully installed on local system.\r\n");
+		send_to_desc(d, "Program fully installed on local system.\r\n");
 	else
-		sprintf(buf, "Program %d%% installed on local system.\r\n",
+		send_to_desc(d, "Program %d%% installed on local system.\r\n",
 			GET_SKILL(d->creature,skill_num));
-	SEND_TO_Q(buf, d);
-}
-
-void
-perform_net_status(descriptor_data *d) {
-	sprintf(buf, "You have %d data storage units free.\r\n", GET_PRACTICES(d->creature));
-	SEND_TO_Q(buf, d);
 }
 
 void 
@@ -266,8 +261,6 @@ handle_network(descriptor_data *d,char *arg) {
 		perform_net_list(d->creature, CLASS_CYBORG);
 	} else if ( IS_CYBORG(d->creature) && ( is_abbrev( arg1,"load" ) || is_abbrev(arg,"download"))) {
 		perform_net_load(d, arg);
-	} else if ( IS_CYBORG(d->creature) && is_abbrev( arg1,"status" ) ) {
-		perform_net_status(d);
 	} else {
 	   SEND_TO_Q(arg1, d);
 	   SEND_TO_Q(": command not found\r\n", d);

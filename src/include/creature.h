@@ -816,7 +816,6 @@ struct player_special_data_saved {
 	ubyte qp_allowance;			// Quest point allowance 
 	ubyte occupation;
 	int deity;
-	int spells_to_learn;
 	int life_points;
 	int pkills;
 	int akills;

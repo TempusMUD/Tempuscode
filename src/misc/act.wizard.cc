@@ -1611,19 +1611,18 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         strcat(outbuf, buf);
 
         sprintf(buf,
-            "PRAC[%d] (%d/prac) (%.2f/level), Life[%d], Qpoints[%d/%d], Thac0[%d]\r\n",
-            GET_PRACTICES(k), skill_gain(k, FALSE), prac_gain(k, FALSE),
+            "Life[%d], Qpoints[%d/%d], Thac0[%d], Reputation: [%4d]\r\n",
             GET_LIFE_POINTS(k), GET_QUEST_POINTS(k), GET_QUEST_ALLOWANCE(k),
             (int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)), 
-                     THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))));
+                     THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))),
+			GET_REPUTATION(k));
         strcat(outbuf, buf);
 
         sprintf(buf,
-            "%sMobKills:%s [%4d], %sPKills:%s [%4d], %sDeaths:%s [%4d] %sReputation:%s [%4d]\r\n",
+            "%sMobKills:%s [%4d], %sPKills:%s [%4d], %sDeaths:%s [%4d]\r\n",
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOBKILLS(k), CCRED(ch,
                 C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(k), CCGRN(ch, C_NRM),
-            CCNRM(ch, C_NRM), GET_PC_DEATHS(k), CCMAG(ch, C_NRM),
-			CCNRM(ch, C_NRM), GET_REPUTATION(k));
+            CCNRM(ch, C_NRM), GET_PC_DEATHS(k));
         strcat(outbuf, buf);
     }
     sprintf(buf, "Str: [%s%d/%d%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
@@ -3702,14 +3701,6 @@ list_skills_to_char(struct Creature *ch, struct Creature *vict)
     char buf3[MAX_STRING_LENGTH];
     int i, sortpos;
 
-    if (!GET_PRACTICES(vict))
-        sprintf(buf, "%s%s has no practice sessions remaining.%s\r\n",
-            CCYEL(ch, C_NRM), PERS(vict, ch), CCNRM(ch, C_NRM));
-    else
-        sprintf(buf, "%s%s has %d practice session%s remaining.%s\r\n",
-            CCGRN(ch, C_NRM), PERS(vict, ch), GET_PRACTICES(vict),
-            (GET_PRACTICES(vict) == 1 ? "" : "s"), CCNRM(ch, C_NRM));
-
     if (prac_params[PRAC_TYPE][(int)GET_CLASS(vict)] != 1 ||
         (CHECK_REMORT_CLASS(vict) >= 0 &&
             prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(vict)] != 1)) {
@@ -3967,9 +3958,9 @@ show_player(Creature *ch, char *value)
 		char_class_abbrevs[GET_CLASS(vict)], remort_desc, GET_REMORT_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
-        "%sAu: %-8d  Bal: %-8lld  Exp: %-8d  Align: %-5d  Pracs: %-3d\r\n",
+        "%sAu: %-8d  Bal: %-8lld  Exp: %-8d  Align: %-5d\r\n",
         buf, GET_GOLD(vict), GET_PAST_BANK(vict), GET_EXP(vict),
-		GET_ALIGNMENT(vict), GET_PRACTICES(vict));
+		GET_ALIGNMENT(vict));
     // Trim and fit the date to show year but not seconds.
     strcpy(birth, ctime(&vict->player.time.birth));
     strcpy(birth + 16, birth + 19);
@@ -5579,7 +5570,7 @@ ACMD(do_set)
         break;
     case 27:
     case 28:
-        GET_PRACTICES(vict) = RANGE(0, 100);
+		send_to_char(ch, "No more pracs.\r\n");
         break;
     case 29:
     case 30:

@@ -180,26 +180,7 @@ list_skills(struct Creature *ch, int mode, int type)
 	char buf3[MAX_STRING_LENGTH], buf4[8];
 	int i, sortpos;
 
-	if (mode) {
-		if (GET_CLASS(ch) != CLASS_CYBORG) {
-			if (!GET_PRACTICES(ch))
-				sprintf(buf,
-					"%sYou have no practice sessions remaining.%s\r\n",
-					CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-			else
-				sprintf(buf,
-					"%sYou have %s%d%s%s practice session%s remaining.%s\r\n",
-					CCGRN(ch, C_NRM), CCBLD(ch, C_CMP), GET_PRACTICES(ch),
-					CCNRM(ch, C_CMP), CCGRN(ch, C_CMP),
-					(GET_PRACTICES(ch) == 1 ? "" : "s"), CCNRM(ch, C_NRM));
-		} else {
-			sprintf(buf, "%sYou have %s%d%s%s data storage unit%s free.%s\r\n",
-				CCGRN(ch, C_NRM), CCBLD(ch, C_CMP), GET_PRACTICES(ch),
-				CCNRM(ch, C_CMP), CCGRN(ch, C_CMP),
-				(GET_PRACTICES(ch) == 1 ? "" : "s"), CCNRM(ch, C_NRM));
-		}
-	} else
-		buf[0] = '\0';
+	buf[0] = '\0';
 
 	if ((type == 1 || type == 3) &&
 		((prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != 1 &&
@@ -282,6 +263,7 @@ SPECIAL(guild)
 	int skill_num, percent;
 	struct Creature *master = (struct Creature *)me;
 	char buf2[MAX_STRING_LENGTH];
+	long int cost;
 
 	if (spec_mode != SPECIAL_CMD )
 		return 0;
@@ -310,10 +292,6 @@ SPECIAL(guild)
 		return 1;
 	}
 
-	if (GET_PRACTICES(ch) <= 0 || IS_NPC(ch)) {
-		send_to_char(ch, "You do not seem to be able to practice now.\r\n");
-		return 1;
-	}
 	/*  Lame upper level trainer thing.
 	   if (GET_MOB_VNUM(master) ==  25015 && GET_LEVEL(ch) < 43) {
 	   sprintf(buf2, "You are not ready to train with me, %s.", GET_NAME(ch));
@@ -370,9 +348,26 @@ SPECIAL(guild)
 		return 1;
 	}
 
-	send_to_char(ch, "You practice for a while...\r\n");
+	cost = GET_SKILL_COST(ch, skill_num);
+	if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
+		if (GET_CASH(ch) < cost) {
+			send_to_char(ch, "You haven't got the %ld creds it costs to train this.\r\n",
+				cost);
+			return 1;
+		}
+		send_to_char(ch, "You buy training for %ld creds and practice for a while...\r\n", cost);
+		GET_CASH(ch) -= cost;
+	} else {
+		if (GET_GOLD(ch) < cost) {
+			send_to_char(ch, "You haven't got the %ld gold it costs to train this.\r\n",
+				cost);
+			return 1;
+		}
+		send_to_char(ch, "You buy training for %ld gold and practice for a while...\r\n", cost);
+		GET_GOLD(ch) -= cost;
+	}
+
 	act("$n practices for a while.", TRUE, ch, 0, 0, TO_ROOM);
-	GET_PRACTICES(ch)--;
 	WAIT_STATE(ch, 2 RL_SEC);
 
 	percent = GET_SKILL(ch, skill_num);

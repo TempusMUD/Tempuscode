@@ -15,6 +15,8 @@ SPECIAL(prac_manual)
 
 	/* Format : <char_class number> <min level> <max level> <...> */
 
+	send_to_char(ch, "The writing on the manual has been smudged out.\r\n");
+	return 1;
 
 	if (GET_OBJ_VAL(manual, 0) != GET_CLASS(ch)) {
 		act("$p does not contain any information which is useful to you.",
@@ -32,7 +34,6 @@ SPECIAL(prac_manual)
 		return 1;
 	}
 	act("You study $p, and gain new insight!", FALSE, ch, manual, 0, TO_CHAR);
-	GET_PRACTICES(ch) += 1;
 	obj_from_char(manual);
 	extract_obj(manual);
 	return 1;

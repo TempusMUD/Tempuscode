@@ -2567,10 +2567,8 @@ ACMD(do_score)
 	msg = tmp_sprintf(
 		"%s%s*****************************************************************%s\r\n",
 		msg, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	msg = tmp_sprintf("%sYou have %s%d%s %s and %s%d%s life points.\r\n",
-		msg, CCCYN(ch, C_NRM), GET_PRACTICES(ch), CCNRM(ch, C_NRM),
-		GET_CLASS(ch) == CLASS_CYBORG ? "dsu free" : "practice points",
-		CCCYN(ch, C_NRM), GET_LIFE_POINTS(ch), CCNRM(ch, C_NRM));
+	msg = tmp_sprintf("%sYou have %s%d%s life points.\r\n",
+		msg, CCCYN(ch, C_NRM), GET_LIFE_POINTS(ch), CCNRM(ch, C_NRM));
 	msg = tmp_sprintf("%sYou are %s%d%s cm tall, and weigh %s%d%s pounds.\r\n",
 		msg, CCCYN(ch, C_NRM), GET_HEIGHT(ch), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 		GET_WEIGHT(ch), CCNRM(ch, C_NRM));

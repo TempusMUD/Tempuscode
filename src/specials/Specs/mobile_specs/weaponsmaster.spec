@@ -24,6 +24,9 @@ SPECIAL(weaponsmaster)
 		check_only = 1;
 	else if (!CMD_IS("train"))
 		return 0;
+	
+	perform_tell((Creature *)me, ch, "Sorry.  I'm not taking apprentices right now.");
+	return 1;
 
 	skip_spaces(&argument);
 
@@ -86,20 +89,9 @@ SPECIAL(weaponsmaster)
 		return 1;
 	}
 
-	cost =
-		(int)(weap_spec_char_class[char_class].multiplier * (weap_spec.level +
-			1));
+	cost = (int)(weap_spec_char_class[char_class].multiplier * (weap_spec.level + 1));
 
-	send_to_char(ch,
-		"It will cost you %d practice%s to train your specialization with %s to level %d.\r\n%s",
-		cost, cost == 1 ? "" : "s", weap->name,
-		weap_spec.level + 1,
-		cost > GET_PRACTICES(ch) ? "Which you don't have.\r\n" : "");
 
-	if (check_only || cost > GET_PRACTICES(ch))
-		return 1;
-
-	GET_PRACTICES(ch) -= cost;
 	weap_spec.vnum = GET_OBJ_VNUM(weap);
 	weap_spec.level++;
 	act("You improve your fighting aptitude with $p.", FALSE, ch, weap, 0,

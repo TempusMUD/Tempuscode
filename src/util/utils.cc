@@ -65,6 +65,24 @@ VT_RPPOS(int x, int y)
 	return (ANSI);
 }
 
+long
+GET_SKILL_COST(Creature *ch, int skill)
+{
+	int cost;
+
+	// Mort costs: Level 1: 5000, Level 49: 12mil
+	cost = SPELL_LEVEL(skill, GET_CLASS(ch))
+			* SPELL_LEVEL(skill, GET_CLASS(ch))
+			* 500;
+	// Remort costs: gen 1, lvl 35: 12mil  gen 10, lvl 49: 132mil
+	if (SPELL_GEN(skill, GET_CLASS(ch)))
+		cost *= SPELL_GEN(skill, GET_CLASS(ch)) + 1;
+
+	// Charisma knocks off up to 1/4th of price
+	cost -= cost * GET_CHA(ch) / 100;
+	return cost;
+}
+
 void
 enable_vt100(struct Creature *ch)
 {

@@ -1031,8 +1031,6 @@ do_start(struct Creature *ch, int mode)
 	for (i = 1; i <= MAX_SKILLS; i++)
 		SET_SKILL(ch, i, 0);
 
-	GET_PRACTICES(ch) = 2;
-
 	if (IS_VAMPIRE(ch))
 		GET_LIFE_POINTS(ch) = 1;
 	else
@@ -1275,8 +1273,6 @@ advance_level(struct Creature *ch, byte keep_internal)
 
 	if (GET_LEVEL(ch) > 1)
 		ch->points.max_mana += add_mana[0];
-
-	GET_PRACTICES(ch) += (int)prac_gain(ch, 1);
 
 	GET_LIFE_POINTS(ch) += (GET_LEVEL(ch) * (GET_WIS(ch) + GET_CON(ch))) / 300;
 
