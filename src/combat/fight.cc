@@ -1265,11 +1265,11 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                             af.duration = MAX(1, level_bonus / 10);
                             af.modifier = -(number(1, level_bonus / 20));
                             
-                            if (level_bonus > 85 + number(0, 30)) {
+                            if (level_bonus > (85 + number(0, 30))) {
                                 af.bitvector = AFF3_POISON_3;
                                 af.aff_index = 3;
                             }
-                            else if (level_bonus > 75 + number(0, 30)) {
+                            else if (level_bonus > (75 + number(0, 30))) {
                                 af.bitvector = AFF3_POISON_2;
                                 af.aff_index = 3;
                             }
@@ -1279,13 +1279,13 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                             }
                             affect_join(ch, &af, false, false, false, false);
                             act("$N begins to look sick as the poison from "
-                                "your thorns invades $E's body.", false, victim,
+                                "your thorns invades $S body.", false, victim,
                                 NULL, ch, TO_CHAR);
                             act("You begin to feel sick as the poison from "
                                 "$n's thorns invades your body.", false, victim,
                                 NULL, ch, TO_VICT);
                             act("$N begins to look sick as the poison from "
-                                "$n's thorns invades $E's body.", false, victim,
+                                "$n's thorns invades $S body.", false, victim,
                                 NULL, ch, TO_NOTVICT);
                         }
                     }
