@@ -1609,7 +1609,7 @@ extern const char *extra3_names[] = {
     "spare1",
     "spare2",
     "spare3",
-    "hardened"
+    "hardened",
     "\n"
 };
 /* APPLY_x */
