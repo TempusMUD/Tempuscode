@@ -27,6 +27,7 @@
 #include "db.h"
 #include "spells.h"
 #include "quest.h"
+#include "player_table.h"
 #include "handler.h"
 #include "screen.h"
 #include "tmpstr.h"
@@ -65,8 +66,8 @@ const struct qcontrol_option {
 	{"comment", "<quest vnum> <comments>", LVL_AMBASSADOR},
 	{"describe", "<quest vnum>", LVL_AMBASSADOR},
 	{"update", "<quest vnum>", LVL_AMBASSADOR},
-	{"ban", "<player> <quest vnum>", LVL_AMBASSADOR},	// 10
-	{"unban", "<player> <quest vnum>", LVL_AMBASSADOR},
+	{"ban", "<player> <quest vnum>|\'all\'", LVL_AMBASSADOR},	// 10
+	{"unban", "<player> <quest vnum>|\'all\'", LVL_AMBASSADOR},
 	{"mute", "<player> <quest vnum>", LVL_AMBASSADOR},
 	{"unmute", "<player> <quest vnum>", LVL_AMBASSADOR},
 	{"level", "<quest vnum> <access level>", LVL_AMBASSADOR},
@@ -1251,10 +1252,12 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 	Creature *vict = NULL;
-	unsigned int idnum;
+	unsigned int idnum, accountID;
+    Account* account = NULL;
 	int pid;
 	int level = 0;
-
+    bool del_vict=false;
+    
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
@@ -1262,38 +1265,30 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	if (!(quest = find_quest(ch, arg2)))
-		return;
-
-	if (!quest->canEdit(ch))
-		return;
-
-	if ((idnum = playerIndex.getID(arg1)) < 0) {
+	if (playerIndex.getID(arg1) < 0) {
 		send_to_char(ch, "There is no character named '%s'\r\n", arg1);
 		return;
-	}
+	} else {
+        idnum = playerIndex.getID(arg1);
+        accountID = playerIndex.getAccountID(arg1);
+    }
 
-	if (quest->getEnded() ) {
-		send_to_char(ch, "That quest has already , you psychopath!\r\n");
-		return;
-	}
-
-	if (!(vict = get_char_in_world_by_idnum(idnum))) {
+    if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
 		vict = new Creature(true);
 		pid = playerIndex.getID(arg1);
 		if (pid > 0) {
 			vict->loadFromXML(pid);
-			level = GET_LEVEL(vict);
-			delete vict;
-			vict = NULL;
+            level = GET_LEVEL(vict);
+            del_vict=true;
+            account = Account::retrieve(accountID);
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
 		}
-
 	} else {
 		level = GET_LEVEL(vict);
+        account = vict->account;
 	}
 
 	if (level >= GET_LEVEL(ch) && vict && ch != vict) {
@@ -1301,38 +1296,72 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	if (quest->isBanned(idnum)) {
-		send_to_char(ch, "That character is already banned from this quest.\r\n");
-		return;
-	}
-
-	if (quest->isPlaying(idnum)) {
-		if (!quest->removePlayer(idnum)) {
-			send_to_char(ch, "Unable to auto-kick victim from quest!\r\n");
-		} else {
-			send_to_char(ch, "%s auto-kicked from quest.\r\n", arg1);
-
-			sprintf(buf, "auto-kicked %s from quest %d '%s'.",
+	if (!strcmp("all", arg2)) { //ban from all quests
+        if (!Security::isMember(ch, "QuestorAdmin")) {
+            send_to_char(ch, "You do not have this ability.\r\n");
+        } else if (account->is_quest_banned()) {
+            send_to_char(ch, 
+			"That player is already banned from all quests.\r\n");
+        } else {
+            account->set_quest_banned(true); //ban
+            
+            sprintf(buf, "banned %s from all quests.", GET_NAME(vict));
+            qlog(ch, buf, QLOG_COMP, 0, TRUE);
+            
+            send_to_char(ch, "%s is now banned from all quests.\r\n", GET_NAME(vict));
+            send_to_char(vict, "You have been banned from all quests.\r\n");
+        }
+    } else {
+        if (!(quest = find_quest(ch, arg2)))
+            return;
+        
+        if (!quest->canEdit(ch))
+            return;
+        
+        
+        if (quest->getEnded() ) {
+            send_to_char(ch, "That quest has already , you psychopath!\r\n");
+            return;
+        }
+        
+        if (quest->isBanned(idnum)) {
+            send_to_char(ch, "That character is already banned from this quest.\r\n");
+            return;
+        }
+        
+        if (quest->isPlaying(idnum)) {
+            if (!quest->removePlayer(idnum)) {
+                send_to_char(ch, "Unable to auto-kick victim from quest!\r\n");
+            } else {
+                send_to_char(ch, "%s auto-kicked from quest.\r\n", arg1);
+                
+                sprintf(buf, "auto-kicked %s from quest %d '%s'.",
 				vict ? GET_NAME(vict) : arg1, quest->getVnum(), quest->name);
-			qlog(ch, buf, QLOG_COMP, 0, TRUE);
-		}
-	}
-
-	if (!quest->addBan(idnum)) {
-		send_to_char(ch, "Error banning char from quest.\r\n");
-		return;
-	}
-
-	if (vict) {
-		send_to_char(ch, "You have been banned from quest '%s'.\r\n", quest->name);
-	}
-
-	sprintf(buf, "banned %s from quest %d '%s'.",
+                qlog(ch, buf, QLOG_COMP, 0, TRUE);
+            }
+        }
+        
+        if (!quest->addBan(idnum)) {
+            send_to_char(ch, "Error banning char from quest.\r\n");
+            return;
+        }
+        
+        if (vict) {
+            send_to_char(ch, "You have been banned from quest '%s'.\r\n", quest->name);
+        }
+        
+        sprintf(buf, "banned %s from quest %d '%s'.",
 		vict ? GET_NAME(vict) : arg1, quest->getVnum(), quest->name);
-	qlog(ch, buf, QLOG_COMP, 0, TRUE);
-
-	send_to_char(ch, "%s banned from quest %d.\r\n",
+        qlog(ch, buf, QLOG_COMP, 0, TRUE);
+        
+        send_to_char(ch, "%s banned from quest %d.\r\n",
 		vict ? GET_NAME(vict) : arg1, quest->getVnum());
+    }
+    if (del_vict) {
+        delete vict;
+        vict=NULL;
+    }
+
 
 }
 
@@ -1342,9 +1371,11 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 
 	Quest *quest = NULL;
 	Creature *vict = NULL;
-	unsigned int idnum;
+	unsigned int idnum, accountID;
 	int level = 0;
-
+    bool del_vict = false;
+    Account* account;
+    
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2) {
@@ -1352,62 +1383,89 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	if (!(quest = find_quest(ch, arg2)))
-		return;
-
-	if (!quest->canEdit(ch))
-		return;
-
-	if ((idnum = playerIndex.getID(arg1)) < 0) {
+	if (playerIndex.getID(arg1) < 0) {
 		send_to_char(ch, "There is no character named '%s'\r\n", arg1);
 		return;
-	}
+	} else {
+        idnum = playerIndex.getID(arg1);
+        accountID = playerIndex.getAccountID(arg1);
+    }
 
-	if (quest->getEnded() ) {
-		send_to_char(ch, "That quest has already ended, you psychopath!\r\n");
-		return;
-	}
-
-	if (!(vict = get_char_in_world_by_idnum(idnum))) {
+    if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
 		vict = new Creature(true);
 		if (idnum > 0) {
-			vict->loadFromXML(idnum);
-			level = GET_LEVEL(vict);
-			delete vict;
-			vict = NULL;
+            vict->loadFromXML(idnum);
+            level = GET_LEVEL(vict);
+            del_vict=true;
+            account = Account::retrieve(accountID);
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
 		}
-
 	} else {
 		level = GET_LEVEL(vict);
-	}
+        account = vict->account;
+    }
 
-	if (level >= GET_LEVEL(ch) && vict && ch != vict) {
+    if (level >= GET_LEVEL(ch) && vict && ch != vict) {
 		send_to_char(ch, "You are not powerful enough to do this.\r\n");
 		return;
 	}
-
-	if (!quest->isBanned(idnum)) {
-		send_to_char(ch, 
+    
+	if (!strcmp("all", arg2)) { //unban from all quests
+        if (!Security::isMember(ch, "QuestorAdmin")) {
+            send_to_char(ch, "You do not have this ability.\r\n");
+        } else if (!account->is_quest_banned()) {
+            send_to_char(ch, 
+			"That player is not banned from all quests... maybe you should ban him!\r\n");
+        } else {
+            
+            account->set_quest_banned(false); //unban
+            
+            sprintf(buf, "unbanned %s from all quests.", GET_NAME(vict));
+            qlog(ch, buf, QLOG_COMP, 0, TRUE);
+            
+            send_to_char(ch, "%s unbanned from all quests.\r\n", GET_NAME(vict));
+            send_to_char(vict, "You are no longer banned from all quests.\r\n");
+        }
+    } else {
+        if (!(quest = find_quest(ch, arg2)))
+            return;
+        
+        if (!quest->canEdit(ch))
+            return;
+        
+        
+        if (quest->getEnded() ) {
+            send_to_char(ch, "That quest has already ended, you psychopath!\r\n");
+            return;
+        }
+        
+        
+        if (!quest->isBanned(idnum)) {
+            send_to_char(ch, 
 			"That player is not banned... maybe you should ban him!\r\n");
-		return;
-	}
-
-	if (!quest->removeBan(idnum)) {
-		send_to_char(ch, "Error unbanning char from quest.\r\n");
-		return;
-	}
-
-	sprintf(buf, "unbanned %s from %d quest '%s'.",
+            return;
+        }
+        
+        if (!quest->removeBan(idnum)) {
+            send_to_char(ch, "Error unbanning char from quest.\r\n");
+            return;
+        }
+        
+        sprintf(buf, "unbanned %s from %d quest '%s'.",
 		vict ? GET_NAME(vict) : arg1,quest->getVnum(), quest->name);
-	qlog(ch, buf, QLOG_COMP, 0, TRUE);
-
-	send_to_char(ch, "%s unbanned from quest %d.\r\n",
+        qlog(ch, buf, QLOG_COMP, 0, TRUE);
+        
+        send_to_char(ch, "%s unbanned from quest %d.\r\n",
 		vict ? GET_NAME(vict) : arg1, quest->getVnum());
-
+    }
+    
+    if (del_vict) {
+        delete vict;
+        vict=NULL;
+    }
 }
 
 void
@@ -3012,6 +3070,11 @@ Quest::canJoin(Creature *ch)
 		send_to_char(ch, "Sorry, you have been banned from this quest.\r\n");
 		return false;
 	}
+    
+    if (ch->account->is_quest_banned()) {
+        send_to_char(ch, "Sorry, you have been banned from all quests.\r\n");
+        return false;
+    }
 
 	return true;
 }

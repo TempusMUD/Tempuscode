@@ -810,6 +810,7 @@ extern const char *player2_bits[] = {
 	"SOULLESS",
 	"BURIED",
 	"IN_COMBAT",
+    "QUEST_BAN",
 	"\n"
 };
 /* PLR_x */
