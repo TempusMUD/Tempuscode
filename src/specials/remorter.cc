@@ -161,6 +161,7 @@ SPECIAL(remorter)
             send_to_char(ch, "The remorter looks around skeptically.\r\n"
                              "Ok, but if you tell anyone I did this for you\r\n"
                              "I'll hunt you down like the cheating dog you are!\r\n");
+			slog("%s paid off the remorter with a bribe of %d",GET_NAME(ch), value );
             return do_pass_remort_test(&quiz, ch);
         }
 	} else if (!quiz.inProgress()) {
