@@ -257,13 +257,11 @@ Creature::getDamReduction(Creature *attacker)
 	//***************************** Oblivity ****************************
 	//*******************************************************************
 	// damage reduction ranges up to about 35%
-	if (IS_AFFECTED_2(ch, AFF2_OBLIVITY)) {
-		if (IS_NEUTRAL(ch) && CHECK_SKILL(ch, ZEN_OBLIVITY) > 60) {
-			dam_reduction += (((GET_LEVEL(ch) +
-						ch->getLevelBonus(ZEN_OBLIVITY)) * 10) +
-				(1000 - abs(GET_ALIGNMENT(ch))) +
-				(CHECK_SKILL(ch, ZEN_OBLIVITY) * 10)) / 100;
-		}
+	if (IS_AFFECTED_2(ch, AFF2_OBLIVITY) && IS_NEUTRAL(ch)) {
+		dam_reduction += (((GET_LEVEL(ch) +
+					ch->getLevelBonus(ZEN_OBLIVITY)) * 10) +
+			(1000 - abs(GET_ALIGNMENT(ch))) +
+			(CHECK_SKILL(ch, ZEN_OBLIVITY) * 10)) / 100;
 	}
 	//**************************** No Pain *****************************
 	//******************************************************************
