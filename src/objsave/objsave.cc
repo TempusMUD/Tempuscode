@@ -542,8 +542,6 @@ Crash_load( struct char_data * ch )
 
 		num_of_days = ( float ) ( time( 0 ) - rent.time ) / SECS_PER_REAL_DAY;
 		cost = ( int ) ( rent.net_cost_per_diem * num_of_days );
-        if(rent.rentcode == RENT_FORCED || rent.rentcode == RENT_TIMEDOUT)
-            cost *= 3;
 
 		// immortals dont have to pay rent
 		if ( GET_LEVEL( ch ) < LVL_IMMORT ) {
@@ -560,9 +558,7 @@ Crash_load( struct char_data * ch )
 						 GET_NAME( ch ), rent.net_cost_per_diem, num_of_days );
 					mudlog( buf, BRF, MAX( LVL_AMBASSADOR, GET_INVIS_LEV( ch ) ), TRUE );
 				}
-			}
-			// default costs gold
-			else {
+			} else {// default costs gold
 				if ( cost < GET_GOLD( ch ) + GET_BANK_GOLD( ch ) ) {
 					GET_BANK_GOLD( ch ) -= MAX( cost - GET_GOLD( ch ), 0 );
 					GET_GOLD( ch ) = MAX( GET_GOLD( ch ) - cost, 0 );
@@ -574,7 +570,7 @@ Crash_load( struct char_data * ch )
 						 GET_NAME( ch ), rent.net_cost_per_diem, num_of_days );
 					mudlog( buf, BRF, MAX( LVL_AMBASSADOR, GET_INVIS_LEV( ch ) ), TRUE );
 				}
-			}
+			} // Currency
 		}
     }
     // set buf in the switch and log it at the end
@@ -605,78 +601,62 @@ Crash_load( struct char_data * ch )
 
     }
     if ( *buf )
-	mudlog( buf, BRF, MAX( LVL_AMBASSADOR, GET_INVIS_LEV( ch ) ), TRUE );
+        mudlog( buf, BRF, MAX( LVL_AMBASSADOR, GET_INVIS_LEV( ch ) ), TRUE );
 
     // load objects from file
     while ( !feof( fl ) ) {
-	tmpo = Obj_from_store( fl, false );
+        tmpo = Obj_from_store( fl, false );
 
-	if ( tmpo ) {
+        if ( tmpo ) {
 
-	    //  if we still owe money, take the object as payment, if possible
-	    if ( cost > 0 && 
-		 !IS_OBJ_STAT2( tmpo, ITEM2_NOREMOVE ) && !IS_OBJ_STAT( tmpo, ITEM_NODROP ) ) {
-		
-		// see if we're paying with credits
-		if ( rent.currency == TIME_ELECTRO ) {
+            //  if we still owe money, take the object as payment, if possible
+            if ( cost > 0 && !IS_OBJ_STAT2( tmpo, ITEM2_NOREMOVE ) 
+            && !IS_OBJ_STAT( tmpo, ITEM_NODROP ) ) {
+            
+                // see if we're paying with credits
+                if ( rent.currency == TIME_ELECTRO ) {
+                    sprintf( buf, "remobj( no creds ):%s, cost:%d, value:%d", 
+                         tmpo->short_description,
+                         cost, recurs_obj_cost( tmpo, 1, NULL ) );
+                    slog( buf );
+                    cost -= ( recurs_obj_cost( tmpo, true, NULL ) );
+                    extract_obj( tmpo );
+                    num_lost++;
+                } else {// default to gold
+                    sprintf( buf, "remobj( no gold ):%s, cost:%d, value:%d", 
+                         tmpo->short_description,
+                         cost, recurs_obj_cost( tmpo, true, NULL ) );
 
-		    sprintf( buf, "remobj( no creds ):%s, cost:%d, value:%d", 
-			     tmpo->short_description,
-			     cost, recurs_obj_cost( tmpo, 1, NULL ) );
-		    slog( buf );
-		    cost -= ( recurs_obj_cost( tmpo, true, NULL ) );
-		    extract_obj( tmpo );
-		    num_lost++;
-		}
-		
-		// default to gold
-		else {
-		    sprintf( buf, "remobj( no gold ):%s, cost:%d, value:%d", 
-			     tmpo->short_description,
-			     cost, recurs_obj_cost( tmpo, true, NULL ) );
+                    slog( buf );
+                    cost -= ( recurs_obj_cost( tmpo, true, NULL ) );
+                    extract_obj( tmpo );
+                    num_lost++;
+                }
+            } else if ( tmpo->worn_on >= 0 ) {// object was stored as equipment, equip it on the char
+                tmpi = tmpo->worn_on;
+                tmpo->worn_on = -1;
+                equip_char( ch, tmpo, tmpi, MODE_EQ );
+            } else {// object was stored as inventory, give it to the char
+                obj_to_char( tmpo, ch );
+            }
+        }
 
-		    slog( buf );
-		    cost -= ( recurs_obj_cost( tmpo, true, NULL ) );
-		    extract_obj( tmpo );
-		    num_lost++;
-		}
-	    } 
-	    
-	    // object was stored as equipment, equip it on the char
-	    else if ( tmpo->worn_on >= 0 ) {
-		tmpi = tmpo->worn_on;
-		tmpo->worn_on = -1;
-		equip_char( ch, tmpo, tmpi, MODE_EQ );
-	    }
-	    
-	    // object was stored as inventory, give it to the char
-	    else
-		obj_to_char( tmpo, ch );
-	}
-
-	if ( ferror( fl ) ) {
-	    perror( "Reading crash file: Crash_load." );
-	    fclose( fl );
-	    return 1;
-	}
+        if ( ferror( fl ) ) {
+            perror( "Reading crash file: Crash_load." );
+            fclose( fl );
+            return 1;
+        }
     }
-/*
-    // turn this into a crash file by re-writing the control block
-    rent.rentcode = RENT_CRASH;
-    rent.time = time( 0 );
-    rewind( fl );
-    Crash_write_rentcode( ch, fl, &rent );
-*/
     fclose( fl );
 
     save_char( ch, NULL );
 
     if ( num_lost )
-	return 2;
+        return 2;
     else if ( ( orig_rent_code == RENT_RENTED ) || ( orig_rent_code == RENT_CRYO ) )
-	return 0;
+        return 0;
     else
-	return 1;
+        return 1;
 }
 
 int 
@@ -880,7 +860,7 @@ Crash_idlesave( struct char_data * ch )
     int cost = 0;
     Crash_calculate_rent( ch->carrying, &cost );
 
-    Crash_rentsave( ch, ( cost << 1 ), RENT_FORCED );
+    Crash_rentsave( ch, ( cost * 3 ), RENT_FORCED );
 }
 
 
