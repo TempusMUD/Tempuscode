@@ -154,11 +154,15 @@ handle_input(struct descriptor_data *d, char *arg)
 		}
 		break;
 	case CXN_ANSI_PROMPT:
-		if (isnumber(arg)) {
-			d->account->set_ansi_level(atoi(arg));
-			set_desc_state(CXN_EMAIL_PROMPT, d);
-		} else
-			send_to_desc(d, "Please enter one of the selections.\r\n");
+		
+		i = search_block(arg, ctypes, FALSE);
+		if (i == -1) {
+			send_to_desc(d, "\r\nPlease enter one of the selections.\r\n\r\n");
+			return;
+		}
+
+		d->account->set_ansi_level(i);
+		set_desc_state(CXN_EMAIL_PROMPT, d);
 		break;
 	case CXN_EMAIL_PROMPT:
 		d->account->set_email_addr(arg);
@@ -204,7 +208,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			}
 
 			if (d->account->invalid_char_index(atoi(arg))) {
-				send_to_desc(d, "That character selection doesn't exist.\r\n\r\n");
+				send_to_desc(d, "\r\nThat character selection doesn't exist.\r\n\r\n");
 				return;
 			}
 
@@ -269,7 +273,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		}
 
 		if (playerIndex.exists(arg)) {
-			send_to_desc(d, "That character name is already taken.\r\n");
+			send_to_desc(d, "\r\nThat character name is already taken.\r\n\r\n");
 			return;
 		}
 
@@ -288,7 +292,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			set_desc_state(CXN_NAME_PROMPT, d);
 			break;
 		default:
-			send_to_desc(d, "Please enter Y or N.\r\n"); break;
+			send_to_desc(d, "\r\nPlease enter Y or N.\r\n\r\n"); break;
 		}
 		break;
 	case CXN_SEX_PROMPT:
@@ -302,7 +306,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			set_desc_state(CXN_TIME_PROMPT, d);
 			break;
 		default:
-			send_to_desc(d, "Please enter male or female.\r\n"); break;
+			send_to_desc(d, "\r\nPlease enter male or female.\r\n\r\n"); break;
 		}
 		break;
 	case CXN_TIME_PROMPT:
@@ -319,7 +323,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		GET_RACE(d->creature) = parse_pc_race(d, arg, TIME_PAST);
 		if (GET_RACE(d->creature) == CLASS_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nThat's not a choice.\r\n", d);
+			SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
 			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
 			break;
 		}
@@ -330,7 +334,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		GET_RACE(d->creature) = parse_pc_race(d, arg, TIME_FUTURE);
 		if (GET_RACE(d->creature) == CLASS_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nThat's not a choice.\r\n", d);
+			SEND_TO_Q("\r\nThat's not a choice.\r\n\r\n", d);
 			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
 			break;
 		}
@@ -341,7 +345,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		GET_CLASS(d->creature) = parse_player_class(arg, TIME_PAST);
 		if (GET_CLASS(d->creature) == CLASS_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
+			SEND_TO_Q("\r\nThat's not a character class.\r\n\r\n", d);
 			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
 			return;
 		}
@@ -353,7 +357,7 @@ handle_input(struct descriptor_data *d, char *arg)
 
 		if (!race_restr[i][GET_CLASS(d->creature)+1]) {
 				SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
-				SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n", d);
+				SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n\r\n", d);
 				GET_CLASS(d->creature) = CLASS_UNDEFINED;
 		} else
 			set_desc_state( CXN_ALIGN_PROMPT,d );
@@ -362,7 +366,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		GET_CLASS(d->creature) = parse_player_class(arg, TIME_FUTURE);
 		if (GET_CLASS(d->creature) == CLASS_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
+			SEND_TO_Q("\r\nThat's not a character class.\r\n\r\n", d);
 			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
 			return;
 		}
@@ -372,7 +376,7 @@ handle_input(struct descriptor_data *d, char *arg)
 				break;
 		if (!race_restr[i][GET_CLASS(d->creature)+1]) {
 				SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
-				SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n", d);
+				SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n\r\n", d);
 				GET_CLASS(d->creature) = CLASS_UNDEFINED;
 		} else
 			set_desc_state( CXN_ALIGN_PROMPT,d );
@@ -381,7 +385,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		GET_REMORT_CLASS(d->creature) = parse_player_class(arg, TIME_TIMELESS);
 		if (GET_REMORT_CLASS(d->creature) == CLASS_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nThat's not a character class.\r\n", d);
+			SEND_TO_Q("\r\nThat's not a character class.\r\n\r\n", d);
 			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
 			return;
 		}
@@ -391,10 +395,10 @@ handle_input(struct descriptor_data *d, char *arg)
 				break;
 		if (!race_restr[i][GET_REMORT_CLASS(d->creature)+1]) {
 			SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n", d);
+			SEND_TO_Q("\r\nThat character class is not allowed to your race!\r\n\r\n", d);
 		} else if (GET_REMORT_CLASS(d->creature) == GET_CLASS(d->creature)) {
 			SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nYou can't remort to your primary class!\r\n", d);
+			SEND_TO_Q("\r\nYou can't remort to your primary class!\r\n\r\n", d);
 			
 		} else if ((GET_CLASS(d->creature) == CLASS_MONK &&
 				(GET_REMORT_CLASS(d->creature) == CLASS_KNIGHT ||
@@ -404,7 +408,7 @@ handle_input(struct descriptor_data *d, char *arg)
 				GET_REMORT_CLASS(d->creature) == CLASS_MONK)) {
 			// No being a monk and a knight or cleric
 			SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
-			SEND_TO_Q("\r\nYour religious beliefs are in conflict with that class!\r\n", d);
+			SEND_TO_Q("\r\nYour religious beliefs are in conflict with that class!\r\n\r\n", d);
 			
 		} else {
 			if (GET_CLASS(d->creature) == CLASS_VAMPIRE)
@@ -437,14 +441,12 @@ handle_input(struct descriptor_data *d, char *arg)
 			if (GET_CLASS(d->creature) == CLASS_KNIGHT ||
 				GET_CLASS(d->creature) == CLASS_CLERIC) {
 				SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
-				SEND_TO_Q("Characters of your character class must be either Good, or Evil.\r\n", d);
+				SEND_TO_Q("Characters of your character class must be either Good, or Evil.\r\n\r\n", d);
 				break;
 			}
 			d->creature->char_specials.saved.alignment = 0;
 		} else {
-			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
-			SEND_TO_Q("Thats not a choice.\r\n", d);
-			SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
+			send_to_desc(d, "\r\nThat's not a choice.\r\n\r\n");
 			break;
 		}
 
@@ -473,13 +475,13 @@ handle_input(struct descriptor_data *d, char *arg)
                     GET_NAME(d->creature), GET_IDNUM(d->creature) );
 			d->creature->saveToXML();
 		} else
-			SEND_TO_Q("You must type 'reroll' or 'keep'.\r\n", d);
+			SEND_TO_Q("\r\nYou must type 'reroll' or 'keep'.\r\n\r\n", d);
 		break;
 	case CXN_EDIT_DESC:
 		break;
 	case CXN_DELETE_PROMPT:
 		if (d->account->invalid_char_index(atoi(arg))) {
-			send_to_desc(d, "That character selection doesn't exist.\r\n");
+			send_to_desc(d, "\r\nThat character selection doesn't exist.\r\n\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
 			return;
 		}
@@ -505,7 +507,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		break;
 	case CXN_DELETE_VERIFY:
 		if (strcmp(arg, "yes")) {
-			send_to_desc(d, "Delete cancelled.  %s will not be deleted.\r\n",
+			send_to_desc(d, "\r\nDelete cancelled.  %s will not be deleted.\r\n\r\n",
 				GET_NAME(d->creature));
 			delete d->creature;
 			d->creature = NULL;
@@ -513,7 +515,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			break;
 		}
 		
-		send_to_desc(d, "%s has been deleted.\r\n", GET_NAME(d->creature));
+		send_to_desc(d, "\r\n%s has been deleted.\r\n\r\n", GET_NAME(d->creature));
 		d->account->delete_char(d->creature);
 		delete d->creature;
 		d->creature = NULL;
@@ -737,8 +739,22 @@ send_menu(descriptor_data *d)
 		break;
 	case CXN_ANSI_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d,"&n\r\n                                   ANSI COLOR\r\n*******************************************************************************&n\r\n");
-		send_to_desc(d, "\r\n\r\nThis game supports ANSI color standards.\r\n\r\n");
+		send_to_desc(d,"\r\n                                   ANSI COLOR\r\n*******************************************************************************&n\r\n");
+		send_to_desc(d,
+"\r\n\r\n"
+"    This game supports ANSI color standards.  If you have a color capable\r\n"
+"terminal and wish to see useful color-coding of text, select the amount of\r\n"
+"coloring you desire.  You may experiment within the game with the 'color'\r\n"
+"command to see which level suits your personal taste.\r\n"
+"\r\n"
+"    If your terminal does not support color, you will want to select\r\n"
+"'none', as the color codes may mess up your display.  Use of at least\r\n"
+"some color is HIGHLY recommended, as it improves gameplay dramatically.\r\n"
+"\r\n"
+"                None - No color will be used\r\n"
+"              Sparse - Minimal amounts of color will be used.\r\n"
+"              Normal - Color will be used a medium amount.\r\n"
+"            Complete - Use the maximum amount of color available.\r\n\r\n");
 		break;
 	case CXN_EMAIL_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
