@@ -1027,7 +1027,7 @@ new_descriptor(int s)
 		SEND_TO_Q("\033[H\033[J", newd);
 		SEND_TO_Q(GREETINGS, newd);
 	} else
-		SEND_TO_Q("(tempus testmud) name: ", newd);
+		SEND_TO_Q("(testmud)", newd);
 	return 0;
 }
 
