@@ -15,7 +15,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-/* FEATURES & INSTALLATION INSTRUCTIONS ***********************************
+/*  FEATURES & INSTALLATION INSTRUCTIONS ***********************************
 
 Written by Jeremy "Ras" Elson (jelson@cs.jhu.edu)
 

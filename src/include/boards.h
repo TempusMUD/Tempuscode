@@ -9,7 +9,7 @@
 ************************************************************************ */
 
 //
-// File: boards.h                      -- Part of TempusMUD
+//  File: boards.h                      -- Part of TempusMUD
 //
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
