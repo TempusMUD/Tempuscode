@@ -1644,10 +1644,12 @@ perform_give_gold(struct Creature *ch, struct Creature *vict, int amount)
 
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(vict) < LVL_AMBASSADOR &&
 		GET_LEVEL(ch) < LVL_GOD) {
-		sprintf(buf, "MONEY: %s has given %d coins to %s.", GET_NAME(ch),
+		slog("MONEY: %s has given %d coins to %s.", GET_NAME(ch),
 			amount, GET_NAME(vict));
-		slog(buf);
 	}
+
+	save_char(ch, NULL);
+	save_char(vict, NULL);
 }
 
 void
@@ -1674,11 +1676,12 @@ perform_plant_gold(struct Creature *ch, struct Creature *vict, int amount)
 	GET_GOLD(vict) += amount;
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(vict) < LVL_AMBASSADOR &&
 		GET_LEVEL(ch) < LVL_GOD) {
-		sprintf(buf, "MONEY: %s has planted %d coins on %s.", GET_NAME(ch),
+		slog("MONEY: %s has planted %d coins on %s.", GET_NAME(ch),
 			amount, GET_NAME(vict));
-		slog(buf);
 	}
 
+	save_char(ch, NULL);
+	save_char(vict, NULL);
 }
 
 void
@@ -1705,12 +1708,14 @@ perform_give_credits(struct Creature *ch, struct Creature *vict, int amount)
 		GET_CASH(ch) -= amount;
 	GET_CASH(vict) += amount;
 
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(vict) < LVL_AMBASSADOR &&
-		GET_LEVEL(ch) < LVL_GOD) {
-		sprintf(buf, "MONEY: %s has given %d credits to %s.", GET_NAME(ch),
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR &&
+			GET_LEVEL(vict) < LVL_AMBASSADOR &&
+			GET_LEVEL(ch) < LVL_GOD)
+		slog("MONEY: %s has given %d credits to %s.", GET_NAME(ch),
 			amount, GET_NAME(vict));
-		slog(buf);
-	}
+
+	save_char(ch, NULL);
+	save_char(vict, NULL);
 }
 
 void
@@ -1737,11 +1742,12 @@ perform_plant_credits(struct Creature *ch, struct Creature *vict, int amount)
 	GET_CASH(vict) += amount;
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(vict) < LVL_AMBASSADOR &&
 		GET_LEVEL(ch) < LVL_GOD) {
-		sprintf(buf, "MONEY: %s has planted %d credits on %s.", GET_NAME(ch),
+		slog("MONEY: %s has planted %d credits on %s.", GET_NAME(ch),
 			amount, GET_NAME(vict));
-		slog(buf);
 	}
 
+	save_char(ch, NULL);
+	save_char(vict, NULL);
 }
 
 ACMD(do_give)
