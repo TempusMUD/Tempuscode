@@ -229,6 +229,7 @@ void CTextEditor::Append(char *inStr) {
         return;
     }
     theText.push_back(inStr);
+    Wrap();
     UpdateSize();
 }
 bool CTextEditor::Insert(unsigned int line, char *inStr) {
@@ -255,7 +256,7 @@ bool CTextEditor::Insert(unsigned int line, char *inStr) {
 
     // Insert the new text
     theText.insert(s,text);
-
+    Wrap();
     UpdateSize();
     
     return true;
@@ -291,6 +292,7 @@ bool CTextEditor::ReplaceLine(unsigned int line, char *inStr) {
     // Insert the new text
     theText.insert(s,text);
 
+    Wrap();
     UpdateSize();
     return true;
 }
@@ -343,12 +345,6 @@ bool CTextEditor::FindReplace(char *args) {
     }
 	// Advance past [
 	r++;
-    /*
-    if(*r == ']') {
-        SendMessage("You can't search for nothing...\r\n");
-        return false;
-    }
-    */
 	for(w = temp;*r && *r != ']';r++)
 		*w++ = *r;
 	// terminate w;
@@ -362,15 +358,23 @@ bool CTextEditor::FindReplace(char *args) {
 	
 	// Find "findit" in theText a line at a time and replace each instance.
     unsigned int pos;
-	for(line = theText.begin();line != theText.end();line++) {
+    bool overflow=false;
+	for(line = theText.begin();!overflow && line != theText.end();line++) {
         pos=0;
 		while(pos < line->length()) {
             pos = line->find(findit,pos);
             if(pos < line->length()) {
-            if((curSize - findit.length() + replaceit.length() ))
+                if((curSize - findit.length() + replaceit.length()) +
+                  ((theText.size() + 1) * 2 ) > maxSize) {
+                }
                 *line = line->replace(pos,findit.length(),replaceit);
                 replaced++;
                 pos += replaceit.length();
+            }
+            if(replaced >= 100) {
+                SendMessage("Replacement limit of 100 reached.\r\n");
+                overflow = true;
+                break;
             }
 		}
 	}
@@ -381,7 +385,41 @@ bool CTextEditor::FindReplace(char *args) {
     } else {
         SendMessage("Search string not found.\r\n");
     }
+    Wrap();
     UpdateSize();
+    return true;
+}
+bool CTextEditor::Wrap( void ) {
+    list<string>::iterator line;
+    string::iterator s;
+    string tempstr;
+    int linebreak;
+
+    for(line = theText.begin();line != theText.end();line++) {
+        linebreak = 76;
+        tempstr = "";
+        // If its less than 80 chars, it dont need ta be wrapped.
+        if(line->length() <= 76)
+            continue;
+
+        s = line->begin();
+
+        // Find the first space <= 80th char.
+        for(s += 75;s != line->begin() && *s != ' ';s--)
+            linebreak--;
+
+        if(linebreak == 1) { // Linebreak is at 80
+            s = line->begin();
+            s += 75;
+        }
+        tempstr.append(s,line->end());
+        if(linebreak > 1)  // If its a pos other than 1, its a space.
+            tempstr.erase(tempstr.begin());
+        line->erase(s,line->end());
+        line++;
+        theText.insert(line,1,tempstr);
+        line = theText.begin();
+    }
     return true;
 }
 bool CTextEditor::Remove(unsigned int line) {
@@ -397,6 +435,7 @@ bool CTextEditor::Remove(unsigned int line) {
     sprintf(buf,"Line %d deleted.\r\n",line);
     SendMessage(buf);
 
+    Wrap();
     UpdateSize();
     return true;
 }
@@ -422,6 +461,7 @@ void CTextEditor::ImportText( void ) {
         text = b;
         theText.push_back(text);
     }
+    Wrap();
 }
 
 void CTextEditor::UndoChanges( char *inStr ) {

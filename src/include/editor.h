@@ -41,6 +41,7 @@ class CTextEditor {
         void Help(char *inStr); // Open refrigerator?
 
         void UpdateSize( void );
+        bool Wrap( void ); // Wordwrap
         bool Full( char *inStr=NULL );
         // Below: The internal text manip commands
         void Append(char *inStr); // Standard appending lines.
