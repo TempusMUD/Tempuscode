@@ -448,7 +448,7 @@ HouseControl::destroyHouse( House *house )
 		if( room == NULL ) {
 			slog("SYSERR: House had invalid room number in destroy: %d", house->getRoom(i) );
 		} else {
-			REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE | ROOM_HOUSE_CRASH | ROOM_ATRIUM);
+			REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE | ROOM_HOUSE_CRASH);
 		}
 	}
 	unlink( get_house_file_path( house->getID() ) );

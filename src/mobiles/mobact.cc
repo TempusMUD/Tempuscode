@@ -244,6 +244,15 @@ burn_update(void)
 				}
 			}
 		}
+
+		// comfortable rooms
+		if (ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_COMFORT)) {
+			GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + 1);
+			GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + 1);
+			GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 1);
+			ch->checkPosition();
+		}
+
 		// regen
 		if (AFF_FLAGGED(ch, AFF_REGEN) || IS_TROLL(ch) || IS_VAMPIRE(ch)) {
 			GET_HIT(ch) =

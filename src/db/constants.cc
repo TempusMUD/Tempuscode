@@ -522,7 +522,7 @@ extern const char *room_bits[] = {
 	"GDR",
 	"HAS",
 	"HCR",
-	"ATRM",
+	"COMFORT",
 	"SMOKE",
 	"!FLEE",
 	"!PSI",
@@ -557,7 +557,7 @@ extern const char *roomflag_names[] = {
 	"godroom",
 	"RES (house)",
 	"RES (house crash)",
-	"RES (house atrium)",
+	"comfortable",
 	"smoke-filled",
 	"noflee",
 	"nopsionics",
@@ -574,7 +574,7 @@ extern const char *roomflag_names[] = {
 	"sleep gas",
 	"explosive gas",
 	"poison gas",
-	"vaccum",
+	"vacuum",
 	"\n"
 };
 

@@ -44,7 +44,7 @@
 #define ROOM_GODROOM              (1 << 10)	/* LVL_GOD+ only allowed        */
 #define ROOM_HOUSE                (1 << 11)	/* (R) Room is a house        */
 #define ROOM_HOUSE_CRASH          (1 << 12)	/* (R) House needs saving        */
-#define ROOM_ATRIUM               (1 << 13)	/* (R) The door to a house        */
+#define ROOM_COMFORT              (1 << 13)	// Players refresh faster
 #define ROOM_SMOKE_FILLED         (1 << 14)	/* Room is filled with smoke */
 #define ROOM_NOFLEE               (1 << 15)	// room resists fleeing
 #define ROOM_NOPSIONICS           (1 << 16)	/* No psionics allowed       */
