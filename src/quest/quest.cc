@@ -252,7 +252,8 @@ do_qcontrol_help(struct char_data *ch, char *argument)
         while (1) {
             if (*qtypes[i] == '\n')
                 break;
-            sprintf(buf, "%s %2d. %s\r\n", buf, i++, qtypes[i]);
+            sprintf(buf, "%s %2d. %s\r\n", buf, i, qtypes[i]);
+			i++;
         }
         page_string(ch->desc, buf, 1);
         return;
@@ -264,7 +265,8 @@ do_qcontrol_help(struct char_data *ch, char *argument)
         while (1) {
             if (*quest_bits[i] == '\n')
                 break;
-            sprintf(buf, "%s %2d. %s\r\n", buf, i++, quest_bits[i]);
+            sprintf(buf, "%s %2d. %s\r\n", buf, i, quest_bits[i]);
+			i++;
         }
         page_string(ch->desc, buf, 1);
         return;
