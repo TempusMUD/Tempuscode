@@ -260,10 +260,10 @@ die(struct char_data *ch, struct char_data *killer, int attacktype,
 	if( LOG_DEATHS ) {
 		if( IS_NPC(ch) ) {
 			slog("DEATH: %s killed by %s. attacktype: %d SPEC[%d]\r\n",
-					ch,killer,attacktype, GET_MOB_SPEC(ch));
+					GET_NAME(ch),GET_NAME(killer),attacktype, GET_MOB_SPEC(ch));
 		} else {
 			slog("DEATH: %s killed by %s. attacktype: %d PC\r\n",
-					ch,killer,attacktype);
+					GET_NAME(ch),GET_NAME(killer),attacktype);
 		}
 	}
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && killer &&
