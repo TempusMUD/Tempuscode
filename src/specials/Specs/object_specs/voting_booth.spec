@@ -125,6 +125,7 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 	struct voting_option *opt;
 	struct memory_rec_struct *memory;
 	int poll_num;
+	char *msg;
 
 	skip_spaces(&argument);
 
@@ -148,26 +149,29 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 	while (memory && memory->next && memory->id != GET_IDNUM(ch))
 		memory = memory->next;
 
+	send_to_char(ch, "%s", poll->descrip);
+
 	for (opt = poll->options; opt; opt = opt->next) {
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 			if (opt->count != poll->count)
-				sprintf(buf, "%3d/%4ld (%2d%%/%2ld%%) %c) %s",
+				msg = tmp_sprintf("%3d/%4ld (%2d%%/%2ld%%) %c) %s",
 					opt->count, opt->weight,
 					((poll->count) ? ((opt->count * 100) / poll->count) : 0),
 					((poll->weight) ? ((opt->weight * 100) /
 							poll->weight) : 0), opt->idx, opt->descrip);
 			else
-				sprintf(buf, "%3d/%4ld (all/all) %c) %s",
+				msg = tmp_sprintf("%3d/%4ld (all/all) %c) %s",
 					opt->count, opt->weight, opt->idx, opt->descrip);
 		} else if (memory && memory->id == GET_IDNUM(ch)) {
 			if (opt->count != poll->count)
-				sprintf(buf, "(%2d%%) %c) %s",
+				msg = tmp_sprintf("(%2d%%) %c) %s",
 					((poll->count) ? ((opt->count * 100) / poll->count) : 0),
 					opt->idx, opt->descrip);
 			else
-				sprintf(buf, "(all) %c) %s", opt->idx, opt->descrip);
+				msg = tmp_sprintf("(all) %c) %s", opt->idx, opt->descrip);
 		} else
-			send_to_char(ch, "      %c) %s", opt->idx, opt->descrip);
+			msg = tmp_sprintf("      %c) %s", opt->idx, opt->descrip);
+		send_to_char(ch, "%s", msg);
 	}
 }
 
