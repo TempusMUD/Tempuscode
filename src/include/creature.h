@@ -139,7 +139,7 @@ static const int RACE_ELF = 1;
 static const int RACE_DWARF = 2;
 static const int RACE_HALF_ORC = 3;
 static const int RACE_KLINGON = 4;
-static const int RACE_HAFLING = 5;
+static const int RACE_HALFLING = 5;
 static const int RACE_TABAXI = 6;
 static const int RACE_DROW = 7;
 static const int RACE_MOBILE = 10;
@@ -150,7 +150,7 @@ static const int RACE_DRAGON = 14;
 static const int RACE_GIANT = 15;
 static const int RACE_ORC = 16;
 static const int RACE_GOBLIN = 17;
-static const int RACE_HALFLING = 18;
+static const int RACE_HAFLING = 18;
 static const int RACE_MINOTAUR = 19;
 static const int RACE_TROLL = 20;
 static const int RACE_GOLEM = 21;
@@ -756,7 +756,6 @@ struct char_special_data {
 	int getPosition(void) {
 		return position;
 	}
-
 	int getCarriedWeight(void) {
 		return carry_weight;
 	}
@@ -999,6 +998,8 @@ struct Creature {
 	bool setPosition(int new_pos, int mode = 0);
 	// Get returns current pos (standing sitting etc.)
 	int getPosition(void) { return char_specials.getPosition(); }
+	// Makes sure that the creature is forced into positions when necessary
+	void checkPosition(void);
 	// retrieve the char's speed attribute ( or 0 for mobiles )
 	int getSpeed(void);
 	// Assign the char's speed attribute. ( does nothing for mobs )
