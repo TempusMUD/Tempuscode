@@ -1280,9 +1280,9 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     if (IS_SICK(victim))
         return;
 
-    sprintf(buf, "%s has contracted a disease from %s.",GET_NAME(victim),
-        GET_NAME(ch));
-    mudlog(buf, CMP, MAX(GET_INVIS_LEV(ch),GET_INVIS_LEV(victim)),TRUE);
+    //Why was this logged in the first place?
+    //sprintf(buf, "%s has contracted a disease from %s.", GET_NAME(victim), GET_NAME(ch)); 
+    //mudlog(buf, CMP, MAX(GET_INVIS_LEV(ch),GET_INVIS_LEV(victim)),TRUE);
     af.type = SPELL_SICKNESS;
     af2.type = SPELL_SICKNESS;
     af.location = APPLY_HITROLL;
