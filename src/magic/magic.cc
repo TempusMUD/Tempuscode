@@ -1373,8 +1373,8 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			af.aff_index = 1;
 		}
 
-		to_vict = "You inhale the vapours and get violently sick!";
-		to_room = "$n gets violently ill from inhaling the vapours!";
+		to_vict = "You inhale the vapors and get violently sick!";
+		to_room = "$n gets violently ill from inhaling the vapors!";
 		break;
 	case SPELL_POISON:
 		if (IS_UNDEAD(victim))
