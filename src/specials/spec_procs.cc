@@ -1537,10 +1537,10 @@ SPECIAL(cityguard)
 
 SPECIAL(pet_shops)
 {
-	char buf[MAX_STRING_LENGTH], pet_name[256];
-	int cost;
-	struct room_data *pet_room;
 	struct char_data *pet;
+	struct room_data *pet_room;
+	char *pet_name, *pet_kind;
+	int cost;
 
 	pet_room = real_room(ch->in_room->number + 1);
 
@@ -1551,13 +1551,14 @@ SPECIAL(pet_shops)
 			cost = (IS_NPC((*it)) ? GET_EXP((*it)) * 3 : (GET_EXP(ch) >> 2));
 			send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME((*it)));
 		}
-		return (TRUE);
-	} else if (CMD_IS("buy")) {
+		return 1;
+	}
 
-		argument = one_argument(argument, buf);
-		argument = one_argument(argument, pet_name);
+	if (CMD_IS("buy")) {
+		pet_kind = tmp_getword(&argument);
+		pet_name = tmp_getword(&argument);
 
-		if (!(pet = get_char_room(buf, pet_room))) {
+		if (!(pet = get_char_room(pet_kind, pet_room))) {
 			send_to_char(ch, "There is no such pet!\r\n");
 			return (TRUE);
 		}
@@ -1571,6 +1572,18 @@ SPECIAL(pet_shops)
 			send_to_char(ch, "You don't have enough gold!\r\n");
 			return (TRUE);
 		}
+
+		if (ch->followers) {
+			struct follow_type *f;
+
+			for (f = ch->followers; f; f = f->next) {
+				if (IS_AFFECTED(f->follower, AFF_CHARM)) {
+					send_to_char(ch, "You seem to already have a pet.\r\n");
+					return 1;
+				}
+			}
+		}
+
 		GET_GOLD(ch) -= cost;
 
 		if (IS_NPC(pet)) {
@@ -1578,13 +1591,17 @@ SPECIAL(pet_shops)
 			GET_EXP(pet) = 0;
 
 			if (*pet_name) {
-				sprintf(buf, "%s %s", pet->player.name, pet_name);
-				pet->player.name = str_dup(buf);
+				char *tmp;
 
-				sprintf(buf,
-					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
-					pet->player.description, pet_name);
-				pet->player.description = str_dup(buf);
+				tmp = pet->player.name;
+				pet->player.name = str_dup(
+					tmp_strcat(pet->player.name, " ", pet_name, NULL));
+				free(tmp);
+
+				tmp = pet->player.description;
+				pet->player.description = str_dup(
+					tmp_strcat(pet->player.description, "A small sign on a chain around the neck says 'My name is ", pet_name, "'\r\n", NULL));
+				free(tmp);
 			}
 			char_to_room(pet, ch->in_room);
 

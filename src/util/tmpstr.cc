@@ -163,6 +163,7 @@ tmp_strcat(char *src, ...)
 		while (*write_pt)
 			write_pt++;
 	}
+	va_end(args);
 		
 	return result;
 }
@@ -193,6 +194,9 @@ tmp_getword(char **src)
 
 	while (*read_pt && !isspace(*read_pt))
 		*write_pt++ = tolower(*read_pt++);
-	
+	*write_pt = '\0';
+
+	cur_buf->used += len;
+	*src = read_pt;
 	return result;
 }

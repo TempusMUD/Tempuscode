@@ -1259,8 +1259,7 @@ look_at_room(struct char_data *ch, struct room_data *room, int ignore_brief)
 		send_to_char(ch, room->name);
 	}
 
-	send_to_char(ch, CCNRM(ch, C_NRM));
-	send_to_char(ch, "\r\n");
+	send_to_char(ch, "%s\r\n", CCNRM(ch, C_NRM));
 
 	if (((!PRF_FLAGGED(ch, PRF_BRIEF) &&
 				(!ch->desc->original
@@ -1269,8 +1268,7 @@ look_at_room(struct char_data *ch, struct room_data *room, int ignore_brief)
 		&& (!ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)
 			|| PRF_FLAGGED(ch, PRF_HOLYLIGHT)
 			|| ROOM_FLAGGED(room, ROOM_DEATH))
-		&&
-			room->description)
+		&& room->description)
 		send_to_char(ch, "%s", room->description);
 
 	for (aff = room->affects; aff; aff = aff->next)
