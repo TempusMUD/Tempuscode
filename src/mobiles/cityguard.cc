@@ -28,10 +28,28 @@ SPECIAL(guard);
 // - when the guard dies, two more spawn, hunting the attacker
 
 void
-call_for_help(Creature *ch, Creature *attacker)
+summon_cityguards(room_data *room)
 {
 	CreatureList::iterator it;
 	cityguard_data *data;
+
+	// Now get about half the cityguards in the zone to respond
+	for (it = characterList.begin(); it != characterList.end();it++) {
+		if (GET_MOB_SPEC((*it)) != cityguard)
+			continue;
+		if ((*it)->in_room
+				&& (*it)->in_room->zone == room->zone
+				&& !number(0, 4)) {
+			data = (cityguard_data *)((*it)->mob_specials.func_data);
+			if (!data->targ_room)
+				data->targ_room = room->number;
+		}
+	}
+}
+
+void
+call_for_help(Creature *ch, Creature *attacker)
+{
 	const char *msg;
 
 	// Emit a shout for help
@@ -68,18 +86,7 @@ call_for_help(Creature *ch, Creature *attacker)
 	}
 	do_gen_comm(ch, tmp_sprintf(msg, GET_DISGUISED_NAME(ch, attacker)),
 		0, SCMD_SHOUT, 0);
-	
-	// Now get about half cityguards in the zone to respond
-	for (it = characterList.begin(); it != characterList.end();it++) {
-		if (GET_MOB_SPEC((*it)) != cityguard)
-			continue;
-		if ((*it)->in_room
-				&& (*it)->in_room->zone == ch->in_room->zone
-				&& !number(0, 4)) {
-			data = (cityguard_data *)((*it)->mob_specials.func_data);
-			data->targ_room = ch->in_room->number;
-		}
-	}
+	summon_cityguards(ch->in_room);
 }
 
 int
@@ -315,7 +322,7 @@ SPECIAL(cityguard)
 				STD_TRACK);
 			if (dir >= 0
 					&& MOB_CAN_GO(self, dir)
-					&& !ROOM_FLAGGED(self->in_room->dir_option[dir]->to_room, ROOM_NOMOB | ROOM_DEATH)) {
+					&& !ROOM_FLAGGED(self->in_room->dir_option[dir]->to_room, ROOM_DEATH)) {
 				smart_mobile_move(self, dir);
 				return true;
 			}
@@ -364,15 +371,6 @@ SPECIAL(cityguard)
 				&& GET_REPUTATION(tch) >= CRIMINAL_REP / 2) {
 			action = 1;
 			target = tch;
-		}
-
-		if (!IS_NPC(tch)
-				&& can_see_creature(ch, tch)
-				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)) {
-			if (GET_REPUTATION(tch) > CRIMINAL_REP && !number(0, 4)) {
-			} else if (GET_REPUTATION(*it) > (CRIMINAL_REP / 2) && !number(0,10)) {
-				tch = (*it);
-			}
 		}
 	}
 
@@ -445,6 +443,7 @@ SPECIAL(cityguard)
 			act("$n sharpens $p while watching you.",
 				false, ch, GET_EQ(ch, WEAR_WIELD), tch, TO_VICT);
 		}
+		break;
 	case 2:
 		// stopping fight
 		switch (number(0, 2)) {
