@@ -275,6 +275,7 @@ static const int SPELL_TAINT = 147;	// Evil knight remort spell, taint.
 static const int SPELL_LOCUST_REGENERATION = 148;	// Mage remort skill, drains mana
 static const int SPELL_DIVINE_POWER = 149;	// Good cleric remort skill.
 static const int SPELL_DEATH_KNELL = 150;	// Evil cleric remort skill.
+static const int SPELL_TELEPATHY = 151;
 
   /************************** Psionic Triggers ***************/
 static const int SPELL_POWER = 201;	/* Strength                */
