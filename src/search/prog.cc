@@ -254,6 +254,8 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 	matched = (evt->kind == PROG_EVT_LOAD);
   } else if (!strcmp("tick", arg)) {
 	matched = (evt->kind == PROG_EVT_TICK);
+  } else if (!strcmp("death", arg)) {
+    matched = (evt->kind == PROG_EVT_DEATH);
   }
 
 
@@ -1610,6 +1612,35 @@ trigger_prog_fight(Creature *ch, Creature *self)
 
   env = prog_start(PROG_TYPE_MOBILE, self, ch, &evt);
   prog_execute(env);
+}
+
+void
+trigger_prog_death(void *owner, int owner_type, Creature *ch)
+{
+  prog_env *env;
+  prog_evt evt;
+  
+  
+  // We don't want an infinite loop with triggered progs that
+  // trigger a prog, etc.
+  if (loop_fence >= 20) {
+	mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+	return;
+  }
+	
+  loop_fence++;
+
+  evt.phase = PROG_EVT_AFTER;
+  evt.kind = PROG_EVT_DEATH;
+  evt.cmd = -1;
+  evt.subject = ch;
+  evt.object = NULL;
+  evt.object_type = PROG_TYPE_NONE;
+  evt.args = strdup("");
+  env = prog_start(owner_type, owner, ch, &evt);
+  prog_execute(env);
+	
+  loop_fence -= 1;
 }
 
 void

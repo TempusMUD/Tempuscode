@@ -28,7 +28,8 @@ enum prog_evt_kind {
 	PROG_EVT_LOAD,
 	PROG_EVT_TICK,
     PROG_EVT_SPELL,
-    PROG_EVT_COMBAT
+    PROG_EVT_COMBAT,
+    PROG_EVT_DEATH
 };
 
 struct prog_evt {
@@ -76,6 +77,7 @@ void trigger_prog_tick(void *owner, int owner_type);
 void trigger_prog_load(Creature *self);
 void trigger_prog_fight(Creature *ch, Creature *self);
 void trigger_prog_give(Creature *ch, Creature *self, struct obj_data *obj);
+void trigger_prog_death(void *owner, int owner_type, Creature *ch);
 prog_env *prog_start(int owner_type, void *owner, Creature *target, prog_evt *evt);
 void prog_free(struct prog_env *prog);
 void prog_update(void);

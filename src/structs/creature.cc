@@ -1124,6 +1124,17 @@ Creature::die(void)
 	obj_data *obj, *next_obj;
 	int pos;
 
+    if (GET_ROOM_PROG(this->in_room) != NULL) {
+	    trigger_prog_death(this->in_room, PROG_TYPE_ROOM, this);
+    }
+    
+    CreatureList::iterator it = this->in_room->people.begin();
+	for (; it != this->in_room->people.end(); ++it) {
+		if (GET_MOB_PROG((*it)) != NULL) {
+			trigger_prog_death(*it, PROG_TYPE_MOBILE, this);
+        }
+	}
+    
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
 	// their stuff to the room
 	for (pos = 0;pos < NUM_WEARS;pos++) {
