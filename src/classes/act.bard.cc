@@ -360,62 +360,61 @@ struct bard_song songs[] = {
 void
 sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songnum)
 {
-    char *buf, *vbuf;
-    struct bard_song *song = &songs[songnum - TOP_BARD_SONG - 1];
+  char *buf, *vbuf;
+  struct bard_song *song = &songs[songnum - TOP_BARD_SONG - 1];
 
-    if (songnum < TOP_BARD_SONG || songnum > TOP_BARD_SONG + NUM_BARD_SONGS) {
-        char *errbuf = tmp_sprintf("SYSERR: (%d) Not a bard song in sing_song()", songnum);
-        mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, true, errbuf);
-        return;
-    }
+  if (songnum < TOP_BARD_SONG || songnum > TOP_BARD_SONG + NUM_BARD_SONGS) {
+	char *errbuf = tmp_sprintf("SYSERR: (%d) Not a bard song in sing_song()", songnum);
+	mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, true, errbuf);
+	return;
+  }
 
-    CreatureList::iterator it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it) {
-        if (!(*it)->desc || !AWAKE((*it)) ||
-            PLR_FLAGGED((*it), PLR_WRITING | PLR_OLC))
-            continue;
+  CreatureList::iterator it = ch->in_room->people.begin();
+  for (; it != ch->in_room->people.end(); ++it) {
+	if (!(*it)->desc || !AWAKE((*it)) ||
+		PLR_FLAGGED((*it), PLR_WRITING | PLR_OLC))
+	  continue;
 
-        Creature *tch = *it;
-        
-        if (tch == ch) {
-            if (vict && vict != ch && (vict->in_room == ch->in_room))
-                vbuf = tmp_sprintf( " to %s", GET_NAME(vict));
-            else if (ovict)
-                vbuf = tmp_sprintf(" to %s", ovict->name);
-            else
-                vbuf = "";
+	Creature *tch = *it;
+       
+	if (ovict)
+	  vbuf = tmp_sprintf(" to %s", OBJS(ovict, tch));
+	else if (!vict)
+	  vbuf = "";
+	else if (vict == tch)
+	  vbuf = " to you";
+	else if (vict != ch)
+	  vbuf = tmp_sprintf(" to %s", PERS(vict, tch));
+	else
+	  vbuf = " to yourself";
 
-            if (!song->instrumental) {
-                buf = tmp_sprintf("You sing%s, %s\"%s\"%s", vbuf, CCCYN(ch, C_NRM),
-                                   song->lyrics, CCNRM(ch, C_NRM));
-                buf = pad_song(buf);
-            }
-            else  {
-                buf = tmp_sprintf("You begin to play %s%s.", song->lyrics, vbuf);
-            }
-        }
-        else {
-            if (vict && vict == tch)
-                vbuf = tmp_strdup(" to you");
-            else if (vict && vict != ch)
-                vbuf = tmp_sprintf(" to %s", GET_NAME(vict));
-            else if (ovict)
-                vbuf = tmp_sprintf(" to %s", ovict->name);
-            else
-                vbuf = "";
+	if (song->instrumental) {
+	  if (tch == ch)
+		buf = tmp_sprintf("You begin to play %s%s.", song->lyrics, vbuf);
+	  else
+		buf = tmp_sprintf("%s begins playing %s%s.", 
+						  PERS(ch, tch),
+						  song->lyrics,
+						  vbuf);
+	} else {
+	  if (tch == ch)
+		buf = tmp_sprintf("You sing%s, %s\"%s\"%s",
+						  vbuf,
+						  CCCYN(tch, C_NRM),
+						  song->lyrics,
+						  CCNRM(tch, C_NRM));
+	  else
+		buf = tmp_sprintf("%s sings%s, %s\"%s\"%s",
+						  PERS(ch, tch),
+						  vbuf, 
+						  CCCYN(tch, C_NRM), 
+						  song->lyrics,
+						  CCNRM(tch, C_NRM));
+	  buf = pad_song(buf);
+	}
 
-            if (!song->instrumental) {
-                buf = tmp_sprintf("%s sings%s, %s\"%s\"%s", GET_NAME(ch), vbuf, 
-                                  CCCYN(ch, C_NRM), song->lyrics, CCNRM(ch, C_NRM));
-                buf = pad_song(buf);
-            }
-            else {
-                buf = tmp_sprintf("%s begins playing %s%s.", GET_NAME(ch), song->lyrics, vbuf);
-            }
-        }
-        
-        perform_act(buf, ch, NULL, NULL, tch, 0);
-    }
+	perform_act(buf, ch, NULL, NULL, tch, 0);
+  }
 }
 
 char *pad_song(char *lyrics)
