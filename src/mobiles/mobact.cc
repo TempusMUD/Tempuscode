@@ -2170,7 +2170,7 @@ void mobile_activity(void) {
                         if (AWAKE(vict) && !IS_UNDEAD(ch) && !IS_DRAGON(ch) &&
                             !IS_DEVIL(ch) && GET_HIT(ch) > GET_HIT(vict) &&
                             ((GET_LEVEL(vict) + ((50 * GET_HIT(vict)) / 
-                                                 GET_MAX_HIT(vict))) >
+                                                 MAX(1,GET_MAX_HIT(vict)))) >
                              GET_LEVEL(ch) + (GET_MORALE(ch) >> 1) + random_percentage() ) ) {
                             if (!IS_ANIMAL(ch) && !IS_SLIME(ch) && !IS_PUDDING(ch)) {
                                 if ( random_fractional_4() )
@@ -3201,7 +3201,7 @@ int mobile_battle_activity( struct char_data *ch,
                 !affected_by_spell(ch, SPELL_ARMOR)) {
                 cast_spell(ch, ch, NULL, SPELL_ARMOR);
                 return 0;
-            } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 2)) {
+            } else if ((GET_HIT(ch) / MAX(1,GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) >> 2)) {
                 if ((GET_LEVEL(ch) < 12) && random_fractional_10() ) {
                     cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
                     return 0;
@@ -3496,7 +3496,7 @@ int mobile_battle_activity( struct char_data *ch,
             !affected_by_spell(ch, SPELL_ARMOR)) {
             cast_spell(ch, ch, NULL, SPELL_ARMOR);
             return 0;
-        } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 2)) {
+        } else if ((GET_HIT(ch) / MAX(1,GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) >> 2)) {
             if ((GET_LEVEL(ch) < 14) && (number(0, 10) == 0)) {
                 cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
                 return 0;
