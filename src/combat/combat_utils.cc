@@ -1569,13 +1569,13 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		IS_CARRYING_N(ch) = 0;
 		IS_CARRYING_W(ch) = 0;
 
-		if (!IS_NPC(ch) && ch->in_room->zone->number != 400 &&
-			ch->in_room->zone->number != 320)
-
-		for (o = corpse->contains; o; o = next_o) {
-			next_o = o->next_content;
-			if (OBJ_TYPE(o, ITEM_SCRIPT))
-				extract_obj(o);
+		// Remove all script objects if not an immortal
+		if (!IS_IMMORT(ch)) {
+			for (o = corpse->contains; o; o = next_o) {
+				next_o = o->next_content;
+				if (OBJ_TYPE(o, ITEM_SCRIPT))
+					extract_obj(o);
+			}
 		}
 	} 
 
