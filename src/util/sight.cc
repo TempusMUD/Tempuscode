@@ -158,7 +158,7 @@ check_sight_vict(Creature *self, Creature *vict)
 
 	// Sonic imagery and retina detects transparent creatures
 	if (IS_AFFECTED_2(vict, AFF2_TRANSPARENT) &&
-			(!IS_AFFECTED_3(self, AFF3_SONIC_IMAGERY) ||
+			!(IS_AFFECTED_3(self, AFF3_SONIC_IMAGERY) ||
 				IS_AFFECTED(self, AFF_RETINA)))
 		return false;
 
