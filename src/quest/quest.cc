@@ -56,38 +56,38 @@ const struct qcontrol_option {
 	int level;
 } qc_options[] = {
 	{
-	"show", "[vnum]", LVL_AMBASSADOR}, {
+	"show", "[quest vnum]", LVL_AMBASSADOR}, {
 	"create", "<type> <name>", LVL_AMBASSADOR}, {
-	"end", "<vnum>", LVL_AMBASSADOR}, {
+	"end", "<quest vnum>", LVL_AMBASSADOR}, {
 	"add", "<name> <vnum>", LVL_AMBASSADOR}, {
-	"kick", "<player> <vnum>", LVL_AMBASSADOR},	// 5
+	"kick", "<player> <quest vnum>", LVL_AMBASSADOR},	// 5
 	{
-	"flags", "<vnum> <+/-> <flags>", LVL_AMBASSADOR}, {
-	"comment", "<vnum> <comments>", LVL_AMBASSADOR}, {
-	"desc", "<vnum>", LVL_AMBASSADOR}, {
-	"update", "<vnum>", LVL_AMBASSADOR}, {
-	"ban", "<player> <vnum>", LVL_AMBASSADOR},	// 10
+	"flags", "<quest vnum> <+/-> <flags>", LVL_AMBASSADOR}, {
+	"comment", "<quest vnum> <comments>", LVL_AMBASSADOR}, {
+	"describe", "<quest vnum>", LVL_AMBASSADOR}, {
+	"update", "<quest vnum>", LVL_AMBASSADOR}, {
+	"ban", "<player> <quest vnum>", LVL_AMBASSADOR},	// 10
 	{
-	"unban", "<player> <vnum>", LVL_AMBASSADOR}, {
-	"mute", "<player> <vnum>", LVL_AMBASSADOR}, {
-	"unmute", "<player> <vnum>", LVL_AMBASSADOR}, {
-	"level", "<vnum> <access level>", LVL_AMBASSADOR}, {
-	"minlev", "<vnum> <minlev>", LVL_AMBASSADOR},	// 15
+	"unban", "<player> <quest vnum>", LVL_AMBASSADOR}, {
+	"mute", "<player> <quest vnum>", LVL_AMBASSADOR}, {
+	"unmute", "<player> <quest vnum>", LVL_AMBASSADOR}, {
+	"level", "<quest vnum> <access level>", LVL_AMBASSADOR}, {
+	"minlev", "<quest vnum> <minlev>", LVL_AMBASSADOR},	// 15
 	{
-	"maxlev", "<vnum> <maxlev>", LVL_AMBASSADOR}, {
-	"mingen", "<vnum> <min generation>", LVL_AMBASSADOR}, {
-	"maxgen", "<vnum> <max generation>", LVL_AMBASSADOR}, {
+	"maxlev", "<quest vnum> <maxlev>", LVL_AMBASSADOR}, {
+	"mingen", "<quest vnum> <min generation>", LVL_AMBASSADOR}, {
+	"maxgen", "<quest vnum> <max generation>", LVL_AMBASSADOR}, {
 	"mload", "<mobile vnum> <vnum>", LVL_IMMORT}, {
-	"purge", "<vnum> <mobile name>", LVL_IMMORT},	// 20
+	"purge", "<quest vnum> <mobile name>", LVL_IMMORT},	// 20
 	{
 	"save", "", LVL_GRIMP }, {
 	"help", "<topic>", LVL_AMBASSADOR}, {
 	"switch", "<mobile name>", LVL_IMMORT}, {
 	"rename", "<obj name> <new obj name>", LVL_GRIMP}, {
 	"oload", "<item num> <vnum>", LVL_AMBASSADOR}, {
-	"trans", "<vnum> [room number]", LVL_AMBASSADOR}, {
-	"award", "<player> <vnum> <pts> [comments]", LVL_AMBASSADOR}, {
-	"penalize", "<player> <vnum> <pts> [reason]", LVL_AMBASSADOR}, {
+	"trans", "<quest vnum> [room number]", LVL_AMBASSADOR}, {
+	"award", "<quest vnum> <player> <pts> [comments]", LVL_AMBASSADOR}, {
+	"penalize", "<quest vnum> <player> <pts> [reason]", LVL_AMBASSADOR}, {
 	NULL, NULL, 0}				// list terminator
 };
 
@@ -122,6 +122,17 @@ const char *quest_bits[] = {
 	"HIDE",
 	"WHOWHERE",
 	"\n"
+};
+
+const char *quest_bit_descs[] = {
+	"This quest has been reviewed.",
+	"The \'quest who\' command does not work in this quest.",
+	"Players in this quest cannot use the \'who\' command.",
+	"Players may not join this quest.",
+	"Players may not leave this quest.",
+	"Players cannot see this quest until this flag is removed.",
+	"\'quest who\' will show the locations of other questers.",
+	"\n"	
 };
 
 const char *qlog_types[] = {
@@ -346,28 +357,31 @@ do_qcontrol_help(struct char_data *ch, char *argument)
 		return;
 	}
 	if (is_abbrev(argument, "types")) {
-		strcpy(buf, "Quest types:\r\n");
+		char *msg = tmp_sprintf("Quest types:\r\n");
 		i = 0;
 		while (1) {
 			if (*qtypes[i] == '\n')
 				break;
-			sprintf(buf, "%s %2d. %s\r\n", buf, i, qtypes[i]);
+			char *line = tmp_sprintf("  %2d. %s\r\n", i, qtypes[i]);
+			msg = tmp_strcat(msg,line);
 			i++;
 		}
-		page_string(ch->desc, buf);
+		page_string(ch->desc, msg);
 		return;
-	}
-
-	else if (is_abbrev(argument, "flags")) {
-		strcpy(buf, "Quest flags:\r\n");
+	} else if (is_abbrev(argument, "flags")) {
+		char *msg = tmp_sprintf("Quest flags:\r\n");
 		i = 0;
 		while (1) {
 			if (*quest_bits[i] == '\n')
 				break;
-			sprintf(buf, "%s %2d. %s\r\n", buf, i, quest_bits[i]);
+			char *line = tmp_sprintf("  %2d. %s - %s\r\n", 
+									 i, 
+									 quest_bits[i],
+									 quest_bit_descs[i]);
+			msg = tmp_strcat(msg,line);
 			i++;
 		}
-		page_string(ch->desc, buf);
+		page_string(ch->desc, msg);
 		return;
 	}
 
@@ -2444,7 +2458,7 @@ do_qcontrol_award(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (!(quest = find_quest(ch, arg2))) {
+	if (!(quest = find_quest(ch, arg1))) {
 		return;
 	}
 
@@ -2452,8 +2466,8 @@ do_qcontrol_award(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if ((idnum = get_id_by_name(arg1)) < 0) {
-		send_to_char(ch, "There is no character named '%s'.\r\n", arg1);
+	if ((idnum = get_id_by_name(arg2)) < 0) {
+		send_to_char(ch, "There is no character named '%s'.\r\n", arg2);
 		return;
 	}
 
@@ -2492,6 +2506,7 @@ do_qcontrol_award(CHAR * ch, char *argument, int com)
 	if ((ch) && (vict)) {
 		GET_QUEST_POINTS(ch) -= award;
 		GET_QUEST_POINTS(vict) += award;
+		quest->addAwarded(award);
 		save_char(ch, NULL);
 		save_char(vict, NULL);
 		sprintf(buf, "awarded player %s %d qpoints.", GET_NAME(vict), award);
@@ -2524,7 +2539,7 @@ do_qcontrol_penalize(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if (!(quest = find_quest(ch, arg2))) {
+	if (!(quest = find_quest(ch, arg1))) {
 		return;
 	}
 
@@ -2532,8 +2547,8 @@ do_qcontrol_penalize(CHAR * ch, char *argument, int com)
 		return;
 	}
 
-	if ((idnum = get_id_by_name(arg1)) < 0) {
-		send_to_char(ch, "There is no character named '%s'.\r\n", arg1);
+	if ((idnum = get_id_by_name(arg2)) < 0) {
+		send_to_char(ch, "There is no character named '%s'.\r\n", arg2);
 		return;
 	}
 
@@ -2567,6 +2582,7 @@ do_qcontrol_penalize(CHAR * ch, char *argument, int com)
 	if ((ch) && (vict)) {
 		GET_QUEST_POINTS(vict) -= penalty;
 		GET_QUEST_POINTS(ch) += penalty;
+		quest->addPenalized(penalty);
 		save_char(vict, NULL);
 		save_char(ch, NULL);
 		send_to_char(vict, "%d of your quest points have been taken by %s!\r\n",

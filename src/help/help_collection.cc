@@ -885,9 +885,12 @@ ACMD(do_help_collection_command)
 				send_to_char(ch, "Invalid item numbers.\r\n");
 				break;
 			}
+			if( !A->Edit(ch) || !B->Edit(ch) ) {
+				send_to_char(ch, "Unable to edit topics.\r\n");
+				break;
+			}
 			SwapItems(A, Ap, B, Bp);
-			send_to_char(ch, "Okay.\r\n");
-			send_to_char(ch, "%s", buf);
+			send_to_char(ch, "Help items %d and %d swapped.\r\n", idA, idB);
 			break;
 		}						// case 14
 	default:

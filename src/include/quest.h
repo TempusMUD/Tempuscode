@@ -102,6 +102,8 @@ class Quest {
 		qplayer_data &getBan( long id );
 		void save( ostream &out );
 	public: // accessors
+		void addPenalized( int penalty ) { penalized += penalty; }
+		void addAwarded( int award ) { awarded += award; }
 		int getNumPlayers() { return (int)players.size(); }
 		int getNumBans() { return (int)bans.size(); }
 		int getAwarded() { return awarded; }
