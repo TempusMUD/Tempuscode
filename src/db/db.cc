@@ -542,7 +542,7 @@ build_old_player_index(void)
 			dir = opendir(dirname);
 			if (!dir) {
 				slog("SYSERR: Couldn't open or create directory %s", dirname);
-				exit(-1);
+				return;
 			}
 		}
 		while ((file = readdir(dir)) != NULL) {
