@@ -25,10 +25,7 @@ const char *GUARD_HELP =
 "\r\n"
 "                allow mage\r\n"
 "                deny evil\r\n"
-"                allow all\r\n"
-"\r\n"
-"Obviously, due to the limitation of one specparam per vnum, it is not\r\n"
-"possible to make mobs that operate in more than one room reliably.\r\n";
+"                allow all\r\n";
 
 
 SPECIAL(guard)
@@ -114,7 +111,7 @@ SPECIAL(guard)
 					GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
 			}
 		}
-	} else if (IS_IMMORT(ch) || ALLOW == reaction.react(ch))
+	} else if (ch == self || IS_IMMORT(ch) || ALLOW == reaction.react(ch))
 		return false;
 
 	// Set to deny if undecided
