@@ -731,7 +731,7 @@ extern const struct command_info cmd_info[] = {
     { "help"     , POS_DEAD    , do_hcollect_help,0, 0 },
     //    { "?"        , POS_DEAD    , do_help     , 0, 0 },
     { "?"        , POS_DEAD    , do_hcollect_help,0, 0 },
-    { "hedit"    , POS_RESTING , do_hedit    , 20, 0 },
+    { "hedit"    , POS_RESTING , do_hedit    , 1, 0 },
     { "hack"     , POS_STANDING, do_gen_door , 1, SCMD_HACK },
     { "halt"     , POS_DEAD    , do_gen_tog  , LVL_AMBASSADOR, SCMD_HALT },
     { "handbook" , POS_DEAD    , do_gen_ps   , LVL_AMBASSADOR, SCMD_HANDBOOK },
