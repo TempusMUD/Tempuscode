@@ -57,7 +57,7 @@ mob_read_script(struct char_data *ch)
     if (which == LAST_SCRIPT_ACTION)
       return 0;
 
-    if ((desc = find_exdesc(buf, obj->ex_description))) {
+    if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
       strcpy(buf, desc);
       if ((c = strrchr(buf, '\n')))
 	*c = '\0';

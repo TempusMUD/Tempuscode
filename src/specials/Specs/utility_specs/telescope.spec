@@ -13,7 +13,7 @@
 */
 
 
-char *find_exdesc(char *word, struct extra_descr_data *list);
+char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact=0);
 
 SPECIAL(telescope)
 {
