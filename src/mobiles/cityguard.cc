@@ -41,7 +41,7 @@ summon_cityguards(room_data *room)
 				&& (*it)->in_room->zone == room->zone
 				&& !number(0, 4)) {
 			data = (cityguard_data *)((*it)->mob_specials.func_data);
-			if (!data->targ_room)
+			if (data && !data->targ_room)
 				data->targ_room = room->number;
 		}
 	}
