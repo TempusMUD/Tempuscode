@@ -787,16 +787,16 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 	if (!IS_NPC(i)) {
 		if (!i->desc)
 			desc = tmp_sprintf("%s %s(linkless)%s", desc,
-				CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
+				CCMAG(ch, C_NRM), CCYEL(ch, C_NRM));
 		if (PLR_FLAGGED(i, PLR_WRITING))
 			desc = tmp_sprintf("%s %s(writing)%s", desc,
-				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+				CCGRN(ch, C_NRM), CCYEL(ch, C_NRM));
 		if (PLR_FLAGGED(i, PLR_OLC))
 			desc = tmp_sprintf("%s %s(creating)%s", desc,
-				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+				CCGRN(ch, C_NRM), CCYEL(ch, C_NRM));
 		if (PLR_FLAGGED(i, PLR_AFK))
 			desc = tmp_sprintf("%s %s(afk)%s", desc,
-				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+				CCGRN(ch, C_NRM), CCYEL(ch, C_NRM));
 	}
 
 
@@ -856,27 +856,27 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
 		if (IS_EVIL(i))
 			align = tmp_sprintf(" %s%s(Red Aura)%s",
-				CCRED(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
+				CCRED(ch, C_NRM), CCBLD(ch, C_CMP), CCYEL(ch, C_NRM));
 		else if (IS_GOOD(i))
 			align = tmp_sprintf(" %s%s(Blue Aura)%s",
-				CCBLU(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
+				CCBLU(ch, C_NRM), CCBLD(ch, C_CMP), CCYEL(ch, C_NRM));
 	}
 
 	if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
 		if (IS_EVIL(i))
 			align = tmp_sprintf(" %s%s(%da)%s", CCRED(ch, C_NRM),
-				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCNRM(ch, C_NRM));
+				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCYEL(ch, C_NRM));
 		else if (IS_GOOD(i))
 			align = tmp_sprintf(" %s%s(%da)%s", CCBLU(ch, C_NRM),
-				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCNRM(ch, C_NRM));
+				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCYEL(ch, C_NRM));
 		else
 			align = tmp_sprintf(" %s%s(%da)%s", CCNRM(ch, C_NRM),
-				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCNRM(ch, C_NRM));
+				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCYEL(ch, C_NRM));
 	}
 	// If they can see it, they probably need to know it's unapproved
 	if (MOB2_FLAGGED(i, MOB2_UNAPPROVED))
-		appr = tmp_sprintf(" %s(!appr)%s", CCRED(ch, C_NRM),
-			CCNRM(ch, C_NRM));
+		appr = tmp_sprintf(" %s(!appr)%s",
+			CCRED(ch, C_NRM), CCYEL(ch, C_NRM));
 		
 	desc = tmp_strcat(CCYEL(ch, C_NRM), (is_group) ? CCBLD(ch, C_CMP):"",
 		desc, align, appr, CCNRM(ch, C_NRM), "\r\n", NULL);
@@ -4795,14 +4795,19 @@ ACMD(do_specializations)
 
 	send_to_char(ch, "As a %s you can specialize in %d weapons.\r\n",
 		pc_char_class_types[char_class], weap_spec_char_class[char_class].max);
-	for (obj = NULL, i = 0; i < MAX_WEAPON_SPEC; obj = NULL) {
-		if (GET_WEAP_SPEC(ch, i).level &&
-			GET_WEAP_SPEC(ch, i).vnum > 0 &&
-			(obj = real_object_proto(GET_WEAP_SPEC(ch, i).vnum)))
-			send_to_char(ch, " %2d. %-30s [%d]\r\n", i,
-				obj->short_description, GET_WEAP_SPEC(ch, i++).level);
-		else
+	for (i = 0; i < MAX_WEAPON_SPEC; i++) {
+		if (!GET_WEAP_SPEC(ch, i).level)
 			break;
+		
+		if (GET_WEAP_SPEC(ch, i).vnum <= 0)
+			break;
+
+		obj = real_object_proto(GET_WEAP_SPEC(ch, i).vnum);
+		if (!obj)
+			break;
+
+		send_to_char(ch, " %2d. %-30s [%d]\r\n", i,
+			obj->short_description, GET_WEAP_SPEC(ch, i).level);
 	}
 }
 
