@@ -521,9 +521,11 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
     if (IS_AFFECTED(i, AFF_BLIND))
         act("...$e is groping around blindly!", 
             FALSE, i, 0, ch, TO_VICT);
-    if (IS_AFFECTED(i, AFF_NOPAIN))
+/*
+if (IS_AFFECTED(i, AFF_NOPAIN))
         act("...$e looks like $e could take on anything!", 
             FALSE, i, 0, ch, TO_VICT);
+*/
     if (IS_AFFECTED(i, AFF_SANCTUARY)) {
         if (IS_EVIL(i))
             act("...$e glows with a dark light!", 
