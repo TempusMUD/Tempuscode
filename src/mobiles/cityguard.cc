@@ -271,11 +271,17 @@ SPECIAL(cityguard)
 		if (!hq_num)
 			return 0;
 
+		// make two new guards that will go to the place of death
 		new_guard = read_mobile(GET_MOB_VNUM(self));
-		HUNTING(new_guard) = HUNTING(self);
+		CREATE(data, cityguard_data, 1);
+		new_guard->mob_specials.func_data = data;
+		data->targ_room = self->in_room->number;
 		char_to_room(new_guard, real_room(hq_num));
+
 		new_guard = read_mobile(GET_MOB_VNUM(self));
-		HUNTING(new_guard) = HUNTING(self);
+		CREATE(data, cityguard_data, 1);
+		new_guard->mob_specials.func_data = data;
+		data->targ_room = self->in_room->number;
 		char_to_room(new_guard, real_room(hq_num));
 
 		return 0;
@@ -308,7 +314,7 @@ SPECIAL(cityguard)
 			dir = find_first_step(self->in_room, real_room(data->targ_room),
 				STD_TRACK);
 			if (dir >= 0
-					&&!MOB_CAN_GO(self, dir)
+					&& MOB_CAN_GO(self, dir)
 					&& !ROOM_FLAGGED(self->in_room->dir_option[dir]->to_room, ROOM_NOMOB | ROOM_DEATH)) {
 				smart_mobile_move(self, dir);
 				return true;
