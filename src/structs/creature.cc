@@ -397,6 +397,7 @@ Creature::getLevelBonus(bool primary)
 int
 Creature::getLevelBonus(int skill)
 {
+	int skill_lvl;
 
 	// Immorts get full bonus. 
 	if (player.level >= 50)
@@ -404,51 +405,12 @@ Creature::getLevelBonus(int skill)
 	// Irregular skill #s get 1
 	if (skill > TOP_SPELL_DEFINE || skill < 0)
 		return 1;
-
-	unsigned short pclass = player.char_class % NUM_CLASSES;	// Primary class
-	short sclass = player.remort_char_class % NUM_CLASSES;	// Secondary class
-	short gen;
-	// If a mob is an NPC, assume that it's attributes figure it's gen
-	if (IS_NPC(this)) {
-		if (sclass == 0) {
-			gen = 0;
-		} else {
-			gen = (aff_abils.intel + aff_abils.str + aff_abils.wis) / 3;
-			gen = MAX(0, gen - 18);
-		}
-	} else {
-		gen = char_specials.saved.remort_generation;	// Player generation
-	}
-	short pLevel = spell_info[skill].min_level[pclass];	// Level primary class gets "skill"
-	short sLevel;				// Level secondary class gets "skill"
-	bool primary;				// whether skill is learnable by primary class. (false == secondary)
-	short spell_gen = spell_info[skill].gen[pclass];	// gen primary class gets "skill"
-	// Note: If a class doesn't get a skill, the SPELL_LEVEL for that skill is 50.
-	//       To compensate for this, level 50+ get the full bonus of 100.
-
-	// Level secondary class gets "skill"
-	if (sclass > 0)				// mod'd by NUM_CLASSES to avoid overflow
-		sLevel = spell_info[skill].min_level[sclass];
-	else
-		sLevel = 50;			// If the secondary class is UNDEFINED (-1) 
-	// set sLevel to 50 to avoid array underflow
-
-	// is is primary or secondary
-	// if neither, *SPLAT*
-	if (pLevel < 50) {			// primary gets skill
-		primary = true;
-	// secondary gets skill or wierdo mob class
-	} else if( sLevel < 50 || (IS_NPC(this) && player.char_class > NUM_CLASSES ) ) {	
-		primary = false;
-	} else {					// Dont get the skill at all
-		return (getLevelBonus(false)) / 2;
-	}
-	// if its a primary skill and you're too low a gen
-	// or its a remort skill of your secondary class
-	if (primary && gen < spell_gen || spell_info[skill].gen[sclass] > 0)
-		return (getLevelBonus(false)) / 2;
-
-	return getLevelBonus(primary);
+	// Check to make sure they have the skill
+	skill_lvl = CHECK_SKILL(this, skill);
+	if (!skill_lvl)
+		return 1;
+	// Average the basic level bonus and the skill level
+	return MIN(100, (getLevelBonus(true) + skill_lvl) / 2);
 }
 
 /**
