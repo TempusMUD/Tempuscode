@@ -1894,9 +1894,10 @@ ACMD(do_listen)
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		fighting_vict = *it;
-		if ((fighting_vict->isFighting()))
+		if ((*it)->isFighting()) {
+			fighting_vict = *it;
 			break;
+		}
 	}
 
 	if (!fighting_vict) {
@@ -3118,6 +3119,10 @@ ACMD(do_who)
 		if (ch != tch && GET_LEVEL(tch) >= LVL_AMBASSADOR && !can_see_creature(ch, tch))
 			continue;
 
+		if (ch != tch && PRF2_FLAGGED(tch, PRF2_NOWHO) &&
+				GET_LEVEL(tch) >= LVL_IMMORT && !IS_IMMORT(ch)  )
+			continue;
+
 		tot_num++;
 
 		if (!can_see_creature(ch, tch))
@@ -3141,10 +3146,6 @@ ACMD(do_who)
 			continue;
 
 		if (high != -1 && GET_LEVEL(tch) > MIN(high, LVL_GRIMP))
-			continue;
-
-		if (ch != tch && PRF2_FLAGGED(tch, PRF2_NOWHO) &&
-				GET_LEVEL(tch) >= LVL_IMMORT && !IS_IMMORT(ch)  )
 			continue;
 
 		if (outlaws && !PLR_FLAGGED(tch, PLR_KILLER) &&
