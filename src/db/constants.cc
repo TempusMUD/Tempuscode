@@ -2021,7 +2021,7 @@ extern const char *spell_wear_off_msg[] = {
 	"You feel less protected.",	/* 1 */
 	"!Teleport!",
 	"You feel less righteous.",
-	"You feel a cloak of blindness disolve.",
+	"Your eyesight returns.",
 	"!Burning Hands!",			/* 5 */
 	"!Call Lightning",
 	"You feel more self-confident.",
@@ -2209,7 +2209,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!group confidence!",
 	"You feel less clumsy.",
 	"Your endurance decreases.",
-	"You feel less forgetful.",	/* 235 */
+	"Your memories gradually return.",	/* 235 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 240 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 245 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 250 */

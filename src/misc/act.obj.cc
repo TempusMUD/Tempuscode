@@ -35,6 +35,7 @@
 #include "guns.h"
 #include "fight.h"
 #include "security.h"
+#include "tmpstr.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -927,8 +928,7 @@ get_from_room(struct Creature *ch, char *arg)
 
 ACCMD(do_get)
 {
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
+	char *arg1, *arg2;
 
 	int cont_dotmode;
 	struct obj_data *cont;
@@ -937,7 +937,8 @@ ACCMD(do_get)
 	ACMD_set_return_flags(0);
 
 	total_coins = total_credits = 0;
-	two_arguments(argument, arg1, arg2);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		send_to_char(ch, "Your arms are already full!\r\n");
@@ -1001,7 +1002,6 @@ ACCMD(do_get)
 	}
 
 	bool container_found = false;
-	char container_args[MAX_INPUT_LENGTH];
 
 
 	//
@@ -1021,8 +1021,7 @@ ACCMD(do_get)
 
 			container_found = true;
 
-			strcpy(container_args, arg1);
-			int retval = get_from_container(ch, cont, container_args);
+			int retval = get_from_container(ch, cont, arg1);
 
 			if (retval) {
 				ACMD_set_return_flags(retval);
@@ -1048,8 +1047,7 @@ ACCMD(do_get)
 
 			container_found = true;
 
-			strcpy(container_args, arg1);
-			int retval = get_from_container(ch, cont, container_args);
+			int retval = get_from_container(ch, cont, arg1);
 
 			if (retval) {
 				ACMD_set_return_flags(retval);
@@ -1281,9 +1279,10 @@ ACCMD(do_drop)
 	struct room_data *RDR = NULL;
 	byte oldmode;
 	byte mode = SCMD_DROP;
-	int dotmode, amount = 0, counter = 0;
+	int dotmode, amount = 0, counter = 0, found;
 	char *sname = NULL;
-	char arg1[MAX_STRING_LENGTH], arg2[MAX_STRING_LENGTH];
+	char *arg1, *arg2;
+	char *to_char, *to_room;
 
 	if (subcmd == SCMD_GUILD_DONATE) {
 		for (i = 0; guild_donation_info[i][0] != -1; i++) {
@@ -1358,7 +1357,8 @@ ACCMD(do_drop)
 		}
 	}
 
-	two_arguments(argument, arg1, arg2);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	if (!*arg1) {
 		send_to_char(ch, "What do you want to %s?\r\n", sname);
@@ -1376,132 +1376,88 @@ ACCMD(do_drop)
 				"Sorry, you can't do that to more than one item at a time.\r\n");
 		}
 		return;
-	} else {
-		dotmode = find_all_dots(arg1);
-
-		/* Can't junk or donate all */
-		if ((dotmode == FIND_ALL) &&
-			(subcmd == SCMD_JUNK || subcmd == SCMD_DONATE)) {
-			if (subcmd == SCMD_JUNK)
-				send_to_char(ch, 
-					"Go to the dump if you want to junk EVERYTHING!\r\n");
-			else
-				send_to_char(ch, 
-					"Go do the donation room if you want to donate EVERYTHING!\r\n");
-			return;
-		}
-		if (dotmode == FIND_ALL) {
-			if (!ch->carrying) {
-				send_to_char(ch, "You don't seem to be carrying anything.\r\n");
-				return;
-			}
-
-			for (obj = ch->carrying, counter = 1; obj; obj = next_obj) {
-				next_obj = obj->next_content;
-				oldmode = mode;
-				if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1) &&
-					mode != SCMD_DROP)
-					mode = SCMD_JUNK;
-				if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains))
-					mode = SCMD_DROP;
-
-				int found = 0;
-				found = perform_drop(ch, obj, mode, sname, RDR, FALSE);
-				mode = oldmode;
-				if (next_obj
-					&& (next_obj->short_description == obj->short_description)
-					&& found) {
-					counter++;
-					found = 0;
-				} else {
-					if (counter == 1) {
-						sprintf(buf, "You %s $p.%s", sname, VANISH(mode));
-						sprintf(buf2, "$n %ss $p.%s", sname, VANISH(mode));
-					} else {
-						sprintf(buf, "You %s $p.%s (x%d)", sname, VANISH(mode),
-							counter);
-						sprintf(buf2, "$n %ss $p.%s (x%d)", sname,
-							VANISH(mode), counter);
-					}
-					act(buf, FALSE, ch, obj, 0, TO_CHAR);
-					act(buf2, TRUE, ch, obj, 0, TO_ROOM);
-					counter = 1;
-				}
-			}
-		}
-
-		else if (dotmode == FIND_ALLDOT) {
-			if (!*arg1) {
-				send_to_char(ch, "What do you want to %s all of?\r\n", sname);
-				return;
-			}
-			if (!(obj = get_obj_in_list_all(ch, arg1, ch->carrying))) {
-				send_to_char(ch, "You don't seem to have any %ss.\r\n", arg1);
-				return;
-			}
-
-			counter = 1;
-			oldmode = mode;
-
-			while (obj) {
-				next_obj = get_obj_in_list_all(ch, arg1, obj->next_content);
-				if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1) &&
-					mode != SCMD_DROP)
-					mode = SCMD_JUNK;
-
-				// cannot junk a lit bomb!
-				if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains)
-					&& FUSE_STATE(obj->contains))
-					mode = SCMD_DROP;
-
-				if (next_obj
-					&& next_obj->short_description == obj->short_description) {
-					counter++;
-					amount += perform_drop(ch, obj, mode, sname, RDR, FALSE);
-				} else {
-					if ((mode == SCMD_DONATE || mode == SCMD_JUNK)
-						&& !junkable(obj)) {
-						send_to_char(ch, "$p is or contains a renamed object.");
-						counter--;
-						if (counter > 1) {
-							sprintf(buf, "You %s $p.%s (x%d)", sname,
-								VANISH(mode), counter);
-							sprintf(buf2, "$n %ss $p.%s (x%d)", sname,
-								VANISH(mode), counter);
-						}
-					} else if (counter == 1) {
-						sprintf(buf, "You %s $p.%s", sname, VANISH(mode));
-						sprintf(buf2, "$n %ss $p.%s", sname, VANISH(mode));
-					} else {
-						sprintf(buf, "You %s $p.%s (x%d)", sname, VANISH(mode),
-							counter);
-						sprintf(buf2, "$n %ss $p.%s (x%d)", sname,
-							VANISH(mode), counter);
-					}
-					act(buf, FALSE, ch, obj, 0, TO_CHAR);
-					act(buf2, TRUE, ch, obj, 0, TO_ROOM);
-					amount += perform_drop(ch, obj, mode, sname, RDR, FALSE);
-					counter = 1;
-				}
-				mode = oldmode;
-				obj = next_obj;
-			}
-		} else {
-			if (!(obj = get_obj_in_list_all(ch, arg1, ch->carrying))) {
-				send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg1),
-					arg1);
-			} else {
-				oldmode = mode;
-				if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1) &&
-					mode != SCMD_DROP)
-					mode = SCMD_JUNK;
-				amount += perform_drop(ch, obj, mode, sname, RDR, TRUE);
-				mode = oldmode;
-			}
-		}
 	}
 
-	if (amount && (subcmd == SCMD_JUNK)) {
+	dotmode = find_all_dots(arg1);
+
+	// Can't junk or donate all
+	if (dotmode == FIND_ALL && subcmd == SCMD_JUNK) {
+		send_to_char(ch, "Go to the dump if you want to junk EVERYTHING!\r\n");
+		return;
+	}
+
+	if (dotmode == FIND_ALL && subcmd == SCMD_DONATE) {
+		send_to_char(ch, "Go do the donation room if you want to donate EVERYTHING!\r\n");
+		return;
+	}
+
+	// Get initial object
+	if (dotmode == FIND_ALL)
+		obj = ch->carrying;
+	else
+		obj = get_obj_in_list_all(ch, arg1, ch->carrying);
+
+	// Do we have the initial object?
+	if (!obj) {
+		if (dotmode == FIND_ALL)
+			send_to_char(ch, "You don't seem to be carrying anything.\r\n");
+		else
+			send_to_char(ch, "You don't seem to have any %ss.\r\n", arg1);
+		return;
+	}
+
+	// Iterate through objects
+	counter = 0;
+	while (obj) {
+		switch (dotmode) {
+			case FIND_ALL:
+				next_obj = obj->next_content; break;
+			case FIND_ALLDOT:
+				next_obj = get_obj_in_list_all(ch, arg1, obj->next_content);
+				break;
+			case FIND_INDIV:
+				next_obj = NULL; break;
+			default:
+				slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		}
+
+		oldmode = mode;
+		if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1) &&
+			mode != SCMD_DROP)
+			mode = SCMD_JUNK;
+		if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains))
+			mode = SCMD_DROP;
+
+		found = perform_drop(ch, obj, mode, sname, RDR, FALSE);
+		mode = oldmode;
+
+		if (found)
+			counter++;
+
+		amount += found;
+
+		if (!next_obj
+			|| next_obj->short_description != obj->short_description) {
+			if (counter > 0) {
+				if (counter == 1) {
+					to_char = tmp_sprintf("You %s $p.%s", sname, VANISH(mode));
+					to_room = tmp_sprintf("$n %ss $p.%s", sname, VANISH(mode));
+				} else {
+					to_char = tmp_sprintf("You %s $p.%s (x%d)", sname, VANISH(mode),
+						counter);
+					to_room = tmp_sprintf("$n %ss $p.%s (x%d)", sname,
+						VANISH(mode), counter);
+				}
+				act(to_char, FALSE, ch, obj, 0, TO_CHAR);
+				act(to_room, TRUE, ch, obj, 0, TO_ROOM);
+			}
+			counter = 0;
+		}
+
+		obj = next_obj;
+	}
+
+	if (subcmd == SCMD_JUNK && amount) {
 		send_to_char(ch, "You have been rewarded by the gods!\r\n");
 		act("$n has been rewarded by the gods!", TRUE, ch, 0, 0, TO_ROOM);
 		GET_GOLD(ch) += amount;
@@ -1509,7 +1465,7 @@ ACCMD(do_drop)
 }
 
 
-void
+int
 perform_give(struct Creature *ch, struct Creature *vict,
 	struct obj_data *obj, int display)
 {
@@ -1519,21 +1475,21 @@ perform_give(struct Creature *ch, struct Creature *vict,
 		if (GET_LEVEL(ch) < LVL_TIMEGOD) {
 			act("You can't let go of $p!!  Yeech!", FALSE, ch, obj, 0,
 				TO_CHAR);
-			return;
+			return 0;
 		} else
 			act("You peel $p off your hand...", FALSE, ch, obj, 0, TO_CHAR);
 	}
 	if (GET_LEVEL(ch) < LVL_IMMORT && vict->getPosition() <= POS_SLEEPING) {
 		act("$E is currently unconscious.", FALSE, ch, 0, vict, TO_CHAR);
-		return;
+		return 0;
 	}
 	if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict)) {
 		act("$N seems to have $S hands full.", FALSE, ch, 0, vict, TO_CHAR);
-		return;
+		return 0;
 	}
 	if (obj->getWeight() + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
 		act("$E can't carry that much weight.", FALSE, ch, 0, vict, TO_CHAR);
-		return;
+		return 0;
 	}
 	obj_from_char(obj);
 	obj_to_char(obj, vict);
@@ -1567,14 +1523,13 @@ perform_give(struct Creature *ch, struct Creature *vict,
 
 		free(vict->mob_specials.mug);
 		vict->mob_specials.mug = NULL;
-		return;
+		return 1;
 	}
 	if (IS_OBJ_TYPE(obj, ITEM_MONEY) &&
 		GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(vict) < LVL_AMBASSADOR &&
 		GET_LEVEL(ch) < LVL_GOD) {
-		sprintf(buf, "MONEY: %s has given %s (%d) to %s.", GET_NAME(ch),
+		slog("MONEY: %s has given %s (%d) to %s.", GET_NAME(ch),
 			obj->short_description, GET_OBJ_VAL(obj, 0), GET_NAME(vict));
-		slog(buf);
 	}
 
 	if (IS_NPC(vict) && AWAKE(vict) && !AFF_FLAGGED(vict, AFF_CHARM) &&
@@ -1602,7 +1557,7 @@ perform_give(struct Creature *ch, struct Creature *vict,
 								EX_CLOSED)) {
 							sprintf(buf, "%s %s", fname(obj->name), dirs[i]);
 							do_throw(vict, buf, 0, 0);
-							return;
+							return 1;
 						}
 					}
 					if (CAN_SEE(vict, ch)) {
@@ -1613,11 +1568,12 @@ perform_give(struct Creature *ch, struct Creature *vict,
 						do_throw(vict, fname(obj->name), 0, 0);
 				}
 			}
-			return;
+			return 1;
 		}
 		if ((IS_CARRYING_W(vict) + IS_WEARING_W(vict)) > (CAN_CARRY_W(vict) >> 1))	// i don't want that heavy shit
 			do_drop(vict, fname(obj->name), 0, 0);
 	}
+	return 1;
 }
 void
 perform_plant(struct Creature *ch, struct Creature *vict,
@@ -1793,121 +1749,118 @@ perform_plant_credits(struct Creature *ch, struct Creature *vict, int amount)
 
 ACMD(do_give)
 {
-	int amount, dotmode, counter = 0;
 	struct Creature *vict;
-	struct obj_data *obj, *next_obj, *save_obj = NULL;
-	char cntbuf[80];
+	struct obj_data *obj, *next_obj;
+	int dotmode, amount = 0, counter = 0, found;
+	char *arg1, *arg2;
+	char *to_char, *to_vict, *to_room;
 
-	argument = one_argument(argument, arg);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
-	if (!*arg) {
-		send_to_char(ch, "Give what to who?\r\n");
+	if (!*arg1) {
+		send_to_char(ch, "What do you want to give?\r\n");
+		return;
+	}
+	if (!*arg2) {
+		if (!str_cmp(arg1, "all"))
+			send_to_char(ch, "To whom do you wish to give everything?\r\n");
+		else
+			send_to_char(ch, "To whom do you wish to give %s %s?\r\n",
+				AN(arg1), arg1);
 		return;
 	}
 
-	if (is_number(arg)) {
-		amount = atoi(arg);
-		argument = one_argument(argument, arg);
+	if (is_number(arg1)) {
+		amount = atoi(arg1);
 
-		if (is_abbrev("coins", arg)) {
-			argument = one_argument(argument, arg);
-			if ((vict = give_find_vict(ch, arg)))
-				perform_give_gold(ch, vict, amount);
-			return;
-		} else if (is_abbrev("credits", arg) || is_abbrev("cash", arg)) {
-			argument = one_argument(argument, arg);
-			if ((vict = give_find_vict(ch, arg)))
-				perform_give_credits(ch, vict, amount);
-			return;
+		if (!str_cmp("coins", arg2) || !str_cmp("coin", arg2))
+			perform_give_gold(ch, vict, amount);
+		else if (!str_cmp("credits", arg2) || !str_cmp("credit", arg2))
+			perform_give_credits(ch, vict, amount);
+		else {
+			/* code to give multiple items.  anyone want to write it? -je */
+			send_to_char(ch, 
+				"Sorry, you can't do that to more than one item at a time.\r\n");
+		}
+		return;
+	}
+
+	vict = give_find_vict(ch, arg2);
+	if (!vict)
+		return;
+
+	dotmode = find_all_dots(arg1);
+
+	// Can't junk or donate all
+	if (dotmode == FIND_ALL && subcmd == SCMD_JUNK) {
+		send_to_char(ch, "Go to the dump if you want to junk EVERYTHING!\r\n");
+		return;
+	}
+
+	if (dotmode == FIND_ALL && subcmd == SCMD_DONATE) {
+		send_to_char(ch, "Go do the donation room if you want to donate EVERYTHING!\r\n");
+		return;
+	}
+
+	// Get initial object
+	if (dotmode == FIND_ALL)
+		obj = ch->carrying;
+	else
+		obj = get_obj_in_list_all(ch, arg1, ch->carrying);
+
+	// Do we have the initial object?
+	if (!obj) {
+		if (dotmode == FIND_ALL)
+			send_to_char(ch, "You don't seem to be carrying anything.\r\n");
+		else
+			send_to_char(ch, "You don't seem to have any %ss.\r\n", arg1);
+		return;
+	}
+
+	// Iterate through objects
+	counter = 0;
+	while (obj) {
+		switch (dotmode) {
+			case FIND_ALL:
+				next_obj = obj->next_content; break;
+			case FIND_ALLDOT:
+				next_obj = get_obj_in_list_all(ch, arg1, obj->next_content);
+				break;
+			case FIND_INDIV:
+				next_obj = NULL; break;
+			default:
+				slog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 
-		/* code to give multiple items.  anyone want to write it? -je */
-		send_to_char(ch, "You can't give more than one item at a time.\r\n");
-		return;
-	}
+		found = perform_give(ch, vict, obj, false);
 
-	one_argument(argument, buf1);
-	if (!(vict = give_find_vict(ch, buf1)))
-		return;
-
-	dotmode = find_all_dots(arg);
-
-	// Most common case - give an individual item
-	if (dotmode == FIND_INDIV) {
-		if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
-			send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg),
-				arg);
-		} else
-			perform_give(ch, vict, obj, TRUE);
-		return;
-	}
-
-	// Give all.whatever
-	if (dotmode == FIND_ALLDOT && !*arg) {
-		send_to_char(ch, "All of what?\r\n");
-		return;
-	}
-
-	if (!ch->carrying) {
-		send_to_char(ch, "You don't seem to be holding anything.\r\n");
-		return;
-	}
-
-	for (obj = ch->carrying; obj; obj = next_obj) {
-		next_obj = obj->next_content;
-
-		if (INVIS_OK_OBJ(ch, obj) &&
-			((dotmode == FIND_ALL || isname(arg, obj->name)))) {
-			perform_give(ch, vict, obj, FALSE);
-			if (save_obj &&
-					str_cmp(save_obj->short_description,
-					obj->short_description) != 0) {
-				if (counter == 1)
-					sprintf(cntbuf, "You give $p to $N.");
-				else
-					sprintf(cntbuf, "You give $p to $N. (x%d)",
-						counter);
-				act(cntbuf, FALSE, ch, save_obj, vict, TO_CHAR);
-				if (counter == 1)
-					sprintf(cntbuf, "$n gives you $p.");
-				else
-					sprintf(cntbuf, "$n gives you $p. (x%d)",
-						counter);
-				act(cntbuf, FALSE, ch, save_obj, vict, TO_VICT);
-				if (counter == 1)
-					sprintf(cntbuf, "$n gives $p to $N.");
-				else
-					sprintf(cntbuf, "$n gives $p to $N. (x%d)",
-						counter);
-				act(cntbuf, TRUE, ch, save_obj, vict, TO_NOTVICT);
-				counter = 0;
-			}
-			save_obj = obj;
+		if (found)
 			counter++;
+
+		if (!next_obj
+			|| next_obj->short_description != obj->short_description) {
+			if (counter > 0) {
+				if (counter == 1) {
+					to_char = tmp_sprintf("You give $p to $N.");
+					to_vict = tmp_sprintf("$n gives you $p.");
+					to_room = tmp_sprintf("$n gives $p to $N.");
+				} else {
+					to_char = tmp_sprintf("You give $p to $N. (x%d)",
+						counter);
+					to_vict = tmp_sprintf("$n gives you $p. (x%d)",
+						counter);
+					to_room = tmp_sprintf("$n gives $p to $N. (x%d)",
+						counter);
+				}
+				act(to_char, FALSE, ch, obj, vict, TO_CHAR);
+				act(to_vict, FALSE, ch, obj, vict, TO_VICT);
+				act(to_room, TRUE, ch, obj, vict, TO_NOTVICT);
+			}
+			counter = 0;
 		}
+		obj = next_obj;
 	}
-
-	if (!counter) {
-		send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg),
-			arg);
-		return;
-	}
-
-	if (counter == 1)
-		sprintf(cntbuf, "You give $p to $N.");
-	else
-		sprintf(cntbuf, "You give $p to $N. (x%d)", counter);
-	act(cntbuf, FALSE, ch, save_obj, vict, TO_CHAR);
-	if (counter == 1)
-		sprintf(cntbuf, "$n gives you $p.");
-	else
-		sprintf(cntbuf, "$n gives you $p. (x%d)", counter);
-	act(cntbuf, FALSE, ch, save_obj, vict, TO_VICT);
-	if (counter == 1)
-		sprintf(cntbuf, "$n gives $p to $N.");
-	else
-		sprintf(cntbuf, "$n gives $p to $N. (x%d)", counter);
-	act(cntbuf, TRUE, ch, save_obj, vict, TO_NOTVICT);
 }
 
 
