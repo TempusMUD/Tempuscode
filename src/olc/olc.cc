@@ -272,6 +272,7 @@ const char *olc_commands[] = {
 	"mload",
 	"show",
     "recalculate",
+    "progmimic",               /* 50 */
 	"\n"						/* many more to be added */
 };
 
@@ -1548,6 +1549,51 @@ ACMD(do_olc)
         } else {
             send_to_char(ch, "That'll have to be either 'obj' or 'mob'.\r\n");
         }
+        break;
+    }
+    case 50: { //olc progmimic {room|obj|mob} <vnum>
+        int number;
+        
+        char* arg1 = tmp_getword(&argument); //room|obj|mob
+        char* arg2 = tmp_getword(&argument); //vnum
+        
+        if (!*arg1 || !*arg2 || !isdigit(*arg2)) {
+            send_to_char(ch, "Usage: olc progmimic {room|obj|mob} <vnum>\r\n");
+            return;
+        }
+        
+        if ((number = atoi(arg2)) < 0) {
+            send_to_char(ch, "A NEGATIVE number??\r\n");
+            return;
+        }
+                
+        if (is_abbrev(arg1, "mobile")) {
+            Creature *mob = real_mobile_proto(number);
+            if (!mob) {
+                send_to_char(ch, "There is no monster with that number.\r\n");
+            } else if (!GET_OLC_MOB(ch)) {
+                send_to_char(ch, "You aren't editing a mobile.\r\n");
+            } else if (!GET_MOB_PROG(mob)) {
+                send_to_char(ch, "There is no prog to mimic on %s.\r\n", GET_NAME(mob));
+            } else {
+                MOB_SHARED(GET_OLC_MOB(ch))->prog = strdup(GET_MOB_PROG(mob));
+                send_to_char(ch, "You have mimiced %s's prog.\r\n", GET_NAME(mob));
+            }
+        } else if (is_abbrev(arg1, "object")) {
+            send_to_char(ch, "This feature has not been implemented yet.\r\n");
+        } else if (is_abbrev(arg1, "room")) {
+            room_data* room = real_room(number);
+            if (!room) {
+                send_to_char(ch, "There is no room with that number.\r\n");
+            } else if (!GET_ROOM_PROG(room)) {
+                send_to_char(ch, "There is no prog to mimic in %s.\r\n", room->name);
+            } else {
+                ch->in_room->prog = strdup(GET_ROOM_PROG(room));
+                send_to_char(ch, "You have mimiced the prog from %s.\r\n", room->name);
+            }
+        } else {
+            send_to_char(ch, "Usage: olc progmimic {room|obj|mob} <vnum>\r\n");
+		}
         break;
     }
 	default:
