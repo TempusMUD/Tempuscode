@@ -18,8 +18,7 @@ SPECIAL(stygian_lightning_rm)
     CharacterList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end(); ++it ) {
         if (!IS_NPC((*it)) && (*it)->getPosition() > POS_SITTING && !IS_DEVIL((*it)) &&
-            GET_LEVEL((*it)) > GET_LEVEL(new_vict) && GET_LEVEL((*it)) < LVL_IMMORT
-            && !number(0, 3))
+            GET_LEVEL((*it)) > GET_LEVEL(new_vict) && GET_LEVEL((*it)) < LVL_IMMORT && !number(0, 3))
             new_vict = *it;
     }
     if (!new_vict)
@@ -37,10 +36,9 @@ SPECIAL(stygian_lightning_rm)
             act("A bolt of lightning falls from the sky, narrowly missing $n!",
                 FALSE, ch, 0, 0, TO_ROOM);
         }
-    }else 
-        damage(new_vict, new_vict, dice(12, 10), TYPE_STYGIAN_LIGHTNING,
-               WEAR_BODY);
-
+    } else {
+        return damage(new_vict, new_vict, dice(12, 10), TYPE_STYGIAN_LIGHTNING, WEAR_BODY);
+    }
     return 0;
 }
 
