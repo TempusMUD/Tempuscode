@@ -1339,7 +1339,7 @@ Crash_save_all( void )
 {
     struct descriptor_data *d;
     for ( d = descriptor_list; d; d = d->next ) {
-        if ( ( d->connected == CON_PLAYING ) && !IS_NPC( d->character ) ) {
+        if ( ( IS_PLAYING(d) ) && !IS_NPC( d->character ) ) {
             if ( PLR_FLAGGED( d->character, PLR_CRASH ) ) {
                 Crash_crashsave( d->character );
                 save_char( d->character, NULL );

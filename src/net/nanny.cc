@@ -63,8 +63,7 @@ void do_start(struct char_data * ch, int mode);
 void init_char(struct char_data * ch);
 void show_mud_date_to_char(struct char_data *ch);
 void show_programs_to_char(struct char_data *ch, int char_class);
-void perform_net_who(struct char_data *ch, char *arg);
-void perform_net_finger(struct char_data *ch, char *arg);
+void handle_network(struct descriptor_data *d,char *arg);
 int general_search(struct char_data *ch, struct special_search_data *srch, int mode);
 void roll_real_abils(struct char_data * ch);
 void print_attributes_to_buf(struct char_data *ch, char *buff);
@@ -92,7 +91,6 @@ void
 nanny(struct descriptor_data * d, char *arg)
 {
     char buf[MAX_STRING_LENGTH];
-    char arg1[MAX_INPUT_LENGTH];
     int player_i, load_result=0;
     char tmp_name[MAX_INPUT_LENGTH];
     struct char_file_u tmp_store;
@@ -104,14 +102,13 @@ nanny(struct descriptor_data * d, char *arg)
     struct clan_data *clan = NULL;
     struct clanmember_data *member = NULL;
     struct obj_data *obj = NULL, *next_obj;
-    int skill_num, percent, i, j, cur, rooms;
+    int percent, i, j, cur, rooms;
     int polc_char = 0;
 
     int load_char(char *name, struct char_file_u * char_element);
     int parse_char_class_future(char *arg);
     int parse_char_class_past(char *arg);
     int parse_time_frame(char *arg);
-    sh_int char_class_state = CLASS_UNDEFINED;
 
     skip_spaces(&arg);
 
@@ -1196,171 +1193,13 @@ nanny(struct descriptor_data * d, char *arg)
 			break;
 
 		case CON_CLOSE:
-			close_socket(d);
-			break;
+			close_socket(d); break;
 
-		case CON_NET_MENU1:
-			switch (*arg) {
-			case '0':
-			case '@':
-			case '+':
-				sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
-				slog(buf);
-				strcat(buf, "\r\n");
-				SEND_TO_Q(buf, d);
-				set_desc_state( CON_PLAYING,d );
-				act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
-				break;
-			case '1':
-				show_net_progmenu1_to_descriptor(d);
-				set_desc_state( CON_NET_PROGMENU1,d );
-				break;
-			case '2':
-				perform_net_who(d->character, "");
-				SEND_TO_Q("  >", d);
-				break;
-			default:
-				sprintf(buf, "%s : ILLEGAL OPTION.\r\n", arg);
-				show_net_menu1_to_descriptor(d);
-				break;
-			}
-			break;
-
-		case CON_NET_PROGMENU1:
-			switch (*arg) {
-			case '@':
-			case '+':
-				sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
-				slog(buf);
-				strcat(buf, "\r\n");
-				SEND_TO_Q(buf, d);
-				set_desc_state( CON_PLAYING,d );
-				act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
-				break;
-			case '0':
-				show_net_menu1_to_descriptor(d);
-				set_desc_state( CON_NET_MENU1,d );
-				break;
-			case '1':
-				SEND_TO_Q("Entering Cyborg database.\r\n"
-						  "Use the list command to view programs.\r\n"
-						  "  >", d);
-				set_desc_state( CON_NET_PROG_CYB,d );
-				break;
-			default:
-				sprintf(buf, "%s : ILLEGAL OPTION.\r\n", arg);
-				show_net_progmenu1_to_descriptor(d);
-				break;
-			}
-			break;
-		case CON_NET_PROG_CYB:
-			if (!*arg) {
-				SEND_TO_Q("  >", d);
-				return;
-			}
-			char_class_state = CLASS_CYBORG;
-
-			arg = one_argument(arg, arg1);
-			if (!strcmp(arg1, "@") || !strcmp(arg1, "+")) {
-				sprintf(buf, "User %s disconnecting from net.", GET_NAME(d->character));
-				slog(buf);
-				strcat(buf, "\r\n");
-				SEND_TO_Q(buf, d);
-				set_desc_state( CON_PLAYING,d );
-				act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
-				return;
-			} else if (is_abbrev(arg1, "download")) {
-				if (!IS_CYBORG(d->character))
-					SEND_TO_Q("You are unable to download to your neural network.\r\n", d);
-				else if (!GET_PRACTICES(d->character))
-					SEND_TO_Q("You have no data storage units free.\r\n", d);
-				else {
-					skip_spaces(&arg);
-					if (!*arg) {
-						SEND_TO_Q("Download which program?\r\n", d);
-						return;
-					}
-					skill_num = find_skill_num(arg);
-
-					if (skill_num < 1) {
-						SEND_TO_Q("Unknown program.\r\n", d);
-						return;
-					}
-					if( SPELL_GEN(skill_num, CLASS_CYBORG) > 0 && GET_CLASS(d->character) != CLASS_CYBORG) {
-						SEND_TO_Q("That program is unavailable.\r\n", d);
-						return;
-					}
-					if( GET_REMORT_GEN(d->character) < SPELL_GEN(skill_num, CLASS_CYBORG) ||
-						GET_LEVEL(d->character) < SPELL_LEVEL(skill_num, CLASS_CYBORG) ){
-						SEND_TO_Q("That program is unavailable.\r\n", d);
-						return;
-					}
-					if (GET_SKILL(d->character, skill_num) >= LEARNED(d->character)) {
-						SEND_TO_Q("That program already fully installed.\r\n", d);
-						return;
-					}
-					percent = MIN(MAXGAIN(d->character),
-								  MAX(MINGAIN(d->character),
-									  INT_APP(GET_INT(d->character))));
-					percent = MIN(LEARNED(d->character) -
-								  GET_SKILL(d->character, skill_num), percent);
-					GET_PRACTICES(d->character)--;
-					SET_SKILL(d->character, skill_num, GET_SKILL(d->character, skill_num) + percent);
-
-					sprintf(buf, "Program download: %s terminating, %d percent transfer.\r\n",
-							spells[skill_num], percent);
-					SEND_TO_Q(buf, d);
-					if (GET_SKILL(d->character, skill_num) >= LEARNED(d->character))
-						strcpy(buf, "Program fully installed on home system.\r\n");
-					else
-						sprintf(buf, "Program %d percent installed on home system.\r\n",
-								GET_SKILL(d->character, skill_num));
-					SEND_TO_Q(buf, d);
-					return;
-				}
-				SEND_TO_Q("  >", d);
-			} else if (is_abbrev(arg1, "exit") || is_abbrev(arg1, "back") ||
-					   is_abbrev(arg1, "return")) {
-				sprintf(buf, "Leaving directory of %s programs.\r\n",
-						char_class_state == CLASS_CYBORG ? "Cyborg" :
-						char_class_state == CLASS_MONK ? "Monk" :
-						char_class_state == CLASS_HOOD ? "Hoodlum" : "UNDEFINED");
-				SEND_TO_Q(buf, d);
-				show_net_progmenu1_to_descriptor(d);
-				set_desc_state( CON_NET_PROGMENU1,d );
-				break;
-			} else if (is_abbrev(arg1, "list")) {
-				show_programs_to_char(d->character, char_class_state);
-			} else if (is_abbrev(arg1, "help") || is_abbrev(arg1, "?")) {
-				skip_spaces(&arg);
-				if (!*arg) {
-					SEND_TO_Q("Valid commands are:\r\n"
-							  "list         help        ?\r\n"
-							  "finger       who         status\r\n"
-							  "exit         back        \r\n"
-							  "Escape character: @ or +\r\n", d);
-				} else
-					do_hcollect_help(d->character, arg, 0, 0);
-			} else if (is_abbrev(arg1, "who")) {
-				perform_net_who(d->character, "");
-			} else if (is_abbrev(arg1, "finger")) {
-				skip_spaces(&arg);
-				if (!*arg)
-					perform_net_who(d->character, "");
-				else
-					perform_net_finger(d->character, arg);
-			} else if (is_abbrev(arg1, "status") || is_abbrev(arg1, "free")) {
-				sprintf(buf, "You have %d data storage units free.\r\n", GET_PRACTICES(d->character));
-				SEND_TO_Q(buf, d);
-			} else {
-				SEND_TO_Q("Invalid command.\r\n", d);
-			}
-			SEND_TO_Q("  >", d);
-			break;
+		case CON_NETWORK:
+			handle_network(d, arg); break;
 
 		case CON_PORT_OLC:
-			polc_input (d, arg);
-			break;
+			polc_input (d, arg); break;
 
 		default:
 			slog("SYSERR: Nanny: illegal state of con'ness; closing connection");
@@ -1575,21 +1414,11 @@ make_prompt(struct descriptor_data * d)
 			SEND_TO_Q("Please press return to continue into the afterlife...\r\n",d); break;
 		case CON_RACEHELP_P:		
 		case CON_CLASSHELP_P:		
-		case CON_HOMEHELP_P:		
-		case CON_HOMEHELP_F:		
 		case CON_RACEHELP_F:		
 		case CON_CLASSHELP_F:		
-		case CON_REMORT_REROLL:		
-		case CON_NET_MENU1:			// First net menu state
-			show_net_menu1_to_descriptor(d); break;
-		case CON_NET_PROGMENU1:		// State which char_class of skill
-			show_net_progmenu1_to_descriptor(d); break;
-		case CON_NET_PROG_CYB:		// State which char_class of skill
-			SEND_TO_Q(" > ",d ); break;
-		case CON_NET_PROG_MNK:		// State which char_class of skill
-			SEND_TO_Q(" > ",d ); break;
-		case CON_NET_PROG_HOOD:		
-			SEND_TO_Q(" > ",d ); break;
+			break;
+		case CON_NETWORK:
+            SEND_TO_Q("> ",d ); break;
 		case CON_PORT_OLC:			// Using port olc interface
 			break;
 		default:
@@ -1673,6 +1502,11 @@ make_menu( struct descriptor_data *d )
 			SEND_TO_Q(buf,d);
 			SEND_TO_Q("\r\n\r\n    ALIGNMENT is a measure of your philosophies and morals.\r\n\r\n", d);
 			break;
+		case CON_NETWORK:
+			SEND_TO_Q("\033[H\033[J",d );
+			SEND_TO_Q("GLOBAL NETWORK SYSTEMS CLI\r\n",d);
+			SEND_TO_Q("-------------------------------------------------------------------------------\r\n",d);
+			SEND_TO_Q("Enter commands at prompt.  Use '@' to escape.  Use '?' for help.\r\n",d);
 		default:
             break;
 		}

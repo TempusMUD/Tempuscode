@@ -267,31 +267,6 @@ list_skills(struct char_data * ch, int mode, int type)
     page_string(ch->desc, buf2, 1);
 }
 
-void 
-show_programs_to_char(struct char_data * ch, int char_class)
-{
-    int i, sortpos;
-
-    sprintf(buf2, "Directory listing for %s programs.\r\n\r\n", 
-            pc_char_class_types[char_class]);
-  
-    for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
-        i = skill_sort_info[sortpos];
-        if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-            strcat(buf2, "**OVERFLOW**\r\n");
-            break;
-        }
-        if ((CHECK_SKILL(ch, i) || ABLE_TO_LEARN(ch, i)) &&
-            SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
-            sprintf(buf, "%-30s [%3d] percent installed.\r\n", 
-                    spells[i], GET_SKILL(ch, i));
-            strcat(buf2, buf);
-        } 
-    }
-
-    page_string(ch->desc, buf2, 1);
-}
-
 SPECIAL(guild)
 {
     int skill_num, percent;
@@ -1818,6 +1793,9 @@ SPECIAL(cave_bear)
 #include "Specs/sarflin_specs/vein.spec"
 #include "Specs/sarflin_specs/gunnery_device.spec"
 #include "Specs/sarflin_specs/ramp_leaver.spec"
+
+/* OBJECT SPECIALS */
+#include "Specs/object_specs/loudspeaker.spec"
 
 /* HILL GIANT STEADING */
 #include "Specs/giants_specs/javelin_of_lightning.spec"

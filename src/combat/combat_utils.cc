@@ -334,9 +334,8 @@ check_object_killer( struct obj_data * obj, struct char_data * vict )
     }
     // see if the sonuvabitch is still connected
     if ( !killer ) {
-
         for ( d = descriptor_list; d; d = d->next ) {
-            if ( d->connected != CON_PLAYING && d->character && GET_IDNUM( d->character ) == obj_id ) {
+            if ( !IS_PLAYING(d) && d->character && GET_IDNUM( d->character ) == obj_id ) {
                 is_desc = 1;
                 killer = d->character;
                 break;

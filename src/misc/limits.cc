@@ -518,36 +518,40 @@ int
 check_idling(struct char_data * ch)
 {
     void Crash_rentsave(struct char_data *ch, int cost);
+	void set_desc_state(int state,struct descriptor_data *d );
 
     if (++(ch->char_specials.timer) > 1 && ch->desc)
-	ch->desc->repeat_cmd_count = 0;
+		ch->desc->repeat_cmd_count = 0;
 
-    if ((ch->char_specials.timer) > 10 && !PLR_FLAGGED(ch, PLR_OLC))
-	if (GET_WAS_IN(ch) == NULL && ch->in_room != NULL) {
-	    GET_WAS_IN(ch) = ch->in_room;
-	    if (FIGHTING(ch)) {
-		stop_fighting(FIGHTING(ch));
-		stop_fighting(ch);
-	    }
-	    act("$n disappears into the void.", TRUE, ch, 0, 0, TO_ROOM);
-	    send_to_char("You have been idle, and are pulled into a void.\r\n", ch);
-	    save_char(ch, NULL);
-	    Crash_crashsave(ch);
-	    char_from_room(ch);
-	    char_to_room(ch, real_room(1));
-	} else if (ch->char_specials.timer > 60) {
-	    if (ch->in_room != NULL)
-		char_from_room(ch);
-	    char_to_room(ch, real_room(3));
-	    if (ch->desc)
-		close_socket(ch->desc);
-	    ch->desc = NULL;
-	    Crash_idlesave(ch);
-	    sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
-	    mudlog(buf, CMP, LVL_GOD, TRUE);
-	    //extract_char(ch, FALSE);
-	    ch->extract( FALSE );
-	    return TRUE;
+    if ((ch->char_specials.timer) > 10 && !PLR_FLAGGED(ch, PLR_OLC)) {
+		if (STATE(ch->desc) == CON_NETWORK) {
+			send_to_char("Idle limit reached.  Connection reset by peer.\r\n",ch);
+			set_desc_state(CON_PLAYING, ch->desc);
+		} else if (GET_WAS_IN(ch) == NULL && ch->in_room != NULL) {
+			GET_WAS_IN(ch) = ch->in_room;
+			if (FIGHTING(ch)) {
+				stop_fighting(FIGHTING(ch));
+				stop_fighting(ch);
+			}
+			act("$n disappears into the void.", TRUE, ch, 0, 0, TO_ROOM);
+			send_to_char("You have been idle, and are pulled into a void.\r\n", ch);
+			save_char(ch, NULL);
+			Crash_crashsave(ch);
+			char_from_room(ch);
+			char_to_room(ch, real_room(1));
+		} else if (ch->char_specials.timer > 60) {
+			if (ch->in_room != NULL)
+				char_from_room(ch);
+			char_to_room(ch, real_room(3));
+			if (ch->desc)
+				close_socket(ch->desc);
+			ch->desc = NULL;
+			Crash_idlesave(ch);
+			sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
+			mudlog(buf, CMP, LVL_GOD, TRUE);
+			ch->extract( FALSE );
+			return TRUE;
+		}
 	}
     return FALSE;
 }
@@ -581,8 +585,6 @@ point_update(void)
     /* characters */
     CharacterList::iterator cit = characterList.begin();
     for( ; cit != characterList.end(); ++cit ) {
-    //for (i = character_list; i; i = next_char) {
-        //next_char = i->next;
         i = *cit;
     
         if (i->getPosition() >= POS_STUNNED) {
@@ -714,272 +716,257 @@ point_update(void)
 
     /* objects */
     for (j = object_list; j; j = next_thing) {
-    next_thing = j->next;	/* Next in object list */
+		next_thing = j->next;	/* Next in object list */
 
-    /* If this is a corpse */
-    if (IS_CORPSE(j)) {
-        /* timer count down */
-        if (GET_OBJ_TIMER(j) > 0)
-            GET_OBJ_TIMER(j)--;
+		/* If this is a corpse */
+		if (IS_CORPSE(j)) {
+			/* timer count down */
+			if (GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
 
-        if (!GET_OBJ_TIMER(j)) {
-            if (j->carried_by)
-                act("$p decays in your hands.", FALSE, j->carried_by, j, 0, TO_CHAR);
-            if (j->worn_by)
-                act("$p disintigrates as you are wearing it.", FALSE, j->worn_by, j, 0, TO_CHAR);
-            else if ((j->in_room != NULL) && (j->in_room->people)) {
-                if (ROOM_FLAGGED(j->in_room, ROOM_FLAME_FILLED) ||
-                    SECT_TYPE(j->in_room) == SECT_FIRE_RIVER ||
-                    GET_PLANE(j->in_room) == PLANE_HELL_4 ||
-                    GET_PLANE(j->in_room) == PLANE_HELL_1 || !number(0, 50)) {
-                    act("$p spontaneously combusts and is devoured by flames.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                    act("$p spontaneously combusts and is devoured by flames.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                } 
-                else if (ROOM_FLAGGED(j->in_room, ROOM_ICE_COLD) ||
-                    GET_PLANE(j->in_room)==PLANE_HELL_5|| !number(0, 250)) {
-                    act("$p freezes and shatters into dust.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                    act("$p freezes and shatters into dust.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                } 
-                else if (GET_PLANE(j->in_room)==PLANE_ASTRAL || !number(0, 250)) {
-                    act("A sudden psychic wind rips through $p.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                    act("A sudden psychic wind rips through $p.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                } 
-                else if (GET_TIME_FRAME(j->in_room)==TIME_TIMELESS || !number(0, 250)) {
-                    act("$p is pulled into a timeless void and nullified.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                    act("$p is pulled into a timeless void and nullified.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                } 
-                else if (SECT_TYPE(j->in_room) == SECT_WATER_SWIM ||
-                         SECT_TYPE(j->in_room) == SECT_WATER_NOSWIM) {
-                    act("$p sinks beneath the surface and is gone.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                    act("$p sinks beneath the surface and is gone.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                } 
-                else if (SECT_TYPE(j->in_room) == SECT_UNDERWATER) {
-                    act("A school of small fish appears and devours $p.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                    act("A school of small fish appears and devours $p.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                }
-                else if (!ROOM_FLAGGED(j->in_room,ROOM_INDOORS)&& !number(0, 2)) {
-                    act("A flock of carrion birds hungrily devours $p.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                    act("A flock of carrion birds hungrily devours $p.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                } 
-                else if (number(0, 3)) {
-                    act("A quivering horde of maggots consumes $p.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                    act("A quivering horde of maggots consumes $p.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                } 
-                else {
-                    act("$p decays into nothing before your eyes.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                    act("$p decays into nothing before your eyes.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                }
-            }
+			if (!GET_OBJ_TIMER(j)) {
+				if (j->carried_by)
+					act("$p decays in your hands.", FALSE, j->carried_by, j, 0, TO_CHAR);
+				if (j->worn_by)
+					act("$p disintegrates as you are wearing it.", FALSE, j->worn_by, j, 0, TO_CHAR);
+				else if ((j->in_room != NULL) && (j->in_room->people)) {
+					if (ROOM_FLAGGED(j->in_room, ROOM_FLAME_FILLED) ||
+						SECT_TYPE(j->in_room) == SECT_FIRE_RIVER ||
+						GET_PLANE(j->in_room) == PLANE_HELL_4 ||
+						GET_PLANE(j->in_room) == PLANE_HELL_1 || !number(0, 50)) {
+						act("$p spontaneously combusts and is devoured by flames.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+						act("$p spontaneously combusts and is devoured by flames.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+					} 
+					else if (ROOM_FLAGGED(j->in_room, ROOM_ICE_COLD) ||
+						GET_PLANE(j->in_room)==PLANE_HELL_5|| !number(0, 250)) {
+						act("$p freezes and shatters into dust.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+						act("$p freezes and shatters into dust.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+					} 
+					else if (GET_PLANE(j->in_room)==PLANE_ASTRAL || !number(0, 250)) {
+						act("A sudden psychic wind rips through $p.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+						act("A sudden psychic wind rips through $p.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+					} 
+					else if (GET_TIME_FRAME(j->in_room)==TIME_TIMELESS || !number(0, 250)) {
+						act("$p is pulled into a timeless void and nullified.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+						act("$p is pulled into a timeless void and nullified.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+					} 
+					else if (SECT_TYPE(j->in_room) == SECT_WATER_SWIM ||
+							 SECT_TYPE(j->in_room) == SECT_WATER_NOSWIM) {
+						act("$p sinks beneath the surface and is gone.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+						act("$p sinks beneath the surface and is gone.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+					} 
+					else if (SECT_TYPE(j->in_room) == SECT_UNDERWATER) {
+						act("A school of small fish appears and devours $p.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+						act("A school of small fish appears and devours $p.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+					}
+					else if (!ROOM_FLAGGED(j->in_room,ROOM_INDOORS)&& !number(0, 2)) {
+						act("A flock of carrion birds hungrily devours $p.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+						act("A flock of carrion birds hungrily devours $p.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+					} 
+					else if (number(0, 3)) {
+						act("A quivering horde of maggots consumes $p.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+						act("A quivering horde of maggots consumes $p.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+					} 
+					else {
+						act("$p decays into nothing before your eyes.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+						act("$p decays into nothing before your eyes.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+					}
+				}
 
-            for (jj = j->contains; jj; jj = next_thing2) {
-                next_thing2 = jj->next_content;	/* Next in inventory */
-                obj_from_obj(jj);
+				for (jj = j->contains; jj; jj = next_thing2) {
+					next_thing2 = jj->next_content;	/* Next in inventory */
+					obj_from_obj(jj);
 
-                if (j->in_obj)
-                    obj_to_obj(jj, j->in_obj);
-                else if (j->carried_by)
-                    obj_to_char(jj, j->carried_by);
-                else if (j->worn_by)
-                    obj_to_char(jj, j->worn_by);
-                else if (j->in_room != NULL)
-                    obj_to_room(jj, j->in_room);
-                else 
-                    raise( SIGSEGV );
+					if (j->in_obj)
+						obj_to_obj(jj, j->in_obj);
+					else if (j->carried_by)
+						obj_to_char(jj, j->carried_by);
+					else if (j->worn_by)
+						obj_to_char(jj, j->worn_by);
+					else if (j->in_room != NULL)
+						obj_to_room(jj, j->in_room);
+					else 
+						raise( SIGSEGV );
 
-                if (IS_IMPLANT(jj) && !CAN_WEAR(jj, ITEM_WEAR_TAKE)) {
+					if (IS_IMPLANT(jj) && !CAN_WEAR(jj, ITEM_WEAR_TAKE)) {
 
-                    SET_BIT(jj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
+						SET_BIT(jj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
 
-                    if (!IS_OBJ_TYPE(jj, ITEM_ARMOR))
-                        damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 2));
-                    else	    
-                        damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 1));
-                }
-            }
-            extract_obj(j);
-	    }
-	} 
-    else if (GET_OBJ_VNUM(j) < 0 &&
-            ((IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->name)) || 
-            ((IS_OBJ_TYPE(j, ITEM_WEAPON) && isname("leg", j->name)) && 
-            (j->worn_on != WEAR_WIELD && j->worn_on != WEAR_WIELD_2)) || 
-            (IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->name)))) {
-            // body parts
-        if (GET_OBJ_TIMER(j) > 0)
-            GET_OBJ_TIMER(j)--;
-        if (GET_OBJ_TIMER(j) == 0) {
-            if (j->carried_by)
-                act("$p collapses into mush in your hands.", 
-                    FALSE, j->carried_by, j, 0, TO_CHAR);
-            else if ((j->in_room != NULL) && (j->in_room->people)) {
-                act("$p collapses into nothing.",
-                    TRUE, j->in_room->people, j, 0, TO_ROOM);
-                act("$p collapses into nothing.",
-                    TRUE, j->in_room->people, j, 0, TO_CHAR);
-            }
+						if (!IS_OBJ_TYPE(jj, ITEM_ARMOR))
+							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 2));
+						else	    
+							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 1));
+					}
+				}
+				extract_obj(j);
+			}
+		} 
+		else if (GET_OBJ_VNUM(j) < 0 &&
+				((IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->name)) || 
+				((IS_OBJ_TYPE(j, ITEM_WEAPON) && isname("leg", j->name)) && 
+				(j->worn_on != WEAR_WIELD && j->worn_on != WEAR_WIELD_2)) || 
+				(IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->name)))) {
+				// body parts
+			if (GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
+			if (GET_OBJ_TIMER(j) == 0) {
+				if (j->carried_by)
+					act("$p collapses into mush in your hands.", 
+						FALSE, j->carried_by, j, 0, TO_CHAR);
+				else if ((j->in_room != NULL) && (j->in_room->people)) {
+					act("$p collapses into nothing.",
+						TRUE, j->in_room->people, j, 0, TO_ROOM);
+					act("$p collapses into nothing.",
+						TRUE, j->in_room->people, j, 0, TO_CHAR);
+				}
 
-            // drop out the (damaged) implants
-            for (jj = j->contains; jj; jj = next_thing2) {
-                next_thing2 = jj->next_content;	/* Next in inventory */
-                obj_from_obj(jj);
+				// drop out the (damaged) implants
+				for (jj = j->contains; jj; jj = next_thing2) {
+					next_thing2 = jj->next_content;	/* Next in inventory */
+					obj_from_obj(jj);
 
-                if (j->carried_by)
-                    obj_to_char(jj, j->carried_by);
-                else if (j->worn_by)
-                    obj_to_char(jj, j->worn_by);
-                else if (j->in_obj)
-                    obj_to_obj(jj, j->in_obj);
-                else if (j->in_room)
-                    obj_to_room(jj, j->in_room);
-                else
-                    raise ( SIGSEGV );
+					if (j->carried_by)
+						obj_to_char(jj, j->carried_by);
+					else if (j->worn_by)
+						obj_to_char(jj, j->worn_by);
+					else if (j->in_obj)
+						obj_to_obj(jj, j->in_obj);
+					else if (j->in_room)
+						obj_to_room(jj, j->in_room);
+					else
+						raise ( SIGSEGV );
 
-                // fix up the implants, and damage them
-                if (IS_IMPLANT(jj) && !CAN_WEAR(jj, ITEM_WEAR_TAKE)) {
-                    SET_BIT(jj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
-                    if (!IS_OBJ_TYPE(jj, ITEM_ARMOR))
-                        damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 1));
-                    else 
-                        damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 2));
-                }
-            }
-            extract_obj(j);
-        }
-    } 
-    else if (GET_OBJ_VNUM(j) == BLOOD_VNUM) { /* blood pools */
-         GET_OBJ_TIMER(j)--;
-        if (GET_OBJ_TIMER(j) <= 0) {
-            extract_obj(j);
-	    }
-	} 
-    else if( GET_OBJ_VNUM(j) == QUANTUM_RIFT_VNUM) {
-        GET_OBJ_TIMER(j)--;
-        if (GET_OBJ_TIMER(j) <= 0) {
-            if(j->action_description) {
-                act("$p collapses in on itself.",
-                    TRUE, j->in_room->people, j, 0, TO_CHAR);
-                act("$p collapses in on itself.",
-                    TRUE, j->in_room->people, j, 0, TO_ROOM);
-            }
-            extract_obj(j);
-        }
-	} 
-    else if( GET_OBJ_VNUM(j) == ICE_VNUM ) {
-        if(j->in_room) {
-            if( SECT_TYPE(j->in_room) == SECT_DESERT ||
-                SECT_TYPE(j->in_room) == SECT_FIRE_RIVER ||
-                SECT_TYPE(j->in_room) == SECT_PITCH_PIT ||
-                SECT_TYPE(j->in_room) == SECT_PITCH_SUB ||
-                SECT_TYPE(j->in_room) == SECT_ELEMENTAL_FIRE ) {
-                    GET_OBJ_TIMER(j) = 0;
-            }
-            
-            if (! ROOM_FLAGGED(j->in_room, ROOM_ICE_COLD ) ) {
-                GET_OBJ_TIMER(j)--;
-            }
+					// fix up the implants, and damage them
+					if (IS_IMPLANT(jj) && !CAN_WEAR(jj, ITEM_WEAR_TAKE)) {
+						SET_BIT(jj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
+						if (!IS_OBJ_TYPE(jj, ITEM_ARMOR))
+							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 1));
+						else 
+							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 2));
+					}
+				}
+				extract_obj(j);
+			}
+		} 
+		else if (GET_OBJ_VNUM(j) == BLOOD_VNUM) { /* blood pools */
+			 GET_OBJ_TIMER(j)--;
+			if (GET_OBJ_TIMER(j) <= 0) {
+				extract_obj(j);
+			}
+		} 
+		else if( GET_OBJ_VNUM(j) == QUANTUM_RIFT_VNUM) {
+			GET_OBJ_TIMER(j)--;
+			if (GET_OBJ_TIMER(j) <= 0) {
+				if(j->action_description) {
+					act("$p collapses in on itself.",
+						TRUE, j->in_room->people, j, 0, TO_CHAR);
+					act("$p collapses in on itself.",
+						TRUE, j->in_room->people, j, 0, TO_ROOM);
+				}
+				extract_obj(j);
+			}
+		} 
+		else if( GET_OBJ_VNUM(j) == ICE_VNUM ) {
+			if(j->in_room) {
+				if( SECT_TYPE(j->in_room) == SECT_DESERT ||
+					SECT_TYPE(j->in_room) == SECT_FIRE_RIVER ||
+					SECT_TYPE(j->in_room) == SECT_PITCH_PIT ||
+					SECT_TYPE(j->in_room) == SECT_PITCH_SUB ||
+					SECT_TYPE(j->in_room) == SECT_ELEMENTAL_FIRE ) {
+						GET_OBJ_TIMER(j) = 0;
+				}
+				
+				if (! ROOM_FLAGGED(j->in_room, ROOM_ICE_COLD ) ) {
+					GET_OBJ_TIMER(j)--;
+				}
 
-            if (GET_OBJ_TIMER(j) <= 0) {
-                if(j->action_description) {
-                    act("$p melts and is gone.",
-                        TRUE, j->in_room->people, j, 0, TO_CHAR);
-                    act("$p melts and is gone.",
-                        TRUE, j->in_room->people, j, 0, TO_ROOM);
-                }
-                extract_obj(j);
-            }
-        }	 
-    } 
-    else if (GET_OBJ_SPEC(j) == roaming_portal ) {
-        roaming_portal(NULL,j,0,NULL,0);
-    } 
-    else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
-            (IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
-            (GET_OBJ_SPEC(j) == fate_portal) ||
-            (IS_OBJ_STAT3(j, ITEM3_STAY_ZONE))) { 
-        
-        // keys, unapp, zone only objects && fate portals
-        if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone
-            z = zone_number(GET_OBJ_VNUM(j));
-            if (((rm = where_obj(j)) && rm->zone->number == z) || !obj_owner(j)) {
-                continue;
-            }
-        }
-        
-        if(IS_OBJ_STAT3(j, ITEM3_STAY_ZONE) ) {
-            z = zone_number(GET_OBJ_VNUM(j));
-            if((rm = where_obj(j)) && rm->zone->number != z ) {
-                out_of_zone = 1;
-            }
-        }
+				if (GET_OBJ_TIMER(j) <= 0) {
+					if(j->action_description) {
+						act("$p melts and is gone.",
+							TRUE, j->in_room->people, j, 0, TO_CHAR);
+						act("$p melts and is gone.",
+							TRUE, j->in_room->people, j, 0, TO_ROOM);
+					}
+					extract_obj(j);
+				}
+			}	 
+		} 
+		else if (GET_OBJ_SPEC(j) == roaming_portal ) {
+			roaming_portal(NULL,j,0,NULL,0);
+		} 
+		else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
+				(IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
+				(GET_OBJ_SPEC(j) == fate_portal) ||
+				(IS_OBJ_STAT3(j, ITEM3_STAY_ZONE))) { 
+			
+			// keys, unapp, zone only objects && fate portals
+			if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone
+				z = zone_number(GET_OBJ_VNUM(j));
+				if (((rm = where_obj(j)) && rm->zone->number == z) || !obj_owner(j)) {
+					continue;
+				}
+			}
+			
+			if(IS_OBJ_STAT3(j, ITEM3_STAY_ZONE) ) {
+				z = zone_number(GET_OBJ_VNUM(j));
+				if((rm = where_obj(j)) && rm->zone->number != z ) {
+					out_of_zone = 1;
+				}
+			}
 
-        /* timer count down */
-        if (GET_OBJ_TIMER(j) > 0)
-            GET_OBJ_TIMER(j)--;
+			/* timer count down */
+			if (GET_OBJ_TIMER(j) > 0)
+				GET_OBJ_TIMER(j)--;
 
-        if (!GET_OBJ_TIMER(j) || out_of_zone) {
+			if (!GET_OBJ_TIMER(j) || out_of_zone) {
 
-            if (j->carried_by)
-                act("$p slowly fades out of existance.", 
-                    FALSE, j->carried_by, j, 0, TO_CHAR);
-            if (j->worn_by)
-                act("$p disintigrates as you are wearing it.", 
-                    FALSE, j->worn_by, j, 0, TO_CHAR);
-            else if ((j->in_room != NULL) && (j->in_room->people)) {
-                act("$p slowly fades out of existance.",
-                    TRUE, j->in_room->people, j, 0, TO_ROOM);
-                act("$p slowly fades out of existance.",
-                    TRUE, j->in_room->people, j, 0, TO_CHAR);
-    		}
-            for (jj = j->contains; jj; jj = next_thing2) {
-                next_thing2 = jj->next_content;	/* Next in inventory */
-                obj_from_obj(jj);
+				if (j->carried_by)
+					act("$p slowly fades out of existance.", 
+						FALSE, j->carried_by, j, 0, TO_CHAR);
+				if (j->worn_by)
+					act("$p disintegrates as you are wearing it.", 
+						FALSE, j->worn_by, j, 0, TO_CHAR);
+				else if ((j->in_room != NULL) && (j->in_room->people)) {
+					act("$p slowly fades out of existance.",
+						TRUE, j->in_room->people, j, 0, TO_ROOM);
+					act("$p slowly fades out of existance.",
+						TRUE, j->in_room->people, j, 0, TO_CHAR);
+				}
+				for (jj = j->contains; jj; jj = next_thing2) {
+					next_thing2 = jj->next_content;	/* Next in inventory */
+					obj_from_obj(jj);
 
-                if (j->in_obj)
-                    obj_to_obj(jj, j->in_obj);
-                else if (j->carried_by)
-                    obj_to_room(jj, j->carried_by->in_room);
-                else if (j->worn_by)
-                    obj_to_room(jj, j->worn_by->in_room);
-                else if (j->in_room != NULL)
-                    obj_to_room(jj, j->in_room);
-                else
-                    raise( SIGSEGV );
-            }
-            extract_obj(j);
-        }
-    }
+					if (j->in_obj)
+						obj_to_obj(jj, j->in_obj);
+					else if (j->carried_by)
+						obj_to_room(jj, j->carried_by->in_room);
+					else if (j->worn_by)
+						obj_to_room(jj, j->worn_by->in_room);
+					else if (j->in_room != NULL)
+						obj_to_room(jj, j->in_room);
+					else
+						raise( SIGSEGV );
+				}
+				extract_obj(j);
+			}
+		}
+	}
 }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

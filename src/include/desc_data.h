@@ -48,14 +48,12 @@ enum
 	CON_RACEHELP_F,	
 	CON_CLASSHELP_F,	
 	CON_REMORT_REROLL,	
-	CON_NET_MENU1,		// First net menu state
-	CON_NET_PROGMENU1,	// State which char_class of skill
-	CON_NET_PROG_CYB,	// State which char_class of skill
-	CON_NET_PROG_MNK,	// State which char_class of skill
-	CON_NET_PROG_HOOD,	
+	CON_NETWORK,		// interfaced to network
 	CON_PORT_OLC,		// Using port olc interface
 	};
 
+#define IS_PLAYING(desc)	((desc)->connected == CON_PLAYING || \
+							(desc)->connected == CON_NETWORK)
 
 /* descriptor-related structures ******************************************/
 
@@ -117,7 +115,5 @@ struct descriptor_data {
    struct descriptor_data *next; /* link to next descriptor		*/
    struct mail_recipient_data *mail_to;	/* list of names for mailsystem	*/
 };
-
-
 
 #endif 

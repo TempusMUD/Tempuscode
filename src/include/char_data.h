@@ -972,9 +972,6 @@ struct char_data {
 
         struct obj_data *carrying;            /* Head of list                  */
         struct descriptor_data *desc;         /* NULL for mobiles              */
-
-        //struct char_data *next_in_room;     /* For room->people - list         */
-        //struct char_data *prev_in_room;     /* For room->people - list         */
       
         struct follow_type *followers;        /* List of chars followers       */
         struct char_data *master;             /* Who is char following?        */

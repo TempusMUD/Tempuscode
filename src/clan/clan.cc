@@ -299,7 +299,7 @@ ACMD(do_clanlist)
     sprintf(outbuf, "Members of clan %s :\r\n", clan->name);
     for (member = clan->member_list; member; member = member->next, found = 0) {
 	for (d = descriptor_list; d && !found; d = d->next) {
-	    if (d->connected == CON_PLAYING) {
+	    if (IS_PLAYING(d)) {
 		i = ((d->original && GET_LEVEL(ch) > GET_LEVEL(d->original)) ? 
 		     d->original : d->character);
 		if (i && GET_CLAN(i) == GET_CLAN(ch) && 

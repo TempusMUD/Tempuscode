@@ -157,7 +157,7 @@ void CTextEditor::SaveText( char *inStr) {
         }
     }   
     // If they're in the game
-    if(desc->connected == CON_PLAYING) {
+    if(IS_PLAYING(desc)) {
         // Saving a file
         if ((desc->editor_file != NULL)) {
             SaveFile();
@@ -181,12 +181,12 @@ void CTextEditor::SaveText( char *inStr) {
         desc->mail_to = desc->mail_to->next;
     }
     // If editing thier description.
-    if (desc->connected == CON_EXDESC) {
+    if (STATE(desc) == CON_EXDESC) {
         SEND_TO_Q("\033[H\033[J", desc);
 		set_desc_state( CON_MENU,desc );
     }
     // Remove the "using the editor" bits.
-    if (desc->connected == CON_PLAYING && desc->character && !IS_NPC(desc->character)) {
+    if (IS_PLAYING(desc) && desc->character && !IS_NPC(desc->character)) {
         tedii_out_buf[0] = '\0';
         // Decide what to say to the room since they're done
         if( PLR_FLAGGED(desc->character, PLR_WRITING) ) {
@@ -256,7 +256,7 @@ void CTextEditor::ExportMail( void ) {
         stored_mail = store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(desc->character),*target, cc_list);
         if( stored_mail == 1 ) {
             for (r_d = descriptor_list; r_d; r_d = r_d->next) {
-                if (r_d->connected == CON_PLAYING && r_d->character && r_d->character != desc->character &&
+                if (IS_PLAYING(r_d) && r_d->character && r_d->character != desc->character &&
                 GET_IDNUM(r_d->character) == desc->mail_to->recpt_idnum &&
                 !PLR_FLAGGED(r_d->character,PLR_WRITING|PLR_MAILING|PLR_OLC)) {
                     send_to_char("A strange voice in your head says, 'You have new mail.'\r\n", r_d->character);
@@ -316,7 +316,6 @@ bool CTextEditor::Full ( char *inStr=NULL) {
 }
 
 void CTextEditor::Append(char *inStr) {
-	char *read_pt,*write_pt;
 
     if(Full(inStr)) {
         SendMessage("Error: The buffer is full.\r\n");
@@ -324,15 +323,18 @@ void CTextEditor::Append(char *inStr) {
     }
 	
 	// All tildes must die
-	readPt = writePt = inStr;
-	while ( *readPt )
-		{
-		if ( *readPt != '~' )
-			*writePt++ = *readPt;
-		*readPt++;
-		}
-	*writePt = '\0';
+    if((PLR_FLAGGED(desc->character, PLR_OLC)) && scripting) {
+		char *readPt,*writePt;
 
+		readPt = writePt = inStr;
+		while ( *readPt )
+			{
+			if ( *readPt != '~' )
+				*writePt++ = *readPt;
+			readPt++;
+			}
+		*writePt = '\0';
+	}
     theText.push_back(inStr);
     Wrap();
     UpdateSize();
