@@ -3120,86 +3120,53 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 			}
 		}
 
-		if (CUR_R_O_F(gun) <= 0)
-			CUR_R_O_F(gun) = 1;
+        cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
 
-		for (i = 0, dead = false; i < CUR_R_O_F(gun); i++) {
+        dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
 
-			prob -= (i * 4);
-			cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
+        CUR_ENERGY(gun->contains) -= cost;
 
-			dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
+        cur_weap = gun;
 
-			CUR_ENERGY(gun->contains) -= cost;
+        //
+        // miss
+        //
 
-			cur_weap = gun;
+        if (number(0, 121) > prob) {
+            check_killer(ch, vict);
+            my_return_flags =
+                damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, number(0,
+                    NUM_WEARS - 1));
+        }
+        //
+        // hit
+        //
 
-			if (dead == false) {
+        else {
+            check_killer(ch, vict);
+            my_return_flags =
+                damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, number(0,
+                    NUM_WEARS - 1));
+        }
 
-				//
-				// miss
-				//
+        // if the attacker was somehow killed, return immediately
+        //
 
-				if (number(0, 121) > prob) {
-					check_killer(ch, vict);
-					my_return_flags =
-						damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, number(0,
-							NUM_WEARS - 1));
-				}
-				//
-				// hit
-				//
+        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
+            return 1;
+        }
 
-				else {
-					check_killer(ch, vict);
-					my_return_flags =
-						damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, number(0,
-							NUM_WEARS - 1));
-				}
-			}
-			//
-			// vict is dead, blast the corpse
-			//
+        if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
+            dead = true;
+            return DAM_VICT_KILLED;
+        }
 
-			else {
-				if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents)
-					&& CORPSE_KILLER(ch->in_room->contents) ==
-					(IS_NPC(ch) ? -GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
-					act("You blast $p with $P!!", FALSE, ch,
-						ch->in_room->contents, gun, TO_CHAR);
-					act("$n blasts $p with $P!!", FALSE, ch,
-						ch->in_room->contents, gun, TO_ROOM);
-					if (damage_eq(ch, ch->in_room->contents, dam))
-						break;
-				} else {
-					act("You fire off a round from $P.",
-						FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-					act("$n fires off a round from $P.",
-						FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-				}
-			}
-
-			//
-			// if the attacker was somehow killed, return immediately
-			//
-
-			if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-				return 1;
-			}
-
-			if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-				dead = true;
-				return DAM_VICT_KILLED;
-			}
-
-			if (!CUR_ENERGY(gun->contains)) {
-				act("$p has been depleted of fuel.  Auto switching off.",
-					FALSE, ch, gun, 0, TO_CHAR);
-				act("$p makes a clicking noise in the hard of $n.",
-					TRUE, ch, gun, 0, TO_ROOM);
-				break;
-			}
-		}
+        if (!CUR_ENERGY(gun->contains)) {
+            act("$p has been depleted of fuel.  Auto switching off.",
+                FALSE, ch, gun, 0, TO_CHAR);
+            act("$p makes a clicking noise in the hard of $n.",
+                TRUE, ch, gun, 0, TO_ROOM);
+        }
 		cur_weap = NULL;
 		return 1;
 	}
@@ -3256,18 +3223,9 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 		}
 	}
 
-	if (CUR_R_O_F(gun) <= 0)
-		CUR_R_O_F(gun) = 1;
-
-	// loop through ROF of the gun for burst fire
-
-	for (i = 0, dead = 0; i < CUR_R_O_F(gun); i++) {
-
 		if (!bullet) {
 			return 0;
 		}
-
-		prob -= (i * 4);
 
 		dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
 		dam += BUL_DAM_MOD(bullet);
@@ -3289,57 +3247,26 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 
 		cur_weap = gun;
 
-		if (dead == false) {
+        //
+        // miss
+        //
 
-			//
-			// miss
-			//
+        if (number(0, 121) > prob) {
+            my_return_flags =
+                damage(ch, vict, 0,
+                IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
+                SKILL_PROJ_WEAPONS, number(0, NUM_WEARS - 1));
+        }
+        //
+        // hit
+        //
 
-			if (number(0, 121) > prob) {
-				my_return_flags =
-					damage(ch, vict, 0,
-					IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
-					SKILL_PROJ_WEAPONS, number(0, NUM_WEARS - 1));
-			}
-			//
-			// hit
-			//
-
-			else if (!dead) {
-				my_return_flags =
-					damage(ch, vict, dam,
-					IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
-					SKILL_PROJ_WEAPONS, number(0, NUM_WEARS - 1));
-			}
-		}
-		//
-		// vict is dead, blast the corpse
-		//
-
-		else {
-			if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents) &&
-				CORPSE_KILLER(ch->in_room->contents) ==
-				(IS_NPC(ch) ? -GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
-				if (IS_ARROW(gun)) {
-					act("You shoot $p with $P!!",
-						FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
-					act("$n shoots $p with $P!!",
-						FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-				} else {
-					act("You blast $p with $P!!",
-						FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
-					act("$n blasts $p with $P!!",
-						FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-				}
-				if (damage_eq(ch, ch->in_room->contents, dam))
-					break;
-			} else {
-				act("You fire off a round from $P.",
-					FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-				act("$n fires off a round from $P.",
-					FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-			}
-		}
+        else if (!dead) {
+            my_return_flags =
+                damage(ch, vict, dam,
+                IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
+                SKILL_PROJ_WEAPONS, number(0, NUM_WEARS - 1));
+        }
 
 		//
 		// if the attacker was somehow killed, return immediately
@@ -3354,6 +3281,5 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 			return DAM_VICT_KILLED;
 		}
 
-	}
 	return 1;
 }
