@@ -261,8 +261,9 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		GET_MAX_MANA(ch) -= MAX(5, (loss % 50) * 2);
 		GET_MAX_MOVE(ch) -= MAX(5, (loss % 50) * 2);
 
-		GET_REMORT_GEN(ch) -= loss / 50;
+		GET_REMORT_GEN(ch) -= MIN(GET_REMORT_GEN(ch), loss / 50);
 		GET_LEVEL(ch) = loss % 50;
+		GET_EXP(ch) = exp_scale[GET_LEVEL(ch)];
 		GET_LIFE_POINTS(ch) = 0;
 		GET_PRACTICES(ch) = 0;
 		GET_CHA(ch) = MAX(3, GET_CHA(ch) - 2);
