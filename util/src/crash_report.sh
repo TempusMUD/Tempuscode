@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MAIL_RECIPIENTS=coders@tempusmud.com
+MAIL_RECIPIENTS=crashreport@tempusmud.com
 
 function print_report() {
 

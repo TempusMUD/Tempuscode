@@ -70,6 +70,11 @@ void purge( char *filename, int tmud ) {
 	    sprintf(reason, "Invalid level (%d)", player.level);
 	}
 
+	if ( player.char_specials_saved.idnum > 50000 ) {
+	okay = 0;
+		sprintf( reason, "Invalid idnum %ld level %2d", player.char_specials_saved.idnum, player.level );
+}
+
 	// now, check for timeouts.  They only apply if the char is not
 	// cryo-rented.   Lev 40+ and remorts do not time out
 
