@@ -147,7 +147,7 @@ bool HelpItem::IsInGroup(int thegroup) {
 void HelpItem::SetName(char *argument) {
     skip_spaces(&argument);
     if(name)
-        delete name;
+        delete [] name;
     name = new char[strlen(argument) + 1];
     strcpy(name, argument);
     SET_BIT(flags,HFLAG_MODIFIED);
@@ -159,7 +159,7 @@ void HelpItem::SetName(char *argument) {
 void HelpItem::SetKeyWords(char *argument) {
     skip_spaces(&argument);
     if(keys)
-        delete keys;
+        delete [] keys;
     keys = new char[strlen(argument) + 1];
     strcpy(keys, argument);
     SET_BIT(flags,HFLAG_MODIFIED);
@@ -179,9 +179,9 @@ HelpItem::HelpItem(){
 }
 
 HelpItem::~HelpItem(){
-    delete text;
-    delete keys;
-    delete name;
+    delete [] text;
+    delete [] keys;
+    delete [] name;
 }
 
 // Clear out the item.
@@ -191,15 +191,15 @@ bool HelpItem::Clear( void ) {
     groups = 0;
 
     if(text) {
-        delete text;
+        delete [] text;
         text = NULL;
     }
     if(name) {
-        delete name;
+        delete [] name;
         name = NULL;
     }
     if(keys) {
-        delete keys;
+        delete [] keys;
         keys = NULL;
     }
     name = new char[32];
@@ -264,7 +264,7 @@ bool HelpItem::Save(){
          << endl << name << endl;
     if(text) {
         file.write(text,strlen(text));
-        delete text;
+        delete [] text;
         text = NULL;
     }
     file.close();
