@@ -2593,7 +2593,7 @@ ACMD(do_extract)
 	vict_str = tmp_getword(&argument);
 	pos_str = tmp_getword(&argument);
 
-	if (!*obj_str || !*vict_str || !*pos_str) {
+	if (!*obj_str || !*vict_str) {
 		send_to_char(ch,
 			"Extract <object> <victim> <position>        ...or...\r\n"
 			"Extract <object> <corpse>\r\n");
