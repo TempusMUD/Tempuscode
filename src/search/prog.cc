@@ -50,6 +50,10 @@ void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
 void prog_do_echo(prog_env *env, prog_evt *evt, char *args);
 void prog_do_mobflag(prog_env *env, prog_evt *evt, char *args);
 
+//external prototypes
+struct Creature *real_mobile_proto(int vnum);
+struct obj_data *real_object_proto(int vnum);
+
 char *prog_get_statement(char **prog, int linenum);
 
 struct prog_command {
@@ -247,11 +251,14 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
     // Mobs using "alias"
     // 1200 3062 90800
 	} else if (!strcmp(arg, "alias")) {
-		if (evt->args) {
+        char *alias_list = NULL;
+        if (!(alias_list = prog_get_alias_list(args)))
+            result = false;
+		if (evt->args && alias_list) {
 			str = evt->args;
 			arg = tmp_getword(&str);
 			while (*arg) {
-				if (isname(arg, args)) {
+				if (isname(arg, alias_list)) {
 					result = true;
 					break;
 				}
@@ -294,7 +301,7 @@ prog_eval_condition(prog_env *env, prog_evt *evt, char *args)
             }
         }
     } else if (!strcmp(arg, "fighting")) {
-		result = (env->owner_type == PROG_TYPE_MOBILE
+		result = (env->owner_type == PROG_TYPE_MOBILE 
 				&& ((Creature *)env->owner)->isFighting());
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
@@ -1135,4 +1142,44 @@ prog_state_free(prog_state_data *state)
 		free(cur_var);
 	}
 	free(state);
+}
+
+char *prog_get_alias_list(char *args)
+{
+    char *str;
+    int vnum = 0, type = 0; // 0 is a mob, 1 is an object
+    struct Creature *mob = NULL;
+    struct obj_data *obj = NULL;
+    
+    str = tmp_getword(&args);
+    if ((*str != 'm') && (*str != 'o')) {
+        return NULL;
+    }
+    
+    type = (*str == 'm') ? 0 : 1;
+
+    str = tmp_getword(&args);
+    if (is_number(str)) {
+       vnum = atoi(str); 
+    } else {
+        return NULL;
+    }
+    if (type == 0) {
+        mob = real_mobile_proto(vnum);
+        if (!mob) {
+            return NULL;
+        }
+
+        str = GET_NAME(mob);
+    }
+    else {
+        obj = real_object_proto(vnum);
+        if (!obj) {
+            return NULL;
+        }
+
+        str = obj->aliases;
+    }
+
+    return tmp_strdup(str);
 }

@@ -76,5 +76,6 @@ void prog_update(void);
 void prog_update_pending(void);
 int prog_count(void);
 void prog_state_free(prog_state_data *state);
+char *prog_get_alias_list(char *args);
 
 #endif
