@@ -193,6 +193,17 @@ can_see_creature(Creature *self, Creature *vict)
 	if (self == vict)
 		return true;
 
+	// Immortals players can always see non-immortal players
+	if (IS_IMMORT(self) && !IS_IMMORT(vict))
+		return true;
+
+	// Nothing at all gets through immort invis
+	if (IS_IMMORT(vict) && GET_LEVEL(self) < GET_INVIS_LVL(vict))
+		return false;
+
+	if (PRF_FLAGGED(self, PRF_HOLYLIGHT))
+		return true;
+
 	if (!check_sight_self(self))
 		return false;
 
