@@ -88,16 +88,25 @@ prog_command prog_cmds[] = {
 };
 
 char *
-advance_lines(char *str, int lines)
+advance_statements(char *str, int count)
 {
-	while (*str && lines) {
-		while (*str && *str != '\r' && *str != '\n')
+	while (*str && count) {
+		while (*str && *str != '\\' && *str != '\r' && *str != '\n')
 			str++;
-		if (*str == '\r')
+		// code duplicated for speed purposes
+		if (*str == '\\') {
 			str++;
-		if (*str == '\n')
-			str++;
-		lines--;
+			if (*str == '\r')
+				str++;
+			if (*str == '\n')
+				str++;
+		} else {
+			if (*str == '\r')
+				str++;
+			if (*str == '\n')
+				str++;
+			count--;
+		}
 	}
 
 	return str;
@@ -137,10 +146,10 @@ prog_next_handler(prog_env *env, bool use_resume)
 
 	// find our current execution point
 	prog = prog_get_text(env);
-	prog = advance_lines(prog, env->exec_pt);
+	prog = advance_statements(prog, env->exec_pt);
 
 	// skip over lines until we find another handler (or bust)
-	while ((line = tmp_getline(&prog)) != NULL) {
+	while ((line = prog_get_statement(&prog, 0)) != NULL) {
 		cmd = tmp_getword(&line);
 		if (*cmd != '*') {
 			env->exec_pt++;
@@ -753,7 +762,7 @@ prog_get_statement(char **prog, int linenum)
 	char *statement;
 
 	if (linenum)
-		*prog = advance_lines(*prog, linenum);
+		*prog = advance_statements(*prog, linenum);
 
 	statement = tmp_getline(prog);
 	if (!statement)
@@ -838,7 +847,7 @@ prog_execute(prog_env *env)
 			return;
 
 		if (env->exec_pt > cur_line + 1)
-			exec = advance_lines(exec, env->exec_pt - (cur_line + 1));
+			exec = advance_statements(exec, env->exec_pt - (cur_line + 1));
 		line = prog_get_statement(&exec, 0);
 	}
 
