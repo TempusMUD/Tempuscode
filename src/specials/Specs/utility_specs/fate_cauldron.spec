@@ -8,10 +8,9 @@ char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact=0);
 
 SPECIAL(fate_cauldron)
 {
-	register struct char_data *cur_ch, *next_ch;
 	struct obj_data *pot = (struct obj_data *) me;
 	char arg1[MAX_INPUT_LENGTH];
-	struct char_data *fate = NULL;
+	register struct char_data *fate = NULL;
 	int fateid = 0;
 
 	if (!CMD_IS("look") || !CAN_SEE_OBJ(ch, pot) || !AWAKE(ch))
@@ -23,7 +22,7 @@ SPECIAL(fate_cauldron)
 	act("$n gazes deeply into $p.",
 		FALSE, ch, pot, 0, TO_ROOM);
 	// Is he ready to remort? Or level 49 at least?
-	if(GET_LEVEL(ch) < 49) {
+	if(GET_LEVEL(ch) != 49 && GET_LEVEL(ch) < LVL_SPIRIT) {
 		act("You gaze deep into $p but learn nothing.",
 			FALSE, ch, pot, 0, TO_CHAR);
 		return 1;
@@ -37,13 +36,10 @@ SPECIAL(fate_cauldron)
 		fateid = FATE_VNUM_HIGH;
 	}
 	
-	for (cur_ch = character_list; cur_ch; cur_ch = next_ch) {
-		next_ch = cur_ch->next;
-		if(GET_MOB_VNUM(cur_ch) == fateid) {
-			fate = cur_ch;
-			break;
-		}
-	}
+	for(fate = character_list;
+		fate && GET_MOB_VNUM(fate) != fateid;
+		fate = fate->next);
+
 	act("You gaze deep into $p.", FALSE, ch, pot, 0, TO_CHAR);
 
 	// Couldn't find her
@@ -57,6 +53,3 @@ SPECIAL(fate_cauldron)
 	WAIT_STATE(ch,3);
 	return 1;
 }
-
-
-

@@ -18,14 +18,15 @@ SPECIAL(fate_portal)
 	
 	// Is he ready to remort? Or level 49 at least?
 	if(!IS_NPC(ch) && GET_LEVEL(ch) >= 49) {
-		if(GET_OBJ_VAL(portal,2) == 1) {
-			if(GET_REMORT_GEN(ch) <= 3)
+		if(GET_OBJ_VAL(portal,2) == 1 
+			&& GET_REMORT_GEN(ch) <= 3)
 				return 0;
-		} else if(GET_OBJ_VAL(portal,2) == 2) {
-			if(GET_REMORT_GEN(ch) <= 6 && GET_REMORT_GEN(ch) >= 4)
+		} else if(GET_OBJ_VAL(portal,2) == 2 
+			&& GET_REMORT_GEN(ch) <= 6 
+			&& GET_REMORT_GEN(ch) >= 4)
 				return 0;
-		} else if(GET_OBJ_VAL(portal,2) == 3) {
-			if(GET_REMORT_GEN(ch) >= 7)
+		} else if(GET_OBJ_VAL(portal,2) == 3 
+			&& GET_REMORT_GEN(ch) >= 7)
 				return 0;
 		}
 	}
