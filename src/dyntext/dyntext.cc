@@ -834,7 +834,7 @@ check_dyntext_updates(CHAR *ch, int mode)
 		if (dyntext->last_edit[0].tEdit > ch->desc->old_login_time) {
 			if (!strcmp(dyntext->filename, "inews") && GET_LEVEL(ch) < LVL_AMBASSADOR)
 				continue;
-			if (!strncmp(dyntext->filename,"fate",4))
+			if (!strncmp(dyntext->filename,"fate",4)  || !strncmp(dyntext->filename, "arenalist", 9) )
 				continue;
 
 			if (mode == CHECKDYN_RECONNECT)
@@ -858,7 +858,7 @@ dynedit_update_string(dynamic_text_file *d)
     static char buffer[1024];
     int len;
 
-	if(!strncmp(d->filename,"fate",4))
+	if(!strncmp(d->filename,"fate",4) || !strncmp(d->filename,"arenalist", 9) )
 		return "";
 	printf("Updating File: %s\r\n",d->filename);
     t = time(0);
@@ -878,4 +878,8 @@ dynedit_update_string(dynamic_text_file *d)
 }
 
     
+
+
+
+
 

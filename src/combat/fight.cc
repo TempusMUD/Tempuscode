@@ -38,6 +38,7 @@
 #include "guns.h"
 #include "specs.h"
 #include "mobact.h"
+#include "combat.h"
 
 #include <iostream>
 
@@ -174,7 +175,14 @@ raw_kill( struct char_data * ch, struct char_data *killer, int attacktype )
     if ( FIGHTING( ch ) )
         stop_fighting( ch );
 
+    
     death_cry( ch );
+
+    if( IN_COMBAT(ch) ) {
+        combat_loop( ch, killer );
+    }
+    
+    
 
     make_corpse( ch, killer, attacktype );
 

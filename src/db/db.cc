@@ -43,7 +43,7 @@
 #include "olc.h"
 #include "shop.h"
 #include "help.h"
-
+#include "combat.h"
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
 ************************************************************************ */
@@ -431,6 +431,9 @@ boot_db(void)
 
     slog("Loading social messages.");
     boot_social_messages();
+
+    slog("Booting combat system.");
+    boot_combat();
 
     slog("Assigning function pointers:");
 

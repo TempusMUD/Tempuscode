@@ -78,7 +78,6 @@ void die(struct char_data *ch, struct char_data *killer, int attacktype, int is_
 int calculate_thaco(struct char_data *ch, struct char_data *victim, 
 		    struct obj_data *obj);
 
-
 #ifdef __combat_code__
 #ifdef __combat_utils__
 static int limb_probs[] = {
@@ -155,6 +154,7 @@ extern int mini_mud;
 extern struct descriptor_data *descriptor_list;
 
 extern int search_nomessage;
+extern struct combat_data *battles;
 
 /* External procedures */
 char *fread_action(FILE * fl, int nr);

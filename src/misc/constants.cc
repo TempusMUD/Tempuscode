@@ -703,6 +703,7 @@ extern const char *position_types[] = {
 extern const char *player2_bits[] = {
 	"SOULLESS",
 	"BURIED",
+        "IN_COMBAT",
 	"\n"
 };
 /* PLR_x */

@@ -123,6 +123,7 @@ ACMD(do_board);
 ACMD(do_bomb);
 ACMD(do_bandage);
 ACMD(do_cast);
+ACMD(do_ccontrol);
 ACMD(do_ceasefire);
 ACMD(do_conceal);
 ACMD(do_cedit);
@@ -590,6 +591,7 @@ extern const struct command_info cmd_info[] = {
     { "curse"    , POS_RESTING , do_action   , 0, 0 },
     { "curtsey"  , POS_STANDING, do_action   , 0, 0 },
     { "cyberscan", POS_STANDING, do_cyberscan, 0, 0 },
+    { "combat", POS_DEAD, do_ccontrol, 0, 0 },
 
     { "dance"    , POS_STANDING, do_action   , 0, 0 },
     { "dare"      , POS_RESTING , do_action   , 0, 0 },

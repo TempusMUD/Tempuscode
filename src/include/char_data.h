@@ -254,9 +254,11 @@
 #define PLR_LOG         (1 << 28)  /* log all cmds */
 #define PLR_POLC        (1 << 29)  /* player approved for port olc      */
 #define PLR_NOPK        (1 << 30)  /* player cannot pk */
+
 // Player Flags Mark II
-#define PLR2_SOULLESS   (1 << 0)    // Signing the Unholy Compact.
-#define PLR2_BURIED     (1 << 1)    // Player has died way too many times.
+#define PLR2_SOULLESS	(1 << 0)	// Signing the Unholy Compact.
+#define PLR2_BURIED	(1 << 1)	// Player has died way too many times.
+#define PLR2_COMBAT     (1 << 2)        // The player is engaged in a combat    
 
 /* Mobile flags: used by char_data.char_specials.act */
 #define MOB_SPEC            (1 << 0)  /* Mob has a callable spec-proc    */
@@ -357,7 +359,6 @@
 #define PRF2_NOGECHO       (1 << 18) // Silly Gecho things
 #define PRF2_NOWRAP        (1 << 19) // turns off autowrap temporarily.
 #define PRF2_DISPALIGN     (1 << 20)
-
 
 /* Affect bits: used in char_data.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
