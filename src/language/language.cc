@@ -1621,3 +1621,21 @@ void set_initial_language(Creature *ch)
     return;
 }
 
+void learn_language(Creature *ch, char language_idx)
+{
+    KNOWN_LANGUAGES(ch) |= ((long long)1 << language_idx);
+
+    return;
+}
+
+int known_languages(Creature *ch)
+{
+    int counter = 0;
+
+    for (int x = 0; x < NUM_LANGUAGES; x++) {
+        if (can_speak_language(ch, x))
+            counter++;
+    }
+
+    return counter;
+}

@@ -18,13 +18,15 @@
 #define GET_LANGUAGE(ch) ((ch)->language_data.current_language)
 #define KNOWN_LANGUAGES(ch) ((ch)->language_data.known_languages)
 
-int can_speak_language(Creature *ch, char language_id);
+int can_speak_language(Creature *ch, char language_idx);
 int find_language_idx(long long language);
 int find_language_idx_by_name(char *language_name);
 int find_language_idx_by_race(const char *race_name);
-char *translate_string(char *phrase, char language); 
-void translate_word(char **word, char language);
+int known_languages(Creature *ch);
+char *translate_string(char *phrase, char language_idx); 
+void translate_word(char **word, char language_idx);
 void set_initial_language(Creature *ch);
+void learn_language(Creature *ch, char language_idx);
 
 // Num languages should always be the number of languages defined
 // below NOT INCLUDING COMMON!!!!!!!!

@@ -279,6 +279,7 @@ SPECIAL(demonic_guard);
 SPECIAL(mugger);
 SPECIAL(guardian_angel);
 SPECIAL(mage_teleporter);
+SPECIAL(languagemaster);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2
