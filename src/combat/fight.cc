@@ -4100,21 +4100,25 @@ perform_violence( void )
 		// Insert implant weaponry and adv implant weaponry here.
 		if ( IS_CYBORG(ch) ) {
 			int prob;
-			prob = 25;
-			if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100)
-				prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_IMPLANT_W) - 100)/2;
-			if(  number( 0 ,100 ) < prob ) {
-				if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
-					send_to_char("Attempting implant weapon attack.\r\n",ch);
-				hit( ch, FIGHTING(ch), SKILL_IMPLANT_W);
-			} 
-			prob = 25;
-			if (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) > 100)
-				prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) - 100)/2;
-			if(  number( 0 ,100 ) < prob ) {
-				if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
-					send_to_char("Attempting advanced implant weapon attack.\r\n",ch);
-				hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W);
+			if(number(1,100) < CHECK_SKILL(ch, SKILL_IMPLANT_W)) {
+				prob = 25;
+				if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100)
+					prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_IMPLANT_W) - 100)/2;
+				if(  number( 0 ,100 ) < prob ) {
+					if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
+						send_to_char("Attempting implant weapon attack.\r\n",ch);
+					hit( ch, FIGHTING(ch), SKILL_IMPLANT_W);
+				} 
+			}
+			if(number(1,100) < CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W)) {
+				prob = 25;
+				if (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) > 100)
+					prob += GET_REMORT_GEN(ch) + (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) - 100)/2;
+				if(  number( 0 ,100 ) < prob ) {
+					if ( PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) 
+						send_to_char("Attempting advanced implant weapon attack.\r\n",ch);
+					hit( ch, FIGHTING(ch), SKILL_ADV_IMPLANT_W);
+				}
 			}
 
 		}
