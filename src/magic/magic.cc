@@ -1449,7 +1449,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.aff_index = 2;
 		af.location = APPLY_DEX;
 		af.modifier = -number(0, (level >> 4));
-		to_vict = "Your movements slow to a torturous crawl.";
+		to_vict = "Your movements slow to a tortured crawl.";
 		break;
 
 	case SPELL_PROT_FROM_EVIL:
