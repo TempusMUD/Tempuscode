@@ -2296,11 +2296,6 @@ int drag_object(CHAR* ch, struct obj_data *obj, char* argument )
 	max_drag += ( 3 * CHECK_SKILL(ch, SKILL_DRAG ) );
     }
 
-    if( ! obj || ! obj->short_description ) {
-        slog("Bad object or object->short_description in drag_object.\r\n");
-        return 0;
-    } 	
-
     if( ( obj->getWeight() ) > max_drag  || ( GET_MOVE( ch ) < 50 ) ) {
 	sprintf(buf, "You don't have the strength to drag %s.\r\n", obj->short_description );
 	WAIT_STATE(ch, 1 RL_SEC );
