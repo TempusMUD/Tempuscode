@@ -1,9 +1,16 @@
 High Priority
 -------------------------------------------------------------------------------
 * Implement house repossession
-* Containers currently gain the weight of their contents each time they
+X Containers currently gain the weight of their contents each time they
   are rented
 * Applies on eq don't seem to be stable at all
+* Drink container's weight is 1lb/drink.  This is silly.
+* Penalties for dying far exceed reasonable (at least in randomness).
+* olc recalculate does not check CAN_EDIT
+* Add recalculate "zone" for mob/object.
+* Debug qcontrol system. ( doesn't save/load reliably )
+* Cleave/Great-Cleave damage is too low and too consistant.
+
 
 Low Priority
 -------------------------------------------------------------------------------
