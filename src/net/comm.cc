@@ -699,6 +699,7 @@ game_loop(int mother_desc)
 		}
 
 
+		update_unique_id();
 		tics++;					/* tics since last checkpoint signal */
 		sql_gc_queries();
 		tmp_gc_strings();
