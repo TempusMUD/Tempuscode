@@ -104,13 +104,17 @@ search_trans_character(Creature * ch,
 	return 1;
 }
 
-#define SRCH_LOG( ch, srch ) \
-{ if ( !ZONE_FLAGGED( ch->in_room->zone, ZONE_SEARCH_APPROVED ) && \
-       GET_LEVEL( ch ) < LVL_GOD ) {                     \
-                                                             sprintf( buf, "SRCH: %s at %d: %c %d %d %d.",       \
-                                                                      GET_NAME( ch ), ch->in_room->number,         \
-                                                                      *search_commands[( int )srch->command],      \
-                                                                      srch->arg[0], srch->arg[1], srch->arg[2] );slog( buf );}}
+inline void
+SRCH_LOG(Creature *ch, special_search_data *srch)
+{
+	if (!ZONE_FLAGGED( ch->in_room->zone, ZONE_SEARCH_APPROVED)
+			&& GET_LEVEL( ch ) < LVL_GOD )
+		slog("SRCH: %s at %d: %c %d %d %d.",       
+			GET_NAME( ch ), ch->in_room->number,         
+			*search_commands[( int )srch->command],      
+			srch->arg[0], srch->arg[1], srch->arg[2]);
+}
+
 #define SRCH_DOOR ( targ_room->dir_option[srch->arg[1]]->exit_info )
 #define SRCH_REV_DOOR ( other_rm->dir_option[rev_dir[srch->arg[1]]]->exit_info )
 
@@ -156,12 +160,12 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 	switch (srch->command) {
 	case (SEARCH_COM_OBJECT):
 		if (!(obj = real_object_proto(srch->arg[0]))) {
-			errlog("search in room %d, object %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, object %d nonexistant.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
 		if ((targ_room = real_room(srch->arg[1])) == NULL) {
-			errlog("search in room %d, targ room %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, targ room %d nonexistant.",
 				rm->number, srch->arg[1]);
 			return 0;
 		}
@@ -169,7 +173,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			return 0;
 		}
 		if (!(obj = read_object(srch->arg[0]))) {
-			errlog("search cannot load object #%d, room %d.",
+			zerrlog(rm->zone, "search cannot load object #%d, room %d.",
 				srch->arg[0], ch->in_room->number);
 			return 0;
 		}
@@ -187,12 +191,12 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	case SEARCH_COM_MOBILE:
 		if (!(mob = real_mobile_proto(srch->arg[0]))) {
-			errlog("search in room %d, mobile %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, mobile %d nonexistant.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
 		if ((targ_room = real_room(srch->arg[1])) == NULL) {
-			errlog("search in room %d, targ room %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, targ room %d nonexistant.",
 				rm->number, srch->arg[1]);
 			return 0;
 		}
@@ -200,7 +204,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			return 0;
 		}
 		if (!(mob = read_mobile(srch->arg[0]))) {
-			errlog("search cannot load mobile #%d, room %d.",
+			zerrlog(rm->zone, "search cannot load mobile #%d, room %d.",
 				srch->arg[0], ch->in_room->number);
 			return 0;
 		}
@@ -218,17 +222,17 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	case SEARCH_COM_EQUIP:
 		if (!(obj = real_object_proto(srch->arg[1]))) {
-			errlog("search in room %d, equip object %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, equip object %d nonexistant.",
 				rm->number, srch->arg[1]);
 			return 0;
 		}
 		if (srch->arg[2] < 0 || srch->arg[2] >= NUM_WEARS) {
-			errlog("search trying to equip obj %d to badpos.",
+			zerrlog(rm->zone, "search trying to equip obj %d to badpos.",
 				obj->shared->vnum);
 			return 0;
 		}
 		if (!(obj = read_object(srch->arg[1]))) {
-			errlog("search cannot load equip object #%d, room %d.",
+			zerrlog(rm->zone, "search cannot load equip object #%d, room %d.",
 				srch->arg[0], ch->in_room->number);
 			return 0;
 		}
@@ -273,7 +277,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	case SEARCH_COM_TRANSPORT:
 		if ((targ_room = real_room(srch->arg[0])) == NULL) {
-			errlog("search in room %d, targ room %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, targ room %d nonexistant.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
@@ -376,12 +380,12 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 	case SEARCH_COM_DOOR:
 		/************  Targ Room nonexistant ************/
 		if ((targ_room = real_room(srch->arg[0])) == NULL) {
-			errlog("search in room %d, targ room %d nonexistant.",
+			zerrlog(rm->zone, "search in room %d, targ room %d nonexistant.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
 		if (srch->arg[1] >= NUM_DIRS || !targ_room->dir_option[srch->arg[1]]) {
-			errlog("search in room %d, direction nonexistant.",
+			zerrlog(rm->zone, "search in room %d, direction nonexistant.",
 				rm->number);
 			return 0;
 		}
@@ -408,7 +412,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			break;
 
 		default:
-			errlog("search bunk doorcmd %d in rm %d.",
+			zerrlog(rm->zone, "search bunk doorcmd %d in rm %d.",
 				srch->arg[2], rm->number);
 			return 0;
 		}
@@ -475,13 +479,13 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		targ_room = real_room(srch->arg[1]);
 
 		if (srch->arg[0] < 0 || srch->arg[0] > LVL_GRIMP) {
-			errlog("search in room %d, spell level %d invalid.",
+			zerrlog(rm->zone, "search in room %d, spell level %d invalid.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
 
 		if (srch->arg[2] <= 0 || srch->arg[2] > TOP_NPC_SPELL) {
-			errlog("search in room %d, spell number %d invalid.",
+			zerrlog(rm->zone, "search in room %d, spell number %d invalid.",
 				rm->number, srch->arg[2]);
 			return 0;
 		}
@@ -564,13 +568,13 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		targ_room = real_room(srch->arg[1]);
 
 		if (srch->arg[0] < 0 || srch->arg[0] > 500) {
-			errlog("search in room %d, damage level %d invalid.",
+			zerrlog(rm->zone, "search in room %d, damage level %d invalid.",
 				rm->number, srch->arg[0]);
 			return 0;
 		}
 
 		if (srch->arg[2] <= 0 || srch->arg[2] >= TOP_NPC_SPELL) {
-			errlog("search in room %d, damage number %d invalid.",
+			zerrlog(rm->zone, "search in room %d, damage number %d invalid.",
 				rm->number, srch->arg[2]);
 			return 0;
 		}
