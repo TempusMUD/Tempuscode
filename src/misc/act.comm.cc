@@ -308,8 +308,7 @@ ACMD(do_tell)
 
 	if (!*buf || !*buf2)
 		send_to_char(ch, "Who do you wish to tell what??\r\n");
-	else if (!(vict = get_player_vis(ch, buf, true)) &&
-		!(vict = get_player_vis(ch, buf, false))) {
+	else if (!(vict = get_player_vis(ch, buf, false))) {
 		send_to_char(ch, NOPERSON);
 	} else if (ch == vict)
 		send_to_char(ch, "You try to tell yourself something.\r\n");
