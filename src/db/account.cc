@@ -547,6 +547,28 @@ Account::invalid_char_index(int idx)
 	return (idx < 1 || idx > (int)_chars.size());
 }
 
+void
+Account::exhume_char( Creature *exhumer, long id )
+{
+	if( playerIndex.exists(id) ) {
+		send_to_char(exhumer, "That character has already been exhumed.\r\n");
+		return;
+	}
+
+	// load char from file
+	Creature* victim = new Creature(true);
+	if( victim->loadFromXML(id) ) {
+		playerIndex.add(id, GET_NAME(victim), _id, true);
+		_chars.push_back( id );
+		send_to_char(exhumer, "%s exhumed.\r\n", 
+					tmp_capitalize( GET_NAME(victim) ) );
+		save_to_xml();
+	} else {
+		send_to_char(exhumer, "Unable to load character %ld.\r\n", id );
+	}
+	delete victim;
+}
+
 bool
 Account::deny_char_entry(Creature *ch)
 {

@@ -62,6 +62,8 @@ class Account {
         unsigned int get_char_count() { return _chars.size(); }
         long get_char( int index ) { return _chars[index]; }
 		bool deny_char_entry(Creature *ch);
+		// Attempts to add the given orphaned character to this account
+		void exhume_char( Creature *exhumer, long id );
 
 		inline long long get_past_bank(void) { return _bank_past; }
 		inline long long get_future_bank(void) { return _bank_future; }

@@ -7405,6 +7405,59 @@ ACMD(do_coderutil)
         send_to_char(ch, CODER_UTIL_USAGE);
 }
 
+
+
+static const char* ACCOUNT_USAGE = 
+                    "Usage: account <command> <args>\r\n"
+                    "Commands: \r\n"
+                    "      disable <id>\r\n"
+					"      enable <id>\r\n"
+					"      movechar <Char ID> <from ID> <to ID>\r\n"
+					"      exhume <account ID> <Character ID>\r\n"
+                    ;
+ACMD(do_account)
+{
+	
+    Tokenizer tokens(argument);
+    char token[MAX_INPUT_LENGTH];
+    
+    if(!tokens.next(token)) {
+        send_to_char( ch, ACCOUNT_USAGE );
+        return;
+    }
+
+    if (strcmp(token, "disable") == 0) {
+		send_to_char(ch, "Not Implemented.\r\n");
+	} else if (strcmp(token, "enable") == 0) {
+		send_to_char(ch, "Not Implemented.\r\n");
+	} else if (strcmp(token, "movechar") == 0) {
+		send_to_char(ch, "Not Implemented.\r\n");
+	} else if (strcmp(token, "exhume") == 0) {
+		int account_id = 0;
+		long char_id = 0;
+		Account *account = NULL;
+		if(!tokens.next(token) ) {
+			send_to_char(ch, "Specify an account id.\r\n");
+			return;
+		}
+		account_id = atoi(token);
+
+		if(!tokens.next(token) ) {
+			send_to_char(ch, "Specify a character id.\r\n");
+			return;
+		}
+		char_id = atol(token);
+		account = accountIndex.find_account(account_id);
+		if( account == NULL ) {
+			send_to_char(ch, "No such account: %d\r\n",account_id);
+			return;
+		}
+		account->exhume_char( ch, char_id );
+	} else {
+		send_to_char(ch, ACCOUNT_USAGE);
+	}
+}
+
 ACMD(do_tester)
 {
     ACMD(do_gen_tog);

@@ -81,6 +81,7 @@ ACMD(do_objupdate);
 /* prototypes for all do_x functions. */
 ACMD(do_action);
 ACMD(do_activate);
+ACMD(do_account);
 ACMD(do_addname);
 ACMD(do_addpos);
 ACMD(do_advance);
@@ -440,6 +441,7 @@ struct command_info cmd_info[] = {
 	{"accept", POS_RESTING, do_action, 0, 0, 0},
 	{"accuse", POS_RESTING, do_action, 0, 0, 0},
 	{"ack", POS_RESTING, do_action, 0, 0, 0},
+	{"account", POS_RESTING, do_account, LVL_IMMORT, 0, 0, },
 	{"addict", POS_RESTING, do_action, 0, 0, 0},
 	{"adjust", POS_RESTING, do_action, 0, 0, 0},
 	{"afw", POS_RESTING, do_action, 0, 0, 0},
