@@ -3361,7 +3361,7 @@ mag_creations(int level, struct char_data *ch, int spellnum)
 	act("$n creates $p.", FALSE, ch, tobj, 0, TO_ROOM);
 	act("You create $p.", FALSE, ch, tobj, 0, TO_CHAR);
 	if (spellnum == SPELL_CREATE_FOOD)
-		GET_OBJ_VAL(tobj, 1) = 5 + (GET_LEVEL(ch) >> 3);
+		GET_OBJ_VAL(tobj, 1) = GET_LEVEL(ch);
 }
 
 int
