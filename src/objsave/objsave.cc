@@ -861,6 +861,9 @@ Crash_idlesave( struct char_data * ch )
 {
     int cost = 0;
     Crash_calculate_rent( ch->carrying, &cost );
+    if(GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+        cost = 0;
+    }
 
     Crash_rentsave( ch, ( cost * 3 ), RENT_FORCED );
 }
