@@ -5651,6 +5651,7 @@ ACMD(do_set)
         {"speed", LVL_IMMORT, PC, NUMBER, "Coder"},
         {"badge", LVL_ENTITY, PC, MISC, "CoderAdmin,WorldAdmin"},
         {"skill", LVL_ENTITY, PC, MISC, "WizardFull"},
+        {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""}
     };
 
@@ -6345,6 +6346,9 @@ ACMD(do_set)
         arg1 = tmp_getword(&argument);
         perform_skillset(ch, vict, name, atoi(arg1));
         break;
+
+    case 101:
+        GET_REPUTATION(ch) = RANGE(0, 1000);
     default:
         sprintf(buf, "Can't set that!");
         break;
