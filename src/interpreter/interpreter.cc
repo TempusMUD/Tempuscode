@@ -2015,13 +2015,21 @@ half_chop(char *string, char *arg1, char *arg2)
 
 /* Used in specprocs, mostly.  (Exactly) matches "command" to cmd number */
 int
-find_command(char *command)
+find_command(char *command, bool abbrev)
 {
 	int cmd;
 
-	for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
-		if (!strcmp(cmd_info[cmd].command, command))
-			return cmd;
+	if (abbrev) {
+		int len = strlen(command);
+
+		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
+			if (!strncmp(cmd_info[cmd].command, command, len))
+				return cmd;
+	} else {
+		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
+			if (!strcmp(cmd_info[cmd].command, command))
+				return cmd;
+	}
 
 	return -1;
 }
