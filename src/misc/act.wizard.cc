@@ -4190,8 +4190,6 @@ ACMD(do_show)
     struct descriptor_data *tmp_d = NULL;
     char                    field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH];
     extern char *quest_guide;
-    extern struct remort_question_data *remort_quiz[];
-    extern int top_of_remort_quiz;
     struct elevator_data *e_head = NULL;
     struct elevator_elem *e_elem = NULL;
     struct char_data *mob = NULL;
@@ -4461,6 +4459,9 @@ ACMD(do_show)
         break;
     
     case 26:   /** quiz **/
+        send_to_char("Disabled.\r\n",ch);
+        break;
+        /*
         strcpy(buf2, "REMORT QUIZ QUESTIONS:\r\n");
         for (i = 0; i <= top_of_remort_quiz; i++) {
             sprintf(buf, "%3d. %sQ:%s %s%s%s\r\n     %sA:%s %s%-40s%s %d points.\r\n",
@@ -4477,7 +4478,7 @@ ACMD(do_show)
         }
         page_string(ch->desc, buf2, 1);
         break;
-
+        */
     case 27:     /** clans **/
         if (GET_LEVEL(ch) < LVL_ELEMENT)
             do_show_clan(ch, NULL);
