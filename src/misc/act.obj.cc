@@ -1824,7 +1824,7 @@ ACMD(do_give)
 
 		found = perform_give(ch, vict, obj, false);
 
-		if (found)
+		if (found) 
 			counter++;
 
 		if (!next_obj
@@ -1846,11 +1846,11 @@ ACMD(do_give)
 				act(to_vict, FALSE, ch, obj, vict, TO_VICT);
 				act(to_room, TRUE, ch, obj, vict, TO_NOTVICT);
 			}
+	        trigger_prog_give(ch, vict, obj);
 			counter = 0;
 		}
 		obj = next_obj;
 	}
-	trigger_prog_give(ch, vict);
 }
 
 

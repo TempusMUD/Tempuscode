@@ -196,7 +196,23 @@ prog_trigger_handler(prog_env *env, prog_evt *evt, int phase, char *args)
 	} else if (!strcmp("fight", arg)) {
 		matched = (evt->kind == PROG_EVT_FIGHT);
 	} else if (!strcmp("give", arg)) {
-		matched = (evt->kind == PROG_EVT_GIVE);
+        arg = tmp_getword(&args);
+        struct obj_data *theObj = (struct obj_data *)(evt->object);
+        if (evt->kind != PROG_EVT_GIVE) {
+            matched = false;
+        }
+        else if (!*arg) {
+            matched = true;
+        }
+        else if (arg && !evt->object) {
+            matched = false;
+        }
+        else if (atoi(arg) != theObj->getVnum()) {
+            matched = false;
+        }
+        else {
+            matched = true;
+        }
 	} else if (!strcmp("enter", arg)) {
 		matched = (evt->kind == PROG_EVT_ENTER);
 	} else if (!strcmp("leave", arg)) {
@@ -1036,7 +1052,7 @@ trigger_prog_fight(Creature *ch, Creature *self)
 }
 
 void
-trigger_prog_give(Creature *ch, Creature *self)
+trigger_prog_give(Creature *ch, Creature *self, struct obj_data *obj)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -1047,7 +1063,7 @@ trigger_prog_give(Creature *ch, Creature *self)
 	evt.kind = PROG_EVT_GIVE;
 	evt.cmd = -1;
 	evt.subject = ch;
-	evt.object = NULL;
+	obj ? evt.object = obj : evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = strdup("");
 

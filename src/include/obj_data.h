@@ -338,6 +338,20 @@ struct tmp_obj_affect {
     struct tmp_obj_affect *next;
 };
 
+/* shared data structs */
+struct obj_shared_data {
+	int vnum;
+	int number;
+	int cost;					/* Value when sold (gp.)            */
+	int cost_per_day;			/* Cost to keep pr. real day        */
+	int house_count;
+	/** The player id of the owner of this (oedited) object **/
+	long owner_id;
+	struct obj_data *proto;		/* pointer to prototype */
+	SPECIAL(*func);
+	char *func_param;
+};
+
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
 	bool isUnrentable();
@@ -392,6 +406,9 @@ struct obj_data {
 	void display_rent(Creature *ch, const char *currency_str);
 	room_data *find_room();
 
+    int getVnum() {
+        return shared->vnum;
+    }
 	room_data *in_room;	/* In what room -1 when conta/carr    */
 	int cur_flow_pulse;			/* Keep track of flowing pulse        */
 
@@ -425,20 +442,4 @@ struct obj_data {
 	struct obj_data *next;		/* For the object list              */
 };
 /* ======================================================================= */
-
-/* shared data structs */
-struct obj_shared_data {
-	int vnum;
-	int number;
-	int cost;					/* Value when sold (gp.)            */
-	int cost_per_day;			/* Cost to keep pr. real day        */
-	int house_count;
-	/** The player id of the owner of this (oedited) object **/
-	long owner_id;
-	struct obj_data *proto;		/* pointer to prototype */
-	SPECIAL(*func);
-	char *func_param;
-};
-
-
 #endif
