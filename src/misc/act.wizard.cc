@@ -1150,7 +1150,6 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     send_to_char(ch, "%s", buf);
     send_to_char(ch, "L-Des: %s%s%s\r\n", CCGRN(ch, C_NRM),
         ((j->line_desc) ? j->line_desc : "None"), CCNRM(ch, C_NRM));
-
     if (j->action_desc) {
         send_to_char(ch, "Action desc: %s\r\n", j->action_desc);
     }
@@ -1170,6 +1169,17 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         send_to_char(ch, "**This object currently has no description**\r\n");
     }
 
+	if( j->shared->owner_id != 0 ) {
+		if( playerIndex.exists(j->shared->owner_id) ) {
+			send_to_char(ch,"Oedit Owned By: %s[%ld]\r\n",
+							playerIndex.getName(j->shared->owner_id),
+							j->shared->owner_id );
+		} else {
+			send_to_char(ch,"Oedit Owned By: NOONE[%ld]\r\n",
+							j->shared->owner_id );
+		}
+					
+	}
     send_to_char(ch, "Can be worn on: ");
     sprintbit(j->obj_flags.wear_flags, wear_bits, buf);
     strcat(buf, "\r\n");
@@ -5280,7 +5290,7 @@ ACMD(do_set)
         {"soulless", LVL_IMMORT, BOTH, BINARY, "WizardFull"},
         {"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"speed", LVL_IMMORT, PC, NUMBER, "Coder"},
-        {"badge", LVL_ENTITY, PC, NUMBER, "CoderAdmin"},
+        {"badge", LVL_ENTITY, PC, NUMBER, "CoderAdmin,WorldAdmin"},
         {"skill", LVL_ENTITY, PC, MISC, "WizardFull"},
         {"\n", 0, BOTH, MISC, ""}
     };
@@ -5955,8 +5965,9 @@ ACMD(do_set)
         break;
     case 99:
         if( !argument || !*argument ) {
-            send_to_char(ch, "1. BUILDER\r\n2. CODER\r\n3. ADMIN\r\n4. QUESTOR\r\n"
-                             "5. P ARCH\r\n6. EC ARCH\r\n7. OP ARCH\r\n8. <custom>\r\n");
+            send_to_char(ch, " 1. BUILDER\r\n 2. CODER\r\n 3. ADMIN\r\n 4. QUESTOR\r\n"
+                             " 5. P ARCH\r\n 6. EC ARCH\r\n 7. OP ARCH\r\n 8. <custom>\r\n"
+							 " 9. ELDER\r\n10. ARBITER\r\n11. FOREMAN\r\n");
             return;
         } else if (IS_NPC(vict)) {
             send_to_char( ch, "As good an idea as it might seem, it just won't work.\r\n");
