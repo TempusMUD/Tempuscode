@@ -1519,6 +1519,7 @@ SPECIAL(pet_shops)
 	if (IS_NPC(pet)) {
 	    send_to_char("May you enjoy your pet.\r\n", ch);
 	    act("$n buys $N as a pet.", FALSE, ch, 0, pet, TO_ROOM);
+		SET_BIT(MOB_FLAGS(pet), MOB_PET);
 	} else {
 	    send_to_char("May you enjoy your slave.\r\n", ch);
 	    act("$n buys $N as a slave.", FALSE, ch, 0, pet, TO_ROOM);
