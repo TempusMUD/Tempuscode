@@ -106,6 +106,7 @@ int skill_gain(struct char_data *ch, int mode);
 void qp_reload(int sig = 0);
 void list_obj_to_char(struct obj_data *list, struct char_data *ch, int mode,
 	bool show);
+void save_quests(); // quests.cc - saves quest data
 
 ACMD(do_equipment);
 SPECIAL(shop_keeper);
@@ -2027,6 +2028,7 @@ ACMD(do_shutdown)
 		slog(buf);
 		Crash_save_all();
 		House_save_all(TRUE);
+		save_quests();
 		autosave_zones(ZONE_RESETSAVE);
 		send_to_all("\r\n"
 			"As you stand amazed, you see the sun swell and fill the sky,\r\n"
@@ -2057,6 +2059,7 @@ ACMD(do_shutdown)
 			Crash_save_all();
 			House_save_all(TRUE);
 			autosave_zones(ZONE_RESETSAVE);
+			save_quests();
 			send_to_all("\r\n"
 				"You stagger under the force of a sudden gale, and cringe in terror\r\n"
 				"as the sky darkens before the gathering stormclouds.  Lightning\r\n"
@@ -2083,6 +2086,7 @@ ACMD(do_shutdown)
 		Crash_save_all();
 		House_save_all(TRUE);
 		autosave_zones(ZONE_RESETSAVE);
+		save_quests();
 		send_to_all
 			("As you stand amazed, you see the sun swell and fill the sky,\r\n"
 			"and you are overtaken by an intense heat as the particles\r\n"
@@ -2099,6 +2103,7 @@ ACMD(do_shutdown)
 		Crash_save_all();
 		House_save_all(TRUE);
 		autosave_zones(ZONE_RESETSAVE);
+		save_quests();
 		send_to_all
 			("As you stand amazed, you see the sun swell and fill the sky,\r\n"
 			"and you are overtaken by an intense heat as the particles\r\n"
