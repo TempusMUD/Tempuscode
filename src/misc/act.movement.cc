@@ -1698,7 +1698,7 @@ ACMD(do_enter)
 		return;
 	}
 
-	if (!CAR_CLOSED(car)) {
+	if (CAR_CLOSED(car)) {
 		act("$p is currently closed.", FALSE, ch, car, 0, TO_CHAR);
 		return;
 	}
