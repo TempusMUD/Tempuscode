@@ -41,6 +41,7 @@ void prog_do_target(prog_env *env, prog_evt *evt, char *args);
 void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
 void prog_do_trans(prog_env *env, prog_evt *evt, char *args);
 void prog_do_set(prog_env *env, prog_evt *evt, char *args);
+void prog_do_oload(prog_env *env, prog_evt *evt, char *args);
 void prog_do_randomly(prog_env *env, prog_evt *evt, char *args);
 void prog_do_or(prog_env *env, prog_evt *evt, char *args);
 void prog_do_resume(prog_env *env, prog_evt *evt, char *args);
@@ -69,6 +70,7 @@ prog_command prog_cmds[] = {
 	{ "trans",		true,	prog_do_trans },
 	{ "resume",		false,	prog_do_resume },
 	{ "set",		true,	prog_do_set },
+	{ "oload",		true,	prog_do_oload },
 	{ NULL,		false,	prog_do_halt }
 };
 
@@ -482,6 +484,51 @@ prog_do_set(prog_env *env, prog_evt *evt, char *args)
 	if (cur_var->value)
 		free(cur_var->value);
 	cur_var->value = strdup(args);
+}
+
+void
+prog_do_oload(prog_env *env, prog_evt *evt, char *args)
+{
+	obj_data *obj;
+	room_data *room;
+	int vnum;
+	char *arg;
+
+	vnum = atoi(tmp_getword(&args));
+	if (vnum <= 0)
+		return;
+	obj = read_object(vnum);
+	if (!obj)
+		return;
+	obj->creation_method = CREATED_PROG;
+
+	arg = tmp_getword(&args);
+	if (!strcasecmp(arg, "room")) {
+		switch (env->owner_type) {
+		case PROG_TYPE_MOBILE:
+			room = ((Creature *)env->owner)->in_room; break;
+		case PROG_TYPE_OBJECT:
+			room = ((obj_data *)env->owner)->find_room(); break;
+		case PROG_TYPE_ROOM:
+			room = ((room_data *)env->owner);
+		default:
+			slog("SYSERR: Can't happen at %s:%d", __FILE__, __LINE__);
+		}
+		obj_to_room(obj, room);
+	} else if (!strcasecmp(arg, "target")) {
+		obj_to_char(obj, env->target);
+	} else if (!strcasecmp(arg, "self")) {
+		switch (env->owner_type) {
+		case PROG_TYPE_MOBILE:
+			obj_to_char(obj, (Creature *)env->owner); break;
+		case PROG_TYPE_OBJECT:
+			obj_to_obj(obj, (obj_data *)env->owner); break;
+		case PROG_TYPE_ROOM:
+			obj_to_room(obj, room); break;
+		default:
+			slog("SYSERR: Can't happen at %s:%d", __FILE__, __LINE__);
+		}
+	}
 }
 
 void
