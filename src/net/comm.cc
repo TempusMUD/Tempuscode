@@ -1336,10 +1336,12 @@ close_socket(struct descriptor_data *d)
 		GET_OLC_OBJ(d->creature) = NULL;
 	} else if (d->account) {
 		mudlog(LVL_AMBASSADOR, NRM, true,
-			"%s logging off [%s]", d->account->get_name(), d->host);
+                "%s[%d] logging off from %s", 
+                d->account->get_name(), d->account->get_idnum(), d->host);
 		delete d->creature;
-	} else
+	} else {
 		mudlog(LVL_AMBASSADOR, CMP, true, "Losing descriptor without account");
+    }
 
 	/* JE 2/22/95 -- part of my enending quest to make switch stable */
 	if (d->original && d->original->desc)
@@ -1355,9 +1357,6 @@ close_socket(struct descriptor_data *d)
 		delete d->text_editor;
 
 	free(d);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	/*
 	 * kill off all sockets input_mode to the same player as the one who is
 	 * trying to quit.  Helps to maintain sanity as well as prevent duping.
