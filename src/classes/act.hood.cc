@@ -136,8 +136,8 @@ ACMD(do_hamstring)
         gen = GET_REMORT_GEN(ch);
         dam = dice(level, 20 + gen/2);
         add_blood_to_room(vict->in_room,1);
-        apply_soil_to_char(ch, GET_EQ(vict,WEAR_LEGS), SOIL_BLOOD, WEAR_LEGS);
-        apply_soil_to_char(ch, GET_EQ(vict,WEAR_FEET), SOIL_BLOOD, WEAR_FEET);
+        apply_soil_to_char(vict, GET_EQ(vict,WEAR_LEGS), SOIL_BLOOD, WEAR_LEGS);
+        apply_soil_to_char(vict, GET_EQ(vict,WEAR_FEET), SOIL_BLOOD, WEAR_FEET);
         if(!affected_by_spell(vict,SKILL_HAMSTRING)) {
             af.type = SKILL_HAMSTRING;
             af.is_instant = 0;
