@@ -674,12 +674,15 @@ game_loop(int mother_desc)
 
 		/* give each descriptor an appropriate prompt */
 		for (d = descriptor_list; d; d = d->next) {
-			if (d->creature &&
-				d->output[0] && (!PRF_FLAGGED(d->creature, PRF_COMPACT)))
-				SEND_TO_Q("\r\n", d);
-
-			if (d->need_prompt)
+			if (d->need_prompt) {
 				send_prompt(d);
+				if (d->creature
+						&& d->output[0]
+						&& (!PRF_FLAGGED(d->creature, PRF_COMPACT)))
+					SEND_TO_Q("\r\n", d);
+				d->need_prompt = 0;
+			}
+
 		}
 
 		/* send queued output out to the operating system (ultimately to user) */
@@ -859,7 +862,8 @@ write_to_output(const char *txt, struct descriptor_data *t)
 	if (!t->need_prompt && (!t->creature
 			|| PRF2_FLAGGED(t->creature, PRF2_AUTOPROMPT))) {
 		t->need_prompt = true;
-		write_to_output("\r\n", t);
+		if (!t->creature || PRF_FLAGGED(t->creature, PRF_COMPACT))
+			write_to_output("\r\n", t);
 	}
 
 	/* if we have enough space, just write to buffer and that's it! */
