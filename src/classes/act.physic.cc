@@ -685,6 +685,9 @@ int
 zone_tele_ok(CHAR *ch, struct zone_data *zone, int tmode)
 {
 
+    if (!IS_APPR(ch->in_room->zone))
+    return 0;
+
     if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED) && zone != ch->in_room->zone)
 	return 0;
 

@@ -736,7 +736,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 
 #define ROOM_OK(sub)    (!sub->in_room ||                   \
 			 !ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED))
-
+/*  Moved to the bottom of this file and rewritten as a function to save my headaches. - jr
 #define INVIS_OK(sub, obj) \
      (PRF_FLAGGED(sub, PRF_HOLYLIGHT) || \
       (((!IS_AFFECTED(obj,AFF_INVISIBLE) && !IS_AFFECTED_2(obj,AFF2_TRANSPARENT)) ||\
@@ -748,7 +748,8 @@ void WAIT_STATE(struct char_data *ch, int cycle);
        (IS_NPC(sub) || IS_NPC(obj) || \
 	GET_LEVEL(sub) >= GET_REMORT_INVIS(obj) ||      \
 	GET_REMORT_GEN(sub) >= GET_REMORT_GEN(obj) || IS_NPC(sub))))
-       
+*/
+inline bool INVIS_OK(char_data *sub, char_data *obj);
 #define MORT_CAN_SEE(sub, obj) (LIGHT_OK(sub) && ROOM_OK(sub) && \
 				INVIS_OK(sub, obj) &&     \
 				(!PLR_FLAGGED(obj, PLR_TESTER) || \
@@ -954,6 +955,39 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
 					(ch)->in_room->sector_type != SECT_INSIDE )
 
+
+inline bool INVIS_OK(char_data *sub, char_data *obj) {
+    // Holy is the light that shines on the chosen
+    if(PRF_FLAGGED(sub, PRF_HOLYLIGHT))
+        return true;
+
+    // Invis/Transparent
+    if (IS_AFFECTED(obj,AFF_INVISIBLE) || IS_AFFECTED_2(obj,AFF2_TRANSPARENT)) {
+        if(!IS_AFFECTED(sub, AFF_DETECT_INVIS) && !IS_AFFECTED_2(sub, AFF2_TRUE_SEEING))
+            return false;
+    }
+    // Invis to Undead
+    if(IS_UNDEAD(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_UNDEAD) ) {
+        if (!AFF2_FLAGGED(sub, AFF2_TRUE_SEEING)) {
+            return false;
+        }
+    }
+    // Invis to animals
+    if(IS_ANIMAL(sub) && IS_AFFECTED_2(obj, AFF2_INVIS_TO_ANIMALS)) {
+        if(!AFF_FLAGGED(sub, AFF_DETECT_INVIS) && !AFF2_FLAGGED(sub, AFF2_TRUE_SEEING))
+            return false;
+    }
+    // Remort invis. 
+    // (mobs don't have it and aren't affected by it.)
+    if(IS_NPC(sub) || IS_NPC(obj))
+        return true;
+    if( GET_LEVEL(sub) >= GET_REMORT_INVIS(obj) 
+     || GET_REMORT_GEN(sub) >= GET_REMORT_GEN(obj))
+        return true;
+
+    // If none of this counts for you, you just suck.
+    return false;
+}
 
 /* OS compatibility ******************************************************/
 
