@@ -327,8 +327,8 @@ ACMD(do_whirlwind)
                 (i < hits) && (combatIter != combatList->end());
                 ++combatIter) {
 			int my_return_flags = 0;
+            struct Creature *newVict = combatIter->getOpponent();
             if (random_percentage() <= 75) {
-				struct Creature *newVict = combatIter->getOpponent();
 				if (newVict && newVict->in_room == ch->in_room) {
 					dam = 0;
 					if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80)+GET_DEX(vict)) {
@@ -341,6 +341,9 @@ ACMD(do_whirlwind)
 			}
             if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
                 return;
+            } else if (IS_SET(my_return_flags, DAM_VICT_KILLED) &&
+                vict == newVict) {
+                    killedFirst = true;
             }
 		}
 		
