@@ -1169,6 +1169,11 @@ ASPELL(spell_identify)
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
+	send_to_char("Item is also: ", ch);
+	sprintbit(GET_OBJ_EXTRA3(obj), extra3_bits, buf);
+	strcat(buf, "\r\n");
+	send_to_char(buf, ch);
+
 	sprintf(buf, "Weight: %d, Value: %d, Rent: %d\r\n",
 		obj->getWeight(), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
 	send_to_char(buf, ch);
