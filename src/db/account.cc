@@ -722,9 +722,9 @@ Account::set_ansi_level(int level)
 void
 Account::set_past_bank(long long amt)
 {
+	slog("Future bank of account %d set from %lld to %lld",
+		_id, _bank_past, amt);
 	_bank_past = amt;
-	slog("Past bank of account %ld set to %lld",
-		_id, _bank_past);
 	sql_exec("update accounts set bank_past=%lld where idnum=%d",
 		_bank_past, _id);
 }
@@ -732,9 +732,9 @@ Account::set_past_bank(long long amt)
 void
 Account::set_future_bank(long long amt)
 {
+	slog("Future bank of account %d set from %lld to %lld",
+		_id, _bank_future, amt);
 	_bank_future = amt;
-	slog("Future bank of account %ld set to %lld",
-		_id, _bank_future);
 	sql_exec("update accounts set bank_future=%lld where idnum=%d",
 		_bank_future, _id);
 }
