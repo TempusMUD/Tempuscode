@@ -867,11 +867,26 @@ static inline bool MORT_CAN_SEE(char_data * sub, char_data * obj){
                            AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
                            (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
 
-#define EXIT(ch, door)  ((ch)->in_room->dir_option[(door)])
-#define _2ND_EXIT(ch, door) (EXIT((ch), (door))->to_room->dir_option[door])
-#define _3RD_EXIT(ch, door) (_2ND_EXIT((ch),(door))->to_room->dir_option[door])
+static inline room_direction_data*& EXIT( obj_data *ch, int dir ) {
+	return ch->in_room->dir_option[dir];
+}
+static inline room_direction_data*& EXIT( char_data *ch, int dir ) {
+	return ch->in_room->dir_option[dir];
+}
+static inline room_direction_data*& _2ND_EXIT( char_data *ch, int dir ) {
+	return EXIT(ch,dir)->to_room->dir_option[dir];
+}
+static inline room_direction_data*& _3RD_EXIT( char_data *ch, int dir ) {
+	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
+}
+static inline room_direction_data*& ABS_EXIT( room_data *room, int dir ) {
+	return room->dir_option[dir];
+}
+//#define EXIT(ch, door)  ((ch)->in_room->dir_option[(door)])
+//#define _2ND_EXIT(ch, door) (EXIT((ch), (door))->to_room->dir_option[door])
+//#define _3RD_EXIT(ch, door) (_2ND_EXIT((ch),(door))->to_room->dir_option[door])
 
-#define ABS_EXIT(room, door)  ((room)->dir_option[door])
+//#define ABS_EXIT(room, door)  ((room)->dir_option[door])
 
 bool CAN_GO(char_data * ch, int door);
 bool CAN_GO(obj_data * obj, int door);
