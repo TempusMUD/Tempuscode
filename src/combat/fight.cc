@@ -1815,15 +1815,18 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					if (!arena) {
 						GET_PKILLS(ch) += 1;
 
-						// Basic level/gen adjustment
-						GET_REPUTATION(ch) +=
-							(GET_LEVEL(victim) + GET_REMORT_GEN(victim)) /
-							3;
+						if (PRF2_FLAGGED(ch, PRF2_PKILLER) &&
+								!PLR_FLAGGED(victim, PLR_KILLER | PLR_THIEF)) {
+							// Basic level/gen adjustment
+							GET_REPUTATION(ch) +=
+								(GET_LEVEL(victim) + GET_REMORT_GEN(victim)) /
+								3;
 
-						// Additional adjustment for killing a lower gen
-						if (GET_REMORT_GEN(ch) > GET_REMORT_GEN(victim))
-							GET_REPUTATION(ch) += (GET_REMORT_GEN(ch) -
-								GET_REMORT_GEN(victim));
+							// Additional adjustment for killing a lower gen
+							if (GET_REMORT_GEN(ch) > GET_REMORT_GEN(victim))
+								GET_REPUTATION(ch) += (GET_REMORT_GEN(ch) -
+									GET_REMORT_GEN(victim));
+						}
 					} else {
 						// Else adjust arena kills
 						GET_ARENAKILLS(ch) += 1;
