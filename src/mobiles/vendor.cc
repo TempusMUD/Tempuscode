@@ -7,6 +7,7 @@
 #include "interpreter.h"
 #include "tmpstr.h"
 #include "screen.h"
+#include "weather.h"
 #include "utils.h"
 
 const int MAX_ITEMS = 10;
@@ -16,6 +17,9 @@ int same_obj(obj_data *, obj_data *);
 // From act.comm.cc
 void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
 
+struct ShopTime {
+	int start, end;
+};
 
 struct ShopData {
 	ShopData(void) : item_list(), item_types() {};
@@ -23,6 +27,7 @@ struct ShopData {
 	long room;				// Room of self
 	vector<int> item_list;	// list of produced items
 	vector<int> item_types;	// list of types of items self deals in
+	vector<ShopTime> closed_hours;
 	char *msg_denied;		// Message sent to those of wrong race, creed, etc
 	char *msg_badobj;		// Attempt to sell invalid obj to self
 	char *msg_selfbroke;	// Shop ran out of money
@@ -30,6 +35,7 @@ struct ShopData {
 	char *msg_buy;			// Keeper successfully bought something
 	char *msg_sell;			// Keeper successfully sold something
 	char *cmd_temper;		// Command to run after buyerbroke
+	char *msg_closed;		// Shop is closed at the time
 	int markup;				// Price increase when player buying
 	int markdown;			// Price decrease when player is selling
 	int currency;			// 0 == gold, 1 == cash, 2 == quest points
@@ -679,6 +685,7 @@ SPECIAL(vendor)
 	shop.msg_buyerbroke = "You don't have enough money to buy this!";
 	shop.msg_buy = "Here you go.";
 	shop.msg_sell = "There you go.";
+	shop.msg_closed = "Come back later!";
 	shop.cmd_temper = NULL;
 	shop.markdown = 70;
 	shop.markup = 120;
@@ -732,8 +739,21 @@ SPECIAL(vendor)
 			shop.msg_buy = line;
 		} else if (!strcmp(param_key, "sell-msg")) {
 			shop.msg_sell = line;
+		} else if (!strcmp(param_key, "closed-msg")) {
+			shop.msg_closed = line;
 		} else if (!strcmp(param_key, "temper-cmd")) {
 			shop.cmd_temper = line;
+		} else if (!strcmp(param_key, "closed-hours")) {
+			ShopTime time;
+
+			time.start = atoi(tmp_getword(&line));
+			time.end = atoi(tmp_getword(&line));
+			if (time.start < 0 || time.start > 24)
+				err = "an out of bounds closing hour";
+			else if (time.end < 0 || time.end > 24)
+				err = "an out of bounds opening hour";
+			else
+				shop.closed_hours.push_back(time);
 		} else if (!strcmp(param_key, "markup")) {
 			shop.markup= atoi(line);
 			if (shop.markup <= 0 ||  shop.markup > 1000) {
@@ -823,6 +843,19 @@ SPECIAL(vendor)
 		do_say(self, tmp_sprintf("%s Catch me when I'm in my store.",
 			GET_NAME(ch)), 0, SCMD_SAY_TO, 0);
 		return true;
+	}
+
+	if (!shop.closed_hours.empty()) {
+		vector<ShopTime>::iterator shop_time;
+		struct time_info_data local_time;
+
+		set_local_time(self->in_room->zone, &local_time);
+		for (shop_time = shop.closed_hours.begin();shop_time != shop.closed_hours.end();shop_time++)
+			if (local_time.hours >= shop_time->start &&
+					local_time.hours < shop_time->end ) {
+				do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop.msg_closed), 0, SCMD_SAY_TO, 0);
+				return true;
+			}
 	}
 
 	if (shop.reaction.react(ch) != ALLOW) {
