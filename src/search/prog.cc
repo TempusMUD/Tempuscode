@@ -38,6 +38,7 @@ void prog_do_silently(prog_env *env, prog_evt *evt, char *args);
 void prog_do_force(prog_env *env, prog_evt *evt, char *args);
 void prog_do_pause(prog_env *env, prog_evt *evt, char *args);
 void prog_do_walkto(prog_env *env, prog_evt *evt, char *args);
+void prog_do_driveto(prog_env *env, prog_evt *evt, char *args);
 void prog_do_halt(prog_env *env, prog_evt *evt, char *args);
 void prog_do_target(prog_env *env, prog_evt *evt, char *args);
 void prog_do_nuke(prog_env *env, prog_evt *evt, char *args);
@@ -73,6 +74,7 @@ prog_command prog_cmds[] = {
 	{ "or",			false,	prog_do_or },
 	{ "pause",		true,	prog_do_pause },
 	{ "walkto",		true,	prog_do_walkto },
+	{ "driveto",	true,	prog_do_driveto },
 	{ "do",			true,	prog_do_do },
 	{ "silently",	true,	prog_do_silently },
 	{ "force",		true,	prog_do_force },
@@ -524,11 +526,70 @@ prog_do_walkto(prog_env *env, prog_evt *evt, char *args)
 	ch = (Creature *)env->owner;
 	room = real_room(atoi(tmp_getword(&args)));
 
-	if (room != ch->in_room) {
+	if (room && room != ch->in_room) {
 		dir = find_first_step(ch->in_room, room, STD_TRACK);
 		if (dir != -1)
 			smart_mobile_move(ch, dir);
 		
+		// we have to wait at least one second
+		pause = atoi(tmp_getword(&args));
+		env->wait = MAX(1, pause);
+
+		// we stay on the same line until we get to the destination
+		env->exec_pt--;
+	}
+}
+
+void
+prog_do_driveto(prog_env *env, prog_evt *evt, char *args)
+{
+	// move_car courtesy of vehicle.cc
+	int move_car(struct Creature *ch, struct obj_data *car, int dir);
+
+	obj_data *console, *vehicle, *engine;
+	Creature *ch;
+	room_data *target_room;
+	room_direction_data *exit;
+	int dir, pause;
+	
+	if (env->owner_type != PROG_TYPE_MOBILE)
+		return;
+
+	ch = (Creature *)env->owner;
+	target_room = real_room(atoi(tmp_getword(&args)));
+
+	// Find the console in the room.  Do nothing if there's no console
+	for (console = ch->in_room->contents;console;console = console->next_content)
+		if (GET_OBJ_TYPE(console) == ITEM_V_CONSOLE)
+			break;
+	if (!console)
+		return;
+	
+	// Now find the vehicle vnum that the console points to
+	for (vehicle = object_list;vehicle;vehicle = vehicle->next)
+		if (GET_OBJ_VNUM(vehicle) == V_CAR_VNUM(console) && vehicle->in_room)
+			break;
+	if (!vehicle)
+		return;
+	
+	// Check for engine status
+	engine = vehicle->contains;
+	if (!engine || !IS_ENGINE(engine) || !ENGINE_ON(engine))
+		return;
+
+	if (target_room != vehicle->in_room) {
+		dir = find_first_step(vehicle->in_room, target_room, STD_TRACK);
+
+		// Validate exit the vehicle is going to take
+		exit = vehicle->in_room->dir_option[dir];
+		if (!exit ||
+				!exit->to_room ||
+				ROOM_FLAGGED(exit->to_room, ROOM_DEATH | ROOM_INDOORS) ||
+				IS_SET(exit->exit_info, EX_CLOSED | EX_ISDOOR))
+			return;
+
+		move_car(ch, vehicle, dir);
+
 		// we have to wait at least one second
 		pause = atoi(tmp_getword(&args));
 		env->wait = MAX(1, pause);
