@@ -280,25 +280,35 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
         }
     }
 
-    if (affected_by_spell(charge, SPELL_POISON)) {
-        do_say(self, "You're poisoned!  I'll take care of that for you.", 0, SCMD_SAY, 0);
-        cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_POISON, &return_flags);
-        return 1;
+    if (!ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC) &&
+		affected_by_spell(charge, SPELL_POISON)) {
+	  do_say(self, "You're poisoned!  I'll take care of that for you.", 0, SCMD_SAY, 0);
+	  cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_POISON, &return_flags);
+	  return 1;
     }
 
-    if (affected_by_spell(charge, SPELL_SICKNESS)) {
-        do_say(self, "You're sick!  This spell should fix you up!.", 0, SCMD_SAY, 0);
-        cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_SICKNESS, &return_flags);
-        return 1;
+    if (!ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC) &&
+		affected_by_spell(charge, SPELL_SICKNESS)) {
+	  do_say(self, "You're sick!  This spell should fix you up!.", 0, SCMD_SAY, 0);
+	  cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_SICKNESS, &return_flags);
+	  return 1;
     }
 
     for (int x = 0; angel_spells[x].spell_no != -1; x++) {
-        char tmp_str[32];
-        if (charge && !affected_by_spell(charge, angel_spells[x].spell_no) &&
-            get_char_room_vis(self, GET_NAME(charge))) {
-            sprintf(tmp_str, "cast %d", x);
-            data->action = str_dup(tmp_str);
-            data->counter = 0;
+        if (charge &&
+			charge->in_room == self->in_room &&
+			can_see_creature(self, charge) &&
+			!affected_by_spell(charge, angel_spells[x].spell_no) &&
+			(!ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC) ||
+			 (!SPELL_IS_MAGIC(angel_spells[x].spell_no) &&
+			  !SPELL_IS_DIVINE(angel_spells[x].spell_no))) &&
+			(!ROOM_FLAGGED(self->in_room, ROOM_NOPSIONICS) ||
+			 !SPELL_IS_PSIONIC(angel_spells[x].spell_no)) &&
+			(!ROOM_FLAGGED(self->in_room, ROOM_NOSCIENCE) ||
+			 !SPELL_IS_PHYSICS(angel_spells[x].spell_no))
+			) {
+		  data->action = str_dup(tmp_sprintf("cast %d", x));
+		  data->counter = 0;
         }
     }
 
