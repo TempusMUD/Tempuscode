@@ -222,8 +222,9 @@ check_killer( struct char_data * ch, struct char_data * vict, const char *debug_
     if( GET_LEVEL(ch) >= LVL_POWER )
 		return;
 	SET_BIT( PLR_FLAGS( ch ), PLR_KILLER );
-	sprintf( buf, "PC KILLER set on %s for attack on %s at %d.",
-		 GET_NAME( ch ), GET_NAME( vict ), vict->in_room->number );
+	sprintf( buf, "PC KILLER set on %s for attack on %s at %d. %s",
+		 GET_NAME( ch ), GET_NAME( vict ), vict->in_room->number,
+         PRF2_FLAGGED(ch,PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
 	mudlog( buf, BRF, LVL_AMBASSADOR, TRUE );
 	send_to_char( "If you want to be a PLAYER KILLER, so be it...\r\n", ch );
 	
