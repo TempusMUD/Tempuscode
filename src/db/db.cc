@@ -305,11 +305,6 @@ boot_world(void)
 	slog("Renumbering zone table.");
 	renum_zone_table();
 
-	if (!no_specials) {
-		slog("Loading shops.");
-		index_boot(DB_BOOT_SHP);
-	}
-
 	/* for quad damage bamfing */
 	if (!(default_quad_zone = real_zone(25)))
 		default_quad_zone = zone_table;
