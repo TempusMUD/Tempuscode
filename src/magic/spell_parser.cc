@@ -924,6 +924,10 @@ call_magic(struct char_data * caster, struct char_data * cvict,
 	    act(buf, FALSE, caster, 0, cvict, TO_CHAR);
 	    GET_MANA(cvict) = MIN(GET_MAX_MANA(cvict), 
 				  GET_MANA(cvict) + (level >> 1));
+		mana = mag_manacost(caster, spellnum);
+		if (mana > 0)
+		    GET_MANA(caster) = 
+			MAX(0, MIN(GET_MAX_MANA(caster), GET_MANA(caster) - mana));
 	    if ((af_ptr->duration -= (level >> 2)) <= 0) {
 		sprintf(buf, "Your %s dissolves.\r\n", spells[af_ptr->type]);
 		send_to_char(buf, cvict);
