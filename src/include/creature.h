@@ -30,6 +30,7 @@ static const int RENT_REMORTING = 8;
 /* PC char_classes */
 static const int CLASS_HELP = -2;
 static const int CLASS_UNDEFINED = -1;
+static const int CLASS_NONE = -1;
 static const int CLASS_MAGIC_USER = 0;
 static const int CLASS_MAGE = CLASS_MAGIC_USER;
 static const int CLASS_CLERIC = 1;
