@@ -343,6 +343,11 @@ boot_db(void)
 		safe_exit(1);
 	}
 
+	if (production_mode) {
+		slog("Vacuuming old database transactions");
+		sql_exec("vacuum full analyze");
+	}
+
 	res = sql_query("select last_value from unique_id");
 	top_unique_id = atol(PQgetvalue(res, 0, 0));
 	slog("Top unique object id = %ld", top_unique_id);
