@@ -804,6 +804,7 @@ struct player_special_data {
     struct special_search_data *olc_srch;      /* which srch being edited */
     struct ticl_data *olc_ticl;   /* which ticl being edited              */
     struct room_data *was_in_room;/* location for linkdead people         */
+    class HelpItem *olc_help_item;
 };
 
 struct mob_shared_data {

@@ -4,9 +4,10 @@ CCFLAGS=-g -Wall -pg -Wcast-qual
 CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 
 SUBDIRS= \
-	ban boards bomb clan classes combat db dyntext editor elevators flow_room guns house \
-	intermud interpreter magic mail matrix misc mobiles net objsave olc paths            \
-	quest search shop smokes social specials util vehicle weather structs
+	ban boards bomb clan classes combat db dyntext editor elevators \
+	flow_room guns help house intermud interpreter magic mail \
+	matrix misc mobiles net objsave olc paths quest search shop \
+	smokes social specials util vehicle weather structs 
 
 MAKEFLAGS=-s -k 4
 OBJ=ObjFiles

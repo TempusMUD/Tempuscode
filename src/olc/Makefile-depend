@@ -1,9 +1,6 @@
 $(OBJ)/olc.o : olc.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/spells.h $(INCLUDE)/materials.h $(INCLUDE)/vehicle.h $(INCLUDE)/specs.h $(INCLUDE)/shop.h $(INCLUDE)/smokes.h $(INCLUDE)/paths.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/char_class.h 
 	$(CXX) -c $(CXXFLAGS) olc.cc               -o $(OBJ)/olc.o
-$(OBJ)/olc_hlp.o : olc_hlp.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/specs.h 
-	$(CXX) -c $(CXXFLAGS) olc_hlp.cc           -o $(OBJ)/olc_hlp.o
 $(OBJ)/olc_mob.o : olc_mob.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/char_class.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/specs.h 
 	$(CXX) -c $(CXXFLAGS) olc_mob.cc           -o $(OBJ)/olc_mob.o
@@ -28,4 +25,4 @@ $(OBJ)/olc_zon.o : olc_zon.cc \
 $(OBJ)/polc.o : polc.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/olc.h 
 	$(CXX) -c $(CXXFLAGS) polc.cc              -o $(OBJ)/polc.o
-OBJFILES= $(OBJ)/olc.o $(OBJ)/olc_hlp.o $(OBJ)/olc_mob.o $(OBJ)/olc_obj.o $(OBJ)/olc_shp.o $(OBJ)/olc_srch.o $(OBJ)/olc_ticl.o $(OBJ)/olc_wld.o $(OBJ)/olc_zon.o $(OBJ)/polc.o
+OBJFILES= $(OBJ)/olc.o $(OBJ)/olc_mob.o $(OBJ)/olc_obj.o $(OBJ)/olc_shp.o $(OBJ)/olc_srch.o $(OBJ)/olc_ticl.o $(OBJ)/olc_wld.o $(OBJ)/olc_zon.o $(OBJ)/polc.o

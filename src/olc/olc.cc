@@ -198,11 +198,6 @@ void do_mob_mset(struct char_data *ch, char *argument);
 void do_shop_sedit(struct char_data *ch, char *argument);
 void do_shop_sstat(struct char_data *ch);
 void do_shop_sset(struct char_data *ch, char *argument);
-void do_help_fedit(struct char_data *ch, char *argument);
-void do_help_list(struct char_data *ch);
-void do_help_hedit(struct char_data *ch, char *argument);
-void do_help_hstat(struct char_data *ch);
-void do_help_hset(struct char_data *ch, char *argument);
 int save_zone(struct char_data *ch, struct zone_data *zone);
 void do_olc_xset(struct char_data *ch, char *argument);
 void do_olc_rset(struct char_data *ch, char *argument);
@@ -249,7 +244,7 @@ const char *olc_commands[] = {
     "zdoor",
     "zreset",
     "zpurge",
-    "zequip",
+    "zequip",                   /* 30 zequip  */
     "zput",
     "zgive",
     "medit",                      /* 33 -- do_mob_medit() */
@@ -261,20 +256,15 @@ const char *olc_commands[] = {
     "sset",
     "ssave",                      /* 40 */
     "zimplant",
-    "fedit",
     "mmimic",
-    "hlist",
-    "hedit",
-    "hstat",
-    "hset",
     "zpath",
     "xedit",
-    "xset",                       /* 50 */
+    "xset",                       /* 45 */
     "xstat",
     "tedit",
     "tstat",
     "tset",
-    "tsave",
+    "tsave",                     /* 50  */
     "mload", 
     "show",
      "\n"				/* many more to be added */
@@ -1172,7 +1162,7 @@ ACMD(do_olc)
 		if (!add_path(strcat(arg2, argument), TRUE))
 		    send_to_char("Path added.\r\n", ch);
 	    } else if (is_abbrev(arg1, "help")) {
-		do_create_help(ch);
+		//do_create_help(ch);
 	    } else if (is_abbrev(arg1, "ticl")) {
 		if (!*arg2)
 		    send_to_char("Create a TICL with what vnum?\r\n", ch);
@@ -1365,9 +1355,6 @@ ACMD(do_olc)
 	do_zimplant_cmd(ch, argument);
 	break;
     case 42:
-	do_help_fedit(ch, argument);
-	break;
-    case 43:
 	if (!GET_OLC_MOB(ch))
 	    send_to_char("yOu beTteR oLC MedIt a mObiLe fIRsT, baBy.\r\n", ch);
 	else if (!*argument)
@@ -1381,22 +1368,10 @@ ACMD(do_olc)
 	else
 	    send_to_char("aLriGHtY thEn.\r\n", ch);
 	break;
-    case 44:
-	do_help_list(ch);
-	break;
-    case 45:
-	do_help_hedit(ch, argument);
-	break;
-    case 46:
-	do_help_hstat(ch);
-	break; 
-    case 47:
-	do_help_hset(ch, argument);
-	break;
-    case 48:
+    case 43:
 	do_zpath_cmd(ch, argument);
 	break;
-    case 49:
+    case 44:
 	if (!*argument) {
 	    if (!GET_OLC_SRCH(ch))
 		send_to_char("Usage: olc xedit <command trigger> <keyword>\r\n", ch);
@@ -1411,28 +1386,28 @@ ACMD(do_olc)
 	} 
 	set_char_xedit(ch, argument);
 	break;
-    case 50:  /* xset */
+    case 45:  /* xset */
 	do_olc_xset(ch, argument);
 	break;
-    case 51:  /* xstat */
+    case 46:  /* xstat */
 	do_olc_xstat(ch);
 	break;
-    case 52:              /* tedit */
+    case 47:              /* tedit */
 	do_ticl_tedit(ch, argument);
 	break;
-    case 53:              /* tstat */
+    case 48:              /* tstat */
 	do_ticl_tstat(ch);
 	break;
-    case 54:              /* tset */
+    case 49:              /* tset */
 /*    do_ticl_tset(ch, argument); */
 	break;
-    case 55:              /* tsave */
+    case 50:              /* tsave */
 /*    if(!save_ticls (ch))
       send_to_char("Mobile file saved.\r\n",ch);
       else
       send_to_char("An error occured while saving.\r\n",ch);
       break;  */
-    case 56:
+    case 51:
 	if ( ! *argument ) {
             if ( ! mob_p ) {
                 send_to_char( "Which mobile?\r\n", ch );
@@ -1482,7 +1457,7 @@ ACMD(do_olc)
 	// olc show
 	//
 
-    case 57:
+    case 52:
 	if ( !*argument ) {
 	    send_to_char( OLC_SHOW_USAGE, ch );
 	    return;

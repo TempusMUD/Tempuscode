@@ -515,21 +515,11 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define GET_OLC_OBJ(ch)         ((ch)->player_specials->olc_obj)
 #define GET_OLC_MOB(ch)         ((ch)->player_specials->olc_mob)
 #define GET_OLC_SHOP(ch)        ((ch)->player_specials->olc_shop)
-#define GET_OLC_HELP(ch)        ((ch)->player_specials->olc_help)
+#define GET_OLC_HELP(ch)        ((ch)->player_specials->olc_help_item)
 #define GET_OLC_SRCH(ch)        ((ch)->player_specials->olc_srch)
 #define GET_OLC_TICL(ch)        ((ch)->player_specials->olc_ticl)
 #define SET_SKILL(ch, i, pct)	\
                              {(ch)->player_specials->saved.skills[i] = pct; }
-#define GET_LAST_OLC_TARG(ch)	((ch)->player_specials->last_olc_targ)
-#define GET_LAST_OLC_MODE(ch)	((ch)->player_specials->last_olc_mode)
-#define GET_ALIASES(ch)		((ch)->player_specials->aliases)
-#define GET_LAST_TELL(ch)	((ch)->player_specials->last_tell)
-#define GET_OLC_OBJ(ch)         ((ch)->player_specials->olc_obj)
-#define GET_OLC_MOB(ch)         ((ch)->player_specials->olc_mob)
-#define GET_OLC_SHOP(ch)        ((ch)->player_specials->olc_shop)
-#define GET_OLC_HELP(ch)        ((ch)->player_specials->olc_help)
-#define GET_OLC_SRCH(ch)        ((ch)->player_specials->olc_srch)
-#define GET_OLC_TICL(ch)        ((ch)->player_specials->olc_ticl)
 #define SET_SKILL(ch, i, pct)	\
                              {(ch)->player_specials->saved.skills[i] = pct; }
 

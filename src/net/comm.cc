@@ -44,8 +44,10 @@
 #include "screen.h"
 #include "intermud.h"
 #include "vehicle.h"
+#include "help.h"
 
 /* externs */
+extern HelpCollection *Help;
 extern int restrict;
 extern int mini_mud;
 extern int olc_lock;
@@ -263,7 +265,15 @@ init_game(int port)
     void my_srand(unsigned long initial_seed);
 
     my_srand(time(0));
-    
+
+    // Boot help system
+    slog("Booting help system.");
+    Help = new HelpCollection;
+    if(Help->LoadIndex()) 
+        slog("Help System Boot Succeded.");
+    else
+        slog("SYSERR: Help System Boot FAILED.");
+
     boot_db();
 
     slog("Opening mother connection.");
@@ -645,6 +655,7 @@ game_loop(int mother_desc)
 	    point_update();
 	    fflush(player_fl);
 	    descriptor_update();
+        Help->Sync();
 	}
 	if (auto_save) {
 	    if (!(pulse % (60 * PASSES_PER_SEC))) {	/* 1 minute */

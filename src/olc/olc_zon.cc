@@ -53,7 +53,7 @@ extern struct descriptor_data *descriptor_list;
 extern int top_of_zone_table;
 extern int olc_lock;
 
-extern const char *fill[];
+extern const char *fill_words[];
 
 long asciiflag_conv(char *buf);
 static char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
@@ -2871,7 +2871,7 @@ int search_block_no_lower(char *arg, const char **list, bool exact)
 
 int fill_word_no_lower(char *argument)
 {
-    return (search_block_no_lower(argument, fill, FALSE) >= 0);
+    return (search_block_no_lower(argument, fill_words, FALSE) >= 0);
 }
 
 #define ZPATH_USAGE "Usage: olc zpath <'mob'|'obj'> <name> <path name>\r\n"

@@ -26,6 +26,7 @@
 #include "handler.h"
 #include "mail.h"
 #include "screen.h"
+#include "help.h"
 #include "char_class.h"
 #include "clan.h"
 #include "vehicle.h"
@@ -383,7 +384,7 @@ ACMD(do_rlist);
 ACMD(do_olist);
 ACMD(do_mlist);
 ACMD(do_xlist);
-//ACMD(do_coderbs);
+ACMD(do_help_collection_command);
 
 
 /* This is the Master Command List(tm).
@@ -1283,12 +1284,12 @@ extern const struct command_info cmd_info[] = {
     { "olist"    , POS_DEAD    , do_olist    , LVL_IMMORT, 0 },
     { "mlist"    , POS_DEAD    , do_mlist    , LVL_IMMORT, 0 },
     { "xlist"    , POS_DEAD    , do_xlist    , LVL_IMMORT, 0 },
-
+    { "hcollection" , POS_DEAD    , do_help_collection_command, LVL_IMMORT, 0 },
     { "\n", 0, 0, 0, 0 }
 };    /* this must be last */
 
 
-const char *fill[] =
+const char *fill_words[] =
 {
     "in",
     "from",
@@ -1810,7 +1811,7 @@ delete_doubledollar(char *string)
 
 int fill_word(char *argument)
 {
-    return (search_block(argument, fill, TRUE) >= 0);
+    return (search_block(argument, fill_words, TRUE) >= 0);
 }
 
 
