@@ -2851,14 +2851,9 @@ perform_vis(struct Creature *ch)
     for (; it != ch->in_room->people.end(); ++it) {
         if ((*it) == ch || !can_see_creature((*it), ch))
             continue;
-        if (GET_LEVEL(*it) < level) {
-            if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
-                act("you suddenly realize that $n is standing beside you.",
-                    false, ch, 0, (*it), TO_VICT);
-            else if (GET_REMORT_GEN(*it) <= GET_REMORT_GEN(ch))
-                act("$n suddenly appears from the thin air beside you.",
-                    false, ch, 0, (*it), TO_VICT);
-        }
+        if (GET_LEVEL(*it) < level)
+			act("you suddenly realize that $n is standing beside you.",
+				false, ch, 0, (*it), TO_VICT);
     }
 
     send_to_char(ch, "You are now fully visible.\r\n");
