@@ -19,7 +19,7 @@
 //
 
 #define NUM_OF_BOARD_VNUMS		10	/* change if needed! */
-#define NUM_OF_BOARDS	        53	/* change if needed! */
+#define NUM_OF_BOARDS	        55	/* change if needed! */
 #define MAX_BOARD_MESSAGES 	60	/* arbitrary -- change if needed */
 #define MAX_MESSAGE_LENGTH	16384	/* arbitrary -- change if needed */
 

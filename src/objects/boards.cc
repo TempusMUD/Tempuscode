@@ -174,6 +174,12 @@ struct board_info_type board_info[NUM_OF_BOARDS] = {
 		LVL_AMBASSADOR, "etc/board.yakuza", ""},
 	{{76320, -1, -1, -1, -1, -1, -1, -1, -1, -1}, LVL_CAN_CLAN, LVL_CAN_CLAN,
 		LVL_AMBASSADOR, "etc/board.forsaken", ""},
+
+	{{70313, -1, -1, -1, -1, -1, -1, -1, -1, -1}, LVL_CAN_CLAN, LVL_CAN_CLAN,
+		LVL_AMBASSADOR, "etc/board.neurotik", ""},
+	{{77002, -1, -1, -1, -1, -1, -1, -1, -1, -1}, LVL_CAN_CLAN, LVL_CAN_CLAN,
+		LVL_AMBASSADOR, "etc/board.dendarii", ""},
+
 	{{1290, -1, -1, -1, -1, -1, -1, -1, -1, -1}, LVL_IMMORT, LVL_IMMORT,
 		LVL_DEMI, "etc/board.questor", ""},
 
