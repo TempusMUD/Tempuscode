@@ -1279,13 +1279,13 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                             }
                             affect_join(ch, &af, false, false, false, false);
                             act("$N begins to look sick as the poison from "
-                                "your thorns invades $E body.", false, victim,
+                                "your thorns invades $E's body.", false, victim,
                                 NULL, ch, TO_CHAR);
                             act("You begin to feel sick as the poison from "
                                 "$n's thorns invades your body.", false, victim,
                                 NULL, ch, TO_VICT);
                             act("$N begins to look sick as the poison from "
-                                "$n's thorns invades $E body.", false, victim,
+                                "$n's thorns invades $E's body.", false, victim,
                                 NULL, ch, TO_NOTVICT);
                         }
                     }
