@@ -476,7 +476,7 @@ House::notifyReposession( Creature *ch )
 
 	// Build the repossession note
 	acc_string_clear();
-	acc_strcat("The following items were sold at auction to cover your back rent:\r\n\r\n");
+	acc_strcat("The following items were sold at auction to cover your back rent:\r\n\r\n", NULL);
 	for( unsigned int i = 0; i < getRepoNoteCount(); ++i )
 		acc_strcat(getRepoNote(i).c_str(), NULL);
 	acc_strcat("\r\n\r\nSincerely,\r\n    The Management\r\n", NULL);
