@@ -1224,6 +1224,8 @@ do_clear_olc_object(struct Creature *ch)
 	obj_p->shared->cost = 0;
 	obj_p->shared->cost_per_day = 0;
 
+	SET_BIT(GET_OBJ_EXTRA2(obj_p), ITEM2_UNAPPROVED);
+
 	for (k = 0; k < 3; k++)
 		obj_p->obj_flags.bitvector[k] = 0;
 
