@@ -338,6 +338,8 @@ obj_affect_update(void)
 			if (ch && pos >= 0) {
 				obj_from_char(obj);
 				equip_char(ch, obj, pos, pos_mode);
+				ch = NULL;
+				pos = -1;
 			}
 			aff_removed = false;
 		}
