@@ -36,6 +36,7 @@
 #include "matrix.h"
 #include "bomb.h"
 #include "security.h"
+#include "quest.h"
 
 extern char *motd;
 extern char *ansi_motd;
@@ -924,8 +925,19 @@ nanny(struct descriptor_data * d, char *arg)
 				act("$n has entered the game.", TRUE, d->character, 0, 0, TO_ROOM);
 				look_at_room(d->character, d->character->in_room, 0);
 
-				// temporary fix to quest flag
-				REMOVE_BIT(PRF_FLAGS(d->character), PRF_QUEST );
+				// Remove the quest prf flag (for who list) if they're
+				// not in an active quest.
+				if( PRF_FLAGGED(d->character, PRF_QUEST) )
+				{
+					Quest *quest = quest_by_vnum( GET_QUEST(d->character) );
+					if( GET_QUEST(d->character) == 0 || quest == NULL 
+					|| quest->getEnded() >= 0 || !quest->isPlaying(GET_IDNUM(d->character)) ) 
+					{
+						REMOVE_BIT(PRF_FLAGS(d->character), PRF_QUEST );
+						GET_QUEST(d->character) = 0;
+					}
+				}
+
 				REMOVE_BIT( PLR_FLAGS( d->character), PLR_CRYO );
 
 				if (has_mail(GET_IDNUM(d->character)))
