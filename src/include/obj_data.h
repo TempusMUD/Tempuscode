@@ -181,6 +181,7 @@ static const int ITEM2_BROKEN = (1 << 19);
 static const int ITEM2_IMPLANT = (1 << 20);
 static const int ITEM2_REINFORCED = (1 << 21);
 static const int ITEM2_ENHANCED = (1 << 22);
+static const int ITEM2_REQ_MORT = (1 << 23);
 static const int ITEM2_PROTECTED_HUNT = (1 << 28);
 static const int ITEM2_RENAMED = (1 << 29);
 static const int ITEM2_UNAPPROVED = (1 << 30);

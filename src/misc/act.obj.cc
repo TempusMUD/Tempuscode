@@ -2722,6 +2722,14 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 		return 0;
 	}
 
+    if (IS_OBJ_STAT2(obj, ITEM2_REQ_MORT) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
+		IS_REMORT(ch)) {
+		act("You feel a strange sensation as you attempt to use $p.\r\n"
+			"The universe slowly spins around you, and the fabric of space\r\n"
+			"and time appears to warp.", FALSE, ch, obj, 0, TO_CHAR);
+		return 0;
+	}
+    
 	if (IS_OBJ_STAT2(obj, ITEM2_SINGULAR)) {
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_EQ(ch, i) &&
