@@ -1008,7 +1008,7 @@ ACMD(do_gen_tog)
 			"Brief mode on.\r\n"},
 		{"Compact mode off.\r\n",
 			"Compact mode on.\r\n"},
-		{"You can now hear tells.\r\n",
+		{"You can now hear tells.\r\n",				// 5
 			"You are now deaf to tells.\r\n"},
 		{"You can now hear auctions.\r\n",
 			"You are now deaf to auctions.\r\n"},
@@ -1018,7 +1018,7 @@ ACMD(do_gen_tog)
 			"You are now deaf to gossip.\r\n"},
 		{"You can now hear the congratulation messages.\r\n",
 			"You are now deaf to the congratulation messages.\r\n"},
-		{"You can now hear the Wiz-channel.\r\n",
+		{"You can now hear the Wiz-channel.\r\n",	// 10
 			"You are now deaf to the Wiz-channel.\r\n"},
 		{"You will no longer see the room flags.\r\n",
 			"You will now see the room flags.\r\n"},
@@ -1028,7 +1028,7 @@ ACMD(do_gen_tog)
 			"Nameserver_is_slow changed to YES; sitenames will no longer be resolved.\r\n"},
 		{"Autoexits disabled.\r\n",
 			"Autoexits enabled.\r\n"},
-		{"You have returned to the keyboard.\r\n",
+		{"You have returned to the keyboard.\r\n",	// 15
 			"You are now afk.  When you move again, you will no longer be.\r\n"},
 		{"You will now hear the music of your peers.\r\n",
 			"You will no longer hear the music of your peers.\r\n"},
@@ -1038,7 +1038,7 @@ ACMD(do_gen_tog)
 			"You will no longer see the misses in your fights.\r\n"},
 		{"You will no longer be beeped if someone tells to you.\r\n",
 			"You will now receive a bell tone if someone tells to you.\r\n"},
-		{"You have now opened yourself to clan communication.\r\n",
+		{"You have now opened yourself to clan communication.\r\n",	// 20
 			"You have closed yourself to clan communication.\r\n"},
 		{"You are now allowing others to identify you.\r\n",
 			"You are now consciously resisting any attempts to identify you.\r\n"},
@@ -1048,7 +1048,7 @@ ACMD(do_gen_tog)
 			"You are now monitoring the newbies.\r\n"},
 		{"You have disabled auto-diagnose.\r\n",
 			"You will now automatically be aware of your opponent's condition.\r\n"},
-		{"You will now hear the dreams of other players while you sleep.\r\n",
+		{"You will now hear the dreams of other players while you sleep.\r\n",	// 25
 			"You will no longer hear dreams.\r\n"},
 		{"You will now be aware of the projections of other remorts.\r\n",
 			"You will now ignore the projections of other remorts.\r\n"},
@@ -1058,7 +1058,7 @@ ACMD(do_gen_tog)
 			"Other gods may now kill you... if you don't watch it.\r\n"},
 		{"You will now see all affections on the score page.\r\n",
 			"You will no longer see your affections on the score page.\r\n"},
-		{"You now hear the hollering.\r\n",
+		{"You now hear the hollering.\r\n",		// 30
 			"You now ignore the hollering.\r\n"},
 		{"You are now on the immchat channel.\r\n",
 			"You are now closed off from the immchat channel.\r\n",},
@@ -1068,14 +1068,14 @@ ACMD(do_gen_tog)
 			"Your prompt will now be redrawn after every message you receive.\r\n"},
 		{"You will now be shown on the who list.\r\n",
 			"You will no longer be shown on the who list.\r\n"},
-		{"Your level will be shown on the who list.\r\n",
+		{"Your level will be shown on the who list.\r\n",	// 35
 			"Your level will not be shown on the who list.\r\n"},
 		{"You will now see affect trailers on characters.\r\n",
 			"You will now ignore affect trailers on characters.\r\n"},
 		{"Logall", "Logall"},
 		{"Jetstream", "Jetstream"},
 		{"Weather", "Weather"},
-		{"Autosplit OFF.\r\n",
+		{"Autosplit OFF.\r\n",		// 40
 			"Autosplit ON.\r\n"},
 		{"Autoloot OFF.\r\n",
 			"Autoloot ON.\r\n"},
@@ -1085,7 +1085,7 @@ ACMD(do_gen_tog)
 			"You close your mind to the echoing thoughts of the gods.\r\n"},
 		{"TEDII will now wrap your text at 76 columns.\r\n",
 			"TEDII will not wrap your text at 76 colums next time.\r\n"},
-		{"Your world writing ability is now deactivated.\r\n",
+		{"Your world writing ability is now deactivated.\r\n",	// 45
 			"Your world writing ability is now activated.\r\n" },
 		{"Deaths will not be logged.\r\n",
 			"All deaths will now be logged.\r\n"},
