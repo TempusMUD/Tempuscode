@@ -778,7 +778,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		return "";
 
 	if (IS_NPC(i)) {
-		desc = i->player.short_descr;
+		desc = tmp_capitalize(i->player.short_descr);
 	} else if (affected_by_spell(i, SKILL_DISGUISE)) {
 		desc = tmp_capitalize(GET_DISGUISED_NAME(ch, i));
 	} else
