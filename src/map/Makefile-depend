@@ -1,0 +1,4 @@
+$(OBJ)/Mapper.o : Mapper.cc \
+
+	$(CXX) -c $(CXXFLAGS) Mapper.cc            -o $(OBJ)/Mapper.o
+OBJFILES= $(OBJ)/Mapper.o

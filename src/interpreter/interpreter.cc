@@ -396,6 +396,7 @@ ACMD(do_mlist);
 ACMD(do_xlist);
 ACMD(do_help_collection_command);
 ACMD(do_immhelp);
+ACMD(do_map);
 
 
 /* This is the Master Command List(tm).
@@ -852,6 +853,7 @@ extern const struct command_info cmd_info[] = {
 
     { "makeout"  , POS_RESTING , do_action   , 0, 0 },
     { "makemount", POS_STANDING, do_makemount, LVL_DEMI, 0},
+    { "map"      , POS_SLEEPING, do_map      , LVL_GRIMP, 0 },
     { "mload"    , POS_SLEEPING, do_mload    , LVL_TIMEGOD, 0 },
     { "mail"     , POS_STANDING, do_not_here , 1, 0 },
     { "marvel"   , POS_RESTING , do_action   , 0, 0 },
