@@ -511,6 +511,11 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		return 1;
 	}
 
+	if (ch->isFighting() && mode == MOVE_CRAWL) {
+		send_to_char(ch, "No way!  You're fighting for your life!\r\n");
+		return 1;
+	}
+
 	/* check room count */
 /*    if ((i = room_count(ch, EXIT(ch, dir)->to_room))*/
 	if ((i = EXIT(ch, dir)->to_room->people.size())
