@@ -1100,7 +1100,7 @@ ACMD(do_move)
 
 
 int 
-find_door(struct char_data *ch, char *type, char *dir, char *cmdname)
+find_door(struct char_data *ch, char *type, char *dir, const char *cmdname)
 {
     int door;
   

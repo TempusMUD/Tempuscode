@@ -60,13 +60,12 @@ ACMD(do_backstab);
 ACMD(do_say);
 ACMD(do_feign);
 ACMD(do_hide);
-ACMD(do_offensive_skill);
+ACCMD(do_offensive_skill);
 ACMD(do_gen_comm);
 ACMD(do_shoot);
 ACMD(do_remove);
-ACMD(do_drop);
+ACCMD(do_drop);
 ACMD(do_load);
-ACMD(do_get);
 ACMD(do_battlecry);
 ACMD(do_psidrain);
 ACMD(do_fly);
@@ -76,9 +75,9 @@ ACMD(do_combo);
 
 // for mobile_activity
 ACMD(do_repair);
-ACMD(do_get);
+ACCMD(do_get);
 ACMD(do_wear);
-ACMD(do_wield);
+ACCMD(do_wield);
 ACMD(do_shoot);
 ACMD(do_holytouch);
 ACMD(do_medic);
@@ -2205,7 +2204,7 @@ mobile_battle_activity(struct char_data *ch)
     struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
 
     char buf[MAX_STRING_LENGTH];
-    ACMD(do_disarm);
+    ACCMD(do_disarm);
     ACMD(do_feign);
 
     if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))

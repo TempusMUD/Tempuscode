@@ -6,7 +6,7 @@
 
 SPECIAL(newbie_healer)
 {
-  ACMD(do_drop);
+  ACCMD(do_drop);
   struct char_data *i, *next_i = NULL;
   struct obj_data *p;
 

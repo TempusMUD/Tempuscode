@@ -51,7 +51,7 @@ extern int jet_stream_state;
 extern int check_mob_reaction(struct char_data *ch, struct char_data *vict);
 void gain_condition(struct char_data *ch, int condition, int value);
 void look_at_target(struct char_data *ch, char *arg);
-int find_door(struct char_data *ch, char *type, char *dir, char *cmdname);
+int find_door(struct char_data *ch, char *type, char *dir, const char *cmdname);
 void enable_vt100(struct char_data *ch);
 void disable_vt100(struct char_data *ch);
 void weather_change(void);

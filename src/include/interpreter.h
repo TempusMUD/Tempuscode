@@ -17,13 +17,17 @@
 
 #define ACMD(name)  \
    void (name)(struct char_data *ch, char *argument, int cmd, int subcmd)
+#define ACCMD(name)  \
+   void (name)(struct char_data *ch, const char *argument, int cmd, int subcmd)
 
 void	command_interpreter(struct char_data *ch, char *argument);
 int	search_block(char *arg, const char **list, bool exact);
 char	lower( char c );
 char	*one_argument(char *argument, char *first_arg);
+void    one_argument(const char *argument, char *first_arg);
 char	*any_one_arg(char *argument, char *first_arg);
 char	*two_arguments(char *argument, char *first_arg, char *second_arg);
+void    two_arguments(const char *argument, char *first_arg, char *second_arg);
 int	fill_word(char *argument);
 void	half_chop(char *string, char *arg1, char *arg2);
 void	nanny(struct descriptor_data *d, char *arg);

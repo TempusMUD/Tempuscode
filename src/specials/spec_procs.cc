@@ -62,7 +62,7 @@ ACMD(do_say);
 ACMD(do_gen_comm);
 ACMD(do_rescue);
 ACMD(do_steal);
-ACMD(do_get);
+ACCMD(do_get);
 
 /* ********************************************************************
 *  Special procedures for mobiles                                     *
@@ -403,7 +403,7 @@ SPECIAL(dump)
     struct obj_data *k;
     int value = 0;
 
-    ACMD(do_drop);
+    ACCMD(do_drop);
 
     for (k = ch->in_room->contents; k; k = k->next_content) {
 	act("$p vanishes in a puff of smoke!", FALSE, 0, k, 0, TO_ROOM);

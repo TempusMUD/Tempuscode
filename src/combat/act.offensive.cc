@@ -43,7 +43,7 @@ ASPELL(spell_charm);
 ACMD(do_say);
 /* extern functions */
 void raw_kill(struct char_data *ch, struct char_data *killer, int attacktype);
-int find_door(struct char_data *ch, char *type, char *dir, char *cmdname);
+int find_door(struct char_data *ch, char *type, char *dir, const char *cmdname);
 void appear(struct char_data * ch, struct char_data *vict);
 
 
@@ -735,7 +735,7 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
     return (prob);
 }
 
-ACMD(do_offensive_skill)
+ACCMD(do_offensive_skill)
 {
     struct char_data *vict = NULL;
     struct obj_data *ovict = NULL;
@@ -1305,7 +1305,7 @@ ACMD(do_bash)
 	}
     }
 
-    do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH);
+    do_offensive_skill(ch, (const char*)fname(vict->player.name), 0, SKILL_BASH);
 
 }
 
@@ -2225,13 +2225,13 @@ ACMD(do_ceasefire)
     }
 }
 
-ACMD(do_disarm)
+ACCMD(do_disarm)
 {
     struct char_data *vict = NULL;
     struct obj_data *weap = NULL, *weap2 = NULL;
     int  percent, prob;
-    ACMD(do_drop);
-    ACMD(do_get);
+    ACCMD(do_drop);
+    ACCMD(do_get);
 
     one_argument(argument, arg);
 

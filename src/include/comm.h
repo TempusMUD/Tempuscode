@@ -30,10 +30,11 @@ void    send_to_newbie_helpers(char *messg);
 void	perform_to_all(char *messg, struct char_data *ch);
 void	close_socket(struct descriptor_data *d);
 
-void	perform_act(char *orig, struct char_data *ch, struct obj_data *obj,
-		    void *vict_obj, struct char_data *to, int mode);
+void	perform_act(const char *orig, struct char_data *ch, 
+            struct obj_data *obj, void *vict_obj, struct char_data *to, 
+            int mode);
 
-void	act(char *str, int hide_invisible, struct char_data *ch,
+void	act(const char *str, int hide_invisible, struct char_data *ch,
 struct obj_data *obj, void *vict_obj, int type);
 
 #define TO_ROOM		1

@@ -45,7 +45,8 @@ int
 has_mail ( long id ) {
     char fname[256];
     fstream mail_file;
-
+    if (!get_name_by_id(id))
+        return 0;
     get_filename( get_name_by_id(id), fname, PLAYER_MAIL_FILE);
     mail_file.open(fname, ios::in || ios::ate);
 

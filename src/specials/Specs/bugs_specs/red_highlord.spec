@@ -7,8 +7,8 @@
 SPECIAL(red_highlord)
 {
   ACMD(do_gen_comm);
-  ACMD(do_wield);
-  ACMD(do_get);
+  ACCMD(do_wield);
+  ACCMD(do_get);
   ACMD(do_remove);
   int sword_vnum = 9204;
   room_num v_home_room = 9210;

@@ -48,7 +48,7 @@ extern char *last_command;
 extern struct apply_mod_defaults *apmd;
 
 void clearMemory(struct char_data * ch);
-void act(char *str, int i, struct char_data * c, struct obj_data * o,
+void act(const char *str, int i, struct char_data * c, struct obj_data * o,
 	 void *vict_obj, int j);
 
 void weight_change_object(struct obj_data * obj, int weight);

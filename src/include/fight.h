@@ -181,6 +181,6 @@ extern struct obj_data *cur_weap;
 
 #endif
 
-ACMD(do_offensive_skill);
+ACCMD(do_offensive_skill);
 
 #endif // __fight_h__

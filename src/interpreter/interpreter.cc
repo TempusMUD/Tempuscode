@@ -109,7 +109,7 @@ ACMD(do_de_energize);
 ACMD(do_defuse);
 ACMD(do_disembark);
 ACMD(do_disguise);
-ACMD(do_disarm);
+ACCMD(do_disarm);
 ACMD(do_discharge);
 ACMD(do_dismiss);
 ACMD(do_distance);
@@ -160,7 +160,7 @@ ACMD(do_display);
 ACMD(do_drag);
 ACMD(do_drink);
 ACMD(do_drive);
-ACMD(do_drop);
+ACCMD(do_drop);
 ACMD(do_eat);
 ACMD(do_echo);
 ACMD(do_econvert);
@@ -193,7 +193,7 @@ ACMD(do_gen_door);
 ACMD(do_gen_ps);
 ACMD(do_gen_tog);
 ACMD(do_gen_write);
-ACMD(do_get);
+ACCMD(do_get);
 ACMD(do_give);
 ACMD(do_glance);
 ACMD(do_gold);
@@ -253,7 +253,7 @@ ACMD(do_mudinfo);
 ACMD(do_not_here);
 ACMD(do_oecho);
 ACMD(do_offer);
-ACMD(do_offensive_skill);
+ACCMD(do_offensive_skill);
 ACMD(do_olc);
 ACMD(do_oload);
 ACMD(do_order);
@@ -366,7 +366,7 @@ ACMD(do_weigh);
 ACMD(do_where);
 ACMD(do_whirlwind);
 ACMD(do_who);
-ACMD(do_wield);
+ACCMD(do_wield);
 ACMD(do_wimpy);
 ACMD(do_wizlock);
 ACMD(do_wiznet);
@@ -1837,6 +1837,27 @@ one_argument(char *argument, char *first_arg)
 
     return argument;
 }
+// A non-destructive version of the previous that returns nothing.
+// DO NOT set this equal to anything, you'll get nada.
+void
+one_argument (const char *argument, char *first_arg)
+{
+    char *begin = first_arg;
+    const char *s = argument;
+    do {
+    while (isspace(*s))
+        s++;
+    //skip_spaces(&s);
+
+    first_arg = begin;
+    while (*s && !isspace(*s)) {
+        *(first_arg++) = LOWER(*s);
+        s++;
+    }
+
+    *first_arg = '\0';
+    } while (fill_word(begin));
+}
 
 
 /* same as one_argument except that it doesn't ignore fill words */
@@ -1862,7 +1883,40 @@ any_one_arg(char *argument, char *first_arg)
  */
 char *two_arguments(char *argument, char *first_arg, char *second_arg)
 {
-    return one_argument(one_argument(argument, first_arg), second_arg);    /* :-) */
+    return one_argument(one_argument(argument, first_arg), second_arg);
+    /* :-) */
+}
+
+void
+two_arguments(const char *argument, char *first_arg, char *second_arg)
+{
+    char *begin = first_arg;
+    const char *s = argument;
+    do {
+    while (isspace(*s))
+        s++;
+
+    first_arg = begin;
+    while (*s && !isspace(*s)) {
+        *(first_arg++) = LOWER(*s);
+        s++;
+    }
+
+    *first_arg = '\0';
+    } while (fill_word(begin));
+    do {
+    while (isspace(*s))
+        s++;
+
+    begin = second_arg;
+    first_arg = begin;
+    while (*s && !isspace(*s)) {
+        *(second_arg++) = LOWER(*s);
+        s++;
+    }
+
+    *second_arg= '\0';
+    } while (fill_word(begin));
 }
 
 

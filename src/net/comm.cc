@@ -1843,10 +1843,11 @@ if ((pointer) == NULL) i = ACTNULL; else i = (expression);
 
 /* higher-level communication: the act() function */
 void 
-perform_act(char *orig, struct char_data * ch, struct obj_data * obj,
+perform_act(const char *orig, struct char_data * ch, struct obj_data * obj,
 	    void *vict_obj, struct char_data * to, int mode)
 {
     register const char *i=0;
+    register const char *s=orig;
     register char *buf;
     static char lbuf[MAX_STRING_LENGTH];
     char outbuf[MAX_STRING_LENGTH];
@@ -1858,8 +1859,8 @@ perform_act(char *orig, struct char_data * ch, struct obj_data * obj,
     buf = lbuf;
 
     for (;;) {
-	if (*orig == '$') {
-	    switch (*(++orig)) {
+	if (*s == '$') {
+	    switch (*(++s)) {
 	    case 'n':
 		i = PERS(ch, to);
 		break;
@@ -1914,15 +1915,15 @@ perform_act(char *orig, struct char_data * ch, struct obj_data * obj,
 	    default:
 		slog("SYSERR: Illegal $-code to act():");
 		strcpy(buf1, "SYSERR: ");
-		strcat(buf1, orig);
+		strcat(buf1, s);
 		slog(buf1);
 		i = "---";
 		break;
 	    }
 	    while ((*buf = *(i++)))
 		buf++;
-	    orig++;
-	} else if (!(*(buf++) = *(orig++)))
+	    s++;
+	} else if (!(*(buf++) = *(s++)))
 	    break;
     }
 

@@ -858,7 +858,7 @@ get_from_room(struct char_data * ch, char *arg)
 
 
 
-ACMD(do_get)
+ACCMD(do_get)
 {
     char arg1[MAX_INPUT_LENGTH];
     char arg2[MAX_INPUT_LENGTH];
@@ -1117,7 +1117,7 @@ perform_drop_credits(struct char_data * ch, int amount,
 
 
 
-ACMD(do_drop)
+ACCMD(do_drop)
 {
     extern room_num donation_room_1; 	/* Modrian */
     extern room_num donation_room_2; 	/* EC */
@@ -1135,6 +1135,7 @@ ACMD(do_drop)
     byte mode = SCMD_DROP;
     int dotmode, amount = 0, counter = 0;
     char *sname = NULL;
+    char       arg1[MAX_STRING_LENGTH],arg2[MAX_STRING_LENGTH];
 
     if (subcmd == SCMD_GUILD_DONATE) {
 	for (i = 0; guild_donation_info[i][0] != -1; i++) {
@@ -1195,18 +1196,18 @@ ACMD(do_drop)
 	}
     } 
 
-    argument = one_argument(argument, arg);
+    two_arguments(argument, arg1,arg2);
 
-    if (!*arg) {
+    if (!*arg1) {
 	sprintf(buf, "What do you want to %s?\r\n", sname);
 	send_to_char(buf, ch);
 	return;
-    } else if (is_number(arg)) {
-	amount = atoi(arg);
-	argument = one_argument(argument, arg);
-	if (!str_cmp("coins", arg) || !str_cmp("coin", arg))
+    } else if (is_number(arg1)) {
+	amount = atoi(arg1);
+
+	if (!str_cmp("coins", arg2) || !str_cmp("coin", arg2))
 	    perform_drop_gold(ch, amount, mode, RDR);
-	else if (!str_cmp("credits", arg) || !str_cmp("credit", arg))
+	else if (!str_cmp("credits", arg2) || !str_cmp("credit", arg2))
 	    perform_drop_credits(ch, amount, mode, RDR);
 	else {
 	    /* code to drop multiple items.  anyone want to write it? -je */
@@ -1214,7 +1215,7 @@ ACMD(do_drop)
 	}
 	return;
     } else {
-	dotmode = find_all_dots(arg);
+	dotmode = find_all_dots(arg1);
 
 	/* Can't junk or donate all */
 	if ((dotmode == FIND_ALL) && 
@@ -1261,13 +1262,13 @@ ACMD(do_drop)
 	}
  
 	else if (dotmode == FIND_ALLDOT) {
-	    if (!*arg) {
+	    if (!*arg1) {
 		sprintf(buf, "What do you want to %s all of?\r\n", sname);
 		send_to_char(buf, ch);
 		return;
 	    }
-	    if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
-		sprintf(buf, "You don't seem to have any %ss.\r\n", arg);
+	    if (!(obj = get_obj_in_list_all(ch, arg1, ch->carrying))) {
+		sprintf(buf, "You don't seem to have any %ss.\r\n", arg1);
 		send_to_char(buf, ch);
 		return;
 	    }
@@ -1276,7 +1277,7 @@ ACMD(do_drop)
 	    oldmode = mode;
 
 	    while (obj) {
-		next_obj = get_obj_in_list_all(ch, arg, obj->next_content);
+		next_obj = get_obj_in_list_all(ch, arg1, obj->next_content);
 		if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1) &&
 		    mode != SCMD_DROP)
 		    mode = SCMD_JUNK;
@@ -1307,8 +1308,8 @@ ACMD(do_drop)
 		obj = next_obj;
 	    }
 	} else {
-	    if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
-		sprintf(buf, "You don't seem to have %s %s.\r\n", AN(arg), arg);
+	    if (!(obj = get_obj_in_list_all(ch, arg1, ch->carrying))) {
+		sprintf(buf, "You don't seem to have %s %s.\r\n", AN(arg1), arg1);
 		send_to_char(buf, ch);
 	    } else {
 		oldmode = mode;
@@ -2656,7 +2657,7 @@ ACMD(do_wear)
 
 
 
-ACMD(do_wield)
+ACCMD(do_wield)
 {
     struct obj_data *obj;
 
