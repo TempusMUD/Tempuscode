@@ -17,10 +17,10 @@ SPECIAL(mob_helper)
 		vict = *it;
         // Being drawn into combat via a death cry will cause this
         // mob to attack a dead creature
-        if( vict->getPosition() <= POS_DEAD ) {
-            continue;
-        }
-		if (FIGHTING(vict) && IS_MOB(vict) && IS_MOB(FIGHTING(vict)))
+		if (FIGHTING(vict)
+				&& FIGHTING(vict)->getPosition() <= POS_DEAD
+				&& IS_MOB(vict)
+				&& IS_MOB(FIGHTING(vict)))
 			if (((IS_GOOD(ch) && IS_GOOD(vict)) || (IS_EVIL(ch)
 						&& IS_EVIL(vict)))
 				&& !number(0, 2)) {
