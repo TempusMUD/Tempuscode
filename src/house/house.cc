@@ -230,36 +230,36 @@ House::removeRoom( room_num room )
 }
 
 bool 
-House::isGuest( Creature *c ) 
+House::isGuest( Creature *c ) const 
 {
 	return isGuest( GET_IDNUM(c) );
 }
 
 bool 
-House::isGuest( long idnum ) 
+House::isGuest( long idnum ) const 
 {
 	return find(guests.begin(), guests.end(), idnum) != guests.end();
 }
 
-bool House::hasRoom( room_data *room ) 
+bool House::hasRoom( room_data *room ) const 
 {
 	return hasRoom( room->number ); 
 }
 
-bool House::hasRoom( room_num room ) 
+bool House::hasRoom( room_num room ) const 
 {
 	return find(rooms.begin(), rooms.end(), room) != rooms.end();
 }
 
 bool 
-House::isOwner( Creature *ch )
+House::isOwner( Creature *ch )const 
 {
 	return ownerID == playerIndex.getAccountID( GET_IDNUM(ch) );
 }
 
 
 unsigned int
-HouseControl::getHouseCount()
+HouseControl::getHouseCount() const 
 {
 	return vector<House*>::size();
 }
@@ -421,6 +421,30 @@ HouseControl::countObjects()
 		}
 	}
 }
+
+int 
+House::calcObjectCount() const
+{
+    int count = 0;
+    for( unsigned int j = 0; j < getRoomCount(); j++ ) {
+        room_data *room = real_room( getRoom(j) );
+        if( room != NULL ) {
+            count += calcObjectCount(room);
+        }
+    }
+    return count;
+}
+
+int 
+House::calcObjectCount( room_data* room ) const
+{
+    int count = 0;
+    for( obj_data* obj = room->contents; obj; obj = obj->next_content) {
+        count += recurs_obj_contents(obj, NULL);
+    }
+    return count;
+}
+
 
 bool
 House::save()
@@ -631,25 +655,34 @@ HouseControl::collectRent()
 		// If the player is online, do not charge rent.
 		Account *account = accountIndex.find_account( house->getOwnerID() );
         //TODO: uncomment this
-		if( account == NULL )// || account->get_cxn() != NULL )
+		if( account == NULL  || account->is_logged_in() )
 			continue;
 
-		int cost = (int) ( ( house->calcRentCost() / 24.0 ) / 60 );
-		//TODO: modify based on MAX_ITEMS
-		slog("HOUSE: Collecting %d rent on house %d.", cost, house->getID() );
-		//TODO: charge rent to account and reposess items.
+        //TODO: charge rent to account and reposess items.
+		//int cost = (int) ( ( house->calcRentCost() / 24.0 ) / 60 );
+        //int count = house->calcObjectCount();
+		//slog("HOUSE: Collecting %d rent on house %d.", cost, house->getID() );
 	}
 }
 
 int
-House::calcRentCost()
+House::calcRentCost() const 
 {
 	int sum = 0;
-	for( unsigned int i = 0; i < getRoomCount(); i++ ) {
+	for( unsigned int i = 0; i < getRoomCount(); i++ ) 
+    {
 		room_data *room = real_room( getRoom(i) );
+        if( room == NULL )
+            continue;
+        int room_count = calcObjectCount( room );
+        int room_sum = 0;
 		for( obj_data* obj = room->contents; obj; obj = obj->next_content ) {
-			sum += recurs_obj_cost(obj, false, NULL);
+			room_sum += recurs_obj_cost(obj, false, NULL);
 		}
+        if( room_count > House::MAX_ITEMS ) {
+            room_sum *= (room_count/House::MAX_ITEMS) + 1;
+        }   
+        sum += room_sum;
 	}
 	
 	if( getType() == RENTAL )
@@ -657,13 +690,6 @@ House::calcRentCost()
 
 	return sum;
 }
-
-/* List all objects in a house file */
-void
-House_listrent( Creature *ch, int vnum)
-{
-}
-
 
 void
 House::display( Creature *ch )
@@ -722,7 +748,7 @@ House::listRooms(Creature *ch, bool showContents )
 	for( unsigned int i = 0; i < getRoomCount(); ++i ) {
 		room_data* room = real_room( getRoom(i) );
 		if( room != NULL ) {
-			char *line = print_room_contents( ch, room );
+			char *line = print_room_contents( ch, room,showContents );
 			buf = tmp_strcat(buf,line);
 		} else {
 			slog( "SYSERR: Room [%5d] of House [%5d] does not exist.",
@@ -1255,7 +1281,7 @@ ACMD(do_hcontrol)
 /* The house command, used by mortal house owners to assign guests */
 ACMD(do_house)
 {
-	int id, found = FALSE;
+	int found = FALSE;
 	char *action_str;
 	House *house = NULL;
 	action_str = tmp_getword(&argument);
@@ -1299,13 +1325,19 @@ ACMD(do_house)
 		send_to_char(ch, "No such player.\r\n");
 		return;
 	} 
-	id = playerIndex.getID(action_str);
+	int playerID = playerIndex.getID(action_str);
 
-	if( house->isGuest( id ) ) {
-		house->removeGuest(id);
+	if( house->isGuest( playerID ) ) {
+		house->removeGuest(playerID);
 		send_to_char(ch, "Guest deleted.\r\n");
 		return;
 	}
+    
+    int accountID = playerIndex.getAccountID( playerID );
+    if( house->getOwnerID() == accountID ) {
+        send_to_char(ch, "They already own the house.\r\n" );
+		return;
+    }
 
 	if( house->getGuestCount() == House::MAX_GUESTS ) {
 		send_to_char(ch, 
@@ -1313,7 +1345,7 @@ ACMD(do_house)
 		return;
 	} 
 
-	if( house->addGuest(id) ) {
+	if( house->addGuest(playerID) ) {
 		send_to_char(ch, "Guest added.\r\n");
 	}
 	
