@@ -932,6 +932,7 @@ ACMD(do_olc)
 	obj_p->obj_flags.type_flag =    tmp_obj->obj_flags.type_flag;
 	obj_p->obj_flags.extra_flags =  tmp_obj->obj_flags.extra_flags;
 	obj_p->obj_flags.extra2_flags = tmp_obj->obj_flags.extra2_flags;
+	obj_p->obj_flags.extra3_flags = tmp_obj->obj_flags.extra3_flags;
 	obj_p->obj_flags.wear_flags =   tmp_obj->obj_flags.wear_flags;
 	obj_p->obj_flags.value[0] =     tmp_obj->obj_flags.value[0];
 	obj_p->obj_flags.value[1] =     tmp_obj->obj_flags.value[1];
