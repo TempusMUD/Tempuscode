@@ -801,14 +801,14 @@ triggers_search(struct Creature *ch, int cmd, char *arg,
 
 	char *cur_arg, *next_arg;
 
-	skip_spaces(&arg);
+	cur_arg = tmp_getword(&arg);
 
 	if (srch->keywords) {
 		if (SRCH_FLAGGED(srch, SRCH_CLANPASSWD | SRCH_NOABBREV)) {
-			if (!isname_exact(arg, srch->keywords)) {
+			if (!isname_exact(cur_arg, srch->keywords)) {
 				return 0;
 			}
-		} else if (!isname(arg, srch->keywords)) {
+		} else if (!isname(cur_arg, srch->keywords)) {
 			return 0;
 		}
 	}
