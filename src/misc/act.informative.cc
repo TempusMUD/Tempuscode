@@ -3327,7 +3327,8 @@ ACMD(do_who)
 			}
 		}
         //nowho
-        if (PRF2_FLAGGED(curr, PRF2_NOWHO) && GET_LEVEL(curr) >= LVL_AMBASSADOR) {
+        if (PRF2_FLAGGED(curr, PRF2_NOWHO) && GET_LEVEL(curr) >= LVL_AMBASSADOR &&
+            GET_LEVEL(ch) < LVL_AMBASSADOR) {
             continue;
         }
         //imm invis
