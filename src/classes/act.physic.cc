@@ -177,8 +177,6 @@
 #include "shop.h"
 #include "specs.h"
 
-void appear(struct char_data *ch, struct char_data *vict);
-
 static timewarp_data *timewarp_list = NULL;
 static int num_timewarp_data = 0;
 

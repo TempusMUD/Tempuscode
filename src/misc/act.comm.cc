@@ -39,8 +39,6 @@ extern struct zone_data *zone_table;
 int Nasty_Words(char *words);
 extern int quest_status;
 
-int get_line_count(char *buffer);
-
 //extern struct command_info cmd_info[];
 
 ACMD(do_say)

@@ -40,14 +40,10 @@ extern struct obj_data *cur_weap;
 
 struct follow_type *order_next_k;
 
-ASPELL(spell_charm);
 ACMD(do_say);
 /* extern functions */
-void raw_kill(struct char_data *ch, struct char_data *killer, int attacktype);
-void appear(struct char_data *ch, struct char_data *vict);
 int find_door(struct char_data *ch, char *type, char *dir,
 	const char *cmdname);
-void update_pos(struct char_data *victim);
 int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos,
 	int prob);
 void send_to_queue(MobileEvent * e);

@@ -102,7 +102,6 @@ int new_descriptor(int s);
 int get_avail_descs(void);
 int process_output(struct descriptor_data *t);
 int process_input(struct descriptor_data *t);
-void close_socket(struct descriptor_data *d);
 struct timeval timediff(struct timeval *a, struct timeval *b);
 void flush_queues(struct descriptor_data *d);
 void nonblock(int s);
@@ -115,11 +114,8 @@ void push_command_onto_list(int idnum, char *comm);
 void descriptor_update(void);
 
 /* extern fcnts */
-void boot_db(void);
 void boot_world(void);
-void zone_update(void);
 void affect_update(void);		/* In spells.c */
-void point_update(void);		/* In limits.c */
 void mobile_activity(void);
 void burn_update(void);
 void dynamic_object_pulse();

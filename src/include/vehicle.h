@@ -7,9 +7,6 @@
 #ifndef __vehicle_h__
 #define __vehicle_h__
 
-struct obj_data *damage_eq(struct char_data *ch,
-	struct obj_data *obj, int eq_dam, int type = -1);
-struct obj_data *detonate_bomb(struct obj_data *bomb);
 struct obj_data *find_vehicle(struct obj_data *v_door);
 
 #define DOOR_STATE(car)      	(GET_OBJ_VAL(car, 1))

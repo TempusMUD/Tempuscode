@@ -48,7 +48,6 @@ extern struct spell_info_type spell_info[];
 void add_follower(struct char_data *ch, struct char_data *leader);
 void do_auto_exits(struct char_data *ch, room_num room);
 void perform_tell(struct char_data *ch, struct char_data *vict, char *buf);
-int mag_manacost(struct char_data *ch, int spellnum);
 int get_check_money(struct char_data *ch, struct obj_data **obj, int display);
 
 

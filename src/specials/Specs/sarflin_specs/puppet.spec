@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-void make_corpse(struct char_data *ch, struct char_data *vict, int attacktype);
 SPECIAL(puppet)
 { 
   if( spec_mode == SPECIAL_DEATH ) return 0;

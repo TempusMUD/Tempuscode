@@ -174,13 +174,11 @@ extern const char *obj_flow_msg[NUM_FLOW_TYPES + 1][2];
 long asciiflag_conv(char *buf);
 
 void num2str(char *str, int num);
-void show_olc_help(struct char_data *ch, char *arg);
 void do_stat_object(struct char_data *ch, struct obj_data *obj);
 
 ACMD(do_zonepurge);
 ACMD(do_zreset);
 
-int get_line_count(char *buffer);
 int prototype_obj_value(struct obj_data *obj);
 int save_objs(struct char_data *ch);
 int save_wld(struct char_data *ch);

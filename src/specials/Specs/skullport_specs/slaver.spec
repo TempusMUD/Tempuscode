@@ -4,10 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-int 
-drag_char_to_jail(struct char_data *ch, struct char_data *evil, 
-		  struct room_data *r_jail_room);
-
 #define SLAVE_PIT 22626
 #define PIT_LIP   22945
 

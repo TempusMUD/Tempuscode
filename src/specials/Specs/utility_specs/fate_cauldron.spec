@@ -4,8 +4,6 @@
 // Copyright 1999 by John Watson & John Rothe, all rights reserved.
 //
 
-char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact=0);
-
 SPECIAL(fate_cauldron)
 {
 	struct obj_data *pot = (struct obj_data *) me;

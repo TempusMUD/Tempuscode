@@ -34,7 +34,6 @@ extern struct clan_data *clan_list;
 
 long asciiflag_conv(char *buf);
 
-int get_line_count(char *buffer);
 void num2str(char *str, int num);
 void do_stat_object(struct char_data *ch, struct obj_data *obj);
 

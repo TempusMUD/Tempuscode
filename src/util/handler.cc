@@ -40,8 +40,6 @@
 extern struct descriptor_data *descriptor_list;
 
 /* external functions */
-void free_char(struct char_data *ch);
-void stop_fighting(struct char_data *ch);
 void stop_fighting(CharacterList::iterator & cit);
 void remove_follower(struct char_data *ch);
 void path_remove_object(void *object);
@@ -51,7 +49,6 @@ void free_remort_quiz();
 void free_ptable();
 void free_fight();
 void free_socials();
-int invalid_char_class(struct char_data *ch, struct obj_data *obj);
 void print_attributes_to_buf(struct char_data *ch, char *buff);
 int same_obj(struct obj_data *o1, struct obj_data *o2);
 extern struct clan_data *clan_list;

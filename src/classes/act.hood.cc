@@ -24,7 +24,6 @@ SPECIAL(shop_keeper);
 int check_mob_reaction(struct char_data *ch, struct char_data *vict);
 int apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
 	int pos);
-void add_blood_to_room(struct room_data *rm, int amount);
 int House_can_enter(struct char_data *ch, room_num real_room);
 int clan_house_can_enter(struct char_data *ch, struct room_data *room);
 

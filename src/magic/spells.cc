@@ -42,24 +42,17 @@ extern struct char_data *character_list;
 extern struct descriptor_data *descriptor_list;
 extern struct zone_data *zone_table;
 
-extern struct char_data *read_mobile(int nr);
-
 extern struct default_mobile_stats *mob_defaults;
 extern char weapon_verbs[];
 extern int *max_ac_applys;
 extern char *last_command;
 extern struct apply_mod_defaults *apmd;
 
-void act(const char *str, int i, struct char_data *c, struct obj_data *o,
-	void *vict_obj, int j);
-
 void weight_change_object(struct obj_data *obj, int weight);
 void add_follower(struct char_data *ch, struct char_data *leader);
 void zone_weather_change(struct zone_data *zone);
-void gain_skill_prof(struct char_data *ch, int spellnum);
 int House_can_enter(struct char_data *ch, room_num real_room);
 int clan_house_can_enter(struct char_data *ch, struct room_data *room);
-int room_count(struct char_data *ch, struct room_data *room);
 
 
 /*

@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-ACMD(do_say);
 SPECIAL(dwarven_hermit)
 {
    struct obj_data *od = NULL;

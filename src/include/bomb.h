@@ -8,6 +8,7 @@
 #define __bomb_h__
 
 void sound_gunshots(struct room_data *rm, int type, int power, int num);
+struct obj_data *detonate_bomb(struct obj_data *bomb);
 
 /****** Bomb Utils **********************************************/
 

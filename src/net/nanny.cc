@@ -61,7 +61,6 @@ extern int shutdown_count;
 // external functions
 ACMD(do_hcollect_help);
 void do_start(struct char_data * ch, int mode);
-void init_char(struct char_data * ch);
 void show_mud_date_to_char(struct char_data *ch);
 void show_programs_to_char(struct char_data *ch, int char_class);
 void handle_network(struct descriptor_data *d,char *arg);
@@ -70,11 +69,9 @@ void roll_real_abils(struct char_data * ch);
 void print_attributes_to_buf(struct char_data *ch, char *buff);
 void polc_input(struct descriptor_data * d, char *str);
 
-int create_entry(char *name);
 int special(struct char_data * ch, int cmd, int subcmd, char *arg);
 int isbanned(char *hostname, char *blocking_hostname);
 int Valid_Name(char *newname);
-int House_can_enter(struct char_data *ch, room_num house);
 int _parse_name(char *arg, char *name);
 int reserved_word(char *argument);
 char *diag_conditions(struct char_data *ch);

@@ -168,8 +168,6 @@ void assign_objects(void);
 void assign_rooms(void);
 void assign_the_shopkeepers(void);
 void build_player_index(void);
-void char_to_store(struct char_data *ch, struct char_file_u *st);
-void store_to_char(struct char_file_u *st, struct char_data *ch);
 void boot_dynamic_text(void);
 void load_iscripts(char fname[MAX_INPUT_LENGTH]);
 
@@ -185,7 +183,6 @@ void log_zone_error(struct zone_data *zone, struct reset_com *zonecmd,
 void reset_time(void);
 void reset_zone_weather(void);
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
-void clear_char(struct char_data *ch);
 void update_alias_dirs(void);
 void purge_trails(struct char_data *ch);
 
@@ -207,7 +204,6 @@ void boot_the_shops(FILE * shop_f, char *filename, int rec_count);
 void add_alias(struct char_data *ch, struct alias_data *a);
 void boot_clans(void);
 void add_follower(struct char_data *ch, struct char_data *leader);
-bool circle_follow(struct char_data *ch, struct char_data *victim);
 
 extern int no_specials;
 extern int scheck;

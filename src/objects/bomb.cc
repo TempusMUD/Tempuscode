@@ -25,8 +25,6 @@
 extern struct room_data *world;
 extern struct spell_info_type spell_info[];
 
-void gain_condition(struct char_data *ch, int condition, int value);
-
 const char *bomb_types[] = {
 	"none",
 	"concussion",

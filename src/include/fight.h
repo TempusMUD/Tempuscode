@@ -63,6 +63,7 @@ class CallerDiedException {
 // internal functions
 //
 void update_pos(struct char_data *victim);
+struct obj_data *damage_eq(struct char_data *ch, struct obj_data *obj, int eq_dam, int type = -1);
 
 void dam_message(int dam, struct char_data *ch, struct char_data *victim,
 	int w_type, int location);
@@ -162,17 +163,9 @@ extern struct combat_data *battles;
 
 /* External procedures */
 char *fread_action(FILE * fl, int nr);
-char *fread_string(FILE * fl, char *error);
-void stop_follower(struct char_data *ch);
 ACMD(do_flee);
-SPECIAL(cityguard);
-SPECIAL(rust_monster);
-int hit(struct char_data *ch, struct char_data *victim, int type);
-void forget(struct char_data *ch, struct char_data *victim);
-void remember(struct char_data *ch, struct char_data *victim);
 void House_crashsave(room_num vnum);
 int char_class_race_hit_bonus(struct char_data *ch, struct char_data *vict);
-void sound_gunshots(struct room_data *rm, int type, int power, int num);
 int apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
 	int pos);
 void Crash_rentsave(struct char_data *ch, int cost, int rentcode);

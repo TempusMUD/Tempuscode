@@ -11,9 +11,7 @@
 
 struct char_data *ch, *tempch = NULL;
 
-extern struct room_data *real_room(int vnum);
 extern void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
-extern void send_to_zone(char *messg, struct zone_data *zone, int outdoor);
 
 // moves all characters from "from" to "to"
 // Does not deal with nulls in either place.

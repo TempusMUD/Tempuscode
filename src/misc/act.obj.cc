@@ -49,7 +49,6 @@ int char_hands_free(CHAR * ch);
 int empty_to_obj(struct obj_data *obj, struct obj_data *container,
 	struct char_data *ch);
 bool junkable(struct obj_data *obj);
-void gain_skill_prof(struct char_data *ch, int skillnum);
 ACMD(do_stand);
 ACMD(do_throw);
 ACMD(do_activate);

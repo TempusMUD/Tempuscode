@@ -82,17 +82,14 @@ char *how_good(int percent);
 extern char *prac_types[];
 int spell_sort_info[MAX_SPELLS + 1];
 int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
-int mag_manacost(struct char_data *ch, int spellnum);
 int has_mail(long idnum);
 int prototype_obj_value(struct obj_data *obj);
 int choose_material(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
-int add_path_to_mob(struct char_data *mob, char *pathname);
 
 long asciiflag_conv(char *buf);
 void show_social_messages(struct char_data *ch, char *arg);
 void autosave_zones(int SAVE_TYPE);
-char *get_name_by_id(long id);
 void perform_oset(struct char_data *ch, struct obj_data *obj_p,
 	char *argument, byte subcmd);
 void do_show_objects(struct char_data *ch, char *value, char *arg);
@@ -101,7 +98,6 @@ void show_searches(struct char_data *ch, char *value, char *arg);
 void do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg);
 const char *stristr(const char *haystack, const char *needle);
 
-int find_distance(struct room_data *src, struct room_data *target);
 int parse_char_class(char *arg);
 void retire_trails(void);
 float prac_gain(struct char_data *ch, int mode);

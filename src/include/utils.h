@@ -95,7 +95,6 @@ void gain_exp_regardless(struct char_data *ch, int gain);
 void gain_condition(struct char_data *ch, int condition, int value);
 int check_idling(struct char_data *ch);
 void point_update(void);
-void update_pos(struct char_data *victim);
 char *GET_DISGUISED_NAME(struct char_data *ch, struct char_data *tch);
 int CHECK_SKILL(struct char_data *ch, int i);
 char *OBJS(obj_data * obj, char_data * vict);

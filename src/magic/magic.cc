@@ -43,17 +43,12 @@ extern char weapon_verbs[];
 extern int *max_ac_applys;
 extern struct apply_mod_defaults *apmd;
 
-void act(const char *str, int i, struct char_data *c, struct obj_data *o,
-	void *vict_obj, int j);
-
 void weight_change_object(struct obj_data *obj, int weight);
 void add_follower(struct char_data *ch, struct char_data *leader);
-int dice(int number, int size);
 extern struct spell_info_type spell_info[];
 ACMD(do_flee);
 void sound_gunshots(struct room_data *rm, int type, int power, int num);
 void ice_room(struct room_data *room, int amount);
-struct char_data *read_mobile(int);
 
 
 /*

@@ -32,6 +32,7 @@
 #include "materials.h"
 #include "fight.h"
 #include "security.h"
+#include "char_class.h"
 
 /* external vars  */
 extern struct char_data *character_list;
@@ -47,17 +48,13 @@ extern struct obj_data *object_list;
 
 /* external functs */
 int special(struct char_data *ch, int cmd, int subcmd, char *arg);
-void death_cry(struct char_data *ch);
 int find_eq_pos(struct char_data *ch, struct obj_data *obj, char *arg);
 int clan_house_can_enter(struct char_data *ch, struct room_data *room);
-void gain_skill_prof(struct char_data *ch, int skill);
 int general_search(struct char_data *ch, struct special_search_data *srch,
 	int mode);
 void update_trail(struct char_data *ch, struct room_data *rm, int dir, int j);
 int apply_soil_to_char(struct char_data *ch, struct obj_data *obj, int type,
 	int pos);
-int mag_manacost(struct char_data *ch, int spellnum);
-void add_blood_to_room(struct room_data *rm, int amount);
 void Crash_save_implants(struct char_data *ch, bool extract = true);
 
 #define DOOR_IS_OPENABLE(ch, obj, door)        \

@@ -38,7 +38,6 @@ int general_search(struct char_data *ch, struct special_search_data *srch,
 int House_can_enter(struct char_data *ch, room_num real_room);
 int clan_house_can_enter(struct char_data *ch, struct room_data *room);
 int room_tele_ok(CHAR * ch, struct room_data *room);
-void death_cry(struct char_data *ch);
 
 int
 search_trans_character(char_data * ch,

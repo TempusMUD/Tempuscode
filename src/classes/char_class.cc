@@ -39,7 +39,6 @@
 #include "handler.h"
 #include "security.h"
 
-extern struct obj_data *read_object(int vnum);
 extern struct room_data *world;
 
 

@@ -43,7 +43,6 @@ extern int mini_mud;
 extern struct room_data *world;
 int find_door(struct char_data *ch, char *type, char *dir,
 	const char *cmdname);
-int invalid_char_class(struct char_data *ch, struct obj_data *obj);
 void name_from_drinkcon(struct obj_data *obj);
 
 /*

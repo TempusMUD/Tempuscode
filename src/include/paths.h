@@ -72,7 +72,6 @@ void show_path(struct char_data *ch, char *arg);
 void show_pathobjs(struct char_data *ch);
 void print_path(PHead * phead, char *str);
 int add_path_to_vehicle(struct obj_data *obj, char *name);
-PHead *real_path(char *str);
 PHead *real_path_by_num(int vnum);
 void path_remove_object(void *object);
 int add_path_to_mob(struct char_data *mob, char *name);

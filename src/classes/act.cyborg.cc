@@ -26,9 +26,6 @@ extern struct spell_info_type spell_info[];
 extern struct obj_data *object_list;
 
 int check_mob_reaction(struct char_data *ch, struct char_data *vict);
-void gain_condition(struct char_data *ch, int condition, int value);
-void gain_skill_prof(struct char_data *ch, int skillnum);
-void appear(struct char_data *ch, struct char_data *vict);
 void look_at_target(struct char_data *ch, char *arg);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
 char *obj_cond_color(struct obj_data *obj, struct char_data *ch);

@@ -101,17 +101,6 @@ int socket(int domain, int type, int protocol);
 #include <sys/fcntl.h>
 #endif
 
-#if     defined(linux)
-int close(int fd);
-//int getpeername(int s, struct sockaddr * name, int *namelen);
-//int getsockname(int s, struct sockaddr * name, int *namelen);
-int gettimeofday(struct timeval *tp, struct timezone *tzp);
-//int listen(int s, int backlog);
-int select(int width, fd_set * readfds, fd_set * writefds,
-	fd_set * exceptfds, struct timeval *timeout);
-int socket(int domain, int type, int protocol);
-#endif
-
 #if     defined(MIPS_OS)
 extern int errno;
 #endif

@@ -64,14 +64,11 @@ char *one_argument_no_lower(char *argument, char *first_arg);
 int search_block_no_lower(char *arg, const char **list, bool exact);
 int fill_word_no_lower(char *argument);
 void num2str(char *str, int num);
-void show_olc_help(struct char_data *ch, char *arg);
 void do_stat_object(struct char_data *ch, struct obj_data *obj);
 void do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg);
 void do_zone_cmdrem(struct char_data *ch, struct zone_data *zone, int num);
 void do_zone_cmdmove(struct char_data *ch, struct zone_data *zone,
 	char *argument);
-int mobile_experience(struct char_data *mob);
-
 
 void
 do_zcmd(struct char_data *ch, char *argument)

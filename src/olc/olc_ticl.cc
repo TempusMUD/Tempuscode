@@ -45,7 +45,6 @@ extern char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
 char *one_argument_no_lower(char *argument, char *first_arg);
 int search_block_no_lower(char *arg, char **list, bool exact);
 int fill_word_no_lower(char *argument);
-int get_line_count(char *buffer);
 void num2str(char *str, int num);
 
 const char *olc_tset_keys[] = {

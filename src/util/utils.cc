@@ -35,12 +35,10 @@
 #include "interpreter.h"
 #include "security.h"
 #include "db.h"
+#include "char_class.h"
 
 extern struct follow_type *order_next_k;
 char ANSI[20];
-void gain_skill_prof(struct char_data *ch, int skl);
-
-unsigned long my_rand(void);
 
 void
 safe_exit(int mode)

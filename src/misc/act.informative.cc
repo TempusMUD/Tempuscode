@@ -44,6 +44,7 @@ using namespace std;
 #include "specs.h"
 #include "events.h"
 #include "security.h"
+#include "char_class.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -104,7 +105,6 @@ extern const struct {
 } weap_spec_char_class[];
 long find_char_class_bitvector(char arg);
 
-void gain_skill_prof(struct char_data *ch, int skillnum);
 int isbanned(char *hostname, char *blocking_hostname);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
 char *obj_cond_color(struct obj_data *obj, struct char_data *ch);  /**writes to buf2 **/

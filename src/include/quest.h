@@ -156,7 +156,6 @@ int quest_join_ok(CHAR * ch, quest_data * quest);
 int quest_level_ok(CHAR * ch, quest_data * quest);
 
 // external functions
-int get_line_count(char *buffer);
 void send_to_quest(CHAR * ch, char *buf, quest_data * quest, int level,
 	int mode);
 void compose_qcomm_string(CHAR * ch, CHAR * vict, quest_data * quest, int mode,

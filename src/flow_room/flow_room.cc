@@ -27,6 +27,7 @@
 #include "char_class.h"
 #include "bomb.h"
 #include "house.h"
+#include "fight.h"
 
 /* external structs */
 extern struct char_data *character_list;
@@ -34,10 +35,6 @@ extern struct obj_data *object_list;
 extern struct zone_data *zone_table;
 void npc_steal(struct char_data *ch, struct char_data *victim);
 void hunt_victim(struct char_data *ch);
-void gain_skill_prof(struct char_data *ch, int skl);
-void death_cry(struct char_data *ch);
-struct obj_data *detonate_bomb(struct obj_data *bomb);
-int mag_manacost(struct char_data *ch, int spellnum);
 int general_search(struct char_data *ch, struct special_search_data *srch,
 	int mode);
 

@@ -43,9 +43,7 @@
 extern struct char_data *character_list;
 void npc_steal(struct char_data *ch, struct char_data *victim);
 int hunt_victim(struct char_data *ch);
-void gain_skill_prof(struct char_data *ch, int skl);
 void perform_tell(struct char_data *ch, struct char_data *vict, char *messg);
-int mag_manacost(struct char_data *ch, int spellnum);
 int CLIP_COUNT(struct obj_data *clip);
 int tarrasque_fight(struct char_data *tarr);
 int general_search(struct char_data *ch, struct special_search_data *srch,
@@ -62,7 +60,6 @@ ACMD(do_feign);
 ACMD(do_hide);
 ACCMD(do_offensive_skill);
 ACMD(do_gen_comm);
-ACMD(do_shoot);
 ACMD(do_remove);
 ACCMD(do_drop);
 ACMD(do_load);

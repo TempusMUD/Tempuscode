@@ -24,8 +24,6 @@
 #include "fight.h"
 #include "shop.h"
 
-void appear(struct char_data *ch, struct char_data *vict);
-
 void
 perform_monk_meditate(struct char_data *ch)
 {
