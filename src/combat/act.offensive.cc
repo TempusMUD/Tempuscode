@@ -285,6 +285,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			af->modifier = -10;
 			af->location = APPLY_HITROLL;
             af->owner = ch->getIdNum();
+			af->aff_index = 1;
 			af->bitvector = AFF_BLIND;
 		}
 		break;
@@ -922,6 +923,7 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 	int my_return_flags = 0;
 
 	ACMD_set_return_flags(0);
+	memset(&af, 0, sizeof(struct affected_type));
 
 	if (!peaceful_room_ok(ch, vict, true))
 		return false;
@@ -2112,7 +2114,7 @@ ACMD(do_sleeper)
 			af.bitvector = AFF_SLEEP;
 			af.type = SKILL_SLEEPER;
 			af.modifier = 0;
-			af.aff_index = 0;
+			af.aff_index = 1;
 			af.location = APPLY_NONE;
 			af.level = GET_LEVEL(ch);
             af.owner = ch->getIdNum();
