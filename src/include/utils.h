@@ -794,7 +794,9 @@ char *CURRENCY(char_data * ch);
                                  AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
 
 #define ROOM_OK(sub)    (!sub->in_room ||                   \
-                         !ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED))
+                         !ROOM_FLAGGED(sub->in_room, ROOM_SMOKE_FILLED) || \
+						 AFF3_FLAGGED(sub, AFF3_SONIC_IMAGERY))
+
 inline bool INVIS_OK(char_data * sub, char_data * obj);
 #define MORT_CAN_SEE(sub, obj) (LIGHT_OK(sub) && ROOM_OK(sub) && \
                                 INVIS_OK(sub, obj) &&     \

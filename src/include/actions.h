@@ -75,8 +75,8 @@ void engage_self_destruct(struct char_data *ch);
 #define IS_POTION(obj)     (GET_OBJ_TYPE(obj) == ITEM_POTION)
 
 #define IS_TOOL(tool)     (OBJ_TYPE(tool, ITEM_TOOL))
-#define TOOL_SKILL(tool)  (GET_OBJ_VAL(tool, 0))
-#define TOOL_MOD(tool)    (GET_OBJ_VAL(tool, 1))
+#define TOOL_SKILL(tool)  ((tool) ? GET_OBJ_VAL(tool, 0):0)
+#define TOOL_MOD(tool)    ((tool) ? GET_OBJ_VAL(tool, 1):0)
 
 #define IS_COMMUNICATOR(obj) (GET_OBJ_TYPE(obj) == ITEM_COMMUNICATOR)
 #define COMM_CHANNEL(obj)    (GET_OBJ_VAL(obj, 3))

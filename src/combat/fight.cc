@@ -1381,7 +1381,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 	if (ch && IS_RANGER(ch) && dam > 10 &&
 		IS_WEAPON(attacktype) && number(0, 74) <= GET_REMORT_GEN(ch)) {
 		send_to_char(ch, "CRITICAL HIT!\r\n");
-		act("$n has scored a CRITICAL HIT!\r\n", FALSE, ch, 0, victim,
+		act("$n has scored a CRITICAL HIT!", FALSE, ch, 0, victim,
 			TO_VICT);
 		dam += (dam * (GET_REMORT_GEN(ch) + 4)) / 14;
 	}

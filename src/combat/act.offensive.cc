@@ -1315,6 +1315,7 @@ ACMD(do_retreat)
 		GET_MOVE(ch) = (MAX(0, GET_MOVE(ch) - 10));
 		return;
 	} else if (retval == 1) {
+		send_to_char(ch, "You try to retreat, but you can't!\r\n");
 		act("$n attempts to retreat, but fails!", TRUE, ch, 0, 0, TO_ROOM);
 	}
 	// critical failure, possible ch death

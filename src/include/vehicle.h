@@ -80,10 +80,6 @@ struct obj_data *find_vehicle(struct obj_data *v_door);
 #define IS_VIAL(obj)     (GET_OBJ_TYPE(obj) == ITEM_VIAL)
 #define IS_POTION(obj)     (GET_OBJ_TYPE(obj) == ITEM_POTION)
 
-#define IS_TOOL(tool)     (OBJ_TYPE(tool, ITEM_TOOL))
-#define TOOL_SKILL(tool)  (GET_OBJ_VAL(tool, 0))
-#define TOOL_MOD(tool)    (GET_OBJ_VAL(tool, 1))
-
 #define IS_COMMUNICATOR(obj) (GET_OBJ_TYPE(obj) == ITEM_COMMUNICATOR)
 #define COMM_CHANNEL(obj)    (GET_OBJ_VAL(obj, 3))
 

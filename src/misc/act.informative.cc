@@ -331,7 +331,7 @@ show_obj_to_char(struct obj_data *object, struct char_data *ch,
 
 	if (!((mode == 0) && !object->description)) {
 		if (count > 1)
-			msg = tmp_sprintf("%s [%d]\r\n", msg, count);
+			msg = tmp_sprintf("%s [%d]", msg, count);
 		msg = tmp_strcat(msg, "\r\n", NULL);
 	}
 
@@ -1167,9 +1167,10 @@ ACMD(do_exits)
 		return;
 	}
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) &&
-		AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) && 
-		!PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-		send_to_char(ch, "The thick smoke is too disorienting to tell.\r\n");
+			!AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) && 
+			!PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+		send_to_char(ch,
+			"The thick smoke is too disorienting to tell.\r\n");
 		return;
 	}
 	for (door = 0; door < NUM_OF_DIRS; door++)
@@ -1244,6 +1245,7 @@ look_at_room(struct char_data *ch, struct room_data *room, int ignore_brief)
 		send_to_char(ch, "It is pitch black...\r\n");
 		return;
 	}
+
 	send_to_char(ch, CCCYN(ch, C_NRM));
 	if (PRF_FLAGGED(ch, PRF_ROOMFLAGS) ||
 		(ch->desc->original
@@ -1257,15 +1259,18 @@ look_at_room(struct char_data *ch, struct room_data *room, int ignore_brief)
 
 	send_to_char(ch, "%s\r\n", CCNRM(ch, C_NRM));
 
-	if (((!PRF_FLAGGED(ch, PRF_BRIEF) &&
-				(!ch->desc->original
-					|| !PRF_FLAGGED(ch->desc->original, PRF_BRIEF)))
-			|| ignore_brief || ROOM_FLAGGED(room, ROOM_DEATH))
-		&& (!ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)
-			|| PRF_FLAGGED(ch, PRF_HOLYLIGHT)
-			|| ROOM_FLAGGED(room, ROOM_DEATH))
-		&& room->description)
-		send_to_char(ch, "%s", room->description);
+	if ((!PRF_FLAGGED(ch, PRF_BRIEF) &&
+		(!ch->desc->original || !PRF_FLAGGED(ch->desc->original, PRF_BRIEF)))
+		|| ignore_brief || ROOM_FLAGGED(room, ROOM_DEATH)) {
+		// We need to show them something...
+		if (ROOM_FLAGGED(room, ROOM_SMOKE_FILLED) &&
+				!(PRF_FLAGGED(ch, PRF_HOLYLIGHT) ||
+				ROOM_FLAGGED(room, ROOM_DEATH)))
+			send_to_char(ch, "The smoke swirls around you...\r\n");
+		else if (room->description)
+			send_to_char(ch, "%s", room->description);
+	}
+
 
 	for (aff = room->affects; aff; aff = aff->next)
 		if (aff->description)
@@ -1280,8 +1285,6 @@ look_at_room(struct char_data *ch, struct room_data *room, int ignore_brief)
 			do_auto_exits(ch, room);
 		/* now list characters & objects */
 
-		// Why was this if here ?
-		//if (ch->in_room == room) {
 		for (o = room->contents; o; o = o->next_content) {
 			if (GET_OBJ_VNUM(o) == BLOOD_VNUM) {
 				if (!blood_shown) {

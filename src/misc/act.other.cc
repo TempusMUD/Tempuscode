@@ -722,7 +722,7 @@ ACMD(do_use)
 				TO_CHAR);
 			return;
 		} else if (GET_OBJ_TYPE(mag_item) != ITEM_SCROLL) {
-			send_to_char(ch, "You can only recite scrolls.");
+			send_to_char(ch, "You can only recite scrolls.\r\n");
 			return;
 		} else if (CHECK_SKILL(ch, SKILL_READ_SCROLLS) < 10) {
 			send_to_char(ch, 

@@ -2376,7 +2376,6 @@ ACMD(do_analyze)
 
 ACMD(do_insert)
 {
-
 	struct obj_data *obj = NULL, *tool = NULL;
 	struct char_data *vict = NULL;
 	int pos, i;
@@ -2397,28 +2396,29 @@ ACMD(do_insert)
 		return;
 	}
 
-	if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
-		send_to_char(ch, "You are unskilled in the art of cybosurgery.\r\n");
-		return;
-	}
+	if (GET_LEVEL(ch) < LVL_IMMORT) {
+		if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
+			send_to_char(ch, "You are unskilled in the art of cybosurgery.\r\n");
+			return;
+		}
 
-	if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-		&& GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
-		return;
-	}
+		if (!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+			send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
+			return;
+		}
 
-	if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
-			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
-		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY &&
-		GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char(ch, 
-			"You must be holding a cyber surgery tool to do this.\r\n");
-		return;
-	}
-	if (!IS_CYBORG(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char(ch, "Your subject is not prepared for such enhancement.\r\n");
-		return;
+		if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
+				!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
+				!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
+			send_to_char(ch, 
+				"You must be holding a cyber surgery tool to do this.\r\n");
+			return;
+		}
+		if (!IS_CYBORG(vict)) {
+			send_to_char(ch,
+				"Your subject is not prepared for such enhancement.\r\n");
+			return;
+		}
 	}
 
 	one_argument(argument, buf);
@@ -2525,20 +2525,21 @@ ACMD(do_insert)
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
 		sprintf(buf, "$n inserts $p into $s %s.", wear_implantpos[pos]);
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
-		if (vict->getPosition() > POS_SITTING)
-			ch->setPosition(POS_SITTING);
-		GET_HIT(vict) = GET_HIT(vict) / 4;
-		GET_MOVE(vict) = GET_MOVE(vict) / 4;
-		if (GET_HIT(vict) < 1)
-			GET_HIT(vict) = 1;
-		if (GET_MOVE(vict) < 1)
-			GET_MOVE(vict) = 1;
-		WAIT_STATE(vict, 6 RL_SEC);
-		if (GET_LEVEL(ch) < LVL_GOD && !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
-			sprintf(buf, "IMPLANT: %s inserts %s into self at %d.",
-				GET_NAME(ch), obj->short_description, ch->in_room->number);
-			slog(buf);
+
+		// Immortals shouldn't have to deal with messiness
+		if (GET_LEVEL(ch) < LVL_IMMORT) {
+			if (vict->getPosition() > POS_SITTING)
+				ch->setPosition(POS_SITTING);
+			GET_HIT(vict) = GET_HIT(vict) / 4;
+			GET_MOVE(vict) = GET_MOVE(vict) / 4;
+			if (GET_HIT(vict) < 1)
+				GET_HIT(vict) = 1;
+			if (GET_MOVE(vict) < 1)
+				GET_MOVE(vict) = 1;
+			WAIT_STATE(vict, 6 RL_SEC);
 		}
+		slog("IMPLANT: %s inserts %s into self at %d.",
+			GET_NAME(ch), obj->short_description, ch->in_room->number);
 	} else {
 		sprintf(buf, "$p inserted into $N's %s.", wear_implantpos[pos]);
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_CHAR);
@@ -2548,19 +2549,19 @@ ACMD(do_insert)
 
 		sprintf(buf, "$n inserts $p into $N's %s.", wear_implantpos[pos]);
 		act(buf, FALSE, ch, GET_IMPLANT(vict, pos), vict, TO_NOTVICT);
-		if (vict->getPosition() > POS_RESTING)
-			vict->setPosition(POS_RESTING);
-		GET_HIT(vict) = 1;
-		GET_MOVE(vict) = 1;
-		WAIT_STATE(vict, 10 RL_SEC);
-		if (GET_LEVEL(ch) < LVL_GOD && !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
-			sprintf(buf, "IMPLANT: %s inserts %s into %s at %d.",
-				GET_NAME(ch), obj->short_description,
-				GET_NAME(vict), ch->in_room->number);
-			slog(buf);
+		// Immortals shouldn't have to deal with messiness
+		if (GET_LEVEL(ch) < LVL_IMMORT) {
+			if (vict->getPosition() > POS_RESTING)
+				vict->setPosition(POS_RESTING);
+			GET_HIT(vict) = 1;
+			GET_MOVE(vict) = 1;
+			WAIT_STATE(vict, 10 RL_SEC);
 		}
-	}
 
+		slog("IMPLANT: %s inserts %s into %s at %d.",
+			GET_NAME(ch), obj->short_description,
+			GET_NAME(vict), ch->in_room->number);
+	}
 }
 
 
@@ -2574,7 +2575,8 @@ ACMD(do_extract)
 	skip_spaces(&argument);
 
 	if (!*argument) {
-		send_to_char(ch, "Extract <object> <victim> <position>        ...or...\r\n"
+		send_to_char(ch,
+			"Extract <object> <victim> <position>        ...or...\r\n"
 			"Extract <object> <corpse>\r\n");
 		return;
 	}
@@ -2582,23 +2584,26 @@ ACMD(do_extract)
 	argument = two_arguments(argument, buf, buf2);
 
 	if (!*buf || !*buf2) {
-		send_to_char(ch, "Extract <object> <victim> <position>        ...or...\r\n"
+		send_to_char(ch,
+			"Extract <object> <victim> <position>        ...or...\r\n"
 			"Extract <object> <corpse>\r\n");
 		return;
 	}
 
-	if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
-		send_to_char(ch, "You are unskilled in the art of cybosurgery.\r\n");
-		return;
-	}
+	if (GET_LEVEL(ch) < LVL_IMMORT) {
+		if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
+			send_to_char(ch,
+				"You are unskilled in the art of cybosurgery.\r\n");
+			return;
+		}
 
-	if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
-			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
-		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY &&
-		GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char(ch, 
-			"You must be holding a cyber surgery tool to do this.\r\n");
-		return;
+		if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
+				!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
+			!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
+			send_to_char(ch, 
+				"You must be holding a cyber surgery tool to do this.\r\n");
+			return;
+		}
 	}
 
 	if (!(vict = get_char_room_vis(ch, buf2))) {
@@ -2720,15 +2725,17 @@ ACMD(do_extract)
 		act(buf, FALSE, ch, obj, vict, TO_CHAR);
 		sprintf(buf, "$n extracts $p from $s %s.", wear_implantpos[pos]);
 		act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
-		if (vict->getPosition() > POS_SITTING)
-			vict->setPosition(POS_SITTING);
-		GET_HIT(vict) = GET_HIT(vict) / 4;
-		GET_MOVE(vict) = GET_MOVE(vict) / 4;
-		if (GET_HIT(vict) < 1)
-			GET_HIT(vict) = 1;
-		if (GET_MOVE(vict) < 1)
-			GET_MOVE(vict) = 1;
-		WAIT_STATE(vict, 6 RL_SEC);
+		if (GET_LEVEL(ch) < LVL_IMMORT) {
+			if (vict->getPosition() > POS_SITTING)
+				vict->setPosition(POS_SITTING);
+			GET_HIT(vict) = GET_HIT(vict) / 4;
+			GET_MOVE(vict) = GET_MOVE(vict) / 4;
+			if (GET_HIT(vict) < 1)
+				GET_HIT(vict) = 1;
+			if (GET_MOVE(vict) < 1)
+				GET_MOVE(vict) = 1;
+			WAIT_STATE(vict, 6 RL_SEC);
+		}
 	} else {
 		sprintf(buf, "$p extracted from $N's %s.", wear_implantpos[pos]);
 		act(buf, FALSE, ch, obj, vict, TO_CHAR);
@@ -2738,11 +2745,13 @@ ACMD(do_extract)
 
 		sprintf(buf, "$n extracts $p from $N's %s.", wear_implantpos[pos]);
 		act(buf, FALSE, ch, obj, vict, TO_NOTVICT);
-		if (vict->getPosition() > POS_RESTING)
-			vict->setPosition(POS_RESTING);
-		GET_HIT(vict) = 1;
-		GET_MOVE(vict) = 1;
-		WAIT_STATE(vict, 10 RL_SEC);
+		if (GET_LEVEL(ch) < LVL_IMMORT) {
+			if (vict->getPosition() > POS_RESTING)
+				vict->setPosition(POS_RESTING);
+			GET_HIT(vict) = 1;
+			GET_MOVE(vict) = 1;
+			WAIT_STATE(vict, 10 RL_SEC);
+		}
 	}
 
 	if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +

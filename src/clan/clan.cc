@@ -429,7 +429,7 @@ ACMD(do_cinfo)
 				msg = tmp_strcat(msg,
 					CCCYN(ch, C_NRM),
 					rm_list->room->name,
-					CCNRM(ch, C_NRM), NULL);
+					CCNRM(ch, C_NRM), "\r\n", NULL);
 				++found;
 			}
 		}
