@@ -62,6 +62,10 @@ char *tmp_sqlescape(const char *str);
 // returns the standard string representation of a unix timestamp
 char *tmp_ctime(time_t val);
 
+// returns a string which contains a space-delimited list of each bit
+// description whose index corresponds to a set bit in the value
+char *tmp_printbits(int val, const char *bit_descs[]);
+
 // Initializes the structures used for the temporary string mechanism
 void tmp_string_init(void);
 

@@ -526,3 +526,51 @@ tmp_ctime(time_t val)
 
 	return result;
 }
+
+char *
+tmp_printbits(int val, const char *bit_descs[])
+{
+	struct tmp_str_pool *cur_buf;
+	char *write_pt, *result;
+	unsigned int idx;
+	bool not_first = false;
+	size_t len;
+
+	// Figure out how much space we'll need
+	len = 0;
+	for (idx = 0;idx < sizeof(val) * 8;idx++)
+		if ((val >> idx) & 1)
+			len += strlen(bit_descs[idx]) + 1;
+	len += 1;
+
+
+	// If we don't have the space, we allocate another pool
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	cur_buf->used += len;
+	write_pt = result;
+
+	// Copy in the first string
+	*write_pt = '\0';
+
+	// Then copy in the rest of the strings
+	for (idx = 0;idx < sizeof(val) * 8;idx++)
+		if ((val >> idx) & 1) {
+			if (not_first)
+				*write_pt++ = ' ';
+			else
+				not_first = true;
+
+			strcpy(write_pt, bit_descs[idx]);
+			while (*write_pt)
+				write_pt++;
+		}
+
+	*write_pt = '\0';
+
+	return result;		
+}
