@@ -2066,7 +2066,7 @@ ACMD(do_drink)
 		amount = 1;
 	}
 
-	if (GET_OBJ_VAL(temp, 1) != -1) {
+	if ((GET_OBJ_VAL(temp, 1) != -1) && (GET_OBJ_VNUM(temp) != -1)) {
         weight = real_object_proto(GET_OBJ_VNUM(temp))->getWeight();
         weight += GET_OBJ_VAL(temp, 1) / 10;
         temp->obj_flags.setWeight(weight);
@@ -2392,11 +2392,12 @@ ACMD(do_pour)
 			GET_OBJ_VAL(from_obj, 1) = 0;
 			GET_OBJ_VAL(from_obj, 2) = 0;
 			GET_OBJ_VAL(from_obj, 3) = 0;
-            weight = real_object_proto(GET_OBJ_VNUM(from_obj))->getWeight();
-            weight += GET_OBJ_VAL(from_obj, 1) / 10;
-            from_obj->obj_flags.setWeight(weight);
-
-			name_from_drinkcon(from_obj);
+            if (GET_OBJ_VNUM(from_obj) != -1) {
+                weight = real_object_proto(GET_OBJ_VNUM(from_obj))->getWeight();
+                weight += GET_OBJ_VAL(from_obj, 1) / 10;
+                from_obj->obj_flags.setWeight(weight);
+            }
+                name_from_drinkcon(from_obj);
 
 			return;
 		}
@@ -2467,13 +2468,15 @@ ACMD(do_pour)
 		(GET_OBJ_VAL(to_obj, 3) || GET_OBJ_VAL(from_obj, 3));
 
 	/* And the weight boogie */
-    weight = real_object_proto(GET_OBJ_VNUM(from_obj))->getWeight();
-    weight += GET_OBJ_VAL(from_obj, 1) / 10;
-    from_obj->obj_flags.setWeight(weight);
+    if ((GET_OBJ_VNUM(from_obj)) != -1 && (GET_OBJ_VNUM(to_obj) != -1)) {
+        weight = real_object_proto(GET_OBJ_VNUM(from_obj))->getWeight();
+        weight += GET_OBJ_VAL(from_obj, 1) / 10;
+        from_obj->obj_flags.setWeight(weight);
 
-    weight = real_object_proto(GET_OBJ_VNUM(to_obj))->getWeight();
-    weight += GET_OBJ_VAL(to_obj, 1) / 10;
-    to_obj->obj_flags.setWeight(weight);
+        weight = real_object_proto(GET_OBJ_VNUM(to_obj))->getWeight();
+        weight += GET_OBJ_VAL(to_obj, 1) / 10;
+        to_obj->obj_flags.setWeight(weight);
+    }
 
 	return;
 }
