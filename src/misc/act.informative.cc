@@ -293,6 +293,21 @@ show_obj_to_char(struct obj_data * object, struct char_data * ch,
 	    strcat(buf, buf2);
 	    found = true;
 	}
+        if ( OBJ_SOILED( object, SOIL_WATER ) ) {
+            sprintf(buf2, " %s(wet)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM) );
+            strcat(buf, buf2);
+            found = true;
+        }
+        if ( OBJ_SOILED( object, SOIL_MUD ) ) {
+            sprintf(buf2, " %s(muddy)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM) );        
+            strcat(buf, buf2);
+            found = true;
+        }
+	if( OBJ_SOILED( object, SOIL_ACID ) ) {
+            sprintf(buf2, " %s(acid covered)%s", CCGRN(ch, C_NRM), CCNRM( ch, C_NRM ) );
+            strcat(buf, buf2);
+            found = true;
+        }
 
 	if (mode == 0)
 	    strcat(buf, CCGRN(ch, C_NRM));	/* This is a Fireball hack. */
