@@ -1586,6 +1586,16 @@ do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
                              aff->affect_mod[i], buf2);
             }
         }
+
+        if (aff->dam_mod) {
+            send_to_char(ch, "%sdamage by %s\r\n", stat_string,
+                         tmp_sprintf("%d", aff->dam_mod));
+        }
+
+        if (aff->maxdam_mod) {
+            send_to_char(ch, "%smaxdam by %s\r\n", stat_string,
+                         tmp_sprintf("%d", aff->maxdam_mod));
+        }
     }
 }
 

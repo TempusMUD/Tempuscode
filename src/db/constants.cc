@@ -2631,7 +2631,8 @@ extern const char *item_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 150 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", 
     "$p is no longer producing poison.",	/* 155 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
+	"The elemental brand on $p shimmers and fades.", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 175 */

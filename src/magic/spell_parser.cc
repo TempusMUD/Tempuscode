@@ -214,7 +214,8 @@ const char *spells[] = {
     "calm", 
     "thorn skin", 
     "envenomate",	/* 155 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
+	"elemental branding", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 175 */
@@ -3547,6 +3548,10 @@ mag_assign_spells(void)
 	remort_spello(SPELL_ENTANGLE, CLASS_RANGER, 22, 1,
 		70, 30, 2, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
 		MAG_OUTDOORS | MAG_MAGIC | MAG_AFFECTS);
+
+    remort_spello(SPELL_ELEMENTAL_BRAND, CLASS_RANGER, 31, 1, 90, 70, 1,
+                  POS_STANDING, TAR_OBJ_EQUIP | TAR_OBJ_ROOM | 
+           TAR_OBJ_INV, FALSE, MAG_MAGIC | MAG_ALTER_OBJS);
 
 	remort_spello(SPELL_SUMMON_LEGION,
 		CLASS_KNIGHT, 27, 5,

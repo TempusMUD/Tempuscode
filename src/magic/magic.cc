@@ -288,7 +288,7 @@ obj_affect_update(void)
         if (obj->tmp_affects != NULL) {
             for (af = obj->tmp_affects; af != NULL; af = af->next) {
                 af->duration--;
-                if (*item_wear_off_msg[af->type] && (af->duration == -1)) {
+                if (*item_wear_off_msg[af->type] && (af->duration == 0)) {
                     if (af->type != last) {
                         last = af->type;
                         if (obj->worn_by || obj->carried_by) {
@@ -3319,8 +3319,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         }
         oaf[0].level = ch->getLevelBonus(SPELL_ENVENOMATE);
         oaf[0].type = SPELL_ENVENOMATE;
-//        oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 20;
-        oaf[0].duration = 1;
+        oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 20;
         oaf[0].val_mod[0] = SPELL_POISON - GET_OBJ_VAL(obj, 0);
         oaf[0].extra_mod = ITEM3_REQ_RANGER;
         oaf[0].extra_index = 3;
@@ -3331,6 +3330,87 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         oaf[1].extra_index = 2;
         to_char = "$p begins to drip poison.";
         break;
+
+    case SPELL_ELEMENTAL_BRAND: {
+        int num = number(0, 3);
+        struct tmp_obj_affect *af;
+
+        if (!(GET_OBJ_TYPE(obj) == ITEM_WEAPON)) {
+            to_char = "You can only brand weapons.";
+            break;
+        }
+
+        af = obj->affectedBySpell(SPELL_ELEMENTAL_BRAND);
+        switch (num) {
+            case 0: // Earth brand adds maxdam to the weapon
+                if (af && af->dam_mod) {
+                    to_char = "Your branding fails.";
+                    break;
+                }
+                oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
+                oaf[0].type = SPELL_ELEMENTAL_BRAND;
+                oaf[0].duration = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) / 25;
+                oaf[0].dam_mod = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) *
+                                    GET_INT(ch) * 2;
+                oaf[0].maxdam_mod = oaf[0].dam_mod;
+                to_char = "The rune of earth solidifies onto $p.";
+                val_mode = AFF_ADD;
+                break;
+
+            case 1: // Air brand reduces weight
+                if (af && af->weight_mod) {
+                    to_char = "Your branding fails.";
+                    break;
+                }
+                oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
+                oaf[0].type = SPELL_ELEMENTAL_BRAND;
+                oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 25;
+                oaf[0].weight_mod = -(obj->getWeight() * 3 *
+                                      GET_REMORT_GEN(ch) / 100);
+                to_char = "The rune of air swirls around $p.";
+                val_mode = AFF_ADD;
+                break;
+
+            case 2: // Fire brand adds item damroll
+                if (af) { 
+                    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                        if (af->affect_loc[i] == APPLY_DAMROLL) {
+                            to_char = "Your branding fails.";
+                        }
+                    }
+                    if (to_char != NULL)
+                        break;
+                }
+                oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
+                oaf[0].type = SPELL_ELEMENTAL_BRAND;
+                oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 25;
+                oaf[0].affect_loc[0] = APPLY_DAMROLL;
+                oaf[0].affect_mod[0] = GET_REMORT_GEN(ch) / 2;
+                to_char = "The rune of fire is emblazoned upon $p.";
+                aff_mode = AFF_ADD;
+                break;
+
+            case 3: // Water brand adds hitroll
+                 if (af) { 
+                    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                        if (af->affect_loc[i] == APPLY_HITROLL) {
+                            to_char = "Your branding fails.";
+                        }
+                    }
+                    if (to_char != NULL)
+                        break;
+                }
+                oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
+                oaf[0].type = SPELL_ELEMENTAL_BRAND;
+                oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 25;
+                oaf[0].affect_loc[0] = APPLY_HITROLL;
+                oaf[0].affect_mod[0] = GET_REMORT_GEN(ch) / 2;
+                to_char = "The rune of water permeates $p.";
+                aff_mode = AFF_ADD;
+                break;
+        }
+        break;
+    }
     default:
         slog("SYSERR: Unknown spellnum in mag_alter_objs.");
         break;

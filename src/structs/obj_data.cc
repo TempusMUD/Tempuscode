@@ -400,7 +400,7 @@ obj_data::removeAffect(struct tmp_obj_affect *af)
             if (prev_aff != NULL)
                 prev_aff->next = af->next;
             else
-                this->tmp_affects = NULL;
+                this->tmp_affects = curr_aff->next;
             
             free(af);
             break;
@@ -550,10 +550,12 @@ obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
 {
     struct tmp_obj_affect *cur_aff = this->tmp_affects;
     struct tmp_obj_affect tmp_aff;
+    int j;
+    bool found = false;
 
     for (; cur_aff != NULL; cur_aff = cur_aff->next) {
-        if (cur_aff->type == af->type && 
-            cur_aff->extra_index == af->extra_index) {
+        if ((cur_aff->type == af->type) && 
+            (cur_aff->extra_index == af->extra_index)) {
             memcpy(&tmp_aff, cur_aff, sizeof(struct tmp_obj_affect));
             if (dur_mode == AFF_ADD)
                 tmp_aff.duration = MIN(666, af->duration + tmp_aff.duration);
@@ -570,16 +572,61 @@ obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
                 }
             }
 
+            // The next section for affects is really a cluster fuck
+            // but i can't think of a better way to handle it
             for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-                for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
-                    if (tmp_aff.affect_loc[i] == af->affect_loc[j]) {
-                        if (aff_mode == AFF_ADD)
-                            tmp_aff.affect_mod[i] += af->affect_mod[j];
-                        else if (aff_mode == AFF_AVG)
-                            tmp_aff.affect_mod[i] = (tmp_aff.affect_mod[j] +
-                                                      af->affect_mod[j]) / 2;
+                if (af->affect_loc[i] != APPLY_NONE) {
+                    // Try to find a matching affect
+                    for (int k = 0; k < MAX_OBJ_AFFECT; k++) {
+                        if (af->affect_loc[i] == tmp_aff.affect_loc[k]) {
+                            if (aff_mode == AFF_ADD)
+                                tmp_aff.affect_mod[k] += af->affect_mod[i];
+                            else if (aff_mode == AFF_AVG)
+                                tmp_aff.affect_mod[i] = (tmp_aff.affect_mod[k] +
+                                                         af->affect_mod[i]) / 2;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found)
+                        break;
+                    // We didn't find a matching affect so just add it
+                    for (j = 0; j < MAX_OBJ_AFFECT; j++) {
+                        if (tmp_aff.affect_loc[j] == APPLY_NONE) {
+                            if (aff_mode != AFF_NOOP) {
+                                tmp_aff.affect_loc[j] = af->affect_loc[i];
+                                tmp_aff.affect_mod[j] = af->affect_mod[i];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (j == MAX_OBJ_AFFECT) {
+                        mudlog(LVL_AMBASSADOR, BRF, true, 
+                               "SYSERR: Could not find free "
+                               "affect position in affectJoin().");
                     }
                 }
+            }
+
+            if (af->weight_mod) {
+                if (val_mode == AFF_ADD)
+                    tmp_aff.weight_mod += af->weight_mod;
+                else if (val_mode == AFF_AVG)
+                    tmp_aff.weight_mod = (tmp_aff.weight_mod + af->weight_mod) / 2;
+            }
+            if (af->dam_mod) {
+                if (val_mode == AFF_ADD)
+                    tmp_aff.dam_mod += af->dam_mod;
+                else if (val_mode == AFF_AVG)
+                    tmp_aff.dam_mod = (tmp_aff.dam_mod + af->dam_mod) / 2;
+            }
+
+            if (af->maxdam_mod) {
+                if (val_mode == AFF_ADD)
+                    tmp_aff.maxdam_mod += af->maxdam_mod;
+                else if (val_mode == AFF_AVG)
+                    tmp_aff.maxdam_mod = (tmp_aff.maxdam_mod + af->maxdam_mod) / 2;
             }
 
             removeAffect(cur_aff);
@@ -591,16 +638,16 @@ obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
     this->addAffect(af);
 }
 
-bool
+struct tmp_obj_affect *
 obj_data::affectedBySpell(int spellnum)
 {
     struct tmp_obj_affect *cur_aff = this->tmp_affects;
 
     for (; cur_aff != NULL; cur_aff = cur_aff->next) {
         if (cur_aff->type == spellnum)
-            return true;
+            return cur_aff; 
     }
  
-    return false;
+    return NULL;
 }
 #undef __obj_data_cc__
