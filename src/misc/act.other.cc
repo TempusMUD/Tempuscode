@@ -1815,85 +1815,87 @@ ACMD(do_weigh)
     send_to_char(buf, ch);
 }
 
-ACMD(do_knock)
-{
-
+ACMD(do_knock) {
     struct obj_data *obj = NULL;
     int dir;
     char dname[128], arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     struct room_data *other_room = NULL;
     struct char_data *vict = NULL;
   
+	// Do some basic parsing
     skip_spaces(&argument);
-  
     half_chop(argument, arg1, arg2);
-
     if (!*arg1) {
-	send_to_char("Knock on what?\r\n", ch);
-	return;
+		send_to_char("Knock on what?\r\n", ch);
+		return;
     }
 
-    if ((dir = find_door(ch, arg1, arg2, "knock on")) >= 0) {
-
-	if (EXIT(ch, dir)->keyword)
-	    strcpy(dname, fname(EXIT(ch, dir)->keyword));
-	else
-	    strcpy(dname, "door");
-
-	sprintf(buf, "$n knocks on the %s.", dname);
-	act(buf, FALSE, ch, 0, 0, TO_ROOM);
-	sprintf(buf, "You knock on the %s.\r\n", dname);
-	send_to_char(buf, ch);
-
-	if ((other_room = EXIT(ch, dir)->to_room) && 
-	    other_room->dir_option[rev_dir[dir]] &&
-	    other_room->dir_option[rev_dir[dir]]->to_room == ch->in_room &&
-	    other_room->people) {
-	    if (other_room->dir_option[rev_dir[dir]]->keyword)
-		strcpy(dname, fname(other_room->dir_option[rev_dir[dir]]->keyword));
-	    else
-		strcpy(dname, "door");
-
-	    sprintf(buf, "Someone knocks on the %s from the other side.", dname);
-	    act(buf, FALSE, other_room->people, 0, 0, TO_CHAR | TO_SLEEP);
-	    act(buf, FALSE, other_room->people, 0, 0, TO_ROOM | TO_SLEEP);
-	}
-    
-	return;
-    }
-  
+	// Check to see if we should knock on someone's head first
     if ((vict = get_char_room_vis(ch, arg1))) {
-	if (vict == ch) {
-	    send_to_char("You rap your knuckles on your head.\r\n", ch);
-	    act("$n raps $s knuckles on $s head.", TRUE, ch, 0, 0, TO_CHAR);
-	    return;
-	}
-	act("You knock on $N's skull.  Anybody home?", FALSE,ch,0,vict,TO_CHAR);
-	act("$n knocks on your skull.  Anybody home?", 
-	    FALSE,ch,0,vict,TO_VICT|TO_SLEEP);
-	act("$n knocks on $N's skull.  Anybody home?", FALSE,ch,0,vict,TO_NOTVICT);
-	if (vict->getPosition() == POS_SLEEPING && !AFF_FLAGGED(vict, AFF_SLEEP))
-	    vict->setPosition( POS_RESTING );
-	return;
+		if (vict == ch) {
+			send_to_char("You rap your knuckles on your head.\r\n", ch);
+			act("$n raps $s knuckles on $s head.", TRUE, ch, 0, ch, TO_ROOM );
+			return;
+		}
+		act("You knock on $N's skull.  Anybody home?", FALSE,ch,0,vict,TO_CHAR);
+		act("$n knocks on your skull.  Anybody home?", 
+			FALSE,ch,0,vict,TO_VICT|TO_SLEEP);
+		act("$n knocks on $N's skull.  Anybody home?", FALSE,ch,0,vict,TO_NOTVICT);
+		if (vict->getPosition() == POS_SLEEPING && !AFF_FLAGGED(vict, AFF_SLEEP))
+			vict->setPosition( POS_RESTING );
+		return;
     }
     
-    if (!(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
-	!(obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
-	send_to_char("Knock on what?\r\n", ch);
-	return;
-    }
+	// Ok, not someone's head.  Maybe an object?
+	obj = get_obj_in_list_vis( ch,argument,ch->carrying );
+	if ( !obj )
+		obj = get_obj_in_list_vis( ch,argument,ch->in_room->contents );
 
-    act("$n knocks on $p.", FALSE, ch, obj, 0, TO_ROOM);
-    act("You knock on $p.", FALSE, ch, obj, 0, TO_CHAR);
+	if ( obj ) {
+		act("$n knocks on $p.", FALSE, ch, obj, 0, TO_ROOM);
+		act("You knock on $p.", FALSE, ch, obj, 0, TO_CHAR);
 
-    if (IS_VEHICLE(obj)) {
-	if ((other_room = real_room(ROOM_NUMBER(obj))) && other_room->people) {
-	    act("$N knocks on the outside of $p.", 
-		FALSE, other_room->people, obj, ch, TO_NOTVICT);
-	    act("$N knocks on the outside of $p.", 
-		FALSE, other_room->people, obj, ch, TO_CHAR);
+		if (IS_VEHICLE(obj)) {
+			if ((other_room = real_room(ROOM_NUMBER(obj))) && other_room->people) {
+				act("$N knocks on the outside of $p.", 
+					FALSE, other_room->people, obj, ch, TO_NOTVICT);
+				act("$N knocks on the outside of $p.", 
+					FALSE, other_room->people, obj, ch, TO_CHAR);
+			}
+		}
+		return;
 	}
-    }
+
+	// Ok... not an object.  Maybe a door?
+    if ((dir = find_door(ch, arg1, arg2, "knock on")) >= 0) {
+		if (EXIT(ch, dir)->keyword)
+			strcpy(dname, fname(EXIT(ch, dir)->keyword));
+		else
+			strcpy(dname, "door");
+
+		sprintf(buf, "$n knocks on the %s.", dname);
+		act(buf, FALSE, ch, 0, 0, TO_ROOM);
+		sprintf(buf, "You knock on the %s.\r\n", dname);
+		send_to_char(buf, ch);
+
+		if ((other_room = EXIT(ch, dir)->to_room) && 
+			other_room->dir_option[rev_dir[dir]] &&
+			other_room->dir_option[rev_dir[dir]]->to_room == ch->in_room &&
+			other_room->people) {
+			if (other_room->dir_option[rev_dir[dir]]->keyword)
+			strcpy(dname, fname(other_room->dir_option[rev_dir[dir]]->keyword));
+			else
+			strcpy(dname, "door");
+
+			sprintf(buf, "Someone knocks on the %s from the other side.", dname);
+			act(buf, FALSE, other_room->people, 0, 0, TO_CHAR | TO_SLEEP);
+			act(buf, FALSE, other_room->people, 0, 0, TO_ROOM | TO_SLEEP);
+		}
+		return;
+    } 
+
+	// They're hallucinating something to knock on, but find_door has already
+	// told them that.
 }
 
 
