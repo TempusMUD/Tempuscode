@@ -22,6 +22,7 @@ class Account {
 		bool load_from_xml(xmlDocPtr doc, xmlNodePtr root);
 		bool save_to_xml(void);
 
+		inline bool has_password(void) const { return _password != NULL; }
 		bool authenticate(const char *password);
 		void login(descriptor_data *d);
 		void logout(descriptor_data *d, bool forced);
