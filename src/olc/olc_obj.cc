@@ -1231,6 +1231,7 @@ do_clear_olc_object(struct char_data *ch)
     obj_p->obj_flags.type_flag =    0;
     obj_p->obj_flags.extra_flags =  0;
     obj_p->obj_flags.extra2_flags = 0;
+    obj_p->obj_flags.extra3_flags = 0;
     obj_p->obj_flags.wear_flags =   0;
     obj_p->obj_flags.value[0] =     0;
     obj_p->obj_flags.value[1] =     0;
