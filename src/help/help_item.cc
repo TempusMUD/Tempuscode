@@ -200,41 +200,45 @@ void SwapItems(HelpItem *A,HelpItem *Ap, HelpItem *B, HelpItem *Bp) {
     A->idnum = B->idnum;
     B->idnum = id;
 
+	// First case: Topics right next to each other.
     if(A->Next() == B) {
-        if(Ap == NULL) {
+        if(Ap == NULL) {// Right next to each other and A is the first
             Help->items = B;
             A->SetNext(Bn);
             B->SetNext(A);
-        } else {
+        } else { // A is not first
             A->SetNext(B->Next());
             Ap->SetNext(B);
             B->SetNext(A);
         }
         return;
     }
-
-    // Remove the first then insert it, 
-    if(Ap == NULL) {
+	// Second Case:
+	// Topics aren't side by side.
+	// Move A
+    if(Ap == NULL) {// A is first
         Help->items = B;
         A->SetNext(B->Next());
         Bp->SetNext(A);
-    } else {
+    } else { // A is not first
         Ap->SetNext(A->Next());
         A->SetNext(B->Next());
         Bp->SetNext(A);
     }
-
-    // then remove the second and insert it.
+	//  Now move B
     if(Ap != NULL) {
         B->SetNext(Ap->Next());
         Ap->SetNext(B);
     } else {
         B->SetNext(An);
     }
+	// If B was the last element
     // Reset the bottom pointer.
     if(Bn == NULL) {
-        Help->bottom = NULL;
-        for(Bn = Help->items;Bn;Help->bottom = Bn, Bn = Bn->Next());
+		while(Bn) {
+			Help->bottom = Bn;
+			Bn = Bn->Next();
+		}
     }
 }
 
