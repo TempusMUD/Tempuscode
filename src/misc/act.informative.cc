@@ -3103,13 +3103,13 @@ ACMD(do_who)
                     strcpy(badge, "QUESTOR");
                     break;
                 case 5: // Past Arch
-                    strcpy(badge, "P ARCH ");
+                    strcpy(badge, "P PRIME");
                     break;
                 case 6: // Future Arch
-                    strcpy(badge, "EC ARCH");
+                    strcpy(badge, "F PRIME");
                     break;
                 case 7: // Planar Arch
-                    strcpy(badge, "OP ARCH");
+                    strcpy(badge, "O PLANE");
                     break;
                 case 8: // Custom
                     if(!strncmp(GET_NAME(tch), "Fishbone", 8)) {
@@ -3130,6 +3130,10 @@ ACMD(do_who)
                         strcpy(badge, "THECODE");
                     } else if(!strncmp(GET_NAME(tch), "Cedric", 6)) { 
                         strcpy(badge, "ARBITER");
+                    } else if(!strncmp(GET_NAME(tch), "Darth", 5)) { 
+                        strcpy(badge, " CHAOS ");
+                    } else if(!strncmp(GET_NAME(tch), "Trouble", 7)) { 
+                        strcpy(badge, " DEVIL ");
                     } else {
                         strcpy(badge, LEV_ABBR(tch));
                     }
