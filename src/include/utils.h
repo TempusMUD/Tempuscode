@@ -324,8 +324,36 @@ char *AN(char *str);
 #define AFF_FLAGGED(ch, flag)   (IS_SET(AFF_FLAGS(ch), (flag)))
 #define AFF2_FLAGGED(ch, flag)  (IS_SET(AFF2_FLAGS(ch), (flag)))
 #define AFF3_FLAGGED(ch, flag)  (IS_SET(AFF3_FLAGS(ch), (flag)))
-#define PRF_FLAGGED(ch, flag)   (IS_MOB(ch) ? ((ch->desc) ? IS_SET(PRF_FLAGS(ch->desc->original), (flag)):0) : IS_SET(PRF_FLAGS(ch), (flag)))
-#define PRF2_FLAGGED(ch, flag)   (IS_MOB(ch) ? ((ch->desc) ? IS_SET(PRF2_FLAGS(ch->desc->original), (flag)):0) : IS_SET(PRF2_FLAGS(ch), (flag)))
+
+static inline bool 
+PRF_FLAGGED( Creature *ch, int flag ) 
+{
+    if( IS_NPC(ch) ) {
+        if(ch->desc && ch->desc->original) {
+            return IS_SET(PRF_FLAGS(ch->desc->original), flag);
+        } else {
+            return false;
+        }
+    } else {
+        return IS_SET(PRF_FLAGS(ch),flag);
+    }
+}
+static inline bool 
+PRF2_FLAGGED( Creature *ch, int flag ) 
+{
+    if( IS_NPC(ch) ) {
+        if(ch->desc && ch->desc->original) {
+            return IS_SET(PRF2_FLAGS(ch->desc->original), flag);
+        } else {
+            return false;
+        }
+    } else {
+        return IS_SET(PRF_FLAGS(ch),flag);
+    }
+}
+
+//#define PRF_FLAGGED(ch, flag)   (IS_MOB(ch) ? ((ch->desc) ? IS_SET(PRF_FLAGS(ch->desc->original), (flag)):0) : IS_SET(PRF_FLAGS(ch), (flag)))
+//#define PRF2_FLAGGED(ch, flag)   (IS_MOB(ch) ? ((ch->desc) ? IS_SET(PRF2_FLAGS(ch->desc->original), (flag)):0) : IS_SET(PRF2_FLAGS(ch), (flag)))
 
 #define NOHASS(ch)       (PRF_FLAGGED(ch, PRF_NOHASSLE))
 
