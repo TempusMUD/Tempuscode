@@ -322,26 +322,30 @@ ACMD(do_whirlwind)
 		//attack up to hits-1 more victims at random
 		list<CharCombat> *combatList = ch->getCombatList();
 		list<CharCombat>::iterator combatIter;
-		int i;
-		for (i=1, combatIter=combatList->begin(); (i < hits) && 
-            (combatIter != combatList->end()); ++combatIter) {
-			if (random_percentage() <= 75) {
+		int i=1;
+        combatIter=combatList->begin();
+		while ((i < hits) && (combatIter != combatList->end())) {
+			int my_return_flags = 0;
+            if (random_percentage() <= 75) {
 				struct Creature *newVict = combatIter->getOpponent();
 				if (newVict && newVict->in_room == ch->in_room) {
 					dam = 0;
 					if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80)+GET_DEX(vict)) {
 						dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
 					}
-					int my_return_flags = damage(ch, newVict, dam, SKILL_WHIRLWIND, -1);
-                    if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-                        return;
-                    } else if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-                        combatIter = combatList->begin();
-                    }
-					i++;
+					my_return_flags = damage(ch, newVict, dam, SKILL_WHIRLWIND, -1);
+                    i++;
 					GET_MOVE(ch) -= 3;
 				}
 			}
+            //increment this before possibly setting combatIter to combatList->begin()
+            ++combatIter; 
+            if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
+                return;
+            } else if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
+                combatIter = combatList->begin();
+            }
+            
 		}
 		
 		//if we still haven't attacked hits times send the rest of them too
