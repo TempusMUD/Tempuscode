@@ -2710,9 +2710,10 @@ void
 mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
           int spellnum, int type)
 {
-    int spell = 0, spell2 = 0, spell3 = 0, spell4 = 0;
+    int spell = 0, spell2 = 0, spell3 = 0, spell4 = 0, spell5 = 0;
     char *to_vict = NULL, *to_room = NULL, *to_vict2 = NULL, *to_room2 = NULL,
-    *to_vict3 = NULL, *to_room3 = NULL, *to_vict4 = NULL, *to_room4 = NULL;
+    *to_vict3 = NULL, *to_room3 = NULL, *to_vict4 = NULL, *to_room4 = NULL,
+	*to_vict5 = NULL, *to_room5 = NULL;
     struct affected_type *aff = NULL, *next_aff = NULL;
 
     if (victim == NULL)
@@ -2735,16 +2736,16 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
     spell2 = SKILL_GOUGE;
     to_vict2 = "Your vision returns!";
     to_room2 = "There's a momentary gleam in $n's eyes.";
-    spell4 = TYPE_MALOVENT_HOLYTOUCH;
-    to_vict4 = "Your vision returns!";
-    to_room4 = "There's a momentary gleam in $n's eyes.";
     spell3 = SKILL_HAMSTRING;
     to_vict3 = "The wound on your leg closes!";
     to_room3 = "The gaping wound on $n's leg closes.";
+    spell4 = TYPE_MALOVENT_HOLYTOUCH;
+    to_vict4 = "Your vision returns!";
+    to_room4 = "There's a momentary gleam in $n's eyes.";
     if (spellnum == SPELL_GREATER_HEAL) {
-        spell = SPELL_POISON;
-        to_vict = "A warm feeling runs through your body!";
-        to_room = "$n looks better.";
+        spell5 = SPELL_POISON;
+        to_vict5 = "A warm feeling runs through your body!";
+        to_room5 = "$n looks better.";
     }
     break;
     case SPELL_REMOVE_POISON:
@@ -2899,6 +2900,13 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
         act(to_vict4, FALSE, victim, 0, ch, TO_CHAR);
     if (to_room4 != NULL)
         act(to_room4, TRUE, victim, 0, ch, TO_ROOM);
+    }
+    if (spell5 && affected_by_spell(victim, spell5)) {
+    affect_from_char(victim, spell5);
+    if (to_vict5 != NULL)
+        act(to_vict5, FALSE, victim, 0, ch, TO_CHAR);
+    if (to_room5 != NULL)
+        act(to_room5, TRUE, victim, 0, ch, TO_ROOM);
     }
 }
 
