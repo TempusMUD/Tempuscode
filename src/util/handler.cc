@@ -2306,12 +2306,12 @@ is_wierd(CHAR * ch, struct obj_data *obj, CHAR * vict)
 	if (obj) {
 		if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
 			return 1;
-		if (!OBJ_APPROVED(obj) && !Security::isTester(ch))
+		if (!OBJ_APPROVED(obj) && !ch->isTester())
 			return 1;
 	}
 
 	if (vict && IS_NPC(vict)) {
-		if (MOB_UNAPPROVED(vict) && !Security::isTester(ch))
+		if (MOB_UNAPPROVED(vict) && !ch->isTester())
 			return 1;
 	}
 

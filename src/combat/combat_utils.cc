@@ -1488,7 +1488,7 @@ make_corpse(struct char_data *ch, struct char_data *killer, int attacktype)
 	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
 	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
 	GET_OBJ_EXTRA(corpse) = ITEM_NODONATE;
-	if (Security::isTester(ch))
+	if (ch->isTester())
 		SET_BIT(GET_OBJ_EXTRA(corpse), ITEM2_UNAPPROVED);
 	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */

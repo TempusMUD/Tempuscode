@@ -2243,7 +2243,7 @@ mobile_activity(void)
 						EXIT(ch, dir)->to_room != ch->in_room &&
 						CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room) &&
 						EXIT(ch, dir)->to_room->people.size() > 0 &&
-						CAN_SEE(ch, *(EXIT(ch, dir)->to_room)->people.begin())
+						CAN_SEE(ch, (*(EXIT(ch, dir)->to_room)->people.begin()))
 						&& EXIT(ch,
 							dir)->to_room->people.size() < (unsigned)EXIT(ch,
 							dir)->to_room->max_occupancy)

@@ -193,10 +193,6 @@ namespace Security {
     /* Check membership in a particular group by name.**/
 	bool isMember( char_data *ch, const char* group_name, bool substitute=true );
 
-	static inline bool isTester( char_data *ch ) {
-		return isMember( ch, "Testers", false );
-	}
-	
     /* can this character add/remove characters from this group. **/
     bool canAdminGroup( char_data *ch, const char* groupName );
     

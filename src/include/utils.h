@@ -796,9 +796,24 @@ char *CURRENCY(char_data * ch);
 inline bool INVIS_OK(char_data * sub, char_data * obj);
 #define MORT_CAN_SEE(sub, obj) (LIGHT_OK(sub) && ROOM_OK(sub) && \
                                 INVIS_OK(sub, obj) &&     \
-                                (!PLR_FLAGGED(obj, PLR_TESTER) || \
-                                 PLR_FLAGGED(sub, PLR_TESTER) || \
+                                (!obj->isTester()  || \
+                                 sub->isTester() || \
                                  IS_NPC(sub)))
+/*
+static inline bool MORT_CAN_SEE(char_data * sub, char_data * obj){
+	if(! LIGHT_OK(sub) )
+		return false;
+	if(! ROOM_OK(sub) )
+		return false;
+	if(! INVIS_OK(sub,obj) )
+		return false;
+	if( IS_NPC(sub) )
+		return true;
+	if( obj->isTester() || !sub->isTester() )
+		return false;
+	return true;
+}
+*/
 
 #define IMM_CAN_SEE(sub, obj) \
      (MORT_CAN_SEE(sub, obj) || PRF_FLAGGED(sub, PRF_HOLYLIGHT))

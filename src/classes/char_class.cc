@@ -1434,7 +1434,7 @@ advance_level(struct char_data *ch, byte keep_internal)
 
 	sprintf(buf, "%s advanced to level %d in room %d %s",
 		GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number,
-		Security::isTester(ch) ? "<TESTER>" : "");
+		ch->isTester() ? "<TESTER>" : "");
 	if (keep_internal)
 		slog(buf);
 	else
@@ -1465,7 +1465,7 @@ invalid_char_class(struct char_data *ch, struct obj_data *obj)
 		(IS_OBJ_STAT(obj, ITEM_ANTI_HOOD) && IS_HOOD(ch)) ||
 		(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC) && IS_MERC(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_MONK) && IS_MONK(ch)) ||
-		(!OBJ_APPROVED(obj) && !Security::isTester(ch)
+		(!OBJ_APPROVED(obj) && !ch->isTester()
 			&& GET_LEVEL(ch) < LVL_IMMORT))
 		invalid = 1;
 	if (!invalid) {

@@ -8015,7 +8015,7 @@ ACMD(do_tester)
 	byte tcmd;
 	int i;
 
-	if( ! Security::isTester(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
+	if( ! ch->isTester() || GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
 		send_to_char("You are not a tester.\r\n", ch);
 		return;
 	}

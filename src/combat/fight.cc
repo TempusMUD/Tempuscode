@@ -468,7 +468,7 @@ gain_kill_exp(struct char_data *ch, struct char_data *victim)
 		return;
 
 	if (IS_NPC(victim) && MOB2_FLAGGED(victim, MOB2_UNAPPROVED)
-		&& !Security::isTester(ch))
+		&& !ch->isTester())
 		return;
 
 	if ((IS_NPC(ch) && IS_PET(ch)) || IS_NPC(victim) && IS_PET(victim))
@@ -895,11 +895,11 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 
 	if (ch) {
 		if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED)
-			&& !Security::isTester(victim))
+			&& !victim->isTester())
 			dam = 0;
 
-		if (Security::isTester(ch) && !IS_MOB(victim) &&
-			!Security::isTester(victim))
+		if (ch->isTester() && !IS_MOB(victim) &&
+			!victim->isTester())
 			dam = 0;
 
 		if (IS_MOB(victim) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
@@ -1459,7 +1459,7 @@ damage(struct char_data *ch, struct char_data *victim, int dam,
 
 	if (ch && ch != victim
 		&& !(MOB2_FLAGGED(victim, MOB2_UNAPPROVED) ||
-			Security::isTester(ch) || IS_PET(ch) || IS_PET(victim))) {
+			ch->isTester() || IS_PET(ch) || IS_PET(victim))) {
 		// Gaining XP for damage dealt.
 		int exp;
 		exp = MIN(GET_LEVEL(ch) * GET_LEVEL(ch) * GET_LEVEL(ch),

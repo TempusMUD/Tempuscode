@@ -308,7 +308,7 @@ nanny(struct descriptor_data * d, char *arg)
 					return;
 				}
 				if (GET_LEVEL(d->character) < restrict &&
-					(Security::isTester(d->character) || restrict > LVL_ETERNAL)) {
+					(d->character->isTester() || restrict > LVL_ETERNAL)) {
 					SEND_TO_Q("The game is temporarily restricted.. try again later.\r\n", d);
 					set_desc_state( CON_CLOSE,d );
 					sprintf(buf, "Request for login denied for %s [%s] (wizlock)",

@@ -933,6 +933,8 @@ struct char_data {
 	int getLevel(void) {
 		return player.level;
 	}
+	bool isTester();
+	
 	short modifyWeight(short mod_weight) {
 		return player.modifyWeight(mod_weight);
 	}

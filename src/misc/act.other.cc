@@ -111,7 +111,7 @@ ACMD(do_quit)
 		}
 
 		if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR ||
-			Security::isTester(ch)) {
+			ch->isTester()) {
 			if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 				sprintf(buf, "%s has departed from the known multiverse.",
 					GET_NAME(ch));
@@ -123,7 +123,7 @@ ACMD(do_quit)
 				send_to_char("\r\nYou flicker out of reality...\r\n", ch);
 				act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
 				sprintf(buf, "%s has left the game%s.", GET_NAME(ch),
-						Security::isTester(ch) ? " (tester)" : " naked");
+						ch->isTester() ? " (tester)" : " naked");
 				mudlog(buf, NRM, MAX(LVL_AMBASSADOR, GET_INVIS_LEV(ch)), TRUE);
 			}
 			Crash_rentsave(ch, 0, RENT_RENTED);

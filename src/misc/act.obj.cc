@@ -2758,7 +2758,7 @@ perform_wear(struct char_data *ch, struct obj_data *obj, int where)
 		return 0;
 	}
 	if (!OBJ_APPROVED(obj) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
-		!Security::isTester(ch)) {
+		!ch->isTester()) {
 		act("$p has not been approved for mortal use.",
 			FALSE, ch, obj, 0, TO_CHAR);
 		return 0;

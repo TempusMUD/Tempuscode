@@ -14,6 +14,7 @@
 #include "login.h"
 #include "house.h"
 #include "clan.h"
+#include "security.h"
 
 int set_desc_state(int state, struct descriptor_data *d);
 
@@ -29,6 +30,10 @@ char_data *
 char_data::getFighting()
 {
 	return (char_specials.fighting);
+}
+bool
+char_data::isTester(){
+	return Security::isMember( this, "Testers", false );
 }
 
 void
