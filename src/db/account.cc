@@ -116,8 +116,8 @@ Account::load(long idnum)
 	for (field_idx = 0;field_idx < field_count;field_idx++)
 		this->set(fields[field_idx],
 			PQgetvalue(res, 0, field_idx));
-	PQclear(res);
 	delete [] fields;
+	PQclear(res);
 
 	// Now we add the players to the account and player index
 	res = sql_query("select idnum from players where account=%ld order by idnum", idnum);
