@@ -1286,6 +1286,28 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		accum_affect = FALSE;
 		break;
 	case SPELL_GAS_BREATH:
+		if (!NEEDS_TO_BREATHE(victim))
+			return;
+		af.type = SPELL_POISON;
+		af.location = APPLY_STR;
+		af.duration = level;
+		af.modifier = -2;
+		accum_duration = TRUE;
+
+		if (level > 40 + number(0, 8)) {
+			af.bitvector = AFF3_POISON_3;
+			af.aff_index = 3;
+		} else if (level > 30 + number(0, 9)) {
+			af.bitvector = AFF3_POISON_2;
+			af.aff_index = 3;
+		} else {
+			af.bitvector = AFF_POISON;
+			af.aff_index = 1;
+		}
+
+		to_vict = "You inhale the vapours and get violently sick!";
+		to_room = "$n gets violently ill from inhaling the vapours!";
+		break;
 	case SPELL_POISON:
 		if (IS_UNDEAD(victim))
 			return;
