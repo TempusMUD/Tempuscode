@@ -8,8 +8,8 @@ SPECIAL(malbolge_bridge)
 {
   struct room_data *bridge = (struct room_data *) me, *under = NULL;
 
-  if (GET_LEVEL(ch) >= LVL_IMMORT || GET_POS(ch) == POS_FLYING ||
-      (MOUNTED(ch) && GET_POS(MOUNTED(ch)) == POS_FLYING) ||
+  if (GET_LEVEL(ch) >= LVL_IMMORT || ch->getPosition() == POS_FLYING ||
+      (MOUNTED(ch) && (MOUNTED(ch))->getPosition() == POS_FLYING) ||
       number(5, 25) < GET_DEX(ch))
     return 0;
 

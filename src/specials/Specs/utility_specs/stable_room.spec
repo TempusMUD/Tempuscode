@@ -95,7 +95,7 @@ SPECIAL(stable_room)
     if (MOUNTED(ch) && MOUNTED(ch) == pet) {
       MOUNTED(ch) = NULL;
       REMOVE_BIT(AFF2_FLAGS(pet), AFF2_MOUNTED);
-      GET_POS(ch) = POS_STANDING;
+      ch->setPosition( POS_STANDING );
     }
     stop_follower(pet);
 

@@ -9,7 +9,7 @@ SPECIAL(asp)
   if (cmd)
     return FALSE;
 
-  if (GET_POS(ch) != POS_FIGHTING)
+  if (ch->getPosition() != POS_FIGHTING)
     return FALSE;
 
   if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) &&

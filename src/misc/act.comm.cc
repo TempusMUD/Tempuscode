@@ -715,7 +715,7 @@ ACMD(do_gen_comm)
 	}
     
 	if (subcmd == SCMD_DREAM && 
-        (GET_POS(ch) != POS_SLEEPING) && GET_LEVEL(ch) < LVL_IMMORT) {
+        (ch->getPosition() != POS_SLEEPING) && GET_LEVEL(ch) < LVL_IMMORT) {
 	    send_to_char("You attempt to dream, but realize you need to sleep first.\r\n", ch);
 	    return;
 	}
@@ -792,7 +792,7 @@ ACMD(do_gen_comm)
 
 	    if (subcmd == SCMD_SHOUT &&
 		((ch->in_room->zone != i->character->in_room->zone) ||
-		 GET_POS(i->character) < POS_RESTING))
+		 i->character->getPosition() < POS_RESTING))
 		continue;
 
 	    if (subcmd == SCMD_PROJECT && CHECK_REMORT_CLASS(i->character) < 0 &&
@@ -800,7 +800,7 @@ ACMD(do_gen_comm)
 		continue;
     
 	    if (subcmd == SCMD_DREAM && 
-            (GET_POS(i->character) != POS_SLEEPING 
+            (i->character->getPosition() != POS_SLEEPING 
                 && GET_LEVEL(i->character) < LVL_IMMORT))
 		continue;
     

@@ -11,7 +11,7 @@ SPECIAL(dangerous_climb)
   struct room_data *toroom = NULL;
 
   if (cmd && cmd < NUM_DIRS && GET_LEVEL(ch) < LVL_IMMORT && 
-      GET_POS(ch) < POS_FLYING && number(5, 25) > GET_DEX(ch) &&
+      ch->getPosition() < POS_FLYING && number(5, 25) > GET_DEX(ch) &&
       EXIT(ch, DOWN) && (toroom = EXIT(ch, DOWN)->to_room)) {
     act("A rock shifts and $n goes crashing down the steep path!",
 	FALSE, ch, 0, 0, TO_ROOM);

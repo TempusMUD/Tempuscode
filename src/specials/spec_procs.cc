@@ -476,7 +476,7 @@ SPECIAL(snake)
     if (cmd)
 	return FALSE;
 
-    if (GET_POS(ch) != POS_FIGHTING)
+    if (ch->getPosition() != POS_FIGHTING)
 	return FALSE;
 
     if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) &&
@@ -497,7 +497,7 @@ SPECIAL(thief)
     if (cmd)
 	return FALSE;
 
-    if (GET_POS(ch) != POS_STANDING)
+    if (ch->getPosition() != POS_STANDING)
 	return FALSE;
 
     for (cons = ch->in_room->people; cons; cons = cons->next_in_room)
@@ -515,7 +515,7 @@ SPECIAL(magic_user)
 {
     struct char_data *vict;
 
-    if (cmd || GET_POS(ch) != POS_FIGHTING)
+    if (cmd || ch->getPosition() != POS_FIGHTING)
 	return FALSE;
 
     /* pseudo-randomly choose someone in the room who is fighting me */
@@ -612,7 +612,7 @@ SPECIAL(battle_cleric)
 {
     struct char_data *vict;
 
-    if (cmd || GET_POS(ch) != POS_FIGHTING)
+    if (cmd || ch->getPosition() != POS_FIGHTING)
 	return FALSE;
 
     /* pseudo-randomly choose someone in the room who is fighting me */
@@ -696,7 +696,7 @@ SPECIAL(barbarian)
 {
     struct char_data *vict;
 
-    if (cmd || GET_POS(ch) != POS_FIGHTING)
+    if (cmd || ch->getPosition() != POS_FIGHTING)
 	return FALSE;
 
     /* pseudo-randomly choose someone in the room who is fighting me */
@@ -1323,7 +1323,7 @@ SPECIAL(cityguard)
 
     if (GET_MOB_WAIT(ch) <= 5 && (ch->in_room->zone->number == 30 ||
 				  ch->in_room->zone->number == 32) &&
-	FIGHTING(ch) && GET_POS(ch) >= POS_FIGHTING && !number(0, 1)) {
+	FIGHTING(ch) && ch->getPosition() >= POS_FIGHTING && !number(0, 1)) {
 	evil = FIGHTING(ch);
 	if (drag_char_to_jail(ch, evil, r_jail_room))
 	    return TRUE;
@@ -1430,22 +1430,22 @@ SPECIAL(cityguard)
     }
 
     if (evil && (GET_ALIGNMENT(FIGHTING(evil)) >= 0) && 
-	GET_POS(ch) > POS_FIGHTING) {
-	if (!IS_NPC(evil) && GET_LEVEL(evil) < number(3, 7)) { 
-	    act("$n shouts, 'Get outta here $N, before I kick your ass!", 
-		FALSE, ch, 0, evil, TO_ROOM);
-	} else if (GET_LEVEL(evil) < 5) {
-	    act("$n yells, 'Knock it off!!' and shoves you to the ground.", 
-		FALSE, ch, 0, 0, TO_CHAR);
-	    act("$n yells, 'Knock it off!!' and shoves you to the ground.", 
-		FALSE, ch, 0, 0, TO_CHAR);
-	    stop_fighting(FIGHTING(evil));
-	    stop_fighting(evil);
-	} else {
-	    act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", FALSE, ch, 0, 0, TO_ROOM);
-	    hit(ch, evil, TYPE_UNDEFINED);
-	    return (TRUE);
-	}
+	ch->getPosition() > POS_FIGHTING) {
+        if (!IS_NPC(evil) && GET_LEVEL(evil) < number(3, 7)) { 
+            act("$n shouts, 'Get outta here $N, before I kick your ass!", 
+            FALSE, ch, 0, evil, TO_ROOM);
+        } else if (GET_LEVEL(evil) < 5) {
+            act("$n yells, 'Knock it off!!' and shoves you to the ground.", 
+            FALSE, ch, 0, 0, TO_CHAR);
+            act("$n yells, 'Knock it off!!' and shoves you to the ground.", 
+            FALSE, ch, 0, 0, TO_CHAR);
+            stop_fighting(FIGHTING(evil));
+            stop_fighting(evil);
+        } else {
+            act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", FALSE, ch, 0, 0, TO_ROOM);
+            hit(ch, evil, TYPE_UNDEFINED);
+            return (TRUE);
+        }
     }
     return (FALSE);
 }

@@ -24,7 +24,7 @@ SPECIAL(life_point_potion)
 		(IS_OBJ_STAT(potion, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
 		(IS_OBJ_STAT(potion, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
 		send_to_char("\r\nYou feel you have just done something very, very wrong.\r\n", ch);
-		GET_POS(ch) = POS_STUNNED;
+		ch->setPosition( POS_STUNNED );
 	} else {
 		send_to_char("\r\nThe essence of the gods courses through your veins.\r\n", ch);
 		GET_LIFE_POINTS(ch) += MIN(10, GET_OBJ_VAL(potion, 0));

@@ -61,7 +61,7 @@ SPECIAL(unholy_compact)
       act("$n burns the mark of evil into $N's forehead.", TRUE, dude, 0, ch, TO_NOTVICT);
 	  act("$n burns the mark of evil in your forehead.  All hope is lost...", TRUE, dude, 0, ch, TO_VICT);
       act("$N screams in agony as $S soul is ripped from $S body!", TRUE, dude, 0, ch, TO_NOTVICT);
-	  GET_POS(ch) = POS_SLEEPING;
+	  ch->setPosition( POS_SLEEPING );
       GET_LIFE_POINTS(ch) -= life_cost;
       GET_GOLD(ch) -= gold;
 	  SET_BIT(PLR2_FLAGS(ch), PLR2_SOULLESS);

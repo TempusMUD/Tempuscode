@@ -1347,7 +1347,7 @@ perform_give(struct char_data * ch, struct char_data * vict,
 	} else 
 	    act("You peel $p off your hand...", FALSE, ch, obj, 0, TO_CHAR);
     }
-    if (GET_LEVEL(ch) < LVL_IMMORT && GET_POS(vict) <= POS_SLEEPING) {
+    if (GET_LEVEL(ch) < LVL_IMMORT && vict->getPosition() <= POS_SLEEPING) {
 	act("$E is currently unconscious.", FALSE, ch, 0, vict, TO_CHAR);
 	return;
     }
@@ -1416,7 +1416,7 @@ perform_give(struct char_data * ch, struct char_data * vict,
 		    else
 			do_activate(vict, fname(obj->name), 0, 1);
 		else {
-		    if (GET_POS(vict) < POS_FIGHTING)
+		    if (vict->getPosition() < POS_FIGHTING)
 			do_stand(vict, 0, 0, 0);
 		    for (i = 0; i < NUM_DIRS; i++) {
 			if (ch->in_room->dir_option[i] && 
@@ -1499,7 +1499,7 @@ perform_give_gold(struct char_data * ch, struct char_data * vict,
 	send_to_char("You don't have that many coins!\r\n", ch);
 	return;
     }
-    if (GET_LEVEL(ch) < LVL_IMMORT && GET_POS(vict) <= POS_SLEEPING) {
+    if (GET_LEVEL(ch) < LVL_IMMORT && vict->getPosition() <= POS_SLEEPING) {
 	act("$E is currently unconscious.", FALSE, ch, 0, vict, TO_CHAR);
 	return;
     }
@@ -1563,7 +1563,7 @@ perform_give_credits(struct char_data * ch, struct char_data * vict,
 	send_to_char("You don't have that many credits!\r\n", ch);
 	return;
     }
-    if (GET_LEVEL(ch) < LVL_IMMORT && GET_POS(vict) <= POS_SLEEPING) {
+    if (GET_LEVEL(ch) < LVL_IMMORT && vict->getPosition() <= POS_SLEEPING) {
 	act("$E is currently unconscious.", FALSE, ch, 0, vict, TO_CHAR);
 	return;
     }
@@ -2761,7 +2761,7 @@ perform_remove(struct char_data * ch, int pos)
     }
     if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	act("$p: you can't carry that many items!", FALSE, ch, obj, 0, TO_CHAR);
-    else if ((GET_POS(ch) == POS_FLYING) && 
+    else if ((ch->getPosition() == POS_FLYING) && 
 	     (GET_OBJ_TYPE(ch->equipment[pos]) == ITEM_WINGS) && 
 	     (!IS_AFFECTED(ch, AFF_INFLIGHT))) {
 	act("$p: you probably shouldn't remove those while flying!", 

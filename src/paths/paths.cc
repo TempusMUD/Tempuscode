@@ -635,8 +635,8 @@ path_activity (void)
 		    PATH_MOVE(o);
 		    break;
 		}
-		if (GET_POS(ch) < POS_STANDING)
-		    GET_POS(ch) = POS_STANDING;
+		if (ch->getPosition() < POS_STANDING)
+		    ch->setPosition(POS_STANDING);
 
 		o->phead->find_first_step_calls++;
 
@@ -665,8 +665,8 @@ path_activity (void)
 	    if (o->type == PMOBILE) {
 		ch = (struct char_data *) o->object;
 
-		if (GET_POS(ch) < POS_STANDING)
-		    GET_POS(ch) = POS_STANDING;
+		if (ch->getPosition() < POS_STANDING)
+		    ch->setPosition( POS_STANDING );
 
 		perform_move(ch, dir, MOVE_NORM, 1);
 		if (o->phead->length != 1)

@@ -10,7 +10,7 @@ SPECIAL(temple_healer)
   int found = 0;
   if (cmd)
     return FALSE;
-  if (GET_POS(ch) == POS_FIGHTING && FIGHTING(ch) && 
+  if (ch->getPosition() == POS_FIGHTING && FIGHTING(ch) && 
                   FIGHTING(ch)->in_room == ch->in_room) {
     switch (number(0, 20)) {
     case 0:
@@ -38,7 +38,7 @@ SPECIAL(temple_healer)
     return 0;
   }
 
-  if (GET_POS(ch) != POS_FIGHTING && !FIGHTING(ch)) {
+  if (ch->getPosition() != POS_FIGHTING && !FIGHTING(ch)) {
     switch (number(0,18)) {
     case 0:
       do_say(ch, "Rest here, adventurer.  Your wounds will be tended.", 0, 0);

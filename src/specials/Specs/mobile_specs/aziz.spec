@@ -10,7 +10,7 @@ SPECIAL(Aziz)
 {
   struct char_data *vict;
 
-  if (cmd || GET_POS(ch) != POS_FIGHTING)
+  if (cmd || ch->getPosition() != POS_FIGHTING)
     return 0;
 
   if (!FIGHTING(ch))

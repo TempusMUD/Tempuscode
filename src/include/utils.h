@@ -200,7 +200,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
    ((!IS_EVIL(ch) || !SRCH_FLAGGED(srch, SRCH_NOEVIL)) && \
     (!IS_NEUTRAL(ch) || !SRCH_FLAGGED(srch, SRCH_NONEUTRAL)) && \
     (!IS_GOOD(ch) || !SRCH_FLAGGED(srch, SRCH_NOGOOD)) && \
-    (GET_POS(ch) < POS_FLYING || !SRCH_FLAGGED(srch, SRCH_NOTRIG_FLY)) && \
+    (ch->getPosition() < POS_FLYING || !SRCH_FLAGGED(srch, SRCH_NOTRIG_FLY)) && \
     (!IS_NPC(ch) || !SRCH_FLAGGED(srch, SRCH_NOMOB)) &&        \
     (!IS_MAGE(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMAGE)) &&    \
     (!IS_CLERIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOCLERIC)) && \
@@ -318,7 +318,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 				   IS_VAMPIRE(ch) || \
                                   IS_AFFECTED_2(ch, AFF2_ENDURE_COLD) || \
                                   IS_AFFECTED_2(ch, AFF2_ABLAZE)      || \
-				   (GET_POS(ch) == POS_SLEEPING &&       \
+				   (ch->getPosition() == POS_SLEEPING &&       \
 				    AFF3_FLAGGED(ch, AFF3_STASIS))    || \
                       (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_WHITE) || \
                         IS_UNDEAD(ch) || GET_CLASS(ch) == CLASS_FROST || \
@@ -328,7 +328,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 
 #define CHAR_WITHSTANDS_HEAT(ch)  (GET_LEVEL(ch) >= LVL_IMMORT        || \
 				   IS_AFFECTED_3(ch, AFF3_PROT_HEAT)   || \
-				   (GET_POS(ch) == POS_SLEEPING &&       \
+				   (ch->getPosition() == POS_SLEEPING &&       \
 				    AFF3_FLAGGED(ch, AFF3_STASIS))    || \
 			(IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_RED) || \
                          IS_UNDEAD(ch) || GET_CLASS(ch) == CLASS_FIRE || \
@@ -563,7 +563,7 @@ int CHECK_SKILL(struct char_data *ch, int i);
 			 (IS_AFFECTED_2(ch, AFF2_TELEKINESIS) ? \
 			  (GET_LEVEL(ch) >> 2) : 0))
 
-#define AWAKE(ch) (GET_POS(ch) > POS_SLEEPING && !IS_AFFECTED_2(ch, AFF2_MEDITATE))
+#define AWAKE(ch) (ch->getPosition() > POS_SLEEPING && !IS_AFFECTED_2(ch, AFF2_MEDITATE))
 
 #define IS_GOOD(ch)    (GET_ALIGNMENT(ch) >= 350)
 #define IS_EVIL(ch)    (GET_ALIGNMENT(ch) <= -350)

@@ -153,7 +153,7 @@ SPECIAL(drink_me_bottle)
   if (!CMD_IS("drink"))
     return 0;
 
-  if (GET_POS(ch) == POS_SLEEPING) {
+  if (ch->getPosition() == POS_SLEEPING) {
     send_to_char("You'll have to wake up first!\r\n", ch);
     return 1;
   }
@@ -346,7 +346,7 @@ SPECIAL(pendulum_timer_mob)
 
 	for (vict = in_room->people; vict; vict = next_vict) {
 	  next_vict = vict->next_in_room;
-	  if (GET_POS(vict) > POS_SITTING) {
+	  if (vict->getPosition() > POS_SITTING) {
 	    send_to_char("You are carried north by the pendulum.\r\n",
 			 vict);
 	    act("$n is pushed from the room by the pendulum.",
@@ -392,7 +392,7 @@ SPECIAL(pendulum_timer_mob)
 
 	for (vict = in_room->people; vict; vict = next_vict) {
 	  next_vict = vict->next_in_room;
-	  if (GET_POS(vict) > POS_SITTING) {
+	  if (vict->getPosition() > POS_SITTING) {
 	    send_to_char("You are carried south by the pendulum.\r\n",
 			 vict);
 	    act("$n is pushed from the room by the pendulum.",

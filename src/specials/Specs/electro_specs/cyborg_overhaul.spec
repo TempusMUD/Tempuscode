@@ -56,7 +56,7 @@ SPECIAL(cyborg_overhaul)
     act("You lie down on the table and enter a static state.\r\n"
 	"$N begins to overhaul you.", FALSE, ch, 0, borg, TO_CHAR);
 
-    GET_POS(ch) = POS_SLEEPING;
+    ch->setPosition( POS_SLEEPING );
     SET_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
     
     GET_TOT_DAM(ch) = 0;

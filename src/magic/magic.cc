@@ -154,13 +154,13 @@ mag_savingthrow(struct char_data * ch, int level, int type)
 
     if (IS_AFFECTED_2(ch, AFF2_EVADE))
 	save -= (GET_LEVEL(ch) / 5);
-    if (GET_POS(ch) < POS_FIGHTING)
-	save += ((10 - GET_POS(ch)) << 2);
+    if (ch->getPosition() < POS_FIGHTING)
+	save += ((10 - ch->getPosition()) << 2);
     
     if ( GET_CHAR_SPEED(ch) )
 	save -= (GET_CHAR_SPEED(ch) >> 3);
 
-    if (GET_POS(ch) < POS_RESTING)
+    if (ch->getPosition() < POS_RESTING)
 	save += 10;
 
     save -= (GET_REMORT_GEN(ch) << 1);
@@ -466,7 +466,7 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
 	is_ranger = 0, is_knight = 0, audible = 0;
     int dam = 0;
 
-    if (victim == NULL || ch == NULL || GET_POS(victim) <= POS_DEAD)
+    if (victim == NULL || ch == NULL || victim->getPosition() <= POS_DEAD)
 	return 0;
 
     is_mage = (IS_MAGE(ch) || IS_VAMPIRE(ch));
@@ -782,8 +782,8 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
             return 1;
         WAIT_STATE(victim,2 RL_SEC);
         if( !IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL) &&
-            (GET_POS(victim) > POS_STANDING || number(1,level/2) > GET_STR(victim))) {
-            GET_POS(victim) = POS_RESTING;
+            (victim->getPosition() > POS_STANDING || number(1,level/2) > GET_STR(victim))) {
+            victim->setPosition( POS_RESTING );
             act( "The gravity around you suddenly increases, slamming you to the ground!", 
                 FALSE, victim, 0, ch, TO_CHAR);
             act( "The gravity around $n suddenly increases, slamming $m to the ground!", 
@@ -793,19 +793,19 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
     if (spellnum == SPELL_PSYCHIC_SURGE && 
 	!mag_savingthrow(victim, level, SAVING_PSI) &&
 	(!IS_NPC(victim) || !MOB2_FLAGGED(victim, MOB2_NOSTUN)) &&
-	GET_POS(victim) > POS_STUNNED) {
-        GET_POS(victim) = POS_STUNNED;
+	victim->getPosition() > POS_STUNNED) {
+        victim->setPosition( POS_STUNNED );
         WAIT_STATE(victim, 5 RL_SEC);
         if (victim == FIGHTING(ch))
             stop_fighting(ch);
         
-    } else if (spellnum == SPELL_EGO_WHIP && GET_POS(victim) > POS_SITTING) {
+    } else if (spellnum == SPELL_EGO_WHIP && victim->getPosition() > POS_SITTING) {
         if (number(5, 25) > GET_DEX(victim)) {
             act("You are knocked to the ground by the psychic attack!",
             FALSE, victim, 0, 0,TO_CHAR);
             act("$n is knocked to the ground by the psychic attack!",
             FALSE, victim, 0, 0,TO_ROOM);
-            GET_POS(victim) = POS_SITTING;
+            victim->setPosition(POS_SITTING);
             WAIT_STATE(victim, 2 RL_SEC);
         }
     }
@@ -1000,7 +1000,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	    stop_fighting(FIGHTING(victim));
 	    stop_fighting(victim); 
 	}
-	GET_POS(victim) = POS_STUNNED;
+	victim->setPosition( POS_STUNNED );
 	WAIT_STATE(victim, 2*PULSE_VIOLENCE);
 	to_room = "$n suddenly looks stunned!";
 	to_vict = "You have been stunned!";
@@ -1088,7 +1088,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	break;    
     case SPELL_AIR_WALK:
     case SPELL_FLY:
-	if (GET_POS(victim) <= POS_SLEEPING) {
+	if (victim->getPosition() <= POS_SLEEPING) {
 	    act("$E is in no position to be flying!", FALSE, ch, 0, victim, TO_CHAR);
 	    return;
 	}
@@ -1097,7 +1097,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	accum_duration = TRUE;
 	to_vict = "Your feet lift lightly from the ground.";
 	to_room = "$n begins to hover above the ground.";
-	GET_POS(victim) = POS_FLYING;
+	victim->setPosition( POS_FLYING );
 	break;
     case SPELL_HASTE:
 	af.duration =  (level >> 2);
@@ -1407,10 +1407,10 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	af.duration = 4 + (level >> 2);
 	af.bitvector = AFF_SLEEP;
 
-	if (GET_POS(victim) > POS_SLEEPING) {
+	if (victim->getPosition() > POS_SLEEPING) {
 	    act("You feel very sleepy...ZZzzzz...", FALSE, victim, 0, 0, TO_CHAR);
 	    act("$n goes to sleep.", TRUE, victim, 0, 0, TO_ROOM);
-	    GET_POS(victim) = POS_SLEEPING;
+	    victim->setPosition( POS_SLEEPING );
 	}
 	break;
 
@@ -1508,7 +1508,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	af.location = APPLY_HITROLL;
 	af.bitvector = AFF_CONFUSION;
 
-	if (GET_POS(victim) > POS_SLEEPING) 
+	if (victim->getPosition() > POS_SLEEPING) 
 	    to_room = "$n stops in $s tracks and stares off into space.";
 	WAIT_STATE(victim, PULSE_VIOLENCE * 2);
 	to_vict = "You suddenly feel very confused!";
@@ -1838,7 +1838,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	accum_duration = TRUE;
 	to_vict = "Your feet lift lightly from the ground.";
 	to_room = "$n begins to hover above the ground.";
-	GET_POS(victim) = POS_FLYING;
+	victim->setPosition( POS_FLYING );
 	break;
 
 
@@ -2052,7 +2052,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	act(to_room, TRUE, victim, 0, ch, TO_ROOM);
 
     if (spellnum == SPELL_FEAR && !mag_savingthrow(victim, level, SAVING_PSI) &&
-	GET_POS(victim) > POS_SITTING)
+	victim->getPosition() > POS_SITTING)
 	do_flee(victim, "", 0, 0);
 }
   
@@ -2258,40 +2258,40 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
     }
 
     for ( tch = ch->in_room->people; tch; tch = next_tch ) {
-	next_tch = tch->next_in_room;
+        next_tch = tch->next_in_room;
 
-	// skips:
-	//          caster
-	//          nohassle-flagged players (imms)
-	//          charmed mobs
-	//          flying chars if spell is earthquake
+        // skips:
+        //          caster
+        //          nohassle-flagged players (imms)
+        //          charmed mobs
+        //          flying chars if spell is earthquake
 
-	if (tch == ch)
-	    continue;
-	if (!IS_NPC(tch) && PRF_FLAGGED( tch, PRF_NOHASSLE ) )
-	    continue;
-	if (!IS_NPC(ch) && IS_NPC(tch) && IS_AFFECTED(tch, AFF_CHARM))
-	    continue; 
-	if (spellnum == SPELL_EARTHQUAKE && GET_POS(tch) == POS_FLYING)
-	    continue;
+        if (tch == ch)
+            continue;
+        if (!IS_NPC(tch) && PRF_FLAGGED( tch, PRF_NOHASSLE ) )
+            continue;
+        if (!IS_NPC(ch) && IS_NPC(tch) && IS_AFFECTED(tch, AFF_CHARM))
+            continue; 
+        if (spellnum == SPELL_EARTHQUAKE && tch->getPosition() == POS_FLYING)
+            continue;
 
-	if (spellnum == SPELL_MASS_HYSTERIA) {
-	    call_magic(ch, tch, 0, SPELL_FEAR, level, CAST_PSIONIC);
-	    continue;
-	}
-       
-	if (spellnum == SPELL_FISSION_BLAST) {
-	   if( !( mag_savingthrow( tch, level, SAVING_PHY ) ) ){ 
-		  add_rad_sickness( tch, level );
-	   }
-	}
- 
-	if (!mag_damage(level, ch, tch, spellnum, 1)) {
-	    if (spellnum == SPELL_EARTHQUAKE && number(10, 20) > GET_DEX(ch)) {
-		send_to_char("You stumble and fall to the ground!\r\n", ch);
-		GET_POS(ch) = POS_SITTING;
-	    }
-	}
+        if (spellnum == SPELL_MASS_HYSTERIA) {
+            call_magic(ch, tch, 0, SPELL_FEAR, level, CAST_PSIONIC);
+            continue;
+        }
+           
+        if (spellnum == SPELL_FISSION_BLAST) {
+           if( !( mag_savingthrow( tch, level, SAVING_PHY ) ) ){ 
+              add_rad_sickness( tch, level );
+           }
+        }
+     
+        if (!mag_damage(level, ch, tch, spellnum, 1)) {
+            if (spellnum == SPELL_EARTHQUAKE && number(10, 20) > GET_DEX(ch)) {
+            send_to_char("You stumble and fall to the ground!\r\n", ch);
+            ch->setPosition( POS_SITTING );
+            }
+        }
     }
 
     if (to_next_room) {
@@ -2310,12 +2310,12 @@ mag_areas(byte level, struct char_data * ch, int spellnum, int savetype)
 			continue;
 		    if (!IS_NPC(ch) && IS_NPC(tch) && IS_AFFECTED(tch, AFF_CHARM))
 			continue; 
-		    if (spellnum == SPELL_EARTHQUAKE && GET_POS(tch) == POS_FLYING)
+		    if (spellnum == SPELL_EARTHQUAKE && tch->getPosition() == POS_FLYING)
 			continue;
-		    if (spellnum == SPELL_EARTHQUAKE && GET_POS(tch) == POS_STANDING &&
+		    if (spellnum == SPELL_EARTHQUAKE && tch->getPosition() == POS_STANDING &&
 			number(10, 20) > GET_DEX(tch)) {
 			send_to_char("You stumble and fall to the ground!\r\n", tch);
-			GET_POS(tch) = POS_SITTING;
+			tch->setPosition( POS_SITTING );
 		    }
 		}
 	    }

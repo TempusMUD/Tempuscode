@@ -9,7 +9,7 @@ SPECIAL(stepping_stone)
   struct obj_data *ruby = (struct obj_data *) me;
 
   if (CMD_IS("south")) {
-    if (GET_POS(ch) >= POS_STANDING) {
+    if (ch->getPosition() >= POS_STANDING) {
       if (GET_HOME(ch) != HOME_ARENA) {
         act("$p flares up suddenly with a bright light!", 
 	    FALSE, ch, ruby, 0, TO_ROOM);

@@ -415,7 +415,7 @@ ACMD(do_goto)
     char_from_room(ch);
     char_to_room(ch, location);
     if (location->isOpenAir() )
-	GET_POS(ch) = POS_FLYING;
+	ch->setPosition( POS_FLYING );
 
     if (POOFIN(ch))
 	sprintf(buf, "$n %s", POOFIN(ch));
@@ -467,7 +467,7 @@ ACMD(do_trans)
 		send_to_char("Go transfer someone your own size.\r\n", ch);
 		return;
 	    }
-	    if ( ch->in_room->isOpenAir() && GET_POS(victim) != POS_FLYING ) {
+	    if ( ch->in_room->isOpenAir() && victim->getPosition() != POS_FLYING ) {
 		send_to_char("Come now, you are in midair.  Are they flying?  I think not.\r\n", ch);
 		return;
 	    }
@@ -1603,7 +1603,7 @@ do_stat_character(struct char_data * ch, struct char_data * k)
   
     if (IS_NPC(k)) {
 	sprintf(buf, "Pos: %s, Dpos: %s, Attack: %s",
-		position_types[(int)GET_POS(k)],
+		position_types[k->getPosition()],
 		position_types[(int)k->mob_specials.shared->default_pos],
 		attack_hit_text[k->mob_specials.shared->attack_type].singular);
 	if (k->in_room)
@@ -1617,7 +1617,7 @@ do_stat_character(struct char_data * ch, struct char_data * k)
     }
     else if (k->in_room) {
 	sprintf(buf, "Pos: %s, %sFT%s: %s, %sHNT%s: %s",
-		position_types[(int)GET_POS(k)],
+		position_types[k->getPosition()],
 		CCRED(ch, C_NRM),   CCNRM(ch, C_NRM),
 		(FIGHTING(k) ? GET_NAME(FIGHTING(k)) : "N"),
 		CCYEL(ch, C_NRM),   CCNRM(ch, C_NRM),
@@ -1632,7 +1632,7 @@ do_stat_character(struct char_data * ch, struct char_data * k)
 	strcat(outbuf, strcat(buf, buf2));
     }
 
-    if (GET_POS(k) == POS_MOUNTED && MOUNTED(k)) {
+    if (k->getPosition() == POS_MOUNTED && MOUNTED(k)) {
 	strcpy(buf, "Mount: ");
 	strcat(outbuf, strcat(strcat(buf, GET_NAME(MOUNTED(k))), "\r\n"));
     }
@@ -1751,7 +1751,7 @@ do_stat_character(struct char_data * ch, struct char_data * k)
 	sprintf(buf, "AFF3: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	strcat(outbuf, buf);
     }
-    if (GET_POS(k) == POS_SITTING && IS_AFFECTED_2(k, AFF2_MEDITATE)) {
+    if (k->getPosition() == POS_SITTING && IS_AFFECTED_2(k, AFF2_MEDITATE)) {
 	sprintf(buf, "Meditation Timer: [%d]\r\n", MEDITATE_TIMER(k));
 	strcat(outbuf, buf);
     }
@@ -6077,7 +6077,7 @@ ACMD(do_rename)
 #ifdef DMALLOC
 	dmalloc_verify(0);
 #endif
-	if (GET_POS(vict) == POS_FLYING)
+	if (vict->getPosition() == POS_FLYING)
 	    sprintf(buf, "%s is hovering here.\r\n", new_desc);
 	else
 	    sprintf(buf, "%s is standing here.\r\n", new_desc);

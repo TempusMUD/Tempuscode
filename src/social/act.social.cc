@@ -142,7 +142,7 @@ ACMD(do_action)
 	send_to_char("\r\n", ch);
 	act(action->others_auto, action->hide, ch, 0, 0, TO_ROOM);
     } else {
-	if (GET_POS(vict) < action->min_victim_position)
+	if (vict->getPosition() < action->min_victim_position)
 	    act("$N is not in a proper position for that.",
 		FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else {

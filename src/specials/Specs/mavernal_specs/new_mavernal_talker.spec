@@ -28,15 +28,15 @@ SPECIAL(new_mavernal_talker)
     act("$n smiles happily.", FALSE, ch, 0, 0, TO_ROOM);
     return (1);
   case 2:
-    if(GET_POS(ch) == POS_STANDING) {
+    if(ch->getPosition() == POS_STANDING) {
       do_say(ch, "I really need a break from all this standing.", 0, 0);
       act("$n sits down.", FALSE, ch, 0, 0, TO_ROOM);
-      GET_POS(ch) = POS_RESTING;
+      ch->setPosition( POS_RESTING );
     } else {
       do_say(ch, "Well, I'm tired of resting, I think I'll stand.", 0, 0);
       act("$n stops resting and clambers to $s feet.", FALSE, ch, 0, 0,
           TO_ROOM);
-      GET_POS(ch) = POS_STANDING;
+      ch->setPosition( POS_STANDING );
     }
     act("$n smiles happily.", FALSE, ch, 0, 0, TO_ROOM);
     return (1);

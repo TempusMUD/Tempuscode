@@ -1107,9 +1107,9 @@ SPECIAL(shop_keeper)
 		    do_order(keeper, buf2, 0, 0);
 		    break;
 		case 19:
-		    if (GET_POS(sucker) > POS_SLEEPING)
+		    if (sucker->getPosition() > POS_SLEEPING)
 			sprintf(buf2, "%s sleep", GET_NAME(sucker));
-		    if (GET_POS(sucker) == POS_SLEEPING)
+		    if (sucker->getPosition() == POS_SLEEPING)
 			sprintf(buf2, "%s wake", GET_NAME(sucker));
 		    do_order(keeper, buf2, 0, 0);
 		    break;

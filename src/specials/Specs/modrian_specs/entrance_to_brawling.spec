@@ -22,7 +22,7 @@ SPECIAL(entrance_to_brawling)
     case 2:
       send_to_char("As you try to enter, a huge man is thrown through, knocking you down.\r\n", ch);
       act("$n tries to go north, but is knocked down.", FALSE, ch, 0, 0, TO_ROOM);
-      GET_POS(ch) = POS_SITTING;
+      ch->setPosition( POS_SITTING );
       break;
     case 3:
       send_to_char("A rabid whore tells you, 'You better go pump some iron first!!'\r\n", ch);
@@ -34,7 +34,7 @@ SPECIAL(entrance_to_brawling)
     case 5:
       send_to_char("You slip on a greasy spot on the floor!\r\n", ch);
       act("$n slips down on a greasy spot on the floor.", FALSE, ch, 0, 0, TO_ROOM);
-      GET_POS(ch) = POS_SITTING;
+      ch->setPosition( POS_SITTING );
       break;
     case 6:
       send_to_char("Some fool by the door grabs a fire extinguisher.\r\n", ch);
@@ -43,7 +43,7 @@ SPECIAL(entrance_to_brawling)
     case 7:
       send_to_char("You trip over your shoelaces before you get to the door.\r\n", ch);
       act("$n trips over $s shoelaces and falls down.", FALSE, ch, 0, 0, TO_ROOM);
-      GET_POS(ch) = POS_SITTING;
+      ch->setPosition( POS_SITTING );
       break;
     }
     return 1;

@@ -337,9 +337,9 @@ SPECIAL(windy_room)
 
     prob = number(windy->min, windy->max);
   
-    if (GET_POS(ch) < POS_FIGHTING) // lying-low bonus
+    if (ch->getPosition() < POS_FIGHTING) // lying-low bonus
 	prob -= 5;
-    if (GET_POS(ch) >= POS_FLYING)  // flying penalty
+    if (ch->getPosition() >= POS_FLYING)  // flying penalty
 	prob += 10;
   
     prob -= (GET_WEIGHT(ch) + IS_CARRYING_W(ch) + IS_WEARING_W(ch)) / 80;  // weight bonus
@@ -377,7 +377,7 @@ SPECIAL(windy_room)
     
 	look_at_room(ch, ch->in_room, 0);
 
-	GET_POS(ch) = POS_SITTING;
+	ch->setPosition( POS_SITTING );
 	sprintf(buf,
 		"$n comes flying in on an icy blast of wind from %s!",
 		from_dirs[dir]);

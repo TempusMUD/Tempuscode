@@ -16,7 +16,7 @@ SPECIAL(rat_mama)
          -1
   };
 
-  if (cmd || FIGHTING(ch) || GET_POS(ch) == POS_FIGHTING)
+  if (cmd || FIGHTING(ch) || ch->getPosition() == POS_FIGHTING)
     return (0);
 
 

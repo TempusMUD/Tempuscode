@@ -10,7 +10,7 @@ SPECIAL(falling_tower_dt)
   
   if ((under_room = real_room(5241)) == NULL)
     return 0;
-  if (GET_POS(ch) == POS_FLYING)
+  if (ch->getPosition() == POS_FLYING)
     return 0;
   if (CMD_IS("down")) {
     send_to_char("As you begin to descend the ladder, a rung breaks, sending you\r\n"
@@ -23,13 +23,13 @@ SPECIAL(falling_tower_dt)
     GET_HIT(ch) = MAX(-8, GET_HIT(ch) - 
             dice(10, 100 - GET_DEX(ch) - 40*IS_AFFECTED(ch, AFF_INFLIGHT)));
     if (GET_HIT(ch) > 0)
-      GET_POS(ch) = POS_SITTING;
+      ch->setPosition( POS_SITTING );
     else if (GET_HIT(ch) < -6)
-      GET_POS(ch) = POS_MORTALLYW;
+      ch->setPosition( POS_MORTALLYW );
     else if (GET_HIT(ch) < -3)
-      GET_POS(ch) = POS_INCAP;
+      ch->setPosition( POS_INCAP );
     else 
-      GET_POS(ch) = POS_STUNNED;
+      ch->setPosition( POS_STUNNED );
     return 1;
   }
   return 0;

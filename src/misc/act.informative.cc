@@ -728,7 +728,7 @@ list_one_char(struct char_data * i, struct char_data * ch, byte is_group)
 	    act("$n seems to have seen you.", TRUE, ch, 0, i, TO_VICT);
     } 
 
-    if (IS_NPC(i) && GET_POS(i) == GET_DEFAULT_POS(i)) {
+    if (IS_NPC(i) && i->getPosition() == GET_DEFAULT_POS(i)) {
     
 	if (!i->player.long_descr) {
 	    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
@@ -827,24 +827,24 @@ list_one_char(struct char_data * i, struct char_data * ch, byte is_group)
 	strcat(buf, CCBLD(ch, C_CMP));
 
 
-    if ((GET_POS(i) != POS_FIGHTING) && (GET_POS(i) != POS_MOUNTED)) {
-	if (IS_AFFECTED_2(i, AFF2_MEDITATE) && GET_POS(i) == POS_SITTING)
+    if ((i->getPosition() != POS_FIGHTING) && (i->getPosition() != POS_MOUNTED)) {
+	if (IS_AFFECTED_2(i, AFF2_MEDITATE) && i->getPosition() == POS_SITTING)
 	    strcat(buf, " is meditating here.");
-	else if (AFF3_FLAGGED(i, AFF3_STASIS) && GET_POS(i) == POS_SLEEPING)
+	else if (AFF3_FLAGGED(i, AFF3_STASIS) && i->getPosition() == POS_SLEEPING)
 	    strcat(buf, " is lying here in a static state.");
 	else if ((SECT_TYPE(i->in_room) == SECT_WATER_NOSWIM ||
 		  SECT_TYPE(i->in_room) == SECT_WATER_SWIM   ||
 		  SECT_TYPE(i->in_room) == SECT_FIRE_RIVER) &&
-		 (!IS_AFFECTED(i, AFF_WATERWALK) || GET_POS(ch) < POS_STANDING))
+		 (!IS_AFFECTED(i, AFF_WATERWALK) || ch->getPosition() < POS_STANDING))
 	    strcat(buf, " is swimming here.");
-	else if(SECT_TYPE(i->in_room) ==SECT_UNDERWATER && GET_POS(i)>POS_RESTING)
+	else if(SECT_TYPE(i->in_room) ==SECT_UNDERWATER && i->getPosition() > POS_RESTING)
 	    strcat(buf, " is swimming here.");
-	else if (SECT_TYPE(i->in_room) == SECT_PITCH_PIT && GET_POS(i)<POS_FLYING)
+	else if (SECT_TYPE(i->in_room) == SECT_PITCH_PIT && i->getPosition() < POS_FLYING)
 	    strcat(buf, " is struggling in the pitch.");
 	else if (SECT_TYPE(i->in_room) == SECT_PITCH_SUB)
 	    strcat(buf, " is struggling blindly in the pitch.");
 	else
-	    strcat(buf, positions[(int) MAX(0, MIN(GET_POS(i), POS_SWIMMING))]);
+	    strcat(buf, positions[(int) MAX(0, MIN(i->getPosition(), POS_SWIMMING))]);
     } else {
 	if (FIGHTING(i)) {
 	    strcat(buf, " is here, fighting ");
@@ -866,7 +866,7 @@ list_one_char(struct char_data * i, struct char_data * ch, byte is_group)
 		    strcat(buf, PERS(MOUNTED(i), ch));
 		else {
 		    strcat(buf, "someone who has already left");
-		    GET_POS(i) = POS_STANDING;
+		    i->setPosition( POS_STANDING );
 		    MOUNTED(i) = NULL;
 		}
 		strcat(buf, ".");
@@ -1738,7 +1738,7 @@ glance_at_target(struct char_data * ch, char *arg, int cmd)
 			(GET_MORALE(found_char) > 
 			 number(GET_LEVEL(ch) >> 1, GET_LEVEL(ch))) &&
 			!PRF_FLAGGED(ch, PRF_NOHASSLE)) {
-			if (GET_POS(found_char) >= POS_SITTING) {
+			if (found_char->getPosition() >= POS_SITTING) {
 			    if (peaceful_room_ok(found_char, ch, false))
 				hit(found_char, ch, TYPE_UNDEFINED);
 			} else
@@ -1874,7 +1874,7 @@ ACMD(do_look)
     if (!ch->desc)
 	return;
 
-    if (GET_POS(ch) < POS_SLEEPING)
+    if (ch->getPosition() < POS_SLEEPING)
 	send_to_char("You can't see anything but stars!\r\n", ch);
     else if (IS_AFFECTED(ch, AFF_BLIND) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
 	send_to_char("You can't see a damned thing, you're blind!\r\n", ch);
@@ -1912,7 +1912,7 @@ ACMD(do_glance)
     if (!ch->desc)
 	return;
 
-    if (GET_POS(ch) < POS_SLEEPING)
+    if (ch->getPosition() < POS_SLEEPING)
 	send_to_char("You can't see anything but stars!\r\n", ch);
     else if (IS_AFFECTED(ch, AFF_BLIND) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
 	send_to_char("You can't see a damned thing, you're blind!\r\n", ch);
@@ -2400,7 +2400,7 @@ ACMD(do_score)
 	    buf, CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM),
 	    CCCYN(ch, C_NRM), GET_CASH(ch), CCNRM(ch, C_NRM));
   
-    switch (GET_POS(ch)) {
+    switch (ch->getPosition()) {
     case POS_DEAD:
 	strcat(buf, CCRED(ch, C_NRM));
 	strcat(buf, "You are DEAD!\r\n");

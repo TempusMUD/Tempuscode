@@ -6,7 +6,7 @@
 
 SPECIAL(circus_clown)
 {
-  if (!cmd && !FIGHTING(ch) && GET_POS(ch) != POS_FIGHTING) {
+  if (!cmd && !FIGHTING(ch) && ch->getPosition() != POS_FIGHTING) {
     switch (number(0, 30)) {
     case 0:
       act("$n flips head over heels.", TRUE, ch, 0, 0, TO_ROOM);

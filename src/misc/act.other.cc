@@ -84,9 +84,9 @@ ACMD(do_quit)
 
     if (subcmd != SCMD_QUIT && GET_LEVEL(ch) < LVL_AMBASSADOR)
 	send_to_char("You have to type quit - no less, to quit!\r\n", ch);
-    else if (GET_POS(ch) == POS_FIGHTING)
+    else if (ch->getPosition() == POS_FIGHTING)
 	send_to_char("No way!  You're fighting for your life!\r\n", ch);
-    else if (GET_POS(ch) < POS_STUNNED) {
+    else if (ch->getPosition() < POS_STUNNED) {
 	send_to_char("You die before your time...\r\n", ch);
 	die(ch, 0, 0, 0);
     } else if (PLR_FLAGGED(ch, PLR_QUESTOR)) {
@@ -400,7 +400,7 @@ ACMD(do_group)
 	return;
     } 
 
-    if (GET_POS(ch) < POS_RESTING) {
+    if (ch->getPosition() < POS_RESTING) {
 	send_to_char("You need to be awake to do that.\r\n", ch);
 	return;
     }
@@ -1710,7 +1710,7 @@ ACMD(do_feed)
 		send_to_char("You must enter the command: 'feed on <victim>'.\r\n",ch);
 	    else if (!(vict = get_char_room_vis(ch, arg2)))
 		send_to_char("You don't see anyone around by that name.\r\n", ch);
-	    else if (GET_POS(vict) > POS_SLEEPING)
+	    else if (vict->getPosition() > POS_SLEEPING)
 		act("$E is too alert for you to feed on $M.", FALSE, ch, 0, vict, TO_CHAR);
 	    else if (IS_UNDEAD(vict))
 		send_to_char("Ack!  You cannot feed from another undead!\r\n", ch);
@@ -1859,8 +1859,8 @@ ACMD(do_knock)
 	act("$n knocks on your skull.  Anybody home?", 
 	    FALSE,ch,0,vict,TO_VICT|TO_SLEEP);
 	act("$n knocks on $N's skull.  Anybody home?", FALSE,ch,0,vict,TO_NOTVICT);
-	if (GET_POS(vict) == POS_SLEEPING && !AFF_FLAGGED(vict, AFF_SLEEP))
-	    GET_POS(vict) = POS_RESTING;
+	if (vict->getPosition() == POS_SLEEPING && !AFF_FLAGGED(vict, AFF_SLEEP))
+	    vict->setPosition( POS_RESTING );
 	return;
     }
     

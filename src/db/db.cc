@@ -3819,7 +3819,7 @@ clear_char(struct char_data * ch)
     if (ch->player_specials) {
 	GET_WAS_IN(ch) = NULL;
     }
-    GET_POS(ch) = POS_STANDING;
+    ch->setPosition( POS_STANDING );
     GET_REMORT_CLASS(ch) = -1;
 
     GET_AC(ch) = 100;		/* Basic Armor */

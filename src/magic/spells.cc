@@ -341,7 +341,7 @@ ASPELL(spell_local_teleport)
 				 "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
 		act("$n is knocked to the ground by a blinding flash of light!", 
 			FALSE, victim, 0, 0, TO_ROOM);
-		GET_POS(victim) = POS_RESTING;
+		victim->setPosition( POS_RESTING );
 		return;
     }
 
@@ -463,7 +463,7 @@ ASPELL(spell_teleport)
 		     victim);
 	act("$n is knocked to the ground by a blinding flash of light!", 
 	    FALSE, victim, 0, 0, TO_ROOM);
-	GET_POS(victim) = POS_RESTING;
+	victim->setPosition( POS_RESTING );
 	return;
     }
  
@@ -582,7 +582,7 @@ ASPELL(spell_astral_spell)
 		     victim);
 	act("$n is knocked to the ground by a blinding flash of light!", 
 	    FALSE, victim, 0, 0, TO_ROOM);
-	GET_POS(victim) = POS_RESTING;
+	victim->setPosition(POS_RESTING);
 	return;
     }
  
@@ -694,7 +694,7 @@ ASPELL(spell_summon)
 		     victim);
 	act("$n is knocked to the ground by a blinding flash of light!", 
 	    FALSE, victim, 0, 0, TO_ROOM);
-	GET_POS(victim) = POS_RESTING;
+	victim->setPosition( POS_RESTING );
 	send_to_char(SUMMON_FAIL, ch);
 	return;
     }
@@ -2220,7 +2220,7 @@ ASPELL(spell_gust_of_wind)
     }
   
     if ((GET_LEVEL(victim) + GET_DEX(victim) + 
-	 ((GET_POS(victim) == POS_FLYING) ? -20 : 0)) < 
+	 ((victim->getPosition() == POS_FLYING) ? -20 : 0)) < 
 	GET_LEVEL(ch) + number(10, GET_DEX(ch) + 40) && 
 	!mag_savingthrow(victim, level, SAVING_BREATH) && !IS_DRAGON(victim) &&
 	!affected_by_spell(victim, SPELL_ENTANGLE) &&
@@ -2252,7 +2252,7 @@ ASPELL(spell_gust_of_wind)
 		    look_at_room(victim, victim->in_room, 0);
 		    sprintf(buf, "$n is blown in on a gust of wind from the %s!", from_dirs[attempt]);
 		    act(buf, FALSE, victim, 0, 0, TO_ROOM);
-		    GET_POS(victim) = POS_RESTING;
+		    victim->setPosition( POS_RESTING );
 		    found = TRUE;
 		}
 	    } 

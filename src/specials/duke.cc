@@ -166,7 +166,7 @@ int banzaii(struct char_data * ch)
 
     struct char_data *chOpponent = NULL;
 
-    if (!AWAKE(ch) || GET_POS(ch) == POS_FIGHTING)
+    if (!AWAKE(ch) || ch->getPosition() == POS_FIGHTING)
 	return FALSE;
 
     if ((chOpponent = get_victim(ch))) {
@@ -341,11 +341,11 @@ SPECIAL(duke_araken)
 	    index = 0;
 	}
     }
-    if (cmd || (GET_POS(ch) < POS_SLEEPING) ||
-	(GET_POS(ch) == POS_SLEEPING && !move))
+    if (cmd || (ch->getPosition() < POS_SLEEPING) ||
+	(ch->getPosition() == POS_SLEEPING && !move))
 	return FALSE;
 
-    if (GET_POS(ch) == POS_FIGHTING) {
+    if (ch->getPosition() == POS_FIGHTING) {
 	fry_victim(ch);
 	return FALSE;
     } else if (banzaii(ch))
@@ -372,22 +372,22 @@ SPECIAL(duke_araken)
     case 'P':
 	break;
     case 'W':
-	GET_POS(ch) = POS_STANDING;
+	ch->setPosition( POS_STANDING );
 	act("$n awakens and stands up.", FALSE, ch, 0, 0, TO_ROOM);
 	break;
 
     case 'S':
-	GET_POS(ch) = POS_SLEEPING;
+	ch->setPosition( POS_SLEEPING );
 	act("$n lies down on $s beautiful bed and instantly falls asleep.", FALSE, ch, 0, 0, TO_ROOM);
 	break;
 
     case 'r':
-	GET_POS(ch) = POS_SITTING;
+	ch->setPosition( POS_SITTING );
 	act("$n sits down on his great throne.", FALSE, ch, 0, 0, TO_ROOM);
 	break;
 
     case 's':
-	GET_POS(ch) = POS_STANDING;
+	ch->setPosition( POS_STANDING );
 	act("$n stands up.", FALSE, ch, 0, 0, TO_ROOM);
 	break;
 
@@ -428,7 +428,7 @@ SPECIAL(training_master)
 
     struct char_data *pupil1, *pupil2, *tch;
 
-    if (!AWAKE(ch) || (GET_POS(ch) == POS_FIGHTING))
+    if (!AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
 	return FALSE;
 
     if (cmd)
@@ -540,7 +540,7 @@ SPECIAL(tom)
 	    if (FIGHTING(tim) && 2 * GET_HIT(tim) < GET_HIT(ch))
 		do_npc_rescue(ch, tim);
 
-    if (!cmd && GET_POS(ch) != POS_FIGHTING)
+    if (!cmd && ch->getPosition() != POS_FIGHTING)
 	banzaii(ch);
 
     return block_way(ch, tom, cmd, arg, CASTLE_ITEM(49), 1);
@@ -569,7 +569,7 @@ SPECIAL(tim)
 	    if (FIGHTING(tom) && 2 * GET_HIT(tom) < GET_HIT(ch))
 		do_npc_rescue(ch, tom);
 
-    if (!cmd && GET_POS(ch) != POS_FIGHTING)
+    if (!cmd && ch->getPosition() != POS_FIGHTING)
 	banzaii(ch);
 
     return block_way(ch, tim, cmd, arg, CASTLE_ITEM(49), 1);
@@ -583,7 +583,7 @@ SPECIAL(James)
 
     struct obj_data *i;
 
-    if (cmd || !AWAKE(ch) || (GET_POS(ch) == POS_FIGHTING))
+    if (cmd || !AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
 	return (FALSE);
 
     for (i = ch->in_room->contents; i; i = i->next_content)
@@ -629,14 +629,14 @@ SPECIAL(cleaning)
 SPECIAL(CastleGuard)
 {
 
-    if (cmd || !AWAKE(ch) || (GET_POS(ch) == POS_FIGHTING))
+    if (cmd || !AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
 	return FALSE;
 
     return (banzaii(ch));
 }
 SPECIAL(sleeping_soldier)
 {
-    if (cmd || (GET_POS(ch) == POS_FIGHTING))
+    if (cmd || (ch->getPosition() == POS_FIGHTING))
 	return FALSE;
     if (!AWAKE(ch))
 	switch (number(0, 60)) {
@@ -663,7 +663,7 @@ SPECIAL(sleeping_soldier)
 }
 SPECIAL(lounge_soldier)
 {
-    if (cmd || !AWAKE(ch) || (GET_POS(ch) == POS_FIGHTING))
+    if (cmd || !AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
 	return FALSE;
   
     switch(number(0, 60)) {
@@ -718,7 +718,7 @@ SPECIAL(DicknDavid)
     if (!AWAKE(ch))
 	return (FALSE);
 
-    if (!cmd && GET_POS(ch) != POS_FIGHTING)
+    if (!cmd && ch->getPosition() != POS_FIGHTING)
 	banzaii(ch);
 
     return (block_way(ch, guard, cmd, arg, 15453, 3));
@@ -730,7 +730,7 @@ SPECIAL(chess_guard_no_west)
   
     if (!AWAKE(ch))
 	return FALSE;
-    if (!cmd && GET_POS(ch) != POS_FIGHTING)
+    if (!cmd && ch->getPosition() != POS_FIGHTING)
 	banzaii(ch);
 
     if (GET_LEVEL(ch) > 39)
@@ -744,7 +744,7 @@ SPECIAL(chess_guard_no_east)
     struct char_data * guard = (struct char_data *) me;
     if (!AWAKE(ch))
 	return FALSE;
-    if (!cmd && GET_POS(ch) != POS_FIGHTING)
+    if (!cmd && ch->getPosition() != POS_FIGHTING)
 	banzaii(ch);
 
     if (GET_LEVEL(ch) > 39)
@@ -758,7 +758,7 @@ SPECIAL(armory_guard)
     struct char_data * guard = (struct char_data *) me;
     if (!AWAKE(ch))
 	return FALSE;
-    if (!cmd && GET_POS(ch) != POS_FIGHTING)
+    if (!cmd && ch->getPosition() != POS_FIGHTING)
 	banzaii(ch);
 
     return (block_way(ch, guard, cmd, arg, 15357, 1));
@@ -786,7 +786,7 @@ SPECIAL(peter)
 
     struct char_data *ch_guard;
 
-    if (cmd || !AWAKE(ch) || GET_POS(ch) == POS_FIGHTING)
+    if (cmd || !AWAKE(ch) || ch->getPosition() == POS_FIGHTING)
 	return (FALSE);
 
     if (banzaii(ch))
@@ -853,7 +853,7 @@ SPECIAL(jerry)
 
     struct char_data *gambler1, *gambler2, *tch;
 
-    if (!AWAKE(ch) || (GET_POS(ch) == POS_FIGHTING))
+    if (!AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
 	return FALSE;
 
     if (cmd)

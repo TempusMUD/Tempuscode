@@ -1378,8 +1378,8 @@ cast_spell(struct char_data * ch, struct char_data * tch,
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 	}
     }
-    if (GET_POS(ch) < SINFO.min_position) {
-	switch (GET_POS(ch)) {
+    if (ch->getPosition() < SINFO.min_position) {
+	switch (ch->getPosition()) {
 	case POS_SLEEPING:
 	    if (SPELL_IS_PHYSICS(spellnum))
 		send_to_char("You dream about great physical powers.\r\n", ch);
@@ -1479,7 +1479,7 @@ cast_spell(struct char_data * ch, struct char_data * tch,
 	     
     if (tch && ch != tch && IS_NPC(tch) && tch->in_room && 
 	ch->in_room == tch->in_room &&
-	SINFO.violent && !FIGHTING(tch) && GET_POS(tch) > POS_SLEEPING && 
+	SINFO.violent && !FIGHTING(tch) && tch->getPosition() > POS_SLEEPING && 
 	(!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master))
 	hit(tch, ch, TYPE_UNDEFINED);
   
@@ -1763,7 +1763,7 @@ ACMD(do_cast)
 
     prob -= (NUM_WEARS - num_eq);
 
-    if (FIGHTING(ch) && GET_POS(FIGHTING(ch)) == POS_FIGHTING)
+    if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
 	prob += (GET_LEVEL(FIGHTING(ch)) >> 3);
   
     /**** casting probability ends here *****/
@@ -1932,7 +1932,7 @@ ACMD(do_trigger)
   
     prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
-    if (FIGHTING(ch) && GET_POS(FIGHTING(ch)) == POS_FIGHTING)
+    if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
 	prob -= (GET_LEVEL(FIGHTING(ch)) >> 3);
   
     /**** casting probability ends here *****/

@@ -10,7 +10,7 @@ SPECIAL(fire_breather)
   if (cmd)
     return FALSE;
 
-  if (GET_POS(ch) != POS_FIGHTING || !FIGHTING(ch))
+  if (ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))
     return FALSE;
 
   if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) &&

@@ -6,7 +6,7 @@
 
 SPECIAL(medusa)
 {
-  if (cmd || GET_POS(ch) != POS_FIGHTING)
+  if (cmd || ch->getPosition() != POS_FIGHTING)
     return FALSE;
 
   if (isname("medusa", ch->player.name) &&

@@ -10,7 +10,7 @@ SPECIAL(aziz_canon)
 
   if (cmd)
     return 0;
-  if (!FIGHTING(ch) && GET_POS(ch) != POS_FIGHTING) {
+  if (!FIGHTING(ch) && ch->getPosition() != POS_FIGHTING) {
     for (vict = ch->in_room->people;vict;vict = vict->next_in_room) {
       if (!number(0, 2))
         break;
@@ -51,7 +51,7 @@ SPECIAL(aziz_canon)
       act("$n gets in a three point stance and plows his shoulder into $N!",FALSE,ch,0,FIGHTING(ch),TO_NOTVICT);
       if (GET_LEVEL(FIGHTING(ch)) < LVL_IMMORT) {
         GET_HIT(FIGHTING(ch))-=dice (1,20);
-        GET_POS(FIGHTING(ch)) = POS_SITTING;
+        (FIGHTING(ch))->setPosition( POS_SITTING );
         WAIT_STATE(ch, PULSE_VIOLENCE*4);
         WAIT_STATE(FIGHTING(ch), PULSE_VIOLENCE*2);
       }

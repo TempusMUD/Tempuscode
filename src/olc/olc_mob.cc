@@ -891,7 +891,7 @@ void do_mob_mset(struct char_data *ch, char *argument)
 	    send_to_char(buf, ch);
 	}
 	else {
-	    GET_POS(mob_p) = i;
+	    mob_p->setPosition( i );
 	    send_to_char("Mobile position set.\r\n", ch);
 	}
 	break;
@@ -1371,7 +1371,7 @@ save_mobs(struct char_data *ch)
 		GET_RACE(mob),
 		GET_CLASS(mob));
     
-	fprintf(file, "%d %d %d %d\n", GET_POS(mob),
+	fprintf(file, "%d %d %d %d\n", mob->getPosition(),
 		GET_DEFAULT_POS(mob),
 		GET_SEX(mob),
 		mob->mob_specials.shared->attack_type);

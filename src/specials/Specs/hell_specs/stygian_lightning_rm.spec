@@ -16,7 +16,7 @@ SPECIAL(stygian_lightning_rm)
 
     new_vict = ch;
     for (vict = ch->in_room->people;vict;vict = vict->next_in_room) {
-	if (!IS_NPC(vict) && GET_POS(vict) > POS_SITTING && !IS_DEVIL(vict) &&
+	if (!IS_NPC(vict) && vict->getPosition() > POS_SITTING && !IS_DEVIL(vict) &&
 	    GET_LEVEL(vict) > GET_LEVEL(new_vict) && GET_LEVEL(vict) < LVL_IMMORT
 	    && !number(0, 3))
 	    new_vict = vict;

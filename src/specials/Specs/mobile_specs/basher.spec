@@ -9,7 +9,7 @@ SPECIAL(basher)
   struct char_data *vict;
   ACMD(do_bash);
 
-  if (cmd || GET_POS(ch) != POS_FIGHTING || !FIGHTING(ch))
+  if (cmd || ch->getPosition() != POS_FIGHTING || !FIGHTING(ch))
     return 0;
 
   if (number(0, 81) > GET_LEVEL(ch))

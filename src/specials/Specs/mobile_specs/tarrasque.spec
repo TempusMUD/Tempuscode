@@ -114,10 +114,10 @@ tarrasque_fight(struct char_data *tarr)
 		(dice(20, 20) + 100) : 0,
 		TYPE_TAIL_LASH, WEAR_LEGS) &&
 	FIGHTING(tarr) &&
-	GET_POS(FIGHTING(tarr)) == POS_FIGHTING && 
+	(FIGHTING(tarr))->getPosition() == POS_FIGHTING && 
 	GET_DEX(FIGHTING(tarr)) < number(10, 18) &&
 	!PRF_FLAGGED(FIGHTING(tarr), PRF_NOHASSLE))
-      GET_POS(FIGHTING(tarr)) = POS_RESTING;
+      (FIGHTING(tarr))->setPosition( POS_RESTING );
     else
       return 1;
     
@@ -126,9 +126,9 @@ tarrasque_fight(struct char_data *tarr)
 		  GET_DEX(vict) < number(5, 28) ?	
 		  (dice(20, 20) + 100) : 0,
 		  TYPE_TAIL_LASH, WEAR_LEGS) && 
-	  GET_POS(vict) == POS_FIGHTING && GET_DEX(vict) < number(10, 18) &&
+	  vict->getPosition() == POS_FIGHTING && GET_DEX(vict) < number(10, 18) &&
 	  !PRF_FLAGGED(vict, PRF_NOHASSLE))
-	GET_POS(vict) = POS_RESTING;
+	vict->setPosition( POS_RESTING);
       else
 	return 1;
     }
@@ -138,9 +138,9 @@ tarrasque_fight(struct char_data *tarr)
 		  GET_DEX(vict2) < number(5, 28) ?  
 		  (dice(20, 20) + 100) : 0,
 		  TYPE_TAIL_LASH, WEAR_LEGS) && 
-	  GET_POS(vict2) == POS_FIGHTING && GET_DEX(vict2) < number(10, 18) &&
+	  vict2->getPosition() == POS_FIGHTING && GET_DEX(vict2) < number(10, 18) &&
 	  !PRF_FLAGGED(vict2, PRF_NOHASSLE))
-	GET_POS(vict2) = POS_RESTING;
+	vict2->setPosition( POS_RESTING );
       else
 	return 1;
     }
@@ -230,7 +230,7 @@ SPECIAL(tarrasque)
     return 0;
   }
   
-  if (FIGHTING(tarr) && GET_POS(tarr) == POS_FIGHTING)
+  if (FIGHTING(tarr) && tarr->getPosition() == POS_FIGHTING)
     return (tarrasque_fight(tarr));
   
   timer++;
@@ -239,7 +239,7 @@ SPECIAL(tarrasque)
   case T_SLEEP:
     if (timer > T_SLEEP_LEN) {
 
-      GET_POS(tarr) = POS_STANDING;
+      tarr->setPosition( POS_STANDING );
 
       /*      if (tframe == TIME_MODRIAN) {
 	      tframe = TIME_ELECTRO;
@@ -261,7 +261,7 @@ SPECIAL(tarrasque)
     } 
     else if (tarr->in_room->number == LAIR_RM && AWAKE(tarr)) {
       act("$n goes to sleep.", FALSE, tarr, 0, 0, TO_ROOM);
-      GET_POS(tarr) = POS_SLEEPING;
+      tarr->setPosition( POS_SLEEPING );
     }
     break;
 
@@ -286,8 +286,8 @@ SPECIAL(tarrasque)
     if (tarr->next_in_room || tarr->in_room->people == tarr) {
       for (vict = tarr->in_room->people; vict; vict = next_vict)
 	if (!IS_NPC(vict) && GET_LEVEL(vict) < 10) {
-	  if (GET_POS(vict) < POS_STANDING)
-	    GET_POS(vict) = POS_STANDING;
+	  if (vict->getPosition() < POS_STANDING)
+	    vict->setPosition( POS_STANDING );
 	  act("You are overcome with terror at the sight of $N!",
 	      FALSE, vict, 0, tarr, TO_CHAR);
 	  do_flee(vict, "", 0, 0);
@@ -300,7 +300,7 @@ SPECIAL(tarrasque)
 
     if (tarr->in_room->number == LAIR_RM) {
       mode = T_SLEEP;
-      GET_POS(tarr) = POS_SLEEPING;
+      tarr->setPosition( POS_SLEEPING );
       act("$n lies down and falls asleep.", FALSE, tarr, 0, 0, TO_ROOM);
       timer = 0;
       return 1;
@@ -313,8 +313,8 @@ SPECIAL(tarrasque)
     if (tarr->next_in_room || tarr->in_room->people == tarr) {
       for (vict = tarr->in_room->people; vict; vict = next_vict)
 	if (!IS_NPC(vict) && GET_LEVEL(vict) < 10) {
-	  if (GET_POS(vict) < POS_STANDING)
-	    GET_POS(vict) = POS_STANDING;
+	  if (vict->getPosition() < POS_STANDING)
+	    vict->setPosition( POS_STANDING );
 	  act("You are overcome with terror at the sight of $N!",
 	      FALSE, vict, 0, tarr, TO_CHAR);
 	  do_flee(vict, "", 0, 0);

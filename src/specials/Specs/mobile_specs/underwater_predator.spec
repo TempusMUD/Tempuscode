@@ -11,7 +11,7 @@ SPECIAL(underwater_predator)
   struct char_data *vict = NULL;
   struct room_data *troom = NULL;
 
-  if (cmd || GET_POS(pred) < POS_RESTING || 
+  if (cmd || pred->getPosition() < POS_RESTING || 
       AFF2_FLAGGED(pred, AFF2_PETRIFIED) || !AWAKE(pred))
     return 0;
 
@@ -54,8 +54,8 @@ SPECIAL(underwater_predator)
 	  (!IS_NPC(vict) && !vict->desc) ||
 	  PRF_FLAGGED(vict, PRF_NOHASSLE) || !CAN_SEE(pred, vict) ||
 	  PLR_FLAGGED(vict, PLR_OLC | PLR_WRITING | PLR_MAILING) ||
-	  GET_POS(vict) == POS_FLYING ||
-	  (MOUNTED(vict) && GET_POS(MOUNTED(vict)) == POS_FLYING))
+	  vict->getPosition() == POS_FLYING ||
+	  (MOUNTED(vict) && (MOUNTED(vict))->getPosition() == POS_FLYING))
 	continue;
 
       act("$n cruises up out of sight with deadly intention.",
