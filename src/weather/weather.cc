@@ -101,6 +101,8 @@ another_hour(int mode)
 			send_to_clerics("The dark time of new moon has passed.\r\n"); break;
 		}
 	}
+	lunar_phase = get_lunar_phase(lunar_day);
+
 	while (time_info.day > 34) {
 		time_info.day -= 35;
 		time_info.month++;
