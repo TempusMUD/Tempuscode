@@ -38,12 +38,12 @@ enum special_mode {
 #define FIRE_TICK       (3 RL_SEC)
 #define PULSE_FLOWS     (1 RL_SEC)
 
-const size_t SMALL_BUFSIZE =     		1024;
+const size_t SMALL_BUFSIZE =     		4096;
 const size_t LARGE_BUFSIZE =     		65536;
 const size_t GARBAGE_SPACE =     		64;
 const size_t MAX_STRING_LENGTH = 65536;
-const size_t MAX_INPUT_LENGTH =  	256;	// Max length per *line* of input
-const size_t MAX_RAW_INPUT_LENGTH =	512;	// Max size of *raw* input
+const size_t MAX_INPUT_LENGTH =  	2048;	// Max length per *line* of input
+const size_t MAX_RAW_INPUT_LENGTH =	32767;	// Max size of *raw* input
 const size_t EXDSCR_LENGTH =     	240;	// char_file_u *DO*NOT*CHANGE*
 const int MAX_MESSAGES =      		150;
 const int MAX_CHAR_DESC =     		1023;	// char_file_u
