@@ -303,7 +303,6 @@ ACMD(do_lecture)
 	wait = 2 RL_SEC + ((prob - percent) >> 1);
 	WAIT_STATE(vict, wait);
 	gain_skill_prof(ch, SKILL_LECTURE);
-	return;
     }
     // resist
     else {

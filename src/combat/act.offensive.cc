@@ -1831,14 +1831,15 @@ ACMD(do_sleeper)
         //
 
         if ( ! IS_SET( retval, DAM_VICT_KILLED ) ) {
-            vict->setPosition( POS_SLEEPING );
-            WAIT_STATE(vict, 4 RL_SEC);
-
-            if ( IS_SET( retval, DAM_ATTACKER_KILLED ) )
-                return;
             
             if (FIGHTING(vict))
                 stop_fighting(vict); 
+            WAIT_STATE(vict, 4 RL_SEC);
+            vict->setPosition( POS_SLEEPING );
+
+            if ( IS_SET( retval, DAM_ATTACKER_KILLED ) )
+                return;
+
             if (FIGHTING(ch))
                 stop_fighting(ch);
             remember(vict, ch);
