@@ -43,8 +43,10 @@ struct killer_rec {
 	int idnum;
 	int gen;
 	int demons;
+	int grace;
 };
 #define DEMONIC_BASE 1530
+#define KILLER_GRACE	5
 
 killer_rec *killer_list = NULL;
 /*   external vars  */
@@ -136,8 +138,15 @@ SPECIAL(demonic_overmind)
 			cur_rec->idnum = GET_IDNUM(vict);
 			cur_rec->gen = GET_REMORT_GEN(vict);
 			cur_rec->demons = 0;
+			cur_rec->grace = KILLER_GRACE;
 			cur_rec->next = killer_list;
 			killer_list = cur_rec;
+		}
+
+		// They get a small grace period before the demons come hunting
+		if (cur_rec->grace) {
+			cur_rec->grace--;
+			return false;
 		}
 		
 		if (cur_rec->demons < cur_rec->gen + 2) {
@@ -161,6 +170,9 @@ SPECIAL(demonic_overmind)
 			char_to_room(mob, vict->in_room);
 			act("The air suddenly cracks open and $n steps out!", false,
 				mob, 0, 0, TO_ROOM);
+			mudlog(GET_INVIS_LVL(vict), NRM, true,
+				"%s dispatched to hunt down %s",
+				tmp_capitalize(GET_NAME(mob)), GET_NAME(vict));
 		}
 		return true;
 	}
