@@ -4806,7 +4806,7 @@ ACMD(do_specializations)
 		if (!obj)
 			break;
 
-		send_to_char(ch, " %2d. %-30s [%d]\r\n", i,
+		send_to_char(ch, " %2d. %-30s [%d]\r\n", i + 1,
 			obj->short_description, GET_WEAP_SPEC(ch, i).level);
 	}
 }
