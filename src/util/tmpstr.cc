@@ -23,15 +23,12 @@ static tmp_str_pool *tmp_list_head;	// Always points to the initial pool
 static tmp_str_pool *tmp_list_tail;	// Points to the end of the linked	
 									// list of pools
 
+struct tmp_str_pool *tmp_alloc_pool(size_t size_req);
 // Initializes the structures used for the temporary string mechanism
 void
 tmp_string_init(void)
 {
-	tmp_list_head = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + DEFAULT_POOL_SIZE);
-	tmp_list_tail = tmp_list_head;
-	tmp_list_head->next = NULL;
-	tmp_list_head->space = DEFAULT_POOL_SIZE;
-	tmp_list_head->used = 0;
+	tmp_list_head = tmp_alloc_pool(DEFAULT_POOL_SIZE);
 }
 
 // tmp_gc_strings will deallocate every temporary string, adjust the
@@ -56,9 +53,17 @@ tmp_gc_strings(void)
 		free(cur_buf);
 	}
 
-	// Track the max used
-	if (wanted > tmp_max_used)
+	// Track the max used and resize the pool if necessary
+	if (wanted > tmp_max_used) {
 		tmp_max_used = wanted;
+		
+		if (tmp_max_used > tmp_list_head->space) {
+			free(tmp_list_head);
+			tmp_list_head = tmp_alloc_pool(tmp_max_used);
+			slog("NOTICE: tmpstr pool allocated increased to %d bytes", 
+				tmp_max_used);
+		}
+	}
 
 	// We don't deallocate the initial pool here.  We can just set its
 	// 'used' to 0
@@ -76,7 +81,8 @@ tmp_alloc_pool(size_t size_req)
 
 	new_buf = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size + 4);
 	new_buf->next = NULL;
-	tmp_list_tail->next = new_buf;
+	if (tmp_list_tail)
+		tmp_list_tail->next = new_buf;
 	tmp_list_tail = new_buf;
 	new_buf->space = size;
 	new_buf->used = 0;
@@ -84,9 +90,6 @@ tmp_alloc_pool(size_t size_req)
 	// Add buffer overflow detection
 	new_buf->underflow = 0xddccbbaa;
 	*((unsigned long *)&new_buf->data[new_buf->space]) = 0xaabbccdd;
-
-	slog("NOTICE: tmpstr pool allocated %d bytes for req of %d bytes\n", 
-			size, size_req);
 
 	return new_buf;
 }
