@@ -482,6 +482,7 @@ affect_total(struct char_data * ch)
     
         // remove implant affects
         if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
+            !invalid_char_class(ch, ch->equipment[i]) &&
             (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
 
             for (j = 0; j < MAX_OBJ_AFFECT; j++)
@@ -547,7 +548,8 @@ affect_total(struct char_data * ch)
 
         // apply implant affects
         if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-            (!IS_DEVICE(ch->implants[i]) ||        ENGINE_STATE(ch->implants[i]))) {
+            !invalid_char_class(ch, ch->equipment[i]) &&
+            (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
 
             for (j = 0; j < MAX_OBJ_AFFECT; j++)
                 affect_modify(ch, ch->implants[i]->affected[j].location,
