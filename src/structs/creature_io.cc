@@ -189,38 +189,53 @@ Creature::saveObjects( const rent_info &rent )
     return true;
 }
 
-bool
+/**
+ * return values:
+ * -1 - dangerous failure - don't allow char to enter
+ *  0 - successful load, keep char in rent room.
+ *  1 - load failure or load of crash items -- put char in temple. (or noeq)
+ *  2 - rented equipment lost ( no $ )
+**/
+int
 Creature::loadObjects()
 {
 
     char *path = get_equipment_file_path( GET_IDNUM(this) );
-	if( access(path, W_OK) ) {
-		slog("SYSERR: Unable to open xml equipment file '%s': %s", 
-			 path, strerror(errno) );
-		return false;
+	int access = access(path, W_OK);
+	if( access != 0 ) {
+		if( access != ENOENT ) {
+			slog("SYSERR: Unable to open xml equipment file '%s': %s", 
+				 path, strerror(errno) );
+			return -1;
+		} else {
+			return 1; // normal no eq file
+		}
 	}
     xmlDocPtr doc = xmlParseFile(path);
     if (!doc) {
         slog("SYSERR: XML parse error while loading %s", path);
-        return false;
+        return -1;
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!root) {
         xmlFreeDoc(doc);
         slog("SYSERR: XML file %s is empty", path);
-        return false;
+        return 1;
     }
+
 	for ( xmlNodePtr node = root->xmlChildrenNode; node; node = node->next ) {
         if ( xmlMatches(node->name, "object") ) {
 			obj_data *obj;
 			CREATE(obj, obj_data, 1);
 			obj->clear();
-			obj->loadFromXML(NULL,this,node);
+			if(! obj->loadFromXML(NULL,this,node) ) {
+				extract_obj(obj);
+			}
 			//obj_to_room(obj, in_room);
 		}
 	}
-	return true;
+	return 0;
 }
 
 
