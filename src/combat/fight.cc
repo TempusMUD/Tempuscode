@@ -200,6 +200,7 @@ change_alignment(struct char_data *ch, struct char_data *victim)
 	GET_ALIGNMENT(ch) += -(GET_ALIGNMENT(victim) / 100);
 	GET_ALIGNMENT(ch) = MAX(-1000, GET_ALIGNMENT(ch));
 	GET_ALIGNMENT(ch) = MIN(1000, GET_ALIGNMENT(ch));
+	check_eq_align(ch);
 }
 
 

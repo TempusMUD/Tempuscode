@@ -2834,7 +2834,9 @@ perform_wear(struct char_data *ch, struct obj_data *obj, int where)
 		act(obj->action_description, FALSE, ch, obj, 0, TO_CHAR);
 	}
 	obj_from_char(obj);
-	return (equip_char(ch, obj, where, MODE_EQ));
+	if (equip_char(ch, obj, where, MODE_EQ))
+		return 1;
+	return check_eq_align(ch);
 }
 
 
@@ -3099,22 +3101,16 @@ perform_remove(struct char_data *ch, int pos)
 		act("$p: you cannot convince yourself to stop using it.", FALSE, ch,
 			obj, 0, TO_CHAR);
 	else {
-		obj_to_char(unequip_char(ch, pos, MODE_EQ), ch);
-		if (pos == WEAR_WAIST && GET_EQ(ch, WEAR_BELT))
-			obj_to_char(unequip_char(ch, WEAR_BELT, MODE_EQ), ch);
-
-		if ((pos == WEAR_WIELD) && GET_EQ(ch, WEAR_WIELD_2)) {
-			equip_char(ch, unequip_char(ch, WEAR_WIELD_2, MODE_EQ),
-				WEAR_WIELD, MODE_EQ);
+		if (pos == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2)) {
 			act("You stop using $p, and wield $P.",
-				FALSE, ch, obj, GET_EQ(ch, WEAR_WIELD), TO_CHAR);
+				FALSE, ch, obj, GET_EQ(ch, WEAR_WIELD_2), TO_CHAR);
 			act("$n stops using $p, and wields $P.",
-				TRUE, ch, obj, GET_EQ(ch, WEAR_WIELD), TO_ROOM);
+				TRUE, ch, obj, GET_EQ(ch, WEAR_WIELD_2), TO_ROOM);
 		} else {
 			act("You stop using $p.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n stops using $p.", TRUE, ch, obj, 0, TO_ROOM);
 		}
-
+		obj_to_char(unequip_char(ch, pos, MODE_EQ), ch);
 	}
 }
 

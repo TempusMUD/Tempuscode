@@ -46,6 +46,7 @@ void obj_from_char(struct obj_data *object);
 
 int equip_char(struct char_data *ch, struct obj_data *obj, int pos, int mode);
 struct obj_data *unequip_char(struct char_data *ch, int pos, int mode);
+int check_eq_align(struct char_data *ch);
 
 struct obj_data *get_obj_in_list(char *name, struct obj_data *list);
 struct obj_data *get_obj_in_list_num(int num, struct obj_data *list);

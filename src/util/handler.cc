@@ -1223,7 +1223,7 @@ weapon_prof(struct char_data *ch, struct obj_data *obj)
 int
 equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
 {
-	int j, skill;
+	int j;
 	int invalid_char_class(struct char_data *ch, struct obj_data *obj);
 
 	if (pos < 0 || pos >= NUM_WEARS) {
@@ -1249,38 +1249,6 @@ equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
 		return 0;
 	}
 	if (!internal) {
-		if (ch->in_room && GET_LEVEL(ch) < LVL_GOD) {
-			if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
-				(IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_GOOD(ch))) {
-				act("You are burned by $p!", FALSE, ch, obj, 0, TO_CHAR);
-				act("$n screams in agony as $p burns $m!", FALSE, ch, obj, 0,
-					TO_ROOM);
-				skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
-				skill >>= 5;
-				skill = MAX(1, skill);
-				obj_to_char(obj, ch);
-				if (damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos))
-					return 1;
-				return 0;
-			}
-
-			if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
-				(IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
-				(IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
-				act("You are zapped by $p and instantly let go of it.",
-					FALSE, ch, obj, 0, TO_CHAR);
-				act("$n is zapped by $p and instantly lets go of it.",
-					FALSE, ch, obj, 0, TO_ROOM);
-				obj_to_char(obj, ch);	/* changed to drop in inventory instead of */
-				if (IS_NPC(ch)) {
-					obj_from_char(obj);
-					obj_to_room(obj, ch->in_room);
-				}
-
-				return 0;
-			}
-		}
-
 		GET_EQ(ch, pos) = obj;
 		if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
 			GET_AC(ch) -= apply_ac(ch, pos);
@@ -1292,11 +1260,9 @@ equip_char(struct char_data *ch, struct obj_data *obj, int pos, int internal)
 				if (GET_OBJ_VAL(obj, 2))	/* if light is ON */
 					ch->in_room->light++;
 		}
-	} else {		  /** implant **/
-
+	} else {
 		GET_IMPLANT(ch, pos) = obj;
 		GET_WEIGHT(ch) += obj->getWeight();
-
 	}
 
 	obj->worn_by = ch;
@@ -1402,9 +1368,64 @@ unequip_char(struct char_data *ch, int pos, int internal)
 	}
 	affect_total(ch);
 
+	if (!internal) {
+		if (pos == WEAR_WAIST && GET_EQ(ch, WEAR_BELT))
+			obj_to_char(unequip_char(ch, WEAR_BELT, false), ch);
+		if (pos == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2)) {
+			equip_char(ch, unequip_char(ch, WEAR_WIELD_2, MODE_EQ),
+				WEAR_WIELD, MODE_EQ);
+		}
+	}
+
 	return (obj);
 }
 
+int
+check_eq_align(char_data *ch)
+{
+	struct obj_data *obj;
+	int pos;
+
+	if (!ch->in_room || GET_LEVEL(ch) >= LVL_GOD)
+		return 0;
+
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		obj = GET_EQ(ch, pos);
+		if (!obj)
+			continue;
+
+		if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
+			(IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_GOOD(ch))) {
+			int skill;
+
+			act("You are burned by $p!", FALSE, ch, obj, 0, TO_CHAR);
+			act("$n screams in agony as $p burns $m!", FALSE, ch, obj, 0,
+				TO_ROOM);
+			skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
+			skill >>= 5;
+			skill = MAX(1, skill);
+			obj_to_char(unequip_char(ch, pos, false), ch);
+			
+			if (damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos))
+				return 1;
+		}
+
+		if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
+			(IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
+			(IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
+			act("You are zapped by $p and instantly let go of it.",
+				FALSE, ch, obj, 0, TO_CHAR);
+			act("$n is zapped by $p and instantly lets go of it.",
+				FALSE, ch, obj, 0, TO_ROOM);
+			obj_to_char(unequip_char(ch, pos, false), ch);
+			if (IS_NPC(ch)) {
+				obj_from_char(obj);
+				obj_to_room(obj, ch->in_room);
+			}
+		}
+	}
+	return 0;
+}
 
 int
 get_number(char **name)

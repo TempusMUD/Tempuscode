@@ -3452,6 +3452,9 @@ char_to_store(struct char_data *ch, struct char_file_u *st)
 				dead = equip_char(ch, char_implants[i], i, MODE_IMPLANT);
 		}
 	}
+	if (!dead)
+		dead = check_eq_align(ch);
+
 	if (dead)
 		return;
 
