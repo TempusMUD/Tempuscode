@@ -629,7 +629,7 @@ prog_update(void)
 	
 	for (cur_prog = prog_list;cur_prog;cur_prog = next_prog) {
 		next_prog = cur_prog->next;
-		if (!cur_prog->exec_pt)
+		if (cur_prog->exec_pt < 0)
 			prog_free(cur_prog);
 	}
 }
@@ -641,6 +641,7 @@ prog_count(void)
 	prog_env *cur_env;
 
 	for (cur_env = prog_list;cur_env;cur_env = cur_env->next)
-		result++;
+		if (cur_env->exec_pt > 0)
+			result++;
 	return result;
 }
