@@ -56,6 +56,9 @@ using namespace std;
 #include "language.h"
 #include "prog.h"
 
+#define ZONE_ERROR(message) \
+{ zerrlog(zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); last_cmd = 0; }
+
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
 ************************************************************************ */
@@ -176,8 +179,6 @@ int file_to_string_alloc(char *name, char **buf);
 void check_start_rooms(void);
 void renum_world(void);
 void renum_zone_table(void);
-void log_zone_error(struct zone_data *zone, struct reset_com *zonecmd,
-	char *message);
 void reset_time(void);
 void reset_zone_weather(void);
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
@@ -1326,11 +1327,13 @@ renum_zone_table(void)
 					b = NOWHERE;
 				break;
 			}
-			if (a < 0 || b < 0) {
-				if (!mini_mud && !scheck)
-					log_zone_error(zone, zonecmd,
-						"Invalid vnum, cmd disabled");
-				zonecmd->command = '*';
+			if (!mini_mud && !scheck) {
+				if (a < 0)
+					errlog("Invalid vnum %d in zone %d, cmd disabled", a);
+				if (b < 0)
+					errlog("Invalid vnum %d in zone %d, cmd disabled", b);
+				if (a < 0 || b < 0)
+					zonecmd->command = '*';
 			}
 		}
 }
@@ -2825,42 +2828,6 @@ zone_update(void)
 			break;
 		}
 }
-
-void
-log_zone_error(struct zone_data *zone, struct reset_com *zonecmd,
-	char *message)
-{
-	struct descriptor_data *d;
-	bool display;
-
-	// Log the error to file first
-	errlog("Zone #%d: %s (cmd %c, number %d)",
-		zone->number, message, zonecmd->command, zonecmd->line);
-
-	for (d = descriptor_list;d;d = d->next) {
-		// Only playing immortals can see zone errors
-		if (!IS_PLAYING(d) || GET_LEVEL(d->creature) < 50)
-			continue;
-
-		// Zone owners get to see them
-		display = GET_IDNUM(d->creature) == zone->owner_idnum;
-
-		// Zone co-owners also get to see them
-		if (!display)
-			display = GET_IDNUM(d->creature) == zone->co_owner_idnum;
-
-		// Immortals within the zone see them
-		if (!display && d->creature->in_room)
-			display = d->creature->in_room->zone == zone;
-
-		if (display)
-			send_to_desc(d, "&yZone #%d: %s (cmd %c, number %d)&n\r\n",
-				zone->number, message, zonecmd->command, zonecmd->line);
-	}
-}
-
-#define ZONE_ERROR(message) \
-{ log_zone_error(zone, zonecmd, message); last_cmd = 0; }
 
 /* execute the reset command table of a given zone */
 void
