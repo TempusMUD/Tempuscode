@@ -776,7 +776,6 @@ nanny(struct descriptor_data * d, char *arg)
 			break;
 		case CON_QREROLL:
 			if (is_abbrev(arg, "reroll")) {
-				roll_real_abils(d->character);
 				d->wait = 4;
 				break;
 			} else if (is_abbrev(arg, "keep")) {
@@ -1103,6 +1102,7 @@ make_prompt(struct descriptor_data * d)
 			SEND_TO_Q(buf, d);
 			break;
 		case CON_QREROLL:		
+			roll_real_abils(d->character);
 			print_attributes_to_buf( d->character,buf2 );
 			SEND_TO_Q("\033[H\033[J", d);
 			sprintf(buf,"%s\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n",CCCYN(d->character,C_NRM));
