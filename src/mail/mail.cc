@@ -135,7 +135,7 @@ recieve_mail(char_data *ch) {
             num_letters++;
             text = new char[letter->msg_size + 1];
             mail_file.read(text, letter->msg_size + 1);
-        } else (mail_file.eof()) {
+        } else {
             mail_file.close();
             delete letter;
             remove(fname);
