@@ -454,12 +454,11 @@ ACMD(do_combo)
 	if (IS_MONK(ch) && !IS_NEUTRAL(ch))
 		prob -= (prob * (ABS(GET_ALIGNMENT(ch)))) / 1000;
 
-	if (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+	//if we don't have kata and victim is of a non-solid nature we can't hit
+	if (	!affected_by_spell(ch, SKILL_KATA) && 
+	    	(IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+		)
 		prob = 0;
-
-	if (NON_CORPOREAL_UNDEAD(vict))
-		prob = 0;
-
 
 
 	dam = dice(6, GET_LEVEL(ch)/2 ) + GET_DAMROLL(ch);
