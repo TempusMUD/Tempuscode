@@ -1780,7 +1780,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             position_types[(int)k->mob_specials.shared->default_pos],
             attack_hit_text[k->mob_specials.shared->attack_type].singular);
         if (k->in_room)
-            acc_sprintf("%s, %sFT%s: %s, %sHNT%s: %s, Timer: %d", buf,
+            acc_sprintf(", %sFT%s: %s, %sHNT%s: %s, Timer: %d",
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                 (FIGHTING(k) ? GET_NAME(FIGHTING(k)) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
