@@ -35,6 +35,7 @@ using namespace std;
 #include "house.h"
 #include "screen.h"
 #include "tokenizer.h"
+#include "tmpstr.h"
 
 #define NAME(x) ((temp = get_name_by_id(x)) == NULL ? "<UNDEF>" : temp)
 
@@ -776,32 +777,31 @@ int
 hcontrol_list_houses_modebits(Creature *ch, char *args)
 {
 	int retval = HC_LIST_HOUSES_DEFAULT;
-	char tmparg[MAX_INPUT_LENGTH];
+	char *str;
 	int index;
 
 	if (!strncasecmp(args, "all", 3))
-		args = one_argument(args, tmparg);
+		str = tmp_getword(&args);
 
 	for (;;) {
+		str = tmp_getword(&args);
 
-		args = one_argument(args, tmparg);
-
-		if (!*tmparg || !*(tmparg + 1))
+		if (!*str || !*(str + 1))
 			break;
 
-		if (*tmparg != '+' && *tmparg != '-') {
+		if (*str != '+' && *str != '-') {
 			send_to_char(ch, "Modifiers must be + or -.\r\n");
 			continue;
 		}
 
-		if ((index = search_block(tmparg + 1, hc_list_houses_args, 0)) < 0) {
-			send_to_char(ch, "Unknown hc show all argument: '%s'\r\n", tmparg + 1);
+		if ((index = search_block(str + 1, hc_list_houses_args, 0)) < 0) {
+			send_to_char(ch, "Unknown hc show all argument: '%s'\r\n", str);
 			continue;
 		}
 
-		if (*tmparg == '+')
+		if (*str == '+')
 			SET_BIT(retval, (1 << index));
-		else if (*tmparg == '-')
+		else if (*str == '-')
 			REMOVE_BIT(retval, (1 << index));
 		else
 			send_to_char(ch, "To set or remove a bit, use + or -.\r\n");
@@ -949,36 +949,36 @@ hcontrol_list_houses(struct Creature *ch, char *args)
 void
 hcontrol_build_house(struct Creature *ch, char *arg)
 {
-	char arg1[MAX_INPUT_LENGTH];
+	char *str;
 	struct house_control_rec temp_house;
 	room_num virt_top_room, virt_atrium;
 	struct room_data *real_atrium, *real_house;
-	int owner, number_of_rooms = 0, i, j, find_error;
+	int owner, number_of_rooms = 0, i, j, find_err;
 
 	if (num_of_houses >= MAX_HOUSES) {
 		send_to_char(ch, "Max houses already defined.\r\n");
 		return;
 	}
 	/* FIRST arg: player's name */
-	arg = one_argument(arg, arg1);
-	if (!*arg1) {
+	str = tmp_getword(&arg);
+	if (!*str) {
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
 	}
-	if ((owner = get_id_by_name(arg1)) < 0) {
-		send_to_char(ch, "Unknown player '%s'.\r\n", arg1);
+	if ((owner = get_id_by_name(str)) < 0) {
+		send_to_char(ch, "Unknown player '%s'.\r\n", str);
 		return;
 	}
 	/* SECOND arg: house's vnum */
-	arg = one_argument(arg, arg1);
-	if (!*arg1) {
+	str = tmp_getword(&arg);
+	if (!*str) {
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
 	}
-	virt_atrium = atoi(arg1);
-	if ((find_error = find_house(virt_atrium)) >= 0) {
+	virt_atrium = atoi(str);
+	if ((find_err = find_house(virt_atrium)) >= 0) {
 		send_to_char(ch, "Room [%d] already exists as room of house [%d]\r\n",
-			virt_atrium, house_control[find_error].house_rooms[0]);
+			virt_atrium, house_control[find_err].house_rooms[0]);
 		return;
 	}
 	if ((real_atrium = real_room(virt_atrium)) == NULL) {
@@ -986,22 +986,22 @@ hcontrol_build_house(struct Creature *ch, char *arg)
 		return;
 	}
 	/* THIRD arg: Top room of the house.  Inbetween rooms will be added */
-	arg = one_argument(arg, arg1);
-	if (!*arg1) {
+	str = tmp_getword(&arg);
+	if (!*str) {
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
 	}
-	virt_top_room = atoi(arg1);
+	virt_top_room = atoi(str);
 	if (virt_top_room < virt_atrium) {
 		send_to_char(ch, "Top room number is less than Atrium room number.\r\n");
 		return;
 	}
 	for (i = 0, j = 0; i < (virt_top_room - virt_atrium + 1); i++) {
 		if ((real_house = real_room(virt_atrium + i)) != NULL) {
-			if ((find_error = find_house(virt_atrium + i)) >= 0) {
+			if ((find_err = find_house(virt_atrium + i)) >= 0) {
 				send_to_char(ch,
-					"Room [%d] already exits as room of house [%d]\r\n",
-					virt_atrium + i, house_control[find_error].house_rooms[0]);
+					"Room [%d] already exists as room of house [%d]\r\n",
+					virt_atrium + i, house_control[find_err].house_rooms[0]);
 				return;
 			}
 			temp_house.house_rooms[j++] = virt_atrium + i;
@@ -1086,20 +1086,20 @@ hcontrol_pay_house(struct Creature *ch, char *arg)
 void
 hcontrol_add_to_house(struct Creature *ch, char *arg)
 {
-	char arg1[MAX_INPUT_LENGTH];
+	char *str;
 	room_num room_vnum, virt_atrium;
 	struct room_data *room_rnum;
-	int find_error, j, id;
+	int find_err, j, id;
 	struct house_control_rec *h = 0;
 
 	// first arg is the atrium vnum
-	arg = one_argument(arg, arg1);
-	if (!*arg1 || !*arg) {
+	str = tmp_getword(&arg);
+	if (!*str || !*arg) {
 		send_to_char(ch, HCONTROL_ADD_FORMAT);
 		return;
 	}
 
-	virt_atrium = atoi(arg1);
+	virt_atrium = atoi(str);
 
 	if (!(h = real_house(virt_atrium))) {
 		send_to_char(ch, "No such house exists.\r\n");
@@ -1111,22 +1111,20 @@ hcontrol_add_to_house(struct Creature *ch, char *arg)
 		return;
 	}
 	// turn arg into the final argument and arg1 into the room/guest/owner arg
-	arg = one_argument(arg, arg1);
-	skip_spaces(&arg);
+	str = tmp_getword(&arg);
 
-	if (!*arg1 || !*arg) {
+	if (!*str || !*arg) {
 		send_to_char(ch, HCONTROL_ADD_FORMAT);
 		return;
 	}
 
-	if (is_abbrev(arg1, "room")) {
-
+	if (is_abbrev(str, "room")) {
 		room_vnum = atoi(arg);
 		if ((room_rnum = real_room(room_vnum)) == NULL)
 			send_to_char(ch, "No such room exists.\r\n");
-		else if ((find_error = find_house(room_rnum->number)) >= 0) {
+		else if ((find_err = find_house(room_rnum->number)) >= 0) {
 			send_to_char(ch, "Room [%d] already exists as room of house [%d]\r\n",
-				room_vnum, house_control[find_error].house_rooms[0]);
+				room_vnum, house_control[find_err].house_rooms[0]);
 		} else if (h->num_of_rooms >= MAX_ROOMS_PER_HOUSE) {
 			send_to_char(ch, "House has max rooms.\r\n");
 		} else {
@@ -1141,7 +1139,7 @@ hcontrol_add_to_house(struct Creature *ch, char *arg)
 		return;
 	}
 
-	else if (is_abbrev(arg1, "guest")) {
+	else if (is_abbrev(str, "guest")) {
 
 		if ((id = get_id_by_name(arg)) < 0) {
 			send_to_char(ch, "No such player.\r\n");
@@ -1171,7 +1169,7 @@ hcontrol_add_to_house(struct Creature *ch, char *arg)
 		return;
 	}
 
-	else if (is_abbrev(arg1, "owner")) {
+	else if (is_abbrev(str, "owner")) {
 
 		if (h->owner2 >= 0) {
 			send_to_char(ch, "House already has two owners.\r\n");
@@ -1198,20 +1196,20 @@ hcontrol_add_to_house(struct Creature *ch, char *arg)
 void
 hcontrol_delete_from_house(struct Creature *ch, char *arg)
 {
-	char arg1[MAX_INPUT_LENGTH];
+	char *str;
 	room_num room_vnum, virt_atrium;
 	struct room_data *room_rnum;
-	int find_error, j, id;
+	int find_err, j, id;
 	struct house_control_rec *h = 0;
 
 	// first arg is the atrium vnum
-	arg = one_argument(arg, arg1);
-	if (!*arg1 || !*arg) {
+	str = tmp_getword(&arg);
+	if (!*str || !*arg) {
 		send_to_char(ch, HCONTROL_DELETE_FORMAT);
 		return;
 	}
 
-	virt_atrium = atoi(arg1);
+	virt_atrium = atoi(str);
 
 	if (!(h = real_house(virt_atrium))) {
 		send_to_char(ch, "No such house exists.\r\n");
@@ -1223,24 +1221,23 @@ hcontrol_delete_from_house(struct Creature *ch, char *arg)
 		return;
 	}
 	// turn arg into the final argument and arg1 into the room/guest/owner arg
-	arg = one_argument(arg, arg1);
-	skip_spaces(&arg);
+	str = tmp_getword(&arg);
 
-	if (!*arg1 || !*arg) {
+	if (!*str || !*arg) {
 		send_to_char(ch, HCONTROL_DELETE_FORMAT);
 		return;
 	}
 	// delete room
-	if (is_abbrev(arg1, "room")) {
+	if (is_abbrev(str, "room")) {
 
 		room_vnum = atoi(arg);
 		if ((room_rnum = real_room(room_vnum)) == NULL)
 			send_to_char(ch, "No such room exists.\r\n");
-		else if ((find_error = find_house(room_rnum->number)) < 0) {
+		else if ((find_err = find_house(room_rnum->number)) < 0) {
 			send_to_char(ch, "This room isn't in ANY house!\r\n");
 		} else if (h != real_house(room_rnum->number)) {
 			send_to_char(ch, "This room belongs to house [%d]!\r\n",
-				house_control[find_error].house_rooms[0]);
+				house_control[find_err].house_rooms[0]);
 		} else {
 			for (j = 0; j < h->num_of_rooms; j++)
 				if (h->house_rooms[j] == room_vnum)
@@ -1268,7 +1265,7 @@ hcontrol_delete_from_house(struct Creature *ch, char *arg)
 
 		}
 		return;
-	} else if (is_abbrev(arg1, "guest")) {
+	} else if (is_abbrev(str, "guest")) {
 		if ((id = get_id_by_name(arg)) < 0) {
 			send_to_char(ch, "No such player.\r\n");
 			return;
@@ -1289,7 +1286,7 @@ hcontrol_delete_from_house(struct Creature *ch, char *arg)
 
 		send_to_char(ch, "That guest was not found in this house.\r\n");
 		return;
-	} else if (is_abbrev(arg1, "owner")) {
+	} else if (is_abbrev(str, "owner")) {
 		if ((id = get_id_by_name(arg)) < 0) {
 			send_to_char(ch, "No such player.\r\n");
 			return;
@@ -1438,12 +1435,12 @@ hcontrol_find_houses(struct Creature *ch, char *arg)
 void
 hcontrol_set_house(struct Creature *ch, char *arg)
 {
-	char arg1[256], arg2[256];
+	char *arg1, *arg2;
 	room_num atrium_vnum;
 	int pos;
 
-	arg = two_arguments(arg, arg1, arg2);
-	skip_spaces(&arg);
+	arg1 = tmp_getword(&arg);
+	arg2 = tmp_getword(&arg);
 
 	if (!*arg1)
 		send_to_char(ch, HCONTROL_FORMAT);
@@ -1465,7 +1462,7 @@ hcontrol_set_house(struct Creature *ch, char *arg)
 			if (!*arg)
 				send_to_char(ch, "Set rental rate to what?\r\n");
 			else {
-				one_argument(arg, arg1);
+				arg1 = tmp_getword(&arg);
 				house_control[pos].rent_rate = atoi(arg1);
 				send_to_char(ch, "House <%d> rental rate set to %d/day.\r\n",
 					atrium_vnum, house_control[pos].rent_rate);
@@ -1474,7 +1471,7 @@ hcontrol_set_house(struct Creature *ch, char *arg)
 			if (!*arg)
 				send_to_char(ch, "Set current rent sum to what?\r\n");
 			else {
-				one_argument(arg, arg1);
+				arg1 = tmp_getword(&arg);
 				house_control[pos].rent_sum = atoi(arg1);
 				send_to_char(ch, "House <%d> current set to %d.\r\n", atrium_vnum,
 					house_control[pos].rent_sum);
@@ -1561,57 +1558,59 @@ hcontrol_where_house(struct Creature *ch, char *arg)
 /* The hcontrol command itself, used by imms to create/destroy houses */
 ACMD(do_hcontrol)
 {
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *action_str, *str;
 	room_num atrium_vnum;
 
-	half_chop(argument, arg1, arg2);
+	if (!Security::isMember(ch, "House")) {
+		send_to_char(ch, "You aren't able to edit houses!\r\n");
+		return;
+	}
 
-	if (is_abbrev(arg1, "save") &&
-		(GET_LEVEL(ch) >= LVL_GOD || Security::isMember(ch, "House"))) {
+	action_str = tmp_getword(&argument);
+
+	if (is_abbrev(action_str, "save") && (GET_LEVEL(ch) >= LVL_GOD)) {
 		House_save_control();
 		House_save_all(0);
 		send_to_char(ch, "Saved.\r\n");
-	} else if (is_abbrev(arg1, "recount") &&
-		(GET_LEVEL(ch) >= LVL_GOD || Security::isMember(ch, "House"))) {
+	} else if (is_abbrev(action_str, "recount") && (GET_LEVEL(ch) >= LVL_GOD)) {
 		House_countobjs();
 		send_to_char(ch, "Objs recounted.\r\n");
-	} else if (is_abbrev(arg1, "build") && Security::isMember(ch, "House")) {
-		hcontrol_build_house(ch, arg2);
-	} else if (is_abbrev(arg1, "destroy") && Security::isMember(ch, "House")) {
-		hcontrol_destroy_house(ch, arg2);
-	} else if (is_abbrev(arg1, "pay") && Security::isMember(ch, "House")) {
-		hcontrol_pay_house(ch, arg2);
-	} else if (is_abbrev(arg1, "add") && Security::isMember(ch, "House")) {
-		hcontrol_add_to_house(ch, arg2);
-	} else if (is_abbrev(arg1, "delete") && Security::isMember(ch, "House")) {
-		hcontrol_delete_from_house(ch, arg2);
-	} else if (is_abbrev(arg1, "set") && Security::isMember(ch, "House")) {
-		hcontrol_set_house(ch, arg2);
-    } else if (is_abbrev(arg1, "find") && Security::isMember(ch, "House")) {
-        hcontrol_find_houses(ch, arg2);
-    } else if (is_abbrev(arg1, "where") && Security::isMember(ch, "House")) {
-		hcontrol_where_house(ch, arg2);
-	} else if (is_abbrev(arg1, "show") &&
-		(Security::isMember(ch, "House") || GET_LEVEL(ch) >= LVL_DEMI)) {
-		if (!*arg2 || *arg2 == '+' || *arg2 == '-'|| !strncasecmp(arg2, "all", 3)) {
-			hcontrol_list_houses(ch, arg2);
+	} else if (is_abbrev(action_str, "build")) {
+		hcontrol_build_house(ch, argument);
+	} else if (is_abbrev(action_str, "destroy")) {
+		hcontrol_destroy_house(ch, argument);
+	} else if (is_abbrev(action_str, "pay")) {
+		hcontrol_pay_house(ch, argument);
+	} else if (is_abbrev(action_str, "add")) {
+		hcontrol_add_to_house(ch, argument);
+	} else if (is_abbrev(action_str, "delete")) {
+		hcontrol_delete_from_house(ch, argument);
+	} else if (is_abbrev(action_str, "set")) {
+		hcontrol_set_house(ch, argument);
+    } else if (is_abbrev(action_str, "find")) {
+        hcontrol_find_houses(ch, argument);
+    } else if (is_abbrev(action_str, "where")) {
+		hcontrol_where_house(ch, argument);
+	} else if (is_abbrev(action_str, "show") || GET_LEVEL(ch) >= LVL_DEMI) {
+		if (!*argument || *argument == '+' || *argument == '-'|| !strncasecmp(argument, "all", 3)) {
+			hcontrol_list_houses(ch, argument);
 		} else {
-			argument = one_argument(arg2, arg1);
-			if (is_abbrev(arg1, "rooms")) {
-				argument = one_argument(argument, arg1);
-				if (!*arg1) {
+			action_str = tmp_getword(&argument);
+			if (is_abbrev(action_str, "rooms")) {
+				str = tmp_getword(&argument);
+				if (!*str) {
 					send_to_char(ch, HCONTROL_SHOW_FORMAT);
 					return;
 				}
-				atrium_vnum = atoi(arg1);
+				atrium_vnum = atoi(str);
 				hcontrol_list_house_rooms(ch, atrium_vnum);
-			} else if (is_abbrev(arg1, "guests")) {
-				argument = one_argument(argument, arg1);
-				if (!*arg1) {
+			} else if (is_abbrev(action_str, "guests")) {
+				str = tmp_getword(&argument);
+				if (!*str) {
 					send_to_char(ch, HCONTROL_SHOW_FORMAT);
 					return;
 				}
-				atrium_vnum = atoi(arg1);
+				atrium_vnum = atoi(str);
 				hcontrol_list_house_guests(ch, atrium_vnum);
 			} else
 				send_to_char(ch, HCONTROL_SHOW_FORMAT);
@@ -1626,8 +1625,9 @@ ACMD(do_house)
 {
 	int i, j, id, k, found = FALSE;
 	char *temp;
+	char *action_str;
 
-	one_argument(argument, arg);
+	action_str = tmp_getword(&argument);
 
 	if (!IS_SET(ROOM_FLAGS(ch->in_room), ROOM_HOUSE))
 		send_to_char(ch, "You must be in your house to set guests.\r\n");
@@ -1637,16 +1637,19 @@ ACMD(do_house)
 		(GET_IDNUM(ch) != house_control[i].owner2) &&
 		GET_LEVEL(ch) < LVL_CREATOR && !Security::isMember(ch, "House"))
 		send_to_char(ch, "Only the owner can set guests.\r\n");
-	else if (!*arg) {
+	else if (!*action_str) {
 		send_to_char(ch, "Guests of your house:\r\n");
 		if (house_control[i].num_of_guests == 0)
 			send_to_char(ch, "  None.\r\n");
 		else
 			for (j = 0; j < house_control[i].num_of_guests; j++) {
-				strcpy(buf, NAME(house_control[i].guests[j]));
-				send_to_char(ch, strcat(CAP(buf), "\r\n"));
+				send_to_char(ch, "%-19s", NAME(house_control[i].guests[j]));
+				if (!((j + 1) % 4))
+					send_to_char(ch, "\r\n");
 			}
-	} else if ((id = get_id_by_name(arg)) < 0)
+			if (j % 4)
+				send_to_char(ch, "\r\n");
+	} else if ((id = get_id_by_name(action_str)) < 0)
 		send_to_char(ch, "No such player.\r\n");
 	else {
 		for (j = 0; j < house_control[i].num_of_guests; j++) {
