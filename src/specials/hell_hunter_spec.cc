@@ -69,7 +69,7 @@ ACCMD(do_get);
 vector <Devil> devils;
 vector <Target> targets;
 vector <HuntGroup> hunters;
-vector <int> blindSpots;
+vector <int>blindSpots;
 
 bool
 load_hunter_data()
@@ -104,13 +104,13 @@ load_hunter_data()
 			hunters.push_back(HuntGroup(cur, devils));
 		}
 		if ((xmlMatches(cur->name, "BLINDSPOT"))) {
-			blindSpots.push_back( xmlGetIntProp(cur,"ID") );
+			blindSpots.push_back(xmlGetIntProp(cur, "ID"));
 		}
 		cur = cur->next;
 	}
 	sort(targets.begin(), targets.end());
 	sort(hunters.begin(), hunters.end());
-    sort(blindSpots.begin(), blindSpots.end());
+	sort(blindSpots.begin(), blindSpots.end());
 	//cerr << "Targets: " << endl << targets << endl;
 	//cerr << "Hunters: " << hunters<<endl;
 	//cerr << "Devils:" <<endl<< devils<<endl;
@@ -119,11 +119,11 @@ load_hunter_data()
 	return true;
 }
 
-bool isBlindSpot( zone_data *zone )
+bool
+isBlindSpot(zone_data * zone)
 {
-    return find( blindSpots.begin(), 
-                 blindSpots.end(), 
-                 zone->number ) != blindSpots.end();
+	return find(blindSpots.begin(),
+		blindSpots.end(), zone->number) != blindSpots.end();
 }
 
 SPECIAL(hell_hunter_brain)
@@ -146,17 +146,17 @@ SPECIAL(hell_hunter_brain)
 		if (CMD_IS("reload")) {
 			if (!load_hunter_data()) {
 				data_loaded = false;
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Hell Hunter Brain failed to load hunter data.\r\n");
 			} else {
 				data_loaded = true;
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Hell Hunter Brain data successfully reloaded.\r\n");
 			}
 			return 1;
 		} else if (CMD_IS("status")) {
 			send_to_char(ch, "Counter is at %d, freq %d.\r\n", counter, freq);
-            sprintf( buf, "     [vnum] %30s exist/housed\r\n","Object Name");
+			sprintf(buf, "     [vnum] %30s exist/housed\r\n", "Object Name");
 			for (i = 0; i < targets.size(); i++) {
 				if (!(obj = real_object_proto(targets[i].o_vnum)))
 					continue;
@@ -164,7 +164,7 @@ SPECIAL(hell_hunter_brain)
 					i, targets[i].o_vnum, obj->name,
 					obj->shared->number, obj->shared->house_count);
 			}
-            //TODO: Add blind spots to status
+			//TODO: Add blind spots to status
 			return 1;
 		} else if (CMD_IS("activate")) {
 			skip_spaces(&argument);
@@ -174,13 +174,13 @@ SPECIAL(hell_hunter_brain)
 				send_to_char(ch, "Frequency set to %d.\n", freq);
 				counter = freq;
 				return 1;
-			} else if( *argument && strcmp(argument,"now") == 1 ){
+			} else if (*argument && strcmp(argument, "now") == 1) {
 				sprintf(buf, "Counter set to 1.\r\n");
-                counter = 1;
-                return 1;
-            } else {
-                return 0;
-            } 
+				counter = 1;
+				return 1;
+			} else {
+				return 0;
+			}
 		} else {
 			return 0;
 		}
@@ -209,11 +209,12 @@ SPECIAL(hell_hunter_brain)
 				// ignore shopkeepers
 				(IS_NPC(vict) && vendor == GET_MOB_SPEC(vict)) ||
 				// don't go to heaven
-                isBlindSpot( vict->in_room->zone))) {
+				isBlindSpot(vict->in_room->zone))) {
 			continue;
 		}
 		if (vict && IS_SOULLESS(vict)) {
-			send_to_char(ch, "You feel the eyes of hell look down upon you.\r\n");
+			send_to_char(ch,
+				"You feel the eyes of hell look down upon you.\r\n");
 			continue;
 		}
 
@@ -261,19 +262,19 @@ SPECIAL(hell_hunter_brain)
 					if (!IS_NPC(vict) && GET_REMORT_GEN(vict)) {
 						// hps GENx
 						/*
-                         * GET_MAX_HIT(mob) = GET_HIT(mob) =
-							MIN(10000, (GET_MAX_HIT(mob) + GET_MAX_HIT(vict)));
-						// damroll GENx/3
-						GET_DAMROLL(mob) =
-							MIN(50, (GET_DAMROLL(mob) + GET_REMORT_GEN(vict)));
-						// hitroll GENx/3
-						GET_HITROLL(mob) =
-							MIN(50, (GET_HITROLL(mob) + GET_REMORT_GEN(vict)));
-                        */
+						 * GET_MAX_HIT(mob) = GET_HIT(mob) =
+						 MIN(10000, (GET_MAX_HIT(mob) + GET_MAX_HIT(vict)));
+						 // damroll GENx/3
+						 GET_DAMROLL(mob) =
+						 MIN(50, (GET_DAMROLL(mob) + GET_REMORT_GEN(vict)));
+						 // hitroll GENx/3
+						 GET_HITROLL(mob) =
+						 MIN(50, (GET_HITROLL(mob) + GET_REMORT_GEN(vict)));
+						 */
 					}
 				}
 
-				char_to_room(mob, vict ? vict->in_room : obj->in_room,false);
+				char_to_room(mob, vict ? vict->in_room : obj->in_room, false);
 				act("$n steps suddenly out of an infernal conduit from the outer planes!", FALSE, mob, 0, 0, TO_ROOM);
 
 			}
@@ -287,7 +288,7 @@ SPECIAL(hell_hunter_brain)
 			else {
 				regulator = 1;
 				HUNTING(mob) = vict;
-				char_to_room(mob, vict->in_room,false);
+				char_to_room(mob, vict->in_room, false);
 				act("$n materializes suddenly from a stream of hellish energy!", FALSE, mob, 0, 0, TO_ROOM);
 			}
 		}
@@ -396,7 +397,7 @@ SPECIAL(hell_hunter)
 					return 1;
 				}
 
-				char_to_room(devil, ch->in_room,false);
+				char_to_room(devil, ch->in_room, false);
 				act("$n gestures... A glowing conduit flashes into existence!",
 					FALSE, ch, 0, vict, TO_ROOM);
 				act("...$n leaps out and attacks $N!", FALSE, devil, 0, vict,
@@ -487,15 +488,15 @@ SPECIAL(arioch)
 				}
 			}
 			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
-			char_from_room(ch,false);
-			char_to_room(ch, real_room(ARIOCH_LAIR),false);
+			char_from_room(ch, false);
+			char_to_room(ch, real_room(ARIOCH_LAIR), false);
 			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
 			return 1;
 		}
 		if (GET_HIT(ch) < 800) {
 			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
-			char_from_room(ch,false);
-			char_to_room(ch, real_room(ARIOCH_LAIR),false);
+			char_from_room(ch, false);
+			char_to_room(ch, real_room(ARIOCH_LAIR), false);
 			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
 			return 1;
 		}
@@ -511,14 +512,15 @@ SPECIAL(arioch)
 				(((vict = blade->carried_by) || (vict = blade->worn_by)) &&
 					!ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) &&
 					(!IS_NPC(vict) || vendor != GET_MOB_SPEC(vict)) &&
-					!PRF_FLAGGED(vict, PRF_NOHASSLE) && can_see_creature(ch, vict)))) {
+					!PRF_FLAGGED(vict, PRF_NOHASSLE)
+					&& can_see_creature(ch, vict)))) {
 			if (vict) {
 				HUNTING(ch) = vict;
 				rm = vict->in_room;
 			}
 			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
-			char_from_room(ch,false);
-			char_to_room(ch, rm,false);
+			char_from_room(ch, false);
+			char_to_room(ch, rm, false);
 			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
 			mudlog(0, CMP, true,
 				"HELL: Arioch ported to %s@%d",
