@@ -76,6 +76,10 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
 			IS_RAKSHASA(vict) ||
 			IS_GREATER_DEVIL(vict)) {
 
+		// Spells can hit them too
+		if (!IS_WEAPON(attacktype))
+			return false;
+
 		// Magical items can hit them
 		if (IS_WEAPON(attacktype) && weap && IS_OBJ_STAT(weap, ITEM_MAGIC))
 			return false;
