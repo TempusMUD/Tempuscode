@@ -2068,16 +2068,14 @@ parse_object(FILE * obj_f, int nr)
     obj->obj_flags.type_flag = t[0];
     obj->obj_flags.extra_flags = asciiflag_conv(f1);
     obj->obj_flags.extra2_flags = asciiflag_conv(f2);
+    obj->obj_flags.wear_flags = asciiflag_conv(f3);
 
     // old format numeric line
     if ( retval == 4 ) {
         obj->obj_flags.extra3_flags = 0;
-        obj->obj_flags.wear_flags = asciiflag_conv(f3);
-    }
-    // new format numeric line
+    } // new format numeric line
     else if ( retval == 5 ) {
-        obj->obj_flags.extra3_flags = asciiflag_conv(f3);
-        obj->obj_flags.wear_flags = asciiflag_conv(f4);
+        obj->obj_flags.extra3_flags = asciiflag_conv(f4);
     }
     // wrong number of fields
     else {
