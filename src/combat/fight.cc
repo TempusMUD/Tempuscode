@@ -953,7 +953,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
     }
 
     // Dimensional Shift
-    if (ch && attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
+    if (ch && !(attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP) &&
     attacktype != SKILL_ENERGY_WEAPONS &&
     attacktype != SKILL_ARCHERY &&
     attacktype != SKILL_PROJ_WEAPONS &&
