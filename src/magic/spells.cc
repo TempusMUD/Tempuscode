@@ -469,22 +469,22 @@ ASPELL(spell_teleport)
  
     if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && 
 	ch->master->in_room == ch->in_room) {
-	if (ch == victim) {
-	    act("You just can't stand the thought of leaving $N behind.", 
-		FALSE, ch, 0, ch->master, TO_CHAR);
-	    return;
-	} else if (victim == ch->master) {
-	    act("You really can't stand the though of parting with $N.",
-		FALSE, ch, 0, ch->master, TO_CHAR);
-	    return;
-	}
+        if (ch == victim) {
+            act("You just can't stand the thought of leaving $N behind.", 
+            FALSE, ch, 0, ch->master, TO_CHAR);
+            return;
+        } else if (victim == ch->master) {
+            act("You really can't stand the though of parting with $N.",
+            FALSE, ch, 0, ch->master, TO_CHAR);
+            return;
+        }
     }
 
     if (ch->in_room->zone->number == 400 || 
 	GET_PLANE(ch->in_room) == PLANE_DOOM || 
 	ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)) {
-	call_magic(ch, victim, 0, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch), CAST_SPELL);
-	return;
+        call_magic(ch, victim, 0, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch), CAST_SPELL);
+        return;
     }
 
     if (ch != victim && (ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL) && 
@@ -497,33 +497,33 @@ ASPELL(spell_teleport)
     }
     if (GET_LEVEL(victim) > LVL_AMBASSADOR && 
 	GET_LEVEL(victim) > GET_LEVEL(ch)) {
-	act("$N sneers at you with disgust.\r\n", FALSE, ch, 0, victim, TO_CHAR);
-	act("$N sneers at $n with disgust.\r\n", FALSE, ch, 0, victim, TO_NOTVICT);
-	act("You sneer at $n with disgust.\r\n", FALSE, ch, 0, victim, TO_VICT);
-	return;
+        act("$N sneers at you with disgust.\r\n", FALSE, ch, 0, victim, TO_CHAR);
+        act("$N sneers at $n with disgust.\r\n", FALSE, ch, 0, victim, TO_NOTVICT);
+        act("You sneer at $n with disgust.\r\n", FALSE, ch, 0, victim, TO_VICT);
+        return;
     }
     if (!IS_NPC(victim)&&!PRF_FLAGGED(victim, PRF_SUMMONABLE) && victim != ch) {
-	if (mag_savingthrow(victim, level, SAVING_SPELL) && 
-	    !PLR_FLAGGED(victim, PLR_KILLER)) {
-      
-	    sprintf(buf, "%s just tried to teleport you... %s.\r\n"
-		    "%s failed because you have summon protection on.\r\n"
-		    "Type NOSUMMON to allow other players to teleport you.\r\n",
-		    GET_NAME(ch), ch->in_room->name,
-		    (ch->player.sex == SEX_MALE) ? "He" : "She");
-	    send_to_char(buf, victim);
-      
-	    sprintf(buf, "%s resists your attempt!\r\n",
-		    GET_NAME(victim));
-	    send_to_char(buf, ch);
-	    return;
-	}
+        if (mag_savingthrow(victim, level, SAVING_SPELL) && 
+            !PLR_FLAGGED(victim, PLR_KILLER)) {
+          
+            sprintf(buf, "%s just tried to teleport you... %s.\r\n"
+                "%s failed because you have summon protection on.\r\n"
+                "Type NOSUMMON to allow other players to teleport you.\r\n",
+                GET_NAME(ch), ch->in_room->name,
+                (ch->player.sex == SEX_MALE) ? "He" : "She");
+            send_to_char(buf, victim);
+          
+            sprintf(buf, "%s resists your attempt!\r\n",
+                GET_NAME(victim));
+            send_to_char(buf, ch);
+            return;
+        }
     }
   
     if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
 	(IS_NPC(victim) && mag_savingthrow(victim, level, SAVING_SPELL))) {
-	send_to_char("You fail.\r\n", ch);
-	return;
+        send_to_char("You fail.\r\n", ch);
+        return;
     }
     
     do {
