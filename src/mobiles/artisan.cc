@@ -56,8 +56,8 @@ Craftshop::parse_item(xmlNodePtr node)
 			compon->value = xmlGetIntProp(sub_node, "value");
 			compon->amount = xmlGetIntProp(sub_node, "amount");
 			new_item->required.insert(new_item->required.end(), compon);
-		} else {
-			slog("Invalid XML tag '%s' while parsing artisan",
+		} else if (!xmlMatches(sub_node->name, "text")) {
+			slog("Invalid XML tag '%s' while parsing craftshop item",
 				(const char *)sub_node->name);
 		}
 	}
@@ -76,8 +76,8 @@ Craftshop::Craftshop(xmlNodePtr node)
 		prop = NULL;
 		if (xmlMatches(sub_node->name, "item")) {
 			parse_item(sub_node);
-		} else {
-			slog("Invalid XML tag '%s' while parsing artisan",
+		} else if (!xmlMatches(sub_node->name, "text")) {
+			slog("Invalid XML tag '%s' while parsing craftshop",
 				(const char *)sub_node->name);
 		}
 	}

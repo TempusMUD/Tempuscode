@@ -4195,6 +4195,10 @@ init_char(struct Creature *ch)
 	ch->points.move = GET_MAX_MOVE(ch);
 	ch->points.armor = 100;
 
+	PRF_FLAGS(ch) = PRF_COMPACT | PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE |
+		PRF_AUTOEXIT | PRF_COLOR_1;
+	PRF2_FLAGS(ch) = PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN;
+
 	player_table[GET_PFILEPOS(ch)].id = GET_IDNUM(ch) = ++top_idnum;
 
 	for (i = 1; i <= MAX_SKILLS; i++) {

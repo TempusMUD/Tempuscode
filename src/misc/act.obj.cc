@@ -1754,11 +1754,12 @@ ACMD(do_give)
 	struct Creature *vict;
 	struct obj_data *obj, *next_obj;
 	int dotmode, amount = 0, counter = 0, found;
-	char *arg1, *arg2;
+	char *arg1, *arg2, *arg3;
 	char *to_char, *to_vict, *to_room;
 
 	arg1 = tmp_getword(&argument);
 	arg2 = tmp_getword(&argument);
+	arg3 = tmp_getword(&argument);
 
 	if (!*arg1) {
 		send_to_char(ch, "What do you want to give?\r\n");
@@ -1777,7 +1778,7 @@ ACMD(do_give)
 	if (is_number(arg1)) {
 		amount = atoi(arg1);
 
-		vict = give_find_vict(ch, argument);
+		vict = give_find_vict(ch, arg3);
 		if (!vict)
 			return;
 

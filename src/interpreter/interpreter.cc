@@ -725,6 +725,7 @@ struct command_info cmd_info[] = {
 	{"gloat", POS_RESTING, do_action, 0, 0, 0},
 	{"goto", POS_SLEEPING, do_goto, LVL_AMBASSADOR, 0, 0},
 	{"gold", POS_SLEEPING, do_gold, 0, 0, 0},
+	{"gore", POS_STANDING, do_action, 0, 0, 0},
 	{"gossip", POS_SLEEPING, do_gen_comm, 0, SCMD_GOSSIP, 0},
 	{"goose", POS_RESTING, do_action, 0, 0, 0},
 	{"gouge", POS_FIGHTING, do_offensive_skill, 0, SKILL_GOUGE, 0},
@@ -844,6 +845,7 @@ struct command_info cmd_info[] = {
 	{"laces", POS_RESTING, do_action, 0, 0, 0},
 	{"lag", POS_RESTING, do_action, 0, 0, 0},
 	{"laugh", POS_RESTING, do_action, 0, 0, 0},
+	{"lash", POS_STANDING, do_action, 0, 0, 0},
 	{"last", POS_DEAD, do_last, LVL_IMMORT, 0, 0},
 	{"leave", POS_STANDING, do_leave, 0, 0, 0},
 	{"learn", POS_STANDING, do_practice, 1, 0, 0},
@@ -1231,6 +1233,7 @@ struct command_info cmd_info[] = {
 	//{ "toss_mail", POS_DEAD       , do_toss_mail, LVL_GRIMP, 0 , 0 },
 	{"track", POS_STANDING, do_track, 0, 0, 0},
 	{"train", POS_STANDING, do_practice, 1, 0, 0},
+	{"trample", POS_STANDING, do_action, 0, 0, 0},
 	{"transfer", POS_SLEEPING, do_trans, LVL_IMMORT, 0, 0},
 	{"translocate", POS_RESTING, do_translocate, 20, ZEN_TRANSLOCATION, 0},
 	{"transmit", POS_SLEEPING, do_transmit, 0, 0, 0},
@@ -2061,6 +2064,13 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 
 	if (found)
 		return 1;
+
+	// Special in self?  (for activating special abilities in switched mobs)
+	if (IS_NPC(ch) && GET_MOB_SPEC(ch)) {
+		specAddress = (long)GET_MOB_SPEC(ch);
+		if (GET_MOB_SPEC(ch) (ch, ch, cmd, arg, spec_mode))
+			return specAddress;
+	}
 
 	/* special in equipment list? */
 	for (j = 0; j < NUM_WEARS; j++) {

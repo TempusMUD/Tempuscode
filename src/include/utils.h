@@ -257,6 +257,7 @@ char *AN(char *str);
 #define MOB2_FLAGS(ch) ((ch)->char_specials.saved.act2)
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define PLR2_FLAGS(ch) ((ch)->player_specials->saved.plr2_bits)
+
 #define PRF_FLAGS(ch)  ((ch)->player_specials->saved.pref)
 #define PRF2_FLAGS(ch) ((ch)->player_specials->saved.pref2)
 #define AFF_FLAGS(ch)  ((ch)->char_specials.saved.affected_by)
@@ -295,8 +296,6 @@ char *AN(char *str);
 #define GET_ROWS(ch)    ((ch)->player_specials->saved.page_length)
 #define GET_COLS(ch)    ((ch)->player_specials->saved.columns)
 
-#define NOHASS(ch)       (PRF_FLAGGED(ch, PRF_NOHASSLE))
-
 #define IS_NPC(ch)  (IS_SET(MOB_FLAGS(ch), MOB_ISNPC))
 #define IS_MOB(ch)  (IS_NPC(ch))
 #define IS_PC(ch)   (!IS_NPC(ch))
@@ -308,8 +307,10 @@ char *AN(char *str);
 #define AFF_FLAGGED(ch, flag)   (IS_SET(AFF_FLAGS(ch), (flag)))
 #define AFF2_FLAGGED(ch, flag)  (IS_SET(AFF2_FLAGS(ch), (flag)))
 #define AFF3_FLAGGED(ch, flag)  (IS_SET(AFF3_FLAGS(ch), (flag)))
-#define PRF_FLAGGED(ch, flag)   (IS_SET(PRF_FLAGS(ch), (flag)))
-#define PRF2_FLAGGED(ch, flag)  (IS_SET(PRF2_FLAGS(ch), (flag)))
+#define PRF_FLAGGED(ch, flag)   (IS_MOB(ch) ? ((ch->desc) ? IS_SET(PRF_FLAGS(ch->desc->original), (flag)):0) : IS_SET(PRF_FLAGS(ch), (flag)))
+#define PRF2_FLAGGED(ch, flag)   (IS_MOB(ch) ? ((ch->desc) ? IS_SET(PRF2_FLAGS(ch->desc->original), (flag)):0) : IS_SET(PRF2_FLAGS(ch), (flag)))
+
+#define NOHASS(ch)       (PRF_FLAGGED(ch, PRF_NOHASSLE))
 
 #define WIS_APP(k)         (k >> 1)
 #define INT_APP(k)         (k << 1)

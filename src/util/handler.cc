@@ -2045,6 +2045,26 @@ get_char_room_vis(struct Creature *ch, char *name)
 }
 
 struct Creature *
+get_char_random_vis(struct Creature *ch, room_data *room)
+{
+	Creature *result = NULL;
+	int total = 0;
+
+	if (room->people.empty())
+		return NULL;
+
+	CreatureList::iterator cit = room->people.begin();
+	for (; cit != room->people.end(); ++cit) {
+		if (*cit == ch || !CAN_SEE(ch, *cit) || number(0, total))
+			continue;
+		result = *cit;
+		total++;
+	}
+	
+	return result;
+}
+
+struct Creature *
 get_char_in_remote_room_vis(struct Creature *ch, char *name,
 	struct room_data *inroom)
 {

@@ -1212,6 +1212,9 @@ make_prompt(struct descriptor_data * d)
 				sprintf(prompt, "%s%s(%sr%d%s)%s ",prompt,CCBLU(d->character, C_NRM),
 					CCMAG(d->character, C_NRM), GET_REMORT_INVIS(d->character),
 					CCBLU(d->character, C_NRM), CCNRM(d->character, C_NRM));
+			else if (IS_MOB(d->character))
+				sprintf(prompt, "%s%s[NPC]%s ", prompt,
+					CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
 
 			if (PRF_FLAGGED(d->character, PRF_DISPHP))
 				sprintf(prompt, "%s%s%s< %s%d%s%sH%s ", prompt,
@@ -1253,7 +1256,7 @@ make_prompt(struct descriptor_data * d)
 				sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->character, C_NRM),
 						diag_conditions(FIGHTING(d->character)),
 						CCNRM(d->character, C_NRM));
-		
+			
 			sprintf(prompt, "%s%s%s>%s ", prompt, CCWHT(d->character, C_NRM),
 					CCBLD(d->character, C_CMP), CCNRM(d->character, C_NRM));
 			SEND_TO_Q(prompt,d);

@@ -73,6 +73,7 @@ bool char_to_room( Creature *ch, room_data *room, bool check_specials = true );
 
 /* find if character can see */
 struct Creature *get_char_room_vis(struct Creature *ch, char *name);
+struct Creature *get_char_random_vis(struct Creature *ch, room_data *room);
 struct Creature *get_char_in_remote_room_vis(struct Creature *ch, char *name,
 	struct room_data *inroom);
 struct Creature *get_player_vis(struct Creature *ch, char *name, int inroom);
