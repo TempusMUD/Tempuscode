@@ -343,12 +343,17 @@ page_string(struct descriptor_data *d, char *str, int keep_internal)
 	if (!d || !str)
 		return;
 
+	if (d->showstr_head)
+		free(d->showstr_head);
+
 	if (keep_internal) {
 		CREATE(d->showstr_head, char, strlen(str) + 1);
 		strcpy(d->showstr_head, str);
 		d->showstr_point = d->showstr_head;
-	} else
+	} else {
+		d->showstr_head = NULL;
 		d->showstr_point = str;
+	}
 
 	show_string(d);
 }
