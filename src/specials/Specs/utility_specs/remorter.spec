@@ -107,6 +107,7 @@ SPECIAL(remorter)
 			GET_REMORT_GEN(ch)++;
 			GET_REMORT_INVIS(ch) = 0;
 			GET_WIMP_LEV(ch) =     0;
+            GET_TOT_DAM(ch) = 0;
 			sprintf(buf, "(RTEST) %s has remorted (%d) as a %s/%s.", GET_NAME(ch), 
 				GET_REMORT_GEN(ch), pc_char_class_types[(int)GET_CLASS(ch)], 
 				pc_char_class_types[(int)GET_REMORT_CLASS(ch)]);
