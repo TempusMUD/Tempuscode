@@ -107,7 +107,8 @@ vendor_inventory(Creature *self, obj_data *obj)
 	int cnt = 0;
 
 	cur_obj = self->carrying;
-	while (cur_obj && GET_OBJ_VNUM(cur_obj) != GET_OBJ_VNUM(obj))
+	while (cur_obj && GET_OBJ_VNUM(cur_obj) != GET_OBJ_VNUM(obj) &&
+			!same_obj(cur_obj, obj))
 		cur_obj = cur_obj->next_content;
 
 	if (!cur_obj)
