@@ -1,4 +1,4 @@
-#!/bin/tcsh -f
+#!/bin/bash
 #
 # CircleMUD 2.0 autorun script
 # Originally by Fred C. Merkel
@@ -6,90 +6,92 @@
 # All Rights Reserved
 # See license.doc for more information
 
+# converted to bash by John Watson, June 22 1999.
+
 # If .fastboot exists, the script will sleep for only 5 seconds between reboot
 # attempts.  If .killscript exists, the script commit suicide (and remove
 # .killscript).  If pause exists, the script will repeatedly sleep for
 # 60 seconds and will not restart the mud until pause is removed.
 
-set PORT=2020 
-set OLDFLAGS=''
-set FLAGS=''
-set DM_LOGFILE = '/home0/TempusMUD/log/dm-logfile'
+PORT=2020 
+OLDFLAGS=''
+FLAGS='-z -m'
+DM_LOGFILE='/home0/TempusMUD/log/dm-logfile'
 
-while (1)
+while /bin/true; do
 
-  set DATE = (`date`);
+    DATE=`date`
 
-  echo "lib/core set readable for group." >> syslog
-  chmod g+r lib/core
+    echo "lib/core set readable for group." >> syslog
+    chmod g+r lib/core
 
-  echo "autoscript starting game $DATE" >> syslog
+    echo "autoscript starting game $DATE" >> syslog
 
-  if (-r .wizlock) then
-    rm .wizlock
-    set OLDFLAGS=$FLAGS
-    set FLAGS=$FLAGS' -b'
-    echo 'wizlock enabled, flags='$FLAGS >> syslog
-  endif
+    if [ -r .wizlock ]; then
+	rm .wizlock
+	OLDFLAGS=$FLAGS
+	FLAGS=$FLAGS' -b'
+	echo 'wizlock enabled, flags='$FLAGS >> syslog
+    fi
 
 # bin/circle $FLAGS $PORT >>& syslog
 
-  /home0/realm/cyber/dmall/dmalloc-3.1.3/dmalloc -C -l $DM_LOGFILE -i 100 low
-  rm -f pause
-  bin/circle $FLAGS $PORT >>& syslog
+    #   /home0/realm/cyber/dmall/dmalloc-3.1.3/dmalloc -C -l $DM_LOGFILE -i 100 low
+    rm -f pause
+    bin/circle $FLAGS $PORT > syslog 2>&1
 
-  set FLAGS=$OLDFLAGS
+    FLAGS=$OLDFLAGS
 
-  fgrep "self-delete"   syslog >> log/delete
-  fgrep "death trap"    syslog >> log/dts
-  fgrep "killed"        syslog >> log/rip
-  fgrep "Running"       syslog >> log/restarts
-  fgrep "advanced"      syslog >> log/levels
-  fgrep "equipment lost" syslog >> log/rentgone
-  fgrep "usage"         syslog >> log/usage
-  fgrep "new player"    syslog >> log/newplayers
-  fgrep "new player"    syslog >> log/cur_newplayers
-  fgrep "SYSERR"        syslog >> log/errors
-  fgrep "DEBUG"         syslog >> log/debug
-  fgrep "(GC)"          syslog >> log/godcmds
-  fgrep "(QC)"          syslog >> log/questcmds
-  fgrep "Bad PW"        syslog >> log/badpws
-  fgrep "undefined rent" syslog >> log/undef_rent
-  fgrep "REIMB"         syslog >> log/bad_reimb
-  fgrep "WIPE"          syslog >> log/mudwipes
-  fgrep "rename"        syslog >> log/eq_renames
-  fgrep "been restored" syslog >> log/restores
-  fgrep "ENCHANT"       syslog >> log/imm_enchants
-  fgrep " Killed"       syslog >> log/exp_log
-  fgrep "Failed a"      syslog >> log/failed_olc
-  fgrep "OLC"           syslog >> log/olc_log
-  fgrep "register"      syslog >> log/home_register
-  fgrep "pkilled"       syslog >> log/pkills
-  fgrep "stole"         syslog >> log/imm_larceny
-  fgrep "ImmCast"       syslog >> log/imm_magic
-  fgrep "approved object"        syslog >> log/olc_obj_approve
-  fgrep "approved mobile"        syslog >> log/olc_mob_approve
-  fgrep "has gained"    syslog >> log/no_hunger_t_d
-  fgrep "(RTEST)"       syslog >> log/remorts
-  fgrep "jail"          syslog >> log/jail_log
-  fgrep "looted"        syslog >> log/corpse_looting
-  fgrep "MONEY"         syslog >> log/cash_transfer
-  fgrep "CLAN:"         syslog >> log/clan_accounts
-  fgrep "SRCH:"         syslog >> log/searches
-  fgrep "CMD:"          syslog >> log/cmd_log
-  fgrep "(cedit)"       syslog >> log/cedit_log
-  fgrep "increased"     syslog >> log/increase_log
-  fgrep "improved"      syslog >> log/improve_log
-  fgrep "siteok'd"      syslog >> log/siteok_log
-
-  rm log/syslog.1
-  mv log/syslog.2 log/syslog.1
-  mv log/syslog.3 log/syslog.2
-  mv log/syslog.4 log/syslog.3
-  mv log/syslog.5 log/syslog.4
-  mv log/syslog.6 log/syslog.5
-  mv syslog       log/syslog.6
-  touch syslog
+    fgrep "self-delete"   syslog >> log/delete
+    fgrep "death trap"    syslog >> log/dts
+    fgrep "killed"        syslog >> log/rip
+    fgrep "Running"       syslog >> log/restarts
+    fgrep "advanced"      syslog >> log/levels
+    fgrep "equipment lost" syslog >> log/rentgone
+    fgrep "usage"         syslog >> log/usage
+    fgrep "new player"    syslog >> log/newplayers
+    fgrep "new player"    syslog >> log/cur_newplayers
+    fgrep "SYSERR"        syslog >> log/errors
+    fgrep "DEBUG"         syslog >> log/debug
+    fgrep "(GC)"          syslog >> log/godcmds
+    fgrep "(QC)"          syslog >> log/questcmds
+    fgrep "Bad PW"        syslog >> log/badpws
+    fgrep "undefined rent" syslog >> log/undef_rent
+    fgrep "REIMB"         syslog >> log/bad_reimb
+    fgrep "WIPE"          syslog >> log/mudwipes
+    fgrep "rename"        syslog >> log/eq_renames
+    fgrep "been restored" syslog >> log/restores
+    fgrep "ENCHANT"       syslog >> log/imm_enchants
+    fgrep " Killed"       syslog >> log/exp_log
+    fgrep "Failed a"      syslog >> log/failed_olc
+    fgrep "OLC"           syslog >> log/olc_log
+    fgrep "register"      syslog >> log/home_register
+    fgrep "pkilled"       syslog >> log/pkills
+    fgrep "stole"         syslog >> log/imm_larceny
+    fgrep "ImmCast"       syslog >> log/imm_magic
+    fgrep "approved object"        syslog >> log/olc_obj_approve
+    fgrep "approved mobile"        syslog >> log/olc_mob_approve
+    fgrep "has gained"    syslog >> log/no_hunger_t_d
+    fgrep "(RTEST)"       syslog >> log/remorts
+    fgrep "jail"          syslog >> log/jail_log
+    fgrep "looted"        syslog >> log/corpse_looting
+    fgrep "MONEY"         syslog >> log/cash_transfer
+    fgrep "CLAN:"         syslog >> log/clan_accounts
+    fgrep "SRCH:"         syslog >> log/searches
+    fgrep "CMD:"          syslog >> log/cmd_log
+    fgrep "(cedit)"       syslog >> log/cedit_log
+    fgrep "increased"     syslog >> log/increase_log
+    fgrep "improved"      syslog >> log/improve_log
+    fgrep "siteok'd"      syslog >> log/siteok_log
+    
+    rm log/syslog.1
+    mv log/syslog.2 log/syslog.1
+    mv log/syslog.3 log/syslog.2
+    mv log/syslog.4 log/syslog.3
+    mv log/syslog.5 log/syslog.4
+    mv log/syslog.6 log/syslog.5
+    mv syslog       log/syslog.6
+    touch syslog
   
 # rm log/prof_log.1
 # mv log/prof_log.2 log/prof_log.1
@@ -99,32 +101,31 @@ while (1)
 # mv log/prof_log.6 log/prof_log.5
 # gprof bin/circle lib/gmon.out > log/prof_log.6 &
 
-  cp lib/etc/players lib/etc/backup_players
-  rm lib/etc/backup_players.gz
-  gzip lib/etc/backup_players &
-  chmod g+r lib/core
-  
-  if (! -r .fastboot) then
-    sleep 40
-  else
-#   rm .fastboot
-    sleep 5
-  endif
+    cp lib/etc/players lib/etc/backup_players
+    rm lib/etc/backup_players.gz
+    gzip -3 lib/etc/backup_players &
+    chmod g+r lib/core
+    
+    if [ ! -r .fastboot ]; then
+	sleep 40
+    else
+	sleep 5
+    fi
 
-  if (-r .killscript) then
-    set DATE = (`date`);
-    echo "autoscript killed $DATE"  >> syslog
-    rm .killscript
-    exit
-  endif 
+    if [ -r .killscript ]; then
+	DATE=`date`
+	echo "autoscript killed $DATE"  >> syslog
+	rm .killscript
+	exit
+    fi
+    
+    while [ -r pause ]; do
+	sleep 60
+    done
+    
+done
 
-  while (-r pause) 
-    sleep 60
-  end
-
-end
-
-echo autoscript ending $DATE >> syslog
+echo "autoscript ending $DATE" >> syslog
 
 
 
