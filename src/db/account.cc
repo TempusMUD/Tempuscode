@@ -103,8 +103,6 @@ Account::Account(void)
 	_login_time = now;
 	_creation_addr = NULL;
 	_login_addr = NULL;
-	_active_cxn = NULL;
-	_active_char = NULL;
 	_ansi_level = 0;
 	_term_height = DEFAULT_TERM_HEIGHT;
 	_term_width = DEFAULT_TERM_WIDTH;
@@ -434,7 +432,9 @@ Account::authenticate(const char *pw)
 void
 Account::login(descriptor_data *d)
 {
-	if (_active_cxn) {
+	slog("login: %s from %s", _name, _login_addr);
+	set_desc_state(CXN_MENU, d);
+/*	if (_active_cxn) {
 		slog("login: %s from %s, disconnecting %s",
 			_name, _login_addr, _active_cxn->host);
 		set_desc_state(_active_cxn->input_mode, d);
@@ -464,21 +464,17 @@ Account::login(descriptor_data *d)
 		set_desc_state(CXN_MENU, d);
 	}
 	_active_cxn = d;
+*/
 }
 
 void
-Account::logout(bool forced)
+Account::logout(descriptor_data *d, bool forced)
 {
-	if (!_active_cxn) {
-		slog("SYSERR: account '%s' logout without active link", _name);
-		return;
-	}
-
 	if (_password) {
 		_login_time = time(NULL);
 		if (_login_addr)
 			free(_login_addr);
-		_login_addr = strdup(_active_cxn->host);
+		_login_addr = strdup(d->host);
 
 		save_to_xml();
 		slog("%slogout: %s from %s", (forced) ? "forced ":"",
@@ -488,8 +484,7 @@ Account::logout(bool forced)
 			_login_addr);
 	}
 
-	set_desc_state(CXN_DISCONNECT, _active_cxn);
-	_active_cxn = NULL;
+	set_desc_state(CXN_DISCONNECT, d);
 }
 
 void
@@ -497,7 +492,6 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 {
 	_id = idnum;
 	_name = strdup(name);
-	_active_cxn = d;
 	slog("new account: #%d (%s) from %s", idnum, _name, _login_addr);
 }
 
@@ -571,4 +565,31 @@ bool
 Account::invalid_char_index(int idx)
 {
 	return (idx < 1 || idx > (int)_chars.size());
+}
+
+bool
+Account::deny_char_entry(void)
+{
+	descriptor_data *d;
+	int remorts = 0, mortals = 0;
+	
+	for (d = descriptor_list;d;d = d->next) {
+		if (d->account == this &&
+				d->input_mode == CXN_PLAYING &&
+				d->creature) {
+			if (GET_LEVEL(d->creature) > 65)
+				return false;
+			if (IS_REMORT(d->creature))
+				remorts++;
+			else
+				mortals++;
+		}
+	}
+
+	if (remorts)
+		return true;
+	if (mortals < 2)
+		return false;
+
+	return true;
 }

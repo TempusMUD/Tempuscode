@@ -119,4 +119,6 @@ struct descriptor_data {
 
 void set_desc_state(cxn_state state, descriptor_data *d);
 
+extern struct descriptor_data *descriptor_list;
+
 #endif

@@ -24,7 +24,7 @@ class Account {
 
 		bool authenticate(const char *password);
 		void login(descriptor_data *d);
-		void logout(bool forced);
+		void logout(descriptor_data *d, bool forced);
 		void initialize(const char *name, descriptor_data *d, int idnum);
 
 		inline const char *get_name(void) const { return _name; }
@@ -39,8 +39,10 @@ class Account {
 
 		Creature *create_char(const char *name);
 		void delete_char(Creature *ch);
-		bool invalid_char_index(int idx);
 		long get_char_by_index(int idx);
+		Creature *get_creature_by_index(int idx);
+		bool invalid_char_index(int idx);
+		bool deny_char_entry(void);
 
 		inline long long get_past_bank(void) { return _bank_past; }
 		inline long long get_future_bank(void) { return _bank_future; }
@@ -70,8 +72,6 @@ class Account {
 		unsigned int _term_width;
 		// Game data
 		vector<int> _chars;
-		descriptor_data *_active_cxn;
-		Creature *_active_char;
 		long long _bank_past;
 		long long _bank_future;
 };

@@ -192,7 +192,6 @@ extern struct message_list fight_messages[MAX_MESSAGES];
 extern struct obj_data *dam_object;
 extern int max_exp_gain;		/* see config.c */
 extern int mini_mud;
-extern struct descriptor_data *descriptor_list;
 
 extern int search_nomessage;
 extern struct combat_data *battles;

@@ -185,7 +185,7 @@ handle_input(struct descriptor_data *d, char *arg)
 		switch (tolower(arg[0])) {
 		case 'l':
 			send_to_desc(d, "Goodbye.  Return soon!\r\n");
-			d->account->logout(false);
+			d->account->logout(d, false);
 			break;
 		case 'c':
 			set_desc_state(CXN_NAME_PROMPT, d); break;
@@ -208,7 +208,31 @@ handle_input(struct descriptor_data *d, char *arg)
 				return;
 			}
 
+			// Try to reconnect to an existing creature first
 			char_id = d->account->get_char_by_index(atoi(arg));
+			d->creature = get_char_in_world_by_idnum(char_id);
+
+			if (d->creature) {
+				if (d->creature->desc) {
+					send_to_desc(d->creature->desc, "You have logged on from another location!\r\n");
+					set_desc_state(CXN_DISCONNECT, d->creature->desc);
+					d->creature->desc->creature = NULL;
+					d->creature->desc = d;
+					send_to_desc(d, "You take over your own body, already in use!\r\n");
+					mudlog(GET_INVIS_LVL(d->creature), NRM, true,
+						"%s has reconnected", GET_NAME(d->creature));
+				} else {
+					d->creature->desc = d;
+					mudlog(GET_INVIS_LVL(d->creature), NRM, true,
+						"%s has reconnected from linkless",
+						GET_NAME(d->creature));
+					send_to_desc(d, "You take over your own body!\r\n");
+				}
+
+				set_desc_state(CXN_PLAYING, d);
+				return;
+			}
+
 			d->creature = new Creature;
 			d->creature->desc = d;
 			d->creature->account = d->account;
@@ -222,7 +246,15 @@ handle_input(struct descriptor_data *d, char *arg)
 				return;
 			}
 
+			if (GET_LEVEL(d->creature) < 65 && d->account->deny_char_entry()) {
+				send_to_desc(d, "You can't have another character in the game right now.\r\n");
+				delete d->creature;
+				d->creature = NULL;
+				return;
+			}
+
 			char_to_game(d);
+
 			break;
 		}
 		break;
@@ -674,7 +706,7 @@ void
 send_menu(descriptor_data *d)
 {
 	int idx;
-	Creature *tmp_ch;
+	Creature *tmp_ch, *real_ch;
 
 	switch (d->input_mode) {
 	case CXN_DISCONNECT:
@@ -816,20 +848,23 @@ send_menu(descriptor_data *d)
 			strftime(laston_str, sizeof(laston_str), "%b %d, %Y",
 				localtime(&tmp_ch->player.time.logon));
 			if (PLR_FLAGGED(tmp_ch, PLR_FROZEN))
-				status_str = "&cFROZEN!";
+				status_str = "&CFROZEN!";
 			else if (PLR2_FLAGGED(tmp_ch, PLR2_BURIED))
-				status_str = "&gBURIED!";
-//			else if (d->account->is_active(GET_IDNUM(tmp_ch)))
-//				status_str = "&mlogged in";
-			else switch (tmp_ch->rent.rentcode) {
+				status_str = "&GBURIED!";
+			else if ((real_ch = get_char_in_world_by_idnum(GET_IDNUM(tmp_ch))) != NULL) {
+				if (real_ch->desc)
+					status_str = "&g  playing";
+				else
+					status_str = "&c linkless";
+			} else switch (tmp_ch->rent.rentcode) {
 			case RENT_UNDEF:
 				status_str = "&r    undef"; break;
 			case RENT_CRYO:
 				status_str = "&c   cryoed"; break;
 			case RENT_CRASH:
-				status_str = "&gcrashsave"; break;
+				status_str = "&ycrashsave"; break;
 			case RENT_RENTED:
-				status_str = "&g   rented"; break;
+				status_str = "&m   rented"; break;
 			case RENT_FORCED:
 				status_str = "&yforcerent"; break;
 			case RENT_TIMEDOUT:
