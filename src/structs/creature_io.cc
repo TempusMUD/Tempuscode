@@ -665,7 +665,7 @@ Creature::loadFromXML( const char *path )
 			GET_COND(this, DRUNK) = xmlGetIntProp(node, "drunk");
        	} else if ( xmlMatches(node->name, "player") ) {
 			GET_WIMP_LEV(this) = xmlGetIntProp(node, "wimpy");
-			GET_PRACTICES(this) = xmlGetIntProp(node, "wimpy");
+			GET_PRACTICES(this) = xmlGetIntProp(node, "pracs");
 			GET_LIFE_POINTS(this) = xmlGetIntProp(node, "lp");
 			GET_INVIS_LVL(this) = xmlGetIntProp(node, "invis");
 			GET_CLAN(this) = xmlGetIntProp(node, "clan");
