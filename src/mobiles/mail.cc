@@ -40,6 +40,9 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include "player_table.h"
 #include "accstr.h"
 
+// From cityguard.cc
+void call_for_help(Creature *ch, Creature *attacker);
+
 using namespace std;
 
 // The vnum of the "letter" object
@@ -321,6 +324,15 @@ list<obj_data *> load_mail(char *path)
 
 SPECIAL(postmaster)
 {
+	if (spec_mode == SPECIAL_TICK) {
+		if (FIGHTING(((Creature *)me)) && !number(0, 4)) {
+			call_for_help(((Creature *)me), FIGHTING(((Creature *)me)));
+			return 1;
+		}
+		return 0;
+	}
+
+
     if( spec_mode != SPECIAL_CMD ) 
         return 0;
 
