@@ -1814,7 +1814,6 @@ ACMD(do_cast)
 		send_to_char("You lost your concentration!\r\n", ch);
       	ACMD(do_say);
 	    if (!skill_message(0, ch, tch, spellnum)) {
-			do_say(ch,"There's no message for this spell. Darnit.",0,0);
 			send_to_char("Nothing seems to happen.\r\n", ch);
 		}
 
