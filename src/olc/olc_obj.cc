@@ -71,10 +71,12 @@ const char *olc_oset_keys[] = {
     "soilage",   // 20
     "sigil",
     "extra3",
+    "timer",
+	
     "\n"
 };
 
-#define NUM_OSET_COMMANDS 23
+#define NUM_OSET_COMMANDS 24
 
 
 int write_obj_index(struct char_data *ch, struct zone_data *zone)
@@ -1134,7 +1136,19 @@ perform_oset(struct char_data *ch, struct obj_data *obj_p,
 	    send_to_char("Extra3 flags set.\r\n", ch);
 	}
 	break;
-
+	
+	case 23:
+	if (!is_number(arg2)) {
+            send_to_char("The argument must be a number.\r\n", ch);
+            return;
+        } else {
+            i = atoi(arg2);   
+            GET_OBJ_TIMER(obj_p) = i;
+            sprintf(buf, "Object %d timer set to %d.\r\n",
+                    obj_p->shared->vnum, i);
+            send_to_char(buf, ch);
+	}
+      break;
 
     default:
 	send_to_char("Unsupported olc oset option.\r\n", ch);
