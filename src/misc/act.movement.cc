@@ -287,6 +287,10 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 	if (!can_see_creature(vict, ch) && (IS_IMMORT(ch) || ch->isTester()))
 		return SNEAK_OK;
 
+	// No one can fool an immortal (except an invisible immortal)
+	if (IS_IMMORT(vict))
+		return SNEAK_FAILED;
+
 	// Sonic imagery sees all other movements, though
 	if (AFF3_FLAGGED(vict, AFF3_SONIC_IMAGERY))
 		return SNEAK_FAILED;
@@ -294,6 +298,9 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 	// If they're not sneaking, they are always seen.  If they're invisible,
 	// they're always heard.
 	if (!IS_AFFECTED(ch, AFF_SNEAK)) {
+		if (!AWAKE(vict))
+			return SNEAK_OK;
+
 		if (!can_see_creature(vict, ch) && msgs) {
 			get_giveaway(ch, vict);
 			return SNEAK_HEARD;
@@ -301,10 +308,6 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 			
 		return SNEAK_FAILED;
 	}
-
-	// No one can fool an immortal (except an invisible immortal)
-	if (IS_IMMORT(vict))
-		return SNEAK_FAILED;
 
 	sneak_prob = ch->getLevelBonus(SKILL_SNEAK) +
 		dex_app_skill[GET_DEX(ch)].sneak;
