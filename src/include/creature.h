@@ -998,6 +998,8 @@ struct Creature {
 	void setFighting(Creature * ch);
 	void extract(bool destroy_objs, bool save, int con_state);
 	void clearMemory();
+    bool loadFromXML( long id );
+    void saveToXML();
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
   public:						// ******  Data ****
 	int pfilepos;				/* playerfile pos          */

@@ -1,6 +1,9 @@
 $(OBJ)/creature.o : creature.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/creature_list.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/help.h $(INCLUDE)/paths.h $(INCLUDE)/login.h $(INCLUDE)/house.h $(INCLUDE)/clan.h $(INCLUDE)/security.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) creature.cc          -o $(OBJ)/creature.o
+$(OBJ)/creature_io.o : creature_io.cc \
+	$(INCLUDE)/constants.h $(INCLUDE)/utils.h $(INCLUDE)/xml_utils.h $(INCLUDE)/db.h $(INCLUDE)/shop.h $(INCLUDE)/tmpstr.h $(INCLUDE)/comm.h 
+	$(CXX) -c $(CXXFLAGS) creature_io.cc       -o $(OBJ)/creature_io.o
 $(OBJ)/creature_list.o : creature_list.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/creature_list.h 
 	$(CXX) -c $(CXXFLAGS) creature_list.cc     -o $(OBJ)/creature_list.o
@@ -8,9 +11,9 @@ $(OBJ)/obj_data.o : obj_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h 
 	$(CXX) -c $(CXXFLAGS) obj_data.cc          -o $(OBJ)/obj_data.o
 $(OBJ)/player_table.o : player_table.cc \
-	$(INCLUDE)/player_table.h 
+	$(INCLUDE)/player_table.h $(INCLUDE)/utils.h 
 	$(CXX) -c $(CXXFLAGS) player_table.cc      -o $(OBJ)/player_table.o
 $(OBJ)/room_data.o : room_data.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/room_data.h 
 	$(CXX) -c $(CXXFLAGS) room_data.cc         -o $(OBJ)/room_data.o
-OBJFILES= $(OBJ)/creature.o $(OBJ)/creature_list.o $(OBJ)/obj_data.o $(OBJ)/player_table.o $(OBJ)/room_data.o
+OBJFILES= $(OBJ)/creature.o $(OBJ)/creature_io.o $(OBJ)/creature_list.o $(OBJ)/obj_data.o $(OBJ)/player_table.o $(OBJ)/room_data.o

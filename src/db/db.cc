@@ -3203,160 +3203,10 @@ save_char(struct Creature *ch, struct room_data *load_room)
 
 	fseek(player_fl, GET_PFILEPOS(ch) * sizeof(struct char_file_u), SEEK_SET);
 	fwrite(&st, sizeof(struct char_file_u), 1, player_fl);
-
-	// Save vital statistics
-	FILE *ouf;
-	char *path;
-	struct alias_data *cur_alias;
-	struct affected_type *cur_aff;
-	int idx;
-
-	//path = tmp_sprintf("plrxml/%d.dat", GET_PFILEPOS(ch));
-    path = getPlayerfilePath( GET_IDNUM(ch) );
-	ouf = fopen(path, "w");
-
-	if( ouf == NULL ) {
-		fprintf(stderr, "Unable to open XML player file for save.[%s](%s)\n",
-				path,strerror(errno) );
-		return;
-	}
-	fprintf(ouf, "<CREATURE NAME=\"%s\" IDNUM=\"%ld\">\n",
-		GET_NAME(ch), ch->char_specials.saved.idnum);
-
-	fprintf(ouf, "<POINTS HIT=\"%d\" MANA=\"%d\" MOVE=\"%d\" MAXHIT=\"%d\" MAXMANA=\"%d\" MAXMOVE=\"%d\"/>\n",
-		ch->points.hit, ch->points.mana, ch->points.move,
-		ch->points.max_hit, ch->points.max_mana, ch->points.max_move);
-
-    fprintf(ouf, "<MONEY GOLD=\"%d\" BANK=\"%d\" CASH=\"%d\" CREDITS=\"%d\" />\n",
-        ch->points.gold, ch->points.bank_gold, ch->points.cash, ch->points.credits );
-
-	fprintf(ouf, "<STATS LEVEL=\"%d\" SEX=\"%s\" RACE=\"%s\" HEIGHT=\"%d\" WEIGHT=\"%d\" ALIGN=\"%d\"/>\n",
-		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
-		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
-	
-	fprintf(ouf, "<CLASS NAME=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
-	if (GET_REMORT_GEN(ch))
-		fprintf(ouf, " REMORT=\"%s\" GEN=\"%d\"",
-			pc_char_class_types[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
-	if (IS_CYBORG(ch)) {
-		if (GET_OLD_CLASS(ch) != -1)
-			fprintf(ouf, " SUBCLASS=\"%s\"",
-				borg_subchar_class_names[GET_OLD_CLASS(ch)]);
-		if (GET_TOT_DAM(ch))
-			fprintf(ouf, " TOTAL_DAM=\"%d\"", GET_TOT_DAM(ch));
-		if (GET_BROKE(ch))
-			fprintf(ouf, " BROKEN=\"%d\"", GET_BROKE(ch));
-	} else if (GET_CLASS(ch) == CLASS_MAGE &&
-			GET_SKILL(ch, SPELL_MANA_SHIELD) > 0) {
-		fprintf(ouf, " MANASH_LOW=\"%ld\" MANASH_PCT=\"%ld\"",	
-			ch->player_specials->saved.mana_shield_low,
-			ch->player_specials->saved.mana_shield_pct);
-	}
-	fprintf(ouf, "/>\n");
-
-
-	fprintf(ouf, "<TIME BIRTH=\"%ld\" DEATH=\"%ld\" PLAYED=\"%d\"/>\n",
-		ch->player.time.birth,
-		ch->player.time.death,
-		ch->player.time.played);
-
-	fprintf(ouf, "<LASTLOGIN TIME=\"%ld\" HOST=\"%s\"/>\n",
-		(long int)ch->player.time.logon, ch->desc->host);
-
-	fprintf(ouf, "<CARNAGE PKILLS=\"%d\" MKILLS=\"%d\" DEATHS=\"%d\"/>\n",
-		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch));
-
-	fprintf(ouf, "<ATTR STR=\"%d\" INT=\"%d\" WIS=\"%d\" DEX=\"%d\" CON=\"%d\" CHA=\"%d\" STRADD=\"%d\"/>\n",
-		GET_STR(ch), GET_INT(ch), GET_WIS(ch), GET_DEX(ch), GET_CON(ch),
-		GET_CHA(ch), GET_ADD(ch));
-    /*  Calculated from eq and affects.
-	fprintf(ouf, "<SAVE PARA=\"%d\" ROD=\"%d\" PETRI=\"%d\" BREATH=\"%d\" SPELL=\"%d\" CHEM=\"%d\" PSI=\"%d\" PHY=\"%d\"/>\n",
-		GET_SAVE(ch, SAVING_PARA), GET_SAVE(ch, SAVING_ROD),
-		GET_SAVE(ch, SAVING_PETRI), GET_SAVE(ch, SAVING_BREATH),
-		GET_SAVE(ch, SAVING_SPELL), GET_SAVE(ch, SAVING_CHEM),
-		GET_SAVE(ch, SAVING_PSI), GET_SAVE(ch, SAVING_PHY));
-    */
-	fprintf(ouf, "<CONDITION HUNGER=\"%d\" THIRST=\"%d\" DRUNK=\"%d\"/>\n",
-		ch->player_specials->saved.conditions[0],
-		ch->player_specials->saved.conditions[1],
-		ch->player_specials->saved.conditions[2]);
-
-	fprintf(ouf, "<PLAYER INVIS=\"%d\" WIMPY=\"%d\" PRACS=\"%d\" LP=\"%d\" CLAN=\"%d\"/>\n",
-		(GET_INVIS_LEV(ch) ? GET_INVIS_LEV(ch):GET_REMORT_INVIS(ch)),
-		GET_WIMP_LEV(ch), GET_PRACTICES(ch), GET_LIFE_POINTS(ch),
-		GET_CLAN(ch));
-
-	fprintf(ouf, "<HOME TOWN=\"%d\" LOADROOM=\"%d\" HELD_TOWN=\"%d\" HELD_LOADROOM=\"%d\"/>\n",
-		GET_HOME(ch), GET_LOADROOM(ch), GET_HOLD_HOME(ch),
-		GET_HOLD_LOADROOM(ch));
-
-	fprintf(ouf, "<QUEST");
-	if (GET_QUEST(ch))
-		fprintf(ouf, " JOINED=\"%d\"", GET_QUEST(ch));
-	if (GET_LEVEL(ch) >= LVL_IMMORT)
-		fprintf(ouf, " ALLOWANCE=\"%d\"", GET_QUEST_ALLOWANCE(ch));
-    if( GET_QUEST_POINTS(ch) != 0 )
-        fprintf(ouf, " POINTS=\"%d\"", GET_QUEST_POINTS(ch));
-    
-	fprintf(ouf, "/>\n");
-		
-	fprintf(ouf, "<ACCOUNT FLAG1=\"%ld\" FLAG2=\"%d\" PASSWORD=\"%s\" BAD_PWS=\"%d\"",
-		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits,
-		ch->player.passwd, ch->player_specials->saved.bad_pws);
-	if (PLR_FLAGGED(ch, PLR_FROZEN))
-		fprintf(ouf, " FROZEN_LVL=\"%d\"", GET_FREEZE_LEV(ch));
-	fprintf(ouf, "/>\n");
-
-	fprintf(ouf, "<PREFS FLAG1=\"%ld\" FLAG2=\"%ld\" LOADROOM=\"%d\" PAGE_LEN=\"%d\"/>\n",
-		ch->player_specials->saved.pref, ch->player_specials->saved.pref2,
-		ch->player_specials->saved.load_room,
-		ch->player_specials->saved.page_length);
-
-	fprintf(ouf, "<TERMINAL PAGE_LENGTH=\"%d\" COLUMNS=\"%d\"/>\n",
-		GET_PAGE_LENGTH(ch), GET_COLS(ch));
-
-	fprintf(ouf, "<AFFECTS FLAG1=\"%ld\" FLAG2=\"%ld\" FLAG3=\"%ld\"/>\n",
-		ch->char_specials.saved.affected_by,
-		ch->char_specials.saved.affected2_by,
-		ch->char_specials.saved.affected3_by);
-
-	for (idx = 0;idx < MAX_WEAPON_SPEC;idx++) {
-		if (ch->player_specials->saved.weap_spec[idx].level)
-			fprintf(ouf, "<WEAPONSPEC VNUM=\"%d\" LEVEL=\"%d\"/>\n",
-				ch->player_specials->saved.weap_spec[idx].vnum,
-				ch->player_specials->saved.weap_spec[idx].level);
-	}
-
-	if (GET_TITLE(ch) && *GET_TITLE(ch))
-		fprintf(ouf, "<TITLE>%s</TITLE>\n", GET_TITLE(ch));
-
-	if (GET_LEVEL(ch) >= LVL_IMMORT) {
-		fprintf(ouf, "<IMMORT BADGE=\"%d\"/>\n",
-			ch->player_specials->saved.occupation);
-		if (POOFIN(ch) && *POOFIN(ch))
-			fprintf(ouf, "<POOFIN>%s</POOFIN>\n", POOFIN(ch));
-		if (POOFOUT(ch) && *POOFOUT(ch))
-			fprintf(ouf, "<POOFOUT>%s</POOFOUT>\n", POOFOUT(ch));
-	}
-	if (ch->player.description && *ch->player.description)
-		fprintf(ouf, "<DESCRIPTION>%s</DESCRIPTION>\n", ch->player.description);
-	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
-		fprintf(ouf, "<ALIAS TYPE=\"%d\" ALIAS=\"%s\" REPLACE=\"%s\"/>\n",
-			cur_alias->type, cur_alias->alias, cur_alias->replacement);
-	for (cur_aff = ch->affected;cur_aff; cur_aff = cur_aff->next)
-		fprintf(ouf, "<AFFECT TYPE=\"%d\" DURATION=\"%d\" MODIFIER=\"%d\" LOCATION=\"%d\" LEVEL=\"%d\" INSTANT=\"%s\" AFFBITS=\"%ld\"/>\n",
-			cur_aff->type, cur_aff->duration, cur_aff->modifier,
-			cur_aff->location, cur_aff->level,
-			(cur_aff->is_instant) ? "yes":"no", cur_aff->bitvector);
-
-	for (idx = 0;idx < MAX_SKILLS;idx++)
-		if (ch->player_specials->saved.skills[idx] > 0)
-			fprintf(ouf, "<SKILL NAME=\"%s\" LEVEL=\"%d\"/>\n",
-				spell_to_str(idx), GET_SKILL(ch, idx));
-
-	fprintf(ouf, "</CREATURE>\n");
-	fclose(ouf);
+    ch->saveToXML();
 }
+
+
 
 /* copy data from the file structure to a char struct */
 void
@@ -3377,7 +3227,6 @@ store_to_char(struct char_file_u *st, struct Creature *ch)
 	ch->player.short_descr = NULL;
 	ch->player.long_descr = NULL;
 	set_title(ch, st->title);
-/*    ch->player.title        = str_dup(st->title); */
 	ch->player.description = str_dup(st->description);
 	ch->player.hometown = st->hometown;
 	ch->player.time.birth = st->birth;
