@@ -1589,10 +1589,9 @@ get_number(char **name)
 
 	if ((read_pt = strchr(*name, '.'))) {
 		*read_pt++ = '\0';
-		if (**name && !is_number(*name))
-			return 0;
 
-		i = atoi(*name);
+		if (**name)
+			i = atoi(*name);
 
 		write_pt = *name;
 		while (*read_pt)
