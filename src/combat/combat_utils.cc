@@ -86,7 +86,7 @@ calculate_weapon_probability(struct Creature *ch, int prob,
 	if (weap->worn_on == WEAR_WIELD_2) {
 		prob -=
 			(prob * weap_weight) /
-			(str_app[STRENGTH_APPLY_INDEX(ch)].wield_w >> 1);
+			MAX(1, (str_app[STRENGTH_APPLY_INDEX(ch)].wield_w >> 1));
 		if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
 			prob += CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) - 60;
 		} else {
