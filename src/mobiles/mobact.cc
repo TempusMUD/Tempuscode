@@ -4245,7 +4245,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 		GET_MOVE(ch) -= 100;
 		char_to_room(new_mob, ch->in_room,false);
 		WAIT_STATE(new_mob, 3 RL_SEC);
-		act("$n gestures, a glowing goldent portal appears with a hum!",
+		act("$n gestures, a glowing golden portal appears with a hum!",
 			FALSE, ch, 0, 0, TO_ROOM);
 		act("$n steps out of the portal with a flash of blue light!",
 			FALSE, new_mob, 0, 0, TO_ROOM);
