@@ -2796,7 +2796,6 @@ ACMD(do_advance)
 ACMD(do_restore)
 {
     struct Creature *vict;
-    int i;
 
     one_argument(argument, buf);
     if (!*buf)
@@ -7454,6 +7453,11 @@ ACMD(do_account)
 		vict = get_char_in_world_by_idnum(vict_id);
 		if (vict && vict->desc)
 			vict->desc->account = account;
+
+		send_to_char(ch, "%s[%ld] has been moved from account %s[%d] to %s[%d]\r\n",
+			playerIndex.getName(vict_id), vict_id,
+			account->get_name(), account->get_idnum(),
+			dst_account->get_name(), dst_account->get_idnum());
 	} else if (strcmp(token, "exhume") == 0) {
 		if(!tokens.next(token) ) {
 			send_to_char(ch, "Specify an account id.\r\n");
