@@ -785,10 +785,11 @@ ACMD(do_cedit)
 	switch (cedit_command) {
 
 	case 0:			 /*** save ***/
-		if (!save_clans())
+		if (save_clans()) {
 			send_to_char(ch, "Clans saved successfully.\r\n");
-		else
-			send_to_char(ch, "ERROR in clan save.\r\n");
+		} else {
+			send_to_char(ch, "Clans failed to save!\r\n");
+		}
 		break;
 
 	case 1:			/*** create ***/
@@ -1211,10 +1212,98 @@ ACMD(do_cedit)
 }
 
 
+void
+load_clan( xmlNodePtr clanNode )
+{
+	clan_data *clan;
+	Creature clan_member(true);
+
+	CREATE(clan, struct clan_data, 1);
+
+	clan->member_list = NULL;
+	clan->room_list = NULL;
+	clan->next = NULL;
+
+	clan->number = xmlGetIntProp( clanNode, "id", -1 );
+	clan->name = xmlGetProp( clanNode, "name"  );
+	clan->badge = xmlGetProp( clanNode, "badge" );
+
+	//rentOverflow = xmlGetLongProp( clanNode, "rentOverflow", 0 );
+	
+	int curRank = 0;
+	for ( xmlNodePtr node = clanNode->xmlChildrenNode; node; node = node->next ) 
+	{
+        if ( xmlMatches(node->name, "data") ) {
+			clan->owner = xmlGetLongProp( node, "owner", 0 );
+			clan->top_rank = xmlGetIntProp( node, "top_rank", -1 );
+			clan->bank_account = xmlGetIntProp( node, "bank", -1 );
+			clan->flags = xmlGetIntProp( node, "flags", -1 );
+		} else if (xmlMatches(node->name, "member")) {
+			long id = xmlGetLongProp( node, "id", -1 );
+			int rank = xmlGetIntProp( node, "rank", -1 );
+			clan_member.clear();
+
+			if( !playerIndex.exists(id) ) {
+				slog("SYSERR: Clan %d had invalid member: %ld.", clan->number, id);
+			} else if( clan_member.loadFromXML(id)) {
+				if (clan_member.player_specials->saved.clan != clan->number) {
+					slog("Clan(%d) member (%ld) no longer a member.",
+						clan->number, id);
+					continue;
+				}
+			}
+			clanmember_data *member;
+			CREATE(member, struct clanmember_data, 1);
+			member->idnum = id;
+			member->rank = rank;
+			member->next = NULL;
+			if (!clan->member_list)
+				clan->member_list = member;
+			else {
+				for (clanmember_data *tmp_member = clan->member_list; tmp_member;
+					tmp_member = tmp_member->next) {
+					if (!tmp_member->next) {
+						tmp_member->next = member;
+						break;
+					}
+				}
+			}
+		} else if( xmlMatches(node->name, "rank")) {
+			char *name = xmlGetProp( node, "name" );
+			if( name == NULL ) {
+				clan->ranknames[curRank++] = strdup("the member");
+			} else {
+				clan->ranknames[curRank++] = name;
+			}
+		} else if( xmlMatches(node->name, "room")) {
+			int number = xmlGetIntProp( node, "number", -1 );
+			room_data *room = real_room(number);
+			if( room != NULL ) {
+				room_list_elem *rm_elem;
+				CREATE(rm_elem, struct room_list_elem, 1);
+				rm_elem->room = room;
+				rm_elem->next = clan->room_list;
+				clan->room_list = rm_elem;
+			}
+		}
+	}
+
+	if (!clan_list) {
+		clan_list = clan;
+	} else {
+		for (clan_data *tmp_clan = clan_list; tmp_clan; tmp_clan = tmp_clan->next) {
+			if (!tmp_clan->next) {
+				tmp_clan->next = clan;
+				break;
+			}
+		}
+	}
+}
+
 #define CLAN_FILE "etc/clans"
 
 void
-boot_clans()
+boot_old_clans()
 {
 
 	FILE *file = NULL;
@@ -1330,68 +1419,96 @@ boot_clans()
 		}
 	}
 	fclose(file);
-	slog("Clan boot successful.");
+	slog("CLAN: Clans booted from binary files.");
 }
 
-int
-save_clans(void)
+
+bool
+boot_clans()
 {
+	const char* filename = "etc/clans.xml";
+	int axs = access(filename, R_OK);
 
-	struct clan_file_elem_hdr hdr;
-	struct room_list_elem *rm_list = NULL;
-	struct clanmember_data *member = NULL;
-	struct clan_data *clan = NULL;
-	int i, j;
-	FILE *file = NULL;
-
-	if (!(file = fopen(CLAN_FILE, "w"))) {
-		slog("Error opening clan file for write.");
-		return 1;
+	if( axs != 0 ) {
+		if( errno == ENOENT ) {
+			slog("SYSERR: XML clan file not found. Trying binary file.");
+			boot_old_clans();
+			return false;
+		} else {
+			slog("SYSERR: Unable to open xml clan file '%s': %s", 
+				 filename, strerror(errno) );
+			return false;
+		}
 	}
+    xmlDocPtr doc = xmlParseFile(filename);
+    if (!doc) {
+        slog("SYSERR: XML parse error while loading %s", filename);
+        return false;
+    }
 
-	for (clan = clan_list; clan; clan = clan->next) {
-		strncpy(hdr.name, clan->name, MAX_CLAN_NAME - 1);
-		hdr.name[MAX_CLAN_NAME - 1] = '\0';
-		strncpy(hdr.badge, clan->badge, MAX_CLAN_BADGE - 1);
-		hdr.badge[MAX_CLAN_BADGE - 1] = '\0';
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    if (!root) {
+        xmlFreeDoc(doc);
+        slog("SYSERR: XML file %s is empty", filename);
+        return false;
+    }
 
-		for (i = 0; i < NUM_CLAN_RANKS; i++)
+	int clanCount = 0;
+	xmlNodePtr clanNode;
+	for ( clanNode = root->xmlChildrenNode; clanNode; clanNode = clanNode->next ) {
+		if( xmlMatches( clanNode->name, "clan" ) ) {
+			load_clan( clanNode );
+			clanCount += 1;
+		}
+	}
+	xmlFreeDoc(doc);
+	slog("Clan boot successful.");
+	return true;
+}
+
+bool
+save_clans()
+{
+	const char* path = "etc/clans.xml";
+	FILE* ouf = fopen(path, "w");
+	if(!ouf) {
+		slog("Unable to open clan file for save.[%s] (%s)\n",
+						path, strerror(errno) );
+		return false;
+	}
+	fprintf( ouf, "<clanfile>\n");
+	for( clan_data *clan = clan_list; clan; clan = clan->next) {
+		char *name = xmlEncodeTmp(clan->name);
+		char *badge = xmlEncodeTmp(clan->badge);
+		fprintf( ouf, "    <clan id=\"%d\" name=\"%s\" badge=\"%s\">\n", 
+					clan->number, name, badge);
+		fprintf( ouf, "        <data owner=\"%ld\" top_rank=\"%d\" bank=\"%d\" flags=\"%d\" />\n",
+					clan->owner, clan->top_rank, clan->bank_account, clan->flags );
+
+		for( int i = 0; i < clan->top_rank; i++ ) {
 			if (clan->ranknames[i]) {
-				strncpy(hdr.ranknames[i], clan->ranknames[i],
-					MAX_CLAN_RANKNAME);
+				char *rank = xmlEncodeTmp(clan->ranknames[i]);
+				fprintf( ouf, "        <rank name=\"%s\"/>\n", rank );
 			} else {
-				hdr.ranknames[i][0] = '\0';
+				fprintf( ouf, "        <rank name=\"\"/>\n" );
 			}
-		for (j = 0, rm_list = clan->room_list; rm_list;
-			j++, rm_list = rm_list->next);
-		hdr.num_rooms = (ubyte) j;
-
-		for (j = 0, member = clan->member_list; member;
-			j++, member = member->next);
-		hdr.num_members = (ubyte) j;
-		hdr.number = clan->number;
-		hdr.bank_account = clan->bank_account;
-		hdr.top_rank = clan->top_rank;
-		hdr.owner = clan->owner;
-		hdr.flags = clan->flags;
-
-		for (i = 0; i < 20; i++)
-			hdr.cSpares[i] = 0;
-
-		fwrite(&hdr, sizeof(struct clan_file_elem_hdr), 1, file);
-
-		for (member = clan->member_list; member; member = member->next) {
-			fwrite(&member->idnum, sizeof(long), 1, file);
-			fwrite(&member->rank, sizeof(byte), 1, file);
 		}
 
-		for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next)
-			fwrite(&rm_list->room->number, sizeof(int), 1, file);
-	}
+		for( clanmember_data *member = clan->member_list; member; member = member->next) {
+			fprintf( ouf, "        <member id=\"%ld\" rank=\"%d\" />\n", 
+					member->idnum, member->rank );
+		}
 
-	fclose(file);
-	slog("Clan save successful.");
-	return 0;
+		for( room_list_elem *rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
+			fprintf( ouf, "        <room number=\"%d\" />\n", 
+					rm_list->room->number );
+		}
+		fprintf( ouf, "    </clan>\n" );
+	}
+	fprintf( ouf, "</clanfile>\n");
+	fclose(ouf);
+
+	return true;
 }
 
 struct clan_data *

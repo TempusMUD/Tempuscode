@@ -38,7 +38,7 @@ struct clan_data *real_clan(int vnum);
 struct clan_data *clan_by_name(char *arg);
 int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 void do_show_clan(struct Creature *ch, struct clan_data *clan);
-int save_clans(void);
+bool save_clans();
 struct clan_data *create_clan(int vnum);
 int delete_clan(struct clan_data *clan);
 struct clanmember_data *real_clanmember(long idnum, struct clan_data *clan);
