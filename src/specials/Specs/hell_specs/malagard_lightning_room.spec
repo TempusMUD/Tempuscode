@@ -9,9 +9,9 @@ SPECIAL( malagard_lightning_room )
         return 0;
     
 
-        vict = ch->in_room->people;
+    vict = ch->in_room->people;
     
-    if ( IS_NPC( vict ) )
+    if ( vict == NULL || IS_NPC( vict ) )
         vict = ch;
     
     if ( mag_savingthrow( vict, 50, SAVING_ROD ) ) {
