@@ -44,8 +44,8 @@ void set_physical_attribs(struct char_data *ch);
 void do_stat_character(struct char_data *ch, struct char_data *k);
 struct extra_descr_data *locate_exdesc(char *word,
 	struct extra_descr_data *list);
-char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
-	0);
+void set_move_buffer(struct char_data *ch);
+char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact = 0);
 
 SPECIAL(shop_keeper);
 
@@ -1005,6 +1005,7 @@ do_mob_mset(struct char_data *ch, char *argument)
 			} else {
 				GET_RACE(mob_p) = i;
 				set_physical_attribs(mob_p);
+                set_move_buffer(mob_p);
 				send_to_char(ch, "Mobile Race set.\r\n");
 
 			}
@@ -1923,4 +1924,18 @@ olc_mimic_mob(struct char_data *ch,
 
 	return 0;
 
+}
+
+void set_move_buffer(struct char_data *ch)
+{
+    if (GET_RACE(ch) == RACE_GRIFFIN) {
+        if (MOB_SHARED(ch)->move_buf)
+            free(MOB_SHARED(ch)->move_buf);
+        MOB_SHARED(ch)->move_buf = strdup("treads"); 
+    }
+    if (GET_RACE(ch) == RACE_ROTARIAN) {
+        if (MOB_SHARED(ch)->move_buf)
+            free(MOB_SHARED(ch)->move_buf);
+        MOB_SHARED(ch)->move_buf = strdup("lumbers"); 
+    }
 }

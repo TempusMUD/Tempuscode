@@ -1476,10 +1476,17 @@ set_physical_attribs(struct char_data *ch)
 {
 	GET_MAX_MANA(ch) = MAX(100, (GET_LEVEL(ch) << 3));
 	GET_MAX_MOVE(ch) = MAX(100, (GET_LEVEL(ch) << 4));
+
 	if (GET_RACE(ch) == RACE_HUMAN || IS_HUMANOID(ch) ||
 		GET_RACE(ch) == RACE_MOBILE) {
 		ch->player.weight = number(130, 180) + (GET_STR(ch) << 1);
 		ch->player.height = number(140, 180) + (GET_WEIGHT(ch) >> 3);
+    } else if (GET_RACE(ch) == RACE_ROTARIAN) {
+        ch->player.weight = number(300, 450);
+        ch->player.height = number(200, 325);
+    } else if (GET_RACE(ch) == RACE_GRIFFIN) {
+        ch->player.weight = number(1500, 2300);
+        ch->player.height = number(400, 550);
 	} else if (GET_RACE(ch) == RACE_DWARF) {
 		ch->player.weight = number(120, 160) + (GET_STR(ch) << 1);
 		ch->player.height = number(100, 115) + (GET_WEIGHT(ch) >> 4);

@@ -170,7 +170,10 @@ static const int RACE_UMBER_HULK = 49;
 static const int RACE_WEMIC = 50;
 static const int RACE_RAKSHASA = 51;
 static const int RACE_SPIDER = 52;
-static const int NUM_RACES = 53;
+static const int RACE_GRIFFIN = 53;
+static const int RACE_ROTARIAN = 54;
+static const int RACE_HALF_ELF = 55;
+static const int NUM_RACES = 56;
 static const int NUM_PC_RACES = 9;
 
 /* Hometown defines                            */
