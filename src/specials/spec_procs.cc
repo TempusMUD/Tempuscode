@@ -2001,7 +2001,6 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/energy_drainer.spec"
 #include "Specs/mobile_specs/basher.spec"
 #include "Specs/mobile_specs/aziz.spec"
-#include "Specs/mobile_specs/asp.spec"
 #include "Specs/mobile_specs/juju_zombie.spec"
 #include "Specs/mobile_specs/phantasmic_sword.spec"
 #include "Specs/mobile_specs/spinal.spec"
@@ -2012,7 +2011,6 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/script_reader.spec"
 #include "Specs/mobile_specs/tarrasque.spec"
 #include "Specs/mobile_specs/weaponsmaster.spec"
-#include "Specs/mobile_specs/morkoth.spec"
 #include "Specs/mobile_specs/unholy_stalker.spec"
 #include "Specs/mobile_specs/oedit_reloader.spec"
 
@@ -2031,9 +2029,6 @@ SPECIAL(cave_bear)
 
 /* Joran's SPECS */
 #include "Specs/joran_specs/quasimodo.spec"
-
-/* hobbes' SPECS */
-#include "Specs/hobbes_specs/hobbes.spec"
 
 /* skullport SPECS */
 #include "Specs/skullport_specs/corpse_griller.spec"
