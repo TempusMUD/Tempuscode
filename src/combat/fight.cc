@@ -265,7 +265,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		GET_MAX_MOVE(ch) = MAX(20, GET_MAX_MOVE(ch) - loss);
 
 		GET_REMORT_GEN(ch) -= MIN(GET_REMORT_GEN(ch), loss / 50);
-		GET_LEVEL(ch) = loss % 50;
+		GET_LEVEL(ch) -= loss % 50;
 		GET_EXP(ch) = exp_scale[GET_LEVEL(ch)];
 		GET_LIFE_POINTS(ch) = 0;
 		GET_PRACTICES(ch) = 0;
@@ -1200,11 +1200,12 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 	if (ch && GET_CLASS(ch) == CLASS_CLERIC && IS_EVIL(ch)) {
 		// evil clerics get an alignment-based damage bonus, up to 30% on
-		// new moons, %10 otherwise
+		// new moons, %10 otherwise.  It may look like we're subtracting
+		// damage, but the alignment is negative by definition.
 		if (get_lunar_phase(lunar_day) == MOON_NEW)
-			dam += (int)((dam * GET_ALIGNMENT(ch)) / 3000);
+			dam -= (int)((dam * GET_ALIGNMENT(ch)) / 3000);
 		else
-			dam += (int)((dam * GET_ALIGNMENT(ch)) / 10000);
+			dam -= (int)((dam * GET_ALIGNMENT(ch)) / 10000);
 	}
 
 	//******************* Reduction based on the attacker ********************/
