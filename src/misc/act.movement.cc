@@ -56,6 +56,7 @@ void update_trail(struct char_data *ch, struct room_data *rm, int dir, int j);
 int apply_soil_to_char(struct char_data *ch,struct obj_data *obj,int type,int pos);
 int mag_manacost(struct char_data * ch, int spellnum);
 void add_blood_to_room(struct room_data *rm, int amount);
+void Crash_save_implants( struct char_data *ch, bool extract = true );
 
 #define DOOR_IS_OPENABLE(ch, obj, door)        \
 ((obj) ? \
@@ -998,7 +999,12 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
         was_in = ch->in_room;
         log_death_trap(ch);
         death_cry(ch);
-        ch->extract(false, true, CON_AFTERLIFE);
+        // Save the char and its implants but not its eq
+        save_char(ch, NULL);
+        Crash_save_implants( ch );
+        Crash_delete_crashfile(ch);
+        // extract it, leaving it's eq and such in the dt.
+        ch->extract(false, false, CON_AFTERLIFE);
         if (was_in->number == 34004) {
             for (obj = was_in->contents; obj; obj = next_obj) {
                 next_obj = obj->next_content;
