@@ -1147,7 +1147,13 @@ void do_mob_mset(struct char_data *ch, char *argument)
 #endif
     if (mset_command != 25) /*mob exp */
 	GET_EXP(mob_p) = mobile_experience(mob_p);
-    if (!OLCIMP(ch))
+
+	for (zone = zone_table; zone; zone = zone->next)
+	    if (mob_p->mob_specials.shared->vnum >= zone->number * 100 && 
+		mob_p->mob_specials.shared->vnum <= zone->top)
+		break;
+
+    if ( ! OLCIMP( ch ) && ! ZONE_FLAGGED( zone, ZONE_FULLCONTROL ) )
 	SET_BIT(MOB2_FLAGS(mob_p), MOB2_UNAPPROVED);
 
 }
