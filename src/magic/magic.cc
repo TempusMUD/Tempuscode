@@ -1961,7 +1961,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.duration = MAX(12, ch->getLevelBonus(SPELL_REPULSION_FIELD) / 4);
 		af.modifier = -((ch->getLevelBonus(SPELL_REPULSION_FIELD) >> 2) + 20);
 		accum_duration = TRUE;
-		to_vict = "You feel rather repulsive.";
+		to_vict = "The space around you begins repelling matter.";
 		break;
 
 	case SPELL_FLUORESCE:
