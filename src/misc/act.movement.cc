@@ -2221,6 +2221,8 @@ ACMD(do_makemount)
 		return;
 	}
 	SET_BIT(MOB2_FLAGS(vict), MOB2_MOUNT);
+	send_to_char(ch, "%s is now a mount.\r\n",GET_NAME(vict));
+	send_to_char(vict, "A saddle suddenly grows on your back.\r\n");
 	return;
 }
 
