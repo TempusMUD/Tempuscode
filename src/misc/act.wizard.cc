@@ -1144,6 +1144,10 @@ do_stat_room(struct Creature *ch, char *roomstr)
             strcat(out_buf, buf);
         }
     }
+	if (rm->prog) {
+	  strcat(out_buf, "PROG:\r\n");
+	  strcat(out_buf, rm->prog);
+	}
 
     page_string(ch->desc, out_buf);
 }
