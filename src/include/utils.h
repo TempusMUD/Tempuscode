@@ -923,7 +923,8 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 
 #define MOB_UNAPPROVED(ch)       (MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
 
-#define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
+#define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
+					(ch)->in_room->sector_type != SECT_INSIDE )
 
 
 /* OS compatibility ******************************************************/
