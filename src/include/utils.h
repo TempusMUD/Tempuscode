@@ -101,6 +101,7 @@ class Reaction {
 
 /* in magic.c */
 bool circle_follow(struct Creature *ch, struct Creature *victim);
+bool can_charm_more(Creature *ch);
 
 /* in act.informative.c */
 void look_at_room(struct Creature *ch, struct room_data *room, int mode);

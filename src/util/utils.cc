@@ -429,6 +429,23 @@ circle_follow(struct Creature * ch, struct Creature * victim)
 	return FALSE;
 }
 
+bool
+can_charm_more(Creature *ch)
+{
+	follow_type *cur;
+	int count = 0;
+
+	// We can always charm one
+	if (!ch->followers)
+		return true;
+
+	for (cur = ch->followers;cur;cur= cur->next)
+		if (IS_AFFECTED(cur->follower, AFF_CHARM))
+			count++;
+
+	return (count < GET_CHA(ch)/2 + GET_REMORT_GEN(ch));
+}
+
 
 
 /* Called when stop following persons, or stopping charm */
