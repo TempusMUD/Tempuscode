@@ -796,45 +796,45 @@ ACMD(do_offensive_skill)
     }
       
     if (prob < number(1, 120)) {
-	if (damage(ch, vict, 0, subcmd, loc))
-	    return;
-	if (fail_pos) {
-	    GET_POS(ch) = fail_pos;
-	    if ( prob < 50 ) {
-		// 0.1 sec for every point below 50, up to 7 sec
-		int tmp_wait = 50 - prob;
-		tmp_wait = MAX( tmp_wait, 70 );
-		wait += tmp_wait;
-		sprintf( buf, "%s failed %s miserably, tacking on %d x0.1 sec", 
-			 GET_NAME(ch), spells[ subcmd ], tmp_wait );
-		slog(buf);
-	    }
-	}
-		
-	if (move)
-	    GET_MOVE(ch) -= (move >> 1);
-	if (mana)
-	    GET_MANA(ch) -= (mana >> 1);
+		if (damage(ch, vict, 0, subcmd, loc))
+			return;
+		if (fail_pos) {
+			GET_POS(ch) = fail_pos;
+			if ( prob < 50 ) {
+			// 0.1 sec for every point below 50, up to 7 sec
+			int tmp_wait = 50 - prob;
+			tmp_wait = MAX( tmp_wait, 70 );
+			wait += tmp_wait;
+			sprintf( buf, "%s failed %s miserably, tacking on %d x0.1 sec", 
+				 GET_NAME(ch), spells[ subcmd ], tmp_wait );
+			slog(buf);
+			}
+		}
+			
+		if (move)
+			GET_MOVE(ch) -= (move >> 1);
+		if (mana)
+			GET_MANA(ch) -= (mana >> 1);
 
-	WAIT_STATE(ch, (wait >> 1));
+		WAIT_STATE(ch, (wait >> 1));
 
     } else {
-	if (move)
-	    GET_MOVE(ch) -= move;
-	if (mana)
-	    GET_MANA(ch) -= mana;
-	gain_skill_prof(ch, subcmd);
-	WAIT_STATE(ch, wait);
+		if (move)
+			GET_MOVE(ch) -= move;
+		if (mana)
+			GET_MANA(ch) -= mana;
+		gain_skill_prof(ch, subcmd);
+		WAIT_STATE(ch, wait);
 
-	if (!damage(ch, vict, dam, subcmd, loc)) {
-	    if (vict_pos)
-		GET_POS(vict) = vict_pos;
-	    if (vict_wait)
-		WAIT_STATE(vict, vict_wait);
-      
-	    if (af.type && !affected_by_spell(vict, af.type))
-		affect_to_char(vict, &af);
-	}
+		if (!damage(ch, vict, dam, subcmd, loc)) {
+			if (vict_pos)
+			GET_POS(vict) = vict_pos;
+			if (vict_wait)
+			WAIT_STATE(vict, vict_wait);
+		  
+			if (af.type && !affected_by_spell(vict, af.type))
+			affect_to_char(vict, &af);
+		}
     }
 }
 

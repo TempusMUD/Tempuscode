@@ -3148,6 +3148,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 			}
 			GET_POS(ch) = POS_SITTING;
 			WAIT_STATE(ch, 2 RL_SEC);
+			DAM_RETURN( TRUE );
 		    }
 		}
 	    }
