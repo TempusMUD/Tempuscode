@@ -420,6 +420,7 @@ ACMD(do_cinfo)
 {
 
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
+	struct clanmember_data *member;
 	struct room_list_elem *rm_list = NULL;
 	int found = 0;
 	int i;
@@ -428,12 +429,14 @@ ACMD(do_cinfo)
 	if (!clan)
 		send_to_char(ch, "You are not a member of any clan.\r\n");
 	else {
+		for (i = 0, member = clan->member_list; member; member = member->next)
+			i++;
 		msg = tmp_sprintf("Information on clan %s%s%s:\r\n\r\n"
-			"Clan badge: '%s%s%s', Clan bank account: %d\r\n"
-			"Clan ranks:\r\n",
+			"Clan badge: '%s%s%s', Clan headcount: %d, "
+			"Clan bank account: %d\r\nClan ranks:\r\n",
 			CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
 			CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM),
-			clan->bank_account);
+			i, clan->bank_account);
 		for (i = clan->top_rank; i >= 0; i--) {
 			msg = tmp_sprintf("%s (%2d)  %s%s%s\r\n", msg, i, CCYEL(ch, C_NRM),
 				clan->ranknames[i] ? clan->ranknames[i] : "the Member",
