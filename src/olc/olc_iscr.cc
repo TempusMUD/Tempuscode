@@ -313,10 +313,16 @@ void do_olc_ihandler(struct char_data *ch, char *arg)
                 send_to_char("That event already exists.\r\n", ch);
                 return;
             }
-            SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-            GET_OLC_HANDLER(ch) = h;
-            (*script).theScript.push_back(h);
-            start_script_editor(ch->desc, (*h).getTheLines(), true);
+            if(h != NULL) {
+                SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+                GET_OLC_HANDLER(ch) = h;
+                (*script).theScript.push_back(h);
+                start_script_editor(ch->desc, h->getTheLines(), true);
+            }
+            else {
+                slog("ERROR: do_olc_ihandler unable to create handler!");
+                send_to_char("ERROR:  do_olc_ihandler unable to create handler!\r\n", ch);
+            }
         break;
         
         case 1:                   // Delete
