@@ -1295,14 +1295,15 @@ ACMD(do_discharge)
     else 
         dam = dice(amount * 3, 20);
 
+    wait = ( 1 + amount / 5 ) RL_SEC;
+    WAIT_STATE( ch, wait );
+
     if (percent > prob) {
         damage(ch, vict, 0, SKILL_DISCHARGE,-1);
     } else {
-        damage(ch, vict, dam, SKILL_DISCHARGE,-1);
         gain_skill_prof(ch, SKILL_DISCHARGE);
+        damage(ch, vict, dam, SKILL_DISCHARGE,-1);
     }
-    wait = ( 1 + amount / 5 ) RL_SEC;
-    WAIT_STATE( ch, wait );
 }
 
 
