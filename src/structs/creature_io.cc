@@ -308,7 +308,7 @@ Creature::calcDailyRent(int factor,
 			cur_obj = cur_obj->next_content; // go to next obj
 	}
 
-	level_adj = (3 * total_cost * (10 + GET_LEVEL(this))) / 10 +
+	level_adj = (3 * total_cost * (10 + GET_LEVEL(this))) / 100 +
 				min_rent_cost * GET_LEVEL(this) - total_cost;
 	total_cost += level_adj;
 	total_cost *= factor;
