@@ -891,6 +891,9 @@ ASPELL(spell_locate_object)
 	    continue;
 	}
 
+    if (!CAN_SEE_OBJ(ch, i))
+        continue;
+
 	if (isname("imm", i->name) || IS_OBJ_TYPE(i, ITEM_SCRIPT) || !OBJ_APPROVED(i)) {
 	    continue;
 	}
