@@ -669,6 +669,15 @@ real_clan(int vnum)
 	return (NULL);
 }
 
+struct clan_data*
+clan_by_owner( int idnum )
+{
+	for (clan_data *clan = clan_list; clan; clan = clan->next)
+		if( clan->owner == idnum )
+			return clan;
+	return NULL;
+}
+
 struct clan_data *
 clan_by_name(char *arg)
 {
