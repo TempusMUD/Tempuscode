@@ -52,6 +52,7 @@ using namespace std;
 #include "flags.h"
 #include "player_table.h"
 #include "account.h"
+#include "specs.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -3003,7 +3004,8 @@ reset_zone(struct zone_data *zone)
 				tobj->shared->number - tobj->shared->house_count <
 				zonecmd->arg2) {
 				obj = read_object(zonecmd->arg1);
-				randomize_object(obj);
+				if (GET_MOB_SPEC(mob) != vendor)
+					randomize_object(obj);
 				if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
 					SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 					GET_OBJ_TIMER(obj) = 60;
