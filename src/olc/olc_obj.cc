@@ -548,7 +548,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		send_to_char(ch, "Invalid oset command '%s'.\r\n", arg1);
 		return;
 	}
-	if (oset_command != 3 && oset_command != 24 && !*arg2) {
+	if (oset_command != 3 && oset_command != 17 && oset_command != 24 && !*arg2) {
 		send_to_char(ch, "Set %s to what??\r\n", olc_oset_keys[oset_command]);
 		return;
 	}
@@ -970,18 +970,8 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		break;
 
 	case 17:  /***** action_desc *****/
-		if ((subcmd == OLC_OSET || !proto ||
-				proto->action_desc != obj_p->action_desc) &&
-			obj_p->action_desc)
-			free(obj_p->action_desc);
-		delete_doubledollar(arg2);
-		if (arg2[0] == '~')
-			obj_p->action_desc = NULL;
-		else
-			obj_p->action_desc = str_dup(arg2);
-
-		UPDATE_OBJLIST(obj_p, tmp_obj,->action_desc);
-		send_to_char(ch, "Object action desc set.\r\n");
+		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
+		start_text_editor(ch->desc, &obj_p->action_desc, true);
 		break;
 
 	case 18: /** special **/
