@@ -916,13 +916,30 @@ ACMD( do_econvert ) {
     return;
 }
 void
+do_deactivate_device( obj_data *obj ) {
+    ENGINE_STATE(obj) = 0;
+    if (obj->worn_by ) {
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+            affect_modify(obj->worn_by, obj->affected[i].location,
+                  obj->affected[i].modifier, 0, 0, FALSE);
+        affect_modify(obj->worn_by, 0, 0,
+                  obj->obj_flags.bitvector[0], 1, FALSE);
+        affect_modify(obj->worn_by, 0, 0,
+                  obj->obj_flags.bitvector[1], 2, FALSE);
+        affect_modify(obj->worn_by, 0, 0,
+                  obj->obj_flags.bitvector[2], 3, FALSE);
+        affect_total(obj->worn_by);
+    }
+
+}
+void
 do_emp_pulse_olist( obj_data *list, char_data *ch=NULL, char_data *vict=NULL) {
     obj_data *o;
     for( o = list; o ; o = o->next_content) {
         if((IS_DEVICE(o) || IS_COMMUNICATOR(o))
         && !random_fractional_3()) {
             if(GET_OBJ_VAL(o,2) == 1) {
-                GET_OBJ_VAL(o,2) = 0;
+                do_deactivate_device( o );
                 if(vict)
                     act("$p shuts off. (carried)", FALSE, ch, o, vict, TO_VICT);
                 else
@@ -938,7 +955,7 @@ do_emp_pulse_eq( obj_data *list[], char_data *ch=NULL, char_data *vict=NULL, int
         (IS_DEVICE(list[i]) || IS_COMMUNICATOR(list[i]))
         && !random_fractional_3()) {
             if(GET_OBJ_VAL(list[i],2) == 1) {
-                GET_OBJ_VAL(list[i],2) = 0;
+                do_deactivate_device( list[i] );
                 sprintf(buf,"$p shuts off. %s",internal ? "(internal)" : "(worn)");
                 act(buf, FALSE, ch, list[i], vict, TO_VICT);
             }
@@ -988,9 +1005,12 @@ ASPELL(spell_emp_pulse) {
         send_to_char("You are unable to alter physical reality in this space.\r\n",ch);
         return;
     }
-    for(vict = ch->in_room->people; 
-        vict && (can_continue = peaceful_room_ok(ch,vict,true));
-        vict=vict->next_in_room);
+    // Make sure non-pkillers dont get killer flags.
+    for(vict = ch->in_room->people; vict ; vict=vict->next_in_room) {
+        if(vict != ch) {
+            can_continue = peaceful_room_ok(ch,vict,true);
+        }
+    }
     if(!can_continue)
         return;
 
@@ -1007,7 +1027,6 @@ ASPELL(spell_emp_pulse) {
     if(ch->in_room->contents) {
         do_emp_pulse_olist( ch->in_room->contents );
     }
-    
     return;
 }
     
