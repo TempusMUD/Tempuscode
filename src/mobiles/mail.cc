@@ -178,10 +178,6 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
 
 	acc_strcat("\r\n\r\n", txt, NULL);
     
-	obj->name = strdup(tmp_sprintf("a piece of mail from %s",
-		playerIndex.getName(from_id)));
-	obj->aliases = strdup(tmp_sprintf("%s %s", obj->aliases,
-		playerIndex.getName(from_id)));
     obj->action_desc = strdup(acc_get_string());
     
     obj->plrtext_len = strlen(obj->action_desc) + 1;
