@@ -14,7 +14,6 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-
 #define ACMD(name)  \
    void (name)(struct char_data *ch, char *argument, int cmd, int subcmd, int *return_flags = 0 )
 #define ACCMD(name)  \
@@ -74,7 +73,7 @@ struct command_info {
 
 /* necessary for CMD_IS macro */
 #ifndef __interpreter_c__
-extern const struct command_info cmd_info[];
+extern struct command_info cmd_info[];
 #endif
 
 #define CMD_NAME (cmd_info[cmd].command)

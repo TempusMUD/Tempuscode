@@ -37,6 +37,7 @@ using namespace std;
 #include "login.h"
 #include "matrix.h"
 #include "bomb.h"
+#include "security.h"
 
 const char *fill_words[] =
 {
@@ -415,7 +416,7 @@ ACMD(do_map);
 
 
 
-extern const struct command_info cmd_info[] = {
+struct command_info cmd_info[] = {
     { "RESERVED", 0, 0, 0, 0 , 0 },    /* this must be first -- for specprocs */
 
     /* directions must come before other commands but after RESERVED */
@@ -1364,7 +1365,7 @@ command_interpreter(struct char_data * ch, char *argument)
     /* otherwise, find the command */
     for (length = strlen(arg), cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
         if (!strncmp(cmd_info[cmd].command, arg, length)) {
-            if (GET_LEVEL(ch) >= cmd_info[cmd].minimum_level || GET_IDNUM(ch) == 1) {
+            if( Security::canAccess( ch, &cmd_info[cmd] ) ) {
                 break;
             } 
         } 
