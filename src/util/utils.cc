@@ -265,12 +265,8 @@ mlog(const char *group, sbyte level, log_type type, bool file, const char *fmt, 
 	ct = time(NULL);
 	ctm = localtime(&ct);
 
-	if (file) {
-		char *tm_str;
-
-		tm_str = asctime(ctm);
-		fprintf(stderr, "%-19.19s :: %s\n", tm_str, msg);
-	}
+	if (file)
+		fprintf(stderr, "%-19.19s :: %s\n", asctime(ctm), msg);
 
 	if (group == Security::NOONE)
 		return;
@@ -287,7 +283,9 @@ mlog(const char *group, sbyte level, log_type type, bool file, const char *fmt, 
 			tp = ((PRF_FLAGGED(i->creature, PRF_LOG1) ? 1 : 0) +
 				(PRF_FLAGGED(i->creature, PRF_LOG2) ? 2 : 0));
 
-			if (Security::isMember(i->creature, group) && (tp >= type))
+			if (Security::isMember(i->creature, group)
+					&& (GET_LEVEL(i->creature) >= level)
+					&& (tp >= type))
 				send_to_char(i->creature, "%s[ %s%s ]%s\r\n",
 					CCGRN(i->creature, C_NRM),
 					msg, timebuf,
