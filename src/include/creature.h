@@ -1000,6 +1000,8 @@ struct Creature {
 	void clearMemory();
     bool loadFromXML( long id );
     void saveToXML();
+	void saveObjects();
+	bool loadObjects();
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
   public:						// ******  Data ****
 	int pfilepos;				/* playerfile pos          */

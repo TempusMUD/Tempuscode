@@ -17,11 +17,81 @@
 #include "char_class.h"
 
 
+void obj_to_room(struct obj_data *object, struct room_data *room);
 void add_alias(struct Creature *ch, struct alias_data *a);
 void affect_to_char(struct Creature *ch, struct affected_type *af);
 
 void
-Creature::saveToXML() {
+Creature::saveObjects() 
+{
+	// Save vital statistics
+	FILE *ouf;
+	char *path;
+	int idx;
+
+    path = get_equipment_file_path(GET_IDNUM(this));
+	ouf = fopen(path, "w");
+
+	if(!ouf) {
+		fprintf(stderr, "Unable to open XML equipment file for save.[%s] (%s)\n",
+			path, strerror(errno) );
+		return;
+	}
+
+	fprintf( ouf, "<objects>\n" );
+	// Save the inventory
+	for( obj_data *obj = carrying; obj != NULL; obj = obj->next_content ) {
+		obj->saveToXML(ouf);
+	}
+	// Save the equipment
+	for( idx = 0; idx < NUM_WEARS; idx++ ) {
+		if( GET_EQ(this, idx) )
+			(GET_EQ(this,idx))->saveToXML(ouf);
+		if( GET_IMPLANT(this, idx) )
+			(GET_IMPLANT(this,idx))->saveToXML(ouf);
+	}
+	fprintf( ouf, "</objects>\n" );
+	fclose(ouf);
+}
+
+bool
+Creature::loadObjects()
+{
+
+    char *path = get_equipment_file_path( GET_IDNUM(this) );
+	if( access(path, W_OK) ) {
+		slog("SYSERR: Unable to open xml equipment file '%s': %s", 
+			 path, strerror(errno) );
+		return false;
+	}
+    xmlDocPtr doc = xmlParseFile(path);
+    if (!doc) {
+        slog("SYSERR: XML parse error while loading %s", path);
+        return false;
+    }
+
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    if (!root) {
+        xmlFreeDoc(doc);
+        slog("SYSERR: XML file %s is empty", path);
+        return false;
+    }
+	for ( xmlNodePtr node = root->xmlChildrenNode; node; node = node->next ) {
+        if ( xmlMatches(node->name, "object") ) {
+			obj_data *obj;
+			CREATE(obj, obj_data, 1);
+			obj->clear();
+			obj->loadFromXML(NULL,NULL,node);
+			obj_to_room(obj, in_room);
+		}
+	}
+	return true;
+}
+
+
+void
+Creature::saveToXML() 
+{
 	// Save vital statistics
 	FILE *ouf;
 	char *path;
@@ -30,7 +100,7 @@ Creature::saveToXML() {
 	int idx;
     Creature *ch = this;
 
-    path = getPlayerfilePath(GET_IDNUM(ch));
+    path = get_player_file_path(GET_IDNUM(ch));
 	ouf = fopen(path, "w");
 
 	if(!ouf) {
@@ -188,7 +258,7 @@ Creature::saveToXML() {
 bool
 Creature::loadFromXML( long id )
 {
-    char *path = getPlayerfilePath( id );
+    char *path = get_player_file_path( id );
 	if( access(path, W_OK) ) {
 		slog("SYSERR: Unable to open xml player file '%s': %s", path, strerror(errno) );
 		return false;
