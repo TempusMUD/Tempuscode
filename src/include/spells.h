@@ -272,7 +272,7 @@ static const int SPELL_TELEPATHY = 151;
 static const int SPELL_DAMN = 152;
 static const int SPELL_CALM = 153;
 static const int SPELL_THORN_SKIN = 154;
-static const int SPELL_ENVENOMATE = 155;
+static const int SPELL_ENVENOM = 155;
 static const int SPELL_ELEMENTAL_BRAND = 156;
 
   /************************** Psionic Triggers ***************/

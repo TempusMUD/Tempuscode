@@ -3307,22 +3307,20 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         }
         break;
 
-    case SPELL_ENVENOMATE:
+    case SPELL_ENVENOM:
         if (!(GET_OBJ_TYPE(obj) == ITEM_WEAPON)) {
             to_char = "You can only envenomate weapons.";
             break;
         }
 
-        if (obj->affectedBySpell(SPELL_ENVENOMATE)) {
+        if (obj->affectedBySpell(SPELL_ENVENOM)) {
             to_char = "That weapon is already envenomated!";
             break;
         }
-        oaf[0].level = ch->getLevelBonus(SPELL_ENVENOMATE);
-        oaf[0].type = SPELL_ENVENOMATE;
-        oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 20;
+        oaf[0].level = ch->getLevelBonus(SPELL_ENVENOM);
+        oaf[0].type = SPELL_ENVENOM;
+        oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOM) / 5;
         oaf[0].val_mod[0] = SPELL_POISON - GET_OBJ_VAL(obj, 0);
-        oaf[0].extra_mod = ITEM3_REQ_RANGER;
-        oaf[0].extra_index = 3;
         oaf[1].level = oaf[0].level;
         oaf[1].type = oaf[0].type;
         oaf[1].duration = oaf[0].duration;
@@ -3353,6 +3351,8 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 oaf[0].dam_mod = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) *
                                     GET_INT(ch) * 2;
                 oaf[0].maxdam_mod = oaf[0].dam_mod;
+                oaf[0].extra_mod = ITEM3_REQ_RANGER;
+                oaf[0].extra_index = 3;
                 to_char = "The rune of earth solidifies onto $p.";
                 val_mode = AFF_ADD;
                 break;
@@ -3364,9 +3364,11 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 }
                 oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
                 oaf[0].type = SPELL_ELEMENTAL_BRAND;
-                oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 25;
+                oaf[0].duration = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) / 25;
                 oaf[0].weight_mod = -(obj->getWeight() * 3 *
                                       GET_REMORT_GEN(ch) / 100);
+                oaf[0].extra_mod = ITEM3_REQ_RANGER;
+                oaf[0].extra_index = 3;
                 to_char = "The rune of air swirls around $p.";
                 val_mode = AFF_ADD;
                 break;
@@ -3383,9 +3385,11 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 }
                 oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
                 oaf[0].type = SPELL_ELEMENTAL_BRAND;
-                oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 25;
+                oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOM) / 25;
                 oaf[0].affect_loc[0] = APPLY_DAMROLL;
                 oaf[0].affect_mod[0] = GET_REMORT_GEN(ch) / 2;
+                oaf[0].extra_mod = ITEM3_REQ_RANGER;
+                oaf[0].extra_index = 3;
                 to_char = "The rune of fire is emblazoned upon $p.";
                 aff_mode = AFF_ADD;
                 break;
@@ -3402,9 +3406,11 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 }
                 oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
                 oaf[0].type = SPELL_ELEMENTAL_BRAND;
-                oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOMATE) / 25;
+                oaf[0].duration = ch->getLevelBonus(SPELL_ENVENOM) / 25;
                 oaf[0].affect_loc[0] = APPLY_HITROLL;
                 oaf[0].affect_mod[0] = GET_REMORT_GEN(ch) / 2;
+                oaf[0].extra_mod = ITEM3_REQ_RANGER;
+                oaf[0].extra_index = 3;
                 to_char = "The rune of water permeates $p.";
                 aff_mode = AFF_ADD;
                 break;

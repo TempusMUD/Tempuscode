@@ -213,7 +213,7 @@ const char *spells[] = {
 	"damn", 
     "calm", 
     "thorn skin", 
-    "envenomate",	/* 155 */
+    "envenom",	/* 155 */
 	"elemental branding", 
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
@@ -2673,7 +2673,7 @@ mag_assign_spells(void)
 		X, X, 40, 25, 3, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
 		MAG_DIVINE | MAG_DAMAGE | MAG_NOWATER | MAG_OUTDOORS);
 
-    spello(SPELL_ENVENOMATE, X, X, X, X, X, X, X, X, X, /*5*/X, X, X, X, X, X, X, X,
+    spello(SPELL_ENVENOM, X, X, X, X, X, X, X, X, X, 5, X, X, X, X, X, X, X,
            25, 10, 1, POS_FIGHTING, TAR_OBJ_EQUIP | TAR_OBJ_ROOM | 
            TAR_OBJ_INV, FALSE, MAG_MAGIC | MAG_ALTER_OBJS);
 
