@@ -11,7 +11,7 @@
 #include "utils.h"
 #include "vendor.h"
 #include "shop.h"
-#include "olc.h"
+#include "specs.h"
 
 const int MAX_ITEMS = 10;
 
@@ -742,6 +742,7 @@ vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 	shop->revenue = 0;
 	shop->steal_ok = false;
 	shop->attack_ok = false;
+	shop->func = NULL;
 
 	while ((line = tmp_getline(&param)) != NULL) {
 		lineno++;
@@ -838,6 +839,12 @@ vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 		} else if (!strcmp(param_key, "attack-ok")) {
 			shop->attack_ok = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
 				is_abbrev(line, "1") || is_abbrev(line, "true"));
+		} else if (!strcmp(param_key, "special")) {
+			val = find_spec_index_arg(line);
+			if (val == -1)
+				err = "invalid special";
+			else
+				shop->func = spec_list[val].func;
 		} else {
 			err = "invalid directive";
 			break;
@@ -862,6 +869,8 @@ SPECIAL(vendor)
 		return 0;
 
 	err = vendor_parse_param(self, config, &shop, &err_line);
+	if (shop.func && shop.func(ch, me, cmd, argument, spec_mode))
+		return 1;
 
 	if (spec_mode == SPECIAL_RESET) {
 		vendor_revenue(self, &shop);
@@ -1011,50 +1020,54 @@ convert_all_shops(Creature *ch)
 					shop->close1);
 		}
 		if (NOTRADE_GOOD(shop))
-			specp = tmp_strcat(specp, "deny good");
+			specp = tmp_strcat(specp, "deny good\r\n");
 		if (NOTRADE_EVIL(shop))
-			specp = tmp_strcat(specp, "deny evil");
+			specp = tmp_strcat(specp, "deny evil\r\n");
 		if (NOTRADE_NEUTRAL(shop))
-			specp = tmp_strcat(specp, "deny neutral");
+			specp = tmp_strcat(specp, "deny neutral\r\n");
 		if (NOTRADE_MAGIC_USER(shop))
-			specp = tmp_strcat(specp, "deny mage");
+			specp = tmp_strcat(specp, "deny mage\r\n");
 		if (NOTRADE_CLERIC(shop))
-			specp = tmp_strcat(specp, "deny cleric");
+			specp = tmp_strcat(specp, "deny cleric\r\n");
 		if (NOTRADE_THIEF(shop))
-			specp = tmp_strcat(specp, "deny thief");
+			specp = tmp_strcat(specp, "deny thief\r\n");
 		if (NOTRADE(shop, TRADE_NORANGER))
-			specp = tmp_strcat(specp, "deny ranger");
+			specp = tmp_strcat(specp, "deny ranger\r\n");
 		if (NOTRADE(shop, TRADE_NOMONK))
-			specp = tmp_strcat(specp, "deny monk");
+			specp = tmp_strcat(specp, "deny monk\r\n");
 		if (NOTRADE(shop, TRADE_NOMERC))
-			specp = tmp_strcat(specp, "deny mercenary");
+			specp = tmp_strcat(specp, "deny mercenary\r\n");
 		if (NOTRADE(shop, TRADE_NOBARB))
-			specp = tmp_strcat(specp, "deny barbarian");
+			specp = tmp_strcat(specp, "deny barbarian\r\n");
 		if (NOTRADE(shop, TRADE_NOKNIGHT))
-			specp = tmp_strcat(specp, "deny knight");
+			specp = tmp_strcat(specp, "deny knight\r\n");
 		if (NOTRADE(shop, TRADE_NOPHYSIC))
-			specp = tmp_strcat(specp, "deny physic");
+			specp = tmp_strcat(specp, "deny physic\r\n");
 		if (NOTRADE(shop, TRADE_NOPSIONIC))
-			specp = tmp_strcat(specp, "deny psionic");
+			specp = tmp_strcat(specp, "deny psionic\r\n");
 		if (NOTRADE(shop, TRADE_NOCYBORG))
-			specp = tmp_strcat(specp, "deny cyborg");
+			specp = tmp_strcat(specp, "deny cyborg\r\n");
 
 		if (NOTRADE(shop, TRADE_NOHUMAN))
-			specp = tmp_strcat(specp, "deny human");
+			specp = tmp_strcat(specp, "deny human\r\n");
 		if (NOTRADE(shop, TRADE_NOELF))
-			specp = tmp_strcat(specp, "deny elf");
+			specp = tmp_strcat(specp, "deny elf\r\n");
 		if (NOTRADE(shop, TRADE_NODWARF))
-			specp = tmp_strcat(specp, "deny dwarf");
+			specp = tmp_strcat(specp, "deny dwarf\r\n");
 		if (NOTRADE(shop, TRADE_NOHALF_ORC))
-			specp = tmp_strcat(specp, "deny half-orc");
+			specp = tmp_strcat(specp, "deny half-orc\r\n");
 		if (NOTRADE(shop, TRADE_NOTABAXI))
-			specp = tmp_strcat(specp, "deny tabaxi");
+			specp = tmp_strcat(specp, "deny tabaxi\r\n");
 		if (NOTRADE(shop, TRADE_NOMINOTAUR))
-			specp = tmp_strcat(specp, "deny minotaur");
+			specp = tmp_strcat(specp, "deny minotaur\r\n");
 		if (NOTRADE(shop, TRADE_NOORC))
-			specp = tmp_strcat(specp, "deny orc");
+			specp = tmp_strcat(specp, "deny orc\r\n");
 
-		specp = tmp_strcat(specp, "allow all");		
+		specp = tmp_strcat(specp, "allow all\r\n");		
+
+		if (shop->func && shop->func != vendor)
+			specp = tmp_strcat(specp, "special ",
+				spec_list[find_spec_index_ptr(shop->func)].tag, NULL);
 
 		if (GET_MOB_PARAM(keeper))
 			free(GET_MOB_PARAM(keeper));
