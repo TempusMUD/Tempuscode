@@ -907,6 +907,8 @@ ASPELL(spell_charm)
 		send_to_char(ch, "You like yourself even better!\r\n");
 	else if (!IS_NPC(victim) && !(victim->desc))
 		send_to_char(ch, "You cannot charm linkless players!\r\n");
+    else if (ch->checkReputations(victim))
+        return;
 	else if (!ok_damage_vendor(ch, victim)) {
 		act("$N falls down laughing at you!", FALSE, ch, 0, victim, TO_CHAR);
 		act("$N peers deeply into your eyes...", FALSE, ch, 0, victim,
