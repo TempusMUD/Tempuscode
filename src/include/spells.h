@@ -532,7 +532,7 @@ extern const char *spells[];
 
 
 /* New skills may be added here up to MAX_SKILLS (700) */
-
+#define SKILL_DISCIPLINE_OF_STEEL   692
 
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS

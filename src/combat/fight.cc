@@ -3787,29 +3787,39 @@ hit( struct char_data * ch, struct char_data * victim, int type )
 	if ( IS_OBJ_TYPE( cur_weap, ITEM_WEAPON ) ) {
 	    dam += dice( GET_OBJ_VAL( cur_weap, 1 ), GET_OBJ_VAL( cur_weap, 2 ) );
 	    if ( invalid_char_class( ch, cur_weap ) )
-		dam >>= 1;
+            dam >>= 1;
 	    if ( IS_NPC( ch ) ) {
-		tmp_dam += dice( ch->mob_specials.shared->damnodice, 
-				 ch->mob_specials.shared->damsizedice );
-		dam = MAX( tmp_dam, dam );
+            tmp_dam += dice( ch->mob_specials.shared->damnodice, 
+                     ch->mob_specials.shared->damsizedice );
+            dam = MAX( tmp_dam, dam );
 	    }
 	    if ( GET_OBJ_VNUM( cur_weap ) > 0 ) {
-		for ( i = 0; i < MAX_WEAPON_SPEC; i++ )
-		    if ( GET_WEAP_SPEC( ch, i ).vnum == GET_OBJ_VNUM( cur_weap ) ) {
-			dam += GET_WEAP_SPEC( ch, i ).level;
-			break;
-		    }
+            for ( i = 0; i < MAX_WEAPON_SPEC; i++ )
+                if ( GET_WEAP_SPEC( ch, i ).vnum == GET_OBJ_VNUM( cur_weap ) ) {
+                    dam += GET_WEAP_SPEC( ch, i ).level;
+                    break;
+                }
 	    } 
+        if(IS_TWO_HAND(cur_weap) && IS_BARB(ch)) {
+            int dam_add;
+            dam_add = cur_weap->getWeight() / 2;
+            if (CHECK_SKILL(ch,SKILL_DISCIPLINE_OF_STEEL) > 30) {
+                dam_add += (cur_weap->getWeight() * (GET_LEVEL(ch) + 1) / 100);
+                dam_add += (cur_weap->getWeight() * (GET_REMORT_GEN(ch) + 1) / 11);
+                dam_add = dam_add * CHECK_SKILL(ch,SKILL_DISCIPLINE_OF_STEEL) / 100;
+            }
+            dam += dam_add;
+        }
 	} else if ( IS_OBJ_TYPE( cur_weap, ITEM_ARMOR ) ) {
 	    dam += ( GET_OBJ_VAL( cur_weap, 0 ) / 3 );
 	} else
 	    dam += dice( 1, 4 ) + number( 0, cur_weap->getWeight() );
     } else if ( IS_NPC( ch ) ) {
-	tmp_dam += dice( ch->mob_specials.shared->damnodice, 
-			 ch->mob_specials.shared->damsizedice );
-	dam = MAX( tmp_dam, dam );
+        tmp_dam += dice( ch->mob_specials.shared->damnodice, 
+                 ch->mob_specials.shared->damsizedice );
+        dam = MAX( tmp_dam, dam );
     } else {
-	dam += number( 0, 3 );	/* Max. 3 dam with bare hands */
+        dam += number( 0, 3 );	/* Max. 3 dam with bare hands */
 	if ( IS_MONK( ch ) || IS_VAMPIRE( ch ) )
 	    dam += number( ( GET_LEVEL( ch ) >> 2 ), GET_LEVEL( ch ) );
 	else if ( IS_BARB( ch ) )

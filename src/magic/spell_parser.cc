@@ -516,7 +516,8 @@ const char *spells[] =
     "bowery and fletchery",
     "read scrolls",	/* 690 */
     "use wands", 
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 695 */
+    "the discipline of steel", 
+    "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 695 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 700 */
 
     /* OBJECT SPELLS AND NPC SPELLS/SKILLS */
@@ -3076,6 +3077,9 @@ mag_assign_spells(void)
     remort_spello(SPELL_BANISHMENT, CLASS_CLERIC, 29, 4,
 		  100, 50, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT | TAR_NOT_SELF, TRUE,
 		  MAG_DIVINE | MAG_MANUAL | MAG_EVIL);
+    
+    remort_spello(SKILL_DISCIPLINE_OF_STEEL, CLASS_BARB, 10, 1,
+		  0, 0, 0, 0, 0, 0, 0);
 
 
 
