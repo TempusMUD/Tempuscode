@@ -6836,38 +6836,38 @@ ACMD(do_xlist)
     struct room_data *room = NULL;
     struct zone_data *zone = NULL, *zn = NULL;
     int count = 0, srch_type = -1;
-    char outbuf[MAX_STRING_LENGTH], arg1[MAX_INPUT_LENGTH];
     bool overflow = 0, found = 0;
+	char *arg;
 
-//    strcpy( argument, strcat( value, argument ) );
-    argument = one_argument(argument, arg1);
-    while ((*arg1)) {
-        if (is_abbrev(arg1, "zone")) {
-            argument = one_argument(argument, arg1);
-            if (!*arg1) {
+	arg = tmp_getword(&argument);
+    while (*arg) {
+        if (is_abbrev(arg, "zone")) {
+		  arg = tmp_getword(&argument);
+            if (!*arg) {
                 send_to_char(ch, "No zone specified.\r\n");
                 return;
             }
-            if (!(zn = real_zone(atoi(arg1)))) {
-                send_to_char(ch, "No such zone ( %s ).\r\n", arg1);
+            if (!(zn = real_zone(atoi(arg)))) {
+                send_to_char(ch, "No such zone ( %s ).\r\n", arg);
                 return;
             }
         }
-        if (is_abbrev(arg1, "type")) {
-            argument = one_argument(argument, arg1);
-            if (!*arg1) {
+        if (is_abbrev(arg, "type")) {
+		  arg = tmp_getword(&argument);
+            if (!*arg) {
                 send_to_char(ch, "No type specified.\r\n");
                 return;
             }
-            if ((srch_type = search_block(arg1, search_commands, FALSE)) < 0) {
-                send_to_char(ch, "No such search type ( %s ).\r\n", arg1);
+            if ((srch_type = search_block(arg, search_commands, FALSE)) < 0) {
+                send_to_char(ch, "No such search type ( %s ).\r\n", arg);
                 return;
             }
         }
-        if (is_abbrev(arg1, "help")) {
+        if (is_abbrev(arg, "help")) {
             send_to_char(ch, "Usage: xlist [type <type>] [zone <zone>]\r\n");
+			return;
         }
-        argument = one_argument(argument, arg1);
+		arg = tmp_getword(&argument);
     }
 
     // If there's no zone argument, set it to the current zone.
@@ -6886,8 +6886,8 @@ ACMD(do_xlist)
         return;
     }
 
-    strcpy(outbuf, "Searches:\r\n");
-
+	acc_string_clear();
+	acc_strcat("Searches: \r\n", NULL);
 
     for (room = zone->world, found = FALSE; room && !overflow;
         found = FALSE, room = room->next) {
@@ -6899,23 +6899,16 @@ ACMD(do_xlist)
                 continue;
 
             if (!found) {
-                sprintf(buf, "Room [%s%5d%s]:\n", CCCYN(ch, C_NRM),
+                acc_sprintf("Room [%s%5d%s]:\n", CCCYN(ch, C_NRM),
                     room->number, CCNRM(ch, C_NRM));
-                strcat(outbuf, buf);
                 found = TRUE;
             }
 
             print_search_data_to_buf(ch, room, srch, buf);
-
-            if (strlen(outbuf) + strlen(buf) > MAX_STRING_LENGTH - 128) {
-                overflow = 1;
-                strcat(outbuf, "**OVERFLOW**\r\n");
-                break;
-            }
-            strcat(outbuf, buf);
+			acc_strcat(buf, NULL);
         }
     }
-    page_string(ch->desc, outbuf);
+    page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_mlist)
@@ -6976,10 +6969,7 @@ ACMD(do_mlist)
 
 ACMD(do_olist)
 {
-//    extern struct obj_data *obj_proto;
     struct obj_data *obj = NULL;
-    char out_list[MAX_STRING_LENGTH];
-
     int first, last, found = 0;
 
     two_arguments(argument, buf, buf2);
@@ -7005,31 +6995,24 @@ ACMD(do_olist)
         return;
     }
 
-    strcpy(out_list, "");
-//    for (obj = obj_proto; obj && (obj->shared->vnum <= last); obj = obj->next) {
-//        if (obj->shared->vnum >= first) {
+	acc_string_clear();
+
     ObjectMap::iterator oi;
     for (oi = objectPrototypes.lower_bound(first);
          oi != objectPrototypes.upper_bound(last); ++oi) {
         obj = oi->second;
-        sprintf(buf, "%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
+        acc_sprintf("%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
             CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
             CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
             obj->name, CCNRM(ch, C_NRM),
             !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "", (!(obj->line_desc)
                 || !(*(obj->line_desc))) ? "(nodesc)" : "");
-        if ((strlen(out_list) + strlen(buf)) < MAX_STRING_LENGTH - 20)
-            strcat(out_list, buf);
-        else if (strlen(out_list) < (MAX_STRING_LENGTH - 20)) {
-            strcat(out_list, "**OVERFLOW**\r\n");
-            break;
-        }
     }
 
     if (!found)
         send_to_char(ch, "No objects were found in those parameters.\r\n");
     else
-        page_string(ch->desc, out_list);
+	  page_string(ch->desc, acc_get_string());
 }
 
 
