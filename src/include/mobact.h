@@ -17,6 +17,8 @@ int mobile_battle_activity(struct Creature *ch,
 int mob_fight_devil(struct Creature *ch, struct Creature *precious_vict);
 void knight_activity(Creature * ch);
 int knight_battle_activity(Creature * ch, Creature * precious_vict);
+void ranger_activity(Creature *ch);
+int ranger_battle_activity(Creature * ch, Creature *precious_vict);
 int mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict);
 
 
