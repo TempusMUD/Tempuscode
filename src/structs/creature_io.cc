@@ -507,16 +507,14 @@ Creature::saveToXML()
 	fprintf(ouf, "<home town=\"%d\" homeroom=\"%d\" loadroom=\"%d\"/>\n",
 		GET_HOME(ch), GET_HOMEROOM(ch), GET_LOADROOM(ch));
 
-	if (GET_LEVEL(ch) < LVL_IMMORT && !GET_QUEST(ch) && !GET_QUEST_POINTS(ch)) {
-		fprintf(ouf, "<quest");
-		if (GET_QUEST(ch))
-			fprintf(ouf, " current=\"%d\"", GET_QUEST(ch));
-		if (GET_LEVEL(ch) >= LVL_IMMORT)
-			fprintf(ouf, " allowance=\"%d\"", GET_QUEST_ALLOWANCE(ch));
-		if( GET_QUEST_POINTS(ch) != 0 )
-			fprintf(ouf, " points=\"%d\"", GET_QUEST_POINTS(ch));
-		fprintf(ouf, "/>\n");
-	}
+	fprintf(ouf, "<quest");
+	if (GET_QUEST(ch))
+		fprintf(ouf, " current=\"%d\"", GET_QUEST(ch));
+	if (GET_LEVEL(ch) >= LVL_IMMORT)
+		fprintf(ouf, " allowance=\"%d\"", GET_QUEST_ALLOWANCE(ch));
+	if( GET_QUEST_POINTS(ch) != 0 )
+		fprintf(ouf, " points=\"%d\"", GET_QUEST_POINTS(ch));
+	fprintf(ouf, "/>\n");
 		
 	fprintf(ouf, "<bits flag1=\"%lx\" flag2=\"%x\"/>\n",
 		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits);
