@@ -1937,7 +1937,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 
 	if (GET_MOB_STATE(k) && GET_MOB_STATE(k)->var_list) {
 		prog_var *cur_var;
-		acc_strcat("Mobile state variables:\r\n");
+		acc_strcat("Mobile state variables:\r\n", NULL);
 		for (cur_var = GET_MOB_STATE(k)->var_list;cur_var;cur_var = cur_var->next)
 			acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
 	}
