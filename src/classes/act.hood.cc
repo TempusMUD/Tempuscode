@@ -137,13 +137,15 @@ ACMD(do_hamstring)
                               * ( CHECK_SKILL( ch ,SKILL_HAMSTRING ) )/1000;
             affect_to_char(vict, &af);
             GET_POS(vict) = POS_RESTING;
-            if(!damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS))
+            if(!damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS)) {
                 GET_POS(vict) = POS_RESTING;
-            WAIT_STATE(vict, 4 RL_SEC);
+                WAIT_STATE(vict, 4 RL_SEC);
+            }
         } else {
-            if(!damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS))
+            if(!damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS)) {
                 GET_POS(vict) = POS_SITTING;
-            WAIT_STATE(vict, 3 RL_SEC);
+                WAIT_STATE(vict, 3 RL_SEC);
+            }
         }
         gain_skill_prof(ch, SKILL_HAMSTRING);
     }
