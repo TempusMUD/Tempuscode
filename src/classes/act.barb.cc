@@ -36,7 +36,7 @@ ACMD(do_charge)
     // 
 
     if (CHECK_SKILL(ch, SKILL_CHARGE) < 50) {
-        send_to_char("Do you really think you know what you're doing?",ch);
+        send_to_char("Do you really think you know what you're doing?\r\n",ch);
         return;
     }
     // find out who we're whackin.
