@@ -1821,20 +1821,18 @@ ACMD(do_stand)
 
 	struct obj_data *obj;
 	int can_land = 0;
+	char *to_char, *to_room;
 
-	for (obj = ch->carrying; obj; obj = obj->next_content) {
+	if (IS_AFFECTED(ch, AFF_WATERWALK))
+		can_land = true;
+	for (obj = ch->carrying; obj && !can_land; obj = obj->next_content) {
 		if (GET_OBJ_TYPE(obj) == ITEM_BOAT)
-			can_land = TRUE;
-		if (IS_AFFECTED(ch, AFF_WATERWALK))
-			can_land = TRUE;
+			can_land = true;
 	}
 
-/* ########################################################### */
-
 	switch (ch->getPosition()) {
-	case POS_STANDING:
-		act("You are already standing.", FALSE, ch, 0, 0, TO_CHAR);
-		break;
+	case POS_SLEEPING:
+	case POS_RESTING:
 	case POS_SITTING:
 		if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)) {
 			if (number(1, 20) < GET_STR(ch)) {
@@ -1848,36 +1846,33 @@ ACMD(do_stand)
 				ch->setPosition(POS_RESTING);
 			}
 		} else {
-			act("You stand up.", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n clambers to $s feet.", TRUE, ch, 0, 0, TO_ROOM);
-			ch->setPosition(POS_STANDING);
-		}
-		break;
-	case POS_RESTING:
-		if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)) {
-			if (number(1, 20) < GET_STR(ch)) {
-				act("You defy the probability waves of the gravity well and struggle to your feet.", FALSE, ch, 0, 0, TO_CHAR);
-				act("$n defies the gravity well and struggles to $s feet.",
-					TRUE, ch, 0, 0, TO_ROOM);
-				ch->setPosition(POS_STANDING);
-			} else {
-				act("The gravity well drives you into the ground as you try to stand.", FALSE, ch, 0, 0, TO_CHAR);
-				act("The gravity well drives $n into the ground as $e attempts to stand.", TRUE, ch, 0, 0, TO_ROOM);
-				ch->setPosition(POS_RESTING);
+			// No gravity well
+			switch (ch->getPosition()) {
+			case POS_SLEEPING:
+				to_char = "You wake up, and stagger to your feet.";
+				to_room = "$n wakes up, and staggers to $s feet.";
+				break;
+			case POS_RESTING:
+				to_char = "You stop resting, and stand up.";
+				to_room = "$n stops resting, and clambers onto $s feet.";
+				break;
+			case POS_SITTING:
+				to_char = "You clamber to your feet.";
+				to_room = "$n clambers to $s feet.";
+				break;
+			default:
+				to_char = "You stand on your feet.";
+				to_room = "$n stands on $s feet.";
+				slog("Can't happen 1 in do_stand()");
 			}
-		} else {
-			act("You stop resting, and stand up.", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n stops resting, and clambers on $s feet.", TRUE, ch, 0, 0,
-				TO_ROOM);
 			ch->setPosition(POS_STANDING);
+			act(to_char, false, ch, 0, 0, TO_CHAR);
+			act(to_room, false, ch, 0, 0, TO_ROOM);
 		}
 		break;
-	case POS_SLEEPING:
-		act("You have to wake up first!", FALSE, ch, 0, 0, TO_CHAR);
-		break;
+	case POS_STANDING:
 	case POS_FIGHTING:
-		act("Do you not consider fighting as standing?", FALSE, ch, 0, 0,
-			TO_CHAR);
+		act("You are already standing.", FALSE, ch, 0, 0, TO_CHAR);
 		break;
 	case POS_FLYING:
 		if (IS_RACE(ch, RACE_GASEOUS)) {
