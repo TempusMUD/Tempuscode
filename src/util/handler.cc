@@ -1580,6 +1580,7 @@ check_eq_align(Creature *ch)
 }
 
 // Given a designation '3.object', returns 3 and sets argument to 'object'
+// Given '.object', returns 0 and sets argument to 'object'
 int
 get_number(char **name)
 {
@@ -1588,7 +1589,7 @@ get_number(char **name)
 
 	if ((read_pt = strchr(*name, '.'))) {
 		*read_pt++ = '\0';
-		if (!is_number(*name))
+		if (**name && !is_number(*name))
 			return 0;
 
 		i = atoi(*name);
