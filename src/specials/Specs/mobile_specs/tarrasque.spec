@@ -49,11 +49,13 @@ tarrasque_jump(struct Creature *tarr, int jump_mode)
 		char_to_room(tarr, up_room, false);
 
 		if ((jump_mode == T_ACTIVE && i == 4) ||
-			(jump_mode == T_RETURN && i == 3))
-			act("$n comes flying up from the chasm and lands with an earthshaking footfall!", FALSE, tarr, 0, 0, TO_ROOM);
-		else
+			(jump_mode == T_RETURN && i == 3)) {
+			act("$n comes flying up from the chasm and lands with an earthshaking footfall!", 
+				FALSE, tarr, 0, 0, TO_ROOM);
+		} else {
 			act("$n comes flying past from below, and disappears above you!",
 				FALSE, tarr, 0, 0, TO_ROOM);
+		}
 	}
 }
 
@@ -69,9 +71,10 @@ tarrasque_lash(Creature *tarr, Creature *vict)
 				(dice(20, 20) + 100) : 0,
 				TYPE_TAIL_LASH, WEAR_LEGS);
 	if (!is_dead && vict &&
-			vict->getPosition() >= POS_STANDING &&
-			GET_DEX(vict) < number(10, 24))
+	vict->getPosition() >= POS_STANDING &&
+	GET_DEX(vict) < number(10, 24)) {
 		vict->setPosition(POS_RESTING);
+	}
 
 	return is_dead;
 }
@@ -124,17 +127,18 @@ void
 tarrasque_poop(Creature *tarr, obj_data *obj)
 {
 	// The tarr doesn't poop while fighting, sleeping, or in its lair
-	if (tarr->getPosition() == POS_FIGHTING &&
-			tarr->getPosition() < POS_STANDING &&
-			tarr->in_room->number == LAIR_RM)
+	if (tarr->getPosition() == POS_FIGHTING || 
+	tarr->getPosition() < POS_STANDING ||
+	tarr->in_room->number == LAIR_RM) {
 		return;
+	}
 
 	// Poop last object out if no object given
-	if (!obj) {
+	if( obj == NULL ) {
 		obj = belly_rm->contents;
-		if (!obj)
+		if( obj == NULL )
 			return;
-		while (obj->next_content)
+		while( obj->next_content != NULL )
 			obj = obj->next_content;
 	}
 	
