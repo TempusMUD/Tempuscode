@@ -714,7 +714,8 @@ ACMD(do_gen_comm)
 	    return;
 	}
     
-	if (subcmd == SCMD_DREAM && GET_POS(ch) != POS_SLEEPING) {
+	if (subcmd == SCMD_DREAM && 
+        (GET_POS(ch) != POS_SLEEPING) && GET_LEVEL(ch) < LVL_GOD) {
 	    send_to_char("You attempt to dream, but realize you need to sleep first.\r\n", ch);
 	    return;
 	}
@@ -798,7 +799,9 @@ ACMD(do_gen_comm)
 		GET_LEVEL(i->character) < LVL_AMBASSADOR)
 		continue;
     
-	    if (subcmd == SCMD_DREAM && GET_POS(i->character) != POS_SLEEPING)
+	    if (subcmd == SCMD_DREAM && 
+            (GET_POS(i->character) != POS_SLEEPING) 
+                || GET_LEVEL(i->character) >= LVL_GOD)
 		continue;
     
 	    if (subcmd == SCMD_NEWBIE &&
