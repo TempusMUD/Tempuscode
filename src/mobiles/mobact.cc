@@ -2219,8 +2219,9 @@ void mobile_activity(void) {
         if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch) && 
             !AFF_FLAGGED(ch, AFF_CHARM)) {
             found = FALSE;
-            CharacterList::iterator it = ch->in_room->people.begin();
-            for( ; it != ch->in_room->people.end() && !found; ++it ) {
+            room_data *room = ch->in_room;
+            CharacterList::iterator it = room->people.begin();
+            for( ; it != room->people.end() && !found; ++it ) {
                 vict = *it;
                 if (check_infiltrate(vict, ch))
                     continue;
