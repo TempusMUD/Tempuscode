@@ -2670,12 +2670,12 @@ Reaction::add_reaction(decision_t action, char *arg)
 	else if (is_abbrev(condition, "lvl<")) {
 		new_reaction[0] |= 0x0b;
 		new_reaction[1] = atoi(arg);
-		if (new_reaction[1] < 1 || new_reaction[1] > 49)
+		if (new_reaction[1] < 1 || new_reaction[1] > 70)
 			return false;
 	} else if (is_abbrev(condition, "lvl>")) {
 		new_reaction[0] |= 0x0c;
 		new_reaction[1] = atoi(arg);
-		if (new_reaction[1] < 1 || new_reaction[1] > 49)
+		if (new_reaction[1] < 1 || new_reaction[1] > 70)
 			return false;
 	else if (is_abbrev(condition, "clanleader"))
 		new_reaction[0] |= 0x0d;
