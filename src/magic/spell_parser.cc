@@ -3409,7 +3409,8 @@ mag_assign_spells(void)
 	spello(SKILL_DEFENSIVE_POS,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
-	spello(SKILL_MELEE_COMBAT_TAC,X,X, X, X, X, X,X,X, X, X, X, X, X,X,X,X,X,
+                              /* Ma Cl Th Wa Ba Sy Ph  C Kn  Rn Hd Mk Vm Mr 1 2 3 */
+	spello(SKILL_MELEE_COMBAT_TAC,X, X, X, X, X, X, X, 24, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
 	spello(SKILL_NEURAL_BRIDGING,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,

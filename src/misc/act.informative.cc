@@ -2159,6 +2159,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	strcat(str, "You are empowered.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_TELEKINESIS))
 	strcat(str,"You are feeling telekinetic.\r\n");
+	if ( affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC) )
+	strcat(buf, "Melee Combat Tactics are in effect.\r\n");                 
     if (affected_by_spell(ch, SKILL_REFLEX_BOOST))
 	strcat(str, "Your Reflex Boosters are active.\r\n");
     else if (IS_AFFECTED_2(ch, AFF2_HASTE))
@@ -2211,7 +2213,9 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	strcat(str, "Your retina is especially sensitive.\r\n");
     if (IS_AFFECTED(ch, AFF_CONFUSION))
 	strcat(str, "You are very confused.\r\n");
-    if (IS_AFFECTED(ch, AFF_ADRENALINE))
+	if ( affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER) )
+	strcat(buf, "Shukutei Adrenal Maximizations are active.\r\n");
+    else if (IS_AFFECTED(ch, AFF_ADRENALINE))
 	strcat(str, "Your adrenaline is pumping.\r\n");
     if (IS_AFFECTED(ch, AFF_CONFIDENCE))
 	strcat(str, "You feel very confident.\r\n");

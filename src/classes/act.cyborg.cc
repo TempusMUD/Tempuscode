@@ -557,6 +557,15 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
 	    to_char[1] = "Activating Reflex Boosters.\r\n";
 	    to_char[0] = "Deactivating Reflex Boosters.\r\n";
 	    break;
+	case SKILL_MELEE_COMBAT_TAC:
+	    af[0].bitvector = 0;
+	    af[0].aff_index = 0;
+	    af[0].location = APPLY_MOVE;
+	    af[0].modifier = -30;
+      
+	    to_char[1] = "Activating Melee Combat Tactics.\r\n";
+	    to_char[0] = "Deactivating Melee Combat Tactics.\r\n";
+	    break;
 	case SKILL_POWER_BOOST:
 	    af[0].bitvector = 0;
 	    af[0].location = APPLY_MOVE;
@@ -1077,9 +1086,9 @@ OLD_engage_self_destruct(struct char_data *ch)
     act("$n suddenly explodes into a thousand fragments!", FALSE,ch,0,0,TO_ROOM);  
     level = GET_LEVEL(ch);
     rhit = (GET_HIT(ch) >> 1);
-	dice = 24;
+	ddice = 24;
 	if(GET_CLASS(ch) == CLASS_CYBORG)
-		dice += GET_REMORT_GEN(ch) * 2;
+		ddice += GET_REMORT_GEN(ch) * 2;
 	
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 	act("You are showered with a rain of fiery debris!", FALSE,ch,0,0,TO_ROOM);
@@ -1577,6 +1586,10 @@ ACMD(do_status)
 		strcat(buf, "Damage Control systems are operating.\r\n");
 	    if ( affected_by_spell(ch, SKILL_HYPERSCAN) )
 		strcat(buf, "Hyperscanning device is active.\r\n");
+	    if ( affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER) )
+		strcat(buf, "Shukutei Adrenal Maximizations are active.\r\n");
+	    if ( affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC) )
+		strcat(buf, "Melee Combat Tactics are in effect.\r\n");
 	    if ( affected_by_spell(ch, SKILL_RADIONEGATION) )
 		strcat(buf, "Radionegation device is operating.\r\n");
 	    if (affected_by_spell(ch, SKILL_ASSIMILATE)) {
