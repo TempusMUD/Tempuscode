@@ -28,6 +28,7 @@
 #include "xml_utils.h"
 
 /* object-related defines ********************************************/
+struct Creature;
 
 
 /* Item types: used by obj_data.obj_flags.type_flag */
@@ -311,8 +312,8 @@ struct obj_data {
 	}
 
 	void clear();
-
-	bool loadFromXML( xmlNodePtr node );
+	
+	bool loadFromXML(obj_data *container, Creature *victim, xmlNodePtr node);
 	void saveToXML( FILE* ouf );
 
 	struct room_data *in_room;	/* In what room -1 when conta/carr    */
