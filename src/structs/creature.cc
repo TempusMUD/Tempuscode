@@ -288,8 +288,9 @@ Creature::getDamReduction(Creature *attacker)
 
 	//********************** Shield of Righteousness *******************
 	//******************************************************************
-	if ((af = affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS)) &&
-		IS_GOOD(ch) && !IS_NPC(ch)) {
+	if ((af = affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS))
+			&& IS_GOOD(ch)
+			&& !IS_NPC(ch)) {
 
 		// Find the caster apply for the shield of righteousness spell
         while (af) {
@@ -299,27 +300,30 @@ Creature::getDamReduction(Creature *attacker)
 			af = af->next;
 		}
 
-		if (af && af->modifier == GET_IDNUM(ch)) {
-			dam_reduction +=
-				(ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
-				+ (GET_ALIGNMENT(ch) / 100);
-		} else if (ch->in_room) {
+		if (af) {
+			// We found the shield of righteousness caster
+			if (af->modifier == GET_IDNUM(ch)) {
+				dam_reduction +=
+					(ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
+					+ (GET_ALIGNMENT(ch) / 100);
+			} else if (ch->in_room) {
 
-			CreatureList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				if (IS_NPC((*it))
-					&& af->modifier == (short int)-MOB_IDNUM((*it))) {
-					dam_reduction +=
-						((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
-						20)
-						+ (GET_ALIGNMENT(*it) / 100);
-					break;
-				} else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
-					dam_reduction +=
-						((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
-						20)
-						+ (GET_ALIGNMENT(*it) / 100);
-					break;
+				CreatureList::iterator it = ch->in_room->people.begin();
+				for (; it != ch->in_room->people.end(); ++it) {
+					if (IS_NPC((*it))
+						&& af->modifier == (short int)-MOB_IDNUM((*it))) {
+						dam_reduction +=
+							((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
+							20)
+							+ (GET_ALIGNMENT(*it) / 100);
+						break;
+					} else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
+						dam_reduction +=
+							((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
+							20)
+							+ (GET_ALIGNMENT(*it) / 100);
+						break;
+					}
 				}
 			}
 		}
