@@ -4,25 +4,10 @@
 #include <vector>
 #include "tmpstr.h"
 
-
-/*
-<houses>
-	<house atrium="101" owner1="24999" owner2="24999" built="94024324" landlord="24999" mode="0">
-		<rent sum="100" time="42" rate="432" last_payment="3423908554"></rent>
-		<room vnum="3013">
-			<object vnum="123">
-			</object>
-		</room>
-		<guest idnum="24999"></guest>
-		<door room="3013" direction="0" flags="35234"></door>
-	</house>
-</houses>
-*/
-
 static inline char* 
 get_house_file_path( int id )
 {
-	return tmp_sprintf( "housing/%d/%04d.xml", (id % 10), id );
+	return tmp_sprintf( "housing/%d/%04d.dat", (id % 10), id );
 }
 
 // Modes used for match_houses
@@ -199,7 +184,7 @@ House_can_enter( Creature *ch, room_num room )
 
 #define TOROOM(room, dir) (world[room].dir_option[dir] ? \
 			    world[room].dir_option[dir]->to_room : NOWHERE)
-
+char* print_room_contents(Creature *ch, room_data *real_house_room, bool showContents = false);
 int recurs_obj_cost(struct obj_data *obj, bool mode, struct obj_data *top_o);
 int recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o);
 int Crash_rentcost(struct Creature *ch, int display, int factor);
