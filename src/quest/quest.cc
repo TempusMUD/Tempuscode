@@ -3068,11 +3068,12 @@ Quest::save(std::ostream &out)
 				  << "\" MIN_GEN=\"" << mingen << "\"" << endl;
 				  
 	out << indent << indent 
-				  << "AWARDED=\"" << awarded << "\""
-				  << " PENALIZED=\"" << penalized 
-				  << "\" TYPE=\"" << xmlEncodeTmp(tmp_strdup(qtype_abbrevs[type])) 
-				  << "\" OWNER_LEVEL=\"" << owner_level << "\" FLAGS=\"" << flags 
-				  << "\" \"LOADROOM=\"" << loadroom << "\">" << endl;
+		<< "AWARDED=\"" << awarded
+		<< "\" PENALIZED=\"" << penalized 
+		<< "\" TYPE=\"" << xmlEncodeTmp(tmp_strdup(qtype_abbrevs[type])) 
+		<< "\" OWNER_LEVEL=\"" << owner_level
+		<< "\" FLAGS=\"" << flags 
+		<< "\" LOADROOM=\"" << loadroom << "\">" << endl;
 
 	if (description)
 		out << indent << "  <Description>" 
