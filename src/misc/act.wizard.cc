@@ -2902,8 +2902,11 @@ ACMD(do_invis)
 			perform_invis(ch, GET_LEVEL(ch));
 	} else {
 		level = atoi(arg);
-		if (level > GET_LEVEL(ch))
+		if (level > GET_LEVEL(ch)) {
 			send_to_char(ch, "You can't go invisible above your own level.\r\n");
+			return;
+		}
+
 		if (level < 1)
 			perform_vis(ch);
 		else
