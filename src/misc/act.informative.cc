@@ -4814,10 +4814,10 @@ ACMD(do_wizlist)
     getGroup("Wizlist_Admins").sendPublicMemberList(ch, buf,"WizardAdmin");
 
     send_wizlist_section_title("Foreman",ch);
-    getGroup("Wizlist_Foreman").sendPublicMember(ch, buf);
+    getGroup("Wizlist_Foreman").sendPublicMemberList(ch, buf);
 
     send_wizlist_section_title("Advisors",ch);
-    getGroup("Wizlist_Advisors").sendPublicMember(ch, buf);
+    getGroup("Wizlist_Advisors").sendPublicMemberList(ch, buf);
 
     send_wizlist_section_title("Architects",ch);
 	strcat(buf, "        ");
