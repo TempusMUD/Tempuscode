@@ -135,10 +135,11 @@ tmp_sprintf(const char *fmt, ...)
 // strcat into a temp str.  You must terminate the arguments with a NULL,
 // since the va_arg method is too stupid to give us the number of arguments.
 char *
-tmp_strcat(char *src, ...)
+tmp_strcat(const char *src, ...)
 {
 	struct tmp_str_pool *cur_buf;
-	char *write_pt, *read_pt, *result;
+	char *write_pt, *result;
+	const char *read_pt;
 	size_t len;
 	va_list args;
 
@@ -146,7 +147,7 @@ tmp_strcat(char *src, ...)
 	len = strlen(src);
 
 	va_start(args, src);
-	while ((read_pt = va_arg(args, char *)) != NULL)
+	while ((read_pt = va_arg(args, const char *)) != NULL)
 		len += strlen(read_pt);
 	va_end(args);
 
@@ -170,7 +171,7 @@ tmp_strcat(char *src, ...)
 
 	// Then copy in the rest of the strings
 	va_start(args, src);
-	while ((read_pt = va_arg(args, char *)) != NULL) {
+	while ((read_pt = va_arg(args, const char *)) != NULL) {
 		strcpy(write_pt, read_pt);
 		while (*write_pt)
 			write_pt++;

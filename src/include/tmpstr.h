@@ -20,16 +20,16 @@ char *tmp_getword(char **src);
 
 // strcat into a temp str.  You must terminate the arguments with a NULL,
 // since the va_arg method is too stupid to give us the number of arguments.
-char *tmp_strcat(char *src, ...);
+char *tmp_strcat(const char *src, ...);
 
 // strcat into a temp str.  
-inline char *tmp_strcat(char *src_a, char *src_b)
+inline char *tmp_strcat(const char *src_a, const char *src_b)
 {
 	return tmp_strcat(src_a, src_b, NULL);
 }
 
 // creates a copy of the given str as a temp str
-inline char *tmp_strdup(char *src)
+inline char *tmp_strdup(const char *src)
 {
 	return tmp_strcat(src, NULL);
 }
