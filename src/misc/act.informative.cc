@@ -925,7 +925,8 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 		}
 
 		if (!CAN_SEE(ch, i)) {
-			unseen++;
+			if (!IS_IMMORT(i))
+				unseen++;
 			continue;
 		}
 
