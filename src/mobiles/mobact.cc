@@ -2515,18 +2515,7 @@ void mobile_activity(void) {
                    GET_MANA(ch) > mag_manacost(ch, SPELL_ANTI_MAGIC_SHELL)) {
                     cast_spell(ch, ch, 0, SPELL_ANTI_MAGIC_SHELL);
 
-                }else if (GET_LEVEL(ch) > 29 && !affected_by_spell(ch, SPELL_MANA_SHIELD) &&
-                          GET_MANA(ch) > mag_manacost(ch, SPELL_MANA_SHIELD)) {
-                    cast_spell(ch, ch, 0, SPELL_MANA_SHIELD);
-                    GET_MSHIELD_LOW(ch) = GET_MANA(ch) / 2;
-                    
-                    if(GET_CLASS(ch) == CLASS_MAGE) {
-                        GET_MSHIELD_PCT(ch) = number(50, 85);
-                    }else {
-                        GET_MSHIELD_PCT(ch) = number(40, 50);
-                    }
                 }
-
             }
 
         } 
