@@ -98,7 +98,8 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
                 send_to_char( "A small dark shape flies in from the future and sticks to your eye.\r\n", ch );
                 return;
             }
-            if ( ch->isNewbie() && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
+            if ( ch->isNewbie() && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) &&
+                !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
                 send_to_char( "You are currently under new player protection, which expires at level 41.\r\nYou cannot attack other players while under this protection.\r\n", ch );
                 return;
             }
@@ -112,7 +113,8 @@ set_fighting( struct char_data * ch, struct char_data * vict, int aggr )
       
             if ( vict->isNewbie() &&
                  !PLR_FLAGGED( vict, PLR_TOUGHGUY ) &&
-                 GET_LEVEL( ch ) < LVL_IMMORT ) {
+                 GET_LEVEL( ch ) < LVL_IMMORT &&
+                 !ROOM_FLAGGED(vict->in_room, ROOM_ARENA) ) {
                 act( "$N is currently under new character protection.",
                      FALSE, ch, 0, vict, TO_CHAR );
                 act( "You are protected by the gods against $n's attack!",
@@ -793,6 +795,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         
         if ( victim->isNewbie() &&
              !PLR_FLAGGED( victim, PLR_TOUGHGUY ) &&
+             !ROOM_FLAGGED(victim->in_room,ROOM_ARENA) &&
              GET_LEVEL( ch ) < LVL_IMMORT ) {
             act( "$N is currently under new character protection.",
              FALSE, ch, 0, victim, TO_CHAR );
@@ -808,7 +811,9 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             DAM_RETURN( DAM_ATTACK_FAILED );
         }
 
-        if (ch->isNewbie() && !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
+        if (ch->isNewbie() && 
+        !ROOM_FLAGGED(victim->in_room,ROOM_ARENA) &&
+        !PLR_FLAGGED( ch, PLR_TOUGHGUY ) ) {
             send_to_char( "You are currently under new player protection, which expires at level 41.\r\n"
                           "You cannot attack other players while under this protection.\r\n", ch );
             DAM_RETURN( 0 );
@@ -1937,6 +1942,7 @@ int hit( struct char_data * ch, struct char_data * victim, int type ) {
     }
   
     if ( victim->isNewbie() && !IS_NPC( ch ) && !IS_NPC( victim ) &&
+    !ROOM_FLAGGED(victim->in_room,ROOM_ARENA) &&
          !PLR_FLAGGED( victim, PLR_TOUGHGUY ) &&
          GET_LEVEL( ch ) < LVL_IMMORT ) {
         act( "$N is currently under new character protection.",

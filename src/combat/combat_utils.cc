@@ -676,6 +676,7 @@ choose_random_limb( CHAR *victim ) {
 int peaceful_room_ok( struct char_data *ch, struct char_data *vict, bool mssg )
 {
     if ( vict->isNewbie() && !PLR_FLAGGED( vict, PLR_TOUGHGUY ) &&
+    !ROOM_FLAGGED(vict->in_room, ROOM_ARENA) &&
     IS_PC(ch) && GET_LEVEL( ch ) < LVL_IMMORT ) {
          if(mssg) {
             act( "$N is currently under new character protection.",
