@@ -15,7 +15,8 @@ const char VENDOR_HELP[] =
 "        if set, vendor will only work if the mob is in the specified room.\r\n"
 "        leave unset for wandering vendors.\r\n"
 "    produce <item vnum>\r\n"
-"        (unimplemented) provides a limitless supply of the object\r\n"
+"        provides a limitless supply of the object (object must exist\r\n"
+"        within the vendor's inventory)\r\n"
 "    accept <item type>|all\r\n"
 "        Vendor will buy any item of the type configured by this directive.\r\n"
 "    refuse <item type>|all\r\n"
@@ -364,7 +365,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 
 	do_say(self,
-		tmp_sprintf("%s %s.",
+		tmp_sprintf("%s %s",
 			GET_NAME(ch), shop->msg_buy), 0, SCMD_SAY_TO, NULL);
 	msg = tmp_sprintf("You sell $p to $N for %d %s.",
 		cost * num, currency_str);
@@ -595,7 +596,7 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	obj_str = tmp_getword(&arg);
 	obj = get_obj_in_list_all(ch, obj_str, ch->carrying);
 	if (!obj) {
-		send_to_char(ch, "You don't seem to have any %s.\r\n", obj_str);
+		send_to_char(ch, "You don't seem to have any '%s'.\r\n", obj_str);
 		return;
 	}
 
@@ -725,9 +726,9 @@ SPECIAL(vendor)
 				break;
 			}
 		} else if (!strcmp(param_key, "currency")) {
-			if (is_abbrev(line, "future"))
+			if (is_abbrev(line, "future") || is_abbrev(line, "cash"))
 				shop.currency = true;
-			else if (is_abbrev(line, "past"))
+			else if (is_abbrev(line, "past") || is_abbrev(line, "gold"))
 				shop.currency = false;
 			else {
 				err = "invalid currency";
@@ -775,7 +776,9 @@ SPECIAL(vendor)
 		return true;
 	}
 
-	if (CMD_IS("steal") && !shop.steal_ok && GET_LEVEL(ch) < LVL_IMMORT) {
+	if (CMD_IS("steal")) {
+		if (shop.steal_ok && GET_LEVEL(ch) < LVL_IMMORT)
+			return false;
 		do_gen_comm(self, tmp_sprintf("%s is a bloody thief!", GET_NAME(ch)),
 			0, SCMD_SHOUT, 0);
 		return true;
@@ -793,6 +796,12 @@ SPECIAL(vendor)
 		return true;
 	}
 
+	if (!CAN_SEE(self, ch)) {
+		do_say(self, "Show yourself if you want to do business with me!",
+			0, 0, 0);
+		return true;
+	}
+
 	if (CMD_IS("buy"))
 		vendor_sell(ch, argument, self, &shop);
 	else if (CMD_IS("sell"))
@@ -802,7 +811,8 @@ SPECIAL(vendor)
 	else if (CMD_IS("value") || CMD_IS("offer"))
 		vendor_value(ch, argument, self, &shop);
 	else
-		return false;
+		mudlog(LVL_IMPL, CMP, true, "Can't happen at %s:%d", __FILE__,
+			__LINE__);
 	
 	return true;
 }
