@@ -1,3 +1,5 @@
+#include <list>
+
 #define ANGEL_DUAL_WIELD		(1 << 0)
 #define ANGEL_CONSUME			(1 << 1)
 #define ANGEL_DANGER			(1 << 3)
@@ -12,7 +14,6 @@ int cast_spell(struct Creature *ch, struct Creature *tch,
 void angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_data **data);
 
 struct angel_data {
-	angel_data *next_angel;
 	Creature *angel;
 	long charge_id;	// the player ID of the angel's charge
 	char *charge_name;
@@ -20,6 +21,8 @@ struct angel_data {
 	char *action;	// action for angel to do
 	unsigned long flags;
 };
+
+list<angel_data *> angels;
 
 struct angel_chat_data {
 	int char_class;			// class restriction of response
@@ -291,7 +294,6 @@ SPECIAL(guardian_angel)
 	if (!data) {
 		CREATE(data, angel_data, 1);
 		self->mob_specials.func_data = data;
-		data->next_angel = NULL;
 		data->angel = self;
 		data->charge_id = 0;
 		data->counter = -1;
@@ -387,13 +389,21 @@ SPECIAL(guardian_angel)
 void
 angel_to_char(Creature *ch) 
 {
-/*    static const int ANGEL_VNUM = 3038;
-    static const int DEMON_VNUM = 3039; */
+    static const int ANGEL_VNUM = 3038;
+    static const int DEMON_VNUM = 3039;
 
-    static const int ANGEL_VNUM = 70603;
-    static const int DEMON_VNUM = 70604;
+/*    static const int ANGEL_VNUM = 70603;
+    static const int DEMON_VNUM = 70604;*/
     Creature *angel;
     angel_data *data;
+
+    list<angel_data *>::iterator li = angels.begin();
+
+    for (; li != angels.end(); ++li) {
+        angel_data *tdata = *li;
+        if (tdata->charge_id == ch->getIdNum())
+            return;
+    }
 
     if (!IS_EVIL(ch))
         angel = read_mobile(ANGEL_VNUM);
@@ -402,7 +412,6 @@ angel_to_char(Creature *ch)
 
 	CREATE(data, angel_data, 1);
     angel->mob_specials.func_data = data;
-    data->next_angel = NULL;
     data->angel = angel;
     data->charge_id = ch->getIdNum();
     data->counter = -1;
@@ -415,6 +424,8 @@ angel_to_char(Creature *ch)
     else
         send_to_char(ch, "A guardian demon has been sent to protect you!\r\n");
     do_follow(angel, GET_NAME(ch), 0, 0, 0);
+
+    angels.push_back(data);
 }
 
 void
