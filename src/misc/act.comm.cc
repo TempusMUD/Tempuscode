@@ -685,8 +685,7 @@ ACMD(do_gen_comm)
 		}
 
 		// Only remort players can project
-		if (subcmd == SCMD_PROJECT &&
-				CHECK_REMORT_CLASS(ch) < 0 &&
+		if (subcmd == SCMD_PROJECT && !IS_REMORT(ch) &&
 				GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			send_to_char(ch, "You do not know how to project yourself that way.\r\n");
 			return;
