@@ -25,11 +25,13 @@ SPECIAL( killzone_room )
 
 	if ( IS_NPC( devil ) && IS_DEVIL( devil ) ) {
 
+            int is_miss = mag_savingthrow( vict, GET_LEVEL( devil ), SAVING_ROD ) && random_binary();
+            
 	    switch ( number( 0, 3 ) ) {
 	    case 0:		// lightning bolt
 		act( "$n fires a bolt of lightning down through the murder holes!", FALSE, devil, 0, 0, TO_ROOM );
 		    
-		if ( mag_savingthrow( vict, GET_LEVEL( devil ), SAVING_ROD ) ) {
+		if ( is_miss ) {
 		    send_to_char( CCRED( vict, C_NRM ), vict );
 		    act( "A bolt of lightning blasts down from above, barely missing you!",
 			 FALSE, vict, 0, 0, TO_ROOM );
@@ -50,7 +52,7 @@ SPECIAL( killzone_room )
 	    case 1:		// fireball
 		act( "$n sends a fireball hurtling downward through a murder hole!", FALSE, devil, 0, 0, TO_ROOM );
 		    
-		if ( mag_savingthrow( vict, GET_LEVEL( devil ), SAVING_ROD ) ) {
+		if ( is_miss ) {
 		    send_to_char( CCRED( vict, C_NRM ), vict );
 		    act( "A fireball comes hurtling in from above and explodes on the floor nearby!",
 			 FALSE, vict, 0, 0, TO_ROOM );
@@ -74,9 +76,9 @@ SPECIAL( killzone_room )
 		act( "$n sends a rain of burning javelins downward through a murder hole!",
 		     FALSE, devil, 0, 0, TO_ROOM );
 		    
-		if ( mag_savingthrow( vict, GET_LEVEL( devil ), SAVING_ROD ) ) {
+		if ( is_miss ) {
 		    send_to_char( CCRED( vict, C_NRM ), vict );
-		    act( "A rain of burning javelins fliesin from above, barely missing you!",
+		    act( "A rain of burning javelins flies in from above, barely missing you!",
 			 FALSE, vict, 0, 0, TO_ROOM );
 		    act( "A rain of burning javelins flies in from above, barely missing you!",
 			 FALSE, vict, 0, 0, TO_CHAR);
@@ -99,7 +101,7 @@ SPECIAL( killzone_room )
 		act( "$n tips a cauldron pours boiling pitch into the Killzone below!",
 		     FALSE, devil, 0, 0, TO_ROOM );
 		    
-		if ( mag_savingthrow( vict, GET_LEVEL( devil ), SAVING_ROD ) ) {
+		if ( is_miss ) {
 		    send_to_char( CCRED( vict, C_NRM ), vict );
 		    act( "A torrent of boiling pitch comes pouring in from above as you leap aside!",
 			 FALSE, vict, 0, 0, TO_ROOM );
