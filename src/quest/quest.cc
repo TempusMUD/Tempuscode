@@ -66,7 +66,7 @@ const struct qcontrol_option {
     { "maxlev",   "<vnum> <maxlev>",                            LVL_IMMORT },
     { "award",    "<player> <vnum> <pts> [comments]",           LVL_IMMORT },
     { "penalize", "<player> <vnum> <pts> <reason>",             LVL_POWER  },
-    { "load",     "<mobile vnum>",                              LVL_POWER   },
+    { "load",     "<mobile vnum> <vnum>",                              LVL_POWER   },
     { "purge",    "<mobile name>",                              LVL_POWER   }, // 20
     { "save",     "",                                           LVL_GRGOD  },
     { "help",     "<topic>",                                    LVL_IMMORT },
@@ -281,23 +281,27 @@ void //Load mobile.
 do_qcontrol_load    (CHAR *ch, char *argument, int com) {
     struct char_data *mob;
     struct quest_data *quest = NULL;
-    struct qplayer_data *qp = NULL;
-    
-
+	char arg1[MAX_INPUT_LENGTH];
     int number;
 
-	if ( ! ( quest = quest_by_vnum( GET_QUEST( ch ) ) ) ||
-		! ( qp = idnum_in_quest( GET_IDNUM( ch ), quest ) ) ) {
-		send_to_char( "You are not currently active on any quest.\r\n", ch );
-		return;
-	}
-
-    one_argument(argument, buf);
-
-    if (!*buf || !isdigit(*buf)) {
+	argument = two_arguments(argument,buf,arg1);
+    
+	if (!*buf || !isdigit(*buf) || !*arg1 || !isdigit(*arg1)) {
 	do_qcontrol_usage(ch, com);
 	return;
     }
+
+	if ( !(quest = find_quest( ch, arg1) ) ){
+		return;
+	}
+	if ( !quest_edit_ok( ch, quest) ){
+		return;
+	}
+	if( quest->ended ){
+		send_to_char( "Pay attentionu dummy! That quest is over!\r\n", ch);
+		return;
+	}
+
     if ((number = atoi(buf)) < 0) {
 	send_to_char("A NEGATIVE number??\r\n", ch);
 	return;
