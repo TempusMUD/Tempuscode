@@ -254,12 +254,13 @@ ACMD(do_hotwire)
 ACMD(do_recharge)
 {
 
-    char arg1[MAX_INPUT_LENGTH],arg2[MAX_INPUT_LENGTH],arg3[MAX_INPUT_LENGTH];
+    char arg1[MAX_INPUT_LENGTH],arg2[MAX_INPUT_LENGTH], arg3[MAX_INPUT_LENGTH], arg4[MAX_INPUT_LENGTH];
     struct obj_data *target = NULL, *battery = NULL;
     struct char_data *vict = NULL;
     int i;
 
     argument = two_arguments(one_argument(argument, arg1), arg2, arg3);
+	argument = one_argument(argument, arg4);
 
     if ((!*arg1 || ch == get_char_room_vis(ch, arg1)) && IS_CYBORG(ch)) {
 		if (!(battery = GET_EQ(ch, WEAR_HOLD)) || !IS_BATTERY(battery)) {
@@ -292,12 +293,20 @@ ACMD(do_recharge)
 			send_to_char(buf, ch);
 			return;
 		}
-
-		if (strncmp(arg3, "self", 4) &&
-			strncmp(arg3, "me", 2) &&
-			!(battery = get_obj_in_list_vis(ch, arg3, ch->carrying)) &&
-			!(battery = get_object_in_equip_vis(ch, arg3, ch->equipment, &i)) &&
-			!(battery = get_obj_in_list_vis(ch, arg3, ch->in_room->contents))) {
+		if (*arg3 && !strcmp(arg3, "internal")) {
+			if(!*arg4) {
+				send_to_char("Recharge from an internal what?\r\n",ch);
+				return;
+			} else if(!(battery = get_object_in_equip_vis(ch, arg4, ch->implants, &i))) {
+				sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg4), arg4);
+				send_to_char(buf, ch);
+				return;
+			}
+		} else if (strncmp(arg3, "self", 4) &&
+				strncmp(arg3, "me", 2) &&
+				!(battery = get_obj_in_list_vis(ch, arg3, ch->carrying)) &&
+				!(battery = get_object_in_equip_vis(ch, arg3, ch->equipment, &i)) &&
+				!(battery = get_obj_in_list_vis(ch, arg3, ch->in_room->contents))) {
 			sprintf(buf, "You can't find any '%s' to recharge from.\r\n", arg3);
 			send_to_char(buf, ch);
 			return;
@@ -314,8 +323,8 @@ ACMD(do_recharge)
 				return;
 			}
 
-			if (IS_IMPLANT(battery) &&
-				battery != get_object_in_equip_vis(ch, arg2, ch->implants, &i)) {
+			if (IS_IMPLANT(battery) && *arg4 && 
+				battery != get_object_in_equip_vis(ch, arg4, ch->implants, &i)) {
 				act ("ERROR: $p not installed properly.", FALSE,ch,battery,0,TO_CHAR);
 				return;
 			}
@@ -376,7 +385,16 @@ ACMD(do_recharge)
 		return;
     }
 
-    if (strncmp(arg2, "self", 4) &&
+	if (*arg2 && !strcmp(arg2, "internal")) {
+		if(!*arg3) {
+			send_to_char("Recharge from an internal what?\r\n",ch);
+			return;
+		} else if(!(battery = get_object_in_equip_vis(ch, arg3, ch->implants, &i))) {
+			sprintf(buf, "You are not implanted with %s '%s'.\r\n", AN(arg3), arg3);
+			send_to_char(buf, ch);
+			return;
+		}
+	} else if (strncmp(arg2, "self", 4) &&
 	strncmp(arg2, "me", 2) &&
 	!(battery = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
 	!(battery = get_object_in_equip_vis(ch, arg2, ch->equipment, &i)) &&
