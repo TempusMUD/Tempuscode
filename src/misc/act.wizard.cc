@@ -3941,7 +3941,7 @@ show_account(Creature *ch, char *value)
 
     send_to_desc(ch->desc, "&y  Account: &n%s [%d]", account->get_name(), 
 		  account->get_idnum());
-	if (*account->get_email_addr())
+	if (account->get_email_addr() && *account->get_email_addr())
 		send_to_desc(ch->desc, " &c<%s>&n", account->get_email_addr());
 	send_to_desc(ch->desc, "\r\n\r\n");
     
