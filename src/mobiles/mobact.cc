@@ -39,6 +39,7 @@
 #include "actions.h"
 #include "creature.h"
 #include "screen.h"
+#include "tmpstr.h"
 
 /* external structs */
 void npc_steal(struct Creature *ch, struct Creature *victim);
@@ -833,9 +834,9 @@ helper_assist(struct Creature *ch, struct Creature *vict,
 		if (IS_ENERGY_GUN(weap) && CHECK_SKILL(ch, SKILL_SHOOT) > 40 &&
 			EGUN_CUR_ENERGY(weap) > 10) {
 			CUR_R_O_F(weap) = MAX_R_O_F(weap);
-			sprintf(buf, "%s ", fname(weap->name));
-			strcat(buf, fname(vict->player.name));
-			do_shoot(ch, buf, 0, 0, &my_return_flags);
+			do_shoot(ch, tmp_sprintf("%s %s", fname(weap->name),
+					fname(vict->player.name)),
+				0, 0, &my_return_flags);
 			return my_return_flags;
 		}
 
@@ -2803,6 +2804,31 @@ choose_opponent(struct Creature *ch, struct Creature *ignore_vict)
 	return (best_vict);
 }
 
+bool
+detect_opponent_master(Creature *ch, Creature *opp)
+{
+	if (FIGHTING(opp) != ch)
+		return false;
+	if (IS_PC(ch) || IS_PC(opp))
+		return false;
+	if (!opp->master)
+		return false;
+	if (ch->master == opp->master)
+		return false;
+	if (GET_MOB_WAIT(ch) >= 10)
+		return false;
+	if (!can_see_creature(ch, opp))
+		return false;
+	if (opp->master->in_room != ch->in_room)
+		return false;
+	if (number(0, 50 - GET_INT(ch) - GET_WIS(ch)))
+		return false;
+
+	stop_fighting(ch);
+	set_fighting(ch, opp->master, false);
+	return true;
+}
+
 //
 // return value like damage()
 // if DAM_VICT_KILLED is set, then the victim was FIGHTING(ch)
@@ -2822,7 +2848,6 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
 	int return_flags = 0;
 
-	char buf[MAX_STRING_LENGTH];
 	ACCMD(do_disarm);
 	ACMD(do_feign);
 
@@ -2846,8 +2871,8 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	if (GET_HIT(ch) < GET_MAX_HIT(ch) >> 7 && !IS_ANIMAL(ch)
 		&& random_fractional_20()) {
-		sprintf(buf, "%s you bastard!", PERS(FIGHTING(ch), ch));
-		do_say(ch, buf, 0, 0, 0);
+		do_say(ch,
+			tmp_sprintf("%s you bastard!", PERS(FIGHTING(ch), ch)), 0, 0, 0);
 		return 0;
 	}
 
@@ -2864,11 +2889,15 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			do_say(ch, "Oh, you thought you were a toughguy, eh?", 0, 0, 0);
 			return 0;
 		} else if (pct < 60) {
-			sprintf(buf, "Kiss my ass, %s!", PERS(ch, FIGHTING(ch)));
-			do_say(ch, buf, 0, 0, 0);
+			do_say(ch,
+				tmp_sprintf("Kiss my ass, %s!", PERS(ch, FIGHTING(ch))),
+				0, 0, 0);
 			return 0;
 		}
 	}
+
+	if (detect_opponent_master(ch, FIGHTING(ch)))
+		return 0;
 
 	/* Here go the fighting Routines */
 
@@ -2889,9 +2918,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 			CUR_R_O_F(gun) = MAX_R_O_F(gun);
 
-			sprintf(buf, "%s ", fname(gun->name));
-			strcat(buf, fname(FIGHTING(ch)->player.name));
-			do_shoot(ch, buf, 0, 0, &return_flags);
+			do_shoot(ch, tmp_sprintf("%s %s",
+				fname(gun->name), FIGHTING(ch)->player.name),
+				0, 0, &return_flags);
 			return return_flags;
 		}
 	}
@@ -2936,16 +2965,17 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 						//
 						// leap in this direction
 						//
-						sprintf(buf, "$n leaps over you to the %s!",
-							dirs[dir]);
-						act(buf, FALSE, ch, 0, 0, TO_ROOM);
+						act(tmp_sprintf("$n leaps over you to the %s!",
+								dirs[dir]),
+							false, ch, 0, 0, TO_ROOM);
 
 						struct room_data *to_room = EXIT(ch, dir)->to_room;
 						char_from_room(ch,false);
 						char_to_room(ch, to_room,false);
 
-						sprintf(buf, "$n leaps in from %s!", from_dirs[dir]);
-						act(buf, FALSE, ch, 0, 0, TO_ROOM);
+						act(tmp_sprintf("$n leaps in from %s!",
+								from_dirs[dir]),
+							false, ch, 0, 0, TO_ROOM);
 
 						HUNTING(ch) = was_fighting;
 						return 0;
@@ -3300,8 +3330,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			}
 			if (GET_LEVEL(ch) >= 14 && random_binary()) {
 				if (GET_MOVE(ch) > 50 && random_binary()) {
-					sprintf(buf, "%d %s", GET_LEVEL(ch) / 3, GET_NAME(vict));
-					do_discharge(ch, buf, 0, 0, 0);
+					do_discharge(ch, tmp_sprintf("%d %s", GET_LEVEL(ch) / 3,
+							fname(vict->player.name)),
+						0, 0, 0);
 					return 0;
 				}
 			} else if (GET_LEVEL(ch) >= 9) {
@@ -3607,28 +3638,24 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_HIP_TOSS, 0);
 			return 0;
 		} else if (random_fractional_5()
-			&& !affected_by_spell(vict, SKILL_PINCH_EPSILON)
-			&& (GET_LEVEL(ch) > 26)) {
-			sprintf(buf, "%s epsilon", GET_NAME(vict));
-			do_pinch(ch, buf, 0, 0, 0);
+				&& !affected_by_spell(vict, SKILL_PINCH_EPSILON)
+				&& (GET_LEVEL(ch) > 26)) {
+			do_pinch(ch, tmp_sprintf("%s epsilon", fname(vict->player.name)), 0, 0, 0);
 			return 0;
 		} else if (random_fractional_5()
-			&& !affected_by_spell(vict, SKILL_PINCH_DELTA)
-			&& (GET_LEVEL(ch) > 19)) {
-			sprintf(buf, "%s delta", GET_NAME(vict));
-			do_pinch(ch, buf, 0, 0, 0);
+				&& !affected_by_spell(vict, SKILL_PINCH_DELTA)
+				&& (GET_LEVEL(ch) > 19)) {
+			do_pinch(ch, tmp_sprintf("%s delta", fname(vict->player.name)), 0, 0, 0);
 			return 0;
 		} else if (random_fractional_5()
-			&& !affected_by_spell(vict, SKILL_PINCH_BETA)
-			&& (GET_LEVEL(ch) > 12)) {
-			sprintf(buf, "%s beta", GET_NAME(vict));
-			do_pinch(ch, buf, 0, 0, 0);
+				&& !affected_by_spell(vict, SKILL_PINCH_BETA)
+				&& (GET_LEVEL(ch) > 12)) {
+			do_pinch(ch, tmp_sprintf("%s beta", fname(vict->player.name)), 0, 0, 0);
 			return 0;
 		} else if (random_fractional_5()
-			&& !affected_by_spell(vict, SKILL_PINCH_ALPHA)
-			&& (GET_LEVEL(ch) > 6)) {
-			sprintf(buf, "%s alpha", GET_NAME(vict));
-			do_pinch(ch, buf, 0, 0, 0);
+				&& !affected_by_spell(vict, SKILL_PINCH_ALPHA)
+				&& (GET_LEVEL(ch) > 6)) {
+			do_pinch(ch, tmp_sprintf("%s alpha", fname(vict->player.name)), 0, 0, 0);
 			return 0;
 		} else if ((GET_LEVEL(ch) > 30) && random_fractional_5()) {
 			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_RIDGEHAND, 0);
