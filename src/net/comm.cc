@@ -1057,7 +1057,7 @@ process_output(struct descriptor_data *d)
 		result = write_to_descriptor(d->descriptor, "**OVERFLOW**");
 
 	/* handle snooping: prepend "% " and send to snooper */
-	if (d->snoop_by.size() && !IS_NPC(d->creature)) {
+	if (d->snoop_by.size() && d->creature && !IS_NPC(d->creature)) {
         for (unsigned x = 0; x < d->snoop_by.size(); x++) {
             SEND_TO_Q(CCRED(d->snoop_by[x]->creature, C_NRM), d->snoop_by[x]);
             SEND_TO_Q("{ ", d->snoop_by[x]);
@@ -1210,7 +1210,7 @@ process_input(struct descriptor_data *t)
 			if (write_to_descriptor(t->descriptor, buffer) < 0)
 				return -1;
 		}
-		if (t->snoop_by.size() && !IS_NPC(t->creature)) {
+		if (t->snoop_by.size() && t->creature && !IS_NPC(t->creature)) {
             for (unsigned x = 0; x < t->snoop_by.size(); x++) {
                 SEND_TO_Q(CCRED(t->snoop_by[x]->creature, C_NRM), t->snoop_by[x]);
                 SEND_TO_Q("[ ", t->snoop_by[x]);
