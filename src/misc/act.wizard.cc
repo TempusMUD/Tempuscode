@@ -6119,6 +6119,30 @@ ACMD(do_addpos)
     send_to_char(buf, ch);
     return;
 }
+ACMD(do_nolocate)
+{
+    struct obj_data *obj;
+  
+    one_argument(argument, arg);
+
+    if (!*arg) {
+	send_to_char("Nolocate usage: nolocate <target>\r\n", ch);
+	return;
+    }
+
+    obj = get_obj_in_list_all(ch, arg, ch->carrying);
+
+    if (!obj) {
+	send_to_char("You carry no such thing.\r\n", ch);
+	return;
+    }
+    TOGGLE_BIT(obj->obj_flags.extra2_flags, ITEM2_NOLOCATE);
+    sprintf(buf, "NoLocate is now %s for %s.\r\n",
+	    IS_SET(obj->obj_flags.extra2_flags, ITEM2_NOLOCATE) ? "ON" : "OFF",
+	obj->short_description);
+    send_to_char(buf, ch);
+    return;
+}
 
 ACMD(do_menu)
 {

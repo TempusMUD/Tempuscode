@@ -251,6 +251,7 @@ ACMD(do_mshield);
 ACMD(do_mudlist);
 ACMD(do_mudinfo);
 ACMD(do_not_here);
+ACMD(do_nolocate);
 ACMD(do_oecho);
 ACMD(do_offer);
 ACCMD(do_offensive_skill);
@@ -879,6 +880,7 @@ extern const struct command_info cmd_info[] = {
     { "nomusic"  , POS_DEAD    , do_gen_tog  , 0, SCMD_NOMUSIC },
     { "nonewbie",POS_DEAD  , do_gen_tog  , 0, SCMD_NEWBIE_HELP },
     { "noogie"   , POS_RESTING , do_action   , 0, 0 },
+    { "nolocate" , POS_SLEEPING, do_nolocate, LVL_GOD, 0 },
     { "noproject", POS_DEAD    , do_gen_tog  , 1, SCMD_NOPROJECT },
     { "norepeat" , POS_DEAD    , do_gen_tog  , 0, SCMD_NOREPEAT },
     { "noshout"  , POS_SLEEPING, do_gen_tog  , 1, SCMD_DEAF },
