@@ -553,6 +553,18 @@ char *CURRENCY(Creature * ch);
 #define GET_ARENAKILLS(ch)		((ch)->player_specials->saved.akills)
 #define GET_PC_DEATHS(ch)       ((ch)->player_specials->saved.deaths)
 #define GET_REPUTATION(ch)      ((ch)->player_specials->saved.reputation)
+
+inline int
+GET_REPUTATION_RANK(Creature *ch)
+{
+	if (GET_REPUTATION(ch) == 0)
+		return 0;
+	else if (GET_REPUTATION(ch) >= 1000)
+		return 11;
+
+	return (GET_REPUTATION(ch) / 100) + 1;
+}
+
 #define GET_PAGE_LENGTH(ch)     ((ch)->account->get_term_height())
 #define GET_INVIS_LVL(ch)        ((ch)->player_specials->saved.invis_level)
 #define GET_BROKE(ch)           ((ch)->player_specials->saved.broken_component)
