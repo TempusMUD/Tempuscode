@@ -1300,7 +1300,7 @@ void
 char_to_game(descriptor_data *d)
 {
 	struct descriptor_data *k, *next;
-	struct room_data *room, *load_room;
+	struct room_data *load_room;
 	int load_result;
 
 	// this code is to prevent people from multiply logging in
@@ -1335,28 +1335,25 @@ char_to_game(descriptor_data *d)
 	if (GET_LEVEL(d->creature)) {
 		// Figure out the room the player is gonna start in
 		if (GET_LOADROOM(d->creature))
-			room = real_room(GET_LOADROOM(d->creature));
-		if (!room && GET_HOMEROOM(d->creature))
-			room = real_room(GET_HOMEROOM(d->creature));
-		if (!room)
-			room = d->creature->getLoadroom();
+			load_room = real_room(GET_LOADROOM(d->creature));
+		if (!load_room && GET_HOMEROOM(d->creature))
+			load_room = real_room(GET_HOMEROOM(d->creature));
+		if (!load_room)
+			load_room = d->creature->getLoadroom();
 
-		if (room && !House_can_enter(d->creature, room->number)) {
+		if (load_room && !House_can_enter(d->creature, load_room->number)) {
 			mudlog(LVL_DEMI, NRM, true,
 				"%s unable to load in house room %d",
-				GET_NAME(d->creature),room->number);
-			room = NULL;
+				GET_NAME(d->creature),load_room->number);
+			load_room = NULL;
 		}
 
-		if (room && !clan_house_can_enter(d->creature, room)) {
+		if (load_room && !clan_house_can_enter(d->creature, load_room)) {
 			mudlog(LVL_DEMI, NRM, true,
 				"%s unable to load in clanhouse room %d; loadroom unset",
-				GET_NAME(d->creature),room->number);
-			room = NULL;
+				GET_NAME(d->creature),load_room->number);
+			load_room = NULL;
 		}
-
-		if (room)
-			d->creature->in_room = room;
 
 		// Loadroom is only good for one go
 		GET_LOADROOM(d->creature) = 0;
@@ -1386,7 +1383,7 @@ char_to_game(descriptor_data *d)
 		}
 
 	} else { // otherwise null the loadroom
-		d->creature->in_room = NULL;
+		load_room = NULL;
 	}
 
 	d->creature->player.time.logon = time(0);
