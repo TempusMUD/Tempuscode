@@ -7547,7 +7547,9 @@ static const char* CODER_UTIL_USAGE =
 					"      export - Exports the current player file to XML.\r\n"
 					"      rebuild - Rebuilds the player table from xml.\r\n"
 					"      osave <object> - Saves the given object to your equipment file.\r\n"
-					"      oload - Loads your equipment file onto the ground.\r\n";
+					"      oload - Loads your equipment file onto the ground.\r\n"
+					"      tick - forces a mud-wide tick to occur.\r\n"
+					;
 
 ACMD(do_coderutil)
 {
@@ -7575,6 +7577,8 @@ ACMD(do_coderutil)
 	} else if( strcmp( token, "oload" )  == 0 ) {
 		ch->loadObjects();
 		send_to_char(ch, "Loaded.\r\n");
+	} else if ( strcmp( token, "tick" ) == 0 ) {
+		point_update();
 	} else {
 		send_to_char( ch, CODER_UTIL_USAGE );
 	}
