@@ -210,7 +210,7 @@ const char *spells[] = {
 	"divine power",
 	"death knell",	/* 150 */
 	"telepathy",
-	"damn", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 155 */
+	"damn", "calm", "!UNUSED!", "!UNUSED!",	/* 155 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
@@ -1254,6 +1254,8 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 			MANUAL_SPELL(spell_bless); break;
 		case SPELL_DAMN:
 			MANUAL_SPELL(spell_damn); break;
+        case SPELL_CALM:
+            MANUAL_SPELL(spell_calm); break;
 		case SPELL_CALL_RODENT:
 			MANUAL_SPELL(spell_call_rodent); break;
 		case SPELL_CALL_BIRD:
@@ -2644,6 +2646,9 @@ mag_assign_spells(void)
 	spello(SPELL_DAMN, X, 7, X, X, X, X, X, X, 10, X, X, X, X, X, X, X, X,
 		35, 15, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV, true,
 		MAG_DIVINE | MAG_MANUAL | MAG_EVIL);
+    
+	spello(SPELL_CALM, X, X, X, X, X, X, X, X, 36, X, X, X, X, X, X, X, X,
+		35, 15, 1, POS_STANDING, TAR_CHAR_ROOM, false, MAG_DIVINE | MAG_MANUAL);
 
 	spello(SPELL_BLINDNESS, 16, 13, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		X, 35, 25, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_NOT_SELF, TRUE,

@@ -270,6 +270,7 @@ static const int SPELL_DIVINE_POWER = 149;	// Good cleric remort skill.
 static const int SPELL_DEATH_KNELL = 150;	// Evil cleric remort skill.
 static const int SPELL_TELEPATHY = 151;
 static const int SPELL_DAMN = 152;
+static const int SPELL_CALM = 153;
 
   /************************** Psionic Triggers ***************/
 static const int SPELL_POWER = 201;	/* Strength                */
@@ -820,6 +821,7 @@ ASPELL(spell_dispel_magic);
 ASPELL(spell_distraction);
 ASPELL(spell_bless);
 ASPELL(spell_damn);
+ASPELL(spell_calm);
 ASPELL(spell_call_rodent);
 ASPELL(spell_call_bird);
 ASPELL(spell_call_reptile);

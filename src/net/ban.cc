@@ -307,11 +307,11 @@ Valid_Name(char *newname)
 	for (i = 0;i < 256;i++)
 		alpha_hist[i] = 0;
 	for (i = 0; i < len; i++)
-		alpha_hist[tempname[i]] += 1;
+		alpha_hist[(int)tempname[i]] += 1;
 
 	// All names must have at least one vowel
-	if (!(alpha_hist['a'] || alpha_hist['e'] || alpha_hist['i'] ||
-			alpha_hist['o'] || alpha_hist['u'] || alpha_hist['y']))
+	if (!(alpha_hist[(int)'a'] || alpha_hist[(int)'e'] || alpha_hist[(int)'i'] ||
+			alpha_hist[(int)'o'] || alpha_hist[(int)'u'] || alpha_hist[(int)'y']))
 		return 0;
 
 	// Check that no character is used more than half the length of the string,
@@ -322,7 +322,7 @@ Valid_Name(char *newname)
 		if (alpha_hist[i] - ((i == tempname[0]) ? 1:0) > len)
 			return 0;
 
-	if (alpha_hist['\''] > 1)
+	if (alpha_hist[(int)'\''] > 1)
 		return 0;
 
 	// no 's at end of name

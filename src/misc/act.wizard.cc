@@ -1917,7 +1917,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
     }
     sprintf(buf, "Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),
             ((GET_LANGUAGE(k) > LANGUAGE_COMMON) ?
-             tmp_capitalize(language_names[GET_LANGUAGE(k)]) :
+             tmp_capitalize(language_names[(int)GET_LANGUAGE(k)]) :
              "Common"), CCNRM(ch, C_NRM));
     strcat(outbuf, buf);
     sprintf(buf, "Known languages:\r\n");
@@ -3967,8 +3967,9 @@ show_player(Creature *ch, char *value)
     }
     sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d", GET_IDNUM(vict), GET_NAME(vict),
         playerIndex.getAccountID(GET_IDNUM(vict)),
-		genders[GET_SEX(vict)], GET_LEVEL(vict), player_race[GET_RACE(vict)],
-		char_class_abbrevs[GET_CLASS(vict)], remort_desc, GET_REMORT_GEN(vict));
+		genders[(int)GET_SEX(vict)], GET_LEVEL(vict), 
+        player_race[(int)GET_RACE(vict)], char_class_abbrevs[GET_CLASS(vict)], 
+        remort_desc, GET_REMORT_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
         "%sAu: %-8d  Bal: %-8lld  Exp: %-8d  Align: %-5d\r\n",
@@ -4234,7 +4235,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 					if ((srch->flags & flags) == flags) {
 						show_room_append(ch, room, mode,
 							tmp_sprintf("[%-6s]",
-								search_cmd_short[srch->command]));
+								search_cmd_short[(int)srch->command]));
 						found = 1;
 					}
 			break;

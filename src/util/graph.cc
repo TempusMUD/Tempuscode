@@ -287,21 +287,21 @@ show_trails_to_char(Creature *ch, char *str)
 			if (trail->to_dir >= 0) {
 				if (trail->from_dir == trail->to_dir)
 					acc_sprintf("%s double%s back %s.\r\n",
-						foot_desc, drop_desc, to_dirs[trail->from_dir]);
-				else if (trail->from_dir == rev_dir[trail->to_dir])
+						foot_desc, drop_desc, to_dirs[(int)trail->from_dir]);
+				else if (trail->from_dir == rev_dir[(int)trail->to_dir])
 					acc_sprintf("%s lead%s straight from %s to %s.\r\n",
-						foot_desc, drop_desc, from_dirs[trail->to_dir],
-						dirs[trail->to_dir]);
+						foot_desc, drop_desc, from_dirs[(int)trail->to_dir],
+						dirs[(int)trail->to_dir]);
 				else
 					acc_sprintf("%s turn%s from %s to %s.\r\n",
-						foot_desc, drop_desc, dirs[trail->from_dir],
-						dirs[trail->to_dir]);
+						foot_desc, drop_desc, dirs[(int)trail->from_dir],
+						dirs[(int)trail->to_dir]);
 			} else
 				acc_sprintf("%s lead%s from the %s.\r\n",
-					foot_desc, drop_desc, dirs[trail->from_dir]);
+					foot_desc, drop_desc, dirs[(int)trail->from_dir]);
 		} else if (trail->to_dir >= 0)
 			acc_sprintf("%s lead%s %s.\r\n",
-				foot_desc, drop_desc, to_dirs[trail->to_dir]);
+				foot_desc, drop_desc, to_dirs[(int)trail->to_dir]);
 	}
 	
 	if (!found) {

@@ -457,7 +457,7 @@ Creature::saveToXML()
         ch->points.gold, ch->points.cash,  ch->points.exp);
 
 	fprintf(ouf, "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%d\" align=\"%d\"/>\n",
-		GET_LEVEL(ch), genders[GET_SEX(ch)], player_race[GET_RACE(ch)],
+		GET_LEVEL(ch), genders[(int)GET_SEX(ch)], player_race[(int)GET_RACE(ch)],
 		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
 	
     fprintf(ouf, "<languages known=\"%lld\" current=\"%d\"/>\n",

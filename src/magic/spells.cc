@@ -3491,6 +3491,35 @@ ASPELL(spell_bless)
 	gain_skill_prof(ch, SPELL_BLESS);
 }
 
+ASPELL(spell_calm)
+{
+    if (!victim) {
+        send_to_char(ch, "Something that shouldn't have "
+                         "happened just did.\r\n");
+        slog("SYSERR: NULL victim in spell_calm()"); 
+        return;
+    }
+
+	CreatureList::iterator it = victim->in_room->people.begin();
+	for (; it != victim->in_room->people.end(); ++it) {
+        if (GET_LEVEL((*it)) >= LVL_AMBASSADOR)
+            continue;
+        if (FIGHTING((*it)) == victim) {
+            stop_fighting((*it));
+            act("A peaceful look comes over $N!", TRUE,
+                 ch, NULL, victim, TO_CHAR);
+            act("A peaceful look comes over $N!", TRUE,
+                 ch, NULL, victim, TO_NOTVICT);
+            act("A peaceful feeling comes over you!", TRUE,
+                ch, NULL, victim, TO_VICT);
+        }
+    }
+
+    stop_fighting(victim);
+
+    return;
+}
+
 ASPELL(spell_damn)
 {
 	struct affected_type af, af2;
@@ -3575,7 +3604,6 @@ ASPELL(spell_damn)
 #define TYPE_REPTILE	2
 #define TYPE_BEAST 		3
 #define TYPE_PREDATOR	4
-
 
 Creature *
 load_familiar(Creature *ch, int sect_type, int type)

@@ -298,7 +298,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 			!PLR_FLAGGED(killer, PLR_KILLER) && !ch->isNewbie() ) {
 		// exp loss capped at the beginning of the level.
 		int loss = GET_EXP(ch) >> 3;
-		loss = MIN( loss, GET_EXP(ch) - exp_scale[GET_LEVEL(ch)] );
+		loss = MIN( loss, GET_EXP(ch) - exp_scale[(int)GET_LEVEL(ch)] );
 		gain_exp(ch, -loss);
 	}
 
@@ -355,7 +355,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 
 		// They're now that level, but without experience, and with extra
 		// life points, pracs, and such.  Make it all sane.
-		GET_EXP(ch) = exp_scale[GET_LEVEL(ch)];
+		GET_EXP(ch) = exp_scale[(int)GET_LEVEL(ch)];
 		GET_LIFE_POINTS(ch) = 0;
 		GET_SEVERITY(ch) = 0;
 		GET_INVIS_LVL(ch) = MIN(GET_LEVEL(ch), GET_INVIS_LVL(ch));
