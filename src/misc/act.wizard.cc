@@ -4023,7 +4023,7 @@ show_player(Creature *ch, char *value)
             remort_desc, GET_REMORT_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
-            "%sAu: %-8d  Cr: %-8lld  Past: %-8lld  Fut: %-8lld\r\n",
+            "%sAu: %-8d  Cr: %-8d  Past: %-8lld  Fut: %-8lld\r\n",
             buf, GET_GOLD(vict), GET_CASH(vict), 
                  GET_PAST_BANK(vict), GET_FUTURE_BANK(vict) );
     // Trim and fit the date to show year but not seconds.
