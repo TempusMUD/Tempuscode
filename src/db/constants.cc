@@ -2228,7 +2228,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!Cure Critic!",			/* 15 */
 	"!Cure Light!",
 	"You feel more optimistic.",
-	"You feel less aware of scrying attempts.",
+	"Your can no longer see the auras of others.",
 	"Your eyes stop tingling.",
 	"The detect magic wears off.",	/* 20 */
 	"The detect poison wears off.",
@@ -2276,7 +2276,7 @@ extern const char *spell_wear_off_msg[] = {
 	"You shake off the stunned feeling you have had.",
 	"!prismatic spray!",
 	"The fire shield before you evaporates.",	/* 65 */
-	"Detect scrying has worn off.",
+	"You feel less aware of scrying attempts.",
 	"You are no longer clairvoyant.",
 	"Your movements seem to speed back up to normal.",
 	"!greater enchant!",
