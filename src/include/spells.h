@@ -795,6 +795,7 @@ ASPELL(spell_emp_pulse);
 ASPELL(spell_quantum_rift);
 ASPELL(spell_decoy);
 ASPELL(spell_death_knell);
+ASPELL(spell_dispel_magic);
 
 /* basic magic calling functions */
 

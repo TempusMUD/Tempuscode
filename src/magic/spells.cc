@@ -3253,3 +3253,153 @@ ASPELL(spell_banishment)
 	act("You cannot banish $N.", FALSE, ch, 0, victim, TO_CHAR);
 
 }
+
+bool
+remove_random_obj_affect(Creature *ch, obj_data *obj, int level)
+{
+	// aff_type : apply:      0 - (MAX_OBJ_AFFECT - 1)
+	//            bitfield:   MAX_OBJ_AFFECT + field
+	//            weap_spell: MAX_OBJ_AFFECT + 3
+	//            sigil:      MAX_OBJ_AFFECT + 4
+	int aff_type = -1;
+	int bitvec = -1;
+	int total_affs = 0;
+	int i, spell_num;
+
+	for (i = 0;i < MAX_OBJ_AFFECT;i++)
+		if (obj->affected[i].location != APPLY_NONE) {
+			if (!number(0, total_affs))
+				aff_type = i;
+			total_affs++;
+		}
+	
+	for (i = 0;i < 32;i++) {
+		if (IS_SET(obj->obj_flags.bitvector[0], (1 << i))) {
+			if (!number(0, total_affs)) {
+				aff_type = MAX_OBJ_AFFECT;
+				bitvec = i;
+			}
+			total_affs++;
+		}
+		if (IS_SET(obj->obj_flags.bitvector[1], (1 << i))) {
+			if (!number(0, total_affs)) {
+				aff_type = MAX_OBJ_AFFECT + 1;
+				bitvec = i;
+			}
+			total_affs++;
+		}
+		if (IS_SET(obj->obj_flags.bitvector[2], (1 << i))) {
+			if (!number(0, total_affs)) {
+				aff_type = MAX_OBJ_AFFECT + 2;
+				bitvec = i;
+			}
+			total_affs++;
+		}
+	}
+	
+	spell_num = GET_OBJ_VAL(obj, 0);
+	if (IS_OBJ_TYPE(obj, ITEM_WEAPON) &&
+			IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON) &&
+			spell_num > 0 && spell_num < MAX_SPELLS &&
+			(SPELL_IS_MAGIC(spell_num) || SPELL_IS_DIVINE(spell_num))) {
+		if (!number(0, total_affs))
+			aff_type = MAX_OBJ_AFFECT + 3;
+	}
+
+	if (GET_OBJ_SIGIL_IDNUM(obj) &&
+			(GET_OBJ_SIGIL_IDNUM(obj) == GET_IDNUM(ch) ||
+			level > GET_OBJ_SIGIL_LEVEL(obj))) {
+		if (!number(0, total_affs))
+			aff_type = MAX_OBJ_AFFECT + 4;
+	}
+
+	if (!total_affs)
+		return true;
+
+	// Now that we've selected the affect we're going to remove, we'll
+	// want to be removing it
+	if (aff_type < MAX_OBJ_AFFECT) {
+		obj->affected[aff_type].location = APPLY_NONE;
+		obj->affected[aff_type].modifier = 0;
+	} else if (aff_type < MAX_OBJ_AFFECT + 3) {
+		REMOVE_BIT(obj->obj_flags.bitvector[aff_type - MAX_OBJ_AFFECT],
+			(1 << bitvec));
+	} else if (aff_type == MAX_OBJ_AFFECT + 3) {
+		REMOVE_BIT(GET_OBJ_EXTRA2(obj), ITEM2_CAST_WEAPON);
+	} else if (aff_type == MAX_OBJ_AFFECT + 4) {
+		GET_OBJ_SIGIL_IDNUM(obj) = 0;
+		GET_OBJ_SIGIL_LEVEL(obj) = 0;
+	} else {
+		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+	}
+
+	return (total_affs - 1 == 0);
+}
+
+ASPELL(spell_dispel_magic)
+{
+		int aff_to_remove;
+		bool affs_all_gone;
+
+		if (victim) {
+			// Cast on creature
+			if (victim->affected) {
+				affected_type *aff, *next_aff;
+
+				for (aff = victim->affected;aff;aff = next_aff) {
+					next_aff = aff->next;
+					if (SPELL_IS_MAGIC(aff->type) ||
+							SPELL_IS_DIVINE(aff->type)) {
+						if (aff->level < number(level / 2, level * 2))
+							affect_remove(victim, aff);
+					}
+				}
+				send_to_char(victim, "You feel your magic fading away!\r\n");
+				act("The magic of $n flows out into the universe.", true,
+					victim, 0, 0, TO_ROOM);
+			} else {
+				send_to_char(ch, "Nothing seems to happen.\r\n");
+			}
+
+			return;
+		}
+
+		// Cast on object
+        if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
+            act("$p is not magical.", FALSE, ch, obj, 0, TO_CHAR);
+            return;
+        }
+
+		if (GET_LEVEL(ch) > LVL_ELEMENT &&
+				(IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) ||
+				IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM))) {
+			send_to_char(ch, "Nothing seems to happen.\r\n");
+			return;
+		}
+
+		// removes up to ten affects
+		aff_to_remove = 10 - ch->getLevelBonus(IS_MAGE(ch) || IS_CLERIC(ch)) / 10;
+		if (!aff_to_remove)
+			aff_to_remove = 1;
+		aff_to_remove += number(0, 1);
+
+		affs_all_gone = false;
+		while (aff_to_remove-- && !affs_all_gone)
+			affs_all_gone = remove_random_obj_affect(ch, obj, level);
+
+		if (affs_all_gone) {
+			if (IS_OBJ_STAT(obj, ITEM_MAGIC) && IS_MAGE(ch))
+				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
+
+			if (IS_OBJ_STAT(obj, ITEM_BLESS) && IS_CLERIC(ch))
+				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_BLESS);
+
+			if (IS_OBJ_STAT(obj, ITEM_EVIL_BLESS) && IS_CLERIC(ch))
+				REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_EVIL_BLESS);
+			act("All the magic that $p ever had is gone.", true,
+				ch, obj, 0, TO_CHAR);
+		} else {
+			act("Your spell unravels some of the magic of $p!", true,
+				ch, obj, 0, TO_CHAR);
+		}
+}
