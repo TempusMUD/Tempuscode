@@ -2698,7 +2698,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_REFRESH:
 		move = 50 + number(0, level) + GET_WIS(ch);
-		move = (skill * hit) / 100;
+		move = (skill * move) / 100;
 		to_vict = "You feel refreshed!.";
 		break;
 	case SPELL_MANA_RESTORE:
