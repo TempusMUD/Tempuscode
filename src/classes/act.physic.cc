@@ -466,6 +466,52 @@ ASPELL(spell_spacetime_imprint)
     send_to_char("A spacetime imprint has been made of this place.\r\n", ch);
     //  show_imprint_rooms(ch);
 }
+#define QUANTUM_RIFT_VNUM 1217
+ASPELL(spell_quantum_rift)
+{
+    int rnum;
+    struct room_data *room = NULL;
+	obj_data *rift = NULL;
+
+    rnum = pop_imprint(ch);
+
+    //  show_imprint_rooms(ch);
+
+    if (rnum < 0) {
+		// Change this to open a REALLY random portal.
+		// Include DT's in this room list.
+		send_to_char("You do not have any outstanding spacetime imprints in effect.\r\n", ch);
+		return;
+    }
+
+    if (!(room = real_room(rnum))) {
+		send_to_char("The imprinted location you have requested no longer exists!\r\n", ch);
+		return;
+    }
+
+    if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
+		send_to_char("You are unable to open the rift into that place.\r\n", ch);
+		return;
+    }
+    // Quantum Rift
+	if ( ( rift = read_object( QUANTUM_RIFT_VNUM ) ) ) {
+		GET_OBJ_TIMER( rift ) = max_npc_corpse_time;
+		obj_to_room( rift, ch->in_room );
+		// Set the target room number.
+		// Note: Add in some random change of going to the wrong place.
+		GET_OBJ_VAL(rift,0) = rnum;
+
+		act("$n shreads the fabric of space and time creating $p!", 
+			TRUE, ch, 0, rift, TO_ROOM);
+		act("You shreads the fabric of space and time creating $p!", 
+			TRUE, ch, 0, rift, TO_CHAR);
+	} else {
+		send_to_char("The rift has failed to form.  Something is terribly wrong.\r\n",ch);
+		return;
+	}
+
+  
+} 
  
 ASPELL(spell_spacetime_recall)
 {
