@@ -235,6 +235,9 @@ ACMD(do_lecture)
 		return;
 	}
 
+    if (ch->checkReputations(vict))
+        return;
+
 	if (!AWAKE(vict)) {
 		act("$E is not in a state which is receptive to the finer points of lecturing.", FALSE, ch, 0, vict, TO_CHAR);
 		return;

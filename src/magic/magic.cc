@@ -1145,6 +1145,9 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			send_to_char(ch, "You fail.\r\n");
 			return;
 		}
+        if (ch->checkReputations(victim))
+            return;
+
 		af.location = APPLY_HITROLL;
 		af.modifier = -4;
 		af.duration = 2;
@@ -1175,6 +1178,9 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			hit(victim, ch, TYPE_UNDEFINED);
 			return;
 		}
+        if (ch->checkReputations(victim))
+            return;
+
         victim->removeCombat(ch);
         ch->removeCombat(victim);
 		victim->setPosition(POS_STUNNED);
@@ -1467,6 +1473,10 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			send_to_char(ch, NOEFFECT);
 			return;
 		}
+
+        if (ch->checkReputations(victim))
+            return;
+
 		af.duration = 1 + (level >> 2);
 		af.bitvector = AFF2_SLOW;
 		af.aff_index = 2;
@@ -1477,6 +1487,9 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_PROT_FROM_EVIL:
 		if (IS_EVIL(victim)) {
+            if (ch->checkReputations(victim))
+                return;
+
 			to_vict = "You feel terrible!";
 			af.bitvector = 0;
 
@@ -1516,6 +1529,9 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_PROT_FROM_GOOD:
 		if (IS_GOOD(victim)) {
+            if (ch->checkReputations(victim))
+                return;
+
 			to_vict = "You feel terrible!";
 			af.bitvector = 0;
 			switch (number(0, 5)) {
@@ -1564,7 +1580,6 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.aff_index = 2;
 		accum_duration = TRUE;
 		to_vict = "You feel like standing on a hill holding a flagpole!";
-		break;
 	case SPELL_PROT_FROM_FIRE:
 		af.duration = 12 + (level >> 2);
 		af.bitvector = AFF2_PROT_FIRE;
@@ -1607,6 +1622,9 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 		if (MOB_FLAGGED(victim, MOB_NOSLEEP) || IS_UNDEAD(victim))
 			return;
+
+        if (ch->checkReputations(victim))
+            return;
 
 		af.duration = 4 + level / 10;
 		af.bitvector = AFF_SLEEP;
@@ -1730,6 +1748,9 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_FEAR:
+        if (ch->checkReputations(victim))
+            return;
+
 		if (IS_UNDEAD(victim) || IS_DRAGON(victim) || IS_DEVIL(victim)) {
 			act("You fail to affect $N!", FALSE, ch, 0, victim, TO_CHAR);
 			send_to_char(ch, "You feel a wave of fear pass over you!\r\n");
@@ -1793,6 +1814,9 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_VERTIGO:
+        if (ch->checkReputations(victim))
+            return;
+
 		af.modifier = -(2 + (level / 10));
 		af.duration = 6;
 		af.location = APPLY_HITROLL;
@@ -1864,7 +1888,6 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_MOTOR_SPASM:
-
 		af.location = APPLY_DEX;
 		af.modifier = -(number(0, level >> 3));
 		af.duration = number(0, level >> 4) + 1;
@@ -1882,7 +1905,6 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_PSYCHIC_CRUSH:
-
 		af.location = APPLY_MANA;
 		af.modifier = -(5 + (level >> 3));
 		af.duration = dice(1, 1 + (level >> 4)) + 2;
@@ -1906,6 +1928,8 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_GRAVITY_WELL:
+        if (ch->checkReputations(victim))
+            return;
 		af.duration = (level >> 3);
 		af.location = APPLY_STR;
 		af.bitvector = AFF3_GRAVITY_WELL;

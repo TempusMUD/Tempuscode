@@ -774,7 +774,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 
 	/* newbie protection and PLR_NOPK check */
-	if (ch && ch != victim && !IS_NPC(ch) && !IS_NPC(victim)) 
+	if (ch && ch != victim && ((!IS_NPC(ch) && !IS_NPC(victim)) || 
+        (!IS_NPC(victim) && IS_NPC(ch) && ch->master && !IS_NPC(ch->master)))) 
 	{
 		if(!is_arena_combat(ch, victim)) {
 			if (PLR_FLAGGED(ch, PLR_NOPK)) {
@@ -785,6 +786,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				send_to_char(ch, "A small dark shape flies in from the future and sticks to your nose.\r\n");
 				DAM_RETURN(DAM_ATTACK_FAILED);
 			}
+
+            if (ch->checkReputations(victim))
+                DAM_RETURN(DAM_ATTACK_FAILED);
 		}
 
 		if (victim->isNewbie() &&
@@ -1871,18 +1875,22 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					// only if ch is not "attacking" with a fireshield/energy shield/etc...
 					if (!ch->numCombatants()) {
 
-						// mages casting spells and shooters should be able to attack
-						// without initiating melee ( on their part at least )
-						if (attacktype != SKILL_ENERGY_WEAPONS &&
-							attacktype != SKILL_PROJ_WEAPONS &&
-							ch->in_room == victim->in_room &&
-							(!IS_MAGE(ch) || attacktype > MAX_SPELLS ||
-								!SPELL_IS_MAGIC(attacktype))) {
-							//set_fighting(ch, victim, TRUE);
-//                            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, true)",
- //                                __FILE__, __LINE__, &(*ch), &(*victim));
+                        if (IS_NPC(victim)) {
+                            // mages casting spells and shooters should be able to attack
+                            // without initiating melee ( on their part at least )
+                            if (attacktype != SKILL_ENERGY_WEAPONS &&
+                                attacktype != SKILL_PROJ_WEAPONS &&
+                                ch->in_room == victim->in_room &&
+                                (!IS_MAGE(ch) || attacktype > MAX_SPELLS ||
+                                    !SPELL_IS_MAGIC(attacktype))) {
+                                //set_fighting(ch, victim, TRUE);
+    //                            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, true)",
+     //                                __FILE__, __LINE__, &(*ch), &(*victim));
+                                ch->addCombat(victim, true);
+                            }
+                        }
+                        else
                             ch->addCombat(victim, true);
-						}
 
 					}
 					// add ch to victim's shitlist( s )
@@ -2234,6 +2242,12 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		victim->removeCombat(ch);
 		return 0;
 	}
+
+    if (ch->checkReputations(victim)) {
+        ch->removeCombat(victim);
+        victim->removeCombat(ch);
+        return 0;
+    }
 
 	if (ch->isMounted()) {
 		if (ch->isMounted()->in_room != ch->in_room) {

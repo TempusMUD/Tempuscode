@@ -1329,6 +1329,8 @@ struct Creature {
 
     void ignite(Creature *ch);
     void extinguish();
+
+    bool checkReputations(Creature *victim);
   private:
     bool saveObjects(void);
     /** Extracts all unrentable objects carried or worn by this creature **/

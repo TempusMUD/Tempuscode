@@ -1053,6 +1053,7 @@ ACCMD(do_offensive_skill)
 			return;
 		}
 	}
+
 	if (vict == ch) {
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
@@ -1675,6 +1676,9 @@ ACMD(do_stun)
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 
+    if (ch->checkReputations(vict))
+        return;
+
 	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
 		act("$N stuns you with a swift blow!", FALSE, ch, 0, vict, TO_CHAR);
 		act("You stun $n with a swift blow!", FALSE, ch, 0, vict, TO_VICT);
@@ -2052,8 +2056,12 @@ ACMD(do_sleeper)
 		send_to_char(ch, "Yeah.  Right.\r\n");
 		return;
 	}
+
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
+
+    if (ch->checkReputations(vict))
+        return;
 
 	percent = ((10 + GET_LEVEL(vict)) >> 1) + number(1, 101);
 	prob = CHECK_SKILL(ch, SKILL_SLEEPER);
@@ -2753,6 +2761,9 @@ ACCMD(do_disarm)
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 
+    if (ch->checkReputations(vict))
+        return;
+
 	if (!(weap = GET_EQ(vict, WEAR_WIELD))) {
 		send_to_char(ch, "They aren't wielding anything, fool.\r\n");
 		return;
@@ -2943,6 +2954,10 @@ ACMD(do_intimidate)
 			return;
 		}
 	}
+    
+    if (ch->checkReputations(vict))
+        return;
+
 	if (!can_see_creature(vict, ch)) {
 		act("$N doesn't seem to be able to see you.", FALSE, ch, 0, vict,
 			TO_CHAR);
@@ -3075,6 +3090,10 @@ ACMD(do_drain)
 			return;
 		}
 	}
+
+    if (ch->checkReputations(vict))
+        return;
+
 	if (vict == ch) {
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
@@ -3132,6 +3151,9 @@ ACMD(do_beguile)
 		send_to_char(ch, "You find yourself amazingly beguiling.\r\n");
 		return;
 	}
+    if (ch->checkReputations(vict))
+        return;
+
 	act("$n looks deeply into your eyes with an enigmatic look.",
 		TRUE, ch, 0, vict, TO_VICT);
 	act("You look deeply into $S eyes with an enigmatic look.",

@@ -291,7 +291,8 @@ count_pkill(Creature *killer, Creature *victim)
 	GET_PKILLS(perp)++;
 
 	if (PRF2_FLAGGED(perp, PRF2_PKILLER) &&
-			!award_bounty(perp, victim)) {
+			!award_bounty(perp, victim) &&
+            (killer->initiatedCombat(victim) || !killer->findCombat(victim))) {
 
 		// Basic level/gen adjustment
         if (perp != victim) {

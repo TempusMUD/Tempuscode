@@ -154,7 +154,7 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
 //
 
 void
-bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
+bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_power,
 	struct room_data *room, int dir, int power,
 	struct Creature *precious_vict)
 {
@@ -332,12 +332,15 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 	for (; it != room->people.end(); ++it) {
 		vict = (*it);
 
-		if (damage(NULL, vict, dam, damage_type, WEAR_RANDOM))
+        if (damager->checkReputations(vict))
+            continue;
+
+		if (damage(damager, vict, dam, damage_type, WEAR_RANDOM))
 			continue;
 
 		if (bomb_type == BOMB_INCENDIARY &&
 			!CHAR_WITHSTANDS_FIRE(vict) && !AFF2_FLAGGED(vict, AFF2_ABLAZE))
-            vict->ignite(NULL);
+            vict->ignite(damager);
 
 		if ((bomb_type == BOMB_ARTIFACT || bomb_type == BOMB_FLASH) &&
 			AWAKE(vict) && GET_LEVEL(vict) < LVL_AMBASSADOR &&
@@ -419,6 +422,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 		rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.flags = ROOM_FLAME_FILLED;
+        rm_aff.owner = damager;
 		affect_to_room(room, &rm_aff);
 	} else if (bomb_type == BOMB_NUCLEAR &&
 		!ROOM_FLAGGED(room, ROOM_RADIOACTIVE)) {
@@ -428,6 +432,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
 		rm_aff.flags = ROOM_RADIOACTIVE;
+        rm_aff.owner = damager;
 		affect_to_room(room, &rm_aff);
 	} else if (bomb_type == BOMB_SMOKE &&
 		!ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)) {
@@ -455,6 +460,7 @@ detonate_bomb(struct obj_data *bomb)
 	struct obj_data *cont = bomb->in_obj, *next_obj = NULL;
 	struct bomb_radius_list *rad_elem = NULL, *next_elem = NULL;
 	bool internal = false;
+    Creature *damager = get_char_in_world_by_idnum(GET_OBJ_VAL(bomb, 3));
 
 	if (!ch) {
 		ch = bomb->worn_by;
@@ -467,6 +473,16 @@ detonate_bomb(struct obj_data *bomb)
 	dam_object = bomb;
 
 	if (ch) {
+        if (damager->checkReputations(ch)) {
+            act(tmp_sprintf("$p fizzles and dies in %s!", (internal ? "body!" :
+                    (cont ? "$P" : "your inventory"))),
+                false, ch, bomb, cont, TO_CHAR);
+            act(tmp_sprintf("$p fizzles and dies in $n's %s!",
+                    (cont ? fname(cont->aliases) : "hands")),
+                false, ch, bomb, cont, TO_ROOM);
+            
+            return NULL;
+        }
 		act(tmp_sprintf("$p goes off in %s!!!", (internal ? "body!" :
 				(cont ? "$P" : "your inventory"))),
 			false, ch, bomb, cont, TO_CHAR);
@@ -481,7 +497,7 @@ detonate_bomb(struct obj_data *bomb)
 			obj_from_char(bomb);
 		}
 
-		damage(NULL, ch,
+		damage(damager, ch,
 			dice(MIN(100, BOMB_POWER(bomb) +
 					(internal ? BOMB_POWER(bomb) : 0)),
 				MIN(500, BOMB_POWER(bomb))), TYPE_BLAST, WEAR_HANDS);
@@ -513,7 +529,7 @@ detonate_bomb(struct obj_data *bomb)
 	for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 		next_elem = rad_elem->next;
 
-		bomb_damage_room(bomb->name, BOMB_TYPE(bomb),
+		bomb_damage_room(damager, bomb->name, BOMB_TYPE(bomb),
 			BOMB_POWER(bomb), rad_elem->room, find_first_step(rad_elem->room,
 				room, GOD_TRACK), rad_elem->power);
 		free(rad_elem);
@@ -596,7 +612,7 @@ engage_self_destruct(struct Creature *ch)
 	for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 		next_elem = rad_elem->next;
 
-		bomb_damage_room(GET_NAME(ch),
+		bomb_damage_room(NULL, GET_NAME(ch),
 			SKILL_SELF_DESTRUCT,
 			level,
 			rad_elem->room,

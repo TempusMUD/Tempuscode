@@ -42,7 +42,7 @@ SPECIAL(ancient_artifact)
 		for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 			next_elem = rad_elem->next;
 
-			bomb_damage_room(obj->name,
+			bomb_damage_room(NULL, obj->name,
 				BOMB_ARTIFACT,
 				35,
 				rad_elem->room,

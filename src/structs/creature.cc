@@ -1491,7 +1491,7 @@ Creature::isOkToAttack(Creature *vict)
 
     if (is_arena_combat(this, vict))
         return true;
-    
+
     if (!PRF2_FLAGGED(this, PRF2_PKILLER)) {
         send_to_char(this, "A small dark shape flies in from the future "
                            "and sticks to your tongue.\r\n");
@@ -1639,4 +1639,55 @@ Creature::stopHunting()
 
     huntingList.remove(this);
 }
+
+bool
+Creature::checkReputations(Creature *vict)
+{
+    bool ch_msg = false, vict_msg = false;
+
+    if (!this)
+        return false;
+
+    if (is_arena_combat(this, vict))
+        return false;
+
+    if (GET_LEVEL(this) > LVL_AMBASSADOR)
+        return false;
+
+    if (IS_NPC(vict))
+        return false;
+
+    if (IS_NPC(this) && this->master && !IS_NPC(this->master)) {
+        if (GET_REPUTATION(this->master) <= 0)
+            ch_msg = true;
+        else if (GET_REPUTATION(vict) <= 0)
+            vict_msg = true;
+    }
+    
+    if (GET_REPUTATION(this) <= 0)
+        ch_msg = true;
+    else if (GET_REPUTATION(vict) <= 0)
+        vict_msg = true;
+
+    if (ch_msg) {
+        send_to_char(this, "Your reputation is 0.  If you want to be "
+                           "a player killer, type PK on yes.\r\n");
+        send_to_char(vict, "%s has just tried to attack you but was "
+                           "prevented by %s reputation being 0.\r\n", 
+                     GET_NAME(this), HSHR(this));
+        return true;
+    }
+
+    if (vict_msg) {
+        send_to_char(this, "%s's reputation is 0 and %s is immune to player "
+                           "versus player violence.\r\n", GET_NAME(vict), HSSH(vict));
+        send_to_char(vict, "%s has just tried to attack you but was "
+                           "prevented by your reputation being 0.\r\n", 
+                     GET_NAME(this));
+        return true;
+    }
+
+    return false;
+}
 #undef __Creature_cc__
+

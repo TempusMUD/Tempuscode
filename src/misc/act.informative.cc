@@ -4416,11 +4416,21 @@ ACMD(do_pkiller)
 
 	if( *arg ) {
 		if( strcasecmp(arg,"on") == 0 ) {
+            if (GET_REPUTATION(ch) <= 0) {
+                arg = tmp_getword(&argument);
+                if (strcasecmp(arg, "yes")) {
+                    send_to_char(ch, "Your reputation is 0.  You must type pk on yes "
+                                     "to enter the world of PK.\r\n");
+                    return;
+                }
+
+                ch->gain_reputation(5);
+            }
 			SET_BIT(PRF2_FLAGS(ch), PRF2_PKILLER);
 		} else if( strcasecmp(arg,"off") == 0 ) {
 			REMOVE_BIT(PRF2_FLAGS(ch), PRF2_PKILLER);
 		} else {
-			send_to_char(ch, "Usage: pkiller { Off | On }\r\n");
+			send_to_char(ch, "Usage: pkiller { Off | On [yes]}\r\n");
 			return;
 		}
 	}

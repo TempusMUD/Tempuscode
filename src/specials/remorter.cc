@@ -284,6 +284,10 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 		ch->account->set_quest_points(ch->account->get_quest_points() + 1);
 	if (GET_REMORT_GEN(ch) < 10)
 		GET_REMORT_GEN(ch)++;
+
+    // At gen 5 they enter the world of pk, like it or not
+    if (GET_REMORT_GEN(ch) >= 5)
+        ch->gain_reputation(1);
 	// Whack thier remort invis
 	GET_WIMP_LEV(ch) = 0;	// wimpy
 	GET_TOT_DAM(ch) = 0;	// cyborg damage 

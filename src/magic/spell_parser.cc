@@ -1024,6 +1024,10 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 			!ok_damage_vendor(caster, cvict))
 			return 0;
 
+        if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
+            caster->checkReputations(cvict))
+            return 0;
+
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {
 			check_killer(caster, cvict);
             //Try to make this a little more sane...
