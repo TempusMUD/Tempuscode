@@ -388,7 +388,7 @@ Account::delete_char(Creature *ch)
             clan->owner = 0;
 
 	// Clear the owner of any clans this player might own on the db
-	sql_exec("update clans set owner=null where owner=%d", clan->number);
+	sql_exec("update clans set owner=null where owner=%d", GET_IDNUM(ch));
 
 	// Remove character from clan
 	clan = real_clan(GET_CLAN(ch));
