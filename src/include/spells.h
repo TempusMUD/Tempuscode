@@ -246,6 +246,7 @@ extern const char *spells[];
 #define SPELL_STONESKIN					145  // remort rangers stone skin
 #define SPELL_SUN_RAY                   146  // Good cleric remort, 
                                              // destroys undead.
+#define SPELL_TAINT                     147  // Evil knight remort spell, taint.
   /************************** Psionic Triggers ***************/
 #define SPELL_POWER                201 /* Strength                */
 #define SPELL_INTELLECT            202
@@ -637,9 +638,10 @@ extern const char *spells[];
 
 #define TOP_ATTACKTYPE               819
 /* new attack types can be added here - up to TYPE_SUFFERING */
+#define TYPE_TAINT_BURN              893 // casting while tainted
 #define TYPE_PRESSURE                894
 #define TYPE_SUFFOCATING             895
-#define TYPE_ANGUISH				 896 // Unholy compact etc.
+#define TYPE_ANGUISH				 896 // Soulless and good aligned. dumbass.
 #define TYPE_BLEED					 897 // Open wound
 #define TYPE_OVERLOAD				 898 // cyborg overloading systems.
 #define TYPE_SUFFERING		         899

@@ -1173,7 +1173,60 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
         }
         break;
 
-        // attack that rips the victim's head off
+    case SPELL_TAINT:
+    case TYPE_TAINT_BURN:
+        if ( IS_RACE( ch, RACE_BEHOLDER ) ) {
+            // attack that rips the victim's head off
+            sprintf( buf2, "The smoking %s of %s %s lying here.", 
+                     typebuf, GET_NAME( ch ), isare );
+            corpse->description = str_dup( buf2 );
+            sprintf( adj, "smoking" );
+            break;
+        } else {
+            // attack that rips the victim's head off
+            sprintf( buf2, "The headless smoking %s of %s %s lying here.", 
+                     typebuf, GET_NAME( ch ), isare );
+            corpse->description = str_dup( buf2 );
+            sprintf( adj, "headless smoking" );
+        }
+
+        if ( !ROOM_FLAGGED( ch->in_room, ROOM_ARENA ) && 
+             GET_LEVEL( ch ) <= LVL_AMBASSADOR ) {
+             obj_data *o;
+            /* transfer character's head EQ to room, if applicable */
+            if ( GET_EQ( ch, WEAR_HEAD ) )
+                obj_to_room( unequip_char( ch, WEAR_HEAD, MODE_EQ ), ch->in_room );
+            if ( GET_EQ( ch, WEAR_FACE ) )
+                obj_to_room( unequip_char( ch, WEAR_FACE, MODE_EQ ), ch->in_room );
+            if ( GET_EQ( ch, WEAR_EAR_L ) )
+                obj_to_room( unequip_char( ch, WEAR_EAR_L, MODE_EQ ), ch->in_room ); 
+            if ( GET_EQ( ch, WEAR_EAR_R ) )
+                obj_to_room( unequip_char( ch, WEAR_EAR_R, MODE_EQ ), ch->in_room );
+            if ( GET_EQ( ch, WEAR_EYES ) )
+                obj_to_room( unequip_char( ch, WEAR_EYES, MODE_EQ ), ch->in_room );
+            /** transfer implants to ground **/
+            if ( ( o = GET_IMPLANT( ch, WEAR_HEAD ) ) ) {
+                obj_to_room( unequip_char( ch, WEAR_HEAD, MODE_IMPLANT ), ch->in_room );
+                SET_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
+            }
+            if ( ( o = GET_IMPLANT( ch, WEAR_FACE ) ) ) {
+                obj_to_room( unequip_char( ch, WEAR_FACE, MODE_IMPLANT ), ch->in_room );
+                SET_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
+            }
+            if ( ( o = GET_IMPLANT( ch, WEAR_EAR_L ) ) ) {
+                obj_to_room( unequip_char( ch, WEAR_EAR_L, MODE_IMPLANT ), ch->in_room );
+                SET_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
+            }
+            if ( ( o = GET_IMPLANT( ch, WEAR_EAR_R ) ) ) {
+                obj_to_room( unequip_char( ch, WEAR_EAR_R, MODE_IMPLANT ), ch->in_room );
+                SET_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
+            }
+            if ( (o = GET_IMPLANT( ch, WEAR_EYES ) ) ) {
+                obj_to_room( unequip_char( ch, WEAR_EYES, MODE_IMPLANT ), ch->in_room );
+                SET_BIT( GET_OBJ_WEAR( o ), ITEM_WEAR_TAKE );
+            }
+        } // end if !arena room
+        break;
     case SKILL_BEHEAD:
     case SKILL_PELE_KICK:
     case SKILL_CLOTHESLINE:

@@ -670,8 +670,9 @@ affect_to_char(struct char_data * ch, struct affected_type * af)
  * reaches zero). Pointer *af must never be NIL!  Frees mem and calls
  * affect_location_apply
  */
- int
- holytouch_after_effect(char_data *vict,int level );
+int holytouch_after_effect(char_data *vict,int level );
+int apply_soil_to_char( struct char_data *ch,struct obj_data *obj,int type,int pos );
+
 int
 affect_remove(struct char_data * ch, struct affected_type * af)
 {
@@ -691,13 +692,16 @@ affect_remove(struct char_data * ch, struct affected_type * af)
         slog("SYSERR: !ch->affected in affect_remove()");
         return 0;
     }
-
-    if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
+    if(af->type == SPELL_TAINT) {
+        apply_soil_to_char(ch, GET_EQ(ch,WEAR_HEAD), SOIL_BLOOD, WEAR_HEAD);
+        apply_soil_to_char(ch, GET_EQ(ch,WEAR_FACE), SOIL_BLOOD, WEAR_FACE);
+        apply_soil_to_char(ch, GET_EQ(ch,WEAR_EYES), SOIL_BLOOD, WEAR_EYES);
+    } else if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
 	!IS_AFFECTED(ch, AFF_GLOWLIGHT) && 
 	!IS_AFFECTED_2(ch, AFF2_FLUORESCENT) &&
 	!IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) &&
 	!affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-	ch->in_room->light--;
+        ch->in_room->light--;
 
     affect_modify(ch, af->location, af->modifier, af->bitvector, af->aff_index,
                   FALSE);

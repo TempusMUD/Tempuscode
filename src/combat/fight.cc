@@ -1290,6 +1290,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
     switch ( attacktype ) {
     case TYPE_OVERLOAD:
+    case TYPE_TAINT_BURN:
         break;
     case SPELL_POISON:
         if ( IS_UNDEAD( victim ) )
@@ -1332,6 +1333,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             dam <<= 1;
         break;
     case SPELL_HELL_FIRE:
+    case SPELL_TAINT:
     case SPELL_BURNING_HANDS:
     case SPELL_FIREBALL:
     case SPELL_FLAME_STRIKE:
@@ -1356,7 +1358,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                 rm_aff.description =
                     str_dup( "   The room is ablaze with raging flames!\r\n" );
 
-            rm_aff.level = GET_LEVEL( ch );
+            rm_aff.level = (ch != NULL) ? GET_LEVEL( ch ) : number(1,49);
             rm_aff.duration = number( 3, 8 );
             rm_aff.type = RM_AFF_FLAGS;
             rm_aff.flags = ROOM_FLAME_FILLED;

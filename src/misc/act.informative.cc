@@ -520,12 +520,12 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
 	act("...$e is groping around blindly!", 
 	    FALSE, i, 0, ch, TO_VICT);
     if (IS_AFFECTED(i, AFF_SANCTUARY)) {
-	if (IS_EVIL(i))
-	    act("...$e glows with a dark light!", 
-		FALSE, i, 0, ch, TO_VICT);
-	else
-	    act("...$e glows with a bright light!", 
-		FALSE, i, 0, ch, TO_VICT);
+        if (IS_EVIL(i))
+            act("...$e glows with a dark light!", 
+            FALSE, i, 0, ch, TO_VICT);
+        else
+            act("...$e glows with a bright light!", 
+            FALSE, i, 0, ch, TO_VICT);
     }
     else if (IS_AFFECTED(i, AFF_NOPAIN))
 	act("...$e looks like $e could take on anything!", 
@@ -564,9 +564,14 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
     if (IS_AFFECTED_2(i, AFF2_ENERGY_FIELD))
 	act("...$e is covered by a crackling field of energy!", 
 	    FALSE, i, 0, ch, TO_VICT);
+
 	if (IS_SOULLESS(i))
-	act("...a deep red pentagram has been burned into $s forehead!", 
-	    FALSE, i, 0, ch, TO_VICT);
+        act("...a deep red pentagram has been burned into $s forehead!", 
+            FALSE, i, 0, ch, TO_VICT);
+    else if(IS_AFFECTED_3(i,AFF3_TAINTED))
+        act("...the mark of the tainted has been burned into $s forehead!",
+        FALSE,i,0,ch,TO_VICT);
+
     if (IS_AFFECTED_3(i, AFF3_PRISMATIC_SPHERE))
 	act("...$e is surrounded by a prismatic sphere of light!", 
 	    FALSE, i, 0, ch, TO_VICT);
@@ -592,13 +597,13 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
 		FALSE,i,0,ch,TO_VICT);
     }
     if(IS_AFFECTED_3(i,AFF3_GRAVITY_WELL)) {
-        act("...Spacetime bends around $m in a powerful gravity well!",
+        act("...spacetime bends around $m in a powerful gravity well!",
         FALSE,i,0,ch,TO_VICT);
     }
 
     if (IS_AFFECTED_2(i, AFF2_DISPLACEMENT)) {
-	if ( affected_by_spell( i, SPELL_REFRACTION ) )
-	    act( "...$s body is strangely refractive.", FALSE, i, 0, ch, TO_VICT );
+        if ( affected_by_spell( i, SPELL_REFRACTION ) )
+            act( "...$s body is strangely refractive.", FALSE, i, 0, ch, TO_VICT );
     }
 }
 
@@ -2132,6 +2137,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	else
 	    strcat(str, "You feel sick and your hair is falling out.\r\n");
     }
+	if (IS_AFFECTED_3(ch,AFF3_TAINTED))
+	strcat(str, "The very essence of your being has been tainted.\r\n");
 
     // vampiric regeneration
 

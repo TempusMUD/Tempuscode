@@ -419,50 +419,50 @@ mag_materials(struct char_data * ch, int item0, int item1, int item2,
     struct obj_data *obj0=NULL, *obj1=NULL, *obj2=NULL;
 
     for (tobj = ch->carrying; tobj; tobj = tobj->next_content) {
-    if ((item0 > 0) && (GET_OBJ_VNUM(tobj) == item0)) {
-        obj0 = tobj;
-        item0 = -1;
-    } else if ((item1 > 0) && (GET_OBJ_VNUM(tobj) == item1)) {
-        obj1 = tobj;
-        item1 = -1;
-    } else if ((item2 > 0) && (GET_OBJ_VNUM(tobj) == item2)) {
-        obj2 = tobj;
-        item2 = -1;
-    }
-    }
-    if ((item0 > 0) || (item1 > 0) || (item2 > 0)) {
-    if (verbose) {
-        switch (number(0, 2)) {
-        case 0:
-        send_to_char("A wart sprouts on your nose.\r\n", ch);
-        break;
-        case 1:
-        send_to_char("Your hair falls out in clumps.\r\n", ch);
-        break;
-        case 2:
-        send_to_char("A huge corn develops on your big toe.\r\n", ch);
-        break;
+        if ((item0 > 0) && (GET_OBJ_VNUM(tobj) == item0)) {
+            obj0 = tobj;
+            item0 = -1;
+        } else if ((item1 > 0) && (GET_OBJ_VNUM(tobj) == item1)) {
+            obj1 = tobj;
+            item1 = -1;
+        } else if ((item2 > 0) && (GET_OBJ_VNUM(tobj) == item2)) {
+            obj2 = tobj;
+            item2 = -1;
         }
     }
-    return (FALSE);
+    if ((item0 > 0) || (item1 > 0) || (item2 > 0)) {
+        if (verbose) {
+            switch (number(0, 2)) {
+                case 0:
+                send_to_char("A wart sprouts on your nose.\r\n", ch);
+                break;
+                case 1:
+                send_to_char("Your hair falls out in clumps.\r\n", ch);
+                break;
+                case 2:
+                send_to_char("A huge corn develops on your big toe.\r\n", ch);
+                break;
+            }
+        }
+        return (FALSE);
     }
     if (extract) {
-    if (item0 < 0) {
-        obj_from_char(obj0);
-        extract_obj(obj0);
-    }
-    if (item1 < 0) {
-        obj_from_char(obj1);
-        extract_obj(obj1);
-    }
-    if (item2 < 0) {
-        obj_from_char(obj2);
-        extract_obj(obj2);
-    }
+        if (item0 < 0) {
+            obj_from_char(obj0);
+            extract_obj(obj0);
+        }
+        if (item1 < 0) {
+            obj_from_char(obj1);
+            extract_obj(obj1);
+        }
+        if (item2 < 0) {
+            obj_from_char(obj2);
+            extract_obj(obj2);
+        }
     }
     if (verbose) {
-    send_to_char("A puff of smoke rises from your pack.\r\n", ch);
-    act("A puff of smoke rises from $n's pack.", TRUE, ch, NULL, NULL, TO_ROOM);
+        send_to_char("A puff of smoke rises from your pack.\r\n", ch);
+        act("A puff of smoke rises from $n's pack.", TRUE, ch, NULL, NULL, TO_ROOM);
     }
     return (TRUE);
 }
@@ -531,11 +531,18 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
     case SPELL_MAGIC_MISSILE:
     dam = dice(1+(level>5)+(level>10)+(level>15), 8) + (level >> 2);
     break;
-    case SPELL_CHILL_TOUCH:    /* chill touch also has an affect */
+    case SPELL_CHILL_TOUCH:    // chill touch also has an affect
     if (is_mage)
         dam = dice(1+(level>8)+(level>16)+(level>24),8) + (level >> 1);
     else
         dam = dice(1, 6) + 1;
+    break;
+    case SPELL_TAINT: 
+        if(HAS_SYMBOL(victim)) {
+            return 0;
+        } else {
+            dam = dice(7,7) * ch->getLevelBonus(SPELL_TAINT);
+        }
     break;
     case SPELL_BURNING_HANDS:
     if (is_mage)
@@ -1830,6 +1837,20 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     af2.location = APPLY_SAVING_BREATH;
     af2.modifier = -2;
     to_vict = "You feel positively repulsive to attacks.";
+    break;
+    case SPELL_TAINT:
+        if(HAS_SYMBOL(victim)) {
+            send_to_char("Your rune of taint fails to form.\r\n",ch);
+            return;
+        } else {
+            af.bitvector = AFF3_TAINTED;
+            af.aff_index = 3;
+            af.location = af.modifier = 0;
+            af.duration = dice(ch->getLevelBonus(SPELL_TAINT),3);
+            af.level = ch->getLevelBonus(SPELL_TAINT);
+            to_vict = "The mark of the tainted begins to burn brightly on your forehead!";
+            to_room = "The mark of the tainted begins to burn brightly on $N's forehead!";
+        }
     break;
     case SPELL_SYMBOL_OF_PAIN:
     if(HAS_SYMBOL(victim)) {

@@ -1073,6 +1073,8 @@ extern const char *affected3_bits[]=
   "SMBL PAIN",
   "EMP_SHLD",
   "IAFF",
+  "SNIPED",
+  "TAINTED",
   "\n"
 };  
 
@@ -1103,6 +1105,8 @@ extern const char *affected3_bits_desc[] = {
   "symbol of pain",
   "emp shielding",
   "!instant affect!",
+  "Sniped",
+  "Tainted",
   "\n"
 };
 
@@ -2175,7 +2179,9 @@ extern const char *spell_wear_off_msg[] = {
   "!UNUSED!",   /* 140 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",
   "Your granite-like flesh softens.",   /* 145 */
-  "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 150 */
+  "!UNUSED!",
+  "The flow of blood obscures your vision as your rune of taint dissolves.",
+  "!UNUSED!","!UNUSED!","!UNUSED!",   /* 150 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 155 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 160 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 165 */
