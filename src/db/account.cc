@@ -616,7 +616,7 @@ Account::exhume_char( Creature *exhumer, long id )
 bool
 Account::deny_char_entry(Creature *ch)
 {
-	descriptor_data *d;
+	Creature *tch;
 
     // Admins and full wizards can multi-play all they want
     if (Security::isMember(ch, "WizardFull"))
@@ -624,19 +624,19 @@ Account::deny_char_entry(Creature *ch)
     if (Security::isMember(ch, "AdminFull"))
         return false;	
 
-	for (d = descriptor_list;d;d = d->next) {
-		if (d->account == this &&
-				d->input_mode == CXN_PLAYING &&
-				d->creature) {
+	CreatureList::iterator cit = characterList.begin();
+	for (;cit != characterList.end(); ++cit) {
+		tch = *cit;
+		if (tch->account == this) {
             // Admins and full wizards can multi-play all they want
-			if (Security::isMember(d->creature, "WizardFull"))
+			if (Security::isMember(tch, "WizardFull"))
 				return false;
-            if (Security::isMember(d->creature, "AdminFull"))
+            if (Security::isMember(tch, "AdminFull"))
 				return false;
             // builder can have on a tester and vice versa.
-            if (Security::isMember(d->creature, "OLC") && ch->isTester())
+            if (Security::isMember(tch, "OLC") && ch->isTester())
 				return false;
-            if (ch->isTester() && Security::isMember(d->creature, "OLC"))
+            if (ch->isTester() && Security::isMember(tch, "OLC"))
 				return false;
 			// We have a non-immortal already in the game, so they don't
 			// get to come in
