@@ -335,10 +335,12 @@ HelpItem::Save()
 	//file.seekp(0);
 	file << idnum << " " << (text ? strlen(text) : 0)
 		<< endl << name << endl;
-	if (text) {
+	if (text && strlen(text) > 0) {
 		file.write(text, strlen(text));
-		delete[]text;
-		text = NULL;
+		if( editor != NULL ) {
+			delete[]text;
+			text = NULL;
+		}
 	}
 	file.close();
 	REMOVE_BIT(flags, HFLAG_MODIFIED);
@@ -353,16 +355,26 @@ HelpItem::LoadText()
 	int di;
 	if (text)
 		return true;
-
-	sprintf(fname, "%s/%04d.topic", Help_Directory, idnum);
-	help_file.open(fname, ios::in);
-	if (!help_file) {
-		sprintf(buf, "Unable to open help file (%s).", fname);
-		return false;
-	}
-	//help_file.seekp(0);
+	
 	text = new char[MAX_HELP_TEXT_LENGTH];
 	strcpy(text, "");
+
+	sprintf(fname, "%s/%04d.topic", Help_Directory, idnum);
+	
+	if( access(fname, F_OK) < 0 ) { // no file found. Likely just a new entry
+		return true;
+	}
+
+	if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
+		mudlog(0, BRF, true, "SYSERR - Help file (%s) is read-only.", fname );
+		return false;
+	}
+
+	help_file.open(fname, ios::in);
+	if (!help_file) {
+		slog("SYSERR: Unable to open help file to load text (%s).", fname);
+		return false;
+	}
 
 	help_file >> di >> di;
 	help_file.getline(fname, 256, '\n');	// eat the \r\n at the end of the #s
