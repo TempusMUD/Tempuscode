@@ -20,6 +20,7 @@
 #include "bomb.h"
 
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))
+#define LARGE_GUN(gun) ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && IS_TWO_HAND(gun))
 
 int apply_soil_to_char(struct char_data *ch,struct obj_data *obj,int type,int pos);
 int ok_damage_shopkeeper(struct char_data * ch, struct char_data * victim);
@@ -85,6 +86,173 @@ ACMD(do_pistolwhip)
     gain_skill_prof(ch, SKILL_PISTOLWHIP);
     }
     WAIT_STATE(ch, PULSE_VIOLENCE * 3);
+}
+
+ACMD(do_crossface)
+{
+    struct char_data *vict = NULL;
+    struct obj_data *ovict = NULL, *weap = NULL, *wear = NULL;
+    int str_mod, dex_mod, percent = 0, prob = 0, dam = 0;
+    int retval = 0, diff = 0, wear_num;
+    bool prime_merc = false;
+    short prev_pos = 0;
+    
+    if (GET_CLASS(ch) == CLASS_MERCENARY)
+        prime_merc = true;
+        
+    one_argument(argument, arg);
+
+    if (!(vict = get_char_room_vis(ch, arg))) {
+        if (FIGHTING(ch)) {
+            vict = FIGHTING(ch);
+        } 
+        else if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+            act("You fiercely crossface $p!", FALSE, ch, ovict, 0, TO_CHAR);
+            return;
+        } 
+        else {
+            send_to_char("Crossface who?\r\n", ch);
+            return;
+        }
+    }
+    
+    if (!((weap = GET_EQ(ch, WEAR_WIELD)) && LARGE_GUN(weap))) { 
+        send_to_char("You need to be using a two handed gun.\r\n", ch);
+        return;
+    }
+    
+    if (vict == ch) {
+        if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
+            act("You fear that your death will grieve $N.",
+                FALSE, ch, 0, ch->master, TO_CHAR);
+            return;
+        }
+    
+        act("You ruthlessly beat yourself to death with $p!", 
+            FALSE, ch, weap, 0, TO_CHAR);
+        act("$n beats $mself to death with $p!", TRUE, ch, weap, 0, TO_ROOM);
+        sprintf(buf, "%s killed self with a crossface at %d.",
+                GET_NAME(ch), ch->in_room->number);
+        mudlog(buf, NRM, GET_INVIS_LEV(ch), TRUE);
+        gain_exp(ch, -(GET_LEVEL(ch) * 1000));
+        raw_kill(ch, ch, SKILL_CROSSFACE);
+        return;
+    }
+    
+    if (!peaceful_room_ok(ch, vict, true))
+        return;
+
+    if(!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {    
+        WAIT_STATE(ch, PULSE_VIOLENCE * 8);
+       return;
+    }
+
+    cur_weap = weap;
+    
+    str_mod = 3;
+    dex_mod = 3;
+    // This beastly function brought to you by Cat, the letter F, and Nothing more
+    prob = ((GET_LEVEL(ch) + ch->getLevelBonus(prime_merc)) - (GET_LEVEL(vict) * 2))
+    + (CHECK_SKILL(ch, SKILL_CROSSFACE) >> 2)
+    + (dex_mod * (GET_DEX(ch) - GET_DEX(vict)))
+    + (str_mod * (GET_STR(ch) - GET_STR(vict)));
+     percent = number( 1, 100);
+    if(PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
+        sprintf(buf,"Roll: %d, Chance: %d\r\n", prob, percent);
+        send_to_char(buf,ch);
+    }
+    
+    // You can't crossface pudding you fool!
+    if (IS_PUDDING(vict) || IS_SLIME(vict))
+        prob = 0;
+    
+    if (percent >= prob) {
+        damage(ch, vict, 0, SKILL_CROSSFACE, WEAR_HEAD);
+    } 
+    else {
+        
+        dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
+              dice(9, weap->getWeight());
+        
+        if ((wear = GET_EQ(vict, WEAR_FACE)))
+          wear_num = WEAR_FACE;
+        else { 
+          wear = GET_EQ(vict, WEAR_HEAD);
+          wear_num = WEAR_HEAD;
+        }
+        
+        diff = prob - percent;
+        
+        // Wow!  vict really took one hell of a shot.  Stun that bastard!
+        if (diff >= 70 && !wear) {
+            prev_pos = vict->getPosition();
+            retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
+            if (prev_pos != POS_STUNNED && !IS_SET(retval, DAM_VICT_KILLED) &&
+                !IS_SET(retval, DAM_ATTACKER_KILLED)) {
+                if (!IS_NPC(vict) || (IS_NPC(vict) && 
+                    !MOB2_FLAGGED(vict, MOB2_NOSTUN)) && FIGHTING(ch)) {
+                    stop_fighting(ch);
+                    stop_fighting(vict);
+                    vict->setPosition(POS_STUNNED);
+                    act("Your crossface has knocked $N senseless!", 
+                        TRUE, ch, NULL, vict, TO_CHAR);
+                    act("$n stuns $N with a vicious crossface!", 
+                        TRUE, ch, NULL, vict, TO_ROOM);
+                    act("Your jaw cracks as $n whips his gun across your face.  
+                        Your vision fades...", 
+                        TRUE, ch, NULL, vict, TO_VICT);
+                }
+            }
+        }
+        // vict just took a pretty good shot, knock him down...
+        else if (diff >= 55) {
+            dam = (int)(dam * 0.75);
+            prev_pos = vict->getPosition();
+            retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
+            if ((prev_pos != POS_RESTING  && prev_pos != POS_STUNNED) 
+                && !IS_SET(retval, DAM_VICT_KILLED) && 
+                !IS_SET(retval, DAM_ATTACKER_KILLED) && FIGHTING(ch)) {
+                vict->setPosition(POS_RESTING);
+                act("Your crossface has knocked $N on his ass!", 
+                    TRUE, ch, NULL, vict, TO_CHAR);
+                act("$n's nasty crossface just knocked $n on his ass!", 
+                    TRUE, ch, NULL, vict, TO_ROOM);
+                act("Your jaw cracks as $n whips his gun across your face.
+                    You stagger and fall to the ground", 
+                    TRUE, ch, NULL, vict, TO_VICT);
+            }
+        }
+        // vict pretty much caught a grazing blow, knock off some eq
+        else if (diff >= 20) {
+            retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
+            if (wear && !IS_SET(retval, DAM_VICT_KILLED) && 
+            !IS_SET(retval, DAM_ATTACKER_KILLED) && FIGHTING(ch)) {
+                act("Your crossface has knocked $N's $p from his head!", 
+                    TRUE, ch, wear, vict, TO_CHAR);
+                act("$n's nasty crossface just knocked $p from $N's head!", 
+                    TRUE, ch, wear, vict, TO_ROOM);
+                act("Your jaw cracks as $n whips his gun across your face.
+                    Your $p flies from your head and lands a short distance away.",
+                    TRUE, ch, wear, vict, TO_VICT);
+
+                damage_eq(vict, wear, dam >> 4);
+                obj_to_room(unequip_char(vict, wear_num, MODE_EQ), vict->in_room);
+                wear = NULL;    
+            }
+        }
+        else
+            retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
+       
+        if (wear)
+            damage_eq(vict, wear, dam >> 4);
+        
+        gain_skill_prof(ch, SKILL_CROSSFACE);
+    }
+
+    if (!IS_SET(retval, DAM_ATTACKER_KILLED))
+        WAIT_STATE(ch, 3 RL_SEC);
+    if (!IS_SET(retval, DAM_VICT_KILLED))
+        WAIT_STATE(vict, 2 RL_SEC);
 }
 
 #define NOBEHEAD_EQ(obj) \
