@@ -962,6 +962,7 @@ struct command_info cmd_info[] = {
 	{"peace", POS_SLEEPING, do_peace, LVL_IMMORT, 0, 0, 0},
 	{"peck", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"pelekick", POS_FIGHTING, do_offensive_skill, 0, SKILL_PELE_KICK, 0, 0},
+	{"pet", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"petition", POS_MORTALLYW, do_gen_comm, 0, SCMD_PETITION, 0, 0},
 	{"pie", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"pkiller", POS_DEAD, do_pkiller, 0, 0, 0, 0},
