@@ -92,6 +92,8 @@ Creature::payRent(time_t last_time, int code, int currency)
 	// Immortals don't pay rent
 	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
 		return false;
+    if( isTester() )
+        return false;
 
 	// Calculate total cost
 	day_count = (float)(time(NULL) - last_time) / SECS_PER_REAL_DAY;
@@ -160,7 +162,7 @@ Creature::payRent(time_t last_time, int code, int currency)
 				(currency == TIME_ELECTRO) ? "creds":"gold",
 				GET_NAME(this));
 			send_to_char(this,
-				"%s has been sold to cover the cost of your player_specials->\r\n",
+				"%s has been sold to cover the cost of your rent.\r\n",
 				tmp_capitalize(doomed_obj->short_description));
 
 			// Credit player with value of object
