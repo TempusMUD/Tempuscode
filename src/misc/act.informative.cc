@@ -854,10 +854,10 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 	if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
 		(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
 		if (IS_EVIL(i))
-			align = tmp_sprintf("%s%s(Red Aura)%s",
+			align = tmp_sprintf(" %s%s(Red Aura)%s",
 				CCRED(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 		else if (IS_GOOD(i))
-			align = tmp_sprintf("%s%s(Blue Aura)%s",
+			align = tmp_sprintf(" %s%s(Blue Aura)%s",
 				CCBLU(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 	}
 
