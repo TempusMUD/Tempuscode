@@ -419,6 +419,11 @@ Creature::saveToXML()
 		else
 			saved_impl[pos] = NULL;
 	}
+
+	// we need to update time played every time we save...
+	player.time.played += time(0) - player.time.logon;
+	player.time.logon = time(0);
+
 	// Remove all spell affects without deleting them
 	for (cur_aff = affected;cur_aff;cur_aff = cur_aff->next)
 		affect_modify(this, cur_aff->location, cur_aff->modifier,
@@ -458,7 +463,6 @@ Creature::saveToXML()
 			ch->player_specials->saved.mana_shield_pct);
 	}
 	fprintf(ouf, "/>\n");
-
 
 	fprintf(ouf, "<time birth=\"%ld\" death=\"%ld\" played=\"%ld\" last=\"%ld\"/>\n",
 		ch->player.time.birth, ch->player.time.death, ch->player.time.played,

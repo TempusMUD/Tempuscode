@@ -1059,7 +1059,6 @@ send_menu(descriptor_data *d)
 	case CXN_MENU:
 		// If we have a creature, save and offload
 		if (d->creature) {
-			d->creature->player.time.logon = time(0);
 			d->creature->saveToXML();
 			delete d->creature;
 			d->creature = NULL;
