@@ -705,6 +705,20 @@ ACMD(do_gen_comm)
 		return;
 	}
 
+	/* make sure the char is on the channel */
+	if (chan->deaf_vector == 1 && PRF_FLAGGED(ch, chan->deaf_flag)) {
+		send_to_char(ch, "%s\r\n", chan->msg_noton);
+		return;
+	}
+	if (chan->deaf_vector == 2 && PRF2_FLAGGED(ch, chan->deaf_flag)) {
+		send_to_char(ch, "%s\r\n", chan->msg_noton);
+		return;
+	}
+	if (chan->deaf_vector == -2 && !PRF2_FLAGGED(ch, chan->deaf_flag)) {
+		send_to_char(ch, "%s\r\n", chan->msg_noton);
+		return;
+	}
+
 	// These are all restrictions, to which immortals and npcs are uncaring
 	if (!IS_NPC(ch) && !IS_IMMORT(ch)) {
 		/* level_can_shout defined in config.c */
@@ -720,20 +734,6 @@ ACMD(do_gen_comm)
 		if (subcmd == SCMD_PROJECT && !IS_REMORT(ch) &&
 				GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			send_to_char(ch, "You do not know how to project yourself that way.\r\n");
-			return;
-		}
-
-		/* make sure the char is on the channel */
-		if (chan->deaf_vector == 1 && PRF_FLAGGED(ch, chan->deaf_flag)) {
-			send_to_char(ch, "%s\r\n", chan->msg_noton);
-			return;
-		}
-		if (chan->deaf_vector == 2 && PRF2_FLAGGED(ch, chan->deaf_flag)) {
-			send_to_char(ch, "%s\r\n", chan->msg_noton);
-			return;
-		}
-		if (chan->deaf_vector == -2 && !PRF2_FLAGGED(ch, chan->deaf_flag)) {
-			send_to_char(ch, "%s\r\n", chan->msg_noton);
 			return;
 		}
 
