@@ -699,18 +699,16 @@ struct char_ability_data {
 
 /* Char's points.  Used in char_file_u *DO*NOT*CHANGE* */
 struct char_point_data {
-	sh_int mana;
-	sh_int max_mana;			/* Max move for PC/NPC               */
-	sh_int hit;
-	sh_int max_hit;				/* Max hit for PC/NPC                      */
-	sh_int move;
-	sh_int max_move;			/* Max move for PC/NPC                     */
+	int mana;
+	int max_mana;			/* Max move for PC/NPC               */
+	int hit;
+	int max_hit;				/* Max hit for PC/NPC                      */
+	int move;
+	int max_move;			/* Max move for PC/NPC                     */
 
 	sh_int armor;				/* Internal -100..100, external -10..10 AC */
 	int gold;					/* Money carried                           */
-	int bank_gold;				/* Gold the char has in a bank account       */
 	int cash;					// cash on hand
-	int credits;				/* Internal net credits            */
 	int exp;					/* The experience of the player            */
 
 	sbyte hitroll;				/* Any bonus or penalty to the hit roll    */
@@ -832,13 +830,10 @@ struct player_special_data_saved {
 	int hold_load_room;
 	int quest_id;
 	int plr2_bits;
-	int spare_i[2];
+	int reputation;
+	int killer_severity;
 	long mana_shield_low;
 	long mana_shield_pct;
-	int reputation;
-	long spare20;
-	long spare21;
-
 };
 
 /*
@@ -933,13 +928,10 @@ struct follow_type {
 };
 
 struct rent_info {
-    rent_info() : time(0), rentcode(0), net_cost_per_diem(0), 
-                  gold(0), account(0), desc_mode(CXN_UNKNOWN), currency(0) {}
-	int time;
+    rent_info() : rentcode(0), net_cost_per_diem(0), 
+                  desc_mode(CXN_UNKNOWN), currency(0) {}
 	int rentcode;
 	int net_cost_per_diem;
-	int gold;
-	int account;
 	cxn_state desc_mode;
 	int currency;
 };
