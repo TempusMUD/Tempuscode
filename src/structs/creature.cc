@@ -290,6 +290,9 @@ Creature::getDamReduction(Creature *attacker)
 	//******************************************************************
 	if ((af = affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS)) &&
 		IS_GOOD(ch) && !IS_NPC(ch)) {
+        while (af->location != APPLY_CASTER) {
+            af = af->next;
+        }
 		if (af->modifier == GET_IDNUM(ch)) {
 			dam_reduction +=
 				(ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
