@@ -15,59 +15,6 @@
 
 void show_race_help(struct descriptor_data *d, int race, int timeframe);
 
-void
-show_menu(struct descriptor_data *d)
-{
-	if (!(d->creature)) {
-		return;
-	}
-
-	SEND_TO_Q("\r\n\r\n", d);
-
-	sprintf(buf, "%s                      You have now arrived at\r\n",
-		CCCYN(d->creature, C_NRM));
-	sprintf(buf, "%s                           %sTEMPUS  MUD%s     \r\n", buf,
-		CCRED(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-	sprintf(buf, "%s                      %s0%s)%s Depart from Tempus.%s\r\n",
-		buf, CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
-		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-	sprintf(buf,
-		"%s                      %s1%s)%s Go forth into the realm.%s\r\n", buf,
-		CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
-		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-	sprintf(buf, "%s                      %s2%s)%s Enter description.%s\r\n",
-		buf, CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
-		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-	sprintf(buf,
-		"%s                      %s3%s)%s Read the background story.%s\r\n",
-		buf, CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
-		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-	sprintf(buf, "%s                      %s4%s)%s Change password.%s\r\n",
-		buf, CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
-		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-	sprintf(buf,
-		"%s                      %s5%s)%s Delete this character.%s\r\n", buf,
-		CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
-		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-
-	if (PLR2_FLAGGED(d->creature, PLR2_BURIED)) {
-		sprintf(buf,
-			"%s\r\n\r\n\r\n        %sYou have passed on, and been given a proper burial.%s",
-			buf, CCYEL(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-	} else if (PLR_FLAGGED(d->creature, PLR_CRYO)) {
-		sprintf(buf,
-			"%s\r\n                      %sYou are currently cryo rented.%s\r\n",
-			buf, CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-	}
-
-
-	sprintf(buf, "%s\r\n\r\n\r\n\r\n", buf);
-	sprintf(buf, "%s                         Make your choice:  ", buf);
-
-	SEND_TO_Q(buf, d);
-	return;
-}
-
 //
 // show_char_class_menu is for choosing a char_class when you remort
 //
@@ -115,9 +62,6 @@ show_char_class_menu(struct descriptor_data *d, int timeframe)
 		if (GET_CLASS(ch) != CLASS_PHYSIC && race_restr[i][CLASS_PHYSIC + 1])
 			send_to_desc(d,
 				"                &gPhysic&n      --  Controller of Forces\r\n");
-		if (GET_CLASS(ch) != CLASS_HOOD && race_restr[i][CLASS_HOOD + 1])
-			send_to_desc(d,
-				"                &gHoodlum&n     --  The Lowdown Street Punk\r\n");
 	}
 
 	// Monks are both future and past

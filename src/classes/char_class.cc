@@ -92,15 +92,15 @@ extern const int prac_params[4][NUM_CLASSES] = {
 
 extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
 	//                 MG CL TH WR BR PS PH CY KN RN HD MN VP MR S1 S2 S3
-	{ RACE_HUMAN,		1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0 },
-	{ RACE_ELF,			1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0 },
-	{ RACE_DWARF,		0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0 },
-	{ RACE_HALF_ORC,	0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0 },
-	{ RACE_HALFLING,	1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0 },
-	{ RACE_TABAXI,		1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0 },
-	{ RACE_DROW,		1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0 },
-	{ RACE_MINOTAUR,	1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0 },
-	{ RACE_ORC,			0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0 },
+	{ RACE_HUMAN,		1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0 },
+	{ RACE_ELF,			1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0 },
+	{ RACE_DWARF,		0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
+	{ RACE_HALF_ORC,	0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
+	{ RACE_HALFLING,	1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0 },
+	{ RACE_TABAXI,		1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0 },
+	{ RACE_DROW,		1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0 },
+	{ RACE_MINOTAUR,	1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0 },
+	{ RACE_ORC,			0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
 };
 
 /* THAC0 for char_classes and levels.  (To Hit Armor Class 0) */
@@ -496,8 +496,6 @@ parse_player_class(char *arg, int timeframe)
 	if (timeframe == TIME_TIMELESS || timeframe == TIME_FUTURE) {
 		if (is_abbrev(arg, "cyborg") || is_abbrev(arg, "borg"))
 			return CLASS_CYBORG;
-		else if (is_abbrev(arg, "hoodlum"))
-			return CLASS_HOOD;
 		else if (is_abbrev(arg, "psionic") || is_abbrev(arg, "psychic"))
 			return CLASS_PSIONIC;
 		else if (is_abbrev(arg, "physic") || is_abbrev(arg, "physicist"))
@@ -827,14 +825,6 @@ roll_real_abils(struct Creature *ch)
 		if (ch->real_abils.str == 18)
 			ch->real_abils.str_add = number(0, 100);
 		break;
-	case CLASS_HOOD:
-		ch->real_abils.con = table[0];
-		ch->real_abils.str = table[1];
-		ch->real_abils.dex = table[2];
-		ch->real_abils.intel = table[3];
-		ch->real_abils.wis = table[4];
-		ch->real_abils.cha = table[5];
-		break;
 	case CLASS_MONK:
 		ch->real_abils.dex = table[0];
 		ch->real_abils.con = table[1];
@@ -984,10 +974,6 @@ roll_real_abils(struct Creature *ch)
 			default:
 				break;
 			}
-			break;
-		case CLASS_HOOD:
-			ch->real_abils.dex += 1;
-			ch->real_abils.str += 1;
 			break;
 		case CLASS_MONK:
 			ch->real_abils.dex += 1;
@@ -1154,9 +1140,6 @@ do_start(struct Creature *ch, int mode)
 		SET_SKILL(ch, SKILL_PUNCH, 15);
 		GET_MAX_MOVE(ch) += dice(4, 9);
 		break;
-	case CLASS_HOOD:
-		SET_SKILL(ch, SKILL_PUNCH, 15);
-		break;
 	case CLASS_MONK:
 		SET_SKILL(ch, SKILL_PUNCH, 20);
 		break;
@@ -1320,12 +1303,6 @@ advance_level(struct Creature *ch, byte keep_internal)
 			add_mana[i] += number(1, 2) + (GET_LEVEL(ch) / 15);
 			add_move[i] += number(5, 8);
 			break;
-		case CLASS_HOOD:
-			add_hp[i] /= 3;
-			add_hp[i] += number(6, 15);
-			add_mana[i] = (int)(add_mana[i] * 0.3);
-			add_move[i] += number(5, 10);
-			break;
 		case CLASS_MONK:
 			add_hp[i] /= 3;
 			add_hp[i] += number(6, 12);
@@ -1421,7 +1398,6 @@ invalid_char_class(struct Creature *ch, struct obj_data *obj)
 		(IS_OBJ_STAT(obj, ITEM_ANTI_CYBORG) && IS_CYBORG(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_KNIGHT) && IS_KNIGHT(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_RANGER) && IS_RANGER(ch)) ||
-		(IS_OBJ_STAT(obj, ITEM_ANTI_HOOD) && IS_HOOD(ch)) ||
 		(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC) && IS_MERC(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_MONK) && IS_MONK(ch)) ||
 		(!OBJ_APPROVED(obj) && !ch->isTester()
