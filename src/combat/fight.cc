@@ -230,18 +230,22 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 			return;
 		}
 	} 
+	if (IS_PC(killer) && GET_QUEST(killer)) {
+		sprintf(buf, "killed %s", GET_NAME(ch));
+		qlog(killer, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
+	}
 	if( LOG_DEATHS ) {
 		if( IS_NPC(ch) ) {
 			slog("DEATH: %s killed by %s. attacktype: %d SPEC[%p]",
-					GET_NAME(ch),
-                    killer ? GET_NAME(killer) : "(NULL)",
-                    attacktype, 
-                    GET_MOB_SPEC(ch));
+				GET_NAME(ch),
+				killer ? GET_NAME(killer) : "(NULL)",
+				attacktype, 
+				GET_MOB_SPEC(ch));
 		} else {
 			slog("DEATH: %s killed by %s. attacktype: %d PC",
-					GET_NAME(ch),
-                    killer ? GET_NAME(killer) : "(NULL)",
-                    attacktype);
+				GET_NAME(ch),
+				killer ? GET_NAME(killer) : "(NULL)",
+				attacktype);
 		}
 	}
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && killer &&
