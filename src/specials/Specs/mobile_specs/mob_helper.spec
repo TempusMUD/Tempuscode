@@ -15,6 +15,11 @@ SPECIAL(mob_helper)
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
+        // Being drawn into combat via a death cry will cause this
+        // mob to attack a dead creature
+        if( vict->getPosition() <= POS_DEAD ) {
+            continue;
+        }
 		if (FIGHTING(vict) && IS_MOB(vict) && IS_MOB(FIGHTING(vict)))
 			if (((IS_GOOD(ch) && IS_GOOD(vict)) || (IS_EVIL(ch)
 						&& IS_EVIL(vict)))
