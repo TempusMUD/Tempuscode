@@ -808,17 +808,17 @@ list_one_char(struct char_data *i, struct char_data *ch, byte is_group)
 		if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
 			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
 			if (IS_EVIL(i)) {
-				sprintf(buf2, " %s%s(Red Aura)%s ",
+				sprintf(buf2, " %s%s(Red Aura)%s",
 					CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 				strcat(buf, buf2);
 			} else if (IS_GOOD(i)) {
-				sprintf(buf2, " %s%s(Blue Aura)%s ",
+				sprintf(buf2, " %s%s(Blue Aura)%s",
 					CCBLD(ch, C_CMP), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 				strcat(buf, buf2);
 			}
 		}
 
-		send_to_char(ch, "%s", buf);
+		send_to_char(ch, "%s\r\n", buf);
 
 		if (IN_ROOM(ch) != IN_ROOM(i))
 			return;

@@ -1469,8 +1469,8 @@ do_stat_character(struct char_data *ch, struct char_data *k)
 			k->mob_specials.shared->number, CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
 			GET_SCRIPT_VNUM(k), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		strcat(outbuf, buf);
-		sprintf(buf, "L-Des: %s%s%s", CCYEL(ch, C_NRM),
-			(k->player.long_descr ? k->player.long_descr : "<None>\r\n"),
+		sprintf(buf, "L-Des: %s%s%s\r\n", CCYEL(ch, C_NRM),
+			(k->player.long_descr ? k->player.long_descr : "<None>"),
 			CCNRM(ch, C_NRM));
 		strcat(outbuf, buf);
 	} else {
@@ -6341,9 +6341,9 @@ ACMD(do_rename)
 			GET_NAME(vict), new_desc);
 		vict->player.short_descr = str_dup(new_desc);
 		if (vict->getPosition() == POS_FLYING)
-			sprintf(buf, "%s is hovering here.\r\n", new_desc);
+			sprintf(buf, "%s is hovering here.", new_desc);
 		else
-			sprintf(buf, "%s is standing here.\r\n", new_desc);
+			sprintf(buf, "%s is standing here.", new_desc);
 		strcpy(buf, CAP(buf));
 		vict->player.long_descr = str_dup(buf);
 	}

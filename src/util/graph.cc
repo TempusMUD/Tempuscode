@@ -609,13 +609,13 @@ hunt_victim(struct char_data *ch)
 							do_say(ch, buf2, 0, 0);
 						} else if (!number(0, 1)) {
 							sprintf(buf2,
-								"You can run, but you can't hide %s!",
+								"%s You can run, but you can't hide!",
 								GET_NAME(HUNTING(ch)));
-							do_say(ch, buf2, 0, 0);
+							do_say(ch, buf2, 0, SCMD_SAY_TO);
 						} else {
-							sprintf(buf2, "Now I have you, %s!",
+							sprintf(buf2, "%s Now I have you!",
 								GET_NAME(HUNTING(ch)));
-							do_say(ch, buf2, 0, 0);
+							do_say(ch, buf2, 0, SCMD_SAY_TO);
 						}
 					}
 					return best_attack(ch, HUNTING(ch));

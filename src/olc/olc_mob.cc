@@ -169,7 +169,7 @@ do_create_mob(struct char_data *ch, int vnum)
 	new_mob->player.name = str_dup("Fresh Blank Mobile");
 	new_mob->player.short_descr = str_dup("A Fresh Blank Mobile");
 	new_mob->player.long_descr =
-		str_dup("A Fresh Blank Mobile is here waiting to be violated.\n");
+		str_dup("A Fresh Blank Mobile is here waiting to be violated.");
 	new_mob->player.description = NULL;
 	new_mob->player.title = NULL;
 
@@ -422,7 +422,6 @@ do_mob_mset(struct char_data *ch, char *argument)
 				mob_p->player.long_descr = NULL;
 			else {
 				strcpy(buf, arg2);
-				strcat(buf, "\n");
 				mob_p->player.long_descr = strdup(buf);
 			}
 			send_to_char(ch, "Mobile long description set.\r\n");
@@ -1391,7 +1390,7 @@ save_mobs(struct char_data *ch)
 					mob->player.long_descr[i] != '~')
 					fputc(mob->player.long_descr[i], file);
 		}
-		fprintf(file, "~\n");
+		fprintf(file, "\n~\n");
 
 		if (mob->player.description) {
 			tmp = strlen(mob->player.description);
@@ -1740,7 +1739,7 @@ do_clear_olc_mob(struct char_data *ch)
 	targ->player.name = str_dup("Fresh Blank Mobile");
 	targ->player.short_descr = str_dup("a Fresh Blank Mobile");
 	targ->player.long_descr =
-		str_dup("A Fresh Blank Mobile is here waiting to be violated.\r\n");
+		str_dup("A Fresh Blank Mobile is here waiting to be violated.");
 	targ->player.description = NULL;
 	targ->player.title = NULL;
 

@@ -1980,6 +1980,15 @@ parse_mobile(FILE * mob_f, int nr)
 			!str_cmp(fname(tmpptr), "the"))
 			*tmpptr = tolower(*tmpptr);
 	mobile->player.long_descr = fread_string(mob_f, buf2);
+	if (mobile->player.long_descr) {
+		char *read_pt;
+
+		read_pt = mobile->player.long_descr;
+		while (*read_pt)
+			read_pt++;
+		if ('\n' == read_pt[-1] && '\r' == read_pt[-2])
+			read_pt[-2] = '\0';
+	}
 	mobile->player.description = fread_string(mob_f, buf2);
 	mobile->player.title = NULL;
 
