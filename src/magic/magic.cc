@@ -639,6 +639,11 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		// Hrm...
 		dam = dice(level, 4) + (level << 1);
 		break;
+	case SPELL_ENTROPY_FIELD:
+		dam = dice(level / 5, 3);
+		if (!GET_CLASS(ch) == CLASS_PHYSIC)
+			dam = dam >> 1;
+		break;
 	case SPELL_GRAVITY_WELL:
 		dam = dice(level / 2, 5);
 		if (!GET_CLASS(ch) == CLASS_PHYSIC)
@@ -2160,6 +2165,10 @@ Fireball: like harder bones, skin, organ membranecs
 		af.location = APPLY_CASTER;
 		af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -MOB_IDNUM(ch);
 		to_vict = "You shriek in terror as $N drains your energy!";
+		break;
+	case SPELL_ENTROPY_FIELD:
+		af.duration = level;
+		to_vict = "You suddenly feel like you're falling apart!";
 		break;
 	case SPELL_DIVINE_POWER:
 		// Set duration of all affects

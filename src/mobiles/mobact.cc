@@ -331,7 +331,7 @@ burn_update(void)
 			&& !random_fractional_10()
 			&& !NOGRAV_ZONE(ch->in_room->zone)) {
 			af = affected_by_spell(ch, SPELL_GRAVITY_WELL);
-			if (!af)
+			if (!af || mag_savingthrow(ch, af->level, SAVING_PHY))
 				continue;
 			if (damage(ch, ch, number(5, af->level / 5), TYPE_PRESSURE, -1))
 				continue;
@@ -350,6 +350,21 @@ burn_update(void)
 					WEAR_FACE))
 				continue;
 		}
+
+		// character has entropy field
+		if ((af = affected_by_spell(ch, SPELL_ENTROPY_FIELD))
+				&& !random_fractional_10()
+				&& !mag_savingthrow(ch, af->level, SAVING_PHY)) {
+			GET_MANA(ch) = MAX(0, GET_MANA(ch) - 
+							   (13 - random_number_zero_low(GET_WIS(ch) >> 2)));
+			GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 
+							   (13 - random_number_zero_low(GET_STR(ch) >> 2)));
+			if (damage(ch, ch, (13 - random_number_zero_low(GET_CON(ch) >> 2)),
+					SPELL_ENTROPY_FIELD, -1))
+				continue;
+
+		}
+
 		// character has acidity
 		if (AFF3_FLAGGED(ch, AFF3_ACIDITY)) {
 			if (damage(ch, ch, mag_savingthrow(ch, 50,
