@@ -17,6 +17,7 @@ namespace Security {
     bool Group::addCommand( command_info *command ) {
         if( member( command ) )
             return false;
+        command->security |= GROUP;
         commands.push_back(command);
         sort( commands.begin(), commands.end() );
         return true;
@@ -187,7 +188,7 @@ ACCMD(do_access) {
             break;
         case 4: // addmember
             if( tokens.next(token1) && tokens.next(token2) ) {
-                if( Security::addCommand( token2, token1 ) ) {
+                if( Security::addMember( token2, token1 ) ) {
                     send_to_char( "Member added.\r\n",ch);
                 } else {
                     send_to_char( "Member addition failed.\r\n",ch);
