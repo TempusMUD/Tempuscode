@@ -34,12 +34,67 @@ void print_search_data_to_buf( struct char_data *ch,
                                struct room_data *room,
                                struct special_search_data *cur_search, 
                                char *buf );
+int general_search( struct char_data *ch, struct special_search_data *srch,int mode );
 int House_can_enter( struct char_data *ch, room_num real_room );
 int clan_house_can_enter( struct char_data *ch, struct room_data *room );
 int room_tele_ok(CHAR *ch, struct room_data *room);
 void death_cry( struct char_data * ch );
 
+int search_trans_character( char_data *ch, 
+                            special_search_data *srch, 
+                            room_data *targ_room,
+                            obj_data *obj,
+                            char_data *mob ) {
 
+    if ( !House_can_enter( ch, targ_room->number ) ||
+         !clan_house_can_enter( ch, targ_room ) ||
+         ( ROOM_FLAGGED( targ_room, ROOM_GODROOM ) &&
+           GET_LEVEL( ch ) < LVL_GRGOD ) )
+        return 0;
+
+    if ( srch->to_room )
+        act( srch->to_room, FALSE, ch, obj, mob, TO_ROOM );
+    if ( srch->to_vict )
+        act( srch->to_vict, FALSE, ch, obj, mob, TO_CHAR );
+    else
+        send_to_char( "Okay.\r\n", ch );
+
+    //SRCH_LOG( ch, srch );     // don't log trans searches for now
+
+    char_from_room( ch );
+    char_to_room( ch, targ_room );
+    ch->in_room->zone->enter_count++;
+    look_at_room( ch, ch->in_room, 0 );
+
+    if ( srch->to_remote )
+        act( srch->to_remote, FALSE, ch, obj, mob, TO_ROOM );
+
+    if ( GET_LEVEL( ch ) < LVL_ETERNAL && !SRCH_FLAGGED( srch, SRCH_REPEATABLE ) )
+        SET_BIT( srch->flags, SRCH_TRIPPED );
+
+    if ( IS_SET( ROOM_FLAGS( ch->in_room ),ROOM_DEATH ) ) {
+        if ( GET_LEVEL( ch ) < LVL_AMBASSADOR ) {
+            log_death_trap( ch );
+            death_cry( ch );
+            ch->extract( TRUE );
+            return 2;
+        }
+        else {
+            sprintf( buf, "( GC ) %s trans-searched goto into deathtrap %d.", 
+                     GET_NAME( ch ), ch->in_room->number );
+            mudlog( buf, NRM, LVL_GOD, TRUE );
+        }
+    }
+    // can't double trans, to prevent loops
+    for ( srch = ch->in_room->search; srch; srch = srch->next ) {
+        if ( SRCH_FLAGGED( srch, SRCH_TRIG_ENTER ) && SRCH_OK( ch, srch ) &&
+             srch->command != SEARCH_COM_TRANSPORT )
+            if ( general_search( ch, srch, 0 ) == 2 )
+                return 2;
+    }
+
+    return 1;
+}
         
 #define SRCH_LOG( ch, srch ) \
 { if ( !ZONE_FLAGGED( ch->in_room->zone, ZONE_SEARCH_APPROVED ) && \
@@ -206,57 +261,66 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
             slog( buf );
             return 0;
         }
-    
-        if ( !House_can_enter( ch, targ_room->number ) ||
-             !clan_house_can_enter( ch, targ_room ) ||
-             ( ROOM_FLAGGED( targ_room, ROOM_GODROOM ) &&
-               GET_LEVEL( ch ) < LVL_GRGOD ) )
-            return 0;
+        if( srch->arg[1] == -1 || srch->arg[1] == 0 ) {
+            if ( !House_can_enter( ch, targ_room->number ) ||
+                 !clan_house_can_enter( ch, targ_room ) ||
+                 ( ROOM_FLAGGED( targ_room, ROOM_GODROOM ) &&
+                   GET_LEVEL( ch ) < LVL_GRGOD ) )
+                return 0;
 
-        if ( srch->to_room )
-            act( srch->to_room, FALSE, ch, obj, mob, TO_ROOM );
-        if ( srch->to_vict )
-            act( srch->to_vict, FALSE, ch, obj, mob, TO_CHAR );
-        else
-            send_to_char( "Okay.\r\n", ch );
+            if ( srch->to_room )
+                act( srch->to_room, FALSE, ch, obj, mob, TO_ROOM );
+            if ( srch->to_vict )
+                act( srch->to_vict, FALSE, ch, obj, mob, TO_CHAR );
+            else
+                send_to_char( "Okay.\r\n", ch );
 
-        SRCH_LOG( ch, srch );     // don't log trans searches for now
+            SRCH_LOG( ch, srch );     // don't log trans searches for now
 
-        char_from_room( ch );
-        char_to_room( ch, targ_room );
-    ch->in_room->zone->enter_count++;
-        look_at_room( ch, ch->in_room, 0 );
+            char_from_room( ch );
+            char_to_room( ch, targ_room );
+            ch->in_room->zone->enter_count++;
+            look_at_room( ch, ch->in_room, 0 );
 
-        if ( srch->to_remote )
-            act( srch->to_remote, FALSE, ch, obj, mob, TO_ROOM );
+            if ( srch->to_remote )
+                act( srch->to_remote, FALSE, ch, obj, mob, TO_ROOM );
 
-        if ( GET_LEVEL( ch ) < LVL_ETERNAL && !SRCH_FLAGGED( srch, SRCH_REPEATABLE ) )
-            SET_BIT( srch->flags, SRCH_TRIPPED );
-    
-        if ( IS_SET( ROOM_FLAGS( ch->in_room ),ROOM_DEATH ) ) {
-            if ( GET_LEVEL( ch ) < LVL_AMBASSADOR ) {
-                log_death_trap( ch );
-                death_cry( ch );
-                //extract_char( ch, 1 );
-                ch->extract( TRUE );
-                return 2;
-            }
-            else {
-                sprintf( buf, "( GC ) %s trans-searched goto into deathtrap %d.", 
-                         GET_NAME( ch ), ch->in_room->number );
-                mudlog( buf, NRM, LVL_GOD, TRUE );
-            }
-        }
-        // can't double trans, to prevent loops
-        for ( srch = ch->in_room->search; srch; srch = srch->next ) {
-            if ( SRCH_FLAGGED( srch, SRCH_TRIG_ENTER ) && SRCH_OK( ch, srch ) &&
-                 srch->command != SEARCH_COM_TRANSPORT )
-                if ( general_search( ch, srch, 0 ) == 2 )
+            if ( GET_LEVEL( ch ) < LVL_ETERNAL && !SRCH_FLAGGED( srch, SRCH_REPEATABLE ) )
+                SET_BIT( srch->flags, SRCH_TRIPPED );
+        
+            if ( IS_SET( ROOM_FLAGS( ch->in_room ),ROOM_DEATH ) ) {
+                if ( GET_LEVEL( ch ) < LVL_AMBASSADOR ) {
+                    log_death_trap( ch );
+                    death_cry( ch );
+                    //extract_char( ch, 1 );
+                    ch->extract( TRUE );
                     return 2;
+                }
+                else {
+                    sprintf( buf, "( GC ) %s trans-searched goto into deathtrap %d.", 
+                             GET_NAME( ch ), ch->in_room->number );
+                    mudlog( buf, NRM, LVL_GOD, TRUE );
+                }
+            }
+            // can't double trans, to prevent loops
+            for ( srch = ch->in_room->search; srch; srch = srch->next ) {
+                if ( SRCH_FLAGGED( srch, SRCH_TRIG_ENTER ) && SRCH_OK( ch, srch ) &&
+                     srch->command != SEARCH_COM_TRANSPORT )
+                    if ( general_search( ch, srch, 0 ) == 2 )
+                        return 2;
+            }
+        
+            return 1;
+        } else if( srch->arg[1] == 1 ) {
+            room_data *src_room = ch->in_room;
+            CharacterList::iterator it = src_room->people.begin();
+            int rc = 1;
+            for( ; it != src_room->people.end(); ++it  ) {
+                int r = search_trans_character( *it, srch, targ_room,obj,mob );
+                if( rc != 2 ) rc = r;
+            }
+            return rc;
         }
-    
-        return 1;
-                         
     case SEARCH_COM_DOOR:
         /************  Targ Room nonexistant ************/
         if ( ( targ_room = real_room( srch->arg[0] ) ) == NULL ) {
