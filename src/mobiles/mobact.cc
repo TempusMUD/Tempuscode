@@ -165,6 +165,7 @@ burn_update(void)
 			(!FIGHTING(ch) || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
 			ch->in_room->isOpenAir() &&
 			!NOGRAV_ZONE(ch->in_room->zone) &&
+			(!MOUNTED(ch) || !AFF_FLAGGED(MOUNTED(ch), AFF_INFLIGHT)) &&
 			(fall_to = ch->in_room->dir_option[DOWN]->to_room) &&
 			fall_to != ch->in_room) {
 
