@@ -986,7 +986,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 	}
 
-	if (IS_WEAPON(attacktype)
+	if (ch
+			&& IS_WEAPON(attacktype)
 			&& GET_EQ(victim, WEAR_SHIELD)
 			&& CHECK_SKILL(victim, SKILL_SHIELD_MASTERY) > 20
 			&& victim->getLevelBonus(SKILL_SHIELD_MASTERY) > number(0, 600)
