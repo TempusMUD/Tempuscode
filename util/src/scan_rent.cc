@@ -34,6 +34,11 @@ void scan_file( char *filename ) {
     struct obj_file_elem o;
 
     while ( fread( &o, sizeof( struct obj_file_elem ), 1, fl ) ) {
+
+        if ( o.plrtext_len ) {
+            fseek( fl, o.plrtext_len, SEEK_CUR );
+        }
+
 	if ( vnum >= 0 && o.item_number != vnum )
 	    continue;
 	else if ( name && strcmp( name, o.short_desc ) )
