@@ -3719,73 +3719,68 @@ free_obj(struct obj_data * obj)
     struct extra_descr_data *this_desc, *next_one;
 
     if ((GET_OBJ_VNUM(obj)) == -1 || !obj->shared->proto) {
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
-        if (obj->name)
+        if (obj->name) {
             free(obj->name);
-        if (obj->description)
+            obj->name = NULL;
+        }
+        if (obj->description) {
             free(obj->description);
-        if (obj->short_description)
+            obj-description = NULL;
+        }
+        if (obj->short_description) {
             free(obj->short_description);
-        if (obj->action_description)
+            obj->short_description = NULL;
+        }
+        if (obj->action_description) {
             free(obj->action_description);
-        if (obj->ex_description)
+            obj->action_description = NULL;
+        }
+        if (obj->ex_description) {
             for (this_desc = obj->ex_description; this_desc; this_desc = next_one) {
-#ifdef DMALLOC
-                dmalloc_verify(0);
-#endif
                 next_one = this_desc->next;
                 if (this_desc->keyword)
                     free(this_desc->keyword);
                 if (this_desc->description)
                     free(this_desc->description);
                 free(this_desc);
-#ifdef DMALLOC
-                dmalloc_verify(0);
-#endif
             }
+            obj->ex_description = NULL;
+       }
     } else {
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         if (obj->name && 
-            obj->name != obj->shared->proto->name)
+            obj->name != obj->shared->proto->name) {
             free(obj->name);
+            obj->name = NULL;
+        }
         if (obj->description && 
-            obj->description != obj->shared->proto->description)
+            obj->description != obj->shared->proto->description) {
             free(obj->description);
+            obj-description = NULL;
+        }
         if (obj->short_description && 
-            obj->short_description != obj->shared->proto->short_description)
+            obj->short_description != obj->shared->proto->short_description) {
             free(obj->short_description);
+            obj->short_description = NULL;
+        }
         if (obj->action_description && 
-            obj->action_description != obj->shared->proto->action_description)
+            obj->action_description != obj->shared->proto->action_description) {
             free(obj->action_description);
+            obj->action_description = NULL;
+        }
         if (obj->ex_description && 
             obj->ex_description != obj->shared->proto->ex_description) {
             for (this_desc = obj->ex_description; this_desc; this_desc = next_one) {
-#ifdef DMALLOC
-                dmalloc_verify(0);
-#endif
                 next_one = this_desc->next;
                 if (this_desc->keyword)
                     free(this_desc->keyword);
                 if (this_desc->description)
                     free(this_desc->description);
                 free(this_desc);
-#ifdef DMALLOC
-                dmalloc_verify(0);
-#endif
             }
+            obj->ex_description = NULL;
         }
     }
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
     free(obj);
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
 }
 
 
@@ -3795,28 +3790,15 @@ file_to_string_alloc(char *name, char **buf)
 {
     char temp[MAX_STRING_LENGTH];
 
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
 
     if (*buf)
         free(*buf);
-
-#ifdef DMALLOC
-    dmalloc_verify(0);
-#endif
 
     if (file_to_string(name, temp) < 0) {
         *buf = NULL;
         return -1;
     } else {
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         *buf = str_dup(temp);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         return 0;
     }
 }
