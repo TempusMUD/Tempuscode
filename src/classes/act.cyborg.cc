@@ -1301,7 +1301,8 @@ ACMD(do_discharge)
     level = GET_LEVEL(ch);
     level += GET_REMORT_GEN(ch);
     // Tolerance is the amount they can safely discharge.
-    tolerance = ( level / 6 ) + ( dice( level / 8, 4) );
+    //tolerance = ( level / 6 ) + ( dice( level / 8, 4) );
+    tolerance = 10 + ( ch->getLevelBonus(SKILL_DISCHARGE) /4 );
 
     
     if(amount > tolerance) {
