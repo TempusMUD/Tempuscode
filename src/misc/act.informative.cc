@@ -2964,7 +2964,7 @@ ACMD(do_weather)
 }
 
 #define WHO_FORMAT \
-"format: who [minlev[-maxlev]] [-n name] [-c char_claslist] [-a clan] [-<soqrmftpx>]\r\n"
+"format: who [minlev[-maxlev]] [-n name] [-a clan] [-<soqmfx>]\r\n"
 
 ACMD(do_who)
 {
@@ -2976,17 +2976,15 @@ ACMD(do_who)
 	char c_buf[MAX_STRING_LENGTH];
 	char tester_buf[64], nowho_buf[64];
 	char mode;
-	int i, low = -1, high = -1;
+	int low = -1, high = -1;
 	int showchar_class = 0, short_list = 0, num_can_see = 0, tot_num = 0;
 	bool questwho = false,
 		outlaws = false,
-		who_room = false,
-		who_plane = false,
-		who_time = false,
 		who_female = false,
 		who_male = false,
-		who_remort = false,
-		who_tester = false, who_pkills = false, who_i = false,
+		who_tester = false,
+		who_pkills = false,
+		who_i = false,
         who_gen = false;
 	int effective_char_class;
 
@@ -3037,27 +3035,6 @@ ACMD(do_who)
 				if (!(clan = clan_by_name(name_search)))
 					send_to_char(ch, "No such clan!\r\n");
 				*name_search = '\0';
-				break;
-			case 'x':
-				who_remort = true;
-				strcpy(buf, buf1);
-				break;
-			case 'r':
-				who_room = true;
-				strcpy(buf, buf1);
-				break;
-			case 'c':
-				half_chop(buf1, arg, buf);
-				for (i = 0; i < (int)strlen(arg); i++)
-					showchar_class |= find_char_class_bitvector(arg[i]);
-				break;
-			case 'p':
-				who_plane = true;
-				strcpy(buf, buf1);
-				break;
-			case 't':
-				who_time = true;
-				strcpy(buf, buf1);
 				break;
 			case 'f':
 				who_female = true;
@@ -3145,8 +3122,6 @@ ACMD(do_who)
 			continue;
 		if (questwho)
 			continue;
-		if (who_room && (tch->in_room != ch->in_room))
-			continue;
 		if (showchar_class &&
 			((!(showchar_class & (1 << GET_CLASS(tch))) &&
 					(GET_LEVEL(ch) < LVL_AMBASSADOR ||
@@ -3157,14 +3132,6 @@ ACMD(do_who)
 		if (who_female && !IS_FEMALE(tch))
 			continue;
 		if (who_male && !IS_MALE(tch))
-			continue;
-		if (who_time &&
-			(GET_TIME_FRAME(tch->in_room) != GET_TIME_FRAME(ch->in_room)))
-			continue;
-		if (who_plane && (GET_PLANE(tch->in_room) != GET_PLANE(ch->in_room)))
-			continue;
-		if (who_remort && (!IS_REMORT(tch) ||
-				(!IS_REMORT(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR)))
 			continue;
 		if (who_tester && !tch->isTester())
 			continue;
