@@ -2480,7 +2480,9 @@ acc_append_affects(struct Creature *ch, byte mode)
         acc_strcat("You energy capacitance is boosted.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
 		acc_strcat("Your mind is resistant to external energies.\r\n", NULL);
-
+    if (affected_by_spell(ch, SPELL_PSYCHIC_FEEDBACK))
+        acc_strcat("You are providing psychic feedback to your attackers.\r\n", NULL);
+    
 	/* physic affects */
 	if (AFF3_FLAGGED(ch, AFF3_ATTRACTION_FIELD))
 		acc_strcat("You are emitting an attraction field.\r\n", NULL);

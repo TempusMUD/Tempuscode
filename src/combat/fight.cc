@@ -700,7 +700,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	int attacktype, int location)
 {
 	int hard_damcap, is_humil = 0, eq_dam = 0, weap_dam = 0, i, impl_dam =
-		0, mana_loss;
+		0, mana_loss, feedback_dam, feedback_mana;
 	struct obj_data *obj = NULL, *weap = cur_weap, *impl = NULL;
 	struct room_affect_data rm_aff;
 	struct affected_type *af = NULL;
@@ -1330,7 +1330,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                                      attacktype == TYPE_RAD_SICKNESS || \
                                      attacktype == SKILL_HOLY_TOUCH)
 
-	/********* OHH SHIT!  Begin new damage reduction code --N **********/
+    /********* OHH SHIT!  Begin new damage reduction code --N **********/
 	float dam_reduction = 0;
 
 	if (affected_by_spell(victim, SPELL_MANA_SHIELD)
@@ -1728,6 +1728,35 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			(ch) ? GET_NAME(ch):"NULL");
 	}
 
+    //psychic feedback - now that we've taken damage we return some of it
+    if (ch && (af = affected_by_spell(victim, SPELL_PSYCHIC_FEEDBACK)) &&
+      !mag_savingthrow(ch, GET_LEVEL(victim), SAVING_PSI) &&
+      !ROOM_FLAGGED(victim->in_room, ROOM_NOPSIONICS) && !NULL_PSI(ch) &&
+      !BAD_ATTACK_TYPE(attacktype) && attacktype != SPELL_PSYCHIC_FEEDBACK) {
+        feedback_dam = (dam*victim->getLevelBonus(SPELL_PSYCHIC_FEEDBACK))/400;
+        feedback_mana = feedback_dam/15;
+        if (af->duration > 1 && feedback_dam > random_number_zero_low(400)) {
+			af->duration--;
+		}
+        if (GET_MANA(victim) < feedback_mana) {
+            feedback_mana = GET_MANA(victim);
+            feedback_dam = feedback_mana*15;
+            send_to_char(victim, "You are no longer providing psychic feedback to your attackers.\r\n");
+            affect_from_char(victim, SPELL_PSYCHIC_FEEDBACK);
+        }
+        if (feedback_dam > 0) {
+            GET_MANA(victim) -= MAX(feedback_mana,1);
+            int retval = damage_attacker(victim, ch, feedback_dam, SPELL_PSYCHIC_FEEDBACK, -1);
+            if (!IS_SET(retval, DAM_VICT_KILLED) && random_number_zero_low(400) < feedback_dam) {
+                gain_skill_prof(victim, SPELL_PSYCHIC_FEEDBACK);
+            }
+            if (retval) {
+                DAM_RETURN(retval);
+            }
+        }
+    }
+
+    
 	// Use send_to_char -- act(  ) doesn't send message if you are DEAD.
 	switch (victim->getPosition()) {
 

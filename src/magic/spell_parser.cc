@@ -272,7 +272,7 @@ const char *spells[] = {
 	"call beast",
 	"call predator",
 	"spirit track",
-	"!UNUSED!",	/* 245 */
+	"psychic feedback",	/* 245 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 250 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 255 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 260 */
@@ -4009,6 +4009,10 @@ mag_assign_spells(void)
 
 	remort_spello(SPELL_AMNESIA, CLASS_PSIONIC, 25, 1,
 		70, 30, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE,
+		MAG_PSIONIC | MAG_AFFECTS);
+        
+    remort_spello(SPELL_PSYCHIC_FEEDBACK, CLASS_PSIONIC, 32, 3,
+		75, 30, 3, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE,
 		MAG_PSIONIC | MAG_AFFECTS);
 
 	remort_spello(ZEN_TRANSLOCATION, CLASS_MONK, 37, 1,

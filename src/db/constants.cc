@@ -2441,7 +2441,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 240 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!",
 	"You no longer sense trails.",
-	"!UNUSED!",	/* 245 */
+	"You are no longer providing psychic feedback to your attackers.",	/* 245 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 250 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 255 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 260 */

@@ -328,6 +328,7 @@ static const int SPELL_CALL_REPTILE = 241;
 static const int SPELL_CALL_BEAST = 242;
 static const int SPELL_CALL_PREDATOR = 243;
 static const int SPELL_SPIRIT_TRACK = 244;
+static const int SPELL_PSYCHIC_FEEDBACK = 245;
 
   /**************************  Mercenary Devices ******************/
 static const int SPELL_DECOY = 237;

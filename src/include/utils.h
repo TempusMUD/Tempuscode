@@ -433,7 +433,7 @@ PRF2_FLAGGED( Creature *ch, int flag )
       !IS_UNDEAD(ch) && (GET_MOB_VNUM(ch) <= 16100 || \
                          GET_MOB_VNUM(ch) > 16999))
 
-#define NULL_PSI(ch) \
+#define NULL_PSI(vict) \
      (IS_UNDEAD(vict) || IS_SLIME(vict) || IS_PUDDING(vict) || \
       IS_ROBOT(vict) || IS_PLANT(vict))
 

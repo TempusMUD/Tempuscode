@@ -1914,7 +1914,13 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.aff_index = 3;
 		af.bitvector = AFF3_PSYCHIC_CRUSH;
 		break;
-
+        
+    case SPELL_PSYCHIC_FEEDBACK:
+        af.aff_index = 0;
+        af.duration = (level >> 3) + dice(1, 1 + (level >> 3));
+        to_vict = "You will now send psychic feedback to anyone who attacks you.";
+        break;
+        
 		/* physic skills */
 	case SPELL_GAMMA_RAY:
 		af.duration = (level >> 2);
