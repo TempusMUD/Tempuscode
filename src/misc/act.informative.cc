@@ -2443,6 +2443,8 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your muscles are spasming uncontrollably!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_ENDURANCE))
 		acc_strcat("Your endurance is increased.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_CAPACITANCE_BOOST))
+        acc_strcat("You energy capacitance is boosted.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
 		acc_strcat("Your mind is resistant to external energies.\r\n", NULL);
 	if (AFF2_FLAGGED(ch, AFF2_VERTIGO))

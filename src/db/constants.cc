@@ -2467,7 +2467,7 @@ extern const char *spell_wear_off_msg[] = {
 	"You feel less chemically inert.",
 	"The rate of entropy around you returns to normal.",
 	"The gravity well around you fades.",
-	"!UNUSED!", "!UNUSED!",		/* 325 */
+	"Your energy level fades.", "!UNUSED!",		/* 325 */
 	"!UNUSED!",
 	"Your molecular structure weakens.",
 	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 330 */

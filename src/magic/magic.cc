@@ -1824,6 +1824,14 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		accum_affect = FALSE;
 		break;
 
+    case SPELL_CAPACITANCE_BOOST:
+		af.duration = 1 + (level >> 2);
+		af.modifier = 10 + (level << 1);
+		af.location = APPLY_MOVE;
+		to_vict = "You feel your energy capacity rise.";
+		accum_duration = 1;
+		break;
+
 	case SPELL_CHEMICAL_STABILITY:
 		af.duration = (level >> 2);
 		to_room = "$n begins looking more chemically inert.";
@@ -2769,7 +2777,12 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 			number(level >> 1, level << 1);
 		hit = (skill * hit) / 100;
 		break;
-
+        
+    /* physic stuff */
+	case SPELL_CAPACITANCE_BOOST:
+		move = level << 1;
+		break;
+        
 	/** non-pc spells **/
 	case SPELL_ESSENCE_OF_EVIL:
 		if (!IS_GOOD(victim)) {

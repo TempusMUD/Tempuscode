@@ -78,13 +78,13 @@
   
 
   #define SPELL_ENTROPY_FIELD        322  // drains move on victim (time effect)
-  incomplete
+  complete
 
   #define SPELL_GRAVITY_WELL         323  // time effect crushing damage
   complete
 
   #define SPELL_CAPACITANCE_BOOST    324  // increase maxmv
-  incomplete
+  complete
 
   #define SPELL_ELECTRIC_ARC         325  // lightning bolt
   incomplete
