@@ -49,14 +49,15 @@ SPECIAL(repairer)
     return 1;
   }
 
-  if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1) {
+  if (GET_OBJ_DAM(obj) <= -1 || GET_OBJ_MAX_DAM(obj) <= -1) {
     sprintf(tellbuf, "There is no point... %s is unbreakable.",
 	    obj->short_description);
     perform_tell(repairer, ch, tellbuf);
     return 1;
   }
 
-  if (GET_OBJ_MAX_DAM(obj) <= (GET_OBJ_MAX_DAM(proto_obj) >> 4)) {
+  if (GET_OBJ_MAX_DAM(obj) == 0 || 
+     GET_OBJ_MAX_DAM(obj) <= (GET_OBJ_MAX_DAM(proto_obj) >> 4)) {
     sprintf(tellbuf, "Sorry, %s is damaged beyond repair.", 
 	    obj->short_description);
     perform_tell(repairer, ch, tellbuf);
@@ -68,7 +69,12 @@ SPECIAL(repairer)
     return 1;
   }
 
-  cost = GET_OBJ_COST(obj) >> 3;
+  //old costs....
+  //cost = GET_OBJ_COST(obj) >> 3;
+  //new costs based on percent of damage on item
+  float percent_dam = 1 - ((float)GET_OBJ_DAM(obj)/GET_OBJ_MAX_DAM(obj));
+  cost = (int)(percent_dam * GET_OBJ_COST(obj));
+  cost = cost >> 3;
   if (ch->in_room->zone->time_frame == TIME_ELECTRO)
     currency = 1;
   else
