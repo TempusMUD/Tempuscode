@@ -5,9 +5,9 @@
 #include <libxml/tree.h>
 #include <stdlib.h>
 #include <string.h>
+#include "tmpstr.h"
 
 void xml_boot(void);
-char *tmp_strcat(const char *src, ...);
 
 /** 
  * Parses an integer from a named property in the given node
@@ -102,10 +102,11 @@ xmlMatches(const xmlChar *str_a, const char *str_b)
  * non ASCII values with their entities and CharRef counterparts. 
  * Contrary to xmlEncodeEntities, uses the tmpstr utility.
 **/
-static inline char* xmlEncodeTmp( char* text ) 
+static inline char*
+xmlEncodeTmp( char* text ) 
 {
 	char *encoded = (char*)xmlEncodeEntitiesReentrant(NULL, (xmlChar*)text);
-	char *tmp_encoded = tmp_strcat(encoded,NULL);
+	char *tmp_encoded = tmp_strdup(encoded);
 	free(encoded);
 	return tmp_encoded;
 }
