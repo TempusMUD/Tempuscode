@@ -399,6 +399,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	int found = 0;
 	struct special_search_data *srch = NULL;
 	struct affected_type *af_ptr = NULL;
+	char *blur_msg = NULL;
 
 	/*
 	 * Check for special routines (North is 1 in command list, but 0 here) Note
@@ -591,6 +592,10 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			act(buf2, TRUE, ch, 0, mount, TO_ROOM);
 		}
 	} else {
+		if (IS_AFFECTED(ch, AFF_BLUR))
+			blur_msg = tmp_sprintf("A blurred, shifted image leaves %s.",
+				to_dirs[dir]);
+
 		if (mode == MOVE_JUMP) {
 			if (!number(0, 1))
 				sprintf(buf, "$n jumps %sward.", dirs[dir]);
@@ -693,11 +698,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			if ((*it) == ch || !AWAKE((*it)))
 				continue;
 			if (check_sneak(ch, tch, true, true) == SNEAK_FAILED) {
-				if (IS_AFFECTED(ch, AFF_BLUR) &&
-						!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
-					act(tmp_sprintf(
-						"A blurred, shifted image leaves %s.", to_dirs[dir]),
-						TRUE, ch, 0, tch, TO_VICT);
+				if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+					act(blur_msg, TRUE, ch, 0, tch, TO_VICT);
 				else
 					act(buf, TRUE, ch, 0, (*it), TO_VICT);
 			}
@@ -706,6 +708,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
 	strcpy(buf2, "(outside) ");
 	strcat(buf2, buf);
+	if (blur_msg)
+		blur_msg = tmp_strcat("(outside) ", blur_msg);
 	for (car = ch->in_room->contents; car; car = car->next_content) {
 		if (!IS_VEHICLE(car))
 			continue;
@@ -725,11 +729,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 						continue;
 
 					if (check_sneak(ch, tch, true, false) == SNEAK_FAILED) {
-						if (IS_AFFECTED(ch, AFF_BLUR) &&
-								!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
-							act(tmp_sprintf(
-								"(outside) A blurred, shifted image leaves %s.", to_dirs[dir]),
-								TRUE, ch, 0, tch, TO_VICT);
+						if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+							act(blur_msg, TRUE, ch, 0, tch, TO_VICT);
 						else
 							act(buf2, TRUE, ch, 0, tch, TO_VICT);
 					}
@@ -813,6 +814,10 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			}
 		}
 	} else {					/* char is not mounted */
+		if (IS_AFFECTED(ch, AFF_BLUR))
+			blur_msg = tmp_sprintf("A blurred, shifted image arrives from %s.",
+						from_dirs[dir]);
+
 		if (mode == MOVE_JUMP) {
 			if (!number(0, 1))
 				sprintf(buf, "$n jumps in from %s.", from_dirs[dir]);
@@ -920,12 +925,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 				continue;
 
 			if (check_sneak(ch, tch, false, true) == SNEAK_FAILED) {
-				if (IS_AFFECTED(ch, AFF_BLUR) &&
-						!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
-					act(tmp_sprintf(
-						"A blurred, shifted image arrives from %s.",
-						from_dirs[dir]),
-						TRUE, ch, 0, tch, TO_VICT);
+				if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+					act(blur_msg, TRUE, ch, 0, tch, TO_VICT);
 				else
 					act(buf, TRUE, ch, 0, tch, TO_VICT);
 
@@ -937,6 +938,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
 		strcpy(buf2, "(outside) ");
 		strcat(buf2, buf);
+		if (blur_msg)
+			blur_msg = tmp_strcat("(outside) ", blur_msg);
 		for (car = ch->in_room->contents; car; car = car->next_content) {
 			if (!IS_VEHICLE(car))
 				continue;
@@ -956,16 +959,14 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 							continue;
 
 						if (check_sneak(ch, tch, false, false) == SNEAK_FAILED) {
-							if (IS_AFFECTED(ch, AFF_BLUR) &&
+							if (blur_msg &&
 									!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
-								act(tmp_sprintf(
-									"(outside) A blurred, shifted image arrives from %s.",
-									from_dirs[dir]),
-									TRUE, ch, 0, tch, TO_VICT);
+								act(blur_msg, TRUE, ch, 0, tch, TO_VICT);
 							else
 								act(buf2, TRUE, ch, 0, tch, TO_VICT);
 						}
 					}
+				break;
 				}
 			}
 		}
