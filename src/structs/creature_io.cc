@@ -448,9 +448,12 @@ Creature::saveToXML()
 	if( desc != NULL ) {
 		host = xmlEncodeTmp( desc->host );
 	}
-	fprintf(ouf, "<carnage pkills=\"%d\" akills=\"%d\" mkills=\"%d\" deaths=\"%d\" reputation=\"%d\"/>\n",
+	fprintf(ouf, "<carnage pkills=\"%d\" akills=\"%d\" mkills=\"%d\" deaths=\"%d\" reputation=\"%d\"",
 		GET_PKILLS(ch), GET_ARENAKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch),
 		GET_REPUTATION(ch));
+	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF))
+		fprintf(ouf, " severity=\"%d\"", GET_SEVERITY(ch));
+	fprintf(ouf, "/>\n");
 
 	fprintf(ouf, "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\" stradd=\"%d\"/>\n",
 		GET_STR(ch), GET_INT(ch), GET_WIS(ch), GET_DEX(ch), GET_CON(ch),
@@ -651,6 +654,7 @@ Creature::loadFromXML( const char *path )
             GET_MOBKILLS(this) = xmlGetIntProp(node, "mkills");
             GET_PC_DEATHS(this) = xmlGetIntProp(node, "deaths");
 			GET_REPUTATION(this) = xmlGetIntProp(node, "reputation");
+			GET_SEVERITY(this) = xmlGetIntProp(node, "severity");
         } else if ( xmlMatches(node->name, "attr") ) {
             aff_abils.str = real_abils.str = xmlGetIntProp(node, "str");
             aff_abils.str_add = real_abils.str_add = xmlGetIntProp(node, "stradd");
