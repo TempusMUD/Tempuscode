@@ -457,8 +457,10 @@ ACMD(do_olc)
 			CREATE(EXIT(ch, edir), struct room_direction_data, 1);
 			EXIT(ch, edir)->to_room = NULL;
 		} else if (is_abbrev(buf, "remove")) {
-			free(EXIT(ch, edir)->general_description);
-			free(EXIT(ch, edir)->keyword);
+			if (EXIT(ch, edir)->general_description)
+				free(EXIT(ch, edir)->general_description);
+			if (EXIT(ch, edir)->keyword)
+				free(EXIT(ch, edir)->keyword);
 			free(EXIT(ch, edir));
 			EXIT(ch, edir) = NULL;
 			send_to_char(ch, "Exit removed.\r\n");
