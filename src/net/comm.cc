@@ -2206,4 +2206,9 @@ verify_environment(void)
 		snprintf(path, 255, "players/housing/%d", idx);
 		mkdir(path, 0755);
 	}
+    mkdir("players/corpses", 0755);
+	for (idx = 0;idx < 10;idx++) {
+		snprintf(path, 255, "players/corpses/%d", idx);
+		mkdir(path, 0755);
+	}
 }
