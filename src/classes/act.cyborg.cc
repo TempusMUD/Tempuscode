@@ -19,6 +19,7 @@
 #include "fight.h"
 #include "house.h"
 #include "utils.h"
+#include "accstr.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -28,7 +29,7 @@ extern struct obj_data *object_list;
 int check_mob_reaction(struct Creature *ch, struct Creature *vict);
 void look_at_target(struct Creature *ch, char *arg);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
-char *obj_cond_color(struct obj_data *obj, struct Creature *ch);
+const char *obj_cond_color(struct obj_data *obj, struct Creature *ch);
 
 ACMD(do_not_here);
 ACMD(do_examine);
@@ -877,12 +878,13 @@ ACMD(do_activate)
 					act("$p is already switched off.", FALSE, ch, obj, 0,
 						TO_CHAR);
 				else {
-					sprintf(buf, "You deactivate $p%s.",
-						internal ? " (internal)" : "");
-					act(buf, FALSE, ch, obj, 0, TO_CHAR);
-					sprintf(buf, "$n deactivates $p%s.",
-						internal ? " (internal)" : "");
-					act(buf, TRUE, ch, obj, 0, TO_ROOM);
+					act(tmp_sprintf("You deactivate $p%s.",
+							internal ? " (internal)" : ""),
+						false, ch, obj, 0, TO_CHAR);
+					act(tmp_sprintf(buf, "$n deactivates $p%s.",
+							internal ? " (internal)" : ""),
+						true, ch, obj, 0, TO_ROOM);
+
 					if (obj_gives_affects(obj, ch, internal)) {
 						for (i = 0; i < MAX_OBJ_AFFECT; i++)
 							affect_modify(obj->worn_by,
@@ -909,12 +911,13 @@ ACMD(do_activate)
 					act("The energy levels of $p are too low.", FALSE, ch, obj,
 						0, TO_CHAR);
 				else {
-					sprintf(buf, "You activate $p%s.",
-						internal ? " (internal)" : "");
-					act(buf, FALSE, ch, obj, 0, TO_CHAR);
-					sprintf(buf, "$n activates $p%s.",
-						internal ? " (internal)" : "");
-					act(buf, TRUE, ch, obj, 0, TO_ROOM);
+					act(tmp_sprintf("You activate $p%s.",
+							internal ? " (internal)" : ""),
+						false, ch, obj, 0, TO_CHAR);
+					act(tmp_sprintf(buf, "$n activates $p%s.",
+							internal ? " (internal)" : ""),
+						true, ch, obj, 0, TO_ROOM);
+
 					if (obj->action_desc && ch == obj->worn_by)
 						act(obj->action_desc, FALSE, ch, obj, 0,
 							TO_CHAR);
@@ -1590,102 +1593,103 @@ ACMD(do_status)
 
 	struct obj_data *obj = NULL, *bul = NULL;
 	int i;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *arg1, *arg2;
 	struct affected_type *aff = NULL;
 
-	skip_spaces(&argument);
-	argument = two_arguments(argument, arg1, arg2);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	if (!*arg1) {
-		if (!IS_CYBORG(ch))
+		if (!IS_CYBORG(ch)) {
 			send_to_char(ch, "Status of what?\r\n");
-		else {
-			sprintf(buf,
-				"%s+++++>>>---    SYSTEM STATUS REPORT   ---<<<+++++%s\r\n",
-				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-			sprintf(buf,
-				"%s%sHITP%s:                 %3d percent   (%4d/%4d)\r\n", buf,
-				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-				(GET_HIT(ch) * 100) / GET_MAX_HIT(ch), GET_HIT(ch),
-				GET_MAX_HIT(ch));
-			sprintf(buf,
-				"%s%sMANA%s:                 %3d percent   (%4d/%4d)\r\n", buf,
-				CCMAG(ch, C_NRM), CCNRM(ch, C_NRM),
-				(GET_MANA(ch) * 100) / GET_MAX_MANA(ch), GET_MANA(ch),
-				GET_MAX_MANA(ch));
-			sprintf(buf,
-				"%s%sMOVE%s:                 %3d percent   (%4d/%4d)\r\n", buf,
-				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-				(GET_MOVE(ch) * 100) / GET_MAX_MOVE(ch), GET_MOVE(ch),
-				GET_MAX_MOVE(ch));
-			sprintf(buf,
-				"%s%s+++++>>>---   ---   ---   ---   ---   ---<<<+++++%s\r\n",
-				buf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+			return;
+		}
 
-			sprintf(buf,
-				"%sSystems have sustained %d percent of maximum damage.\r\n",
-				buf, (GET_TOT_DAM(ch) * 100) / max_component_dam(ch));
-			if (GET_BROKE(ch))
-				sprintf(buf, "%s%sYour %s has been severely damaged.%s\r\n",
-					buf, CCRED(ch, C_NRM),
-					component_names[GET_BROKE(ch)][GET_OLD_CLASS(ch)],
-					CCNRM(ch, C_NRM));
-			if (AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT))
-				sprintf(buf, "%s%sSELF-DESTRUCT sequence initiated.%s\r\n",
-					buf, CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
-			if (AFF3_FLAGGED(ch, AFF3_STASIS))
-				strcat(buf, "Systems are in static state.\r\n");
-			if (affected_by_spell(ch, SKILL_MOTION_SENSOR))
-				strcat(buf, "Your motion sensors are active.\r\n");
-			if (affected_by_spell(ch, SKILL_ENERGY_FIELD))
-				strcat(buf, "Energy fields are activated.\r\n");
-			if (affected_by_spell(ch, SKILL_REFLEX_BOOST))
-				strcat(buf, "Your Reflex Boosters are activated.\r\n");
-			if (affected_by_spell(ch, SKILL_POWER_BOOST))
-				strcat(buf, "Power levels are boosted.\r\n");
-			if (AFF_FLAGGED(ch, AFF_INFRAVISION))
-				strcat(buf, "Infrared detection system active.\r\n");
-			if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
-				strcat(buf, "Your sonic imagery device is active.\r\n");
-			if (affected_by_spell(ch, SKILL_DAMAGE_CONTROL))
-				strcat(buf, "Damage Control systems are operating.\r\n");
-			if (affected_by_spell(ch, SKILL_HYPERSCAN))
-				strcat(buf, "Hyperscanning device is active.\r\n");
-			if (affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER))
-				strcat(buf, "Shukutei Adrenal Maximizations are active.\r\n");
-			if (affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
-				strcat(buf, "Melee Combat Tactics are in effect.\r\n");
-			if (affected_by_spell(ch, SKILL_RADIONEGATION))
-				strcat(buf, "Radionegation device is operating.\r\n");
-			if (affected_by_spell(ch, SKILL_OFFENSIVE_POS))
-				strcat(buf, "Systems postured for offensive tactics.\r\n");
-			if (affected_by_spell(ch, SKILL_DEFENSIVE_POS))
-				strcat(buf, "Systems postured for defensive tactics.\r\n");
-			if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING))
-				strcat(buf, "Cogenic Neural Bridging enabled.\r\n");
-			if (affected_by_spell(ch, SKILL_ASSIMILATE)) {
-				sprintf(buf,
-					"%s%sCurrently active assimilation affects:%s\r\n", buf,
-					CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		acc_string_clear();
+		acc_sprintf(
+			"%s+++++>>>---    SYSTEM STATUS REPORT   ---<<<+++++%s\r\n",
+			CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		acc_sprintf(
+			"%sHITP%s:                 %3d percent   (%4d/%4d)\r\n",
+			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+			(GET_HIT(ch) * 100) / GET_MAX_HIT(ch), GET_HIT(ch),
+			GET_MAX_HIT(ch));
+		acc_sprintf(
+			"%sMANA%s:                 %3d percent   (%4d/%4d)\r\n",
+			CCMAG(ch, C_NRM), CCNRM(ch, C_NRM),
+			(GET_MANA(ch) * 100) / GET_MAX_MANA(ch), GET_MANA(ch),
+			GET_MAX_MANA(ch));
+		acc_sprintf(
+			"%sMOVE%s:                 %3d percent   (%4d/%4d)\r\n",
+			CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+			(GET_MOVE(ch) * 100) / GET_MAX_MOVE(ch), GET_MOVE(ch),
+			GET_MAX_MOVE(ch));
+		acc_sprintf(
+			"%s+++++>>>---   ---   ---   ---   ---   ---<<<+++++%s\r\n",
+			CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+
+		acc_sprintf(
+			"Systems have sustained %d percent of maximum damage.\r\n",
+			(GET_TOT_DAM(ch) * 100) / max_component_dam(ch));
+		if (GET_BROKE(ch))
+			acc_sprintf("%sYour %s has been severely damaged.%s\r\n",
+				CCRED(ch, C_NRM),
+				component_names[GET_BROKE(ch)][GET_OLD_CLASS(ch)],
+				CCNRM(ch, C_NRM));
+		if (AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT))
+			acc_sprintf("%sSELF-DESTRUCT sequence initiated.%s\r\n",
+				CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+		if (AFF3_FLAGGED(ch, AFF3_STASIS))
+			acc_strcat("Systems are in static state.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_MOTION_SENSOR))
+			acc_strcat("Your motion sensors are active.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_ENERGY_FIELD))
+			acc_strcat("Energy fields are activated.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_REFLEX_BOOST))
+			acc_strcat("Your Reflex Boosters are activated.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_POWER_BOOST))
+			acc_strcat("Power levels are boosted.\r\n", NULL);
+		if (AFF_FLAGGED(ch, AFF_INFRAVISION))
+			acc_strcat("Infrared detection system active.\r\n", NULL);
+		if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
+			acc_strcat("Your sonic imagery device is active.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_DAMAGE_CONTROL))
+			acc_strcat("Damage Control systems are operating.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_HYPERSCAN))
+			acc_strcat("Hyperscanning device is active.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER))
+			acc_strcat("Shukutei Adrenal Maximizations are active.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
+			acc_strcat("Melee Combat Tactics are in effect.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_RADIONEGATION))
+			acc_strcat("Radionegation device is operating.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_OFFENSIVE_POS))
+			acc_strcat("Systems postured for offensive tactics.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_DEFENSIVE_POS))
+			acc_strcat("Systems postured for defensive tactics.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING))
+			acc_strcat("Cogenic Neural Bridging enabled.\r\n", NULL);
+		if (affected_by_spell(ch, SKILL_ASSIMILATE)) {
+			acc_sprintf(
+				"%sCurrently active assimilation affects:%s\r\n",
+				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
 
-				for (i = 0, aff = ch->affected; aff; aff = aff->next) {
-					if (aff->type == SKILL_ASSIMILATE) {
+			for (i = 0, aff = ch->affected; aff; aff = aff->next) {
+				if (aff->type == SKILL_ASSIMILATE) {
 
-						sprintf(buf, "%s  %s%15s%s  %s %3d\r\n", buf,
-							CCGRN(ch, C_NRM), apply_types[aff->location],
-							CCNRM(ch, C_NRM), aff->modifier >= 0 ? "+" : "-",
-							abs(aff->modifier));
+					acc_sprintf("  %s%15s%s  %s %3d\r\n",
+						CCGRN(ch, C_NRM), apply_types[aff->location],
+						CCNRM(ch, C_NRM), aff->modifier >= 0 ? "+" : "-",
+						abs(aff->modifier));
 
-					}
 				}
 			}
-
-
-			page_string(ch->desc, buf);
 		}
-		return;
 
+
+		page_string(ch->desc, acc_get_string());
+		return;
 	}
 
 	if (!strncmp(arg1, "internal", 8)) {
@@ -1724,29 +1728,29 @@ ACMD(do_status)
 		break;
 
 	case ITEM_SCUBA_TANK:
-		sprintf(buf, "$p %s currently holding %d percent of capacity.",
-			ISARE(obj->name), GET_OBJ_VAL(obj, 0) < 0 ?
-			100 : GET_OBJ_VAL(obj, 0) == 0 ? 0 : (GET_OBJ_VAL(obj, 1)
-				/ GET_OBJ_VAL(obj, 0)
-				* 100));
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
+		act(tmp_sprintf("$p %s currently holding %d percent of capacity.",
+				ISARE(obj->name), GET_OBJ_VAL(obj, 0) < 0 ?
+				100 : GET_OBJ_VAL(obj, 0) == 0 ? 0 : (GET_OBJ_VAL(obj, 1)
+					/ GET_OBJ_VAL(obj, 0)
+					* 100)),
+			false, ch, obj, 0, TO_CHAR);
 		break;
 
 	case ITEM_SCUBA_MASK:
-		sprintf(buf, "The valve on $p is currently %s.",
-			GET_OBJ_VAL(obj, 0) ? "open" : "closed");
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
+		act(tmp_sprintf("The valve on $p is currently %s.",
+				GET_OBJ_VAL(obj, 0) ? "open" : "closed"),
+			false, ch, obj, 0, TO_CHAR);
 		break;
 
 	case ITEM_DEVICE:
-		sprintf(buf, "$p (%s) %s currently %sactivated.\r\n"
-			"The energy level is %d/%d units.",
-			obj->carried_by ? "carried" :
-			obj->worn_by ?
-			(obj == GET_EQ(ch, obj->worn_on) ? "worn" : "implanted") : "here",
-			ISARE(OBJS(obj, ch)),
-			ENGINE_STATE(obj) ? "" : "de", CUR_ENERGY(obj), MAX_ENERGY(obj));
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
+		act(tmp_sprintf("$p (%s) %s currently %sactivated.\r\n"
+				"The energy level is %d/%d units.",
+				obj->carried_by ? "carried" :
+				obj->worn_by ?
+				(obj == GET_EQ(ch, obj->worn_on) ? "worn" : "implanted") : "here",
+				ISARE(OBJS(obj, ch)),
+				ENGINE_STATE(obj) ? "" : "de", CUR_ENERGY(obj), MAX_ENERGY(obj)),
+			false, ch, obj, 0, TO_CHAR);
 		break;
 
 	case ITEM_DETONATOR:
@@ -1763,12 +1767,11 @@ ACMD(do_status)
 	case ITEM_BOMB:
 		if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 50)
 			send_to_char(ch, "You have no idea how.\r\n");
-		else {
-			sprintf(buf, "$p is %sfused and %sactive.",
-				(obj->contains && IS_FUSE(obj->contains)) ? "" : "un",
-				(obj->contains && FUSE_STATE(obj->contains)) ? "" : "in");
-			act(buf, FALSE, ch, obj, 0, TO_CHAR);
-		}
+		else
+			act(tmp_sprintf("$p is %sfused and %sactive.",
+					(obj->contains && IS_FUSE(obj->contains)) ? "" : "un",
+					(obj->contains && FUSE_STATE(obj->contains)) ? "" : "in"),
+				false, ch, obj, 0, TO_CHAR);
 		break;
 	case ITEM_ENERGY_CELL:
 	case ITEM_BATTERY:
@@ -1807,7 +1810,8 @@ ACMD(do_status)
 			return;
 		}
 
-		sprintf(buf,
+		acc_string_clear();
+		acc_sprintf(
 			"%s is active and tuned to channel [%d].\r\n"
 			"Energy level is : [%3d/%3d].\r\n"
 			"Visible entities monitoring this channel:\r\n",
@@ -1818,26 +1822,25 @@ ACMD(do_status)
 				COMM_CHANNEL(bul) == COMM_CHANNEL(obj)) {
 				if (bul->carried_by && can_see_creature(ch, bul->carried_by) &&
 					COMM_UNIT_SEND_OK(ch, bul->carried_by))
-					sprintf(buf, "%s  %s%s\r\n", buf,
+					acc_sprintf("  %s%s\r\n",
 						GET_NAME(bul->carried_by),
 						COMM_UNIT_SEND_OK(bul->carried_by,
 							ch) ? "" : "  (mute)");
 				else if (bul->worn_by && can_see_creature(ch, bul->worn_by)
 					&& COMM_UNIT_SEND_OK(ch, bul->worn_by))
-					sprintf(buf, "%s  %s%s\r\n", buf, GET_NAME(bul->worn_by),
+					acc_sprintf("  %s%s\r\n", GET_NAME(bul->worn_by),
 						COMM_UNIT_SEND_OK(bul->worn_by, ch) ? "" : "  (mute)");
 			}
 		}
-		page_string(ch->desc, buf);
+		page_string(ch->desc, acc_get_string());
 		return;
 
 	default:
 		break;
 	}
 
-	sprintf(buf, "%s is in %s condition.\r\n", obj->name,
+	send_to_char(ch, "%s is in %s condition.\r\n", obj->name,
 		obj_cond_color(obj, ch));
-	send_to_char(ch, "%s", buf);
 
 }
 
@@ -2127,41 +2130,41 @@ obj_cond(struct obj_data *obj)
 	return (buf2);
 }
 
-char *
+const char *
 obj_cond_color(struct obj_data *obj, struct Creature *ch)
 {
-
+	const char *desc = "";
 	int num;
 
 	if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
 		num = 0;
 	else if (GET_OBJ_MAX_DAM(obj) == 0) {
-		sprintf(buf2, "%sfrail%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		desc = tmp_sprintf("%sfrail%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 		return (buf2);
 	} else
 		num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
 			GET_OBJ_MAX_DAM(obj));
 
 	if (num == 0)
-		strcpy(buf2, "perfect");
+		desc = "perfect";
 	else if (num < 10)
-		strcpy(buf2, "excellent");
+		desc = "excellent";
 	else if (num < 30)
-		sprintf(buf2, "%sgood%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		desc = tmp_sprintf("%sgood%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (num < 50)
-		sprintf(buf2, "%sfair%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		desc = tmp_sprintf("%sfair%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (num < 60)
-		sprintf(buf2, "%sworn%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		desc = tmp_sprintf("%sworn%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (num < 70)
-		sprintf(buf2, "%sshabby%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		desc = tmp_sprintf("%sshabby%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (num < 90)
-		sprintf(buf2, "%sbad%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		desc = tmp_sprintf("%sbad%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else
-		sprintf(buf2, "%sterrible%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		desc = tmp_sprintf("%sterrible%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
-		strcat(buf2, " <broken>");
+		desc = tmp_strcat(desc, " <broken>");
 
-	return (buf2);
+	return desc;
 }
 
 // n should run between 1 and 7
@@ -2171,108 +2174,102 @@ obj_cond_color(struct obj_data *obj, struct Creature *ch)
 void
 perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 {
-	char buf3[MAX_STRING_LENGTH];
-	sprintf(buf, "       %s***************************************\r\n",
+	acc_string_clear();
+
+	acc_sprintf("       %s***************************************\r\n",
 		CCGRN(ch, C_NRM));
-	sprintf(buf, "%s       %s>>>     OBJECT ANALYSIS RESULTS:    <<<\r\n",
-		buf, CCCYN(ch, C_NRM));
-	sprintf(buf,
-		"%s       %s***************************************%s\r\n", buf,
+	acc_sprintf("       %s>>>     OBJECT ANALYSIS RESULTS:    <<<\r\n",
+		CCCYN(ch, C_NRM));
+	acc_sprintf(
+		"       %s***************************************%s\r\n",
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(buf, "%sDescription:          %s%s%s\r\n", buf, CCCYN(ch,
+	acc_sprintf("Description:          %s%s%s\r\n", CCCYN(ch,
 			C_NRM), obj->name, CCNRM(ch, C_NRM));
-	sprintf(buf, "%sItem Classification:  %s%s%s\r\n", buf, CCCYN(ch,
+	acc_sprintf("Item Classification:  %s%s%s\r\n", CCCYN(ch,
 			C_NRM), item_types[(int)GET_OBJ_TYPE(obj)], CCNRM(ch, C_NRM));
-	sprintf(buf, "%sMaterial Composition: %s%s%s\r\n", buf, CCCYN(ch,
+	acc_sprintf("Material Composition: %s%s%s\r\n", CCCYN(ch,
 			C_NRM), material_names[GET_OBJ_MATERIAL(obj)], CCNRM(ch,
 			C_NRM));
 	// give detailed item damage info
-	if (ALEV(5) || !checklev)
-		sprintf(buf3, "  [%4d/%4d]", GET_OBJ_DAM(obj),
-			GET_OBJ_MAX_DAM(obj));
-	else
-		strcpy(buf3, "");
-	sprintf(buf, "%sCondition:            %s%-15s%s%s\r\n", buf,
-		CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM), buf3);
-	sprintf(buf, "%sCommerce Value:       %s%d coins%s\r\n", buf,
+	acc_sprintf("Condition:            %s%-15s%s%s\r\n",
+		CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM),
+			(ALEV(5) || !checklev) ?
+				tmp_sprintf("  [%4d/%4d]", GET_OBJ_DAM(obj), GET_OBJ_MAX_DAM(obj)):"");
+	acc_sprintf("Commerce Value:       %s%d coins%s\r\n",
 		CCCYN(ch, C_NRM), GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
-	sprintf(buf, "%sWeight:               %s%d pounds%s\r\n", buf,
+	acc_sprintf("Weight:               %s%d pounds%s\r\n",
 		CCCYN(ch, C_NRM), obj->getWeight(), CCNRM(ch, C_NRM));
 
-	sprintf(buf, "%sIntrinsic Properties: %s", buf, CCCYN(ch, C_NRM));
-	sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf2);
-	strcat(buf, buf2);
-	sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf2);
-	strcat(buf, buf2);
-	sprintf(buf, "%s%s\r\n", buf, CCNRM(ch, C_NRM));
+	acc_sprintf("Intrinsic Properties: %s", CCCYN(ch, C_NRM));
+	acc_strcat(tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits), NULL);
+	acc_strcat(tmp_printbits(GET_OBJ_EXTRA2(obj), extra_bits), NULL);
+	acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
 
-	sprintf(buf, "%sInherent Properties:  %s", buf, CCCYN(ch, C_NRM));
-	sprintbit(GET_OBJ_EXTRA3(obj), extra3_bits, buf2);
-	strcat(buf, buf2);
-	sprintf(buf, "%s%s\r\n", buf, CCNRM(ch, C_NRM));
+	acc_sprintf("Inherent Properties:  %s", CCCYN(ch, C_NRM));
+	acc_strcat(tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits), NULL);
+	acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
 
 	// check for affections
 	int found = 0;
-	strcpy(buf2, "Apply:               ");
-	strcat(buf2, CCCYN(ch, C_NRM));
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
 		if (obj->affected[i].modifier) {
-			sprinttype(obj->affected[i].location, apply_types, buf3);
-			sprintf(buf2, "%s%s %+d to %s", buf2, found++ ? "," : "",
-				obj->affected[i].modifier, buf3);
+			if (found)
+				acc_strcat(",");
+			else
+				acc_strcat("Apply:               ", CCCYN(ch, C_NRM), NULL);
+			acc_sprintf(" %+d to %s", obj->affected[i].modifier,
+				strlist_aref(obj->affected[i].location, apply_types));
 		}
 	}
 	if (found)
-		strcat(buf, strcat(strcat(buf2, CCNRM(ch, C_NRM)), "\r\n"));
+		acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
 
 	switch (GET_OBJ_TYPE(obj)) {
 	case ITEM_ARMOR:
-		if (ALEV(4) || !checklev)
-			sprintf(buf3, "  [%d]", GET_OBJ_VAL(obj, 0));
-		else
-			strcpy(buf3, "");
-		sprintf(buf, "%sProtective Quality:   %s%-15s%s%s\r\n", buf,
+		acc_sprintf("Protective Quality:   %s%-15s%s%s\r\n",
 			CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0) < 2 ? "poor" :
 			GET_OBJ_VAL(obj, 0) < 4 ? "minimal" :
 			GET_OBJ_VAL(obj, 0) < 6 ? "moderate" :
 			GET_OBJ_VAL(obj, 0) < 8 ? "good" :
 			GET_OBJ_VAL(obj, 0) < 10 ? "excellent" :
-			"extraordinary", CCNRM(ch, C_NRM), buf3);
+			"extraordinary", CCNRM(ch, C_NRM),
+			(ALEV(4) || !checklev) ?
+				tmp_sprintf("  [%d]", GET_OBJ_VAL(obj, 0)):"");
 		break;
 	case ITEM_LIGHT:
-		sprintf(buf, "%sDuration remaining:   %s%d hours%s\r\n", buf,
+		acc_sprintf("Duration remaining:   %s%d hours%s\r\n",
 			CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 2), CCNRM(ch, C_NRM));
 		break;
 	case ITEM_WAND:
 	case ITEM_SCROLL:
 	case ITEM_STAFF:
-		sprintf(buf, "%s%sERROR:%s no further information available.\r\n",
-			buf, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		acc_sprintf("%sERROR:%s no further information available.\r\n",
+			CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		break;
 	case ITEM_WEAPON:
-		sprintf(buf, "%sDamage Dice:          %s%dd%d%s\r\n", buf,
+		acc_sprintf("Damage Dice:          %s%dd%d%s\r\n",
 			CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
 			CCNRM(ch, C_NRM));
 		break;
 	case ITEM_CONTAINER:
 		if (GET_OBJ_VAL(obj, 3))
-			strcat(buf, "Item is a corpse.\r\n");
+			acc_strcat("Item is a corpse.\r\n", NULL);
 		else
-			sprintf(buf, "%sCapacity:            %s%d pounds%s\r\n", buf,
+			acc_sprintf("%sCapacity:            %s%d pounds%s\r\n", buf,
 				CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0), CCNRM(ch, C_NRM));
 		break;
 	case ITEM_VEHICLE:
 		if (obj->contains && GET_OBJ_TYPE(obj->contains) == ITEM_ENGINE)
-			sprintf(buf, "%sVehicle is equipped with:     %s%s%s\r\n", buf,
+			acc_sprintf("Vehicle is equipped with:     %s%s%s\r\n",
 				CCCYN(ch, C_NRM), obj->contains->name,
 				CCNRM(ch, C_NRM));
 		else
-			strcat(buf, "Vehicle is not equipped with an engine.\r\n");
+			acc_strcat("Vehicle is not equipped with an engine.\r\n", NULL);
 		break;
 	case ITEM_ENGINE:
-		sprintf(buf,
-			"%sMax Fuel: %s%d%s, Current Fuel: %s%d%s, Type: %s%s%s, "
-			"Eff: %s%d%s\r\n", buf, CCCYN(ch, C_NRM), MAX_ENERGY(obj),
+		acc_sprintf(
+			"Max Fuel: %s%d%s, Current Fuel: %s%d%s, Type: %s%s%s, "
+			"Eff: %s%d%s\r\n", CCCYN(ch, C_NRM), MAX_ENERGY(obj),
 			CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CUR_ENERGY(obj), CCNRM(ch,
 				C_NRM), CCCYN(ch, C_NRM), IS_SET(ENGINE_STATE(obj),
 				ENG_PETROL) ? "Petrol" : IS_SET(ENGINE_STATE(obj),
@@ -2281,31 +2278,31 @@ perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 			CCCYN(ch, C_NRM), USE_RATE(obj), CCNRM(ch, C_NRM));
 		break;
 	case ITEM_BATTERY:
-		sprintf(buf,
-			"%sMax Energy: %s%d%s, Current Energy: %s%d%s, Recharge Rate: %s%d%s\r\n",
-			buf, CCCYN(ch, C_NRM), MAX_ENERGY(obj), CCNRM(ch, C_NRM),
+		acc_sprintf(
+			"Max Energy: %s%d%s, Current Energy: %s%d%s, Recharge Rate: %s%d%s\r\n",
+			CCCYN(ch, C_NRM), MAX_ENERGY(obj), CCNRM(ch, C_NRM),
 			CCCYN(ch, C_NRM), CUR_ENERGY(obj), CCNRM(ch, C_NRM), CCCYN(ch,
 				C_NRM), RECH_RATE(obj), CCNRM(ch, C_NRM));
 		break;
 
 	case ITEM_BOMB:
 		if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) > 50 && obj->contains)
-			sprintf(buf, "%sFuse: %s.  Fuse State: %sactive.\r\n", buf,
+			acc_sprintf("Fuse: %s.  Fuse State: %sactive.\r\n",
 				obj->contains->name,
 				FUSE_STATE(obj->contains) ? "" : "in");
 		break;
 	case ITEM_MICROCHIP:
 		if (SKILLCHIP(obj)) {
 			if (CHIP_DATA(obj) > 0 && CHIP_DATA(obj) < MAX_SKILLS) {
-				sprintf(buf, "%s%sData Contained: %s\'%s\'%s\r\n",
-					buf, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+				acc_sprintf("%sData Contained: %s\'%s\'%s\r\n",
+					CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 					spell_to_str(CHIP_DATA(obj)), CCNRM(ch, C_NRM));
 			}
 		}
 		break;
 
 	}
-	page_string(ch->desc, buf);
+	page_string(ch->desc, acc_get_string());
 }
 
 
