@@ -132,7 +132,6 @@ const byte saving_throws[8][LVL_GRIMP + 1] = {
      42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0}
 };
 
-
 int 
 mag_savingthrow(struct char_data * ch, int level, int type)
 {
