@@ -564,7 +564,8 @@ House::save()
 		fprintf( ouf, "    <guest id=\"%ld\"></guest>\n", getGuest(i) );
 	}
 	for( unsigned int i = 0; i < getRepoNoteCount(); i++ ) {
-		fprintf( ouf, "    <reposession note=\"%s\"></reposession>\n", getRepoNote(i).c_str() );
+		fprintf( ouf, "    <reposession note=\"%s\"></reposession>\n", 
+                 xmlEncodeSpecialTmp(getRepoNote(i).c_str()) );
 	}
 	fprintf( ouf, "</house>");
 	fprintf( ouf, "</housefile>\n");
