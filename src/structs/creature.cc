@@ -1439,7 +1439,7 @@ Creature::isOkToAttack(Creature *vict)
         return true;
     
     if (!PRF2_FLAGGED(this, PRF2_PKILLER)) {
-        send_to_char(this, "A small dark shape flies in fron the future "
+        send_to_char(this, "A small dark shape flies in from the future "
                            "and sticks to your tongue.\r\n");
         return false;
     }
