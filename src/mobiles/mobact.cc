@@ -4778,7 +4778,7 @@ int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vic
 	}
     if (random_fractional_4()) {
         if( GET_LEVEL(ch) >= 30 && GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD)) ){
-            perform_offensive_skill(ch, vict, SKILL_CLEAVE, &return_flags);
+            perform_cleave(ch, vict, &return_flags);
         } else if (GET_LEVEL(ch) >= 17) {
             perform_offensive_skill(ch, vict, SKILL_STRIKE, &return_flags);
         } else if (GET_LEVEL(ch) >= 13) {

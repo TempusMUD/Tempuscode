@@ -121,6 +121,7 @@ void die(struct Creature *ch, struct Creature *killer, int attacktype,
 int calculate_thaco(struct Creature *ch, struct Creature *victim,
 	struct obj_data *obj);
 bool perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_flags);
+void perform_cleave(Creature *ch, Creature *vict, int *return_flags);
 
 #ifdef __combat_code__
 #ifdef __combat_utils__

@@ -258,44 +258,20 @@ ACMD(do_battlecry)
 		gain_skill_prof(ch, skillnum);
 }
 
-ACMD(do_cleave)
+void
+perform_cleave(Creature *ch, Creature *vict, int *return_flags)
 {
-    Creature *vict = NULL;
-	obj_data *weap = GET_EQ(ch, WEAR_WIELD);
+    int maxWhack;
     int percent = 0;
     int skill = MAX( GET_SKILL(ch, SKILL_CLEAVE), GET_SKILL(ch, SKILL_GREAT_CLEAVE) );
     bool great = ( GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50 );
-    
-
-	ACMD_set_return_flags(0);
-	one_argument(argument, buf);
+	obj_data *weap = GET_EQ(ch, WEAR_WIELD);
 
 	if( weap == NULL || !IS_TWO_HAND(weap) ) {
 		send_to_char(ch, "You need to be wielding a two handed weapon to cleave!\r\n");
 		return;
 	}
 
-    if( !*buf ) {
-        vict = FIGHTING(ch);
-    } else {
-        vict = get_char_room_vis(ch, buf);
-    }
-
-	if( vict == NULL ) {
-		send_to_char(ch, "Cleave who?\r\n");
-		WAIT_STATE(ch, 2);
-		return;
-	}
-
-	if( vict == ch ) {
-		send_to_char(ch, "You cannot cleave yourself.\r\n");
-		return;
-	}
-
-	if (!peaceful_room_ok(ch, vict, true))
-		return;
-        
-    int maxWhack;
     if( great ) {
         maxWhack = MAX( 3, GET_REMORT_GEN(ch)-3 );
     } else {
@@ -336,6 +312,38 @@ ACMD(do_cleave)
             
         }
     }
+}
+
+ACMD(do_cleave)
+{
+    Creature *vict = NULL;
+	char *arg;
+
+	ACMD_set_return_flags(0);
+
+	arg = tmp_getword(&argument);
+
+    if( !*arg ) {
+        vict = FIGHTING(ch);
+    } else {
+        vict = get_char_room_vis(ch, arg);
+    }
+
+	if( vict == NULL ) {
+		send_to_char(ch, "Cleave who?\r\n");
+		WAIT_STATE(ch, 2);
+		return;
+	}
+
+	if( vict == ch ) {
+		send_to_char(ch, "You cannot cleave yourself.\r\n");
+		return;
+	}
+
+	if (!peaceful_room_ok(ch, vict, true))
+		return;
+	
+	perform_cleave(ch, vict, return_flags);
 }
 
 #undef __act_barb_c__
