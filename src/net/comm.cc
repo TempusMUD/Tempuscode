@@ -1942,16 +1942,21 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 	*(++buf) = '\n';
 	*(++buf) = '\0';
 
-	if (mode == 1)
+	if (mode == 1) {
 		sprintf(outbuf, "(outside) %s", CAP(lbuf));
-	else if (mode == 2)
+    } else if (mode == 2) {
 		sprintf(outbuf, "(remote) %s", CAP(lbuf));
-	else if (mode == 3)
-		sprintf(outbuf, "(%s) %s",
-			(ch->in_room) ? ch->in_room->name:"remote",
-			CAP(lbuf));
-	else
+    } else if (mode == 3) {
+        room_data *toroom = NULL;
+        if( ch != NULL && ch->in_room != NULL ) {
+            toroom = ch->in_room;
+        } else if( obj != NULL && obj->in_room != NULL ) {
+            toroom = obj->in_room;
+        }
+		sprintf(outbuf, "(%s) %s", (toroom) ? toroom->name:"remote", CAP(lbuf));
+    } else {
 		strcpy(outbuf, CAP(lbuf));
+    }
 
 	SEND_TO_Q(outbuf, to->desc);
 }
