@@ -447,17 +447,13 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 	exp = ch->getPenalizedExperience( exp, victim );
 
 	if (IS_NPC(victim) && !IS_NPC(ch) 
-	&& (GET_EXP(victim) < 0 || exp > 5000000)) 
-	{
+		&& (GET_EXP(victim) < 0 || exp > 5000000)) {
 		slog("%s Killed %s(%d) for exp: %d.", GET_NAME(ch),
 			GET_NAME(victim), GET_EXP(victim), exp);
 	}
-	if (exp > ((exp_scale[GET_LEVEL(ch) + 1] - GET_EXP(ch)) / 10)) {
-		send_to_char(ch, "%s%sYou have gained much experience.%s\r\n",
-			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
-	} else if (exp > 1) {
-		send_to_char(ch, "%s%sYou have gained experience.%s\r\n",
-			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
+	if (exp > 0) {
+		send_to_char(ch, "%s%sYou have gained %ld experience.%s\r\n",
+			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), exp, CCNRM(ch, C_SPR));
 	} else if (exp < 0) {
 		send_to_char(ch, "%s%sYou have lost experience.%s\r\n",
 			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_SPR));
