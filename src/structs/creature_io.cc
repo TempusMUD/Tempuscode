@@ -384,11 +384,10 @@ Creature::saveToXML()
 	// Save vital statistics
 	obj_data *saved_eq[NUM_WEARS];
 	obj_data *saved_impl[NUM_WEARS];
-	affected_type *saved_affs;
+	affected_type *saved_affs, *cur_aff;
 	FILE *ouf;
 	char *path;
 	struct alias_data *cur_alias;
-	struct affected_type *cur_aff;
 	int idx, pos;
 	int hit = GET_HIT(this), mana = GET_MANA(this), move = GET_MOVE(this);
     Creature *ch = this;
@@ -411,7 +410,10 @@ Creature::saveToXML()
 	// Remove all spell affects without deleting them
 	saved_affs = affected;
 	affected = NULL;
-	affect_total(this);
+
+	for (cur_aff = saved_affs;cur_aff;cur_aff = cur_aff->next)
+		affect_modify(this, cur_aff->location, cur_aff->modifier,
+			cur_aff->bitvector, cur_aff->aff_index, false);
 
 	// Before we save everything, every piece of eq, and every affect must
 	// be removed and stored - otherwise all the stats get screwed up when
@@ -582,6 +584,10 @@ Creature::saveToXML()
 		if (saved_impl[pos])
 			equip_char(this, saved_impl[pos], pos, MODE_IMPLANT);
 	}
+
+	for (cur_aff = saved_affs;cur_aff;cur_aff = cur_aff->next)
+		affect_modify(this, cur_aff->location, cur_aff->modifier,
+			cur_aff->bitvector, cur_aff->aff_index, true);
 	affected = saved_affs;
 	affect_total(this);
 
