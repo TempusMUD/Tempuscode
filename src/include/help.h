@@ -106,27 +106,6 @@ class HelpItem {
 	HelpItem *next;
 	HelpItem *next_show;
 };
-
-class HelpGroup {
-  public:
-	HelpGroup();
-	bool AddUser(Creature * ch, char *argument);
-	bool RemoveUser(Creature * ch, char *argument);
-	void Members(Creature * ch, char *argument);
-	bool CanEdit(Creature * ch, HelpItem * n);
-	void Show(Creature * ch);
-	void Load();
-	void Save();
-
-  private:
-	 vector < long >groups[HGROUP_MAX];
-	bool add_user(long uid, long gid);
-	bool remove_user(long uid, long gid);
-	long get_gid_by_name(char *gname);
-	bool is_member(long uid, long gid);
-	void build_group_list(void);
-};
-
 class HelpCollection {
 
 	friend void SwapItems(HelpItem * A, HelpItem * Ap, HelpItem * B,
@@ -168,7 +147,6 @@ class HelpCollection {
 	// Data
 	HelpItem *items;			// The top of the list of help topics
 	HelpItem *bottom;			// The bottom of the list of help topics
-	HelpGroup Groups;			// The groups,menbers etc.
 
   private:
 	// Returns a show list of items it found

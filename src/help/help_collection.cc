@@ -15,6 +15,7 @@ using namespace std;
 #include "screen.h"
 #include "handler.h"
 #include "tmpstr.h"
+#include "security.h"
 
 // Where under lib do we toss our data?
 const char *Help_Directory = "text/help_data/";
@@ -39,7 +40,6 @@ static const struct hcollect_command {
 	"approve", "<topic #>", LVL_DEMI}, {
 	"create", "", LVL_DEMI}, {
 	"edit", "<topic #>", LVL_IMMORT}, {
-	"group", "(subcommand)", LVL_IMMORT}, {
 	"info", "", LVL_DEMI}, {
 	"list", "[range <start>[end]]", LVL_IMMORT}, {
 	"save", "", LVL_IMMORT}, {
@@ -291,8 +291,11 @@ HelpCollection::EditItem(Creature * ch, int idnum)
 {
 	// See if you can edit it before you do....
 	HelpItem *cur;
+	if(! Security::isMember( ch, "Help" ) ) {
+		send_to_char(ch, "You cannot edit help files.\r\n");
+	}
 	for (cur = items; cur && cur->idnum != idnum; cur = cur->Next());
-	if (cur && Groups.CanEdit(ch, cur)) {
+	if( cur != NULL ) {
 		cur->Edit(ch);
 		return true;
 	}
@@ -368,7 +371,6 @@ HelpCollection::SaveAll(Creature * ch)
 {
 	HelpItem *cur;
 	SaveIndex(ch);
-	Groups.Save();
 	for (cur = items; cur; cur = cur->Next()) {
 		if (IS_SET(cur->flags, HFLAG_MODIFIED))
 			cur->Save();
@@ -416,7 +418,6 @@ HelpCollection::LoadIndex()
 	char fname[256], *s;
 	HelpItem *n;
 	int num_items = 0;
-	Groups.Load();
 	s = fname;
 	sprintf(fname, "%s/%s", Help_Directory, "index");
 	index_file.open(fname, ios::in);
@@ -584,7 +585,6 @@ HelpCollection::Show(Creature * ch)
 		CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), num_editing, CCCYN(ch, C_NRM),
 		CCRED(ch, C_NRM), CCNRM(ch, C_NRM), num_no_group, CCRED(ch, C_NRM),
 		CCNRM(ch, C_NRM));
-	Groups.Show(ch);
 }
 
 // Blah blah print out the hcollect commands.
@@ -645,51 +645,6 @@ HelpCollection::find_item_by_id(int id)
 	return cur;
 }
 
-// Group command parser. 
-// Yeah yeah. Prolly doesn't need it but here it is.
-static void
-do_group_command(Creature * ch, char *argument)
-{
-	int com;
-	argument = one_argument(argument, linebuf);
-	skip_spaces(&argument);
-	if (!*linebuf) {
-		do_group_cmds(ch);
-		return;
-	}
-	for (com = 0;; com++) {
-		if (!grp_cmds[com].keyword) {
-			send_to_char(ch, "Unknown group command, '%s'.\r\n", linebuf);
-			return;
-		}
-		if (is_abbrev(linebuf, grp_cmds[com].keyword))
-			break;
-	}
-	if (grp_cmds[com].level > GET_LEVEL(ch)) {
-		send_to_char(ch, "You are not godly enough to do this!\r\n");
-		return;
-	}
-	switch (com) {
-	case 0:					// adduser
-		Help->Groups.AddUser(ch, argument);
-		break;
-	case 1:					// create
-		//Help->Groups.Create(ch, argument);
-		send_to_char(ch, "Unimplimented.\r\n");
-		break;
-	case 2:					// list
-		Help->Groups.Show(ch);
-		break;
-	case 3:					// member listing "members"
-		Help->Groups.Members(ch, argument);
-		break;
-	case 4:					// remuser
-		Help->Groups.RemoveUser(ch, argument);
-		break;
-	default:
-		do_group_cmds(ch);
-	}
-}
 
 // The "immhelp" command
 ACMD(do_immhelp)
@@ -831,22 +786,19 @@ ACMD(do_help_collection_command)
 			send_to_char(ch, "hcollect edit <#|exit>\r\n");
 		}
 		break;
-	case 3:					// Group
-		do_group_command(ch, argument);
-		break;
-	case 4:					// Info
+	case 3:					// Info
 		Help->Show(ch);
 		break;
-	case 5:					// List
+	case 4:					// List
 		Help->List(ch, argument);
 		break;
-	case 6:					// Save
+	case 5:					// Save
 		Help->SaveAll(ch);
 		break;
-	case 7:					// Set
+	case 6:					// Set
 		Help->Set(ch, argument);
 		break;
-	case 8:					// Stat
+	case 7:					// Stat
 		argument = one_argument(argument, linebuf);
 		if (*linebuf && isdigit(linebuf[0])) {
 			id = atoi(linebuf);
@@ -872,27 +824,27 @@ ACMD(do_help_collection_command)
 			send_to_char(ch, "Stat what item?\r\n");
 		}
 		break;
-	case 9:					// Sync
+	case 8:					// Sync
 		Help->Sync();
 		send_to_char(ch, "Okay.\r\n");
 		break;
-	case 10:					// Search (mode==3 is "stat" rather than "show") show_no_app "true"
+	case 9:					// Search (mode==3 is "stat" rather than "show") show_no_app "true"
 		// searchmode=true is find all items matching.
 		Help->GetTopic(ch, argument, 3, true, -1, true);
 		break;
-	case 11:					// UnApprove
+	case 10:					// UnApprove
 		Help->UnApproveItem(ch, argument);
 		break;
-	case 12:					// Immhelp
+	case 11:					// Immhelp
 		Help->GetTopic(ch, argument, 2, false, HGROUP_IMMHELP);
 		break;
-	case 13:					// olchelp
+	case 12:					// olchelp
 		Help->GetTopic(ch, argument, 2, false, HGROUP_OLC);
 		break;
-	case 14: 				   // QControl Help
+	case 13: 				   // QControl Help
 		Help->GetTopic(ch, argument, 2, false, HGROUP_QCONTROL);
 		break;
-	case 15:{					// Swap 2 topics
+	case 14:{					// Swap 2 topics
 			HelpItem *A = NULL;
 			HelpItem *Ap = NULL;
 			HelpItem *B = NULL;
