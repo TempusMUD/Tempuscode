@@ -1046,7 +1046,7 @@ extern const struct command_info cmd_info[] = {
     { "selfdestruct", POS_RESTING, do_self_destruct, 0, 0},
     { "send"     , POS_SLEEPING, do_send     , LVL_TIMEGOD, 0 },
     { "serenade" , POS_RESTING , do_action   , 0, 0 },
-    { "set"      , POS_DEAD    , do_set      , LVL_GRGOD, 0 },
+    { "set"      , POS_DEAD    , do_set      , LVL_GOD, 0 },
     { "severtell", POS_DEAD    , do_severtell, LVL_IMMORT, 0 },
     { "shout"    , POS_RESTING , do_gen_comm , 0, SCMD_SHOUT },
     { "shake"    , POS_RESTING , do_action   , 0, 0 },
