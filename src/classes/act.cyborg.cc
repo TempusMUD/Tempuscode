@@ -3125,15 +3125,14 @@ ACMD(do_de_energize)
     int move = 0;
 
     skip_spaces(&argument);
-  
-    if (!*argument) {
-    send_to_char("De-energize who?\r\n", ch);
-    return;
-    }
 
-    if (!(vict = get_char_room_vis(ch, argument))) {
-    send_to_char("No-one by that name here.\r\n", ch);
-    return;
+    if ( ! ( vict = get_char_room_vis( ch, argument ) ) ) {
+	if ( FIGHTING( ch ) ) {
+	    vict = FIGHTING( ch );
+	} else {
+	    send_to_char( "De-energize who??\r\n", ch );
+	    return;
+	}
     }
 
     if (vict == ch) {
