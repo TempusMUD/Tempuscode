@@ -3375,7 +3375,6 @@ mag_assign_spells(void)
     spello(SKILL_ELUSION, X, X, X, X, X, X, X, X,X, X, X, X, X,9, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
-                       /* M  C Th Wa Ba Sy Ph C Kn Rn Hd Mk Vm  Mr 1 2 3 */
     spello(SKILL_RETREAT, X, X,16,16, X, X, X,X,X, 18,17,33, X, 20, X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
@@ -3398,10 +3397,10 @@ mag_assign_spells(void)
     spello(SKILL_REFLEX_BOOST,  X, X, X, X, X, X, X, 18, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
     
-	spello(SKILL_IMPLANT_W,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	spello(SKILL_IMPLANT_W,  X, X, X, X, X, X, X, 26, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
-	spello(SKILL_ADV_IMPLANT_W,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	spello(SKILL_ADV_IMPLANT_W,  X, X, X, X, X, X, X, 28, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
 	spello(SKILL_OFFENSIVE_POS,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
@@ -3410,19 +3409,20 @@ mag_assign_spells(void)
 	spello(SKILL_DEFENSIVE_POS,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
-	spello(SKILL_MELEE_COMBAT_TAC,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	spello(SKILL_MELEE_COMBAT_TAC,X,X, X, X, X, X,X,X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
 	spello(SKILL_NEURAL_BRIDGING,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
-	spello(SKILL_ARTERIAL_FLOW,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	spello(SKILL_ARTERIAL_FLOW,X,X, X, X, X, X,X, X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
 	spello(SKILL_OPTIMMUNAL_RESP,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
-	spello(SKILL_ADRENAL_MAXIMIZER,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+                                /* M C Th Wa Ba Sy Ph C  Kn Rn Hd Mk Vm  Mr */
+	spello(SKILL_ADRENAL_MAXIMIZER,X,X, X, X, X, X, X,37, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
     spello(SKILL_POWER_BOOST,   X, X, X, X, X, X, X, 18, X, X, X, X, X,X,X,X,X,
