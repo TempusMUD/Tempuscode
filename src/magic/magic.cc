@@ -1917,7 +1917,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af2.aff_index = 2;
 		af2.duration = 
                      MAX(15, ch->getLevelBonus(SPELL_VACUUM_SHROUD) >> 2); 
-		to_vict = "A total vacuum springs into existance around your body.";
+		to_vict = "A total vacuum springs into existence around your body.";
         accum_affect = TRUE;
 		break;
 
