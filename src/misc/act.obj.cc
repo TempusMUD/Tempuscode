@@ -191,7 +191,7 @@ void consolidate_char_money( struct char_data *ch ) {
         send_to_char( buf, ch );
 
         if ( AFF_FLAGGED( ch, AFF_GROUP ) && PRF2_FLAGGED( ch, PRF2_AUTOSPLIT ) ) {
-            sprintf( buf2, "%d credits", num_gold );
+            sprintf( buf2, "%d credits", num_credits );
             do_split( ch, buf2, 0, 0 );  
         }
     }
