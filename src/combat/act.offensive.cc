@@ -2701,7 +2701,7 @@ ACCMD(do_disarm)
 
 		GET_EXP(ch) += MIN(100, weap->getWeight());
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (IS_NPC(vict) && can_see_creature(vict, ch))
+		if (IS_NPC(vict) && !vict->isFighting() && can_see_creature(vict, ch))
 			set_fighting(vict, ch, 0);
 	} else {
 		send_to_char(ch, "You fail the disarm!\r\n");
