@@ -23,6 +23,7 @@ using namespace std;
 #include "screen.h"
 #include "tokenizer.h"
 #include "tmpstr.h"
+#include "accstr.h"
 #include "player_table.h"
 #include "clan.h"
 
@@ -462,18 +463,27 @@ void
 House::notifyReposession( Creature *ch )
 {
 	extern int MAIL_OBJ_VNUM;
-	if( getRepoNoteCount() == 0 ) {
+	obj_data *note;
+
+	if(getRepoNoteCount() == 0)
+		return;
+	
+	note = read_object(MAIL_OBJ_VNUM);
+	if (!note) {
+		errlog("Failed to read object MAIL_OBJ_VNUM (#%d)", MAIL_OBJ_VNUM);
 		return;
 	}
-	obj_data *note =  read_object(MAIL_OBJ_VNUM);
-	char *msg = tmp_sprintf( "The following items were sold at auction to cover your back rent:\r\n\r\n");
-	for( unsigned int i = 0; i < getRepoNoteCount(); ++i ) {
-		msg = tmp_strcat( msg, getRepoNote(i).c_str() );
-	}
-	msg = tmp_strcat( msg, "\r\n\r\nSincerely,\r\n    The Management\r\n");
-	note->action_desc = strdup(msg);
+
+	// Build the repossession note
+	acc_string_clear();
+	acc_strcat("The following items were sold at auction to cover your back rent:\r\n\r\n");
+	for( unsigned int i = 0; i < getRepoNoteCount(); ++i )
+		acc_strcat(getRepoNote(i).c_str(), NULL);
+	acc_strcat("\r\n\r\nSincerely,\r\n    The Management\r\n", NULL);
+
+	note->action_desc = strdup(acc_get_string());
 	note->plrtext_len = strlen(note->action_desc) + 1;
-	obj_to_char( note, ch);
+	obj_to_char(note, ch);
 	send_to_char(ch, "The TempusMUD Landlord gives you a letter detailing your bill.\r\n");
 	clearRepoNotes();
 	save();
