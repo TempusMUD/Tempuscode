@@ -499,15 +499,24 @@ check_idling(struct Creature *ch)
 		if (ch->desc && STATE(ch->desc) == CXN_NETWORK) {
 			send_to_char(ch, "Idle limit reached.  Connection reset by peer.\r\n");
 			set_desc_state(CXN_PLAYING, ch->desc);
-		} else if (ch->char_specials.timer > 60 && GET_LEVEL(ch) < 50) {
-			if (ch->in_room != NULL)
-				char_from_room(ch,false);
-			char_to_room(ch, real_room(3),true);
-			if (ch->desc)
-				close_socket(ch->desc);
-			ch->desc = NULL;
-			ch->idle();
-			return TRUE;
+		} else if (ch->char_specials.timer > 60) {
+			if (GET_LEVEL(ch) > 49) {
+				// Immortals have their afk flag set when idle
+				if (!PLR_FLAGGED(ch, PLR_AFK)) {
+					send_to_char(ch,
+						"You have been idle, and are now marked afk.\r\n");
+					SET_BIT(PLR_FLAGS(ch), PLR_AFK);
+				}
+			} else {
+				if (ch->in_room != NULL)
+					char_from_room(ch,false);
+				char_to_room(ch, real_room(3),true);
+				if (ch->desc)
+					close_socket(ch->desc);
+				ch->desc = NULL;
+				ch->idle();
+				return true;
+			}
 		}
 	}
 	return FALSE;
@@ -641,7 +650,7 @@ point_update(void)
 
 		if (!IS_NPC(i)) {
 			update_char_objects(i);
-			if (GET_LEVEL(i) < LVL_GOD && check_idling(i))
+			if (check_idling(i))
 				continue;
 		} else if (i->char_specials.timer)
 			i->char_specials.timer -= 1;
