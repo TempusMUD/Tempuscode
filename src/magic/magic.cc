@@ -277,11 +277,11 @@ update_iaffects(Creature * ch)
 void
 obj_affect_update(void)
 {
-    Creature *ch;
+    Creature *ch = NULL;
     extern struct obj_data *object_list;
     struct obj_data *obj;
     struct tmp_obj_affect *af, *next_af;
-	int pos = -1, pos_mode;
+	int pos = -1, pos_mode = MODE_EQ;
     int last = 0;
 	bool aff_removed = false;
 
