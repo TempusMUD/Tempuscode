@@ -2606,7 +2606,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 
     /* need magic weapons to damage undead */
     if ( IS_WEAPON( attacktype ) && weap && IS_OBJ_TYPE( weap, ITEM_WEAPON ) &&
-	 NON_CORPOREAL_UNDEAD( victim ) && !IS_OBJ_STAT( weap, ITEM_MAGIC ) )
+	( NON_CORPOREAL_UNDEAD( victim ) || IS_RAKSHASA( victim ) ) && !IS_OBJ_STAT( weap, ITEM_MAGIC ) )
 	dam = 0;
 
     /* shopkeeper protection */
@@ -2663,8 +2663,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	if ( IS_MOB( victim ) && GET_LEVEL( ch ) >= LVL_AMBASSADOR && 
 	     GET_LEVEL( ch ) < LVL_TIMEGOD && !mini_mud )
 	    dam = 0;
-
-
+	
 	if ( victim != ch && IS_NPC( ch ) && IS_NPC( victim ) && victim->master &&
 	     GET_MOB_WAIT( ch ) < 10 &&
 	     !number( 0, 10 ) && IS_AFFECTED( victim, AFF_CHARM ) &&

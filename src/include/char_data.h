@@ -165,7 +165,8 @@
 #define RACE_KOBOLD      48
 #define RACE_UMBER_HULK  49
 #define RACE_WEMIC       50
-#define NUM_RACES        51
+#define RACE_RAKSHASA    51
+#define NUM_RACES        52
 
 /* Hometown defines                            */
 #define HOME_UNDEFINED   -1

@@ -909,6 +909,7 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 #define IS_BUGBEAR(ch)          (GET_RACE(ch) == RACE_BUGBEAR)
 #define IS_ALIEN_1(ch)          (GET_RACE(ch) == RACE_ALIEN_1)
 #define IS_FISH(ch)             (GET_RACE(ch) == RACE_FISH)
+#define IS_RAKSHASA(ch)         (GET_RACE(ch) == RACE_RAKSHASA)
 #define IS_RACE(ch, race)       (GET_RACE(ch) == race)
 
 #define HUMANOID_TYPE(ch)       ((GET_RACE(ch) <= RACE_DEVIL && \
@@ -922,7 +923,8 @@ void WAIT_STATE(struct char_data *ch, int cycle);
 				 IS_RACE(ch, RACE_GITHYANKI) ||    \
 				 IS_RACE(ch, RACE_KOBOLD) ||    \
 				 IS_RACE(ch, RACE_MEPHIT) ||    \
-				 IS_RACE(ch, RACE_DAEMON))
+				 IS_RACE(ch, RACE_DAEMON) ||    \
+                                 IS_RACE(ch, RACE_RAKSHASA))
 				 
 				 
 #define IS_TIAMAT(ch)           (GET_MOB_VNUM(ch) == 61119)
