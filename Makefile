@@ -69,4 +69,7 @@ update: FORCE
 	make src_update
 	scp backup/src_update6.tgz realm@sv:TempusMUD
 
+jwatson-test: FORCE
+	echo test
+
 FORCE:
