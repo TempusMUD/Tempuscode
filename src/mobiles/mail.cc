@@ -36,6 +36,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include "screen.h"
 #include "clan.h"
 #include "materials.h"
+#include "player_table.h"
 
 void
 show_mail_stats(Creature * ch)
@@ -48,12 +49,10 @@ show_mail_stats(Creature * ch)
 int
 has_mail(long id)
 {
-	char fname[256];
 	fstream mail_file;
-	if (!get_name_by_id(id))
+	if(! playerIndex.exists(id) )
 		return 0;
-	get_filename(get_name_by_id(id), fname, PLAYER_MAIL_FILE);
-	mail_file.open(fname, ios::in);
+	mail_file.open(get_mail_file_path(id), ios::in);
 
 	if (!mail_file.is_open())
 		return 0;
@@ -63,13 +62,11 @@ has_mail(long id)
 int
 can_recieve_mail(long id)
 {
-	char fname[256];
 	long length = 0;
 	fstream mail_file;
-	if (!get_name_by_id(id))
+	if(! playerIndex.exists(id) )
 		return 0;
-	get_filename(get_name_by_id(id), fname, PLAYER_MAIL_FILE);
-	mail_file.open(fname, ios::in);
+	mail_file.open(get_mail_file_path(id), ios::in);
 
 	if (!mail_file.is_open())
 		return 1;
@@ -167,16 +164,13 @@ store_mail(long to_id, long from_id, char *txt, char *cc_list,
 	letter->msg_size = strlen(txt);
 	letter->spare = 0;
 
-	char *to_name = get_name_by_id(to_id);
-
-	if (to_name == 0) {
+	if(! playerIndex.exists(to_id) ) {
 		slog("Toss_Mail Error, recipient idnum %ld invalid.", to_id);
 		delete letter;
 		return 0;
 	}
 
-	get_filename(to_name, fname, PLAYER_MAIL_FILE);
-	mail_file.open(fname, ios::out | ios::app | ios::ate);
+	mail_file.open(get_mail_file_path(to_id), ios::out | ios::app | ios::ate);
 	if (!mail_file.is_open()) {
 		sprintf(buf, "Error, mailfile (%s) not opened.", fname);
 		send_to_char(get_char_in_world_by_idnum(from_id), buf);
@@ -197,14 +191,12 @@ int
 purge_mail(long idnum)
 {
 	fstream mail_file;
-	char fname[256];
-	get_filename(get_name_by_id(idnum), fname, PLAYER_MAIL_FILE);
-	mail_file.open(fname, ios::in);
+	mail_file.open(get_mail_file_path(idnum), ios::in);
 	if (!mail_file.is_open()) {
 		return 0;
 	}
 	mail_file.close();
-	remove(fname);
+	remove(get_mail_file_path(idnum));
 	return 1;
 }
 
@@ -224,9 +216,7 @@ recieve_mail(Creature * ch)
 	mail_data *letter = NULL;
 	bool backup_file = false;
 
-	get_filename(GET_NAME(ch), fname, PLAYER_MAIL_FILE);
-
-	mail_file.open(fname, ios::in);
+	mail_file.open(get_mail_file_path(GET_IDNUM(ch)), ios::in);
 
 	if (!mail_file.is_open()) {
 		return 0;
