@@ -1987,7 +1987,7 @@ ACMD(do_shoot)
     }
 
     if (FIGHTING(ch) && ch == FIGHTING(FIGHTING(ch)) && !number(0, 3) &&
-	(!IS_MERC(ch) || GET_LEVEL(ch) < LVL_GRGOD)) {
+	(!IS_MERC(ch)) && (GET_LEVEL(ch) < LVL_GRGOD)) {
 	send_to_char("You are in too close to get off a shot!\r\n", ch);
 	return;
     }
