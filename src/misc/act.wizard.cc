@@ -5429,7 +5429,7 @@ ACMD(do_set)
 		{"remort_tough", LVL_IMMORT, PC, BINARY, "AdminFull"},	/* 85 */
 		{"council", LVL_IMMORT, PC, BINARY, "WizardFull"},
 		{"nopost", LVL_IMMORT, PC, BINARY, "AdminBasic"},
-		{"logging", LVL_CREATOR, PC, BINARY, "WizardAdmin"},
+		{"logging", LVL_IMMORT, PC, BINARY, "WizardAdmin"},
 		{"noshout", LVL_IMMORT, PC, BINARY, "WizardFull"},
 		{"nopk", LVL_IMMORT, PC, BINARY, "AdminFull"},	/* 90 */
 		{"soilage", LVL_IMMORT, PC, MISC, "WizardBasic"},
