@@ -523,14 +523,9 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 
 		if (mode == RENT_FACTOR) {
 			act("$n stores your belongings and helps you into your private chamber.", FALSE, recep, 0, ch, TO_VICT);
-			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
-				"%s has rented ( %d/day, %lld tot. )", GET_NAME(ch),
-				cost, GET_GOLD(ch) + GET_PAST_BANK(ch));
 			ch->rent();
 		} else {				/* cryo */
 			act("$n stores your belongings and helps you into your private chamber.\r\n" "A white mist appears in the room, chilling you to the bone...\r\n" "You begin to lose consciousness...", FALSE, recep, 0, ch, TO_VICT);
-			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
-				"%s has cryo-rented.", GET_NAME(ch));
 			ch->cryo();
 		}
 
