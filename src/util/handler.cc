@@ -1902,15 +1902,18 @@ get_char_room_vis(struct char_data * ch, char *name)
     CharacterList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end() && j <= number; ++it ) {
         i = *it;
-        if ((af = affected_by_spell(i, SKILL_DISGUISE)))
+        if ((af = affected_by_spell(i, SKILL_DISGUISE))) {
             mob = real_mobile_proto(af->modifier);
+        }
 
-        if ((mob && isname(tmp, mob->player.name))
-            || ((!af || CAN_DETECT_DISGUISE(ch, i, af->duration)) &&
-                isname(tmp, i->player.name)))
-            if (CAN_SEE(ch, i))
-                if (++j == number)
+        if ((mob && isname(tmp, mob->player.name)) || 
+            ( (!af || CAN_DETECT_DISGUISE(ch, i, af->duration)) && isname(tmp, i->player.name)) ) {
+            if (CAN_SEE(ch, i)) {
+                if (++j == number) {
                     return i;
+                }
+            }
+        }
     }
 
 	if (!str_cmp(name, "me"))

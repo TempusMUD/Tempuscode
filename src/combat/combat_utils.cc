@@ -65,39 +65,35 @@ calculate_weapon_probability( struct char_data *ch, int prob, struct obj_data *w
 
         // Below this check applies to WIELD and WIELD_2 only!
     if(weap->worn_on != WEAR_WIELD && weap->worn_on != WEAR_WIELD_2) {
-                return prob;
-        }
+        return prob;
+    }
 
-        // Weapon speed
-        for ( i = 0, weap_weight = 0; i < MAX_OBJ_AFFECT; i++ ) {
-                if ( weap->affected[i].location == APPLY_WEAPONSPEED ) {
-                        weap_weight -= weap->affected[i].modifier;
-                        break;
-                }   
-        }
-        // 1/4 actual weapon weight or effective weapon weight, whichever is higher.
-        weap_weight += weap->getWeight();
-        weap_weight = MAX( ( weap->getWeight() >> 2 ), weap_weight );
+    // Weapon speed
+    for ( i = 0, weap_weight = 0; i < MAX_OBJ_AFFECT; i++ ) {
+        if ( weap->affected[i].location == APPLY_WEAPONSPEED ) {
+            weap_weight -= weap->affected[i].modifier;
+            break;
+        }   
+    }
+    // 1/4 actual weapon weight or effective weapon weight, whichever is higher.
+    weap_weight += weap->getWeight();
+    weap_weight = MAX( ( weap->getWeight() >> 2 ), weap_weight );
 
-        if(weap->worn_on == WEAR_WIELD_2) {
-            prob -= ( prob * weap_weight ) / 
-                    ( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w >> 1 );
-            if ( !affected_by_spell(ch, SKILL_NEURAL_BRIDGING) ) {
+    if(weap->worn_on == WEAR_WIELD_2) {
+        prob -= ( prob * weap_weight ) / ( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w >> 1 );
+        if ( !affected_by_spell(ch, SKILL_NEURAL_BRIDGING) ) {
             prob += CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) - 60;
         } else {
             if ( CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) >= LEARNED( ch )) {
                 prob += CHECK_SKILL( ch, SKILL_SECOND_WEAPON ) - 60;
-            } else {
-                prob -= 20;
             }
-            prob += CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) - 100;
         }
-        } else {
-                prob -= ( prob * weap_weight ) / 
-                                ( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w << 1 );
-                if(IS_MONK( ch ) )
-                        prob += ( LEARNED( ch ) - weapon_prof( ch, weap) ) >> 3;
+    } else {
+        prob -= ( prob * weap_weight ) / ( str_app[STRENGTH_APPLY_INDEX( ch )].wield_w << 1 );
+        if(IS_MONK( ch ) ){
+            prob += ( LEARNED( ch ) - weapon_prof( ch, weap) ) >> 3;
         }
+    }
     return prob;
 }
 
