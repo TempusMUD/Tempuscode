@@ -90,7 +90,7 @@ ACMD(do_skillset)
 
     if (!*name) {			/* no arguments. print an informative text */
 	send_to_char("Syntax: skillset <name> '<skill>' <value>\r\n", ch);
-	strcpy(help, "Skill being one of the following:\n\r");
+	strcpy(help, "Skill being one of the following:\r\n");
 	for (i = 0; *spells[i] != '\n'; i++) {
 	    if (*spells[i] == '!')
 		continue;
@@ -103,7 +103,7 @@ ACMD(do_skillset)
 	}
 	if (*help)
 	    send_to_char(help, ch);
-	send_to_char("\n\r", ch);
+	send_to_char("\r\n", ch);
 	return;
     }
     if (!(vict = get_char_vis(ch, name))) {
@@ -114,11 +114,11 @@ ACMD(do_skillset)
 
     /* If there is no chars in argument */
     if (!*argument) {
-	send_to_char("Skill name expected.\n\r", ch);
+	send_to_char("Skill name expected.\r\n", ch);
 	return;
     }
     if (*argument != '\'') {
-	send_to_char("Skill must be enclosed in: ''\n\r", ch);
+	send_to_char("Skill must be enclosed in: ''\r\n", ch);
 	return;
     }
     /* Locate the last quote && lowercase the magic words (if any) */
@@ -127,33 +127,33 @@ ACMD(do_skillset)
 	*(argument + qend) = LOWER(*(argument + qend));
 
     if (*(argument + qend) != '\'') {
-	send_to_char("Skill must be enclosed in: ''\n\r", ch);
+	send_to_char("Skill must be enclosed in: ''\r\n", ch);
 	return;
     }
     strcpy(help, (argument + 1));
     help[qend - 1] = '\0';
     if ((skill = find_skill_num(help)) <= 0) {
-	send_to_char("Unrecognized skill.\n\r", ch);
+	send_to_char("Unrecognized skill.\r\n", ch);
 	return;
     }
     argument += qend + 1;		/* skip to next parameter */
     argument = one_argument(argument, buf);
 
     if (!*buf) {
-	send_to_char("Learned value expected.\n\r", ch);
+	send_to_char("Learned value expected.\r\n", ch);
 	return;
     }
     value = atoi(buf);
     if (value < 0) {
-	send_to_char("Minimum value for learned is 0.\n\r", ch);
+	send_to_char("Minimum value for learned is 0.\r\n", ch);
 	return;
     }
     if (value > 120) {
-	send_to_char("Max value for learned is 120.\n\r", ch);
+	send_to_char("Max value for learned is 120.\r\n", ch);
 	return;
     }
     if (IS_NPC(vict)) {
-	send_to_char("You can't set NPC skills.\n\r", ch);
+	send_to_char("You can't set NPC skills.\r\n", ch);
 	return;
     }
     sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
@@ -162,7 +162,7 @@ ACMD(do_skillset)
 
     SET_SKILL(vict, skill, value);
 
-    sprintf(buf2, "You change %s's %s to %d.\n\r", GET_NAME(vict),
+    sprintf(buf2, "You change %s's %s to %d.\r\n", GET_NAME(vict),
 	    spells[skill], value);
     send_to_char(buf2, ch);
 }

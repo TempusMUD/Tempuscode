@@ -3643,32 +3643,32 @@ print_object_location(int num, struct obj_data * obj,
         sprintf(buf, "%33s", " - ");
   
     if (obj->in_room != NULL) {
-        sprintf(buf + strlen(buf), "%s[%s%5d%s] %s%s%s\n\r",
+        sprintf(buf + strlen(buf), "%s[%s%5d%s] %s%s%s\r\n",
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), 
                 obj->in_room->number, CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
                 obj->in_room->name, CCNRM(ch, C_NRM));
         send_to_char(buf, ch);
     } else if (obj->carried_by) {
-        sprintf(buf + strlen(buf), "carried by %s%s%s [%s%5d%s]%s\n\r",
+        sprintf(buf + strlen(buf), "carried by %s%s%s [%s%5d%s]%s\r\n",
                 CCYEL(ch, C_NRM), PERS(obj->carried_by, ch), 
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->carried_by->in_room->number,
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
         send_to_char(buf, ch);
     } else if (obj->worn_by) {
-        sprintf(buf + strlen(buf), "worn by %s%s%s [%s%5d%s]%s\n\r",
+        sprintf(buf + strlen(buf), "worn by %s%s%s [%s%5d%s]%s\r\n",
                 CCYEL(ch, C_NRM), PERS(obj->worn_by, ch), 
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->worn_by->in_room->number,
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
         send_to_char(buf, ch);
     } else if (obj->in_obj) {
-        sprintf(buf + strlen(buf), "inside %s%s%s%s\n\r",
+        sprintf(buf + strlen(buf), "inside %s%s%s%s\r\n",
                 CCGRN(ch, C_NRM), obj->in_obj->short_description, 
                 CCNRM(ch, C_NRM), (recur ? ", which is" : " "));
         send_to_char(buf, ch);
         if (recur)
             print_object_location(0, obj->in_obj, ch, recur);
     } else {
-        sprintf(buf + strlen(buf), "%sin an unknown location%s\n\r", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+        sprintf(buf + strlen(buf), "%sin an unknown location%s\r\n", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
         send_to_char(buf, ch);
     }
 }

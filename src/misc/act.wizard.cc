@@ -5874,12 +5874,12 @@ ACMD(do_rlist)
     }
 
     if ((first < 0) || (first > 99999) || (last < 0) || (last > 99999)) {
-        send_to_char("Values must be between 0 and 99999.\n\r", ch);
+        send_to_char("Values must be between 0 and 99999.\r\n", ch);
         return;
     }
 
     if (first >= last) {
-        send_to_char("Second value must be greater than first.\n\r", ch);
+        send_to_char("Second value must be greater than first.\r\n", ch);
         return;
     }
     strcpy(out_list, "");
@@ -5906,7 +5906,7 @@ ACMD(do_rlist)
         }
 
     if (!found)
-        send_to_char("No rooms where found in those parameters.\n\r", ch);
+        send_to_char("No rooms where found in those parameters.\r\n", ch);
     else
         page_string(ch->desc, out_list, 1);
 }
@@ -6019,12 +6019,12 @@ ACMD(do_mlist) {
     }
 
     if ((first < 0) || (first > 99999) || (last < 0) || (last > 99999)) {
-        send_to_char("Values must be between 0 and 99999.\n\r", ch);
+        send_to_char("Values must be between 0 and 99999.\r\n", ch);
         return;
     }
 
     if (first >= last) {
-        send_to_char("Second value must be greater than first.\n\r", ch);
+        send_to_char("Second value must be greater than first.\r\n", ch);
         return;
     }
 
@@ -6051,7 +6051,7 @@ ACMD(do_mlist) {
     }
 
     if (!found)
-        send_to_char("No mobiles where found in those parameters.\n\r", ch);
+        send_to_char("No mobiles where found in those parameters.\r\n", ch);
     else
         page_string(ch->desc, out_list, 1);
 }
@@ -6079,12 +6079,12 @@ ACMD(do_olist)
     }
 
     if ((first < 0) || (first > 99999) || (last < 0) || (last > 99999)) {
-        send_to_char("Values must be between 0 and 99999.\n\r", ch);
+        send_to_char("Values must be between 0 and 99999.\r\n", ch);
         return;
     }
 
     if (first >= last) {
-        send_to_char("Second value must be greater than first.\n\r", ch);
+        send_to_char("Second value must be greater than first.\r\n", ch);
         return;
     }
 
@@ -6107,7 +6107,7 @@ ACMD(do_olist)
     }
 
     if (!found)
-        send_to_char("No objects where found in those parameters.\n\r", ch);
+        send_to_char("No objects where found in those parameters.\r\n", ch);
     else
         page_string(ch->desc, out_list, 1);
 }
