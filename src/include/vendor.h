@@ -14,6 +14,8 @@ struct ShopData {
 	vector<ShopTime> closed_hours;
 	char *msg_denied;		// Message sent to those of wrong race, creed, etc
 	char *msg_badobj;		// Attempt to sell invalid obj to self
+	char *msg_sell_noobj;	// Attempt to sell missing obj to player
+	char *msg_buy_noobj;	// Attempt to buy missing obj from player
 	char *msg_selfbroke;	// Shop ran out of money
 	char *msg_buyerbroke;	// Buyer doesn't have any money
 	char *msg_buy;			// Keeper successfully bought something
