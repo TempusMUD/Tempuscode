@@ -633,12 +633,12 @@ static inline bool IS_REMORT( const Creature *ch )
 #define GET_EQ(ch, i)                ((ch)->equipment[i])
 #define GET_IMPLANT(ch, i)      ((ch)->implants[i])
 
-#define GET_MOB_SPEC(ch) (IS_MOB(ch) ? (ch->mob_specials.shared->func) : NULL)
-#define GET_MOB_PROG(ch) (IS_MOB(ch) ? (ch->mob_specials.shared->prog) : NULL)
-#define GET_MOB_PARAM(ch) (IS_MOB(ch) ? (ch->mob_specials.shared->func_param) : NULL)
-#define GET_LOAD_PARAM(ch) (IS_MOB(ch) ? (ch->mob_specials.shared->load_param) : NULL)
+#define GET_MOB_SPEC(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->func) : NULL)
+#define GET_MOB_PROG(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->prog) : NULL)
+#define GET_MOB_PARAM(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->func_param) : NULL)
+#define GET_LOAD_PARAM(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->load_param) : NULL)
 #define GET_MOB_VNUM(mob)        (IS_MOB(mob) ? \
-                                      mob->mob_specials.shared->vnum : -1)
+                                      (mob)->mob_specials.shared->vnum : -1)
 
 #define GET_MOB_STATE(ch)       ((ch)->mob_specials.prog_state)
 #define GET_MOB_WAIT(ch)        ((ch)->mob_specials.wait_state)
@@ -991,6 +991,8 @@ bool CAN_GO(Creature * ch, int door);
 bool CAN_GO(obj_data * obj, int door);
 
 struct extra_descr_data *exdesc_list_dup(struct extra_descr_data *list);
+int smart_mobile_move(struct Creature *ch, int dir);
+int drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room);
 
 
 /* OS compatibility ******************************************************/
