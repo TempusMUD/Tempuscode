@@ -478,8 +478,12 @@ const char *spells[] =
     "de-energize",
     "assimilate",         /* 640 */
     "radionegation", 
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 645 */
-    "!UNUSED!", "!UNUSED!", 
+    "implant weaponry", 
+	"advanced implant weaponry", 
+	"offensive posturing", 
+	"defensive posturing",	/* 645 */
+    "melee combat tactics", 
+	"cogenic neural bridging", 
     "retreat", 
     "disguise", 
     "ambush",                     	/* 650 */
@@ -496,7 +500,9 @@ const char *spells[] =
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
     "hamstring", "snatch", "drag", "!UNUSED!", "!UNUSED!",	/* 670 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
-    "!UNUSED!", "!UNUSED!", "!UNUSED!",
+    "arterial flow enhancement", 
+	"genetek optimmunal response", 
+	"shukutei adrenal maximizations",
     "energy conversion",
     "!UNUSED!",	/* 680 */
     "blunt weapons",
@@ -3390,6 +3396,33 @@ mag_assign_spells(void)
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
     spello(SKILL_REFLEX_BOOST,  X, X, X, X, X, X, X, 18, X, X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+    
+	spello(SKILL_IMPLANT_W,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+
+	spello(SKILL_ADV_IMPLANT_W,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+
+	spello(SKILL_OFFENSIVE_POS,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+
+	spello(SKILL_DEFENSIVE_POS,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+
+	spello(SKILL_MELEE_COMBAT_TAC,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+
+	spello(SKILL_NEURAL_BRIDGING,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+
+	spello(SKILL_ARTERIAL_FLOW,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+
+	spello(SKILL_OPTIMMUNAL_RESP,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
+	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
+
+	spello(SKILL_ADRENAL_MAXIMIZER,  X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, CYB_ACTIVATE);
 
     spello(SKILL_POWER_BOOST,   X, X, X, X, X, X, X, 18, X, X, X, X, X,X,X,X,X,
