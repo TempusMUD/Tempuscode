@@ -35,6 +35,14 @@ using namespace std;
 // Maximum size of mail in bytes (arbitrary)
 #define MAX_MAIL_SIZE 4096
 
+// The vnum of the mail bag object
+#define MAIL_BAG_OBJ_VNUM 1219
+
+// The number of items the mail bag object can contain
+#define MAIL_BAG_OBJ_CONTAINS 75
+
+// The threshold before the postmaster starts putting mail in a bag
+#define MAIL_BAG_THRESH 6
 // How long to let mail sit in the file before purging it out.
 // (Not actually used atm)
 #define MAX_MAIL_AGE 15552000	// should be 6 months.

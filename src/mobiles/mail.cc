@@ -187,10 +187,12 @@ store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
         count++;
         strcat(obj->action_description, si->c_str());
         if (count <= cc_list.size())
-        strcat(obj->action_description, ", ");
+            strcat(obj->action_description, ", ");
+        else
+            strcat(obj->action_description, "\n");
     }
 
-    strcat(obj->action_description, "\n\n");
+    strcat(obj->action_description, "\n");
     strcat(obj->action_description, txt);
 
     obj->plrtext_len = strlen(obj->action_description) + 1;
@@ -237,19 +239,44 @@ int
 recieve_mail(Creature * ch)
 {
     int num_letters = 0;
+    int counter = 0;
     char *path = get_mail_file_path( GET_IDNUM(ch) );
+    bool container = false;
     list<obj_data *> mailBag;
+    
 
     mailBag = load_mail(path);
 
+    if (mailBag.size() > MAIL_BAG_THRESH )
+        container = true;
+        
     list<obj_data *>::iterator oi;
-
+    
+    obj_data *obj = NULL;
+    if (container)
+        obj = read_object(MAIL_BAG_OBJ_VNUM);
+        
     for (oi = mailBag.begin(); oi != mailBag.end(); oi++) {
+        counter++;
         num_letters++;
-        obj_to_char(*oi, ch);
+        if ((counter > MAIL_BAG_OBJ_CONTAINS) && container) {
+            obj_to_char(obj, ch);
+            obj = read_object(MAIL_BAG_OBJ_VNUM);
+            counter = 0;
+        }
+        if (obj) {
+            obj_to_obj(*oi, obj);
+        }
+        else {
+            obj_to_char(*oi, ch);
+        }
     }
 
+    if (obj)
+        obj_to_char(obj, ch);
+
     unlink(path);
+    
     return num_letters;
 }
 
@@ -496,16 +523,26 @@ postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
 
     num_mails = recieve_mail(ch);
 
-    if (num_mails) {
+    if (num_mails == 0) {
+        strcpy(buf2, "Sorry, you don't have any mail waiting.");
+        perform_tell(mailman, ch, buf2);
+    }
+    else if (num_mails > MAIL_BAG_THRESH) {
+        num_mails = num_mails / MAIL_BAG_OBJ_CONTAINS + 1;
+        sprintf(buf2, "$n gives you %d bag%s of mail.", num_mails,
+               (num_mails > 1 ? "s" : ""));
+        act(buf2, FALSE, mailman, 0, ch, TO_VICT);
+        sprintf(buf2, "$N gives $n %d bag%s of mail.", num_mails,
+               (num_mails > 1 ? "s" : ""));
+        act(buf2, FALSE, ch, 0, mailman, TO_ROOM);
+    }
+    else {
         sprintf(buf2, "$n gives you %d piece%s of mail.", num_mails,
             (num_mails > 1 ? "s" : ""));
         act(buf2, FALSE, mailman, 0, ch, TO_VICT);
         sprintf(buf2, "$N gives $n %d piece%s of mail.", num_mails,
             (num_mails > 1 ? "s" : ""));
         act(buf2, FALSE, ch, 0, mailman, TO_ROOM);
-    } else {
-        strcpy(buf2, "Sorry, you don't have any mail waiting.");
-        perform_tell(mailman, ch, buf2);
     }
     ch->saveToXML();
 }

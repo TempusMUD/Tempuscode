@@ -243,7 +243,7 @@ CTextEditor::SaveText(char *inStr)
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 	}
 }
-
+//#alias {sms %1 %2} {#loop {1,%%1} {ms %0.%%2}}
 void
 CTextEditor::ExportMail(void)
 {
@@ -256,24 +256,25 @@ CTextEditor::ExportMail(void)
 	// If they're trying to send a blank message
 	if (!*target || !strlen(*target)) {
 		SendMessage("Why would you send a blank message?\r\n");
-
-		mail_rcpt = desc->mail_to;
-		while (mail_rcpt) {
-			desc->mail_to = desc->mail_to->next;
-			free(mail_rcpt);
-			mail_rcpt = desc->mail_to;
-		}
-		return;
+        return;
 	}
 
-	if (desc->mail_to->next) {
-		for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next) {
-            cc_list.push_back(playerIndex.getName(mail_rcpt->recpt_idnum));
-		}
+    for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next) {
+        cc_list.push_back(playerIndex.getName(mail_rcpt->recpt_idnum));
 	}
-
+//    mail_to_id = playerIndex.getID(cc_list.front().c_str());dd
     cc_list.sort();
     cc_list.unique();
+
+ 	mail_rcpt = desc->mail_to;
+	while (mail_rcpt) {
+		desc->mail_to = desc->mail_to->next;
+		free(mail_rcpt);
+		mail_rcpt = desc->mail_to;
+	}
+   
+//    stored_mail = store_mail(mail_to_id, GET_IDNUM(desc->creature), *target, cc_list);
+
     list<string>::iterator si;
     for (si = cc_list.begin(); si != cc_list.end(); si++) {
         stored_mail = store_mail(playerIndex.getID(si->c_str()), 
@@ -291,8 +292,14 @@ CTextEditor::ExportMail(void)
         }
     }
 
-	if (stored_mail)
+	if (stored_mail) {
 		SendMessage("Message sent!\r\n");
+    }
+    else {
+        SendMessage("Your message was not received by one or more recipients.\r\n"
+                    "Please try again later!\r\n");
+        slog("SYSERR: store_mail() has returned <= 0");
+    }
 }
 
 void
