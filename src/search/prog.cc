@@ -146,7 +146,12 @@ prog_get_text(prog_env *env)
   case PROG_TYPE_OBJECT:
 	break;
   case PROG_TYPE_MOBILE:
-	return GET_MOB_PROG(((Creature *)env->owner));
+  if ((Creature*)env->owner) {
+      return GET_MOB_PROG(((Creature *)env->owner));
+  } else {
+      errlog("Mobile Prog with no owner - Can't happen at %s:%d", __FILE__, __LINE__);
+      return NULL;
+  }
   case PROG_TYPE_ROOM:
 	return ((room_data *)env->owner)->prog;
   }
