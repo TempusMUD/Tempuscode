@@ -576,26 +576,29 @@ SPECIAL(magic_user)
 	if (vict == NULL)
 		vict = FIGHTING(ch);
 
+    bool found = true;
+
 	if ((GET_LEVEL(ch) > 5) && (number(0, 8) == 0) &&
-		!affected_by_spell(ch, SPELL_ARMOR))
+		!affected_by_spell(ch, SPELL_ARMOR)) {
 		cast_spell(ch, ch, NULL, SPELL_ARMOR);
-
-	else if ((GET_LEVEL(ch) > 14) && (number(0, 8) == 0)
-		&& !IS_AFFECTED(ch, AFF_BLUR))
+    } else if ((GET_LEVEL(ch) > 14) && (number(0, 8) == 0)
+		&& !IS_AFFECTED(ch, AFF_BLUR)) {
 		cast_spell(ch, ch, NULL, SPELL_BLUR);
-
-	else if ((GET_LEVEL(ch) > 18) && (number(0, 8) == 0) &&
-		!IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD))
+    } else if ((GET_LEVEL(ch) > 18) && (number(0, 8) == 0) &&
+		!IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD)) {
 		cast_spell(ch, ch, NULL, SPELL_FIRE_SHIELD);
-
-	else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
+    } else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch))
 			cast_spell(ch, vict, NULL, SPELL_ENERGY_DRAIN);
 		else if (IS_GOOD(ch) && IS_EVIL(vict))
 			cast_spell(ch, vict, NULL, SPELL_DISPEL_EVIL);
-	}
-	if (number(0, 4))
-		return TRUE;
+    } else if (number(0, 4)) {
+        // do nothing
+    } else {
+        found = false;
+    }
+    if( found )
+        return TRUE;
 
 	switch (GET_LEVEL(ch)) {
 	case 4:
@@ -682,11 +685,12 @@ SPECIAL(battle_cleric)
 	if (vict == NULL)
 		vict = FIGHTING(ch);
 
+    bool found = true;
 	if ((GET_LEVEL(ch) > 2) && (number(0, 8) == 0) &&
-		!affected_by_spell(ch, SPELL_ARMOR))
+		!affected_by_spell(ch, SPELL_ARMOR)) {
 		cast_spell(ch, ch, NULL, SPELL_ARMOR);
 
-	if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 1)) {
+    } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 1)) {
 		if ((GET_LEVEL(ch) < 12) && (number(0, 4) == 0))
 			cast_spell(ch, ch, NULL, SPELL_CURE_LIGHT);
 
@@ -698,16 +702,20 @@ SPECIAL(battle_cleric)
 
 		else if ((GET_LEVEL(ch) > 34) && (number(0, 4) == 0))
 			cast_spell(ch, ch, NULL, SPELL_GREATER_HEAL);
-	}
-
-	if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
+	} else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch))
 			cast_spell(ch, vict, NULL, SPELL_DISPEL_GOOD);
 		else if (IS_GOOD(ch) && IS_EVIL(vict))
 			cast_spell(ch, vict, NULL, SPELL_DISPEL_EVIL);
-	}
-	if (number(0, 4))
-		return TRUE;
+	} else if (number(0, 4)) {
+		// do nothing this round 
+    } else {
+        found = false;
+    }
+
+    if( found ) {
+        return TRUE;
+    }
 
 	switch (GET_LEVEL(ch)) {
 	case 10:
@@ -772,34 +780,33 @@ SPECIAL(barbarian)
 	/* if I didn't pick any of those, then just slam the guy I'm fighting */
 	if (vict == NULL)
 		vict = FIGHTING(ch);
-
-	if ((GET_LEVEL(ch) > 2) && (number(0, 12) == 0))
+    
+    bool found = true;
+	if ((GET_LEVEL(ch) > 2) && (number(0, 12) == 0)) {
 		damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_PUNCH, -1);
-
-	if ((GET_LEVEL(ch) > 5) && (number(0, 8) == 0))
+    } else if ((GET_LEVEL(ch) > 5) && (number(0, 8) == 0)) {
 		damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_STOMP, WEAR_FEET);
-
-	if ((GET_LEVEL(ch) > 16) && (number(0, 18) == 0))
+    } else if ((GET_LEVEL(ch) > 16) && (number(0, 18) == 0)) {
 		damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_CHOKE, WEAR_NECK_1);
-
-	if ((GET_LEVEL(ch) > 9) && (number(0, 8) == 0))
+    } else if ((GET_LEVEL(ch) > 9) && (number(0, 8) == 0)) {
 		damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_ELBOW, -1);
-
-	if ((GET_LEVEL(ch) > 20) && (number(0, 8) == 0))
-		damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_CLOTHESLINE,
-			WEAR_NECK_1);
-
-	if ((GET_LEVEL(ch) > 27) && (number(0, 14) == 0))
+    } else if ((GET_LEVEL(ch) > 20) && (number(0, 8) == 0)) {
+		damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_CLOTHESLINE, WEAR_NECK_1);
+    } else if ((GET_LEVEL(ch) > 27) && (number(0, 14) == 0)) {
 		damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_SLEEPER, -1);
-
-	if ((GET_LEVEL(ch) > 22) && (number(0, 6) == 0))
+    } else if ((GET_LEVEL(ch) > 22) && (number(0, 6) == 0)) {
 		damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_BODYSLAM, WEAR_BODY);
-
-	if ((GET_LEVEL(ch) > 32) && (number(0, 8) == 0))
+    } else if ((GET_LEVEL(ch) > 32) && (number(0, 8) == 0)) {
 		damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_PILEDRIVE, WEAR_ASS);
-
-	if (number(0, 4))
-		return TRUE;
+    } else if (number(0, 4)) {
+		// do nothing this round
+    } else {
+        found = false;
+    }
+    
+    if( found ) {
+        return TRUE;
+    }
 
 	switch (GET_LEVEL(ch)) {
 	case 1:
