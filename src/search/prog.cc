@@ -1016,7 +1016,7 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 	return;
   obj->creation_method = CREATED_PROG;
 
-  if (!*arg || !strcasecmp(arg, "room")) {
+  if (!*target_str || !strcasecmp(target_str, "room")) {
 	if (target_num != -1) {
 	  // They mean the current room
 	  switch (env->owner_type) {
@@ -1039,12 +1039,12 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 	  return;
 	}
 	obj_to_room(obj, room);
-  } else if (!strcasecmp(arg, "target")) {
+  } else if (!strcasecmp(target_str, "target")) {
 	if (env->target)
 	  obj_to_char(obj, env->target);
 	else
 	  extract_obj(obj);
-  } else if (!strcasecmp(arg, "self")) {
+  } else if (!strcasecmp(target_str, "self")) {
 	switch (env->owner_type) {
 	case PROG_TYPE_MOBILE:
 	  obj_to_char(obj, (Creature *)env->owner); break;
