@@ -573,10 +573,6 @@ nanny(struct descriptor_data * d, char *arg)
 				return;
 			}
 
-			// default settings
-			SET_BIT(PRF_FLAGS(d->character), PRF_COMPACT | PRF_NOSPEW);
-			SET_BIT(PRF2_FLAGS(d->character), PRF2_AUTOPROMPT |
-				PRF2_NEWBIE_HELPER);
 			set_desc_state( CON_QSEX,d );
 			return;
 
