@@ -231,7 +231,7 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
 		return false;
 
 	if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA) ||
-			GET_ZONE(ch->in_room) == 400)
+			GET_ZONE(vict->in_room) == 400)
 		return true;
 
 	// PK quests
