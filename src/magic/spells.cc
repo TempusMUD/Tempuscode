@@ -1139,11 +1139,11 @@ ASPELL(spell_identify)
 	if (obj) {
 		send_to_char(ch, "You feel informed:\r\n");
 		send_to_char(ch, "Object '%s', Item type: ", obj->short_description);
-		sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
-		strcat(buf, buf2);
-		strcat(buf, "\r\n");
+		buf[0] = '\0';
+		sprinttype(GET_OBJ_TYPE(obj), item_types, buf);
 
-		send_to_char(ch, "Item will give you following abilities:  ");
+		send_to_char(ch,
+			"%s\r\nItem will give you following abilities:  ", buf);
 		strcpy(buf, "");
 		if (obj->obj_flags.bitvector[0])
 			sprintbit(obj->obj_flags.bitvector[0], affected_bits, buf);
@@ -1151,8 +1151,7 @@ ASPELL(spell_identify)
 			sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf);
 		if (obj->obj_flags.bitvector[2])
 			sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf);
-		strcat(buf, "\r\n");
-		send_to_char(ch, "%s", buf);
+		send_to_char(ch, "%s\r\n", buf);
 
 		send_to_char(ch, "Item is: ");
 		sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf);

@@ -1641,81 +1641,98 @@ SPECIAL(pet_shops)
 
 SPECIAL(bank)
 {
+	struct clan_data *clan = NULL;
+	struct clanmember_data *member;
+	char *log, *arg1, *arg2;
 	int amount;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-	struct clan_data *clan = real_clan(GET_CLAN(ch));
-	struct clanmember_data *member = (clan ?
-		real_clanmember(GET_IDNUM(ch), clan) : NULL);
 
-	if (!cmd)
+	if (spec_mode != SPECIAL_CMD)
 		return 0;
 
-	skip_spaces(&argument);
-	half_chop(argument, arg1, arg2);
+	arg1 = tmp_getword(&argument);
+	arg2 = tmp_getword(&argument);
 
 	if (CMD_IS("balance")) {
+		// Balance is always displayed, so we just check for clan here
 		if (*arg1 && !str_cmp(arg1, "clan")) {
-			if (!member)
-				strcpy(buf, "You can't do that.\r\n");
-			else {
-				if (clan->bank_account > 0)
-					send_to_char(ch, "The current clan balance is %d %s%s.\r\n",
-						clan->bank_account, CURRENCY(ch),
-						PLURAL(clan->bank_account));
-				else
-					send_to_char(ch,
-						"The clan currently has no money deposited.\r\n");
+			clan = real_clan(GET_CLAN(ch));
+			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
+
+			if (!member) {
+				send_to_char(ch, "You can't do that.\r\n");
+				return 1;
 			}
-		} else {
-			if (BANK_MONEY(ch) > 0)
-				send_to_char(ch, "Your current balance is %d %s%s.\r\n",
-					BANK_MONEY(ch), CURRENCY(ch), PLURAL(BANK_MONEY(ch)));
-			else
-				send_to_char(ch, "You currently have no money deposited.\r\n");
 		}
-		return 1;
-
 	} else if (CMD_IS("deposit")) {
+		if (*arg1 && !str_cmp(arg2, "clan")) {
+			clan = real_clan(GET_CLAN(ch));
+			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
 
-		if (!*arg1 || (amount = atoi(arg1)) <= 0) {
+			if (!member) {
+				send_to_char(ch, "You can't do that.\r\n");
+				return 1;
+			}
+		}
+
+		if (!strcasecmp(arg1, "all")) {
+			if (!CASH_MONEY(ch)) {
+				send_to_char(ch, "You don't have any %ss to deposit!\r\n",
+					CURRENCY(ch));
+				return 1;
+			}
+			amount = CASH_MONEY(ch);
+		} else if (!*arg1 || (amount = atoi(arg1)) <= 0) {
 			send_to_char(ch, "How much do you want to deposit?\r\n");
 			return 1;
 		}
+
 		if (CASH_MONEY(ch) < amount) {
 			send_to_char(ch, "You don't have that many %ss!\r\n", CURRENCY(ch));
 			return 1;
 		}
 
-		if (*arg2 && !str_cmp(arg2, "clan")) {
-			if (!member)
-				strcpy(buf, "You can't do that.\r\n");
-			else {
-
-				CASH_MONEY(ch) -= amount;
-				clan->bank_account += amount;
-				send_to_char(ch, "You deposit %d %s%s in the clan account.\r\n",
-					amount, CURRENCY(ch), PLURAL(amount));
-				save_clans();
-				sprintf(buf, "CLAN: %s clandep (%s) %d.", GET_NAME(ch),
-					clan->name, amount);
-				slog(buf);
-			}
+		CASH_MONEY(ch) -= amount;
+		if (clan) {
+			clan->bank_account += amount;
+			send_to_char(ch, "You deposit %d %s%s in the clan account.\r\n",
+				amount, CURRENCY(ch), PLURAL(amount));
+			save_clans();
+			slog("CLAN: %s clandep (%s) %d.", GET_NAME(ch),
+				clan->name, amount);
 		} else {
-
-			CASH_MONEY(ch) -= amount;
 			BANK_MONEY(ch) += amount;
 			send_to_char(ch, "You deposit %d %s%s.\r\n", amount, CURRENCY(ch),
 				PLURAL(amount));
+			if (amount > 50000000) {
+				log = tmp_sprintf("%s deposited %d into the bank",
+					GET_NAME(ch), amount);
+				mudlog(log, NRM, GET_INVIS_LEV(ch), TRUE);
+			}
 		}
 
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
 		save_char(ch, NULL);
-		return 1;
-
 
 	} else if (CMD_IS("withdraw")) {
 
-		if ((amount = atoi(arg1)) <= 0) {
+		if (*arg1 && !str_cmp(arg2, "clan")) {
+			clan = real_clan(GET_CLAN(ch));
+			member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
+
+			if (!member || !PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
+				send_to_char(ch, "You can't do that.\r\n");
+				return 1;
+			}
+		}
+
+		if (!strcasecmp(arg1, "all")) {
+			amount = (clan) ? clan->bank_account:BANK_MONEY(ch);
+			if (!amount) {
+				send_to_char(ch,
+					"There's nothing there for you to withdraw!\r\n");
+				return 1;
+			}
+		} else if ((amount = atoi(arg1)) <= 0) {
 			send_to_char(ch, "How much do you want to withdraw?\r\n");
 			return 1;
 		}
@@ -1728,39 +1745,54 @@ SPECIAL(bank)
 			return 1;
 		}
 
-		if (*arg2 && !str_cmp(arg2, "clan")) {
-			if (!member || !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
-				send_to_char(ch, "You can't do that.\r\n");
-			else {
-				if (clan->bank_account < amount)
-					send_to_char(ch,
-						"The clan doesn't have that much deposited.\r\n");
-				else {
-					clan->bank_account -= amount;
-					CASH_MONEY(ch) += amount;
-					send_to_char(ch, "You withdraw %d %s%s.\r\n", amount,
-						CURRENCY(ch), PLURAL(amount));
-					save_clans();
-				}
+		if (clan) {
+			if (clan->bank_account < amount) {
+				send_to_char(ch,
+					"The clan doesn't have that much deposited.\r\n");
+				return 1;
 			}
+			clan->bank_account -= amount;
+			save_clans();
 		} else {
-
 			if (BANK_MONEY(ch) < amount) {
 				send_to_char(ch, "You don't have that many %ss deposited!\r\n",
 					CURRENCY(ch));
 				return 1;
 			}
-			CASH_MONEY(ch) += amount;
 			BANK_MONEY(ch) -= amount;
-			send_to_char(ch, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
-				PLURAL(amount));
 		}
 
+		CASH_MONEY(ch) += amount;
+		send_to_char(ch, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
+			PLURAL(amount));
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
 		save_char(ch, NULL);
-		return 1;
+
+		if (amount > 50000000) {
+			log = tmp_sprintf("%s withdrew %d from %s",
+				GET_NAME(ch), amount, (clan) ? "clan account":"bank");
+			mudlog(log, NRM, GET_INVIS_LEV(ch), TRUE);
+		}
+
 	} else
 		return 0;
+
+	if (clan) {
+		if (clan->bank_account > 0)
+			send_to_char(ch, "The current clan balance is %d %s%s.\r\n",
+				clan->bank_account, CURRENCY(ch),
+				PLURAL(clan->bank_account));
+		else
+			send_to_char(ch,
+				"The clan currently has no money deposited.\r\n");
+	} else {
+		if (BANK_MONEY(ch) > 0)
+			send_to_char(ch, "Your current balance is %d %s%s.\r\n",
+				BANK_MONEY(ch), CURRENCY(ch), PLURAL(BANK_MONEY(ch)));
+		else
+			send_to_char(ch, "You currently have no money deposited.\r\n");
+	}
+	return 1;
 }
 
 #undef PLURAL
