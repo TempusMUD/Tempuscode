@@ -152,8 +152,8 @@ Account::load_from_xml(xmlDocPtr doc, xmlNodePtr root)
 			_login_time = xmlGetIntProp(node, "time");
 			_login_addr = xmlGetProp(node, "addr");
 		} else if (xmlMatches(node->name, "bank")) {
-			_bank_past = xmlGetIntProp(node, "past");
-			_bank_future = xmlGetIntProp(node, "future");
+			_bank_past = xmlGetLongLongProp(node, "past");
+			_bank_future = xmlGetLongLongProp(node, "future");
 		} else if (xmlMatches(node->name, "character")) {
 			num = xmlGetIntProp(node, "idnum");
 			str = xmlGetProp(node, "name");
@@ -193,6 +193,8 @@ Account::save_to_xml(void)
 		_login_addr);
 	fprintf(ouf, "\t<display ansi=\"%u\" height=\"%u\" width=\"%u\"/>\n",
 		_ansi_level, _term_height, _term_width);
+	fprintf(ouf, "\t<bank past=\"%lld\" future=\"%lld\"/>\n",
+		_bank_past, _bank_future);
 	for (cur_pc = _chars.begin();cur_pc != _chars.end();cur_pc++) {
 		fprintf(ouf, "\t<character idnum=\"%ld\" name=\"%s\"/>\n",
 			*cur_pc, playerIndex.getName(*cur_pc));
