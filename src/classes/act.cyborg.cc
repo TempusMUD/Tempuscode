@@ -3197,11 +3197,7 @@ ACMD(do_transmit)
 	}
 
 	sprintf(buf, "$n >%s", argument);
-	send_to_comm_channel(ch, buf, COMM_CHANNEL(obj),
-		PRF_FLAGGED(ch, PRF_NOREPEAT) ? TRUE : FALSE, FALSE);
-	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-		send_to_char(ch, "Okay, message transmitted.\r\n");
-
+	send_to_comm_channel(ch, buf, COMM_CHANNEL(obj), FALSE, FALSE);
 }
 
 

@@ -1020,12 +1020,8 @@ ACMD(do_gen_tog)
 			"You are now deaf to the congratulation messages.\r\n"},
 		{"You can now hear the Wiz-channel.\r\n",
 			"You are now deaf to the Wiz-channel.\r\n"},
-		{"You are no longer part of the Quest.\r\n",
-			"Okay, you are part of the Quest!\r\n"},
 		{"You will no longer see the room flags.\r\n",
 			"You will now see the room flags.\r\n"},
-		{"You will now have your communication repeated.\r\n",
-			"You will no longer have your communication repeated.\r\n"},
 		{"HolyLight mode off.\r\n",
 			"HolyLight mode on.\r\n"},
 		{"Nameserver_is_slow changed to NO; IP addresses will now be resolved.\r\n",
@@ -1042,8 +1038,6 @@ ACMD(do_gen_tog)
 			"You will no longer see the misses in your fights.\r\n"},
 		{"You will no longer be beeped if someone tells to you.\r\n",
 			"You will now receive a bell tone if someone tells to you.\r\n"},
-		{"You are now open to intermud communication.\r\n",
-			"You are now closed to intermud communication.\r\n"},
 		{"You have now opened yourself to clan communication.\r\n",
 			"You have closed yourself to clan communication.\r\n"},
 		{"You are now allowing others to identify you.\r\n",
@@ -1068,12 +1062,8 @@ ACMD(do_gen_tog)
 			"You now ignore the hollering.\r\n"},
 		{"You are now on the immchat channel.\r\n",
 			"You are now closed off from the immchat channel.\r\n",},
-		{"Your title will no longer default to your clan title.\r\n",
-			"Your title will now default to your clan title.\r\n"},
 		{"Your clan badge will now show up on the who list.\r\n",
 			"Your clan badge will now be hidden on the who list.\r\n"},
-		{"You are no longer a light reader.\r\n",
-			"You are a light reader.\r\n"},
 		{"Your prompt will now be displayed only after carriage returns.\r\n",
 			"Your prompt will now be redrawn after every message you receive.\r\n"},
 		{"You will now be shown on the who list.\r\n",
@@ -1138,16 +1128,8 @@ ACMD(do_gen_tog)
 	case SCMD_NOWIZ:
 		result = PRF_TOG_CHK(ch, PRF_NOWIZ);
 		break;
-	case SCMD_QUEST:
-		result = PRF_TOG_CHK(ch, PRF_QUEST);
-		if (!PRF_FLAGGED(ch, PRF_QUEST) && IS_SET(PLR_FLAGS(ch), PLR_QUESTOR))
-			send_to_char(ch, "Don't forget to remove your questor flag.\r\n");
-		break;
 	case SCMD_ROOMFLAGS:
 		result = PRF_TOG_CHK(ch, PRF_ROOMFLAGS);
-		break;
-	case SCMD_NOREPEAT:
-		result = PRF_TOG_CHK(ch, PRF_NOREPEAT);
 		break;
 	case SCMD_HOLYLIGHT:
 		result = PRF_TOG_CHK(ch, PRF_HOLYLIGHT);
@@ -1175,9 +1157,6 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_AUTOPAGE:
 		result = PRF2_TOG_CHK(ch, PRF2_AUTOPAGE);
-		break;
-	case SCMD_NOINTWIZ:
-		result = PRF_TOG_CHK(ch, PRF_NOINTWIZ);
 		break;
 	case SCMD_NOCLANSAY:
 		result = PRF_TOG_CHK(ch, PRF_NOCLANSAY);
@@ -1236,16 +1215,8 @@ ACMD(do_gen_tog)
 		result = PRF2_TOG_CHK(ch, PRF2_NOIMMCHAT);
 		break;
 
-	case SCMD_CLAN_TITLE:
-		result = PRF2_TOG_CHK(ch, PRF2_CLAN_TITLE);
-		break;
-
 	case SCMD_CLAN_HIDE:
 		result = PRF2_TOG_CHK(ch, PRF2_CLAN_HIDE);
-		break;
-
-	case SCMD_LIGHT_READ:
-		result = PRF2_TOG_CHK(ch, PRF2_LIGHT_READ);
 		break;
 
 	case SCMD_AUTOPROMPT:

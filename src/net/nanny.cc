@@ -1351,7 +1351,7 @@ char_to_game(descriptor_data *d)
 	
 	// Remove the quest prf flag (for who list) if they're
 	// not in an active quest.
-	if (PRF_FLAGGED(d->creature, PRF_QUEST) || GET_QUEST(d->creature) != 0) {
+	if (GET_QUEST(d->creature)) {
 		Quest *quest = quest_by_vnum( GET_QUEST(d->creature) );
 		if (GET_QUEST(d->creature) == 0 ||
 				quest == NULL ||
@@ -1359,7 +1359,6 @@ char_to_game(descriptor_data *d)
 				!quest->isPlaying(GET_IDNUM(d->creature))) {
 			slog("%s removed from quest %d", 
 				  GET_NAME(d->creature), GET_QUEST(d->creature) );
-			REMOVE_BIT(PRF_FLAGS(d->creature), PRF_QUEST);
 			GET_QUEST(d->creature) = 0;
 		}
 	}

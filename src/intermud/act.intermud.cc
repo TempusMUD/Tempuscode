@@ -218,7 +218,7 @@ ACMD(do_interwiz)
 
 	skip_spaces(&argument);
 
-	if (PRF_FLAGGED(ch, PRF_NOINTWIZ)) {
+	if (true) {
 		send_to_char(ch, "You are currently deaf to interwiz channel!\r\n");
 		return;
 	}
@@ -244,10 +244,8 @@ ACMD(do_interwiz)
 
 		for (d = descriptor_list; d; d = d->next) {
 			if (IS_PLAYING(d) && d->creature &&
-				(!PRF_FLAGGED(d->creature, PRF_NOINTWIZ)) &&
-				(!d->showstr_point
-					|| PRF2_FLAGGED(d->creature, PRF2_LIGHT_READ))
-				&& (!PLR_FLAGGED(d->creature,
+				(false) &&
+				(!PLR_FLAGGED(d->creature,
 						PLR_WRITING | PLR_MAILING | PLR_OLC))
 				&& (GET_LEVEL(d->creature) >= LVL_AMBASSADOR)) {
 				send_to_char(d->creature, CCMAG(d->creature, C_NRM));
@@ -493,9 +491,7 @@ serv_recv_intertell(char *serv_message)
 			(str_cmp(To, GET_NAME(d->creature)) == 0)) {
 			if (GET_INVIS_LVL(d->creature) == GET_LEVEL(d->creature))
 				continue;
-			if (PLR_FLAGGED(d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC)
-				|| (d->showstr_point
-					&& !PRF2_FLAGGED(d->creature, PRF2_LIGHT_READ)))
+			if (PLR_FLAGGED(d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC))
 				player_found = 1;
 			else {
 				send_to_char(d->creature, CCRED(d->creature, C_NRM));
@@ -542,9 +538,7 @@ serv_recv_intertellrpy(char *serv_message)
 	for (d = descriptor_list; d; d = d->next)
 		if (IS_PLAYING(d) && d->creature &&
 			(str_cmp(To, GET_NAME(d->creature)) == 0)) {
-			if (PLR_FLAGGED(d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC)
-				|| (d->showstr_point
-					&& !PRF2_FLAGGED(d->creature, PRF2_LIGHT_READ)))
+			if (PLR_FLAGGED(d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC))
 				player_found = 1;
 			else {
 				send_to_char(d->creature, CCRED(d->creature, C_NRM));
@@ -591,11 +585,8 @@ serv_recv_interwhoreq(char *serv_message)
 				strcat(message2, " (mailing)");
 			else if (PLR_FLAGGED(d->creature, PLR_OLC))
 				strcat(message2, " (creating)");
-			if (PRF_FLAGGED(d->creature, PRF_NOINTWIZ))
+			if (true)
 				strcat(message2, " (nointwiz)");
-			if (d->showstr_point &&
-				!PRF2_FLAGGED(d->creature, PRF2_LIGHT_READ))
-				strcat(message2, " (reading)");
 			else if (PLR_FLAGGED(d->creature, PLR_AFK))
 				strcat(message2, " (afk)");
 			strcat(message2, "|");
@@ -797,7 +788,7 @@ serv_recv_interwiz(char *serv_message)
 		sprintf(message2, "%s@%s: %s\r\n", From, Remote_Mud, Text);
 
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && (!PRF_FLAGGED(d->creature, PRF_NOINTWIZ)) &&
+		if (IS_PLAYING(d) && (false) &&
 			(!PLR_FLAGGED(d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC))
 			&& (GET_LEVEL(d->creature) >= LVL_AMBASSADOR)) {
 			send_to_char(d->creature, CCMAG(d->creature, C_NRM));

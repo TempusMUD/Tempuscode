@@ -24,7 +24,7 @@ SPECIAL(questor_util)
 	if (!isname(argument, obj->name))
 		return 0;
 
-	if (!PRF_FLAGGED(ch, PRF_QUEST)) {
+	if (!GET_QUEST(ch)) {
 		send_to_char(ch, "You aren't even a part of the quest!\r\n");
 		return 1;
 	}

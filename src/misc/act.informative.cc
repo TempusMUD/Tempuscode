@@ -3140,7 +3140,7 @@ ACMD(do_who)
 			continue;
 		if (who_pkills && !GET_PKILLS(tch))
 			continue;
-		if (questwho && !PRF_FLAGGED(tch, PRF_QUEST))
+		if (questwho && GET_QUEST(tch) != GET_QUEST(ch))
 			continue;
 		if (who_room && (tch->in_room != ch->in_room))
 			continue;
@@ -3305,7 +3305,7 @@ ACMD(do_who)
 					sprintf(buf2, "%s %s(notell)%s",
 						buf2, CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 				}
-				if (PRF_FLAGGED(tch, PRF_QUEST)) {
+				if (GET_QUEST(tch) && GET_QUEST(tch) == GET_QUEST(ch)) {
 					sprintf(buf2, "%s %s(quest)%s",
 						buf2, CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
 				}
@@ -4446,9 +4446,8 @@ ACMD(do_toggle)
 		"       On Quest: %-3s    "
 		"  Summon Resist: %-3s    "
 		"   Show Affects: %-3s\r\n"
-		"     Clan title: %-3s    "
 		"      Clan hide: %-3s    "
-		"      Anonymous: %-3s\r\n"
+		"      Anonymous: %-3s    "
 		"        PKILLER: %-3s\r\n"
 		,
 		ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
@@ -4482,10 +4481,9 @@ ACMD(do_toggle)
 		buf2,
 		YESNO(PRF_FLAGGED(ch, PRF_DEAF)),
 		ONOFF(PRF_FLAGGED(ch, PRF_NOTELL)),
-		YESNO(PRF_FLAGGED(ch, PRF_QUEST)),
+		YESNO(GET_QUEST(ch)),
 		ONOFF(!PRF_FLAGGED(ch, PRF_SUMMONABLE)),
 		YESNO(!PRF2_FLAGGED(ch, PRF2_NOAFFECTS)),
-		YESNO(PRF2_FLAGGED(ch, PRF2_CLAN_TITLE)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_CLAN_HIDE)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_ANONYMOUS)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_PKILLER)));

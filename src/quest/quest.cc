@@ -813,7 +813,6 @@ do_qcontrol_create(Creature *ch, char *argument, int com)
 void
 do_qcontrol_end(Creature *ch, char *argument, int com)
 {
-	Creature *vict;
 	Quest *quest = NULL;
 
 	if (!*argument) {
@@ -834,14 +833,7 @@ do_qcontrol_end(Creature *ch, char *argument, int com)
 	qlog(ch, "Purging players from quest...", QLOG_COMP, 0, TRUE);
 
 	while (quest->getNumPlayers()) {
-		// Go back when you get time and make this set in the player file.
-		vict = get_char_in_world_by_idnum(quest->getPlayer((int)0).idnum);
-		if (vict) {
-			if (GET_LEVEL(vict) < LVL_AMBASSADOR
-				&& PRF_FLAGGED(vict, PRF_QUEST)) {
-				REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
-			}
-		}
+		// TODO: Go back when you get time and make this set in the player file.
 		if (!quest->removePlayer(quest->getPlayer((int)0).idnum)) {
 			send_to_char(ch, "Error removing char from quest.\r\n");
 			break;
@@ -916,11 +908,6 @@ do_qcontrol_add(Creature *ch, char *argument, int com)
 	sprintf(buf, "%s is now part of the quest.", GET_NAME(vict));
 	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(vict), LVL_AMBASSADOR),
 		QCOMM_ECHO);
-
-	if (GET_LEVEL(vict) < LVL_AMBASSADOR && !PRF_FLAGGED(vict, PRF_QUEST)) {
-		SET_BIT(PRF_FLAGS(vict), PRF_QUEST);
-	}
-
 }
 
 void
@@ -2061,10 +2048,6 @@ do_quest_join(Creature *ch, char *argument)
 
 	sprintf(buf, "%s has joined the quest.", GET_NAME(ch));
 	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(ch), 0), QCOMM_ECHO);
-	if (GET_LEVEL(ch) < LVL_AMBASSADOR && !PRF_FLAGGED(ch, PRF_QUEST)) {
-		SET_BIT(PRF_FLAGS(ch), PRF_QUEST);
-	}
-
 }
 
 void
@@ -2111,11 +2094,6 @@ do_quest_leave(Creature *ch, char *argument)
 
 	sprintf(buf, "%s has left the quest.", GET_NAME(ch));
 	send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(ch), 0), QCOMM_ECHO);
-
-	if (GET_LEVEL(ch) < LVL_AMBASSADOR && PRF_FLAGGED(ch, PRF_QUEST)) {
-		REMOVE_BIT(PRF_FLAGS(ch), PRF_QUEST);
-	}
-
 }
 
 void
@@ -2798,9 +2776,8 @@ bool Quest::removePlayer( long id ) {
 		vict = new Creature(true);
 		if (vict->loadFromXML(id)) {
 			//HERE
-			if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
-				REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
-				vict->player_specials->saved.quest_id = 0;
+			if (GET_LEVEL(vict) < LVL_AMBASSADOR && GET_QUEST(vict)) {
+				GET_QUEST(vict) = 0;
 			}
 
 			vict->saveToXML();
@@ -2812,9 +2789,8 @@ bool Quest::removePlayer( long id ) {
 			return false;
 		}
 	} else {
-		if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
-			REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
-			vict->player_specials->saved.quest_id = 0;
+		if (GET_LEVEL(vict) < LVL_AMBASSADOR && GET_QUEST(vict)) {
+			GET_QUEST(vict) = 0;
 			vict->saveToXML();
 		}
 	}

@@ -255,10 +255,7 @@ ACMD(do_echo)
         mort_see = tmp_sprintf("$n%s%s", (*argument == '\'') ? "":" ",
 			argument);
 
-        if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-            send_to_char(ch, OK);
-        else
-            act(mort_see, FALSE, ch, 0, 0, TO_CHAR);
+		act(mort_see, FALSE, ch, 0, 0, TO_CHAR);
         act(mort_see, FALSE, ch, 0, 0, TO_ROOM);
     } else {
         mort_see = tmp_strdup(argument);
@@ -290,12 +287,8 @@ ACMD(do_send)
         return;
     }
     send_to_char(vict, "%s\r\n", buf);
-    if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-        send_to_char(ch, "Sent.\r\n");
-    else {
-        send_to_char(ch, "You send '%s' to %s.\r\n", buf, GET_NAME(vict));
-        slog("(GC) %s send %s %s", GET_NAME(ch), GET_NAME(vict), buf);
-    }
+	send_to_char(ch, "You send '%s' to %s.\r\n", buf, GET_NAME(vict));
+	slog("(GC) %s send %s %s", GET_NAME(ch), GET_NAME(vict), buf);
 }
 
 
@@ -3067,10 +3060,7 @@ ACMD(do_gecho)
                     send_to_char(pt->creature, "%s\r\n", argument);
             }
         }
-        if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-            send_to_char(ch, OK);
-        else
-            send_to_char(ch, "%s\r\n", argument);
+		send_to_char(ch, "%s\r\n", argument);
     }
 }
 
@@ -3106,10 +3096,7 @@ ACMD(do_zecho)
                     send_to_char(pt->creature, "%s\r\n", argument);
             }
         }
-        if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-            send_to_char(ch, OK);
-        else
-            send_to_char(ch, "%s", argument);
+		send_to_char(ch, "%s", argument);
     }
 }
 
@@ -3122,11 +3109,7 @@ ACMD(do_oecho)
         send_to_char(ch, "That must be a mistake...\r\n");
     else {
         send_to_char(ch, "%s\r\n", argument);
-
-        if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-            send_to_char(ch, OK);
-        else
-            send_to_outdoor(argument, 1);
+		send_to_outdoor(argument, 1);
     }
 }
 
@@ -3532,7 +3515,7 @@ ACMD(do_wiznet)
                 || !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
             && (!PLR_FLAGGED(d->creature,
                     PLR_WRITING | PLR_MAILING | PLR_OLC))
-            && (d != ch->desc || !(PRF_FLAGGED(d->creature, PRF_NOREPEAT)))) {
+            && d != ch->desc) {
 
             if (subcmd == SCMD_IMMCHAT) {
                 send_to_char(d->creature, CCYEL(d->creature, C_SPR));
@@ -3547,9 +3530,6 @@ ACMD(do_wiznet)
             send_to_char(d->creature, CCNRM(d->creature, C_SPR));
         }
     }
-
-    if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-        send_to_char(ch, OK);
 }
 
 
@@ -4472,7 +4452,8 @@ ACMD(do_show)
         show_player(ch, value);
         break;
     case 3:
-		send_to_char(ch, "Disabled.\r\n"); break;
+		send_to_char(ch, "Disabled.\r\n");
+		return;
     case 4:
         do_show_stats(ch);
         break;
@@ -4703,7 +4684,7 @@ ACMD(do_show)
 
     case 26:  /** quiz **/
         send_to_char(ch, "Disabled.\r\n");
-        break;
+        return;
     case 27:     /** clans **/
         if (GET_LEVEL(ch) < LVL_ELEMENT)
             do_show_clan(ch, NULL);
@@ -5097,7 +5078,7 @@ ACMD(do_show)
         break;
     case 49:                    // p_index
 		send_to_char(ch, "Disabled.");
-        break;
+        return;
 
 #define ZEXITS_USAGE "Usage: zexit <f|t> <zone>\r\n"
 
@@ -5281,7 +5262,7 @@ ACMD(do_set)
         {"deleted", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"class", LVL_IMMORT, BOTH, MISC, "WizardFull"},
         {"nowizlist", LVL_IMMORT, PC, BINARY, "WizardAdmin"},    /* 40 */
-        {"quest", LVL_IMMORT, PC, BINARY, "Coder"},
+        {"quest", LVL_IMMORT, PC, NUMBER, "Coder"},
         {"loadroom", LVL_IMMORT, PC, MISC, "Coder"},
         {"color", LVL_IMMORT, PC, BINARY, "Coder"},
         {"idnum", LVL_GRIMP, PC, NUMBER, "Coder"},
@@ -5687,7 +5668,7 @@ ACMD(do_set)
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOWIZLIST);
         break;
     case 41:
-        SET_OR_REMOVE(PRF_FLAGS(vict), PRF_QUEST);
+		GET_QUEST(vict) = value;
         break;
     case 42:
 		if (real_room(i = atoi(argument)) != NULL) {
@@ -5719,7 +5700,7 @@ ACMD(do_set)
             return;
         }
 		send_to_char(ch, "Disabled.");
-        break;
+        return;
     case 46:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NODELETE);
         break;
@@ -5790,7 +5771,7 @@ ACMD(do_set)
     case 57:
     case 58:
 		send_to_char(ch, "Disabled.\r\n");
-        break;
+        return;
     case 59:
         if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
             send_to_char(ch, "That is not a char_class.\r\n");
@@ -5835,10 +5816,10 @@ ACMD(do_set)
         break;
     case 68:
 		send_to_char(ch, "Disabled.\r\n");
-        break;
+        return;
     case 69:
-        SET_OR_REMOVE(PRF_FLAGS(vict), PRF_NOINTWIZ);
-        break;
+		send_to_char(ch, "Disabled.\r\n");
+        return;
     case 70:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_HALT);
         break;
@@ -5903,11 +5884,9 @@ ACMD(do_set)
             sprintf(buf, "Could not assign that path to mobile.");
         break;
     case 84:
-        SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_LIGHT_READ);
-        break;
     case 85:
 		send_to_char(ch, "Disabled.\r\n");
-        break;
+        return;
     case 86:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_COUNCIL);
         break;
@@ -5922,8 +5901,8 @@ ACMD(do_set)
                 GET_NAME(vict) );
         break;
     case 89:
-        SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOSHOUT);
-        break;
+		send_to_char(ch, "Disabled.\r\n"); 
+		return;
     case 90:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOPK);
         break;

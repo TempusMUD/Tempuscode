@@ -163,14 +163,10 @@ ACMD(do_say)
 					CCCYN((*it), C_NRM), argument, CCNRM((*it), C_NRM));
 			}
 			if (!recurs_say) {
-				if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-					send_to_char(ch, OK);
-				else {
-					send_to_char(ch, "%s%sYou say to %s,%s %s'%s'%s\r\n", CCBLD(ch,
-							C_NRM), CCBLU(ch, C_NRM), GET_DISGUISED_NAME(ch,
-							vict), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-						argument, CCNRM(ch, C_NRM));
-				}
+				send_to_char(ch, "%s%sYou say to %s,%s %s'%s'%s\r\n", CCBLD(ch,
+						C_NRM), CCBLU(ch, C_NRM), GET_DISGUISED_NAME(ch,
+						vict), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+					argument, CCNRM(ch, C_NRM));
 			}
 		}
 		return;
@@ -199,22 +195,18 @@ ACMD(do_say)
 		send_to_char(*it, "%s", buf);
 	}
 	if (!recurs_say) {
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(ch, OK);
-		else {
-			send_to_char(ch, "%s%sYou %s,%s %s'%s'%s\r\n", CCBLD(ch, C_NRM),
-				CCBLU(ch, C_SPR),
-				(subcmd == SCMD_UTTER ? "utter" :
-					subcmd == SCMD_EXPOSTULATE ? "expostulate" :
-					subcmd == SCMD_RAMBLE ? "ramble" :
-					subcmd == SCMD_BELLOW ? "bellow" :
-					subcmd == SCMD_MURMUR ? "murmur" :
-					subcmd == SCMD_INTONE ? "intone" :
-					subcmd == SCMD_YELL ? "yell" :
-					subcmd == SCMD_BABBLE ? "babble" : "say"),
-				CCNRM(ch, C_SPR), CCCYN(ch, C_NRM),
-				argument, CCNRM(ch, C_NRM));
-		}
+		send_to_char(ch, "%s%sYou %s,%s %s'%s'%s\r\n", CCBLD(ch, C_NRM),
+			CCBLU(ch, C_SPR),
+			(subcmd == SCMD_UTTER ? "utter" :
+				subcmd == SCMD_EXPOSTULATE ? "expostulate" :
+				subcmd == SCMD_RAMBLE ? "ramble" :
+				subcmd == SCMD_BELLOW ? "bellow" :
+				subcmd == SCMD_MURMUR ? "murmur" :
+				subcmd == SCMD_INTONE ? "intone" :
+				subcmd == SCMD_YELL ? "yell" :
+				subcmd == SCMD_BABBLE ? "babble" : "say"),
+			CCNRM(ch, C_SPR), CCCYN(ch, C_NRM),
+			argument, CCNRM(ch, C_NRM));
 	}
 }
 
@@ -253,13 +245,9 @@ ACMD(do_gsay)
 				act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP);
 			}
 
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(ch, OK);
-		else {
-			sprintf(buf, "%sYou tell the group,%s '%s'%s", CCGRN(ch, C_NRM),
-				CCYEL(ch, C_NRM), argument, CCNRM(ch, C_NRM));
-			act(buf, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
-		}
+		sprintf(buf, "%sYou tell the group,%s '%s'%s", CCGRN(ch, C_NRM),
+			CCYEL(ch, C_NRM), argument, CCNRM(ch, C_NRM));
+		act(buf, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
 	}
 }
 
@@ -269,13 +257,9 @@ perform_tell(struct Creature *ch, struct Creature *vict, char *arg)
 {
 	char *str;
 
-	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-		send_to_char(ch, OK);
-	else {
-		str = tmp_sprintf("%sYou tell $N,%s '%s'",
-			CCRED(ch, C_NRM), CCNRM(ch, C_NRM), arg);
-		act(str, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-	}
+	str = tmp_sprintf("%sYou tell $N,%s '%s'",
+		CCRED(ch, C_NRM), CCNRM(ch, C_NRM), arg);
+	act(str, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 
 	delete_doubledollar(arg);
 
@@ -412,13 +396,9 @@ ACMD(do_spec_comm)
 		sprintf(buf, "%s$n %s you,%s '%s'", CCYEL(vict, C_NRM), action_plur,
 			CCNRM(vict, C_NRM), buf2);
 		act(buf, FALSE, ch, 0, vict, TO_VICT);
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(ch, OK);
-		else {
-			sprintf(buf, "%sYou %s %s,%s '%s'", CCYEL(ch, C_NRM), action_sing,
-				GET_DISGUISED_NAME(ch, vict), CCNRM(ch, C_NRM), buf2);
-			act(buf, FALSE, ch, 0, 0, TO_CHAR);
-		}
+		sprintf(buf, "%sYou %s %s,%s '%s'", CCYEL(ch, C_NRM), action_sing,
+			GET_DISGUISED_NAME(ch, vict), CCNRM(ch, C_NRM), buf2);
+		act(buf, FALSE, ch, 0, 0, TO_CHAR);
 		act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
 
 		/* add the ask mob <txt> and the mob will reply. -Sarflin 7-19-95 */
@@ -565,14 +545,10 @@ ACMD(do_page)
 			send_to_char(vict, CCYEL_BLD(vict, C_SPR));
 			act(buf, FALSE, ch, 0, vict, TO_VICT);
 			send_to_char(vict, CCYEL_BLD(vict, C_SPR));
-			if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-				send_to_char(ch, OK);
-			else {
-				send_to_char(ch, CCYEL(vict, C_NRM));
-				send_to_char(ch, CCBLD(vict, C_SPR));
-				act(buf, FALSE, ch, 0, vict, TO_CHAR);
-				send_to_char(vict, CCNRM(vict, C_SPR));
-			}
+			send_to_char(ch, CCYEL(vict, C_NRM));
+			send_to_char(ch, CCBLD(vict, C_SPR));
+			act(buf, FALSE, ch, 0, vict, TO_CHAR);
+			send_to_char(vict, CCNRM(vict, C_SPR));
 
 			return;
 		} else
@@ -759,34 +735,30 @@ ACMD(do_gen_comm)
 	}
 	
 	// first, set up strings to be given to the communicator
-	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-		send_to_char(ch, OK);
-	else {
-		if (COLOR_LEV(ch) >= C_NRM)
-			send_to_char(ch, "%sYou %s,%s%s '%s'%s\r\n", chan->desc_color,
-					chan->name, KNRM, chan->text_color, argument, KNRM);
-		else
-			send_to_char(ch, "You %s, '%s'\r\n", chan->name, argument);
+	if (COLOR_LEV(ch) >= C_NRM)
+		send_to_char(ch, "%sYou %s,%s%s '%s'%s\r\n", chan->desc_color,
+				chan->name, KNRM, chan->text_color, argument, KNRM);
+	else
+		send_to_char(ch, "You %s, '%s'\r\n", chan->name, argument);
 
-		/* see if it's dirty! */
-		if (chan->check_curse && !IS_MOB(ch) && GET_LEVEL(ch) < LVL_GRGOD &&
-			Nasty_Words(argument)) {
-			switch (number(0, 2)) {
-			case 0:
-				send_to_char(ch, 
-					"Unless you like being muted, use SPEW for profanity.\r\n");
-				break;
-			case 1:
-				send_to_char(ch, 
-					"Why don't you keep that smut on the spew channel, eh?\r\n");
-				break;
-			case 2:
-				send_to_char(ch, 
-					"I don't think everyone wants to hear that.  SPEW it!\r\n");
-				break;
-			}
-			slog("%s warned for nasty public communication.", GET_NAME(ch));
+	/* see if it's dirty! */
+	if (chan->check_curse && !IS_MOB(ch) && GET_LEVEL(ch) < LVL_GRGOD &&
+		Nasty_Words(argument)) {
+		switch (number(0, 2)) {
+		case 0:
+			send_to_char(ch, 
+				"Unless you like being muted, use SPEW for profanity.\r\n");
+			break;
+		case 1:
+			send_to_char(ch, 
+				"Why don't you keep that smut on the spew channel, eh?\r\n");
+			break;
+		case 2:
+			send_to_char(ch, 
+				"I don't think everyone wants to hear that.  SPEW it!\r\n");
+			break;
 		}
+		slog("%s warned for nasty public communication.", GET_NAME(ch));
 	}
 
 	plain_emit = tmp_sprintf("%%s %ss, '%s'\r\n", chan->name, argument);
@@ -898,7 +870,7 @@ ACMD(do_qcomm)
 {
 	struct descriptor_data *i;
 
-	if (!IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_QUEST)) {
+	if (!IS_NPC(ch) && !GET_QUEST(ch)) {
 		send_to_char(ch, "You aren't even part of the quest!\r\n");
 		return;
 	}
@@ -919,8 +891,6 @@ ACMD(do_qcomm)
 	} else {
 		if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF))
 			send_to_char(ch, "The walls absorb the sound of your voice.\r\n");
-		else if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(ch, OK);
 		else {
 			if (subcmd == SCMD_QSAY) {
 				send_to_char(ch, "%s%sYou quest-say,%s '%s'\r\n", CCYEL(ch, C_NRM),
@@ -937,7 +907,7 @@ ACMD(do_qcomm)
 		if (subcmd == SCMD_QSAY) {
 			for (i = descriptor_list; i; i = i->next)
 				if (STATE(i) == CXN_PLAYING && i != ch->desc &&
-					PRF_FLAGGED(i->creature, PRF_QUEST) &&
+					GET_QUEST(i->creature) == GET_QUEST(ch) &&
 					i->creature->in_room != NULL &&
 					!ROOM_FLAGGED(i->creature->in_room, ROOM_SOUNDPROOF) &&
 					!PLR_FLAGGED(i->creature,
@@ -953,7 +923,7 @@ ACMD(do_qcomm)
 
 			for (i = descriptor_list; i; i = i->next)
 				if (STATE(i) == CXN_PLAYING && i != ch->desc &&
-					PRF_FLAGGED(i->creature, PRF_QUEST) &&
+					GET_QUEST(i->creature) != GET_QUEST(ch) &&
 					i->creature->in_room != NULL &&
 					!ROOM_FLAGGED(i->creature->in_room, ROOM_SOUNDPROOF) &&
 					!PLR_FLAGGED(i->creature,
@@ -984,8 +954,6 @@ ACMD(do_clan_comm)
 		if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) &&
 			GET_LEVEL(ch) < LVL_AMBASSADOR)
 			send_to_char(ch, "The walls absorb the sound of your voice.\r\n");
-		else if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(ch, OK);
 		else {
 			if (subcmd == SCMD_CLAN_SAY) {
 				delete_doubledollar(buf);
