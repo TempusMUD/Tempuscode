@@ -654,31 +654,31 @@ index_boot(int mode)
     int rec_count = 0, index_count = 0, number = 9, i;
 
     switch (mode) {
-    case DB_BOOT_WLD:
-        prefix = WLD_PREFIX;
-        break;
-    case DB_BOOT_MOB:
-        prefix = MOB_PREFIX;
-        break;
-    case DB_BOOT_OBJ:
-        prefix = OBJ_PREFIX;
-        break;
-    case DB_BOOT_ZON:
-        prefix = ZON_PREFIX;
-        break;
-    case DB_BOOT_SHP:
-        prefix = SHP_PREFIX;
-        break;
-    case DB_BOOT_TICL:
-        prefix = TICL_PREFIX;
-        break;
-    case DB_BOOT_ISCR:
-        prefix = ISCR_PREFIX;
-    break;
-    default:
-        slog("SYSERR: Unknown subcommand to index_boot!");
-        safe_exit(1);
-        break;
+        case DB_BOOT_WLD:
+            prefix = WLD_PREFIX;
+            break;
+        case DB_BOOT_MOB:
+            prefix = MOB_PREFIX;
+            break;
+        case DB_BOOT_OBJ:
+            prefix = OBJ_PREFIX;
+            break;
+        case DB_BOOT_ZON:
+            prefix = ZON_PREFIX;
+            break;
+        case DB_BOOT_SHP:
+            prefix = SHP_PREFIX;
+            break;
+        case DB_BOOT_TICL:
+            prefix = TICL_PREFIX;
+            break;
+        case DB_BOOT_ISCR:
+            prefix = ISCR_PREFIX;
+            break;
+        default:
+            slog("SYSERR: Unknown subcommand to index_boot!");
+            safe_exit(1);
+            break;
     }
 
     if (mini_mud)
@@ -730,33 +730,33 @@ index_boot(int mode)
     rec_count++;
 
     switch (mode) {
-    case DB_BOOT_WLD:
-        break;
-    case DB_BOOT_MOB:
-        CREATE(null_mob_shared, struct mob_shared_data, 1);
-        null_mob_shared->vnum = -1;
-        null_mob_shared->number = 0;
-        null_mob_shared->func  = NULL;
-        null_mob_shared->ticl_ptr = NULL;
-        null_mob_shared->proto = NULL;
-        null_mob_shared->move_buf = NULL;
-        break;
-    
-    case DB_BOOT_OBJ:
-        CREATE(null_obj_shared, struct obj_shared_data, 1);
-        null_obj_shared->vnum = -1;
-        null_obj_shared->number = 0;
-        null_obj_shared->house_count = 0;
-        null_obj_shared->func = NULL;
-        null_obj_shared->ticl_ptr = NULL;
-        null_obj_shared->proto = NULL;
-        break;
-    
-    case DB_BOOT_ZON:
-        break;
-    
-    case DB_BOOT_ISCR:
-    break;
+        case DB_BOOT_WLD:
+            break;
+        case DB_BOOT_MOB:
+            CREATE(null_mob_shared, struct mob_shared_data, 1);
+            null_mob_shared->vnum = -1;
+            null_mob_shared->number = 0;
+            null_mob_shared->func  = NULL;
+            null_mob_shared->ticl_ptr = NULL;
+            null_mob_shared->proto = NULL;
+            null_mob_shared->move_buf = NULL;
+            break;
+
+        case DB_BOOT_OBJ:
+            CREATE(null_obj_shared, struct obj_shared_data, 1);
+            null_obj_shared->vnum = -1;
+            null_obj_shared->number = 0;
+            null_obj_shared->house_count = 0;
+            null_obj_shared->func = NULL;
+            null_obj_shared->ticl_ptr = NULL;
+            null_obj_shared->proto = NULL;
+            break;
+
+        case DB_BOOT_ZON:
+            break;
+
+        case DB_BOOT_ISCR:
+            break;
     }
 
     if (mode != DB_BOOT_ZON) {
@@ -771,8 +771,8 @@ index_boot(int mode)
             CREATE(wld_index, int, index_count+1);
         else if (mode == DB_BOOT_TICL)
             CREATE(ticl_index, int, index_count+1);
-    else if (mode == DB_BOOT_ISCR)
-        CREATE(iscr_index, int, index_count+1);
+        else if (mode == DB_BOOT_ISCR)
+            CREATE(iscr_index, int, index_count+1);
   
         for (i = 0; i < index_count; i++) {
             if (mode == DB_BOOT_OBJ) {
@@ -795,10 +795,10 @@ index_boot(int mode)
                 fscanf(index, "%d.ticl\n", &number);
                 ticl_index[i] = number;
             }
-        else if (mode == DB_BOOT_ISCR) {
-            fscanf(index, "%d.iscr\n", &number);
-            iscr_index[i] = number;
-        }
+            else if (mode == DB_BOOT_ISCR) {
+                fscanf(index, "%d.iscr\n", &number);
+                iscr_index[i] = number;
+            }
         }
     
         if (mode == DB_BOOT_OBJ)
@@ -811,8 +811,8 @@ index_boot(int mode)
             wld_index[index_count] = -1;
         else if (mode == DB_BOOT_TICL)
             ticl_index[index_count] = -1;
-    else if (mode == DB_BOOT_ISCR)
-        iscr_index[index_count] = -1;
+        else if (mode == DB_BOOT_ISCR)
+            iscr_index[index_count] = -1;
     }
   
     rewind(index);
@@ -905,8 +905,7 @@ discrete_load(FILE * fl, int mode)
                 case DB_BOOT_TICL:
                     load_ticl(fl, nr);
                 }
-        } 
-    else {
+        } else {
             fprintf(stderr, "Format error in %s file near %s #%d\n",
                     modes[mode], modes[mode], nr);
             fprintf(stderr, "Offending line: '%s'\n", line);
