@@ -145,7 +145,7 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 	}
 
 	memory = poll->memory;
-	while (memory && memory->id != ch->account->get_idnum())
+	while (memory && memory->id != ch->desc->account->get_idnum())
 		memory = memory->next;
 
 	acc_string_clear();
@@ -215,7 +215,7 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	}
 
 	memory = poll->memory;
-	while (memory && memory->id != ch->account->get_idnum())
+	while (memory && memory->id != ch->desc->account->get_idnum())
 		memory = memory->next;
 
 	if (memory) {
@@ -254,12 +254,12 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	CREATE(new_memory, struct memory_rec_struct, 1);
 	new_memory->next = poll->memory;
 	poll->memory = new_memory;
-	new_memory->id = ch->account->get_idnum();
+	new_memory->id = ch->desc->account->get_idnum();
 
 	sql_exec("update voting_options set count=%d where poll=%d and idx=%d",
 		opt->count, poll->idnum, opt->idx - 'a');
 	sql_exec("insert into voting_accounts (poll, account) values (%d, %d)",
-		poll->idnum, ch->account->get_idnum());
+		poll->idnum, ch->desc->account->get_idnum());
 }
 
 void
@@ -300,7 +300,7 @@ voting_booth_list(Creature * ch, struct obj_data *obj)
 		poll_count = 0;
 		while (poll) {
 			memory = poll->memory;
-			while (memory && memory->id != ch->account->get_idnum())
+			while (memory && memory->id != ch->desc->account->get_idnum())
 				memory = memory->next;
 
 			strftime(buf2, 2048, "%a %b %d", localtime(&poll->creation_time));
