@@ -1012,7 +1012,7 @@ int best_attack(struct char_data *ch, struct char_data *vict) {
     if (IS_AFFECTED_3(vict, AFF3_INFILTRATE)) {
         //we need to determine if victs infiltration techniques are up to
         //challenge
-        int prob = CHECK_SKILL(vict, SKILL_INFILTRATE) + vict->getLevelBonus(SKILL_INFILTRATE);
+        int prob = vict->getLevelBonus(SKILL_INFILTRATE);
         int percent = number(0, 125);
        
         if (affected_by_spell(ch, ZEN_AWARENESS) ||
@@ -1032,8 +1032,8 @@ int best_attack(struct char_data *ch, struct char_data *vict) {
         if (IS_AFFECTED_2(ch, AFF2_HASTE))
             percent += 15;
             
-        percent += GET_LEVEL(ch);
-        if (percent < prob)
+        percent += (GET_LEVEL(ch) / 2);
+        if (prob > percent)
             return 0;
     }
     //
