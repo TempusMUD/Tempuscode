@@ -404,7 +404,7 @@ ACMD(do_put)
 			} else {
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->next_content;
-					if (obj != cont && INVIS_OK_OBJ(ch, obj) &&
+					if (obj != cont && can_see_object(ch, obj) &&
 						(obj_dotmode == FIND_ALL || isname(arg1, obj->name))) {
 						if ((IS_BOMB(obj) && obj->contains
 								&& IS_FUSE(obj->contains)
@@ -668,7 +668,7 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 		for (obj = cont->contains; obj; obj = next_obj) {
 			next_obj = obj->next_content;
 
-			if (!CAN_SEE_OBJ(ch, obj)) {
+			if (!can_see_object(ch, obj)) {
 				continue;
 			}
 			// Gods can get all.corpse and get implants.
@@ -690,7 +690,7 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 
 			if (!next_obj ||
 				next_obj->short_description != obj->short_description ||
-				!CAN_SEE_OBJ(ch, next_obj)
+				!can_see_object(ch, next_obj)
 				|| !can_take_obj(ch, next_obj, check_weight, false)) {
 				display = true;
 			}
@@ -855,7 +855,7 @@ get_from_room(struct Creature *ch, char *arg)
 		for (obj = ch->in_room->contents; obj; obj = next_obj) {
 			next_obj = obj->next_content;
 
-			if (!CAN_SEE_OBJ(ch, obj)) {
+			if (!can_see_object(ch, obj)) {
 				continue;
 			}
 			//
@@ -867,7 +867,7 @@ get_from_room(struct Creature *ch, char *arg)
 
 			if (!next_obj ||
 				next_obj->short_description != obj->short_description ||
-				!CAN_SEE_OBJ(ch, next_obj)
+				!can_see_object(ch, next_obj)
 				|| !can_take_obj(ch, next_obj, true, false)) {
 				display = true;
 			}
@@ -1005,7 +1005,7 @@ ACCMD(do_get)
 
 	for (cont = ch->carrying; cont; cont = cont->next_content) {
 
-		if (CAN_SEE_OBJ(ch, cont) &&
+		if (can_see_object(ch, cont) &&
 			(!match_container_name
 				|| isname(match_container_name, cont->name))) {
 
@@ -1031,7 +1031,7 @@ ACCMD(do_get)
 
 	for (cont = ch->in_room->contents; cont; cont = cont->next_content) {
 
-		if (CAN_SEE_OBJ(ch, cont) &&
+		if (can_see_object(ch, cont) &&
 			(!match_container_name
 				|| isname(match_container_name, cont->name))) {
 
@@ -1529,7 +1529,7 @@ perform_give(struct Creature *ch, struct Creature *vict,
 	}
 
 	if (IS_NPC(vict) && AWAKE(vict) && !AFF_FLAGGED(vict, AFF_CHARM) &&
-		CAN_SEE_OBJ(vict, obj)) {
+		can_see_object(vict, obj)) {
 		if (IS_BOMB(obj)) {
 			if ((isname("bomb", obj->name) || isname("grenade", obj->name) ||
 					isname("explosives", obj->name)
@@ -1556,7 +1556,7 @@ perform_give(struct Creature *ch, struct Creature *vict,
 							return 1;
 						}
 					}
-					if (CAN_SEE(vict, ch)) {
+					if (can_see_creature(vict, ch)) {
 						sprintf(buf, "%s %s", fname(obj->name),
 							fname(ch->player.name));
 						do_give(vict, buf, 0, 0, 0);
@@ -1920,7 +1920,7 @@ ACMD(do_plant)
 			else
 				for (obj = ch->carrying; obj; obj = next_obj) {
 					next_obj = obj->next_content;
-					if (INVIS_OK_OBJ(ch, obj) &&
+					if (can_see_object(ch, obj) &&
 						((dotmode == FIND_ALL || isname(arg, obj->name))))
 						perform_plant(ch, vict, obj);
 				}
@@ -2833,7 +2833,7 @@ ACMD(do_wear)
 	if (dotmode == FIND_ALL) {
 		for (obj = ch->carrying; obj; obj = next_obj) {
 			next_obj = obj->next_content;
-			if (INVIS_OK_OBJ(ch, obj)
+			if (can_see_object(ch, obj)
 				&& (where = find_eq_pos(ch, obj, 0)) >= 0) {
 				items_worn++;
 				if (perform_wear(ch, obj, where))
@@ -3099,7 +3099,7 @@ ACMD(do_remove)
 		else {
 			found = 0;
 			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && INVIS_OK_OBJ(ch, GET_EQ(ch, i)) &&
+				if (GET_EQ(ch, i) && can_see_object(ch, GET_EQ(ch, i)) &&
 					isname(arg, GET_EQ(ch, i)->name)) {
 					perform_remove(ch, i);
 					found = 1;

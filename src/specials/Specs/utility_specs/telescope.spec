@@ -22,7 +22,7 @@ SPECIAL(telescope)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	char *desc;
 
-	if (!CMD_IS("look") || !CAN_SEE_OBJ(ch, scope) || !AWAKE(ch))
+	if (!CMD_IS("look") || !can_see_object(ch, scope) || !AWAKE(ch))
 		return 0;
 
 	half_chop(argument, arg1, arg2);

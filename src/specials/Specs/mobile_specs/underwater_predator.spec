@@ -54,7 +54,7 @@ SPECIAL(underwater_predator)
 			vict = *it;
 			if ((IS_MOB(vict) && !MOB2_FLAGGED(pred, MOB2_ATK_MOBS)) ||
 				(!IS_NPC(vict) && !vict->desc) ||
-				PRF_FLAGGED(vict, PRF_NOHASSLE) || !CAN_SEE(pred, vict) ||
+				PRF_FLAGGED(vict, PRF_NOHASSLE) || !can_see_creature(pred, vict) ||
 				PLR_FLAGGED(vict, PLR_OLC | PLR_WRITING | PLR_MAILING) ||
 				vict->getPosition() == POS_FLYING ||
 				(MOUNTED(vict)

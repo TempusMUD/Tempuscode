@@ -1652,7 +1652,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		return 0;
 	}
 	if (SPELL_FLAGGED(spellnum, MAG_NOSUN) && OUTSIDE(ch)
-		&& !IS_DARK(ch->in_room)) {
+		&& !room_is_dark(ch->in_room)) {
 		send_to_char(ch, "This spell cannot be cast in sunlight.\r\n");
 		return 0;
 	}
@@ -2165,7 +2165,7 @@ ACMD(do_cast)
 
 			if (((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent)) &&
 				IS_NPC(tch) && !PRF_FLAGGED(ch, PRF_NOHASSLE) &&
-				CAN_SEE(tch, ch))
+				can_see_creature(tch, ch))
 				hit(tch, ch, TYPE_UNDEFINED);
 
 		} else if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) &&

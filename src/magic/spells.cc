@@ -860,7 +860,7 @@ ASPELL(spell_locate_object)
 		if (!found)
 			continue;
 
-		if (!CAN_SEE_OBJ(ch, i))
+		if (!can_see_object(ch, i))
 			continue;
 
 		if (isname("imm", i->name) || IS_OBJ_TYPE(i, ITEM_SCRIPT)
@@ -2456,7 +2456,7 @@ ASPELL(spell_id_insinuation)
 
 	if ((mag_savingthrow(victim, level, SAVING_PSI) ||
 			number(0, GET_LEVEL(victim)) > number(0, GET_LEVEL(ch))) &&
-		CAN_SEE(victim, ch)) {
+		can_see_creature(victim, ch)) {
 		act("$n attacks $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_NOTVICT);
 		act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ch, TO_VICT);
 		act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_CHAR);
@@ -2506,7 +2506,7 @@ ASPELL(spell_id_insinuation)
 
 	if (!ulv) {
 		if (number(0, CHECK_SKILL(ch, SPELL_ID_INSINUATION)) > 50 ||
-			!CAN_SEE(victim, ch)) {
+			!can_see_creature(victim, ch)) {
 			send_to_char(ch, "Nothing seems to happen.\r\n");
 			return;
 		} else

@@ -832,7 +832,7 @@ SPECIAL(vendor)
 		return true;
 	}
 	
-	if (!CAN_SEE(self, ch)) {
+	if (!can_see_creature(self, ch)) {
 		do_say(self, "Show yourself if you want to do business with me!",
 			0, 0, 0);
 		return true;

@@ -64,7 +64,7 @@ SPECIAL(temple_healer)
 				CreatureList::iterator it = self->in_room->people.begin();
 				for (; it != self->in_room->people.end() && !found; ++it) {
 					vict = *it;
-					if (self == vict || !CAN_SEE(self, vict) || !number(0, 2))
+					if (self == vict || !can_see_creature(self, vict) || !number(0, 2))
 						continue;
 					if (GET_MOB_VNUM(self) == 11000 && IS_EVIL(vict)) {
 						if (!number(0, 20)) {
@@ -107,7 +107,7 @@ SPECIAL(temple_healer)
 				CreatureList::iterator it = self->in_room->people.begin();
 				for (; it != self->in_room->people.end() && !found; ++it) {
 					vict = *it;
-					if (self == vict || IS_NPC(vict) || !CAN_SEE(self, vict)
+					if (self == vict || IS_NPC(vict) || !can_see_creature(self, vict)
 						|| !number(0, 2))
 						continue;
 
@@ -136,7 +136,7 @@ SPECIAL(temple_healer)
 				for (; it != self->in_room->people.end() && !found; ++it) {
 					vict = *it;
 
-					if (self == vict || IS_NPC(vict) || !CAN_SEE(self, vict)
+					if (self == vict || IS_NPC(vict) || !can_see_creature(self, vict)
 						|| !number(0, 2))
 						continue;
 

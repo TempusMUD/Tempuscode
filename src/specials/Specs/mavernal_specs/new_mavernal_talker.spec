@@ -20,7 +20,7 @@ SPECIAL(new_mavernal_talker)
 	case 1:{
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it)
-				if (!IS_NPC((*it)) && (*it) != ch && CAN_SEE(ch, (*it))) {
+				if (!IS_NPC((*it)) && (*it) != ch && can_see_creature(ch, (*it))) {
 					act("$n pats you on the back.", FALSE, ch, 0, (*it),
 						TO_VICT);
 					act("$n pats $N on the back.", FALSE, ch, 0, (*it),

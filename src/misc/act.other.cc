@@ -382,7 +382,7 @@ ACMD(do_title)
 int
 perform_group(struct Creature *ch, struct Creature *vict)
 {
-	if (IS_AFFECTED(vict, AFF_GROUP) || !CAN_SEE(ch, vict))
+	if (IS_AFFECTED(vict, AFF_GROUP) || !can_see_creature(ch, vict))
 		return 0;
 
 	SET_BIT(AFF_FLAGS(vict), AFF_GROUP);
@@ -684,7 +684,7 @@ ACMD(do_use)
 					arg);
 				return;
 			}
-			if (subcmd == SCMD_RECITE && !CAN_SEE_OBJ(ch, mag_item)) {
+			if (subcmd == SCMD_RECITE && !can_see_object(ch, mag_item)) {
 				act("You can't see $p well enough to recite from it.",
 					FALSE, ch, mag_item, 0, TO_CHAR);
 				return;

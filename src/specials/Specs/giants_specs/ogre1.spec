@@ -12,7 +12,7 @@ SPECIAL(ogre1)
 		return 0;
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if (IS_ORC((*it)) && CAN_SEE(ch, (*it))) {
+		if (IS_ORC((*it)) && can_see_creature(ch, (*it))) {
 			act("$n roars, 'Now I've got $N, you!", FALSE, ch, 0, (*it),
 				TO_ROOM);
 			hit(ch, (*it), TYPE_UNDEFINED);

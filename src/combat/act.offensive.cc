@@ -132,7 +132,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 				prob -= 25;
 			else if (ch->in_room->zone->weather->sunlight == SUN_DARK)
 				prob += 10;
-		} else if (IS_DARK(ch->in_room))
+		} else if (room_is_dark(ch->in_room))
 			prob += 10;
 	}
 
@@ -141,10 +141,10 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		prob += 5;
 	if (IS_AFFECTED(ch, AFF_BLUR))
 		prob += 5;
-	if (!CAN_SEE(vict, ch))
+	if (!can_see_creature(vict, ch))
 		prob += 20;
 
-	if (!CAN_SEE(ch, vict))
+	if (!can_see_creature(ch, vict))
 		prob -= 20;
 	if (GET_COND(ch, DRUNK))
 		prob -= (GET_COND(ch, DRUNK) * 2);
@@ -960,7 +960,7 @@ ACMD(do_assist)
 
 		if (opponent == ch->in_room->people.end()) {
 			act("But nobody is fighting $M!", FALSE, ch, 0, helpee, TO_CHAR);
-		} else if (!CAN_SEE(ch, (*opponent))) {
+		} else if (!can_see_creature(ch, (*opponent))) {
 			act("You can't see who is fighting $M!", FALSE, ch, 0, helpee,
 				TO_CHAR);
 		} else if (!IS_NPC(ch) && !IS_NPC((*opponent))
@@ -1282,7 +1282,7 @@ ACMD(do_retreat)
 	for (; it != room->people.end(); ++it) {
 		Creature *vict = *it;
 		if (vict != ch && ch == FIGHTING(vict) &&
-			CAN_SEE(vict, ch) &&
+			can_see_creature(vict, ch) &&
 			((IS_NPC(vict) && GET_MOB_WAIT(vict) < 10) ||
 				(vict->desc && vict->desc->wait < 10)) &&
 			number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED(vict))) {
@@ -1541,7 +1541,7 @@ ACMD(do_stun)
 	if (AFF_FLAGGED(vict, AFF_ADRENALINE))
 		prob -= GET_LEVEL(vict);
 
-	if (!CAN_SEE(vict, ch))
+	if (!can_see_creature(vict, ch))
 		prob += GET_LEVEL(ch) >> 1;
 	if (AFF_FLAGGED(ch, AFF_SNEAK))
 		prob += (CHECK_SKILL(ch, SKILL_SNEAK)) / 10;
@@ -2763,7 +2763,7 @@ ACMD(do_intimidate)
 			return;
 		}
 	}
-	if (!CAN_SEE(vict, ch)) {
+	if (!can_see_creature(vict, ch)) {
 		act("$N doesn't seem to be able to see you.", FALSE, ch, 0, vict,
 			TO_CHAR);
 		return;
@@ -2956,7 +2956,7 @@ ACMD(do_beguile)
 	act("$n looks deeply into $N's eyes with an enigmatic look.",
 		TRUE, ch, 0, vict, TO_NOTVICT);
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || !CAN_SEE(vict, ch))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || !can_see_creature(vict, ch))
 		return;
 
 	if (GET_INT(vict) < 4) {
@@ -2965,7 +2965,7 @@ ACMD(do_beguile)
 	}
 	check_toughguy(ch, vict, 0);
 	check_killer(ch, vict);
-	if (CAN_SEE(vict, ch) &&
+	if (can_see_creature(vict, ch) &&
 		(CHECK_SKILL(ch, SKILL_BEGUILE) + GET_CHA(ch)) >
 		(number(0, 50) + GET_LEVEL(vict) + GET_INT(vict)))
 		spell_charm(GET_LEVEL(ch), ch, vict, NULL);

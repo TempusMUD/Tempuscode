@@ -12,7 +12,7 @@ SPECIAL(life_bldg_guard)
 	if (cmd != EAST + 1 || GET_LEVEL(ch) > 25)
 		return FALSE;
 
-	if (!CAN_SEE(guard, ch) || !AWAKE(guard))
+	if (!can_see_creature(guard, ch) || !AWAKE(guard))
 		return 0;
 
 	act("$N snickers at $n and pushes $m back.", TRUE, ch, 0, guard, TO_ROOM);

@@ -40,7 +40,7 @@ SPECIAL(duke_nukem)
 		return 0;
 	}
 
-	if (HUNTING(duke) && CAN_SEE(duke, HUNTING(duke))) {
+	if (HUNTING(duke) && can_see_creature(duke, HUNTING(duke))) {
 		if (!number(0, 10))
 			perform_tell(duke, HUNTING(duke),
 				"What are you, some bottom feeding, scum sucking algae eater?");
@@ -56,7 +56,7 @@ SPECIAL(duke_nukem)
 		CreatureList::iterator it = duke->in_room->people.begin();
 		for (; it != duke->in_room->people.end(); ++it) {
 			vict = *it;
-			if (vict == duke || !CAN_SEE(duke, vict))
+			if (vict == duke || !can_see_creature(duke, vict))
 				continue;
 			if (GET_LEVEL(vict) > 40 && !FIGHTING(vict) &&
 				!PRF_FLAGGED(vict, PRF_NOHASSLE)) {

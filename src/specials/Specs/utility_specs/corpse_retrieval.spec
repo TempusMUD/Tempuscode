@@ -14,7 +14,7 @@ SPECIAL(corpse_retrieval)
 
 	if (!CMD_IS("retrieve"))
 		return 0;
-	if (!CAN_SEE(retriever, ch)) {
+	if (!can_see_creature(retriever, ch)) {
 		do_say(retriever, "Who's there?  I can't see you.", 0, 0, 0);
 		return 1;
 	}

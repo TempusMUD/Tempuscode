@@ -177,7 +177,7 @@ perform_net_who(struct Creature *ch, char *arg)
     for (d = descriptor_list; d; d = d->next) {
         if (STATE(d) != CON_NETWORK)
             continue;
-        if (!CAN_SEE(ch, d->character))
+        if (!can_see_creature(ch, d->character))
             continue;
     
         count++;

@@ -20,7 +20,7 @@ SPECIAL(cheeky_monkey)
 	for (; it != ch->in_room->people.end(); ++it) {
 		++nit;
 		vict = *it;
-		if (vict != ch && CAN_SEE(ch, vict) &&
+		if (vict != ch && can_see_creature(ch, vict) &&
 			(!number(0, 5) || nit == ch->in_room->people.end()))
 			break;
 	}

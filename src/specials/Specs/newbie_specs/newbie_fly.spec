@@ -12,7 +12,7 @@ SPECIAL(newbie_fly)
 		return 0;
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if (IS_AFFECTED((*it), AFF_INFLIGHT) || !CAN_SEE(ch, (*it)))
+		if (IS_AFFECTED((*it), AFF_INFLIGHT) || !can_see_creature(ch, (*it)))
 			continue;
 		cast_spell(ch, (*it), 0, SPELL_FLY);
 		return 1;

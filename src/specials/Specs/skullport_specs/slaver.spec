@@ -28,7 +28,7 @@ SPECIAL(slaver)
 		CreatureList::iterator it = slaver->in_room->people.begin();
 		for (; it != slaver->in_room->people.end(); ++it) {
 			vict = *it;
-			if (ch != vict && !IS_NPC(vict) && CAN_SEE(slaver, vict) &&
+			if (ch != vict && !IS_NPC(vict) && can_see_creature(slaver, vict) &&
 				PRF_FLAGGED(vict, PRF_NOHASSLE) &&
 				GET_LEVEL(vict) < number(1, 50) && !IS_EVIL(vict)) {
 				do_say(slaver, "Ha!  You're coming with me!", 0, 0, 0);
@@ -54,7 +54,7 @@ SPECIAL(slaver)
 	}
 
 	if (!(vict = FIGHTING(slaver)) ||
-		PRF_FLAGGED(vict, PRF_NOHASSLE) || !CAN_SEE(slaver, vict))
+		PRF_FLAGGED(vict, PRF_NOHASSLE) || !can_see_creature(slaver, vict))
 		return 0;
 
 	if (GET_MOB_WAIT(slaver) <= 5 && !number(0, 1)) {

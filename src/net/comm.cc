@@ -1649,7 +1649,7 @@ send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 		if (IS_COMMUNICATOR(obj) && COMM_CHANNEL(obj) == chan &&
 			!obj->in_obj && ENGINE_STATE(obj)) {
 			if (obj->carried_by && (!mode || obj->carried_by != ch) &&
-				(!hide_invis || CAN_SEE(obj->carried_by, ch))) {
+				(!hide_invis || can_see_creature(obj->carried_by, ch))) {
 				if (COMM_UNIT_SEND_OK(ch, obj->carried_by)) {
 					send_to_char(obj->carried_by, "%s::%s::%s ", CCYEL(obj->carried_by, C_NRM),
 						OBJS(obj, obj->carried_by), CCNRM(obj->carried_by,
@@ -1657,7 +1657,7 @@ send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 					act(buf, TRUE, ch, obj, obj->carried_by, TO_VICT);
 				}
 			} else if (obj->worn_by && (!mode || obj->worn_by != ch) &&
-				(!hide_invis || CAN_SEE(obj->worn_by, ch))) {
+				(!hide_invis || can_see_creature(obj->worn_by, ch))) {
 				if (COMM_UNIT_SEND_OK(ch, obj->worn_by)) {
 					send_to_char(obj->worn_by, "%s::%s::%s ", CCYEL(obj->worn_by, C_NRM),
 						OBJS(obj, obj->worn_by), CCNRM(obj->worn_by, C_NRM));
@@ -1930,7 +1930,7 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (SENDOK((*it)) &&
-			!(hide_invisible && ch && !CAN_SEE((*it), ch)) &&
+			!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
 			((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
 			perform_act(str, ch, obj, vict_obj, (*it), 0);
 	}
@@ -1947,7 +1947,7 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 					it = o2->in_room->people.begin();
 					for (; it != o2->in_room->people.end(); ++it) {
 						if (SENDOK((*it)) &&
-							!(hide_invisible && ch && !CAN_SEE((*it), ch)) &&
+							!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
 							((*it) != ch) && (type == TO_ROOM
 								|| ((*it) != vict_obj))) {
 							perform_act(str, ch, obj, vict_obj, (*it), 1);
@@ -1976,7 +1976,7 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 			it = ABS_EXIT(room, j)->to_room->people.begin();
 			for (; it != ABS_EXIT(room, j)->to_room->people.end(); ++it) {
 				if (SENDOK((*it)) &&
-					!(hide_invisible && ch && !CAN_SEE((*it), ch)) &&
+					!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
 					((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
 					perform_act(str, ch, obj, vict_obj, (*it), 2);
 			}

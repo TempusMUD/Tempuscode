@@ -122,14 +122,27 @@ ACMD(do_action)
 			act(action->not_found, action->hide, ch, 0, vict, TO_CHAR);
 			return;
 		} else {
-			if ((vict = read_mobile(1599))) {	/* Social Thang */
-				vict->player.short_descr = str_dup(obj->short_description);
-				char_to_room(vict, ch->in_room,false);
-			} else {
-				act(action->not_found, action->hide, ch, 0, vict, TO_CHAR);
-				slog("SYSERR: Social Thang 1599 cannot be read.");
-				return;
-			}
+			// Convert messages from creature-oriented to object-oriented
+			// messages (no pun intended).  This is seriously hacky, but
+			// it sure beats reworking act().  Someday later, maybe...
+			char *char_found_msg, *others_found_msg;
+
+			char_found_msg = action->char_found;
+			others_found_msg = action->others_found;
+
+			char_found_msg = tmp_gsub(action->char_found, "$N", "$p");
+			char_found_msg = tmp_gsub(char_found_msg, "$M", "it");
+			char_found_msg = tmp_gsub(char_found_msg, "$S", "its");
+			char_found_msg = tmp_gsub(char_found_msg, "$E", "it");
+
+			others_found_msg = tmp_gsub(action->others_found, "$N", "$p");
+			others_found_msg = tmp_gsub(others_found_msg, "$M", "it");
+			others_found_msg = tmp_gsub(others_found_msg, "$S", "its");
+			others_found_msg = tmp_gsub(others_found_msg, "$E", "it");
+
+			act(char_found_msg, 0, ch, obj, 0, TO_CHAR | TO_SLEEP);
+			act(others_found_msg, action->hide, ch, obj, 0, TO_ROOM);
+			return;
 		}
 	}
 	if (vict == ch) {
@@ -144,11 +157,8 @@ ACMD(do_action)
 			act(action->char_found, 0, ch, 0, vict, TO_CHAR | TO_SLEEP);
 			act(action->others_found, action->hide, ch, 0, vict, TO_NOTVICT);
 			act(action->vict_found, action->hide, ch, 0, vict, TO_VICT);
-
 		}
 	}
-	if (obj && IS_MOB(vict))
-		vict->extract(true, false, CON_MENU);
 }
 
 ACMD(do_point)

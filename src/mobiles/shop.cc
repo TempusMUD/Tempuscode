@@ -96,7 +96,7 @@ is_ok_char(struct Creature *keeper, struct Creature *ch,
 	if (IS_GOD(ch))
 		return (TRUE);
 
-	if (!CAN_SEE(keeper, ch)) {
+	if (!can_see_creature(keeper, ch)) {
 		do_say(keeper, MSG_NO_SEE_CHAR, cmd_say, 0, 0);
 		return (FALSE);
 	}
@@ -458,7 +458,7 @@ get_slide_obj_vis(struct Creature *ch, char *name, struct obj_data *list)
 
 	for (i = list, j = 1; i && (j <= number); i = i->next_content)
 		if (isname(tmp, i->name))
-			if (CAN_SEE_OBJ(ch, i) && !same_obj(last_match, i)) {
+			if (can_see_object(ch, i) && !same_obj(last_match, i)) {
 				if (j == number)
 					return (i);
 				last_match = i;
@@ -480,7 +480,7 @@ get_hash_obj_vis(struct Creature *ch, char *name, struct obj_data *list)
 		return (0);
 
 	for (loop = list; loop; loop = loop->next_content)
-		if (CAN_SEE_OBJ(ch, loop) && (loop->shared->cost > 0))
+		if (can_see_object(ch, loop) && (loop->shared->cost > 0))
 			if (!same_obj(last_obj, loop)) {
 				if (--index == 0)
 					return (loop);
@@ -1026,7 +1026,7 @@ shopping_list(char *arg, struct Creature *ch,
 	strcat(buf, CCNRM(ch, C_NRM));
 	if (keeper->carrying)
 		for (obj = keeper->carrying; obj; obj = obj->next_content)
-			if (CAN_SEE_OBJ(ch, obj) && (obj->shared->cost > 0)) {
+			if (can_see_object(ch, obj) && (obj->shared->cost > 0)) {
 				if (!last_obj) {
 					last_obj = obj;
 					cnt = 1;

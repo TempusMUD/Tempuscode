@@ -43,7 +43,7 @@ SPECIAL(healing_ranger)
 						&& !number(0, 2))) {
 					continue;
 				}
-				if (!IS_NPC(vict) && CAN_SEE(ch, vict) &&
+				if (!IS_NPC(vict) && can_see_creature(ch, vict) &&
 					(GET_HIT(vict) < GET_MAX_HIT(vict))) {
 					if (GET_MOVE(ch) > 50) {
 						if (GET_LEVEL(vict) <= 15)

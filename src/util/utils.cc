@@ -528,7 +528,7 @@ add_follower(struct Creature *ch, struct Creature *leader)
 	leader->followers = k;
 
 	act("You now follow $N.", FALSE, ch, 0, leader, TO_CHAR);
-	if (CAN_SEE(leader, ch))
+	if (can_see_creature(leader, ch))
 		act("$n starts following you.", TRUE, ch, 0, leader, TO_VICT);
 	act("$n starts to follow $N.", TRUE, ch, 0, leader, TO_NOTVICT);
 }
@@ -550,7 +550,7 @@ add_stalker(struct Creature *ch, struct Creature *leader)
 	leader->followers = k;
 
 	act("You are now stalking $N.", FALSE, ch, 0, leader, TO_CHAR);
-	if (CAN_SEE(leader, ch)) {
+	if (can_see_creature(leader, ch)) {
 		if (CHECK_SKILL(ch, SKILL_STALK) < (number(0, 80) + GET_WIS(leader))) {
 			act("$n starts following you.", TRUE, ch, 0, leader, TO_VICT);
 			act("$n starts to follow $N.", TRUE, ch, 0, leader, TO_NOTVICT);
@@ -864,7 +864,7 @@ WAIT_STATE(struct Creature *ch, int cycle)
 char *
 OBJN(obj_data * obj, Creature * vict)
 {
-	if (CAN_SEE_OBJ(vict, obj))
+	if (can_see_object(vict, obj))
 		return fname((obj)->name);
 	else
 		return "something";
@@ -873,7 +873,7 @@ OBJN(obj_data * obj, Creature * vict)
 char *
 OBJS(obj_data * obj, Creature * vict)
 {
-	if (CAN_SEE_OBJ((vict), (obj)))
+	if (can_see_object((vict), (obj)))
 		return obj->short_description;
 	else
 		return "something";
@@ -882,7 +882,7 @@ OBJS(obj_data * obj, Creature * vict)
 char *
 PERS(Creature * ch, Creature * sub)
 {
-	if (CAN_SEE(sub, ch))
+	if (can_see_creature(sub, ch))
 		return GET_DISGUISED_NAME(sub, ch);
 	else if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return "a divine presence";

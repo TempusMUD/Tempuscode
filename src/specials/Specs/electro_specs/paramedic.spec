@@ -17,7 +17,7 @@ SPECIAL(paramedic)
 
 		if (IS_CYBORG(ch))
 			send_to_char(ch, "Sorry, we cannot service cyborgs here!\r\n");
-		else if (!CAN_SEE(pm, ch))
+		else if (!can_see_creature(pm, ch))
 			send_to_char(ch, "The paramedic cannot see you.\r\n");
 		else
 			send_to_char(ch, "You can buy the following services:\r\n"
@@ -35,7 +35,7 @@ SPECIAL(paramedic)
 			return 1;
 		}
 
-		if (!CAN_SEE(pm, ch)) {
+		if (!can_see_creature(pm, ch)) {
 			send_to_char(ch, "The paramedic cannot see you.\r\n");
 			return 1;
 		}

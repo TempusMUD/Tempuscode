@@ -2402,7 +2402,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 	if (spellnum == SPELL_MASS_HYSTERIA) {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (count = 0; it != ch->in_room->people.end(); ++it)
-			if ((*it) != ch && CAN_SEE(ch, (*it)))
+			if ((*it) != ch && can_see_creature(ch, (*it)))
 				count++;
 		if (!count) {
 			send_to_char(ch, 

@@ -32,7 +32,7 @@ SPECIAL(killer_hunter)
 	for (d = descriptor_list; d; d = d->next) {
 		if (!d->connected && !d->original && d->character) {
 			if (PLR_FLAGGED(d->character, PLR_KILLER) &&
-				d->character->in_room && CAN_SEE(hunter, d->character)) {
+				d->character->in_room && can_see_creature(hunter, d->character)) {
 				if (GET_LEVEL(d->character) < LVL_IMMORT &&
 					(GET_LEVEL(hunter) <= (GET_LEVEL(d->character) + 10)) &&
 					find_first_step(hunter->in_room, d->character->in_room,

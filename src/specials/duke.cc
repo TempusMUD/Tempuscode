@@ -224,7 +224,7 @@ block_way(struct Creature *ch, struct Creature *guard, int cmd,
 			!strncmp(ch->player.short_descr, "Duke Araken", 11)))
 		return FALSE;
 
-	if (!CAN_SEE(guard, ch) || !AWAKE(guard))
+	if (!can_see_creature(guard, ch) || !AWAKE(guard))
 		return FALSE;
 
 	if ((ch->in_room == real_room(iIn_room)) && (cmd == iProhibited_direction)) {
@@ -756,7 +756,7 @@ SPECIAL(armory_person)
 	if (!cmd || IS_NPC(ch))
 		return FALSE;
 
-	if (!CAN_SEE(guard, ch) || FIGHTING(guard))
+	if (!can_see_creature(guard, ch) || FIGHTING(guard))
 		return FALSE;
 
 	act("$n screams, 'This is a RESTRICTED AREA!!!'", FALSE, guard, 0, 0,

@@ -1260,7 +1260,7 @@ ACMD(do_bioscan)
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if ((((CAN_SEE(ch, (*it)) || GET_INVIS_LVL((*it)) < GET_LEVEL(ch)) &&
+		if ((((can_see_creature(ch, (*it)) || GET_INVIS_LVL((*it)) < GET_LEVEL(ch)) &&
 					(CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100) ||
 						affected_by_spell(ch, SKILL_HYPERSCAN)))
 				|| ch == (*it)) && LIFE_FORM((*it)))
@@ -1813,13 +1813,13 @@ ACMD(do_status)
 		for (bul = object_list; bul; bul = bul->next) {
 			if (IS_COMMUNICATOR(bul) && ENGINE_STATE(bul) &&
 				COMM_CHANNEL(bul) == COMM_CHANNEL(obj)) {
-				if (bul->carried_by && CAN_SEE(ch, bul->carried_by) &&
+				if (bul->carried_by && can_see_creature(ch, bul->carried_by) &&
 					COMM_UNIT_SEND_OK(ch, bul->carried_by))
 					sprintf(buf, "%s  %s%s\r\n", buf,
 						GET_NAME(bul->carried_by),
 						COMM_UNIT_SEND_OK(bul->carried_by,
 							ch) ? "" : "  (mute)");
-				else if (bul->worn_by && CAN_SEE(ch, bul->worn_by)
+				else if (bul->worn_by && can_see_creature(ch, bul->worn_by)
 					&& COMM_UNIT_SEND_OK(ch, bul->worn_by))
 					sprintf(buf, "%s  %s%s\r\n", buf, GET_NAME(bul->worn_by),
 						COMM_UNIT_SEND_OK(bul->worn_by, ch) ? "" : "  (mute)");
@@ -2789,7 +2789,7 @@ ACMD(do_cyberscan)
 			(obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
 			for (impl = obj->contains, found = 0; impl;
 				impl = impl->next_content)
-				if (IS_IMPLANT(impl) && CAN_SEE_OBJ(ch, impl)
+				if (IS_IMPLANT(impl) && can_see_object(ch, impl)
 					&& !IS_OBJ_TYPE(obj, ITEM_SCRIPT)
 					&& ((CHECK_SKILL(ch, SKILL_CYBERSCAN) + (AFF3_FLAGGED(ch,
 									AFF3_SONIC_IMAGERY) ? 50 : 0) > number(70,
@@ -2805,14 +2805,14 @@ ACMD(do_cyberscan)
 		return;
 	}
 
-	if (ch != vict && CAN_SEE(vict, ch)) {
+	if (ch != vict && can_see_creature(vict, ch)) {
 		act("$n scans $N.", FALSE, ch, 0, vict, TO_NOTVICT);
 		act("$n scans you.", FALSE, ch, 0, vict, TO_VICT);
 	}
 
 	send_to_char(ch, "CYBERSCAN RESULTS:\r\n");
 	for (i = 0; i < NUM_WEARS; i++) {
-		if ((obj = GET_IMPLANT(vict, i)) && CAN_SEE_OBJ(ch, obj) &&
+		if ((obj = GET_IMPLANT(vict, i)) && can_see_object(ch, obj) &&
 			((CHECK_SKILL(ch, SKILL_CYBERSCAN) +
 					(AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 50 : 0) >
 					number(50, 120)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {

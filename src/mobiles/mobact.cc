@@ -339,7 +339,7 @@ burn_update(void)
 			if ((random_number_zero_low(3 + (af->level >> 2)) + 3) >
 				GET_DEX(ch) && (obj = ch->carrying)) {
 				while (obj) {
-					if (CAN_SEE_OBJ(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
+					if (can_see_object(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
 						break;
 					obj = obj->next_content;
 				}
@@ -561,7 +561,7 @@ burn_update(void)
 		//
 
 		if (IS_NPC(ch) && GET_MOB_VNUM(ch) == ZOMBIE_VNUM &&
-			OUTSIDE(ch) && IS_LIGHT(ch->in_room)
+			OUTSIDE(ch) && room_is_light(ch->in_room)
 			&& PRIME_MATERIAL_ROOM(ch->in_room))
 			if (damage(ch, ch, dice(4, 5), TOP_SPELL_DEFINE, -1))
 				continue;
@@ -879,7 +879,7 @@ find_bullet(struct Creature *ch, int gun_type, struct obj_data *list)
 	struct obj_data *bul = NULL;
 
 	for (bul = list; bul; bul = bul->next_content) {
-		if (CAN_SEE_OBJ(ch, bul) &&
+		if (can_see_object(ch, bul) &&
 			IS_BULLET(bul) && GUN_TYPE(bul) == gun_type)
 			return (bul);
 	}
@@ -931,7 +931,7 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 
 			/* no bullet found, look for one in bags * */
 			for (cont = ch->carrying; cont; cont = cont->next_content) {
-				if (!CAN_SEE_OBJ(ch, cont)
+				if (!can_see_object(ch, cont)
 					|| !IS_OBJ_TYPE(cont, ITEM_CONTAINER) || CAR_CLOSED(cont))
 					continue;
 				if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
@@ -976,7 +976,7 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 
 		/* no bullet found, look for one in bags * */
 		for (cont = ch->carrying; cont; cont = cont->next_content) {
-			if (!CAN_SEE_OBJ(ch, cont) || !IS_OBJ_TYPE(cont, ITEM_CONTAINER) ||
+			if (!can_see_object(ch, cont) || !IS_OBJ_TYPE(cont, ITEM_CONTAINER) ||
 				CAR_CLOSED(cont))
 				continue;
 			if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
@@ -1327,40 +1327,32 @@ best_attack(struct Creature *ch, struct Creature *vict)
 inline bool
 CHAR_LIKES_ROOM(struct Creature * ch, struct room_data * room)
 {
+	if (!ELEMENTAL_LIKES_ROOM(ch, room))
+		return false;
 
-	if (ELEMENTAL_LIKES_ROOM(ch, room) &&
-		(CHAR_WITHSTANDS_FIRE(ch) ||
-			!ROOM_FLAGGED(room, ROOM_FLAME_FILLED)) &&
-		(CHAR_WITHSTANDS_COLD(ch) ||
-			!ROOM_FLAGGED(room, ROOM_ICE_COLD)) &&
-		(!IS_EVIL(ch) || !ROOM_FLAGGED(room, ROOM_HOLYOCEAN)) &&
-		(can_travel_sector(ch, room->sector_type, 0)) &&
-		((!MOB2_FLAGGED(ch, MOB2_STAY_SECT) ||
-				ch->in_room->sector_type == room->sector_type) &&
-			(!LIGHT_OK(ch) || IS_LIGHT(room) || CAN_SEE_IN_DARK(ch) ||
-				(GET_EQ(ch, WEAR_LIGHT) &&
-					GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 0))))) {
-		return true;
-	}
-	return false;
+	if (ROOM_FLAGGED(room, ROOM_FLAME_FILLED) && !CHAR_WITHSTANDS_FIRE(ch))
+		return false;
+
+	if (ROOM_FLAGGED(room, ROOM_ICE_COLD) && !CHAR_WITHSTANDS_COLD(ch))
+		return false;
+
+	if (ROOM_FLAGGED(room, ROOM_HOLYOCEAN) && IS_EVIL(ch))
+		return false;
+
+	if (!can_travel_sector(ch, room->sector_type, 0))
+		return false;
+
+	if (MOB2_FLAGGED(ch, MOB2_STAY_SECT) &&
+			ch->in_room->sector_type != room->sector_type)
+		return false;
+
+	if (!can_see_room(ch, ch->in_room) &&
+			(!GET_EQ(ch, WEAR_LIGHT) ||
+				GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 0)))
+		return false;
+
+	return true;
 }
-
-/*
-#define CHAR_LIKES_ROOM(ch, room) \
-    (ELEMENTAL_LIKES_ROOM(ch, room) &&                \
-     (CHAR_WITHSTANDS_FIRE(ch) ||                     \
-      !ROOM_FLAGGED(room, ROOM_FLAME_FILLED)) &&      \
-     (CHAR_WITHSTANDS_COLD(ch) ||                     \
-      !ROOM_FLAGGED(room, ROOM_ICE_COLD)) &&          \
-     (!IS_EVIL(ch) ||                                 \
-      !ROOM_FLAGGED(room, ROOM_HOLYOCEAN)) &&         \
-     (can_travel_sector(ch, room->sector_type, 0)) && \
-     (!MOB2_FLAGGED(ch, MOB2_STAY_SECT) ||           \
-      ch->in_room->sector_type == room->sector_type) && \
-     (!LIGHT_OK(ch) || IS_LIGHT(room) || CAN_SEE_IN_DARK(ch) || \
-      (GET_EQ(ch, WEAR_LIGHT) &&                          \
-       GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 0))))
-*/
 
 const int mug_eq[] = {
 	WEAR_WIELD, WEAR_WIELD_2, WEAR_NECK_1, WEAR_NECK_2, WEAR_BODY,
@@ -1619,7 +1611,7 @@ mobile_activity(void)
 				vict = *it;
 				if (vict == ch)
 					continue;
-				if (CAN_SEE(ch, vict) && random_fractional_50()) {
+				if (can_see_creature(ch, vict) && random_fractional_50()) {
 					if ((IS_EVIL(ch) && IS_GOOD(vict)) || (IS_GOOD(ch)
 							&& IS_EVIL(ch))) {
 						if (GET_LEVEL(ch) < (GET_LEVEL(vict) - 10)) {
@@ -1680,15 +1672,15 @@ mobile_activity(void)
 						vict = *it;
 						if (check_infiltrate(vict, ch))
 							continue;
-						if (IS_NPC(vict) && CAN_SEE(ch, vict) &&
+						if (IS_NPC(vict) && can_see_creature(ch, vict) &&
 							(cityguard == vict->mob_specials.shared->func)) {
 							act("$n glances at $N.", TRUE, ch, 0, vict,
 								TO_ROOM);
 							found = TRUE;
 							break;
 						}
-						if (vict == ch || !CAN_SEE(ch, vict)
-							|| !CAN_SEE(vict, ch) || FIGHTING(vict)
+						if (vict == ch || !can_see_creature(ch, vict)
+							|| !can_see_creature(vict, ch) || FIGHTING(vict)
 							|| IS_NPC(vict) || !AWAKE(vict)
 							|| GET_LEVEL(vict) < 7
 							|| GET_LEVEL(vict) > (GET_LEVEL(ch) + 5)
@@ -1712,7 +1704,7 @@ mobile_activity(void)
 						if ((obj = GET_EQ(vict, mug_eq[k])) &&
 							!IS_OBJ_STAT(obj, ITEM_NODROP) &&
 							!IS_OBJ_STAT2(obj, ITEM2_NOREMOVE) &&
-							CAN_SEE_OBJ(ch, obj) &&
+							can_see_object(ch, obj) &&
 							!invalid_char_class(ch, obj) &&
 							obj->shared->proto &&
 							obj->short_description ==
@@ -1749,7 +1741,7 @@ mobile_activity(void)
 				it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					vict = *it;
-					if (!IS_NPC(vict) && CAN_SEE(ch, vict) &&
+					if (!IS_NPC(vict) && can_see_creature(ch, vict) &&
 						GET_IDNUM(vict) == ch->mob_specials.mug->idnum)
 						break;
 				}
@@ -1758,7 +1750,7 @@ mobile_activity(void)
 					CreatureList::iterator cit = characterList.begin();
 					for (; cit != characterList.end(); ++cit) {
 						vict = *cit;
-						if (!IS_NPC(vict) && CAN_SEE(ch, vict) &&
+						if (!IS_NPC(vict) && can_see_creature(ch, vict) &&
 							GET_IDNUM(vict) == ch->mob_specials.mug->idnum)
 							break;
 					}
@@ -1786,7 +1778,7 @@ mobile_activity(void)
 
 				for (i = ch->in_room->contents; i; i = i->next_content) {
 					if (GET_OBJ_VNUM(i) == GET_OBJ_VNUM(obj)
-						&& CAN_SEE_OBJ(ch, i) && i->shared->proto
+						&& can_see_object(ch, i) && i->shared->proto
 						&& i->shared->proto->short_description ==
 						obj->shared->proto->short_description) {
 						act("$n snickers and picks up $p.", FALSE, ch, i, 0,
@@ -1856,7 +1848,7 @@ mobile_activity(void)
 				max = 1;
 				best_obj = NULL;
 				for (obj = ch->in_room->contents; obj; obj = obj->next_content)
-					if (CAN_SEE_OBJ(ch, obj) &&
+					if (can_see_object(ch, obj) &&
 						// don't pick up sigil-ized objs if we know better
 						(!GET_OBJ_SIGIL_IDNUM(obj) ||
 							(!AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
@@ -1966,7 +1958,7 @@ mobile_activity(void)
 						extract_obj(obj);
 						break;
 					}
-					if (CAN_SEE_OBJ(ch, obj) &&
+					if (can_see_object(ch, obj) &&
 						!IS_IMPLANT(obj) &&
 						(GET_OBJ_TYPE(obj) == ITEM_WEAPON ||
 							IS_ENERGY_GUN(obj) || IS_GUN(obj)) &&
@@ -2064,7 +2056,7 @@ mobile_activity(void)
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				vict = *it;
 				if (ch != vict && FIGHTING(vict) && ch != FIGHTING(vict) &&
-					CAN_SEE(ch, vict)) {
+					can_see_creature(ch, vict)) {
 
 					int fvict_help_prob =
 						helper_help_probability(ch, FIGHTING(vict));
@@ -2139,7 +2131,7 @@ mobile_activity(void)
 			for (; it != room->people.end() && !found; ++it) {
 				vict = *it;
 				if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
-					|| !CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
+					|| !can_see_creature(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
 					IS_AFFECTED_2(vict, AFF2_PETRIFIED))
 					continue;
 
@@ -2188,7 +2180,7 @@ mobile_activity(void)
 					continue;
 
 				if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
-					|| !CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
+					|| !can_see_creature(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
 					IS_AFFECTED_2(vict, AFF2_PETRIFIED)) {
 					continue;
 				}
@@ -2242,7 +2234,7 @@ mobile_activity(void)
 						&& tmp_room != ch->in_room 
 						&& CHAR_LIKES_ROOM(ch, tmp_room) 
 						&& tmp_room->people.size() > 0 
-						&& CAN_SEE( ch, (*(tmp_room->people.begin()) ) )
+						&& can_see_creature( ch, (*(tmp_room->people.begin()) ) )
 						&& tmp_room->people.size() < (unsigned)tmp_room->max_occupancy ) 
 					{
 						break;
@@ -2255,7 +2247,7 @@ mobile_activity(void)
 					it = tmp_room->people.begin();
 					for (; it != tmp_room->people.end() && !found; ++it) {
 						vict = *it;
-						if (CAN_SEE(ch, vict)
+						if (can_see_creature(ch, vict)
 							&& !PRF_FLAGGED(vict, PRF_NOHASSLE)
 							&& (!AFF_FLAGGED(vict, AFF_SNEAK)
 								|| AFF_FLAGGED(vict, AFF_GLOWLIGHT)
@@ -2306,7 +2298,7 @@ mobile_activity(void)
 					continue;
 
 				if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS)) ||
-					!CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
+					!can_see_creature(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
 					((af_ptr = affected_by_spell(vict, SKILL_DISGUISE)) &&
 						!CAN_DETECT_DISGUISE(ch, vict, af_ptr->duration)))
 					continue;
@@ -2462,8 +2454,8 @@ mobile_activity(void)
 					cast_spell(ch, ch, 0, SPELL_CURE_CRITIC);
 				else
 					cast_spell(ch, ch, 0, SPELL_CURE_LIGHT);
-			} else if (IS_DARK(ch->in_room) &&
-				!CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 8) {
+			} else if (room_is_dark(ch->in_room) &&
+				!has_dark_sight(ch) && GET_LEVEL(ch) > 8) {
 				cast_spell(ch, ch, 0, SPELL_DIVINE_ILLUMINATION);
 			} else if ((affected_by_spell(ch, SPELL_BLINDNESS) ||
 					affected_by_spell(ch, SKILL_GOUGE)) && GET_LEVEL(ch) > 6) {
@@ -2530,9 +2522,9 @@ mobile_activity(void)
 			&& random_binary()) {
 			if (GET_LEVEL(ch) > 3 && !affected_by_spell(ch, SPELL_ARMOR)) {
 				cast_spell(ch, ch, 0, SPELL_ARMOR);
-			} else if (IS_DARK(ch->in_room) &&
+			} else if (room_is_dark(ch->in_room) &&
 				GET_MANA(ch) > mag_manacost(ch, SPELL_ARMOR) &&
-				!CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 5) {
+				!has_dark_sight(ch) && GET_LEVEL(ch) > 5) {
 				cast_spell(ch, ch, 0, SPELL_INFRAVISION);
 			} else if (GET_LEVEL(ch) > 12 && !IS_AFFECTED(ch, AFF_BLUR) &&
 				GET_MANA(ch) > mag_manacost(ch, SPELL_BLUR)) {
@@ -2575,7 +2567,7 @@ mobile_activity(void)
 
 		else if (cur_class == CLASS_PSIONIC && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
 			&& random_binary()) {
-			if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch)
+			if (room_is_dark(ch->in_room) && !has_dark_sight(ch)
 				&& GET_LEVEL(ch) >= 6)
 				cast_spell(ch, ch, 0, SPELL_INFRAVISION);
 			else if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80
@@ -3503,7 +3495,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		if (!(vict = choose_opponent(ch, precious_vict)))
 			return 0;
 
-		if (CAN_SEE(ch, vict) &&
+		if (can_see_creature(ch, vict) &&
 			(IS_MAGE(vict) || IS_CLERIC(vict))
 			&& vict->getPosition() > POS_SITTING) {
 			do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
@@ -4149,8 +4141,8 @@ void knight_activity(struct Creature *ch){
         else if (IS_GOOD(ch)){
             do_holytouch(ch, "self", 0, 0, 0);
         }
-    } else if (IS_DARK(ch->in_room) &&
-               !CAN_SEE_IN_DARK(ch) && GET_LEVEL(ch) > 6 &&
+    } else if (room_is_dark(ch->in_room) &&
+               !has_dark_sight(ch) && GET_LEVEL(ch) > 6 &&
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
         cast_spell(ch, ch, 0, SPELL_DIVINE_ILLUMINATION);
     } else if ((affected_by_spell(ch, SPELL_BLINDNESS) ||
@@ -4200,7 +4192,7 @@ int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
     if (!(vict = choose_opponent(ch, precious_vict)))
         return 0;
 
-    if (CAN_SEE(ch, vict) &&
+    if (can_see_creature(ch, vict) &&
         (IS_MAGE(vict) || IS_CLERIC(vict))
         && vict->getPosition() > POS_SITTING) {
         do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);

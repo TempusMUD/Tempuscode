@@ -271,7 +271,7 @@ ACMD(do_whirlwind)
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if ((*it) == ch || ch != (*it)->getFighting()
-					|| !CAN_SEE(ch, (*it)))
+					|| !can_see_creature(ch, (*it)))
 					continue;
 				damage(ch, (*it), (CHECK_SKILL(ch, SKILL_WHIRLWIND) >
 						number(50, 100) + GET_DEX((*it))) ?

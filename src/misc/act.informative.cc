@@ -360,7 +360,7 @@ list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 		corpse = true;
 
 	for (i = list; i; i = o) {
-		if (!INVIS_OK_OBJ(ch, i) ||
+		if (!can_see_object(ch, i) ||
 			OBJ_IS_SOILAGE(i) ||
 			(IS_OBJ_STAT2(i, ITEM2_HIDDEN) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)
 				&& number(50, 120) > HID_OBJ_PROB(ch, i))) {
@@ -386,7 +386,7 @@ list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 				if (same_obj(o, i) &&
 					(!IS_BOMB(o) || !IS_BOMB(i)
 						|| same_obj(o->contains, i->contains))) {
-					if (INVIS_OK_OBJ(ch, o))
+					if (can_see_object(ch, o))
 						count++;
 				} else {
 					break;
@@ -411,7 +411,7 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
 	int count = 0;
 
 	for (i = list; i; i = o) {
-		if (!INVIS_OK_OBJ(ch, i) ||
+		if (!can_see_object(ch, i) ||
 			(IS_OBJ_STAT2(i, ITEM2_HIDDEN) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)
 				&& number(50, 120) > HID_OBJ_PROB(ch, i))) {
 			o = i->next_content;
@@ -438,7 +438,7 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
 				if (same_obj(o, i) &&
 					(!IS_BOMB(o) || !IS_BOMB(i)
 						|| same_obj(o->contains, i->contains))) {
-					if (INVIS_OK_OBJ(ch, o))
+					if (can_see_object(ch, o))
 						count++;
 				} else
 					break;
@@ -716,14 +716,14 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 	if (CMD_IS("examine") || CMD_IS("glance")) {
 		found = FALSE;
 		for (j = 0; !found && j < NUM_WEARS; j++)
-			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
+			if (GET_EQ(i, j) && can_see_object(ch, GET_EQ(i, j)))
 				found = TRUE;
 
 		if (found) {
 			act("\r\n$n is using:", FALSE, i, 0, ch, TO_VICT);
 			for (j = 0; j < NUM_WEARS; j++)
 				if (GET_EQ(i, (int)eq_pos_order[j]) &&
-					CAN_SEE_OBJ(ch, GET_EQ(i, (int)eq_pos_order[j])) &&
+					can_see_object(ch, GET_EQ(i, (int)eq_pos_order[j])) &&
 					(!IS_OBJ_STAT2(GET_EQ(i, (int)eq_pos_order[j]),
 							ITEM2_HIDDEN)
 						|| number(50, 120) < HID_OBJ_PROB(ch, GET_EQ(i,
@@ -906,7 +906,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 		if (ch->in_room != i->in_room && AFF_FLAGGED(i, AFF_HIDE | AFF_SNEAK))
 			continue;
 
-		if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch) &&
+		if (room_is_dark(ch->in_room) && !has_dark_sight(ch) &&
 			IS_AFFECTED(i, AFF_INFRAVISION)) {
 			switch (number(0, 2)) {
 			case 0:
@@ -929,7 +929,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 			continue;
 
 		// skip those you can't see for in-game reasons
-		if (!CAN_SEE(ch, i)) {
+		if (!can_see_creature(ch, i)) {
 			if (!IS_IMMORT(i))
 				unseen++;
 			continue;
@@ -1040,9 +1040,9 @@ list_scanned_chars(struct Creature *list, struct Creature *ch,
 	for (; it != list->in_room->people.end(); ++it) {
 
 		/* put any other conditions for scanning someone in this if statement -
-		   i.e., if (CAN_SEE(ch, i) && condition2 && condition3) or whatever */
+		   i.e., if (can_see_creature(ch, i) && condition2 && condition3) or whatever */
 
-		if (CAN_SEE(ch, (*it)) && ch != (*it) &&
+		if (can_see_creature(ch, (*it)) && ch != (*it) &&
 			(!AFF_FLAGGED((*it), AFF_SNEAK | AFF_HIDE) ||
 				PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 			count++;
@@ -1055,9 +1055,9 @@ list_scanned_chars(struct Creature *list, struct Creature *ch,
 	for (; it != list->in_room->people.end(); ++it) {
 		/* make sure to add changes to the if statement above to this one also, using
 		   or's to join them.. i.e., 
-		   if (!CAN_SEE(ch, i) || !condition2 || !condition3) */
+		   if (!can_see_creature(ch, i) || !condition2 || !condition3) */
 
-		if (!CAN_SEE(ch, (*it)) || ch == (*it) ||
+		if (!can_see_creature(ch, (*it)) || ch == (*it) ||
 			((AFF_FLAGGED((*it), AFF_SNEAK | AFF_HIDE)) &&
 				!PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 			continue;
@@ -1196,7 +1196,7 @@ ACMD(do_exits)
 				sprintf(buf2, "%s%s", CCBLD(ch, C_SPR), CCBLU(ch, C_NRM));
 				sprintf(buf3, "%-8s%s - ", dirs[door], CCNRM(ch, C_SPR));
 				strcat(buf2, CAP(buf3));
-				if (IS_DARK(EXIT(ch, door)->to_room) && !CAN_SEE_IN_DARK(ch) &&
+				if (room_is_dark(EXIT(ch, door)->to_room) && !has_dark_sight(ch) &&
 					!ROOM_FLAGGED(EXIT(ch, door)->to_room, ROOM_DEATH))
 					strcat(buf2, "Too dark to tell\r\n");
 				else {
@@ -1238,7 +1238,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 	if (!ch->desc)
 		return;
 
-	if (!LIGHT_OK(ch)) {
+	if (room_is_dark(ch->in_room) && !has_dark_sight(ch)) {
 		send_to_char(ch, "It is pitch black...\r\n");
 		return;
 	}
@@ -1375,7 +1375,7 @@ look_in_direction(struct Creature *ch, int dir)
 					EX_ISDOOR | EX_CLOSED | EX_HIDDEN | EX_NOPASS) ||
 				PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 
-			if (IS_DARK(EXNUMB) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
+			if (room_is_dark(EXNUMB) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
 				CHECK_SKILL(ch, SKILL_NIGHT_VISION) < number(GET_LEVEL(ch),
 					101))
 				send_to_char(ch, 
@@ -1404,7 +1404,7 @@ look_in_direction(struct Creature *ch, int dir)
 				send_to_char(ch, "The %s %s open.\r\n", fname(EXIT(ch,
 							dir)->keyword), ISARE(fname(EXIT(ch,
 								dir)->keyword)));
-				if (EXNUMB != NULL && IS_DARK(EXNUMB) &&
+				if (EXNUMB != NULL && room_is_dark(EXNUMB) &&
 					!EXIT(ch, dir)->general_description) {
 					sprintf(buf,
 						"It's too dark through the %s to see anything.\r\n",
@@ -1686,7 +1686,7 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 	if (found_char != NULL) {
 		look_at_char(found_char, ch, cmd);
 		if (ch != found_char) {
-			if (CAN_SEE(found_char, ch)) {
+			if (can_see_creature(found_char, ch)) {
 				if (CMD_IS("examine"))
 					act("$n examines you.", TRUE, ch, 0, found_char, TO_VICT);
 				else
@@ -1719,7 +1719,7 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 	}
 	/* Does the argument match an extra desc in the char's equipment? */
 	for (j = 0; j < NUM_WEARS && !found; j++)
-		if (GET_EQ(ch, j) && CAN_SEE_OBJ(ch, GET_EQ(ch, j)) &&
+		if (GET_EQ(ch, j) && can_see_object(ch, GET_EQ(ch, j)) &&
 			(GET_OBJ_VAL(GET_EQ(ch, j), 3) != -999 ||
 				isname(arg, GET_EQ(ch, j)->name)))
 			if ((desc =
@@ -1731,7 +1731,7 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 			}
 	/* Does the argument match an extra desc in the char's inventory? */
 	for (obj = ch->carrying; obj && !found; obj = obj->next_content) {
-		if (CAN_SEE_OBJ(ch, obj) &&
+		if (can_see_object(ch, obj) &&
 			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->name)))
 			if ((desc = find_exdesc(arg, obj->ex_description)) != NULL) {
 				page_string(ch->desc, desc);
@@ -1743,7 +1743,7 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 
 	/* Does the argument match an extra desc of an object in the room? */
 	for (obj = ch->in_room->contents; obj && !found; obj = obj->next_content)
-		if (CAN_SEE_OBJ(ch, obj) &&
+		if (can_see_object(ch, obj) &&
 			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->name)))
 			if ((desc = find_exdesc(arg, obj->ex_description)) != NULL) {
 				page_string(ch->desc, desc);
@@ -1806,7 +1806,7 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 	if (found_char != NULL) {
 		look_at_char(found_char, ch, cmd);	/** CMD_IS("glance") !! **/
 		if (ch != found_char) {
-			if (CAN_SEE(found_char, ch) &&
+			if (can_see_creature(found_char, ch) &&
 				((GET_SKILL(ch, SKILL_GLANCE) + GET_LEVEL(ch)) <
 					(number(0, 101) + GET_LEVEL(found_char)))) {
 				act("$n glances sidelong at you.", TRUE, ch, 0, found_char,
@@ -2009,12 +2009,11 @@ ACMD(do_look)
 
 	if (ch->getPosition() < POS_SLEEPING)
 		send_to_char(ch, "You can't see anything but stars!\r\n");
-	else if (IS_AFFECTED(ch, AFF_BLIND)
-		&& !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
+	else if (!check_sight_self(ch))
 		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
-	else if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch)) {
+	else if (room_is_dark(ch->in_room) && !has_dark_sight(ch)) {
 		send_to_char(ch, "It is pitch black...\r\n");
-		list_char_to_char(ch->in_room->people, ch);	/* glowing red eyes */
+		list_char_to_char(ch->in_room->people, ch);	// glowing red eyes
 	} else {
 		half_chop(argument, arg, arg2);
 
@@ -2051,7 +2050,7 @@ ACMD(do_glance)
 	else if (IS_AFFECTED(ch, AFF_BLIND)
 		&& !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
 		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
-	else if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch)) {
+	else if (room_is_dark(ch->in_room) && !has_dark_sight(ch)) {
 		send_to_char(ch, "It is pitch black...\r\n");
 		list_char_to_char(ch->in_room->people, ch);	/* glowing red eyes */
 	} else {
@@ -2082,7 +2081,7 @@ ACMD(do_examine)
 		return;
 	}
 
-	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch)) {
+	if (room_is_dark(ch->in_room) && !has_dark_sight(ch)) {
 		send_to_char(ch, "It is pitch black, and you can't see anything.\r\n");
 		return;
 	}
@@ -2738,7 +2737,7 @@ ACMD(do_equipment)
 		send_to_char(ch, "You are using:\r\n");
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_EQ(ch, (int)eq_pos_order[i])) {
-				if (INVIS_OK_OBJ(ch, GET_EQ(ch, (int)eq_pos_order[i]))) {
+				if (can_see_object(ch, GET_EQ(ch, (int)eq_pos_order[i]))) {
 					send_to_char(ch, strcat(strcat(strcpy(buf,
 									CCGRN(ch, C_NRM)),
 								where[(int)eq_pos_order[i]]),
@@ -2822,7 +2821,7 @@ ACMD(do_equipment)
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_IMPLANT(ch, (int)eq_pos_order[i])) {
 
-				if (INVIS_OK_OBJ(ch, GET_IMPLANT(ch, (int)eq_pos_order[i]))) {
+				if (can_see_object(ch, GET_IMPLANT(ch, (int)eq_pos_order[i]))) {
 
 					if (IS_DEVICE(GET_IMPLANT(ch, (int)eq_pos_order[i])))
 						sprintf(buf2, " %10s %s(%s%d%s/%s%d%s)%s",
@@ -3114,12 +3113,12 @@ ACMD(do_who)
 			continue;
 
 		// skip imms now, before the tot_num gets incremented
-		if (ch != tch && GET_LEVEL(tch) >= LVL_AMBASSADOR && !CAN_SEE(ch, tch))
+		if (ch != tch && GET_LEVEL(tch) >= LVL_AMBASSADOR && !can_see_creature(ch, tch))
 			continue;
 
 		tot_num++;
 
-		if (!CAN_SEE(ch, tch))
+		if (!can_see_creature(ch, tch))
 			continue;
 
 		if (*name_search && str_cmp(GET_NAME(tch), name_search) &&
@@ -3509,7 +3508,7 @@ ACMD(do_users)
 			if (*name_search && str_cmp(GET_NAME(tch), name_search))
 				continue;
 			if (GET_LEVEL(ch) < LVL_LUCIFER)
-				if (!CAN_SEE(ch, tch) || GET_LEVEL(tch) < low
+				if (!can_see_creature(ch, tch) || GET_LEVEL(tch) < low
 					|| GET_LEVEL(tch) > high)
 					continue;
 			if (outlaws && !PLR_FLAGGED(tch, PLR_KILLER) &&
@@ -3583,7 +3582,7 @@ ACMD(do_users)
 			strcpy(line, line2);
 		}
 		if (STATE(d) != CON_PLAYING || (STATE(d) == CON_PLAYING
-				&& CAN_SEE(ch, d->character))) {
+				&& can_see_creature(ch, d->character))) {
 			strcat(out_buf, line);
 			num_can_see++;
 		}
@@ -3677,7 +3676,7 @@ perform_mortal_where(struct Creature *ch, char *arg)
 		for (d = descriptor_list; d; d = d->next) {
 			if (STATE(d) == CON_PLAYING) {
 				i = (d->original ? d->original : d->character);
-				if (i && CAN_SEE(ch, i) && (i->in_room != NULL) &&
+				if (i && can_see_creature(ch, i) && (i->in_room != NULL) &&
 					(ch->in_room->zone == i->in_room->zone)) {
 					send_to_char(ch, "%-20s - %s\r\n", GET_NAME(i),
 						i->in_room->name);
@@ -3688,7 +3687,7 @@ perform_mortal_where(struct Creature *ch, char *arg)
 		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			i = *cit;
-			if (i->in_room->zone == ch->in_room->zone && CAN_SEE(ch, i) &&
+			if (i->in_room->zone == ch->in_room->zone && can_see_creature(ch, i) &&
 				(i->in_room != NULL) && isname(arg, i->player.name)) {
 				send_to_char(ch, "%-25s - %s\r\n", GET_NAME(i), i->in_room->name);
 				return;
@@ -3855,7 +3854,7 @@ perform_immort_where(struct Creature *ch, char *arg)
 		for (d = descriptor_list; d; d = d->next) {
 			if (STATE(d) == CON_PLAYING) {
 				i = (d->original ? d->original : d->character);
-				if (i && CAN_SEE(ch, i) && (i->in_room != NULL)) {
+				if (i && can_see_creature(ch, i) && (i->in_room != NULL)) {
 					if (d->original)
 						sprintf(buf,
 							"%s%-20s%s - %s[%s%5d%s]%s %s%s%s %s(in %s)%s\r\n",
@@ -3914,7 +3913,7 @@ perform_immort_where(struct Creature *ch, char *arg)
             CreatureList::iterator cit = characterList.begin();
             for (; cit != characterList.end(); ++cit) {
                 i = *cit;
-                if (CAN_SEE(ch, i) && i->in_room && isWhereMatch(required, excluded, i) &&
+                if (can_see_creature(ch, i) && i->in_room && isWhereMatch(required, excluded, i) &&
                     (GET_MOB_SPEC(i) != fate || GET_LEVEL(ch) >= LVL_SPIRIT)) {
                     found = 1;
                     sprintf(buf, "%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
@@ -3930,7 +3929,7 @@ perform_immort_where(struct Creature *ch, char *arg)
 
         if(!no_object) {
             for (num = 0, k = object_list; k; k = k->next) {
-                if(! CAN_SEE_OBJ(ch, k) )
+                if(! can_see_object(ch, k) )
                     continue;
                 if( house_only && !isInHouse(k) )
                     continue;
@@ -3977,10 +3976,10 @@ ACMD(do_where)
 	else {
 
 		send_to_char(ch, "You are located: %s%s%s\r\nIn: %s%s%s.\r\n",
-			CCGRN(ch, C_NRM), (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch)) ?
+			CCGRN(ch, C_NRM), (room_is_dark(ch->in_room) && !has_dark_sight(ch)) ?
 			"In a very dark place." :
 			ch->in_room->name, CCNRM(ch, C_NRM),
-			CCGRN(ch, C_NRM), (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch)) ?
+			CCGRN(ch, C_NRM), (room_is_dark(ch->in_room) && !has_dark_sight(ch)) ?
 			"You can't tell for sure." :
 			ch->in_room->zone->name, CCNRM(ch, C_NRM));
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW))

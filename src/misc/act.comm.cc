@@ -502,7 +502,7 @@ ACMD(do_write)
 				AN(papername), papername);
 			return;
 		}
-		if (!CAN_SEE_OBJ(ch, GET_EQ(ch, WEAR_HOLD))) {
+		if (!can_see_object(ch, GET_EQ(ch, WEAR_HOLD))) {
 			send_to_char(ch, "The stuff in your hand is invisible!  Yeech!!\r\n");
 			return;
 		}

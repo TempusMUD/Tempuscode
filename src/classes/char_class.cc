@@ -976,7 +976,7 @@ newbie_equip(struct Creature *ch)
 		break;
 	}
 
-	if (!IS_RACE_INFRA(ch) && (obj = read_object(3030)))	/* torch */
+	if (!has_infravision(ch) && (obj = read_object(3030)))	/* torch */
 		obj_to_char(obj, ch);
 
 }
@@ -1456,7 +1456,7 @@ char_class_race_hit_bonus(struct Creature *ch, struct Creature *vict)
 			SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
 			ch->in_room->isOpenAir() ||
 			SECT_TYPE(ch->in_room) == SECT_UNDERWATER));
-	bonus += (IS_THIEF(ch) && IS_DARK(ch->in_room));
+	bonus += (IS_THIEF(ch) && room_is_dark(ch->in_room));
 	bonus += (IS_RANGER(ch) && (SECT_TYPE(ch->in_room) == SECT_FOREST ||
 			(SECT_TYPE(ch->in_room) != SECT_CITY &&
 				SECT_TYPE(ch->in_room) != SECT_INSIDE && OUTSIDE(ch))));

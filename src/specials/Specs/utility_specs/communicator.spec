@@ -63,7 +63,7 @@ SPECIAL(master_communicator)
 					continue;
 
 				if (((vict = tmpo->carried_by) || (vict = tmpo->worn_by)) &&
-					CAN_SEE(ch, vict))
+					can_see_creature(ch, vict))
 
 					sprintf(buf, "%s     %3d. %20s %10s %5s\r\n",
 						buf, ++i, PERS(vict, ch),

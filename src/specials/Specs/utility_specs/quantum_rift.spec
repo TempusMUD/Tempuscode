@@ -12,7 +12,7 @@ SPECIAL(quantum_rift)
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
-	if (!CMD_IS("enter") || !CAN_SEE_OBJ(ch, rift) || !AWAKE(ch))
+	if (!CMD_IS("enter") || !can_see_object(ch, rift) || !AWAKE(ch))
 		return 0;
 	one_argument(argument, arg1);
 	if (!isname(arg1, rift->name))

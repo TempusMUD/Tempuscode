@@ -516,7 +516,7 @@ SPECIAL(arioch)
 				(((vict = blade->carried_by) || (vict = blade->worn_by)) &&
 					!ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) &&
 					(!IS_NPC(vict) || shop_keeper != GET_MOB_SPEC(vict)) &&
-					!PRF_FLAGGED(vict, PRF_NOHASSLE) && CAN_SEE(ch, vict)))) {
+					!PRF_FLAGGED(vict, PRF_NOHASSLE) && can_see_creature(ch, vict)))) {
 			if (vict) {
 				HUNTING(ch) = vict;
 				rm = vict->in_room;

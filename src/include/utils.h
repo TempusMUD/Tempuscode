@@ -450,47 +450,6 @@ SECT(room_data * room)
 	return room->sector_type;
 }
 
-/*
-#define IS_DARK(room)  (!room->light && \
-                        (ROOM_FLAGGED(room, ROOM_DARK) || \
-                          ((!ROOM_FLAGGED(room, ROOM_INDOORS) && \
-                            PRIME_MATERIAL_ROOM(room) && \
-                            SECT(room) != SECT_INSIDE && \
-                              SECT(room) != SECT_VEHICLE && \
-                              SECT(room) != SECT_CITY ) && \
-                            ((room)->zone->weather->sunlight == SUN_SET || \
-                             (room)->zone->weather->sunlight == SUN_DARK)) ) )
-
-#define IS_LIGHT(room)  (!IS_DARK(room))
-*/
-static inline bool
-IS_DARK(room_data * room)
-{
-	if (room->light)
-		return false;
-	if (SECT(room) == SECT_ELEMENTAL_OOZE)
-		return true;
-	if (ROOM_FLAGGED(room, ROOM_DARK))
-		return true;
-	if (!PRIME_MATERIAL_ROOM(room))
-		return false;
-	if (ROOM_FLAGGED(room, ROOM_INDOORS))
-		return false;
-	if (SECT(room) == SECT_INSIDE)
-		return false;
-	if (SECT(room) == SECT_VEHICLE)
-		return false;
-	if (SECT(room) == SECT_CITY)
-		return false;
-	int sunlight = (room)->zone->weather->sunlight;
-	return (sunlight == SUN_SET || sunlight == SUN_DARK);
-}
-static inline bool
-IS_LIGHT(room_data * room)
-{
-	return !(IS_DARK(room));
-}
-
 #define GET_ROOM_SPEC(room) ((room) != NULL ? (room)->func : NULL)
 #define GET_ROOM_PARAM(room) ((room) != NULL ? (room)->func_param : NULL)
 
@@ -811,8 +770,6 @@ char *CURRENCY(Creature * ch);
            i == SKILL_SWEEPKICK   || i == SKILL_TRIP ||          \
            i == SKILL_HIP_TOSS    || i == SKILL_SHOULDER_THROW)
 
-/* Various macros building up to CAN_SEE */
-
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])
 #define LEV_ABBR(ch) (IS_NPC(ch) ? "--" : level_abbrevs[(int)GET_LEVEL(ch)-50])
 
@@ -934,43 +891,18 @@ char *CURRENCY(Creature * ch);
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
 
-bool IS_RACE_INFRA(Creature *ch);
-bool CAN_SEE_IN_DARK(Creature *ch);
-bool LIGHT_OK(Creature *sub);
-bool LIGHT_OK_ROOM(Creature *sub, room_data *room);
-bool ROOM_OK(Creature *sub);
-bool INVIS_OK(Creature *sub, Creature *obj);
-bool MOB_UNAPPROVED(Creature *ch);
-bool CHAR_CAN_SEE(Creature *ch, room_data *room = NULL);
-bool INVIS_OK(Creature *sub, Creature *obj);
-bool CAN_SEE(Creature *sub, Creature *obj);
+bool room_is_dark(room_data *room);
+bool room_is_light(room_data *room);
+bool has_infravision(Creature *self);
+bool has_dark_sight(Creature *self);
+bool check_sight_self(Creature *self);
+bool check_sight_room(Creature *self, room_data *room);
+bool check_sight_object(Creature *self, obj_data *obj);
+bool check_sight_vict(Creature *self, Creature *vict);
 
-/* End of CAN_SEE */
-static inline bool APPROVED_OK_OBJ( Creature *sub, obj_data *obj )  {
-	if(OBJ_APPROVED(obj) )
-		return true;
-	if( sub->getLevel() >= LVL_IMMORT || sub->isTester() )
-		return true;
-	if( MOB2_FLAGGED(sub, MOB2_UNAPPROVED) )
-		return true;
-	return false;
-}
-
-#define INVIS_OK_OBJ(sub, obj) \
-     ((((!IS_OBJ_STAT((obj), ITEM_INVISIBLE) ||   \
-         IS_AFFECTED((sub), AFF_DETECT_INVIS)) && \
-        (!IS_OBJ_STAT((obj), ITEM_TRANSPARENT) || \
-         IS_AFFECTED((sub), AFF_DETECT_INVIS))) ||\
-       (PRF_FLAGGED(sub, PRF_HOLYLIGHT) || \
-        IS_AFFECTED_2(sub, AFF2_TRUE_SEEING))) && \
-      APPROVED_OK_OBJ(sub, obj))
-
-
-#define MORT_CAN_SEE_OBJ(sub, obj) (LIGHT_OK(sub) && INVIS_OK_OBJ(sub, obj))
-
-
-#define CAN_SEE_OBJ(sub, obj) \
-   (MORT_CAN_SEE_OBJ(sub, obj) || PRF_FLAGGED((sub), PRF_HOLYLIGHT))
+bool can_see_creature(Creature *self, Creature *vict);
+bool can_see_object(Creature *self, obj_data *obj);
+bool can_see_room(Creature *self, room_data *room);
 
 #define CAN_CARRY_OBJ(ch,obj)  \
    (((IS_CARRYING_W(ch) + obj->getWeight()) <= CAN_CARRY_W(ch)) &&   \
@@ -978,7 +910,7 @@ static inline bool APPROVED_OK_OBJ( Creature *sub, obj_data *obj )  {
 
 #define CAN_GET_OBJ(ch, obj)   \
    ((CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
-    CAN_SEE_OBJ((ch),(obj))) || GET_LEVEL(ch) > LVL_CREATOR)
+    can_see_object((ch),(obj))) || GET_LEVEL(ch) > LVL_CREATOR)
 
 #define CAN_DETECT_DISGUISE(ch, vict, level) \
                           (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \

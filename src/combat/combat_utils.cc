@@ -479,7 +479,7 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 				calc_thaco += 10;
 			else if (ch->in_room->zone->weather->sunlight == SUN_DARK)
 				calc_thaco -= 5;
-		} else if (IS_DARK(ch->in_room))
+		} else if (room_is_dark(ch->in_room))
 			calc_thaco -= 5;
 	}
 
@@ -550,10 +550,10 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 		calc_thaco -= 2;
 	if (IS_AFFECTED(ch, AFF_BLUR))
 		calc_thaco -= 1;
-	if (!CAN_SEE(victim, ch))
+	if (!can_see_creature(victim, ch))
 		calc_thaco -= 3;
 
-	if (!CAN_SEE(ch, victim))
+	if (!can_see_creature(ch, victim))
 		calc_thaco += 2;
 	if (GET_COND(ch, DRUNK))
 		calc_thaco += 2;

@@ -449,7 +449,7 @@ npc_steal(struct Creature *ch, struct Creature *victim)
 		number(10, 70)) {
 
 		for (obj = victim->carrying; obj; obj = obj->next_content)
-			if (CAN_SEE_OBJ(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP) &&
+			if (can_see_object(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP) &&
 				GET_OBJ_COST(obj) > number(10, GET_LEVEL(ch) * 10) &&
 				obj->getWeight() < GET_LEVEL(ch) * 5)
 				break;
@@ -877,7 +877,7 @@ SPECIAL(fido)
 	vict = NULL;
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if (FIGHTING((*it)) != ch && CAN_SEE(ch, (*it)) && number(0, 3)) {
+		if (FIGHTING((*it)) != ch && can_see_creature(ch, (*it)) && number(0, 3)) {
 			vict = (*it);
 			break;
 		}
@@ -1065,7 +1065,7 @@ SPECIAL(janitor)
 
 	for (i = ch->in_room->contents; i; i = i->next_content) {
 		if (GET_OBJ_VNUM(i) == QUAD_VNUM ||
-			!CAN_WEAR(i, ITEM_WEAR_TAKE) || !CAN_SEE_OBJ(ch, i) ||
+			!CAN_WEAR(i, ITEM_WEAR_TAKE) || !can_see_object(ch, i) ||
 			(i->getWeight() + IS_CARRYING_W(ch)) > CAN_CARRY_W(ch) ||
 			(GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 150))
 			continue;
@@ -1085,7 +1085,7 @@ SPECIAL(janitor)
 		if (ahole && IS_MALE(ch)) {
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
-				if ((*it) != ch && IS_FEMALE((*it)) && CAN_SEE(ch, (*it))) {
+				if ((*it) != ch && IS_FEMALE((*it)) && can_see_creature(ch, (*it))) {
 					sprintf(buf, "%s Excuse me, ma'am.",
 						fname(GET_NAME((*it))));
 					do_say(ch, buf, 0, SCMD_SAY_TO, 0);
@@ -1111,7 +1111,7 @@ SPECIAL(elven_janitor)
 
 	for (i = ch->in_room->contents; i; i = i->next_content) {
 		if (GET_OBJ_VNUM(i) == QUAD_VNUM ||
-			!CAN_WEAR(i, ITEM_WEAR_TAKE) || !CAN_SEE_OBJ(ch, i) ||
+			!CAN_WEAR(i, ITEM_WEAR_TAKE) || !can_see_object(ch, i) ||
 			(GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 50) ||
 			IS_OBJ_STAT(i, ITEM_NODROP))
 			continue;
@@ -1140,7 +1140,7 @@ SPECIAL(gelatinous_blob)
 
 	for (i = ch->in_room->contents; i; i = i->next_content) {
 		if (GET_OBJ_VNUM(i) == QUAD_VNUM ||
-			!CAN_WEAR(i, ITEM_WEAR_TAKE) || !CAN_SEE_OBJ(ch, i) ||
+			!CAN_WEAR(i, ITEM_WEAR_TAKE) || !can_see_object(ch, i) ||
 			(GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 50))
 			continue;
 
@@ -1188,7 +1188,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 		locker = locker->next_content) {
 		if (GET_OBJ_VNUM(locker) == 3178 && !locker->contains) {
 			for (i = 0; i < NUM_WEARS; i++) {
-				if (GET_EQ(vict, i) && CAN_SEE_OBJ(ch, GET_EQ(vict, i))) {
+				if (GET_EQ(vict, i) && can_see_object(ch, GET_EQ(vict, i))) {
 					found = 1;
 					if (GET_OBJ_TYPE(GET_EQ(vict, i)) == ITEM_KEY &&
 						!GET_OBJ_VAL(GET_EQ(vict, i), 1))
@@ -1202,7 +1202,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 			}
 			for (obj = vict->carrying; obj; obj = next_obj) {
 				next_obj = obj->next_content;
-				if (!IS_OBJ_STAT(obj, ITEM_NODROP) && CAN_SEE_OBJ(ch, obj)) {
+				if (!IS_OBJ_STAT(obj, ITEM_NODROP) && can_see_object(ch, obj)) {
 					found = 1;
 					if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1))
 						extract_obj(obj);
@@ -1370,7 +1370,7 @@ SPECIAL(cityguard)
 	CreatureList::iterator nit = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		++nit;
-		if (!IS_NPC((*it)) && CAN_SEE(ch, (*it))
+		if (!IS_NPC((*it)) && can_see_creature(ch, (*it))
 			&& !PRF_FLAGGED((*it), PRF_NOHASSLE)) {
 			if (IS_SET(PLR_FLAGS((*it)), PLR_KILLER)
 				&& (nit != ch->in_room->people.end() || !number(0, 2))) {
@@ -1419,7 +1419,7 @@ SPECIAL(cityguard)
 		for (; it != ch->in_room->people.end(); ++it) {
 			++nit;
 			tch = *it;
-			if (tch != ch && CAN_SEE(ch, tch) && IS_GOOD(ch) &&
+			if (tch != ch && can_see_creature(ch, tch) && IS_GOOD(ch) &&
 				(nit != ch->in_room->people.end() || !number(0, 4))) {
 				if (IS_THIEF(tch)) {
 					if (IS_EVIL(tch)) {
@@ -1469,7 +1469,7 @@ SPECIAL(cityguard)
 	evil = NULL;
 	it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if (CAN_SEE(ch, (*it)) && FIGHTING((*it))) {
+		if (can_see_creature(ch, (*it)) && FIGHTING((*it))) {
 			if (((GET_ALIGNMENT((*it)) < max_evil) ||
 					MOB_FLAGGED((*it), MOB_AGGRESSIVE)) &&
 				(IS_NPC((*it)) || IS_NPC(FIGHTING((*it))))) {

@@ -1272,7 +1272,7 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		act("$E is unable to talk to you...", FALSE, ch, 0, recep, TO_CHAR);
 		return TRUE;
 	}
-	if (!CAN_SEE(recep, ch) && GET_LEVEL(ch) <= LVL_AMBASSADOR) {
+	if (!can_see_creature(recep, ch) && GET_LEVEL(ch) <= LVL_AMBASSADOR) {
 		act("$n says, 'I don't deal with people I can't see!'", FALSE, recep,
 			0, 0, TO_ROOM);
 		return TRUE;

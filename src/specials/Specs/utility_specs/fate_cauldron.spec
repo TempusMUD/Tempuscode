@@ -13,7 +13,7 @@ SPECIAL(fate_cauldron)
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
-	if (!CMD_IS("look") || !CAN_SEE_OBJ(ch, pot) || !AWAKE(ch))
+	if (!CMD_IS("look") || !can_see_object(ch, pot) || !AWAKE(ch))
 		return 0;
 	one_argument(argument, arg1);
 	if (!isname(arg1, pot->name))

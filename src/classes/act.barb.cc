@@ -86,7 +86,7 @@ perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
 		if (vict == ch || ch->isFighting() ||
 			PRF_FLAGGED(vict, PRF_NOHASSLE) ||
 			(IS_NPC(ch) && IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS)) ||
-			!CAN_SEE(ch, vict) || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
+			!can_see_creature(ch, vict) || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
 			continue;
 
 		if (!IS_NPC(ch) && !IS_NPC(vict)) {
@@ -170,7 +170,7 @@ ACMD(do_berserk)
 		act("$n goes BERSERK! Run for cover!", TRUE, ch, 0, ch, TO_ROOM);
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
-			if (ch == (*it) || !CAN_SEE(ch, (*it)) ||
+			if (ch == (*it) || !can_see_creature(ch, (*it)) ||
 				(!IS_NPC((*it)) &&
 					(!PLR_FLAGGED(ch, PLR_TOUGHGUY) ||
 						!PLR_FLAGGED((*it), PLR_TOUGHGUY))) ||

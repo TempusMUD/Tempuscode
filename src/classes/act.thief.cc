@@ -122,7 +122,7 @@ ACMD(do_steal)
 			for (eq_pos = 0; eq_pos < NUM_WEARS; eq_pos++)
 				if (GET_EQ(vict, eq_pos) &&
 					(isname(obj_name, GET_EQ(vict, eq_pos)->name)) &&
-					CAN_SEE_OBJ(ch, GET_EQ(vict, eq_pos))) {
+					can_see_object(ch, GET_EQ(vict, eq_pos))) {
 					obj = GET_EQ(vict, eq_pos);
 					break;
 				}
@@ -307,7 +307,7 @@ ACMD(do_backstab)
 
 	percent = number(1, 101) + GET_INT(vict);
 
-	prob = CHECK_SKILL(ch, SKILL_BACKSTAB) + (!CAN_SEE(vict, ch) ? (32) : 0) +
+	prob = CHECK_SKILL(ch, SKILL_BACKSTAB) + (!can_see_creature(vict, ch) ? (32) : 0) +
 		(IS_AFFECTED(ch, AFF_SNEAK) ? number(10, 25) : (-5)) +
 		dex_app_skill[GET_DEX(ch)].sneak;
 
@@ -365,7 +365,7 @@ ACMD(do_circle)
 		number(0, 20) * (IS_AFFECTED(ch, AFF_SNEAK));
 	if (FIGHTING(ch))
 		prob -= number(20, 30);
-	prob += 20 * CAN_SEE(vict, ch);
+	prob += 20 * can_see_creature(vict, ch);
 
 	cur_weap = weap;
 	if (percent > prob) {
@@ -443,7 +443,7 @@ ACMD(do_hide)
 		affected_by_spell(ch, SPELL_QUAD_DAMAGE) ||
 		IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD))
 		percent += 60;
-	if (IS_DARK(ch->in_room))
+	if (room_is_dark(ch->in_room))
 		percent -= 30;
 	else
 		percent += 20;

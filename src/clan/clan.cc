@@ -297,7 +297,7 @@ ACMD(do_clanlist)
 				i = ((d->original && GET_LEVEL(ch) > GET_LEVEL(d->original)) ?
 					d->original : d->character);
 				if (i && GET_CLAN(i) == GET_CLAN(ch) &&
-					GET_IDNUM(i) == member->idnum && (visible = CAN_SEE(ch, i))
+					GET_IDNUM(i) == member->idnum && (visible = can_see_creature(ch, i))
 					&& GET_LEVEL(i) >= min_lev && (i->in_room != NULL)) {
 					name = tmp_strcat(GET_NAME(i), " ",
 						clan->ranknames[(int)member->rank] ? clan->
@@ -306,55 +306,66 @@ ACMD(do_clanlist)
 					if (d->original)
 						line = tmp_sprintf(
 							"%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s %s(in %s)%s\r\n",
-							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(i),
-							char_class_abbrevs[(int)GET_CLASS(i)], CCGRN(ch,
-								C_NRM), CCNRM(ch, C_NRM),
+							CCGRN(ch, C_NRM),
+							CCNRM(ch, C_NRM),
+							GET_LEVEL(i),
+							char_class_abbrevs[(int)GET_CLASS(i)],
+							CCGRN(ch, C_NRM),
+							CCNRM(ch, C_NRM),
 							(GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,
 									C_NRM) : (PLR_FLAGGED(i,
 										PLR_CLAN_LEADER) ? CCCYN(ch,
-										C_NRM) : "")), name,
+										C_NRM) : "")),
+							name,
 							((GET_LEVEL(i) >= LVL_AMBASSADOR
 									|| PLR_FLAGGED(i,
-										PLR_CLAN_LEADER)) ? CCNRM(ch,
-									C_NRM) : ""), CCCYN(ch, C_NRM),
-							(d->character->in_room->zone ==
-								ch->in_room->zone) ? ((LIGHT_OK(ch)
-									&& LIGHT_OK(d->character)
-									&& (IS_LIGHT(d->character->in_room)
-										|| CAN_SEE_IN_DARK(ch))) ? d->
-								character->in_room->
-								name : "You cannot tell...") : d->character->
-							in_room->zone->name, CCNRM(ch, C_NRM), CCRED(ch,
-								C_CMP), GET_NAME(d->character), CCNRM(ch,
-								C_CMP));
+										PLR_CLAN_LEADER)) ? CCNRM(ch, C_NRM) : ""),
+							CCCYN(ch, C_NRM),
+							(d->character->in_room->zone == ch->in_room->zone) ?
+								(check_sight_room(ch, d->character->in_room)) ?
+									d->character->in_room->name
+									: "You cannot tell..."
+								: d->character->in_room->zone->name,
+							CCNRM(ch, C_NRM),
+							CCRED(ch, C_CMP),
+							GET_NAME(d->character),
+							CCNRM(ch, C_CMP));
 					else if (GET_LEVEL(i) >= LVL_AMBASSADOR)
 						line = tmp_sprintf("%s[%s%s%s]%s %-40s%s - %s%s%s\r\n",
-							CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
-							level_abbrevs[(int)(GET_LEVEL(i) -
-									LVL_AMBASSADOR)], CCYEL_BLD(ch, C_NRM),
-							CCNRM_GRN(ch, C_SPR), name, CCNRM(ch, C_SPR),
+							CCYEL_BLD(ch, C_NRM),
+							CCNRM_GRN(ch, C_SPR),
+							level_abbrevs[(int)(GET_LEVEL(i) - LVL_AMBASSADOR)],
+							CCYEL_BLD(ch, C_NRM),
+							CCNRM_GRN(ch, C_SPR),
+							name,
+							CCNRM(ch, C_SPR),
 							CCCYN(ch, C_NRM),
-							(i->in_room->zone ==
-								ch->in_room->zone) ? ((LIGHT_OK(ch)
-									&& LIGHT_OK(i) && (IS_LIGHT(i->in_room)
-										|| CAN_SEE_IN_DARK(ch))) ? i->in_room->
-								name : "You cannot tell...") : i->in_room->
-							zone->name, CCNRM(ch, C_NRM));
+							(i->in_room->zone == ch->in_room->zone) ?
+								((check_sight_room(ch, i->in_room)) ?
+									i->in_room->name
+									: "You cannot tell...")
+								: i->in_room->zone->name,
+							CCNRM(ch, C_NRM));
 					else
 						line = tmp_sprintf("%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s\r\n",
-							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(i),
-							char_class_abbrevs[(int)GET_CLASS(i)], CCGRN(ch,
-								C_NRM), CCNRM(ch, C_NRM), (PLR_FLAGGED(i,
-									PLR_CLAN_LEADER) ? CCCYN(ch, C_NRM) : ""),
-							name, (PLR_FLAGGED(i,
-									PLR_CLAN_LEADER) ? CCNRM(ch, C_NRM) : ""),
+							CCGRN(ch, C_NRM),
+							CCNRM(ch, C_NRM),
+							GET_LEVEL(i),
+							char_class_abbrevs[(int)GET_CLASS(i)],
+							CCGRN(ch, C_NRM),
+							CCNRM(ch, C_NRM),
+							(PLR_FLAGGED(i, PLR_CLAN_LEADER) ?
+								CCCYN(ch, C_NRM) : ""),
+							name,
+							(PLR_FLAGGED(i, PLR_CLAN_LEADER) ?
+								CCNRM(ch, C_NRM) : ""),
 							CCCYN(ch, C_NRM),
-							(i->in_room->zone ==
-								ch->in_room->zone) ? ((LIGHT_OK(ch)
-									&& LIGHT_OK(i) && (IS_LIGHT(i->in_room)
-										|| CAN_SEE_IN_DARK(ch))) ? i->in_room->
-								name : "You cannot tell...") : i->in_room->
-							zone->name, CCNRM(ch, C_NRM));
+							(i->in_room->zone == ch->in_room->zone) ?
+								((check_sight_room(ch, i->in_room)) ?
+									i->in_room->name
+									: "You cannot tell...")
+								: i->in_room->zone->name,
+							CCNRM(ch, C_NRM));
 
 					++found;
 					msg = tmp_strcat(msg, line,NULL);

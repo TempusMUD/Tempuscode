@@ -16,7 +16,7 @@ SPECIAL(elven_registry)
 	if (!CMD_IS("register"))
 		return 0;
 
-	if (!CAN_SEE(reg, ch)) {
+	if (!can_see_creature(reg, ch)) {
 		do_say(reg, "Who's there?  Come visible to register.", 0, 0);
 		return 1;
 	}

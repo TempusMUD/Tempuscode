@@ -45,7 +45,7 @@ SPECIAL(mob_read_script)
 	if (!SCRIPT_FLAGGED(MODE_ALONE)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
-			if ((*it)->desc && CAN_SEE(ch, (*it))) {
+			if ((*it)->desc && can_see_creature(ch, (*it))) {
 				found = 1;
 				break;
 			}

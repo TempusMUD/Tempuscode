@@ -279,7 +279,7 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 			IS_KNIGHT(vict) || IS_PHYSIC(vict)) &&
 		!NULL_PSI(vict) &&
 		GET_MANA(vict) > 50 && !number(0, 2) && GET_MOVE(ch) > 30) {
-		if (!CAN_SEE(ch, vict))
+		if (!can_see_creature(ch, vict))
 			// just attack the default opponent
 			do_psidrain(ch, "", 0, 0, 0);
 		else
@@ -308,12 +308,12 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 	// ego whip
 	else if (GET_LEVEL(ch) >= 22 &&
 		GET_MANA(ch) > mag_manacost(ch, SPELL_EGO_WHIP) &&
-		(!number(0, 2) || (!CAN_SEE(ch, vict) && vict != FIGHTING(ch))))
+		(!number(0, 2) || (!can_see_creature(ch, vict) && vict != FIGHTING(ch))))
 		cast_spell(ch, vict, NULL, SPELL_EGO_WHIP);
 	// psiblast
 	else if (GET_LEVEL(ch) >= 5 &&
 		GET_MANA(ch) > mag_manacost(ch, SKILL_PSIBLAST)) {
-		if (!CAN_SEE(ch, vict))
+		if (!can_see_creature(ch, vict))
 			// just attack the default opponent
 			do_offensive_skill(ch, "", 0, SKILL_PSIBLAST, 0);
 		else

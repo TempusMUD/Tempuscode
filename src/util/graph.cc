@@ -251,7 +251,7 @@ ACMD(do_track)
 		return;
 	}
 	if ((vict = get_char_vis(ch, arg))) {
-		if (!(CAN_SEE(ch, vict) && (GET_LEVEL(vict) < LVL_AMBASSADOR ||
+		if (!(can_see_creature(ch, vict) && (GET_LEVEL(vict) < LVL_AMBASSADOR ||
 					GET_LEVEL(ch) > GET_LEVEL(vict)))) {
 			send_to_char(ch, "No-one around by that name.\r\n");
 			return;
@@ -545,7 +545,7 @@ hunt_victim(struct Creature *ch)
 		return 0;
 
 	if (ch->in_room == HUNTING(ch)->in_room &&
-		!FIGHTING(ch) && CAN_SEE(ch, HUNTING(ch)) &&
+		!FIGHTING(ch) && can_see_creature(ch, HUNTING(ch)) &&
 		!PLR_FLAGGED(HUNTING(ch), PLR_WRITING | PLR_OLC) &&
 		(!(af_ptr = affected_by_spell(HUNTING(ch), SKILL_DISGUISE)) ||
 			CAN_DETECT_DISGUISE(ch, HUNTING(ch), af_ptr->duration))) {
@@ -556,7 +556,7 @@ hunt_victim(struct Creature *ch)
 		return 0;
 	}
 	if (IS_CLERIC(ch) || IS_MAGE(ch)) {
-		if (HUNTING(ch)->in_room && CAN_SEE(ch, HUNTING(ch)) &&
+		if (HUNTING(ch)->in_room && can_see_creature(ch, HUNTING(ch)) &&
 			peaceful_room_ok(ch, HUNTING(ch), false)) {
 			if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) ||
 				(IS_MAGE(ch) && GET_LEVEL(ch) > 27)) {
@@ -582,7 +582,7 @@ hunt_victim(struct Creature *ch)
 			return 0;
 		}
 
-		if ((ch->in_room == HUNTING(ch)->in_room) && CAN_SEE(ch, HUNTING(ch))
+		if ((ch->in_room == HUNTING(ch)->in_room) && can_see_creature(ch, HUNTING(ch))
 			&& (!(af_ptr = affected_by_spell(HUNTING(ch), SKILL_DISGUISE))
 				|| CAN_DETECT_DISGUISE(ch, HUNTING(ch), af_ptr->duration))
 			&& !check_infiltrate(HUNTING(ch), ch)) {

@@ -215,7 +215,7 @@ list_residents_to_char(struct Creature *ch, int town)
     if (town < 0) {
         strcpy(buf, "       HOMETOWNS\r\n");
         for (d = descriptor_list; d; d = d->next) {
-            if (!d->character || !CAN_SEE(ch, d->character))
+            if (!d->character || !can_see_creature(ch, d->character))
                 continue;
             sprintf(buf, "%s%s%-20s%s -- %s%-30s%s\r\n", buf,
                 GET_LEVEL(d->character) >= LVL_AMBASSADOR ? CCYEL(ch,
@@ -227,7 +227,7 @@ list_residents_to_char(struct Creature *ch, int town)
     } else {
         sprintf(buf, "On-line residents of %s.\r\n", home_towns[town]);
         for (d = descriptor_list; d; d = d->next) {
-            if (!d->character || !CAN_SEE(ch, d->character))
+            if (!d->character || !can_see_creature(ch, d->character))
                 continue;
             if (GET_HOME(d->character) == town) {
                 sprintf(buf, "%s%s%-20s%s\r\n", buf,
@@ -460,7 +460,7 @@ perform_goto(Creature *ch, room_data *room, bool allow_follow)
             if (was_in == k->follower->in_room &&
                     GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
                     !PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
-                    CAN_SEE(k->follower, ch))
+                    can_see_creature(k->follower, ch))
                 perform_goto(k->follower, room, true);
         }
     }
@@ -532,7 +532,7 @@ ACMD(do_trans)
                     if (was_in == k->follower->in_room &&
                             GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
                             !PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
-                            CAN_SEE(k->follower, victim))
+                            can_see_creature(k->follower, victim))
                         perform_goto(k->follower, ch->in_room, true);
                 }
             }
@@ -1045,7 +1045,7 @@ do_stat_room(struct Creature *ch, char *roomstr)
     for (found = 0; it != rm->people.end(); ++it) {
         ++nit;
         k = *it;
-        if (!CAN_SEE(ch, k))
+        if (!can_see_creature(ch, k))
             continue;
         sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
             (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
@@ -1066,7 +1066,7 @@ do_stat_room(struct Creature *ch, char *roomstr)
     if (rm->contents) {
         sprintf(buf, "Contents:%s", CCGRN(ch, C_NRM));
         for (found = 0, j = rm->contents; j; j = j->next_content) {
-            if (!CAN_SEE_OBJ(ch, j))
+            if (!can_see_object(ch, j))
                 continue;
             sprintf(buf2, "%s %s", found++ ? "," : "", j->short_description);
             strcat(buf, buf2);
@@ -2953,7 +2953,7 @@ perform_vis(struct Creature *ch)
     GET_INVIS_LVL(ch) = 0;
     CreatureList::iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
-        if ((*it) == ch || !CAN_SEE((*it), ch))
+        if ((*it) == ch || !can_see_creature((*it), ch))
             continue;
         if (GET_LEVEL(*it) < level) {
             if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
@@ -2985,7 +2985,7 @@ perform_invis(struct Creature *ch, int level)
     }
 
     // We set the invis level to 0 here because of a logic problem with
-    // CAN_SEE().  If we keep the old level, people won't be able to
+    // can_see_creature().  If we keep the old level, people won't be able to
     // see people appear, and if we set the new level here, people won't be
     // able to see them disappear.  Setting the invis level to 0 ensures
     // that we can still take invisibility/transparency into account.
@@ -2994,7 +2994,7 @@ perform_invis(struct Creature *ch, int level)
 
     CreatureList::iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
-        if ((*it) == ch || !CAN_SEE((*it), ch))
+        if ((*it) == ch || !can_see_creature((*it), ch))
             continue;
 
         if (GET_LEVEL(*it) < old_level && GET_LEVEL(*it) >= level) {
@@ -3436,7 +3436,7 @@ ACMD(do_wiznet)
                     (subcmd == SCMD_WIZNET &&
                         Security::isMember(d->character, "WizardBasic") &&
                         !PRF_FLAGGED(d->character, PRF_NOWIZ))) &&
-                (CAN_SEE(ch, d->character) || GET_LEVEL(ch) == LVL_GRIMP)) {
+                (can_see_creature(ch, d->character) || GET_LEVEL(ch) == LVL_GRIMP)) {
                 if (!any) {
                     sprintf(buf1, "Gods online:\r\n");
                     any = TRUE;
@@ -3466,7 +3466,7 @@ ACMD(do_wiznet)
                     || (subcmd == SCMD_WIZNET
                         && Security::isMember(d->character, "WizardBasic")
                         && PRF_FLAGGED(d->character, PRF_NOWIZ)))
-                && CAN_SEE(ch, d->character)) {
+                && can_see_creature(ch, d->character)) {
                 if (!any) {
                     sprintf(buf1, "%sGods offline:\r\n", buf1);
                     any = TRUE;
@@ -3536,7 +3536,7 @@ ACMD(do_wiznet)
             } else {
                 send_to_char(d->character, CCCYN(d->character, C_SPR));
             }
-            if (CAN_SEE(d->character, ch))
+            if (can_see_creature(d->character, ch))
                 send_to_char(d->character, "%s", buf1);
             else
                 send_to_char(d->character, "%s", buf2);
@@ -3864,7 +3864,7 @@ do_show_stats(struct Creature *ch)
         vict = *cit;
         if (IS_NPC(vict))
             j++;
-        else if (CAN_SEE(ch, vict)) {
+        else if (can_see_creature(ch, vict)) {
             i++;
             if (vict->desc)
                 con++;
@@ -5047,7 +5047,7 @@ ACMD(do_show)
         for (; cit != combatList.end(); ++cit) {
             vict = *cit;
 
-            if (!CAN_SEE(ch, vict))
+            if (!can_see_creature(ch, vict))
                 continue;
 
             if (strlen(buf) > MAX_STRING_LENGTH - 128)
@@ -5071,7 +5071,7 @@ ACMD(do_show)
         for (; cit != characterList.end(); ++cit) {
             vict = *cit;
 
-            if (!CAN_SEE(ch, vict)
+            if (!can_see_creature(ch, vict)
                 || !affected_by_spell(vict, SPELL_QUAD_DAMAGE))
                 continue;
 
@@ -5097,7 +5097,7 @@ ACMD(do_show)
         for (; cit != characterList.end(); ++cit) {
             vict = *cit;
             if (!HUNTING(vict) || !HUNTING(vict)->in_room
-                || !CAN_SEE(ch, vict))
+                || !can_see_creature(ch, vict))
                 continue;
 
             if (strlen(buf) > MAX_STRING_LENGTH - 128)

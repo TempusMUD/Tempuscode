@@ -29,7 +29,7 @@ SPECIAL(multi_healer)
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
-		if (ch == vict || IS_NPC(vict) || !number(0, 2) || !CAN_SEE(ch, vict))
+		if (ch == vict || IS_NPC(vict) || !number(0, 2) || !can_see_creature(ch, vict))
 			continue;
 		if (!MODE_OK(vict))
 			continue;

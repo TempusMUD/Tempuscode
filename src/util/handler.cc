@@ -1992,7 +1992,7 @@ get_player_vis(struct Creature *ch, char *name, int inroom)
 		i = *cit;
 		if ((!IS_NPC(i) || i->desc) &&
 				(!inroom || i->in_room == ch->in_room) &&
-				CAN_SEE(ch, i)) {
+				can_see_creature(ch, i)) {
 			switch (is_abbrev(tmpname, i->player.name)) {
 				case 1:		// abbreviated match
 					if (!match)
@@ -2039,7 +2039,7 @@ get_char_room_vis(struct Creature *ch, char *name)
 		if( (mob != NULL && isname(tmp, mob->player.name)) ||
 			(( af == NULL || CAN_DETECT_DISGUISE(ch, (*it), af->duration))
 				&& isname(tmp, (*it)->player.name))) {
-			if (CAN_SEE(ch, (*it))) {
+			if (can_see_creature(ch, (*it))) {
 				if (++j == number) {
 					return *it;
 				}
@@ -2064,7 +2064,7 @@ get_char_random_vis(struct Creature *ch, room_data *room)
 
 	CreatureList::iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
-		if (*cit == ch || !CAN_SEE(ch, *cit) || number(0, total))
+		if (*cit == ch || !can_see_creature(ch, *cit) || number(0, total))
 			continue;
 		result = *cit;
 		total++;
@@ -2106,7 +2106,7 @@ get_char_vis(struct Creature *ch, char *name)
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end() && (j <= number); ++cit) {
 		i = *cit;
-		if (isname(tmp, i->player.name) && CAN_SEE(ch, i))
+		if (isname(tmp, i->player.name) && can_see_creature(ch, i))
 			if (++j == number)
 				return i;
 	}
@@ -2129,7 +2129,7 @@ get_obj_in_list_vis(struct Creature *ch, char *name, struct obj_data *list)
 
 	for (i = list; i && (j <= number); i = i->next_content)
 		if (isname(tmp, i->name))
-			if (CAN_SEE_OBJ(ch, i))
+			if (can_see_object(ch, i))
 				if (++j == number)
 					return i;
 
@@ -2150,7 +2150,7 @@ get_obj_in_list_all(struct Creature *ch, char *name, struct obj_data *list)
 
 	for (i = list; i && (j <= number); i = i->next_content)
 		if (isname(tmp, i->name))
-			if (INVIS_OK_OBJ(ch, i))
+			if (can_see_object(ch, i))
 				if (++j == number)
 					return i;
 
@@ -2183,7 +2183,7 @@ get_obj_vis(struct Creature *ch, char *name)
 	/* ok.. no luck yet. scan the entire obj list   */
 	for (i = object_list; i && (j <= number); i = i->next)
 		if (isname(tmp, i->name))
-			if (CAN_SEE_OBJ(ch, i))
+			if (can_see_object(ch, i))
 				if (++j == number)
 					return i;
 
@@ -2195,7 +2195,7 @@ struct obj_data *
 get_object_in_equip_pos(struct Creature *ch, char *arg, int pos)
 {
 	if (GET_EQ(ch, pos) && isname(arg, GET_EQ(ch, pos)->name) &&
-		CAN_SEE_OBJ(ch, GET_EQ(ch, pos)))
+		can_see_object(ch, GET_EQ(ch, pos)))
 		return (GET_EQ(ch, pos));
 	else
 		return (NULL);
@@ -2216,7 +2216,7 @@ get_object_in_equip_vis(struct Creature *ch,
 
 	for ((*j) = 0; (*j) < NUM_WEARS && x <= number; (*j)++)
 		if (equipment[(*j)])
-			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
+			if (can_see_object(ch, equipment[(*j)]))
 				if (isname(tmp, equipment[(*j)]->name))
 					if (++x == number)
 						return (equipment[(*j)]);
@@ -2239,7 +2239,7 @@ get_object_in_equip_all(struct Creature *ch,
 
 	for ((*j) = 0; (*j) < NUM_WEARS && x <= number; (*j)++)
 		if (equipment[(*j)])
-			if (INVIS_OK_OBJ(ch, equipment[(*j)]))
+			if (can_see_object(ch, equipment[(*j)]))
 				if (isname(tmp, equipment[(*j)]->name))
 					if (++x == number)
 						return (equipment[(*j)]);

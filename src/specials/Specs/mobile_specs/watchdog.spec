@@ -22,7 +22,7 @@ SPECIAL(watchdog)
 
 	for (it = dog->in_room->people.begin(); it != ch->in_room->people.end();
 		++it) {
-		if (*it != dog && CAN_SEE(dog, (*it)) && GET_LEVEL((*it)) < LVL_IMMORT) {
+		if (*it != dog && can_see_creature(dog, (*it)) && GET_LEVEL((*it)) < LVL_IMMORT) {
 			vict = *it;
 			break;
 		}

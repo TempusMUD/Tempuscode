@@ -605,7 +605,7 @@ ACMD(do_wrench)
 	percent = ((10 - (GET_AC(vict) / 50)) << 1) + number(1, 101);
 	prob = CHECK_SKILL(ch, SKILL_WRENCH);
 
-	if (!CAN_SEE(ch, vict)) {
+	if (!can_see_creature(ch, vict)) {
 		prob += 10;
 	}
 

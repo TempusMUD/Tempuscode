@@ -32,7 +32,7 @@ SPECIAL(boulder_thrower)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (FIGHTING(ch) && CAN_SEE(ch, FIGHTING(ch))) {
+	if (FIGHTING(ch) && can_see_creature(ch, FIGHTING(ch))) {
 		// are we wielding a throwable weapon?
 		if ((obj = GET_EQ(ch, WEAR_WIELD)) && THROW_OK(obj)) {
 			tmp_obj = obj;

@@ -47,7 +47,7 @@ appear(struct Creature *ch, struct Creature *vict)
 {
 	char *to_char = NULL;
 	int found = 0;
-	//  int could_see = CAN_SEE( vict, ch );
+	//  int could_see = can_see_creature( vict, ch );
 
 	if (!AFF_FLAGGED(vict, AFF_DETECT_INVIS)) {
 		if (affected_by_spell(ch, SPELL_INVISIBLE)) {
@@ -241,8 +241,7 @@ death_cry(struct Creature *ch)
 								CHAR_WITHSTANDS_FIRE((*it))) &&
 							(!ROOM_FLAGGED(ch->in_room, ROOM_ICE_COLD) ||
 								CHAR_WITHSTANDS_COLD((*it))) &&
-							(!IS_DARK(ch->in_room)
-								|| CAN_SEE_IN_DARK((*it)))) {
+							(can_see_room((*it), ch->in_room))) {
 
 							int move_result =
 								do_simple_move((*it), rev_dir[door], MOVE_RUSH,

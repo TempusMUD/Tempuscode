@@ -243,7 +243,7 @@ get_giveaway(struct Creature *ch, struct Creature *vict)
 			send_to_char(vict, "You hear leaves rustling.\r\n");
 		break;
 	case SECT_DESERT:
-		if (LIGHT_OK(vict) && !number(0, 1))
+		if (can_see_room(vict, vict->in_room) && !number(0, 1))
 			send_to_char(vict, "You see footprints appear in the sand.\r\n");
 		else
 			send_to_char(vict, "You hear something moving.\r\n");
@@ -257,7 +257,7 @@ get_giveaway(struct Creature *ch, struct Creature *vict)
 		break;
 	case SECT_WATER_SWIM:
 	case SECT_WATER_NOSWIM:
-		if (LIGHT_OK(vict) && !number(0, 1))
+		if (can_see_room(vict, vict->in_room) && !number(0, 1))
 			send_to_char(vict, "You notice ripples forming on the surface.\r\n");
 		else
 			send_to_char(vict, "You hear a faint splashing.\r\n");
@@ -284,8 +284,8 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 	int sneak_prob, sneak_roll;
 	int idx;
 
-	// No one sees an invisible immortal movements
-	if (!CAN_SEE(vict, ch) && IS_IMMORT(ch))
+	// No one sees invisible immortal or tester movements
+	if (!can_see_creature(vict, ch) && (IS_IMMORT(ch) || ch->isTester()))
 		return SNEAK_OK;
 
 	// Sonic imagery sees all other movements, though
@@ -295,7 +295,7 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 	// If they're not sneaking, they are always seen.  If they're invisible,
 	// they're always heard.
 	if (!IS_AFFECTED(ch, AFF_SNEAK)) {
-		if (!CAN_SEE(vict, ch) && msgs) {
+		if (!can_see_creature(vict, ch) && msgs) {
 			get_giveaway(ch, vict);
 			return SNEAK_HEARD;
 		}
@@ -340,7 +340,7 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 	if (!IS_VAMPIRE(ch) || IS_VAMPIRE(vict)) {
 		if (sneak_prob < sneak_roll) {
 			gain_skill_prof(vict, SKILL_SNEAK);
-			if (!AWAKE(vict) || !CAN_SEE(vict, ch)) {
+			if (!AWAKE(vict) || !can_see_creature(vict, ch)) {
 				get_giveaway(ch, vict);
 				return SNEAK_HEARD;
 			}
@@ -1062,7 +1062,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	//
 	// Light -> Darkness Emit
 	//
-	if (!LIGHT_OK(ch) && LIGHT_OK_ROOM(ch, was_in)) {
+	if (!can_see_room(ch, ch->in_room) && can_see_room(ch, was_in)) {
 		send_to_char(ch, "You are enveloped by darkness.\r\n");
 	}
 
@@ -1269,7 +1269,7 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 			if ((was_in == k->follower->in_room) &&
 				!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING)
 				&& (k->follower->getPosition() >= POS_STANDING)
-				&& CAN_SEE(k->follower, ch)) {
+				&& can_see_creature(k->follower, ch)) {
 				act("You follow $N.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
 				perform_move(k->follower, dir, MOVE_NORM, 1);
 			}
@@ -1866,7 +1866,7 @@ ACMD(do_enter)
 		if (was_in == k->follower->in_room &&
 				GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
 				!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
-				CAN_SEE(k->follower, ch)) {
+				can_see_creature(k->follower, ch)) {
 			act("You follow $N.\r\n", FALSE, k->follower, 0, ch, TO_CHAR);
 			perform_goto(k->follower, room, true);
 		}

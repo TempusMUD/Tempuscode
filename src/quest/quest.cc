@@ -1764,7 +1764,7 @@ list_quest_players(Creature *ch, Quest * quest, char *outbuf)
 
 		// player is in world and visible
 		if ((vict = get_char_in_world_by_idnum(quest->getPlayer(i).idnum)) &&
-			CAN_SEE(ch, vict)) {
+			can_see_creature(ch, vict)) {
 
 			// see if we can see the locations of the players
 			if (PRF_FLAGGED(ch, PRF_HOLYLIGHT) ||
