@@ -319,7 +319,7 @@ save_wld ( struct char_data *ch )
     struct zone_data *zone = ch->in_room->zone;
 
     sprintf(temp_fname,"world/wld/%d.wld", zone->number);
-    if(access(temp_fname,W_OK) < 0){
+    if( ( access(temp_fname,F_OK) >= 0 ) && ( access(temp_fname,W_OK) < 0) ){
         sprintf(buf,"OLC: ERROR - Main world file for zone %d is read-only.",zone->number);
         mudlog(buf, BRF, 0, TRUE);
     }

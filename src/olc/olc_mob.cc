@@ -1283,7 +1283,7 @@ save_mobs(struct char_data *ch)
         zone = ch->in_room->zone;
 
     sprintf(fname,"world/mob/%d.mob", zone->number);
-    if(access(fname,W_OK) < 0){
+    if( ( access(fname,F_OK) >= 0 ) && ( access(fname,W_OK) < 0) ){
         sprintf(buf,"OLC: ERROR - Main mobile file for zone %d is read-only.",ch->in_room->zone->number);
         mudlog(buf, BRF, 0, TRUE);
     }

@@ -156,7 +156,7 @@ int do_olc_isave(struct char_data *ch)
         zone = ch->in_room->zone;
 
     sprintf(fname, "world/iscr/%d.iscr", zone->number);
-    if(access(fname, W_OK) < 0) {
+	if( ( access(fname,F_OK) >= 0 ) && ( access(fname,W_OK) < 0) ){
         sprintf(buf, "OLC: ERROR - Main iscript file for zone %d is read-only.", 
                 zone->number);
         mudlog(buf, BRF, 0, TRUE);        
