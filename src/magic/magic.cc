@@ -1712,7 +1712,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     af.location = APPLY_SAVING_PSI;
     af.modifier = - (5 + (level >> 3));
     af.duration = dice(1, 1 + (level >> 3)) + 3;
-    to_vict = "The psychic conduits of your mind become resistive to external energies.";
+    to_vict = "The psychic conduits of your mind become resistant to external energies.";
     accum_duration = 1;
     break;
 

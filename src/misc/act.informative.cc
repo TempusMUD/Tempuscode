@@ -2323,10 +2323,10 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
     if (IS_AFFECTED(ch, AFF_RETINA))
         strcat(str, "Your retina is especially sensitive.\r\n");
     if (IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN))
-    strcat(str, "Your mind burns with the symbol of pain!\r\n");
+		strcat(str, "Your mind burns with the symbol of pain!\r\n");
     if (IS_AFFECTED(ch, AFF_CONFUSION))
         strcat(str, "You are very confused.\r\n");
-        if ( affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER) )
+	if ( affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER) )
         strcat(buf, "Shukutei Adrenal Maximizations are active.\r\n");
     else if (IS_AFFECTED(ch, AFF_ADRENALINE))
         strcat(str, "Your adrenaline is pumping.\r\n");
@@ -2350,6 +2350,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
         strcat(str, "Your muscles are spasming uncontrollably!\r\n");
     if (affected_by_spell(ch, SPELL_ENDURANCE))
         strcat(str, "Your endurance is increased.\r\n");
+	if (affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
+		strcat(str, "Your mind is resistant to external energies.\r\n");
     if (AFF2_FLAGGED(ch, AFF2_VERTIGO))
         strcat(str, "You are lost in a sea of vertigo.\r\n");
     if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH))
