@@ -3916,6 +3916,55 @@ show_wizcommands(Creature *ch)
         send_to_char(ch, "You are a mobile. Deal with it.\r\n");
 }
 
+
+void
+show_account(Creature *ch, char *value)
+{
+    char created_buf[30];
+    char last_buf[30];
+    int idnum = 0;
+    Account *account = NULL;
+
+    if (!*value) {
+        send_to_char(ch, "A name or id would help.\r\n");
+        return;
+    }
+
+    if ( is_number(value) ) {
+        idnum = atoi(value);
+        account = accountIndex.find_account(idnum);
+    } else {
+        account = accountIndex.find_account(value);
+    }
+
+    if( account == NULL ) {
+        send_to_char(ch, "There is no such account: '%s'\r\n", value);
+        return;
+    }
+
+    send_to_char( ch, "Account: %s [%d] < %s >\r\n",
+                      account->get_name(), 
+                      account->get_idnum(), 
+                      account->get_email_addr() );
+    
+    time_t last = account->get_login_time();
+    time_t creation = account->get_creation_time();
+
+    strftime( created_buf, 29, "%a %b %d, %Y %H:%M:%S",
+		localtime(&creation));
+    strftime( last_buf, 29, "%a %b %d, %Y %H:%M:%S",
+		localtime(&last));
+    send_to_char( ch, "Started: %s  Last: %s\r\n", created_buf, last_buf);
+
+    send_to_char( ch, "Characters(%d): \r\n", account->get_char_count());
+    for( unsigned int i = 0; i < account->get_char_count(); i++ ) {
+        long id = account->get_char(i);
+        const char* name = playerIndex.getName(id);
+        if( name == NULL ) name = "<INVALID>";
+        send_to_char( ch, "%20s [%ld]\r\n", name, id );
+    }
+}
+
 void
 show_player(Creature *ch, char *value)
 {
@@ -3949,7 +3998,8 @@ show_player(Creature *ch, char *value)
         sprintf(remort_desc, "/%s",
             char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
-    sprintf(buf, "Player: %-12s (%s) [%2d %s %s%s]  Gen: %d", GET_NAME(vict),
+    sprintf(buf, "Player: %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d", GET_NAME(vict),
+        playerIndex.getAccountID(GET_IDNUM(vict)),
 		genders[GET_SEX(vict)], GET_LEVEL(vict), player_race[GET_RACE(vict)],
 		char_class_abbrevs[GET_CLASS(vict)], remort_desc, GET_REMORT_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
@@ -3973,7 +4023,7 @@ show_player(Creature *ch, char *value)
         "%sStarted: %-22.21s Last: %-22.21s Played: %3dh %2dm\r\n",
         buf, birth, last_login, (int)(vict->player.time.played / 3600),
         (int)(vict->player.time.played / 60 % 60));
-
+    
     if (IS_SET(vict->char_specials.saved.act, PLR_FROZEN))
         sprintf(buf, "%s%s%s is FROZEN!%s\r\n", buf, CCCYN(ch, C_NRM),
             GET_NAME(vict), CCNRM(ch, C_NRM));
@@ -4300,6 +4350,7 @@ struct show_struct fields[] = {
     {"zonecommands", LVL_IMMORT, ""},
     {"multi", LVL_IMMORT, "AdminBasic"},
     {"nohelps", LVL_IMMORT, "Help"},
+    {"account", LVL_IMMORT, "AdminBasic"},
     {"\n", 0, ""}
 };
 
@@ -5167,6 +5218,8 @@ ACMD(do_show)
         break;
     case 58:
         show_file(ch, "log/help.log", 0); break;
+    case 59:
+        show_account( ch, value ); break;
     default:
         send_to_char(ch, "Sorry, I don't understand that.\r\n");
         break;
