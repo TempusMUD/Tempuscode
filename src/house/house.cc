@@ -24,6 +24,34 @@ using namespace std;
 #include "tokenizer.h"
 #include "tmpstr.h"
 
+// usage message
+#define HCONTROL_FIND_FORMAT \
+"Usage: hcontrol find <owner| guest |landlord> <name|id>\r\n"
+#define HCONTROL_DESTROY_FORMAT \
+"Usage: hcontrol destroy <house id>\r\n"
+#define HCONTROL_ADD_FORMAT \
+"Usage: hcontrol add    <house id> room/guest/owner <newroom/name>\r\n"
+#define HCONTROL_DELETE_FORMAT \
+"Usage: hcontrol delete <house id> room/guest/owner <newroom/name>\r\n"
+#define HCONTROL_SET_FORMAT \
+"Usage: hcontrol set <house id> <rate|owner|type|landlord> <'value'|public|private|rental>\r\n"
+#define HCONTROL_SHOW_FORMAT \
+"Usage: hcontrol show [house id]\r\n"
+#define HCONTROL_BUILD_FORMAT \
+"Usage: hcontrol build <player name|account id> <first room> <last room>\r\n"
+
+#define HCONTROL_FORMAT \
+( HCONTROL_BUILD_FORMAT \
+  HCONTROL_DESTROY_FORMAT \
+  HCONTROL_ADD_FORMAT \
+  HCONTROL_DELETE_FORMAT \
+  HCONTROL_SET_FORMAT \
+  HCONTROL_SHOW_FORMAT \
+  "Usage: hcontrol save/recount\r\n" \
+  "Usage: hcontrol where\r\n" )
+
+
+
 extern room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern obj_data *obj_proto;	/* prototypes for objs                 */
@@ -186,6 +214,7 @@ bool House::hasRoom( room_num room )
 bool 
 House::isOwner( Creature *ch )
 {
+	//TODO: fix this
 	//return ownerID == playerIndex.getAccountID( GET_IDNUM(ch) );
 	return false;
 }
@@ -270,6 +299,7 @@ HouseControl::canEnter( Creature *ch, room_num room_vnum )
 		case House::PUBLIC:
 			return true;
 		case House::PRIVATE:
+			// TODO: fix this
 			//if( ch->getAccountID() == house->getOwnerID() )
 			//	return true;
 			return house->isGuest( ch );
@@ -305,7 +335,6 @@ HouseControl::destroyHouse( House *house )
 		slog("SYSERR: House %d not in HouseControl list.", house->getID() );
 		return false;
 	}
-	erase( it );
 
 	for( unsigned int i = 0; i < house->getRoomCount(); i++) {
 		room_data *room = real_room( house->getRoom(i) );
@@ -316,9 +345,7 @@ HouseControl::destroyHouse( House *house )
 		}
 	}
 	unlink( get_house_file_path( house->getID() ) );
-
-	delete house;
-
+	erase( it );
 	return true;
 }
 
@@ -594,34 +621,14 @@ House_listrent( Creature *ch, int vnum)
 {
 }
 
-// usage message
-#define HCONTROL_FIND_FORMAT \
-"Usage: hcontrol find <owner| guest |landlord> <name|id>\r\n"
-#define HCONTROL_DESTROY_FORMAT \
-"Usage: hcontrol destroy <atrium vnum>\r\n"
-#define HCONTROL_ADD_FORMAT \
-"Usage: hcontrol add    <atrium vnum> room/guest/owner <newroom/name>\r\n"
-#define HCONTROL_DELETE_FORMAT \
-"Usage: hcontrol delete <atrium vnum> room/guest/owner <newroom/name>\r\n"
-#define HCONTROL_SET_FORMAT \
-"Usage: hcontrol set <atrium vnum> [rate|current|mode|landlord] public/private\r\n"
-#define HCONTROL_SHOW_FORMAT \
-"Usage: hcontrol show [guests/rooms/all <atrium vnum>]\r\n" \
-"                     [+/-atrium +/-rooms +/-build +/-owner +/-co-owner\r\n" \
-"                      +/-mode +/-lag +/-rate +/-current +/-landlord]\r\n"
-#define HCONTROL_BUILD_FORMAT \
-"Usage: hcontrol build <player name> <atrium vnum> <top vnum>\r\n"
 
-#define HCONTROL_FORMAT \
-( HCONTROL_BUILD_FORMAT \
-  HCONTROL_DESTROY_FORMAT \
-  HCONTROL_ADD_FORMAT \
-  HCONTROL_DELETE_FORMAT \
-  HCONTROL_SET_FORMAT \
-  HCONTROL_SHOW_FORMAT \
-  "Usage: hcontrol save/recount\r\n" \
-  "Usage: hcontrol where\r\n" )
-
+void
+House::display( Creature *ch )
+{
+	send_to_char(ch, "Mostly unimplemented:\r\n");
+	listGuests(ch);
+	listRooms(ch);
+}
 
 char*
 print_room_contents(Creature *ch, room_data *real_house_room)
@@ -642,7 +649,7 @@ print_room_contents(Creature *ch, room_data *real_house_room)
 
 	for (obj = real_house_room->contents; obj; obj = obj->next_content) {
 		count = recurs_obj_contents(obj, NULL) - 1;
-		buf = "\r\n";
+		buf2 = "\r\n";
 		if (count > 0) {
 			buf2 = tmp_sprintf("     (contains %d)\r\n", count);
 		} 
@@ -667,7 +674,7 @@ print_room_contents(Creature *ch, room_data *real_house_room)
 void
 House::listRooms(Creature *ch)
 {
-	char *buf = NULL;
+	char *buf = "";
 	for( unsigned int i = 0; i < getRoomCount(); ++i ) {
 		room_data* room = real_room( getRoom(i) );
 		if( room != NULL ) {
@@ -678,7 +685,7 @@ House::listRooms(Creature *ch)
 					getRoom(i), getID() );
 		}
 	}
-	if( buf != NULL )
+	if( strlen(buf) > 0 )
 		page_string(ch->desc, buf);
 }
 
@@ -751,8 +758,9 @@ hcontrol_build_house( Creature *ch, char *arg)
 	int accountID = 0;//playerIndex.getAccountID( owner );
 	if( Housing.createHouse( accountID, virt_atrium, virt_top_room ) ) {
 		send_to_char(ch, "House built.  Mazel tov!\r\n");
-		slog("HOUSE: %s created house %d.", 
-			GET_NAME(ch), Housing.getHouse( Housing.getHouseCount() - 1 )->getID() );
+		House *house = Housing.getHouse( Housing.getHouseCount() - 1 );
+		slog("HOUSE: %s created house %d with first room %d.", 
+			GET_NAME(ch), house->getID(), house->getRoom(0) );
 	} else {
 		send_to_char(ch, "House build failed.\r\n");
 	}
@@ -818,8 +826,10 @@ hcontrol_set_house( Creature *ch, char *arg)
 		} else {
 			arg1 = tmp_getword(&arg);
 			house->setRentalRate( atoi(arg1) );
-			send_to_char(ch, "House <%d> rental rate set to %d/day.\r\n",
+			send_to_char(ch, "House %d rental rate set to %d/day.\r\n",
 				house->getID(), house->getRentalRate() );
+			slog("HOUSE: Rental rate of house %d set to %d by %s.", 
+					house->getID(), house->getRentalRate(), GET_NAME(ch) );
 		}
 	} else if (is_abbrev(arg2, "type")) {
 		if (!*arg) {
@@ -836,7 +846,10 @@ hcontrol_set_house( Creature *ch, char *arg)
 				"You must specify public, private, or rental!!\r\n");
 			return;
 		}
-		send_to_char(ch, "Type set successful.\r\n");
+		send_to_char(ch, "House %d type set to %s.\r\n", 
+				house->getID(), House::getTypeName( house->getType() ) );
+		slog("HOUSE: Type of house %d set to %s by %s.", 
+				house->getID(), House::getTypeName(house->getType()), GET_NAME(ch) );
 
 	} else if (is_abbrev(arg2, "landlord")) {
 
@@ -851,7 +864,10 @@ hcontrol_set_house( Creature *ch, char *arg)
 
 		house->setLandlord( playerIndex.getID(arg) );
 
-		send_to_char(ch, "Landlord set.\r\n");
+		send_to_char(ch, "Landlord of house %d set to %s.\r\n", 
+				house->getID(), playerIndex.getName(house->getLandlord()) );
+		slog("HOUSE: Landlord of house %d set to %s by %s.", 
+				house->getID(), playerIndex.getName(house->getLandlord()), GET_NAME(ch) );
 		return;
 	} else if (is_abbrev(arg2, "owner")) {
 		if (!*arg) {
@@ -878,6 +894,9 @@ hcontrol_set_house( Creature *ch, char *arg)
 		}
 
 		send_to_char(ch, "Owner set to account %d.\r\n", house->getOwnerID() );
+		slog("HOUSE: Owner of house %d set to %d by %s.", 
+				house->getID(), house->getOwnerID(), GET_NAME(ch) );
+
 		return;
 	}
 	Housing.save();
@@ -922,7 +941,7 @@ hcontrol_add_to_house( Creature *ch, char *arg)
 		return;
 	}
 
-	if( Housing.canEdit(ch, house ) ) {
+	if(! Housing.canEdit(ch, house ) ) {
 		send_to_char(ch, "You cannot edit that house.\r\n");
 		return;
 	}
@@ -951,6 +970,8 @@ hcontrol_add_to_house( Creature *ch, char *arg)
 		SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE);
 		send_to_char(ch, "Room %d added to house %d.\r\n", 
 					roomID, house->getID() );
+		slog("HOUSE: Room %d added to house %d by %s.", 
+				roomID, house->getID(), GET_NAME(ch) );
 		house->save();
 	} else {
 		send_to_char(ch, HCONTROL_ADD_FORMAT);
@@ -975,7 +996,7 @@ hcontrol_delete_from_house( Creature *ch, char *arg)
 		return;
 	}
 
-	if( Housing.canEdit(ch, house ) ) {
+	if(! Housing.canEdit(ch, house ) ) {
 		send_to_char(ch, "You cannot edit that house.\r\n");
 		return;
 	}
@@ -1013,10 +1034,117 @@ hcontrol_delete_from_house( Creature *ch, char *arg)
 		REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE | ROOM_HOUSE_CRASH);
 		send_to_char(ch, "Room %d removed from house %d.\r\n", 
 					roomID, house->getID() );
+		slog("HOUSE: Room %d removed from house %d by %s.", 
+				roomID, house->getID(), GET_NAME(ch) );
 		house->save();
 	} else {
 		send_to_char(ch, HCONTROL_FORMAT);
 	}
+}
+
+
+
+list<House*>::iterator
+remove_house(  list<House*> &houses, 
+               list<House*>::iterator h )
+{
+    if( h == houses.begin() ) {
+        houses.erase(h);
+        return houses.begin();
+    } else {
+        list<House*>::iterator it = h;
+        --it;
+        houses.erase(h);
+        return ++it;
+    }
+}
+
+void 
+match_houses( list<House*> &houses, int mode, const char *arg )
+{
+    list<House*>::iterator cur = houses.begin();
+    while( cur != houses.end() ) {
+        switch( mode ) {
+            case HC_OWNER:
+			{
+				long id = 0;
+				if( isdigit(*arg) ) {
+					id = atoi(arg);
+				} else {
+					id = playerIndex.getAccountID( arg );
+				}
+                if( (*cur)->getOwnerID() != id ) {
+                    cur = remove_house( houses, cur );
+                } else {
+                    cur++;
+                }
+                break;
+			}
+            case HC_LANDLORD:
+			{
+				long id = playerIndex.getID(arg);
+                if( (*cur)->getLandlord() != id ) {
+                    cur = remove_house( houses, cur );
+                } else {
+                    cur++;
+                }
+                break;
+			}
+            case HC_GUEST:
+			{
+				long id = playerIndex.getID(arg);
+                if(! (*cur)->isGuest(id) ) {
+                    cur = remove_house( houses, cur );
+                } else {
+                    cur++;
+                }
+                break;
+			}
+            default:
+                continue;
+        }
+    }
+}
+
+
+void
+hcontrol_find_houses( Creature *ch, char *arg)
+{
+    char token[256];
+    
+    if( arg == NULL || *arg == '\0' ) {
+        send_to_char(ch,HCONTROL_FIND_FORMAT);
+        return;
+    }
+
+    Tokenizer tokens(arg);
+    list<House*> houses;
+
+    for( unsigned int i = 0; i < Housing.getHouseCount(); i++) {
+		houses.push_back(Housing.getHouse(i));
+    }
+
+    while( tokens.hasNext() ) {
+        tokens.next(token);
+        if( strcmp(token,"owner") == 0 && tokens.hasNext()) {
+            tokens.next(token);
+            match_houses( houses, HC_OWNER, token);
+        } else if( strcmp(token,"landlord") == 0 && tokens.hasNext() ) {
+            tokens.next(token);
+            match_houses( houses, HC_LANDLORD, token);
+        } else if( strcmp(token,"guest") == 0 && tokens.hasNext() ) {
+            tokens.next(token);
+            match_houses( houses, HC_GUEST, token);
+        } else {
+            send_to_char(ch,HCONTROL_FIND_FORMAT);
+            return;
+        }
+    }
+    if( houses.size() <= 0 ) {
+        send_to_char(ch,"No houses found.\r\n");
+        return;
+    } 
+    Housing.displayHouses(houses,ch);
 }
 
 /* The hcontrol command itself, used by imms to create/destroy houses */
@@ -1031,12 +1159,18 @@ ACMD(do_hcontrol)
 
 	action_str = tmp_getword(&argument);
 
-	if (is_abbrev(action_str, "save") && (GET_LEVEL(ch) >= LVL_GOD)) {
+	if (is_abbrev(action_str, "save") ) {
 		Housing.save();
 		send_to_char(ch, "Saved.\r\n");
-	} else if (is_abbrev(action_str, "recount") && (GET_LEVEL(ch) >= LVL_GOD)) {
-		Housing.countObjects();
-		send_to_char(ch, "Objs recounted.\r\n");
+		slog("HOUSE: Saved by %s.", GET_NAME(ch) );
+	} else if (is_abbrev(action_str, "recount") ) {
+		if( Security::isMember(ch, "Coder")) {
+			Housing.countObjects();
+			slog("HOUSE: Re-Counted by %s.", GET_NAME(ch) );
+			send_to_char(ch, "Objs recounted.\r\n");
+		} else {
+			send_to_char(ch, "You probably shouldn't be doing that.\r\n");
+		}
 	} else if (is_abbrev(action_str, "build")) {
 		hcontrol_build_house(ch, argument);
 	} else if (is_abbrev(action_str, "destroy")) {
@@ -1047,8 +1181,8 @@ ACMD(do_hcontrol)
 		hcontrol_delete_from_house(ch, argument);
 	} else if (is_abbrev(action_str, "set")) {
 		hcontrol_set_house(ch, argument);
-    //} else if (is_abbrev(action_str, "find")) {
-    //    hcontrol_find_houses(ch, argument);
+    } else if (is_abbrev(action_str, "find")) {
+        hcontrol_find_houses(ch, argument);
     } else if (is_abbrev(action_str, "where")) {
 		hcontrol_where_house(ch, argument);
 	} else if (is_abbrev(action_str, "show") ) {
@@ -1058,26 +1192,18 @@ ACMD(do_hcontrol)
 				houses.push_back( Housing.getHouse(i) );
 			}
 			Housing.displayHouses( houses, ch );
-		} else {/*
-			action_str = tmp_getword(&argument);
-			if (is_abbrev(action_str, "rooms")) {
-				str = tmp_getword(&argument);
-				if (!*str) {
-					send_to_char(ch, HCONTROL_SHOW_FORMAT);
+		} else {
+			char* str = tmp_getword(&argument);
+			if( isdigit(*str) ) {
+				House *house = Housing.findHouseById(atoi(str));
+				if( house == NULL ) {
+					send_to_char(ch, "No such house %d.\r\n", atoi(str) );
 					return;
 				}
-				atrium_vnum = atoi(str);
-				//hcontrol_list_house_rooms(ch, atrium_vnum);
-			} else if (is_abbrev(action_str, "guests")) {
-				str = tmp_getword(&argument);
-				if (!*str) {
-					send_to_char(ch, HCONTROL_SHOW_FORMAT);
-					return;
-				}
-				atrium_vnum = atoi(str);
-				hcontrol_list_house_guests(ch, atrium_vnum);
-			}*/
-			send_to_char(ch, HCONTROL_SHOW_FORMAT);
+				house->display(ch);
+			} else {
+				send_to_char(ch, HCONTROL_SHOW_FORMAT);
+			}
 		}
 	} else {
 		send_to_char(ch,HCONTROL_FORMAT);
@@ -1191,117 +1317,16 @@ HouseControl::displayHouses( list<House*> houses, Creature *ch )
 			roomlist[38] = '.';
 			roomlist[39] = '\0';
 		}
-        send_to_char( ch, "%4d %4d %7d %-13s %-40s\r\n",
+		const char* landlord = "none";
+		if( playerIndex.exists(house->getLandlord()) )
+			landlord = playerIndex.getName(house->getLandlord());
+        send_to_char( ch, "%4d %4d %6d %-13s %-40s\r\n",
                       house->getID(),
 					  house->getRoomCount(),
                       house->getOwnerID(), 
-					  playerIndex.getName(house->getLandlord()), 
+					  landlord,
 					  roomlist );
     }
 }
 
-
-list<House*>::iterator
-remove_house(  list<House*> &houses, 
-               list<House*>::iterator h )
-{
-    if( h == houses.begin() ) {
-        houses.erase(h);
-        return houses.begin();
-    } else {
-        list<House*>::iterator it = h;
-        --it;
-        houses.erase(h);
-        return ++it;
-    }
-}
-
-enum HC_SearchModes { INVALID=0, HC_OWNER, HC_LANDLORD, HC_GUEST };
-
-void 
-match_houses( list<House*> &houses, int mode, const char *arg )
-{
-    list<House*>::iterator cur = houses.begin();
-    while( cur != houses.end() ) {
-        switch( mode ) {
-            case HC_OWNER:
-			{
-				long id = 0;
-				if( isdigit(*arg) ) {
-					id = atoi(arg);
-				} else {
-					id = playerIndex.getAccountID( arg );
-				}
-                if( (*cur)->getOwnerID() != id ) {
-                    cur = remove_house( houses, cur );
-                } else {
-                    cur++;
-                }
-                break;
-			}
-            case HC_LANDLORD:
-			{
-				long id = playerIndex.getID(arg);
-                if( (*cur)->getLandlord() != id ) {
-                    cur = remove_house( houses, cur );
-                } else {
-                    cur++;
-                }
-                break;
-			}
-            case HC_GUEST:
-			{
-				long id = playerIndex.getID(arg);
-                if(! (*cur)->isGuest(id) ) {
-                    cur = remove_house( houses, cur );
-                } else {
-                    cur++;
-                }
-                break;
-			}
-            default:
-                continue;
-        }
-    }
-}
-
-void
-hcontrol_find_houses( Creature *ch, char *arg)
-{
-    char token[256];
-    
-    if( arg == NULL || *arg == '\0' ) {
-        send_to_char(ch,HCONTROL_FIND_FORMAT);
-        return;
-    }
-
-    Tokenizer tokens(arg);
-    list<House*> houses;
-
-    for( unsigned int i = 0; i < Housing.getHouseCount(); i++) {
-		houses.push_back(Housing.getHouse(i));
-    }
-
-    while( tokens.hasNext() ) {
-        tokens.next(token);
-        if( strcmp(token,"owner") == 0 && tokens.hasNext()) {
-            tokens.next(token);
-            match_houses( houses, HC_OWNER, token);
-        } else if( strcmp(token,"landlord") == 0 && tokens.hasNext() ) {
-            tokens.next(token);
-            match_houses( houses, HC_LANDLORD, token);
-        } else if( strcmp(token,"guest") == 0 && tokens.hasNext() ) {
-            tokens.next(token);
-            match_houses( houses, HC_GUEST, token);
-        } else {
-            send_to_char(ch,HCONTROL_FIND_FORMAT);
-            return;
-        }
-    }
-    if( houses.size() <= 0 ) {
-        send_to_char(ch,"No houses found.\r\n");
-        return;
-    } 
-    Housing.displayHouses(houses,ch);
-}
 
