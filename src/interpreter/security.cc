@@ -65,6 +65,32 @@ const struct {
 
 static char out_buf[MAX_STRING_LENGTH + 2];
 
+const char *Security::EVERYONE = "<ALL>";
+const char *Security::NOONE = "<NONE>";
+
+const char *Security::ADMINBASIC = "AdminBasic";
+const char *Security::ADMINFULL = "AdminFull";
+const char *Security::CLAN = "Clan";
+const char *Security::CLANADMIN = "ClanAdmin";
+const char *Security::CODER = "Coder";
+const char *Security::CODERADMIN = "CoderAdmin";
+const char *Security::DYNEDIT = "Dynedit";
+const char *Security::GROUPSADMIN = "GroupsAdmin";
+const char *Security::HELP = "Help";
+const char *Security::HOUSE = "House";
+const char *Security::OLC = "OLC";
+const char *Security::OLCADMIN = "OLCAdmin";
+const char *Security::OLCAPPROVAL = "OLCApproval";
+const char *Security::OLCPROOFER = "OLCProofer";
+const char *Security::OLCWORLDWRITE = "OLCWorldWrite";
+const char *Security::QUESTOR = "Questor";
+const char *Security::QUESTORADMIN = "QuestorAdmin";
+const char *Security::TESTERS = "Testers";
+const char *Security::WIZARDADMIN = "WizardAdmin";
+const char *Security::WIZARDBASIC = "WizardBasic";
+const char *Security::WIZARDFULL = "WizardFull";
+const char *Security::WORLDADMIN = "WorldAdmin";
+
 /**
  *  Sends usage info to the given character
  */
@@ -403,6 +429,8 @@ namespace Security {
      * Comma delimited names are also accepted.
      */
      bool isMember( Creature *ch, const char* group_name, bool substitute) {
+	 	if (group_name == Security::EVERYONE)
+			return true;
         if( substitute && ch->getLevel() == LVL_GRIMP )
             return true;
         if( group_name == NULL || *group_name == '\0' )

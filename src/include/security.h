@@ -33,21 +33,33 @@ namespace Security {
             fprintf( stderr,"TRACE: %s : %s\r\n", msg, name );
     }
 
-    /*
-     * Preliminary group list:
-     *   Questor
-     *   Builder
-     *   Proofer
-     *   Approver
-     *   Lower Admin ( mute, maybe freeze, etc)
-     *   Upper Admin ( purge, dc, ban, set file. )
-     *   Coder
-     *   Security ( add/alter security groups )
-     *
-     * Considerations:
-     *   Using group membership to check access for zone writes
-     *     for non-owners. (Such as for architects etc.)
-     */
+	// Special groups
+	extern const char *EVERYONE;
+	extern const char *NOONE;
+
+	extern const char *ADMINBASIC;
+	extern const char *ADMINFULL;
+	extern const char *CLAN;
+	extern const char *CLANADMIN;
+	extern const char *CODER;
+	extern const char *CODERADMIN;
+	extern const char *DYNEDIT;
+	extern const char *GROUPSADMIN;
+	extern const char *HELP;
+	extern const char *HOUSE;
+	extern const char *OLC;
+	extern const char *OLCADMIN;
+	extern const char *OLCAPPROVAL;
+	extern const char *OLCPROOFER;
+	extern const char *OLCWORLDWRITE;
+	extern const char *QUESTOR;
+	extern const char *QUESTORADMIN;
+	extern const char *TESTERS;
+	extern const char *WIZARDADMIN;
+	extern const char *WIZARDBASIC;
+	extern const char *WIZARDFULL;
+	extern const char *WORLDADMIN;
+
 
 
     /**  Constant Command Flags **/
