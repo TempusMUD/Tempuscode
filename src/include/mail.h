@@ -22,7 +22,7 @@
 #define MIN_MAIL_LEVEL 1
 
 // # of gold coins required to send mail
-#define STAMP_PRICE 50
+#define STAMP_PRICE 55
 
 // Maximum size of mail in bytes (arbitrary)
 #define MAX_MAIL_SIZE 4096
