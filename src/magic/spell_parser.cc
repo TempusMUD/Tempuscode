@@ -2755,9 +2755,6 @@ mag_assign_spells(void)
 	   210,80,11, POS_STANDING, TAR_CHAR_ROOM, FALSE, 
 	   MAG_DIVINE | MAG_POINTS);
 
-    spello(SPELL_VESTIGIAL_RUNE, 45, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,X,
-	   450, 380, 10, POS_STANDING, TAR_OBJ_ROOM | TAR_OBJ_INV, FALSE, 
-	   MAG_MAGIC | MAG_MANUAL);
 
     spello(SPELL_SENSE_LIFE, 27, 23, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,
 	   120, 80, 4, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
@@ -3081,6 +3078,10 @@ mag_assign_spells(void)
 	   MAG_PHYSICS | MAG_AFFECTS);
 
     /* ALL REMORT SKILLS HERE */
+    remort_spello(SPELL_VESTIGIAL_RUNE, 
+        CLASS_MAGE,45, 1,
+	   450, 380, 10, POS_STANDING, TAR_OBJ_ROOM | TAR_OBJ_INV, FALSE, 
+	   MAG_MAGIC | MAG_MANUAL);
     remort_spello(SPELL_QUANTUM_RIFT, 
         CLASS_PHYSIC, 45, 5,
         400,300,5, POS_SITTING, TAR_IGNORE , FALSE, 
