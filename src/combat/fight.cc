@@ -1204,48 +1204,36 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
     
     
-    //particle stream special
-    if (attacktype == TYPE_EGUN_PARTICLE && dam && ch) {
-        obj_data *tmp = NULL;
-        if (impl) tmp=impl;
-        if (obj) tmp=obj;
-        eq_dam = (int)(eq_dam * 1.3);
-        if (ch && do_gun_special(ch, weap)) {
-            eq_dam *= 4;
-            dam *= 2;
-            //we add in eq_dam here because it is later subtracted
-            //since the particles are penetrating the eq we don't want it to provide protection
-            dam += eq_dam;
-            if (tmp) {
-                act("Your particle stream penetrates $p and into $N!", false, ch, tmp, victim, TO_CHAR);
-                act("$n's particle stream penetrates $p and into you!", false, ch, tmp, victim, TO_VICT);
-                act("$n's particle stream penetrates $p and into $N!", false, ch, tmp, victim, TO_NOTVICT);
-            } else {
-                act("Your particle stream penetrates deep into $N!", false, ch, obj, victim, TO_CHAR);
-                act("$n's particle stream penetrates deep into you!", false, ch, obj, victim, TO_VICT);
-                act("$n's particle stream penetrates deep into $N!", false, ch, obj, victim, TO_NOTVICT);
-            }
-        }
-    }
-    
-    //lightning gun special
-    if (attacktype == TYPE_EGUN_LIGHTNING && dam && ch) {
-        if (do_gun_special(ch, weap)) {
-            CreatureList::iterator it = ch->in_room->people.begin();
-            for (; it != ch->in_room->people.end(); ++it) {
-                if ((*it) == ch || !(*it)->findCombat(ch))
-                    continue;
-                damage(ch, (*it), dam/2, TYPE_EGUN_SPEC_LIGHTNING, WEAR_RANDOM);
-            }
-        }
-    }
-    
-	//
+    //
 	// attacker is a character
 	//
 
 	if (ch) {
-
+        //particle stream special
+        if (attacktype == TYPE_EGUN_PARTICLE && dam && ch) {
+            obj_data *tmp = NULL;
+            if (impl) tmp=impl;
+            if (obj) tmp=obj;
+            eq_dam = (int)(eq_dam * 1.3);
+            if (ch && do_gun_special(ch, weap)) {
+                eq_dam *= 4;
+                dam *= 2;
+                //we add in eq_dam here because it is later subtracted
+                //since the particles are penetrating the eq we don't want it to provide protection
+                dam += eq_dam;
+                if (tmp) {
+                    act("Your particle stream penetrates $p and into $N!", false, ch, tmp, victim, TO_CHAR);
+                    act("$n's particle stream penetrates $p and into you!", false, ch, tmp, victim, TO_VICT);
+                    act("$n's particle stream penetrates $p and into $N!", false, ch, tmp, victim, TO_NOTVICT);
+                } else {
+                    act("Your particle stream penetrates deep into $N!", false, ch, obj, victim, TO_CHAR);
+                    act("$n's particle stream penetrates deep into you!", false, ch, obj, victim, TO_VICT);
+                    act("$n's particle stream penetrates deep into $N!", false, ch, obj, victim, TO_NOTVICT);
+                }
+            }
+        }
+        
+        
 		//
 		// attack type is a skill type
 		//
@@ -1658,6 +1646,37 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 	dam = MAX(MIN(dam, hard_damcap), 0);
 
+    if (ch) {
+        //lightning gun special
+        if (attacktype == TYPE_EGUN_LIGHTNING && dam) {
+            if (do_gun_special(ch, weap)) {
+                CreatureList::iterator it = ch->in_room->people.begin();
+                for (; it != ch->in_room->people.end(); ++it) {
+                    if ((*it) == ch || !(*it)->findCombat(ch))
+                        continue;
+                    damage(ch, (*it), dam/2, TYPE_EGUN_SPEC_LIGHTNING, WEAR_RANDOM);
+                }
+            }
+        }
+        
+        //photon special
+        if (attacktype == TYPE_EGUN_PHOTON && dam) {
+            if (do_gun_special(ch, weap)) {
+                mag_affects(ch->getLevelBonus(SKILL_ENERGY_WEAPONS), ch, victim, NULL, SPELL_BLINDNESS, SAVING_ROD);
+            }    
+        }
+        if (attacktype == TYPE_EGUN_PLASMA && dam) {
+            if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_FIRE(victim) && 
+                !IS_AFFECTED_2(victim, AFF2_ABLAZE)) {
+				act("$n's body suddenly ignites into flame!",
+					FALSE, victim, 0, 0, TO_ROOM);
+				act("Your body suddenly ignites into flame!",
+					FALSE, victim, 0, 0, TO_CHAR);
+                victim->ignite(ch);
+            }  
+        }
+			
+    }
 	//
 	// characters under the effects of vampiric regeneration
 	//
@@ -1786,8 +1805,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				attacktype == SPELL_FLAME_STRIKE ||
 				attacktype == SPELL_METEOR_STORM ||
 				attacktype == TYPE_FLAMETHROWER ||
-				attacktype == SPELL_FIRE_ELEMENTAL) ||
-               attacktype == TYPE_EGUN_PLASMA) {
+				attacktype == SPELL_FIRE_ELEMENTAL)) {
 			if (!mag_savingthrow(victim, 50, SAVING_BREATH) &&
 				!CHAR_WITHSTANDS_FIRE(victim)) {
 				act("$n's body suddenly ignites into flame!",
@@ -2860,6 +2878,8 @@ do_gun_special(Creature *ch, obj_data *obj) {
             chain = true;
         }
         return chain;
+    } else if (GET_OBJ_VAL(obj, 3) == EGUN_PLASMA) {
+        return number(0, MAX(0,ch->getLevelBonus(SKILL_ENERGY_WEAPONS))/20);//almost always ignite if applicable
     } else if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
                 (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)))) {
         return false;
