@@ -1163,7 +1163,7 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
 
         if (GET_OBJ_VAL(obj, 2) <= 0) {
             act("It seems powerless.", FALSE, ch, obj, 0, TO_CHAR);
-            act("Nothing seems to happen.", FALSE, ch, obj, 0, TO_ROOM);
+            act(NOEFFECT, FALSE, ch, obj, 0, TO_ROOM);
         } else {
       
             if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) || invalid_char_class(ch, obj) ||
@@ -1223,7 +1223,7 @@ mag_objectmagic(struct char_data * ch, struct obj_data * obj,
     
         if (GET_OBJ_VAL(obj, 2) <= 0) {
             act("It seems powerless.", FALSE, ch, obj, 0, TO_CHAR);
-            act("Nothing seems to happen.", FALSE, ch, obj, 0, TO_ROOM);
+            act(NOEFFECT, FALSE, ch, obj, 0, TO_ROOM);
             return 1;
         }
 
@@ -2001,7 +2001,7 @@ ACMD(do_cast)
             send_to_char("You lost your concentration!\r\n", ch);
             ACMD(do_say);
             if (!skill_message(0, ch, tch, spellnum)) {
-                send_to_char("Nothing seems to happen.\r\n", ch);
+                send_to_char(NOEFFECT, ch);
             }
 
             if (((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent)) &&

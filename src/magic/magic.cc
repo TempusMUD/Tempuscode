@@ -891,9 +891,9 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     return;
 
     if (spell_info[spellnum].violent && mag_savingthrow(victim, level, savetype)) {
-    send_to_char("Nothing seems to happen.\r\n", ch);
+    send_to_char(NOEFFECT, ch);
     if (ch != victim)
-        send_to_char("Nothing seems to happen.\r\n", victim);
+        send_to_char(NOEFFECT, victim);
     return;
     }
 

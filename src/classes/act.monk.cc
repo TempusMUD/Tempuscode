@@ -589,8 +589,8 @@ ACMD(do_pinch)
     }
 
     if (affected_by_spell(vict, which_pinch)) {
-        send_to_char("Nothing seems to happen.\r\n", ch);
-        send_to_char("Nothing seems to happen.\r\n", vict);
+        send_to_char(NOEFFECT, ch);
+        send_to_char(NOEFFECT, vict);
         return;
     }
     if (af.type)

@@ -550,11 +550,11 @@ ACMD(do_snipe)
   }
   if (!IS_SET(retval, DAM_VICT_KILLED))
       sprintf(buff, "INFO: %s has sniped %s from room %d to room %d", 
-              ch->player.name, vict->player.name, 
+              GET_NAME(ch), GET_NAME(vict),
               ch->in_room->number, vict->in_room->number);
   else
       sprintf(buff, "INFO: %s has killed %s with snipe from room %d to room %d",
-              ch->player.name, temp->player.name,
+              GET_NAME(ch), GET_NAME(temp),
 	      ch->in_room->number, temp->in_room->number);
   
   mudlog(buff, NRM, LVL_AMBASSADOR, TRUE);

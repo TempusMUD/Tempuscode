@@ -460,7 +460,7 @@ static inline bool IS_LIGHT(room_data *room) {
 #define GET_SEX(ch)        ((ch)->player.sex)
 #define IS_MALE(ch)     ((ch)->player.sex == SEX_MALE)
 #define IS_FEMALE(ch)   ((ch)->player.sex == SEX_FEMALE)
-#define IS_REMORT(ch)   (CHECK_REMORT_CLASS(ch) >= 0)
+#define IS_REMORT(ch)   ((ch) && (CHECK_REMORT_CLASS(ch) >= 0))
 
 #define GET_STR(ch)     ((ch)->aff_abils.str)
 #define GET_ADD(ch)     ((ch)->aff_abils.str_add)

@@ -177,7 +177,7 @@ perform_recharge(struct char_data *ch, struct obj_data *battery,
             "Energy Level(SOURCE):  %s%5d Units%s\r\n",
             QGRN, QNRM,
             QCYN, battery ? battery->short_description : "self", QNRM,
-            QCYN, vict ? vict->player.name : engine->short_description, QNRM,
+            QCYN, vict ? GET_NAME(vict) : engine->short_description, QNRM,
             QCYN, amount, QNRM,
             QCYN, vict ? GET_MOVE(vict) : CUR_ENERGY(engine), QNRM,
             QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
