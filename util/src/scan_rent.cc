@@ -15,6 +15,8 @@
 int vnum = -1;
 char *name = 0;
 char *alias = 0;
+int affect_type = 0;
+int affect_mod  = 0;
 
 void scan_file( char *filename ) {
 
@@ -38,6 +40,19 @@ void scan_file( char *filename ) {
 	    continue;
 	else if ( alias )
 	    continue;
+	else if ( affect_type ) {
+	    bool found = false;
+	    for ( int i = 0; i < MAX_OBJ_AFFECT; ++i ) {
+		if ( o.affected[i].location == affect_type &&
+		     o.affected[i].modifier == affect_mod ) {
+		    found = true;
+		    break;
+		}
+	    }
+
+	    if ( !found)
+		continue;
+	}
 
 	cout << " FILE: " << setw( 14 ) << filename << "  ITEM #: " << o.item_number << endl;
     }
@@ -50,7 +65,8 @@ void show_usage( char *exe ) {
 	 << "       Options: " << endl
 	 << "             -vnum <vnum>" << endl
 	 << "             -name <name>" << endl
-	 << "             -alias <alias>" << endl;
+	 << "             -alias <alias>" << endl
+	 << "             -affect <affect num> <affect modifier>" << endl;
 }
 
 int main( int argc, char **argv ) {
@@ -94,6 +110,20 @@ int main( int argc, char **argv ) {
 		return 1;
 	    }
 	    alias = argv[i];
+	    continue;
+	}
+
+	else if ( !strcmp( argv[i++], "-affect" ) ) {
+	    if ( i >= argc ) {
+		cerr << "Error: " << argv[i-1] << " requires two arguments." << endl;
+		return 1;
+	    }
+	    affect_type = atoi( argv[i] );
+	    if ( ++i >= argc ) {
+		cerr << "Error: " << argv[i-2] << " requires two arguments." << endl;
+		return 1;
+	    }
+	    affect_mod = atoi( argv[i] );
 	    continue;
 	}
     }
