@@ -1001,7 +1001,7 @@ ACMD(do_cedit)
 			send_to_char(ch, "Clan bank account set from %lld to %lld\r\n",
 					clan->bank_account, money );
 			clan->bank_account = money;
-			sql_exec("update clans set bank=%lld where clan=%d",
+			sql_exec("update clans set bank=%lld where idnum=%d",
 				money, clan->number);
 
 			return;
