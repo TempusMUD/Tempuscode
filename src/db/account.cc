@@ -32,11 +32,12 @@ Account::boot(void)
 {
 	PGresult *res;
 
-	slog("Reading player records");
+	slog("Getting max account idnum");
 
 	res = sql_query("select MAX(idnum) from accounts");
 	_top_id = atol(PQgetvalue(res, 0, 0));
 
+	slog("Getting character count");
 	if (playerIndex.size())
 		slog("... %d character%s in db", playerIndex.size(), (playerIndex.size() == 1) ? "":"s");
 	else
