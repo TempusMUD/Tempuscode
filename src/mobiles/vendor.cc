@@ -184,10 +184,10 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 }
 
 // Gets the value of an object, checking for buyability.
-static long
+static unsigned long
 vendor_get_value(obj_data *obj, int percent)
 {
-	long cost;
+	unsigned long cost;
 
 	// Adjust cost for wear and tear on a direct percentage basis
 	if (GET_OBJ_DAM(obj) != -1 && GET_OBJ_MAX_DAM(obj) != -1)
@@ -248,7 +248,8 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *obj, *next_obj;
 	char *obj_str, *currency_str, *msg;
-	int num, cost, amt_carried;
+	int num;
+	unsigned long cost, amt_carried;
 
 	if (!*arg) {
 		send_to_char(ch, "What do you wish to sell?\r\n");
@@ -398,12 +399,12 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	do_say(self,
 		tmp_sprintf("%s %s",
 			GET_NAME(ch), shop->msg_buy), 0, SCMD_SAY_TO, NULL);
-	msg = tmp_sprintf("You sell $p %sto $N for %d %s.",
+	msg = tmp_sprintf("You sell $p %sto $N for %lu %s.",
 		((num == 1) ? "":tmp_sprintf("(x%d) ", num)),
 		cost * num,
 		currency_str);
 	act(msg, false, self, obj, ch, TO_CHAR);
-	msg = tmp_sprintf("$n sells $p %sto you for %d %s.",
+	msg = tmp_sprintf("$n sells $p %sto you for %lu %s.",
 		((num == 1) ? "":tmp_sprintf("(x%d) ", num)),
 		cost * num,
 		currency_str);
@@ -433,8 +434,8 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *obj, *next_obj;
 	char *obj_str;
-	long cost, amt_carried;
 	int num = 1;
+	unsigned long cost, amt_carried;
 
 	if (shop->currency == 2) {
 		do_say(self,
@@ -650,7 +651,7 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *obj;
 	char *obj_str;
-	int cost;
+	unsigned long cost;
 	char *msg;
 
 	if (shop->currency == 2) {
@@ -677,8 +678,8 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	cost = vendor_get_value(obj, shop->markdown);
 
-	msg = tmp_sprintf("%s I'll give you %d %s for it!", GET_NAME(ch),
-		cost, shop->currency ? "cash":"gold");
+	msg = tmp_sprintf("%s I'll give you %lu %s for it!", GET_NAME(ch),
+		cost, shop->currency ? "creds":"gold");
 	do_say(self, msg, 0, SCMD_SAY_TO, NULL);
 }
 
