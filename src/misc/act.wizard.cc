@@ -6348,7 +6348,8 @@ ACMD(do_set)
         break;
 
     case 101:
-        GET_REPUTATION(ch) = RANGE(0, 1000);
+        GET_REPUTATION(vict) = RANGE(0, 1000);
+        break;
     default:
         sprintf(buf, "Can't set that!");
         break;
