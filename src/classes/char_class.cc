@@ -1427,7 +1427,8 @@ invalid_char_class(struct char_data *ch, struct obj_data *obj) {
 	(IS_OBJ_STAT(obj, ITEM_ANTI_RANGER)     && IS_RANGER(ch)) ||
 	(IS_OBJ_STAT(obj, ITEM_ANTI_HOOD)       && IS_HOOD(ch)) ||
 	(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC)       && IS_MERC(ch)) ||
-	(IS_OBJ_STAT(obj, ITEM_ANTI_MONK)       && IS_MONK(ch)))
+	(IS_OBJ_STAT(obj, ITEM_ANTI_MONK)       && IS_MONK(ch)) ||
+    (!OBJ_APPROVED(obj) && !PLR_FLAGGED(ch, PLR_TESTER) && GET_LEVEL(ch) < LVL_IMMORT))
         invalid = 1;
     if(!invalid) {
         if(IS_OBJ_STAT3(obj, ITEM3_REQ_MAGE))
