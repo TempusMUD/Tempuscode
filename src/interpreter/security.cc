@@ -215,9 +215,9 @@ ACCMD(do_access) {
             break;
         case 6: // grouplist
             if( tokens.next(token1) ) {
-                send_to_char("Unimplemented.",ch);
+                send_to_char("Unimplemented.\r\n",ch);
             } else {
-                send_to_char("List group membership for what player?",ch);
+                send_to_char("List group membership for what player?\r\n",ch);
             }
             break;
         case 7: // list
