@@ -17,6 +17,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <slist>
+using namespace std;
 
 #include "structs.h"
 #include "utils.h"
@@ -44,6 +46,7 @@
 #include "elevators.h"
 #include "fight.h"
 #include "defs.h"
+#include "tokenizer.h"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -4295,28 +4298,42 @@ ACMD(do_show)
     buf[0] = '\0';
 
     switch (l) {
-    case 1:                        /* zone */
-        /* tightened up by JE 4/6/93 */
-        if (self) 
+    case 1: /* zone */
+    {  
+        if (self) {
             print_zone_to_buf(ch, buf, ch->in_room->zone);
-        else if (*value && is_number(value)) {
-            for (j = atoi(value), zone = zone_table; 
-                 zone && zone->number != j; zone = zone->next);
-            if (zone)
-                print_zone_to_buf(ch, buf, zone);
-            else {
+        } else if ( value[0] != '\0' && is_number(value) ) {
+            Tokenizer t(arg);
+            int a = atoi(value);
+            int b = a;
+            slist<zone_data*> zone_list;
+            if( t.next(value) )
+                b = atoi(value);
+            for (zone = zone_table; zone ; zone = zone->next) {
+                if( zone->number >= a && zone->number <= b ) {
+                    zone_list.push_front(zone);
+                }
+            }
+            if( zone_list.size() <= 0 ) {
                 send_to_char("That is not a valid zone.\r\n", ch);
                 return;
             }
-                } else if (*value && !is_number(value)) {
+            zone_list.reverse();
+            slist<zone_data*>::iterator it = zone_list.begin(); 
+            for( ; it != zone_list.end(); it++ ) {
+                print_zone_to_buf(ch, buf, *it);
+            }
+        } else if (*value && !is_number(value)) {
             for (zone = zone_table;zone;zone = zone->next)
-                                if ( stristr( zone->name,value ) )
-                                        print_zone_to_buf( ch,buf,zone );
-        } else
+                if ( stristr( zone->name,value ) )
+                    print_zone_to_buf( ch,buf,zone );
+        } else {
             for (zone = zone_table; zone; zone = zone->next)
                 print_zone_to_buf(ch, buf, zone);
+        }
         page_string(ch->desc, buf, 0);
         break;
+    }
     case 2:                        /* player */
         show_player(ch, value);
         break;
