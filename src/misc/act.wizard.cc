@@ -5260,7 +5260,7 @@ ACMD(do_set)
         {"room", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},    /* 35 */
         {"roomflag", LVL_IMMORT, PC, BINARY, "WizardFull"},
         {"siteok", LVL_IMMORT, PC, BINARY, "AdminFull"},
-        {"deleted", LVL_IMMORT, PC, BINARY, "AdminFull"},
+		{"name", LVL_IMMORT, BOTH, MISC, "AdminFull"},
         {"class", LVL_IMMORT, BOTH, MISC, "WizardFull"},
         {"nowizlist", LVL_IMMORT, PC, BINARY, "WizardAdmin"},    /* 40 */
         {"quest", LVL_IMMORT, PC, NUMBER, "Coder"},
@@ -5650,11 +5650,17 @@ ACMD(do_set)
 
         break;
     case 38:
-        if (IS_NPC(vict)) {
-            send_to_char(ch, "Just kill the bugger!\r\n");
-            break;
-        }
-		send_to_char(ch, "Disabled.  Use 'delete' command.\r\n");
+		free(GET_NAME(vict));
+		GET_NAME(vict) = strdup(argument);
+		// Set name
+		if (IS_PC(vict)) {
+			playerIndex.remove(GET_IDNUM(vict));
+			playerIndex.add(GET_IDNUM(vict),
+				GET_NAME(vict),
+				vict->account->get_idnum(),
+				true);
+			vict->saveToXML();
+		}
 		break;
     case 39:
         if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
