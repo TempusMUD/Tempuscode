@@ -1472,7 +1472,7 @@ HouseControl::reload( House *house )
     if( house == NULL )
         return false;
 
- 	char *path = tmp_strcat( get_house_file_path(house->getID()), ".backup", NULL );
+ 	char *path = tmp_strcat( get_house_file_path(house->getID()), ".reload", NULL );
 	int axs = access(path, R_OK);
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
