@@ -1394,12 +1394,6 @@ mobile_activity(void)
             cur_class = GET_CLASS(ch);
 
 		//
-		// Mobs in idle zones don't do anything
-		//
-		if( IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
-			continue;
-
-		//
 		// Check for mob spec
 		//
 		if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) &&
@@ -1416,6 +1410,12 @@ mobile_activity(void)
 			}
 		}
 
+
+		//
+		// Non-special mobs in idle zones don't do anything
+		//
+		if( IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
+			continue;
 
 		//
 		// poison 2 tick
