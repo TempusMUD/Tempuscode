@@ -1489,7 +1489,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	// this is the block that handles things that happen when someone is damaging
 	// someone else.  ( not damaging self or being damaged by a null char, e.g. bomb )
     
-	if ( victim != ch ) {
+	if ( ch && victim != ch ) {
 	    // see if the victim needs to run screaming in terror!
 	    if ( !IS_NPC( victim ) &&
 		 GET_HIT( victim ) < GET_WIMP_LEV( victim )  && GET_HIT(victim) > 0) {
