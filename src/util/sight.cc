@@ -136,7 +136,7 @@ check_sight_vict(Creature *self, Creature *vict)
 		return true;
 
 	// Nothing at all gets through immort invis
-	if (IS_IMMORT(vict) && GET_LEVEL(self) < GET_INVIS_LVL(vict))
+	if (IS_PC(self) && IS_IMMORT(vict) && GET_LEVEL(self) < GET_INVIS_LVL(vict))
 		return false;
 
 	// Mortals can't see unapproved mobs
