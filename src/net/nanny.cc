@@ -745,7 +745,6 @@ nanny(struct descriptor_data * d, char *arg)
 				if (GET_PFILEPOS(d->character) < 0)
 					GET_PFILEPOS(d->character) = create_entry(GET_NAME(d->character));
 				init_char(d->character);
-				roll_real_abils(d->character);
 				save_char(d->character, NULL);
 			} else
 				SEND_TO_Q("You must type 'reroll' or 'keep'.\r\n", d);
@@ -852,8 +851,15 @@ nanny(struct descriptor_data * d, char *arg)
 					} else {
 						if (d->character->in_room == NULL ||
 							(load_room = real_room(d->character->in_room->number)) == NULL) {
-							if( GET_HOME(d->character) == HOME_NEWBIE_SCHOOL )
-								load_room = r_newbie_school_start_room;
+							if( GET_HOME(d->character) == HOME_NEWBIE_SCHOOL ) {
+								if (GET_LEVEL(d->character) > 5) {
+									population_record[HOME_NEWBIE_SCHOOL]--;
+									GET_HOME(d->character) = HOME_MODRIAN;
+									population_record[HOME_MODRIAN]--;
+									load_room = r_mortal_start_room;
+								} else
+									load_room = r_newbie_school_start_room;
+								}
 							else if (GET_HOME(d->character) == HOME_ELECTRO)
 								load_room = r_electro_start_room;
 							else if (GET_HOME(d->character) == HOME_NEWBIE_TOWER) {

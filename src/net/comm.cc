@@ -560,10 +560,10 @@ game_loop(int mother_desc)
     
             next_d = d->next;
 
-																							// we need a prompt here
-			d->need_prompt = true;
-    
             if ((--(d->wait) <= 0) && get_from_q(&d->input, comm, &aliased)) {
+																								// we need a prompt here
+				d->need_prompt = true;
+    
                 if (d->character) {
                     d->character->char_specials.timer = 0;
                     d->idle = 0;
