@@ -4,6 +4,8 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+ACMD(do_drink);
+
 SPECIAL(fountain_heal)
 {
 	byte num;
@@ -25,18 +27,13 @@ SPECIAL(fountain_heal)
 	if (!isname(argument, fountain->name))
 		return 0;
 
+	do_drink(ch, argument, 0, SCMD_DRINK, 0);
 	if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
-		sprintf(buf, "You drink %s from $p. It tastes oddly refreshing!",
-			drinks[GET_OBJ_VAL(fountain, 2)]);
+		send_to_char(ch, "It tastes oddly refreshing!\r\n");
 		num = dice(3, 8);
 		WAIT_STATE(ch, 1 RL_SEC);
 		GET_HIT(ch) = MIN(GET_HIT(ch) + num, GET_MAX_HIT(ch));
-	} else {
-		sprintf(buf, "You drink %s from $p.",
-			drinks[GET_OBJ_VAL(fountain, 2)]);
 	}
-	act(buf, TRUE, ch, fountain, 0, TO_CHAR);
-	sprintf(buf, "$n drinks %s from $p.", drinks[GET_OBJ_VAL(fountain, 2)]);
-	act(buf, TRUE, ch, fountain, 0, TO_ROOM);
+
 	return 1;
 }
