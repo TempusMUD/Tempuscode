@@ -55,6 +55,7 @@ ACMD(do_say)
 	static byte recurs_say = 0;
 	int j;
 	struct obj_data *o = NULL;
+	const char *cur_mood;
 
 	if PLR_FLAGGED
 		(ch, PLR_AFK) {
@@ -194,6 +195,10 @@ ACMD(do_say)
 	}
 
 	/* NOT say_to stuff: ********************************************* */
+	if (GET_MOOD(ch))
+		cur_mood = tmp_strcat(" ", GET_MOOD(ch));
+	else
+		cur_mood = "";
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (!AWAKE((*it)) || (*it) == ch ||
@@ -201,7 +206,7 @@ ACMD(do_say)
 			continue;
 		strcpy(buf, PERS(ch, (*it)));
 		strcpy(buf2, CAP(buf));
-		sprintf(buf, "%s%s%s%s %s,%s %s'%s'%s\r\n",
+		sprintf(buf, "%s%s%s%s %s%s,%s %s'%s'%s\r\n",
 			recurs_say ? "(remote) " : "", CCBLD((*it), C_NRM), CCBLU((*it),
 				C_SPR), buf2,
 			(subcmd == SCMD_UTTER ? "utters" : subcmd ==
@@ -211,12 +216,13 @@ ACMD(do_say)
 				SCMD_MURMUR ? "murmurs" : subcmd ==
 				SCMD_INTONE ? "intones" : subcmd ==
 				SCMD_YELL ? "yells" : subcmd ==
-				SCMD_BABBLE ? "babbles" : "says"), CCNRM((*it), C_SPR),
+				SCMD_BABBLE ? "babbles" : "says"),
+			cur_mood, CCNRM((*it), C_SPR),
 			CCCYN((*it), C_NRM), argument, CCNRM((*it), C_NRM));
 		send_to_char(*it, "%s", buf);
 	}
 	if (!recurs_say) {
-		send_to_char(ch, "%s%sYou %s,%s %s'%s'%s\r\n", CCBLD(ch, C_NRM),
+		send_to_char(ch, "%s%sYou %s%s,%s %s'%s'%s\r\n", CCBLD(ch, C_NRM),
 			CCBLU(ch, C_SPR),
 			(subcmd == SCMD_UTTER ? "utter" :
 				subcmd == SCMD_EXPOSTULATE ? "expostulate" :
@@ -226,7 +232,7 @@ ACMD(do_say)
 				subcmd == SCMD_INTONE ? "intone" :
 				subcmd == SCMD_YELL ? "yell" :
 				subcmd == SCMD_BABBLE ? "babble" : "say"),
-			CCNRM(ch, C_SPR), CCCYN(ch, C_NRM),
+			cur_mood, CCNRM(ch, C_SPR), CCCYN(ch, C_NRM),
 			argument, CCNRM(ch, C_NRM));
 	}
 }
