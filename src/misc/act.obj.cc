@@ -2060,7 +2060,10 @@ ACMD(do_eat)
 	return;
     }
     if (subcmd == SCMD_EAT) {
-	act("You eat the $o.", FALSE, ch, food, 0, TO_CHAR);
+    if(GET_LEVEL(ch) < LVL_GOD)
+        act("You eat the $o.", FALSE, ch, food, 0, TO_CHAR);
+    else
+        act("You eat the $p.", FALSE, ch, food, 0, TO_CHAR);
 	act("$n eats $p.", TRUE, ch, food, 0, TO_ROOM);
     } else {
 	act("You nibble a little bit of the $o.", FALSE, ch, food, 0, TO_CHAR);
