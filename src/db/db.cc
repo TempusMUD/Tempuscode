@@ -2373,7 +2373,7 @@ vnum_mobile(char *searchname, struct Creature *ch)
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		//for (mobile = mob_proto; mobile; mobile = mobile->next) {
 		mobile = *mit;
-		if (isname(searchname, mobile->player.name)) {
+		if (namelist_match(searchname, mobile->player.name)) {
 			sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 				mobile->mob_specials.shared->vnum,
@@ -2400,7 +2400,7 @@ vnum_object(char *searchname, struct Creature *ch)
 
 	strcpy(buf, "");
 	for (obj = obj_proto; obj; obj = obj->next) {
-		if (isname(searchname, obj->name)) {
+		if (namelist_match(searchname, obj->name)) {
 			sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
 				CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
