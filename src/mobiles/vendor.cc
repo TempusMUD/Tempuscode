@@ -45,6 +45,9 @@ const char VENDOR_HELP[] =
 "        If this is set, stealing from the vendor is allowed\r\n"
 "    attack-ok yes|no\r\n"
 "        If this is set, attacking the vendor is allowed\r\n"
+"    revenue <amount>\r\n"
+"        Indicates an amount of money given to the vendor every zone\r\n"
+"        reset, up to the amount set on the mob prototype.\r\n"
 "\r\n"
 "Once properly in place, the vendor will respond to the following\r\n"
 "commands:\r\n"
@@ -78,6 +81,7 @@ struct ShopData {
 	int markup;				// Price increase when player buying
 	int markdown;			// Price decrease when player is selling
 	bool currency;			// True == cash, False == gold
+	long revenue;			// Amount added to money every reset
 	bool steal_ok;
 	bool attack_ok;
 	Reaction reaction;
@@ -605,9 +609,27 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	do_say(self, msg, 0, SCMD_SAY_TO, NULL);
 }
 
+static void
+vendor_revenue(Creature *self, ShopData *shop)
+{
+	Creature *vkeeper;
+	long cur_money, max_money;
+
+	vkeeper = real_mobile_proto(GET_MOB_VNUM(self));
+	max_money = (shop->currency) ? GET_CASH(vkeeper):GET_GOLD(vkeeper);
+	cur_money = (shop->currency) ? GET_CASH(self):GET_GOLD(self);
+	if (cur_money >= max_money)
+		return;
+	if (shop->currency)
+		GET_CASH(self) = MIN(max_money, GET_CASH(self) + shop->revenue);
+	else
+		GET_GOLD(self) = MIN(max_money, GET_GOLD(self) + shop->revenue);
+	return;
+}
+
 SPECIAL(vendor)
 {
-	Creature *self;
+	Creature *self = (Creature *)me;
 	char *config, *line, *param_key, *err = NULL;
 	ShopData shop;
 	int val, lineno = 0;
@@ -617,15 +639,8 @@ SPECIAL(vendor)
 		return 1;
 	}
 
-	if (spec_mode != SPECIAL_CMD)
-		return 0;	
-
-	self = (Creature *)me;
 	config = GET_MOB_PARAM(self);
 	if (!config)
-		return 0;
-
-	if (!(CMD_IS("buy") || CMD_IS("sell") || CMD_IS("list") || CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal")))
 		return 0;
 
 	// Initialize default values
@@ -640,6 +655,7 @@ SPECIAL(vendor)
 	shop.markdown = 70;
 	shop.markup = 120;
 	shop.currency = false;
+	shop.revenue = 0;
 	shop.steal_ok = false;
 	shop.attack_ok = false;
 
@@ -692,8 +708,22 @@ SPECIAL(vendor)
 			shop.cmd_temper = line;
 		} else if (!strcmp(param_key, "markup")) {
 			shop.markup= atoi(line);
+			if (shop.markup <= 0 ||  shop.markup > 1000) {
+				err = "an invalid markup";
+				break;
+			}
 		} else if (!strcmp(param_key, "markdown")) {
 			shop.markdown= atoi(line);
+			if (shop.markdown <= 0 ||  shop.markdown > 1000) {
+				err = "an invalid markdown";
+				break;
+			}
+		} else if (!strcmp(param_key, "revenue")) {
+			shop.revenue= atoi(line);
+			if (shop.revenue < 0) {
+				err = "a negative revenue";
+				break;
+			}
 		} else if (!strcmp(param_key, "currency")) {
 			if (is_abbrev(line, "future"))
 				shop.currency = true;
@@ -714,6 +744,18 @@ SPECIAL(vendor)
 			break;
 		}
 	}
+
+	if (spec_mode == SPECIAL_RESET) {
+		vendor_revenue(self, &shop);
+		return 0;
+	}
+
+	if (spec_mode != SPECIAL_CMD)
+		return 0;	
+
+	if (!(CMD_IS("buy") || CMD_IS("sell") || CMD_IS("list") || CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal")))
+		return 0;
+
 
 	if (err) {
 		// Specparam error
