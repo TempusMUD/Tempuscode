@@ -3937,7 +3937,7 @@ ACMD(do_breathe)
 	struct Creature *vict = NULL;
 	if (!IS_NPC(ch)) {
 		act("You breathe heavily.", FALSE, ch, 0, 0, TO_CHAR);
-		act("$N seems to be out of breath.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n seems to be out of breath.", FALSE, ch, 0, 0, TO_ROOM);
 		return;
 	}
 	skip_spaces(&argument);
