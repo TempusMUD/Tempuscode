@@ -1583,18 +1583,20 @@ check_eq_align(Creature *ch)
 int
 get_number(char **name)
 {
-	char *ppos;
+	char *read_pt, *write_pt;
 	int i;
 
-	if ((ppos = strchr(*name, '.'))) {
-		*ppos++ = '\0';
+	if ((read_pt = strchr(*name, '.'))) {
+		*read_pt++ = '\0';
 		if (!is_number(*name))
 			return 0;
 
 		i = atoi(*name);
 
-		while (*ppos)
-			*(*name++) = *ppos++;
+		write_pt = *name;
+		while (*read_pt)
+			*write_pt++ = *read_pt++;
+		*write_pt = '\0';
 		return i;
 	}
 	return 1;
