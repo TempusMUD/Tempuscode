@@ -332,6 +332,10 @@ dynamic_object_pulse()
     for (obj = object_list; obj; obj = next_obj) {
         next_obj = obj->next;
 
+		// Nothing happens to objects in the Void
+		if ( obj->in_room == zone_table->world )
+			continue;
+
         if (fallpulse &&
             obj->in_room && obj->in_room->isOpenAir() &&
             (CAN_WEAR(obj, ITEM_WEAR_TAKE) || OBJ_IS_SOILAGE(obj)) &&

@@ -492,7 +492,7 @@ damage_eq( struct char_data *ch, struct obj_data *obj, int eq_dam, int type = -1
     if ( GET_OBJ_DAM( obj ) < 0 || GET_OBJ_MAX_DAM( obj ) < 0 ||
          ( ch && GET_LEVEL( ch ) < LVL_IMMORT && !CAN_WEAR( obj, ITEM_WEAR_TAKE ) ) ||
      ( ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA) ) || 
-     ( GET_OBJ_TYPE( obj ) == ITEM_KEY ) || ( GET_OBJ_TYPE( obj ) == ITEM_SCRIPT ) )
+     ( GET_OBJ_TYPE( obj ) == ITEM_KEY ) || ( GET_OBJ_TYPE( obj ) == ITEM_SCRIPT ) || obj->in_room == zone_table->world )
         return NULL;
 
     /** damage has destroyed object */
@@ -729,6 +729,11 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         slog( buf );
         raise( SIGSEGV );
     }
+
+	// No more shall anyone be damaged in the void.
+	if ( victim->in_room == zone_table->world ) {
+		return false;
+	}
 
     if ( GET_HIT( victim) < -10 ) {
         sprintf( buf,"SYSERR: Attempt to damage a char with hps %d ch=%s,vict=%s,type=%d.",
@@ -1759,7 +1764,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
         }
         char_from_room( victim );
         char_to_room( victim, zone_table->world );
-        REMOVE_BIT( AFF2_FLAGS( victim ), AFF2_ABLAZE );
+        act( "$n is carried in by divine forces.", FALSE, victim, 0, 0, TO_ROOM );
     }
 
     /* debugging message */
