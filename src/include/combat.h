@@ -99,6 +99,7 @@ void show_arenas(CHAR* ch);
 void combat_loop(CHAR* ch, CHAR* killer);
 void random_arena(CHAR* ch, combat_data* combat);
 void combat_reimburse(CHAR *ch, combat_data* combat);
+void clear_booty_rooms(void);
 
 void do_ccontrol_create (CHAR *ch, char *argument, int com);
 void do_ccontrol_usage(CHAR *ch, int com);
@@ -122,7 +123,7 @@ void do_ccontrol_reimburse(CHAR* ch);
 void do_ccontrol_wizoptions(CHAR* ch, char* argument);
 void do_ccontrol_destroy(CHAR* ch, char* argument);
 void do_ccontrol_lock(CHAR* ch);
-
+void do_ccontrol_stats(CHAR* ch);
 
 
 

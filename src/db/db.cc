@@ -432,9 +432,6 @@ boot_db(void)
     slog("Loading social messages.");
     boot_social_messages();
 
-    slog("Booting combat system.");
-    boot_combat();
-
     slog("Assigning function pointers:");
 
     if (!no_specials) {
@@ -500,6 +497,9 @@ boot_db(void)
 	House_countobjs();
 
     }
+
+    slog("Booting combat system.");
+    boot_combat();
 
     boot_time = time(0);
 
