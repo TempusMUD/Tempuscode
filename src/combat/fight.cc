@@ -197,15 +197,14 @@ raw_kill( struct char_data * ch, struct char_data *killer, int attacktype )
 
     if ( IS_NPC( ch ) ) {
         ch->mob_specials.shared->kills++;
-	deque<MobileEvent *>::iterator qi;
-	for (qi = mobileQueue.begin(); qi != mobileQueue.end();) {
-	    if ((*qi)->getTarget() == ch)
-		qi = mobileQueue.erase(qi);
-	    else
-		qi++;
-	}
+        list<MobileEvent *>::iterator qi;
+        for (qi = mobileQueue.begin(); qi != mobileQueue.end();) {
+            if ((*qi)->getTarget() == ch)
+                qi = mobileQueue.erase(qi);
+            else
+                qi++;
+        }
     }
-  
     extract_char( ch, 1 );
 }
 

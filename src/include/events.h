@@ -3,7 +3,7 @@
 
 #define NUM_EVENTS 3 
 
-#include <deque>
+#include <list>
 using namespace std;
 
 // prototype char_data to avoid including char_data.h
@@ -58,6 +58,6 @@ class EventSteal : public MobileEvent
         void process();
 };
 
-typedef deque<MobileEvent *> eventQueue;
+typedef list<MobileEvent *> eventQueue;
 
 #endif
