@@ -1437,7 +1437,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     
     if ( ( af = affected_by_spell( victim, SPELL_VAMPIRIC_REGENERATION ) ) ) {
         // pc caster
-        if ( !IS_NPC( ch ) && GET_IDNUM( ch ) == af->modifier ) {
+        if ( ch && !IS_NPC( ch ) && GET_IDNUM( ch ) == af->modifier ) {
             sprintf( buf, "You drain %d hitpoints from $N!", dam );
             act( buf, FALSE, ch, 0, victim, TO_CHAR );
             GET_HIT( ch ) = MIN( GET_MAX_HIT( ch ), GET_HIT( ch ) + dam );
