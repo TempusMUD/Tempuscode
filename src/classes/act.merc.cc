@@ -261,7 +261,8 @@ ACMD(do_snipe)
   int retval, prob, percent, damage_loc, dam = 0;
   int snipe_dir = -1;
   char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH], buf[75];
-
+  char buff[255];
+  
   two_arguments(argument, arg1, arg2);
 
 
@@ -448,9 +449,9 @@ ACMD(do_snipe)
       stop_fighting(vict);
       send_to_char("Damn!  You missed!\r\n", ch);
       act("$n tries to snipe $N, but misses!", TRUE, ch, NULL, vict, TO_ROOM);
-      sprintf(buf, "A bullet screams past your head from the %s!", dirs[snipe_dir]);
+      sprintf(buf, "A bullet screams past your head from the %s!", from_dirs[snipe_dir]);
       act(buf, TRUE, ch, NULL, vict, TO_VICT);
-      sprintf(buf, "A bullet screams past $n's head from the %s!", dirs[snipe_dir]);
+      sprintf(buf, "A bullet screams past $n's head from the %s!", from_dirs[snipe_dir]);
       act(buf, TRUE, vict, NULL, ch, TO_ROOM);
       WAIT_STATE(ch, 3 RL_SEC);
       return;
@@ -534,7 +535,6 @@ ACMD(do_snipe)
         act("You have killed $N!", TRUE, ch, NULL, temp, TO_CHAR);
         act("$n has killed $N!", TRUE, ch, NULL, temp, TO_ROOM);
       }
-      free(temp);
       gain_skill_prof(ch, SKILL_SNIPE);
       // again, if ch and vict aren't in the same room they
       // shouldn't be fighting each other
@@ -548,6 +548,17 @@ ACMD(do_snipe)
   else {
     mudlog("ERROR: Null vict at end of do_snipe!", NRM, LVL_AMBASSADOR, TRUE);
   }
+  if (!IS_SET(retval, DAM_VICT_KILLED))
+      sprintf(buff, "INFO: %s has sniped %s from room %d to room %d", 
+              ch->player.name, vict->player.name, 
+              ch->in_room->number, vict->in_room->number);
+  else
+      sprintf(buff, "INFO: %s has killed %s with snipe from room %d to room %d",
+              ch->player.name, temp->player.name,
+	      ch->in_room->number, temp->in_room->number);
+  
+  mudlog(buff, NRM, LVL_AMBASSADOR, TRUE);
+  free(temp);
 }
 
 ACMD(do_wrench)
