@@ -3086,7 +3086,8 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 					 FALSE, ch, 0, (*it), TO_CHAR);
 				return 0;
 			}
-			if (PLR_FLAGGED(*it, PLR_NOPK) || (*it)->isNewbie() || GET_REPUTATION(*it) <= 0) {
+			if (PLR_FLAGGED(*it, PLR_NOPK) || (*it)->isNewbie() || 
+                (IS_PC(*it) && GET_REPUTATION(*it) <= 0)) {
 				act("You cannot do this, because this action might cause harm to $N.",
 					 FALSE, ch, 0, (*it), TO_CHAR);
 				return 0;

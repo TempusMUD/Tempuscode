@@ -1,62 +1,7 @@
-$(OBJ)/prog.o: prog.cc ../include/structs.h ../include/defs.h \
-  ../include/macros.h ../include/constants.h ../include/obj_data.h \
-  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
-  /usr/include/libxml2/libxml/xmlversion.h \
-  /usr/include/libxml2/libxml/xmlexports.h \
-  /usr/include/libxml2/libxml/tree.h \
-  /usr/include/libxml2/libxml/xmlstring.h \
-  /usr/include/libxml2/libxml/xmlregexp.h \
-  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
-  /usr/include/libxml2/libxml/valid.h \
-  /usr/include/libxml2/libxml/xmlerror.h \
-  /usr/include/libxml2/libxml/list.h \
-  /usr/include/libxml2/libxml/xmlautomata.h \
-  /usr/include/libxml2/libxml/entities.h \
-  /usr/include/libxml2/libxml/encoding.h \
-  /usr/include/libxml2/libxml/xmlIO.h \
-  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
-  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
-  /usr/include/libxml2/libxml/xmlmemory.h \
-  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
-  ../include/creature_list.h ../include/creature.h \
-  ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/comm.h ../include/utils.h ../include/handler.h \
-  ../include/db.h ../include/spells.h ../include/screen.h \
-  ../include/vehicle.h ../include/fight.h ../include/security.h \
-  ../include/actions.h ../include/house.h ../include/events.h \
-  ../include/prog.h ../include/clan.h
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
-$(OBJ)/search.o: search.cc ../include/structs.h ../include/defs.h \
-  ../include/macros.h ../include/constants.h ../include/obj_data.h \
-  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
-  /usr/include/libxml2/libxml/xmlversion.h \
-  /usr/include/libxml2/libxml/xmlexports.h \
-  /usr/include/libxml2/libxml/tree.h \
-  /usr/include/libxml2/libxml/xmlstring.h \
-  /usr/include/libxml2/libxml/xmlregexp.h \
-  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
-  /usr/include/libxml2/libxml/valid.h \
-  /usr/include/libxml2/libxml/xmlerror.h \
-  /usr/include/libxml2/libxml/list.h \
-  /usr/include/libxml2/libxml/xmlautomata.h \
-  /usr/include/libxml2/libxml/entities.h \
-  /usr/include/libxml2/libxml/encoding.h \
-  /usr/include/libxml2/libxml/xmlIO.h \
-  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
-  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
-  /usr/include/libxml2/libxml/xmlmemory.h \
-  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
-  ../include/creature_list.h ../include/creature.h \
-  ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/comm.h ../include/utils.h ../include/handler.h \
-  ../include/db.h ../include/spells.h ../include/screen.h \
-  ../include/vehicle.h ../include/fight.h ../include/security.h \
-  ../include/actions.h ../include/house.h ../include/events.h
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/prog.o : prog.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/actions.h $(INCLUDE)/tmpstr.h $(INCLUDE)/house.h $(INCLUDE)/events.h $(INCLUDE)/prog.h $(INCLUDE)/clan.h 
+	$(CXX) -c $(CXXFLAGS) prog.cc              -o $(OBJ)/prog.o
+$(OBJ)/search.o : search.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/actions.h $(INCLUDE)/tmpstr.h $(INCLUDE)/house.h $(INCLUDE)/events.h 
+	$(CXX) -c $(CXXFLAGS) search.cc            -o $(OBJ)/search.o
 OBJFILES= $(OBJ)/prog.o $(OBJ)/search.o
