@@ -746,7 +746,10 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 		return 0;
 	}
 
-	if (!IS_NPC(ch) && !IS_NPC(vict) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
+	bool isArena = ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && 
+				   ROOM_FLAGGED(vict->in_room, ROOM_ARENA);
+
+	if (!isArena && !IS_NPC(ch) && !IS_NPC(vict) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 		act("In order to attack $N or another player, you must toggle your\n"
 			"Pkiller status with the 'pkiller' command.", FALSE, ch, 0, vict,
 			TO_CHAR);
