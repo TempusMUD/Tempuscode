@@ -2355,7 +2355,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	weap = cur_weap;
 	calc_thaco = calculate_thaco(ch, victim, weap);
 
-	victim_ac = MAX(GET_AC(victim), -(GET_LEVEL(ch) << 2)) / 10;
+	victim_ac = MAX(GET_AC(victim), -(GET_LEVEL(ch) << 2)) / 15;
 
 	diceroll = number(1, 20);
 
