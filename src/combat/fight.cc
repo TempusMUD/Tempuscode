@@ -199,7 +199,11 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 
 	// Equipment dealt with in make_corpse. 
 	// Do not save it here.
-	Event::Queue(new DeathEvent(0, ch, is_arena_combat(killer, ch)));
+	if (is_arena_combat(killer, ch))
+		ch->arena_die();
+	else
+		ch->die();
+//	Event::Queue(new DeathEvent(0, ch, is_arena_combat(killer, ch)));
 }
 
 

@@ -3248,7 +3248,8 @@ ASPELL(spell_banishment)
 
 		act("$n is banished to $s home plane!", FALSE, victim, 0, 0, TO_ROOM);
 
-		Event::Queue(new DeathEvent(0, victim, false));
+		victim->die();
+//		Event::Queue(new DeathEvent(0, victim, false));
 
 		gain_skill_prof(ch, SPELL_BANISHMENT);
 
