@@ -570,7 +570,11 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
     if (IS_AFFECTED_3(i, AFF3_PRISMATIC_SPHERE))
 	act("...$e is surrounded by a prismatic sphere of light!", 
 	    FALSE, i, 0, ch, TO_VICT);
-  
+   
+    if(affected_by_spell(i, SPELL_ELECTROSTATIC_FIELD))
+        act("...$e is surrounded by a swarming sea of electrons!",
+            FALSE, i, 0, ch, TO_VICT);
+
     if (affected_by_spell(i, SPELL_SKUNK_STENCH) ||
 	affected_by_spell(i, SPELL_TROG_STENCH))
 	act("...$e is followed by a malodorous stench...", 
