@@ -2885,7 +2885,7 @@ reset_zone(struct zone_data *zone)
 		} else if(!CAN_WEAR(tobj, 
 				    wear_bitvectors[zonecmd->arg3])) {
 		    ZONE_ERROR("invalid implant pos for obj");
-		} else if (GET_EQ(mob, zonecmd->arg3)) {
+		} else if (GET_IMPLANT(mob, zonecmd->arg3)) {
 		    ZONE_ERROR("char already implanted in position");
 		} else {
 		    obj = read_object(zonecmd->arg1);
