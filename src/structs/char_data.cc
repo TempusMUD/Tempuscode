@@ -154,8 +154,7 @@ float char_data::getDamReduction(char_data *attacker = NULL)
         if (af->modifier == GET_IDNUM(ch)) {
             dam_reduction += (ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                                    + (GET_ALIGNMENT(ch) / 100);
-        } 
-        else {
+        } else if( ch->in_room != NULL ) {
             
             CharacterList::iterator it = ch->in_room->people.begin();
             for( ; it != ch->in_room->people.end(); ++it ) {
