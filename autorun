@@ -101,6 +101,16 @@ while /bin/true; do
 # mv log/prof_log.6 log/prof_log.5
 # gprof bin/circle lib/gmon.out > log/prof_log.6 &
 
+    #
+    # if the core is newer than the core touch file, send a report
+    #
+
+    if [ -x ./bin/crash_report.sh ] && [ -r ./lib/core ] && \
+        ( [ ! -r ./lib/core.timestamp ] || [ ./lib/core -nt ./lib/core.timestamp ] ); then
+        touch ./lib/core.timestamp
+        ./bin/crash_report.sh
+    fi    
+        
     cp lib/etc/players lib/etc/backup_players
     rm lib/etc/backup_players.gz
     gzip -3 lib/etc/backup_players &
