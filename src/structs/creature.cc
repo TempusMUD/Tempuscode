@@ -1387,9 +1387,12 @@ Creature::addCombat(Creature *ch, bool initiated)
 			update_pos(this);
 			trigger_prog_fight(this, defender);
 
-			// only one defender at a time should defend the player,
-			// to protect against numerous mobs
-			break;
+			//By not breaking here and not adding defenders to combatList we get
+            //the desired effect of a) having new defenders kick in after the first dies
+            //because they are on the attackers combat list, and b) still likely have
+            //defenders left to defend from other potential attackers because they
+            //won't actually begin combat until the attacker hits them.  This is the
+            //theory at least.
         }
     }
     
