@@ -535,7 +535,7 @@ CTextEditor::FindReplace(char *args)
 		}
 	}
 	if (replaced > 0 && !overflow) {
-		sprintf(tedii_out_buf, "%d occurances of [%s] replaced with [%s].\r\n",
+		sprintf(tedii_out_buf, "%d occurrences of [%s] replaced with [%s].\r\n",
 			replaced, findit.c_str(), replaceit.c_str());
 		SendMessage(tedii_out_buf);
 	} else if (!overflow) {
