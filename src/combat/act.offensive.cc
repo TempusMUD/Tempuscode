@@ -1763,46 +1763,46 @@ ACMD(do_sleeper)
     one_argument(argument, arg);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-	if (FIGHTING(ch)) {
-	    vict = FIGHTING(ch);
-	} else if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-	    act("You try to put the sleeper on $p!", FALSE, ch, ovict, 0, TO_CHAR);
-	    act("$n tries to put the sleeper on $p!", FALSE, ch, ovict, 0, TO_ROOM);
-	    return;
-	} else {
-	    send_to_char("Who do you want to put to sleep?\r\n", ch);
-	    WAIT_STATE(ch, 4);
-	    return;
-	}
+        if (FIGHTING(ch)) {
+            vict = FIGHTING(ch);
+        } else if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+            act("You try to put the sleeper on $p!", FALSE, ch, ovict, 0, TO_CHAR);
+            act("$n tries to put the sleeper on $p!", FALSE, ch, ovict, 0, TO_ROOM);
+            return;
+        } else {
+            send_to_char("Who do you want to put to sleep?\r\n", ch);
+            WAIT_STATE(ch, 4);
+            return;
+        }
     }
     if (vict == ch) {
-	send_to_char("Aren't we funny today...\r\n", ch);
-	return;
+        send_to_char("Aren't we funny today...\r\n", ch);
+        return;
     }
     if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-	send_to_char("You are using both hands to wield your weapon right now!\r\n", ch);
-	return;
+        send_to_char("You are using both hands to wield your weapon right now!\r\n", ch);
+        return;
     }
     if (IS_NPC(vict) && IS_UNDEAD(vict)) {
-	act("$N is undead! You can't put it to sleep!", 
-	    TRUE, ch, 0, vict, TO_CHAR);
-	return;
+        act("$N is undead! You can't put it to sleep!", 
+            TRUE, ch, 0, vict, TO_CHAR);
+        return;
     }
     if (vict->getPosition() <= POS_SLEEPING) {
-	send_to_char("Yeah.  Right.\r\n", ch);
-	return;
+        send_to_char("Yeah.  Right.\r\n", ch);
+        return;
     }
     if (!peaceful_room_ok(ch, vict, true))
-	return;
+        return;
 
     percent = ((10 +GET_LEVEL(vict)) >> 1) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_SLEEPER);
 
     if (AFF_FLAGGED(vict, AFF_ADRENALINE))
-	prob -= GET_LEVEL(vict);
+        prob -= GET_LEVEL(vict);
 
     if (IS_PUDDING(vict) || IS_SLIME(vict))
-	prob = 0;
+        prob = 0;
 
     WAIT_STATE(ch, 3 RL_SEC);
 
@@ -1811,9 +1811,9 @@ ACMD(do_sleeper)
     //
 
     if (percent > prob || MOB_FLAGGED(vict, MOB_NOSLEEP) || 
-	GET_LEVEL(vict) > LVL_CREATOR)  {
-	int retval = damage(ch, vict, 0, SKILL_SLEEPER, WEAR_NECK_1);
-        ACMD_set_return_flags( retval );
+        GET_LEVEL(vict) > LVL_CREATOR)  {
+        int retval = damage(ch, vict, 0, SKILL_SLEEPER, WEAR_NECK_1);
+            ACMD_set_return_flags( retval );
     }  
     
     //
@@ -1821,14 +1821,16 @@ ACMD(do_sleeper)
     //
 
     else {
-	gain_skill_prof(ch, SKILL_SLEEPER);
-	int retval = damage(ch, vict, 18, SKILL_SLEEPER, WEAR_NECK_1);
+        gain_skill_prof(ch, SKILL_SLEEPER);
+        int retval = damage(ch, vict, 18, SKILL_SLEEPER, WEAR_NECK_1);
 
         ACMD_set_return_flags( retval );
 
         //
         // put the victim to sleep if he's still alive
         //
+        if ( IS_SET( retval, DAM_ATTACK_FAILED ) )
+            return;
 
         if ( ! IS_SET( retval, DAM_VICT_KILLED ) ) {
             

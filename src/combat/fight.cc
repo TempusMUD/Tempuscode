@@ -1024,7 +1024,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                 if ( ! IS_SET( retval, DAM_VICT_KILLED ) ) {
                     gain_skill_prof( victim, SPELL_PRISMATIC_SPHERE );
                 }
-                
+                SET_BIT(retval, DAM_ATTACK_FAILED);
                 DAM_RETURN( retval );
             }
 
@@ -1044,7 +1044,7 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                     if ( ! IS_SET( retval, DAM_VICT_KILLED ) ) {
                         gain_skill_prof( victim, SPELL_ELECTROSTATIC_FIELD );
                     }
-
+                    SET_BIT(retval, DAM_ATTACK_FAILED);
                     DAM_RETURN( retval );
                 }
             }

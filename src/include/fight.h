@@ -201,6 +201,7 @@ int     char_in_memory(struct char_data *victim, struct char_data *rememberer);
 
 const int DAM_VICT_KILLED = 0x0001;     // the victim of damage() died
 const int DAM_ATTACKER_KILLED = 0x0002; // the caller of damage() died
+const int DAM_ATTACK_FAILED= 0x0003; // the caller of damage() died
 
 int     SWAP_DAM_RETVAL( int val );
 int	damage(struct char_data *ch, struct char_data *victim, int dam, 
