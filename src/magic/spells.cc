@@ -2846,7 +2846,10 @@ ASPELL(spell_unholy_stalker)
 		return;
 	}
 
-	check_killer(ch, victim);
+	if (IS_PC(victim)) {
+		send_to_char(ch, "The dark powers cannot reach them.\r\n");
+		return;
+	}
 
 	GET_LEVEL(stalker) =
 		(char)MIN(LVL_AMBASSADOR - 1, GET_LEVEL(stalker) * mult);
