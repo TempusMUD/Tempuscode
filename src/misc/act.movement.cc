@@ -2094,10 +2094,7 @@ creature_can_fly(Creature *ch)
 
 ACMD(do_fly)
 {
-
-	int can_fly = creature_can_fly(ch);
-
-	if (!can_fly) {
+	if (creature_can_fly(ch)) {
 		send_to_char(ch, "You are not currently able to fly.\r\n");
 		return;
 	}
@@ -2122,12 +2119,14 @@ ACMD(do_fly)
 		act("You are already in flight.", FALSE, ch, 0, 0, TO_CHAR);
 		break;
 	case POS_MOUNTED:
-		act("You rise off of $N.", false, ch, 0, MOUNTED(ch), TO_CHAR);
-		act("$n rises off of you.", false, ch, 0, MOUNTED(ch), TO_VICT);
-		act("$n rises off of $N.", false, ch, 0, MOUNTED(ch), TO_NOTVICT);
-		ch->setPosition(POS_FLYING);
-		REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
+		if (MOUNTED(ch)) {
+			act("You rise off of $N.", false, ch, 0, MOUNTED(ch), TO_CHAR);
+			act("$n rises off of you.", false, ch, 0, MOUNTED(ch), TO_VICT);
+			act("$n rises off of $N.", false, ch, 0, MOUNTED(ch), TO_NOTVICT);
+			REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
+		}
 		MOUNTED(ch) = NULL;
+		ch->setPosition(POS_FLYING);
 		break;
 	default:
 		act("You stop floating around, and put your feet on the ground.",
