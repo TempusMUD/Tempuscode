@@ -276,6 +276,7 @@ const struct spec_func_data spec_list[] = {
 	{"voting_booth", voting_booth, SPEC_OBJ},
 	{"fountain_youth", fountain_youth, SPEC_OBJ},
 	{"clone_lab", clone_lab, SPEC_RM | SPEC_RES},
+	{"quest_sphere", quest_sphere, SPEC_OBJ | SPEC_RES},
 	{NULL, NULL, 0}				//terminator
 };
 
