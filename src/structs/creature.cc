@@ -873,7 +873,6 @@ Creature::clear(void)
     CreatureList::iterator it = characterList.begin();
     for (; it != characterList.end(); ++it) {
         (*it)->removeCombat(this);
-        this->removeCombat(*it);
     }
     delete this->fighting;
     this->fighting = NULL;
