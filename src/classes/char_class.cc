@@ -1336,6 +1336,13 @@ invalid_char_class(struct Creature *ch, struct obj_data *obj)
 {
 	int invalid = 0;
 	int foundreq = 0;
+
+	if( IS_PC(ch) && 
+		obj->shared->owner_id != 0 && 
+		obj->shared->owner_id != GET_IDNUM(ch) ) {
+		invalid = 1;
+	}
+
 	if ((IS_OBJ_STAT(obj, ITEM_ANTI_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_CLERIC) && IS_CLERIC(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_WARRIOR) && IS_WARRIOR(ch)) ||
