@@ -959,7 +959,10 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
                 eq_dam <<= 7;
             // OXIDIZE Damaging equipment
             else if ( attacktype == SPELL_OXIDIZE ) {
-                if ( ( obj && IS_FERROUS( obj ) )) {
+                // Chemical stability stops oxidize dam on eq.
+                if(affected_by_spell(victim, SPELL_CHEMICAL_STABILITY)) {
+                    eq_dam = 0;
+                } else if ( ( obj && IS_FERROUS( obj ) )) {
                     apply_soil_to_char(victim, GET_EQ(victim,location), SOIL_RUST, location);
                     eq_dam <<= 5;
                 } else if ( impl && IS_FERROUS( impl ) ) {
@@ -1289,6 +1292,8 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     case SPELL_OXIDIZE:
 	if ( IS_CYBORG( victim ) )
 	    dam <<= 1;
+    else if(affected_by_spell(victim, SPELL_CHEMICAL_STABILITY))
+        dam >>=2;
 	break;
     case SPELL_DISRUPTION:
 	if ( IS_UNDEAD( victim ) || IS_CYBORG( victim ) || IS_ROBOT( victim ) )
