@@ -841,7 +841,7 @@ ASPELL(spell_locate_object)
 		}
 
 		if (IS_OBJ_STAT2(i, ITEM2_NOLOCATE))
-			sprintf(buf3, "The location of %s in indeterminable.\r\n",
+			sprintf(buf3, "The location of %s is indeterminable.\r\n",
 				i->name);
 		else if (IS_OBJ_STAT2(i, ITEM2_HIDDEN))
 			sprintf(buf3, "%s is hidden somewhere.\r\n", i->name);
