@@ -2462,7 +2462,7 @@ ASPELL(spell_id_insinuation)
 		act("$n attacks $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_NOTVICT);
 		act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ch, TO_VICT);
 		act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_CHAR);
-		hit(victim, ch, TYPE_UNDEFINED);
+		victim->setFighting(ch);
 		return;
 	}
 //    total = room_count(victim, victim->in_room);
@@ -2478,30 +2478,14 @@ ASPELL(spell_id_insinuation)
 			continue;
 		if (PRF_FLAGGED(ulv, PRF_NOHASSLE))
 			continue;
-		// prevent all toughguy and killer flags as a result of id insinuation
-		if (!IS_NPC(ulv)) {
-			// players attacking players
-			if (!IS_NPC(victim)) {
-				if (!PLR_FLAGGED(victim, PLR_TOUGHGUY))
-					continue;
-				if (!PLR_FLAGGED(victim, PLR_REMORT_TOUGHGUY)
-					&& IS_REMORT(ulv))
-					continue;
-				if (GET_LEVEL(ulv) < GET_LEVEL(victim)
-					&& !PLR_FLAGGED(ulv, PLR_TOUGHGUY))
-					continue;
-			}
-			// mobs attacking players
-			else {
-				if (!PLR_FLAGGED(ch, PLR_TOUGHGUY))
-					continue;
-				if (!PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY) && IS_REMORT(ulv))
-					continue;
-				if (GET_LEVEL(ulv) < GET_LEVEL(ch)
-					&& !PLR_FLAGGED(ulv, PLR_TOUGHGUY))
-					continue;
-			}
-		}
+		// prevent all reputation adjustments and killer flags as a result
+		// of id insinuation
+		if (!ok_to_damage(ulv, victim))
+			continue;
+
+		if (!ok_to_damage(ch, victim))
+			continue;
+
 		if (!number(0, total) || nit == victim->in_room->people.end())
 			break;
 	}
@@ -2519,7 +2503,7 @@ ASPELL(spell_id_insinuation)
 	act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ulv, TO_VICT);
 	act("You attack $n in a rage!!\r\n", TRUE, victim, 0, ulv, TO_CHAR);
 
-	hit(victim, ulv, TYPE_UNDEFINED);
+	ulv->setFighting(victim);
 	gain_skill_prof(ch, SPELL_ID_INSINUATION);
 }
 
@@ -2920,10 +2904,7 @@ ASPELL(spell_unholy_stalker)
 		return;
 	}
 
-	if (!IS_NPC(victim)) {
-		check_killer(ch, victim);
-		check_toughguy(ch, victim, 0);
-	}
+	check_killer(ch, victim);
 
 	GET_LEVEL(stalker) =
 		(char)MIN(LVL_AMBASSADOR - 1, GET_LEVEL(stalker) * mult);

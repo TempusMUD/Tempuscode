@@ -79,18 +79,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 			if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && !IS_NPC(ch->master)
 				&& (!MOB_FLAGGED(ch, MOB_MEMORY)
 					|| !char_in_memory(vict, ch))) {
-				if (!PLR_FLAGGED(ch->master, PLR_TOUGHGUY)) {
-					if (!(MOB_FLAGGED(ch, MOB_PET)
-							|| !(ch->master
-								&& ch->master->in_room == ch->in_room)))
-						check_toughguy(ch->master, vict, 0);
-				} else if ((GET_LEVEL(ch->master) > GET_LEVEL(vict)) ||
-					(GET_LEVEL(vict) < 4) ||
-					(IS_REMORT(ch->master) && !IS_REMORT(vict)))
-					if (!(MOB_FLAGGED(ch, MOB_PET)
-							|| !(ch->master
-								&& ch->master->in_room == ch->in_room)))
-						check_killer(ch->master, vict, "charmie");
+				check_killer(ch->master, vict, "charmed");
 			}
 		} else {
 			bool isArena = ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && 
@@ -105,8 +94,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 						"A small dark shape flies in from the future and sticks to your eye.\r\n");
 					return;
 				}
-				if (ch->isNewbie() && !PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
-					!ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+				if (ch->isNewbie() && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
 					send_to_char(ch, "You are currently under new player protection, which expires at level 41.\r\n");
 					send_to_char(ch, "You cannot attack other players while under this protection.\r\n");
 					return;
@@ -114,15 +102,9 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 			}
 			
 
-			if (!PLR_FLAGGED(ch, PLR_TOUGHGUY) ||
-				!PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY))
-				check_toughguy(ch, vict, 0);
-			if ((GET_LEVEL(ch) > GET_LEVEL(vict)) ||
-				(GET_LEVEL(vict) < 4) || (IS_REMORT(ch) && !IS_REMORT(vict)))
-				check_killer(ch, vict, "normal");
+			check_killer(ch, vict, "normal");
 
 			if (vict->isNewbie() &&
-				!PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
 				GET_LEVEL(ch) < LVL_IMMORT &&
 				!ROOM_FLAGGED(vict->in_room, ROOM_ARENA)) {
 				act("$N is currently under new character protection.",
@@ -227,7 +209,6 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	}
 	// Equipment dealt with in make_corpse. 
 	// Do not save it here.
-	ch->saveToXML();
 	ch->extract(true, false, CXN_AFTERLIFE);
 }
 
@@ -821,7 +802,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 
 		if (victim->isNewbie() &&
-			!PLR_FLAGGED(victim, PLR_TOUGHGUY) &&
 			!ROOM_FLAGGED(victim->in_room, ROOM_ARENA) &&
 			GET_LEVEL(ch) < LVL_IMMORT) {
 			act("$N is currently under new character protection.",
@@ -838,8 +818,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 
 		if (ch->isNewbie() &&
-			!ROOM_FLAGGED(victim->in_room, ROOM_ARENA) &&
-			!PLR_FLAGGED(ch, PLR_TOUGHGUY)) {
+			!ROOM_FLAGGED(victim->in_room, ROOM_ARENA)) {
 			send_to_char(ch, 
 				"You are currently under new player protection, which expires at level 41.\r\n"
 				"You cannot attack other players while under this protection.\r\n");
@@ -1445,7 +1424,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		// check for killer flags right here
 		if (ch != FIGHTING(victim) && !IS_DEFENSE_ATTACK(attacktype)) {
 			check_killer(ch, victim, "secondary in damage()");
-			check_toughguy(ch, victim, 0);
 		}
 	}
 	update_pos(victim);
@@ -1826,17 +1804,27 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							affected_by_spell(ch, SPELL_QUAD_DAMAGE) ? "(quad)":"",
 							room_str);
 					} else {
-						sprintf(buf2, "%s(%d:%d) pkilled by %s(%d:%d) %s%s",
+						sprintf(buf2, "%s(%d:%d) pkilled by %s(%d:%d) %s",
 							GET_NAME(victim), GET_LEVEL(victim),
 							GET_REMORT_GEN(victim),
 							GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch),
-							affected_by_spell(ch, SPELL_QUAD_DAMAGE) ? "(quad)":"",
 							room_str);
 					}
 
-					// If it's not arena, give em a pkill
-					if (!arena)
+					// If it's not arena, give em a pkill and adjust reputation
+					if (!arena) {
 						GET_PKILLS(ch) += 1;
+
+						// Basic level/gen adjustment
+						GET_REPUTATION(ch) +=
+							(GET_LEVEL(victim) + GET_REMORT_GEN(victim)) /
+							3;
+
+						// Additional adjustment for killing a lower gen
+						if (GET_REMORT_GEN(ch) > GET_REMORT_GEN(victim))
+							GET_REPUTATION(ch) += (GET_REMORT_GEN(ch) -
+								GET_REMORT_GEN(victim));
+					}
 
 				} else {
 					const char *attack_desc;
@@ -2026,7 +2014,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 	if (victim->isNewbie() && !IS_NPC(ch) && !IS_NPC(victim) &&
 		!ROOM_FLAGGED(victim->in_room, ROOM_ARENA) &&
-		!PLR_FLAGGED(victim, PLR_TOUGHGUY) && GET_LEVEL(ch) < LVL_IMMORT) {
+		GET_LEVEL(ch) < LVL_IMMORT) {
 		act("$N is currently under new character protection.",
 			FALSE, ch, 0, victim, TO_CHAR);
 		act("You are protected by the gods against $n's attack!",

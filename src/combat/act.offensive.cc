@@ -619,7 +619,6 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 					FALSE, ch, neck, vict, TO_NOTVICT);
 				act("You swing at $N's neck, but the blow is deflected by $p!",
 					FALSE, ch, neck, vict, TO_CHAR);
-				check_toughguy(ch, vict, 0);
 				check_killer(ch, vict);
 				damage_eq(ch, neck, *dam);
 				WAIT_STATE(ch, 2 RL_SEC);
@@ -1618,7 +1617,6 @@ ACMD(do_stun)
 	WAIT_STATE(vict, wait RL_SEC);
 	WAIT_STATE(ch, 4 RL_SEC);
 	gain_skill_prof(ch, SKILL_STUN);
-	check_toughguy(ch, vict, 0);
 	check_killer(ch, vict);
 }
 
@@ -2253,7 +2251,6 @@ ACMD(do_shoot)
 				//
 
 				if (number(0, 121) > prob) {
-					check_toughguy(ch, vict, 0);
 					check_killer(ch, vict);
 					my_return_flags =
 						damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, number(0,
@@ -2264,7 +2261,6 @@ ACMD(do_shoot)
 				//
 
 				else {
-					check_toughguy(ch, vict, 0);
 					check_killer(ch, vict);
 					my_return_flags =
 						damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, number(0,
@@ -2996,7 +2992,6 @@ ACMD(do_beguile)
 		act("$N is too stupid to be beguiled.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	check_toughguy(ch, vict, 0);
 	check_killer(ch, vict);
 	if (can_see_creature(vict, ch) &&
 		(CHECK_SKILL(ch, SKILL_BEGUILE) + GET_CHA(ch)) >
@@ -3118,7 +3113,6 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 				//
 
 				if (number(0, 121) > prob) {
-					check_toughguy(ch, vict, 0);
 					check_killer(ch, vict);
 					my_return_flags =
 						damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, number(0,
@@ -3129,7 +3123,6 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 				//
 
 				else {
-					check_toughguy(ch, vict, 0);
 					check_killer(ch, vict);
 					my_return_flags =
 						damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, number(0,

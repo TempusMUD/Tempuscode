@@ -261,7 +261,6 @@ ACMD(do_lecture)
 	appear(ch, vict);
 
 	if (IS_PC(vict)) {
-		check_toughguy(ch, vict, 1);
 		check_killer(ch, vict);
 	}
 	prob = ch->getLevelBonus(SKILL_LECTURE) + (GET_INT(ch) << 1) - GET_CHA(ch);
@@ -1073,7 +1072,6 @@ ASPELL(spell_emp_pulse)
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch && GET_LEVEL((*it)) < LVL_IMMORT) {
 			if (IS_PC((*it))) {
-				check_toughguy(ch, (*it), 1);
 				check_killer(ch, (*it));
 			}
 			do_emp_pulse_char(ch, (*it));

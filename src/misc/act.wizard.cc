@@ -1609,10 +1609,11 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         strcat(outbuf, buf);
 
         sprintf(buf,
-            "   %sMobKills:%s [ %4d ], %sPKills:%s [ %4d ], %sDeaths:%s [ %4d ]\r\n",
+            "%sMobKills:%s [%4d], %sPKills:%s [%4d], %sDeaths:%s [%4d] %sReputation:%s [%4d]\r\n",
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOBKILLS(k), CCRED(ch,
                 C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(k), CCGRN(ch, C_NRM),
-            CCNRM(ch, C_NRM), GET_PC_DEATHS(k));
+            CCNRM(ch, C_NRM), GET_PC_DEATHS(k), CCMAG(ch, C_NRM),
+			CCNRM(ch, C_NRM), GET_REPUTATION(k));
         strcat(outbuf, buf);
     }
     sprintf(buf, "Str: [%s%d/%d%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
@@ -5368,6 +5369,7 @@ ACMD(do_set)
         }
     } else if (is_file) {
         cbuf = new Creature;
+		vict = NULL;
 		if (!playerIndex.exists(name))
             send_to_char(ch, "There is no such player.\r\n");
 		else if (!cbuf->loadFromXML(playerIndex.getID(name)))
@@ -5818,7 +5820,7 @@ ACMD(do_set)
         GET_INVIS_LVL(vict) = RANGE(0, GET_LEVEL(vict));
         break;
     case 68:
-        SET_OR_REMOVE(PLR_FLAGS(vict), PLR_TOUGHGUY);
+		send_to_char(ch, "Disabled.\r\n");
         break;
     case 69:
         SET_OR_REMOVE(PRF_FLAGS(vict), PRF_NOINTWIZ);
@@ -5890,7 +5892,7 @@ ACMD(do_set)
         SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_LIGHT_READ);
         break;
     case 85:
-        SET_OR_REMOVE(PLR_FLAGS(vict), PLR_REMORT_TOUGHGUY);
+		send_to_char(ch, "Disabled.\r\n");
         break;
     case 86:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_COUNCIL);

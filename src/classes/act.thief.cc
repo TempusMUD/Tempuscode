@@ -79,24 +79,8 @@ ACMD(do_steal)
 		send_to_char(ch, "You can't steal from players. You're a newbie!\r\n");
 		return;
 	}
-	if ((GET_LEVEL(vict) + 5) < GET_LEVEL(ch) && !IS_MOB(vict) &&
-		!PLR_FLAGGED(vict, PLR_THIEF) && !PLR_FLAGGED(vict, PLR_KILLER) &&
-		!PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
-		!ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW) &&
-		!PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char(ch, "Okay... You will now be a THIEF!\r\n");
-		SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
-		mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(vict)), NRM, true,
-			"PC THIEF bit set on %s for robbing %s.", GET_NAME(ch),
-			GET_NAME(vict));
-	}
 
-
-	if (!IS_NPC(ch) && !IS_NPC(vict) &&
-		!PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF) &&
-		(!PLR_FLAGGED(ch, PLR_TOUGHGUY) ||
-			!PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY)))
-		check_toughguy(ch, vict, 1);
+	check_thief(ch, vict);
 
 	/* 101% is a complete failure */
 	percent = number(1, 101) - dex_app_skill[GET_DEX(ch)].p_pocket;

@@ -90,10 +90,7 @@ perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
 			continue;
 
 		if (!IS_NPC(ch) && !IS_NPC(vict)) {
-			if (!PLR_FLAGGED(ch, PLR_TOUGHGUY) ||
-				!PLR_FLAGGED(vict, PLR_TOUGHGUY) ||
-				(IS_REMORT(ch) && !IS_REMORT(vict) &&
-					!PLR_FLAGGED(vict, PLR_REMORT_TOUGHGUY))) {
+			if (!ok_to_damage(ch, vict)) {
 				act("You feel a strong urge to attack $N.",
 					FALSE, ch, 0, vict, TO_CHAR);
 				act("$n looks like $e wants to kill you!",
@@ -171,11 +168,7 @@ ACMD(do_berserk)
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == (*it) || !can_see_creature(ch, (*it)) ||
-				(!IS_NPC((*it)) &&
-					(!PLR_FLAGGED(ch, PLR_TOUGHGUY) ||
-						!PLR_FLAGGED((*it), PLR_TOUGHGUY))) ||
-				(!IS_NPC((*it)) && IS_REMORT(ch) &&
-					!PLR_FLAGGED((*it), PLR_REMORT_TOUGHGUY)))
+				!ok_to_damage(ch, (*it)))
 				continue;
 			if (percent < CHECK_SKILL(ch, SKILL_BERSERK))
 				continue;

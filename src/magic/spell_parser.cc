@@ -947,7 +947,6 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 			return 0;
 
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {
-			check_toughguy(caster, cvict, 0);
 			check_killer(caster, cvict);
             //Try to make this a little more sane...
 /*			if ((SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC) &&
@@ -2114,7 +2113,7 @@ ACMD(do_cast)
 
 			if ((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent) &&
 				!IS_SET(SINFO.routines, MAG_TOUCH) &&
-				PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
+				ok_to_damage(ch, vict) &&
 				(prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
 				/* misdirect */
 
@@ -2125,14 +2124,7 @@ ACMD(do_cast)
 					++nit;
 					if ((*it) != ch && (*it) != tch &&
 						GET_LEVEL((*it)) < LVL_AMBASSADOR &&
-						(IS_NPC((*it)) || (PLR_FLAGGED(ch, PLR_TOUGHGUY) &&
-								PLR_FLAGGED((*it), PLR_TOUGHGUY) &&
-								GET_LEVEL(ch) < GET_LEVEL((*it)) &&
-								(!IS_REMORT((*it)) || IS_REMORT(ch) ||
-									PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY)) &&
-								(!IS_REMORT(ch) || IS_REMORT(vict) ||
-									PLR_FLAGGED((*it), PLR_REMORT_TOUGHGUY))))
-						&& (!number(0, 4)
+						ok_to_damage(ch, (*it)) && (!number(0, 4)
 							|| nit != ch->in_room->people.end())) {
 						if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch))
 							&& metal && SPELL_IS_MAGIC(spellnum)

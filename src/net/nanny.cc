@@ -222,6 +222,7 @@ handle_input(struct descriptor_data *d, char *arg)
 			}
 
 			d->creature->desc = d;
+			d->creature->account = d->account;
 			char_to_game(d);
 			break;
 		}
@@ -801,12 +802,13 @@ send_menu(descriptor_data *d)
 		while (!d->account->invalid_char_index(idx)) {
 			tmp_ch->clear();
 			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
-			send_to_desc(d, "    &b[&y%2d&b] &c%-20s %10s %10s %6s %s\r\n",
+			send_to_desc(d, "    &b[&y%2d&b] &c%-20s %10s %10s %6s %s%s\r\n",
 				idx, GET_NAME(tmp_ch),
 				player_race[(int)GET_RACE(tmp_ch)],
 				pc_char_class_types[GET_CLASS(tmp_ch)],
 				genders[(int)GET_SEX(tmp_ch)],
-				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new");
+				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new",
+				has_mail(GET_IDNUM(tmp_ch)) ? "&G mail!":"");
 			idx++;
 		}
 		delete tmp_ch;

@@ -3323,7 +3323,6 @@ ACMD(do_de_energize)
 		return;
 
 	appear(ch, vict);
-	check_toughguy(ch, vict, 1);
 	check_killer(ch, vict);
 
 	// missed attempt

@@ -760,7 +760,6 @@ ACMD(do_pinch)
 	//
 
 	if (which_pinch != SKILL_PINCH_ZETA) {
-		check_toughguy(ch, vict, 0);
 		check_killer(ch, vict);
 		if (IS_NPC(vict) && !vict->isFighting()
 			&& vict->getPosition() >= POS_FIGHTING) {

@@ -2594,6 +2594,8 @@ ACMD(do_score)
 
 		msg = tmp_sprintf("%sYou are known as %s%s%s.%s\r\n",
 			msg, CCYEL(ch, C_NRM), GET_NAME(ch), GET_TITLE(ch), CCNRM(ch, C_NRM));
+		msg = tmp_strcat(msg, "Your have a reputation of being -",
+			reputation_msg[GET_REPUTATION(ch) / 100], "-\r\n", NULL);
 	}
 	msg = tmp_sprintf(
 		"%sYou carry %s%d%s gold coins.  You have %s%d%s cash credits.\r\n",
@@ -3391,9 +3393,10 @@ ACMD(do_who)
 					buf2, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
 			}
 			if ((outlaws || who_pkills) && GET_PKILLS(tch)) {
-				sprintf(buf2, "%s %s*%d KILLS*%s",
-					buf2, CCRED_BLD(ch, C_NRM), GET_PKILLS(tch), CCNRM(ch,
-						C_NRM));
+				sprintf(buf2, "%s %s*%d KILLS* -%s-%s",
+					buf2, CCRED_BLD(ch, C_NRM), GET_PKILLS(tch),
+					reputation_msg[GET_REPUTATION(ch)/100],
+					CCNRM(ch, C_NRM));
 			}
 			if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
 				strcat(buf2, CCNRM(ch, C_SPR));
@@ -4475,87 +4478,86 @@ ACMD(do_toggle)
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
-	sprintf(buf,
-		"Hit Pnt Display: %-3s    "
-		"     Brief Mode: %-3s    "
-		"Identify Resist: %-3s\r\n"
-		"   Move Display: %-3s    "
-		"   Compact Mode: %-3s    "
-		"       On Quest: %-3s\r\n"
-		"   Mana Display: %-3s    "
-		"         NoTell: %-3s    "
-		"   Repeat Comm.: %-3s\r\n"
-		" Auto Show Exit: %-3s    "
-		"           Deaf: %-3s    "
-		"     Wimp Level: %-3s\r\n"
-		"     See misses: %-3s    "
-		"       Autopage: %-3s    "
-		"    Color Level: %s\r\n"
-		"  Summon Resist: %-3s    "
-		"  Screen Length: %-3d    "
-		" Newbie Helper?: %-3s\r\n"
+	send_to_char(ch,
+		"-- DISPLAY -------------------------------------------------------------------\r\n"
+		"Display Hit Pts: %-3s    "
+		"   Display Mana: %-3s    "
+		"   Display Move: %-3s\r\n"
+		"       Autoexit: %-3s    "
 		"   Autodiagnose: %-3s    "
-		"    Projections: %-3s    "
-		"   Show Affects: %-3s\r\n"
-		"     Clan title: %-3s    "
-		"      Clan hide: %-3s    "
-		"   Light Reader: %-3s\r\n"
-		"     Autoprompt: %-3s    "
-		"          Nowho: %-3s    "
-		"       TOUGHGUY: %-3s\r\n"
-		"      Anonymous: %-3s    "
+		"     Autoprompt: %-3s\r\n"
+		"     Brief Mode: %-3s    "
+		"Compact Display: %-3s    "
+		"     See misses: %-3s\r\n"
+		"  Screen Length: %-3d    "
 		"     Notrailers: %-3s    "
-		"        PKILLER: %-3s\r\n"
-		"      Autosplit: %-3s    "
-		"       Autoloot: %-3s    "
-		"   REMORT TOUGH: %-3s\r\n"
+		"    Color Level: %s\r\n\r\n"
+		"-- CHANNELS ------------------------------------------------------------------\r\n"
+		"       Autopage: %-3s    "
+		" Newbie Helper?: %-3s    "
+		"    Projections: %-3s\r\n"
 		" Gossip Channel: %-3s    "
 		"Auction Channel: %-3s    "
 		"  Grats Channel: %-3s\r\n"
 		"   Spew Channel: %-3s    "
 		"  Music Channel: %-3s    "
-		"  Dream Channel: %-3s\r\n",
+		"  Dream Channel: %-3s\r\n"
+		"  Guild Channel: %-3s    "
+		"   Clan Channel: %-3s\r\n"
+		"\r\n"
+		"-- GAMEPLAY ------------------------------------------------------------------\r\n"
+		"      Autosplit: %-3s    "
+		"       Autoloot: %-3s    "
+		"Identify Resist: %-3s\r\n"
+		"     Wimp Level: %-3s    "
+		"           Deaf: %-3s    "
+		"         NoTell: %-3s\r\n"
+		"       On Quest: %-3s    "
+		"  Summon Resist: %-3s    "
+		"   Show Affects: %-3s\r\n"
+		"     Clan title: %-3s    "
+		"      Clan hide: %-3s    "
+		"      Anonymous: %-3s\r\n"
+		"        PKILLER: %-3s\r\n"
+		,
 		ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
-		ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
-		ONOFF(PRF_FLAGGED(ch, PRF_NOIDENTIFY)),
-		ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
-		ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
-		YESNO(PRF_FLAGGED(ch, PRF_QUEST)),
 		ONOFF(PRF_FLAGGED(ch, PRF_DISPMANA)),
-		ONOFF(PRF_FLAGGED(ch, PRF_NOTELL)),
-		YESNO(!PRF_FLAGGED(ch, PRF_NOREPEAT)),
+		ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
 		ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
-		YESNO(PRF_FLAGGED(ch, PRF_DEAF)),
-		buf2,
-		YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
-		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOPAGE)),
-		ctypes[COLOR_LEV(ch)],
-		ONOFF(!PRF_FLAGGED(ch, PRF_SUMMONABLE)),
-		GET_PAGE_LENGTH(ch),
-		YESNO(PRF2_FLAGGED(ch, PRF2_NEWBIE_HELPER)),
 		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTO_DIAGNOSE)),
-		ONOFF(!PRF_FLAGGED(ch, PRF_NOPROJECT)),
-		YESNO(!PRF2_FLAGGED(ch, PRF2_NOAFFECTS)),
-		YESNO(PRF2_FLAGGED(ch, PRF2_CLAN_TITLE)),
-		YESNO(PRF2_FLAGGED(ch, PRF2_CLAN_HIDE)),
-		YESNO(PRF2_FLAGGED(ch, PRF2_LIGHT_READ)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_AUTOPROMPT)),
-		YESNO(PRF2_FLAGGED(ch, PRF2_NOWHO)),
-		YESNO(PLR_FLAGGED(ch, PLR_TOUGHGUY)),
-		YESNO(PRF2_FLAGGED(ch, PRF2_ANONYMOUS)),
+		ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
+		ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
+		YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
+		GET_PAGE_LENGTH(ch),
 		ONOFF(PRF2_FLAGGED(ch, PRF2_NOTRAILERS)),
-		YESNO(PRF2_FLAGGED(ch, PRF2_PKILLER)),
-		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)),
-		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOLOOT)),
-		YESNO(PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY)),
+		ctypes[COLOR_LEV(ch)],
+
+		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOPAGE)),
+		YESNO(PRF2_FLAGGED(ch, PRF2_NEWBIE_HELPER)),
+		ONOFF(!PRF_FLAGGED(ch, PRF_NOPROJECT)),
 		ONOFF(!PRF_FLAGGED(ch, PRF_NOGOSS)),
 		ONOFF(!PRF_FLAGGED(ch, PRF_NOAUCT)),
 		ONOFF(!PRF_FLAGGED(ch, PRF_NOGRATZ)),
 		ONOFF(!PRF_FLAGGED(ch, PRF_NOSPEW)),
 		ONOFF(!PRF_FLAGGED(ch, PRF_NOMUSIC)),
-		ONOFF(!PRF_FLAGGED(ch, PRF_NODREAM)));
+		ONOFF(!PRF_FLAGGED(ch, PRF_NODREAM)),
+		ONOFF(!PRF_FLAGGED(ch, PRF_NOCLANSAY)),
+		ONOFF(!PRF2_FLAGGED(ch, PRF2_NOGUILDSAY)),
 
-	send_to_char(ch, "%s", buf);
+		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)),
+		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOLOOT)),
+		ONOFF(PRF_FLAGGED(ch, PRF_NOIDENTIFY)),
+		buf2,
+		YESNO(PRF_FLAGGED(ch, PRF_DEAF)),
+		ONOFF(PRF_FLAGGED(ch, PRF_NOTELL)),
+		YESNO(PRF_FLAGGED(ch, PRF_QUEST)),
+		ONOFF(!PRF_FLAGGED(ch, PRF_SUMMONABLE)),
+		YESNO(!PRF2_FLAGGED(ch, PRF2_NOAFFECTS)),
+		YESNO(PRF2_FLAGGED(ch, PRF2_CLAN_TITLE)),
+		YESNO(PRF2_FLAGGED(ch, PRF2_CLAN_HIDE)),
+		YESNO(PRF2_FLAGGED(ch, PRF2_ANONYMOUS)),
+		YESNO(PRF2_FLAGGED(ch, PRF2_PKILLER)));
 
 	if (IS_MAGE(ch)) {
 		send_to_char(ch, "((Mana shield)) Low:[%ld], Percent:[%ld]\n",

@@ -109,8 +109,10 @@ void make_corpse(struct Creature *ch, struct Creature *killer,
 void check_object_killer(struct obj_data *obj, struct Creature *vict);
 void raw_kill(struct Creature *ch, struct Creature *killer, int attacktype);	// prototype
 int peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg);
-void check_toughguy(struct Creature *ch, struct Creature *vict, int mode);
+bool ok_to_damage(struct Creature *ch, struct Creature *vict);
 void check_killer(struct Creature *ch, struct Creature *vict,
+	const char *debug_msg = 0);
+void check_thief(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg = 0);
 void die(struct Creature *ch, struct Creature *killer, int attacktype,
 	int is_humil);

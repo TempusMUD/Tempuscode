@@ -501,6 +501,11 @@ Creature::saveToXML()
 	int idx;
     Creature *ch = this;
 
+	if (GET_IDNUM(ch) == 0) {
+		slog("Attempt to save creature with idnum==0");
+		raise(SIGSEGV);
+	}
+
     path = get_player_file_path(GET_IDNUM(ch));
 	ouf = fopen(path, "w");
 
@@ -554,8 +559,9 @@ Creature::saveToXML()
 	if( desc != NULL ) {
 		host = xmlEncodeTmp( desc->host );
 	}
-	fprintf(ouf, "<carnage pkills=\"%d\" mkills=\"%d\" deaths=\"%d\"/>\n",
-		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch));
+	fprintf(ouf, "<carnage pkills=\"%d\" mkills=\"%d\" deaths=\"%d\" reputation=\"%d\"/>\n",
+		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch),
+		GET_REPUTATION(ch));
 
 	fprintf(ouf, "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\" stradd=\"%d\"/>\n",
 		GET_STR(ch), GET_INT(ch), GET_WIS(ch), GET_DEX(ch), GET_CON(ch),
@@ -741,6 +747,7 @@ Creature::loadFromXML( long id )
             GET_PKILLS(this) = xmlGetIntProp(node, "pkills");
             GET_MOBKILLS(this) = xmlGetIntProp(node, "mkills");
             GET_PC_DEATHS(this) = xmlGetIntProp(node, "deaths");
+			GET_REPUTATION(this) = xmlGetIntProp(node, "reputation");
         } else if ( xmlMatches(node->name, "attr") ) {
             aff_abils.str = real_abils.str = xmlGetIntProp(node, "str");
             aff_abils.str_add = real_abils.str_add = xmlGetIntProp(node, "stradd");

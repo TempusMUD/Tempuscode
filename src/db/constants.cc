@@ -2054,6 +2054,20 @@ extern const int mana_bonus[26] = {
 	9, 10, 11, 12
 };
 
+extern const char *reputation_msg[] = {
+	"Innocent",
+	"Unfriendly",
+	"Unkind",
+	"Cold",
+	"Daunting",
+	"Feared",
+	"Frightening",
+	"Dreaded",
+	"Terrifying",
+	"Monstrous",
+	"True Killer"
+};
+
 
 extern const char *spell_wear_off_msg[] = {
 	"RESERVED DB.C",			/* 0 */

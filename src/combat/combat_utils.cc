@@ -224,75 +224,108 @@ update_pos(struct Creature *victim)
 	return;
 }
 
+// Called to select a safe target when the character doesn't get to select
+// the target
+bool
+ok_to_damage(struct Creature *ch, struct Creature *vict)
+{
+	// NPCs don't get killers
+	if (IS_NPC(ch) || IS_NPC(vict))
+		return true;
+
+	// No killer for attacking yourself
+	if (ch == vict)
+		return true;
+
+	// We don't worry about arena combat
+	if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA))
+		return true;
+
+	// We don't care if the victim is a killer or thief
+	if (PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF))
+		return true;
+
+	// We can't really penalize them if victim is disguised
+	if (affected_by_spell(vict, SKILL_DISGUISE))
+		return true;
+
+	// You don't get a killer for attacking someone with a higher
+	// reputation than you, but you do get a reputation...  Since it's
+	// not the player's fault, tho, we can't have a rep adjustment.  If
+	// we were really cool, we would be able to skip the check when needed,
+	// but we're not that cool yet, so for right now just skip everyone
+	// that isn't already at the player's rank
+	if (GET_REPUTATION(ch) / 100 == GET_REPUTATION(ch) / 100)
+		return true;
+
+	// What is proper behavior for a god is not for a mortal
+	if (GET_LEVEL(ch) >= LVL_POWER)
+		return true;
+
+	// Lawless... Not wrong to pk in lawless zones
+	if (vict->in_room && ZONE_FLAGGED(vict->in_room->zone, ZONE_NOLAW))
+		return true;
+	
+	return false;
+}
+
 void
 check_killer(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg)
 {
-	if (!PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF) &&
-		!PLR_FLAGGED(ch, PLR_KILLER) &&
-		(!PLR_FLAGGED(vict, PLR_TOUGHGUY) ||
-			(IS_REMORT(ch) && !IS_REMORT(vict) &&
-				!PLR_FLAGGED(vict, PLR_REMORT_TOUGHGUY))) &&
-		!IS_NPC(ch) && !IS_NPC(vict) &&
-		(GET_LEVEL(ch) > GET_LEVEL(vict) ||
-			(IS_REMORT(ch) && !IS_REMORT(vict))) &&
-		!affected_by_spell(vict, SKILL_DISGUISE) &&
-		(ch != vict) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
-		if (GET_LEVEL(ch) >= LVL_POWER)
-			return;
-		// Lawless... Not wrong to pk in lawless zones.
-		if (vict->in_room && ZONE_FLAGGED(vict->in_room->zone, ZONE_NOLAW)) {
-			return;
-		}
-		if (GET_REMORT_GEN(vict) >= 3) {
-			return;
-		}
+	if (ok_to_damage(ch, vict))
+		return;
 
-		SET_BIT(PLR_FLAGS(ch), PLR_KILLER);
+	// You don't get a killer for attacking someone with a higher
+	// reputation than you, but you do get a reputation...
+	if (GET_REPUTATION(ch) / 100 < GET_REPUTATION(vict) / 100) {
 		mudlog(LVL_AMBASSADOR, BRF, true,
-			"PC KILLER set on %s for attack on %s at %d. %s",
+			"%s's reputation adjusted for attack on %s at %d. %s",
 			GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
 			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
-		send_to_char(ch, "If you want to be a PLAYER KILLER, so be it...\r\n");
-
-		slog("KILLER set from: %s", debug_msg ? debug_msg : "unknown");
+		GET_REPUTATION(ch) = GET_REPUTATION(vict);
+		return;
 	}
+
+	// If we get to this point, ch gets a killer
+	SET_BIT(PLR_FLAGS(ch), PLR_KILLER);
+	mudlog(LVL_AMBASSADOR, BRF, true,
+		"PC KILLER set on %s for attack on %s at %d. %s",
+		GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
+		PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
+	send_to_char(ch, "If you want to be a PLAYER KILLER, so be it...\r\n");
+
+	slog("KILLER set from: %s", debug_msg ? debug_msg : "unknown");
 }
 
-
-// remember that ch->in_room can be null!!
 void
-check_toughguy(struct Creature *ch, struct Creature *vict, int mode)
+check_thief(struct Creature *ch, struct Creature *vict,
+	const char *debug_msg)
 {
-	if (IS_NPC(ch) || IS_NPC(vict) || affected_by_spell(vict, SKILL_DISGUISE)
-		|| (ch == vict) || ROOM_FLAGGED(vict->in_room, ROOM_ARENA))
-		return;
-	// no toughguy for !pkillers while in the same room as the vict
-	if (!PRF2_FLAGGED(ch, PRF2_PKILLER) && ch->in_room == vict->in_room)
+	if (ok_to_damage(ch, vict))
 		return;
 
-	if ((!PLR_FLAGGED(ch, PLR_TOUGHGUY) ||
-			(!PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY) && IS_REMORT(vict)))) {
-		if (!PLR_FLAGGED(ch, PLR_TOUGHGUY)) {
-			SET_BIT(PLR_FLAGS(ch), PLR_TOUGHGUY);
-			mudlog(LVL_AMBASSADOR, BRF, true,
-				"PC Tough bit set on %s for %s %s at %d. PK(%s)",
-				GET_NAME(ch), mode ? "robbing" : "attack on",
-				GET_NAME(vict), vict->in_room->number,
-				PRF2_FLAGGED(ch, PRF2_PKILLER) ? "ON" : "OFF");
-		}
-		if (IS_REMORT(vict) && !IS_REMORT(ch) &&
-			!PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY)) {
-			SET_BIT(PLR_FLAGS(ch), PLR_REMORT_TOUGHGUY);
-			mudlog(LVL_AMBASSADOR, BRF, true,
-				"PC remort_Tough bit set on %s for %s %s at %d. PK(%s)",
-				GET_NAME(ch), mode ? "robbing" : "attack on",
-				GET_NAME(vict), vict->in_room->number,
-				PRF2_FLAGGED(ch, PRF2_PKILLER) ? "ON" : "OFF");
-		}
+	// You don't get a killer for attacking someone with a higher
+	// reputation than you, but you do get a reputation...
+	if (GET_REPUTATION(ch) / 100 < GET_REPUTATION(vict) / 100) {
+		mudlog(LVL_AMBASSADOR, BRF, true,
+			"%s's reputation adjusted for attempting to steal from %s at %d. %s",
+			GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
+			PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
+		GET_REPUTATION(ch) = GET_REPUTATION(vict);
+		return;
 	}
-}
 
+	// If we get to this point, ch gets a killer
+	SET_BIT(PLR_FLAGS(ch), PLR_KILLER);
+	mudlog(LVL_AMBASSADOR, BRF, true,
+		"PC THIEF set on %s for stealing from %s at %d. %s",
+		GET_NAME(ch), GET_NAME(vict), vict->in_room->number,
+		PRF2_FLAGGED(ch, PRF2_PKILLER) ? "PK(ON)" : "PK(OFF)");
+	send_to_char(ch, "You have been marked as a THIEF!\r\n");
+
+	slog("THIEF set from: %s", debug_msg ? debug_msg : "unknown");
+}
 void
 check_object_killer(struct obj_data *obj, struct Creature *vict)
 {
@@ -366,38 +399,11 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 		return;
 	}
 
-	check_toughguy(killer, vict, 0);
-
-	if (GET_LEVEL(killer) < GET_LEVEL(vict) || (!IS_REMORT(killer)
-			&& IS_REMORT(vict)))
-		return;
-
-	if (!PLR_FLAGGED(vict, PLR_KILLER) && !PLR_FLAGGED(vict, PLR_THIEF) &&
-		!PLR_FLAGGED(killer, PLR_KILLER) &&
-		(!PLR_FLAGGED(vict, PLR_TOUGHGUY) ||
-			(IS_REMORT(killer) && !IS_REMORT(vict) &&
-				!PLR_FLAGGED(vict, PLR_REMORT_TOUGHGUY))) &&
-		!IS_NPC(killer) && !IS_NPC(vict) &&
-		!affected_by_spell(vict, SKILL_DISGUISE) &&
-		(killer != vict) && !ROOM_FLAGGED(vict->in_room, ROOM_ARENA)) {
-		char buf[256];
-		if (GET_LEVEL(killer) >= LVL_POWER) {
-			return;
-		}
-		SET_BIT(PLR_FLAGS(killer), PLR_KILLER);
-		mudlog(LVL_AMBASSADOR, BRF, true,
-			"PC KILLER bit set on %s %sfor damaging %s at %s with %s.",
-			GET_NAME(killer),
-			is_file ? "( file ) " : is_desc ? "( desc ) " : "", GET_NAME(vict),
-			(vict->in_room) ? vict->in_room->name : "DEAD",
-			obj->short_description);
-
-		if (is_desc) {
-			sprintf(buf, "KILLER bit set for damaging %s with %s.!\r\n",
+	if (!ok_to_damage(killer, vict)) {
+		if (is_desc)
+			send_to_desc(killer->desc,
+				"KILLER bit set for damaging %s with %s.!\r\n",
 				GET_NAME(vict), obj->short_description);
-			SEND_TO_Q(buf, killer->desc);
-		}
-
 		else if (!is_file)
 			act("KILLER bit set for damaging $N with $p!", FALSE, killer, obj,
 				vict, TO_CHAR);
@@ -683,8 +689,7 @@ choose_random_limb(Creature *victim)
 int
 peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 {
-	if (vict->isNewbie() && !PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
-		!ROOM_FLAGGED(vict->in_room, ROOM_ARENA) &&
+	if (vict->isNewbie() && !ROOM_FLAGGED(vict->in_room, ROOM_ARENA) &&
 		IS_PC(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
 		if (mssg) {
 			act("$N is currently under new character protection.",
@@ -1566,9 +1571,11 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 				extract_obj(o);
 		}
 		// Save the char to prevent duping of eq.
-		ch->saveToXML();
-		Crash_crashsave(ch);
-        Crash_delete_crashfile(ch);
+		if (!IS_NPC(ch)) {
+			ch->saveToXML();
+			Crash_crashsave(ch);
+			Crash_delete_crashfile(ch);
+		}
 	} else {					// arena kills do not drop EQ
 		rentcost = Crash_rentcost(ch, FALSE, 1);
 		if (rentcost < 0)

@@ -153,7 +153,6 @@ malovent_holy_touch(Creature * ch, Creature * vict)
 		chance += 25;
 
 	WAIT_STATE(ch, 2 RL_SEC);
-	check_toughguy(ch, vict, 0);
 	check_killer(ch, vict);
 
 	int roll = random_percentage_zero_low();

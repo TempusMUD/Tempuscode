@@ -268,14 +268,14 @@ static const int PLR_INVSTART = (1 << 14);	/* Player should enter game wizinvis 
 static const int PLR_CRYO = (1 << 15);	/* Player is cryo-saved (purge prog)    */
 static const int PLR_AFK = (1 << 16);	/* Player is away from keyboard      */
 static const int PLR_CLAN_LEADER = (1 << 17);	/* The head of the respective clan   */
-static const int PLR_TOUGHGUY = (1 << 18);	/* Player is open to pk and psteal   */
+static const int PLR_UNUSED = (1 << 18);
 static const int PLR_OLC = (1 << 19);	/* Player is descripting olc         */
 static const int PLR_HALT = (1 << 20);	/* Player is halted                  */
 static const int PLR_OLCGOD = (1 << 21);	/* Player can edit at will           */
 static const int PLR_TESTER = (1 << 22);	/* Player is a tester                */
 static const int PLR_QUESTOR = (1 << 23);	/* Quest god                         */
 static const int PLR_MORTALIZED = (1 << 24);	/* God can be killed                 */
-static const int PLR_REMORT_TOUGHGUY = (1 << 25);	/* open to pk by remortz          */
+static const int PLR_UNUSED2 = (1 << 25);
 static const int PLR_COUNCIL = (1 << 26);
 static const int PLR_NOPOST = (1 << 27);
 static const int PLR_LOG = (1 << 28);	/* log all cmds */
@@ -831,7 +831,7 @@ struct player_special_data_saved {
 	int spare_i[2];
 	long mana_shield_low;
 	long mana_shield_pct;
-	long spare19;
+	int reputation;
 	long spare20;
 	long spare21;
 

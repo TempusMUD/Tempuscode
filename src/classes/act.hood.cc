@@ -352,34 +352,8 @@ ACMD(do_snatch)
 			GET_NAME(ch), GET_NAME(vict));
 		return;
 	}
-	// Give the punk a THIEF flag
-	if ((GET_LEVEL(vict) + 5) < GET_LEVEL(ch) && !IS_MOB(vict) &&
-		!PLR_FLAGGED(vict, PLR_THIEF) && !PLR_FLAGGED(vict, PLR_KILLER) &&
-		!PLR_FLAGGED(vict, PLR_TOUGHGUY) &&
-		!ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW) &&
-		!PLR_FLAGGED(ch, PLR_THIEF) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char(ch, "Okay... You will now be a THIEF!\r\n");
-		SET_BIT(PLR_FLAGS(ch), PLR_THIEF);
-		mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(vict)), NRM, true,
-			"PC THIEF bit set on %s for trying to snatch from %s.",
-			GET_NAME(ch), GET_NAME(vict));
-	}
-	// Innocence is fleeting, flag the bastard.
-	if (!IS_NPC(ch) && !IS_NPC(vict) && !PLR_FLAGGED(vict, PLR_TOUGHGUY)
-		&& !PLR_FLAGGED(vict, PLR_THIEF) && !PLR_FLAGGED(ch, PLR_TOUGHGUY)) {
-		SET_BIT(PLR_FLAGS(ch), PLR_TOUGHGUY);
-		mudlog(LVL_AMBASSADOR, BRF, true,
-			"PC Toughguy bit set on %s for robbing %s at %s.",
-			GET_NAME(ch), GET_NAME(vict), vict->in_room->name);
-	}
 
-
-	if (!IS_NPC(ch) && !IS_NPC(vict) &&
-		!PLR_FLAGGED(vict, PLR_KILLER | PLR_THIEF) &&
-		(!PLR_FLAGGED(vict, PLR_TOUGHGUY) ||
-			!PLR_FLAGGED(vict, PLR_REMORT_TOUGHGUY)))
-		check_toughguy(ch, vict, 1);
-
+	check_thief(ch, vict, NULL);
 
 	// Figure out what we're gonna snatch from them.
 	// Possible targets are anything in hands or on belt,
