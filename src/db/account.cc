@@ -343,51 +343,8 @@ Account::create_char(const char *name)
 	ch->player_specials->saved.qlog_level = 0;
 
 	GET_REMORT_CLASS(ch) = -1;
-	/* make favors for sex ... and race */
-	if (ch->player.sex == SEX_MALE) {
-		if (GET_RACE(ch) == RACE_HUMAN) {
-			ch->player.weight = number(130, 180) + GET_STR(ch);
-			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_TABAXI) {
-			ch->player.weight = number(110, 160) + GET_STR(ch);
-			ch->player.height = number(160, 200) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_DWARF) {
-			ch->player.weight = number(120, 160) + GET_STR(ch);
-			ch->player.height = number(100, 125) + (GET_WEIGHT(ch) >> 4);
-		} else if (IS_ELF(ch) || IS_DROW(ch)) {
-			ch->player.weight = number(120, 180) + GET_STR(ch);
-			ch->player.height = number(140, 165) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_HALF_ORC) {
-			ch->player.weight = number(120, 180) + GET_STR(ch);
-			ch->player.height = number(120, 200) + (GET_WEIGHT(ch) >> 4);
-		} else if (GET_RACE(ch) == RACE_MINOTAUR) {
-			ch->player.weight = number(200, 360) + GET_STR(ch);
-			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
-		} else {
-			ch->player.weight = number(130, 180) + GET_STR(ch);
-			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
-		}
-	} else {
-		if (GET_RACE(ch) == RACE_HUMAN) {
-			ch->player.weight = number(90, 150) + GET_STR(ch);
-			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_TABAXI) {
-			ch->player.weight = number(80, 120) + GET_STR(ch);
-			ch->player.height = number(160, 190) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_DWARF) {
-			ch->player.weight = number(100, 140) + GET_STR(ch);
-			ch->player.height = number(90, 115) + (GET_WEIGHT(ch) >> 4);
-		} else if (IS_ELF(ch) || IS_DROW(ch)) {
-			ch->player.weight = number(90, 130) + GET_STR(ch);
-			ch->player.height = number(120, 155) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_HALF_ORC) {
-			ch->player.weight = number(110, 170) + GET_STR(ch);
-			ch->player.height = number(110, 190) + (GET_WEIGHT(ch) >> 3);
-		} else {
-			ch->player.weight = number(90, 150) + GET_STR(ch);
-			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) >> 3);
-		}
-	}
+    ch->player.weight = 100;
+    ch->player.height = 100;
 
 	ch->points.hit = GET_MAX_HIT(ch);
 	ch->points.mana = GET_MAX_MANA(ch);
@@ -399,14 +356,6 @@ Account::create_char(const char *name)
 
 	
 	playerIndex.add( ch->char_specials.saved.idnum, GET_NAME(ch), _id );
-
-	if (GET_LEVEL(ch) < LVL_GRIMP) {
-		for (i = 1; i <= MAX_SKILLS; i++)
-			SET_SKILL(ch, i, 0);
-	} else {
-		for (i = 1; i <= MAX_SKILLS; i++)
-			SET_SKILL(ch, i, 100);
-	}
 
 	ch->char_specials.saved.affected_by = 0;
 	ch->char_specials.saved.affected2_by = 0;
