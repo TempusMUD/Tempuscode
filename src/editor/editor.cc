@@ -263,7 +263,6 @@ CTextEditor::ExportMail(void)
     for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next) {
         cc_list.push_back(playerIndex.getName(mail_rcpt->recpt_idnum));
 	}
-//    mail_to_id = playerIndex.getID(cc_list.front().c_str());dd
     cc_list.sort();
     cc_list.unique();
 
@@ -1150,7 +1149,7 @@ CTextEditor::AddRecipient(char *name)
 	int money, cost;
 
 	new_id_num = playerIndex.getID(name);
-	if ((new_id_num) < 0) {
+	if (!new_id_num) {
 		SendMessage("Cannot find anyone by that name.\r\n");
 		return;
 	}
@@ -1225,7 +1224,7 @@ CTextEditor::RemRecipient(char *name)
 
 	removed_idnum = playerIndex.getID(name);
 
-	if (removed_idnum < 0) {
+	if (removed_idnum) {
 		SendMessage("Cannot find anyone by that name.\r\n");
 		return;
 	}
