@@ -2273,13 +2273,13 @@ ACMD(do_wake)
 			self = 1;
 		else if (vict->getPosition() > POS_SLEEPING) {
 			if (IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
+				REMOVE_BIT(AFF2_FLAGS(vict), AFF2_MEDITATE);
 				act("You break $M out of $S trance.", FALSE, ch, 0, vict,
 					TO_CHAR);
 				act("$n breaks $N out of a trance.", FALSE, ch, 0, vict,
 					TO_NOTVICT);
 				act("$n interrupts your state of meditation.", FALSE, ch, 0,
 					vict, TO_VICT);
-				REMOVE_BIT(AFF2_FLAGS(vict), AFF2_MEDITATE);
 			} else if (IS_AFFECTED(vict, AFF_CONFUSION)) {
 				act("You shake $M around, snapping $s out of a daze.",
 					TRUE, ch, 0, vict, TO_CHAR);
