@@ -48,6 +48,7 @@
 #include "help.h"
 #include "desc_data.h"
 #include "tmpstr.h"
+#include "accstr.h"
 #include "player_table.h"
 #include "events.h"
 
@@ -155,6 +156,7 @@ main(int argc, char **argv)
 	
 	dbg_enable_tracking(false);
 	tmp_string_init();
+	acc_string_init();
 
 	while ((pos < argc) && (*(argv[pos]) == '-')) {
 		switch (*(argv[pos] + 1)) {
