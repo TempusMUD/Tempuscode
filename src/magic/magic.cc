@@ -786,7 +786,7 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
             GET_POS(victim) = POS_RESTING;
             act( "The gravity around you suddenly increases, slamming you to the ground!", 
                 FALSE, victim, 0, ch, TO_CHAR);
-            act( "The gravity around $n suddenly increases, slamming $S to the ground!", 
+            act( "The gravity around $n suddenly increases, slamming $m to the ground!", 
                 TRUE, victim, 0, ch, TO_ROOM);
         }
     }
@@ -1699,7 +1699,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     } else {
         af.modifier = - ( level/8 );
     }
-    to_vict = "The gravity gravity well seems to take hold on your body.";
+    to_vict = "The gravity well seems to take hold on your body.";
     
 	accum_affect = FALSE;
     break;

@@ -571,8 +571,8 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
 	    act("...$e is hopelessly entangled in the undergrowth!", 
 		FALSE,i,0,ch,TO_VICT);
     }
-    if(IS_AFFECTED_3(ch,AFF3_GRAVITY_WELL)) {
-        act("...Spacetime bends around $e in a powerful gravity well!",
+    if(IS_AFFECTED_3(i,AFF3_GRAVITY_WELL)) {
+        act("...Spacetime bends around $m in a powerful gravity well!",
         FALSE,i,0,ch,TO_VICT);
     }
 
