@@ -315,13 +315,13 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
             room_data *src_room = ch->in_room;
             rc = search_trans_character( ch, srch, targ_room,obj,mob );
             
-            if ( srch->to_room ) {
-                act( srch->to_room, FALSE, src_room->people , obj, mob, TO_ROOM );
-                act( srch->to_room, FALSE, src_room->people , obj, mob, TO_CHAR );
-            }
-            
             CharacterList::iterator it = src_room->people.begin();
             for( ; it != src_room->people.end(); ++it  ) {
+
+                if( srch->to_room ) {
+                    act( srch->to_room, FALSE, ch, obj, *it, TO_VICT);
+                }
+
                 int r = search_trans_character( *it, srch, targ_room,obj,mob );
                 if( rc != 2 ) rc = r;
             }
