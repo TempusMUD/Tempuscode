@@ -293,15 +293,20 @@ find_target_room(struct char_data * ch, char *rawroomstr)
 	    send_to_char("No room exists with that number.\r\n", ch);
 	    return NULL;
 	}
-    } else if ((target_mob = get_char_vis(ch, roomstr)))
-	location = target_mob->in_room;
-    else if ((target_obj = get_obj_vis(ch, roomstr))) {
-	if (target_obj->in_room != NULL)
-	    location = target_obj->in_room;
-	else {
-	    send_to_char("That object is not available.\r\n", ch);
-	    return NULL;
-	}
+    } else if ((target_mob = get_char_vis(ch, roomstr))) {
+		if(GET_LEVEL(ch) < LVL_SPIRIT && GET_MOB_SPEC( target_mob ) == fate) {
+			sprintf(buf,"%s's magic repulses you.\r\n",GET_NAME(target_mob));
+			send_to_char(buf,ch);
+			return NULL;
+		}	
+		location = target_mob->in_room;
+    } else if ((target_obj = get_obj_vis(ch, roomstr))) {
+		if (target_obj->in_room != NULL) {
+			location = target_obj->in_room;
+		} else {
+			send_to_char("That object is not available.\r\n", ch);
+			return NULL;
+		}
     } else {
 	send_to_char("No such creature or object around.\r\n", ch);
 	return NULL;
