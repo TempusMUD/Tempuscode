@@ -395,6 +395,10 @@ handle_input(struct descriptor_data *d)
 		}
 		break;
 	case CXN_CLASS_PROMPT:
+		if (is_abbrev("help", arg)) {
+			show_pc_class_help(d, arg);
+			return;
+		}
 		GET_CLASS(d->creature) = parse_player_class(arg);
 		if (GET_CLASS(d->creature) == CLASS_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
@@ -405,7 +409,15 @@ handle_input(struct descriptor_data *d)
 		set_desc_state(CXN_RACE_PROMPT, d);
 		break;
 	case CXN_RACE_PROMPT:
+		if (is_abbrev("help", arg)) {
+			show_pc_race_help(d, arg);
+			return;
+		}
 		GET_RACE(d->creature) = parse_pc_race(d, arg);
+		if (GET_RACE(d->creature) == RACE_UNDEFINED) {
+			send_to_desc(d, "&gThat's not an allowable race!&n\r\n");
+			return;
+		}
 
 		for (i=0;i < NUM_PC_RACES;i++)
 			if (race_restr[i][0] == GET_RACE(d->creature))
@@ -430,6 +442,10 @@ handle_input(struct descriptor_data *d)
 		set_desc_state(CXN_ALIGN_PROMPT, d);
 		break;
 	case CXN_CLASS_REMORT:
+		if (is_abbrev("help", arg)) {
+			show_pc_class_help(d, arg);
+			return;
+		}
 		GET_REMORT_CLASS(d->creature) = parse_player_class(arg);
 		if (GET_REMORT_CLASS(d->creature) == CLASS_UNDEFINED) {
 			SEND_TO_Q(CCRED(d->creature, C_NRM), d);
@@ -659,6 +675,24 @@ handle_input(struct descriptor_data *d)
 		d->creature = NULL;
 		set_desc_state(CXN_WAIT_MENU, d);
         break;
+	case CXN_CLASS_HELP:
+		if (d->showstr_head && tolower(*arg) != 'q') {
+			show_string(d);
+			if (!d->showstr_head)
+				send_to_desc(d,
+					"&r**** &nPress return to go back to class selection &r****&n\r\n");
+		} else
+			set_desc_state(CXN_CLASS_PROMPT, d);
+		break;
+	case CXN_RACE_HELP:
+		if (d->showstr_head && tolower(*arg) != 'q') {
+			show_string(d);
+			if (!d->showstr_head)
+				send_to_desc(d,
+					"&r**** &nPress return to go back to race selection &r****&n\r\n");
+		} else
+			set_desc_state(CXN_RACE_PROMPT, d);
+		break;
 	}
 }
 
@@ -774,7 +808,7 @@ send_prompt(descriptor_data *d)
 	case CXN_SEX_PROMPT:
 		send_to_desc(d, "What do you choose as your sex (M/F)? "); break;
 	case CXN_RACE_PROMPT:
-		send_to_desc(d, "\r\n\r\n                     Of which race are you a member? "); break;
+		send_to_desc(d, "\r\n\r\n                   Of which race are you a member? "); break;
 	case CXN_CLASS_PROMPT:
 		send_to_desc(d, "             Choose your profession from the above list: "); break;
 	case CXN_CLASS_REMORT:
@@ -820,6 +854,8 @@ send_prompt(descriptor_data *d)
 	case CXN_REMORT_AFTERLIFE:
 		send_to_desc(d, "Press return to continue into the afterlife.\r\n"); break;
 	case CXN_VIEW_BG:
+	case CXN_CLASS_HELP:
+	case CXN_RACE_HELP:
 		// Prompt sent by page_string
 		break;
     case CXN_DETAILS_PROMPT:
@@ -901,12 +937,28 @@ send_menu(descriptor_data *d)
 		break;
 	case CXN_RACE_PROMPT:			// Racial Query
 		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d, "&c\r\n                                      RACE\r\n*******************************************************************************&n\r\n\r\n");
+		send_to_desc(d,
+"&c\r\n                                      RACE\r\n"
+"*******************************************************************************&n\r\n"
+"    Races on Tempus have nothing to do with coloration.  Your character's\r\n"
+"race refers to the intelligent species that your character can be.  Each\r\n"
+"has its own advantages and disadvantages, and some have special abilities!\r\n"
+"You may type 'help <race>' for information on any of the available races.\r\n"
+"\r\n"
+		);
 		show_pc_race_menu(d);
 		break;
 	case CXN_CLASS_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d, "&c\r\n                                   PROFESSION\r\n*******************************************************************************&n\r\n\r\n");
+		send_to_desc(d,
+"&c\r\n                                   PROFESSION\r\n"
+"*******************************************************************************&n\r\n"
+"    Your character class is the special training your character has had\r\n"
+"before embarking on the life of an adventurer.  Your class determines\r\n"
+"most of your character's capabilities within the game.  You may type\r\n"
+"'help <class>' for an overview of a particular class.\r\n"
+"\r\n"
+		);
 		show_char_class_menu(d, false);
 		break;
 	case CXN_CLASS_REMORT:
@@ -1032,6 +1084,16 @@ send_menu(descriptor_data *d)
 		// If there's no showstr_point, they finished already
 		if (!d->showstr_point)
 			set_desc_state(CXN_WAIT_MENU, d);
+	case CXN_CLASS_HELP:
+		if (!d->showstr_head)
+			send_to_desc(d,
+				"&r**** &nPress return to go back to class selection &r****&n\r\n");
+		break;
+	case CXN_RACE_HELP:
+		if (!d->showstr_head)
+			send_to_desc(d,
+				"&r**** &nPress return to go back to race selection &r****&n\r\n");
+		break;
 	default:
 		break;
 	}
