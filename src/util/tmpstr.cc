@@ -150,7 +150,7 @@ tmp_strcat(char *src, ...)
 	else
 		cur_buf = tmp_list_head;
 
-	result = tmp_list_head->data + tmp_list_head->used;
+	result = cur_buf->data + cur_buf->used;
 	write_pt = result;
 	cur_buf->used += len;
 
