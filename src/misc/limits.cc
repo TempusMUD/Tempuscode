@@ -29,6 +29,7 @@
 #include "handler.h"
 #include "vehicle.h"
 #include "clan.h"
+#include "specs.h"
 
 #define READ_TITLE(ch) (GET_CLASS(ch) == CLASS_KNIGHT && IS_EVIL(ch) ?   \
 			evil_knight_titles[(int)GET_LEVEL(ch)] :         \
@@ -806,7 +807,8 @@ point_update(void)
 	    }
 	}      
 	else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
-		 (IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j))) { // keys && unapp
+		 (IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
+		 (GET_OBJ_SPEC(j) == fate_portal)) { // keys, unapp && fate portals
 	    if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone
 		z = zone_number(GET_OBJ_VNUM(j));
 		if (((rm = where_obj(j)) && rm->zone->number == z) ||
