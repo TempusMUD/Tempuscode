@@ -3024,7 +3024,7 @@ Quest::save(std::ostream &out)
 {
 	const char *indent = "    ";
 	
-	out << indent << "<Quest VNUM=\"" << vnum << "\" NAME=\"" << name 
+	out << indent << "<Quest VNUM=\"" << vnum << "\" NAME=\"" << xmlEncodeTmp(name) 
 				  << "\" OWNER=\"" << owner_id << "\" STARTED=\"" << started
 				  << "\" ENDED=\"" << ended << "\"" 
 				  << endl;
@@ -3035,17 +3035,16 @@ Quest::save(std::ostream &out)
 				  
 	out << indent << indent 
 				  << "AWARDED=\"" << awarded << "\""
-				  << " PENALIZED=\"" << penalized << "\" TYPE=\"" << qtype_abbrevs[type] 
+				  << " PENALIZED=\"" << penalized 
+				  << "\" TYPE=\"" << xmlEncodeTmp(tmp_strdup(qtype_abbrevs[type])) 
 				  << "\" OWNER_LEVEL=\"" << owner_level << "\" FLAGS=\"" << flags 
 				  << "\" >" << endl;
 
-	xmlChar *str= xmlEncodeEntitiesReentrant( NULL, (xmlChar*)description );
-	out << indent << "  <Description>" << str << "</Description>" << endl;
-	free(str);
+	out << indent << "  <Description>" 
+				  << xmlEncodeTmp(description)
+				  << "</Description>" << endl;
 	
-	str = xmlEncodeEntitiesReentrant( NULL, (xmlChar*)updates);
-	out << indent << "  <Update>" << str << "</Update>" << endl;
-	free(str);
+	out << indent << "  <Update>" << xmlEncodeTmp(updates) << "</Update>" << endl;
 
 	for( unsigned int i = 0; i < players.size(); i++ ) {
 		out << indent << "  <Player ID=\"" << players[i].idnum 
