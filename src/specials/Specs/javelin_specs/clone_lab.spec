@@ -23,7 +23,10 @@ SPECIAL( clone_lab ) {
 	    slog( "SYSERR: cloned_char spec failed to load cloned_char mobile" );
 	    return 0;
     }
- 
+
+ 	last_time = time(0);
+
+	GET_ALIGNMENT(cloned_char) = GET_ALIGNMENT(ch);
     cloned_char->points.max_hit  = cloned_char->points.hit   = ch->points.max_hit;
     cloned_char->points.max_mana = cloned_char->points.mana  = ch->points.max_mana;
     cloned_char->points.max_move = cloned_char->points.move  = ch->points.max_move;
