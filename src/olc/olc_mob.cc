@@ -254,6 +254,15 @@ do_create_mob(struct char_data *ch, int vnum)
 
     }
     */
+    mit = mobilePrototypes.begin();
+    for ( ; mit != mobilePrototypes.end(); ++mit ) {
+        if (vnum <= (*mit)->mob_specials.shared->vnum )
+            break;
+    }
+    if( mit != mobilePrototypes.end() )
+        mobilePrototypes.insert(mit,new_mob);
+    else
+        mobilePrototypes.add(new_mob);
     top_of_mobt++;
   
     return(new_mob);
@@ -431,6 +440,7 @@ void do_mob_mset(struct char_data *ch, char *argument)
                 break;
             }
         }
+        break;
     } case 4: {               /** flags **/
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);

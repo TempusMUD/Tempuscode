@@ -160,7 +160,7 @@ struct help_index_element {
    long	pos;
 };
 
-#define MAX_REMORT_QUESTIONS   300
+#define MAX_REMORT_QUESTIONS   600
 
 struct remort_question_data {
   char *question;

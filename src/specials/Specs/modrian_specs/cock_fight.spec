@@ -6,6 +6,7 @@
 
 SPECIAL(cock_fight)
 {
+  if( spec_mode == SPECIAL_DEATH ) return 0;
   if (cmd)
     return 0;
 

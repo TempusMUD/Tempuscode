@@ -1249,23 +1249,26 @@ ACMD(do_retreat)
             return;
         }
     }
-    CharacterList::iterator it = ch->in_room->people.begin();
-    for( ; it != ch->in_room->people.end(); ++it ) {
-        if ((*it) != ch && ch == FIGHTING((*it)) &&
-            CAN_SEE((*it), ch) &&
-            ((IS_NPC((*it)) && GET_MOB_WAIT((*it)) < 10) ||
-             ((*it)->desc && (*it)->desc->wait < 10)) &&
-            number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED((*it)))) {
+    room_data *room = ch->in_room;
+    CharacterList::iterator it = room->people.begin();
+    for( ; it != room->people.end(); ++it ) {
+        char_data *vict = *it;
+        if (vict != ch && ch == FIGHTING(vict) &&
+            CAN_SEE(vict, ch) &&
+            ((IS_NPC(vict) && GET_MOB_WAIT(vict) < 10) ||
+             (vict->desc && vict->desc->wait < 10)) &&
+            number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED(vict))) {
             found = 1;
-            int retval = hit( (*it), ch, TYPE_UNDEFINED );
+            int retval = hit( vict, ch, TYPE_UNDEFINED );
         
             if ( retval & DAM_VICT_KILLED ) {
                 ACMD_set_return_flags( DAM_ATTACKER_KILLED );
                 return;
+            } else if ( retval & DAM_ATTACKER_KILLED ) {
+                continue;
             }
-
-            if (ch == FIGHTING((*it)))
-                stop_fighting((*it));
+            if (ch == FIGHTING(vict))
+                stop_fighting(vict);
         }
     }
 

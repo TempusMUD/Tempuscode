@@ -3157,9 +3157,10 @@ ACMD(do_who)
                          !strncmp(GET_NAME(tch), "Storm"  , 5)  ? "BUILDER" :
                          !strncmp(GET_NAME(tch), "Raza"   , 4)  ? "BUILDER" :
                          !strncmp(GET_NAME(tch), "Taurean", 7)  ? "BUILDER" :
+                         !strncmp(GET_NAME(tch), "Javelin", 7)  ? "BUILDER" :
                          !strncmp(GET_NAME(tch), "Wolfe"  , 5)  ? "BUILDER" :
                          !strncmp(GET_NAME(tch), "Evangeline",  10)  ? "QUESTOR" :
-                         !strncmp(GET_NAME(tch), "Dissonanace", 11)  ? "QUESTOR" :
+                         !strncmp(GET_NAME(tch), "Dissonance", 11)  ? "QUESTOR" :
                          !strncmp(GET_NAME(tch), "Failure", 7)  ? "QUESTOR" :
                          !strncmp(GET_NAME(tch), "Joran", 5)    ? " LOWER ":
                          LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),

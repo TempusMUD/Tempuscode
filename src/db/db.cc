@@ -4209,22 +4209,15 @@ boot_remort_quiz()
 
     for (i = 0; i < MAX_REMORT_QUESTIONS; i++)
         if (remort_quiz[i]) {
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
             if (remort_quiz[i]->question)
                 free(remort_quiz[i]->question);
             if (remort_quiz[i]->answer)
                 free(remort_quiz[i]->answer);
             free(remort_quiz[i]);
             remort_quiz[i] = NULL;
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
         }
-
+	int line_no = 0;
     for (i = 0, top_of_remort_quiz = 0; i < MAX_REMORT_QUESTIONS; i++) {
-
         if (!get_line(file, buf) || *buf == '$')
             break;
 
@@ -4232,37 +4225,26 @@ boot_remort_quiz()
         newq->question  =  str_dup(buf);
 
         if (!get_line(file, buf)) {
-            sprintf(buf, "SYSERR: Format error in remort quiz file: %s.",
-                    newq->question);
+            sprintf(buf, "SYSERR: Format error in remort quiz file line %d: %s.",
+                    i, buf);
             slog(buf);
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
             free(newq->question);
             free(newq);
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif      
             break;
         }
-
+		line_no++;
         newq->answer   =  str_dup(buf);
 
         if (!get_line(file, buf) || sscanf(buf, "%d", &level) != 1) {
-            sprintf(buf, "SYSERR: Format error in remort quiz file: %s.",
-                    newq->question);
+            sprintf(buf, "SYSERR: Format error in remort quiz file line %d: %s.",
+                    i, newq->question);
             slog(buf);
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif
             free(newq->question);
             free(newq->answer);
             free(newq);
-#ifdef DMALLOC
-            dmalloc_verify(0);
-#endif      
             break;
         }
+		line_no++;
 
         newq->points = level;
 

@@ -18,7 +18,7 @@ class SafeList : protected list<T> {
      *  A 'safe iterator' for use with this safelist
      *
     **/
-    class iterator : protected list<T>::iterator {
+    class iterator : public list<T>::iterator {
         friend class SafeList<T>;
         public:
             /**
@@ -139,6 +139,7 @@ class SafeList : protected list<T> {
             return size() == 0;
         }
         list<T>::size; 
+        list<T>::insert;
         void remove(T c) { 
             iterator it = find(begin(), end(), c); 
             if( it != _end ) { 

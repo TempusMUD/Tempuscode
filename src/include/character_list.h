@@ -15,6 +15,7 @@ class CharacterList : public SafeList<char_data*> {
         SafeList<char_data*>::end;
         SafeList<char_data*>::empty;
         SafeList<char_data*>::size; 
+        SafeList<char_data*>::insert; 
         inline operator bool(){
             return size() > 0;
         }
