@@ -242,6 +242,7 @@ do_create_mob(struct char_data *ch, int vnum)
 
     new_mob->desc = NULL;
     new_mob->in_room = NULL;
+
     /*
     new_mob->next = NULL;
 

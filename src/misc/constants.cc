@@ -363,6 +363,7 @@ extern const char *home_town_abbrevs[] =
   "Human Sq.",
   "Drow Isle",
   "Astral M.",
+  "Newbie S",
   "\n"
 };
 extern const char *home_towns[] =
@@ -387,6 +388,7 @@ extern const char *home_towns[] =
   "Human Square",
   "Drow Isle",
   "Astral Manse",
+  "Newbie School",
   "\n"
 };
 
