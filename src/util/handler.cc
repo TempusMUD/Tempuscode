@@ -668,11 +668,6 @@ affect_remove(struct char_data * ch, struct affected_type * af)
 	return;
     }
 
-    affect_modify(ch, af->location, af->modifier, af->bitvector, af->aff_index,
-                  FALSE);
-    REMOVE_FROM_LIST(af, ch->affected, next);
-    free(af);
-    affect_total(ch);
 
     if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
 	!IS_AFFECTED(ch, AFF_GLOWLIGHT) && 
@@ -681,6 +676,11 @@ affect_remove(struct char_data * ch, struct affected_type * af)
 	!affected_by_spell(ch, SPELL_QUAD_DAMAGE))
 	ch->in_room->light--;
 
+    affect_modify(ch, af->location, af->modifier, af->bitvector, af->aff_index,
+                  FALSE);
+    REMOVE_FROM_LIST(af, ch->affected, next);
+    free(af);
+    affect_total(ch);
 }
 
 
