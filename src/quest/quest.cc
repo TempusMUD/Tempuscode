@@ -2650,11 +2650,13 @@ Quest::Quest( char_data *ch, int type, const char* name )
 	started = time(0);
 	ended = 0;
 
-	description = (char*) malloc(sizeof(char));
-	description[0] = '\0';
+	description = (char*) malloc(sizeof(char) * 2);
+	description[0] = ' ';
+	description[1] = '\0';
 
-	updates = (char*) malloc(sizeof(char));
-	updates[0] = '\0';
+	updates = (char*) malloc(sizeof(char) * 2);
+	updates[0] = ' ';
+	updates[1] = '\0';
 
 	max_players = 0;
 	awarded = 0;
@@ -2714,6 +2716,7 @@ Quest::Quest( xmlNodePtr n, xmlDocPtr doc )
 
 	name = xmlGetProp(n, "NAME");
 	
+	description = updates = NULL;
 
 	xmlNodePtr cur = n->xmlChildrenNode;
 	while (cur != NULL) {
