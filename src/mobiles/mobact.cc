@@ -141,7 +141,7 @@ void burn_update(void) {
          ) &&
          !NOGRAV_ZONE(ch->in_room->zone)) {
         send_to_char("You are slammed to the ground by the inexhorable force of gravity!\r\n",ch);
-        act("$N is slammed to the ground by the inexhorable force of gravity!\r\n",
+        act("$n is slammed to the ground by the inexhorable force of gravity!\r\n",
             TRUE, ch,0,0,TO_ROOM);
         GET_POS(ch) = POS_RESTING;
         if(damage(NULL, ch, dice(6,5), TYPE_FALLING, WEAR_RANDOM)) 
