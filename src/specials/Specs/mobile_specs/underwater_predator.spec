@@ -60,8 +60,8 @@ SPECIAL(underwater_predator)
 				PRF_FLAGGED(vict, PRF_NOHASSLE) || !can_see_creature(pred, vict) ||
 				PLR_FLAGGED(vict, PLR_OLC | PLR_WRITING | PLR_MAILING) ||
 				vict->getPosition() == POS_FLYING ||
-				(MOUNTED(vict)
-					&& (MOUNTED(vict))->getPosition() == POS_FLYING))
+				(vict->isMounted()
+					&& (vict->isMounted())->getPosition() == POS_FLYING))
 				continue;
 
 			act("$n cruises up out of sight with deadly intention.",

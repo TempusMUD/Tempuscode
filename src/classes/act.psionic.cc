@@ -172,7 +172,7 @@ ACMD(do_psidrain)
 			else {
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
-					HUNTING(vict) = ch;
+					vict->startHunting(ch);
 			}
 		}
 	}
@@ -202,8 +202,7 @@ ACMD(do_psidrain)
 			if (ch->in_room == vict->in_room) {
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
-					HUNTING(vict) = ch;
-                    //set_fighting(vict, ch, false);
+					vict->startHunting(ch);
 				vict->addCombat(ch, false);
                 ch->addCombat(vict, true);
 			}

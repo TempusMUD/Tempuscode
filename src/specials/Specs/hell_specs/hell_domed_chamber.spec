@@ -68,7 +68,7 @@ SPECIAL(hell_domed_chamber)
 		("With the sound of a great exhaling of breath, a dark figure steps into the room...\n",
 		ch->in_room);
 
-	HUNTING(cloned_char) = ch;
+	cloned_char->startHunting(ch);
 
 	return 1;
 }

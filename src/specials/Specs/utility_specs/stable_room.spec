@@ -102,8 +102,8 @@ SPECIAL(stable_room)
 		if (CMD_IS("value"))
 			return 1;
 
-		if (MOUNTED(ch) && MOUNTED(ch) == pet) {
-			MOUNTED(ch) = NULL;
+		if (ch->isMounted() && ch->isMounted() == pet) {
+		    ch->dismount();
 			REMOVE_BIT(AFF2_FLAGS(pet), AFF2_MOUNTED);
 			ch->setPosition(POS_STANDING);
 		}

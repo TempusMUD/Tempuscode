@@ -1844,7 +1844,7 @@ ASPELL(spell_conjure_elemental)
 			false, ch, 0, elemental, TO_CHAR);
 		act("$N doesn't look too happy at $n!",
 			false, ch, 0, elemental, TO_ROOM);
-		HUNTING(elemental) = ch;
+		elemental->startHunting(ch);
 		remember(elemental, ch);
 		return;
 	} else {
@@ -2580,7 +2580,7 @@ ASPELL(spell_summon_legion)
 			false, ch, 0, devil, TO_CHAR);
 		act("$N doesn't look too happy at $n!",
 			false, ch, 0, devil, TO_ROOM);
-		HUNTING(devil) = ch;
+		devil->startHunting(ch);
 		remember(devil, ch);
 		return;
 	}
@@ -2928,7 +2928,7 @@ ASPELL(spell_unholy_stalker)
 		GET_NAME(victim));
 	CAP(buf);
 
-	HUNTING(stalker) = victim;
+	stalker->startHunting(victim);
 
 	slog("%s has sent an unholy stalker after %s.", GET_NAME(ch),
 		GET_NAME(victim));
@@ -3385,7 +3385,7 @@ ASPELL(spell_distraction)
 		return;
 	}
 
-	if (!MEMORY(victim) && !HUNTING(victim)) {
+	if (!MEMORY(victim) && !victim->isHunting()) {
 		send_to_char(ch, "Nothing happens.\r\n");
 		return;
 	}
@@ -3395,7 +3395,7 @@ ASPELL(spell_distraction)
 		free(curr);
 	}
 	MEMORY(victim) = NULL;
-	HUNTING(victim) = NULL;
+	victim->stopHunting();
 
 	gain_skill_prof(ch, SPELL_DISTRACTION);
 

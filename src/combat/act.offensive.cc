@@ -1711,7 +1711,7 @@ ACMD(do_stun)
 		SET_BIT(MOB_FLAGS(vict), MOB_MEMORY);
 		remember(vict, ch);
 		if (IS_SET(MOB2_FLAGS(vict), MOB2_HUNT))
-			HUNTING(vict) = ch;
+		    vict->startHunting(ch);
 	}
 	wait = 1 + (number(0, GET_LEVEL(ch)) / 5);
 	vict->setPosition(POS_STUNNED);

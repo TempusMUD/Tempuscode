@@ -18,7 +18,7 @@ SPECIAL(red_highlord)
 	struct obj_data *blade = NULL, *container = NULL;
 	struct Creature *vict = NULL, *tmp_vict = NULL;
 
-	if (cmd || ch->numCombatants() || HUNTING(ch)
+	if (cmd || ch->numCombatants() || ch->isHunting()
 		|| ch->getPosition() <= POS_SLEEPING)
 		return 0;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
@@ -132,7 +132,7 @@ SPECIAL(red_highlord)
 			return 1;
 		}
 	} else if (vict && !number(0, 38)) {
-		HUNTING(ch) = vict;
+		ch->startHunting(vict);
 		switch (number(0, 2)) {
 		case 0:
 			do_gen_comm(ch, "Now where might that Desolation Blade be?", 0,

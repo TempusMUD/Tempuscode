@@ -564,9 +564,6 @@ char *CURRENCY(Creature * ch);
 #define GET_FALL_COUNT(ch)     ((ch)->char_specials.fall_count)
 #define GET_MOOD(ch)		(ch->char_specials.mood_str)
 
-#define DEFENDING(ch)		 (ch->char_specials.defending)
-#define HUNTING(ch)          ((ch)->char_specials.hunting)
-#define MOUNTED(ch)          ((ch)->char_specials.mounted)
 #define DRIVING(ch)       ((ch)->char_specials.driving)
 #define GET_SAVE(ch, i)          ((ch)->char_specials.saved.apply_saving_throw[i])
 #define GET_ALIGNMENT(ch) ((ch)->char_specials.saved.alignment)

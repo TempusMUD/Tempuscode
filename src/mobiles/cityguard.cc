@@ -273,8 +273,8 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 	vict->setPosition(POS_RESTING);
 	act("You wake up in jail, your head pounding.", false, vict, 0, 0, TO_CHAR);
 
-	if (HUNTING(ch) && HUNTING(ch) == vict)
-		HUNTING(ch) = NULL;
+	if (ch->isHunting() && ch->isHunting() == vict)
+        ch->stopHunting();
 
 	if ((torch = read_object(3030)))
 		obj_to_char(torch, vict);
@@ -357,8 +357,8 @@ knock_unconscious(Creature *ch, Creature *target)
 	for (;it != target->in_room->people.end(); it++) {
 		if ((*it)->findCombat(target) || *it == target)
 			(*it)->removeAllCombat();
-		if (HUNTING((*it)) == target)
-			HUNTING((*it)) = NULL;
+		if (((*it)->isHunting()) == target)
+			(*it)->stopHunting();
 		if (IS_NPC((*it)))
 			forget(*it, target);
 	}

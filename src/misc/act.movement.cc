@@ -46,6 +46,7 @@ extern const char *from_dirs[];
 extern const char *to_dirs[];
 extern const byte movement_loss[];
 extern struct obj_data *object_list;
+extern CreatureList mountedList;
 
 /* external functs */
 long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
@@ -403,7 +404,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	int need_movement, i, has_boat = 0, wait_state = 0;
 	struct room_data *was_in;
 	struct obj_data *obj = NULL, *next_obj = NULL, *car = NULL, *c_obj = NULL;
-	struct Creature *tch, *mount = MOUNTED(ch);
+	struct Creature *tch, *mount = ch->isMounted();
 	int found = 0;
 	struct special_search_data *srch = NULL;
 	struct affected_type *af_ptr = NULL;
@@ -411,7 +412,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
 	if (mount && ch->in_room != mount->in_room) {
 		REMOVE_BIT(AFF2_FLAGS(mount), AFF2_MOUNTED);
-		MOUNTED(ch) = NULL;
+		ch->dismount();
 		mount = NULL;
 	}
 
@@ -511,13 +512,13 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	}
 	/* if this room or the one we're going to needs wings, check for one */
 	if (ch->in_room->isOpenAir() && ch->getPosition() != POS_FLYING &&
-			(!MOUNTED(ch) || MOUNTED(ch)->getPosition() != POS_FLYING)) {
+			(!ch->isMounted() || ch->isMounted()->getPosition() != POS_FLYING)) {
 		send_to_char(ch, "You scramble wildly for a grasp of thin air.\r\n");
 		return 1;
 	}
 	if (EXIT(ch, dir)->to_room->isOpenAir() && !NOGRAV_ZONE(ch->in_room->zone)
 			&& ch->getPosition() != POS_FLYING && mode != MOVE_JUMP &&
-			(!MOUNTED(ch) || MOUNTED(ch)->getPosition() != POS_FLYING)) {
+			(!ch->isMounted() || ch->isMounted()->getPosition() != POS_FLYING)) {
 		send_to_char(ch, "You need to be flying to go there.\r\n");
 		if (dir != UP)
 			send_to_char(ch, "You can 'jump' in that direction however...\r\n");
@@ -801,7 +802,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 				was_in->sector_type == SECT_PITCH_SUB) ? "swim" :
 			(was_in->isOpenAir() ||
 				ch->getPosition() == POS_FLYING) ? "fly" :
-			MOUNTED(ch) ? "ride" : "pass",
+			ch->isMounted() ? "ride" : "pass",
 			IS_SET(was_in->dir_option[dir]->exit_info, EX_CLOSED) ?
 			"closed" : "open", fname(was_in->dir_option[dir]->keyword));
 	}
@@ -1217,14 +1218,14 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 			||
 				(GET_COND(ch, DRUNK) > GET_CON(ch) &&
 					(number(0, GET_COND(ch, DRUNK)) > GET_DEX(ch))))) {
-		if (ch->getPosition() == POS_MOUNTED && MOUNTED(ch) &&
+		if (ch->getPosition() == POS_MOUNTED && ch->isMounted() &&
 				CHECK_SKILL(ch, SKILL_RIDING) < number(50, 150)) {
 			act("$n sways and falls from the back of $N!",
-				TRUE, ch, 0, MOUNTED(ch), TO_ROOM);
+				TRUE, ch, 0, ch->isMounted(), TO_ROOM);
 			act("You sway and fall from the back of $N!",
-				FALSE, ch, 0, MOUNTED(ch), TO_CHAR);
-			REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
-			MOUNTED(ch) = NULL;
+				FALSE, ch, 0, ch->isMounted(), TO_CHAR);
+			REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
+            ch->dismount();
 			ch->setPosition(POS_SITTING);
 		} else if (ch->getPosition() == POS_FLYING) {
 			act("You lose control and begin to fall!", FALSE, ch, 0, 0,
@@ -2134,13 +2135,13 @@ ACMD(do_fly)
 		act("You are already in flight.", FALSE, ch, 0, 0, TO_CHAR);
 		break;
 	case POS_MOUNTED:
-		if (MOUNTED(ch)) {
-			act("You rise off of $N.", false, ch, 0, MOUNTED(ch), TO_CHAR);
-			act("$n rises off of you.", false, ch, 0, MOUNTED(ch), TO_VICT);
-			act("$n rises off of $N.", false, ch, 0, MOUNTED(ch), TO_NOTVICT);
-			REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
+		if (ch->isMounted()) {
+			act("You rise off of $N.", false, ch, 0, ch->isMounted(), TO_CHAR);
+			act("$n rises off of you.", false, ch, 0, ch->isMounted(), TO_VICT);
+			act("$n rises off of $N.", false, ch, 0, ch->isMounted(), TO_NOTVICT);
+			REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
 		}
-		MOUNTED(ch) = NULL;
+		ch->dismount();
 		ch->setPosition(POS_FLYING);
 		break;
 	default:
@@ -2181,7 +2182,7 @@ ACMD(do_sit)
 			TO_CHAR);
 		break;
 	case POS_MOUNTED:
-		act("You are already seated on $N.", false, ch, 0, MOUNTED(ch), TO_CHAR);
+		act("You are already seated on $N.", false, ch, 0, ch->isMounted(), TO_CHAR);
 		break;
 	default:
 		act("You stop floating around, and sit down.", FALSE, ch, 0, 0,
@@ -2222,7 +2223,7 @@ ACMD(do_rest)
 		act("You better not try that while flying.", FALSE, ch, 0, 0, TO_CHAR);
 		break;
 	case POS_MOUNTED:
-		act("You had better get off of $N first.", false, ch, 0, MOUNTED(ch), TO_CHAR);
+		act("You had better get off of $N first.", false, ch, 0, ch->isMounted(), TO_CHAR);
 		break;
 	default:
 		act("You stop floating around, and stop to rest your tired bones.",
@@ -2262,9 +2263,9 @@ ACMD(do_sleep)
 		send_to_char(ch, "That's a really bad idea while flying!\r\n");
 		break;
 	case POS_MOUNTED:
-		if (MOUNTED(ch))
+		if (ch->isMounted())
 			act("Better not sleep while mounted on $N.", FALSE, ch, 0,
-				MOUNTED(ch), TO_CHAR);
+				ch->isMounted(), TO_CHAR);
 		else {
 			send_to_char(ch, 
 				"You totter around bowlegged... better try that again!\r\n");
@@ -2390,7 +2391,7 @@ ACMD(do_mount)
 		send_to_char(ch, "What do you wish to mount?\r\n");
 		return;
 	}
-	if (MOUNTED(ch) == vict) {
+	if (ch->isMounted() == vict) {
 		act("You are already mounted on $M.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
@@ -2398,7 +2399,7 @@ ACMD(do_mount)
 		send_to_char(ch, "Are you some kind of fool, or what!?\r\n");
 		return;
 	}
-	if( MOUNTED(ch) != NULL ) {
+	if(ch->isMounted()) {
 		send_to_char(ch, "You'll have to dismount first.\r\n");
 		return;
 	}
@@ -2410,7 +2411,7 @@ ACMD(do_mount)
 	if (IS_AFFECTED_2(vict, AFF2_MOUNTED)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
-			if (MOUNTED((*it)) == vict) {
+			if ((*it)->isMounted() == vict) {
 				send_to_char(ch, "But %s is already mounted on %s!\r\n",
 					PERS((*it), ch), PERS(vict, ch));
 				return;
@@ -2452,7 +2453,7 @@ ACMD(do_mount)
 		GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 5);
 	} else {
 		ch->setPosition(POS_MOUNTED);
-		MOUNTED(ch) = vict;
+		ch->mount(vict);
 		SET_BIT(AFF2_FLAGS(vict), AFF2_MOUNTED);
 		gain_skill_prof(ch, SKILL_RIDING);
 	}
@@ -2460,15 +2461,15 @@ ACMD(do_mount)
 
 ACMD(do_dismount)
 {
-	if (!MOUNTED(ch)) {
+	if (!ch->isMounted()) {
 		send_to_char(ch, "You're not even mounted!\r\n");
 		return;
 	} else {
-		act("You skillfully dismount $N.", FALSE, ch, 0, MOUNTED(ch), TO_CHAR);
-		act("$n skillfully dismounts $N.", FALSE, ch, 0, MOUNTED(ch), TO_ROOM);
+		act("You skillfully dismount $N.", FALSE, ch, 0, ch->isMounted(), TO_CHAR);
+		act("$n skillfully dismounts $N.", FALSE, ch, 0, ch->isMounted(), TO_ROOM);
 		ch->setPosition(POS_STANDING);
-		REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
-		MOUNTED(ch) = NULL;
+		REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
+        ch->dismount();
 		return;
 	}
 }
@@ -2583,14 +2584,14 @@ ACMD(do_defend)
 	}
 
 	if (targ == ch) {
-		if (DEFENDING(ch))
-			stop_defending(ch);
+		if (ch->isDefending())
+            ch->stopDefending();
 		else
 			send_to_char(ch, "You aren't defending anyone except yourself.\r\n");
 		return;
 	}
 
-	if (DEFENDING(ch) == targ) {
+	if (ch->isDefending() == targ) {
 		act("You are already defending $M.", FALSE, ch, 0, targ, TO_CHAR);
 		return;
 	}
@@ -2599,9 +2600,9 @@ ACMD(do_defend)
 			TO_CHAR);
 	} else {
 		if (targ == ch) {
-			stop_defending(ch);
+			ch->stopDefending();
 		} else {
-			set_defending(ch, targ);
+            ch->startDefending(targ);
 		}
 	}
 }

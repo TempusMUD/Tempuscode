@@ -258,7 +258,7 @@ SPECIAL(hell_hunter_brain)
 				num_devils++;
 
 				if (vict) {
-					HUNTING(mob) = vict;
+					mob->startHunting(vict);
 					SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
 
 					if (!IS_NPC(vict) && GET_REMORT_GEN(vict)) {
@@ -289,7 +289,7 @@ SPECIAL(hell_hunter_brain)
 				errlog("Unable to load hell hunter regulator in hell_hunter_brain.");
 			else {
 				regulator = 1;
-				HUNTING(mob) = vict;
+				mob->startHunting(vict);
 				char_to_room(mob, vict->in_room, false);
 				act("$n materializes suddenly from a stream of hellish energy!", FALSE, mob, 0, 0, TO_ROOM);
 			}
@@ -367,7 +367,7 @@ SPECIAL(hell_hunter)
 		}
 	}
 
-	if (!ch->numCombatants() && !HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
+	if (!ch->numCombatants() && !ch->isHunting() && !AFF_FLAGGED(ch, AFF_CHARM)) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			FALSE, ch, 0, 0, TO_ROOM);
 		ch->purge(true);
@@ -452,7 +452,7 @@ SPECIAL(arioch)
 
 	if (ch->in_room->zone->number != 162) {
 
-		if (!HUNTING(ch) && !ch->numCombatants()) {
+		if (!ch->isHunting() && !ch->numCombatants()) {
 
 			for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
 				if (IS_CORPSE(obj)) {
@@ -517,7 +517,7 @@ SPECIAL(arioch)
 					!PRF_FLAGGED(vict, PRF_NOHASSLE)
 					&& can_see_creature(ch, vict)))) {
 			if (vict) {
-				HUNTING(ch) = vict;
+				ch->startHunting(vict);
 				rm = vict->in_room;
 			}
 			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);

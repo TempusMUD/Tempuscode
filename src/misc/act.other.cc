@@ -1767,7 +1767,7 @@ ACMD(do_feed)
         send_to_char(ch, "Feed who to what?\r\n");
     else if (!(food = get_obj_in_list_vis(ch, arg1, ch->carrying)))
         send_to_char(ch, "You don't have that food.\r\n");
-    else if (!((vict = MOUNTED(ch)) &&
+    else if (!((vict = ch->isMounted()) &&
             isname(arg2, vict->player.name)) &&
         !(vict = get_char_room_vis(ch, arg2)))
         send_to_char(ch, "No-one around by that name.\r\n");

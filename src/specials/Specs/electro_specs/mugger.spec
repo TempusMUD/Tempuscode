@@ -57,7 +57,7 @@ SPECIAL(mugger)
 	if (spec_mode == SPECIAL_CMD)
 		return 0;
 	
-	if (self->numCombatants() || HUNTING(self))
+	if (self->numCombatants() || self->isHunting())
 		return 0;
 
 	// We're not mugging anyone, so look for a new victim
@@ -171,9 +171,9 @@ SPECIAL(mugger)
 			return 1;
 		}
 
-		if (HUNTING(self) != vict) {
+		if (self->isHunting() != vict) {
 			do_gen_comm(ch, tmp_sprintf("You're asking for it, %s!", GET_NAME(vict)), 0, SCMD_SHOUT, 0);
-			HUNTING(self) = vict;
+			self->startHunting(vict);
 		}
 		return 1;
 	}

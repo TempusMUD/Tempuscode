@@ -72,7 +72,7 @@ summon_criminal_demons(Creature *vict)
 			errlog("Unable to load mob in demonic_overmind");
 			return false;
 		}
-		HUNTING(mob) = vict;
+		mob->startHunting(vict);
 		SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
 		CREATE(mob->mob_specials.func_data, int, 1);
 		*((int *)mob->mob_specials.func_data) = GET_IDNUM(vict);
@@ -220,18 +220,18 @@ SPECIAL(demonic_guard)
 	vict_id = *((int *)self->mob_specials.func_data);
 
 	ch = get_char_in_world_by_idnum(vict_id);
-	if (!ch || !HUNTING(self) || GET_REPUTATION(ch) < 700) {
+	if (!ch || !self->isHunting() || GET_REPUTATION(ch) < 700) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			FALSE, self, 0, 0, TO_ROOM);
 		self->purge(true);
 		return true;
 	}
 
-	if (HUNTING(self)->in_room->zone != self->in_room->zone) {
+	if (self->isHunting()->in_room->zone != self->in_room->zone) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			FALSE, self, 0, 0, TO_ROOM);
 		char_from_room(self);
-		char_to_room(self, HUNTING(self)->in_room);
+		char_to_room(self, self->isHunting()->in_room);
 		act("The air suddenly cracks open and $n steps out!",
 			FALSE, self, 0, 0, TO_ROOM);
 		return true;

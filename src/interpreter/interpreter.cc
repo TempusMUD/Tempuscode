@@ -1571,9 +1571,9 @@ command_interpreter(struct Creature *ch, char *argument)
 	if (ch->getPosition() > POS_SLEEPING)
 		REMOVE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
 
-	if (MOUNTED(ch) && ch->in_room != MOUNTED(ch)->in_room) {
-		REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
-		MOUNTED(ch) = NULL;
+	if (ch->isMounted() && ch->in_room != ch->isMounted()->in_room) {
+		REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
+        ch->dismount();
 	}
 
 	/* just drop to next line for hitting CR */
@@ -2319,8 +2319,9 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 			}
 		}
 		if (GET_MOB_PROG((*it)) != NULL) {
-			if (spec_mode == SPECIAL_CMD
-					&& trigger_prog_cmd(*it, ch, cmd, arg))
+			if (spec_mode == SPECIAL_CMD && 
+                trigger_prog_cmd(*it, ch, cmd, arg) &&
+                (!(*it)->master || ((*it)->master->in_room != (*it)->in_room)))
 				return true;
 			if (spec_mode == SPECIAL_ENTER
 					&& trigger_prog_move(*it, ch, SPECIAL_ENTER))

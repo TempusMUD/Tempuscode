@@ -14,7 +14,7 @@ SPECIAL(malbolge_bridge)
 	}
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT || ch->getPosition() == POS_FLYING ||
-		(MOUNTED(ch) && (MOUNTED(ch))->getPosition() == POS_FLYING) ||
+		(ch->isMounted() && (ch->isMounted())->getPosition() == POS_FLYING) ||
 		number(5, 25) < GET_DEX(ch))
 		return 0;
 

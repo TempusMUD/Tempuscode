@@ -295,7 +295,7 @@ tarrasque_follow(Creature *tarr)
 	int dir;
 
 	pursuit = false;
-	ch = HUNTING(tarr);
+	ch = tarr->isHunting();
 	if (!ch)
 		return 0;
 
@@ -412,8 +412,8 @@ SPECIAL(tarrasque)
 	if (spec_mode == SPECIAL_DEATH)
 		return tarrasque_die(tarr, ch);
 
-	if (spec_mode == SPECIAL_LEAVE && ch != tarr && !HUNTING(tarr)) {
-		HUNTING(tarr) = ch;
+	if (spec_mode == SPECIAL_LEAVE && ch != tarr && !tarr->isHunting()) {
+		tarr->startHunting(ch);
 		pursuit = true;
 		return 0;
 	}

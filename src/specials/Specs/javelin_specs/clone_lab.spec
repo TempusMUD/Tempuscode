@@ -71,7 +71,7 @@ SPECIAL(clone_lab)
 		("Your vision dims as a piercing light appears and probes you.\r\nA figure suddenly appears before you!\r\n",
 		ch->in_room);
 
-	HUNTING(cloned_char) = ch;
+	cloned_char->startHunting(ch);
 
 	return 1;
 }

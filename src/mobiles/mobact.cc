@@ -175,7 +175,7 @@ burn_update(void)
 			(!ch->numCombatants() || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
 			ch->in_room->isOpenAir() &&
 			!NOGRAV_ZONE(ch->in_room->zone) &&
-			(!MOUNTED(ch) || !AFF_FLAGGED(MOUNTED(ch), AFF_INFLIGHT)) &&
+			(!ch->isMounted() || !AFF_FLAGGED(ch->isMounted(), AFF_INFLIGHT)) &&
 			(fall_to = ch->in_room->dir_option[DOWN]->to_room) &&
 			fall_to != ch->in_room) {
 
@@ -684,13 +684,13 @@ burn_update(void)
 				continue;
 
 		/* Hunter Mobs */
-		if (HUNTING(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
+		if (ch->isHunting() && !AFF_FLAGGED(ch, AFF_BLIND) &&
 			ch->getPosition() > POS_SITTING && !GET_MOB_WAIT(ch)) {
 			if (MOB_FLAGGED(ch, MOB_WIMPY)
 				&& (GET_HIT(ch) < MIN(500, GET_MAX_HIT(ch)) * 0.80)
 				|| (100 - ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch))) >
 				GET_MORALE(ch) + number(-5, 10 + (GET_INT(ch) >> 2))) {
-				if (ch->in_room == HUNTING(ch)->in_room)
+				if (ch->in_room == ch->isHunting()->in_room)
 					do_flee(ch, "", 0, 0, 0);
 			} else
 				hunt_victim(ch);
@@ -2173,7 +2173,7 @@ mobile_activity(void)
 				continue;
 
 			/** scan surrounding rooms **/
-			if (!found && !HUNTING(ch) && ch->getPosition() > POS_FIGHTING && 
+			if (!found && !ch->isHunting() && ch->getPosition() > POS_FIGHTING && 
 			!MOB_FLAGGED(ch, MOB_SENTINEL) && 
 			(GET_LEVEL(ch) + GET_MORALE(ch) > (random_number_zero_low(120) + 50) 
 			 || IS_TARRASQUE(ch)))
@@ -2337,7 +2337,7 @@ mobile_activity(void)
 
 		/* Mob Movement -- Lair */
 		if (GET_MOB_LAIR(ch) > 0 && ch->in_room->number != GET_MOB_LAIR(ch) &&
-			!HUNTING(ch) &&
+			!ch->isHunting() &&
 			(room = real_room(GET_MOB_LAIR(ch))) &&
 			((dir = find_first_step(ch->in_room, room, STD_TRACK)) >= 0) &&
 			MOB_CAN_GO(ch, dir) &&
@@ -2970,7 +2970,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 							false, ch, 0, 0, TO_ROOM);
 
                         if (was_fighting)
-						    HUNTING(ch) = was_fighting;
+						    ch->startHunting(was_fighting);
 						return 0;
 					}
 				}

@@ -674,7 +674,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 					act("$n suddenly appears.", TRUE, mob, 0, 0, TO_ROOM);
 				}
 				if (srch->arg[2])
-					HUNTING(mob) = ch;
+					mob->startHunting(ch);
 			}
 
 			// SRCH_LOG( ch, srch );

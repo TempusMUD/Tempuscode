@@ -51,8 +51,6 @@
 
 int corpse_state = 0;
 
-//extern CreatureList defendingList;
-
 /* The Fight related routines */
 obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
 int calculate_weapon_probability(struct Creature *ch, int prob,
@@ -60,88 +58,6 @@ int calculate_weapon_probability(struct Creature *ch, int prob,
 int do_combat_fire(struct Creature *ch, struct Creature *vict);
 int do_casting_weapon(Creature *ch, obj_data *weap);
 int calculate_attack_probability(struct Creature *ch);
-
-/* start one char fighting another ( yes, it is horrible, I know... )  */
-//void
-//set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
-//{
-/*	if (ch == vict)
-		return;
-
-	CreatureList::iterator cit;
-	for (cit = ch->in_room->people.begin();
-			cit != ch->in_room->people.end();
-			cit++) {
-		if ((*cit) != vict
-				&& (*cit) != ch
-				&& DEFENDING((*cit)) == vict
-				&& !(*cit)->numCombatants()
-				&& (*cit)->getPosition() > POS_RESTING) {
-			send_to_char(*cit, "You defend %s from %s's vicious attack!\r\n",
-				PERS(vict, (*cit)), PERS(ch, (*cit)));
-			send_to_char(vict, "%s defends you from %s's vicious attack!\r\n",
-				PERS(*cit, vict), PERS(ch, vict));
-			act("$n comes to $N's defense!", false,
-				*cit, 0, vict, TO_NOTVICT);
-			vict = *cit;
-			break;
-		}
-	} */
-
-/*	if (aggr && !IS_NPC(vict)) {
-		if (IS_NPC(ch)) {
-			if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && !IS_NPC(ch->master)
-				&& (!MOB_FLAGGED(ch, MOB_MEMORY)
-					|| !char_in_memory(vict, ch))) {
-				check_killer(ch->master, vict, "charmed");
-			}
-		} else {
-			if(!is_arena_combat(ch, vict)) {
-				if (!PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-					send_to_char(ch, "A small dark shape flies in from the future and sticks to your tongue.\r\n");
-					return;
-				}
-				if (!PRF2_FLAGGED(vict, PRF2_PKILLER)) {
-					send_to_char(ch, 
-						"A small dark shape flies in from the future and sticks to your eye.\r\n");
-					return;
-				}
-				if (ch->isNewbie() && !is_arena_combat(ch, vict)) {
-					send_to_char(ch, "You are currently under new player protection, which expires at level 41.\r\n");
-					send_to_char(ch, "You cannot attack other players while under this protection.\r\n");
-					return;
-				}
-			}
-			
-
-			check_killer(ch, vict, "normal");
-
-			if (vict->isNewbie() &&
-					GET_LEVEL(ch) < LVL_IMMORT &&
-					!is_arena_combat(ch, vict)) {
-				act("$N is currently under new character protection.",
-					FALSE, ch, 0, vict, TO_CHAR);
-				act("You are protected by the gods against $n's attack!",
-					FALSE, ch, 0, vict, TO_VICT);
-				slog("%s protected against %s (set_fighting) at %d",
-					GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
-				ch->removeCombat(vict);
-				ch->setPosition(POS_STANDING);
-				return;
-			}
-		}
-	} */
-
-/*	if (DEFENDING(vict) == ch)
-		stop_defending(vict);
-
-    ch->addCombat(vict, aggr);
-//    vict->addCombat(ch, false);
-	update_pos(ch);
-
-	trigger_prog_fight(ch, vict); */
-//}
-
 
 /* 
    corrects position and removes combat related bits.
@@ -160,7 +76,7 @@ remove_fighting_affects(struct Creature *ch)
 	} else {
 		if (IS_AFFECTED(ch, AFF_CHARM) && IS_UNDEAD(ch))
 			ch->setPosition(POS_STANDING);
-		else if (!HUNTING(ch))
+		else if (!ch->isHunting())
 			ch->setPosition(GET_DEFAULT_POS(ch));
 		else
 			ch->setPosition(POS_STANDING);
@@ -168,44 +84,6 @@ remove_fighting_affects(struct Creature *ch)
 
 	update_pos(ch);
 
-}
-
-void
-set_defending(Creature *ch, Creature *target)
-{
-	if (DEFENDING(ch))
-		stop_defending(ch);
-
-	DEFENDING(ch) = target;
-
-	act("You start defending $N against attacks.",
-		true, ch, 0, DEFENDING(ch), TO_CHAR);
-	act("$n starts defending you against attacks.",
-		false, ch, 0, DEFENDING(ch), TO_VICT);
-	act("$n starts defending $N against attacks.",
-		false, ch, 0, DEFENDING(ch), TO_NOTVICT);
-
-//    defendingList.add(ch);
-}
-
-void
-stop_defending(struct Creature *ch)
-{
-	if (!DEFENDING(ch))
-		return;
-
-	act("You stop defending $N.",
-		true, ch, 0, DEFENDING(ch), TO_CHAR);
-	if (ch->in_room == DEFENDING(ch)->in_room) {
-		act("$n stops defending you against attacks.",
-			false, ch, 0, DEFENDING(ch), TO_VICT);
-		act("$n stops defending $N.",
-			false, ch, 0, DEFENDING(ch), TO_NOTVICT);
-	}
-
-    DEFENDING(ch) = NULL;
-
-//    defendingList.remove(ch);
 }
 
 /* When ch kills victim */
@@ -1955,7 +1833,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						if (MOB_FLAGGED(victim, MOB_MEMORY))
 							remember(victim, ch);
 						if (MOB2_FLAGGED(victim, MOB2_HUNT))
-							HUNTING(victim) = ch;
+							victim->startHunting(ch);
 					}
 					// make the victim retailiate against the attacker
 					if (ch->findCombat(victim)) {
@@ -2142,8 +2020,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				GET_MOBKILLS(ch) += 1;
 			}
 
-			if (HUNTING(ch) && HUNTING(ch) == victim)
-				HUNTING(ch) = NULL;
+			if (ch->isHunting() && ch->isHunting() == victim)
+				ch->stopHunting();
 			die(victim, ch, attacktype, is_humil);
 			DAM_RETURN(DAM_VICT_KILLED);
 
@@ -2300,17 +2178,17 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		return 0;
 	}
 
-	if (MOUNTED(ch)) {
-		if (MOUNTED(ch)->in_room != ch->in_room) {
-			REMOVE_BIT(AFF2_FLAGS(MOUNTED(ch)), AFF2_MOUNTED);
-			MOUNTED(ch) = NULL;
+	if (ch->isMounted()) {
+		if (ch->isMounted()->in_room != ch->in_room) {
+			REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
+			ch->dismount();
 		} else
 			send_to_char(ch, "You had better dismount first.\r\n");
 		return 0;
 	}
-	if (MOUNTED(victim)) {
-		REMOVE_BIT(AFF2_FLAGS(MOUNTED(victim)), AFF2_MOUNTED);
-		MOUNTED(victim) = NULL;
+	if (victim->isMounted()) {
+		REMOVE_BIT(AFF2_FLAGS(victim->isMounted()), AFF2_MOUNTED);
+		victim->dismount();
 		act("You are knocked from your mount by $N's attack!",
 			FALSE, victim, 0, ch, TO_CHAR);
 	}
@@ -2318,10 +2196,10 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
-			if (MOUNTED((*it)) && MOUNTED((*it)) == victim) {
+			if ((*it)->isMounted() && (*it)->isMounted() == victim) {
 				act("You are knocked from your mount by $N's attack!",
 					FALSE, (*it), 0, ch, TO_CHAR);
-				MOUNTED((*it)) = NULL;
+				(*it)->dismount();
 				(*it)->setPosition(POS_STANDING);
 			}
 		}

@@ -1811,7 +1811,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                 (k->numCombatants() ? GET_NAME(k->findRandomCombat()) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-                HUNTING(k) ? PERS(HUNTING(k), ch) : "N",
+                k->isHunting() ? PERS(k->isHunting(), ch) : "N",
                 k->char_specials.timer);
 		acc_strcat("\r\n", NULL);
     } else if (k->in_room) {
@@ -1820,7 +1820,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
             (k->numCombatants() ? GET_NAME(k->findRandomCombat()) : "N"),
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-            HUNTING(k) ? PERS(HUNTING(k), ch) : "N");
+            k->isHunting() ? PERS(k->isHunting(), ch) : "N");
     }
     if (k->desc)
         acc_sprintf(", Connected: %s, Idle [%d]\r\n",
@@ -1829,8 +1829,8 @@ do_stat_character(struct Creature *ch, struct Creature *k)
     else
         acc_strcat("\r\n", NULL);
 
-    if (k->getPosition() == POS_MOUNTED && MOUNTED(k))
-		acc_sprintf("Mount: %s\r\n", GET_NAME(MOUNTED(k)));
+    if (k->getPosition() == POS_MOUNTED && k->isMounted())
+		acc_sprintf("Mount: %s\r\n", GET_NAME(k->isMounted()));
 
     if (IS_NPC(k)) {
         sprintbit(MOB_FLAGS(k), action_bits, buf);
@@ -5511,7 +5511,7 @@ ACMD(do_show)
         cit = characterList.begin();
         for (; cit != characterList.end(); ++cit) {
             vict = *cit;
-            if (!HUNTING(vict) || !HUNTING(vict)->in_room
+            if (!vict->isHunting() || !vict->isHunting()->in_room
                 || !can_see_creature(ch, vict))
                 continue;
 
@@ -5520,7 +5520,7 @@ ACMD(do_show)
 
             sprintf(buf, "%s %3d. %23s [%5d] ---> %20s [%5d]\r\n", buf, ++i,
                 GET_NAME(vict), vict->in_room->number,
-                GET_NAME(HUNTING(vict)), HUNTING(vict)->in_room->number);
+                GET_NAME(vict->isHunting()), vict->isHunting()->in_room->number);
         }
 
         page_string(ch->desc, buf);
@@ -6332,7 +6332,7 @@ ACMD(do_set)
         if (!(vict2 = get_char_vis(ch, argument))) {
             send_to_char(ch, "No such target character around.\r\n");
         } else {
-            HUNTING(vict) = vict2;
+            vict->startHunting(vict2);
             send_to_char(ch, "%s now hunts %s.\r\n", GET_NAME(vict),
                 GET_NAME(vict2));
         }

@@ -19,12 +19,15 @@
 #include "player_table.h"
 #include "prog.h"
 
+extern CreatureList defendingList;
+extern CreatureList mountedList;
+extern CreatureList huntingList;
+
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(Creature *ch);
 void remove_fighting_affects(struct Creature *ch);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
-
 
 Creature::Creature(bool pc)
 {
@@ -565,21 +568,14 @@ Creature::extract(cxn_state con_state)
 
 	// remove fighters, defenders, hunters and mounters
 
-	for (cit = characterList.begin(); cit != characterList.end(); ++cit) {
-		if (this == DEFENDING((*cit)))
-			stop_defending(*cit);
+    for (cit = defendingList.begin(); cit != defendingList.end(); ++cit) {
+        if (this == (*cit)->isDefending())
+            (*cit)->stopDefending();
+    }
 
-		if (this == HUNTING((*cit)))
-			HUNTING((*cit)) = NULL;
-            
-        (*cit)->removeCombat(this);
-        if (!(*cit)->numCombatants())
-            combatList.remove(*cit);
-
-        this->removeCombat((*cit));
-
-		if (this == MOUNTED((*cit))) {
-			MOUNTED((*cit)) = NULL;
+    for (cit = mountedList.begin(); cit != mountedList.end(); ++cit) {
+		if (this == (*cit)->isMounted()) {
+            (*cit)->dismount();
 			if ((*cit)->getPosition() == POS_MOUNTED) {
 				if ((*cit)->in_room->sector_type == SECT_FLYING)
 					(*cit)->setPosition(POS_FLYING);
@@ -587,14 +583,20 @@ Creature::extract(cxn_state con_state)
 					(*cit)->setPosition(POS_STANDING);
 			}
 		}
-	}
+        mountedList.remove(*cit);
+    }
+
+	for (cit = huntingList.begin(); cit != huntingList.end(); ++cit) {
+		if (this == (*cit)->isHunting())
+			(*cit)->stopHunting();
+   	}
 
 	destroy_attached_progs(this);
 	char_arrest_pardoned(this);
 
-	if (MOUNTED(this)) {
-		REMOVE_BIT(AFF2_FLAGS(MOUNTED(this)), AFF2_MOUNTED);
-		MOUNTED(this) = NULL;
+	if (this->isMounted()) {
+		REMOVE_BIT(AFF2_FLAGS(this->isMounted()), AFF2_MOUNTED);
+        this->dismount();
 	}
 
 	// Make sure they aren't editing a help topic.
@@ -873,9 +875,11 @@ Creature::clear(void)
         delete this->fighting;
     } */
 
-    CreatureList::iterator it = characterList.begin();
-    for (; it != characterList.end(); ++it) {
+    CreatureList::iterator it = combatList.begin();
+    for (; it != combatList.end(); ++it) {
         (*it)->removeCombat(this);
+        if ((*it)->numCombatants() == 0)
+            combatList.remove((*it));
     }
     delete this->fighting;
     this->fighting = NULL;
@@ -1274,7 +1278,10 @@ Creature::set_reputation(int amt)
 CombatDataList *
 Creature::getCombatList()
 {
-    return fighting;
+    if (this)
+        return fighting;
+
+    return NULL;
 }
 
 void
@@ -1304,8 +1311,8 @@ Creature::addCombat(Creature *ch, bool initiated)
         ch = def;
     }
     
-    if (DEFENDING(ch) == this)
-        stop_defending(ch);
+    if (ch->isDefending() == this)
+        ch->stopDefending();
         
     // If we're already in combat with the victim, move him
     // to the front of the list
@@ -1474,7 +1481,7 @@ Creature::hasDefender(Creature *vict)
     for (; cit != vict->in_room->people.end(); ++cit) {
         if ((*cit) != vict && 
             (*cit) != this &&
-            DEFENDING((*cit)) == vict &&
+            (*cit)->isDefending() == vict &&
             !(*cit)->numCombatants() &&
             (*cit)->getPosition() > POS_RESTING) {
             def = *cit;
@@ -1506,5 +1513,81 @@ void
 Creature::extinguish()
 {
     affect_from_char(this, SPELL_ABLAZE);
+}
+
+void
+Creature::stopDefending()
+{
+    if (!this->isDefending())
+        return;
+
+    act("You stop defending $N.",
+        true, this, 0, this->isDefending(), TO_CHAR);
+    if (this->in_room == this->isDefending()->in_room) {
+        act("$n stops defending you against attacks.",
+            false, this, 0, this->isDefending(), TO_VICT);
+        act("$n stops defending $N.",
+            false, this, 0, this->isDefending(), TO_NOTVICT);
+    }
+
+    char_specials.defending = NULL;
+
+    defendingList.remove(this);
+}
+
+void
+Creature::startDefending(Creature *vict)
+{
+    if (this->isDefending())
+        this->stopDefending();
+
+    char_specials.defending = vict;
+
+    act("You start defending $N against attacks.",
+        true, this, 0, vict, TO_CHAR);
+    act("$n starts defending you against attacks.",
+        false, this, 0, vict, TO_VICT);
+    act("$n starts defending $N against attacks.",
+        false, this, 0, vict, TO_NOTVICT);
+
+    defendingList.add(this);
+}
+
+void
+Creature::dismount()
+{
+    if (!this->isMounted())
+        return;
+
+    char_specials.mounted = NULL;
+
+    mountedList.remove(this);
+}
+
+void
+Creature::mount(Creature *vict)
+{
+    if (this->isMounted())
+        return;
+
+    char_specials.mounted = vict;
+
+    mountedList.add(this);
+}
+
+void
+Creature::startHunting(Creature *vict)
+{
+    char_specials.hunting = vict;
+
+    huntingList.add(this);
+}
+
+void
+Creature::stopHunting()
+{
+    char_specials.hunting = NULL;
+
+    huntingList.remove(this);
 }
 #undef __Creature_cc__

@@ -982,6 +982,20 @@ new_descriptor(int s)
 	/* determine if the site is banned */
 	int bantype = isbanned(newd->host, buf2);
 	if (bantype == BAN_ALL) {
+        write_to_descriptor(desc, "**************************************************"
+                                  "******************************\r\n");
+        write_to_descriptor(desc, "                               T E M P U S  M U D\r\n");
+        write_to_descriptor(desc, "**************************************************"
+                                  "******************************\r\n");
+        write_to_descriptor(desc, "\t\tWe're sorry, we have been forced to ban your "
+                                  "IP address.\r\n\tIf you have never played here "
+                                  "before, or you feel we have made\r\n\ta mistake, or "
+                                  "perhaps you just got caught in the wake of\r\n\tsomeone "
+                                  "elses trouble making, please mail "
+                                  "unban@tempusmud.com.\r\n\tPlease include your account "
+                                  "name and your character name(s)\r\n\tso we can siteok "
+                                  "your IP.  We apologize for the inconvenience,\r\n\t and "
+                                  "we hope to see you soon!");
 		close(desc);
 		mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
 			"Connection attempt denied from [%s]", newd->host);

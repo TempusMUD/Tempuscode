@@ -820,13 +820,13 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 			desc = tmp_sprintf("%s is here, fighting someone who already left!",
 				desc);
 	} else if (i->getPosition() == POS_MOUNTED) {
-		if (!MOUNTED(i))
+		if (!i->isMounted())
 			desc = tmp_sprintf("%s is here, mounted on thin air!", desc);
-		else if (MOUNTED(i) == ch)
+		else if (i->isMounted() == ch)
 			desc = tmp_sprintf("%s is here, mounted on YOU.  Heh heh...", desc);
-		else if (MOUNTED(i)->in_room == i->in_room)
+		else if (i->isMounted()->in_room == i->in_room)
 			desc = tmp_sprintf("%s is here, mounted on %s.", desc,
-				PERS(MOUNTED(i), ch));
+				PERS(i->isMounted(), ch));
 		else
 			desc = tmp_sprintf("%s is here, mounted on someone who already left!",
 				desc);
@@ -2706,9 +2706,9 @@ ACMD(do_score)
 				"You are fighting thin air.", CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_MOUNTED:
-		if (MOUNTED(ch))
+		if (ch->isMounted())
 			acc_strcat(CCGRN(ch, C_NRM), "You are mounted on ",
-				PERS(MOUNTED(ch), ch), ".", CCNRM(ch, C_NRM), "\r\n", NULL);
+				PERS(ch->isMounted(), ch), ".", CCNRM(ch, C_NRM), "\r\n", NULL);
 		else
 			acc_strcat(CCGRN(ch, C_NRM), "You are mounted on the thin air!?",
 				CCNRM(ch, C_NRM), "\r\n", NULL);

@@ -1257,7 +1257,28 @@ struct Creature {
     bool initiatedCombat(Creature *ch);
     bool isOkToAttack(Creature *vict);
     Creature *hasDefender(Creature *vict);
+
+    Creature *isDefending() {
+        return char_specials.defending;
+    }
+
+    void startDefending(Creature *vict);
+    void stopDefending();
     int numCombatants();
+
+    Creature *isMounted() {
+        return char_specials.mounted;
+    }
+
+    void mount(Creature *vict);
+    void dismount();
+
+    Creature *isHunting() {
+        return char_specials.hunting;
+    }
+    void startHunting(Creature *vict);
+    void stopHunting();
+
     Creature *findCombat(Creature *ch);
     Creature *findRandomCombat();
     CombatDataList *getCombatList();

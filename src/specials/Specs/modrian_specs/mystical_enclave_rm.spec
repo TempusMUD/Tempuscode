@@ -9,7 +9,7 @@ SPECIAL(mystical_enclave)
 	struct room_data *stair_rnum = NULL;
 
 	if (!CMD_IS("up") || !IS_PSYCHIC(ch) || ch->getPosition() < POS_STANDING ||
-		MOUNTED(ch))
+		ch->isMounted())
 		return 0;
 
 	if ((stair_rnum = real_room(30126)) == NULL)
