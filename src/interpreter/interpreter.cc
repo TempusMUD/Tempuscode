@@ -1404,8 +1404,6 @@ command_interpreter(struct char_data * ch, char *argument)
             send_to_char("You're talking nonsense to me.\r\n", ch);
             break;
         case 7:
-            send_to_char("What are you doing, Dave?\r\n", ch);
-            break;
         case 8:
         case 9:
             sprintf(buf, "Hmm, I don't understand the command '%s'.\r\n", arg);
