@@ -798,6 +798,7 @@ void
 make_prompt(struct descriptor_data * d)
 {
     char lnum[5];
+    char colorbuf[ 100 ];	
   
     if (d->str)
 	if (d->editor_mode == 1)
@@ -846,7 +847,27 @@ make_prompt(struct descriptor_data * d)
 		    CCCYN(d->character, C_SPR), CCBLD(d->character, C_CMP), 
 		    GET_MOVE(d->character), CCNRM(d->character, C_SPR),
 		    CCYEL_BLD(d->character, C_CMP), CCNRM(d->character, C_SPR));
-    
+
+	if ( PRF2_FLAGGED( d->character, PRF2_DISPALIGN ) ) {
+             
+	    if( GET_ALIGNMENT( d->character ) > 300 ) {
+		sprintf( colorbuf, "%s", CCBLU( d->character, C_SPR ) );
+            }
+
+	    else if ( GET_ALIGNMENT( d->character ) < -300 ) {
+		sprintf( colorbuf, "%s", CCRED( d->character, C_SPR ) );
+	    }
+
+	    else {
+		sprintf( colorbuf, "%s", CCWHT(d->character, C_SPR ) );
+	    } 
+
+	    sprintf( prompt, "%s%s%s%d%s%sA%s ", prompt,
+                    colorbuf, CCBLD( d->character,C_CMP ),
+                    GET_ALIGNMENT( d->character ), CCNRM( d->character, C_SPR ),
+                    CCYEL_BLD( d->character, C_CMP ), CCNRM( d->character,C_SPR ) );    
+        }
+
 	if (FIGHTING(d->character) && 
 	    PRF2_FLAGGED(d->character, PRF2_AUTO_DIAGNOSE)) 
 	    sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->character, C_NRM),

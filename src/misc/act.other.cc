@@ -783,34 +783,68 @@ ACMD(do_display)
     argument = two_arguments(argument, arg1, arg2);
   
     if (!*arg1) {
-	send_to_char("Usage: prompt { H | M | V | all | none }\r\n", ch);
+	send_to_char("Usage: prompt { H | M | V | A | all | normal | none }\r\n",ch);
 	return;
     }
     if (arg2 != NULL) {
 	if (is_abbrev(arg1, "rows")) {
-	    if (is_number(arg2)) 
+
+	    if (is_number(arg2)) { 
 		GET_ROWS(ch) = atoi(arg2);
-	    else
+	        return;
+	    }
+
+	    else {
 		send_to_char("Usage: display rows <number>\r\n", ch);
+	        return;
+	    }
+
 	} 
 	else if (is_abbrev(arg1, "cols")) {
-	    if (is_number(arg2))
+	    
+	    if (is_number(arg2)) {
 		GET_COLS(ch) = atoi(arg2);
-	    else
+		return;
+	    }
+	    
+	    else {
 		send_to_char("Usage: display cols <number>\r\n", ch);
+		return;
+	    }
+
 	}
+
 	else if (is_abbrev(arg1, "vt100"))
-	    if (is_abbrev(arg2, "enable"))
+
+	    if (is_abbrev(arg2, "enable")) {
 		enable_vt100(ch);
-	    else if (is_abbrev(arg2, "disable"))
+		return;
+	    }
+	    
+	    else if (is_abbrev(arg2, "disable")) {
 		disable_vt100(ch);
-	    else
+		return;
+	    }
+
+	    else {
 		send_to_char("Usage: display vt100 [on | off]\r\n", ch);
+		return;
+	    }
     }
-    if ((!str_cmp(arg1, "on")) || (!str_cmp(arg1, "all")))
-	SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
+
+    if ( ( ! str_cmp( arg1, "on" ) ) || ( ! str_cmp( arg1, "normal" ) ) ) {
+	REMOVE_BIT( PRF2_FLAGS( ch ), PRF2_DISPALIGN );
+        SET_BIT( PRF_FLAGS( ch ), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE );
+    }
+
+    else if ( ( ! str_cmp( arg1, "all" ) ) ) {
+        SET_BIT( PRF_FLAGS( ch ), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE );
+        SET_BIT( PRF2_FLAGS( ch ), PRF2_DISPALIGN );
+    }
+
     else {
 	REMOVE_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
+	REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN );
 
 	for (i = 0; i < strlen(arg1); i++) {
 	    switch (LOWER(arg1[i])) {
@@ -823,6 +857,9 @@ ACMD(do_display)
 	    case 'v':
 		SET_BIT(PRF_FLAGS(ch), PRF_DISPMOVE);
 		break;
+	    case 'a':
+	        SET_BIT( PRF2_FLAGS( ch ), PRF2_DISPALIGN );
+	        break;	
 	    }
 	}
     }
