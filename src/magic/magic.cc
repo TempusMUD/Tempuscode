@@ -786,9 +786,11 @@ mag_damage(int level, struct char_data * ch, struct char_data * victim,
             dam >>= 1;
         } else if ( IS_EVIL(ch) ) {
             dam += dam * abs(GET_ALIGNMENT(ch)) / 4000;
+            if(IS_SOULLESS(ch))
+                dam += dam * 1/4;
 
             if ( IS_GOOD(victim) ) {
-            dam += dam * abs(GET_ALIGNMENT(victim)) / 2000;
+                dam += dam * abs(GET_ALIGNMENT(victim)) / 2000;
             }
         }
     }
@@ -2607,19 +2609,19 @@ mag_points(int level, struct char_data * ch, struct char_data * victim,
     }
 
     if (hit > 0 && savetype == SAVING_SPELL && SPELL_IS_DIVINE(spellnum)) {
+        int alignment = GET_ALIGNMENT(ch);
+        if(alignment < 0) alignment *= -1;
 
-    if (!IS_GOOD(ch)) {
-        hit >>= 1;
-    }
-    else {
-        hit += (hit * GET_ALIGNMENT(ch)) / 3000;
-    }
+        hit += (hit * alignment) / 3000;
+        if(IS_EVIL(ch)) {
+            hit >>= 1;
+        } 
     }
 
     if (hit && affected_by_spell(victim, SPELL_BLACKMANTLE)) {
-    hit = 0;
-    to_vict = NULL;
-    send_to_char("Your blackmantle absorbs the healing!\r\n", ch);
+        hit = 0;
+        to_vict = NULL;
+        send_to_char("Your blackmantle absorbs the healing!\r\n", ch);
     }
   
     GET_HIT(victim) = MIN(GET_MAX_HIT(victim), GET_HIT(victim) + hit);
@@ -2627,13 +2629,13 @@ mag_points(int level, struct char_data * ch, struct char_data * victim,
     GET_MANA(victim) = MIN(GET_MAX_MANA(victim), GET_MANA(victim) + mana);
     GET_ALIGNMENT(victim) = MAX(MIN(GET_ALIGNMENT(victim) + align, 1000), -1000);
     if (hunger)
-    gain_condition(victim, FULL, hunger);
+        gain_condition(victim, FULL, hunger);
     if (thirst)
-    gain_condition(victim, THIRST, thirst);
+        gain_condition(victim, THIRST, thirst);
     if (to_vict)
-    act(to_vict, FALSE, ch, 0, victim, TO_VICT);
+        act(to_vict, FALSE, ch, 0, victim, TO_VICT);
     if (to_room)
-    act(to_room, FALSE, ch, 0, victim, TO_NOTVICT);
+        act(to_room, FALSE, ch, 0, victim, TO_NOTVICT);
 }
   
 
