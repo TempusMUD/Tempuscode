@@ -2054,7 +2054,7 @@ ACMD(do_stat)
                 tmp = atoi(buf2);
                 for (found = 0, zone = zone_table; zone && found != 1;
                     zone = zone->next)
-                    if (zone->number == tmp) {
+                    if (zone->number <= tmp && zone->top > tmp*100) {
                         do_stat_zone(ch, zone);
                         found = 1;
                     }
