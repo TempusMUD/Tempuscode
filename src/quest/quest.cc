@@ -53,40 +53,35 @@ const struct qcontrol_option {
 	char *usage;
 	int level;
 } qc_options[] = {
-	{
-	"show", "[quest vnum]", LVL_AMBASSADOR}, {
-	"create", "<type> <name>", LVL_AMBASSADOR}, {
-	"end", "<quest vnum>", LVL_AMBASSADOR}, {
-	"add", "<name> <vnum>", LVL_AMBASSADOR}, {
-	"kick", "<player> <quest vnum>", LVL_AMBASSADOR},	// 5
-	{
-	"flags", "<quest vnum> <+/-> <flags>", LVL_AMBASSADOR}, {
-	"comment", "<quest vnum> <comments>", LVL_AMBASSADOR}, {
-	"describe", "<quest vnum>", LVL_AMBASSADOR}, {
-	"update", "<quest vnum>", LVL_AMBASSADOR}, {
-	"ban", "<player> <quest vnum>", LVL_AMBASSADOR},	// 10
-	{
-	"unban", "<player> <quest vnum>", LVL_AMBASSADOR}, {
-	"mute", "<player> <quest vnum>", LVL_AMBASSADOR}, {
-	"unmute", "<player> <quest vnum>", LVL_AMBASSADOR}, {
-	"level", "<quest vnum> <access level>", LVL_AMBASSADOR}, {
-	"minlev", "<quest vnum> <minlev>", LVL_AMBASSADOR},	// 15
-	{
-	"maxlev", "<quest vnum> <maxlev>", LVL_AMBASSADOR}, {
-	"mingen", "<quest vnum> <min generation>", LVL_AMBASSADOR}, {
-	"maxgen", "<quest vnum> <max generation>", LVL_AMBASSADOR}, {
-	"mload", "<mobile vnum> <vnum>", LVL_IMMORT}, {
-	"purge", "<quest vnum> <mobile name>", LVL_IMMORT},	// 20
-	{
-	"save", "", LVL_IMMORT }, {
-	"help", "<topic>", LVL_AMBASSADOR}, {
-	"switch", "<mobile name>", LVL_IMMORT}, {
-	"rename", "<obj name> <new obj name>", LVL_GRIMP}, {
-	"oload", "<item num> <vnum>", LVL_AMBASSADOR}, {
-	"trans", "<quest vnum> [room number]", LVL_AMBASSADOR}, {
-	"award", "<quest vnum> <player> <pts> [comments]", LVL_AMBASSADOR}, {
-	"penalize", "<quest vnum> <player> <pts> [reason]", LVL_AMBASSADOR}, {
-	NULL, NULL, 0}				// list terminator
+	{"show", "[quest vnum]", LVL_AMBASSADOR},
+	{"create", "<type> <name>", LVL_AMBASSADOR},
+	{"end", "<quest vnum>", LVL_AMBASSADOR},
+	{"add", "<name> <vnum>", LVL_AMBASSADOR},
+	{"kick", "<player> <quest vnum>", LVL_AMBASSADOR},	// 5
+	{"flags", "<quest vnum> <+/-> <flags>", LVL_AMBASSADOR},
+	{"comment", "<quest vnum> <comments>", LVL_AMBASSADOR},
+	{"describe", "<quest vnum>", LVL_AMBASSADOR},
+	{"update", "<quest vnum>", LVL_AMBASSADOR},
+	{"ban", "<player> <quest vnum>", LVL_AMBASSADOR},	// 10
+	{"unban", "<player> <quest vnum>", LVL_AMBASSADOR},
+	{"mute", "<player> <quest vnum>", LVL_AMBASSADOR},
+	{"unmute", "<player> <quest vnum>", LVL_AMBASSADOR},
+	{"level", "<quest vnum> <access level>", LVL_AMBASSADOR},
+	{"minlev", "<quest vnum> <minlev>", LVL_AMBASSADOR},	// 15
+	{"maxlev", "<quest vnum> <maxlev>", LVL_AMBASSADOR},
+	{"mingen", "<quest vnum> <min generation>", LVL_AMBASSADOR},
+	{"maxgen", "<quest vnum> <max generation>", LVL_AMBASSADOR},
+	{"mload", "<mobile vnum> <vnum>", LVL_IMMORT},
+	{"purge", "<quest vnum> <mobile name>", LVL_IMMORT},	// 20
+	{"save", "", LVL_IMMORT },
+	{"help", "<topic>", LVL_AMBASSADOR},
+	{"switch", "<mobile name>", LVL_IMMORT},
+	{"title", "<quest vnum> <title>", LVL_AMBASSADOR},
+	{"oload", "<item num> <vnum>", LVL_AMBASSADOR},
+	{"trans", "<quest vnum> [room number]", LVL_AMBASSADOR},
+	{"award", "<quest vnum> <player> <pts> [comments]", LVL_AMBASSADOR},
+	{"penalize", "<quest vnum> <player> <pts> [reason]", LVL_AMBASSADOR},
+	{NULL, NULL, 0}				// list terminator
 };
 
 const char *qtypes[] = {
@@ -322,9 +317,8 @@ ACMD(do_qcontrol)
 	case 22:
 		do_qcontrol_switch(ch, argument, com);
 		break;
-	case 23:// rename
-		//do_qcontrol_rename( ch, argument ,com );
-		send_to_char(ch, "Not Implemented\r\n");
+	case 23:	// title
+		do_qcontrol_title( ch, argument ,com );
 		break;
 	case 24:					// oload
 		do_qcontrol_oload(ch, argument, com);
@@ -1595,7 +1589,40 @@ do_qcontrol_switch(Creature *ch, char *argument, int com)
 	do_switch(ch, argument, 0, SCMD_QSWITCH, 0);
 }
 
+void
+do_qcontrol_title(Creature *ch, char *argument, int com)
+{
+	Quest *quest;
+	char *quest_str;
 
+	quest_str = tmp_getword(&argument);
+	if (isdigit(*quest_str)) {
+		quest = quest_by_vnum(atoi(quest_str));
+	} else {
+		send_to_char(ch, "You must specify a quest to change the title of!\r\n");
+		return;
+	}
+		
+	if (!quest) {
+		send_to_char(ch, "Quest #%s is not active!\r\n", quest_str);
+		return;
+	}
+
+	if (!quest->canEdit(ch)) {
+		send_to_char(ch, "Piss off, beanhead.  Permission DENIED!\r\n");
+		return;
+	}
+		
+	if (!*argument) {
+		send_to_char(ch, "You might wanna put a new title in there, partner.\r\n");
+		return;
+	}
+
+	free(quest->name);
+	quest->name = strdup(argument);
+	send_to_char(ch, "Quest #%d's title has been changed to %s\r\n",
+		quest->getVnum(), quest->name);
+}
 
 /*************************************************************************
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
