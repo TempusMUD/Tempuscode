@@ -7396,11 +7396,14 @@ static const char* CODER_UTIL_USAGE =
                     "Commands: \r\n"
                     "      tick - forces a mud-wide tick to occur.\r\n"
 					"      recalc - recalculates all mobs and saves.\r\n"
+					"    cmdusage - shows commands and usage counts.\r\n"
+					"  unusedcmds - shows unused commands.\r\n"
                     ;
 
 ACMD(do_coderutil)
 {
     Tokenizer tokens(argument);
+	int idx, cmd_num, len = 0;
     char token[MAX_INPUT_LENGTH];
     
     if(!tokens.next(token)) {
@@ -7416,6 +7419,35 @@ ACMD(do_coderutil)
 	} else if (strcmp(token, "recalc") == 0) {
 		tokens.next(token);
 		recalc_all_mobs(ch, token);
+	} else if (strcmp(token, "cmdusage") == 0) {
+		for (idx = 1;idx < num_of_cmds;idx++) {
+			cmd_num = cmd_sort_info[idx].sort_pos;
+			if (!cmd_info[cmd_num].usage)
+				continue;
+
+			len += sprintf(buf + len, "%-15s %7lu   ",
+				cmd_info[cmd_num].command, cmd_info[cmd_num].usage);
+			if (!(idx % 3)) {
+				strcpy(buf + len, "\r\n");
+				len += 2;
+			}
+		}
+		strcpy(buf + len, "\r\n");
+		page_string(ch->desc, buf);
+	} else if (strcmp(token, "unusedcmds") == 0) {
+		for (idx = 1;idx < num_of_cmds;idx++) {
+			cmd_num = cmd_sort_info[idx].sort_pos;
+			if (cmd_info[cmd_num].usage)
+				continue;
+
+			len += sprintf(buf + len, "%-16s", cmd_info[cmd_num].command);
+			if (!(idx % 5)) {
+				strcpy(buf + len, "\r\n");
+				len += 2;
+			}
+		}
+		strcpy(buf + len, "\r\n");
+		page_string(ch->desc, buf);
 	} else
         send_to_char(ch, CODER_UTIL_USAGE);
 }

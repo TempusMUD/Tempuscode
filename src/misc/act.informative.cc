@@ -4552,57 +4552,6 @@ ACMD(do_toggle)
 }
 
 
-struct sort_struct {
-	int sort_pos;
-	bool is_social;
-	bool is_mood;
-} *cmd_sort_info = NULL;
-
-int num_of_cmds;
-
-
-void
-sort_commands(void)
-{
-	int a, b, tmp;
-
-	ACMD(do_action);
-
-	num_of_cmds = 0;
-
-	/*
-	 * first, count commands (num_of_commands is actually one greater than the
-	 * number of commands; it inclues the '\n'.
-	 */
-	while (*cmd_info[num_of_cmds].command != '\n')
-		num_of_cmds++;
-
-	/* create data array */
-	CREATE(cmd_sort_info, struct sort_struct, num_of_cmds);
-
-	/* initialize it */
-	for (a = 1; a < num_of_cmds; a++) {
-		cmd_sort_info[a].sort_pos = a;
-		cmd_sort_info[a].is_social =
-			(cmd_info[a].command_pointer == do_action);
-		cmd_sort_info[a].is_mood =
-			(cmd_info[a].command_pointer == do_mood);
-	}
-
-	/* the infernal special case */
-	cmd_sort_info[find_command("insult")].is_social = TRUE;
-
-	/* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
-	for (a = 1; a < num_of_cmds - 1; a++)
-		for (b = a + 1; b < num_of_cmds; b++)
-			if (strcmp(cmd_info[cmd_sort_info[a].sort_pos].command,
-					cmd_info[cmd_sort_info[b].sort_pos].command) > 0) {
-				tmp = cmd_sort_info[a].sort_pos;
-				cmd_sort_info[a].sort_pos = cmd_sort_info[b].sort_pos;
-				cmd_sort_info[b].sort_pos = tmp;
-			}
-}
-
 
 
 ACMD(do_commands)
@@ -4663,8 +4612,8 @@ ACMD(do_commands)
 			continue;
 		if (moods != cmd_sort_info[i].is_mood)
 			continue;
-		sprintf(buf + strlen(buf), "%-11s", cmd_info[i].command);
-		if (!(no % 7))
+		sprintf(buf + strlen(buf), "%-16s", cmd_info[i].command);
+		if (!(no % 5))
 			strcat(buf, "\r\n");
 		no++;
 	}

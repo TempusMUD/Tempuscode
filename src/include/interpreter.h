@@ -77,7 +77,18 @@ struct command_info {
 	sh_int minimum_level;
 	int subcmd;
 	int security;
+	unsigned long usage;
 };
+
+struct sort_struct {
+	int sort_pos;
+	bool is_social;
+	bool is_mood;
+};
+
+extern struct sort_struct *cmd_sort_info;
+
+extern int num_of_cmds;
 
 /* necessary for CMD_IS macro */
 #ifndef __interpreter_c__
