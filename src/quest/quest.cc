@@ -318,7 +318,7 @@ ACMD(do_qcontrol)
 	case 20:
 		do_qcontrol_save(ch, argument, com);
 		break;
-	case 21:					// help
+	case 21:					// help - in help_collection.cc
 		do_qcontrol_help(ch, argument);
 		break;
 	case 22:
@@ -345,52 +345,6 @@ ACMD(do_qcontrol)
 		break;
 	}
 }
-
-/*  
- *  Replaced with help_collection.cc:do_qcontrol_help
- *  and placed in help_collection.cc to avoid yet another include.
-void
-do_qcontrol_help(struct Creature *ch, char *argument)
-{
-	int i;
-
-	skip_spaces(&argument);
-	if (!*argument) {
-		send_to_char(ch, "Qcontrol help topics:\r\n" "types\r\n" "flags\r\n");
-		return;
-	}
-	if (is_abbrev(argument, "types")) {
-		char *msg = tmp_sprintf("Quest types:\r\n");
-		i = 0;
-		while (1) {
-			if (*qtypes[i] == '\n')
-				break;
-			char *line = tmp_sprintf("  %2d. %s\r\n", i, qtypes[i]);
-			msg = tmp_strcat(msg,line);
-			i++;
-		}
-		page_string(ch->desc, msg);
-		return;
-	} else if (is_abbrev(argument, "flags")) {
-		char *msg = tmp_sprintf("Quest flags:\r\n");
-		i = 0;
-		while (1) {
-			if (*quest_bits[i] == '\n')
-				break;
-			char *line = tmp_sprintf("  %2d. %s - %s\r\n", 
-									 i, 
-									 quest_bits[i],
-									 quest_bit_descs[i]);
-			msg = tmp_strcat(msg,line);
-			i++;
-		}
-		page_string(ch->desc, msg);
-		return;
-	}
-
-	send_to_char(ch, "No help on that topic.\r\n");
-}
-*/
 
 void							//Load mobile.
 do_qcontrol_mload(Creature *ch, char *argument, int com)
