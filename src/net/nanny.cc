@@ -77,7 +77,7 @@ int _parse_name(char *arg, char *name);
 int reserved_word(char *argument);
 char *diag_conditions(struct Creature *ch);
 int perform_alias(struct descriptor_data *d, char *orig);
-int get_from_q(struct txt_q *queue, char *dest, int *aliased);
+int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
 int parse_player_class(char *arg, int timeframe);
 int parse_time_frame(char *arg);
 
@@ -328,6 +328,12 @@ handle_input(struct descriptor_data *d, char *arg)
 			return;
 		}
 
+        if( oldPlayerIndex.exists(arg) ) {
+            send_to_desc(d, "\r\nThat character name is reserved"
+                            " and can be imported from the account menu.\r\n\r\n");
+			return;
+        }
+
 		if (playerIndex.exists(arg)) {
 			send_to_desc(d, "\r\nThat character name is already taken.\r\n\r\n");
 			return;
@@ -336,7 +342,9 @@ handle_input(struct descriptor_data *d, char *arg)
 		if (Valid_Name(arg)) {
 			d->creature = d->account->create_char(arg);
 			set_desc_state(CXN_NAME_VERIFY, d);
-		}
+		} else {
+            send_to_desc(d, "\r\nThat character name is invalid.\r\n\r\n");
+        }
 		break;
 	case CXN_NAME_VERIFY:
 		switch (tolower(arg[0])) {
