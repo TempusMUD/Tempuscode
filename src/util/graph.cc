@@ -374,7 +374,24 @@ ACMD(do_track)
 	dir = find_first_step(ch->in_room, vict->in_room,
 		GET_LEVEL(ch) > LVL_TIMEGOD ? GOD_TRACK : STD_TRACK );
 
-	switch (dir) {
+    //misdirection melisma
+    affected_type *misdirection = affected_by_spell(vict, SONG_MISDIRECTION_MELISMA);
+    if (misdirection && misdirection->level + 40 > random_number_zero_low(150)) {
+        int total = 0;
+        int dirs[NUM_OF_DIRS];
+        
+        for (int idx = 0;idx < NUM_OF_DIRS; idx++) {
+            if (vict->in_room->dir_option[idx] && 
+                vict->in_room->dir_option[idx]->to_room && 
+                vict->in_room->dir_option[idx]->to_room != vict->in_room) {
+                dirs[total] = idx;
+                total++;
+            }
+        }
+        dir = dirs[random_number_zero_low(total-1)];
+    }
+    
+    switch (dir) {
 	case BFS_ERROR:
 		send_to_char(ch, "Hmm.. something seems to be wrong.\r\n");
 		break;
@@ -476,9 +493,23 @@ ACMD(do_psilocate)
 		send_to_char(vict, 
 			"You feel a strange sensation on the periphery of your psyche.\r\n");
 
-	if (number(0, 121) > CHECK_SKILL(ch, SKILL_PSILOCATE) + GET_INT(ch))
-		dir = number(0, NUM_DIRS - 1);
-
+    //misdirection melisma and psilocate failure
+    affected_type *misdirection = affected_by_spell(vict, SONG_MISDIRECTION_MELISMA);
+	if (number(0, 121) > CHECK_SKILL(ch, SKILL_PSILOCATE) + GET_INT(ch) ||
+        (misdirection && misdirection->level + 40 > random_number_zero_low(150))) {
+        int total = 0;
+        int dirs[NUM_OF_DIRS];
+        
+        for (int idx = 0;idx < NUM_OF_DIRS; idx++) {
+            if (vict->in_room->dir_option[idx] && 
+                vict->in_room->dir_option[idx]->to_room && 
+                vict->in_room->dir_option[idx]->to_room != vict->in_room) {
+                dirs[total] = idx;
+                total++;
+            }
+        }
+        dir = dirs[random_number_zero_low(total-1)];
+    }
 	error = number(0, 140 - CHECK_SKILL(ch, SKILL_PSILOCATE) - GET_INT(ch));
 	error = MAX(0, error) / 8;
 
@@ -628,12 +659,30 @@ hunt_victim(struct Creature *ch)
 			}
 		}
 	}
-
-	if (!IS_AFFECTED(ch->isHunting(), AFF_NOTRACK) ||
-		(IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER)))
-		dir = find_first_step(ch->in_room, ch->isHunting()->in_room, STD_TRACK);
-	else
+    
+    if (!IS_AFFECTED(ch->isHunting(), AFF_NOTRACK) ||
+        (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER))) {
+        dir = find_first_step(ch->in_room, ch->isHunting()->in_room, STD_TRACK);
+        
+        //misdirection melisma
+        affected_type *misdirection = affected_by_spell(ch->isHunting(), SONG_MISDIRECTION_MELISMA);
+        if (misdirection && misdirection->level + 40 > random_number_zero_low(150)) {
+            int total = 0;
+            int dirs[NUM_OF_DIRS];
+            
+            for (int idx = 0;idx < NUM_OF_DIRS; idx++) {
+                if (ch->isHunting()->in_room->dir_option[idx] && 
+                    ch->isHunting()->in_room->dir_option[idx]->to_room && 
+                    ch->isHunting()->in_room->dir_option[idx]->to_room != ch->isHunting()->in_room) {
+                        dirs[total] = idx;
+                        total++;
+                    }
+            }
+            dir = dirs[random_number_zero_low(total-1)];
+        }
+    } else {
 		dir = -1;
+    }
 	if (dir < 0 ||
 			find_distance(ch->in_room, ch->isHunting()->in_room) > GET_INT(ch)) {
 		act("$n says, 'Damn! Lost $M!'", FALSE, ch, 0, ch->isHunting(), TO_ROOM);

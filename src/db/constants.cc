@@ -2499,7 +2499,7 @@ extern const char *spell_wear_off_msg[] = {
     "The wall of sound falters and fades.", 
     "!UNUSED!", 
     "!lament of longing!", 
-    "!UNUSED!",	/* 350 */
+    "You are no longer misdirecting your pursuers.",	/* 350 */
 	"The song of armament fades.", 
     "!UNUSED!", 
     "Your armor returns to normal harness.", 
@@ -2524,7 +2524,7 @@ extern const char *spell_wear_off_msg[] = {
     "Your strenth fails with your memory of the Power Overture.", 
     "The power of the dieties no longer flows in your veins.", 
     "!UNUSED!", 
-    "!UNUSED!",	/* 375 */
+    "!SONIC DISRUPTION!",	/* 375 */
 	"!UNUSED!", 
     "!clarifying harmonies!", 
     "The swallow's wings return you gently to the ground.", 
@@ -2536,10 +2536,10 @@ extern const char *spell_wear_off_msg[] = {
     "The weight of the world decends upon your shoulders.", 
     "!UNUSED!",	/* 385 */
 	"The slivers of music whirling around your body fade into nothingness.", 
-    "!UNUSED!", 
+    "!DIRGE!", 
     "You feel less charming.", 
     "!UNUSED!", 
-    "!UNUSED!",	/* 390 */
+    "Your life force is no longer fading.",	/* 390 */
 	"The air around you returns to normal.", 
     "The rhythm invading your brain dissipates.", 
     "!UNUSED!", 

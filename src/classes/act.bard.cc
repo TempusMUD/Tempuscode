@@ -64,7 +64,7 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Misdirection Melisma", // 350
-      "",
+      "Begone foul stalker, get out off of my trail,\nStay out of my mind, I direct you to fail.",
       false,
       ITEM_STRING
     },

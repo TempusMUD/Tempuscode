@@ -3843,7 +3843,11 @@ mag_assign_spells(void)
 		X, X, 100, 50, 5, POS_FIGHTING, TAR_IGNORE, TRUE,
 		MAG_BARD | MAG_AREAS);
 
-	/* C L A S S E S      M A N A   */
+	spello(SONG_MISDIRECTION_MELISMA, X, X, X, X, X, X, X, X, X, X, 34, X, X, X,
+           X, X, X, 75, 50, 2, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
+           MAG_BARD | MAG_AFFECTS);
+
+    /* C L A S S E S      M A N A   */
 
 	spello(SPELL_TIDAL_SPACEWARP, X, X, X, X, X, X, 15, X, X, X, X, X, X, X, X,
 		X, X, 100, 50, 2, POS_STANDING, TAR_CHAR_ROOM, FALSE,

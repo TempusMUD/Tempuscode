@@ -2732,7 +2732,22 @@ Fireball: like harder bones, skin, organ membranecs
         to_room = "$n's flesh begins to rot and decay!";
         break;
 
-	default:
+    case SONG_MISDIRECTION_MELISMA:
+        aff_array[0].duration = (GET_CHA(ch) >> 2) + (ch->getLevelBonus(SONG_LICHS_LYRICS) >> 4);
+        aff_array[0].location = APPLY_CASTER;
+        
+        if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120))
+            aff_array[0].duration = (int)(aff_array[0].duration * 1.5);
+
+        if (IS_NPC(ch))
+            aff_array[0].modifier = -(ch->getIdNum());
+        else
+            aff_array[0].modifier = ch->getIdNum();
+
+        to_vict = "You begin misdirecting attempts to track you.";
+        break;
+
+    default:
 		errlog("unknown spell %d in mag_affects.", spellnum);
 		break;
 	}
