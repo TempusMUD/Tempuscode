@@ -2810,6 +2810,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 		act("You resist the affects!", FALSE, ch, 0, victim, TO_VICT);
 		if (ch != victim)
 			act("$N resists the affects!", FALSE, ch, 0, victim, TO_CHAR);
+		WAIT_STATE(ch, PULSE_VIOLENCE);
 		return;
 	}
 
