@@ -1444,9 +1444,19 @@ command_interpreter(struct char_data *ch, char *argument)
 
 		/* log cmds */
 		if (log_cmds || PLR_FLAGGED(ch, PLR_LOG)) {
-			sprintf(buf, "CMD: %s ::%s '%s'", GET_NAME(ch),
-				cmd_info[cmd].command, line);
-			cmdlog(buf);
+			// Don't log movement, that's just silly.
+			if( strcmp(cmd_info[cmd].command,"north")
+			 && strcmp(cmd_info[cmd].command,"south")
+			 && strcmp(cmd_info[cmd].command,"east")
+			 && strcmp(cmd_info[cmd].command,"west") 
+			 && strcmp(cmd_info[cmd].command,"up") 
+			 && strcmp(cmd_info[cmd].command,"down") 
+			 && strcmp(cmd_info[cmd].command,"exits") ) 
+			{
+				sprintf(buf, "CMD: %s ::%s '%s'", GET_NAME(ch),
+					cmd_info[cmd].command, line);
+				cmdlog(buf);
+			}
 		}
 		/* end log cmds */
 	}
