@@ -61,7 +61,7 @@ long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode s
 void
 cmdlog(char *str)
 {
-	static char logbuf[16000];
+	static char *log;
 	static ofstream commandLog;
 	time_t ct;
 	char *tmstr;
@@ -73,8 +73,8 @@ cmdlog(char *str)
 	ct = time(0);
 	tmstr = asctime(localtime(&ct));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
-	sprintf(logbuf, "%-19.19s :: %s", tmstr, str);
-	commandLog << logbuf << endl;
+	log = tmp_sprintf("%-19.19s :: %s", tmstr, str);
+	commandLog << log << endl;
 	commandLog.flush();
 }
 
@@ -1448,17 +1448,15 @@ command_interpreter(struct Creature *ch, char *argument)
 		/* log cmds */
 		if (log_cmds || PLR_FLAGGED(ch, PLR_LOG)) {
 			// Don't log movement, that's just silly.
-			if( strcmp(cmd_info[cmd].command,"north")
+			if(strcmp(cmd_info[cmd].command,"north")
 			 && strcmp(cmd_info[cmd].command,"south")
 			 && strcmp(cmd_info[cmd].command,"east")
 			 && strcmp(cmd_info[cmd].command,"west") 
 			 && strcmp(cmd_info[cmd].command,"up") 
 			 && strcmp(cmd_info[cmd].command,"down") 
-			 && strcmp(cmd_info[cmd].command,"exits") ) 
-			{
-				sprintf(buf, "CMD: %s ::%s '%s'", GET_NAME(ch),
-					cmd_info[cmd].command, line);
-				cmdlog(buf);
+			 && strcmp(cmd_info[cmd].command,"exits")) {
+				cmdlog(tmp_sprintf("CMD: %s ::%s '%s'", GET_NAME(ch),
+					cmd_info[cmd].command, line));
 			}
 		}
 		/* end log cmds */
