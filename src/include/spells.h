@@ -41,6 +41,7 @@ extern const char *spells[];
 #define CAST_PSIONIC    10
 #define CAST_PHYSIC     11
 #define CAST_INTERNAL   12
+#define CAST_MERCENARY  13
 
 #define MAG_DAMAGE	    (1 << 0)
 #define MAG_AFFECTS	    (1 << 1)
@@ -69,6 +70,7 @@ extern const char *spells[];
 #define MAG_WATERZAP    (1 << 24)
 #define MAG_NOSUN       (1 << 25)
 #define MAG_ZEN			(1 << 26)
+#define MAG_MERCENARY   (1 << 27)
 
 #define SPELL_IS_MAGIC(splnm)   IS_SET(spell_info[splnm].routines, MAG_MAGIC)
 #define SPELL_IS_DIVINE(splnm)  IS_SET(spell_info[splnm].routines, MAG_DIVINE)
@@ -78,6 +80,7 @@ extern const char *spells[];
 #define SPELL_IS_PROGRAM(splnm)IS_SET(spell_info[splnm].routines, CYB_ACTIVATE) 
 #define SPELL_IS_EVIL(splnm)    IS_SET(spell_info[splnm].routines, MAG_EVIL)
 #define SPELL_IS_GOOD(splnm)    IS_SET(spell_info[splnm].routines, MAG_GOOD)
+#define SPELL_IS_MERCENARY(splnm) IS_SET(spell_info[splnm].routines, MAG_MERCENARY)
 
 #define SPELL_USES_GRAVITY(splnm) (splnm == SPELL_GRAVITY_WELL)
 
@@ -284,7 +287,8 @@ extern const char *spells[];
 #define SPELL_ENDURANCE            234
 #define SPELL_AMNESIA              235  // psi remorts
 #define SPELL_NULLPSI              236  // remove psi affects
-
+  /**************************  Mercenary Devices ******************/
+#define SPELL_DECOY                237  
   /*************************** Physic Alterations *****************/
 #define SPELL_ACIDITY              301
 #define SPELL_ATTRACTION_FIELD     302
@@ -757,6 +761,7 @@ ASPELL(spell_banishment);
 ASPELL(spell_sun_ray);
 ASPELL(spell_emp_pulse);
 ASPELL(spell_quantum_rift);
+ASPELL(spell_decoy);
 
 /* basic magic calling functions */
 

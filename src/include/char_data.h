@@ -285,7 +285,8 @@
                                          // get nor give any xp in any way.
 #define MOB_SOULLESS        (1 << 21) // Mobile is Soulless - Unholy compact.
 #define MOB_SPIRIT_TRACKER  (1 << 22) // Can track through !track
-#define NUM_MOB_FLAGS             23
+#define MOB_ISCRIPT         (1 << 23) // Mob has an iscript
+#define NUM_MOB_FLAGS             24
 
 #define MOB2_SCRIPT         (1 << 0)
 #define MOB2_MOUNT          (1 << 1)
@@ -823,12 +824,15 @@ struct player_special_data {
     struct olc_help_r *olc_help;  /* which help record being edited       */
     struct special_search_data *olc_srch;      /* which srch being edited */
     struct ticl_data *olc_ticl;   /* which ticl being edited              */
+    class  CIScript *olc_iscript; /* which iscript being edited           */
+    class  CHandler *olc_handler; /* which iscript handler being edited   */
     struct room_data *was_in_room;/* location for linkdead people         */
     class HelpItem *olc_help_item;
 };
 
 struct mob_shared_data {
     int vnum;
+    int svnum;
     int number;
     int  attack_type;           /* The Attack Type integer for NPC's     */
     int lair;                /* room the mob always returns to */

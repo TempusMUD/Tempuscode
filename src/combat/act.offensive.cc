@@ -30,6 +30,7 @@
 #include "guns.h"
 #include "bomb.h"
 #include "shop.h"
+#include "events.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -47,6 +48,8 @@ void appear(struct char_data * ch, struct char_data *vict);
 int find_door(struct char_data *ch, char *type, char *dir, const char *cmdname);
 void update_pos( struct char_data * victim );
 int do_combat_fire(struct char_data *ch, struct char_data *vict, int weap_pos, int prob);
+void send_to_queue(MobileEvent *e);
+
 
 int 
 check_mob_reaction(struct char_data *ch, struct char_data *vict)
@@ -948,7 +951,7 @@ ACMD(do_assist)
 ACMD(do_hit)
 {
     struct char_data *vict;
-
+    
     one_argument(argument, arg);
 
     if (!*arg)
@@ -972,7 +975,11 @@ ACMD(do_hit)
 
 	GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 5);
 	hit(ch, vict, TYPE_UNDEFINED);
-	WAIT_STATE(ch, PULSE_VIOLENCE);
+	if(IS_NPC(vict) && IS_SET(MOB_FLAGS(vict), MOB_ISCRIPT)) {    
+        EventPhysicalAttack *e = new EventPhysicalAttack(ch, vict, 0, 0, 0, 0);
+        send_to_queue(e);
+    }    
+    WAIT_STATE(ch, PULSE_VIOLENCE);
     }
 }
 

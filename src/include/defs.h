@@ -20,7 +20,8 @@
 #define SPECIAL(name) \
 int (name)(struct char_data *ch, void *me, int cmd, char *argument, int spec_mode)
 
-
+#define GET_SCRIPT_VNUM(mob)   (IS_MOB(mob) ? \
+                              mob->mob_specials.shared->svnum : -1)
 
   /* Zone flags */
 #define ZONE_AUTOSAVE           (1 << 0)
@@ -107,6 +108,7 @@ int (name)(struct char_data *ch, void *me, int cmd, char *argument, int spec_mod
 #define PULSE_MOBILE    (4 RL_SEC)
 #define PULSE_VIOLENCE  (2 RL_SEC)
 #define SEG_VIOLENCE    (7)
+#define SEG_QUEUE    (7)
 #define FIRE_TICK       (3 RL_SEC)
 #define PULSE_FLOWS     (1 RL_SEC)
 

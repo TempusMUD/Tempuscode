@@ -579,6 +579,7 @@ extern const char *sector_types[] = {
   "Elemental Salt",
   "Elemental Ash",
   "Elemental Dust",
+  "Blood",
   "\n"
 };
 
@@ -798,6 +799,7 @@ extern const char *action_bits_desc[] = {
   "pet",
   "soulless",
   "Spirit_Hunter",
+  "Has_IScript"
   "\n"
 };
 

@@ -25,9 +25,11 @@
 #include "char_class.h"
 #include "fight.h"
 #include "constants.h"
+#include "events.h"
 
 SPECIAL(shop_keeper);
 int check_mob_reaction(struct char_data *ch, struct char_data *vict);
+void send_to_queue(MobileEvent *e);
 
 ACMD(do_steal)
 {
@@ -245,6 +247,10 @@ ACMD(do_steal)
 
     if (ohoh && IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict))
         hit(vict, ch, TYPE_UNDEFINED);
+    if (ohoh && IS_NPC(vict) && AWAKE(vict) && IS_SET(MOB_FLAGS(vict), MOB_ISCRIPT)) {
+        EventSteal *e = new EventSteal(ch, vict, 0, 0, 0, 0);
+        send_to_queue(e);
+    }
 }
 
 ACMD(do_backstab)

@@ -1,5 +1,5 @@
 $(OBJ)/act.offensive.o : act.offensive.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h $(INCLUDE)/events.h 
 	$(CXX) -c $(CXXFLAGS) act.offensive.cc     -o $(OBJ)/act.offensive.o
 $(OBJ)/combat_arena.o : combat_arena.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/combat.h $(INCLUDE)/handler.h $(INCLUDE)/screen.h $(INCLUDE)/bomb.h $(INCLUDE)/house.h 
@@ -11,6 +11,6 @@ $(OBJ)/combat_utils.o : combat_utils.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/fight.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h $(INCLUDE)/guns.h $(INCLUDE)/specs.h 
 	$(CXX) -c $(CXXFLAGS) combat_utils.cc      -o $(OBJ)/combat_utils.o
 $(OBJ)/fight.o : fight.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/fight.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h $(INCLUDE)/guns.h $(INCLUDE)/specs.h $(INCLUDE)/mobact.h $(INCLUDE)/combat.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/flow_room.h $(INCLUDE)/fight.h $(INCLUDE)/bomb.h $(INCLUDE)/shop.h $(INCLUDE)/guns.h $(INCLUDE)/specs.h $(INCLUDE)/mobact.h $(INCLUDE)/combat.h $(INCLUDE)/events.h 
 	$(CXX) -c $(CXXFLAGS) fight.cc             -o $(OBJ)/fight.o
 OBJFILES= $(OBJ)/act.offensive.o $(OBJ)/combat_arena.o $(OBJ)/combat_messages.o $(OBJ)/combat_utils.o $(OBJ)/fight.o

@@ -98,6 +98,7 @@ const char *olc_mset_keys[] = {
     "move_buf",
     "lair",         /** 45 **/
     "leader",
+    "iscript", 
     "\n"
 
 };
@@ -1137,7 +1138,12 @@ void do_mob_mset(struct char_data *ch, char *argument)
 	mob_p->mob_specials.shared->leader = i;
 	send_to_char("Mobile leader set.\r\n", ch);
 	break;
-
+    
+    case 47:
+        i = atoi(arg2);
+        mob_p->mob_specials.shared->svnum = i;
+        send_to_char("Mobile iscript set.\r\n", ch);
+    break;    
     default:
 	break;
     } 
@@ -1240,19 +1246,22 @@ save_mobs(struct char_data *ch)
     FILE                    *realfile;
   
     if (GET_OLC_MOB(ch)) {
-	mob = GET_OLC_MOB(ch);
-	m_vnum = mob->mob_specials.shared->vnum;
-	for (zone = zone_table; zone; zone = zone->next)
-	    if (m_vnum >= zone->number*100 && m_vnum <= zone->top)
-		break;
-	if (!zone) {
-	    sprintf(buf, "OLC: ERROR finding zone for mobile %d.", m_vnum);
-	    slog(buf);
-	    send_to_char("Unable to match mobile with zone error..\r\n", ch);
-	    return 1;
-	}
-    } else
-	zone = ch->in_room->zone;
+        mob = GET_OLC_MOB(ch);
+        m_vnum = mob->mob_specials.shared->vnum;
+        for (zone = zone_table; zone; zone = zone->next) {
+            if (m_vnum >= zone->number*100 && m_vnum <= zone->top)
+                break;
+        }
+        
+        if (!zone) {
+            sprintf(buf, "OLC: ERROR finding zone for mobile %d.", m_vnum);
+            slog(buf);
+            send_to_char("Unable to match mobile with zone error..\r\n", ch);
+            return 1;
+        }
+    } 
+    else
+        zone = ch->in_room->zone;
 
     sprintf(fname,"world/mob/%d.mob", zone->number);
     if(access(fname,W_OK) < 0){
@@ -1261,166 +1270,168 @@ save_mobs(struct char_data *ch)
     }
     sprintf(fname,"world/mob/olc/%d.mob", zone->number);
     if (!(file = fopen(fname,"w")))
-	return 1;
+        return 1;
   
     if ((write_mob_index(ch, zone)) != 1) {
-	fclose(file);
-	return(1);
+        fclose(file);
+        return(1);
     }
 
     low  = zone->number * 100;
     high = zone->top;
 
     for (mob = mob_proto; mob; mob = mob->next) {
-	if (mob->mob_specials.shared->vnum < low)
-	    continue;
-	if (mob->mob_specials.shared->vnum > high)
-	    break;
+        if (mob->mob_specials.shared->vnum < low)
+            continue;
+        if (mob->mob_specials.shared->vnum > high)
+            break;
 
-	if (mob->mob_specials.shared->attack_type != 0 ||
-	    GET_STR(mob) != 11 ||
-	    GET_ADD(mob) != 0 ||
-	    GET_INT(mob) != 11 ||
-	    GET_WIS(mob) != 11 ||
-	    GET_DEX(mob) != 11 ||
-	    GET_CON(mob) != 11 ||
-	    GET_CHA(mob) != 11 ||
-	    GET_MAX_MANA(mob) != 10 ||
-	    GET_MAX_MOVE(mob) != 50 ||
-	    GET_WEIGHT(mob) != 200 ||
-	    GET_HEIGHT(mob) != 198 ||
-	    GET_MORALE(mob) != 100 ||
-	    GET_MOB_LAIR(mob) >= 0 ||
-	    GET_MOB_LEADER(mob) >= 0 ||
-	    GET_REMORT_CLASS(mob) != -1 ||
-	    GET_CASH(mob) != 0 ||
-	    MOB_SHARED(mob)->move_buf)
-	    espec_mob = 1;
+        if (mob->mob_specials.shared->attack_type != 0 ||
+            GET_STR(mob) != 11 ||
+            GET_ADD(mob) != 0 ||
+            GET_INT(mob) != 11 ||
+            GET_WIS(mob) != 11 ||
+            GET_DEX(mob) != 11 ||
+            GET_CON(mob) != 11 ||
+            GET_CHA(mob) != 11 ||
+            GET_MAX_MANA(mob) != 10 ||
+            GET_MAX_MOVE(mob) != 50 ||
+            GET_WEIGHT(mob) != 200 ||
+            GET_HEIGHT(mob) != 198 ||
+            GET_MORALE(mob) != 100 ||
+            GET_MOB_LAIR(mob) >= 0 ||
+            GET_MOB_LEADER(mob) >= 0 ||
+            GET_REMORT_CLASS(mob) != -1 ||
+            GET_CASH(mob) != 0 ||
+            MOB_SHARED(mob)->move_buf)
+                espec_mob = 1;
 
-	fprintf(file, "#%d\n", mob->mob_specials.shared->vnum);    
+        fprintf(file, "#%d\n", mob->mob_specials.shared->vnum);    
     
-	if (mob->player.name)
-	    fprintf(file, "%s", mob->player.name);
-	fprintf(file, "~\n");
+        if (mob->player.name)
+            fprintf(file, "%s", mob->player.name);
+        fprintf(file, "~\n");
     
-	if (mob->player.short_descr)
-	    fprintf(file, "%s", mob->player.short_descr);
-	fprintf(file, "~\n");
+        if (mob->player.short_descr)
+            fprintf(file, "%s", mob->player.short_descr);
+        fprintf(file, "~\n");
     
-	if (mob->player.long_descr) {
-	    tmp = strlen(mob->player.long_descr);
-	    for (i = 0; i < tmp; i++)
-		if (mob->player.long_descr[i] != '\r' &&
-		    mob->player.long_descr[i] != '~')
-		    fputc(mob->player.long_descr[i], file);
-	}
-	fprintf(file, "~\n");
+        if (mob->player.long_descr) {
+            tmp = strlen(mob->player.long_descr);
+            for (i = 0; i < tmp; i++)
+                if (mob->player.long_descr[i] != '\r' &&
+                    mob->player.long_descr[i] != '~')
+                    fputc(mob->player.long_descr[i], file);
+        }
+        fprintf(file, "~\n");
     
-	if (mob->player.description) {
-	    tmp = strlen(mob->player.description);
-	    for (i = 0; i < tmp; i++)
-		if (mob->player.description[i] != '\r' &&
-		    mob->player.description[i] != '~')
-		    fputc(mob->player.description[i], file);
-	}
-	fprintf(file, "~\n");
+        if (mob->player.description) {
+            tmp = strlen(mob->player.description);
+            for (i = 0; i < tmp; i++)
+                if (mob->player.description[i] != '\r' &&
+                    mob->player.description[i] != '~')
+                    fputc(mob->player.description[i], file);
+        }
+        fprintf(file, "~\n");
     
-	REMOVE_BIT(MOB_FLAGS(mob), MOB_WIMPY);
-	num2str(sbuf1, MOB_FLAGS(mob));
-	num2str(sbuf2, MOB2_FLAGS(mob));
-	num2str(sbuf3, AFF_FLAGS(mob));
-	num2str(sbuf4, AFF2_FLAGS(mob));
-	num2str(sbuf5, AFF3_FLAGS(mob));
+        REMOVE_BIT(MOB_FLAGS(mob), MOB_WIMPY);
+        num2str(sbuf1, MOB_FLAGS(mob));
+        num2str(sbuf2, MOB2_FLAGS(mob));
+        num2str(sbuf3, AFF_FLAGS(mob));
+        num2str(sbuf4, AFF2_FLAGS(mob));
+        num2str(sbuf5, AFF3_FLAGS(mob));
     
-	fprintf(file, "%s %s %s %s %s %d ", sbuf1, sbuf2, sbuf3,
-		sbuf4, sbuf5,
-		GET_ALIGNMENT(mob));
+        fprintf(file, "%s %s %s %s %s %d ", sbuf1, sbuf2, sbuf3,
+        sbuf4, sbuf5,
+        GET_ALIGNMENT(mob));
     
-	if (espec_mob == 1)
-	    fprintf(file, "E\n");
-	else
-	    fprintf(file, "S\n");
+        if (espec_mob == 1)
+            fprintf(file, "E\n");
+        else
+            fprintf(file, "S\n");
 
-	fprintf(file, "%d %d %d %dd%d+%d %dd%d+%d\n", 
-		GET_LEVEL(mob),
-		(20 - mob->points.hitroll),
-		mob->points.armor / 10,
-		mob->points.hit,
-		mob->points.mana,
-		mob->points.move,
-		mob->mob_specials.shared->damnodice,
-		mob->mob_specials.shared->damsizedice,
-		mob->points.damroll);
+        fprintf(file, "%d %d %d %dd%d+%d %dd%d+%d\n", 
+                GET_LEVEL(mob),
+                (20 - mob->points.hitroll),
+                mob->points.armor / 10,
+                mob->points.hit,
+                mob->points.mana,
+                mob->points.move,
+                mob->mob_specials.shared->damnodice,
+                mob->mob_specials.shared->damsizedice,
+                mob->points.damroll);
     
-	fprintf(file, "%d %d %d %d\n", GET_GOLD(mob),
-		GET_EXP(mob),
-		GET_RACE(mob),
-		GET_CLASS(mob));
+        fprintf(file, "%d %d %d %d\n", GET_GOLD(mob),
+                GET_EXP(mob),
+                GET_RACE(mob),
+                GET_CLASS(mob));
     
-	fprintf(file, "%d %d %d %d\n", mob->getPosition(),
-		GET_DEFAULT_POS(mob),
-		GET_SEX(mob),
-		mob->mob_specials.shared->attack_type);
+        fprintf(file, "%d %d %d %d\n", mob->getPosition(),
+                GET_DEFAULT_POS(mob),
+                GET_SEX(mob),
+                mob->mob_specials.shared->attack_type);
 	    
-	if (espec_mob == 1) {
-	    if (GET_STR(mob) != 11)
-		fprintf(file, "Str: %d\n", GET_STR(mob));
-	    if (GET_ADD(mob) != 0)
-		fprintf(file, "StrAdd: %d\n", GET_ADD(mob));
-	    if (GET_INT(mob) != 11)
-		fprintf(file, "Int: %d\n", GET_INT(mob));
-	    if (GET_WIS(mob) != 11)
-		fprintf(file, "Wis: %d\n", GET_WIS(mob));
-	    if (GET_DEX(mob) != 11)
-		fprintf(file, "Dex: %d\n", GET_DEX(mob));
-	    if (GET_CON(mob) != 11)
-		fprintf(file, "Con: %d\n", GET_CON(mob));
-	    if (GET_CHA(mob) != 11)
-		fprintf(file, "Cha: %d\n", GET_CHA(mob));
-	    if (GET_MAX_MANA(mob) != 10)
-		fprintf(file, "MaxMana: %d\n", GET_MAX_MANA(mob));
-	    if (GET_MAX_MOVE(mob) != 50)
-		fprintf(file, "MaxMove: %d\n", GET_MAX_MOVE(mob));
-	    if (GET_WEIGHT(mob) != 200)
-		fprintf(file, "Weight: %d\n", GET_WEIGHT(mob));
-	    if (GET_HEIGHT(mob) != 198)
-		fprintf(file, "Height: %d\n", GET_HEIGHT(mob));
-	    if (GET_CASH(mob) != 0)
-		fprintf(file, "Cash: %d\n", GET_CASH(mob));
-	    if (GET_MORALE(mob) != 100)
-		fprintf(file, "Morale: %d\n", GET_MORALE(mob));
-	    if (GET_MOB_LAIR(mob) >= 0)
-		fprintf(file, "Lair: %d\n", GET_MOB_LAIR(mob));
-	    if (GET_MOB_LEADER(mob) >= 0)
-		fprintf(file, "Leader: %d\n", GET_MOB_LEADER(mob));
-	    if (GET_REMORT_CLASS(mob) != -1)
-		fprintf(file, "RemortClass: %d\n", GET_REMORT_CLASS(mob));
-	    if (MOB_SHARED(mob)->move_buf)
-		fprintf(file, "Move_buf: %s\n", MOB_SHARED(mob)->move_buf);
-	    fprintf(file, "E\n");      
-	}
+        if (espec_mob == 1) {
+            if (GET_STR(mob) != 11)
+                fprintf(file, "Str: %d\n", GET_STR(mob));
+            if (GET_ADD(mob) != 0)
+                fprintf(file, "StrAdd: %d\n", GET_ADD(mob));
+            if (GET_INT(mob) != 11)
+                fprintf(file, "Int: %d\n", GET_INT(mob));
+            if (GET_WIS(mob) != 11)
+                fprintf(file, "Wis: %d\n", GET_WIS(mob));
+            if (GET_DEX(mob) != 11)
+                fprintf(file, "Dex: %d\n", GET_DEX(mob));
+            if (GET_CON(mob) != 11)
+                fprintf(file, "Con: %d\n", GET_CON(mob));
+            if (GET_CHA(mob) != 11)
+                fprintf(file, "Cha: %d\n", GET_CHA(mob));
+            if (GET_MAX_MANA(mob) != 10)
+                fprintf(file, "MaxMana: %d\n", GET_MAX_MANA(mob));
+            if (GET_MAX_MOVE(mob) != 50)
+                fprintf(file, "MaxMove: %d\n", GET_MAX_MOVE(mob));
+            if (GET_WEIGHT(mob) != 200)
+                fprintf(file, "Weight: %d\n", GET_WEIGHT(mob));
+            if (GET_HEIGHT(mob) != 198)
+                fprintf(file, "Height: %d\n", GET_HEIGHT(mob));
+            if (GET_CASH(mob) != 0)
+                fprintf(file, "Cash: %d\n", GET_CASH(mob));
+            if (GET_MORALE(mob) != 100)
+                fprintf(file, "Morale: %d\n", GET_MORALE(mob));
+            if (GET_MOB_LAIR(mob) >= 0)
+                fprintf(file, "Lair: %d\n", GET_MOB_LAIR(mob));
+            if (GET_MOB_LEADER(mob) >= 0)
+                fprintf(file, "Leader: %d\n", GET_MOB_LEADER(mob));
+            if (GET_REMORT_CLASS(mob) != -1)
+                fprintf(file, "RemortClass: %d\n", GET_REMORT_CLASS(mob));
+            if (MOB_SHARED(mob)->move_buf)
+                fprintf(file, "Move_buf: %s\n", MOB_SHARED(mob)->move_buf);
+            if (MOB_SHARED(mob)->svnum > 0)
+                fprintf(file, "IScript: %d\n", MOB_SHARED(mob)->svnum);
+            fprintf(file, "E\n");      
+        }
 
-	reply = mob->mob_specials.response;
-	while (reply != NULL)  {
-	    if (!reply->keyword || !reply->description)  {
-		sprintf(buf,"OLCERROR: Response with no kywrd or desc, mob #%d.\n",
-			mob->mob_specials.shared->vnum);
-		slog(buf);
-		sprintf(buf, "I didn't save your bogus response for mob %d.\r\n",
-			mob->mob_specials.shared->vnum);
-		send_to_char(buf, ch);
-		reply = reply->next;
-		continue;
-	    }
-	    fprintf(file,"R\n");
-	    fprintf(file,"%s~\n",reply->keyword);
-	    tmp = strlen(reply->description);
-	    for(i=0;i<tmp;i++)
-		if (reply->description[i] != '\r')
-		    fputc(reply->description[i],file);
-	    fprintf(file,"~\n");
-	    reply = reply->next;
-	}
+        reply = mob->mob_specials.response;
+        while (reply != NULL)  {
+            if (!reply->keyword || !reply->description)  {
+                sprintf(buf,"OLCERROR: Response with no kywrd or desc, mob #%d.\n",
+                        mob->mob_specials.shared->vnum);
+                slog(buf);
+                sprintf(buf, "I didn't save your bogus response for mob %d.\r\n",
+                        mob->mob_specials.shared->vnum);
+                send_to_char(buf, ch);
+                reply = reply->next;
+                continue;
+            }
+            fprintf(file,"R\n");
+            fprintf(file,"%s~\n",reply->keyword);
+            tmp = strlen(reply->description);
+            for(i=0;i<tmp;i++)
+                if (reply->description[i] != '\r')
+                    fputc(reply->description[i],file);
+            fprintf(file,"~\n");
+             reply = reply->next;
+        }
     }
 
     fprintf(file,"$\n");
@@ -1431,29 +1442,28 @@ save_mobs(struct char_data *ch)
     sprintf(fname,"world/mob/%d.mob", zone->number);
     realfile = fopen(fname,"w");
     if (realfile)  {
-	fclose (file);
-	sprintf(fname,"world/mob/olc/%d.mob", zone->number);
-	if (!(file = fopen(fname,"r")))  {
-	    slog("SYSERR: Failure to reopen olc mob file.");
-	    send_to_char("OLC Error: Failure to duplicate mob file in main dir."
-			 "\r\n", ch);
-	    fclose(realfile);
-	    return 1;
-	}
-	do  {
-	    tmp = fread (buf, 1, 512, file);
-	    if (fwrite (buf, 1, tmp, realfile) != tmp)  {
-		slog("SYSERR: Failure to duplicate olc mob file in the main wld dir.");
-		send_to_char("OLC Error: Failure to duplicate mob file in main dir."
-			     "\r\n", ch);
-		fclose(realfile);
-		fclose(file);
-		return 1;
-	    }
-	} while (tmp == 512);
+        fclose (file);
+        sprintf(fname,"world/mob/olc/%d.mob", zone->number);
+        if (!(file = fopen(fname,"r")))  {
+            slog("SYSERR: Failure to reopen olc mob file.");
+            send_to_char("OLC Error: Failure to duplicate mob file in main dir."
+                         "\r\n", ch);
+            fclose(realfile);
+            return 1;
+        }
+        do  {
+            tmp = fread (buf, 1, 512, file);
+            if (fwrite (buf, 1, tmp, realfile) != tmp)  {
+                slog("SYSERR: Failure to duplicate olc mob file in the main wld dir.");
+                send_to_char("OLC Error: Failure to duplicate mob file in main dir."
+                             "\r\n", ch);
+                fclose(realfile);
+                fclose(file);
+                return 1;
+            }
+        } while (tmp == 512);
 
-	fclose (realfile);
-
+        fclose (realfile);
     }
     fclose(file);
 

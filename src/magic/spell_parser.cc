@@ -735,6 +735,10 @@ say_spell(struct char_data * ch, int spellnum, struct char_data * tch,
             send_to_char("You close your eyes and make a deep calculation.\r\n", ch);
         }
     } 
+    else if (SPELL_IS_MERCENARY(spellnum)) {
+        sprintf(buf2, "$n searches through his backpack for materials.");
+	send_to_char("You search for the proper materials.\r\n", ch);
+    }
     else {
         if (tch != NULL && tch->in_room == ch->in_room) {
             if (tch == ch) {
@@ -1462,6 +1466,7 @@ cast_spell(struct char_data * ch, struct char_data * tch,
         sprintf(buf, "You can only %s yourself!\r\n",
                 SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
                 SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
+		SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
                 "cast this spell upon");
         send_to_char(buf, ch);
         return 0;
@@ -1470,6 +1475,7 @@ cast_spell(struct char_data * ch, struct char_data * tch,
         sprintf(buf, "You cannot %s yourself!\r\n",
                 SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
                 SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
+		SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
                 "cast this spell upon");
         send_to_char(buf, ch);
         return 0;
@@ -1479,6 +1485,7 @@ cast_spell(struct char_data * ch, struct char_data * tch,
         sprintf(buf, "You are too confused to %s\r\n",
                 SPELL_IS_PHYSICS(spellnum) ? "alter any reality!" :
                 SPELL_IS_PSIONIC(spellnum) ? "trigger any psi!" :
+		SPELL_IS_MERCENARY(spellnum) ? "construct any devices!" :
                 "cast any spells!");
         send_to_char(buf, ch);
         return 0;
@@ -1622,7 +1629,9 @@ find_spell_targets(struct char_data *ch, char *argument,struct char_data **tch,
             send_to_char("The alteration name must be enclosed in the symbols: '\r\n", ch);
         else if (CMD_IS("trigger"))
             send_to_char("The psitrigger name must be enclosed in the symbols: '\r\n", ch);
-        else
+        else if (CMD_IS("arm"))
+	    send_to_char("The device name must be enclosed in the symbols: '\r\n", ch);
+	else
             send_to_char("Spell names must be enclosed in the Holy Magic Symbols: '\r\n", ch);
         return 0;
     }
@@ -1642,14 +1651,18 @@ find_spell_targets(struct char_data *ch, char *argument,struct char_data **tch,
         CHECK_SKILL(ch, spellnum) < 30) {
         sprintf(buf, "You do not know that %s!\r\n",
                 SPELL_IS_PSIONIC(spellnum) ? "trigger" :
-                SPELL_IS_PHYSICS(spellnum) ? "alteration" : "spell");
+                SPELL_IS_PHYSICS(spellnum) ? "alteration" : 
+		SPELL_IS_MERCENARY(spellnum) ? "device" :
+		"spell");
         send_to_char(buf, ch);
         return 0;
     }
     if (CHECK_SKILL(ch, spellnum) == 0) {
         sprintf(buf, "You are unfamiliar with that %s.\r\n",
                 SPELL_IS_PSIONIC(spellnum) ? "trigger" :
-                SPELL_IS_PHYSICS(spellnum) ? "alteration" : "spell");
+                SPELL_IS_PHYSICS(spellnum) ? "alteration" : 
+		SPELL_IS_MERCENARY(spellnum) ? "device" :
+		"spell");
         send_to_char(buf, ch);
         return 0;
     }
@@ -2080,6 +2093,92 @@ ACMD(do_trigger)
     }
 }
 
+ACMD(do_arm)
+{
+    struct char_data *tch = NULL;
+    struct obj_data *tobj = NULL;
+    int mana, spellnum, target = 0, prob = 0;
+
+    if (IS_NPC(ch))
+        return;
+
+    if (!IS_MERC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+        send_to_char("You are not able arm devices!\r\n", ch);
+        return;
+    }
+
+    if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
+        send_to_char("Your equipment is too heavy and bulky to arm any devices!\r\n", ch);
+        return;
+    }
+
+    if (!(find_spell_targets(ch, argument, &tch, &tobj, &target, &spellnum, cmd)))
+        return;
+
+    if (!SPELL_IS_MERCENARY(spellnum)) {
+        act("That is not a device.", FALSE, ch, 0, 0, TO_CHAR);
+        return;
+    }
+    
+    if (!target) {
+        send_to_char("Cannot find the target of your device!\r\n", ch);
+        return;
+    }
+
+    mana = mag_manacost(ch, spellnum);
+    if ((mana > 0) && (GET_MANA(ch) < mana) && (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
+        send_to_char("You haven't the energy to construct that device!\r\n", ch);
+        return;
+    }
+
+    if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER &&
+        SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
+        send_to_char("This device will not function underwater.\r\n", ch);
+        return;
+    }
+
+    /***** arm device probobility calculation *****/
+    prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) << 1) +
+           (GET_REMORT_GEN(ch) << 2);
+
+    if (IS_SICK(ch))
+        prob -= 20;
+
+    if (IS_CONFUSED(ch))
+        prob -= number(35, 55) + GET_INT(ch);
+
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
+        prob -= GET_EQ(ch, WEAR_SHIELD)->getWeight();
+
+    prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
+
+    if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
+        prob -= (GET_LEVEL(FIGHTING(ch)) >> 3);
+
+    /**** arm device probability ends here *****/
+
+    if (number(0, 111) > prob) {
+        WAIT_STATE(ch, PULSE_VIOLENCE);
+        if (!tch || !skill_message(0, ch, tch, spellnum))
+            send_to_char("Your concentration was disturbed!\r\n", ch);
+
+        if (mana > 0)
+            GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+
+        if (SINFO.violent && tch && IS_NPC(tch))
+            hit(tch, ch, TYPE_UNDEFINED);
+    }
+    else {
+        if (cast_spell(ch, tch, tobj, spellnum)) {
+            WAIT_STATE(ch, PULSE_VIOLENCE);
+            if (mana > 0)
+                GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+            gain_skill_prof(ch, spellnum);
+        }
+    }
+}
+
+    
 
 ACMD(do_alter)
 {
@@ -3570,6 +3669,13 @@ mag_assign_spells(void)
     spello(SKILL_SNIPE,   X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
            0, 0, 0, 0, 0, 0, 0);        
 
+/**********************   MERC DEVICES   *********************/
+    /*                                                               24*/
+    spello(SPELL_DECOY,       X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
+           75, 30, 7,
+           POS_STANDING, TAR_IGNORE, FALSE,
+           MAG_MERCENARY | MAG_MANUAL);
+    
 /**********************   CYBORG SKILLS  *********************/
     spello(SKILL_RECONFIGURE,   X, X, X, X, X, X, X, 11, X, X, X, X, X,X,X,X,X,
            0, 0, 0, 0, 0, 0, 0);

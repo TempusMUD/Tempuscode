@@ -525,6 +525,9 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define GET_OLC_HELP(ch)        ((ch)->player_specials->olc_help_item)
 #define GET_OLC_SRCH(ch)        ((ch)->player_specials->olc_srch)
 #define GET_OLC_TICL(ch)        ((ch)->player_specials->olc_ticl)
+#define GET_OLC_ISCR(ch)        ((ch)->player_specials->olc_iscript)
+#define GET_OLC_HANDLER(ch)     ((ch)->player_specials->olc_handler)
+
 #define SET_SKILL(ch, i, pct)	\
                              {(ch)->player_specials->saved.skills[i] = pct; }
 #define SET_SKILL(ch, i, pct)	\

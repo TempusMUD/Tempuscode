@@ -92,6 +92,7 @@ ACMD(do_alignment);
 ACMD(do_alter);
 ACMD(do_analyze);
 ACMD(do_approve);
+ACMD(do_arm);
 ACMD(do_unapprove);
 ACMD(do_assist);
 ACMD(do_assimilate);
@@ -451,6 +452,7 @@ extern const struct command_info cmd_info[] = {
     { "applaud"  , POS_RESTING , do_action   , 0, 0 },
     { "approve"  , POS_DEAD,     do_approve  , LVL_GOD, 0 },
     { "unapprove", POS_DEAD,     do_unapprove  , LVL_GOD, 0 },
+    { "arm"      , POS_SITTING , do_arm      , 1, 0 },
     { "assist"   , POS_FIGHTING, do_assist   , 1, 0 },
     { "assimilate",POS_RESTING , do_assimilate, 0, 0 },
     { "ask"      , POS_RESTING , do_spec_comm, 0, SCMD_ASK },

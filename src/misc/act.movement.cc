@@ -236,6 +236,9 @@ get_giveaway(struct char_data *ch, struct char_data *tch, char *str)
     case SECT_SWAMP:
 	strcpy(str, "You hear a sloshing sound.\r\n");
 	break;
+    case SECT_BLOOD:
+        strcpy(str, "You hear a slight squishing sound.\r\n");
+    break;
     case SECT_WATER_SWIM:
     case SECT_WATER_NOSWIM:
 	if (LIGHT_OK(tch) && !number(0, 1))
@@ -884,43 +887,77 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
 	}
     }
 
+    //
+    // Blood application
+    //
+
+    if (ch->in_room->sector_type == SECT_BLOOD) {
+        if (was_in->sector_type != SECT_BLOOD && (ch->getPosition()) != (POS_FLYING)) {
+            send_to_char("Your feet sink slightly into the blood soaked ground.\r\n", ch);
+            apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_BLOOD, WEAR_FEET);
+            apply_soil_to_char(ch, GET_EQ(ch, WEAR_LEGS), SOIL_BLOOD, WEAR_LEGS);
+        }
+
+        if (ch->getPosition() != POS_FLYING) {
+            obj = GET_EQ(ch, WEAR_FEET);
+            if (obj) {
+                if (!OBJ_SOILED(GET_EQ(ch, WEAR_FEET), SOIL_BLOOD)) {
+                    apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_BLOOD, WEAR_FEET);
+                }    
+            }
+        
+
+            obj = GET_EQ(ch, WEAR_LEGS);
+            if (obj) {
+                if (!OBJ_SOILED(GET_EQ(ch, WEAR_LEGS), SOIL_BLOOD)) {
+                    apply_soil_to_char(ch, GET_EQ(ch, WEAR_LEGS), SOIL_BLOOD, WEAR_LEGS);
+                }
+            }
+
+            if (!CHAR_SOILED(ch, WEAR_FEET, SOIL_BLOOD)) {
+                apply_soil_to_char(ch, NULL, SOIL_BLOOD, WEAR_FEET);
+            }
+
+            if (!CHAR_SOILED(ch, WEAR_LEGS, SOIL_BLOOD)) {
+                apply_soil_to_char(ch, NULL, SOIL_BLOOD, WEAR_LEGS);
+            }
+        }
+    }
+        
     // 
     // Mud application
     //
 
     if (ch->in_room->sector_type == SECT_SWAMP) {	
-
-	if (was_in->sector_type != SECT_SWAMP && ( ch->getPosition() ) != ( POS_FLYING ) ) {
-	    send_to_char("Your feet sink slightly into the swampy ground.\r\n", ch);
-	    apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_MUD, WEAR_FEET);
-	    apply_soil_to_char(ch, GET_EQ(ch, WEAR_LEGS), SOIL_MUD, WEAR_LEGS);
-	}
+        if (was_in->sector_type != SECT_SWAMP && ( ch->getPosition() ) != ( POS_FLYING ) ) {
+	        send_to_char("Your feet sink slightly into the swampy ground.\r\n", ch);
+	        apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_MUD, WEAR_FEET);
+	        apply_soil_to_char(ch, GET_EQ(ch, WEAR_LEGS), SOIL_MUD, WEAR_LEGS);
+	    }
 	
-	if ( ch->getPosition() != POS_FLYING ) {
-	    obj = GET_EQ(ch, WEAR_FEET);
-	    if (obj) {
-		if( !OBJ_SOILED( GET_EQ(ch, WEAR_FEET), SOIL_MUD ) ) {
-		    apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_MUD, WEAR_FEET);
-		}
-	    }
+	    if ( ch->getPosition() != POS_FLYING ) {
+	        obj = GET_EQ(ch, WEAR_FEET);
+	        if (obj) {
+		        if( !OBJ_SOILED( GET_EQ(ch, WEAR_FEET), SOIL_MUD ) ) {
+		            apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_MUD, WEAR_FEET);
+		        }
+	        }
 	    
-	    obj = GET_EQ(ch, WEAR_LEGS);
-	    if (obj) {
-		if ( !OBJ_SOILED( GET_EQ(ch, WEAR_LEGS), SOIL_MUD ) ) {
-		    apply_soil_to_char(ch, GET_EQ(ch, WEAR_LEGS), SOIL_MUD, WEAR_LEGS);
-		}
-	    }
+	        obj = GET_EQ(ch, WEAR_LEGS);
+	        if (obj) {
+		        if ( !OBJ_SOILED( GET_EQ(ch, WEAR_LEGS), SOIL_MUD ) ) {
+		            apply_soil_to_char(ch, GET_EQ(ch, WEAR_LEGS), SOIL_MUD, WEAR_LEGS);
+		        }
+	        }
 	    
-	    if (!CHAR_SOILED(ch, WEAR_FEET, SOIL_MUD) ) {
-		apply_soil_to_char(ch, NULL, SOIL_MUD, WEAR_FEET );
+	        if (!CHAR_SOILED(ch, WEAR_FEET, SOIL_MUD) ) {
+		        apply_soil_to_char(ch, NULL, SOIL_MUD, WEAR_FEET );
+	        }
+	     
+	        if ( !CHAR_SOILED(ch, WEAR_LEGS, SOIL_MUD) ) {
+		        apply_soil_to_char(ch, NULL, SOIL_MUD, WEAR_LEGS );
+	        }
 	    }
-	    
-	    if ( !CHAR_SOILED(ch, WEAR_LEGS, SOIL_MUD) ) {
-		apply_soil_to_char(ch, NULL, SOIL_MUD, WEAR_LEGS );
-	    }
-	}
-	    
-   
     }
 
     if ((ch->in_room->sector_type == SECT_CORNFIELD && ch->in_room->zone->weather->sky == SKY_RAINING ) ||
@@ -1771,6 +1808,12 @@ ACMD(do_stand)
 		    FALSE, ch, 0, 0, TO_CHAR);
 		act("$n drifts downward and stands on the swampy ground.",
 		    TRUE, ch, 0, 0, TO_ROOM);
+        break;
+        case SECT_BLOOD:
+            act("You settle lightly onto the blood soaked ground.",
+                FALSE, ch, 0, 0, TO_CHAR);
+            act("$n drifts downward and stand on the blood soaked ground.",
+                TRUE, ch, 0, 0, TO_ROOM);
 		break;
 	    case SECT_DESERT:
 		act("You settle lightly to the sands.", FALSE, ch, 0, 0, TO_CHAR);

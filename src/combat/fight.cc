@@ -39,8 +39,12 @@
 #include "specs.h"
 #include "mobact.h"
 #include "combat.h"
+#include "events.h"
 
 #include <iostream>
+#include <algorithm>
+
+extern eventQueue mobileQueue;
 
 int corpse_state = 0;
 
@@ -191,8 +195,16 @@ raw_kill( struct char_data * ch, struct char_data *killer, int attacktype )
 
     REMOVE_BIT( AFF2_FLAGS( ch ), AFF2_PETRIFIED );
 
-    if ( IS_NPC( ch ) )
+    if ( IS_NPC( ch ) ) {
         ch->mob_specials.shared->kills++;
+	deque<MobileEvent *>::iterator qi;
+	for (qi = mobileQueue.begin(); qi != mobileQueue.end();) {
+	    if ((*qi)->getTarget() == ch)
+		qi = mobileQueue.erase(qi);
+	    else
+		qi++;
+	}
+    }
   
     extract_char( ch, 1 );
 }

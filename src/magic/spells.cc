@@ -1960,6 +1960,51 @@ ASPELL(spell_conjure_elemental)
         return;
     }
 }
+
+ASPELL(spell_decoy)
+{
+  struct char_data *decoy = NULL;
+  char buf[255];
+
+  if(number(0, GET_INT(ch)) < 4) {
+    send_to_char("You are unable to construct a decoy.\r\n", ch);
+    return;
+  }
+
+  decoy = read_mobile(92007);
+
+  if(decoy == NULL) {
+    send_to_char("You are unable to construct a decoy.\r\n", ch);
+    return;
+  }
+
+  strcpy(buf, ch->player.name);
+  strcat(buf, " ");
+  strcat(buf, ch->player.title);
+  strcat(buf, " is standing here.\r\n");
+  decoy->player.long_descr = strdup(buf);
+         
+  strcpy(buf, ch->player.name);
+  strcat(buf, " .");
+  strcat(buf, ch->player.name);
+  decoy->player.name = strdup(buf);
+
+  strcpy(buf, ch->player.name);
+  decoy->player.short_descr = strdup(buf);
+
+  act("You have constructed a perfect decoy of yourself!",
+      FALSE, ch, 0, NULL, TO_CHAR);
+  act("$n have constructed a perfect decoy of $mself!",
+      FALSE, ch, 0, NULL, TO_ROOM);
+  char_to_room(decoy, ch->in_room);
+
+  SET_BIT(MOB_FLAGS(decoy), MOB_ISNPC);
+  SET_BIT(MOB_FLAGS(decoy), MOB_SENTINEL);
+
+  gain_skill_prof(ch, SPELL_DECOY);
+  return;
+}
+
 ASPELL(spell_knock) 
 {
 

@@ -90,7 +90,6 @@ extern int auto_save;                /* see config.c */
 extern int autosave_time;        /* see config.c */
 struct timeval null_time;        /* zero-valued time structure */
 
-
 /* functions in this file */
 int get_from_q(struct txt_q * queue, char *dest, int *aliased);
 void init_game(int port);
@@ -139,6 +138,7 @@ void autosave_zones(int SAVE_TYPE);
 void mem_cleanup(void);
 void retire_trails(void);
 void qp_reload( int sig = 0 );
+void process_queue(void); // In events.cc
 
 /* *********************************************************************
 *  main game loop and related stuff                                    *
@@ -629,6 +629,8 @@ game_loop(int mother_desc)
             zone_update();
         if (!((pulse + 1) % PULSE_MOBILE))
             mobile_activity();
+        if (!(pulse & SEG_QUEUE))
+            process_queue();
         if (!(pulse % SEG_VIOLENCE))
             perform_violence();
         if (!((pulse + 3) % FIRE_TICK))

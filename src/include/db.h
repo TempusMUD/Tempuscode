@@ -22,23 +22,25 @@
 #ifndef _NEWDYNCONTROL_  // used by a util
 
 /* arbitrary constants used by index_boot() (must be unique) */
-#define DB_BOOT_WLD	0
-#define DB_BOOT_MOB	1
-#define DB_BOOT_OBJ	2
-#define DB_BOOT_ZON	3
-#define DB_BOOT_SHP	4
-#define DB_BOOT_TICL    5
+#define DB_BOOT_WLD	 0
+#define DB_BOOT_MOB	 1
+#define DB_BOOT_OBJ	 2
+#define DB_BOOT_ZON	 3
+#define DB_BOOT_SHP	 4
+#define DB_BOOT_TICL 5
+#define DB_BOOT_ISCR 6
 
 /* names of various files and directories */
-#define INDEX_FILE	"index"		/* index of world files		*/
-#define MINDEX_FILE	"index.mini"	/* ... and for mini-mud-mode	*/
-#define TINDEX_FILE	"index.test"    /* ... and for test-mud-mode	*/
-#define WLD_PREFIX	"world/wld"	/* room definitions		*/
-#define MOB_PREFIX	"world/mob"	/* monster prototypes		*/
-#define OBJ_PREFIX	"world/obj"	/* object prototypes		*/
-#define ZON_PREFIX	"world/zon"	/* zon defs & command tables	*/
-#define SHP_PREFIX	"world/shp"	/* shop definitions		*/
-#define TICL_PREFIX     "world/ticl"    /* ticl procs                   */
+#define INDEX_FILE	"index"		 /* index of world files		*/
+#define MINDEX_FILE	"index.mini" /* ... and for mini-mud-mode	*/
+#define TINDEX_FILE	"index.test" /* ... and for test-mud-mode	*/
+#define WLD_PREFIX	"world/wld"	 /* room definitions		*/
+#define MOB_PREFIX	"world/mob"	 /* monster prototypes		*/
+#define OBJ_PREFIX	"world/obj"	 /* object prototypes		*/
+#define ZON_PREFIX	"world/zon"	 /* zon defs & command tables	*/
+#define SHP_PREFIX	"world/shp"	 /* shop definitions		*/
+#define TICL_PREFIX "world/ticl" /* ticl procs                   */
+#define ISCR_PREFIX "world/iscr" /* iscripts */
 
 #define CREDITS_FILE	"text/credits"	/* for the 'credits' command	*/
 #define NEWS_FILE	"text/news"	/* for the 'news' command	*/
@@ -88,6 +90,7 @@ int	create_entry(char *name);
 void	zone_update(void);
 struct  room_data *real_room(int vnum);
 struct  zone_data *real_zone(int number);
+class CIScript *real_iscript(int vnum);
 char	*fread_string(FILE *fl, char *error);
 int	pread_string(FILE *fl, char *str, char *error);
 long	get_id_by_name(char *name);

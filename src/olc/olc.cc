@@ -40,6 +40,7 @@
 #include "bomb.h"
 #include "guns.h"
 #include "char_class.h"
+#include "events.h"
 
 #define NUM_POSITIONS 11
 
@@ -50,7 +51,7 @@
 "olc exit <direction> <parameter> <value> ['one-way']\r\n" \
 "olc rexdesc <create | remove | edit | addkey> <keywords> [new keywords\r\n"  \
 "olc clear <room | obj | mob>\r\n"           \
-"olc create/destroy <room|zone|obj|mob|shop|search|ticl> <number>\r\n" \
+"olc create/destroy <room|zone|obj|mob|shop|search|ticl|iscript> <number>\r\n" \
 "olc help [keyword]\r\n"               \
 "olc osave\r\n"                        \
 "olc oedit [number | 'exit']\r\n"               \
@@ -89,8 +90,15 @@
 "olc xedit <search trigger> <search keyword>\r\n" \
 "olc xset <arg> <val>\r\n"  \
 "olc xstat\r\n" \
-"olc show\r\n"
-
+"olc show\r\n" \
+    \
+"olc ilist\r\n" \
+"olc istat\r\n" \
+"olc iedit\r\n" \
+"olc iset\r\n"  \
+"olc ihandler <create | edit | delete> <event type>\r\n" \
+"olc isave\r\n" \
+"olc idelete\r\n"
 
 #define OLC_ZSET_USAGE "Usage:\r\n"                                  \
 "olc zset [zone] name <name>\r\n"                  \
@@ -146,7 +154,7 @@ extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern struct obj_data *object_list;
 extern int olc_lock;
-
+extern const char *event_types[];
 extern char *olc_guide;
 extern const char *flow_types[];
 extern const char *char_flow_msg[NUM_FLOW_TYPES+1][3];
@@ -173,6 +181,8 @@ struct char_data *do_create_mob(struct char_data *ch, int vnum);
 struct shop_data *do_create_shop(struct char_data *ch, int vnum);
 struct help_index_element *do_create_help(struct char_data *ch);
 struct ticl_data *do_create_ticl(struct char_data *ch, int vnum);
+class CIScript *do_create_iscr(struct char_data *ch, int vnum);
+
 int do_destroy_room(struct char_data *ch, int vnum);
 int do_destroy_object(struct char_data *ch, int vnum);
 int do_destroy_mobile(struct char_data *ch, int vnum);
@@ -212,6 +222,13 @@ void do_clear_olc_object(struct char_data *ch);
 void do_clear_olc_mob(struct char_data *ch);
 void do_ticl_tedit(struct char_data *ch, char *argument);
 void do_ticl_tstat(struct char_data *ch);
+void do_olc_ilist(struct char_data *ch, char *argument);
+void do_olc_istat(struct char_data *ch, char *argument);
+void do_olc_iedit(struct char_data *ch, char *argument);
+void do_olc_iset(struct char_data *ch, char *argument);
+void do_olc_ihandler(struct char_data *ch, char *argument);
+int do_olc_isave(struct char_data *ch);
+void do_olc_idelete(struct char_data *ch, char *argument);
 
 char *find_exdesc(char *word, struct extra_descr_data *list,int find_exact=0);
 extern struct attack_hit_type attack_hit_text[];
@@ -270,6 +287,13 @@ const char *olc_commands[] = {
     "tsave",                     /* 50  */
     "mload", 
     "show",
+    "ilist", 
+    "istat",
+    "iedit",                     /* 55 */
+    "iset",
+    "ihandler",
+    "isave",
+    "idelete",
      "\n"				/* many more to be added */
 };
 
@@ -310,6 +334,7 @@ ACMD(do_olc)
     struct shop_data *shop = NULL;
     struct char_data *mob = NULL;
     struct char_data *tmp_mob = NULL;
+    class CIScript *tmp_iscr = NULL;
 	struct special_search_data *tmp_search;
 
   
@@ -1061,7 +1086,7 @@ ACMD(do_olc)
 
     case 20:   /*** create ***/
 	if (!*argument)
-	    send_to_char("Usage: olc create <room|zone|obj|mob|shop|help|ticl> <vnum|next>\r\n", ch);
+	    send_to_char("Usage: olc create <room|zone|obj|mob|shop|help|ticl|iscript> <vnum|next>\r\n", ch);
 	else {
 	int tmp_vnum = 0;
 	    argument = two_arguments(argument, arg1, arg2);
@@ -1168,8 +1193,37 @@ ACMD(do_olc)
 		    if (do_create_ticl(ch, i))
 			send_to_char("TICL succesfully created.\r\n", ch);
 		}
+        }
+        else if (is_abbrev(arg1, "iscript")) {
+            if(!*arg2)
+                send_to_char("Create an ISCRIPT with what vnum?\r\n", ch);
+            else if (is_abbrev(arg2, "next")) {
+                for(i = ch->in_room->zone->number * 100; i < ch->in_room->zone->top; i++) {
+                    if(!real_iscript(i)) {
+                        tmp_vnum = i;
+                        break;
+                    }
+                }
+            }
+            else {
+                tmp_vnum = atoi(arg2);
+            }
+            if(GET_LEVEL(ch) < 56) {
+                send_to_char("Sorry, you must be level 56 or higher to use this command.\r\n"
+                             "Stay tuned, try again later.\r\n", ch);
+                return; 
+            }
+            if(tmp_vnum && (tmp_iscr = do_create_iscr(ch, tmp_vnum))) {
+                GET_OLC_ISCR(ch) = tmp_iscr;
+                sprintf(buf, "ISCRIPT %d successfully created.\r\n"
+                             "Now editing ISCRIPT %d\r\n", tmp_vnum, tmp_vnum);
+                send_to_char(buf, ch);             
+            }
+            else if(!tmp_vnum && *arg2) {
+                send_to_char("No allocatble iscripts found in zone.\r\n", ch);
+            }
 	    } else
-		send_to_char("Usage: olc create <room|zone|obj|mob|shop|help|ticl> <vnum>\r\n", 
+		send_to_char("Usage: olc create <room|zone|obj|mob|shop|help|ticl|iscript> <vnum>\r\n", 
 			     ch);	
 	}
 	break;
@@ -1538,9 +1592,56 @@ ACMD(do_olc)
 	sprintf( buf, "Unknown option: %s\n", arg1 );
 	send_to_char( buf, ch );
 	break;
+    
+    case 53:
+        if(GET_LEVEL(ch) > 55)
+            do_olc_ilist(ch, argument);
+        else
+            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+    break;
 
+    case 54:
+        if(GET_LEVEL(ch) > 55)
+            do_olc_istat(ch, argument);
+        else
+            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+    break;
+    case 55:
+        if(GET_LEVEL(ch) > 55)
+            do_olc_iedit(ch, argument);
+        else
+            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+    break;    
+    case 56:
+        if(GET_LEVEL(ch) > 55)
+            do_olc_iset(ch, argument);
+        else
+            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+    break;
+    case 57:
+        if(GET_LEVEL(ch) > 55)
+            do_olc_ihandler(ch, argument);
+        else
+            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+    break;    
+    case 58:
+        if(GET_LEVEL(ch) > 55) {
+            if(!do_olc_isave (ch))
+                send_to_char("IScript file saved.\r\n",ch);
+            else
+                send_to_char("An error occured while saving.\r\n",ch);
+        }        
+        else
+            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+    break;
+    case 59:
+        if(GET_LEVEL(ch) > 55)
+            do_olc_idelete(ch, argument);
+        else
+            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+    break;
     default:
-	send_to_char("This action is not supported yet.\r\n",ch);
+        send_to_char("This action is not supported yet.\r\n",ch);
     }
 }
 
@@ -1587,6 +1688,7 @@ const char *olc_help_keys[] = {
     "microchips",
     "searchflags",
     "oextra3",
+    "ihandler",
     "\n"
 };
 
@@ -2100,7 +2202,16 @@ void show_olc_help(struct char_data *ch, char *arg)
 	}
 	page_string(ch->desc, buf, 1);
 	break;
-
+    
+    case 41:
+    strcpy(buf, "EVENT TYPES:\r\n");
+    for(i = 0; i < NUM_EVENTS; i++) {
+        sprintf(buf2, "%s%2d)  %s%s%s\r\n",
+                CCYEL(ch, C_NRM), i, CCCYN(ch, C_NRM), event_types[i], CCNRM(ch, C_NRM));
+        strcat(buf, buf2); 
+    }
+    page_string(ch->desc, buf, 1);
+    break;
     default:
 	send_to_char("There is no help on this word yet.  Maybe you should write it.\r\n", ch);
     }

@@ -41,6 +41,7 @@
 #include "guns.h"
 #include "elevators.h"
 #include "fight.h"
+#include "defs.h"
 
 /*   external vars  */
 extern FILE *player_fl;
@@ -1447,10 +1448,12 @@ do_stat_character(struct char_data * ch, struct char_data * k)
     strcat(outbuf, buf2);
 
     if (IS_MOB(k)) {
-	sprintf(buf, "Alias: %s, VNum: %s[%s%5d%s]%s, Exist: [%3d]\r\n",
+	sprintf(buf, "Alias: %s, VNum: %s[%s%5d%s]%s, Exist: [%3d], SVNum: %s[%s%5d%s]%s\r\n",
 		k->player.name, 
 		CCGRN(ch, C_NRM), CCYEL(ch, C_NRM), GET_MOB_VNUM(k), 
-		CCGRN(ch, C_NRM),CCNRM(ch, C_NRM),k->mob_specials.shared->number);
+		CCGRN(ch, C_NRM),CCNRM(ch, C_NRM),k->mob_specials.shared->number, 
+        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM), GET_SCRIPT_VNUM(k),
+        CCGRN(ch,C_NRM), CCNRM(ch, C_NRM));
 	strcat(outbuf, buf);
 	sprintf(buf, "L-Des: %s%s%s", CCYEL(ch, C_NRM), 
 		(k->player.long_descr ? k->player.long_descr : "<None>\r\n"),

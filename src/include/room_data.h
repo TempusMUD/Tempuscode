@@ -139,7 +139,8 @@
 #define SECT_ELEMENTAL_SALT        39
 #define SECT_ELEMENTAL_ASH         40
 #define SECT_ELEMENTAL_DUST        41
-#define NUM_SECT_TYPES      42
+#define SECT_BLOOD          42
+#define NUM_SECT_TYPES      43
 
 
 

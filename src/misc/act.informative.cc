@@ -38,6 +38,7 @@
 #include "bomb.h"
 #include "fight.h"
 #include "specs.h"
+#include "events.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -99,6 +100,7 @@ int isbanned(char *hostname, char *blocking_hostname);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
 char *obj_cond_color(struct obj_data *obj, struct char_data *ch);  /**writes to buf2 **/
 int same_obj(struct obj_data * obj1, struct obj_data * obj2);
+void send_to_queue(MobileEvent *e);
 
 ACMD(do_stand);
 ACMD(do_say);
@@ -1637,6 +1639,10 @@ look_at_target(struct char_data * ch, char *arg, int cmd)
 		    act("$n looks at you.", TRUE, ch, 0, found_char, TO_VICT);
 	    }
 	    act("$n looks at $N.", TRUE, ch, 0, found_char, TO_NOTVICT);
+        if(IS_NPC(found_char) && IS_SET(MOB_FLAGS(found_char), MOB_ISCRIPT)) {
+          EventExamine *e = new EventExamine(ch, found_char, 0, 0, 0, 0);
+          send_to_queue(e);
+        }
 	}
 	return;
     }

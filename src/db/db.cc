@@ -44,6 +44,8 @@
 #include "shop.h"
 #include "help.h"
 #include "combat.h"
+#include "iscript.h"
+
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
 ************************************************************************ */
@@ -70,6 +72,7 @@ int top_of_zone_table = 0;	/* top element of zone tab	 */
 struct message_list fight_messages[MAX_MESSAGES];    /* fighting messages  */
 struct player_index_element *player_table = NULL;     /* index to plr file */
 extern HelpCollection *Help;
+extern list<CIScript *> scriptList;
 
 FILE *player_fl = NULL;		/* file desc of player file	 */
 
@@ -118,6 +121,8 @@ int  *mob_index = NULL;         /* mobile index                  */
 int  *shp_index = NULL;         /* shop index                    */
 int  *wld_index = NULL;         /* world index                   */
 int  *ticl_index = NULL;        /* ticl index                    */
+int  *iscr_index = NULL;        /* iscript index                 */
+
 char *credits = NULL;		/* game credits			 */
 char *news = NULL;		/* mud news			 */
 char *motd = NULL;		/* message of the day - mortals */
@@ -171,7 +176,7 @@ void build_player_index(void);
 void char_to_store(struct char_data * ch, struct char_file_u * st);
 void store_to_char(struct char_file_u * st, struct char_data * ch);
 void boot_dynamic_text(void);
-
+void load_iscripts(char fname[MAX_INPUT_LENGTH]);
 
 /*int is_empty(struct zone_data *zone); */
 void reset_zone(struct zone_data *zone);
@@ -345,6 +350,9 @@ boot_world(void)
 
     slog("Loading mobs and generating index.");
     index_boot(DB_BOOT_MOB);
+
+    slog("Loading iscripts and generating index.");
+    index_boot(DB_BOOT_ISCR);
 
     slog("Loading objs and generating index.");
     index_boot(DB_BOOT_OBJ);
@@ -683,6 +691,9 @@ index_boot(int mode)
     case DB_BOOT_TICL:
 	prefix = TICL_PREFIX;
 	break;
+    case DB_BOOT_ISCR:
+        prefix = ISCR_PREFIX;
+    break;
     default:
 	slog("SYSERR: Unknown subcommand to index_boot!");
 	safe_exit(1);
@@ -701,6 +712,7 @@ index_boot(int mode)
 	perror(buf1);
 	safe_exit(1);
     }
+
     /* first, count the number of records in the file so we can malloc */
     fscanf(index, "%s\n", buf1);
     while (*buf1 != '$') {
@@ -708,7 +720,8 @@ index_boot(int mode)
 	if (!(db_file = fopen(buf2, "r"))) {
 	    perror(buf2);
 	    safe_exit(1);
-	} else {
+	} 
+    else {
 	    if (mode == DB_BOOT_ZON)
 		rec_count++;
 	    else
@@ -721,8 +734,12 @@ index_boot(int mode)
     }
 
     if (!rec_count) {
-	slog("SYSERR: boot error - 0 records counted");
-	safe_exit(1);
+        if(mode != DB_BOOT_ISCR) {
+            slog("SYSERR: boot error - 0 records counted");
+            safe_exit(1);
+        }
+        else
+            slog("WARNING:  No IScripts loaded - 0 records counted");
     }
     rec_count++;
 
@@ -738,6 +755,7 @@ index_boot(int mode)
 	null_mob_shared->proto = NULL;
 	null_mob_shared->move_buf = NULL;
 	break;
+    
     case DB_BOOT_OBJ:
 	CREATE(null_obj_shared, struct obj_shared_data, 1);
 	null_obj_shared->vnum = -1;
@@ -747,8 +765,12 @@ index_boot(int mode)
 	null_obj_shared->ticl_ptr = NULL;
 	null_obj_shared->proto = NULL;
 	break;
+    
     case DB_BOOT_ZON:
 	break;
+    
+    case DB_BOOT_ISCR:
+    break;
     }
 
     if (mode != DB_BOOT_ZON) {
@@ -763,6 +785,8 @@ index_boot(int mode)
 	    CREATE(wld_index, int, index_count+1);
 	else if (mode == DB_BOOT_TICL)
 	    CREATE(ticl_index, int, index_count+1);
+    else if (mode == DB_BOOT_ISCR)
+        CREATE(iscr_index, int, index_count+1);
   
 	for (i = 0; i < index_count; i++) {
 	    if (mode == DB_BOOT_OBJ) {
@@ -785,6 +809,10 @@ index_boot(int mode)
 		fscanf(index, "%d.ticl\n", &number);
 		ticl_index[i] = number;
 	    }
+        else if (mode == DB_BOOT_ISCR) {
+            fscanf(index, "%d.iscr\n", &number);
+            iscr_index[i] = number;
+        }
 	}
     
 	if (mode == DB_BOOT_OBJ)
@@ -797,6 +825,8 @@ index_boot(int mode)
 	    wld_index[index_count] = -1;
 	else if (mode == DB_BOOT_TICL)
 	    ticl_index[index_count] = -1;
+    else if (mode == DB_BOOT_ISCR)
+        iscr_index[index_count] = -1;
     }
   
     rewind(index);
@@ -809,25 +839,42 @@ index_boot(int mode)
 	    safe_exit(1);
 	}
 	switch (mode) {
-	case DB_BOOT_WLD:
-	case DB_BOOT_OBJ:
-	case DB_BOOT_MOB:
-	case DB_BOOT_TICL:
-	    discrete_load(db_file, mode);
-	    break;
-	case DB_BOOT_ZON:
-	    load_zones(db_file, buf2);
-	    break;
-	case DB_BOOT_SHP:
-	    boot_the_shops(db_file, buf2, rec_count);
-	    break;
-	}
+        case DB_BOOT_WLD:
+        case DB_BOOT_OBJ:
+        case DB_BOOT_MOB:
+        case DB_BOOT_TICL:
+            discrete_load(db_file, mode);
+        break;
+        case DB_BOOT_ZON:
+            load_zones(db_file, buf2);
+        break;
+        case DB_BOOT_SHP:
+            boot_the_shops(db_file, buf2, rec_count);
+        break;
+        case DB_BOOT_ISCR:
+            load_iscripts(buf2);
+        break;
+    }
 
-	fclose(db_file);
+    fclose(db_file);
 	fscanf(index, "%s\n", buf1);
     }
 }
 
+void load_iscripts(char fname[MAX_INPUT_LENGTH])
+{
+    string line;
+
+    ifstream ifile(buf2);
+
+    while (line != "$") {
+        getline(ifile, line);
+        if(line.substr(0, 1) == "#") {
+            CIScript *s = new CIScript(ifile, line);
+            scriptList.push_back(s);
+        }
+    }
+}
 
 void 
 discrete_load(FILE * fl, int mode)
@@ -872,7 +919,8 @@ discrete_load(FILE * fl, int mode)
 		case DB_BOOT_TICL:
 		    load_ticl(fl, nr);
 		}
-	} else {
+	} 
+    else {
 	    fprintf(stderr, "Format error in %s file near %s #%d\n",
 		    modes[mode], modes[mode], nr);
 	    fprintf(stderr, "Offending line: '%s'\n", line);
@@ -1799,7 +1847,11 @@ interpret_espec(char *keyword, char *value, struct char_data *mobile, int nr)
     CASE("Leader") {
 	RANGE(-99999, 99999);
 	mobile->mob_specials.shared->leader = num_arg;
-    }    
+    }
+    CASE("IScript") {
+        RANGE(-99999, 99999);
+        mobile->mob_specials.shared->svnum = num_arg;
+    }
     if (!matched) {
 	fprintf(stderr, "Warning: unrecognized espec keyword %s in mob #%d\n",
 		keyword, nr);
@@ -4088,6 +4140,20 @@ real_mobile_proto(int vnum)
     return (NULL);
 }
 
+class CIScript *real_iscript(int vnum)
+{
+    list<CIScript *>::iterator si;
+
+    for(si = scriptList.begin(); si != scriptList.end(); si++) {
+        if((*si)->getVnum() >= vnum) {
+            if((*si)->getVnum() == vnum)
+                return *si;
+            else
+                return NULL;
+        }
+    }
+    return NULL;
+}
 
 struct obj_data *
 real_object_proto(int vnum)

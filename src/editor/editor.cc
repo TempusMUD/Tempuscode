@@ -22,6 +22,7 @@ using namespace std;
 #include "boards.h"
 #include "mail.h"
 #include "editor.h"
+#include "iscript.h"
 
 static char small_editbuf[MAX_INPUT_LENGTH];
 static char editbuf[MAX_STRING_LENGTH * 2];
@@ -57,6 +58,25 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage=true,
     }
         
     d->text_editor = new CTextEditor(d, dest, max, sendmessage);
+}
+
+void start_script_editor(struct descriptor_data *d, list<string> dest, bool isscript)
+{
+    if(&dest == NULL) {
+        mudlog("SYSERR: NULL destination pointer passed into start_text_editor!!",
+               BRF, LVL_IMMORT, TRUE);
+        send_to_char("This command seems to be broken. Bug this.\r\n",d->character);
+        REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_OLC | PLR_MAILING);
+        return;
+    }
+    if(d->text_editor) {
+        mudlog("SYSERR: Text editor object not null in start_text_editor.",
+               BRF,LVL_IMMORT,TRUE);
+        REMOVE_BIT(PLR_FLAGS(d->character), PLR_WRITING | PLR_OLC | PLR_MAILING);
+        return;
+    }
+
+    d->text_editor = new CTextEditor(d, dest, isscript);
 }
 
 void CTextEditor::Process( char *inStr ) {
@@ -119,19 +139,22 @@ void CTextEditor::SaveText( char *inStr) {
     int length = 0;
 
     // If we were editing rather than creating, wax what was there.
-    if(*target) {
-        free(*target);
-        *target = NULL;
-    }
+    if(target) {  
+        if(*target) {
+          free(*target);
+          *target = NULL;
+        }
+    }    
     
     length = curSize + ( theText.size() * 2 );
-    *target = new char[length + 3];
-    strcpy(*target,"");
-
-    for(itr = theText.begin();itr != theText.end();itr++) {
-        strcat(*target,itr->c_str());
-        strcat(*target,"\r\n");
-    }
+    if(target) {   
+        *target = new char[length + 3];
+        strcpy(*target,"");
+        for(itr = theText.begin();itr != theText.end();itr++) {
+           strcat(*target,itr->c_str());
+           strcat(*target,"\r\n");
+        }
+    }   
     // If they're in the game
     if(desc->connected == CON_PLAYING) {
         // Saving a file
@@ -145,6 +168,10 @@ void CTextEditor::SaveText( char *inStr) {
             ExportMail();
 			delete *target;
             free(target);
+        }
+        // Creating a script handler
+        else if((PLR_FLAGGED(desc->character, PLR_OLC)) && scripting) {
+           desc->character->player_specials->olc_handler->getTheLines() = theText; 
         }
     } 
     // WTF is this?
@@ -519,12 +546,15 @@ void CTextEditor::ImportText( void ) {
 }
 
 void CTextEditor::UndoChanges( char *inStr ) {
-    if(!*target) {
+    if(!*target && (origText.size() == 0)) {
         SendMessage("There's no original to undo to.\r\n");
         return;
     }
     Clear();
-    ImportText();
+    if(origText.size() == 0)
+      ImportText();
+    else
+      theText = origText;
     UpdateSize();
     desc->editor_cur_lnum = theText.size() + 1;
     SendMessage("Original buffer restored.\r\n");
@@ -540,7 +570,7 @@ CTextEditor::CTextEditor(struct descriptor_data *d,
                          bool startup) :theText() {
     // Internal pointer to the descriptor
     desc = d;
-    // Internal pointer to the destination
+   // Internal pointer to the destination
     target = dest;
 
     // The maximum size of the buffer.
@@ -555,6 +585,30 @@ CTextEditor::CTextEditor(struct descriptor_data *d,
         SendStartupMessage();
         List();
     }
+}
+
+CTextEditor::CTextEditor(struct descriptor_data *d,
+                         list<string> dest,
+                         bool isscript) :theText() 
+{
+    desc = d;
+    
+    //make DAMN sure target is null, crashes the mud otherwise
+    target = NULL;
+    
+    origText = dest;
+    
+    scripting = isscript;
+    
+    maxSize = 1024;
+
+    if(origText.size() > 0)
+        theText = dest;
+    
+    desc->editor_cur_lnum = theText.size() + 1;
+    UpdateSize();
+    SendStartupMessage();
+    List();
 }
 
 void CTextEditor::SendMessage(const char *message) {
