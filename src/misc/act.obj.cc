@@ -1777,25 +1777,28 @@ ACMD(do_give)
 		return;
 	}
 
-	vict = give_find_vict(ch, arg2);
-	if (!vict)
-		return;
 
 	if (is_number(arg1)) {
 		amount = atoi(arg1);
+
+		vict = give_find_vict(ch, argument);
+		if (!vict)
+			return;
 
 		if (!str_cmp("coins", arg2) || !str_cmp("coin", arg2))
 			perform_give_gold(ch, vict, amount);
 		else if (!str_cmp("credits", arg2) || !str_cmp("credit", arg2))
 			perform_give_credits(ch, vict, amount);
-		else {
+		else
 			/* code to give multiple items.  anyone want to write it? -je */
 			send_to_char(ch, 
 				"Sorry, you can't do that to more than one item at a time.\r\n");
-		}
 		return;
 	}
 
+	vict = give_find_vict(ch, arg2);
+	if (!vict)
+		return;
 
 	dotmode = find_all_dots(arg1);
 
