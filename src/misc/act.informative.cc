@@ -4835,8 +4835,26 @@ ACMD(do_areas)
                     && zone->max_lvl >= GET_LEVEL(ch)
                     && zone->min_gen <= GET_REMORT_GEN(ch)
                     && zone->max_gen >= GET_REMORT_GEN(ch))) {
-            acc_strcat((found_one) ? "\r\n":"", CCMAG(ch, C_NRM), zone->name,
-                CCNRM(ch, C_NRM), "\r\n", zone->public_desc, NULL);
+            // name
+            acc_strcat((found_one) ? "\r\n":"", CCCYN(ch, C_NRM), 
+                        zone->name, CCNRM(ch, C_NRM), "\r\n", NULL );
+
+            // min/max level
+            if( zone->min_lvl == 1 && zone->max_lvl == 49 &&
+                zone->min_gen == 0 && zone->max_gen == 10 ) {
+                acc_strcat("[ All Levels ]\r\n", NULL );
+            } else if( zone->min_gen > 0 || zone->max_gen > 0 ) {
+                // [ Level 12 Generation 2 to Level 20 Generation 10 ]
+                acc_sprintf("[ Level %d Gen %d to Level %d Gen %d ]\r\n", 
+                            zone->min_lvl, zone->min_gen,
+                            zone->max_lvl, zone->max_gen );
+            } else {
+                // [ Level 12 to Level 20 ]
+                acc_sprintf("[ Level %d to Level %d ]\r\n",
+                            zone->min_lvl, zone->max_lvl );
+            }
+            // desc
+            acc_strcat( zone->public_desc, NULL);
             found_one = true;
         }
     }
