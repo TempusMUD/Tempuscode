@@ -3,9 +3,7 @@ High Priority
 * Implement house repossession
 * Containers currently gain the weight of their contents each time they
   are rented
-* Crash bug in cleave
-* Mobs with no ldesc still leave crlf
-* Strike needs a more obvious message
+* Applies on eq don't seem to be stable at all
 
 Low Priority
 -------------------------------------------------------------------------------
@@ -57,7 +55,13 @@ Under discussion
 	- No maximum number of ranged combatants on one creature
 	- Huge penalty for hitting non visible with ranged (zen archery for monks?)
 	- Chance for ranged weapon to hit melee targets accidentally
+	- Mage spell 'blink' teleports mage within room back to ranged combat from
+	  current attackers
+* skill 'parry' that blocks other special skills with weapon
+	- weapon takes damage instead of self
+	- might block behead, cleave, ... ?
 * Support for accidentally hitting player without incurring penalties
+	- for skills like berserk, id insinuation
 * Quest related obj_data changes
     - Add player id ( and only that player can wear/wield/use )
     - Add '(protected)' flag or use player id to show '(protected)'
@@ -117,3 +121,5 @@ X Move hamstring from hood to merc
 X Remove piledrive from barb
 X Barb skill Strike(17) - Low level 2X damage strike with weapon.
 X Move monk weapon specializations to barb
+X Crash bug in cleave
+X Strike needs a more obvious message
