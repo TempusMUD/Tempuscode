@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "interpreter.h"
+#include "utils.h"
 
 struct tmp_str_pool {
 	struct tmp_str_pool *next;		// Ptr to next in linked list
@@ -13,7 +14,7 @@ struct tmp_str_pool {
 	char data[0];					// The actual data
 };
 
-const size_t INITIAL_POOL_SIZE = 32767;	// 32k to start with
+const size_t DEFAULT_POOL_SIZE = 32767;	// 32k to start with
 unsigned long tmp_max_used = 0;			// Tracks maximum tmp str space used
 unsigned long tmp_overruns = 0;			// Tracks number of times the initial
 										// pool has been insufficient
@@ -26,10 +27,10 @@ static tmp_str_pool *tmp_list_tail;	// Points to the end of the linked
 void
 tmp_string_init(void)
 {
-	tmp_list_head = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + INITIAL_POOL_SIZE);
+	tmp_list_head = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + DEFAULT_POOL_SIZE);
 	tmp_list_tail = tmp_list_head;
 	tmp_list_head->next = NULL;
-	tmp_list_head->space = INITIAL_POOL_SIZE;
+	tmp_list_head->space = DEFAULT_POOL_SIZE;
 	tmp_list_head->used = 0;
 }
 
@@ -67,10 +68,18 @@ tmp_gc_strings(void)
 
 // Allocate a new string pool
 struct tmp_str_pool *
-tmp_alloc_pool(int size)
+tmp_alloc_pool(size_t size)
 {
 	struct tmp_str_pool *new_buf;
 
+	fprintf(stderr, "NOTICE: tmpstr pool allocated (%d bytes)\n", size);
+	fprintf(stderr, "        stack trace: 0x%lx 0x%lx 0x%lx\n",
+		(long)__builtin_return_address(0),
+		(long)__builtin_return_address(1),
+		(long)__builtin_return_address(2));
+
+	if (size < DEFAULT_POOL_SIZE)
+		size = DEFAULT_POOL_SIZE;
 	new_buf = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size);
 	new_buf->next = NULL;
 	tmp_list_tail->next = new_buf;
@@ -85,11 +94,11 @@ tmp_alloc_pool(int size)
 char *
 tmp_vsprintf(const char *fmt, va_list args)
 {
-	struct tmp_str_pool *cur_buf = tmp_list_head;
+	struct tmp_str_pool *cur_buf;
 	size_t wanted;
 	char *result;
 
-	cur_buf = tmp_list_head;
+	cur_buf = tmp_list_tail;
 
 	result = &cur_buf->data[cur_buf->used];
 	wanted = vsnprintf(result, cur_buf->space - cur_buf->used, fmt, args) + 1;
@@ -101,9 +110,10 @@ tmp_vsprintf(const char *fmt, va_list args)
 	if (cur_buf->space - cur_buf->used < wanted) {
 		cur_buf = tmp_alloc_pool(wanted);
 		result = &cur_buf->data[0];
-		vsnprintf(result, cur_buf->space - cur_buf->used, fmt, args);
-	} else
-		cur_buf->used += wanted;
+		wanted = vsnprintf(result, cur_buf->space - cur_buf->used, fmt, args) + 1;
+	}
+
+	cur_buf->used += wanted;
 	
 	return result;
 }
@@ -144,10 +154,10 @@ tmp_strcat(char *src, ...)
 
 
 	// If we don't have the space, we allocate another pool
-	if (len > tmp_list_head->space - tmp_list_head->used)
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
 		cur_buf = tmp_alloc_pool(len);
 	else
-		cur_buf = tmp_list_head;
+		cur_buf = tmp_list_tail;
 
 	result = cur_buf->data + cur_buf->used;
 	write_pt = result;
@@ -185,10 +195,10 @@ tmp_getword(char **src)
 		read_pt++;
 	len = (read_pt - *src) + 1;
 
-	if (len > tmp_list_head->space - tmp_list_head->used)
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
 		cur_buf = tmp_alloc_pool(len);
 	else
-		cur_buf = tmp_list_head;
+		cur_buf = tmp_list_tail;
 
 	result = cur_buf->data + cur_buf->used;
 	read_pt = *src;
@@ -209,10 +219,10 @@ tmp_pad(int c, size_t len)
 	struct tmp_str_pool *cur_buf;
 	char *result;
 
-	if (len + 1 > tmp_list_head->space - tmp_list_head->used)
+	if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
 		cur_buf = tmp_alloc_pool(len + 1);
 	else
-		cur_buf = tmp_list_head;
+		cur_buf = tmp_list_tail;
 
 	result = cur_buf->data + cur_buf->used;
 	cur_buf->used += len + 1;

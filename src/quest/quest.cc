@@ -656,7 +656,7 @@ do_qcontrol_show(CHAR * ch, char *argument)
 
 	// show all quests
 	if (!*argument) {
-		char *msg = tmp_sprintf("");
+		char *msg = "";
 		msg = list_active_quests(ch, msg);
 		msg = list_inactive_quests(ch, msg);
 		page_string(ch->desc, msg);
@@ -2828,7 +2828,7 @@ bool Quest::removePlayer( long id ) {
 			free_char(vict);
 		} else {
 			//send_to_char(ch, "Error loading char from file.\r\n");
-			slog("Error loading player id %ld from file for removal from quest %ld.\r\n",
+			slog("Error loading player id %ld from file for removal from quest %d.\r\n",
 					id, vnum );
 			return false;
 		}

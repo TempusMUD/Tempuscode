@@ -1002,8 +1002,7 @@ nanny(struct descriptor_data * d, char *arg)
 											{
 												next_obj = obj->next_content;
 												int cost = recurs_obj_cost(obj, true, NULL);
-												slog( "Removing object: '", obj->short_description,
-													  "' [",GET_OBJ_VNUM(obj),"] (cost: ", cost, ")");
+												slog( "Removing object: '%s' [%d] (cost: %d)", obj->short_description, GET_OBJ_VNUM(obj), cost);
 												house_control[i].rent_sum -= cost;
 												extract_obj(obj);
 											}

@@ -28,7 +28,8 @@
 char *str_dup(const char *source);
 int str_cmp(const char *arg1, const char *arg2);
 int strn_cmp(char *arg1, char *arg2, int n);
-void slog(char *str, ...);
+void slog(char *str, ...)
+	__attribute__ ((format (printf, 1, 2))); 
 int touch(char *path);
 void mudlog(char *str, char type, sbyte level, byte file);
 void log_death_trap(struct char_data *ch);

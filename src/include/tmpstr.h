@@ -5,10 +5,12 @@
 #include <stdarg.h>
 
 // vsprintf into a temp str
-char *tmp_vsprintf(const char *fmt, va_list args); 
+char *tmp_vsprintf(const char *fmt, va_list args)
+	__attribute__ ((format_arg (1))); 
 
 // sprintf into a temp str
-char *tmp_sprintf(const char *fmt, ...);
+char *tmp_sprintf(const char *fmt, ...)
+	__attribute__ ((format (printf, 1, 2))); 
 
 // returns a temp str of length n filled with c
 char *tmp_pad(int c, size_t n);

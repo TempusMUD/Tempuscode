@@ -61,7 +61,7 @@ class ObjectMatcherTable {
 			}
 		}
 		char *getOptionList() {
-            char *msg = tmp_sprintf("");
+            char *msg = "";
 			for( unsigned int i = 0; i < table.size(); i++  ) {
 				if( i > 0 ) msg = tmp_strcat( msg, ", ", NULL );
 				msg = tmp_strcat(msg, table[i]->getKey(),NULL);
