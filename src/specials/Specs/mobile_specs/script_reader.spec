@@ -18,11 +18,12 @@
 SPECIAL(mob_read_script)
 {
 	struct obj_data *obj = GET_IMPLANT(ch, WEAR_HOLD);
-	char *desc = NULL, *c, buf[EXDSCR_LENGTH];
+	char *desc = NULL, *c;
 	int which = 0;
 	int found = 0;
+
 	if (spec_mode != SPECIAL_TICK)
-		return FALSE;
+		return false;
 
 	if (!SCRIPT_FLAGGED(MODE_ALONE)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
@@ -36,17 +37,17 @@ SPECIAL(mob_read_script)
 		if (!found) {
 			SCRIPT_COUNTER = 0;
 			CUR_WAIT = 0;
-			return 0;
+			return false;
 		}
 	}
 
 	if (CUR_WAIT > 0) {
 		CUR_WAIT--;
-		return 0;
+		return false;
 	}
 
 	if (TOP_MESSAGE < 0)
-		return 0;
+		return false;
 
 	if (SCRIPT_FLAGGED(MODE_RANDOM)) {
 
@@ -56,19 +57,15 @@ SPECIAL(mob_read_script)
 		CUR_WAIT = WAIT_TIME;
 
 		if (which == LAST_SCRIPT_ACTION)
-			return 0;
+			return false;
 
 		if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
-			strcpy(buf, desc);
-			if ((c = strrchr(buf, '\n')))
-				*c = '\0';
-			if ((c = strrchr(buf, '\r')))
-				*c = '\0';
-			command_interpreter(ch, buf);
+			while ((c = tmp_getline(&desc)) != NULL)
+				command_interpreter(ch, c);
 			LAST_SCRIPT_ACTION = which;
-			return 1;
+			return true;
 		}
-		return 0;
+		return false;
 	}
 
 	/* ordered mode */
@@ -78,7 +75,7 @@ SPECIAL(mob_read_script)
 		SCRIPT_COUNTER = 0;
 		CUR_WAIT = WAIT_TIME << 1;
 
-		return 0;
+		return false;
 	}
 
 	sprintf(buf, "%d", SCRIPT_COUNTER);
@@ -87,15 +84,10 @@ SPECIAL(mob_read_script)
 	SCRIPT_COUNTER++;
 
 	if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
-		strcpy(buf, desc);
-		if ((c = strrchr(buf, '\n')))
-			*c = '\0';
-		if ((c = strrchr(buf, '\r')))
-			*c = '\0';
-
-		command_interpreter(ch, buf);
-		return 1;
+		while ((c = tmp_getline(&desc)) != NULL)
+			command_interpreter(ch, c);
+		return true;
 	}
 
-	return 0;
+	return false;
 }
