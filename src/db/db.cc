@@ -3249,13 +3249,15 @@ read_alias(struct Creature *ch)
 void
 save_char(struct Creature *ch, struct room_data *load_room)
 {
+	struct char_file_u st;
+
+	if (IS_NPC(ch) || !ch->desc || GET_PFILEPOS(ch) < 0)
+		return;
+
     if( USE_XML_FILES ) {
         ch->saveToXML();
         return;
     }
-	struct char_file_u st;
-	if (IS_NPC(ch) || !ch->desc || GET_PFILEPOS(ch) < 0)
-		return;
 
 	ch->player.time.played += time(0) - ch->player.time.logon;
 	ch->player.time.logon = time(0);

@@ -207,7 +207,7 @@ Crash_delete_file(char *name, int mode)
 }
 
 /**
- * Deletes this player's .objs file if the rentcode is RENT_CRASH
+ * Deletes ch player's .objs file if the rentcode is RENT_CRASH
  */
 int
 Crash_delete_crashfile(struct Creature *ch)
@@ -436,9 +436,8 @@ Crash_load(struct Creature *ch)
 */
 {
 	if( USE_XML_FILES ) {
-		if( ch->loadObjects() )
+		if (ch->loadObjects())
 			return 0;
-		fprintf(stderr, "loadObjects() doesn't check for equipment lost.\n");
 		return 1;
 	}
 	FILE *fl;
@@ -663,7 +662,7 @@ Crash_restore_weight(struct obj_data *obj)
 
 /**
  * recursively extracts all the objects in 
- * this list and thier contents.
+ * ch list and thier contents.
  */
 void
 extract_object_list(obj_data * head)
@@ -1147,14 +1146,38 @@ Crash_offer_rent(struct Creature *ch, struct Creature *receptionist,
 	extern int max_obj_save;	/* change in config.c */
 	char buf[MAX_INPUT_LENGTH];
 	int i;
-	long totalcost = 0, numitems = 0, norent = 0;
+	long totalcost = 0, numitems = 0, norent = 0, total_money;
 	char curr[64];
 
-	if (receptionist->in_room->zone->time_frame == TIME_ELECTRO)
+	if (receptionist->in_room->zone->time_frame == TIME_ELECTRO) {
 		strcpy(curr, "credits");
-	else
+		total_money = GET_CASH(ch) + GET_ECONET(ch);
+	} else {
 		strcpy(curr, "coins");
+		total_money = GET_GOLD(ch) + GET_BANK_GOLD(ch);
+	}
 
+	if (USE_XML_FILES) {
+		if (ch->displayUnrentables())
+			return 0;
+
+		totalcost = ch->calcDailyRent();
+
+		// receptionist's fee
+		totalcost = (int)(totalcost * (0.30) * ((10 + GET_LEVEL(ch)) / 10));
+
+		// level fee
+		totalcost += (min_rent_cost * GET_LEVEL(ch)) * factor;
+
+		if (display) {
+			perform_tell(receptionist, ch, tmp_sprintf(
+				"Rent will cost you %ld %s per day.", totalcost, curr));
+			perform_tell(receptionist, ch, tmp_sprintf(
+				"You can rent for %ld days with the money you have.",
+				total_money / totalcost));
+		}
+		return totalcost;
+	}
 
 	norent = Crash_report_unrentables(ch, receptionist, ch->carrying);
 	for (i = 0; i < NUM_WEARS; i++)

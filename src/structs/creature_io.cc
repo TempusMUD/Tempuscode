@@ -35,7 +35,7 @@ Creature::crashSave()
 	rent.time = time(0);
 	rent.currency = in_room->zone->time_frame;
 
-    if(! saveObjects(rent) ) {
+    if(!saveObjects(rent) ) {
         return false;
     }
 
@@ -77,15 +77,201 @@ Creature::rentSave(int cost, int rentcode)//= RENT_RENTED
     return true;
 }
 
+obj_data *
+Creature::findCostliestObj(void)
+{
+ 	obj_data *cur_obj, *result;
+	int pos;
+
+	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
+		return false;
+
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		cur_obj = GET_EQ(this, pos);
+		if (cur_obj &&
+				(!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
+			result = cur_obj;
+		cur_obj = GET_IMPLANT(this, pos);
+		if (cur_obj &&
+				(!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
+			result = cur_obj;
+	}
+
+	cur_obj = carrying;
+	while (cur_obj) {
+		if (cur_obj &&
+				(!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
+			result = cur_obj;
+
+		if (cur_obj->contains)
+			cur_obj = cur_obj->contains;	// descend into obj
+		else if (!cur_obj->next_content && cur_obj->in_obj)
+			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
+		else
+			cur_obj = cur_obj->next_content; // go to next obj
+	}
+
+	return result;
+}
+
+// Creature::payRent will pay the player's rent, selling off items to meet the
+// bill, if necessary.
+bool
+Creature::payRent(time_t last_time, int code, int currency)
+{
+	float day_count;
+	long cost;
+
+	// Immortals don't pay rent
+	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
+		return false;
+
+	// Calculate total cost
+	day_count = (float)(time(NULL) - last_time) / SECS_PER_REAL_DAY;
+	cost = (int)(calcDailyRent() * day_count);
+
+	if (currency == TIME_ELECTRO) {
+		if (cost < GET_CASH(this) + GET_ECONET(this)) {
+			GET_ECONET(this) -= MAX(cost - GET_CASH(this), 0);
+			GET_CASH(this) = MAX(GET_CASH(this) - cost, 0);
+			cost = 0;
+		}
+	} else {
+		if (cost < GET_CASH(this) + GET_ECONET(this)) {
+			GET_BANK_GOLD(this) -= MAX(cost - GET_GOLD(this), 0);
+			GET_GOLD(this) = MAX(GET_GOLD(this) - cost, 0);
+			cost = 0;
+		}
+	}
+
+	if (cost > 0) {
+		obj_data *doomed_obj, *tmp_obj;
+		
+		doomed_obj = findCostliestObj();
+		while (cost > 0 && doomed_obj) {
+			slog("%s sold for %d %s to cover %s's rent",
+				doomed_obj->short_description, GET_OBJ_COST(doomed_obj),
+				(currency) ? "creds":"gold", GET_NAME(this));
+			act("$p has been sold to cover the cost of your rent.",
+				true, this, doomed_obj, 0, TO_CHAR);
+
+			// Credit player with value of object
+			cost -= GET_OBJ_COST(doomed_obj);
+
+			// Remove objects within doomed object, if any
+			while (doomed_obj->contains) {
+				tmp_obj = doomed_obj->contains;
+				obj_from_obj(tmp_obj);
+				obj_to_char(tmp_obj, this);
+			}
+
+			// Remove doomed object
+			extract_obj(doomed_obj);
+		}
+
+		// If there's any money left over, give em a consolation prize
+		if (cost < 0) {
+			if (currency == TIME_ELECTRO)
+				GET_CASH(this) -= cost;
+			else
+				GET_GOLD(this) -= cost;
+		}
+		return true;
+	}
+	return false;
+}
+
+
+// Displays all unrentable items and returns true if any are found
+bool
+Creature::displayUnrentables(void)
+{
+	bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
+
+ 	obj_data *cur_obj, *last_obj;
+	int pos;
+	bool result = false;
+
+	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
+		return false;
+
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		cur_obj = GET_EQ(this, pos);
+		if (cur_obj && cur_obj->isUnrentable()) {
+			act("You cannot rent while wearing $p!",
+				true, this, cur_obj, 0, TO_CHAR);
+			result = true;
+		}
+		cur_obj = GET_IMPLANT(this, pos);
+		if (cur_obj && cur_obj->isUnrentable()) {
+			act("You cannot rent while implanted with $p!",
+				true, this, cur_obj, 0, TO_CHAR);
+			result = true;
+		}
+	}
+
+	last_obj = NULL;
+	cur_obj = carrying;
+	while (cur_obj) {
+		if (!last_obj || !same_obj(last_obj, cur_obj)) {
+			if (cur_obj->isUnrentable()) {
+				act("You cannot rent while carrying $p!",
+					true, this, cur_obj, 0, TO_CHAR);
+				result = true;
+			}
+		}
+		last_obj = cur_obj;
+
+		if (cur_obj->contains)
+			cur_obj = cur_obj->contains;	// descend into obj
+		else if (!cur_obj->next_content && cur_obj->in_obj)
+			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
+		else
+			cur_obj = cur_obj->next_content; // go to next obj
+	}
+
+	return result;
+}
+
+long
+Creature::calcDailyRent(void)
+{
+	obj_data *cur_obj;
+	int pos;
+	long total_cost = 0;
+
+	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
+		return 0;
+
+	for (pos = 0;pos < NUM_WEARS;pos++) {
+		cur_obj = GET_EQ(this, pos);
+		if (cur_obj && !cur_obj->isUnrentable())
+			total_cost += GET_OBJ_RENT(cur_obj);
+		cur_obj = GET_IMPLANT(this, pos);
+		if (cur_obj && !cur_obj->isUnrentable())
+			total_cost += GET_OBJ_RENT(cur_obj);
+	}
+
+	cur_obj = carrying;
+	while (cur_obj) {
+		if (!cur_obj->isUnrentable())
+			total_cost += GET_OBJ_RENT(cur_obj);
+		if (cur_obj->contains)
+			cur_obj = cur_obj->contains;	// descend into obj
+		else if (!cur_obj->next_content && cur_obj->in_obj)
+			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
+		else
+			cur_obj = cur_obj->next_content; // go to next obj
+	}
+
+	return total_cost;
+}
+
 bool
 Creature::idleSave()
 {
-    int cost = 0;
-	if (GET_LEVEL(this) < LVL_AMBASSADOR) {
-		Crash_calculate_rent(carrying, &cost);
-	}
-	// INCREASE
-	return rentSave( (cost * 3), RENT_FORCED );
+	// INCREASE x3
+	return rentSave((calcDailyRent() * 3), RENT_FORCED);
 }
 
 // Drops all !cursed eq to the floor, breaking implants, then calls rentSave(0)
@@ -124,7 +310,7 @@ Creature::curseSave()
 	}
 
 
-    if(! rentSave( 0 ) )
+    if(!rentSave(calcDailyRent()))
         return false;
     
     REMOVE_BIT(PLR_FLAGS(this), PLR_CRASH);
@@ -202,6 +388,8 @@ Creature::loadObjects()
 
     char *path = get_equipment_file_path( GET_IDNUM(this) );
 	int axs = access(path, W_OK);
+	rent_info rent;
+
 	if( axs != 0 ) {
 		if( axs != ENOENT ) {
 			slog("SYSERR: Unable to open xml equipment file '%s': %s", 
@@ -233,8 +421,17 @@ Creature::loadObjects()
 				extract_obj(obj);
 			}
 			//obj_to_room(obj, in_room);
+		} else if (xmlMatches(node->name, "rent")) {
+			rent.time = xmlGetIntProp(node, "time");
+			rent.rentcode = xmlGetIntProp(node, "code");
+			rent.net_cost_per_diem = xmlGetIntProp(node, "perdiem");
+			rent.gold = xmlGetIntProp(node, "gold");
+			rent.account = xmlGetIntProp(node, "bank");
+			rent.currency = xmlGetIntProp(node, "currency");
 		}
 	}
+
+	payRent(rent.time, rent.rentcode, rent.currency);
 	return 0;
 }
 
