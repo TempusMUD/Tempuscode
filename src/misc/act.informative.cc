@@ -2075,6 +2075,21 @@ ACMD(do_examine)
 	struct char_data *tmp_char;
 	struct obj_data *tmp_object;
 
+	if (ch->getPosition() < POS_SLEEPING) {
+		send_to_char(ch, "You can't see anything but stars!\r\n");
+		return;
+	}
+	if (IS_AFFECTED(ch, AFF_BLIND)
+		&& !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
+		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
+		return;
+	}
+
+	if (IS_DARK(ch->in_room) && !CAN_SEE_IN_DARK(ch)) {
+		send_to_char(ch, "It is pitch black, and you can't see anything.\r\n");
+		return;
+	}
+
 	one_argument(argument, arg);
 
 	if (!*arg) {
