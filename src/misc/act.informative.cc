@@ -2969,7 +2969,7 @@ ACMD(do_weather)
 }
 
 #define WHO_FORMAT \
-"format: who [minlev[-maxlev]] [-n name] [-c char_claslist] [-a clan] [-<soqrzmftpx>]\r\n"
+"format: who [minlev[-maxlev]] [-n name] [-c char_claslist] [-a clan] [-<soqrmftpx>]\r\n"
 
 ACMD(do_who)
 {
@@ -2981,10 +2981,9 @@ ACMD(do_who)
 	char c_buf[MAX_STRING_LENGTH];
 	char tester_buf[64], nowho_buf[64];
 	char mode;
-	int i, low = 0, high = LVL_GRIMP;
+	int i, low = -1, high = -1;
 	int showchar_class = 0, short_list = 0, num_can_see = 0, tot_num = 0;
-	bool localwho = false,
-		questwho = false,
+	bool questwho = false,
 		outlaws = false,
 		who_room = false,
 		who_plane = false,
@@ -3020,10 +3019,6 @@ ACMD(do_who)
 				break;
 			case 'k':
 				who_pkills = true;
-				strcpy(buf, buf1);
-				break;
-			case 'z':
-				localwho = true;
 				strcpy(buf, buf1);
 				break;
 			case 's':
@@ -3092,11 +3087,6 @@ ACMD(do_who)
 		}
 	}							/* end while (parser) */
 
-	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) &&
-		GET_LEVEL(ch) < LVL_AMBASSADOR)
-		localwho = 1;
-
-
 	sprintf(buf2,
 		"%s**************       %sVisible Players of TEMPUS%s%s       **************%s\r\n%s",
 		CCBLD(ch, C_CMP), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCBLD(ch, C_CMP),
@@ -3112,7 +3102,7 @@ ACMD(do_who)
 			continue;
 
 		// skip imms now, before the tot_num gets incremented
-		if (!CAN_SEE(ch, tch) && GET_LEVEL(tch) >= LVL_AMBASSADOR)
+		if (ch != tch && GET_LEVEL(tch) >= LVL_AMBASSADOR && !CAN_SEE(ch, tch))
 			continue;
 
 		tot_num++;
@@ -3125,24 +3115,28 @@ ACMD(do_who)
 					!PRF_FLAGGED(ch, PRF_HOLYLIGHT))))
 			continue;
 
-		if (!CAN_SEE(ch, tch) || GET_LEVEL(tch) < low || GET_LEVEL(tch) > high)
-			continue;
-		if ((low > 0 || high < LVL_GRIMP) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
-			PRF2_FLAGGED(tch, PRF2_ANONYMOUS))
+		// If we're limiting levels, exclude anonymous players unless we're
+		// an immortal
+		if ((low != -1 || high != -1) &&
+				!IS_IMMORT(ch) && PRF2_FLAGGED(tch, PRF2_ANONYMOUS))
 			continue;
 
-		if (ch != tch && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
-			PRF2_FLAGGED(tch, PRF2_NOWHO) && GET_LEVEL(tch) >= LVL_IMMORT &&
-			!PLR_FLAGGED(tch, PLR_KILLER | PLR_THIEF))
+		if (low != -1 && GET_LEVEL(tch) < MIN(low, 0))
 			continue;
+
+		if (high != -1 && GET_LEVEL(tch) > MAX(high, LVL_GRIMP))
+			continue;
+
+		if (ch != tch && PRF2_FLAGGED(tch, PRF2_NOWHO) &&
+				GET_LEVEL(tch) >= LVL_IMMORT)
+			continue;
+
 		if (outlaws && !PLR_FLAGGED(tch, PLR_KILLER) &&
-			!PLR_FLAGGED(tch, PLR_THIEF))
+				!PLR_FLAGGED(tch, PLR_THIEF))
 			continue;
 		if (who_pkills && !GET_PKILLS(tch))
 			continue;
 		if (questwho && !PRF_FLAGGED(tch, PRF_QUEST))
-			continue;
-		if (localwho && ch->in_room->zone != tch->in_room->zone)
 			continue;
 		if (who_room && (tch->in_room != ch->in_room))
 			continue;
