@@ -276,16 +276,16 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 
 
 	for (i = descriptor_list; i; i = i->next)
-		if (!i->connected && !PLR_FLAGGED(i->character, PLR_WRITING) &&
-			!PLR_FLAGGED(i->character, PLR_OLC)) {
-			tp = ((PRF_FLAGGED(i->character, PRF_LOG1) ? 1 : 0) +
-				(PRF_FLAGGED(i->character, PRF_LOG2) ? 2 : 0));
+		if (i->input_mode == CXN_PLAYING && !PLR_FLAGGED(i->creature, PLR_WRITING) &&
+			!PLR_FLAGGED(i->creature, PLR_OLC)) {
+			tp = ((PRF_FLAGGED(i->creature, PRF_LOG1) ? 1 : 0) +
+				(PRF_FLAGGED(i->creature, PRF_LOG2) ? 2 : 0));
 
-			if ((GET_LEVEL(i->character) >= level) && (tp >= type)) {
-				send_to_char(i->character, "%s[ %s%s ]%s\r\n",
-					CCGRN(i->character, C_NRM),
+			if ((GET_LEVEL(i->creature) >= level) && (tp >= type)) {
+				send_to_char(i->creature, "%s[ %s%s ]%s\r\n",
+					CCGRN(i->creature, C_NRM),
 					msg, timebuf,
-					CCNRM(i->character, C_NRM));
+					CCNRM(i->creature, C_NRM));
 			}
 		}
 }

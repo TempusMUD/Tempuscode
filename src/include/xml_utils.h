@@ -4,6 +4,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <stdlib.h>
+#include <string.h>
 
 void xml_boot(void);
 char *tmp_strcat(const char *src, ...);

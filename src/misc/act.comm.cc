@@ -551,11 +551,11 @@ ACMD(do_page)
 		if (!str_cmp(arg, "all")) {
 			if (GET_LEVEL(ch) > LVL_GOD) {
 				for (d = descriptor_list; d; d = d->next)
-					if (IS_PLAYING(d) && d->character) {
-						send_to_char(d->character, CCYEL(d->character, C_NRM));
-						send_to_char(d->character, CCBLD(d->character, C_SPR));
-						act(buf, FALSE, ch, 0, d->character, TO_VICT);
-						send_to_char(d->character, CCNRM(d->character, C_SPR));
+					if (IS_PLAYING(d) && d->creature) {
+						send_to_char(d->creature, CCYEL(d->creature, C_NRM));
+						send_to_char(d->creature, CCBLD(d->creature, C_SPR));
+						act(buf, FALSE, ch, 0, d->creature, TO_VICT);
+						send_to_char(d->creature, CCNRM(d->creature, C_SPR));
 					}
 			} else
 				send_to_char(ch, "You will never be godly enough to do that!\r\n");
@@ -812,83 +812,83 @@ ACMD(do_gen_comm)
 
 	/* now send all the strings out */
 	for (i = descriptor_list; i; i = i->next) {
-		if (STATE(i) != CON_PLAYING || i == ch->desc || !i->character ||
-				PLR_FLAGGED(i->character, PLR_WRITING) ||
-				PLR_FLAGGED(i->character, PLR_OLC))
+		if (STATE(i) != CXN_PLAYING || i == ch->desc || !i->creature ||
+				PLR_FLAGGED(i->creature, PLR_WRITING) ||
+				PLR_FLAGGED(i->creature, PLR_OLC))
 			continue;
 
 		if (chan->deaf_vector == 1 &&
-				PRF_FLAGGED(i->character, chan->deaf_flag))
+				PRF_FLAGGED(i->creature, chan->deaf_flag))
 			continue;
 		if (chan->deaf_vector == 2 &&
-				PRF2_FLAGGED(i->character, chan->deaf_flag))
+				PRF2_FLAGGED(i->creature, chan->deaf_flag))
 			continue;
 		if (chan->deaf_vector == -2 &&
-				!PRF2_FLAGGED(i->character, chan->deaf_flag))
+				!PRF2_FLAGGED(i->creature, chan->deaf_flag))
 			continue;
 
 		// Must be in same clan to hear clansay - even immortals
 		if (subcmd == SCMD_CLANSAY &&
-				(!GET_CLAN(i->character) ||
-					GET_CLAN(i->character) != GET_CLAN(ch)))
+				(!GET_CLAN(i->creature) ||
+					GET_CLAN(i->creature) != GET_CLAN(ch)))
 			continue;
 
 		// Must be in same guild or an admin to hear guildsay
 		if (subcmd == SCMD_GUILDSAY &&
-				GET_CLASS(i->character) != GET_CLASS(ch) &&
-				!Security::isMember(i->character, "AdminBasic"))
+				GET_CLASS(i->creature) != GET_CLASS(ch) &&
+				!Security::isMember(i->creature, "AdminBasic"))
 			continue;
 
 		// Evil and good clerics and knights have different guilds
 		if (subcmd == SCMD_GUILDSAY &&
-				(GET_CLASS(i->character) == CLASS_CLERIC ||
-				GET_CLASS(i->character) == CLASS_KNIGHT) &&
-				!Security::isMember(i->character, "AdminBasic")) {
+				(GET_CLASS(i->creature) == CLASS_CLERIC ||
+				GET_CLASS(i->creature) == CLASS_KNIGHT) &&
+				!Security::isMember(i->creature, "AdminBasic")) {
 			if (IS_NEUTRAL(ch))
 				continue;
-			if (IS_EVIL(ch) && !IS_EVIL(i->character))
+			if (IS_EVIL(ch) && !IS_EVIL(i->creature))
 				continue;
-			if (IS_GOOD(ch) && !IS_GOOD(i->character))
+			if (IS_GOOD(ch) && !IS_GOOD(i->creature))
 				continue;
 		}
 
 		// Outcast monks don't hear other monks
 		if (subcmd == SCMD_GUILDSAY &&
-				GET_CLASS(i->character) == CLASS_MONK &&
-				!IS_NEUTRAL(i->character) &&
-				!Security::isMember(i->character, "AdminBasic"))
+				GET_CLASS(i->creature) == CLASS_MONK &&
+				!IS_NEUTRAL(i->creature) &&
+				!Security::isMember(i->creature, "AdminBasic"))
 			continue;
 
-		if (IS_NPC(ch) || !IS_IMMORT(i->character)) {
-			if (subcmd == SCMD_PROJECT && !IS_REMORT(i->character))
+		if (IS_NPC(ch) || !IS_IMMORT(i->creature)) {
+			if (subcmd == SCMD_PROJECT && !IS_REMORT(i->creature))
 				continue;
 
 			if (subcmd == SCMD_DREAM &&
-					i->character->getPosition() != POS_SLEEPING)
+					i->creature->getPosition() != POS_SLEEPING)
 				continue;
 
 			if (subcmd == SCMD_SHOUT &&
-				((ch->in_room->zone != i->character->in_room->zone) ||
-					i->character->getPosition() < POS_RESTING))
+				((ch->in_room->zone != i->creature->in_room->zone) ||
+					i->creature->getPosition() < POS_RESTING))
 				continue;
 
 			if ((ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
-					ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF)) &&
-					!IS_IMMORT(ch) && i->character->in_room != ch->in_room)
+					ROOM_FLAGGED(i->creature->in_room, ROOM_SOUNDPROOF)) &&
+					!IS_IMMORT(ch) && i->creature->in_room != ch->in_room)
 				continue;
 
-			if (chan->check_plane && COMM_NOTOK_ZONES(ch, i->character))
+			if (chan->check_plane && COMM_NOTOK_ZONES(ch, i->creature))
 				continue;
 		}
 
-		if (IS_IMMORT(i->character))
-			send_to_char(i->character,
-				COLOR_LEV(i->character) >= C_NRM ? imm_color_emit : imm_plain_emit,
-				tmp_capitalize(PERS(ch, i->character)));
+		if (IS_IMMORT(i->creature))
+			send_to_char(i->creature,
+				COLOR_LEV(i->creature) >= C_NRM ? imm_color_emit : imm_plain_emit,
+				tmp_capitalize(PERS(ch, i->creature)));
 		else
-			send_to_char(i->character,
-				COLOR_LEV(i->character) >= C_NRM ? color_emit : plain_emit,
-				tmp_capitalize(PERS(ch, i->character)));
+			send_to_char(i->creature,
+				COLOR_LEV(i->creature) >= C_NRM ? color_emit : plain_emit,
+				tmp_capitalize(PERS(ch, i->creature)));
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && !IS_IMMORT(ch))
@@ -937,31 +937,31 @@ ACMD(do_qcomm)
 
 		if (subcmd == SCMD_QSAY) {
 			for (i = descriptor_list; i; i = i->next)
-				if (STATE(i) == CON_PLAYING && i != ch->desc &&
-					PRF_FLAGGED(i->character, PRF_QUEST) &&
-					i->character->in_room != NULL &&
-					!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) &&
-					!PLR_FLAGGED(i->character,
+				if (STATE(i) == CXN_PLAYING && i != ch->desc &&
+					PRF_FLAGGED(i->creature, PRF_QUEST) &&
+					i->creature->in_room != NULL &&
+					!ROOM_FLAGGED(i->creature->in_room, ROOM_SOUNDPROOF) &&
+					!PLR_FLAGGED(i->creature,
 						PLR_MAILING | PLR_WRITING | PLR_OLC)) {
-					send_to_char(i->character, "%s%s quest-says,%s '%s'\r\n",
-						CCYEL_BLD(i->character, C_SPR),
-						PERS(ch, i->character),
-						CCNRM(i->character, C_SPR),
+					send_to_char(i->creature, "%s%s quest-says,%s '%s'\r\n",
+						CCYEL_BLD(i->creature, C_SPR),
+						PERS(ch, i->creature),
+						CCNRM(i->creature, C_SPR),
 						argument);
 				}
 		} else {
 			strcpy(buf, argument);
 
 			for (i = descriptor_list; i; i = i->next)
-				if (STATE(i) == CON_PLAYING && i != ch->desc &&
-					PRF_FLAGGED(i->character, PRF_QUEST) &&
-					i->character->in_room != NULL &&
-					!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) &&
-					!PLR_FLAGGED(i->character,
+				if (STATE(i) == CXN_PLAYING && i != ch->desc &&
+					PRF_FLAGGED(i->creature, PRF_QUEST) &&
+					i->creature->in_room != NULL &&
+					!ROOM_FLAGGED(i->creature->in_room, ROOM_SOUNDPROOF) &&
+					!PLR_FLAGGED(i->creature,
 						PLR_MAILING | PLR_WRITING | PLR_OLC)) {
-					send_to_char(i->character, "%s", CCYEL_BLD(i->character, C_NRM));
-					act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
-					send_to_char(i->character, "%s", CCNRM(i->character, C_NRM));
+					send_to_char(i->creature, "%s", CCYEL_BLD(i->creature, C_NRM));
+					act(buf, 0, ch, 0, i->creature, TO_VICT | TO_SLEEP);
+					send_to_char(i->creature, "%s", CCNRM(i->creature, C_NRM));
 				}
 		}
 	}
@@ -998,18 +998,18 @@ ACMD(do_clan_comm)
 		}
 
 		for (i = descriptor_list; i; i = i->next)
-			if (STATE(i) == CON_PLAYING && i != ch->desc && i->character &&
-				GET_CLAN(i->character) &&
-				GET_CLAN(i->character) == GET_CLAN(ch) &&
-				!PRF_FLAGGED(i->character, PRF_NOCLANSAY) &&
-				i->character->in_room != NULL &&
-				!COMM_NOTOK_ZONES(ch, i->character) &&
-				!PLR_FLAGGED(i->character,
+			if (STATE(i) == CXN_PLAYING && i != ch->desc && i->creature &&
+				GET_CLAN(i->creature) &&
+				GET_CLAN(i->creature) == GET_CLAN(ch) &&
+				!PRF_FLAGGED(i->creature, PRF_NOCLANSAY) &&
+				i->creature->in_room != NULL &&
+				!COMM_NOTOK_ZONES(ch, i->creature) &&
+				!PLR_FLAGGED(i->creature,
 					PLR_MAILING | PLR_WRITING | PLR_OLC)) {
-				sprintf(buf, "$n%s %s", CCNRM(i->character, C_NRM),
+				sprintf(buf, "$n%s %s", CCNRM(i->creature, C_NRM),
 					argument);
-				send_to_char(i->character, CCCYN(i->character, C_NRM));
-				act(buf, 0, ch, 0, i->character, TO_VICT | TO_SLEEP);
+				send_to_char(i->creature, CCCYN(i->creature, C_NRM));
+				act(buf, 0, ch, 0, i->creature, TO_VICT | TO_SLEEP);
 			}
 	}
 }

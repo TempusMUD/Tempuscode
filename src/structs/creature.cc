@@ -17,9 +17,23 @@
 #include "security.h"
 #include "fight.h"
 
-int set_desc_state(int state, struct descriptor_data *d);
 void Crash_extract_norents(struct obj_data *obj);
 extern struct descriptor_data *descriptor_list;
+struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
+
+Creature::Creature(void)
+{
+	memset((char *)this, 0, sizeof(Creature));
+	player_specials = new player_special_data;
+	memset((char *)player_specials, 0, sizeof(player_special_data));
+	clear();
+}
+
+Creature::~Creature(void)
+{
+	clear();
+	delete player_specials;
+}
 
 bool
 Creature::isFighting()
@@ -456,7 +470,7 @@ Creature::extractUnrentables()
  * @param con_state the connection state to change the descriptor to, if one exists
 **/
 void
-Creature::extract(bool destroy_objs, bool save, int con_state)
+Creature::extract(bool destroy_objs, bool save, cxn_state con_state)
 {
 	ACMD(do_return);
 	void stop_fighting(struct Creature *ch);
@@ -465,13 +479,12 @@ Creature::extract(bool destroy_objs, bool save, int con_state)
 	struct obj_data* obj;
 	struct descriptor_data* t_desc;
 	int idx;
-	int freed = 0;
 	CreatureList::iterator cit;
 
 	if (!IS_NPC(this) && !desc) {
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
 			if (t_desc->original == this)
-				do_return(t_desc->character, "", 0, SCMD_FORCED, 0);
+				do_return(t_desc->creature, "", 0, SCMD_FORCED, 0);
 	}
 	if (in_room == NULL) {
 		slog("SYSERR: NOWHERE extracting char. (handler.c, extract_char)");
@@ -577,7 +590,7 @@ Creature::extract(bool destroy_objs, bool save, int con_state)
 
 
 	if (IS_PC(this) && save) {
-		save_char(this, NULL);
+		this->saveToXML();
 		Crash_crashsave(this);	// Is there any eq to save?
 		Crash_save_implants(this, false);	// Are there any implants to save?
 		Crash_delete_crashfile(this);	// Should this be here?
@@ -598,15 +611,14 @@ Creature::extract(bool destroy_objs, bool save, int con_state)
 		if (GET_MOB_VNUM(this) > -1)	// if mobile
 			mob_specials.shared->number--;
 		clearMemory();			// Only NPC's can have memory
-		free_char(this);
+		delete this;
 		return;
 	}
 
 	if (desc) {					// PC's have descriptors. Take care of them
 		set_desc_state(con_state, desc);
 	} else {					// if a player gets purged from within the game
-		if (!freed)
-			free_char(this);
+		delete this;
 	}
 }
 
@@ -709,6 +721,120 @@ room_data *Creature::getLoadroom() {
 		}
 	}
     return load_room;
+}
+
+// Free all structures and return to a virginal state
+void
+Creature::clear(void)
+{
+	int i;
+	struct Creature *tmp_mob;
+	struct alias_data *a;
+
+	void free_alias(struct alias_data *a);
+
+	//
+	// first make sure the char is no longer in the world
+	//
+	if (this->in_room != NULL || this->carrying != NULL ||
+		this->getFighting() != NULL || this->followers != NULL
+		|| this->master != NULL) {
+		slog("SYSERR: attempted clear of creature who is still connected to the world.");
+		raise(SIGSEGV);
+	}
+
+	//
+	// first remove and free all alieases
+	//
+
+	while ((a = GET_ALIASES(this)) != NULL) {
+		GET_ALIASES(this) = (GET_ALIASES(this))->next;
+		free_alias(a);
+	}
+
+	//
+	// now remove all affects
+	//
+
+	while (this->affected)
+		affect_remove(this, this->affected);
+
+
+	//
+	// free mob strings:
+	// free strings only if the string is not pointing at proto
+	//
+
+	if ((i = GET_MOB_VNUM(this)) > -1) {
+
+		tmp_mob = real_mobile_proto(GET_MOB_VNUM(this));
+
+		if (this->player.name && this->player.name != tmp_mob->player.name)
+			free(this->player.name);
+		if (this->player.title && this->player.title != tmp_mob->player.title)
+			free(this->player.title);
+		if (this->player.short_descr &&
+			this->player.short_descr != tmp_mob->player.short_descr)
+			free(this->player.short_descr);
+		if (this->player.long_descr &&
+			this->player.long_descr != tmp_mob->player.long_descr)
+			free(this->player.long_descr);
+		if (this->player.description &&
+			this->player.description != tmp_mob->player.description)
+			free(this->player.description);
+		if (this->mob_specials.mug)
+			free(this->mob_specials.mug);
+	} else {
+		//
+		// otherwise this is a player, so free all
+		//
+
+		if (GET_NAME(this))
+			free(GET_NAME(this));
+		if (this->player.title)
+			free(this->player.title);
+		if (this->player.short_descr)
+			free(this->player.short_descr);
+		if (this->player.long_descr)
+			free(this->player.long_descr);
+		if (this->player.description)
+			free(this->player.description);
+	}
+
+	//
+	// remove player_specials:
+	// - poofin
+	// - poofout
+	//
+
+	if (this->player_specials != NULL && this->player_specials != &dummy_mob) {
+		if (this->player_specials->poofin)
+			free(this->player_specials->poofin);
+		if (this->player_specials->poofout)
+			free(this->player_specials->poofout);
+
+		delete this->player_specials;
+
+		if (IS_NPC(this)) {
+			slog("SYSERR: Mob had player_specials allocated!");
+			raise(SIGSEGV);
+		}
+	}
+
+	// At this point, everything should be freed, so we null the entire
+	// structure just to be sure
+	memset((char *)this, 0, sizeof(Creature));
+
+	// And we reset all the values to their initial settings
+	this->setPosition(POS_STANDING);
+	GET_REMORT_CLASS(this) = -1;
+
+	GET_AC(this) = 100;			/* Basic Armor */
+	if (this->points.max_mana < 100)
+		this->points.max_mana = 100;
+
+	player_specials = new player_special_data;
+	memset((char *)player_specials, 0, sizeof(player_special_data));
 }
 
 #undef __Creature_cc__

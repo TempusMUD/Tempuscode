@@ -29,6 +29,7 @@
 #include "clan.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "player_table.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -43,7 +44,7 @@ extern FILE *player_fl;
 int player_i = 0;
 
 
-#define NAME(x) ((temp = get_name_by_id(x)) == NULL ? "<UNDEF>" : temp)
+#define NAME(x) ((temp = playerIndex.getName(x)) == NULL ? "<UNDEF>" : temp)
 
 void
 REMOVE_ROOM_FROM_CLAN(struct room_list_elem *rm_list, struct clan_data *clan)
@@ -138,7 +139,6 @@ ACMD(do_dismiss)
 	struct clanmember_data *member = NULL, *member2 = NULL;
 	bool in_file = false;
 	long idnum = -1;
-	struct char_file_u tmp_store;
 	char *arg, *msg;
 
 
@@ -153,21 +153,18 @@ ACMD(do_dismiss)
 		return;
 	}
 	/* Find the player. */
-	if ((idnum = get_id_by_name(arg)) < 0) {
+	if ((idnum = playerIndex.getID(arg)) < 0) {
 		send_to_char(ch, "There is no character named '%s'\r\n", arg);
 		return;
 	}
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		CREATE(vict, Creature, 1);
-		clear_char(vict);
+		vict = new Creature;
 		in_file = true;
 
-		if ((player_i = load_char(arg, &tmp_store)) > -1) {
-			store_to_char(&tmp_store, vict);
-		} else {
-			free_char(vict);
+		if (!vict->loadFromXML(idnum)) {
+			delete vict;
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
 		}
@@ -177,7 +174,7 @@ ACMD(do_dismiss)
 	if (!vict) {
 		send_to_char(ch, "Dismiss who?\r\n");
 		if (in_file)
-			free_char(vict);
+			delete vict;
 		return;
 	}
 	if (vict == ch)
@@ -213,10 +210,8 @@ ACMD(do_dismiss)
 		REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
 
 		if (in_file) {
-			char_to_store(vict, &tmp_store);
-			fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
-			fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
-			free_char(vict);
+			vict->saveToXML();
+			delete vict;
 			send_to_char(ch, "Player dismissed.\r\n");
 		}
 	}
@@ -257,7 +252,6 @@ ACMD(do_clanlist)
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL, *ch_member = NULL;
 	struct descriptor_data *d;
-	struct char_file_u tmp_store;
 	int min_lev = 0;
 	bool complete = 0;
 	int visible = 1;
@@ -295,7 +289,7 @@ ACMD(do_clanlist)
 		for (d = descriptor_list; d && !found; d = d->next) {
 			if (IS_PLAYING(d)) {
 				i = ((d->original && GET_LEVEL(ch) > GET_LEVEL(d->original)) ?
-					d->original : d->character);
+					d->original : d->creature);
 				if (i && GET_CLAN(i) == GET_CLAN(ch) &&
 					GET_IDNUM(i) == member->idnum && (visible = can_see_creature(ch, i))
 					&& GET_LEVEL(i) >= min_lev && (i->in_room != NULL)) {
@@ -321,14 +315,14 @@ ACMD(do_clanlist)
 									|| PLR_FLAGGED(i,
 										PLR_CLAN_LEADER)) ? CCNRM(ch, C_NRM) : ""),
 							CCCYN(ch, C_NRM),
-							(d->character->in_room->zone == ch->in_room->zone) ?
-								(check_sight_room(ch, d->character->in_room)) ?
-									d->character->in_room->name
+							(d->creature->in_room->zone == ch->in_room->zone) ?
+								(check_sight_room(ch, d->creature->in_room)) ?
+									d->creature->in_room->name
 									: "You cannot tell..."
-								: d->character->in_room->zone->name,
+								: d->creature->in_room->zone->name,
 							CCNRM(ch, C_NRM),
 							CCRED(ch, C_CMP),
-							GET_NAME(d->character),
+							GET_NAME(d->creature),
 							CCNRM(ch, C_CMP));
 					else if (GET_LEVEL(i) >= LVL_AMBASSADOR)
 						line = tmp_sprintf("%s[%s%s%s]%s %-40s%s - %s%s%s\r\n",
@@ -374,13 +368,11 @@ ACMD(do_clanlist)
 		}
 		if (complete && !found) {
 			if (!ch_member || member->rank > ch_member->rank ||
-				!get_name_by_id(member->idnum)) {
+				!playerIndex.getName(member->idnum)) {
 				continue;
 			}
-			if (load_char(get_name_by_id(member->idnum), &tmp_store) >= 0) {
-				CREATE(i, struct Creature, 1);
-				clear_char(i);
-				store_to_char(&tmp_store, i);
+			i = new Creature;
+			if (i->loadFromXML(member->idnum)) {
 				name = tmp_strcat(GET_NAME(i), " ",
 					clan->ranknames[(int)member->rank] ?
 					clan->ranknames[(int)member->rank] : "the member", NULL);
@@ -399,9 +391,9 @@ ACMD(do_clanlist)
 								PLR_CLAN_LEADER) ? CCCYN(ch, C_NRM) : ""),
 						name, CCNRM(ch, C_NRM));
 
-				free_char(i);
 				msg = tmp_strcat(msg, line,NULL);
 			}
+			delete i;
 		}
 	}
 	page_string(ch->desc, msg);
@@ -572,7 +564,7 @@ ACMD(do_promote)
 				slog("%s", msg);
 				msg = tmp_strcat(msg, "\r\n",NULL);
 				send_to_clan(msg, clan->number);
-				save_char(vict, NULL);
+				vict->saveToXML();
 			}
 		} else {
 			if (member2->rank >= member1->rank && GET_IDNUM(ch) != clan->owner)
@@ -936,7 +928,7 @@ ACMD(do_cedit)
 				send_to_char(ch, "Set the owner of the clan to what?\r\n");
 				return;
 			}
-			if ((i = get_id_by_name(argument)) < 0) {
+			if ((i = playerIndex.getID(argument)) < 0) {
 				send_to_char(ch, "No such person.\r\n");
 				return;
 			}
@@ -957,7 +949,7 @@ ACMD(do_cedit)
 			arg1 = tmp_getword(&argument);
 
 			if (!is_number(arg3)) {
-				if ((i = get_id_by_name(arg3)) < 0) {
+				if ((i = playerIndex.getID(arg3)) < 0) {
 					send_to_char(ch, "There is no such player in existence...\r\n");
 					return;
 				}
@@ -1048,7 +1040,7 @@ ACMD(do_cedit)
 		// cedit add member
 		else if (is_abbrev(arg2, "member")) {
 			if (!is_number(arg3)) {
-				if ((i = get_id_by_name(arg3)) < 0) {
+				if ((i = playerIndex.getID(arg3)) < 0) {
 					send_to_char(ch, "There exists no player with that name.\r\n");
 					return;
 				}
@@ -1127,7 +1119,7 @@ ACMD(do_cedit)
 		// cedit remove member
 		else if (is_abbrev(arg2, "member")) {
 			if (!is_number(arg3)) {
-				if ((i = get_id_by_name(arg3)) < 0) {
+				if ((i = playerIndex.getID(arg3)) < 0) {
 					send_to_char(ch, "There exists no player with that name.\r\n");
 					return;
 				}
@@ -1192,7 +1184,7 @@ boot_clans()
 	struct clanmember_data *member = NULL, *tmp_member = NULL;
 	struct room_data *room = NULL;
 	struct room_list_elem *rm_list = NULL;
-	struct char_file_u tmp_store;
+	Creature clan_member;
 
 	clan_list = NULL;
 
@@ -1237,16 +1229,19 @@ boot_clans()
 		}
 
 		for (i = 0; i < clan_hdr.num_members; i++) {
+
 			fread(&member_id, sizeof(long), 1, file);
 			fread(&member_rank, sizeof(byte), 1, file);
 
-			if (!get_name_by_id(member_id)) {
+			if (!playerIndex.getName(member_id)) {
 				slog("Clan(%d) member (%ld) does not exist",
 					clan->number, member_id);
 				continue;
 			}
-			if (load_char(get_name_by_id(member_id), &tmp_store) > -1) {
-				if (tmp_store.player_specials_saved.clan != clan->number) {
+			clan_member.clear();
+
+			if (clan_member.loadFromXML(member_id)) {
+				if (clan_member.player_specials->saved.clan != clan->number) {
 					slog("Clan(%d) member (%ld) no longer a member.",
 						clan->number, member_id);
 					continue;
@@ -1459,7 +1454,7 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
 
 		if (GET_LEVEL(ch) > LVL_AMBASSADOR)
 			msg = tmp_sprintf("%sOwner: %ld (%s), Flags: %d\r\n",
-				msg, clan->owner, get_name_by_id(clan->owner), clan->flags);
+				msg, clan->owner, playerIndex.getName(clan->owner), clan->flags);
 
 		for (i = clan->top_rank; i >= 0; i--) {
 			msg = tmp_sprintf("%sRank %2d: %s%s%s\r\n", msg, i,
@@ -1487,7 +1482,7 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
 				num_members++;
 				msg = tmp_sprintf("%s%3d) %5d -  %s%20s%s  Rank: %d\r\n", msg,
 					num_members, (int)member->idnum,
-					CCYEL(ch, C_NRM), get_name_by_id(member->idnum),
+					CCYEL(ch, C_NRM), playerIndex.getName(member->idnum),
 					CCNRM(ch, C_NRM), member->rank);
 			}
 			msg = tmp_strcat(msg, "None.\r\n",NULL);

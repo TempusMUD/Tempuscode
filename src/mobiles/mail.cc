@@ -87,17 +87,15 @@ mail_box_status(long id)
 	// 3 is deleted
 	// 4 is failure
 
-	struct Creature *victim = NULL;
-	struct char_file_u tmp_store;
+	struct Creature *victim;
 	int flag = 0;
 
-	if (load_char(get_name_by_id(id), &tmp_store) < 0)
-		return 4;				// Failed to load char.
+	victim = new Creature;
+	if (!victim->loadFromXML(id)) {
+		delete victim;
+		return 4;
+	}
 
-	CREATE(victim, struct Creature, 1);
-	clear_char(victim);
-
-	store_to_char(&tmp_store, victim);
 	if (PLR_FLAGGED(victim, PLR_FROZEN))
 		flag = 1;
 	if (PLR2_FLAGGED(victim, PLR2_BURIED))
@@ -105,8 +103,7 @@ mail_box_status(long id)
 	if (PLR_FLAGGED(victim, PLR_DELETED))
 		flag = 3;
 
-	// Free the victim
-	free_char(victim);
+	delete victim;
 	return flag;
 }
 
@@ -127,7 +124,7 @@ store_mail(long to_id, long from_id, char *txt, char *cc_list,
 	}
 	if (!can_recieve_mail(to_id)) {
 		send_to_char(get_char_in_world_by_idnum(from_id), "%s doesn't seem to be able to recieve mail.\r\n",
-			get_name_by_id(to_id));
+			playerIndex.getName(to_id));
 		return 0;
 	}
 	if (strlen(txt) > MAX_MAIL_SIZE) {
@@ -248,7 +245,7 @@ recieve_mail(Creature * ch)
 				"Date: %s\r\n"
 				"  To: %s\r\n"
 				"From: %s\r\n", time_str, GET_NAME(ch),
-				get_name_by_id(letter->from));
+				playerIndex.getName(letter->from));
 			
 			obj->action_description =//= new char[strlen(text) + strlen(buf) + 1];
 					(char*)malloc( sizeof(char) * (strlen(text) + strlen(buf) + 1) );
@@ -362,7 +359,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
 	} else {
 
 		while (*buf) {
-			if ((recipient = get_id_by_name(buf)) < 0) {
+			if ((recipient = playerIndex.getID(buf)) < 0) {
 				sprintf(buf2, "No one by the name '%s' is registered here!",
 					buf);
 				perform_tell(mailman, ch, buf2);
@@ -493,5 +490,5 @@ postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
 		strcpy(buf2, "Sorry, you don't have any mail waiting.");
 		perform_tell(mailman, ch, buf2);
 	}
-	save_char(ch, NULL);
+	ch->saveToXML();
 }

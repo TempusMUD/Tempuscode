@@ -79,8 +79,7 @@ SPECIAL(jail_locker)
 			House* house = Housing.findHouseByRoom( ch->in_room->next->number );
 			if( house != NULL )
 				house->save();
-
-			save_char(ch, NULL);
+			ch->saveToXML();
 
 			return 1;
 		}

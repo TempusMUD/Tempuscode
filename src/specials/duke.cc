@@ -1042,7 +1042,7 @@ SPECIAL(book_int)
 		act("A bright light appears above the head of $n", FALSE, ch, 0, 0,
 			TO_ROOM);
 		ch->real_abils.intel++;
-		save_char(ch, NULL);
+		ch->saveToXML();
 		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 	}
 	act("$p fades into a different reality, and is gone.", FALSE, ch, book, 0,

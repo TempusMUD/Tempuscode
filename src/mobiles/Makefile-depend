@@ -5,7 +5,7 @@ $(OBJ)/guard.o : guard.cc \
 	$(INCLUDE)/actions.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/fight.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/utils.h 
 	$(CXX) -c $(CXXFLAGS) guard.cc             -o $(OBJ)/guard.o
 $(OBJ)/mail.o : mail.cc \
-	$(INCLUDE)/actions.h $(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h $(INCLUDE)/materials.h 
+	$(INCLUDE)/actions.h $(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h $(INCLUDE)/materials.h $(INCLUDE)/player_table.h 
 	$(CXX) -c $(CXXFLAGS) mail.cc              -o $(OBJ)/mail.o
 $(OBJ)/mobact.o : mobact.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/flow_room.h $(INCLUDE)/guns.h $(INCLUDE)/bomb.h $(INCLUDE)/mobact.h $(INCLUDE)/fight.h $(INCLUDE)/actions.h $(INCLUDE)/creature.h $(INCLUDE)/screen.h 

@@ -243,8 +243,7 @@ load_xml_mobile(xmlNodePtr node)
 	struct Creature *mob;
 
 	// Initialize structures
-	CREATE(mob, struct Creature, 1);
-	clear_char(mob);
+	mob = new Creature;
 	CREATE(mob->mob_specials.shared, struct mob_shared_data, 1);
 
 	// Read in initial properties

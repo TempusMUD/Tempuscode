@@ -10,6 +10,8 @@
 
 #include "constants.h"
 #include "macros.h"
+#include "account.h"
+#include "desc_data.h"
 
 /* char and mob-related defines *****************************************/
 
@@ -189,10 +191,7 @@ static const int RACE_OLYMPIAN = 58;
 static const int NUM_RACES = 59;
 static const int NUM_PC_RACES = 9;
 
-/* Hometown defines                            */
-
-static const int HOME_NEWBIE_ONLY = 1;	// Only allow the newbie school as a home
-						   // to start the game in
+// Hometown defines
 
 #define HOME_UNDEFINED   -1
 static const int HOME_MODRIAN = 0;
@@ -628,12 +627,6 @@ static const int LVL_VIOLENCE = LVL_POWER;
 static const int LVL_LOGALL = LVL_CREATOR;
 
 
-const size_t MAX_POOF_LENGTH =   	256;	// char_file_u *DO*NOT*CHANGE*
-const size_t MAX_NAME_LENGTH =   	20;		// char_file_u *DO*NOT*CHANGE*
-const size_t MAX_PWD_LENGTH =    	10;		// char_file_u *DO*NOT*CHANGE*
-const size_t MAX_TITLE_LENGTH =  	60;		// char_file_u *DO*NOT*CHANGE*
-const size_t HOST_LENGTH =       	63;		// char_file_u *DO*NOT*CHANGE*
-
 /* char-related structures ************************************************/
 
 /* memory structure for characters */
@@ -917,10 +910,10 @@ struct mob_special_data {
 
 /* An affect structure.  Used in char_file_u *DO*NOT*CHANGE* */
 struct affected_type {
-	sh_int type;				/* The type of spell that caused this      */
-	sh_int duration;			/* For how long its effects will last      */
-	sh_int modifier;			/* This is added to apropriate ability     */
-	sh_int location;			/* Tells which ability to change(APPLY_XXX) */
+	int type;				/* The type of spell that caused this      */
+	int duration;			/* For how long its effects will last      */
+	int modifier;			/* This is added to apropriate ability     */
+	int location;			/* Tells which ability to change(APPLY_XXX) */
 	ubyte level;
 	ubyte is_instant;
 	long bitvector;				/* Tells which bits to set (AFF_XXX)       */
@@ -940,6 +933,12 @@ struct follow_type {
 struct Creature {
 
   public:						// *******   METHODS ******
+  	Creature(void);	// constructor
+	~Creature(void);
+
+	// Reset creature to initial state
+	void clear();    
+
 	// carried weight
 	int getCarriedWeight(void) {
 		return char_specials.getCarriedWeight();
@@ -1010,9 +1009,8 @@ struct Creature {
 	bool isFighting();
 	Creature *getFighting() { return (char_specials.fighting); }
 	void setFighting(Creature * ch);
-	void extract(bool destroy_objs, bool save, int con_state);
+	void extract(bool destroy_objs, bool save, cxn_state con_state);
 	void clearMemory();
-    
     bool loadFromXML( long id );
     void saveToXML();
 
@@ -1053,46 +1051,13 @@ struct Creature {
 
 	struct obj_data *carrying;	/* Head of list                  */
 	struct descriptor_data *desc;	/* NULL for mobiles              */
+	Account *account;
 
 	struct follow_type *followers;	/* List of chars followers       */
 	struct Creature *master;	/* Who is char following?        */
-};
-
-/* ====================================================================== */
-
-
-/* ==================== File Structure for Player ======================= */
-/*             BEWARE: Changing it will ruin the playerfile          */
-struct char_file_u {
-	/* char_player_data */
-	char name[MAX_NAME_LENGTH + 1];
-	char description[MAX_CHAR_DESC + 1];
-	char title[MAX_TITLE_LENGTH + 1];
-	char poofin[MAX_POOF_LENGTH];
-	char poofout[MAX_POOF_LENGTH];
-	sh_int char_class;
-	sh_int remort_char_class;
-	sh_int weight;
-	sh_int height;
-	sh_int hometown;
-	byte sex;
-	byte race;
-	byte level;
-	time_t birth;				/* Time of birth of character     */
-	time_t death;				// time of death of the character (undead)
-	int played;					/* Number of secs played in total */
-
-	char pwd[MAX_PWD_LENGTH + 1];	/* character's password */
-
-	struct char_special_data_saved char_specials_saved;
-	struct player_special_data_saved player_specials_saved;
-	struct char_ability_data abilities;
-	struct char_point_data points;
-	struct affected_type affected[MAX_AFFECT];
-
-	time_t last_logon;			/* Time (in secs) of last logon */
 	char host[HOST_LENGTH + 1];	/* host of last logon */
 };
+
 /* ====================================================================== */
 
 

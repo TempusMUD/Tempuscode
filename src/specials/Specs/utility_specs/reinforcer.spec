@@ -90,7 +90,7 @@ SPECIAL(reinforcer)
 	GET_OBJ_DAM(obj) += (GET_OBJ_DAM(obj) >> 2);
 	obj->modifyWeight(1);
 	WAIT_STATE(ch, 5 RL_SEC);
-	save_char(ch, NULL);
+	ch->saveToXML();
 
 	return 1;
 }

@@ -63,7 +63,7 @@ SPECIAL(improve_stat_book)
 		REAL_STAT++;
 	}
 	extract_obj(obj);
-	save_char(ch, NULL);
+	ch->saveToXML();
 	return 1;
 }
 
@@ -121,7 +121,7 @@ SPECIAL(improve_prac_book)
 		GET_PRACTICES(ch) += MIN(10, GET_OBJ_VAL(obj, 0));
 	}
 	extract_obj(obj);
-	save_char(ch, NULL);
+	ch->saveToXML();
 	return 1;
 
 }

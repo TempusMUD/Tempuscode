@@ -41,7 +41,7 @@ SPECIAL(phantasmic_sword)
 			if (!number(0, 4)) {
 				act("$n departs for the ethereal plane!", TRUE, ch, 0, 0,
 					TO_ROOM);
-				ch->extract(true, false, CON_MENU);
+				ch->extract(true, false, CXN_MENU);
 				return 1;
 			} else
 				return 0;

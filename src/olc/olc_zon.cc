@@ -20,6 +20,7 @@
 #include "screen.h"
 #include "flow_room.h"
 #include "paths.h"
+#include "player_table.h"
 
 #define NUM_ZSET_COMMANDS 13
 
@@ -2013,7 +2014,7 @@ do_zset_command(struct Creature *ch, char *argument)
 			send_to_char(ch, "Zone owner set to: None\r\n");
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		} else {
-			if ((zone->owner_idnum = get_id_by_name(argument)) < 0) {
+			if ((zone->owner_idnum = playerIndex.getID(argument)) < 0) {
 				send_to_char(ch, "No such player in the file.\r\n");
 				return;
 			} else {
@@ -2186,7 +2187,7 @@ do_zset_command(struct Creature *ch, char *argument)
 				send_to_char(ch, "Zone co-owner set to: None\r\n");
 				SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 			} else {
-				if ((zone->co_owner_idnum = get_id_by_name(argument)) < 0) {
+				if ((zone->co_owner_idnum = playerIndex.getID(argument)) < 0) {
 					send_to_char(ch, "No such player in the file.\r\n");
 					return;
 				} else {
@@ -2317,7 +2318,8 @@ do_create_zone(struct Creature *ch, int num)
 
 	sprintf(fname, "world/zon/%d.zon", num);
 	if (!(zone_file = fopen(fname, "w"))) {
-		send_to_char(ch, "Cound not open %d.zon file, zone creation aborted.\r\n");
+		send_to_char(ch, "Cound not open %d.zon file, zone creation aborted.\r\n",
+			num);
 		return (1);
 	}
 

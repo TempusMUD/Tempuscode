@@ -2,13 +2,13 @@ $(OBJ)/act.comm.o : act.comm.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/rpl_resp.h $(INCLUDE)/creature_list.h $(INCLUDE)/clan.h $(INCLUDE)/security.h $(INCLUDE)/tmpstr.h 
 	$(CXX) -c $(CXXFLAGS) act.comm.cc          -o $(OBJ)/act.comm.o
 $(OBJ)/act.informative.o : act.informative.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/specs.h $(INCLUDE)/events.h $(INCLUDE)/security.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h $(INCLUDE)/tokenizer.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/clan.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/fight.h $(INCLUDE)/specs.h $(INCLUDE)/events.h $(INCLUDE)/security.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h $(INCLUDE)/tokenizer.h $(INCLUDE)/player_table.h 
 	$(CXX) -c $(CXXFLAGS) act.informative.cc   -o $(OBJ)/act.informative.o
 $(OBJ)/act.movement.o : act.movement.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h 
 	$(CXX) -c $(CXXFLAGS) act.movement.cc      -o $(OBJ)/act.movement.o
 $(OBJ)/act.obj.o : act.obj.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/tmpstr.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/bomb.h $(INCLUDE)/guns.h $(INCLUDE)/fight.h $(INCLUDE)/security.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h 
 	$(CXX) -c $(CXXFLAGS) act.obj.cc           -o $(OBJ)/act.obj.o
 $(OBJ)/act.other.o : act.other.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/clan.h $(INCLUDE)/constants.h $(INCLUDE)/fight.h $(INCLUDE)/char_class.h $(INCLUDE)/security.h 

@@ -430,9 +430,9 @@ do_olc_idelete(struct Creature *ch, char *argument)
 	}
 
 	for (d = descriptor_list; d; d = d->next) {
-		if (d->character && GET_OLC_ISCR(d->character) == script) {
+		if (d->creature && GET_OLC_ISCR(d->creature) == script) {
 			act("$N is currently editing that iscript.", FALSE, ch, 0,
-				d->character, TO_CHAR);
+				d->creature, TO_CHAR);
 			return;
 		}
 	}
@@ -504,9 +504,9 @@ do_olc_iedit(struct Creature *ch, char *argument)
 			}
 
 			for (d = descriptor_list; d; d = d->next) {
-				if (d->character && GET_OLC_ISCR(d->character) == script) {
+				if (d->creature && GET_OLC_ISCR(d->creature) == script) {
 					act("$N is already editing that iscript.", FALSE, ch, 0,
-						d->character, TO_CHAR);
+						d->creature, TO_CHAR);
 					return;
 				}
 			}

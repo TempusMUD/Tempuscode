@@ -197,6 +197,4 @@ void do_quest_leave(Creature *ch, char *argument);
 void do_quest_current(Creature *ch, char *argument);
 void do_quest_ignore(Creature *ch, char *argument);
 
-// external FILES
-extern FILE *player_fl;
 #endif

@@ -119,7 +119,7 @@ SPECIAL(tester_util)
 			GET_HIT(ch) = GET_MAX_HIT(ch);
 			GET_MANA(ch) = GET_MAX_MANA(ch);
 			GET_MOVE(ch) = GET_MAX_MOVE(ch);
-			save_char(ch, NULL);
+			ch->saveToXML();
 		}
 		break;
 	case 1:					/* unaffect */

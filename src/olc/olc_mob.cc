@@ -151,9 +151,7 @@ do_create_mob(struct Creature *ch, int vnum)
 			break;
 
 	}
-	CREATE(new_mob, struct Creature, 1);
-
-	clear_char(new_mob);
+	new_mob = new Creature;
 
 	CREATE(new_mob->mob_specials.shared, struct mob_shared_data, 1);
 	new_mob->mob_specials.shared->vnum = vnum;
@@ -321,9 +319,9 @@ do_mob_medit(struct Creature *ch, char *argument)
 			}
 
 			for (d = descriptor_list; d; d = d->next) {
-				if (d->character && GET_OLC_MOB(d->character) == tmp_mob) {
+				if (d->creature && GET_OLC_MOB(d->creature) == tmp_mob) {
 					act("$N is already editing that mobile.", FALSE, ch, 0,
-						d->character, TO_CHAR);
+						d->creature, TO_CHAR);
 					return;
 				}
 			}
@@ -1589,14 +1587,14 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(mob))
-			(*cit)->extract(false, false, CON_MENU);
+			(*cit)->extract(false, false, CXN_MENU);
 	}
 	mobilePrototypes.remove(mob);
 
 	for (d = descriptor_list; d; d = d->next) {
-		if (d->character && GET_OLC_MOB(d->character) == mob) {
-			GET_OLC_MOB(d->character) = NULL;
-			send_to_char(d->character, "The mobile you were editing has been destroyed!\r\n");
+		if (d->creature && GET_OLC_MOB(d->creature) == mob) {
+			GET_OLC_MOB(d->creature) = NULL;
+			send_to_char(d->creature, "The mobile you were editing has been destroyed!\r\n");
 			break;
 		}
 	}
@@ -1644,10 +1642,7 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 		free(mob->mob_specials.shared);
 	}
 	top_of_mobt--;
-	free(mob);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
+	delete mob;
 	return 0;
 }
 
@@ -1846,7 +1841,7 @@ olc_mimic_mob(struct Creature *ch,
 		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			if (IS_NPC((*cit)) && GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(targ))
-				(*cit)->extract(false, false, CON_MENU);
+				(*cit)->extract(false, false, CXN_MENU);
 		}
 	}
 

@@ -32,13 +32,11 @@
 #include "tmpstr.h"
 #include "utils.h"
 #include "security.h"
+#include "player_table.h"
 
 // external funcs here
-int find_name(char *name);
 ACMD(do_switch);
 // external vars here
-extern struct player_index_element *player_table;	// index to plr file
-extern int top_of_p_table;
 extern struct descriptor_data *descriptor_list;
 
 // internal funcs here
@@ -478,7 +476,7 @@ do_qcontrol_oload(Creature *ch, char *argument, int com)
 
 	GET_QUEST_POINTS(ch) -= (obj->shared->cost / 100000);
 	obj_to_char(obj, ch);
-	save_char(ch, NULL);
+	ch->saveToXML();
 	act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
 		0, 0, TO_ROOM);
 	act("$n has created $p!", FALSE, ch, obj, 0, TO_ROOM);
@@ -593,7 +591,7 @@ do_qcontrol_purge(Creature *ch, char *argument, int com)
 			close_socket(vict->desc);
 			vict->desc = NULL;
 		}
-		vict->extract(false, false, CON_MENU);
+		vict->extract(false, false, CXN_MENU);
 		send_to_char(ch, OK);
 	} else {
 		send_to_char(ch, "Purge what?\r\n");
@@ -659,7 +657,7 @@ do_qcontrol_show(Creature *ch, char *argument)
 			"  Max Level:   Gen %-2d, Level %2d\r\n"
 			"  Max Players:    %d\r\n"
 			"  Pts. Awarded:   %d\r\n",
-			get_name_by_id(quest->getOwner()), quest->owner_level,
+			playerIndex.getName(quest->getOwner()), quest->owner_level,
 			quest->name,
 			quest->description ? quest->description : "None.\r\n",
 			qtypes[(int)quest->type], timestr_s,
@@ -693,7 +691,7 @@ do_qcontrol_show(Creature *ch, char *argument)
 		"  Num Players:     %d\r\n"
 		"  Max Players:     %d\r\n"
 		"  Pts. Awarded:    %d\r\n",
-		get_name_by_id(quest->getOwner()), quest->owner_level,
+		playerIndex.getName(quest->getOwner()), quest->owner_level,
 		quest->name,
 		quest->description ? quest->description : "None.\r\n",
 		quest->updates ? quest->updates : "None.\r\n",
@@ -932,8 +930,8 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 	Quest *quest = NULL;
 	Creature *vict = NULL;
 	unsigned int idnum;
+	int pid;
 	int level = 0;
-	struct char_file_u tmp_store;
 
 	argument = two_arguments(argument, arg1, arg2);
 
@@ -945,8 +943,8 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 	if (!(quest = find_quest(ch, arg2)))
 		return;
 
-	if ((idnum = get_id_by_name(arg1)) < 0) {
-		send_to_char(ch, "There is no character named '%s'\r\n");
+	if ((idnum = playerIndex.getID(arg1)) < 0) {
+		send_to_char(ch, "There is no character named '%s'\r\n", arg1);
 		return;
 	}
 
@@ -966,12 +964,12 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		CREATE(vict, Creature, 1);
-		clear_char(vict);
-		if (load_char(arg1, &tmp_store) > -1) {
-			store_to_char(&tmp_store, vict);
+		vict = new Creature;
+		pid = playerIndex.getID(arg1);
+		if (pid > 0) {
+			vict->loadFromXML(pid);
 			level = GET_LEVEL(vict);
-			free_char(vict);
+			delete vict;
 			vict = NULL;
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
@@ -1207,7 +1205,7 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 	Quest *quest = NULL;
 	Creature *vict = NULL;
 	unsigned int idnum;
-	struct char_file_u tmp_store;
+	int pid;
 	int level = 0;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -1223,8 +1221,8 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 	if (!quest->canEdit(ch))
 		return;
 
-	if ((idnum = get_id_by_name(arg1)) < 0) {
-		send_to_char(ch, "There is no character named '%s'\r\n");
+	if ((idnum = playerIndex.getID(arg1)) < 0) {
+		send_to_char(ch, "There is no character named '%s'\r\n", arg1);
 		return;
 	}
 
@@ -1234,22 +1232,22 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 	}
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
-
 		// load the char from file
-		CREATE(vict, Creature, 1);
-		clear_char(vict);
-		if (load_char(arg1, &tmp_store) > -1) {
-			store_to_char(&tmp_store, vict);
+		vict = new Creature;
+		pid = playerIndex.getID(arg1);
+		if (pid > 0) {
+			vict->loadFromXML(pid);
 			level = GET_LEVEL(vict);
-			free_char(vict);
+			delete vict;
 			vict = NULL;
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
 		}
 
-	} else
+	} else {
 		level = GET_LEVEL(vict);
+	}
 
 	if (level >= GET_LEVEL(ch) && vict && ch != vict) {
 		send_to_char(ch, "You are not powerful enough to do this.\r\n");
@@ -1298,7 +1296,6 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 	Quest *quest = NULL;
 	Creature *vict = NULL;
 	unsigned int idnum;
-	struct char_file_u tmp_store;
 	int level = 0;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -1314,8 +1311,8 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 	if (!quest->canEdit(ch))
 		return;
 
-	if ((idnum = get_id_by_name(arg1)) < 0) {
-		send_to_char(ch, "There is no character named '%s'\r\n");
+	if ((idnum = playerIndex.getID(arg1)) < 0) {
+		send_to_char(ch, "There is no character named '%s'\r\n", arg1);
 		return;
 	}
 
@@ -1325,22 +1322,21 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 	}
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
-
 		// load the char from file
-		CREATE(vict, Creature, 1);
-		clear_char(vict);
-		if (load_char(arg1, &tmp_store) > -1) {
-			store_to_char(&tmp_store, vict);
+		vict = new Creature;
+		if (idnum > 0) {
+			vict->loadFromXML(idnum);
 			level = GET_LEVEL(vict);
-			free_char(vict);
+			delete vict;
 			vict = NULL;
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
 		}
 
-	} else
+	} else {
 		level = GET_LEVEL(vict);
+	}
 
 	if (level >= GET_LEVEL(ch) && vict && ch != vict) {
 		send_to_char(ch, "You are not powerful enough to do this.\r\n");
@@ -1518,8 +1514,8 @@ do_qcontrol_mute(Creature *ch, char *argument, int com)
 	if (!quest->canEdit(ch))
 		return;
 
-	if ((idnum = get_id_by_name(arg1)) < 0) {
-		send_to_char(ch, "There is no character named '%s'\r\n");
+	if ((idnum = playerIndex.getID(arg1)) < 0) {
+		send_to_char(ch, "There is no character named '%s'\r\n", arg1);
 		return;
 	}
 
@@ -1568,8 +1564,8 @@ do_qcontrol_unmute(Creature *ch, char *argument, int com)
 	if (!quest->canEdit(ch))
 		return;
 
-	if ((idnum = get_id_by_name(arg1)) < 0) {
-		send_to_char(ch, "There is no character named '%s'\r\n");
+	if ((idnum = playerIndex.getID(arg1)) < 0) {
+		send_to_char(ch, "There is no character named '%s'\r\n", arg1);
 		return;
 	}
 
@@ -1687,7 +1683,7 @@ list_active_quests(Creature *ch)
 		snprintf(timestr_a, 16, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
 		msg = tmp_sprintf( "%s %3d  %-10s  %-8s  %-24s %6s    %d\r\n", msg,
-			quest->getVnum(), get_name_by_id(quest->getOwner()), 
+			quest->getVnum(), playerIndex.getName(quest->getOwner()), 
 			qtype_abbrevs[(int)quest->type], quest->name, timestr_a,
 			quest->getNumPlayers());
 	}
@@ -1720,7 +1716,7 @@ list_inactive_quests(Creature *ch)
 		snprintf(timestr_a, 127, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
 		msg = tmp_sprintf( "%s %3d  %-10s  %-8s  %-24s %6s    %d\r\n", msg,
-			quest->getVnum(), get_name_by_id(quest->getOwner()), 
+			quest->getVnum(), playerIndex.getName(quest->getOwner()), 
 			qtype_abbrevs[(int)quest->type], quest->name, timestr_a,
 			quest->getNumPlayers());
 	}
@@ -1746,7 +1742,7 @@ list_quest_players(Creature *ch, Quest * quest, char *outbuf)
 	for (i = num_online = num_offline = 0; i < quest->getNumPlayers(); i++) {
 
 
-		sprintf(name, "%s", get_name_by_id(quest->getPlayer(i).idnum));
+		sprintf(name, "%s", playerIndex.getName(quest->getPlayer(i).idnum));
 
 		if (!*name) {
 			strcat(buf, "BOGUS player idnum!\r\n");
@@ -1806,7 +1802,7 @@ list_quest_bans(Creature *ch, Quest * quest, char *outbuf)
 
 	for (i = num = 0; i < quest->getNumBans(); i++) {
 
-		sprintf(name, "%s", get_name_by_id(quest->getBan(i).idnum));
+		sprintf(name, "%s", playerIndex.getName(quest->getBan(i).idnum));
 		if (!*name) {
 			strcat(buf, "BOGUS player idnum!\r\n");
 			slog("SYSERR: bogus player idnum in list_quest_bans.");
@@ -1893,7 +1889,7 @@ check_editors(Creature *ch, char **buffer)
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->text_editor && d->text_editor->IsEditing(*buffer)) {
 			send_to_char(ch, "%s is already editing that buffer.\r\n",
-				d->character ? PERS(d->character, ch) : "BOGUSMAN");
+				d->creature ? PERS(d->creature, ch) : "BOGUSMAN");
 			return 1;
 		}
 	}
@@ -2170,7 +2166,7 @@ do_quest_info(Creature *ch, char *argument)
 		"  Num Players:     %d\r\n"
 		"  Max Players:     %d\r\n",
 		quest->getVnum(),
-		get_name_by_id(quest->getOwner()), quest->name,
+		playerIndex.getName(quest->getOwner()), quest->name,
 		quest->description ? quest->description : "None.\r\n",
 		quest->updates ? quest->updates : "None.\r\n",
 		qtypes[(int)quest->type], timestr_s, timestr_a,
@@ -2201,7 +2197,7 @@ do_quest_status(Creature *ch, char *argument)
 
 			char *line = tmp_sprintf(" %s%3d  %-10s  %-8s  %-24s %6s    %d\r\n", 
 									quest->getVnum()== GET_QUEST(ch) ? "*" : " ",
-									quest->getVnum(), get_name_by_id(quest->getOwner()),
+									quest->getVnum(), playerIndex.getName(quest->getOwner()),
 									qtype_abbrevs[(int)quest->type],
 									quest->name, timestr_a, quest->getNumPlayers());
 			msg = tmp_strcat(msg,line,NULL);
@@ -2391,37 +2387,31 @@ void
 qp_reload(int sig)
 {
 	int x;
-	int player_i = 0;
-	struct Creature *immortal = NULL;
-	struct char_file_u tmp_store;
+	struct Creature *immortal;
 	int online = 0, offline = 0;
 
-	if (!immortal) {
-		for (x = 0; x <= top_of_p_table; ++x) {
+	immortal = new Creature;
+	for (x = 0; x <= playerIndex.getTopIDNum(); ++x) {
+		if (playerIndex.exists(x) && !get_char_in_world_by_idnum(x)) {
+			immortal->clear();
+			immortal->loadFromXML(x);
 
-			if ((player_i = load_char(player_table[x].name, &tmp_store)) > -1) {
+			if (GET_LEVEL(immortal) >= LVL_AMBASSADOR &&
+					GET_QUEST_ALLOWANCE(immortal) > 0) {
+				slog("QP_RELOAD: Reset %s to %d QPs from %d. ( file )",
+					GET_NAME(immortal),
+					GET_QUEST_ALLOWANCE(immortal),
+					GET_QUEST_POINTS(immortal));
 
-				// its an immort with an allowance, set 'em up
-				if (tmp_store.level >= LVL_AMBASSADOR
-					&& tmp_store.player_specials_saved.qp_allowance > 0) {
-					slog("QP_RELOAD: Reset %s to %d QPs from %d. ( file )",
-						tmp_store.name,
-						tmp_store.player_specials_saved.qp_allowance,
-						tmp_store.player_specials_saved.quest_points);
-
-					tmp_store.player_specials_saved.quest_points =
-						tmp_store.player_specials_saved.qp_allowance;
-					fseek(player_fl, (player_i) * sizeof(struct char_file_u),
-						SEEK_SET);
-					fwrite(&tmp_store, sizeof(struct char_file_u), 1,
-						player_fl);
-					offline++;
-				}
-
+				GET_QUEST_POINTS(immortal) = GET_QUEST_ALLOWANCE(immortal);
+				immortal->saveToXML();
+				offline++;
 			}
 		}
-
 	}
+
+	delete immortal;
+
 	//
 	// Check if the imm is logged on
 	//
@@ -2436,7 +2426,7 @@ qp_reload(int sig)
 
 			GET_QUEST_POINTS(immortal) = GET_QUEST_ALLOWANCE(immortal);
 			send_to_char(immortal, "Your quest points have been restored!\r\n");
-			save_char(immortal, NULL);
+			immortal->saveToXML();
 			online++;
 		}
 	}
@@ -2473,7 +2463,7 @@ do_qcontrol_award(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	if ((idnum = get_id_by_name(arg2)) < 0) {
+	if ((idnum = playerIndex.getID(arg2)) < 0) {
 		send_to_char(ch, "There is no character named '%s'.\r\n", arg2);
 		return;
 	}
@@ -2514,8 +2504,8 @@ do_qcontrol_award(Creature *ch, char *argument, int com)
 		GET_QUEST_POINTS(ch) -= award;
 		GET_QUEST_POINTS(vict) += award;
 		quest->addAwarded(award);
-		save_char(ch, NULL);
-		save_char(vict, NULL);
+		ch->saveToXML();
+		vict->saveToXML();
 		sprintf(buf, "awarded player %s %d qpoints.", GET_NAME(vict), award);
 		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
 			TRUE);
@@ -2554,7 +2544,7 @@ do_qcontrol_penalize(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	if ((idnum = get_id_by_name(arg2)) < 0) {
+	if ((idnum = playerIndex.getID(arg2)) < 0) {
 		send_to_char(ch, "There is no character named '%s'.\r\n", arg2);
 		return;
 	}
@@ -2590,8 +2580,8 @@ do_qcontrol_penalize(Creature *ch, char *argument, int com)
 		GET_QUEST_POINTS(vict) -= penalty;
 		GET_QUEST_POINTS(ch) += penalty;
 		quest->addPenalized(penalty);
-		save_char(vict, NULL);
-		save_char(ch, NULL);
+		vict->saveToXML();
+		ch->saveToXML();
 		send_to_char(vict, "%d of your quest points have been taken by %s!\r\n",
 			penalty, GET_NAME(ch));
 		send_to_char(ch, "%d quest points transferred from %s.\r\n", penalty,
@@ -2801,7 +2791,6 @@ Quest& Quest::operator=( const Quest &q )
 
 bool Quest::removePlayer( long id ) { 
 	Creature *vict = NULL;
-	struct char_file_u tmp_store;
 	vector<qplayer_data>::iterator it;
 
 	it = find(players.begin(),players.end(),qplayer_data(id) );
@@ -2810,21 +2799,16 @@ bool Quest::removePlayer( long id ) {
 
 	if (!(vict = get_char_in_world_by_idnum(id))) {
 		// load the char from file
-		CREATE(vict, Creature, 1);
-		clear_char(vict);
-		long player_i = load_char(get_name_by_id(id), &tmp_store);
-		if( player_i > -1 ) {
-			store_to_char(&tmp_store, vict);
+		vict = new Creature;
+		if (vict->loadFromXML(id)) {
 			//HERE
 			if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
 				REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
 				vict->player_specials->saved.quest_id = 0;
 			}
 
-			char_to_store(vict, &tmp_store);
-			fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
-			fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
-			free_char(vict);
+			vict->saveToXML();
+			delete vict;
 		} else {
 			//send_to_char(ch, "Error loading char from file.\r\n");
 			slog("Error loading player id %ld from file for removal from quest %d.\r\n",
@@ -2835,7 +2819,7 @@ bool Quest::removePlayer( long id ) {
 		if (GET_LEVEL(vict) < LVL_AMBASSADOR && PRF_FLAGGED(vict, PRF_QUEST)) {
 			REMOVE_BIT(PRF_FLAGS(vict), PRF_QUEST);
 			vict->player_specials->saved.quest_id = 0;
-			save_char(vict,NULL);
+			vict->saveToXML();
 		}
 	}
 	

@@ -1301,7 +1301,7 @@ advance_level(struct Creature *ch, byte keep_internal)
 			MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) +
 			MIN(10, number(1, GET_INT(ch) >> 1)));
 
-	save_char(ch, NULL);
+	ch->saveToXML();
 
 	msg = tmp_sprintf("%s advanced to level %d in room %d%s",
 		GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number,

@@ -227,8 +227,8 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	}
 	// Equipment dealt with in make_corpse. 
 	// Do not save it here.
-	save_char(ch, NULL);
-	ch->extract(true, false, CON_AFTERLIFE);
+	ch->saveToXML();
+	ch->extract(true, false, CXN_AFTERLIFE);
 }
 
 

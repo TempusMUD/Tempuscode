@@ -75,7 +75,7 @@ SPECIAL(unholy_compact)
 		GET_GOLD(ch) -= gold;
 		SET_BIT(PLR2_FLAGS(ch), PLR2_SOULLESS);
 		ch->real_abils.con -= con_cost;
-		save_char(ch, NULL);
+		ch->saveToXML();
 		send_to_char(ch, "The torturous cries of hell haunt your dreams.\r\n");
 		slog("%s sign's the unholy compact, joining the soulless masses.",
 			GET_NAME(ch));

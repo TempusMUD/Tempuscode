@@ -47,6 +47,7 @@ using namespace std;
 #include "char_class.h"
 #include "tmpstr.h"
 #include "tokenizer.h"
+#include "player_table.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -2189,7 +2190,7 @@ affs_to_str(struct Creature *ch, byte mode)
 
 	struct affected_type *af = NULL;
 	struct Creature *mob = NULL;
-	char *name = NULL;
+	const char *name = NULL;
 	char *str = "";
 
 	if (IS_AFFECTED(ch, AFF_BLIND))
@@ -2237,7 +2238,7 @@ affs_to_str(struct Creature *ch, byte mode)
 	// vampiric regeneration
 
 	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
-		if ((name = get_name_by_id(af->modifier)))
+		if ((name = playerIndex.getName(af->modifier)))
 			str = tmp_sprintf(
 				"%sYou are under the effects of %s's vampiric regeneration.\r\n",
 				str, name);
@@ -2246,7 +2247,7 @@ affs_to_str(struct Creature *ch, byte mode)
 	}
 
 	if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
-		if ((name = get_name_by_id(af->modifier)))
+		if ((name = playerIndex.getName(af->modifier)))
 			str = tmp_sprintf(str, "You are under the effects of ", name,
 				"'s locust regeneration.\r\n", NULL);
 		else
@@ -3110,7 +3111,7 @@ ACMD(do_who)
 
 		if (d->original)
 			tch = d->original;
-		else if (!(tch = d->character))
+		else if (!(tch = d->creature))
 			continue;
 
 		// skip imms now, before the tot_num gets incremented
@@ -3496,12 +3497,12 @@ ACMD(do_users)
 	for (d = descriptor_list; d; d = d->next) {
 		if (IS_PLAYING(d) && playing)
 			continue;
-		if (STATE(d) == CON_PLAYING && deadweight)
+		if (STATE(d) == CXN_PLAYING && deadweight)
 			continue;
-		if (STATE(d) == CON_PLAYING) {
+		if (STATE(d) == CXN_PLAYING) {
 			if (d->original)
 				tch = d->original;
-			else if (!(tch = d->character))
+			else if (!(tch = d->creature))
 				continue;
 
 			if (*host_search && !strstr(d->host, host_search))
@@ -3525,8 +3526,8 @@ ACMD(do_users)
 				sprintf(char_classname, "[%2d %s]", GET_LEVEL(d->original),
 					CLASS_ABBR(d->original));
 			else
-				sprintf(char_classname, "[%2d %s]", GET_LEVEL(d->character),
-					CLASS_ABBR(d->character));
+				sprintf(char_classname, "[%2d %s]", GET_LEVEL(d->creature),
+					CLASS_ABBR(d->creature));
 		} else
 			strcpy(char_classname, "    -    ");
 
@@ -3534,16 +3535,16 @@ ACMD(do_users)
 		timeptr += 11;
 		*(timeptr + 8) = '\0';
 
-		if (STATE(d) == CON_PLAYING && d->original)
+		if (STATE(d) == CXN_PLAYING && d->original)
 			strcpy(state, "Switched");
 		else
 			strcpy(state, connected_types[STATE(d)]);
 
-		if (d->character && STATE(d) == CON_PLAYING &&
-			(GET_LEVEL(d->character) < GET_LEVEL(ch)
+		if (d->creature && STATE(d) == CXN_PLAYING &&
+			(GET_LEVEL(d->creature) < GET_LEVEL(ch)
 				|| GET_LEVEL(ch) >= LVL_LUCIFER))
 			sprintf(idletime, "%2d",
-				d->character->char_specials.timer * SECS_PER_MUD_HOUR /
+				d->creature->char_specials.timer * SECS_PER_MUD_HOUR /
 				SECS_PER_REAL_MIN);
 		else
 			sprintf(idletime, "%2d", d->idle);
@@ -3551,16 +3552,16 @@ ACMD(do_users)
 
 		format = "%4d %-7s %s%-12s%s %-12s %-2s %-8s ";
 
-		if (d->character && d->character->player.name) {
+		if (d->creature && d->creature->player.name) {
 			if (d->original)
 				sprintf(line, format, d->desc_num, char_classname, CCCYN(ch,
 						C_NRM), d->original->player.name, CCNRM(ch, C_NRM),
 					state, idletime, timeptr);
 			else
 				sprintf(line, format, d->desc_num, char_classname,
-					(GET_LEVEL(d->character) >= LVL_AMBASSADOR ? CCGRN(ch,
-							C_NRM) : ""), d->character->player.name,
-					(GET_LEVEL(d->character) >= LVL_AMBASSADOR ? CCNRM(ch,
+					(GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCGRN(ch,
+							C_NRM) : ""), d->creature->player.name,
+					(GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCNRM(ch,
 							C_NRM) : ""), state, idletime, timeptr);
 		} else
 			sprintf(line, format, d->desc_num, "    -    ", CCRED(ch, C_NRM),
@@ -3568,8 +3569,8 @@ ACMD(do_users)
 
 		if (d->host && *d->host)
 			sprintf(line + strlen(line), "%s[%s]%s\r\n", isbanned(d->host,
-					buf) ? (d->character
-					&& PLR_FLAGGED(d->character, PLR_SITEOK) ? CCMAG(ch,
+					buf) ? (d->creature
+					&& PLR_FLAGGED(d->creature, PLR_SITEOK) ? CCMAG(ch,
 						C_NRM) : CCRED(ch, C_SPR)) : CCGRN(ch, C_NRM), d->host,
 				CCNRM(ch, C_SPR));
 		else {
@@ -3578,12 +3579,12 @@ ACMD(do_users)
 			strcat(line, CCNRM(ch, C_SPR));
 		}
 
-		if (STATE(d) != CON_PLAYING) {
+		if (STATE(d) != CXN_PLAYING) {
 			sprintf(line2, "%s%s%s", CCCYN(ch, C_SPR), line, CCNRM(ch, C_SPR));
 			strcpy(line, line2);
 		}
-		if (STATE(d) != CON_PLAYING || (STATE(d) == CON_PLAYING
-				&& can_see_creature(ch, d->character))) {
+		if (STATE(d) != CXN_PLAYING || (STATE(d) == CXN_PLAYING
+				&& can_see_creature(ch, d->creature))) {
 			strcat(out_buf, line);
 			num_can_see++;
 		}
@@ -3675,8 +3676,8 @@ perform_mortal_where(struct Creature *ch, char *arg)
 	if (!*arg) {
 		send_to_char(ch, "Players in your Zone\r\n--------------------\r\n");
 		for (d = descriptor_list; d; d = d->next) {
-			if (STATE(d) == CON_PLAYING) {
-				i = (d->original ? d->original : d->character);
+			if (STATE(d) == CXN_PLAYING) {
+				i = (d->original ? d->original : d->creature);
 				if (i && can_see_creature(ch, i) && (i->in_room != NULL) &&
 					(ch->in_room->zone == i->in_room->zone)) {
 					send_to_char(ch, "%-20s - %s\r\n", GET_NAME(i),
@@ -3853,8 +3854,8 @@ perform_immort_where(struct Creature *ch, char *arg)
 	if (!arguments.hasNext()) {
 		strcpy(main_buf, "Players\r\n-------\r\n");
 		for (d = descriptor_list; d; d = d->next) {
-			if (STATE(d) == CON_PLAYING) {
-				i = (d->original ? d->original : d->character);
+			if (STATE(d) == CXN_PLAYING) {
+				i = (d->original ? d->original : d->creature);
 				if (i && can_see_creature(ch, i) && (i->in_room != NULL)) {
 					if (d->original)
 						sprintf(buf,
@@ -3863,11 +3864,11 @@ perform_immort_where(struct Creature *ch, char *arg)
 									C_NRM) : ""), GET_NAME(i),
 							(GET_LEVEL(i) >= LVL_AMBASSADOR ? CCNRM(ch,
 									C_NRM) : ""), CCGRN(ch, C_NRM), CCNRM(ch,
-								C_NRM), d->character->in_room->number,
+								C_NRM), d->creature->in_room->number,
 							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch,
-								C_NRM), d->character->in_room->name, CCNRM(ch,
+								C_NRM), d->creature->in_room->name, CCNRM(ch,
 								C_NRM), CCRED(ch, C_CMP),
-							GET_NAME(d->character), CCNRM(ch, C_CMP));
+							GET_NAME(d->creature), CCNRM(ch, C_CMP));
 					else
 						sprintf(buf, "%s%-20s%s - %s[%s%5d%s]%s %s%s%s\r\n",
 							(GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,

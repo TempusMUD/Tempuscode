@@ -23,6 +23,7 @@ using namespace std;
 #include "screen.h"
 #include "tokenizer.h"
 #include "tmpstr.h"
+#include "player_table.h"
 
 // usage message
 #define HCONTROL_FIND_FORMAT \
@@ -57,7 +58,6 @@ extern struct descriptor_data *descriptor_list;
 extern obj_data *obj_proto;	/* prototypes for objs                 */
 extern int no_plrtext;
 void Crash_extract_norents( obj_data *obj );
-
 
 HouseControl Housing;
 
@@ -721,10 +721,12 @@ hcontrol_build_house( Creature *ch, char *arg)
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
 	}
-	if ((owner = get_id_by_name(str)) < 0) {
+	if (!playerIndex.exists(str)) {
 		send_to_char(ch, "Unknown player '%s'.\r\n", str);
 		return;
 	}
+	owner = playerIndex.getID(str);
+
 	// SECOND arg: the first room of the house
 	str = tmp_getword(&arg);
 	if (!*str) {
@@ -920,9 +922,7 @@ hcontrol_where_house( Creature *ch, char *arg)
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), h->getOwnerID() );
 }
 
-
 /* Misc. administrative functions */
-
 
 void
 hcontrol_add_to_house( Creature *ch, char *arg)
@@ -1253,10 +1253,11 @@ ACMD(do_house)
 		return;
 	} 
 	
-	if( (id = get_id_by_name(action_str)) < 0) {
+	if (!playerIndex.exists(action_str)) {
 		send_to_char(ch, "No such player.\r\n");
 		return;
 	} 
+	id = playerIndex.getID(action_str);
 
 	if( house->isGuest( id ) ) {
 		house->removeGuest(id);

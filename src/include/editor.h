@@ -3,6 +3,8 @@
 
 #include <string>
 #include <list>
+#include "constants.h"
+
 using namespace std;
 
 // Interface to the editor from the outside world.

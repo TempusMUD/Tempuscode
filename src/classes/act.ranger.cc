@@ -25,6 +25,7 @@
 #include "char_class.h"
 #include "fight.h"
 #include "tmpstr.h"
+#include "player_table.h"
 
 ACMD(do_bandage)
 {
@@ -200,7 +201,7 @@ ACMD(do_autopsy)
 {
 	struct Creature *vict = NULL;
 	struct obj_data *corpse = NULL;
-	char *name = NULL;
+	const char *name = NULL;
 
 	skip_spaces(&argument);
 
@@ -220,7 +221,7 @@ ACMD(do_autopsy)
 		return;
 	}
 	if (CORPSE_KILLER(corpse) > 0) {
-		if (!(name = get_name_by_id(CORPSE_KILLER(corpse)))) {
+		if (!(name = playerIndex.getName(CORPSE_KILLER(corpse)))) {
 			send_to_char(ch, "The result is indeterminate.\r\n");
 			return;
 		}

@@ -298,8 +298,6 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 {
 	Creature cbuf;
 	struct Creature *killer = NULL;
-	int player_i = 0;
-	struct char_file_u tmp_store;
 	int obj_id;
 	int is_file = 0;
 	int is_desc = 0;
@@ -344,10 +342,10 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 	// see if the sonuvabitch is still connected
 	if (!killer) {
 		for (d = descriptor_list; d; d = d->next) {
-			if (!IS_PLAYING(d) && d->character
-				&& GET_IDNUM(d->character) == obj_id) {
+			if (!IS_PLAYING(d) && d->creature
+				&& GET_IDNUM(d->creature) == obj_id) {
 				is_desc = 1;
-				killer = d->character;
+				killer = d->creature;
 				break;
 			}
 		}
@@ -355,10 +353,8 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 	// load the bastich from file.
 	if (!killer) {
 
-		clear_char(&cbuf);
-
-		if ((player_i = load_char(get_name_by_id(obj_id), &tmp_store)) > -1) {
-			store_to_char(&tmp_store, &cbuf);
+		cbuf.clear();
+		if (cbuf.loadFromXML(obj_id)) {
 			is_file = 1;
 			killer = &cbuf;
 		}
@@ -406,13 +402,10 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 			act("KILLER bit set for damaging $N with $p!", FALSE, killer, obj,
 				vict, TO_CHAR);
 	}
-	// save the sonuvabitch to file if the killer was offline
-	if (is_file) {
-		char_to_store(killer, &tmp_store);
-		fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
-		fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
-	}
+	// save the sonuvabitch to file
+	killer->saveToXML();
 }
+
 char *
 replace_string(char *str, char *weapon_singular, char *weapon_plural,
 	const char *location)
@@ -1573,7 +1566,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 				extract_obj(o);
 		}
 		// Save the char to prevent duping of eq.
-		save_char(ch, NULL);
+		ch->saveToXML();
 		Crash_crashsave(ch);
         Crash_delete_crashfile(ch);
 	} else {					// arena kills do not drop EQ

@@ -24,6 +24,7 @@
 #include "specs.h"
 #include "house.h"
 #include "tmpstr.h"
+#include "player_table.h"
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
@@ -1254,7 +1255,7 @@ ACMD(do_hedit)
 		{
 			long idnum;
 			argument = one_argument(argument, arg);
-			idnum = get_id_by_name(arg);
+			idnum = playerIndex.getID(arg);
 
 			if (GET_IDNUM(ch) != h->owner1) {
 				send_to_char(ch, "Sorry, only the primary owner can do this.\r\n");

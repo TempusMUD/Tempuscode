@@ -1375,12 +1375,12 @@ ACMD(do_discharge)
 		// Random debug messages.
 		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 			send_to_char(ch,
-				"%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d\r\n",
+				"%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d%s\r\n",
 				CCCYN(ch, C_NRM), GET_NAME(ch), tolerance, amount, feedback,
 				CCNRM(ch, C_NRM));
 		if (vict && PRF2_FLAGGED(vict, PRF2_DEBUG))
 			send_to_char(vict,
-				"%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d\r\n",
+				"%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d%s\r\n",
 				CCCYN(vict, C_NRM), GET_NAME(ch), tolerance, amount, feedback,
 				CCNRM(vict, C_NRM));
 

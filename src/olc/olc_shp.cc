@@ -235,9 +235,9 @@ do_shop_sedit(struct Creature *ch, char *argument)
 			}
 
 			for (d = descriptor_list; d; d = d->next) {
-				if (d->character && GET_OLC_SHOP(d->character) == tmp_shop) {
+				if (d->creature && GET_OLC_SHOP(d->creature) == tmp_shop) {
 					act("$N is already editing that shop.", FALSE, ch, 0,
-						d->character, TO_CHAR);
+						d->creature, TO_CHAR);
 					return;
 				}
 			}
@@ -487,7 +487,7 @@ do_shop_sset(struct Creature *ch, char *argument)
 
 		if (!shop_check_message_format(arg2)) {
 			send_to_char(ch, 
-				"Shop message format invalid.  Must contain one and only one %d.\r\n");
+				"Shop message format invalid.  Must contain one and only one %%d.\r\n");
 			return;
 		}
 
@@ -500,7 +500,7 @@ do_shop_sset(struct Creature *ch, char *argument)
 
 		if (!shop_check_message_format(arg2)) {
 			send_to_char(ch, 
-				"Shop message format invalid.  Must contain one and only one %d.\r\n");
+				"Shop message format invalid.  Must contain one and only one %%d.\r\n");
 			return;
 		}
 
@@ -1034,9 +1034,9 @@ do_destroy_shop(struct Creature *ch, int vnum)
 	}
 
 	for (d = descriptor_list; d; d = d->next)
-		if (d->character && GET_OLC_SHOP(d->character) == shop) {
-			GET_OLC_SHOP(d->character) = NULL;
-			send_to_char(d->character, "The shop you were editing has been destroyed!\r\n");
+		if (d->creature && GET_OLC_SHOP(d->creature) == shop) {
+			GET_OLC_SHOP(d->creature) = NULL;
+			send_to_char(d->creature, "The shop you were editing has been destroyed!\r\n");
 			break;
 		}
 

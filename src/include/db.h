@@ -98,21 +98,11 @@ struct zone_data *real_zone(int number);
 class CIScript *real_iscript(int vnum);
 char *fread_string(FILE * fl, char *error);
 int pread_string(FILE * fl, char *str, char *error);
-long get_id_by_name(const char *name);
-char *get_name_by_id(long id);
 
-void char_to_store(struct Creature *ch, struct char_file_u *st);
-void store_to_char(struct char_file_u *st, struct Creature *ch);
-int load_char(char *name, struct char_file_u *char_element);
-void save_char(struct Creature *ch, struct room_data *load_room);
-void init_char(struct Creature *ch);
 struct Creature *read_mobile(int vnum);
 int real_mobile(int vnum);
 struct Creature *real_mobile_proto(int vnum);
 int vnum_mobile(char *searchname, struct Creature *ch);
-void clear_char(struct Creature *ch);
-void reset_char(struct Creature *ch);
-void free_char(struct Creature *ch);
 
 struct obj_data *create_obj(void);
 void clear_object(struct obj_data *obj);
@@ -130,6 +120,11 @@ struct Creature *obj_owner(struct obj_data *obj);
 
 #define ZONE_IDLE_TIME 5
 
+/** 
+ * Returns a temporarily allocated char* containing the path to the given
+ * player_id's mail file.
+**/
+char*get_mail_file_path( long id );
 /** 
  * Returns a temporarily allocated char* containing the path to the given
  * player_id's player file.

@@ -53,7 +53,6 @@ Creature::rentSave(int cost, int rentcode)//= RENT_RENTED
 	rent.rentcode = rentcode;
 	rent.time = time(0);
 	rent.gold = GET_GOLD(this);
-	rent.account = GET_BANK_GOLD(this);
 	rent.currency = in_room->zone->time_frame;
 
     extractUnrentables();
@@ -134,23 +133,23 @@ Creature::payRent(time_t last_time, int code, int currency)
 
 	// First we get as much as we can out of their hand
 	if (currency == TIME_ELECTRO) {
-		if (cost < GET_CASH(this) + GET_ECONET(this)) {
-			GET_ECONET(this) -= MAX(cost - GET_CASH(this), 0);
+		if (cost < GET_CASH(this) + GET_FUTURE_BANK(this)) {
+			this->account->withdraw_future_bank(cost - GET_CASH(this));
 			GET_CASH(this) = MAX(GET_CASH(this) - cost, 0);
 			cost = 0;
 		} else {
-			cost -= GET_CASH(this) + GET_ECONET(this);
-			GET_ECONET(this) = 0;
+			cost -= GET_CASH(this) + GET_FUTURE_BANK(this);
+			this->account->set_future_bank(0);
 			GET_CASH(this) = 0;
 		}
 	} else {
-		if (cost < GET_GOLD(this) + GET_BANK_GOLD(this)) {
-			GET_BANK_GOLD(this) -= MAX(cost - GET_GOLD(this), 0);
+		if (cost < GET_GOLD(this) + GET_PAST_BANK(this)) {
+			this->account->withdraw_past_bank(cost - GET_GOLD(this));
 			GET_GOLD(this) = MAX(GET_GOLD(this) - cost, 0);
 			cost = 0;
 		} else {
-			cost -= GET_GOLD(this) + GET_BANK_GOLD(this);
-			GET_BANK_GOLD(this) = 0;
+			cost -= GET_GOLD(this) + GET_PAST_BANK(this);
+			this->account->set_past_bank(0);
 			GET_GOLD(this) = 0;
 		}
 	}
@@ -158,23 +157,23 @@ Creature::payRent(time_t last_time, int code, int currency)
 	// If they didn't have enough, try the cross-time money
 	if (cost > 0) {
 		if (currency == TIME_ELECTRO) {
-			if (cost < GET_GOLD(this) + GET_BANK_GOLD(this)) {
-				GET_BANK_GOLD(this) -= MAX(cost - GET_GOLD(this), 0);
+			if (cost < GET_GOLD(this) + GET_PAST_BANK(this)) {
+				this->account->withdraw_past_bank(cost - GET_GOLD(this));
 				GET_GOLD(this) = MAX(GET_GOLD(this) - cost, 0);
 				cost = 0;
 			} else {
-				cost -= GET_GOLD(this) + GET_BANK_GOLD(this);
-				GET_BANK_GOLD(this) = 0;
+				cost -= GET_GOLD(this) + GET_PAST_BANK(this);
+				this->account->set_past_bank(0);
 				GET_GOLD(this) = 0;
 			}
 		} else {
-			if (cost < GET_CASH(this) + GET_ECONET(this)) {
-				GET_ECONET(this) -= MAX(cost - GET_CASH(this), 0);
+			if (cost < GET_CASH(this) + GET_FUTURE_BANK(this)) {
+				this->account->withdraw_future_bank(cost - GET_CASH(this));
 				GET_CASH(this) = MAX(GET_CASH(this) - cost, 0);
 				cost = 0;
 			} else {
-				cost -= GET_CASH(this) + GET_ECONET(this);
-				GET_ECONET(this) = 0;
+				cost -= GET_CASH(this) + GET_FUTURE_BANK(this);
+				this->account->set_future_bank(0);
 				GET_CASH(this) = 0;
 			}
 		}
@@ -386,7 +385,6 @@ Creature::cryoSave(int cost)
     rent.rentcode = RENT_CRYO;
 	rent.time = time(0);
 	rent.gold = GET_GOLD(this);
-	rent.account = GET_BANK_GOLD(this);
 	rent.net_cost_per_diem = 0;
 	rent.currency = in_room->zone->time_frame;
     extractUnrentables();
@@ -447,9 +445,9 @@ Creature::loadObjects()
 	rent_info rent;
 
 	if( axs != 0 ) {
-		if( axs != ENOENT ) {
+		if( errno != ENOENT ) {
 			slog("SYSERR: Unable to open xml equipment file '%s': %s", 
-				 path, strerror(axs) );
+				 path, strerror(errno) );
 			return -1;
 		} else {
 			return 1; // normal no eq file
@@ -482,7 +480,6 @@ Creature::loadObjects()
 			rent.rentcode = xmlGetIntProp(node, "code");
 			rent.net_cost_per_diem = xmlGetIntProp(node, "perdiem");
 			rent.gold = xmlGetIntProp(node, "gold");
-			rent.account = xmlGetIntProp(node, "bank");
 			rent.currency = xmlGetIntProp(node, "currency");
 		}
 	}
@@ -557,9 +554,6 @@ Creature::saveToXML()
 	if( desc != NULL ) {
 		host = xmlEncodeTmp( desc->host );
 	}
-	fprintf(ouf, "<lastlogin time=\"%ld\" host=\"%s\"/>\n",
-		(long int)ch->player.time.logon, host );
-
 	fprintf(ouf, "<carnage pkills=\"%d\" mkills=\"%d\" deaths=\"%d\"/>\n",
 		GET_PKILLS(ch), GET_MOBKILLS(ch), GET_PC_DEATHS(ch));
 
@@ -588,9 +582,8 @@ Creature::saveToXML()
     
 	fprintf(ouf, "/>\n");
 		
-	fprintf(ouf, "<account flag1=\"%lx\" flag2=\"%x\" password=\"%s\" bad_pws=\"%d\"/>\n",
-		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits,
-		ch->player.passwd, ch->player_specials->saved.bad_pws);
+	fprintf(ouf, "<bits flag1=\"%lx\" flag2=\"%x\"/>\n",
+		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits);
 	if (PLR_FLAGGED(ch, PLR_FROZEN)) {
         fprintf(ouf, "<frozen thaw_time=\"%d\" freezer_id=\"%d\"/>\n", 
                 ch->player_specials->thaw_time, ch->player_specials->freezer_id);
@@ -600,9 +593,6 @@ Creature::saveToXML()
 
 	fprintf(ouf, "<prefs flag1=\"%lx\" flag2=\"%lx\"/>\n",
 		ch->player_specials->saved.pref, ch->player_specials->saved.pref2);
-
-	fprintf(ouf, "<terminal rows=\"%d\" columns=\"%d\"/>\n",
-		GET_PAGE_LENGTH(ch), GET_COLS(ch));
 
 	fprintf(ouf, "<affects flag1=\"%lx\" flag2=\"%lx\" flag3=\"%lx\"/>\n",
 		ch->char_specials.saved.affected_by,
@@ -802,9 +792,6 @@ Creature::loadFromXML( long id )
 			flag = xmlGetProp( node, "flag2" );
 			player_specials->saved.pref2 = hex2dec(flag);
 			free(flag);
-        } else if ( xmlMatches(node->name, "terminal") ) {
-			GET_PAGE_LENGTH(this) = xmlGetIntProp( node, "rows" );
-			//GET_PAGE_WIDTH(this) = xmlGetIntProp( node, "columns" );
         } else if ( xmlMatches(node->name, "weaponspec") ) {
 			int vnum = xmlGetIntProp( node, "vnum" );
 			int level = xmlGetIntProp( node, "level" );
@@ -881,9 +868,6 @@ Creature::loadFromXML( long id )
 			POOFOUT(this) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "immort") ) {
 			player_specials->saved.occupation = xmlGetIntProp(node,"badge");
-        } else if ( xmlMatches(node->name, "lastlogin") ) {
-            player.time.logon = xmlGetIntProp(node, "time");
-			// host is not loaded to avoid conflicting with current host
         }
     }
 

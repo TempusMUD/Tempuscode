@@ -1103,11 +1103,11 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		log_death_trap(ch);
 		death_cry(ch);
 		// Save the char and its implants but not its eq
-		save_char(ch, NULL);
+		ch->saveToXML();
 		Crash_save_implants(ch);
         Crash_delete_crashfile(ch);
 		// extract it, leaving it's eq and such in the dt.
-		ch->extract(false, false, CON_AFTERLIFE);
+		ch->extract(false, false, CXN_AFTERLIFE);
 		if (was_in->number == 34004) {
 			for (obj = was_in->contents; obj; obj = next_obj) {
 				next_obj = obj->next_content;
@@ -1123,7 +1123,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
 	for (srch = ch->in_room->search, found = 0; srch; srch = srch->next) {
 		if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER) && SRCH_OK(ch, srch)) {
-			if (ch->desc != NULL && STATE(ch->desc) != CON_AFTERLIFE)
+			if (ch->desc != NULL && STATE(ch->desc) != CXN_AFTERLIFE)
 				found = general_search(ch, srch, found);
 			else
 				return 22;
@@ -2249,7 +2249,7 @@ ACMD(do_wake)
 		} else if (IS_AFFECTED(vict, AFF_SLEEP))
 			act("You can't wake $M up!", FALSE, ch, 0, vict, TO_CHAR);
 		else if (vict->getPosition() == POS_STUNNED)
-			act("$E is stunned, and you fail to arouse $M.",
+			act("$E is stunned, and you fail to rouse $M.",
 				FALSE, ch, 0, vict, TO_CHAR);
 		else if (vict->getPosition() < POS_STUNNED)
 			act("$N is dying, and you can't wake $M up!",
@@ -2260,7 +2260,7 @@ ACMD(do_wake)
 		else {
 			act("You wake $M up.", FALSE, ch, 0, vict, TO_CHAR);
 			if (IS_VAMPIRE(vict))
-				act("$n has aroused you from your unholy slumber!!",
+				act("$n has roused you from your unholy slumber!!",
 					FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
 			else
 				act("You are awakened by $n.", FALSE, ch, 0, vict,
@@ -2615,7 +2615,7 @@ ACMD(do_translocate)
 		send_to_char(ch, 
 			"You go too far, rematerializing inside solid matter!!\r\n"
 			"Better luck next time...\r\n");
-		ch->extract(false, true, CON_AFTERLIFE);
+		ch->extract(false, true, CXN_AFTERLIFE);
 		return;
 	} else {
 		if( !char_from_room(ch) || !char_to_room(ch, rm) )
@@ -2633,7 +2633,7 @@ ACMD(do_translocate)
 			GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			log_death_trap(ch);
 			death_cry(ch);
-			ch->extract(false, true, CON_AFTERLIFE);
+			ch->extract(false, true, CXN_AFTERLIFE);
 			if (rm->number == 34004) {
 				for (obj = rm->contents; obj; obj = next_obj) {
 					next_obj = obj->next_content;

@@ -30,14 +30,14 @@ SPECIAL(killer_hunter)
 		return 0;
 
 	for (d = descriptor_list; d; d = d->next) {
-		if (!d->connected && !d->original && d->character) {
-			if (PLR_FLAGGED(d->character, PLR_KILLER) &&
-				d->character->in_room && can_see_creature(hunter, d->character)) {
-				if (GET_LEVEL(d->character) < LVL_IMMORT &&
-					(GET_LEVEL(hunter) <= (GET_LEVEL(d->character) + 10)) &&
-					find_first_step(hunter->in_room, d->character->in_room,
+		if (d->input_mode == CXN_PLAYING && !d->original && d->creature) {
+			if (PLR_FLAGGED(d->creature, PLR_KILLER) &&
+				d->creature->in_room && can_see_creature(hunter, d->creature)) {
+				if (GET_LEVEL(d->creature) < LVL_IMMORT &&
+					(GET_LEVEL(hunter) <= (GET_LEVEL(d->creature) + 10)) &&
+					find_first_step(hunter->in_room, d->creature->in_room,
 						STD_TRACK) >= 0) {
-					HUNTING(ch) = d->character;
+					HUNTING(ch) = d->creature;
 					do_gen_comm(ch, "Okay.  Now I'm pissed.", 0, SCMD_HOLLER, 0);
 					return 1;
 				}

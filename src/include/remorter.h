@@ -1,6 +1,8 @@
 #ifndef _REMORTER_H_
 #define _REMORTER_H_
 
+#include "player_table.h"
+
 void do_start(struct Creature *ch, int mode);
 
 // Argument storage for the remorter
@@ -394,7 +396,7 @@ void
 Quiz::sendStatus(Creature * ch)
 {
 	send_to_char(ch, "Quiz Subject: %s (%d)\r\n",
-		studentID > 0 ? get_name_by_id(studentID) : "NONE", studentID);
+		studentID > 0 ? playerIndex.getName(studentID) : "NONE", studentID);
 	send_to_char(ch,
 		"Ready [%s] Complete[%s] In Progress[%s] Number of Questions[%d]\r\n",
 		isReady()? "Yes" : "No", isComplete()? "Yes" : "No",

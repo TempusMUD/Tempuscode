@@ -220,7 +220,7 @@ SPECIAL(gen_locker)
 		House* house = Housing.findHouseByRoom( locker->in_room->number );
 		if( house != NULL )
 			house->save();
-		save_char(ch, NULL);
+		ch->saveToXML();
 
 		act("$n takes all your things and locks them in a locker.", FALSE,
 			atten, 0, ch, TO_VICT);
@@ -314,7 +314,7 @@ SPECIAL(gen_locker)
 		House* house = Housing.findHouseByRoom( locker->in_room->number );
 		if( house != NULL )
 			house->save();
-		save_char(ch, NULL);
+		ch->saveToXML();
 
 		act("$n opens a locker and gives you all your things.",
 			FALSE, atten, 0, ch, TO_VICT);

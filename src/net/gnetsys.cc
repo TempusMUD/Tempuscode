@@ -52,7 +52,7 @@ perform_net_help(descriptor_data *d) {
 	SEND_TO_Q("       wall <user> - sends a message to all users logged in\r\n", d);
 	SEND_TO_Q("              help - displays this menu\r\n", d);
 	SEND_TO_Q("                 ? - synonym for help\r\n", d);
-	if ( IS_CYBORG(d->character) ) {
+	if ( IS_CYBORG(d->creature) ) {
 		SEND_TO_Q("              list - lists programs executing locally\r\n", d);
 		SEND_TO_Q("            status - displays local system status\r\n", d);
 		SEND_TO_Q("    load <program> - loads and executes programs into local memory\r\n", d);
@@ -74,18 +74,18 @@ perform_net_write(descriptor_data *d,char *arg) {
 
 	delete_doubledollar(msg);
 
-	vict = get_player_vis(d->character, targ, 1);
+	vict = get_player_vis(d->creature, targ, 1);
 	if ( !vict )
-		vict = get_player_vis(d->character, targ, 0);
+		vict = get_player_vis(d->creature, targ, 0);
 	
-	if ( !vict || STATE(vict->desc) != CON_NETWORK) {
+	if ( !vict || STATE(vict->desc) != CXN_NETWORK) {
 		SEND_TO_Q("Error: user not logged in\r\n", d);
 		return;
 	}
 	
 	sprintf(buf,"Message sent to %s: %s\r\n",GET_NAME(vict),msg);
 	SEND_TO_Q(buf, d);
-	sprintf(buf,"Message from %s: %s\r\n",GET_NAME(d->character),msg);
+	sprintf(buf,"Message from %s: %s\r\n",GET_NAME(d->creature),msg);
 	SEND_TO_Q(buf, vict->desc);
 }
 
@@ -99,9 +99,9 @@ perform_net_wall(descriptor_data *d,char *arg) {
 	}
 
 	for (r_d = descriptor_list; r_d; r_d = r_d->next) {
-		if (STATE(r_d) != CON_NETWORK)
+		if (STATE(r_d) != CXN_NETWORK)
 			continue;
-		sprintf(buf,"%s walls:%s\r\n",GET_NAME(d->character),
+		sprintf(buf,"%s walls:%s\r\n",GET_NAME(d->creature),
 			arg);
 		SEND_TO_Q(buf,r_d);
 	}
@@ -111,7 +111,7 @@ void
 perform_net_load(descriptor_data *d,char *arg) {
 	int skill_num,percent;
 
-	if ( !GET_PRACTICES(d->character)) {
+	if ( !GET_PRACTICES(d->creature)) {
 		SEND_TO_Q("Error: No data storage units free\r\n",d);
 		return;
 	}
@@ -130,40 +130,40 @@ perform_net_load(descriptor_data *d,char *arg) {
 		return;
 	}
 
-	if ( (SPELL_GEN(skill_num, CLASS_CYBORG ) > 0 && GET_CLASS(d->character) != CLASS_CYBORG) ||
-		 (GET_REMORT_GEN(d->character) < SPELL_GEN(skill_num,CLASS_CYBORG)) ||
-		 (GET_LEVEL(d->character) < SPELL_LEVEL(skill_num,CLASS_CYBORG))) {
+	if ( (SPELL_GEN(skill_num, CLASS_CYBORG ) > 0 && GET_CLASS(d->creature) != CLASS_CYBORG) ||
+		 (GET_REMORT_GEN(d->creature) < SPELL_GEN(skill_num,CLASS_CYBORG)) ||
+		 (GET_LEVEL(d->creature) < SPELL_LEVEL(skill_num,CLASS_CYBORG))) {
 		SEND_TO_Q("Error: resources unavailable to load '",d);
 		SEND_TO_Q(arg,d);
 		SEND_TO_Q("'\r\n",d);
 		return;
 	}
 
-	if (GET_SKILL(d->character, skill_num) >= LEARNED( d->character)) {
+	if (GET_SKILL(d->creature, skill_num) >= LEARNED( d->creature)) {
 		SEND_TO_Q("Program fully installed on local system.\r\n", d);
 		return;
 	}
 
-	percent = MIN(MAXGAIN(d->character),
-				  MAX(MINGAIN(d->character),
-					  INT_APP(GET_INT(d->character))));
-	percent = MIN(LEARNED(d->character) - 
-				GET_SKILL(d->character,skill_num),percent);
-	GET_PRACTICES(d->character)--;
-	SET_SKILL(d->character, skill_num, GET_SKILL(d->character, skill_num) + percent);
+	percent = MIN(MAXGAIN(d->creature),
+				  MAX(MINGAIN(d->creature),
+					  INT_APP(GET_INT(d->creature))));
+	percent = MIN(LEARNED(d->creature) - 
+				GET_SKILL(d->creature,skill_num),percent);
+	GET_PRACTICES(d->creature)--;
+	SET_SKILL(d->creature, skill_num, GET_SKILL(d->creature, skill_num) + percent);
 	sprintf(buf, "Program download: %s terminating, %d percent transfer.\r\n", spell_to_str(skill_num), percent);
 	SEND_TO_Q(buf, d);
-	if (GET_SKILL(d->character, skill_num) >= LEARNED( d->character))
+	if (GET_SKILL(d->creature, skill_num) >= LEARNED( d->creature))
 		strcpy(buf,"Program fully installed on local system.\r\n");
 	else
 		sprintf(buf, "Program %d%% installed on local system.\r\n",
-			GET_SKILL(d->character,skill_num));
+			GET_SKILL(d->creature,skill_num));
 	SEND_TO_Q(buf, d);
 }
 
 void
 perform_net_status(descriptor_data *d) {
-	sprintf(buf, "You have %d data storage units free.\r\n", GET_PRACTICES(d->character));
+	sprintf(buf, "You have %d data storage units free.\r\n", GET_PRACTICES(d->creature));
 	SEND_TO_Q(buf, d);
 }
 
@@ -175,13 +175,13 @@ perform_net_who(struct Creature *ch, char *arg)
 
     strcpy(buf, "Visible users of the global net:\r\n");
     for (d = descriptor_list; d; d = d->next) {
-        if (STATE(d) != CON_NETWORK)
+        if (STATE(d) != CXN_NETWORK)
             continue;
-        if (!can_see_creature(ch, d->character))
+        if (!can_see_creature(ch, d->creature))
             continue;
     
         count++;
-        sprintf(buf, "%s   (%03d)     %s\r\n", buf, count, GET_NAME(d->character));
+        sprintf(buf, "%s   (%03d)     %s\r\n", buf, count, GET_NAME(d->creature));
         continue;
     }
     sprintf(buf, "%s\r\n%d users detected.\r\n", buf, count);
@@ -199,7 +199,7 @@ void perform_net_finger(struct Creature *ch, char *arg)
     }
 
     if (!(vict = get_char_vis(ch, arg)) || !vict->desc ||
-        STATE(vict->desc) != CON_NETWORK || (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_LEVEL(vict) >= LVL_AMBASSADOR)) {
+        STATE(vict->desc) != CXN_NETWORK || (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_LEVEL(vict) >= LVL_AMBASSADOR)) {
         send_to_char(ch, "No such user detected.\r\n");
         return;
     }
@@ -243,11 +243,11 @@ handle_network(descriptor_data *d,char *arg) {
 		return;
 	arg = one_argument(arg, arg1);
 	if ( is_abbrev( arg1,"who" ) ) {
-		perform_net_who(d->character,"");
+		perform_net_who(d->creature,"");
 	} else if ( *arg1 == '?' || is_abbrev( arg1,"help" ) ) {
 		perform_net_help(d);
 	} else if ( is_abbrev( arg1,"finger" ) ) {
-		perform_net_finger(d->character, arg);
+		perform_net_finger(d->creature, arg);
 	} else if ( is_abbrev( arg1,"write" ) ) {
 		perform_net_write(d, arg);
 	} else if ( is_abbrev( arg1,"wall" ) ) {
@@ -258,15 +258,15 @@ handle_network(descriptor_data *d,char *arg) {
 		else
 			SEND_TO_Q("Error: Resource not available\r\n", d);
 	} else if ( *arg1 == '@' || is_abbrev( arg1,"exit" ) || is_abbrev(arg1, "logout") ) {
-		slog("User %s disconnecting from net.", GET_NAME(d->character));
-		set_desc_state( CON_PLAYING,d );
+		slog("User %s disconnecting from net.", GET_NAME(d->creature));
+		set_desc_state( CXN_PLAYING,d );
 		SEND_TO_Q("Connection closed.\r\n",d);
-		act("$n disconnects from the network.", TRUE, d->character, 0, 0, TO_ROOM);
-	} else if ( IS_CYBORG(d->character) && is_abbrev( arg1,"list" ) ) {
-		perform_net_list(d->character, CLASS_CYBORG);
-	} else if ( IS_CYBORG(d->character) && ( is_abbrev( arg1,"load" ) || is_abbrev(arg,"download"))) {
+		act("$n disconnects from the network.", TRUE, d->creature, 0, 0, TO_ROOM);
+	} else if ( IS_CYBORG(d->creature) && is_abbrev( arg1,"list" ) ) {
+		perform_net_list(d->creature, CLASS_CYBORG);
+	} else if ( IS_CYBORG(d->creature) && ( is_abbrev( arg1,"load" ) || is_abbrev(arg,"download"))) {
 		perform_net_load(d, arg);
-	} else if ( IS_CYBORG(d->character) && is_abbrev( arg1,"status" ) ) {
+	} else if ( IS_CYBORG(d->creature) && is_abbrev( arg1,"status" ) ) {
 		perform_net_status(d);
 	} else {
 	   SEND_TO_Q(arg1, d);

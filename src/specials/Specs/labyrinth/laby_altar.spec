@@ -55,6 +55,6 @@ SPECIAL(laby_altar)
 		"As you place it within the altar, a bright light sears across your vision.\r\n"
 		"You feel your body being annihilated and restored by the powers of Fate,\r\n"
 		"until at last, you fall into the blissful darkness...\r\n");
-	set_desc_state(CON_REMORT_AFTERLIFE, ch->desc);
+	set_desc_state(CXN_REMORT_AFTERLIFE, ch->desc);
 	return 1;
 }

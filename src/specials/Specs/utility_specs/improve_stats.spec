@@ -204,7 +204,7 @@ do_gen_improve(struct Creature *ch, int cmd, int mode, char *argument)
 	send_to_char(ch, "You begin your training.\r\n");
 	act("$n begins to train.", FALSE, ch, 0, 0, TO_ROOM);
 	WAIT_STATE(ch, REAL_STAT RL_SEC);
-	save_char(ch, NULL);
+	ch->saveToXML();
 
 	return TRUE;
 }

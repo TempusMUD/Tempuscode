@@ -16,6 +16,7 @@ using namespace std;
 #include "security.h"
 #include "tokenizer.h"
 #include "screen.h"
+#include "player_table.h"
 
 
 /*
@@ -144,7 +145,7 @@ namespace Security {
 
     /* Removes a member from this group by player name. Fails if not a member. */
     bool Group::removeMember( const char *name ) {
-        long id = get_id_by_name(name);
+        long id = playerIndex.getID(name);
         if( id < 0 ) 
             return false;
         return removeMember(id);
@@ -166,7 +167,7 @@ namespace Security {
 
     /* Adds a member to this group by name. Fails if already added. */
     bool Group::addMember( const char *name ) {
-        long id = get_id_by_name(name);
+        long id = playerIndex.getID(name);
         if( id < 0 ) 
             return false;
             
@@ -198,7 +199,7 @@ namespace Security {
         strcat(str, "        ");
         for( ; it != members.end(); ++it ) {
 			admin = (group != NULL) && (group->member(*it));
-            strcpy(namebuf, get_name_by_id(*it));
+            strcpy(namebuf, playerIndex.getName(*it));
             namebuf[0] = toupper(namebuf[0]);
             sprintf(buf2, "%s%-15s%s", 
 					admin ? CCYEL_BLD(ch,C_NRM) : "", 
@@ -226,7 +227,7 @@ namespace Security {
                     *it, 
                     CCCYN(ch,C_NRM),
                     CCGRN(ch,C_NRM), 
-                    get_name_by_id(*it), 
+                    playerIndex.getName(*it), 
                     CCNRM(ch,C_NRM) 
                     );
             if( pos++ % 3 == 0 ) {
@@ -310,7 +311,7 @@ namespace Security {
         while (node != NULL) {
             if ((xmlMatches(node->name, "Member"))) {
                 member = xmlGetLongProp(node, "ID");
-                if( member == 0 || get_name_by_id(member) == NULL ) {
+                if( member == 0 || playerIndex.getName(member) == NULL ) {
                     log("Invalid PID not loaded.",member);
                 } else {
                     addMember(member);
@@ -372,12 +373,12 @@ namespace Security {
         vector<long>::iterator mit = members.begin();
         for( ; mit != members.end(); ++mit ) {
             node = xmlNewChild( parent, NULL, (const xmlChar *)"Member", NULL );
-            const char* name = get_name_by_id(*mit);
+            const char* name = playerIndex.getName(*mit);
             if( name == NULL ) {
                 log("Invalid PID not saved.",*mit);
                 continue;
             }
-            xmlSetProp( node, "Name", get_name_by_id(*mit) );
+            xmlSetProp( node, "Name", playerIndex.getName(*mit) );
             xmlSetProp( node, "ID", *mit );
         }
         return true;

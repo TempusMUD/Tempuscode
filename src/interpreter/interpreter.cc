@@ -1745,7 +1745,7 @@ perform_alias(struct descriptor_data *d, char *orig)
 	struct alias_data *a, *tmp;
 
 	/* bail out immediately if the guy doesn't have any aliases */
-	if ((tmp = GET_ALIASES(d->character)) == NULL)
+	if ((tmp = GET_ALIASES(d->creature)) == NULL)
 		return 0;
 
 	/* find the alias we're supposed to match */

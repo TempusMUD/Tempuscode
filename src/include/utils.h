@@ -485,7 +485,7 @@ SECT(room_data * room)
 #define GET_SEX(ch)        ((ch)->player.sex)
 #define IS_MALE(ch)     ((ch)->player.sex == SEX_MALE)
 #define IS_FEMALE(ch)   ((ch)->player.sex == SEX_FEMALE)
-#define IS_REMORT(ch)   ((ch) && (CHECK_REMORT_CLASS(ch) >= 0))
+#define IS_REMORT(ch)   ((ch) && (GET_REMORT_GEN(ch) > 0))
 #define IS_IMMORT(ch)	((ch) && (GET_LEVEL(ch) >= LVL_AMBASSADOR))
 #define IS_MORT(ch)		((ch) && !IS_REMORT(ch) && !IS_IMMORT(ch))
 
@@ -506,12 +506,12 @@ SECT(room_data * room)
 #define GET_MANA(ch)          ((ch)->points.mana)
 #define GET_MAX_MANA(ch)  ((ch)->points.max_mana)
 #define GET_GOLD(ch)          ((ch)->points.gold)
-#define GET_BANK_GOLD(ch) ((ch)->points.bank_gold)
-#define GET_ECONET(ch)    ((ch)->points.credits)
 #define GET_CASH(ch)      ((ch)->points.cash)
+#define GET_PAST_BANK(ch) (((ch)->account) ? (ch)->account->get_past_bank():0)
+#define GET_FUTURE_BANK(ch) (((ch)->account) ? (ch)->account->get_future_bank():0)
 
 #define BANK_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
-                        GET_ECONET(ch) : GET_BANK_GOLD(ch))
+                        GET_FUTURE_BANK(ch) : GET_PAST_BANK(ch))
 #define CASH_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
                     GET_CASH(ch) : GET_GOLD(ch))
 char *CURRENCY(Creature * ch);
@@ -552,7 +552,7 @@ char *CURRENCY(Creature * ch);
 #define GET_MSHIELD_PCT(ch)     ((ch)->player_specials->saved.mana_shield_pct)
 #define GET_PKILLS(ch)          ((ch)->player_specials->saved.pkills)
 #define GET_PC_DEATHS(ch)       ((ch)->player_specials->saved.deaths)
-#define GET_PAGE_LENGTH(ch)     ((ch)->player_specials->saved.page_length)
+#define GET_PAGE_LENGTH(ch)     ((ch)->account->get_term_height())
 #define GET_INVIS_LVL(ch)        ((ch)->player_specials->saved.invis_level)
 #define GET_BROKE(ch)           ((ch)->player_specials->saved.broken_component)
 #define GET_OLD_CLASS(ch)       ((ch)->player_specials->saved.old_char_class)
@@ -655,7 +655,7 @@ char *CURRENCY(Creature * ch);
 
 
 #define CHECK_WAIT(ch)        (((ch)->desc) ? ((ch)->desc->wait > 1) : 0)
-#define STATE(d)        ((d)->connected)
+#define STATE(d)        ((d)->input_mode)
 
 
 /* object utils **********************************************************/

@@ -28,7 +28,7 @@ SPECIAL(archon)
 			act("$n appears at the center of the room.", FALSE, ch, 0, 0,
 				TO_ROOM);
 		} else {
-			ch->extract(true, false, CON_MENU);
+			ch->extract(true, false, CXN_MENU);
 		}
 		return 1;
 	}

@@ -1,3 +1,6 @@
+$(OBJ)/account.o : account.cc \
+	$(INCLUDE)/xml_utils.h $(INCLUDE)/utils.h $(INCLUDE)/desc_data.h $(INCLUDE)/interpreter.h $(INCLUDE)/player_table.h $(INCLUDE)/tmpstr.h $(INCLUDE)/account.h $(INCLUDE)/comm.h 
+	$(CXX) -c $(CXXFLAGS) account.cc           -o $(OBJ)/account.o
 $(OBJ)/analysis.o : analysis.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/screen.h $(INCLUDE)/tokenizer.h $(INCLUDE)/obj_matcher.h $(INCLUDE)/tmpstr.h 
 	$(CXX) -c $(CXXFLAGS) analysis.cc          -o $(OBJ)/analysis.o
@@ -5,7 +8,7 @@ $(OBJ)/constants.o : constants.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/spells.h 
 	$(CXX) -c $(CXXFLAGS) constants.cc         -o $(OBJ)/constants.o
 $(OBJ)/db.o : db.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/constants.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/interpreter.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/paths.h $(INCLUDE)/quest.h $(INCLUDE)/char_class.h $(INCLUDE)/security.h $(INCLUDE)/olc.h $(INCLUDE)/shop.h $(INCLUDE)/help.h $(INCLUDE)/combat.h $(INCLUDE)/iscript.h $(INCLUDE)/tmpstr.h $(INCLUDE)/flags.h $(INCLUDE)/player_table.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/constants.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/spells.h $(INCLUDE)/mail.h $(INCLUDE)/interpreter.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/flow_room.h $(INCLUDE)/clan.h $(INCLUDE)/paths.h $(INCLUDE)/quest.h $(INCLUDE)/char_class.h $(INCLUDE)/security.h $(INCLUDE)/olc.h $(INCLUDE)/shop.h $(INCLUDE)/help.h $(INCLUDE)/combat.h $(INCLUDE)/iscript.h $(INCLUDE)/tmpstr.h $(INCLUDE)/flags.h $(INCLUDE)/player_table.h $(INCLUDE)/account.h 
 	$(CXX) -c $(CXXFLAGS) db.cc                -o $(OBJ)/db.o
 $(OBJ)/obj_matcher.o : obj_matcher.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/specs.h $(INCLUDE)/comm.h $(INCLUDE)/materials.h $(INCLUDE)/obj_matcher.h $(INCLUDE)/interpreter.h $(INCLUDE)/screen.h $(INCLUDE)/tmpstr.h 
@@ -16,4 +19,4 @@ $(OBJ)/objsave.o : objsave.cc \
 $(OBJ)/xml.o : xml.cc \
 	$(INCLUDE)/constants.h $(INCLUDE)/utils.h $(INCLUDE)/xml_utils.h $(INCLUDE)/db.h $(INCLUDE)/shop.h $(INCLUDE)/tmpstr.h $(INCLUDE)/comm.h 
 	$(CXX) -c $(CXXFLAGS) xml.cc               -o $(OBJ)/xml.o
-OBJFILES= $(OBJ)/analysis.o $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/obj_matcher.o $(OBJ)/objsave.o $(OBJ)/xml.o
+OBJFILES= $(OBJ)/account.o $(OBJ)/analysis.o $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/obj_matcher.o $(OBJ)/objsave.o $(OBJ)/xml.o

@@ -118,7 +118,7 @@ ACMD(do_quit)
 			next_d = d->next;
 			if (d == ch->desc)
 				continue;
-			if (d->character && (GET_IDNUM(d->character) == GET_IDNUM(ch)))
+			if (d->creature && (GET_IDNUM(d->creature) == GET_IDNUM(ch)))
 				close_socket(d);
 		}
 
@@ -173,7 +173,7 @@ ACMD(do_quit)
 				send_to_char(ch, "You smoothly slip out of existence.\r\n");
 				act("$n smoothly slips out of existence and is gone.",
 					TRUE, ch, 0, 0, TO_ROOM);
-				save_char(ch,NULL);
+				ch->saveToXML();
 				Crash_rentsave(ch, cost, RENT_RENTED);
 				destroy = true;
 				save = false;
@@ -199,9 +199,9 @@ ACMD(do_quit)
 		}
 
 		save_room = ch->in_room;
-		ch->extract(destroy, save, CON_MENU);
+		ch->extract(destroy, save, CXN_MENU);
 		if (GET_ZONE(save_room) == 109 || ROOM_FLAGGED(save_room, ROOM_HOUSE)) {
-			save_char(ch, save_room);
+			ch->saveToXML();
 		}
 	}
 }
@@ -214,7 +214,7 @@ ACMD(do_save)
 	if (cmd) {
 		send_to_char(ch, "Saving %s.\r\n", GET_NAME(ch));
 	}
-	save_char(ch, NULL);
+	ch->saveToXML();
 	Crash_crashsave(ch);
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 		House* house = Housing.findHouseByRoom( ch->in_room->number );
@@ -1538,21 +1538,19 @@ ACMD(do_compare)
 ACMD(do_screen)
 {
 	int leng;
-	if (IS_NPC(ch)) {
+	if (!ch->desc) {
 		send_to_char(ch, "Your SCREEN is default 22 as an NPC.  Sorry.\r\n");
 		return;
 	}
-	one_argument(argument, arg);
-	if (!*arg) {
-		send_to_char(ch, "Your current screen length is: %d lines.\r\n",
-			GET_PAGE_LENGTH(ch));
-		return;
-	}
+
+	send_to_char(ch, "Your current screen length is: %d lines.\r\n",
+		ch->desc->account->get_term_height());
+	return;
+
 	if (isdigit(*arg)) {
 		leng = atoi(arg);
 		leng = MIN(leng, 200);
 		leng = MAX(leng, 0);
-		GET_PAGE_LENGTH(ch) = leng;
 		send_to_char(ch, "Your screen length will now be %d lines.\r\n",
 			GET_PAGE_LENGTH(ch));
 		return;
@@ -2067,7 +2065,7 @@ ACMD(do_gasify)
 	char_from_room(ch,false);
 	char_to_room(ch, tank,false);
 
-	ch->desc->character = gas;
+	ch->desc->creature = gas;
 	ch->desc->original = ch;
 
 	gas->desc = ch->desc;

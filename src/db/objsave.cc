@@ -308,11 +308,6 @@ Crash_clean_file(char *name)
 void
 update_obj_file(void)
 {
-	int i;
-
-	for (i = 0; i <= top_of_p_table; i++)
-		Crash_clean_file((player_table + i)->name);
-	return;
 }
 
 
@@ -516,21 +511,21 @@ Crash_load(struct Creature *ch)
 		if (GET_LEVEL(ch) < LVL_IMMORT) {
 			// costs credits
 			if (rent.currency == TIME_ELECTRO) {
-				if (cost < GET_CASH(ch) + GET_ECONET(ch)) {
-					GET_ECONET(ch) -= MAX(cost - GET_CASH(ch), 0);
+				if (cost < GET_CASH(ch) + GET_FUTURE_BANK(ch)) {
+					ch->account->withdraw_future_bank(cost - GET_CASH(ch));
 					GET_CASH(ch) = MAX(GET_CASH(ch) - cost, 0);
 					cost = 0;
-					save_char(ch, NULL);
+					ch->saveToXML();
 				} else {
 					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), BRF, true,
 						"%s entering game, some rented eq lost ( no creds ). -- %d/day, %f days",
 						GET_NAME(ch), rent.net_cost_per_diem, num_of_days);
 				}
 			} else {			// default costs gold
-				if (cost < GET_GOLD(ch) + GET_BANK_GOLD(ch)) {
-					GET_BANK_GOLD(ch) -= MAX(cost - GET_GOLD(ch), 0);
+				if (cost < GET_GOLD(ch) + GET_PAST_BANK(ch)) {
+					ch->account->withdraw_past_bank(cost - GET_GOLD(ch));
 					GET_GOLD(ch) = MAX(GET_GOLD(ch) - cost, 0);
-					save_char(ch, NULL);
+					ch->saveToXML();
 					cost = 0;
 				} else {
 					mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), BRF, true,
@@ -619,7 +614,7 @@ Crash_load(struct Creature *ch)
 	}
 	fclose(fl);
 
-	save_char(ch, NULL);
+	ch->saveToXML();
 
 	if (num_lost)
 		return 2;
@@ -815,7 +810,7 @@ Crash_rentsave(struct Creature *ch, int cost, int rentcode)
 	rent.rentcode = rentcode;
 	rent.time = time(0);
 	rent.gold = GET_GOLD(ch);
-	rent.account = GET_BANK_GOLD(ch);
+	rent.account = GET_PAST_BANK(ch);
 	rent.currency = ch->in_room->zone->time_frame;
 	if (!write_rentinfo(fp, &rent)) {
 		fclose(fp);
@@ -880,7 +875,7 @@ Crash_cursesave(struct Creature *ch)
 	rent.rentcode = RENT_RENTED;
 	rent.time = time(0);
 	rent.gold = GET_GOLD(ch);
-	rent.account = GET_BANK_GOLD(ch);
+	rent.account = GET_PAST_BANK(ch);
 	rent.currency = ch->in_room->zone->time_frame;
 
 	if (!write_rentinfo(fp, &rent)) {
@@ -970,7 +965,7 @@ Crash_cryosave(struct Creature *ch, int cost)
 	rent.rentcode = RENT_CRYO;
 	rent.time = time(0);
 	rent.gold = GET_GOLD(ch);
-	rent.account = GET_BANK_GOLD(ch);
+	rent.account = GET_PAST_BANK(ch);
 	rent.net_cost_per_diem = 0;
 	rent.currency = ch->in_room->zone->time_frame;
 
@@ -1011,9 +1006,9 @@ Crash_rent_deadline(struct Creature *ch, struct Creature *recep, long cost)
 		return;
 
 	if (ch->in_room->zone->time_frame == TIME_ELECTRO)
-		rent_deadline = ((GET_CASH(ch) + GET_ECONET(ch)) / cost);
+		rent_deadline = ((GET_CASH(ch) + GET_FUTURE_BANK(ch)) / cost);
 	else
-		rent_deadline = ((GET_GOLD(ch) + GET_BANK_GOLD(ch)) / cost);
+		rent_deadline = ((GET_GOLD(ch) + GET_PAST_BANK(ch)) / cost);
 
 	sprintf(buf2,
 		"You can rent for %ld day%s with the money you have on hand and in the bank.",
@@ -1151,10 +1146,10 @@ Crash_offer_rent(struct Creature *ch, struct Creature *receptionist,
 
 	if (receptionist->in_room->zone->time_frame == TIME_ELECTRO) {
 		strcpy(curr, "credits");
-		total_money = GET_CASH(ch) + GET_ECONET(ch);
+		total_money = GET_CASH(ch) + GET_FUTURE_BANK(ch);
 	} else {
 		strcpy(curr, "coins");
-		total_money = GET_GOLD(ch) + GET_BANK_GOLD(ch);
+		total_money = GET_GOLD(ch) + GET_PAST_BANK(ch);
 	}
 
 	if (USE_XML_FILES) {
@@ -1311,8 +1306,8 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		if (mode == RENT_FACTOR) {
 			act("$n stores your belongings and helps you into your private chamber.", FALSE, recep, 0, ch, TO_VICT);
 			Crash_rentsave(ch, cost, RENT_RENTED);
-			sprintf(buf, "%s has rented ( %d/day, %d tot. )", GET_NAME(ch),
-				cost, GET_GOLD(ch) + GET_BANK_GOLD(ch));
+			sprintf(buf, "%s has rented ( %d/day, %lld tot. )", GET_NAME(ch),
+				cost, GET_GOLD(ch) + GET_PAST_BANK(ch));
 		} else {				/* cryo */
 			act("$n stores your belongings and helps you into your private chamber.\r\n" "A white mist appears in the room, chilling you to the bone...\r\n" "You begin to lose consciousness...", FALSE, recep, 0, ch, TO_VICT);
 			Crash_cryosave(ch, cost);
@@ -1324,8 +1319,8 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		act("$n helps $N into $S private chamber.",
 			FALSE, recep, 0, ch, TO_NOTVICT);
 		save_room = ch->in_room;
-		save_char(ch, save_room);
-		ch->extract(true, false, CON_MENU);
+		ch->saveToXML();
+		ch->extract(true, false, CXN_MENU);
 	} else {
 		Crash_offer_rent(ch, recep, TRUE, mode);
 		act("$N gives $n an offer.", FALSE, ch, 0, recep, TO_ROOM);
@@ -1357,11 +1352,11 @@ Crash_save_all(void)
 {
 	struct descriptor_data *d;
 	for (d = descriptor_list; d; d = d->next) {
-		if ((IS_PLAYING(d)) && !IS_NPC(d->character)) {
-			if (PLR_FLAGGED(d->character, PLR_CRASH)) {
-				Crash_crashsave(d->character);
-				save_char(d->character, NULL);
-				REMOVE_BIT(PLR_FLAGS(d->character), PLR_CRASH);
+		if ((IS_PLAYING(d)) && !IS_NPC(d->creature)) {
+			if (PLR_FLAGGED(d->creature, PLR_CRASH)) {
+				Crash_crashsave(d->creature);
+				d->creature->saveToXML();
+				REMOVE_BIT(PLR_FLAGS(d->creature), PLR_CRASH);
 			}
 		}
 	}

@@ -56,7 +56,6 @@ using namespace std;
 
 
 /*   external vars  */
-extern FILE *player_fl;
 extern struct obj_data *object_list;
 extern struct descriptor_data *descriptor_list;
 extern struct Creature *mob_proto;
@@ -67,11 +66,9 @@ extern int restrict;
 extern int top_of_world;
 extern int top_of_mobt;
 extern int top_of_objt;
-extern int top_of_p_table;
 extern int log_cmds;
 extern int olc_lock;
 extern struct elevator_data *elevators;
-extern struct player_index_element *player_table;
 extern int lunar_stage;
 extern int lunar_phase;
 extern int quest_status;
@@ -92,8 +89,8 @@ int prototype_obj_value(struct obj_data *obj);
 int choose_material(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
 
-void build_player_table(void);
 long asciiflag_conv(char *buf);
+void build_player_table(void);
 void show_social_messages(struct Creature *ch, char *arg);
 void autosave_zones(int SAVE_TYPE);
 void perform_oset(struct Creature *ch, struct obj_data *obj_p,
@@ -111,7 +108,6 @@ int skill_gain(struct Creature *ch, int mode);
 void list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
     bool show);
 void save_quests(); // quests.cc - saves quest data
-void export_player_table(Creature *ch);
 
 int do_freeze_char(char *argument, Creature *vict, Creature *ch);
 
@@ -215,25 +211,25 @@ list_residents_to_char(struct Creature *ch, int town)
     if (town < 0) {
         strcpy(buf, "       HOMETOWNS\r\n");
         for (d = descriptor_list; d; d = d->next) {
-            if (!d->character || !can_see_creature(ch, d->character))
+            if (!d->creature || !can_see_creature(ch, d->creature))
                 continue;
             sprintf(buf, "%s%s%-20s%s -- %s%-30s%s\r\n", buf,
-                GET_LEVEL(d->character) >= LVL_AMBASSADOR ? CCYEL(ch,
-                    C_NRM) : "", GET_NAME(d->character),
-                GET_LEVEL(d->character) >= LVL_AMBASSADOR ? CCNRM(ch,
+                GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCYEL(ch,
+                    C_NRM) : "", GET_NAME(d->creature),
+                GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCNRM(ch,
                     C_NRM) : "", CCCYN(ch, C_NRM),
-                home_towns[(int)GET_HOME(d->character)], CCNRM(ch, C_NRM));
+                home_towns[(int)GET_HOME(d->creature)], CCNRM(ch, C_NRM));
         }
     } else {
         sprintf(buf, "On-line residents of %s.\r\n", home_towns[town]);
         for (d = descriptor_list; d; d = d->next) {
-            if (!d->character || !can_see_creature(ch, d->character))
+            if (!d->creature || !can_see_creature(ch, d->creature))
                 continue;
-            if (GET_HOME(d->character) == town) {
+            if (GET_HOME(d->creature) == town) {
                 sprintf(buf, "%s%s%-20s%s\r\n", buf,
-                    GET_LEVEL(d->character) >= LVL_AMBASSADOR ? CCYEL(ch,
-                        C_NRM) : "", GET_NAME(d->character),
-                    GET_LEVEL(d->character) >= LVL_AMBASSADOR ? CCNRM(ch,
+                    GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCYEL(ch,
+                        C_NRM) : "", GET_NAME(d->creature),
+                    GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCNRM(ch,
                         C_NRM) : "");
                 found = 1;
             }
@@ -548,8 +544,8 @@ ACMD(do_trans)
         }
 
         for (i = descriptor_list; i; i = i->next)
-            if (STATE(i) == CON_PLAYING && i->character && i->character != ch) {
-                victim = i->character;
+            if (STATE(i) == CXN_PLAYING && i->creature && i->creature != ch) {
+                victim = i->creature;
                 if (GET_LEVEL(victim) >= GET_LEVEL(ch))
                     continue;
                 act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
@@ -859,10 +855,10 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         av_lev_proto /= numm_proto;
 
 
-    send_to_char(ch, "Owner: %s  ", (get_name_by_id(zone->owner_idnum) ?
-            get_name_by_id(zone->owner_idnum) : "None"));
-    send_to_char(ch, "Co-Owner: %s  \r\n", (get_name_by_id(zone->co_owner_idnum) ?
-            get_name_by_id(zone->co_owner_idnum) : "None"));
+    send_to_char(ch, "Owner: %s  ", (playerIndex.getName(zone->owner_idnum) ?
+            playerIndex.getName(zone->owner_idnum) : "None"));
+    send_to_char(ch, "Co-Owner: %s  \r\n", (playerIndex.getName(zone->co_owner_idnum) ?
+            playerIndex.getName(zone->co_owner_idnum) : "None"));
 
     send_to_char(ch, "Hours: [%3d]  Years: [%3d]  Idle:[%3d]\r\n",
         zone->hour_mod, zone->year_mod, zone->idle_time);
@@ -894,8 +890,8 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
             numo_proto++;
 
     for (plr = descriptor_list; plr; plr = plr->next)
-        if (plr->character && plr->character->in_room &&
-            plr->character->in_room->zone == zone)
+        if (plr->creature && plr->creature->in_room &&
+            plr->creature->in_room->zone == zone)
             nump++;
 
     for (rm = zone->world, numr = 0, nums = 0; rm; numr++, rm = rm->next) {
@@ -1471,7 +1467,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
 
     if (GET_OBJ_SIGIL_IDNUM(j)) {
         send_to_char(ch, "Warding Sigil: %s (%d), level %d.\r\n",
-            get_name_by_id(GET_OBJ_SIGIL_IDNUM(j)), GET_OBJ_SIGIL_IDNUM(j),
+            playerIndex.getName(GET_OBJ_SIGIL_IDNUM(j)), GET_OBJ_SIGIL_IDNUM(j),
             GET_OBJ_SIGIL_LEVEL(j));
     }
 }
@@ -1673,9 +1669,9 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             GET_GOLD(k), GET_CASH(k), GET_GOLD(k) + GET_CASH(k));
     else
         sprintf(buf,
-            "Au:[%8d], Bank:[%9d], Cash:[%8d], Enet:[%9d], (Total: %d)\r\n",
-            GET_GOLD(k), GET_BANK_GOLD(k), GET_CASH(k), GET_ECONET(k),
-            GET_GOLD(k) + GET_BANK_GOLD(k) + GET_ECONET(k) + GET_CASH(k));
+            "Au:[%8d], Bank:[%9lld], Cash:[%8d], Enet:[%9lld], (Total: %lld)\r\n",
+            GET_GOLD(k), GET_PAST_BANK(k), GET_CASH(k), GET_FUTURE_BANK(k),
+            GET_GOLD(k) + GET_PAST_BANK(k) + GET_FUTURE_BANK(k) + GET_CASH(k));
     strcat(outbuf, buf);
 
     if (IS_NPC(k)) {
@@ -1701,7 +1697,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         strcat(outbuf, buf);
     }
     if (k->desc) {
-        sprinttype(k->desc->connected, connected_types, buf2);
+        sprinttype((int)k->desc->input_mode, connected_types, buf2);
         sprintf(buf, "%sConnected: ", ", ");
         strcat(buf, buf2);
         sprintf(buf2, ", Idle [%d]\r\n", k->char_specials.timer);
@@ -1932,13 +1928,13 @@ do_stat_ticl(struct Creature *ch, int vnum)
             ticl->title,
             CCNRM(ch, C_NRM),
             CCYEL(ch, C_NRM),
-            get_name_by_id(ticl->creator),
+            playerIndex.getName(ticl->creator),
             CCNRM(ch, C_NRM),
             CCGRN(ch, C_NRM),
             tim1,
             CCNRM(ch, C_NRM),
             CCYEL(ch, C_NRM),
-            get_name_by_id(ticl->last_modified_by),
+            playerIndex.getName(ticl->last_modified_by),
             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), tim2, CCNRM(ch, C_NRM));
 
         send_to_char(ch, "%s", buf);
@@ -1953,7 +1949,6 @@ ACMD(do_stat)
     struct Creature *victim = 0;
     struct obj_data *object = 0;
     struct zone_data *zone = NULL;
-    struct char_file_u tmp_store;
     int tmp, found;
 
     half_chop(argument, buf1, buf2);
@@ -2020,25 +2015,15 @@ ACMD(do_stat)
         if (!*buf2) {
             send_to_char(ch, "Stats on which player?\r\n");
         } else {
-            CREATE(victim, struct Creature, 1);
-            clear_char(victim);
-            if( mini_mud ) {
-                if( playerIndex.loadPlayer(buf2, victim) ) {
-                    do_stat_character(ch, victim);
-                } else {
-                    send_to_char(ch, "Error loading character '%s'\r\n",buf2);
-                }
-            } else if (load_char(buf2, &tmp_store) > -1) {
-                store_to_char(&tmp_store, victim);
-                if (GET_LEVEL(victim) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1) {
-                    send_to_char(ch, "Sorry, you can't do that.\r\n");
-                } else {
-                    do_stat_character(ch, victim);
-                }
-            } else {
+			victim = new Creature;
+			if (playerIndex.exists(buf2)) {
                 send_to_char(ch, "There is no such player.\r\n");
-            }
-            free(victim);
+				if (victim->loadFromXML(playerIndex.getID(buf2)))
+					do_stat_character(ch, victim);
+				else
+					send_to_char(ch, "Error loading character '%s'\r\n",buf2);
+			}
+            delete victim;
         }
     } else if (is_abbrev(buf1, "object")) {
         if (!*buf2)
@@ -2225,11 +2210,11 @@ ACMD(do_snoop)
     else if (PRF_FLAGGED(victim, PRF_NOSNOOP) && GET_LEVEL(ch) < LVL_ENTITY)
         send_to_char(ch, "The gods say I dont think so!\r\n");
     else if (victim->desc->snoop_by)
-        if (ch == victim->desc->snoop_by->character)
+        if (ch == victim->desc->snoop_by->creature)
             act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);
-        else if (GET_LEVEL(ch) > GET_LEVEL(victim->desc->snoop_by->character)) {
+        else if (GET_LEVEL(ch) > GET_LEVEL(victim->desc->snoop_by->creature)) {
             send_to_char(ch, "Busy already. (%s)\r\n",
-                GET_NAME(victim->desc->snoop_by->character));
+                GET_NAME(victim->desc->snoop_by->creature));
         } else
             send_to_char(ch, "Busy already. \r\n");
     else if (victim->desc->snooping == ch->desc)
@@ -2283,7 +2268,7 @@ ACMD(do_switch)
     else {
         send_to_char(ch, OK);
 
-        ch->desc->character = victim;
+        ch->desc->creature = victim;
         ch->desc->original = ch;
 
         victim->desc = ch->desc;
@@ -2328,7 +2313,7 @@ ACMD(do_rswitch)
     else {
         send_to_char(ch, OK);
         send_to_char(orig, "The world seems to lurch and shift.\r\n");
-        orig->desc->character = victim;
+        orig->desc->creature = victim;
         orig->desc->original = orig;
 
         victim->desc = orig->desc;
@@ -2396,10 +2381,10 @@ ACMD(do_return)
         if (ch->desc->original->desc)
             close_socket(ch->desc->original->desc);
 
-        ch->desc->character = ch->desc->original;
+        ch->desc->creature = ch->desc->original;
         ch->desc->original = NULL;
 
-        ch->desc->character->desc = ch->desc;
+        ch->desc->creature->desc = ch->desc;
         ch->desc = NULL;
 
         if (cloud_found) {
@@ -2408,7 +2393,7 @@ ACMD(do_return)
             act("$n materializes from a cloud of gas.",
                 FALSE, orig, 0, 0, TO_ROOM);
             if (subcmd != SCMD_NOEXTRACT)
-                ch->extract(true, false, CON_MENU);
+                ch->extract(true, false, CXN_MENU);
         }
     } else
         send_to_char(ch, "There is no need to return.\r\n");
@@ -2747,7 +2732,7 @@ ACMD(do_purge)
                     "(GC) %s has purged %s at %d.",
                     GET_NAME(ch), GET_NAME(vict), vict->in_room->number);
             }
-            vict->extract(false, true, CON_CLOSE);
+            vict->extract(false, true, CXN_DISCONNECT);
         } else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
             act("$n destroys $p.", FALSE, ch, obj, 0, TO_ROOM);
             slog("(GC) %s purged %s at %d.", GET_NAME(ch),
@@ -2768,7 +2753,7 @@ ACMD(do_purge)
         CreatureList::iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if (IS_NPC((*it))) {
-                (*it)->extract(true, false, CON_MENU);
+                (*it)->extract(true, false, CXN_MENU);
             }
         }
 
@@ -2850,7 +2835,7 @@ ACMD(do_advance)
         GET_NAME(ch), GET_NAME(victim), 
         newlevel, GET_LEVEL(victim) );
     gain_exp_regardless(victim, exp_scale[newlevel] - GET_EXP(victim));
-    save_char(victim, NULL);
+    victim->saveToXML();
 }
 
 
@@ -3072,14 +3057,15 @@ ACMD(do_gecho)
         send_to_char(ch, "That must be a mistake...\r\n");
     else {
         for (pt = descriptor_list; pt; pt = pt->next) {
-            if (!pt->connected && pt->character && pt->character != ch &&
-                !PRF2_FLAGGED(pt->character, PRF2_NOGECHO) &&
-                !PLR_FLAGGED(pt->character, PLR_OLC | PLR_WRITING)) {
-                if (GET_LEVEL(pt->character) >= 50 &&
-                    GET_LEVEL(pt->character) > GET_LEVEL(ch))
-                    send_to_char(pt->character, "[%s-g] %s\r\n", GET_NAME(ch), argument);
+            if (pt->input_mode == CXN_PLAYING &&
+				pt->creature && pt->creature != ch &&
+                !PRF2_FLAGGED(pt->creature, PRF2_NOGECHO) &&
+                !PLR_FLAGGED(pt->creature, PLR_OLC | PLR_WRITING)) {
+                if (GET_LEVEL(pt->creature) >= 50 &&
+                    GET_LEVEL(pt->creature) > GET_LEVEL(ch))
+                    send_to_char(pt->creature, "[%s-g] %s\r\n", GET_NAME(ch), argument);
                 else
-                    send_to_char(pt->character, "%s\r\n", argument);
+                    send_to_char(pt->creature, "%s\r\n", argument);
             }
         }
         if (PRF_FLAGGED(ch, PRF_NOREPEAT))
@@ -3110,14 +3096,15 @@ ACMD(do_zecho)
         send_to_char(ch, "That must be a mistake...\r\n");
     else {
         for (pt = descriptor_list; pt; pt = pt->next) {
-            if (!pt->connected && pt->character && pt->character != ch &&
-                pt->character->in_room && pt->character->in_room->zone == here
-                && !PRF2_FLAGGED(pt->character, PRF2_NOGECHO)
-                && !PLR_FLAGGED(pt->character, PLR_OLC | PLR_WRITING)) {
-                if (GET_LEVEL(pt->character) > GET_LEVEL(ch))
-                    send_to_char(pt->character, "[%s-zone] %s\r\n", GET_NAME(ch), argument);
+            if (pt->input_mode == CXN_PLAYING && 
+				pt->creature && pt->creature != ch &&
+                pt->creature->in_room && pt->creature->in_room->zone == here
+                && !PRF2_FLAGGED(pt->creature, PRF2_NOGECHO)
+                && !PLR_FLAGGED(pt->creature, PLR_OLC | PLR_WRITING)) {
+                if (GET_LEVEL(pt->creature) > GET_LEVEL(ch))
+                    send_to_char(pt->creature, "[%s-zone] %s\r\n", GET_NAME(ch), argument);
                 else
-                    send_to_char(pt->character, "%s\r\n", argument);
+                    send_to_char(pt->creature, "%s\r\n", argument);
             }
         }
         if (PRF_FLAGGED(ch, PRF_NOREPEAT))
@@ -3192,7 +3179,7 @@ ACMD(do_dc)
         send_to_char(ch, "No such connection.\r\n");
         return;
     }
-    if (d->character && GET_LEVEL(d->character) >= GET_LEVEL(ch)) {
+    if (d->creature && GET_LEVEL(d->creature) >= GET_LEVEL(ch)) {
         send_to_char(ch, "Umm.. maybe that's not such a good idea...\r\n");
         return;
     }
@@ -3220,9 +3207,9 @@ ACMD(do_wizcut)
 
         for (d = descriptor_list; d; d = d->next) {
 
-            if (d->character) {
+            if (d->creature) {
 
-                if (GET_LEVEL(d->character) <= level) {
+                if (GET_LEVEL(d->creature) <= level) {
                     close_socket(d);
                 }
             }
@@ -3304,29 +3291,39 @@ ACMD(do_date)
 
 ACMD(do_last)
 {
-    struct char_file_u chdata;
+	int pid;
+	Creature *vict;
 
     one_argument(argument, arg);
     if (!*arg) {
         send_to_char(ch, "For whom do you wish to search?\r\n");
         return;
     }
-    if (load_char(arg, &chdata) < 0) {
+	pid = playerIndex.getID(arg);
+    if (pid < 0) {
         send_to_char(ch, "There is no such player.\r\n");
         return;
     }
-    if ((chdata.level > GET_LEVEL(ch)) && (GET_LEVEL(ch) < LVL_GRIMP)) {
+	vict = new Creature;
+	if (!vict->loadFromXML(pid)) {
+		send_to_char(ch, "There was an error.\r\n");
+		slog("problems loading character.");
+		delete vict;
+		return;
+	}
+    if ((GET_LEVEL(vict) > GET_LEVEL(ch)) && (GET_LEVEL(ch) < LVL_GRIMP)) {
         send_to_char(ch, "You are not sufficiently godly for that!\r\n");
+		delete vict;
         return;
     }
     send_to_char(ch, "[%5ld] [%2d %s] %-12s : %-18s : %-20s",
-        chdata.char_specials_saved.idnum, (int)chdata.level,
-        char_class_abbrevs[(int)chdata.char_class], chdata.name,
-        GET_LEVEL(ch) > LVL_ETERNAL ? chdata.host : "Unknown",
-        ctime(&chdata.last_logon));
-    if (GET_LEVEL(ch) >= chdata.level &&
-        has_mail(chdata.char_specials_saved.idnum))
+        GET_IDNUM(vict), GET_LEVEL(vict),
+        char_class_abbrevs[GET_CLASS(vict)], GET_NAME(vict),
+        GET_LEVEL(ch) > LVL_ETERNAL ? vict->host : "Unknown",
+        ctime(&(vict->player.time.logon)));
+    if (GET_LEVEL(ch) >= GET_LEVEL(vict) && has_mail(GET_IDNUM(vict)))
         send_to_char(ch, "Player has unread mail.\r\n");
+	delete vict;
 }
 
 
@@ -3377,7 +3374,7 @@ ACMD(do_force)
         for (i = descriptor_list; i; i = next_desc) {
             next_desc = i->next;
 
-            if (STATE(i) || !(vict = i->character) ||
+            if (STATE(i) || !(vict = i->creature) ||
                 GET_LEVEL(vict) >= GET_LEVEL(ch))
                 continue;
             act(buf1, TRUE, ch, NULL, vict, TO_VICT);
@@ -3434,24 +3431,24 @@ ACMD(do_wiznet)
         break;
     case '@':
         for (d = descriptor_list; d; d = d->next) {
-            if (STATE(d) == CON_PLAYING && GET_LEVEL(d->character) >=
+            if (STATE(d) == CXN_PLAYING && GET_LEVEL(d->creature) >=
                 (subcmd == SCMD_IMMCHAT ? LVL_AMBASSADOR : LVL_DEMI) &&
                 ((subcmd == SCMD_IMMCHAT &&
-                        !PRF2_FLAGGED(d->character, PRF2_NOIMMCHAT)) ||
+                        !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT)) ||
                     (subcmd == SCMD_WIZNET &&
-                        Security::isMember(d->character, "WizardBasic") &&
-                        !PRF_FLAGGED(d->character, PRF_NOWIZ))) &&
-                (can_see_creature(ch, d->character) || GET_LEVEL(ch) == LVL_GRIMP)) {
+                        Security::isMember(d->creature, "WizardBasic") &&
+                        !PRF_FLAGGED(d->creature, PRF_NOWIZ))) &&
+                (can_see_creature(ch, d->creature) || GET_LEVEL(ch) == LVL_GRIMP)) {
                 if (!any) {
                     sprintf(buf1, "Gods online:\r\n");
                     any = TRUE;
                 }
-                sprintf(buf1, "%s  %s", buf1, GET_NAME(d->character));
-                if (PLR_FLAGGED(d->character, PLR_WRITING))
+                sprintf(buf1, "%s  %s", buf1, GET_NAME(d->creature));
+                if (PLR_FLAGGED(d->creature, PLR_WRITING))
                     sprintf(buf1, "%s (Writing)\r\n", buf1);
-                else if (PLR_FLAGGED(d->character, PLR_MAILING))
+                else if (PLR_FLAGGED(d->creature, PLR_MAILING))
                     sprintf(buf1, "%s (Writing mail)\r\n", buf1);
-                else if (PLR_FLAGGED(d->character, PLR_OLC))
+                else if (PLR_FLAGGED(d->creature, PLR_OLC))
                     sprintf(buf1, "%s (Creating)\r\n", buf1);
                 else
                     sprintf(buf1, "%s\r\n", buf1);
@@ -3464,19 +3461,19 @@ ACMD(do_wiznet)
 
         any = FALSE;
         for (d = descriptor_list; d; d = d->next) {
-            if (STATE(d) == CON_PLAYING
-                && GET_LEVEL(d->character) >= LVL_AMBASSADOR
+            if (STATE(d) == CXN_PLAYING
+                && GET_LEVEL(d->creature) >= LVL_AMBASSADOR
                 && ((subcmd == SCMD_IMMCHAT
-                        && PRF2_FLAGGED(d->character, PRF2_NOIMMCHAT))
+                        && PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
                     || (subcmd == SCMD_WIZNET
-                        && Security::isMember(d->character, "WizardBasic")
-                        && PRF_FLAGGED(d->character, PRF_NOWIZ)))
-                && can_see_creature(ch, d->character)) {
+                        && Security::isMember(d->creature, "WizardBasic")
+                        && PRF_FLAGGED(d->creature, PRF_NOWIZ)))
+                && can_see_creature(ch, d->creature)) {
                 if (!any) {
                     sprintf(buf1, "%sGods offline:\r\n", buf1);
                     any = TRUE;
                 }
-                send_to_char(ch, "%s  %s\r\n", buf1, GET_NAME(d->character));
+                send_to_char(ch, "%s  %s\r\n", buf1, GET_NAME(d->creature));
             }
         }
         return;
@@ -3528,27 +3525,27 @@ ACMD(do_wiznet)
     }
 
     for (d = descriptor_list; d; d = d->next) {
-        if ((STATE(d) == CON_PLAYING) && (GET_LEVEL(d->character) >= level) &&
+        if ((STATE(d) == CXN_PLAYING) && (GET_LEVEL(d->creature) >= level) &&
             (subcmd != SCMD_WIZNET
-                || Security::isMember(d->character, "WizardBasic"))
-            && (subcmd != SCMD_WIZNET || !PRF_FLAGGED(d->character, PRF_NOWIZ))
+                || Security::isMember(d->creature, "WizardBasic"))
+            && (subcmd != SCMD_WIZNET || !PRF_FLAGGED(d->creature, PRF_NOWIZ))
             && (subcmd != SCMD_IMMCHAT
-                || !PRF2_FLAGGED(d->character, PRF2_NOIMMCHAT))
-            && (!PLR_FLAGGED(d->character,
+                || !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
+            && (!PLR_FLAGGED(d->creature,
                     PLR_WRITING | PLR_MAILING | PLR_OLC))
-            && (d != ch->desc || !(PRF_FLAGGED(d->character, PRF_NOREPEAT)))) {
+            && (d != ch->desc || !(PRF_FLAGGED(d->creature, PRF_NOREPEAT)))) {
 
             if (subcmd == SCMD_IMMCHAT) {
-                send_to_char(d->character, CCYEL(d->character, C_SPR));
+                send_to_char(d->creature, CCYEL(d->creature, C_SPR));
             } else {
-                send_to_char(d->character, CCCYN(d->character, C_SPR));
+                send_to_char(d->creature, CCCYN(d->creature, C_SPR));
             }
-            if (can_see_creature(d->character, ch))
-                send_to_char(d->character, "%s", buf1);
+            if (can_see_creature(d->creature, ch))
+                send_to_char(d->creature, "%s", buf1);
             else
-                send_to_char(d->character, "%s", buf2);
+                send_to_char(d->creature, "%s", buf2);
 
-            send_to_char(d->character, CCNRM(d->character, C_SPR));
+            send_to_char(d->creature, CCNRM(d->creature, C_SPR));
         }
     }
 
@@ -3748,7 +3745,7 @@ ACMD(do_wizutil)
             slog("SYSERR: Unknown subcmd passed to do_wizutil (act.wizard.c)");
             break;
         }
-        save_char(vict, NULL);
+        vict->saveToXML();
     }
 }
 
@@ -3892,7 +3889,7 @@ do_show_stats(struct Creature *ch)
 
     sprintf(buf, "Current statistics of Tempus:\r\n");
     sprintf(buf, "%s  %5d players in game  %5d connected\r\n", buf, i, con);
-    sprintf(buf, "%s  %5d registered\r\n", buf, top_of_p_table + 1);
+    sprintf(buf, "%s  %5d registered\r\n", buf, playerIndex.size());
     sprintf(buf, "%s  %5d mobiles          %5d prototypes (%d id'd)\r\n",
         buf, j, top_of_mobt + 1, current_mob_idnum);
     sprintf(buf, "%s  %5d objects          %5d prototypes\r\n",
@@ -3938,15 +3935,10 @@ show_wizcommands(Creature *ch)
 void
 show_player(Creature *ch, char *value)
 {
-    struct char_file_u vbuf;
-    struct rent_info rent;
-    FILE *fl;
-
+    Creature *vict;
     char birth[80];
     char last_login[80];
     char remort_desc[80];
-    char fname[MAX_INPUT_LENGTH];
-    char rent_type[80];
     long idnum = 0;
 
     if (!*value) {
@@ -3955,169 +3947,69 @@ show_player(Creature *ch, char *value)
     }
 
     /* added functionality for show player by idnum */
-    if (is_number(value) && get_name_by_id(atoi(value))) {
-        strcpy(value, get_name_by_id(atoi(value)));
+    if (is_number(value) && playerIndex.getName(atoi(value))) {
+        strcpy(value, playerIndex.getName(atoi(value)));
     }
-    if (load_char(value, &vbuf) < 0) {
+    if (!playerIndex.exists(value)) {
         send_to_char(ch, "There is no such player.\r\n");
         return;
     }
 
-    idnum = vbuf.char_specials_saved.idnum;
-    // Load up the players rent info and check whether or not he is cryo'd
+    idnum = playerIndex.getID(value);
+	vict = new Creature;
+	vict->loadFromXML(idnum);
 
-    if (!get_filename(vbuf.name, fname, CRASH_FILE)) {
-        slog("Failed get_filename() in show_player().\r\n");
-    }
-
-    if (!(fl = fopen(fname, "rb"))) {
-        sprintf(buf1, "%s has no rent file!", vbuf.name);
-        slog(buf1);
-    }
-
-
-    if (fl != NULL) {
-        if (!feof(fl)) {
-            fread(&rent, sizeof(struct rent_info), 1, fl);
-        }
-        fclose(fl);
-    }
-
-    if (get_char_in_world_by_idnum(idnum) &&
-        GET_INVIS_LVL(get_char_in_world_by_idnum(idnum)) < GET_LEVEL(ch)) {
-        strcpy(rent_type, CCYEL(ch, C_NRM));
-        strcat(rent_type, "In Game.");
-    } else {
-        switch (rent.rentcode) {
-        case RENT_CRASH:
-            strcpy(rent_type, CCRED(ch, C_NRM));
-            strcat(rent_type, "Crash");
-            break;
-        case RENT_RENTED:
-            strcpy(rent_type, "Rented");
-            break;
-        case RENT_CRYO:
-            strcpy(rent_type, CCCYN(ch, C_NRM));
-            strcat(rent_type, "Cryo'd");
-            break;
-        case RENT_FORCED:
-            strcpy(rent_type, CCGRN(ch, C_NRM));
-            strcat(rent_type, "Force");
-            break;
-        case RENT_TIMEDOUT:
-            strcpy(rent_type, CCGRN(ch, C_NRM));
-            strcat(rent_type, "Timed Out");
-            break;
-        default:
-            strcpy(rent_type, CCRED(ch, C_NRM));
-            strcat(rent_type, "Undefined");
-        }
-    }
-
-    if (vbuf.player_specials_saved.remort_generation <= 0) {
+    if (GET_REMORT_GEN(vict) <= 0) {
         strcpy(remort_desc, "");
     } else {
         sprintf(remort_desc, "/%s",
-            char_class_abbrevs[(int)vbuf.remort_char_class]);
+            char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
-    sprintf(buf, "Player: %-12s (%s) [%2d %s %s%s]  Gen: %d", vbuf.name,
-        genders[(int)vbuf.sex], vbuf.level, player_race[(int)vbuf.race],
-        char_class_abbrevs[(int)vbuf.char_class], remort_desc,
-        vbuf.player_specials_saved.remort_generation);
-    sprintf(buf, "%s  Rent: %s%s\r\n", buf, rent_type, CCNRM(ch, C_NRM));
+    sprintf(buf, "Player: %-12s (%s) [%2d %s %s%s]  Gen: %d", GET_NAME(vict),
+		genders[GET_SEX(vict)], GET_LEVEL(vict), player_race[GET_RACE(vict)],
+		char_class_abbrevs[GET_CLASS(vict)], remort_desc, GET_REMORT_GEN(vict));
+    sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
-        "%sAu: %-8d  Bal: %-8d  Exp: %-8d  Align: %-5d  Pracs: %-3d\r\n",
-        buf, vbuf.points.gold, vbuf.points.bank_gold, vbuf.points.exp,
-        vbuf.char_specials_saved.alignment,
-        vbuf.player_specials_saved.spells_to_learn);
+        "%sAu: %-8d  Bal: %-8lld  Exp: %-8d  Align: %-5d  Pracs: %-3d\r\n",
+        buf, GET_GOLD(vict), GET_PAST_BANK(vict), GET_EXP(vict),
+		GET_ALIGNMENT(vict), GET_PRACTICES(vict));
     // Trim and fit the date to show year but not seconds.
-    strcpy(birth, ctime(&vbuf.birth));
+    strcpy(birth, ctime(&vict->player.time.birth));
     strcpy(birth + 16, birth + 19);
     birth[21] = '\0';
-    if (vbuf.level > GET_LEVEL(ch)) {
+    if (GET_LEVEL(ch) > GET_LEVEL(ch)) {
         strcpy(last_login, "Unknown");
     } else {
         // Trim and fit the date to show year but not seconds.
-        strcpy(last_login, ctime(&vbuf.last_logon));
+        strcpy(last_login, ctime(&vict->player.time.logon));
         strcpy(last_login + 16, last_login + 19);
         last_login[21] = '\0';
     }
     sprintf(buf,
         "%sStarted: %-22.21s Last: %-22.21s Played: %3dh %2dm\r\n",
-        buf, birth, last_login, (int)(vbuf.played / 3600),
-        (int)(vbuf.played / 60 % 60));
+        buf, birth, last_login, (int)(vict->player.time.played / 3600),
+        (int)(vict->player.time.played / 60 % 60));
 
-    if (IS_SET(vbuf.char_specials_saved.act, PLR_FROZEN))
+    if (IS_SET(vict->char_specials.saved.act, PLR_FROZEN))
         sprintf(buf, "%s%s%s is FROZEN!%s\r\n", buf, CCCYN(ch, C_NRM),
-            vbuf.name, CCNRM(ch, C_NRM));
+            GET_NAME(vict), CCNRM(ch, C_NRM));
 
-    if (IS_SET(vbuf.player_specials_saved.plr2_bits, PLR2_BURIED))
+    if (IS_SET(vict->player_specials->saved.plr2_bits, PLR2_BURIED))
         sprintf(buf, "%s%s%s is BURIED!%s\r\n", buf, CCGRN(ch, C_NRM),
-            vbuf.name, CCNRM(ch, C_NRM));
+            GET_NAME(vict), CCNRM(ch, C_NRM));
 
-    if (IS_SET(vbuf.char_specials_saved.act, PLR_DELETED))
+    if (IS_SET(vict->char_specials.saved.act, PLR_DELETED))
         sprintf(buf, "%s%s%s is DELETED!%s\r\n", buf, CCRED(ch, C_NRM),
-            vbuf.name, CCNRM(ch, C_NRM));
+            GET_NAME(vict), CCNRM(ch, C_NRM));
     send_to_char(ch, "%s", buf);
+
+	delete vict;
 }
 
 void
 show_multi(Creature *ch, char *arg)
 {
-    struct char_file_u *whole_file, *cur_pl;
-    struct char_file_u chdata;
-    int pl_idx, dot_pos;
-    int players_listed = 0;
-
-    if (!*arg) {
-        send_to_char(ch, "For whom do you wish to search?\r\n");
-        return;
-    }
-    if (load_char(arg, &chdata) < 0) {
-        send_to_char(ch, "There is no such player.\r\n");
-        return;
-    }
-    if ((chdata.level > GET_LEVEL(ch)) && (GET_LEVEL(ch) < LVL_GRIMP)) {
-        send_to_char(ch, "You are not sufficiently godly for that!\r\n");
-        return;
-    }
-
-    sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s",
-        chdata.char_specials_saved.idnum, (int)chdata.level,
-        char_class_abbrevs[(int)chdata.char_class], chdata.name,
-        GET_LEVEL(ch) > LVL_ETERNAL ? chdata.host : "Unknown",
-        ctime(&chdata.last_logon));
-
-    dot_pos = (strrchr(chdata.host, '.') - chdata.host) - 1;
-
-    // Now we load in the whole player file, looking for matches
-    pl_idx = top_of_p_table + 1;
-    CREATE(whole_file, struct char_file_u, pl_idx);
-    fseek(player_fl, 0, SEEK_SET);
-    if ((int)fread(whole_file, sizeof(struct char_file_u), pl_idx,
-            player_fl) != pl_idx) {
-        send_to_char(ch, "Didn't read the right number of records.\r\n");
-        return;
-    }
-    for (cur_pl = whole_file; pl_idx && players_listed < 300;
-        cur_pl++, pl_idx--) {
-        if (cur_pl->char_specials_saved.idnum == GET_IDNUM(ch)
-            || cur_pl->char_specials_saved.idnum ==
-            chdata.char_specials_saved.idnum) {
-            continue;
-        }
-        if (!strncmp(cur_pl->host, chdata.host, dot_pos)
-            && cur_pl->level <= GET_LEVEL(ch)) {
-            sprintf(buf, "%s[%5ld] [%2d %s] %-12s : %-18s : %-20s", buf,
-                cur_pl->char_specials_saved.idnum, (int)cur_pl->level,
-                char_class_abbrevs[(int)cur_pl->char_class], cur_pl->name,
-                GET_LEVEL(ch) > LVL_ETERNAL ? cur_pl->host : "Unknown",
-                ctime(&cur_pl->last_logon));
-            ++players_listed;
-        }
-    }
-    free(whole_file);
-    page_string(ch->desc, buf);
+	send_to_char(ch, "show multi has been removed.\r\n");
 }
 
 void
@@ -4142,7 +4034,7 @@ show_zoneusage(Creature *ch, char *value)
                 C_NRM), zone->name, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
             CCNRM(ch, C_NRM), zone->enter_count, CCGRN(ch, C_NRM), CCNRM(ch,
                 C_NRM), zone->idle_time, CCYEL(ch, C_NRM),
-            get_name_by_id(zone->owner_idnum), CCNRM(ch, C_NRM));
+            playerIndex.getName(zone->owner_idnum), CCNRM(ch, C_NRM));
     }
 
     page_string(ch->desc, buf);
@@ -4191,7 +4083,7 @@ show_topzones(Creature *ch, char *value)
             CCCYN(ch, C_NRM), topzones[i]->name, CCNRM(ch, C_NRM), CCGRN(ch,
                 C_NRM), CCNRM(ch, C_NRM), topzones[i]->enter_count, CCGRN(ch,
                 C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
-            get_name_by_id(topzones[i]->owner_idnum), CCNRM(ch, C_NRM));
+            playerIndex.getName(topzones[i]->owner_idnum), CCNRM(ch, C_NRM));
 
     free(topzones);
     page_string(ch->desc, buf);
@@ -4517,14 +4409,14 @@ ACMD(do_show)
                 }
             } else if (strcasecmp("owner", value) == 0 && tokens.next(value)) {    // Show by name
                 for (zone = zone_table; zone; zone = zone->next) {
-                    const char *ownerName = get_name_by_id(zone->owner_idnum);
+                    const char *ownerName = playerIndex.getName(zone->owner_idnum);
                     if (ownerName && strcasecmp(value, ownerName) == 0) {
                         print_zone_to_buf(ch, buf, zone);
                     }
                 }
             } else if (strcasecmp("co-owner", value) == 0 && tokens.next(value)) {    // Show by name
                 for (zone = zone_table; zone; zone = zone->next) {
-                    const char *ownerName = get_name_by_id(zone->co_owner_idnum);
+                    const char *ownerName = playerIndex.getName(zone->co_owner_idnum);
                     if (ownerName && strcasecmp(value, ownerName) == 0) {
                         print_zone_to_buf(ch, buf, zone);
                     }
@@ -4631,25 +4523,21 @@ ACMD(do_show)
                 send_to_char(ch, 
                     "Getting that data from file requires basic administrative rights.\r\n");
             } else {
-                struct char_file_u tmp_store;
-                CREATE(vict, struct Creature, 1);
-                clear_char(vict);
-                if (load_char(value, &tmp_store) > -1) {
-                    store_to_char(&tmp_store, vict);
-                    if (GET_LEVEL(vict) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
-                        send_to_char(ch, "Sorry, you can't do that.\r\n");
-                    else
-                        list_skills_to_char(ch, vict);
-                    free_char(vict);
-                } else {
+                vict = new Creature;
+				if (!playerIndex.exists(value))
                     send_to_char(ch, "There is no such player.\r\n");
-                    free(vict);
-                }
+                else if (!vict->loadFromXML(playerIndex.getID(value)))
+					send_to_char(ch, "Error loading player.\r\n");
+				else if (GET_LEVEL(vict) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
+					send_to_char(ch, "Sorry, you can't do that.\r\n");
+				else
+					list_skills_to_char(ch, vict);
+				delete vict;
                 vict = NULL;
             }
         } else if (IS_MOB(vict)) {
             send_to_char(ch, "Mobs don't have skills.  All mobs are assumed to\r\n"
-                "have a (50 + level)% skill proficiency.\r\n");
+                "have a (50 + level)%% skill proficiency.\r\n");
         } else {
             list_skills_to_char(ch, vict);
         }
@@ -4827,14 +4715,14 @@ ACMD(do_show)
         }
 
         if ((tmp_d = vict->desc)) {
-            tmp_d->character = NULL;
+            tmp_d->creature = NULL;
         }
-        ch->desc->character = vict;
+        ch->desc->creature = vict;
         vict->desc = ch->desc;
         do_equipment(vict, arg, 0, SCMD_IMPLANTS, 0);
-        ch->desc->character = ch;
+        ch->desc->creature = ch;
         if ((vict->desc = tmp_d))
-            tmp_d->character = vict;
+            tmp_d->creature = vict;
         break;
 
     case 30:                    /*paths */
@@ -5123,7 +5011,7 @@ ACMD(do_show)
         strcpy(buf, "Last cmds:\r\n");
         for (i = 0; i < NUM_SAVE_CMDS; i++)
             sprintf(buf, "%s %2d. (%4d) %25s - '%s'\r\n", buf,
-                i, last_cmd[i].idnum, get_name_by_id(last_cmd[i].idnum),
+                i, last_cmd[i].idnum, playerIndex.getName(last_cmd[i].idnum),
                 last_cmd[i].string);
 
         page_string(ch->desc, buf);
@@ -5188,30 +5076,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
     case 49:                    // p_index
-        j = k = 0;
-        if (*value) {
-            j = atoi(value);
-            if (*arg) {
-                k = atoi(arg);
-                if (k < j) {
-                    send_to_char(ch, 
-                        "The top value must be greater than the first.\r\n");
-                    return;
-                }
-            }
-        }
-        strcpy(buf, "Player Index:\r\n");
-        for (i = 0; i <= top_of_p_table; i++) {
-            if (j && player_table[i].id < j)
-                continue;
-            if (k && player_table[i].id > k)
-                continue;
-            if (strlen(buf) > MAX_STRING_LENGTH - 64)
-                break;
-            sprintf(buf, "%s %3d. [%5ld] %s\r\n", buf, i, player_table[i].id,
-                player_table[i].name);
-        }
-        page_string(ch->desc, buf);
+		send_to_char(ch, "Disabled.");
         break;
 
 #define ZEXITS_USAGE "Usage: zexit <f|t> <zone>\r\n"
@@ -5345,12 +5210,10 @@ ACMD(do_set)
     struct room_data *room;
     struct Creature *vict = NULL, *vict2 = NULL;
     struct Creature *cbuf = NULL;
-    struct char_file_u tmp_store;
     char *field, *name;
     char *arg1, *arg2;
     int on = 0, off = 0, value = 0;
     char is_file = 0, is_mob = 0, is_player = 0;
-    int player_i = 0;
     int parse_char_class(char *arg);
     int parse_race(char *arg);
 
@@ -5504,21 +5367,19 @@ ACMD(do_set)
             }
         }
     } else if (is_file) {
-        CREATE(cbuf, struct Creature, 1);
-        clear_char(cbuf);
-        if ((player_i = load_char(name, &tmp_store)) > -1) {
-            store_to_char(&tmp_store, cbuf);
-            if (GET_LEVEL(cbuf) >= GET_LEVEL(ch) && GET_IDNUM(ch) != 1) {
-                free_char(cbuf);
-                send_to_char(ch, "Sorry, you can't do that.\r\n");
-                return;
-            }
-            vict = cbuf;
-        } else {
-            free(cbuf);
+        cbuf = new Creature;
+		if (!playerIndex.exists(name))
             send_to_char(ch, "There is no such player.\r\n");
-            return;
-        }
+		else if (!cbuf->loadFromXML(playerIndex.getID(name)))
+			send_to_char(ch, "Error loading player file.\r\n");
+		else if (GET_LEVEL(cbuf) >= GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
+			send_to_char(ch, "Sorry, you can't do that.\r\n");
+        else
+            vict = cbuf;
+		if (vict != cbuf) {
+			delete cbuf;
+			return;
+		}
     }
 
     if (GET_LEVEL(ch) < LVL_LUCIFER) {
@@ -5683,7 +5544,8 @@ ACMD(do_set)
         GET_GOLD(vict) = RANGE(0, 1000000000);
         break;
     case 20:
-        GET_BANK_GOLD(vict) = RANGE(0, 1000000000);
+		if (vict->account)
+			vict->account->set_past_bank(value);
         break;
     case 21:
         vict->points.exp = RANGE(0, 1500000000);
@@ -5840,9 +5702,7 @@ ACMD(do_set)
             send_to_char(ch, "You cannot change that.\r\n");
             return;
         }
-        strncpy(tmp_store.pwd, CRYPT(argument, tmp_store.name), MAX_PWD_LENGTH);
-        tmp_store.pwd[MAX_PWD_LENGTH] = '\0';
-        sprintf(buf, "Password changed to '%s'.", argument);
+		send_to_char(ch, "Disabled.");
         break;
     case 46:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NODELETE);
@@ -5888,8 +5748,8 @@ ACMD(do_set)
     case 52:
         SET_OR_REMOVE(PRF_FLAGS(vict), PRF_NOSNOOP);
         if (!is_file && vict->desc->snoop_by) {
-            send_to_char(vict->desc->snoop_by->character, "Your snooping session has ended.\r\n");
-            stop_snooping(vict->desc->snoop_by->character);
+            send_to_char(vict->desc->snoop_by->creature, "Your snooping session has ended.\r\n");
+            stop_snooping(vict->desc->snoop_by->creature);
         }
         break;
     case 53:
@@ -5913,7 +5773,7 @@ ACMD(do_set)
         break;
     case 57:
     case 58:
-        GET_PAGE_LENGTH(vict) = RANGE(1, 200);
+		send_to_char(ch, "Disabled.\r\n");
         break;
     case 59:
         if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
@@ -6065,7 +5925,8 @@ ACMD(do_set)
         CHAR_SOILAGE(vict, i) = atoi(arg2);
         break;
     case 92:
-        GET_ECONET(vict) = RANGE(0, 1000000000);
+		if (vict->account)
+			vict->account->set_future_bank(value);
         break;
     case 93:                    // specialization
         arg1 = tmp_getword(&argument);
@@ -6153,14 +6014,11 @@ ACMD(do_set)
     } else
         send_to_char(ch, "%s\r\n", buf);
 
-    if (!is_file && !IS_NPC(vict))
-        save_char(vict, NULL);
+    if (!IS_NPC(vict))
+        vict->saveToXML();
 
     if (is_file) {
-        char_to_store(vict, &tmp_store);
-        fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
-        fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
-        free_char(cbuf);
+        delete cbuf;
         send_to_char(ch, "Saved in file.\r\n");
     }
 }
@@ -6741,7 +6599,7 @@ ACMD(do_mudwipe)
         CreatureList::iterator mit = characterList.begin();
         for (; mit != characterList.end(); ++mit) {
             if (IS_NPC(*mit)) {
-                (*mit)->extract(true, false, CON_MENU);
+                (*mit)->extract(true, false, CXN_MENU);
             }
         }
         send_to_char(ch, "DONE.  Mud cleaned of all mobiles.\r\n");
@@ -6794,7 +6652,7 @@ ACMD(do_zonepurge)
             CreatureList::iterator it = rm->people.begin();
             for (; it != rm->people.end(); ++it) {
                 if (IS_MOB((*it))) {
-                    (*it)->extract(true, false, CON_MENU);
+                    (*it)->extract(true, false, CXN_MENU);
                     mob_count++;
                 } else {
                     send_to_char(*it, "You feel a rush of heat wash over you!\r\n");
@@ -6895,7 +6753,7 @@ ACMD(do_oset)
         if (equip_char(vict, obj, where_worn, internal))
             return;
         if (!IS_NPC(vict))
-            save_char(vict, NULL);
+            vict->saveToXML();
     }
 
 }
@@ -7576,13 +7434,7 @@ ACMD(do_coderutil)
         return;
     }
 
-    if( strcmp( token, "export" )  == 0 ) {
-        if(ch->getLevel() < 72 ){
-            send_to_char(ch, "You can't do that here.\r\n");
-        } else {
-            export_player_table(ch);
-        }
-    } else if( strcmp( token, "reload" )  == 0 ) {
+    if( strcmp( token, "reload" )  == 0 ) {
         playerIndex.clear();
         build_player_table();
         send_to_char(ch, "Reloaded.\r\n");
@@ -7649,7 +7501,7 @@ ACMD(do_tester)
                   GET_HIT(ch) = GET_MAX_HIT(ch);
                   GET_MANA(ch) = GET_MAX_MANA(ch);
                   GET_MOVE(ch) = GET_MAX_MOVE(ch);
-                  save_char(ch, NULL);
+                  ch->saveToXML();
             }
             break;
         case 1:                    /* unaffect */

@@ -463,9 +463,9 @@ do_destroy_object(struct Creature *ch, int vnum)
 	REMOVE_FROM_LIST(obj, obj_proto, next);
 
 	for (d = descriptor_list; d; d = d->next)
-		if (d->character && GET_OLC_OBJ(d->character) == obj) {
-			GET_OLC_OBJ(d->character) = NULL;
-			send_to_char(d->character, "The object you were editing has been destroyed!\r\n");
+		if (d->creature && GET_OLC_OBJ(d->creature) == obj) {
+			GET_OLC_OBJ(d->creature) = NULL;
+			send_to_char(d->creature, "The object you were editing has been destroyed!\r\n");
 			break;
 		}
 #ifdef DMALLOC

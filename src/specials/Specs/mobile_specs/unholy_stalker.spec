@@ -14,7 +14,7 @@ SPECIAL(unholy_stalker)
 	if (!HUNTING(mob) && !FIGHTING(mob)) {
 		act("$n dematerializes, returning to the negative planes.", TRUE, mob,
 			0, 0, TO_ROOM);
-		mob->extract(true, false, CON_MENU);
+		mob->extract(true, false, CXN_MENU);
 		return 1;
 	}
 

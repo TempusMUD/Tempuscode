@@ -29,6 +29,7 @@
 #include "screen.h"
 #include "flow_room.h"
 #include "specs.h"
+#include "player_table.h"
 
 #define MAX_TICL_LENGTH 4000
 
@@ -186,9 +187,9 @@ do_ticl_tedit(struct Creature *ch, char *argument)
 			}
 
 			for (d = descriptor_list; d; d = d->next) {
-				if (d->character && GET_OLC_TICL(d->character) == tmp_ticl) {
+				if (d->creature && GET_OLC_TICL(d->creature) == tmp_ticl) {
 					act("$N is already editing that TICL proc.", FALSE, ch, 0,
-						d->character, TO_CHAR);
+						d->creature, TO_CHAR);
 					return;
 				}
 			}
@@ -227,13 +228,13 @@ do_ticl_tstat(struct Creature *ch)
 			ticl->title,
 			CCNRM(ch, C_NRM),
 			CCYEL(ch, C_NRM),
-			get_name_by_id(ticl->creator),
+			playerIndex.getName(ticl->creator),
 			CCNRM(ch, C_NRM),
 			CCGRN(ch, C_NRM),
 			tim1,
 			CCNRM(ch, C_NRM),
 			CCYEL(ch, C_NRM),
-			get_name_by_id(ticl->last_modified_by),
+			playerIndex.getName(ticl->last_modified_by),
 			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), tim2, CCNRM(ch, C_NRM));
 
 		send_to_char(ch, "%s", buf);

@@ -203,8 +203,6 @@ int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 
 int choose_random_limb(Creature *victim);
 
-extern FILE *player_fl;
-
 #endif
 #ifdef __fight_c__
 /* Structures */

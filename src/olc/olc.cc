@@ -727,9 +727,9 @@ ACMD(do_olc)
 				}
 
 				for (d = descriptor_list; d; d = d->next) {
-					if (d->character && GET_OLC_OBJ(d->character) == tmp_obj) {
+					if (d->creature && GET_OLC_OBJ(d->creature) == tmp_obj) {
 						act("$N is already editing that object.", FALSE, ch, 0,
-							d->character, TO_CHAR);
+							d->creature, TO_CHAR);
 						return;
 					}
 				}

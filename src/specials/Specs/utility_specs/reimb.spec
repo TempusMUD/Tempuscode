@@ -264,9 +264,9 @@ SPECIAL(reimb)
 					gain_exp_regardless(ch,
 						titles[(int)GET_CLASS(ch)][data[i].level].exp -
 						GET_EXP(ch));
-				save_char(ch, NULL);
+				ch->saveToXML();
 				GET_GOLD(ch) = data->gold;
-				GET_BANK_GOLD(ch) = data->bank;
+				GET_PAST_BANK(ch) = data->bank;
 				GET_HIT(ch) = GET_MAX_HIT(ch);
 				GET_MANA(ch) = GET_MAX_MANA(ch);
 				GET_MOVE(ch) = GET_MAX_MOVE(ch);

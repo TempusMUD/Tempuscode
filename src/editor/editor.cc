@@ -23,13 +23,14 @@ using namespace std;
 #include "mail.h"
 #include "editor.h"
 #include "iscript.h"
+#include "tmpstr.h"
+#include "player_table.h"
 
 static char small_editbuf[MAX_INPUT_LENGTH];
 static char editbuf[MAX_STRING_LENGTH * 2];
 static char tedii_out_buf[MAX_STRING_LENGTH];
 extern struct descriptor_data *descriptor_list;
 
-void set_desc_state(int state, struct descriptor_data *d);
 void voting_add_poll(void);
 
 /* Sets up text editor params and echo's passed in message.
@@ -44,21 +45,21 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage, int 
 	if (!dest) {
 		mudlog(LVL_IMMORT, BRF, true,
 			"SYSERR: NULL destination pointer passed into start_text_editor!!");
-		send_to_char(d->character, "This command seems to be broken. Bug this.\r\n");
-		REMOVE_BIT(PLR_FLAGS(d->character),
+		send_to_char(d->creature, "This command seems to be broken. Bug this.\r\n");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
 	}
 	if (d->text_editor) {
 		mudlog(LVL_IMMORT, BRF, true,
 			"SYSERR: Text editor object not null in start_text_editor.");
-		REMOVE_BIT(PLR_FLAGS(d->character),
+		REMOVE_BIT(PLR_FLAGS(d->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
 	}
 	if (*dest && (strlen(*dest) > (unsigned int)max)) {
-		send_to_char(d->character, "ERROR: Buffer too large for editor.\r\n");
-		REMOVE_BIT(PLR_FLAGS(d->character),
+		send_to_char(d->creature, "ERROR: Buffer too large for editor.\r\n");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
 	}
@@ -73,15 +74,15 @@ start_script_editor(struct descriptor_data *d, list <string> dest,
 	if (&dest == NULL) {
 		mudlog(LVL_IMMORT, BRF, true,
 			"SYSERR: NULL destination pointer passed into start_text_editor!!");
-		send_to_char(d->character, "This command seems to be broken. Bug this.\r\n");
-		REMOVE_BIT(PLR_FLAGS(d->character),
+		send_to_char(d->creature, "This command seems to be broken. Bug this.\r\n");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
 	}
 	if (d->text_editor) {
 		mudlog(LVL_IMMORT, BRF, true,
 			"SYSERR: Text editor object not null in start_text_editor.");
-		REMOVE_BIT(PLR_FLAGS(d->character),
+		REMOVE_BIT(PLR_FLAGS(d->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 		return;
 	}
@@ -102,8 +103,8 @@ CTextEditor::Process(char *inStr)
 		ProcessCommand(inbuf);
 		return;
 	} else if (*inbuf == '@') {	// Finish up
+		REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
 		SaveText(inbuf);
-		REMOVE_BIT(PRF2_FLAGS(desc->character), PRF2_NOWRAP);
 		desc->text_editor = NULL;
 		delete this;
 		return;
@@ -131,8 +132,8 @@ CTextEditor::List(unsigned int startline)
 
 	for (i = startline; itr != theText.end(); i++, itr++, num_lines++) {
 		sprintf(tedii_out_buf, "%-2d%s%s]%s ", i,
-			CCBLD(desc->character, C_CMP),
-			CCBLU(desc->character, C_NRM), CCNRM(desc->character, C_NRM));
+			CCBLD(desc->creature, C_CMP),
+			CCBLU(desc->creature, C_NRM), CCNRM(desc->creature, C_NRM));
 		strcat(editbuf, tedii_out_buf);
 		strcat(editbuf, itr->c_str());
 		strcat(editbuf, "\r\n");
@@ -183,14 +184,14 @@ CTextEditor::SaveText(char *inStr)
 			free(target);
 		}
 		// Sending Mail
-		else if (PLR_FLAGGED(desc->character, PLR_MAILING)) {
+		else if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			ExportMail();
 			free(*target);
 			free(target);
 		}
 		// Creating a script handler
-		else if ((PLR_FLAGGED(desc->character, PLR_OLC)) && scripting) {
-			desc->character->player_specials->olc_handler->getTheLines() =
+		else if ((PLR_FLAGGED(desc->creature, PLR_OLC)) && scripting) {
+			desc->creature->player_specials->olc_handler->getTheLines() =
 				theText;
 		}
 	}
@@ -209,36 +210,36 @@ CTextEditor::SaveText(char *inStr)
 		desc->mail_to = next_mail;
 	}
 	// If editing thier description.
-	if (STATE(desc) == CON_EXDESC) {
-		SEND_TO_Q("\033[H\033[J", desc);
-		set_desc_state(CON_MENU, desc);
+	if (STATE(desc) == CXN_EDIT_DESC) {
+		send_to_desc(desc, "\033[H\033[J");
+		set_desc_state(CXN_MENU, desc);
 	}
 	// Remove the "using the editor" bits.
-	if (IS_PLAYING(desc) && desc->character && !IS_NPC(desc->character)) {
+	if (IS_PLAYING(desc) && desc->creature && !IS_NPC(desc->creature)) {
 		tedii_out_buf[0] = '\0';
 		// Decide what to say to the room since they're done
-		if (PLR_FLAGGED(desc->character, PLR_WRITING)) {
+		if (PLR_FLAGGED(desc->creature, PLR_WRITING)) {
 			sprintf(tedii_out_buf,
-				"%s finishes writing.", GET_NAME(desc->character));
-		} else if (PLR_FLAGGED(desc->character, PLR_OLC)) {
-			sprintf(tedii_out_buf,
-				"%s nods with satisfaction as $e saves $s work.",
-				GET_NAME(desc->character));
-		} else if ((PLR_FLAGGED(desc->character, PLR_OLC)) && scripting) {
+				"%s finishes writing.", GET_NAME(desc->creature));
+		} else if (PLR_FLAGGED(desc->creature, PLR_OLC)) {
 			sprintf(tedii_out_buf,
 				"%s nods with satisfaction as $e saves $s work.",
-				GET_NAME(desc->character));
-		} else if (PLR_FLAGGED(desc->character, PLR_MAILING)
-			&& GET_LEVEL(desc->character) >= LVL_AMBASSADOR) {
+				GET_NAME(desc->creature));
+		} else if ((PLR_FLAGGED(desc->creature, PLR_OLC)) && scripting) {
+			sprintf(tedii_out_buf,
+				"%s nods with satisfaction as $e saves $s work.",
+				GET_NAME(desc->creature));
+		} else if (PLR_FLAGGED(desc->creature, PLR_MAILING)
+			&& GET_LEVEL(desc->creature) >= LVL_AMBASSADOR) {
 			sprintf(tedii_out_buf,
 				"%s postmarks and dispatches $s mail.",
-				GET_NAME(desc->character));
+				GET_NAME(desc->creature));
 		}
 		// Let the room know that they're done
 		if (tedii_out_buf[0] != '\0') {
-			act(tedii_out_buf, TRUE, desc->character, 0, 0, TO_NOTVICT);
+			act(tedii_out_buf, TRUE, desc->creature, 0, 0, TO_NOTVICT);
 		}
-		REMOVE_BIT(PLR_FLAGS(desc->character),
+		REMOVE_BIT(PLR_FLAGS(desc->creature),
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 	}
 }
@@ -275,7 +276,7 @@ CTextEditor::ExportMail(void)
 
 		strcpy(cc_list, "  CC: ");
 		for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next) {
-			strcat(cc_list, get_name_by_id(mail_rcpt->recpt_idnum));
+			strcat(cc_list, playerIndex.getName(mail_rcpt->recpt_idnum));
 			if (mail_rcpt->next)
 				strcat(cc_list, ", ");
 			else
@@ -285,16 +286,16 @@ CTextEditor::ExportMail(void)
 	mail_rcpt = desc->mail_to;
 	while (mail_rcpt) {
 		stored_mail =
-			store_mail(mail_rcpt->recpt_idnum, GET_IDNUM(desc->character),
+			store_mail(mail_rcpt->recpt_idnum, GET_IDNUM(desc->creature),
 			*target, cc_list);
 		if (stored_mail == 1) {
 			for (r_d = descriptor_list; r_d; r_d = r_d->next) {
-				if (IS_PLAYING(r_d) && r_d->character
-					&& r_d->character != desc->character
-					&& GET_IDNUM(r_d->character) == desc->mail_to->recpt_idnum
-					&& !PLR_FLAGGED(r_d->character,
+				if (IS_PLAYING(r_d) && r_d->creature
+					&& r_d->creature != desc->creature
+					&& GET_IDNUM(r_d->creature) == desc->mail_to->recpt_idnum
+					&& !PLR_FLAGGED(r_d->creature,
 						PLR_WRITING | PLR_MAILING | PLR_OLC)) {
-					send_to_char(r_d->character, 
+					send_to_char(r_d->creature, 
 						"A strange voice in your head says, 'You have new mail.'\r\n");
 				}
 			}
@@ -331,7 +332,7 @@ CTextEditor::SaveFile(void)
 		} else {
 			while ((nread = read(file_to_write, filebuf, sizeof(filebuf))) > 0) {
 				if (write(backup_file, filebuf, nread) != nread) {
-					send_to_char(desc->character, "Could not save backup file!!\r\n");
+					send_to_char(desc->creature, "Could not save backup file!!\r\n");
 					break;
 				}
 			}
@@ -364,7 +365,7 @@ CTextEditor::Append(char *inStr)
 		return;
 	}
 	// All tildes must die
-	if ((PLR_FLAGGED(desc->character, PLR_OLC)) && scripting) {
+	if ((PLR_FLAGGED(desc->creature, PLR_OLC)) && scripting) {
 		char *readPt, *writePt;
 
 		readPt = writePt = inStr;
@@ -561,7 +562,7 @@ CTextEditor::Wrap(void)
 	string tempstr;
 	int linebreak;
 
-	if (PRF2_FLAGGED(desc->character, PRF2_NOWRAP)) {
+	if (PRF2_FLAGGED(desc->creature, PRF2_NOWRAP)) {
 		return false;
 	}
 	for (line = theText.begin(); line != theText.end(); line++) {
@@ -713,23 +714,23 @@ void
 CTextEditor::SendMessage(const char *message)
 {
 	char *output = NULL;
-	if (desc == NULL || desc->character == NULL) {
-		slog("SYSERR: TEDII Attempting to SendMessage with null desc or desc->character\r\n");
+	if (desc == NULL || desc->creature == NULL) {
+		slog("SYSERR: TEDII Attempting to SendMessage with null desc or desc->creature\r\n");
 		return;
 	}
 	// If the original message is too long, make a new one thats small
 	if (strlen(message) >= LARGE_BUFSIZE) {
 		sprintf(small_editbuf,
 			"TEDERR: SendMessage Truncating message. NAME(%s) Length(%d)",
-			GET_NAME(desc->character), strlen(message));
+			GET_NAME(desc->creature), strlen(message));
 		slog(small_editbuf);
 		output = (char*) malloc( sizeof(char) * LARGE_BUFSIZE );
 		//output = new char[LARGE_BUFSIZE];
 		strncpy(output, message, LARGE_BUFSIZE - 2);
-		send_to_char(desc->character, output);
+		send_to_char(desc->creature, output);
 		free(output);
 	} else {					// If the original message is small enough, just let it through.
-		send_to_char(desc->character, message);
+		send_to_char(desc->creature, message);
 	}
 }
 
@@ -737,7 +738,7 @@ void
 CTextEditor::SendStartupMessage(void)
 {
 	struct Creature *ch;
-	ch = desc->character;
+	ch = desc->creature;
 
 	sprintf(tedii_out_buf, "%s%s    *", CCBLD(ch, C_CMP), CCCYN(ch, C_NRM));
 	sprintf(tedii_out_buf, "%s%s TEDII ", tedii_out_buf, CCYEL(ch, C_NRM));
@@ -793,21 +794,21 @@ CTextEditor::UpdateSize(void)
 		SendMessage(tedii_out_buf);
 		sprintf(tedii_out_buf,
 			"TEDINF: UpdateSize removed %d lines from buffer. Name(%s) Size(%d) Max(%d)",
-			linesRemoved, GET_NAME(desc->character), curSize, maxSize);
+			linesRemoved, GET_NAME(desc->creature), curSize, maxSize);
 		slog(tedii_out_buf);
 	}
 	// Obvious buffer flow state. This should never happen, but if it does, say something.
 	if (curSize > maxSize) {
 		sprintf(tedii_out_buf,
 			"TEDERR: UpdateSize updated to > maxSize. Name(%s) Size(%d) Max(%d)",
-			GET_NAME(desc->character), curSize, maxSize);
+			GET_NAME(desc->creature), curSize, maxSize);
 		slog(tedii_out_buf);
 	}
 }
 void
 CTextEditor::ProcessHelp(char *inStr)
 {
-	struct Creature *ch = desc->character;
+	struct Creature *ch = desc->creature;
 	char command[MAX_INPUT_LENGTH];
 	if (!*inStr) {
 		sprintf(tedii_out_buf, "%s%s     *", CCBLD(ch, C_CMP), CCCYN(ch,
@@ -1002,7 +1003,7 @@ CTextEditor::ProcessCommand(char *inStr)
 		break;
 	case 's':					// Save and Exit
 		SaveText(inStr);
-		REMOVE_BIT(PRF2_FLAGS(desc->character), PRF2_NOWRAP);
+		REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
 		desc->text_editor = NULL;
 		delete this;
 		return true;
@@ -1074,30 +1075,30 @@ CTextEditor::ProcessCommand(char *inStr)
 		UndoChanges(inStr);
 		return true;
 	case 't':
-		/*if(GET_LEVEL(desc->character) < 72) {
+		/*if(GET_LEVEL(desc->creature) < 72) {
 		   SendMessage ("This command removed until further notice.\r\n");
 		   return false;
 		   } */
-		if (PLR_FLAGGED(desc->character, PLR_MAILING)) {
+		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			ListRecipients();
 			return true;
 		}
 	case 'a':
-		/*if(GET_LEVEL(desc->character) < 72) {
+		/*if(GET_LEVEL(desc->creature) < 72) {
 		   SendMessage ("This command removed until further notice.\r\n");
 		   return false;
 		   } */
-		if (PLR_FLAGGED(desc->character, PLR_MAILING)) {
+		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			inStr = one_argument(inStr, command);
 			AddRecipient(command);
 			return true;
 		}
 	case 'e':
-		/*if(GET_LEVEL(desc->character) < 72) {
+		/*if(GET_LEVEL(desc->creature) < 72) {
 		   SendMessage ("This command removed until further notice.\r\n");
 		   return false;
 		   } */
-		if (PLR_FLAGGED(desc->character, PLR_MAILING)) {
+		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			inStr = one_argument(inStr, command);
 			RemRecipient(command);
 			return true;
@@ -1124,10 +1125,10 @@ CTextEditor::ListRecipients(void)
 	//cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 32];
 
 	sprintf(cc_list, "%sTo%s:%s ",
-		CCYEL(desc->character, C_NRM),
-		CCBLU(desc->character, C_NRM), CCCYN(desc->character, C_NRM));
+		CCYEL(desc->creature, C_NRM),
+		CCBLU(desc->creature, C_NRM), CCCYN(desc->creature, C_NRM));
 	for (mail_rcpt = desc->mail_to; mail_rcpt;) {
-		strcat(cc_list, CAP(get_name_by_id(mail_rcpt->recpt_idnum)));
+		strcat(cc_list, tmp_capitalize(playerIndex.getName(mail_rcpt->recpt_idnum)));
 		if (mail_rcpt->next) {
 			strcat(cc_list, ", ");
 			mail_rcpt = mail_rcpt->next;
@@ -1137,7 +1138,7 @@ CTextEditor::ListRecipients(void)
 		}
 	}
 
-	sprintf(cc_list, "%s%s", cc_list, CCNRM(desc->character, C_NRM));
+	sprintf(cc_list, "%s%s", cc_list, CCNRM(desc->creature, C_NRM));
 	SendMessage(cc_list);
 
 	if (cc_list) {
@@ -1153,7 +1154,7 @@ CTextEditor::AddRecipient(char *name)
 	struct mail_recipient_data *cur = NULL;
 	struct mail_recipient_data *new_rcpt = NULL;
 
-	new_id_num = get_id_by_name(name);
+	new_id_num = playerIndex.getID(name);
 	if ((new_id_num) < 0) {
 		SendMessage("Cannot find anyone by that name.\r\n");
 		return;
@@ -1167,7 +1168,7 @@ CTextEditor::AddRecipient(char *name)
 
 	// Now find the end of the current list and add the new cur
 
-	if (desc->character->in_room->zone->time_frame == TIME_ELECTRO) {
+	if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
 
 		for (cur = desc->mail_to; cur;) {
 			if (cur->next) {
@@ -1175,19 +1176,19 @@ CTextEditor::AddRecipient(char *name)
 				if (cur->recpt_idnum == new_id_num) {
 					sprintf(tedii_out_buf,
 						"%s is already on the recipient list.\r\n",
-						CAP(get_name_by_id(new_id_num)));
+						tmp_capitalize(playerIndex.getName(new_id_num)));
 					SendMessage(tedii_out_buf);
 					free(new_rcpt);
 					return;
 				}
 			} else {
 				if (new_id_num == 1) {	//mailing fireball, charge em out the ass
-					if (GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
-						//if the character doesn't have enough gold to add someone else
-						if (GET_CASH(desc->character) < 1000000) {
+					if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+						//if the creature doesn't have enough gold to add someone else
+						if (GET_CASH(desc->creature) < 1000000) {
 							sprintf(tedii_out_buf,
 								"You don't have enough credits to add %s.\r\n",
-								CAP(get_name_by_id(new_id_num)));
+								tmp_capitalize(playerIndex.getName(new_id_num)));
 							free(new_rcpt);
 							SendMessage(tedii_out_buf);
 							return;
@@ -1196,33 +1197,33 @@ CTextEditor::AddRecipient(char *name)
 						else {
 							sprintf(tedii_out_buf,
 								"%s added to recipient list.  %d credits have been charged.\r\n",
-								CAP(get_name_by_id(new_id_num)), 1000000);
-							GET_CASH(desc->character) -= 1000000;
+								tmp_capitalize(playerIndex.getName(new_id_num)), 1000000);
+							GET_CASH(desc->creature) -= 1000000;
 						}
 					} else {	//it's an imm, don't check the cash
 						sprintf(tedii_out_buf,
 							"%s added to recipient list.\r\n",
-							CAP(get_name_by_id(new_id_num)));
+							tmp_capitalize(playerIndex.getName(new_id_num)));
 					}
 				} else {
-					if (GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
-						if (GET_CASH(desc->character) < STAMP_PRICE) {
+					if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+						if (GET_CASH(desc->creature) < STAMP_PRICE) {
 							sprintf(tedii_out_buf,
 								"You don't have enough credits to add %s.\r\n",
-								CAP(get_name_by_id(new_id_num)));
+								tmp_capitalize(playerIndex.getName(new_id_num)));
 							free(new_rcpt);
 							SendMessage(tedii_out_buf);
 							return;
 						} else {
 							sprintf(tedii_out_buf,
 								"%s added to recipient list.  %d credits have been charged.\r\n",
-								CAP(get_name_by_id(new_id_num)), STAMP_PRICE);
-							GET_CASH(desc->character) -= STAMP_PRICE;
+								tmp_capitalize(playerIndex.getName(new_id_num)), STAMP_PRICE);
+							GET_CASH(desc->creature) -= STAMP_PRICE;
 						}
 					} else {	//imms again :)  
 						sprintf(tedii_out_buf,
 							"%s added to recipient list.\r\n",
-							CAP(get_name_by_id(new_id_num)));
+							tmp_capitalize(playerIndex.getName(new_id_num)));
 					}
 				}
 				cur->next = new_rcpt;
@@ -1239,49 +1240,49 @@ CTextEditor::AddRecipient(char *name)
 			if (cur->recpt_idnum == new_id_num) {
 				sprintf(tedii_out_buf,
 					"%s is already on the recipient list.\r\n",
-					CAP(get_name_by_id(new_id_num)));
+					tmp_capitalize(playerIndex.getName(new_id_num)));
 				SendMessage(tedii_out_buf);
 				free(new_rcpt);
 				return;
 			}
 		} else {
 			if (new_id_num == 1) {	//mailing fireball, charge em out the ass
-				if (GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
-					if (GET_GOLD(desc->character) < 1000000) {
+				if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+					if (GET_GOLD(desc->creature) < 1000000) {
 						sprintf(tedii_out_buf,
 							"You don't have enough gold to add %s.\r\n",
-							CAP(get_name_by_id(new_id_num)));
+							tmp_capitalize(playerIndex.getName(new_id_num)));
 						free(new_rcpt);
 						SendMessage(tedii_out_buf);
 						return;
 					} else {
 						sprintf(tedii_out_buf,
 							"%s added to recipient list.  %d gold has been charged.\r\n",
-							CAP(get_name_by_id(new_id_num)), 1000000);
-						GET_GOLD(desc->character) -= 1000000;
+							tmp_capitalize(playerIndex.getName(new_id_num)), 1000000);
+						GET_GOLD(desc->creature) -= 1000000;
 					}
 				} else {
 					sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
-						CAP(get_name_by_id(new_id_num)));
+						tmp_capitalize(playerIndex.getName(new_id_num)));
 				}
 			} else {
-				if (GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
-					if (GET_GOLD(desc->character) < STAMP_PRICE) {
+				if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+					if (GET_GOLD(desc->creature) < STAMP_PRICE) {
 						sprintf(tedii_out_buf,
 							"You don't have enough gold to add %s.\r\n",
-							CAP(get_name_by_id(new_id_num)));
+							tmp_capitalize(playerIndex.getName(new_id_num)));
 						free(new_rcpt);
 						SendMessage(tedii_out_buf);
 						return;
 					} else {
 						sprintf(tedii_out_buf,
 							"%s added to recipient list.  %d gold has been charged.\r\n",
-							CAP(get_name_by_id(new_id_num)), STAMP_PRICE);
-						GET_GOLD(desc->character) -= STAMP_PRICE;
+							tmp_capitalize(playerIndex.getName(new_id_num)), STAMP_PRICE);
+						GET_GOLD(desc->creature) -= STAMP_PRICE;
 					}
 				} else {
 					sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
-						CAP(get_name_by_id(new_id_num)));
+						tmp_capitalize(playerIndex.getName(new_id_num)));
 				}
 			}
 			cur->next = new_rcpt;
@@ -1300,7 +1301,7 @@ CTextEditor::RemRecipient(char *name)
 	struct mail_recipient_data *prev = NULL;
 	char buf[MAX_INPUT_LENGTH];
 
-	removed_idnum = get_id_by_name(name);
+	removed_idnum = playerIndex.getID(name);
 
 	if (removed_idnum < 0) {
 		SendMessage("Cannot find anyone by that name.\r\n");
@@ -1316,40 +1317,40 @@ CTextEditor::RemRecipient(char *name)
 		cur = desc->mail_to;
 		desc->mail_to = desc->mail_to->next;
 		free(cur);
-		if (desc->character->in_room->zone->time_frame == TIME_ELECTRO) {
-			if (GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+		if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
+			if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
 
 				if (removed_idnum == 1) {	//fireball :P
 					sprintf(buf,
 						"%s removed from recipient list.  %d credits have been refunded.\r\n",
-						CAP(get_name_by_id(removed_idnum)), 1000000);
-					GET_CASH(desc->character) += 1000000;	//credit mailer for removed recipient 
+						tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
+					GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient 
 				} else {
 					sprintf(buf,
 						"%s removed from recipient list.  %d credits have been refunded.\r\n",
-						CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
-					GET_CASH(desc->character) += STAMP_PRICE;	//credit mailer for removed recipient 
+						tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
+					GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
 				}
 			} else {
 				sprintf(buf, "%s removed from recipient list.\r\n",
-					CAP(get_name_by_id(removed_idnum)));
+					tmp_capitalize(playerIndex.getName(removed_idnum)));
 			}
 		} else {				//not in the future, refund gold
-			if (GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+			if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
 				if (removed_idnum == 1) {	//fireball :P
 					sprintf(buf,
 						"%s removed from recipient list.  %d gold has been refunded.\r\n",
-						CAP(get_name_by_id(removed_idnum)), 1000000);
-					GET_GOLD(desc->character) += 1000000;	//credit mailer for removed recipient 
+						tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
+					GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient 
 				} else {
 					sprintf(buf,
 						"%s removed from recipient list.  %d gold has been refunded.\r\n",
-						CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
-					GET_GOLD(desc->character) += STAMP_PRICE;	//credit mailer for removed recipient 
+						tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
+					GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
 				}
 			} else {
 				sprintf(buf, "%s removed from recipient list.\r\n",
-					CAP(get_name_by_id(removed_idnum)));
+					tmp_capitalize(playerIndex.getName(removed_idnum)));
 			}
 		}
 		SendMessage(buf);
@@ -1371,39 +1372,39 @@ CTextEditor::RemRecipient(char *name)
 	// Link around the recipient to be removed.
 	prev->next = cur->next;
 	free(cur);
-	if (desc->character->in_room->zone->time_frame == TIME_ELECTRO) {
-		if (GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+	if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
+		if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
 			if (removed_idnum == 1) {	//fireball :P
 				sprintf(buf,
 					"%s removed from recipient list.  %d credits have been refunded.\r\n",
-					CAP(get_name_by_id(removed_idnum)), 1000000);
-				GET_CASH(desc->character) += 1000000;	//credit mailer for removed recipient 
+					tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
+				GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient 
 			} else {
 				sprintf(buf,
 					"%s removed from recipient list.  %d credits have been refunded.\r\n",
-					CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
-				GET_CASH(desc->character) += STAMP_PRICE;	//credit mailer for removed recipient 
+					tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
+				GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
 			}
 		} else {
 			sprintf(buf, "%s removed from recipient list.\r\n",
-				CAP(get_name_by_id(removed_idnum)));
+				tmp_capitalize(playerIndex.getName(removed_idnum)));
 		}
 	} else {					//not in future, refund gold
-		if (GET_LEVEL(desc->character) < LVL_AMBASSADOR) {
+		if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
 			if (removed_idnum == 1) {	//fireball :P
 				sprintf(buf,
 					"%s removed from recipient list.  %d gold has been refunded.\r\n",
-					CAP(get_name_by_id(removed_idnum)), 1000000);
-				GET_GOLD(desc->character) += 1000000;	//credit mailer for removed recipient 
+					tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
+				GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient 
 			} else {
 				sprintf(buf,
 					"%s removed from recipient list.  %d gold has been refunded.\r\n",
-					CAP(get_name_by_id(removed_idnum)), STAMP_PRICE);
-				GET_GOLD(desc->character) += STAMP_PRICE;	//credit mailer for removed recipient 
+					tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
+				GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
 			}
 		} else {
 			sprintf(buf, "%s removed from recipient list.\r\n",
-				CAP(get_name_by_id(removed_idnum)));
+				tmp_capitalize(playerIndex.getName(removed_idnum)));
 		}
 	}
 	SendMessage(buf);

@@ -1,4 +1,4 @@
 $(OBJ)/house.o : house.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/utils.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/tokenizer.h $(INCLUDE)/tmpstr.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/player_table.h $(INCLUDE)/account.h $(INCLUDE)/utils.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/tokenizer.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h 
 	$(CXX) -c $(CXXFLAGS) house.cc             -o $(OBJ)/house.o
 OBJFILES= $(OBJ)/house.o

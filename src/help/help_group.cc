@@ -15,6 +15,7 @@ using namespace std;
 #include "comm.h"
 #include "screen.h"
 #include "handler.h"
+#include "player_table.h"
 extern const char *help_group_names[];
 extern const char *help_group_bits[];
 extern const char *Help_Directory;
@@ -74,7 +75,7 @@ HelpGroup::AddUser(Creature * ch, char *argument)
 		send_to_char(ch, "%s", buf);
 		return false;
 	}
-	if (!(uid = get_id_by_name(player))) {
+	if (!(uid = playerIndex.getID(player))) {
 		send_to_char(ch, "There is no player named '%s'.\r\n", player);
 		return false;
 	}
@@ -115,7 +116,7 @@ HelpGroup::RemoveUser(Creature * ch, char *argument)
 		return false;
 	}
 	argument = two_arguments(argument, player, group);
-	if (!(uid = get_id_by_name(player))) {
+	if (!(uid = playerIndex.getID(player))) {
 		send_to_char(ch, "There is no player named '%s'.\r\n", player);
 		return false;
 	}
@@ -266,7 +267,7 @@ HelpGroup::Members(Creature * ch, char *args)
 {
 	char gname[256];
 	char linebuf[256];
-	char *s = NULL;
+	const char *s = NULL;
 	long gid = -1;
 	int i;
 	int size = 0;
@@ -294,7 +295,7 @@ HelpGroup::Members(Creature * ch, char *args)
 		send_to_char(ch, "Members of %s:\r\n", help_group_names[gid]);
 		size = groups[gid].size();
 		for (i = 0; i < size; i++) {
-			s = get_name_by_id(groups[gid][i]);
+			s = playerIndex.getName(groups[gid][i]);
 			if (!s || !*s)
 				continue;
 			strcat(buf, s);
@@ -334,7 +335,7 @@ HelpGroup::build_group_list()
 		file >> gid >> members;
 		while (members) {
 			file >> uid;
-			if (!get_name_by_id(uid)) {
+			if (!playerIndex.getName(uid)) {
 				slog("HLPERR: No such player id %ld, not adding to group %ld.",
 					uid, gid);
 			} else if (!add_user(uid, gid)) {

@@ -37,6 +37,7 @@
 #include "tokenizer.h"
 #include "tmpstr.h"
 #include "house.h"
+#include "player_table.h"
 
 extern struct obj_data *object_list;
 
@@ -1244,7 +1245,7 @@ ASPELL(spell_identify)
 		if (GET_OBJ_SIGIL_IDNUM(obj)) {
 			const char *name;
 
-			name = get_name_by_id(GET_OBJ_SIGIL_IDNUM(obj));
+			name = playerIndex.getName(GET_OBJ_SIGIL_IDNUM(obj));
 
 			if (name)
 				send_to_char(ch,
@@ -2672,9 +2673,7 @@ ASPELL(spell_summon_legion)
 struct Creature *
 load_corpse_owner(struct obj_data *obj)
 {
-	struct char_file_u tmp_store;
 	struct Creature *vict = NULL;
-
 
 	//
 	// mobile
@@ -2687,14 +2686,12 @@ load_corpse_owner(struct obj_data *obj)
 	// pc, load from file
 	//
 
-	CREATE(vict, struct Creature, 1);
+	vict = new Creature;
 
-	clear_char(vict);
-
-	if (load_char(get_name_by_id(CORPSE_IDNUM(obj)), &tmp_store) > -1) {
-		store_to_char(&tmp_store, vict);
+	if (vict->loadFromXML(CORPSE_IDNUM(obj)))
 		return (vict);
-	}
+
+	delete vict;
 
 	return NULL;
 }
@@ -2747,7 +2744,7 @@ ASPELL(spell_animate_dead)
 
 	if (IS_UNDEAD(orig_char)) {
 		act("You cannot re-animate $p.", FALSE, ch, obj, 0, TO_CHAR);
-		orig_char->extract(true, false, CON_MENU);
+		orig_char->extract(true, false, CXN_MENU);
 		return;
 	}
 
@@ -2756,14 +2753,14 @@ ASPELL(spell_animate_dead)
 		send_to_char(ch, 
 			"You find yourself unable to perform this necromantic deed.\r\n");
 		//extract_char( orig_char, 0 );
-		orig_char->extract(true, false, CON_MENU);
+		orig_char->extract(true, false, CXN_MENU);
 		return;
 	}
 
 	if (!(zombie = read_mobile(ZOMBIE_VNUM))) {
 		send_to_char(ch, "The dark powers are not with you, tonight.\r\n");
 		slog("SYSERR: unable to load ZOMBIE_VNUM in spell_animate_dead.");
-		orig_char->extract(true, false, CON_MENU);
+		orig_char->extract(true, false, CXN_MENU);
 		return;
 	}
 	//
@@ -2863,7 +2860,7 @@ ASPELL(spell_animate_dead)
 
 	extract_obj(obj);
 
-	orig_char->extract(true, false, CON_MENU);
+	orig_char->extract(true, false, CXN_MENU);
 
 	char_to_room(zombie, ch->in_room, false);
 	act("$n rises slowly to a standing position.", FALSE, zombie, 0, 0,
@@ -3252,7 +3249,7 @@ ASPELL(spell_banishment)
 
 		act("$n is banished to $s home plane!", FALSE, victim, 0, 0, TO_ROOM);
 
-		victim->extract(true, false, CON_MENU);
+		victim->extract(true, false, CXN_MENU);
 
 		gain_skill_prof(ch, SPELL_BANISHMENT);
 

@@ -9,53 +9,52 @@
 //
 
 
-#include "structs.h"
 #include "defs.h"
 #include "editor.h"
 
+struct Creature;
+class Account;
+
 /* Modes of connectedness: used by descriptor_data.state */
-enum {
-	CON_PLAYING,				// Playing - Nominal state  
-	CON_CLOSE,					// Disconnecting        
-	CON_GET_NAME,				// By what name ..?     
-	CON_NAME_PROMPT,			// Entering a new name
-	CON_NAME_CNFRM,				// Did I get that right, x? 
-	CON_PASSWORD,				// Password:            
-	CON_NEWPASSWD,				// Give me a password for x 
-	CON_CNFPASSWD,				// Please retype password:  
-	CON_QSEX,					// Sex?             
-	CON_QCLASS_PAST,			// Class past?          
-	CON_QCLASS_FUTURE,			// Class future?            
-	CON_QCLASS_REMORT,			// Class remort?
-	CON_RMOTD,					// PRESS RETURN after MOTD  
-	CON_MENU,					// Your choice: (main menu) 
-	CON_EXDESC,					// Enter a new description: 
-	CON_CHPWD_GETOLD,			// Changing passwd: get old 
-	CON_CHPWD_GETNEW,			// Changing passwd: get new 
-	CON_CHPWD_VRFY,				// Verify new password      
-	CON_DELCNF1,				// Delete confirmation 1    
-	CON_DELCNF2,				// Delete confirmation 2    
-	CON_RACE_PAST,				// Racial Query         
-	CON_QALIGN,					// Alignment Query      
-	CON_QCOLOR,					// Start with color?
-	CON_QTIME_FRAME,			// Query for overall time frame
-	CON_AFTERLIFE,				// After dies, before menu
-	CON_REMORT_AFTERLIFE,		// After dies, before remort class
-	CON_QREROLL,				// Reroll statistics
-	CON_RACEHELP_P,
-	CON_CLASSHELP_P,
-	CON_HOMEHELP_P,
-	CON_HOMEHELP_F,
-	CON_RACE_FUTURE,
-	CON_RACEHELP_F,
-	CON_CLASSHELP_F,
-	CON_REMORT_REROLL,
-	CON_NETWORK,				// interfaced to network
-	CON_PORT_OLC,				// Using port olc interface
+enum cxn_state {
+	CXN_PLAYING,				// Playing - Nominal state  
+	CXN_DISCONNECT,				// Disconnecting        
+	// Account states
+	CXN_ACCOUNT_LOGIN,			// Initial login to account
+	CXN_ACCOUNT_PW,				// Password to account
+	CXN_ACCOUNT_PROMPT,			// Query for new account name
+	CXN_ACCOUNT_VERIFY,			// Verify new account name
+	CXN_PW_PROMPT,				// Enter new password
+	CXN_PW_VERIFY,				// Verify new password
+	CXN_ANSI_PROMPT,			// Do you have color?
+	CXN_EMAIL_PROMPT,			// Optional email address
+	CXN_OLDPW_PROMPT,			// Get old password for pw change
+	// Character creation
+	CXN_NAME_PROMPT,			// Enter a name for new character
+	CXN_NAME_VERIFY,			// Did I get that right, x? 
+	CXN_TIME_PROMPT,			// What timeframe?
+	CXN_SEX_PROMPT,				// Sex?             
+	CXN_RACE_PAST,				// Race? (timeframe-based)
+	CXN_RACE_FUTURE,			// Race? (timeframe-based)
+	CXN_CLASS_PAST,				// Class? (timeframe-based)
+	CXN_CLASS_FUTURE,			// Class? (timeframe-based)
+	CXN_ALIGN_PROMPT,			// Align? (race/class may restrict)
+	CXN_STATISTICS_ROLL,		// Statistics rolling
+	CXN_EDIT_DESC,				// Describe your new char
+	// Other, miscellaneous states
+	CXN_MENU,					// Your choice: (main menu) 
+	CXN_WAIT_MENU,				// Press return to go back to the main menu
+	CXN_CLASS_REMORT,			// Select your remort class
+	CXN_DELETE_PROMPT,			// What character to delete?
+	CXN_DELETE_PW,				// Enter password to delete
+	CXN_DELETE_VERIFY,			// Are you sure you want to delete?
+	CXN_AFTERLIFE,				// After death, before menu
+	CXN_REMORT_AFTERLIFE,		// After death, before remort class
+	CXN_NETWORK,				// Cyborg interfaced to network
 };
 
-#define IS_PLAYING(desc)	((desc)->connected == CON_PLAYING || \
-							(desc)->connected == CON_NETWORK)
+#define IS_PLAYING(desc)	((desc)->input_mode == CXN_PLAYING || \
+							(desc)->input_mode == CXN_NETWORK)
 
 /* descriptor-related structures ******************************************/
 
@@ -80,7 +79,7 @@ struct mail_recipient_data {
 struct descriptor_data {
 	int descriptor;				/* file descriptor for socket       */
 	char host[HOST_LENGTH + 1];	/* hostname             */
-	int connected;				/* mode of 'connectedness'      */
+	cxn_state input_mode;					/* mode of 'connectedness'      */
 	int wait;					/* wait for how many loops      */
 	int desc_num;				/* unique num assigned to desc      */
 	time_t login_time;			/* when the person connected        */
@@ -109,12 +108,15 @@ struct descriptor_data {
 	pthread_t resolver_thread;	// thread to resolve hostname
 	struct txt_block *large_outbuf;	/* ptr to large buffer, if we need it */
 	struct txt_q input;			/* q of unprocessed input       */
-	struct Creature *character;	/* linked to char           */
+	Account *account;
+	struct Creature *creature;	/* linked to char           */
 	struct Creature *original;	/* original char if switched        */
 	struct descriptor_data *snooping;	/* Who is this char snooping   */
 	struct descriptor_data *snoop_by;	/* And who is snooping this char   */
 	struct descriptor_data *next;	/* link to next descriptor     */
 	struct mail_recipient_data *mail_to;	/* list of names for mailsystem */
 };
+
+void set_desc_state(cxn_state state, descriptor_data *d);
 
 #endif

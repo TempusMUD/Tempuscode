@@ -1,4 +1,4 @@
 $(OBJ)/clan.o : clan.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/clan.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/clan.h $(INCLUDE)/char_class.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h 
 	$(CXX) -c $(CXXFLAGS) clan.cc              -o $(OBJ)/clan.o
 OBJFILES= $(OBJ)/clan.o

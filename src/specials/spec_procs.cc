@@ -39,6 +39,7 @@
 #include "fight.h"
 #include "tmpstr.h"
 #include "tokenizer.h"
+#include "player_table.h"
 
 
 /*   external vars  */
@@ -1221,7 +1222,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 				House* house = Housing.findHouseByRoom( locker->in_room->number );
 				if( house != NULL )
 					house->save();
-				save_char(ch, NULL);
+				ch->saveToXML();
 			}
 			break;
 		}
@@ -1238,7 +1239,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 		ch, 0, vict, TO_VICT);
 
 	if (IS_NPC(vict)) {
-		vict->extract(false, false, CON_MENU);
+		vict->extract(false, false, CXN_MENU);
 		return 1;
 	}
 
@@ -1672,7 +1673,10 @@ SPECIAL(bank)
 			slog("CLAN: %s clandep (%s) %d.", GET_NAME(ch),
 				clan->name, amount);
 		} else {
-			BANK_MONEY(ch) += amount;
+			if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+				ch->account->deposit_future_bank(amount);
+			else
+				ch->account->deposit_past_bank(amount);
 			send_to_char(ch, "You deposit %d %s%s.\r\n", amount, CURRENCY(ch),
 				PLURAL(amount));
 			if (amount > 50000000) {
@@ -1683,7 +1687,7 @@ SPECIAL(bank)
 		}
 
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
-		save_char(ch, NULL);
+		ch->saveToXML();
 
 	} else if (CMD_IS("withdraw")) {
 
@@ -1731,14 +1735,17 @@ SPECIAL(bank)
 					CURRENCY(ch));
 				return 1;
 			}
-			BANK_MONEY(ch) -= amount;
+			if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+				ch->account->withdraw_future_bank(amount);
+			else
+				ch->account->withdraw_past_bank(amount);
 		}
 
 		CASH_MONEY(ch) += amount;
 		send_to_char(ch, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
 			PLURAL(amount));
 		act("$n makes a bank transaction.", TRUE, ch, 0, FALSE, TO_ROOM);
-		save_char(ch, NULL);
+		ch->saveToXML();
 
 		if (amount > 50000000) {
 			mudlog(LVL_IMMORT, NRM, true,
@@ -1759,7 +1766,7 @@ SPECIAL(bank)
 				"The clan currently has no money deposited.\r\n");
 	} else {
 		if (BANK_MONEY(ch) > 0)
-			send_to_char(ch, "Your current balance is %d %s%s.\r\n",
+			send_to_char(ch, "Your current balance is %lld %s%s.\r\n",
 				BANK_MONEY(ch), CURRENCY(ch), PLURAL(BANK_MONEY(ch)));
 		else
 			send_to_char(ch, "You currently have no money deposited.\r\n");

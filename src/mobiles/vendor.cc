@@ -542,7 +542,7 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 		obj = next_obj;
 		}
-	save_char(ch, NULL);
+	ch->saveToXML();
 }
 
 char *

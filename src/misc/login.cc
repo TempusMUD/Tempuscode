@@ -18,46 +18,46 @@ void show_race_help(struct descriptor_data *d, int race, int timeframe);
 void
 show_menu(struct descriptor_data *d)
 {
-	if (!(d->character)) {
+	if (!(d->creature)) {
 		return;
 	}
 
 	SEND_TO_Q("\r\n\r\n", d);
 
 	sprintf(buf, "%s                      You have now arrived at\r\n",
-		CCCYN(d->character, C_NRM));
+		CCCYN(d->creature, C_NRM));
 	sprintf(buf, "%s                           %sTEMPUS  MUD%s     \r\n", buf,
-		CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM));
+		CCRED(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 	sprintf(buf, "%s                      %s0%s)%s Depart from Tempus.%s\r\n",
-		buf, CCYEL(d->character, C_NRM), CCRED(d->character, C_NRM),
-		CCGRN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+		buf, CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
+		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 	sprintf(buf,
 		"%s                      %s1%s)%s Go forth into the realm.%s\r\n", buf,
-		CCYEL(d->character, C_NRM), CCRED(d->character, C_NRM),
-		CCGRN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+		CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
+		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 	sprintf(buf, "%s                      %s2%s)%s Enter description.%s\r\n",
-		buf, CCYEL(d->character, C_NRM), CCRED(d->character, C_NRM),
-		CCGRN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+		buf, CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
+		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 	sprintf(buf,
 		"%s                      %s3%s)%s Read the background story.%s\r\n",
-		buf, CCYEL(d->character, C_NRM), CCRED(d->character, C_NRM),
-		CCGRN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+		buf, CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
+		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 	sprintf(buf, "%s                      %s4%s)%s Change password.%s\r\n",
-		buf, CCYEL(d->character, C_NRM), CCRED(d->character, C_NRM),
-		CCGRN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+		buf, CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
+		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 	sprintf(buf,
 		"%s                      %s5%s)%s Delete this character.%s\r\n", buf,
-		CCYEL(d->character, C_NRM), CCRED(d->character, C_NRM),
-		CCGRN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+		CCYEL(d->creature, C_NRM), CCRED(d->creature, C_NRM),
+		CCGRN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 
-	if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
+	if (PLR2_FLAGGED(d->creature, PLR2_BURIED)) {
 		sprintf(buf,
 			"%s\r\n\r\n\r\n        %sYou have passed on, and been given a proper burial.%s",
-			buf, CCYEL(d->character, C_NRM), CCNRM(d->character, C_NRM));
-	} else if (PLR_FLAGGED(d->character, PLR_CRYO)) {
+			buf, CCYEL(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
+	} else if (PLR_FLAGGED(d->creature, PLR_CRYO)) {
 		sprintf(buf,
 			"%s\r\n                      %sYou are currently cryo rented.%s\r\n",
-			buf, CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
+			buf, CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 	}
 
 
@@ -75,7 +75,7 @@ show_menu(struct descriptor_data *d)
 void
 show_char_class_menu(struct descriptor_data *d, int timeframe)
 {
-	Creature *ch = d->character;
+	Creature *ch = d->creature;
 	int i;
 
 	for (i = 0;i < NUM_PC_RACES;i++)
@@ -85,129 +85,47 @@ show_char_class_menu(struct descriptor_data *d, int timeframe)
 	buf[0] = '\0';
 	if (!timeframe || timeframe == TIME_PAST) {
 		if (GET_CLASS(ch) != CLASS_MAGE && race_restr[i][CLASS_MAGE + 1])
-			sprintf(buf,
-				"%s                %sMage%s      --  Delver in Magical Arts\r\n",
-				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d,
+				"                &gMage&n      --  Delver in Magical Arts\r\n");
 		if (GET_CLASS(ch) != CLASS_BARB && race_restr[i][CLASS_BARB + 1])
-			sprintf(buf, "%s                %sBarbarian%s --  Uncivilized Warrior\r\n",
-				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d,
+				"                &gBarbarian&n --  Uncivilized Warrior\r\n");
 		if (GET_CLASS(ch) != CLASS_KNIGHT && GET_CLASS(ch) != CLASS_MONK &&
 				race_restr[i][CLASS_KNIGHT + 1])
-			sprintf(buf,
-				"%s                %sKnight%s    --  Defender of the Faith\r\n", buf,
-				CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d,
+				"                &gKnight&n    --  Defender of the Faith\r\n");
 		if (GET_CLASS(ch) != CLASS_RANGER && race_restr[i][CLASS_RANGER + 1])
-			sprintf(buf, "%s                %sRanger%s    --  Roamer of Worlds\r\n",
-				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d, "                &gRanger&n    --  Roamer of Worlds\r\n");
 		if (GET_CLASS(ch) != CLASS_CLERIC && GET_CLASS(ch) != CLASS_MONK &&
 				race_restr[i][CLASS_CLERIC + 1])
-			sprintf(buf, "%s                %sCleric%s    --  Servant of Diety\r\n",
-				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d, "                &gCleric&n    --  Servant of Diety\r\n");
 		if (GET_CLASS(ch) != CLASS_THIEF && race_restr[i][CLASS_THIEF + 1])
-			sprintf(buf, "%s                %sThief%s     --  Stealthy Rogue\r\n", buf,
-			CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d, "                &gThief&n     --  Stealthy Rogue\r\n");
 	}
 
 	// Print future classes
 	if (!timeframe || timeframe == TIME_FUTURE) {
 		if (GET_CLASS(ch) != CLASS_CYBORG && race_restr[i][CLASS_CYBORG + 1])
-			sprintf(buf,
-				"%s                %sCyborg%s      --  The Electronically Advanced\r\n",
-				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d,
+				"                &gCyborg&n      --  The Electronically Advanced\r\n");
 		if (GET_CLASS(ch) != CLASS_PSIONIC && race_restr[i][CLASS_PSIONIC + 1])
-			sprintf(buf, "%s                %sPsionic%s     --  Mind Traveller\r\n",
-				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d, "                &gPsionic&n     --  Mind Traveller\r\n");
 		if (GET_CLASS(ch) != CLASS_MERCENARY && race_restr[i][CLASS_MERCENARY + 1])
-			sprintf(buf, "%s                %sMercenary%s   --  Gun for Hire\r\n", buf,
-				CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d, "                &gMercenary&n   --  Gun for Hire\r\n");
 		if (GET_CLASS(ch) != CLASS_PHYSIC && race_restr[i][CLASS_PHYSIC + 1])
-			sprintf(buf,
-				"%s                %sPhysic%s      --  Controller of Forces\r\n", buf,
-				CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d,
+				"                &gPhysic&n      --  Controller of Forces\r\n");
 		if (GET_CLASS(ch) != CLASS_HOOD && race_restr[i][CLASS_HOOD + 1])
-			sprintf(buf,
-				"%s                %sHoodlum%s     --  The Lowdown Street Punk\r\n",
-				buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
+			send_to_desc(d,
+				"                &gHoodlum&n     --  The Lowdown Street Punk\r\n");
 	}
 
 	// Monks are both future and past
 	if (GET_CLASS(ch) != CLASS_MONK && GET_CLASS(ch) != CLASS_KNIGHT && 
 		GET_CLASS(ch) != CLASS_CLERIC && race_restr[i][CLASS_MONK + 1])
-		sprintf(buf,
-			"%s                %sMonk%s      --  Philosophical Warrior\r\n", buf,
-			CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-
-	strcat(buf, CCNRM(d->character, C_NRM));
-	SEND_TO_Q(buf, d);
-}
-
-//
-// show_past_home_menu
-//
-
-void
-show_past_home_menu(struct descriptor_data *d)
-{
-
-#ifdef HOME_NEWBIE_ONLY
-	/*
-	   SEND_TO_Q("\033[H\033[J", d);
-	   SEND_TO_Q(CCYEL(d->character, C_NRM), d);
-	   SEND_TO_Q("                           Welcome to TempusMUD!\r\n",d);
-	   SEND_TO_Q("            Since you are a new character, you will be starting\r\n",d);
-	   SEND_TO_Q("                       in our Newbie Academy. Have fun!  \r\n\r\n",d);
-	   SEND_TO_Q("                             *** PRESS RETURN: ***", d);
-	   SEND_TO_Q(CCNRM(d->character, C_NRM), d);
-	 */
-#else
-	sprintf(buf,
-		"\r\n\r\n%sWhat city would you like to make your starting hometown?%s\r\n\r\n",
-		CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-	sprintf(buf,
-		"%s    %sNew Thalos%s       -- Desert City.             Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_NEW_THALOS]);
-	sprintf(buf,
-		"%s    %sKromguard%s        -- Guess it doesn't matter  Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_KROMGUARD]);
-	sprintf(buf,
-		"%s    %sIstan%s            -- Northern Frontier City.  Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_ISTAN]);
-	sprintf(buf,
-		"%s    %sElven Village%s    -- Elves Only.              Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_ELVEN_VILLAGE]);
-	sprintf(buf,
-		"%s    %sSolace Cove%s      -- Western Seacost.         Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_SOLACE_COVE]);
-	sprintf(buf,
-		"%s    %sModrian%s          -- Primary City.            Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_MODRIAN]);
-	sprintf(buf,
-		"%s    %sTower of Modrian%s -- Zone for New Players.    Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_NEWBIE_TOWER]);
-	sprintf(buf,
-		"%s    %sSkullport%s        -- City of the Underdark.   Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_SKULLPORT] +
-		population_record[HOME_DWARVEN_CAVERNS] +
-		population_record[HOME_DROW_ISLE] +
-		population_record[HOME_HUMAN_SQUARE]);
-
-	sprintf(buf,
-		"%s\r\n%sType '%shelp <town name>%s' for more information.%s\r\n", buf,
-		CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-		CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-	sprintf(buf, "%s\r\n%sYour choice:%s ", buf, CCCYN(d->character, C_NRM),
-		CCNRM(d->character, C_NRM));
-
-	SEND_TO_Q(buf, d);
-#endif
+		send_to_desc(d,
+			"                &gMonk&n      --  Philosophical Warrior\r\n");
+	send_to_desc(d, "\r\n\r\n\r\n");
 }
 
 //
@@ -322,143 +240,8 @@ parse_past_home(struct descriptor_data *d, char *arg)
 }
 
 //
-// show_future_home_menu
-//
-
-void
-show_future_home_menu(struct descriptor_data *d)
-{
-#ifndef HOME_NEWBIE_ONLY
-	sprintf(buf,
-		"\r\n\r\n%sWhat city would you like to make your starting hometown?%s\r\n\r\n",
-		CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-	sprintf(buf,
-		"%s    %sElectro Centralis%s       -- Central Metropolis.        Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_ELECTRO]);
-	sprintf(buf,
-		"%s    %sZul'Dane%s                -- Orcish Industrial City.    Population [%d]\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		population_record[HOME_ZUL_DANE]);
-	sprintf(buf,
-		"%s\r\n%sType '%shelp <town name>%s' for more information.%s\r\n", buf,
-		CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-		CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-	sprintf(buf, "%s\r\n%sYour choice:%s ", buf, CCCYN(d->character, C_NRM),
-		CCNRM(d->character, C_NRM));
-	SEND_TO_Q(buf, d);
-#endif
-}
-
-//
-// show_home_help_future
-//
-
-void
-show_home_help_future(struct descriptor_data *d, int home)
-{
-
-	switch (home) {
-	case HOME_ELECTRO:
-		SEND_TO_Q
-			("   Electro Centralis is the hub of the planetary civilization.  Built on\r\n"
-			"top of the ancient city of Modrian, E.C. is a cultural and technological\r\n"
-			"center with endless services, resources, and dangers.\r\n", d);
-		break;
-	case HOME_ZUL_DANE:
-		SEND_TO_Q
-			("   Zul'Dane is a great industrial city, heir of the powerful Orcish\r\n"
-			"empires.  Built upriver from Electro Centralis, it provides great\r\n"
-			"quantities of mechanical and industrial goods to the city and the rest\r\n"
-			"of the Technocracy.  The city is dark and dangerous, inhabited primarily\r\n"
-			"by orcish and other humano-monstrous races.  The city is perpetually\r\n"
-			"shrouded in a dark cloud of smog and soot of its own creation.\r\n",
-			d);
-		break;
-	case (-1):
-		SEND_TO_Q("There is no help on that home.\r\n", d);
-		break;
-	default:
-		SEND_TO_Q("No help on that place yet.\r\n", d);
-		break;
-	}
-	SEND_TO_Q("\r\n", d);
-}
-
-//
-// parse_future_home
-//
-
-int
-parse_future_home(struct descriptor_data *d, char *arg)
-{
-	int home = -1;
-
-	skip_spaces(&arg);
-	half_chop(arg, buf, buf2);
-
-	if (is_abbrev(buf, "help")) {
-		if (!*buf2)
-			SEND_TO_Q("Help on what hometown?\r\n", d);
-		else {
-			home = parse_future_home(d, buf2);
-			show_home_help_future(d, home);
-		}
-		return (-2);
-	}
-	if (is_abbrev(buf, "electro centralis"))
-		return (HOME_ELECTRO);
-	else if (is_abbrev(buf, "zul'dane"))
-		return (HOME_ZUL_DANE);
-	return (-1);
-}
-
-//
 // show_time_menu
 //
-
-void
-show_time_menu(struct descriptor_data *d)
-{
-	sprintf(buf, "\r\n\r\n         %sPast%s     - the era of Modrian%s\r\n",
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		CCNRM(d->character, C_NRM));
-	sprintf(buf,
-		"%s         %sFuture%s   - era of Electro Centralis%s  (under construction)\r\n\r\n%s",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM),
-		CCYEL(d->character, C_NRM), CCNRM(d->character, C_NRM));
-
-	SEND_TO_Q(buf, d);
-}
-
-void
-show_race_menu_past(struct descriptor_data *d)
-{
-	sprintf(buf,
-		"\r\n\r\n                    %sHuman%s    --  Homo Sapiens\r\n",
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                    %sElven%s    --  Ancient Woodland Race\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                    %sDrow%s     --  The Dark Elf\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                    %sDwarven%s  --  Short and Stout\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                    %sHalf Orc%s --  Mean, Ugly Bastards\r\n", buf,
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                    %sTabaxi%s   --  Lithe Cat-person\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                    %sMinotaur%s --  Powerful Bull-Man\r\n\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s\r\n%s                 Type '%shelp <race>%s' for information.%s\r\n",
-		buf, CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-		CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-
-	SEND_TO_Q(buf, d);
-}
 
 int
 parse_pc_race(struct descriptor_data *d, char *arg, int timeframe)
@@ -501,29 +284,6 @@ parse_pc_race(struct descriptor_data *d, char *arg, int timeframe)
 	}
 
 	return (-1);
-}
-
-void
-show_race_menu_future(struct descriptor_data *d)
-{
-	sprintf(buf, "\r\n\r\n                %sHuman%s    --  Homo Sapiens\r\n",
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                %sElven%s    --  Ancient Woodland Race\r\n", buf,
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s                %sOrc%s      --  Full blooded monsters\r\n", buf,
-		CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                %sHalf Orc%s --  Mean, Ugly Bastards\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf, "%s                %sTabaxi%s   --  Lithe Cat-person\r\n",
-		buf, CCGRN(d->character, C_NRM), CCCYN(d->character, C_NRM));
-	sprintf(buf,
-		"%s\r\n%s                 Type '%shelp <race>%s' for information.%s\r\n",
-		buf, CCCYN(d->character, C_NRM), CCGRN(d->character, C_NRM),
-		CCCYN(d->character, C_NRM), CCNRM(d->character, C_NRM));
-
-	SEND_TO_Q(buf, d);
 }
 
 void

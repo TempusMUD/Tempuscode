@@ -243,16 +243,16 @@ ACMD(do_interwiz)
 			sprintf(message, "%s@%s: %s\r\n", GET_NAME(ch), MUDNAME, argument);
 
 		for (d = descriptor_list; d; d = d->next) {
-			if (IS_PLAYING(d) && d->character &&
-				(!PRF_FLAGGED(d->character, PRF_NOINTWIZ)) &&
+			if (IS_PLAYING(d) && d->creature &&
+				(!PRF_FLAGGED(d->creature, PRF_NOINTWIZ)) &&
 				(!d->showstr_point
-					|| PRF2_FLAGGED(d->character, PRF2_LIGHT_READ))
-				&& (!PLR_FLAGGED(d->character,
+					|| PRF2_FLAGGED(d->creature, PRF2_LIGHT_READ))
+				&& (!PLR_FLAGGED(d->creature,
 						PLR_WRITING | PLR_MAILING | PLR_OLC))
-				&& (GET_LEVEL(d->character) >= LVL_AMBASSADOR)) {
-				send_to_char(d->character, CCMAG(d->character, C_NRM));
-				send_to_char(d->character, message);
-				send_to_char(d->character, CCNRM(d->character, C_NRM));
+				&& (GET_LEVEL(d->creature) >= LVL_AMBASSADOR)) {
+				send_to_char(d->creature, CCMAG(d->creature, C_NRM));
+				send_to_char(d->creature, message);
+				send_to_char(d->creature, CCNRM(d->creature, C_NRM));
 			}
 		}
 	}
@@ -457,15 +457,15 @@ serv_recv_mudlistrpy(char *serv_message)
 	strcpy(message2, "MUD's currently connected to the network\r\n"
 		"---------------------------------------------------------\r\n\r\n");
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->character)) == 0)) {
-			send_to_char(d->character, message2);
+		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->creature)) == 0)) {
+			send_to_char(d->creature, message2);
 			while (Remote_Mud != NULL) {
 				Mud_Port = strtok(NULL, "|");
 				IP_Address = strtok(NULL, "|");
 				Muted = strtok(NULL, "|");
 				sprintf(message2, "%-30s  %-15s  %-4s %s\r\n", Remote_Mud,
 					IP_Address, Mud_Port, Muted);
-				send_to_char(d->character, message2);
+				send_to_char(d->creature, message2);
 				Remote_Mud = strtok(NULL, "|");
 			}
 			break;
@@ -489,18 +489,18 @@ serv_recv_intertell(char *serv_message)
 	sprintf(message2, "%s@%s tells you, '%s'\r\n", From, Remote_Mud, Text);
 
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && d->character &&
-			(str_cmp(To, GET_NAME(d->character)) == 0)) {
-			if (GET_INVIS_LVL(d->character) == GET_LEVEL(d->character))
+		if (IS_PLAYING(d) && d->creature &&
+			(str_cmp(To, GET_NAME(d->creature)) == 0)) {
+			if (GET_INVIS_LVL(d->creature) == GET_LEVEL(d->creature))
 				continue;
-			if (PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC)
+			if (PLR_FLAGGED(d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC)
 				|| (d->showstr_point
-					&& !PRF2_FLAGGED(d->character, PRF2_LIGHT_READ)))
+					&& !PRF2_FLAGGED(d->creature, PRF2_LIGHT_READ)))
 				player_found = 1;
 			else {
-				send_to_char(d->character, CCRED(d->character, C_NRM));
-				send_to_char(d->character, message2);
-				send_to_char(d->character, CCNRM(d->character, C_NRM));
+				send_to_char(d->creature, CCRED(d->creature, C_NRM));
+				send_to_char(d->creature, message2);
+				send_to_char(d->creature, CCNRM(d->creature, C_NRM));
 				player_found = 2;
 			}
 			break;
@@ -540,16 +540,16 @@ serv_recv_intertellrpy(char *serv_message)
 	sprintf(message2, "%s@%s tells you, '%s'\r\n", From, Remote_Mud, Text);
 
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && d->character &&
-			(str_cmp(To, GET_NAME(d->character)) == 0)) {
-			if (PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC)
+		if (IS_PLAYING(d) && d->creature &&
+			(str_cmp(To, GET_NAME(d->creature)) == 0)) {
+			if (PLR_FLAGGED(d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC)
 				|| (d->showstr_point
-					&& !PRF2_FLAGGED(d->character, PRF2_LIGHT_READ)))
+					&& !PRF2_FLAGGED(d->creature, PRF2_LIGHT_READ)))
 				player_found = 1;
 			else {
-				send_to_char(d->character, CCRED(d->character, C_NRM));
-				send_to_char(d->character, message2);
-				send_to_char(d->character, CCNRM(d->character, C_NRM));
+				send_to_char(d->creature, CCRED(d->creature, C_NRM));
+				send_to_char(d->creature, message2);
+				send_to_char(d->creature, CCNRM(d->creature, C_NRM));
 				player_found = 2;
 			}
 			break;
@@ -572,31 +572,31 @@ serv_recv_interwhoreq(char *serv_message)
 
 	if (str_cmp(Remote_Mud, MUDNAME) == 0)
 		for (d = descriptor_list; d; d = d->next)
-			if (d->character && str_cmp(GET_NAME(d->character), From) == 0) {
-				ch = d->character;
+			if (d->creature && str_cmp(GET_NAME(d->creature), From) == 0) {
+				ch = d->creature;
 				break;
 			}
 
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && d->character &&
-			GET_LEVEL(d->character) >= LVL_AMBASSADOR &&
-			(!ch || GET_INVIS_LVL(d->character) <= GET_LEVEL(ch))) {
+		if (IS_PLAYING(d) && d->creature &&
+			GET_LEVEL(d->creature) >= LVL_AMBASSADOR &&
+			(!ch || GET_INVIS_LVL(d->creature) <= GET_LEVEL(ch))) {
 			sprintf(message2, "%s[%7s] %s %s", message2,
-				GET_LEVEL(d->character) < LVL_AMBASSADOR ? " MORTAL " :
-				level_abbrevs[(int)GET_LEVEL(d->character) - LVL_AMBASSADOR],
-				GET_NAME(d->character), GET_TITLE(d->character));
-			if (PLR_FLAGGED(d->character, PLR_WRITING))
+				GET_LEVEL(d->creature) < LVL_AMBASSADOR ? " MORTAL " :
+				level_abbrevs[(int)GET_LEVEL(d->creature) - LVL_AMBASSADOR],
+				GET_NAME(d->creature), GET_TITLE(d->creature));
+			if (PLR_FLAGGED(d->creature, PLR_WRITING))
 				strcat(message2, " (writing)");
-			else if (PLR_FLAGGED(d->character, PLR_MAILING))
+			else if (PLR_FLAGGED(d->creature, PLR_MAILING))
 				strcat(message2, " (mailing)");
-			else if (PLR_FLAGGED(d->character, PLR_OLC))
+			else if (PLR_FLAGGED(d->creature, PLR_OLC))
 				strcat(message2, " (creating)");
-			if (PRF_FLAGGED(d->character, PRF_NOINTWIZ))
+			if (PRF_FLAGGED(d->creature, PRF_NOINTWIZ))
 				strcat(message2, " (nointwiz)");
 			if (d->showstr_point &&
-				!PRF2_FLAGGED(d->character, PRF2_LIGHT_READ))
+				!PRF2_FLAGGED(d->creature, PRF2_LIGHT_READ))
 				strcat(message2, " (reading)");
-			else if (PLR_FLAGGED(d->character, PLR_AFK))
+			else if (PLR_FLAGGED(d->creature, PLR_AFK))
 				strcat(message2, " (afk)");
 			strcat(message2, "|");
 		}
@@ -618,18 +618,18 @@ serv_recv_interwhorpy(char *serv_message)
 	Remote_Mud = strtok(NULL, "|");
 
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->character)) == 0) &&
-			(!PLR_FLAGGED(d->character,
+		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->creature)) == 0) &&
+			(!PLR_FLAGGED(d->creature,
 					PLR_WRITING | PLR_MAILING | PLR_OLC))) {
 
 			sprintf(message2, "Players on-line at %s\r\n"
 				"----------------------------------\r\n\r\n", Remote_Mud);
-			send_to_char(d->character, message2);
+			send_to_char(d->creature, message2);
 
 			do {
 				player = strtok(NULL, "|");
-				send_to_char(d->character, player);
-				send_to_char(d->character, "\r\n");
+				send_to_char(d->creature, player);
+				send_to_char(d->creature, "\r\n");
 			}
 			while (player != NULL);
 		}
@@ -652,22 +652,22 @@ serv_recv_interpage(char *serv_message)
 
 	if (str_cmp(Remote_Mud, MUDNAME) == 0)
 		for (d = descriptor_list; d; d = d->next)
-			if (d->character && str_cmp(GET_NAME(d->character), From) == 0) {
-				ch = d->character;
+			if (d->creature && str_cmp(GET_NAME(d->creature), From) == 0) {
+				ch = d->creature;
 				break;
 			}
 
 	sprintf(message2, "\007\007*%s@%s* %s\r\n", From, Remote_Mud, Text);
 
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->character)) == 0)) {
-			if (GET_INVIS_LVL(d->character) == GET_LEVEL(d->character) ||
-				(ch && GET_INVIS_LVL(d->character) > GET_LEVEL(ch)))
+		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->creature)) == 0)) {
+			if (GET_INVIS_LVL(d->creature) == GET_LEVEL(d->creature) ||
+				(ch && GET_INVIS_LVL(d->creature) > GET_LEVEL(ch)))
 				continue;
-			if (PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC))
+			if (PLR_FLAGGED(d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC))
 				player_found = 1;
 			else {
-				send_to_char(d->character, message2);
+				send_to_char(d->creature, message2);
 				player_found = 2;
 			}
 			break;
@@ -728,7 +728,7 @@ serv_recv_mudinfo(char *serv_message)
 	}
 
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->character)) == 0)) {
+		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->creature)) == 0)) {
 			sprintf(message2, "MUD: %s\r\n\r\n"
 				"Intermud Version: %s\r\n\r\n"
 				"Mud Type: %s         Version: %s\r\n\r\n"
@@ -737,7 +737,7 @@ serv_recv_mudinfo(char *serv_message)
 				"Subscribed Boards: Not Implemented\r\n\r\n",
 				Remote_Mud, Intermud_Version, Mud, Mud_Version, Services_Buf);
 
-			send_to_char(d->character, message2);
+			send_to_char(d->creature, message2);
 			break;
 		}
 }
@@ -757,8 +757,8 @@ serv_recv_stats(char *serv_message)
 		"-------------------------------------------------------------------------\r\n\r\n");
 
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->character)) == 0)) {
-			send_to_char(d->character, message2);
+		if (IS_PLAYING(d) && (str_cmp(To, GET_NAME(d->creature)) == 0)) {
+			send_to_char(d->creature, message2);
 			while (Remote_Mud != NULL) {
 				KB_in = strtok(NULL, "|");
 				KB_out = strtok(NULL, "|");
@@ -769,7 +769,7 @@ serv_recv_stats(char *serv_message)
 				sprintf(message2,
 					"%-20s%-5s      %-5s         %-5s    %-5s    %s      %s\r\n",
 					Remote_Mud, KB_in, KB_out, MSG_in, MSG_out, TTL, Muted);
-				send_to_char(d->character, message2);
+				send_to_char(d->creature, message2);
 				Remote_Mud = strtok(NULL, "|");
 			}
 			break;
@@ -797,12 +797,12 @@ serv_recv_interwiz(char *serv_message)
 		sprintf(message2, "%s@%s: %s\r\n", From, Remote_Mud, Text);
 
 	for (d = descriptor_list; d; d = d->next)
-		if (IS_PLAYING(d) && (!PRF_FLAGGED(d->character, PRF_NOINTWIZ)) &&
-			(!PLR_FLAGGED(d->character, PLR_WRITING | PLR_MAILING | PLR_OLC))
-			&& (GET_LEVEL(d->character) >= LVL_AMBASSADOR)) {
-			send_to_char(d->character, CCMAG(d->character, C_NRM));
-			send_to_char(d->character, message2);
-			send_to_char(d->character, CCNRM(d->character, C_NRM));
+		if (IS_PLAYING(d) && (!PRF_FLAGGED(d->creature, PRF_NOINTWIZ)) &&
+			(!PLR_FLAGGED(d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC))
+			&& (GET_LEVEL(d->creature) >= LVL_AMBASSADOR)) {
+			send_to_char(d->creature, CCMAG(d->creature, C_NRM));
+			send_to_char(d->creature, message2);
+			send_to_char(d->creature, CCNRM(d->creature, C_NRM));
 		}
 }
 

@@ -1150,7 +1150,7 @@ extern const char *affected3_bits_desc[] = {
 	"\n"
 };
 
-/* CON_x */
+/* CXN_x */
 extern const char *connected_types[] = {
 	"Playing",
 	"Disconnect",

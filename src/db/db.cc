@@ -53,6 +53,7 @@ using namespace std;
 #include "tmpstr.h"
 #include "flags.h"
 #include "player_table.h"
+#include "account.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -72,15 +73,9 @@ int top_of_objt = 0;			/* top of object index table         */
 struct zone_data *zone_table;	/* zone table                         */
 int top_of_zone_table = 0;		/* top element of zone tab         */
 struct message_list fight_messages[MAX_MESSAGES];	/* fighting messages  */
-struct player_index_element *player_table = NULL;	/* index to plr file */
 extern HelpCollection *Help;
 extern list <CIScript *>scriptList;
 
-FILE *player_fl = NULL;			/* file desc of player file         */
-
-int top_of_p_table = 0;			/* ref to top of table                 */
-int top_of_p_file = 0;			/* ref of size of p file         */
-long top_idnum = 0;				/* highest idnum in use                 */
 int no_plrtext = 0;				/* player text disabled?         */
 
 int no_mail = 0;				/* mail disabled?                 */
@@ -155,7 +150,7 @@ char *quest_guide = NULL;		/* quest guidelines             */
 
 struct time_info_data time_info;	/* the infomation about the time    */
 /*struct weather_data weather_info;        the infomation about the weather */
-struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
+extern struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 struct reset_q_type reset_q;	/* queue of zones to be reset         */
 
 /* local functions */
@@ -174,8 +169,6 @@ void assign_objects(void);
 void assign_rooms(void);
 void assign_the_shopkeepers(void);
 void assign_artisans(void);
-void build_player_index(void);
-void build_player_table(void);
 void boot_dynamic_text(void);
 void load_iscripts(char fname[MAX_INPUT_LENGTH]);
 
@@ -353,11 +346,7 @@ boot_db(void)
 	slog("Resetting the game time:");
 	reset_time();
 
-	if( USE_XML_FILES ) {
-		slog("Building player table.");
-		build_player_table();
-		slog("...%d records added.", playerIndex.size());
-	}
+	boot_accounts();
 
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
@@ -381,9 +370,6 @@ boot_db(void)
 	boot_world();
 
 	reset_zone_weather();
-
-	slog("Generating player index.");
-	build_player_index();
 
 	slog("Booting clans.");
 	boot_clans();
@@ -464,11 +450,11 @@ boot_db(void)
 
 	reset_q.head = reset_q.tail = NULL;
 
-	if (TRUE) {					/*   this needs to be changed to !mini_mud   */
+	if (!mini_mud) {
 		slog("Booting houses.");
-		House_boot();
+		Housing.load();
 
-		House_countobjs();
+		Housing.countObjects();
 
 	}
 
@@ -539,7 +525,7 @@ reset_zone_weather(void)
  * the playerIndex.
 **/
 void
-build_player_table() 
+build_player_table(void) 
 {
 	DIR* dir;
 	dirent *file;
@@ -587,63 +573,6 @@ build_player_table()
 	}
 	playerIndex.sort();
 }
-
-/* generate index table for the player file */
-void
-build_player_index(void)
-{
-	int nr = -1, i;
-	long size, recs;
-	struct char_file_u dummy;
-
-	if (!(player_fl = fopen(PLAYER_FILE, "r+b"))) {
-		if (errno != ENOENT) {
-			perror("fatal error opening playerfile");
-			safe_exit(1);
-		} else {
-			slog("No playerfile.  Creating a new one.");
-			touch(PLAYER_FILE);
-			if (!(player_fl = fopen(PLAYER_FILE, "r+b"))) {
-				perror("fatal error opening new playerfile");
-				safe_exit(1);
-			}
-		}
-	}
-
-	fseek(player_fl, 0L, SEEK_END);
-	size = ftell(player_fl);
-	rewind(player_fl);
-	if (size % sizeof(struct char_file_u))
-		fprintf(stderr, "\aWARNING:  PLAYERFILE IS PROBABLY CORRUPT!\n");
-	recs = size / sizeof(struct char_file_u);
-	if (recs) {
-		slog("   %ld players in database.", recs);
-		CREATE(player_table, struct player_index_element, recs);
-	} else {
-		player_table = NULL;
-		top_of_p_file = top_of_p_table = -1;
-		return;
-	}
-
-	for (i = 0; i < NUM_HOMETOWNS; i++)
-		population_record[i] = 0;
-
-	for (; !feof(player_fl);) {
-		fread(&dummy, sizeof(struct char_file_u), 1, player_fl);
-		if (!feof(player_fl)) {	/* new record */
-			nr++;
-			CREATE(player_table[nr].name, char, strlen(dummy.name) + 1);
-			for (i = 0;(*(player_table[nr].name + i) = tolower(*(dummy.name + i)));i++);
-			player_table[nr].id = dummy.char_specials_saved.idnum;
-			top_idnum = MAX(top_idnum, dummy.char_specials_saved.idnum);
-			population_record[dummy.hometown]++;
-		}
-	}
-
-	top_of_p_file = top_of_p_table = nr;
-}
-
-
 
 /* function to count how many hash-mark delimited records exist in a file */
 int
@@ -2007,9 +1936,7 @@ parse_mobile(FILE * mob_f, int nr)
 	char f1[128], f2[128], f3[128], f4[128], f5[128];
 	struct Creature *mobile = NULL, *tmp_mob = NULL;
 
-	CREATE(mobile, struct Creature, 1);
-
-	clear_char(mobile);
+	mobile = new Creature;
 
 	tmp_mob = real_mobile_proto(nr);
 
@@ -2525,15 +2452,13 @@ read_mobile(int vnum)
 	int found = 0;
 	struct Creature *mob = NULL, *tmp_mob;
 
-	/*  CREATE(mob, struct Creature, 1);
-	   clear_char(mob); */
 	CreatureList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		tmp_mob = *mit;
 		//for (tmp_mob = mob_proto; tmp_mob; tmp_mob = tmp_mob->next) {
 		if (tmp_mob->mob_specials.shared->vnum >= vnum) {
 			if (tmp_mob->mob_specials.shared->vnum == vnum) {
-				CREATE(mob, struct Creature, 1);
+				mob = new Creature;
 				*mob = *tmp_mob;
 				tmp_mob->mob_specials.shared->number++;
 				tmp_mob->mob_specials.shared->loaded++;
@@ -3087,7 +3012,7 @@ reset_zone(struct zone_data *zone)
 
   for (i = descriptor_list; i; i = i->next)
   if (!i->connected)
-  if (i->character->in_room->zone == zone)
+  if (i->creature->in_room->zone == zone)
   return 0;
 
   return 1;
@@ -3097,496 +3022,6 @@ reset_zone(struct zone_data *zone)
 /*************************************************************************
 *  stuff related to the save/load player system                                 *
 *********************************************************************** */
-
-long
-get_id_by_name(const char *name)
-{
-	int i;
-
-	one_argument(name, arg);
-	for (i = 0; i <= top_of_p_table; i++)
-		if (!strcasecmp((player_table + i)->name, arg))
-			return ((player_table + i)->id);
-
-	return -1;
-}
-
-
-char *
-get_name_by_id(long id)
-{
-	int i;
-
-	for (i = 0; i <= top_of_p_table; i++)
-		if ((player_table + i)->id == id)
-			return ((player_table + i)->name);
-
-	return NULL;
-}
-
-void
-export_player_table( Creature *ch ) 
-{
-	char_file_u file_e;
-	Creature *vict;
-	CREATE(vict, Creature, 1);
-	clear_char(vict);
-
-	int i;
-	for( i = 0; i <= top_of_p_table; i++ ) {
-		load_char( player_table[i].name, &file_e );
-		store_to_char( &file_e, vict );
-		vict->saveToXML();
-		clear_char(vict);
-	}
-	send_to_char(ch, "Exported %d files.\r\n", i);
-}
-
-// Load a char, pfile index if loaded, -1 if not
-int
-load_char(char *name, struct char_file_u *char_element)
-{
-
-	int player_i;
-	int find_name(char *name);
-
-	if (!name)
-		return -1;
-
-	if ((player_i = find_name(name)) >= 0) {
-		fseek(player_fl, (long)(player_i * sizeof(struct char_file_u)),
-			SEEK_SET);
-		fread(char_element, sizeof(struct char_file_u), 1, player_fl);
-		return (player_i);
-	} else
-		return (-1);
-}
-
-void
-save_aliases(struct Creature *ch)
-{
-	struct alias_data *a;
-	FILE *file_handle = NULL;
-
-	strcpy(buf, GET_NAME(ch));
-	buf[0] = toupper(buf[0]);
-	if (buf[0] < 'F')
-		sprintf(buf, "plralias/A-E/%s.al", GET_NAME(ch));
-	else if (buf[0] < 'K')
-		sprintf(buf, "plralias/F-J/%s.al", GET_NAME(ch));
-	else if (buf[0] < 'P')
-		sprintf(buf, "plralias/K-O/%s.al", GET_NAME(ch));
-	else if (buf[0] < 'U')
-		sprintf(buf, "plralias/P-T/%s.al", GET_NAME(ch));
-	else if (buf[0] <= 'Z')
-		sprintf(buf, "plralias/U-Z/%s.al", GET_NAME(ch));
-	else
-		sprintf(buf, "plralias/ZZZ/%s.al", GET_NAME(ch));
-
-	file_handle = fopen(buf, "w");
-	if (!file_handle) {
-		sprintf(buf2, "SYSERR: Unable to open alias file %s for write.", buf);
-		slog(buf2);
-		return;
-	}
-	for (a = ch->player_specials->aliases; a; a = a->next) {
-		sprintf(buf, "%d %s %s\n", a->type, a->alias, a->replacement);
-		fputs(buf, file_handle);
-	}
-	fputs("S\n", file_handle);
-	fclose(file_handle);
-}
-
-void
-read_alias(struct Creature *ch)
-{
-	struct alias_data *a;
-	char buf[MAX_STRING_LENGTH];
-	FILE *file_handle = NULL;
-	char *t, *a_, *r;
-
-	strcpy(buf, GET_NAME(ch));
-	buf[0] = toupper(buf[0]);
-	if (buf[0] < 'F')
-		sprintf(buf, "plralias/A-E/%s.al", GET_NAME(ch));
-	else if (buf[0] < 'K')
-		sprintf(buf, "plralias/F-J/%s.al", GET_NAME(ch));
-	else if (buf[0] < 'P')
-		sprintf(buf, "plralias/K-O/%s.al", GET_NAME(ch));
-	else if (buf[0] < 'U')
-		sprintf(buf, "plralias/P-T/%s.al", GET_NAME(ch));
-	else if (buf[0] <= 'Z')
-		sprintf(buf, "plralias/U-Z/%s.al", GET_NAME(ch));
-	else
-		sprintf(buf, "plralias/ZZZ/%s.al", GET_NAME(ch));
-
-	file_handle = fopen(buf, "r");
-	if (!file_handle) {
-		if (errno && errno != 2) {
-			sprintf(buf2, "SYSERR: Unable to open alias file %s for read.",
-				buf);
-			slog(buf2);
-		}
-		return;
-	}
-
-	while (!feof(file_handle)) {
-		if (!fgets(buf, MAX_INPUT_LENGTH, file_handle))
-			break;
-		if (buf[0] == 'S')
-			break;
-
-		t = strtok(buf, " ");
-		a_ = strtok(NULL, " ");
-		r = strtok(NULL, "\n");
-
-		if ((t != NULL) && (isdigit(t[0])) && (a_ != NULL) && (r != NULL)) {
-			CREATE(a, struct alias_data, 1);
-			a->type = atoi(t);
-			a->alias = strdup(a_);
-			a->replacement = strdup(r);
-			add_alias(ch, a);
-		}
-	}
-	if (file_handle != NULL) {
-		fclose(file_handle);
-	}
-}
-
-/* write the vital data of a player to the player file */
-void
-save_char(struct Creature *ch, struct room_data *load_room)
-{
-	struct char_file_u st;
-
-	if (IS_NPC(ch) || !ch->desc)
-		return;
-
-	if (!USE_XML_FILES && GET_PFILEPOS(ch) < 0)
-		return;
-
-	if (load_room) {
-		if (PLR_FLAGGED(ch, PLR_LOADROOM) &&
-			GET_LOADROOM(ch) != load_room->number) {
-			REMOVE_BIT(PLR_FLAGS(ch), PLR_LOADROOM);
-			REMOVE_BIT(st.char_specials_saved.act, PLR_LOADROOM);
-			GET_HOLD_LOADROOM(ch) = GET_LOADROOM(ch);
-			st.player_specials_saved.hold_load_room = GET_LOADROOM(ch);
-		}
-		GET_LOADROOM(ch) = load_room->number;
-		st.player_specials_saved.load_room = load_room->number;
-	} else if (!PLR_FLAGGED(ch, PLR_LOADROOM)) {
-		GET_LOADROOM(ch) = -1;
-		st.player_specials_saved.load_room = -1;
-	}
-
-    if( USE_XML_FILES ) {
-        ch->saveToXML();
-        return;
-    }
-
-	ch->player.time.played += time(0) - ch->player.time.logon;
-	ch->player.time.logon = time(0);
-
-	char_to_store(ch, &st);
-
-	// This must be updated here because the last host isn't stored anywhere
-	// in the creature record
-	strncpy(st.host, ch->desc->host, HOST_LENGTH);
-	st.host[HOST_LENGTH] = '\0';
-
-	if (STATE(ch->desc) == CON_PLAYING)
-		save_aliases(ch);
-
-	fseek(player_fl, GET_PFILEPOS(ch) * sizeof(struct char_file_u), SEEK_SET);
-	fwrite(&st, sizeof(struct char_file_u), 1, player_fl);
-    
-}
-
-
-
-/* copy data from the file structure to a char struct */
-void
-store_to_char(struct char_file_u *st, struct Creature *ch)
-{
-	int i;
-
-	/* to save memory, only PC's -- not MOB's -- have player_specials */
-	if (ch->player_specials == NULL)
-		CREATE(ch->player_specials, struct player_special_data, 1);
-
-	GET_SEX(ch) = st->sex;
-	GET_CLASS(ch) = st->char_class;
-	GET_REMORT_CLASS(ch) = st->remort_char_class;
-	GET_RACE(ch) = st->race;
-	GET_LEVEL(ch) = st->level;
-
-	ch->player.short_descr = NULL;
-	ch->player.long_descr = NULL;
-	set_title(ch, st->title);
-	ch->player.description = str_dup(st->description);
-	ch->player.hometown = st->hometown;
-	ch->player.time.birth = st->birth;
-	ch->player.time.death = st->death;
-	ch->player.time.played = st->played;
-	ch->player.time.logon = time(0);
-
-	ch->player.weight = st->weight;
-	ch->player.height = st->height;
-
-	ch->real_abils = st->abilities;
-	ch->aff_abils = st->abilities;
-	ch->points = st->points;
-	ch->char_specials.saved = st->char_specials_saved;
-
-	if (IS_SET(ch->char_specials.saved.act, MOB_ISNPC)) {
-		REMOVE_BIT(ch->char_specials.saved.act, MOB_ISNPC);
-		slog("SYSERR: store_to_char %s loaded with MOB_ISNPC bit set!",
-			GET_NAME(ch));
-	}
-
-	ch->player_specials->saved = st->player_specials_saved;
-
-	if (ch->points.max_mana < 100)
-		ch->points.max_mana = 100;
-
-	ch->char_specials.carry_weight = 0;
-	ch->char_specials.carry_items = 0;
-	ch->char_specials.worn_weight = 0;
-	ch->points.armor = 100;
-	ch->points.hitroll = 0;
-	ch->points.damroll = 0;
-	ch->setSpeed(0);
-
-	st->name[MAX_NAME_LENGTH] = '\0';
-	CREATE(ch->player.name, char, strlen(st->name) + 1);
-	strcpy(ch->player.name, st->name);
-	st->pwd[MAX_PWD_LENGTH] = '\0';
-	strcpy(ch->player.passwd, st->pwd);
-
-	if (*st->poofin) {
-		CREATE(POOFIN(ch), char, strlen(st->poofin) + 1);
-		strcpy(POOFIN(ch), st->poofin);
-	} else
-		POOFIN(ch) = NULL;
-
-	if (*st->poofout) {
-		CREATE(POOFOUT(ch), char, strlen(st->poofout) + 1);
-		strcpy(POOFOUT(ch), st->poofout);
-	} else
-		POOFOUT(ch) = NULL;
-
-	// reset all imprint rooms
-	for (i = 0; i < MAX_IMPRINT_ROOMS; i++)
-		GET_IMPRINT_ROOM(ch, i) = -1;
-
-	/* Add all spell effects */
-	for (i = 0; i < MAX_AFFECT; i++) {
-		if (st->affected[i].type)
-			affect_to_char(ch, &st->affected[i]);
-	}
-	/*  ch->in_room = real_room(GET_LOADROOM(ch)); */
-
-/*   affect_total(ch); also - unnecessary?? */
-
-	/*
-	 * If you're not poisioned and you've been away for more than an hour,
-	 * we'll set your HMV back to full
-	 */
-
-	if (!IS_POISONED(ch) &&
-		(((long)(time(0) - st->last_logon)) >= SECS_PER_REAL_HOUR)) {
-		GET_HIT(ch) = GET_MAX_HIT(ch);
-		GET_MOVE(ch) = GET_MAX_MOVE(ch);
-		GET_MANA(ch) = GET_MAX_MANA(ch);
-	}
-
-	read_alias(ch);
-}								/* store_to_char */
-
-
-
-/* copy vital data from a players char-structure to the file structure */
-void
-char_to_store(struct Creature *ch, struct char_file_u *st)
-{
-	int i;
-	struct affected_type *af;
-	struct obj_data *char_eq[NUM_WEARS], *char_implants[NUM_WEARS];
-	struct room_data *room = ch->in_room;
-	sh_int hit = GET_HIT(ch), mana = GET_MANA(ch), move = GET_MOVE(ch);
-	int dead = 0;
-
-	memset(st, 0x00, sizeof(struct char_file_u));
-
-	/* Unaffect everything a character can be affected by */
-
-	for (i = 0; i < NUM_WEARS; i++) {
-		if (ch->equipment[i])
-			char_eq[i] = unequip_char(ch, i, MODE_EQ, true);
-		else
-			char_eq[i] = NULL;
-
-		if (ch->implants[i])
-			char_implants[i] = unequip_char(ch, i, MODE_IMPLANT, true);
-		else
-			char_implants[i] = NULL;
-	}
-
-	for (af = ch->affected, i = 0; i < MAX_AFFECT; i++) {
-		if (af) {
-			//      st->affected[i] = *af;  buggy circle shit, read it and weep
-			memcpy(st->affected + i, af, sizeof(struct affected_type));
-			st->affected[i].next = NULL;
-			af = af->next;
-		} else {
-			st->affected[i].type = 0;	/* Zero signifies not used */
-			st->affected[i].duration = 0;
-			st->affected[i].modifier = 0;
-			st->affected[i].location = 0;
-			st->affected[i].bitvector = 0;
-			st->affected[i].level = 0;
-			st->affected[i].is_instant = 0;
-			st->affected[i].aff_index = 0;
-			st->affected[i].next = NULL;
-		}
-	}
-
-	/*
-	 * remove the affections so that the raw values are stored; otherwise the
-	 * effects are doubled when the char logs back in.
-	 */
-
-	while (ch->affected)
-		affect_remove(ch, ch->affected);
-
-	if ((i >= MAX_AFFECT) && af && af->next)
-		slog("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
-
-	ch->aff_abils = ch->real_abils;
-
-	st->birth = ch->player.time.birth;
-	st->death = ch->player.time.death;
-	st->played = ch->player.time.played;
-	st->last_logon = ch->player.time.logon;
-
-	ch->player.time.played = st->played;
-	ch->player.time.logon = time(0);
-
-	st->hometown = ch->player.hometown;
-	st->weight = GET_WEIGHT(ch);
-	st->height = GET_HEIGHT(ch);
-	st->sex = GET_SEX(ch);
-	st->char_class = GET_CLASS(ch);
-	st->remort_char_class = GET_REMORT_CLASS(ch);
-	st->race = GET_RACE(ch);
-	st->level = GET_LEVEL(ch);
-	st->abilities = ch->real_abils;
-	st->points = ch->points;
-	st->char_specials_saved = ch->char_specials.saved;
-	st->char_specials_saved.affected_by = 0;
-	st->char_specials_saved.affected2_by = 0;
-	st->char_specials_saved.affected3_by = 0;
-	st->player_specials_saved = ch->player_specials->saved;
-
-	st->points.armor = 100;
-	st->points.hitroll = 0;
-	st->points.damroll = 0;
-
-	if (GET_TITLE(ch)) {
-		strncpy(st->title, GET_TITLE(ch),MAX_TITLE_LENGTH);
-		st->title[MAX_TITLE_LENGTH] = '\0'; // allocated size + 1
-	} else {
-		*st->title = '\0';
-	}
-
-	if (ch->player.description) {
-		strncpy(st->description, ch->player.description, MAX_CHAR_DESC);
-		st->description[MAX_CHAR_DESC] = '\0'; // allocated size +1 
-	} else {
-		*st->description = '\0';
-	}
-
-	if (POOFIN(ch)) {
-		strncpy( st->poofin, POOFIN(ch), MAX_POOF_LENGTH );
-		st->poofin[MAX_POOF_LENGTH - 1] = '\0';
-	} else {
-		*st->poofin = '\0';
-	}
-
-	if (POOFOUT(ch)) {
-		strncpy(st->poofout, POOFOUT(ch), MAX_POOF_LENGTH);
-		st->poofout[MAX_POOF_LENGTH - 1] = '\0';
-	} else {
-		*st->poofout = '\0';
-	}
-
-	strncpy(st->name, GET_NAME(ch), MAX_NAME_LENGTH);
-	st->name[MAX_NAME_LENGTH] = '\0';
-	strncpy(st->pwd, GET_PASSWD(ch), MAX_PWD_LENGTH);
-	st->pwd[MAX_PWD_LENGTH] = '\0';
-
-
-	/* add spell and eq affections back in now */
-	for (i = 0; i < MAX_AFFECT; i++) {
-		if (st->affected[i].type)
-			affect_to_char(ch, &st->affected[i]);
-	}
-
-	for (i = 0, dead = 0; i < NUM_WEARS; i++) {
-		if (char_eq[i]) {
-			if (dead && room)
-				obj_to_room(char_eq[i], room);
-			else
-				dead = equip_char(ch, char_eq[i], i, MODE_EQ);
-		}
-		if (char_implants[i]) {
-			if (dead && room)
-				obj_to_room(char_eq[i], room);
-			else
-				dead = equip_char(ch, char_implants[i], i, MODE_IMPLANT);
-		}
-	}
-	if (!dead)
-		dead = check_eq_align(ch);
-
-	if (dead)
-		return;
-
-	GET_HIT(ch) = MIN(GET_MAX_HIT(ch), hit);
-	GET_MANA(ch) = MIN(GET_MAX_MANA(ch), mana);
-	GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), move);
-
-}								/* Char to store */
-
-/* create a new entry in the in-memory index table for the player file */
-int
-create_entry(char *name)
-{
-	int i, len = strlen(name);
-
-	if (top_of_p_table == -1) {
-		CREATE(player_table, struct player_index_element, 1);
-		top_of_p_table = 0;
-		return 0;
-	}
-
-	if (!(player_table = (struct player_index_element *)
-			realloc(player_table, sizeof(struct player_index_element) *
-				(++top_of_p_table + 1)))) {
-		perror("create entry");
-		safe_exit(1);
-	}
-	CREATE(player_table[top_of_p_table].name, char, len + 1);
-
-	/* copy lowercase equivalent of name to table field */
-	for (i = 0;
-		(*(player_table[top_of_p_table].name + i) = tolower(*(name + i))); i++);
-
-	return (top_of_p_table);
-}
-
-
 
 /************************************************************************
 *  funcs of a (more or less) general utility nature                        *
@@ -3680,132 +3115,6 @@ pread_string(FILE * fl, char *str, char *error)
 	} while (!done);
 
 	return 1;
-}
-
-//
-// release memory allocated for a char struct
-// char must be remove from the world _FIRST_
-//
-
-void
-free_char(struct Creature *ch)
-{
-
-	int i;
-	struct Creature *tmp_mob;
-	struct alias_data *a;
-
-	void free_alias(struct alias_data *a);
-
-	//
-	// first make sure the char is no longer in the world
-	//
-
-	if (ch->in_room != NULL || ch->carrying != NULL ||
-		ch->getFighting() != NULL || ch->followers != NULL
-		|| ch->master != NULL) {
-		slog("SYSERR: free_char() attempted to free a char who is still connected to the world.");
-		raise(SIGSEGV);
-	}
-	//
-	// first remove and free all alieases
-	//
-
-	while ((a = GET_ALIASES(ch)) != NULL) {
-		GET_ALIASES(ch) = (GET_ALIASES(ch))->next;
-		free_alias(a);
-	}
-
-	//
-	// now remove all affects
-	//
-
-	while (ch->affected)
-		affect_remove(ch, ch->affected);
-
-
-	//
-	// free mob strings:
-	// free strings only if the string is not pointing at proto
-	//
-
-	if ((i = GET_MOB_VNUM(ch)) > -1) {
-
-		tmp_mob = real_mobile_proto(GET_MOB_VNUM(ch));
-
-		if (ch->player.name && ch->player.name != tmp_mob->player.name)
-			free(ch->player.name);
-		if (ch->player.title && ch->player.title != tmp_mob->player.title)
-			free(ch->player.title);
-		if (ch->player.short_descr &&
-			ch->player.short_descr != tmp_mob->player.short_descr)
-			free(ch->player.short_descr);
-		if (ch->player.long_descr &&
-			ch->player.long_descr != tmp_mob->player.long_descr)
-			free(ch->player.long_descr);
-		if (ch->player.description &&
-			ch->player.description != tmp_mob->player.description)
-			free(ch->player.description);
-		if (ch->mob_specials.mug)
-			free(ch->mob_specials.mug);
-
-		ch->mob_specials.mug = 0;
-	}
-	//
-	// otherwise this is a player, so free all
-	//
-
-	else {
-
-		if (GET_NAME(ch))
-			free(GET_NAME(ch));
-		if (ch->player.title)
-			free(ch->player.title);
-		if (ch->player.short_descr)
-			free(ch->player.short_descr);
-		if (ch->player.long_descr)
-			free(ch->player.long_descr);
-		if (ch->player.description)
-			free(ch->player.description);
-	}
-
-	//
-	// null all the fields so if (heaven forbid!) the free'd ch is used again, 
-	// it will hopefully cause a segv
-	//
-
-	ch->player.name = 0;
-	ch->player.title = 0;
-	ch->player.short_descr = 0;
-	ch->player.long_descr = 0;
-	ch->player.description = 0;
-
-	//
-	// remove player_specials:
-	// - poofin
-	// - poofout
-	//
-
-	if (ch->player_specials != NULL && ch->player_specials != &dummy_mob) {
-		if (ch->player_specials->poofin)
-			free(ch->player_specials->poofin);
-		if (ch->player_specials->poofout)
-			free(ch->player_specials->poofout);
-
-		free(ch->player_specials);
-
-		if (IS_NPC(ch)) {
-			slog("SYSERR: Mob had player_specials allocated!");
-			raise(SIGSEGV);
-		}
-	}
-	//
-	// null the free'd player_specials field
-	//
-
-	ch->player_specials = 0;
-
-	free(ch);
 }
 
 /* release memory allocated for an obj struct */
@@ -3976,170 +3285,6 @@ reset_char(struct Creature *ch)
 	GET_LAST_TELL(ch) = NOBODY;
 }
 
-
-
-/* clear ALL the working variables of a char; do NOT free any space alloc'ed */
-void
-clear_char(struct Creature *ch)
-{
-	memset((char *)ch, 0, sizeof(struct Creature));
-
-	ch->in_room = NULL;
-	GET_PFILEPOS(ch) = -1;
-
-	if (ch->player_specials) {
-		GET_WAS_IN(ch) = NULL;
-	}
-	ch->setPosition(POS_STANDING);
-	GET_REMORT_CLASS(ch) = -1;
-
-	GET_AC(ch) = 100;			/* Basic Armor */
-	if (ch->points.max_mana < 100)
-		ch->points.max_mana = 100;
-}
-
-
-
-/* initialize a new character only if char_class is set */
-void
-init_char(struct Creature *ch)
-{
-	int i;
-
-	/* create a player_special structure */
-	if (ch->player_specials == NULL)
-		CREATE(ch->player_specials, struct player_special_data, 1);
-
-	/* *** if this is our first player --- he be God *** */
-
-	if (top_of_p_table == 0) {
-		GET_EXP(ch) = 160000000;
-		GET_LEVEL(ch) = LVL_GRIMP;
-
-		ch->points.max_hit = 666;
-		ch->points.max_mana = 555;
-		ch->points.max_move = 444;
-	}
-	set_title(ch, NULL);
-
-	ch->player.short_descr = NULL;
-	ch->player.long_descr = NULL;
-	ch->player.description = NULL;
-
-	ch->player.hometown = GET_HOME(ch);
-
-	ch->player.time.birth = time(0);
-	ch->player.time.death = 0;
-	ch->player.time.played = 0;
-	ch->player.time.logon = time(0);
-
-	for (i = 0; i < MAX_SKILLS; i++)
-		ch->player_specials->saved.skills[i] = 0;
-
-	for (i = 0; i < MAX_WEAPON_SPEC; i++) {
-		ch->player_specials->saved.weap_spec[i].vnum = -1;
-		ch->player_specials->saved.weap_spec[i].level = 0;
-	}
-	ch->player_specials->saved.quest_points = 0;
-	ch->player_specials->saved.quest_id = 0;
-	ch->player_specials->saved.qlog_level = 0;
-
-	GET_REMORT_CLASS(ch) = -1;
-	/* make favors for sex ... and race */
-	if (ch->player.sex == SEX_MALE) {
-		if (GET_RACE(ch) == RACE_HUMAN) {
-			ch->player.weight = number(130, 180) + GET_STR(ch);
-			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_TABAXI) {
-			ch->player.weight = number(110, 160) + GET_STR(ch);
-			ch->player.height = number(160, 200) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_DWARF) {
-			ch->player.weight = number(120, 160) + GET_STR(ch);
-			ch->player.height = number(100, 125) + (GET_WEIGHT(ch) >> 4);
-		} else if (IS_ELF(ch) || IS_DROW(ch)) {
-			ch->player.weight = number(120, 180) + GET_STR(ch);
-			ch->player.height = number(140, 165) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_HALF_ORC) {
-			ch->player.weight = number(120, 180) + GET_STR(ch);
-			ch->player.height = number(120, 200) + (GET_WEIGHT(ch) >> 4);
-		} else if (GET_RACE(ch) == RACE_MINOTAUR) {
-			ch->player.weight = number(200, 360) + GET_STR(ch);
-			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
-		} else {
-			ch->player.weight = number(130, 180) + GET_STR(ch);
-			ch->player.height = number(140, 190) + (GET_WEIGHT(ch) >> 3);
-		}
-	} else {
-		if (GET_RACE(ch) == RACE_HUMAN) {
-			ch->player.weight = number(90, 150) + GET_STR(ch);
-			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_TABAXI) {
-			ch->player.weight = number(80, 120) + GET_STR(ch);
-			ch->player.height = number(160, 190) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_DWARF) {
-			ch->player.weight = number(100, 140) + GET_STR(ch);
-			ch->player.height = number(90, 115) + (GET_WEIGHT(ch) >> 4);
-		} else if (IS_ELF(ch) || IS_DROW(ch)) {
-			ch->player.weight = number(90, 130) + GET_STR(ch);
-			ch->player.height = number(120, 155) + (GET_WEIGHT(ch) >> 3);
-		} else if (GET_RACE(ch) == RACE_HALF_ORC) {
-			ch->player.weight = number(110, 170) + GET_STR(ch);
-			ch->player.height = number(110, 190) + (GET_WEIGHT(ch) >> 3);
-		} else {
-			ch->player.weight = number(90, 150) + GET_STR(ch);
-			ch->player.height = number(140, 170) + (GET_WEIGHT(ch) >> 3);
-		}
-	}
-
-	ch->points.max_mana = 100;
-	ch->points.mana = GET_MAX_MANA(ch);
-	ch->points.hit = GET_MAX_HIT(ch);
-	ch->points.max_move = 82;
-	ch->points.move = GET_MAX_MOVE(ch);
-	ch->points.armor = 100;
-
-	SET_BIT(PRF_FLAGS(ch), PRF_COMPACT | PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW);
-	SET_BIT(PRF2_FLAGS(ch), PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN | PRF2_NEWBIE_HELPER);
-
-	
-    if( USE_XML_FILES ) {
-        playerIndex.add( playerIndex.getTopIDNum()+1, GET_NAME(ch) );
-    } else {
-        if (GET_PFILEPOS(ch) < 0) {
-            GET_PFILEPOS(ch) = create_entry(GET_NAME(ch));
-        }
-        player_table[GET_PFILEPOS(ch)].id = GET_IDNUM(ch) = ++top_idnum;
-    }
-
-
-	for (i = 1; i <= MAX_SKILLS; i++) {
-		if (GET_LEVEL(ch) < LVL_GRIMP) {
-			SET_SKILL(ch, i, 0);
-		} else {
-			SET_SKILL(ch, i, 100);
-		}
-	}
-
-	GET_ROWS(ch) = 22;			/* default page length */
-	GET_COLS(ch) = -1;
-
-	ch->char_specials.saved.affected_by = 0;
-	ch->char_specials.saved.affected2_by = 0;
-	ch->char_specials.saved.affected3_by = 0;
-
-	for (i = 0; i < 5; i++)
-		GET_SAVE(ch, i) = 0;
-
-	for (i = 0; i < 3; i++)
-		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 24);
-	GET_COND(ch, DRUNK) = 0;
-
-	POOFIN(ch) = NULL;
-	POOFOUT(ch) = NULL;
-}
-
-
-
 /* returns the real number of the room with given vnum number */
 struct room_data *
 real_room(int vnum)
@@ -4250,7 +3395,7 @@ update_alias_dirs(void)
 				!strcmp(dirp->d_name + strlen(dirp->d_name) - 3, ".al")) {
 				strncpy(name, dirp->d_name, strlen(dirp->d_name) - 3);
 				name[strlen(dirp->d_name) - 3] = 0;
-				if (get_id_by_name(name) < 0) {
+				if (playerIndex.getID(name) < 0) {
 					sprintf(name2, "%s/%s", buf, dirp->d_name);
 					unlink(name2);
 					sprintf(buf2, "    Deleting %s's alias file.", name);
@@ -4321,15 +3466,27 @@ obj_owner(struct obj_data *obj)
 }
 
 char*
+get_mail_file_path( long id )
+{
+    return tmp_sprintf( "players/mail/%0ld/%ld.dat", (id % 10), id );
+}
+
+char*
 get_player_file_path( long id ) 
 {
-    return tmp_sprintf( "players/%0ld/%ld.dat", (id % 10), id );
+    return tmp_sprintf( "players/chars/%0ld/%ld.dat", (id % 10), id );
+}
+
+char*
+get_account_file_path( long id ) 
+{
+    return tmp_sprintf( "players/accounts/%0ld/%ld.acct", (id % 10), id );
 }
 
 char*
 get_equipment_file_path( long id ) 
 {
-    return tmp_sprintf( "equipment/%0ld/%ld.dat", (id % 10), id );
+    return tmp_sprintf( "players/equip/%0ld/%ld.dat", (id % 10), id );
 }
 
 

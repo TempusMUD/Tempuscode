@@ -17,6 +17,7 @@
 #include "comm.h"
 #include "screen.h"
 #include "elevators.h"
+#include "player_table.h"
 
 int move_car(struct Creature *ch, struct obj_data *car, int dir);
 
@@ -121,7 +122,7 @@ show_path(struct Creature *ch, char *arg)
 			sprintf(buf,
 				"%3d. %-15s  Own:[%-12s]  Wt:[%3d]  Flags:[%3d]  Len:[%3d]  BFS:[%9d]\r\n",
 				path_head->number, path_head->name,
-				get_name_by_id(path_head->owner) ? get_name_by_id(path_head->
+				playerIndex.getName(path_head->owner) ? playerIndex.getName(path_head->
 					owner) : "NULL", path_head->wait_time, path_head->flags,
 				path_head->length, path_head->find_first_step_calls);
 			strcat(outbuf, buf);

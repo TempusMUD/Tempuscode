@@ -36,12 +36,12 @@
 #include "fight.h"
 #include "security.h"
 #include "tmpstr.h"
+#include "player_table.h"
 
 /* extern variables */
 extern struct room_data *world;
 extern struct obj_data *object_list;
 extern struct obj_data *obj_proto;
-extern int top_of_p_table;
 int total_coins = 0;
 int total_credits = 0;
 extern struct obj_data *dam_object;
@@ -193,7 +193,7 @@ consolidate_char_money(struct Creature *ch)
 		if (num_gold == 1)
 			send_to_char(ch, "There was only a single gold coin.\r\n");
 		else
-			send_to_char(ch, "There were %d coins.\r\n", num_gold);
+			send_to_char(ch, "There were %ld coins.\r\n", num_gold);
 
 		if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT))
 			do_split(ch, tmp_sprintf("%ld", num_gold), 0, 0, 0);
@@ -208,7 +208,7 @@ consolidate_char_money(struct Creature *ch)
 		if (num_credits == 1)
 			send_to_char(ch, "There was only a single credit.\r\n");
 		else
-			send_to_char(ch, "There were %d credits.\r\n", num_credits);
+			send_to_char(ch, "There were %ld credits.\r\n", num_credits);
 
 		if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT))
 			do_split(ch, tmp_sprintf("%ld credits", num_credits), 0, 0, 0);
@@ -535,10 +535,8 @@ get_check_money(struct Creature *ch, struct obj_data **obj_p, int display)
 		obj_p = 0;
 
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(ch) < LVL_GOD) {
-			GET_GOLD(ch) = 0;
-			GET_BANK_GOLD(ch) = 0;
-			GET_CASH(ch) = 0;
-			GET_ECONET(ch) = 0;
+			total_coins = 0;
+			total_credits = 0;
 		}
 		return 1;
 	}
@@ -576,7 +574,7 @@ perform_get_from_container(struct Creature * ch,
 		//
 
 		if (GET_OBJ_VAL(cont, 3) && CORPSE_IDNUM(cont) > 0 &&
-			CORPSE_IDNUM(cont) <= top_of_p_table &&
+			playerIndex.exists(CORPSE_IDNUM(cont)) &&
 			CORPSE_IDNUM(cont) != GET_IDNUM(ch)) {
 			mudlog(LVL_DEMI, CMP, true,
 				"%s looted %s from %s.", GET_NAME(ch),
@@ -1670,8 +1668,8 @@ perform_give_gold(struct Creature *ch, struct Creature *vict, int amount)
 			GET_NAME(ch), amount, GET_NAME(vict),
 			vict->in_room->number, vict->in_room->name);
 
-	save_char(ch, NULL);
-	save_char(vict, NULL);
+	ch->saveToXML();
+	vict->saveToXML();
 }
 
 void
@@ -1702,8 +1700,8 @@ perform_plant_gold(struct Creature *ch, struct Creature *vict, int amount)
 			GET_NAME(ch), amount, GET_NAME(vict),
 			vict->in_room->number, vict->in_room->name);
 
-	save_char(ch, NULL);
-	save_char(vict, NULL);
+	ch->saveToXML();
+	vict->saveToXML();
 }
 
 void
@@ -1735,8 +1733,8 @@ perform_give_credits(struct Creature *ch, struct Creature *vict, int amount)
 			GET_NAME(ch), amount, GET_NAME(vict),
 			vict->in_room->number, vict->in_room->name);
 
-	save_char(ch, NULL);
-	save_char(vict, NULL);
+	ch->saveToXML();
+	vict->saveToXML();
 }
 
 void
@@ -1767,8 +1765,8 @@ perform_plant_credits(struct Creature *ch, struct Creature *vict, int amount)
 			GET_NAME(ch), amount, GET_NAME(vict),
 			vict->in_room->number, vict->in_room->name);
 
-	save_char(ch, NULL);
-	save_char(vict, NULL);
+	ch->saveToXML();
+	vict->saveToXML();
 }
 
 ACMD(do_give)

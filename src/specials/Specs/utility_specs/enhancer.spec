@@ -103,7 +103,7 @@ SPECIAL(enhancer)
 			GET_OBJ_VAL(obj, 1) += 1;
 	}
 	WAIT_STATE(ch, 5 RL_SEC);
-	save_char(ch, NULL);
+	ch->saveToXML();
 
 	return 1;
 }

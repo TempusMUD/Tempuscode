@@ -417,7 +417,7 @@ gain_exp(struct Creature *ch, int gain)
 			else {
 				send_to_char(ch, "You rise %d levels!\r\n", num_levels);
 			}
-			save_char(ch, NULL);
+			ch->saveToXML();
 			set_title(ch, NULL);
 			check_autowiz(ch);
 		}
@@ -519,9 +519,9 @@ check_idling(struct Creature *ch)
 		ch->desc->repeat_cmd_count = 0;
 
 	if ((ch->char_specials.timer) > 10 && !PLR_FLAGGED(ch, PLR_OLC)) {
-		if (ch->desc && STATE(ch->desc) == CON_NETWORK) {
+		if (ch->desc && STATE(ch->desc) == CXN_NETWORK) {
 			send_to_char(ch, "Idle limit reached.  Connection reset by peer.\r\n");
-			set_desc_state(CON_PLAYING, ch->desc);
+			set_desc_state(CXN_PLAYING, ch->desc);
 		} else if (GET_WAS_IN(ch) == NULL && ch->in_room != NULL) {
 			GET_WAS_IN(ch) = ch->in_room;
 			if (FIGHTING(ch)) {
@@ -530,7 +530,7 @@ check_idling(struct Creature *ch)
 			}
 			act("$n disappears into the void.", TRUE, ch, 0, 0, TO_ROOM);
 			send_to_char(ch, "You have been idle, and are pulled into a void.\r\n");
-			save_char(ch, NULL);
+			ch->saveToXML();
 			Crash_crashsave(ch);
 			char_from_room(ch,false);
 			char_to_room(ch, real_room(1),true);
@@ -545,7 +545,7 @@ check_idling(struct Creature *ch)
 			mudlog(LVL_GOD, CMP, true,
 				"%s force-rented and extracted (idle).",
 				GET_NAME(ch));
-			ch->extract(true, false, CON_MENU);
+			ch->extract(true, false, CXN_MENU);
 			return TRUE;
 		}
 	}

@@ -1,4 +1,4 @@
 $(OBJ)/dyntext.o : dyntext.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/interpreter.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/utils.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/interpreter.h $(INCLUDE)/player_table.h 
 	$(CXX) -c $(CXXFLAGS) dyntext.cc           -o $(OBJ)/dyntext.o
 OBJFILES= $(OBJ)/dyntext.o

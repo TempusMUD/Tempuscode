@@ -34,7 +34,7 @@ SPECIAL(finger_of_death)
 
     Creature *target = get_char_room_vis(ch, token);
     if( target == NULL ) {
-        send_to_char(ch, "There doesn't seem to be a '%s' here.\r\n");
+        send_to_char(ch, "There doesn't seem to be a '%s' here.\r\n", token);
     } else if( IS_PC(target) ) {
         act("$n gives you the finger.", TRUE, ch, finger, target, TO_VICT);
         act("You give $N the finger.", TRUE, ch, finger, target, TO_CHAR);
@@ -45,7 +45,7 @@ SPECIAL(finger_of_death)
 		mudlog( 0, BRF, true, "(f0d) %s has purged %s with %s at %d",
 				GET_NAME(ch), GET_NAME(target), 
 				finger->short_description, target->in_room->number);
-        target->extract(false, true, CON_CLOSE);
+        target->extract(false, true, CXN_DISCONNECT);
         GET_OBJ_VAL(finger,0) -= 1;
     }
 	return 1;

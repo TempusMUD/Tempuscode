@@ -297,13 +297,13 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 		GET_HIT(ch) = 1;
 		GET_MOVE(ch) = 1;
 		WAIT_STATE(ch, 10 RL_SEC);
-		save_char(ch, NULL);
+		ch->saveToXML();
 	} else {
 		act("$n extracts $p from $P.", FALSE, me, implant, obj, TO_ROOM);
 		obj_from_obj(implant);
 		SET_BIT(GET_OBJ_WEAR(implant), ITEM_WEAR_TAKE);
 		obj_to_char(implant, ch);
-		save_char(ch, NULL);
+		ch->saveToXML();
 	}
 
 	return;
@@ -395,7 +395,7 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 	GET_HIT(ch) = 1;
 	GET_MOVE(ch) = 1;
 	WAIT_STATE(ch, 10 RL_SEC);
-	save_char(ch, NULL);
+	ch->saveToXML();
 
 	return;
 }

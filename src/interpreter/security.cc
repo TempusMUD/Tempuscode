@@ -17,6 +17,7 @@ using namespace std;
 #include "screen.h"
 #include "security.h"
 #include "boards.h"
+#include "player_table.h"
 
 using namespace Security;
 
@@ -167,7 +168,7 @@ ACCMD(do_access) {
                     getGroup(token1).setAdminGroup( token2 );
                     send_to_char(ch, "Administrative group set.\r\n");
                 } else {
-                    send_to_char(ch, "Set admin group to what?\r\n",ch);        
+                    send_to_char(ch, "Set admin group to what?\r\n");
                 }
             } else {
                 send_to_char(ch, "Set the admin group for which group?\r\n");
@@ -211,7 +212,7 @@ ACCMD(do_access) {
 					slog("Security:  Group '%s' described by %s.", 
 						  token1, GET_NAME(ch) );
                 } else {
-                    send_to_char(ch, "Set what description?\r\n",ch);        
+                    send_to_char(ch, "Set what description?\r\n");
                 }
             } else {
                 send_to_char(ch, "Describe what group?\r\n");
@@ -219,7 +220,7 @@ ACCMD(do_access) {
             break;
         case 6: // grouplist
             if( tokens.next(token1) ) {
-                long id = get_id_by_name(token1);
+                long id = playerIndex.getID(token1);
                 if( id <= 0 ) {
                     send_to_char(ch, "No such player.\r\n");
                     return;

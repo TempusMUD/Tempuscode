@@ -15,6 +15,6 @@ SPECIAL(sunstation)
 
 	act("You log in on $p.", FALSE, ch, sun, 0, TO_CHAR);
 	act("$n logs in on $p.", FALSE, ch, sun, 0, TO_ROOM);
-	set_desc_state(CON_NETWORK, ch->desc);
+	set_desc_state(CXN_NETWORK, ch->desc);
 	return 1;
 }

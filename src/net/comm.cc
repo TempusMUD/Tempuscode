@@ -49,6 +49,7 @@
 #include "help.h"
 #include "desc_data.h"
 #include "tmpstr.h"
+#include "player_table.h"
 
 /* externs */
 extern HelpCollection *Help;
@@ -59,7 +60,6 @@ extern int olc_lock;
 extern int no_rent_check;
 extern int no_initial_zreset;
 extern int log_cmds;
-extern FILE *player_fl;
 extern int DFLT_PORT;
 extern char *DFLT_DIR;
 extern unsigned int MAX_PLAYERS;
@@ -110,10 +110,11 @@ void nonblock(int s);
 int perform_subst(struct descriptor_data *t, char *orig, char *subst);
 int perform_alias(struct descriptor_data *d, char *orig);
 void record_usage(void);
-void make_prompt(struct descriptor_data *point);
+void send_prompt(struct descriptor_data *point);
 void bamf_quad_damage(void);
 void push_command_onto_list(Creature *ch, char *comm);
 void descriptor_update(void);
+int write_to_descriptor(int desc, char *txt);
 
 /* extern fcnts */
 void boot_world(void);
@@ -132,7 +133,6 @@ int connected_to_intermud;
 void init_intermud_socket(void);
 void incoming_intermud_message(int intermud_desc);
 void weather_and_time(int mode);
-void House_checkrent(void);
 void autosave_zones(int SAVE_TYPE);
 void mem_cleanup(void);
 void retire_trails(void);
@@ -293,7 +293,6 @@ init_game(int port)
 
 	close(mother_desc);
 	close(intermud_desc);
-	fclose(player_fl);
 	Security::shutdown();
 
 	if (circle_reboot) {
@@ -568,48 +567,36 @@ game_loop(int mother_desc)
 				// we need a prompt here
 				d->need_prompt = true;
 
-				if (d->character) {
-					d->character->char_specials.timer = 0;
+				if (d->creature) {
+					d->creature->char_specials.timer = 0;
 					d->idle = 0;
-					if (!d->connected && *comm)
-						push_command_onto_list(d->character, comm);
-					if (!d->connected && GET_WAS_IN(d->character) != NULL) {
-						if (d->character->in_room != NULL)
-							char_from_room(d->character,false);
-						char_to_room(d->character, GET_WAS_IN(d->character),false);
-						GET_WAS_IN(d->character) = NULL;
-						act("$n has returned.", TRUE, d->character, 0, 0,
+					if (d->input_mode == CXN_PLAYING && *comm)
+						push_command_onto_list(d->creature, comm);
+					if (d->input_mode == CXN_PLAYING &&
+							GET_WAS_IN(d->creature) != NULL) {
+						if (d->creature->in_room != NULL)
+							char_from_room(d->creature,false);
+						char_to_room(d->creature, GET_WAS_IN(d->creature),false);
+						GET_WAS_IN(d->creature) = NULL;
+						act("$n has returned.", TRUE, d->creature, 0, 0,
 							TO_ROOM);
 					}
 				}
 
 				d->wait = 1;
 
-
-				if (d->text_editor)	/* writing boards, mail, etc.        */
-					d->text_editor->Process(comm);
-				else if (STATE(d) != CON_PLAYING)	/* in menus, etc.        */
-					nanny(d, comm);
-				else {			/* else: we're playing normally */
-					if (aliased)	/* to prevent recursive aliases */
-						d->need_prompt = false;
-					else {
-						if (perform_alias(d, comm))	/* run it through aliasing system */
-							get_from_q(&d->input, comm, &aliased);
-					}
-					command_interpreter(d->character, comm);	/* send it to interpreter */
-				}
+				handle_input(d, comm);
 			}
 		}
 
 		/* give each descriptor an appropriate prompt */
 		for (d = descriptor_list; d; d = d->next) {
-			if (d->character &&
-				d->output[0] && (!PRF_FLAGGED(d->character, PRF_COMPACT)))
+			if (d->creature &&
+				d->output[0] && (!PRF_FLAGGED(d->creature, PRF_COMPACT)))
 				SEND_TO_Q("\r\n", d);
 
 			if (d->need_prompt)
-				make_prompt(d);
+				send_prompt(d);
 		}
 
 		/* send queued output out to the operating system (ultimately to user) */
@@ -621,10 +608,10 @@ game_loop(int mother_desc)
 			}
 		}
 
-		/* kick out folks in the CON_CLOSE state */
+		/* kick out folks in the CXN_DISCONNECT state */
 		for (d = descriptor_list; d; d = next_d) {
 			next_d = d->next;
-			if (STATE(d) == CON_CLOSE)
+			if (d->input_mode == CXN_DISCONNECT)
 				close_socket(d);
 		}
 
@@ -656,7 +643,6 @@ game_loop(int mother_desc)
 			weather_and_time(1);
 			affect_update();
 			point_update();
-			fflush(player_fl);
 			descriptor_update();
 			Help->Sync();
 			save_quests();
@@ -666,10 +652,10 @@ game_loop(int mother_desc)
 				if (++mins_since_crashsave >= autosave_time) {
 					mins_since_crashsave = 0;
 					Crash_save_all();
-					House_save_all(0);
 				}
-				House_checkrent();
-				House_countobjs();
+				Housing.collectRent();
+				Housing.save();
+				Housing.countObjects();
 			}
 		}
 
@@ -702,7 +688,8 @@ game_loop(int mother_desc)
 				send_to_all(buf);
 			} else if (shutdown_count <= 0) {
 				Crash_save_all();
-				House_save_all(TRUE);
+				Housing.collectRent();
+				Housing.save();
 				xmlCleanupParser();
 
 				autosave_zones(ZONE_RESETSAVE);
@@ -732,7 +719,7 @@ game_loop(int mother_desc)
 					(shutdown_mode == SHUTDOWN_DIE
 						|| shutdown_mode ==
 						SHUTDOWN_DIE) ? "Shutdown" : "Reboot",
-					get_name_by_id(shutdown_idnum));
+					playerIndex.getName(shutdown_idnum));
 				circle_shutdown = TRUE;
 				for (d = descriptor_list; d; d = next_d) {
 					next_d = d->next;
@@ -793,17 +780,17 @@ timediff(struct timeval *a, struct timeval *b)
 void
 record_usage(void)
 {
-	int sockets_connected = 0, sockets_playing = 0;
+	int sockets_input_mode = 0, sockets_playing = 0;
 	struct descriptor_data *d;
 
 	for (d = descriptor_list; d; d = d->next) {
-		sockets_connected++;
-		if (!d->connected)
+		sockets_input_mode++;
+		if (d->input_mode == CXN_PLAYING)
 			sockets_playing++;
 	}
 
-	slog("nusage: %-3d sockets connected, %-3d sockets playing",
-		sockets_connected, sockets_playing);
+	slog("nusage: %-3d sockets input_mode, %-3d sockets playing",
+		sockets_input_mode, sockets_playing);
 
 #ifdef RUSAGE
 	{
@@ -892,8 +879,8 @@ write_to_output(const char *txt, struct descriptor_data *t)
 	if (t->bufptr < 0)
 		return;
 
-	if (!t->need_prompt && (!t->character
-			|| PRF2_FLAGGED(t->character, PRF2_AUTOPROMPT))) {
+	if (!t->need_prompt && (!t->creature
+			|| PRF2_FLAGGED(t->creature, PRF2_AUTOPROMPT))) {
 		t->need_prompt = true;
 		write_to_output("\r\n", t);
 	}
@@ -949,7 +936,7 @@ write_to_output(const char *txt, struct descriptor_data *t)
 int
 new_descriptor(int s)
 {
-	int desc, sockets_connected = 0;
+	int desc, sockets_input_mode = 0;
 	unsigned long addr;
 	unsigned int i;
 	static int last_desc = 0;	/* last descriptor number */
@@ -970,9 +957,9 @@ new_descriptor(int s)
 
 	/* make sure we have room for it */
 	for (newd = descriptor_list; newd; newd = newd->next)
-		sockets_connected++;
+		sockets_input_mode++;
 
-	if (sockets_connected >= avail_descs) {
+	if (sockets_input_mode >= avail_descs) {
 		write_to_descriptor(desc,
 			"Sorry, Tempus is full right now... try again later!  :-)\r\n");
 		close(desc);
@@ -1016,7 +1003,7 @@ new_descriptor(int s)
 
 	/* initialize descriptor data */
 	newd->descriptor = desc;
-	STATE(newd) = CON_GET_NAME;
+	STATE(newd) = CXN_ACCOUNT_LOGIN;
 	newd->wait = 1;
 	newd->output = newd->small_outbuf;
 	newd->bufspace = SMALL_BUFSIZE - 1;
@@ -1058,14 +1045,14 @@ process_output(struct descriptor_data *d)
 		result = write_to_descriptor(d->descriptor, "**OVERFLOW**");
 
 	/* handle snooping: prepend "% " and send to snooper */
-	if (d->snoop_by && d->snoop_by->character) {
-		SEND_TO_Q(CCRED(d->snoop_by->character, C_NRM), d->snoop_by);
+	if (d->snoop_by && d->snoop_by->creature) {
+		SEND_TO_Q(CCRED(d->snoop_by->creature, C_NRM), d->snoop_by);
 		SEND_TO_Q("{ ", d->snoop_by);
-		SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
+		SEND_TO_Q(CCNRM(d->snoop_by->creature, C_NRM), d->snoop_by);
 		SEND_TO_Q(d->output, d->snoop_by);
-		SEND_TO_Q(CCRED(d->snoop_by->character, C_NRM), d->snoop_by);
+		SEND_TO_Q(CCRED(d->snoop_by->creature, C_NRM), d->snoop_by);
 		SEND_TO_Q(" } ", d->snoop_by);
-		SEND_TO_Q(CCNRM(d->snoop_by->character, C_NRM), d->snoop_by);
+		SEND_TO_Q(CCNRM(d->snoop_by->creature, C_NRM), d->snoop_by);
 	}
 	/*
 	 * if we were using a large buffer, put the large buffer on the buffer pool
@@ -1210,18 +1197,18 @@ process_input(struct descriptor_data *t)
 				return -1;
 		}
 		if (t->snoop_by) {
-			SEND_TO_Q(CCRED(t->snoop_by->character, C_NRM), t->snoop_by);
+			SEND_TO_Q(CCRED(t->snoop_by->creature, C_NRM), t->snoop_by);
 			SEND_TO_Q("[ ", t->snoop_by);
-			SEND_TO_Q(CCNRM(t->snoop_by->character, C_NRM), t->snoop_by);
+			SEND_TO_Q(CCNRM(t->snoop_by->creature, C_NRM), t->snoop_by);
 			SEND_TO_Q(tmp, t->snoop_by);
-			SEND_TO_Q(CCRED(t->snoop_by->character, C_NRM), t->snoop_by);
+			SEND_TO_Q(CCRED(t->snoop_by->creature, C_NRM), t->snoop_by);
 			SEND_TO_Q(" ]\r\n", t->snoop_by);
-			SEND_TO_Q(CCNRM(t->snoop_by->character, C_NRM), t->snoop_by);
+			SEND_TO_Q(CCNRM(t->snoop_by->creature, C_NRM), t->snoop_by);
 		}
 
 		failed_subst = 0;
 
-		if (*tmp == '!' && STATE(t) != CON_CNFPASSWD) {
+		if (*tmp == '!' && STATE(t) != CXN_PW_VERIFY) {
 			strcpy(tmp, t->last_input);
 		} else if (*tmp == '^') {
 			if (!(failed_subst = perform_subst(t, t->last_input, tmp)))
@@ -1230,11 +1217,11 @@ process_input(struct descriptor_data *t)
 			strcpy(t->last_input, tmp);
 
 		if (t->repeat_cmd_count > 300 &&
-			(!t->character || GET_LEVEL(t->character) < LVL_ETERNAL)) {
-			if (t->character && t->character->in_room) {
+			(!t->creature || GET_LEVEL(t->creature) < LVL_ETERNAL)) {
+			if (t->creature && t->creature->in_room) {
 				act("SAY NO TO SPAM.\r\n"
 					"Begone oh you waster of electrons,"
-					" ye vile profaner of CPU time!", TRUE, t->character, 0, 0,
+					" ye vile profaner of CPU time!", TRUE, t->creature, 0, 0,
 					TO_ROOM);
 				slog("SPAM-death on the queue!");
 				return (-1);
@@ -1328,7 +1315,6 @@ void
 close_socket(struct descriptor_data *d)
 {
 	struct descriptor_data *temp;
-	long target_idnum = -1;
 
 	close(d->descriptor);
 	flush_queues(d);
@@ -1341,40 +1327,27 @@ close_socket(struct descriptor_data *d)
 		SEND_TO_Q("Your victim is no longer among us.\r\n", d->snoop_by);
 		d->snoop_by->snooping = NULL;
 	}
-	if (d->character) {
-		target_idnum = GET_IDNUM(d->character);
-		if (IS_PLAYING(d)) {
-			save_char(d->character, NULL);
-			act("$n has lost $s link.", TRUE, d->character, 0, 0, TO_ROOM);
-			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->character)), NRM, true,
-				"Closing link to: %s [%s] ", GET_NAME(d->character),
-				d->host);
-			d->character->desc = NULL;
-			GET_OLC_OBJ(d->character) = NULL;
-		} else {
-			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->character)), NRM, true,
-				"Losing player: %s [%s]",
-				GET_NAME(d->character) ? GET_NAME(d->character) : "<null>",
-				d->host);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
-			free_char(d->character);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
-		}
+	if (d->creature && IS_PLAYING(d)) {
+		d->creature->saveToXML();
+		act("$n has lost $s link.", TRUE, d->creature, 0, 0, TO_ROOM);
+		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)), NRM, true,
+			"Closing link to: %s [%s] ", GET_NAME(d->creature),
+			d->host);
+		d->creature->desc = NULL;
+		GET_OLC_OBJ(d->creature) = NULL;
+	} else if (d->account) {
+		mudlog(LVL_AMBASSADOR, NRM, true,
+			"%s logging off [%s]", d->account->get_name(), d->host);
+		delete d->creature;
 	} else
-		mudlog(LVL_AMBASSADOR, CMP, true, "Losing descriptor without char");
+		mudlog(LVL_AMBASSADOR, CMP, true, "Losing descriptor without account");
+
 	/* JE 2/22/95 -- part of my enending quest to make switch stable */
 	if (d->original && d->original->desc)
 		d->original->desc = NULL;
 
 	REMOVE_FROM_LIST(d, descriptor_list, next);
 
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	if (d->showstr_head)
 		free(d->showstr_head);
 
@@ -1387,15 +1360,15 @@ close_socket(struct descriptor_data *d)
 	dmalloc_verify(0);
 #endif
 	/*
-	 * kill off all sockets connected to the same player as the one who is
+	 * kill off all sockets input_mode to the same player as the one who is
 	 * trying to quit.  Helps to maintain sanity as well as prevent duping.
 	 */
 	/*
 	   if (target_idnum >= 0) {
 	   for (temp = descriptor_list; temp; temp = next_d) {
 	   next_d = temp->next;
-	   if (temp->character && (GET_IDNUM(temp->character) == target_idnum)
-	   && (temp->connected != CON_PLAYING))
+	   if (temp->creature && (GET_IDNUM(temp->creature) == target_idnum)
+	   && (temp->input_mode != CXN_PLAYING))
 	   close_socket(temp);
 	   }
 	   }
@@ -1438,7 +1411,7 @@ checkpointing(int sig = 0)
 {
 	if (!tics) {
 		slog("SYSERR: CHECKPOINT shutdown: tics not updated");
-		slog("Last command: %s %s.", get_name_by_id(last_cmd[0].idnum),
+		slog("Last command: %s %s.", playerIndex.getName(last_cmd[0].idnum),
 			last_cmd[0].string);
 		raise(SIGSEGV);
 	} else
@@ -1570,13 +1543,74 @@ send_to_char(struct Creature *ch, const char *str, ...)
 }
 
 void
+send_to_desc(descriptor_data *d, const char *str, ...)
+{
+	char *msg_str, *read_pt;
+	va_list args;
+
+	if (!d || !str || !*str)
+		return;
+
+	va_start(args, str);
+	msg_str = tmp_vsprintf(str, args);
+	va_end(args);
+
+	// Everything gets capitalized
+	msg_str[0] = toupper(msg_str[0]);
+
+	// Now iterate through string, adding color coding
+	read_pt = msg_str;
+	while (*read_pt) {
+		while (*read_pt && *read_pt != '&')
+			read_pt++;
+		if (*read_pt == '&') {
+			*read_pt++ = '\0';
+			SEND_TO_Q(msg_str, d);
+			if (d->account && d->account->get_ansi_level() > 0) {
+				if (isupper(*read_pt)) {
+					*read_pt = tolower(*read_pt);
+						// A few extra normal tags never hurt anyone...
+					if (d->account->get_ansi_level() > 2)
+						SEND_TO_Q(KBLD, d);
+				}
+				switch (*read_pt) {
+				case 'n':
+					SEND_TO_Q(KNRM, d); break;
+				case 'r':
+					SEND_TO_Q(KRED, d); break;
+				case 'g':
+					SEND_TO_Q(KGRN, d); break;
+				case 'y':
+					SEND_TO_Q(KYEL, d); break;
+				case 'm':
+					SEND_TO_Q(KMAG, d); break;
+				case 'c':
+					SEND_TO_Q(KCYN, d); break;
+				case 'b':
+					SEND_TO_Q(KBLU, d); break;
+				case 'w':
+					SEND_TO_Q(KWHT, d); break;
+				case '&':
+					SEND_TO_Q("&", d); break;
+				default:
+					SEND_TO_Q("&&", d);
+				}
+			}
+			read_pt++;
+			msg_str = read_pt;
+		}
+	}
+	SEND_TO_Q(msg_str, d);
+}
+
+void
 send_to_all(char *messg)
 {
 	struct descriptor_data *i;
 
 	if (messg)
 		for (i = descriptor_list; i; i = i->next)
-			if (!i->connected)
+			if (!i->input_mode)
 				SEND_TO_Q(messg, i);
 }
 
@@ -1589,10 +1623,10 @@ send_to_clerics(char *messg)
 		return;
 
 	for (i = descriptor_list; i; i = i->next) {
-		if (!i->connected && i->character && AWAKE(i->character) &&
-			!PLR_FLAGGED(i->character, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
-			PRIME_MATERIAL_ROOM(i->character->in_room)
-			&& IS_CLERIC(i->character)) {
+		if (!i->input_mode && i->creature && AWAKE(i->creature) &&
+			!PLR_FLAGGED(i->creature, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+			PRIME_MATERIAL_ROOM(i->creature->in_room)
+			&& IS_CLERIC(i->creature)) {
 			SEND_TO_Q(messg, i);
 		}
 	}
@@ -1607,11 +1641,11 @@ send_to_outdoor(char *messg, int isecho)
 		return;
 
 	for (i = descriptor_list; i; i = i->next)
-		if (!i->connected && i->character && AWAKE(i->character) &&
-			(!isecho || !PRF2_FLAGGED(i->character, PRF2_NOGECHO)) &&
-			!PLR_FLAGGED(i->character, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
-			OUTSIDE(i->character)
-			&& PRIME_MATERIAL_ROOM(i->character->in_room))
+		if (!i->input_mode && i->creature && AWAKE(i->creature) &&
+			(!isecho || !PRF2_FLAGGED(i->creature, PRF2_NOGECHO)) &&
+			!PLR_FLAGGED(i->creature, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+			OUTSIDE(i->creature)
+			&& PRIME_MATERIAL_ROOM(i->creature->in_room))
 			SEND_TO_Q(messg, i);
 }
 
@@ -1625,15 +1659,15 @@ send_to_newbie_helpers(char *messg)
 		return;
 
 	for (i = descriptor_list; i; i = i->next)
-		if (!i->connected && i->character &&
-			PRF2_FLAGGED(i->character, PRF2_NEWBIE_HELPER) &&
-			GET_LEVEL(i->character) > level_can_shout &&
-			!(PRF_FLAGGED(i->character, PRF_LOG1) ||
-				PRF_FLAGGED(i->character, PRF_LOG2))) {
-			SEND_TO_Q(CCBLD(i->character, C_CMP), i);
-			SEND_TO_Q(CCYEL(i->character, C_SPR), i);
+		if (!i->input_mode && i->creature &&
+			PRF2_FLAGGED(i->creature, PRF2_NEWBIE_HELPER) &&
+			GET_LEVEL(i->creature) > level_can_shout &&
+			!(PRF_FLAGGED(i->creature, PRF_LOG1) ||
+				PRF_FLAGGED(i->creature, PRF_LOG2))) {
+			SEND_TO_Q(CCBLD(i->creature, C_CMP), i);
+			SEND_TO_Q(CCYEL(i->creature, C_SPR), i);
 			SEND_TO_Q(messg, i);
-			SEND_TO_Q(CCNRM(i->character, C_SPR), i);
+			SEND_TO_Q(CCNRM(i->creature, C_SPR), i);
 		}
 }
 
@@ -1679,12 +1713,12 @@ send_to_zone(char *messg, struct zone_data *zn, int outdoor)
 		return;
 
 	for (i = descriptor_list; i; i = i->next)
-		if (!i->connected && i->character && AWAKE(i->character) &&
-			!PLR_FLAGGED(i->character, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
-			i->character->in_room->zone == zn &&
+		if (!i->input_mode && i->creature && AWAKE(i->creature) &&
+			!PLR_FLAGGED(i->creature, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+			i->creature->in_room->zone == zn &&
 			(!outdoor ||
-				(OUTSIDE(i->character) &&
-					PRIME_MATERIAL_ROOM(i->character->in_room))))
+				(OUTSIDE(i->creature) &&
+					PRIME_MATERIAL_ROOM(i->creature->in_room))))
 			SEND_TO_Q(messg, i);
 }
 
@@ -1755,12 +1789,12 @@ send_to_clan(char *messg, int clan)
 
 	if (messg)
 		for (i = descriptor_list; i; i = i->next)
-			if (!i->connected && i->character
-				&& (GET_CLAN(i->character) == clan)
-				&& !PLR_FLAGGED(i->character, PLR_OLC)) {
-				SEND_TO_Q(CCCYN(i->character, C_NRM), i);
+			if (!i->input_mode && i->creature
+				&& (GET_CLAN(i->creature) == clan)
+				&& !PLR_FLAGGED(i->creature, PLR_OLC)) {
+				SEND_TO_Q(CCCYN(i->creature, C_NRM), i);
 				SEND_TO_Q(messg, i);
-				SEND_TO_Q(CCNRM(i->character, C_NRM), i);
+				SEND_TO_Q(CCNRM(i->creature, C_NRM), i);
 			}
 }
 
@@ -2083,16 +2117,16 @@ descriptor_update(void)
 	for (d = descriptor_list; d; d = d->next) {
 
 		// skip the folks that will get hit with point_update()
-		if (d->character && !d->connected)
+		if (d->creature && d->input_mode == CXN_PLAYING)
 			continue;
 
 		d->idle++;
 
-		if (d->idle >= 10 && STATE(d) != CON_PLAYING
-			&& STATE(d) != CON_NETWORK) {
+		if (d->idle >= 10 && STATE(d) != CXN_PLAYING
+			&& STATE(d) != CXN_NETWORK) {
 			mudlog(LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
 			SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
-			set_desc_state(CON_CLOSE, d);
+			set_desc_state(CXN_DISCONNECT, d);
 		}
 	}
 }

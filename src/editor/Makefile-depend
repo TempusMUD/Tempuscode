@@ -1,4 +1,4 @@
 $(OBJ)/editor.o : editor.cc \
-	$(INCLUDE)/screen.h $(INCLUDE)/desc_data.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/login.h $(INCLUDE)/interpreter.h $(INCLUDE)/boards.h $(INCLUDE)/mail.h $(INCLUDE)/editor.h $(INCLUDE)/iscript.h 
+	$(INCLUDE)/screen.h $(INCLUDE)/desc_data.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/login.h $(INCLUDE)/interpreter.h $(INCLUDE)/boards.h $(INCLUDE)/mail.h $(INCLUDE)/editor.h $(INCLUDE)/iscript.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h 
 	$(CXX) -c $(CXXFLAGS) editor.cc            -o $(OBJ)/editor.o
 OBJFILES= $(OBJ)/editor.o

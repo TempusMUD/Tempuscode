@@ -327,19 +327,8 @@ show_string(struct descriptor_data *d)
 	int page_length, cols, undisplayed;
 	int pt_save;
 
-	if (!IS_NPC(d->character))
-		page_length = GET_PAGE_LENGTH(d->character);
-	else if (d->original)
-		page_length = GET_PAGE_LENGTH(d->original);
-	else
-		page_length = 22;
-
-	if (!IS_NPC(d->character))
-		cols = GET_COLS(d->character);
-	else if (d->original)
-		cols = GET_COLS(d->original);
-	else
-		cols = 80;
+	page_length = d->account->get_term_height();
+	cols = d->account->get_term_width();
 
 	// No division by zero errors!
 	if (cols == 0)
@@ -390,11 +379,11 @@ show_string(struct descriptor_data *d)
 	// If all we have left are newlines (or nothing), free the string,
 	// otherwise we tell em to use the 'more' command
 	if (*read_pt) {
-		if(d->character)
-			send_to_char(d->character,
+		if(d->creature)
+			send_to_char(d->creature,
 				"%s**** %sUse the 'more' command to continue. %s****%s\r\n",
-				CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM),
-				CCRED(d->character, C_NRM), CCNRM(d->character, C_NRM));
+				CCRED(d->creature, C_NRM), CCNRM(d->creature, C_NRM),
+				CCRED(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 		else
 			SEND_TO_Q("**** Press return to continue, 'q' to quit ****\r\n", d);
 	} else {

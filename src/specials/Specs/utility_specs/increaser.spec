@@ -141,6 +141,6 @@ SPECIAL(increaser)
 	if (GET_COND(ch, THIRST) != -1)
 		GET_COND(ch, THIRST) = 1;
 	WAIT_STATE(ch, PULSE_VIOLENCE * 5);
-	save_char(ch, NULL);
+	ch->saveToXML();
 	return TRUE;
 }

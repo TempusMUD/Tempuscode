@@ -121,7 +121,7 @@ SPECIAL(stable_room)
 		for (; it != pet_room->people.end(); ++it) {
 			if ((*it) != pet && IS_NPC((*it))
 				&& GET_MOB_VNUM((*it)) == GET_MOB_VNUM(pet)) {
-				(*it)->extract(true, false, CON_MENU);
+				(*it)->extract(true, false, CXN_MENU);
 				return 1;
 			}
 		}
