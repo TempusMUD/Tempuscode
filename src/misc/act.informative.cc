@@ -4244,8 +4244,8 @@ ACMD(do_consider)
 	if (!IS_NPC(victim)) {
 		send_to_char(ch, "Well, if you really want to kill another player...\r\n");
 	}
-
-	diff = (GET_LEVEL(victim) - GET_LEVEL(ch));
+	diff = victim->getLevelBonus(true) - ch->getLevelBonus(true);
+	//diff = (GET_LEVEL(victim) - GET_LEVEL(ch));
 
 	if (diff <= -30)
 		send_to_char(ch, "It's not even worth the effort...\r\n");
