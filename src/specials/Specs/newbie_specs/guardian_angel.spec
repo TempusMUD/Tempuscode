@@ -1,3 +1,8 @@
+#define ANGEL_DUAL_WIELD		(1 << 0)
+#define ANGEL_CONSUME			(1 << 1)
+#define ANGEL_DANGER			(1 << 3)
+#define ANGEL_LOWPOINTS			(1 << 4)
+
 struct angel_data {
 	angel_data *next_angel;
 	Creature *angel;
@@ -5,30 +10,63 @@ struct angel_data {
 	char *charge_name;	// the name of the angel's charge
 	int counter;	// a counter before angel does action
 	char *action;	// action for angel to do
+	unsigned long flags;
 };
 
 struct angel_chat_data {
-	char *keywords;
-	char *response;
+	int char_class;			// class restriction of response
+	int chance;			// percent chance this response will be chosen
+	char *keywords;		// keywords of response
+	char *response;		// the actual response
 };
 
 angel_chat_data angel_chat[] = {
-	{ "goodbye", "dismiss" },
-	{ "go away", "dismiss" },
-	{ "leave me", "dismiss" },
-	{ "piss off", "dismiss" },
-	{ "how you", "respond I'm doing ok, thanks for asking!" },
-	{ "who you", "respond I'm your guardian angel.  I'm here to help you out!" },
-	{ "where food", "respond You can find food at the bakery" },
-	{ "where drink", "respond You can get some water at the aquafitter's" },
-	{ "why i naked", "respond You should find things to wear!" },
-	{ "where things wear", "respond You can buy equipment or loot it from corpses" },
-	{ "", "" }
+	{ CLASS_UNDEFINED, 100, "hi", "respond Hi there!  How are you doing today?" },
+	{ CLASS_UNDEFINED, 100, "hello", "respond Hi!  What's happening?" },
+	{ CLASS_UNDEFINED, 100, "good morning", "respond Good morning to you, too!" },
+	{ CLASS_UNDEFINED, 100, "good evening", "respond Good evening to you, too!" },
+	{ CLASS_UNDEFINED, 100, "goodbye", "dismiss" },
+	{ CLASS_UNDEFINED, 100, "go away", "dismiss" },
+	{ CLASS_UNDEFINED, 100, "leave me", "dismiss" },
+	{ CLASS_UNDEFINED, 100, "piss off", "dismiss" },
+	{ CLASS_UNDEFINED, 100, "how you", "respond I'm doing ok, thanks for asking!" },
+	{ CLASS_UNDEFINED, 100, "who you", "respond I'm your guardian angel.  I'm here to help you out!" },
+	{ CLASS_UNDEFINED, 100, "where buy", "respond You buy things at shops in cities." },
+	{ CLASS_UNDEFINED, 100, "where go fight", "respond You should try the cock fighting arena, the training grounds, or the holodeck" },
+	{ CLASS_UNDEFINED, 100, "where cock", "directions 3283" },
+	{ CLASS_UNDEFINED, 100, "where training", "directions 3283" },
+	{ CLASS_UNDEFINED, 100, "where hs", "directions 3013" },
+	{ CLASS_UNDEFINED, 100, "where holodeck", "directions 2322 then enter rift and go south" },
+	{ CLASS_UNDEFINED, 100, "where food", "respond You can find food at the bakery" },
+	{ CLASS_UNDEFINED, 100, "where things eat", "respond You can find food at the bakery" },
+	{ CLASS_UNDEFINED,  50, "where drink", "respond You can get some water at the aquafitter's" },
+	{ CLASS_UNDEFINED, 100, "where drink", "respond You could drink out of the fountain in a city square." },
+	{ CLASS_UNDEFINED, 100, "why hungry", "respond You need to get some food to eat." },
+	{ CLASS_UNDEFINED, 100, "why thirsty", "respond You need to get something to drink.  There are fountains to drink from or you can buy drinks at shops." },
+	{ CLASS_UNDEFINED, 100, "why naked", "respond You should find things to wear!" },
+	{ CLASS_UNDEFINED, 100, "where things wear", "respond You can buy equipment or loot it from corpses" },
+	{ CLASS_UNDEFINED, 100, "who someone", "respond Invisible people are referred to as 'someone.'  You can't tell who they are." },
+	{ CLASS_UNDEFINED, 100, "what hitpoints", "respond Hitpoints are a measure of how much punishment you can take before you die.  When your hitpoints hit zero, you go unconscious and are easily slain." },
+
+	{ CLASS_MAGE, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess.  You use it for casting spells." },
+	{ CLASS_CLERIC, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess.  You use it for casting spells." },
+	{ CLASS_PHYSIC, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess.  You use it for altering the laws of reality." },
+	{ CLASS_PSIONIC, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess.  You use it for psionic triggers." },
+	{ CLASS_UNDEFINED, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess." },
+
+	{ CLASS_UNDEFINED, 100, "what move", "respond Movepoints are a measure of the amount of physical energy you have.  Moving around and fighting use movepoints." },
+	{ CLASS_UNDEFINED, 100, "lost", "respond You can type 'return' to return to your starting position." },
+	{ CLASS_UNDEFINED, 100, "how stop wielding", "respond Type 'remove <item>' to stop wielding it." },
+	{ CLASS_UNDEFINED, 100, "how stop wearing", "respond Type 'remove <item>' to stop wearing it." },
+	{ CLASS_UNDEFINED, 100, "how take off", "respond Type 'remove <item>' to take it off." },
+	{ CLASS_UNDEFINED,  25, "", "respond Not sure at all..." },
+	{ CLASS_UNDEFINED,  50, "", "respond Eh? What?" },
+	{ CLASS_UNDEFINED, 100, "", "respond I have no clue!" }
 };
 
 // returns true if all words in keywords can be found, in order, in ref
 bool
-chat_match(const char *key, const char *ref)
+angel_chat_match(const char *key, const char *ref)
 {
 	const char *ref_pt, *key_pt;
 
@@ -39,7 +77,9 @@ chat_match(const char *key, const char *ref)
 		if (!*ref_pt)		// didn't get all the words in key
 			return false;
 
-		while (*ref_pt && *key_pt && isalpha(*ref_pt) && *ref_pt == *key_pt) {
+		while (*ref_pt && *key_pt
+				&& isalpha(*ref_pt)
+				&& *key_pt == tolower(*ref_pt)) {
 			ref_pt++;
 			key_pt++;
 		}
@@ -80,7 +120,7 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
 }
 
 int
-angel_check_charge(Creature *self, Creature *charge)
+angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 {
 	if (!charge)
 		return 0;
@@ -95,9 +135,51 @@ angel_check_charge(Creature *self, Creature *charge)
 		return 1;
 	}
 
+	// First check for mortal danger
 	if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && FIGHTING(charge)) {
-		do_say(self, "Flee!  Flee for your life!", 0, SCMD_YELL, 0);
+		if (!IS_SET(data->flags, ANGEL_DANGER)) {
+			do_say(self, "Flee!  Flee for your life!", 0, SCMD_YELL, 0);
+			SET_BIT(data->flags, ANGEL_DANGER);
+			return 1;
+		}
+	} else {
+		REMOVE_BIT(data->flags, ANGEL_DANGER);
+	}
+
+	// Everything below here only applies to not fighting
+	if (FIGHTING(charge))
+		return 0;
+	
+	if ((!GET_COND(charge, FULL) || !GET_COND(charge, THIRST))
+			&& !IS_SET(data->flags, ANGEL_CONSUME)) {
+		do_say(self, "You regenerate hitpoints, mana, and move much faster if you aren't hungry or thirsty.", 0, SCMD_SAY, 0);
+		SET_BIT(data->flags, ANGEL_CONSUME);
 		return 1;
+	}
+
+	if (GET_EQ(charge, WEAR_WIELD_2)) {
+		if (!IS_SET(data->flags, ANGEL_DUAL_WIELD)) {
+			do_say(self, "It's best not to wield two weapons at once if you don't have the double wield skill.", 0, SCMD_SAY, 0);
+			SET_BIT(data->flags, ANGEL_DUAL_WIELD);
+			return 1;
+		}
+	}
+
+	// Check to see if they need to rest
+	if (!IS_SET(data->flags, ANGEL_LOWPOINTS)) {
+		if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4) {
+			do_say(self, "You're running low on hit points.  Maybe you should rest or sleep to regain them faster.", 0, SCMD_SAY, 0);
+			SET_BIT(data->flags, ANGEL_LOWPOINTS);
+			return 1;
+		} else if (GET_MOVE(charge) < GET_MAX_MOVE(charge) / 4) {
+			do_say(self, "You're running low on move points.  Maybe you should rest or sleep to regain them faster.", 0, SCMD_SAY, 0);
+			SET_BIT(data->flags, ANGEL_LOWPOINTS);
+			return 1;
+		} else if (GET_MANA(charge) < GET_MAX_MANA(charge) / 4) {
+			do_say(self, "You're running low on move points.  Maybe you should rest or sleep to regain them faster.", 0, SCMD_SAY, 0);
+			SET_BIT(data->flags, ANGEL_LOWPOINTS);
+			return 1;
+		}
 	}
 	return 0;
 }
@@ -108,7 +190,8 @@ SPECIAL(guardian_angel)
 	angel_data *data = (angel_data *)self->mob_specials.func_data;
 	angel_chat_data *cur_chat;
 	Creature *charge;
-	char *arg;
+	char *arg, *word;
+	int result;
 
 	if (!data) {
 		CREATE(data, angel_data, 1);
@@ -117,22 +200,28 @@ SPECIAL(guardian_angel)
 		data->angel = self;
 		data->charge_id = 0;
 		data->charge_name = "NONE";
-		data->counter = 0;
+		data->counter = -1;
 		data->action = "none";
 	}
 	
 	charge = get_char_in_world_by_idnum(data->charge_id);
-	if (!charge && strcmp(data->action, "dismissed")) {
+	if (!charge && data->counter < 0) {
 		data->counter = 20;
 		data->action = "dismissed";
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
-		data->counter--;
-		if (!data->counter)
-			return angel_do_action(self, charge, data);
+		if (data->counter > 0)
+			data->counter--;
+		else if (data->counter < 0)
+			return angel_check_charge(self, charge, data);
+		else {
+			result = angel_do_action(self, charge, data);
+			data->counter = -1;
+			data->action = "none";
+			return result;
+		}
 
-		return angel_check_charge(self, charge);
 	}
 
 	if (spec_mode != SPECIAL_CMD)
@@ -149,6 +238,9 @@ SPECIAL(guardian_angel)
 		} else if (CMD_IS("beckon") && isname(argument, self->player.name)) {
 			data->charge_id = GET_IDNUM(ch);
 			data->charge_name = GET_NAME(ch);
+			GET_SEX(self) = GET_SEX(ch);
+			perform_tell(self, ch, "I'm all yours, baby.");
+			return 1;
 		}
 	}
 
@@ -162,22 +254,33 @@ SPECIAL(guardian_angel)
 		return 1;
 	}
 
-	if (!CMD_IS("tell")
-			&& !CMD_IS("ask")
+	if (!CMD_IS("ask")
 			&& !CMD_IS(">")
 			&& !CMD_IS("say")
 			&& !CMD_IS("'"))
 		return 0;
 	
-	arg = tmp_getword(&argument);
-	if (!isname(arg, self->player.name))
-		return 0;
+	if (ch->in_room->people.size() > 2) {
+		arg = argument;
+		while (*word) {
+			word = tmp_getword(&arg);
+			if (isname(word, self->player.name))
+				break;
+		}
+		if (!*word)
+			return 0;
+	}
 	
 	// Ok, they said something to us - lets pattern match
 	for (cur_chat = angel_chat; *cur_chat->keywords; cur_chat++) {
-		if (chat_match(cur_chat->keywords, argument)) {
+		if (cur_chat->char_class != CLASS_UNDEFINED
+				&& cur_chat->char_class != GET_CLASS(charge))
+			continue;
+		if (cur_chat->chance < 100 && number(0, 99) < cur_chat->chance)
+			continue;
+		if (angel_chat_match(cur_chat->keywords, argument)) {
 			data->action = cur_chat->response;
-			data->counter = 1;
+			data->counter = 0;
 			return 0;
 		}
 	}
