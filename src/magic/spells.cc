@@ -2375,7 +2375,11 @@ ASPELL(spell_vestigial_rune)
 	else if (GET_OBJ_VAL(obj, 1) && GET_IDNUM(ch) != GET_OBJ_VAL(obj, 1))
 		send_to_char(ch, 
 			"This stone is already linked to another sentient being.\r\n");
-	else if (!House_can_enter(ch, ch->in_room->number))
+	else if (!House_can_enter(ch, ch->in_room->number) ||
+			(ROOM_FLAGGED(ch->in_room, ROOM_GODROOM)
+				&& GET_LEVEL(ch) < LVL_CREATOR)
+			|| ROOM_FLAGGED(ch->in_room,
+				ROOM_DEATH | ROOM_NOTEL | ROOM_NOMAGIC | ROOM_NORECALL))
 		act("$p hums dully and gets cold.", FALSE, ch, obj, 0, TO_CHAR);
 	else {
 		GET_OBJ_VAL(obj, 0) = ch->in_room->number;
