@@ -279,13 +279,7 @@ SPECIAL(cityguard)
 		if (!hq_num)
 			return 0;
 
-		// make two new guards that will go to the place of death
-		new_guard = read_mobile(GET_MOB_VNUM(self));
-		CREATE(data, cityguard_data, 1);
-		new_guard->mob_specials.func_data = data;
-		data->targ_room = self->in_room->number;
-		char_to_room(new_guard, real_room(hq_num));
-
+		// make new guard that will go to the place of death
 		new_guard = read_mobile(GET_MOB_VNUM(self));
 		CREATE(data, cityguard_data, 1);
 		new_guard->mob_specials.func_data = data;
