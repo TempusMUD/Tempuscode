@@ -1188,9 +1188,9 @@ perform_drop_credits(struct Creature *ch, int amount,
 				act("$p suddenly appears in a puff of orange smoke!", 0, 0,
 					obj, 0, TO_ROOM);
 			} else {
-				send_to_char(ch, "You drop some cash.\r\n");
-				act("$n drops $p.", FALSE, ch, obj, 0, TO_ROOM);
 				obj_to_room(obj, ch->in_room);
+				act("You drop $p.", FALSE, ch, obj, 0, TO_CHAR);
+				act("$n drops $p.", FALSE, ch, obj, 0, TO_ROOM);
 			}
 		} else {
 			sprintf(buf, "$n drops %s which disappears in a puff of smoke!",
