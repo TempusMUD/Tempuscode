@@ -459,10 +459,10 @@ Crash_listrent( struct char_data * ch, char *name )
                      object.name[0] ? " RaL" : "",
                      object.short_desc[0] ? " ReN" : "",
                      CCNRM( ch, C_NRM ) );
-            if(strlen(buf) + strlen(linebuf) - 100 < MAX_STRING_LENGTH) {
+            if(strlen(buf) + strlen(linebuf) + 100 < MAX_STRING_LENGTH) {
                 strcat(buf,linebuf);
             } else {
-                if(strlen(buf) + 20 <= MAX_STRING_LENGTH) {
+                if(strlen(buf) + 20 < MAX_STRING_LENGTH) {
                     strcat(buf,"*** OVERFLOW ***");
                 }
                 break;
