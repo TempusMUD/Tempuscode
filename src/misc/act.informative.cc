@@ -4680,23 +4680,21 @@ ACMD(do_skills)
 			if ((char_class = parse_char_class(argument)) < 0) {
 				sprintf(buf, "No such char_class, '%s'.\r\n", argument);
 				send_to_char(buf, ch);
-			} else if (GET_LEVEL(ch) < LVL_AMBASSADOR &&
-				char_class != GET_CLASS(ch)
-				&& char_class != GET_REMORT_CLASS(ch)) {
-				send_to_char("You do not belong to that char_class.\r\n", ch);
-			} else
+			} else {
 				show_char_class_skills(ch, char_class, 0,
 					(subcmd ?
 						(char_class == CLASS_PSIONIC ? TRIG_BIT :
 							char_class == CLASS_PHYSIC ? ALTER_BIT :
 							char_class == CLASS_MONK ? ZEN_BIT :
 							SPELL_BIT) : 0));
-		} else
+			}
+		} else {
 			show_char_class_skills(ch, (char_class = GET_CLASS(ch)), 0,
 				(subcmd ?
 					(char_class == CLASS_PSIONIC ? TRIG_BIT :
 						char_class == CLASS_PHYSIC ? ALTER_BIT :
 						char_class == CLASS_MONK ? ZEN_BIT : SPELL_BIT) : 0));
+		}
 
 		return;
 	}
