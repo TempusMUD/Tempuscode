@@ -2567,7 +2567,7 @@ ACMD(do_equipment)
 			if (!(obj = GET_IMPLANT(ch, i)))
 			    continue;
 			sprintf(outbuf, "%s-%s- is in %s condition.\r\n", outbuf,
-				obj->short_description, obj_cond(obj));
+				obj->short_description, obj_cond_color(obj, ch));
 		    }
 		    page_string(ch->desc, outbuf, 1);
 		    return;
