@@ -883,10 +883,9 @@ extern const struct command_info cmd_info[] = {
     { "mumble"   , POS_RESTING,  do_action   , 0, 0 },
     { "murmur"   , POS_RESTING , do_say      , 0, SCMD_MURMUR },
     { "music"    , POS_DEAD    , do_gen_comm , 0, SCMD_MUSIC },
-    { "mute"     , POS_DEAD    , do_wizutil  , LVL_POWER, SCMD_SQUELCH },
+    { "mute"     , POS_DEAD    , do_wizutil  , LVL_SPIRIT, SCMD_SQUELCH },
     { "mutter"   , POS_RESTING,  do_action   , 0, 0 },
     { "murder"   , POS_FIGHTING, do_hit      , 0, SCMD_MURDER },
-
     { "news"     , POS_SLEEPING, do_dyntext_show, 0, SCMD_DYNTEXT_NEWS },
     { "nervepinch",POS_FIGHTING, do_pinch    , 0, 0 },
     { "newbie"   , POS_SLEEPING, do_gen_comm , 0, SCMD_NEWBIE },

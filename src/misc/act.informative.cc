@@ -3119,36 +3119,60 @@ ACMD(do_who)
             continue;
 		
 		if (GET_LEVEL(tch) >= LVL_AMBASSADOR) {
+            char badge[256];
+            switch( tch->player_specials->saved.occupation ) {
+                case 0:
+                    strcpy(badge, LEV_ABBR(tch));
+                    break;
+                case 1: // Builder
+                    strcpy(badge,"BUILDER");
+                    break;
+                case 2: // Coder 
+                    strcpy(badge," CODER ");
+                    break;
+                case 3: // Admin
+                    strcpy(badge," ADMIN ");
+                    break;
+                case 4: // Questor 
+                    strcpy(badge,"QUESTOR");
+                    break;
+                case 5: // Past Arch
+                    strcpy(badge,"P ARCH ");
+                    break;
+                case 6: // Future Arch
+                    strcpy(badge,"EC ARCH");
+                    break;
+                case 7: // Planar Arch
+                    strcpy(badge,"OP ARCH");
+                    break;
+                case 8: // Custom
+                    if( !strncmp(GET_NAME(tch), "Fishbone", 8) ) {
+                        strcpy(badge,"BONEMAN");
+                    } else if( !strncmp(GET_NAME(tch), "Tricky", 6) ) {
+                        strcpy(badge,"!WANTED");
+                    } else if( !strncmp(GET_NAME(tch), "Generic", 7) ) {
+                        strcpy(badge,"GENERIC");
+                    } else if( !strncmp(GET_NAME(tch), "Ska", 3)  ) {
+                        strcpy(badge,"  LADY ");
+                    } else if( !strncmp(GET_NAME(tch), "Shiva", 5) ) {
+                        strcpy(badge," DEATH ");
+                    } else if( !strncmp(GET_NAME(tch), "Smitty", 6) ) {
+                        strcpy(badge,"FOREMAN");
+                    } else if( !strncmp(GET_NAME(tch), "Stryker", 7) ) {
+                        strcpy(badge,"CODEMAN");
+                    } else if( !strncmp(GET_NAME(tch), "Nothing", 7) ) { 
+                        strcpy(badge,"THECODE");
+                    } else {
+                        strcpy(badge,LEV_ABBR(tch));
+                    }
+                    break;
+                default:
+                    strcpy(badge, LEV_ABBR(tch));
+            }
+
 			sprintf(buf2, "%s%s%s[%s%s%s]%s ", buf2,
 					CCGRN(ch, C_SPR), CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_NRM),
-					(PLR_FLAGGED(tch, PLR_QUESTOR)          ? "QUESTOR" :
-					 !strncmp(GET_NAME(tch), "Fishbone", 8) ? "BONEMAN" : 
-					 !strncmp(GET_NAME(tch), "Tricky", 6)   ? "!WANTED" : 
-					 !strncmp(GET_NAME(tch), "Generic", 7)  ? "GENERIC" : 
-					 !strncmp(GET_NAME(tch), "Ska", 3)      ? "  LADY " : 
-					 !strncmp(GET_NAME(tch), "Shiva", 5)    ? " DEATH " : 
-					 !strncmp(GET_NAME(tch), "Smitty", 6)   ? "FOREMAN" :
-					 !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
-					 !strncmp(GET_NAME(tch), "Hubris", 6)   ? "EC ARCH" :
-					 !strncmp(GET_NAME(tch), "Tigger", 6)   ? "OP ARCH" :
-					 !strncmp(GET_NAME(tch), "Trouble", 7)  ? " ADMIN " :
-					 !strncmp(GET_NAME(tch), "Darth", 5)    ? "P ARCH " :
-					 !strncmp(GET_NAME(tch), "Nothing", 7)  ? "THECODE" :
-					 !strncmp(GET_NAME(tch), "Ashe", 4)     ? " C0DER " :
-					 !strncmp(GET_NAME(tch), "Reptile", 7)  ? " ADMIN " :
-					 !strncmp(GET_NAME(tch), "Fortune", 7)  ? "BUILDER" :
-					 !strncmp(GET_NAME(tch), "Storm"  , 5)  ? "BUILDER" :
-					 !strncmp(GET_NAME(tch), "Raza"   , 4)  ? "BUILDER" :
-					 !strncmp(GET_NAME(tch), "Cedric" , 6)  ? "ARBITER" :
-					 !strncmp(GET_NAME(tch), "Javelin", 7)  ? "BUILDER" :
-					 !strncmp(GET_NAME(tch), "Wolfe"  , 5)  ? "BUILDER" :
-					 !strncmp(GET_NAME(tch), "Renaissance",11)  ? "BUILDER" :
-					 !strncmp(GET_NAME(tch), "Countdown", 9)  ? "BUILDER" :
-					 !strncmp(GET_NAME(tch), "Evangeline", 10)  ? "QUESTOR" :
-					 !strncmp(GET_NAME(tch), "Dissonance", 10)  ? "QUESTOR" :
-					 !strncmp(GET_NAME(tch), "Failure", 7)  ? "QUESTOR" :
-					 !strncmp(GET_NAME(tch), "Joran", 5)    ? " LOWER ":
-					 LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+					 badge,  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
 		} else {
 			if (IS_VAMPIRE(tch))
 				effective_char_class = GET_OLD_CLASS(tch);

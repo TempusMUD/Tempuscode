@@ -2292,7 +2292,7 @@ ACMD(do_return)
                 FALSE, ch, NULL, NULL, TO_ROOM);
             char_from_room(ch);
             char_to_room(ch, GET_START_ROOM(ch));
-			look_at_room(ch, ch->in_room, 0);
+                        look_at_room(ch, ch->in_room, 0);
             act("A whirling globe of multi-colored light appears and deposits $n on the floor!",
                 FALSE, ch, NULL, NULL, TO_ROOM);
         }
@@ -4239,10 +4239,10 @@ ACMD(do_show)
                 send_to_char("That is not a valid zone.\r\n", ch);
                 return;
             }
-		} else if (*value && !is_number(value)) {
+                } else if (*value && !is_number(value)) {
             for (zone = zone_table;zone;zone = zone->next)
-				if ( stristr( zone->name,value ) )
-					print_zone_to_buf( ch,buf,zone );
+                                if ( stristr( zone->name,value ) )
+                                        print_zone_to_buf( ch,buf,zone );
         } else
             for (zone = zone_table; zone; zone = zone->next)
                 print_zone_to_buf(ch, buf, zone);
@@ -5069,48 +5069,48 @@ ACMD(do_set)
         { "gold",                LVL_CREATOR,         BOTH,         NUMBER },
         { "bank",                LVL_CREATOR,         PC,         NUMBER },  /* 20 */
         { "exp",                 LVL_CREATOR,         BOTH,         NUMBER },
-        { "hitroll",         LVL_GRGOD,         BOTH,         NUMBER },
-        { "damroll",         LVL_GRGOD,         BOTH,         NUMBER },
-        { "invis",                LVL_GRGOD,         PC,         NUMBER },
-        { "nohassle",         LVL_GRGOD,         PC,         BINARY },  /* 25 */
-        { "frozen",                LVL_TIMEGOD,         PC,         BINARY },
-        { "practices",         LVL_GRGOD,         PC,         NUMBER },
-        { "lessons",         LVL_GRGOD,         PC,         NUMBER },
-        { "drunk",                LVL_CREATOR,         BOTH,         MISC },
-        { "hunger",                LVL_CREATOR,         BOTH,         MISC },    /* 30 */
-        { "thirst",                LVL_CREATOR,         BOTH,         MISC },
-        { "killer",                LVL_GRGOD,         PC,         BINARY },
-        { "thief",                LVL_GRGOD,         PC,         BINARY },
-        { "level",                LVL_CREATOR,         BOTH,         NUMBER },
+        { "hitroll",             LVL_GRGOD,         BOTH,         NUMBER },
+        { "damroll",             LVL_GRGOD,         BOTH,         NUMBER },
+        { "invis",               LVL_GRGOD,         PC,         NUMBER },
+        { "nohassle",            LVL_GRGOD,         PC,         BINARY },  /* 25 */
+        { "frozen",              LVL_TIMEGOD,         PC,         BINARY },
+        { "practices",           LVL_GRGOD,         PC,         NUMBER },
+        { "lessons",             LVL_GRGOD,         PC,         NUMBER },
+        { "drunk",               LVL_CREATOR,         BOTH,         MISC },
+        { "hunger",              LVL_CREATOR,         BOTH,         MISC },    /* 30 */
+        { "thirst",              LVL_CREATOR,         BOTH,         MISC },
+        { "killer",              LVL_GRGOD,         PC,         BINARY },
+        { "thief",               LVL_GRGOD,         PC,         BINARY },
+        { "level",               LVL_CREATOR,         BOTH,         NUMBER },
         { "room",                LVL_CREATOR,         BOTH,         NUMBER },  /* 35 */
-        { "roomflag",         LVL_CREATOR,         PC,         BINARY },
-        { "siteok",                LVL_GRGOD,         PC,         BINARY },
-        { "deleted",         LVL_CREATOR,         PC,         BINARY },
-        { "class",                LVL_GRGOD,         BOTH,         MISC },
-        { "nowizlist",         LVL_CREATOR,         PC,         BINARY },  /* 40 */
-        { "quest",                LVL_GRGOD,         PC,         BINARY },
-        { "loadroom",         LVL_GRGOD,         PC,         MISC },
-        { "color",                LVL_GRGOD,         PC,         BINARY },
-        { "idnum",                LVL_GRIMP,           PC,         NUMBER },
-        { "passwd",                LVL_LUCIFER,           PC,         MISC },    /* 45 */
-        { "nodelete",         LVL_GRGOD,           PC,         BINARY },
-        { "cha",                LVL_CREATOR,           BOTH,         NUMBER },
-        { "hometown",   LVL_GRGOD,        PC,     NUMBER },
+        { "roomflag",            LVL_CREATOR,         PC,         BINARY },
+        { "siteok",              LVL_GRGOD,         PC,         BINARY },
+        { "deleted",             LVL_CREATOR,         PC,         BINARY },
+        { "class",               LVL_GRGOD,         BOTH,         MISC },
+        { "nowizlist",           LVL_CREATOR,         PC,         BINARY },  /* 40 */
+        { "quest",               LVL_GRGOD,         PC,         BINARY },
+        { "loadroom",            LVL_GRGOD,         PC,         MISC },
+        { "color",               LVL_GRGOD,         PC,         BINARY },
+        { "idnum",               LVL_GRIMP,           PC,         NUMBER },
+        { "passwd",              LVL_LUCIFER,           PC,         MISC },    /* 45 */
+        { "nodelete",            LVL_GRGOD,           PC,         BINARY },
+        { "cha",                 LVL_CREATOR,           BOTH,         NUMBER },
+        { "hometown",            LVL_GRGOD,        PC,     NUMBER },
         { "race",                LVL_GRGOD,        BOTH,     MISC },
-        { "height",          LVL_CREATOR,      BOTH,   NUMBER },   /* 50 */
-        { "weight",          LVL_GRGOD,        BOTH,   NUMBER },
-        { "nosnoop",         LVL_ENTITY,       PC,    BINARY },
-        { "clan",            LVL_GRGOD,        PC,    MISC },
-        { "leader",          LVL_GRGOD,        PC,    BINARY },
-        { "life",            LVL_CREATOR,      PC,    NUMBER },  /* 55 */
-        { "debug",           LVL_GOD,          PC,    BINARY },
-        { "page",            LVL_GRGOD,        PC,    NUMBER },
-        { "screen",          LVL_GRGOD,        PC,    NUMBER },
+        { "height",              LVL_CREATOR,      BOTH,   NUMBER },   /* 50 */
+        { "weight",              LVL_GRGOD,        BOTH,   NUMBER },
+        { "nosnoop",             LVL_ENTITY,       PC,    BINARY },
+        { "clan",                LVL_GRGOD,        PC,    MISC },
+        { "leader",              LVL_GRGOD,        PC,    BINARY },
+        { "life",                LVL_CREATOR,      PC,    NUMBER },  /* 55 */
+        { "debug",               LVL_GOD,          PC,    BINARY },
+        { "page",                LVL_GRGOD,        PC,    NUMBER },
+        { "screen",              LVL_GRGOD,        PC,    NUMBER },
         { "remort_class",        LVL_GRGOD,           BOTH,         MISC },    
-        { "hunting",         LVL_CREATOR,      NPC,    MISC },    /* 60 */
-        { "fighting",        LVL_CREATOR,      BOTH,   MISC },
-        { "mobkills",        LVL_CREATOR,         PC,   NUMBER },
-        { "pkills",          LVL_CREATOR,         PC,   NUMBER },
+        { "hunting",             LVL_CREATOR,      NPC,    MISC },    /* 60 */
+        { "fighting",            LVL_CREATOR,      BOTH,   MISC },
+        { "mobkills",            LVL_CREATOR,         PC,   NUMBER },
+        { "pkills",              LVL_CREATOR,         PC,   NUMBER },
         { "newbiehelper",    LVL_ETERNAL,      PC,    BINARY },
         { "holylight",       LVL_CREATOR,      PC,         BINARY },  /* 65 */
         { "notitle",         LVL_GRGOD,        PC,    BINARY },
@@ -5144,8 +5144,9 @@ ACMD(do_set)
         { "qpoints",         LVL_GRGOD,        PC,   NUMBER },
         { "qpallow",         LVL_GRGOD,        PC,   NUMBER},   /*  95 */
         { "soulless",        LVL_GRGOD,        BOTH, BINARY }, 
-        { "buried",                         LVL_GRGOD,           PC,   BINARY },
-        { "speed",                         LVL_GRGOD,            PC,   NUMBER },
+        { "buried",          LVL_GRGOD,        PC,   BINARY },
+        { "speed",           LVL_GRGOD,        PC,   NUMBER },
+        { "occupation",      LVL_ENTITY,       PC,   NUMBER },
         { "\n", 0, BOTH, MISC }
     };
 
@@ -5791,6 +5792,11 @@ ACMD(do_set)
     case 98: // Set Speed
         vict->setSpeed(RANGE(0, 100));
         break;
+    case 99:
+        if(! IS_NPC(vict) ) {
+            vict->player_specials->saved.occupation = RANGE(0,254);
+        }
+        break;
 
     default:
         sprintf(buf, "Can't set that!");
@@ -5815,13 +5821,7 @@ ACMD(do_set)
         char_to_store(vict, &tmp_store);
         fseek(player_fl, (player_i) * sizeof(struct char_file_u), SEEK_SET);
         fwrite(&tmp_store, sizeof(struct char_file_u), 1, player_fl);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         free_char(cbuf);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
         send_to_char("Saved in file.\r\n", ch);
     }
 }
