@@ -96,7 +96,7 @@ boot_accounts(void)
 
 
 Account::Account(void)
-	: _chars()
+	: _chars(), _trusted()
 {
 	time_t now;
 	
@@ -167,6 +167,9 @@ Account::load_from_xml(xmlDocPtr doc, xmlNodePtr root)
 			_chars.push_back(num);
 			playerIndex.add(num, str, _id, false);
 			free(str);
+        } else if (xmlMatches(node->name, "trusted")) {
+			num = xmlGetIntProp(node, "idnum", -1);
+			_trusted.push_back(num);
 		} else if (!xmlMatches(node->name, "text")) {
 			slog("Can't happen at %s:%d", __FILE__, __LINE__);
 			return false;
@@ -208,6 +211,9 @@ Account::save_to_xml(void)
 		fprintf(ouf, "\t<character idnum=\"%ld\" name=\"%s\"/>\n",
 			*cur_pc, playerIndex.getName(*cur_pc));
 	}
+
+	for (cur_pc = _trusted.begin();cur_pc != _trusted.end();cur_pc++)
+		fprintf(ouf, "<trusted idnum=\"%ld\"/>\n", *cur_pc);
 
 	fprintf(ouf, "</account>\n");
 	fclose(ouf);
@@ -646,4 +652,63 @@ void
 Account::update_last_entry(void)
 {
 	_entry_time = time(0);
+}
+
+bool
+Account::isTrusted(long idnum)
+{
+	vector<long>::iterator it;
+
+	for (it = _chars.begin();it != _chars.end();it++)
+		if (*it == idnum)
+			return true;
+
+	for (it = _trusted.begin();it != _trusted.end();it++)
+		if (*it == idnum)
+			return true;
+
+	return false;
+}
+
+void
+Account::trust(long idnum)
+{
+	vector<long>::iterator it;
+
+	for (it = _trusted.begin();it != _trusted.end();it++)
+		if (*it == idnum)
+			return;
+
+	_trusted.push_back(idnum);
+}
+
+void
+Account::distrust(long idnum)
+{
+	vector<long>::iterator it;
+
+	for (it = _trusted.begin();it != _trusted.end();it++) {
+		if (*it == idnum) {
+			_trusted.erase(it);
+			return;
+		}
+	}
+}
+
+void
+Account::displayTrusted(Creature *ch)
+{
+	vector<long>::iterator it;
+	int col = 1;
+
+	for (it = _trusted.begin();it != _trusted.end();it++) {
+		if (playerIndex.exists(*it)) {
+			send_to_char(ch, "%20s   ", playerIndex.getName(*it));
+			col += 1;
+		}
+		if (col % 3)
+			send_to_char(ch, "\r\n");
+	}
+	if (!(col % 3))
+		send_to_char(ch, "\r\n");
 }

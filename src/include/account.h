@@ -85,6 +85,12 @@ class Account {
 		inline time_t get_entry_time() { return _entry_time; }
 		void update_last_entry(void);
         
+		bool isTrusted(long idnum);
+		void trust(long idnum);
+		void distrust(long idnum);
+		inline bool trustsNobody(void) { return _trusted.empty(); }
+		void displayTrusted(Creature *ch);
+
 	private:
 		// Internal
 		int _id;
@@ -103,6 +109,7 @@ class Account {
 		unsigned int _term_width;
 		// Game data
 		vector<long> _chars;
+		vector<long> _trusted;
 		long long _bank_past;
 		long long _bank_future;
 };
