@@ -6648,6 +6648,7 @@ ACMD(do_aset)
         {"future_bank", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"qpoints", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},
+		{"qbanned", LVL_IMMORT, PC, BINARY, "QuestorAdmin,AdminFull"},
         {"password", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""} };
 	char *name, *field;
@@ -6731,6 +6732,8 @@ ACMD(do_aset)
 	case 3:
 		account->set_quest_points(value); break;
 	case 4:
+	    account->set_quest_banned(on); break;
+	case 5:
 		account->set_password(argument);
 		sprintf(buf, "Password for account %s[%d] has been set.",
 			account->get_name(), account->get_idnum());
