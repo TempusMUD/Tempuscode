@@ -22,6 +22,7 @@ static const int RENT_RENTED    = 2;
 static const int RENT_CRYO      = 3;
 static const int RENT_FORCED    = 4;
 static const int RENT_TIMEDOUT  = 5;
+static const int RENT_NEW_CHAR  = 6;
 
 
 /* PC char_classes */
@@ -1054,10 +1055,13 @@ struct Creature {
     // Drops all !cursed eq to the floor, breaking implants, then calls rentSave(0)
     bool curseSave();
     bool cryoSave(int cost);
+    // Returns this creature's account id.
+    long getAccountID() const;
   private:
     bool saveObjects(void);
     /** Extracts all unrentable objects carried or worn by this creature **/
     void extractUnrentables();
+    
   public:						// ******  Data ****
 	int pfilepos;				/* playerfile pos          */
 	struct room_data *in_room;	/* Location (real room number)      */
