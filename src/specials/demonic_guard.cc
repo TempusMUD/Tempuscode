@@ -183,7 +183,8 @@ SPECIAL(demonic_overmind)
 SPECIAL(demonic_guard)
 {
 	Creature *self = (Creature *)me;
-	obj_data *brain, *obj;
+	obj_data *brain;
+//	obj_data *obj;
 	killer_rec *cur_rec;
 	int vict_id;
 
@@ -206,17 +207,18 @@ SPECIAL(demonic_guard)
 		return false;
 	}
 
-
-	// Check to see if the victim's corpse is here
-	for (obj = self->in_room->contents; obj; obj = obj->next_content) {
-		if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) == vict_id) {
-			act("You get $p.", true, self, obj, 0, TO_CHAR);
-			act("$n gets $p.", true, self, obj, 0, TO_ROOM);
-			obj_from_room(obj);
-			obj_to_char(obj, self);
-			return true;
-		}
-	}
+/// Harsh since the victim often has his own victim's corpse in his inventory
+//  --jr
+//	// Check to see if the victim's corpse is here
+//	for (obj = self->in_room->contents; obj; obj = obj->next_content) {
+//		if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) == vict_id) {
+//			act("You get $p.", true, self, obj, 0, TO_CHAR);
+//			act("$n gets $p.", true, self, obj, 0, TO_ROOM);
+//			obj_from_room(obj);
+//			obj_to_char(obj, self);
+//			return true;
+//		}
+//	}
 
 	if (!HUNTING(self) || !PLR_FLAGGED(HUNTING(self), PLR_KILLER)) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
