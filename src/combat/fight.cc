@@ -1367,14 +1367,17 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     if ( ( af = affected_by_spell( victim, SPELL_LOCUST_REGENERATION ) ) ) {
         // pc caster
         if ( ch && !IS_NPC( ch ) && GET_IDNUM( ch ) == af->modifier ) {
-            sprintf( buf, "You drain %d mana from $N!", (int)(dam * 0.75) );
-            act( buf, FALSE, ch, 0, victim, TO_CHAR );
-            GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - (dam >> 2));
-            if (GET_MOVE(ch) > 0)
-                GET_MANA( ch ) = MIN( GET_MAX_MANA( ch ), GET_MANA( ch ) + dam );
-            af->duration--;
-            if ( af->duration <= 0 ) {
-                affect_remove( victim, af );
+            if (vict && (GET_MANA(vict) > 0)) {
+                int manadrain = MIN((int)(dam * 0.75), GET_MANA(vict));
+                sprintf(buf, "You drain %d mana from $N!", manadrain);
+                act( buf, FALSE, ch, 0, victim, TO_CHAR );
+                GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - (dam >> 2));
+                if (GET_MOVE(ch) > 0)
+                    GET_MANA( ch ) = MIN( GET_MAX_MANA( ch ), GET_MANA( ch ) + dam );
+                af->duration--;
+                if ( af->duration <= 0 ) {
+                    affect_remove( victim, af );
+                }    
             }
         }
     }
