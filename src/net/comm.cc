@@ -49,6 +49,7 @@
 #include "desc_data.h"
 #include "tmpstr.h"
 #include "player_table.h"
+#include "events.h"
 
 /* externs */
 extern HelpCollection *Help;
@@ -688,6 +689,7 @@ game_loop(int mother_desc)
 		}
 		tics++;					/* tics since last checkpoint signal */
 		tmp_gc_strings();
+		Event::ProcessScheduled();
 	}							/* while (!circle_shutdown) */
 	/*  mem_cleanup(); */
 }

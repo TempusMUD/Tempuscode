@@ -68,7 +68,7 @@ SPECIAL(abandoned_cavern)
 					}
 					obj_to_room(rubble, cavern);
 				}
-				vict->die();
+				Event::Queue(new DeathEvent(0, vict, false));
 			}
 		}
 

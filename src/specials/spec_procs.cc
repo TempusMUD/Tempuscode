@@ -39,6 +39,7 @@
 #include "tmpstr.h"
 #include "tokenizer.h"
 #include "player_table.h"
+#include "events.h"
 
 
 /*   external vars  */

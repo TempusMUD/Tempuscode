@@ -2,7 +2,7 @@ $(OBJ)/ban.o : ban.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h 
 	$(CXX) -c $(CXXFLAGS) ban.cc               -o $(OBJ)/ban.o
 $(OBJ)/comm.o : comm.cc \
-	$(INCLUDE)/macros.h $(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/help.h $(INCLUDE)/desc_data.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h 
+	$(INCLUDE)/macros.h $(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/help.h $(INCLUDE)/desc_data.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h $(INCLUDE)/events.h 
 	$(CXX) -c $(CXXFLAGS) comm.cc              -o $(OBJ)/comm.o
 $(OBJ)/gnetsys.o : gnetsys.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/help.h $(INCLUDE)/char_class.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/bomb.h 

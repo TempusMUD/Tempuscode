@@ -27,6 +27,7 @@
 #include "actions.h"
 #include "tmpstr.h"
 #include "house.h"
+#include "events.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -81,7 +82,7 @@ search_trans_character(Creature * ch,
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			log_death_trap(ch);
 			death_cry(ch);
-			ch->die();
+			Event::Queue(new DeathEvent(0, ch, false));
 			return 2;
 		} else {
 			mudlog(LVL_GOD, NRM, true,
@@ -304,7 +305,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 					log_death_trap(ch);
 					death_cry(ch);
 					//extract_char( ch, 1 );
-					ch->die();
+					Event::Queue(new DeathEvent(0, ch, false));
 					return 2;
 				} else {
 					mudlog(LVL_GOD, NRM, true,

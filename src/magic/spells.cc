@@ -38,6 +38,7 @@
 #include "tmpstr.h"
 #include "house.h"
 #include "player_table.h"
+#include "events.h"
 
 extern struct obj_data *object_list;
 
@@ -3247,7 +3248,7 @@ ASPELL(spell_banishment)
 
 		act("$n is banished to $s home plane!", FALSE, victim, 0, 0, TO_ROOM);
 
-		victim->die();
+		Event::Queue(new DeathEvent(0, victim, false));
 
 		gain_skill_prof(ch, SPELL_BANISHMENT);
 

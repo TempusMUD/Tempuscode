@@ -34,6 +34,7 @@
 #include "security.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "events.h"
 
 /* external vars  */
 extern struct descriptor_data *descriptor_list;
@@ -1123,7 +1124,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		log_death_trap(ch);
 		death_cry(ch);
 		// extract it, leaving it's eq and such in the dt.
-		ch->die();
+		Event::Queue(new DeathEvent(0, ch, false));
 		if (was_in->number == 34004) {
 			for (obj = was_in->contents; obj; obj = next_obj) {
 				next_obj = obj->next_content;
@@ -2631,7 +2632,7 @@ ACMD(do_translocate)
 		send_to_char(ch, 
 			"You go too far, rematerializing inside solid matter!!\r\n"
 			"Better luck next time...\r\n");
-		ch->die();
+		Event::Queue(new DeathEvent(0, ch, false));
 		return;
 	} else {
 		if( !char_from_room(ch) || !char_to_room(ch, rm) )
@@ -2649,7 +2650,7 @@ ACMD(do_translocate)
 			GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			log_death_trap(ch);
 			death_cry(ch);
-			ch->die();
+			Event::Queue(new DeathEvent(0, ch, false));
 			if (rm->number == 34004) {
 				for (obj = rm->contents; obj; obj = next_obj) {
 					next_obj = obj->next_content;

@@ -28,6 +28,7 @@
 #include "bomb.h"
 #include "house.h"
 #include "fight.h"
+#include "events.h"
 
 /* external structs */
 extern struct obj_data *object_list;
@@ -298,7 +299,7 @@ flow_room(int pulse)
 						was_in = vict->in_room;
 						log_death_trap(vict);
 						death_cry(vict);
-						vict->die();
+						Event::Queue(new DeathEvent(0, vict, false));
 
 						if (was_in->number == 34004) {
 							for (obj = was_in->contents; obj; obj = next_obj) {
