@@ -1730,8 +1730,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						// without initiating melee ( on their part at least )
 						if (attacktype != SKILL_ENERGY_WEAPONS &&
 							attacktype != SKILL_PROJ_WEAPONS &&
-							(!IS_MAGE(ch) ||
-								attacktype > MAX_SPELLS ||
+							ch->in_room == victim->in_room &&
+							(!IS_MAGE(ch) || attacktype > MAX_SPELLS ||
 								!SPELL_IS_MAGIC(attacktype))) {
 							set_fighting(ch, victim, TRUE);
 						}
@@ -1745,7 +1745,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							HUNTING(victim) = ch;
 					}
 					// make the victim retailiate against the attacker
-					if (!FIGHTING(victim)) {
+					if (!FIGHTING(victim) && ch->in_room == victim->in_room) {
 						set_fighting(victim, ch, FALSE);
 					}
 				}
