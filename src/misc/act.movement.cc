@@ -341,7 +341,8 @@ int do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_c
     }
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(ch) < LVL_SPIRIT &&
-	ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_DEATH)) {
+	ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_DEATH) 
+    && IS_APPR(ch->in_room->zone)) {
 	send_to_char("You are repelled by an invisible order-shield.\r\n", ch);
 	return 1;
     }
