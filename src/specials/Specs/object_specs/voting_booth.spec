@@ -145,7 +145,7 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 	}
 
 	memory = poll->memory;
-	while (memory && memory->next && memory->id != ch->account->get_idnum())
+	while (memory && memory->id != ch->account->get_idnum())
 		memory = memory->next;
 
 	acc_string_clear();
@@ -154,9 +154,7 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 
 	for (opt = poll->options; opt; opt = opt->next) {
 		if (GET_LEVEL(ch) >= LVL_POWER
-				|| (memory
-					&& memory->id == ch->account->get_idnum()
-					&& !poll->secret)) {
+				|| (memory && !poll->secret)) {
 			if (opt->count != poll->count)
 				acc_sprintf("%3d (%2d%%) %c) %s",
 					opt->count,
@@ -169,7 +167,7 @@ voting_booth_read(Creature * ch, struct obj_data *obj, char *argument)
 			acc_sprintf("      %c) %s", opt->idx, opt->descrip);
 		}
 	}
-	if (memory && memory->id == ch->account->get_idnum()) {
+	if (memory) {
 		acc_strcat("\r\nYou have already voted.\r\n", NULL);
 		if (poll->secret && GET_LEVEL(ch) < LVL_POWER)
 			acc_sprintf("You are not able to see the results because this is a secret poll.\r\n");
@@ -217,10 +215,10 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	}
 
 	memory = poll->memory;
-	while (memory && memory->next && memory->id != ch->account->get_idnum())
+	while (memory && memory->id != ch->account->get_idnum())
 		memory = memory->next;
 
-	if (memory && memory->id == ch->account->get_idnum()) {
+	if (memory) {
 		send_to_char(ch, "You have already voted on that issue!\r\n");
 		return;
 	}
@@ -254,11 +252,8 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	act("$n votes on $P.", TRUE, ch, 0, obj, TO_ROOM);
 
 	CREATE(new_memory, struct memory_rec_struct, 1);
-	if (memory)
-		memory->next = new_memory;
-	else
-		poll->memory = new_memory;
-	new_memory->next = NULL;
+	new_memory->next = poll->memory;
+	poll->memory = new_memory;
 	new_memory->id = ch->account->get_idnum();
 
 	sql_exec("update voting_options set count=%d where poll=%d and idx=%d",
@@ -271,11 +266,14 @@ void
 voting_booth_list(Creature * ch, struct obj_data *obj)
 {
 	struct voting_poll *poll;
+	struct memory_rec_struct *memory;
 	int poll_count = 0;
-	char *secret_str;
+	char *secret_str, *not_voted_str;
 
 	secret_str = tmp_sprintf(" %s(secret)%s",
 		CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+	not_voted_str = tmp_sprintf(" %s(not voted)%s",
+		CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	poll = voting_poll_list;
 	while (poll) {
 		poll_count++;
@@ -301,10 +299,15 @@ voting_booth_list(Creature * ch, struct obj_data *obj)
 				CCGRN(ch, C_NRM), poll_count, CCNRM(ch, C_NRM));
 		poll_count = 0;
 		while (poll) {
+			memory = poll->memory;
+			while (memory && memory->id != ch->account->get_idnum())
+				memory = memory->next;
+
 			strftime(buf2, 2048, "%a %b %d", localtime(&poll->creation_time));
-			send_to_char(ch, "%2d : %s (%d responses) :: %s%s\r\n",
+			send_to_char(ch, "%2d : %s (%d responses) :: %s%s%s\r\n",
 				++poll_count, buf2, poll->count, poll->header,
-				poll->secret ? secret_str:"");
+				poll->secret ? secret_str:"",
+				memory ? "":not_voted_str);
 			poll = poll->next;
 		}
 	}
