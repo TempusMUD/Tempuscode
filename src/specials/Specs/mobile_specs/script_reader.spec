@@ -60,7 +60,7 @@ SPECIAL(mob_read_script)
 			return false;
 
 		if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
-			command_interpreter(ch, tmp_gsub(desc, "\n", ""));
+			command_interpreter(ch, tmp_gsub(desc, "\r\n", " "));
 			LAST_SCRIPT_ACTION = which;
 			return true;
 		}
@@ -83,7 +83,7 @@ SPECIAL(mob_read_script)
 	SCRIPT_COUNTER++;
 
 	if ((desc = find_exdesc(buf, obj->ex_description, 1))) {
-		command_interpreter(ch, tmp_gsub(desc, "\n", ""));
+		command_interpreter(ch, tmp_gsub(desc, "\r\n", " "));
 		return true;
 	}
 
