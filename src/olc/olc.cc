@@ -43,6 +43,7 @@
 #include "events.h"
 
 #define NUM_POSITIONS 11
+#define LVL_ISCRIPT 73
 
 #define OLC_USAGE "Usage:\r\n"                                   \
 "olc rsave\r\n"                                \
@@ -1211,8 +1212,8 @@ ACMD(do_olc)
             else {
                 tmp_vnum = atoi(arg2);
             }
-            if(GET_LEVEL(ch) < 56) {
-                send_to_char("Sorry, you must be level 56 or higher to use this command.\r\n"
+            if(GET_LEVEL(ch) < LVL_ISCRIPT) {
+                send_to_char("Sorry, you aren't godly enough to use this command.\r\n"
                              "Stay tuned, try again later.\r\n", ch);
                 return; 
             }
@@ -1597,51 +1598,52 @@ ACMD(do_olc)
 	break;
     
     case 53:
-        if(GET_LEVEL(ch) > 55)
-            do_olc_ilist(ch, argument);
+        if(GET_LEVEL(ch) < LVL_ISCRIPT)
+            send_to_char("You godly enough to use this command!\r\n", ch);
         else
-            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+            do_olc_ilist(ch, argument);
     break;
 
     case 54:
-        if(GET_LEVEL(ch) > 55)
-            do_olc_istat(ch, argument);
+        if(GET_LEVEL(ch) < LVL_ISCRIPT)
+            send_to_char("You godly enough to use this command!\r\n", ch);
         else
-            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+            do_olc_istat(ch, argument);
     break;
     case 55:
-        if(GET_LEVEL(ch) > 55)
-            do_olc_iedit(ch, argument);
+        if(GET_LEVEL(ch) < LVL_ISCRIPT)
+            send_to_char("You godly enough to use this command!\r\n", ch);
         else
-            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+            do_olc_iedit(ch, argument);
     break;    
     case 56:
-        if(GET_LEVEL(ch) > 55)
-            do_olc_iset(ch, argument);
+        if(GET_LEVEL(ch) < LVL_ISCRIPT)
+            send_to_char("You godly enough to use this command!\r\n", ch);
         else
-            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+            do_olc_iset(ch, argument);
     break;
     case 57:
-        if(GET_LEVEL(ch) > 55)
-            do_olc_ihandler(ch, argument);
+        if(GET_LEVEL(ch) < LVL_ISCRIPT)
+            send_to_char("You godly enough to use this command!\r\n", ch);
         else
-            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+            do_olc_ihandler(ch, argument);
     break;    
     case 58:
-        if(GET_LEVEL(ch) > 55) {
+        if(GET_LEVEL(ch) < LVL_ISCRIPT) {
+            send_to_char("You godly enough to use this command!\r\n", ch);
+        } else {
             if(!do_olc_isave (ch))
                 send_to_char("IScript file saved.\r\n",ch);
             else
                 send_to_char("An error occured while saving.\r\n",ch);
-        }        
-        else
-            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+        }
     break;
     case 59:
-        if(GET_LEVEL(ch) > 55)
+        if(GET_LEVEL(ch) < LVL_ISCRIPT) {
+            send_to_char("You godly enough to use this command!\r\n", ch);
+        } else {
             do_olc_idelete(ch, argument);
-        else
-            send_to_char("You must be level 56 or higher to use this command!\r\n", ch);
+        }
     break;
     default:
         send_to_char("This action is not supported yet.\r\n",ch);
