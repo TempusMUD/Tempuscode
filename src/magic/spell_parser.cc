@@ -262,7 +262,9 @@ const char *spells[] = {
 	"call bird",	/* 240 */
 	"call reptile",
 	"call beast",
-	"call predator", "!UNUSED!", "!UNUSED!",	/* 245 */
+	"call predator",
+	"spirit track",
+	"!UNUSED!",	/* 245 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 250 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 255 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 260 */
@@ -3593,6 +3595,12 @@ mag_assign_spells(void)
 	remort_spello(SPELL_LOCUST_REGENERATION, CLASS_MAGE, 34, 5,
 		150, 75, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT
 		| TAR_NOT_SELF, TRUE, MAG_MAGIC | MAG_AFFECTS);
+	
+	remort_spello(SPELL_SPIRIT_TRACK, CLASS_RANGER, 38, 2,
+		120, 60, 10, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY,
+		false, MAG_MAGIC | MAG_AFFECTS);
+	
+
 
 /*
  * SKILLS

@@ -181,6 +181,7 @@ struct room_affect_data {
 
 struct room_trail_data {
 	char *name;					/* namelist of trail owner, in case they're gone */
+	char *aliases;				// aliases of trail owner
 	time_t time;				/* time char passed by */
 	int idnum;					/* idnum of char (negative for mobiles) */
 	char from_dir;				/* direction from which character entered */

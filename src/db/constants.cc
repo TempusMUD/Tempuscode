@@ -2422,7 +2422,9 @@ extern const char *spell_wear_off_msg[] = {
 	"Your endurance decreases.",
 	"Your memories gradually return.",	/* 235 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 240 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 245 */
+	"!UNUSED!", "!UNUSED!", "!UNUSED!",
+	"You no longer sense trails.",
+	"!UNUSED!",	/* 245 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 250 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 255 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 260 */

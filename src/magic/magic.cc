@@ -1059,6 +1059,10 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.duration = 10 + level;
 		to_vict = "You are now able to breathe underwater.";
 		break;
+	case SPELL_SPIRIT_TRACK:
+		af.duration = level;
+		to_vict = "You can now sense trails to other creatures.";
+		break;
 	case SPELL_WORD_STUN:
 		af.location = APPLY_INT;
 		af.duration = 1;

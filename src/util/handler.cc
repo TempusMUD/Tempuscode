@@ -928,37 +928,37 @@ void
 update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 {
 
-	struct room_trail_data *trail = NULL, *low_trail = NULL, *temp = NULL;
-	int i = 0;
-	time_t low_time = time(0);
+	struct room_trail_data *trail, *next_trail;
+	int max_trails;
 
-	if (AFF_FLAGGED(ch, AFF_NOTRACK))
+	// Immortals never leave tracks
+	if (IS_IMMORT(ch))
 		return;
 
-	for (trail = room->trail; trail; ++i, trail = trail->next) {
+	for (trail = room->trail; trail; trail = trail->next) {
 		if (IS_NPC(ch) && (trail->idnum == (int)-MOB_IDNUM(ch)))
 			break;
 		if (!IS_NPC(ch) && (trail->idnum == GET_IDNUM(ch)))
 			break;
 	}
 
-	if (!trail) {
+	// Always create a new trail if the creature is entering the room
+	// Create a new trail if they're leaving the room only if there isn't
+	// a trail yet or we don't have a corresponding entrance
+	if (mode == TRAIL_ENTER || !trail || trail->to_dir != -1) {
 		CREATE(trail, struct room_trail_data, 1);
 		trail->next = room->trail;
 		room->trail = trail;
-		if (ch->player.name)
-			trail->name = str_dup(ch->player.name);
-		else {
-			room->trail = trail->next;
-			free(trail);
-			slog("SYSERR: Char with null ch->player.name in update_trail()");
-			return;
-		}
-		if (IS_NPC(ch))
-			trail->idnum = -MOB_IDNUM(ch);
-		else
-			trail->idnum = GET_IDNUM(ch);
 
+		trail->name = str_dup(tmp_capitalize(GET_NAME(ch)));
+		if (IS_NPC(ch)) {
+			trail->idnum = -MOB_IDNUM(ch);
+			trail->aliases = str_dup(ch->player.name);
+		} else {
+			trail->idnum = GET_IDNUM(ch);
+			trail->aliases = str_dup(tmp_sprintf("%s .%s", ch->player.name,
+				ch->player.name));
+		}
 		trail->from_dir = -1;
 		trail->to_dir = -1;
 	}
@@ -969,14 +969,17 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 	} else if (dir >= 0 || trail->to_dir < 0)
 		trail->to_dir = dir;
 
-	if (ch->getPosition() < POS_FLYING)
-		trail->track = 10;
-	else
+	if (ch->getPosition() == POS_FLYING)
 		trail->track = 0;
+	else if (IS_AFFECTED(ch, AFF_NOTRACK)
+			|| affected_by_spell(ch, SKILL_ELUSION))
+		trail->track = 3;
+	else
+		trail->track = 10;
 
-	if (!IS_UNDEAD(ch)) {
-		if (GET_HIT(ch) < (GET_MAX_HIT(ch) >> 2))
-			SET_BIT(trail->flags, TRAIL_FLAG_BLOOD_DROPS);
+	if (!IS_UNDEAD(ch) && GET_HIT(ch) < (GET_MAX_HIT(ch) / 4)) {
+		SET_BIT(trail->flags, TRAIL_FLAG_BLOOD_DROPS);
+		trail->track = 10;
 	}
 
 	if (GET_EQ(ch, WEAR_FEET)) {
@@ -987,23 +990,29 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 			SET_BIT(trail->flags, TRAIL_FLAG_BLOODPRINTS);
 	}
 
-	trail->time = low_time;
+	trail->time = time(0);
 
-	if (i > 5) {
-		for (temp = room->trail; temp; temp = temp->next) {
-			if (low_time > temp->time && temp != trail) {
-				low_time = temp->time;
-				low_trail = temp;
-			}
-		}
+	// Remove trails over the maximum allowed for that sector type
+	max_trails = 10;
+	trail = room->trail;
+	while (max_trails && trail) {
+		trail = trail->next;
+		max_trails--;
+	}
 
-		if (low_trail) {
-			REMOVE_FROM_LIST(low_trail, room->trail, next);
-			if (low_trail->name)
-				free(low_trail->name);
-			free(low_trail);
+	if (trail) {
+		next_trail = trail->next;
+		trail->next = NULL;
+		trail = next_trail;
+		while (trail) {
+			next_trail = trail->next;
+			if (trail->name)
+				free(trail->name);
+			free(trail);
+			trail = next_trail;
 		}
 	}
+
 }
 
 /* 
@@ -1048,7 +1057,6 @@ char_from_room( Creature *ch, bool check_specials)
 	if (!IS_NPC(ch))
 		ch->in_room->zone->num_players--;
 
-	update_trail(ch, ch->in_room, -1, TRAIL_EXIT);
 	affect_from_char(ch, SPELL_ENTANGLE);	// remove entanglement (summon etc)
 
     if (GET_OLC_SRCH(ch))
@@ -1133,8 +1141,6 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 		room->zone->num_players++;
 		room->zone->idle_time = 0;
 	}
-
-	update_trail(ch, room, -1, TRAIL_ENTER);
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NULL_MAGIC) &&
 		!PRF_FLAGGED(ch, PRF_NOHASSLE)) {

@@ -37,6 +37,7 @@
 #include "vehicle.h"
 #include "fight.h"
 #include "char_class.h"
+#include "accstr.h"
 
 /* Externals */
 extern struct room_data *world;
@@ -234,6 +235,83 @@ find_distance(struct room_data *start, struct room_data *dest)
 /************************************************************************
 *  Functions and Commands which use the above fns		        *
 ************************************************************************/
+void
+show_trails_to_char(Creature *ch, char *str)
+{
+	room_trail_data *trail;
+	bool found = false;
+	const char *foot_desc, *drop_desc;
+	int prob;
+
+	acc_string_clear();
+
+	if (GET_LEVEL(ch) < LVL_AMBASSADOR && ch->in_room->isOpenAir()) {
+		send_to_char(ch, "Track through the open air?\r\n");
+		return;
+	}
+
+	if (GET_LEVEL(ch) < LVL_AMBASSADOR
+		&& (SECT_TYPE(ch->in_room) == SECT_UNDERWATER
+			|| SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)) {
+		send_to_char(ch, 
+			"You find it difficult to follow the ripples of the water.\r\n");
+		return;
+	}
+
+	for (trail = ch->in_room->trail;trail;trail = trail->next) {
+		if (str && !isname(str, trail->aliases))
+			continue;
+
+		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER)
+				&& !IS_IMMORT(ch)) {
+
+			prob = (10 - trail->track) * 10;
+			if (str)
+				prob += 20;
+			if (number(0, CHECK_SKILL(ch, SKILL_TRACK)) < prob)
+				continue;
+		}
+
+		found = true;
+		if (IS_SET(trail->flags, TRAIL_FLAG_BLOOD_DROPS) && number(0, 1)) {
+			foot_desc = "A trail of blood drops";
+			drop_desc = "s";
+		} else {
+			foot_desc = tmp_sprintf("%s's %s%sfootprints",
+				trail->name,
+				(trail->track < 4) ? "faint ":"",
+				(IS_SET(trail->flags, TRAIL_FLAG_BLOODPRINTS)) ? "bloody ":"");
+			drop_desc = "";
+		}
+		if (trail->from_dir >=0) {
+			if (trail->to_dir >= 0) {
+				if (trail->from_dir == trail->to_dir)
+					acc_sprintf("%s double%s back %s.\r\n",
+						foot_desc, drop_desc, to_dirs[trail->from_dir]);
+				else if (trail->from_dir == rev_dir[trail->to_dir])
+					acc_sprintf("%s lead%s straight from %s to %s.\r\n",
+						foot_desc, drop_desc, from_dirs[trail->to_dir],
+						dirs[trail->to_dir]);
+				else
+					acc_sprintf("%s turn%s from %s to %s.\r\n",
+						foot_desc, drop_desc, dirs[trail->from_dir],
+						dirs[trail->to_dir]);
+			} else
+				acc_sprintf("%s lead%s from the %s.\r\n",
+					foot_desc, drop_desc, dirs[trail->from_dir]);
+		} else if (trail->to_dir >= 0)
+			acc_sprintf("%s lead%s %s.\r\n",
+				foot_desc, drop_desc, to_dirs[trail->to_dir]);
+	}
+	
+	if (!found) {
+		if (str)
+			acc_sprintf("You don't see any matching footprints here.\r\n");
+		else
+			acc_sprintf("You don't see any prints here.\r\n");
+	}
+	page_string(ch->desc, acc_get_string());
+}
 
 ACMD(do_track)
 {
@@ -247,44 +325,27 @@ ACMD(do_track)
 	}
 	one_argument(argument, arg);
 	if (!*arg) {
-		send_to_char(ch, "Whom are you trying to track?\r\n");
+		show_trails_to_char(ch, NULL);
 		return;
 	}
-	if ((vict = get_char_vis(ch, arg))) {
-		if (!(can_see_creature(ch, vict) && (GET_LEVEL(vict) < LVL_AMBASSADOR ||
-					GET_LEVEL(ch) > GET_LEVEL(vict)))) {
-			send_to_char(ch, "No-one around by that name.\r\n");
-			return;
-		}
-	} else {
+
+	if (!affected_by_spell(ch, SPELL_SPIRIT_TRACK)) {
+		show_trails_to_char(ch, arg);
+		return;
+	}
+
+	vict = get_char_vis(ch, arg);
+
+	if (!vict || !can_see_creature(ch, vict)) {
 		send_to_char(ch, "No-one around by that name.\r\n");
 		return;
 	}
+
 	if (vict->in_room == ch->in_room) {
 		send_to_char(ch, "You're already in the same room!\r\n");
 		return;
 	}
-	if (IS_AFFECTED(vict, AFF_NOTRACK)
-		|| (affected_by_spell(vict, SKILL_ELUSION) && !(IS_NPC(ch)
-				&& MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER))
-			&& number(0, CHECK_SKILL(ch, SKILL_TRACK)) > (number(0,
-					CHECK_SKILL(vict, SKILL_ELUSION)) + (IS_RANGER(vict)
-					&& SECT_TYPE(vict->in_room) == SECT_FOREST) ? 20 : 0))) {
-		send_to_char(ch, "You sense no trail.\r\n");
-		if (GET_LEVEL(ch) < LVL_IMPL)
-			return;
-	}
-	if (GET_LEVEL(ch) < LVL_AMBASSADOR && ch->in_room->isOpenAir()) {
-		send_to_char(ch, "Track through the open air?\r\n");
-		return;
-	}
-	if (GET_LEVEL(ch) < LVL_AMBASSADOR
-		&& (SECT_TYPE(ch->in_room) == SECT_UNDERWATER
-			|| SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)) {
-		send_to_char(ch, 
-			"You find it difficult to follow the ripples of the water.\r\n");
-		return;
-	}
+
 	dir = find_first_step(ch->in_room, vict->in_room,
 		GET_LEVEL(ch) > LVL_TIMEGOD ? GOD_TRACK : STD_TRACK );
 
