@@ -165,6 +165,7 @@ void
 flow_room(int pulse)
 {
 
+	CreatureList::iterator it;
 	struct Creature *vict = NULL;
 	struct obj_data *obj = NULL, *next_obj = NULL;
 	register struct zone_data *zone = NULL;
@@ -182,6 +183,7 @@ flow_room(int pulse)
 
 		for (rnum = zone->world; rnum; rnum = rnum->next) {
 
+			// Update room affects
 			if (!(pulse % (5 RL_SEC)))
 				for (aff = rnum->affects; aff; aff = next_aff) {
 					next_aff = aff->next;
@@ -195,6 +197,32 @@ flow_room(int pulse)
 						affect_from_room(rnum, aff);
 					}
 				}
+
+			// Alignment ambience
+			if (!(pulse % (2 RL_SEC))) {
+				if (zone->flags & ZONE_EVIL_AMBIENCE) {
+					it = rnum->people.begin();
+					while (it != rnum->people.end()) {
+						if (GET_ALIGNMENT(*it) > -1000) {
+							GET_ALIGNMENT(*it) -= 1;
+							check_eq_align(*it);
+						}
+						it++;
+					}
+				}
+				if (zone->flags & ZONE_GOOD_AMBIENCE) {
+					it = rnum->people.begin();
+					while (it != rnum->people.end()) {
+						if (GET_ALIGNMENT(*it) < 1000) {
+							GET_ALIGNMENT(*it) += 1;
+							check_eq_align(*it);
+						}
+						it++;
+					}
+				}
+			}
+
+			// Active flows only
 			if (!FLOW_SPEED(rnum) || pulse % (PULSE_FLOWS * FLOW_SPEED(rnum))
 				|| (!ABS_EXIT(rnum, (dir = (int)FLOW_DIR(rnum)))
 					|| ABS_EXIT(rnum, dir)->to_room == NULL
@@ -217,7 +245,7 @@ flow_room(int pulse)
 			}
 
 			if ((vict = rnum->people)) {
-				CreatureList::iterator it = rnum->people.begin();
+				it = rnum->people.begin();
 				for (; it != rnum->people.end(); ++it) {
 					vict = *it;
 

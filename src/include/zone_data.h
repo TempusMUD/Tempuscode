@@ -29,7 +29,10 @@
 #define ZONE_SOUNDPROOF         (1 << 10)
 #define ZONE_NOIDLE             (1 << 11)
 #define ZONE_FULLCONTROL        (1 << 12)
-#define NUM_ZONE_FLAGS          13
+#define ZONE_PAUSED             (1 << 13)
+#define ZONE_EVIL_AMBIENCE		(1 << 14)
+#define ZONE_GOOD_AMBIENCE		(1 << 15)
+#define NUM_ZONE_FLAGS          15
 #define ZONE_SEARCH_APPROVED    (1 << 19)
 #define ZONE_MOBS_APPROVED      (1 << 20)
 #define ZONE_OBJS_APPROVED      (1 << 21)

@@ -800,7 +800,7 @@ list_one_char(struct Creature *i, struct Creature *ch, byte is_group)
 					CCBLD(ch, C_CMP), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 		}
 
-		send_to_char(ch, "\r\n");
+		send_to_char(ch, "%s\r\n", CCNRM(ch, C_NRM));
 
 		if (IN_ROOM(ch) != IN_ROOM(i))
 			return;
@@ -930,6 +930,8 @@ list_one_char(struct Creature *i, struct Creature *ch, byte is_group)
 			sprintf(buf, "%s %s%s(Blue Aura)%s", buf,
 				CCBLU(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 	}
+
+	strcat(buf, CCNRM(ch, C_NRM));
 	strcat(buf, "\r\n");
 
 	send_to_char(ch, "%s", buf);
