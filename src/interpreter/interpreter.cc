@@ -330,6 +330,7 @@ ACMD(do_sleeper);
 ACMD(do_smoke);
 ACMD(do_snatch);
 ACMD(do_sneak);
+ACMD(do_snipe);
 ACMD(do_snoop);
 ACMD(do_spec_comm);
 ACMD(do_specializations);
@@ -1109,6 +1110,7 @@ extern const struct command_info cmd_info[] = {
     { "sneeze"   , POS_RESTING , do_action   , 0, 0 },
     { "sneak"    , POS_STANDING, do_sneak    , 1, 0 },
     { "sniff"    , POS_RESTING , do_action   , 0, 0 },
+    { "snipe"    , POS_STANDING, do_snipe, 0, SKILL_SNIPE },
     { "snore"    , POS_SLEEPING, do_action   , 0, 0 },
     { "snort"    , POS_RESTING , do_action   , 0, 0 },
     { "snowball" , POS_STANDING, do_action   , LVL_IMMORT, 0 },
