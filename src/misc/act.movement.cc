@@ -400,6 +400,12 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	struct affected_type *af_ptr = NULL;
 	char *blur_msg = NULL;
 
+	if (mount && ch->in_room != mount->in_room) {
+		REMOVE_BIT(AFF2_FLAGS(mount), AFF2_MOUNTED);
+		MOUNTED(ch) = NULL;
+		mount = NULL;
+	}
+
 	/*
 	 * Check for special routines (North is 1 in command list, but 0 here) Note
 	 * -- only check if following; this avoids 'double spec-proc' bug
@@ -590,130 +596,131 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	if (mount)
 		GET_MOVE(mount) -= need_movement;
 
-	if (mount) {
-		if (!IS_AFFECTED(mount, AFF_SNEAK)) {
-			sprintf(buf2, "$n leaves %s, riding $N.", dirs[dir]);
-			act(buf2, TRUE, ch, 0, mount, TO_ROOM);
-		}
-	} else {
-		if (IS_AFFECTED(ch, AFF_BLUR))
-			blur_msg = tmp_sprintf("A blurred, shifted image leaves %s.",
-				to_dirs[dir]);
+	if (IS_AFFECTED(ch, AFF_BLUR) || (mount && IS_AFFECTED(mount, AFF_BLUR)))
+		blur_msg = tmp_sprintf("A blurred, shifted image leaves %s",
+			to_dirs[dir]);
 
-		if (mode == MOVE_JUMP) {
-			if (!number(0, 1))
-				sprintf(buf, "$n jumps %sward.", dirs[dir]);
-			else
-				sprintf(buf, "$n takes a flying leap %sward.", dirs[dir]);
-		} else if (mode == MOVE_FLEE) {
-			sprintf(buf, "$n flees %sward.", dirs[dir]);
-		} else if (mode == MOVE_RETREAT) {
-			sprintf(buf, "$n retreats %sward.", dirs[dir]);
-		} else if (mode == MOVE_CRAWL) {
-			sprintf(buf, "$n crawls slowly %sward.", dirs[dir]);
-		} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir()
-			|| EXIT(ch, dir)->to_room->isOpenAir()) {
-			sprintf(buf, "$n flies %s.", to_dirs[dir]);
-		} else if (ch->in_room->sector_type == SECT_ASTRAL) {
-			sprintf(buf, "$n travels what seems to be %sward.", to_dirs[dir]);
-		} else if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
-			SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ||
-			SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ||
-			SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
-			SECT_TYPE(ch->in_room) == SECT_UNDERWATER) {
-			if (((SECT_TYPE(ch->in_room) != SECT_UNDERWATER &&
-						SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_UNDERWATER)
-					|| (SECT_TYPE(ch->in_room) != SECT_PITCH_SUB
-						&& SECT_TYPE(EXIT(ch,
-								dir)->to_room) == SECT_PITCH_SUB))
-				&& dir == DOWN)
-				strcpy(buf, "$n disappears below the surface.");
-			else if (IS_FISH(ch)) {
-				sprintf(buf, "$n swims %s.", to_dirs[dir]);
-			} else {
-				if (AFF_FLAGGED(ch, AFF_WATERWALK) &&
-					SECT_TYPE(ch->in_room) != SECT_UNDERWATER &&
-					SECT_TYPE(ch->in_room) != SECT_PITCH_SUB) {
-					sprintf(buf, "$n walks %s across the %s.", to_dirs[dir],
-						SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ? "flames" :
-						SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ? "pitch" :
-						"water");
-				} else if ((IS_DWARF(ch) ||
-						SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
-						SECT_TYPE(ch->in_room) == SECT_PITCH_PIT))
-					sprintf(buf, "$n struggles %s.", to_dirs[dir]);
-				else
-					sprintf(buf, "$n swims %s.", to_dirs[dir]);
-			}
-		} else if (SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM) {
-			if (AFF_FLAGGED(ch, AFF_WATERWALK) && !IS_FISH(ch))
-				sprintf(buf, "$n walks %s across the water.", to_dirs[dir]);
-			else
-				sprintf(buf, "$n swims %s.", to_dirs[dir]);
-		} else if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
-			sprintf(buf, "$n staggers %s, covered in flames.", to_dirs[dir]);
-		} else if (GET_COND(ch, DRUNK) > 8) {
-			sprintf(buf, "$n staggers %s.", to_dirs[dir]);
-		} else if (IS_AFFECTED(ch, AFF_SNEAK)) {
-			sprintf(buf, "$n sneaks off %sward.", dirs[dir]);
-		} else if (IS_NPC(ch) && MOB_SHARED(ch)->move_buf) {
-			sprintf(buf, "$n %s off %s.",
-				MOB_SHARED(ch)->move_buf, to_dirs[dir]);
-		} else if (IS_DRAGON(ch)) {
-			sprintf(buf, "$n lumbers off %s.", to_dirs[dir]);
-		} else if (IS_GIANT(ch)) {
-			sprintf(buf, "$n stomps off %s.", to_dirs[dir]);
-		} else if (IS_TABAXI(ch) && !number(0, 4)) {
-			sprintf(buf, "$n slinks off %sward.", dirs[dir]);
-		} else if (GET_CLASS(ch) == CLASS_SNAKE ||
-			(IS_NPC(ch) && GET_MOB_VNUM(ch) == 3066)) {
-			sprintf(buf, "$n slithers %s.", to_dirs[dir]);
-		} else if ((IS_NPC(ch) && GET_MOB_VNUM(ch) == 3068) ||
-			IS_LEMURE(ch) || IS_PUDDING(ch) || IS_SLIME(ch)) {
-			sprintf(buf, "$n oozes %s.", to_dirs[dir]);
-		} else if (IS_GHOST(ch)) {
-			sprintf(buf, "$n drifts off %s.", to_dirs[dir]);
-		} else if (IS_TARRASQUE(ch)) {
-			sprintf(buf, "$n rampages off %sward.", to_dirs[dir]);
+	if (mode == MOVE_JUMP) {
+		if (!number(0, 1))
+			sprintf(buf, "$n jumps %sward.", dirs[dir]);
+		else
+			sprintf(buf, "$n takes a flying leap %sward.", dirs[dir]);
+	} else if (mode == MOVE_FLEE) {
+		sprintf(buf, "$n flees %sward.", dirs[dir]);
+	} else if (mode == MOVE_RETREAT) {
+		sprintf(buf, "$n retreats %sward.", dirs[dir]);
+	} else if (mode == MOVE_CRAWL) {
+		sprintf(buf, "$n crawls slowly %sward.", dirs[dir]);
+	} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir()
+		|| EXIT(ch, dir)->to_room->isOpenAir()) {
+		sprintf(buf, "$n flies %s.", to_dirs[dir]);
+	} else if (ch->in_room->sector_type == SECT_ASTRAL) {
+		sprintf(buf, "$n travels what seems to be %sward.", to_dirs[dir]);
+	} else if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
+		SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ||
+		SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ||
+		SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
+		SECT_TYPE(ch->in_room) == SECT_UNDERWATER) {
+		if (((SECT_TYPE(ch->in_room) != SECT_UNDERWATER &&
+					SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_UNDERWATER)
+				|| (SECT_TYPE(ch->in_room) != SECT_PITCH_SUB
+					&& SECT_TYPE(EXIT(ch,
+							dir)->to_room) == SECT_PITCH_SUB))
+			&& dir == DOWN)
+			strcpy(buf, "$n disappears below the surface.");
+		else if (IS_FISH(ch)) {
+			sprintf(buf, "$n swims %s.", to_dirs[dir]);
 		} else {
-			if (FIGHTING(ch))
-				sprintf(buf, "$n splits %s!", to_dirs[dir]);
-			else if (GET_RACE(ch) != RACE_MOBILE && !IS_SPECTRE(ch) &&
-				!IS_WRAITH(ch) && !IS_SHADOW(ch)) {
-				if (SECT(ch->in_room) == SECT_ASTRAL ||
-					(!number(0, 3) && (SECT(ch->in_room) == SECT_ROAD)))
-					sprintf(buf, "$n travels %sward.", to_dirs[dir]);
-				else if (!number(0, 3) && (SECT(ch->in_room) == SECT_CITY ||
-						SECT(ch->in_room) == SECT_INSIDE ||
-						SECT(ch->in_room) == SECT_ROAD))
-					sprintf(buf, "$n strolls %s.", to_dirs[dir]);
-				else if (!number(0, 2))
-					sprintf(buf, "$n walks %s.", to_dirs[dir]);
-				else if (!number(0, 2))
-					sprintf(buf, "$n departs %sward.", dirs[dir]);
-				else
-					sprintf(buf, "$n leaves %s.", to_dirs[dir]);
-			} else
-				sprintf(buf, "$n leaves %s.", to_dirs[dir]);
+			if (AFF_FLAGGED(ch, AFF_WATERWALK) &&
+				SECT_TYPE(ch->in_room) != SECT_UNDERWATER &&
+				SECT_TYPE(ch->in_room) != SECT_PITCH_SUB) {
+				sprintf(buf, "$n walks %s across the %s.", to_dirs[dir],
+					SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ? "flames" :
+					SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ? "pitch" :
+					"water");
+			} else if ((IS_DWARF(ch) ||
+					SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
+					SECT_TYPE(ch->in_room) == SECT_PITCH_PIT))
+				sprintf(buf, "$n struggles %s.", to_dirs[dir]);
+			else
+				sprintf(buf, "$n swims %s.", to_dirs[dir]);
 		}
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			tch = *it;
-			if ((*it) == ch || !AWAKE((*it)))
-				continue;
-			if (check_sneak(ch, tch, true, true) == SNEAK_FAILED) {
-				if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
-					act(blur_msg, TRUE, ch, 0, tch, TO_VICT);
-				else
-					act(buf, TRUE, ch, 0, (*it), TO_VICT);
-			}
+	} else if (SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM) {
+		if (AFF_FLAGGED(ch, AFF_WATERWALK) && !IS_FISH(ch))
+			sprintf(buf, "$n walks %s across the water.", to_dirs[dir]);
+		else
+			sprintf(buf, "$n swims %s.", to_dirs[dir]);
+	} else if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
+		sprintf(buf, "$n staggers %s, covered in flames.", to_dirs[dir]);
+	} else if (GET_COND(ch, DRUNK) > 8) {
+		sprintf(buf, "$n staggers %s.", to_dirs[dir]);
+	} else if (IS_AFFECTED(ch, AFF_SNEAK)) {
+		sprintf(buf, "$n sneaks off %sward.", dirs[dir]);
+	} else if (IS_NPC(ch) && MOB_SHARED(ch)->move_buf) {
+		sprintf(buf, "$n %s off %s.",
+			MOB_SHARED(ch)->move_buf, to_dirs[dir]);
+	} else if (IS_DRAGON(ch)) {
+		sprintf(buf, "$n lumbers off %s.", to_dirs[dir]);
+	} else if (IS_GIANT(ch)) {
+		sprintf(buf, "$n stomps off %s.", to_dirs[dir]);
+	} else if (IS_TABAXI(ch) && !number(0, 4)) {
+		sprintf(buf, "$n slinks off %sward.", dirs[dir]);
+	} else if (GET_CLASS(ch) == CLASS_SNAKE ||
+		(IS_NPC(ch) && GET_MOB_VNUM(ch) == 3066)) {
+		sprintf(buf, "$n slithers %s.", to_dirs[dir]);
+	} else if ((IS_NPC(ch) && GET_MOB_VNUM(ch) == 3068) ||
+		IS_LEMURE(ch) || IS_PUDDING(ch) || IS_SLIME(ch)) {
+		sprintf(buf, "$n oozes %s.", to_dirs[dir]);
+	} else if (IS_GHOST(ch)) {
+		sprintf(buf, "$n drifts off %s.", to_dirs[dir]);
+	} else if (IS_TARRASQUE(ch)) {
+		sprintf(buf, "$n rampages off %sward.", to_dirs[dir]);
+	} else {
+		if (FIGHTING(ch))
+			sprintf(buf, "$n splits %s!", to_dirs[dir]);
+		else if (GET_RACE(ch) != RACE_MOBILE && !IS_SPECTRE(ch) &&
+			!IS_WRAITH(ch) && !IS_SHADOW(ch)) {
+			if (SECT(ch->in_room) == SECT_ASTRAL ||
+				(!number(0, 3) && (SECT(ch->in_room) == SECT_ROAD)))
+				sprintf(buf, "$n travels %sward.", to_dirs[dir]);
+			else if (!number(0, 3) && (SECT(ch->in_room) == SECT_CITY ||
+					SECT(ch->in_room) == SECT_INSIDE ||
+					SECT(ch->in_room) == SECT_ROAD))
+				sprintf(buf, "$n strolls %s.", to_dirs[dir]);
+			else if (!number(0, 2))
+				sprintf(buf, "$n walks %s.", to_dirs[dir]);
+			else if (!number(0, 2))
+				sprintf(buf, "$n departs %sward.", dirs[dir]);
+			else
+				sprintf(buf, "$n leaves %s.", to_dirs[dir]);
+		} else
+			sprintf(buf, "$n leaves %s.", to_dirs[dir]);
+	}
+
+	if (mount)
+		sprintf(buf + strlen(buf) - 1, ", carrying $N.");
+	if (blur_msg) {
+		if (mount && !IS_AFFECTED(ch, AFF_BLUR))
+			blur_msg = tmp_strcat(blur_msg, ", carrying $N.");
+		else
+			blur_msg = tmp_strcat(blur_msg, ".");
+	}
+
+	CreatureList::iterator it = ch->in_room->people.begin();
+	for (; it != ch->in_room->people.end(); ++it) {
+		tch = *it;
+		if ((*it) == ch || !AWAKE((*it)))
+			continue;
+		if (check_sneak(ch, tch, true, true) == SNEAK_FAILED) {
+			if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+				perform_act(blur_msg, ch, 0, ch, tch, 0);
+			else if (mount)
+				perform_act(buf, mount, 0, ch, tch, 0);
+			else
+				perform_act(buf, ch, 0, 0, tch, 0);
 		}
 	}
 
-	strcpy(buf2, "(outside) ");
-	strcat(buf2, buf);
-	if (blur_msg)
-		blur_msg = tmp_strcat("(outside) ", blur_msg);
 	for (car = ch->in_room->contents; car; car = car->next_content) {
 		if (!IS_VEHICLE(car))
 			continue;
@@ -725,8 +732,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 				&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
 				&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
 				&& c_obj->in_room) {
-				CreatureList::iterator it =
-					c_obj->in_room->people.begin();
+				it = c_obj->in_room->people.begin();
 				for (; it != c_obj->in_room->people.end(); ++it) {
 					tch = *it;
 					if (ch == tch)
@@ -734,9 +740,11 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
 					if (check_sneak(ch, tch, true, false) == SNEAK_FAILED) {
 						if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
-							act(blur_msg, TRUE, ch, 0, tch, TO_VICT);
+							perform_act(blur_msg, ch, 0, ch, tch, 1);
+						else if (mount)
+							perform_act(buf, mount, 0, ch, tch, 1);
 						else
-							act(buf2, TRUE, ch, 0, tch, TO_VICT);
+							perform_act(buf, ch, 0, 0, tch, 1);
 					}
 				}
 				break;
@@ -773,18 +781,17 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			"boiling pitch");
 	}
 
-	if(!char_from_room(ch) ) {
+	if(!char_from_room(ch) )
 		return 2;
-	}
+
 	update_trail(ch, was_in, dir, TRAIL_EXIT);
 
-	if (mode == MOVE_RETREAT) {
+	if (mode == MOVE_RETREAT)
 		send_to_char(ch, "You beat a hasty retreat %s.\r\n", to_dirs[dir]);
-	}
 
-	if(!char_to_room(ch, was_in->dir_option[dir]->to_room) ) {
+	if(!char_to_room(ch, was_in->dir_option[dir]->to_room) )
 		return 2;
-	}
+
 	update_trail(ch, ch->in_room, rev_dir[dir], TRAIL_ENTER);
 
 	wait_state = 2 + (affected_by_spell(ch, SKILL_SNEAK) ? 1 : 0) +
@@ -802,176 +809,172 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		ch->in_room->zone->enter_count++;
 
 	if (mount) {
-		if (was_in != mount->in_room) {
-			REMOVE_BIT(AFF2_FLAGS(mount), AFF2_MOUNTED);
-			MOUNTED(ch) = NULL;
-			mount = NULL;
-			sprintf(buf, "$n has arrived from %s.", from_dirs[dir]);
-			act(buf, TRUE, ch, 0, 0, TO_ROOM);
-		} else {
-			if(! char_to_room(mount, ch->in_room) )
-				return 2;
-			if (!IS_AFFECTED(mount, AFF_SNEAK)) {
-				sprintf(buf, "$n has arrived from %s, riding $N.",
-					from_dirs[dir]);
-				act(buf, TRUE, ch, 0, mount, TO_ROOM);
-			}
-		}
-	} else {					/* char is not mounted */
-		if (IS_AFFECTED(ch, AFF_BLUR))
-			blur_msg = tmp_sprintf("A blurred, shifted image arrives from %s.",
-						from_dirs[dir]);
+		char_from_room(mount);
+		if(!char_to_room(mount, ch->in_room) )
+			return 2;
+	}
 
-		if (mode == MOVE_JUMP) {
-			if (!number(0, 1))
-				sprintf(buf, "$n jumps in from %s.", from_dirs[dir]);
-			else
-				sprintf(buf, "$n leaps in from %s.", from_dirs[dir]);
-		} else if (mode == MOVE_FLEE) {
-			sprintf(buf, "$n runs in from %s.", from_dirs[dir]);
-		} else if (mode == MOVE_DRAG) {
-			sprintf(buf, "$n is dragged in from %s.", from_dirs[dir]);
-		} else if (mode == MOVE_CRAWL) {
-			sprintf(buf, "$n crawls slowly in from %s.", from_dirs[dir]);
-		} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir()) {
-			if (!IS_AFFECTED_2(ch, AFF2_ABLAZE))
-				sprintf(buf, "$n flies in from %s.", from_dirs[dir]);
-			else
-				sprintf(buf, "$n flies in from %s, covered in flames.",
+	if (IS_AFFECTED(ch, AFF_BLUR) || (mount && IS_AFFECTED(mount, AFF_BLUR)))
+		blur_msg = tmp_sprintf("A blurred, shifted image arrives from %s",
 					from_dirs[dir]);
-		} else if (SECT_TYPE(ch->in_room) == SECT_ASTRAL) {
-			if (!number(0, 1))
-				sprintf(buf, "$n moves into view from what might be %s.",
-					from_dirs[dir]);
-			else
-				sprintf(buf, "$n arrives from what appears to be %s.",
-					from_dirs[dir]);
-		} else if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)
-			&& ch->getPosition() == POS_STANDING) {
-			sprintf(buf, "$n limps in from the %s, bleeding profusely.",
+
+	if (mode == MOVE_JUMP) {
+		if (!number(0, 1))
+			sprintf(buf, "$n jumps in from %s.", from_dirs[dir]);
+		else
+			sprintf(buf, "$n leaps in from %s.", from_dirs[dir]);
+	} else if (mode == MOVE_FLEE) {
+		sprintf(buf, "$n runs in from %s.", from_dirs[dir]);
+	} else if (mode == MOVE_DRAG) {
+		sprintf(buf, "$n is dragged in from %s.", from_dirs[dir]);
+	} else if (mode == MOVE_CRAWL) {
+		sprintf(buf, "$n crawls slowly in from %s.", from_dirs[dir]);
+	} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir()) {
+		if (!IS_AFFECTED_2(ch, AFF2_ABLAZE))
+			sprintf(buf, "$n flies in from %s.", from_dirs[dir]);
+		else
+			sprintf(buf, "$n flies in from %s, covered in flames.",
 				from_dirs[dir]);
-			add_blood_to_room(ch->in_room, 5);
-		} else if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
-			sprintf(buf, "$n staggers in from %s, covered in flames.",
+	} else if (SECT_TYPE(ch->in_room) == SECT_ASTRAL) {
+		if (!number(0, 1))
+			sprintf(buf, "$n moves into view from what might be %s.",
 				from_dirs[dir]);
-		} else if (GET_COND(ch, DRUNK) > 8) {
-			sprintf(buf, "$n staggers in from %s.", from_dirs[dir]);
-		} else if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM
-			|| SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER
-			|| SECT_TYPE(ch->in_room) == SECT_PITCH_PIT
-			|| SECT_TYPE(ch->in_room) == SECT_PITCH_SUB
-			|| SECT_TYPE(ch->in_room) == SECT_UNDERWATER) {
-			if (((SECT_TYPE(ch->in_room) != SECT_UNDERWATER
-						&& SECT_TYPE(was_in) == SECT_UNDERWATER)
-					|| (SECT_TYPE(ch->in_room) != SECT_PITCH_SUB
-						&& SECT_TYPE(was_in) == SECT_PITCH_SUB))
-				&& dir == UP)
-				strcpy(buf, "$n appears from below the surface.");
-			else if (AFF_FLAGGED(ch, AFF_WATERWALK) && !IS_FISH(ch) &&
-				SECT_TYPE(ch->in_room) != SECT_PITCH_SUB &&
-				SECT_TYPE(ch->in_room) != SECT_UNDERWATER)
-				sprintf(buf, "$n walks across the %s from the %s.",
-					SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ? "flames" :
-					SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ? "pitch" :
-					"water", to_dirs[dir]);
-			else if ((IS_DWARF(ch) ||
-					SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
-					SECT_TYPE(ch->in_room) == SECT_PITCH_PIT) && !IS_FISH(ch))
-				sprintf(buf, "$n struggles in from %s.", from_dirs[dir]);
+		else
+			sprintf(buf, "$n arrives from what appears to be %s.",
+				from_dirs[dir]);
+	} else if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)
+		&& ch->getPosition() == POS_STANDING) {
+		sprintf(buf, "$n limps in from the %s, bleeding profusely.",
+			from_dirs[dir]);
+		add_blood_to_room(ch->in_room, 5);
+	} else if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
+		sprintf(buf, "$n staggers in from %s, covered in flames.",
+			from_dirs[dir]);
+	} else if (GET_COND(ch, DRUNK) > 8) {
+		sprintf(buf, "$n staggers in from %s.", from_dirs[dir]);
+	} else if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM
+		|| SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER
+		|| SECT_TYPE(ch->in_room) == SECT_PITCH_PIT
+		|| SECT_TYPE(ch->in_room) == SECT_PITCH_SUB
+		|| SECT_TYPE(ch->in_room) == SECT_UNDERWATER) {
+		if (((SECT_TYPE(ch->in_room) != SECT_UNDERWATER
+					&& SECT_TYPE(was_in) == SECT_UNDERWATER)
+				|| (SECT_TYPE(ch->in_room) != SECT_PITCH_SUB
+					&& SECT_TYPE(was_in) == SECT_PITCH_SUB))
+			&& dir == UP)
+			strcpy(buf, "$n appears from below the surface.");
+		else if (AFF_FLAGGED(ch, AFF_WATERWALK) && !IS_FISH(ch) &&
+			SECT_TYPE(ch->in_room) != SECT_PITCH_SUB &&
+			SECT_TYPE(ch->in_room) != SECT_UNDERWATER)
+			sprintf(buf, "$n walks across the %s from the %s.",
+				SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ? "flames" :
+				SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ? "pitch" :
+				"water", to_dirs[dir]);
+		else if ((IS_DWARF(ch) ||
+				SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
+				SECT_TYPE(ch->in_room) == SECT_PITCH_PIT) && !IS_FISH(ch))
+			sprintf(buf, "$n struggles in from %s.", from_dirs[dir]);
+		else
+			sprintf(buf, "$n swims in from %s.", from_dirs[dir]);
+	} else if (IS_AFFECTED(ch, AFF_SNEAK)) {
+		if (!number(0, 1))
+			sprintf(buf, "$n sneaks in from %s.", from_dirs[dir]);
+		else
+			sprintf(buf, "$n edges in from %s.", from_dirs[dir]);
+		/* most racial defaults now */
+	} else if (IS_NPC(ch) && MOB_SHARED(ch)->move_buf) {
+		sprintf(buf, "$n %s in from %s.",
+			MOB_SHARED(ch)->move_buf, from_dirs[dir]);
+	} else if (IS_DRAGON(ch)) {
+		sprintf(buf, "$n lumbers in from %s.", from_dirs[dir]);
+	} else if (IS_GIANT(ch)) {
+		sprintf(buf, "$n stomps in from %s.", from_dirs[dir]);
+	} else if (IS_TABAXI(ch) && !number(0, 4)) {
+		sprintf(buf, "$n slinks in from %s.", from_dirs[dir]);
+	} else if ((GET_CLASS(ch) == CLASS_SNAKE) ||
+		(IS_NPC(ch) && GET_MOB_VNUM(ch) == 3066)) {
+		sprintf(buf, "$n slithers in from %s.", from_dirs[dir]);
+	} else if ((IS_NPC(ch) && GET_MOB_VNUM(ch) == 3068) ||
+		IS_LEMURE(ch) || IS_PUDDING(ch) || IS_SLIME(ch)) {
+		sprintf(buf, "$n oozes in from %s.", from_dirs[dir]);
+	} else if (IS_GHOST(ch)) {
+		sprintf(buf, "$n drifts in from %s.", from_dirs[dir]);
+	} else if (IS_TARRASQUE(ch)) {
+		sprintf(buf, "$n rampages in from %s.", from_dirs[dir]);
+	} else {
+		if (GET_RACE(ch) != RACE_MOBILE && !IS_SPECTRE(ch) &&
+			!IS_WRAITH(ch) && !IS_SHADOW(ch)) {
+			if (SECT(ch->in_room) == SECT_ASTRAL ||
+				(!number(0, 2) && SECT_TYPE(ch->in_room) == SECT_ROAD))
+				sprintf(buf, "$n travels in from %s.", from_dirs[dir]);
+			else if (!number(0, 3))
+				sprintf(buf, "$n walks in from %s.", from_dirs[dir]);
+			else if (!number(0, 2) && (SECT(ch->in_room) == SECT_CITY ||
+					SECT(ch->in_room) == SECT_INSIDE ||
+					SECT(ch->in_room) == SECT_ROAD))
+				sprintf(buf, "$n strolls in from %s.", from_dirs[dir]);
 			else
-				sprintf(buf, "$n swims in from %s.", from_dirs[dir]);
-		} else if (IS_AFFECTED(ch, AFF_SNEAK)) {
-			if (!number(0, 1))
-				sprintf(buf, "$n sneaks in from %s.", from_dirs[dir]);
-			else
-				sprintf(buf, "$n edges in from %s.", from_dirs[dir]);
-			/* most racial defaults now */
-		} else if (IS_NPC(ch) && MOB_SHARED(ch)->move_buf) {
-			sprintf(buf, "$n %s in from %s.",
-				MOB_SHARED(ch)->move_buf, from_dirs[dir]);
-		} else if (IS_DRAGON(ch)) {
-			sprintf(buf, "$n lumbers in from %s.", from_dirs[dir]);
-		} else if (IS_GIANT(ch)) {
-			sprintf(buf, "$n stomps in from %s.", from_dirs[dir]);
-		} else if (IS_TABAXI(ch) && !number(0, 4)) {
-			sprintf(buf, "$n slinks in from %s.", from_dirs[dir]);
-		} else if ((GET_CLASS(ch) == CLASS_SNAKE) ||
-			(IS_NPC(ch) && GET_MOB_VNUM(ch) == 3066)) {
-			sprintf(buf, "$n slithers in from %s.", from_dirs[dir]);
-		} else if ((IS_NPC(ch) && GET_MOB_VNUM(ch) == 3068) ||
-			IS_LEMURE(ch) || IS_PUDDING(ch) || IS_SLIME(ch)) {
-			sprintf(buf, "$n oozes in from %s.", from_dirs[dir]);
-		} else if (IS_GHOST(ch)) {
-			sprintf(buf, "$n drifts in from %s.", from_dirs[dir]);
-		} else if (IS_TARRASQUE(ch)) {
-			sprintf(buf, "$n rampages in from %s.", from_dirs[dir]);
-		} else {
-			if (GET_RACE(ch) != RACE_MOBILE && !IS_SPECTRE(ch) &&
-				!IS_WRAITH(ch) && !IS_SHADOW(ch)) {
-				if (SECT(ch->in_room) == SECT_ASTRAL ||
-					(!number(0, 2) && SECT_TYPE(ch->in_room) == SECT_ROAD))
-					sprintf(buf, "$n travels in from %s.", from_dirs[dir]);
-				else if (!number(0, 3))
-					sprintf(buf, "$n walks in from %s.", from_dirs[dir]);
-				else if (!number(0, 2) && (SECT(ch->in_room) == SECT_CITY ||
-						SECT(ch->in_room) == SECT_INSIDE ||
-						SECT(ch->in_room) == SECT_ROAD))
-					sprintf(buf, "$n strolls in from %s.", from_dirs[dir]);
-				else
-					sprintf(buf, "$n has arrived from %s.", from_dirs[dir]);
-			} else
 				sprintf(buf, "$n has arrived from %s.", from_dirs[dir]);
+		} else
+			sprintf(buf, "$n has arrived from %s.", from_dirs[dir]);
+	}
+
+	if (mount)
+		sprintf(buf + strlen(buf) - 1, ", carrying $N.");
+	if (blur_msg) {
+		if (mount && !IS_AFFECTED(ch, AFF_BLUR))
+			blur_msg = tmp_strcat(blur_msg, ", carrying $N.");
+		else
+			blur_msg = tmp_strcat(blur_msg, ".");
+	}
+
+	it = ch->in_room->people.begin();
+	for (; it != ch->in_room->people.end(); ++it) {
+		tch = *it;
+		if (tch == ch)
+			continue;
+
+		if (check_sneak(ch, tch, false, true) == SNEAK_FAILED) {
+			if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+				perform_act(blur_msg, ch, 0, ch, tch, 0);
+			else if (mount)
+				perform_act(buf, mount, 0, ch, tch, 0);
+			else
+				perform_act(buf, ch, 0, 0, tch, 0);
+
+			if (affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+				act("...$e is glowing with a bright blue light!",
+					TRUE, ch, 0, tch, TO_VICT);
 		}
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			tch = *it;
-			if (tch == ch)
-				continue;
+	}
 
-			if (check_sneak(ch, tch, false, true) == SNEAK_FAILED) {
-				if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
-					act(blur_msg, TRUE, ch, 0, tch, TO_VICT);
-				else
-					act(buf, TRUE, ch, 0, tch, TO_VICT);
+	for (car = ch->in_room->contents; car; car = car->next_content) {
+		if (!IS_VEHICLE(car))
+			continue;
 
-				if (affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-					act("...$e is glowing with a bright blue light!",
-						TRUE, ch, 0, tch, TO_VICT);
-			}
-		}
+		for (c_obj = object_list; c_obj; c_obj = c_obj->next) {
+			if (((IS_OBJ_TYPE(c_obj, ITEM_V_DOOR) && !CAR_CLOSED(car))
+					|| (IS_OBJ_TYPE(c_obj, ITEM_V_WINDOW)
+						&& !CAR_CLOSED(c_obj)))
+				&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
+				&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
+				&& c_obj->in_room) {
+				it = c_obj->in_room->people.begin();
+				for (; it != c_obj->in_room->people.end(); ++it) {
+					tch = *it;
+					if (ch == tch)
+						continue;
 
-		strcpy(buf2, "(outside) ");
-		strcat(buf2, buf);
-		if (blur_msg)
-			blur_msg = tmp_strcat("(outside) ", blur_msg);
-		for (car = ch->in_room->contents; car; car = car->next_content) {
-			if (!IS_VEHICLE(car))
-				continue;
-
-			for (c_obj = object_list; c_obj; c_obj = c_obj->next) {
-				if (((IS_OBJ_TYPE(c_obj, ITEM_V_DOOR) && !CAR_CLOSED(car))
-						|| (IS_OBJ_TYPE(c_obj, ITEM_V_WINDOW)
-							&& !CAR_CLOSED(c_obj)))
-					&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
-					&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
-					&& c_obj->in_room) {
-					CreatureList::iterator it =
-						c_obj->in_room->people.begin();
-					for (; it != c_obj->in_room->people.end(); ++it) {
-						tch = *it;
-						if (ch == tch)
-							continue;
-
-						if (check_sneak(ch, tch, false, false) == SNEAK_FAILED) {
-							if (blur_msg &&
-									!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
-								act(blur_msg, TRUE, ch, 0, tch, TO_VICT);
-							else
-								act(buf2, TRUE, ch, 0, tch, TO_VICT);
-						}
+					if (check_sneak(ch, tch, false, false) == SNEAK_FAILED) {
+						if (blur_msg && !IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+							perform_act(blur_msg, ch, 0, ch, tch, 1);
+						else if (mount)
+							perform_act(buf, mount, 0, ch, tch, 1);
+						else
+							perform_act(buf, ch, 0, 0, tch, 1);
 					}
-				break;
 				}
+			break;
 			}
 		}
 	}
