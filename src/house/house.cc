@@ -1145,6 +1145,9 @@ hcontrol_build_house( Creature *ch, char *arg)
 		send_to_char(ch, "You have to give a beginning room for the range.\r\n" );
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
+	} else if( !isdigit(*str) ) {
+        send_to_char(ch, "The beginning room must be a number: %s\r\n", str );
+		return;
 	}
 	virt_atrium = atoi(str);
 	House *house = Housing.findHouseByRoom(virt_atrium);
@@ -1164,10 +1167,16 @@ hcontrol_build_house( Creature *ch, char *arg)
 		send_to_char(ch, "You have to give an ending room for the range.\r\n" );
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
+	} else if( !isdigit(*str) ) {
+        send_to_char(ch, "The ending room must be a number: %s\r\n", str );
+		return;
 	}
 	virt_top_room = atoi(str);
 	if (virt_top_room < virt_atrium) {
 		send_to_char(ch, "Top room number is less than Atrium room number.\r\n");
+		return;
+	} else if( virt_top_room - virt_atrium > 20 ) {
+        send_to_char(ch, "Don't be greedy! Who needs more than 20 rooms?\r\n");
 		return;
 	}
 	House *h = Housing.findHouseByOwner( owner );
