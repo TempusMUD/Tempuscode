@@ -634,11 +634,11 @@ look_at_char(struct char_data * i, struct char_data * ch, int cmd)
 			wear_description[pos], 
 			pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]));
 	
-		for (k = 0, j = 0; j < 16; j++)
+		for (k = 0, j = 0; j < TOP_SOIL; j++)
 		    if (CHAR_SOILED(i, pos, (1 << j)))
 			k++;
 	
-		for (j = 0; j < 16; j++) {
+		for (j = 0; j < TOP_SOIL; j++) {
 		    if (CHAR_SOILED(i, pos, (1 << j))) {
 			found++;
 			if (found > 1) {
