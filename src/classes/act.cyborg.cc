@@ -2203,6 +2203,10 @@ ACMD(do_insert)
 	send_to_char("Your subject is not properly sedated.\r\n", ch);
 	return;
     }
+	if (!IS_CYBORG(vict)) {
+		send_to_char("Your subject is not prepared for such enhancement.\r\n",ch);
+		return;
+	}
 
     one_argument(argument, buf);
 
