@@ -1205,6 +1205,8 @@ ACMD(do_discharge)
     int percent, prob, amount, dam;
 	int feedback=0;
 	int tolerance=0;
+	int level=0;
+	int wait=0;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
     half_chop(argument, arg1, arg2);
@@ -1257,8 +1259,10 @@ ACMD(do_discharge)
 
     GET_MOVE(ch) -= amount;
 
+	level = GET_LEVEL(ch);
+	level += GET_REMORT_GEN(ch);
 	// Tolerance is the amount they can safely discharge.
-	tolerance = GET_LEVEL(ch) / 6 + dice( GET_LEVEL(ch) / 8, 4);
+	tolerance = ( level / 6 ) + ( dice( level / 8, 4) );
 
 	
 	if(amount > tolerance) {
@@ -1300,7 +1304,7 @@ ACMD(do_discharge)
 	act("You blast $p with a stream of pure energy!!",
 	    FALSE, ch,ovict,0,TO_CHAR);
     
-	dam = amount * GET_LEVEL(ch) + dice(GET_INT(ch), 4);
+	dam = amount * level + dice(GET_INT(ch), 4);
 	damage_eq(ch, ovict, dam);
 	return;
     }
@@ -1326,7 +1330,9 @@ ACMD(do_discharge)
 		damage(ch, vict, dam, SKILL_DISCHARGE,-1);
 		gain_skill_prof(ch, SKILL_DISCHARGE);
     }
-    WAIT_STATE(ch, (20 + (amount / 100)));
+	wait = amount / 10;
+	wait += 1;
+    WAIT_STATE(ch, wait);
 }
 
 
