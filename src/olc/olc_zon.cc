@@ -20,7 +20,7 @@
 #include "flow_room.h"
 #include "paths.h"
 
-#define NUM_ZSET_COMMANDS 12
+#define NUM_ZSET_COMMANDS 13
 
 const char *door_flags[] = {
     "OPEN",
@@ -44,7 +44,8 @@ const char *olc_zset_keys[] = {
     "hours",
     "years",
     "blanket_exp",           /** 11 **/
-	"co-owner",
+    "co-owner",
+    "blanket_flags",         /** 13 **/
     "\n"
 };
 
@@ -2257,6 +2258,75 @@ do_zset_command(struct char_data *ch, char *argument)
 	} 
 	break; 
     }
+
+    case 13:  // Blanket Zone flags
+    {
+        int tmp_flags = 0;
+        int tmp_room_flags = 0;
+        int top = 0, bottom = 0, count = 0, add_flags = 0;
+        struct room_data *room = NULL;
+
+        argument = one_argument(argument, arg1);
+        top = zone->top;
+        bottom = (zone->number) * 100;
+ 
+        
+
+        if(!ZONE_FLAGGED(zone, ZONE_ROOMS_APPROVED) && !ZONE_FLAGGED(zone, ZONE_FULLCONTROL) &&
+           !OLCIMP(ch)) {
+            send_to_char("You do not have the appropriate permissions biznitch.\r\n", ch);
+            return;
+        }
+
+        if(*arg1 == '+')
+            add_flags = 1;
+        else if(*arg1 == '-')
+            add_flags = 0;
+        else {
+	    send_to_char("Usage: olc zset [zone] blanket_flags [+/-] [FLAG, FLAG, ...]\r\n", ch);
+	    return;
+	}
+
+        argument = one_argument(argument, arg1);
+        while (*arg1) {
+	    if ( ( tmp_flags = search_block( arg1, roomflag_names, FALSE ) ) == -1 ||
+		 ( tmp_flags >= NUM_ROOM_FLAGS && !OLCIMP( ch ) ) ) {
+		sprintf(buf, "Invalid flag %s, skipping...\r\n", arg1);
+		send_to_char(buf, ch);
+	    } else 
+		tmp_room_flags = tmp_room_flags|(1 << tmp_flags);
+            
+            if(tmp_room_flags == 0 ) {
+                send_to_char("No valid flags specified...hard drive crash imminent.\r\n", ch);
+                return;
+            }
+	    argument = one_argument(argument, arg1);
+	}
+        
+
+        for(count = bottom; count <= top; ++count) 
+        {
+            room = real_room(count);
+            
+            if(room) {
+                if(add_flags) {
+                    room->room_flags = (room->room_flags |= tmp_room_flags);
+                }
+                else {
+                    tmp_flags = room->room_flags;
+                    tmp_room_flags = (tmp_flags & tmp_room_flags);
+                    room->room_flags = (tmp_flags ^ tmp_room_flags);
+               }
+                SET_BIT(zone->flags, ZONE_ROOMS_MODIFIED);
+                    
+            }
+
+        }
+        send_to_char("Cha-Ching flags set!\r\n", ch);
+        break;
+        
+    }
+
     default:
 	send_to_char("Unsupported olc zset command.\r\n", ch);
 	break;
