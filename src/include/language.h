@@ -27,6 +27,7 @@ char *translate_string(char *phrase, char language_idx);
 void translate_word(char **word, char language_idx);
 void set_initial_language(Creature *ch);
 void learn_language(Creature *ch, char language_idx);
+void forget_language(Creature *ch, char language_idx);
 
 // Num languages should always be the number of languages defined
 // below NOT INCLUDING COMMON!!!!!!!!

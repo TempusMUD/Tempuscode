@@ -1613,7 +1613,7 @@ void set_initial_language(Creature *ch)
     language_idx = find_language_idx_by_name(language_name);
 
     if (language_idx != LANGUAGE_NONE) {
-        KNOWN_LANGUAGES(ch) |= ((long long)1 << language_idx);
+        learn_language(ch, language_idx);
     }
 
     if (!can_speak_language(ch, GET_LANGUAGE(ch)))
@@ -1624,6 +1624,13 @@ void set_initial_language(Creature *ch)
 void learn_language(Creature *ch, char language_idx)
 {
     KNOWN_LANGUAGES(ch) |= ((long long)1 << language_idx);
+
+    return;
+}
+
+void forget_language(Creature *ch, char language_idx)
+{
+    KNOWN_LANGUAGES(vict) &= ~((long long)1 << language_idx);
 
     return;
 }
