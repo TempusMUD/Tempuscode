@@ -1084,6 +1084,7 @@ struct command_info cmd_info[] = {
 	{"scissorkick", POS_FIGHTING, do_offensive_skill, 0, SKILL_SCISSOR_KICK,
 			0, 0},
 	{"scold", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"scoff", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"scratch", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"scream", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"screen", POS_DEAD, do_screen, 0, 0, 0, 0},
