@@ -2547,11 +2547,10 @@ ACMD(do_pload)
 		send_to_char(ch, "There is no object with that number.\r\n");
 		return;
 	}
-	obj = read_object(number);
 	if (vict) {
 		for(int i=0; i < quantity; i++) {
-            obj_to_char(obj, vict);
             obj = read_object(number);
+            obj_to_char(obj, vict);
         }
 		
         
@@ -2579,8 +2578,8 @@ ACMD(do_pload)
 		act("$n does something suspicious and alters reality.", TRUE, ch, 0, 0,
 			TO_ROOM);
         for(int i=0; i < quantity; i++) {
-		    obj_to_char(obj, ch);
             obj = read_object(number);
+            obj_to_char(obj, ch);
         }
         
 		if(quantity == 1) {
