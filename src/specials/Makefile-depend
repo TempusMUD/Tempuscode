@@ -1,3 +1,6 @@
+$(OBJ)/demonic_guard.o : demonic_guard.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/char_class.h $(INCLUDE)/screen.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/paths.h $(INCLUDE)/specs.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/elevators.h $(INCLUDE)/house.h $(INCLUDE)/fight.h 
+	$(CXX) -c $(CXXFLAGS) demonic_guard.cc     -o $(OBJ)/demonic_guard.o
 $(OBJ)/duke.o : duke.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) duke.cc              -o $(OBJ)/duke.o
@@ -16,4 +19,4 @@ $(OBJ)/spec_procs.o : spec_procs.cc \
 $(OBJ)/styx.o : styx.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h 
 	$(CXX) -c $(CXXFLAGS) styx.cc              -o $(OBJ)/styx.o
-OBJFILES= $(OBJ)/duke.o $(OBJ)/hell_hunter_spec.o $(OBJ)/remorter.o $(OBJ)/spec_assign.o $(OBJ)/spec_procs.o $(OBJ)/styx.o
+OBJFILES= $(OBJ)/demonic_guard.o $(OBJ)/duke.o $(OBJ)/hell_hunter_spec.o $(OBJ)/remorter.o $(OBJ)/spec_assign.o $(OBJ)/spec_procs.o $(OBJ)/styx.o
