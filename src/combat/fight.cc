@@ -1632,6 +1632,17 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			TRUE, victim, 0, 0, TO_ROOM);
 		send_to_char(victim, 
 			"You are mortally wounded, and will die soon, if not aided.\r\n");
+/*        if (!IS_NPC(ch) && IS_CLERIC(ch) && IS_EVIL(ch) && (CHECK_SKILL(ch, SPELL_DEATH_KNELL) > 90)) {
+			int return_flags = 0;
+
+			stop_fighting(victim);
+			stop_fighting(ch);
+            call_magic(ch, victim, 0, SPELL_DEATH_KNELL, 
+                       GET_LEVEL(ch), CAST_SPELL, &return_flags);
+			DAM_RETURN(return_flags);
+        }
+        victim->setPosition(POS_DEAD);*/
+
 		break;
 
 		// Incapacitated
