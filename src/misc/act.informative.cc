@@ -4202,7 +4202,8 @@ ACMD(do_toggle)
 	    "        PKILLER: %-3s\r\n"
 	  
 	    "      Autosplit: %-3s    "
-	    "       Autoloot: %-3s\r\n"
+	    "       Autoloot: %-3s    "
+	    "   REMORT TOUGH: %-3s\r\n"
 
 	    " Gossip Channel: %-3s    "
 	    "Auction Channel: %-3s    "
@@ -4255,6 +4256,7 @@ ACMD(do_toggle)
 
 	    ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)),
 	    ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOLOOT)),
+	    YESNO(PLR_FLAGGED(ch, PLR_REMORT_TOUGHGUY)),
 	  
 	    ONOFF(!PRF_FLAGGED(ch, PRF_NOGOSS)),
 	    ONOFF(!PRF_FLAGGED(ch, PRF_NOAUCT)),
