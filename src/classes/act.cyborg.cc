@@ -3206,21 +3206,18 @@ ACMD(do_transmit)
 
 ACMD(do_overdrain)
 {
-
 	struct obj_data *source = NULL;
-
 	int i;
 	int amount = 0;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+	char *arg1, *arg2;
 
 	//Make sure they know how to overdrain
-	if (CHECK_SKILL(ch, SKILL_OVERDRAIN) < 50) {
+	if (CHECK_SKILL(ch, SKILL_OVERDRAIN) <= 0) {
 		send_to_char(ch, "You don't know how.\r\n");
 		return;
 	}
 
-	skip_spaces(&argument);
-	argument = one_argument(argument, arg1);
+	arg1 = tmp_getword(&argument);
 
 	if (!*arg1) {
 		send_to_char(ch, "Usage:  overdrain [internal] <battery/device>\r\n");
@@ -3229,22 +3226,22 @@ ACMD(do_overdrain)
 	// Find the object to drain from
 	if (!strncmp(arg1, "internal", 8)) {
 
-		argument = one_argument(argument, arg2);
-
+		arg2 = tmp_getword(&argument);
 		if (!*arg2) {
 			send_to_char(ch, "Drain energy from which implant?\r\n");
 			return;
 		}
 
-		if (!(source = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
+		source = get_object_in_equip_vis(ch, arg2, ch->implants, &i);
+		if (!source) {
 			send_to_char(ch, "You are not implanted with %s '%s'.\r\n", AN(arg2),
 				arg2);
 			return;
 		}
 
 	} else if (!(source = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
-		!(source = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
-		!(source = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
+			!(source = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
+			!(source = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
 		send_to_char(ch, "You can't seem to find %s '%s'.\r\n", AN(arg1), arg1);
 		return;
 	}
@@ -3275,9 +3272,7 @@ ACMD(do_overdrain)
 		return;
 	}
 	gain_skill_prof(ch, SKILL_OVERDRAIN);
-	amount = number(0, GET_LEVEL(ch))
-		+ GET_LEVEL(ch)
-		+ (GET_REMORT_GEN(ch) << 2);
+	amount = number(0, ch->getLevelBonus(SKILL_OVERDRAIN));
 	perform_recharge(ch, source, ch, 0, amount);
 	return;
 }
