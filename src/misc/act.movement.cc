@@ -704,10 +704,10 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
 	    else
 		sprintf(buf, "$n arrives from what appears to be %s.",
 			from_dirs[dir]);
-	} else if ( GET_POS(ch) == POS_STANDING 
-				&& IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)) {
+	} else if ( IS_AFFECTED_3(ch, AFF3_HAMSTRUNG) 
+				&& GET_POS(ch) == POS_STANDING ) {
 		sprintf(buf,"$n limps in from the %s, bleeding profusely.",from_dirs[dir]);
-		add_blood_to_room(ch->in_room,1);
+		add_blood_to_room(ch->in_room,5);
 	} else if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
 	    sprintf(buf,"$n staggers in from %s, covered in flames.",from_dirs[dir]);
 	} else if (GET_COND(ch, DRUNK) > 8) {
@@ -859,7 +859,7 @@ do_simple_move(struct char_data * ch, int dir, int mode, int need_specials_check
   
     if (ch->desc)
 	look_at_room(ch, ch->in_room, 0);
-	if (GET_POS(ch) == POS_STANDING && IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)) {
+	if ( IS_AFFECTED_3(ch, AFF3_HAMSTRUNG) && GET_POS(ch) == POS_STANDING ) {
 		damage(ch,ch,dice(5,9),TYPE_BLEED,0);
 	}
     if (ch->in_room->sector_type == SECT_UNDERWATER) {
