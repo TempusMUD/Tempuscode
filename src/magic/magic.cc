@@ -282,28 +282,65 @@ obj_affect_update(void)
     extern struct obj_data *object_list;
     struct obj_data *obj;
     struct tmp_obj_affect *af;
+	int pos, pos_mode;
     int last = 0;
+	bool aff_removed = false;
 
     for (obj = object_list; obj != NULL; obj = obj->next) {
-        if (obj->tmp_affects != NULL) {
-            for (af = obj->tmp_affects; af != NULL; af = af->next) {
-                af->duration--;
-                if (*item_wear_off_msg[af->type] && (af->duration == 0)) {
-                    if (af->type != last) {
-                        last = af->type;
-                        if (obj->worn_by || obj->carried_by) {
-                            ch = (obj->carried_by ? obj->carried_by : 
-                                  obj->worn_by);
-                            if (PLR_FLAGGED(ch, PLR_OLC))
-                                continue;
-                            act(item_wear_off_msg[af->type], FALSE, ch, obj, 
-                                NULL, TO_CHAR);
-                        }
-                    }
-                    obj->removeAffect(af);
-                }
-            }
-        }
+		for (af = obj->tmp_affects; af != NULL; af = af->next) {
+			af->duration--;
+			if (af->duration)
+				continue;
+			if (!aff_removed) {
+				aff_removed = true;
+				if (obj->worn_by) {
+					// If the piece of equipment is worn, we MUST remove it
+					// before we start removing affects from it, or the affects
+					// won't be properly removed from the wearer.  However,
+					// it needs to be in-the-game so that act() can detect
+					// its visibility.  Sooooo... we stick it in the player's
+					// inventory.  Then below, we remove it from inventory and
+					// place it back at its proper position
+					ch = obj->worn_by;
+					pos_mode = MODE_EQ;
+					pos = obj->getEquipPos();
+					if (pos < 0) {
+						pos_mode = MODE_IMPLANT;
+						pos = obj->getImplantPos();
+					}
+					if (pos >= 0) {
+						unequip_char(ch, pos, pos_mode, true);
+						obj_to_char(obj, ch);
+					}
+				} else if (obj->carried_by) {
+					ch = obj->carried_by;
+				} else
+					ch = NULL;
+			}
+
+			if (af->type != last) {
+				// First of this type of object affect, so send an emit
+				// if anybody cares
+				last = af->type;
+				if (ch
+						&& *item_wear_off_msg[af->type]
+						&& !PLR_FLAGGED(ch, PLR_WRITING | PLR_OLC | PLR_MAILING))
+					act(item_wear_off_msg[af->type], FALSE, ch, obj, 
+						NULL, TO_CHAR);
+			}
+
+			obj->removeAffect(af);
+		}
+
+		if (aff_removed) {
+			// If an affect was removed and the object is being worn,
+			// we need to put the object back on the wearer
+			if (ch && pos >= 0) {
+				obj_from_char(obj);
+				equip_char(ch, obj, pos, pos_mode);
+			}
+			aff_removed = false;
+		}
     }
 }
 
