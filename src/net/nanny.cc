@@ -881,7 +881,7 @@ send_prompt(descriptor_data *d)
 	case CXN_EDIT_PROMPT:
 		send_to_desc(d, "               &cWhich character's description do you want to edit:&n "); break;
 	case CXN_DELETE_PW:
-		send_to_desc(d, "To confirm, enter your account password: "); break;
+		send_to_desc(d, "To confirm deletion of %s, enter your account password: ",	GET_NAME(d->creature)); break;
 	case CXN_DELETE_VERIFY:
 		send_to_desc(d, "Type 'yes' for final confirmation: "); break;
 	case CXN_WAIT_MENU:
@@ -1053,21 +1053,32 @@ send_menu(descriptor_data *d)
 			"&n&b|                                 &YT E M P U S&n                                 &b|\r\n"
 			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
 		
-		show_account_chars(d,
-			d->account,
-			false,
-			(d->account->get_char_count() > 5));
+		if (d->account->get_char_count() > 0)
+			show_account_chars(d,
+				d->account,
+				false,
+				(d->account->get_char_count() > 5));
 
 		send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
 		send_to_desc(d, "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
-	    send_to_desc(d, "    &b[&yC&b] &cCreate a new character           &b[&yS&b] &cShow character details\r\n");
-        if (!d->account->invalid_char_index(1))
+	    send_to_desc(d, "    &b[&yC&b] &cCreate a new character");
+        if (d->account->get_char_count() > 0) {
+			send_to_desc(d, "           &b[&yS&b] &cShow character details\r\n");
 			send_to_desc(d, "    &b[&yE&b] &cEdit a character's description   &b[&yD&b] &cDelete an existing character\r\n");
+		} else {
+			send_to_desc(d, "\r\n");
+		}
 		send_to_desc(d, "\r\n                            &b[&yL&b] &cLog out of the game&n\r\n");
 
 		// Helpful items for those people with only one character
-		if (d->account->get_char_count() == 1) {
+		if (d->account->get_char_count() == 0) {
+			send_to_desc(d,
+"\r\n      This menu is your account menu, where you can manage your account,\r\n"
+"      and enter the game.  You currently have no characters associated with\r\n"
+"      your account.  To create a character, type 'c' and press return.\r\n");
+
+		} else if (d->account->get_char_count() == 1) {
 			send_to_desc(d, 
 "\r\n      This menu is your account menu, where you can manage your account,\r\n"
 "      and enter the game.  Your characters are listed at the top.  To\r\n"
