@@ -47,8 +47,6 @@
 #include <iostream>
 #include <algorithm>
 
-extern eventQueue mobileQueue;
-
 int corpse_state = 0;
 
 /* The Fight related routines */
@@ -196,16 +194,9 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 
 	REMOVE_BIT(AFF2_FLAGS(ch), AFF2_PETRIFIED);
 
-	if (IS_NPC(ch)) {
+	if (IS_NPC(ch))
 		ch->mob_specials.shared->kills++;
-		list <MobileEvent *>::iterator qi;
-		for (qi = mobileQueue.begin(); qi != mobileQueue.end();) {
-			if ((*qi)->getTarget() == ch)
-				qi = mobileQueue.erase(qi);
-			else
-				qi++;
-		}
-	}
+
 	// Equipment dealt with in make_corpse. 
 	// Do not save it here.
 	if (is_arena_combat(killer, ch) || GET_ZONE(ch->in_room) == 400)

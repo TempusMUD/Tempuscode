@@ -12,13 +12,13 @@ void start_text_editor(struct descriptor_data *d,
 	char **dest, bool sendmessage = true, int max = MAX_STRING_LENGTH);
 
 void start_script_editor(struct descriptor_data *d,
-	list < string > dest, bool isscript);
+	list < string > dest);
 
 class CTextEditor {
   public:
 	CTextEditor(struct descriptor_data *d, char **dest, int max, bool startup);
 	 CTextEditor(struct descriptor_data *d,
-		list < string > dest, bool isscript);
+		list <string> dest);
 
 	// Command Processor
 	void Process(char *inStr);
@@ -41,7 +41,6 @@ class CTextEditor {
 	 list < string > theText;
 	unsigned int curSize;
 	unsigned int maxSize;
-	bool scripting;
 
 	void ProcessHelp(char *inStr);
 	bool ProcessCommand(char *inStr);	// Duh.

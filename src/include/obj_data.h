@@ -383,7 +383,6 @@ struct obj_shared_data {
 	int cost_per_day;			/* Cost to keep pr. real day        */
 	int house_count;
 	struct obj_data *proto;		/* pointer to prototype */
-	struct ticl_data *ticl_ptr;	/* Pointer to TICL procedure */
 	SPECIAL(*func);
 	char *func_param;
 };

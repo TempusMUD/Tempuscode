@@ -1885,60 +1885,6 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 }
 
 
-void
-do_stat_ticl(struct Creature *ch, int vnum)
-{
-    struct zone_data *zone = NULL;
-    struct ticl_data *ticl = NULL;
-    char tim1[30], tim2[30];
-
-    for (zone = zone_table; zone; zone = zone->next)
-        if (vnum >= zone->number * 100 && vnum <= zone->top)
-            break;
-
-    if (!zone) {
-        send_to_char(ch, "Sorry, that TICL proc doesn't exist.\r\n");
-        return;
-    }
-
-    for (ticl = zone->ticl_list; ticl; ticl = ticl->next)
-        if (ticl->vnum == vnum)
-            break;
-
-    if (!ticl)
-        send_to_char(ch, "Sorry, no TICL proc by that vnum.\r\n");
-    else {
-        strcpy(tim1, (char *)asctime(localtime(&(ticl->date_created))));
-        strcpy(tim2, (char *)asctime(localtime(&(ticl->last_modified))));
-        tim1[10] = tim2[10] = '\0';
-        sprintf(buf, "\r\n"
-            "VNUM:  [%s%5d%s]    Title: %s%s%s\r\n"
-            "Created By:       [%s%s%s] on [%s%s%s]\r\n"
-            "Last Modified By: [%s%s%s] on [%s%s%s]\r\n\r\n"
-            "-----------------------------------------------------------------\r\n\r\n",
-            CCGRN(ch, C_NRM),
-            ticl->vnum,
-            CCNRM(ch, C_NRM),
-            CCCYN(ch, C_NRM),
-            ticl->title,
-            CCNRM(ch, C_NRM),
-            CCYEL(ch, C_NRM),
-            playerIndex.getName(ticl->creator),
-            CCNRM(ch, C_NRM),
-            CCGRN(ch, C_NRM),
-            tim1,
-            CCNRM(ch, C_NRM),
-            CCYEL(ch, C_NRM),
-            playerIndex.getName(ticl->last_modified_by),
-            CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), tim2, CCNRM(ch, C_NRM));
-
-        send_to_char(ch, "%s", buf);
-
-        if (ticl->code != NULL)
-            page_string(ch->desc, ticl->code);
-    }
-}
-
 ACMD(do_stat)
 {
     struct Creature *victim = 0;
@@ -1955,16 +1901,6 @@ ACMD(do_stat)
         do_stat_room(ch, buf2);
     } else if (!strncmp(buf1, "trails", 6)) {
         do_stat_trails(ch);
-    } else if (is_abbrev(buf1, "ticl")) {
-        if (!*buf2)
-            send_to_char(ch, "Stat which TICL proc?\r\n");
-        else {
-            if (is_number(buf2))
-                do_stat_ticl(ch, atoi(buf2));
-            else {
-                send_to_char(ch, "Usage: stat ticl <vnum>\r\n");
-            }
-        }
     } else if (is_abbrev(buf1, "zone")) {
         if (!*buf2)
             do_stat_zone(ch, ch->in_room->zone);

@@ -132,7 +132,6 @@ void autosave_zones(int SAVE_TYPE);
 void mem_cleanup(void);
 void retire_trails(void);
 void qp_reload(int sig = 0);
-void process_queue(void);		// In events.cc
 void set_desc_state(int state, struct descriptor_data *d);
 void save_quests(); // quests.cc - saves quest data
 void save_all_players();
@@ -586,8 +585,6 @@ game_loop(int mother_desc)
 			zone_update();
 		if (!((pulse + 1) % PULSE_MOBILE))
 			mobile_activity();
-		if (!(pulse & SEG_QUEUE))
-			process_queue();
 		if (!(pulse % SEG_VIOLENCE))
 			perform_violence();
 		if (!((pulse + 3) % FIRE_TICK))

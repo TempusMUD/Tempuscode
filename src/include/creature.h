@@ -315,8 +315,7 @@ static const int MOB_PET = (1 << 20);	// Mob is a conjured pet and shouldn't
 										 // get nor give any xp in any way.
 static const int MOB_SOULLESS = (1 << 21);	// Mobile is Soulless - Unholy compact.
 static const int MOB_SPIRIT_TRACKER = (1 << 22);	// Can track through !track
-static const int MOB_ISCRIPT = (1 << 23);	// Mob has an iscript
-#define NUM_MOB_FLAGS             24
+#define NUM_MOB_FLAGS             23
 
 static const int MOB2_SCRIPT = (1 << 0);
 static const int MOB2_MOUNT = (1 << 1);
@@ -857,9 +856,6 @@ struct player_special_data {
 	struct shop_data *olc_shop;	/* which shop being edited              */
 	struct olc_help_r *olc_help;	/* which help record being edited       */
 	struct special_search_data *olc_srch;	/* which srch being edited */
-	struct ticl_data *olc_ticl;	/* which ticl being edited              */
-	class CIScript *olc_iscript;	/* which iscript being edited           */
-	class CHandler *olc_handler;	/* which iscript handler being edited   */
 	struct room_data *was_in_room;	/* location for linkdead people         */
 	class HelpItem *olc_help_item;
     int thaw_time;
@@ -885,7 +881,6 @@ struct mob_shared_data {
 	byte morale;
 	char *move_buf;				/* custom move buf */
 	struct Creature *proto;	/* pointer to prototype */
-	struct ticl_data *ticl_ptr;	/* Pointer to TICL procedure */
 	 SPECIAL(*func);
 	char *func_param;			/* mobile's special parameter str */
 };

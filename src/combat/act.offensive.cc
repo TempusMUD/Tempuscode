@@ -46,8 +46,6 @@ int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
 int do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos,
 	int prob);
-void send_to_queue(MobileEvent * e);
-
 
 int
 check_mob_reaction(struct Creature *ch, struct Creature *vict)
@@ -1022,11 +1020,6 @@ ACMD(do_hit)
 
 		GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 5);
 		hit(ch, vict, TYPE_UNDEFINED);
-		if (IS_NPC(vict) && IS_SET(MOB_FLAGS(vict), MOB_ISCRIPT)) {
-			MobileEvent *e =
-				new MobileEvent(ch, vict, 0, 0, 0, 0, "EVT_PHYSICAL_ATTACK");
-			send_to_queue(e);
-		}
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 	}
 }

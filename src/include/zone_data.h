@@ -44,8 +44,6 @@
 #define ZONE_OBJS_MODIFIED      (1 << 26)
 #define ZONE_ROOMS_MODIFIED     (1 << 27)
 #define ZONE_ZONE_MODIFIED      (1 << 28)
-#define ZONE_TICL_APPROVED      (1 << 29)
-#define ZONE_TICL_MODIFIED      (1 << 30)
 #define TOT_ZONE_FLAGS          29
 
 
@@ -92,8 +90,6 @@
 #define TIME_PAST			TIME_MODRIAN
 #define TIME_FUTURE			TIME_ELECTRO
 
-struct ticl_data;
-
 /* zone definition structure. for the 'zone-table'   */
 struct zone_data {
 	char *name;					/* name of this zone                  */
@@ -119,7 +115,6 @@ struct zone_data {
 	struct room_data *world;	/* Pointer to first room in world      */
 	struct reset_com *cmd;		/* command table for reset             */
 	struct weather_data *weather;	/* zone weather                   */
-	struct ticl_data *ticl_list;	/* Pointer to linked list of TICLs */
 	struct zone_data *next;		/* Pointer to next zone in list        */
 
 	/*

@@ -877,7 +877,7 @@ extern const char *action_bits_desc[] = {
 	"pet",
 	"soulless",
 	"Spirit_Hunter",
-	"Has_IScript" "\n"
+	"\n"
 };
 
 extern const char *action2_bits[] = {

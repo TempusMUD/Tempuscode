@@ -177,7 +177,6 @@ load_xml_object(xmlNodePtr node)
 	obj->shared->number = 0;
 	obj->shared->house_count = 0;
 	obj->shared->func = 0;
-	obj->shared->ticl_ptr = 0;
 	obj->shared->proto = obj;
 	obj->shared->cost = xmlGetIntProp(node, "cost");
 	obj->shared->cost_per_day = xmlGetIntProp(node, "rent");
@@ -251,7 +250,6 @@ load_xml_mobile(xmlNodePtr node)
 	MOB_SHARED(mob)->vnum = xmlGetIntProp(node, "vnum");
 	MOB_SHARED(mob)->lair = xmlGetIntProp(node, "lair", -1);
 	MOB_SHARED(mob)->leader = xmlGetIntProp(node, "leader", -1);
-	MOB_SHARED(mob)->svnum = xmlGetIntProp(node, "iscript");
 
 	mob->player_specials = &dummy_mob;
 

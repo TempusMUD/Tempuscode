@@ -1219,7 +1219,6 @@ reset_char(struct Creature *ch)
 	ch->char_specials.carry_items = 0;
 	ch->player_specials->olc_obj = NULL;
 	ch->player_specials->olc_mob = NULL;
-	ch->player_specials->olc_ticl = NULL;
 
 	if (GET_HIT(ch) <= 0)
 		GET_HIT(ch) = 1;

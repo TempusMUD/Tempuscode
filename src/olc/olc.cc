@@ -53,7 +53,6 @@ OLCIMP(Creature * ch)
 }
 
 #define NUM_POSITIONS 11
-#define LVL_ISCRIPT 73
 
 #define OLC_USAGE "Usage:\r\n"                                   \
 "olc rsave\r\n"                                \
@@ -62,7 +61,7 @@ OLCIMP(Creature * ch)
 "olc exit <direction> <parameter> <value> ['one-way']\r\n" \
 "olc rexdesc <create | remove | edit | addkey> <keywords> [new keywords\r\n"  \
 "olc clear <room | obj | mob>\r\n"           \
-"olc create/destroy <room|zone|obj|mob|shop|search|ticl|iscript> <number>\r\n" \
+"olc create/destroy <room|zone|obj|mob|shop|search> <number>\r\n" \
 "olc help [keyword]\r\n"               \
 "olc osave\r\n"                        \
 "olc oedit [number | 'exit']\r\n"               \
@@ -102,13 +101,6 @@ OLCIMP(Creature * ch)
 "olc xset <arg> <val>\r\n"  \
 "olc xstat\r\n" \
 "olc show\r\n" \
-"olc ilist\r\n" \
-"olc istat\r\n" \
-"olc iedit\r\n" \
-"olc iset\r\n"  \
-"olc ihandler <create | edit | delete> <event type>\r\n" \
-"olc isave\r\n" \
-"olc idelete\r\n"\
 "olc recalculate { obj | mob } <vnum>\r\n"
 
 #define OLC_ZSET_USAGE "Usage:\r\n"                                  \
@@ -165,7 +157,6 @@ extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern struct obj_data *object_list;
 extern int olc_lock;
-extern const char *event_types[];
 extern char *olc_guide;
 extern const char *flow_types[];
 extern const char *char_flow_msg[NUM_FLOW_TYPES + 1][3];
@@ -191,8 +182,6 @@ struct obj_data *do_create_obj(struct Creature *ch, int vnum);
 struct Creature *do_create_mob(struct Creature *ch, int vnum);
 struct shop_data *do_create_shop(struct Creature *ch, int vnum);
 struct help_index_element *do_create_help(struct Creature *ch);
-struct ticl_data *do_create_ticl(struct Creature *ch, int vnum);
-class CIScript *do_create_iscr(struct Creature *ch, int vnum);
 
 int do_destroy_room(struct Creature *ch, int vnum);
 int do_destroy_object(struct Creature *ch, int vnum);
@@ -231,15 +220,6 @@ int set_char_xedit(struct Creature *ch, char *argument);
 void do_clear_room(struct Creature *ch);
 void do_clear_olc_object(struct Creature *ch);
 void do_clear_olc_mob(struct Creature *ch);
-void do_ticl_tedit(struct Creature *ch, char *argument);
-void do_ticl_tstat(struct Creature *ch);
-void do_olc_ilist(struct Creature *ch, char *argument);
-void do_olc_istat(struct Creature *ch, char *argument);
-void do_olc_iedit(struct Creature *ch, char *argument);
-void do_olc_iset(struct Creature *ch, char *argument);
-void do_olc_ihandler(struct Creature *ch, char *argument);
-int do_olc_isave(struct Creature *ch);
-void do_olc_idelete(struct Creature *ch, char *argument);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
 	0);
@@ -293,19 +273,8 @@ const char *olc_commands[] = {
 	"xedit",
 	"xset",						/* 45 */
 	"xstat",
-	"tedit",
-	"tstat",
-	"tset",
-	"tsave",					/* 50  */
 	"mload",
 	"show",
-	"ilist",
-	"istat",
-	"iedit",					/* 55 */
-	"iset",
-	"ihandler",
-	"isave",
-	"idelete",
     "recalculate",
 	"\n"						/* many more to be added */
 };
@@ -347,7 +316,6 @@ ACMD(do_olc)
 	struct shop_data *shop = NULL;
 	struct Creature *mob = NULL;
 	struct Creature *tmp_mob = NULL;
-	class CIScript *tmp_iscr = NULL;
 	struct special_search_data *tmp_search;
 
 
@@ -1098,7 +1066,7 @@ ACMD(do_olc)
 	case 20:  /*** create ***/
 		if (!*argument)
 			send_to_char(ch, 
-				"Usage: olc create <room|zone|obj|mob|shop|help|ticl|iscript> <vnum|next>\r\n");
+				"Usage: olc create <room|zone|obj|mob|shop|help> <vnum|next>\r\n");
 		else {
 			int tmp_vnum = 0;
 			argument = two_arguments(argument, arg1, arg2);
@@ -1198,46 +1166,9 @@ ACMD(do_olc)
 			} else if (is_abbrev(arg1, "path") && OLCIMP(ch)) {
 				if (!add_path(strcat(arg2, argument), TRUE))
 					send_to_char(ch, "Path added.\r\n");
-			} else if (is_abbrev(arg1, "help")) {
-				//do_create_help(ch);
-			} else if (is_abbrev(arg1, "ticl")) {
-				if (!*arg2)
-					send_to_char(ch, "Create a TICL with what vnum?\r\n");
-				else {
-					i = atoi(arg2);
-					if (do_create_ticl(ch, i))
-						send_to_char(ch, "TICL succesfully created.\r\n");
-				}
-			} else if (is_abbrev(arg1, "iscript")) {
-				if (!*arg2)
-					send_to_char(ch, "Create an ISCRIPT with what vnum?\r\n");
-				else if (is_abbrev(arg2, "next")) {
-					for (i = ch->in_room->zone->number * 100;
-						i < ch->in_room->zone->top; i++) {
-						if (!real_iscript(i)) {
-							tmp_vnum = i;
-							break;
-						}
-					}
-				} else {
-					tmp_vnum = atoi(arg2);
-				}
-				if (GET_LEVEL(ch) < LVL_ISCRIPT) {
-					send_to_char(ch, 
-						"Sorry, you aren't godly enough to use this command.\r\n"
-						"Stay tuned, try again later.\r\n");
-					return;
-				}
-				if (tmp_vnum && (tmp_iscr = do_create_iscr(ch, tmp_vnum))) {
-					GET_OLC_ISCR(ch) = tmp_iscr;
-					send_to_char(ch, "ISCRIPT %d successfully created.\r\n"
-						"Now editing ISCRIPT %d\r\n", tmp_vnum, tmp_vnum);
-				} else if (!tmp_vnum && *arg2) {
-					send_to_char(ch, "No allocatble iscripts found in zone.\r\n");
-				}
 			} else
 				send_to_char(ch, 
-					"Usage: olc create <room|zone|obj|mob|shop|help|ticl|iscript> <vnum>\r\n");
+					"Usage: olc create <room|zone|obj|mob|shop> <vnum>\r\n");
 		}
 		break;
 
@@ -1466,20 +1397,7 @@ ACMD(do_olc)
 	case 46:					/* xstat */
 		do_olc_xstat(ch);
 		break;
-	case 47:					/* tedit */
-		do_ticl_tedit(ch, argument);
-		break;
-	case 48:					/* tstat */
-		do_ticl_tstat(ch);
-		break;
-	case 49:					/* tset */
-/*    do_ticl_tset(ch, argument); */
-		break;
-	case 50:					/* tsave */
-/*    if(!save_ticls (ch))
-      else
-      break;  */
-	case 51:
+	case 47:
 		if (!*argument) {
 			if (!mob_p) {
 				send_to_char(ch, "Which mobile?\r\n");
@@ -1531,7 +1449,7 @@ ACMD(do_olc)
 		// olc show
 		//
 
-	case 52:
+	case 48:
 		if (!*argument) {
 			send_to_char(ch, OLC_SHOW_USAGE);
 			return;
@@ -1627,55 +1545,7 @@ ACMD(do_olc)
 		send_to_char(ch, "Unknown option: %s\n", arg1);
 		break;
 
-	case 53:
-		if (GET_LEVEL(ch) < LVL_ISCRIPT)
-			send_to_char(ch, "You godly enough to use this command!\r\n");
-		else
-			do_olc_ilist(ch, argument);
-		break;
-
-	case 54:
-		if (GET_LEVEL(ch) < LVL_ISCRIPT)
-			send_to_char(ch, "You godly enough to use this command!\r\n");
-		else
-			do_olc_istat(ch, argument);
-		break;
-	case 55:
-		if (GET_LEVEL(ch) < LVL_ISCRIPT)
-			send_to_char(ch, "You godly enough to use this command!\r\n");
-		else
-			do_olc_iedit(ch, argument);
-		break;
-	case 56:
-		if (GET_LEVEL(ch) < LVL_ISCRIPT)
-			send_to_char(ch, "You godly enough to use this command!\r\n");
-		else
-			do_olc_iset(ch, argument);
-		break;
-	case 57:
-		if (GET_LEVEL(ch) < LVL_ISCRIPT)
-			send_to_char(ch, "You godly enough to use this command!\r\n");
-		else
-			do_olc_ihandler(ch, argument);
-		break;
-	case 58:
-		if (GET_LEVEL(ch) < LVL_ISCRIPT) {
-			send_to_char(ch, "You godly enough to use this command!\r\n");
-		} else {
-			if (!do_olc_isave(ch))
-				send_to_char(ch, "IScript file saved.\r\n");
-			else
-				send_to_char(ch, "An error occured while saving.\r\n");
-		}
-		break;
-	case 59:
-		if (GET_LEVEL(ch) < LVL_ISCRIPT) {
-			send_to_char(ch, "You godly enough to use this command!\r\n");
-		} else {
-			do_olc_idelete(ch, argument);
-		}
-		break;
-    case 60: { // recalculate
+    case 49: { // recalculate
         struct Creature *mob;
         struct obj_data *obj;
         int number;
@@ -2331,17 +2201,6 @@ show_olc_help(struct Creature *ch, char *arg)
 			sprintf(buf2, "  %s         %s%-10s %-10s%s\r\n",
 				smallbuf, CCCYN(ch, C_NRM),
 				extra3_bits[i], extra3_names[i], CCNRM(ch, C_NRM));
-			strcat(buf, buf2);
-		}
-		page_string(ch->desc, buf);
-		break;
-
-	case 41:
-		strcpy(buf, "EVENT TYPES:\r\n");
-		for (i = 0; i < NUM_EVENTS; i++) {
-			sprintf(buf2, "%s%2d)  %s%s%s\r\n",
-				CCYEL(ch, C_NRM), i, CCCYN(ch, C_NRM), event_types[i],
-				CCNRM(ch, C_NRM));
 			strcat(buf, buf2);
 		}
 		page_string(ch->desc, buf);

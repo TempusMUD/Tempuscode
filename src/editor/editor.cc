@@ -22,7 +22,6 @@ using namespace std;
 #include "boards.h"
 #include "mail.h"
 #include "editor.h"
-#include "iscript.h"
 #include "tmpstr.h"
 #include "player_table.h"
 
@@ -68,8 +67,7 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage, int 
 }
 
 void
-start_script_editor(struct descriptor_data *d, list <string> dest,
-	bool isscript)
+start_script_editor(struct descriptor_data *d, list <string> dest)
 {
 	if (&dest == NULL) {
 		mudlog(LVL_IMMORT, BRF, true,
@@ -87,7 +85,7 @@ start_script_editor(struct descriptor_data *d, list <string> dest,
 		return;
 	}
 
-	d->text_editor = new CTextEditor(d, dest, isscript);
+	d->text_editor = new CTextEditor(d, dest);
 }
 
 void
@@ -189,11 +187,6 @@ CTextEditor::SaveText(char *inStr)
 			free(*target);
 			free(target);
 		}
-		// Creating a script handler
-		else if ((PLR_FLAGGED(desc->creature, PLR_OLC)) && scripting) {
-			desc->creature->player_specials->olc_handler->getTheLines() =
-				theText;
-		}
 	}
 	// Save the board if we were writing to a board
 	if (desc->mail_to && desc->mail_to->recpt_idnum >= BOARD_MAGIC) {
@@ -223,10 +216,6 @@ CTextEditor::SaveText(char *inStr)
 			sprintf(tedii_out_buf,
 				"%s finishes writing.", GET_NAME(desc->creature));
 		} else if (PLR_FLAGGED(desc->creature, PLR_OLC)) {
-			sprintf(tedii_out_buf,
-				"%s nods with satisfaction as $e saves $s work.",
-				GET_NAME(desc->creature));
-		} else if ((PLR_FLAGGED(desc->creature, PLR_OLC)) && scripting) {
 			sprintf(tedii_out_buf,
 				"%s nods with satisfaction as $e saves $s work.",
 				GET_NAME(desc->creature));
@@ -357,7 +346,7 @@ CTextEditor::Append(char *inStr)
 		return;
 	}
 	// All tildes must die
-	if ((PLR_FLAGGED(desc->creature, PLR_OLC)) && scripting) {
+	if (PLR_FLAGGED(desc->creature, PLR_OLC)) {
 		char *readPt, *writePt;
 
 		readPt = writePt = inStr;
@@ -663,7 +652,6 @@ CTextEditor::CTextEditor(struct descriptor_data * d, char **dest, int max, bool 
 	// Internal pointer to the destination
 	target = dest;
 
-	scripting = false;
 	// The maximum size of the buffer.
 	maxSize = max;
 
@@ -678,8 +666,7 @@ CTextEditor::CTextEditor(struct descriptor_data * d, char **dest, int max, bool 
 	}
 }
 
-CTextEditor::CTextEditor(struct descriptor_data *d,
-	list <string> dest, bool isscript):
+CTextEditor::CTextEditor(struct descriptor_data *d, list <string> dest):
 theText()
 {
 	desc = d;
@@ -688,8 +675,6 @@ theText()
 	target = NULL;
 
 	origText = dest;
-
-	scripting = isscript;
 
 	maxSize = 1024;
 

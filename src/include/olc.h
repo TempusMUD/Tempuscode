@@ -39,22 +39,6 @@ struct olc_help_r {
 };
 
 
-struct ticl_data {
-	int vnum;					/* VNUM of this proc */
-	long proc_id;				/* IDNum of this proc */
-	long creator;				/* IDNum of the creator */
-	time_t date_created;		/* Date proc created */
-	time_t last_modified;		/* Date last modified */
-	long last_modified_by;		/* IDNum of char to last modify */
-	int times_executed;			/* Number of times proc run */
-	int flags;					/* MOB/OBJ/ROOM/ZONE/!APPROVED */
-	int compiled;				/* Indicates successfull interpretation */
-	char *title;				/* Name of proc */
-	char *code;					/* TICL instructions (code) */
-	struct ticl_data *next;		/* Pointer to next TICL proc */
-};
-
-
 #define MOB_D1(lev)    (lev + 1)
 #define MOB_D2(lev)    (6 + (lev >> 1))
 #define MOB_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)

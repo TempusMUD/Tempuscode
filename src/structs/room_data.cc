@@ -48,7 +48,6 @@ room_data::room_data(room_num n, zone_data *z)
 	search = NULL;
 	sector_type = 0;
 	sounds = NULL;
-	ticl_ptr = NULL;
 	trail = NULL;
 	zone = z;
 

@@ -31,8 +31,6 @@
 #define DB_BOOT_OBJ	 2
 #define DB_BOOT_ZON	 3
 #define DB_BOOT_SHP	 4
-#define DB_BOOT_TICL 5
-#define DB_BOOT_ISCR 6
 
 /* names of various files and directories */
 #define INDEX_FILE	"index"		/* index of world files        */
@@ -43,8 +41,6 @@
 #define OBJ_PREFIX	"world/obj"	/* object prototypes       */
 #define ZON_PREFIX	"world/zon"	/* zon defs & command tables   */
 #define SHP_PREFIX	"world/shp"	/* shop definitions        */
-#define TICL_PREFIX "world/ticl"	/* ticl procs                   */
-#define ISCR_PREFIX "world/iscr"	/* iscripts */
 #define XML_PREFIX  "world/xml"
 
 #define CREDITS_FILE	"text/credits"	/* for the 'credits' command    */
@@ -93,7 +89,6 @@ int create_entry(char *name);
 void zone_update(void);
 struct room_data *real_room(int vnum);
 struct zone_data *real_zone(int number);
-class CIScript *real_iscript(int vnum);
 char *fread_string(FILE * fl, char *error);
 int pread_string(FILE * fl, char *str, char *error);
 

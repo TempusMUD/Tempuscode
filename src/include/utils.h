@@ -619,8 +619,6 @@ static inline bool IS_REMORT( const Creature *ch )
 #define GET_OLC_SHOP(ch)        ((ch)->player_specials->olc_shop)
 #define GET_OLC_HELP(ch)        ((ch)->player_specials->olc_help_item)
 #define GET_OLC_SRCH(ch)        ((ch)->player_specials->olc_srch)
-#define GET_OLC_TICL(ch)        ((ch)->player_specials->olc_ticl)
-#define GET_OLC_ISCR(ch)        ((ch)->player_specials->olc_iscript)
 #define GET_OLC_HANDLER(ch)     ((ch)->player_specials->olc_handler)
 
 #define SET_SKILL(ch, i, pct)        \

@@ -100,7 +100,6 @@ const char *olc_mset_keys[] = {
 	"move_buf",
 	"lair",			/** 45 **/
 	"leader",
-	"iscript",
 	"specparam",
     "generation",
 	"\n"
@@ -1201,13 +1200,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			break;
 
 		}
-	case 47:{
-			i = atoi(arg2);
-			mob_p->mob_specials.shared->svnum = i;
-			send_to_char(ch, "Mobile iscript set.\r\n");
-			break;
-		}
-	case 48:
+	case 47:
 		// Make sure they have a mob special
 		if (!GET_MOB_SPEC(mob_p)) {
 			send_to_char(ch, "You should set a special first!\r\n");
@@ -1227,7 +1220,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 		act("$n begins to write a mobile spec param.", TRUE, ch, 0, 0,
 			TO_ROOM);
 		break;
-    case 49:{ // generation
+    case 48:{ // generation
 			i = atoi(arg2);
 			if (i < 0 || i > 10 ) {
 				send_to_char(ch, "Generation must be between 1 and 10.\r\n");
@@ -1485,8 +1478,6 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 				fprintf(file, "RemortClass: %d\n", GET_REMORT_CLASS(mob));
 			if (MOB_SHARED(mob)->move_buf)
 				fprintf(file, "Move_buf: %s\n", MOB_SHARED(mob)->move_buf);
-			if (MOB_SHARED(mob)->svnum > 0)
-				fprintf(file, "IScript: %d\n", MOB_SHARED(mob)->svnum);
 			if (MOB_SHARED(mob)->func_param) {
 				char *str;
 
