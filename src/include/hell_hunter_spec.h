@@ -31,11 +31,11 @@ class Devil {
                 free(p);
             }
         }
-        bool operator==(int id) { return vnum == id; }
-        bool operator==(const xmlChar *name) { return (*this) == (const char*)name; }
-        bool operator==(const char *name) {
-            return (this->name == name);
-        }
+        bool operator==(int id) const { return vnum == id; }
+        bool operator==(const xmlChar *name) const { return (*this) == (const char*)name; }
+        bool operator!=(const xmlChar *name) const { return (*this) != (const char*)name; }
+        bool operator==(const char *name) const { return (this->name == name); }
+        bool operator!=(const char *name) const { return (this->name != name); }
         string name;
         int vnum;
 };
