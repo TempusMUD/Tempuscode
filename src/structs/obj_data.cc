@@ -171,7 +171,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			aliases = (char*)xmlNodeGetContent(cur);
 		} else if (xmlMatches(cur->name, "line_desc")) {
 			str = (char *)xmlNodeGetContent(cur);
-			line_desc = strdup(tmp_gsub(str, "\n", "\r\n"));
+			line_desc = strdup(tmp_gsub(tmp_gsub(str, "\r", ""), "\n", "\r\n"));
 			free(str);
 		} else if (xmlMatches(cur->name, "extra_desc")) {
 			struct extra_descr_data *desc;
