@@ -225,11 +225,6 @@ ACMD(do_impale);
 ACMD(do_improve);
 ACMD(do_infiltrate);
 ACMD(do_info);
-ACMD(do_intermud);
-ACMD(do_interpage);
-ACMD(do_intertel);
-ACMD(do_interwho);
-ACMD(do_interwiz);
 ACMD(do_install);
 ACMD(do_insert);
 ACMD(do_intimidate);
@@ -256,8 +251,6 @@ ACMD(do_mount);
 ACMD(do_show_more);
 ACMD(do_move);
 ACMD(do_mshield);
-ACMD(do_mudlist);
-ACMD(do_mudinfo);
 ACMD(do_not_here);
 ACMD(do_nolocate);
 ACMD(do_oecho);
@@ -795,11 +788,6 @@ struct command_info cmd_info[] = {
 	{"inject", POS_RESTING, do_use, 0, SCMD_INJECT, 0},
 	{"ignite", POS_RESTING, do_ignite, 0, 0, 0},
 	{"install", POS_DEAD, do_install, LVL_IMMORT, 0, 0},
-	{"interpage", POS_DEAD, do_interpage, LVL_GRGOD, 0, 0},
-	{"interwho", POS_DEAD, do_interwho, LVL_AMBASSADOR, 0, 0},
-	{"intertell", POS_DEAD, do_intertel, LVL_AMBASSADOR, 0, 0},
-	{"interwiz", POS_DEAD, do_interwiz, LVL_AMBASSADOR, 0, 0},
-	{"intermud", POS_DEAD, do_intermud, LVL_TIMEGOD, 0, 0},
 	{"intimidate", POS_STANDING, do_intimidate, 0, SKILL_INTIMIDATE, 0},
 	{"intone", POS_RESTING, do_say, 0, SCMD_INTONE, 0},
 	{"introduce", POS_RESTING, do_action, 0, 0, 0},
@@ -891,8 +879,6 @@ struct command_info cmd_info[] = {
 	{"mortalize", POS_SLEEPING, do_gen_tog, LVL_AMBASSADOR, SCMD_MORTALIZE, 0},
 	{"move", POS_STANDING, do_move, 0, SCMD_MOVE, 0},
 	{"mshield", POS_DEAD, do_mshield, 0, 0, 0},
-	{"mudinfo", POS_DEAD, do_mudinfo, LVL_AMBASSADOR, 0, 0},
-	{"mudlist", POS_DEAD, do_mudlist, LVL_AMBASSADOR, 0, 0},
 	{"mudwipe", POS_DEAD, do_mudwipe, LVL_ENTITY, 0, 0},
 	{"muhah", POS_RESTING, do_action, 0, 0, 0},
 	{"mull", POS_RESTING, do_action, 0, 0, 0},

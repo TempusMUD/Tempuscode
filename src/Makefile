@@ -5,13 +5,13 @@ CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 
 SUBDIRS= \
 	clan classes combat db dyntext editor \
-	events flow_room help house intermud interpreter iscript magic \
+	events flow_room help house interpreter iscript magic \
 	misc mobiles net objects olc quest search \
 	social specials util weather structs map
 
 MAKEFLAGS=-s -k 4 $(PARALLEL_MAKE)
 OBJ=ObjFiles
-LIBS=-lcrypt -lxml2 
+LIBS=-lcrypt -lxml2
 EXE=../bin/circle
 
 default all:

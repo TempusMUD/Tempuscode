@@ -23,7 +23,7 @@ $(OBJ)/limits.o : limits.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/handler.h $(INCLUDE)/vehicle.h $(INCLUDE)/clan.h $(INCLUDE)/specs.h $(INCLUDE)/fight.h 
 	$(CXX) -c $(CXXFLAGS) limits.cc            -o $(OBJ)/limits.o
 $(OBJ)/login.o : login.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/login.h $(INCLUDE)/char_class.h 
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/interpreter.h $(INCLUDE)/utils.h $(INCLUDE)/login.h $(INCLUDE)/char_class.h $(INCLUDE)/creature.h $(INCLUDE)/help.h 
 	$(CXX) -c $(CXXFLAGS) login.cc             -o $(OBJ)/login.o
 $(OBJ)/rpl_resp.o : rpl_resp.cc \
 	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/screen.h $(INCLUDE)/rpl_resp.h 

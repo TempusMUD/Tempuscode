@@ -44,7 +44,6 @@
 #include "db.h"
 #include "house.h"
 #include "screen.h"
-#include "intermud.h"
 #include "vehicle.h"
 #include "help.h"
 #include "desc_data.h"
@@ -127,11 +126,7 @@ void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);
 void show_string(struct descriptor_data *d, char *input);
 int isbanned(char *hostname, char *blocking_hostname);
-int intermud_desc;
-int connected_to_intermud;
-void init_intermud_socket(void);
 void verify_environment(void);
-void incoming_intermud_message(int intermud_desc);
 void weather_and_time(int mode);
 void autosave_zones(int SAVE_TYPE);
 void mem_cleanup(void);
@@ -155,7 +150,7 @@ main(int argc, char **argv)
 
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
-
+	
 	tmp_string_init();
 
 	while ((pos < argc) && (*(argv[pos]) == '-')) {
@@ -273,10 +268,6 @@ init_game(int port)
 	slog("Opening mother connection.");
 	mother_desc = init_socket(port);
 
-/*  if (port == 2020) { */
-	slog("Opening InterMUD connection.");
-	init_intermud_socket();
-
 	avail_descs = get_avail_descs();
 
 
@@ -292,7 +283,6 @@ init_game(int port)
 		close_socket(descriptor_list);
 
 	close(mother_desc);
-	close(intermud_desc);
 	Security::shutdown();
 
 	if (circle_reboot) {
@@ -468,8 +458,6 @@ game_loop(int mother_desc)
 			slog("No connections.  Going to sleep.");
 			FD_ZERO(&input_set);
 			FD_SET(mother_desc, &input_set);
-			if (connected_to_intermud == 1)
-				FD_SET(intermud_desc, &input_set);
 			if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0,
 					NULL) < 0) {
 				if (errno == EINTR)
@@ -485,11 +473,7 @@ game_loop(int mother_desc)
 		FD_ZERO(&output_set);
 		FD_ZERO(&exc_set);
 		FD_SET(mother_desc, &input_set);
-		if (connected_to_intermud == 1) {
-			FD_SET(intermud_desc, &input_set);
-			maxdesc = intermud_desc;
-		} else
-			maxdesc = mother_desc;
+		maxdesc = mother_desc;
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->descriptor > maxdesc)
 				maxdesc = d->descriptor;
@@ -535,9 +519,6 @@ game_loop(int mother_desc)
 		/* New connection waiting for us? */
 		if (FD_ISSET(mother_desc, &input_set))
 			new_descriptor(mother_desc);
-
-		if (FD_ISSET(intermud_desc, &input_set) && connected_to_intermud == 1)
-			incoming_intermud_message(intermud_desc);
 
 		/* kick out the freaky folks in the exception set */
 		for (d = descriptor_list; d; d = next_d) {
