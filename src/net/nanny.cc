@@ -1419,7 +1419,7 @@ make_prompt(struct descriptor_data * d)
 			SEND_TO_Q("Please type \"yes\" to confirm: ",d);
 			break;
 		case CON_AFTERLIFE:			// After dies, before menu
-			SEND_TO_Q("Please press return to continue into the afterlife...\r\n",d); break;
+			SEND_TO_Q("\r\n\r\nPlease press return to continue into the afterlife...\r\n",d); break;
 		case CON_RACEHELP_P:		
 		case CON_CLASSHELP_P:		
 		case CON_RACEHELP_F:		
