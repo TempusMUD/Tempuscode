@@ -1727,7 +1727,7 @@ mobile_experience( Creature *mob, FILE *outfile /*= NULL*/ )
 	if( IS_DRAGON(mob) ) {
 		factor += 200;
 	} 
-	if( GET_MOB_VNUM(mob) == 24800 ) {
+	if(IS_TARRASQUE(mob)) {
 		factor += 100;
 	}
 	if (NON_CORPOREAL_UNDEAD(mob)) {

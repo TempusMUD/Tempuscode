@@ -334,7 +334,7 @@ SPECIAL(tarrasque)
 	struct Creature *tarr = (struct Creature *)me;
 	struct room_data *rm = NULL;
 
-	if (tarr->mob_specials.shared->vnum != 24800) {
+	if (!IS_TARRASQUE(tarr)) {
 		tarr->mob_specials.shared->func = NULL;
 		REMOVE_BIT(MOB_FLAGS(tarr), MOB_SPEC);
 		slog("SYSERR: There is only one true tarrasque");
