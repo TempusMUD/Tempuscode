@@ -397,6 +397,7 @@ ACMD(do_olist);
 ACMD(do_mlist);
 ACMD(do_xlist);
 ACMD(do_help_collection_command);
+ACMD(do_wizlist);
 ACMD(do_immhelp);
 ACMD(do_map);
 
@@ -804,7 +805,7 @@ struct command_info cmd_info[] = {
 	{"imbibe", POS_RESTING, do_drink, 0, SCMD_DRINK, 0},
 	{"immchat", POS_DEAD, do_wiznet, LVL_AMBASSADOR, SCMD_IMMCHAT, 0},
 	{"imotd", POS_DEAD, do_gen_ps, LVL_AMBASSADOR, SCMD_IMOTD, 0},
-	{"immlist", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
+	{"immlist", POS_DEAD, do_wizlist, 0, SCMD_IMMLIST, 0},
 	{"immortals", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
 	{"immhelp", POS_DEAD, do_immhelp, LVL_IMMORT, 0, 0},
 	{"impale", POS_FIGHTING, do_impale, 0, 0, 0},
@@ -1301,7 +1302,7 @@ struct command_info cmd_info[] = {
 	{";", POS_DEAD, do_wiznet, LVL_IMMORT, SCMD_WIZNET, 0},
 	{"wizhelp", POS_SLEEPING, do_commands, LVL_AMBASSADOR, SCMD_WIZHELP, 0},
 	{"wizlick", POS_RESTING, do_action, LVL_IMMORT, 0, 0},
-	{"wizlist", POS_DEAD, do_gen_ps, 0, SCMD_WIZLIST, 0},
+	{"wizlist", POS_DEAD, do_wizlist, 0, SCMD_WIZLIST, 0},
 	{"wizards", POS_DEAD, do_gen_ps, 0, SCMD_WIZLIST, 0},
 	{"wizlock", POS_DEAD, do_wizlock, LVL_CREATOR, 0, 0},
 	{"wizflex", POS_RESTING, do_action, LVL_IMMORT, 0, 0},

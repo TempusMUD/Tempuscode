@@ -193,6 +193,27 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
+    bool Group::sendPublicMemberList( char_data *ch ) {
+        int pos = 1;
+        vector<long>::iterator it = members.begin();
+        char namebuf[80];
+        strcpy(buf,"        ");
+        for( ; it != members.end(); ++it ) {
+            strcpy(namebuf, get_name_by_id(*it));
+            namebuf[0] = toupper(namebuf[0]);
+            sprintf(buf, "%s%-15s", buf, namebuf);
+            if( pos++ % 4 == 0 ) {
+                pos = 1;
+                strcat(buf,"\r\n        ");
+            } 
+        }
+        //if( pos != 1 )
+        //    strcat(buf,"\r\n");
+        send_to_char(buf,ch);
+        return true;
+    }
+
+    /* Sends a list of this group's members to the given character. */
     bool Group::sendMemberList( char_data *ch ) {
         int pos = 1;
         vector<long>::iterator it = members.begin();
@@ -296,9 +317,11 @@ namespace Security {
         while (node != NULL) {
             if ((!xmlStrcmp(node->name, (const xmlChar*)"Member"))) {
                 member = xmlGetLongProp(node, "ID");
-                if( member == 0 )
-                    continue;
-                addMember(member);
+                if( member == 0 || get_name_by_id(member) == NULL ) {
+                    log("Invalid PID not loaded.",member);
+                } else {
+                    addMember(member);
+                }
             }
             if ((!xmlStrcmp(node->name, (const xmlChar*)"Command"))) {
                 command = xmlGetProp(node, "Name");
@@ -355,6 +378,12 @@ namespace Security {
         vector<long>::iterator mit = members.begin();
         for( ; mit != members.end(); ++mit ) {
             node = xmlNewChild( parent, NULL, (const xmlChar *)"Member", NULL );
+            const char* name = get_name_by_id(*mit);
+            if( name == NULL ) {
+                log("Invalid PID not saved.",*mit);
+                continue;
+            }
+            xmlSetProp( node, "Name", get_name_by_id(*mit) );
             xmlSetProp( node, "ID", *mit );
         }
         return true;
