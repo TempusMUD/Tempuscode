@@ -277,9 +277,7 @@ IDEntry::IDEntry( long id, char* name, long account)
 }
 // Copy constructor
 IDEntry::IDEntry( const IDEntry &e ) {
-    this->second = strdup(e.second);
-    this->first = e.first;
-	this->_account_id = e._account_id;
+	*this = e;
 }
 // Destructor
 IDEntry::~IDEntry() {
@@ -301,6 +299,7 @@ IDEntry& IDEntry::operator=(const IDEntry &e ) {
 	if( this->second != NULL )
 		free(this->second);
     this->second = strdup(e.second);
+	this->_account_id = e._account_id;
 	return *this;
 }
 bool IDEntry::operator==(long id) const { 
