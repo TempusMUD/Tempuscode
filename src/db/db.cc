@@ -24,6 +24,9 @@
 #include <time.h>
 #include <errno.h>
 #include <signal.h>
+#include <dirent.h>
+#include <fstream>
+using namespace std;
 
 #include "structs.h"
 #include "constants.h"
@@ -49,6 +52,7 @@
 #include "iscript.h"
 #include "tmpstr.h"
 #include "flags.h"
+#include "player_table.h"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -169,6 +173,7 @@ void assign_rooms(void);
 void assign_the_shopkeepers(void);
 void assign_artisans(void);
 void build_player_index(void);
+void build_player_table(void);
 void boot_dynamic_text(void);
 void load_iscripts(char fname[MAX_INPUT_LENGTH]);
 
@@ -339,6 +344,11 @@ boot_db(void)
 
 	slog("Resetting the game time:");
 	reset_time();
+
+	if( mini_mud ) {
+		slog("Building player table.");
+		build_player_table();
+	}
 
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
@@ -515,7 +525,49 @@ reset_zone_weather(void)
 
 }
 
+/**
+ * Parses name/id information out of every player file and stores it in
+ * the playerIndex.
+**/
+void
+build_player_table() 
+{
+	char dirname[256];
+	char filename[256];
+	char line[131072];
+	for( int i = 0; i <= 9; i++ ) {
+		sprintf(dirname, "plrxml/%d",i);
+		DIR* dir = opendir(dirname);
+		dirent *file;
+		while ((file = readdir(dir)) != NULL) {
+			if (!rindex(file->d_name, '.'))
+				continue;
+			if (strcmp(rindex(file->d_name, '.'), ".dat"))
+				continue;
+			sprintf( filename, "%s/%s", dirname, file->d_name );
+			ifstream in( filename );
+			while( !in.eof() && in.getline( line, 131000, '\n' ) ) {
+				char *name = strstr( line, "NAME=" );
+				char *idnum = strstr( line, "IDNUM=" );
+				if( name == NULL || idnum == NULL )
+					continue;
+				name += 6;
+				char *n = strstr(name, "\"");
+				if( n ) *n = '\0';
+				
+				idnum += 7;
+				char *s = strstr(name, "\"");
+				if( s ) *s = '\0';
 
+				long id = atol( idnum );
+				printf( "Adding %s[%ld] to player table.\n", name, id );
+				playerIndex.add( id, name, false );
+			}
+		}
+		closedir(dir);
+	}
+	playerIndex.sort();
+}
 
 /* generate index table for the player file */
 void

@@ -28,6 +28,7 @@ class NameEntry : public pair<char*, long> {
         const char* getName();
         bool operator==(long id) const;
         bool operator==( const char *name) const;
+        NameEntry& operator=(const NameEntry &e);
         bool operator==(NameEntry &e) const;
         bool operator!=(NameEntry &e) const;
         bool operator<(NameEntry &e) const;
@@ -58,6 +59,7 @@ class IDEntry : public pair<long, char*> {
         
         long getID();
         const char* getName();
+        IDEntry& operator=(const IDEntry &e);
         bool operator==(IDEntry &e) const;
         bool operator!=(IDEntry &e) const;
         bool operator<(IDEntry &e) const;
@@ -123,7 +125,7 @@ class PlayerTable
         const char* operator[](long id) { return getName(id); }
 
         /** Adds the given player info to this PlayerTable.  **/
-        bool add( long id, const char* name );
+        bool add( long id, const char* name, bool sortTable = true );
         /** Removes the entry in this player table for the given id. **/
         bool remove( long id );
         /** Removes the entry in this player table for the given name. **/

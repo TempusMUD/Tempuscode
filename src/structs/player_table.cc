@@ -64,15 +64,17 @@ long PlayerTable::getID( const char *name )
  * Adds the given player info to this PlayerTable.
  *
  * NOTE: name will be duplicated and stored without alteration.
+ * @param sortTable if true, the player table will be sorted after insertion
 **/
-bool PlayerTable::add( long id, const char* name ) 
+bool PlayerTable::add( long id, const char* name, bool sortTable  ) 
 {
     if( exists(id) )
         return false;
     top_id = MAX(id, top_id);
     idTable.push_back(IDEntry(id,strdup(name)));
     nameTable.push_back(NameEntry(id,strdup(name)));
-    sort();
+	if( sortTable )
+		sort();
     return true;
 }
 
@@ -131,10 +133,6 @@ void PlayerTable::sort()
     nameTable.sort();
 }
 
-
-
-
-
 // Sorts the name table
 void NameTable::sort() 
 {
@@ -159,9 +157,9 @@ NameEntry::NameEntry( long id, char* name )
 
 // Copy Constructor
 NameEntry::NameEntry( const NameEntry &n ) {
-    this->first = strdup(n.first);
-    this->second = n.second;
+	*this = n;
 }
+
 // Destructor
 NameEntry::~NameEntry() {
     free(first);
@@ -174,6 +172,13 @@ const char* NameEntry::getName() {
     return first;
 }
 
+NameEntry &NameEntry::operator=(const NameEntry &e ) {
+	if( this->first != NULL )
+		free(this->first);
+    this->first = strdup(e.first);
+    this->second = e.second;
+	return *this;
+}
 bool NameEntry::operator==(long id) const { 
     return second == id; 
 }
@@ -230,6 +235,13 @@ long IDEntry::getID() {
 }
 const char* IDEntry::getName() {
     return second;
+}
+IDEntry& IDEntry::operator=(const IDEntry &e ) {
+    this->first = e.first;
+	if( this->second != NULL )
+		free(this->second);
+    this->second = strdup(e.second);
+	return *this;
 }
 bool IDEntry::operator==(long id) const { 
     return first == id; 
