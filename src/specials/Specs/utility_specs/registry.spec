@@ -137,9 +137,9 @@ SPECIAL(registry)
 	perform_tell(reg, ch, buf2);
 
 	if ((cert = read_object(vcert))) {
+		obj_to_char(cert, ch);
 		act("$n presents $N with $p.", FALSE, reg, cert, ch, TO_NOTVICT);
 		act("$n presents you with $p.", FALSE, reg, cert, ch, TO_VICT);
-		obj_to_char(cert, ch);
 	}
 
 	mudlog(GET_INVIS_LVL(ch), CMP, true,
