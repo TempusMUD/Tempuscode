@@ -19,9 +19,9 @@ player_in_room ( struct room_data *room ) {
 	return 0;
 }
 
+int fate_timers[3] = {0,0,0};
 SPECIAL(fate)
 {
-	static int timers[3] = {0,0,0};
 	struct char_data *fate = (struct char_data *) me;
 	struct room_data *dest = NULL;
 	dynamic_text_file *dyntext = NULL;
@@ -34,7 +34,6 @@ SPECIAL(fate)
 	int num_rooms = 0, the_room = 0;
 	int which_fate;
   
-
 	// Don't want the zone goin to sleep and trapping her.
 	if (fate->in_room) {
 		fate->in_room->zone->idle_time = 0;
@@ -51,6 +50,13 @@ SPECIAL(fate)
 	if(player_in_room(fate->in_room))
 		return 0;
 
+	// Is it time to leave?
+	if(fate_timers[which_fate] > 0) { // Not time to leave yet.
+		fate_timers[which_fate] -= 10; // Specials are called every 10 seconds.
+		return 1;
+	}
+
+	// It's time to leave.
 	// Who is she?
 	switch(GET_MOB_VNUM(fate)){
 		case FATE_VNUM_LOW:
@@ -69,15 +75,9 @@ SPECIAL(fate)
 			return 0;
 	}
 
-	// Is it time to leave?
-	if(timers[which_fate] > 0) { // Not time to leave yet.
-		timers[which_fate] -= 10; // Specials are called every 10 seconds.
-		return 1;
-	}
-	// It's time to leave.
 
 	// Start the timer for the next jump.
-	timers[which_fate] = 60 * dice(30,6); // 25 mins to 2.5 hours.
+	fate_timers[which_fate] = 60 * dice(30,6); // 25 mins to 2.5 hours.
 
 	// find the dyntext of the rooms we need.
 	for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {

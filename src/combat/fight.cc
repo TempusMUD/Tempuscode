@@ -536,16 +536,21 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
 	// The Fate's corpses are portals to the remorter.
 	if ( GET_MOB_SPEC(ch) == fate ) { // GetMobSpec checks IS_NPC
 		struct obj_data *portal = NULL;
+        extern int fate_timers[];
 	    if ( ( portal = read_object( FATE_PORTAL_VNUM ) ) ) {
 			GET_OBJ_TIMER( portal ) = max_npc_corpse_time;
-			if(GET_MOB_VNUM(ch) == FATE_VNUM_LOW )
+			if(GET_MOB_VNUM(ch) == FATE_VNUM_LOW )  {
 				GET_OBJ_VAL( portal, 2 ) = 1;
-			else if(GET_MOB_VNUM(ch) == FATE_VNUM_MID )
+                fate_timers[0] = 0;
+			} else if(GET_MOB_VNUM(ch) == FATE_VNUM_MID ) {
 				GET_OBJ_VAL( portal, 2 ) = 2;
-			else if(GET_MOB_VNUM(ch) == FATE_VNUM_HIGH)
+                fate_timers[1] = 0;
+			} else if(GET_MOB_VNUM(ch) == FATE_VNUM_HIGH) {
 				GET_OBJ_VAL( portal, 2 ) = 3;
-			else
+                fate_timers[2] = 0;
+			} else {
 				GET_OBJ_VAL( portal, 2 ) = 12;
+            }
 			obj_to_room( portal, ch->in_room );
 		}
 	}
