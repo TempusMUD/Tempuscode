@@ -361,7 +361,11 @@ HouseControl::findHouseByOwner( int id, bool isAccount )
 {
 	for( unsigned int i = 0; i < getHouseCount(); i++ ) {
 		House *house = getHouse(i);
+		if( house->getType() == House::PUBLIC )
+			continue;
 		if( isAccount && house->getType() == House::CLAN )
+			continue;
+		if( !isAccount && house->getType() != House::CLAN )
 			continue;
 		if( house->getOwnerID() == id )
 			return getHouse(i);
@@ -1140,6 +1144,7 @@ hcontrol_build_house( Creature *ch, char *arg)
 	// SECOND arg: the first room of the house
 	str = tmp_getword(&arg);
 	if (!*str) {
+		send_to_char(ch, "You have to give a beginning room for the range.\r\n" );
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
 	}
@@ -1158,6 +1163,7 @@ hcontrol_build_house( Creature *ch, char *arg)
 	// Inbetween rooms will be added
 	str = tmp_getword(&arg);
 	if (!*str) {
+		send_to_char(ch, "You have to give an ending room for the range.\r\n" );
 		send_to_char(ch, HCONTROL_FORMAT);
 		return;
 	}
@@ -1227,7 +1233,7 @@ set_house_clan_owner( Creature *ch, House *house, char *arg )
 	}
 	// An account may only own one house
 	House *h = Housing.findHouseByOwner( clanID, false );
-	if( h != NULL && h->getType() == House::CLAN ) {
+	if( h != NULL ) {
 		send_to_char(ch, "Clan %d already owns house %d.\r\n", 
 					 clanID, h->getID() );
 		return;
@@ -1315,13 +1321,27 @@ hcontrol_set_house( Creature *ch, char *arg)
 			send_to_char(ch, "Set mode to public, private, or rental?\r\n");
 			return;
 		} else if (is_abbrev(arg, "public")) {
-			house->setType( House::PUBLIC );
+			if( house->getType() != House::PUBLIC) {
+				house->setType( House::PUBLIC );
+				house->setOwnerID(0);
+			}
 		} else if (is_abbrev(arg, "private")) {
-			house->setType( House::PRIVATE );
+			if( house->getType() != House::PRIVATE ) {
+				if( house->getType() != House::RENTAL )
+					house->setOwnerID(0);
+				house->setType( House::PRIVATE );
+			}
 		} else if (is_abbrev(arg, "rental")) {
-			house->setType( House::RENTAL );
+			if( house->getType() != House::RENTAL ) {
+				if( house->getType() != House::PRIVATE )
+					house->setOwnerID(0);
+				house->setType( House::RENTAL );
+			}
 		} else if (is_abbrev(arg, "clan")) {
-			house->setType( House::CLAN );
+			if( house->getType() != House::CLAN ) {
+				house->setType( House::CLAN );
+				house->setOwnerID(0);
+			}
 		} else {
 			send_to_char(ch, 
 				"You must specify public, private, clan, or rental!!\r\n");
