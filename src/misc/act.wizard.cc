@@ -1350,7 +1350,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         break;
     case ITEM_FOOD:
         sprintf(buf,
-            "Makes full: %d, Value 1: %d, Spell : %s(%d), Poisoned: %d",
+            "Makes full: %d, Spell Lvl: %d, Spell : %s(%d), Poisoned: %d",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), spell_to_str((int)GET_OBJ_VAL(j,
                     2)), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
         break;
