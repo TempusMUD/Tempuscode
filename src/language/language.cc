@@ -1453,12 +1453,7 @@ int find_language_idx_by_race(const char *race_name)
         }
     }
 
-    for (int x = 0; x < NUM_LANGUAGES; x++) {
-        if (!strcmp(language_name, language_names[x]))
-            return x;
-    }
-
-    return LANGUAGE_NONE;
+    return find_language_idx_by_name(language_name);
 }
 
 char *translate_string(char *phrase, char language_idx) 
