@@ -3421,7 +3421,7 @@ ACMD(do_wiznet)
                         !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT)) ||
                     (subcmd == SCMD_WIZNET &&
                         Security::isMember(d->creature, "WizardBasic") &&
-                        !PRF_FLAGGED(d->creature, PRF_NOWIZ))) &&
+						!PRF_FLAGGED(d->creature, PRF_NOWIZ))) &&
                 (can_see_creature(ch, d->creature) || GET_LEVEL(ch) == LVL_GRIMP)) {
                 if (!any) {
                     sprintf(buf1, "Gods online:\r\n");
@@ -5321,7 +5321,7 @@ ACMD(do_set)
         {"soulless", LVL_IMMORT, BOTH, BINARY, "WizardFull"},
         {"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"speed", LVL_IMMORT, PC, NUMBER, "Coder"},
-        {"occupation", LVL_ENTITY, PC, NUMBER, "CoderAdmin"},
+        {"badge", LVL_ENTITY, PC, NUMBER, "CoderAdmin"},
         {"skill", LVL_ENTITY, PC, MISC, "WizardFull"},
         {"\n", 0, BOTH, MISC, ""}
     };
@@ -5666,7 +5666,7 @@ ACMD(do_set)
         GET_CLASS(vict) = i;
         break;
     case 40:
-        SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOWIZLIST);
+		send_to_char(ch, "Disabled.");
         break;
     case 41:
 		GET_QUEST(vict) = value;
@@ -5866,7 +5866,7 @@ ACMD(do_set)
         SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_NOAFFECTS);
         break;
     case 79:
-        SET_OR_REMOVE(PLR_FLAGS(vict), PLR_QUESTOR);
+        send_to_char(ch, "Disabled.\r\n");
         break;
     case 80:
         vict->player.age_adjust = (byte) RANGE(-125, 125);
