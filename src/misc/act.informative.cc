@@ -4400,7 +4400,8 @@ ACMD(do_color)
 }
 
 
-ACMD(do_toggle)
+void
+show_all_toggles(Creature *ch)
 {
 	if (IS_NPC(ch))
 		return;
@@ -4492,6 +4493,47 @@ ACMD(do_toggle)
 		send_to_char(ch, "((Mana shield)) Low:[%ld], Percent:[%ld]\n",
 			GET_MSHIELD_LOW(ch), GET_MSHIELD_PCT(ch));
 	}
+}
+
+ACMD(do_toggle)
+{
+	ACMD(do_gen_tog);
+	char *arg;
+
+	arg = tmp_getword(&argument);
+	if (!*arg) {
+		// Display toggles
+		show_all_toggles(ch);
+		return;
+	}
+
+	if (is_abbrev(arg, "gossip"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NOGOSSIP, 0);
+	else if (is_abbrev(arg, "spew"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NOSPEW, 0);
+	else if (is_abbrev(arg, "guild"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NOGUILDSAY, 0);
+	else if (is_abbrev(arg, "clan"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NOCLANSAY, 0);
+	else if (is_abbrev(arg, "sing"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NOMUSIC, 0);
+	else if (is_abbrev(arg, "auction"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NOAUCTION, 0);
+	else if (is_abbrev(arg, "grats"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NOGRATZ, 0);
+	else if (is_abbrev(arg, "newbie"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NEWBIE_HELP, 0);
+	else if (is_abbrev(arg, "dream"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NODREAM, 0);
+	else if (is_abbrev(arg, "project"))
+		do_gen_tog(ch, NULL, cmd, SCMD_NOPROJECT, 0);
+	else if (is_abbrev(arg, "brief"))
+		do_gen_tog(ch, NULL, cmd, SCMD_BRIEF, 0);
+	else if (is_abbrev(arg, "compact"))
+		do_gen_tog(ch, NULL, cmd, SCMD_COMPACT, 0);
+	else
+		send_to_char(ch, "What is it that you want to toggle?\r\n");
+	return;
 }
 
 
