@@ -232,7 +232,7 @@ recieve_mail(Creature * ch)
 		return 0;
 	}
 	// Seek to the beginning and setup for reading.
-	mail_file.seekp(0, ios::beg);
+	mail_file.seekg(0, ios::beg);
 	letter = new mail_data;
 	while (!mail_file.eof()) {
 		mail_file.read((char *)letter, sizeof(mail_data));
