@@ -2,15 +2,15 @@
 #include "player_table.h"
 #include "utils.h"
 
-/**                 PLAYER TABLE                **/
+/* The global player index */
+PlayerTable playerIndex;
 
 /**
  *  Creates a blank PlayerTable
 **/
 PlayerTable::PlayerTable() 
-: idTable(), nameTable() 
+: idTable(), nameTable(), top_id(0)
 { 
-    top_id = 0;
 }
 
 int PlayerTable::getTopIDNum() {
