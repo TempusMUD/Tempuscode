@@ -446,6 +446,10 @@ Account::delete_char(Creature *ch)
 			acct->distrust(GET_IDNUM(ch));
 	}
 
+	// Remove from the bounty list
+	sql_exec("delete from bounty_hunters where idnum=%ld or victim=%ld",
+		GET_IDNUM(ch), GET_IDNUM(ch));
+
 	// Disassociate author from board messages
 	sql_exec("update board_messages set author=null where author=%ld",
 		GET_IDNUM(ch));
