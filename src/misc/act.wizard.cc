@@ -259,7 +259,8 @@ ACMD(do_echo)
     }
 
     if (subcmd == SCMD_EMOTE) {
-        mort_see = tmp_sprintf("$n %s", argument);
+        mort_see = tmp_sprintf("$n%s%s", (*argument == '\'') ? "":" ",
+			argument);
 
         if (PRF_FLAGGED(ch, PRF_NOREPEAT))
             send_to_char(ch, OK);
@@ -3511,9 +3512,11 @@ ACMD(do_wiznet)
         sprintf(buf2, "Someone%s: <%d> %s\r\n", subcmd_desc, level, argument);
     } else {
         if (emote) {
-            sprintf(buf1, "<%s> %s %s\r\n",
-                subcmd_str, GET_NAME(ch), argument);
-            sprintf(buf2, "<%s> Someone %s\r\n", subcmd_str, argument);
+            sprintf(buf1, "<%s> %s%s%s\r\n",
+                subcmd_str, GET_NAME(ch),
+				(*argument != '\'') ? " ":"", argument);
+            sprintf(buf2, "<%s> Someone%s%s\r\n", subcmd_str,
+				(*argument != '\'') ? " ":"", argument);
         } else {
             sprintf(buf1, "%s%s: %s\r\n", GET_NAME(ch), subcmd_desc, argument);
             sprintf(buf2, "Someone%s: %s\r\n", subcmd_desc, argument);
