@@ -390,7 +390,8 @@ Account::delete_char(Creature *ch)
 		member = real_clanmember(GET_IDNUM(ch), clan);
 		if (member) {
 			REMOVE_FROM_LIST(member, clan->member_list, next);
-			save_clans();
+			sql_exec("delete from clan_members where player=%ld",
+				GET_IDNUM(ch));
 		}
 	}
 
