@@ -788,18 +788,6 @@ choose_random_limb(Creature *victim)
 bool
 peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 {
-	if (vict->isNewbie() && !is_arena_combat(ch, vict) &&
-		IS_PC(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
-		if (mssg) {
-			act("$N is currently under new character protection.",
-				FALSE, ch, 0, vict, TO_CHAR);
-			act("You are protected by the gods against $n's attack!",
-				FALSE, ch, 0, vict, TO_VICT);
-		}
-		slog("%s protected against %s [peaceful room check] at %d\n",
-			GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
-		return false;
-	}
 	if (vict && IS_SET(ROOM_FLAGS(ch->in_room), ROOM_PEACEFUL) &&
 		!PLR_FLAGGED(vict, PLR_KILLER) && GET_LEVEL(ch) < LVL_GRGOD &&
 		!(PLR_FLAGGED(ch, PLR_KILLER) && FIGHTING(vict) == ch)
@@ -824,14 +812,28 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 		return false;
 	}
 
-	if (!IS_NPC(ch) && !IS_NPC(vict)) {
-		if (!is_arena_combat(ch, vict) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-			if (mssg)
-				send_to_char(ch,
-					"In order to attack %s or another player, you must toggle your\r\n"
-					"pkiller status with the 'pkiller' command.",
-					PERS(vict, ch));
-			return false;
+	if (IS_PC(ch) && IS_PC(vict)) {
+		if (!is_arena_combat(ch, vict)) {
+			if (vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT) {
+				if (mssg) {
+					act("$N is currently under new character protection.",
+						FALSE, ch, 0, vict, TO_CHAR);
+					act("You are protected by the gods against $n's attack!",
+						FALSE, ch, 0, vict, TO_VICT);
+				}
+				slog("%s protected against %s [peaceful room check] at %d\n",
+					GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
+				return false;
+			}
+
+			if (!PRF2_FLAGGED(ch, PRF2_PKILLER)) {
+				if (mssg)
+					send_to_char(ch,
+						"In order to attack %s or another player, you must toggle your\r\n"
+						"pkiller status with the 'pkiller' command.",
+						PERS(vict, ch));
+				return false;
+			}
 		}
 
 		if (GET_QUEST(ch) && GET_QUEST(ch) != GET_QUEST(vict)) {
