@@ -76,7 +76,8 @@ SPECIAL(remorter)
 	}
 
 	if (!CMD_IS("say") && !CMD_IS("'") && GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char(ch, "Use the 'say' command to take the test.\r\n");
+		send_to_char(ch, "Use the 'say' command to take the test.\r\n"
+                	"If you want to leave, just say 'goodbye'.\r\n");
 		return 1;
 	}
 
@@ -89,6 +90,15 @@ SPECIAL(remorter)
 	if (GET_EXP(ch) < exp_scale[LVL_AMBASSADOR] ||
 		GET_LEVEL(ch) < (LVL_AMBASSADOR - 1)) {
 		send_to_char(ch, "Piss off.  Come back when you are bigger.\r\n");
+		room_data *room = ch->getLoadroom();
+        if( room == NULL )
+            room = real_room(3061);// modrian dump
+		act("$n disappears in a mushroom cloud.", FALSE, ch, 0, 0,TO_ROOM);
+		char_from_room(ch,false);
+		char_to_room(ch, room,false);
+		act("$n arrives from a puff of smoke.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n has transferred you!", FALSE, (Creature *) me, 0, ch, TO_VICT);
+		look_at_room(ch, room, 0);
 		return 1;
 	}
 
