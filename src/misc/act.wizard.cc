@@ -5052,7 +5052,8 @@ ACMD(do_set)
 	{ "qpoints",         LVL_GRGOD,        PC,   NUMBER },
 	{ "qpallow",         LVL_GRGOD,        PC,   NUMBER},   /*  95 */
 	{ "soulless",        LVL_GRGOD,        BOTH, BINARY }, 
-	{ "buried",			 LVL_ENTITY,	   PC, 	BINARY },
+	{ "buried",			 LVL_CREATOR,	   PC,   BINARY },
+	{ "speed",			 LVL_GRGOD, 	   PC,   NUMBER },
 	{ "\n", 0, BOTH, MISC }
     };
 
@@ -5695,6 +5696,9 @@ ACMD(do_set)
 	} else {
 		SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_BURIED);
 	}
+    case 98: // Set Speed
+        vict->setSpeed(RANGE(0, 100));
+	break;
 
     default:
 	sprintf(buf, "Can't set that!");

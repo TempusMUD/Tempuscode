@@ -3239,6 +3239,7 @@ store_to_char(struct char_file_u * st, struct char_data * ch)
     ch->points.armor               = 100;
     ch->points.hitroll             = 0;
     ch->points.damroll             = 0;
+    ch->setSpeed(0);
 
     CREATE(ch->player.name, char, strlen(st->name) + 1);
     strcpy(ch->player.name, st->name);
