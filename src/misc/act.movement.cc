@@ -1696,7 +1696,11 @@ ACMD(do_enter)
 		return;
 	}
 
-	room = real_room(ROOM_NUMBER(car));
+	if (ROOM_NUMBER(car))
+		room = real_room(ROOM_NUMBER(car));
+	else
+		room = ch->getLoadroom();
+
 	if (!room) {
 		send_to_char(ch, 
 			"This portal has become twisted.  Please notify someone.\r\n");
