@@ -954,8 +954,9 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 			msg = tmp_strcat(msg, desc_char_trailers(ch, i));
 	}
 
-	if (unseen && AFF_FLAGGED(ch, AFF_SENSE_LIFE) ||
-			affected_by_spell(ch, SKILL_HYPERSCAN)) {
+	if( unseen && 
+		(AFF_FLAGGED(ch, AFF_SENSE_LIFE) || affected_by_spell(ch, SKILL_HYPERSCAN)) ) 
+	{
 		send_to_char(ch, "%s", CCMAG(ch, C_NRM));
 		if (unseen == 1)
 			send_to_char(ch, "You sense an unseen presence.\r\n");
