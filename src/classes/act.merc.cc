@@ -256,23 +256,26 @@ IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
 // --Nothing
 ACMD(do_snipe)
 {
-	struct Creature *vict, *temp = NULL;
-	struct obj_data *gun = NULL;
+	int choose_random_limb(Creature *victim); // from combat/combat_utils.cc
+
+	struct Creature *vict;
+	struct obj_data *gun, *bullet, *armor;
+	struct room_data *cur_room, *nvz_room = NULL;
 	struct affected_type af;
-	obj_data *bullet, *armor;
 	int retval = 0;
 	int prob, percent, damage_loc, dam = 0;
-	int snipe_dir = -1;
-	char *arg1, *arg2, *msg;
+	int snipe_dir = -1, distance = 0;
+	char *vict_str, *dir_str, *kill_msg;
 
-	arg1 = tmp_getword(&argument);
-	arg2 = tmp_getword(&argument);
+	vict_str = tmp_getword(&argument);
+	dir_str = tmp_getword(&argument);
 
 	// ch is blind?
-	if (IS_AFFECTED(ch, AFF_BLIND) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
+	if (IS_AFFECTED(ch, AFF_BLIND)) {
 		send_to_char(ch, "You can't snipe anyone! you're blind!\r\n");
 		return;
 	}
+
 	//ch in smoky room?
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) &&
 		GET_LEVEL(ch) < LVL_AMBASSADOR) {
@@ -302,67 +305,59 @@ ACMD(do_snipe)
 	if (CHECK_SKILL(ch, SKILL_SNIPE) <= 0) {
 		send_to_char(ch, "You have no idea how!");
 	}
+
 	// is ch's gun loaded?
 	if (!GUN_LOADED(gun)) {
 		send_to_char(ch, "But your gun isn't loaded!\r\n");
 		return;
 	}
+
 	//in what direction is ch attempting to snipe?
-	if ((snipe_dir = search_block(arg2, dirs, FALSE)) < 0) {
+	snipe_dir = search_block(dir_str, dirs, FALSE);
+	if (snipe_dir < 0) {
 		send_to_char(ch, "Snipe in which direction?!\r\n");
 		return;
 	}
-	// is the victim in sight in that direction?
-	// note:  line of sight stops at a DT or a closed door
-	// and if the exit from a room leads to a NULL room we
-	// have a serious problem...
-	// This is a NASTY ass way to check for this...if anyone
-	// can think of a better way to implement it, be my guest...
-	if (EXIT(ch, snipe_dir) && EXIT(ch, snipe_dir)->to_room != NULL &&
-		EXIT(ch, snipe_dir)->to_room != ch->in_room &&
-		!ROOM_FLAGGED(EXIT(ch, snipe_dir)->to_room, ROOM_DEATH) &&
-		!IS_SET(EXIT(ch, snipe_dir)->exit_info, EX_CLOSED)) {
-		if (!(vict =
-				get_char_in_remote_room_vis(ch, arg1, EXIT(ch,
-						snipe_dir)->to_room))) {
-			if (_2ND_EXIT(ch, snipe_dir)
-				&& _2ND_EXIT(ch, snipe_dir)->to_room != NULL
-				&& _2ND_EXIT(ch, snipe_dir)->to_room != ch->in_room
-				&& !ROOM_FLAGGED(_2ND_EXIT(ch, snipe_dir)->to_room, ROOM_DEATH)
-				&& !IS_SET(_2ND_EXIT(ch, snipe_dir)->exit_info, EX_CLOSED)) {
-				if (!(vict =
-						get_char_in_remote_room_vis(ch, arg1, _2ND_EXIT(ch,
-								snipe_dir)->to_room))) {
-					if (_3RD_EXIT(ch, snipe_dir)
-						&& _3RD_EXIT(ch, snipe_dir)->to_room != NULL
-						&& _3RD_EXIT(ch, snipe_dir)->to_room != ch->in_room
-						&& !ROOM_FLAGGED(_3RD_EXIT(ch, snipe_dir)->to_room,
-							ROOM_DEATH)
-						&& !IS_SET(_3RD_EXIT(ch, snipe_dir)->exit_info,
-							EX_CLOSED)) {
-						if (!(vict =
-								get_char_in_remote_room_vis(ch, arg1,
-									_3RD_EXIT(ch, snipe_dir)->to_room))) {
-							send_to_char(ch, 
-								"Your target is not in sight in that direction!\r\n");
-							return;
-						}
-					} else {
-						send_to_char(ch, 
-							"Your target is not in sight in that direction!\r\n");
-						return;
-					}
-				}
-			} else {
-				send_to_char(ch, 
-					"Your target is not in sight in that direction!\r\n");
-				return;
-			}
-		}
-	} else {
-		send_to_char(ch, "You can't snipe in that direction!\r\n");
+
+	if (!EXIT(ch, snipe_dir) || !EXIT(ch, snipe_dir)->to_room ||
+			EXIT(ch, snipe_dir)->to_room == ch->in_room ||
+			IS_SET(EXIT(ch, snipe_dir)->exit_info, EX_CLOSED)) {
+		send_to_char(ch,
+			"You aren't going to be sniping anyone in that direction...\r\n");
 		return;
 	}
+	
+	// is the victim in sight in that direction?
+	// line of sight stops at a DT, smoke-filled room, or closed door
+	distance = 0;
+	vict = NULL;
+	cur_room = ch->in_room;
+	while (!vict && distance < 3) {
+		if (!cur_room->dir_option[snipe_dir] ||
+				!cur_room->dir_option[snipe_dir]->to_room ||
+				cur_room->dir_option[snipe_dir]->to_room == ch->in_room ||
+				IS_SET(cur_room->dir_option[snipe_dir]->exit_info, EX_CLOSED))
+			break;
+
+		cur_room = cur_room->dir_option[snipe_dir]->to_room;
+		distance++;
+
+		if (ROOM_FLAGGED(cur_room, ROOM_DEATH) ||
+				ROOM_FLAGGED(cur_room, ROOM_SMOKE_FILLED))
+			break;
+		
+		if (!nvz_room && ROOM_FLAGGED(cur_room, ROOM_PEACEFUL))
+			nvz_room = cur_room;
+
+		vict = get_char_in_remote_room_vis(ch, vict_str, cur_room);
+
+	}
+
+	if (!vict) {
+		send_to_char(ch, "You can't see your target in that direction.\r\n");
+		return;
+	}
+
 	// is vict an imm?
 	if ((GET_LEVEL(vict) >= LVL_AMBASSADOR)) {
 		send_to_char(ch, "Are you crazy man!?!  You'll piss off superfly!!\r\n");
@@ -383,200 +378,176 @@ ACMD(do_snipe)
 		act("$N has taken cover!\r\n", TRUE, ch, NULL, vict, TO_CHAR);
 		return;
 	}
-	//make sure we have a victim...
-	if (vict) {
-		// is ch in a peaceful room?
-		if (!peaceful_room_ok(ch, vict, true)) {
-			return;
-		}
-		//is vict in a peaceful room?
-		else if (IS_SET(ROOM_FLAGS(vict->in_room), ROOM_PEACEFUL)) {
-			act("$N is in an NVZ!", FALSE, ch, NULL, vict, TO_CHAR);
-			return;
-		}
-		//Ok, last check...is some asshole trying to damage a shop keeper
-		if (!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
-			WAIT_STATE(ch, PULSE_VIOLENCE * 3);
-			send_to_char(ch, "NO! The gods will DESTROY you for that!\r\n");
-			return;
-		}
-		// Ok, the victim is in sight, ch is not blind or in a smoky room
-		// ch is wielding a rifle, and neither the victim nor ch is in a
-		// peaceful room, and all other misc. checks have been passed...
-		// begin the hit prob calculations
-		prob = CHECK_SKILL(ch, SKILL_SNIPE) + GET_REMORT_GEN(ch);
-		// start percent at 40 to make it impossible for a merc to hit
-		// someone if his skill is less than 40
-		percent = number(40, 125);
-		if (affected_by_spell(vict, ZEN_AWARENESS) ||
-			IS_AFFECTED(vict, AFF2_TRUE_SEEING)) {
-			percent += 25;
-		}
+	if (!vict)
+		return;
 
-		if (vict->getPosition() < POS_FIGHTING) {
-			percent += 15;
-		}
+	// is ch in a peaceful room?
+	if (!peaceful_room_ok(ch, vict, true))
+		return;
 
-		if (IS_AFFECTED_2(vict, AFF2_HASTE) && !IS_AFFECTED_2(ch, AFF2_HASTE)) {
-			percent += 25;
-		}
-		// if the victim has already been sniped (wears off in 3 ticks)
-		// then the victim is aware of a sniper and is assumed
-		// to be taking the necessary precautions, and therefore is
-		// much harder to hit
-		if (IS_SNIPED(vict)) {
-			percent += 50;
-		}
-		// just some level checks.  The victims level matters more
-		// because it should be almost impossible to hit a high
-		// level character who has been sniped once already
-		prob += (GET_LEVEL(ch) >> 2) + GET_REMORT_GEN(ch);
-		percent += GET_LEVEL(vict) + (GET_REMORT_GEN(vict) >> 2);
-		// get a random damage location.  I know there is a WEAR_RANDOM
-		// constant but I wasn't sure how to use it and this works just
-		// as well
-		damage_loc = number(0, 26);
-		// we need to extract the bullet so we need an object pointer to
-		// it.  However we musn't over look the possibility that gun->contains
-		// could be a clip rather than a bullet
-		bullet = gun->contains;
-		if (IS_CLIP(bullet)) {
-			bullet = bullet->contains;
-		}
-		extract_obj(bullet);
-		// if percent is greater than prob it's a miss
-		if (percent > prob) {
-			// call damage with 0 dam to check for killers, TG's
-			// newbie protection and other such stuff automagically ;)
-			retval = damage(ch, vict, 0, SKILL_SNIPE, damage_loc);
-			if (retval == DAM_ATTACK_FAILED) {
-				return;
-			}
-			// ch and vict really shouldn't be fighting if they aren't in
-			// the same room...
-			stop_fighting(ch);
-			stop_fighting(vict);
-			send_to_char(ch, "Damn!  You missed!\r\n");
-			act("$n tries to snipe $N, but misses!", TRUE, ch, NULL, vict,
-				TO_ROOM);
-				
-			msg = tmp_sprintf("A bullet screams past your head from the %s!",
-				from_dirs[snipe_dir]);
-			act(buf, TRUE, ch, NULL, vict, TO_VICT);
-			msg = tmp_sprintf("A bullet screams past $n's head from the %s!",
-				from_dirs[snipe_dir]);
-			act(buf, TRUE, vict, NULL, ch, TO_ROOM);
-			WAIT_STATE(ch, 3 RL_SEC);
-			return;
-		} else {
-			// it a hit!
-			// grab the damage for the gun...this way this skill is
-			// scalable
-			dam = dice(gun_damage[GUN_TYPE(gun)][0],
-				gun_damage[GUN_TYPE(gun)][1] + BUL_DAM_MOD(bullet));
-			// as you can see, armor makes a huge difference, it's hard to imagine
-			// a bullet doing much more than brusing someone through a T. carapace
-			if ((armor = GET_EQ(vict, damage_loc))
-				&& OBJ_TYPE(armor, ITEM_ARMOR)) {
-				if (IS_STONE_TYPE(armor) || IS_METAL_TYPE(armor))
-					dam -= GET_OBJ_VAL(armor, 0) << 4;
-				else
-					dam -= GET_OBJ_VAL(armor, 0) << 2;
-			}
-
-			add_blood_to_room(vict->in_room, 1);
-			apply_soil_to_char(ch, GET_EQ(vict, damage_loc), SOIL_BLOOD,
-				damage_loc);
-			if (!affected_by_spell(vict, SKILL_SNIPE)) {
-				af.type = SKILL_SNIPE;
-				af.is_instant = 0;
-				af.bitvector = AFF3_SNIPED;
-				af.aff_index = 3;
-				af.level = GET_LEVEL(ch);
-				af.duration = 3;
-				af.location = damage_loc;
-				af.modifier = 0;
-				affect_to_char(vict, &af);
-				WAIT_STATE(vict, 2 RL_SEC);
-			} else
-				WAIT_STATE(vict, 2 RL_SEC);
-			// double damage for a head shot...1 in 27 chance
-			if (damage_loc == WEAR_HEAD) {
-				dam = dam << 1;
-			}
-			// 1.5x damage for a neck shot...2 in 27 chance
-			else if (damage_loc == WEAR_NECK_1 || damage_loc == WEAR_NECK_2) {
-				dam += dam >> 1;
-			}
-			// seems to crash the mud if you call damage_eq() on a location
-			// that doesn't have any eq...hmmm
-			if (GET_EQ(vict, damage_loc)) {
-				damage_eq(vict, GET_EQ(vict, damage_loc), dam >> 1);
-			}
-			if (damage_loc == WEAR_HEAD) {
-				send_to_char(ch, "HEAD SHOT!!\r\n");
-			} else if (damage_loc == WEAR_NECK_1 || damage_loc == WEAR_NECK_2) {
-				send_to_char(ch, "NECK SHOT!!\r\n");
-			}
-			if (GET_LEVEL(vict) > 6) {
-				act("You smirk with satisfaction as your bullet rips into $N.",
-					FALSE, ch, NULL, vict, TO_CHAR);
-				msg = tmp_sprintf("A bullet rips into your flesh from the %s!\r\n",
-					dirs[snipe_dir]);
-				act(buf, TRUE, ch, NULL, vict, TO_VICT);
-				act("A bullet rips into $n's flesh!", TRUE, vict, NULL, ch,
-					TO_ROOM);
-				act("$n takes aim and snipes $N!", TRUE, ch, NULL, vict,
-					TO_ROOM);
-			}
-			// it's my understanding that damage() frees the memory for vict if
-			// vict has been killed.  Therefore if I want to print the message
-			// "You have killed $N" I'm going to have to make a copy of victs
-			// Creature struct.  If there's another way that I'm unaware of
-			// please change it and/or let me know
-			if (!(temp =
-					(struct Creature *)malloc(sizeof(struct Creature) +
-						1))) {
-				mudlog(LVL_AMBASSADOR, NRM, true,
-					"SYSERR: Out of memory in do_snipe!");
-			}
-			memcpy(temp, vict, sizeof(struct Creature));
-			retval = damage(ch, vict, dam, SKILL_SNIPE, damage_loc);
-			// I hope this works...this is supposed to handle the case
-			// of ch hitting vict succesfully but for some outside
-			// reason (newbie protection) the attack fails
-			if (retval == DAM_ATTACK_FAILED) {
-				return;
-			}
-			if (IS_SET(retval, DAM_VICT_KILLED)) {
-				act("You have killed $N!", TRUE, ch, NULL, temp, TO_CHAR);
-				act("$n has killed $N!", TRUE, ch, NULL, temp, TO_ROOM);
-			}
-			gain_skill_prof(ch, SKILL_SNIPE);
-			// again, if ch and vict aren't in the same room they
-			// shouldn't be fighting each other
-			stop_fighting(ch);
-			if (!IS_SET(retval, DAM_VICT_KILLED)) {
-				stop_fighting(vict);
-			}
-			WAIT_STATE(ch, 5 RL_SEC);
-		}
-	} else {
-		mudlog(LVL_AMBASSADOR, NRM, true,
-			"ERROR: Null vict at end of do_snipe!");
+	//Ok, last check...is some asshole trying to damage a shop keeper
+	if (!ok_damage_shopkeeper(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
+		WAIT_STATE(ch, PULSE_VIOLENCE * 3);
+		send_to_char(ch, "You can't seem to get a clean line-of-sight.\r\n");
+		return;
 	}
-	if (!IS_SET(retval, DAM_VICT_KILLED))
+	// Ok, the victim is in sight, ch is not blind or in a smoky room
+	// ch is wielding a rifle, and neither the victim nor ch is in a
+	// peaceful room, and all other misc. checks have been passed...
+	// begin the hit prob calculations
+	prob = CHECK_SKILL(ch, SKILL_SNIPE) + GET_REMORT_GEN(ch);
+	// start percent at 40 to make it impossible for a merc to hit
+	// someone if his skill is less than 40
+	percent = number(40, 125);
+	if (affected_by_spell(vict, ZEN_AWARENESS) ||
+		IS_AFFECTED(vict, AFF2_TRUE_SEEING)) {
+		percent += 25;
+	}
+
+	if (vict->getPosition() < POS_FIGHTING) {
+		percent += 15;
+	}
+
+	if (IS_AFFECTED_2(vict, AFF2_HASTE) && !IS_AFFECTED_2(ch, AFF2_HASTE)) {
+		percent += 25;
+	}
+	// if the victim has already been sniped (wears off in 3 ticks)
+	// then the victim is aware of a sniper and is assumed
+	// to be taking the necessary precautions, and therefore is
+	// much harder to hit
+	if (IS_SNIPED(vict)) {
+		percent += 50;
+	}
+	// just some level checks.  The victims level matters more
+	// because it should be almost impossible to hit a high
+	// level character who has been sniped once already
+	prob += (GET_LEVEL(ch) >> 2) + GET_REMORT_GEN(ch);
+	percent += GET_LEVEL(vict) + (GET_REMORT_GEN(vict) >> 2);
+	damage_loc = choose_random_limb(vict);
+	// we need to extract the bullet so we need an object pointer to
+	// it.  However we musn't over look the possibility that gun->contains
+	// could be a clip rather than a bullet
+	bullet = gun->contains;
+	if (IS_CLIP(bullet)) {
+		bullet = bullet->contains;
+	}
+	
+	if (nvz_room) {
+		send_to_char(ch, "You watch in shock as your bullet stops in mid-air and drops to the ground\r\n");
+		act("$n takes careful aim, fires, and gets a shocked look on $s face.",
+			false, ch, 0, 0, TO_ROOM);
+		send_to_room(tmp_sprintf(
+			"%s screams in from %s and harmlessly falls to the ground",
+				bullet->short_desc, from_dirs[snipe_dir]), nvz_room);
+		obj_from_obj(bullet);
+		obj_to_room(bullet, nvz_room);
+	} else {
+		extract_obj(bullet);
+	}
+
+	// if percent is greater than prob it's a miss
+	if (percent > prob) {
+		// call damage with 0 dam to check for killers, TG's
+		// newbie protection and other such stuff automagically ;)
+		retval = damage(ch, vict, 0, SKILL_SNIPE, damage_loc);
+		if (retval == DAM_ATTACK_FAILED) {
+			return;
+		}
+		// ch and vict really shouldn't be fighting if they aren't in
+		// the same room...
+		stop_fighting(ch);
+		stop_fighting(vict);
+		send_to_char(ch, "Damn!  You missed!\r\n");
+		act("$n fires $p to the %s, and a look of irritation crosses $s face.",
+			TRUE, ch, gun, vict, TO_ROOM);
+		act(tmp_sprintf("A bullet screams past your head from the %s!",
+			from_dirs[snipe_dir]), TRUE, ch, NULL, vict, TO_VICT);
+		act(tmp_sprintf("A bullet screams past $n's head from the %s!",
+			from_dirs[snipe_dir]), TRUE, vict, NULL, ch, TO_ROOM);
+		WAIT_STATE(ch, 3 RL_SEC);
+		return;
+	} else {
+		// it a hit!
+		// grab the damage for the gun...this way this skill is
+		// scalable
+		dam = dice(gun_damage[GUN_TYPE(gun)][0],
+			gun_damage[GUN_TYPE(gun)][1] + BUL_DAM_MOD(bullet));
+		// as you can see, armor makes a huge difference, it's hard to imagine
+		// a bullet doing much more than brusing someone through a T. carapace
+		// seems to crash the mud if you call damage_eq() on a location
+		// that doesn't have any eq...hmmm
+		if (GET_EQ(vict, damage_loc)) {
+			damage_eq(vict, GET_EQ(vict, damage_loc), dam >> 1);
+		}
+		if ((armor = GET_EQ(vict, damage_loc))
+			&& OBJ_TYPE(armor, ITEM_ARMOR)) {
+			if (IS_STONE_TYPE(armor) || IS_METAL_TYPE(armor))
+				dam -= GET_OBJ_VAL(armor, 0) << 4;
+			else
+				dam -= GET_OBJ_VAL(armor, 0) << 2;
+		}
+
+		add_blood_to_room(vict->in_room, 1);
+		apply_soil_to_char(ch, GET_EQ(vict, damage_loc), SOIL_BLOOD,
+			damage_loc);
+		if (!affected_by_spell(vict, SKILL_SNIPE)) {
+			af.type = SKILL_SNIPE;
+			af.is_instant = 0;
+			af.bitvector = AFF3_SNIPED;
+			af.aff_index = 3;
+			af.level = GET_LEVEL(ch);
+			af.duration = 3;
+			af.location = damage_loc;
+			af.modifier = 0;
+			affect_to_char(vict, &af);
+			WAIT_STATE(vict, 2 RL_SEC);
+		} else
+			WAIT_STATE(vict, 2 RL_SEC);
+		// double damage for a head shot...1 in 27 chance
+		if (damage_loc == WEAR_HEAD) {
+			dam = dam << 1;
+		}
+		// 1.5x damage for a neck shot...2 in 27 chance
+		else if (damage_loc == WEAR_NECK_1 || damage_loc == WEAR_NECK_2) {
+			dam += dam >> 1;
+		}
+		if (damage_loc == WEAR_HEAD) {
+			send_to_char(ch, "HEAD SHOT!!\r\n");
+		} else if (damage_loc == WEAR_NECK_1 || damage_loc == WEAR_NECK_2) {
+			send_to_char(ch, "NECK SHOT!!\r\n");
+		}
+		if (!IS_NPC(vict) && GET_LEVEL(vict) <= 6) {
+			send_to_char(ch, "Hmm. Your gun seems to have jammed...\r\n");
+			return;
+		}
+
+		act("You smirk with satisfaction as your bullet rips into $N.",
+			FALSE, ch, NULL, vict, TO_CHAR);
+		act(tmp_sprintf("A bullet rips into your flesh from the %s!",
+			dirs[snipe_dir]), TRUE, ch, NULL, vict, TO_VICT);
+		act("A bullet rips into $n's flesh!", TRUE, vict, NULL, ch,
+			TO_ROOM);
+		act(tmp_sprintf("$n takes careful aim and fires $p to the %s!",
+			dirs[snipe_dir]), TRUE, ch, gun, vict, TO_ROOM);
 		mudlog(LVL_AMBASSADOR, NRM, true,
 			"INFO: %s has sniped %s from room %d to room %d",
 			GET_NAME(ch), GET_NAME(vict),
 			ch->in_room->number, vict->in_room->number);
-	else
-		mudlog(LVL_AMBASSADOR, NRM, true,
-			"INFO: %s has killed %s with snipe from room %d to room %d",
-			GET_NAME(ch), GET_NAME(temp), ch->in_room->number,
-			temp->in_room->number);
 
-	free(temp);
+		kill_msg = tmp_sprintf("You have killed %s!", GET_NAME(vict));
+
+		retval = damage(ch, vict, dam, SKILL_SNIPE, damage_loc);
+		if (retval == DAM_ATTACK_FAILED)
+			return;
+
+		if (IS_SET(retval, DAM_VICT_KILLED)) {
+			act(kill_msg, TRUE, ch, 0, 0, TO_CHAR);
+			act("$n gets a look of predatory satisfaction.",
+				TRUE, ch, 0, 0, TO_ROOM);
+		}
+		gain_skill_prof(ch, SKILL_SNIPE);
+		WAIT_STATE(ch, 5 RL_SEC);
+	}
 }
 
 ACMD(do_wrench)
