@@ -3867,4 +3867,53 @@ int mob_fight_devil( struct char_data * ch,
     
     return 0;
 }
+ACMD(do_breathe) { // Breath Weapon Attack
+    struct char_data *vict = NULL;
+    if(!IS_NPC(ch)) {
+        act("You breathe heavily.", FALSE, ch, 0, 0, TO_CHAR);
+        act("$N seems to be out of breath.", FALSE, ch, 0, 0, TO_ROOM);
+        return;
+    }
+    skip_spaces(&argument);
+    vict = get_char_room_vis(ch,argument);
+    if(vict == NULL) 
+        vict = FIGHTING(ch);
+    if(vict == NULL) {
+        act("Breathe on whom?", FALSE, ch, 0, 0, TO_CHAR);
+        return;
+    }
+    switch (GET_CLASS(ch)) {
+    case CLASS_GREEN:
+        call_magic(ch, vict, 0, SPELL_GAS_BREATH,GET_LEVEL(ch),CAST_BREATH);
+        WAIT_STATE(ch, PULSE_VIOLENCE*2);
+        break;
 
+    case CLASS_BLACK:
+        call_magic(ch, vict, 0,SPELL_ACID_BREATH,GET_LEVEL(ch),CAST_BREATH);
+        WAIT_STATE(ch, PULSE_VIOLENCE*2);
+        break;
+    case CLASS_BLUE:
+        call_magic(ch, vict, 0, 
+                   SPELL_LIGHTNING_BREATH, GET_LEVEL(ch), CAST_BREATH);
+        WAIT_STATE(ch, PULSE_VIOLENCE*2);
+        break;
+    case CLASS_WHITE:
+    case CLASS_SILVER:
+        call_magic(ch, vict, 0,SPELL_FROST_BREATH,GET_LEVEL(ch),CAST_BREATH);
+        WAIT_STATE(ch, PULSE_VIOLENCE*2);
+        break;
+    case CLASS_RED:
+        call_magic(ch, vict, 0,SPELL_FIRE_BREATH,GET_LEVEL(ch),CAST_BREATH);
+        WAIT_STATE(ch, PULSE_VIOLENCE*2);
+        break;
+    case CLASS_SHADOW_D:
+        call_magic(ch,vict,0,SPELL_SHADOW_BREATH,GET_LEVEL(ch),CAST_BREATH);
+        WAIT_STATE(ch, PULSE_VIOLENCE*2);
+        break;
+    case CLASS_TURTLE:
+        call_magic(ch, vict, 0,SPELL_STEAM_BREATH,GET_LEVEL(ch),CAST_BREATH);
+        WAIT_STATE(ch, PULSE_VIOLENCE*2);
+        break;
+    }
+
+}

@@ -105,6 +105,7 @@ ACMD(do_bash);
 ACMD(do_ban);
 ACMD(do_battlecry);
 ACMD(do_beguile);
+ACMD(do_breathe);
 ACMD(do_demote);
 ACMD(do_de_energize);
 ACMD(do_defuse);
@@ -509,6 +510,7 @@ extern const struct command_info cmd_info[] = {
     { "bounce"   , POS_SITTING , do_action   , 0, 0 },
     { "brag"     , POS_RESTING , do_action   , 0, 0 },
     { "brb"      , POS_RESTING , do_action   , 0, 0 },
+    { "breathe"  , POS_SITTING , do_breathe  , 0, 0 },
     { "brief"    , POS_DEAD    , do_gen_tog  , 0, SCMD_BRIEF },
     { "buff"     , POS_DEAD    , do_action   , 0, 0 },
     { "burn"     , POS_RESTING , do_action   , 0, 0 },
