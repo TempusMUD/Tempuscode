@@ -4477,8 +4477,7 @@ ACMD(do_show)
         show_player(ch, value);
         break;
     case 3:
-        Crash_listrent(ch, strcat(value, arg));
-        break;
+		send_to_char(ch, "Disabled.\r\n"); break;
     case 4:
         do_show_stats(ch);
         break;
