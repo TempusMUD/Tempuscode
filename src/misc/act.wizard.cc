@@ -265,14 +265,12 @@ ACMD(do_send)
 		send_to_char(ch, NOPERSON);
 		return;
 	}
-	send_to_char(vict, "%s", buf);
-	send_to_char(vict, "\r\n");
+	send_to_char(vict, "%s\r\n", buf);
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char(ch, "Sent.\r\n");
 	else {
 		send_to_char(ch, "You send '%s' to %s.\r\n", buf, GET_NAME(vict));
-		sprintf(buf, "(GC) %s send %s %s", GET_NAME(ch), GET_NAME(vict), buf);
-		slog(buf);
+		slog("(GC) %s send %s %s", GET_NAME(ch), GET_NAME(vict), buf);
 	}
 }
 
@@ -382,7 +380,7 @@ ACMD(do_distance)
 	steps = find_distance(tmp, location);
 
 	if (steps < 0)
-		sprintf(buf, "There is no valid path to room %d.\r\n",
+		send_to_char(ch, "There is no valid path to room %d.\r\n",
 			location->number);
 	else
 		send_to_char(ch, "Room %d is %d steps away.\r\n", location->number, steps);
@@ -447,9 +445,8 @@ ACMD(do_goto)
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_DEATH) && GET_LEVEL(ch) < LVL_IMPL) {
-		sprintf(buf, "(GC) %s goto deathtrap [%d] %s.", GET_NAME(ch),
+		slog("(GC) %s goto deathtrap [%d] %s.", GET_NAME(ch),
 			ch->in_room->number, ch->in_room->name);
-		slog(buf);
 	}
 }
 
@@ -488,9 +485,8 @@ ACMD(do_trans)
 			act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
 			look_at_room(victim, victim->in_room, 0);
 
-			sprintf(buf, "(GC) %s has transferred %s to %s.", GET_NAME(ch),
+			slog("(GC) %s has transferred %s to %s.", GET_NAME(ch),
 				GET_NAME(victim), ch->in_room->name);
-			slog(buf);
 		}
 	} else {					/* Trans All */
 		if (GET_LEVEL(ch) < LVL_GRGOD) {
@@ -544,9 +540,8 @@ ACMD(do_teleport)
 		act("$n has teleported you!", FALSE, ch, 0, (char *)victim, TO_VICT);
 		look_at_room(victim, victim->in_room, 0);
 
-		sprintf(buf, "(GC) %s has teleported %s to [%d] %s.", GET_NAME(ch),
+		slog("(GC) %s has teleported %s to [%d] %s.", GET_NAME(ch),
 			GET_NAME(victim), victim->in_room->number, victim->in_room->name);
-		slog(buf);
 	}
 }
 
@@ -585,7 +580,7 @@ do_stat_memory(struct char_data *ch)
 	struct zone_data *zone;
 	struct room_data *rm;
 
-	sprintf(buf, "Current memory usage:\r\n");
+	send_to_char(ch, "Current memory usage:\r\n");
 
 	sum = top_of_world * sizeof(struct room_data);
 	for (zone = zone_table; zone; zone = zone->next) {
@@ -621,7 +616,7 @@ do_stat_memory(struct char_data *ch)
 		}
 	}
 	total = sum;
-	sprintf(buf, "%s  world structs: %9d  (%d)\r\n", buf, sum, i);
+	send_to_char(ch, "%s  world structs: %9d  (%d)\r\n", buf, sum, i);
 
 	sum = top_of_mobt * (sizeof(struct char_data));
 
@@ -669,7 +664,7 @@ do_stat_memory(struct char_data *ch)
 		}
 	}
 	total += sum;
-	sprintf(buf, "%s     mob protos: %9d  (%d)\r\n", buf, sum, i);
+	send_to_char(ch, "%s     mob protos: %9d  (%d)\r\n", buf, sum, i);
 
 	sum = 0;
 	i = 0;
@@ -700,7 +695,7 @@ do_stat_memory(struct char_data *ch)
 		//chars = chars->next;
 	}
 	total += sum;
-	sprintf(buf, "%s        mobiles: %9d  (%d)\r\n", buf, sum, i);
+	send_to_char(ch, "%s        mobiles: %9d  (%d)\r\n", buf, sum, i);
 
 	sum = 0;
 	i = 0;
@@ -757,10 +752,10 @@ do_stat_memory(struct char_data *ch)
 		//chars = chars->next;
 	}
 	total += sum;
-	sprintf(buf, "%s        players: %9d  (%d)\r\n", buf, sum, i);
+	send_to_char(ch, "%s        players: %9d  (%d)\r\n", buf, sum, i);
 
 
-	sprintf(buf, "%s               ___________\r\n", buf);
+	send_to_char(ch, "%s               ___________\r\n", buf);
 	send_to_char(ch, "%s         total   %9d\r\n", buf, total);
 }
 
@@ -777,18 +772,17 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 		numm_proto = 0, numo_proto = 0, av_lev_proto = 0;
 	char out_buf[MAX_STRING_LENGTH];
 
-	sprintf(out_buf, "Zone name: %s%s%s   #%s%d%s\r\n",
+	send_to_char(ch, "Zone name: %s%s%s   #%s%d%s\r\n",
 		CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM),
 		CCYEL(ch, C_NRM), zone->number, CCNRM(ch, C_NRM));
-	sprintf(buf, "Lifespan: %d  Age: %d  Rooms: [%d-%d]  Reset Mode: %s\r\n",
+	send_to_char(ch,
+		"Lifespan: %d  Age: %d  Rooms: [%d-%d]  Reset Mode: %s\r\n",
 		zone->lifespan, zone->age, zone->number * 100, zone->top,
 		reset_mode[zone->reset_mode]);
-	strcat(out_buf, buf);
 
-	sprintf(buf, "TimeFrame: [%s]  Plane: [%s]   ",
+	send_to_char(ch, "TimeFrame: [%s]  Plane: [%s]   ",
 		time_frames[zone->time_frame], planes[zone->plane]);
 
-	strcat(out_buf, buf);
 	CharacterList::iterator mit = characterList.begin();
 	for (; mit != characterList.end(); ++mit)
 		if (IS_NPC((*mit)) && (*mit)->in_room && (*mit)->in_room->zone == zone) {
@@ -810,22 +804,15 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 		av_lev_proto /= numm_proto;
 
 
-	strcpy(buf2, (get_name_by_id(zone->owner_idnum) ?
+	send_to_char(ch, "Owner: %s  ", (get_name_by_id(zone->owner_idnum) ?
 			get_name_by_id(zone->owner_idnum) : "None"));
-
-	sprintf(buf, "Owner: %s  ", buf2);
-	strcat(out_buf, buf);
-
-	strcpy(buf2, (get_name_by_id(zone->co_owner_idnum) ?
+	send_to_char(ch, "Co-Owner: %s  ", (get_name_by_id(zone->co_owner_idnum) ?
 			get_name_by_id(zone->co_owner_idnum) : "None"));
 
-	sprintf(buf, "Co-Owner: %s\r\n", buf2);
-	strcat(out_buf, buf);
-
-	sprintf(out_buf, "%sHours: [%3d]  Years: [%3d]  Idle:[%3d]\r\n", out_buf,
+	send_to_char(ch, "%sHours: [%3d]  Years: [%3d]  Idle:[%3d]\r\n", out_buf,
 		zone->hour_mod, zone->year_mod, zone->idle_time);
 
-	sprintf(out_buf,
+	send_to_char(ch,
 		"%sSun: [%s (%d)] Sky: [%s (%d)] Moon: [%s (%d)]\r\n"
 		"Pres: [%3d] Chng: [%3d]\r\n\r\n",
 		out_buf, sun_types[(int)zone->weather->sunlight],
@@ -836,13 +823,11 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 		zone->weather->pressure, zone->weather->change);
 
 	sprintbit(zone->flags, zone_flags, buf2);
-	sprintf(buf, "Flags: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch,
+	send_to_char(ch, "Flags: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch,
 			C_NRM));
-	strcat(out_buf, buf);
 
-	sprintf(buf, "Created: N/A\r\nLast Updated at: N/A\r\n\r\n"
+	send_to_char(ch, "Created: N/A\r\nLast Updated at: N/A\r\n\r\n"
 		"Zone special procedure: N/A\r\nZone reset special procedure: N/A\r\n\r\n");
-	strcat(out_buf, buf);
 
 	for (obj = object_list; obj; obj = obj->next)
 		if (obj->in_room && obj->in_room->zone == zone)
@@ -861,7 +846,7 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 	for (rm = zone->world, numr = 0, nums = 0; rm; numr++, rm = rm->next)
 		for (srch = rm->search; srch; nums++, srch = srch->next);
 
-	sprintf(buf, "Zone Stats :-\r\n"
+	send_to_char(ch, "Zone Stats :-\r\n"
 		"  mobs in zone : %-3d, %-3d protos;   objs in zone  : %-3d, %-3d protos;\r\n"
 		"  players in zone: (%3d) %3d   rooms in zone: %-3d   search in zone: %d\r\n"
 		"  usage count: %d,  Avg. Level [%s%d%s]real, [%s%d%s] proto\r\n\r\n",
@@ -869,8 +854,6 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 		zone->num_players, nump, numr, nums, zone->enter_count,
 		CCGRN(ch, C_NRM), av_lev,
 		CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), av_lev_proto, CCNRM(ch, C_NRM));
-	strcat(out_buf, buf);
-	send_to_char(ch, out_buf);
 }
 
 void
@@ -3915,7 +3898,7 @@ show_player(CHAR * ch, char *value)
 	if (IS_SET(vbuf.char_specials_saved.act, PLR_DELETED))
 		sprintf(buf, "%s%s%s is DELETED!%s\r\n", buf, CCRED(ch, C_NRM),
 			vbuf.name, CCNRM(ch, C_NRM));
-	send_to_char(ch,buf);
+	send_to_char(ch, "%s", buf);
 }
 
 void
@@ -4309,7 +4292,7 @@ ACMD(do_show)
 	skip_spaces(&argument);
 	if (!*argument) {
 		vector <string> cmdlist;
-		strcpy(buf, "Show options:\r\n");
+		send_to_char(ch, "Show options:\r\n");
 		for (j = 0, i = 1; fields[i].level; i++) {
 			if (Security::canAccess(ch, fields[i])) {
 				cmdlist.push_back(fields[i].cmd);
@@ -4318,11 +4301,11 @@ ACMD(do_show)
 		}
 		sort(cmdlist.begin(), cmdlist.end());
 		for (j = 0, i = 1; i < (int)(cmdlist.size()); i++) {
-			send_to_char(ch, "%s%-15s%s", buf, cmdlist[i].c_str(),
+			send_to_char(ch, "%-15s%s", cmdlist[i].c_str(),
 				(!(++j % 5) ? "\r\n" : ""));
 		}
 
-		strcat(buf, "\r\n");
+		send_to_char(ch, "\r\n");
 		return;
 	}
 
@@ -5344,7 +5327,7 @@ ACMD(do_set)
 	strcpy(val_arg, buf);
 
 	if (!*name || !*field) {
-		strcpy(buf, "Usage: set <victim> <field> <value>\r\n");
+		send_to_char(ch, "Usage: set <victim> <field> <value>\r\n");
 		vector <string> cmdlist;
 		for (i = 0; fields[i].level != 0; i++) {
 			if (!Security::canAccess(ch, fields[i]))
@@ -5354,12 +5337,12 @@ ACMD(do_set)
 		sort(cmdlist.begin(), cmdlist.end());
 
 		for (i = 0, l = 1; i < (int)(cmdlist.size()); i++) {
-			send_to_char(ch, "%s%12s%s", buf, cmdlist[i].c_str(),
+			send_to_char(ch, "%12s%s", cmdlist[i].c_str(),
 				((l++) % 5) ? " " : "\n");
 		}
 
 		if ((l - 1) % 5)
-			strcat(buf, "\r\n");
+			send_to_char(ch, "\r\n");
 		return;
 	}
 	if (!is_file) {
@@ -5449,9 +5432,8 @@ ACMD(do_set)
 	case 2:
 		set_title(vict, val_arg);
 		sprintf(buf, "%s's title is now: %s", GET_NAME(vict), GET_TITLE(vict));
-		sprintf(buf2, "%s has changed %s's title to : '%s'.", GET_NAME(ch),
+		slog("%s has changed %s's title to : '%s'.", GET_NAME(ch),
 			GET_NAME(vict), GET_TITLE(vict));
-		slog(buf2);
 		break;
 	case 3:
 		SET_OR_REMOVE(PRF_FLAGS(vict), PRF_SUMMONABLE);
@@ -6013,7 +5995,7 @@ ACMD(do_set)
 		send_to_char(ch, "%s's %s set to %d.\r\n", GET_NAME(vict),
 			fields[l].cmd, value);
 	} else
-		send_to_char(ch, CAP(buf));
+		send_to_char(ch, "%s", buf);
 
 	if (!is_file && !IS_NPC(vict))
 		save_char(vict, NULL);

@@ -145,7 +145,7 @@ namespace Security {
             /* sends a multi-line status of this group to ch */
             void sendStatus( char_data *ch ); 
             /* sprintf's a one line desc of this group into out */
-            void toString( char *out, char_data *ch );
+            void sendString(char_data *ch );
 
             /* Clear out this group's data for shutdown. */
             void clear();

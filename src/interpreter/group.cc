@@ -28,15 +28,11 @@ namespace Security {
     char buf[MAX_STRING_LENGTH + 1];
     
     void log( const char* msg, const char* name ) {
-        char message[512];
-        sprintf(message, "<SECURITY> %s : %s", msg, name );
-        slog(message);
+        slog("<SECURITY> %s : %s", msg, name);
     }
     
     void log( const char* msg, const long id ) {
-        char message[512];
-        sprintf(message, "<SECURITY> %s : %ld", msg, id );
-        slog(message);
+        slog("<SECURITY> %s : %ld", msg, id );
     }
     
     void updateSecurity(command_info *command) {
@@ -79,12 +75,12 @@ namespace Security {
     }
 
     /* sprintf's a one line desc of this group into out */
-    void Group::toString( char *out, char_data *ch ) {
+    void Group::sendString(char_data *ch) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
 
-        sprintf( out,
+        send_to_char(ch,
                 "%s%15s %s[%s%4d%s] [%s%4d%s]%s - %s\r\n",
                 grn, _name, cyn,
                 nrm, commands.size(), cyn,
@@ -98,21 +94,19 @@ namespace Security {
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
 
-        sprintf( buf,
-                "Name: %s%s%s [%s%4d%s][%s%4d%s]%s",
+        send_to_char(ch,
+                "Name: %s%s%s [%s%4d%s][%s%4d%s]%s\r\n",
                 grn, _name, cyn,
                 nrm, commands.size(), cyn,
                 nrm, members.size(), cyn,
                 nrm);
-        sprintf( buf,
-                "%s  Admin Group: %s%s%s\r\n",
-                buf,
+        send_to_char(ch,
+                "Admin Group: %s%s%s\r\n",
                 grn,
                 _adminGroup ? _adminGroup : "None",
                 nrm);
-        sprintf( buf,
-                "%sDescription: %s\r\n",
-                buf, 
+        send_to_char(ch,
+                "Description: %s\r\n",
                 _description);
         sendCommandList( ch );
         sendMemberList( ch );
@@ -196,18 +190,16 @@ namespace Security {
         int pos = 1;
         vector<long>::iterator it = members.begin();
         char namebuf[80];
-        strcpy(buf,"        ");
+        send_to_char(ch, "        ");
         for( ; it != members.end(); ++it ) {
             strcpy(namebuf, get_name_by_id(*it));
             namebuf[0] = toupper(namebuf[0]);
-            sprintf(buf, "%s%-15s", buf, namebuf);
+            send_to_char(ch, "%-15s", namebuf);
             if( pos++ % 4 == 0 ) {
                 pos = 1;
-                strcat(buf,"\r\n        ");
+                send_to_char(ch,"\r\n        ");
             } 
         }
-        //if( pos != 1 )
-        //    strcat(buf,"\r\n");
         return true;
     }
 
@@ -215,11 +207,10 @@ namespace Security {
     bool Group::sendMemberList( char_data *ch ) {
         int pos = 1;
         vector<long>::iterator it = members.begin();
-        strcpy(buf,"Members:\r\n");
+        send_to_char(ch, "Members:\r\n");
         for( ; it != members.end(); ++it ) {
-            sprintf(buf,
-                    "%s%s[%s%6ld%s] %s%-15s%s", 
-                    buf, 
+            send_to_char(ch,
+                    "%s[%s%6ld%s] %s%-15s%s", 
                     CCCYN(ch,C_NRM),
                     CCNRM(ch,C_NRM),
                     *it, 
@@ -230,11 +221,11 @@ namespace Security {
                     );
             if( pos++ % 3 == 0 ) {
                 pos = 1;
-                strcat(buf,"\r\n");
+                send_to_char(ch, "\r\n");
             } 
         }
         if( pos != 1 )
-            strcat(buf,"\r\n");
+            send_to_char(ch, "\r\n");
         return true;
     }
 
@@ -243,13 +234,10 @@ namespace Security {
         int pos = 1;
         vector<command_info*>::iterator it = commands.begin();
         if( prefix )
-            strcpy(buf,"Commands:\r\n");
-        else
-            strcpy(buf,"");
+            send_to_char(ch, "Commands:\r\n");
         for( int i=1 ; it != commands.end(); ++it, ++i ) {
-            sprintf(buf,
-                    "%s%s[%s%4d%s] %s%-15s",
-                    buf,
+            send_to_char(ch,
+                    "%s[%s%4d%s] %s%-15s",
                     CCCYN(ch,C_NRM),
                     CCNRM(ch,C_NRM),
                     i, 
@@ -258,12 +246,12 @@ namespace Security {
                     (*it)->command);
             if( pos++ % 3 == 0 ) {
                 pos = 1;
-                strcat(buf,"\r\n");
+                send_to_char(ch, "\r\n");
             }
         }
         if( pos != 1 )
-            strcat(buf,"\r\n");
-        strcat(buf,CCNRM(ch,C_NRM));
+            send_to_char(ch, "\r\n");
+        send_to_char(ch, CCNRM(ch,C_NRM));
         return true;
     }
     
