@@ -185,7 +185,8 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	if (FIGHTING(ch))
 		stop_fighting(ch);
 
-	death_cry(ch);
+	if (attacktype != SKILL_GAROTTE)
+		death_cry(ch);
 
 	make_corpse(ch, killer, attacktype);
 

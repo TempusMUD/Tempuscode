@@ -532,7 +532,8 @@ const char *spells[] = {
 	"cleave",
 	"great cleave",	/* 695 */
 	"appraise",
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 700 */
+	"garotte",
+	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 700 */
 
 	/* OBJECT SPELLS AND NPC SPELLS/SKILLS */
 
@@ -3926,6 +3927,9 @@ mag_assign_spells(void)
 	spello(SPELL_DECOY, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		75, 30, 7,
 		POS_STANDING, TAR_IGNORE, FALSE, MAG_MERCENARY | MAG_MANUAL);
+
+	spello(SKILL_GAROTTE, X, X, X, X, X, X, X, X, X, X, X, X, X, 34, X, X, X,
+		0, 0, 0, 0, 0, true, 0);
 
 /**********************   CYBORG SKILLS  *********************/
 	spello(SKILL_RECONFIGURE, X, X, X, X, X, X, X, 11, X, X, X, X, X, X, X, X,

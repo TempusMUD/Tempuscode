@@ -774,6 +774,23 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		*move = 10;
 		break;
 
+	case SKILL_GAROTTE:
+		if (IS_PUDDING(vict) || IS_SLIME(vict))
+			prob = 0;
+		if (!IS_AFFECTED(ch, AFF_SNEAK) && !IS_AFFECTED_3(ch, AFF3_INFILTRATE))
+			prob = 0;
+		if (GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_HOLD) ||
+				GET_EQ(ch, WEAR_SHIELD)) {
+			send_to_char(ch, "You need both hands free to do that!\r\n");
+			return -1;
+		}
+
+		*loc = WEAR_NECK_1;
+		*dam = dice(GET_LEVEL(ch), 5);
+		*wait = 4 RL_SEC;
+		*vict_wait = 4 RL_SEC;
+		break;
+
 	default:
 		slog("SYSERR: Illegal skillnum <%d> passed to calc_skill_prob().",
 			skillnum);

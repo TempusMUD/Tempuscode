@@ -714,6 +714,7 @@ struct command_info cmd_info[] = {
 	{"gagmiss", POS_SLEEPING, do_gen_tog, 0, SCMD_GAGMISS, 0, 0},
 	{"gack", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"gain", POS_STANDING, do_not_here, 0, 0, 0, 0},
+	{"garotte", POS_STANDING, do_offensive_skill, 0, SKILL_GAROTTE, 0, 0},
 	{"gasp", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"gasify", POS_RESTING, do_gasify, 50, 0, 0, 0},
 	{"gecho", POS_DEAD, do_gecho, LVL_IMMORT, 0, 0, 0},
