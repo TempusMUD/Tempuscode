@@ -3103,13 +3103,13 @@ ACMD(do_who)
                     strcpy(badge, "QUESTOR");
                     break;
                 case 5: // Past Arch
-                    strcpy(badge, "PSTARCH");
+                    strcpy(badge, " P ARCH");
                     break;
                 case 6: // Future Arch
-                    strcpy(badge, "FTRARCH");
+                    strcpy(badge, "EC ARCH");
                     break;
                 case 7: // Planar Arch
-                    strcpy(badge, "OTRARCH");
+                    strcpy(badge, "OP ARCH");
                     break;
                 case 8: // Custom
                     if(!strncmp(GET_NAME(tch), "Fishbone", 8)) {
