@@ -1,6 +1,6 @@
 CXX=g++
 INCLUDE=include
-CCFLAGS=-g -Wall -pg -Wcast-qual -finline-functions -Winline -O
+CCFLAGS=-g -Wall -pg -Wcast-qual
 CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 
 SUBDIRS= \
