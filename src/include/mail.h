@@ -45,7 +45,7 @@ void string_add(struct descriptor_data *d, char *str);
 // Mail system internal functions.
 int	has_mail(long recipient);
 int has_mail(char_data *ch);
-int store_mail(long to_id,long from_id,char *txt, time_t *cur_time = NULL);
+int store_mail(long to_id,long from_id,char *txt, char *cc_list,time_t *cur_time = NULL);
 int recieve_mail(char_data *ch);
 
 

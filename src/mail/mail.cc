@@ -48,9 +48,9 @@ has_mail ( long id ) {
     if (!get_name_by_id(id))
         return 0;
     get_filename( get_name_by_id(id), fname, PLAYER_MAIL_FILE);
-    mail_file.open(fname, ios::in || ios::ate);
+    mail_file.open(fname, ios::in);
 
-    if (!mail_file || mail_file.eof())
+    if (!mail_file.is_open())
         return 0;
     return 1;
 }
@@ -89,17 +89,21 @@ mail_box_status( long id ) {
 // Like it says, store the mail.  
 // Returns 0 if mail not stored.
 int
-store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
+store_mail( long to_id, long from_id, char *txt , char *cc_list, time_t *cur_time = NULL) {
     fstream mail_file;
     mail_data *letter;
     char fname[256];
-    /* FIXME
-	Add in something here to avoid sending length 0 messages.
+    // NO zero length mail!
 	if (!txt || !strlen(txt)) {
         sprintf(buf,"Why would you send a blank message?");
         send_to_char(buf, get_char_in_world_by_idnum(from_id));
+        return 0;
 	}
-	*/
+    if(cc_list) {
+        strcpy(buf,cc_list);
+        strcat(buf,txt);
+        txt = buf;
+    }
     letter = new mail_data;
     letter->to = to_id;
     letter->from = from_id;
@@ -118,7 +122,7 @@ store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
     
     get_filename( to_name, fname, PLAYER_MAIL_FILE);
     mail_file.open(fname,ios::out | ios::app | ios::ate );
-    if(!mail_file) {
+    if(!mail_file.is_open()) {
         sprintf(buf,"Error, mailfile (%s) not opened.",fname);
         slog(buf);
         send_to_char(buf, get_char_in_world_by_idnum(from_id));
@@ -151,9 +155,9 @@ recieve_mail(char_data *ch) {
 
     get_filename(GET_NAME(ch), fname, PLAYER_MAIL_FILE);
 
-    mail_file.open(fname, ios::in || ios::ate);
+    mail_file.open(fname, ios::in);
 
-    if (!mail_file || mail_file.eof()) {
+    if (!mail_file.is_open()) {
         return 0;
     }
 
@@ -373,20 +377,6 @@ postmaster_send_mail(struct char_data * ch, struct char_data *mailman,
 #endif
     *(ch->desc->str) = NULL;
     ch->desc->max_str = MAX_MAIL_SIZE;
-    /*
-    if (total_cost > STAMP_PRICE) {  // multiple recipients
-		strcpy(buf, "  CC: ");
-		for(n_mail_to = ch->desc->mail_to; n_mail_to; n_mail_to = n_mail_to->next){
-			strcat(buf, get_name_by_id(n_mail_to->recpt_idnum));
-			if (n_mail_to->next)
-				strcat(buf, ", ");
-			else
-				strcat(buf, "\r\n");
-		}
-		string_add(ch->desc, buf);
-    }
-    ch->desc->editor_cur_lnum = get_line_count(*ch->desc->str);
-    */
 }
 
 void 

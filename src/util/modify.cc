@@ -90,7 +90,7 @@ void string_add(struct descriptor_data *d, char *str)
     char   filebuf[512], filename[64];
     int    file_to_write;
     int    backup_file,nread;
-    char *mailbuf;
+    char   *cc_list = NULL;
   
     /* determine if this is the terminal string, and truncate if so */
     /* changed to only accept '@' at the beginning of line - J. Elson 1/17/94 */
@@ -166,30 +166,26 @@ void string_add(struct descriptor_data *d, char *str)
 	    }
 	}
 	if (!d->connected && (PLR_FLAGGED(d->character, PLR_MAILING))) {
-        mailbuf = new char[MAX_MAIL_SIZE + MAX_INPUT_LENGTH + 7];
         if(d->mail_to->next) {
-            strcpy(mailbuf,"  CC: ");
+            cc_list = new char[MAX_INPUT_LENGTH * 3 + 7];
+            strcpy(cc_list,"  CC: ");
             for(mail_rcpt = d->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next){
-                strcat(mailbuf, get_name_by_id(mail_rcpt->recpt_idnum));
+                strcat(cc_list, get_name_by_id(mail_rcpt->recpt_idnum));
                 if (mail_rcpt->next)
-                    strcat(mailbuf, ", ");
+                    strcat(cc_list, ", ");
                 else
-                    strcat(mailbuf, "\r\n");
+                    strcat(cc_list, "\r\n");
             }
-            strcat(mailbuf,*d->str);
-        } else {
-            strcpy(mailbuf,*d->str);
         }
 	    mail_rcpt = d->mail_to;
 	    while (mail_rcpt) {
-            store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(d->character),mailbuf);
-
-            for (r_d = descriptor_list; r_d; r_d = r_d->next)
-                if (!r_d->connected && r_d->character && 
-                r_d->character != d->character && 
-                GET_IDNUM(r_d->character) == d->mail_to->recpt_idnum &&
-                !PLR_FLAGGED(r_d->character,PLR_WRITING|PLR_MAILING|PLR_OLC)) 
-                send_to_char("A strange voice in your head says, 'You have new mail.'\r\n", r_d->character);
+            if(store_mail(mail_rcpt->recpt_idnum,GET_IDNUM(d->character),*d->str,cc_list))
+                for (r_d = descriptor_list; r_d; r_d = r_d->next)
+                    if (!r_d->connected && r_d->character && 
+                    r_d->character != d->character && 
+                    GET_IDNUM(r_d->character) == d->mail_to->recpt_idnum &&
+                    !PLR_FLAGGED(r_d->character,PLR_WRITING|PLR_MAILING|PLR_OLC)) 
+                        send_to_char("A strange voice in your head says, 'You have new mail.'\r\n", r_d->character);
 
             mail_rcpt = mail_rcpt->next;
 #ifdef DMALLOC
@@ -201,7 +197,8 @@ void string_add(struct descriptor_data *d, char *str)
 #endif     
             d->mail_to = mail_rcpt;
 	    }
-        delete mailbuf;
+        if(cc_list)
+            delete cc_list;
 #ifdef DMALLOC
 	    dmalloc_verify(0);
 #endif
