@@ -1282,9 +1282,16 @@ close_socket(struct descriptor_data *d)
 		SEND_TO_Q("Your victim is no longer among us.\r\n", d->snoop_by);
 		d->snoop_by->snooping = NULL;
 	}
+	if (d->original) {
+		d->creature->desc = NULL;
+		d->creature = d->original;
+		d->original = NULL;
+		d->creature->desc = d;
+	}
+
 	if (d->creature && IS_PLAYING(d)) {
-		d->creature->player.time.logon = time(0);
 		d->creature->saveToXML();
+		d->creature->player.time.logon = time(0);
 		act("$n has lost $s link.", TRUE, d->creature, 0, 0, TO_ROOM);
 		mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)), NRM, true,
 			"Closing link to: %s [%s] ", GET_NAME(d->creature),
@@ -1303,10 +1310,6 @@ close_socket(struct descriptor_data *d)
 	} else {
 		slog("Losing descriptor without account");
     }
-
-	/* JE 2/22/95 -- part of my enending quest to make switch stable */
-	if (d->original && d->original->desc)
-		d->original->desc = NULL;
 
 	REMOVE_FROM_LIST(d, descriptor_list, next);
 
