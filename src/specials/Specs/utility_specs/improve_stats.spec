@@ -29,6 +29,7 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
 {
 
   int gold, life_cost;
+  int old_stat = REAL_STAT;
 
   if ((!CMD_IS("improve") && !CMD_IS("train")) || IS_NPC(ch))
     return FALSE;
@@ -82,7 +83,7 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
   }
 
     if ( (mode == MODE_STR && 
-             (  (!IS_REMORT(ch) && REAL_STAT == 18 && ch->real_abils.str_add >= 100)
+             (  (GET_REMORT_GEN(ch)==0 && REAL_STAT == 18 && ch->real_abils.str_add >= 100)
              || ( IS_REMORT(ch) && REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 25)) 
              )
          ) || (mode != MODE_STR && REAL_STAT >= MIN(18 + GET_REMORT_GEN(ch), 22)) ) {
@@ -133,11 +134,11 @@ do_gen_improve(struct char_data *ch, int cmd, int mode, char *argument)
     REAL_STAT += 1;
     }
   if(mode != MODE_STR)
-      sprintf(buf, "%s improved %s to %d at %d.", 
-          GET_NAME(ch), improve_modes[mode], REAL_STAT,ch->in_room->number);
+      sprintf(buf, "%s improved %s from %d to %d at %d.", 
+          GET_NAME(ch), improve_modes[mode],old_stat, REAL_STAT,ch->in_room->number);
   else
-      sprintf(buf, "%s improved %s to %d/%d at %d.", 
-          GET_NAME(ch), improve_modes[mode], REAL_STAT,ch->real_abils.str_add,
+      sprintf(buf, "%s improved %s from %d to %d/%d at %d.", 
+          GET_NAME(ch), improve_modes[mode],old_stat, REAL_STAT,ch->real_abils.str_add,
           ch->in_room->number);
   slog(buf);
 
