@@ -81,7 +81,7 @@ int perform_alias(struct descriptor_data *d, char *orig);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
 int parse_player_class(char *arg);
 void save_all_players(void);
-
+void angel_to_char(Creature *ch);
 
 // internal functions
 void set_desc_state(cxn_state state,struct descriptor_data *d );
@@ -1537,6 +1537,9 @@ char_to_game(descriptor_data *d)
 		}
 	}
     
+    if (d->creature->getLevel() <= 10 && !IS_REMORT(d->creature))
+        angel_to_char(d->creature);
+
     // Set thier languages here to make sure they speak their race language
     set_initial_language(d->creature);
 	if (shutdown_count > 0)

@@ -1864,7 +1864,11 @@ ACMD(do_rescue)
 		send_to_char(ch, "But only true warriors can do this!");
 	else {
 		percent = number(1, 101);	/* 101% is a complete failure */
-		prob = CHECK_SKILL(ch, SKILL_RESCUE);
+        // Temp hack until mobs actually have skills
+        if (ch->char_specials.saved.act & MOB_ISNPC)
+            prob = 101;
+        else
+		    prob = CHECK_SKILL(ch, SKILL_RESCUE);
 
 		if (percent > prob) {
 			send_to_char(ch, "You fail the rescue!\r\n");
