@@ -1329,6 +1329,9 @@ Creature::removeCombat(Creature *ch)
     if (!ch)
         return;
 
+    if (getCombatList()->empty())
+        return;
+
     list<CharCombat>::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() && li->getOpponent() == ch) {

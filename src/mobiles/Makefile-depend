@@ -2,7 +2,7 @@ $(OBJ)/artisan.o : artisan.cc \
 	$(INCLUDE)/db.h $(INCLUDE)/structs.h $(INCLUDE)/xml_utils.h $(INCLUDE)/utils.h $(INCLUDE)/interpreter.h $(INCLUDE)/actions.h $(INCLUDE)/char_class.h $(INCLUDE)/comm.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/handler.h $(INCLUDE)/security.h $(INCLUDE)/vendor.h 
 	$(CXX) -c $(CXXFLAGS) artisan.cc           -o $(OBJ)/artisan.o
 $(OBJ)/cityguard.o : cityguard.cc \
-	$(INCLUDE)/house.h $(INCLUDE)/actions.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/fight.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/utils.h $(INCLUDE)/specs.h 
+	$(INCLUDE)/creature.h $(INCLUDE)/house.h $(INCLUDE)/actions.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/fight.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/utils.h $(INCLUDE)/specs.h 
 	$(CXX) -c $(CXXFLAGS) cityguard.cc         -o $(OBJ)/cityguard.o
 $(OBJ)/guard.o : guard.cc \
 	$(INCLUDE)/actions.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/fight.h $(INCLUDE)/handler.h $(INCLUDE)/interpreter.h $(INCLUDE)/tmpstr.h $(INCLUDE)/screen.h $(INCLUDE)/utils.h 
