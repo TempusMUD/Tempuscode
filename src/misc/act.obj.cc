@@ -2203,7 +2203,7 @@ ACMD(do_eat)
   
     if ( IS_OBJ_TYPE( food, ITEM_FOOD ) ) {
         if ( IS_OBJ_STAT( food, ITEM_EVIL_BLESS ) ) {
-            if ( ! call_magic( ch, ch, 0, SPELL_ESSENCE_OF_EVIL, GET_OBJ_VAL( food, 1 ), CAST_SPELL ), return_flags ) {
+            if ( ! call_magic( ch, ch, 0, SPELL_ESSENCE_OF_EVIL, GET_OBJ_VAL( food, 1 ), CAST_SPELL ) ) {
                 if ( extract_ok )
                     extract_obj( food );
                 return;
@@ -2215,7 +2215,7 @@ ACMD(do_eat)
             }
         }
         else if (IS_OBJ_STAT(food, ITEM_BLESS)) {
-            if (!call_magic(ch, ch, 0, SPELL_ESSENCE_OF_GOOD, GET_OBJ_VAL(food, 1), CAST_SPELL), return_flags ) {
+            if (!call_magic(ch, ch, 0, SPELL_ESSENCE_OF_GOOD, GET_OBJ_VAL(food, 1), CAST_SPELL) ) {
                 if (extract_ok)
                     extract_obj(food);
                 return;
@@ -2228,7 +2228,7 @@ ACMD(do_eat)
         }
         if ( ( GET_OBJ_VAL( food, 1 ) != 0 ) && ( GET_OBJ_VAL( food, 2 ) != 0 ) &&
              ( GET_OBJ_TYPE( food ) == ITEM_FOOD ) && subcmd == SCMD_EAT ) {
-            if ( !mag_objectmagic( ch, food, buf ), return_flags ) {
+            if ( !mag_objectmagic( ch, food, buf ) ) {
                 if ( extract_ok )
                     extract_obj( food );
                 return;
