@@ -3479,8 +3479,10 @@ ASPELL(spell_bless)
 		if (ch != victim)
 			act("$N briefly glows with a bright blue light!", true,
 				ch, 0, victim, TO_CHAR);
+		act("You briefly glow with a bright blue light!", true,
+			ch, 0, victim, TO_VICT);
 		act("$N briefly glows with a bright blue light!", true,
-			ch, 0, victim, TO_ROOM);
+			ch, 0, victim, TO_NOTVICT);
 	}
 
 	gain_skill_prof(ch, SPELL_BLESS);
@@ -3553,10 +3555,14 @@ ASPELL(spell_damn)
 		affect_join(victim, &af, true, false, false, false);
 		affect_join(victim, &af2, true, false, false, false);
 		send_to_char(victim, "You feel terrible.\r\n");
+
+		if (ch != victim)
+			act("$N briefly glows with a dark red light!", true,
+				ch, 0, victim, TO_CHAR);
+		act("You briefly glow with a dark red light!", true,
+			ch, 0, victim, TO_VICT);
 		act("$N briefly glows with a dark red light!", true,
-			ch, 0, victim, TO_CHAR);
-		act("$N briefly glows with a dark red light!", true,
-			ch, 0, victim, TO_ROOM);
+			ch, 0, victim, TO_NOTVICT);
 	}
 	gain_skill_prof(ch, SPELL_DAMN);
 }
