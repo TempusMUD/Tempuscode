@@ -245,23 +245,28 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 		!PLR_FLAGGED(killer, PLR_KILLER))
 		gain_exp(ch, -(GET_EXP(ch) >> 3));
 
-	if (PLR_FLAGGED(ch, PLR_KILLER) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF) &&
+			GET_LEVEL(ch) < LVL_AMBASSADOR) {
 
-		GET_EXP(ch) = MAX(0, MIN(GET_EXP(ch) - (GET_LEVEL(ch) * GET_LEVEL(ch)),
-				exp_scale[GET_LEVEL(ch) - 2]));
+		int loss = MAX(1, GET_SEVERITY(ch) / 2); // lose 1 level per 2, min 1
 
 		//
 		// Unaffect the character before all the stuff is subtracted. Bug was being abused
 		//
 
-		while (ch->affected) {
+		while (ch->affected)
 			affect_remove(ch, ch->affected);
-		}
 
+		GET_MAX_HIT(ch) -= MAX(5, (loss % 50) * 2);
+		GET_MAX_MANA(ch) -= MAX(5, (loss % 50) * 2);
+		GET_MAX_MOVE(ch) -= MAX(5, (loss % 50) * 2);
 
-		GET_LEVEL(ch) = MAX(1, GET_LEVEL(ch) - 1);
+		GET_REMORT_GEN(ch) -= loss / 50;
+		GET_LEVEL(ch) = loss % 50;
+		GET_LIFE_POINTS(ch) = 0;
+		GET_PRACTICES(ch) = 0;
 		GET_CHA(ch) = MAX(3, GET_CHA(ch) - 2);
-		GET_MAX_HIT(ch) = MAX(0, GET_MAX_HIT(ch) - GET_LEVEL(ch));
+		GET_SEVERITY(ch) = 0;
 	}
 
 	if (!IS_NPC(ch) && (!ch->in_room)
