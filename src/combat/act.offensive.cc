@@ -2707,7 +2707,7 @@ ACCMD(do_disarm)
 		send_to_char(ch, "You fail the disarm!\r\n");
 		act("$n tries to disarm you!", FALSE, ch, 0, vict, TO_VICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (IS_NPC(vict))
+		if (IS_NPC(vict) && !vict->isFighting())
 			set_fighting(vict, ch, 0);
 	}
 }
