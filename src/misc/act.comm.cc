@@ -63,7 +63,7 @@ ACMD(do_say)
 	int j;
 	struct obj_data *o = NULL;
 	const char *cur_mood;
-    char *language_str;
+    const char *language_str = "";
     int language_idx = GET_LANGUAGE(ch);
 
 
@@ -108,6 +108,9 @@ ACMD(do_say)
 		}
 		return;
 	}
+
+	if (language_idx != LANGUAGE_COMMON)
+		language_str = tmp_strcat(" in ", language_names[language_idx]);
 
 	if (recurs_say == 2)
 		remote_str = tmp_sprintf("(%s) ", was_in->name);
@@ -194,17 +197,9 @@ ACMD(do_say)
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
                 char *buf4 = argument;
-                language_str = "";
-                if (GET_LANGUAGE((*it)) != GET_LANGUAGE(ch)) {
-                    if (GET_LANGUAGE(ch) == LANGUAGE_COMMON)
-                        language_str = tmp_sprintf(" in common");
-                    else if (can_speak_language((*it), GET_LANGUAGE(ch)))
-                        language_str = tmp_sprintf(" in %s", 
-                                               language_names[language_idx]);
-                }
 
-                if (!can_speak_language((*it), GET_LANGUAGE(ch)))
-                    buf4 = tmp_sprintf("%s", translated);
+                if (!can_speak_language((*it), language_idx))
+                    buf4 = tmp_strdup(translated);
                     
 				if (!AWAKE((*it)) || (*it) == ch ||
 					PLR_FLAGGED((*it), PLR_OLC | PLR_WRITING | PLR_MAILING))
@@ -223,7 +218,8 @@ ACMD(do_say)
 
                 send_to_char(*it, "%s%s%s%s%s says to %s%s,%s %s'%s'%s\r\n",
                     remote_str, CCBLD((*it), C_NRM),
-                    CCBLU((*it), C_SPR), buf2, cur_mood, buf3, language_str,
+                    CCBLU((*it), C_SPR), buf2, cur_mood, buf3,
+					(can_speak_language(*it, language_idx)) ? language_str:"",
                     CCNRM((*it), C_SPR), CCCYN((*it), C_NRM), buf4,
                     CCNRM((*it), C_NRM));
 			}
@@ -234,13 +230,10 @@ ACMD(do_say)
 					strcpy(buf3, "yourself");
 				else
 					strcpy(buf3, PERS(vict, ch));
-                language_str = tmp_sprintf(" in %s", 
-                                           (language_idx == LANGUAGE_COMMON) ?
-                                           "common" : 
-                                           language_names[language_idx]);
 				send_to_char(ch, "%s%sYou%s say to %s%s,%s %s'%s'%s\r\n",
 					CCBLD(ch, C_NRM), CCBLU(ch, C_NRM), cur_mood, buf3,
-						language_str, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+					(can_speak_language(ch, language_idx)) ? language_str:"",
+					CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 					argument, CCNRM(ch, C_NRM));
 			}
 		}
@@ -252,17 +245,9 @@ ACMD(do_say)
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
         char *buf4 = argument;
-        language_str = "";
-        if (GET_LANGUAGE((*it)) != GET_LANGUAGE(ch)) {
-            if (GET_LANGUAGE(ch) == LANGUAGE_COMMON)
-                language_str = tmp_sprintf(" in common");
-            else if (can_speak_language((*it), GET_LANGUAGE(ch)))
-                language_str = tmp_sprintf(" in %s", 
-                                       language_names[language_idx]);
-        }
 
         if (!can_speak_language((*it), GET_LANGUAGE(ch)))
-            buf4 = tmp_sprintf("%s", translated);
+            buf4 = tmp_strdup(translated);
 
 		if (!AWAKE((*it)) || (*it) == ch ||
 			PLR_FLAGGED((*it), PLR_OLC | PLR_MAILING | PLR_WRITING))
@@ -280,14 +265,13 @@ ACMD(do_say)
 				SCMD_INTONE ? "intones" : subcmd ==
 				SCMD_YELL ? "yells" : subcmd ==
 				SCMD_BABBLE ? "babbles" : "says"),
-			cur_mood, language_str, CCNRM((*it), C_SPR),
-			CCCYN((*it), C_NRM), buf4, CCNRM((*it), C_NRM));
+			cur_mood,
+			(can_speak_language(*it, language_idx)) ? language_str:"",
+			CCNRM((*it), C_SPR), CCCYN((*it), C_NRM), buf4,
+			CCNRM((*it), C_NRM));
 		send_to_char(*it, "%s", buf);
 	}
 	if (!recurs_say) {
-        language_str = tmp_sprintf(" in %s", 
-                                   (language_idx == LANGUAGE_COMMON) ?
-                                   "common" : language_names[language_idx]);
 		send_to_char(ch, "%s%sYou %s%s%s,%s %s'%s'%s\r\n", CCBLD(ch, C_NRM),
 			CCBLU(ch, C_SPR),
 			(subcmd == SCMD_UTTER ? "utter" :
@@ -298,8 +282,9 @@ ACMD(do_say)
 				subcmd == SCMD_INTONE ? "intone" :
 				subcmd == SCMD_YELL ? "yell" :
 				subcmd == SCMD_BABBLE ? "babble" : "say"),
-			cur_mood, language_str, CCNRM(ch, C_SPR), CCCYN(ch, C_NRM),
-			argument, CCNRM(ch, C_NRM));
+			cur_mood,
+			(can_speak_language(ch, language_idx)) ? language_str:"",
+			CCNRM(ch, C_SPR), CCCYN(ch, C_NRM), argument, CCNRM(ch, C_NRM));
 	}
 }
 
@@ -533,6 +518,8 @@ ACMD(do_spec_comm)
 	struct extra_descr_data *rpl_ptr;
 	char *action_sing, *action_plur, *action_others, *word;
 	short found;
+	const char *language_str = "";
+	int language_idx = GET_LANGUAGE(ch);
 
 
 	if (subcmd == SCMD_WHISPER) {
@@ -560,28 +547,22 @@ ACMD(do_spec_comm)
 			"You can't get your mouth close enough to your ear...\r\n");
 	else {
         char *buf4 = buf2;
-        char *language_str = "";
-        int language_idx = GET_LANGUAGE(ch);
-        if (GET_LANGUAGE(vict) != GET_LANGUAGE(ch)) {
-            if (GET_LANGUAGE(ch) == LANGUAGE_COMMON)
-                language_str = tmp_sprintf(" in common");
-            else if (can_speak_language(vict, GET_LANGUAGE(ch)))
-                language_str = tmp_sprintf(" in %s", 
-                                       language_names[language_idx]);
-        }
+
+		if (GET_LANGUAGE(ch) != LANGUAGE_COMMON)
+			language_str = tmp_strcat(" in ", language_names[language_idx]);
 
         if (!can_speak_language(vict, GET_LANGUAGE(ch)))
-            buf4 = tmp_sprintf("%s", translate_string(buf2, GET_LANGUAGE(ch)));
+            buf4 = tmp_strdup(translate_string(buf2, GET_LANGUAGE(ch)));
 
 
 		sprintf(buf, "%s$n$a %s you%s,%s '%s'", CCYEL(vict, C_NRM), action_plur,
-			language_str, CCNRM(vict, C_NRM), buf4);
+			(can_speak_language(vict, language_idx)) ? language_str:"",
+			CCNRM(vict, C_NRM), buf4);
 		act(buf, FALSE, ch, 0, vict, TO_VICT);
-        language_str = tmp_sprintf(" in %s", 
-                                   (language_idx == LANGUAGE_COMMON) ?
-                                   "common" : language_names[language_idx]);
 		sprintf(buf, "%sYou$a %s %s%s,%s '%s'", CCYEL(ch, C_NRM), action_sing,
-			GET_DISGUISED_NAME(ch, vict), language_str, CCNRM(ch, C_NRM), buf2);
+			GET_DISGUISED_NAME(ch, vict),
+			(can_speak_language(ch, language_idx)) ? language_str:"",
+			CCNRM(ch, C_NRM), buf2);
 		act(buf, FALSE, ch, 0, 0, TO_CHAR);
 		act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
 
@@ -847,8 +828,11 @@ ACMD(do_gen_comm)
 	char *imm_plain_emit, *imm_color_emit;
 	const char *str, *sub_channel_desc, *mood_str;
 	int eff_is_neutral, eff_is_good, eff_is_evil, eff_class, eff_clan;
-	char *filtered_msg;
+	char *filtered_msg, *translated;
+	int language_idx = GET_LANGUAGE(ch);
+	const char *language_str = "";
 	int idx;
+
 
 	chan = &channels[subcmd];
 
@@ -1066,13 +1050,9 @@ ACMD(do_gen_comm)
 			chan->desc_color, sub_channel_desc, KNRM, chan->text_color,
 			argument, KNRM);
 	} else {
-		int language_idx = GET_LANGUAGE(ch);
-        const char *language_str = tmp_sprintf(" in %s", 
-                                   (language_idx == LANGUAGE_COMMON) ?
-                                   "common" : language_names[language_idx]);
+		if (subcmd != SCMD_NEWBIE && language_idx != LANGUAGE_COMMON)
+			language_str = tmp_strcat(" in ", language_names[language_idx]);
         
-        if (subcmd == SCMD_NEWBIE)
-            language_str = "";
 		mood_str = GET_MOOD(ch) ? GET_MOOD(ch):"";
 		if (COLOR_LEV(ch) >= C_NRM)
 			send_to_char(ch, "%s%sYou%s %s%s,%s%s '%s'%s\r\n", chan->desc_color,
@@ -1089,10 +1069,6 @@ ACMD(do_gen_comm)
 				chan->name,
                 language_str,
 				argument);
-		// The emits are passed directly as the format string to
-		// send_to_char, so the argument must have its percent signs
-		// doubled
-//		argument = tmp_gsub(argument, "%", "%%");
 
 		plain_emit = tmp_sprintf("%%s%s %ss%%s, '%%s'\r\n", mood_str, chan->name);
 		color_emit = tmp_sprintf("%s%%s%s %ss%%s,%s%s '%%s'%s\r\n",
@@ -1116,30 +1092,17 @@ ACMD(do_gen_comm)
 
 
 	/* now send all the strings out */
+	language_idx = GET_LANGUAGE(ch);
+	translated = translate_string(argument, language_idx);
+
 	for (i = descriptor_list; i; i = i->next) {
-        const char *language_str = "";
         char *buf4 = argument;
-        char *translated;
-        int language_idx;
 
 		if (STATE(i) != CXN_PLAYING || i == ch->desc || !i->creature ||
 				PLR_FLAGGED(i->creature, PLR_WRITING) ||
 				PLR_FLAGGED(i->creature, PLR_OLC))
 			continue;
 
-		translated = translate_string(argument, GET_LANGUAGE(ch));
-		language_idx = GET_LANGUAGE(ch);
-
-        if (GET_LANGUAGE(i->creature) != GET_LANGUAGE(ch)) {
-            if (GET_LANGUAGE(ch) == LANGUAGE_COMMON)
-                language_str = tmp_sprintf(" in common");
-            else if (can_speak_language(i->creature, GET_LANGUAGE(ch)))
-                language_str = tmp_sprintf(" in %s", 
-                                       language_names[language_idx]);
-        }
-
-        if (subcmd == SCMD_NEWBIE)
-            language_str = "";
         if ((!can_speak_language(i->creature, GET_LANGUAGE(ch))) 
 				&& subcmd != SCMD_NEWBIE)
                 buf4 = translated;
@@ -1220,7 +1183,10 @@ ACMD(do_gen_comm)
 		else
 			send_to_char(i->creature,
 				COLOR_LEV(i->creature) >= C_NRM ? color_emit : plain_emit,
-				tmp_capitalize(PERS(ch, i->creature)), language_str, buf4);
+				tmp_capitalize(PERS(ch, i->creature)),
+				(can_speak_language(i->creature, language_idx))
+					? language_str:"",
+				buf4);
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && !IS_IMMORT(ch))
