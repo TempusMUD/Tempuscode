@@ -62,7 +62,7 @@ tarrasque_fight(struct Creature *tarr)
     slog("SYSERR: FIGHTING(tarr) == NULL in tarrasque_fight!!");
     return 0;
   }
-  CharacterList::iterator it = tarr->in_room->people.begin();
+  CreatureList::iterator it = tarr->in_room->people.begin();
   for( ; it != tarr->in_room->people.end(); ++it ) 
     if ((*it) != tarr && (*it) != FIGHTING(tarr) &&
         tarr == FIGHTING((*it)) &&
@@ -286,7 +286,7 @@ SPECIAL(tarrasque)
     }
 
     if ( tarr->in_room->people.size() >= 1) {
-        CharacterList::iterator it = tarr->in_room->people.begin();
+        CreatureList::iterator it = tarr->in_room->people.begin();
         for( ; it != tarr->in_room->people.end(); ++it ) {
         if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
           if ((*it)->getPosition() < POS_STANDING)
@@ -315,7 +315,7 @@ SPECIAL(tarrasque)
       return 1;
     }
     if ( tarr->in_room->people.size() >= 1) {
-        CharacterList::iterator it = tarr->in_room->people.begin();
+        CreatureList::iterator it = tarr->in_room->people.begin();
         for( ; it != tarr->in_room->people.end(); ++it ) {
         if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
           if ((*it)->getPosition() < POS_STANDING)

@@ -221,7 +221,7 @@ ACMD(do_whirlwind)
 		} else {/** hit all **/
 
 			i = 0;				/* will get 4 hits total */
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if ((*it) == ch || ch != (*it)->getFighting()
 					|| !CAN_SEE(ch, (*it)))

@@ -12,7 +12,7 @@ SPECIAL(aziz_canon)
     return 0;
   if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (!FIGHTING(ch) && ch->getPosition() != POS_FIGHTING) {
-    CharacterList::iterator it = ch->in_room->people.begin();
+    CreatureList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end(); ++it ) {
         vict = *it;
       if (!number(0, 2))

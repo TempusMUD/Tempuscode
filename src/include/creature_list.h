@@ -4,11 +4,11 @@
 #include "creature.h"
 #include "safe_list.h"
 
-class CharacterList:public SafeList < Creature * > {
+class CreatureList:public SafeList < Creature * > {
   public:
-	CharacterList(bool prepend = false)
+	CreatureList(bool prepend = false)
 	:SafeList < Creature * >(prepend) {
-	} ~CharacterList() {
+	} ~CreatureList() {
 	}
 	inline operator bool() {
 		return size() > 0;
@@ -29,9 +29,9 @@ class CharacterList:public SafeList < Creature * > {
 };
 
 /* prototypes for mobs		 */
-extern CharacterList mobilePrototypes;
-extern CharacterList characterList;
-extern CharacterList combatList;
+extern CreatureList mobilePrototypes;
+extern CreatureList characterList;
+extern CreatureList combatList;
 
 
 #endif

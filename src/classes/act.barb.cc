@@ -80,7 +80,7 @@ perform_barb_beserk(struct Creature *ch, struct Creature **who_was_attacked,
 	int *return_flags)
 {
 	static struct Creature *vict = NULL;
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		if (vict == ch || ch->isFighting() ||
@@ -168,7 +168,7 @@ ACMD(do_beserk)
 
 		send_to_char(ch, "You go BESERK!\r\n");
 		act("$n goes BESERK! Run for cover!", TRUE, ch, 0, ch, TO_ROOM);
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == (*it) || !CAN_SEE(ch, (*it)) ||
 				(!IS_NPC((*it)) &&

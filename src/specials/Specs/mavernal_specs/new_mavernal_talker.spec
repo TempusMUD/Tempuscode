@@ -17,7 +17,7 @@ SPECIAL(new_mavernal_talker)
     do_say(ch, "New Mavernal is so cool!  This carnival rocks!", 0, 0);
     return (1);
   case 1: {
-    CharacterList::iterator it = ch->in_room->people.begin();
+    CreatureList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end(); ++it )
       if (!IS_NPC((*it)) && (*it) != ch && CAN_SEE(ch, (*it))) {
         act("$n pats you on the back.", FALSE, ch, 0, (*it), TO_VICT);

@@ -2422,7 +2422,7 @@ vnum_mobile(char *searchname, struct Creature *ch)
 
 	strcpy(buf, "");
 
-	CharacterList::iterator mit = mobilePrototypes.begin();
+	CreatureList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		//for (mobile = mob_proto; mobile; mobile = mobile->next) {
 		mobile = *mit;
@@ -2480,7 +2480,7 @@ read_mobile(int vnum)
 
 	/*  CREATE(mob, struct Creature, 1);
 	   clear_char(mob); */
-	CharacterList::iterator mit = mobilePrototypes.begin();
+	CreatureList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		tmp_mob = *mit;
 		//for (tmp_mob = mob_proto; tmp_mob; tmp_mob = tmp_mob->next) {
@@ -2713,7 +2713,7 @@ reset_zone(struct zone_data *zone)
 	extern struct shop_data *shop_index;
 
 	// Find all the shops in this zone and reset them.
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		// Wrong zone
 		if ((*cit)->in_room->zone != zone)
@@ -2790,7 +2790,7 @@ reset_zone(struct zone_data *zone)
 					if (mob) {
 						char_to_room(mob, room,false);
 						if (GET_MOB_LEADER(mob) > 0) {
-							CharacterList::iterator it =
+							CreatureList::iterator it =
 								mob->in_room->people.begin();
 							for (; it != mob->in_room->people.end(); ++it) {
 								if ((*it) != mob && IS_NPC((*it))
@@ -4113,7 +4113,7 @@ real_mobile_proto(int vnum)
 {
 	struct Creature *mobile = NULL;
 
-	CharacterList::iterator mit = mobilePrototypes.begin();
+	CreatureList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		mobile = *mit;
 		if (mobile->mob_specials.shared->vnum >= vnum) {

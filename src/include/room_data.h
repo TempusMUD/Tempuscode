@@ -223,7 +223,7 @@ class room_data {
 
 	struct obj_data *contents;	// List of items in room
 	//private:
-	CharacterList people;		// List of NPC / PC in room        
+	CreatureList people;		// List of NPC / PC in room        
 };
 //these structs used in do_return()
 extern struct room_data *r_immort_start_room;

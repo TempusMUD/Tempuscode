@@ -18,7 +18,7 @@ SPECIAL(stable_room)
 
   if (CMD_IS("list")) {
     send_to_char(ch, "Available mounts are:\r\n");
-    CharacterList::iterator it = pet_room->people.begin();
+    CreatureList::iterator it = pet_room->people.begin();
     for( ; it != pet_room->people.end(); ++it ) {
       send_to_char(ch, "%8d - %s\r\n", 3 * GET_EXP((*it)), GET_NAME((*it)));
     }
@@ -107,7 +107,7 @@ SPECIAL(stable_room)
 
     char_from_room(pet,false);
     char_to_room(pet, pet_room,false);
-    CharacterList::iterator it = pet_room->people.begin();
+    CreatureList::iterator it = pet_room->people.begin();
     for( ; it != pet_room->people.end(); ++it ) {
         if ((*it) != pet && IS_NPC((*it)) && GET_MOB_VNUM((*it)) == GET_MOB_VNUM(pet)) {
             (*it)->extract(true, false, CON_MENU);

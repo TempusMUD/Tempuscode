@@ -497,7 +497,7 @@ SPECIAL(thief)
 	if (ch->getPosition() != POS_STANDING)
 		return FALSE;
 
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((GET_LEVEL((*it)) < LVL_AMBASSADOR) && !number(0, 3) &&
 			(GET_LEVEL(ch) + 10 + AWAKE((*it)) ? 0 : 20 - GET_LEVEL(ch)) >
@@ -520,7 +520,7 @@ SPECIAL(magic_user)
 		return FALSE;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (FIGHTING((*it)) == ch && !number(0, 4)) {
 			vict = (*it);
@@ -625,7 +625,7 @@ SPECIAL(battle_cleric)
 	struct Creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (FIGHTING((*it)) == ch && !number(0, 4)) {
 			vict = (*it);
@@ -717,7 +717,7 @@ SPECIAL(barbarian)
 	struct Creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (FIGHTING((*it)) == ch && !number(0, 4)) {
 			vict = (*it);
@@ -909,7 +909,7 @@ SPECIAL(fido)
 	}
 
 	vict = NULL;
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (FIGHTING((*it)) != ch && CAN_SEE(ch, (*it)) && number(0, 3)) {
 			vict = (*it);
@@ -987,7 +987,7 @@ SPECIAL(buzzard)
 		}
 	}
 	vict = NULL;
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (FIGHTING((*it)) != ch && number(0, 3)) {
 			vict = (*it);
@@ -1117,7 +1117,7 @@ SPECIAL(janitor)
 		do_get(ch, fname(i->name), 0, 0);
 
 		if (ahole && IS_MALE(ch)) {
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if ((*it) != ch && IS_FEMALE((*it)) && CAN_SEE(ch, (*it))) {
 					sprintf(buf, "%s Excuse me, ma'am.",
@@ -1400,8 +1400,8 @@ SPECIAL(cityguard)
 		return 0;
 
 	tch = NULL;
-	CharacterList::iterator it = ch->in_room->people.begin();
-	CharacterList::iterator nit = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator nit = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		++nit;
 		if (!IS_NPC((*it)) && CAN_SEE(ch, (*it))
@@ -1448,8 +1448,8 @@ SPECIAL(cityguard)
 	}
 
 	if (!number(0, 11)) {
-		CharacterList::iterator it = ch->in_room->people.begin();
-		CharacterList::iterator nit = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator nit = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			++nit;
 			tch = *it;
@@ -1546,7 +1546,7 @@ SPECIAL(pet_shops)
 
 	if (CMD_IS("list")) {
 		send_to_char(ch, "Available pets are:\r\n");
-		CharacterList::iterator it = pet_room->people.begin();
+		CreatureList::iterator it = pet_room->people.begin();
 		for (; it != pet_room->people.end(); ++it) {
 			cost = (IS_NPC((*it)) ? GET_EXP((*it)) * 3 : (GET_EXP(ch) >> 2));
 			send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME((*it)));

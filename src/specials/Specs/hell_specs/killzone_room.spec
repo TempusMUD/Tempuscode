@@ -21,7 +21,7 @@ SPECIAL( killzone_room )
 
         // mix up the victims a bit so it doesnt feel like commands are triggering it as much
     vict = ch->in_room->people;
-    CharacterList::iterator it = uproom->people.begin();
+    CreatureList::iterator it = uproom->people.begin();
     for( ; it != uproom->people.end(); ++it ) {
         devil = *it;
 

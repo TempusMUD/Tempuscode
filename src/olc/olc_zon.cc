@@ -2163,7 +2163,7 @@ do_zset_command(struct Creature *ch, char *argument)
 			else {
 				j = zone->number * 100;
 				k = zone->top;
-				CharacterList::iterator mit = mobilePrototypes.begin();
+				CreatureList::iterator mit = mobilePrototypes.begin();
 				for (; mit != mobilePrototypes.end(); ++mit) {
 					vict = *mit;
 					if (GET_MOB_VNUM(vict) > k)

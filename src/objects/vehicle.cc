@@ -276,7 +276,7 @@ move_car(struct Creature *ch, struct obj_data *car, int dir)
 		else
 			send_to_room("You see as you drive up: \r\n", ch->in_room);
 
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it)
 			if (AWAKE((*it)))
 				look_at_room((*it), car->in_room, 0);
@@ -586,7 +586,7 @@ SPECIAL(vehicle_console)
 				"You have to put the console IN the vehicle to use it.\r\n");
 			return 1;
 		}
-		CharacterList::iterator it = console->in_room->people.begin();
+		CreatureList::iterator it = console->in_room->people.begin();
 		for (; it != console->in_room->people.end(); ++it) {
 			driver = *it;
 			if ((V_CONSOLE_IDNUM(console) > 0 &&

@@ -10,7 +10,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "structs.h"
-#include "character_list.h"
+#include "creature_list.h"
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
@@ -140,8 +140,8 @@ do_create_mob(struct Creature *ch, int vnum)
 		send_to_char(ch, "Mobile OLC is not approved for this zone.\r\n");
 		return NULL;
 	}
-	CharacterList::iterator mit = mobilePrototypes.begin();
-	CharacterList::iterator nit;
+	CreatureList::iterator mit = mobilePrototypes.begin();
+	CreatureList::iterator nit;
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		//for (mob = mob_proto; mob; mob = mob->next)
 		mob = *mit;
@@ -438,7 +438,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			}
 			start_text_editor(ch->desc, &mob_p->player.description, true);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-			CharacterList::iterator cit = characterList.begin();
+			CreatureList::iterator cit = characterList.begin();
 			for (; cit != characterList.end(); ++cit) {
 				if (GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(mob_p)) {
 					(*cit)->player.description = NULL;
@@ -1347,7 +1347,7 @@ save_mobs(struct Creature *ch)
 	low = zone->number * 100;
 	high = zone->top;
 
-	CharacterList::iterator mit = mobilePrototypes.begin();
+	CreatureList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		mob = *mit;
 		if (mob->mob_specials.shared->vnum < low)
@@ -1567,7 +1567,7 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 			GET_NAME(ch), GET_MOB_VNUM(mob));
 		return 1;
 	}
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(mob))
 			(*cit)->extract(false, false, CON_MENU);
@@ -1824,7 +1824,7 @@ olc_mimic_mob(struct Creature *ch,
 {
 
 	if (mode) {					/* (mode) => mimicing prototype... else real mob */
-		CharacterList::iterator cit = characterList.begin();
+		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			if (IS_NPC((*cit)) && GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(targ))
 				(*cit)->extract(false, false, CON_MENU);

@@ -11,7 +11,7 @@ SPECIAL(mob_helper)
   if( spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd || FIGHTING(ch))
     return 0;
-  CharacterList::iterator it = ch->in_room->people.begin();
+  CreatureList::iterator it = ch->in_room->people.begin();
   for( ; it != ch->in_room->people.end(); ++it ) {
     vict = *it;
     if (FIGHTING(vict) && IS_MOB(vict) && IS_MOB(FIGHTING(vict)))

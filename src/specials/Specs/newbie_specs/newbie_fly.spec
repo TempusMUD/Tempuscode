@@ -9,7 +9,7 @@ SPECIAL(newbie_fly)
   if( spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK ) return 0;
   if (cmd || FIGHTING(ch))
     return 0;
-  CharacterList::iterator it = ch->in_room->people.begin();
+  CreatureList::iterator it = ch->in_room->people.begin();
   for( ; it != ch->in_room->people.end(); ++it ) {
     if (IS_AFFECTED((*it), AFF_INFLIGHT) || !CAN_SEE(ch, (*it)))
       continue;

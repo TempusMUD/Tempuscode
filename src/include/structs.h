@@ -37,7 +37,7 @@
 #include "macros.h"
 #include "constants.h"
 #include "obj_data.h"
-#include "character_list.h"
+#include "creature_list.h"
 #include "creature.h"
 #include "desc_data.h"
 #include "room_data.h"

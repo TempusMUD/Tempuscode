@@ -48,7 +48,7 @@ SPECIAL(duke_nukem)
   }
   
   if (!number(0, 5)) {
-    CharacterList::iterator it = duke->in_room->people.begin();
+    CreatureList::iterator it = duke->in_room->people.begin();
     for( ; it != duke->in_room->people.end(); ++it ) {
         vict = *it;
       if (vict == duke || !CAN_SEE(duke, vict))

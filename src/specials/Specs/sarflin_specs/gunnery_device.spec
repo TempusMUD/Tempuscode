@@ -45,7 +45,7 @@ SPECIAL(gunnery_device)
          send_to_room("From above in the tower you hear the Thwack of a catapult fireing.\r\n",dest);
          vict = NULL;
          hit = 0;
-         CharacterList::iterator it = dest->people.begin();
+         CreatureList::iterator it = dest->people.begin();
          for( ; it != dest->people.end(); ++it ) 
          {
             vict = *it;
@@ -66,7 +66,7 @@ SPECIAL(gunnery_device)
          send_to_room("From above in the tower you hear the TWANG of a balista fireing.\r\n",dest);
          vict = NULL;
          hit = 0;
-         CharacterList::iterator it = dest->people.begin();
+         CreatureList::iterator it = dest->people.begin();
          for( ; it != dest->people.end(); ++it ) 
          {
             vict = *it;
@@ -88,7 +88,7 @@ SPECIAL(gunnery_device)
             send_to_room("The the crews begin refilling the pots.\r\n",ch->in_room);
             send_to_room("From above in the tower you hear the creak of a pot tiping\r\n",dest);
             vict = NULL;
-             CharacterList::iterator it = dest->people.begin();
+             CreatureList::iterator it = dest->people.begin();
              for( ; it != dest->people.end(); ++it ) 
              {
                 damage(ch,*it,15,TYPE_BOILING_OIL, -1);
@@ -98,7 +98,7 @@ SPECIAL(gunnery_device)
             send_to_room("The the crews begin refilling the pots.\r\n",ch->in_room);
             send_to_room("From above in the tower you hear the creak of a pot tiping\r\n",dest);
             vict = NULL;
-             CharacterList::iterator it = dest->people.begin();
+             CreatureList::iterator it = dest->people.begin();
              for( ; it != dest->people.end(); ++it ) 
              {
                damage(ch,vict,15,TYPE_BOILING_OIL, -1);

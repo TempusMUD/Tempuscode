@@ -114,7 +114,7 @@ burn_update(void)
 	int dam = 0;
 	int found = 0;
 	struct affected_type *af;
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		ch = *cit;
 
@@ -1394,7 +1394,7 @@ mobile_activity(void)
 
 	extern int no_specials;
 
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (++count; cit != characterList.end(); ++cit) {
 		ch = *cit;
 		found = FALSE;
@@ -1616,7 +1616,7 @@ mobile_activity(void)
 
 		/* Mobiles looking at chars */
 		if (random_fractional_20()) {
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				vict = *it;
 				if (vict == ch)
@@ -1677,7 +1677,7 @@ mobile_activity(void)
 					(unsigned)random_number_zero_low(GET_LEVEL(ch) >> 3) + 1) {
 					tmp_vict = NULL;
 					max = 0;
-					CharacterList::iterator it = ch->in_room->people.begin();
+					CreatureList::iterator it = ch->in_room->people.begin();
 					for (; it != ch->in_room->people.end(); ++it) {
 						vict = *it;
 						if (check_infiltrate(vict, ch))
@@ -1748,7 +1748,7 @@ mobile_activity(void)
 
 			else if (!FIGHTING(ch) && !HUNTING(ch)) {
 				vict = NULL;
-				CharacterList::iterator it = ch->in_room->people.begin();
+				CreatureList::iterator it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					vict = *it;
 					if (!IS_NPC(vict) && CAN_SEE(ch, vict) &&
@@ -1757,7 +1757,7 @@ mobile_activity(void)
 				}
 				if (!vict) {
 
-					CharacterList::iterator cit = characterList.begin();
+					CreatureList::iterator cit = characterList.begin();
 					for (; cit != characterList.end(); ++cit) {
 						//for (vict = character_list; vict; vict = vict->next)
 						vict = *cit;
@@ -2055,7 +2055,7 @@ mobile_activity(void)
 			if (IS_AFFECTED(ch, AFF_BLIND))
 				continue;
 
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				vict = *it;
 				if (ch != vict && FIGHTING(vict) && ch != FIGHTING(vict) &&
@@ -2130,7 +2130,7 @@ mobile_activity(void)
 			found = FALSE;
 			vict = NULL;
 			room_data *room = ch->in_room;
-			CharacterList::iterator it = room->people.begin();
+			CreatureList::iterator it = room->people.begin();
 			for (; it != room->people.end() && !found; ++it) {
 				vict = *it;
 				if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
@@ -2169,8 +2169,8 @@ mobile_activity(void)
 			!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 			found = FALSE;
 			vict = NULL;
-			CharacterList::iterator it = ch->in_room->people.begin();
-			CharacterList::iterator nit = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator nit = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				++nit;
 				vict = *it;
@@ -2247,7 +2247,7 @@ mobile_activity(void)
 				if (dir < NUM_DIRS) {
 					vict = NULL;
 					room_data *tmp_room = EXIT(ch, dir)->to_room;
-					CharacterList::iterator it = tmp_room->people.begin();
+					CreatureList::iterator it = tmp_room->people.begin();
 					for (; it != tmp_room->people.end() && !found; ++it) {
 						vict = *it;
 						if (CAN_SEE(ch, vict)
@@ -2294,7 +2294,7 @@ mobile_activity(void)
 			!AFF_FLAGGED(ch, AFF_CHARM)) {
 			found = FALSE;
 			room_data *room = ch->in_room;
-			CharacterList::iterator it = room->people.begin();
+			CreatureList::iterator it = room->people.begin();
 			for (; it != room->people.end() && !found; ++it) {
 				vict = *it;
 				if (check_infiltrate(vict, ch))
@@ -2811,7 +2811,7 @@ choose_opponent(struct Creature *ch, struct Creature *ignore_vict)
 	struct Creature *best_vict = NULL;
 
 	// first look for someone who is fighting us
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		// ignore bystanders
@@ -3066,7 +3066,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 		if (!(vict = choose_opponent(ch, precious_vict)))
 			return 0;
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it)
 			if (IS_SLAAD((*it)))
 				num++;
@@ -3145,7 +3145,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		if (random_fractional_5()) {
 			act("$n begins to secrete a disgustingly malodorous oil!",
 				FALSE, ch, 0, 0, TO_ROOM);
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it)
 				if (!IS_TROG((*it)) &&
 					!IS_UNDEAD(vict) && !IS_ELEMENTAL((*it))
@@ -3168,7 +3168,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_DRAGON(ch)) {
 		if (random_number_zero_low(GET_LEVEL(ch)) > 40) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", FALSE, ch, 0, 0, TO_ROOM);
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				vict = *it;
 				if (FIGHTING(vict) && FIGHTING(vict) == ch &&
@@ -3943,7 +3943,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (ch == FIGHTING((*it)))
 			num++;
@@ -4027,7 +4027,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 	case CLASS_ARCH:
 		if (random_number_zero_low(GET_LEVEL(ch)) > 30) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", FALSE, ch, 0, 0, TO_ROOM);
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && *it != ch; ++it) {
 				vict = *it;
 				if (FIGHTING(vict) && FIGHTING(vict) == ch &&

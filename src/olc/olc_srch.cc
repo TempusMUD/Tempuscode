@@ -281,7 +281,7 @@ do_destroy_search(struct Creature *ch, char *arg)
 		send_to_char(ch, "World olc is not approved for this zone.\r\n");
 		return 0;
 	}
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (GET_OLC_SRCH((*cit)) == srch)
 			GET_OLC_SRCH((*cit)) = NULL;

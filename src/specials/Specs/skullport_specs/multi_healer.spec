@@ -25,7 +25,7 @@ SPECIAL(multi_healer)
   if (cmd)
     return FALSE;
 
-    CharacterList::iterator it = ch->in_room->people.begin();
+    CreatureList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end(); ++it ) {
     vict = *it;
     if (ch == vict || IS_NPC(vict) || !number(0, 2) || !CAN_SEE(ch, vict))

@@ -328,7 +328,7 @@ bomb_damage_room(char *bomb_name, int bomb_type, int bomb_power,
 
 	if (!dam)
 		return;
-	CharacterList::iterator it = room->people.begin();
+	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		vict = (*it);
 

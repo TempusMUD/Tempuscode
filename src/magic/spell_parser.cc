@@ -775,7 +775,7 @@ say_spell(struct Creature *ch, int spellnum, struct Creature *tch,
 		sprintf(buf2, lbuf, buf);
 	}
 
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (*it == ch || *it == tch || !(*it)->desc || !AWAKE((*it)) ||
 			PLR_FLAGGED((*it), PLR_WRITING | PLR_OLC))
@@ -1319,7 +1319,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 			level = MIN(level, LVL_AMBASSADOR);
 
 
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if (ch == *it)
 					continue;
@@ -2092,8 +2092,8 @@ ACMD(do_cast)
 				/* misdirect */
 
 
-				CharacterList::iterator it = ch->in_room->people.begin();
-				CharacterList::iterator nit = ch->in_room->people.begin();
+				CreatureList::iterator it = ch->in_room->people.begin();
+				CreatureList::iterator nit = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					++nit;
 					if ((*it) != ch && (*it) != tch &&

@@ -51,7 +51,7 @@ using namespace std;
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 //extern struct Creature *character_list;
-extern CharacterList characterList;
+extern CreatureList characterList;
 
 extern struct obj_data *object_list;
 extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
@@ -949,7 +949,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 	byte is_group = FALSE;
 	if (list == NULL)
 		return;
-	CharacterList::iterator it = list->in_room->people.begin();
+	CreatureList::iterator it = list->in_room->people.begin();
 	for (; it != list->in_room->people.end(); ++it) {
 		i = *it;
 		is_group = 0;
@@ -1039,7 +1039,7 @@ list_scanned_chars(struct Creature *list, struct Creature *ch,
 		return;
 	/* this loop is a quick, easy way to help make a grammatical sentence
 	   (i.e., "You see x, x, y, and z." with commas, "and", etc.) */
-	CharacterList::iterator it = list->in_room->people.begin();
+	CreatureList::iterator it = list->in_room->people.begin();
 	for (; it != list->in_room->people.end(); ++it) {
 
 		/* put any other conditions for scanning someone in this if statement -
@@ -1888,7 +1888,7 @@ ACMD(do_listen)
 		send_to_char(ch, ch->in_room->sounds);
 		return;
 	}
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		fighting_vict = *it;
 		if ((fighting_vict->isFighting()))
@@ -1980,9 +1980,9 @@ ACMD(do_listen)
 					!IS_SET(ch->in_room->dir_option[i]->exit_info,
 						EX_CLOSED)) {
 
-					CharacterList::iterator end =
+					CreatureList::iterator end =
 						ch->in_room->dir_option[i]->to_room->people.end();
-					CharacterList::iterator it =
+					CreatureList::iterator it =
 						ch->in_room->dir_option[i]->to_room->people.begin();
 					for (; it != end; ++it) {
 						fighting_vict = *it;
@@ -3689,7 +3689,7 @@ perform_mortal_where(struct Creature *ch, char *arg)
 			}
 		}
 	} else {					/* print only FIRST char, not all. */
-		CharacterList::iterator cit = characterList.begin();
+		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			i = *cit;
 			if (i->in_room->zone == ch->in_room->zone && CAN_SEE(ch, i) &&
@@ -3807,7 +3807,7 @@ perform_immort_where(struct Creature *ch, char *arg)
 		list <string> outList;
 
 		two_arguments(arg, arg1, arg2);
-		CharacterList::iterator cit = characterList.begin();
+		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			i = *cit;
 			if (CAN_SEE(ch, i) && i->in_room && isname(arg1, i->player.name) &&

@@ -288,7 +288,7 @@ affect_update(void)
 	int METABOLISM = 0;
 	ACMD(do_stand);
 
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 		//for (i = character_list; i; i = i->next) {
@@ -2321,7 +2321,7 @@ void
 mag_masses(byte level, struct Creature *ch, int spellnum, int savetype)
 {
 	int found = 0;
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || ch != FIGHTING((*it)))
 			continue;
@@ -2358,7 +2358,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		return 0;
 
 	if (spellnum == SPELL_MASS_HYSTERIA) {
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (count = 0; it != ch->in_room->people.end(); ++it)
 			if ((*it) != ch && CAN_SEE(ch, (*it)))
 				count++;
@@ -2419,7 +2419,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 	}
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == *it)
 				continue;
@@ -2429,7 +2429,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 			}
 		}
 	}
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		// skips:
 		//          caster
@@ -2473,7 +2473,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 				adjoin_room = ch->in_room;
 				ch->in_room = was_in;
 
-				CharacterList::iterator it = adjoin_room->people.begin();
+				CreatureList::iterator it = adjoin_room->people.begin();
 				for (; it != adjoin_room->people.end(); ++it) {
 					if (!IS_NPC((*it)) && GET_LEVEL((*it)) >= LVL_AMBASSADOR)
 						continue;

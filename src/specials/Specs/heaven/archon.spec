@@ -13,7 +13,7 @@ SPECIAL(archon)
   if (cmd)
     return 0;
   if (!FIGHTING(ch) && ch->in_room->zone->plane != PLANE_HEAVEN) {
-    CharacterList::iterator it = ch->in_room->people.begin();
+    CreatureList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end(); ++it ) 
       if ((*it) != ch && IS_ARCHON((*it)) && FIGHTING((*it))) {
         do_rescue(ch, fname((*it)->player.name), 0, 0);

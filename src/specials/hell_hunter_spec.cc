@@ -385,7 +385,7 @@ SPECIAL(hell_hunter)
 			return 1;
 		}
 
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			vict = *it;
 			if (vict == ch)

@@ -494,7 +494,7 @@ die_follower(struct Creature *ch)
 int
 player_in_room(struct room_data *room)
 {
-	CharacterList::iterator it = room->people.begin();
+	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (!IS_NPC((*it)) && GET_LEVEL((*it)) < LVL_AMBASSADOR)
 			return 1;

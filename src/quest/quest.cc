@@ -1870,7 +1870,7 @@ qlog(CHAR * ch, char *str, int type, int level, int file)
 		level = LVL_IMMORT;
 
 	if (type) {
-		CharacterList::iterator cit = characterList.begin();
+		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			vict = *cit;
 			//for (vict = character_list; vict; vict = vict->next) {
@@ -2462,7 +2462,7 @@ qp_reload(int sig = 0)
 	//
 	// Check if the imm is logged on
 	//
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		immortal = *cit;
 		//for( immortal = character_list; immortal; immortal = immortal->next) {

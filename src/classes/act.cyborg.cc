@@ -778,7 +778,7 @@ perform_cyborg_activate(CHAR * ch, int mode, int subcmd)
 				(SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
 					SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
 					SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)) {
-				CharacterList::iterator it = ch->in_room->people.begin();
+				CreatureList::iterator it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					if (*it != ch)
 						damage(ch, *it, dice(4, GET_LEVEL(ch)),
@@ -1258,7 +1258,7 @@ ACMD(do_bioscan)
 		send_to_char(ch, "You are not equipped with bio-scanners.\r\n");
 		return;
 	}
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((((CAN_SEE(ch, (*it)) || GET_INVIS_LEV((*it)) < GET_LEVEL(ch)) &&
 					(CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100) ||

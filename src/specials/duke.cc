@@ -99,7 +99,7 @@ member_of_royal_guard(struct Creature *chChar)
 struct Creature *
 find_npc_by_name(struct Creature *chAtChar, char *pszName, int iLen)
 {
-	CharacterList::iterator it = chAtChar->in_room->people.begin();
+	CreatureList::iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
 		if (IS_NPC((*it)))
 			if (!strncmp(pszName, (*it)->player.short_descr, iLen))
@@ -116,7 +116,7 @@ struct Creature *
 find_guard(struct Creature *chAtChar)
 {
 
-	CharacterList::iterator it = chAtChar->in_room->people.begin();
+	CreatureList::iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
 		if (!FIGHTING((*it)) && member_of_royal_guard((*it)))
 			return (*it);
@@ -134,7 +134,7 @@ get_victim(struct Creature *chAtChar)
 {
 
 	int iNum_bad_guys = 0, iVictim;
-	CharacterList::iterator it = chAtChar->in_room->people.begin();
+	CreatureList::iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
 		if (FIGHTING((*it)) && member_of_staff(FIGHTING((*it))))
 			iNum_bad_guys++;
@@ -186,7 +186,7 @@ do_npc_rescue(struct Creature *ch_hero, struct Creature *ch_victim)
 {
 
 	struct Creature *ch_bad_guy = NULL;
-	CharacterList::iterator it = ch_hero->in_room->people.begin();
+	CreatureList::iterator it = ch_hero->in_room->people.begin();
 	for (; it != ch_hero->in_room->people.end(); ++it) {
 		if (FIGHTING((*it)) == ch_victim)
 			ch_bad_guy = *it;

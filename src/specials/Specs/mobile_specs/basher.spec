@@ -14,7 +14,7 @@ SPECIAL(basher)
 
   if (number(0, 81) > GET_LEVEL(ch))
     return 0;
-CharacterList::iterator it = ch->in_room->people.begin();
+CreatureList::iterator it = ch->in_room->people.begin();
 for( ; it != ch->in_room->people.end(); ++it ) {
     if (FIGHTING((*it)) == ch && !number(0, 2) && IS_MAGE((*it))){
         vict = *it;

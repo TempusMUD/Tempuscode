@@ -1706,7 +1706,7 @@ send_to_room(char *messg, struct room_data *room)
 
 	if (!room || !messg)
 		return;
-	CharacterList::iterator it = room->people.begin();
+	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		i = *it;
 		if (i->desc && !PLR_FLAGGED(i, PLR_OLC | PLR_WRITING | PLR_MAILING))
@@ -1937,7 +1937,7 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 		raise(SIGSEGV);
 		return;
 	}
-	CharacterList::iterator it = room->people.begin();
+	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (SENDOK((*it)) &&
 			!(hide_invisible && ch && !CAN_SEE((*it), ch)) &&

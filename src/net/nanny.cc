@@ -367,7 +367,7 @@ nanny(struct descriptor_data * d, char *arg)
 				}
 
 				// now check for linkless and usurpable
-				CharacterList::iterator cit = characterList.begin();
+				CreatureList::iterator cit = characterList.begin();
 				for ( ; cit != characterList.end(); ++cit ) {
 					tmp_ch = *cit;
 				//for (tmp_ch = character_list; tmp_ch; tmp_ch = tmp_ch->next)

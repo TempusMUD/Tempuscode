@@ -23,7 +23,7 @@ using namespace std;
 
 #include "structs.h"
 #include "utils.h"
-#include "character_list.h"
+#include "creature_list.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
@@ -263,7 +263,7 @@ ACMD(do_echo)
 		mort_see = tmp_strdup(argument);
 		imm_see = tmp_sprintf("[$n] %s", argument);
 
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (GET_LEVEL((*it)) > GET_LEVEL(ch))
 				act(imm_see, FALSE, ch, 0, (*it), TO_VICT);
@@ -670,7 +670,7 @@ do_stat_memory(struct Creature *ch)
 
 	sum = top_of_mobt * (sizeof(struct Creature));
 
-	CharacterList::iterator mit = mobilePrototypes.begin();
+	CreatureList::iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		//for (mob = mob_proto; mob; mob = mob->next) {
 		mob = *mit;
@@ -718,7 +718,7 @@ do_stat_memory(struct Creature *ch)
 
 	sum = 0;
 	i = 0;
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		chars = *cit;
 		//while (chars) {
@@ -832,7 +832,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
 	send_to_char(ch, "TimeFrame: [%s]  Plane: [%s]   ",
 		time_frames[zone->time_frame], planes[zone->plane]);
 
-	CharacterList::iterator mit = characterList.begin();
+	CreatureList::iterator mit = characterList.begin();
 	for (; mit != characterList.end(); ++mit)
 		if (IS_NPC((*mit)) && (*mit)->in_room && (*mit)->in_room->zone == zone) {
 			numm++;
@@ -1035,8 +1035,8 @@ do_stat_room(struct Creature *ch, char *roomstr)
 
 	sprintf(buf, "Chars present:%s", CCYEL(ch, C_NRM));
 
-	CharacterList::iterator it = rm->people.begin();
-	CharacterList::iterator nit = it;
+	CreatureList::iterator it = rm->people.begin();
+	CreatureList::iterator nit = it;
 	for (found = 0; it != rm->people.end(); ++it) {
 		++nit;
 		k = *it;
@@ -2624,7 +2624,7 @@ ACMD(do_purge)
 			FALSE, ch, 0, 0, TO_ROOM);
 		send_to_room("The world seems a little cleaner.\r\n", ch->in_room);
 
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (IS_NPC((*it))) {
 				(*it)->extract(true, false, CON_MENU);
@@ -2724,7 +2724,7 @@ ACMD(do_restore)
 	if (!*buf)
 		send_to_char(ch, "Whom do you wish to restore?\r\n");
 	else if (!str_cmp(buf, "all")) {
-		CharacterList::iterator cit = characterList.begin();
+		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			//for (vict = character_list; vict; vict = vict->next) {
 			vict = *cit;
@@ -2796,7 +2796,7 @@ perform_immort_vis(struct Creature *ch)
 	GET_REMORT_INVIS(ch) = 0;
 	//appear(ch);
 	send_to_char(ch, "You are now fully visible.\r\n");
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch)
 			continue;
@@ -2818,7 +2818,7 @@ perform_immort_invis(struct Creature *ch, int level)
 	old_level = GET_INVIS_LEV(ch);
 	if (old_level > level)
 		GET_INVIS_LEV(ch) = level;
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch)
 			continue;
@@ -2851,7 +2851,7 @@ perform_remort_vis(struct Creature *ch)
 	}
 
 	GET_REMORT_INVIS(ch) = 0;
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || !CAN_SEE((*it), ch))
 			continue;
@@ -2878,7 +2878,7 @@ perform_remort_invis(struct Creature *ch, int level)
 		return;
 	}
 
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || !CAN_SEE((*it), ch))
 			continue;
@@ -3247,7 +3247,7 @@ ACMD(do_force)
 		send_to_char(ch, OK);
 		mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
 			GET_NAME(ch), ch->in_room->number, to_force);
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (GET_LEVEL((*it)) >= GET_LEVEL(ch) ||
 				(!IS_NPC((*it)) && GET_LEVEL(ch) < LVL_GRGOD))
@@ -3744,7 +3744,7 @@ do_show_stats(struct Creature *ch)
 	struct special_search_data *srch;
 	struct zone_data *zone;
 	extern int buf_switches, buf_largecount, buf_overflows;
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		//for (vict = character_list; vict; vict = vict->next) {
 		vict = *cit;
@@ -4096,7 +4096,7 @@ show_mobkills(CHAR * ch, char *value, char *arg)
 	sprintf(buf, "Mobiles with mobkills ratio >= %f:\r\n", thresh);
 	strcat(buf,
 		" ---- -Vnum-- -Name------------------------- -Kills- -Loaded- -Ratio-\r\n");
-	CharacterList::iterator cit = mobilePrototypes.begin();
+	CreatureList::iterator cit = mobilePrototypes.begin();
 	for (; cit != mobilePrototypes.end(); ++cit) {
 		//for (mob = mob_proto; mob; mob = mob->next) {
 		mob = *cit;
@@ -4161,7 +4161,7 @@ show_mlevels(CHAR * ch, char *value, char *arg)
 	// scan the existing mobs
 	if (!strcmp(value, "real")) {
 		strcat(buf, "real mobiles:\r\n");
-		CharacterList::iterator cit = mobilePrototypes.begin();
+		CreatureList::iterator cit = mobilePrototypes.begin();
 		for (; cit != mobilePrototypes.end(); ++cit) {
 			//for (mob = character_list; mob; mob = mob->next) {
 			mob = *cit;
@@ -4175,7 +4175,7 @@ show_mlevels(CHAR * ch, char *value, char *arg)
 		}
 	} else if (!strcmp(value, "proto")) {
 		strcat(buf, "mobile protos:\r\n");
-		CharacterList::iterator cit = mobilePrototypes.begin();
+		CreatureList::iterator cit = mobilePrototypes.begin();
 		for (; cit != mobilePrototypes.end(); ++cit) {
 			//for (mob = mob_proto; mob; mob = mob->next) {
 			mob = *cit;
@@ -4323,8 +4323,8 @@ ACMD(do_show)
 	struct elevator_data *e_head = NULL;
 	struct elevator_elem *e_elem = NULL;
 	struct Creature *mob = NULL;
-	CharacterList::iterator cit;
-	CharacterList::iterator mit;
+	CreatureList::iterator cit;
+	CreatureList::iterator mit;
 
 	void show_shops(struct Creature *ch, char *value);
 
@@ -6233,7 +6233,7 @@ ACMD(do_mlist)
 	}
 
 	strcpy(out_list, "");
-	CharacterList::iterator mit = mobilePrototypes.begin();
+	CreatureList::iterator mit = mobilePrototypes.begin();
 	for (;
 		mit != mobilePrototypes.end()
 		&& ((*mit)->mob_specials.shared->vnum <= last); ++mit) {
@@ -6569,7 +6569,7 @@ ACMD(do_mudwipe)
 		send_to_char(ch, "Done.  trails retired\r\n");
 	}
 	if (mode == 3) {
-		CharacterList::iterator cit = characterList.begin();
+		CreatureList::iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			mob = *cit;
 			//for (mob = character_list; mob; mob = mob->next) {
@@ -6586,7 +6586,7 @@ ACMD(do_mudwipe)
 		send_to_char(ch, "DONE.  Mobiles cleared of objects.\r\n");
 	}
 	if (mode == 3 || mode == 2 || mode == 0) {
-		CharacterList::iterator mit = characterList.begin();
+		CreatureList::iterator mit = characterList.begin();
 		for (; mit != characterList.end(); ++mit) {
 			if (IS_NPC(*mit)) {
 				(*mit)->extract(true, false, CON_MENU);
@@ -6639,7 +6639,7 @@ ACMD(do_zonepurge)
 				continue;
 
 
-			CharacterList::iterator it = rm->people.begin();
+			CreatureList::iterator it = rm->people.begin();
 			for (; it != rm->people.end(); ++it) {
 				if (IS_MOB((*it))) {
 					(*it)->extract(true, false, CON_MENU);
@@ -6683,7 +6683,7 @@ ACMD(do_searchfor)
 	struct Creature *mob = NULL;
 	struct obj_data *obj = NULL;
 	byte mob_found = FALSE, obj_found = FALSE;
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		//for (mob = character_list;mob;mob = mob->next) {
 		mob = *cit;
@@ -6768,7 +6768,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
 	int i, j, k, l, command;
 	struct Creature *mob = NULL;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-	CharacterList::iterator mit;
+	CreatureList::iterator mit;
 	if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
 		send_to_char(ch, 
 			"Show mobiles:  utility to search the mobile prototype list.\r\n"
@@ -7013,7 +7013,7 @@ ACMD(do_peace)
 	bool found = 0;
 
 
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (FIGHTING((*it))) {
 			stop_fighting(*it);

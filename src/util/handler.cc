@@ -42,7 +42,7 @@ extern struct descriptor_data *descriptor_list;
 
 /* external functions */
 int special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
-void stop_fighting(CharacterList::iterator & cit);
+void stop_fighting(CreatureList::iterator & cit);
 void remove_follower(struct Creature *ch);
 void path_remove_object(void *object);
 void free_paths();
@@ -988,7 +988,7 @@ char_from_room( Creature *ch, bool check_specials = true )
     room_data *tmp_room = ch->in_room;
     if( check_specials && special(ch, 0, 0, "", SPECIAL_LEAVE) ) 
     {
-        CharacterList::iterator it = 
+        CreatureList::iterator it = 
                 find(tmp_room->people.begin(),tmp_room->people.end(), ch);
 
         if( it != tmp_room->people.end() ) {
@@ -1501,7 +1501,7 @@ get_char_room(char *name, struct room_data *room)
 	if (!(number = get_number(&tmp)))
 		return NULL;
 
-	CharacterList::iterator it = room->people.begin();
+	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end() && (j <= number); ++it) {
 		if (isname(tmp, (*it)->player.name))
 			if (++j == number)
@@ -1517,7 +1517,7 @@ struct Creature *
 get_char_num(int nr)
 {
 
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (GET_MOB_VNUM((*cit)) == nr)
 			return (*cit);
@@ -1530,7 +1530,7 @@ struct Creature *
 get_char_in_world_by_idnum(int nr)
 {
 	struct Creature *ch;
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		ch = *cit;
 		if (nr > 0 && !IS_NPC(ch) && GET_IDNUM(ch) == nr)
@@ -1901,7 +1901,7 @@ struct Creature *
 get_player_vis(struct Creature *ch, char *name, int inroom)
 {
 	struct Creature *i, *match;
-	CharacterList::iterator cit;
+	CreatureList::iterator cit;
 	char *tmpname, *write_pt;
 
 	// remove leading spaces
@@ -1955,7 +1955,7 @@ get_char_room_vis(struct Creature *ch, char *name)
 	if (!str_cmp(name, "self"))
 		return ch;
 
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end() && j <= number; ++it) {
 		i = *it;
 		if ((af = affected_by_spell(i, SKILL_DISGUISE))) {
@@ -2009,7 +2009,7 @@ get_char_vis(struct Creature *ch, char *name)
 	if (!(number = get_number(&tmp)))
 		return get_player_vis(ch, tmp, 0);
 
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end() && (j <= number); ++cit) {
 		i = *cit;
 		if (isname(tmp, i->player.name) && CAN_SEE(ch, i))

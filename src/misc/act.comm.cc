@@ -30,7 +30,7 @@
 #include "db.h"
 #include "screen.h"
 #include "rpl_resp.h"
-#include "character_list.h"
+#include "creature_list.h"
 #include "tmpstr.h"
 
 /* extern variables */
@@ -140,7 +140,7 @@ ACMD(do_say)
 				send_to_char(ch, "No-one by that name here.\r\n");
 		} else {
 
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if (!AWAKE((*it)) || (*it) == ch ||
 					PLR_FLAGGED((*it), PLR_OLC | PLR_WRITING | PLR_MAILING))
@@ -174,7 +174,7 @@ ACMD(do_say)
 	}
 
 	/* NOT say_to stuff: ********************************************* */
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (!AWAKE((*it)) || (*it) == ch ||
 			PLR_FLAGGED((*it), PLR_OLC | PLR_MAILING | PLR_WRITING))
@@ -342,7 +342,7 @@ ACMD(do_tell)
 ACMD(do_reply)
 {
 	//struct Creature *tch = character_list;
-	CharacterList::iterator tch = characterList.begin();
+	CreatureList::iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
 	if (GET_LAST_TELL(ch) == NOBODY)

@@ -17,7 +17,7 @@ SPECIAL(stygian_lightning_rm)
         return 0;
 
     new_vict = ch;
-    CharacterList::iterator it = ch->in_room->people.begin();
+    CreatureList::iterator it = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end(); ++it ) {
         if (!IS_NPC((*it)) && (*it)->getPosition() > POS_SITTING && !IS_DEVIL((*it)) &&
             GET_LEVEL((*it)) > GET_LEVEL(new_vict) && GET_LEVEL((*it)) < LVL_IMMORT && !number(0, 3))

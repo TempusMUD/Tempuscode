@@ -353,7 +353,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			room_data *src_room = ch->in_room;
 			rc = search_trans_character(ch, srch, targ_room, obj, mob);
 
-			CharacterList::iterator it = src_room->people.begin();
+			CreatureList::iterator it = src_room->people.begin();
 			for (; it != src_room->people.end(); ++it) {
 
 				if (srch->to_room) {
@@ -511,7 +511,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
-			CharacterList::iterator it = targ_room->people.begin();
+			CreatureList::iterator it = targ_room->people.begin();
 			for (; it != targ_room->people.end(); ++it) {
 				mob = *it;
 
@@ -603,7 +603,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
-			CharacterList::iterator it = targ_room->people.begin();
+			CreatureList::iterator it = targ_room->people.begin();
 			for (mob = NULL; it != targ_room->people.end(); ++it) {
 				mob = *it;
 
@@ -660,7 +660,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 				SET_BIT(srch->flags, SRCH_TRIPPED);
 
-			CharacterList::iterator it = other_rm->people.begin();
+			CreatureList::iterator it = other_rm->people.begin();
 			for (; it != other_rm->people.end(); ++it) {
 				mob = *it;
 				if (!IS_NPC(mob))

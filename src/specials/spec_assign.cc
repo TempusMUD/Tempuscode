@@ -345,7 +345,7 @@ do_specassign_save(struct Creature *ch, int mode)
 			slog("SYSERR: Error opening mob spec file for write.");
 			return 1;
 		}
-		CharacterList::iterator mit = mobilePrototypes.begin();
+		CreatureList::iterator mit = mobilePrototypes.begin();
 		for (; mit != mobilePrototypes.end(); ++mit) {
 			mob = *mit;
 			//for (mob = mob_proto; mob; mob = mob->next) {

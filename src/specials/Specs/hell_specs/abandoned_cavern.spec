@@ -37,7 +37,7 @@ SPECIAL( abandoned_cavern )
              FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP );
              
              
-        CharacterList::iterator it = cavern->people.begin();
+        CreatureList::iterator it = cavern->people.begin();
         for( ; it != cavern->people.end(); ++it ) {
             vict = *it;
             if ( number( 5, 30 ) > GET_DEX( vict ) && GET_LEVEL( vict ) < LVL_IMMORT ) {

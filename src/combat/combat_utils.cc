@@ -337,7 +337,7 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 
 	if (!obj_id)
 		return;
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (!IS_NPC(*cit) && GET_IDNUM(*cit) == obj_id) {
 			killer = *cit;

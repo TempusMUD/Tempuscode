@@ -581,7 +581,7 @@ point_update(void)
 	}
 
 	/* characters */
-	CharacterList::iterator cit = characterList.begin();
+	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 

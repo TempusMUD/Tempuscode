@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "structs.h"
-#include "character_list.h"
+#include "creature_list.h"
 #include "comm.h"
 #include "utils.h"
 #include "interpreter.h"
@@ -1282,7 +1282,7 @@ comlog(CHAR * ch, char *str, int file, int to_char)
 	char *tmstr;
 	//CHAR *vict = NULL;
 	//char buf[MAX_STRING_LENGTH];
-	CharacterList::iterator vict = characterList.begin();
+	CreatureList::iterator vict = characterList.begin();
 	for (; vict != characterList.end(); ++vict) {
 		if ((*vict == ch) && !to_char) {
 			continue;

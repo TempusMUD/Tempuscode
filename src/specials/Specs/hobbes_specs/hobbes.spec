@@ -16,8 +16,8 @@ SPECIAL(cheeky_monkey)
  if (cmd || !AWAKE(ch) || FIGHTING(ch) || number(0, 3))
    return FALSE;
 
-    CharacterList::iterator it = ch->in_room->people.begin();
-    CharacterList::iterator nit = ch->in_room->people.begin();
+    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList::iterator nit = ch->in_room->people.begin();
     for( ; it != ch->in_room->people.end(); ++it ) {
         ++nit;
        vict = *it;

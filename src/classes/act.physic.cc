@@ -1063,7 +1063,7 @@ ASPELL(spell_emp_pulse)
 		return;
 	}
 	// Make sure non-pkillers dont get killer flags.
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch) {
 			if (!peaceful_room_ok(ch, (*it), true))

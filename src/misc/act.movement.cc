@@ -189,7 +189,7 @@ int
 room_count(struct Creature *ch, struct room_data *room)
 {
 	int i = 0;
-	CharacterList::iterator it = room->people.begin();
+	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (IS_NPC((*it)) || (GET_INVIS_LEV((*it)) <= GET_LEVEL(ch))) {
 			if (GET_HEIGHT((*it)) > 1000)
@@ -592,7 +592,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			} else
 				sprintf(buf, "$n leaves %s.", to_dirs[dir]);
 		}
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			tch = *it;
 			if ((*it) == ch || !AWAKE((*it)))
@@ -625,7 +625,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 					&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
 					&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
 					&& c_obj->in_room) {
-					CharacterList::iterator it =
+					CreatureList::iterator it =
 						c_obj->in_room->people.begin();
 					for (; it != c_obj->in_room->people.end(); ++it) {
 						if ((!AFF_FLAGGED(ch, AFF_SNEAK) ||
@@ -812,7 +812,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			} else
 				sprintf(buf, "$n has arrived from %s.", from_dirs[dir]);
 		}
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			tch = *it;
 			if (tch == ch)
@@ -872,7 +872,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 						&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
 						&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
 						&& c_obj->in_room) {
-						CharacterList::iterator it =
+						CreatureList::iterator it =
 							c_obj->in_room->people.begin();
 						for (; it != c_obj->in_room->people.end(); ++it) {
 							if ((!AFF_FLAGGED(ch, AFF_SNEAK) ||
@@ -2224,7 +2224,7 @@ ACMD(do_mount)
 		return;
 	}
 	if (IS_AFFECTED_2(vict, AFF2_MOUNTED)) {
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (MOUNTED((*it)) == vict) {
 				send_to_char(ch, "But %s is already mounted on %s!\r\n",

@@ -2102,7 +2102,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 
 	/* special in mobile present? */
 	room_data *theRoom = ch->in_room;
-	CharacterList::iterator it = theRoom->people.begin();
+	CreatureList::iterator it = theRoom->people.begin();
 	for (; it != theRoom->people.end(); ++it)
 		if (GET_MOB_SPEC((*it)) != NULL) {
 			if (GET_MOB_SPEC((*it)) (ch, (*it), cmd, arg, spec_mode)) {

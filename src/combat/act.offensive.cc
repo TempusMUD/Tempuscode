@@ -954,7 +954,7 @@ ACMD(do_assist)
 	} else if (helpee == ch) {
 		send_to_char(ch, "You can't help yourself any more than this!\r\n");
 	} else {
-		CharacterList::iterator opponent = ch->in_room->people.begin();
+		CreatureList::iterator opponent = ch->in_room->people.begin();
 		for (;
 			opponent != ch->in_room->people.end()
 			&& (FIGHTING((*opponent)) != helpee); ++opponent);
@@ -1279,7 +1279,7 @@ ACMD(do_retreat)
 		}
 	}
 	room_data *room = ch->in_room;
-	CharacterList::iterator it = room->people.begin();
+	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		Creature *vict = *it;
 		if (vict != ch && ch == FIGHTING(vict) &&
@@ -1645,7 +1645,7 @@ ACMD(do_tag)
 		return;
 	}
 
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end() && (*it)->getFighting() != ch; ++it)
 		tmp_ch = *it;
 
@@ -1717,7 +1717,7 @@ ACMD(do_rescue)
 		return;
 	}
 	tmp_ch = NULL;
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (FIGHTING((*it)) == vict) {
 			tmp_ch = *it;
@@ -2175,7 +2175,7 @@ ACMD(do_shoot)
 		}
 
 		prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it)
 			if (*it != ch && ch == FIGHTING((*it)))
 				prob -= (GET_LEVEL(*it) >> 3);
@@ -2192,7 +2192,7 @@ ACMD(do_shoot)
 				}
 			}
 		} else if (number(1, 81) > prob) {
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if ((*it) != ch && (*it) != vict && !number(0, 2)) {
 					vict = (*it);
@@ -2353,7 +2353,7 @@ ACMD(do_shoot)
 	} else
 		prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
 
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch && ch == FIGHTING((*it)))
 			prob -= (GET_LEVEL((*it)) >> 3);
@@ -2369,7 +2369,7 @@ ACMD(do_shoot)
 	if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
 		vict = FIGHTING(vict);
 	else if (FIGHTING(vict) && number(1, 101) > prob) {
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (*it != ch && tmp_vict != vict && vict == FIGHTING((*it)) &&
 				!number(0, 2)) {
@@ -2378,7 +2378,7 @@ ACMD(do_shoot)
 			}
 		}
 	} else if (number(1, 81) > prob) {
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (*it != ch && tmp_vict != vict && vict == FIGHTING((*it)) &&
 				!number(0, 2)) {
@@ -2524,7 +2524,7 @@ ACMD(do_shoot)
 ACMD(do_ceasefire)
 {
 	struct Creature *f = NULL;
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (ch == FIGHTING((*it))) {
 			f = *it;
@@ -3038,7 +3038,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 		prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
 
 
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (*it != ch && ch == FIGHTING((*it)))
 				prob -= (GET_LEVEL((*it)) >> 3);
@@ -3046,7 +3046,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 		if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
 			vict = FIGHTING(vict);
 		else if (FIGHTING(vict) && number(1, 101) > prob) {
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if (*it != ch && tmp_vict != vict && vict == FIGHTING((*it)) &&
 					!number(0, 2)) {
@@ -3056,7 +3056,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 			}
 
 		} else if (number(1, 81) > prob) {
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if (*it != ch && tmp_vict != vict && vict == FIGHTING((*it)) &&
 					!number(0, 2)) {
@@ -3178,7 +3178,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 
 	prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
 
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch && ch == FIGHTING((*it)))
 			prob -= (GET_LEVEL((*it)) >> 3);
@@ -3186,7 +3186,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 	if (FIGHTING(vict) && FIGHTING(vict) != ch && number(1, 121) > prob)
 		vict = FIGHTING(vict);
 	else if (FIGHTING(vict) && number(1, 101) > prob) {
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if ((*it) != ch && (*it) != vict && vict == FIGHTING((*it)) &&
 				!number(0, 2)) {
@@ -3195,7 +3195,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict, int weap_pos)
 			}
 		}
 	} else if (number(1, 81) > prob) {
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if ((*it) != ch && (*it) != vict && !number(0, 2)) {
 				vict = (*it);

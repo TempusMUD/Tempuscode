@@ -17,7 +17,7 @@ extern void set_local_time(struct zone_data *zone, struct time_info_data *local_
 // Does not deal with nulls in either place.
 void move_chars(room_data *from, room_data *to) {
      Creature *ch = NULL;
-     CharacterList::iterator it = from->people.begin();
+     CreatureList::iterator it = from->people.begin();
      for( ; it != from->people.end(); ++it ) {
          ch = *it;
          char_from_room(ch,false);

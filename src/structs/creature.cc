@@ -3,7 +3,7 @@
 #include <signal.h>
 #include "structs.h"
 #include "comm.h"
-#include "character_list.h"
+#include "creature_list.h"
 #include "interpreter.h"
 #include "utils.h"
 #include "spells.h"
@@ -245,7 +245,7 @@ Creature::getDamReduction(Creature * attacker = NULL)
 				+ (GET_ALIGNMENT(ch) / 100);
 		} else if (ch->in_room != NULL) {
 
-			CharacterList::iterator it = ch->in_room->people.begin();
+			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if (IS_NPC((*it))
 					&& af->modifier == (short int)-MOB_IDNUM((*it))) {
@@ -465,7 +465,7 @@ void
 		idx,
 		freed =
 		0;
-	CharacterList::iterator cit;
+	CreatureList::iterator cit;
 	ACMD(do_return);
 
 	void

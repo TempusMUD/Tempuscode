@@ -24,7 +24,7 @@ SPECIAL(mob_read_script)
     if(spec_mode != SPECIAL_TICK) return FALSE;
 
     if ( !SCRIPT_FLAGGED( MODE_ALONE ) ) {
-        CharacterList::iterator it = ch->in_room->people.begin();
+        CreatureList::iterator it = ch->in_room->people.begin();
         for( ; it != ch->in_room->people.end(); ++it ) {
             if ( (*it)->desc && CAN_SEE( ch, (*it) ) ) {
                 found = 1;

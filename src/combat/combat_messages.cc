@@ -192,7 +192,7 @@ death_cry(struct Creature *ch)
 		act("Your skin crawls as you hear $n's final shriek.",
 			FALSE, ch, 0, 0, TO_ROOM);
 	else {
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (*it == ch)
 				continue;
@@ -209,7 +209,7 @@ death_cry(struct Creature *ch)
 					FALSE, ch, 0, (*it), TO_VICT);
 		}
 	}
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (ch != *it && (*it)->getPosition() == POS_SLEEPING &&
 			!PLR_FLAGGED((*it), PLR_OLC | PLR_WRITING) &&
@@ -231,7 +231,7 @@ death_cry(struct Creature *ch)
 			ch->in_room = was_in;
 			if (adjoin_room->dir_option[rev_dir[door]] &&
 				adjoin_room->dir_option[rev_dir[door]]->to_room == was_in) {
-				CharacterList::iterator it = adjoin_room->people.begin();
+				CreatureList::iterator it = adjoin_room->people.begin();
 				for (; it != adjoin_room->people.end(); ++it) {
 					if (IS_MOB((*it)) && !MOB_FLAGGED((*it), MOB_SENTINEL) &&
 						!FIGHTING((*it)) && AWAKE((*it)) &&
@@ -341,7 +341,7 @@ blood_spray(struct Creature *ch, struct Creature *victim,
 	act(buf, FALSE, ch, 0, victim, TO_VICT);
 	send_to_char(victim, CCNRM(victim, C_NRM));
 
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || (*it) == victim || !(*it)->desc || !AWAKE((*it)))
 			continue;

@@ -24,7 +24,7 @@ SPECIAL(slaver)
   
   if (!FIGHTING(slaver) && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
     
-   CharacterList::iterator it = slaver->in_room->people.begin();
+   CreatureList::iterator it = slaver->in_room->people.begin();
    for( ; it != slaver->in_room->people.end(); ++it ) {
       vict = *it;
       if (ch != vict && !IS_NPC(vict) && CAN_SEE(slaver, vict) &&

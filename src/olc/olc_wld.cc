@@ -492,7 +492,7 @@ do_destroy_room(struct Creature *ch, int vnum)
 			}
 		}
 	}
-	CharacterList::iterator it = rm->people.begin();
+	CreatureList::iterator it = rm->people.begin();
 	for (; it != rm->people.end(); ++it) {
 		vict = *it;
 		send_to_char(vict, 

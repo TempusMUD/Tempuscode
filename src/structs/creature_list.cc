@@ -1,13 +1,13 @@
 #include "structs.h"
-#include "character_list.h"
+#include "creature_list.h"
 
 /**
- *  Global CharacterList objects stored here.
+ *  Global CreatureList objects stored here.
 **/
 
 /** The list of mobile prototypes or "virtual mobiles" **/
-CharacterList mobilePrototypes(false);
+CreatureList mobilePrototypes(false);
 /** The list of in-game characters. (i.e. players & mobs) **/
-CharacterList characterList(false);
+CreatureList characterList(false);
 /** The list of characters currently involved in combat **/
-CharacterList combatList(false);
+CreatureList combatList(false);

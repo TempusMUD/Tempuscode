@@ -19,7 +19,7 @@ SPECIAL(rat_mama)
   if (cmd || FIGHTING(ch) || ch->getPosition() == POS_FIGHTING)
     return (0);
 
-  CharacterList::iterator it;
+  CreatureList::iterator it;
   for (i = 0; i != -1; i++) 
   {
     it = (real_room(rat_rooms[i]))->people.begin();

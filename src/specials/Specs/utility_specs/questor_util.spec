@@ -36,7 +36,7 @@ SPECIAL(questor_util)
   act("$n flips some switches on $p.", FALSE, ch, obj, 0, TO_ROOM);
   
     if (!PLR_FLAGGED(ch, PLR_QUESTOR)) {
-        CharacterList::iterator cit = characterList.begin();
+        CreatureList::iterator cit = characterList.begin();
         for( ; cit != characterList.end(); ++cit ) {
             if (PLR_FLAGGED((*cit), PLR_QUESTOR)) {
                 found = TRUE;

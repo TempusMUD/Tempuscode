@@ -219,7 +219,7 @@ flow_room(int pulse)
 			}
 
 			if ((vict = rnum->people)) {
-				CharacterList::iterator it = rnum->people.begin();
+				CreatureList::iterator it = rnum->people.begin();
 				for (; it != rnum->people.end(); ++it) {
 					vict = *it;
 

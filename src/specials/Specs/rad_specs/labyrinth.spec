@@ -355,7 +355,7 @@ SPECIAL(pendulum_timer_mob)
 					in_room);
 
 				room_data *theRoom = ch->in_room;
-				CharacterList::iterator it = theRoom->people.begin();
+				CreatureList::iterator it = theRoom->people.begin();
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
 					if (vict->getPosition() > POS_SITTING) {
@@ -403,7 +403,7 @@ SPECIAL(pendulum_timer_mob)
 					in_room);
 
 				room_data *theRoom = ch->in_room;
-				CharacterList::iterator it = theRoom->people.begin();
+				CreatureList::iterator it = theRoom->people.begin();
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
 					if (vict->getPosition() > POS_SITTING) {

@@ -21,7 +21,7 @@ SPECIAL(geryon)
     return 1;
   } else if (number(0, 2))
     return 0;
-  CharacterList::iterator it = ch->in_room->people.begin();
+  CreatureList::iterator it = ch->in_room->people.begin();
   for( ; it != ch->in_room->people.end() && *it != ch; ++it ) {
     if (ch == FIGHTING((*it)) && 
     !number(0, 4) && 

@@ -21,7 +21,7 @@
 #include <signal.h>
 
 #include "structs.h"
-#include "character_list.h"
+#include "creature_list.h"
 #include "utils.h"
 #include "comm.h"
 #include "handler.h"
@@ -178,7 +178,7 @@ remove_fighting_affects(struct Creature *ch)
 
 /* remove a char from the list of fighting chars */
 void
-stop_fighting(CharacterList::iterator & cit)
+stop_fighting(CreatureList::iterator & cit)
 {
 	struct Creature *ch = *cit;
 	combatList.remove(cit);
@@ -350,7 +350,7 @@ group_gain(struct Creature *ch, struct Creature *victim)
 
 	if (!(leader = ch->master))
 		leader = ch;
-	CharacterList::iterator it = ch->in_room->people.begin();
+	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (AFF_FLAGGED((*it), AFF_GROUP) && ((*it) == leader
 		|| leader == (*it)->master)) 
@@ -1570,7 +1570,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				attacktype == TYPE_STAB ||
 				attacktype == TYPE_CHOP ||
 				attacktype == SPELL_BLADE_BARRIER)) {
-			CharacterList::iterator it = victim->in_room->people.begin();
+			CreatureList::iterator it = victim->in_room->people.begin();
 			for (; it != victim->in_room->people.end(); ++it) {
 				if (*it == victim || number(0, 8))
 					continue;
@@ -1984,7 +1984,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	}
 	if (IS_AFFECTED_2(victim, AFF2_MOUNTED)) {
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
-		CharacterList::iterator it = ch->in_room->people.begin();
+		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (MOUNTED((*it)) && MOUNTED((*it)) == victim) {
 				act("You are knocked from your mount by $N's attack!",
@@ -2338,7 +2338,7 @@ perform_violence(void)
 	struct obj_data *weap = NULL;
 	int prob, i, die_roll;
 
-	CharacterList::iterator cit = combatList.begin();
+	CreatureList::iterator cit = combatList.begin();
 	for (; cit != combatList.end(); ++cit) {
 		ch = *cit;
 		if (!ch->in_room || !FIGHTING(ch))

@@ -48,7 +48,7 @@ SPECIAL(underwater_predator)
              ((troom = EXIT(pred, UP)->to_room) != NULL) &&
              !ROOM_FLAGGED(troom, ROOM_NOMOB | ROOM_PEACEFUL |
                            ROOM_DEATH | ROOM_GODROOM)) {
-    CharacterList::iterator it = troom->people.begin();
+    CreatureList::iterator it = troom->people.begin();
     for( ; it != troom->people.end(); ++it ) {
         vict = *it;
       if ((IS_MOB(vict) && !MOB2_FLAGGED(pred, MOB2_ATK_MOBS)) ||
