@@ -413,6 +413,8 @@ Creature::getLevelBonus(int skill)
 	} else {
 		int pclass = GET_CLASS(this);
 		int sclass = GET_REMORT_CLASS(this);
+		int spell_lvl = SPELL_LEVEL(skill, pclass);
+		int spell_gen = SPELL_GEN( skill, pclass );
 
 		if( pclass < 0 || pclass >= NUM_CLASSES )
 			pclass = CLASS_WARRIOR;
@@ -420,8 +422,7 @@ Creature::getLevelBonus(int skill)
 		if( sclass >= NUM_CLASSES )
 			sclass = CLASS_WARRIOR;
 
-		if( SPELL_LEVEL(skill, pclass) <= player.level &&
-			SPELL_GEN( skill, pclass <= GET_REMORT_GEN(this) ) ) {
+		if( spell_lvl <= player.level && spell_gen <= GET_REMORT_GEN(this) ) {
 			return getLevelBonus(true);
 		} else if( sclass >= 0 && SPELL_LEVEL(skill, sclass <= player.level ) && 
 				   SPELL_GEN( skill, sclass ) < 0 ) {
