@@ -1580,6 +1580,8 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.aff_index = 2;
 		accum_duration = TRUE;
 		to_vict = "You feel like standing on a hill holding a flagpole!";
+		break;
+
 	case SPELL_PROT_FROM_FIRE:
 		af.duration = 12 + (level >> 2);
 		af.bitvector = AFF2_PROT_FIRE;
