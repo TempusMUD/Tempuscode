@@ -2,6 +2,12 @@
 #include <algorithm>
 using namespace std;
 #include <string.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+// Undefine CHAR to avoid collisions
+#undef CHAR 
+#include "xml_utils.h"
+// Tempus includes
 #include "structs.h"
 #include "utils.h"
 #include "db.h"
@@ -132,6 +138,93 @@ namespace Security {
         return true;
     }
     
+    /*
+     * does not make a copy of name or desc.
+     */
+    Group::Group( char *name, char *description ) : commands(), members() {
+        _name = name;
+        _description = description;
+    }
+
+    /*
+     *  Loads a group from the given xmlnode;
+     *  Intended for reading from a file
+     */
+    Group::Group( xmlNodePtr node ) {
+        // properties
+        _name = xmlGetProp(node, "Name");
+        _description = xmlGetProp(node, "Description");
+        long member;
+        char *command;
+        // commands & members
+        node = node->xmlChildrenNode;
+        while (node != NULL) {
+            if ((!xmlStrcmp(node->name, (const xmlChar*)"Member"))) {
+                member = xmlGetLongProp(node, "ID");
+                if( member == 0 )
+                    continue;
+                members.push_back(member);
+            }
+            if ((!xmlStrcmp(node->name, (const xmlChar*)"Command"))) {
+                command = xmlGetProp(node, "Name");
+                int index = find_command( command );
+                if( index == -1 ) {
+                    trace("Group(xmlNodePtr): command not found", command);
+                } else {
+                    addCommand( &cmd_info[index] );
+                }
+            }
+            node = node->next;
+        }
+    }
+    
+    /*
+     * Makes a copy of name
+     */
+    Group::Group( const char *name ) : commands(), members() {
+        _name = new char[strlen(name) + 1];
+        strcpy(_name, name);
+
+        _description = new char[40];
+        strcpy(_description, "No Description");
+    }
+
+    /*
+     * Makes a complete copy of teh Group
+     */
+    Group::Group( const Group &g ) {
+        this->_name = strdup(g._name);
+        this->_description = strdup(g._description);
+        this->members = g.members;
+        this->commands = g.commands;
+    }
+
+    /*
+     * Create the required xmlnodes to recreate this group
+     */
+    bool Group::save( xmlNodePtr parent ) {
+        xmlNodePtr node = NULL;
+        
+        xmlNewChild( parent, NULL, (const xmlChar *)"Group", NULL );
+        xmlSetProp( parent, "Name", _name ); 
+       
+        vector<command_info*>::iterator cit = commands.begin();
+        for( ; cit != commands.end(); ++cit ) {
+            node = xmlNewChild( parent, NULL, (const xmlChar *)"Command", NULL );
+            xmlSetProp( parent, "Name", (*cit)->command );
+        }
+        vector<long>::iterator mit = members.begin();
+        for( ; mit != members.end(); ++mit ) {
+            node = xmlNewChild( parent, NULL, (const xmlChar *)"Member", NULL );
+            xmlSetProp( parent, "ID", *mit );
+        }
+        return true;
+    }
+
+
+    /*
+     *
+     */
     Group::~Group() {
         while( commands.begin() != commands.end() ) {
             removeCommand( *( commands.begin() ) );

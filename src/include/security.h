@@ -5,6 +5,13 @@
 #include <algorithm>
 using namespace std;
 
+// XML Includes
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+// Undefine CHAR to avoid collisions
+#undef CHAR 
+#include "xml_utils.h"
+
 
 extern struct command_info cmd_info[];
 namespace Security {
@@ -36,32 +43,14 @@ namespace Security {
 
     class Group {
         public:
-            /*
-             * does not make a copy of name or desc.
-             */
-            Group( char *name, char *description ) : commands(), members() {
-                _name = name;
-                _description = description;
-            }
-            /*
-             * Makes a copy of name
-             */
-            Group( const char *name ) : commands(), members() {
-                _name = new char[strlen(name) + 1];
-                strcpy(_name, name);
-
-                _description = new char[40];
-                strcpy(_description, "No Description");
-            }
-            /*
-             * Makes a complete copy of teh Group
-             */
-            Group( const Group &g ) {
-                this->_name = strdup(g._name);
-                this->_description = strdup(g._description);
-                this->members = g.members;
-                this->commands = g.commands;
-            }
+            /* does not make a copy of name or desc.  */
+            Group( char *name, char *description );
+            /* Makes a copy of name */
+            Group( const char *name );
+            /* Makes a complete copy of the Group */
+            Group( const Group &g );
+            /* Loads a group from it's xmlnode */
+            Group( xmlNodePtr node );
 
             bool addCommand( command_info *command );
             bool addMember( const char *name );
@@ -85,6 +74,9 @@ namespace Security {
 
             bool sendMemberList( char_data *ch );
             bool sendCommandList( char_data *ch );
+            
+            // Create the required xmlnodes to recreate this group
+            bool save( xmlNodePtr node );
 
             ~Group();
         private:
@@ -179,6 +171,7 @@ namespace Security {
         }
         return (*it).sendMemberList(ch);
     }
+    
     inline bool sendCommandList( char_data *ch, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
@@ -187,6 +180,7 @@ namespace Security {
         }
         return (*it).sendCommandList(ch);
     }
+    
     inline bool addCommand( char *command, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
@@ -202,6 +196,7 @@ namespace Security {
 
         return (*it).addCommand( &cmd_info[index] );
     }
+    
     inline bool addMember( const char *member, const char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
@@ -225,6 +220,7 @@ namespace Security {
         }
         return (*it).removeCommand( &cmd_info[index] );
     }
+    
     inline bool removeMember( const char *member, const char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
@@ -234,5 +230,27 @@ namespace Security {
 
         return (*it).removeMember( member );
     }
+    
+    inline bool saveGroups( const char *filenamme ) {
+        xmlDocPtr doc;
+        doc = xmlNewDoc((const xmlChar*)"1.0");
+        doc->children = xmlNewDocNode(doc, NULL, (const xmlChar *)"Security", NULL);
+        
+        list<Group>::iterator it = groups.begin();
+        for( ; it != groups.end(); ++it ) {
+            (*it).save(doc->children);
+        }
+
+        xmlSaveFile( "lib/security.dat" , doc );
+    }
 }
+
+/*  <Security> 
+ *    <Group  Name="test"  Description="Testing Group" >
+ *      <Member ID="1"/>
+ *      <Command Name="look"/>
+ *    </Group>
+ *  </Security>
+ */
+
 #endif
