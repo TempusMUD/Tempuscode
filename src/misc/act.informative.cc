@@ -4914,7 +4914,7 @@ ACMD(do_wizlist)
     getGroup("Wizlist_Blders").sendPublicMemberList(ch, buf);
 
     send_wizlist_section_title("Implementors",ch);
-    getGroup("Wizlist_Coders").sendPublicMemberList(ch, buf);
+    getGroup("Wizlist_Coders").sendPublicMemberList(ch, buf, "CoderAdmin");
 
     send_wizlist_section_title("Questors",ch);
     getGroup("Wizlist_Quests").sendPublicMemberList(ch, buf, "QuestorAdmin" );
