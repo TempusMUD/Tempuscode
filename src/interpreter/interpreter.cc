@@ -2989,6 +2989,7 @@ nanny(struct descriptor_data * d, char *arg)
 
     case '1':
         /* this code is to prevent people from multiply logging in */
+        struct room_data *theroom;
         for (k = descriptor_list; k; k = next) {
         next = k->next;
         if (!k->connected && k->character &&
@@ -3027,9 +3028,13 @@ nanny(struct descriptor_data * d, char *arg)
 			STATE(d) = CON_CLOSE;
 			return;
 		}
-		
-        d->character->in_room = real_room(GET_LOADROOM(d->character));
-
+        theroom = real_room(GET_LOADROOM(d->character));
+        if(theroom && House_can_enter(d->character,theroom->number)) {
+            d->character->in_room = theroom;
+        } else {
+            REMOVE_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
+            GET_LOADROOM(d->character) = -1;
+        }
         if (PLR_FLAGGED(d->character, PLR_INVSTART))
             GET_INVIS_LEV(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
                            LVL_LUCIFER : GET_LEVEL(d->character));
