@@ -295,6 +295,10 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 	if (AFF3_FLAGGED(vict, AFF3_SONIC_IMAGERY))
 		return SNEAK_FAILED;
 
+	// People on fire are quite noticible
+	if (IS_AFFECTED_2(ch, AFF2_ABLAZE))
+		return SNEAK_FAILED;
+
 	// If they're not sneaking, they are always seen.  If they're invisible,
 	// they're always heard.
 	if (!IS_AFFECTED(ch, AFF_SNEAK)) {
