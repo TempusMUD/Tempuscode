@@ -54,7 +54,6 @@ class IDEntry : public pair<long, char*> {
     public:
         IDEntry( long id, char* name);
         IDEntry( const IDEntry &e );
-        // Destructory does NOT free name.
         ~IDEntry();
         
         long getID();
