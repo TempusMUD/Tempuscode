@@ -328,8 +328,9 @@ ACMD(do_convert)
     else {
     
 	GET_OBJ_TYPE(obj) = ITEM_PIPE;
-	SET_BIT(obj->obj_flags.wear_flags, ITEM_WEAR_HOLD);
-	REMOVE_BIT(obj->obj_flags.wear_flags, ITEM_WEAR_WIELD);
+	REMOVE_BIT(obj->obj_flags.wear_flags, -1);
+	SET_BIT(obj->obj_flags.wear_flags, ITEM_WEAR_HOLD | ITEM_WEAR_TAKE);
+    REMOVE_BIT((obj)->obj_flags.extra2_flags,ITEM2_IMPLANT);
 
 	GET_OBJ_VAL(obj, 1) = ((GET_INT(ch) + 
 				(CHECK_SKILL(ch, SKILL_PIPEMAKING) >> 3) +
