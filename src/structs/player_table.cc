@@ -5,6 +5,8 @@
 /* The global player index */
 PlayerTable playerIndex;
 
+PlayerTable oldPlayerIndex;
+
 /**
  *  Creates a blank PlayerTable
 **/
