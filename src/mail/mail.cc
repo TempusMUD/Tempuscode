@@ -142,7 +142,7 @@ store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
 int 
 recieve_mail(char_data *ch) {
     obj_data *obj = NULL;
-    obj_data *bag = NULL;
+    obj_data *list = NULL;
     int num_letters = 0;
     fstream mail_file;
     char fname[256];
@@ -156,47 +156,52 @@ recieve_mail(char_data *ch) {
     if (!mail_file || mail_file.eof()) {
         return 0;
     }
-    
+
     // Seek to the beginning and setup for reading.
     mail_file.seekp(0,ios::beg);
     letter = new mail_data;
     while(!mail_file.eof()) {
         mail_file.read(letter, sizeof(mail_data));
         text = NULL;
-        if(letter->msg_size && !mail_file.eof()) { 
+        if(letter->msg_size && !mail_file.eof() && (obj = read_object(MAIL_OBJ_VNUM))) { 
             num_letters++;
             text = new char[letter->msg_size + 1];
             mail_file.read(text, letter->msg_size + 1);
+            // Actually build the mail object and give it to the player.    
+            time_str = asctime(localtime(&letter->time));
+            *(time_str + strlen(time_str) - 1) = '\0';
+
+            sprintf(buf, " * * * *  Tempus Mail System  * * * *\r\n"
+                "Date: %s\r\n"
+                "  To: %s\r\n"
+                "From: %s\r\n", time_str, GET_NAME(ch),
+                get_name_by_id(letter->from));
+
+            obj->action_description = new char[strlen(text) + strlen(buf) + 1];
+            strcpy(obj->action_description,buf);
+            strcat(obj->action_description,text);
+            obj->plrtext_len = strlen(obj->action_description) + 1;
+
+            if(list) {
+                obj->next_content = list;
+                list = obj;
+            } else {
+                list = obj;
+            }
+            delete text;
         } else {
-            mail_file.close();
-            delete letter;
-            remove(fname);
-            return num_letters;
+            break;
 		}
-        if (!(obj = read_object(MAIL_OBJ_VNUM))) {
-            slog("SYSERR: Unable to load MAIL_OBJ_VNUM in postmaster_receive_mail");
-            delete letter;
-            return num_letters;
-        }
-        // Actually build the mail object and give it to the player.    
-        time_str = asctime(localtime(&letter->time));
-        *(time_str + strlen(time_str) - 1) = '\0';
-
-        sprintf(buf, " * * * *  Tempus Mail System  * * * *\r\n"
-            "Date: %s\r\n"
-            "  To: %s\r\n"
-            "From: %s\r\n", time_str, GET_NAME(ch),
-            get_name_by_id(letter->from));
-
-        obj->action_description = new char[strlen(text) + strlen(buf) + 1];
-        strcpy(obj->action_description,buf);
-        strcat(obj->action_description,text);
-        obj->plrtext_len = strlen(obj->action_description) + 1;
-
-        obj_to_char(obj, ch);
-        delete text;
     }
+    mail_file.close();
+    remove(fname);
     delete letter;
+    while (list) {
+        obj = list;
+        list = obj->next_content;
+        obj->next_content = NULL;
+        obj_to_char(obj,ch);
+    }
     return num_letters;
 }
 
