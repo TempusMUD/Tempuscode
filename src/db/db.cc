@@ -2580,7 +2580,14 @@ randomize_object(struct obj_data *obj)
 
 	// Applies
 	for (idx = 0;idx < MAX_OBJ_AFFECT;idx++)
-		if (obj->affected[idx].location != APPLY_NONE) {
+		if (obj->affected[idx].location != APPLY_NONE
+				&& obj->affected[idx].location != APPLY_CLASS
+				&& obj->affected[idx].location != APPLY_RACE
+				&& obj->affected[idx].location != APPLY_SEX
+				&& obj->affected[idx].location != APPLY_CASTER
+				&& obj->affected[idx].location != APPLY_NOTHIRST
+				&& obj->affected[idx].location != APPLY_NOHUNGER
+				&& obj->affected[idx].location != APPLY_NODRUNK) {
 			if (obj->affected[idx].modifier > 0)
 				obj->affected[idx].modifier = number(0, obj->affected[idx].modifier);
 			else if (obj->affected[idx].modifier < 0)
