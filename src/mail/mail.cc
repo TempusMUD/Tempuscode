@@ -69,8 +69,16 @@ store_mail( long to_id, long from_id, char *txt , time_t *cur_time = NULL) {
 	letter->time = time(cur_time);
 	letter->msg_size = strlen(txt);
 	letter->spare = 0;
+
+	char *to_name = get_name_by_id( to_id );
+
+	if ( to_name == 0 ) {
+	    sprintf( buf, "Error, recipient idnum %ld invalid.\n", to_id );
+	    slog( buf );
+	    return 0;
+	}
 	
-	get_filename(get_name_by_id(to_id), fname, PLAYER_MAIL_FILE);
+	get_filename( to_name, fname, PLAYER_MAIL_FILE);
 	mail_file.open(fname,ios::out | ios::app | ios::ate );
 	if(!mail_file) {
 		sprintf(buf,"Error, mailfile (%s) not opened.\r\n",fname);
@@ -476,7 +484,7 @@ ACMD(do_toss_mail)
 				if(!store_mail(to_id, from_id, txt, &mail_time)) {
 					send_to_char("ERROR: Unable to store mail!\r\n",ch);
 					delete txt;
-					return;
+					continue;
 				}
 				delete txt;
 				letters_tossed++;
