@@ -3505,7 +3505,7 @@ mag_assign_spells(void)
 	   0, 0, 0, 0, 0, 0, 0);
     spello(SKILL_DRAIN, X, X, X, X, X, X, X, X, X, X, X, X, 36,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
-    spello(SKILL_CREATE_VAMPIRE, X, X, X, X, X, X, X, X, X, X, X, X, 40,X,X,X,X,
+    spello(SKILL_CREATE_VAMPIRE, X, X, X, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
     spello(SKILL_CONTROL_UNDEAD, X, X, X, X, X, X, X, X, X, X, X, X, 23,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
