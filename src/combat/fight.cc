@@ -1169,154 +1169,162 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
             }
         }
     }
+    
+    /********* OHH SHIT!  Begin new damage reduction code --Nothing **********/
+    #define BAD_ATTACK_TYPE(attacktype) (attacktype == TYPE_BLEED ||\
+                                         attacktype == SPELL_POISON)
+    #define AFF_BY_SANC(ch, vict, attacktype) (IS_AFFECTED(victim, AFF_SANCTUARY) &&\
+                               (!ch || !IS_EVIL(vict) || \
+                               !affected_by_spell(ch, SPELL_RIGHTEOUS_PENETRATION)) &&\
+                               (!ch || !IS_GOOD(vict) || \
+                               !affected_by_spell(ch, SPELL_MALEFIC_VIOLATION)) &&\
+                               !BAD_ATTACK_TYPE(attacktype))
+    double dam_reduction = 0;
+    
+    if (affected_by_spell(victim, SPELL_MANA_SHIELD) && !BAD_ATTACK_TYPE(attacktype)) {
+        mana_loss = (dam * GET_MSHIELD_PCT(victim)) / 100;
+        mana_loss = MIN(GET_MANA(victim) - GET_MSHIELD_LOW(victim), mana_loss);
+        mana_loss = MAX(mana_loss, 0);
+        GET_MANA(victim) -= mana_loss;
 
-
-    if ( affected_by_spell( victim, SPELL_MANA_SHIELD ) &&  ( !  ( attacktype == TYPE_BLEED ) && 
-                                                              ! ( attacktype == SPELL_POISON ) ) ) { 
-        mana_loss = ( dam * GET_MSHIELD_PCT( victim ) ) / 100;
-        mana_loss = MAX( MIN( GET_MANA( victim ) - GET_MSHIELD_LOW( victim ), mana_loss ), 0 );
-        GET_MANA( victim ) -= mana_loss;
-        
-        if ( GET_MANA( victim ) <= GET_MSHIELD_LOW( victim ) ) {
-            send_to_char( "Your mana shield has expired.\r\n", victim );
-            affect_from_char( victim, SPELL_MANA_SHIELD );
+        if (GET_MANA(victim) <= GET_MSHIELD_LOW(victim)) {
+            send_to_char("Your mana shield has expired.\r\n", victim);
+            affect_from_char(victim, SPELL_MANA_SHIELD);
         }
-        
-        dam = MAX( 0, dam - mana_loss );
+
+        dam = MAX(0, dam - mana_loss);
     }
-        
-
-    if ( GET_CLASS( victim ) == CLASS_CLERIC && IS_GOOD( victim ) ) {
-        // full moon gives protection up to 30%
-        if ( lunar_stage == MOON_FULL ) {
-            dam -= ( dam * GET_ALIGNMENT( victim ) ) / 3000;
-            // good clerics get an alignment-based protection, up to 10%
-        }  else {
-            dam -= ( dam * GET_ALIGNMENT( victim ) ) / 10000;
-        }
+    
+    if (GET_CLASS(victim) == CLASS_CLERIC && IS_GOOD(victim)) {
+        if (lunar_stage == MOON_FULL) // full moon gives protection up to 30%
+            dam_reduction += GET_ALIGNMENT(victim) / 30;
+        else // good clerics get an alignment-based protection, up to 10%
+            dam_reduction += GET_ALIGNMENT(victim) / 100;
     }
   
-    if ( ch && GET_CLASS( ch ) == CLASS_CLERIC && IS_EVIL( ch ) ) {
-        // new moon gives extra damage up to 30%
-        if ( lunar_stage == MOON_NEW ) {
-            // I think this is a cut and paste error, evil clerics were only getting
-            // a 10 percent damage bonus for a new moon instead of 30
-            //dam += ( dam * GET_ALIGNMENT( ch ) ) / 10000;
-            dam += ( dam * GET_ALIGNMENT( ch ) ) / 3000;
-            // evil clerics get an alignment-based damage bonus, up to 10%
-        } else {
-            dam += ( dam * GET_ALIGNMENT( ch ) ) / 10000;
-        }
+    if (ch && GET_CLASS(ch) == CLASS_CLERIC && IS_EVIL(ch)) {
+        if (lunar_stage == MOON_NEW) // new moon gives extra damage up to 30%
+            dam += (int)((dam * GET_ALIGNMENT(ch)) / 3000);
+        else // evil clerics get an alignment-based damage bonus, up to 10%
+            dam += (int)((dam * GET_ALIGNMENT(ch)) / 10000);
     }
 
-    /*************** Sanctuary ******************/
-    if (IS_AFFECTED(victim, AFF_SANCTUARY) && (!ch || !IS_EVIL(victim) || 
-         !affected_by_spell(ch, SPELL_RIGHTEOUS_PENETRATION)) &&
-         (!ch || !IS_GOOD(victim) || !affected_by_spell(ch, SPELL_MALEFIC_VIOLATION)) && 
-         (!(attacktype == TYPE_BLEED ) && ! (attacktype == SPELL_POISON))) {
-        
-        // Changed by Nothing, the following line causes remort class physics or cyborgs
-        // (including cler/phyz, cler/borg) to only get 20 percent damage reduction 
-        // from sanctuary...I don't think that's what was intended here.  This code now
-        // only causes PRIME borgs, vampires and phyz to get a reduced benefit from sanc
-        // following line commented out and changed to the below --Nothing 1/17/2001
-        //        if (IS_VAMPIRE(victim) || IS_CYBORG(victim) || IS_PHYSIC(victim)) {
-        if (IS_VAMPIRE(victim) || 
-              GET_CLASS(victim) == CLASS_CYBORG || 
-              GET_CLASS(victim) == CLASS_PHYSIC) 
-            dam = (int)(dam * 0.80);
-        // Only primary clerics and knights should get the full benefit of Sanctuary
-        // Note, this code cleaned slightly and changed so that only PRIME clerics and
-        // knights actually get the full benefit of Sanctuary --Nothing 1/17/2001
-        else if ((GET_CLASS(victim) == CLASS_CLERIC || 
-                 GET_CLASS(victim) == CLASS_KNIGHT) && !IS_NEUTRAL(victim)) 
-            dam >>= 1;
-        else 
-            dam = (int)(dam * 0.60);
-    } 
-    
-    else if (IS_AFFECTED_2(victim, AFF2_OBLIVITY) &&
-             CHECK_SKILL(victim, ZEN_OBLIVITY) > 60) {
-        // damage reduction ranges from about 35 to 60%
-        dam -= (dam * 
-               (( GET_LEVEL( victim ) * 10 ) +
-               (CHECK_SKILL(victim, ZEN_OBLIVITY) - 60) +
-               (GET_REMORT_GEN(victim) << 2))) / 1000;
-    
-    } 
-    
-    else if (IS_AFFECTED(victim, AFF_NOPAIN)) {
-        dam >>= 1;          /* 1/2 damage when NoPain */
-    } 
-    
-    else if (IS_AFFECTED_2(victim, AFF2_BESERK)) {
-        if (IS_BARB(victim)) 
-            dam -= (dam * (10 + GET_REMORT_GEN(victim))) / 50;
+    /**************************** Sanctuary *****************************/
+    /********************************************************************/
+    if (AFF_BY_SANC(ch, victim, attacktype)) {
+        if (IS_VAMPIRE(victim))
+            dam_reduction += 0;
+        else if (GET_CLASS(victim) == CLASS_CYBORG || GET_CLASS(victim) == CLASS_PHYSIC)
+            dam_reduction += 8;
+        else if ((GET_CLASS(victim) == CLASS_CLERIC || GET_CLASS(victim) == CLASS_KNIGHT)
+                 && !IS_NEUTRAL(victim))
+            dam_reduction += 25;
         else
-            dam = (int)(dam * 0.80);
+            dam_reduction += 15;
+    }
+
+   /****************************** Oblivity *****************************/
+   /*********************************************************************/
+    // damage reduction ranges up to about 35%
+    if (IS_AFFECTED_2(victim, AFF2_OBLIVITY)) {
+        if (IS_NEUTRAL(victim) && CHECK_SKILL(victim, ZEN_OBLIVITY) > 60) {
+            dam_reduction += ((GET_LEVEL(victim) + 
+                               victim->getLevelBonus(ZEN_OBLIVITY)) * 10 +
+                             (1000 - abs(GET_ALIGNMENT(victim)) + 
+                               (CHECK_SKILL(victim, ZEN_OBLIVITY) * 10)) / 100);
+        }
     } 
     
-    else if (AFF3_FLAGGED(victim, AFF3_DAMAGE_CONTROL)) {
-        if (GET_LEVEL(victim) < 30)
-            dam = (int) (dam * 0.90);
-        else if (GET_LEVEL(victim) < 35) 
-            dam = (int) (dam * 0.85);
-        else if (GET_LEVEL(victim) < 40) 
-            dam = (int) (dam * 0.80);
-        else if (GET_LEVEL(victim) < 45) 
-            dam = (int)(dam * 0.75);
-        else if (GET_LEVEL( victim ) < 47) 
-            dam = (int) (dam * 0.70);
-        else if (GET_LEVEL(victim) < 49) 
-            dam = (int)(dam * 0.65);
-        else 
-            dam = (int)(dam * 0.60); 
+    /***************************** No Pain ******************************/
+    /********************************************************************/
+    if (IS_AFFECTED(victim, AFF_NOPAIN)) {
+        dam_reduction += 25;         
     } 
-    // Damn alchoholics
-    if ( GET_COND( victim, DRUNK ) > 5 && !IS_AFFECTED( victim, AFF_NOPAIN ) )
-        dam = ( int ) ( dam * 0.86 );
-
-    if ( ( af = affected_by_spell( victim, SPELL_SHIELD_OF_RIGHTEOUSNESS ) ) &&
-         IS_GOOD( victim ) ) {
-        if ( !IS_NPC( victim ) ) {
-            if ( af->modifier == GET_IDNUM( victim ) ) {
-                dam -= dam * ( ( 5 + ( GET_REMORT_GEN( victim ) >> 1 ) ) / 30 );
-            } else {
-                for ( tmp_ch = victim->in_room->people; tmp_ch; tmp_ch = tmp_ch->next_in_room ) {
-                    if ( IS_NPC( tmp_ch ) && af->modifier == ( short int ) -MOB_IDNUM( tmp_ch ) ) {
-                        dam -= dam * ( ( 5 + ( GET_REMORT_GEN( tmp_ch ) >> 1 ) ) / 30 );
-                        break;
-                    } else if ( !IS_NPC( tmp_ch ) && af->modifier == GET_IDNUM( tmp_ch ) ) {        
-                        dam -= dam * ( ( 5 + ( GET_REMORT_GEN( tmp_ch ) >> 1 ) ) / 30 );
-                        break;
-                    }
+    
+    /***************************** Berserk ******************************/
+    /********************************************************************/
+    if (IS_AFFECTED_2(victim, AFF2_BESERK)) {
+        if (IS_BARB(victim))
+            dam_reduction += (victim->getLevelBonus(SKILL_BESERK)) / 5;
+        else
+            dam_reduction += 5;
+    } 
+    
+    /*************************** Damage Control *************************/
+    /********************************************************************/
+    if (AFF3_FLAGGED(victim, AFF3_DAMAGE_CONTROL)) {
+        dam_reduction += (victim->getLevelBonus(SKILL_DAMAGE_CONTROL)) / 5;
+    }
+    
+    /***************************** ALCOHOLICS!!! ************************/
+    /********************************************************************/
+    if (GET_COND(victim, DRUNK) > 5)
+        dam_reduction += GET_COND(victim, DRUNK);
+    
+    /*********************** Shield of Righteousness ********************/
+    /********************************************************************/
+    if ((af = affected_by_spell(victim, SPELL_SHIELD_OF_RIGHTEOUSNESS)) && 
+        IS_GOOD(victim) && !IS_NPC(victim)) {
+        if (af->modifier == GET_IDNUM(victim)) {
+            dam_reduction += (victim->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
+                                   + (GET_ALIGNMENT(victim) / 100);
+        } 
+        else {
+            for (tmp_ch = victim->in_room->people; tmp_ch; tmp_ch = tmp_ch->next_in_room) {
+                if (IS_NPC(tmp_ch) && af->modifier == (short int)-MOB_IDNUM(tmp_ch)) {
+                    dam_reduction += (tmp_ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
+                                           + (GET_ALIGNMENT(victim) / 100);
+                    break;
+                } 
+                else if (!IS_NPC(tmp_ch) && af->modifier == GET_IDNUM(tmp_ch )) {     
+                    dam_reduction += (tmp_ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
+                                           + (GET_ALIGNMENT(victim) / 100); 
+                    break;
                 }
             }
         }
     }
 
-    if ( (af = affected_by_spell( victim, SPELL_STONESKIN ) ) )
-        dam -= ( dam * af->level ) / 172;
-    else if ( ( af = affected_by_spell( victim, SPELL_BARKSKIN ) ) ||
-              ( af = affected_by_spell( victim, SPELL_LATTICE_HARDENING ) ) ||
-              ( af = affected_by_spell( victim, SPELL_DERMAL_HARDENING ) ) )
-        dam -= ( dam * af->level ) / 207;
-    if ( IS_AFFECTED_2( victim, AFF2_PETRIFIED ) )
-        dam = ( int ) ( dam * 0.2 );
+    /************************ Lattice Hardening **************************/
+    /*********************************************************************/
+    if (affected_by_spell(victim, SPELL_LATTICE_HARDENING))
+        dam_reduction += (victim->getLevelBonus(SPELL_LATTICE_HARDENING)) / 6;
+        
+    /*************** Stoneskin Barkskin Dermal Hardening *****************/
+    /*********************************************************************/
+    if (affected_by_spell(victim, SPELL_STONESKIN)) 
+        dam_reduction += (victim->getLevelBonus(SPELL_STONESKIN)) / 4;
+    
+    else if (affected_by_spell(victim, SPELL_BARKSKIN))
+        dam_reduction += (victim->getLevelBonus(SPELL_BARKSKIN)) / 6;
+    
+    else if (affected_by_spell(victim, SPELL_DERMAL_HARDENING))
+        dam_reduction += (victim->getLevelBonus(SPELL_DERMAL_HARDENING)) / 6; 
+        
+    /*************************** Petrification ***************************/
+    /*********************************************************************/
+    if (IS_AFFECTED_2(victim, AFF2_PETRIFIED))
+        dam_reduction += 75;
 
-
-    if ( ch ) {
-        if ( ( IS_KNIGHT( ch ) || IS_CLERIC( ch ) ) && IS_NEUTRAL( ch ) && !IS_NPC( ch ) )
-            dam = MIN( ( dam * abs( GET_ALIGNMENT( ch ) ) ) / 2000, dam>>2 );  // limit to 1/4 damage
-        else if ( IS_MONK( ch ) && !IS_NPC( ch ) && !IS_NEUTRAL( ch ) )
-            dam -= ( dam * abs( GET_ALIGNMENT( ch ) ) ) / 2000;
-        if ( ( IS_EVIL( ch ) && IS_AFFECTED( victim, AFF_PROTECT_EVIL ) ) ||
-             ( IS_GOOD( ch ) && IS_AFFECTED( victim, AFF_PROTECT_GOOD ) ) ||
-             ( IS_UNDEAD( ch ) && IS_AFFECTED_2( victim, AFF2_PROTECT_UNDEAD ) ) ||
-             ( IS_DEMON( ch ) && IS_AFFECTED_2( victim, AFF2_PROT_DEMONS ) ) ||
-             ( IS_DEVIL( ch ) && IS_AFFECTED_2( victim, AFF2_PROT_DEVILS ) ) )
-            dam = ( int ) ( dam * 0.85 );         /*reduces the damage */
+    //********** Knights, Clerics, and Monks out of alignment ************/
+    if (ch) {
+        if (((IS_KNIGHT(ch) || IS_CLERIC(ch)) && IS_NEUTRAL(ch)) ||
+            IS_MONK(ch) && !IS_NEUTRAL(ch))
+            dam = (dam * abs(GET_ALIGNMENT(ch)) / 2000);
+            
+        //******************* Various forms of protection ****************/
+        if ((IS_EVIL(ch) && IS_AFFECTED(victim, AFF_PROTECT_EVIL)) ||
+             (IS_GOOD(ch) && IS_AFFECTED(victim, AFF_PROTECT_GOOD)) ||
+             (IS_UNDEAD(ch) && IS_AFFECTED_2(victim, AFF2_PROTECT_UNDEAD)) ||
+             (IS_DEMON(ch) && IS_AFFECTED_2(victim, AFF2_PROT_DEMONS)) ||
+             (IS_DEVIL(ch) && IS_AFFECTED_2(victim, AFF2_PROT_DEVILS)))
+            dam_reduction += 8;
     }
+
+    // Thats all of the damage reduction available to a player, so lets put a 
+    // cap on the maximum possible damage reduction and actually reduce the damage
+    dam_reduction = MIN(dam_reduction, 75);
+    dam -= (int)(dam * (dam_reduction / 100));
 
     if ( IS_PUDDING( victim ) || IS_SLIME( victim ) || IS_TROLL( victim ) )
         dam >>= 2;
@@ -1832,9 +1840,9 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     }
 
     /* debugging message */
-    sprintf( buf, "<%s> ( dam:%4d ) ( Wait: %2d ) ( Pos: %d )\r\n", GET_NAME( victim ),
+    sprintf( buf, "<%s> ( dam: %4d ) ( Wait: %2d ) ( Pos: %d ) ( Reduce: %f )\r\n", GET_NAME( victim ),
              dam, IS_NPC( victim ) ? GET_MOB_WAIT( victim ) :
-             victim->desc ? victim->desc->wait : 0, victim->getPosition() );
+             victim->desc ? victim->desc->wait : 0, victim->getPosition(), dam_reduction );
     if ( ch && PRF2_FLAGGED( ch, PRF2_FIGHT_DEBUG ) ) {
         send_to_char( buf, ch );
     }
@@ -2411,11 +2419,12 @@ void perform_violence( void ) {
                      IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->wait : 0 ));
             send_to_char( buf, FIGHTING( ch ) );
         }
-
+        
         //
         // it's an attack!
         //
-
+        if (IS_MERC(ch))
+            prob = 301;
         if ( MIN( 100, prob+15 ) >= die_roll ) {
 
             bool stop = false;

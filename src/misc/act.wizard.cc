@@ -2261,7 +2261,7 @@ ACMD(do_rswitch)
 }
 
 // This NASTY macro written by Nothing, spank me next time you see me if you want... :P
-#define GET_START_ROOM(ch) (GET_HOME(ch) == HOME_NEWBIE_TOWER ? r_tower_modrian_start_room :\
+#define GET_START_ROOM(ch) (GET_HOME(ch) == HOME_MODRIAN ? r_mortal_start_room :\
                             GET_HOME(ch) == HOME_ELECTRO ? r_electro_start_room :\
                             GET_HOME(ch) == HOME_NEW_THALOS ? r_new_thalos_start_room :\
                             GET_HOME(ch) == HOME_ELVEN_VILLAGE ? r_elven_start_room :\
@@ -2270,7 +2270,7 @@ ACMD(do_rswitch)
                             GET_HOME(ch) == HOME_CITY ? r_city_start_room :\
                             GET_HOME(ch) == HOME_DOOM ? r_doom_start_room :\
                             GET_HOME(ch) == HOME_MONK ? r_monk_start_room :\
-                            GET_HOME(ch) == HOME_SKULLPORT_NEWBIE ? r_skullport_newbie_start_room :\
+                            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :\
                             GET_HOME(ch) == HOME_SOLACE_COVE ? r_solace_start_room :\
                             GET_HOME(ch) == HOME_MAVERNAL ? r_mavernal_start_room :\
                             GET_HOME(ch) == HOME_DWARVEN_CAVERNS ? r_dwarven_caverns_start_room :\
@@ -2278,7 +2278,7 @@ ACMD(do_rswitch)
                             GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :\
                             GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :\
                             GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :\
-                            GET_HOME(ch) == HOME_ZUL_DANE ? r_zul_dane_newbie_start_room :\
+                            GET_HOME(ch) == HOME_ZUL_DANE ? r_zul_dane_start_room :\
                             r_mortal_start_room)
 ACMD(do_return)
 {
@@ -2289,7 +2289,7 @@ ACMD(do_return)
         if (FIGHTING(ch)) {
             send_to_char("No way!  You're fighting for your life!\r\n", ch);
         }
-        else if (GET_LEVEL(ch) <= 5) {
+        else if (GET_LEVEL(ch) <= 10) {
             act("A whirling globe of multi-colored light appears and whisks you away!",
                 FALSE, ch, NULL, NULL, TO_CHAR);
             act("A whirling globe of multi-colored light appears and whisks $n away!",
