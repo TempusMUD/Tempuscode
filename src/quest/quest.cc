@@ -44,6 +44,8 @@ void do_qcontrol_help(struct Creature *ch, char *argument);
 void do_qcontrol_switch(struct Creature *ch, char *argument, int com);
 void do_qcontrol_oload_list(Creature * ch);
 void do_qcontrol_oload(Creature *ch, char *argument, int com);
+void do_qcontrol_restore(Creature *ch, char *argument, int com);
+char *compose_qcomm_string(Creature *ch, Creature *vict, Quest * quest, int mode, char *str);
 void send_to_quest(Creature *ch, char *str, Quest * quest, int level, int mode);
 
 // internal vars here
@@ -81,6 +83,7 @@ const struct qcontrol_option {
 	{"trans", "<quest vnum> [room number]", LVL_AMBASSADOR},
 	{"award", "<quest vnum> <player> <pts> [comments]", LVL_AMBASSADOR},
 	{"penalize", "<quest vnum> <player> <pts> [reason]", LVL_AMBASSADOR},
+	{"restore", "<quest vnum>", LVL_AMBASSADOR},
 	{NULL, NULL, 0}				// list terminator
 };
 
@@ -333,6 +336,9 @@ ACMD(do_qcontrol)
 		break;
 	case 27:					// penalize
 		do_qcontrol_penalize(ch, argument, com);
+		break;
+	case 28:					// restore
+		do_qcontrol_restore(ch, argument, com);
 		break;
 	default:
 		send_to_char(ch, "Sorry, this qcontrol option is not implemented.\r\n");
@@ -800,6 +806,7 @@ do_qcontrol_create(Creature *ch, char *argument, int com)
 		return;
 	}
 	GET_QUEST(ch) = quest.getVnum();
+	ch->saveToXML();
 	save_quests();
 }
 
@@ -1646,7 +1653,11 @@ find_quest(Creature *ch, char *argument)
 {
 	int vnum;
 	Quest *quest = NULL;
-	vnum = atoi(argument);
+
+	if (*argument)
+		vnum = atoi(argument);
+	else
+		vnum = GET_QUEST(ch);
 
 	if ((quest = quest_by_vnum(vnum)))
 		return quest;
@@ -2580,6 +2591,43 @@ do_qcontrol_penalize(Creature *ch, char *argument, int com)
 		}
 	}
 }
+
+void
+do_qcontrol_restore(Creature *ch, char *argument, int com)
+{
+	Quest *quest = NULL;
+	Creature *vict = NULL;
+	char *str;
+	int i;
+
+
+	
+	str = tmp_getword(&argument);
+
+	if (!str) {
+		do_qcontrol_usage(ch, com);
+		return;
+	}
+
+	if (!(quest = find_quest(ch, str)))
+		return;
+
+	if (!quest->canEdit(ch))
+		return;
+
+	for (i = 0; i < quest->getNumPlayers(); i++) {
+		if ((vict = get_char_in_world_by_idnum(quest->getPlayer(i).idnum))) {
+			vict->restore();
+			if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
+					vict->desc) {
+				send_to_char(vict,
+					compose_qcomm_string(ch, vict, quest, QCOMM_ECHO,
+						"You have been restored!") );
+			}
+		}
+	}
+}
+
 void 
 do_qcontrol_save(Creature *ch, char *argument, int com)
 {
