@@ -93,6 +93,7 @@ ACMD(do_alter);
 ACMD(do_analyze);
 ACMD(do_approve);
 ACMD(do_arm);
+ACMD(do_auction);
 ACMD(do_unapprove);
 ACMD(do_assist);
 ACMD(do_assimilate);
@@ -221,6 +222,7 @@ ACMD(do_hotwire);
 ACMD(do_ignite);
 ACMD(do_impale);
 ACMD(do_improve);
+ACMD(do_infiltrate);
 ACMD(do_info);
 ACMD(do_intermud);
 ACMD(do_interpage);
@@ -457,6 +459,7 @@ extern const struct command_info cmd_info[] = {
     { "assimilate",POS_RESTING , do_assimilate, 0, 0 },
     { "ask"      , POS_RESTING , do_spec_comm, 0, SCMD_ASK },
     { "auction"  , POS_SLEEPING, do_gen_comm , 0, SCMD_AUCTION },
+    { "auction1" , POS_SLEEPING, do_auction  , 0, SCMD_AUCTION }, 
     { "autodiagnose",POS_DEAD  , do_gen_tog  , 1, SCMD_AUTO_DIAGNOSE },
     { "autoexits" , POS_DEAD   , do_gen_tog  , 1, SCMD_AUTOEXIT },
     { "autoloot"  , POS_DEAD   , do_gen_tog  , 1, SCMD_AUTOLOOT },
@@ -771,6 +774,7 @@ extern const struct command_info cmd_info[] = {
     { "inventory", POS_DEAD    , do_inventory, 0, 0 },
     { "inews"    , POS_SLEEPING, do_dyntext_show, LVL_AMBASSADOR, SCMD_DYNTEXT_INEWS },
     { "increase" , POS_STANDING, do_not_here , 0, 0 },
+    { "infiltrate", POS_STANDING, do_infiltrate, 1, 0},
     { "inject"   , POS_RESTING , do_use      , 0, SCMD_INJECT },
     { "ignite"   , POS_RESTING , do_ignite   , 0, 0 },
     { "install"  , POS_DEAD    , do_install  , LVL_ETERNAL, 0},

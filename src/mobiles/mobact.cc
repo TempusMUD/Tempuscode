@@ -1009,6 +1009,33 @@ int best_attack(struct char_data *ch, struct char_data *vict) {
     else
         cur_class = GET_CLASS(ch);
 
+    if (IS_AFFECTED_3(vict, AFF3_INFILTRATE)) {
+        //we need to determine if victs infiltration techniques are up to
+        //challenge
+        int prob = CHECK_SKILL(vict, SKILL_INFILTRATE) + vict->getLevelBonus(SKILL_INFILTRATE);
+        int percent = number(0, 125);
+       
+        if (affected_by_spell(ch, ZEN_AWARENESS) ||
+            IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) {
+            percent += 17;
+        }
+        
+        if (IS_AFFECTED_2(vict, AFF2_TRUE_SEEING))
+            prob += 17;
+            
+        if (ch->getPosition() < POS_FIGHTING)
+            prob += 10;
+            
+        if (IS_AFFECTED_2(vict, AFF2_HASTE))
+            prob += 15; 
+            
+        if (IS_AFFECTED_2(ch, AFF2_HASTE))
+            percent += 15;
+            
+        percent += GET_LEVEL(ch);
+        if (percent < prob)
+            return 0;
+    }
     //
     //
     //
@@ -2088,7 +2115,7 @@ void mobile_activity(void) {
                         (IS_GOOD(vict) && !MOB_FLAGGED(ch, MOB_AGGR_GOOD)) ||
                         (IS_NEUTRAL(vict) && !MOB_FLAGGED(ch, MOB_AGGR_NEUTRAL)))
                         continue;
-                
+               
                 struct char_data *tmp_next_ch = 
                     ( vict == next_ch ) ? ( next_ch ? next_ch->next : 0 ) : next_ch;
                 
@@ -2173,6 +2200,9 @@ void mobile_activity(void) {
             !AFF_FLAGGED(ch, AFF_CHARM)) {
             found = FALSE;
             for (vict=ch->in_room->people;vict&&!found;vict = vict->next_in_room) {
+                if (IS_AFFECTED_3(vict, AFF3_INFILTRATE))
+                    continue;
+
                 if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS)) || 
                     !CAN_SEE(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
                     ((af_ptr = affected_by_spell(vict, SKILL_DISGUISE)) &&

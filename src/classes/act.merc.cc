@@ -487,7 +487,43 @@ ACMD(do_wrench)
      }
 }
 
+ACMD(do_infiltrate)
+{
+    struct affected_type af;
 
+    if (IS_AFFECTED_3(ch, AFF3_INFILTRATE)) {
+       send_to_char("Okay, you are no longer attempting to infiltrate.\r\n",ch);
+       affect_from_char(ch, SKILL_INFILTRATE);
+       affect_from_char(ch, SKILL_SNEAK);
+       return;
+    }
+
+    if (CHECK_SKILL(ch, SKILL_INFILTRATE) < number(20, 70)) {
+       send_to_char("You don't feel particularly sneaky...\n", ch);
+       return;
+    }
+
+    send_to_char("Okay, you'll try to infiltrate until further notice.\r\n", ch);
+    
+    af.type = SKILL_SNEAK;
+    af.is_instant = 0;
+    af.duration = GET_LEVEL(ch);
+    af.modifier = 0;
+    af.location = APPLY_NONE;
+    af.bitvector = AFF_SNEAK;
+    af.level = GET_LEVEL(ch) + ch->getLevelBonus(SKILL_INFILTRATE);
+    affect_to_char(ch, &af);
+
+    af.type = SKILL_INFILTRATE;
+    af.aff_index = 3;
+    af.is_instant = 0;
+    af.duration = GET_LEVEL(ch);
+    af.modifier = 0;
+    af.location = APPLY_NONE;
+    af.bitvector = AFF3_INFILTRATE;
+    af.level = GET_LEVEL(ch) + ch->getLevelBonus(SKILL_INFILTRATE);
+    affect_to_char(ch, &af);
+}
 
 
 

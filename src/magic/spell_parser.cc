@@ -503,7 +503,7 @@ const char *spells[] =
     "!UNUSED!", 
     "!UNUSED!",        /* 660 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 665 */
-    "hamstring", "snatch", "drag", "snipe", "!UNUSED!",        /* 670 */
+    "hamstring", "snatch", "drag", "snipe", "infiltrate",        /* 670 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 675 */
     "arterial flow enhancement", 
         "genetek optimmunal response", 
@@ -3436,7 +3436,7 @@ mag_assign_spells(void)
     spello(SKILL_RESCUE, X,  X, X, 3, 12, X, X, X, 8, 12, X, 16, X, 26, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_SNEAK, X, X, 3, X, X, X, X, X, X, 8, X, X, 7, 30,X,X,X,
+    spello(SKILL_SNEAK, X, X, 3, X, X, X, X, X, X, 8, X, X, 7, X, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_STEAL, X, X, 2, X, X, X, X, X, X, X, X, X, X,X,X,X,X,
@@ -3651,23 +3651,26 @@ mag_assign_spells(void)
     spello(SKILL_RETREAT, X, X,16,16, X, X, X,X,X, 18,17,33, X, 20, X,X,X,
            0, 0, 0, 0, 0, 0, 0);
 /**********************   MERC SKILLS  ********************/        
-    spello(SKILL_GUNSMITHING, X, X, X, X, X, X, X, X,X, X, X, X, X,20, X,X,X,
+    spello(SKILL_GUNSMITHING, X, X, X, X, X, X, X, X,X, X, X, X, X, 20, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_PISTOLWHIP, X, X, X, X, X, X, X, X, X, X, X, X, X,20, X,X,X,
+    spello(SKILL_PISTOLWHIP, X, X, X, X, X, X, X, X, X, X, X, X, X, 20, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_CROSSFACE, X, X, X, X, X, X, X, X, X, X, X, X, X,25, X,X,X,
+    spello(SKILL_CROSSFACE, X, X, X, X, X, X, X, X, X, X, X, X, X, 25, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_WRENCH, X, X, X, X, X, X, X, X, X, X, X, X, X,27, X,X,X,
+    spello(SKILL_WRENCH, X, X, X, X, X, X, X, X, X, X, X, X, X, 27, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
-    spello(SKILL_ELUSION, X, X, X, X, X, X, X, X, X, X, X, X, X,9, X,X,X,
+    spello(SKILL_ELUSION, X, X, X, X, X, X, X, X, X, X, X, X, X,9, X, X, X,
            0, 0, 0, 0, 0, 0, 0);
 
     spello(SKILL_SNIPE,   X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
-           0, 0, 0, 0, 0, 0, 0);        
+           0, 0, 0, 0, 0, 0, 0);
+
+    spello(SKILL_INFILTRATE, X, X, X, X, X, X, X, X, X, X, X, X, X, 22, X, X, X,
+           0, 0, 0, 0, 0, 0, 0);
 
 /**********************   MERC DEVICES   *********************/
     /*                                                               24*/
