@@ -105,7 +105,9 @@ bool can_travel_sector(struct char_data *ch, int sector_type, bool active)
     
     if ( sector_type == SECT_UNDERWATER ||
 	 sector_type == SECT_PITCH_SUB ||
-	 sector_type == SECT_WATER_NOSWIM ) {
+	 sector_type == SECT_WATER_NOSWIM ||
+	 sector_type == SECT_ELEMENTAL_EARTH ||
+	 sector_type == SECT_FREESPACE ) {
    
 	if (IS_RACE(ch, RACE_FISH))
 	    return true;

@@ -1560,7 +1560,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	af.aff_index = 3;
 	af.location = APPLY_MOVE;
 	af.modifier = - (50 - (level >> 1));
-	af.duration = dice(1, 1 + (level >> 3));
+	af.duration = ( dice(1, 1 + (level >> 3)) * (level/16) );
 	to_vict = "Your breathing rate drops into a static state.";
 	break;
     

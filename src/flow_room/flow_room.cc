@@ -56,58 +56,64 @@ const char *flow_types[] = {
     "Sinking_Swamp",
     "Unseen_Force",
     "Elemental_Wind",
+    "Quicksand",	
     "\n"
 };
 
 const char *char_flow_msg[NUM_FLOW_TYPES+1][3] = {
-    {"$n flows %s.",                                    /* Default       */
+    {"$n flows %s.",                                    // Default       
      "$n flows in from %s.",
      "You flow %s."},
-    {"$n is blown %s by the wind.",                     /* Winds         */
+    {"$n is blown %s by the wind.",                     // Winds         
      "$n blows in from %s.",
      "The wind blows you %s."},
-    {"$n falls %s.",                                    /* Falling       */
+    {"$n falls %s.",                                    // Falling       
      "$n falls in from %s.",
      "You fall %s."},
-    {"The current pulls $n %s.",                        /* River Surface */
+    {"The current pulls $n %s.",                        // River Surface 
      "$n flows in from %s on the current.",
      "The current pulls you %s."},
-    {"$n is sucked %s by the current!",                 /* Water Vortex  */
+    {"$n is sucked %s by the current!",                 // Water Vortex  
      "$n is sucked in from %s by the current.",
      "You are sucked %s by the current!"},
-    {"The current pulls $n %s.",                        /* Underwater    */
+    {"The current pulls $n %s.",                        // Underwater    
      "$n flows in from %s on the current.",
      "The current pulls you %s."},
-    {"$n spirals off %s through the conduit.",          /* Astral Conduit */
+    {"$n spirals off %s through the conduit.",          // Astral Conduit 
      "$n spirals in from %s through the conduit.",
      "You spiral %s through the conduit."},
-    {"$n moves off %s on the conveyor.",                /* Conveyor Belt */
+    {"$n moves off %s on the conveyor.",                // Conveyor Belt 
      "$n moves in from %s on the conveyor.",
      "The conveyor pulls you %s."},
-    {"$n is dragged %s by the lava flow.",              /* Lava Flow     */
+    {"$n is dragged %s by the lava flow.",              // Lava Flow     
      "$n moves in from %s with the lava flow.",
      "The lava flow drags you relentlessly %s."},
-    {"The fiery current pulls $n %s.",                  /* River Surface */
+    {"The fiery current pulls $n %s.",                  // River Surface 
      "$n flows in from %s on the fiery current.",
      "The fiery current pulls you %s."},
-    {"$n is blown %s by the hot updraft.",              /* Volcanic Winds */
+    {"$n is blown %s by the hot updraft.",              // Volcanic Winds 
      "$n is blown in from %s by the hot updraft.",
      "The hot updraft blows you %swards."},
-    {"The rotating disc takes $n %sward.",              /* Rotating Disc */
+    {"The rotating disc takes $n %sward.",              // Rotating Disc 
      "The rotating disc brings $n in from %s.",
      "The rotating disc takes you %sward."},
-    {"$n moves %p along the escalator.",                /* Escalator   */
+    {"$n moves %p along the escalator.",                           // Escalator   
      "$n comes into view from %s riding the escalator.",
      "You ride the escalator %s."},
-    {"$n is dragged %s into the swamp.",                // Sinking Swamp
+    {"$n is dragged %s into the swamp.",                           // Sinking Swamp
      "$n is dragged in from %s.",
      "You sink suddenly into the swamp!"},
-    {"$n is dragged %s by an unseen force.",                // Unseen force
+    {"$n is dragged %s by an unseen force.",                       // Unseen force
      "$n is dragged in from %s.",
      "You are dragged %s by an unseen force!!"},
-    {"$n is forced %sward by the strong elemental winds.",
+    {"$n is forced %sward by the strong elemental winds.",         // Elemental Wind
      "$n is forced in from %s by the strong elemental winds.",
      "The strong elemental winds force you %s."},
+    {"$n struggles frantically as they $e is pulled %s by the quicksand!",     // Quicksand
+     "The quicksand pulls $n in from the %s as $e struggles to break free!", 
+     "You struggle frantically as the quicksand pulls you %s!",},
+
+
     {"\n","\n","\n"}          /******* LEAVE THIS LINE LAST *********/
 };
 
@@ -142,8 +148,10 @@ const char *obj_flow_msg[NUM_FLOW_TYPES+1][2] = {
      "$p is dragged in from %s."},
     {"$p is dragged %s by an unseen force.",               // Unseen force
      "$p is dragged in from %s by an unseen force."},
-    {"$p is pushed %sward by the strong elemental winds.",
+    {"$p is pushed %sward by the strong elemental winds.", // Elemental Wind
      "$p is pushed in from %s by the strong elemental winds."},
+    {"$p is pulled %s by the quicksand.",                  // Quicksand
+     "$p is pulled in from %s by the quicksand."},
     {"\n","\n"}
 };
 

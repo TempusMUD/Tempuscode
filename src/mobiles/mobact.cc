@@ -321,9 +321,22 @@ void burn_update(void) {
 		SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM) {
 		send_to_char("The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n", ch);
 		act("The flames on $n sizzle and die, leaving a cloud of steam.", 
-		    FALSE, ch, 0, 0, TO_ROOM);
+		    FALSE, ch, 0, 0, TO_ROOM);	
 		REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
-	    } else if ( !random_fractional_3() ) {
+	    } 
+	    
+	    // 
+	    // Sect types that don't have oxygen
+	    //
+	    
+	    if( SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_EARTH || 
+		SECT_TYPE( ch->in_room ) == SECT_FREESPACE ) {
+		send_to_char("The flames on your body die in the absence of oxygen.\r\n", ch );
+		act("The flames on $n die in the absence of oxygen.", FALSE, ch, 0, 0, TO_ROOM );
+		REMOVE_BIT( AFF2_FLAGS( ch ), AFF2_ABLAZE );
+	    }
+	    
+	    else if ( !random_fractional_3() ) {
 		if(CHAR_WITHSTANDS_FIRE(ch)) {
 		    continue;
 		}
@@ -422,6 +435,24 @@ void burn_update(void) {
 		GET_POS(ch) < POS_FLYING &&
 		SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)
 		do_fly(ch, "", 0, 0);
+	}
+
+
+	//
+	// Space and other sectors where you can't breathe!
+	//
+
+	if ( ( SECT_TYPE( ch->in_room ) == SECT_ELEMENTAL_EARTH ||
+	       SECT_TYPE( ch->in_room ) == SECT_FREESPACE ) && 
+	     ! AFF3_FLAGGED( ch, AFF3_NOBREATHE ) ) {
+
+	    int suffocate_factor = ch->getBreathCount() - ch->getBreathThreshold();
+	    
+	    suffocate_factor = MAX( 0, suffocate_factor );
+
+	    if( damage( ch, ch, dice( 4, 5 ), TYPE_SUFFOCATING, -1 ) ) {
+		continue;
+	    }
 	}
 
 	// sleeping gas

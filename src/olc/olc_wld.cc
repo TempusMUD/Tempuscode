@@ -925,7 +925,7 @@ do_olc_rset( struct char_data *ch, char *argument )
 			 ( int )FLOW_TYPE( ch->in_room ) );
 		send_to_char( buf, ch );
 	    }
-	    send_to_char( "Usage: olc rflow <dir> <speed> <type>\r\n", ch );
+	    send_to_char( "Usage: olc rset flow <dir> <speed> <type>\r\n", ch );
 	    return;
 	}
 	half_chop( arg2, arg1, arg2 );        /* sneaky trix */
@@ -939,7 +939,7 @@ do_olc_rset( struct char_data *ch, char *argument )
 	    } else
 		send_to_char( "You must specify the flow speed as the second argument.\r\n", ch );
 	} else if ( !*arg1 )
-	    send_to_char( "Usage: olc rflow <dir> <speed> <type>\r\n", ch );
+	    send_to_char( "Usage: olc rset flow <dir> <speed> <type>\r\n", ch );
 	else if ( !is_number( arg2 ) || ( ( j = atoi( arg2 ) ) < 0 ) )
 	    send_to_char( "The second argument must be a positive number.\r\n", ch );
 	else if ( ( edir = search_block ( arg1, dirs, FALSE ) ) < 0 ) 
@@ -962,7 +962,7 @@ do_olc_rset( struct char_data *ch, char *argument )
 		    return;
 		}
 	    } else {
-		send_to_char( "Usage: olc rflow <dir> <speed> <type>\r\n", ch );
+		send_to_char( "Usage: olc rset flow <dir> <speed> <type>\r\n", ch );
 		return;
 	    }
 
