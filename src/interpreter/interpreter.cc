@@ -3018,43 +3018,42 @@ nanny(struct descriptor_data * d, char *arg)
 
         // if we're not a new char, check loadroom and rent
         if (GET_LEVEL(d->character)) {
-		// If we're buried, tell em and drop link.
-		if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
-			sprintf(buf,"You lay fresh flowers on the grave of %s.\r\n",GET_NAME(d->character));
-			SEND_TO_Q( buf, d);
-			sprintf(buf,"Disconnecting %s. - Character is buried.",GET_NAME(d->character));
-			mudlog(buf, NRM, LVL_GOD, TRUE);
+            // If we're buried, tell em and drop link.
+            if (PLR2_FLAGGED(d->character, PLR2_BURIED)) {
+                sprintf(buf,"You lay fresh flowers on the grave of %s.\r\n",GET_NAME(d->character));
+                SEND_TO_Q( buf, d);
+                sprintf(buf,"Disconnecting %s. - Character is buried.",GET_NAME(d->character));
+                mudlog(buf, NRM, LVL_GOD, TRUE);
+                STATE(d) = CON_CLOSE;
+                return;
+            }
+            theroom = real_room(GET_LOADROOM(d->character));
+            if(theroom && House_can_enter(d->character,theroom->number)
+               && clan_house_can_enter(d->character, theroom) ) {
+                d->character->in_room = theroom;
+            } else {
+                if(theroom) {
+                    sprintf(buf,"%s unable to load in <clan>house room %d. Loadroom unset.",
+                        GET_NAME(d->character),GET_LOADROOM(d->character));
+                        mudlog(buf, NRM, LVL_DEMI, TRUE);
+                }
+                GET_LOADROOM(d->character) = -1;
+            }
+            if(GET_LOADROOM(d->character) == -1 &&
+               GET_HOLD_LOADROOM(d->character) == -1) {
+                REMOVE_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
+            }
 
-			STATE(d) = CON_CLOSE;
-			return;
-		}
-        theroom = real_room(GET_LOADROOM(d->character));
-        if(theroom && House_can_enter(d->character,theroom->number)
-           && clan_house_can_enter(d->character, theroom) ) {
-            d->character->in_room = theroom;
-        } else {
-            GET_LOADROOM(d->character) = -1;
-        }
-        if(GET_LOADROOM(d->character) == -1 &&
-           GET_HOLD_LOADROOM(d->character) == -1) {
-            REMOVE_BIT(PLR_FLAGS(d->character), PLR_LOADROOM);
-           }
-            
-        if (PLR_FLAGGED(d->character, PLR_INVSTART))
-            GET_INVIS_LEV(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
-                           LVL_LUCIFER : GET_LEVEL(d->character));
-      
-        if ((load_result = Crash_load(d->character)) && 
-            d->character->in_room == NULL) {
+            if (PLR_FLAGGED(d->character, PLR_INVSTART))
+                GET_INVIS_LEV(d->character) = (GET_LEVEL(d->character) > LVL_LUCIFER ?
+                               LVL_LUCIFER : GET_LEVEL(d->character));
+          
+            if ((load_result = Crash_load(d->character)) && 
+                d->character->in_room == NULL) {
+                d->character->in_room = NULL;
+            }
+        } else { // otherwise null the loadroom
             d->character->in_room = NULL;
-        }
-        }
-
-        // otherwise null the loadroom
-        else {
-
-        d->character->in_room = NULL;
-
         }
 
         save_char(d->character, NULL);
@@ -3079,6 +3078,8 @@ nanny(struct descriptor_data * d, char *arg)
         if (GET_LEVEL(d->character) >= LVL_IMMORT) {
             if (d->character->in_room == NULL)
                 load_room = r_immort_start_room;
+            else
+                load_room = d->character->in_room;
             //else if ((load_room = real_room(d->character->in_room->number)) == 
             //     NULL || !House_can_enter(d->character, load_room->number) ||
             //     !clan_house_can_enter(d->character, load_room))
@@ -3190,103 +3191,103 @@ nanny(struct descriptor_data * d, char *arg)
             shutdown_count, shutdown_count == 1 ? "" : "s");
         send_to_char(buf, d->character);
         }
+        if(GET_LEVEL(d->character) < LVL_GOD) {
+            for (i = 0; i < num_of_houses; i++) {
+                if (house_control[i].mode != HOUSE_PUBLIC &&
+                    house_control[i].owner1 == GET_IDNUM(d->character) &&
+                    house_control[i].rent_sum && 
+                    (h_rm = real_room(house_control[i].house_rooms[0]))) {
+                    for (j=0, percent=1, rooms=0; j < house_control[i].num_of_rooms; j++) {
+                        if ((rm = real_room(house_control[i].house_rooms[j]))) {
+                            for (cur=0, obj = rm->contents; obj; obj = obj->next_content)
+                            cur += recurs_obj_contents(obj, NULL);
+                            if (cur > MAX_HOUSE_ITEMS) {
+                            sprintf(buf, "WARNING:  House room [%s%s%s] contains %d items.\r\n", 
+                                CCCYN(d->character, C_NRM), rm->name, CCNRM(d->character, C_NRM), cur);
+                            SEND_TO_Q(buf, d);
 
-        for (i = 0; i < num_of_houses; i++) {
-        if (house_control[i].mode != HOUSE_PUBLIC &&
-            house_control[i].owner1 == GET_IDNUM(d->character) &&
-            house_control[i].rent_sum && 
-            (h_rm = real_room(house_control[i].house_rooms[0]))) {
-            for (j=0, percent=1, rooms=0; j < house_control[i].num_of_rooms; j++) {
-            if ((rm = real_room(house_control[i].house_rooms[j]))) {
-                for (cur=0, obj = rm->contents; obj; obj = obj->next_content)
-                cur += recurs_obj_contents(obj, NULL);
-                if (cur > MAX_HOUSE_ITEMS) {
-                sprintf(buf, "WARNING:  House room [%s%s%s] contains %d items.\r\n", 
-                    CCCYN(d->character, C_NRM), rm->name, CCNRM(d->character, C_NRM), cur);
+                            // add one factor for every MAX_HOUSE_ITEMS over
+                            percent += (cur / MAX_HOUSE_ITEMS);
+                            rooms++;
+
+                            }
+                        }
+                    }
+                    if (percent > 1) {
+                        sprintf(buf, "You exceeded the house limit in %d room%s.\n"
+                            "Your house rent is multiplied by a factor of %d.\n", 
+                            rooms, percent > 1 ? "s" : "", percent);
+                        SEND_TO_Q(buf, d);
+                        sprintf(buf, "%s exceeded house limit in %d rooms, %d multiplier charged.",
+                            GET_NAME(d->character), rooms, percent);
+                        slog(buf);
+
+                        // actually multiply it
+                        house_control[i].rent_sum *= percent;
+                    }
+                sprintf(buf, 
+                    "You have accrued costs of %d %s on property: %s.\r\n", 
+                    house_control[i].rent_sum, 
+                    (cur = (h_rm->zone->time_frame == TIME_ELECTRO)) ?
+                    "credits" : "coins", h_rm->name);
                 SEND_TO_Q(buf, d);
-
-                // add one factor for every MAX_HOUSE_ITEMS over
-                percent += (cur / MAX_HOUSE_ITEMS);
-                rooms++;
-
-                }
-            }
-            }
-            if (percent > 1) {
-            sprintf(buf, "You exceeded the house limit in %d room%s.\n"
-                "Your house rent is multiplied by a factor of %d.\n", 
-                rooms, percent > 1 ? "s" : "", percent);
-            SEND_TO_Q(buf, d);
-            sprintf(buf, "%s exceeded house limit in %d rooms, %d multiplier charged.",
-                GET_NAME(d->character), rooms, percent);
-            slog(buf);
-
-            // actually multiply it
-            house_control[i].rent_sum *= percent;
-            }
-            sprintf(buf, 
-                "You have accrued costs of %d %s on property: %s.\r\n", 
-                house_control[i].rent_sum, 
-                (cur = (h_rm->zone->time_frame == TIME_ELECTRO)) ?
-                "credits" : "coins", h_rm->name);
-            SEND_TO_Q(buf, d);
-            if (cur) {        /* credits */
-            if ((GET_ECONET(d->character) + GET_CASH(d->character))
-                < house_control[i].rent_sum) {
-                house_control[i].rent_sum -= GET_ECONET(d->character);
-                house_control[i].rent_sum -= GET_CASH(d->character);
-                GET_ECONET(d->character) = GET_CASH(d->character) = 0;
-            } else {
-                GET_CASH(d->character) -= house_control[i].rent_sum;
-                if (GET_CASH(d->character) < 0) {
-                GET_ECONET(d->character) += GET_CASH(d->character);
-                GET_CASH(d->character) = 0;
-                }
-                house_control[i].rent_sum = 0;
-            }
-            } else {          /** gold economy **/
-            if (GET_GOLD(d->character) < house_control[i].rent_sum) {
-                house_control[i].rent_sum -= GET_GOLD(d->character);
-                GET_GOLD(d->character) = 0;
-            } else {
-                GET_GOLD(d->character) -= house_control[i].rent_sum;
-                house_control[i].rent_sum = 0;
-            }
-            }
-
-            if (house_control[i].rent_sum > 0) {     /* bank is universal */
-
-            if (GET_BANK_GOLD(d->character) < house_control[i].rent_sum) {
-                house_control[i].rent_sum -= GET_BANK_GOLD(d->character);
-                GET_BANK_GOLD(d->character) = 0;
-                SEND_TO_Q("You could not afford the rent.\r\n"
-                      "Some of your items have been repossessed.\r\n", d);
-                sprintf(buf, "House-rent (%d) - equipment lost.",
-                    house_control[i].house_rooms[0]);
-                slog(buf);
-                for (j = 0; 
-                 j < house_control[i].num_of_rooms &&
-                     house_control[i].rent_sum > 0; j++) {
-                if ((h_rm = real_room(house_control[i].house_rooms[j]))) {
-                    for (obj = h_rm->contents; 
-                     obj && house_control[i].rent_sum > 0; 
-                     obj = next_obj) {
-                    next_obj = obj->next_content;
-                    house_control[i].rent_sum -=
-                        recurs_obj_cost(obj, true, NULL);
-                    extract_obj(obj);
+                if (cur) {        /* credits */
+                    if ((GET_ECONET(d->character) + GET_CASH(d->character))
+                        < house_control[i].rent_sum) {
+                        house_control[i].rent_sum -= GET_ECONET(d->character);
+                        house_control[i].rent_sum -= GET_CASH(d->character);
+                        GET_ECONET(d->character) = GET_CASH(d->character) = 0;
+                    } else {
+                        GET_CASH(d->character) -= house_control[i].rent_sum;
+                        if (GET_CASH(d->character) < 0) {
+                            GET_ECONET(d->character) += GET_CASH(d->character);
+                            GET_CASH(d->character) = 0;
+                        }
+                        house_control[i].rent_sum = 0;
+                    }
+                } else {          /** gold economy **/
+                    if (GET_GOLD(d->character) < house_control[i].rent_sum) {
+                        house_control[i].rent_sum -= GET_GOLD(d->character);
+                        GET_GOLD(d->character) = 0;
+                    } else {
+                        GET_GOLD(d->character) -= house_control[i].rent_sum;
+                        house_control[i].rent_sum = 0;
                     }
                 }
+
+                if (house_control[i].rent_sum > 0) {     /* bank is universal */
+                    if (GET_BANK_GOLD(d->character) < house_control[i].rent_sum) {
+                        house_control[i].rent_sum -= GET_BANK_GOLD(d->character);
+                        GET_BANK_GOLD(d->character) = 0;
+                        SEND_TO_Q("You could not afford the rent.\r\n"
+                              "Some of your items have been repossessed.\r\n", d);
+                        sprintf(buf, "House-rent (%d) - equipment lost.",
+                            house_control[i].house_rooms[0]);
+                        slog(buf);
+                        for (j = 0; 
+                         j < house_control[i].num_of_rooms &&
+                             house_control[i].rent_sum > 0; j++) {
+                            if ((h_rm = real_room(house_control[i].house_rooms[j]))) {
+                                for (obj = h_rm->contents; 
+                                 obj && house_control[i].rent_sum > 0; 
+                                 obj = next_obj) {
+                                    next_obj = obj->next_content;
+                                    house_control[i].rent_sum -=
+                                        recurs_obj_cost(obj, true, NULL);
+                                    extract_obj(obj);
+                                }
+                            }
+                        }
+                    } else
+                        GET_BANK_GOLD(d->character) -= house_control[i].rent_sum;
+                    }
+              
+                    house_control[i].rent_sum = 0;
+                    house_control[i].hourly_rent_sum = 0;
+                    house_control[i].rent_time = 0;
+                    House_crashsave(h_rm->number);
                 }
-            } else
-                GET_BANK_GOLD(d->character) -= house_control[i].rent_sum;
             }
-      
-            house_control[i].rent_sum = 0;
-            house_control[i].hourly_rent_sum = 0;
-            house_control[i].rent_time = 0;
-            House_crashsave(h_rm->number);
-        }
         }
         d->prompt_mode = 1;
         break;
