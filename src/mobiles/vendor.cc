@@ -940,7 +940,7 @@ vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 SPECIAL(vendor)
 {
 	Creature *self = (Creature *)me;
-	char *config, *err;
+	char *config, *err = NULL;
 	int err_line;
 	ShopData *shop;
 
