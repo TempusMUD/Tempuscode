@@ -3445,11 +3445,11 @@ nanny(struct descriptor_data * d, char *arg)
 		    SEND_TO_Q("Unknown program.\r\n", d);
 		    return;
 		}
-		if (GET_LEVEL(d->character) < spell_info[skill_num].min_level[char_class_state]) {
+		if (!ABLE_TO_LEARN(d->character, skill_num)) {
 		    SEND_TO_Q("That program is unavailable.\r\n", d);
 		    return;
 		}
-		if (ABLE_TO_LEARN(d->character, skill_num)) {
+		if (GET_SKILL(d->character, skill_num) >= LEARNED(d->character)) {
 		    SEND_TO_Q("That program already fully installed.\r\n", d);
 		    return;
 		}
