@@ -1212,16 +1212,8 @@ best_attack(struct Creature *ch, struct Creature *vict)
 	if (cur_class == CLASS_BARB || cur_class == CLASS_WARRIOR) {
 		if (GET_LEVEL(ch) >= 25 && vict->getPosition() > POS_SLEEPING)
 			do_sleeper(ch, fname(vict->player.name), 0, 0, &return_flags);
-		else if (GET_LEVEL(ch) >= 35 &&
-			((GET_WEIGHT(vict) +
-					((IS_CARRYING_W(vict) + IS_WEARING_W(vict)) >> 1)) <
-				CAN_CARRY_W(ch) * 1.4) &&
-			(vict->getPosition() < POS_FIGHTING || random_fractional_4()))
-			do_offensive_skill(ch, fname(vict->player.name), 0,
-				SKILL_PILEDRIVE, &return_flags);
-		else {
+		else
 			return_flags = hit(ch, vict, TYPE_UNDEFINED);
-		}
 		return return_flags;
 	}
 	//
@@ -4829,11 +4821,7 @@ int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vic
         do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BASH, 0);
         return 0;
     }
-    if ((GET_LEVEL(ch) > 32) && (random_fractional_5() ||
-            vict->getPosition() < POS_FIGHTING)) {
-        do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE, 0);
-        return 0;
-    } else if ((GET_LEVEL(ch) > 27) && random_fractional_5()
+    if ((GET_LEVEL(ch) > 27) && random_fractional_5()
         && vict->getPosition() > POS_SLEEPING) {
         do_sleeper(ch, GET_NAME(vict), 0, 0, 0);
         return 0;
@@ -4873,8 +4861,6 @@ int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vic
             do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_CLOTHESLINE, 0);
         } else if (GET_LEVEL(ch) < 30) {
             do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_BODYSLAM, 0);
-        } else {
-            do_offensive_skill(ch, GET_NAME(vict), 0, SKILL_PILEDRIVE, 0);
         }
         return 0;
     }
