@@ -1709,14 +1709,17 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             CCNRM(ch, C_NRM));
 
         acc_sprintf(
-            "Life[%d], Qpoints[%d/%d], Thac0[%d], Reputation: [%4d]\r\n",
-            GET_LIFE_POINTS(k), GET_IMMORT_QP(k), GET_QUEST_ALLOWANCE(k),
-            (int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)), 
+            "Life: [%d], Thac0: [%d], Reputation: [%4d]",
+            GET_LIFE_POINTS(k), (int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)), 
                      THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))),
 			GET_REPUTATION(k));
 
+		if (IS_IMMORT(k))
+			acc_sprintf(", Qpoints: [%d/%d]", GET_IMMORT_QP(k),
+				GET_QUEST_ALLOWANCE(k));
+
         acc_sprintf(
-            "%sMobKills:%s [%4d], %sPKills:%s [%4d], %sDeaths:%s [%4d]\r\n",
+            "\r\n%sMobKills:%s [%4d], %sPKills:%s [%4d], %sDeaths:%s [%4d]\r\n",
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOBKILLS(k), CCRED(ch,
                 C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(k), CCGRN(ch, C_NRM),
             CCNRM(ch, C_NRM), GET_PC_DEATHS(k));
