@@ -263,32 +263,33 @@ ACMD(do_gsay)
 void
 perform_tell(struct char_data *ch, struct char_data *vict, char *arg)
 {
-	char buf2[1024];
-
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 		send_to_char(ch, OK);
 	else {
-		sprintf(buf, "%sYou tell $N,%s '%s'",
+		sprintf(buf2, "%sYou tell $N,%s '%s'",
 			CCRED(ch, C_NRM), CCNRM(ch, C_NRM), arg);
-		act(buf, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act(buf2, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	}
 
 	delete_doubledollar(arg);
 
 	if (!IS_NPC(vict)) {
-		strcpy(buf, CCRED(vict, C_NRM));
-		sprintf(buf2, "%s tells you,%s '%s'\r\n",
-			PERS(ch, vict), CCNRM(vict, C_NRM), arg);
-		strcat(buf, CAP(buf2));
-		send_to_char(vict, "%s", buf);
+		strcpy(buf2, PERS(ch, vict));
+		buf2[0] = toupper(buf2[0]);
+		send_to_char(vict, "%s%s tells you,%s '%s'\r\n",
+			CCRED(vict, C_NRM),
+			buf2,
+			CCNRM(vict, C_NRM),
+			arg);
 	} else {
-		sprintf(buf, "$n tells you, '%s'", arg);
-		act(buf, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
+		sprintf(buf2, "$n tells you, '%s'", arg);
+		act(buf2, FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
 	}
 	if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_MOB(ch))
 		send_to_char(vict, "\007\007");
 
-	GET_LAST_TELL(vict) = GET_IDNUM(ch);
+	if (!IS_NPC(ch))
+		GET_LAST_TELL(vict) = GET_IDNUM(ch);
 }
 
 /*

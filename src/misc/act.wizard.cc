@@ -2913,7 +2913,7 @@ ACMD(do_gecho)
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(ch, OK);
 		else
-			send_to_char(ch, "%s", buf);
+			send_to_char(ch, "%s", argument);
 	}
 }
 
@@ -2951,7 +2951,7 @@ ACMD(do_zecho)
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(ch, OK);
 		else
-			send_to_char(ch, "%s", buf);
+			send_to_char(ch, "%s", argument);
 	}
 }
 
@@ -2968,7 +2968,7 @@ ACMD(do_oecho)
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(ch, OK);
 		else
-			send_to_outdoor(buf, 1);
+			send_to_outdoor(argument, 1);
 	}
 }
 
@@ -3026,8 +3026,7 @@ ACMD(do_dc)
 	}
 	close_socket(d);
 	send_to_char(ch, "Connection #%d closed.\r\n", num_to_dc);
-	sprintf(buf, "(GC) Connection closed by %s.", GET_NAME(ch));
-	slog(buf);
+	slog("(GC) Connection closed by %s.", GET_NAME(ch));
 }
 
 ACMD(do_wizcut)

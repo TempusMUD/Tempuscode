@@ -12,6 +12,7 @@ void implanter_redeem(char_data *me, char_data *ch, char *args);
 bool implanter_in_session(char_data *ch);
 void implanter_end_sess(char_data *me, char_data *ch);
 void implanter_show_args(char_data *me, char_data *ch);
+void implanter_show_pos(char_data *me, char_data *ch, obj_data *obj);
 
 const long TICKET_VNUM = 92277;
 
@@ -81,22 +82,15 @@ implanter_implant(char_data *me, char_data *ch, char *args)
 
 	if (!*buf2) {
 		perform_tell(me, ch, "Have it implanted in what position?");
-		strcpy(buf, "Valid positions are:\r\n");
-		for (i = 0; i < NUM_WEARS; i++)
-			sprintf(buf, "%s  %s\r\n", buf, wear_implantpos[i]);
-		page_string(ch->desc, buf);
+		implanter_show_pos(me, ch, implant);
 		return;
 	}
 
 	if ((pos = search_block(buf2, wear_implantpos, 0)) < 0 ||
 		(ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(implant, ITEM_TOOL))) {
-		sprintf(buf, "'%s' is an invalid position.\r\n", buf2);
-		strcat(buf, "Valid positions are:\r\n");
-		for (i = 0; i < NUM_WEARS; i++) {
-			if (!ILLEGAL_IMPLANTPOS(pos))
-				sprintf(buf, "%s  %s\r\n", buf, wear_implantpos[i]);
-		}
-		page_string(ch->desc, buf);
+		sprintf(buf, "'%s' isn't a invalid position.", buf2);
+		perform_tell(me, ch, buf);
+		implanter_show_pos(me, ch, implant);
 		return;
 	}
 	if (implant->getWeight() > GET_STR(ch)) {
@@ -107,13 +101,10 @@ implanter_implant(char_data *me, char_data *ch, char *args)
 
 
 	if (!CAN_WEAR(implant, wear_bitvectors[pos])) {
-		send_to_char(ch, "%s cannot be implanted there.",
+		sprintf(buf, "%s cannot be implanted there.",
 			implant->short_description);
 		perform_tell(me, ch, buf);
-		send_to_char(ch, "It can be implanted: ");
-		sprintbit(implant->obj_flags.wear_flags & ~ITEM_WEAR_TAKE,
-			wear_bits, buf);
-		strcat(buf, "\r\n");
+		implanter_show_pos(me, ch, implant);
 		return;
 	}
 
@@ -134,7 +125,7 @@ implanter_implant(char_data *me, char_data *ch, char *args)
 
 	if (GET_IMPLANT(ch, pos)) {
 		sprintf(buf1,
-			"You are already implanted with %s in that position, dork.",
+			"You are already implanted with %s in that position.",
 			GET_IMPLANT(ch, pos)->short_description);
 		perform_tell(me, ch, buf1);
 		return;
@@ -261,7 +252,7 @@ implanter_extract(char_data *me, char_data *ch, char *args)
 			return;
 		}
 		if ((pos = search_block(buf2, wear_implantpos, 0)) < 0) {
-			sprintf(buf1, "'%s' is not a valid implant position, asshole.",
+			sprintf(buf1, "'%s' is not a valid implant position.",
 				buf2);
 			perform_tell(me, ch, buf1);
 			return;
@@ -391,3 +382,22 @@ implanter_show_args(char_data *me, char_data *ch)
 	return;
 }
 
+void
+implanter_show_pos(char_data *me, char_data *ch, obj_data *obj)
+{
+	int pos;
+	bool not_first = false;
+
+	strcpy(buf, "You can implant it in these positions: ");
+	for (pos = 0; wear_eqpos[pos][0] != '\n'; pos++ )
+		if (!ILLEGAL_IMPLANTPOS(pos) && CAN_WEAR(obj, wear_bitvectors[pos])) {
+			if (not_first)
+				strcat(buf, ", ");
+			else
+				not_first = true;
+
+			strcat(buf, wear_eqpos[pos]);
+		}
+	
+	perform_tell(me, ch, buf);
+}
