@@ -389,6 +389,7 @@ Creature::saveToXML()
 	struct alias_data *cur_alias;
 	struct affected_type *cur_aff;
 	int idx, pos;
+	int hit = GET_HIT(this), mana = GET_MANA(this), move = GET_MOVE(this);
     Creature *ch = this;
 
 	if (GET_IDNUM(ch) == 0) {
@@ -580,6 +581,10 @@ Creature::saveToXML()
 	for (cur_aff = affected;cur_aff;cur_aff = cur_aff->next)
 		affect_modify(this, cur_aff->location, cur_aff->modifier,
 			cur_aff->bitvector, cur_aff->aff_index, true);
+
+	GET_HIT(this) = MIN(GET_MAX_HIT(ch), hit);
+	GET_MANA(this) = MIN(GET_MAX_MANA(ch), mana);
+	GET_MOVE(this) = MIN(GET_MAX_MOVE(ch), move);
 }
 
 bool 
