@@ -3725,7 +3725,7 @@ free_obj(struct obj_data * obj)
         }
         if (obj->description) {
             free(obj->description);
-            obj-description = NULL;
+            obj->description = NULL;
         }
         if (obj->short_description) {
             free(obj->short_description);
@@ -3755,7 +3755,7 @@ free_obj(struct obj_data * obj)
         if (obj->description && 
             obj->description != obj->shared->proto->description) {
             free(obj->description);
-            obj-description = NULL;
+            obj->description = NULL;
         }
         if (obj->short_description && 
             obj->short_description != obj->shared->proto->short_description) {

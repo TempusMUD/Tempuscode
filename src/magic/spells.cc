@@ -933,8 +933,12 @@ ASPELL(spell_locate_object)
         rm = where_obj(i);
         
         if (!rm) {
-            sprintf(buf3, "SYSERR: %s is nowhere?", i->short_description);
-            slog(buf3);
+            sprintf(buf3, "SYSERR: %s is nowhere? Moving to The Void.", i->short_description);
+            mudlog(buf3, BRF, LVL_CREATOR, TRUE);
+            rm = real_room(0);
+            SET_BIT(GET_OBJ_EXTRA2(i),ITEM2_BROKEN);
+            SET_BIT(GET_OBJ_EXTRA3(i),ITEM3_HUNTED);
+            obj_to_room(i,rm);
             continue;
         }
 
