@@ -1,5 +1,5 @@
-#define NEWBIE_ROOM_MAX		474
-#define NEWBIE_ROOM_MIN		434
+#define NEWBIE_ROOM_MAX		467
+#define NEWBIE_ROOM_MIN		436
 #define NEWBIE_EQ_MAX			470
 #define NEWBIE_EQ_MIN			420
 
@@ -18,8 +18,8 @@ SPECIAL(newbie_fodder)
 	if (!new_mob)
 		return 0;
 
-	// Mobs have a 50% chance of carrying a random piece of newbie eq
-	if (number(0, 1)) {
+	// Mobs have a 75% chance of carrying a random piece of newbie eq
+	if (number(0, 3)) {
 		obj_data *item;
 
 		item = read_object(number(NEWBIE_EQ_MIN, NEWBIE_EQ_MAX));
