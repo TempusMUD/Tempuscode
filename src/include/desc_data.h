@@ -29,6 +29,8 @@ enum cxn_state {
 	CXN_ANSI_PROMPT,			// Do you have color?
 	CXN_EMAIL_PROMPT,			// Optional email address
 	CXN_OLDPW_PROMPT,			// Get old password for pw change
+	CXN_NEWPW_PROMPT,			// Get new password for pw change
+	CXN_NEWPW_VERIFY,			// Verify new password for pw change
 	// Character creation
 	CXN_NAME_PROMPT,			// Enter a name for new character
 	CXN_NAME_VERIFY,			// Did I get that right, x? 
@@ -40,7 +42,6 @@ enum cxn_state {
 	CXN_CLASS_FUTURE,			// Class? (timeframe-based)
 	CXN_ALIGN_PROMPT,			// Align? (race/class may restrict)
 	CXN_STATISTICS_ROLL,		// Statistics rolling
-	CXN_EDIT_DESC,				// Describe your new char
 	// Other, miscellaneous states
 	CXN_MENU,					// Your choice: (main menu) 
 	CXN_WAIT_MENU,				// Press return to go back to the main menu
@@ -50,6 +51,10 @@ enum cxn_state {
 	CXN_DELETE_VERIFY,			// Are you sure you want to delete?
 	CXN_AFTERLIFE,				// After death, before menu
 	CXN_REMORT_AFTERLIFE,		// After death, before remort class
+	CXN_VIEW_BG,				// View background
+	CXN_STATS_PROMPT,			// View character statistics
+	CXN_EDIT_PROMPT,			// Which character do you want to describe
+	CXN_EDIT_DESC,				// Describe your char
 	CXN_NETWORK,				// Cyborg interfaced to network
 };
 

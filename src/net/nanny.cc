@@ -194,9 +194,59 @@ handle_input(struct descriptor_data *d, char *arg)
 		case 'c':
 			set_desc_state(CXN_NAME_PROMPT, d); break;
 		case 'd':
-			if (d->account->get_char_by_index(1))
+			if (!d->account->invalid_char_index(2)) {
 				set_desc_state(CXN_DELETE_PROMPT, d);
+			} else if (!d->account->invalid_char_index(1)) {
+				char_id = d->account->get_char_by_index(1);
+				d->creature = new Creature;
+				if (d->creature->loadFromXML(char_id))
+					set_desc_state(CXN_DELETE_PW, d);
+				else {
+					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
+					delete d->creature;
+					d->creature = NULL;
+				}
+			} else
+				send_to_desc(d, "\r\nThat isn't a valid command.\r\n\r\n");
 			break;
+		case 'e':
+			if (!d->account->invalid_char_index(2)) {
+				set_desc_state(CXN_EDIT_PROMPT, d);
+			} else if (!d->account->invalid_char_index(1)) {
+				char_id = d->account->get_char_by_index(1);
+				d->creature = new Creature;
+				if (d->creature->loadFromXML(char_id)) {
+					d->creature->desc = d;
+					set_desc_state(CXN_EDIT_DESC, d);
+				} else {
+					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
+					delete d->creature;
+					d->creature = NULL;
+				}
+			} else
+				send_to_desc(d, "\r\nThat isn't a valid command.\r\n\r\n");
+			break;
+        case 's':
+			if (!d->account->invalid_char_index(2)) {
+				set_desc_state(CXN_STATS_PROMPT, d);
+			} else if (!d->account->invalid_char_index(1)) {
+				char_id = d->account->get_char_by_index(1);
+				d->creature = new Creature;
+				if (d->creature->loadFromXML(char_id)) {
+					d->creature->desc = d;
+					set_desc_state(CXN_STATS_PROMPT, d);
+				} else {
+					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
+					delete d->creature;
+					d->creature = NULL;
+				}
+			} else
+				send_to_desc(d, "\r\nThat isn't a valid command.\r\n\r\n");
+			break;
+		case 'p':
+			set_desc_state(CXN_OLDPW_PROMPT, d); break;
+		case 'v':
+			set_desc_state(CXN_VIEW_BG, d); break;
 		case '?':
 		case '\0':
 			send_menu(d);
@@ -468,7 +518,6 @@ handle_input(struct descriptor_data *d, char *arg)
 			break;
 		} else if (is_abbrev(arg, "keep")) {
 			set_desc_state( CXN_EDIT_DESC,d );
-			start_text_editor(d,&d->creature->player.description,true, MAX_CHAR_DESC-1);
 			mudlog(LVL_GOD, NRM, true,
 				"%s[%d] has created new character %s[%ld]",
 					d->account->get_name(), d->account->get_idnum(),
@@ -495,6 +544,24 @@ handle_input(struct descriptor_data *d, char *arg)
 		}
 
 		set_desc_state(CXN_DELETE_PW, d);
+		break;
+	case CXN_EDIT_PROMPT:
+		if (d->account->invalid_char_index(atoi(arg))) {
+			send_to_desc(d, "\r\nThat character selection doesn't exist.\r\n\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+			return;
+		}
+
+		char_id = d->account->get_char_by_index(atoi(arg));
+		d->creature = new Creature;
+		if (!d->creature->loadFromXML(char_id)) {
+			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+			return;
+		}
+
+		d->creature->desc = d;
+		set_desc_state(CXN_EDIT_DESC, d);
 		break;
 	case CXN_DELETE_PW:
 		if (d->account->authenticate(arg)) {
@@ -529,7 +596,48 @@ handle_input(struct descriptor_data *d, char *arg)
 	case CXN_NETWORK:
 		handle_network(d, arg); break;
 	case CXN_OLDPW_PROMPT:
+		if (d->account->authenticate(arg)) {
+			set_desc_state(CXN_NEWPW_PROMPT, d);
+			return;
+		}
+
+		send_to_desc(d, "\r\nWrong password!  Password change cancelled.\r\n\r\n");
+		set_desc_state(CXN_WAIT_MENU, d);
 		break;
+	case CXN_NEWPW_PROMPT:
+		if (arg[0]) {
+			d->account->set_password(arg);
+			set_desc_state(CXN_PW_VERIFY, d);
+		} else {
+			send_to_desc(d, "\r\nPassword change cancelled!\r\n\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+		}
+		break;
+	case CXN_NEWPW_VERIFY:
+		if (!arg[0]) {
+			send_to_desc(d, "\r\nPassword change cancelled!\r\n\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+		} if (!d->account->authenticate(arg)) {
+			send_to_desc(d, "\r\nPasswords did not match.  Please try again.\r\n\r\n");
+			set_desc_state(CXN_PW_PROMPT, d);
+		} else {
+			d->account->save_to_xml();
+			send_to_desc(d, "\r\nPassword changed!\r\n\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+		}
+		break;
+	case CXN_VIEW_BG:
+		if (tolower(*arg) != 'q') {
+			show_string(d);
+			if (!d->showstr_head)
+				set_desc_state(CXN_WAIT_MENU, d);
+		} else
+			set_desc_state(CXN_MENU, d);
+		break;
+    case CXN_STATS_PROMPT:
+        send_to_desc(d, "This isn't written yet.\r\n");
+        set_desc_state(CXN_WAIT_MENU, d);
+        break;
 	}
 }
 
@@ -545,15 +653,10 @@ send_prompt(descriptor_data *d)
 
 	// Check for the text editor being used
 	if (d->creature && d->text_editor) {
-			sprintf(prompt, "%-2d%s]%s ",
-		d->editor_cur_lnum,
-		CCBLU_BLD(d->creature,C_NRM),
-		CCNRM(d->creature,C_NRM));
-
-		SEND_TO_Q(prompt,d);
+		send_to_desc(d, "%-2d&b]&n ", d->editor_cur_lnum);
 		d->need_prompt = false;
 		return;
-		}
+	}
 
 	// Handle all other states
 	switch ( d->input_mode ) {
@@ -624,6 +727,7 @@ send_prompt(descriptor_data *d)
 	case CXN_PW_PROMPT:
 		send_to_desc(d, "        Enter your desired password: "); break;
 	case CXN_PW_VERIFY:
+	case CXN_NEWPW_VERIFY:
 		// this awkward wording due to lame "assword:" search in tintin instead
 		// of actually implementing one facet of telnet protocol
 		send_to_desc(d, "        Enter it again to verify your password: "); break;
@@ -640,6 +744,8 @@ send_prompt(descriptor_data *d)
 		send_to_desc(d, "Please enter your email address: "); break;
 	case CXN_OLDPW_PROMPT:
 		send_to_desc(d, "For security purposes, please enter your old password: "); break;
+	case CXN_NEWPW_PROMPT:
+		send_to_desc(d, "Enter your new password: "); break;
 	case CXN_NAME_PROMPT:
 		send_to_desc(d, "Enter the name you wish for this character: "); break;
 	case CXN_NAME_VERIFY:
@@ -684,11 +790,12 @@ send_prompt(descriptor_data *d)
 	case CXN_EDIT_DESC:
 		break;
 	case CXN_MENU:
-		send_to_desc(d, "                                 Choose your fate: ");
+		send_to_desc(d, "\r\n&c                             Choose your selection:&n ");
 		break;
 	case CXN_DELETE_PROMPT:
-		send_to_desc(d, "         &yWhich character would you like to delete: ");
-		break;
+		send_to_desc(d, "                   &yWhich character would you like to delete:&n "); break;
+	case CXN_EDIT_PROMPT:
+		send_to_desc(d, "               &cWhich character's description do you want to edit:&n "); break;
 	case CXN_DELETE_PW:
 		send_to_desc(d, "To confirm, enter your account password: "); break;
 	case CXN_DELETE_VERIFY:
@@ -698,6 +805,11 @@ send_prompt(descriptor_data *d)
 	case CXN_AFTERLIFE:
 	case CXN_REMORT_AFTERLIFE:
 		send_to_desc(d, "Press return to continue into the afterlife.\r\n"); break;
+	case CXN_VIEW_BG:
+		// Prompt sent by page_string
+		break;
+    case CXN_STATS_PROMPT:
+        send_to_desc(d, "                      &cWhich character do you want to view:&n "); break;
 	case CXN_NETWORK:
 		send_to_desc(d, "> "); break;
 		break;
@@ -727,10 +839,11 @@ send_menu(descriptor_data *d)
 		// These states don't have menus
 		break;
 	case CXN_OLDPW_PROMPT:
-	case CXN_PW_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
-		send_to_desc(d,"&c\r\n                                  SET PASSWORD\r\n*******************************************************************************\r\n&n");
-		send_to_desc(d, "\r\n\r\n    In order to protect your character against intrusion, you must\r\nchoose a password to use on this system.\r\n\r\n");
+		send_to_desc(d,"&c\r\n                                  SET PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
+		// fall through
+	case CXN_PW_PROMPT:
+		send_to_desc(d, "    In order to protect your character against intrusion, you must\r\nchoose a password to use on this system.\r\n\r\n");
 		break;
 	case CXN_ACCOUNT_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
@@ -844,8 +957,8 @@ send_menu(descriptor_data *d)
 			"&c*&n&b-----------------------------------------------------------------------------&c*\r\n"
 			"&n&b|                                 &YT E M P U S                                 &b|\r\n"
 			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n"
-			"&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status   Mail\r\n"
-			"&b -- -------------- --- --- --- -------- --------- ------------- --------- -----\r\n");
+			"&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status  Mail\r\n"
+			"&b -- -------------- --- --- --- -------- --------- ------------- --------- ----\r\n");
 
 		idx = 1;
 		tmp_ch = new Creature;
@@ -855,7 +968,12 @@ send_menu(descriptor_data *d)
 
 
 			tmp_ch->clear();
-			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
+
+			if (!tmp_ch->loadFromXML(d->account->get_char_by_index(idx))) {
+				send_to_desc(d, "&R------ BAD PROBLEMS ------  PLEASE REPORT ------&n\r\n");
+				idx++;
+				continue;
+			}
 
             char* sex_color = "";
             switch( GET_SEX(tmp_ch) ) {
@@ -912,9 +1030,9 @@ send_menu(descriptor_data *d)
                     status_str = "&R REPORTME"; break;
 			}
 			if (has_mail(GET_IDNUM(tmp_ch)))
-				mail_str = "&Y  Yes";
+				mail_str = "&Y Yes";
 			else
-				mail_str = "&n   No";
+				mail_str = "&n No ";
 			send_to_desc(d,
 				"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
 				idx, GET_NAME(tmp_ch),
@@ -926,13 +1044,14 @@ send_menu(descriptor_data *d)
 		}
 		delete tmp_ch;
 
-		send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n",
+		send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
 
-		send_to_desc(d, "\r\n                     &b[&yC&b] &cCreate a new character\r\n");
+		send_to_desc(d, "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
+	    send_to_desc(d, "    &b[&yC&b] &cCreate a new character           &b[&yS&b] &cSee character stats\r\n");
 		if (!d->account->invalid_char_index(1))
-			send_to_desc(d, "                     &b[&yD&b] &cDelete an existing character\r\n");
-		send_to_desc(d, "                     &b[&yL&b] &cLog out of the game&n\r\n\r\n\r\n");
+			send_to_desc(d, "    &b[&yE&b] &cEdit a character's description   &b[&yD&b] &cDelete an existing character\r\n");
+		send_to_desc(d, "\r\n                            &b[&yL&b] &cLog out of the game&n\r\n");
 		break;
 	case CXN_DELETE_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
@@ -954,6 +1073,46 @@ send_menu(descriptor_data *d)
 		delete tmp_ch;
 		send_to_desc(d, "&n\r\n");
 		break;
+	case CXN_EDIT_PROMPT:
+		send_to_desc(d, "\e[H\e[J");
+		send_to_desc(d, "&c\r\n                         EDIT CHARACTER DESCRIPTION\r\n*******************************************************************************&n\r\n\r\n");
+
+		idx = 1;
+		tmp_ch = new Creature;
+		while (!d->account->invalid_char_index(idx)) {
+			tmp_ch->clear();
+			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
+			send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
+				idx, GET_NAME(tmp_ch),
+				player_race[(int)GET_RACE(tmp_ch)],
+				pc_char_class_types[GET_CLASS(tmp_ch)],
+				genders[(int)GET_SEX(tmp_ch)],
+				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new");
+			idx++;
+		}
+		delete tmp_ch;
+		send_to_desc(d, "&n\r\n");
+		break;
+	case CXN_STATS_PROMPT:
+		send_to_desc(d, "\e[H\e[J");
+		send_to_desc(d, "&c\r\n                          VIEW CHARACTER STATISTICS\r\n*******************************************************************************&n\r\n\r\n");
+
+		idx = 1;
+		tmp_ch = new Creature;
+		while (!d->account->invalid_char_index(idx)) {
+			tmp_ch->clear();
+			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
+			send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
+				idx, GET_NAME(tmp_ch),
+				player_race[(int)GET_RACE(tmp_ch)],
+				pc_char_class_types[GET_CLASS(tmp_ch)],
+				genders[(int)GET_SEX(tmp_ch)],
+				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new");
+			idx++;
+		}
+		delete tmp_ch;
+		send_to_desc(d, "&n\r\n");
+		break;
 	case CXN_DELETE_PW:
 		send_to_desc(d, "You have chosen to delete '%s'\r\n",
 			GET_NAME(d->creature));
@@ -963,6 +1122,12 @@ send_menu(descriptor_data *d)
 		SEND_TO_Q("GLOBAL NETWORK SYSTEMS CLI\r\n",d);
 		SEND_TO_Q("-------------------------------------------------------------------------------\r\n",d);
 		SEND_TO_Q("Enter commands at prompt.  Use '@' to escape.  Use '?' for help.\r\n",d);
+	case CXN_VIEW_BG:
+		send_to_desc(d, "\e[H\e[J");
+		page_string(d, tmp_sprintf("%s\r\n                                   BACKGROUND\r\n*******************************************************************************%s\r\n%s",
+				(d->account->get_ansi_level() >= C_NRM) ? KCYN:"",
+				(d->account->get_ansi_level() >= C_NRM) ? KNRM:"",
+				background));
 	default:
 		break;
 	}
@@ -995,8 +1160,18 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 		d->inbuf[0] = '\0';
 		d->wait = 5 RL_SEC;
 	}
-
     send_menu(d);
+
+	if (CXN_EDIT_DESC == state) {
+		if (!d->creature) {
+			slog("SYSERR: set_desc_state called with CXN_EDIT_DESC with no creature.");
+			send_to_desc(d, "You can't edit yer desc right now.\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+			return;
+		}
+		start_text_editor(d,&d->creature->player.description,true, MAX_CHAR_DESC-1);
+	}
+
 	d->need_prompt = true;
 	}
 
