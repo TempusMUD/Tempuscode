@@ -349,7 +349,7 @@ SPECIAL(remorter)
         value /= count;
         */
         // Total points / Points earned
-        value = (correct + incorrect) / correct;
+        value = (((correct + incorrect) / correct) * 100);
 
         if (value < (50 + (level << 2))) {
             sprintf(buf, "Your answers were only %d percent correct.\r\n"
