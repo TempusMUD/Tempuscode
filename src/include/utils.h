@@ -270,6 +270,8 @@ int CHECK_SKILL(struct char_data *ch, int i);
 #define GET_MORALE(ch)     (ch->mob_specials.shared->morale)
 #define MOB_SHARED(ch)     (ch->mob_specials.shared)
 
+#define IS_PET(ch)       (MOB_FLAGGED(ch, MOB_PET))
+
 /* IS_AFFECTED for backwards compatibility */
 #define IS_AFFECTED(ch, skill) (AFF_FLAGGED((ch), (skill))) 
 #define IS_AFFECTED_2(ch, skill) (AFF2_FLAGGED((ch), (skill))) 

@@ -82,6 +82,10 @@ ACMD(do_hamstring)
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 
+	if (GET_POS(vict) == POS_SITTING) {
+		send_to_char("How can you cut it when they're sitting on it!\r\n",ch);
+		return;
+	}
 	prob = CHECK_SKILL(ch,SKILL_HAMSTRING) + GET_REMORT_GEN(ch);
 	percent = number (0,101);
 	if(affected_by_spell(vict,ZEN_AWARENESS)) {
@@ -154,9 +158,10 @@ ACMD(do_snatch)
     struct char_data *vict=NULL;
     struct obj_data *obj, *sec_weap;
     char vict_name[MAX_INPUT_LENGTH];
-    int percent, eq_pos, pcsteal = 0;
+    int percent, eq_pos;
 	int prob = 0;
 	int position = 0;
+	int dam = 0;
 	int bonus,dex_mod,str_mod;
 	obj = NULL;
     one_argument(argument, vict_name);
@@ -260,13 +265,14 @@ ACMD(do_snatch)
 
 	// Roll the dice...
 	percent = number( 1, 100);
-
-    if (GET_POS(vict) < POS_SLEEPING)
-	percent = -15;		// ALWAYS SUCCESS
+	if (GET_POS(vict) < POS_FIGHTING)
+		percent -= 30;
+    if (GET_POS(vict) <= POS_SLEEPING)
+		percent = -150;		// ALWAYS SUCCESS
 
 
     // NO NO With Imp's and Shopkeepers!
-    if ((GET_LEVEL(vict) >= LVL_AMBASSADOR) || pcsteal ||
+    if ((GET_LEVEL(vict) >= LVL_AMBASSADOR) || 
 	GET_MOB_SPEC(vict) == shop_keeper)
 	percent = 121;		// Failure
 
@@ -292,9 +298,12 @@ ACMD(do_snatch)
 	// If they succeed the leftover is thier bonus.
 	// If they fail thier roll, or choose an empty position
 	if ( percent > CHECK_SKILL(ch,SKILL_SNATCH) || !obj) {
-		act("$n tries to snatch something from $N but comes away empty handed!", FALSE, ch, 0, vict, TO_NOTVICT);
-		act("$n tries to snatch something from you but comes away empty handed!", FALSE, ch, 0, vict, TO_VICT);
-		act("You try to snatch something from $N but come away empty handed!", FALSE, ch, 0, vict, TO_CHAR);
+		act("$n tries to snatch something from $N but comes away empty handed!", 
+			FALSE, ch, 0, vict, TO_NOTVICT);
+		act("$n tries to snatch something from you but comes away empty handed!", 
+			FALSE, ch, 0, vict, TO_VICT);
+		act("You try to snatch something from $N but come away empty handed!", 
+			FALSE, ch, 0, vict, TO_CHAR);
 
 		// Monks are cool. They stand up when someone tries to snatch from em.
 		if (GET_POS(vict) == POS_SITTING && IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
@@ -357,9 +366,9 @@ ACMD(do_snatch)
 			} else {		
 				act("$n grabs your $p but you manage to hold onto it!", 
 					FALSE, ch, obj, vict, TO_VICT);
-				act("You grab $S $p but $S manages to hold onto it!", 
+				act("You grab $S $p but can't snatch it away!", 
 					FALSE, ch, obj, vict, TO_CHAR);
-				act("$n grabs $N's $p but $N manages to hold onto it!", 
+				act("$n grabs $N's $p but can't snatch it away!", 
 					FALSE, ch, obj, vict, TO_NOTVICT);
 			}
 		
@@ -380,9 +389,9 @@ ACMD(do_snatch)
 					act("$n wakes you up snatching out of your hand!", 
 						FALSE, ch, obj, vict, TO_VICT);
 					act("You wake $N up snatching $p out of $S hand!", 
-						FALSE, ch, obj, vict, TO_VICT);
+						FALSE, ch, obj, vict, TO_CHAR);
 					act("$n wakes $N up snatching $p out of $S hand!", 
-						FALSE, ch, obj, vict, TO_VICT);
+						FALSE, ch, obj, vict, TO_NOTVICT);
 				}
 			} else if (GET_POS(vict) == POS_SITTING &&
 				   IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
@@ -435,7 +444,9 @@ ACMD(do_snatch)
 				act("You shift $p to your primary hand.", 
 					FALSE, ch, obj, vict, TO_VICT);
 			}
-
+			// Punks tend to break shit.
+			dam = dice( str_app[GET_STR(ch)].todam,str_app[GET_STR(vict)].todam);
+			damage_eq(NULL,obj,dam);
 			GET_EXP(ch) += MIN(1000, GET_OBJ_COST(obj));
 			gain_skill_prof(ch, SKILL_STEAL);
 			WAIT_STATE(vict,2 RL_SEC);

@@ -239,7 +239,7 @@ extern const char *spells[];
 #define SPELL_VAMPIRIC_REGENERATION     142  // evil cleric vamp. regen
 #define SPELL_BANISHMENT                143  // evil cleric sends devils away
 #define SPELL_CONTROL_UNDEAD            144  // evil clerics charm undead
-
+#define SPELL_STONESKIN					145  // remort rangers stone skin
   /************************** Psionic Triggers ***************/
 #define SPELL_POWER                201 /* Strength                */
 #define SPELL_INTELLECT            202

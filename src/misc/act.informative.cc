@@ -2095,6 +2095,8 @@ print_affs_to_string(struct char_data *ch, char *str, byte mode)
 	strcat(str, "You feel protected.\r\n");
     if (affected_by_spell(ch, SPELL_BARKSKIN))
 	strcat(str, "Your skin is thick and tough like tree bark.\r\n");
+    if (affected_by_spell(ch, SPELL_STONESKIN))
+	strcat(str, "Your skin is as hard as granite.\r\n");
     if (IS_AFFECTED(ch, AFF_INFRAVISION))
 	strcat(str, "Your eyes are glowing red.\r\n");
     if (PRF_FLAGGED(ch, PRF_SUMMONABLE))

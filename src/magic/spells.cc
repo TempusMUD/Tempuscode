@@ -1852,6 +1852,8 @@ ASPELL(spell_conjure_elemental)
 	FALSE, ch, 0, elemental, TO_ROOM);
     char_to_room(elemental, ch->in_room);
 
+	SET_BIT(MOB_FLAGS(elemental), MOB_PET);
+
     if ((number(0, 101) + GET_LEVEL(elemental) - GET_LEVEL(ch) 
 	 - GET_INT(ch) - GET_WIS(ch)) > 60) {
 	hit(elemental, ch, TYPE_UNDEFINED);
@@ -2395,6 +2397,9 @@ ASPELL(spell_summon_legion)
 	send_to_char("legion error.\r\n", ch);
 	return;
     }
+	// Make sure noone gets xp fer these buggers.
+	SET_BIT(MOB_FLAGS(devil), MOB_PET);
+
 
     char_to_room(devil, ch->in_room);
     act("A glowing interplanar rift opens with a crack of thunder!\r\n"
@@ -2588,7 +2593,9 @@ ASPELL(spell_animate_dead)
 	
     SET_BIT(AFF3_FLAGS(zombie), AFF3_FLAGS(orig_char));
     REMOVE_BIT(AFF3_FLAGS(zombie), AFF3_FEEDING | AFF3_SELF_DESTRUCT | AFF3_STASIS | AFF3_PSYCHIC_CRUSH);
-	
+    // Make sure noone gets xp fer these buggers.
+	SET_BIT(MOB_FLAGS(zombie), MOB_PET);
+		
     if ( isname(GET_NAME(zombie), "headless") )
 	SET_BIT(AFF3_FLAGS(zombie), AFF2_NECK_PROTECTED);
 
@@ -2713,6 +2720,8 @@ ASPELL(spell_unholy_stalker)
 
     if ( level > number(50, 80) )
 	SET_BIT(AFF2_FLAGS(stalker), AFF2_HASTE);
+    // Make sure noone gets xp fer these buggers.
+	SET_BIT(MOB_FLAGS(stalker), MOB_PET);
 
     char_to_room(stalker, ch->in_room);
 

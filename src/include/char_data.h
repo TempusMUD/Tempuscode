@@ -268,12 +268,14 @@
 #define MOB_HELPER	 (1 << 12) /* attack PCs fighting other NPCs	*/
 #define MOB_NOCHARM	 (1 << 13) /* Mob can't be charmed		*/
 #define MOB_NOSUMMON	 (1 << 14) /* Mob can't be summoned		*/
-#define MOB_NOSLEEP	 (1 << 15) /* Mob can't be slept		*/
-#define MOB_NOBASH	 (1 << 16) /* Mob can't be bashed (e.g. trees)	*/
-#define MOB_NOBLIND	 (1 << 17) /* Mob can't be blinded		*/
-#define MOB_NOTURN       (1 << 18) /* Hard to turn                      */
-#define MOB_NOPETRI      (1 << 19) /* Cannot be petrified               */
-#define NUM_MOB_FLAGS    20
+#define MOB_NOSLEEP	 (1 << 15) // Mob can't be slept
+#define MOB_NOBASH	 (1 << 16) // Mob can't be bashed (e.g. trees)
+#define MOB_NOBLIND	 (1 << 17) // Mob can't be blinded
+#define MOB_NOTURN       (1 << 18) // Hard to turn
+#define MOB_NOPETRI      (1 << 19) // Cannot be petrified
+#define MOB_PET			(1 << 20)	// Mob is a conjured pet and shouldn't
+									// get nor give any xp in any way.
+#define NUM_MOB_FLAGS    21
 
 #define MOB2_SCRIPT     (1 << 0)
 #define MOB2_MOUNT      (1 << 1)

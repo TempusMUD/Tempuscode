@@ -580,12 +580,12 @@ make_corpse( struct char_data *ch,struct char_data *killer,int attacktype )
     if ( IS_AFFECTED_2( ch, AFF2_PETRIFIED ) )
         leg->name = str_dup( "blood leg stone" );
     else
-        leg->name = str_dup( "blood leg amputated" );
+        leg->name = str_dup( "blood leg severed" );
   
-    sprintf( buf2, "The amputated %sleg of %s %s lying here.",
+    sprintf( buf2, "The severed %sleg of %s %s lying here.",
          IS_AFFECTED_2( ch, AFF2_PETRIFIED ) ? "stone " : "",GET_NAME( ch ), isare );
     leg->description = str_dup( buf2 );
-    sprintf( buf2, "the amputated %sleg of %s",
+    sprintf( buf2, "the severed %sleg of %s",
          IS_AFFECTED_2( ch, AFF2_PETRIFIED ) ? "stone " : "",GET_NAME( ch ) );
     leg->short_description = str_dup( buf2 );
     GET_OBJ_TYPE( leg ) = ITEM_DRINKCON;
@@ -1474,7 +1474,6 @@ perform_gain_kill_exp( struct char_data *ch, struct char_data *victim, float mul
 		 GET_NAME( victim ), GET_EXP( victim ), exp );
 	slog( buf );
     }
-  
     if ( exp > ( ( exp_scale[GET_LEVEL( ch )+1] - GET_EXP( ch ) ) / 10 ) ) {
 	sprintf( buf2, "%s%sYou have gained much experience.%s\r\n", 
 		 CCYEL( ch, C_NRM ), CCBLD( ch, C_CMP ), CCNRM( ch, C_SPR ) );
@@ -1503,8 +1502,11 @@ gain_kill_exp( struct char_data *ch, struct char_data *victim )
 	return;
 
     if ( IS_NPC( victim ) && MOB2_FLAGGED( victim, MOB2_UNAPPROVED ) && !PLR_FLAGGED( ch, PLR_TESTER ) )
-	return;
-  
+		return;
+ 	
+	if ((IS_NPC(ch) && IS_PET(ch)) || IS_NPC(victim) && IS_PET(victim))
+ 		return; 
+
     if ( IS_AFFECTED( ch, AFF_GROUP ) ) {
 	group_gain( ch, victim );
 	return;
@@ -2924,6 +2926,9 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
 	 ( af = affected_by_spell( victim, SPELL_DERMAL_HARDENING ) ) )
 	dam -= ( dam * af->level ) / 200;
 
+	if ( (af = affected_by_spell( victim, SPELL_STONESKIN ) ) )
+	dam -= ( dam * af->level ) / 150;
+
     if ( IS_AFFECTED_2( victim, AFF2_PETRIFIED ) )
 	dam = ( int ) ( dam * 0.2 );
 
@@ -3195,8 +3200,14 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     if ( !IS_NPC( victim ) )
 	GET_TOT_DAM( victim ) += dam;
 
-    if ( ch && ch != victim &&
-	 ( !MOB2_FLAGGED( victim, MOB2_UNAPPROVED ) || PLR_FLAGGED( ch, PLR_TESTER ) ) )
+    if ( ch 
+		&& ch != victim 
+		&& !(
+			MOB2_FLAGGED( victim, MOB2_UNAPPROVED ) || 
+	 		PLR_FLAGGED( ch, PLR_TESTER ) ||
+			IS_PET(ch) || IS_PET(victim)
+			) 
+		)
 	gain_exp( ch, MIN( GET_LEVEL( ch ) * GET_LEVEL( ch ) * GET_LEVEL( ch ),
 			   GET_LEVEL( victim ) * dam ) );
 

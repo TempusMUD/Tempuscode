@@ -722,8 +722,8 @@ extern const char *action_bits[] = {
   "!BASH",
   "!BLIND",
   "!TURN",
-  "19",
-  "20",
+  "!PETRI",
+  "PET",
   "\n"
 };
 
@@ -748,7 +748,7 @@ extern const char *action_bits_desc[] = {
   "NoBlind",
   "NoTurn",
   "nopetri",
-  "20",
+  "pet",
   "\n"
 };
 
@@ -2072,7 +2072,8 @@ extern const char *spell_wear_off_msg[] = {
   "Your malefic violation has worn off.",
   "You are no longer a righteous penetrator.",
   "!UNUSED!",   /* 140 */
-  "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 145 */
+  "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",
+  "Your granite-like flesh softens.",   /* 145 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 150 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 155 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 160 */

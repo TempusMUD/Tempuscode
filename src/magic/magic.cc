@@ -854,12 +854,38 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	accum_duration = TRUE;
 	to_vict = "You feel someone protecting you.";
 	break;
+
     case SPELL_BARKSKIN:
+	if(affected_by_spell(ch,SPELL_STONESKIN)) {
+		affect_from_char(ch,SPELL_STONESKIN);
+		if( *spell_wear_off_msg[ SPELL_STONESKIN ] ) {
+			 send_to_char( spell_wear_off_msg[ SPELL_STONESKIN ], victim );
+			 send_to_char( "\r\n", victim) ;
+		}
+	}
+
 	af.location = APPLY_AC;
 	af.duration = dice(4, (level >> 3) + 1);
 	af.modifier = -10;
 	accum_duration = TRUE;
 	to_vict = "Your skin tightens up and hardens.";
+	break;
+    case SPELL_STONESKIN:
+	if(affected_by_spell(ch,SPELL_BARKSKIN)) {
+		affect_from_char(ch,SPELL_BARKSKIN);
+		if( *spell_wear_off_msg[ SPELL_BARKSKIN] ) {
+			 send_to_char( spell_wear_off_msg[ SPELL_BARKSKIN ], victim );
+			 send_to_char( "\r\n", victim) ;
+		}
+	}
+	af2.location = APPLY_DEX;
+	af.location = APPLY_AC;
+	af.duration = dice(4, (level >> 3) + 1);
+	af2.duration = dice(4, (level >> 3) + 1);
+	af.modifier = -20;
+	af2.modifier = -3;
+	accum_duration = TRUE;
+	to_vict = "Your skin hardens to a rock-like shell.";
 	break;
     case SPELL_BLESS:
 	af.location = APPLY_HITROLL;

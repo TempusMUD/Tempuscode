@@ -200,7 +200,7 @@ const char *spells[] =
     "vampiric regeneration",
     "banishment",
     "control undead",
-    "!UNUSED!",	/* 145 */
+    "stoneskin",	/* 145 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 150 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 155 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 160 */
@@ -770,7 +770,9 @@ say_spell(struct char_data * ch, int spellnum, struct char_data * tch,
     }
 }
 
-
+// 06/18/99
+// reversed order of args to is_abbrev
+// inside while. 
 int 
 find_skill_num(char *name)
 {
@@ -786,7 +788,8 @@ find_skill_num(char *name)
 	temp = any_one_arg((char *)spells[index], first);
 	temp2 = any_one_arg(name, first2);
 	while (*first && *first2 && ok) {
-	    if (!is_abbrev(first, first2))
+		//if (!is_abbrev(first, first2))
+	    if (!is_abbrev(first2, first))
 		ok = 0;
 	    temp = any_one_arg(temp, first);
 	    temp2 = any_one_arg(temp2, first2);
@@ -2934,6 +2937,11 @@ mag_assign_spells(void)
 	   MAG_PHYSICS | MAG_AFFECTS);
 
     /* ALL REMORT SKILLS HERE */
+    remort_spello(SPELL_STONESKIN, 
+		CLASS_RANGER, 20,4,
+		60,25,1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 
+		MAG_MAGIC | MAG_AFFECTS);
+
     remort_spello(SPELL_SHIELD_OF_RIGHTEOUSNESS, 
 		  CLASS_CLERIC, 32, 2,
 		  50, 20, 1, POS_STANDING, TAR_CHAR_ROOM|TAR_SELF_ONLY, FALSE, 
@@ -3052,10 +3060,10 @@ mag_assign_spells(void)
  * 0's.
  */
 
-                        /* Ma Cl Th Wa Br Ps Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
     spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X,  X, 32, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
-    spello(SKILL_SNATCH, X, X, X, X, X, X, X, X, X,  X,  X, X, X,X,X,X,X,
+                      /* Ma Cl Th Wa Br Ps Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3*/
+    spello(SKILL_SNATCH, X, X, X, X, X, X, X, X,  X,  X, 40, X, X,X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
     spello(SKILL_ARCHERY, X, X, 14, 5, 24, X, X,  X,  X,  9, X, X, X, 10,X,X, X,
 	   0, 0, 0, 0, 0, 0, 0);
