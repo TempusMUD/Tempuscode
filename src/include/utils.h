@@ -837,7 +837,8 @@ static inline bool MORT_CAN_SEE(char_data * sub, char_data * obj){
 #define APPROVED_OK_OBJ(sub, obj)   \
      (OBJ_APPROVED(obj) ||                     \
       GET_LEVEL(sub) >= LVL_IMMORT ||          \
-      PLR_FLAGGED(sub, PLR_TESTER))
+      PLR_FLAGGED(sub, PLR_TESTER) ||          \
+	  MOB_UNAPPROVED(sub))
 
 #define INVIS_OK_OBJ(sub, obj) \
      ((((!IS_OBJ_STAT((obj), ITEM_INVISIBLE) ||   \

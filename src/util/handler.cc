@@ -2333,12 +2333,12 @@ is_wierd(CHAR * ch, struct obj_data *obj, CHAR * vict)
 	if (obj) {
 		if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
 			return 1;
-		if (!OBJ_APPROVED(obj) && !ch->isTester())
+		if (!OBJ_APPROVED(obj) && !ch->isTester() && !MOB_UNAPPROVED(ch))
 			return 1;
 	}
 
 	if (vict && IS_NPC(vict)) {
-		if (MOB_UNAPPROVED(vict) && !ch->isTester())
+		if (MOB_UNAPPROVED(vict) && !ch->isTester() && !MOB_UNAPPROVED(ch))
 			return 1;
 	}
 
