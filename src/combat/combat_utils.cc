@@ -37,6 +37,7 @@
 #include "specs.h"
 #include "security.h"
 #include "house.h"
+#include "quest.h"
 
 #include <iostream>
 
@@ -223,6 +224,31 @@ update_pos(struct Creature *victim)
 	return;
 }
 
+bool
+is_arena_combat(struct Creature *ch, struct Creature *vict)
+{
+	if (IS_NPC(vict))
+		return false;
+
+	if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA) ||
+			GET_ZONE(ch->in_room) == 400)
+		return true;
+
+	// PK quests
+	if (!ch)
+		return false;
+	
+	if (GET_QUEST(vict)) {
+		Quest *quest;
+
+		quest = quest_by_vnum(GET_QUEST(vict));
+		if (QUEST_FLAGGED(quest, QUEST_ARENA))
+			return true;
+	}
+
+	return false;
+}
+
 // Called to select a safe target when the character doesn't get to select
 // the target
 bool
@@ -237,7 +263,7 @@ ok_to_damage(struct Creature *ch, struct Creature *vict)
 		return true;
 
 	// We don't worry about arena combat
-	if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA))
+	if (is_arena_combat(ch, vict))
 		return true;
 
 	// We don't care if the victim is a killer or thief
@@ -755,7 +781,7 @@ choose_random_limb(Creature *victim)
 int
 peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 {
-	if (vict->isNewbie() && !ROOM_FLAGGED(vict->in_room, ROOM_ARENA) &&
+	if (vict->isNewbie() && !is_arena_combat(ch, vict) &&
 		IS_PC(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
 		if (mssg) {
 			act("$N is currently under new character protection.",
@@ -791,10 +817,7 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 		return 0;
 	}
 
-	bool isArena = ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && 
-				   ROOM_FLAGGED(vict->in_room, ROOM_ARENA);
-
-	if (!isArena && !IS_NPC(ch) && !IS_NPC(vict) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
+	if (!is_arena_combat(ch, vict) && !IS_NPC(ch) && !IS_NPC(vict) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 		act("In order to attack $N or another player, you must toggle your\n"
 			"Pkiller status with the 'pkiller' command.", FALSE, ch, 0, vict,
 			TO_CHAR);
@@ -980,8 +1003,8 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			GET_OBJ_TIMER(leg) = max_pc_corpse_time;
 		}
 		obj_to_room(leg, ch->in_room);
-		if (!ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-			&& GET_LEVEL(ch) <= LVL_AMBASSADOR) {
+		if (!is_arena_combat(killer, ch) &&
+				GET_LEVEL(ch) <= LVL_AMBASSADOR) {
 
 			/* transfer character's leg EQ to room, if applicable */
 			if (GET_EQ(ch, WEAR_LEGS))
@@ -1313,8 +1336,8 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			sprintf(adj, "headless smoking");
 		}
 
-		if (!ROOM_FLAGGED(ch->in_room, ROOM_ARENA) &&
-			GET_LEVEL(ch) <= LVL_AMBASSADOR) {
+		if (!is_arena_combat(killer, ch) &&
+				GET_LEVEL(ch) <= LVL_AMBASSADOR) {
 			obj_data *o;
 			/* transfer character's head EQ to room, if applicable */
 			if (GET_EQ(ch, WEAR_HEAD))
@@ -1407,7 +1430,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			GET_OBJ_TIMER(head) = max_pc_corpse_time;
 		}
 		obj_to_room(head, ch->in_room);
-		if (!ROOM_FLAGGED(ch->in_room, ROOM_ARENA) &&
+		if (!is_arena_combat(killer, ch) &&
 			GET_LEVEL(ch) <= LVL_AMBASSADOR) {
 			obj_data *o;
 			/* transfer character's head EQ to room, if applicable */
@@ -1589,7 +1612,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		CORPSE_KILLER(corpse) = DAM_OBJECT_IDNUM(dam_object);
 
 	// if non-arena room, transfer eq to corpse
-	if ((!ROOM_FLAGGED(ch->in_room, ROOM_ARENA) || IS_MOB(ch)) &&
+	if ((!is_arena_combat(killer, ch) || IS_MOB(ch)) &&
 		GET_LEVEL(ch) < LVL_AMBASSADOR) {
 
 		/* transfer character's inventory to the corpse */

@@ -78,9 +78,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 				check_killer(ch->master, vict, "charmed");
 			}
 		} else {
-			bool isArena = ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && 
-						   ROOM_FLAGGED(vict->in_room, ROOM_ARENA);
-			if( !isArena ) {
+			if(!is_arena_combat(ch, vict)) {
 				if (!PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 					send_to_char(ch, "A small dark shape flies in from the future and sticks to your tongue.\r\n");
 					return;
@@ -90,7 +88,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 						"A small dark shape flies in from the future and sticks to your eye.\r\n");
 					return;
 				}
-				if (ch->isNewbie() && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+				if (ch->isNewbie() && !is_arena_combat(ch, vict)) {
 					send_to_char(ch, "You are currently under new player protection, which expires at level 41.\r\n");
 					send_to_char(ch, "You cannot attack other players while under this protection.\r\n");
 					return;
@@ -102,7 +100,7 @@ set_fighting(struct Creature *ch, struct Creature *vict, int aggr)
 
 			if (vict->isNewbie() &&
 					GET_LEVEL(ch) < LVL_IMMORT &&
-					!ROOM_FLAGGED(vict->in_room, ROOM_ARENA)) {
+					!is_arena_combat(ch, vict)) {
 				act("$N is currently under new character protection.",
 					FALSE, ch, 0, vict, TO_CHAR);
 				act("You are protected by the gods against $n's attack!",
@@ -210,7 +208,7 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	}
 	// Equipment dealt with in make_corpse. 
 	// Do not save it here.
-	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) || GET_ZONE(ch->in_room) == 400)
+	if (is_arena_combat(killer, ch) || GET_ZONE(ch->in_room) == 400)
 		ch->arena_die();
 	else
 		ch->die();
@@ -246,9 +244,9 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 				attacktype);
 		}
 	}
-	if( IS_PC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && killer != NULL
-	&& !PLR_FLAGGED(killer, PLR_KILLER) && !ch->isNewbie() ) 
-	{
+
+	if( IS_PC(ch) && !is_arena_combat(killer, ch) && killer != NULL &&
+			!PLR_FLAGGED(killer, PLR_KILLER) && !ch->isNewbie() ) {
 		// exp loss capped at the beginning of the level.
 		int loss = GET_EXP(ch) >> 3;
 		loss = MIN( loss, GET_EXP(ch) - exp_scale[GET_LEVEL(ch)] );
@@ -323,7 +321,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 	}
 
 	if (!IS_NPC(ch) && (!ch->in_room)
-		|| !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+		|| !is_arena_combat(killer, ch)) {
 		if (ch != killer)
 			REMOVE_BIT(PLR_FLAGS(ch), PLR_KILLER | PLR_THIEF);
 
@@ -446,7 +444,7 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 					>> 1) + exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch);
 
 		if (!IS_NPC(victim)) {
-			if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+			if (is_arena_combat(ch, victim))
 				exp = 1;
 			else
 				exp >>= 8;
@@ -845,9 +843,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	/* newbie protection and PLR_NOPK check */
 	if (ch && ch != victim && !IS_NPC(ch) && !IS_NPC(victim)) 
 	{
-		bool isArena = ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && 
-					   ROOM_FLAGGED(victim->in_room, ROOM_ARENA);
-		if(! isArena ) {
+		if(!is_arena_combat(ch, victim)) {
 			if (PLR_FLAGGED(ch, PLR_NOPK)) {
 				send_to_char(ch, "A small dark shape flies in from the future and sticks to your eyebrow.\r\n");
 				DAM_RETURN(DAM_ATTACK_FAILED);
@@ -859,7 +855,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 
 		if (victim->isNewbie() &&
-			!ROOM_FLAGGED(victim->in_room, ROOM_ARENA) &&
+			!is_arena_combat(ch, victim) &&
 			GET_LEVEL(ch) < LVL_IMMORT) {
 			act("$N is currently under new character protection.",
 				FALSE, ch, 0, victim, TO_CHAR);
@@ -875,7 +871,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 
 		if (ch->isNewbie() &&
-			!ROOM_FLAGGED(victim->in_room, ROOM_ARENA)) {
+			!is_arena_combat(ch, victim)) {
 			send_to_char(ch, 
 				"You are currently under new player protection, which expires at level 41.\r\n"
 				"You cannot attack other players while under this protection.\r\n");
@@ -1787,7 +1783,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	// Send him to the void
 
 	if (!IS_NPC(victim) && !(victim->desc)
-		&& !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)) {
+		&& !is_arena_combat(ch, victim)) {
 
 		act("$n is rescued by divine forces.", FALSE, victim, 0, 0, TO_ROOM);
 		GET_WAS_IN(victim) = victim->in_room;
@@ -1830,18 +1826,14 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	//
 
 	if (victim->getPosition() == POS_DEAD) {
-		bool arena = false;
+		bool arena = is_arena_combat(ch, victim);
+
 		if (ch) {
 			if (attacktype != SKILL_SNIPE) {
 				gain_kill_exp(ch, victim);
 			}
 
 			if (!IS_NPC(victim)) {
-				// Arena stuff is logged less etc. Check that
-				if (ROOM_FLAGGED(victim->in_room, ROOM_ARENA)) {
-					arena = true;
-				}
-
 				// Log the death
 				if (victim != ch) {
 					char *room_str;
@@ -2060,7 +2052,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	}
 
 	if (victim->isNewbie() && !IS_NPC(ch) && !IS_NPC(victim) &&
-		!ROOM_FLAGGED(victim->in_room, ROOM_ARENA) &&
+		!is_arena_combat(ch, victim) &&
 		GET_LEVEL(ch) < LVL_IMMORT) {
 		act("$N is currently under new character protection.",
 			FALSE, ch, 0, victim, TO_CHAR);

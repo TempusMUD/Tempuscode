@@ -590,7 +590,7 @@ ACMD(do_snatch)
 			// Punks tend to break shit.
 			dam =
 				dice(str_app[GET_STR(ch)].todam, str_app[GET_STR(vict)].todam);
-			if (!ROOM_FLAGGED(vict->in_room, ROOM_ARENA))
+			if (!is_arena_combat(ch, vict))
 				damage_eq(NULL, obj, dam);
 			GET_EXP(ch) += MIN(1000, GET_OBJ_COST(obj));
 			gain_skill_prof(ch, SKILL_SNATCH);
