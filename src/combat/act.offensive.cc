@@ -217,7 +217,22 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		}
 
 		break;
-
+	case SKILL_STRIKE:
+		*dam = 0;
+		if (GET_EQ(ch, WEAR_WIELD))
+			ADD_EQ_DAM(ch, WEAR_WIELD);
+		else if (GET_EQ(ch, WEAR_HANDS))
+			ADD_EQ_DAM(ch, WEAR_WIELD);
+		else {
+			send_to_char(ch, "You need a weapon to strike out with!\r\n");
+			prob = 0;
+			return -1;
+		}
+		*dam *= 2;
+		*wait = 2 RL_SEC;
+		*loc = WEAR_RANDOM;
+		*vict_wait = 1 RL_SEC;
+		break;
 	case SKILL_HEADBUTT:
 		if (IS_PUDDING(vict) || IS_SLIME(vict))
 			prob = 0;

@@ -261,5 +261,8 @@ ACMD(do_battlecry)
 		gain_skill_prof(ch, skillnum);
 }
 
+ACMD(do_cleave)
+{
+}
 
 #undef __act_barb_c__

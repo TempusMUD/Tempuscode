@@ -562,7 +562,6 @@ static const int SKILL_ADRENAL_MAXIMIZER = 678;	// Shukutei Adrenal Maximizer
 
 static const int SKILL_ENERGY_CONVERSION = 679;	// physic's energy conversion
 
-
   /******************  PROFICENCIES  *******************/
 static const int SKILL_PROF_POUND = 681;
 static const int SKILL_PROF_WHIP = 682;
@@ -579,6 +578,9 @@ static const int SKILL_USE_WANDS = 691;
 
 /* New skills may be added here up to MAX_SKILLS (700) */
 static const int SKILL_DISCIPLINE_OF_STEEL = 692;
+static const int SKILL_STRIKE = 693;
+static const int SKILL_CLEAVE = 694;
+static const int SKILL_GREAT_CLEAVE = 695;
 /*
  *  NON-PLAYER AND OBJECT SPELLS AND SKILLS
  *  The practice levels for the spells and skills below are _not_ recorded

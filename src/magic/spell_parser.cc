@@ -525,7 +525,9 @@ const char *spells[] = {
 	"read scrolls",				/* 690 */
 	"use wands",
 	"the discipline of steel",
-	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 695 */
+	"strike",
+	"cleave",
+	"great cleave",	/* 695 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 700 */
 
 	/* OBJECT SPELLS AND NPC SPELLS/SKILLS */
@@ -3562,10 +3564,11 @@ mag_assign_spells(void)
 	remort_spello(SKILL_DISCIPLINE_OF_STEEL, CLASS_BARB, 10, 1,
 		0, 0, 0, 0, 0, 0, 0);
 
+	remort_spello(SKILL_GREAT_CLEAVE, CLASS_BARB, 2, 40, 0, 0, 0, 0, 0, 0, 0);
+
 	remort_spello(SPELL_LOCUST_REGENERATION, CLASS_MAGE, 34, 5,
 		150, 75, 5, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT
 		| TAR_NOT_SELF, TRUE, MAG_MAGIC | MAG_AFFECTS);
-
 
 /*
  * SKILLS
@@ -3575,13 +3578,19 @@ mag_assign_spells(void)
  * 0's.
  */
 
+	/* Ma Cl Th Wa Br Ps Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3 */
+	spello(SKILL_CLEAVE, X, X, X, X, 30, X, X, X, X, X, X, X, X, X, X, X, X,
+		0, 0, 0, 0, 0, 0, 0);
+
+	spello(SKILL_STRIKE, X, X, X, X, 17, X, X, X, X, X, X, X, X, X, X, X, X,
+		0, 0, 0, 0, 0, 0, 0);
+
 	spello(SKILL_HAMSTRING, X, X, X, X, X, X, X, X, X, X, 32, X, X, 32, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
 	spello(SKILL_DRAG, X, X, X, X, 40, X, X, X, X, X, 30, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 
-	/* Ma Cl Th Wa Br Ps Ph Cyb Kni Rn Hd Mnk vm mr 1 2 3 */
 	spello(SKILL_SNATCH, X, X, X, X, X, X, X, X, X, X, 40, X, X, X, X, X, X,
 		0, 0, 0, 0, 0, 0, 0);
 	spello(SKILL_ARCHERY, X, X, 14, 5, 24, X, X, X, X, 9, X, X, X, X, X, X, X,

@@ -132,6 +132,7 @@ ACMD(do_cedit);
 ACMD(do_charge);
 ACMD(do_circle);
 ACMD(do_cinfo);
+ACMD(do_cleave);
 ACMD(do_clan_comm);
 ACMD(do_clanpasswd);
 ACMD(do_clanlist);
@@ -548,6 +549,7 @@ struct command_info cmd_info[] = {
 	{"clanemote", POS_STUNNED, do_clan_comm, LVL_CAN_CLAN, SCMD_CLAN_ECHO, 0},
 	{"clantitle", POS_STUNNED, do_gen_tog, LVL_CAN_CLAN, SCMD_CLAN_TITLE, 0},
 	{"clanhide", POS_STUNNED, do_gen_tog, LVL_CAN_CLAN, SCMD_CLAN_HIDE, 0},
+	{"cleave", POS_FIGHTING, do_cleave, 1, 0, 0},
 	{"clue", POS_RESTING, do_action, 0, 0, 0},
 	{"clueless", POS_RESTING, do_action, 0, 0, 0},
 	{"ceasefire", POS_RESTING, do_ceasefire, 0, 0, 0},
@@ -1181,6 +1183,7 @@ struct command_info cmd_info[] = {
 	{"steal", POS_SITTING, do_steal, 1, 0, 0},
 	{"steam", POS_RESTING, do_action, 0, 0, 0},
 	{"stretch", POS_SITTING, do_action, 0, 0, 0},
+	{"strike", POS_FIGHTING, do_offensive_skill, 0, SKILL_STRIKE, 0},
 	{"strip", POS_RESTING, do_action, 0, 0, 0},
 	{"stroke", POS_RESTING, do_action, 0, 0, 0},
 	{"strut", POS_STANDING, do_action, 0, 0, 0},
