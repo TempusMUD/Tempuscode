@@ -335,15 +335,27 @@ ACMD(do_track)
 	struct Creature *vict;
 	int dir;
 	bool spirit = affected_by_spell(ch, SPELL_SPIRIT_TRACK);
-
+    
+    if (GET_MOVE(ch) < 15 && !spirit) {
+        send_to_char(ch, "You are too exhausted!\r\n");
+		return;
+    }
+    
+    bool good_track = false;
+    if (number(30, 200) < ch->getLevelBonus(SKILL_TRACK))
+        good_track = true;
 	
 	if (!GET_SKILL(ch, SKILL_TRACK) && !spirit) {
 		send_to_char(ch, "You have no idea how.\r\n");
 		return;
 	}
 	one_argument(argument, arg);
-	if (!*arg || !spirit) {
+	if (!*arg || (!spirit && !good_track)) {
 		show_trails_to_char(ch, NULL);
+        if (!spirit) {
+            GET_MOVE(ch) -= 10;
+        }
+        WAIT_STATE(ch, 6);
 		return;
 	}
 
@@ -380,6 +392,9 @@ ACMD(do_track)
 		WAIT_STATE(ch, 6);
 		break;
 	}
+    if (!spirit) {
+        GET_MOVE(ch) -= 10;
+    }
 }
 
 ACMD(do_psilocate)
