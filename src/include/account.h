@@ -36,6 +36,7 @@ class Account {
 		inline void set_ansi_level(int level) { _ansi_level = level; }
 		inline int get_term_height(void) { return _term_height; }
 		inline int get_term_width(void) { return _term_width; }
+        inline const char *get_email_addr(void) const { return _email; }
 		void set_email_addr(const char *addr);
 
 		Creature *create_char(const char *name);
@@ -43,6 +44,8 @@ class Account {
 		long get_char_by_index(int idx);
 		Creature *get_creature_by_index(int idx);
 		bool invalid_char_index(int idx);
+        unsigned int get_char_count() { return _chars.size(); }
+        long get_char( int index ) { return _chars[index]; }
 		bool deny_char_entry(Creature *ch);
 
 		inline long long get_past_bank(void) { return _bank_past; }
@@ -56,6 +59,8 @@ class Account {
 
 		void set_password(const char *password);
 
+        inline time_t get_login_time() { return _login_time; }
+        inline time_t get_creation_time() { return _creation_time; }
         
 	private:
 		// Internal
@@ -73,7 +78,7 @@ class Account {
 		unsigned int _term_height;
 		unsigned int _term_width;
 		// Game data
-		vector<int> _chars;
+		vector<long> _chars;
 		long long _bank_past;
 		long long _bank_future;
 };
