@@ -2482,6 +2482,11 @@ ASPELL(spell_animate_dead)
 	return;
     }
     
+    if( ! obj ) {
+	send_to_char("You cannot animate that.\r\n", ch );
+	return;
+    }
+
     if ( !IS_CORPSE(obj) ) {
 	send_to_char("You cannot animate that.\r\n", ch);
 	return;
