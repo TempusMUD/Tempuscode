@@ -25,15 +25,31 @@ SPECIAL(fate)
 	int num_rooms = 0, the_room = 0;
 	int which_fate;
 
+	if( spec_mode == SPECIAL_CMD ) {
+		if(! GET_LEVEL(ch) < 67 ) {
+			return 0;
+		} else if( strcmp(argument,"status") ) {
+			send_to_char(ch, "Fate timers: %d, %d, %d\r\n",
+							 fate_timers[0], 
+							 fate_timers[1], 
+							 fate_timers[2] );
+			return 1;
+		} else if( strcmp(argument,"reset") ) {
+			send_to_char(ch, "Resetting fate timers.\r\n");
+			fate_timers[0] = fate_timers[1] = fate_timers[2] = 0;
+			return 1;
+		} 
+		return 0;
+	}
+
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
+
 	// Don't want the zone goin to sleep and trapping her.
 	if (fate->in_room) {
 		fate->in_room->zone->idle_time = 0;
 	}
 
-	if (cmd)
-		return 0;
 	if (FIGHTING(fate))
 		return 0;
 	if (!fate->in_room)
@@ -43,23 +59,22 @@ SPECIAL(fate)
 	if (player_in_room(fate->in_room))
 		return 0;
 
-
 	// Who is she?
 	switch (GET_MOB_VNUM(fate)) {
-	case FATE_VNUM_LOW:
-		strcpy(dyn_name, "fatelow");
-		which_fate = 0;
-		break;
-	case FATE_VNUM_MID:
-		strcpy(dyn_name, "fatemid");
-		which_fate = 1;
-		break;
-	case FATE_VNUM_HIGH:
-		strcpy(dyn_name, "fatehigh");
-		which_fate = 2;
-		break;
-	default:
-		return 0;
+		case FATE_VNUM_LOW:
+			strcpy(dyn_name, "fatelow");
+			which_fate = 0;
+			break;
+		case FATE_VNUM_MID:
+			strcpy(dyn_name, "fatemid");
+			which_fate = 1;
+			break;
+		case FATE_VNUM_HIGH:
+			strcpy(dyn_name, "fatehigh");
+			which_fate = 2;
+			break;
+		default:
+			return 0;
 	}
 
 	// Is it time to leave?
@@ -133,6 +148,9 @@ SPECIAL(fate)
 		delete roomlist;
 		roomlist = cur_room_list_item;
 	}
+
+	slog("FATE: Fate #%d moving to %d.  Timer reset to %d.", 
+		 which_fate, dest->number, fate_timers[which_fate] ); 
 
 	act("$n disappears into a green mist.", FALSE, fate, 0, 0, TO_ROOM);
 	char_from_room(fate, false);
