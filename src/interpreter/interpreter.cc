@@ -158,6 +158,7 @@ ACMD(do_drive);
 ACMD(do_drop);
 ACMD(do_eat);
 ACMD(do_echo);
+ACMD(do_econvert);
 ACMD(do_elude);
 ACMD(do_empower);
 ACMD(do_encumbrance);
@@ -610,6 +611,7 @@ extern const struct command_info cmd_info[] = {
 
     { "eat"      , POS_RESTING , do_eat      , 0, SCMD_EAT },
     { "echo"     , POS_SLEEPING, do_echo     , LVL_DEMI, SCMD_ECHO },
+    { "econvert" , POS_RESTING,  do_econvert , 0, 0 },
     { "elbow"    , POS_FIGHTING, do_offensive_skill, 0, SKILL_ELBOW },
     { "elude"    , POS_STANDING, do_elude    , 0, 0 },
     { "emote"    , POS_SLEEPING, do_echo     , 1, SCMD_EMOTE },

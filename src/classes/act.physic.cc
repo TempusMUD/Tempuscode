@@ -8,6 +8,145 @@
 *   File: act.physic.c                Created for TempusMUD by Fireball   *
 ************************************************************************ */
 
+/*
+  //
+  ************************************************************************
+  
+  State of the physics:
+
+  #define SPELL_ACIDITY              301
+  complete
+
+  #define SPELL_ATTRACTION_FIELD     302
+  complete
+
+  #define SPELL_NUCLEAR_WASTELAND    303
+  complete
+
+  #define SPELL_FLUORESCE	           304
+  complete
+
+  #define SPELL_GAMMA_RAY            305
+  incomplete ( needs damage adjustment )
+
+  #define SPELL_HALFLIFE             306
+  incomplete ( needs damage adjustment, possible affects adjustment )
+
+  #define SPELL_MICROWAVE            307
+  incomplete ( needs damage adjustment )
+
+  #define SPELL_OXIDIZE              308
+  complete
+
+  #define SPELL_RANDOM_COORDINATES   309  // random teleport
+  complete 
+
+  #define SPELL_REPULSION_FIELD      310  
+  incomplete
+
+  #define SPELL_TRANSMITTANCE        311  // transparency
+  complete
+
+  #define SPELL_SPACETIME_IMPRINT    312  // sets room as teleport spot
+  complete
+
+  #define SPELL_SPACETIME_RECALL     313  // teleports to imprint telep spot
+  complete
+
+  #define SPELL_TIME_WARP            314  // random teleport into other time
+  complete
+
+  #define SPELL_TIDAL_SPACEWARP      315  // fly
+  incomplete
+
+  #define SPELL_FISSION_BLAST        316  // full-room damage
+  incomplete
+
+  #define SPELL_REFRACTION           317  // like displacement
+  incomplete
+
+  #define SPELL_ELECTROSHIELD        318  // prot_lightning
+  incomplete
+
+  #define SPELL_VACUUM_SHROUD        319  // eliminates breathing and fire
+  incomplete
+
+  #define SPELL_DENSIFY              320  // increase weight of obj & char
+  incomplete
+
+  #define SPELL_UNUSED_321
+  
+
+  #define SPELL_ENTROPY_FIELD        322  // drains move on victim (time effect)
+  incomplete
+
+  #define SPELL_GRAV_TRAP            323  // time effect crushing damage
+  incomplete
+
+  #define SPELL_CAPACITANCE_BOOST    324  // increase maxmv
+  incomplete
+
+  #define SPELL_ELECTRIC_ARC         325  // lightning bolt
+  incomplete
+  
+  #define SPELL_SONIC_BOOM           326  // area damage + wait state
+  incomplete
+
+  #define SPELL_LATICE_HARDENING     327  // dermal hard or increase obj maxdam
+  incomplete
+
+  #define SPELL_NULLIFY              328  // like dispel magic
+  
+  #define SPELL_FORCE_WALL           329  // sets up an exit blocker
+  incomplete
+
+  #define SPELL_UNUSED_330           330  // 
+
+  #define SPELL_PHASING              331  // invuln.
+  incomplete
+
+  #define SPELL_ABSORPTION_SHIELD    332  // works like mana shield
+  incomplete
+
+  #define SPELL_TEMPORAL_COMPRESSION 333  // works like haste
+  incomplete
+
+  #define SPELL_TEMPORAL_DILATION    334  // works like slow
+  incomplete
+
+  #define SPELL_GAUSS_SHIELD         335  // half damage from metal
+  incomplete
+
+  #define SPELL_ALBEDO_SHIELD        336  // reflects e/m attacks
+  incomplete
+
+  #define SPELL_THERMOSTATIC_FIELD   337  // sets prot_heat + end_cold
+
+  #define SPELL_RADIOIMMUNITY        338  // sets prot_rad
+  complete
+
+  #define SPELL_TRANSDIMENSIONALITY  339  // randomly teleport to another plane
+  incomplete
+
+  #define SPELL_AREA_STASIS          340  // sets !phy room flag
+  incomplete
+
+  #define SPELL_ELECTROSTATIC_FIELD  341  // protective static field does damage to attackers
+  complete
+
+  #define SKILL_WORMHOLE              599 // physic's wormhole
+  complete
+  
+  #define SKILL_LECTURE               600 // physic's boring-ass lecture
+  complete
+
+  #define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
+  complete
+
+  ************************************************************************
+  //
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +169,7 @@
 #include "house.h"
 #include "char_class.h"
 #include "fight.h"
+#include "bomb.h"
 
 void appear(struct char_data *ch, struct char_data *vict);
 
@@ -49,7 +189,7 @@ check_char_room_vis(CHAR *ch, char *argument)
 }
 
 // physic's boring-ass lecture
-#define NUM_TOPICS 17
+#define NUM_TOPICS 19
 
 char *lecture_topics[NUM_TOPICS] =
 {
@@ -69,7 +209,9 @@ char *lecture_topics[NUM_TOPICS] =
     "on the use of Hermitian operators.",
     "on the applications of the Gradient Theorem.",
     "on forced underdamped harmonic oscillators.",
-    "on the effects of magnetic induction."
+    "on the effects of magnetic induction.",
+    "on the theory of General Relativity.",
+    "on Special Relativistic mechanics.",
 };
 
 ACMD(do_lecture)
@@ -557,3 +699,142 @@ ASPELL(spell_time_warp)
     act(buf, TRUE, ch, 0, 0, TO_ROOM);
   
 }
+
+//
+// econvert is essentially a raw matter-to-energy conversion, although
+// energy can be extracted via chemical reactions as well, thus a bomb
+// or battery yields more energy than an equivalently massive stone
+//
+
+int recurs_econvert_points( struct obj_data *obj, bool top ) {
+    
+    if ( !obj )
+	return 0;
+
+    int num_points = GET_OBJ_WEIGHT( obj );
+    
+    switch ( GET_OBJ_TYPE( obj ) ) {
+	// double points for money
+    case ITEM_MONEY:
+	num_points <<= 1;
+	break;
+	// batteries and devices get stored energy tacked on
+    case ITEM_DEVICE:
+    case ITEM_BATTERY:
+    case ITEM_ENERGY_CELL:
+    case ITEM_ENGINE:
+	num_points += CUR_ENERGY( obj );
+	break;
+	// bombs add 8x bomb power
+    case ITEM_BOMB:
+	num_points += BOMB_POWER( obj ) << 3;
+	break;
+    }
+
+    printf( "object [%s]: %d\n", obj->short_description, num_points );
+
+    return ( num_points + 
+	     recurs_econvert_points( obj->contains, false ) +
+	     ( top ? 0 : 
+	       recurs_econvert_points( obj->next_content, false ) ) );
+}
+
+    
+ACMD( do_econvert ) {
+
+    struct obj_data *obj = 0;
+    struct obj_data *battery = 0;
+    char arg1[ MAX_INPUT_LENGTH ], arg2[ MAX_INPUT_LENGTH ];
+    int num_points = 0;
+    int i;
+
+    if ( CHECK_SKILL( ch, SKILL_ENERGY_CONVERSION ) < 40 ) {
+	send_to_char( "You have not been trained in the science of matter conversion.\r\n", ch );
+	return;
+    }
+
+    argument = two_arguments( argument, arg1, arg2 );
+
+    if ( !*arg1 ) {
+	send_to_char( "Usage: econvert <object> [battery]\r\n", ch );
+	return;
+    }
+
+    if (!(obj = get_object_in_equip_vis(ch, arg1, ch->equipment, &i)) &&
+	!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) ) {
+	sprintf(buf2, "You don't seem to have %s '%s' to convert.\r\n", AN(arg1), arg1);
+	send_to_char(buf2, ch);
+	return;
+    }
+
+    // check for a battery to store in
+    if ( *arg2 ) {
+	
+	if ( ! ( battery = get_object_in_equip_vis( ch, arg2, ch->equipment, &i ) ) &&
+	     ! ( battery = get_obj_in_list_vis( ch, arg2, ch->carrying ) ) ) {
+	    sprintf( buf2, "You don't seem to have %s '%s' to store the energy in.\r\n", AN(arg2), arg2);
+	    send_to_char(buf2, ch);
+	    return;
+	}
+    
+	if ( !IS_BATTERY( battery ) ) {
+	    act( "Sorry, $p is not a battery.",  FALSE, ch, battery, 0, TO_CHAR);
+	    return;
+	}
+    }
+
+    // how many points is this worth?
+    num_points = recurs_econvert_points( obj, true );
+
+    // adjust it for skill level (  x ( skill lev / 120 ) )
+    num_points = ( num_points * CHECK_SKILL( ch, SKILL_ENERGY_CONVERSION ) ) / 120;
+    // adjust it for intelligence ( int x 2 )
+    num_points += GET_INT( ch ) << 1;
+    // adjust it for remort gen ( gen x 2 )
+    num_points += GET_REMORT_GEN( ch ) << 1;
+
+
+    act( "E=mc^2.... Voila!  You convert $p into raw energy.", FALSE, ch, obj, 0, TO_CHAR );
+    act( "With a flash, $n converts $p into raw energy.", FALSE, ch, obj, 0, TO_ROOM );
+
+    extract_obj( obj );
+
+    if ( battery ) {
+	if ( CUR_ENERGY( battery ) >= MAX_ENERGY( battery ) ) {
+	    act( "The newly converted energy dissipates into the void, because\r\n"
+		 "$p is already maxed out.", FALSE, ch, battery, 0, TO_CHAR );
+	    return;
+	}
+	
+	num_points = MIN( num_points, MAX_ENERGY( battery ) - CUR_ENERGY( battery ) );
+	CUR_ENERGY( battery ) += num_points;
+	sprintf( buf, "You have increased $n's energy level by %d to %d units.", 
+		 num_points, CUR_ENERGY( battery ) );
+	act( buf, FALSE, ch, battery, 0, TO_CHAR );
+	
+	if ( num_points > number( 50, 300 ) )
+	    gain_skill_prof( ch, SKILL_ENERGY_CONVERSION );
+	return;
+    }
+    
+    if ( GET_MANA( ch ) >= GET_MAX_MANA( ch ) ) {
+	act( "The newly converted energy dissipates into the void, because\r\n"
+	     "your mana is already maxed out.", FALSE, ch, 0, 0, TO_CHAR );
+	return;
+    }
+
+    num_points = MIN( num_points, GET_MAX_MANA( ch ) - GET_MANA( ch ) );
+    GET_MANA( ch ) += num_points;
+
+    sprintf( buf, "You have increased your mana level by %d to %d.\r\n", num_points, GET_MANA( ch ) );
+    send_to_char( buf, ch );
+
+    if ( num_points > number( 50, 300 ) )
+	gain_skill_prof( ch, SKILL_ENERGY_CONVERSION );
+    
+    return;
+}
+    
+    
+
+   

@@ -106,6 +106,13 @@ ACMD(do_empower)
     if (GET_MAX_MANA(ch) > old_maxmana) {
 	GET_MANA(ch) = MIN((old_mana + val2 + val1), GET_MAX_MANA(ch));
 	send_to_char("You redirect your energies!\r\n", ch);
+
+	if ( ( GET_MAX_HIT( ch ) >> 1 ) < GET_WIMP_LEV( ch ) ) {
+	    sprintf( buf, "Your wimpy level has been changed from %d to %d ... wimp!\r\n",
+		     GET_WIMP_LEV( ch ), GET_MAX_HIT( ch) >> 1 );
+	    send_to_char( buf, ch );
+	    GET_WIMP_LEV( ch ) = GET_MAX_HIT( ch ) >> 1;
+	}
     } else {
 	GET_MANA(ch) = old_mana;
 	send_to_char("You are already fully empowered.\r\n", ch);

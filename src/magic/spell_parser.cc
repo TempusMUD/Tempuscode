@@ -280,11 +280,15 @@ const char *spells[] =
     "refraction", 
     "electroshield",
     "vacuum shroud", 
-    "!UNUSED!",	/* 320 */
-    "!UNUSED!", 
-    "!UNUSED!", 
-    "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 325 */
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 330 */
+    "densify",	/* 320 */
+    "chemical stability", 
+    "entropy field", 
+    "!UNUSED!",
+    "capacitance boost", 
+    "!UNUSED!",	/* 325 */
+    "!UNUSED!", "!UNUSED!",
+    "nullify",
+    "!UNUSED!", "!UNUSED!",	/* 330 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 335 */
     "!UNUSED!", 
     "!UNUSED!", 
@@ -492,7 +496,9 @@ const char *spells[] =
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 665 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 670 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 675 */
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 680 */
+    "!UNUSED!", "!UNUSED!", "!UNUSED!",
+    "energy conversion",
+    "!UNUSED!",	/* 680 */
     "blunt weapons",
     "whipping weapons",
     "piercing weapons",
@@ -2857,7 +2863,7 @@ mag_assign_spells(void)
 
     spello(SPELL_GAMMA_RAY, X, X, X, X, X, X, 25, X, X, X, X, X, X,X,X,X,X, 
 	   100, 50, 2, POS_SITTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, TRUE, 
-	   MAG_PHYSICS | MAG_DAMAGE);
+	   MAG_PHYSICS | MAG_DAMAGE | MAG_AFFECTS );
 
     spello(SPELL_HALFLIFE, X, X, X, X, X, X, 30, X, X, X, X, X, X,X,X,X,X,
 	   120, 70, 5, POS_SITTING, 
@@ -2892,6 +2898,23 @@ mag_assign_spells(void)
     spello(SPELL_RADIOIMMUNITY, X, X, X, X, X, X, 20, X, X, X, X, X, X,X,X,X,X, 
 	   80, 20, 8, POS_SITTING, TAR_CHAR_ROOM, FALSE, 
 	   MAG_PHYSICS | MAG_AFFECTS);
+
+    spello(SPELL_DENSIFY, X, X, X, X, X, X, 26, X, X, X, X, X, X,X,X,X,X, 
+	   80, 20, 8, POS_SITTING, TAR_CHAR_ROOM | TAR_OBJ_EQUIP | TAR_OBJ_ROOM | TAR_OBJ_INV,
+	   FALSE, MAG_PHYSICS | MAG_AFFECTS | MAG_ALTER_OBJS );
+
+    spello(SPELL_CHEMICAL_STABILITY, X, X, X, X, X, X, 9, X, X, X, X, X, X,X,X,X,X, 
+	   80, 20, 8, POS_SITTING, TAR_CHAR_ROOM,
+	   FALSE, MAG_PHYSICS | MAG_AFFECTS | MAG_UNAFFECTS );
+
+    spello(SPELL_REFRACTION,   X, X, X, X, X, X, 33, X, X, X, X, X, X,X,X,X,X, 
+	   80, 20, 8, POS_SITTING, TAR_CHAR_ROOM,
+	   FALSE, MAG_PHYSICS | MAG_AFFECTS );
+    
+    spello(SPELL_NULLIFY, X, X, X, X, X, X, 11, X, X, X, X, X, X,X,X,X,X,
+	   90, 55, 5,
+	   POS_STANDING, TAR_CHAR_ROOM, FALSE,
+	   MAG_PHYSICS | MAG_UNAFFECTS );
 
     /* Ma Cl Th Wa Bar Sy Ph Cb Kn Rn Hd Mnk Max Min Chn */
     spello(ZEN_HEALING,X,X,X, X, X, X, X, X, X, X, X, 36, X,X,X,X,X, 30, 9, 2, 
@@ -3476,6 +3499,9 @@ mag_assign_spells(void)
     // physic skills
     /*     M  C  T  W  B  P Ph Cy Kn Rn Hd Mn Bm Mr 1 2 3 */
     spello(SKILL_LECTURE, X, X, X, X, X, X,30, X, X, X, X, X, X, X,X,X,X,
+	   0, 0, 0, 0, 0, 0, 0);
+
+    spello(SKILL_ENERGY_CONVERSION, X, X, X, X, X, X,22, X, X, X, X, X, X, X,X,X,X,
 	   0, 0, 0, 0, 0, 0, 0);
 
   

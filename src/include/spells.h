@@ -299,7 +299,7 @@ extern const char *spells[];
 #define SPELL_ELECTROSHIELD        318  // prot_lightning
 #define SPELL_VACUUM_SHROUD        319  // eliminates breathing and fire
 #define SPELL_DENSIFY              320  // increase weight of obj & char
-#define SPELL_SHROUD_SLOWNESS      321  // sets slow
+#define SPELL_CHEMICAL_STABILITY   321  // prevent/stop acidity
 #define SPELL_ENTROPY_FIELD        322  // drains move on victim (time effect)
 #define SPELL_GRAV_TRAP            323  // time effect crushing damage
 #define SPELL_CAPACITANCE_BOOST    324  // increase maxmv
@@ -308,7 +308,7 @@ extern const char *spells[];
 #define SPELL_LATICE_HARDENING     327  // dermal hard or increase obj maxdam
 #define SPELL_NULLIFY              328  // like dispel magic
 #define SPELL_FORCE_WALL           329  // sets up an exit blocker
-#define SPELL_ENERGY_CONVERSION    330  // convert objects into mana
+#define SPELL_UNUSED_330           330
 #define SPELL_PHASING              331  // invuln.
 #define SPELL_ABSORPTION_SHIELD    332  // works like mana shield
 #define SPELL_TEMPORAL_COMPRESSION 333  // works like haste
@@ -479,7 +479,6 @@ extern const char *spells[];
 #define SKILL_ASSIMILATE            640 // assimilate objects
 #define SKILL_RADIONEGATION         641 // immunity to radiation
 
-
 #define SKILL_RETREAT               648 // controlled flee
 #define SKILL_DISGUISE              649 // look like a mob
 #define SKILL_AMBUSH                650 /* surprise victim */
@@ -493,6 +492,9 @@ extern const char *spells[];
 #define SKILL_CREATE_VAMPIRE	    656
 #define SKILL_CONTROL_UNDEAD        657
 #define SKILL_TERRORIZE             658
+
+
+#define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
 
 
   /******************  PROFICENCIES  *******************/

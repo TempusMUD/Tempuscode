@@ -622,23 +622,8 @@ House_boot(void)
 		slog(buf);
 	    } else
 		SET_BIT(ROOM_FLAGS(rnum), ROOM_HOUSE);
-	}/*
-	   printf("in\n");
-	   for (i = 0; i < temp_house.num_of_guests; i++) {
-	   if (!get_name_by_id(temp_house.guests[i])) {
-	   printf("bogus\n");
-	   for (k = temp_house.num_of_guests-1; k > i; k--) {
-	   if (get_name_by_id(temp_house.guests[k])) {
-	   printf("foundagoodone\n");
-	   temp_house.guests[i] = temp_house.guests[k];
-	   temp_house.guests[k] = -1;
-	   temp_house.num_of_guests--;
-	   break;
-	   }
-	   }
-	   }
-	   }
-	 */
+	}
+
 	SET_BIT(ROOM_FLAGS(real_atrium), ROOM_ATRIUM);
 
 	House_load(temp_house.house_rooms[0]);

@@ -448,9 +448,6 @@ void perform_cyborg_activate(CHAR *ch, int mode, int subcmd)
     CHAR *vict = NULL, *nvict = NULL;
     char *to_room[2], *to_char[2];
 
-
-
-
     if (!CHECK_SKILL(ch, mode))
 	send_to_char("You do not have this program in memory.\r\n", ch);
     else if (CHECK_SKILL(ch, mode) < 40)

@@ -62,7 +62,7 @@
 void raw_kill(struct char_data * ch, struct char_data *killer, int attacktype);
 int peaceful_room_ok(struct char_data *ch, struct char_data *vict, bool mssg);
 void check_toughguy(struct char_data * ch, struct char_data * vict, int mode);
-void check_killer(struct char_data * ch, struct char_data * vict);
+void check_killer(struct char_data * ch, struct char_data * vict, const char *debug_msg=0);
 void die(struct char_data *ch, struct char_data *killer, int attacktype, int is_humil);
 int calculate_thaco(struct char_data *ch, struct char_data *victim, 
 		    struct obj_data *obj);

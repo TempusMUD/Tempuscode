@@ -31,6 +31,7 @@
 #include "vehicle.h"
 #include "char_class.h"
 #include "shop.h"
+#include "fight.h"
 
 extern struct obj_data *object_list;
 extern struct char_data *character_list;
@@ -2624,8 +2625,6 @@ ASPELL(spell_unholy_stalker)
     float  mult = (float) level / 70;
 
     int find_distance(struct room_data *start, struct room_data *location);
-    void check_toughguy(struct char_data *ch, struct char_data *cvict, int mode);
-    void check_killer(struct char_data *ch, struct char_data *cvict);
     int find_first_step(struct room_data *src, struct room_data *target, byte mode);
 
     if ( ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) ) {

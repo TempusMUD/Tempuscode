@@ -1974,13 +1974,6 @@ act(char *str, int hide_invisible, struct char_data * ch,
 	room = ch->in_room;
     else if (obj && obj->in_room != NULL) {
 	room = obj->in_room;
-/*******************    else {
-			sprintf(buf, "Ignoring dark room act. obj = %s, to = %s.", 
-			obj->short_description, obj->in_room->people ? 
-			GET_NAME(obj->in_room->people) : "NULL");
-			slog(buf);
-			return;
-***************/
     } else {
 	slog("SYSERR: no valid target to act()!");
 	return;

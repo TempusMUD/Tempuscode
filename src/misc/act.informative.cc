@@ -560,6 +560,11 @@ show_trailers_to_char(struct char_data *ch, struct char_data *i)
 	    act("...$e is hopelessly entangled in the undergrowth!", 
 		FALSE,i,0,ch,TO_VICT);
     }
+
+    if (IS_AFFECTED_2(i, AFF2_DISPLACEMENT)) {
+	if ( affected_by_spell( i, SPELL_REFRACTION ) )
+	    act( "...$s body is strangely refractive.", FALSE, i, 0, ch, TO_VICT );
+    }
 }
 
 void 
@@ -2000,7 +2005,7 @@ ACMD(do_encumbrance)
 
 
 void 
-print_affs_to_string(struct char_data *ch, char *string, byte mode)
+print_affs_to_string(struct char_data *ch, char *str, byte mode)
 {
 
     struct affected_type *af = NULL;
@@ -2008,17 +2013,20 @@ print_affs_to_string(struct char_data *ch, char *string, byte mode)
     char *name = NULL;
 
     if (IS_AFFECTED(ch, AFF_BLIND))
-	strcat(string, "You have been blinded!\r\n");
+	strcat(str, "You have been blinded!\r\n");
     if (IS_AFFECTED(ch, AFF_POISON))
-	strcat(string, "You are poisoned!\r\n");
+	strcat(str, "You are poisoned!\r\n");
     if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
-	strcat(string, "You have been turned to stone.\r\n");
+	strcat(str, "You have been turned to stone.\r\n");
     if (IS_AFFECTED_3(ch, AFF3_RADIOACTIVE))
-	strcat(string, "You are radioactive.\r\n");
+	strcat(str, "You are radioactive.\r\n");
+    if ( affected_by_spell( ch, SPELL_GAMMA_RAY ) )
+	strcat( str, "You have been irradiated.\r\n" );
+
     if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
 	sprintf(buf2,"You are %s%sON FIRE!!%s\r\n", CCRED_BLD(ch, C_SPR), 
 		CCBLK(ch, C_CMP), CCNRM(ch, C_SPR)); 
-	strcat(string, buf2); 
+	strcat(str, buf2); 
     }
     if (affected_by_spell(ch, SPELL_QUAD_DAMAGE)) {
 	sprintf(buf2, "You are dealing out %squad damage%s.\r\n",
@@ -2026,210 +2034,216 @@ print_affs_to_string(struct char_data *ch, char *string, byte mode)
 	strcat(buf, buf2);
     }
     if (affected_by_spell(ch, SPELL_BLACKMANTLE))
-	strcat(string, "You are covered by the blackmantle.\r\n");
+	strcat(str, "You are covered by the blackmantle.\r\n");
       
     if (affected_by_spell(ch, SPELL_ENTANGLE))
-	strcat(string, "You are entangled in the undergrowth!\r\n");
+	strcat(str, "You are entangled in the undergrowth!\r\n");
 
     if ((af = affected_by_spell(ch, SKILL_DISGUISE))) {
 	if ((mob = real_mobile_proto(af->modifier)))
-	    sprintf(string, "%sYou are disguised as %s at a level of %d.\r\n",
-		    string, GET_NAME(mob), af->duration);
+	    sprintf(str, "%sYou are disguised as %s at a level of %d.\r\n",
+		    str, GET_NAME(mob), af->duration);
     }
 
     // radiation sickness
 
     if ( ( af = affected_by_spell(ch, TYPE_RAD_SICKNESS)) ) {
 	if (!number(0, 2))
-	    strcat(string, "You feel nauseous.\r\n");
+	    strcat(str, "You feel nauseous.\r\n");
 	else if (!number(0, 1))
-	    strcat(string, "You feel sick and your skin is dry.\r\n");
+	    strcat(str, "You feel sick and your skin is dry.\r\n");
 	else
-	    strcat(string, "You feel sick and your hair is falling out.\r\n");
+	    strcat(str, "You feel sick and your hair is falling out.\r\n");
     }
 
     // vampiric regeneration
 
     if ( ( af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION) ) ) {
 	if ( ( name = get_name_by_id(af->modifier) ) )
-	    sprintf(string, "%sYou are under the effects of %s's vampiric regeneration.\r\n", string, name);
+	    sprintf(str, "%sYou are under the effects of %s's vampiric regeneration.\r\n", str, name);
 	else
-	    sprintf(string, "%sYou are under the effects of vampiric regeneration from an unknown source.\r\n", string);
+	    sprintf(str, "%sYou are under the effects of vampiric regeneration from an unknown source.\r\n", str);
     }
 
     if (mode)    /* Only asked for bad affs? */
 	return;
 
     if (IS_AFFECTED(ch, AFF_SNEAK))
-	strcat(string, "You are sneaking.\r\n");
+	strcat(str, "You are sneaking.\r\n");
     if (IS_AFFECTED(ch, AFF_INVISIBLE))
-	strcat(string, "You are invisible.\r\n");
+	strcat(str, "You are invisible.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_TRANSPARENT))
-	strcat(string, "You are transparent.\r\n");
+	strcat(str, "You are transparent.\r\n");
     if (IS_AFFECTED(ch, AFF_DETECT_INVIS))
-	strcat(string, 
+	strcat(str, 
 	       "You are sensitive to the presence of invisible things.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)) 
-	strcat(string, "You are seeing truly.\r\n");
+	strcat(str, "You are seeing truly.\r\n");
     if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
-	strcat(string, "Your sonic imagers are active.\r\n");
+	strcat(str, "Your sonic imagers are active.\r\n");
     if (IS_AFFECTED(ch, AFF_SANCTUARY))
-	strcat(string, "You are protected by Sanctuary.\r\n");
+	strcat(str, "You are protected by Sanctuary.\r\n");
     if (IS_AFFECTED(ch, AFF_CHARM))
-	strcat(string, "You have been charmed!\r\n");
+	strcat(str, "You have been charmed!\r\n");
     if (affected_by_spell(ch, SPELL_ARMOR))
-	strcat(string, "You feel protected.\r\n");
+	strcat(str, "You feel protected.\r\n");
     if (affected_by_spell(ch, SPELL_BARKSKIN))
-	strcat(string, "Your skin is thick and tough like tree bark.\r\n");
+	strcat(str, "Your skin is thick and tough like tree bark.\r\n");
     if (IS_AFFECTED(ch, AFF_INFRAVISION))
-	strcat(string, "Your eyes are glowing red.\r\n");
+	strcat(str, "Your eyes are glowing red.\r\n");
     if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
-	strcat(string, "You are summonable by other players.\r\n");
+	strcat(str, "You are summonable by other players.\r\n");
     if (IS_AFFECTED(ch, AFF_REJUV))
-	strcat(string, "You feel like your body will heal with a good rest.\r\n");
+	strcat(str, "You feel like your body will heal with a good rest.\r\n");
     if (IS_AFFECTED(ch, AFF_REGEN))
-	strcat(string, "Your body is regenerating itself rapidly.\r\n");
+	strcat(str, "Your body is regenerating itself rapidly.\r\n");
     if (IS_AFFECTED(ch, AFF_GLOWLIGHT))
-	strcat(string, "You are followed by a ghostly illumination.\r\n");
+	strcat(str, "You are followed by a ghostly illumination.\r\n");
     if (IS_AFFECTED(ch, AFF_BLUR))
-	strcat(string, "Your image is blurred and shifting.\r\n");
-    if (IS_AFFECTED_2(ch, AFF2_DISPLACEMENT))
-	strcat(string, "Your image is displaced.\r\n");
+	strcat(str, "Your image is blurred and shifting.\r\n");
+    if (IS_AFFECTED_2(ch, AFF2_DISPLACEMENT)) {
+	if ( affected_by_spell( ch, SPELL_REFRACTION ) )
+	    strcat( str, "Your body is irregularly refractive." );
+	else
+	    strcat(str, "Your image is displaced.\r\n");
+    }
     if (IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD))
-	strcat(string, "You are protected by a shield of fire.\r\n");
+	strcat(str, "You are protected by a shield of fire.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_BLADE_BARRIER))
-	strcat(string, "You are protected by whirling blades.\r\n");
+	strcat(str, "You are protected by whirling blades.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_ENERGY_FIELD))
-	strcat(string, "You are surrounded by a field of energy.\r\n");
+	strcat(str, "You are surrounded by a field of energy.\r\n");
     if (IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE))
-	strcat(string, "You are surrounded by a prismatic sphere of light.\r\n");
+	strcat(str, "You are surrounded by a prismatic sphere of light.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_FLUORESCENT))
-	strcat(string, "The atoms in your vicinity are fluorescing.\r\n");
+	strcat(str, "The atoms in your vicinity are fluorescing.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION)) {
 	if (IS_EVIL(ch))
-	    strcat(string, "An unholy light is following you.\r\n");
+	    strcat(str, "An unholy light is following you.\r\n");
 	else if (IS_GOOD(ch))
-	    strcat(string, "A holy light is following you.\r\n");
+	    strcat(str, "A holy light is following you.\r\n");
 	else
-	    strcat(string, "A sickly light is following you.\r\n");
+	    strcat(str, "A sickly light is following you.\r\n");
     }
     if (IS_AFFECTED_2(ch, AFF2_BESERK))
-	strcat(string, "You are BESERK!\r\n");
+	strcat(str, "You are BESERK!\r\n");
     if (IS_AFFECTED(ch, AFF_PROTECT_GOOD))
-	strcat(string, "You are protected from good.\r\n");
+	strcat(str, "You are protected from good.\r\n");
     if (IS_AFFECTED(ch, AFF_PROTECT_EVIL))
-	strcat(string, "You are protected from evil.\r\n");
+	strcat(str, "You are protected from evil.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_PROT_DEVILS))
-	strcat(string, "You are protected from devils.\r\n");
+	strcat(str, "You are protected from devils.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_PROT_DEMONS))
-	strcat(string, "You are protected from demons.\r\n");
+	strcat(str, "You are protected from demons.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_PROTECT_UNDEAD))
-	strcat(string, "You are protected from the undead.\r\n");
+	strcat(str, "You are protected from the undead.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_PROT_LIGHTNING))
-	strcat(string, "You are protected from lightning.\r\n");
+	strcat(str, "You are protected from lightning.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_PROT_FIRE))
-	strcat(string, "You are protected from fire.\r\n");
+	strcat(str, "You are protected from fire.\r\n");
     if (affected_by_spell(ch, SPELL_MAGICAL_PROT))
-	strcat(string, "You are protected against magic.\r\n");
+	strcat(str, "You are protected against magic.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_ENDURE_COLD))
-	strcat(string,"You can endure extreme cold.\r\n");
+	strcat(str,"You can endure extreme cold.\r\n");
     if (IS_AFFECTED(ch, AFF_SENSE_LIFE))
-	strcat(string,"You are sensitive to the presence of living creatures\r\n");
+	strcat(str,"You are sensitive to the presence of living creatures\r\n");
     if (affected_by_spell(ch, SKILL_EMPOWER))
-	strcat(string, "You are empowered.\r\n");
+	strcat(str, "You are empowered.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_TELEKINESIS))
-	strcat(string,"You are feeling telekinetic.\r\n");
+	strcat(str,"You are feeling telekinetic.\r\n");
     if (affected_by_spell(ch, SKILL_OVERDRIVE))
-	strcat(string, "You are operating in overdrive mode.\r\n");
+	strcat(str, "You are operating in overdrive mode.\r\n");
     else if (IS_AFFECTED_2(ch, AFF2_HASTE))
-	strcat(string, "You are moving very fast.\r\n");
+	strcat(str, "You are moving very fast.\r\n");
     if (AFF2_FLAGGED(ch, AFF2_SLOW))
-	strcat(string, "You feel unnaturally slowed.\r\n");
+	strcat(str, "You feel unnaturally slowed.\r\n");
     if (affected_by_spell(ch, SKILL_KATA))
-	strcat(string, "You feel focused from your kata.\r\n");
+	strcat(str, "You feel focused from your kata.\r\n");
     if (IS_AFFECTED_2(ch, AFF2_OBLIVITY))
-	strcat(string, "You are oblivious to pain.\r\n");
+	strcat(str, "You are oblivious to pain.\r\n");
     if (affected_by_spell(ch, ZEN_MOTION))
-	strcat(string, "The zen of motion is one with your body.\r\n");
+	strcat(str, "The zen of motion is one with your body.\r\n");
     if (affected_by_spell(ch, ZEN_TRANSLOCATION))
-	strcat(string, "You are as one with the zen of translocation.\r\n");
+	strcat(str, "You are as one with the zen of translocation.\r\n");
     if ( affected_by_spell( ch, ZEN_CELERITY ) )
-	strcat( string, "You are under the effects of the zen of celerity.\r\n" );
+	strcat( str, "You are under the effects of the zen of celerity.\r\n" );
     if (IS_AFFECTED_3(ch, AFF3_MANA_TAP))
-	strcat(string, "You have a direct tap to the spiritual energies of the universe.\r\n");
+	strcat(str, "You have a direct tap to the spiritual energies of the universe.\r\n");
     if (IS_AFFECTED_3(ch, AFF3_ENERGY_TAP))
-	strcat(string, "Your body is absorbing physical energy from the universe.\r\n");
+	strcat(str, "Your body is absorbing physical energy from the universe.\r\n");
     if (IS_AFFECTED_3(ch, AFF3_SONIC_IMAGERY))
-	strcat(string, "You are perceiving sonic images.\r\n");
+	strcat(str, "You are perceiving sonic images.\r\n");
     if (IS_AFFECTED_3(ch, AFF3_PROT_HEAT))
-	strcat(string, "You are protected from heat.\r\n");
+	strcat(str, "You are protected from heat.\r\n");
     if (affected_by_spell(ch, SPELL_PRAY))
-	strcat(string, "You feel extremely righteous.\r\n");
+	strcat(str, "You feel extremely righteous.\r\n");
     else if (affected_by_spell(ch, SPELL_BLESS))
-	strcat(string, "You feel righteous.\r\n");
+	strcat(str, "You feel righteous.\r\n");
     if (affected_by_spell(ch, SPELL_MANA_SHIELD))
-	strcat(string, "You are protected by a mana shield.\r\n");
+	strcat(str, "You are protected by a mana shield.\r\n");
     if (affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS))
-	strcat(string, "You are surrounded by a shield of righteousness.\r\n");
+	strcat(str, "You are surrounded by a shield of righteousness.\r\n");
     if (affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL))
-	strcat(string, "You are enveloped in an anti-magic shell.\r\n");
+	strcat(str, "You are enveloped in an anti-magic shell.\r\n");
     if (affected_by_spell(ch, SPELL_SANCTIFICATION))
-	strcat(string, "You have been sanctified!\r\n");
+	strcat(str, "You have been sanctified!\r\n");
     if (affected_by_spell(ch, SPELL_DIVINE_INTERVENTION))
-	strcat(string, "You are shielded by divine intervention.\r\n");
+	strcat(str, "You are shielded by divine intervention.\r\n");
     if (affected_by_spell(ch, SPELL_SPHERE_OF_DESECRATION))
-	strcat(string, "You are surrounded by a black sphere of desecration.\r\n");
+	strcat(str, "You are surrounded by a black sphere of desecration.\r\n");
 
     /* psionic affections */
     if (affected_by_spell(ch, SPELL_POWER))
-	strcat(string, "Your physical strength is augmented.\r\n");
+	strcat(str, "Your physical strength is augmented.\r\n");
     if (affected_by_spell(ch, SPELL_INTELLECT))
-	strcat(string, "Your mental faculties are augmented.\r\n");
+	strcat(str, "Your mental faculties are augmented.\r\n");
     if (IS_AFFECTED(ch, AFF_NOPAIN))
-	strcat(string, "Your mind is ignoring pain.\r\n");
+	strcat(str, "Your mind is ignoring pain.\r\n");
     if (IS_AFFECTED(ch, AFF_RETINA))
-	strcat(string, "Your retina is especially sensitive.\r\n");
+	strcat(str, "Your retina is especially sensitive.\r\n");
     if (IS_AFFECTED(ch, AFF_CONFUSION))
-	strcat(string, "You are very confused.\r\n");
+	strcat(str, "You are very confused.\r\n");
     if (IS_AFFECTED(ch, AFF_ADRENALINE))
-	strcat(string, "Your adrenaline is pumping.\r\n");
+	strcat(str, "Your adrenaline is pumping.\r\n");
     if (IS_AFFECTED(ch, AFF_CONFIDENCE))
-	strcat(string, "You feel very confident.\r\n");
+	strcat(str, "You feel very confident.\r\n");
     if (affected_by_spell(ch, SPELL_DERMAL_HARDENING))
-	strcat(string, "Your dermal surfaces are hardened.\r\n");
+	strcat(str, "Your dermal surfaces are hardened.\r\n");
     if (AFF3_FLAGGED(ch, AFF3_NOBREATHE))
-	strcat(string, "You are not breathing.\r\n");
+	strcat(str, "You are not breathing.\r\n");
     if (AFF3_FLAGGED(ch, AFF3_PSISHIELD))
-	strcat(string, "You are protected by a psionic shield.\r\n");
+	strcat(str, "You are protected by a psionic shield.\r\n");
     if (affected_by_spell(ch, SPELL_METABOLISM))
-	strcat(string, "Your metabolism is racing.\r\n");
+	strcat(str, "Your metabolism is racing.\r\n");
     else if (affected_by_spell(ch, SPELL_RELAXATION))
-	strcat(string, "You feel very relaxed.\r\n");
+	strcat(str, "You feel very relaxed.\r\n");
     if (affected_by_spell(ch, SPELL_WEAKNESS))
-	strcat(string, "You feel unusually weakened.\r\n");
+	strcat(str, "You feel unusually weakened.\r\n");
     if (affected_by_spell(ch, SPELL_MOTOR_SPASM))
-	strcat(string, "Your muscles are spasming uncontrollably!\r\n");
+	strcat(str, "Your muscles are spasming uncontrollably!\r\n");
     if (affected_by_spell(ch, SPELL_ENDURANCE))
-	strcat(string, "Your endurance is increased.\r\n");
+	strcat(str, "Your endurance is increased.\r\n");
     if (AFF2_FLAGGED(ch, AFF2_VERTIGO))
-	strcat(string, "You are lost in a sea of vertigo.\r\n");
+	strcat(str, "You are lost in a sea of vertigo.\r\n");
     if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH))
-	strcat(string, "You feel a psychic force crushing your mind!\r\n");
+	strcat(str, "You feel a psychic force crushing your mind!\r\n");
 
     /* physic affects */ 
     if (AFF3_FLAGGED(ch, AFF3_ACIDITY))
-	strcat(string, "Your body is producing self-corroding acids!\r\n");
+	strcat(str, "Your body is producing self-corroding acids!\r\n");
     if (AFF3_FLAGGED(ch, AFF3_ATTRACTION_FIELD))
-	strcat(string, "You are emitting an an attraction field.\r\n");
+	strcat(str, "You are emitting an an attraction field.\r\n");
+    if ( affected_by_spell( ch, SPELL_CHEMICAL_STABILITY ) )
+	strcat( str, "You feel chemically inert.\r\n" );
+
 
     if (IS_AFFECTED_3(ch, AFF3_DAMAGE_CONTROL))
-	strcat(string, "Your Damage Control process is running.\r\n");
+	strcat(str, "Your Damage Control process is running.\r\n");
     if (IS_AFFECTED_3(ch, AFF3_SHROUD_OBSCUREMENT))
-	strcat(string, 
+	strcat(str, 
 	       "You are surrounded by an magical obscurement shroud.\r\n");
     if (IS_SICK(ch))
-	strcat(string, "You are afflicted with a terrible sickness!\r\n");
-
+	strcat(str, "You are afflicted with a terrible sickness!\r\n");
 }
 
 ACMD(do_affects)
@@ -2976,6 +2990,12 @@ ACMD(do_who)
 	else if (!(tch = d->character))
 	    continue;
 
+	// skip imms now, before the tot_num gets incremented
+	if ( !CAN_SEE( ch, tch ) && GET_LEVEL( tch ) >= LVL_AMBASSADOR )
+	    continue;
+
+	tot_num++;
+
 	if (*name_search && str_cmp(GET_NAME(tch), name_search) &&
 	    !strstr(GET_TITLE(tch), name_search))
 	    continue;
@@ -2989,8 +3009,6 @@ ACMD(do_who)
 	if ((low > 0 || high < LVL_GRIMP) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
 	    PRF2_FLAGGED(tch, PRF2_ANONYMOUS))
 	    continue;
-
-	tot_num++;
 
 	if (COMM_NOTOK_ZONES(ch, tch))
 	    continue;

@@ -976,7 +976,7 @@ parse_room(FILE * fl, int vnum_nr)
 
     for (;;) {
 	if (!get_line(fl, line)) {
-	    fprintf(stderr, "%s\n", buf);
+	    fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, buf );
 	    safe_exit(1);
 	}
 	switch (*line) {
@@ -1105,7 +1105,7 @@ parse_room(FILE * fl, int vnum_nr)
 	    return;
 	    break;
 	default:
-	    fprintf(stderr, "%s\n", buf);
+	    fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, buf );
 	    safe_exit(1);
 	    break;
 	}

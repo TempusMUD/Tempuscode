@@ -2116,8 +2116,8 @@ extern const char *spell_wear_off_msg[] = {
   "The attraction field around you dissipates.",
   "!coordinates!",
   "The atoms around you cease to fluoresce.",
-  "!gamma ray!",					/* 305 */
-  "!halflife!",
+  "You feel less irradiated",        /* 305 */
+  "You feel less radioactive.",
   "!microwave!",
   "!oxidize!",
   "!random coordinates!",
@@ -2127,8 +2127,13 @@ extern const char *spell_wear_off_msg[] = {
   "You resume your normal pace through time.",
   "!time warp!",
   "Spacetime relaxes, and gravity pulls you to the ground.",/* 315 */
-  "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 320 */
-  "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 325 */
+  "!UNUSED!",
+  "You feel less refractive.",
+  "!UNUSED!",
+  "The vacuum shroud surrounding you dissipates.",
+  "You feel less dense.",   /* 320 */
+  "You feel less chemically inert.",
+  "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 325 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 330 */
   "!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!","!UNUSED!",   /* 335 */
   "!UNUSED!",

@@ -299,7 +299,7 @@ ACMD(do_convert)
 
     skip_spaces(&argument);
     if (!*argument)
-	send_to_char("Convert what?", ch);
+	send_to_char("Convert what?\r\n", ch);
     else if (CHECK_SKILL(ch, SKILL_PIPEMAKING) < (number(20, 70) - GET_INT(ch)))
 	send_to_char("You can't seem to figure out how.\r\n", ch);
     else if (!(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&

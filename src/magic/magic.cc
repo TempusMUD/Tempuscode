@@ -15,8 +15,10 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -774,8 +776,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
     if (victim == NULL || ch == NULL)
 	return;
 
-    if (spell_info[spellnum].violent && 
-	mag_savingthrow(victim, level, savetype)) {
+    if (spell_info[spellnum].violent && mag_savingthrow(victim, level, savetype)) {
 	send_to_char("Nothing seems to happen.\r\n", ch);
 	if (ch != victim)
 	    send_to_char("Nothing seems to happen.\r\n", victim);
@@ -1576,11 +1577,53 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	break;
 
 	/* physic skills */
+    case SPELL_GAMMA_RAY:
+	af.duration = ( level >> 2 );
+	af.location = APPLY_HIT;
+	af.modifier = - ( level >> 1 );
+	af2.location = APPLY_MOVE;
+	af2.modifier = - ( level >> 2 );
+	af2.duration = af.duration;
+	accum_affect = TRUE;
+	to_room = "$n appears slightly irradiated.";
+	to_vict = "You feel irradiated... how irritating.";
+	break;
+	
+    case SPELL_CHEMICAL_STABILITY:
+	af.duration   = (level >> 2);
+	to_room = "$n begins looking more chemically inert.";
+	to_vict = "You feel more chemically inert.";
+	break;
+
     case SPELL_ACIDITY:
-    case SPELL_ACID_BREATH:
+    case SPELL_ACID_BREATH:	// acid breath
+    {
+	struct affected_type *af_ptr = affected_by_spell( victim, SPELL_CHEMICAL_STABILITY );
+
+	// see if we have chemical stability
+	if ( af_ptr ) {
+	    act( "$n's chemical stability prevents further acidification from occuring!",
+		 FALSE, victim, 0, 0, TO_ROOM );
+	    send_to_char( "You chemical stability prevents further acidification from occuring!\r\n", 
+			  victim );
+	    af_ptr->duration -= ( level >> 3 );
+	    
+	    if ( af_ptr->duration <= 0 ) {
+		if ( af_ptr->type <= MAX_SPELLS &&
+		     af_ptr->type > 0 &&
+		     *spell_wear_off_msg[ af_ptr->type ] ) {
+		    send_to_char( spell_wear_off_msg[ af_ptr->type ], victim );
+		    send_to_char( "\r\n", victim) ;
+		}
+		affect_remove( victim, af_ptr );
+	    }
+	    return;
+	}
+    }
 	af.duration   = (level >> 3);
 	af.bitvector  = AFF3_ACIDITY;
 	af.aff_index  = 3;
+	accum_duration = TRUE;
 	break;
 
     case SPELL_HALFLIFE:
@@ -1674,11 +1717,33 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	GET_POS(victim) = POS_FLYING;
 	break;
 
+
+	//
+	//
     case SPELL_QUAD_DAMAGE:
 	af.duration =  6;
 	accum_affect = TRUE;
 	to_vict = "There is a screaming roar and you begin to glow brightly!";
 	to_room = "There is a screaming roar as $n begins to glow brightly!";
+	break;
+
+	
+	// physic mag_affect items
+    case SPELL_DENSIFY:
+	af.duration = 1 + ( level >> 1 );
+	af.location = APPLY_CHAR_WEIGHT;
+	af.modifier = level + GET_INT( ch );
+	to_vict = "You feel denser.";
+	break;
+    case SPELL_REFRACTION:
+	af.duration = 1 + ( level >> 1 );
+	af.location = APPLY_AC;
+	af.modifier = -GET_INT( ch );
+	af.bitvector = AFF2_DISPLACEMENT;
+	af.aff_index = 2;
+	accum_duration = FALSE;
+	to_vict = "Your body becomes irregularly refractive.";
+	to_room = "$n's body becomes irregularly refractive.";
 	break;
 
 	/* REMORT SKILLS GO HERE */
@@ -1795,6 +1860,7 @@ mag_affects(int level, struct char_data * ch, struct char_data * victim,
 	af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -MOB_IDNUM(ch);
 	to_vict = "You feel a vampiric link formed between you and $N!";
 	break;
+
     default:
 	sprintf(buf, "SYSERR: unknown spell %d in mag_affects.", spellnum);
 	slog(buf);
@@ -2396,8 +2462,6 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
 	break;
     case SPELL_DISPEL_MAGIC:
 	if (victim->affected) {
-	    to_vict = "Your suddenly feel your magic fade!";
-	    to_room = "The magic of $n flows into the universe.";
 	    for (aff = victim->affected; aff; aff = next_aff) {
 		next_aff = aff->next;
 		if (SPELL_IS_MAGIC(aff->type) || SPELL_IS_DIVINE(aff->type)) {
@@ -2405,6 +2469,9 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
 			affect_remove(victim, aff);
 		}
 	    }
+	    send_to_char( "Your suddenly feel your magic fade!\r\n", victim );
+	    act( "The magic of $n flows into the universe.", TRUE, victim, 0, 0, TO_ROOM );
+
 	}
 	break;
     case SPELL_STONE_TO_FLESH:
@@ -2459,7 +2526,30 @@ mag_unaffects(int level, struct char_data * ch, struct char_data * victim,
 	to_vict = "Your psionic shield shatters!";
 	act("$N's psionic shield shatters!",FALSE, ch, 0, victim, TO_CHAR);
 	break;
+
+	// physic spells for mag_unaffects
+    case SPELL_NULLIFY:
+	if (victim->affected) {
+	    for (aff = victim->affected; aff; aff = next_aff) {
+		next_aff = aff->next;
+		if ( SPELL_IS_PHYSICS( aff->type ) ) {
+		    if (aff->level < number(level>>1, level<<1))
+			affect_remove(victim, aff);
+		}
+	    }
+	    send_to_char( "Your physical states relax and resume their 'normal' states.\r\n",
+			  victim );
+	    act( "$n appears more 'physically normal', somehow...", TRUE, victim, 0, 0, TO_ROOM );
+
+	}
+	break;
     
+    case SPELL_CHEMICAL_STABILITY:
+	spell = SPELL_ACIDITY;
+	spell = SPELL_ACID_BREATH; // acid breath
+	to_vict = "You feel less acidic  What a relief!\r\n";
+	break;
+
     default:
 	sprintf(buf, "SYSERR: unknown spellnum %d passed to mag_unaffects", spellnum);
 	slog(buf);
@@ -2602,12 +2692,15 @@ mag_alter_objs(int level, struct char_data * ch, struct obj_data * obj,
 	    SET_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
 	}
 	break;
+
+	// physic mag_alter_objs items
     case SPELL_HALFLIFE:
 	if (!IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) && !OBJ_IS_RAD(obj)) {
 	    SET_BIT(obj->obj_flags.extra2_flags, ITEM2_RADIOACTIVE);
 	    to_char = "$p begins to emit radioactive decay particles.";
 	}
 	break;
+
 
     case SPELL_ATTRACTION_FIELD:
 	if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
@@ -2654,6 +2747,12 @@ mag_alter_objs(int level, struct char_data * ch, struct obj_data * obj,
 	    SET_BIT(obj->obj_flags.extra_flags, ITEM_TRANSPARENT);
 	    to_char = "$p becomes transparent.";
 	}
+	break;
+
+
+    case SPELL_DENSIFY:
+	GET_OBJ_WEIGHT( obj ) = MIN( 30000, GET_OBJ_WEIGHT( obj ) + level + GET_INT( ch ) );
+	to_char = "$p becomes denser.";
 	break;
 
     case SPELL_WARDING_SIGIL:

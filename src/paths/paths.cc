@@ -564,7 +564,7 @@ Load_paths(void)
 	}
 
 	if (fail && virgin) {
-	    fprintf(stderr,"%s\n",buf);
+	    fprintf(stderr,"paths error:%s\n",buf);
 	    safe_exit(0);
 	}
 	else if (fail) {
