@@ -117,8 +117,7 @@ ACMD(do_action)
 		*buf = '\0';
 	}
 	if (!*buf) {
-		send_to_char(ch, action->char_no_arg);
-		send_to_char(ch, "\r\n");
+		act(action->char_no_arg, false, ch, 0, 0, TO_CHAR);
 		act(action->others_no_arg, action->hide, ch, 0, 0, TO_ROOM);
 		return;
 	}
@@ -152,8 +151,7 @@ ACMD(do_action)
 		}
 	}
 	if (vict == ch) {
-		send_to_char(ch, action->char_auto);
-		send_to_char(ch, "\r\n");
+		act(action->char_auto, false, ch, 0, 0, TO_CHAR);
 		act(action->others_auto, action->hide, ch, 0, 0, TO_ROOM);
 	} else {
 		if (vict->getPosition() < action->min_victim_position)
