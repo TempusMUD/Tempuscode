@@ -2048,8 +2048,9 @@ special(struct char_data * ch, int cmd, int subcmd,  char *arg)
     }
 
     /* special in mobile present? */
-    CharacterList::iterator it = ch->in_room->people.begin();
-    for( ; it != ch->in_room->people.end(); ++it ) 
+    room_data *theRoom = ch->in_room;
+    CharacterList::iterator it = theRoom->people.begin();
+    for( ; it != theRoom->people.end(); ++it ) 
         if (GET_MOB_SPEC((*it)) != NULL) {
             if (GET_MOB_SPEC((*it)) (ch, (*it), cmd, arg, 0)) {
                 return 1;
