@@ -528,7 +528,12 @@ ASPELL(spell_astral_spell)
 			TO_VICT);
 		return;
 	}
-
+    
+    if (IS_PC(victim) && victim->distrusts(ch)) {
+		send_to_char(ch, "They must trust you to be sent to the astral plane.\r\n");
+		return;
+	}
+	
 	if (teleport_not_ok(ch, victim, level)) {
 		act("$N resists your attempt to send $m into the astral plane!",
 			true, ch, 0, victim, TO_CHAR);
