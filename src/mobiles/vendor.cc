@@ -273,6 +273,8 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		amt_carried = GET_QUEST_POINTS(ch); break;
 	default:
 		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		amt_carried = 0;
+		break;
 	}
 	
 	if (cost > amt_carried) {
@@ -345,6 +347,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		break;
 	default:
 		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		currency_str = "-BUGS-";
 	}
 
 	do_say(self,
@@ -559,6 +562,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		msg = "Quest Points"; break;
 	default:
 		slog("Can't happen at %s:%d", __FILE__, __LINE__);
+		msg = "PleaseReport";
 	}
 
 	msg = tmp_strcat(CCCYN(ch, C_NRM),
@@ -568,19 +572,20 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		, CCNRM(ch, C_NRM), NULL);
 
 	last_obj = NULL;
+	cnt = idx = 1;
 	for (cur_obj = self->carrying;cur_obj;cur_obj = cur_obj->next_content) {
-		if (!last_obj)
-			cnt = idx = 1;
-		else if (same_obj(last_obj, cur_obj)) {
-			cnt++;
-		} else {
-			if (vendor_is_produced(last_obj, shop))
-				cnt = -1;
-			if (!*arg || namelist_match(arg, last_obj->name)) 
-				msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
-					vendor_get_value(last_obj, shop->markup)));
-			cnt = 1;
-			idx++;
+		if (last_obj) {
+			if (same_obj(last_obj, cur_obj)) {
+				cnt++;
+			} else {
+				if (vendor_is_produced(last_obj, shop))
+					cnt = -1;
+				if (!*arg || namelist_match(arg, last_obj->name)) 
+					msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
+						vendor_get_value(last_obj, shop->markup)));
+				cnt = 1;
+				idx++;
+			}
 		}
 		last_obj = cur_obj;
 	}
