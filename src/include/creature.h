@@ -7,6 +7,7 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
+#include <signal.h>
 
 #include <list>
 #include "constants.h"
@@ -981,6 +982,8 @@ struct Creature {
   	Creature(bool pc);	// constructor
 	~Creature(void);
 
+    Creature(const Creature &c); // Copy constructor
+
 	// Reset creature to initial state
 	void clear();    
 
@@ -1125,6 +1128,12 @@ struct Creature {
 	// Extracts the creature from the game.  If creature is a player, sets
 	// its descriptor's input mode to the given state
 	void extract(cxn_state con_state);
+    Creature &operator=(const Creature &c) {
+        // This is private because it should never be called.  But on 
+        // the off chance that it does, it should something appropriate.
+        raise(SIGSEGV);
+        return *this;
+    }
     
   public:						// ******  Data ****
 	int pfilepos;				/* playerfile pos          */

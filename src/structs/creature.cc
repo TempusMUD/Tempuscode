@@ -54,6 +54,35 @@ Creature::~Creature(void)
     this->fighting = NULL;
 }
 
+Creature::Creature(const Creature &c)
+{
+    memset((char *)this, 0, sizeof(Creature));
+
+    this->pfilepos = c.pfilepos;
+    this->player_specials = c.player_specials;
+    //todo: duplicate affects
+    //this->affected = c.affected;
+    this->account = c.account;
+    /* todo: duplicate equipment?
+    this->carrying = c.carrying;
+    for (int x = 0; x < NUM_WEARS; x++) {
+        this->equipment[x] = c.equipment[x];
+        this->implants[x] = c.implants[x];
+    }
+    */
+
+    this->fighting = new list<CharCombat>( *(c.fighting) );
+
+    memcpy(&this->player, &c.player, sizeof(struct char_player_data));
+    memcpy(&this->real_abils, &c.real_abils, sizeof(struct char_ability_data));
+    memcpy(&this->aff_abils, &c.aff_abils, sizeof(struct char_ability_data));
+    memcpy(&this->points, &c.points, sizeof(struct char_point_data));
+    memcpy(&this->language_data, &c.language_data, sizeof(struct char_language_data));
+    memcpy(&this->mob_specials, &c.mob_specials, sizeof(struct mob_special_data));
+    memcpy(&this->char_specials, &c.char_specials, sizeof(struct char_special_data));
+    memcpy(&this->host, &c.host, sizeof(host));
+}
+
 void
 Creature::checkPosition(void)
 {
@@ -730,8 +759,8 @@ Creature::clear(void)
 	// first make sure the char is no longer in the world
 	//
 	if (this->in_room != NULL || this->carrying != NULL ||
-		this->numCombatants() != 0 || this->followers != NULL
-		|| this->master != NULL) {
+		(this->getCombatList() && this->numCombatants() != 0) || 
+        this->followers != NULL || this->master != NULL) {
 		errlog("attempted clear of creature who is still connected to the world.");
 		raise(SIGSEGV);
 	}
@@ -820,8 +849,10 @@ Creature::clear(void)
     //
     // next remove all the combat this creature might be involved in
     //
-    removeAllCombat();
-    delete this->fighting;
+    if (this->getCombatList()) {
+        removeAllCombat();
+        delete this->fighting;
+    }
 
 	// At this point, everything should be freed, so we null the entire
 	// structure just to be sure
