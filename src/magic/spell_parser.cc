@@ -1667,11 +1667,11 @@ find_spell_targets(struct char_data *ch, char *argument,struct char_data **tch,
         return 0;
     }
     /* Find the target */
-	// DL - moved this here so we can handle multiple locate arguments
-    strncpy(locate_buf, t, 255);
-    locate_buf[255] = '\0';
 
     if (t != NULL) {
+        // DL - moved this here so we can handle multiple locate arguments
+        strncpy(locate_buf, t, 255);
+        locate_buf[255] = '\0';
         one_argument(strcpy(arg, t), t);
         skip_spaces(&t);
     }
