@@ -228,29 +228,43 @@ update_pos(struct Creature *victim)
 bool
 is_arena_combat(struct Creature *ch, struct Creature *vict)
 {
-	if (IS_NPC(vict))
-		return false;
-
 	if (!vict->in_room)
 		return false;
 
 	if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA) ||
 			GET_ZONE(vict->in_room) == 400)
 		return true;
-
-	// PK quests
-	if (!ch)
-		return false;
+    
+    //mobs don't quest
+    if (!IS_NPC(vict)) {
+        if (GET_QUEST(vict)) {
+            Quest *quest;
+            
+            quest = quest_by_vnum(GET_QUEST(vict));
+            if (QUEST_FLAGGED(quest, QUEST_ARENA))
+                return true;
+        }        
+    }
 	
-	if (GET_QUEST(vict)) {
-		Quest *quest;
+	if (!ch || !ch->in_room)
+		return false;
 
-		quest = quest_by_vnum(GET_QUEST(vict));
-		if (QUEST_FLAGGED(quest, QUEST_ARENA))
-			return true;
-	}
+    if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) ||
+			GET_ZONE(ch->in_room) == 400)
+		return true;
 
-	return false;
+    //mobs don't quest
+    if (!IS_NPC(ch)) {
+        if (GET_QUEST(ch)) {
+            Quest *quest;
+            
+            quest = quest_by_vnum(GET_QUEST(ch));
+            if (QUEST_FLAGGED(quest, QUEST_ARENA))
+                return true;
+        }
+    }
+    
+    return false;
 }
 
 // Called to select a safe target when the character doesn't get to select

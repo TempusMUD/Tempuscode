@@ -468,12 +468,18 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 				(((exp_scale[GET_LEVEL(ch) + 2] - exp_scale[GET_LEVEL(ch) + 1])
 					>> 1) + exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch);
 
-		if (!IS_NPC(victim)) {
-			if (is_arena_combat(ch, victim))
-				exp = 1;
-			else
-				exp >>= 8;
+		
+        if (!IS_NPC(victim)) {
+			exp >>= 8;
 		}
+        
+        if (is_arena_combat(ch, victim) || 
+            ROOM_FLAGGED(victim->in_room, ROOM_HOUSE) ||
+            ROOM_FLAGGED(victim->in_room, ROOM_CLAN_HOUSE)) 
+        {
+			exp = 1;
+        } 
+        
 	}
 
 	exp = ch->getPenalizedExperience( exp, victim );
