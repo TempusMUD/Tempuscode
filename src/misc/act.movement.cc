@@ -204,66 +204,161 @@ room_count(struct Creature *ch, struct room_data *room)
 }
 
 void
-get_giveaway(struct Creature *ch, struct Creature *tch, char *str)
+get_giveaway(struct Creature *ch, struct Creature *vict)
 {
 
 	if (IS_NPC(ch) && GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
-		strcpy(str,
+		send_to_char(vict, 
 			"You feel a cold chill as something evil passes nearby.\r\n");
 		return;
 	}
+
+	if (!AWAKE(vict) && !AFF_FLAGGED(vict, AFF_SLEEP)) {
+		if (!number(0, 2))
+			send_to_char(vict, "A noise wakes you up.\r\n");
+		else if (!number(0, 1))
+			send_to_char(vict, "You are disturbed by an odd noise.\r\n");
+		else
+			send_to_char(vict, "You are awakened by a noise.\r\n");
+
+		vict->setPosition(POS_RESTING);
+		return;
+	}
+
 
 	switch (ch->in_room->sector_type) {
 	case SECT_INSIDE:
 	case SECT_CITY:
 		if (!number(0, 2))
-			strcpy(str, "You hear faint footsteps.\r\n");
+			send_to_char(vict, "You hear faint footsteps.\r\n");
 		else if (!number(0, 1))
-			strcpy(str, "You think you heard something.\r\n");
+			send_to_char(vict, "You think you heard something.\r\n");
 		else
-			strcpy(str, "You hear the sound of movement.\r\n");
+			send_to_char(vict, "You hear the sound of movement.\r\n");
 		break;
 	case SECT_FOREST:
 		if (!number(0, 1))
-			strcpy(str, "You hear a twig snap.\r\n");
+			send_to_char(vict, "You hear a twig snap.\r\n");
 		else
-			strcpy(str, "You hear leaves rustling.\r\n");
+			send_to_char(vict, "You hear leaves rustling.\r\n");
 		break;
 	case SECT_DESERT:
-		if (LIGHT_OK(tch) && !number(0, 1))
-			strcpy(str, "You see footprints appear in the sand.\r\n");
+		if (LIGHT_OK(vict) && !number(0, 1))
+			send_to_char(vict, "You see footprints appear in the sand.\r\n");
 		else
-			strcpy(str, "You hear something moving.\r\n");
+			send_to_char(vict, "You hear something moving.\r\n");
 		break;
 	case SECT_SWAMP:
 	case SECT_MUDDY:
-		strcpy(str, "You hear a sloshing sound.\r\n");
+		send_to_char(vict, "You hear a sloshing sound.\r\n");
 		break;
 	case SECT_BLOOD:
-		strcpy(str, "You hear a slight squishing sound.\r\n");
+		send_to_char(vict, "You hear a slight squishing sound.\r\n");
 		break;
 	case SECT_WATER_SWIM:
 	case SECT_WATER_NOSWIM:
-		if (LIGHT_OK(tch) && !number(0, 1))
-			strcpy(str, "You notice ripples forming on the surface.\r\n");
+		if (LIGHT_OK(vict) && !number(0, 1))
+			send_to_char(vict, "You notice ripples forming on the surface.\r\n");
 		else
-			strcpy(str, "You hear a faint splashing.\r\n");
+			send_to_char(vict, "You hear a faint splashing.\r\n");
 		break;
 	case SECT_FIRE_RIVER:
-		strcpy(str, "You hear a sizzling sound.\r\n");
+		send_to_char(vict, "You hear a sizzling sound.\r\n");
 		break;
 	case SECT_FARMLAND:
-		strcpy(str, "There is a rustling among the crops.\r\n");
+		send_to_char(vict, "There is a rustling among the crops.\r\n");
 		break;
 	default:
 		if (affected_by_spell(ch, SPELL_SKUNK_STENCH) ||
 			affected_by_spell(ch, SPELL_TROG_STENCH))
-			strcpy(str, "You notice a terrible odor.\r\n");
+			send_to_char(vict, "You notice a terrible odor.\r\n");
 		else
-			strcpy(str, "You think you hear something.\r\n");
+			send_to_char(vict, "You think you hear something.\r\n");
 		break;
 	}
 }
+
+int
+check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
+{
+	int sneak_prob, sneak_roll;
+	int idx;
+
+	if (!IS_AFFECTED(ch, AFF_SNEAK))
+		return SNEAK_FAILED;
+
+	if (IS_IMMORT(vict))
+		return SNEAK_FAILED;
+
+	if (AFF3_FLAGGED(vict, AFF3_SONIC_IMAGERY))
+		return SNEAK_FAILED;
+
+	sneak_prob = ch->getLevelBonus(SKILL_SNEAK) +
+		dex_app_skill[GET_DEX(ch)].sneak;
+
+	if (GET_CLASS(ch) == CLASS_RANGER &&
+		((ch->in_room->sector_type == SECT_FOREST) ||
+			(ch->in_room->sector_type == SECT_HILLS) ||
+			(ch->in_room->sector_type == SECT_MOUNTAIN) ||
+			(ch->in_room->sector_type == SECT_ROCK) ||
+			(ch->in_room->sector_type == SECT_TUNDRA) ||
+			(ch->in_room->sector_type == SECT_TRAIL)))
+		sneak_prob += GET_LEVEL(ch) >> 1;
+	if (IS_ELF(ch))
+		sneak_prob += 10;
+	sneak_prob -=
+		((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 4) / CAN_CARRY_W(ch);
+
+	for (idx = 0; idx < NUM_WEARS; idx++)
+		if (ch->equipment[idx] && IS_METAL_TYPE(ch->equipment[idx]))
+			sneak_prob -= ch->equipment[idx]->getWeight();
+
+	sneak_roll = number(0, vict->getLevelBonus(true));
+	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG))
+		send_to_char(ch, "%s[SNEAK] vict:%s   prob:%d   roll:%d%s\r\n",
+			CCCYN(ch, C_NRM), GET_NAME(vict), sneak_prob, sneak_roll,
+			CCNRM(ch, C_NRM));
+
+	// Vampires have no chance of accidentally failing to sneak
+	if (!IS_VAMPIRE(ch) || IS_VAMPIRE(vict)) {
+		if (sneak_prob < sneak_roll) {
+			gain_skill_prof(vict, SKILL_SNEAK);
+			if (!AWAKE(vict) || !CAN_SEE(vict, ch)) {
+				get_giveaway(ch, vict);
+				return SNEAK_HEARD;
+			}
+
+			return SNEAK_FAILED;
+		}
+
+		sneak_roll += CHECK_SKILL(vict, SKILL_HEARING) / 4;
+		if (sneak_prob < sneak_roll) {
+			gain_skill_prof(vict, SKILL_SNEAK);
+			get_giveaway(ch, vict);
+			return SNEAK_HEARD;
+		}
+	
+	}
+
+	if (IS_AFFECTED(vict, AFF_SENSE_LIFE) && !IS_UNDEAD(ch) && msgs) {
+		if (departing)
+			send_to_char(vict, "You sense a departing lifeform.\r\n");
+		else
+			send_to_char(vict, "You sense that a lifeform has arrived.\r\n");
+		return SNEAK_SENSED;
+	}
+
+	if (affected_by_spell(vict, SKILL_MOTION_SENSOR) &&
+		CHECK_SKILL(vict, SKILL_MOTION_SENSOR) > number(20, 100) && msgs) {
+		send_to_char(vict, 
+			"-NOTICE- Covert motion detected in vicinity.\r\n");
+		gain_skill_prof(vict, SKILL_MOTION_SENSOR);
+		return SNEAK_SENSED;
+	}
+
+	return SNEAK_OK;
+}
+
 
 /* do_simple_move assumes
  *        1. That there is no master and no followers.
@@ -280,11 +375,10 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	int need_specials_check)
 {
 
-	int need_movement, i, has_boat = 0, wait_state = 0, sneak_prob = 0;
+	int need_movement, i, has_boat = 0, wait_state = 0;
 	struct room_data *was_in;
 	struct obj_data *obj = NULL, *next_obj = NULL, *car = NULL, *c_obj = NULL;
 	struct Creature *tch, *mount = MOUNTED(ch);
-	char str[256];
 	int found = 0;
 	struct special_search_data *srch = NULL;
 	struct affected_type *af_ptr = NULL;
@@ -469,31 +563,6 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		return 1;
 	}
 
-	sneak_prob = CHECK_SKILL(ch, SKILL_SNEAK) + GET_LEVEL(ch) +
-		dex_app_skill[GET_DEX(ch)].sneak;
-
-	if (GET_CLASS(ch) == CLASS_RANGER &&
-		((ch->in_room->sector_type == SECT_FOREST) ||
-			(ch->in_room->sector_type == SECT_HILLS) ||
-			(ch->in_room->sector_type == SECT_MOUNTAIN) ||
-			(ch->in_room->sector_type == SECT_ROCK) ||
-			(ch->in_room->sector_type == SECT_TUNDRA) ||
-			(ch->in_room->sector_type == SECT_TRAIL)))
-		sneak_prob += GET_LEVEL(ch) >> 1;
-	if (IS_ELF(ch))
-		sneak_prob += 10;
-	if (mode == MOVE_CRAWL)
-		sneak_prob += 10;
-	sneak_prob -=
-		((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 4) / CAN_CARRY_W(ch);
-
-	for (i = 0; i < NUM_WEARS; i++)
-		if (ch->equipment[i] && IS_METAL_TYPE(ch->equipment[i]))
-			sneak_prob -= ch->equipment[i]->getWeight();
-
-	if (IS_VAMPIRE(ch))
-		sneak_prob = 999;
-
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_NPC(ch))
 		GET_MOVE(ch) -= need_movement;
 	if (mount)
@@ -608,20 +677,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			tch = *it;
 			if ((*it) == ch || !AWAKE((*it)))
 				continue;
-			if ((!AFF_FLAGGED(ch, AFF_SNEAK) || GET_LEVEL((*it)) > LVL_TIMEGOD
-					|| (IS_VAMPIRE(ch) && IS_VAMPIRE((*it))
-						&& GET_LEVEL((*it)) >= GET_LEVEL(ch))
-					|| AFF2_FLAGGED((*it), AFF2_TRUE_SEEING)
-					|| sneak_prob < (number(0,
-							GET_LEVEL((*it))) + (CHECK_SKILL((*it),
-								SKILL_HEARING) >> 4))) && CAN_SEE((*it), ch))
+			if (check_sneak(ch, tch, true, true) == SNEAK_FAILED)
 				act(buf, TRUE, ch, 0, (*it), TO_VICT);
-			else if (ch->getPosition() < POS_FLYING
-				&& GET_LEVEL(ch) < LVL_AMBASSADOR
-				&& sneak_prob < number(0, GET_LEVEL(tch))) {
-				get_giveaway(ch, (*it), str);
-			} else if (affected_by_spell(ch, SKILL_SNEAK) && !number(0, 3))
-				gain_skill_prof(ch, SKILL_SNEAK);
 		}
 	}
 
@@ -638,17 +695,9 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 					&& c_obj->in_room) {
 					CreatureList::iterator it =
 						c_obj->in_room->people.begin();
-					for (; it != c_obj->in_room->people.end(); ++it) {
-						if ((!AFF_FLAGGED(ch, AFF_SNEAK) ||
-								GET_LEVEL((*it)) > LVL_TIMEGOD ||
-								(IS_VAMPIRE(ch) && IS_VAMPIRE((*it)) &&
-									GET_LEVEL((*it)) >= GET_LEVEL(ch)) ||
-								AFF2_FLAGGED((*it), AFF2_TRUE_SEEING) ||
-								(sneak_prob < number(0, GET_LEVEL((*it))))) &&
-							CAN_SEE((*it), ch) && AWAKE((*it))) {
+					for (; it != c_obj->in_room->people.end(); ++it)
+						if (check_sneak(ch, (*it), true, false) == SNEAK_FAILED)
 							act(buf2, TRUE, ch, 0, (*it), TO_VICT);
-						}
-					}
 					break;
 				}
 			}
@@ -838,46 +887,11 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			if (tch == ch)
 				continue;
 
-			if (!AWAKE(tch)) {
-				if (affected_by_spell(tch, SKILL_MOTION_SENSOR) &&
-					CHECK_SKILL(tch, SKILL_MOTION_SENSOR) > number(20, 100)) {
-					send_to_char(tch, 
-						"SYSTEM WARNING:  Motion detected in vicinity.\r\n");
-					gain_skill_prof(tch, SKILL_MOTION_SENSOR);
-					continue;
-				}
-				continue;
-			}
-
-			if ((!AFF_FLAGGED(ch, AFF_SNEAK) || GET_LEVEL(tch) > LVL_TIMEGOD ||
-					(IS_VAMPIRE(ch) && IS_VAMPIRE(tch) &&
-						GET_LEVEL(tch) >= GET_LEVEL(ch)) ||
-					AFF2_FLAGGED(tch, AFF2_TRUE_SEEING) ||
-					(sneak_prob < (number(0, GET_LEVEL(tch)) +
-							(CHECK_SKILL(tch, SKILL_HEARING) >> 4)))) &&
-				CAN_SEE(tch, ch)) {
-				if (AWAKE(tch)) {
-					act(buf, TRUE, ch, 0, tch, TO_VICT);
-					if (affected_by_spell(ch, SPELL_QUAD_DAMAGE))
-						act("...$e is glowing with a bright blue light!",
-							TRUE, ch, 0, tch, TO_VICT);
-				} else if (tch->getPosition() == POS_SLEEPING &&
-					!AFF_FLAGGED(tch, AFF_SLEEP) && !number(0, 7)) {
-					if (!number(0, 2))
-						send_to_char(tch, "A noise wakes you up.\r\n");
-					else if (!number(0, 1))
-						send_to_char(tch, "You are disturbed by some noise.\r\n");
-					else
-						send_to_char(tch, "You are awakened by some noise.\r\n");
-					tch->setPosition(POS_RESTING);
-				}
-			} else if (ch->getPosition() < POS_FLYING
-				&& GET_LEVEL(ch) < LVL_AMBASSADOR
-				&& sneak_prob < number(0, GET_LEVEL(tch))) {
-				get_giveaway(ch, tch, str);
-				send_to_char(tch, str);
-			} else if (affected_by_spell(ch, SKILL_SNEAK) && !number(0, 3)) {
-				gain_skill_prof(ch, SKILL_SNEAK);
+			if (check_sneak(ch, tch, false, true) == SNEAK_FAILED) {
+				act(buf, TRUE, ch, 0, tch, TO_VICT);
+				if (affected_by_spell(ch, SPELL_QUAD_DAMAGE))
+					act("...$e is glowing with a bright blue light!",
+						TRUE, ch, 0, tch, TO_VICT);
 			}
 		}
 
@@ -894,17 +908,9 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 						&& c_obj->in_room) {
 						CreatureList::iterator it =
 							c_obj->in_room->people.begin();
-						for (; it != c_obj->in_room->people.end(); ++it) {
-							if ((!AFF_FLAGGED(ch, AFF_SNEAK) ||
-									GET_LEVEL((*it)) > LVL_TIMEGOD ||
-									AFF2_FLAGGED((*it), AFF2_TRUE_SEEING) ||
-									(sneak_prob <
-										number(0, GET_LEVEL((*it))))) &&
-								CAN_SEE((*it), ch) && AWAKE((*it))) {
+						for (; it != c_obj->in_room->people.end(); ++it)
+							if (check_sneak(ch, tch, false, false) == SNEAK_FAILED)
 								act(buf2, TRUE, ch, 0, (*it), TO_VICT);
-							}
-						}
-						break;
 					}
 				}
 			}

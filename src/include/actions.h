@@ -25,6 +25,15 @@ void perform_give_gold(Creature *ch, Creature *vict, int amount);
 void perform_give_credits(Creature *ch, Creature *vict, int amount);
 void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
 
+
+// Sneaking
+const int SNEAK_OK = 0;
+const int SNEAK_SENSED = 1;
+const int SNEAK_HEARD = 2;
+const int SNEAK_FAILED = 3;
+
+int check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs);
+
 #define TIMEWARP_FILE "etc/timewarps"
 
 int perform_barb_berserk(struct Creature *ch,
