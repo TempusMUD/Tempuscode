@@ -348,7 +348,7 @@ PRF2_FLAGGED( Creature *ch, int flag )
             return false;
         }
     } else {
-        return IS_SET(PRF_FLAGS(ch),flag);
+        return IS_SET(PRF2_FLAGS(ch),flag);
     }
 }
 
