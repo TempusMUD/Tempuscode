@@ -132,14 +132,14 @@ burn_update(void)
 	}
 
 	// character is in open air
-	if (ch->in_room->isOpenAir() &&
-	    !NOGRAV_ZONE(ch->in_room->zone) &&
-	    GET_POS(ch) < POS_FLYING &&
+	if ( ch->in_room->dir_option[DOWN] &&
+		GET_POS(ch) < POS_FLYING &&
+	    !IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED) &&
 	    (!FIGHTING(ch) || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
-	    ch->in_room->dir_option[DOWN] &&
+		ch->in_room->isOpenAir() &&
+	    !NOGRAV_ZONE(ch->in_room->zone) &&
 	    (fall_to = ch->in_room->dir_option[DOWN]->to_room) &&
-	    fall_to != ch->in_room &&
-	    !IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED)) {
+	    fall_to != ch->in_room) {
 	    if (AFF_FLAGGED(ch, AFF_INFLIGHT) && AWAKE(ch)) {
 		send_to_char("You realize you are about to fall and resume your flight!\r\n", ch);
 		GET_POS(ch) = POS_FLYING;
@@ -212,7 +212,7 @@ burn_update(void)
 	    GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 1 + number(0, (GET_CON(ch) >> 2)));
 
 	// affected by sleep spell
-	if (GET_POS(ch) > POS_SLEEPING && AFF_FLAGGED(ch, AFF_SLEEP) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+	if (AFF_FLAGGED(ch, AFF_SLEEP) && GET_POS(ch) > POS_SLEEPING && GET_LEVEL(ch) < LVL_AMBASSADOR) {
 	    send_to_char("You suddenly fall into a deep sleep.\r\n", ch);
 	    act("$n suddenly falls asleep where $e stands.", TRUE, ch, 0, 0, TO_ROOM);
 	    GET_POS(ch) = POS_SLEEPING;
