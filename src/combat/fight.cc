@@ -3576,7 +3576,8 @@ damage( struct char_data * ch, struct char_data * victim, int dam,
     // Victim is Linkdead
     // Send him to the void
 
-    if ( !IS_NPC( victim ) && !( victim->desc ) ) {
+    if ( !IS_NPC( victim ) && !( victim->desc ) 
+		&& !ROOM_FLAGGED( victim->in_room, ROOM_ARENA ) ) {
 	do_flee( victim, "", 0, 0 );
 	act( "$n is rescued by divine forces.", FALSE, victim, 0, 0, TO_ROOM );
 	GET_WAS_IN( victim ) = victim->in_room;
