@@ -2652,15 +2652,14 @@ ACCMD(do_disarm)
 
 		GET_EXP(ch) += MIN(100, weap->getWeight());
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-
-		return;
+		if (IS_NPC(vict) && can_see_creature(vict, ch))
+			set_fighting(vict, ch, 0);
 	} else {
 		send_to_char(ch, "You fail the disarm!\r\n");
 		act("$n tries to disarm you!", FALSE, ch, 0, vict, TO_VICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		if (IS_NPC(vict))
-			hit(vict, ch, TYPE_UNDEFINED);
-		return;
+			set_fighting(vict, ch, 0);
 	}
 }
 
