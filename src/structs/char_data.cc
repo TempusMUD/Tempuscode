@@ -43,6 +43,7 @@ bool char_data::isTester(){
  *  level/gen and class.
  * if victim != NULL, assume that this char is fighting victim to gain
  *  experience.
+ *
 **/
 int char_data::getPenalizedExperience( int experience, char_data *victim = NULL ) 
 {
