@@ -3123,6 +3123,8 @@ ACMD(do_who)
 			 !strncmp(GET_NAME(tch), "Joran", 5)    ? "OVRLORD" :
 			 !strncmp(GET_NAME(tch), "Smitty", 6)   ? "FOREMAN" :
 			 !strncmp(GET_NAME(tch), "Stryker", 7)  ? "CODEMAN" :
+			 !strncmp(GET_NAME(tch), "Forget", 6)   ? " CODER " :
+			 !strncmp(GET_NAME(tch), "Fragment", 8) ? "MONKEY " :
 			 LEV_ABBR(tch)),  CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
 			PRF2_FLAGGED(tch, PRF2_NOWHO) ? nowho_buf : "",
 			CCGRN(ch, C_NRM), 
