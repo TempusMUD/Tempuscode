@@ -1769,17 +1769,21 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 
 	/* debugging message */
-	sprintf(buf,
-		"<%s> ( dam: %4d ) ( Wait: %2d ) ( Pos: %d ) ( Reduce: %f )\r\n",
-		GET_NAME(victim), dam,
-		IS_NPC(victim) ? GET_MOB_WAIT(victim) : victim->desc ? victim->desc->
-		wait : 0, victim->getPosition(), dam_reduction);
-	if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-		send_to_char(ch, "%s", buf);
-	}
-	if (victim && PRF2_FLAGGED(victim, PRF2_FIGHT_DEBUG)) {
-		send_to_char(victim, "%s", buf);
-	}
+	if (ch && PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG))
+		send_to_char(ch,
+			"%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
+			CCCYN(ch, C_NRM), GET_NAME(victim), dam,
+			IS_NPC(victim) ? GET_MOB_WAIT(victim) :
+				victim->desc ? victim->desc->wait : 0,
+			victim->getPosition(), dam_reduction, CCNRM(victim, C_NRM));
+
+	if (victim && PRF2_FLAGGED(victim, PRF2_FIGHT_DEBUG))
+		send_to_char(ch,
+			"%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
+			CCCYN(victim, C_NRM), GET_NAME(victim), dam,
+			IS_NPC(victim) ? GET_MOB_WAIT(victim) :
+				victim->desc ? victim->desc->wait : 0,
+			victim->getPosition(), dam_reduction, CCNRM(victim, C_NRM));
 	//
 	// If victim is asleep, incapacitated, etc.. stop fighting.
 	//
@@ -2057,10 +2061,10 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 	diceroll = number(1, 20);
 
-	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-		send_to_char(ch, "Thac0: %3d. Die Roll: %3d. AC: %3d\r\n",
-			calc_thaco, diceroll, victim_ac);
-	}
+	if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG))
+		send_to_char(ch, "%s[HIT] thac0:%d   roll:%d  AC:%d%s\r\n",
+			CCCYN(ch, C_NRM), calc_thaco, diceroll, victim_ac,
+			CCNRM(ch, C_NRM));
 
 	/* decide whether this is a hit or a miss */
 	if (((diceroll < 20) && AWAKE(victim) &&
@@ -2431,17 +2435,20 @@ perform_violence(void)
 		die_roll = number(0, 300);
 
 		if (PRF2_FLAGGED(ch, PRF2_FIGHT_DEBUG)) {
-			send_to_char(ch, "Attack speed: %d. Die roll: %d. Wait State %d.\r\n",
-				prob, die_roll,
+			send_to_char(ch,
+				"%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
+				CCCYN(ch, C_NRM), GET_NAME(ch), prob, die_roll,
 				IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->
-					wait : 0));
+					wait : 0),
+				CCNRM(ch, C_NRM));
 		}
 		if (PRF2_FLAGGED(FIGHTING(ch), PRF2_FIGHT_DEBUG)) {
 			send_to_char(FIGHTING(ch),
-				"Enemy: Attack speed: %d. Die roll %d. Wait State: %d.\r\n",
-				prob, die_roll,
+				"%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
+				CCCYN(FIGHTING(ch), C_NRM), GET_NAME(ch), prob, die_roll,
 				IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->
-					wait : 0));
+					wait : 0),
+				CCNRM(FIGHTING(ch), C_NRM));
 		}
 		//
 		// it's an attack!
