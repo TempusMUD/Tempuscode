@@ -2794,7 +2794,7 @@ ACMD(do_weather)
 	send_to_char("You have no feeling about the weather at all.\r\n", ch);
 }
 
-
+/* Old Help System
 ACMD(do_help)
 {
     extern int top_of_helpt;
@@ -2841,7 +2841,7 @@ ACMD(do_help)
   
 	if (!(chk = strn_cmp(argument, help_index[mid].keyword, minlen))) {
   
-	    /* trace backwards to find first matching entry. Thanks Jeff Fink! */
+	    // trace backwards to find first matching entry. Thanks Jeff Fink! 
 	    while ((mid > 0) &&
 		   (!(chk = strn_cmp(argument, help_index[mid - 1].keyword, minlen))))
 		mid--;
@@ -2851,7 +2851,7 @@ ACMD(do_help)
 		fgets(buf, 128, help_fl);
 		if (*buf == '#')
 		    break;
-		buf[strlen(buf) - 1] = '\0';	/* cleave off the trailing \n */
+		buf[strlen(buf) - 1] = '\0';	// cleave off the trailing \n
 		strcat(buf2, strcat(buf, "\r\n"));
 	    }
 	    page_string(ch->desc, buf2, 1);
@@ -2865,7 +2865,7 @@ ACMD(do_help)
 	    top = --mid;
     }
 }
-
+*/
 
 void 
 perform_net_who(struct char_data *ch, char *arg)

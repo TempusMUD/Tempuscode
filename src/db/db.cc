@@ -123,7 +123,7 @@ char *motd = NULL;		/* message of the day - mortals */
 char *ansi_motd = NULL;		/* message of the day - mortals */
 char *imotd = NULL;		/* message of the day - immorts */
 char *ansi_imotd = NULL;	/* message of the day - immorts */
-char *help = NULL;		/* help screen			 */
+//char *help = NULL;		/* help screen			 */
 char *info = NULL;		/* info page			 */
 char *wizlist = NULL;		/* list of higher gods		 */
 char *ansi_wizlist = NULL;	/* list of higher gods		 */
@@ -142,9 +142,9 @@ char *typos = NULL;		/* typos file			 */
 char *olc_guide = NULL;         /* creation tips                 */
 char *quest_guide = NULL;        /* quest guidelines             */
 
-FILE *help_fl = NULL;		/* file for help text		 */
-struct help_index_element *help_index = 0;	/* the help table	 */
-int top_of_helpt;		/* top of help index table	 */
+//FILE *help_fl = NULL;		/* file for help text		 */
+//struct help_index_element *help_index = 0;	/* the help table	 */
+//int top_of_helpt;		/* top of help index table	 */
 
 struct time_info_data time_info;/* the infomation about the time    */
 /*struct weather_data weather_info;	the infomation about the weather */
@@ -203,7 +203,7 @@ void load_banned(void);
 void Read_Invalid_List(void);
 void Read_Nasty_List(void);
 void boot_the_shops(FILE * shop_f, char *filename, int rec_count);
-struct help_index_element *build_help_index(FILE * fl, int *num);
+//struct help_index_element *build_help_index(FILE * fl, int *num);
 void add_alias(struct char_data *ch, struct alias_data *a);
 void boot_clans(void);
 void add_follower(struct char_data * ch, struct char_data * leader);
@@ -228,8 +228,6 @@ file_to_string_alloc(ANSI_IMMLIST_FILE, &ansi_immlist);
 
 ACMD(do_reboot)
 {
-    int i;
-
     one_argument(argument, arg);
 
     if (!str_cmp(arg, "all") || *arg == '*') {
@@ -239,7 +237,7 @@ ACMD(do_reboot)
 	file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
 	file_to_string_alloc(IMOTD_FILE, &imotd);
 	file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
-	file_to_string_alloc(HELP_PAGE_FILE, &help);
+//	file_to_string_alloc(HELP_PAGE_FILE, &help);
 	file_to_string_alloc(INFO_FILE, &info);
 	file_to_string_alloc(WIZLIST_FILE, &wizlist);
 	file_to_string_alloc(ANSI_WIZLIST_FILE, &ansi_wizlist);
@@ -271,9 +269,9 @@ ACMD(do_reboot)
     } else if (!str_cmp(arg, "imotd")) {
 	file_to_string_alloc(IMOTD_FILE, &imotd);
 	file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
-    } else if (!str_cmp(arg, "help"))
-	file_to_string_alloc(HELP_PAGE_FILE, &help);
-    else if (!str_cmp(arg, "info"))
+//    } else if (!str_cmp(arg, "help"))
+//	file_to_string_alloc(HELP_PAGE_FILE, &help);
+    } else if (!str_cmp(arg, "info"))
 	file_to_string_alloc(INFO_FILE, &info);
     else if (!str_cmp(arg, "policy"))
 	file_to_string_alloc(POLICIES_FILE, &policies);
@@ -302,7 +300,7 @@ ACMD(do_reboot)
     else if (!str_cmp(arg, "elevators")) {
 	if (!load_elevators())
 	    send_to_char("There was an error.\r\n", ch);
-    } else if (!str_cmp(arg, "xhelp")) {
+/*  } else if (!str_cmp(arg, "xhelp")) {
 	if (help_fl)
 	    fclose(help_fl);
 	if (!(help_fl = fopen(HELP_KWRD_FILE, "r")))
@@ -318,7 +316,7 @@ ACMD(do_reboot)
 	    dmalloc_verify(0);
 #endif
 	    help_index = build_help_index(help_fl, &top_of_helpt);
-	}
+	}*/
     } else {
 	send_to_char("Unknown reboot option.\r\n", ch);
 	return;
@@ -378,14 +376,14 @@ boot_db(void)
     slog("Resetting the game time:");
     reset_time();
 
-    slog("Reading news, credits, help, bground, info & motds.");
+    slog("Reading news, credits, bground, info & motds.");
     file_to_string_alloc(NEWS_FILE, &news);
     file_to_string_alloc(CREDITS_FILE, &credits);
     file_to_string_alloc(MOTD_FILE, &motd);
     file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
     file_to_string_alloc(IMOTD_FILE, &imotd);
     file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
-    file_to_string_alloc(HELP_PAGE_FILE, &help);
+//    file_to_string_alloc(HELP_PAGE_FILE, &help);
     file_to_string_alloc(INFO_FILE, &info);
     file_to_string_alloc(WIZLIST_FILE, &wizlist);
     file_to_string_alloc(ANSI_WIZLIST_FILE, &ansi_wizlist);
@@ -404,13 +402,13 @@ boot_db(void)
     boot_dynamic_text();
 
     boot_remort_quiz();
-
+/*
     slog("Opening help file.");
     if (!(help_fl = fopen(HELP_KWRD_FILE, "r")))
 	slog("   Could not open help file.");
     else
 	help_index = build_help_index(help_fl, &top_of_helpt);
-
+*/
     boot_world();
 
     reset_zone_weather();
@@ -485,7 +483,7 @@ boot_db(void)
     slog("Booting help system.");
     Help = new HelpCollection;
     if(Help->LoadIndex())
-        slog("Help System Boot Succeded.");
+        slog("Help system boot succeded.");
     else
         slog("SYSERR: Help System Boot FAILED.");
 

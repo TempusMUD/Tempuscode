@@ -6,7 +6,7 @@
 
 SPECIAL(newbie_tower_rm)
 {
-  ACMD(do_help);
+  ACMD(do_hcollect_help);
   one_argument(argument, arg);
 
   if (!CMD_IS("look") && !CMD_IS("examine"))
@@ -17,7 +17,7 @@ SPECIAL(newbie_tower_rm)
         !strncasecmp(arg, "at plate", 8) ||
         !strncasecmp(arg, "map", 3) ||
         !strncasecmp(arg, "at map", 6)) {
-      do_help(ch, "modrian", 0, 0);
+      do_hcollect_help(ch, "modrian", 0, 0);
       /*
       send_to_char("This map may be viewed at any time by typing 'help modrian'.\r\n", ch);
       send_to_char("You may also look out the windows of the tower by using the\r\n"
@@ -29,7 +29,7 @@ SPECIAL(newbie_tower_rm)
   }
   if (CMD_IS("examine")) {
     if (!strncasecmp(arg, "plate", 5)) {
-      do_help(ch, "modrian", 0, 0);
+      do_hcollect_help(ch, "modrian", 0, 0);
       return 1;
     }
   }

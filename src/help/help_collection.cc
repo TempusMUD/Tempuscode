@@ -301,7 +301,7 @@ bool HelpCollection::SaveAll( char_data *ch ) {
 }
 // Save the index
 bool HelpCollection::SaveIndex( char_data *ch ) {
-    char fname[128];
+    char fname[256];
     HelpItem *cur=NULL;
     int num_items = 0;
     sprintf(fname,"%s/%s",Help_Directory,"index");
@@ -343,6 +343,7 @@ bool HelpCollection::LoadIndex() {
     }
     index_file.seekp(0);
     index_file >> top_id;
+    s = buf;
     for(int i = 1;i <= top_id; i++) {
             n = new HelpItem;
             index_file  >> n->idnum >> n->groups 
@@ -582,11 +583,25 @@ static void do_group_command(char_data *ch, char *argument) {
             do_group_cmds(ch);
     }
 }
+// The "immhelp" command
 ACMD(do_immhelp) {
+    HelpItem *cur = NULL;
     skip_spaces(&argument);
-    Help->GetTopic(ch,argument,2,false,HGROUP_IMMHELP);
-    return;
+
+    // Take care of all the special cases.
+    // Default help file
+    if(!argument || !*argument) {
+        cur = Help->find_item_by_id(699);
+    }
+    // If we have a special case, do it, otherwise try to get it normally.
+    if(cur) {
+        cur->Show( ch, gHelpbuf,2);
+        page_string(ch->desc,gHelpbuf,1);
+    } else {
+        Help->GetTopic(ch,argument,2,false,HGROUP_IMMHELP);
+    }
 }
+// The standard "help" command
 ACMD(do_hcollect_help) {
     HelpItem *cur = NULL;
     skip_spaces(&argument);
@@ -599,6 +614,7 @@ ACMD(do_hcollect_help) {
     } else if( subcmd == SCMD_SKILLS ) {
         sprintf(buf, "Type 'Help %s' to see the skills available to your char_class.\r\n", pc_char_class_types[(int)GET_CLASS(ch)]);
         send_to_char(buf, ch);
+    // Default help file
     } else if(!argument || !*argument) {
         cur = Help->find_item_by_id(666);
     }
@@ -608,6 +624,23 @@ ACMD(do_hcollect_help) {
         page_string(ch->desc,gHelpbuf,1);
     } else {
         Help->GetTopic(ch,argument,2,false);
+    }
+}
+// The "olchelp" command
+ACMD(do_olchelp) {
+    HelpItem *cur = NULL;
+    skip_spaces(&argument);
+
+    // Take care of all the special cases.
+    if(!argument || !*argument) {
+        cur = Help->find_item_by_id(700);
+    }
+    // If we have a special case, do it, otherwise try to get it normally.
+    if(cur) {
+        cur->Show( ch, gHelpbuf,2);
+        page_string(ch->desc,gHelpbuf,1);
+    } else {
+        Help->GetTopic(ch,argument,2,false,HGROUP_OLC);
     }
 }
 // Main command parser for hcollect.

@@ -339,7 +339,7 @@ void HelpItem::Show( char_data *ch, char *buffer,int mode=0 ){
             if(!text)
                 LoadText();
             strcpy(buffer,"");
-            sprintf(buffer,"    %s%s%s\r\n%s\r\n",
+            sprintf(buffer,"\r\n%s%s%s\r\n%s\r\n",
                 CCCYN(ch,C_NRM),name,CCNRM(ch,C_NRM),text);
             counter++;
             break;
@@ -350,7 +350,7 @@ void HelpItem::Show( char_data *ch, char *buffer,int mode=0 ){
             sprintbit(groups, help_group_bits, groupbuf);
             strcpy(buffer,"");
             sprintf(buffer,
-            "%s%d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s \r\n        %s"
+            "\r\n%s%d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s \r\n        %s"
                     "Keywords: [ %s%s%s ]\r\n%s%s\r\n",
                     CCCYN(ch,C_NRM),idnum, CCYEL(ch,C_NRM),
                     name, CCCYN(ch,C_NRM),CCNRM(ch,C_NRM),

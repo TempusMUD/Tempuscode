@@ -208,7 +208,6 @@ ACMD(do_hamstring);
 ACMD(do_hcontrol);
 ACMD(do_hedit);
 ACMD(do_headbutt);
-ACMD(do_help);
 ACMD(do_hcollect_help);
 ACMD(do_hide);
 ACMD(do_hit);
@@ -258,6 +257,7 @@ ACMD(do_oecho);
 ACMD(do_offer);
 ACCMD(do_offensive_skill);
 ACMD(do_olc);
+ACMD(do_olchelp);
 ACMD(do_oload);
 ACMD(do_order);
 ACMD(do_oset);
@@ -909,6 +909,7 @@ extern const struct command_info cmd_info[] = {
     { "oif"      , POS_RESTING , do_action   , 0, 0 },
     { "ogg"      , POS_RESTING , do_action   , 0, 0 },
     { "olc"      , POS_DEAD    , do_olc      , LVL_IMMORT, 0 },
+    { "olchelp"  , POS_DEAD    , do_olchelp  , LVL_IMMORT, 0 },
     { "oload"    , POS_SLEEPING, do_oload    , LVL_GRGOD, 0 },
     { "offer"    , POS_STANDING, do_not_here , 1, 0 },
     { "open"     , POS_SITTING , do_gen_door , 0, SCMD_OPEN },
@@ -3588,7 +3589,7 @@ nanny(struct descriptor_data * d, char *arg)
               "exit         back        \r\n"
               "Escape character: @ or +\r\n", d);
         } else
-        do_help(d->character, arg, 0, 0);
+        do_hcollect_help(d->character, arg, 0, 0);
     } else if (is_abbrev(arg1, "who")) {
         perform_net_who(d->character, "");
     } else if (is_abbrev(arg1, "finger")) {
