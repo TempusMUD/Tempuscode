@@ -248,7 +248,10 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 		House* house = Housing.findHouseByRoom( locker->in_room->number );
 		if( house != NULL )
 			house->save();
-		ch->saveToXML();
+		if (IS_NPC(ch))
+			ch->purge(true);
+		else
+			ch->saveToXML();
 	}
 
 	if (FIGHTING(ch))
