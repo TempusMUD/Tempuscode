@@ -345,6 +345,7 @@ show_string(struct descriptor_data *d)
             }
         }
 		if (*read_pt) {
+            char_count = 0;
             if (page_length > 0)
 			    page_length--;
 			read_pt++;
