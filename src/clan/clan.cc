@@ -122,7 +122,6 @@ ACMD(do_enroll)
 		send_to_char(ch, "Something wierd just happened... try again.\r\n");
 		REMOVE_MEMBER_FROM_CLAN(member, clan);
 		free(member);
-		save_clans();
 	} else {
 
 		for (count = 0, member = clan->member_list; member;
@@ -147,7 +146,7 @@ ACMD(do_enroll)
 		member->next = clan->member_list;
 		clan->member_list = member;
 		sort_clanmembers(clan);
-		sql_exec("insert into clan members (clan, player, rank) values (%d, %ld, %d)",
+		sql_exec("insert into clan_members (clan, player, rank) values (%d, %ld, %d)",
 			clan->number, GET_IDNUM(vict), 0);
 	}
 }
@@ -507,7 +506,6 @@ ACMD(do_demote)
 			msg = tmp_strcat(msg, "\r\n",NULL);
 			send_to_clan(msg, clan->number);
 			sort_clanmembers(clan);
-			save_clans();
 		}
 	} else if (real_clan(GET_CLAN(vict)) != clan) {
 		act("$N is not a member of your clan.", FALSE, ch, 0, vict, TO_CHAR);
@@ -526,7 +524,6 @@ ACMD(do_demote)
 		if (member2->rank < 0) {
 			slog("SYSERR: clan member with rank < 0");
 			member2->rank = 0;
-			save_clans();
 		}
 	} else {
 		member2->rank--;
@@ -539,7 +536,6 @@ ACMD(do_demote)
 		msg = tmp_strcat(msg, "\r\n",NULL);
 		send_to_clan(msg, clan->number);
 		sort_clanmembers(clan);
-		save_clans();
 	}
 }
 
@@ -570,7 +566,7 @@ ACMD(do_promote)
 	else if (IS_AFFECTED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
-		&& !Security::isMember(ch, "Clan")) {
+			&& !Security::isMember(ch, "Clan")) {
 		if (member2->rank >= member1->rank - 1 && GET_IDNUM(ch) != clan->owner) {
 			act("You are not in a position to promote $M.",
 				FALSE, ch, 0, vict, TO_CHAR);
@@ -591,10 +587,9 @@ ACMD(do_promote)
 			msg = tmp_strcat(msg, "\r\n",NULL);
 			send_to_clan(msg, clan->number);
 			sort_clanmembers(clan);
-			save_clans();
 		}
-	} else if (PLR_FLAGGED(ch, PLR_CLAN_LEADER) ||
-		member1->rank >= clan->top_rank) {
+	} else {
+		// Unconditional advancement
 		if (member2->rank >= clan->top_rank
 			&& PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
 			if (PLR_FLAGGED(vict, PLR_CLAN_LEADER))
@@ -626,7 +621,6 @@ ACMD(do_promote)
 				msg = tmp_strcat(msg, "\r\n",NULL);
 				send_to_clan(msg, clan->number);
 				sort_clanmembers(clan);
-				save_clans();
 			}
 		}
 	}
@@ -809,11 +803,7 @@ ACMD(do_cedit)
 	switch (cedit_command) {
 
 	case 0:			 /*** save ***/
-		if (save_clans()) {
-			send_to_char(ch, "Clans saved successfully.\r\n");
-		} else {
-			send_to_char(ch, "Clans failed to save!\r\n");
-		}
+		send_to_char(ch, "Clans saved after every change now!\r\n");
 		break;
 
 	case 1:			/*** create ***/
@@ -933,14 +923,14 @@ ACMD(do_cedit)
 					return;
 				}
 				clan->top_rank = i;
-				// Free memory from strings taken by newly invalid clan
-				// names
+				// Free memory from strings taken by newly invalid rank names
 				i += 1;
-				while (i < 10) {
+				while (i < NUM_CLAN_RANKS) {
 					if (clan->ranknames[i]) {
 						free(clan->ranknames[i]);
 						clan->ranknames[i] = NULL;
 					}
+					i++;
 				}
 
 				for (member = clan->member_list; member; member = member->next)
@@ -974,10 +964,10 @@ ACMD(do_cedit)
 			}
 			if (clan->ranknames[i]) {
 				free(clan->ranknames[i]);
-				sql_exec("update clan_ranks set name='%s' where clan=%d and rank=%d",
+				sql_exec("update clan_ranks set title='%s' where clan=%d and rank=%d",
 					tmp_sqlescape(argument), clan->number, i);
 			} else {
-				sql_exec("insert into clan_ranks (clan, rank, name) values (%d, %d, '%s'",
+				sql_exec("insert into clan_ranks (clan, rank, title) values (%d, %d, '%s')",
 					clan->number, i, tmp_sqlescape(argument));
 			}
 			clan->ranknames[i] = str_dup(argument);
@@ -1031,7 +1021,7 @@ ACMD(do_cedit)
 			send_to_char(ch, "Clan owner set.\r\n");
 			slog("(cedit) %s set clan %d owner to %s.", GET_NAME(ch),
 				clan->number, argument);
-			sql_exec("update clans set owner=%d where clan=%d",
+			sql_exec("update clans set owner=%d where idnum=%d",
 				i, clan->number);
 			return;
 		}
@@ -1276,202 +1266,38 @@ ACMD(do_cedit)
 	}
 }
 
-
-void
-load_clan( xmlNodePtr clanNode )
+bool
+boot_clans(void)
 {
-	clan_data *clan;
-	Creature clan_member(true);
+	clan_data *clan, *tmp_clan;
+	clanmember_data *member, *tmp_member;
+	room_list_elem *rm_list;
+	room_data *room;
+	PGresult *res;
+	int idx, count, num;
 
-	CREATE(clan, struct clan_data, 1);
+	slog("Reading clans");
 
-	clan->member_list = NULL;
-	clan->room_list = NULL;
-	clan->next = NULL;
-
-	clan->number = xmlGetIntProp( clanNode, "id", -1 );
-	clan->name = xmlGetProp( clanNode, "name"  );
-	clan->badge = xmlGetProp( clanNode, "badge" );
-
-	//rentOverflow = xmlGetLongProp( clanNode, "rentOverflow", 0 );
-	
-	int curRank = 0;
-	for ( xmlNodePtr node = clanNode->xmlChildrenNode; node; node = node->next ) 
-	{
-        if ( xmlMatches(node->name, "data") ) {
-			clan->owner = xmlGetLongProp( node, "owner", 0 );
-			clan->top_rank = xmlGetIntProp( node, "top_rank", -1 );
-			clan->bank_account = xmlGetIntProp( node, "bank", -1 );
-			clan->flags = xmlGetIntProp( node, "flags", -1 );
-		} else if (xmlMatches(node->name, "member")) {
-			long id = xmlGetLongProp( node, "id", -1 );
-			int rank = xmlGetIntProp( node, "rank", -1 );
-			clan_member.clear();
-
-			if( !playerIndex.exists(id) ) {
-				slog("SYSERR: Clan %d had invalid member: %ld.", clan->number, id);
-			} else if( clan_member.loadFromXML(id)) {
-				if (clan_member.player_specials->saved.clan != clan->number) {
-					slog("Clan(%d) member (%ld) no longer a member.",
-						clan->number, id);
-					continue;
-				}
-			}
-			clanmember_data *member;
-			CREATE(member, struct clanmember_data, 1);
-			member->idnum = id;
-			member->rank = rank;
-			member->next = NULL;
-			if (!clan->member_list)
-				clan->member_list = member;
-			else {
-				for (clanmember_data *tmp_member = clan->member_list; tmp_member;
-					tmp_member = tmp_member->next) {
-					if (!tmp_member->next) {
-						tmp_member->next = member;
-						break;
-					}
-				}
-			}
-		} else if( xmlMatches(node->name, "rank")) {
-			char *name = xmlGetProp( node, "name" );
-			if( name == NULL ) {
-				clan->ranknames[curRank++] = strdup("the member");
-			} else {
-				clan->ranknames[curRank++] = name;
-			}
-		} else if( xmlMatches(node->name, "room")) {
-			int number = xmlGetIntProp( node, "number", -1 );
-			room_data *room = real_room(number);
-			if( room != NULL ) {
-				room_list_elem *rm_elem;
-				CREATE(rm_elem, struct room_list_elem, 1);
-				rm_elem->room = room;
-				rm_elem->next = clan->room_list;
-				clan->room_list = rm_elem;
-			}
-		}
+	res = sql_query("select idnum, name, badge, bank, owner, flags from clans");
+	count = PQntuples(res);
+	if (count == 0) {
+		slog("WARNING: No clans loaded");
+		PQclear(res);
+		return false;
 	}
 
-	if (!clan_list) {
-		clan_list = clan;
-	} else {
-		for (clan_data *tmp_clan = clan_list; tmp_clan; tmp_clan = tmp_clan->next) {
-			if (!tmp_clan->next) {
-				tmp_clan->next = clan;
-				break;
-			}
-		}
-	}
-}
-
-#define CLAN_FILE "etc/clans"
-
-void
-boot_old_clans()
-{
-
-	FILE *file = NULL;
-	int virt = -1, last = -1, i = 0;
-	long member_id;
-	byte member_rank;
-	struct clan_file_elem_hdr clan_hdr;
-	struct clan_data *clan = NULL, *tmp_clan = NULL;
-	struct clanmember_data *member = NULL, *tmp_member = NULL;
-	struct room_data *room = NULL;
-	struct room_list_elem *rm_list = NULL;
-	Creature clan_member(true);
-
-	clan_list = NULL;
-
-	if (!(file = fopen(CLAN_FILE, "r"))) {
-		slog("Unable to open clan file '%s' for read.\n", CLAN_FILE);
-		return;
-	}
-
-	while (fread(&clan_hdr, sizeof(struct clan_file_elem_hdr), 1, file)) {
-
-		if (clan_hdr.number < last) {
-			slog("Format error in clan file.  Clan %d after clan %d.\n",
-				clan_hdr.number, last);
-			return;
-		}
-
-		last = clan_hdr.number;
-
+	for (idx = 0;idx < count;idx++) {
 		CREATE(clan, struct clan_data, 1);
 
-		clan->number = clan_hdr.number;
-		clan->bank_account = clan_hdr.bank_account;
-		clan->top_rank = clan_hdr.top_rank;
-		clan->owner = clan_hdr.owner;
-		clan->flags = clan_hdr.flags;
-		clan->name = str_dup(clan_hdr.name);
-		clan->badge = str_dup(clan_hdr.badge);
+		clan->number = atoi(PQgetvalue(res, idx, 0));
+		clan->name = str_dup(PQgetvalue(res, idx, 1));
+		clan->badge = str_dup(PQgetvalue(res, idx, 2));
+		clan->bank_account = atoll(PQgetvalue(res, idx, 3));
+		clan->owner = atoi(PQgetvalue(res, idx, 4));
+		clan->flags = atoi(PQgetvalue(res, idx, 5));
 		clan->member_list = NULL;
 		clan->room_list = NULL;
 		clan->next = NULL;
-		for (i = 0; i < NUM_CLAN_RANKS; i++) {
-			if (clan_hdr.ranknames[i][0])
-				clan->ranknames[i] = str_dup(clan_hdr.ranknames[i]);
-			else {
-				if (!(i))
-					clan->ranknames[i] = str_dup("the recruit");
-				else if (i == clan->top_rank)
-					clan->ranknames[i] = str_dup("the leader");
-				else
-					clan->ranknames[i] = str_dup("the member");
-			}
-		}
-
-		for (i = 0; i < clan_hdr.num_members; i++) {
-
-			fread(&member_id, sizeof(long), 1, file);
-			fread(&member_rank, sizeof(byte), 1, file);
-
-			if (!playerIndex.getName(member_id)) {
-				slog("Clan(%d) member (%ld) does not exist",
-					clan->number, member_id);
-				continue;
-			}
-			clan_member.clear();
-
-			if (clan_member.loadFromXML(member_id)) {
-				if (clan_member.player_specials->saved.clan != clan->number) {
-					slog("Clan(%d) member (%ld) no longer a member.",
-						clan->number, member_id);
-					continue;
-				}
-			} else
-				slog("ERROR");
-
-			CREATE(member, struct clanmember_data, 1);
-			member->idnum = member_id;
-			member->rank = member_rank;
-			member->next = NULL;
-			if (!clan->member_list)
-				clan->member_list = member;
-			else {
-				for (tmp_member = clan->member_list; tmp_member;
-					tmp_member = tmp_member->next) {
-					if (!tmp_member->next) {
-						tmp_member->next = member;
-						break;
-					}
-				}
-			}
-		}
-
-		for (i = 0; i < clan_hdr.num_rooms; i++) {
-			fread(&virt, sizeof(int), 1, file);
-
-			if ((room = real_room(virt))) {
-				CREATE(rm_list, struct room_list_elem, 1);
-				rm_list->room = room;
-				rm_list->next = clan->room_list;
-				clan->room_list = rm_list;
-			}
-		}
 
 		if (!clan_list)
 			clan_list = clan;
@@ -1483,128 +1309,56 @@ boot_old_clans()
 				}
 		}
 	}
-	fclose(file);
-	slog("CLAN: Clans booted from binary files.");
-}
 
-bool
-sql_boot_clans(void)
-{
-	clan_data *clan;
-	PGresult *res;
-	int clan_idx, clan_count;
-
-	slog("Reading clans");
-
-	res = sql_query("select idnum, name, badge, bank, owner, flags from clans");
-	clan_count = PQntuples(res);
-	if (clan_count == 0) {
-		slog("WARNING: No clans loaded");
-		PQclear(res);
-		return false;
+	// Add the ranks to the clan
+	res = sql_query("select clan, rank, title from clan_ranks");
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++) {
+		clan = real_clan(atol(PQgetvalue(res, idx, 0)));
+		num = atoi(PQgetvalue(res, idx, 1));
+		clan->top_rank = MAX(clan->top_rank, num);
+		clan->ranknames[num] = str_dup(PQgetvalue(res, idx, 2));
 	}
 
-	for (clan_idx = 0;clan_idx < clan_count;clan_idx++) {
-		CREATE(clan, struct clan_data, 1);
 
-		clan->number = atoi(PQgetvalue(res, clan_idx, 0));
-		clan->name = str_dup(PQgetvalue(res, clan_idx, 1));
-		clan->badge = str_dup(PQgetvalue(res, clan_idx, 2));
-		clan->bank_account = atoll(PQgetvalue(res, clan_idx, 3));
-		clan->owner = atoi(PQgetvalue(res, clan_idx, 4));
-		clan->flags = atoi(PQgetvalue(res, clan_idx, 5));
-		clan->member_list = NULL;
-		clan->room_list = NULL;
-		clan->next = NULL;
-	}
-	return true;
-}
+	// Now add all the members to the clans
+	res = sql_query("select clan, player, rank from clan_members");
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++) {
+		CREATE(member, struct clanmember_data, 1);
+		member->idnum = atol(PQgetvalue(res, idx, 1));
+		member->rank = atol(PQgetvalue(res, idx, 2));
+		member->next = NULL;
 
-bool
-boot_clans()
-{
-	const char* filename = "etc/clans.xml";
-	int axs = access(filename, R_OK);
-
-	if( axs != 0 ) {
-		if( errno == ENOENT ) {
-			slog("SYSERR: XML clan file not found. Trying binary file.");
-			boot_old_clans();
-			return false;
-		} else {
-			slog("SYSERR: Unable to open xml clan file '%s': %s", 
-				 filename, strerror(errno) );
-			return false;
-		}
-	}
-    xmlDocPtr doc = xmlParseFile(filename);
-    if (!doc) {
-        slog("SYSERR: XML parse error while loading %s", filename);
-        return false;
-    }
-
-    xmlNodePtr root = xmlDocGetRootElement(doc);
-    if (!root) {
-        xmlFreeDoc(doc);
-        slog("SYSERR: XML file %s is empty", filename);
-        return false;
-    }
-
-	int clanCount = 0;
-	xmlNodePtr clanNode;
-	for ( clanNode = root->xmlChildrenNode; clanNode; clanNode = clanNode->next ) {
-		if( xmlMatches( clanNode->name, "clan" ) ) {
-			load_clan( clanNode );
-			clanCount += 1;
-		}
-	}
-	xmlFreeDoc(doc);
-	slog("Clan boot successful.");
-	return true;
-}
-
-bool
-save_clans()
-{
-	const char* path = "etc/clans.xml";
-	FILE* ouf = fopen(path, "w");
-	if(!ouf) {
-		slog("Unable to open clan file for save.[%s] (%s)\n",
-						path, strerror(errno) );
-		return false;
-	}
-	fprintf( ouf, "<clanfile>\n");
-	for( clan_data *clan = clan_list; clan; clan = clan->next) {
-		char *name = xmlEncodeTmp(clan->name);
-		char *badge = xmlEncodeTmp(clan->badge);
-		fprintf( ouf, "    <clan id=\"%d\" name=\"%s\" badge=\"%s\">\n", 
-					clan->number, name, badge);
-		fprintf( ouf, "        <data owner=\"%ld\" top_rank=\"%d\" bank=\"%lld\" flags=\"%d\" />\n",
-					clan->owner, clan->top_rank, clan->bank_account, clan->flags );
-
-		for( int i = 0; i <= clan->top_rank; i++ ) {
-			if (clan->ranknames[i]) {
-				char *rank = xmlEncodeTmp(clan->ranknames[i]);
-				fprintf( ouf, "        <rank name=\"%s\"/>\n", rank );
-			} else {
-				fprintf( ouf, "        <rank name=\"\"/>\n" );
+		clan = real_clan(atol(PQgetvalue(res, idx, 0)));
+		if (!clan->member_list)
+			clan->member_list = member;
+		else {
+			for (tmp_member = clan->member_list; tmp_member;
+				tmp_member = tmp_member->next) {
+				if (!tmp_member->next) {
+					tmp_member->next = member;
+					break;
+				}
 			}
 		}
-
-		for( clanmember_data *member = clan->member_list; member; member = member->next) {
-			fprintf( ouf, "        <member id=\"%ld\" rank=\"%d\" />\n", 
-					member->idnum, member->rank );
-		}
-
-		for( room_list_elem *rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
-			fprintf( ouf, "        <room number=\"%d\" />\n", 
-					rm_list->room->number );
-		}
-		fprintf( ouf, "    </clan>\n" );
 	}
-	fprintf( ouf, "</clanfile>\n");
-	fclose(ouf);
 
+	// Add rooms to the clans
+	res = sql_query("select clan, room from clan_rooms");
+	count = PQntuples(res);
+	for (idx = 0;idx < count;idx++) {
+		clan = real_clan(atol(PQgetvalue(res, idx, 0)));
+		room = real_room(atoi(PQgetvalue(res, idx, 1)));
+		if (room) {
+			CREATE(rm_list, struct room_list_elem, 1);
+			rm_list->room = room;
+			rm_list->next = clan->room_list;
+			clan->room_list = rm_list;
+		}
+	}
+
+	slog("Clan boot successful.");
 	return true;
 }
 
@@ -1642,6 +1396,7 @@ create_clan(int vnum)
 			}
 	}
 
+	sql_exec("insert into clans (idnum, name, badge, bank, flags) values (%d, 'New', '(//NEW\\\\)', 0, 0)", newclan->number);
 	return (newclan);
 }
 
@@ -1687,7 +1442,10 @@ delete_clan(struct clan_data *clan)
 		clan->room_list = rm_list->next;
 		free(rm_list);
 	}
+	sql_exec("delete from clans where idnum=%d", clan->number);
+
 	free(clan);
+
 	return 0;
 }
 
