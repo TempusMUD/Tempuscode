@@ -88,7 +88,7 @@ void perform_oset(struct char_data *ch, struct obj_data *obj_p,
 void do_show_objects(struct char_data *ch, char *value, char *arg);
 void do_show_mobiles(struct char_data *ch, char *value, char *arg);
 void show_searches(struct char_data *ch, char *value, char *arg);
-void show_mail_stats(char_data *ch);
+void do_zone_cmdlist(struct char_data *ch, struct zone_data *zone, char *arg);
 
 int find_distance(struct room_data *src, struct room_data *target);
 int parse_char_class(char *arg);
@@ -4052,7 +4052,7 @@ struct show_struct {
     { "mobkills",       LVL_GRGOD },      
     { "wizcommands",    LVL_IMMORT },
     { "timewarps",      LVL_IMMORT },        // 55
-    {"mail_stats", 		LVL_FORCE },
+    { "zonecommands", 	LVL_GOD},
     { "\n", 0 }
 };
 
@@ -4864,8 +4864,10 @@ ACMD(do_show)
     case 55: // timewarps
 	show_timewarps(ch);
 	break;
-    case 56: // mail_free_blocks
-	show_mail_stats(ch);
+    case 56: // zone commands
+    strcpy(buf,value);
+    strcat(buf,arg);
+    do_zone_cmdlist(ch,ch->in_room->zone,buf);
 	break;
 
     default:
