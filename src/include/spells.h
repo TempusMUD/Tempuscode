@@ -252,6 +252,7 @@ extern const char *spells[];
 #define SPELL_TAINT                     147  // Evil knight remort spell, taint.
 #define SPELL_LOCUST_REGENERATION       148  // Mage remort skill, drains mana
 #define SPELL_DIVINE_POWER              149  // Good cleric remort skill.
+#define SPELL_DEATH_KNELL               150  // Evil cleric remort skill.
 
   /************************** Psionic Triggers ***************/
 #define SPELL_POWER                201 /* Strength                */
@@ -768,6 +769,7 @@ ASPELL(spell_sun_ray);
 ASPELL(spell_emp_pulse);
 ASPELL(spell_quantum_rift);
 ASPELL(spell_decoy);
+ASPELL(spell_death_knell);
 
 /* basic magic calling functions */
 

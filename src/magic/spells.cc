@@ -2034,6 +2034,79 @@ ASPELL(spell_decoy)
     return;
 }
 
+ASPELL(spell_death_knell)
+{       
+    struct affected_type af, af2, af3;
+  
+    // Zero out structures
+    bzero(&af, sizeof(af));
+    bzero(&af, sizeof(af2));
+    bzero(&af, sizeof(af3));
+ 
+    if (GET_HIT(victim) > -1) {
+        act("$N is way too healthy for that!", TRUE, ch, NULL, victim, TO_CHAR); 
+        return;
+    }
+    
+    // Set affect types
+    af.type = SPELL_DEATH_KNELL;
+    af2.type = SPELL_DEATH_KNELL;
+    af3.type = SPELL_DEATH_KNELL;
+
+    // Set spell level
+    af.level = GET_LEVEL(ch);
+    af2.level = GET_LEVEL(ch);
+    af3.level = GET_LEVEL(ch);
+    
+    af.bitvector = 0;
+    af2.bitvector = 0;
+    af3.bitvector = 0;
+
+    af.aff_index = 0;
+    af2.aff_index = 0;
+    af3.aff_index = 0;
+
+    // Set the duration
+    af.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
+    af2.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
+    af3.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 4);
+ 
+    // Affect locations
+    af.location = APPLY_STR;
+    af2.location = APPLY_HIT;
+    af3.location = APPLY_DAMROLL;
+    
+    // Modifiers
+    af.modifier = 2;
+    af2.modifier = (GET_LEVEL(victim) + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 2));
+    af3.modifier = 5 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 15);
+    
+    // Affect the character
+    affect_to_char(ch, &af);   
+    affect_to_char(ch, &af2);   
+    affect_to_char(ch, &af3);   
+   
+    // Impose a wait state on the casting character
+    WAIT_STATE(ch, PULSE_VIOLENCE);
+    
+    // Set currhit
+    GET_HIT(ch) += af2.modifier;
+ 
+    // Messages
+    act("$N withers and crumbles to dust as you drain $s lifeforce!",
+        FALSE, ch, 0, victim, TO_CHAR);
+    act("$N withers and crumbles to dust as $n drains $s lifeforce!",
+        FALSE, ch, 0, victim, TO_ROOM);
+    
+    // Up the chars skill proficiency
+    gain_skill_prof(ch, SPELL_DEATH_KNELL);
+    
+    // Kill the affected mob, since we know he already has -1 hp or less
+    // 15 points of damage should do it.
+    damage(ch, victim, 15, SPELL_DEATH_KNELL, 0);
+    return;
+}
+
 ASPELL(spell_knock) 
 {
 

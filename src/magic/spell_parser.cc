@@ -203,7 +203,7 @@ const char *spells[] =
     "stoneskin",        /* 145 */
     "sun ray", 
     "taint", 
-    "locust regeneration", "divine power", "!UNUSED!",        /* 150 */
+    "locust regeneration", "divine power", "death knell",        /* 150 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 155 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 160 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",        /* 165 */
@@ -1110,10 +1110,11 @@ call_magic( struct char_data * caster, struct char_data * cvict,
         case SPELL_CONTROL_UNDEAD:  MANUAL_SPELL(spell_control_undead);  break;
         case SPELL_INFERNO:         MANUAL_SPELL(spell_inferno); break;
         case SPELL_BANISHMENT:      MANUAL_SPELL(spell_banishment); break;
-    case SPELL_AREA_STASIS:     MANUAL_SPELL(spell_area_stasis); break;     
-    case SPELL_SUN_RAY:         MANUAL_SPELL(spell_sun_ray); break;
-    case SPELL_EMP_PULSE:       MANUAL_SPELL(spell_emp_pulse);break;
-    case SPELL_QUANTUM_RIFT:    MANUAL_SPELL(spell_quantum_rift);break;
+        case SPELL_AREA_STASIS:     MANUAL_SPELL(spell_area_stasis); break;     
+        case SPELL_SUN_RAY:         MANUAL_SPELL(spell_sun_ray); break;
+        case SPELL_EMP_PULSE:       MANUAL_SPELL(spell_emp_pulse);break;
+        case SPELL_QUANTUM_RIFT:    MANUAL_SPELL(spell_quantum_rift);break;
+        case SPELL_DEATH_KNELL:     MANUAL_SPELL(spell_death_knell);break;
         }
   
     knock_door = NULL;
@@ -3330,6 +3331,11 @@ mag_assign_spells(void)
                   CLASS_CLERIC, 30, 5,
                   150, 80, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY,FALSE,
                   MAG_DIVINE | MAG_AFFECTS | MAG_GOOD);
+    
+    remort_spello(SPELL_DEATH_KNELL,
+                  CLASS_CLERIC, 25, 1,
+                  100, 30, 1, POS_FIGHTING, TAR_CHAR_ROOM, FALSE,
+                  MAG_DIVINE | MAG_DAMAGE | MAG_MANUAL | MAG_EVIL);
 
     remort_spello(SPELL_MANA_SHIELD, CLASS_MAGE, 29, 3,
                   60, 30, 2, POS_RESTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, 

@@ -2099,6 +2099,8 @@ Fireball: like harder bones, skin, organ membranecs
         // Should only need to set the bitvector with one of the affects
         af.bitvector = AFF3_DIVINE_POWER;
         af.aff_index = 3;
+        // Set the to_vict message on the first affect
+        to_vict = "Your veins course with the power of your Guiharia!";
 
         // The location of each affect
         af.location = APPLY_STR;
