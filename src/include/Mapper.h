@@ -1,5 +1,3 @@
-#include <list>
-#include <vector>
 using namespace std;
 // Tempus Includes
 #include "screen.h"
@@ -14,6 +12,10 @@ class MapToken {
         MapToken();
         MapToken(const MapToken &token);
         MapToken &operator=(const MapToken &token);
+        MapToken( int d, int r, int c, room_data *s, room_data *t )  {
+            MapToken();
+            set(d,r,c,s,t);
+        }
         void set( int d, int r, int c, room_data *s, room_data *t ); 
         room_data *getSource() {return source;}
         void setSource(room_data *s){source = s;}
@@ -36,11 +38,13 @@ class MapToken {
         long targetID;
         struct room_data *target;
         struct room_data *source;
+
+        MapToken *next;
 };
 class MapPixel {
     public:
         MapPixel() {
-            terrain = 0;
+            terrain = -1;
             exits = 0;
             mapped = false;
         }
@@ -54,14 +58,15 @@ class MapPixel {
 class Mapper {
     public:
         Mapper(char_data *ch,int rows, int columns);
+        ~Mapper();
         bool build();
         void display(char *buf,int bRows,int bCols);
 
     private:
         char_data *ch; // character doing the mapping
         int rows,columns; // size of the desired map
-        vector<MapPixel> mapDisplay;
-        list<MapToken> mapQueue;
+        MapPixel *mapDisplay;
+        MapToken *mapStack;
         void drawLink (room_data *s,room_data *t,int row,int col,bool justLink = false);
         bool drawRoom( room_data *s,room_data *t,long row, long col);
         int getOppDir(int dir) {
@@ -81,6 +86,20 @@ class Mapper {
         }
         inline bool validColumn(int col) {
             return (col < columns && col >= 0);
+        }
+        inline bool empty() {
+            return mapStack == NULL;
+        }
+        inline MapToken *pop() {
+            if(mapStack == NULL)
+                return NULL;
+            MapToken *t = mapStack;
+            mapStack = t->next;
+            return t;
+        }
+        inline void push(MapToken *t) {
+            t->next = mapStack;
+            mapStack = t;
         }
 };
 const int North = 0;
