@@ -7,6 +7,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <sys/resource.h>
+#include <signal.h>
 #include "utils.h"
 
 #define _DBG_MEM_BLKS	64000
@@ -30,5 +31,6 @@ void dbg_disable_tracking(void);
 void dbg_dump(void);
 void dbg_check_now(char *str, bool abort_now);
 dbg_mem_blk *dbg_get_block(void *ptr);
+size_t dbg_memory_used(void);
 
 #endif

@@ -5,6 +5,7 @@ const unsigned long _dbg_magic = 0xAABBCCDD;
 struct dbg_mem_blk *_dbg_mem_list = NULL;
 int _dbg_enabled = 0;
 int _dbg_serial_num = 0;
+int _dbg_total_mem = 0;
 
 typedef void *(*malloc_hook_t)(size_t, const void *);
 typedef void *(*realloc_hook_t)(void *, size_t, const void *);
@@ -49,11 +50,20 @@ dbg_disable_tracking(void)
 	__free_hook = old_free_hook;
 }
 
+size_t
+dbg_memory_used(void)
+{
+	return _dbg_total_mem;
+}
+
 void *
 _dbg_alloc(size_t size, const void *return_addr)
 {
 	dbg_mem_blk *new_blk;
 	
+	if (_dbg_total_mem + size > 300 * 1024 * 1024)
+		raise(SIGSEGV);
+
 	__malloc_hook = old_malloc_hook;
 	new_blk = (struct dbg_mem_blk *)malloc(size + 4 +
 			sizeof(struct dbg_mem_blk));
@@ -61,6 +71,8 @@ _dbg_alloc(size_t size, const void *return_addr)
 
 	if (!new_blk)
 		return NULL;
+
+	_dbg_total_mem += size;
 
 	new_blk->magic = _dbg_magic;
 	new_blk->serial_num = ++_dbg_serial_num;
@@ -111,6 +123,8 @@ _dbg_free(void *ptr, const void *return_addr)
 		_dbg_mem_list = cur_blk->next;
 	if (cur_blk->next)
 		cur_blk->next->prev = cur_blk->prev;
+
+	_dbg_total_mem -= cur_blk->size;
 
 	__free_hook = old_free_hook;
 	free(cur_blk);
