@@ -270,7 +270,7 @@ perform_tell(struct char_data *ch, struct char_data *vict, char *arg)
 	else {
 		sprintf(tell_buf, "%sYou tell $N,%s '%s'",
 			CCRED(ch, C_NRM), CCNRM(ch, C_NRM), arg);
-		act(buf2, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act(tell_buf, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	}
 
 	delete_doubledollar(arg);

@@ -770,7 +770,6 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 	struct special_search_data *srch = NULL;
 	int numm = 0, numo = 0, nump = 0, numr = 0, nums = 0, av_lev = 0,
 		numm_proto = 0, numo_proto = 0, av_lev_proto = 0;
-	char out_buf[MAX_STRING_LENGTH];
 
 	send_to_char(ch, "Zone name: %s%s%s   #%s%d%s\r\n",
 		CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM),
@@ -813,9 +812,9 @@ do_stat_zone(struct char_data *ch, struct zone_data *zone)
 		zone->hour_mod, zone->year_mod, zone->idle_time);
 
 	send_to_char(ch,
-		"%sSun: [%s (%d)] Sky: [%s (%d)] Moon: [%s (%d)]\r\n"
+		"Sun: [%s (%d)] Sky: [%s (%d)] Moon: [%s (%d)]\r\n"
 		"Pres: [%3d] Chng: [%3d]\r\n\r\n",
-		out_buf, sun_types[(int)zone->weather->sunlight],
+		sun_types[(int)zone->weather->sunlight],
 		zone->weather->sunlight, sky_types[(int)zone->weather->sky],
 		zone->weather->sky,
 		moon_sky_types[(int)zone->weather->moonlight],
