@@ -7,8 +7,14 @@ sources=`find . -iname "*.cc"`
 headers=`find . -iname "*.h"`
 specials=`find . -iname "*.spec"`
 for file in $sources $headers $specials; do 
-	echo "Processing: ${file}";
 	cp $file $file.old;
-    sed $* $file > $file.new; 
-    mv $file.new $file; 
+    sed "$*" $file > $file.new
+	if [[ -s $file.new && ! -s $file ]]; then
+		mv $file.new $file; 
+	else
+		echo SED error while processing $file!  Cancelling!
+		rm $file.new
+		cp $file.old $file
+		exit -1
+	fi
 done
