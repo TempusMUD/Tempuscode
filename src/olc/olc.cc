@@ -1088,6 +1088,7 @@ ACMD(do_olc)
 				}
 			} else {
 				i = atoi(arg2);
+				tmp_vnum = i;
 			}
 			if (tmp_vnum && do_create_room(ch, tmp_vnum)) {
 				sprintf(buf,"Room %d succesfully created.\r\n",tmp_vnum);
