@@ -1335,7 +1335,8 @@ char_to_game(descriptor_data *d)
 				slog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
 
-        if (d->creature->player_specials->rentcode == RENT_CRASH) {
+        // Do we need to load up his corpse?
+        if (d->creature->checkLoadCorpse()) {
             d->creature->loadCorpse();
         }
 

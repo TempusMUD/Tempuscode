@@ -329,6 +329,33 @@ Creature::loadObjects()
 	return payRent(player.time.logon, player_specials->rentcode, player_specials->rent_currency);
 }
 
+bool
+Creature::checkLoadCorpse()
+{
+    char *path = get_corpse_file_path(GET_IDNUM(this));
+    int axs = access(path, W_OK);
+    struct stat file_stat;
+    extern time_t boot_time;
+    
+    if (axs != 0) {
+        if (errno != ENOENT) {
+            slog("SYSERR: Unable to open xml corpse file '%s' : %s",
+                 path, strerror(errno));
+            return false;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    stat(path, &file_stat);
+
+    if (file_stat.st_ctime < boot_time)
+        return true;
+    
+    return false;
+}
+
 int
 Creature::loadCorpse()
 {
@@ -339,7 +366,7 @@ Creature::loadCorpse()
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
-			slog("SYSERR: Unable to open xml equipment file '%s': %s", 
+			slog("SYSERR: Unable to open xml corpse file '%s': %s", 
 				 path, strerror(errno) );
 			return -1;
 		} else {
