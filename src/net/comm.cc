@@ -550,33 +550,6 @@ game_loop(int mother_desc)
 			handle_input(d);
 		}
 
-		/* give each descriptor an appropriate prompt */
-		for (d = descriptor_list; d; d = d->next) {
-			if (d->creature &&
-				d->output[0] && (!PRF_FLAGGED(d->creature, PRF_COMPACT)))
-				SEND_TO_Q("\r\n", d);
-
-			if (d->need_prompt)
-				send_prompt(d);
-		}
-
-		/* send queued output out to the operating system (ultimately to user) */
-		for (d = descriptor_list; d; d = next_d) {
-			next_d = d->next;
-			if (FD_ISSET(d->descriptor, &output_set) && *(d->output)) {
-				if (process_output(d) < 0)
-					close_socket(d);
-			}
-		}
-
-		/* kick out folks in the CXN_DISCONNECT state */
-		for (d = descriptor_list; d; d = next_d) {
-			next_d = d->next;
-			if (d->input_mode == CXN_DISCONNECT)
-				close_socket(d);
-		}
-
-
 		/* handle heartbeat stuff */
 		/* Note: pulse now changes every 0.10 seconds  */
 
@@ -687,9 +660,39 @@ game_loop(int mother_desc)
 				}
 			}
 		}
+
+		// Process events
+		Event::ProcessScheduled();
+
+		/* give each descriptor an appropriate prompt */
+		for (d = descriptor_list; d; d = d->next) {
+			if (d->creature &&
+				d->output[0] && (!PRF_FLAGGED(d->creature, PRF_COMPACT)))
+				SEND_TO_Q("\r\n", d);
+
+			if (d->need_prompt)
+				send_prompt(d);
+		}
+
+		/* send queued output out to the operating system (ultimately to user) */
+		for (d = descriptor_list; d; d = next_d) {
+			next_d = d->next;
+			if (FD_ISSET(d->descriptor, &output_set) && *(d->output)) {
+				if (process_output(d) < 0)
+					close_socket(d);
+			}
+		}
+
+		/* kick out folks in the CXN_DISCONNECT state */
+		for (d = descriptor_list; d; d = next_d) {
+			next_d = d->next;
+			if (d->input_mode == CXN_DISCONNECT)
+				close_socket(d);
+		}
+
+
 		tics++;					/* tics since last checkpoint signal */
 		tmp_gc_strings();
-		Event::ProcessScheduled();
 	}							/* while (!circle_shutdown) */
 	/*  mem_cleanup(); */
 }
@@ -1836,7 +1839,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				CHECK_NULL(vict_obj, OBJS((struct obj_data *)vict_obj, to));
 				break;
 			case 'a':
-				CHECK_NULL(obj, SANA(obj));
+				i = GET_MOOD(ch) ? tmp_strcat(" ", GET_MOOD(ch)):"";
 				break;
 			case 'A':
 				CHECK_NULL(vict_obj, SANA((struct obj_data *)vict_obj));
