@@ -144,6 +144,7 @@ void save_all_players();
 int
 main(int argc, char **argv)
 {
+	void dbg_enable_tracking(bool dump_on_exit);
 	int port;
 	int pos = 1;
 	char *dir;
@@ -151,6 +152,7 @@ main(int argc, char **argv)
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
 	
+	dbg_enable_tracking(false);
 	tmp_string_init();
 
 	while ((pos < argc) && (*(argv[pos]) == '-')) {
@@ -1772,6 +1774,9 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 	static char lbuf[MAX_STRING_LENGTH];
 	char outbuf[MAX_STRING_LENGTH];
 
+	if (!to || !to->desc || PLR_FLAGGED((to), PLR_WRITING | PLR_OLC))
+		return;
+
 	if (!to->in_room) {
 		slog("SYSERR: to->in_room NULL in perform_act.");
 		return;
@@ -1861,9 +1866,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 	SEND_TO_Q(outbuf, to->desc);
 }
 
-
-#define SENDOK(ch) ((ch)->desc && (AWAKE(ch) || sleep) &&           \
-                    !PLR_FLAGGED((ch), PLR_WRITING | PLR_OLC))
+#define SENDOK(ch) (AWAKE(ch) || sleep)
 
 void
 act(const char *str, int hide_invisible, struct Creature *ch,
