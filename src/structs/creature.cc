@@ -164,7 +164,7 @@ Creature::isNewbie()
 		return false;
 	if ((char_specials.saved.remort_generation) > 0)
 		return false;
-	if (player.level > 40)
+	if (player.level > 24)
 		return false;
 	return true;
 }
