@@ -825,6 +825,7 @@ struct command_info cmd_info[] = {
 
 	{"jab", POS_FIGHTING, do_offensive_skill, 0, SKILL_JAB, 0, 0},
 	{"jet_stream", POS_DEAD, do_gen_tog, LVL_CREATOR, SCMD_JET_STREAM, 0, 0},
+	{"jig", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"joint", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"judge", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"jump", POS_STANDING, do_move, 0, SCMD_JUMP, 0, 0},
