@@ -45,10 +45,10 @@ inline char *tmp_strdup(const char *src)
 char *tmp_gsub(const char *haystack, const char *needle, const char *sub);
 
 // returns a copy of str with all characters converted to lowercase
-char *tmp_tolower(char *str);
+char *tmp_tolower(const char *str);
 
 // returns a copy of str with the first character capitalized
-char *tmp_capitalize(char *str);
+char *tmp_capitalize(const char *str);
 
 // Initializes the structures used for the temporary string mechanism
 void tmp_string_init(void);

@@ -35,6 +35,7 @@
 #include "fight.h"
 #include "materials.h"
 #include "tokenizer.h"
+#include "tmpstr.h"
 
 extern struct obj_data *object_list;
 

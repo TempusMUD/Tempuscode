@@ -378,7 +378,7 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
 }
 
 char *
-tmp_tolower(char *str)
+tmp_tolower(const char *str)
 {
 	char *result, *c;
 
@@ -389,7 +389,7 @@ tmp_tolower(char *str)
 }
 
 char *
-tmp_capitalize(char *str)
+tmp_capitalize(const char *str)
 {
 	char *result;
 

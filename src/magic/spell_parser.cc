@@ -32,6 +32,7 @@
 #include "fight.h"
 #include "shop.h"
 #include "screen.h"
+#include "tmpstr.h"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct room_direction_data *knock_door = NULL;

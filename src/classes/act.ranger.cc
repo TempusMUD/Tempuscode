@@ -24,6 +24,7 @@
 #include "house.h"
 #include "char_class.h"
 #include "fight.h"
+#include "tmpstr.h"
 
 ACMD(do_bandage)
 {
