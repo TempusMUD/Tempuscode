@@ -2194,7 +2194,7 @@ perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
 	// give detailed item damage info
 	acc_sprintf("Structural Integrity: %s%-15s%s%s\r\n",
 		CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM),
-			(ALEV(5) || !checklev) ?
+			((ALEV(5) || !checklev) && GET_OBJ_MAX_DAM(obj) > 0) ?
 				tmp_sprintf("  [%3d%%]", GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) :"");
 	acc_sprintf("Commerce Value:       %s%d coins%s\r\n",
 		CCCYN(ch, C_NRM), GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
