@@ -12,8 +12,9 @@ SPECIAL(repairer)
 
 	struct Creature *repairer = (struct Creature *)me;
 	struct obj_data *obj = NULL, *proto_obj = NULL;
-	int cost;
-	int currency;
+	int cost, obj_damage;
+	bool currency;
+
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
 		tellbuf[MAX_STRING_LENGTH];
 
@@ -69,16 +70,10 @@ SPECIAL(repairer)
 		perform_tell(repairer, ch, "Sorry, I only repair metals.");
 		return 1;
 	}
-	//old costs....
-	//cost = GET_OBJ_COST(obj) >> 3;
-	//new costs based on percent of damage on item
-	float percent_dam = 1 - ((float)GET_OBJ_DAM(obj) / GET_OBJ_MAX_DAM(obj));
-	cost = (int)(percent_dam * GET_OBJ_COST(obj));
-	cost = cost >> 3;
-	if (ch->in_room->zone->time_frame == TIME_ELECTRO)
-		currency = 1;
-	else
-		currency = 0;
+
+	obj_damage = GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj);
+	cost = (obj_damage * GET_OBJ_COST(obj) / GET_OBJ_MAX_DAM(obj)) / 8;
+	currency = (ch->in_room->zone->time_frame == TIME_ELECTRO);
 
 	if (CMD_IS("value")) {
 		sprintf(tellbuf, "It will cost you %d %s to repair %s.", cost,
@@ -108,8 +103,11 @@ SPECIAL(repairer)
 		GET_OBJ_MAX_DAM(obj) -= ((GET_OBJ_MAX_DAM(obj) * 15) / 100) + 1;
 		REMOVE_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
 	}
+
+	// Object gets repaired fully, but repairs subtract 2% of the
+	// damage off of the max damage
+	GET_OBJ_MAX_DAM(obj) -= MAX(1, obj_damage / 50);
 	GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj);
 
 	return 1;
-
 }
