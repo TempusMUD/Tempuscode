@@ -2114,7 +2114,7 @@ ACMD(do_cast)
 
 	prob -= (NUM_WEARS - num_eq);
 
-	if (tch->getPosition() == POS_FIGHTING)
+	if (tch && tch->getPosition() == POS_FIGHTING)
 		prob += (GET_LEVEL(tch) >> 3);
 
 	/**** casting probability ends here *****/
