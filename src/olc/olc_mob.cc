@@ -102,6 +102,7 @@ const char *olc_mset_keys[] = {
 	"leader",
 	"iscript",
 	"specparam",
+    "generation",
 	"\n"
 };
 
@@ -177,7 +178,7 @@ do_create_mob(struct Creature *ch, int vnum)
 	AFF2_FLAGS(new_mob) = 0;
 	AFF3_FLAGS(new_mob) = 0;
 	GET_ALIGNMENT(new_mob) = 0;
-
+    GET_REMORT_GEN(new_mob) = 0;
 
 	new_mob->real_abils.str = 11;
 	new_mob->real_abils.intel = 11;
@@ -205,7 +206,7 @@ do_create_mob(struct Creature *ch, int vnum)
 
 	new_mob->player.char_class = CLASS_NORMAL;
 	new_mob->player.race = RACE_MOBILE;
-
+    
 	GET_GOLD(new_mob) = 0;
 	GET_EXP(new_mob) = 100;
 	GET_MORALE(new_mob) = 100;
@@ -1234,6 +1235,17 @@ do_mob_mset(struct Creature *ch, char *argument)
 		act("$n begins to write a mobile spec param.", TRUE, ch, 0, 0,
 			TO_ROOM);
 		break;
+    case 49:{ // generation
+			i = atoi(arg2);
+			if (i < 0 || i > 10 ) {
+				send_to_char(ch, "Generation must be between 1 and 10.\r\n");
+			} else {
+                GET_REMORT_GEN(mob_p) = i;
+				send_to_char(ch, "Mobile generation set.\r\n");
+			}
+			break;
+
+		}
 	default:{
 			break;
 		}
@@ -1487,6 +1499,9 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 				str = tmp_gsub(str, "~", "!");
 				fprintf(file, "SpecParam:\n%s~\n", str);
 			}
+            if( GET_REMORT_GEN(mob) > 0 && GET_REMORT_GEN(mob) <= 10 ) {
+                fprintf(file, "Generation: %d\n", GET_REMORT_GEN(mob) );
+            }
 			fprintf(file, "E\n");
 		}
 
@@ -1768,6 +1783,7 @@ do_clear_olc_mob(struct Creature *ch)
 	AFF2_FLAGS(targ) = 0;
 	AFF3_FLAGS(targ) = 0;
 	GET_ALIGNMENT(targ) = 0;
+    GET_REMORT_GEN(targ) = 0;
 
 	targ->real_abils.str = 11;
 	targ->real_abils.intel = 11;
@@ -1880,6 +1896,7 @@ olc_mimic_mob(struct Creature *ch,
 	AFF2_FLAGS(targ) = AFF2_FLAGS(orig);
 	AFF3_FLAGS(targ) = AFF3_FLAGS(orig);
 	GET_ALIGNMENT(targ) = GET_ALIGNMENT(orig);
+    GET_REMORT_GEN(targ) = GET_REMORT_GEN(orig);
 
 
 	GET_LEVEL(targ) = GET_LEVEL(orig);

@@ -161,7 +161,7 @@ Creature::isNewbie()
 {
 	if (char_specials.saved.act & MOB_ISNPC)
 		return false;
-	if ((player_specials->saved.remort_generation) > 0)
+	if ((char_specials.saved.remort_generation) > 0)
 		return false;
 	if (player.level > 40)
 		return false;
@@ -341,7 +341,7 @@ Creature::getLevelBonus(bool primary)
 			gen = MAX(0, gen - 18);
 		}
 	} else {
-		gen = player_specials->saved.remort_generation;	// Player generation
+		gen = char_specials.saved.remort_generation;	// Player generation
 	}
 
 	if (gen == 0) {
@@ -385,7 +385,7 @@ Creature::getLevelBonus(int skill)
 			gen = MAX(0, gen - 18);
 		}
 	} else {
-		gen = player_specials->saved.remort_generation;	// Player generation
+		gen = char_specials.saved.remort_generation;	// Player generation
 	}
 	short pLevel = spell_info[skill].min_level[pclass];	// Level primary class gets "skill"
 	short sLevel;				// Level secondary class gets "skill"

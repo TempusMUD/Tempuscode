@@ -735,7 +735,7 @@ struct char_special_data_saved {
 	long affected_by;			/* Bitvector for spells/skills affected by */
 	long affected2_by;
 	long affected3_by;
-
+    ubyte remort_generation;
 	sh_int apply_saving_throw[10];	/* Saving throw (Bonuses)        */
 };
 
@@ -813,7 +813,6 @@ struct player_special_data_saved {
 	ubyte hold_home;
 	ubyte spare22;
 	ubyte broken_component;
-	ubyte remort_generation;
 	ubyte quest_points;
 	ubyte qlog_level;			// what level of awareness we have to qlog
 	ubyte speed;				// percentage of speedup

@@ -1546,10 +1546,8 @@ do_stat_character(struct Creature *ch, struct Creature *k)
     sprintf(buf2, "/%s", IS_REMORT(k) ?
         pc_char_class_types[(int)GET_REMORT_CLASS(k)] : "None");
     strcat(buf, buf2);
-    if (!IS_NPC(k)) {
-        sprintf(buf2, " Gen: %d,", GET_REMORT_GEN(k));
-        strcat(buf, buf2);
-    }
+    sprintf(buf2, " Gen: %d,", GET_REMORT_GEN(k));
+    strcat(buf, buf2);
     if (IS_VAMPIRE(k) || IS_CYBORG(k)) {
         sprintf(buf2, " Subclass: %s", IS_CYBORG(k) ?
             borg_subchar_class_names[GET_OLD_CLASS(k)] : IS_VAMPIRE(k) ?
@@ -5337,7 +5335,7 @@ ACMD(do_set)
         {"questor", LVL_ELEMENT, PC, BINARY, "Coder"},
         {"age_adjust", LVL_IMMORT, PC, NUMBER, "Coder"},    /* 80 */
         {"cash", LVL_IMMORT, BOTH, NUMBER, "AdminFull"},
-        {"generation", LVL_IMMORT, PC, NUMBER, "WizardFull"},
+        {"generation", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"path", LVL_LUCIFER, NPC, MISC, "Coder"},
         {"lightread", LVL_IMMORT, PC, BINARY, "Coder"},
         {"remort_tough", LVL_IMMORT, PC, BINARY, "AdminFull"},    /* 85 */

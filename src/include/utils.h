@@ -563,7 +563,7 @@ char *CURRENCY(Creature * ch);
 #define GET_CLAN(ch)                ((ch)->player_specials->saved.clan)
 #define GET_HOLD_HOME(ch)        ((ch)->player_specials->saved.hold_home)
 #define GET_HOLD_LOADROOM(ch)        ((ch)->player_specials->saved.hold_load_room)
-#define GET_REMORT_GEN(ch)     ((ch)->player_specials->saved.remort_generation)
+#define GET_REMORT_GEN(ch)     ((ch)->char_specials.saved.remort_generation)
 //#define IS_REMORT(ch)   ((ch) && (GET_REMORT_GEN(ch) > 0))
 static inline bool IS_REMORT( const Creature *ch ) 
 {

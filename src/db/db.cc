@@ -1778,6 +1778,8 @@ interpret_espec(char *keyword, char *value, struct Creature *mobile, int nr)
 	CASE("RemortClass") {
 		RANGE(0, 1000);
 		mobile->player.remort_char_class = num_arg;
+        if( GET_REMORT_GEN(mobile) == 0 )
+            GET_REMORT_GEN(mobile) = 1;
 	}
 	CASE("Class") {
 		RANGE(0, 1000);
@@ -1815,6 +1817,10 @@ interpret_espec(char *keyword, char *value, struct Creature *mobile, int nr)
 		RANGE(-99999, 99999);
 		mobile->mob_specials.shared->svnum = num_arg;
 	}
+    CASE("Generation") {
+        RANGE(0,10);
+        GET_REMORT_GEN(mobile) = num_arg;
+    }
 	if (!matched) {
 		fprintf(stderr, "Warning: unrecognized espec keyword %s in mob #%d\n",
 			keyword, nr);
