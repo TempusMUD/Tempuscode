@@ -339,11 +339,11 @@ bool ObjectWornMatcher::init( Creature *ch, Tokenizer &tokens ) {
 		if( arg[0] == '&' )
 			break;
 		if (!is_number(arg)) {
-			worn = search_block(arg, wear_eqpos, 0);
+			worn = search_block(arg, wear_bits, 0);
 		} else {
 			worn = atoi(arg);
 		}
-		if ( worn < 0 || worn > NUM_WEARS ) {
+		if ( worn < 0 || worn >= NUM_WEAR_FLAGS ) {
 			send_to_char(ch, "That's not a valid wear position: %s\r\n", arg);
 			return false;
 		}
@@ -353,7 +353,7 @@ bool ObjectWornMatcher::init( Creature *ch, Tokenizer &tokens ) {
 }
 
 bool ObjectWornMatcher::isMatch( obj_data *obj ) {
-    return ( isReady() && CAN_WEAR(obj, wear_bitvectors[worn]) );
+    return ( isReady() && CAN_WEAR(obj, 1 << worn) );
 }
 
 
