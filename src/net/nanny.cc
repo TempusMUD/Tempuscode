@@ -412,7 +412,7 @@ handle_input(struct descriptor_data *d)
 		}
 		break;
 	case CXN_CLASS_PROMPT:
-		if (is_abbrev(arg, "help")) {
+		if (is_abbrev("help", arg)) {
 			show_pc_class_help(d, arg);
 			return;
 		}
@@ -426,7 +426,7 @@ handle_input(struct descriptor_data *d)
 		set_desc_state(CXN_RACE_PROMPT, d);
 		break;
 	case CXN_RACE_PROMPT:
-		if (is_abbrev(arg, "help")) {
+		if (is_abbrev("help", arg)) {
 			show_pc_race_help(d, arg);
 			return;
 		}
