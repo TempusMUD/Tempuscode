@@ -1686,7 +1686,7 @@ mobile_experience(struct Creature *mob)
 		exp += (exp * GET_LEVEL(mob)) / 150;
 	if (GET_CLASS(mob) == CLASS_ARCH || IS_DRAGON(mob))
 		exp = (int)(exp * 1.7);
-	else if (IS_DEVIL(mob) || IS_SLAAD(mob) || IS_CELESTIAL(mob))
+	else if (IS_DEVIL(mob) || IS_DEMON(mob) || IS_SLAAD(mob) || IS_CELESTIAL(mob))
 		exp = (int)(exp * 1.4);
 	else if (NON_CORPOREAL_UNDEAD(mob))
 		exp = (int)(exp * 1.3);
