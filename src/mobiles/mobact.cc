@@ -544,7 +544,14 @@ void burn_update(void) {
         /* Hunter Mobs */
         if (HUNTING(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
             ch->getPosition() > POS_SITTING && !GET_MOB_WAIT(ch)) {
-            hunt_victim(ch);
+            if (MOB_FLAGGED(ch, MOB_WIMPY) && (GET_HIT(ch) < MIN(500, GET_MAX_HIT(ch)) * 0.80) ||
+                (100 - ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch))) > 
+                GET_MORALE(ch) + number(-5, 10 + (GET_INT(ch) >> 2))) {
+                if(ch->in_room == HUNTING(ch)->in_room)
+                    do_flee(ch, "", 0, 0);
+            }
+            else
+                hunt_victim(ch);
             continue;
         }
     }
