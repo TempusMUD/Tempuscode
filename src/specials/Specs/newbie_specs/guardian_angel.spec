@@ -7,7 +7,7 @@ struct angel_data {
 	angel_data *next_angel;
 	Creature *angel;
 	long charge_id;	// the player ID of the angel's charge
-	char *charge_name;	// the name of the angel's charge
+	char *charge_name;
 	int counter;	// a counter before angel does action
 	char *action;	// action for angel to do
 	unsigned long flags;
@@ -21,47 +21,45 @@ struct angel_chat_data {
 };
 
 angel_chat_data angel_chat[] = {
-	{ CLASS_UNDEFINED, 100, "hi", "respond Hi there!  How are you doing today?" },
-	{ CLASS_UNDEFINED, 100, "hello", "respond Hi!  What's happening?" },
-	{ CLASS_UNDEFINED, 100, "good morning", "respond Good morning to you, too!" },
-	{ CLASS_UNDEFINED, 100, "good evening", "respond Good evening to you, too!" },
-	{ CLASS_UNDEFINED, 100, "goodbye", "dismiss" },
-	{ CLASS_UNDEFINED, 100, "go away", "dismiss" },
-	{ CLASS_UNDEFINED, 100, "leave me", "dismiss" },
-	{ CLASS_UNDEFINED, 100, "piss off", "dismiss" },
-	{ CLASS_UNDEFINED, 100, "how you", "respond I'm doing ok, thanks for asking!" },
-	{ CLASS_UNDEFINED, 100, "who you", "respond I'm your guardian angel.  I'm here to help you out!" },
-	{ CLASS_UNDEFINED, 100, "where buy", "respond You buy things at shops in cities." },
-	{ CLASS_UNDEFINED, 100, "where go fight", "respond You should try the cock fighting arena, the training grounds, or the holodeck" },
-	{ CLASS_UNDEFINED, 100, "where cock", "directions 3283" },
-	{ CLASS_UNDEFINED, 100, "where training", "directions 3283" },
-	{ CLASS_UNDEFINED, 100, "where hs", "directions 3013" },
-	{ CLASS_UNDEFINED, 100, "where holodeck", "directions 2322 then enter rift and go south" },
-	{ CLASS_UNDEFINED, 100, "where food", "respond You can find food at the bakery" },
-	{ CLASS_UNDEFINED, 100, "where things eat", "respond You can find food at the bakery" },
-	{ CLASS_UNDEFINED,  50, "where drink", "respond You can get some water at the aquafitter's" },
-	{ CLASS_UNDEFINED, 100, "where drink", "respond You could drink out of the fountain in a city square." },
-	{ CLASS_UNDEFINED, 100, "why hungry", "respond You need to get some food to eat." },
-	{ CLASS_UNDEFINED, 100, "why thirsty", "respond You need to get something to drink.  There are fountains to drink from or you can buy drinks at shops." },
-	{ CLASS_UNDEFINED, 100, "why naked", "respond You should find things to wear!" },
-	{ CLASS_UNDEFINED, 100, "where things wear", "respond You can buy equipment or loot it from corpses" },
-	{ CLASS_UNDEFINED, 100, "who someone", "respond Invisible people are referred to as 'someone.'  You can't tell who they are." },
-	{ CLASS_UNDEFINED, 100, "what hitpoints", "respond Hitpoints are a measure of how much punishment you can take before you die.  When your hitpoints hit zero, you go unconscious and are easily slain." },
+	{ CLASS_NONE, 100, "hi", "respond Hi there!  How are you doing today?" },
+	{ CLASS_NONE, 100, "hello", "respond Hi!  What's happening?" },
+	{ CLASS_NONE, 100, "good morning", "respond Good morning to you, too!" },
+	{ CLASS_NONE, 100, "good evening", "respond Good evening to you, too!" },
+	{ CLASS_NONE, 100, "goodbye", "dismiss" },
+	{ CLASS_NONE, 100, "go away", "dismiss" },
+	{ CLASS_NONE, 100, "leave me", "dismiss" },
+	{ CLASS_NONE, 100, "piss off", "dismiss" },
+	{ CLASS_NONE, 100, "how you", "respond I'm doing ok, thanks for asking!" },
+	{ CLASS_NONE, 100, "who you", "respond I'm your guardian angel.  I'm here to help you out!" },
+	{ CLASS_NONE, 100, "where buy", "respond You buy things at shops in cities." },
+	{ CLASS_NONE, 100, "where go fight", "respond You should try the cock fighting arena, the training grounds, or the holodeck" },
+	{ CLASS_NONE, 100, "where cock", "directions 3283" },
+	{ CLASS_NONE, 100, "where training", "directions 3283" },
+	{ CLASS_NONE, 100, "where hs", "directions 3013" },
+	{ CLASS_NONE, 100, "where holodeck", "directions 2322 then enter rift and go south" },
+	{ CLASS_NONE, 100, "where food", "respond You can find food at the bakery" },
+	{ CLASS_NONE, 100, "where things eat", "respond You can find food at the bakery" },
+	{ CLASS_NONE,  50, "where drink", "respond You can get some water at the aquafitter's" },
+	{ CLASS_NONE, 100, "where drink", "respond You could drink out of the fountain in a city square." },
+	{ CLASS_NONE, 100, "why hungry", "respond You need to get some food to eat." },
+	{ CLASS_NONE, 100, "why thirsty", "respond You need to get something to drink.  There are fountains to drink from or you can buy drinks at shops." },
+	{ CLASS_NONE, 100, "why naked", "respond You should find things to wear!" },
+	{ CLASS_NONE, 100, "where things wear", "respond You can buy equipment or loot it from corpses" },
+	{ CLASS_NONE, 100, "who someone", "respond Invisible people are referred to as 'someone.'  You can't tell who they are." },
+	{ CLASS_NONE, 100, "what hitpoints", "respond Hitpoints are a measure of how much punishment you can take before you die.  When your hitpoints hit zero, you go unconscious and are easily slain." },
 
 	{ CLASS_MAGE, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess.  You use it for casting spells." },
 	{ CLASS_CLERIC, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess.  You use it for casting spells." },
 	{ CLASS_PHYSIC, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess.  You use it for altering the laws of reality." },
 	{ CLASS_PSIONIC, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess.  You use it for psionic triggers." },
-	{ CLASS_UNDEFINED, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess." },
+	{ CLASS_NONE, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess." },
 
-	{ CLASS_UNDEFINED, 100, "what move", "respond Movepoints are a measure of the amount of physical energy you have.  Moving around and fighting use movepoints." },
-	{ CLASS_UNDEFINED, 100, "lost", "respond You can type 'return' to return to your starting position." },
-	{ CLASS_UNDEFINED, 100, "how stop wielding", "respond Type 'remove <item>' to stop wielding it." },
-	{ CLASS_UNDEFINED, 100, "how stop wearing", "respond Type 'remove <item>' to stop wearing it." },
-	{ CLASS_UNDEFINED, 100, "how take off", "respond Type 'remove <item>' to take it off." },
-	{ CLASS_UNDEFINED,  25, "", "respond Not sure at all..." },
-	{ CLASS_UNDEFINED,  50, "", "respond Eh? What?" },
-	{ CLASS_UNDEFINED, 100, "", "respond I have no clue!" }
+	{ CLASS_NONE, 100, "what move", "respond Movepoints are a measure of the amount of physical energy you have.  Moving around and fighting use movepoints." },
+	{ CLASS_NONE, 100, "lost", "respond You can type 'return' to return to your starting position." },
+	{ CLASS_NONE, 100, "how stop wielding", "respond Type 'remove <item>' to stop wielding it." },
+	{ CLASS_NONE, 100, "how stop wearing", "respond Type 'remove <item>' to stop wearing it." },
+	{ CLASS_NONE, 100, "how take off", "respond Type 'remove <item>' to take it off." },
+	{ CLASS_NONE, 100, "", "" }
 };
 
 // returns true if all words in keywords can be found, in order, in ref
@@ -166,7 +164,9 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 	}
 
 	// Check to see if they need to rest
-	if (!IS_SET(data->flags, ANGEL_LOWPOINTS)) {
+	if (!IS_SET(data->flags, ANGEL_LOWPOINTS)
+			&& charge->getPosition() > POS_FIGHTING) {
+
 		if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4) {
 			do_say(self, "You're running low on hit points.  Maybe you should rest or sleep to regain them faster.", 0, SCMD_SAY, 0);
 			SET_BIT(data->flags, ANGEL_LOWPOINTS);
@@ -199,7 +199,6 @@ SPECIAL(guardian_angel)
 		data->next_angel = NULL;
 		data->angel = self;
 		data->charge_id = 0;
-		data->charge_name = "NONE";
 		data->counter = -1;
 		data->action = "none";
 	}
@@ -231,7 +230,7 @@ SPECIAL(guardian_angel)
 		if (CMD_IS("status")) {
 			send_to_char(ch, "Angel status\r\n------------\r\n");
 			send_to_char(ch, "Charge: %s [%ld]\r\n",
-				data->charge_name, data->charge_id);
+				playerIndex.getName(data->charge_id), data->charge_id);
 			send_to_char(ch, "Counter: %d\r\nAction: %s\r\n",
 				data->counter, data->action);
 			return 1;
@@ -273,7 +272,7 @@ SPECIAL(guardian_angel)
 	
 	// Ok, they said something to us - lets pattern match
 	for (cur_chat = angel_chat; *cur_chat->keywords; cur_chat++) {
-		if (cur_chat->char_class != CLASS_UNDEFINED
+		if (cur_chat->char_class != CLASS_NONE
 				&& cur_chat->char_class != GET_CLASS(charge))
 			continue;
 		if (cur_chat->chance < 100 && number(0, 99) < cur_chat->chance)
@@ -284,6 +283,9 @@ SPECIAL(guardian_angel)
 			return 0;
 		}
 	}
+
+	// Nothing matched - log the question and produce a lame response
+	
 
 	return 0;
 }
