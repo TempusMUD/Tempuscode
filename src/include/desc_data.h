@@ -40,6 +40,7 @@ enum {
 	CON_QCOLOR,					// Start with color?
 	CON_QTIME_FRAME,			// Query for overall time frame
 	CON_AFTERLIFE,				// After dies, before menu
+	CON_REMORT_AFTERLIFE,		// After dies, before remort class
 	CON_QREROLL,				// Reroll statistics
 	CON_RACEHELP_P,
 	CON_CLASSHELP_P,
