@@ -443,7 +443,7 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
     case SKILL_SWEEPKICK:
     case SKILL_TRIP:
     
-	if (IS_PUDDING(vict) || IS_SLIME(vict) || bad_sect || 
+	if (IS_PUDDING(vict) || IS_SLIME(vict) || bad_sect || IS_GHOST(vict) ||
 	    MOB_FLAGGED(vict, MOB_NOBASH))
 	    prob = 0;
     
@@ -655,7 +655,7 @@ calc_skill_prob(struct char_data *ch, struct char_data *vict, int skillnum,
 	break;
 
     case SKILL_HIP_TOSS:
-	if (IS_PUDDING(vict) || IS_SLIME(vict) || bad_sect || 
+	if (IS_PUDDING(vict) || IS_SLIME(vict) || bad_sect || IS_GHOST(vict) ||
 	    MOB_FLAGGED(vict, MOB_NOBASH))
 	    prob = 0;
 
