@@ -1945,20 +1945,22 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             ((GET_LANGUAGE(k) > LANGUAGE_COMMON) ?
              tmp_capitalize(language_names[(int)GET_LANGUAGE(k)]) :
              "Common"), CCNRM(ch, C_NRM));
-    acc_sprintf("Known languages: %s%-17s", CCCYN(ch, C_NRM), "Common");
-    int num_languages = 2;
-    for (int x = 0; x < NUM_LANGUAGES; x++) {
-        if (can_speak_language(k, x)) {
-            num_languages++;
-            acc_sprintf("%-17s", tmp_capitalize(language_names[x]));
-            if (num_languages % 4 == 0)
-                acc_strcat("\r\n", NULL);
-        }
-    }
-	if (num_languages % 4 != 0)
-		acc_strcat("\r\n", CCNRM(ch, C_NRM), NULL);
-	else
-		acc_strcat(CCNRM(ch, C_NRM), NULL);
+	if (GET_LEVEL(k) < LVL_AMBASSADOR) {
+		acc_sprintf("Known languages: %s%-17s", CCCYN(ch, C_NRM), "Common");
+		int num_languages = 2;
+		for (int x = 0; x < NUM_LANGUAGES; x++) {
+			if (can_speak_language(k, x)) {
+				num_languages++;
+				acc_sprintf("%-17s", tmp_capitalize(language_names[x]));
+				if (num_languages % 4 == 0)
+					acc_strcat("\r\n", NULL);
+			}
+		}
+		if (num_languages % 4 != 0)
+			acc_strcat("\r\n", CCNRM(ch, C_NRM), NULL);
+		else
+			acc_strcat(CCNRM(ch, C_NRM), NULL);
+	}
 
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
