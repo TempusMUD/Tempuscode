@@ -320,6 +320,8 @@ handle_input(struct descriptor_data *d)
 			d->creature = get_char_in_world_by_idnum(char_id);
 
 			if (d->creature) {
+				REMOVE_BIT(PLR_FLAGS(d->creature), PLR_WRITING | PLR_OLC |
+					PLR_MAILING | PLR_AFK);
 				if (d->creature->desc) {
 					send_to_desc(d->creature->desc, "You have logged on from another location!\r\n");
 					set_desc_state(CXN_DISCONNECT, d->creature->desc);
