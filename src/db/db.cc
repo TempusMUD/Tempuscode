@@ -2628,13 +2628,7 @@ zone_update(void)
 
 				temp->next = update_u->next;
 			}
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			free(update_u);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			break;
 		}
 }
@@ -3143,14 +3137,8 @@ read_alias(struct Creature *ch)
 		if ((t != NULL) && (isdigit(t[0])) && (a_ != NULL) && (r != NULL)) {
 			CREATE(a, struct alias_data, 1);
 			a->type = atoi(t);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			a->alias = strdup(a_);
 			a->replacement = strdup(r);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			add_alias(ch, a);
 		}
 	}
