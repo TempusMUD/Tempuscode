@@ -1466,6 +1466,9 @@ translate_string(char *phrase, char language_idx)
 	char *arg = NULL, *outbuf = NULL;
 	bool was_cap;
 
+    if (!strcmp(phrase, ""))
+        return phrase;
+
 	if (language_idx == LANGUAGE_COMMON)
 		return tmp_strdup(phrase);
 
