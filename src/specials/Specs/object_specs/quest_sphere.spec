@@ -105,13 +105,13 @@ SPECIAL(quest_sphere)
 		// The only place spheres can exist indefinitely is in the hands
 		// of an immortal or a vendor
 		if (self->worn_by && quest_sphere_carrier_bad(self->worn_by))
-			GET_OBJ_TIMER(self)--;
+			GET_OBJ_VAL(self, 0)--;
 		else if (self->carried_by && quest_sphere_carrier_bad(self->carried_by))
-			GET_OBJ_TIMER(self)--;
+			GET_OBJ_VAL(self, 0)--;
 		else if (self->in_obj || self->in_room)
-			GET_OBJ_TIMER(self)--;
+			GET_OBJ_VAL(self, 0)--;
 
-		if (!GET_OBJ_TIMER(self)) {
+		if (!GET_OBJ_VAL(self, 0)) {
 			if (self->worn_by) {
 				act("$p dissolves into fine sand, which slips through your fingers...",
 					true, self->worn_by, self, 0, TO_CHAR);
@@ -170,7 +170,7 @@ SPECIAL(quest_sphere)
 			lp = (*line) ? atoi(line):2;
 		else if (!strcmp(key, "enchant")) {
 			enchant_lvl = (*line) ? atoi(line):51;
-			need_targ = true;
+		need_targ = true;
 		} else {
 			mudlog(LVL_IMMORT, CMP, false,
 				"Invalid directive in obj vnum #%d", GET_OBJ_VNUM(self));
