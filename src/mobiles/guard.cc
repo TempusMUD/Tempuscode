@@ -114,7 +114,7 @@ SPECIAL(guard)
 	// If we're a fallible guard, check to see if they can get past us
 	if (fallible && check_sneak(ch, self, true, true) == SNEAK_OK)
 		return false;
-
+	
 	// Guards must be at least standing to be able to block people
 	if (self->getPosition() <= POS_SITTING)
 		return false;
@@ -126,7 +126,11 @@ SPECIAL(guard)
 	// Set to deny if undecided
 	act(to_vict, FALSE, self, 0, ch, TO_VICT);
 	act(to_room, FALSE, self, 0, ch, TO_NOTVICT);
-	if (!err && attack && IS_PC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
+	if (!err
+			&& attack
+			&& !self->isFighting()
+			&& IS_PC(ch)
+			&& !PRF_FLAGGED(ch, PRF_NOHASSLE))
 		set_fighting(ch, self, true);
 
 	WAIT_STATE(ch, 1 RL_SEC);
