@@ -306,8 +306,10 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
             else
                 send_to_char( "Okay.\r\n", ch );
             
-            if ( srch->to_remote )
+            if ( srch->to_remote ) {
                 act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM );
+                act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_CHAR );
+            }
             
             int rc = 1;
             room_data *src_room = ch->in_room;
