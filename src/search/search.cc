@@ -61,6 +61,7 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
     struct room_data *targ_room = NULL;
     int add = 0, killed = 0, found = 0;
     int bits = 0, i, j;
+    int retval = 0;
 
     if ( !mode ) {
 	obj = NULL;
@@ -372,32 +373,33 @@ general_search( struct char_data *ch, struct special_search_data *srch,int mode 
 	if ( targ_room ) {
 
 	    if ( srch->to_remote && ch->in_room != targ_room && targ_room->people ) {
-		act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM );
-		act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_CHAR );
-		//act( srch->to_remote, FALSE, targ_room->people, obj, ch, TO_NOTVICT );
+            act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM );
+            act( srch->to_remote, FALSE, targ_room->people, obj, mob, TO_CHAR );
 	    }
 
 	    for ( mob = targ_room->people; mob; mob = next_mob ) {
-		next_mob = mob->next_in_room;
+            next_mob = mob->next_in_room;
 
-		if ( affected_by_spell( ch, srch->arg[2] ) )
-		    continue;
+            if ( affected_by_spell( ch, srch->arg[2] ) )
+                continue;
 
-		if ( mob == ch ) {
-		    if ( !call_magic( ch, ch, 0, srch->arg[2], srch->arg[0], 
-				      ( SPELL_IS_MAGIC( srch->arg[2] ) ||
-					SPELL_IS_DIVINE( srch->arg[2] ) ) ? CAST_SPELL :
-				      ( SPELL_IS_PHYSICS( srch->arg[2] ) ) ? CAST_PHYSIC :
-				      ( SPELL_IS_PSIONIC( srch->arg[2] ) ) ? CAST_PSIONIC :
-				      CAST_ROD ) )
-			break;
-		} else
-		    call_magic( ch, mob, 0, srch->arg[2], srch->arg[0], 
-				( SPELL_IS_MAGIC( srch->arg[2] ) ||
-				  SPELL_IS_DIVINE( srch->arg[2] ) ) ? CAST_SPELL :
-				( SPELL_IS_PHYSICS( srch->arg[2] ) ) ? CAST_PHYSIC :
-				( SPELL_IS_PSIONIC( srch->arg[2] ) ) ? CAST_PSIONIC :
-				CAST_ROD );
+            if ( mob == ch ) {
+                call_magic( ch, ch, 0, srch->arg[2], srch->arg[0], 
+                          ( SPELL_IS_MAGIC( srch->arg[2] ) ||
+                        SPELL_IS_DIVINE( srch->arg[2] ) ) ? CAST_SPELL :
+                          ( SPELL_IS_PHYSICS( srch->arg[2] ) ) ? CAST_PHYSIC :
+                          ( SPELL_IS_PSIONIC( srch->arg[2] ) ) ? CAST_PSIONIC :
+                          CAST_ROD , &retval);
+                if ( IS_SET( retval, DAM_ATTACKER_KILLED ) ) 
+                    break;
+            } else {
+                call_magic( ch, mob, 0, srch->arg[2], srch->arg[0], 
+                    ( SPELL_IS_MAGIC( srch->arg[2] ) ||
+                      SPELL_IS_DIVINE( srch->arg[2] ) ) ? CAST_SPELL :
+                    ( SPELL_IS_PHYSICS( srch->arg[2] ) ) ? CAST_PHYSIC :
+                    ( SPELL_IS_PSIONIC( srch->arg[2] ) ) ? CAST_PSIONIC :
+                    CAST_ROD );
+            }
 	    }
 	} else if ( !targ_room && !affected_by_spell( ch, srch->arg[2] ) )
 	    call_magic( ch, ch, 0, srch->arg[2], srch->arg[0], 
