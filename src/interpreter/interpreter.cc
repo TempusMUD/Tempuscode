@@ -1331,7 +1331,11 @@ command_interpreter(struct char_data * ch, char *argument)
     char *line;
 
     REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
-    REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
+    if ( IS_AFFECTED_2( ch,AFF2_MEDITATE ) )
+        {
+        send_to_char( "You stop meditating." );
+        REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
+        }
     REMOVE_BIT(AFF2_FLAGS(ch), AFF2_EVADE);
     if (ch->getPosition() > POS_SLEEPING)
         REMOVE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
