@@ -1672,7 +1672,7 @@ ASPELL(spell_magical_vestment)
 			return;
 		}
 	} else if (GET_OBJ_TYPE(obj) != ITEM_WORN) {
-		act("$p is not a typical worn item, and cannot be ths target of this spell.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p is not a typical worn item, and cannot be the target of this spell.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
 	// silently remove the armor, save_para, save_spell affects
