@@ -1518,8 +1518,9 @@ command_interpreter(struct Creature *ch, char *argument)
 			 && strcmp(cmd_info[cmd].command,"up") 
 			 && strcmp(cmd_info[cmd].command,"down") 
 			 && strcmp(cmd_info[cmd].command,"exits")) {
-				cmdlog(tmp_sprintf("CMD: %s ::%s '%s'", GET_NAME(ch),
-					cmd_info[cmd].command, line));
+				cmdlog(tmp_sprintf("CMD: [%s] %s ::%s '%s'",
+					(ch->in_room) ? tmp_sprintf("%5d", ch->in_room->number):"NULL",
+					GET_NAME(ch), cmd_info[cmd].command, line));
 			}
 		}
 		/* end log cmds */
