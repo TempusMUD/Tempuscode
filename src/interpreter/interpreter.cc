@@ -998,7 +998,7 @@ struct command_info cmd_info[] = {
     { "purge"    , POS_DEAD    , do_purge    , LVL_TIMEGOD, 0 , 0 },
 
     { "quaff"    , POS_RESTING , do_use      , 0, SCMD_QUAFF , 0 },
-    { "qcontrol" , POS_DEAD    , do_qcontrol , LVL_DEMI, 0 , 0 },
+    { "qcontrol" , POS_DEAD    , do_qcontrol , LVL_IMMORT, 0 , 0 },
     //  { "qecho"    , POS_DEAD    , do_qcomm    , LVL_IMMORT, SCMD_QECHO , 0 },
     { "qecho"    , POS_DEAD    , do_qecho    , LVL_AMBASSADOR, 0 , 0 },
     { "qlog"     , POS_DEAD    , do_qlog     , LVL_AMBASSADOR, 0 , 0 },
