@@ -413,7 +413,7 @@ is_fighting_cityguard(Creature *ch)
 SPECIAL(cityguard)
 {
 	Creature *self = (struct Creature *)me;
-	Creature *tch, *target, *new_guard;
+	Creature *tch, *target = NULL, *new_guard;
 	cityguard_data *data;
 	char *str, *line, *param_key;
 	int action, dir;
