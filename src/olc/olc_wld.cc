@@ -1101,7 +1101,10 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 "hedit owner <name>\r\n"
 
 ACMD(do_hedit)
-{/*
+{
+	send_to_char(ch, "Disabled until further notice.\r\n");
+	return;
+	/*
 	char arg[MAX_INPUT_LENGTH];
 	int command, j, cost = 0, num = 0, tot_cost = 0, tot_num = 0;
 	bool local = false, brief = false;
