@@ -143,14 +143,14 @@ ACMD(do_hamstring)
 			af.modifier = 0 - ( level/2 + dice( 7, 7 ) + dice( gen ,5 ) ) \
 							  * ( CHECK_SKILL( ch ,SKILL_HAMSTRING ) )/1000;
 			affect_to_char(vict, &af);
-			WAIT_STATE(vict, 6 RL_SEC);
 			GET_POS(vict) = POS_RESTING;
 			if(!damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS))
 				GET_POS(vict) = POS_RESTING;
+			WAIT_STATE(vict, 4 RL_SEC);
 		} else {
-			WAIT_STATE(vict, 3 RL_SEC);
 			if(!damage(ch, vict, dam/2, SKILL_HAMSTRING, WEAR_LEGS))
 				GET_POS(vict) = POS_SITTING;
+			WAIT_STATE(vict, 3 RL_SEC);
 		}
 		gain_skill_prof(ch, SKILL_HAMSTRING);
 	}
