@@ -5173,8 +5173,8 @@ ACMD(do_set)
         { "killer",          LVL_IMMORT,    PC,   BINARY, "AdminFull" },
         { "thief",           LVL_IMMORT,    PC,   BINARY, "AdminFull" },
         { "level",           LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },
-        { "room",            LVL_IMMORT,  BOTH, NUMBER, "Coder" },  /* 35 */
-        { "roomflag",        LVL_IMMORT,  PC,   BINARY, "Coder" },
+        { "room",            LVL_IMMORT,  BOTH, NUMBER, "WizardFull" },  /* 35 */
+        { "roomflag",        LVL_IMMORT,  PC,   BINARY, "WizardFull" },
         { "siteok",          LVL_IMMORT,    PC,   BINARY, "AdminFull" },
         { "deleted",         LVL_IMMORT,  PC,   BINARY, "AdminFull" },
         { "class",           LVL_IMMORT,    BOTH, MISC,   "WizardFull" },
@@ -5209,7 +5209,7 @@ ACMD(do_set)
         { "toughguy",        LVL_IMMORT,    PC,   BINARY, "AdminFull" },
         { "nointwiz",        LVL_ELEMENT,  PC,   BINARY, "WizardFull" },
         { "halted",          LVL_IMMORT,   PC,   BINARY, "WizardFull" },   /* 70 */
-        { "syslog",          LVL_IMMORT,  PC,   MISC,   "Coder" },
+        { "syslog",          LVL_IMMORT,  PC,   MISC,   "WizardFull" },
         { "broken",          LVL_IMMORT,  PC,   NUMBER, "WizardFull" },
         { "totaldamage",     LVL_IMMORT,  PC,   NUMBER, "Coder" },
         { "oldchar_class",   LVL_IMMORT,  PC,   MISC,   "WizardFull" },
@@ -5258,10 +5258,10 @@ ACMD(do_set)
     if (!*name || !*field) {
         strcpy(buf,"Usage: set <victim> <field> <value>\r\n");
         vector<string> cmdlist;
-        for (i = 0, l = 1; fields[i].level != 0; i++) {
+        for (i = 0; fields[i].level != 0; i++) {
             if (! Security::canAccess( ch, fields[i] ) )
                 continue;
-            cmdlist.push_back();
+            cmdlist.push_back(fields[i].cmd);
         }
         sort(cmdlist.begin(),cmdlist.end());
 
