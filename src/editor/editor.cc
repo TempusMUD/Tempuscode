@@ -191,20 +191,20 @@ void CTextEditor::SaveText( char *inStr) {
         // Decide what to say to the room since they're done
         if( PLR_FLAGGED(desc->character, PLR_WRITING) ) {
             sprintf(tedii_out_buf,
-                    "%s finishes writing.\r\n",
+                    "%s finishes writing.",
                     GET_NAME(desc->character) );
         } else if( PLR_FLAGGED(desc->character, PLR_OLC) ) {
             sprintf(tedii_out_buf,
-                    "%s nods with satisfaction as $e saves $s work.\r\n",
+                    "%s nods with satisfaction as $e saves $s work.",
                     GET_NAME(desc->character) );
         } else if((PLR_FLAGGED(desc->character, PLR_OLC)) && scripting) {
             sprintf(tedii_out_buf,
-                    "%s nods with satisfaction as $e saves $s work.\r\n",
+                    "%s nods with satisfaction as $e saves $s work.",
                     GET_NAME(desc->character) );
         } else if( PLR_FLAGGED(desc->character, PLR_MAILING) 
                 && GET_LEVEL(desc->character) >= LVL_AMBASSADOR ) {
             sprintf(tedii_out_buf,
-                    "%s postmarks and dispatches $s mail.\r\n",
+                    "%s postmarks and dispatches $s mail.",
                     GET_NAME(desc->character) );
         }
         // Let the room know that they're done
