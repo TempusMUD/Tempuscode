@@ -74,4 +74,6 @@ struct syl_struct {
     char *rep;
 };
 
+extern const char *language_names[];
+
 #endif
