@@ -498,7 +498,7 @@ ACMD(do_demote)
 		else {
 			member1->rank--;
 			sql_exec("update clan_members set rank=%d where player=%ld",
-				member1->rank, GET_IDNUM(ch));
+				member1->rank, GET_IDNUM(vict));
 			msg = tmp_sprintf("%s has demoted self to clan rank %s (%d)",
 				GET_NAME(ch), clan->ranknames[(int)member1->rank],
 				member1->rank);
@@ -528,7 +528,7 @@ ACMD(do_demote)
 	} else {
 		member2->rank--;
 		sql_exec("update clan_members set rank=%d where player=%ld",
-			member2->rank, GET_IDNUM(ch));
+			member2->rank, GET_IDNUM(vict));
 		msg = tmp_sprintf("%s has demoted %s to clan rank %s (%d)",
 			GET_NAME(ch), GET_NAME(vict),
 			clan->ranknames[(int)member2->rank], member2->rank);
@@ -578,7 +578,7 @@ ACMD(do_promote)
 			}
 			member2->rank++;
 			sql_exec("update clan_members set rank=%d where player=%ld",
-				member2->rank, GET_IDNUM(ch));
+				member2->rank, GET_IDNUM(vict));
 			msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
 				GET_NAME(ch), GET_NAME(vict),
 				clan->ranknames[(int)member2->rank] ?
@@ -611,7 +611,7 @@ ACMD(do_promote)
 			else {
 				member2->rank++;
 				sql_exec("update clan_members set rank=%d where player=%ld",
-					member2->rank, GET_IDNUM(ch));
+					member2->rank, GET_IDNUM(vict));
 				msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
 					GET_NAME(ch), GET_NAME(vict),
 					clan->ranknames[(int)member2->rank] ?
