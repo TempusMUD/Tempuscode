@@ -1120,7 +1120,7 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
   obj->creation_method = CREATED_PROG;
 
   if (!*target_str || !strcasecmp(target_str, "room")) {
-	if (target_num != -1) {
+	if (target_num == -1) {
 	  // They mean the current room
 	  switch (env->owner_type) {
 	  case PROG_TYPE_MOBILE:
@@ -1154,7 +1154,7 @@ prog_do_oload(prog_env *env, prog_evt *evt, char *args)
 	case PROG_TYPE_OBJECT:
 	  obj_to_obj(obj, (obj_data *)env->owner); break;
 	case PROG_TYPE_ROOM:
-	  obj_to_room(obj, room); break;
+	  obj_to_room(obj, (room_data *)env->owner); break;
 	default:
 	  errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
