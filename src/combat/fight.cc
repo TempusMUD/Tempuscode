@@ -614,7 +614,8 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 		(ch && GET_LEVEL(ch) < LVL_IMMORT && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) ||
 		(ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) ||
 		(obj->in_room && ROOM_FLAGGED(obj->in_room, ROOM_ARENA)) ||
-        (ch && GET_QUEST(ch) && QUEST_FLAGGED(quest_by_vnum(GET_QUEST(ch)), QUEST_ARENA)) ||
+        	(obj->worn_by && GET_QUEST(obj->worn_by) && 
+	 		QUEST_FLAGGED(quest_by_vnum(GET_QUEST(obj->worn_by)), QUEST_ARENA)) ||
 		(GET_OBJ_TYPE(obj) == ITEM_KEY) || (GET_OBJ_TYPE(obj) == ITEM_SCRIPT)
 		|| obj->in_room == zone_table->world)
 		return NULL;
