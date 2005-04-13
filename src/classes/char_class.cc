@@ -40,6 +40,7 @@
 #include "handler.h"
 #include "security.h"
 #include "tmpstr.h"
+#include "clan.h"
 #include "player_table.h"
 
 extern struct room_data *world;
@@ -1020,7 +1021,11 @@ roll_real_abils(struct Creature *ch)
 	ch->aff_abils = ch->real_abils;
 }
 
-/* Some initializations for characters, including initial skills */
+/* Some initializations for characters, including initial skills
+   If mode == 0, then act as though the character was entering the
+   game for the first time.  Otherwise, act as though the character
+   is being set to that level.
+ */
 void
 do_start(struct Creature *ch, int mode)
 {
@@ -1151,6 +1156,26 @@ do_start(struct Creature *ch, int mode)
 	for (i = 0; i < NUM_WEARS; i++)
 		if (implant_save[i])
 			equip_char(ch, implant_save[i], i, true);
+    
+    // If there are no characters >= level 45 on this account enroll
+    // this character in the academey.
+    if (mode == 0 &&
+			!ch->account->hasCharLevel(45) &&
+			!ch->account->hasCharGen(1)) {
+		struct clanmember_data *member = NULL;
+		struct clan_data *clan = real_clan(TEMPUS_ACADEMY);
+
+        GET_CLAN(ch) = TEMPUS_ACADEMY;
+        CREATE(member, struct clanmember_data, 1);
+        member->idnum = GET_IDNUM(ch);
+        member->rank = 0;
+        member->next = clan->member_list;
+        clan->member_list = member;
+        sort_clanmembers(clan);
+        sql_exec("insert into clan_members (clan, player, rank) values (%d, %ld, %d)",
+			 clan->number, GET_IDNUM(ch), 0);
+    }
+
 }
 
 // prac_gain: mode==TRUE means to return a prac gain value
