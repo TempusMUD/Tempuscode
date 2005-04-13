@@ -1,7 +1,62 @@
-$(OBJ)/help_collection.o : help_collection.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/creature.h $(INCLUDE)/utils.h $(INCLUDE)/help.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/handler.h $(INCLUDE)/tmpstr.h $(INCLUDE)/security.h 
-	$(CXX) -c $(CXXFLAGS) help_collection.cc   -o $(OBJ)/help_collection.o
-$(OBJ)/help_item.o : help_item.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/creature.h $(INCLUDE)/utils.h $(INCLUDE)/help.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/handler.h 
-	$(CXX) -c $(CXXFLAGS) help_item.cc         -o $(OBJ)/help_item.o
+$(OBJ)/help_collection.o: help_collection.cc ../include/structs.h \
+  ../include/defs.h ../include/macros.h ../include/constants.h \
+  ../include/obj_data.h ../include/xml_utils.h \
+  /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/editor.h \
+  ../include/interpreter.h ../include/room_data.h ../include/search.h \
+  ../include/weather.h ../include/zone_data.h ../include/ban.h \
+  ../include/utils.h ../include/help.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
+  ../include/screen.h ../include/handler.h ../include/security.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/help_item.o: help_item.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/editor.h \
+  ../include/interpreter.h ../include/room_data.h ../include/search.h \
+  ../include/weather.h ../include/zone_data.h ../include/ban.h \
+  ../include/utils.h ../include/help.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
+  ../include/screen.h ../include/handler.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/help_collection.o $(OBJ)/help_item.o
