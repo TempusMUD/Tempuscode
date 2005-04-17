@@ -694,6 +694,11 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 
 		if (!perform_get_from_container(ch, obj, cont, check_weight, true, 1))
 			return 0;
+        
+        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0) {
+            WAIT_STATE(ch, 0.5 RL_SEC);
+        }
+		
 
 		if (IS_OBJ_TYPE(obj, ITEM_MONEY))
 			money_found = true;
@@ -709,6 +714,11 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 
 	else {
 
+        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0) {
+            sprintf(buf, "You may only take things one at a time from $P.");
+            act(buf, FALSE, ch, 0, cont, TO_CHAR);
+            return 0;
+        }
 		if (dotmode == FIND_ALLDOT) {
 			match_name = arg;
 		}

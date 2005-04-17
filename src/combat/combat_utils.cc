@@ -1596,14 +1596,15 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
 	corpse->setWeight(GET_WEIGHT(ch) + IS_CARRYING_W(ch));
 	corpse->contains = NULL;
-	corpse->obj_flags.max_dam = corpse->obj_flags.damage = 100;
-
+	
 	if (IS_NPC(ch)) {
 		GET_OBJ_TIMER(corpse) = max_npc_corpse_time;
 		CORPSE_IDNUM(corpse) = -ch->mob_specials.shared->vnum;
+        corpse->obj_flags.max_dam = corpse->obj_flags.damage = 100;
 	} else {
 		GET_OBJ_TIMER(corpse) = max_pc_corpse_time;
 		CORPSE_IDNUM(corpse) = GET_IDNUM(ch);
+        corpse->obj_flags.max_dam = corpse->obj_flags.damage = -1; //!break player corpses
 	}
 
 	if (killer) {
