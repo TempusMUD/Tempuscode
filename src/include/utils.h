@@ -270,7 +270,9 @@ char *AN(char *str);
 #define ZONE_IS_SHADE(zone)   ((zone)->number == 198)
 
 /******************* ASLEEP ZONE STUFF ********************/
-#define ASLEEP_ZONE 150
+#define ASLEEP_ZONE1 445
+#define ASLEEP_ZONE2 446
+#define ASLEEP_ZONE3 447
 
 /***************** END  SHADOW PLANE STUFF *****************/
 

@@ -888,7 +888,9 @@ ACMD(do_gen_comm)
 		}
 
 		if ((subcmd == SCMD_DREAM && (ch->getPosition() != POS_SLEEPING)) &&
-            ch->in_room->zone->number != ASLEEP_ZONE) {
+            ch->in_room->zone->number != ASLEEP_ZONE1 &&
+            ch->in_room->zone->number != ASLEEP_ZONE2 &&
+            ch->in_room->zone->number != ASLEEP_ZONE3) {
 			send_to_char(ch, 
 				"You attempt to dream, but realize you need to sleep first.\r\n");
 			return;
