@@ -696,7 +696,7 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 			return 0;
         
         if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0) {
-            WAIT_STATE(ch, 0.5 RL_SEC);
+            WAIT_STATE(ch, (1 RL_SEC) / 2);
         }
 		
 
