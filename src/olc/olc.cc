@@ -43,6 +43,8 @@
 #include "events.h"
 #include "language.h"
 #include "mobile_map.h"
+#include "object_map.h"
+#include "mobile_map.h"
 
 extern const char *language_names[];
 extern const char *race_language[][2];
@@ -2252,13 +2254,16 @@ ACMD(do_unapprove)
 {
 
 	int rnum = NOTHING;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    int first, last = 0;
+	char *arg1, *arg2, *arg3;
 	byte o_m = 0, zn = 0;
 	struct obj_data *obj = NULL;
 	struct zone_data *zone = NULL;
 	struct Creature *mob = NULL;
 
-	half_chop(argument, arg1, arg2);
+    arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
+    arg3 = tmp_getword(&argument);
 
 	if (*arg1) {
 		if (is_abbrev(arg1, "object"))
@@ -2300,6 +2305,35 @@ ACMD(do_unapprove)
 			ZONE_ROOMS_APPROVED |
 			ZONE_ZCMDS_APPROVED | ZONE_SEARCH_APPROVED | ZONE_SHOPS_APPROVED);
 		save_zone(ch, zone);
+
+        first = ch->in_room->zone->number * 100;
+        last = ch->in_room->zone->top;
+
+        if (*arg3 && (is_abbrev(arg3, "mob") || is_abbrev(arg3, "all"))) {
+            MobileMap::iterator mit = mobilePrototypes.begin();
+            for (mit = mobilePrototypes.lower_bound(first);
+                 mit != mobilePrototypes.upper_bound(last); ++mit) {
+                mob = mit->second;
+                SET_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
+            }
+		    save_mobs(ch, zone);
+            send_to_char(ch, "Mobs approved for olc.\r\n");
+            slog("%s approved mobs in zone [%d] %s for OLC.", GET_NAME(ch),
+			    zone->number, zone->name);
+        }
+        if (*arg3 && (is_abbrev(arg3, "object") || is_abbrev(arg3, "all"))) {
+            ObjectMap::iterator oi;
+            for (oi = objectPrototypes.lower_bound(first);
+                 oi != objectPrototypes.upper_bound(last); ++oi) {
+                obj = oi->second;
+		        SET_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
+                
+            }
+		    save_objs(ch, zone);
+            send_to_char(ch, "Objects approved for olc.\r\n");
+            slog("%s approved objects zone [%d] %s for OLC.", GET_NAME(ch),
+                zone->number, zone->name);
+        }
 		return;
 	}
 
@@ -2384,19 +2418,22 @@ ACMD(do_unapprove)
 }
 
 
-#define APPR_USE       "Usage: approve <obj | mob | zone> <vnum>\r\n"
+#define APPR_USE  "Usage: approve <zone | mob | obj> <vnum> [all | mob | object]\r\n"
 ACMD(do_approve)
 {
 
 	int rnum = NOTHING;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    int first, last = 0;
+	char *arg1, *arg2, *arg3;
 	byte o_m = 0, zn = 0;
 	struct obj_data *obj = NULL;
 	struct zone_data *zone = NULL;
 	struct Creature *mob = NULL;
 
-	half_chop(argument, arg1, arg2);
-
+    arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
+    arg3 = tmp_getword(&argument);
+    
 	if (*arg1) {
 		if (is_abbrev(arg1, "object"))
 			o_m = 0;
@@ -2438,6 +2475,36 @@ ACMD(do_approve)
 			ZONE_ROOMS_APPROVED |
 			ZONE_ZCMDS_APPROVED | ZONE_SEARCH_APPROVED | ZONE_SHOPS_APPROVED);
 		save_zone(ch, zone);
+
+        first = ch->in_room->zone->number * 100;
+        last = ch->in_room->zone->top;
+
+        if (*arg3 && (is_abbrev(arg3, "mob") || is_abbrev(arg3, "all"))) {
+            MobileMap::iterator mit = mobilePrototypes.begin();
+            for (mit = mobilePrototypes.lower_bound(first);
+                 mit != mobilePrototypes.upper_bound(last); ++mit) {
+                mob = mit->second;
+                REMOVE_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
+            }
+		    save_mobs(ch, zone);
+            send_to_char(ch, "Mobs approve for full inclusion in the game.\r\n");
+            slog("%s approved mobs in zone [%d] %s.", GET_NAME(ch), zone->number,
+                zone->name);
+        }
+        if (*arg3 && (is_abbrev(arg3, "object") || is_abbrev(arg3, "all"))) {
+            ObjectMap::iterator oi;
+            struct obj_data *obj;
+            for (oi = objectPrototypes.lower_bound(first);
+                 oi != objectPrototypes.upper_bound(last); ++oi) {
+                obj = oi->second;
+		        REMOVE_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
+                
+            }
+		    save_objs(ch, zone);
+            send_to_char(ch, "Objects approved for full inclusion in the game.\r\n");
+            slog("%s approved objects in zone [%d] %s.", GET_NAME(ch), zone->number,
+                zone->name);
+        }
 		return;
 	}
 
