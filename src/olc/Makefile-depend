@@ -30,7 +30,7 @@ $(OBJ)/olc.o: olc.cc ../include/structs.h ../include/defs.h ../include/macros.h 
   ../include/smokes.h ../include/paths.h ../include/bomb.h \
   ../include/guns.h ../include/char_class.h ../include/actions.h \
   ../include/mobact.h ../include/events.h ../include/language.h \
-  ../include/mobile_map.h
+  ../include/mobile_map.h ../include/object_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/olc_mob.o: olc_mob.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \

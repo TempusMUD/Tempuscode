@@ -714,7 +714,7 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 
 	else {
 
-        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0) {
+        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0 && CORPSE_IDNUM(cont) != GET_IDNUM(ch)) {
             sprintf(buf, "You may only take things one at a time from $P.");
             act(buf, FALSE, ch, 0, cont, TO_CHAR);
             return 0;
