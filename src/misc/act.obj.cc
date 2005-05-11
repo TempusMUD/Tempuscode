@@ -3910,11 +3910,17 @@ ACMD(do_sacrifice)
 		send_to_char(ch, "You can't find any '%s' in the room.\r\n", argument);
 		return;
 	}
-	if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && GET_LEVEL(ch) < LVL_GOD) {
+	if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && !Security::isMember(ch, Security::WIZARDFULL)) {
 		send_to_char(ch, "You can't sacrifice that.\r\n");
 		return;
 	}
 
+	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains && 
+		!Security::isMember(ch, Security::WIZARDFULL)) {
+		send_to_char(ch, "You can't sacrifice a player's corpse while it still has objects in it.");
+		return;
+	}
+	
 	if (is_undisposable(ch, "sacrifice", obj, true))
 		return;
 
@@ -3985,6 +3991,12 @@ ACMD(do_empty)
 
 	}
 
+    if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && CORPSE_IDNUM(obj) != GET_IDNUM(ch) &&
+		!Security::isMember(ch, Security::WIZARDFULL)) {
+		send_to_char(ch, "You can't empty a player's corpse.");
+		return;
+	}
+    
 	if (*arg2 && obj) {
 
 		if (!(bits2 =

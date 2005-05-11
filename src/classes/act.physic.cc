@@ -175,6 +175,7 @@
 #include "bomb.h"
 #include "specs.h"
 #include "vendor.h"
+#include "security.h"
 
 static timewarp_data *timewarp_list = NULL;
 static int num_timewarp_data = 0;
@@ -874,6 +875,13 @@ ACMD(do_econvert)
 			AN(arg1), arg1);
 		return;
 	}
+	
+	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains && 
+		!Security::isMember(ch, Security::WIZARDFULL)) {
+		send_to_char(ch, "You can't econvert a player's corpse while it still has objects in it.");
+		return;
+	}
+	
 	// check for a battery to store in
 	if (*arg2) {
 		argument = one_argument(argument, arg3);
