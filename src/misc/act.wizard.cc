@@ -496,6 +496,7 @@ ACMD(do_trans)
     struct descriptor_data *i;
     struct room_data *was_in;
     struct Creature *victim;
+	char *name_str;
 
 	if (GET_LEVEL(ch) < LVL_IMMORT
 			|| !(Security::isMember(ch, "WizardBasic")
@@ -505,53 +506,15 @@ ACMD(do_trans)
 		return;
 	}
 
-    one_argument(argument, buf);
-    if (!*buf)
+    name_str = tmp_getword(&argument);
+
+    if (!*name_str) {
         send_to_char(ch, "Whom do you wish to transfer?\r\n");
-    else if (str_cmp("all", buf)) {
-        if (!(victim = get_char_vis(ch, buf))) {
-            send_to_char(ch, NOPERSON);
-        } else if (victim == ch)
-            send_to_char(ch, "That doesn't make much sense, does it?\r\n");
-        else {
-            if ((GET_LEVEL(ch) < GET_LEVEL(victim)) && !IS_NPC(victim)) {
-                send_to_char(ch, "Go transfer someone your own size.\r\n");
-                return;
-            }
-            if (ch->in_room->isOpenAir()
-                && victim->getPosition() != POS_FLYING) {
-                send_to_char(ch, 
-                    "Come now, you are in midair.  Are they flying?  I think not.\r\n");
-                return;
-            }
-            act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
-                TO_ROOM);
-            was_in = victim->in_room;
+		return;
+    }
 
-            char_from_room(victim,false);
-            char_to_room(victim, ch->in_room,false);
-            act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0,
-                TO_ROOM);
-            act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
-            look_at_room(victim, victim->in_room, 0);
-
-            if (victim->followers) {
-                struct follow_type *k, *next;
-
-                for (k = victim->followers; k; k = next) {
-                    next = k->next;
-                    if (was_in == k->follower->in_room &&
-                            GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
-                            !PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
-                            can_see_creature(k->follower, victim))
-                        perform_goto(k->follower, ch->in_room, true);
-                }
-            }
-
-            slog("(GC) %s has transferred %s to %s.", GET_NAME(ch),
-                GET_NAME(victim), ch->in_room->name);
-        }
-    } else {                    /* Trans All */
+	if (!str_cmp("all", name_str)) {
+		// Transfer all (below ch's level)
         if (GET_LEVEL(ch) < LVL_GRGOD) {
             send_to_char(ch, "I think not.\r\n");
             return;
@@ -577,7 +540,52 @@ ACMD(do_trans)
 
             }
         send_to_char(ch, OK);
+		return;
     }
+
+	while (*name_str) {
+		victim = get_char_vis(ch, name_str);
+
+		if (!victim) {
+			send_to_char(ch, "You can't detect any '%s'\r\n", name_str);
+		} else if (victim == ch) {
+			send_to_char(ch, "Sure, sure.  Try to transport yourself.\r\n");
+		} else if ((GET_LEVEL(ch) < GET_LEVEL(victim)) && !IS_NPC(victim)) {
+			send_to_char(ch, "%s is far too powerful for you to transport.\r\n",
+				GET_NAME(victim));
+		} else if (ch->in_room->isOpenAir() && victim->getPosition() != POS_FLYING) {
+			send_to_char(ch, "You are in midair and %s isn't flying.\r\n",
+				GET_NAME(victim));
+		} else {
+			act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
+				TO_ROOM);
+			was_in = victim->in_room;
+
+			char_from_room(victim,false);
+			char_to_room(victim, ch->in_room,false);
+			act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0,
+				TO_ROOM);
+			act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
+			look_at_room(victim, victim->in_room, 0);
+
+			if (victim->followers) {
+				struct follow_type *k, *next;
+
+				for (k = victim->followers; k; k = next) {
+					next = k->next;
+					if (was_in == k->follower->in_room &&
+							GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
+							!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+							can_see_creature(k->follower, victim))
+						perform_goto(k->follower, ch->in_room, true);
+				}
+			}
+
+			slog("(GC) %s has transferred %s to %s.", GET_NAME(ch),
+				GET_NAME(victim), ch->in_room->name);
+		}
+		name_str = tmp_getword(&argument);
+	}
 }
 
 
