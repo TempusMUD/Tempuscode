@@ -214,7 +214,7 @@ _dbg_dump(void)
 void *
 operator new(size_t size)
 {
-		dbg_enable_tracking(false);
+		//dbg_enable_tracking(false);
 	if (_dbg_enabled)
 		return _dbg_alloc(size, __builtin_return_address(0));
 	else
@@ -223,7 +223,7 @@ operator new(size_t size)
 
 void *
 operator new[] (size_t size) {
-		dbg_enable_tracking(false);
+		//dbg_enable_tracking(false);
 	if (_dbg_enabled)
 		return _dbg_alloc(size, __builtin_return_address(0));
 	else

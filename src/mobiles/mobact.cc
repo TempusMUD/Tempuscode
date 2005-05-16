@@ -41,6 +41,7 @@
 #include "screen.h"
 #include "tmpstr.h"
 #include "prog.h"
+#include "specs.h"
 
 /* external structs */
 void npc_steal(struct Creature *ch, struct Creature *victim);
@@ -1618,7 +1619,7 @@ mobile_activity(void)
 	int dir, found, max, k;
 	static unsigned int count = 0;
 	struct room_data *room = NULL;
-    int cur_class = 0;
+    int cur_class = 0, spec_idx = 0;
 
 	cit = characterList.begin();
 	for (++count; cit != characterList.end(); ++cit) {
@@ -1639,6 +1640,16 @@ mobile_activity(void)
             && !ch->player.description) {
             errlog("SYSERR: Skipping null mobile in mobile_activity");
             continue;
+        }
+
+        // The auctioneers are very special mobs...make that not
+        // special at all...they shouldn't have any reaction
+        // whatsoever to any activity by a player.  They should
+        // always be level 50...
+        if (ch->mob_specials.shared && ch->mob_specials.shared->func) {
+            spec_idx = find_spec_index_ptr(ch->mob_specials.shared->func);
+            if (spec_idx > -1 && !strcmp(spec_list[spec_idx].tag, "auctioneer"))
+                continue;
         }
 /*		//
 		// Check for mob spec

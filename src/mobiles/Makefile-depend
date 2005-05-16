@@ -147,7 +147,8 @@ $(OBJ)/mobact.o: mobact.cc ../include/structs.h ../include/defs.h \
   ../include/handler.h ../include/spells.h ../include/char_class.h \
   ../include/actions.h ../include/mobact.h ../include/vehicle.h \
   ../include/flow_room.h ../include/guns.h ../include/bomb.h \
-  ../include/fight.h ../include/screen.h ../include/prog.h
+  ../include/fight.h ../include/screen.h ../include/prog.h \
+  ../include/specs.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/vendor.o: vendor.cc ../include/actions.h ../include/interpreter.h \
   ../include/defs.h ../include/spells.h ../include/creature.h \

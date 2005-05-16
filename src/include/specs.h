@@ -283,6 +283,8 @@ SPECIAL(guardian_angel);
 SPECIAL(mage_teleporter);
 SPECIAL(languagemaster);
 SPECIAL(bounty_clerk);
+SPECIAL(do_auctions);
+SPECIAL(courier_imp);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2

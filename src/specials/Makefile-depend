@@ -308,6 +308,7 @@ $(OBJ)/spec_procs.o: spec_procs.cc ../include/structs.h ../include/defs.h \
   Specs/mobile_specs/town_crier.spec \
   Specs/mobile_specs/mage_teleporter.spec \
   Specs/mobile_specs/languagemaster.spec ../include/language.h \
+  Specs/mobile_specs/auctioneer.spec Specs/mobile_specs/courier_imp.spec \
   Specs/rad_specs/labyrinth.spec Specs/labyrinth/laby_portal.spec \
   Specs/labyrinth/laby_carousel.spec Specs/labyrinth/laby_altar.spec \
   Specs/bugs_specs/monastery_eating.spec \

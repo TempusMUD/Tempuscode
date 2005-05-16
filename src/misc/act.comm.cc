@@ -756,10 +756,10 @@ static const channel_info_t channels[] = {
 		KGRN, KNRM,
 		"You aren't even on the channel!",
 		"You cannot gossip!!" },
-	{ "auction", 1, PRF_NOAUCT, PLANAR, NOT_EMOTE,
+	{ "auction", 1, PRF_NOAUCT, INTERPLANAR, NOT_EMOTE,
 		KMAG, KNRM,
 		"You aren't even on the channel!",
-		"You cannot auction!!" },
+		"Only licenced auctioneers can auction!!" },
 	{ "congrat", 1, PRF_NOGRATZ, PLANAR, NOT_EMOTE,
 		KGRN, KMAG,
 		"You aren't even on the channel!",
@@ -886,6 +886,12 @@ ACMD(do_gen_comm)
 			send_to_char(ch, "You do not know how to project yourself that way.\r\n");
 			return;
 		}
+
+        // Players can't auction anymore
+        if (subcmd == SCMD_AUCTION) {
+            end_to_char(ch, "Only licenced auctioneers can use that channel!\r\n");
+            return;
+        }
 
 		if ((subcmd == SCMD_DREAM &&
 				(ch->getPosition() != POS_SLEEPING)) &&

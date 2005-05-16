@@ -112,6 +112,8 @@ ACMD(do_backstab);
 ACMD(do_bash);
 ACMD(do_ban);
 ACMD(do_battlecry);
+ACMD(do_bid);
+ACMD(do_bidstat);
 ACMD(do_beguile);
 ACMD(do_breathe);
 ACMD(do_crossface);
@@ -516,6 +518,8 @@ struct command_info cmd_info[] = {
 	{"belch", POS_SLEEPING, do_action, 0, 0, 0, 0},
 	{"befuddle", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"bioscan", POS_SITTING, do_bioscan, 0, 0, 0, 0},
+	{"bid", POS_RESTING, do_bid, 0, 0, 0, 0},
+	{"bidstat", POS_RESTING, do_bidstat, 0, 0, 0, 0},
 	{"bird", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"bite", POS_FIGHTING, do_offensive_skill, 0, SKILL_BITE, 0, 0},
 	{"bkiss", POS_RESTING, do_action, 0, 0, 0, 0},

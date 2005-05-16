@@ -115,7 +115,7 @@ vendor_is_produced(obj_data *obj, ShopData *shop)
 	return false;
 }
 
-static int
+int
 vendor_inventory(Creature *self, obj_data *obj, obj_data *obj_list)
 {
 	obj_data *cur_obj;

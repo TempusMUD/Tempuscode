@@ -159,7 +159,7 @@ main(int argc, char **argv)
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
 	
-	dbg_enable_tracking(false);
+//	dbg_enable_tracking(false);
 	tmp_string_init();
 	acc_string_init();
 

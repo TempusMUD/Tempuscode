@@ -1723,6 +1723,8 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/town_crier.spec"
 #include "Specs/mobile_specs/mage_teleporter.spec"
 #include "Specs/mobile_specs/languagemaster.spec"
+#include "Specs/mobile_specs/auctioneer.spec"
+#include "Specs/mobile_specs/courier_imp.spec"
 
 /* RADFORD's SPECS */
 #include "Specs/rad_specs/labyrinth.spec"
