@@ -132,7 +132,7 @@ SPECIAL(courier_imp)
                      seeking, 0, self, TO_CHAR);
                 act ("A ball of light streaks from $n's hand and hits $N "
                      "square in the chest, burning $S to a cinder!", false,
-                     self, 0, seeking, TO_CHAR);
+                     self, 0, seeking, TO_ROOM);
                 raw_kill(seeking, self, TYPE_SLASH);
                 data->owed = 0;
                 data->mode = IMP_BUYER_BROKE;
