@@ -1,4 +1,5 @@
 #include <list>
+#include <functional>
 #include <time.h>
 #include "obj_data.h"
 #include "room_data.h"
@@ -21,6 +22,7 @@ extern const int IMP_DELIVER_ITEM;
 extern const int IMP_RETURN_ITEM;
 
 ACMD(do_bid);
+ACMD(do_stun);
 
 struct imp_data {
     Creature *imp;
@@ -76,6 +78,20 @@ SPECIAL(do_auctions)
     Creature *imp;
     list<auction_data *>::iterator ai = items.begin();
     short mood_index = 0;
+
+    Creature *dick;
+    while (self->numCombatants()) {
+        dick = self->findRandomCombat();
+        act ("A ball of light streaks from $N's hand and hits you "
+             "square in the chest, burning you to a cinder!", false,
+             dick, 0, self, TO_CHAR);
+        act ("A ball of light streaks from $n's hand and hits $N "
+             "square in the chest, burning $S to a cinder!", false,
+             self, 0, dick, TO_CHAR);
+        raw_kill(dick, self, TYPE_SLASH);
+        return 1;
+    }
+
 
     for (ai = items.begin(); ai != items.end(); ++ai) {
         if (!(*ai) || !(*ai)->item) {
@@ -178,6 +194,9 @@ SPECIAL(do_auctions)
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
 	
+    if (IS_NPC(ch))
+        return 0;
+
     // Handle commands in the presence of the auctioneer
 
     if (IS_IMMORT(ch) && !CMD_IS("auction")) {
@@ -225,6 +244,12 @@ SPECIAL(do_auctions)
             return 1;
         }
         return 0;
+    }
+
+    if (CMD_IS("stun") || CMD_IS("steal") || 
+        CMD_IS("pinch") || CMD_IS("glance")) {
+        do_stun(self, tmp_sprintf("%s", GET_NAME(ch)), 0, 0, NULL);
+        return 1;
     }
 
     if (CMD_IS("auction") && ch != self) {
