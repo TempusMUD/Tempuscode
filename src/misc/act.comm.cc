@@ -889,7 +889,7 @@ ACMD(do_gen_comm)
 
         // Players can't auction anymore
         if (subcmd == SCMD_AUCTION) {
-            end_to_char(ch, "Only licenced auctioneers can use that channel!\r\n");
+            send_to_char(ch, "Only licenced auctioneers can use that channel!\r\n");
             return;
         }
 
