@@ -44,7 +44,9 @@ SPECIAL(courier_imp)
         }
         if (data->mode == IMP_DELIVER_ITEM) {
             imp_take_payment(seeking, data);
-            seeking->purge(true);
+            seeking->saveToXML();
+            seeking->clear();
+            delete seeking;
             data->owed = 0;
             data->buyer_id = data->owner_id;
             data->mode = IMP_NO_BUYER;
@@ -59,8 +61,10 @@ SPECIAL(courier_imp)
                      data->mode == IMP_NO_BUYER) {
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
+                seeking->saveToXML();
+                extract_obj(data->item);
             }
-            seeking->purge(true);
+            delete seeking;
             self->purge(true);
         }
         
