@@ -18,11 +18,12 @@ const int TOP_MOOD = 7;
 const int GOING_ONCE = 45;
 const int GOING_TWICE = 90;
 const int SOLD_TIME  = 135;
-const int NO_BID_THRESH  = 300;
+const int NO_BID_THRESH  = 450;
 const int AUCTION_THRESH = 900;
-const int MAX_AUC_VALUE = 10000000;
+const int MAX_AUC_VALUE = 50000000;
 const int MAX_AUC_ITEMS = 5;
-const int MAX_TOTAL_AUC = 50;
+const int MAX_TOTAL_AUC = 100;
+const int BID_INCREMENT = 5; //percent of starting bid
 
 extern const int IMP_DELIVER_ITEM;
 extern const int IMP_RETURN_ITEM;
@@ -166,7 +167,7 @@ SPECIAL(do_auctions)
                 ai++;
                 items.erase(ti);
             }
-/*            else if ((!ai->last_bid_time) && 
+            else if ((!ai->last_bid_time) && 
                      (time(NULL) - ai->start_time) > 
                      (NO_BID_THRESH * ai->announce_count)) {
                 auc_str = tmp_sprintf("No bids yet for Item number %d, %s! "
@@ -174,7 +175,7 @@ SPECIAL(do_auctions)
                                       ai->item_no, ai->item->name,
                                       ai->start_bid);
                 ai->announce_count++;
-            }*/
+            }
 
             if (auc_str && *auc_str) {
                 GET_MOOD(self) = moods[mood_index].mood_name;
@@ -196,7 +197,7 @@ SPECIAL(do_auctions)
 
     // Handle commands in the presence of the auctioneer
 
-    if (IS_IMMORT(ch) && !CMD_IS("auction")) {
+    if (IS_IMMORT(ch)) {
         //Imm only commands here
         if (CMD_IS("stat")) {
             char *arg = tmp_getword(&argument);
@@ -240,7 +241,6 @@ SPECIAL(do_auctions)
             page_string(ch->desc, acc_get_string());
             return 1;
         }
-        return 0;
     }
 
     if (CMD_IS("stun") || CMD_IS("steal") || 
@@ -293,14 +293,14 @@ SPECIAL(do_auctions)
             if (ai->owner_id == ch->getIdNum())
                 item_count++;
 
-            if (item_count >= MAX_AUC_ITEMS) {
+            if ((item_count >= MAX_AUC_ITEMS) && !IS_IMMORT(ch)) {
                 do_say(self, tmp_sprintf("%s You already have too many items "
                        "up for auction", GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
                 return 1; 
             }
         }
 
-        if (BAD_AUCTION(obj)) {
+        if (BAD_AUCTION(obj) && !IS_IMMORT(ch)) {
             do_say(self, tmp_sprintf("%s I run a respectable establishment "
                    "here!  I don't deal in such trash!", GET_NAME(ch)), 
                     0, SCMD_SAY_TO, NULL);
@@ -345,15 +345,10 @@ SPECIAL(do_auctions)
         if (GET_IDNUM(ch) < 0)
             return 0;
 
-        if (!item_no) {
+        if (!item_no || item_no > MAX_TOTAL_AUC) {
             do_say(self, tmp_sprintf("%s Which item do you want to withdraw?",
                    GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
             return 1; 
-        }
-
-        if (!item_no || item_no > MAX_TOTAL_AUC) {
-            send_to_char(ch, "Which item do you want stats on?\r\n");
-            return 1;
         }
 
         list<auction_data>::iterator ai = items.begin();
@@ -367,12 +362,12 @@ SPECIAL(do_auctions)
             return 1;
         }
 
-        if (ch->getIdNum() != ai->owner_id) {
+        if (ch->getIdNum() != ai->owner_id && !IS_IMMORT(ch)) {
             send_to_char(ch, "You can only withdraw your own item!\r\n");
             return 1;
         }
 
-        if ((ai->current_bid != 0) || (ai->buyer_id != 0)) {
+        if (((ai->current_bid != 0) || (ai->buyer_id != 0)) && !IS_IMMORT(ch)) {
             send_to_char(ch, "You cannot withdraw and item that has bids\r\n");
             return 1;
         }
@@ -511,6 +506,12 @@ ACMD(do_bid) {
 
     if (amount < MAX(ai->start_bid, ai->current_bid)) {
         send_to_char(ch, "Your bid amount is invalid!\r\n");
+        return;
+    }
+
+    if (amount < (ai->current_bid + (ai->start_bid * BID_INCREMENT))) {
+        send_to_char(ch, "Bids must be increased in %d coin increments.\r\n",
+                     (int)(ai->start_bid * BID_INCREMENT));
         return;
     }
 
