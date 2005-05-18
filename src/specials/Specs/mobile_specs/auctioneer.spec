@@ -5,6 +5,13 @@
 #include "room_data.h"
 #include "creature.h"
 
+#define BAD_AUCTION(obj) (obj->obj_flags.type_flag == ITEM_FOOD || \
+                          obj->obj_flags.type_flag == ITEM_TRASH || \
+                          obj->obj_flags.type_flag == ITEM_NOTE || \
+                          obj->obj_flags.type_flag == ITEM_KEY || \
+                          obj->obj_flags.type_flag == ITEM_PORTAL || \
+                          obj->obj_flags.type_flag == ITEM_SCRIPT || \
+                          obj->shared->vnum == -1)
 // The vnum of the creature that delivers the goods and takes the cash
 const int IMP_VNUM = 3223;
 const int TOP_MOOD = 7;
@@ -159,7 +166,7 @@ SPECIAL(do_auctions)
                 ai++;
                 items.erase(ti);
             }
-            else if ((!ai->last_bid_time) && 
+/*            else if ((!ai->last_bid_time) && 
                      (time(NULL) - ai->start_time) > 
                      (NO_BID_THRESH * ai->announce_count)) {
                 auc_str = tmp_sprintf("No bids yet for Item number %d, %s! "
@@ -167,7 +174,7 @@ SPECIAL(do_auctions)
                                       ai->item_no, ai->item->name,
                                       ai->start_bid);
                 ai->announce_count++;
-            }
+            }*/
 
             if (auc_str && *auc_str) {
                 GET_MOOD(self) = moods[mood_index].mood_name;
@@ -293,8 +300,7 @@ SPECIAL(do_auctions)
             }
         }
 
-        if (obj->obj_flags.type_flag == ITEM_TRASH ||
-            obj->obj_flags.type_flag == ITEM_FOOD) {
+        if (BAD_AUCTION(obj)) {
             do_say(self, tmp_sprintf("%s I run a respectable establishment "
                    "here!  I don't deal in such trash!", GET_NAME(ch)), 
                     0, SCMD_SAY_TO, NULL);
@@ -378,7 +384,7 @@ SPECIAL(do_auctions)
         }
 
         obj_data *obj = ai->item;
-        GET_MOOD(self) = " sadly ";
+        GET_MOOD(self) = " sadly";
         do_gen_comm(self,tmp_sprintf("Item number %d, %s, withdrawn.",
                     ai->item_no, obj->name), 0, SCMD_AUCTION, NULL);
         GET_MOOD(self) = NULL;
