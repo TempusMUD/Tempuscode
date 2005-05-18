@@ -504,7 +504,7 @@ ACMD(do_bid) {
         return;
     }
 
-    if (amount < MAX(ai->start_bid, ai->current_bid)) {
+    if (amount <= MAX(ai->start_bid, ai->current_bid)) {
         send_to_char(ch, "Your bid amount is invalid!\r\n");
         return;
     }
