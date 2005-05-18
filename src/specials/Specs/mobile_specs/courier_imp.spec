@@ -44,9 +44,6 @@ SPECIAL(courier_imp)
         }
         if (data->mode == IMP_DELIVER_ITEM) {
             imp_take_payment(seeking, data);
-            seeking->saveToXML();
-            seeking->clear();
-            delete seeking;
             data->owed = 0;
             data->buyer_id = data->owner_id;
             data->mode = IMP_NO_BUYER;
@@ -59,10 +56,22 @@ SPECIAL(courier_imp)
             else if (data->mode == IMP_BUYER_BROKE ||
                      data->mode == IMP_RETURN_ITEM ||
                      data->mode == IMP_NO_BUYER) {
-                obj_from_char(data->item);
-                obj_to_char(data->item, seeking);
-                seeking->saveToXML();
-                extract_obj(data->item);
+                  obj_data *doomed_obj;
+
+                  // Load the char's existing eq
+                  seeking->loadObjects();
+                  // Add the item to char's inventory
+                  obj_from_char(data->item);
+                  obj_to_char(data->item, seeking);
+                  // Save it to disk
+                  seeking->saveObjects();
+                  // Delete all the char's eq, otherwise the destructor
+                  // has a cow.
+                  while (seeking->carrying) {
+                    doomed_obj = seeking->carrying;
+                    obj_from_char(doomed_obj);
+                    extract_obj(doomed_obj);
+                  }
             }
             delete seeking;
             self->purge(true);

@@ -1425,7 +1425,7 @@ char_to_game(descriptor_data *d)
 										   LVL_LUCIFER : GET_LEVEL(d->creature));
 
 		// Now load objects onto character
-		switch (d->creature->loadObjects()) {
+		switch (d->creature->unrent()) {
 			case -1:
 				notes = tmp_strcat(notes, "Your equipment could not be loaded.\r\n\r\n");
 				mudlog(LVL_IMMORT, CMP, true, "%s's equipment could not be loaded.",

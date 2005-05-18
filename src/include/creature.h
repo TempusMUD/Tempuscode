@@ -1250,7 +1250,10 @@ struct Creature {
 	void set(const char *key, const char *val);
 	bool loadFromDB(long id);
 
-	int loadObjects();
+    // creature needs to be unrented
+    int unrent(void);
+    int loadObjects(void);
+    bool saveObjects(void);
     int loadCorpse();
     bool checkLoadCorpse();
 
@@ -1292,6 +1295,7 @@ struct Creature {
 	bool displayUnrentables(void);
 	obj_data *findCostliestObj(void);
 	int payRent(time_t last_time, int code, int currency);
+
     // Saves the given characters equipment to a file. Intended for use while 
     // the character is still in the game. 
     bool crashSave();
@@ -1334,13 +1338,14 @@ struct Creature {
     void extinguish();
 
     bool checkReputations(Creature *victim);
+
   private:
-    bool saveObjects(void);
+	// Extracts the creature from the game.  If creature is a player in the
+    // world, sets its descriptor's input mode to the given state
+	void extract(cxn_state con_state);
+
     /** Extracts all unrentable objects carried or worn by this creature **/
     void extractUnrentables();
-	// Extracts the creature from the game.  If creature is a player, sets
-	// its descriptor's input mode to the given state
-	void extract(cxn_state con_state);
     Creature &operator=(const Creature &c) {
         // This is private because it should never be called.  But on 
         // the off chance that it does, it should something appropriate.

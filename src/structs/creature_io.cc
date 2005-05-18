@@ -284,6 +284,20 @@ Creature::saveObjects(void)
  *  2 - rented equipment lost ( no $ )
 **/
 int
+Creature::unrent(void)
+{
+  int err;
+
+  err = loadObjects();
+  if (err)
+    return 0;
+
+  return payRent(player.time.logon,
+                 player_specials->rentcode,
+                 player_specials->rent_currency);
+}
+
+int
 Creature::loadObjects()
 {
 
@@ -326,7 +340,7 @@ Creature::loadObjects()
 
     xmlFreeDoc(doc);
 
-	return payRent(player.time.logon, player_specials->rentcode, player_specials->rent_currency);
+    return 0;
 }
 
 bool
