@@ -23,7 +23,7 @@ const int AUCTION_THRESH = 900;
 const int MAX_AUC_VALUE = 50000000;
 const int MAX_AUC_ITEMS = 5;
 const int MAX_TOTAL_AUC = 100;
-const int BID_INCREMENT = 0.05; //percent of starting bid
+const float BID_INCREMENT = 0.05; //percent of starting bid
 
 extern const int IMP_DELIVER_ITEM;
 extern const int IMP_RETURN_ITEM;
