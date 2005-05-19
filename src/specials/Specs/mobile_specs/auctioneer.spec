@@ -23,7 +23,7 @@ const int AUCTION_THRESH = 900;
 const int MAX_AUC_VALUE = 50000000;
 const int MAX_AUC_ITEMS = 5;
 const int MAX_TOTAL_AUC = 100;
-const int BID_INCREMENT = 5; //percent of starting bid
+const int BID_INCREMENT = 0.05; //percent of starting bid
 
 extern const int IMP_DELIVER_ITEM;
 extern const int IMP_RETURN_ITEM;
@@ -504,9 +504,17 @@ ACMD(do_bid) {
         return;
     }
 
-    if (amount <= MAX(ai->start_bid, ai->current_bid)) {
-        send_to_char(ch, "Your bid amount is invalid!\r\n");
-        return;
+    if (ai->current_bid == 0) {
+        if (amount < ai->start_bid) {
+            send_to_char(ch, "Your bid amount is invalid!\r\n");
+            return;
+        }
+    }
+    else {
+        if (amount <= ai->current_bid) {
+            send_to_char(ch, "Your bid amount is invalid!\r\n");
+            return;
+        }
     }
 
     if (amount < (ai->current_bid + (ai->start_bid * BID_INCREMENT))) {
@@ -548,6 +556,12 @@ ACMD(do_bidlist) {
 
 bool bidder_can_afford(Creature *bidder, long amount) {
     long tamount = amount;
+
+    list<auction_data>::iterator ai = items.begin();
+    for (; ai != items.end(); ai++) {
+        if (ai->buyer_id == bidder->getIdNum())
+            amount += ai->current_bid;
+    }
 
     tamount = GET_GOLD(bidder) + GET_CASH(bidder) + 
               GET_PAST_BANK(bidder) + GET_FUTURE_BANK(bidder);
