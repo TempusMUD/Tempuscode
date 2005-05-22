@@ -353,6 +353,11 @@ voting_booth_remove(Creature * ch, char *argument)
 		return;
 	}
 
+    if (!voting_poll_list) {
+		send_to_char(ch, "There are no polls to remove.\r\n");
+		return;
+    }
+
 	if (1 == poll_num) {
 		poll = voting_poll_list;
 		voting_poll_list = voting_poll_list->next;
