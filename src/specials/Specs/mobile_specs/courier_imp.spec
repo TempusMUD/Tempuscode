@@ -142,8 +142,8 @@ SPECIAL(courier_imp)
                      "square in the chest, burning you to a cinder!", false,
                      seeking, 0, self, TO_CHAR);
                 act ("A ball of light streaks from $n's hand and hits $N "
-                     "square in the chest, burning $S to a cinder!", false,
-                     self, 0, seeking, TO_ROOM);
+                     "square in the chest, burning $M to a cinder!", false,
+                     self, 0, seeking, TO_NOTVICT);
                 raw_kill(seeking, self, TYPE_SLASH);
                 data->owed = 0;
                 data->mode = IMP_BUYER_BROKE;

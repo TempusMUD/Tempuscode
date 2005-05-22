@@ -96,8 +96,8 @@ SPECIAL(do_auctions)
              "square in the chest, burning you to a cinder!", false,
              dick, 0, self, TO_CHAR);
         act ("A ball of light streaks from $n's hand and hits $N "
-             "square in the chest, burning $S to a cinder!", false,
-             self, 0, dick, TO_ROOM);
+             "square in the chest, burning $M to a cinder!", false,
+             self, 0, dick, TO_NOVICT);
         raw_kill(dick, self, TYPE_SLASH);
     }
 
@@ -479,7 +479,7 @@ ACMD(do_bid) {
     }
 
     if (!bidder_can_afford(ch, amount)) {
-        send_to_char(ch, "You don't have that much money!\r\n");
+        send_to_char(ch, "You can't afford that much money!\r\n");
         return;
     }
 
@@ -506,20 +506,22 @@ ACMD(do_bid) {
 
     if (ai->current_bid == 0) {
         if (amount < ai->start_bid) {
-            send_to_char(ch, "Your bid amount is invalid!\r\n");
+            send_to_char(ch, "Your bid amount is invalid, the starting bid is "
+                         "%ld coins.\r\n", ai->start_bid);
             return;
         }
     }
     else {
         if (amount <= ai->current_bid) {
-            send_to_char(ch, "Your bid amount is invalid!\r\n");
+            send_to_char(ch, "Your bid amount is invalid, the current bid is "
+                         "%ld coins.\r\n", ai->current_bid);
             return;
         }
     }
 
     if (amount < (ai->current_bid + (ai->start_bid * BID_INCREMENT))) {
         send_to_char(ch, "Bids must be increased in %d coin increments.\r\n",
-                     (int)(ai->start_bid * BID_INCREMENT));
+                     (int)(floor(ai->start_bid * BID_INCREMENT)));
         return;
     }
 
