@@ -125,6 +125,7 @@ const char *race_language[][2] = {
 	{"Olympian", "greek"},
 	{"Yugoloth", "all"},
 	{"Rowlahr", ""},
+	{"Githzerai", "gish"},
 	{"\n", "\n"},
 };
 
