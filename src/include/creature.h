@@ -200,7 +200,8 @@ static const int RACE_GUARDINAL = 57;
 static const int RACE_OLYMPIAN = 58;
 static const int RACE_YUGOLOTH = 59;
 static const int RACE_ROWLAHR = 60;
-static const int NUM_RACES = 61;
+static const int RACE_GITHZERAI = 61;
+static const int NUM_RACES = 62;
 static const int NUM_PC_RACES = 9;
 
 // Hometown defines

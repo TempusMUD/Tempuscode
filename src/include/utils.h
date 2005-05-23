@@ -939,6 +939,7 @@ long GET_SKILL_COST(Creature *ch, int skill);
                                  IS_RACE(ch, RACE_ARCHON) ||       \
                                  IS_RACE(ch, RACE_ILLITHID) ||     \
                                  IS_RACE(ch, RACE_GITHYANKI) ||    \
+                                 IS_RACE(ch, RACE_GITHZERAI) ||    \
                                  IS_RACE(ch, RACE_KOBOLD) ||    \
                                  IS_RACE(ch, RACE_MEPHIT) ||    \
                                  IS_RACE(ch, RACE_DAEMON) ||    \
