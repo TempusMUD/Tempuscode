@@ -43,8 +43,8 @@ struct bard_song {
 };
 
 struct bard_song songs[] = {
-    { "Instance Audience",
-      "I must have an audience before I can play,\nPlease give me some listeners to hear me today.", // 346
+    { "Instant Audience",
+      "Come one come all to hear my tune,\nThe likes of which you'll not hear again soon.", // 346
       false,
       ITEM_PERCUSSION 
     },
@@ -64,22 +64,22 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Misdirection Melisma", // 350
-      "Begone foul stalker, get out off of my trail,\nStay out of my mind, I direct you to fail.",
+      "The hunter shall not see my face\n,The melody removes my trace.",
       false,
       ITEM_STRING
     },
-    { "Aria of Amament",
-      "To arms!  To arms!  The battle doth call!\nMay the light aid us and protect us all!", // 351
+    { "Aria of Armament",
+      "Of bravery I sing to thee,\nTake up your swords and follow me!", // 351
       false,
       ITEM_STRING
     },
     { "Lullaby", // 352
-      "",
+      "The sweet allure of pleasant dreams\nIs irresistable, so it seems.\nSo have no fear, just close your eyes\n And meditate on what you prize.",
       false,
       ITEM_STRING
     },
     { "Verse of Vulnerability",
-      "Our foe doth approach, his essence is near,\nBlight him and smite him, his weakness make clear!", // 353
+      "The music flows from me to you,\nIt guides my blade as I strike true!", // 353
       false,
       ITEM_STRING
     },
@@ -94,17 +94,17 @@ struct bard_song songs[] = {
       ITEM_PERCUSSION
     },
     { "Regalers Rhapsody",
-      "Think of the feasts our stomache's abated,\nRemember them fondly and soon we are sated.", // 356
+      "A morsel of a melody keeps appetites in line,\nFor when the battle's finally won, we all will drink and dine!", // 356
       false,
       ITEM_STRING
     },
     { "Melody of Mettle",
-      "Our weapons are keen, our shields are strong,\nOur mettle is heavy to bear us along.", // 357
+      "Our courage has seen us through worse times before;\nSuch mettle is forged in the fires of war.", // 357
       false,
       ITEM_PERCUSSION
     },
     { "Lustration Melisma",
-      "Bring forth the cleansing the body must gain,\nAnd rid us of illness that's causing pain.", // 358
+      "The poison, the plague, the malady's cold,\nWe beg for release from these sicknesses' hold.", // 358
       false,
       ITEM_STRING
     },
@@ -114,7 +114,7 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Alron's Aria", // 360
-      "I sing of the Knights of Alron, they're bold, pure and brave!\nTheir might in the heat of battle is what my group does crave.",
+      "The courage and strength with which Alron is blessed\nWill come to our aid 'til our souls are at rest.",
       false,
       ITEM_STRING
     },
@@ -124,7 +124,7 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Verse of Valor",
-      "To help us strike hard and help us strike true,\nWe sing of the heros whose valor is true.", // 362
+      "The battle, still it rages,\nAs it has for many ages,\nBut a piercing strike can hope to end it all.", // 362
       false,
       ITEM_PERCUSSION
     },
@@ -139,12 +139,12 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Drifters Ditty",
-      "We are tired and so full of woes,\nMay we find puissance to defend against foes!", // 365
+      "The journey of a thousand miles begins with just one step,\nSo I'll provide a merry tune to give our step some pep!", // 365
       false,
       ITEM_PERCUSSION
     },
     { "Unravelling Diapason", // 366
-      "Unwind this magic and pull it like string,\nDisperse it from sight as this song I sing.",
+      "Oh mystic forces, hear my yell,\nUnmake your magic, break this spell!",
       false,
       ITEM_STRING
     },
@@ -159,7 +159,7 @@ struct bard_song songs[] = {
       ITEM_PERCUSSION
     },
     { "Aria of Asylum", // 369
-      "No fortress can hide, no army provide,\nLike the comfort of Asylum!",
+      "Through pouring rain and stinging sleet,\nAs swords and arrows fall,\nWe fear no pain in our retreat.\nAsylum saves us all!",
       false,
       ITEM_STRING
     },
@@ -174,7 +174,7 @@ struct bard_song songs[] = {
       ITEM_PERCUSSION
     },
     { "Power Overture",
-      "Guiharia, Zhel, and Velroth, Selene,\nAlron we seek your power to glean.", // 372
+      "Such strength to rule without dispute;\nA surge of power, absolute.", // 372
       false,
       ITEM_PERCUSSION
     },
@@ -189,8 +189,8 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Sonic Disruption", // 375
-      "I'll bread the world with my new song,\nYour body will break, so dance along.",
-      false,
+      "a sickening rhythm",
+      true,
       ITEM_PERCUSSION
     },
     { "Mirror Image Melody", // 376
@@ -199,33 +199,33 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Clarifying Harmonies",
-      "Curiosity drives me to know what I must,\nLeaving my ignorance dead in the dust.", // 377
+      "The magic uncovered as choruses sing,\nTo answer the mysteries one's life can bring.", // 377
       false,
       ITEM_STRING
     },
     { "Unladen Swallow Song", // 378
-      "The flight of the swallow unburdened is high,\nThey lighten us with wings that beat out a sigh.",
+      "The sky is the swallow's place to be in,\nWhether African or European.",
       false,
       ITEM_PERCUSSION
     },
     { "Irresistable Dance", // 379
-      "Come dance to my tune, your senses ensnared,\nYou may never stop and will never care.",
+      "They found the gold, they did the dance,\nAs treasure seekers do.\nTheir cheerful spirit lingers on,\nIn me as well as you.",
       false,
       ITEM_PERCUSSION
     },
     { "Rhythm of Alarm", // 380
-      "Warn me, protect me, by singing this song,\nAlert me should anyone come along.",
+      "The rogue may stalk, but I can see,\nHis presence is revealed to me.",
       false,
       ITEM_PERCUSSION
     },
     { "Rhapsody of Remedy", // 381
-      "Your wounds are deep, your scars are true,\nMy song can restore you through and through.",
+      "As blades can rend and magic freeze,\nA song can mend it all with ease.",
       false,
       ITEM_STRING
     },
     { "Shatter", // 382
-      "",
-      false,
+      "a primitive syncopation",
+      true,
       ITEM_PERCUSSION
     },
     { "Home Sweet Home",
@@ -234,17 +234,17 @@ struct bard_song songs[] = {
       ITEM_STRING
     },
     { "Weight of the World", // 384
-      "The weight on my shoulders is heavy and cumbrous,\nWe'll lighten the load with the light of this chorus.",
+      "We carry the weight of the world on our shoulders,\nHolding us down as surely as boulders.\nTo lighten our loads, this song we'll sing,\nAnd to our packs a lighness bring!",
       false,
       ITEM_PERCUSSION
     },
     { "Purple Haze", // 385
-      "Purple Haze was in my eyes.  Don't know if it's day or night.\nYou've got me blowing, blowing my mind.  Is it tomorrow or just the end of time?",
+      "Purple Haze was in my eyes.\nDon't know if it's day or night.\nYou've got me blowing, blowing my mind.\nIs it tomorrow or just the end of time?",
       false,
       ITEM_STRING
     },
     { "Wounding Whispers", // 386
-      "So soft, so close, so sharp and so free,\nThe Whispers of Wounding, they gather 'round me.",
+      "The whispered lies and gossip told\nCome back to haunt the young and old.\nThe barrier they form is thin,\nBut blocks true love and harbors sin.",
       false,
       ITEM_PERCUSSION
     },
@@ -264,7 +264,7 @@ struct bard_song songs[] = {
       ITEM_WIND
     },
     { "Lich's Lyrics", // 390
-      "Let the body die while the soul survives,\nFeed me your life and let me thrive!",
+      "Your life leaks, your soul drips.\nRun slowly down his fingertips.\nInto the palm and see him smile.\nThe Lich controls you all the while.",
       false,
       ITEM_PERCUSSION
     },
@@ -461,6 +461,9 @@ bool check_instrument(Creature *ch, int songnum)
     objs[1] = GET_EQ(ch, WEAR_WIELD);
     objs[2] = GET_EQ(ch, WEAR_WIELD_2);
     objs[3] = NULL;
+
+    if (ch->getLevel() > LVL_AMBASSADOR)
+        return true;
 
     while (objs[x] != NULL) {
         if (GET_OBJ_TYPE(objs[x]) == ITEM_INSTRUMENT &&
