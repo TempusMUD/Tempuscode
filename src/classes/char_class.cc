@@ -569,6 +569,7 @@ extern const char *player_race[] = {
     "Olympian",
     "Yugoloth",
     "Rowlahr",
+	"Githzerai",
 	"\n"
 };
 
