@@ -312,7 +312,7 @@ $(OBJ)/act.physic.o: act.physic.cc ../include/structs.h ../include/defs.h \
   ../include/vehicle.h ../include/materials.h ../include/flow_room.h \
   ../include/house.h ../include/char_class.h ../include/actions.h \
   ../include/mobact.h ../include/fight.h ../include/bomb.h \
-  ../include/specs.h ../include/vendor.h
+  ../include/specs.h ../include/vendor.h ../include/security.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/act.psionic.o: act.psionic.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \

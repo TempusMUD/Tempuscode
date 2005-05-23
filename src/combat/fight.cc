@@ -2938,8 +2938,6 @@ perform_violence(void)
 
 	Creature *ch;
 	int prob, i, die_roll;
-    CombatDataList::iterator li;
-    CombatDataList::iterator temp_li;
 
 	CreatureList::iterator cit = combatList.begin();
 	for (; cit != combatList.end(); ++cit) {
@@ -2957,15 +2955,11 @@ perform_violence(void)
 			continue;
 		}
         
-        li = ch->getCombatList()->begin();
-        while (li != ch->getCombatList()->end()) {
+        CombatDataList::iterator li = ch->getCombatList()->begin();
+        for (; li != ch->getCombatList()->end(); ++li) {
             if (ch->in_room != li->getOpponent()->in_room) {
-                temp_li = li++;
-                temp_li->getOpponent()->removeCombat(ch);
-                ch->removeCombat(temp_li->getOpponent());    
-            }
-            else {
-                ++li;
+                li->getOpponent()->removeCombat(ch);
+                ch->removeCombat(li->getOpponent());
             }
         }
         

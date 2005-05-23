@@ -97,7 +97,7 @@ SPECIAL(do_auctions)
              dick, 0, self, TO_CHAR);
         act ("A ball of light streaks from $n's hand and hits $N "
              "square in the chest, burning $M to a cinder!", false,
-             self, 0, dick, TO_NOVICT);
+             self, 0, dick, TO_NOTVICT);
         raw_kill(dick, self, TYPE_SLASH);
     }
 
