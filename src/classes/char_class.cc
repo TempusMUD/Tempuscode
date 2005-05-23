@@ -1161,7 +1161,8 @@ do_start(struct Creature *ch, int mode)
     // this character in the academey.
     if (mode == 0 &&
 			!ch->account->hasCharLevel(45) &&
-			!ch->account->hasCharGen(1)) {
+			!ch->account->hasCharGen(1) &&
+			!GET_CLAN(ch)) {
 		struct clanmember_data *member = NULL;
 		struct clan_data *clan = real_clan(TEMPUS_ACADEMY);
 
