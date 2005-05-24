@@ -1,125 +1,13 @@
-$(OBJ)/ban.o: ban.cc ../include/structs.h ../include/defs.h ../include/macros.h \
-  ../include/constants.h ../include/obj_data.h ../include/xml_utils.h \
-  /usr/include/libxml2/libxml/parser.h \
-  /usr/include/libxml2/libxml/xmlversion.h \
-  /usr/include/libxml2/libxml/xmlexports.h \
-  /usr/include/libxml2/libxml/tree.h \
-  /usr/include/libxml2/libxml/xmlstring.h \
-  /usr/include/libxml2/libxml/xmlregexp.h \
-  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
-  /usr/include/libxml2/libxml/valid.h \
-  /usr/include/libxml2/libxml/xmlerror.h \
-  /usr/include/libxml2/libxml/list.h \
-  /usr/include/libxml2/libxml/xmlautomata.h \
-  /usr/include/libxml2/libxml/entities.h \
-  /usr/include/libxml2/libxml/encoding.h \
-  /usr/include/libxml2/libxml/xmlIO.h \
-  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
-  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
-  /usr/include/libxml2/libxml/xmlmemory.h \
-  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
-  ../include/creature_list.h ../include/creature.h \
-  ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
-$(OBJ)/comm.o: comm.cc ../include/macros.h ../include/structs.h \
-  ../include/defs.h ../include/constants.h ../include/obj_data.h \
-  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
-  /usr/include/libxml2/libxml/xmlversion.h \
-  /usr/include/libxml2/libxml/xmlexports.h \
-  /usr/include/libxml2/libxml/tree.h \
-  /usr/include/libxml2/libxml/xmlstring.h \
-  /usr/include/libxml2/libxml/xmlregexp.h \
-  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
-  /usr/include/libxml2/libxml/valid.h \
-  /usr/include/libxml2/libxml/xmlerror.h \
-  /usr/include/libxml2/libxml/list.h \
-  /usr/include/libxml2/libxml/xmlautomata.h \
-  /usr/include/libxml2/libxml/entities.h \
-  /usr/include/libxml2/libxml/encoding.h \
-  /usr/include/libxml2/libxml/xmlIO.h \
-  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
-  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
-  /usr/include/libxml2/libxml/xmlmemory.h \
-  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
-  ../include/creature_list.h ../include/creature.h \
-  ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/spells.h ../include/utils.h ../include/comm.h \
-  ../include/security.h ../include/screen.h ../include/handler.h \
-  ../include/db.h ../include/house.h ../include/vehicle.h \
-  ../include/help.h ../include/accstr.h ../include/player_table.h \
-  ../include/events.h ../include/prog.h
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
-$(OBJ)/gnetsys.o: gnetsys.cc ../include/structs.h ../include/defs.h \
-  ../include/macros.h ../include/constants.h ../include/obj_data.h \
-  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
-  /usr/include/libxml2/libxml/xmlversion.h \
-  /usr/include/libxml2/libxml/xmlexports.h \
-  /usr/include/libxml2/libxml/tree.h \
-  /usr/include/libxml2/libxml/xmlstring.h \
-  /usr/include/libxml2/libxml/xmlregexp.h \
-  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
-  /usr/include/libxml2/libxml/valid.h \
-  /usr/include/libxml2/libxml/xmlerror.h \
-  /usr/include/libxml2/libxml/list.h \
-  /usr/include/libxml2/libxml/xmlautomata.h \
-  /usr/include/libxml2/libxml/entities.h \
-  /usr/include/libxml2/libxml/encoding.h \
-  /usr/include/libxml2/libxml/xmlIO.h \
-  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
-  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
-  /usr/include/libxml2/libxml/xmlmemory.h \
-  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
-  ../include/creature_list.h ../include/creature.h \
-  ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/comm.h ../include/db.h ../include/utils.h \
-  ../include/spells.h ../include/handler.h ../include/mail.h \
-  ../include/screen.h ../include/help.h ../include/char_class.h \
-  ../include/actions.h ../include/mobact.h ../include/clan.h \
-  ../include/vehicle.h ../include/house.h ../include/login.h \
-  ../include/matrix.h ../include/bomb.h
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
-$(OBJ)/nanny.o: nanny.cc ../include/structs.h ../include/defs.h \
-  ../include/macros.h ../include/constants.h ../include/obj_data.h \
-  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
-  /usr/include/libxml2/libxml/xmlversion.h \
-  /usr/include/libxml2/libxml/xmlexports.h \
-  /usr/include/libxml2/libxml/tree.h \
-  /usr/include/libxml2/libxml/xmlstring.h \
-  /usr/include/libxml2/libxml/xmlregexp.h \
-  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
-  /usr/include/libxml2/libxml/valid.h \
-  /usr/include/libxml2/libxml/xmlerror.h \
-  /usr/include/libxml2/libxml/list.h \
-  /usr/include/libxml2/libxml/xmlautomata.h \
-  /usr/include/libxml2/libxml/entities.h \
-  /usr/include/libxml2/libxml/encoding.h \
-  /usr/include/libxml2/libxml/xmlIO.h \
-  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
-  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
-  /usr/include/libxml2/libxml/xmlmemory.h \
-  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
-  ../include/creature_list.h ../include/creature.h \
-  ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/comm.h ../include/db.h ../include/utils.h \
-  ../include/spells.h ../include/handler.h ../include/mail.h \
-  ../include/screen.h ../include/help.h ../include/char_class.h \
-  ../include/actions.h ../include/mobact.h ../include/clan.h \
-  ../include/vehicle.h ../include/house.h ../include/login.h \
-  ../include/matrix.h ../include/bomb.h ../include/security.h \
-  ../include/quest.h ../include/player_table.h ../include/language.h
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/ban.o : ban.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h 
+	$(CXX) -c $(CXXFLAGS) ban.cc               -o $(OBJ)/ban.o
+$(OBJ)/comm.o : comm.cc \
+	$(INCLUDE)/macros.h $(INCLUDE)/structs.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/security.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/house.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/help.h $(INCLUDE)/desc_data.h $(INCLUDE)/tmpstr.h $(INCLUDE)/accstr.h $(INCLUDE)/player_table.h $(INCLUDE)/events.h $(INCLUDE)/prog.h 
+	$(CXX) -c $(CXXFLAGS) comm.cc              -o $(OBJ)/comm.o
+$(OBJ)/gnetsys.o : gnetsys.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/help.h $(INCLUDE)/char_class.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/bomb.h 
+	$(CXX) -c $(CXXFLAGS) gnetsys.cc           -o $(OBJ)/gnetsys.o
+$(OBJ)/nanny.o : nanny.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/spells.h $(INCLUDE)/handler.h $(INCLUDE)/mail.h $(INCLUDE)/screen.h $(INCLUDE)/help.h $(INCLUDE)/char_class.h $(INCLUDE)/clan.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/login.h $(INCLUDE)/matrix.h $(INCLUDE)/bomb.h $(INCLUDE)/security.h $(INCLUDE)/quest.h $(INCLUDE)/player_table.h $(INCLUDE)/language.h 
+	$(CXX) -c $(CXXFLAGS) nanny.cc             -o $(OBJ)/nanny.o
 OBJFILES= $(OBJ)/ban.o $(OBJ)/comm.o $(OBJ)/gnetsys.o $(OBJ)/nanny.o

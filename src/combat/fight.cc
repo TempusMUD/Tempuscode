@@ -38,7 +38,6 @@
 #include "guns.h"
 #include "specs.h"
 #include "mobact.h"
-#include "combat.h"
 #include "events.h"
 #include "security.h"
 #include "quest.h"

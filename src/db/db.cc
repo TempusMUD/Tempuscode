@@ -47,7 +47,6 @@ using namespace std;
 #include "security.h"
 #include "olc.h"
 #include "help.h"
-#include "combat.h"
 #include "tmpstr.h"
 //#include "flags.h"
 #include "player_table.h"
