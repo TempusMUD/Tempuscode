@@ -11,11 +11,14 @@
                           obj->obj_flags.type_flag == ITEM_KEY || \
                           obj->obj_flags.type_flag == ITEM_PORTAL || \
                           obj->obj_flags.type_flag == ITEM_SCRIPT || \
+                          obj->obj_flags.type_flag == ITEM_CONTAINER || \
                           obj->shared->vnum == -1)
 
+#define AUC_FILE_NAME "etc/auctioneer_data_%d.xml"
+
 // The vnum of the creature that delivers the goods and takes the cash
-int IMP_VNUM = 3223;
-int TOP_MOOD = 7;
+const int IMP_VNUM = 3223;
+const int TOP_MOOD = 7;
 int GOING_ONCE = 45;
 int GOING_TWICE = 90;
 int SOLD_TIME  = 135;
@@ -40,6 +43,10 @@ struct imp_data {
     long owed;
     int mode;
     short fail_count;
+};
+
+struct auctioneer_data {
+    bool _loaded;
 };
 
 struct auction_data {
@@ -78,6 +85,8 @@ int number(int from, int to);
 int get_max_auction_item();
 Creature *create_imp(room_data *inroom, auction_data &);
 bool bidder_can_afford(Creature *bidder, long amount);
+void aucSaveToXML(Creature *auc);
+bool aucLoadFromXML(Creature *auc);
 
 using namespace std;
 
@@ -87,6 +96,21 @@ SPECIAL(do_auctions)
     Creature *imp;
     list<auction_data>::iterator ai = items.begin();
     short mood_index = 0;
+
+    if (!self->mob_specials.func_data) {
+        char *fname = tmp_sprintf(AUC_FILE_NAME, self->in_room->number);
+        struct auctioneer_data *data;
+
+        CREATE(data, auctioneer_data, 1);
+        self->mob_specials.func_data = data;
+        if (!access(fname, W_OK)) {
+            if (aucLoadFromXML(self))
+                data->_loaded = true;
+            else
+                data->_loaded = false;
+        }
+        data->_loaded = false;
+    }
 
     Creature *dick;
     while (self->numCombatants()) {
@@ -140,6 +164,7 @@ SPECIAL(do_auctions)
                 list<auction_data>::iterator ti = ai;
                 ai++;
                 items.erase(ti);
+                aucSaveToXML(self);
             }
             else if (ai->last_bid_time && 
                      (time(NULL) - ai->last_bid_time) > GOING_TWICE &&
@@ -170,6 +195,7 @@ SPECIAL(do_auctions)
                 list<auction_data>::iterator ti = ai;
                 ai++;
                 items.erase(ti);
+                aucSaveToXML(self);
             }
             else if ((!ai->last_bid_time) && 
                      (time(NULL) - ai->start_time) > 
@@ -343,10 +369,9 @@ SPECIAL(do_auctions)
                     break;
             }
 
+            aucSaveToXML(self);
             return 1;
         }
-
-        return 1;
     }
 
     if (CMD_IS("stun") || CMD_IS("steal") || 
@@ -440,6 +465,7 @@ SPECIAL(do_auctions)
         ch->saveToXML();
         items.push_back(new_ai);
         items.sort();
+        aucSaveToXML(self);
 
         send_to_char(ch, "Your item has been entered for auction.\r\n");
 
@@ -497,6 +523,7 @@ SPECIAL(do_auctions)
         obj_to_char(obj, ch);
         items.erase(ai);
         ch->saveToXML();
+        aucSaveToXML(self);
 
         send_to_char(ch, "Your item has been withdrawn from auction.\r\n");
 
@@ -680,15 +707,107 @@ bool bidder_can_afford(Creature *bidder, long amount) {
     return tamount > amount;
 }
 
+void
+aucSaveToXML(Creature *auc) {
+    FILE *ouf;
+    char *fname = tmp_sprintf(AUC_FILE_NAME, auc->in_room->number);
 
+    ouf = fopen(fname, "w");
 
+    if (!ouf) {
+        errlog("Unable to open XML auctioneer file for saving. "
+               "[%s] (%s)\n", fname, strerror(errno));
+        return;
+    }
 
+    fprintf(ouf, "<?xml version=\"1.0\"?>");
+    fprintf(ouf, "<auctioneer going_once=\"%d\" going_twice=\"%d\" "
+                 "sold_time=\"%d\" nobid_thresh=\"%d\" auction_thresh=\"%d\" "
+                 "max_auc_value=\"%d\" max_auc_items=\"%d\" "
+                 "max_total_auc=\"%d\" bid_increment=\"%f\">\n", GOING_ONCE,
+                 GOING_TWICE, SOLD_TIME, NO_BID_THRESH, AUCTION_THRESH,
+                 MAX_AUC_VALUE, MAX_AUC_ITEMS, MAX_TOTAL_AUC, BID_INCREMENT);
 
+    list<auction_data>::iterator ai = items.begin();
+    for (; ai != items.end(); ai++) {
+        if (ai->auctioneer_id != auc->getIdNum())
+            continue;
 
+        fprintf(ouf, "<itemdata owner_id=\"%ld\" start_bid=\"%ld\">\n",
+                ai->owner_id, ai->start_bid);
+        ai->item->saveToXML(ouf);
+        fprintf(ouf, "</itemdata>\n");
+    }
+    fprintf(ouf, "</auctioneer>");
+    fclose(ouf);
+}
 
+bool
+aucLoadFromXML(Creature *auc) {
+    char *fname = tmp_sprintf(AUC_FILE_NAME, auc->in_room->number);
 
+    if (access(fname, W_OK)) {
+        errlog("Unable to open XML auctioneer file for loading. "
+               "[%s] (%s)\n", fname, strerror(errno));
+        return false;
+    }
 
+    xmlDocPtr doc = xmlParseFile(fname);
+    if (!doc) {
+        errlog("XML parse error while loading %s", fname);
+        return false;
+    }
 
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    if (!root) {
+        xmlFreeDoc(doc);
+        errlog("XML file %s is empty", fname);
+        return false;
+    }
 
+    GOING_ONCE = xmlGetIntProp(root, "going_once");
+    GOING_TWICE = xmlGetIntProp(root, "going_twice");
+    SOLD_TIME = xmlGetIntProp(root, "sold_time");
+    NO_BID_THRESH = xmlGetIntProp(root, "nobid_thresh");
+    AUCTION_THRESH = xmlGetIntProp(root, "auction_thresh");
+    MAX_AUC_VALUE = xmlGetIntProp(root, "max_auc_value");
+    MAX_AUC_ITEMS = xmlGetIntProp(root, "max_auc_items");
+    MAX_TOTAL_AUC = xmlGetIntProp(root, "max_total_auc");
+    BID_INCREMENT = (float)atof(xmlGetProp(root, "bid_increment"));
 
+    struct auction_data new_ai;
+    for (xmlNodePtr node = root->xmlChildrenNode; node; node = node->next) {
+        if (xmlMatches(node->name, "itemdata")) {
+            memset(&new_ai, 0x0, sizeof(struct auction_data));
+            new_ai.auctioneer_id = auc->getIdNum();
+            new_ai.buyer_id = 0;
+            new_ai.item_no = get_max_auction_item();
+            if (new_ai.item_no < 0)
+                return false;
+            new_ai.start_time = time(NULL);
+            new_ai.last_bid_time = 0;
+            new_ai.current_bid = 0;
+            new_ai.new_bid = false;
+            new_ai.new_item = false;
+            new_ai.announce_count = 1;
+            new_ai.owner_id = xmlGetIntProp(node, "owner_id");
+            new_ai.start_bid = xmlGetIntProp(node, "start_bid");
 
+            for (xmlNodePtr cnode = node->xmlChildrenNode; 
+                 cnode; cnode = cnode->next) {
+                if (xmlMatches(cnode->name, "object")) {
+                    struct obj_data *obj = create_obj();
+                    if (!obj->loadFromXML(NULL, auc, NULL, cnode)) {
+                        errlog("Auctioneer failed to load item from %s", fname);
+                        extract_obj(obj);
+                        continue;
+                    }
+                    new_ai.item = obj;
+                    items.push_back(new_ai);
+                }
+            }
+        }
+    }
+
+    return true;
+}
