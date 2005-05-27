@@ -12,18 +12,19 @@
                           obj->obj_flags.type_flag == ITEM_PORTAL || \
                           obj->obj_flags.type_flag == ITEM_SCRIPT || \
                           obj->shared->vnum == -1)
+
 // The vnum of the creature that delivers the goods and takes the cash
-const int IMP_VNUM = 3223;
-const int TOP_MOOD = 7;
-const int GOING_ONCE = 45;
-const int GOING_TWICE = 90;
-const int SOLD_TIME  = 135;
-const int NO_BID_THRESH  = 450;
-const int AUCTION_THRESH = 900;
-const int MAX_AUC_VALUE = 50000000;
-const int MAX_AUC_ITEMS = 5;
-const int MAX_TOTAL_AUC = 100;
-const float BID_INCREMENT = 0.05; //percent of starting bid
+int IMP_VNUM = 3223;
+int TOP_MOOD = 7;
+int GOING_ONCE = 45;
+int GOING_TWICE = 90;
+int SOLD_TIME  = 135;
+int NO_BID_THRESH  = 450;
+int AUCTION_THRESH = 900;
+int MAX_AUC_VALUE = 50000000;
+int MAX_AUC_ITEMS = 5;
+int MAX_TOTAL_AUC = 100;
+float BID_INCREMENT = 0.05; //percent of starting bid
 
 extern const int IMP_DELIVER_ITEM;
 extern const int IMP_RETURN_ITEM;
@@ -45,6 +46,7 @@ struct auction_data {
     bool operator < (const auction_data &b) const {
         return item_no < b.item_no;
     }
+    long auctioneer_id;
     long owner_id;
     long buyer_id;
     int item_no;
@@ -60,19 +62,16 @@ struct auction_data {
 
 list<auction_data> items;
 
-struct _mood {
-    char *mood_name;
-};
-
-struct _mood moods[] = {
-    { " fiercely" },
-    { " vehemently" },
-    { " wildly" },
-    { " outrageously" },
-    { " quickly" },
-    { " crazily" },
-    { " impatiently" },
-    { " loudly" }
+const char *moods[] = {
+    " fiercely",
+    " vehemently",
+    " wildly",
+    " outrageously",
+    " quickly",
+    " crazily",
+    " impatiently",
+    " loudly",
+    "\n"
 };
 
 int number(int from, int to);
@@ -109,6 +108,11 @@ SPECIAL(do_auctions)
         char *auc_str = NULL;
         ai = items.begin();
         while (ai != items.end()) {
+            if (ai->auctioneer_id != self->getIdNum()) {
+                ++ai;
+                continue;
+            }
+
             mood_index = number(0, TOP_MOOD);
             if (ai->new_bid) {
                 auc_str = tmp_sprintf("%ld coins heard for item number %d, %s!!",
@@ -178,7 +182,7 @@ SPECIAL(do_auctions)
             }
 
             if (auc_str && *auc_str) {
-                GET_MOOD(self) = moods[mood_index].mood_name;
+                GET_MOOD(self) = moods[mood_index];
                 do_gen_comm(self, auc_str, 0, SCMD_AUCTION, NULL);
                 GET_MOOD(self) = NULL;
                 auc_str = NULL;
@@ -208,6 +212,8 @@ SPECIAL(do_auctions)
                 send_to_char(ch, "There are no items for auction.\r\n");
             acc_string_clear();
             for (ai = items.begin(); ai != items.end(); ++ai) {
+                acc_sprintf("%sAuctioneer Id:%s   %ld\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), ai->auctioneer_id);
                 acc_sprintf("%sItem Number:%s   %d\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), ai->item_no);
                 acc_sprintf("%sOwner:%s         %s\r\n",
@@ -241,6 +247,106 @@ SPECIAL(do_auctions)
             page_string(ch->desc, acc_get_string());
             return 1;
         }
+
+        if (CMD_IS("aucset") && ch->getLevel() > LVL_ENERGY) {
+            const char *aucset_commands[] = {
+                "going_once",
+                "going_twice",
+                "sold_time",
+                "nobid_thresh",
+                "auction_thresh",
+                "max_auc_value",
+                "max_auc_items",
+                "max_total_auc",
+                "bid_increment",
+                "\n"
+            };
+            
+            char *var = tmp_getword(&argument);
+            char *val = tmp_getword(&argument);
+            int aucset_command;
+            float fval;
+
+            if (!*var && !*val) {
+                // Print current settings
+                acc_string_clear();
+                acc_sprintf("%sGoing Once Time:%s    %d\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), GOING_ONCE);
+                acc_sprintf("%sGoing Twice Time:%s   %d\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), GOING_TWICE);
+                acc_sprintf("%sSold Time:%s          %d\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), SOLD_TIME);
+                acc_sprintf("%sNo Bids Announce:%s   %d\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), NO_BID_THRESH);
+                acc_sprintf("%sMax Auction Time:%s   %d\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), AUCTION_THRESH);
+                acc_sprintf("%sMax Item Value:%s     %d\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), MAX_AUC_VALUE);
+                acc_sprintf("%sMax Items/Pers:%s     %d\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), MAX_AUC_ITEMS);
+                acc_sprintf("%sMax Total Aucs:%s     %d\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), MAX_TOTAL_AUC);
+                acc_sprintf("%sBid Increment:%s      %f\r\n",
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), BID_INCREMENT);
+                page_string(ch->desc, acc_get_string());
+                return 1;
+            }
+            else if (is_abbrev(var, "help") || !*var || !*val) {
+                // Print usage
+                send_to_char(ch, "Usage: aucset <VAR> <VAL>\r\n\r\n"
+                                 "The following variables are accepted:\r\n"
+                                 "going_once\r\ngoing_twice\r\nsold_time\r\n"
+                                 "nobid_thresh\r\nauction_thresh\r\n"
+                                 "max_auc_value\r\nmax_auc_items\r\n"
+                                 "max_total_auc\r\nbid_increment\r\n\r\n");
+                return 1;
+            }
+            // They knew what they were doing, set the var
+            if ((aucset_command = 
+                        search_block(var, aucset_commands, FALSE)) < 0) {
+                send_to_char(ch, "Invalid aucset command.\r\n");
+                return 1;
+            }
+
+            if ((fval = (float)(atof(val))) <= 0) {
+                send_to_char(ch, "That's not a valid value.\r\n");
+                return 1;
+            }
+
+            switch(aucset_command) {
+                case 0:
+                    GOING_ONCE = (int)fval;
+                    break;
+                case 1:
+                    GOING_TWICE = (int)fval;
+                    break;
+                case 2:
+                    SOLD_TIME = (int)fval;
+                    break;
+                case 3:
+                    NO_BID_THRESH = (int)fval;
+                    break;
+                case 4:
+                    AUCTION_THRESH = (int)fval;
+                    break;
+                case 5:
+                    MAX_AUC_VALUE = (int)fval;
+                    break;
+                case 6:
+                    MAX_AUC_ITEMS = (int)fval;
+                    break;
+                case 7:
+                    MAX_TOTAL_AUC = (int)fval;
+                    break;
+                case 8:
+                    BID_INCREMENT = fval;
+                    break;
+            }
+
+            return 1;
+        }
+
+        return 1;
     }
 
     if (CMD_IS("stun") || CMD_IS("steal") || 
@@ -316,6 +422,7 @@ SPECIAL(do_auctions)
         }
         
         struct auction_data new_ai;
+        new_ai.auctioneer_id = self->getIdNum();
         new_ai.owner_id = ch->getIdNum();
         new_ai.buyer_id = 0;
         new_ai.item_no = item_no;
@@ -353,12 +460,14 @@ SPECIAL(do_auctions)
 
         list<auction_data>::iterator ai = items.begin();
         for (; ai != items.end(); ai++) {
-            if (ai->item_no == item_no)
+            if (ai->item_no == item_no && 
+                ai->auctioneer_id == self->getIdNum())
                 break;
         }
 
         if (ai == items.end()) {
-            send_to_char(ch, "That item doesn't exist!\r\n");
+            send_to_char(ch, "I don't see that item!  "
+                             "Maybe you should try another auctioneer.\r\n");
             return 1;
         }
 

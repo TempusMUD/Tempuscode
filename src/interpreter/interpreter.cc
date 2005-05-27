@@ -490,6 +490,7 @@ struct command_info cmd_info[] = {
 	{"affects", POS_SLEEPING, do_affects, 0, 0, 0, 0},
 	{"afk", POS_SLEEPING, do_gen_tog, 0, SCMD_AFK, 0, 0},
 	{"admire", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"aucset", POS_RESTING, do_not_here, 0, 0, 0, 0},
 
 	{"babble", POS_RESTING, do_say, 0, SCMD_BABBLE, 0, 0},
 	{"backstab", POS_STANDING, do_backstab, 1, 0, 0, 0},
