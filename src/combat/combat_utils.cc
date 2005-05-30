@@ -267,7 +267,8 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
     return false;
 }
 
-bool is_npk_combat(struct Creature *ch, struct Creature *vict) {
+bool 
+is_npk_combat(struct Creature *ch, struct Creature *vict) {
     if (!ch || !vict) {
         return false;
     }
@@ -1652,8 +1653,9 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	// if non-arena room, transfer eq to corpse
 	bool lose_eq = (!is_arena_combat(killer, ch) || IS_MOB(ch))
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR;
-    bool lose_implants = (!is_npk_combat(killer, ch) || IS_MOB(ch))
-        && GET_LEVEL(ch) < LVL_AMBASSADOR;
+    bool lose_implants = (!is_npk_combat(killer, ch) || 
+                          !is_arena_combat(killer, ch) ||
+                         IS_MOB(ch)) && GET_LEVEL(ch) < LVL_AMBASSADOR;
     
 	obj_data *next_obj;
 
