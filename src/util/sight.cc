@@ -13,6 +13,21 @@ room_is_dark(room_data *room)
 {
 	int sunlight;
 
+    if (!room) {
+		errlog("room_is_dark() called with NULL room [%d]", room->number);
+        return false;
+    }
+
+    if (!room->zone) {
+		errlog("room_is_dark() called with NULL room->zone [%d]", room->number);
+        return false;
+    }
+
+    if (!room->zone->weather) {
+		errlog("room_is_dark() called with NULL room->zone->weather [%d]", room->number);
+        return false;
+    }
+
     if (room->light)
         return false;
     if (SECT(room) == SECT_ELEMENTAL_OOZE)
