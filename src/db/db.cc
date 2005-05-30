@@ -2160,11 +2160,16 @@ load_zones(FILE * fl, char *zonename)
 		line_num += get_line(fl, buf);
 	}
 
-	if (sscanf(buf, " %d %d %d %d %d %s %d %d", &new_zone->top,
-			&new_zone->lifespan, &new_zone->reset_mode,
-			&new_zone->time_frame, &new_zone->plane, flags,
-			&new_zone->hour_mod, &new_zone->year_mod) != 8) {
-		fprintf(stderr, "Format error in 8-constant line of %s\n", zname);
+    int result = sscanf(buf, " %d %d %d %d %d %s %d %d %d", &new_zone->top,
+                        &new_zone->lifespan, &new_zone->reset_mode,
+                        &new_zone->time_frame, &new_zone->plane, flags,
+                        &new_zone->hour_mod, &new_zone->year_mod, 
+                        &new_zone->pk_style);
+	if (result == 8) {
+        new_zone->pk_style = ZONE_CHAOTIC_PK;
+    }
+    else if (result != 9) {
+		fprintf(stderr, "Format error in 9-constant line of %s\n", zname);
 		fprintf(stderr, "Line was: %s", buf);
 		safe_exit(0);
 	}
@@ -2175,13 +2180,19 @@ load_zones(FILE * fl, char *zonename)
 //    REMOVE_BIT(new_zone->flags, (1 << 12));
 
 	CREATE(weather, struct weather_data, 1);
-	weather->pressure = 0;
-	weather->change = 0;
-	weather->sky = 0;
-	weather->sunlight = 0;
-	weather->humid = 0;
+    if (weather) {
+        weather->pressure = 0;
+        weather->change = 0;
+        weather->sky = 0;
+        weather->sunlight = 0;
+        weather->humid = 0;
 
-	new_zone->weather = weather;
+        new_zone->weather = weather;
+    }
+    else {
+        errlog("WTF?? No weather in db.cc??");
+        new_zone->weather = NULL;
+    }
 
 	for (;;) {
 		if ((tmp = get_line(fl, buf)) == 0) {

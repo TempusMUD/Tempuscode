@@ -302,6 +302,20 @@ extern const char *reset_mode[] = {
 	"\r\n"
 };
 
+extern const char *zone_pk_flags[] = {
+    "!PK",
+    "NPK",
+    "CPK",
+    "\n"
+};
+
+extern const char *zone_pk_names[] = {
+    "no_pk",
+    "neutral_pk",
+    "chaotic_pk",
+    "\n"
+};
+
 /* Zone flags */
 extern const char *zone_flag_names[] = {
 	"autosave",

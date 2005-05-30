@@ -205,6 +205,7 @@ class room_data {
   public:						// methods
 	room_data(room_num n = -1, struct zone_data *z = NULL);
 	bool isOpenAir(void);
+
 	int countExits(void);
   public:						// members
 	 room_num number;			// Rooms number (vnum)

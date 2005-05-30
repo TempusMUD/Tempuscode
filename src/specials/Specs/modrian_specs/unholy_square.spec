@@ -51,6 +51,8 @@ perform_defile(struct room_data *room, int *state, char **olddesc,
 	room->description = DESC_UNHOLY;
 
 	SET_BIT(room->zone->flags, ZONE_LOCKED);
+
+    REMOVE_BIT(room->room_flags, ROOM_PEACEFUL);
 }
 
 void
@@ -69,6 +71,7 @@ perform_resanct(struct room_data *room, int *state, char *olddesc,
 	room->description = olddesc;
 
 	REMOVE_BIT(room->zone->flags, ZONE_LOCKED);
+    SET_BIT(room->room_flags, ROOM_PEACEFUL);
 
 }
 

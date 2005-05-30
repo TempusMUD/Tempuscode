@@ -3073,6 +3073,10 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN))
 		return 0;
 
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        send_to_char(ch, "This is a non-violence zone!\r\n");
+        return 0;
+    }
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
@@ -3092,6 +3096,11 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 					 FALSE, ch, 0, (*it), TO_CHAR);
 				return 0;
 			}
+            if (IS_PC(ch) && IS_PC(*it) &&
+                ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+                send_to_char(ch, "This is a !PK zone!\r\n");
+                return 0;
+            }
 		}
 	}
 	

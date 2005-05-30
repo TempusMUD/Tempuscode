@@ -846,6 +846,18 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	if (!IS_NPC(ch) && ch->in_room->zone != was_in->zone)
 		ch->in_room->zone->enter_count++;
 
+    if (was_in->zone->getPKStyle() != ch->in_room->zone->getPKStyle()) {
+        if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK) {
+            send_to_char(ch, "%s%sYou have just entered a "
+                         "neutral PK zone.%s\r\n", CCBLD(ch, C_CMP),
+                         CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+        }
+        if (ch->in_room->zone->getPKStyle() == ZONE_CHAOTIC_PK) {
+            send_to_char(ch, "%s%sYou have just entered a "
+                         "chaotic PK zone.%s\r\n", CCBLD(ch, C_CMP),
+                         CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+        }
+    }
 	if (mount) {
 		char_from_room(mount);
 		if(!char_to_room(mount, ch->in_room) )

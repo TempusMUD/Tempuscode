@@ -8,7 +8,7 @@
 // Copyright 1998 by John Watson, John Rothe, all rights reserved.
 // Hacked to use classes and XML John Rothe 2001
 //
-static const int SAFE_ROOM_BITS = ROOM_NOMOB | ROOM_NOTRACK |
+static const int SAFE_ROOM_BITS = ROOM_PEACEFUL | ROOM_NOMOB | ROOM_NOTRACK |
 	ROOM_NOMAGIC | ROOM_NOTEL | ROOM_ARENA |
 	ROOM_NORECALL | ROOM_GODROOM | ROOM_HOUSE | ROOM_DEATH;
 

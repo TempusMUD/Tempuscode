@@ -2437,6 +2437,12 @@ ACMD(do_insert)
 			return;
 		}
 
+        if ((ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) ||
+             vict->in_room->zone->getPKStyle() == ZONE_NO_PK) 
+             && ch != vict && IS_PC(ch) && IS_PC(vict)) {
+            send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
+            return;
+        }
 		if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
 				!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 				!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
@@ -2684,6 +2690,13 @@ ACMD(do_extract)
                 errlog("Failed to open corpse file [%s] (%s)", fname,
                 strerror(errno));
             }
+        }
+
+        if ((ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) ||
+            vict->in_room->zone->getPKStyle() == ZONE_NO_PK) &&
+            IS_PC(ch) && IS_PC(vict)) {
+            send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
+            return;
         }
 
 		act("You carefully extract $p from $P.", FALSE, ch, obj, corpse,

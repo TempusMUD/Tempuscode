@@ -118,6 +118,7 @@ OLCIMP(Creature * ch)
 "olc zset [zone] flags <+/-> [FLAG FLAG ...]\r\n"  \
 "olc zset [zone] <hours | years> <mod>\r\n"        \
 "olc zset [zone] blanket_exp <percent>\r\n"        \
+"olc zset [zone] pk_style <no_pk | neutral_pk | chaotic_pk>\r\n"        \
 "Usage: olc zset [zone] command <cmd num> [if|max|prob] <value>\r\n"
 
 #define OLC_ZCMD_USAGE "Usage:\r\n"                                      \

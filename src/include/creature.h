@@ -1312,6 +1312,8 @@ struct Creature {
 	bool die(void);
 	// player has chosen to die horribly in arena
 	bool arena_die(void);
+    // player has chosen to die horribly in an NPK zone
+	bool npk_die(void);
 	// player has chosen to remort
 	bool remort(void);
 	// creature has chosen to be purged

@@ -1049,11 +1049,21 @@ call_magic(struct Creature *caster, struct Creature *cvict,
             } else {
 				send_to_char(caster, 
 					"A flash of white light fills the room, dispelling your "
-					"violent song!\r\n");
+					"violent magic!\r\n");
 				act("White light from no particular source suddenly fills the room, " "then vanishes.", FALSE, caster, 0, 0, TO_ROOM);
 				return 0;
 			}
 		}
+
+        if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
+             IS_PC(caster) && IS_PC(cvict) &&
+             (caster->in_room->zone->getPKStyle() == ZONE_NO_PK ||
+              cvict->in_room->zone->getPKStyle() == ZONE_NO_PK)) {
+            send_to_char(caster, "You cannot damage a player in a !PK zone!\r\n");
+            send_to_char(cvict, "%s has just tried to get violent with you!\r\n",
+                         GET_NAME(caster));
+            return 0;
+        }
 
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
 			!ok_damage_vendor(caster, cvict))

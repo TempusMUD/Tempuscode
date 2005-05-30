@@ -116,6 +116,11 @@ explode_sigil(Creature *ch, obj_data *obj)
 	int ret = 0;
 	int dam = 0;
 
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        act("$p feels rather warm to the touch, and shudders violently.",
+            FALSE, ch, obj, 0, TO_CHAR);
+        return 0;
+    }
 	dam = number(GET_OBJ_SIGIL_LEVEL(obj), GET_OBJ_SIGIL_LEVEL(obj) << 2);
 	if (mag_savingthrow(ch, GET_OBJ_SIGIL_LEVEL(obj), SAVING_SPELL))
 		dam >>= 1;
@@ -692,6 +697,13 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 			}
 		}
 
+        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) != ch->getIdNum() &&
+            ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
+            !IS_NPC(ch) && ch->getLevel() < LVL_AMBASSADOR &&
+            CORPSE_IDNUM(cont) > 0) {
+            send_to_char(ch, "You may not loot corpses in NPK zones.\r\n");
+            return 0;
+        }
 		if (!perform_get_from_container(ch, obj, cont, check_weight, true, 1))
 			return 0;
         
@@ -713,8 +725,14 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 	//
 
 	else {
-
-        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0 && CORPSE_IDNUM(cont) != GET_IDNUM(ch)) {
+        if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK && 
+            !IS_NPC(ch) && ch->getLevel() < LVL_AMBASSADOR &&
+            CORPSE_IDNUM(cont) != GET_IDNUM(ch) &&
+            CORPSE_IDNUM(cont) > 0) {
+            send_to_char(ch, "You may not loot corpses in NPK zones.\r\n");
+            return 0;
+        }
+        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0 && CORPSE_IDNUM(cont) != GET_IDNUM(ch) && ch->getLevel() < LVL_AMBASSADOR) {
             sprintf(buf, "You may only take things one at a time from $P.");
             act(buf, FALSE, ch, 0, cont, TO_CHAR);
             return 0;
@@ -887,6 +905,13 @@ get_from_room(struct Creature *ch, char *arg)
 			return 0;
 		}
 
+        if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) != ch->getIdNum() &&
+            ch->getLevel() < LVL_AMBASSADOR &&
+            ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
+            IS_PC(ch) && CORPSE_IDNUM(obj) > 0) {
+            send_to_char(ch, "You can't take corpses in NPK zones!\r\n");
+            return 0;
+        }
 
 		if (!perform_get_from_room(ch, obj, true, 1))
 			return 0;
@@ -916,6 +941,14 @@ get_from_room(struct Creature *ch, char *arg)
 
 		for (obj = ch->in_room->contents; obj; obj = next_obj) {
 			next_obj = obj->next_content;
+
+            if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) != ch->getIdNum() &&
+                ch->getLevel() < LVL_AMBASSADOR &&
+                ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
+                IS_PC(ch) && CORPSE_IDNUM(obj) > 0) {
+                send_to_char(ch, "You can't take corpses in NPK zones!\r\n");
+                continue;
+            }
 
 			if (!can_see_object(ch, obj)) {
 				continue;

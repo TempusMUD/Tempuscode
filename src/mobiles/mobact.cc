@@ -243,6 +243,9 @@ burn_update(void)
 					if (IS_MONK(ch))
 						dam -= (GET_LEVEL(ch) * dam) / 100;
 
+                    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
+                        dam = 0;
+
 					ch->setPosition(POS_RESTING);
 
 					if (dam
@@ -648,6 +651,7 @@ burn_update(void)
 		}
 		// radioactive room
 		if (ROOM_FLAGGED(ch->in_room, ROOM_RADIOACTIVE)
+            && !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 			&& !CHAR_WITHSTANDS_RAD(ch)) {
 
 			if (affected_by_spell(ch, SKILL_RADIONEGATION)) {
@@ -1819,7 +1823,8 @@ mobile_activity(void)
 		// barbs go BERSERK (berserk)
 		//
 
-		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AFF2_FLAGGED(ch, AFF2_BERSERK)) {
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AFF2_FLAGGED(ch, AFF2_BERSERK) &&
+            !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 
 			int return_flags = 0;
 			if (perform_barb_berserk(ch, 0, &return_flags))
@@ -2219,7 +2224,9 @@ mobile_activity(void)
 
 		/*Racially aggressive Mobs */
 
-		if (IS_RACIALLY_AGGRO(ch) && random_fractional_4()) {
+		if (IS_RACIALLY_AGGRO(ch) && 
+            !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
+            random_fractional_4()) {
 			found = FALSE;
 			vict = NULL;
 			room_data *room = ch->in_room;
@@ -2261,7 +2268,8 @@ mobile_activity(void)
 		/* Aggressive Mobs */
 
 		if (MOB_FLAGGED(ch, MOB_AGGRESSIVE)
-				|| MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN)) {
+		    || MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN) &&
+            !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 			found = FALSE;
 			vict = NULL;
 			it = ch->in_room->people.begin();
@@ -2331,7 +2339,7 @@ mobile_activity(void)
 					if(! CAN_GO(ch, dir) )
 						continue;
 					room_data *tmp_room = EXIT(ch, dir)->to_room;
-					if ( !ROOM_FLAGGED(tmp_room, ROOM_DEATH | ROOM_NOMOB) 
+					if ( !ROOM_FLAGGED(tmp_room, ROOM_DEATH | ROOM_NOMOB | ROOM_PEACEFUL) 
 						&& tmp_room != ch->in_room 
 						&& CHAR_LIKES_ROOM(ch, tmp_room) 
 						&& tmp_room->people.size() > 0 
@@ -3099,7 +3107,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 					if (CAN_GO(ch, dir) &&
 						!ROOM_FLAGGED(EXIT(ch, dir)->to_room,
 							ROOM_DEATH | ROOM_NOMOB |
-							ROOM_NOTRACK) &&
+							ROOM_NOTRACK | ROOM_PEACEFUL) &&
 						EXIT(ch, dir)->to_room != ch->in_room &&
 						CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room)
 						&& random_binary()) {
@@ -5016,7 +5024,8 @@ int barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vic
 		// barbs go BERSERK (berserk)
 		//
 
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF2_FLAGGED(ch, AFF2_BERSERK)) {
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF2_FLAGGED(ch, AFF2_BERSERK) &&
+        !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
         do_berserk(ch, "", 0, 0, 0);
 
 		if (!perform_barb_berserk(ch, 0, &return_flags)){

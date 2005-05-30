@@ -125,6 +125,8 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	// Do not save it here.
 	if (is_arena_combat(killer, ch))
 		ch->arena_die();
+    else if (is_npk_combat(killer, ch) && !ROOM_FLAGGED(ch->in_room, ROOM_DEATH))
+        ch->npk_die();
 	else
 		ch->die();
 //	Event::Queue(new DeathEvent(0, ch, is_arena_combat(killer, ch)));
@@ -2451,6 +2453,21 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		return 0;
 	}
 
+    if (victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
+        send_to_char(ch,
+                     "This room just has such a peaceful, easy feeling...\r\n");
+        return 0;
+    }
+
+    if (victim && IS_PC(ch) && IS_PC(victim) &&
+        (victim->in_room->zone->getPKStyle() == ZONE_NO_PK ||
+        ch->in_room->zone->getPKStyle() == ZONE_NO_PK)) {
+        send_to_char(ch,
+                     "You are not allowed to damage players in !PK zones!\r\n");
+        send_to_char(victim, "%s has just tried to attack you!\r\n",
+                     GET_NAME(ch));
+        return 0;
+    }
 	if (LVL_AMBASSADOR <= GET_LEVEL(ch) && GET_LEVEL(ch) < LVL_GOD &&
 		IS_NPC(victim) && !mini_mud) {
 		send_to_char(ch, "You are not allowed to attack mobiles!\r\n");

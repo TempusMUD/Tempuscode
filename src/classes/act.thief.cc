@@ -54,6 +54,22 @@ ACMD(do_steal)
 		return;
 	}
 
+    if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
+        send_to_char(ch,
+                     "The universal forces of order prevent those acts here.\r\n");
+        act("$n looks kinda sketchy for a moment.", FALSE, ch, 0, vict, TO_ROOM);
+        return;
+    }
+    if (vict->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK && 
+        IS_PC(ch) && IS_PC(vict)) {
+		send_to_char(ch, "You cannot steal in NPK zones!\r\n");
+		return;
+    }
+    if (vict->in_room->zone->getPKStyle() == ZONE_NO_PK &&
+        IS_PC(ch) && IS_PC(vict)) {
+		send_to_char(ch, "You cannot steal in !PK zones!\r\n");
+		return;
+    }
 	if (vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT) {
 		send_to_char(ch, "You cannot steal from newbies!\r\n");
 		return;

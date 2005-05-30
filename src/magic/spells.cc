@@ -171,7 +171,8 @@ ASPELL(spell_recall)
 				GET_PLANE(victim->in_room) > MAX_PRIME_PLANE) ||
 			(GET_PLANE(load_room) > MAX_PRIME_PLANE &&
 				GET_PLANE(victim->in_room) <= MAX_PRIME_PLANE)) &&
-		GET_PLANE(victim->in_room) != PLANE_ASTRAL) {
+		GET_PLANE(victim->in_room) != PLANE_ASTRAL &&
+        !ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
 		if (number(0, 120) >
 			(CHECK_SKILL(ch, SPELL_WORD_OF_RECALL) + GET_INT(ch)) ||
 			((IS_KNIGHT(ch) || IS_CLERIC(ch)) && IS_NEUTRAL(ch))) {
@@ -225,6 +226,21 @@ ASPELL(spell_local_teleport)
 		}
 	}
 
+    if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
+        act("You feel strange as $n attempts to teleport you.",
+            FALSE, ch, 0, victim, TO_VICT);
+        act("You fail.  $N is in a non-violence zone!.",
+            FALSE, ch, 0, victim, TO_CHAR);
+        return;
+    }
+    if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
+        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        act("You feel strange as $n attempts to teleport you.",
+            FALSE, ch, 0, victim, TO_VICT);
+        act("You fail.  $N is in a !PK zone!.",
+            FALSE, ch, 0, victim, TO_CHAR);
+        return;
+    }
 	if (GET_LEVEL(victim) > LVL_AMBASSADOR
 		&& GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		act("$N sneers at you with disgust.\r\n", FALSE, ch, 0, victim,
@@ -410,6 +426,21 @@ ASPELL(spell_teleport)
 		return;
 	}
 
+    if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
+        act("You feel strange as $n attempts to teleport you.",
+            FALSE, ch, 0, victim, TO_VICT);
+        act("You fail.  $N is in a non-violence zone!.",
+            FALSE, ch, 0, victim, TO_CHAR);
+        return;
+    }
+    if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
+        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        act("You feel strange as $n attempts to teleport you.",
+            FALSE, ch, 0, victim, TO_VICT);
+        act("You fail.  $N is in a !PK zone!.",
+            FALSE, ch, 0, victim, TO_CHAR);
+        return;
+    }
 	if (GET_LEVEL(victim) > LVL_AMBASSADOR &&
 		GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		act("$N sneers at you with disgust.\r\n", FALSE, ch, 0, victim,
@@ -518,6 +549,29 @@ ASPELL(spell_astral_spell)
 		return;
 	}
 
+    if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
+        act("You feel strange as $n attempts to send you into the astral.",
+            FALSE, ch, 0, victim, TO_VICT);
+        act("You fail.  $N is in a non-violence zone!.",
+            FALSE, ch, 0, victim, TO_CHAR);
+        return;
+    }
+    if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
+        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        act("You feel strange as $n attempts to send you into the astral.",
+            FALSE, ch, 0, victim, TO_VICT);
+        act("You fail.  $N is in a !PK zone!.",
+            FALSE, ch, 0, victim, TO_CHAR);
+        return;
+    }
+    if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
+        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        act("You feel strange as $n attempts to send you into the astral.",
+            FALSE, ch, 0, victim, TO_VICT);
+        act("You fail.  $N is in a !PK zone!.",
+            FALSE, ch, 0, victim, TO_CHAR);
+        return;
+    }
 	if (GET_LEVEL(victim) > LVL_AMBASSADOR
 		&& GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		act("$N sneers at you with disgust.\r\n", FALSE, ch, 0, victim,
@@ -2298,6 +2352,13 @@ ASPELL(spell_gust_of_wind)
 	if (!victim)
 		return;
 
+    if (!IS_NPC(victim) && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))
+        return;
+    
+    if (IS_PC(ch) && IS_PC(victim) && 
+        victim->in_room->zone->getPKStyle() == ZONE_NO_PK)
+        return;
+
 	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
 		ch->master->in_room == ch->in_room) {
 		if (ch == victim) {
@@ -2701,6 +2762,16 @@ ASPELL(spell_animate_dead)
 		return;
 	}
 
+    if (IS_PC(ch) && CORPSE_IDNUM(obj) > 0 &&
+        ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        send_to_char(ch, "You cannot cast that here.\r\n");
+        return;
+    }
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        send_to_char(ch, "You cannot cast that here.\r\n");
+        return;
+    }
+
 	if (!obj) {
 		send_to_char(ch, "You cannot animate that.\r\n");
 		return;
@@ -2882,6 +2953,15 @@ ASPELL(spell_unholy_stalker)
 	struct Creature *stalker = NULL;
 	float mult = (float)level / 70;
 
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        send_to_char(ch, "You cannot cast that here.\r\n");
+        return;
+    }
+    if (IS_PC(ch) && IS_PC(victim) &&
+        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        send_to_char(ch, "You cannot cast that here.\r\n");
+        return;
+    }
 	if (victim->in_room != ch->in_room) {
 
 		if (AFF_FLAGGED(victim, AFF_NOTRACK) ||
@@ -3105,6 +3185,9 @@ ASPELL(spell_sun_ray)
 	send_to_room("A brilliant ray of sunlight bathes the area!\r\n",
 		ch->in_room);
 
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        return;
+    }
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
@@ -3118,6 +3201,12 @@ ASPELL(spell_sun_ray)
                     FALSE, ch, 0, *it, TO_CHAR );
 				return;
 			}
+            if (IS_PC(ch) && IS_PC(*it) &&
+                ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+                act("You cannot do this here.  This is a !PK zone.", 
+                    FALSE, ch, 0, *it, TO_CHAR );
+				return;
+            }
 		}
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
@@ -3177,6 +3266,9 @@ ASPELL(spell_inferno)
 	send_to_room("A raging firestorm fills the room with a hellish inferno!\r\n",
                     ch->in_room);
 
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        return;
+    }
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
@@ -3190,6 +3282,12 @@ ASPELL(spell_inferno)
                     FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			}
+            if (IS_PC(ch) && IS_PC(*it) &&
+                ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+                act("You cannot do this here.  This is a !PK zone.", 
+                    FALSE, ch, 0, *it, TO_CHAR );
+				return;
+            }
 		}
 	}
 

@@ -165,7 +165,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 	int dam, damage_type = 0;
 	char dname[128];
 
-	if (power <= bomb_power * 0.25)
+	if (ROOM_FLAGGED(room, ROOM_PEACEFUL) || power <= bomb_power * 0.25)
 		dam = 0;
 	else
 		dam = dice(power, MAX(10, (power >> 1)));
@@ -368,7 +368,8 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 			(bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
 			number(5, 5 + power) > GET_CON(vict)) {
 
-			if ((dir >= 0 || (dir = number(0, NUM_DIRS - 1)) >= 0) &&
+			if (ROOM_FLAGGED(room, ROOM_PEACEFUL) && 
+                (dir >= 0 || (dir = number(0, NUM_DIRS - 1)) >= 0) &&
 				room->dir_option[rev_dir[dir]] &&
 				room->dir_option[rev_dir[dir]]->to_room &&
 				!IS_SET(room->dir_option[rev_dir[dir]]->exit_info, EX_CLOSED)
@@ -389,7 +390,8 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 				vict->setPosition(POS_RESTING);
 			}
 
-			if (!mag_savingthrow(vict, 40, SAVING_ROD))
+			if (ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
+                !mag_savingthrow(vict, 40, SAVING_ROD))
 				vict->setPosition(POS_STUNNED);
 		}
 	}
@@ -490,7 +492,9 @@ detonate_bomb(struct obj_data *bomb)
 				(cont ? fname(cont->aliases) : "hands")),
 			false, ch, bomb, cont, TO_ROOM);
 		room = ch->in_room;
-
+        if (ROOM_FLAGGED(room, ROOM_PEACEFUL) ||
+            room->zone->getPKStyle() == ZONE_NO_PK)
+            BOMB_POWER(bomb) = 1;
 		if( bomb->worn_by ) {
 			unequip_char( ch, bomb->worn_on, 0 );
 		} else if (bomb->carried_by ) {
@@ -503,6 +507,9 @@ detonate_bomb(struct obj_data *bomb)
 				MIN(500, BOMB_POWER(bomb))), TYPE_BLAST, WEAR_HANDS);
 	}
 
+    if (ROOM_FLAGGED(room, ROOM_PEACEFUL) ||
+        room->zone->getPKStyle() == ZONE_NO_PK)
+        BOMB_POWER(bomb) = 1;
 	if (cont) {
 		while (cont->in_obj)
 			cont = cont->in_obj;

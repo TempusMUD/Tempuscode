@@ -56,9 +56,11 @@ const char *olc_zset_keys[] = {
 	"max_gen",
 	"public_desc",
 	"private_desc", /** 20 **/
+	"pk_style", /** 21 **/
 	"\n"
 };
 
+extern const char *zone_pk_names[];
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern int top_of_zone_table;
@@ -2367,7 +2369,16 @@ do_zset_command(struct Creature *ch, char *argument)
 				TO_ROOM);
 		start_text_editor(ch->desc, &zone->private_desc, true);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-	}
+        break;
+    case 21:    // pk_style
+        if (search_block(argument, zone_pk_names, FALSE) <= -1) {
+            send_to_char(ch, "Unknown PK style..\r\n");
+            return;
+        }
+	    zone->pk_style = search_block(argument, zone_pk_names, FALSE);
+            send_to_char(ch, "PK style set.\r\n");
+        break;
+    }
 }
 
 /* Create zone structure        */
@@ -2552,10 +2563,10 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 	tmp = zone->flags;
 
 	num2str(buf, tmp);
-	fprintf(zone_file, "%d %d %d %d %d %s %d %d\n",
+	fprintf(zone_file, "%d %d %d %d %d %s %d %d %d\n",
 		zone->top, zone->lifespan,
 		zone->reset_mode, zone->time_frame, zone->plane, buf,
-		zone->hour_mod, zone->year_mod);
+		zone->hour_mod, zone->year_mod, zone->pk_style);
 
 	for (zcmd = zone->cmd; zcmd; zcmd = zcmd->next) {
 		if (zcmd->command == 'D') {

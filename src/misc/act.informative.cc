@@ -1305,6 +1305,21 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 			!ROOM_FLAGGED(room, ROOM_SMOKE_FILLED) ||
 			AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))) {
 
+        /* Zone PK type */
+        if (ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+            send_to_char(ch, "%s[ %s!PK%s ]%s", CCCYN(ch, C_NRM),
+                         CCGRN(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        }
+        else if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK) {
+            send_to_char(ch, "%s[ %s%sNPK%s%s ]%s", CCCYN(ch, C_NRM),
+                         CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), 
+                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        }
+        else if (ch->in_room->zone->getPKStyle() == ZONE_CHAOTIC_PK) {
+            send_to_char(ch, "%s[ %s%sCPK%s%s ]%s", CCCYN(ch, C_NRM),
+                         CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        }
 		/* autoexits */
 		if (PRF_FLAGGED(ch, PRF_AUTOEXIT))
 			do_auto_exits(ch, room);

@@ -352,6 +352,10 @@ ACMD(do_snipe)
 				ROOM_FLAGGED(cur_room, ROOM_SMOKE_FILLED))
 			break;
 		
+        if (!nvz_room && (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) ||
+            vict->in_room->zone->getPKStyle() == ZONE_NO_PK) &&
+            IS_PC(ch) && IS_PC(vict))
+            nvz_room = cur_room;
 		vict = get_char_in_remote_room_vis(ch, vict_str, cur_room);
 
 	}

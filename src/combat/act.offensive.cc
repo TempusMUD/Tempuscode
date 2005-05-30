@@ -1676,6 +1676,11 @@ ACMD(do_stun)
 		send_to_char(ch, "You aren't able to get the right grip!\r\n");
 		return;
 	}
+    if (vict->in_room->zone->getPKStyle() == ZONE_NO_PK &&
+        IS_PC(vict) && IS_PC(ch)) {
+		send_to_char(ch, "You can't stun in a !PK zone!\r\n");
+		return;
+    }
 	if (!peaceful_room_ok(ch, vict, true))
 		return;
 
@@ -3135,6 +3140,11 @@ ACMD(do_beguile)
 	if (!can_see_creature(vict, ch))
 		return;
 
+    if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) || 
+        (vict->in_room->zone->getPKStyle() == ZONE_NO_PK &&
+         IS_PC(ch) && IS_PC(vict)))
+        return;
+    
 	if (GET_INT(vict) < 4) {
 		act("$N is too stupid to be beguiled.", FALSE, ch, 0, vict, TO_CHAR);
 		return;

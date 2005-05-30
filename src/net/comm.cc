@@ -2191,7 +2191,7 @@ bamf_quad_damage(void)
 	}
 
 	for (room = zone->world; room; room = room->next) {
-		if (ROOM_FLAGGED(room, ROOM_DEATH | ROOM_HOUSE |
+		if (ROOM_FLAGGED(room, ROOM_PEACEFUL | ROOM_DEATH | ROOM_HOUSE |
 				ROOM_CLAN_HOUSE) || room == orig_room || number(0, 9))
 			continue;
 		else

@@ -87,6 +87,7 @@ extern int current_mob_idnum;
 extern struct last_command_data last_cmd[NUM_SAVE_CMDS];
 extern const char *language_names[];
 extern const char *instrument_types[];
+extern const char *zone_pk_flags[];
 
 
 char *how_good(int percent);
@@ -900,8 +901,8 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         zone->weather->pressure, zone->weather->change);
 
     sprintbit(zone->flags, zone_flags, buf2);
-    send_to_char(ch, "Flags: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch,
-            C_NRM));
+    send_to_char(ch, "Flags: %s%s%s%s\r\n", CCGRN(ch, C_NRM), buf2, 
+                 zone_pk_flags[zone->getPKStyle()], CCNRM(ch, C_NRM));
 	
 	if (zone->min_lvl)
 		send_to_char(ch, "Target lvl/gen: [% 2d/% 2d - % 2d/% 2d]\r\n",

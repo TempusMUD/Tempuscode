@@ -286,7 +286,7 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 		GET_REMORT_GEN(ch)++;
 
     // At gen 5 they enter the world of pk, like it or not
-    if (GET_REMORT_GEN(ch) >= 5)
+    if (GET_REMORT_GEN(ch) >= 1)
         ch->gain_reputation(1);
 	// Whack thier remort invis
 	GET_WIMP_LEV(ch) = 0;	// wimpy

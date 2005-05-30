@@ -267,6 +267,21 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
     return false;
 }
 
+bool is_npk_combat(struct Creature *ch, struct Creature *vict) {
+    if (!ch || !vict) {
+        return false;
+    }
+
+    if (IS_NPC(ch) || IS_NPC(vict))
+        return false;
+
+    if (vict->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK) {
+        return true;
+    }
+
+    return false;
+}
+
 // Called to select a safe target when the character doesn't get to select
 // the target
 bool
@@ -392,6 +407,9 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 	struct Creature *killer = NULL;
 	int obj_id;
 
+    if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
+        return;
+    }
 	if (IS_NPC(vict))
 		return;
 
@@ -753,6 +771,19 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 		return false;
 	}
 
+    if (vict && ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
+        send_to_char(ch,
+                     "The universal forces of order prevent violence here!\r\n");
+        if (mssg) {
+            if (!number(0, 1))
+                act("$n seems to be violently disturbed.", FALSE, ch, 0, 0,
+                    TO_ROOM);
+            else
+                act("$n becomes violently agitated for a moment.",
+                    FALSE, ch, 0, 0, TO_ROOM);
+        }
+        return false;
+    }
 	if (IS_PC(ch) && IS_PC(vict)) {
 		if (!is_arena_combat(ch, vict)) {
 			if (vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT) {
@@ -999,7 +1030,8 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		}
 		obj_to_room(leg, ch->in_room);
 		if (!is_arena_combat(killer, ch) &&
-				GET_LEVEL(ch) <= LVL_AMBASSADOR) {
+            !is_npk_combat(killer, ch) &&
+			GET_LEVEL(ch) <= LVL_AMBASSADOR) {
 
 			/* transfer character's leg EQ to room, if applicable */
 			if (GET_EQ(ch, WEAR_LEGS))
@@ -1339,7 +1371,8 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		}
 
 		if (!is_arena_combat(killer, ch) &&
-				GET_LEVEL(ch) <= LVL_AMBASSADOR) {
+            !is_npk_combat(killer, ch) &&
+			GET_LEVEL(ch) <= LVL_AMBASSADOR) {
 			obj_data *o;
 			/* transfer character's head EQ to room, if applicable */
 			if (GET_EQ(ch, WEAR_HEAD))
@@ -1433,6 +1466,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		}
 		obj_to_room(head, ch->in_room);
 		if (!is_arena_combat(killer, ch) &&
+            !is_npk_combat(killer, ch) &&
 			GET_LEVEL(ch) <= LVL_AMBASSADOR) {
 			obj_data *o;
 			/* transfer character's head EQ to room, if applicable */
@@ -1618,6 +1652,9 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	// if non-arena room, transfer eq to corpse
 	bool lose_eq = (!is_arena_combat(killer, ch) || IS_MOB(ch))
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR;
+    bool lose_implants = (!is_npk_combat(killer, ch) || IS_MOB(ch))
+        && GET_LEVEL(ch) < LVL_AMBASSADOR;
+    
 	obj_data *next_obj;
 
 	/* transfer character's inventory to the corpse */
@@ -1633,7 +1670,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i) && (lose_eq || GET_EQ(ch, i)->isUnrentable()))
 			obj_to_obj(unequip_char(ch, i, MODE_EQ, true), corpse);
-		if (GET_IMPLANT(ch, i) && (lose_eq || GET_IMPLANT(ch, i)->isUnrentable())) {
+		if (GET_IMPLANT(ch, i) && (lose_implants || GET_IMPLANT(ch, i)->isUnrentable())) {
 			REMOVE_BIT(GET_OBJ_WEAR(GET_IMPLANT(ch, i)), ITEM_WEAR_TAKE);
 			obj_to_obj(unequip_char(ch, i, MODE_IMPLANT, true), corpse);
 		}

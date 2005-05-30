@@ -1124,6 +1124,9 @@ Creature::die(void)
 	obj_data *obj, *next_obj;
 	int pos;
 
+    removeAllCombat();
+    combatList.remove(this);
+
     if (GET_ROOM_PROG(this->in_room) != NULL) {
 	    trigger_prog_death(this->in_room, PROG_TYPE_ROOM, this);
     }
@@ -1153,6 +1156,37 @@ Creature::die(void)
 		obj_to_room(obj, in_room);
 	}
 	
+	if (!IS_NPC(this)) {
+		player_specials->rentcode = RENT_QUIT;
+		player_specials->rent_per_day = 0;
+		player_specials->desc_mode = CXN_AFTERLIFE;
+		player_specials->rent_currency = 0;
+		GET_LOADROOM(this) = in_room->zone->respawn_pt;
+		player.time.logon = time(0);
+		saveObjects();
+		saveToXML();
+	}
+	extract(CXN_AFTERLIFE);
+	return true;
+}
+
+bool
+Creature::npk_die(void)
+{
+    removeAllCombat();
+    combatList.remove(this);
+
+    if (GET_ROOM_PROG(this->in_room) != NULL) {
+	    trigger_prog_death(this->in_room, PROG_TYPE_ROOM, this);
+    }
+    
+    CreatureList::iterator it = this->in_room->people.begin();
+	for (; it != this->in_room->people.end(); ++it) {
+		if (GET_MOB_PROG((*it)) != NULL) {
+			trigger_prog_death(*it, PROG_TYPE_MOBILE, this);
+        }
+	}
+    
 	if (!IS_NPC(this)) {
 		player_specials->rentcode = RENT_QUIT;
 		player_specials->rent_per_day = 0;

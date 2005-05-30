@@ -90,8 +90,18 @@
 #define TIME_PAST			TIME_MODRIAN
 #define TIME_FUTURE			TIME_ELECTRO
 
+static const int ZONE_NO_PK       = 0;
+static const int ZONE_NEUTRAL_PK  = 1;
+static const int ZONE_CHAOTIC_PK  = 2;
+
 /* zone definition structure. for the 'zone-table'   */
 struct zone_data {
+    inline int getPKStyle() {
+        return pk_style;
+    }
+    inline void setPKStyle(int style) {
+        pk_style = style;
+    }
 	char *name;					/* name of this zone                  */
 	int lifespan;				/* how long between resets (minutes)  */
 	int age;					/* current age of this zone (minutes) */
@@ -113,6 +123,7 @@ struct zone_data {
 	int min_gen;				// Minimum target player remort gen of zone
 	int max_lvl;				// Maximum target player level of zone
 	int max_gen;				// Maximum target player remort gen of zone
+    int pk_style;
 	char *public_desc;			// Public description of zone
 	char *private_desc;			// Private description of zone
 	unsigned char num_players;	/* number of players in zone */
