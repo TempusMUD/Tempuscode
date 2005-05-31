@@ -772,7 +772,10 @@ peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg)
 		return false;
 	}
 
-    if (vict && ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
+    if ((vict && ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) ||
+         (vict && IS_PC(ch) && IS_PC(vict) &&
+          ch->in_room->zone->getPKStyle() == ZONE_NO_PK) && 
+          ch->getLevel() < LVL_GOD) {
         send_to_char(ch,
                      "The universal forces of order prevent violence here!\r\n");
         if (mssg) {
