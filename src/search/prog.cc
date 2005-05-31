@@ -1269,6 +1269,7 @@ prog_do_echo(prog_env *env, prog_evt *evt, char *args)
   obj_data *obj = NULL;
   room_data *room = NULL;
   
+  arg = tmp_getword(&args);
   switch (env->owner_type) {
   case PROG_TYPE_MOBILE:
 	ch = ((Creature *)env->owner);
@@ -1291,7 +1292,6 @@ prog_do_echo(prog_env *env, prog_evt *evt, char *args)
   }
   target = env->target;
 
-  arg = tmp_getword(&args);
   if (!strcasecmp(arg, "room")) {
 	act(args, false, ch, obj, target, TO_CHAR);
 	act(args, false, ch, obj, target, TO_ROOM);
