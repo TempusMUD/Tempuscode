@@ -255,9 +255,9 @@ void forget(struct Creature *ch, struct Creature *victim);
 void remember(struct Creature *ch, struct Creature *victim);
 int char_in_memory(struct Creature *victim, struct Creature *rememberer);
 
-const int DAM_VICT_KILLED = 0x0001;	// the victim of damage() died
-const int DAM_ATTACKER_KILLED = 0x0002;	// the caller of damage() died
-const int DAM_ATTACK_FAILED = 0x0003;	// the caller of damage() died
+const int DAM_VICT_KILLED = (1 << 0);	// the victim of damage() died
+const int DAM_ATTACKER_KILLED = (1 << 1);	// the caller of damage() died
+const int DAM_ATTACK_FAILED = (1 << 2);	// the caller of damage() died
 
 int SWAP_DAM_RETVAL(int val);
 int damage(struct Creature *ch, struct Creature *victim, int dam,
