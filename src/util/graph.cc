@@ -645,7 +645,7 @@ hunt_victim(struct Creature *ch)
 		!PLR_FLAGGED(ch->isHunting(), PLR_WRITING | PLR_OLC) &&
 		(!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE)) ||
 			CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))) {
-		if (peaceful_room_ok(ch, ch->isHunting(), false)
+		if (ch->isOkToAttack(ch->isHunting(), false)
 			&& !check_infiltrate(ch->isHunting(), ch)) {
 			return best_attack(ch, ch->isHunting());
 		}
@@ -653,7 +653,7 @@ hunt_victim(struct Creature *ch)
 	}
 	if (IS_CLERIC(ch) || IS_MAGE(ch)) {
 		if (ch->isHunting()->in_room && can_see_creature(ch, ch->isHunting()) &&
-			peaceful_room_ok(ch, ch->isHunting(), false)) {
+			ch->isOkToAttack(ch->isHunting(), false)) {
 			if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) ||
 				(IS_MAGE(ch) && GET_LEVEL(ch) > 27)) {
 				if (GET_MANA(ch) < mag_manacost(ch, SPELL_SUMMON)) {
@@ -701,7 +701,7 @@ hunt_victim(struct Creature *ch)
 			&& (!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE))
 				|| CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))
 			&& !check_infiltrate(ch->isHunting(), ch)) {
-			if (peaceful_room_ok(ch, ch->isHunting(), false)
+			if (ch->isOkToAttack(ch->isHunting(), false)
 				&& !PLR_FLAGGED(ch->isHunting(), PLR_OLC | PLR_WRITING)) {
 				if (ch->getPosition() >= POS_STANDING && !ch->numCombatants()) {
 					if (IS_ANIMAL(ch)) {

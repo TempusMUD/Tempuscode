@@ -271,7 +271,7 @@ ACMD(do_ambush)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
 	if (!AFF_FLAGGED(ch, AFF_HIDE)) {

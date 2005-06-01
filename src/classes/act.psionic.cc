@@ -76,18 +76,6 @@ ACMD(do_psidrain)
 		return;
 	}
 
-    if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
-        act("Your psychic powers cannot hurt $M there!", FALSE, ch, 0, vict,
-            TO_CHAR);
-        return;
-    }
-
-    if (IS_PC(ch) && IS_PC(vict) &&
-        vict->in_room->zone->getPKStyle() == ZONE_NO_PK) {
-        act("You cannot attack a player in a !PK zone!", FALSE, ch, 0, 
-            vict, TO_CHAR);
-        return;
-    }
 	if (ROOM_FLAGGED(vict->in_room, ROOM_NOPSIONICS)
 		&& GET_LEVEL(ch) < LVL_GOD) {
 		act("Psychic powers are useless where $E is!", FALSE, ch, 0, vict,
@@ -95,7 +83,7 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict))
 		return;
 
 	if (GET_MOVE(ch) < 20) {

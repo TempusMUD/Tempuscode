@@ -108,7 +108,7 @@ ACMD(do_hamstring)
 			"Cutting off your own leg just doesn't sound like fun.\r\n");
 		return;
 	}
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
 	if (vict->getPosition() == POS_SITTING) {
@@ -233,7 +233,7 @@ ACMD(do_drag_char)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true)) {
+	if (!ch->isOkToAttack(vict, true)) {
 		return;
 	}
 // Find out which direction the player wants to drag in    

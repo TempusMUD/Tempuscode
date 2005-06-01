@@ -1434,7 +1434,7 @@ ACMD(do_discharge)
 	}
 
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict))
 		return;
 
 	percent = ((10 - (GET_AC(vict) / 10)) >> 1) + number(1, 91);
@@ -2437,9 +2437,7 @@ ACMD(do_insert)
 			return;
 		}
 
-        if ((ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) ||
-             vict->in_room->zone->getPKStyle() == ZONE_NO_PK) 
-             && ch != vict && IS_PC(ch) && IS_PC(vict)) {
+        if (!ch->isOkToAttack(vict, false)) {
             send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
             return;
         }
@@ -2692,9 +2690,7 @@ ACMD(do_extract)
             }
         }
 
-        if ((ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) ||
-            vict->in_room->zone->getPKStyle() == ZONE_NO_PK) &&
-            IS_PC(ch) && IS_PC(vict)) {
+        if (!ch->isOkToAttack(vict, false)) {
             send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
             return;
         }
@@ -3340,7 +3336,7 @@ ACMD(do_de_energize)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict))
 		return;
 
 	appear(ch, vict);

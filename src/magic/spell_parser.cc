@@ -1022,7 +1022,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 	/* stuff to check caster vs. cvict */
 	if (cvict && caster != cvict) {
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
-			!peaceful_room_ok(caster, cvict, false)) {
+			!caster->isOkToAttack(cvict, false)) {
 			if (SPELL_IS_PSIONIC(spellnum)) {
 				send_to_char(caster, "The Universal Psyche descends on your mind and "
 					"renders you powerless!\r\n");
@@ -1054,16 +1054,6 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 				return 0;
 			}
 		}
-
-        if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
-             IS_PC(caster) && IS_PC(cvict) &&
-             (caster->in_room->zone->getPKStyle() == ZONE_NO_PK ||
-              cvict->in_room->zone->getPKStyle() == ZONE_NO_PK)) {
-            send_to_char(caster, "You cannot damage a player in a !PK zone!\r\n");
-            send_to_char(cvict, "%s has just tried to get violent with you!\r\n",
-                         GET_NAME(caster));
-            return 0;
-        }
 
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
 			!ok_damage_vendor(caster, cvict))

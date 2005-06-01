@@ -388,9 +388,9 @@ SPECIAL(tarrasque)
 					return 1;
 				}
 			}
-			if (!CMD_IS("swallow") && !peaceful_room_ok(tarr, vict, true))
+			if (!CMD_IS("swallow") && !tarr->isOkToAttack(vict, true))
 				return 1;
-			else if (!peaceful_room_ok(tarr, vict, false))
+			else if (!tarr->isOkToAttack(vict, false))
 				send_to_char(ch, "You aren't all that hungry, for once.\r\n");
 			else if (GET_LEVEL(vict) >= LVL_IMMORT)
 				send_to_char(ch, "Maybe that's not such a great idea...\r\n");

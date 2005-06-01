@@ -256,7 +256,7 @@ ACMD(do_lecture)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, false))
+	if (!ch->isOkToAttack(vict, false))
 		return;
 	if (!ok_damage_vendor(ch, vict))
 		return;
@@ -1073,7 +1073,7 @@ ASPELL(spell_emp_pulse)
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch) {
-			if (!peaceful_room_ok(ch, (*it), true))
+			if (!ch->isOkToAttack((*it), true))
 				return;
 		}
 	}

@@ -926,7 +926,7 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 	ACMD_set_return_flags(0);
 	memset(&af, 0, sizeof(struct affected_type));
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return false;
 
 	if (SPELL_IS_PSIONIC(skill) && ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
@@ -1134,7 +1134,7 @@ ACMD(do_hit)
 		act("$N is just such a good friend, you simply can't hit $M.", FALSE,
 			ch, 0, vict, TO_CHAR);
 	else {
-		if (!peaceful_room_ok(ch, vict, true))
+		if (!ch->isOkToAttack(vict, true))
 			return;
 
 		GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 5);
@@ -1676,12 +1676,7 @@ ACMD(do_stun)
 		send_to_char(ch, "You aren't able to get the right grip!\r\n");
 		return;
 	}
-    if (vict->in_room->zone->getPKStyle() == ZONE_NO_PK &&
-        IS_PC(vict) && IS_PC(ch)) {
-		send_to_char(ch, "You can't stun in a !PK zone!\r\n");
-		return;
-    }
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
     if (ch->checkReputations(vict))
@@ -1962,7 +1957,7 @@ ACMD(do_tornado_kick)
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 	if (GET_MOVE(ch) < 30) {
 		send_to_char(ch, "You are too exhausted!\r\n");
@@ -2065,7 +2060,7 @@ ACMD(do_sleeper)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
     if (ch->checkReputations(vict))
@@ -2177,7 +2172,7 @@ ACMD(do_turn)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 	percent = ((GET_LEVEL(vict)) + number(1, 101));	/* 101% is a complete
 													 * failure */
@@ -2309,13 +2304,9 @@ ACMD(do_shoot)
 			send_to_char(ch, "Aren't we funny today...\r\n");
 			return;
 		}
-		if (!peaceful_room_ok(ch, vict, true))
+		if (!ch->isOkToAttack(vict, true))
 			return;
 
-        if (IS_PC(ch) && IS_PC(vict) &&
-            ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
-            return;
-        }
 	}
 	//
 	// The Energy Gun block 
@@ -2739,7 +2730,7 @@ ACCMD(do_disarm)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
     if (ch->checkReputations(vict))
@@ -2871,7 +2862,7 @@ ACMD(do_impale)
 		}
 
 	}
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
 	percent = ((10 - (GET_AC(vict) / 10)) << 1) + number(1, 101);
@@ -2965,7 +2956,7 @@ ACMD(do_intimidate)
 		affect_to_char(vict, &af);
 		return;
 	}
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
 	prob = GET_LEVEL(vict) + number(1, 51) +
@@ -3090,7 +3081,7 @@ ACMD(do_drain)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
 	percent = ((10 - (GET_AC(vict) / 10)) >> 1) + number(1, 91);
@@ -3145,9 +3136,7 @@ ACMD(do_beguile)
 	if (!can_see_creature(vict, ch))
 		return;
 
-    if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) || 
-        (vict->in_room->zone->getPKStyle() == ZONE_NO_PK &&
-         IS_PC(ch) && IS_PC(vict)))
+    if (!ch->isOkToAttack(vict))
         return;
     
 	if (GET_INT(vict) < 4) {
@@ -3256,7 +3245,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 		return 0;
 	}
 	// And since ch and vict should already be fighting this should never happen either
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return 0;
 
 	//

@@ -348,7 +348,7 @@ ACMD(do_cleave)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 	
 	perform_cleave(ch, vict, return_flags);

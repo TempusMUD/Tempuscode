@@ -268,7 +268,7 @@ ACMD(do_whirlwind)
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 	if (GET_MOVE(ch) < 28) {
 		send_to_char(ch, "You are too exhausted!\r\n");
@@ -459,7 +459,7 @@ ACMD(do_combo)
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
 	if (GET_MOVE(ch) < 48) {
@@ -628,13 +628,7 @@ ACMD(do_pinch)
 		return;
 	}
 
-    if (which_pinch != SKILL_PINCH_ZETA &&
-        (IS_PC(ch) && IS_PC(vict) && 
-         ch->in_room->zone->getPKStyle() == ZONE_NO_PK)) {
-        return;
-    }
-
-	if (which_pinch != SKILL_PINCH_ZETA && !peaceful_room_ok(ch, vict, true))
+	if (which_pinch != SKILL_PINCH_ZETA && !ch->isOkToAttack(vict, true))
 		return;
 
     if (which_pinch != SKILL_PINCH_ZETA && ch->checkReputations(vict))

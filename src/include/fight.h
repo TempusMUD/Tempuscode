@@ -118,7 +118,7 @@ void make_corpse(struct Creature *ch, struct Creature *killer,
 	int attacktype);
 void check_object_killer(struct obj_data *obj, struct Creature *vict);
 void raw_kill(struct Creature *ch, struct Creature *killer, int attacktype);	// prototype
-bool peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg);
+//bool peaceful_room_ok(struct Creature *ch, struct Creature *vict, bool mssg);
 bool is_arena_combat(struct Creature *ch, struct Creature *vict);
 bool is_npk_combat(struct Creature *ch, struct Creature *vict);
 bool ok_to_damage(struct Creature *ch, struct Creature *vict);

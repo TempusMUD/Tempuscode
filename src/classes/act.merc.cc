@@ -64,7 +64,7 @@ ACMD(do_pistolwhip)
 		act("$n beats $mself senseless with $p!", TRUE, ch, weap, 0, TO_ROOM);
 		return;
 	}
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
 	percent = ((10 - (GET_AC(vict) / 10)) << 1) + number(1, 101);
@@ -129,7 +129,7 @@ ACMD(do_crossface)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict))
 		return;
 
 	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
@@ -352,9 +352,7 @@ ACMD(do_snipe)
 				ROOM_FLAGGED(cur_room, ROOM_SMOKE_FILLED))
 			break;
 		
-        if (!nvz_room && (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL) ||
-            vict->in_room->zone->getPKStyle() == ZONE_NO_PK) &&
-            IS_PC(ch) && IS_PC(vict))
+        if (!nvz_room && (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)))
             nvz_room = cur_room;
 		vict = get_char_in_remote_room_vis(ch, vict_str, cur_room);
 
@@ -390,7 +388,7 @@ ACMD(do_snipe)
 		return;
 
 	// is ch in a peaceful room?
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 
 	//Ok, last check...is some asshole trying to damage a shop keeper
@@ -591,7 +589,7 @@ ACMD(do_wrench)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, true))
+	if (!ch->isOkToAttack(vict, true))
 		return;
 	//
 	// give a bonus if both hands are free

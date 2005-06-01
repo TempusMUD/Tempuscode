@@ -116,7 +116,8 @@ explode_sigil(Creature *ch, obj_data *obj)
 	int ret = 0;
 	int dam = 0;
 
-    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) ||
+        ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
         act("$p feels rather warm to the touch, and shudders violently.",
             FALSE, ch, obj, 0, TO_CHAR);
         return 0;

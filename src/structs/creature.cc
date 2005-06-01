@@ -18,6 +18,7 @@
 #include "fight.h"
 #include "player_table.h"
 #include "prog.h"
+#include "quest.h"
 
 extern CreatureList defendingList;
 extern CreatureList mountedList;
@@ -1580,39 +1581,139 @@ Creature::findRandomCombat()
 }
 
 bool
-Creature::isOkToAttack(Creature *vict)
+Creature::isOkToAttack(Creature *vict, bool mssg)
 {
-    if (IS_NPC(vict) || IS_NPC(this))
-        return true;
+    extern int get_hunted_id(int hunter_id);
 
-    if (is_arena_combat(this, vict))
-        return true;
-
-    if (!PRF2_FLAGGED(this, PRF2_PKILLER)) {
-        send_to_char(this, "A small dark shape flies in from the future "
-                           "and sticks to your tongue.\r\n");
-        return false;
-    }
-
-    if (this->isNewbie()) {
-        send_to_char(this, "You are currently under new player protection, which "
-                           "expires at level 41\r\n");
-        send_to_char(this, "You cannot attack other players while under this "
-                           "protection.\r\n");
+    if (!vict) {
+        errlog("ERROR:  NULL victim passed to isOkToAttack()");
         return false;
     }
     
-    if (vict->isNewbie() && GET_LEVEL(this) < LVL_IMMORT) {
-        act("$N is currently under new character protection.",
-            FALSE, this, 0, vict, TO_CHAR);
-        act("You are protected by the gods against $n's attack!",
-            FALSE, this, 0, vict, TO_VICT);
-        slog("%s protected against %s (Creature::isOkToAttack()) at %d",
-             GET_NAME(vict), GET_NAME(this), vict->in_room->number);
+    // Immortals over level LVL_GOD can always attack
+    // anyone they want
+    if (this->getLevel() >= LVL_GOD) {
+        return true;
+    }
+
+    // Charmed players can't attack their master
+    if (IS_AFFECTED(this, AFF_CHARM) && (this->master == vict)) {
+        if (mssg)
+            act("$N is just such a good friend, you simply can't hurt $M.",
+                false, this, NULL, vict, TO_CHAR);
+        return false;
+    }
+
+    // If we have a bounty situation, we ignore NVZs and !PKs
+    if (IS_PC(this) && IS_PC(vict) && 
+        get_hunted_id(this->getIdNum()) == vict->getIdNum()) {
+        return true;
+    }
+
+    // Now if we're in an arena room anbody can attack anybody
+    if (is_arena_combat(this, vict))
+        return true;
+
+    // If anyone is in an NVZ, no attacks are allowed
+    if (ROOM_FLAGGED(this->in_room, ROOM_PEACEFUL) ||
+        ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
+        if (mssg) {
+            send_to_char(this, "The universal forces of order "
+                         "prevent violence here!\r\n");
+            if (!number(0, 1))
+                act("$n seems to be violently disturbed.", false, 
+                    this, NULL, NULL, TO_ROOM);
+            else
+                act("$n becomes violently agitated for a moment.",
+                    false, this, NULL, NULL, TO_ROOM);
+        }
+        return false;
+    }
+
+    // If either Creature is a mob and we're not in an NVZ
+    // It's always ok
+    if (IS_NPC(vict) || IS_NPC(this))
+        return true;
+
+    // At this point, we have to be dealing with PVP
+    // Start checking killer prefs and zone restrictions
+    if (!PRF2_FLAGGED(this, PRF2_PKILLER)) {
+        if (mssg) {
+            send_to_char(this, "A small dark shape flies in from the future "
+                         "and sticks to your tongue.\r\n");
+        }
+        return false;
+    }
+
+    // If a newbie is trying to attack someone, don't let it happen
+    if (this->isNewbie()) {
+        if (mssg) {
+            send_to_char(this, "You are currently under new player "
+                         "protection, which expires at level 41\r\n");
+            send_to_char(this, "You cannot attack other players "
+                         "while under this protection.\r\n");
+        }
+        return false;
+    }
+    
+    // If someone is trying to attack a newbie, also don't let it
+    // happen
+    if (vict->isNewbie()) {
+        if (mssg) {
+            act("$N is currently under new character protection.",
+                false, this, NULL, vict, TO_CHAR);
+            act("You are protected by the gods against $n's attack!",
+                false, this, NULL, vict, TO_VICT);
+            slog("%s protected against %s (Creature::isOkToAttack()) at %d",
+                 GET_NAME(vict), GET_NAME(this), vict->in_room->number);
+        }
 
         return false;
     }
        
+    // If they aren't in the same quest it's not ok to attack them
+    if (GET_QUEST(this) && GET_QUEST(this) != GET_QUEST(vict)) {
+        if (mssg)
+            send_to_char(this,
+                    "%s is not in your quest and may not be attacked!\r\n",
+                    PERS(vict, this));
+        qlog(this,
+             tmp_sprintf("%s has attacked non-questing PC %s",
+                         GET_NAME(this), GET_NAME(vict)),
+             QLOG_BRIEF, MAX(GET_INVIS_LVL(this), LVL_AMBASSADOR), true);
+
+        return false;
+    }
+
+    if (GET_QUEST(vict) && GET_QUEST(vict) != GET_QUEST(this)) {
+        if (mssg)
+            send_to_char(this,
+                         "%s is on a godly quest and may not be attacked!\r\n",
+                         PERS(vict, this));
+
+        qlog(this,
+             tmp_sprintf("%s has attacked questing PC %s",
+                         GET_NAME(this), GET_NAME(vict)),
+             QLOG_BRIEF, MAX(GET_INVIS_LVL(this), LVL_AMBASSADOR), true);
+
+        return false;
+    }
+
+    // We're not in an NVZ, or an arena, and nobody is a newbie, so
+    // check to see if we're in a !PK zone
+    if (this->in_room->zone->getPKStyle() == ZONE_NO_PK ||
+        vict->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        if (mssg) {
+            send_to_char(this, "You seem to be unable to bring "
+                             "your weapon to bear on %s\r\n", 
+                         GET_NAME(vict));
+            act("$n shakes with rage as $e tries to bring $s "
+                "weapon to bear.", false, this, NULL, NULL, TO_ROOM);
+
+        }
+        return false;
+    }
+
    return true;
 }
 

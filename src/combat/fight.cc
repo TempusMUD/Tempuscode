@@ -903,7 +903,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		act("$N smirks as $E easily sidesteps $n's attack!", true,
 			ch, NULL, victim, TO_NOTVICT);
 
-		return 0;
+		DAM_RETURN(0);
     }
 
     if (ch
@@ -920,7 +920,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		act("$N dexterously rolls away from $n's attack!", true,
 			ch, NULL, victim, TO_NOTVICT);
 
-		return 0;
+		DAM_RETURN(0);
     }
 
     // Mirror Image Melody
@@ -1202,7 +1202,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
             attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
 			attacktype != SKILL_ENERGY_WEAPONS)
 			damage_eq(ch, weap, MAX(weap_dam, dam >> 6), attacktype);
-		return 0;
+		DAM_RETURN(0);
 	}
     
     
@@ -1407,7 +1407,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						SPELL_FIRE_SHIELD, -1);
 
 					if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
-                        ch->ignite(victim);
+                        ch->ignite(ch);
 					}
 
 				}
@@ -2453,21 +2453,17 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		return 0;
 	}
 
+    // This really shouldn't happen, but might as well check for it
     if (victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
         send_to_char(ch,
                      "This room just has such a peaceful, easy feeling...\r\n");
         return 0;
     }
 
-    if (victim && IS_PC(ch) && IS_PC(victim) &&
-        (victim->in_room->zone->getPKStyle() == ZONE_NO_PK ||
-        ch->in_room->zone->getPKStyle() == ZONE_NO_PK)) {
-        send_to_char(ch,
-                     "You are not allowed to damage players in !PK zones!\r\n");
-        send_to_char(victim, "%s has just tried to attack you!\r\n",
-                     GET_NAME(ch));
+    if (ch && victim && !ch->isOkToAttack(victim, true)) {
         return 0;
     }
+
 	if (LVL_AMBASSADOR <= GET_LEVEL(ch) && GET_LEVEL(ch) < LVL_GOD &&
 		IS_NPC(victim) && !mini_mud) {
 		send_to_char(ch, "You are not allowed to attack mobiles!\r\n");
@@ -3038,40 +3034,10 @@ perform_violence(void)
 				}
 
 				if (prob >= number((i << 4) + (i << 3), (i << 5) + (i << 3))) {
-                    // Special combat loop for mercs...
-                    /*if (IS_MERC(ch)) {
-                        // Roll the dice to see if the merc gets to shoot his gun this round
-                        if (prob > number(1, 101)) {
-                            retval = do_combat_fire(ch, ch->findRandomCombat());
-                            // Either the attacker or the victim was killed
-                            if ((retval == 1) || (retval == DAM_VICT_KILLED)) {
-                                stop = true;
-                                break;
-                            }
-                            // the merc passed his test but was unable to fire for some reason.
-                            // Whack them with it instead.
-                            else if (retval == -1) {
-                                if (hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED)) {
-                                    stop = true;
-                                    break;
-                                }
-                            }
-                        }
-                        // The merc was too slow.  Can't shoot his gun this round
-                        else {
-                            if (hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED)) {
-                                stop = true;
-                                break;
-                            }
-                        }
+                    if (hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED)) {
+                        stop = true;
+                        break;
                     }
-                    // Everyone elses combat loop
-                    else {*/
-                        if (hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED)) {
-                            stop = true;
-                            break;
-                        }
-                    //}
 				}
 			}
 

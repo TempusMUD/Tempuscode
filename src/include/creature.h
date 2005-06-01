@@ -1263,7 +1263,7 @@ struct Creature {
     void removeCombat(Creature *ch);
     void removeAllCombat();
     bool initiatedCombat(Creature *ch);
-    bool isOkToAttack(Creature *vict);
+    bool isOkToAttack(Creature *vict, bool mssg = true);
     Creature *hasDefender(Creature *vict);
 
     Creature *isDefending() {

@@ -136,7 +136,7 @@ malovent_holy_touch(Creature * ch, Creature * vict)
 		return;
 	}
 
-	if (!peaceful_room_ok(ch, vict, FALSE))
+	if (!ch->isOkToAttack(vict))
 		return;
 
 	chance = GET_ALIGNMENT(vict) / 10;

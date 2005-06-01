@@ -1898,7 +1898,7 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 							number(GET_LEVEL(ch) >> 1, GET_LEVEL(ch))) &&
 						!PRF_FLAGGED(ch, PRF_NOHASSLE)) {
 						if (found_char->getPosition() >= POS_SITTING) {
-							if (peaceful_room_ok(found_char, ch, false))
+							if (found_char->isOkToAttack(ch, false))
 								hit(found_char, ch, TYPE_UNDEFINED);
 						} else
 							do_stand(found_char, "", 0, 0, 0);

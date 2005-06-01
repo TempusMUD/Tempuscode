@@ -1682,7 +1682,7 @@ ACMD(do_throw)
 
 
 				if (GET_OBJ_TYPE(obj) == ITEM_WEAPON && 
-                    !ROOM_FLAGGED(target_vict->in_room, ROOM_PEACEFUL)) {
+                    ch->isOkToAttack(target_vict)) {
 					calc_thaco = calculate_thaco(ch, target_vict, NULL) + 10;
 					calc_thaco -= (CHECK_SKILL(ch, SKILL_THROWING) / 10);
 					if (!IS_OBJ_STAT2(obj, ITEM2_THROWN_WEAPON))

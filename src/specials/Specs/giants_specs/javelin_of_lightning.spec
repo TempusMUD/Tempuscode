@@ -37,7 +37,7 @@ SPECIAL(javelin_of_lightning)
 		act("$n hurls $p at you!!", FALSE, ch, jav, vict, TO_VICT);
 		act("$n hurls $p at $N!!", FALSE, ch, jav, vict, TO_NOTVICT);
 
-		if (!peaceful_room_ok(ch, vict, false))
+		if (!ch->isOkToAttack(vict, false))
 			return 1;
 
 		cur_weap = jav;

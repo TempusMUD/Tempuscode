@@ -564,14 +564,7 @@ ASPELL(spell_astral_spell)
             FALSE, ch, 0, victim, TO_CHAR);
         return;
     }
-    if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
-        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
-        act("You feel strange as $n attempts to send you into the astral.",
-            FALSE, ch, 0, victim, TO_VICT);
-        act("You fail.  $N is in a !PK zone!.",
-            FALSE, ch, 0, victim, TO_CHAR);
-        return;
-    }
+
 	if (GET_LEVEL(victim) > LVL_AMBASSADOR
 		&& GET_LEVEL(victim) > GET_LEVEL(ch)) {
 		act("$N sneers at you with disgust.\r\n", FALSE, ch, 0, victim,
@@ -2763,7 +2756,7 @@ ASPELL(spell_animate_dead)
 	}
 
     if (IS_PC(ch) && CORPSE_IDNUM(obj) > 0 &&
-        ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK) {
         send_to_char(ch, "You cannot cast that here.\r\n");
         return;
     }
@@ -2953,13 +2946,7 @@ ASPELL(spell_unholy_stalker)
 	struct Creature *stalker = NULL;
 	float mult = (float)level / 70;
 
-    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-        send_to_char(ch, "You cannot cast that here.\r\n");
-        return;
-    }
-    if (IS_PC(ch) && IS_PC(victim) &&
-        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
-        send_to_char(ch, "You cannot cast that here.\r\n");
+    if (!ch->isOkToAttack(victim)) {
         return;
     }
 	if (victim->in_room != ch->in_room) {
@@ -3201,12 +3188,8 @@ ASPELL(spell_sun_ray)
                     FALSE, ch, 0, *it, TO_CHAR );
 				return;
 			}
-            if (IS_PC(ch) && IS_PC(*it) &&
-                ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
-                act("You cannot do this here.  This is a !PK zone.", 
-                    FALSE, ch, 0, *it, TO_CHAR );
+            if (!ch->isOkToAttack(*it))
 				return;
-            }
 		}
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
@@ -3282,12 +3265,8 @@ ASPELL(spell_inferno)
                     FALSE, ch, 0, vict, TO_CHAR);
 				return;
 			}
-            if (IS_PC(ch) && IS_PC(*it) &&
-                ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
-                act("You cannot do this here.  This is a !PK zone.", 
-                    FALSE, ch, 0, *it, TO_CHAR );
+            if (!ch->isOkToAttack(*it))
 				return;
-            }
 		}
 	}
 
