@@ -2311,6 +2311,11 @@ ACMD(do_shoot)
 		}
 		if (!peaceful_room_ok(ch, vict, true))
 			return;
+
+        if (IS_PC(ch) && IS_PC(vict) &&
+            ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+            return;
+        }
 	}
 	//
 	// The Energy Gun block 

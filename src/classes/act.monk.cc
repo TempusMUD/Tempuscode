@@ -628,6 +628,12 @@ ACMD(do_pinch)
 		return;
 	}
 
+    if (which_pinch != SKILL_PINCH_ZETA &&
+        (IS_PC(ch) && IS_PC(vict) && 
+         ch->in_room->zone->getPKStyle() == ZONE_NO_PK)) {
+        return;
+    }
+
 	if (which_pinch != SKILL_PINCH_ZETA && !peaceful_room_ok(ch, vict, true))
 		return;
 
