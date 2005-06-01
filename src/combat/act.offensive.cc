@@ -926,8 +926,15 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 	ACMD_set_return_flags(0);
 	memset(&af, 0, sizeof(struct affected_type));
 
-	if (!ch->isOkToAttack(vict, true))
+	if (!ch->isOkToAttack(vict, false)) {
+        send_to_char(ch, "You seem to be unable to attack %s.\r\n",
+                     GET_NAME(vict));
+        act("$n shakes with rage as $e tries to attack $N!",
+            false, ch, NULL, vict, TO_NOTVICT);
+        act("$n shakes with rage as $e tries to attack you!",
+            false, ch, NULL, vict, TO_VICT);
 		return false;
+    }
 
 	if (SPELL_IS_PSIONIC(skill) && ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
 		&& GET_LEVEL(ch) < LVL_GOD) {
@@ -1676,8 +1683,15 @@ ACMD(do_stun)
 		send_to_char(ch, "You aren't able to get the right grip!\r\n");
 		return;
 	}
-	if (!ch->isOkToAttack(vict, true))
+	if (!ch->isOkToAttack(vict, false)) {
+        send_to_char(ch, "You seem to be unable to attack %s.\r\n",
+                     GET_NAME(vict));
+        act("$n shakes with rage as $e tries to attack $N!",
+            false, ch, NULL, vict, TO_NOTVICT);
+        act("$n shakes with rage as $e tries to attack you!",
+            false, ch, NULL, vict, TO_VICT);
 		return;
+    }
 
     if (ch->checkReputations(vict))
         return;

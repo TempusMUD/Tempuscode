@@ -3077,8 +3077,36 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 	if (!IS_NPC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
-            if (!ch->isOkToAttack(*it))
+            if (!ch->isOkToAttack(*it, false)) {
+                if (SPELL_IS_PSIONIC(spellnum)) {
+                    send_to_char(ch, "The Universal Psyche decends on your "
+                                 "mind and renders you powerless!\r\n");
+		            act("$n concentrates for an instant, and is suddenly "
+                        "thrown into mental shock!", false, ch, 0, 0, TO_ROOM);
+                }
+                else if (SPELL_IS_PHYSICS(spellnum)) {
+                    send_to_char(ch, "The Supernatural Reality prevents you "
+                                 "from twisting nature in that way!\r\n");
+		            act("$n attempts to violently alter reality, but is "
+                        "restrained by the whole of the universe.", false, 
+                        ch, 0, 0, TO_ROOM);
+                }
+                else if (SPELL_IS_BARD(spellnum)) {
+                    send_to_char(ch, "Your voice is stifled!\r\n");
+		            act("$n attempts to sing a violent song, but is "
+                        "restrained by the whole of the universe.", false, 
+                        ch, 0, 0, TO_ROOM);
+                }
+                else {
+                    send_to_char(ch, "A flash of white light fills "
+                                 "the room, dispelling your violent "
+                                 "magic!\r\n");
+		            act("White light from no particular source suddenly "
+                        "fills the room, then vanishes.", false, 
+                        ch, 0, 0, TO_ROOM);
+                }
                 return 0;
+            }
 	    }
 	}
 	

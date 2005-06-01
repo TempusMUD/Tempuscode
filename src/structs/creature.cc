@@ -1705,7 +1705,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
         vict->in_room->zone->getPKStyle() == ZONE_NO_PK) {
         if (mssg) {
             send_to_char(this, "You seem to be unable to bring "
-                             "your weapon to bear on %s\r\n", 
+                             "your weapon to bear on %s.\r\n", 
                          GET_NAME(vict));
             act("$n shakes with rage as $e tries to bring $s "
                 "weapon to bear.", false, this, NULL, NULL, TO_ROOM);
