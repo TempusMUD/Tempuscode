@@ -9,6 +9,7 @@
 SPECIAL(hell_regulator)
 {
 	struct Creature *vict = NULL, *devil = NULL;
+    int dam_retval = 0;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
@@ -50,8 +51,9 @@ SPECIAL(hell_regulator)
 				TO_VICT);
 
             vict->removeCombat(ch);
-			hit(devil, vict, TYPE_UNDEFINED);
-			WAIT_STATE(vict, 1 RL_SEC);
+			dam_retval = hit(devil, vict, TYPE_UNDEFINED);
+            if (dam_retval != DAM_VICT_KILLED)
+			    WAIT_STATE(vict, 1 RL_SEC);
 
 			return 1;
 		}
