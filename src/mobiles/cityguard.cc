@@ -352,6 +352,10 @@ knock_unconscious(Creature *ch, Creature *target)
 	CreatureList::iterator it;
 	struct affected_type af;
 
+
+    if (!ch->isOkToAttack(target, false))
+        return;
+
 	// Knock the person out
 	it = target->in_room->people.begin();
 	for (;it != target->in_room->people.end(); it++) {
@@ -531,7 +535,8 @@ SPECIAL(cityguard)
 	it = self->in_room->people.begin();
 	for (; it != self->in_room->people.end(); ++it) {
 		tch = *it;
-		if (action < 5 && is_fighting_cityguard(tch)) {
+		if (action < 5 && is_fighting_cityguard(tch) &&
+            self->isOkToAttack(tch, false)) {
 			action = 5;
 			target = tch;
 		}
@@ -541,6 +546,7 @@ SPECIAL(cityguard)
 				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
 				&& tch->getPosition() > POS_SLEEPING
+                && self->isOkToAttack(tch, false)
 				) {
 			action = 4;
 			target = tch;
@@ -581,52 +587,55 @@ SPECIAL(cityguard)
 		if (IS_GOOD(self) && IS_THIEF(target)) {
 			if (IS_EVIL(target)) {
 				act("$n looks at you suspiciously.", false,
-					self, 0, tch, TO_VICT);
+					self, 0, target, TO_VICT);
 				act("$n looks at $N suspiciously.", false,
-					self, 0, tch, TO_NOTVICT);
+					self, 0, target, TO_NOTVICT);
 			} else {
 				act("$n looks at you skeptically.", false,
-					self, 0, tch, TO_VICT);
+					self, 0, target, TO_VICT);
 				act("$n looks at $N skeptically.", false,
-					self, 0, tch, TO_NOTVICT);
+					self, 0, target, TO_NOTVICT);
 			}
 		} else if (cityguard == GET_MOB_SPEC(target)) {
-			act("$n nods at $N.", false, self, 0, tch, TO_NOTVICT);
+			act("$n nods at $N.", false, self, 0, target, TO_NOTVICT);
 		} else if (((IS_CLERIC(target) || IS_KNIGHT(target))
 					&& IS_EVIL(self) == IS_EVIL(target)
 					&& !IS_NEUTRAL(target))
 				|| GET_LEVEL(target) >= LVL_AMBASSADOR) {
 			act("$n bows before you.", false,
-				self, 0, tch, TO_VICT);
+				self, 0, target, TO_VICT);
 			act("$n bows before $N.", false,
-				self, 0, tch, TO_NOTVICT);
+				self, 0, target, TO_NOTVICT);
 		} else if (IS_EVIL(self) != IS_EVIL(target)) {
 			switch (number(0,2)) {
 			case 0:
-				act("$n watches you carefully.", false, self, 0, tch,
+				act("$n watches you carefully.", false, self, 0, target,
 					TO_VICT);
 				act("$n watches $N carefully.", false,
-					self, 0, tch, TO_NOTVICT);
+					self, 0, target, TO_NOTVICT);
 				break;
 			case 1:
 				act("$n thoroughly examines you.", false,
-					self, 0, tch, TO_VICT);
+					self, 0, target, TO_VICT);
 				act("$n thoroughly examines $N.", false,
-					self, 0, tch, TO_NOTVICT);
+					self, 0, target, TO_NOTVICT);
+                break;
 			case 2:
 				act("$n mutters something under $s breath.",
-					false, self, 0, tch, TO_ROOM);
+					false, self, 0, target, TO_ROOM);
 				break;
 			}
 		}
-		break;
+        return true;
 	case 1:
 		// emote half-criminal
+        if (number(0, 8))
+            break;
 		if (!number(0, 3)) {
-			act("$n growls at you.", false, self, 0, tch, TO_VICT);
-			act("$n growls at $N.", false, self, 0, tch, TO_NOTVICT);
+			act("$n growls at you.", false, self, 0, target, TO_VICT);
+			act("$n growls at $N.", false, self, 0, target, TO_NOTVICT);
 		} else if (!number(0, 2)) {
-			act("$n cracks $s knuckles.", false, self, 0, tch, TO_ROOM);
+			act("$n cracks $s knuckles.", false, self, 0, target, TO_ROOM);
 		} else if (!number(0, 1) && GET_EQ(self, WEAR_WIELD) &&
 			(GET_OBJ_VAL(GET_EQ(self, WEAR_WIELD), 3) ==
 				(TYPE_SLASH - TYPE_HIT) ||
@@ -635,20 +644,24 @@ SPECIAL(cityguard)
 				GET_OBJ_VAL(GET_EQ(self, WEAR_WIELD), 3) ==
 				(TYPE_STAB - TYPE_HIT))) {
 			act("$n sharpens $p while watching $N.",
-				false, self, GET_EQ(self, WEAR_WIELD), tch, TO_NOTVICT);
+				false, self, GET_EQ(self, WEAR_WIELD), target, TO_NOTVICT);
 			act("$n sharpens $p while watching you.",
-				false, self, GET_EQ(self, WEAR_WIELD), tch, TO_VICT);
+				false, self, GET_EQ(self, WEAR_WIELD), target, TO_VICT);
 		}
 		return true;
 	case 2: {
 		// stopping fight
 		switch (number(0, 2)) {
 		case 0:
-			do_say(self, "Knock it off!", 0, SCMD_BELLOW, 0); break;
+			do_say(self, "Knock it off!", 0, SCMD_BELLOW, 0); 
+            break;
 		case 1:
-			do_say(self, "Stop disturbing the peace of this city!", 0, SCMD_BELLOW, 0); break;
+			do_say(self, "Stop disturbing the peace of this city!", 
+                   0, SCMD_BELLOW, 0); 
+            break;
 		case 2:
-			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0); break;
+			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0); 
+            break;
 		}
         Creature *vict = target->findRandomCombat();
         if (vict)
@@ -691,7 +704,8 @@ SPECIAL(cityguard)
 		
 		return true;
 	default:
-		errlog("Can't happen at %s:%d", __FILE__, __LINE__); break;
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__); 
+        break;
 	}
 
 	return false;
