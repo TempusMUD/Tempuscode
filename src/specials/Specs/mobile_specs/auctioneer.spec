@@ -687,6 +687,19 @@ ACMD(do_bidlist) {
         acc_sprintf("%sCurrent Bid:%s   %ld coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
                     ai->current_bid);
+        time_t time_left = 0; 
+        if (ai->last_bid_time) 
+            time_left = (ai->last_bid_time + SOLD_TIME) - time(NULL);
+        else
+            time_left = (ai->start_time + AUCTION_THRESH) - time(NULL);
+        // Convert to hours, mins, seconds
+        int hours = time_left / 3600;
+        time_left = time_left % 3600;
+        int mins = time_left / 60;
+        int secs = time_left % 60;
+        acc_sprintf("%sTime Left:%s     %d Hour(s) %d Mins %d Secs\r\n",
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                    hours, mins, secs);
         acc_strcat("---------------------------------------\r\n", NULL);
     }
     page_string(ch->desc, acc_get_string());
