@@ -1596,6 +1596,11 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
         return true;
     }
 
+    // If they're already fighting, let them have at it!
+    if (this->findCombat(vict) || vict->findCombat(this)) {
+        return true;
+    }
+
     // Charmed players can't attack their master
     if (IS_AFFECTED(this, AFF_CHARM) && (this->master == vict)) {
         if (mssg)
@@ -1615,8 +1620,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
         return true;
 
     // If anyone is in an NVZ, no attacks are allowed
-    if (ROOM_FLAGGED(this->in_room, ROOM_PEACEFUL) ||
-        ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
+    if (ROOM_FLAGGED(this->in_room, ROOM_PEACEFUL)) {
         if (mssg) {
             send_to_char(this, "The universal forces of order "
                          "prevent violence here!\r\n");
@@ -1630,6 +1634,19 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
         return false;
     }
 
+    if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
+        if (mssg) {
+            send_to_char(this, "The universal forces of order "
+                         "prevent violence there!\r\n");
+            if (!number(0, 1))
+                act("$n seems to be violently disturbed.", false, 
+                    this, NULL, NULL, TO_ROOM);
+            else
+                act("$n becomes violently agitated for a moment.",
+                    false, this, NULL, NULL, TO_ROOM);
+        }
+        return false;
+    }
     // If either Creature is a mob and we're not in an NVZ
     // It's always ok
     if (IS_NPC(vict) || IS_NPC(this))

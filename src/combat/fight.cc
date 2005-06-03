@@ -2453,13 +2453,6 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		return 0;
 	}
 
-    // This really shouldn't happen, but might as well check for it
-    if (victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
-        send_to_char(ch,
-                     "This room just has such a peaceful, easy feeling...\r\n");
-        return 0;
-    }
-
     if (ch && victim && !ch->isOkToAttack(victim, true)) {
         return 0;
     }
