@@ -1387,7 +1387,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 				}
 
-                else if (affected_by_spell(victim, SONG_WOUNDING_WHISPERS)) {
+                else if (affected_by_spell(victim, SONG_WOUNDING_WHISPERS) &&
+                         attacktype != SKILL_PSIBLAST) {
 					retval = damage_attacker(victim, ch,
 						(victim->getLevelBonus(SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
 						SONG_WOUNDING_WHISPERS, -1);
