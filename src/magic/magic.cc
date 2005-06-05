@@ -3074,10 +3074,10 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		return 0;
 
 	// check for players if caster is not a pkiller
-	if (!IS_NPC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-            if (!ch->isOkToAttack(*it, false)) {
+//	if (!IS_NPC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+		CreatureList::iterator cit = ch->in_room->people.begin();
+		for (; cit != ch->in_room->people.end(); ++cit) {
+            if ((*cit) != ch && !ch->isOkToAttack(*cit, false)) {
                 if (SPELL_IS_PSIONIC(spellnum)) {
                     send_to_char(ch, "The Universal Psyche decends on your "
                                  "mind and renders you powerless!\r\n");
@@ -3108,7 +3108,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
                 return 0;
             }
 	    }
-	}
+//	}
 	
 	
 	CreatureList::iterator it = ch->in_room->people.begin();
