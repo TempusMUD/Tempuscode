@@ -1,6 +1,8 @@
 #include "creature.h"
 #include "room_data.h"
 
+const int AUCTION_PERCENTAGE = 0.95;
+
 const int IMP_RETURN_ITEM  = (1 << 0);
 const int IMP_NO_BUYER     = (1 << 1);
 const int IMP_BUYER_BROKE  = (1 << 2);
@@ -152,8 +154,8 @@ SPECIAL(courier_imp)
         }
         else {
             if (data->mode == IMP_DELIVER_CASH) {
-                int paygold = (int)(GET_GOLD(self) * 0.90);
-                int paycash = (int)(GET_CASH(self) * 0.90);
+                int paygold = (int)(GET_GOLD(self) * AUCTION_PERCENTAGE);
+                int paycash = (int)(GET_CASH(self) * AUCTION_PERCENTAGE);
                 act("$n grins at $N, showing rows of pointed teeth.", false,
                     self, 0, seeking, TO_NOTVICT);
                 act("$N grins at you, showing rows of pointed teeth.", false,
