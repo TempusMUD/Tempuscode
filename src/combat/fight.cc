@@ -709,7 +709,7 @@ damage_attacker(struct Creature *ch, struct Creature *victim, int dam,
 // the return value bits can be a combination of:
 // DAM_VICT_KILLED
 // DAM_ATTACKER_KILLED
-//
+// or DAM_ATTACK_FAILED
 
 int
 damage(struct Creature *ch, struct Creature *victim, int dam,
@@ -739,7 +739,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 	// No more shall anyone be damaged in the void.
 	if (victim->in_room == zone_table->world) {
-		return false;
+		return DAM_ATTACK_FAILED;
 	}
 
 	if (GET_HIT(victim) < -10) {
@@ -758,7 +758,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		ch->removeCombat(victim);
 		victim->removeAllCombat();
 		send_to_char(ch, "NO!  Do you want to be ANNIHILATED by the gods?!\r\n");
-		DAM_RETURN(0);
+		DAM_RETURN(DAM_ATTACK_FAILED);
 	}
 
 	if (ch) {
@@ -829,7 +829,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			send_to_char(ch, 
 				"You are currently under new player protection, which expires at level 41.\r\n"
 				"You cannot attack other players while under this protection.\r\n");
-			DAM_RETURN(0);
+			DAM_RETURN(DAM_ATTACK_FAILED);
 		}
 	}
 
@@ -903,7 +903,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		act("$N smirks as $E easily sidesteps $n's attack!", true,
 			ch, NULL, victim, TO_NOTVICT);
 
-		DAM_RETURN(0);
+		DAM_RETURN(DAM_ATTACK_FAILED);
     }
 
     if (ch
@@ -2437,6 +2437,9 @@ static inline int BACKSTAB_MULT( Creature *ch  ) {
 //
 // return values are same as damage()
 //
+// We should REALLY only return 0 from hit at the end of the
+// function, indicating that everything went smoothly.  Otherwise, we should
+// return the result of damage, or DAM_ATTACK_FAILED.
 
 int
 hit(struct Creature *ch, struct Creature *victim, int type)
@@ -2451,17 +2454,17 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	if (ch->in_room != victim->in_room) {
         ch->removeCombat(victim);
         victim->removeCombat(ch);
-		return 0;
+		return DAM_ATTACK_FAILED;
 	}
 
     if (ch && victim && !ch->isOkToAttack(victim, true)) {
-        return 0;
+        return DAM_ATTACK_FAILED;
     }
 
 	if (LVL_AMBASSADOR <= GET_LEVEL(ch) && GET_LEVEL(ch) < LVL_GOD &&
 		IS_NPC(victim) && !mini_mud) {
 		send_to_char(ch, "You are not allowed to attack mobiles!\r\n");
-		return 0;
+		return DAM_ATTACK_FAILED;
 	}
 	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT) {
 		if (!number(0, 2))
@@ -2473,7 +2476,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		else
 			send_to_char(ch, "You cannot fight back!!  You are petrified!\r\n");
 
-		return 0;
+		return DAM_ATTACK_FAILED;
 	}
 
 	if (victim->isNewbie() && !IS_NPC(ch) && !IS_NPC(victim) &&
@@ -2488,13 +2491,13 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 		ch->removeCombat(victim);
 		victim->removeCombat(ch);
-		return 0;
+		return DAM_ATTACK_FAILED;
 	}
 
     if (ch->checkReputations(victim)) {
         ch->removeCombat(victim);
         victim->removeCombat(ch);
-        return 0;
+        return DAM_ATTACK_FAILED;
     }
 
 	if (ch->isMounted()) {
@@ -2503,7 +2506,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 			ch->dismount();
 		} else
 			send_to_char(ch, "You had better dismount first.\r\n");
-		return 0;
+		return DAM_ATTACK_FAILED;
 	}
 	if (victim->isMounted()) {
 		REMOVE_BIT(AFF2_FLAGS(victim->isMounted()), AFF2_MOUNTED);
@@ -2782,7 +2785,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
 				if ((weap = read_object(RUSTPILE)))
 					obj_to_room(weap, ch->in_room);
-				return 0;
+				return DAM_ATTACK_FAILED;
 			}
 		}
 
@@ -3028,7 +3031,9 @@ perform_violence(void)
 				}
 
 				if (prob >= number((i << 4) + (i << 3), (i << 5) + (i << 3))) {
-                    if (hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED)) {
+                    int retval = hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED);
+                    if (IS_SET(retval, DAM_ATTACKER_KILLED) ||
+                        IS_SET(retval, DAM_VICT_KILLED)) {
                         stop = true;
                         break;
                     }
@@ -3063,11 +3068,6 @@ perform_violence(void)
 					if (number(0, 100) < implant_prob) {
 						int retval =
 							hit(ch, ch->findRandomCombat(), SKILL_ADV_IMPLANT_W);
-						/*  No longer needed because of CombatList
-						   if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
-						   next_combat_list = tmp_next_combat_list;
-						   }
-						 */
 						if (retval)
 							continue;
 					}
@@ -3092,11 +3092,6 @@ perform_violence(void)
 
 					if (number(0, 100) < implant_prob) {
 						int retval = hit(ch, ch->findRandomCombat(), SKILL_IMPLANT_W);
-						/*
-						   if ( IS_SET( retval, DAM_VICT_KILLED ) ) {
-						   next_combat_list = tmp_next_combat_list;
-						   } */
-
 						if (retval)
 							continue;
 					}
@@ -3110,34 +3105,8 @@ perform_violence(void)
 			ch->getPosition() == POS_FIGHTING &&
 			GET_MOB_WAIT(ch) <= 0 && (MIN(100, prob) >= number(0, 300))) {
 
-			//
-			// if the opponent is the next_combat_list, calling
-			// mobile_battle_activity with the next_combat_list as
-			// precious will result in zero activity, and we cannot
-			// really trust the spec proc to do the right thing.
-			// so just throw a hit instead.  this happens
-			// rarely enough that nobody should notice
-			//
-
-/*            list<CharCombat>::iterator li;
-            li = ch->getCombatList()->begin();
-            for (; li != ch->getCombatList()->end(); ++li) {
-                if (li->getOpponent() == next_combat_list) {
-                    hit(ch, li->getOpponent(), TYPE_UNDEFINED);
-                    break;
-                }
-            } */
-
-
 			if (MOB_FLAGGED(ch, MOB_SPEC) && ch->in_room &&
 				ch->mob_specials.shared->func && !number(0, 2)) {
-
-				//
-				// TODO: make spec procs handle killing chars in a safe manner
-				// TODO: it is still possible for the spec_proc to kill the char
-				// which next_combat_list points to.  spec_procs need an optional
-				// precious_vict pointer next
-				//
 
 				(ch->mob_specials.shared->func) (ch, ch, 0, "", SPECIAL_TICK);
 
@@ -3146,11 +3115,7 @@ perform_violence(void)
 
 			if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && ch->numCombatants()) {
 
-				//
-				// call mobile_battle_activity, but don't touch next_combat_list
-				//
-
-				mobile_battle_activity(ch, next_combat_list);
+				mobile_battle_activity(ch, NULL);
 
 			}
 		}
