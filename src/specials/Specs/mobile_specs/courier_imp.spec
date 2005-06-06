@@ -1,7 +1,7 @@
 #include "creature.h"
 #include "room_data.h"
 
-const int AUCTION_PERCENTAGE = 0.95;
+const float AUCTION_PERCENTAGE = 0.95;
 
 const int IMP_RETURN_ITEM  = (1 << 0);
 const int IMP_NO_BUYER     = (1 << 1);
