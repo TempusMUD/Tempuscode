@@ -368,7 +368,7 @@ voting_booth_remove(Creature * ch, char *argument)
 		while (prev_poll && --poll_num)
 			prev_poll = prev_poll->next;
 
-		if (!prev_poll->next) {
+		if (poll_num || !prev_poll->next) {
 			send_to_char(ch, "That poll does not exist.\r\n");
 			return;
 		}
@@ -389,11 +389,15 @@ voting_booth_remove(Creature * ch, char *argument)
 	}
 
 	free(poll->descrip);
-	free(poll);
 
 	sql_exec("delete from voting_accounts where poll=%d", poll->idnum);
 	sql_exec("delete from voting_options where poll=%d", poll->idnum);
 	sql_exec("delete from voting_polls where idnum=%d", poll->idnum);
+
+	free(poll);
+
+	send_to_char(ch, "Poll removed.\r\n");
+
 }
 
 void
