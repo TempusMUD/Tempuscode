@@ -568,14 +568,14 @@ affect_from_room(struct room_data *room, struct room_affect_data *aff)
 	}
 
 	if (!tmp_aff)
-		errlog("aff not found in room->affects in affect_from_room.");
+		errlog("affect_from_room(): aff not found in room->affects");
 
 	if (aff->type == RM_AFF_FLAGS)
 		REMOVE_BIT(room->room_flags, aff->flags);
 	else if (aff->type < NUM_DIRS && room->dir_option[(int)aff->type])
 		REMOVE_BIT(room->dir_option[(int)aff->type]->exit_info, aff->flags);
 	else {
-		errlog("Invalid aff->type passed to affect_from_room.");
+		errlog("affect_from_room(): Invalid aff->type %d", aff->type);
 		return;
 	}
 	if (aff->description)
