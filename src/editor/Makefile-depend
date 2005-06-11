@@ -1,4 +1,32 @@
-$(OBJ)/editor.o : editor.cc \
-	$(INCLUDE)/screen.h $(INCLUDE)/desc_data.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/utils.h $(INCLUDE)/login.h $(INCLUDE)/interpreter.h $(INCLUDE)/boards.h $(INCLUDE)/mail.h $(INCLUDE)/editor.h $(INCLUDE)/tmpstr.h $(INCLUDE)/player_table.h 
-	$(CXX) -c $(CXXFLAGS) editor.cc            -o $(OBJ)/editor.o
+$(OBJ)/editor.o: editor.cc ../include/screen.h ../include/desc_data.h \
+  ../include/defs.h ../include/editor.h ../include/constants.h \
+  ../include/comm.h ../include/db.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/structs.h ../include/macros.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/room_data.h ../include/search.h \
+  ../include/weather.h ../include/zone_data.h ../include/ban.h \
+  ../include/account.h ../include/interpreter.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/utils.h \
+  ../include/login.h ../include/boards.h ../include/mail.h \
+  ../include/player_table.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/editor.o
