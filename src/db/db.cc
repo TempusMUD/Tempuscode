@@ -2971,6 +2971,11 @@ reset_zone(struct zone_data *zone)
 					extract_obj(obj);
 					break;
 				}
+				if (obj == obj_to) {
+					ZONE_ERROR("target object cannot be put into itself");
+					extract_obj(obj);
+					break;
+				}
 				obj_to_obj(obj, obj_to);
 				last_cmd = 1;
 			} else
