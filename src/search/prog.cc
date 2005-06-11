@@ -1201,6 +1201,8 @@ prog_do_mload(prog_env *env, prog_evt *evt, char *args)
   if (max_load == -1 || mob->mob_specials.shared->number < max_load) {
       mob = read_mobile(vnum);
       char_to_room(mob, room);
+	  if (GET_MOB_PROG(mob))
+		trigger_prog_load(mob);
   }
 }
 

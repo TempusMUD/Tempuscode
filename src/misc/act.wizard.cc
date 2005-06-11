@@ -2548,6 +2548,8 @@ ACMD(do_mload)
     slog("(GC) %s mloaded %s at %d.", GET_NAME(ch), GET_NAME(mob),
         ch->in_room->number);
 
+	if (GET_MOB_PROG(mob))
+		trigger_prog_load(mob);
 }
 
 ACMD(do_oload)
