@@ -1630,8 +1630,6 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 				act("$n jabs $p into your arm and presses the plunger.",
 					TRUE, ch, obj, tch, TO_VICT);
 			}
-		} else if (tobj) {
-			errlog("tobj passed to SYRINGE in mag_objectmagic.");
 		} else {
 			act("Who do you want to inject with $p?", FALSE, ch, obj, NULL,
 				TO_CHAR);
