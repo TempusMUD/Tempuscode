@@ -101,6 +101,7 @@ class Account {
         int hasCharLevel(int level);
         int hasCharGen(int level);
 
+        inline int count_chars() { return _chars.size(); };
 		class cmp {
 			public:
 				bool operator()(const Account *s1, const Account *s2) const

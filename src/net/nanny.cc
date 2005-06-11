@@ -238,6 +238,15 @@ handle_input(struct descriptor_data *d)
 			set_desc_state(CXN_DISCONNECT, d);
 			break;
 		case 'c':
+            if (d->account->count_chars() >= 10) {
+                send_to_desc(d, "\r\nNo more characters can be "
+                                "created on this account.  Please keep "
+                                "\r\nin mind that it is a violation of "
+                                "policy to start multiple "
+                                "accounts.\r\n\r\n");
+                set_desc_state(CXN_MENU, d);
+                break;
+            }
 			set_desc_state(CXN_NAME_PROMPT, d); break;
 		case 'd':
 			if (!d->account->invalid_char_index(2)) {
@@ -411,6 +420,7 @@ handle_input(struct descriptor_data *d)
 
 		if (Valid_Name(arg)) {
 			if (!d->creature) {
+
 				d->creature = d->account->create_char(arg);
 				d->creature->desc = d;
 				d->creature->player_specials->rentcode = RENT_CREATING;
@@ -669,6 +679,7 @@ handle_input(struct descriptor_data *d)
 			delete d->creature;
 		}
 		d->creature = NULL;
+        d->account->reload();
 		set_desc_state(CXN_WAIT_MENU, d);
 		break;
 	case CXN_AFTERLIFE:

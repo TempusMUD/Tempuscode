@@ -214,6 +214,40 @@ Account::load_players(void)
 	count = PQntuples(res);
 	for (idx = 0;idx < count;idx++)
 		_chars.push_back(atol(PQgetvalue(res, idx, 0)));
+
+    if (count_chars() > 10) {
+        Creature *tmp_ch = new Creature(true);
+        // First, find all the characters with NEW rentcode and
+        // whack them as long as we still have more than 10 characters;
+        for (int x = 0; x < count_chars(); x++) {
+            tmp_ch->loadFromXML(_chars[x]);
+            if (count_chars() > 10 && 
+                (tmp_ch->player_specials->rentcode == RENT_NEW_CHAR ||
+                 tmp_ch->player_specials->rentcode == RENT_CREATING)) {
+                delete_char(tmp_ch);
+            }
+        }
+
+        // Second, if we still have more than 10 characters, lets delete
+        // the characters that have QUIT and are less than level 25
+         for (int x = 0; x < count_chars(); x++) {
+            tmp_ch->loadFromXML(_chars[x]);
+            if (count_chars() > 10 && tmp_ch->getLevel() <= 25 && 
+                tmp_ch->player_specials->rentcode == RENT_QUIT) {
+                delete_char(tmp_ch);
+            }
+        }       
+        delete tmp_ch;
+    }
+
+    // We've deleted as many characters as I feel is prudent.  If this
+    // account still has more than 10 characters, make sure they only
+    // have access to the first 10
+    if (count_chars() > 10) {
+        vector<long>::iterator vi = _chars.begin();
+        vi += 10;
+        _chars.erase(vi, _chars.end());
+    }
 }
 
 void
@@ -320,6 +354,10 @@ Account::create_char(const char *name)
 	int i;
 
 	ch = new Creature(true);
+
+    if (_chars.size() > 10) {
+        return NULL;
+    }
 
     GET_NAME(ch) = strdup(tmp_capitalize(tmp_tolower(name)));
     ch->char_specials.saved.idnum = playerIndex.getTopIDNum() + 1;

@@ -8601,6 +8601,7 @@ ACMD(do_delete)
 	tmp_name = tmp_strdup(GET_NAME(vict));
 
 	acct->delete_char(vict);
+    acct->reload();
 
 	send_to_char(ch, "Character '%s' has been deleted from account %s.\r\n",
 		tmp_name, acct->get_name());
