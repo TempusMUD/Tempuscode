@@ -28,6 +28,7 @@
 #include "tmpstr.h"
 #include "house.h"
 #include "events.h"
+#include "prog.h"
 
 /* extern variables */
 extern struct room_data *world;
