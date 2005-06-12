@@ -34,6 +34,7 @@
 
 
 #define RM_AFF_FLAGS     NUM_DIRS
+#define RM_AFF_OTHER     (RM_AFF_FLAGS + 1)
 
 void affect_to_room(struct room_data *room, struct room_affect_data *aff);
 void affect_from_room(struct room_data *room, struct room_affect_data *aff);

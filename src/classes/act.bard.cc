@@ -737,7 +737,7 @@ ASPELL(song_rhythm_of_alarm)
     struct room_affect_data *rm_aff_ptr;
 
     memset(&rm_aff, 0x0, sizeof(struct room_affect_data));
-    rm_aff.type = -1;
+    rm_aff.type = RM_AFF_OTHER;
 
     if ((rm_aff_ptr = room_affected_by(ch->in_room, SONG_RHYTHM_OF_ALARM)) &&
          rm_aff_ptr->owner == ch->getIdNum()) {
