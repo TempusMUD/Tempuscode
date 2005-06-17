@@ -26,7 +26,7 @@ struct dbg_mem_blk {
 	unsigned char data[0];	// four extra bytes on end of block
 };
 
-void dbg_enable_tracking(bool dump_on_exit);
+void dbg_enable_tracking(void);
 void dbg_disable_tracking(void);
 void dbg_dump(void);
 void dbg_check_now(char *str, bool abort_now);

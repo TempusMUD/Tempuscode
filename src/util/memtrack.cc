@@ -1,6 +1,8 @@
 /* Memory debugging macros */
 #include "memtrack.h"
 
+void (*__malloc_initialize_hook)(void) = dbg_enable_tracking;
+
 const unsigned long _dbg_magic = 0xAABBCCDD;
 struct dbg_mem_blk *_dbg_mem_list = NULL;
 int _dbg_enabled = 0;
@@ -22,7 +24,7 @@ void _dbg_free(void *ptr, const void *return_addr);
 void _dbg_dump(void);
 
 void
-dbg_enable_tracking(bool dump_on_exit)
+dbg_enable_tracking(void)
 {
 	if (_dbg_enabled)
 		return;
@@ -34,9 +36,6 @@ dbg_enable_tracking(bool dump_on_exit)
 	__malloc_hook = _dbg_alloc;
 	__realloc_hook = _dbg_realloc;
 	__free_hook = _dbg_free;
-
-	if (dump_on_exit)
-		atexit(_dbg_dump);
 }
 
 void
@@ -95,13 +94,8 @@ void
 _dbg_free(void *ptr, const void *return_addr)
 {
 	struct dbg_mem_blk *cur_blk;
-
-	if (!ptr) {
-		slog("MEMORY: Attempt to deallocate NULL ptr (%p)",
-			return_addr);
+	if (!ptr)
 		return;
-	}
-
 	cur_blk = (struct dbg_mem_blk *)((char *)ptr - sizeof(struct dbg_mem_blk));
 
 	if (cur_blk->magic != _dbg_magic) {
@@ -214,7 +208,6 @@ _dbg_dump(void)
 void *
 operator new(size_t size)
 {
-		//dbg_enable_tracking(false);
 	if (_dbg_enabled)
 		return _dbg_alloc(size, __builtin_return_address(0));
 	else
@@ -223,7 +216,6 @@ operator new(size_t size)
 
 void *
 operator new[] (size_t size) {
-		//dbg_enable_tracking(false);
 	if (_dbg_enabled)
 		return _dbg_alloc(size, __builtin_return_address(0));
 	else
