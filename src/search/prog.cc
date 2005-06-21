@@ -290,14 +290,271 @@ prog_var_equal(prog_state_data * state, char *key, char *arg)
 	return !strcasecmp(cur_var->value, arg);
 }
 
+bool 
+prog_eval_alias(prog_env *env, prog_evt *evt, char *args) {
+    char *alias_list = NULL;
+    bool result = false;
+    char *str, *arg;
+
+    if (!(alias_list = prog_get_alias_list(args)))
+        result = false;
+    if (evt->args && alias_list) {
+        str = evt->args;
+        arg = tmp_getword(&str);
+        while (*arg) {
+            if (isname(arg, alias_list)) {
+                result = true;
+                break;
+            }
+            arg = tmp_getword(&str);
+        }
+    }
+
+    return result;
+}
+
+bool 
+prog_eval_keyword(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+    char *str, *arg;
+
+    if (evt->args) {
+        str = evt->args;
+        arg = tmp_getword(&str);
+        while (*arg) {
+            if (isname_exact(arg, args)) {
+                result = true;
+                break;
+            }
+            arg = tmp_getword(&str);
+        }
+    }
+
+    return result;
+}
+
+bool 
+prog_eval_abbrev(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+    char *str, *arg;
+
+    if (evt->args) {
+        str = evt->args;
+        arg = tmp_getword(&str);
+        while (*arg) {
+            char *len_ptr = NULL, *tmp_args = args, *saved_args = args;
+            while (*args && (args = tmp_getword(&tmp_args))) {
+                int len = 0;
+                if ((len_ptr = strstr(args, "*"))) {
+                    len = len_ptr - args;
+                    memcpy(len_ptr, len_ptr + 1, strlen(args) - len - 1);
+                    args[strlen(args) - 1] = 0;
+                }
+                if (is_abbrev(arg, args, len)) {
+                    result = true;
+                    break;
+                }
+            }
+            args = saved_args;
+            arg = tmp_getword(&str);
+        }
+    }
+
+    return result;
+}
+
+bool 
+prog_eval_holding(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+	int vnum;
+	obj_data *obj = NULL;
+
+    vnum = atoi(tmp_getword(&args));
+    switch (env->owner_type) {
+        case PROG_TYPE_MOBILE:
+            obj = ((Creature *) env->owner)->carrying;
+            break;
+        case PROG_TYPE_OBJECT:
+            obj = ((obj_data *) env->owner)->contains;
+            break;
+        case PROG_TYPE_ROOM:
+            obj = ((room_data *) env->owner)->contents;
+            break;
+        default:
+            obj = NULL;
+    }
+    while (obj) {
+        if (GET_OBJ_VNUM(obj) == vnum)
+            result = true;
+        obj = obj->next_content;
+    }
+
+    return result;
+}
+
+bool 
+prog_eval_phase(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+    char *str;
+    int phase;
+
+    str = tmp_getword(&args);
+    phase = get_lunar_phase(lunar_day);
+    if (strcasecmp(str, "full"))
+        result = phase == MOON_FULL;
+    else if (strcasecmp(str, "waning"))
+        result = phase == MOON_WANE_GIBBOUS
+            || phase == MOON_WANE_CRESCENT || phase == MOON_LAST_QUARTER;
+    else if (strcasecmp(str, "new"))
+        result = phase == MOON_NEW;
+    else if (strcasecmp(str, "waxing"))
+        result = phase == MOON_WAX_GIBBOUS
+            || phase == MOON_WAX_CRESCENT || phase == MOON_FIRST_QUARTER;
+
+    return result;
+}
+
+bool 
+prog_eval_class(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+    // Required class
+    char *rclass = tmp_tolower(args);
+    // Actual character class
+    char *cclass;
+
+	extern const char *pc_char_class_types[];
+
+    if (!env->target)
+        return false;
+
+    cclass = tmp_tolower(pc_char_class_types[GET_CLASS(env->target)]);
+    if (strstr(rclass, cclass))
+        result = true;
+
+    cclass = tmp_tolower(pc_char_class_types[GET_REMORT_CLASS(env->target)]);
+    if (IS_REMORT(env->target) && !result && strstr(rclass, cclass))
+        result = true;
+
+    return result;
+}
+
+bool 
+prog_eval_vnum(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+    char *arg;
+
+    if (env->target && IS_NPC(env->target)) {
+        arg = tmp_getword(&args);
+        while (*arg) {
+            if (is_number(arg)
+                && atoi(arg) == GET_MOB_VNUM(env->target)) {
+                result = true;
+                break;
+            }
+            arg = tmp_getword(&args);
+        }
+    }
+
+    return result;
+}
+
+bool 
+prog_eval_level(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+    char *arg;
+
+    arg = tmp_getword(&args);
+    if (!strcasecmp(arg, "greater")) {
+        arg = tmp_getword(&args);
+        result = is_number(arg) && env->target
+            && GET_LEVEL(env->target) > atoi(arg);
+    } else if (!strcasecmp(arg, "less")) {
+        arg = tmp_getword(&args);
+        result = is_number(arg) && env->target
+            && GET_LEVEL(env->target) < atoi(arg);
+    }
+
+    return result;
+}
+
+bool 
+prog_eval_gen(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+    char *arg;
+
+    arg = tmp_getword(&args);
+    if (!strcasecmp(arg, "greater")) {
+        arg = tmp_getword(&args);
+        result = is_number(arg) && env->target
+            && GET_REMORT_GEN(env->target) > atoi(arg);
+    } else if (!strcasecmp(arg, "less")) {
+        arg = tmp_getword(&args);
+        result = is_number(arg) && env->target
+            && GET_REMORT_GEN(env->target) < atoi(arg);
+    }
+
+    return result;
+}
+
+bool 
+prog_eval_tar_holding(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+    obj_data *obj;
+    int vnum;
+
+    vnum = atoi(tmp_getword(&args));
+    if (env->target)
+        obj = env->target->carrying;
+    else
+        obj = NULL;
+
+    while (obj) {
+        if (GET_OBJ_VNUM(obj) == vnum)
+            result = true;
+        obj = obj->next_content;
+    }
+
+    return result;
+}
+
+bool 
+prog_eval_wearing(prog_env *env, prog_evt *evt, char *args) {
+    bool result = false;
+    int vnum;
+
+    vnum = atoi(tmp_getword(&args));
+    if (env->target) {
+        for (int i = 0; i < NUM_WEARS; i++) {
+            if ((env->target->equipment[i]
+                    && GET_OBJ_VNUM(env->target->equipment[i]) == vnum)
+                || (env->target->implants[i]
+                    && GET_OBJ_VNUM(env->target->implants[i]) == vnum))
+                result = true;
+        }
+    }
+
+    return result;
+}
+// If have a new condition to add and you can do it in
+// 3 lines or less, you can add it inline here.  Otherwise
+// factor it out into a function
 bool
 prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 {
-	extern const char *pc_char_class_types[];
-	obj_data *obj = NULL;
-	int vnum;
-	char *arg, *str;
+	char *arg;
 	bool result = false, not_flag = false;
+
+    bool prog_eval_alias(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_keyword(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_abbrev(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_holding(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_phase(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_class(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_vnum(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_level(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_gen(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_tar_holding(prog_env *env, prog_evt *evt, char *args);
+    bool prog_eval_wearing(prog_env *env, prog_evt *evt, char *args);
 
 	arg = tmp_getword(&args);
 	if (!strcasecmp(arg, "not")) {
@@ -309,170 +566,65 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 		result = (evt->args && !strcasecmp(args, evt->args));
 		// Mobs using "alias"
 		// 1200 3062 90800
-	} else if (!strcmp(arg, "alias")) {
-		char *alias_list = NULL;
-		if (!(alias_list = prog_get_alias_list(args)))
-			result = false;
-		if (evt->args && alias_list) {
-			str = evt->args;
-			arg = tmp_getword(&str);
-			while (*arg) {
-				if (isname(arg, alias_list)) {
-					result = true;
-					break;
-				}
-				arg = tmp_getword(&str);
-			}
-		}
-	} else if (!strcmp(arg, "keyword")) {
-		if (evt->args) {
-			str = evt->args;
-			arg = tmp_getword(&str);
-			while (*arg) {
-				if (isname_exact(arg, args)) {
-					result = true;
-					break;
-				}
-				arg = tmp_getword(&str);
-			}
-		}
-	} else if (!strcmp(arg, "abbrev")) {
-		if (evt->args) {
-			str = evt->args;
-			arg = tmp_getword(&str);
-			while (*arg) {
-				char *len_ptr = NULL, *tmp_args = args, *saved_args = args;
-				while (*args && (args = tmp_getword(&tmp_args))) {
-					int len = 0;
-					if ((len_ptr = strstr(args, "*"))) {
-						len = len_ptr - args;
-						memcpy(len_ptr, len_ptr + 1, strlen(args) - len - 1);
-						args[strlen(args) - 1] = 0;
-					}
-					if (is_abbrev(arg, args, len)) {
-						result = true;
-						break;
-					}
-				}
-				args = saved_args;
-				arg = tmp_getword(&str);
-			}
-		}
-	} else if (!strcmp(arg, "fighting")) {
+	} 
+    else if (!strcmp(arg, "alias")) {
+        result = prog_eval_alias(env, evt, args);
+	} 
+    else if (!strcmp(arg, "keyword")) {
+        result = prog_eval_keyword(env, evt, args);
+	} 
+    else if (!strcmp(arg, "abbrev")) {
+        result = prog_eval_abbrev(env, evt, args);
+	} 
+    else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
 			&& ((Creature *) env->owner)->numCombatants());
-	} else if (!strcmp(arg, "randomly")) {
+	} 
+    else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
-	} else if (!strcmp(arg, "variable")) {
+	} 
+    else if (!strcmp(arg, "variable")) {
 		if (env->state) {
 			arg = tmp_getword(&args);
 			result = prog_var_equal(env->state, arg, args);
-		} else if (!*args)
+		} 
+        else if (!*args)
 			result = true;
-	} else if (!strcasecmp(arg, "holding")) {
-		vnum = atoi(tmp_getword(&args));
-		switch (env->owner_type) {
-		case PROG_TYPE_MOBILE:
-			obj = ((Creature *) env->owner)->carrying;
-			break;
-		case PROG_TYPE_OBJECT:
-			obj = ((obj_data *) env->owner)->contains;
-			break;
-		case PROG_TYPE_ROOM:
-			obj = ((room_data *) env->owner)->contents;
-			break;
-		default:
-			obj = NULL;
-		}
-		while (obj) {
-			if (GET_OBJ_VNUM(obj) == vnum)
-				result = true;
-			obj = obj->next_content;
-		}
-	} else if (!strcasecmp(arg, "hour")) {
+	} 
+    else if (!strcasecmp(arg, "holding")) {
+        result = prog_eval_holding(env, evt, args);
+	} 
+    else if (!strcasecmp(arg, "hour")) {
 		result = time_info.hours == atoi(tmp_getword(&args));
-	} else if (!strcasecmp(arg, "phase")) {
-		str = tmp_getword(&args);
-		vnum = get_lunar_phase(lunar_day);
-		if (strcasecmp(str, "full"))
-			result = vnum == MOON_FULL;
-		else if (strcasecmp(str, "waning"))
-			result = vnum == MOON_WANE_GIBBOUS
-				|| vnum == MOON_WANE_CRESCENT || vnum == MOON_LAST_QUARTER;
-		else if (strcasecmp(str, "new"))
-			result = vnum == MOON_NEW;
-		else if (strcasecmp(str, "waxing"))
-			result = vnum == MOON_WAX_GIBBOUS
-				|| vnum == MOON_WAX_CRESCENT || vnum == MOON_FIRST_QUARTER;
-	} else if (!strcasecmp(arg, "target")) {
+	} 
+    else if (!strcasecmp(arg, "phase")) {
+        result = prog_eval_phase(env, evt, args);
+	} 
+    // These are all subsets of the *require target <attribute> directive
+    else if (!strcasecmp(arg, "target")) {
 		arg = tmp_getword(&args);
 		if (!strcasecmp(arg, "class")) {
-			result = (env->target
-				&& (strstr(tmp_tolower(args),
-						tmp_tolower(pc_char_class_types[GET_CLASS(env->
-									target)])) || (IS_REMORT(env->target)
-						&& strstr(tmp_tolower(args),
-							tmp_tolower(pc_char_class_types[GET_REMORT_CLASS
-									(env->target)])))));
-		} else if (!strcasecmp(arg, "player")) {
+            result = prog_eval_class(env, evt, args);
+		} 
+        else if (!strcasecmp(arg, "player")) {
 			result = env->target && IS_PC(env->target);
-		} else if (!strcasecmp(arg, "vnum")) {
-			if (env->target && IS_NPC(env->target)) {
-				arg = tmp_getword(&args);
-				while (*arg) {
-					if (is_number(arg)
-						&& atoi(arg) == GET_MOB_VNUM(env->target)) {
-						result = true;
-						break;
-					}
-					arg = tmp_getword(&args);
-				}
-			}
-		} else if (!strcasecmp(arg, "level")) {
-			arg = tmp_getword(&args);
-			if (!strcasecmp(arg, "greater")) {
-				arg = tmp_getword(&args);
-				result = is_number(arg) && env->target
-					&& GET_LEVEL(env->target) > atoi(arg);
-			} else if (!strcasecmp(arg, "less")) {
-				arg = tmp_getword(&args);
-				result = is_number(arg) && env->target
-					&& GET_LEVEL(env->target) < atoi(arg);
-			}
-		} else if (!strcasecmp(arg, "gen")) {
-			arg = tmp_getword(&args);
-			if (!strcasecmp(arg, "greater")) {
-				arg = tmp_getword(&args);
-				result = is_number(arg) && env->target
-					&& GET_REMORT_GEN(env->target) > atoi(arg);
-			} else if (!strcasecmp(arg, "less")) {
-				arg = tmp_getword(&args);
-				result = is_number(arg) && env->target
-					&& GET_REMORT_GEN(env->target) < atoi(arg);
-			}
-		} else if (!strcasecmp(arg, "holding")) {
-			vnum = atoi(tmp_getword(&args));
-			if (env->target)
-				obj = env->target->carrying;
-			else
-				obj = NULL;
-			while (obj) {
-				if (GET_OBJ_VNUM(obj) == vnum)
-					result = true;
-				obj = obj->next_content;
-			}
-		} else if (!strcasecmp(arg, "wearing")) {
-			vnum = atoi(tmp_getword(&args));
-			if (env->target) {
-				for (int i = 0; i < NUM_WEARS; i++) {
-					if ((env->target->equipment[i]
-							&& GET_OBJ_VNUM(env->target->equipment[i]) == vnum)
-						|| (env->target->implants[i]
-							&& GET_OBJ_VNUM(env->target->implants[i]) == vnum))
-						result = true;
-				}
-			}
-		} else if (!strcasecmp(arg, "self")) {
+		} 
+        else if (!strcasecmp(arg, "vnum")) {
+            result = prog_eval_vnum(env, evt, args);
+		} 
+        else if (!strcasecmp(arg, "level")) {
+            result = prog_eval_level(env, evt, args);
+		} 
+        else if (!strcasecmp(arg, "gen")) {
+            result = prog_eval_gen(env, evt, args);
+		} 
+        else if (!strcasecmp(arg, "holding")) {
+            result = prog_eval_holding(env, evt, args);
+		} 
+        else if (!strcasecmp(arg, "wearing")) {
+            result = prog_eval_wearing(env, evt, args);
+		} 
+        else if (!strcasecmp(arg, "self")) {
 			result = (env->owner == env->target);
 		}
 	}
@@ -579,22 +731,22 @@ prog_do_target(prog_env * env, prog_evt * evt, char *args)
 	arg = tmp_getword(&args);
 	if (!strcasecmp(arg, "random")) {
 		switch (env->owner_type) {
-		case PROG_TYPE_MOBILE:
-			ch_self = (Creature *) env->owner;
-			env->target = get_char_random_vis(ch_self, ch_self->in_room);
-			break;
-		case PROG_TYPE_OBJECT:
-			obj_self = (obj_data *) env->owner;
-			if (obj_self->in_room)
-				env->target = get_char_random(obj_self->in_room);
-			else if (obj_self->worn_by)
-				env->target = get_char_random(obj_self->worn_by->in_room);
-			else if (obj_self->carried_by)
-				env->target = get_char_random(obj_self->carried_by->in_room);
-			break;
-		case PROG_TYPE_ROOM:
-			env->target = get_char_random((room_data *) env->owner);
-			break;
+            case PROG_TYPE_MOBILE:
+                ch_self = (Creature *) env->owner;
+                env->target = get_char_random_vis(ch_self, ch_self->in_room);
+                break;
+            case PROG_TYPE_OBJECT:
+                obj_self = (obj_data *) env->owner;
+                if (obj_self->in_room)
+                    env->target = get_char_random(obj_self->in_room);
+                else if (obj_self->worn_by)
+                    env->target = get_char_random(obj_self->worn_by->in_room);
+                else if (obj_self->carried_by)
+                    env->target = get_char_random(obj_self->carried_by->in_room);
+                break;
+            case PROG_TYPE_ROOM:
+                env->target = get_char_random((room_data *) env->owner);
+                break;
 		}
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
