@@ -742,6 +742,7 @@ HouseControl::load()
 				slog("HOUSE: Loaded house %d", house->getID() );
 			} else {
 				errlog("Failed to load house file: %s ", filename );
+				delete house;
 			}
 
 		}
