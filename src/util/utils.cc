@@ -1102,10 +1102,10 @@ delete_duplicate_objects() {
             // it, but as people usually use containers to hold
             // eq while they dupe it, might as well just fry
             // it all.
-            extract_obj(ov[x].obj);
             mudlog(LVL_AMBASSADOR, NRM, true,
                    "INFO: Duplicate item id: [%ld] (%s) has been "
                    "deleted.", ov[x].unique_id, ov[x].obj->name);
+            extract_obj(ov[x].obj);
         }
     }
 }
