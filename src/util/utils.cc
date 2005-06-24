@@ -39,8 +39,20 @@
 #include "tmpstr.h"
 #include "spells.h"
 
+#include <vector>
+
+using namespace std;
+
 extern struct follow_type *order_next_k;
 char ANSI[20];
+
+struct ovect_struct {
+    bool operator<(const struct ovect_struct &r) const {
+        return unique_id < r.unique_id;
+    }
+    long unique_id;
+    obj_data *obj;
+};
 
 void
 safe_exit(int mode)
@@ -1060,5 +1072,40 @@ void check_bits_32(int bitv, int *newbits)
     for (int i = 0; i < 32; i++) {
         if (bitv & (1 << i))
             *newbits &= ~(1 << i);
+    }
+}
+
+void
+create_object_vector(vector<struct ovect_struct> &ov) {
+    struct ovect_struct tempo;
+
+    for (obj_data *k = object_list; k; k = k->next) {
+        if (!k->unique_id)
+            continue;
+        tempo.unique_id = k->unique_id;
+        tempo.obj = k;
+        ov.push_back(tempo);
+    }
+
+    sort(ov.begin(), ov.end());
+}
+
+void
+delete_duplicate_objects() {
+    vector<struct ovect_struct> ov;
+    create_object_vector(ov);
+
+    for (unsigned int x = 0; x < ov.size(); x++) {
+        if (ov[x].unique_id == ov[x + 1].unique_id) {
+            // I thought about putting some code here to remove
+            // objects from a duped container before we extract
+            // it, but as people usually use containers to hold
+            // eq while they dupe it, might as well just fry
+            // it all.
+            extract_obj(ov[x].obj);
+            mudlog(LVL_AMBASSADOR, NRM, true,
+                   "INFO: Duplicate item id: [%ld] (%s) has been "
+                   "deleted.", ov[x].unique_id, ov[x].obj->name);
+        }
     }
 }

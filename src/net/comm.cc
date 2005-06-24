@@ -597,6 +597,7 @@ game_loop(int mother_desc)
 			descriptor_update();
 			Help->Sync();
 			save_quests();
+            delete_duplicate_objects();
 		}
 		if (auto_save) {
 			if (!(pulse % (60 * PASSES_PER_SEC))) {	/* 1 minute */
@@ -610,8 +611,9 @@ game_loop(int mother_desc)
 			}
 		}
 
-		if (!(pulse % (300 * PASSES_PER_SEC)))	/* 5 minutes */
+		if (!(pulse % (300 * PASSES_PER_SEC))) {	/* 5 minutes */
 			record_usage();
+        }
 
 		if (!(pulse % (130 * PASSES_PER_SEC))) {	// 2.1 minutes
 			retire_trails();

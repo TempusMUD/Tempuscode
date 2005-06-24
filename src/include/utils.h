@@ -29,6 +29,8 @@ char *str_dup(const char *source);
 int str_cmp(const char *arg1, const char *arg2);
 int strn_cmp(char *arg1, char *arg2, int n);
 int touch(char *path);
+void create_object_vector(vector<struct ovect_struct> &ov);
+void delete_duplicate_objects();
 
 enum log_type
 {
