@@ -619,7 +619,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
             result = prog_eval_gen(env, evt, args);
 		} 
         else if (!strcasecmp(arg, "holding")) {
-            result = prog_eval_holding(env, evt, args);
+            result = prog_eval_tar_holding(env, evt, args);
 		} 
         else if (!strcasecmp(arg, "wearing")) {
             result = prog_eval_wearing(env, evt, args);
