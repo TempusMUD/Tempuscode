@@ -463,12 +463,10 @@ Account::delete_char(Creature *ch)
 		struct clanmember_data *member, *temp;
 
 		member = real_clanmember(GET_IDNUM(ch), clan);
-		if (member) {
+		if (member)
 			REMOVE_FROM_LIST(member, clan->member_list, next);
-			sql_exec("delete from clan_members where player=%ld",
-				GET_IDNUM(ch));
-		}
 	}
+	sql_exec("delete from clan_members where player=%ld", GET_IDNUM(ch));
 
 	// Remove character from any access groups
 	list<Security::Group>::iterator group;
