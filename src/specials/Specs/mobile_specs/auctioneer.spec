@@ -12,6 +12,8 @@
                           obj->obj_flags.type_flag == ITEM_PORTAL || \
                           obj->obj_flags.type_flag == ITEM_SCRIPT || \
                           obj->obj_flags.type_flag == ITEM_CONTAINER || \
+                          (obj->obj_flags.type_flag == ITEM_BOMB && \
+                           obj->contains && FUSE_STATE(obj->contains)) || \
                           obj->shared->vnum == -1)
 
 #define AUC_FILE_NAME "etc/auctioneer_data_%d.xml"
@@ -503,7 +505,7 @@ SPECIAL(do_auctions)
         }
 
         if (((ai->current_bid != 0) || (ai->buyer_id != 0)) && !IS_IMMORT(ch)) {
-            send_to_char(ch, "You cannot withdraw and item that has bids\r\n");
+            send_to_char(ch, "You cannot withdraw an item that has bids\r\n");
             return 1;
         }
 
