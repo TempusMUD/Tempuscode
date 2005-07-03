@@ -597,7 +597,7 @@ game_loop(int mother_desc)
 			descriptor_update();
 			Help->Sync();
 			save_quests();
-            delete_duplicate_objects();
+            //delete_duplicate_objects();
 		}
 		if (auto_save) {
 			if (!(pulse % (60 * PASSES_PER_SEC))) {	/* 1 minute */
