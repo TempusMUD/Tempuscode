@@ -23,8 +23,7 @@ $(OBJ)/group.o: group.cc /usr/include/libxml2/libxml/parser.h \
   ../include/account.h ../include/desc_data.h ../include/editor.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
+  ../include/utils.h ../include/db.h ../include/comm.h \
   ../include/security.h ../include/screen.h ../include/tokenizer.h \
   ../include/player_table.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
@@ -53,8 +52,7 @@ $(OBJ)/interpreter.o: interpreter.cc ../include/structs.h ../include/defs.h \
   ../include/account.h ../include/desc_data.h ../include/editor.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/comm.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/utils.h \
+  ../include/comm.h ../include/db.h ../include/utils.h \
   ../include/spells.h ../include/handler.h ../include/mail.h \
   ../include/screen.h ../include/help.h ../include/char_class.h \
   ../include/actions.h ../include/mobact.h ../include/clan.h \
@@ -87,8 +85,7 @@ $(OBJ)/security.o: security.cc /usr/include/libxml2/libxml/parser.h \
   ../include/account.h ../include/desc_data.h ../include/editor.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
+  ../include/utils.h ../include/db.h ../include/comm.h \
   ../include/tokenizer.h ../include/screen.h ../include/security.h \
   ../include/boards.h ../include/player_table.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<

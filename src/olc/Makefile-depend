@@ -24,14 +24,13 @@ $(OBJ)/olc.o: olc.cc ../include/structs.h ../include/defs.h ../include/macros.h 
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/security.h \
-  ../include/screen.h ../include/olc.h ../include/flow_room.h \
-  ../include/spells.h ../include/materials.h ../include/vehicle.h \
-  ../include/specs.h ../include/smokes.h ../include/paths.h \
-  ../include/bomb.h ../include/guns.h ../include/char_class.h \
-  ../include/actions.h ../include/mobact.h ../include/events.h \
-  ../include/language.h ../include/mobile_map.h ../include/object_map.h
+  ../include/db.h ../include/security.h ../include/screen.h \
+  ../include/olc.h ../include/flow_room.h ../include/spells.h \
+  ../include/materials.h ../include/vehicle.h ../include/specs.h \
+  ../include/smokes.h ../include/paths.h ../include/bomb.h \
+  ../include/guns.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/events.h ../include/language.h \
+  ../include/mobile_map.h ../include/object_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/olc_mob.o: olc_mob.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -60,9 +59,7 @@ $(OBJ)/olc_mob.o: olc_mob.cc ../include/structs.h ../include/defs.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/char_class.h \
   ../include/actions.h ../include/spells.h ../include/mobact.h \
-  ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/security.h \
+  ../include/handler.h ../include/db.h ../include/security.h \
   ../include/screen.h ../include/olc.h ../include/flow_room.h \
   ../include/specs.h ../include/language.h ../include/mobile_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
@@ -92,11 +89,9 @@ $(OBJ)/olc_obj.o: olc_obj.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/security.h \
-  ../include/screen.h ../include/olc.h ../include/spells.h \
-  ../include/materials.h ../include/specs.h ../include/player_table.h \
-  ../include/object_map.h
+  ../include/db.h ../include/security.h ../include/screen.h \
+  ../include/olc.h ../include/spells.h ../include/materials.h \
+  ../include/specs.h ../include/player_table.h ../include/object_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/olc_srch.o: olc_srch.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -124,9 +119,8 @@ $(OBJ)/olc_srch.o: olc_srch.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/olc.h \
-  ../include/screen.h ../include/spells.h ../include/materials.h
+  ../include/db.h ../include/olc.h ../include/screen.h \
+  ../include/spells.h ../include/materials.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/olc_wld.o: olc_wld.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -154,11 +148,10 @@ $(OBJ)/olc_wld.o: olc_wld.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/security.h \
-  ../include/screen.h ../include/olc.h ../include/flow_room.h \
-  ../include/clan.h ../include/specs.h ../include/house.h \
-  ../include/player_table.h ../include/prog.h
+  ../include/db.h ../include/security.h ../include/screen.h \
+  ../include/olc.h ../include/flow_room.h ../include/clan.h \
+  ../include/specs.h ../include/house.h ../include/player_table.h \
+  ../include/prog.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/olc_zon.o: olc_zon.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -186,10 +179,9 @@ $(OBJ)/olc_zon.o: olc_zon.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/security.h \
-  ../include/screen.h ../include/olc.h ../include/flow_room.h \
-  ../include/paths.h ../include/player_table.h ../include/mobile_map.h
+  ../include/db.h ../include/security.h ../include/screen.h \
+  ../include/olc.h ../include/flow_room.h ../include/paths.h \
+  ../include/player_table.h ../include/mobile_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/polc.o: polc.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -217,7 +209,6 @@ $(OBJ)/polc.o: polc.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/olc.h
+  ../include/db.h ../include/olc.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/olc.o $(OBJ)/olc_mob.o $(OBJ)/olc_obj.o $(OBJ)/olc_srch.o $(OBJ)/olc_wld.o $(OBJ)/olc_zon.o $(OBJ)/polc.o
