@@ -1027,7 +1027,7 @@ House::collectRent( int cost )
 		cost -= rentOverflow;
 	}
 
-	slog("HOUSE: [%d] Collecting %d rent.", getID(), cost );
+	//slog("HOUSE: [%d] Collecting %d rent.", getID(), cost );
 	cost = reconcileCollection( cost );
 
 	// If they still don't have enough, start selling stuff
