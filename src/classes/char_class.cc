@@ -1400,8 +1400,9 @@ invalid_char_class(struct Creature *ch, struct obj_data *obj)
 		(IS_OBJ_STAT(obj, ITEM_ANTI_CYBORG) && IS_CYBORG(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_KNIGHT) && IS_KNIGHT(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_RANGER) && IS_RANGER(ch)) ||
-		(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC) && IS_MERC(ch)) ||
+		(IS_OBJ_STAT(obj, ITEM_ANTI_BARD) && IS_BARD(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_MONK) && IS_MONK(ch)) ||
+		(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC) && IS_MERC(ch)) ||
 		(!OBJ_APPROVED(obj) && !ch->isTester()
 			&& GET_LEVEL(ch) < LVL_IMMORT))
 		invalid = 1;
