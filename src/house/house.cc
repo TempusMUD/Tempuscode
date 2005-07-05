@@ -683,9 +683,7 @@ House::loadRoom( xmlNodePtr roomNode )
 	for ( xmlNodePtr node = roomNode->xmlChildrenNode; node; node = node->next ) 
 	{
         if ( xmlMatches(node->name, "object") ) {
-			obj_data *obj;
-			CREATE(obj, obj_data, 1);
-			obj->clear();
+			obj_data *obj = create_obj();
 			if(! obj->loadFromXML(NULL, NULL, room, node) ) {
 				extract_obj(obj);
 			}
