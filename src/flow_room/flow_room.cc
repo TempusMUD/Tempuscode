@@ -184,9 +184,6 @@ flow_room(int pulse)
 
 		for (rnum = zone->world; rnum; rnum = rnum->next) {
 
-		  if (GET_ROOM_PROG(rnum))
-			trigger_prog_idle(rnum, PROG_TYPE_ROOM);
-
 			// Update room affects
 			if (!(pulse % (5 RL_SEC)))
 				for (aff = rnum->affects; aff; aff = next_aff) {

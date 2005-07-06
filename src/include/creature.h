@@ -1115,6 +1115,7 @@ struct mob_special_data {
 	byte last_direction;		/* The last direction the monster went     */
 	unsigned int mob_idnum;		/* mobile's unique idnum */
 	struct prog_state_data *prog_state;
+	int prog_marker;
 };
 
 

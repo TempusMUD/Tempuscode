@@ -783,14 +783,6 @@ burn_update(void)
 				hunt_victim(ch);
 			continue;
 		}
-
-		if (GET_MOB_PROG(ch)) { 
-            if (!ch->numCombatants()) {
-                trigger_prog_idle(ch, PROG_TYPE_MOBILE);
-            } else {
-                trigger_prog_combat(ch, PROG_TYPE_MOBILE);
-            }
-        }
 	}
 }
 
@@ -1600,7 +1592,8 @@ mobile_spec(void)
 		if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) &&
 			GET_MOB_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
 			if (ch->mob_specials.shared->func == NULL) {
-				errlog("%s (#%d): Attempting to call non-existing mob func",
+				zerrlog(ch->in_room->zone,
+					"SPEC bit set with no special: %s (#%d)",
 					GET_NAME(ch), GET_MOB_VNUM(ch));
 				REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
 			} else {
@@ -1623,7 +1616,7 @@ mobile_activity(void)
 	int dir, found, max, k;
 	static unsigned int count = 0;
 	struct room_data *room = NULL;
-    int cur_class = 0, spec_idx = 0;
+    int cur_class = 0;
 
 	cit = characterList.begin();
 	for (++count; cit != characterList.end(); ++cit) {
@@ -1650,26 +1643,9 @@ mobile_activity(void)
         // special at all...they shouldn't have any reaction
         // whatsoever to any activity by a player.  They should
         // always be level 50...
-        if (ch->mob_specials.shared && ch->mob_specials.shared->func) {
-            spec_idx = find_spec_index_ptr(ch->mob_specials.shared->func);
-            if (spec_idx > -1 && !strcmp(spec_list[spec_idx].tag, "auctioneer"))
-                continue;
-        }
-/*		//
-		// Check for mob spec
-		//
-		if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) &&
-			GET_MOB_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
-			if (ch->mob_specials.shared->func == NULL) {
-				errlog("%s (#%d): Attempting to call non-existing mob func",
-					GET_NAME(ch), GET_MOB_VNUM(ch));
-				REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
-			} else {
-				if ((ch->mob_specials.shared->func) (ch, ch, 0, "", SPECIAL_TICK)) {
-					continue;
-				}
-			}
-		}*/
+        if (ch->mob_specials.shared
+				&& ch->mob_specials.shared->func == do_auctions)
+			continue;
 
         if (!ch->in_room && !ch->player.name && !ch->player.short_descr
             && !ch->player.description) {

@@ -128,18 +128,6 @@ advance_statements(char *str, int count)
 }
 
 
-struct prog_env *
-find_prog_by_owner(void *owner)
-{
-	struct prog_env *cur_prog;
-
-	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
-		if (cur_prog->owner == owner)
-			return cur_prog;
-
-	return NULL;
-}
-
 char *
 prog_get_text(prog_env * env)
 {
@@ -1829,7 +1817,7 @@ trigger_prog_fight(Creature * ch, Creature * self)
 }
 
 void
-trigger_prog_death(void *owner, int owner_type, Creature * ch)
+trigger_prog_death(void *owner, int owner_type, Creature *ch)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -1883,10 +1871,6 @@ trigger_prog_idle(void *owner, int owner_type)
 	prog_env *env;
 	prog_evt evt;
 
-	// Are we already running a prog?  We're not idle if we are.
-	if (find_prog_by_owner(owner))
-		return;
-
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_IDLE;
 	evt.cmd = -1;
@@ -1906,10 +1890,6 @@ trigger_prog_combat(void *owner, int owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
-
-	// Are we already running a prog?  We're not idle if we are.
-	if (find_prog_by_owner(owner))
-		return;
 
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_COMBAT;
@@ -1968,18 +1948,74 @@ void
 prog_update(void)
 {
 	struct prog_env *cur_prog, *next_prog;
+	CreatureList::iterator cit;
+	zone_data *zone;
+	room_data *room;
 
-	if (!prog_list)
-		return;
+	// Unmark mobiles
+	for (cit = characterList.begin();cit != characterList.end();++cit)
+		(*cit)->mob_specials.prog_marker = 0;
+	// Unmark rooms
+	for (zone = zone_table; zone; zone = zone->next)  {
+		if (ZONE_FLAGGED(zone, ZONE_FROZEN)
+				|| zone->idle_time >= ZONE_IDLE_TIME)
+			continue;
 
-	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
+		for (room = zone->world; room; room = room->next)
+			if (GET_ROOM_PROG(room))
+				room->prog_marker = 0;
+	}
+
+
+	// Execute progs and mark them as non-idle
+	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
+		if (cur_prog->exec_pt == -1)
+			continue;
+
+		if (!cur_prog->owner) {
+			errlog("Prog without owner");
+			continue;
+		}
+			
 		prog_execute(cur_prog);
+		switch (cur_prog->owner_type) {
+		case PROG_TYPE_OBJECT:
+			break;
+		case PROG_TYPE_MOBILE:
+			((Creature *)cur_prog->owner)->mob_specials.prog_marker = 1; break;
+		case PROG_TYPE_ROOM:
+			((room_data *)cur_prog->owner)->prog_marker = 1; break;
+		}
+	}
 
+	// Free threads that have terminated
 	for (cur_prog = prog_list; cur_prog; cur_prog = next_prog) {
 		next_prog = cur_prog->next;
-		if (cur_prog->exec_pt < 0)
+		if (cur_prog->exec_pt < 0 || !cur_prog->owner)
 			prog_free(cur_prog);
 	}
+
+	// Trigger mobile idle and combat progs
+	for (cit = characterList.begin();cit != characterList.end();++cit) {
+		if ((*cit)->mob_specials.prog_marker || !GET_MOB_PROG(*cit))
+			continue;
+		else if (!(*cit)->numCombatants())
+			trigger_prog_idle((*cit), PROG_TYPE_MOBILE);
+		else
+			trigger_prog_combat((*cit), PROG_TYPE_MOBILE);
+	}
+
+	// Trigger room idle progs
+	for (zone = zone_table; zone; zone = zone->next)  {
+		if (ZONE_FLAGGED(zone, ZONE_FROZEN)
+				|| zone->idle_time >= ZONE_IDLE_TIME)
+			continue;
+
+		for (room = zone->world; room; room = room->next)
+			if (GET_ROOM_PROG(room) && !room->prog_marker)
+				trigger_prog_idle(room, PROG_TYPE_ROOM);
+	}
+
 }
 
 void
