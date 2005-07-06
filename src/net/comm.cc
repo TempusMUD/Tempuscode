@@ -597,7 +597,6 @@ game_loop(int mother_desc)
 			descriptor_update();
 			Help->Sync();
 			save_quests();
-            //delete_duplicate_objects();
 		}
 		if (auto_save) {
 			if (!(pulse % (60 * PASSES_PER_SEC))) {	/* 1 minute */
@@ -740,6 +739,7 @@ game_loop(int mother_desc)
 		sql_gc_queries();
 		tmp_gc_strings();
 		suppress_output = false; // failsafe
+        delete_duplicate_objects();
 	}							/* while (!circle_shutdown) */
 	/*  mem_cleanup(); */
 }
