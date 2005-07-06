@@ -2690,11 +2690,6 @@ ACMD(do_extract)
             }
         }
 
-        if (!ch->isOkToAttack(vict, false)) {
-            send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
-            return;
-        }
-
 		act("You carefully extract $p from $P.", FALSE, ch, obj, corpse,
 			TO_CHAR);
 		if (CHECK_SKILL(ch,
@@ -2710,6 +2705,11 @@ ACMD(do_extract)
 
 		return;
 	}
+
+    if (!ch->isOkToAttack(vict, false)) {
+        send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
+        return;
+    }
 
 	if (!(obj = get_object_in_equip_vis(ch, obj_str, vict->implants, &pos))) {
 		send_to_char(ch, "Invalid object.  Type 'extract' for usage.\r\n");
