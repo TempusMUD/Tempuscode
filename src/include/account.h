@@ -20,6 +20,7 @@ class Account {
 		static Account *create(const char *name, descriptor_data *d);
 		static Account *retrieve(const char *name);
 		static Account *retrieve(int id);
+		static Account *retrieve(Creature *ch);
         static bool exists(int accountID);
 		static bool remove(Account *acct);
 		static size_t cache_size(void);

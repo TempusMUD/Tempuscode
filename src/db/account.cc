@@ -318,6 +318,38 @@ Account::retrieve(const char *name)
 	return NULL;
 }
 
+Account* 
+Account::retrieve(Creature *ch) 
+{
+	vector <Account *>::iterator it;
+	Account *acct;
+	PGresult *res;
+	int acct_id;
+
+    // NPCs don't have accounts!
+    if (IS_NPC(ch))
+        return NULL;
+
+    // If we already have an account loaded for this creature
+    // just return it
+    if (ch->account)
+        return ch->account;
+
+	res = sql_query("select account from players where name='%s'",
+		tmp_sqlescape(ch->player.name));
+	if (PQntuples(res) != 1)
+		return NULL;
+	acct_id = atoi(PQgetvalue(res, 0, 0));
+
+	// Now try to load it
+	acct = new Account;
+	if (acct->load(acct_id))
+		return acct;
+
+	delete acct;
+	return NULL;
+}
+
 Account *
 Account::create(const char *name, descriptor_data *d)
 {

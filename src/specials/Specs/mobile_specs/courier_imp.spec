@@ -44,6 +44,17 @@ SPECIAL(courier_imp)
             self->purge(true);
             return 1;
         }
+
+        seeking->account = Account::retrieve(seeking);
+        if (!seeking->account) {
+            // WTF?
+            slog("IMP:  Failed to load character account [%ld] from file.", 
+                 data->buyer_id);
+            delete seeking;
+            self->purge(true);
+            return 1;
+        }
+
         if (data->mode == IMP_DELIVER_ITEM) {
             imp_take_payment(seeking, data);
             data->owed = 0;
@@ -75,10 +86,11 @@ SPECIAL(courier_imp)
                     extract_obj(doomed_obj);
                   }
             }
-            delete seeking;
-            self->purge(true);
         }
         
+        delete seeking->account;
+        delete seeking;
+        self->purge(true);
         return 0;
     }
 
