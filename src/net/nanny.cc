@@ -1493,7 +1493,7 @@ char_to_game(descriptor_data *d)
     // if their rep is 0 and they are >= gen 5 they gain 5 rep
 	if (GET_REMORT_GEN(d->creature) >= 1 && d->creature->get_reputation() == 0) {
         d->creature->gain_reputation(5);
-        notes = tmp_strcat(notes, "You are no longer innocent because you have reached your fifth generation.\r\n");
+        notes = tmp_strcat(notes, "You are no longer innocent because you have reached your first generation.\r\n");
     }
     
 	d->creature->player.time.logon = now;
