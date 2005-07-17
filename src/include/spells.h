@@ -96,16 +96,16 @@ static const int MAG_ZEN = (1 << 26);
 static const int MAG_MERCENARY = (1 << 27);
 static const int MAG_BARD = (1 << 28);
 
-#define SPELL_IS_MAGIC(splnm)   (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, MAG_MAGIC))
-#define SPELL_IS_DIVINE(splnm)  (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, MAG_DIVINE))
-#define SPELL_IS_PHYSICS(splnm) (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, MAG_PHYSICS))
-#define SPELL_IS_PSIONIC(splnm) (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, MAG_PSIONIC))
-#define SPELL_IS_BIO(splnm)    (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, MAG_BIOLOGIC))
-#define SPELL_IS_PROGRAM(splnm) (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, CYB_ACTIVATE))
-#define SPELL_IS_EVIL(splnm)    (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, MAG_EVIL))
-#define SPELL_IS_GOOD(splnm)    (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, MAG_GOOD))
-#define SPELL_IS_MERCENARY(splnm) (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, MAG_MERCENARY))
-#define SPELL_IS_BARD(splnm) (splnm <= MAX_SPELLS && IS_SET(spell_info[splnm].routines, MAG_BARD))
+#define SPELL_IS_MAGIC(splnm)   (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, MAG_MAGIC))
+#define SPELL_IS_DIVINE(splnm)  (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, MAG_DIVINE))
+#define SPELL_IS_PHYSICS(splnm) (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, MAG_PHYSICS))
+#define SPELL_IS_PSIONIC(splnm) (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, MAG_PSIONIC))
+#define SPELL_IS_BIO(splnm)    (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, MAG_BIOLOGIC))
+#define SPELL_IS_PROGRAM(splnm) (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, CYB_ACTIVATE))
+#define SPELL_IS_EVIL(splnm)    (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, MAG_EVIL))
+#define SPELL_IS_GOOD(splnm)    (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, MAG_GOOD))
+#define SPELL_IS_MERCENARY(splnm) (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, MAG_MERCENARY))
+#define SPELL_IS_BARD(splnm) (splnm <= TOP_SPELL_DEFINE && IS_SET(spell_info[splnm].routines, MAG_BARD))
 
 #define SPELL_USES_GRAVITY(splnm) (splnm == SPELL_GRAVITY_WELL)
 
