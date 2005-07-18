@@ -2394,7 +2394,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 				return specAddress;
 			}
 		}
-		if (GET_MOB_PROG((*it)) != NULL) {
+		if (GET_MOB_PROGOBJ((*it)) != NULL) {
 			if (spec_mode == SPECIAL_CMD && 
                 trigger_prog_cmd(*it, PROG_TYPE_MOBILE, ch, cmd, arg) &&
                 (!(*it)->master || ((*it)->master->in_room != (*it)->in_room)))

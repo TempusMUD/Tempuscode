@@ -71,13 +71,15 @@ struct prog_command {
 };
 
 prog_command prog_cmds[] = {
+	{"halt", false, prog_do_halt},
+	{"resume", false, prog_do_resume},
 	{"before", false, prog_do_before},
 	{"handle", false, prog_do_handle},
 	{"after", false, prog_do_after},
+	{"or", false, prog_do_or},
 	{"require", false, prog_do_require},
 	{"unless", false, prog_do_unless},
 	{"randomly", false, prog_do_randomly},
-	{"or", false, prog_do_or},
 	{"pause", true, prog_do_pause},
 	{"walkto", true, prog_do_walkto},
 	{"driveto", true, prog_do_driveto},
@@ -87,13 +89,11 @@ prog_command prog_cmds[] = {
 	{"target", true, prog_do_target},
 	{"nuke", true, prog_do_nuke},
 	{"trans", true, prog_do_trans},
-	{"resume", false, prog_do_resume},
 	{"set", true, prog_do_set},
 	{"oload", true, prog_do_oload},
 	{"mload", true, prog_do_mload},
 	{"opurge", true, prog_do_opurge},
 	{"echo", true, prog_do_echo},
-	{"halt", false, prog_do_halt},
 	{"mobflag", true, prog_do_mobflag},
 	{"ldesc", true, prog_do_ldesc},
 	{"damage", true, prog_do_damage},
@@ -103,78 +103,275 @@ prog_command prog_cmds[] = {
 };
 
 char *
-advance_statements(char *str, int count)
+prog_advance_statements(char *str, int count)
 {
-	while (*str && count) {
-		while (*str && *str != '\\' && *str != '\r' && *str != '\n')
-			str++;
-		// code duplicated for speed purposes
-		if (*str == '\\') {
-			str++;
-			if (*str == '\r')
-				str++;
-			if (*str == '\n')
-				str++;
-		} else {
-			if (*str == '\r')
-				str++;
-			if (*str == '\n')
-				str++;
-			count--;
-		}
-	}
-
-	return str;
+ 	while (*str && count) {
+ 		while (*str && *str != '\\' && *str != '\r' && *str != '\n')
+ 			str++;
+ 		// code duplicated for speed purposes
+ 		if (*str == '\\') {
+ 			str++;
+ 			if (*str == '\r')
+ 				str++;
+ 			if (*str == '\n')
+ 				str++;
+  		} else {
+ 			if (*str == '\r')
+ 				str++;
+ 			if (*str == '\n')
+ 				str++;
+ 			count--;
+  		}
+  	}
+  
+ 	return str;
 }
 
-
 char *
-prog_get_text(prog_env * env)
+prog_get_text(void *owner, prog_evt_type owner_type)
 {
-	switch (env->owner_type) {
+	switch (owner_type) {
 	case PROG_TYPE_OBJECT:
 		break;
 	case PROG_TYPE_MOBILE:
-		if ((Creature *) env->owner) {
-			return GET_MOB_PROG(((Creature *) env->owner));
+		if ((Creature *)owner) {
+			return GET_MOB_PROG(((Creature *)owner));
 		} else {
 			errlog("Mobile Prog with no owner - Can't happen at %s:%d",
 				__FILE__, __LINE__);
 			return NULL;
 		}
 	case PROG_TYPE_ROOM:
-		return ((room_data *) env->owner)->prog;
+		return ((room_data *)owner)->prog;
+    default:
+        errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+	}
+	return NULL;
+}
+
+unsigned char *
+prog_get_obj(void *owner, prog_evt_type owner_type)
+{
+	switch (owner_type) {
+	case PROG_TYPE_OBJECT:
+		break;
+	case PROG_TYPE_MOBILE:
+		if ((Creature *)owner) {
+			return GET_MOB_PROGOBJ(((Creature *)owner));
+		} else {
+			errlog("Mobile Prog with no owner - Can't happen at %s:%d",
+				__FILE__, __LINE__);
+			return NULL;
+		}
+	case PROG_TYPE_ROOM:
+		return ((room_data *)owner)->progobj;
+    default:
+        break;
 	}
 	errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	return NULL;
 }
 
+unsigned char *
+prog_compile_prog(Creature *ch, char *prog_text)
+{
+    char *line_start, *line_end, *dataseg, *data_pt;
+    char *line;
+    unsigned char *obj;
+    unsigned short *codeseg, *code_pt;
+    int linenum, code_len, data_len;
+
+    if (!prog_text || !*prog_text)
+        return NULL;
+
+    // Initialize object and data segments
+    dataseg = new char[65536];
+    data_pt = dataseg;
+    *data_pt++ = '\0';
+
+    data_len = 0;
+    codeseg = new unsigned short[32768];
+    code_pt = codeseg;
+    code_len = 0;
+
+    // We'll need linenum for error reporting
+    linenum = 0;
+    line = "";
+    line_start = line_end = prog_text;
+
+    // Skip initial spaces and blank lines in prog
+    while (isspace(*line_start))
+        line_start++;
+
+    while (line_start && *line_start) {
+        // Find the end of the line
+        while (*line_end && *line_end != '\n' && *line_end != '\r')
+            line_end++;
+        // Increment line number for error reporting
+        linenum++;
+
+        // Grab a temporary version of the line
+        line = tmp_strcat(line, tmp_substr(line_start, 0, line_end - line_start - 1));
+        // If the line ends with a backslash, do nothing and the next
+        // line will be appended.  If it doesn't, we can process the
+        // line now
+        if (line_end != line_start && *(line_end - 1) == '\\') {
+            line[strlen(line) - 1] = '\0';
+        } else if (line[0] == '-') {
+            // comment - do nothing
+            line = "";
+        } else {
+            char *cmd_str;
+            prog_command *cmd;
+            
+            if (*line == '*') {
+                cmd_str = tmp_getword(&line) + 1;
+            } else {
+                cmd_str = "do";
+            }
+
+            cmd = prog_cmds;
+            while (cmd->str && strcasecmp(cmd->str, cmd_str))
+                cmd++;
+            if (!cmd->str) {
+                
+                if (ch)
+                    send_to_char(ch, "Error in prog line %d: Bad command '%s'", linenum, cmd_str);
+                else
+                    slog("Error in prog line %d: Bad command '%s'", linenum, cmd_str);
+                delete [] codeseg;
+                delete [] dataseg;
+                return NULL;
+            }
+            
+            *code_pt++ = (cmd - prog_cmds) + 1;
+            if (*line) {
+                *code_pt++ = data_pt - dataseg;
+                strcpy(data_pt, line);
+                data_pt += strlen(data_pt) + 1;
+            } else {
+                *code_pt++ = 0;
+            }
+
+            // Set line to empty string so it won't be concatenated again
+            line = "";
+        }
+
+        while (isspace(*line_end))
+            line_end++;
+        line_start = line_end;
+    }
+
+    // Add a halt command to the end of the code to make sure it doesn't
+    // wander into the data segment
+    *code_pt++ = 0;
+    *code_pt++ = 0;
+
+    code_len = (code_pt - codeseg) * sizeof(short);
+    data_len = data_pt - dataseg;
+    obj = new unsigned char[code_len + data_len];
+
+    // Since the code comes first, we have to change all the argument
+    // offsets to take into account the length of the code.
+    for (code_pt = codeseg + 1;code_pt - codeseg < code_len;code_pt += 2)
+        *code_pt += code_len;
+    memcpy(obj, codeseg, code_len);
+
+    // Now copy the data segment
+    memcpy(obj + code_len, dataseg, data_len);
+
+    delete [] codeseg;
+    delete [] dataseg;
+
+    return obj;
+}
+
+void
+prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
+{
+    char *prog;
+    unsigned char *obj;
+
+    // Get the prog
+    prog = prog_get_text(owner, owner_type);
+    if (!prog) {
+        errlog("prog_compile() called on mobile without prog!");
+        return;
+    }
+
+    // Compile it
+    obj = prog_compile_prog(ch, prog);
+    if (!obj)
+        return;
+    
+    // Set the object code of the owner
+    switch (owner_type) {
+    case PROG_TYPE_MOBILE:
+        delete [] ((Creature *)owner)->mob_specials.shared->progobj;
+        ((Creature *)owner)->mob_specials.shared->progobj = obj;
+        break;
+    case PROG_TYPE_ROOM:
+        delete [] ((room_data *)owner)->progobj;
+        ((room_data *)owner)->progobj = obj;
+        break;
+    case PROG_TYPE_OBJECT:
+        break;
+    default:
+        errlog("Can't happen at %s:%u", __FILE__, __LINE__);
+    }
+
+    // Kill all the progs the owner has to avoid invalid code
+    destroy_attached_progs(owner);
+}
+
+void
+prog_display_obj(Creature *ch, Creature *target)
+{
+	unsigned char *exec;
+    int cmd, arg_addr, read_pt;
+    int cmd_count;
+
+    exec = GET_MOB_PROGOBJ(target);
+
+    cmd_count = 0;
+    while (prog_cmds[cmd_count].str)
+        cmd_count++;
+
+    read_pt = 0;
+    while (read_pt >= 0 && *((short *)&exec[read_pt])) {
+        // Get the command and the arg address
+        cmd = *((short *)(exec + read_pt)) - 1;
+        arg_addr = *((short *)(exec + read_pt + sizeof(short)));
+        // Set the execution point to the next command by default
+        read_pt += sizeof(short) * 2;
+        if (cmd < 0 || cmd >= cmd_count)
+            printf("<INVALID CMD>\n");
+        else
+            printf("%s %s\n", prog_cmds[cmd].str, (char *)(exec + arg_addr));
+    }
+}
+
 void
 prog_next_handler(prog_env * env, bool use_resume)
 {
-	char *prog, *line, *cmd;
-
-	// find our current execution point
-	prog = advance_statements(prog_get_text(env), env->exec_pt);
-
+    unsigned char *prog;
+    
+    prog = prog_get_obj(env->owner, env->owner_type);
 	// skip over lines until we find another handler (or bust)
-	while ((line = prog_get_statement(&prog, 0)) != NULL) {
-		cmd = tmp_getword(&line);
-		if (*cmd != '*') {
-			env->exec_pt++;
-			continue;
-		}
-		cmd++;
-		if (!strcmp(cmd, "before")
-			|| !strcmp(cmd, "handle")
-			|| !strcmp(cmd, "after")
-			|| (use_resume && !strcmp(cmd, "resume")))
-			break;
-		env->exec_pt++;
-	}
-	// if we reached the end of the prog, terminate the program
-	if (!line)
-		env->exec_pt = -1;
+    while (*((short *)&prog[env->exec_pt])) {
+        short cmd;
+
+        env->exec_pt += sizeof(short) + 2;
+        cmd = *((short *)&prog[env->exec_pt]) - 1;
+        if (cmd == PROG_CMD_BEFORE ||
+            cmd == PROG_CMD_HANDLE ||
+            cmd == PROG_CMD_AFTER ||
+            (use_resume && cmd == PROG_CMD_RESUME))
+            return;
+    }
+
+    // We didn't find another handler, so terminate the prog
+    env->exec_pt = -1;
 }
 
 void
@@ -637,32 +834,25 @@ prog_do_unless(prog_env * env, prog_evt * evt, char *args)
 void
 prog_do_randomly(prog_env * env, prog_evt * evt, char *args)
 {
-	char *exec, *line, *cmd;
-	int cur_line, last_line, num_paths;
+	unsigned char *exec;
+	int cur_pt, last_pt, num_paths;
 
 	// We save the execution point and find the next handler.
-	cur_line = env->exec_pt;
+    cur_pt = env->exec_pt;
 	prog_next_handler(env, true);
-	last_line = env->exec_pt;
-	env->exec_pt = cur_line;
+	last_pt = env->exec_pt;
+	env->exec_pt = cur_pt;
 
 	// now we run through, setting randomly which code path to take
-	exec = prog_get_text(env);
-	line = prog_get_statement(&exec, env->exec_pt);
+	exec = prog_get_obj(env->owner, env->owner_type);
 	num_paths = 0;
-	while (line) {
-		if (last_line > 0 && cur_line >= last_line)
-			break;
-		if (*line == '*') {
-			cmd = tmp_getword(&line) + 1;
-			if (!strcasecmp(cmd, "or")) {
-				num_paths += 1;
-				if (!number(0, num_paths))
-					env->exec_pt = cur_line + 1;
-			}
-		}
-		cur_line++;
-		line = prog_get_statement(&exec, 0);
+	while (cur_pt < last_pt) {
+        if (*((short *)&exec[cur_pt]) == PROG_CMD_OR + 1) {
+            num_paths += 1;
+            if (!number(0, num_paths))
+                env->exec_pt = cur_pt + sizeof(short) * 2;
+        }
+        cur_pt += sizeof(short) * 2;
 	}
 
 	// At this point, exec_pt should be on a randomly selected code path
@@ -735,6 +925,8 @@ prog_do_target(prog_env * env, prog_evt * evt, char *args)
             case PROG_TYPE_ROOM:
                 env->target = get_char_random((room_data *) env->owner);
                 break;
+        default:
+            break;
 		}
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
@@ -776,7 +968,7 @@ prog_do_walkto(prog_env * env, prog_evt * evt, char *args)
 		env->wait = MAX(1, pause);
 
 		// we stay on the same line until we get to the destination
-		env->exec_pt--;
+		env->exec_pt -= sizeof(short) * 2;
 	}
 }
 
@@ -836,7 +1028,7 @@ prog_do_driveto(prog_env * env, prog_evt * evt, char *args)
 		env->wait = MAX(1, pause);
 
 		// we stay on the same line until we get to the destination
-		env->exec_pt--;
+		env->exec_pt -= sizeof(short) * 2;
 	}
 }
 
@@ -941,6 +1133,8 @@ prog_do_damage(prog_env * env, prog_evt * evt, char *args)
 			break;
 		case PROG_TYPE_ROOM:
 			break;
+        default:
+            break;
 		}
 		search_nomessage = false;
 		return;
@@ -1147,6 +1341,8 @@ prog_do_trans(prog_env * env, prog_evt * evt, char *args)
 			break;
 		case PROG_TYPE_ROOM:
 			break;
+        default:
+            break;
 		}
 		return;
 	} else if (!strcmp(target_arg, "target")) {
@@ -1418,6 +1614,8 @@ prog_do_opurge(prog_env * env, prog_evt * evt, char *args)
 	case PROG_TYPE_ROOM:
 		((room_data *) env->owner)->contents = obj_list;
 		break;
+    default:
+        break;
 	}
 }
 
@@ -1484,7 +1682,7 @@ prog_get_statement(char **prog, int linenum)
 	char *statement;
 
 	if (linenum)
-		*prog = advance_statements(*prog, linenum);
+		*prog = prog_advance_statements(*prog, linenum);
 
 	statement = tmp_getline(prog);
 	if (!statement)
@@ -1515,11 +1713,12 @@ prog_handle_command(prog_env * env, prog_evt * evt, char *statement)
 	cmd->func(env, evt, statement);
 }
 
+
 void
-prog_execute(prog_env * env)
+prog_execute(prog_env *env)
 {
-	char *exec, *line;
-	int cur_line;
+	unsigned char *exec;
+    int cmd, arg_addr;
 
 	// Terminated, but not freed
 	if (env->exec_pt < 0)
@@ -1537,48 +1736,41 @@ prog_execute(prog_env * env)
 	// we've waited long enough!
 	env->wait = env->speed;
 
-	exec = prog_get_text(env);
-	if (!exec) {
-		// damn prog disappeared on us
-		env->exec_pt = -1;
-		return;
-	}
-	line = prog_get_statement(&exec, env->exec_pt);
-	while (line) {
-		// increment line number of currently executing prog
-		cur_line = env->exec_pt;
-		env->exec_pt++;
+    exec = prog_get_obj(env->owner, env->owner_type);
+    if (!exec) {
+        // Damn prog disappeared on us
+        env->exec_pt = -1;
+        return;
+    }
 
-		if (*line == '*') {
-			prog_handle_command(env, &env->evt, line);
-		} else if (*line == '\0' || *line == '-') {
-			// Do nothing.  comment or blank.
-		} else if (env->owner_type == PROG_TYPE_MOBILE) {
-			env->executed += 1;
-			prog_do_do(env, &env->evt, line);
-		} else {
-			// error
-		}
+    while (env->exec_pt >= 0 &&
+           *((short *)&exec[env->exec_pt]) &&
+           env->wait == 0) {
+        // Get the command and the arg address
+        cmd = *((short *)(exec + env->exec_pt)) - 1;
+        arg_addr = *((short *)(exec + env->exec_pt + sizeof(short)));
+        // Set the execution point to the next command by default
+        env->exec_pt += sizeof(short) * 2;
+        // Call the handler for the command
+        prog_cmds[cmd].func(env, &env->evt, (char *)exec + arg_addr);
+        // If the command did something, count it
+        if (prog_cmds[cmd].count)
+            env->executed +=1 ;
+    }
 
-		// prog exit
-		if (env->exec_pt < 0)
-			return;
-
-		if (env->wait > 0)
-			return;
-
-		if (env->exec_pt > cur_line + 1)
-			exec = advance_statements(exec, env->exec_pt - (cur_line + 1));
-		line = prog_get_statement(&exec, 0);
-	}
-
-	env->exec_pt = -1;
+    if (!env->wait)
+        env->exec_pt = -1;
 }
 
 prog_env *
-prog_start(int owner_type, void *owner, Creature * target, prog_evt * evt)
+prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * evt)
 {
 	prog_env *new_prog;
+
+	if (!prog_get_text(owner, owner_type)
+        || !prog_get_obj(owner, owner_type)) {
+		return NULL;
+	}
 
 	CREATE(new_prog, struct prog_env, 1);
 	new_prog->next = prog_list;
@@ -1593,11 +1785,6 @@ prog_start(int owner_type, void *owner, Creature * target, prog_evt * evt)
 	new_prog->target = target;
 	new_prog->evt = *evt;
 
-	if (!prog_get_text(new_prog)) {
-		free(new_prog);
-		return NULL;
-	}
-
 	switch (owner_type) {
 	case PROG_TYPE_MOBILE:
 		new_prog->state = GET_MOB_STATE(owner);
@@ -1608,9 +1795,9 @@ prog_start(int owner_type, void *owner, Creature * target, prog_evt * evt)
 	case PROG_TYPE_ROOM:
 		new_prog->state = GET_ROOM_STATE(owner);
 		break;
+    default:
+        break;
 	}
-
-	prog_next_handler(new_prog, false);
 
 	return new_prog;
 }
@@ -1651,7 +1838,7 @@ destroy_attached_progs(void *owner)
 }
 
 bool
-trigger_prog_cmd(void *owner, int owner_type, Creature * ch, int cmd,
+trigger_prog_cmd(void *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 	char *argument)
 {
 	prog_env *env, *handler_env;
@@ -1660,7 +1847,8 @@ trigger_prog_cmd(void *owner, int owner_type, Creature * ch, int cmd,
 
 	if (ch == owner)
 		return false;
-
+    if (!prog_get_obj(owner, owner_type))
+        return false;
 	// We don't want an infinite loop with triggered progs that
 	// trigger a prog, etc.
 	if (loop_fence >= 20) {
@@ -1699,7 +1887,7 @@ trigger_prog_cmd(void *owner, int owner_type, Creature * ch, int cmd,
 }
 
 bool
-trigger_prog_spell(void *owner, int owner_type, Creature * ch, int cmd)
+trigger_prog_spell(void *owner, prog_evt_type owner_type, Creature * ch, int cmd)
 {
 	prog_env *env, *handler_env;
 	prog_evt evt;
@@ -1707,6 +1895,9 @@ trigger_prog_spell(void *owner, int owner_type, Creature * ch, int cmd)
 
 	if (ch == owner)
 		return false;
+
+    if (!prog_get_obj(owner, owner_type))
+        return false;
 
 	// We don't want an infinite loop with triggered progs that
 	// trigger a prog, etc.
@@ -1747,7 +1938,7 @@ trigger_prog_spell(void *owner, int owner_type, Creature * ch, int cmd)
 
 
 bool
-trigger_prog_move(void *owner, int owner_type, Creature * ch,
+trigger_prog_move(void *owner, prog_evt_type owner_type, Creature * ch,
 	special_mode mode)
 {
 	prog_env *env, *handler_env;
@@ -1756,6 +1947,9 @@ trigger_prog_move(void *owner, int owner_type, Creature * ch,
 
 	if (ch == owner)
 		return false;
+
+    if (!prog_get_obj(owner, owner_type))
+        return false;
 
 	// We don't want an infinite loop with mobs triggering progs that
 	// trigger a prog, etc.
@@ -1802,8 +1996,11 @@ trigger_prog_fight(Creature * ch, Creature * self)
 	prog_env *env;
 	prog_evt evt;
 
+
 	if (!self || !self->in_room || !GET_MOB_PROG(self))
 		return;
+    if (!GET_MOB_PROGOBJ(self))
+        return;
 	evt.phase = PROG_EVT_AFTER;
 	evt.kind = PROG_EVT_FIGHT;
 	evt.cmd = -1;
@@ -1817,11 +2014,13 @@ trigger_prog_fight(Creature * ch, Creature * self)
 }
 
 void
-trigger_prog_death(void *owner, int owner_type, Creature *ch)
+trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *ch)
 {
 	prog_env *env;
 	prog_evt evt;
 
+    if (!prog_get_obj(owner, owner_type))
+        return;
 
 	// We don't want an infinite loop with triggered progs that
 	// trigger a prog, etc.
@@ -1851,7 +2050,7 @@ trigger_prog_give(Creature * ch, Creature * self, struct obj_data *obj)
 	prog_env *env;
 	prog_evt evt;
 
-	if (!self || !self->in_room || !GET_MOB_PROG(self))
+	if (!self || !self->in_room || !GET_MOB_PROGOBJ(self))
 		return;
 	evt.phase = PROG_EVT_AFTER;
 	evt.kind = PROG_EVT_GIVE;
@@ -1866,10 +2065,13 @@ trigger_prog_give(Creature * ch, Creature * self, struct obj_data *obj)
 }
 
 void
-trigger_prog_idle(void *owner, int owner_type)
+trigger_prog_idle(void *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
+
+    if (!prog_get_obj(owner, owner_type))
+        return;
 
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_IDLE;
@@ -1886,10 +2088,13 @@ trigger_prog_idle(void *owner, int owner_type)
 
 //handles idle combat actions
 void
-trigger_prog_combat(void *owner, int owner_type)
+trigger_prog_combat(void *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
+
+    if (!prog_get_obj(owner, owner_type))
+        return;
 
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_COMBAT;
@@ -1911,7 +2116,7 @@ trigger_prog_load(Creature * owner)
 	prog_evt evt;
 
 	// Do we have a mobile program?
-	if (!GET_MOB_PROG(owner))
+	if (!GET_MOB_PROGOBJ(owner))
 		return;
 
 	evt.phase = PROG_EVT_AFTER;
@@ -1927,10 +2132,13 @@ trigger_prog_load(Creature * owner)
 }
 
 void
-trigger_prog_tick(void *owner, int owner_type)
+trigger_prog_tick(void *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
+
+    if (!prog_get_obj(owner, owner_type))
+        return;
 
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_TICK;
@@ -1985,6 +2193,8 @@ prog_update(void)
 			((Creature *)cur_prog->owner)->mob_specials.prog_marker = 1; break;
 		case PROG_TYPE_ROOM:
 			((room_data *)cur_prog->owner)->prog_marker = 1; break;
+        default:
+            break;
 		}
 	}
 
@@ -1997,7 +2207,7 @@ prog_update(void)
 
 	// Trigger mobile idle and combat progs
 	for (cit = characterList.begin();cit != characterList.end();++cit) {
-		if ((*cit)->mob_specials.prog_marker || !GET_MOB_PROG(*cit))
+		if ((*cit)->mob_specials.prog_marker || !GET_MOB_PROGOBJ(*cit))
 			continue;
 		else if (!(*cit)->numCombatants())
 			trigger_prog_idle((*cit), PROG_TYPE_MOBILE);
@@ -2012,7 +2222,7 @@ prog_update(void)
 			continue;
 
 		for (room = zone->world; room; room = room->next)
-			if (GET_ROOM_PROG(room) && !room->prog_marker)
+			if (GET_ROOM_PROGOBJ(room) && !room->prog_marker)
 				trigger_prog_idle(room, PROG_TYPE_ROOM);
 	}
 

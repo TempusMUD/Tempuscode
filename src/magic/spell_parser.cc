@@ -952,7 +952,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 	if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
 		return 0;
 
-	if (GET_ROOM_PROG(caster->in_room) != NULL) {
+	if (GET_ROOM_PROGOBJ(caster->in_room) != NULL) {
 	    if (trigger_prog_spell(caster->in_room, PROG_TYPE_ROOM, caster, spellnum)) {
             return 0; //handled
         }
@@ -960,7 +960,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
     
     CreatureList::iterator it = caster->in_room->people.begin();
 	for (; it != caster->in_room->people.end(); ++it) {
-		if (GET_MOB_PROG((*it)) != NULL) {
+		if (GET_MOB_PROGOBJ((*it)) != NULL) {
 			if (trigger_prog_spell(*it, PROG_TYPE_MOBILE, caster, spellnum)) {
                 return 0;
             }

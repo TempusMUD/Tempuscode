@@ -852,7 +852,10 @@ parse_room(FILE * fl, int vnum_nr)
 		}
 		switch (*line) {
 		case 'R':
-		  room->prog = fread_string(fl, buf2); break;
+		  room->prog = fread_string(fl, buf2);
+          if (room->prog)
+            prog_compile(NULL, room, PROG_TYPE_ROOM);
+          break;
 		case 'O':
 			room->max_occupancy = atoi(line + 1);
 			break;
@@ -1760,6 +1763,8 @@ parse_enhanced_mob(FILE * mob_f, struct Creature *mobile, int nr)
 			MOB_SHARED(mobile)->load_param = fread_string(mob_f, buf2);
 		} else if (!strcmp(line, "Prog:")) { /* multi-line prog */
 			MOB_SHARED(mobile)->prog = fread_string(mob_f, buf2);
+            if (MOB_SHARED(mobile)->prog)
+              prog_compile(NULL, mobile, PROG_TYPE_MOBILE);
 		} else if (!strcmp(line, "E"))	/* end of the ehanced section */
 			return;
 		else if (*line == '#') {	/* we've hit the next mob, maybe? */
@@ -2912,7 +2917,7 @@ reset_zone(struct zone_data *zone)
 						} else {
 							last_cmd = 1;
 						}
-						if (GET_MOB_PROG(mob))
+						if (GET_MOB_PROGOBJ(mob))
 							trigger_prog_load(mob);
 					} else {
 						last_cmd = 0;

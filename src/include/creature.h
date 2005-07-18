@@ -1059,6 +1059,8 @@ struct mob_shared_data {
 	char *func_param;			/* mobile's special parameter str */
 	char *load_param;			/* mobile's on_load script */
 	char *prog;
+    unsigned char *progobj;
+    size_t progobj_len;
 };
 
 /* Specials used by NPCs, not PCs */

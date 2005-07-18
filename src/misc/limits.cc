@@ -533,7 +533,7 @@ point_update(void)
 		}
 		/* rooms */
 		for (room_data *room = zone->world;room;room = room->next)
-		  if (GET_ROOM_PROG(room))
+		  if (GET_ROOM_PROGOBJ(room))
 			trigger_prog_tick(room, PROG_TYPE_ROOM);
 	}
 
@@ -645,7 +645,7 @@ point_update(void)
 		}
 
 		// progs
-		if (IS_NPC(i) && GET_MOB_PROG(i))
+		if (IS_NPC(i) && GET_MOB_PROGOBJ(i))
 			trigger_prog_tick(i, PROG_TYPE_MOBILE);
 
 		if (!IS_NPC(i)) {

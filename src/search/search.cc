@@ -215,7 +215,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		} else {
 			if (srch->to_remote)
 				act(srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM);
-			if (GET_MOB_PROG(mob))
+			if (GET_MOB_PROGOBJ(mob))
 				trigger_prog_load(mob);
 		}
 
