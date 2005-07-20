@@ -5,7 +5,7 @@ CXXFLAGS=$(CCFLAGS) -I$(INCLUDE)
 
 SUBDIRS= \
 	clan classes combat db dyntext editor \
-	events flow_room help house interpreter magic \
+	flow_room help house interpreter magic \
 	misc mobiles net objects olc quest search \
 	social specials util weather structs map language
 
