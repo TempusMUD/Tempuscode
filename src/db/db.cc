@@ -48,7 +48,6 @@ using namespace std;
 #include "olc.h"
 #include "help.h"
 #include "tmpstr.h"
-//#include "flags.h"
 #include "player_table.h"
 #include "account.h"
 #include "specs.h"
@@ -130,7 +129,6 @@ char *motd = NULL;				/* message of the day - mortals */
 char *ansi_motd = NULL;			/* message of the day - mortals */
 char *imotd = NULL;				/* message of the day - immorts */
 char *ansi_imotd = NULL;		/* message of the day - immorts */
-//char *help = NULL;                /* help screen                         */
 char *info = NULL;				/* info page                         */
 char *background = NULL;		/* background story                 */
 char *handbook = NULL;			/* handbook for new immortals         */
@@ -144,10 +142,6 @@ char *ideas = NULL;				/* ideas file                         */
 char *typos = NULL;				/* typos file                         */
 char *olc_guide = NULL;			/* creation tips                 */
 char *quest_guide = NULL;		/* quest guidelines             */
-
-//FILE *help_fl = NULL;                /* file for help text                 */
-//struct help_index_element *help_index = 0;        /* the help table         */
-//int top_of_helpt;                /* top of help index table         */
 
 struct time_info_data time_info;	/* the infomation about the time    */
 /*struct weather_data weather_info;        the infomation about the weather */
@@ -200,7 +194,6 @@ void sort_skills(void);
 void load_banned(void);
 void Read_Invalid_List(void);
 void Read_Nasty_List(void);
-//struct help_index_element *build_help_index(FILE * fl, int *num);
 void add_alias(struct Creature *ch, struct alias_data *a);
 void boot_clans(void);
 void add_follower(struct Creature *ch, struct Creature *leader);
@@ -327,8 +320,6 @@ boot_db(void)
 
 	slog("Boot db -- BEGIN.");
 
-	//boot_flagsets();
-
 	slog("Resetting the game time:");
 	reset_time();
 
@@ -363,7 +354,6 @@ boot_db(void)
 	file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
 	file_to_string_alloc(IMOTD_FILE, &imotd);
 	file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
-//    file_to_string_alloc(HELP_PAGE_FILE, &help);
 	file_to_string_alloc(INFO_FILE, &info);
 	file_to_string_alloc(POLICIES_FILE, &policies);
 	file_to_string_alloc(HANDBOOK_FILE, &handbook);
@@ -597,8 +587,6 @@ index_boot(int mode)
 	while (*buf1 != '$') {
 		sprintf(buf2, "%s/%s", prefix, buf1);
 		if (!(db_file = fopen(buf2, "r"))) {
-			//perror(buf2);
-			//safe_exit(1);
 			fprintf(stderr, "Unable to open: %s\r\n", buf2);
 			index_count++;
 			fscanf(index, "%s\n", buf1);
@@ -801,7 +789,6 @@ parse_room(FILE * fl, int vnum_nr)
 		}
 	}
 
-	//CREATE(room, struct room_data, 1);
 	room = new room_data(vnum_nr, zone);
 	room->name = fread_string(fl, buf2);
 	room->description = fread_string(fl, buf2);
@@ -1893,7 +1880,7 @@ parse_object(FILE * obj_f, int nr)
 	char *tmpptr;
 	char f1[256], f2[256], f3[256], f4[256];
 	struct extra_descr_data *new_descr;
-	struct obj_data *obj = NULL;// *tmp_obj = NULL;
+	struct obj_data *obj = NULL;
 
 	CREATE(obj, struct obj_data, 1);
 	
@@ -2329,7 +2316,6 @@ vnum_object(char *searchname, struct Creature *ch)
 
 	strcpy(buf, "");
     ObjectMap::iterator oi = objectPrototypes.begin();
-//	for (obj = obj_proto; obj; obj = obj->next) {
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
 		if (namelist_match(searchname, obj->aliases)) {

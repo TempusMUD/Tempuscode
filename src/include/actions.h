@@ -40,7 +40,6 @@ int check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs);
 
 int perform_barb_berserk(struct Creature *ch,
 	struct Creature **who_was_attacked,
-	//struct Creature *precious_ch,
 	int *return_flags);
 
 int max_component_dam(struct Creature *ch);
@@ -120,9 +119,6 @@ typedef struct timewarp_data {
 	int from;
 	int to;
 } timewarp_data;
-
-//extern timewarp_data *timewarp_list;
-//extern int num_timewarp_data;
 
 int mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict);
 void perform_goto(Creature *ch, room_data *room, bool allow_follow);

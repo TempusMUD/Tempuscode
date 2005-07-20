@@ -322,8 +322,6 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 	case APPLY_NONE:
 		break;
 	case APPLY_STR:
-		/*    if (GET_STR(ch) > 18)
-		   GET_STR(ch) += 10; */
 		GET_STR(ch) += mod;
 		GET_STR(ch) += GET_ADD(ch) / 10;
 		GET_ADD(ch) = 0;

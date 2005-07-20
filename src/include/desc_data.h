@@ -121,7 +121,6 @@ struct descriptor_data {
 	struct Creature *creature;	/* linked to char           */
 	struct Creature *original;	/* original char if switched        */
 	struct descriptor_data *snooping;	/* Who is this char snooping   */
-//	struct descriptor_data *snoop_by;	/* And who is snooping this char   */
     vector<descriptor_data *>snoop_by;
 	struct descriptor_data *next;	/* link to next descriptor     */
 	struct mail_recipient_data *mail_to;	/* list of names for mailsystem */

@@ -102,7 +102,7 @@ SPECIAL(killzone_room)
 			return 0;
 		}
 
-	}							// for ( devil = uproom->people; devil; devil = devil->next_in_room ) {
+	}
 
 	return 0;
 }

@@ -688,9 +688,7 @@ burn_update(void)
 				SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN ||
 				SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
 				SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
-				SECT_TYPE(ch->in_room) == SECT_FREESPACE
-				// || SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_EARTH
-			) &&
+             SECT_TYPE(ch->in_room) == SECT_FREESPACE) &&
 			!can_travel_sector(ch, SECT_TYPE(ch->in_room), 1) &&
 			!ROOM_FLAGGED(ch->in_room, ROOM_DOCK) &&
 			GET_LEVEL(ch) < LVL_AMBASSADOR) {
@@ -2122,7 +2120,6 @@ mobile_activity(void)
 			int fvict_retval = 0;
 			int vict_retval = 0;
 			vict = NULL;
-			//struct Creature *tmp_next_ch = 0;
 
 			if (IS_AFFECTED(ch, AFF_CHARM))
 				continue;
@@ -2227,11 +2224,8 @@ mobile_activity(void)
 							/ MAX(1, GET_MAX_HIT(vict)))) && AWAKE(vict))
 					continue;
 				else if (RACIAL_ATTACK(ch, vict) &&
-					(!IS_NPC(vict) || MOB2_FLAGGED(ch, MOB2_ATK_MOBS))) {
-
-					//int retval = 
+                         (!IS_NPC(vict) || MOB2_FLAGGED(ch, MOB2_ATK_MOBS))) {
 					best_attack(ch, vict);
-
 					found = TRUE;
 					break;
 				}
@@ -2932,12 +2926,7 @@ detect_opponent_master(Creature *ch, Creature *opp)
 		return false;
 
 	ch->removeCombat(opp);
-	//set_fighting(ch, opp->master, false);
-//    slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
-//         __FILE__, __LINE__, &(*ch), &(*opp));
     ch->addCombat(opp->master, false);
-//    slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
-//         __FILE__, __LINE__, &(*opp), &(*ch));
     opp->master->addCombat(ch, false);
 	return true;
 }

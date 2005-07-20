@@ -246,10 +246,6 @@ mag_savingthrow(struct Creature *ch, int level, int type)
 		break;
 	}
 
-	/*  if (type == SAVING_SPELL) {
-	   slog("SAVLOG: %s saving vs. %d [level %d] at %d.",
-	   GET_NAME(ch), type, level, save);
-	   } */
 	/* throwing a 0 is always a failure */
 	if (MAX(1, save) < number(0, 99))
 		return TRUE;
@@ -710,10 +706,6 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		dam = dice(9, 8) + (level >> 1);
 		break;
 	case SPELL_OXIDIZE:
-		//dam = dice(7, 8) + (level);
-		// I wanted it to be similar to spiritual hammer, so its just like it.
-		// But, to be original its gonna have to rust shit and burn shit.
-		// Hrm...
 		dam = dice(level, 4) + (level << 1);
 		break;
 	case SPELL_ENTROPY_FIELD:
@@ -1444,10 +1436,6 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_SICKNESS:
 		if (IS_SICK(victim))
 			return;
-
-		//Why was this logged in the first place?
-		//sprintf(buf, "%s has contracted a disease from %s.", GET_NAME(victim), GET_NAME(ch)); 
-		//mudlog(buf, CMP, MAX(GET_INVIS_LVL(ch),GET_INVIS_LVL(victim)),TRUE);
 		af.type = SPELL_SICKNESS;
 		af2.type = SPELL_SICKNESS;
 		af.location = APPLY_HITROLL;
@@ -3074,41 +3062,39 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		return 0;
 
 	// check for players if caster is not a pkiller
-//	if (!IS_NPC(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
-		CreatureList::iterator cit = ch->in_room->people.begin();
-		for (; cit != ch->in_room->people.end(); ++cit) {
-            if ((*cit) != ch && !ch->isOkToAttack(*cit, false)) {
-                if (SPELL_IS_PSIONIC(spellnum)) {
-                    send_to_char(ch, "The Universal Psyche decends on your "
-                                 "mind and renders you powerless!\r\n");
-		            act("$n concentrates for an instant, and is suddenly "
-                        "thrown into mental shock!", false, ch, 0, 0, TO_ROOM);
-                }
-                else if (SPELL_IS_PHYSICS(spellnum)) {
-                    send_to_char(ch, "The Supernatural Reality prevents you "
-                                 "from twisting nature in that way!\r\n");
-		            act("$n attempts to violently alter reality, but is "
-                        "restrained by the whole of the universe.", false, 
-                        ch, 0, 0, TO_ROOM);
-                }
-                else if (SPELL_IS_BARD(spellnum)) {
-                    send_to_char(ch, "Your voice is stifled!\r\n");
-		            act("$n attempts to sing a violent song, but is "
-                        "restrained by the whole of the universe.", false, 
-                        ch, 0, 0, TO_ROOM);
-                }
-                else {
-                    send_to_char(ch, "A flash of white light fills "
-                                 "the room, dispelling your violent "
-                                 "magic!\r\n");
-		            act("White light from no particular source suddenly "
-                        "fills the room, then vanishes.", false, 
-                        ch, 0, 0, TO_ROOM);
-                }
-                return 0;
+    CreatureList::iterator cit = ch->in_room->people.begin();
+    for (; cit != ch->in_room->people.end(); ++cit) {
+        if ((*cit) != ch && !ch->isOkToAttack(*cit, false)) {
+            if (SPELL_IS_PSIONIC(spellnum)) {
+                send_to_char(ch, "The Universal Psyche decends on your "
+                             "mind and renders you powerless!\r\n");
+                act("$n concentrates for an instant, and is suddenly "
+                    "thrown into mental shock!", false, ch, 0, 0, TO_ROOM);
             }
-	    }
-//	}
+            else if (SPELL_IS_PHYSICS(spellnum)) {
+                send_to_char(ch, "The Supernatural Reality prevents you "
+                             "from twisting nature in that way!\r\n");
+                act("$n attempts to violently alter reality, but is "
+                    "restrained by the whole of the universe.", false, 
+                    ch, 0, 0, TO_ROOM);
+            }
+            else if (SPELL_IS_BARD(spellnum)) {
+                send_to_char(ch, "Your voice is stifled!\r\n");
+                act("$n attempts to sing a violent song, but is "
+                    "restrained by the whole of the universe.", false, 
+                    ch, 0, 0, TO_ROOM);
+            }
+            else {
+                send_to_char(ch, "A flash of white light fills "
+                             "the room, dispelling your violent "
+                             "magic!\r\n");
+                act("White light from no particular source suddenly "
+                    "fills the room, then vanishes.", false, 
+                    ch, 0, 0, TO_ROOM);
+            }
+            return 0;
+        }
+    }
 	
 	
 	CreatureList::iterator it = ch->in_room->people.begin();
@@ -4148,10 +4134,6 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
     for (int i = 0; i < 5; i++)
         if (oaf[i].type != 0)
             obj->affectJoin(&oaf[i], dur_mode, val_mode, aff_mode);
-
-	/*  else if (to_char != NULL)
-	   act(to_char, TRUE, ch, obj, 0, TO_ROOM);
-	 */
 }
 
 

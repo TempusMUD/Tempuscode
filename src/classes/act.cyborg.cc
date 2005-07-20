@@ -2748,7 +2748,6 @@ ACMD(do_extract)
 		act("$N wakes up with a scream as $n cuts into you!",
 			FALSE, ch, 0, vict, TO_VICT | TO_SLEEP);
 		vict->setPosition(POS_RESTING);
-		//    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
 		return;
 	}
 

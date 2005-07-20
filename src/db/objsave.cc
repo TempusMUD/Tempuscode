@@ -175,9 +175,6 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
 		cur_obj = GET_EQ(ch, pos);
 		if (cur_obj)
 			total_cost += tally_obj_rent(cur_obj, currency_str, display);
-//		cur_obj = GET_IMPLANT(ch, pos);
-//		if (cur_obj)
-//			total_cost += tally_obj_rent(cur_obj, currency_str, display);
 	}
 
 	if (ch->carrying)
@@ -298,7 +295,6 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		if (mode == RENT_FACTOR)
 			msg = tmp_sprintf("Rent will cost you %d %s per day.", cost, curr);
 		else if (mode == CRYO_FACTOR) {
-			//cost += (cost*ch->getCostModifier(recep))/100;
             msg = tmp_sprintf("It will cost you %d %s to be frozen.", cost,	curr);
         }
 		else

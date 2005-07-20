@@ -162,7 +162,6 @@ CTextEditor::SaveText(char *inStr)
 	length = curSize + (theText.size() * 2);
 	if (target) {
 		*target = (char*) malloc(sizeof(char) * length + 3);
-		//*target = new char[length + 3];
 		strcpy(*target, "");
 		for (itr = theText.begin(); itr != theText.end(); itr++) {
 			strcat(*target, itr->c_str());
@@ -231,7 +230,7 @@ CTextEditor::SaveText(char *inStr)
 			PLR_WRITING | PLR_OLC | PLR_MAILING);
 	}
 }
-//#alias {sms %1 %2} {#loop {1,%%1} {ms %0.%%2}}
+
 void
 CTextEditor::ExportMail(void)
 {
@@ -260,8 +259,6 @@ CTextEditor::ExportMail(void)
 		mail_rcpt = desc->mail_to;
 	}
    
-//    stored_mail = store_mail(mail_to_id, GET_IDNUM(desc->creature), *target, cc_list);
-
     list<string>::iterator si;
     for (si = cc_list.begin(); si != cc_list.end(); si++) {
         long id = playerIndex.getID(si->c_str());
@@ -700,7 +697,6 @@ CTextEditor::SendMessage(const char *message)
 			GET_NAME(desc->creature), strlen(message));
 		slog(small_editbuf);
 		output = (char*) malloc( sizeof(char) * LARGE_BUFSIZE );
-		//output = new char[LARGE_BUFSIZE];
 		strncpy(output, message, LARGE_BUFSIZE - 2);
 		send_to_char(desc->creature, "%s", output);
 		free(output);
@@ -1050,29 +1046,17 @@ CTextEditor::ProcessCommand(char *inStr)
 		UndoChanges(inStr);
 		return true;
 	case 't':
-		/*if(GET_LEVEL(desc->creature) < 72) {
-		   SendMessage ("This command removed until further notice.\r\n");
-		   return false;
-		   } */
 		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			ListRecipients();
 			return true;
 		}
 	case 'a':
-		/*if(GET_LEVEL(desc->creature) < 72) {
-		   SendMessage ("This command removed until further notice.\r\n");
-		   return false;
-		   } */
 		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			inStr = one_argument(inStr, command);
 			AddRecipient(command);
 			return true;
 		}
 	case 'e':
-		/*if(GET_LEVEL(desc->creature) < 72) {
-		   SendMessage ("This command removed until further notice.\r\n");
-		   return false;
-		   } */
 		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			inStr = one_argument(inStr, command);
 			RemRecipient(command);
@@ -1097,7 +1081,6 @@ CTextEditor::ListRecipients(void)
 		cc_len++;
 
 	cc_list = (char*) malloc( sizeof(char) * ((cc_len * MAX_NAME_LENGTH) + 32) );
-	//cc_list = new char[(cc_len * MAX_NAME_LENGTH) + 32];
 
 	sprintf(cc_list, "%sTo%s:%s ",
 		CCYEL(desc->creature, C_NRM),

@@ -180,9 +180,6 @@ char *YESNO(bool a);
 char *ONOFF(bool a);
 char *AN(char *str);
 
-//#define AN(str) ( PLUR( str ) ? "some" : (strchr("aeiouAEIOU", *str) ? "an" : "a"))
-
-
 /* memory utils **********************************************************/
 
 
@@ -368,9 +365,6 @@ PRF2_FLAGGED( Creature *ch, int flag )
         return IS_SET(PRF2_FLAGS(ch),flag);
     }
 }
-
-//#define PRF_FLAGGED(ch, flag)   (IS_MOB(ch) ? ((ch->desc) ? IS_SET(PRF_FLAGS(ch->desc->original), (flag)):0) : IS_SET(PRF_FLAGS(ch), (flag)))
-//#define PRF2_FLAGGED(ch, flag)   (IS_MOB(ch) ? ((ch->desc) ? IS_SET(PRF2_FLAGS(ch->desc->original), (flag)):0) : IS_SET(PRF2_FLAGS(ch), (flag)))
 
 #define NOHASS(ch)       (PRF_FLAGGED(ch, PRF_NOHASSLE))
 
@@ -1012,11 +1006,6 @@ static inline room_direction_data*& _3RD_EXIT( Creature *ch, int dir ) {
 static inline room_direction_data*& ABS_EXIT( room_data *room, int dir ) {
 	return room->dir_option[dir];
 }
-//#define EXIT(ch, door)  ((ch)->in_room->dir_option[(door)])
-//#define _2ND_EXIT(ch, door) (EXIT((ch), (door))->to_room->dir_option[door])
-//#define _3RD_EXIT(ch, door) (_2ND_EXIT((ch),(door))->to_room->dir_option[door])
-
-//#define ABS_EXIT(room, door)  ((room)->dir_option[door])
 
 bool CAN_GO(Creature * ch, int door);
 bool CAN_GO(obj_data * obj, int door);

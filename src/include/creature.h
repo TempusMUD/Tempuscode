@@ -1084,20 +1084,6 @@ struct mob_special_data {
         this->memory = mhead;
 
         extra_descr_data *head = NULL;
-//        extra_descr_data *tail = NULL;
-//        extra_descr_data *cur_data = c.response;
-/*        while (cur_data) {
-            extra_descr_data *new_data = new extra_descr_data;
-            new_data->keyword = strdup(cur_data->keyword);
-            new_data->description = strdup(cur_data->description);
-
-            if (!head)
-                head = new_data;
-            else if (tail)
-                tail->next = new_data;
-
-            tail = new_data;
-        }*/
         this->response = head;
 
         this->func_data = c.func_data;

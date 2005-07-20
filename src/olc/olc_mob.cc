@@ -146,7 +146,6 @@ do_create_mob(struct Creature *ch, int vnum)
 	MobileMap::iterator mit = mobilePrototypes.begin();
 	MobileMap::iterator nit;
 	for (; mit != mobilePrototypes.end(); ++mit) {
-		//for (mob = mob_proto; mob; mob = mob->next)
 		mob = mit->second;
 		nit = mit;
 		++nit;

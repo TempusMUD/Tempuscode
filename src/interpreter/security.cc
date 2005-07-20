@@ -255,7 +255,6 @@ ACCMD(do_access) {
                     send_to_char(ch, "No such player.\r\n");
                     return;
                 }
-                //send_to_char(ch, "You are a member of the following groups.\r\n");
                 send_to_char(ch, "%s is a member of the following groups:\r\n",token1);
                 Security::sendMembership(ch, id);
             } else {

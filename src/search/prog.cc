@@ -1293,7 +1293,6 @@ prog_trans_creature(Creature * ch, room_data * targ_room)
 			log_death_trap(ch);
 			death_cry(ch);
 			ch->die();
-			//Event::Queue(new DeathEvent(0, ch, false));
 		} else {
 			mudlog(LVL_GOD, NRM, true,
 				"(GC) %s trans-searched into deathtrap %d.",

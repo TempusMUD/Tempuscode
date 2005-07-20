@@ -204,7 +204,6 @@ do_npc_rescue(struct Creature *ch_hero, struct Creature *ch_victim)
 		ch_bad_guy->removeCombat(ch_victim);
         ch_victim->removeCombat(ch_bad_guy);
 
-		//set_fighting(ch_hero, ch_bad_guy, TRUE);
         ch_hero->addCombat(ch_bad_guy, false);
         ch_bad_guy->addCombat(ch_hero, true);
 		return TRUE;

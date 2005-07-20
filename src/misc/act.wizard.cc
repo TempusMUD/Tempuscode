@@ -688,8 +688,6 @@ do_stat_memory(struct Creature *ch)
             tmpsearch = rm->search;
             while (tmpsearch) {
                 sum += sizeof(struct special_search_data);
-                /*CHARADD (sum, tmpsearch->keyword); */
-                /*CHARADD (sum, tmpsearch->description); */
                 tmpsearch = tmpsearch->next;
             }
         }
@@ -749,11 +747,8 @@ do_stat_memory(struct Creature *ch)
     CreatureList::iterator cit = characterList.begin();
     for (; cit != characterList.end(); ++cit) {
         chars = *cit;
-        //while (chars) {
-        if (!IS_NPC(chars)) {
-            //chars = chars->next;
+        if (!IS_NPC(chars))
             continue;
-        }
         i++;
         sum += sizeof(struct Creature);
 
@@ -770,7 +765,6 @@ do_stat_memory(struct Creature *ch)
             sum += sizeof(struct follow_type);
             fol = fol->next;
         }
-        //chars = chars->next;
     }
     total += sum;
     send_to_char(ch, "%s        mobiles: %9d  (%d)\r\n", buf, sum, i);
@@ -780,10 +774,8 @@ do_stat_memory(struct Creature *ch)
     cit = characterList.begin();
     for (; cit != characterList.end(); ++cit) {
         chars = *cit;
-        if (IS_NPC(chars)) {
-            //chars = chars->next;
+        if (IS_NPC(chars))
             continue;
-        }
         i++;
         sum += sizeof(struct Creature);
 
@@ -825,7 +817,6 @@ do_stat_memory(struct Creature *ch)
             sum += sizeof(struct follow_type);
             fol = fol->next;
         }
-        //chars = chars->next;
     }
     total += sum;
 
@@ -917,7 +908,6 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         if (obj->in_room && obj->in_room->zone == zone)
             numo++;
 
-//    for (obj = obj_proto; obj; obj = obj->next)
     ObjectMap::iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
@@ -1413,9 +1403,6 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), buf2, GET_OBJ_VAL(j, 2),
             GET_OBJ_VAL(j, 3) ? "Yes" : "No", GET_OBJ_VAL(j, 3));
         break;
-        /*  case ITEM_NOTE:
-           sprintf(buf, "Tongue: %d", GET_OBJ_VAL(j, 0));
-           break; */
     case ITEM_KEY:
         sprintf(buf, "Keytype: %d, Rentable: %s, Car Number: %d",
             GET_OBJ_VAL(j, 0), YESNO(GET_OBJ_VAL(j, 1)), GET_OBJ_VAL(j, 2));
@@ -2282,7 +2269,6 @@ stop_snooping(struct Creature *ch)
         send_to_char(ch, "You aren't snooping anyone.\r\n");
     else {
         send_to_char(ch, "You stop snooping.\r\n");
-//        ch->desc->snooping->snoop_by = NULL;
         vector<descriptor_data *>::iterator vi = ch->desc->snooping->snoop_by.begin();
         for (; vi != ch->desc->snooping->snoop_by.end(); ++vi) {
             if (*vi == ch->desc) {
@@ -2348,14 +2334,12 @@ ACMD(do_snoop)
                     break;
                 }
             }
-            //ch->desc->snooping->snoop_by = NULL;
         }
 
         slog("(GC) %s has begun to snoop %s.", 
 			 GET_NAME(ch), GET_NAME(victim) );
 
         ch->desc->snooping = victim->desc;
- //       victim->desc->snoop_by = ch->desc;
         victim->desc->snoop_by.push_back(ch->desc);
     }
 }
@@ -2558,9 +2542,6 @@ ACMD(do_oload)
     int number, quantity;
     char *temp, *temp2;
 
-    temp = temp2 = NULL;
-    //one_argument(argument, buf);
-
     temp = tmp_getword(&argument);
     temp2 = tmp_getword(&argument);
     
@@ -2628,9 +2609,6 @@ ACMD(do_pload)
     struct obj_data *obj = NULL;
     int number, quantity;
     char *temp, *temp2;
-
-    temp = temp2 = NULL;
-    //two_arguments(argument, buf, buf2);
 
     temp = tmp_getword(&argument);
     temp2 = tmp_getword(&argument);
@@ -2793,7 +2771,6 @@ ACMD(do_vstat)
 ACMD(do_rstat)
 {
     struct Creature *mob;
-    //  struct obj_data *obj;
     int number;
 
     two_arguments(argument, buf, buf2);
@@ -3039,13 +3016,6 @@ perform_invis(struct Creature *ch, int level)
     
     if (IS_NPC(ch))
         return;
-
-/*    if (ch->numCombatants() && level > GET_LEVEL(ch->findRandomCombat())
-        && !IS_NPC(FIGHTING(ch))) {
-        act("You cannot go invis over $N while fighting $M.", FALSE, ch, 0,
-            FIGHTING(ch), TO_CHAR);
-        return;
-    }*/
 
     // We set the invis level to 0 here because of a logic problem with
     // can_see_creature().  If we keep the old level, people won't be able to
@@ -5189,7 +5159,6 @@ ACMD(do_show)
         break;
     case 23:                    /* nomaterial */
         strcpy(buf, "Objects without material types:\r\n");
-//        for (obj = obj_proto, i = 1; obj; obj = obj->next) {
         oi = objectPrototypes.begin();
         for (i = 1; oi != objectPrototypes.end(); ++oi) {
             obj = oi->second;
@@ -5476,7 +5445,6 @@ ACMD(do_show)
         }
 
         strcpy(buf, "");
-        //for (obj = obj_proto, i = 0; obj; obj = obj->next) {
         oi = objectPrototypes.begin();
         for (; oi != objectPrototypes.end(); ++oi) {
             obj = oi->second;
@@ -7116,13 +7084,11 @@ ACMD(do_addname)
     char new_name[MAX_INPUT_LENGTH];
     Tokenizer args(argument);
 
-    //two_arguments(argument, arg, new_name);
     if(!args.hasNext()) {
         send_to_char(ch, "Addname usage: addname <target> <strings>\r\n");
         return;
     }
     
-    //arg = the target
     args.next(arg);
     
     if(!args.hasNext()) {
@@ -8723,7 +8689,6 @@ verify_tempus_integrity(Creature *ch)
 	}
 
 	// Check prototype objects
-//	for (obj = obj_proto;obj;obj = obj->next) {
     ObjectMap::iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;

@@ -213,7 +213,6 @@ SPECIAL(remorter)
 
 	if (!quiz.isComplete()) {
 		quiz.nextQuestion();
-		//quiz.sendStatus(ch);
 		quiz.sendQuestion(ch);
 		return 1;
 	} 

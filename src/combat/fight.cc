@@ -129,7 +129,6 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
         ch->npk_die();
 	else
 		ch->die();
-//	Event::Queue(new DeathEvent(0, ch, is_arena_combat(killer, ch)));
 }
 
 
@@ -698,10 +697,7 @@ damage_attacker(struct Creature *ch, struct Creature *victim, int dam,
 	return retval;
 }
 
-//#define DAM_RETURN(i,flags) { if ( return_flags ) { *return_flags = flags }; cur_weap = 0; return i; }
-//#define DAM_RETURN(i) { cur_weap = 0; return i; }
 #define DAM_RETURN( flags ) { cur_weap = 0; return flags; }
-
 
 //
 // damage( ) returns TRUE on a kill, FALSE otherwise
@@ -2125,9 +2121,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                                 ch->in_room == victim->in_room &&
                                 (!IS_MAGE(ch) || attacktype > MAX_SPELLS ||
                                     !SPELL_IS_MAGIC(attacktype))) {
-                                //set_fighting(ch, victim, TRUE);
-    //                            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, true)",
-     //                                __FILE__, __LINE__, &(*ch), &(*victim));
                                 ch->addCombat(victim, true);
                             }
                         }
@@ -2145,17 +2138,11 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					// make the victim retailiate against the attacker
 					if (ch->findCombat(victim)) {
 						if (!victim->findCombat(ch)) {
-							//set_fighting(victim, ch, FALSE);
-//                            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
-//                                 __FILE__, __LINE__, &(*victim), &(*ch));
                             victim->addCombat(ch, false);
                         }
 					} else {
 						if (!victim->numCombatants() && 
                             ch->in_room == victim->in_room) {
-//							set_fighting(victim, ch, FALSE);
-//                            slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
-//                                 __FILE__, __LINE__, &(*victim), &(*ch));
                             victim->addCombat(ch, false);
                         }
 					}
@@ -2200,12 +2187,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			IS_NPC(victim) ? GET_MOB_WAIT(victim) :
 				victim->desc ? victim->desc->wait : 0,
 			victim->getPosition(), dam_reduction, CCNRM(victim, C_NRM));
-	//
-	// If victim is asleep, incapacitated, etc.. stop fighting.
-	//
-
-//	if (!AWAKE(victim) && victim->numCombatants())
-//		victim->removeAllCombat();
 
 	//
 	// Victim has been slain, handle all the implications
@@ -2312,7 +2293,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				// and tag it
 				if (arena) {
 					strcat(buf2, " [ARENA]");
-					//mudlog(buf2, CMP, GET_INVIS_LVL(victim), TRUE);
 					qlog(NULL, buf2, QLOG_COMP, GET_INVIS_LVL(victim), TRUE);
 				} else {
 					mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", buf2);
@@ -2534,9 +2514,6 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 				IS_STONE_TYPE(ch->equipment[i])))
 			metal_wt += ch->equipment[i]->getWeight();
 
-//	if( type == SKILL_CLEAVE ) {
-//		cur_weap = GET_EQ(ch, WEAR_WIELD);
-//	} else 
 	if ((type != SKILL_BACKSTAB && type != SKILL_CIRCLE &&
 			type != SKILL_BEHEAD && type != SKILL_CLEAVE) || !cur_weap) {
 		if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W)
@@ -2662,10 +2639,6 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 				}
 				dam += dam_add;
 			}
-			//else {
-			//	if( IS_PC(ch) )
-			//		fprintf(stderr, "NORMAL %d\r\n", dam );
-			//}
 		} else if (IS_OBJ_TYPE(cur_weap, ITEM_ARMOR)) {
 			dam += (GET_OBJ_VAL(cur_weap, 0) / 3);
 		} else
@@ -3019,7 +2992,6 @@ perform_violence(void)
 		if (MIN(100, prob + 15) >= die_roll) {
 
 			bool stop = false;
-            //int retval = -1;
 
 			for (i = 0; i < 4; i++) {
 				if (!ch->numCombatants() || GET_LEVEL(ch) < (i << 3))

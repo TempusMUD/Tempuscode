@@ -212,7 +212,7 @@ update_pos(struct Creature *victim)
 				TO_ROOM);
 #endif
 		}
-	}							// else if ( GET_HIT( victim ) > 0 ) {
+	}
 	// Various stages of unhappiness
 	else if (GET_HIT(victim) <= -11)
 		victim->setPosition(POS_DEAD, 1);

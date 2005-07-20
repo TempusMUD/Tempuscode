@@ -171,20 +171,15 @@ template <class T> class SafeList:protected list <T> {
 		iterator tempi(it);		// Store the position to remove
 		//Save iterators from being orphaned by a node removal.
 		removeUpdate(tempi, 1);
-		//it.save();// Move iterator out of the way
 		list <T>::erase(tempi);
 	}
 	void addIterator(iterator * it) {
 		_iterators.push_front(it);
 	}
 	void removeIterator(iterator & it) {
-		/*//confirm that the iterator is there before removing it
-        if (find(_iterators.begin(), _iterators.end(), it) != _iterators.end()) {
-            _iterators.remove(it);
-        }*/
         typename list <iterator *>::iterator sit = _iterators.begin();
 		for (; sit != _iterators.end(); ++sit) {
-			if (*sit == &it) { // && *(*sit) == it
+			if (*sit == &it) {
 				_iterators.erase(sit);
                 break;
 			}

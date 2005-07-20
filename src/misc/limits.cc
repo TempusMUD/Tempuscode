@@ -628,12 +628,6 @@ point_update(void)
 					i->setPosition(POS_MORTALLYW);
 				}
 			}
-			// Blood! Blood makes the grass grow drill seargent!
-/*			if ((i->getPosition() == POS_INCAP
-					&& damage(i, i, 1, TYPE_SUFFERING, -1))
-				|| (i->getPosition() == POS_MORTALLYW
-					&& damage(i, i, 2, TYPE_SUFFERING, -1))) */
-
             // No longer shall Creatures die of blood loss.
             // We will now heal them slowly instead.
             if (i->getPosition() == POS_INCAP)

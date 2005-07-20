@@ -909,7 +909,6 @@ find_skill_num(char *name)
 		temp = any_one_arg(spellname, first);
 		temp2 = any_one_arg(name, first2);
 		while (*first && *first2 && ok) {
-			//if (!is_abbrev(first, first2))
 			if (!is_abbrev(first2, first))
 				ok = 0;
 			temp = any_one_arg(temp, first);
@@ -1066,19 +1065,6 @@ call_magic(struct Creature *caster, struct Creature *cvict,
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {
 			check_killer(caster, cvict);
             //Try to make this a little more sane...
-/*			if ((SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC) &&
-				(spellnum != SPELL_PSIONIC_SHATTER ||
-					mag_savingthrow(cvict, level, SAVING_PSI)) &&
-				mag_savingthrow(cvict, level, SAVING_PSI) &&
-				AFF3_FLAGGED(cvict, AFF3_PSISHIELD) && caster != cvict) {
-				act("Your psychic attack is deflected by $N's psishield!",
-					FALSE, caster, 0, cvict, TO_CHAR);
-				act("$n's psychic attack is deflected by $N's psishield!",
-					FALSE, caster, 0, cvict, TO_NOTVICT);
-				act("$n's psychic attack is deflected by your psishield!",
-					FALSE, caster, 0, cvict, TO_VICT);
-				return 0;
-			}*/
             if (cvict->distrusts(caster) &&
 				AFF3_FLAGGED(cvict, AFF3_PSISHIELD) && 
                 (SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC)) {
@@ -3749,7 +3735,6 @@ mag_assign_spells(void)
 		X, X, 0, 0, 0, POS_FIGHTING, TAR_IGNORE, TRUE,
 		MAG_PHYSICS);
 
-//	spello(SKILL_AMBUSH, X, X, X, X, X, X, X, X, X, 29, 12, X, X, 39, X, X, X,
 	spello(SKILL_AMBUSH, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
 		0, 0, 0, POS_STANDING, TAR_IGNORE, true, MAG_MANUAL);
 

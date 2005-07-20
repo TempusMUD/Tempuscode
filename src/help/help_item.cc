@@ -332,7 +332,6 @@ HelpItem::Save()
 		send_to_char(editor, "Error, could not open help file for write.\r\n");
 		return false;
 	}
-	//file.seekp(0);
 	file << idnum << " " << (text ? strlen(text) : 0)
 		<< endl << name << endl;
 	if (text && strlen(text) > 0) {
@@ -405,14 +404,10 @@ HelpItem::Show(Creature * ch, char *buffer, int mode)
 		sprintbit(flags, help_bit_descs, bitbuf);
 		sprintbit(groups, help_group_bits, groupbuf);
 		strcpy(buffer, "");
-		sprintf(buffer, "%s%3d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s "
-			//"\r\n        %sKeywords: [ %s%s%s ]\r\n",
-			"\r\n",
-			CCCYN(ch, C_NRM), idnum, CCYEL(ch, C_NRM),
-			name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-			groupbuf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), bitbuf
-			//,CCCYN(ch,C_NRM), CCNRM(ch,C_NRM),keys,CCCYN(ch,C_NRM)
-			);
+		sprintf(buffer, "%s%3d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s\r\n",
+                CCCYN(ch, C_NRM), idnum, CCYEL(ch, C_NRM),
+                name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                groupbuf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), bitbuf);
 		break;
 	case 2:					// 2 == Entire Entry  
 		if (!text)

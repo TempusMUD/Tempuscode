@@ -3443,8 +3443,6 @@ ACMD(do_who)
 	}
 	
 	//determine plurality of nouns
-	//if (immCount == 1)
-	//	imm_s="";
 	if (testerCount == 1)
 		tester_s="";
 	
@@ -4306,7 +4304,6 @@ ACMD(do_consider)
 		send_to_char(ch, "Well, if you really want to kill another player...\r\n");
 	}
 	diff = victim->getLevelBonus(true) - ch->getLevelBonus(true);
-	//diff = (GET_LEVEL(victim) - GET_LEVEL(ch));
 
 	if (diff <= -30)
 		send_to_char(ch, "It's not even worth the effort...\r\n");

@@ -75,7 +75,6 @@ load_oedits( Creature *ch, list<obj_data*> &found )
 {
 	int count = 0;
     obj_data *obj = NULL;
-//	for( obj_data* obj = obj_proto; obj; obj = obj->next ) {
     ObjectMap::iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;

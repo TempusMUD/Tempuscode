@@ -428,9 +428,6 @@ delete_path(PHead * phead)
 
 	clear_path_objects(phead);
 
-//    REMOVE_FROM_LIST(phead, first_path, next);
-	// had to replace REMOVE_FROM_LIST because we can't pass implicit (void *)
-
 	if ((phead) == (first_path))
 		first_path = (PHead *) (phead)->next;
 	else {

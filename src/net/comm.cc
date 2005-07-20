@@ -180,7 +180,6 @@ main(int argc, char **argv)
 		case 'm':
 			mini_mud = 1;
 			no_rent_check = 1;
-			//      olc_lock = LVL_IMPL;
 			slog("Running in minimized mode & with no rent check and olc lock.");
 			break;
 		case 'c':
@@ -597,7 +596,6 @@ game_loop(int mother_desc)
 			descriptor_update();
 			Help->Sync();
 			save_quests();
-            //delete_duplicate_objects();
 		}
 		if (auto_save) {
 			if (!(pulse % (60 * PASSES_PER_SEC))) {	/* 1 minute */
@@ -1168,10 +1166,6 @@ process_input(struct descriptor_data *t)
 				errno = EAGAIN;
 #endif
 			if (errno != EAGAIN) {
-				// no route to host, probably a spoofed ip
-//                if ( errno == EHOSTUNREACH ) {
-//                    check_autoban( t->host );
-//                }
 				perror("process_input: about to lose connection");
 				return -1;		/* some error condition was encountered on
 								   * read */
@@ -2208,8 +2202,6 @@ bamf_quad_damage(void)
 	if (room->people)
 		act("$p appears slowly spinning at the center of the room.",
 			FALSE, 0, quad, 0, TO_ROOM);
-
-	/*  slog("Quad damage moved to room %d.", room->number); */
 
 }
 

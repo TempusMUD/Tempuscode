@@ -597,10 +597,6 @@ SPECIAL(vehicle_console)
 				(V_CONSOLE_IDNUM(console) < 0 &&
 					GET_MOB_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
 				break;
-			//if (!driver->next) { // WTF IS THIS?
-			//    driver = NULL;
-			//    break;
-			//}
 		}
 	} else {
 		driver = NULL;

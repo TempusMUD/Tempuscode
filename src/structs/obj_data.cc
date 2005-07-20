@@ -175,12 +175,6 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
     // Commenting out the code below may be a horrible idea, but I need
     // this function to handle corpses.
 
-/*	if( vnum < 0 ) {
-		slog("obj_data->loadFromXML found vnum %d in %s's file. Junking.",
-			  vnum, victim ? GET_NAME(victim):"(null)");
-		return false;
-	} */
-
 	// NOTE: This is bad, but since the object is already allocated, we have
 	// to do it this way.  Functionality is copied from read_object(int)
     if (vnum > -1) {

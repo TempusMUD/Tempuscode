@@ -22,11 +22,6 @@ SPECIAL(cyborg_overhaul)
 	skip_spaces(&argument);
 
 	if (!str_cmp(argument, "overhaul")) {
-		// Original cost figures.
-		//cost = GET_TOT_DAM(ch) * 5;
-		//if (GET_BROKE(ch))
-		//  cost += GET_LEVEL(ch) * 1000;
-
 		cost = GET_TOT_DAM(ch);
 		if (GET_BROKE(ch))
 			cost += GET_LEVEL(ch) * 100;

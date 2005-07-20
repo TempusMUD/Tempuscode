@@ -190,7 +190,6 @@ const struct spec_func_data spec_list[] = {
 	{"cremator", cremator, SPEC_MOB | SPEC_RES},
 	{"mugger", mugger, SPEC_MOB | SPEC_RES},
 
-	//  {"lord_vader",      lord_vader,            SPEC_MOB | SPEC_RES },
 	/** objects **/
 	{"gen_board", gen_board, SPEC_OBJ},
 	{"wagon_obj", wagon_obj, SPEC_OBJ | SPEC_RES},
@@ -362,7 +361,6 @@ do_specassign_save(struct Creature *ch, int mode)
 			errlog("Error opening obj spec file for write.");
 			return 1;
 		}
-//		for (obj = obj_proto; obj; obj = obj->next) {
     ObjectMap::iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;

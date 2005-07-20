@@ -48,7 +48,6 @@ extern int quest_status;
 extern const char *language_names[];
 
 int parse_player_class(char *arg);
-//extern struct command_info cmd_info[];
 void summon_cityguards(room_data *room);
 
 ACMD(do_say)

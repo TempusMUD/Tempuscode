@@ -80,9 +80,7 @@ set_return_flags(int *flags, int val)
 struct command_info {
 	char *command;
 	byte minimum_position;
-	 ACMD(*command_pointer);
-	//    void  (*command_pointer)
-	//        (struct Creature *ch, char * argument, int cmd, int subcmd);
+    ACMD(*command_pointer);
 	sh_int minimum_level;
 	int subcmd;
 	int security;

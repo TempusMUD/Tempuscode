@@ -128,7 +128,6 @@ SPECIAL(junker);
 SPECIAL(bank);
 SPECIAL(reinforcer);
 SPECIAL(enhancer);
-/*SPECIAL(life_bldg_guard); */
 SPECIAL(archon);
 SPECIAL(taunting_frenchman);
 SPECIAL(CastleGuard);
@@ -252,7 +251,6 @@ SPECIAL(donation_room);
 SPECIAL(pendulum_room);
 SPECIAL(monastery_eating);
 SPECIAL(modrian_fountain_rm);
-/*SPECIAL(borg_guild_entrance); */
 SPECIAL(malbolge_bridge);
 SPECIAL(abandoned_cavern);
 SPECIAL(dangerous_climb);
@@ -293,8 +291,7 @@ SPECIAL(courier_imp);
 
 struct spec_func_data {
 	char *tag;
-//  void *func;
-	 SPECIAL(*func);
+    SPECIAL(*func);
 	byte flags;
 };
 

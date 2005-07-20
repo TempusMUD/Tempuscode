@@ -59,7 +59,6 @@ using namespace std;
 
 extern room_data *world;
 extern struct descriptor_data *descriptor_list;
-//extern obj_data *obj_proto;	/* prototypes for objs                 */
 extern int no_plrtext;
 void extract_norents( obj_data *obj );
 
@@ -508,7 +507,6 @@ void
 HouseControl::countObjects()
 {
 	obj_data *obj = NULL;
-//	for (obj = obj_proto; obj; obj = obj->next)
     ObjectMap::iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
@@ -653,11 +651,7 @@ House::load( const char* filename )
 			loadRoom( node );
 		} else if (xmlMatches(node->name, "guest")) {
 			int id = xmlGetIntProp( node, "id", -1 );
-//			if( playerIndex.exists(id) ) {
 				addGuest( id );
-//			} else {
-//				errlog("House %d had invalid guest: %d.", getID(), id);
-//			}
 		} else if( xmlMatches(node->name, "repossession")) {
 			char* note = xmlGetProp( node, "note" );
 			repoNotes.push_back( note );
@@ -1025,7 +1019,6 @@ House::collectRent( int cost )
 		cost -= rentOverflow;
 	}
 
-	//slog("HOUSE: [%d] Collecting %d rent.", getID(), cost );
 	cost = reconcileCollection( cost );
 
 	// If they still don't have enough, start selling stuff
@@ -1062,7 +1055,7 @@ House::collectRent( int cost )
 				obj_from_obj(tmp_obj);
 				if( destObj != NULL ) {
 					obj_to_obj( tmp_obj, destObj );
-				} else { //if( destRoom != NULL ) {
+				} else {
 					obj_to_room( tmp_obj, destRoom );
 				}
 			}
@@ -1438,8 +1431,6 @@ hcontrol_where_house( Creature *ch, char *arg)
 void 
 hcontrol_reload_house(Creature *ch, char *arg) 
 {
-    //struct room_data *room = NULL;
-    //struct obj_data *obj = NULL, *next_o = NULL;
     const char *arg1 = tmp_getword(&arg);
     House *h = NULL; 
 
@@ -1494,7 +1485,6 @@ HouseControl::reload( House *house )
         }
     }
 
-    //h->load();
     //todo check for existance
     
     Housing.destroyHouse( house );

@@ -120,7 +120,6 @@ namespace Security {
         command->security |= GROUP;
         commands.push_back(command);
         sort( commands.begin(), commands.end() );
-        //log("Command added",command->command);
         return true;
     }
 
@@ -136,8 +135,6 @@ namespace Security {
 
         // Remove the group bit from the command
         updateSecurity(command);
-        
-        //log("Command removed",command->command);
         
         sort( commands.begin(), commands.end() );
         return true;
@@ -159,8 +156,6 @@ namespace Security {
             return false;
         members.erase(it);
         
-        //log("Member removed",player);
-        
         sort( members.begin(), members.end() );
         return true;
     }
@@ -179,8 +174,6 @@ namespace Security {
         if( member(player) )
             return true;
         members.push_back(player);
-        
-        //log("Member added",player);
         
         sort( members.begin(), members.end() );
         return true;

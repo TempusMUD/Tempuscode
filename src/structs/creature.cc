@@ -73,7 +73,6 @@ Creature::Creature(const Creature &c)
         raise(SIGSEGV);
     }
     this->in_room = c.in_room;
-//    *(this->player_specials) = *(c.player_specials);
 	this->player_specials = &dummy_mob;
     //todo: duplicate affects
 
@@ -914,11 +913,6 @@ Creature::clear(void)
     //
     // next remove all the combat this creature might be involved in
     //
-/*    if (this->getCombatList()) {
-        removeAllCombat();
-        delete this->fighting;
-    } */
-
     CreatureList::iterator it = combatList.begin();
     for (; it != combatList.end(); ++it) {
         if (!*it)

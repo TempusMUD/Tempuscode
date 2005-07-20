@@ -464,7 +464,6 @@ struct command_info cmd_info[] = {
 	{"adjust", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"afw", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"agree", POS_RESTING, do_action, 0, 0, 0, 0},
-//	{"ambush", POS_STANDING, do_ambush, 0, 0, 0, 0},
 	{"analyze", POS_SITTING, do_analyze, 0, 0, 0, 0},
 	{"anonymous", POS_DEAD, do_gen_tog, 1, SCMD_ANON, 0, 0},
 	{"annoy", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -800,9 +799,7 @@ struct command_info cmd_info[] = {
 	{"guilddonate", POS_RESTING, do_drop, 0, SCMD_GUILD_DONATE, 0, 0},
 	{"gunset", POS_RESTING, do_gunset, 0, 0, 0, 0},
 
-	//    { "help"     , POS_DEAD    , do_help     , 0, 0 , 0 , 0},
 	{"help", POS_DEAD, do_hcollect_help, 0, 0, 0, 0},
-	//    { "?"        , POS_DEAD    , do_help     , 0, 0 , 0 , 0},
 	{"?", POS_DEAD, do_hcollect_help, 0, 0, 0, 0},
 	{"hedit", POS_RESTING, do_hedit, 1, 0, 0, 0},
 	{"hack", POS_STANDING, do_gen_door, 1, SCMD_HACK, 0, 0},
@@ -1099,17 +1096,14 @@ struct command_info cmd_info[] = {
 
 	{"quaff", POS_RESTING, do_use, 0, SCMD_QUAFF, 0, 0},
 	{"qcontrol", POS_DEAD, do_qcontrol, LVL_IMMORT, 0, 0, 0},
-	//  { "qecho"    , POS_DEAD    , do_qcomm    , LVL_IMMORT, SCMD_QECHO , 0 , 0},
 	{"qecho", POS_DEAD, do_qecho, LVL_AMBASSADOR, 0, 0, 0},
 	{"qlog", POS_DEAD, do_qlog, LVL_AMBASSADOR, 0, 0, 0},
-	//  { "quest"    , POS_DEAD    , do_gen_tog  , 0, SCMD_QUEST , 0 , 0},
 	{"quest", POS_DEAD, do_quest, 0, 0, 0, 0},
 	{"quake", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"qui", POS_DEAD, do_quit, 0, 0, 0, 0},
 	{"quit", POS_DEAD, do_quit, 0, SCMD_QUIT, 0, 0},
 	{"qpoints", POS_DEAD, do_qpoints, 0, 0, 0, 0},
 	{"qpreload", POS_DEAD, do_qpreload, LVL_IMMORT, 0, 0, 0},
-	//  { "qsay"     , POS_SLEEPING , do_qcomm   , 0, SCMD_QSAY , 0 , 0},
 	{"qsay", POS_SLEEPING, do_qsay, 0, 0, 0, 0},
 
 	{"raise", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1175,7 +1169,6 @@ struct command_info cmd_info[] = {
 	{"scold", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"scoff", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"scratch", POS_RESTING, do_action, 0, 0, 0, 0},
-//	{"scream", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"scream", POS_FIGHTING, do_offensive_skill, 0, SKILL_SCREAM, 0, 0},
 	{"screen", POS_DEAD, do_screen, 0, 0, 0, 0},
 	{"scuff", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1246,7 +1239,6 @@ struct command_info cmd_info[] = {
 	{"sob", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"socials", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0, 0},
 	{"soilage", POS_SLEEPING, do_soilage, 0, 0, 0, 0},
-//	{"speak", POS_RESTING, do_say, 0, SCMD_SAY, 0, 0},
 	{"speak", POS_RESTING, do_speak_language, 0, 0, 0, 0},
 	{"specials", POS_DEAD, do_special, LVL_IMPL, 0, 0, 0},
 	{"specializations", POS_DEAD, do_specializations, 0, 0, 0, 0},
@@ -1299,7 +1291,6 @@ struct command_info cmd_info[] = {
 	{"strangle", POS_RESTING, do_action, 0, 0, 0, 0},
 
 	{"tell", POS_DEAD, do_tell, 0, 0, 0, 0},
-	//    { "tempus"   , POS_DEAD    , do_help     , 0, 0 , 0 , 0},
 	{"tempus", POS_DEAD, do_hcollect_help, 0, 0, 0, 0},
 	{"terrorize", POS_FIGHTING, do_intimidate, 5, SKILL_TERRORIZE, 0, 0},
 	{"tester", POS_FIGHTING, do_tester, 0, 0, 0, 0},
@@ -1337,7 +1328,6 @@ struct command_info cmd_info[] = {
 	{"toggle", POS_DEAD, do_toggle, 0, 0, 0, 0},
 	{"toke", POS_RESTING, do_smoke, 0, 0, 0, 0},
 	{"tornado", POS_FIGHTING, do_tornado_kick, 0, 0, 0, 0},
-	//{ "toss_mail", POS_DEAD       , do_toss_mail, LVL_GRIMP, 0 , 0 , 0},
 	{"track", POS_STANDING, do_track, 0, 0, 0, 0},
 	{"train", POS_STANDING, do_practice, 1, 0, 0, 0},
 	{"trample", POS_STANDING, do_action, 0, 0, 0, 0},
@@ -2138,7 +2128,6 @@ one_argument(const char *argument, char *first_arg)
 	do {
 		while (isspace(*s))
 			s++;
-		//skip_spaces(&s);
 
 		first_arg = begin;
 		while (*s && !isspace(*s)) {
@@ -2295,8 +2284,6 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	if (GET_ROOM_SPEC(ch->in_room) != NULL) {
 		specAddress = (long)GET_ROOM_SPEC(ch->in_room);
 		if (GET_ROOM_SPEC(ch->in_room) (ch, ch->in_room, cmd, arg, spec_mode)) {
-            //if( spec_mode == SPECIAL_LEAVE )
-            //    raise(SIGINT);
 			return 1;
         }
     }
@@ -2347,8 +2334,6 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 		if ((i = GET_EQ(ch, j))) {
 			specAddress = (long)GET_OBJ_SPEC(i);
 			if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode))) {
-                //if( spec_mode == SPECIAL_LEAVE )
-                //    raise(SIGINT);
 				return specAddress;
             }
 			if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
@@ -2367,8 +2352,6 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	for (i = ch->carrying; i; i = i->next_content) {
 		specAddress = (long)GET_OBJ_SPEC(i);
 		if (GET_OBJ_SPEC(i) && (GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode))) {
-            //if( spec_mode == SPECIAL_LEAVE )
-            //    raise(SIGINT);
 			return specAddress;
         }
 		if (IS_BOMB(i) && i->contains && IS_FUSE(i->contains) &&
@@ -2389,8 +2372,6 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 		if (GET_MOB_SPEC((*it)) != NULL) {
 			specAddress = (long)GET_MOB_SPEC((*it));
 			if (GET_MOB_SPEC((*it)) (ch, (*it), cmd, arg, spec_mode)) {
-                //if( spec_mode == SPECIAL_LEAVE )
-                //    raise(SIGINT);
 				return specAddress;
 			}
 		}
@@ -2413,8 +2394,6 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 		if (GET_OBJ_SPEC(i) != NULL) {
 			specAddress = (long)GET_OBJ_SPEC(i);
 			if (GET_OBJ_SPEC(i) (ch, i, cmd, arg, spec_mode)) {
-                //if( spec_mode == SPECIAL_LEAVE )
-                //    raise(SIGINT);
 				return specAddress;
             }
         }

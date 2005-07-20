@@ -165,7 +165,6 @@ ACMD(do_psidrain)
 		if (IS_NPC(vict) && !vict->numCombatants()) {
 
 			if (ch->in_room == vict->in_room) {
-				//set_fighting(vict, ch, 0);
 				vict->addCombat(ch, false);
                 ch->addCombat(vict, true);
             }

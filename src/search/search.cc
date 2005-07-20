@@ -86,7 +86,6 @@ search_trans_character(Creature * ch,
 			log_death_trap(ch);
 			death_cry(ch);
 			ch->die();
-			//Event::Queue(new DeathEvent(0, ch, false));
 			return 2;
 		} else {
 			mudlog(LVL_GOD, NRM, true,
@@ -185,9 +184,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		obj_to_room(obj, targ_room);
 		if (srch->to_remote)
 			act(srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM);
-
-		//    SRCH_LOG( ch, srch );
-
 		break;
 
 	case SEARCH_COM_MOBILE:
@@ -218,9 +214,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			if (GET_MOB_PROGOBJ(mob))
 				trigger_prog_load(mob);
 		}
-
-
-		//    SRCH_LOG( ch, srch );
 		break;
 
 	case SEARCH_COM_EQUIP:
@@ -243,8 +236,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		obj->creator = ch->in_room->number;
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ZCMDS_APPROVED))
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-
-//    SRCH_LOG( ch, srch );
 		if (IS_IMPLANT(obj)) {
 			if (ch->implants[srch->arg[2]])
 				obj_to_char(obj, ch);
@@ -273,9 +264,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ZCMDS_APPROVED))
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 		obj_to_char(obj, ch);
-
-//    SRCH_LOG( ch, srch );
-
 		break;
 
 	case SEARCH_COM_TRANSPORT:
@@ -332,7 +320,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 					log_death_trap(ch);
 					death_cry(ch);
 					ch->die();
-					//Event::Queue(new DeathEvent(0, ch, false));
 					return 2;
 				} else {
 					mudlog(LVL_GOD, NRM, true,
@@ -463,8 +450,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 					exit_info, bits);
 		}
 
-		//    SRCH_LOG( ch, srch );
-
 		if (srch->to_remote) {
 			if (targ_room != ch->in_room && targ_room->people.size() > 0) {
 				act(srch->to_remote, FALSE, targ_room->people, obj, ch,
@@ -503,8 +488,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		if (GET_LEVEL(ch) < LVL_ETERNAL
 			&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 			SET_BIT(srch->flags, SRCH_TRIPPED);
-
-		// SRCH_LOG( ch, srch );
 
 		// turn messaging off for damage(  ) call
 		if (SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
@@ -593,8 +576,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 			SET_BIT(srch->flags, SRCH_TRIPPED);
 
-		// SRCH_LOG( ch, srch );
-
 		// turn messaging off for damage(  ) call
 		if (SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 			search_nomessage = 1;
@@ -679,8 +660,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				if (srch->arg[2])
 					mob->startHunting(ch);
 			}
-
-			// SRCH_LOG( ch, srch );
 
 			if (!IS_SET(srch->flags, SRCH_IGNORE))
 				return 1;

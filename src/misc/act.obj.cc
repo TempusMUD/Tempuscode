@@ -1955,38 +1955,6 @@ ACMD(do_plant)
 	}
 }
 
-/* Everything from here down is what was formerly act.obj2.c */
-
-
-void
-weight_change_object(struct obj_data *obj, int weight)
-{
-/*	struct obj_data *tmp_obj;
-	struct Creature *tmp_ch;
-
-	if (obj->in_room != NULL) {
-		obj->modifyWeight(weight);
-	}
-
-	else if ((tmp_ch = obj->carried_by)) {
-		obj_from_char(obj);
-		obj->modifyWeight(weight);
-		obj_to_char(obj, tmp_ch);
-	}
-
-	else if ((tmp_obj = obj->in_obj)) {
-		obj_from_obj(obj);
-		obj->modifyWeight(weight);
-		obj_to_obj(obj, tmp_obj);
-	}
-
-	else {
-		errlog("Unknown attempt to subtract weight from an object.");
-	}*/
-}
-
-
-
 void
 name_from_drinkcon(struct obj_data *obj)
 {
@@ -3744,35 +3712,6 @@ choose_material(struct obj_data *obj)
 ACMD(do_objupdate)
 {
 	return;
-
-/*	struct obj_data *obj = NULL;
-
-	if (GET_IDNUM(ch) != 1)
-		return;
-
-//	for (obj = obj_proto; obj; obj = obj->next) {
-    ObjectMap::iterator = objectPrototypes.end();
-    for (; oi != objectPrototypes.end(); ++oi) {
-        obj = oi->second;
-
-		// reduce cost/value by half
-		GET_OBJ_COST(obj) >>= 1;
-
-		   if (GET_OBJ_TYPE(obj)==ITEM_LIGHT || GET_OBJ_TYPE(obj)==ITEM_ARMOR ||
-		   GET_OBJ_TYPE(obj)==ITEM_CONTAINER) {
-
-		   obj->obj_flags.cost = prototype_obj_value(obj);
-		   obj->obj_flags.cost += number(-(obj->obj_flags.cost>>6), 
-		   (obj->obj_flags.cost>>6));
-		   i = obj->obj_flags.cost % 10;
-		   obj->obj_flags.cost -= i;
-		   obj->obj_flags.cost_per_day = obj->obj_flags.cost / 50;
-		   }
-		   obj->obj_flags.material = choose_material(obj);
-
-		   GET_OBJ_MAX_DAM(obj) = set_maxdamage(obj);
-		   GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj);
-	}*/
 }
 
 

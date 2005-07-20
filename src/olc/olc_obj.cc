@@ -27,7 +27,6 @@
 #include "object_map.h"
 
 extern struct room_data *world;
-//extern struct obj_data *obj_proto;
 extern struct obj_data *object_list;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
@@ -185,11 +184,6 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 	low = zone->number * 100;
 	high = zone->top;
 
-/*	for (obj = obj_proto; obj; obj = obj->next) {
-		if (obj->shared->vnum < low)
-			continue;
-		if (obj->shared->vnum > high)
-			break;*/
     ObjectMap::iterator oi;
     for (oi = objectPrototypes.lower_bound(low);
          oi != objectPrototypes.upper_bound(high); oi++) {
@@ -373,11 +367,6 @@ do_create_obj(struct Creature *ch, int vnum)
 		return NULL;
 	}
 
-/*	for (obj = obj_proto; obj; obj = obj->next)
-		if (vnum > obj->shared->vnum && (!obj->next ||
-				vnum < obj->next->shared->vnum))
-			break;*/
-
 	CREATE(new_obj, struct obj_data, 1);
 	new_obj->clear();
 	CREATE(new_obj->shared, struct obj_shared_data, 1);
@@ -418,14 +407,6 @@ do_create_obj(struct Creature *ch, int vnum)
 
 	new_obj->in_room = NULL;
 
-/*	if (obj) {
-		new_obj->next = obj->next;
-		obj->next = new_obj;
-	} else {
-		new_obj->next = NULL;
-		obj_proto = new_obj;
-
-	}*/
     objectPrototypes.add(new_obj);
 	top_of_objt++;
 
@@ -471,7 +452,6 @@ do_destroy_object(struct Creature *ch, int vnum)
 			extract_obj(temp);
 	}
 
-//	REMOVE_FROM_LIST(obj, obj_proto, next);
     objectPrototypes.remove(obj);
 
 	for (d = descriptor_list; d; d = d->next)

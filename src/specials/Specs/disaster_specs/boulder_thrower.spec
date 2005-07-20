@@ -4,10 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-/*#define THROW_OK(obj)  (IS_OBJ_TYPE(obj, ITEM_WEAPON) && IS_THROWN(obj) && \
-                        !IS_OBJ_STAT(obj, ITEM_NODROP) && \
-                        !IS_OBJ_STAT2(obj, ITEM2_NOREMOVE))
-			*/
 int
 THROW_OK(struct obj_data *obj)
 {

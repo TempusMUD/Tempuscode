@@ -262,7 +262,6 @@ ACMD(do_gunset)
 		}
 		return;
 	}
-	//send_to_char("Gunset discharge error.\r\n", ch);
 	return;
 }
 

@@ -74,8 +74,6 @@ vector <int>blindSpots;
 bool
 load_hunter_data()
 {
-	//cerr << "Loading Hell Hunter Data" << endl;
-
 	devils.erase(devils.begin(), devils.end());
 	targets.erase(targets.begin(), targets.end());
 	hunters.erase(hunters.begin(), hunters.end());
@@ -111,10 +109,6 @@ load_hunter_data()
 	sort(targets.begin(), targets.end());
 	sort(hunters.begin(), hunters.end());
 	sort(blindSpots.begin(), blindSpots.end());
-	//cerr << "Targets: " << endl << targets << endl;
-	//cerr << "Hunters: " << hunters<<endl;
-	//cerr << "Devils:" <<endl<< devils<<endl;
-	//cerr << "Hell Hunter Data Load Complete:"<<endl;
 	xmlFreeDoc(doc);
 	return true;
 }

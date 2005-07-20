@@ -46,7 +46,6 @@ appear(struct Creature *ch, struct Creature *vict)
 {
 	char *to_char = NULL;
 	int found = 0;
-	//  int could_see = can_see_creature( vict, ch );
 
     // Sonic imagery and retina detects transparent creatures
 	if (affected_by_spell(ch, SPELL_TRANSMITTANCE) &&

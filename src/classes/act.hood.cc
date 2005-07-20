@@ -330,7 +330,6 @@ ACMD(do_drag_char)
 
 ACMD(do_snatch)
 {
-	//send_to_char("We don't want to talk about that right now.\r\n",ch);
 	//
 	//  Check to make sure they have a free hand!
 	//

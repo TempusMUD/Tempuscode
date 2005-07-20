@@ -1775,7 +1775,6 @@ SPECIAL(weapon_lister)
 		avg_dam[i] = 0;
 
 	strcpy(buf3, "");
-//	for (obj = obj_proto; obj; obj = obj->next) {
     ObjectMap::iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); oi++) {
         obj = oi->second;

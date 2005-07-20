@@ -545,7 +545,6 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	}
 
 	/* check room count */
-/*    if ((i = room_count(ch, EXIT(ch, dir)->to_room))*/
 	if ((i = EXIT(ch, dir)->to_room->people.size())
 		>= MAX_OCCUPANTS(EXIT(ch, dir)->to_room) ||
 		(mount && (i >= MAX_OCCUPANTS(EXIT(ch, dir)->to_room) - 2))) {
@@ -1358,7 +1357,6 @@ ACMD(do_move)
 	char arg1[MAX_INPUT_LENGTH];
 
 	if (subcmd == SCMD_MOVE || subcmd == SCMD_JUMP || subcmd == SCMD_CRAWL) {
-		/*      subcmd == SCMD_BURGLE) { */
 		argument = one_argument(argument, arg1);
 		if (!*arg1) {
 			send_to_char(ch, "In which direction?\r\n");
@@ -2446,7 +2444,6 @@ ACMD(do_mount)
 		send_to_char(ch, "You cannot mount up indoors.\r\n");
 		return;
 	}
-//    if (room_count(ch, ch->in_room) >= ch->in_room->max_occupancy) {
 	if (ch->in_room->people.size() >= (unsigned)ch->in_room->max_occupancy) {
 		send_to_char(ch, "It is to crowded here to mount up.\r\n");
 		return;
@@ -2653,10 +2650,7 @@ ACMD(do_translocate)
 			send_to_char(ch, "You have not achieved the zen of translocation.\r\n");
 			return;
 		}
-	} else {
-		//    send_to_char("Big error.\r\n", ch);
-		//    return;
-	}
+	} 
 	if ((dir = search_block(arg1, dirs, 0)) < 0) {
 		send_to_char(ch, "There is no such direction.\r\n");
 		return;
@@ -2737,7 +2731,6 @@ ACMD(do_translocate)
 			"You go too far, rematerializing inside solid matter!!\r\n"
 			"Better luck next time...\r\n");
 		ch->die();
-//		Event::Queue(new DeathEvent(0, ch, false));
 		return;
 	} else {
 		if( !char_from_room(ch) || !char_to_room(ch, rm) )
@@ -2756,7 +2749,6 @@ ACMD(do_translocate)
 			log_death_trap(ch);
 			death_cry(ch);
 			ch->die();
-//			Event::Queue(new DeathEvent(0, ch, false));
 			if (rm->number == 34004) {
 				for (obj = rm->contents; obj; obj = next_obj) {
 					next_obj = obj->next_content;

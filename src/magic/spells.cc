@@ -83,7 +83,6 @@ ASPELL(spell_create_water)
 			if (water > 0) {
 				GET_OBJ_VAL(obj, 2) = LIQ_WATER;
 				GET_OBJ_VAL(obj, 1) += water;
-				weight_change_object(obj, water);
 				name_from_drinkcon(obj);
 				name_to_drinkcon(obj, LIQ_WATER);
 				act("$p is filled.", FALSE, ch, obj, 0, TO_CHAR);
@@ -921,7 +920,6 @@ ASPELL(spell_locate_object)
 			break;
 
 		strcat(which_str, buf3);
-//        j--;
 	}
 
 	if (j == level >> 1 && k == level >> 2)
@@ -2503,12 +2501,7 @@ ASPELL(spell_id_insinuation)
 		act("$n attacks $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_NOTVICT);
 		act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ch, TO_VICT);
 		act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ch, TO_CHAR);
-		//set_fighting(victim, ch, true);
-//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
-//             __FILE__, __LINE__, &(*ch), &(*victim));
         ch->addCombat(victim, true);
-//        slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
-//             __FILE__, __LINE__, &(*victim), &(*ch));
         victim->addCombat(ch, false);
 		return;
 	}
@@ -2547,12 +2540,7 @@ ASPELL(spell_id_insinuation)
 	act("$n attacks you in a rage!!\r\n", TRUE, victim, 0, ulv, TO_VICT);
 	act("You attack $N in a rage!!\r\n", TRUE, victim, 0, ulv, TO_CHAR);
 
-	//set_fighting(victim, ulv, false);
-//    slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
-//         __FILE__, __LINE__, &(*victim), &(*ulv));
     victim->addCombat(ulv, false);
-//    slog("%s:%d Adding combat 0x%x->addCombat(0x%x, false)",
-//         __FILE__, __LINE__, &(*ulv), &(*victim));
     ulv->addCombat(victim, false);
 	gain_skill_prof(ch, SPELL_ID_INSINUATION);
 }
@@ -2810,8 +2798,6 @@ ASPELL(spell_animate_dead)
 			delete orig_char;
 		return;
 	}
-
-//	char_to_room(orig_char, ch->in_room, false);
 
 	//
 	// strings

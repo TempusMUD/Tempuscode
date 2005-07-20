@@ -390,7 +390,6 @@ HelpCollection::SaveIndex(Creature * ch)
 	sprintf(fname, "%s/%s", Help_Directory, "index");
 
 	index_file.open(fname, ios::out | ios::trunc);
-	//index_file.seekp(0, ios::beg);
 	if (!index_file) {
 		errlog("Cannot open help index.");
 		return false;
