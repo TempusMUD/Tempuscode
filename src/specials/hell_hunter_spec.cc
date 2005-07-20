@@ -53,11 +53,6 @@ void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
 int get_check_money(struct Creature *ch, struct obj_data **obj, int display);
 
 
-struct social_type {
-	char *cmd;
-	int next_line;
-};
-
 ACMD(do_echo);
 ACMD(do_say);
 ACMD(do_gen_comm);
