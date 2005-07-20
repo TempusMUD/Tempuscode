@@ -1172,7 +1172,6 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		death_cry(ch);
 		// extract it, leaving it's eq and such in the dt.
 		ch->die();
-//		Event::Queue(new DeathEvent(0, ch, false));
 		if (was_in->number == 34004) {
 			for (obj = was_in->contents; obj; obj = next_obj) {
 				next_obj = obj->next_content;

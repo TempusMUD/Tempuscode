@@ -693,9 +693,6 @@ game_loop(int mother_desc)
 			}
 		}
 
-		// Process events
-		Event::ProcessScheduled();
-
 		/* give each descriptor an appropriate prompt */
 		for (d = descriptor_list; d; d = d->next) {
 			// New output crlf
