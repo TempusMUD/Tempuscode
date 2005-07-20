@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "comm.h"
 #include "db.h"
+#include "editor.h"
 #include "boards.h"
 #include "interpreter.h"
 #include "handler.h"

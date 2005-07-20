@@ -20,12 +20,11 @@ $(OBJ)/magic.o: magic.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/spells.h \
-  ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/spells.h ../include/handler.h \
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/char_class.h \
   ../include/actions.h ../include/mobact.h ../include/flow_room.h \
   ../include/fight.h
@@ -52,11 +51,11 @@ $(OBJ)/spell_parser.o: spell_parser.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/spells.h ../include/handler.h \
-  ../include/comm.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/spells.h ../include/handler.h ../include/comm.h \
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/materials.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/fight.h ../include/screen.h ../include/vendor.h \
@@ -84,12 +83,11 @@ $(OBJ)/spells.o: spells.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/spells.h \
-  ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/spells.h ../include/handler.h \
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/flow_room.h \
   ../include/smokes.h ../include/screen.h ../include/vehicle.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \

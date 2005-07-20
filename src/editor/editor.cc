@@ -64,24 +64,29 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage, int 
 	d->text_editor = new CTextEditor(d, dest, max, sendmessage);
 }
 
-void
-start_script_editor(struct descriptor_data *d, list <string> dest)
+// Constructor
+// Params: Users descriptor, The final destination of the text, 
+//      the max size of the text.
+CTextEditor::CTextEditor(struct descriptor_data * d, char **dest, int max, bool startup)
+    :theText()
 {
-	if (&dest == NULL) {
-		errlog("NULL destination pointer passed into start_text_editor!!");
-		send_to_char(d->creature, "This command seems to be broken. Bug this.\r\n");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
-	if (d->text_editor) {
-		errlog("Text editor object not null in start_text_editor.");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
+	// Internal pointer to the descriptor
+	desc = d;
+	// Internal pointer to the destination
+	target = dest;
 
-	d->text_editor = new CTextEditor(d, dest);
+	// The maximum size of the buffer.
+	maxSize = max;
+
+	if (*target)
+		ImportText();
+
+	desc->editor_cur_lnum = theText.size() + 1;
+	UpdateSize();
+	if (startup) {
+		SendStartupMessage();
+		List();
+	}
 }
 
 void
@@ -635,53 +640,6 @@ CTextEditor::UndoChanges(char *inStr)
 	SendMessage("Original buffer restored.\r\n");
 	return;
 }
-
-// Constructor
-// Params: Users descriptor, The final destination of the text, 
-//      the max size of the text.
-CTextEditor::CTextEditor(struct descriptor_data * d, char **dest, int max, bool startup):theText
-	()
-{
-	// Internal pointer to the descriptor
-	desc = d;
-	// Internal pointer to the destination
-	target = dest;
-
-	// The maximum size of the buffer.
-	maxSize = max;
-
-	if (*target) {
-		ImportText();
-	}
-	desc->editor_cur_lnum = theText.size() + 1;
-	UpdateSize();
-	if (startup) {
-		SendStartupMessage();
-		List();
-	}
-}
-
-CTextEditor::CTextEditor(struct descriptor_data *d, list <string> dest):
-theText()
-{
-	desc = d;
-
-	//make DAMN sure target is null, crashes the mud otherwise
-	target = NULL;
-
-	origText = dest;
-
-	maxSize = 1024;
-
-	if (origText.size() > 0)
-		theText = dest;
-
-	desc->editor_cur_lnum = theText.size() + 1;
-	UpdateSize();
-	SendStartupMessage();
-	List();
-}
-
 void
 CTextEditor::SendMessage(const char *message)
 {

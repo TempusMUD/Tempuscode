@@ -20,14 +20,13 @@ $(OBJ)/boards.o: boards.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/boards.h \
-  ../include/handler.h ../include/screen.h ../include/clan.h \
-  ../include/accstr.h ../include/security.h
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/editor.h \
+  ../include/boards.h ../include/handler.h ../include/screen.h \
+  ../include/clan.h ../include/accstr.h ../include/security.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/bomb.o: bomb.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -51,11 +50,11 @@ $(OBJ)/bomb.o: bomb.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
   ../include/screen.h ../include/vehicle.h ../include/materials.h \
   ../include/flow_room.h ../include/bomb.h ../include/fight.h \
@@ -84,11 +83,11 @@ $(OBJ)/guns.o: guns.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
   ../include/screen.h ../include/vehicle.h ../include/materials.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
@@ -116,10 +115,10 @@ $(OBJ)/paths.o: paths.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/vehicle.h \
   ../include/handler.h ../include/paths.h ../include/comm.h \
   ../include/screen.h ../include/player_table.h
@@ -146,11 +145,11 @@ $(OBJ)/smokes.o: smokes.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
   ../include/screen.h ../include/house.h ../include/vehicle.h \
   ../include/materials.h ../include/smokes.h ../include/clan.h \
@@ -179,11 +178,11 @@ $(OBJ)/vehicle.o: vehicle.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
   ../include/screen.h ../include/vehicle.h ../include/house.h \
   ../include/clan.h

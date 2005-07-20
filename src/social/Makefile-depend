@@ -20,11 +20,11 @@ $(OBJ)/act.social.o: act.social.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/language.o: language.cc ../include/tmpstr.h ../include/interpreter.h \
@@ -50,9 +50,9 @@ $(OBJ)/language.o: language.cc ../include/tmpstr.h ../include/interpreter.h \
   /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
   /usr/include/libxml2/libxml/xmlmemory.h \
   /usr/include/libxml2/libxml/threads.h ../include/creature_list.h \
-  ../include/desc_data.h ../include/editor.h ../include/room_data.h \
-  ../include/search.h ../include/weather.h ../include/zone_data.h \
-  ../include/ban.h ../include/account.h ../include/utils.h \
-  ../include/comm.h ../include/screen.h ../include/handler.h
+  ../include/desc_data.h ../include/room_data.h ../include/search.h \
+  ../include/weather.h ../include/zone_data.h ../include/ban.h \
+  ../include/account.h ../include/utils.h ../include/comm.h \
+  ../include/screen.h ../include/handler.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/act.social.o $(OBJ)/language.o

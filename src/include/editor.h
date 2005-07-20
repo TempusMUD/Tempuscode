@@ -11,37 +11,33 @@ using namespace std;
 void start_text_editor(struct descriptor_data *d,
 	char **dest, bool sendmessage = true, int max = MAX_STRING_LENGTH);
 
-void start_script_editor(struct descriptor_data *d,
-	list < string > dest);
-
 class CTextEditor {
-  public:
+public:
 	CTextEditor(struct descriptor_data *d, char **dest, int max, bool startup);
-	 CTextEditor(struct descriptor_data *d,
-		list <string> dest);
+    virtual ~CTextEditor(void) { }
 
 	// Command Processor
 	void Process(char *inStr);
-	// Replaced "send_to_char(TED_MESSAGE,ch);
 	void SendStartupMessage(void);
 
 	inline bool IsEditing(char *inStr) {
 		return (inStr == *target);
 	}
 
-  private:
+protected:
 	// Private so noone can use it.
-	 CTextEditor();
+    CTextEditor();
 	// The descriptor of the player we are dealin with.
 	struct descriptor_data *desc;
 	// The destination char **
 	char **target;
 	// the text
-	 list < string > origText;
-	 list < string > theText;
+    list < string > origText;
+    list < string > theText;
 	unsigned int curSize;
 	unsigned int maxSize;
 
+private:
 	void ProcessHelp(char *inStr);
 	bool ProcessCommand(char *inStr);	// Duh.
 	void SaveText(char *inStr);	// Dump the text to string_add.
@@ -59,10 +55,10 @@ class CTextEditor {
 	bool Remove(unsigned int line);	// Remove a line
 	bool Clear(void);			// Wipe the text and start over.
 	void ImportText(void);		// Run from contructor, imports *d->str
-	void ExportMail(void);		// Export mail to the mail system for delivery
 	void SaveFile(void);		// Save edited files
 	void UndoChanges(char *inStr);	// Um....
 	// Below: Mail Specific methods
+	void ExportMail(void);		// Export mail to the mail system for delivery
 	void ListRecipients(void);
 	void AddRecipient(char *name);
 	void RemRecipient(char *name);

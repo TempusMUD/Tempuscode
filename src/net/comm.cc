@@ -42,6 +42,7 @@
 #include "security.h"
 #include "handler.h"
 #include "db.h"
+#include "editor.h"
 #include "house.h"
 #include "screen.h"
 #include "vehicle.h"

@@ -20,12 +20,11 @@ $(OBJ)/creature.o: creature.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/comm.h ../include/utils.h ../include/spells.h \
-  ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/comm.h \
+  ../include/utils.h ../include/spells.h ../include/handler.h \
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/help.h \
   ../include/paths.h ../include/login.h ../include/house.h \
   ../include/clan.h ../include/security.h ../include/screen.h \
@@ -55,10 +54,10 @@ $(OBJ)/creature_io.o: creature_io.cc ../include/constants.h ../include/utils.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
   ../include/char_class.h ../include/actions.h ../include/spells.h \
   ../include/mobact.h ../include/handler.h ../include/language.h
@@ -85,9 +84,9 @@ $(OBJ)/creature_list.o: creature_list.cc ../include/structs.h ../include/defs.h 
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/mobile_map.o: mobile_map.cc ../include/mobile_map.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
@@ -111,7 +110,7 @@ $(OBJ)/mobile_map.o: mobile_map.cc ../include/mobile_map.h ../include/creature.h
   /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
   /usr/include/libxml2/libxml/xmlmemory.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
-  ../include/creature_list.h ../include/desc_data.h ../include/editor.h \
+  ../include/creature_list.h ../include/desc_data.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/account.h \
   ../include/interpreter.h ../include/utils.h
@@ -138,10 +137,10 @@ $(OBJ)/obj_data.o: obj_data.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/handler.h ../include/db.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/handler.h ../include/db.h \
   /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/comm.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
@@ -168,9 +167,9 @@ $(OBJ)/object_map.o: object_map.cc ../include/object_map.h ../include/obj_data.h
   ../include/macros.h ../include/utils.h ../include/structs.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/player_table.o: player_table.cc ../include/player_table.h \
   ../include/utils.h ../include/structs.h ../include/defs.h \
@@ -195,10 +194,10 @@ $(OBJ)/player_table.o: player_table.cc ../include/player_table.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/room_data.o: room_data.cc ../include/structs.h ../include/defs.h \
@@ -223,8 +222,8 @@ $(OBJ)/room_data.o: room_data.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/creature.o $(OBJ)/creature_io.o $(OBJ)/creature_list.o $(OBJ)/mobile_map.o $(OBJ)/obj_data.o $(OBJ)/object_map.o $(OBJ)/player_table.o $(OBJ)/room_data.o

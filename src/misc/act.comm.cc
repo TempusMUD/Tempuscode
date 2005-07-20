@@ -28,6 +28,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
+#include "editor.h"
 #include "screen.h"
 #include "rpl_resp.h"
 #include "creature_list.h"

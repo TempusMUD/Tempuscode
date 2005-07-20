@@ -20,11 +20,11 @@ $(OBJ)/demonic_guard.o: demonic_guard.cc /usr/include/libxml2/libxml/parser.h \
   ../include/obj_data.h ../include/xml_utils.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/screen.h ../include/clan.h ../include/materials.h \
@@ -54,11 +54,11 @@ $(OBJ)/duke.o: duke.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
   ../include/fight.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
@@ -85,11 +85,11 @@ $(OBJ)/hell_hunter_spec.o: hell_hunter_spec.cc \
   ../include/obj_data.h ../include/xml_utils.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/screen.h ../include/clan.h ../include/vehicle.h \
@@ -119,11 +119,11 @@ $(OBJ)/remorter.o: remorter.cc /usr/include/libxml2/libxml/parser.h \
   ../include/obj_data.h ../include/xml_utils.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/screen.h ../include/clan.h ../include/vehicle.h \
@@ -153,10 +153,10 @@ $(OBJ)/spec_assign.o: spec_assign.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/utils.h \
   ../include/specs.h ../include/screen.h ../include/comm.h \
   ../include/vendor.h ../include/mobile_map.h ../include/object_map.h
@@ -183,11 +183,11 @@ $(OBJ)/spec_procs.o: spec_procs.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/screen.h ../include/clan.h ../include/vehicle.h \
@@ -258,9 +258,9 @@ $(OBJ)/spec_procs.o: spec_procs.cc ../include/structs.h ../include/defs.h \
   Specs/sarflin_specs/gunnery_device.spec \
   Specs/sarflin_specs/ramp_leaver.spec \
   Specs/object_specs/loudspeaker.spec \
-  Specs/object_specs/voting_booth.spec ../include/boards.h \
-  Specs/object_specs/ancient_artifact.spec ../include/bomb.h \
-  Specs/object_specs/finger_of_death.spec \
+  Specs/object_specs/voting_booth.spec ../include/editor.h \
+  ../include/boards.h Specs/object_specs/ancient_artifact.spec \
+  ../include/bomb.h Specs/object_specs/finger_of_death.spec \
   Specs/object_specs/quest_sphere.spec \
   Specs/giants_specs/javelin_of_lightning.spec \
   Specs/giants_specs/carrion_crawler.spec Specs/giants_specs/ogre1.spec \
@@ -354,11 +354,11 @@ $(OBJ)/styx.o: styx.cc ../include/structs.h ../include/defs.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/creature.h \
   ../include/combat_data_list.h ../include/safe_list.h \
-  ../include/account.h ../include/desc_data.h ../include/editor.h \
-  ../include/interpreter.h ../include/room_data.h ../include/search.h \
-  ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/spells.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/demonic_guard.o $(OBJ)/duke.o $(OBJ)/hell_hunter_spec.o $(OBJ)/remorter.o $(OBJ)/spec_assign.o $(OBJ)/spec_procs.o $(OBJ)/styx.o

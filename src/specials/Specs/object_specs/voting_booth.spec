@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <sys/time.h>
 
+#include "editor.h"
 #include "boards.h"
 
 struct voting_option {

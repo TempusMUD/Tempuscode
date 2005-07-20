@@ -34,6 +34,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include "interpreter.h"
 #include "handler.h"
 #include "mail.h"
+#include "editor.h"
 #include "screen.h"
 #include "clan.h"
 #include "materials.h"

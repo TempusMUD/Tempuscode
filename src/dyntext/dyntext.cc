@@ -21,6 +21,7 @@
 #include "utils.h"
 #include "handler.h"
 #include "db.h"
+#include "editor.h"
 #include "screen.h"
 #include "interpreter.h"
 #include "player_table.h"

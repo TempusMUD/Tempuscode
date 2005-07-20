@@ -16,6 +16,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
+#include "editor.h"
 #include "security.h"
 #include "olc.h"
 #include "screen.h"

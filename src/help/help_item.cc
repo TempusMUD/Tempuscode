@@ -11,6 +11,7 @@ using namespace std;
 #include "help.h"
 #include "interpreter.h"
 #include "db.h"
+#include "editor.h"
 #include "comm.h"
 #include "screen.h"
 #include "handler.h"

@@ -25,6 +25,7 @@
 #include "utils.h"
 #include "interpreter.h"
 #include "db.h"
+#include "editor.h"
 #include "spells.h"
 #include "quest.h"
 #include "player_table.h"

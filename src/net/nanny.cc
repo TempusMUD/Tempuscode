@@ -22,6 +22,7 @@
 #include "comm.h"
 #include "interpreter.h"
 #include "db.h"
+#include "editor.h"
 #include "utils.h"
 #include "spells.h"
 #include "handler.h"
