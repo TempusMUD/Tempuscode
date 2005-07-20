@@ -306,6 +306,10 @@ perform_cleave(Creature *ch, Creature *vict, int *return_flags)
                 return;
             } else if(! IS_SET( retval, DAM_VICT_KILLED ) ) {
                 return;
+            } else if (GET_EQ(ch, WEAR_WIELD) != weap) {
+                // Sometimes the weapon breaks and falls out of the wield
+                // position.
+                return;
             }
             vict = NULL;
             // find a new victim
