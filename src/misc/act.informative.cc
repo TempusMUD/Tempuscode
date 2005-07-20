@@ -42,7 +42,6 @@ using namespace std;
 #include "bomb.h"
 #include "fight.h"
 #include "specs.h"
-#include "events.h"
 #include "security.h"
 #include "char_class.h"
 #include "tmpstr.h"

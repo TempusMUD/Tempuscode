@@ -40,7 +40,6 @@
 #include "bomb.h"
 #include "guns.h"
 #include "char_class.h"
-#include "events.h"
 #include "language.h"
 #include "mobile_map.h"
 #include "object_map.h"

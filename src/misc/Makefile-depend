@@ -24,7 +24,9 @@ $(OBJ)/act.comm.o: act.comm.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/spells.h ../include/utils.h ../include/comm.h \
-  ../include/handler.h ../include/db.h ../include/screen.h \
+  ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/screen.h \
   ../include/rpl_resp.h ../include/clan.h ../include/security.h \
   ../include/language.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
@@ -55,10 +57,11 @@ $(OBJ)/act.informative.o: act.informative.cc ../include/structs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h ../include/spells.h ../include/screen.h \
-  ../include/vehicle.h ../include/materials.h ../include/clan.h \
-  ../include/smokes.h ../include/bomb.h ../include/fight.h \
-  ../include/specs.h ../include/events.h ../include/security.h \
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/clan.h ../include/smokes.h ../include/bomb.h \
+  ../include/fight.h ../include/specs.h ../include/security.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/accstr.h ../include/tokenizer.h ../include/player_table.h \
   ../include/language.h
@@ -89,10 +92,11 @@ $(OBJ)/act.movement.o: act.movement.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h ../include/spells.h ../include/house.h \
-  ../include/vehicle.h ../include/materials.h ../include/fight.h \
-  ../include/security.h ../include/screen.h ../include/char_class.h \
-  ../include/actions.h ../include/mobact.h ../include/events.h
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/house.h ../include/vehicle.h ../include/materials.h \
+  ../include/fight.h ../include/security.h ../include/screen.h \
+  ../include/char_class.h ../include/actions.h ../include/mobact.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/act.obj.o: act.obj.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -120,12 +124,13 @@ $(OBJ)/act.obj.o: act.obj.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h ../include/spells.h ../include/char_class.h \
-  ../include/actions.h ../include/mobact.h ../include/vehicle.h \
-  ../include/materials.h ../include/smokes.h ../include/bomb.h \
-  ../include/guns.h ../include/fight.h ../include/security.h \
-  ../include/screen.h ../include/player_table.h ../include/prog.h \
-  ../include/object_map.h
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/char_class.h ../include/actions.h ../include/mobact.h \
+  ../include/vehicle.h ../include/materials.h ../include/smokes.h \
+  ../include/bomb.h ../include/guns.h ../include/fight.h \
+  ../include/security.h ../include/screen.h ../include/player_table.h \
+  ../include/prog.h ../include/object_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/act.other.o: act.other.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -153,11 +158,12 @@ $(OBJ)/act.other.o: act.other.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h ../include/spells.h ../include/screen.h \
-  ../include/house.h ../include/vehicle.h ../include/materials.h \
-  ../include/smokes.h ../include/clan.h ../include/fight.h \
-  ../include/char_class.h ../include/actions.h ../include/mobact.h \
-  ../include/security.h ../include/player_table.h
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/house.h ../include/vehicle.h \
+  ../include/materials.h ../include/smokes.h ../include/clan.h \
+  ../include/fight.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/security.h ../include/player_table.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/act.wizard.o: act.wizard.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -185,16 +191,18 @@ $(OBJ)/act.wizard.o: act.wizard.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h ../include/spells.h ../include/house.h \
-  ../include/screen.h ../include/char_class.h ../include/actions.h \
-  ../include/mobact.h ../include/vehicle.h ../include/security.h \
-  ../include/olc.h ../include/materials.h ../include/clan.h \
-  ../include/specs.h ../include/flow_room.h ../include/smokes.h \
-  ../include/paths.h ../include/login.h ../include/bomb.h \
-  ../include/guns.h ../include/fight.h ../include/tokenizer.h \
-  ../include/accstr.h ../include/player_table.h ../include/quest.h \
-  ../include/memtrack.h ../include/boards.h ../include/language.h \
-  ../include/prog.h ../include/mobile_map.h ../include/object_map.h
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/house.h ../include/screen.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h ../include/vehicle.h \
+  ../include/security.h ../include/olc.h ../include/materials.h \
+  ../include/clan.h ../include/specs.h ../include/flow_room.h \
+  ../include/smokes.h ../include/paths.h ../include/login.h \
+  ../include/bomb.h ../include/guns.h ../include/fight.h \
+  ../include/tokenizer.h ../include/accstr.h ../include/player_table.h \
+  ../include/quest.h ../include/memtrack.h ../include/boards.h \
+  ../include/language.h ../include/prog.h ../include/mobile_map.h \
+  ../include/object_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/config.o: config.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -250,9 +258,10 @@ $(OBJ)/limits.o: limits.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/spells.h ../include/comm.h \
-  ../include/db.h ../include/handler.h ../include/vehicle.h \
-  ../include/clan.h ../include/specs.h ../include/fight.h \
-  ../include/screen.h ../include/prog.h
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/handler.h \
+  ../include/vehicle.h ../include/clan.h ../include/specs.h \
+  ../include/fight.h ../include/screen.h ../include/prog.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/login.o: login.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -279,7 +288,8 @@ $(OBJ)/login.o: login.cc ../include/structs.h ../include/defs.h \
   ../include/account.h ../include/desc_data.h ../include/editor.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/comm.h ../include/db.h ../include/screen.h \
+  ../include/comm.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/screen.h \
   ../include/utils.h ../include/login.h ../include/char_class.h \
   ../include/actions.h ../include/spells.h ../include/mobact.h \
   ../include/help.h
@@ -310,6 +320,8 @@ $(OBJ)/rpl_resp.o: rpl_resp.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
-  ../include/db.h ../include/screen.h ../include/rpl_resp.h
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/screen.h \
+  ../include/rpl_resp.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/act.comm.o $(OBJ)/act.informative.o $(OBJ)/act.movement.o $(OBJ)/act.obj.o $(OBJ)/act.other.o $(OBJ)/act.wizard.o $(OBJ)/config.o $(OBJ)/limits.o $(OBJ)/login.o $(OBJ)/rpl_resp.o

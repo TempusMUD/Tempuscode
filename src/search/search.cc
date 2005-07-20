@@ -27,7 +27,6 @@
 #include "actions.h"
 #include "tmpstr.h"
 #include "house.h"
-#include "events.h"
 #include "prog.h"
 
 /* extern variables */

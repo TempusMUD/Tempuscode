@@ -50,7 +50,6 @@
 #include "tmpstr.h"
 #include "accstr.h"
 #include "player_table.h"
-#include "events.h"
 #include "prog.h"
 
 /* externs */

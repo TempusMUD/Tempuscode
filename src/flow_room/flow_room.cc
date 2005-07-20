@@ -28,7 +28,6 @@
 #include "bomb.h"
 #include "house.h"
 #include "fight.h"
-#include "events.h"
 #include "prog.h"
 
 /* external structs */

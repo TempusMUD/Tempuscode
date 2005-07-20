@@ -24,7 +24,9 @@ $(OBJ)/Mapper.o: Mapper.cc ../include/Mapper.h ../include/screen.h \
   /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
   ../include/creature_list.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
-  ../include/account.h ../include/interpreter.h ../include/utils.h \
+  ../include/account.h ../include/interpreter.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/utils.h \
   ../include/tokenizer.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/Mapper.o

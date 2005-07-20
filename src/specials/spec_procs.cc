@@ -40,7 +40,6 @@
 #include "accstr.h"
 #include "tokenizer.h"
 #include "player_table.h"
-#include "events.h"
 #include "object_map.h"
 
 

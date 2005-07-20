@@ -37,7 +37,6 @@
 #include "tmpstr.h"
 #include "house.h"
 #include "player_table.h"
-#include "events.h"
 #include "vendor.h"
 
 extern struct obj_data *object_list;

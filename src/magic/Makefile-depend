@@ -24,7 +24,9 @@ $(OBJ)/magic.o: magic.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/spells.h \
-  ../include/handler.h ../include/db.h ../include/char_class.h \
+  ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/char_class.h \
   ../include/actions.h ../include/mobact.h ../include/flow_room.h \
   ../include/fight.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
@@ -54,7 +56,8 @@ $(OBJ)/spell_parser.o: spell_parser.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/spells.h ../include/handler.h \
-  ../include/comm.h ../include/db.h ../include/materials.h \
+  ../include/comm.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/materials.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/fight.h ../include/screen.h ../include/vendor.h \
   ../include/prog.h
@@ -85,11 +88,12 @@ $(OBJ)/spells.o: spells.cc ../include/structs.h ../include/defs.h \
   ../include/interpreter.h ../include/room_data.h ../include/search.h \
   ../include/weather.h ../include/zone_data.h ../include/ban.h \
   ../include/utils.h ../include/comm.h ../include/spells.h \
-  ../include/handler.h ../include/db.h ../include/flow_room.h \
+  ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/flow_room.h \
   ../include/smokes.h ../include/screen.h ../include/vehicle.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/fight.h ../include/materials.h ../include/tokenizer.h \
-  ../include/house.h ../include/player_table.h ../include/events.h \
-  ../include/vendor.h
+  ../include/house.h ../include/player_table.h ../include/vendor.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/magic.o $(OBJ)/spell_parser.o $(OBJ)/spells.o

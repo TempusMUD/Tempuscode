@@ -34,7 +34,6 @@
 #include "security.h"
 #include "char_class.h"
 #include "tmpstr.h"
-#include "events.h"
 
 /* external vars  */
 extern struct descriptor_data *descriptor_list;

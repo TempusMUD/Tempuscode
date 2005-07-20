@@ -30,7 +30,6 @@
 #include "guns.h"
 #include "bomb.h"
 #include "vendor.h"
-#include "events.h"
 
 /* extern variables */
 extern struct room_data *world;
