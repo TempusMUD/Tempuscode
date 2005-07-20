@@ -25,8 +25,12 @@ public:
 	}
 
 protected:
-	// Private so noone can use it.
     CTextEditor();
+
+    // These are different between subclasses
+    virtual void ProcessCommand(char cmd, char *args);
+    virtual void SaveText(void);
+
 	// The descriptor of the player we are dealin with.
 	struct descriptor_data *desc;
 	// The destination char **
@@ -39,8 +43,6 @@ protected:
 
 private:
 	void ProcessHelp(char *inStr);
-	bool ProcessCommand(char *inStr);	// Duh.
-	void SaveText(char *inStr);	// Dump the text to string_add.
 	void List(unsigned int startline = 1);	// Print the contents.
 	void SendMessage(const char *message);	// Wrapper for sendtochar
 	void Help(char *inStr);		// Open refrigerator?

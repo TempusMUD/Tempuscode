@@ -94,16 +94,20 @@ CTextEditor::Process(char *inStr)
 {
 	// 2 special chars, @ and &
 	char inbuf[MAX_INPUT_LENGTH + 1];
+    char *args;
 	strncpy(inbuf, inStr, MAX_INPUT_LENGTH);
 
 	delete_doubledollar(inbuf);
 
 	if (*inbuf == '&') {		// Commands
-		ProcessCommand(inbuf);
+        args = inbuf + ((inbuf[2]) ? 3:2);
+        if (*args)
+            args++;
+		ProcessCommand(inbuf[1], inbuf + 3);
 		return;
 	} else if (*inbuf == '@') {	// Finish up
 		REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
-		SaveText(inbuf);
+		SaveText();
 		desc->text_editor = NULL;
 		delete this;
 		return;
@@ -150,7 +154,7 @@ CTextEditor::List(unsigned int startline)
 }
 
 void
-CTextEditor::SaveText(char *inStr)
+CTextEditor::SaveText(void)
 {
 	struct mail_recipient_data *next_mail;
 	list <string>::iterator itr;
@@ -911,121 +915,115 @@ CTextEditor::ProcessHelp(char *inStr)
 		SendMessage(tedii_out_buf);
 	}
 }
-bool
-CTextEditor::ProcessCommand(char *inStr)
+
+void
+CTextEditor::ProcessCommand(char cmd, char *args)
 {
 	int line;
 	char command[MAX_INPUT_LENGTH];
-	inStr++;
-	if (!*inStr) {
-		SendMessage("Invalid Command\r\n");
-	}
-	inStr = one_argument(inStr, command);
-	*command = tolower(*command);
-	switch (*command) {
+
+	switch (tolower(cmd)) {
 	case 'h':					// Help
-		ProcessHelp(inStr);
-		return true;
-		break;
+		ProcessHelp(args);
+		return;
 	case 'f':					// Find/Replace
-		return FindReplace(inStr);
-		break;
+        FindReplace(args);
+		return;
 	case 's':					// Save and Exit
 		REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
-		SaveText(inStr);
+		SaveText();
 		desc->text_editor = NULL;
 		delete this;
-		return true;
-		break;
+		return;
 	case 'l':					// Replace Line
-		inStr = one_argument(inStr, command);
+		args = one_argument(args, command);
 		if (!isdigit(*command)) {
 			SendMessage("Format for Replace Line is: &l <line #> <text>\r\n");
-			return false;
+			return;
 		}
 		line = atoi(command);
 		if (line < 1) {
 			SendMessage("Format for Replace Line is: &l <line #> <text>\r\n");
-			return false;
+			return;
 		}
-		return ReplaceLine((unsigned int)line, inStr);
-		break;
+        ReplaceLine(line, args);
+		return;
 	case 'i':					// Insert Line
-		inStr = one_argument(inStr, command);
+		args = one_argument(args, command);
 		if (!isdigit(*command)) {
 			SendMessage
 				("Format for insert command is: &i <line #> <text>\r\n");
-			return false;
+			return;
 		}
 		line = atoi(command);
 		if (line < 1) {
 			SendMessage("Format for insert command is: &i <line #><text>\r\n");
-			return false;
+			return;
 		}
-		return Insert((unsigned int)line, inStr);
-		break;
+        Insert(line, args);
+		return;
 	case 'c':					// Clear Buffer
 		Clear();
 		SendMessage("Cleared.\r\n");
-		return true;
+		return;
 		break;
 	case 'q':					// Quit without saving
 		SendMessage("Not Implemented.\r\n");
-		return true;
+		return;
 		break;
 	case 'd':					// Delete Line
-		inStr = one_argument(inStr, command);
+		args = one_argument(args, command);
 		if (!isdigit(*command)) {
 			SendMessage("Format for delete command is: &d <line #>\r\n");
-			return false;
+			return;
 		}
 		line = atoi(command);
 		if (line < 1) {
 			SendMessage("Format for delete command is: &d <line #>\r\n");
-			return false;
+			return;
 		}
-		return Remove((unsigned int)line);
-		break;
+        Remove(line);
+		return;
 	case 'r':					// Refresh Screen
-		inStr = one_argument(inStr, command);
+		args = one_argument(args, command);
 		if (!isdigit(*command)) {
 			List();
-			return true;
+			return;
 		}
 		line = atoi(command);
 		if (line < 1) {
 			SendMessage
 				("Format for refresh command is: &r <starting line #>\r\n");
-			return false;
+			return;
 		}
 		List((unsigned int)line);
 		break;
 	case 'u':					// Undo Changes
-		UndoChanges(inStr);
-		return true;
+		UndoChanges(args);
+		return;
 	case 't':
 		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			ListRecipients();
-			return true;
+			return;
 		}
 	case 'a':
 		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			inStr = one_argument(inStr, command);
+			args = one_argument(args, command);
 			AddRecipient(command);
-			return true;
+			return;
 		}
 	case 'e':
 		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			inStr = one_argument(inStr, command);
+			args = one_argument(args, command);
 			RemRecipient(command);
-			return true;
+			return;
 		}
 	default:
 		SendMessage("Invalid Command. Type &h for help.\r\n");
-		return false;
+		return;
 	}
 
-	return false;
+	return;
 }
 
 void
