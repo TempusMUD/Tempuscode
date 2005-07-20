@@ -7,7 +7,7 @@ SUBDIRS= \
 	clan classes combat db dyntext editor \
 	flow_room help house interpreter magic \
 	misc mobiles net objects olc quest search \
-	social specials util weather structs map language
+	social specials util weather structs map
 
 MAKEFLAGS=-s -k 4 $(PARALLEL_MAKE)
 OBJ=ObjFiles
