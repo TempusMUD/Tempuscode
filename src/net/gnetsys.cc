@@ -33,7 +33,6 @@
 #include "vehicle.h"
 #include "house.h"
 #include "login.h"
-#include "matrix.h"
 #include "bomb.h"
 
 extern int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];

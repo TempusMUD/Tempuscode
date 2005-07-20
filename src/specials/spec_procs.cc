@@ -33,7 +33,6 @@
 #include "olc.h"
 #include "specs.h"
 #include "login.h"
-#include "matrix.h"
 #include "house.h"
 #include "fight.h"
 #include "tmpstr.h"

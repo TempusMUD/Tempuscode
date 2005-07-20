@@ -94,8 +94,8 @@ $(OBJ)/hell_hunter_spec.o: hell_hunter_spec.cc \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/screen.h ../include/clan.h ../include/vehicle.h \
   ../include/materials.h ../include/paths.h ../include/specs.h \
-  ../include/login.h ../include/matrix.h ../include/house.h \
-  ../include/fight.h ../include/hell_hunter_spec.h
+  ../include/login.h ../include/house.h ../include/fight.h \
+  ../include/hell_hunter_spec.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/remorter.o: remorter.cc /usr/include/libxml2/libxml/parser.h \
   /usr/include/libxml2/libxml/xmlversion.h \
@@ -128,8 +128,8 @@ $(OBJ)/remorter.o: remorter.cc /usr/include/libxml2/libxml/parser.h \
   ../include/char_class.h ../include/actions.h ../include/mobact.h \
   ../include/screen.h ../include/clan.h ../include/vehicle.h \
   ../include/materials.h ../include/paths.h ../include/specs.h \
-  ../include/login.h ../include/matrix.h ../include/house.h \
-  ../include/fight.h ../include/remorter.h ../include/player_table.h
+  ../include/login.h ../include/house.h ../include/fight.h \
+  ../include/remorter.h ../include/player_table.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/spec_assign.o: spec_assign.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -193,8 +193,8 @@ $(OBJ)/spec_procs.o: spec_procs.cc ../include/structs.h ../include/defs.h \
   ../include/screen.h ../include/clan.h ../include/vehicle.h \
   ../include/materials.h ../include/paths.h ../include/security.h \
   ../include/olc.h ../include/specs.h ../include/login.h \
-  ../include/matrix.h ../include/house.h ../include/fight.h \
-  ../include/accstr.h ../include/tokenizer.h ../include/player_table.h \
+  ../include/house.h ../include/fight.h ../include/accstr.h \
+  ../include/tokenizer.h ../include/player_table.h \
   ../include/object_map.h Specs/modrian_specs/shimmering_portal.spec \
   Specs/modrian_specs/wagon_obj.spec Specs/modrian_specs/wagon_room.spec \
   Specs/modrian_specs/wagon_driver.spec \

@@ -34,7 +34,6 @@ using namespace std;
 #include "paths.h"
 #include "specs.h"
 #include "login.h"
-#include "matrix.h"
 #include "house.h"
 #include "fight.h"
 
