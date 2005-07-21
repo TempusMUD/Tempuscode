@@ -997,7 +997,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 
 		break;
 	case 9:
-	  start_editing_text(ch->desc, &ch->in_room->prog);
+        start_editing_prog(ch->desc, ch->in_room, PROG_TYPE_ROOM);
 	  SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 	  act("$n begins to write a room prog.", TRUE, ch, 0, 0, TO_ROOM);
 	  break;

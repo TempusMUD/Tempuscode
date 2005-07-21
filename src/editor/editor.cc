@@ -79,6 +79,21 @@ start_editing_mail(descriptor_data *d, mail_recipient_data *recipients)
 	d->text_editor = new CMailEditor(d, recipients);
 }
 
+void
+start_editing_prog(descriptor_data *d, void *owner, prog_evt_type owner_type)
+{
+	if (d->text_editor) {
+		errlog("Text editor object not null in start_editing_mail");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
+			PLR_WRITING | PLR_OLC | PLR_MAILING);
+		return;
+	}
+
+    SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING | PLR_OLC);
+
+	d->text_editor = new CProgEditor(d, owner, owner_type);
+}
+
 // Constructor
 // Params: Users descriptor, The final destination of the text, 
 //      the max size of the text.
@@ -477,6 +492,7 @@ CEditor::ImportText(char *str)
 
     theText = origText;
 
+    UpdateSize();
 	Wrap();
 }
 

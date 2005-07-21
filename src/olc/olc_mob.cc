@@ -1330,7 +1330,7 @@ do_mob_mset(struct Creature *ch, char *argument)
        break;
 	   }
 	case 52:
-		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->prog);
+		start_editing_prog(ch->desc, mob_p, PROG_TYPE_MOBILE);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a mobile prog.", TRUE, ch, 0, 0, TO_ROOM);
 		break;

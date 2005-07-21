@@ -102,6 +102,27 @@ protected:
     mail_recipient_data *mail_to;
 };
 
+class CProgEditor : public CEditor {
+public:
+    CProgEditor(descriptor_data *desc, void *o, prog_evt_type t);
+    virtual ~CProgEditor(void);
+
+    virtual bool IsEditing(char *inStr)
+    {
+        return (inStr == prog_get_text(owner, owner_type));
+	}
+
+protected:
+    CProgEditor(void);
+
+	// The destination char **
+	void *owner;
+    prog_evt_type owner_type;
+
+    virtual bool PerformCommand(char cmd, char *args);
+    virtual void Finalize(const char *text);
+};
+
 // Interfaces to the editor from the outside world.
 void start_editing_text(struct descriptor_data *d,
                         char **target,
@@ -109,5 +130,9 @@ void start_editing_text(struct descriptor_data *d,
 
 void start_editing_mail(struct descriptor_data *d,
                         mail_recipient_data *recipients);
+
+void start_editing_prog(struct descriptor_data *d,
+                        void *owner,
+                        prog_evt_type owner_type);
 
 #endif
