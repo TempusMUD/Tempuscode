@@ -201,6 +201,7 @@ prog_compile_prog(Creature *ch, char *prog_text)
     // Skip initial spaces and blank lines in prog
     while (isspace(*line_start))
         line_start++;
+    line_end = line_start;
 
     while (line_start && *line_start) {
         // Find the end of the line
@@ -235,7 +236,7 @@ prog_compile_prog(Creature *ch, char *prog_text)
             if (!cmd->str) {
                 
                 if (ch)
-                    send_to_char(ch, "Error in prog line %d: Bad command '%s'", linenum, cmd_str);
+                    send_to_char(ch, "Error in prog line %d: Bad command '%s'\r\n", linenum, cmd_str);
                 else
                     slog("Error in prog line %d: Bad command '%s'", linenum, cmd_str);
                 delete [] codeseg;
