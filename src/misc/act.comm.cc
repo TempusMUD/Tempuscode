@@ -672,7 +672,7 @@ ACMD(do_write)
 	} else {
 		if (paper->action_desc == NULL)
 			CREATE(paper->action_desc, char, MAX_NOTE_LENGTH);
-		start_text_editor(ch->desc, &paper->action_desc, true,
+		start_editing_text(ch->desc, &paper->action_desc,
 			MAX_NOTE_LENGTH);
 		SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 		act("$n begins to jot down a note..", TRUE, ch, 0, 0, TO_ROOM);

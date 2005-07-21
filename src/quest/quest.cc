@@ -1210,7 +1210,7 @@ do_qcontrol_desc(Creature *ch, char *argument, int com)
 		sprintf(buf, "began writing description of quest '%s'", quest->name);
 	}
 
-	start_text_editor(ch->desc, &quest->description, true, MAX_QUEST_DESC);
+	start_editing_text(ch->desc, &quest->description, MAX_QUEST_DESC);
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 }
 
@@ -1241,7 +1241,7 @@ do_qcontrol_update(Creature *ch, char *argument, int com)
 		sprintf(buf, "began writing the update of quest '%s'", quest->name);
 	}
 
-	start_text_editor(ch->desc, &quest->updates, true, MAX_QUEST_UPDATE);
+	start_editing_text(ch->desc, &quest->updates, MAX_QUEST_UPDATE);
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 
 	act("$n begins to edit a quest update.\r\n", TRUE, ch, 0, 0, TO_ROOM);

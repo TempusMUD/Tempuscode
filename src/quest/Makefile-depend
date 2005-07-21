@@ -25,7 +25,8 @@ $(OBJ)/quest.o: quest.cc /usr/include/libxml2/libxml/parser.h \
   ../include/zone_data.h ../include/ban.h ../include/comm.h \
   ../include/utils.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/editor.h \
-  ../include/spells.h ../include/quest.h ../include/player_table.h \
-  ../include/handler.h ../include/screen.h ../include/security.h
+  ../include/prog.h ../include/spells.h ../include/quest.h \
+  ../include/player_table.h ../include/handler.h ../include/screen.h \
+  ../include/security.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/quest.o

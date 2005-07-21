@@ -453,8 +453,7 @@ ACMD(do_olc)
 				act("$n begins to edit an exit description.", TRUE, ch, 0, 0,
 					TO_ROOM);
 			}
-			start_text_editor(ch->desc, &EXIT(ch, edir)->general_description,
-				true);
+			start_editing_text(ch->desc, &EXIT(ch, edir)->general_description);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 			return;
 		} else if (is_abbrev(buf, "keywords")) {
@@ -791,8 +790,7 @@ ACMD(do_olc)
 			ndesc->next = obj_p->ex_description;
 			obj_p->ex_description = ndesc;
 
-			start_text_editor(ch->desc, &obj_p->ex_description->description,
-				true);
+			start_editing_text(ch->desc, &obj_p->ex_description->description);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
 			act("$n begins to write an object description.",
@@ -805,7 +803,7 @@ ACMD(do_olc)
 			return;
 		} else if (is_abbrev(buf, "edit")) {
 			if ((desc = locate_exdesc(argument, obj_p->ex_description))) {
-				start_text_editor(ch->desc, &desc->description, true);
+				start_editing_text(ch->desc, &desc->description);
 				SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 				UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
 				act("$n begins to write an object description.",

@@ -259,8 +259,9 @@ $(OBJ)/spec_procs.o: spec_procs.cc ../include/structs.h ../include/defs.h \
   Specs/sarflin_specs/ramp_leaver.spec \
   Specs/object_specs/loudspeaker.spec \
   Specs/object_specs/voting_booth.spec ../include/editor.h \
-  ../include/boards.h Specs/object_specs/ancient_artifact.spec \
-  ../include/bomb.h Specs/object_specs/finger_of_death.spec \
+  ../include/prog.h ../include/boards.h \
+  Specs/object_specs/ancient_artifact.spec ../include/bomb.h \
+  Specs/object_specs/finger_of_death.spec \
   Specs/object_specs/quest_sphere.spec \
   Specs/giants_specs/javelin_of_lightning.spec \
   Specs/giants_specs/carrion_crawler.spec Specs/giants_specs/ogre1.spec \

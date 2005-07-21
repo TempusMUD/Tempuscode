@@ -4,47 +4,47 @@
 #include <string>
 #include <list>
 #include "constants.h"
+#include "prog.h"
 
 using namespace std;
 
-// Interface to the editor from the outside world.
-void start_text_editor(struct descriptor_data *d,
-	char **dest, bool sendmessage = true, int max = MAX_STRING_LENGTH);
 
-class CTextEditor {
+class CEditor {
 public:
-	CTextEditor(struct descriptor_data *d, char **dest, int max, bool startup);
-    virtual ~CTextEditor(void) { }
+	CEditor(struct descriptor_data *d, int max);
+    virtual ~CEditor(void) { }
 
 	// Command Processor
 	void Process(char *inStr);
 	void SendStartupMessage(void);
+    void SendPrompt(void);
 
-	inline bool IsEditing(char *inStr) {
-		return (inStr == *target);
-	}
+	virtual bool IsEditing(char *inStr) =0;
 
 protected:
-    CTextEditor();
+    CEditor() { }
 
     // These are different between subclasses
-    virtual void ProcessCommand(char cmd, char *args);
-    virtual void SaveText(void);
+    virtual bool PerformCommand(char cmd, char *args);
+    virtual void Finalize(const char *text) = 0;
+    virtual void DisplayBuffer(unsigned int start_line = 1);
+
+	void ImportText(char *text);	// Run from contructor, imports *d->str
+	void SendMessage(const char *message);	// Wrapper for sendtochar
+	void UndoChanges(void);
 
 	// The descriptor of the player we are dealin with.
 	struct descriptor_data *desc;
-	// The destination char **
-	char **target;
+
 	// the text
-    list < string > origText;
-    list < string > theText;
+    list<string> origText;
+    list<string> theText;
 	unsigned int curSize;
 	unsigned int maxSize;
 
 private:
+    void Finish(bool save);
 	void ProcessHelp(char *inStr);
-	void List(unsigned int startline = 1);	// Print the contents.
-	void SendMessage(const char *message);	// Wrapper for sendtochar
 	void Help(char *inStr);		// Open refrigerator?
 	void UpdateSize(void);
 	bool Wrap(void);			// Wordwrap
@@ -56,13 +56,58 @@ private:
 	bool FindReplace(char *args);	// Text search and replace.
 	bool Remove(unsigned int line);	// Remove a line
 	bool Clear(void);			// Wipe the text and start over.
-	void ImportText(void);		// Run from contructor, imports *d->str
-	void SaveFile(void);		// Save edited files
-	void UndoChanges(char *inStr);	// Um....
-	// Below: Mail Specific methods
-	void ExportMail(void);		// Export mail to the mail system for delivery
+};
+
+class CTextEditor : public CEditor {
+public:
+    CTextEditor(descriptor_data *desc, char **target, int max);
+    virtual ~CTextEditor(void);
+
+    virtual bool IsEditing(char *inStr)
+    {
+		return (inStr == *target);
+	}
+
+protected:
+    CTextEditor(void);
+
+	// The destination char **
+	char **target;
+
+    virtual bool PerformCommand(char cmd, char *args);
+    virtual void Finalize(const char *text);
+};
+
+class CMailEditor : public CEditor {
+public:
+    CMailEditor(descriptor_data *desc,
+                mail_recipient_data *recipients);
+    virtual ~CMailEditor(void);
+
+    virtual bool IsEditing(char *inStr)
+    {
+        return false;
+    }
+protected:
+    CMailEditor(void);
+
+    virtual void DisplayBuffer(unsigned int start_line = 1);
+    virtual bool PerformCommand(char cmd, char *args);
+    virtual void Finalize(const char *text);
+
 	void ListRecipients(void);
 	void AddRecipient(char *name);
 	void RemRecipient(char *name);
+
+    mail_recipient_data *mail_to;
 };
+
+// Interfaces to the editor from the outside world.
+void start_editing_text(struct descriptor_data *d,
+                        char **target,
+                        int max = MAX_STRING_LENGTH);
+
+void start_editing_mail(struct descriptor_data *d,
+                        mail_recipient_data *recipients);
+
 #endif

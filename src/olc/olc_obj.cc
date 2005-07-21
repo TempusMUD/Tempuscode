@@ -600,7 +600,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 			obj_p->ex_description = ndesc;
 			desc = obj_p->ex_description;
 		}
-		start_text_editor(ch->desc, &desc->description, true);
+		start_editing_text(ch->desc, &desc->description);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
 		if (subcmd == OLC_OSET)
@@ -960,7 +960,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 
 	case 17:  /***** action_desc *****/
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-		start_text_editor(ch->desc, &obj_p->action_desc, true);
+		start_editing_text(ch->desc, &obj_p->action_desc);
 		break;
 
 	case 18: /** special **/
@@ -1105,7 +1105,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		}
 
 		// It's ok.  Let em set it.
-		start_text_editor(ch->desc, &obj_p->shared->func_param, true);
+		start_editing_text(ch->desc, &obj_p->shared->func_param);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a object spec param.", TRUE, ch, 0, 0,
 			TO_ROOM);

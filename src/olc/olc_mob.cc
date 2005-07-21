@@ -438,7 +438,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 				act("$n begins to edit a mobile description.", TRUE, ch, 0, 0,
 					TO_ROOM);
 			}
-			start_text_editor(ch->desc, &mob_p->player.description, true);
+			start_editing_text(ch->desc, &mob_p->player.description);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 			CreatureList::iterator cit = characterList.begin();
 			for (; cit != characterList.end(); ++cit) {
@@ -1101,7 +1101,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 				nreply->keyword = str_dup(argument);
 				nreply->next = mob_p->mob_specials.response;
 				mob_p->mob_specials.response = nreply;
-				start_text_editor(ch->desc,
+				start_editing_text(ch->desc,
 					&mob_p->mob_specials.response->description, true);
 				SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 				act("$n begins to write a mobile response.", TRUE, ch, 0, 0,
@@ -1111,7 +1111,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 				if ((reply =
 						locate_exdesc(argument,
 							mob_p->mob_specials.response))) {
-					start_text_editor(ch->desc, &reply->description, true);
+					start_editing_text(ch->desc, &reply->description);
 					SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 					act("$n begins to edit a mobile response.", TRUE, ch, 0, 0,
 						TO_ROOM);
@@ -1228,7 +1228,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 		}
 
 		// It's ok.  Let em set it.
-		start_text_editor(ch->desc, &MOB_SHARED(mob_p)->func_param, true);
+		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->func_param);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a mobile spec param.", TRUE, ch, 0, 0,
 			TO_ROOM);
@@ -1246,7 +1246,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 
 		}
 	case 49:
-		start_text_editor(ch->desc, &MOB_SHARED(mob_p)->load_param, true);
+		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->load_param);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a mobile load param.", TRUE, ch, 0, 0, TO_ROOM);
 		break;
@@ -1330,7 +1330,7 @@ do_mob_mset(struct Creature *ch, char *argument)
        break;
 	   }
 	case 52:
-		start_text_editor(ch->desc, &MOB_SHARED(mob_p)->prog, true);
+		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->prog);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a mobile prog.", TRUE, ch, 0, 0, TO_ROOM);
 		break;

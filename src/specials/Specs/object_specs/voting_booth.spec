@@ -422,8 +422,8 @@ voting_booth_write(Creature * ch, char *argument)
 	voting_new_poll->memory = NULL;
 	voting_new_poll->secret = true;
 
-	start_text_editor(ch->desc,
-		&(voting_new_poll->descrip), true, MAX_MESSAGE_LENGTH);
+	start_editing_text(ch->desc,
+		&(voting_new_poll->descrip), MAX_MESSAGE_LENGTH);
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 
 	act("$n starts to add a poll.", TRUE, ch, 0, 0, TO_ROOM);

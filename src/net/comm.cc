@@ -1039,8 +1039,6 @@ new_descriptor(int s)
 	newd->bufspace = SMALL_BUFSIZE - 1;
 	newd->next = descriptor_list;
 	newd->login_time = time(0);
-	newd->editor_cur_lnum = 1;
-	newd->editor_file = NULL;
 	newd->text_editor = NULL;
 	newd->idle = 0;
 

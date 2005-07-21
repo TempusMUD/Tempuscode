@@ -785,7 +785,7 @@ send_prompt(descriptor_data *d)
 
 	// Check for the text editor being used
 	if (d->creature && d->text_editor) {
-		send_to_desc(d, "%-2d&b]&n ", d->editor_cur_lnum);
+        d->text_editor->SendPrompt();
 		d->need_prompt = false;
 		return;
 	}
@@ -1285,7 +1285,7 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 			set_desc_state(CXN_WAIT_MENU, d);
 			return;
 		}
-		start_text_editor(d,&d->creature->player.description,true, MAX_CHAR_DESC-1);
+		start_editing_text(d,&d->creature->player.description, MAX_CHAR_DESC-1);
 	}
 
 	d->need_prompt = true;

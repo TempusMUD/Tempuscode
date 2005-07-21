@@ -77,6 +77,7 @@ class HelpItem {
 	void SetDesc(char *argument);	// Actually sets "text" (body of the message)
 	void SetFlags(char *argument);
 	void EditText(void);
+	bool LoadText(void);
 	bool CanEditItem(Creature * ch);
 	bool Save(void);			// Save the current entry to file.
 	bool IsInGroup(int thegroup);
@@ -101,7 +102,6 @@ class HelpItem {
 	Creature *editor;
 
   private:
-	bool LoadText();
 	fstream help_file;
 	HelpItem *next;
 	HelpItem *next_show;
@@ -148,10 +148,10 @@ class HelpCollection {
 	HelpItem *items;			// The top of the list of help topics
 	HelpItem *bottom;			// The bottom of the list of help topics
 
-  private:
 	// Returns a show list of items it found
 	HelpItem * FindItems(char *args, bool find_no_approve =
 		false, int thegroup = HGROUP_PLAYER, bool searchmode = false);
+  private:
 	int top_id;					// The highest id in use..
 	bool need_save;				// Weather something has been changed or not.
 };

@@ -86,7 +86,7 @@ HelpItem::EditText(void)
 
 	LoadText();
 	SET_BIT(flags, HFLAG_MODIFIED);
-	start_text_editor(editor->desc, &text, true, MAX_HELP_TEXT_LENGTH);
+	start_editing_text(editor->desc, &text, MAX_HELP_TEXT_LENGTH);
 	SET_BIT(PLR_FLAGS(editor), PLR_OLC);
 
 	act("$n begins to edit a help file.\r\n", TRUE, editor, 0, 0, TO_ROOM);

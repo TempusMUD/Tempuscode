@@ -2358,7 +2358,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		else
 			act("$n starts to write a zone description.", TRUE, ch, 0, 0,
 				TO_ROOM);
-		start_text_editor(ch->desc, &zone->public_desc, true);
+		start_editing_text(ch->desc, &zone->public_desc);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		break;
 	case 20:	// private description
@@ -2368,7 +2368,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		else
 			act("$n starts to write a zone description.", TRUE, ch, 0, 0,
 				TO_ROOM);
-		start_text_editor(ch->desc, &zone->private_desc, true);
+		start_editing_text(ch->desc, &zone->private_desc);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
         break;
     case 21:    // pk_style

@@ -23,19 +23,18 @@ using namespace std;
 #include "mail.h"
 #include "editor.h"
 #include "tmpstr.h"
+#include "accstr.h"
+#include "help.h"
+#include "comm.h"
 #include "player_table.h"
 
-static char small_editbuf[MAX_INPUT_LENGTH];
-static char editbuf[MAX_STRING_LENGTH * 2];
-static char tedii_out_buf[MAX_STRING_LENGTH];
 extern struct descriptor_data *descriptor_list;
-
-void voting_add_poll(void);
+extern HelpCollection *Help;
 
 /* Sets up text editor params and echo's passed in message.
 */
 void
-start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage, int max)
+start_editing_text(struct descriptor_data *d, char **dest, int max)
 {
 	/*  Editor Command
 	   Note: Add info for logall
@@ -61,36 +60,89 @@ start_text_editor(struct descriptor_data *d, char **dest, bool sendmessage, int 
 		return;
 	}
 
-	d->text_editor = new CTextEditor(d, dest, max, sendmessage);
+	d->text_editor = new CTextEditor(d, dest, max);
+}
+
+
+void
+start_editing_mail(descriptor_data *d, mail_recipient_data *recipients)
+{
+	if (d->text_editor) {
+		errlog("Text editor object not null in start_editing_mail");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
+			PLR_WRITING | PLR_OLC | PLR_MAILING);
+		return;
+	}
+
+    SET_BIT(PLR_FLAGS(d->creature), PLR_MAILING | PLR_WRITING);
+
+	d->text_editor = new CMailEditor(d, recipients);
 }
 
 // Constructor
 // Params: Users descriptor, The final destination of the text, 
 //      the max size of the text.
-CTextEditor::CTextEditor(struct descriptor_data * d, char **dest, int max, bool startup)
+CEditor::CEditor(struct descriptor_data *d, int max)
     :theText()
 {
-	// Internal pointer to the descriptor
 	desc = d;
-	// Internal pointer to the destination
-	target = dest;
-
-	// The maximum size of the buffer.
+    curSize = 0;
 	maxSize = max;
-
-	if (*target)
-		ImportText();
-
-	desc->editor_cur_lnum = theText.size() + 1;
-	UpdateSize();
-	if (startup) {
-		SendStartupMessage();
-		List();
-	}
 }
 
 void
-CTextEditor::Process(char *inStr)
+CEditor::SendStartupMessage(void)
+{
+    send_to_desc(desc, "&C    * &YTEDII &b]&n Save and exit with @ on a new line. &&H for help             &C*\r\n");
+    send_to_desc(desc, "    ");
+	for (int i = 0; i < 7; i++)
+        send_to_desc(desc, "&C%d&B---------", i);
+    send_to_desc(desc, "&C7&n\r\n");
+}
+
+void
+CEditor::SendPrompt(void)
+{
+    send_to_desc(desc, "%2d&b]&n ", theText.size() + 1);
+}
+
+void
+CEditor::Finish(bool save)
+{
+
+    if (save) {
+        list <string>::iterator itr;
+        int length;
+        char *text;
+
+        length = curSize + (theText.size() * 2);
+        text = (char *)malloc(sizeof(char) * length + 3);
+        strcpy(text, "");
+        for (itr = theText.begin(); itr != theText.end(); itr++) {
+            strcat(text, itr->c_str());
+            strcat(text, "\r\n");
+        }
+
+        // Call the finalizer
+        this->Finalize(text);
+        
+        free(text);
+    }
+
+	if (IS_PLAYING(desc) && desc->creature && !IS_NPC(desc->creature)) {
+        // Remove "using the editor bits"
+        REMOVE_BIT(PLR_FLAGS(desc->creature),
+                   PLR_WRITING | PLR_OLC | PLR_MAILING);
+        REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
+	}
+
+    // Free the editor
+	desc->text_editor = NULL;
+	delete this;
+}
+
+void
+CEditor::Process(char *inStr)
 {
 	// 2 special chars, @ and &
 	char inbuf[MAX_INPUT_LENGTH + 1];
@@ -103,237 +155,46 @@ CTextEditor::Process(char *inStr)
         args = inbuf + ((inbuf[2]) ? 3:2);
         if (*args)
             args++;
-		ProcessCommand(inbuf[1], inbuf + 3);
-		return;
+        if (!this->PerformCommand(inbuf[1], inbuf + 3))
+            SendMessage("Invalid Command. Type &h for help.\r\n");
 	} else if (*inbuf == '@') {	// Finish up
-		REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
-		SaveText();
-		desc->text_editor = NULL;
-		delete this;
-		return;
+        Finish(true);
 	} else {					// Dump the text in
 		Append(inbuf);
 	}
-	desc->editor_cur_lnum = theText.size() + 1;
 }
 
 void
-CTextEditor::List(unsigned int startline)
+CEditor::DisplayBuffer(unsigned int startline)
 {
 	list <string>::iterator itr;
-	int i;
-	int num_lines = 0;
-	strcpy(editbuf, "\r\n");
+	unsigned int i;
+
+    acc_string_clear();
 
 	itr = theText.begin();
 
-	// Allow a param, cut off when the buffer hits LARGE_BUF_SIZE
-	if (startline > 1) {
-		for (i = startline; i > 1 && itr != theText.end(); i--)
-			itr++;
-	}
+    for (i = 1;i < startline && itr != theText.end();i++)
+         itr++;
 
-	for (i = startline; itr != theText.end(); i++, itr++, num_lines++) {
-		sprintf(tedii_out_buf, "%-2d%s%s]%s ", i,
-			CCBLD(desc->creature, C_CMP),
-			CCBLU(desc->creature, C_NRM), CCNRM(desc->creature, C_NRM));
-		strcat(editbuf, tedii_out_buf);
-		strcat(editbuf, itr->c_str());
-		strcat(editbuf, "\r\n");
+	for (i = startline; itr != theText.end(); i++, itr++) {
+		acc_sprintf("%2d%s%s]%s %s\r\n", i,
+                    CCBLD(desc->creature, C_CMP),
+                    CCBLU(desc->creature, C_NRM),
+                    CCNRM(desc->creature, C_NRM),
+                    itr->c_str());
 		// Overflowing the LARGE_BUF desc buffer.
-		if (strlen(editbuf) > 10240) {
+		if (acc_get_length() > 10240) {
 			break;
 		}
 	}
-	SendMessage(editbuf);
-	if (strlen(editbuf) > 10240) {
-		sprintf(editbuf,
-			"Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n");
-		SendMessage(editbuf);
-	}
-}
-
-void
-CTextEditor::SaveText(void)
-{
-	struct mail_recipient_data *next_mail;
-	list <string>::iterator itr;
-	int length = 0;
-
-	// If we were editing rather than creating, wax what was there.
-	if (target) {
-		if (*target) {
-			free(*target);
-			*target = NULL;
-		}
-	}
-
-	length = curSize + (theText.size() * 2);
-	if (target) {
-		*target = (char*) malloc(sizeof(char) * length + 3);
-		strcpy(*target, "");
-		for (itr = theText.begin(); itr != theText.end(); itr++) {
-			strcat(*target, itr->c_str());
-			strcat(*target, "\r\n");
-		}
-	}
-	// If they're in the game
-	if (IS_PLAYING(desc)) {
-		// Saving a file
-		if ((desc->editor_file != NULL)) {
-			SaveFile();
-			free(*target);
-			free(target);
-		}
-		// Sending Mail
-		else if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			ExportMail();
-			free(*target);
-			free(target);
-		}
-	}
-	// Save the board if we were writing to a board
-	if (desc->mail_to && desc->mail_to->recpt_idnum >= BOARD_MAGIC) {
-		gen_board_save(desc->mail_to->recpt_idnum - BOARD_MAGIC, *target);
-		free(*target);
-		free(target);
-		next_mail = desc->mail_to->next;
-		free(desc->mail_to);
-		desc->mail_to = next_mail;
-	}
-	// Add the poll if we were adding to a poll
-	if (desc->mail_to && desc->mail_to->recpt_idnum == VOTING_MAGIC) {
-		voting_add_poll();
-		next_mail = desc->mail_to->next;
-		free(desc->mail_to);
-		desc->mail_to = next_mail;
-	}
-	// If editing thier description.
-	if (STATE(desc) == CXN_EDIT_DESC) {
-		send_to_desc(desc, "\033[H\033[J");
-		set_desc_state(CXN_MENU, desc);
-		return;
-	}
-	// Remove the "using the editor" bits.
-	if (IS_PLAYING(desc) && desc->creature && !IS_NPC(desc->creature)) {
-		tedii_out_buf[0] = '\0';
-		// Decide what to say to the room since they're done
-		if (PLR_FLAGGED(desc->creature, PLR_WRITING)) {
-			sprintf(tedii_out_buf,
-				"%s finishes writing.", GET_NAME(desc->creature));
-		} else if (PLR_FLAGGED(desc->creature, PLR_OLC)) {
-			sprintf(tedii_out_buf,
-				"%s nods with satisfaction as $e saves $s work.",
-				GET_NAME(desc->creature));
-		} else if (PLR_FLAGGED(desc->creature, PLR_MAILING)
-			&& GET_LEVEL(desc->creature) >= LVL_AMBASSADOR) {
-			sprintf(tedii_out_buf,
-				"%s postmarks and dispatches $s mail.",
-				GET_NAME(desc->creature));
-		}
-		// Let the room know that they're done
-		if (tedii_out_buf[0] != '\0') {
-			act(tedii_out_buf, TRUE, desc->creature, 0, 0, TO_NOTVICT);
-		}
-		REMOVE_BIT(PLR_FLAGS(desc->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-	}
-}
-
-void
-CTextEditor::ExportMail(void)
-{
-
-	int stored_mail = 0;
-	struct descriptor_data *r_d;
-	struct mail_recipient_data *mail_rcpt = NULL;
-    list<string> cc_list;
-
-	// If they're trying to send a blank message
-	if (!*target || !strlen(*target)) {
-		SendMessage("Why would you send a blank message?\r\n");
-        return;
-	}
-
-    for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next) {
-        cc_list.push_back(playerIndex.getName(mail_rcpt->recpt_idnum));
-	}
-    cc_list.sort();
-    cc_list.unique();
-
- 	mail_rcpt = desc->mail_to;
-	while (mail_rcpt) {
-		desc->mail_to = desc->mail_to->next;
-		free(mail_rcpt);
-		mail_rcpt = desc->mail_to;
-	}
-   
-    list<string>::iterator si;
-    for (si = cc_list.begin(); si != cc_list.end(); si++) {
-        long id = playerIndex.getID(si->c_str());
-        stored_mail = store_mail(id, GET_IDNUM(desc->creature), *target,  cc_list);
-        if (stored_mail == 1) {
-            for (r_d = descriptor_list; r_d; r_d = r_d->next) {
-                if (IS_PLAYING(r_d) && r_d->creature &&
-                    (r_d->creature != desc->creature) &&
-                    (GET_IDNUM(r_d->creature) == id) &&
-                    (!PLR_FLAGGED(r_d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC))) {
-                    send_to_char(r_d->creature, "A strange voice in your head says, "
-                                                "'You have new mail.'\r\n");
-                }
-            }
-        }
-    }
-
-	if (stored_mail) {
-		SendMessage("Message sent!\r\n");
-    }
-    else {
-        SendMessage("Your message was not received by one or more recipients.\r\n"
-                    "Please try again later!\r\n");
-        errlog("store_mail() has returned <= 0");
-    }
-}
-
-void
-CTextEditor::SaveFile(void)
-{
-
-	char filebuf[512], filename[64];
-	int file_to_write;
-	int backup_file, nread;
-
-	sprintf(filename, "%s", desc->editor_file);
-	if ((file_to_write = open(filename, O_RDWR, 0666)) == -1) {
-		mudlog(LVL_AMBASSADOR, NRM, true,
-			"Could not open file %s, buffer not saved!\r\n", filename);
-	} else {
-		sprintf(filename, "%s.bak", desc->editor_file);
-		if ((backup_file =
-				open(filename, O_RDWR | O_CREAT | O_TRUNC, 0666)) == -1) {
-			mudlog(LVL_AMBASSADOR, NRM, true,
-				"Could not open file %s, buffer not saved!\r\n", filename);
-			close(file_to_write);
-		} else {
-			while ((nread = read(file_to_write, filebuf, sizeof(filebuf))) > 0) {
-				if (write(backup_file, filebuf, nread) != nread) {
-					send_to_char(desc->creature, "Could not save backup file!!\r\n");
-					break;
-				}
-			}
-			close(backup_file);
-			lseek(file_to_write, 0, 0);
-
-			write(file_to_write, *target, strlen(*target));
-			close(file_to_write);
-		}
-		free(desc->editor_file);
-		desc->editor_file = NULL;
-	}
+	SendMessage(acc_get_string());
+	if (acc_get_length() > 10240)
+		SendMessage("Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n");
 }
 
 bool
-CTextEditor::Full(char *inStr)
+CEditor::Full(char *inStr)
 {
 	if ((strlen(inStr) + curSize) + ((theText.size() + 1) * 2) > maxSize) {
 		return true;
@@ -342,7 +203,7 @@ CTextEditor::Full(char *inStr)
 }
 
 void
-CTextEditor::Append(char *inStr)
+CEditor::Append(char *inStr)
 {
 
 	if (Full(inStr)) {
@@ -367,7 +228,7 @@ CTextEditor::Append(char *inStr)
 }
 
 bool
-CTextEditor::Insert(unsigned int line, char *inStr)
+CEditor::Insert(unsigned int line, char *inStr)
 {
 	string text;
 	list <string>::iterator s;
@@ -397,7 +258,7 @@ CTextEditor::Insert(unsigned int line, char *inStr)
 }
 
 bool
-CTextEditor::ReplaceLine(unsigned int line, char *inStr)
+CEditor::ReplaceLine(unsigned int line, char *inStr)
 {
 	string text;
 	list <string>::iterator s;
@@ -408,7 +269,7 @@ CTextEditor::ReplaceLine(unsigned int line, char *inStr)
 	text = inStr;
 
 	if (line > theText.size()) {
-		SendMessage("Your going to have to write the line first dummy.\r\n");
+		SendMessage("There's no line to replace there.\r\n");
 		return false;
 	}
 	// Find the line
@@ -434,7 +295,7 @@ CTextEditor::ReplaceLine(unsigned int line, char *inStr)
 }
 
 bool
-CTextEditor::FindReplace(char *args)
+CEditor::FindReplace(char *args)
 {
 	// Iterator to the current line in theText
 	list <string>::iterator line;
@@ -528,9 +389,8 @@ CTextEditor::FindReplace(char *args)
 		}
 	}
 	if (replaced > 0 && !overflow) {
-		sprintf(tedii_out_buf, "%d occurrences of [%s] replaced with [%s].\r\n",
-			replaced, findit.c_str(), replaceit.c_str());
-		SendMessage(tedii_out_buf);
+		SendMessage(tmp_sprintf("%d occurrences of [%s] replaced with [%s].\r\n",
+                                replaced, findit.c_str(), replaceit.c_str()));
 	} else if (!overflow) {
 		SendMessage("Search string not found.\r\n");
 	}
@@ -540,7 +400,7 @@ CTextEditor::FindReplace(char *args)
 }
 
 bool
-CTextEditor::Wrap(void)
+CEditor::Wrap(void)
 {
 	list <string>::iterator line;
 	string::iterator s;
@@ -579,7 +439,7 @@ CTextEditor::Wrap(void)
 }
 
 bool
-CTextEditor::Remove(unsigned int line)
+CEditor::Remove(unsigned int line)
 {
 	list <string>::iterator s;
 	unsigned int i;
@@ -590,8 +450,7 @@ CTextEditor::Remove(unsigned int line)
 	for (i = 1, s = theText.begin(); i < line; s++, i++);
 
 	theText.erase(s);
-	sprintf(tedii_out_buf, "Line %d deleted.\r\n", line);
-	SendMessage(tedii_out_buf);
+	SendMessage(tmp_sprintf("Line %d deleted.\r\n", line));
 
 	Wrap();
 	UpdateSize();
@@ -599,95 +458,64 @@ CTextEditor::Remove(unsigned int line)
 }
 
 bool
-CTextEditor::Clear(void)
+CEditor::Clear(void)
 {
 
 	theText.erase(theText.begin(), theText.end());
 
-	desc->editor_cur_lnum = theText.size() + 1;
 	UpdateSize();
 	return true;
 }
 
 void
-CTextEditor::ImportText(void)
+CEditor::ImportText(char *str)
 {
-	char *b, *s;				// s is the cursor, b is the beginning of the current line
-	string text;
-	strncpy(editbuf, *target, maxSize);
-	s = editbuf;
-	while (s && *s) {
-		for (b = s; *s && *s != '\r'; s++);
+    char *line;
 
-		*s = '\0';
-		s += 2;
-		text = b;
-		theText.push_back(text);
-	}
+    while ((line = tmp_getline(&str)) != NULL)
+        origText.push_back(string(line));
+
+    theText = origText;
+
 	Wrap();
 }
 
 void
-CTextEditor::UndoChanges(char *inStr)
+CEditor::UndoChanges(void)
 {
-	if (!*target && (origText.size() == 0)) {
+	if (origText.size()) {
+        Clear();
+        theText = origText;
+        UpdateSize();
+        SendMessage("Original buffer restored.\r\n");
+	} else {
 		SendMessage("There's no original to undo to.\r\n");
-		return;
-	}
-	Clear();
-	if (origText.size() == 0)
-		ImportText();
-	else
-		theText = origText;
-	UpdateSize();
-	desc->editor_cur_lnum = theText.size() + 1;
-	SendMessage("Original buffer restored.\r\n");
-	return;
+    }
 }
+
 void
-CTextEditor::SendMessage(const char *message)
+CEditor::SendMessage(const char *message)
 {
-	char *output = NULL;
-	if (desc == NULL || desc->creature == NULL) {
+	if (!desc || !desc->creature) {
 		errlog("TEDII Attempting to SendMessage with null desc or desc->creature\r\n");
 		return;
 	}
+
 	// If the original message is too long, make a new one thats small
 	if (strlen(message) >= LARGE_BUFSIZE) {
-		sprintf(small_editbuf,
-			"TEDERR: SendMessage Truncating message. NAME(%s) Length(%d)",
-			GET_NAME(desc->creature), strlen(message));
-		slog(small_editbuf);
-		output = (char*) malloc( sizeof(char) * LARGE_BUFSIZE );
-		strncpy(output, message, LARGE_BUFSIZE - 2);
-		send_to_char(desc->creature, "%s", output);
-		free(output);
-	} else {					// If the original message is small enough, just let it through.
+        char *temp = NULL;
+
+		slog("SendMessage Truncating message. NAME(%s) Length(%d)",
+             GET_NAME(desc->creature),
+             strlen(message));
+        temp = new char[LARGE_BUFSIZE];
+		strncpy(temp, message, LARGE_BUFSIZE - 2);
+		send_to_char(desc->creature, "%s", temp);
+        delete temp;
+	} else {
+        // If the original message is small enough, just let it through.
 		send_to_char(desc->creature, "%s", message);
 	}
-}
-
-void
-CTextEditor::SendStartupMessage(void)
-{
-	struct Creature *ch;
-	ch = desc->creature;
-
-	sprintf(tedii_out_buf, "%s%s    *", CCBLD(ch, C_CMP), CCCYN(ch, C_NRM));
-	sprintf(tedii_out_buf, "%s%s TEDII ", tedii_out_buf, CCYEL(ch, C_NRM));
-	sprintf(tedii_out_buf, "%s%s] ", tedii_out_buf, CCBLU(ch, C_NRM));
-	sprintf(tedii_out_buf, "%s%sTerminate with @ on a new line. &H for help",
-		tedii_out_buf, CCNRM(ch, C_NRM));
-	sprintf(tedii_out_buf, "%s%s%s                 *\r\n", tedii_out_buf,
-		CCBLD(ch, C_CMP), CCCYN(ch, C_NRM));
-	sprintf(tedii_out_buf, "%s    %s", tedii_out_buf, CCBLD(ch, C_CMP));
-	for (int x = 0; x < 7; x++) {
-		sprintf(tedii_out_buf, "%s%s%d%s---------", tedii_out_buf, CCCYN(ch,
-				C_NRM), x, CCBLU(ch, C_NRM));
-	}
-	sprintf(tedii_out_buf, "%s%s7%s", tedii_out_buf, CCCYN(ch, C_NRM),
-		CCNRM(ch, C_NRM));
-	SendMessage(tedii_out_buf);
 }
 
 static inline int
@@ -702,7 +530,7 @@ text_length(list <string> &theText)
 }
 
 void
-CTextEditor::UpdateSize(void)
+CEditor::UpdateSize(void)
 {
 	int linesRemoved = 0;
 
@@ -717,207 +545,63 @@ CTextEditor::UpdateSize(void)
 		linesRemoved++;
 	}
 
-	// Current line number for prompt.
-	desc->editor_cur_lnum = theText.size() + 1;
 	// Warn the player if the buffer was truncated.
 	if (linesRemoved > 0) {
-		sprintf(tedii_out_buf,
-			"Error: Buffer limit exceeded.  %d %s removed.\r\n",
-			linesRemoved, linesRemoved == 1 ? "line" : "lines");
-		SendMessage(tedii_out_buf);
-		sprintf(tedii_out_buf,
-			"TEDINF: UpdateSize removed %d lines from buffer. Name(%s) Size(%d) Max(%d)",
-			linesRemoved, GET_NAME(desc->creature), curSize, maxSize);
-		slog(tedii_out_buf);
+		SendMessage(tmp_sprintf("Error: Buffer limit exceeded.  %d %s removed.\r\n",
+                                linesRemoved,
+                                linesRemoved == 1 ? "line" : "lines"));
+		slog("TEDINF: UpdateSize removed %d lines from buffer. Name(%s) Size(%d) Max(%d)",
+             linesRemoved, GET_NAME(desc->creature), curSize, maxSize);
 	}
 	// Obvious buffer flow state. This should never happen, but if it does, say something.
 	if (curSize > maxSize) {
-		sprintf(tedii_out_buf,
-			"TEDERR: UpdateSize updated to > maxSize. Name(%s) Size(%d) Max(%d)",
+		slog("TEDERR: UpdateSize updated to > maxSize. Name(%s) Size(%d) Max(%d)",
 			GET_NAME(desc->creature), curSize, maxSize);
-		slog(tedii_out_buf);
 	}
 }
 void
-CTextEditor::ProcessHelp(char *inStr)
+CEditor::ProcessHelp(char *inStr)
 {
 	struct Creature *ch = desc->creature;
 	char command[MAX_INPUT_LENGTH];
+
+    acc_string_clear();
+
 	if (!*inStr) {
-		sprintf(tedii_out_buf, "%s%s     *", CCBLD(ch, C_CMP), CCCYN(ch,
-				C_NRM));
-		sprintf(tedii_out_buf, "%s%s-----------------------", tedii_out_buf,
-			CCBLU(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s%s H E L P ", tedii_out_buf, CCYEL(ch,
-				C_NRM));
-		sprintf(tedii_out_buf, "%s%s-----------------------", tedii_out_buf,
-			CCBLU(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s%s* \r\n%s", tedii_out_buf, CCCYN(ch, C_NRM),
-			CCNRM(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s%s%s            ", tedii_out_buf, CCBLD(ch,
-				C_CMP), CCYEL(ch, C_NRM));
-		sprintf(tedii_out_buf, "%sF%s - %sFind & Replace   ", tedii_out_buf,
-			CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s    %s%s", tedii_out_buf, CCBLD(ch, C_CMP),
-			CCYEL(ch, C_NRM));
-		sprintf(tedii_out_buf, "%sH%s - %sHelp         \r\n", tedii_out_buf,
-			CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s%s%s            ", tedii_out_buf, CCBLD(ch,
-				C_CMP), CCYEL(ch, C_NRM));
-		sprintf(tedii_out_buf, "%sS%s - %sSave and Exit    ", tedii_out_buf,
-			CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s    %s%s", tedii_out_buf, CCBLD(ch, C_CMP),
-			CCYEL(ch, C_NRM));
-		sprintf(tedii_out_buf, "%sQ%s - %sQuit (Cancel)\r\n", tedii_out_buf,
-			CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s%s%s            ", tedii_out_buf, CCBLD(ch,
-				C_CMP), CCYEL(ch, C_NRM));
-		sprintf(tedii_out_buf, "%sL%s - %sReplace Line     ", tedii_out_buf,
-			CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s    %s%s", tedii_out_buf, CCBLD(ch, C_CMP),
-			CCYEL(ch, C_NRM));
-		sprintf(tedii_out_buf, "%sD%s - %sDelete Line  \r\n", tedii_out_buf,
-			CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s%s%s            ", tedii_out_buf, CCBLD(ch,
-				C_CMP), CCYEL(ch, C_NRM));
-		sprintf(tedii_out_buf, "%sI%s - %sInsert Line      ", tedii_out_buf,
-			CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s    %s%s", tedii_out_buf, CCBLD(ch, C_CMP),
-			CCYEL(ch, C_NRM));
-		sprintf(tedii_out_buf, "%sR%s - %sRefresh Screen\r\n", tedii_out_buf,
-			CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s%s%s            ", tedii_out_buf, CCBLD(ch,
-				C_CMP), CCYEL(ch, C_NRM));
-		sprintf(tedii_out_buf, "%sC%s - %sClear Buffer     ", tedii_out_buf,
-			CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		if (!PLR_FLAGGED(ch, PLR_MAILING)) {	// Can't undo if yer mailin.
-			sprintf(tedii_out_buf, "%s    %s%s", tedii_out_buf, CCBLD(ch,
-					C_CMP), CCYEL(ch, C_NRM));
-			sprintf(tedii_out_buf, "%sU%s - %sUndo Changes  \r\n",
-				tedii_out_buf, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		} else {
-			sprintf(tedii_out_buf, "%s    %s%s", tedii_out_buf, CCBLD(ch,
-					C_CMP), CCYEL(ch, C_NRM));
-			sprintf(tedii_out_buf, "%sA%s - %sAdd Recipient \r\n",
-				tedii_out_buf, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-			sprintf(tedii_out_buf, "%s%s%s            ", tedii_out_buf,
-				CCBLD(ch, C_CMP), CCYEL(ch, C_NRM));
-			sprintf(tedii_out_buf, "%sT%s - %sList Recipients", tedii_out_buf,
-				CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-			sprintf(tedii_out_buf, "%s      %s%s", tedii_out_buf, CCBLD(ch,
-					C_CMP), CCYEL(ch, C_NRM));
-			sprintf(tedii_out_buf, "%sE%s - %sRemove Recipient\r\n",
-				tedii_out_buf, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-		}
-		sprintf(tedii_out_buf, "%s%s%s     *", tedii_out_buf, CCBLD(ch, C_CMP),
-			CCCYN(ch, C_NRM));
-
-
-		sprintf(tedii_out_buf,
-			"%s%s-------------------------------------------------------",
-			tedii_out_buf, CCBLU(ch, C_NRM));
-		sprintf(tedii_out_buf, "%s%s*%s\r\n", tedii_out_buf, CCCYN(ch, C_NRM),
-			CCNRM(ch, C_NRM));
-		SendMessage(tedii_out_buf);
+        send_to_desc(desc,
+                     "     &C*&B-----------------------&Y H E L P &B-----------------------&C*\r\n"
+                     "            &YF - &nFind && Replace       &YH - &nHelp         \r\n"
+                     "            &YS - &nSave and Exit        &YQ - &nQuit (Cancel)\r\n"
+                     "            &YL - &nReplace Line         &YD - &nDelete Line  \r\n"
+                     "            &YI - &nInsert Line          &YR - &nRefresh Screen\r\n");
+        if (PLR_FLAGGED(ch, PLR_MAILING)) {
+            send_to_desc(desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
+        } else {
+            send_to_desc(desc,
+                         "            &YC - &nClear Buffer         &YA - &nAdd Recipient\r\n"
+                         "            &YT - &nList Recipients      &YE - &nRemove Recipient\r\n");
+            
+        }
+        send_to_desc(desc,
+                     "     &C*&B-------------------------------------------------------&C*&n\r\n");
 	} else {
-		inStr++;
+        HelpItem *help_item;
+
 		inStr = one_argument(inStr, command);
 		*command = tolower(*command);
-		switch (*command) {
-		case 'f':
-			sprintf(tedii_out_buf, "%sFind & Replace: '&f' \r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf, "%s&f [red] [yellow]\r\n", tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sReplaces all occurances of \"red\" with \"yellow\".\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%se.g. 'That is a red dog.' would become 'That is a yellow dog.'\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sAlso, 'Fred is here.' would become 'Fyellow is here.'\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sWhen replacing words, remember to include the spaces     to either side\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sin the replacement to keep from replacing partial words my mistake.\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%s(i.e. use '[ red ] [ yellow ]' instead of '[red] [yellow]'.\r\n",
-				tedii_out_buf);
-			break;
-		case 'r':
-			sprintf(tedii_out_buf, "%sRefresh Screen: &r\r\n", tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sPrints out the entire text tedii_out_buffer.\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf, "%s(The message/post/description)\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sA single period '.' without an '&' can be used as well.\r\n",
-				tedii_out_buf);
-			break;
-		case 'l':
-			sprintf(tedii_out_buf, "%sReplace Line: &l\r\n", tedii_out_buf);
-			sprintf(tedii_out_buf, "%s&l <line #> <replacement text>\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sReplaces line <line #> with <replacement text>.",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sSpaces are saved in the replacement text to save indentation.\r\n",
-				tedii_out_buf);
-			break;
-		case 'd':
-			sprintf(tedii_out_buf, "%sDelete Line: &d\r\n", tedii_out_buf);
-			sprintf(tedii_out_buf, "%s&d <line #>\r\n", tedii_out_buf);
-			sprintf(tedii_out_buf, "%sDeletes line <line #>\r\n",
-				tedii_out_buf);
-			break;
-		case 'i':
-			sprintf(tedii_out_buf, "%sInsert Line: &i\r\n", tedii_out_buf);
-			sprintf(tedii_out_buf, "%s&i <line #> <insert text>\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sInserts <insert text> before line <line #>.\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sSpaces are saved in the replacement text to save indentation\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf, "%sA note to TinTin users:\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%s    Tintin removes all spaces before a command.\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%s    Use '&i <current line #> <spaces> <text>' to indent a line.\r\n",
-				tedii_out_buf);
-			break;
-		case 'u':
-			sprintf(tedii_out_buf, "%sUndo Changes: &u\r\n", tedii_out_buf);
-			sprintf(tedii_out_buf, "%s&u yes\r\n", tedii_out_buf);
-			sprintf(tedii_out_buf, "%sUndoes all changes since last save.\r\n",
-				tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%s(Changes do not save until you exit the editor)\r\n",
-				tedii_out_buf);
-			break;
-		case 'c':
-			sprintf(tedii_out_buf, "%sClear Buffer: &c\r\n", tedii_out_buf);
-			sprintf(tedii_out_buf,
-				"%sDeletes ALL text in the current tedii_out_buffer.\r\n",
-				tedii_out_buf);
-			break;
-		default:
-			sprintf(tedii_out_buf, "Sorry. There is no help on that.\r\n");
-		}
-		SendMessage(tedii_out_buf);
-	}
+        help_item = ::Help->FindItems(tmp_sprintf("tedii-%c", *command), false, 0, false);
+        if (help_item) {
+            help_item->LoadText();
+            send_to_desc(desc, "&cTEDII Command '%c'&n\r\n", *command);
+            SEND_TO_Q(help_item->text, desc);
+        } else {
+            send_to_desc(desc, "Sorry.  There is no help on that.\r\n");
+        }
+    }
 }
 
-void
-CTextEditor::ProcessCommand(char cmd, char *args)
+bool
+CEditor::PerformCommand(char cmd, char *args)
 {
 	int line;
 	char command[MAX_INPUT_LENGTH];
@@ -925,332 +609,77 @@ CTextEditor::ProcessCommand(char cmd, char *args)
 	switch (tolower(cmd)) {
 	case 'h':					// Help
 		ProcessHelp(args);
-		return;
+        break;
 	case 'f':					// Find/Replace
         FindReplace(args);
-		return;
+		break;
 	case 's':					// Save and Exit
-		REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
-		SaveText();
-		desc->text_editor = NULL;
-		delete this;
-		return;
+        Finish(true);
+		break;
 	case 'l':					// Replace Line
 		args = one_argument(args, command);
 		if (!isdigit(*command)) {
 			SendMessage("Format for Replace Line is: &l <line #> <text>\r\n");
-			return;
+			break;
 		}
 		line = atoi(command);
 		if (line < 1) {
 			SendMessage("Format for Replace Line is: &l <line #> <text>\r\n");
-			return;
+			break;
 		}
         ReplaceLine(line, args);
-		return;
+		break;
 	case 'i':					// Insert Line
 		args = one_argument(args, command);
 		if (!isdigit(*command)) {
 			SendMessage
 				("Format for insert command is: &i <line #> <text>\r\n");
-			return;
+			break;
 		}
 		line = atoi(command);
 		if (line < 1) {
 			SendMessage("Format for insert command is: &i <line #><text>\r\n");
-			return;
+			break;
 		}
         Insert(line, args);
-		return;
+		break;
 	case 'c':					// Clear Buffer
 		Clear();
 		SendMessage("Cleared.\r\n");
-		return;
 		break;
 	case 'q':					// Quit without saving
-		SendMessage("Not Implemented.\r\n");
-		return;
+        Finish(false);
 		break;
 	case 'd':					// Delete Line
 		args = one_argument(args, command);
 		if (!isdigit(*command)) {
 			SendMessage("Format for delete command is: &d <line #>\r\n");
-			return;
+			break;
 		}
 		line = atoi(command);
 		if (line < 1) {
 			SendMessage("Format for delete command is: &d <line #>\r\n");
-			return;
+			break;
 		}
         Remove(line);
-		return;
+		break;
 	case 'r':					// Refresh Screen
 		args = one_argument(args, command);
 		if (!isdigit(*command)) {
-			List();
-			return;
+			DisplayBuffer();
+			break;
 		}
 		line = atoi(command);
 		if (line < 1) {
 			SendMessage
 				("Format for refresh command is: &r <starting line #>\r\n");
-			return;
-		}
-		List((unsigned int)line);
-		break;
-	case 'u':					// Undo Changes
-		UndoChanges(args);
-		return;
-	case 't':
-		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			ListRecipients();
-			return;
-		}
-	case 'a':
-		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			args = one_argument(args, command);
-			AddRecipient(command);
-			return;
-		}
-	case 'e':
-		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			args = one_argument(args, command);
-			RemRecipient(command);
-			return;
-		}
-	default:
-		SendMessage("Invalid Command. Type &h for help.\r\n");
-		return;
-	}
-
-	return;
-}
-
-void
-CTextEditor::ListRecipients(void)
-{
-	char *cc_list = NULL;
-	struct mail_recipient_data *mail_rcpt = NULL;
-	int cc_len = 0;
-
-	for (mail_rcpt = desc->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next)
-		cc_len++;
-
-	cc_list = (char*) malloc( sizeof(char) * ((cc_len * MAX_NAME_LENGTH) + 32) );
-
-	sprintf(cc_list, "%sTo%s:%s ",
-		CCYEL(desc->creature, C_NRM),
-		CCBLU(desc->creature, C_NRM), CCCYN(desc->creature, C_NRM));
-	for (mail_rcpt = desc->mail_to; mail_rcpt;) {
-		strcat(cc_list, tmp_capitalize(playerIndex.getName(mail_rcpt->recpt_idnum)));
-		if (mail_rcpt->next) {
-			strcat(cc_list, ", ");
-			mail_rcpt = mail_rcpt->next;
-		} else {
-			strcat(cc_list, "\r\n");
 			break;
 		}
+		DisplayBuffer((unsigned int)line);
+		break;
+	default:
+		return false;
 	}
 
-	sprintf(cc_list, "%s%s", cc_list, CCNRM(desc->creature, C_NRM));
-	SendMessage(cc_list);
-
-	if (cc_list) {
-		free(cc_list);
-	}
-
-}
-
-void
-CTextEditor::AddRecipient(char *name)
-{
-	long new_id_num = 0;
-	struct mail_recipient_data *cur = NULL;
-	struct mail_recipient_data *new_rcpt = NULL;
-	const char *money_desc;
-	int money, cost;
-
-	new_id_num = playerIndex.getID(name);
-	if (!new_id_num) {
-		SendMessage("Cannot find anyone by that name.\r\n");
-		return;
-	}
-
-	new_rcpt = (mail_recipient_data *)malloc(sizeof(mail_recipient_data));
-	new_rcpt->recpt_idnum = new_id_num;
-	new_rcpt->next = NULL;
-
-	// Now find the end of the current list and add the new cur
-	cur = desc->mail_to;
-	while (cur && cur->recpt_idnum != new_id_num && cur->next)
-		cur = cur->next;
-
-	if (cur->recpt_idnum == new_id_num) {
-		sprintf(tedii_out_buf,
-			"%s is already on the recipient list.\r\n",
-			tmp_capitalize(playerIndex.getName(new_id_num)));
-		SendMessage(tedii_out_buf);
-		free(new_rcpt);
-		return;
-	}
-
-	if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-		//mailing the grimp, charge em out the ass
-		if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
-			money_desc = "creds";
-			money = GET_CASH(desc->creature);
-		} else {
-			money_desc = "gold";
-			money = GET_GOLD(desc->creature);
-		}
-
-		if (new_id_num == 1)
-			cost = 1000000;
-		else
-			cost = STAMP_PRICE;
-
-		if (money < cost) {
-			sprintf(tedii_out_buf,
-				"You don't have the %d %s necessary to add %s.\r\n",
-				cost, money_desc, 
-				tmp_capitalize(playerIndex.getName(new_id_num)));
-			free(new_rcpt);
-			SendMessage(tedii_out_buf);
-			return;
-		} else {
-			sprintf(tedii_out_buf,
-				"%s added to recipient list.  You have been charged %d %s.\r\n",
-				tmp_capitalize(playerIndex.getName(new_id_num)), cost,
-				money_desc);
-			if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
-				GET_CASH(desc->creature) -= cost;
-			else
-				GET_GOLD(desc->creature) -= cost;
-		}
-	} else {
-		sprintf(tedii_out_buf, "%s added to recipient list.\r\n",
-			tmp_capitalize(playerIndex.getName(new_id_num)));
-	}
-	cur->next = new_rcpt;
-	SendMessage(tedii_out_buf);
-	ListRecipients();
-}
-
-void
-CTextEditor::RemRecipient(char *name)
-{
-	int removed_idnum = -1;
-	struct mail_recipient_data *cur = NULL;
-	struct mail_recipient_data *prev = NULL;
-	char buf[MAX_INPUT_LENGTH];
-
-	removed_idnum = playerIndex.getID(name);
-
-	if (removed_idnum) {
-		SendMessage("Cannot find anyone by that name.\r\n");
-		return;
-	}
-	// First case...the mail only has one recipient
-	if (!desc->mail_to->next) {
-		SendMessage("You cannot remove the last recipient of the letter.\r\n");
-		return;
-	}
-	// Second case... Its the first one.
-	if (desc->mail_to->recpt_idnum == removed_idnum) {
-		cur = desc->mail_to;
-		desc->mail_to = desc->mail_to->next;
-		free(cur);
-		if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
-			if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-
-				if (removed_idnum == 1) {	//fireball :P
-					sprintf(buf,
-						"%s removed from recipient list.  %d credits have been refunded.\r\n",
-						tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-					GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient 
-				} else {
-					sprintf(buf,
-						"%s removed from recipient list.  %d credits have been refunded.\r\n",
-						tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-					GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
-				}
-			} else {
-				sprintf(buf, "%s removed from recipient list.\r\n",
-					tmp_capitalize(playerIndex.getName(removed_idnum)));
-			}
-		} else {				//not in the future, refund gold
-			if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-				if (removed_idnum == 1) {	//fireball :P
-					sprintf(buf,
-						"%s removed from recipient list.  %d gold has been refunded.\r\n",
-						tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-					GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient 
-				} else {
-					sprintf(buf,
-						"%s removed from recipient list.  %d gold has been refunded.\r\n",
-						tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-					GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
-				}
-			} else {
-				sprintf(buf, "%s removed from recipient list.\r\n",
-					tmp_capitalize(playerIndex.getName(removed_idnum)));
-			}
-		}
-		SendMessage(buf);
-		return;
-	}
-	// Last case... Somewhere past the first recipient.
-	cur = desc->mail_to;
-	// Find the recipient in question
-	while (cur && cur->recpt_idnum != removed_idnum) {
-		prev = cur;
-		cur = cur->next;
-	}
-	// If the name isn't in the recipient list
-	if (!cur) {
-		SendMessage
-			("You can't remove someone who's not on the list genious.\r\n");
-		return;
-	}
-	// Link around the recipient to be removed.
-	prev->next = cur->next;
-	free(cur);
-	if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
-		if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-			if (removed_idnum == 1) {	//fireball :P
-				sprintf(buf,
-					"%s removed from recipient list.  %d credits have been refunded.\r\n",
-					tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-				GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient 
-			} else {
-				sprintf(buf,
-					"%s removed from recipient list.  %d credits have been refunded.\r\n",
-					tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-				GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
-			}
-		} else {
-			sprintf(buf, "%s removed from recipient list.\r\n",
-				tmp_capitalize(playerIndex.getName(removed_idnum)));
-		}
-	} else {					//not in future, refund gold
-		if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-			if (removed_idnum == 1) {	//fireball :P
-				sprintf(buf,
-					"%s removed from recipient list.  %d gold has been refunded.\r\n",
-					tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-				GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient 
-			} else {
-				sprintf(buf,
-					"%s removed from recipient list.  %d gold has been refunded.\r\n",
-					tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-				GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
-			}
-		} else {
-			sprintf(buf, "%s removed from recipient list.\r\n",
-				tmp_capitalize(playerIndex.getName(removed_idnum)));
-		}
-	}
-	SendMessage(buf);
-
-	return;
+	return true;
 }

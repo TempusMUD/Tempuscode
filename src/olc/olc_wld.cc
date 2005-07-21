@@ -811,7 +811,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 			act("$n begins to write a room description.", TRUE, ch, 0, 0,
 				TO_ROOM);
 		}
-		start_text_editor(ch->desc, &ch->in_room->description, true);
+		start_editing_text(ch->desc, &ch->in_room->description);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		break;
 
@@ -895,7 +895,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 		} else {
 			act("$n begins to edit a sound.", TRUE, ch, 0, 0, TO_ROOM);
 		}
-		start_text_editor(ch->desc, &ch->in_room->sounds, true);
+		start_editing_text(ch->desc, &ch->in_room->sounds);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		break;
 	case 5:					/*  flow  */
@@ -989,7 +989,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 		if (!GET_ROOM_SPEC(ch->in_room)) {
 			send_to_char(ch, "You should set a special first!\r\n");
 		} else {
-			start_text_editor(ch->desc, &ch->in_room->func_param, true);
+			start_editing_text(ch->desc, &ch->in_room->func_param);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 			act("$n begins to write a room spec param.", TRUE, ch, 0, 0,
 				TO_ROOM);
@@ -997,7 +997,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 
 		break;
 	case 9:
-	  start_text_editor(ch->desc, &ch->in_room->prog, true);
+	  start_editing_text(ch->desc, &ch->in_room->prog);
 	  SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 	  act("$n begins to write a room prog.", TRUE, ch, 0, 0, TO_ROOM);
 	  break;
@@ -1060,7 +1060,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 		ndesc->next = ch->in_room->ex_description;
 		ch->in_room->ex_description = ndesc;
 
-		start_text_editor(ch->desc, &ch->in_room->ex_description->description,
+		start_editing_text(ch->desc, &ch->in_room->ex_description->description,
 			true);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
@@ -1069,7 +1069,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 		return;
 	} else if (is_abbrev(buf, "edit")) {
 		if ((desc = locate_exdesc(argument, ch->in_room->ex_description))) {
-			start_text_editor(ch->desc, &desc->description, true);
+			start_editing_text(ch->desc, &desc->description);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 			act("$n begins to write an extra description.", TRUE, ch, 0, 0,
 				TO_ROOM);

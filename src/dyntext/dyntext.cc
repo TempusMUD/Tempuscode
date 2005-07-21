@@ -595,7 +595,7 @@ ACMD(do_dynedit)
 		act("$n begins editing a dynamic text file.", TRUE, ch, 0, 0, TO_ROOM);
 
 		// enter the text editor
-		start_text_editor(ch->desc, &dyntext->tmp_buffer, true,
+		start_editing_text(ch->desc, &dyntext->tmp_buffer,
 			MAX_STRING_LENGTH);
 		SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 

@@ -125,7 +125,7 @@ mail_box_status(long id)
 // Like it says, store the mail.  
 // Returns 0 if mail not stored.
 int
-store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
+store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
     time_t *cur_time)
 {
     char *mail_file_path;
@@ -362,7 +362,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
 {
     long recipient;
     char buf[MAX_STRING_LENGTH];
-    struct mail_recipient_data *n_mail_to;
+    struct mail_recipient_data *mail_list, *n_mail_to;
     int total_cost = 0;
     struct clan_data *clan = NULL;
     struct clanmember_data *member = NULL;
@@ -383,7 +383,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
         return;
     }
 
-    ch->desc->mail_to = NULL;
+    mail_list = NULL;
 
     if (!str_cmp(buf, "clan")) {
         if (!(clan = real_clan(GET_CLAN(ch)))) {
@@ -393,9 +393,9 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
         for (member = clan->member_list; member; member = member->next) {
             total_cost += STAMP_PRICE;
             CREATE(n_mail_to, struct mail_recipient_data, 1);
-            n_mail_to->next = ch->desc->mail_to;
+            n_mail_to->next = mail_list;
             n_mail_to->recpt_idnum = member->idnum;
-            ch->desc->mail_to = n_mail_to;
+            mail_list = n_mail_to;
         }
     } else {
 
@@ -434,14 +434,14 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
                     total_cost += STAMP_PRICE;
                 
                 CREATE(n_mail_to, struct mail_recipient_data, 1);
-                n_mail_to->next = ch->desc->mail_to;
+                n_mail_to->next = mail_list;
                 n_mail_to->recpt_idnum = recipient;
-                ch->desc->mail_to = n_mail_to;
+                mail_list = n_mail_to;
             }
             arg = one_argument(arg, buf);
         }
     }
-    if (!total_cost || !ch->desc->mail_to) {
+    if (!total_cost || !mail_list) {
         perform_tell(mailman, ch,
             "Sorry, you're going to have to specify some valid recipients!");
         return;
@@ -457,8 +457,8 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
                 perform_tell(mailman, ch, buf2);
                 strcpy(buf2, "...which I see you can't afford.");
                 perform_tell(mailman, ch, buf2);
-                while ((n_mail_to = ch->desc->mail_to)) {
-                    ch->desc->mail_to = n_mail_to->next;
+                while ((n_mail_to = mail_list)) {
+                    mail_list = n_mail_to->next;
                     free(n_mail_to);
                 }
                 return;
@@ -471,8 +471,8 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
                 perform_tell(mailman, ch, buf2);
                 strcpy(buf2, "...which I see you can't afford.");
                 perform_tell(mailman, ch, buf2);
-                while ((n_mail_to = ch->desc->mail_to)) {
-                    ch->desc->mail_to = n_mail_to->next;
+                while ((n_mail_to = mail_list)) {
+                    mail_list = n_mail_to->next;
                     free(n_mail_to);
                 }
                 return;
@@ -488,8 +488,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
     tmp_char = (char **)malloc(sizeof(char *));
     *(tmp_char) = NULL;
 
-    SET_BIT(PLR_FLAGS(ch), PLR_MAILING | PLR_WRITING);
-    start_text_editor(ch->desc, tmp_char, true, MAX_MAIL_SIZE - 1);
+    start_editing_mail(ch->desc, mail_list);
 }
 
 void

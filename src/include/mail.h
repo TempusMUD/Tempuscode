@@ -63,7 +63,7 @@ void string_add(struct descriptor_data *d, char *str);
 // Mail system internal functions.
 int has_mail(long recipient);
 int has_mail(Creature * ch);
-int store_mail(long to_id, long from_id, char *txt, list<string> cc_list,
+int store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
 	time_t * cur_time = NULL);
 int receive_mail(Creature * ch);
 int purge_mail(long idnum);

@@ -26,8 +26,8 @@ $(OBJ)/act.comm.o: act.comm.cc ../include/structs.h ../include/defs.h \
   ../include/utils.h ../include/comm.h ../include/handler.h \
   ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/editor.h \
-  ../include/screen.h ../include/rpl_resp.h ../include/clan.h \
-  ../include/security.h ../include/language.h
+  ../include/prog.h ../include/screen.h ../include/rpl_resp.h \
+  ../include/clan.h ../include/security.h ../include/language.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/act.informative.o: act.informative.cc ../include/structs.h \
   ../include/defs.h ../include/macros.h ../include/constants.h \

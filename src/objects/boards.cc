@@ -125,7 +125,7 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 	tmp_char = (char **)malloc(sizeof(char *));
 	*(tmp_char) = NULL;
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
-	start_text_editor(ch->desc, tmp_char, true, MAX_MESSAGE_LENGTH - 1);
+	start_editing_text(ch->desc, tmp_char, MAX_MESSAGE_LENGTH - 1);
 }
 
 void

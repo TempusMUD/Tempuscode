@@ -17,7 +17,7 @@ using namespace std;
 
 struct Creature;    // forward declaration from creature.h
 class Account;      // forward declaration from account.h
-class CTextEditor;  // forward declaration from editor.h
+class CEditor;  // forward declaration from editor.h
 
 // Modes of connectedness: used by descriptor_data.state
 // make sure changes to this are synced with desc_modes[] in db/constants.cc
@@ -100,11 +100,7 @@ struct descriptor_data {
 	byte need_prompt;			/* control of prompt-printing       */
 	int max_str;				/*      -           */
 	int repeat_cmd_count;		/* how many times has this command been */
-	// We know if text_editor != NULL
-	//int  editor_mode;            /* Flag if char is in editor            */
-	int editor_cur_lnum;		/* Current line number for editor       */
-	char *editor_file;			/* Original line number for editor      */
-	CTextEditor *text_editor;	/*  Pointer to text editor object. */
+	CEditor *text_editor;	/*  Pointer to text editor object. */
 	char inbuf[MAX_RAW_INPUT_LENGTH];	/* buffer for raw input       */
 	char last_input[MAX_INPUT_LENGTH];	/* the last input         */
 	struct txt_q input;			/* q of unprocessed input       */
