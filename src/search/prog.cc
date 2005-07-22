@@ -960,7 +960,7 @@ prog_do_walkto(prog_env * env, prog_evt * evt, char *args)
 
 	if (room && room != ch->in_room) {
 		dir = find_first_step(ch->in_room, room, STD_TRACK);
-		if (dir != -1)
+		if (dir >= 0)
 			smart_mobile_move(ch, dir);
 
 		// we have to wait at least one second
@@ -1014,14 +1014,16 @@ prog_do_driveto(prog_env * env, prog_evt * evt, char *args)
 		dir = find_first_step(vehicle->in_room, target_room, GOD_TRACK);
 
 		// Validate exit the vehicle is going to take
-		exit = vehicle->in_room->dir_option[dir];
-		if (!exit ||
-			!exit->to_room ||
-			ROOM_FLAGGED(exit->to_room, ROOM_DEATH | ROOM_INDOORS) ||
-			IS_SET(exit->exit_info, EX_CLOSED | EX_ISDOOR))
-			return;
+        if (dir >= 0) {
+            exit = vehicle->in_room->dir_option[dir];
+            if (!exit ||
+                !exit->to_room ||
+                ROOM_FLAGGED(exit->to_room, ROOM_DEATH | ROOM_INDOORS) ||
+                IS_SET(exit->exit_info, EX_CLOSED | EX_ISDOOR))
+                return;
 
-		move_car(ch, vehicle, dir);
+            move_car(ch, vehicle, dir);
+        }
 
 		// we have to wait at least one second
 		pause = atoi(tmp_getword(&args));
