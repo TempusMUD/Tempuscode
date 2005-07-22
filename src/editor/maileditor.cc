@@ -24,6 +24,21 @@ using namespace std;
 #include "comm.h"
 #include "player_table.h"
 
+void
+start_editing_mail(descriptor_data *d, mail_recipient_data *recipients)
+{
+	if (d->text_editor) {
+		errlog("Text editor object not null in start_editing_mail");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
+			PLR_WRITING | PLR_OLC | PLR_MAILING);
+		return;
+	}
+
+    SET_BIT(PLR_FLAGS(d->creature), PLR_MAILING | PLR_WRITING);
+
+	d->text_editor = new CMailEditor(d, recipients);
+}
+
 CMailEditor::CMailEditor(descriptor_data *desc,
                          mail_recipient_data *recipients)
     :CEditor(desc, MAX_MAIL_SIZE)

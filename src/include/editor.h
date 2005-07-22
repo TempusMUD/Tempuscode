@@ -123,6 +123,26 @@ protected:
     virtual void Finalize(const char *text);
 };
 
+class CBoardEditor : public CEditor {
+public:
+    CBoardEditor(descriptor_data *desc, const char *b_name, const char *subject);
+    virtual ~CBoardEditor(void);
+
+    virtual bool IsEditing(char *inStr)
+    {
+        return false;
+	}
+
+protected:
+    CBoardEditor(void);
+
+    char *board_name;
+    char *subject;
+
+    virtual bool PerformCommand(char cmd, char *args);
+    virtual void Finalize(const char *text);
+};
+
 // Interfaces to the editor from the outside world.
 void start_editing_text(struct descriptor_data *d,
                         char **target,
@@ -134,5 +154,7 @@ void start_editing_mail(struct descriptor_data *d,
 void start_editing_prog(struct descriptor_data *d,
                         void *owner,
                         prog_evt_type owner_type);
-
+void start_editing_board(struct descriptor_data *d,
+                         const char *board,
+                         const char *subject);
 #endif

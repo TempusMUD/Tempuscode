@@ -33,66 +33,7 @@ extern HelpCollection *Help;
 
 /* Sets up text editor params and echo's passed in message.
 */
-void
-start_editing_text(struct descriptor_data *d, char **dest, int max)
-{
-	/*  Editor Command
-	   Note: Add info for logall
-	 */
-	// There MUST be a destination!
-	if (!dest) {
-		errlog("NULL destination pointer passed into start_text_editor!!");
-		send_to_char(d->creature, "This command seems to be broken. Bug this.\r\n");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
-	if (d->text_editor) {
-		errlog("Text editor object not null in start_text_editor.");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
-	if (*dest && (strlen(*dest) > (unsigned int)max)) {
-		send_to_char(d->creature, "ERROR: Buffer too large for editor.\r\n");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
 
-	d->text_editor = new CTextEditor(d, dest, max);
-}
-
-
-void
-start_editing_mail(descriptor_data *d, mail_recipient_data *recipients)
-{
-	if (d->text_editor) {
-		errlog("Text editor object not null in start_editing_mail");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
-
-    SET_BIT(PLR_FLAGS(d->creature), PLR_MAILING | PLR_WRITING);
-
-	d->text_editor = new CMailEditor(d, recipients);
-}
-
-void
-start_editing_prog(descriptor_data *d, void *owner, prog_evt_type owner_type)
-{
-	if (d->text_editor) {
-		errlog("Text editor object not null in start_editing_mail");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
-
-    SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING | PLR_OLC);
-
-	d->text_editor = new CProgEditor(d, owner, owner_type);
-}
 
 // Constructor
 // Params: Users descriptor, The final destination of the text, 

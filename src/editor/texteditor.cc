@@ -26,6 +26,36 @@ using namespace std;
 
 void voting_add_poll(void);
 
+void
+start_editing_text(struct descriptor_data *d, char **dest, int max)
+{
+	/*  Editor Command
+	   Note: Add info for logall
+	 */
+	// There MUST be a destination!
+	if (!dest) {
+		errlog("NULL destination pointer passed into start_text_editor!!");
+		send_to_char(d->creature, "This command seems to be broken. Bug this.\r\n");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
+			PLR_WRITING | PLR_OLC | PLR_MAILING);
+		return;
+	}
+	if (d->text_editor) {
+		errlog("Text editor object not null in start_text_editor.");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
+			PLR_WRITING | PLR_OLC | PLR_MAILING);
+		return;
+	}
+	if (*dest && (strlen(*dest) > (unsigned int)max)) {
+		send_to_char(d->creature, "ERROR: Buffer too large for editor.\r\n");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
+			PLR_WRITING | PLR_OLC | PLR_MAILING);
+		return;
+	}
+
+	d->text_editor = new CTextEditor(d, dest, max);
+}
+
 CTextEditor::CTextEditor(descriptor_data *desc,
                          char **target_ptr,
                          int max)
@@ -71,15 +101,6 @@ CTextEditor::Finalize(const char *text)
   
     *target = strdup(text);
 
-	// Save the board if we were writing to a board
-	if (desc->mail_to && desc->mail_to->recpt_idnum >= BOARD_MAGIC) {
-		gen_board_save(desc->mail_to->recpt_idnum - BOARD_MAGIC, *target);
-		free(*target);
-		free(target);
-		next_mail = desc->mail_to->next;
-		free(desc->mail_to);
-		desc->mail_to = next_mail;
-	}
 	// Add the poll if we were adding to a poll
 	if (desc->mail_to && desc->mail_to->recpt_idnum == VOTING_MAGIC) {
 		voting_add_poll();

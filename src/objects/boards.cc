@@ -33,16 +33,14 @@ void gen_board_read(board_data *board, Creature *ch, char *argument);
 void gen_board_list(board_data *board, Creature *ch);
 
 void
-gen_board_save(int idnum, char *str)
+gen_board_save(Creature *ch, const char *board, const char *subject, const char *body)
 {
-	if (!*str) {
-		// They decided not to go through with it
-		sql_exec("delete from board_messages where idnum='%d'", idnum);
-		return;
-	}
-
-	sql_exec("update board_messages set body='%s' where idnum='%d'",
-		tmp_sqlescape(str), idnum);
+	sql_insert("insert into board_messages (board, post_time, author, name, subject, body) values ('%s', now(), %ld, '%s', '%s', '%s')",
+               tmp_sqlescape(board),
+               GET_IDNUM(ch),
+               tmp_sqlescape(tmp_capitalize(GET_NAME(ch))),
+               tmp_sqlescape(subject),
+               tmp_sqlescape(body));
 }
 
 void
@@ -70,11 +68,6 @@ void
 gen_board_write(board_data *board, Creature *ch, char *argument)
 {
 	Creature *player;
-	PGresult *res;
-	mail_recipient_data *n_mail_to;
-	Oid oid;
-	char **tmp_char;
-	int idnum;
 
 	if (IS_PC(ch))
 		player = ch;
@@ -95,37 +88,8 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 
-	oid = sql_insert("insert into board_messages (board, post_time, author, name, subject) values ('%s', now(), %ld, '%s', '%s')",
-		tmp_sqlescape(board->name),
-		GET_IDNUM(player),
-		tmp_sqlescape(tmp_capitalize(GET_NAME(ch))),
-		tmp_sqlescape(argument));
-	
-	if (oid == InvalidOid) {
-		send_to_char(ch, "Something bad just happened...\r\n");
-		mudlog(LVL_IMMORT, NRM, true,
-			"Shouldn't happen at %s:%d", __FILE__, __LINE__);
-		return;
-	}
-	
-	res = sql_query("select idnum from board_messages where oid='%u'", oid);
-	if (PQntuples(res) != 1) {
-		send_to_char(ch, "Something bad just happened...\r\n");
-		mudlog(LVL_IMMORT, NRM, true,
-			"Shouldn't happen at %s:%d", __FILE__, __LINE__);
-		return;
-	}
-	idnum = atol(PQgetvalue(res, 0, 0));
-
-	CREATE(n_mail_to, struct mail_recipient_data, 1);
-	n_mail_to->recpt_idnum = BOARD_MAGIC + idnum;
-	n_mail_to->next = NULL;
-	ch->desc->mail_to = n_mail_to;
-
-	tmp_char = (char **)malloc(sizeof(char *));
-	*(tmp_char) = NULL;
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
-	start_editing_text(ch->desc, tmp_char, MAX_MESSAGE_LENGTH - 1);
+	start_editing_board(ch->desc, board->name, argument);
 }
 
 void
