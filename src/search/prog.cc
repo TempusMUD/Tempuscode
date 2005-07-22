@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
@@ -171,8 +172,47 @@ prog_get_obj(void *owner, prog_evt_type owner_type)
 	return NULL;
 }
 
+void
+prog_report_compile_err(Creature *ch,
+                        void *owner,
+                        prog_evt_type owner_type,
+                        int linenum,
+                        const char *str,
+                        ...)
+{
+    const char *place = NULL;
+    char *msg;
+    va_list args;
+
+    va_start(args, str);
+    msg = tmp_vsprintf(str, args);
+    va_end(args);
+
+    switch (owner_type) {
+    case PROG_TYPE_MOBILE:
+        place = tmp_sprintf("mobile %d", GET_MOB_VNUM((Creature *)owner));
+        break;
+    case PROG_TYPE_ROOM:
+        place = tmp_sprintf("room %d", ((room_data *)owner)->number);
+        break;
+    default:
+        place = "an unknown location";
+    }
+    if (ch)
+        send_to_char(ch, "Prog error in %s, line %d: %s\r\n",
+                     place,
+                     linenum,
+                     msg);
+    else
+        slog("Prog error in %s, line %d: %s", place, linenum, msg);
+
+}
+
 unsigned char *
-prog_compile_prog(Creature *ch, char *prog_text)
+prog_compile_prog(Creature *ch,
+                  char *prog_text,
+                  void *owner,
+                  prog_evt_type owner_type)
 {
     char *line_start, *line_end, *dataseg, *data_pt;
     char *line;
@@ -234,11 +274,8 @@ prog_compile_prog(Creature *ch, char *prog_text)
             while (cmd->str && strcasecmp(cmd->str, cmd_str))
                 cmd++;
             if (!cmd->str) {
-                
-                if (ch)
-                    send_to_char(ch, "Error in prog line %d: Bad command '%s'\r\n", linenum, cmd_str);
-                else
-                    slog("Error in prog line %d: Bad command '%s'", linenum, cmd_str);
+                prog_report_compile_err(ch, owner, owner_type, linenum,
+                                        "unknown command '%s'", cmd_str);
                 delete [] codeseg;
                 delete [] dataseg;
                 return NULL;
@@ -300,7 +337,7 @@ prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
     }
 
     // Compile it
-    obj = prog_compile_prog(ch, prog);
+    obj = prog_compile_prog(ch, prog, owner, owner_type);
     if (!obj)
         return;
     
