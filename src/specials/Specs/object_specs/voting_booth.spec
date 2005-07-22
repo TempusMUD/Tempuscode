@@ -404,8 +404,6 @@ voting_booth_remove(Creature * ch, char *argument)
 void
 voting_booth_write(Creature * ch, char *argument)
 {
-	struct mail_recipient_data *n_mail_to;
-
 	skip_spaces(&argument);
 	if (!*arg) {
 		send_to_char(ch, "We must have a headline!\r\n");
