@@ -120,7 +120,6 @@ struct descriptor_data {
 	struct descriptor_data *snooping;	/* Who is this char snooping   */
     vector<descriptor_data *>snoop_by;
 	struct descriptor_data *next;	/* link to next descriptor     */
-	struct mail_recipient_data *mail_to;	/* list of names for mailsystem */
 };
 
 void set_desc_state(cxn_state state, descriptor_data *d);

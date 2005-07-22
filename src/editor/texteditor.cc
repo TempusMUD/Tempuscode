@@ -24,8 +24,6 @@ using namespace std;
 #include "comm.h"
 #include "player_table.h"
 
-void voting_add_poll(void);
-
 void
 start_editing_text(struct descriptor_data *d, char **dest, int max)
 {
@@ -89,8 +87,6 @@ CTextEditor::PerformCommand(char cmd, char *args)
 void
 CTextEditor::Finalize(const char *text)
 {
-	struct mail_recipient_data *next_mail;
-
 	// If we were editing rather than creating, wax what was there.
 	if (target) {
 		if (*target) {
@@ -101,13 +97,6 @@ CTextEditor::Finalize(const char *text)
   
     *target = strdup(text);
 
-	// Add the poll if we were adding to a poll
-	if (desc->mail_to && desc->mail_to->recpt_idnum == VOTING_MAGIC) {
-		voting_add_poll();
-		next_mail = desc->mail_to->next;
-		free(desc->mail_to);
-		desc->mail_to = next_mail;
-	}
 	// If editing thier description.
 	if (STATE(desc) == CXN_EDIT_DESC) {
 		send_to_desc(desc, "\033[H\033[J");

@@ -143,6 +143,24 @@ protected:
     virtual void Finalize(const char *text);
 };
 
+class CPollEditor : public CEditor {
+public:
+    CPollEditor(descriptor_data *desc, const char *header);
+    virtual ~CPollEditor(void);
+
+    virtual bool IsEditing(char *inStr)
+    {
+        return false;
+	}
+
+protected:
+    CPollEditor(void);
+
+    char *header;
+
+    virtual void Finalize(const char *text);
+};
+
 // Interfaces to the editor from the outside world.
 void start_editing_text(struct descriptor_data *d,
                         char **target,
@@ -157,4 +175,6 @@ void start_editing_prog(struct descriptor_data *d,
 void start_editing_board(struct descriptor_data *d,
                          const char *board,
                          const char *subject);
+void start_editing_poll(struct descriptor_data *d,
+                        const char *header);
 #endif

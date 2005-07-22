@@ -412,29 +412,13 @@ voting_booth_write(Creature * ch, char *argument)
 		return;
 	}
 
-	CREATE(voting_new_poll, struct voting_poll, 1);
-	voting_new_poll->next = NULL;
-	voting_new_poll->header = str_dup(argument);
-	voting_new_poll->descrip = NULL;
-	voting_new_poll->creation_time = time(NULL);
-	voting_new_poll->count = 0;
-	voting_new_poll->options = NULL;
-	voting_new_poll->memory = NULL;
-	voting_new_poll->secret = true;
-
-	start_editing_text(ch->desc,
-		&(voting_new_poll->descrip), MAX_MESSAGE_LENGTH);
-	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
+    start_editing_poll(ch->desc, argument);
 
 	act("$n starts to add a poll.", TRUE, ch, 0, 0, TO_ROOM);
-	CREATE(n_mail_to, struct mail_recipient_data, 1);
-	n_mail_to->next = NULL;
-	n_mail_to->recpt_idnum = VOTING_MAGIC;
-	ch->desc->mail_to = n_mail_to;
 }
 
 void
-voting_add_poll(void)
+voting_add_poll(const char *header, const char *text)
 {
 	struct voting_poll *prev_poll;
 	struct voting_option *prev_option, *new_option;
@@ -445,10 +429,15 @@ voting_add_poll(void)
 	Oid poll_oid;
 	PGresult *res;
 
-	if (!voting_new_poll->descrip) {
-		errlog("voting_add_poll called with NULL buffer");
-		return;
-	}
+	CREATE(voting_new_poll, struct voting_poll, 1);
+	voting_new_poll->next = NULL;
+	voting_new_poll->header = str_dup(header);
+	voting_new_poll->descrip = str_dup(text);
+	voting_new_poll->creation_time = time(NULL);
+	voting_new_poll->count = 0;
+	voting_new_poll->options = NULL;
+	voting_new_poll->memory = NULL;
+	voting_new_poll->secret = true;
 
 	if (!*voting_new_poll->descrip) {
 		free(voting_new_poll->header);
