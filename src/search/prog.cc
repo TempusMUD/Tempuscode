@@ -234,7 +234,7 @@ prog_compile_prog(Creature *ch,
     code_len = 0;
 
     // We'll need linenum for error reporting
-    linenum = 0;
+    linenum = 1;
     line = "";
     line_start = line_end = prog_text;
 
@@ -247,8 +247,6 @@ prog_compile_prog(Creature *ch,
         // Find the end of the line
         while (*line_end && *line_end != '\n' && *line_end != '\r')
             line_end++;
-        // Increment line number for error reporting
-        linenum++;
 
         // Grab a temporary version of the line
         line = tmp_strcat(line, tmp_substr(line_start, 0, line_end - line_start - 1));
@@ -294,8 +292,11 @@ prog_compile_prog(Creature *ch,
             line = "";
         }
 
-        while (isspace(*line_end))
+        while (isspace(*line_end)) {
+            if (*line_end == '\n')
+                linenum++;
             line_end++;
+        }
         line_start = line_end;
     }
 
