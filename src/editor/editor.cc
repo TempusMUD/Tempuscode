@@ -532,12 +532,12 @@ CEditor::ProcessHelp(char *inStr)
                      "            &YL - &nReplace Line         &YD - &nDelete Line  \r\n"
                      "            &YI - &nInsert Line          &YR - &nRefresh Screen\r\n");
         if (PLR_FLAGGED(ch, PLR_MAILING)) {
-            send_to_desc(desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
-        } else {
+            // TODO: this should use virtual dispatch for extensibility.
             send_to_desc(desc,
                          "            &YC - &nClear Buffer         &YA - &nAdd Recipient\r\n"
                          "            &YT - &nList Recipients      &YE - &nRemove Recipient\r\n");
-            
+        } else {
+            send_to_desc(desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
         }
         send_to_desc(desc,
                      "     &C*&B-------------------------------------------------------&C*&n\r\n");
