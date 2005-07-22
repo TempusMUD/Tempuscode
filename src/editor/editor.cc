@@ -428,8 +428,11 @@ CEditor::ImportText(char *str)
 {
     char *line;
 
-    while ((line = tmp_getline(&str)) != NULL)
-        origText.push_back(string(line));
+    origText.clear();
+    if (str) {
+        while ((line = tmp_getline(&str)) != NULL)
+            origText.push_back(string(line));
+    }
 
     theText = origText;
 
