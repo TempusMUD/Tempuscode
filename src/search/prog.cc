@@ -1169,7 +1169,8 @@ prog_do_damage(prog_env * env, prog_evt * evt, char *args)
 			break;
 		case PROG_TYPE_MOBILE:
 			mob = (Creature *) env->owner;
-			damage(NULL, mob, damage_amt, damage_type, WEAR_RANDOM);
+            if (mob->getPosition() > POS_DEAD)
+                damage(NULL, mob, damage_amt, damage_type, WEAR_RANDOM);
 			break;
 		case PROG_TYPE_ROOM:
 			break;
@@ -1184,7 +1185,8 @@ prog_do_damage(prog_env * env, prog_evt * evt, char *args)
 			search_nomessage = false;
 			return;
 		}
-		damage(NULL, env->target, damage_amt, damage_type, WEAR_RANDOM);
+        if (env->target->getPosition() > POS_DEAD)
+            damage(NULL, env->target, damage_amt, damage_type, WEAR_RANDOM);
 		search_nomessage = false;
 		return;
 	}
@@ -1216,7 +1218,9 @@ prog_do_damage(prog_env * env, prog_evt * evt, char *args)
 
 	for (CreatureList::iterator it = room->people.begin();
 		it != room->people.end(); ++it)
-		if ((!players || IS_PC(*it)) && (!mobs || IS_NPC(*it)))
+		if ((!players || IS_PC(*it)) &&
+            (!mobs || IS_NPC(*it)) &&
+            (*it)->getPosition() > POS_DEAD)
 			damage(NULL, *it, damage_amt, damage_type, WEAR_RANDOM);
 	search_nomessage = false;
 }
