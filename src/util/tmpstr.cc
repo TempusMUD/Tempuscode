@@ -333,6 +333,9 @@ tmp_getline(const char **src)
 	char *result, *write_pt;
 	size_t len = 0;
 
+    if (!*src)
+        return NULL;
+
 	read_pt = *src;
 	while (*read_pt && '\r' != *read_pt && '\n' != *read_pt)
 		read_pt++;
