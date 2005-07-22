@@ -278,8 +278,22 @@ prog_compile_prog(Creature *ch,
                 delete [] dataseg;
                 return NULL;
             }
+            *code_pt = (cmd - prog_cmds);
+
+            // Make sure the code starts with a handler
+            if (code_pt == codeseg &&
+                *code_pt != PROG_CMD_HALT &&
+                *code_pt != PROG_CMD_BEFORE &&
+                *code_pt != PROG_CMD_HANDLE &&
+                *code_pt != PROG_CMD_AFTER) {
+                prog_report_compile_err(ch, owner, owner_type, 1,
+                                        "Command without handler", cmd_str);
+                delete [] codeseg;
+                delete [] dataseg;
+                return NULL;
+            }
             
-            *code_pt++ = (cmd - prog_cmds) + 1;
+            *code_pt++ += 1;
             if (*line) {
                 *code_pt++ = data_pt - dataseg;
                 strcpy(data_pt, line);
@@ -1200,7 +1214,7 @@ prog_do_damage(prog_env * env, prog_evt * evt, char *args)
 		players = true;
 	else if (strcmp(target_arg, "all"))
 		errlog("Bad trans argument 1");
-
+ 
 	switch (env->owner_type) {
 	case PROG_TYPE_MOBILE:
 		room = ((Creature *) env->owner)->in_room;
