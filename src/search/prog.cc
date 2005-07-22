@@ -2224,7 +2224,6 @@ prog_update(void)
 			continue;
 		}
 			
-		prog_execute(cur_prog);
 		switch (cur_prog->owner_type) {
 		case PROG_TYPE_OBJECT:
 			break;
@@ -2235,6 +2234,8 @@ prog_update(void)
         default:
             break;
 		}
+
+		prog_execute(cur_prog);
 	}
 
 	// Free threads that have terminated
