@@ -3693,7 +3693,7 @@ mag_assign_spells(void)
 		MAG_PHYSICS | MAG_AFFECTS | MAG_ALTER_OBJS);
 
 	spello(SPELL_TIME_WARP, X, X, X, X, X, X, 35, X, X, X, X, X, X, X, X, X, X,
-		100, 50, 8, POS_SITTING, TAR_CHAR_ROOM, FALSE,
+		100, 50, 8, POS_SITTING, TAR_SELF_ONLY, FALSE,
 		MAG_PHYSICS | MAG_MANUAL);
 
 	spello(SPELL_RADIOIMMUNITY, X, X, X, X, X, X, 20, X, X, X, X, X, X, X, X,
