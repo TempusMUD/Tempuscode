@@ -684,7 +684,7 @@ point_update(void)
 		if (IS_MONK(i))
 			drunk += 1;
 		if (IS_CYBORG(i))
-			drunk >>= 1;
+			drunk += 2;
 		if (affected_by_spell(i, SPELL_METABOLISM))
 			drunk += 1;
 
