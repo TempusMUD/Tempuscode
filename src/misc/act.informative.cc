@@ -1244,6 +1244,8 @@ ACMD(do_exits)
 				CCNRM(ch, C_SPR));
 		}
 	}
+
+    send_to_char(ch, "There are no obvious exits.\r\n");
 }
 
 
