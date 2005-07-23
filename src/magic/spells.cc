@@ -263,16 +263,12 @@ ASPELL(spell_local_teleport)
 		return;
 	}
 
-	if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
+	if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL) ||
+        ROOM_FLAGGED(victim->in_room, ROOM_NOTEL)) {
 		send_to_char(victim, "You fade out for a moment...\r\n"
 			"The magic quickly dissipates!\r\n");
 		act("$n fades out for a moment but quickly flickers back into view.",
 			FALSE, victim, 0, 0, TO_ROOM);
-		/* Removed per Cat's request        
-		   "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
-		   act("$n is knocked to the ground by a blinding flash of light!", 
-		   FALSE, victim, 0, 0, TO_ROOM);
-		   victim->setPosition( POS_RESTING ); */
 		return;
 	}
 
@@ -390,16 +386,12 @@ ASPELL(spell_teleport)
 	if (victim == NULL) {
 		return;
 	}
-	if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
+	if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL) ||
+        ROOM_FLAGGED(victim->in_room, ROOM_NOTEL)) {
 		send_to_char(victim, "You fade out for a moment...\r\n"
 			"The magic quickly dissipates!\r\n");
 		act("$n fades out for a moment but quickly flickers back into view.",
 			FALSE, victim, 0, 0, TO_ROOM);
-		/* Removed per Cat's request        
-		   "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
-		   act("$n is knocked to the ground by a blinding flash of light!", 
-		   FALSE, victim, 0, 0, TO_ROOM);
-		   victim->setPosition( POS_RESTING ); */
 		return;
 	}
 
