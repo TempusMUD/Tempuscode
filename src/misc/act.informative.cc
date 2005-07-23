@@ -2315,9 +2315,6 @@ acc_append_affects(struct Creature *ch, byte mode)
 				C_SPR), CCNRM(ch, C_SPR));
 	if (IS_SICK(ch))
 		acc_strcat("You are afflicted with a terrible sickness!\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
-		acc_strcat(
-			"Spacetime is bent around you in a powerful gravity well!\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
 		acc_sprintf(
 			"%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
