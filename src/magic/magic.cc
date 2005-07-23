@@ -3062,9 +3062,27 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		return 0;
 
 	// check for players if caster is not a pkiller
-    CreatureList::iterator cit = ch->in_room->people.begin();
-    for (; cit != ch->in_room->people.end(); ++cit) {
-        if ((*cit) != ch && !ch->isOkToAttack(*cit, false)) {
+    CreatureList::iterator it = ch->in_room->people.begin();
+    for (; it != ch->in_room->people.end(); ++it) {
+		if ((*it) == ch)
+			continue;
+		if (!IS_NPC((*it)) && PRF_FLAGGED((*it), PRF_NOHASSLE))
+			continue;
+		if (!IS_NPC(ch) && IS_NPC((*it)) && IS_AFFECTED((*it), AFF_CHARM))
+			continue;
+		if (spellnum == SPELL_EARTHQUAKE && (*it)->getPosition() == POS_FLYING)
+			continue;
+		if (spellnum == SONG_SONIC_DISRUPTION && IS_UNDEAD(*it)) {
+			continue;
+		}
+		if (spellnum == SONG_DIRGE && !IS_UNDEAD(*it)) {
+			continue;
+		}
+        if (spellnum == SONG_LICHS_LYRICS && !LIFE_FORM(*it)) {
+            continue;
+        }
+
+        if ((*it) != ch && !ch->isOkToAttack(*it, false)) {
             if (SPELL_IS_PSIONIC(spellnum)) {
                 send_to_char(ch, "The Universal Psyche decends on your "
                              "mind and renders you powerless!\r\n");
@@ -3096,8 +3114,6 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
         }
     }
 	
-	
-	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		// skips:
 		//          caster
