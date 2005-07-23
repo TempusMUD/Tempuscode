@@ -1191,10 +1191,12 @@ ACMD(do_exits)
 		}
 	}
 
+    bool found = false;
 	for (door = 0; door < NUM_OF_DIRS; door++) {
 		if (!EXIT(ch, door) || !EXIT(ch, door)->to_room)
 			continue;
 
+        found = true;
 		if (!IS_IMMORT(ch) &&
 				IS_SET(EXIT(ch, door)->exit_info, EX_HIDDEN | EX_SECRET))
 			continue;
@@ -1245,7 +1247,8 @@ ACMD(do_exits)
 		}
 	}
 
-    send_to_char(ch, "There are no obvious exits.\r\n");
+    if (!found)
+        send_to_char(ch, "There are no obvious exits.\r\n");
 }
 
 
