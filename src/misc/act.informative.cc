@@ -2890,7 +2890,8 @@ ACMD(do_equipment)
 				}
 				if (can_see_object(ch, GET_IMPLANT(ch, pos))) {
 
-					if (IS_DEVICE(GET_IMPLANT(ch, pos)))
+					if (IS_DEVICE(GET_IMPLANT(ch, pos)) ||
+                        IS_COMMUNICATOR(GET_IMPLANT(ch, pos)))
 						str = tmp_sprintf(" %10s %s(%s%d%s/%s%d%s)%s",
 							active_buf[(ENGINE_STATE(GET_IMPLANT(ch, pos))) ? 1:0],
 							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
