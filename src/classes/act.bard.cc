@@ -560,9 +560,6 @@ ASPELL(song_exposure_overture)
 {
     int prob;
     int percent;
-    const char *to_char = NULL;
-    const char *to_vict = NULL;
-    const char *to_room = NULL;
 
     if (!ch)
         return;
@@ -570,6 +567,9 @@ ASPELL(song_exposure_overture)
     CreatureList::iterator ci = ch->in_room->people.begin();
 
     for (; ci != ch->in_room->people.end(); ++ci) {
+        const char *to_char = NULL;
+        const char *to_vict = NULL;
+        const char *to_room = NULL;
         Creature *tch = *ci;
 
         if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
