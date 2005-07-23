@@ -575,8 +575,8 @@ ASPELL(song_exposure_overture)
         if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
             continue;
 
-        prob = ((ch->getLevelBonus(SONG_EXPOSURE_OVERTURE) >> 1) + GET_INT(ch));
-        percent =  GET_LEVEL(tch) + (GET_INT(tch) / 2) + number(1, 30);
+        prob = ((ch->getLevelBonus(SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_INT(ch));
+        percent = GET_LEVEL(tch) + (GET_INT(tch) / 2) + number(1, 60);
 
         if (prob < percent)
             continue;
