@@ -547,6 +547,7 @@ point_update(void)
             !ROOM_FLAGGED(i->in_room, ROOM_ARENA) &&
             !ROOM_FLAGGED(i->in_room, ROOM_CLAN_HOUSE) &&
             !ROOM_FLAGGED(i->in_room, ROOM_HOUSE) &&
+            !ROOM_FLAGGED(i->in_room, ROOM_PEACEFUL) &&
             !PLR_FLAGGED(i, PLR_AFK) &&
             GET_REPUTATION(i) > 1 &&
             number(0, 153) == 0)
