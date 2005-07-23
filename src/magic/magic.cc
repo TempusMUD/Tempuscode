@@ -3771,8 +3771,16 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         {
             tmp_obj_affect *af = obj->affectedBySpell(SPELL_ITEM_REPULSION_FIELD);
             if( af != NULL ) {
+                struct affected_type *ra;
+
                 act(item_wear_off_msg[af->type], FALSE, ch, obj, NULL, TO_CHAR);
                 obj->removeAffect( af );
+                for (ra = ch->affected; ra; ra = ra->next) {
+                    if (ra->type == SPELL_ITEM_REPULSION_FIELD) {
+                        affect_remove(ch, ra);
+                        break;
+                    }
+                }
             }
         } 
         //range will be 200-2700, divided by 400 = 0-6, clamped to 1-6
@@ -3820,8 +3828,16 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         {
             tmp_obj_affect *af = obj->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD);
             if( af != NULL ) {
+                struct affected_type *ra;
+
                 act(item_wear_off_msg[af->type], FALSE, ch, obj, NULL, TO_CHAR);
                 obj->removeAffect( af );
+                 for (ra = ch->affected; ra; ra = ra->next) {
+                    if (ra->type == SPELL_ITEM_ATTRACTION_FIELD) {
+                        affect_remove(ch, ra);
+                        break;
+                    }
+                }
             }
         }
         //range will be 200-2700, divided by 400 = 0-6, clamped to 1-6
