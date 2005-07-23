@@ -1085,7 +1085,11 @@ ASPELL(spell_charm_animal)
 		percent = (40 + GET_LEVEL(victim));
 		if (percent > number(1, 101))
 			send_to_char(ch, "Your victim is Elven, and resists!\r\n");
-	} else {
+	} 
+    else if (IS_PET(victim)) {
+        send_to_char(ch, "You can't charm pets!\r\n");
+    }
+    else {
 		if (victim->master)
 			stop_follower(victim);
 
