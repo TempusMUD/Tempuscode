@@ -2838,6 +2838,7 @@ ASPELL(spell_animate_dead)
 	// stats
 	//
 
+    // Set aff abils
 	GET_STR(zombie) = (char)MIN(25, GET_STR(orig_char) * mult);
 	GET_DEX(zombie) = (char)MIN(25, GET_DEX(orig_char) * mult);
 	GET_CON(zombie) = (char)MIN(25, GET_CON(orig_char) * mult);
@@ -2845,6 +2846,14 @@ ASPELL(spell_animate_dead)
 	GET_WIS(zombie) = (char)MIN(25, GET_WIS(orig_char) * mult);
 	GET_CHA(zombie) = (char)MIN(25, GET_CHA(orig_char) * mult);
 
+    // Set real abils
+    zombie->real_abils.str = (char)MIN(25, orig_char->real_abils.str * mult);
+    zombie->real_abils.dex = (char)MIN(25, orig_char->real_abils.dex * mult);
+    zombie->real_abils.con = (char)MIN(25, orig_char->real_abils.con * mult);
+    zombie->real_abils.intel = (char)MIN(25, orig_char->real_abils.intel * mult);
+    zombie->real_abils.wis = (char)MIN(25, orig_char->real_abils.wis * mult);
+    zombie->real_abils.cha = (char)MIN(25, orig_char->real_abils.cha * mult);
+    
 	GET_HITROLL(zombie) = (char)MIN(50, GET_HITROLL(orig_char) * mult);
 	GET_DAMROLL(zombie) = (char)MIN(50, GET_HITROLL(orig_char) * mult);
 
@@ -2853,7 +2862,8 @@ ASPELL(spell_animate_dead)
 	//
 	// points, hit mana move
 	//
-	GET_MAX_HIT(zombie) = (short)MIN(10000, GET_MAX_HIT(orig_char) * mult);
+	GET_MAX_HIT(zombie) = (short)MIN(10000, 
+            ((GET_HIT(orig_char) * (GET_MANA(orig_char) + 1) / 2) + GET_MOVE(orig_char)) * mult);
 	GET_HIT(zombie) = (short)GET_MAX_HIT(zombie);
 
 	GET_MAX_MANA(zombie) = (short)MIN(10000, GET_MAX_MANA(orig_char) * mult);
