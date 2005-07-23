@@ -61,8 +61,6 @@
 
 static inline bool
 CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
-//    if (ch && ch != vict && !ch->isOkToAttack(vict))
-//        return true;
 
 	if (IS_PC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
 			!PLR_FLAGGED(vict, PLR_MORTALIZED))
