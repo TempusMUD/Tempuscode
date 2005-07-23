@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <arpa/telnet.h>
 #include <netinet/in.h>
+#include <execinfo.h>
 
 #include "structs.h"
 #include "utils.h"
@@ -334,45 +335,20 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 void
 errlog(const char *fmt, ...)
 {
-	
+    const int MAX_FRAMES = 10;	
 	va_list args;
 	const char *backtrace_str = "";
+    void *ret_addrs[MAX_FRAMES];
+    int x = 0;
 
-	// Yes.  This is awful.  Blame GNU.
-	if (__builtin_frame_address(0)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(0));
-	if (__builtin_frame_address(1)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(1));
-	if (__builtin_frame_address(2)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(2));
-	if (__builtin_frame_address(3)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(3));
-	if (__builtin_frame_address(4)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(4));
-	if (__builtin_frame_address(5)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(5));
-	if (__builtin_frame_address(6)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(6));
-	if (__builtin_frame_address(7)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(7));
-	if (__builtin_frame_address(8)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(8));
-	if (__builtin_frame_address(9)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(9));
-	if (__builtin_frame_address(10)) {
-		backtrace_str = tmp_sprintf("%s < %p", backtrace_str,
-			__builtin_return_address(10));
-	}}}}}}}}}}}
+    memset(ret_addrs, 0x0, sizeof(ret_addrs));
+    backtrace(ret_addrs, MAX_FRAMES);
+
+    while (x < MAX_FRAMES && ret_addrs[x]) {
+		backtrace_str = tmp_sprintf("%s%p%s", backtrace_str, ret_addrs[x],
+                (ret_addrs[x + 1]) ? " < " : "");
+        x++;
+    }
 
 	va_start(args, fmt);
 	mlog(Security::CODER, LVL_AMBASSADOR, NRM, true,
