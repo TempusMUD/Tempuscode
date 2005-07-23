@@ -1332,7 +1332,7 @@ struct command_info cmd_info[] = {
 	{"trample", POS_STANDING, do_action, 0, 0, 0, 0},
 	{"transfer", POS_SLEEPING, do_trans, 0, 0, 0, 0},
 	{"translocate", POS_RESTING, do_translocate, 20, ZEN_TRANSLOCATION, 0, 0},
-	{"transmit", POS_SLEEPING, do_transmit, 0, 0, 0, 0},
+	{"transmit", POS_RESTING, do_transmit, 0, 0, 0, 0},
     {"tremble", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"trust", POS_DEAD, do_trust, 0, 0, 0, 0},
 	{"taunt", POS_STANDING, do_taunt, 0, 0, 0, 0},
