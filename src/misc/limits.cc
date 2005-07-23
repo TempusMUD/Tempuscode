@@ -365,7 +365,8 @@ gain_exp(struct Creature *ch, int gain)
 		if (is_altered) {
 			if (num_levels == 1) {
 				send_to_char(ch, "You rise a level!\r\n");
-				if (GET_LEVEL(ch) == LVL_CAN_RETURN + 1)
+				if (GET_LEVEL(ch) == LVL_CAN_RETURN + 1 &&
+                    GET_REMORT_GEN(ch) == 0)
 					send_to_char(ch, "%sYou are now too powerful to use the 'return' command to recall.%s\r\n",
 						CCCYN(ch, NRM), CCNRM(ch, NRM));
 			} else {
