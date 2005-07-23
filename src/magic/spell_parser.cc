@@ -966,36 +966,6 @@ call_magic(struct Creature *caster, struct Creature *cvict,
         }
 	}
     
-    if ((ROOM_FLAGGED(caster->in_room, ROOM_NOMAGIC)) &&
-		GET_LEVEL(caster) < LVL_TIMEGOD && (SPELL_IS_MAGIC(spellnum) ||
-			SPELL_IS_DIVINE(spellnum))) {
-		send_to_char(caster, "Your magic fizzles out and dies.\r\n");
-		act("$n's magic fizzles out and dies.", FALSE, caster, 0, 0, TO_ROOM);
-		return 0;
-	}
-	if ((ROOM_FLAGGED(caster->in_room, ROOM_NOPSIONICS)) &&
-		GET_LEVEL(caster) < LVL_TIMEGOD && SPELL_IS_PSIONIC(spellnum)) {
-		send_to_char(caster, "You cannot establish a mental link.\r\n");
-		act("$n appears to be psionically challenged.",
-			FALSE, caster, 0, 0, TO_ROOM);
-		return 0;
-	}
-	if ((ROOM_FLAGGED(caster->in_room, ROOM_NOSCIENCE)) &&
-		SPELL_IS_PHYSICS(spellnum)) {
-		send_to_char(caster, 
-			"You are unable to alter physical reality in this space.\r\n");
-		act("$n tries to solve an elaborate equation, but fails.", FALSE,
-			caster, 0, 0, TO_ROOM);
-		return 0;
-	}
-	if (SPELL_USES_GRAVITY(spellnum) && NOGRAV_ZONE(caster->in_room->zone) &&
-		SPELL_IS_PHYSICS(spellnum)) {
-		send_to_char(caster, "There is no gravity here to alter.\r\n");
-		act("$n tries to solve an elaborate equation, but fails.",
-			FALSE, caster, 0, 0, TO_ROOM);
-		return 0;
-	}
-
     if (ovict) {
         if (IS_SET(ovict->obj_flags.extra3_flags, ITEM3_NOMAG)) {
             if  ((SPELL_IS_MAGIC(spellnum) || SPELL_IS_DIVINE(spellnum)) && 
@@ -2095,6 +2065,14 @@ ACMD(do_cast)
 		return;
 	}
 
+    if ((ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) &&
+		GET_LEVEL(ch) < LVL_TIMEGOD && (SPELL_IS_MAGIC(spellnum) ||
+			SPELL_IS_DIVINE(spellnum))) {
+		send_to_char(ch, "Your magic fizzles out and dies.\r\n");
+		act("$n's magic fizzles out and dies.", FALSE, ch, 0, 0, TO_ROOM);
+		return;
+	}
+
 	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
 				cmd)))
 		return;
@@ -2368,6 +2346,14 @@ ACMD(do_trigger)
 		return;
 	}
 
+	if ((ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)) &&
+		GET_LEVEL(ch) < LVL_TIMEGOD && SPELL_IS_PSIONIC(spellnum)) {
+		send_to_char(ch, "You cannot establish a mental link.\r\n");
+		act("$n appears to be psionically challenged.",
+			FALSE, ch, 0, 0, TO_ROOM);
+		return;
+	}
+
 	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
 				cmd)))
 		return;
@@ -2604,6 +2590,24 @@ ACMD(do_alter)
 		send_to_char(ch, "You can't alter while wielding a two handed weapon!\r\n");
 		return;
 	}
+
+	if ((ROOM_FLAGGED(ch->in_room, ROOM_NOSCIENCE)) &&
+		SPELL_IS_PHYSICS(spellnum)) {
+		send_to_char(ch, 
+			"You are unable to alter physical reality in this space.\r\n");
+		act("$n tries to solve an elaborate equation, but fails.", FALSE,
+			ch, 0, 0, TO_ROOM);
+		return;
+	}
+
+	if (SPELL_USES_GRAVITY(spellnum) && NOGRAV_ZONE(ch->in_room->zone) &&
+		SPELL_IS_PHYSICS(spellnum)) {
+		send_to_char(ch, "There is no gravity here to alter.\r\n");
+		act("$n tries to solve an elaborate equation, but fails.",
+			FALSE, ch, 0, 0, TO_ROOM);
+		return;
+	}
+
 
 	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
 				cmd)))
