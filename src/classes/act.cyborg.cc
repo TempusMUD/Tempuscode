@@ -800,9 +800,11 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 					SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)) {
 				CreatureList::iterator it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
-					if (*it != ch)
+					if (*it != ch) {
 						damage(ch, *it, dice(4, GET_LEVEL(ch)),
 							SKILL_ENERGY_FIELD, -1);
+                        WAIT_STATE(ch, 1 RL_SEC);
+                    }
 				}
 				send_to_char(ch, 
 					"DANGER: Hazardous short detected!!  Energy fields shutting down.\r\n");
