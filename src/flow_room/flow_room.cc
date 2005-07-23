@@ -228,7 +228,8 @@ flow_room(int pulse)
 			if (!FLOW_SPEED(rnum) || pulse % (PULSE_FLOWS * FLOW_SPEED(rnum))
 				|| (!ABS_EXIT(rnum, (dir = (int)FLOW_DIR(rnum)))
 					|| ABS_EXIT(rnum, dir)->to_room == NULL
-					|| (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_CLOSED))))
+					|| (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_CLOSED))
+                    || (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_NOPASS))))
 				continue;
 
 			if (FLOW_TYPE(rnum) < 0 || FLOW_TYPE(rnum) >= NUM_FLOW_TYPES)

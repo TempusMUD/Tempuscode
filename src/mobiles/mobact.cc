@@ -204,8 +204,8 @@ burn_update(void)
 					!ch->in_room->dir_option[DOWN] ||
 					!(fall_to = ch->in_room->dir_option[DOWN]->to_room) ||
 					fall_to == ch->in_room ||
-					IS_SET(ch->in_room->dir_option[DOWN]->exit_info,
-						EX_CLOSED)) {
+					IS_SET(EXIT(ch, DOWN)->exit_info, EX_CLOSED) ||
+                    IS_SET(EXIT(ch, DOWN)->exit_info, EX_NOPASS)) {
 					/* hit the ground */
 
 					dam =
