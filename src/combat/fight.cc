@@ -47,6 +47,23 @@
 #include <iostream>
 #include <algorithm>
 
+#define BAD_ATTACK_TYPE(attacktype) (attacktype == TYPE_BLEED || \
+                                     attacktype == SPELL_POISON || \
+                                     attacktype == TYPE_ABLAZE || \
+                                     attacktype == TYPE_ACID_BURN || \
+                                     attacktype == TYPE_TAINT_BURN || \
+                                     attacktype == TYPE_PRESSURE || \
+                                     attacktype == TYPE_SUFFOCATING || \
+                                     attacktype == TYPE_ANGUISH || \
+                                     attacktype == TYPE_OVERLOAD || \
+                                     attacktype == TYPE_SUFFERING || \
+                                     attacktype == SPELL_STIGMATA || \
+                                     attacktype == TYPE_DROWNING || \
+                                     attacktype == SPELL_SICKNESS || \
+                                     attacktype == TYPE_RAD_SICKNESS || \
+                                     attacktype == SKILL_HOLY_TOUCH)
+
+
 int corpse_state = 0;
 
 /* The Fight related routines */
@@ -919,7 +936,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
     }
 
     // Mirror Image Melody
-    if (ch && !IS_WEAPON(attacktype)) {
+    if (ch && ch != victim && !IS_WEAPON(attacktype) && 
+        !BAD_ATTACK_TYPE(attacktype)) {
         struct affected_type *paf;
         if ((paf = affected_by_spell(victim, SONG_MIRROR_IMAGE_MELODY))) {
             if ((number(0, 250) < paf->modifier*10 + victim->getLevelBonus(SONG_MIRROR_IMAGE_MELODY)) &&
@@ -1437,22 +1455,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			}
 		}
 	}
-#define BAD_ATTACK_TYPE(attacktype) (attacktype == TYPE_BLEED || \
-                                     attacktype == SPELL_POISON || \
-                                     attacktype == TYPE_ABLAZE || \
-                                     attacktype == TYPE_ACID_BURN || \
-                                     attacktype == TYPE_TAINT_BURN || \
-                                     attacktype == TYPE_PRESSURE || \
-                                     attacktype == TYPE_SUFFOCATING || \
-                                     attacktype == TYPE_ANGUISH || \
-                                     attacktype == TYPE_OVERLOAD || \
-                                     attacktype == TYPE_SUFFERING || \
-                                     attacktype == SPELL_STIGMATA || \
-                                     attacktype == TYPE_DROWNING || \
-                                     attacktype == SPELL_SICKNESS || \
-                                     attacktype == TYPE_RAD_SICKNESS || \
-                                     attacktype == SKILL_HOLY_TOUCH)
-
     /********* OHH SHIT!  Begin new damage reduction code --N **********/
 	float dam_reduction = 0;
 
