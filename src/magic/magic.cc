@@ -441,7 +441,9 @@ affect_update(void)
 					if (!af->next || (af->next->type != af->type) ||
 						(af->next->duration > 0)) {
 						if (*spell_wear_off_msg[af->type]
-							&& !PLR_FLAGGED(i, PLR_OLC)) {
+							&& !PLR_FLAGGED(i, PLR_OLC)
+                            && af->type != SPELL_ITEM_ATTRACTION_FIELD
+                            && af->type != SPELL_ITEM_REPULSION_FIELD) {
 							send_to_char(i, spell_wear_off_msg[af->type]);
 							send_to_char(i, "\r\n");
 						}
@@ -1434,7 +1436,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_SICKNESS:
-		if (IS_SICK(victim))
+		if (IS_SICK(victim)) 
 			return;
 		af.type = SPELL_SICKNESS;
 		af2.type = SPELL_SICKNESS;
@@ -2776,8 +2778,10 @@ Fireball: like harder bones, skin, organ membranecs
 	 * not have an accumulative effect, then fail the spell.
 	 */
 	if (affected_by_spell(victim, spellnum) && !(accum_duration
-			|| accum_affect))
+			|| accum_affect)) {
+		send_to_char(ch, NOEFFECT);
 		return;
+    }
 
     if (af.bitvector || af.location || af.duration)
 	    affect_join(victim, &af, accum_duration, FALSE, accum_affect, FALSE);
@@ -3152,7 +3156,10 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 			add_rad_sickness((*it), level);
 		}
 		if (spellnum == SONG_SONIC_DISRUPTION) { //drop things
-			obj_data *obj=NULL;
+			obj_data *obj = NULL;
+            if (IS_NPC(*it) && (*it)->mob_specials.shared->func == vendor) {
+                continue;
+            }
 			if ((random_number_zero_low(3 + (level >> 2)) + 3) > GET_DEX(*it) && 
 				!is_arena_combat(ch, *it) && (obj = (*it)->carrying)) { //assignment to obj
 				while (obj) {
