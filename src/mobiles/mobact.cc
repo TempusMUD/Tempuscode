@@ -3174,6 +3174,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_DEVIL(ch)) {
         if( random_number_zero_low(8) < 1 ){
             if( knight_battle_activity(ch, precious_vict) == 0 ){
+                return 0;
             }
         } else if (mob_fight_devil(ch, precious_vict)){
             return 0;
@@ -3954,8 +3955,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
     if (affected_by_spell(ch, SPELL_STIGMATA)) {
 		act("$n tries to open a portal, but the stigmata prevents it!",
 			FALSE, ch, 0, 0, TO_ROOM);
-		damage(ch, ch, dice(15, 100), SPELL_STIGMATA, WEAR_RANDOM);
-        return 0;
+		return damage(ch, ch, dice(15, 100), SPELL_STIGMATA, WEAR_RANDOM);
     }
 	// gating results depend on devil char_class
 	switch (GET_CLASS(ch)) {
