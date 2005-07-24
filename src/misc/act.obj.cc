@@ -2070,7 +2070,7 @@ ACMD(do_drink)
 		else
 			send_to_char(ch, "You drink the %s.\r\n", drinks[GET_OBJ_VAL(temp, 2)]);
 
-		amount = MIN(GET_OBJ_VAL(temp, 1), number(1, 3));
+		amount = MIN(1, number(1, 3));
 
 	} else {
 		act("$n sips from $p.", TRUE, ch, temp, 0, TO_ROOM);
