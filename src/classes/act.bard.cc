@@ -381,10 +381,18 @@ sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songn
 	  vbuf = tmp_sprintf(" to %s", OBJS(ovict, tch));
 	else if (!vict)
 	  vbuf = "";
-	else if (vict == tch)
+	else if (vict == tch && tch != ch)
 	  vbuf = " to you";
 	else if (vict != ch)
 	  vbuf = tmp_sprintf(" to %s", PERS(vict, tch));
+    else if (ch == vict && tch != ch) {
+        if (ch->player.sex == 1)
+            vbuf = " to himself";
+        else if (ch->player.sex == 2)
+            vbuf = " to herself";
+        else
+            vbuf = " to itself";
+    }
 	else
 	  vbuf = " to yourself";
 
