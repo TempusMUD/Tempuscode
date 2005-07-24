@@ -2065,6 +2065,10 @@ ACMD(do_cast)
 		return;
 	}
 
+	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
+				cmd)))
+		return;
+
     if ((ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) &&
 		GET_LEVEL(ch) < LVL_TIMEGOD && (SPELL_IS_MAGIC(spellnum) ||
 			SPELL_IS_DIVINE(spellnum))) {
@@ -2072,10 +2076,6 @@ ACMD(do_cast)
 		act("$n's magic fizzles out and dies.", FALSE, ch, 0, 0, TO_ROOM);
 		return;
 	}
-
-	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
-				cmd)))
-		return;
 
 	// Drunk bastards don't cast very well, do they... -- Nothing 1/22/2001 
 	if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
@@ -2346,6 +2346,10 @@ ACMD(do_trigger)
 		return;
 	}
 
+	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
+				cmd)))
+		return;
+
 	if ((ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)) &&
 		GET_LEVEL(ch) < LVL_TIMEGOD && SPELL_IS_PSIONIC(spellnum)) {
 		send_to_char(ch, "You cannot establish a mental link.\r\n");
@@ -2353,10 +2357,6 @@ ACMD(do_trigger)
 			FALSE, ch, 0, 0, TO_ROOM);
 		return;
 	}
-
-	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
-				cmd)))
-		return;
 
 	// Drunk bastards don't trigger very well, do they... -- Nothing 1/22/2001
 	if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
@@ -2591,6 +2591,10 @@ ACMD(do_alter)
 		return;
 	}
 
+	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
+				cmd)))
+		return;
+
 	if ((ROOM_FLAGGED(ch->in_room, ROOM_NOSCIENCE)) &&
 		SPELL_IS_PHYSICS(spellnum)) {
 		send_to_char(ch, 
@@ -2607,11 +2611,6 @@ ACMD(do_alter)
 			FALSE, ch, 0, 0, TO_ROOM);
 		return;
 	}
-
-
-	if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target, &spellnum,
-				cmd)))
-		return;
 
 	// Drunk bastards don't cast very well, do they... -- Nothing 1/22/2001
 	if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
