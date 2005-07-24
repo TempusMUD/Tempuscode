@@ -2439,7 +2439,7 @@ ACMD(do_insert)
 			return;
 		}
 
-        if (!ch->isOkToAttack(vict, false)) {
+        if (ch->isOkToAttack(vict, false)) {
             send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
             return;
         }
@@ -2708,7 +2708,7 @@ ACMD(do_extract)
 		return;
 	}
 
-    if (!ch->isOkToAttack(vict, false)) {
+    if (ch->isOkToAttack(vict, false)) {
         send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
         return;
     }
