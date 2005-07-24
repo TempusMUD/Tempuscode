@@ -3949,6 +3949,14 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_PSIONIC(ch) && GET_MANA(ch) > 100)
 		num += 3;
 
+    // Devils under the affects of stigmata cannot gate
+    // and take damage every time they try
+    if (affected_by_spell(ch, SPELL_STIGMATA)) {
+		act("$n tries to open a portal, but the stigmata prevents it!",
+			FALSE, ch, 0, 0, TO_ROOM);
+		damage(ch, ch, dice(15, 100), SPELL_STIGMATA, WEAR_RANDOM);
+        return 0;
+    }
 	// gating results depend on devil char_class
 	switch (GET_CLASS(ch)) {
 	case CLASS_LESSER:
