@@ -31,6 +31,7 @@
 #include "flow_room.h"
 #include "fight.h"
 #include "obj_data.h"
+#include "vendor.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
