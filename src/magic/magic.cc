@@ -2780,7 +2780,6 @@ Fireball: like harder bones, skin, organ membranecs
 	 */
 	if (affected_by_spell(victim, spellnum) && !(accum_duration
 			|| accum_affect)) {
-		send_to_char(ch, NOEFFECT);
 		return;
     }
 
