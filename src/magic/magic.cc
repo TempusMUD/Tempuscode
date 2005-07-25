@@ -3118,6 +3118,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
         }
     }
 	
+    it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		// skips:
 		//          caster
