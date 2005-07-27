@@ -728,6 +728,7 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 	else {
         if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK && 
             !IS_NPC(ch) && ch->getLevel() < LVL_AMBASSADOR &&
+            IS_CORPSE(cont) && 
             CORPSE_IDNUM(cont) != GET_IDNUM(ch) &&
             CORPSE_IDNUM(cont) > 0) {
             send_to_char(ch, "You may not loot corpses in NPK zones.\r\n");
