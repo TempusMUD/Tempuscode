@@ -31,10 +31,6 @@ using namespace std;
 extern struct descriptor_data *descriptor_list;
 extern HelpCollection *Help;
 
-/* Sets up text editor params and echo's passed in message.
-*/
-
-
 // Constructor
 // Params: Users descriptor, The final destination of the text, 
 //      the max size of the text.
@@ -50,8 +46,8 @@ CEditor::CEditor(struct descriptor_data *d, int max)
 void
 CEditor::SendStartupMessage(void)
 {
-    send_to_desc(desc, "&C    * &YTEDII &b]&n Save and exit with @ on a new line. &&H for help             &C*\r\n");
-    send_to_desc(desc, "    ");
+    send_to_desc(desc, "&C     * &YTEDII &b]&n Save and exit with @ on a new line. &&H for help             &C*\r\n");
+    send_to_desc(desc, "     ");
 	for (int i = 0; i < 7; i++)
         send_to_desc(desc, "&C%d&B---------", i);
     send_to_desc(desc, "&C7&n\r\n");
@@ -60,7 +56,7 @@ CEditor::SendStartupMessage(void)
 void
 CEditor::SendPrompt(void)
 {
-    send_to_desc(desc, "%2d&b]&n ", theText.size() + 1);
+    send_to_desc(desc, "%3d&b]&n ", theText.size() + 1);
 }
 
 void
@@ -135,7 +131,7 @@ CEditor::DisplayBuffer(unsigned int startline)
          itr++;
 
 	for (i = startline; itr != theText.end(); i++, itr++) {
-		acc_sprintf("%2d%s%s]%s %s\r\n", i,
+		acc_sprintf("%3d%s%s]%s %s\r\n", i,
                     CCBLD(desc->creature, C_CMP),
                     CCBLU(desc->creature, C_NRM),
                     CCNRM(desc->creature, C_NRM),

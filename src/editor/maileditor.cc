@@ -161,7 +161,7 @@ CMailEditor::ListRecipients(void)
 {
 	struct mail_recipient_data *mail_rcpt = NULL;
 
-    send_to_desc(desc, "    &yTo&b: &c");
+    send_to_desc(desc, "     &yTo&b: &c");
 	for (mail_rcpt = mail_to; mail_rcpt;mail_rcpt = mail_rcpt->next) {
         send_to_desc(desc, tmp_capitalize(playerIndex.getName(mail_rcpt->recpt_idnum)));
         if (mail_rcpt->next)
