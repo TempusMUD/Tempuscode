@@ -60,11 +60,6 @@ start_editing_file(struct descriptor_data *d, const char *fname)
                      fname);
         return;
     }
-    else if (sbuf.st_size == 0) {
-        send_to_char(d->creature, "%s seems to be empty.\r\n",
-                     fname);
-        return;
-    }
 
 	d->text_editor = new CFileEditor(d, fname);
     SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
@@ -73,33 +68,42 @@ start_editing_file(struct descriptor_data *d, const char *fname)
 CFileEditor::CFileEditor(descriptor_data *desc, const char *filename)
     : CEditor(desc, MAX_EDIT_FILESIZE), fname(filename)
 {
-    FILE *fd = fopen(filename, "r+");
+    FILE *fd = NULL;
     struct stat sbuf;
     char *target;
 
     loaded = true;
     wrap = false;
 
-    stat(filename, &sbuf);
-    if (!(target = (char *)malloc(sbuf.st_size + 1))) 
+    if (stat(filename, &sbuf) < 0) {
+		errlog("Couldn't open %s for editing: %s", filename, strerror(errno));
+		loaded = false;
+		return;
+	}
+	CREATE(target, char, sbuf.st_size + 1);
+	if (!target) {
+		errlog("Couldn't allocate memory to edit %s", filename);
         loaded = false;
+		return;
+	}
 
-    memset(target, 0x0, sbuf.st_size + 1);
-    if (fd && (fread(target, sbuf.st_size, 1, fd) < 1))
-        loaded = false;
+	fd = fopen(filename, "r");
+    if (fd && fread(target, sizeof(char), sbuf.st_size, fd) == sbuf.st_size) {
+		if (*target)
+			ImportText(target);
 
-    if (!fd || !loaded) {
-        wrap = true;
-        loaded = false;
+		SendStartupMessage();
+		DisplayBuffer();
+	} else {
         sprintf(target, "An unknown error occured while reading the file. "
                         "Please bug this.  You will not be able to save.");
+        wrap = true;
     }
-    else
-        free(target);
-
-    ImportText(target);
-    SendStartupMessage();
-    DisplayBuffer();
+	
+	if (target)
+		free(target);
+	if (fd)
+		fclose(fd);
 }
 
 CFileEditor::~CFileEditor(void)
