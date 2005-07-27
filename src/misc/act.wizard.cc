@@ -8538,12 +8538,18 @@ ACMD(do_edit)
 
     arg = tmp_getword(&argument);
 
-    if (isname(arg, "bugs"))
+    if (isname(arg, "bugs")) {
+        act("$n begins to edit the bug file.", false, ch, 0, 0, TO_ROOM);
         start_editing_file(ch->desc, BUG_FILE);
-    else if (isname(arg, "typos"))
+    }
+    else if (isname(arg, "typos")) {
+        act("$n begins to edit the typo file.", false, ch, 0, 0, TO_ROOM);
         start_editing_file(ch->desc, TYPO_FILE);
-    else if (isname(arg, "ideas"))
+    }
+    else if (isname(arg, "ideas")) {
+        act("$n begins to edit the idea file.", false, ch, 0, 0, TO_ROOM);
         start_editing_file(ch->desc, IDEA_FILE);
+    }
     else
         send_to_char(ch, "Edit what?!?\r\n");
 
