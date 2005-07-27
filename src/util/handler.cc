@@ -112,7 +112,7 @@ isname(const char *str, const char *namelist)
 	while (*curname) {
 		curstr = str;
 		while (true) {
-			if (!*curstr || isspace(*curstr))		// && !isalnum(*curname))
+			if (!*curstr || isspace(*curstr))
 				return true;
 
 			if (!*curname)
@@ -698,8 +698,6 @@ affect_total(struct Creature *ch)
 
 	i = GET_STR(ch);
 	i += GET_ADD(ch) / 10;
-	/*  if (GET_STR(ch) > 18)
-	   i += 10; */
 	if (i > 28) {
 		if (IS_REMORT(ch) || IS_MINOTAUR(ch) || IS_NPC(ch) ||
 			IS_HALF_ORC(ch) || IS_DWARF(ch) || IS_ORC(ch) ||
@@ -925,7 +923,8 @@ retire_trails(void)
 					zn->weather->sky >= SKY_RAINING) {
 					trail->track--;
 				}
-				if (trail->track <= 0 || trail->time <= del_time) {	// delete trail
+				if (trail->track <= 0 || trail->time <= del_time) {
+                    // delete trail
 					if (trail->name) {
 						free(trail->name);
 						trail->name = NULL;
@@ -1926,26 +1925,6 @@ obj_from_obj(struct obj_data *obj)
 		}
 	}
 
-	/*
-	   obsolete
-
-	   // Subtract weight from containers container
-	   for (temp = obj->in_obj; temp->in_obj; temp = temp->in_obj)
-	   temp->modifyWeight( - obj->getWeight() );
-
-	   // Subtract weight from char that carries the object
-	   temp->modifyWeight( - obj->getWeight() );
-
-	   if (temp->carried_by)
-	   IS_CARRYING_W(temp->carried_by) -= obj->getWeight();
-	   else if (temp->worn_by) {
-	   if (temp == GET_IMPLANT(temp->worn_by, temp->worn_on))
-	   GET_WEIGHT(temp->worn_by) -= obj->getWeight();
-	   else
-	   IS_WEARING_W(temp->worn_by) -= obj->getWeight();
-
-	 */
-
 	if (obj_from->in_room && ROOM_FLAGGED(obj_from->in_room, ROOM_HOUSE))
 		SET_BIT(ROOM_FLAGS(obj_from->in_room), ROOM_HOUSE_CRASH);
 
@@ -1953,18 +1932,6 @@ obj_from_obj(struct obj_data *obj)
 	obj->next_content = NULL;
 
 	REMOVE_BIT(GET_OBJ_EXTRA2(obj), ITEM2_HIDDEN);
-}
-
-
-/* Set all carried_by to point to new owner */
-void
-object_list_new_owner(struct obj_data *list, struct Creature *ch)
-{
-	if (list) {
-		object_list_new_owner(list->contains, ch);
-		object_list_new_owner(list->next_content, ch);
-		list->carried_by = ch;
-	}
 }
 
 

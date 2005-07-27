@@ -62,7 +62,6 @@ void obj_to_room(struct obj_data *object, struct room_data *room, bool sorted = 
 void obj_from_room(struct obj_data *object);
 void obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted = true);
 void obj_from_obj(struct obj_data *obj);
-void object_list_new_owner(struct obj_data *list, struct Creature *ch);
 
 void extract_obj(struct obj_data *obj);
 
