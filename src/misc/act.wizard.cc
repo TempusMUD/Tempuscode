@@ -63,6 +63,7 @@ using namespace std;
 #include "mobile_map.h"
 #include "object_map.h"
 #include "house.h"
+#include "editor.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -8529,6 +8530,24 @@ int do_freeze_char(char *argument, Creature *vict, Creature *ch)
            GET_NAME(vict), GET_NAME(ch)); 
  
     return 1;
+}
+
+ACMD(do_edit)
+{
+    char *arg;
+
+    arg = tmp_getword(&argument);
+
+    if (isname(arg, "bugs"))
+        start_editing_file(ch->desc, BUG_FILE);
+    else if (isname(arg, "typos"))
+        start_editing_file(ch->desc, TYPO_FILE);
+    else if (isname(arg, "ideas"))
+        start_editing_file(ch->desc, IDEA_FILE);
+    else
+        send_to_char(ch, "Edit what?!?\r\n");
+
+    return;
 }
 
 ACMD(do_delete)

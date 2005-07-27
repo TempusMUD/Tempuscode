@@ -24,9 +24,7 @@ $(OBJ)/clan.o: clan.cc ../include/structs.h ../include/defs.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
   ../include/comm.h ../include/security.h ../include/screen.h \
-  ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/house.h \
+  ../include/handler.h ../include/db.h ../include/house.h \
   ../include/clan.h ../include/char_class.h ../include/actions.h \
   ../include/spells.h ../include/mobact.h ../include/accstr.h \
   ../include/player_table.h

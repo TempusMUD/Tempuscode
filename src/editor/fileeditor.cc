@@ -52,10 +52,16 @@ start_editing_file(struct descriptor_data *d, const char *fname)
                      fname);
         return;
     }
+
     stat(fname, &sbuf);
     if (sbuf.st_size > MAX_EDIT_FILESIZE) {
         errlog("Attempt to edit file too large for editor!");
         send_to_char(d->creature, "%s is too large. Bug this.\r\n",
+                     fname);
+        return;
+    }
+    else if (sbuf.st_size == 0) {
+        send_to_char(d->creature, "%s seems to be empty.\r\n",
                      fname);
         return;
     }
@@ -79,12 +85,15 @@ CFileEditor::CFileEditor(descriptor_data *desc, const char *filename)
         loaded = false;
 
     memset(target, 0x0, sbuf.st_size + 1);
-    if (fd && fread(target, sbuf.st_size, 1, fd) < 1)
+    if (fd && (fread(target, sbuf.st_size, 1, fd) < 1))
         loaded = false;
 
-    if (!fd || !loaded)
+    if (!fd || !loaded) {
+        wrap = true;
+        loaded = false;
         sprintf(target, "An unknown error occured while reading the file. "
                         "Please bug this.  You will not be able to save.");
+    }
     else
         free(target);
 

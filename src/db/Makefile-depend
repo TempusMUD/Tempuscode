@@ -25,9 +25,7 @@ $(OBJ)/account.o: account.cc ../include/utils.h ../include/structs.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/player_table.h \
   ../include/comm.h ../include/security.h ../include/screen.h \
-  ../include/clan.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h
+  ../include/clan.h ../include/handler.h ../include/db.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/analysis.o: analysis.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -56,9 +54,7 @@ $(OBJ)/analysis.o: analysis.cc ../include/structs.h ../include/defs.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
   ../include/comm.h ../include/screen.h ../include/tokenizer.h \
   ../include/obj_matcher.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
-  ../include/olc.h ../include/object_map.h
+  ../include/spells.h ../include/olc.h ../include/object_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/constants.o: constants.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -111,15 +107,14 @@ $(OBJ)/db.o: db.cc ../include/structs.h ../include/defs.h ../include/macros.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
-  ../include/handler.h ../include/spells.h ../include/mail.h \
-  ../include/house.h ../include/screen.h ../include/flow_room.h \
-  ../include/clan.h ../include/paths.h ../include/quest.h \
-  ../include/char_class.h ../include/actions.h ../include/mobact.h \
-  ../include/security.h ../include/olc.h ../include/help.h \
-  ../include/player_table.h ../include/specs.h ../include/language.h \
-  ../include/prog.h ../include/mobile_map.h ../include/object_map.h
+  ../include/db.h ../include/comm.h ../include/handler.h \
+  ../include/spells.h ../include/mail.h ../include/house.h \
+  ../include/screen.h ../include/flow_room.h ../include/clan.h \
+  ../include/paths.h ../include/quest.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h ../include/security.h \
+  ../include/olc.h ../include/help.h ../include/player_table.h \
+  ../include/specs.h ../include/language.h ../include/prog.h \
+  ../include/mobile_map.h ../include/object_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/obj_matcher.o: obj_matcher.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -148,9 +143,8 @@ $(OBJ)/obj_matcher.o: obj_matcher.cc ../include/structs.h ../include/defs.h \
   ../include/zone_data.h ../include/ban.h ../include/specs.h \
   ../include/comm.h ../include/materials.h ../include/obj_matcher.h \
   ../include/utils.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
-  ../include/olc.h ../include/tokenizer.h ../include/screen.h
+  ../include/spells.h ../include/olc.h ../include/tokenizer.h \
+  ../include/screen.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/objsave.o: objsave.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -177,9 +171,7 @@ $(OBJ)/objsave.o: objsave.cc ../include/structs.h ../include/defs.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/comm.h \
-  ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/utils.h \
+  ../include/handler.h ../include/db.h ../include/utils.h \
   ../include/spells.h ../include/screen.h ../include/vehicle.h \
   ../include/house.h ../include/bomb.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
@@ -209,8 +201,7 @@ $(OBJ)/xml.o: xml.cc ../include/constants.h ../include/utils.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/vendor.h \
-  ../include/comm.h ../include/mobile_map.h ../include/object_map.h
+  ../include/vendor.h ../include/comm.h ../include/mobile_map.h \
+  ../include/object_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/account.o $(OBJ)/analysis.o $(OBJ)/constants.o $(OBJ)/db.o $(OBJ)/obj_matcher.o $(OBJ)/objsave.o $(OBJ)/xml.o

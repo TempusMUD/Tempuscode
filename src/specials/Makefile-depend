@@ -24,13 +24,11 @@ $(OBJ)/demonic_guard.o: demonic_guard.cc /usr/include/libxml2/libxml/parser.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
   ../include/comm.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
-  ../include/char_class.h ../include/actions.h ../include/mobact.h \
-  ../include/screen.h ../include/clan.h ../include/materials.h \
-  ../include/paths.h ../include/specs.h ../include/login.h \
-  ../include/house.h ../include/fight.h ../include/player_table.h \
-  ../include/security.h
+  ../include/spells.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/screen.h ../include/clan.h \
+  ../include/materials.h ../include/paths.h ../include/specs.h \
+  ../include/login.h ../include/house.h ../include/fight.h \
+  ../include/player_table.h ../include/security.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/duke.o: duke.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -58,9 +56,7 @@ $(OBJ)/duke.o: duke.cc ../include/structs.h ../include/defs.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
   ../include/comm.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
-  ../include/fight.h
+  ../include/spells.h ../include/fight.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/hell_hunter_spec.o: hell_hunter_spec.cc \
   /usr/include/libxml2/libxml/parser.h \
@@ -89,13 +85,11 @@ $(OBJ)/hell_hunter_spec.o: hell_hunter_spec.cc \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
   ../include/comm.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
-  ../include/char_class.h ../include/actions.h ../include/mobact.h \
-  ../include/screen.h ../include/clan.h ../include/vehicle.h \
-  ../include/materials.h ../include/paths.h ../include/specs.h \
-  ../include/login.h ../include/house.h ../include/fight.h \
-  ../include/hell_hunter_spec.h
+  ../include/spells.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/screen.h ../include/clan.h \
+  ../include/vehicle.h ../include/materials.h ../include/paths.h \
+  ../include/specs.h ../include/login.h ../include/house.h \
+  ../include/fight.h ../include/hell_hunter_spec.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/remorter.o: remorter.cc /usr/include/libxml2/libxml/parser.h \
   /usr/include/libxml2/libxml/xmlversion.h \
@@ -123,13 +117,11 @@ $(OBJ)/remorter.o: remorter.cc /usr/include/libxml2/libxml/parser.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
   ../include/comm.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
-  ../include/char_class.h ../include/actions.h ../include/mobact.h \
-  ../include/screen.h ../include/clan.h ../include/vehicle.h \
-  ../include/materials.h ../include/paths.h ../include/specs.h \
-  ../include/login.h ../include/house.h ../include/fight.h \
-  ../include/remorter.h ../include/player_table.h
+  ../include/spells.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/screen.h ../include/clan.h \
+  ../include/vehicle.h ../include/materials.h ../include/paths.h \
+  ../include/specs.h ../include/login.h ../include/house.h \
+  ../include/fight.h ../include/remorter.h ../include/player_table.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/spec_assign.o: spec_assign.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -156,10 +148,9 @@ $(OBJ)/spec_assign.o: spec_assign.cc ../include/structs.h ../include/defs.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/utils.h \
-  ../include/specs.h ../include/screen.h ../include/comm.h \
-  ../include/vendor.h ../include/mobile_map.h ../include/object_map.h
+  ../include/utils.h ../include/specs.h ../include/screen.h \
+  ../include/comm.h ../include/vendor.h ../include/mobile_map.h \
+  ../include/object_map.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/spec_procs.o: spec_procs.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -187,14 +178,12 @@ $(OBJ)/spec_procs.o: spec_procs.cc ../include/structs.h ../include/defs.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
   ../include/comm.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
-  ../include/char_class.h ../include/actions.h ../include/mobact.h \
-  ../include/screen.h ../include/clan.h ../include/vehicle.h \
-  ../include/materials.h ../include/paths.h ../include/security.h \
-  ../include/olc.h ../include/specs.h ../include/login.h \
-  ../include/house.h ../include/fight.h ../include/accstr.h \
-  ../include/tokenizer.h ../include/player_table.h \
+  ../include/spells.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/screen.h ../include/clan.h \
+  ../include/vehicle.h ../include/materials.h ../include/paths.h \
+  ../include/security.h ../include/olc.h ../include/specs.h \
+  ../include/login.h ../include/house.h ../include/fight.h \
+  ../include/accstr.h ../include/tokenizer.h ../include/player_table.h \
   ../include/object_map.h Specs/modrian_specs/shimmering_portal.spec \
   Specs/modrian_specs/wagon_obj.spec Specs/modrian_specs/wagon_room.spec \
   Specs/modrian_specs/wagon_driver.spec \
@@ -359,7 +348,6 @@ $(OBJ)/styx.o: styx.cc ../include/structs.h ../include/defs.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
   ../include/comm.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h
+  ../include/spells.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/demonic_guard.o $(OBJ)/duke.o $(OBJ)/hell_hunter_spec.o $(OBJ)/remorter.o $(OBJ)/spec_assign.o $(OBJ)/spec_procs.o $(OBJ)/styx.o
