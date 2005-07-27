@@ -201,7 +201,7 @@ $(OBJ)/act.wizard.o: act.wizard.cc ../include/structs.h ../include/defs.h \
   ../include/tokenizer.h ../include/accstr.h ../include/player_table.h \
   ../include/quest.h ../include/memtrack.h ../include/boards.h \
   ../include/language.h ../include/prog.h ../include/mobile_map.h \
-  ../include/object_map.h
+  ../include/object_map.h ../include/editor.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/config.o: config.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \

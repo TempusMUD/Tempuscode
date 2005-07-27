@@ -27,7 +27,7 @@ $(OBJ)/magic.o: magic.cc ../include/structs.h ../include/defs.h \
   ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
   /usr/local/pgsql/include/postgres_ext.h ../include/char_class.h \
   ../include/actions.h ../include/mobact.h ../include/flow_room.h \
-  ../include/fight.h
+  ../include/fight.h ../include/vendor.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/spell_parser.o: spell_parser.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \

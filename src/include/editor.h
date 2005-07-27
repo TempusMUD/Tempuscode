@@ -41,6 +41,7 @@ protected:
     list<string> theText;
 	unsigned int curSize;
 	unsigned int maxSize;
+    bool wrap;
 
 private:
     void Finish(bool save);
@@ -161,6 +162,26 @@ protected:
     virtual void Finalize(const char *text);
 };
 
+class CFileEditor : public CEditor {
+public:
+    CFileEditor(descriptor_data *desc, const char *fname);
+    virtual ~CFileEditor(void);
+
+    virtual bool IsEditing(char *inStr) {
+        return false;
+    }
+
+    bool loaded;
+    string fname;
+
+protected:
+    CFileEditor(void);
+
+    virtual bool PerformCommand(char cmd, char *args);
+    virtual void Finalize(const char *text);
+};
+
+
 // Interfaces to the editor from the outside world.
 void start_editing_text(struct descriptor_data *d,
                         char **target,
@@ -177,4 +198,6 @@ void start_editing_board(struct descriptor_data *d,
                          const char *subject);
 void start_editing_poll(struct descriptor_data *d,
                         const char *header);
+void start_editing_file(struct descriptor_data *d,
+                        const char *fname);
 #endif

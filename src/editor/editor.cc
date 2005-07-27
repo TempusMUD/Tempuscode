@@ -44,6 +44,7 @@ CEditor::CEditor(struct descriptor_data *d, int max)
 	desc = d;
     curSize = 0;
 	maxSize = max;
+    wrap = true;
 }
 
 void
@@ -179,7 +180,8 @@ CEditor::Append(char *inStr)
 		*writePt = '\0';
 	}
 	theText.push_back(inStr);
-	Wrap();
+    if (wrap)
+	    Wrap();
 	UpdateSize();
 }
 
@@ -207,7 +209,8 @@ CEditor::Insert(unsigned int line, char *inStr)
 
 	// Insert the new text
 	theText.insert(s, text);
-	Wrap();
+    if (wrap)
+	    Wrap();
 	UpdateSize();
 
 	return true;
@@ -245,7 +248,8 @@ CEditor::ReplaceLine(unsigned int line, char *inStr)
 	// Insert the new text
 	theText.insert(s, text);
 
-	Wrap();
+    if (wrap)
+	    Wrap();
 	UpdateSize();
 	return true;
 }
@@ -350,7 +354,8 @@ CEditor::FindReplace(char *args)
 	} else if (!overflow) {
 		SendMessage("Search string not found.\r\n");
 	}
-	Wrap();
+    if (wrap)
+	    Wrap();
 	UpdateSize();
 	return true;
 }
@@ -408,7 +413,8 @@ CEditor::Remove(unsigned int line)
 	theText.erase(s);
 	SendMessage(tmp_sprintf("Line %d deleted.\r\n", line));
 
-	Wrap();
+    if (wrap)
+	    Wrap();
 	UpdateSize();
 	return true;
 }
@@ -437,7 +443,8 @@ CEditor::ImportText(char *str)
     theText = origText;
 
     UpdateSize();
-	Wrap();
+    if (wrap)
+	    Wrap();
 }
 
 void
