@@ -184,7 +184,6 @@ bool save_zone(struct Creature *ch, struct zone_data *zone);
 struct room_data *do_create_room(struct Creature *ch, int vnum);
 struct obj_data *do_create_obj(struct Creature *ch, int vnum);
 struct Creature *do_create_mob(struct Creature *ch, int vnum);
-struct help_index_element *do_create_help(struct Creature *ch);
 
 int do_destroy_room(struct Creature *ch, int vnum);
 int do_destroy_object(struct Creature *ch, int vnum);
@@ -1729,7 +1728,6 @@ const char *olc_help_keys[] = {
 
 #define NUM_OLC_HELPS   42
 #define NUM_SHOP_TEMPER 6
-#define NUM_SHOP_FLAGS 4
 
 void
 show_olc_help(struct Creature *ch, char *arg)

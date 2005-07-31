@@ -24,8 +24,6 @@
 #include "player_table.h"
 #include "mobile_map.h"
 
-#define NUM_ZSET_COMMANDS 13
-
 const char *door_flags[] = {
 	"OPEN",
 	"CLOSED",

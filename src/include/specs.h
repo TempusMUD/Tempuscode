@@ -41,8 +41,6 @@ SPECIAL(asp);
 SPECIAL(medusa);
 SPECIAL(temple_healer);
 SPECIAL(barbarian);
-SPECIAL(thieves_guard_south);
-SPECIAL(thieves_guard_west);
 SPECIAL(chest_mimic);
 SPECIAL(rat_mama);
 SPECIAL(improve_dex);
@@ -140,9 +138,6 @@ SPECIAL(training_master);
 SPECIAL(peter);
 SPECIAL(jerry);
 SPECIAL(lounge_soldier);
-SPECIAL(chess_guard_no_east);
-SPECIAL(chess_guard_no_west);
-SPECIAL(armory_guard);
 SPECIAL(armory_person);
 SPECIAL(increaser);
 SPECIAL(quasimodo);
@@ -167,9 +162,6 @@ SPECIAL(head_shrinker);
 SPECIAL(multi_healer);
 SPECIAL(slaver);
 SPECIAL(tarrasque);
-
-SPECIAL(cheeky_monkey);
-SPECIAL(hobbes_speaker);
 
 SPECIAL(rust_monster);
 SPECIAL(weaponsmaster);

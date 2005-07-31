@@ -15,8 +15,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define __nanny_c__
-
 #include <arpa/telnet.h>
 #include "structs.h"
 #include "comm.h"

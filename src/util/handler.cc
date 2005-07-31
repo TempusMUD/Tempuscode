@@ -48,10 +48,6 @@ extern struct descriptor_data *descriptor_list;
 long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 void path_remove_object(void *object);
 void free_paths();
-void free_text_files();
-void free_remort_quiz();
-void free_ptable();
-void free_fight();
 void free_socials();
 void print_attributes_to_buf(struct Creature *ch, char *buff);
 extern struct clan_data *clan_list;
@@ -757,7 +753,7 @@ affect_to_char(struct Creature *ch, struct affected_type *af)
  * reaches zero). Pointer *af must never be NIL!  Frees mem and calls
  * affect_location_apply
  */
-int holytouch_after_effect(long toucher, Creature * vict, int level);
+int holytouch_after_effect(long owner, Creature * vict, int level);
 int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	int pos);
 

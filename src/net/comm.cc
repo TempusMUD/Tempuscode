@@ -15,8 +15,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define __COMM_C__
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

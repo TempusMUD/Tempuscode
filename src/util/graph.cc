@@ -16,7 +16,6 @@
 // 
 
 #define TRACK_THROUGH_DOORS
-#define TRACK_THROUGH_DTS
 
 /* You can define or not define TRACK_THOUGH_DOORS, above, depending on
    whether or not you want track to find paths which lead through closed

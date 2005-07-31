@@ -8,8 +8,6 @@
 // act.thief.c
 //
 
-#define __act_thief_c__
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

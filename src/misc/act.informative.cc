@@ -129,8 +129,10 @@ ACMD(do_say);
 #define SHOW_OBJ_INV     1
 #define SHOW_OBJ_CONTENT 2
 #define SHOW_OBJ_NOBITS  3
+#define SHOW_OBJ_UNUSED  4
 #define SHOW_OBJ_EXTRA   5
 #define SHOW_OBJ_BITS    6
+
 
 void
 show_obj_to_char(struct obj_data *object, struct Creature *ch,
@@ -144,10 +146,12 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 			acc_strcat(object->line_desc, NULL);
 		else if (IS_IMMORT(ch))
 			acc_sprintf("%s exists here.\r\n", object->name);
-	} else if (mode == 1 || mode == 2 || mode == 3 || mode == 4) {
+	} else if (mode == SHOW_OBJ_ROOM ||
+               mode == SHOW_OBJ_INV ||
+               mode == SHOW_OBJ_CONTENT) {
 		if (object->name)
 			acc_strcat(object->name, NULL);
-	} else if (mode == 5) {
+	} else if (mode == SHOW_OBJ_EXTRA) {
 		if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
 			if (object->action_desc) {
 				page_string(ch->desc, object->action_desc);
@@ -199,7 +203,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 			acc_strcat("You see nothing special.", NULL);
 		}
 	}
-	if (mode != 3) {
+	if (mode != SHOW_OBJ_NOBITS) {
 		found = false;
 
 		if (IS_OBJ_STAT2(object, ITEM2_BROKEN)) {
@@ -341,11 +345,11 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
                                   CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
             }
         }
-		if (mode == 0)
+		if (mode == SHOW_OBJ_ROOM)
 			acc_strcat(CCGRN(ch, C_NRM), NULL);
 	}
 
-	if (!((mode == 0) && !object->line_desc)) {
+	if (!((mode == SHOW_OBJ_ROOM) && !object->line_desc)) {
 		if (count > 1)
 			acc_sprintf(" [%d]", count);
 		acc_strcat("\r\n", NULL);
@@ -353,7 +357,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 
 	page_string(ch->desc, acc_get_string());
 
-	if (GET_OBJ_TYPE(object) == ITEM_VEHICLE && mode == 6) {
+	if (GET_OBJ_TYPE(object) == ITEM_VEHICLE && mode == SHOW_OBJ_BITS) {
 		if (CAR_OPENABLE(object)) {
 			if (CAR_CLOSED(object))
 				act("The door of $p is closed.", TRUE, ch, object, 0, TO_CHAR);
@@ -3041,10 +3045,6 @@ ACMD(do_weather)
 	}
 }
 
-#define WHO_FORMAT \
-"format: who [minlev[-maxlev]] [-n name] [-a clan] [-<soqmfx>]\r\n"
-
-
 //generates a formatted string representation of a player for the who list
 string
 whoString(Creature *ch, Creature *target) {
@@ -3701,39 +3701,6 @@ ACMD(do_gen_ps)
 	default:
 		return;
 		break;
-	}
-}
-
-
-void
-perform_mortal_where(struct Creature *ch, char *arg)
-{
-	register struct Creature *i = NULL;
-	register struct descriptor_data *d;
-
-	if (!*arg) {
-		send_to_char(ch, "Players in your Zone\r\n--------------------\r\n");
-		for (d = descriptor_list; d; d = d->next) {
-			if (STATE(d) == CXN_PLAYING) {
-				i = (d->original ? d->original : d->creature);
-				if (i && can_see_creature(ch, i) && (i->in_room != NULL) &&
-					(ch->in_room->zone == i->in_room->zone)) {
-					send_to_char(ch, "%-20s - %s\r\n", GET_NAME(i),
-						i->in_room->name);
-				}
-			}
-		}
-	} else {					/* print only FIRST char, not all. */
-		CreatureList::iterator cit = characterList.begin();
-		for (; cit != characterList.end(); ++cit) {
-			i = *cit;
-			if (i->in_room->zone == ch->in_room->zone && can_see_creature(ch, i) &&
-				(i->in_room != NULL) && isname(arg, i->player.name)) {
-				send_to_char(ch, "%-25s - %s\r\n", GET_NAME(i), i->in_room->name);
-				return;
-			}
-		}
-		send_to_char(ch, "No-one around by that name.\r\n");
 	}
 }
 

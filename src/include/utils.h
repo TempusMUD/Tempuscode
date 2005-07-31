@@ -128,9 +128,6 @@ int do_simple_move(struct Creature *ch, int dir, int mode, int following);
 int perform_move(struct Creature *ch, int dir, int mode, int following);
 
 /* in limits.c */
-int mana_limit(struct Creature *ch);
-int hit_limit(struct Creature *ch);
-int move_limit(struct Creature *ch);
 int mana_gain(struct Creature *ch);
 int hit_gain(struct Creature *ch);
 int move_gain(struct Creature *ch);

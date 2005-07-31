@@ -47,7 +47,6 @@ struct criminal_rec {
 };
 #define DEMONIC_BASE 90
 #define ARCHONIC_BASE 100
-#define KILLER_GRACE	5
 
 criminal_rec *criminal_list = NULL;
 /*   external vars  */

@@ -86,12 +86,9 @@ int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 #define DOOR_IS_HEAVY(ch, obj, door)     (!obj && \
                                           (IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR)))
 
-#define DOOR_IS_CLOSED(ch, obj, door)        (!(DOOR_IS_OPEN(ch, obj, door)))
 #define DOOR_IS_LOCKED(ch, obj, door)        (!(DOOR_IS_UNLOCKED(ch, obj, door)))
 #define DOOR_KEY(ch, obj, door)                ((obj) ? (GET_OBJ_VAL(obj, 2)) : \
                                          (EXIT(ch, door)->key))
-#define DOOR_LOCK(ch, obj, door)        ((obj) ? (GET_OBJ_VAL(obj, 1)) : \
-                                         (EXIT(ch, door)->exit_info))
 #define DOOR_IS_SPECIAL(ch, obj, door) (!obj && \
                                         DOOR_FLAGGED(ch, door, EX_SPECIAL))
 

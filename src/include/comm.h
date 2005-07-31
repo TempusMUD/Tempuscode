@@ -34,7 +34,6 @@ void send_to_zone(char *messg, struct zone_data *zone, int outdoor);
 void send_to_comm_channel(struct Creature *ch, char *buff, int chan, int mode,
 	int hide_invis);
 void send_to_newbie_helpers(char *messg);
-void perform_to_all(char *messg, struct Creature *ch);
 void close_socket(struct descriptor_data *d);
 
 void perform_act(const char *orig, struct Creature *ch,

@@ -15,8 +15,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define __act_comm_cc__
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

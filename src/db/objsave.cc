@@ -51,7 +51,6 @@ ACMD(do_tell);
 SPECIAL(receptionist);
 SPECIAL(cryogenicist);
 void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
-int write_plrtext(struct obj_data *obj, FILE * fl);
 
 void
 extract_norents(struct obj_data *obj)

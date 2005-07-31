@@ -162,9 +162,6 @@ const char *prac_types[] = {
 	"\n",
 };
 
-#define LEARNED_LEVEL        0	/* % known which is considered "learned" */
-#define MAX_PER_PRAC        1	/* max percent gain in skill per practice */
-#define MIN_PER_PRAC        2	/* min percent gain in skill per practice */
 #define PRAC_TYPE        3		/* should it say 'spell' or 'skill'?         */
 
 /* actual prac_params are in char_class.c */

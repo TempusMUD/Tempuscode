@@ -1,9 +1,5 @@
-#define __room_data_cc__
 #include "structs.h"
 #include "room_data.h"
-// 
-//
-//
 
 bool
 room_data::isOpenAir(void)

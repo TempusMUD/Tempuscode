@@ -88,7 +88,7 @@ CFileEditor::CFileEditor(descriptor_data *desc, const char *filename)
 	}
 
 	fd = fopen(filename, "r");
-    if (fd && fread(target, sizeof(char), sbuf.st_size, fd) == sbuf.st_size) {
+    if (fd && fread(target, sizeof(char), sbuf.st_size, fd) == (size_t)sbuf.st_size) {
 		if (*target)
 			ImportText(target);
 

@@ -1217,28 +1217,7 @@ renum_world(void)
     }
 }
 
-
-/*************
-void renum_world(void)
-{
-  register int door;
-  register struct room_data *room;
-  register struct zone_data *zone;
-  
-  for (zone = zone_table; zone; zone = zone->next)
-    for (room = zone->world; room; room = room->next)
-      for (door = 0; door < NUM_OF_DIRS; door++)
-        if (room->dir_option[door]&&room->dir_option[door]->to_room!=NOWHERE)
-            room->dir_option[door]->to_room = 
-              real_room(room->dir_option[door]->to_room);
-
-}
-***/
-
-#define ZCMD         zone->cmd
-#define new_ZCMD new_zone->cmd
-
-/* resulve vnums into rnums in the zone reset tables */
+/* resolve vnums into rnums in the zone reset tables */
 void
 renum_zone_table(void)
 {

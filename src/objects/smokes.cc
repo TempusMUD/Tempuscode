@@ -4,9 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define __smokes_c__
-
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

@@ -8,8 +8,6 @@
 // act.knight.c
 //
 
-#define __act_knight_c__
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

@@ -1,5 +1,3 @@
-#define __obj_data_cc__
-
 #include "structs.h"
 #include "utils.h"
 #include "handler.h"

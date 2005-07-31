@@ -8,8 +8,6 @@
 // act.ranger.c
 //
 
-#define __act_ranger_c__
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

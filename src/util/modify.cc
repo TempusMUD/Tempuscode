@@ -59,27 +59,6 @@ extern char *areas;
 void show_string(struct descriptor_data *d);
 extern struct descriptor_data *descriptor_list;
 
-char *string_fields[] = {
-	"name",
-	"short",
-	"long",
-	"description",
-	"title",
-	"delete-description",
-	"\n"
-};
-
-
-/* maximum length for text field x+1 */
-int length[] = {
-	15,
-	60,
-	256,
-	240,
-	60
-};
-
-
 /* **********************************************************************
 *  Modification of character skills                                     *
 ********************************************************************** */

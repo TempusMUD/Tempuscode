@@ -42,9 +42,6 @@ struct clan_data *clan_list;
 extern FILE *player_fl;
 int player_i = 0;
 
-
-#define NAME(x) ((temp = playerIndex.getName(x)) == NULL ? "<UNDEF>" : temp)
-
 void
 REMOVE_ROOM_FROM_CLAN(struct room_list_elem *rm_list, struct clan_data *clan)
 {

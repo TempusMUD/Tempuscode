@@ -1,5 +1,3 @@
-#define __Creature_cc__
-
 #include <signal.h>
 #include "structs.h"
 #include "comm.h"

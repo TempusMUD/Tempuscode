@@ -15,8 +15,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define __spell_parser_c__
-
 #include <stdio.h>
 #include <string.h>
 
@@ -2875,8 +2873,6 @@ spellgen(int spl, int char_class, int lev, int gen)
 #define UNUSED UU,UU,UU,UU,UU,UU,UU,UU,UU,UU,UU,UU,UU,UU,UU,UU,UU,0,0,0,0,0,0,0
 
 #define X LVL_AMBASSADOR
-#define Y LVL_GOD
-#define Z LVL_CREATOR
 
 void
 mag_assign_spells(void)

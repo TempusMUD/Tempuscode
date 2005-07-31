@@ -4,7 +4,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-SPECIAL(maveral_citizen)
+SPECIAL(mavernal_citizen)
 {
 	if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
 		return 0;

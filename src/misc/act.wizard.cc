@@ -2961,30 +2961,6 @@ ACMD(do_restore)
     }
 }
 
-
-void
-perform_immort_vis(struct Creature *ch)
-{
-    int old_level = 0;
-
-    if (GET_INVIS_LVL(ch) == 0 && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
-        send_to_char(ch, "You are already fully visible.\r\n");
-        return;
-    }
-    old_level = GET_INVIS_LVL(ch);
-    GET_INVIS_LVL(ch) = 0;
-    //appear(ch);
-    send_to_char(ch, "You are now fully visible.\r\n");
-    CreatureList::iterator it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it) {
-        if ((*it) == ch)
-            continue;
-        if (GET_LEVEL((*it)) < old_level)
-            act("You suddenly realize that $n is standing beside you.", FALSE,
-                ch, 0, (*it), TO_VICT);
-    }
-}
-
 void
 perform_vis(struct Creature *ch)
 {
@@ -3776,11 +3752,7 @@ print_zone_to_buf(struct Creature *ch, char *bufptr, struct zone_data *zone)
 }
 
 
-#define LEARNED_LEVEL        0    /* % known which is considered "learned" */
-#define MAX_PER_PRAC        1    /* max percent gain in skill per practice */
-#define MIN_PER_PRAC        2    /* min percent gain in skill per practice */
-#define PRAC_TYPE        3        /* should it say 'spell' or 'skill'?         */
-
+#define PRAC_TYPE        3        /* should it say 'spell' or 'skill'? */
 
 void
 list_skills_to_char(struct Creature *ch, struct Creature *vict)

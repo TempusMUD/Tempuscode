@@ -15,15 +15,11 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define __CONFIG_C__
-
 #include "structs.h"
 #include "spells.h"
 #include "char_class.h"
 
-#define TRUE	1
 #define YES	1
-#define FALSE	0
 #define NO	0
 
 /*

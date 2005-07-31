@@ -15,8 +15,6 @@
 // Copyright 2001 by Daniel Lowe, all rights reserved.
 //
 
-#define __gnetsys_c__
-
 #include <arpa/telnet.h>
 #include "structs.h"
 #include "comm.h"

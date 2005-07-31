@@ -1,4 +1,4 @@
-//
+
 // File: act.barb.c                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
@@ -7,9 +7,6 @@
 //
 // act.barb.c      --  Barbarian specific functions,      Fireball, July 1998
 //
-
-#define __act_barb_c__
-
 
 #include "structs.h"
 #include "utils.h"
