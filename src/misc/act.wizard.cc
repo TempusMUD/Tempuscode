@@ -8100,7 +8100,6 @@ ACMD(do_coderutil)
     Tokenizer tokens(argument);
 	int idx, cmd_num, len = 0;
     char token[MAX_INPUT_LENGTH];
-    Creature *target;
 
     if(!tokens.next(token)) {
         send_to_char( ch, CODER_UTIL_USAGE );
@@ -8146,18 +8145,6 @@ ACMD(do_coderutil)
 		page_string(ch->desc, buf);
 	} else if (strcmp(token, "verify") == 0) {
 		verify_tempus_integrity(ch);
-    } else if (strcmp(token, "compile") == 0) {
-      if (tokens.next(token)) {
-        target = get_char_room_vis(ch, token);
-        if (target) {
-          prog_compile(NULL, target, PROG_TYPE_MOBILE);
-          prog_display_obj(ch, target);
-        } else {
-          send_to_char(ch, "Couldn't find a %s to compile!\r\n", token);
-        }
-      } else {
-        send_to_char(ch, "Usage: coderutil compile <mob>\r\n");
-      }
 	} else
         send_to_char(ch, CODER_UTIL_USAGE);
 }
