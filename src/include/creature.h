@@ -1399,26 +1399,9 @@ struct str_app_type {
 };
 
 
-struct wis_app_type {
-	byte bonus;					/* how many practices player gains per lev */
-};
-
-
-struct int_app_type {
-	byte learn;					/* how many % a player learns a spell/skill */
-};
-
-
 struct con_app_type {
 	sh_int hitp;
 	sh_int shock;
 };
-
-struct title_type {
-	char *title_m;
-	char *title_f;
-};
-
-
 
 #endif

@@ -65,7 +65,6 @@ extern const char *language_names[];
 ACMD(do_hcollect_help);
 void do_start(struct Creature * ch, int mode);
 void show_mud_date_to_char(struct Creature *ch);
-void show_programs_to_char(struct Creature *ch, int char_class);
 void handle_network(struct descriptor_data *d,char *arg);
 int general_search(struct Creature *ch, struct special_search_data *srch, int mode);
 void roll_real_abils(struct Creature * ch);

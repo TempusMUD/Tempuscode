@@ -9,8 +9,6 @@
 #include "zone_data.h"
 #include "utils.h"
 
-struct Creature *ch, *tempch = NULL;
-
 extern void set_local_time(struct zone_data *zone,
 	struct time_info_data *local_time);
 

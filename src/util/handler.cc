@@ -46,7 +46,6 @@ extern struct descriptor_data *descriptor_list;
 
 /* external functions */
 long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
-void remove_follower(struct Creature *ch);
 void path_remove_object(void *object);
 void free_paths();
 void free_text_files();

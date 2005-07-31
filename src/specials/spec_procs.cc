@@ -1656,11 +1656,6 @@ SPECIAL(cave_bear)
 #include "Specs/cj_specs/beer_tree.spec"
 #include "Specs/cj_specs/black_rose.spec"
 
-/* CITY SPECS */
-/*#include "Specs/city_specs/blue_pulsar_barkeep.spec"
-  #include "Specs/city_specs/life_bldg_guard.spec"
-  #include "Specs/city_specs/borg_guild_entrance.spec"*/
-
 /* ELECTRO CENTRALIS SPECS */
 #include "Specs/electro_specs/sunstation.spec"
 #include "Specs/electro_specs/lawyer.spec"

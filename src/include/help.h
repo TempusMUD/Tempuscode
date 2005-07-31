@@ -78,7 +78,6 @@ class HelpItem {
 	void SetFlags(char *argument);
 	void EditText(void);
 	bool LoadText(void);
-	bool CanEditItem(Creature * ch);
 	bool Save(void);			// Save the current entry to file.
 	bool IsInGroup(int thegroup);
 
@@ -137,7 +136,6 @@ class HelpCollection {
 	bool Set(Creature * ch, char *argument);
 	bool LoadIndex(void);		// Load help index (at startup)
 	void Sync(void);			// Delete unneeded item->text from memory.
-	bool AddUser(char *argument);	// Add user to group
 	void Show(Creature * ch);	// Show collection statistics
 	inline int GetTop(void) {
 		return top_id;

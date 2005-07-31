@@ -69,14 +69,6 @@ int triggers_search(struct Creature *ch, int cmd, char *arg,
 // used by any functions to set their return_flags if they exist
 //
 
-inline void
-set_return_flags(int *flags, int val)
-{
-	if (flags) {
-		*flags = val;
-	}
-}
-
 struct command_info {
 	char *command;
 	byte minimum_position;
@@ -420,8 +412,7 @@ struct set_struct {
 #define TRIG_BIT  2
 #define ZEN_BIT   4
 #define ALTER_BIT 8
-#define PROG_BIT 16
-#define SONG_BIT 32
+#define SONG_BIT 16
 
 // do_dyntext_show
 #define SCMD_DYNTEXT_NEWS  1

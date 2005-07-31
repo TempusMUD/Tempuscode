@@ -51,13 +51,6 @@ const int MAIL_OBJ_VNUM  = 1204;
 
 list<obj_data *> load_mail(char *path);
 
-void
-show_mail_stats(Creature * ch)
-{
-    send_to_char(ch, "This has been removed.\r\n");
-    return;
-}
-
 // returns 0 for no mail. 1 for mail.
 int
 has_mail(long id)

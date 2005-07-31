@@ -79,7 +79,6 @@ void destroy_attached_progs(void *self);
 bool trigger_prog_cmd(void *owner, prog_evt_type owner_type, Creature *ch, int cmd, char *argument);
 bool trigger_prog_spell(void *owner, prog_evt_type owner_type, Creature *ch, int cmd);
 bool trigger_prog_move(void *owner, prog_evt_type owner_type, Creature *ch, special_mode mode);
-void trigger_progs_after(Creature *ch, int cmd, char *argument);
 void trigger_prog_idle(void *owner, prog_evt_type owner_type);
 void trigger_prog_combat(void *owner, prog_evt_type owner_type);
 void trigger_prog_tick(void *owner, prog_evt_type owner_type);

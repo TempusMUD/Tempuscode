@@ -1754,24 +1754,6 @@ prog_get_statement(char **prog, int linenum)
 }
 
 void
-prog_handle_command(prog_env * env, prog_evt * evt, char *statement)
-{
-	prog_command *cmd;
-	char *cmd_str;
-
-	cmd_str = tmp_getword(&statement) + 1;
-	cmd = prog_cmds;
-	while (cmd->str && strcasecmp(cmd->str, cmd_str))
-		cmd++;
-	if (!cmd->str)
-		return;
-	if (cmd->count)
-		env->executed++;
-	cmd->func(env, evt, statement);
-}
-
-
-void
 prog_execute(prog_env *env)
 {
 	unsigned char *exec;
@@ -2293,10 +2275,11 @@ prog_update_pending(void)
 
 	if (!prog_list)
 		return;
-
+    
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
 		if (cur_prog->exec_pt == 0 && cur_prog->executed == 0)
 			prog_execute(cur_prog);
+
 }
 
 int

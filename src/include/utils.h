@@ -481,7 +481,6 @@ SECT(room_data * room)
 #define GET_ROOM_PARAM(room) ((room) != NULL ? (room)->func_param : NULL)
 #define GET_ROOM_PROG(room) ((room) != NULL ? (room)->prog : NULL)
 #define GET_ROOM_PROGOBJ(room) ((room) != NULL ? (room)->progobj : NULL)
-#define GET_ROOM_PROGOBJ_LEN(room) ((room) != NULL ? (room)->progobj_len : 0)
 #define GET_ROOM_STATE(room)      (((room_data *)(room))->prog_state)
 
 /* char utils ************************************************************/
@@ -655,7 +654,6 @@ static inline bool IS_REMORT( const Creature *ch )
 #define GET_MOB_SPEC(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->func) : NULL)
 #define GET_MOB_PROG(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->prog) : NULL)
 #define GET_MOB_PROGOBJ(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->progobj) : NULL)
-#define GET_MOB_PROGOBJ_LEN(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->progobj_len) : 0)
 
 #define GET_MOB_PARAM(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->func_param) : NULL)
 #define GET_LOAD_PARAM(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->load_param) : NULL)
