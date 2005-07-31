@@ -321,9 +321,6 @@ Account::retrieve(const char *name)
 Account* 
 Account::retrieve(Creature *ch) 
 {
-	vector <Account *>::iterator it;
-	Account *acct;
-	PGresult *res;
 	int acct_id;
 
     // NPCs don't have accounts!
@@ -335,19 +332,11 @@ Account::retrieve(Creature *ch)
     if (ch->account)
         return ch->account;
 
-	res = sql_query("select account from players where name='%s'",
-		tmp_sqlescape(ch->player.name));
-	if (PQntuples(res) != 1)
-		return NULL;
-	acct_id = atoi(PQgetvalue(res, 0, 0));
+    acct_id = playerIndex.getAccountID(GET_IDNUM(ch));
+    if (!acct_id)
+        return NULL;
 
-	// Now try to load it
-	acct = new Account;
-	if (acct->load(acct_id))
-		return acct;
-
-	delete acct;
-	return NULL;
+    return Account::retrieve(acct_id);
 }
 
 Account *
