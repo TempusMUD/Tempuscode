@@ -8,7 +8,6 @@
 
 using namespace std;
 
-
 class CEditor {
 public:
 	CEditor(struct descriptor_data *d, int max);

@@ -62,28 +62,21 @@ void prog_do_hunt(prog_env * env, prog_evt * evt, char *args);
 struct Creature *real_mobile_proto(int vnum);
 struct obj_data *real_object_proto(int vnum);
 
-char *prog_get_statement(char **prog, int linenum);
-
-struct prog_command {
-	const char *str;
-	bool count;
-	void (*func) (prog_env *, prog_evt *, char *);
-};
-
 prog_command prog_cmds[] = {
+    {"!ENDOFPROG!", false, prog_do_halt },
 	{"halt", false, prog_do_halt},
 	{"resume", false, prog_do_resume},
 	{"before", false, prog_do_before},
 	{"handle", false, prog_do_handle},
 	{"after", false, prog_do_after},
 	{"or", false, prog_do_or},
+	{"do", true, prog_do_do},
 	{"require", false, prog_do_require},
 	{"unless", false, prog_do_unless},
 	{"randomly", false, prog_do_randomly},
 	{"pause", true, prog_do_pause},
 	{"walkto", true, prog_do_walkto},
 	{"driveto", true, prog_do_driveto},
-	{"do", true, prog_do_do},
 	{"silently", true, prog_do_silently},
 	{"force", true, prog_do_force},
 	{"target", true, prog_do_target},
@@ -101,53 +94,6 @@ prog_command prog_cmds[] = {
 	{"selfpurge", true, prog_do_selfpurge},
 	{NULL, false, prog_do_halt}
 };
-
-char *
-prog_advance_statements(char *str, int count)
-{
- 	while (*str && count) {
- 		while (*str && *str != '\\' && *str != '\r' && *str != '\n')
- 			str++;
- 		// code duplicated for speed purposes
- 		if (*str == '\\') {
- 			str++;
- 			if (*str == '\r')
- 				str++;
- 			if (*str == '\n')
- 				str++;
-  		} else {
- 			if (*str == '\r')
- 				str++;
- 			if (*str == '\n')
- 				str++;
- 			count--;
-  		}
-  	}
-  
- 	return str;
-}
-
-char *
-prog_get_text(void *owner, prog_evt_type owner_type)
-{
-	switch (owner_type) {
-	case PROG_TYPE_OBJECT:
-		break;
-	case PROG_TYPE_MOBILE:
-		if ((Creature *)owner) {
-			return GET_MOB_PROG(((Creature *)owner));
-		} else {
-			errlog("Mobile Prog with no owner - Can't happen at %s:%d",
-				__FILE__, __LINE__);
-			return NULL;
-		}
-	case PROG_TYPE_ROOM:
-		return ((room_data *)owner)->prog;
-    default:
-        errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-	}
-	return NULL;
-}
 
 unsigned char *
 prog_get_obj(void *owner, prog_evt_type owner_type)
@@ -173,237 +119,6 @@ prog_get_obj(void *owner, prog_evt_type owner_type)
 }
 
 void
-prog_report_compile_err(Creature *ch,
-                        void *owner,
-                        prog_evt_type owner_type,
-                        int linenum,
-                        const char *str,
-                        ...)
-{
-    const char *place = NULL;
-    char *msg;
-    va_list args;
-
-    va_start(args, str);
-    msg = tmp_vsprintf(str, args);
-    va_end(args);
-
-    switch (owner_type) {
-    case PROG_TYPE_MOBILE:
-        place = tmp_sprintf("mobile %d", GET_MOB_VNUM((Creature *)owner));
-        break;
-    case PROG_TYPE_ROOM:
-        place = tmp_sprintf("room %d", ((room_data *)owner)->number);
-        break;
-    default:
-        place = "an unknown location";
-    }
-    if (ch)
-        send_to_char(ch, "Prog error in %s, line %d: %s\r\n",
-                     place,
-                     linenum,
-                     msg);
-    else
-        slog("Prog error in %s, line %d: %s", place, linenum, msg);
-
-}
-
-unsigned char *
-prog_compile_prog(Creature *ch,
-                  char *prog_text,
-                  void *owner,
-                  prog_evt_type owner_type)
-{
-    char *line_start, *line_end, *dataseg, *data_pt;
-    char *line;
-    unsigned char *obj;
-    unsigned short *codeseg, *code_pt;
-    int linenum, code_len, data_len;
-
-    if (!prog_text || !*prog_text)
-        return NULL;
-
-    // Initialize object and data segments
-    dataseg = new char[65536];
-    data_pt = dataseg;
-    *data_pt++ = '\0';
-
-    data_len = 0;
-    codeseg = new unsigned short[32768];
-    code_pt = codeseg;
-    code_len = 0;
-
-    // We'll need linenum for error reporting
-    linenum = 1;
-    line = "";
-    line_start = line_end = prog_text;
-
-    // Skip initial spaces and blank lines in prog
-    while (isspace(*line_start))
-        line_start++;
-    line_end = line_start;
-
-    while (line_start && *line_start) {
-        // Find the end of the line
-        while (*line_end && *line_end != '\n' && *line_end != '\r')
-            line_end++;
-
-        // Grab a temporary version of the line
-        line = tmp_strcat(line, tmp_substr(line_start, 0, line_end - line_start - 1));
-        // If the line ends with a backslash, do nothing and the next
-        // line will be appended.  If it doesn't, we can process the
-        // line now
-        if (line_end != line_start && *(line_end - 1) == '\\') {
-            line[strlen(line) - 1] = '\0';
-        } else if (line[0] == '-') {
-            // comment - do nothing
-            line = "";
-        } else {
-            char *cmd_str;
-            prog_command *cmd;
-            
-            if (*line == '*') {
-                cmd_str = tmp_getword(&line) + 1;
-            } else {
-                cmd_str = "do";
-            }
-
-            cmd = prog_cmds;
-            while (cmd->str && strcasecmp(cmd->str, cmd_str))
-                cmd++;
-            if (!cmd->str) {
-                prog_report_compile_err(ch, owner, owner_type, linenum,
-                                        "unknown command '%s'", cmd_str);
-                delete [] codeseg;
-                delete [] dataseg;
-                return NULL;
-            }
-            *code_pt = (cmd - prog_cmds);
-
-            // Make sure the code starts with a handler
-            if (code_pt == codeseg &&
-                *code_pt != PROG_CMD_HALT &&
-                *code_pt != PROG_CMD_BEFORE &&
-                *code_pt != PROG_CMD_HANDLE &&
-                *code_pt != PROG_CMD_AFTER) {
-                prog_report_compile_err(ch, owner, owner_type, 1,
-                                        "Command without handler", cmd_str);
-                delete [] codeseg;
-                delete [] dataseg;
-                return NULL;
-            }
-            
-            *code_pt++ += 1;
-            if (*line) {
-                *code_pt++ = data_pt - dataseg;
-                strcpy(data_pt, line);
-                data_pt += strlen(data_pt) + 1;
-            } else {
-                *code_pt++ = 0;
-            }
-
-            // Set line to empty string so it won't be concatenated again
-            line = "";
-        }
-
-        while (isspace(*line_end)) {
-            if (*line_end == '\n')
-                linenum++;
-            line_end++;
-        }
-        line_start = line_end;
-    }
-
-    // Add a halt command to the end of the code to make sure it doesn't
-    // wander into the data segment
-    *code_pt++ = 0;
-    *code_pt++ = 0;
-
-    code_len = (code_pt - codeseg) * sizeof(short);
-    data_len = data_pt - dataseg;
-    obj = new unsigned char[code_len + data_len];
-
-    // Since the code comes first, we have to change all the argument
-    // offsets to take into account the length of the code.
-    for (code_pt = codeseg + 1;code_pt - codeseg < code_len;code_pt += 2)
-        *code_pt += code_len;
-    memcpy(obj, codeseg, code_len);
-
-    // Now copy the data segment
-    memcpy(obj + code_len, dataseg, data_len);
-
-    delete [] codeseg;
-    delete [] dataseg;
-
-    return obj;
-}
-
-void
-prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
-{
-    char *prog;
-    unsigned char *obj;
-
-    // Get the prog
-    prog = prog_get_text(owner, owner_type);
-    if (!prog) {
-        errlog("prog_compile() called on mobile without prog!");
-        return;
-    }
-
-    // Compile it
-    obj = prog_compile_prog(ch, prog, owner, owner_type);
-    if (!obj)
-        return;
-    
-    // Set the object code of the owner
-    switch (owner_type) {
-    case PROG_TYPE_MOBILE:
-        delete [] ((Creature *)owner)->mob_specials.shared->progobj;
-        ((Creature *)owner)->mob_specials.shared->progobj = obj;
-        break;
-    case PROG_TYPE_ROOM:
-        delete [] ((room_data *)owner)->progobj;
-        ((room_data *)owner)->progobj = obj;
-        break;
-    case PROG_TYPE_OBJECT:
-        break;
-    default:
-        errlog("Can't happen at %s:%u", __FILE__, __LINE__);
-    }
-
-    // Kill all the progs the owner has to avoid invalid code
-    destroy_attached_progs(owner);
-}
-
-void
-prog_display_obj(Creature *ch, Creature *target)
-{
-	unsigned char *exec;
-    int cmd, arg_addr, read_pt;
-    int cmd_count;
-
-    exec = GET_MOB_PROGOBJ(target);
-
-    cmd_count = 0;
-    while (prog_cmds[cmd_count].str)
-        cmd_count++;
-
-    read_pt = 0;
-    while (read_pt >= 0 && *((short *)&exec[read_pt])) {
-        // Get the command and the arg address
-        cmd = *((short *)(exec + read_pt)) - 1;
-        arg_addr = *((short *)(exec + read_pt + sizeof(short)));
-        // Set the execution point to the next command by default
-        read_pt += sizeof(short) * 2;
-        if (cmd < 0 || cmd >= cmd_count)
-            printf("<INVALID CMD>\n");
-        else
-            printf("%s %s\n", prog_cmds[cmd].str, (char *)(exec + arg_addr));
-    }
-}
-
-void
 prog_next_handler(prog_env * env, bool use_resume)
 {
     unsigned char *prog;
@@ -418,6 +133,7 @@ prog_next_handler(prog_env * env, bool use_resume)
         if (cmd == PROG_CMD_BEFORE ||
             cmd == PROG_CMD_HANDLE ||
             cmd == PROG_CMD_AFTER ||
+            cmd == PROG_CMD_ENDOFPROG ||
             (use_resume && cmd == PROG_CMD_RESUME))
             return;
     }
@@ -1733,26 +1449,6 @@ prog_do_echo(prog_env * env, prog_evt * evt, char *args)
 	}
 }
 
-char *
-prog_get_statement(char **prog, int linenum)
-{
-	char *statement;
-
-	if (linenum)
-		*prog = prog_advance_statements(*prog, linenum);
-
-	statement = tmp_getline(prog);
-	if (!statement)
-		return NULL;
-
-	while (statement[strlen(statement) - 1] == '\\') {
-		statement[strlen(statement) - 1] = '\0';
-		statement = tmp_strcat(statement, tmp_getline(prog), NULL);
-	}
-
-	return statement;
-}
-
 void
 prog_execute(prog_env *env)
 {
@@ -1786,7 +1482,7 @@ prog_execute(prog_env *env)
            *((short *)&exec[env->exec_pt]) &&
            env->wait == 0) {
         // Get the command and the arg address
-        cmd = *((short *)(exec + env->exec_pt)) - 1;
+        cmd = *((short *)(exec + env->exec_pt));
         arg_addr = *((short *)(exec + env->exec_pt + sizeof(short)));
         // Set the execution point to the next command by default
         env->exec_pt += sizeof(short) * 2;
