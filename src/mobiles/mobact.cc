@@ -3477,6 +3477,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	}
 
+    // Check to make sure they didn't die or something
+    if (!ch->in_room)
+        return 0;
 
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 
