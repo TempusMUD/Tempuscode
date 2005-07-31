@@ -2253,11 +2253,6 @@ verify_environment(void)
 	int idx;
 
 	mkdir("players", 0755);
-	mkdir("players/accounts", 0755);
-	for (idx = 0;idx < 10;idx++) {
-		snprintf(path, 255, "players/accounts/%d", idx);
-		mkdir(path, 0755);
-	}
 	mkdir("players/character", 0755);
 	for (idx = 0;idx < 10;idx++) {
 		snprintf(path, 255, "players/character/%d", idx);
