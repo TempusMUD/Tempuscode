@@ -128,14 +128,14 @@ prog_next_handler(prog_env * env, bool use_resume)
     while (*((short *)&prog[env->exec_pt])) {
         short cmd;
 
-        env->exec_pt += sizeof(short) + 2;
-        cmd = *((short *)&prog[env->exec_pt]) - 1;
+        cmd = *((short *)&prog[env->exec_pt]);
         if (cmd == PROG_CMD_BEFORE ||
             cmd == PROG_CMD_HANDLE ||
             cmd == PROG_CMD_AFTER ||
             cmd == PROG_CMD_ENDOFPROG ||
             (use_resume && cmd == PROG_CMD_RESUME))
             return;
+        env->exec_pt += sizeof(short) + 2;
     }
 
     // We didn't find another handler, so terminate the prog
