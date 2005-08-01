@@ -399,7 +399,9 @@ prog_display_obj(Creature *ch, unsigned char *exec)
         if (cmd < 0 || cmd >= cmd_count)
             send_to_char(ch, "<INVALID CMD>\r\n");
         else
-            send_to_char(ch, "*%s %s\n", prog_cmds[cmd].str, (char *)(exec + arg_addr));
+            send_to_char(ch, "%-9s %s\n",
+                         tmp_toupper(prog_cmds[cmd].str),
+                         (char *)(exec + arg_addr));
     }
 }
 
