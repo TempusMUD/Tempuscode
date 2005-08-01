@@ -73,16 +73,18 @@ CProgEditor::PerformCommand(char cmd, char *args)
 void
 CProgEditor::Finalize(const char *text)
 {
+    char *new_prog = (*text) ? strdup(text):NULL;
+
     switch (owner_type) {
     case PROG_TYPE_MOBILE:
         if (GET_MOB_PROG((Creature *)owner))
-            free(((Creature *)owner)->mob_specials.shared->prog);
-        ((Creature *)owner)->mob_specials.shared->prog = strdup(text);
+            free(GET_MOB_PROG((Creature *)owner));
+        ((Creature *)owner)->mob_specials.shared->prog = new_prog;
         break;
     case PROG_TYPE_ROOM:
         if (GET_ROOM_PROG((room_data *)owner))
             free(((room_data *)owner)->prog);
-        ((room_data *)owner)->prog = strdup(text);
+        ((room_data *)owner)->prog = new_prog;
         break;
     default:
         errlog("Can't happen");

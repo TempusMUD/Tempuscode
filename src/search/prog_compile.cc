@@ -413,15 +413,9 @@ prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
 
     // Get the prog
     prog = prog_get_text(owner, owner_type);
-    if (!prog) {
-        errlog("prog_compile() called without prog!");
-        return;
-    }
 
-    // Compile it
-    obj = prog_compile_prog(ch, prog, owner, owner_type);
-    if (!obj)
-        return;
+    // Compile the prog, if one exists.
+    obj = (prog) ? prog_compile_prog(ch, prog, owner, owner_type):NULL;
     
     // Set the object code of the owner
     switch (owner_type) {
