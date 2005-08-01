@@ -58,6 +58,9 @@ char *tmp_gsubi(const char *haystack, const char *needle, const char *sub);
 // returns a copy of str with all characters converted to lowercase
 char *tmp_tolower(const char *str);
 
+// returns a copy of str with all character converted to uppercase
+char *tmp_toupper(const char *str);
+
 // returns a copy of str with the first character capitalized
 char *tmp_capitalize(const char *str);
 

@@ -482,6 +482,17 @@ tmp_tolower(const char *str)
 }
 
 char *
+tmp_toupper(const char *str)
+{
+	char *result, *c;
+
+	c = result = tmp_strcat(str, NULL);
+	while (*c)
+		*c++ = toupper(*c);
+	return result;
+}
+
+char *
 tmp_capitalize(const char *str)
 {
 	char *result;
