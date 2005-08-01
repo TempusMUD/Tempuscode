@@ -312,10 +312,10 @@ show_dynedit_options(Creature *ch)
 {
 	int i = 0;
 
-	strcpy(buf, "Dynedit usage:\r\n");
+    send_to_char(ch, "Dynedit usage:\r\n");
 
 	for (i = 0; dynedit_options[i][0] != NULL; i++)
-		send_to_char(ch, "%s%10s   %s\r\n", buf, dynedit_options[i][0],
+		send_to_char(ch, "%10s   %s\r\n", dynedit_options[i][0],
 			dynedit_options[i][1]);
 
 }
