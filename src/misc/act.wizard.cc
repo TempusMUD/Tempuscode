@@ -1145,6 +1145,14 @@ do_stat_room(struct Creature *ch, char *roomstr)
             strcat(out_buf, buf);
         }
     }
+    if (GET_ROOM_STATE(rm) && GET_ROOM_STATE(rm)->var_list) {
+		prog_var *cur_var;
+		strcat(out_buf, "Prog state variables:\r\n");
+		for (cur_var = GET_ROOM_STATE(rm)->var_list;cur_var;cur_var = cur_var->next) {
+            sprintf(buf, "     %s = '%s'\r\n", cur_var->key, cur_var->value);
+            strcat(out_buf, buf);
+        }
+    }
 	if (rm->prog) {
 	  strcat(out_buf, "PROG:\r\n");
 	  strcat(out_buf, rm->prog);
@@ -1984,7 +1992,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 
 	if (GET_MOB_STATE(k) && GET_MOB_STATE(k)->var_list) {
 		prog_var *cur_var;
-		acc_strcat("Mobile state variables:\r\n", NULL);
+		acc_strcat("Prog state variables:\r\n", NULL);
 		for (cur_var = GET_MOB_STATE(k)->var_list;cur_var;cur_var = cur_var->next)
 			acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
 	}
@@ -3341,57 +3349,83 @@ ACMD(do_force)
 {
     struct descriptor_data *i, *next_desc;
     struct Creature *vict;
+    CreatureList::iterator cit;
     char to_force[MAX_INPUT_LENGTH + 2];
 
     half_chop(argument, arg, to_force);
 
     sprintf(buf1, "$n has forced you to '%s'.", to_force);
 
-    if (!*arg || !*to_force)
+    if (!*arg || !*to_force) {
         send_to_char(ch, "Whom do you wish to force do what?\r\n");
-    else if ((GET_LEVEL(ch) < LVL_GRGOD) ||
-        (str_cmp("all", arg) && str_cmp("room", arg))) {
-        if (!(vict = get_char_vis(ch, arg))) {
-            send_to_char(ch, NOPERSON);
-        } else if (GET_LEVEL(ch) <= GET_LEVEL(vict))
-            send_to_char(ch, "No, no, no!\r\n");
-        else if (!IS_NPC(vict) && !Security::isMember(ch, "WizardFull"))
-            send_to_char(ch, "You cannot force players to do things.\r\n");
-        else {
+        return;
+    }
+
+    if (GET_LEVEL(ch) >= LVL_GRGOD) {
+        // Check for high-level special arguments
+        if (!strcasecmp("all", arg) &&
+            Security::isMember(ch, "Coder")) {
             send_to_char(ch, OK);
-            act(buf1, TRUE, ch, NULL, vict, TO_VICT);
-            mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced %s to %s",
-                GET_NAME(ch), GET_NAME(vict), to_force);
-            command_interpreter(vict, to_force);
+            mudlog(GET_LEVEL(ch), NRM, true,
+                   "(GC) %s forced all to %s", GET_NAME(ch), to_force);
+            for (cit = characterList.begin();
+                 cit != characterList.end();
+                 ++cit) {
+                if (ch != (*cit) && GET_LEVEL(ch) > GET_LEVEL(*cit)) {
+                    act(buf1, TRUE, ch, NULL, *cit, TO_VICT);
+                    command_interpreter(*cit, to_force);
+                }
+            }
+            return;
         }
-    } else if (!str_cmp("room", arg)) {
-        send_to_char(ch, OK);
-        mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
-            GET_NAME(ch), ch->in_room->number, to_force);
-        CreatureList::iterator it = ch->in_room->people.begin();
-        for (; it != ch->in_room->people.end(); ++it) {
-            if (GET_LEVEL((*it)) >= GET_LEVEL(ch) ||
-                (!IS_NPC((*it)) && GET_LEVEL(ch) < LVL_GRGOD))
-                continue;
-            act(buf1, TRUE, ch, NULL, (*it), TO_VICT);
-            command_interpreter((*it), to_force);
-        }
-    } else if (GET_LEVEL(ch) >= LVL_GRGOD) {    /* force all */
-        send_to_char(ch, OK);
-        mudlog(GET_LEVEL(ch), NRM, true,
-            "(GC) %s forced all to %s", GET_NAME(ch), to_force);
 
-        for (i = descriptor_list; i; i = next_desc) {
-            next_desc = i->next;
+        if (!strcasecmp("players", arg)) {
+            send_to_char(ch, OK);
+            mudlog(GET_LEVEL(ch), NRM, true,
+                   "(GC) %s forced players to %s", GET_NAME(ch), to_force);
 
-            if (STATE(i) || !(vict = i->creature) ||
-                GET_LEVEL(vict) >= GET_LEVEL(ch))
-                continue;
-            act(buf1, TRUE, ch, NULL, vict, TO_VICT);
-            command_interpreter(vict, to_force);
+            for (i = descriptor_list; i; i = next_desc) {
+                next_desc = i->next;
+
+                if (STATE(i) || !(vict = i->creature) ||
+                    GET_LEVEL(vict) >= GET_LEVEL(ch))
+                    continue;
+                act(buf1, TRUE, ch, NULL, vict, TO_VICT);
+                command_interpreter(vict, to_force);
+            }
+            return;
         }
-    } else
-        send_to_char(ch, "Arrrg!  You seem to have strained something!\r\n");
+        
+        if (!strcasecmp("room", arg)) {
+            send_to_char(ch, OK);
+            mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
+                   GET_NAME(ch), ch->in_room->number, to_force);
+            CreatureList::iterator it = ch->in_room->people.begin();
+            for (; it != ch->in_room->people.end(); ++it) {
+                if (GET_LEVEL((*it)) >= GET_LEVEL(ch) ||
+                    (!IS_NPC((*it)) && GET_LEVEL(ch) < LVL_GRGOD))
+                    continue;
+                act(buf1, TRUE, ch, NULL, (*it), TO_VICT);
+                command_interpreter((*it), to_force);
+            }
+            return;
+        }
+    }
+
+    // Normal individual creature forcing
+    if (!(vict = get_char_vis(ch, arg))) {
+        send_to_char(ch, NOPERSON);
+    } else if (GET_LEVEL(ch) <= GET_LEVEL(vict))
+        send_to_char(ch, "No, no, no!\r\n");
+    else if (!IS_NPC(vict) && !Security::isMember(ch, "WizardFull"))
+        send_to_char(ch, "You cannot force players to do things.\r\n");
+    else {
+        send_to_char(ch, OK);
+        act(buf1, TRUE, ch, NULL, vict, TO_VICT);
+        mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced %s to %s",
+               GET_NAME(ch), GET_NAME(vict), to_force);
+        command_interpreter(vict, to_force);
+    }
 }
 
 
