@@ -1565,9 +1565,10 @@ destroy_attached_progs(void *owner)
 	struct prog_env *cur_prog;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
-		if (cur_prog->owner == owner
-			|| cur_prog->target == owner
-			|| cur_prog->evt.subject == owner || cur_prog->evt.object == owner)
+		if (cur_prog->owner == owner ||
+            cur_prog->target == owner ||
+            cur_prog->evt.subject == owner ||
+            cur_prog->evt.object == owner)
 			cur_prog->exec_pt = -1;
 	}
 }
@@ -1749,7 +1750,7 @@ trigger_prog_fight(Creature * ch, Creature * self)
 }
 
 void
-trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *ch)
+trigger_prog_death(void *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -1769,11 +1770,11 @@ trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *ch)
 	evt.phase = PROG_EVT_AFTER;
 	evt.kind = PROG_EVT_DEATH;
 	evt.cmd = -1;
-	evt.subject = ch;
+	evt.subject = NULL;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
 	evt.args = strdup("");
-	env = prog_start(owner_type, owner, ch, &evt);
+	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
 
 	loop_fence -= 1;

@@ -95,7 +95,7 @@ void trigger_prog_tick(void *owner, prog_evt_type owner_type);
 void trigger_prog_load(Creature *self);
 void trigger_prog_fight(Creature *ch, Creature *self);
 void trigger_prog_give(Creature *ch, Creature *self, struct obj_data *obj);
-void trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *ch);
+void trigger_prog_death(void *owner, prog_evt_type owner_type);
 prog_env *prog_start(prog_evt_type owner_type, void *owner, Creature *target, prog_evt *evt);
 void prog_free(struct prog_env *prog);
 void prog_update(void);

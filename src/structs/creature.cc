@@ -1116,19 +1116,11 @@ Creature::die(void)
 {
 	obj_data *obj, *next_obj;
 	int pos;
+    room_data *died_in_room = in_room;
 
     removeAllCombat();
     combatList.remove(this);
 
-    if (GET_ROOM_PROG(this->in_room) != NULL) {
-	    trigger_prog_death(this->in_room, PROG_TYPE_ROOM, this);
-    }
-    
-    CreatureList::iterator it = this->in_room->people.begin();
-	for (; it != this->in_room->people.end(); ++it)
-		if ((*it != this) && GET_MOB_PROGOBJ((*it)) != NULL)
-			trigger_prog_death(*it, PROG_TYPE_MOBILE, this);
-    
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
 	// their stuff to the room
 	for (pos = 0;pos < NUM_WEARS;pos++) {
@@ -1158,26 +1150,26 @@ Creature::die(void)
 		saveToXML();
 	}
 	extract(CXN_AFTERLIFE);
+
+    if (GET_ROOM_PROG(died_in_room) != NULL)
+	    trigger_prog_death(died_in_room, PROG_TYPE_ROOM);
+    
+    CreatureList::iterator it = died_in_room->people.begin();
+	for (; it != died_in_room->people.end(); ++it)
+		if (GET_MOB_PROGOBJ((*it)) != NULL)
+			trigger_prog_death(*it, PROG_TYPE_MOBILE);
+
 	return true;
 }
 
 bool
 Creature::npk_die(void)
 {
+    room_data *died_in_room = in_room;
+
     removeAllCombat();
     combatList.remove(this);
 
-    if (GET_ROOM_PROG(this->in_room) != NULL) {
-	    trigger_prog_death(this->in_room, PROG_TYPE_ROOM, this);
-    }
-    
-    CreatureList::iterator it = this->in_room->people.begin();
-	for (; it != this->in_room->people.end(); ++it) {
-		if (GET_MOB_PROGOBJ((*it)) != NULL) {
-			trigger_prog_death(*it, PROG_TYPE_MOBILE, this);
-        }
-	}
-    
 	if (!IS_NPC(this)) {
 		player_specials->rentcode = RENT_QUIT;
 		player_specials->rent_per_day = 0;
@@ -1189,6 +1181,16 @@ Creature::npk_die(void)
 		saveToXML();
 	}
 	extract(CXN_AFTERLIFE);
+
+    if (GET_ROOM_PROG(died_in_room) != NULL)
+	    trigger_prog_death(died_in_room, PROG_TYPE_ROOM);
+    
+    CreatureList::iterator it = died_in_room->people.begin();
+	for (; it != died_in_room->people.end(); ++it) {
+		if (GET_MOB_PROGOBJ((*it)) != NULL)
+			trigger_prog_death(*it, PROG_TYPE_MOBILE);
+	}
+    
 	return true;
 }
 
@@ -1494,7 +1496,7 @@ Creature::removeCombat(Creature *ch)
 void
 Creature::removeAllCombat()
 {
-    if (getCombatList()->empty())
+    if (!getCombatList() || getCombatList()->empty())
         return;
 
     CombatDataList::iterator li = getCombatList()->begin();
@@ -1511,7 +1513,7 @@ Creature::removeAllCombat()
 Creature *
 Creature::findCombat(Creature *ch)
 {
-    if (!ch)
+    if (!ch || !getCombatList())
         return NULL;
 
     CombatDataList::iterator li = getCombatList()->begin();
@@ -1528,7 +1530,7 @@ bool
 Creature::initiatedCombat(Creature *ch)
 {
 
-    if (ch == NULL)
+    if (ch == NULL || !getCombatList())
         return false;
 
     CombatDataList::iterator li = getCombatList()->begin();
