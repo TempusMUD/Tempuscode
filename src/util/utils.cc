@@ -338,7 +338,7 @@ errlog(const char *fmt, ...)
     const int MAX_FRAMES = 10;	
 	va_list args;
 	const char *backtrace_str = "";
-    void *ret_addrs[MAX_FRAMES];
+    void *ret_addrs[MAX_FRAMES + 1];
     int x = 0;
 
     memset(ret_addrs, 0x0, sizeof(ret_addrs));
