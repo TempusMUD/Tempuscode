@@ -615,7 +615,7 @@ prog_do_randomly(prog_env * env, prog_evt * evt, char *args)
 	exec = prog_get_obj(env->owner, env->owner_type);
 	num_paths = 0;
 	while (cur_pt < last_pt) {
-        if (*((short *)&exec[cur_pt]) == PROG_CMD_OR + 1) {
+        if (*((short *)&exec[cur_pt]) == PROG_CMD_OR) {
             num_paths += 1;
             if (!number(0, num_paths))
                 env->exec_pt = cur_pt + sizeof(short) * 2;
