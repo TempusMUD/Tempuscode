@@ -802,6 +802,9 @@ ASPELL(spell_locate_object)
 	int term_idx, term_count = 0;
 	int found;
 
+    send_to_char(ch, "Disabled.  Sorry.\r\n");
+    return;
+
 	j = level >> 1;
 	k = level >> 2;
 
