@@ -88,7 +88,6 @@ SPECIAL(courier_imp)
             }
         }
         
-        delete seeking->account;
         delete seeking;
         self->purge(true);
         return 0;
