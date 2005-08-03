@@ -738,6 +738,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 	original_ch = ch;
 
+    memset(&rm_aff, 0x0, sizeof(struct room_affect_data));
 	if (victim->getPosition() <= POS_DEAD) {
 		errlog("Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
 			ch ? GET_NAME(ch) : "NULL", GET_NAME(victim), attacktype);
@@ -1595,6 +1596,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			rm_aff.duration = number(3, 8);
 			rm_aff.type = RM_AFF_FLAGS;
 			rm_aff.flags = ROOM_FLAME_FILLED;
+            rm_aff.owner = (ch) ? ch->getIdNum() : 0;
+            rm_aff.spell_type = TYPE_ABLAZE;
 			affect_to_room(victim->in_room, &rm_aff);
 			sound_gunshots(victim->in_room, SPELL_FIREBALL, 8, 1);
 		}
