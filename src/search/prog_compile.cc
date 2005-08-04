@@ -255,6 +255,11 @@ prog_compile_prog(Creature *ch,
     if (!prog_lexify(&state))
         goto error;
 
+    // We can have a prog that doesn't do anything... in those cases,
+    // we should just clear the prog
+    if (!state.token_list)
+        return NULL;
+
     // Initialize object and data segments
     dataseg = new char[65536];
     data_pt = dataseg;
