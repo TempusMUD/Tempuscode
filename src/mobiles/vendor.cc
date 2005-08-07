@@ -140,12 +140,17 @@ vendor_inventory(Creature *self, obj_data *obj, obj_data *obj_list)
 static bool
 vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 {
-	if (GET_OBJ_COST(obj) < 1 || IS_OBJ_STAT(obj, ITEM_NOSELL) ||
+	if (IS_OBJ_STAT(obj, ITEM_NOSELL) ||
 			!OBJ_APPROVED(obj)|| obj->shared->owner_id != 0 ) {
 		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_badobj),
 			0, SCMD_SAY_TO, NULL);
 		return true;
 	}
+    
+    if (GET_OBJ_COST(obj) < 1) {
+        do_say(self, tmp_sprintf("%s Why would I want that?  It has no value.", GET_NAME(ch)),
+			0, SCMD_SAY_TO, NULL);
+    }
 
 	if (shop->item_types.size() > 0) {
 		vector<int>::iterator it;
