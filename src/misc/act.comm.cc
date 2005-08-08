@@ -1120,12 +1120,13 @@ ACMD(do_gen_comm)
 				PLR_FLAGGED(i->creature, PLR_OLC))
 			continue;
 
-        if ((!can_speak_language(i->creature, GET_LANGUAGE(ch))) 
-				&& subcmd != SCMD_NEWBIE)
-                buf4 = translated;
-		else if (!PRF_FLAGGED(i->creature, PRF_NASTY))
+        if (!PRF_FLAGGED(i->creature, PRF_NASTY))
             buf4 = filtered_msg;
 
+        if ((!can_speak_language(i->creature, GET_LANGUAGE(ch))) && 
+                subcmd != SCMD_NEWBIE)
+            buf4 = translated;
+                
 		if (chan->deaf_vector == 1 &&
 				PRF_FLAGGED(i->creature, chan->deaf_flag))
 			continue;

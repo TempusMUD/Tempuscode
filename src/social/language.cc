@@ -1548,6 +1548,9 @@ can_speak_language(Creature * ch, char language_id)
 {
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return 1;
+    
+    if (language_id < 0)
+        return 1;
 
 	return ((KNOWN_LANGUAGES(ch) & ((long long)1 << language_id)) != 0);
 }
