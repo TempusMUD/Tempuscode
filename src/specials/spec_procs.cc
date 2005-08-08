@@ -270,8 +270,10 @@ SPECIAL(guild)
 		return 1;
 	}
 
-	if (GET_CLASS(master) != CLASS_NORMAL &&
-			GET_CLASS(ch) != GET_CLASS(master) &&
+	if ((GET_CLASS(master) != CLASS_NORMAL 
+                || GET_LEVEL(ch) > LVL_CAN_RETURN 
+                || GET_REMORT_GEN(ch) > 0) &&
+            GET_CLASS(ch) != GET_CLASS(master) &&
 			GET_CLASS(master) != CHECK_REMORT_CLASS(ch) &&
 			(!IS_REMORT(master) ||
 				CHECK_REMORT_CLASS(ch) != GET_CLASS(ch)) &&
