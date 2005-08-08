@@ -256,10 +256,12 @@ ACMD(do_lecture)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict, false))
+	if (!ch->isOkToAttack(vict, true))
 		return;
-	if (!ok_damage_vendor(ch, vict))
+    if (!ok_damage_vendor(ch, vict)) {
+		act("$E is interested in your wallet, not your words.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
+    }
 
 	appear(ch, vict);
 
