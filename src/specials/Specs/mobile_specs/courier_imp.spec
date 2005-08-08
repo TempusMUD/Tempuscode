@@ -86,10 +86,10 @@ SPECIAL(courier_imp)
                     extract_obj(doomed_obj);
                   }
             }
+            self->purge(true);
         }
         
         delete seeking;
-        self->purge(true);
         return 0;
     }
 
