@@ -287,12 +287,12 @@ bool imp_take_payment(Creature *seeking,  imp_data *data)
     
     if (data->owed) {
         if (GET_PAST_BANK(seeking) >= data->owed) {
-            GET_GOLD(data->imp) = data->owed;
+            GET_GOLD(data->imp) += data->owed;
             seeking->account->set_past_bank(GET_PAST_BANK(seeking) - data->owed);
             data->owed = 0;
         }
         else {
-            GET_GOLD(data->imp) = GET_PAST_BANK(seeking);
+            GET_GOLD(data->imp) += GET_PAST_BANK(seeking);
             data->owed -= GET_PAST_BANK(seeking);
             seeking->account->set_past_bank(0);
         }
@@ -300,12 +300,12 @@ bool imp_take_payment(Creature *seeking,  imp_data *data)
 
     if (data->owed) {
         if (GET_FUTURE_BANK(seeking) >= data->owed) {
-            GET_CASH(data->imp) = data->owed;
+            GET_CASH(data->imp) += data->owed;
             seeking->account->set_future_bank(GET_FUTURE_BANK(seeking) - data->owed);
             data->owed = 0;
         }
         else {
-            GET_CASH(data->imp) = GET_FUTURE_BANK(seeking);
+            GET_CASH(data->imp) += GET_FUTURE_BANK(seeking);
             data->owed -= GET_FUTURE_BANK(seeking);
             seeking->account->set_future_bank(0);
         }
