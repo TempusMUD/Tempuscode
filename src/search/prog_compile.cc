@@ -271,10 +271,10 @@ prog_compile_prog(Creature *ch,
     code_len = 0;
 
     // Make sure the code starts with a handler
-    if (state.cur_token->kind != PROG_TOKEN_SYM &&
-        strcasecmp(state.cur_token->sym, "before") &&
-        strcasecmp(state.cur_token->sym, "handle") &&
-        strcasecmp(state.cur_token->sym, "after")) {
+    if (state.cur_token->kind != PROG_TOKEN_SYM ||
+        (strcasecmp(state.cur_token->sym, "before") &&
+         strcasecmp(state.cur_token->sym, "handle") &&
+         strcasecmp(state.cur_token->sym, "after"))) {
         prog_report_compile_err(&state, state.cur_token->linenum,
                                 "Command without handler");
         goto error;
