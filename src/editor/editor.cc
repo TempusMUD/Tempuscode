@@ -141,9 +141,12 @@ CEditor::DisplayBuffer(unsigned int startline)
 			break;
 		}
 	}
-	SendMessage(acc_get_string());
+
+    acc_strcat("\r\n", NULL);
 	if (acc_get_length() > 10240)
-		SendMessage("Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n");
+        acc_strcat("Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n", NULL);
+
+	SendMessage(acc_get_string());
 }
 
 bool
