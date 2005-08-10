@@ -324,14 +324,10 @@ prog_compile_prog(Creature *ch,
             // It's an in-game command with a mob, so emit the *do command
             *code_pt++ = PROG_CMD_DO;
 
-            if (state.cur_token && state.cur_token->kind == PROG_TOKEN_STR) {
-                *code_pt++ = data_pt - dataseg;
-                strcpy(data_pt, state.cur_token->str);
-                data_pt += strlen(data_pt) + 1;
-                state.cur_token = state.cur_token->next;
-            } else {
-                *code_pt++ = 0;
-            }
+            *code_pt++ = data_pt - dataseg;
+            strcpy(data_pt, state.cur_token->str);
+            data_pt += strlen(data_pt) + 1;
+            state.cur_token = state.cur_token->next;
             break;
         default:
             errlog("Can't happen");
