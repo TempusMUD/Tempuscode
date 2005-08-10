@@ -251,7 +251,39 @@ CEditor::ReplaceLine(unsigned int line, char *inStr)
 }
 
 bool
-CEditor::FindReplace(char *args)
+CEditor::Find(char *args)
+{
+	list <string>::iterator itr;
+    string pattern(args);
+	unsigned int i;
+
+    acc_string_clear();
+
+	itr = theText.begin();
+
+	for (i = 1; itr != theText.end(); i++, itr++) {
+        if (itr->find(pattern, 0) >= itr->length())
+            continue;
+		acc_sprintf("%3d%s%s]%s %s\r\n", i,
+                    CCBLD(desc->creature, C_CMP),
+                    CCBLU(desc->creature, C_NRM),
+                    CCNRM(desc->creature, C_NRM),
+                    itr->c_str());
+		// Overflowing the LARGE_BUF desc buffer.
+		if (acc_get_length() > 10240)
+			break;
+	}
+
+	if (acc_get_length() > 10240)
+		acc_strcat("Search result limit reached.\r\n", NULL);
+    acc_strcat("\r\n", NULL);
+	SendMessage(acc_get_string());
+
+    return true;
+}
+
+bool
+CEditor::Substitute(char *args)
 {
 	// Iterator to the current line in theText
 	list <string>::iterator line;
@@ -270,7 +302,7 @@ CEditor::FindReplace(char *args)
 
 	if (!*r) {
 		SendMessage
-			("The format for find/replace is &f [search string] [replace string] \r\nYou must actually include the brackets\r\n");
+			("The format for substitute is &s [search pattern] [replacement] \r\nYou must actually include the brackets\r\n");
 		return false;
 	}
 // Find "findit"
@@ -533,10 +565,11 @@ CEditor::ProcessHelp(char *inStr)
 	if (!*inStr) {
         send_to_desc(desc,
                      "     &C*&B-----------------------&Y H E L P &B-----------------------&C*\r\n"
-                     "            &YF - &nFind && Replace       &YH - &nHelp         \r\n"
-                     "            &YS - &nSave and Exit        &YQ - &nQuit (Cancel)\r\n"
+                     "            &YS - &nSubstitute           &YH - &nHelp         \r\n"
+                     "            &YE - &nSave and Exit        &YQ - &nQuit (Cancel)\r\n"
                      "            &YL - &nReplace Line         &YD - &nDelete Line  \r\n"
-                     "            &YI - &nInsert Line          &YR - &nRefresh Screen\r\n");
+                     "            &YI - &nInsert Line          &YR - &nRefresh Screen\r\n"
+                     "            &YF - &nFind\r\n");
         if (PLR_FLAGGED(ch, PLR_MAILING)) {
             // TODO: this should use virtual dispatch for extensibility.
             send_to_desc(desc,
@@ -573,10 +606,13 @@ CEditor::PerformCommand(char cmd, char *args)
 	case 'h':					// Help
 		ProcessHelp(args);
         break;
-	case 'f':					// Find/Replace
-        FindReplace(args);
+	case 's':					// Find/Replace
+        Substitute(args);
 		break;
-	case 's':					// Save and Exit
+    case 'f':
+        Find(args);
+        break;
+	case 'e':					// Save and Exit
         Finish(true);
 		break;
 	case 'l':					// Replace Line

@@ -53,7 +53,8 @@ private:
 	void Append(char *inStr);	// Standard appending lines.
 	bool Insert(unsigned int line, char *inStr);	// Insert a line
 	bool ReplaceLine(unsigned int line, char *inStr);	// Replace a line
-	bool FindReplace(char *args);	// Text search and replace.
+	bool Find(char *args);	// Text search
+	bool Substitute(char *args);	// Text search and replace.
 	bool Remove(unsigned int line);	// Remove a line
 	bool Clear(void);			// Wipe the text and start over.
 };
