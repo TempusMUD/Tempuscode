@@ -138,8 +138,9 @@ prog_next_handler(prog_env * env, bool use_resume)
         env->exec_pt += sizeof(short) + 2;
     }
 
-    // We didn't find another handler, so terminate the prog
-    env->exec_pt = -1;
+    // We reached the end of the prog, so we leave the exec_pt
+    // where it is - the end of prog handler will terminate
+    // the prog gracefully
 }
 
 void
