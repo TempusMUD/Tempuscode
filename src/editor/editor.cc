@@ -100,15 +100,19 @@ CEditor::Process(char *inStr)
 	// 2 special chars, @ and &
 	char inbuf[MAX_INPUT_LENGTH + 1];
     char *args;
-	strncpy(inbuf, inStr, MAX_INPUT_LENGTH);
 
+	strncpy(inbuf, inStr, MAX_INPUT_LENGTH);
 	delete_doubledollar(inbuf);
 
 	if (*inbuf == '&') {		// Commands
-        args = inbuf + ((inbuf[2]) ? 3:2);
-        if (*args)
+        if (!inbuf[1]) {
+            SendMessage("& is the command character. Type &h for help.\r\n");
+            return;
+        }
+        args = inbuf + 2;
+        while (*args && isspace(*args))
             args++;
-        if (!this->PerformCommand(inbuf[1], inbuf + 3))
+        if (!this->PerformCommand(inbuf[1], args))
             SendMessage("Invalid Command. Type &h for help.\r\n");
 	} else if (*inbuf == '@') {	// Finish up
         Finish(true);
@@ -288,103 +292,132 @@ CEditor::Find(char *args)
 bool
 CEditor::Substitute(char *args)
 {
+    const char *usage = "There are two formats for substitute:\r\n  &s [search pattern] [replacement]\r\n  &s /search pattern/replacement/\r\nIn the first form, you can use (), [], <>, or {}.\r\n";
 	// Iterator to the current line in theText
 	list <string>::iterator line;
 	// The string containing the search pattern
-	string findit;
+	string pattern;
 	// String containing the replace pattern
-	string replaceit;
+	string replacement;
 	// Number of replacements made
 	int replaced = 0;
-	// Temporary string.
-	char temp[MAX_INPUT_LENGTH];
 	// read pointer and write pointer.
-	char *r, *w;
+	char *temp, end_char;
+    bool balanced;
+    int size_delta;
 
-	for (r = args; *r == ' '; r++);
+    while (isspace(*args))
+        args++;
 
-	if (!*r) {
-		SendMessage
-			("The format for substitute is &s [search pattern] [replacement] \r\nYou must actually include the brackets\r\n");
-		return false;
-	}
-// Find "findit"
-
-	if (*r != '[') {
-		SendMessage("Mismatched brackets.\r\n");
-		return false;
-	}
-	// Advance past [
-	r++;
-	if (*r == ']') {
-		SendMessage("You can't search for nothing...\r\n");
+	if (!*args) {
+		SendMessage(usage);
 		return false;
 	}
 
-	for (w = temp; *r && *r != ']'; r++)
-		*w++ = *r;
-	// terminate w;
-	*w = '\0';
+    // First non-space character is the search delimiter.  If the
+    // delimiter is something used with some kind of brace, it
+    // terminates in the opposite brace
+    balanced = true;
+    switch (*args) {
+    case '(':
+        end_char = ')'; break;
+    case '[':
+        end_char = ']'; break;
+    case '{':
+        end_char = '}'; break;
+    case '<':
+        end_char = '>'; break;
+    default:
+        end_char = *args;
+        balanced = false;
+        break;
+    }
+    args++;
 
-	if (*r != ']') {
-		SendMessage("Mismatched brackets.\r\n");
-		return false;
-	}
-	// Advance past ]
-	r++;
-	findit = temp;
+    temp = args;
+    while (*args && *args != end_char)
+        args++;
+    if (!*args) {
+        SendMessage(usage);
+        return false;
+    }
 
-// Find "replaceit"
-	for (; *r == ' '; r++);
-	if (*r != '[') {
-		SendMessage("Mismatched brackets.\r\n");
-		return false;
-	}
-	// Advance past [
-	r++;
-	for (w = temp; *r && *r != ']'; r++)
-		*w++ = *r;
-	// terminate w;
-	*w = '\0';
+    *args++ = '\0';
+    pattern = temp;
 
-	if (*r != ']') {
-		SendMessage("Mismatched brackets.\r\n");
-		return false;
-	}
-	replaceit = temp;
+    // If the pattern was specified with a balanced delimiter, then
+    // the replacement must be, too
+    if (balanced) {
+        while (*args
+               && *args != '('
+               && *args != '['
+               && *args != '{'
+               && *args != '<')
+            args++;
+        if (!*args) {
+            // TODO: Make this more comprehensible
+            SendMessage("If the search pattern is a balanced delimiter, you must use a balanced\r\ndelimiter for the replacement.\r\n");
+            return false;
+        }
 
-	// Find "findit" in theText a line at a time and replace each instance.
+        switch (*args) {
+        case '(':
+            end_char = ')'; break;
+        case '[':
+            end_char = ']'; break;
+        case '{':
+            end_char = '}'; break;
+        case '<':
+            end_char = '>'; break;
+            break;
+        default:
+            end_char = *args; break;
+        }
+        args++;
+    }
+
+    temp = args;
+    while (*args && *args != end_char)
+        args++;
+
+    *args = '\0';
+    replacement = temp;
+
+    size_delta = replacement.length() - pattern.length();
+
+	// Find pattern in theText a line at a time and replace each instance.
 	unsigned int pos;			// Current position in the line
 	bool overflow = false;		// Have we overflowed the buffer?
+
 	for (line = theText.begin(); !overflow && line != theText.end(); line++) {
-		pos = 0;
+        pos = line->find(pattern, 0);
 		while (pos < line->length()) {
-			pos = line->find(findit, pos);
-			if (pos < line->length()) {
-				if ((curSize - findit.length() + replaceit.length()) +
-					((theText.size() + 1) * 2)
-					> maxSize) {
-					SendMessage("Error: The buffer is full.\r\n");
-					overflow = true;
-					break;
-				}
-				*line = line->replace(pos, findit.length(), replaceit);
-				replaced++;
-				pos += replaceit.length();
-			}
-			if (replaced >= 100) {
-				SendMessage("Replacement limit of 100 reached.\r\n");
-				overflow = true;
-				break;
-			}
+            // Handle both buffer size and replacement overflows
+            if (curSize + size_delta > maxSize || replaced >= 100) {
+                overflow = true;
+                break;
+            }
+            *line = line->replace(pos, pattern.length(), replacement);
+            replaced++;
+            curSize += size_delta;
+            pos = line->find(pattern, pos + replacement.length());
 		}
 	}
-	if (replaced > 0 && !overflow) {
-		SendMessage(tmp_sprintf("%d occurrences of [%s] replaced with [%s].\r\n",
-                                replaced, findit.c_str(), replaceit.c_str()));
-	} else if (!overflow) {
-		SendMessage("Search string not found.\r\n");
-	}
+    if (curSize + size_delta > maxSize)
+        SendMessage("Error: The buffer is full.\r\n");
+    if (replaced >= 100)
+        SendMessage("Replacement limit of 100 reached.\r\n");
+    if (replaced > 0) {
+        SendMessage(tmp_sprintf(
+                        "Replaced %d occurrence%s of '%s' with '%s'.\r\n",
+                        replaced,
+                        (replaced == 1) ? "s":"",
+                        pattern.c_str(),
+                        replacement.c_str()));
+    } else {
+        SendMessage("Search string not found.\r\n");
+    }
+
     if (wrap)
 	    Wrap();
 	UpdateSize();
