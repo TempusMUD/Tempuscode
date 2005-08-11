@@ -1101,6 +1101,8 @@ int dice(int number, int size);
 inline bool
 isnumber(const char *str)
 {
+    if (!*str)
+        return false;
 	while (*str)
 		if (!isdigit(*str))
 			return false;
