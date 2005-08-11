@@ -26,7 +26,7 @@ protected:
     // These are different between subclasses
     virtual bool PerformCommand(char cmd, char *args);
     virtual void Finalize(const char *text) = 0;
-    virtual void DisplayBuffer(unsigned int start_line = 1);
+    virtual void DisplayBuffer(unsigned int start_line = 1, int line_count = -1);
 
 	void ImportText(char *text);	// Run from contructor, imports *d->str
 	void SendMessage(const char *message);	// Wrapper for sendtochar

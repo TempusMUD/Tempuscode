@@ -122,32 +122,37 @@ CEditor::Process(char *inStr)
 }
 
 void
-CEditor::DisplayBuffer(unsigned int startline)
+CEditor::DisplayBuffer(unsigned int start_line, int line_count)
 {
 	list <string>::iterator itr;
-	unsigned int i;
+	unsigned int linenum, end_line;
 
     acc_string_clear();
 
-	itr = theText.begin();
+    // Calculate last line number we're going to show
+    end_line = theText.size() + 1;
+    if (line_count >= 0 && start_line + line_count < end_line)
+        end_line = start_line + line_count;
 
-    for (i = 1;i < startline && itr != theText.end();i++)
+    // Set the iterator to the beginning line
+	itr = theText.begin();
+    for (linenum = 1;linenum < start_line && itr != theText.end();linenum++)
          itr++;
 
-	for (i = startline; itr != theText.end(); i++, itr++) {
-		acc_sprintf("%3d%s%s]%s %s\r\n", i,
+    // Display the lines from the beginning line to the end, making
+    // sure we don't overflow the LARGE_BUF desc buffer
+	for (linenum = start_line;linenum < end_line;linenum++, itr++) {
+		acc_sprintf("%3d%s%s]%s %s\r\n", linenum,
                     CCBLD(desc->creature, C_CMP),
                     CCBLU(desc->creature, C_NRM),
                     CCNRM(desc->creature, C_NRM),
                     itr->c_str());
-		// Overflowing the LARGE_BUF desc buffer.
-		if (acc_get_length() > 10240) {
+		if (acc_get_length() > (LARGE_BUFSIZE - 1024))
 			break;
-		}
 	}
 
     acc_strcat("\r\n", NULL);
-	if (acc_get_length() > 10240)
+	if (acc_get_length() > (LARGE_BUFSIZE - 1024))
         acc_strcat("Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n", NULL);
 
 	SendMessage(acc_get_string());
@@ -699,18 +704,15 @@ CEditor::PerformCommand(char cmd, char *args)
         Remove(line);
 		break;
 	case 'r':					// Refresh Screen
-		args = one_argument(args, command);
-		if (!isdigit(*command)) {
-			DisplayBuffer();
-			break;
-		}
-		line = atoi(command);
-		if (line < 1) {
-			SendMessage
-				("Format for refresh command is: &r <starting line #>\r\n");
-			break;
-		}
-		DisplayBuffer((unsigned int)line);
+        if (!*args) {
+            DisplayBuffer();
+        } else if (isnumber(args) && (line = atoi(args)) > 0) {
+            int line_count = desc->account->get_term_height();
+
+            DisplayBuffer(MAX(1, line - line_count / 2), line_count);
+		} else {
+            SendMessage("Format for refresh command is: &r [<line #>]\r\nOmit line number to display the whole buffer.\r\n");
+        }
 		break;
 	default:
 		return false;
