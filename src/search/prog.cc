@@ -489,6 +489,24 @@ prog_eval_wearing(prog_env *env, prog_evt *evt, char *args) {
 
     return result;
 }
+
+room_data *
+prog_get_owner_room(prog_env *env)
+{
+    switch (env->owner_type) {
+    case PROG_TYPE_MOBILE:
+        return ((Creature *)env->owner)->in_room;
+    case PROG_TYPE_ROOM:
+        return ((room_data *)env->owner);
+    case PROG_TYPE_OBJECT:
+        return ((obj_data *)env->owner)->find_room();
+    default:
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+    }
+
+    return NULL;
+}
+
 // If have a new condition to add and you can do it in
 // 3 lines or less, you can add it inline here.  Otherwise
 // factor it out into a function
@@ -520,42 +538,36 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 		result = (evt->args && !strcasecmp(args, evt->args));
 		// Mobs using "alias"
 		// 1200 3062 90800
-	} 
-    else if (!strcmp(arg, "alias")) {
+	} else if (!strcmp(arg, "alias")) {
         result = prog_eval_alias(env, evt, args);
-	} 
-    else if (!strcmp(arg, "keyword")) {
+	} else if (!strcmp(arg, "keyword")) {
         result = prog_eval_keyword(env, evt, args);
-	} 
-    else if (!strcmp(arg, "abbrev")) {
+	} else if (!strcmp(arg, "abbrev")) {
         result = prog_eval_abbrev(env, evt, args);
-	} 
-    else if (!strcmp(arg, "fighting")) {
+	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
 			&& ((Creature *) env->owner)->numCombatants());
-	} 
-    else if (!strcmp(arg, "randomly")) {
+	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
-	} 
-    else if (!strcmp(arg, "variable")) {
+	} else if (!strcmp(arg, "variable")) {
 		if (env->state) {
 			arg = tmp_getword(&args);
 			result = prog_var_equal(env->state, arg, args);
-		} 
-        else if (!*args)
+		} else if (!*args)
 			result = true;
-	} 
-    else if (!strcasecmp(arg, "holding")) {
+	} else if (!strcasecmp(arg, "holding")) {
         result = prog_eval_holding(env, evt, args);
-	} 
-    else if (!strcasecmp(arg, "hour")) {
+	} else if (!strcasecmp(arg, "hour")) {
 		result = time_info.hours == atoi(tmp_getword(&args));
-	} 
-    else if (!strcasecmp(arg, "phase")) {
+	} else if (!strcasecmp(arg, "phase")) {
         result = prog_eval_phase(env, evt, args);
-	} 
-    // These are all subsets of the *require target <attribute> directive
-    else if (!strcasecmp(arg, "target")) {
+    } else if (!strcasecmp(arg, "room")) {
+        room_data *room = prog_get_owner_room(env);
+
+        arg = tmp_getword(&args);
+        result = (*arg && room) ? result = (room->number == atoi(arg)):false;
+	} else if (!strcasecmp(arg, "target")) {
+        // These are all subsets of the *require target <attribute> directive
 		arg = tmp_getword(&args);
 		if (!strcasecmp(arg, "class")) {
             result = prog_eval_class(env, evt, args);
@@ -931,21 +943,10 @@ prog_do_damage(prog_env * env, prog_evt * evt, char *args)
 		players = true;
 	else if (strcmp(target_arg, "all"))
 		errlog("Bad trans argument 1");
- 
-	switch (env->owner_type) {
-	case PROG_TYPE_MOBILE:
-		room = ((Creature *) env->owner)->in_room;
-		break;
-	case PROG_TYPE_OBJECT:
-		room = ((obj_data *) env->owner)->find_room();
-		break;
-	case PROG_TYPE_ROOM:
-		room = ((room_data *) env->owner);
-		break;
-	default:
-		room = NULL;
-		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-	}
+
+    room = prog_get_owner_room(env);
+    if (!room)
+        return;
 
 	for (CreatureList::iterator it = room->people.begin();
 		it != room->people.end(); ++it)
@@ -1137,20 +1138,9 @@ prog_do_trans(prog_env * env, prog_evt * evt, char *args)
 	else if (strcmp(target_arg, "all"))
 		errlog("Bad trans argument 1");
 
-	switch (env->owner_type) {
-	case PROG_TYPE_MOBILE:
-		room = ((Creature *) env->owner)->in_room;
-		break;
-	case PROG_TYPE_OBJECT:
-		room = ((obj_data *) env->owner)->find_room();
-		break;
-	case PROG_TYPE_ROOM:
-		room = ((room_data *) env->owner);
-		break;
-	default:
-		room = NULL;
-		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-	}
+    room = prog_get_owner_room(env);
+    if (!room)
+        return;
 
 	for (CreatureList::iterator it = room->people.begin();
 		it != room->people.end(); ++it)
@@ -1241,20 +1231,7 @@ prog_do_oload(prog_env * env, prog_evt * evt, char *args)
 	if (!*target_str || !strcasecmp(target_str, "room")) {
 		if (target_num == -1) {
 			// They mean the current room
-			switch (env->owner_type) {
-			case PROG_TYPE_MOBILE:
-				room = ((Creature *) env->owner)->in_room;
-				break;
-			case PROG_TYPE_OBJECT:
-				room = ((obj_data *) env->owner)->find_room();
-				break;
-			case PROG_TYPE_ROOM:
-				room = ((room_data *) env->owner);
-				break;
-			default:
-				room = NULL;
-				errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-			}
+            room = prog_get_owner_room(env);
 		} else {
 			// They're specifying a room number
 			room = real_room(target_num);
@@ -1308,20 +1285,7 @@ prog_do_mload(prog_env * env, prog_evt * evt, char *args)
 			return;
 		arg = tmp_getword(&args);
 	} else {
-		switch (env->owner_type) {
-		case PROG_TYPE_MOBILE:
-			room = ((Creature *) env->owner)->in_room;
-			break;
-		case PROG_TYPE_OBJECT:
-			room = ((obj_data *) env->owner)->find_room();
-			break;
-		case PROG_TYPE_ROOM:
-			room = ((room_data *) env->owner);
-			break;
-		default:
-			room = NULL;
-			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-		}
+        room = prog_get_owner_room(env);
 	}
 	if (*arg && !strcasecmp(arg, "max"))
 		max_load = atoi(tmp_getword(&args));
@@ -1408,29 +1372,17 @@ prog_do_echo(prog_env * env, prog_evt * evt, char *args)
 	room_data *room = NULL;
 
 	arg = tmp_getword(&args);
-	switch (env->owner_type) {
-	case PROG_TYPE_MOBILE:
-		ch = ((Creature *) env->owner);
-		room = ch->in_room;
-		break;
-	case PROG_TYPE_OBJECT:
-		obj = ((obj_data *) env->owner);
-		room = obj->find_room();
-	case PROG_TYPE_ROOM:
-
-		// if there's noone in the room and it's not a zecho, no point in echoing
-		if (((room_data *) env->owner)->people.empty()
-			&& strcasecmp(arg, "zone"))
+    room = prog_get_owner_room(env);
+    if (env->owner_type == PROG_TYPE_ROOM) {
+		// if there's noone in the room and it's not a zecho,
+        // no point in echoing
+		if (room->people.empty() && strcasecmp(arg, "zone"))
 			return;
 		// we just pick the top guy off the people list for rooms.
-		room = (room_data *) env->owner;
 		ch = *(((room_data *) env->owner)->people.begin());
-		break;
-	default:
-		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-	}
-	target = env->target;
+    }
 
+	target = env->target;
 	if (!strcasecmp(arg, "room")) {
 		act(args, false, ch, obj, target, TO_CHAR);
 		act(args, false, ch, obj, target, TO_ROOM);
