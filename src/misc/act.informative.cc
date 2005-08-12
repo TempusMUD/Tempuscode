@@ -346,9 +346,9 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
             }
         }
         if (GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester()) {
-            acc_sprintf(" %s[%s%d%s]%s",
-                CCYEL_BLD(ch, C_NRM), CCGRN(ch, C_NRM), GET_OBJ_VNUM(object), 
-                CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+            acc_sprintf(" %s<%s%d%s>%s",
+                CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+                GET_OBJ_VNUM(object), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
         }
 		if (mode == SHOW_OBJ_ROOM)
 			acc_strcat(CCGRN(ch, C_NRM), NULL);
@@ -902,9 +902,9 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 			CCRED(ch, C_NRM), CCYEL(ch, C_NRM));
         
     if (IS_NPC(i) && (GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester())) {
-    	vnum = tmp_sprintf(" %s[%s%d%s]%s",
-			CCGRN_BLD(ch, C_NRM), CCYEL(ch, C_NRM), GET_MOB_VNUM(i),
-            CCGRN_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+    	vnum = tmp_sprintf(" %s%s<%s%d%s>%s",
+			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+            GET_MOB_VNUM(i), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
         
 		
