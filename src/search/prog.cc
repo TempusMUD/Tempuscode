@@ -1373,13 +1373,21 @@ prog_do_echo(prog_env * env, prog_evt * evt, char *args)
 
 	arg = tmp_getword(&args);
     room = prog_get_owner_room(env);
-    if (env->owner_type == PROG_TYPE_ROOM) {
+    switch (env->owner_type) {
+    case PROG_TYPE_MOBILE:
+        ch = ((Creature *)env->owner); break;
+    case PROG_TYPE_OBJECT:
+        obj = ((obj_data *)env->owner); break;
+    case PROG_TYPE_ROOM:
 		// if there's noone in the room and it's not a zecho,
         // no point in echoing
 		if (room->people.empty() && strcasecmp(arg, "zone"))
 			return;
 		// we just pick the top guy off the people list for rooms.
 		ch = *(((room_data *) env->owner)->people.begin());
+        break;
+    default:
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__); break;
     }
 
 	target = env->target;
