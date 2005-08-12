@@ -455,7 +455,7 @@ struct obj_data *
 detonate_bomb(struct obj_data *bomb)
 {
 
-	struct room_data *room = bomb->in_room;
+	struct room_data *room = bomb->find_room();
 	struct Creature *ch = bomb->carried_by;
 	struct obj_data *cont = bomb->in_obj, *next_obj = NULL;
 	struct bomb_radius_list *rad_elem = NULL, *next_elem = NULL;
