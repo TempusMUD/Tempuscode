@@ -1884,7 +1884,7 @@ parse_object(FILE * obj_f, int nr)
 		safe_exit(1);
 	}
 	tmpptr = obj->name = fread_string(obj_f, buf2);
-	if (*tmpptr)
+	if (tmpptr && *tmpptr)
 		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") ||
 			!str_cmp(fname(tmpptr), "the"))
 			*tmpptr = tolower(*tmpptr);
