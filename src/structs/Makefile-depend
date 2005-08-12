@@ -24,11 +24,12 @@ $(OBJ)/creature.o: creature.cc ../include/structs.h ../include/defs.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/comm.h \
   ../include/utils.h ../include/spells.h ../include/handler.h \
-  ../include/db.h /usr/include/pgsql/libpq-fe.h \
-  /usr/include/pgsql/postgres_ext.h ../include/help.h ../include/paths.h \
-  ../include/login.h ../include/house.h ../include/clan.h \
-  ../include/security.h ../include/screen.h ../include/fight.h \
-  ../include/player_table.h ../include/prog.h ../include/quest.h
+  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/help.h \
+  ../include/paths.h ../include/login.h ../include/house.h \
+  ../include/clan.h ../include/security.h ../include/screen.h \
+  ../include/fight.h ../include/player_table.h ../include/prog.h \
+  ../include/quest.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/creature_io.o: creature_io.cc ../include/constants.h ../include/utils.h \
   ../include/structs.h ../include/defs.h ../include/macros.h \
@@ -56,10 +57,10 @@ $(OBJ)/creature_io.o: creature_io.cc ../include/constants.h ../include/utils.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/db.h \
-  /usr/include/pgsql/libpq-fe.h /usr/include/pgsql/postgres_ext.h \
-  ../include/comm.h ../include/char_class.h ../include/actions.h \
-  ../include/spells.h ../include/mobact.h ../include/handler.h \
-  ../include/language.h
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
+  ../include/char_class.h ../include/actions.h ../include/spells.h \
+  ../include/mobact.h ../include/handler.h ../include/language.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/creature_list.o: creature_list.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -139,8 +140,9 @@ $(OBJ)/obj_data.o: obj_data.cc ../include/structs.h ../include/defs.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
-  ../include/handler.h ../include/db.h /usr/include/pgsql/libpq-fe.h \
-  /usr/include/pgsql/postgres_ext.h ../include/comm.h
+  ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/object_map.o: object_map.cc ../include/object_map.h ../include/obj_data.h \
   ../include/defs.h ../include/constants.h ../include/xml_utils.h \
@@ -195,7 +197,8 @@ $(OBJ)/player_table.o: player_table.cc ../include/player_table.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/db.h \
-  /usr/include/pgsql/libpq-fe.h /usr/include/pgsql/postgres_ext.h
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/room_data.o: room_data.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \

@@ -99,10 +99,12 @@ perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
 		act("$n attacks $N in a BERSERK rage!!", FALSE, ch, 0, vict,
 			TO_NOTVICT);
 		act("$n attacks you in a BERSERK rage!!", FALSE, ch, 0, vict, TO_VICT);
-		*return_flags = hit(ch, vict, TYPE_UNDEFINED);
+        if (return_flags) {
+            *return_flags = hit(ch, vict, TYPE_UNDEFINED);
 
-		if (!IS_SET(*return_flags, DAM_VICT_KILLED) && who_was_attacked)
-			*who_was_attacked = vict;
+            if (!IS_SET(*return_flags, DAM_VICT_KILLED) && who_was_attacked)
+                *who_was_attacked = vict;
+        }
 
 		return 1;
 	}
@@ -121,6 +123,8 @@ ACMD(do_berserk)
 	struct affected_type af, af2, af3;
 	byte percent;
 	percent = (number(1, 101) - GET_LEVEL(ch));
+
+    perform_barb_berserk(ch, NULL, return_flags);
 
 	if (IS_AFFECTED_2(ch, AFF2_BERSERK)) {
 		if (percent > CHECK_SKILL(ch, SKILL_BERSERK)) {
