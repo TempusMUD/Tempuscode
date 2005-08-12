@@ -23,8 +23,8 @@ $(OBJ)/artisan.o: artisan.cc ../include/db.h ../include/defs.h \
   ../include/creature_list.h ../include/desc_data.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/account.h \
-  ../include/interpreter.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/utils.h \
+  ../include/interpreter.h /usr/include/pgsql/libpq-fe.h \
+  /usr/include/pgsql/postgres_ext.h ../include/utils.h \
   ../include/actions.h ../include/spells.h ../include/char_class.h \
   ../include/mobact.h ../include/comm.h ../include/screen.h \
   ../include/handler.h ../include/security.h ../include/vendor.h
@@ -55,10 +55,10 @@ $(OBJ)/cityguard.o: cityguard.cc ../include/creature.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/account.h \
   ../include/interpreter.h ../include/house.h ../include/actions.h \
-  ../include/spells.h ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
-  ../include/fight.h ../include/handler.h ../include/utils.h \
-  ../include/screen.h ../include/specs.h
+  ../include/spells.h ../include/db.h /usr/include/pgsql/libpq-fe.h \
+  /usr/include/pgsql/postgres_ext.h ../include/comm.h ../include/fight.h \
+  ../include/handler.h ../include/utils.h ../include/screen.h \
+  ../include/specs.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/guard.o: guard.cc ../include/actions.h ../include/interpreter.h \
   ../include/defs.h ../include/spells.h ../include/creature.h \
@@ -86,10 +86,9 @@ $(OBJ)/guard.o: guard.cc ../include/actions.h ../include/interpreter.h \
   ../include/creature_list.h ../include/desc_data.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/account.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
-  ../include/fight.h ../include/handler.h ../include/utils.h \
-  ../include/screen.h
+  ../include/db.h /usr/include/pgsql/libpq-fe.h \
+  /usr/include/pgsql/postgres_ext.h ../include/comm.h ../include/fight.h \
+  ../include/handler.h ../include/utils.h ../include/screen.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/mail.o: mail.cc ../include/actions.h ../include/interpreter.h \
   ../include/defs.h ../include/spells.h ../include/creature.h \
@@ -118,11 +117,10 @@ $(OBJ)/mail.o: mail.cc ../include/actions.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/account.h \
   ../include/utils.h ../include/comm.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/handler.h \
-  ../include/mail.h ../include/editor.h ../include/prog.h \
-  ../include/screen.h ../include/clan.h ../include/materials.h \
-  ../include/player_table.h ../include/accstr.h
+  /usr/include/pgsql/libpq-fe.h /usr/include/pgsql/postgres_ext.h \
+  ../include/handler.h ../include/mail.h ../include/editor.h \
+  ../include/prog.h ../include/screen.h ../include/clan.h \
+  ../include/materials.h ../include/player_table.h ../include/accstr.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/mobact.o: mobact.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -149,8 +147,8 @@ $(OBJ)/mobact.o: mobact.cc ../include/structs.h ../include/defs.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
+  ../include/db.h /usr/include/pgsql/libpq-fe.h \
+  /usr/include/pgsql/postgres_ext.h ../include/comm.h \
   ../include/handler.h ../include/spells.h ../include/char_class.h \
   ../include/actions.h ../include/mobact.h ../include/vehicle.h \
   ../include/flow_room.h ../include/guns.h ../include/bomb.h \
@@ -183,8 +181,8 @@ $(OBJ)/vendor.o: vendor.cc ../include/actions.h ../include/interpreter.h \
   ../include/creature_list.h ../include/desc_data.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/account.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/comm.h \
+  ../include/db.h /usr/include/pgsql/libpq-fe.h \
+  /usr/include/pgsql/postgres_ext.h ../include/comm.h \
   ../include/handler.h ../include/screen.h ../include/utils.h \
   ../include/vendor.h ../include/specs.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<

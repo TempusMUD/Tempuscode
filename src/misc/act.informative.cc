@@ -345,6 +345,11 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
                                   CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
             }
         }
+        if (GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester()) {
+            acc_sprintf(" %s[%s%d%s]%s",
+                CCYEL_BLD(ch, C_NRM), CCGRN(ch, C_NRM), GET_OBJ_VNUM(object), 
+                CCYEL_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+        }
 		if (mode == SHOW_OBJ_ROOM)
 			acc_strcat(CCGRN(ch, C_NRM), NULL);
 	}
@@ -785,7 +790,8 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 	char *align = "";
 	char *desc = "";
 	char *appr = "";
-
+    char *vnum = "";
+    
 	if (AFF2_FLAGGED(i, AFF2_MOUNTED))
 		return "";
 
@@ -894,9 +900,16 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 	if (MOB2_FLAGGED(i, MOB2_UNAPPROVED))
 		appr = tmp_sprintf(" %s(!appr)%s",
 			CCRED(ch, C_NRM), CCYEL(ch, C_NRM));
+        
+    if (IS_NPC(i) && (GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester())) {
+    	vnum = tmp_sprintf(" %s[%s%d%s]%s",
+			CCGRN_BLD(ch, C_NRM), CCYEL(ch, C_NRM), GET_MOB_VNUM(i),
+            CCGRN_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+    }
+        
 		
 	desc = tmp_strcat(CCYEL(ch, C_NRM), (is_group) ? CCBLD(ch, C_CMP):"",
-		desc, align, appr, CCNRM(ch, C_NRM), "\r\n", NULL);
+		desc, align, appr, vnum, CCNRM(ch, C_NRM), "\r\n", NULL);
 
 	return desc;
 }

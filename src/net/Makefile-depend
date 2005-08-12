@@ -24,8 +24,7 @@ $(OBJ)/ban.o: ban.cc ../include/structs.h ../include/defs.h ../include/macros.h 
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/utils.h \
   ../include/comm.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h
+  /usr/include/pgsql/libpq-fe.h /usr/include/pgsql/postgres_ext.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/comm.o: comm.cc ../include/macros.h ../include/structs.h \
   ../include/defs.h ../include/constants.h ../include/obj_data.h \
@@ -54,10 +53,10 @@ $(OBJ)/comm.o: comm.cc ../include/macros.h ../include/structs.h \
   ../include/zone_data.h ../include/ban.h ../include/spells.h \
   ../include/utils.h ../include/comm.h ../include/security.h \
   ../include/screen.h ../include/handler.h ../include/db.h \
-  /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/editor.h \
-  ../include/prog.h ../include/house.h ../include/vehicle.h \
-  ../include/help.h ../include/accstr.h ../include/player_table.h
+  /usr/include/pgsql/libpq-fe.h /usr/include/pgsql/postgres_ext.h \
+  ../include/editor.h ../include/prog.h ../include/house.h \
+  ../include/vehicle.h ../include/help.h ../include/accstr.h \
+  ../include/player_table.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 $(OBJ)/gnetsys.o: gnetsys.cc ../include/structs.h ../include/defs.h \
   ../include/macros.h ../include/constants.h ../include/obj_data.h \
@@ -84,8 +83,8 @@ $(OBJ)/gnetsys.o: gnetsys.cc ../include/structs.h ../include/defs.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/comm.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/utils.h \
+  ../include/db.h /usr/include/pgsql/libpq-fe.h \
+  /usr/include/pgsql/postgres_ext.h ../include/utils.h \
   ../include/spells.h ../include/handler.h ../include/mail.h \
   ../include/screen.h ../include/help.h ../include/char_class.h \
   ../include/actions.h ../include/mobact.h ../include/clan.h \
@@ -117,14 +116,13 @@ $(OBJ)/nanny.o: nanny.cc ../include/structs.h ../include/defs.h \
   ../include/account.h ../include/desc_data.h ../include/interpreter.h \
   ../include/room_data.h ../include/search.h ../include/weather.h \
   ../include/zone_data.h ../include/ban.h ../include/comm.h \
-  ../include/db.h /usr/local/pgsql/include/libpq-fe.h \
-  /usr/local/pgsql/include/postgres_ext.h ../include/editor.h \
-  ../include/prog.h ../include/utils.h ../include/spells.h \
-  ../include/handler.h ../include/mail.h ../include/screen.h \
-  ../include/help.h ../include/char_class.h ../include/actions.h \
-  ../include/mobact.h ../include/clan.h ../include/vehicle.h \
-  ../include/house.h ../include/login.h ../include/bomb.h \
-  ../include/security.h ../include/quest.h ../include/player_table.h \
-  ../include/language.h
+  ../include/db.h /usr/include/pgsql/libpq-fe.h \
+  /usr/include/pgsql/postgres_ext.h ../include/editor.h ../include/prog.h \
+  ../include/utils.h ../include/spells.h ../include/handler.h \
+  ../include/mail.h ../include/screen.h ../include/help.h \
+  ../include/char_class.h ../include/actions.h ../include/mobact.h \
+  ../include/clan.h ../include/vehicle.h ../include/house.h \
+  ../include/login.h ../include/bomb.h ../include/security.h \
+  ../include/quest.h ../include/player_table.h ../include/language.h
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 OBJFILES= $(OBJ)/ban.o $(OBJ)/comm.o $(OBJ)/gnetsys.o $(OBJ)/nanny.o
