@@ -1102,7 +1102,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 				nreply->next = mob_p->mob_specials.response;
 				mob_p->mob_specials.response = nreply;
 				start_editing_text(ch->desc,
-					&mob_p->mob_specials.response->description, true);
+					&mob_p->mob_specials.response->description);
 				SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 				act("$n begins to write a mobile response.", TRUE, ch, 0, 0,
 					TO_ROOM);

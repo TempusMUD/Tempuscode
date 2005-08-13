@@ -1060,8 +1060,8 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 		ndesc->next = ch->in_room->ex_description;
 		ch->in_room->ex_description = ndesc;
 
-		start_editing_text(ch->desc, &ch->in_room->ex_description->description,
-			true);
+		start_editing_text(ch->desc,
+                           &ch->in_room->ex_description->description);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
 		act("$n begins to write an extra description.", TRUE, ch, 0, 0,
