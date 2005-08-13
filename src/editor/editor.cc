@@ -575,7 +575,7 @@ CEditor::UpdateSize(void)
 
 	// Buffer overflow state.
 	// This is probably happening in response to word wrap
-	while ((curSize + (theText.size() * 2) + 2) > maxSize) {
+	while (curSize > maxSize) {
 		theText.pop_back();
 		curSize = text_length(theText);
 		linesRemoved++;
