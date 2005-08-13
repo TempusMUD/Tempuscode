@@ -2232,7 +2232,7 @@ half_chop(char *string, char *arg1, char *arg2)
 
 	temp = any_one_arg(string, arg1);
 	skip_spaces(&temp);
-	strcpy(arg2, temp);
+    memmove(arg2, temp, strlen(temp) + 1);
 }
 
 
