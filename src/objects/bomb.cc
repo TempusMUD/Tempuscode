@@ -122,10 +122,11 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
 
 	if (p_factor > 0) {
 		for (dir = 0; dir < NUM_DIRS; dir++) {
-			if (room->dir_option[dir] && room->dir_option[dir]->to_room &&
-				room->dir_option[dir]->to_room != room &&
-				!IS_SET(room->dir_option[dir]->exit_info, EX_ONEWAY) &&
-				(fromdir < 0 || rev_dir[fromdir] != dir)) {
+			if (room->dir_option[dir]
+                && room->dir_option[dir]->to_room
+                && room->dir_option[dir]->to_room != room
+                && !IS_SET(room->dir_option[dir]->exit_info, EX_ONEWAY)
+                && (fromdir < 0 || rev_dir[fromdir] != dir)) {
 				new_factor = p_factor - (p_factor / 10) -
 					(movement_loss[room->sector_type] << 4) -
 					(IS_SET(room->dir_option[dir]->exit_info,
@@ -513,9 +514,6 @@ detonate_bomb(struct obj_data *bomb)
 			cont = cont->in_obj;
 
 		ch = (cont->worn_by ? cont->worn_by : cont->carried_by);
-		room = cont->in_room;
-		obj_from_obj(bomb);
-
 		damage_eq(NULL, cont, dice(MIN(100, BOMB_POWER(bomb)),
 				BOMB_POWER(bomb)));
 	}
