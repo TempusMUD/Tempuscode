@@ -1291,7 +1291,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 		return;
 	}
 
-	send_to_char(ch, CCCYN(ch, C_NRM));
+ 	send_to_char(ch, CCCYN(ch, C_NRM));
 	if (PRF_FLAGGED(ch, PRF_ROOMFLAGS) ||
 		(ch->desc->original
 			&& PRF_FLAGGED(ch->desc->original, PRF_ROOMFLAGS))) {
@@ -1322,66 +1322,69 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 		if (aff->description)
 			send_to_char(ch, aff->description);
 
+   /* Zone PK type */
+    switch (room->zone->getPKStyle()) {
+    case ZONE_NO_PK:
+        send_to_char(ch, "%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
+                     CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+        break;
+    case ZONE_NEUTRAL_PK:
+        send_to_char(ch, "%s[ %s%sNPK%s%s ] ", CCCYN(ch, C_NRM),
+                     CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), 
+                     CCCYN(ch, C_NRM));
+        break;
+    case ZONE_CHAOTIC_PK:
+        send_to_char(ch, "%s[ %s%sCPK%s%s ] ", CCCYN(ch, C_NRM),
+                     CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+                     CCCYN(ch, C_NRM));
+        break;
+    }
+
 	if ((GET_LEVEL(ch) >= LVL_AMBASSADOR ||
 			!ROOM_FLAGGED(room, ROOM_SMOKE_FILLED) ||
 			AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))) {
 
-        /* Zone PK type */
-        if (ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
-            send_to_char(ch, "%s[ %s!PK%s ]%s", CCCYN(ch, C_NRM),
-                         CCGRN(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-        }
-        else if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK) {
-            send_to_char(ch, "%s[ %s%sNPK%s%s ]%s", CCCYN(ch, C_NRM),
-                         CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), 
-                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-        }
-        else if (ch->in_room->zone->getPKStyle() == ZONE_CHAOTIC_PK) {
-            send_to_char(ch, "%s[ %s%sCPK%s%s ]%s", CCCYN(ch, C_NRM),
-                         CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-        }
 		/* autoexits */
 		if (PRF_FLAGGED(ch, PRF_AUTOEXIT))
 			do_auto_exits(ch, room);
-		/* now list characters & objects */
+        else
+            send_to_char(ch, "\r\n");
 
+		/* now list characters & objects */
 		for (o = room->contents; o; o = o->next_content) {
 			if (GET_OBJ_VNUM(o) == BLOOD_VNUM) {
 				if (!blood_shown) {
-					sprintf(buf,
+					send_to_char(ch,
 						"%s%s.%s\r\n",
 						CCRED(ch, C_NRM),
 						GET_OBJ_TIMER(o) < 10 ?
-						"Some blood is splattered around here" :
+						"Some spots of blood have been splattered around" :
 						GET_OBJ_TIMER(o) < 20 ?
-						"Some small pools of blood are here" :
+						"Small pools of blood are here" :
 						GET_OBJ_TIMER(o) < 30 ?
-						"Some large pools of blood are here" :
+						"Large pools of blood are here" :
 						GET_OBJ_TIMER(o) < 40 ?
-						"Blood is pooled and splattered all over everything here"
-						: "Dark red blood covers everything in sight here",
+						"Blood is pooled and splattered all over everything"
+						: "Dark red blood covers everything in sight",
 						CCNRM(ch, C_NRM));
 					blood_shown = 1;
-					send_to_char(ch, "%s", buf);
 				}
 			}
 
 			if (GET_OBJ_VNUM(o) == ICE_VNUM) {
 				if (!ice_shown) {
-					sprintf(buf,
+					send_to_char(ch,
 						"%s%s.%s\r\n",
 						CCCYN(ch, C_NRM),
 						GET_OBJ_TIMER(o) < 10 ?
-						"A few patches of ice are scattered around here" :
+						"A few patches of ice are scattered around" :
 						GET_OBJ_TIMER(o) < 20 ?
-						"A thin coating of ice covers everything here" :
+						"A thin coating of ice covers everything" :
 						GET_OBJ_TIMER(o) < 30 ?
-						"A thick coating of ice covers everything here" :
+						"A thick coating of ice covers everything" :
 						"Everything is covered with a thick coating of ice",
 						CCNRM(ch, C_NRM));
 					ice_shown = 1;
-					send_to_char(ch, "%s", buf);
 					break;
 				}
 			}
@@ -1392,7 +1395,9 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 		send_to_char(ch, CCYEL(ch, C_NRM));
 		list_char_to_char(room->people, ch);
 		send_to_char(ch, CCNRM(ch, C_NRM));
-	}
+	} else {
+        send_to_char(ch, "\r\n");
+    }
 }
 
 void
