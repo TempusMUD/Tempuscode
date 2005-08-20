@@ -1551,46 +1551,70 @@ unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 int
 check_eq_align(Creature *ch)
 {
-	struct obj_data *obj;
+	struct obj_data *obj, *implant;
 	int pos;
 
 	if (!ch->in_room || GET_LEVEL(ch) >= LVL_GOD)
 		return 0;
-
-	for (pos = 0;pos < NUM_WEARS;pos++) {
-		obj = GET_EQ(ch, pos);
-		if (!obj)
-			continue;
-
-		if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
-			(IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_GOOD(ch))) {
-			int skill;
-
-			act("You are burned by $p and frantically take it off!", FALSE, ch, obj, 0, TO_CHAR);
-			act("$n frantically takes off $p as $e screams in agony!", FALSE, ch, obj, 0,
-				TO_ROOM);
-			skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
-			skill >>= 5;
-			skill = MAX(1, skill);
-			obj_to_char(unequip_char(ch, pos, false), ch);
-			
-			return damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos);
-		}
-
-		if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
-			(IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
-			(IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
-			act("You are zapped by $p and instantly let go of it.",
-				FALSE, ch, obj, 0, TO_CHAR);
-			act("$n is zapped by $p and instantly lets go of it.",
-				FALSE, ch, obj, 0, TO_ROOM);
-			obj_to_char(unequip_char(ch, pos, false), ch);
-			if (IS_NPC(ch)) {
-				obj_from_char(obj);
-				obj_to_room(obj, ch->in_room);
-			}
-		}
-	}
+    
+        for (pos = 0;pos < NUM_WEARS;pos++) {
+            if ((implant = ch->implants[pos])) {
+                 
+                if ((IS_GOOD(ch) && IS_OBJ_STAT(ch->implants[pos], ITEM_DAMNED)) ||
+                    (IS_EVIL(ch) && IS_OBJ_STAT(ch->implants[pos], ITEM_BLESS))) {
+                
+                    obj_to_char(unequip_char(ch, pos, MODE_IMPLANT), ch);
+                
+                    act("$p burns its way out through your flesh!", FALSE, ch, implant, 0, TO_CHAR);
+                    act("$n screams in horror as $p burns its way out through $s flesh!", FALSE, ch,
+                        implant, 0, TO_ROOM);
+                
+                    damage_eq(NULL, implant, (GET_OBJ_DAM(implant) >> 1));
+                
+                    int extraction_damage = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
+                    if (pos == WEAR_BODY)
+                        extraction_damage *= 3;
+                    else if (pos == WEAR_HEAD || pos == WEAR_LEGS)
+                        extraction_damage *= 2;
+                    extraction_damage >>= 3;
+                    return damage(ch, ch, dice(extraction_damage, 3), TOP_SPELL_DEFINE, pos);
+                }
+            }
+            
+            obj = GET_EQ(ch, pos);
+            if (!obj)
+                continue;
+            
+                    if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
+                        (IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_GOOD(ch))) {
+                    int skill;
+                
+                    act("You are burned by $p and frantically take it off!", FALSE, ch, obj, 0, TO_CHAR);
+                    act("$n frantically takes off $p as $e screams in agony!", FALSE, ch, obj, 0,
+                        TO_ROOM);
+                    skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
+                    skill >>= 5;
+                    skill = MAX(1, skill);
+                    obj_to_char(unequip_char(ch, pos, false), ch);
+                
+                    return damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos);
+                }
+                    
+                    
+                if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
+                    (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
+                    (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
+                    act("You are zapped by $p and instantly let go of it.",
+                        FALSE, ch, obj, 0, TO_CHAR);
+                    act("$n is zapped by $p and instantly lets go of it.",
+                        FALSE, ch, obj, 0, TO_ROOM);
+                    obj_to_char(unequip_char(ch, pos, false), ch);
+                    if (IS_NPC(ch)) {
+                        obj_from_char(obj);
+                        obj_to_room(obj, ch->in_room);
+                    }
+                }
+        }
 	return 0;
 }
 
