@@ -618,7 +618,10 @@ affect_total(struct Creature *ch)
 		}
 		// apply implant affects
 		if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-			(!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
+			    !((IS_GOOD(ch) && IS_OBJ_STAT(ch->implants[i], ITEM_ANTI_GOOD)) ||
+                (IS_NEUTRAL(ch) && IS_OBJ_STAT(ch->implants[i], ITEM_ANTI_NEUTRAL)) ||
+                (IS_EVIL(ch) && IS_OBJ_STAT(ch->implants[i], ITEM_ANTI_EVIL))) &&
+                (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
 
 			for (j = 0; j < MAX_OBJ_AFFECT; j++)
 				affect_modify(ch, ch->implants[i]->affected[j].location,
