@@ -979,3 +979,30 @@ Account::hasCharGen(int gen)
 
     return 0;
 }
+
+int
+Account::countGens()
+{
+    Creature *tmp_ch = new Creature(true);
+	struct stat st;
+	char *path;
+    int idx;
+    int genCount = 0;
+    
+    for (idx = 1;!this->invalid_char_index(idx);idx++) {
+        tmp_ch->clear();
+
+		// test for file existence
+		path = get_player_file_path(this->get_char_by_index(idx));
+        if (stat(path, &st) < 0)
+			continue;
+		if (!tmp_ch->loadFromXML(path))
+			continue;
+
+        genCount += GET_REMORT_GEN(tmp_ch);
+    }
+
+    delete tmp_ch;
+
+    return genCount;
+}

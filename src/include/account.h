@@ -102,6 +102,8 @@ class Account {
         int hasCharLevel(int level);
         int hasCharGen(int level);
 
+        int countGens();
+        
         inline int count_chars() { return _chars.size(); };
 		class cmp {
 			public:
