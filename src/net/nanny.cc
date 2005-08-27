@@ -1125,7 +1125,7 @@ send_menu(descriptor_data *d)
 				false,
 				(d->account->get_char_count() > 5));
 
-		send_to_desc(d, "You have %d character%s in your account, you may create up to %d more.\r\n", 
+		send_to_desc(d, "\r\nYou have %d character%s in your account, you may create up to %d more.\r\n", 
             d->account->count_chars(), d->account->count_chars()==1 ? "" : "s", d->account->countGens()/10+10-d->account->count_chars());
         send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
