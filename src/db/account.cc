@@ -215,13 +215,13 @@ Account::load_players(void)
 	for (idx = 0;idx < count;idx++)
 		_chars.push_back(atol(PQgetvalue(res, idx, 0)));
 
-    if (count_chars() > 10) {
+    if (count_chars() > countGens()/10+10) {
         Creature *tmp_ch = new Creature(true);
         // First, find all the characters with NEW rentcode and
         // whack them as long as we still have more than 10 characters;
         for (int x = 0; x < count_chars(); x++) {
             tmp_ch->loadFromXML(_chars[x]);
-            if (count_chars() > 10 && 
+            if (count_chars() > countGens()/10+10 && 
                 (tmp_ch->player_specials->rentcode == RENT_NEW_CHAR ||
                  tmp_ch->player_specials->rentcode == RENT_CREATING)) {
                 delete_char(tmp_ch);
@@ -232,7 +232,7 @@ Account::load_players(void)
         // the characters that have QUIT and are less than level 25
          for (int x = 0; x < count_chars(); x++) {
             tmp_ch->loadFromXML(_chars[x]);
-            if (count_chars() > 10 && tmp_ch->getLevel() <= 25 && 
+            if (count_chars() > countGens()/10+10 && tmp_ch->getLevel() <= 25 && 
                 tmp_ch->player_specials->rentcode == RENT_QUIT) {
                 delete_char(tmp_ch);
             }
@@ -243,9 +243,9 @@ Account::load_players(void)
     // We've deleted as many characters as I feel is prudent.  If this
     // account still has more than 10 characters, make sure they only
     // have access to the first 10
-    if (count_chars() > 10) {
+    if (count_chars() > countGens()/10+10) {
         vector<long>::iterator vi = _chars.begin();
-        vi += 10;
+        vi += countGens()/10+10;
         _chars.erase(vi, _chars.end());
     }
 }
