@@ -1728,18 +1728,19 @@ ACMD(do_stun)
 
 	if ((prob < percent || MOB2_FLAGGED(vict, MOB2_NOSTUN)) &&
 		(GET_LEVEL(ch) < LVL_AMBASSADOR || GET_LEVEL(ch) < GET_LEVEL(vict))) {
-		act("$N tried to stun you!", FALSE, vict, 0, ch, TO_CHAR);
-		send_to_char(ch, "Uh-oh!  You failed.\r\n");
+		act("Uh-oh!  You fumbled while trying to stun $N!", FALSE, ch, 0, vict, TO_CHAR);
+		act("$n pokes your neck trying to stun you!  Ow!", FALSE, ch, 0, vict, TO_VICT);
+		act("$n pokes at $N's neck, but nothing happens!", FALSE, ch, 0, vict, TO_NOTVICT);
         ch->addCombat(vict, true);
         vict->addCombat(ch, false);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		return;
 	}
 
-	act("$N grabs a nerve center in your neck!  You are stunned!",
-		FALSE, vict, 0, ch, TO_CHAR);
+	act("You stun $N with a swift blow!", FALSE, ch, 0, vict, TO_CHAR);
+	act("$n strikes a nerve center in your neck!  You are stunned!",
+		FALSE, ch, 0, vict, TO_VICT);
 	act("$n stuns $N with a swift blow!", FALSE, ch, 0, vict, TO_NOTVICT);
-	send_to_char(ch, "You succeed!\r\n");
 	if (vict->numCombatants()) {
 		vict->removeAllCombat();
 		ch->removeAllCombat();
