@@ -758,14 +758,23 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			break;
 		}
 
-		if ((subcmd && affected_by_spell(ch, mode)) ||
-			(subcmd && affected_by_spell(ch, opposite_mode)) ||
-			(!subcmd && !affected_by_spell(ch, mode))) {
-			if (affected_by_spell(ch, opposite_mode))
-				mode = opposite_mode;
-			send_to_char(ch, "%sERROR:%s %s %s %s activated.\r\n", CCCYN(ch,
-					C_NRM), CCNRM(ch, C_NRM), spell_to_str(mode),
-				ISARE(spell_to_str(mode)), subcmd ? "already" : "not currently");
+		if (subcmd && affected_by_spell(ch, mode)) {
+			send_to_char(ch, "%sERROR:%s %s %s already activated.\r\n",
+				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+				spell_to_str(mode), ISARE(spell_to_str(mode)));
+			return;
+		} else if (subcmd
+				&& opposite_mode
+				&& affected_by_spell(ch, opposite_mode)) {
+			send_to_char(ch, "%sERROR:%s %s %s already activated.\r\n",
+				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+				spell_to_str(opposite_mode),
+				ISARE(spell_to_str(opposite_mode)));
+			return;
+		} else if (!subcmd && !affected_by_spell(ch, mode)) {
+			send_to_char(ch, "%sERROR:%s %s %s not currently activated.\r\n",
+				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+				spell_to_str(mode), ISARE(spell_to_str(mode)));
 			return;
 		}
 
@@ -821,7 +830,6 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 
 		}
 	}
-
 }
 
 //
