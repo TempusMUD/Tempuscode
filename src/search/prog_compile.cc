@@ -15,7 +15,6 @@ enum prog_token_kind {
 struct prog_token {
     prog_token_kind kind;   // kind of prog_token
     prog_token *next;       // next prog_token in list
-    prog_token *children;   // sublist of prog_tokens
     int linenum;            // line number this token occurs in
     // prog_token data
     union {
@@ -31,6 +30,11 @@ struct prog_compiler_state {
     prog_evt_type owner_type;
     prog_token *token_list;
     prog_token *cur_token;
+    unsigned short *codeseg;
+    unsigned short *code_pt;
+    char *dataseg;
+    char *data_pt;
+    int error;
 };
 
 
@@ -64,6 +68,7 @@ prog_report_compile_err(prog_compiler_state *compiler,
                         ...)
 {
     const char *place = NULL;
+    const char *linestr = "";
     char *msg;
     va_list args;
 
@@ -71,24 +76,29 @@ prog_report_compile_err(prog_compiler_state *compiler,
     msg = tmp_vsprintf(str, args);
     va_end(args);
 
+    if (linenum)
+        linestr = tmp_sprintf(", line %d", linenum);
+
     switch (compiler->owner_type) {
     case PROG_TYPE_MOBILE:
-        place = tmp_sprintf("mobile %d", GET_MOB_VNUM((Creature *)compiler->owner));
+        place = tmp_sprintf("mobile %d%s",
+                            GET_MOB_VNUM((Creature *)compiler->owner),
+                            linestr);
         break;
     case PROG_TYPE_ROOM:
-        place = tmp_sprintf("room %d", ((room_data *)compiler->owner)->number);
+        place = tmp_sprintf("room %d%s",
+                            ((room_data *)compiler->owner)->number,
+                            linestr);
         break;
     default:
         place = "an unknown location";
     }
     if (compiler->ch)
-        send_to_char(compiler->ch, "Prog error in %s, line %d: %s\r\n",
-                     place,
-                     linenum,
-                     msg);
+        send_to_char(compiler->ch, "Prog error in %s: %s\r\n", place, msg);
     else
-        slog("Prog error in %s, line %d: %s", place, linenum, msg);
+        slog("Prog error in %s: %s", place, msg);
 
+    compiler->error = 1;
 }
 
 prog_token *
@@ -96,9 +106,10 @@ prog_create_token(prog_token_kind kind, int linenum, const char *value)
 {
     prog_token *new_token;
 
-    CREATE(new_token, prog_token, 1);
+    new_token = new prog_token;
     if (!new_token)
         return NULL;
+    memset(new_token, 0, sizeof(prog_token));
 
     new_token->kind = kind;
     new_token->linenum = linenum;
@@ -128,8 +139,6 @@ prog_free_tokens(prog_token *token_list)
         if (cur_token->kind == PROG_TOKEN_SYM ||
             cur_token->kind == PROG_TOKEN_STR)
             free(cur_token->str);
-        if (cur_token->children)
-            prog_free_tokens(cur_token->children);
         free(cur_token);
     }
 }
@@ -182,9 +191,13 @@ prog_lexify(prog_compiler_state *compiler)
             if (*line == '*') {
                 cmd_str = tmp_getword(&line) + 1;
                 new_token = prog_create_token(PROG_TOKEN_SYM, linenum, cmd_str);
-                if (!new_token)
+                if (!new_token) {
+                    prog_report_compile_err(compiler,
+                                            compiler->cur_token->linenum,
+                                            "Out of memory",
+                                            compiler->cur_token->sym);
                     return false;
-                
+                }
                 if (prev_token)
                     prev_token->next = new_token;
                 else
@@ -195,8 +208,13 @@ prog_lexify(prog_compiler_state *compiler)
             // if we have an argument to the command, tokenize it
             if (*line) {
                 new_token = prog_create_token(PROG_TOKEN_STR, linenum, line);
-                if (!new_token)
+                if (!new_token) {
+                    prog_report_compile_err(compiler,
+                                            compiler->cur_token->linenum,
+                                            "Out of memory",
+                                            compiler->cur_token->sym);
                     return false;
+                }
 
                 if (prev_token)
                     prev_token->next = new_token;
@@ -207,8 +225,13 @@ prog_lexify(prog_compiler_state *compiler)
 
             // The end-of-line is a language token in progs
             new_token = prog_create_token(PROG_TOKEN_EOL, linenum, line);
-            if (!new_token)
+            if (!new_token) {
+                    prog_report_compile_err(compiler,
+                                            compiler->cur_token->linenum,
+                                            "Out of memory",
+                                            compiler->cur_token->sym);
                 return false;
+            }
             prev_token->next = new_token;
             prev_token = new_token;
 
@@ -229,6 +252,73 @@ prog_lexify(prog_compiler_state *compiler)
     return true;
 }
 
+void
+prog_compile_statement(prog_compiler_state *compiler)
+{
+    prog_command *cmd;
+
+    switch (compiler->cur_token->kind) {
+    case PROG_TOKEN_EOL:
+        // Ignore blank statements
+        break;
+    case PROG_TOKEN_SYM:
+        // Find the prog command
+        cmd = prog_cmds + 1;
+        while (cmd->str && strcasecmp(cmd->str, compiler->cur_token->sym))
+            cmd++;
+        if (!cmd->str) {
+            prog_report_compile_err(compiler,
+                                    compiler->cur_token->linenum,
+                                    "Unknown command '%s'",
+                                    compiler->cur_token->sym);
+            return;
+        }
+        
+        // Emit prog command code
+        *compiler->code_pt++ = (cmd - prog_cmds);
+
+        // Advance to the next token
+        compiler->cur_token = compiler->cur_token->next;
+
+        if (compiler->cur_token && compiler->cur_token->kind == PROG_TOKEN_STR) {
+            *compiler->code_pt++ = compiler->data_pt - compiler->dataseg;
+            strcpy(compiler->data_pt, compiler->cur_token->str);
+            compiler->data_pt += strlen(compiler->data_pt) + 1;
+              
+            compiler->cur_token = compiler->cur_token->next;
+        } else {
+            *compiler->code_pt++ = 0;
+        }
+        break;
+    case PROG_TOKEN_STR:
+        if (compiler->owner_type != PROG_TYPE_MOBILE) {
+            prog_report_compile_err(compiler, compiler->cur_token->linenum,
+                                    "Non-mobs cannot perform in-game commands.");
+            return;
+        }
+
+        // It's an in-game command with a mob, so emit the *do command
+        *compiler->code_pt++ = PROG_CMD_DO;
+
+        *compiler->code_pt++ = compiler->data_pt - compiler->dataseg;
+        strcpy(compiler->data_pt, compiler->cur_token->str);
+        compiler->data_pt += strlen(compiler->data_pt) + 1;
+        compiler->cur_token = compiler->cur_token->next;
+        break;
+    default:
+        errlog("Can't happen");
+    }
+        
+    if (compiler->cur_token) {
+        if (compiler->cur_token->kind != PROG_TOKEN_EOL) {
+            prog_report_compile_err(compiler, compiler->cur_token->linenum,
+                                    "Expected end of line");
+            return;
+        }
+        compiler->cur_token = compiler->cur_token->next;
+    }
+}
+
 unsigned char *
 prog_compile_prog(Creature *ch,
                   char *prog_text,
@@ -236,12 +326,9 @@ prog_compile_prog(Creature *ch,
                   prog_evt_type owner_type)
 {
     prog_compiler_state state;
-    prog_command *cmd;
-    unsigned char *obj;
-    char *dataseg = NULL, *data_pt;
-    unsigned short *codeseg = NULL, *code_pt;
+    unsigned char *obj = NULL;
+    unsigned short *code_pt;
     int data_len, code_len;
-    
 
     if (!prog_text || !*prog_text)
         return NULL;
@@ -261,13 +348,25 @@ prog_compile_prog(Creature *ch,
         return NULL;
 
     // Initialize object and data segments
-    dataseg = new char[65536];
-    data_pt = dataseg;
-    *data_pt++ = '\0';
+    // FIXME: allocates a large buffer initially.  We should be automatically
+    // adjusting this as needed
+    state.dataseg = new char[65536];
+    if (!state.dataseg) {
+        prog_report_compile_err(&state, 0, "Out of memory");
+        goto error;
+    }
+    state.data_pt = state.dataseg;
+    *state.data_pt++ = '\0';
 
     data_len = 0;
-    codeseg = new unsigned short[32768];
-    code_pt = codeseg;
+    state.codeseg = new unsigned short[32768];
+    // FIXME: allocates a large buffer initially.  We should be automatically
+    // adjusting this as needed
+    if (!state.codeseg) {
+        prog_report_compile_err(&state, 0, "Out of memory");
+        goto error;
+    }
+    state.code_pt = state.codeseg;
     code_len = 0;
 
     // Make sure the code starts with a handler
@@ -280,104 +379,56 @@ prog_compile_prog(Creature *ch,
         goto error;
     }
 
-    while (state.cur_token) {
-        // Ignore blank statements
-        switch (state.cur_token->kind) {
-        case PROG_TOKEN_EOL:
-            break;
-        case PROG_TOKEN_SYM:
-            // Find the prog command
-            cmd = prog_cmds + 1;
-            while (cmd->str && strcasecmp(cmd->str, state.cur_token->sym))
-                cmd++;
-            if (!cmd->str) {
-                prog_report_compile_err(&state,
-                                        state.cur_token->linenum,
-                                        "Unknown command '%s'",
-                                        state.cur_token->sym);
-                goto error;
-            }
-        
-            // Emit prog command code
-            *code_pt++ = (cmd - prog_cmds);
+    // Run through tokens until no more tokens are left or a fatal
+    // compiler error occurs.
+    state.error = 0;
+    while (state.cur_token && !state.error)
+        prog_compile_statement(&state);
 
-            // Advance to the next token
-            state.cur_token = state.cur_token->next;
+    if (!state.error) {
+        // No error occurred - map object code and data to a single
+        // memory block...
 
-            if (state.cur_token && state.cur_token->kind == PROG_TOKEN_STR) {
-                *code_pt++ = data_pt - dataseg;
-                strcpy(data_pt, state.cur_token->str);
-                data_pt += strlen(data_pt) + 1;
-              
-                state.cur_token = state.cur_token->next;
-            } else {
-                *code_pt++ = 0;
-            }
-            break;
-        case PROG_TOKEN_STR:
-            if (owner_type != PROG_TYPE_MOBILE) {
-                prog_report_compile_err(&state, state.cur_token->linenum,
-                                        "Non-mobs cannot perform in-game commands.");
-                goto error;
-            }
+        // Add an endofprog command to the end of the code to make
+        // sure it doesn't wander into the data segment
+        *state.code_pt++ = PROG_CMD_ENDOFPROG;
+        *state.code_pt++ = 0;
 
-            // It's an in-game command with a mob, so emit the *do command
-            *code_pt++ = PROG_CMD_DO;
+        code_len = (state.code_pt - state.codeseg) * sizeof(short);
+        data_len = state.data_pt - state.dataseg;
+        obj = new unsigned char[code_len + data_len];
+        if (!obj) {
+            prog_report_compile_err(&state, 0, "Out of memory");
 
-            *code_pt++ = data_pt - dataseg;
-            strcpy(data_pt, state.cur_token->str);
-            data_pt += strlen(data_pt) + 1;
-            state.cur_token = state.cur_token->next;
-            break;
-        default:
-            errlog("Can't happen");
+            goto error;
         }
-        
-        if (state.cur_token) {
-            if (state.cur_token->kind != PROG_TOKEN_EOL) {
-                prog_report_compile_err(&state, state.cur_token->linenum,
-                                        "Expected end of line");
-                goto error;
-            }
-            state.cur_token = state.cur_token->next;
-        }
+        // Since the code comes first, we have to change all the argument
+        // offsets to take into account the length of the code.
+        for (code_pt = state.codeseg + 1;
+             code_pt - state.codeseg < code_len;
+             code_pt += 2)
+            *code_pt += code_len;
+        memcpy(obj, state.codeseg, code_len);
+
+        // Now copy the data segment
+        memcpy(obj + code_len, state.dataseg, data_len);
+    } else {
+        // An error occurred - set the result to NULL
+        obj = NULL;
     }
 
-    // Add an endofprog command to the end of the code to make sure it doesn't
-    // wander into the data segment
-    *code_pt++ = PROG_CMD_ENDOFPROG;
-    *code_pt++ = 0;
+error:
 
-    // We don't need the tokens anymore
+    // Free compiler structures
     prog_free_tokens(state.token_list);
-
-    code_len = (code_pt - codeseg) * sizeof(short);
-    data_len = data_pt - dataseg;
-    obj = new unsigned char[code_len + data_len];
-
-    // Since the code comes first, we have to change all the argument
-    // offsets to take into account the length of the code.
-    for (code_pt = codeseg + 1;code_pt - codeseg < code_len;code_pt += 2)
-        *code_pt += code_len;
-    memcpy(obj, codeseg, code_len);
-
-    // Now copy the data segment
-    memcpy(obj + code_len, dataseg, data_len);
-
-    delete [] codeseg;
-    delete [] dataseg;
+    delete [] state.codeseg;
+    delete [] state.dataseg;
 
     // We can potentially use a LOT of temporary string space in our
     // compilation, so we gc it here.
     tmp_gc_strings();
 
     return obj;
-error:
-    prog_free_tokens(state.token_list);
-    delete [] codeseg;
-    delete [] dataseg;
-
-    return NULL;
 }
 
 void
