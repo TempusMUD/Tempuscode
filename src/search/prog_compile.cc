@@ -46,20 +46,10 @@ struct prog_compiler_state {
     int error;                  // true if a fatal error has occurred
 };
 
-const char *prog_phases[] = { "before", "handle", "after", NULL };
-const char *prog_events[] = {
-    "command",
-    "idle",
-    "fight",
-    "give",
-    "enter",
-    "leave",
-    "load",
-    "tick",
-    "spell",
-    "combat",
-    "death",
-	NULL
+const char *prog_phase_strs[] = { "before", "handle", "after", "\n" };
+const char *prog_event_strs[] = {
+    "command", "idle", "fight", "give", "enter", "leave", "load", "tick",
+    "spell", "combat", "death", "\n"
 };
 
 char *
@@ -414,10 +404,8 @@ void
 prog_compile_handler(prog_compiler_state *compiler)
 {
     prog_token *cmd_token;
-    prog_evt_phase phase;
-    prog_evt_kind event;
+    int phase, event, cmd;
     char *arg, *args;
-    int cmd;
 
     // Make sure the code starts with a handler
     if (compiler->cur_token->kind != PROG_TOKEN_HANDLER) {
@@ -438,17 +426,17 @@ prog_compile_handler(prog_compiler_state *compiler)
 
     // Retrieve the handler phase
     cmd_token = compiler->cur_token;
-    if (!strcasecmp(cmd_token->sym, "before")) {
-        phase = PROG_EVT_BEGIN;
-		prog_compiler_emit(compiler, PROG_CMD_BEFORE, NULL, 0);
-    } else if (!strcasecmp(cmd_token->sym, "handle")) {
-        phase = PROG_EVT_HANDLE;
-		prog_compiler_emit(compiler, PROG_CMD_HANDLE, NULL, 0);
-    } else if (!strcasecmp(cmd_token->sym, "after")) {
-        phase = PROG_EVT_AFTER;
-		prog_compiler_emit(compiler, PROG_CMD_AFTER, NULL, 0);
-    } else
+	phase = search_block(cmd_token->sym, prog_phase_strs, true);
+	switch (phase) {
+	case PROG_EVT_BEGIN:
+		prog_compiler_emit(compiler, PROG_CMD_BEFORE, NULL, 0); break;
+	case PROG_EVT_HANDLE:
+		prog_compiler_emit(compiler, PROG_CMD_HANDLE, NULL, 0); break;
+	case PROG_EVT_AFTER:
+		prog_compiler_emit(compiler, PROG_CMD_AFTER, NULL, 0); break;
+	default:
         slog("Can't happen at %s:%d", __FILE__, __LINE__);
+	}
 
     // Advance to the next token, which should be a STR
     compiler->cur_token = cmd_token->next;
@@ -461,30 +449,8 @@ prog_compile_handler(prog_compiler_state *compiler)
 
     // Retrieve the event type
     args = compiler->cur_token->str;
-    arg = tmp_getword(&args);
-    if (!strcasecmp(arg, "command"))
-        event = PROG_EVT_COMMAND;
-    else if (!strcasecmp(arg, "spell"))
-        event = PROG_EVT_SPELL;
-    else if (!strcasecmp(arg, "idle"))
-        event = PROG_EVT_IDLE;
-    else if (!strcasecmp(arg, "combat"))
-        event = PROG_EVT_COMBAT;
-    else if (!strcasecmp(arg, "fight"))
-        event = PROG_EVT_FIGHT;
-    else if (!strcasecmp(arg, "give"))
-        event = PROG_EVT_GIVE;
-    else if (!strcasecmp(arg, "enter"))
-        event = PROG_EVT_ENTER;
-    else if (!strcasecmp(arg, "leave"))
-        event = PROG_EVT_LEAVE;
-    else if (!strcasecmp(arg, "load"))
-        event = PROG_EVT_LOAD;
-    else if (!strcasecmp(arg, "tick"))
-        event = PROG_EVT_TICK;
-    else if (!strcasecmp(arg, "death"))
-        event = PROG_EVT_DEATH;
-    else {
+	event = search_block(tmp_getword(&args), prog_event_strs, true);
+	if (event < 0) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
                                 "Invalid parameter '%s' to *%s",
                                 arg,
@@ -503,6 +469,7 @@ prog_compile_handler(prog_compiler_state *compiler)
                                     cmd_token->sym);
             return;
         }
+		prog_compiler_emit(compiler, PROG_CMD_CLRCOND, NULL, 0);
         while (*arg) {
             cmd = find_command(arg);
             if (cmd < 0) {
@@ -511,10 +478,11 @@ prog_compile_handler(prog_compiler_state *compiler)
                 return;
             }
 			prog_compiler_emit(compiler, PROG_CMD_CMPCMD, &cmd, sizeof(int));
-			prog_compiler_emit(compiler, PROG_CMD_CONDNEXTHANDLER, NULL, 0);
 
             arg = tmp_getword(&args);
         }
+
+		prog_compiler_emit(compiler, PROG_CMD_CONDNEXTHANDLER, NULL, 0);
         break;
     case PROG_EVT_SPELL:
         arg = tmp_getword(&args);
@@ -525,6 +493,7 @@ prog_compile_handler(prog_compiler_state *compiler)
                                     cmd_token->sym);
             return;
         }
+		prog_compiler_emit(compiler, PROG_CMD_CLRCOND, NULL, 0);
         while (*arg) {
             if (!is_number(arg)) {
                 prog_compile_error(compiler, compiler->cur_token->linenum,
@@ -542,10 +511,11 @@ prog_compile_handler(prog_compiler_state *compiler)
             }
 
 			prog_compiler_emit(compiler, PROG_CMD_CMPCMD, &cmd, sizeof(int));
-			prog_compiler_emit(compiler, PROG_CMD_CONDNEXTHANDLER, NULL, 0);
 
             arg = tmp_getword(&args);
         }
+
+		prog_compiler_emit(compiler, PROG_CMD_CONDNEXTHANDLER, NULL, 0);
         break;
     case PROG_EVT_GIVE:
         arg = tmp_getword(&args);
@@ -570,6 +540,7 @@ prog_compile_handler(prog_compiler_state *compiler)
                 return;
             }
 
+			prog_compiler_emit(compiler, PROG_CMD_CLRCOND, NULL, 0);
 			prog_compiler_emit(compiler, PROG_CMD_CMPOBJVNUM, &cmd, sizeof(int));
 			prog_compiler_emit(compiler, PROG_CMD_CONDNEXTHANDLER, NULL, 0);
 
@@ -628,8 +599,8 @@ prog_display_obj(Creature *ch, unsigned char *exec)
 			read_pt = *((short *)exec + phase_idx * PROG_EVT_COUNT + event_idx);
 			if (read_pt) {
 				send_to_char(ch, "-- %s %s -------------------------\r\n",
-					tmp_toupper(prog_phases[phase_idx]),
-					tmp_toupper(prog_events[event_idx]));
+					tmp_toupper(prog_phase_strs[phase_idx]),
+					tmp_toupper(prog_event_strs[event_idx]));
 				while (read_pt >= 0 && *((short *)&exec[read_pt])) {
 					// Get the command and the arg address
 					cmd = *((short *)(exec + read_pt));
@@ -796,6 +767,9 @@ prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
 
     // Compile the prog, if one exists.
     obj = (prog) ? prog_compile_prog(ch, prog, owner, owner_type):NULL;
+
+	if (ch && obj)
+		prog_display_obj(ch, obj);
 
     // Set the object code of the owner
     switch (owner_type) {

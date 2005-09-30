@@ -60,6 +60,7 @@ void prog_do_hunt(prog_env * env, prog_evt * evt, char *args);
 void prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args);
 void prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args);
 void prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args);
+void prog_do_clear_cond(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -74,6 +75,7 @@ prog_command prog_cmds[] = {
 	{"after", false, prog_do_after},
 	{"or", false, prog_do_or},
 	{"do", true, prog_do_do},
+	{"!CLRCOND!", false, prog_do_clear_cond},
 	{"!CMPCMD!", false, prog_do_compare_cmd},
 	{"!CMPOBJVNUM!", false, prog_do_compare_obj_vnum},
 	{"!CONDNEXTHANDLER!", false, prog_do_cond_next_handler},
@@ -967,15 +969,25 @@ prog_do_hunt(prog_env * env, prog_evt * evt, char *args)
 }
 
 void
+prog_do_clear_cond(prog_env *env, prog_evt *evt, char *args)
+{
+	env->condition = 0;
+}
+
+void
 prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args)
 {
-	env->condition = (evt->cmd == *((int *)args));
+	// FIXME: nasty hack
+	if (!env->condition)
+		env->condition = (evt->cmd == *((int *)args));
 }
 
 void
 prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args)
 {
-	env->condition = (evt->object
+	// FIXME: nasty hack
+	if (!env->condition)
+		env->condition = (evt->object
 						&& ((obj_data *)evt->object)->getVnum() == *((int *)args));
 }
 
@@ -1904,7 +1916,7 @@ prog_update_pending(void)
 		return;
     
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
-		if (cur_prog->exec_pt == 0 && cur_prog->executed == 0)
+		if (cur_prog->executed == 0)
 			prog_execute(cur_prog);
 
 }
