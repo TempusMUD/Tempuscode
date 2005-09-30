@@ -533,12 +533,10 @@ prog_compile_handler(prog_compiler_state *compiler)
                                         arg);
                 return;
             }
-            if (!real_object_proto(cmd)) {
+            if (!real_object_proto(cmd))
                 prog_compile_warning(compiler, compiler->cur_token->linenum,
                                      "No object %s exists.",
                                      arg);
-                return;
-            }
 
 			prog_compiler_emit(compiler, PROG_CMD_CLRCOND, NULL, 0);
 			prog_compiler_emit(compiler, PROG_CMD_CMPOBJVNUM, &cmd, sizeof(int));
