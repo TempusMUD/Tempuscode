@@ -416,7 +416,7 @@ CEditor::Substitute(char *args)
         SendMessage(tmp_sprintf(
                         "Replaced %d occurrence%s of '%s' with '%s'.\r\n",
                         replaced,
-                        (replaced == 1) ? "s":"",
+                        (replaced == 1) ? "":"s",
                         pattern.c_str(),
                         replacement.c_str()));
     } else {
