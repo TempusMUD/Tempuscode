@@ -15,7 +15,8 @@ enum prog_evt_type {
 enum prog_evt_phase {
 	PROG_EVT_BEGIN,
 	PROG_EVT_HANDLE,
-	PROG_EVT_AFTER
+	PROG_EVT_AFTER,
+    PROG_PHASE_COUNT,
 };
 
 enum prog_evt_kind {
@@ -29,7 +30,8 @@ enum prog_evt_kind {
 	PROG_EVT_TICK,
     PROG_EVT_SPELL,
     PROG_EVT_COMBAT,
-    PROG_EVT_DEATH
+    PROG_EVT_DEATH,
+    PROG_EVT_COUNT,             /* Maximum event number + 1 = count */
 };
 
 enum prog_cmd_kind {
@@ -41,6 +43,9 @@ enum prog_cmd_kind {
     PROG_CMD_AFTER,
     PROG_CMD_OR,
     PROG_CMD_DO,
+    PROG_CMD_CMPCMD,
+    PROG_CMD_CMPOBJVNUM,
+    PROG_CMD_CONDNEXTHANDLER,
 };
 
 struct prog_evt {
@@ -70,6 +75,7 @@ struct prog_env {
 	int executed;				// the number of non-handlers we've executed
     int speed;					// default wait between commands
     int wait;					// the number of seconds to wait
+	int condition;				// T/F depending on last compare
     prog_evt_type owner_type;	// type of the owner
 	void *owner;				// pointer to the actual owner
 	Creature *target;			// target of prog

@@ -1,15 +1,18 @@
-#include <string.h>
+ #include <string.h>
 
 #include "constants.h"
 #include "comm.h"
 #include "creature.h"
 #include "prog.h"
 #include "utils.h"
+#include "spells.h"
+#include "db.h"
 
 enum prog_token_kind {
     PROG_TOKEN_EOL,
     PROG_TOKEN_SYM,
     PROG_TOKEN_STR,
+    PROG_TOKEN_HANDLER,
 };
 
 struct prog_token {
@@ -23,20 +26,41 @@ struct prog_token {
     };
 };
 
-struct prog_compiler_state {
-    Creature *ch;
-    char *prog_text;
-    void *owner;
-    prog_evt_type owner_type;
-    prog_token *token_list;
-    prog_token *cur_token;
-    unsigned short *codeseg;
+struct prog_code_block {
+    prog_code_block *next;
+    unsigned short code_seg[8196];
     unsigned short *code_pt;
-    char *dataseg;
+    char data_seg[8196];
     char *data_pt;
-    int error;
 };
 
+struct prog_compiler_state {
+    Creature *ch;               // Player doing the compiling
+    char *prog_text;            // Text to be compiled
+    void *owner;                // Owner of the prog
+    prog_evt_type owner_type;   // Owner type of the prog
+    prog_token *token_list;     // The prog converted to a list of tokens
+    prog_token *cur_token;      // The token under inspection
+    prog_code_block *code;      // The current code block being compiled
+    prog_code_block *handlers[PROG_PHASE_COUNT][PROG_EVT_COUNT]; // entry table for event handlers
+    int error;                  // true if a fatal error has occurred
+};
+
+const char *prog_phases[] = { "before", "handle", "after", NULL };
+const char *prog_events[] = {
+    "command",
+    "idle",
+    "fight",
+    "give",
+    "enter",
+    "leave",
+    "load",
+    "tick",
+    "spell",
+    "combat",
+    "death",
+	NULL
+};
 
 char *
 prog_get_text(void *owner, prog_evt_type owner_type)
@@ -62,19 +86,18 @@ prog_get_text(void *owner, prog_evt_type owner_type)
 
 
 void
-prog_report_compile_err(prog_compiler_state *compiler,
-                        int linenum,
-                        const char *str,
-                        ...)
+prog_compile_message(prog_compiler_state *compiler,
+                    int level,
+                    int linenum,
+                    const char *str,
+                    va_list args)
 {
+    const char *severity = "";
     const char *place = NULL;
     const char *linestr = "";
     char *msg;
-    va_list args;
 
-    va_start(args, str);
     msg = tmp_vsprintf(str, args);
-    va_end(args);
 
     if (linenum)
         linestr = tmp_sprintf(", line %d", linenum);
@@ -93,12 +116,49 @@ prog_report_compile_err(prog_compiler_state *compiler,
     default:
         place = "an unknown location";
     }
+
+    switch (level) {
+    case 0:
+        severity = "notice"; break;
+    case 1:
+        severity = "warning"; break;
+    case 2:
+        severity = "error"; break;
+    }
+
     if (compiler->ch)
-        send_to_char(compiler->ch, "Prog error in %s: %s\r\n", place, msg);
+        send_to_char(compiler->ch, "Prog %s in %s: %s\r\n",
+                     severity, place, msg);
     else
-        slog("Prog error in %s: %s", place, msg);
+        slog("Prog %s in %s: %s", severity, place, msg);
+}
+
+void
+prog_compile_error(prog_compiler_state *compiler,
+                   int linenum,
+                   const char *str,
+                   ...)
+{
+    va_list args;
+
+    va_start(args, str);
+    prog_compile_message(compiler, 2, linenum, str, args);
+    va_end(args);
 
     compiler->error = 1;
+}
+
+void
+prog_compile_warning(prog_compiler_state *compiler,
+                     int linenum,
+                     const char *str,
+                     ...)
+{
+    va_list args;
+
+    va_start(args, str);
+    prog_compile_message(compiler, 1, linenum, str, args);
+    va_end(args);
 }
 
 prog_token *
@@ -118,6 +178,8 @@ prog_create_token(prog_token_kind kind, int linenum, const char *value)
         new_token->sym = strdup(value); break;
     case PROG_TOKEN_STR:
         new_token->str = strdup(value); break;
+    case PROG_TOKEN_HANDLER:
+        new_token->sym = strdup(value); break;
     case PROG_TOKEN_EOL:
         // EOL has no data
         break;
@@ -130,17 +192,26 @@ prog_create_token(prog_token_kind kind, int linenum, const char *value)
 }
 
 void
-prog_free_tokens(prog_token *token_list)
+prog_free_compiler(prog_compiler_state *compiler)
 {
     prog_token *next_token, *cur_token;
+    prog_code_block *cur_code, *next_code;
+    int phase_idx, event_idx;
 
-    for (cur_token = token_list;cur_token;cur_token = next_token) {
+    for (cur_token = compiler->token_list;cur_token;cur_token = next_token) {
         next_token = cur_token->next;
-        if (cur_token->kind == PROG_TOKEN_SYM ||
-            cur_token->kind == PROG_TOKEN_STR)
-            free(cur_token->str);
-        free(cur_token);
+        free(cur_token->str);
+        delete cur_token;
     }
+
+    for (phase_idx = 0;phase_idx < PROG_PHASE_COUNT;phase_idx++)
+        for (event_idx = 0;event_idx < PROG_EVT_COUNT;event_idx++)
+            for (cur_code = compiler->handlers[phase_idx][event_idx];
+                 cur_code;
+                 cur_code = next_code) {
+                next_code = cur_code->next;
+                delete cur_code;
+            }
 }
 
 //
@@ -186,13 +257,20 @@ prog_lexify(prog_compiler_state *compiler)
             // the lexical format is just a symbol followed by a string.
             // We'll improve things once we start parsing arguments
             
-            // First, get the command symbol
-                                          
             if (*line == '*') {
                 cmd_str = tmp_getword(&line) + 1;
-                new_token = prog_create_token(PROG_TOKEN_SYM, linenum, cmd_str);
+                if (!strcasecmp(cmd_str, "before")
+                    || !strcasecmp(cmd_str, "handle")
+                    || !strcasecmp(cmd_str, "after"))
+                    new_token = prog_create_token(PROG_TOKEN_HANDLER,
+                                                  linenum,
+                                                  cmd_str);
+                else
+                    new_token = prog_create_token(PROG_TOKEN_SYM,
+                                                  linenum,
+                                                  cmd_str);
                 if (!new_token) {
-                    prog_report_compile_err(compiler,
+                    prog_compile_error(compiler,
                                             compiler->cur_token->linenum,
                                             "Out of memory",
                                             compiler->cur_token->sym);
@@ -209,7 +287,7 @@ prog_lexify(prog_compiler_state *compiler)
             if (*line) {
                 new_token = prog_create_token(PROG_TOKEN_STR, linenum, line);
                 if (!new_token) {
-                    prog_report_compile_err(compiler,
+                    prog_compile_error(compiler,
                                             compiler->cur_token->linenum,
                                             "Out of memory",
                                             compiler->cur_token->sym);
@@ -226,7 +304,7 @@ prog_lexify(prog_compiler_state *compiler)
             // The end-of-line is a language token in progs
             new_token = prog_create_token(PROG_TOKEN_EOL, linenum, line);
             if (!new_token) {
-                    prog_report_compile_err(compiler,
+                    prog_compile_error(compiler,
                                             compiler->cur_token->linenum,
                                             "Out of memory",
                                             compiler->cur_token->sym);
@@ -253,9 +331,23 @@ prog_lexify(prog_compiler_state *compiler)
 }
 
 void
+prog_compiler_emit(prog_compiler_state *compiler, int instr, void *data, size_t data_len)
+{
+	*compiler->code->code_pt++ = instr;
+	if (data_len) {
+		*compiler->code->code_pt++ = compiler->code->data_pt - compiler->code->data_seg;
+		memcpy(compiler->code->data_pt, data, data_len);
+		compiler->code->data_pt += data_len;
+	} else {
+		*compiler->code->code_pt++ = 0;
+	}
+}
+
+void
 prog_compile_statement(prog_compiler_state *compiler)
 {
     prog_command *cmd;
+	int instr;
 
     switch (compiler->cur_token->kind) {
     case PROG_TOKEN_EOL:
@@ -267,7 +359,7 @@ prog_compile_statement(prog_compiler_state *compiler)
         while (cmd->str && strcasecmp(cmd->str, compiler->cur_token->sym))
             cmd++;
         if (!cmd->str) {
-            prog_report_compile_err(compiler,
+            prog_compile_error(compiler,
                                     compiler->cur_token->linenum,
                                     "Unknown command '%s'",
                                     compiler->cur_token->sym);
@@ -275,34 +367,33 @@ prog_compile_statement(prog_compiler_state *compiler)
         }
         
         // Emit prog command code
-        *compiler->code_pt++ = (cmd - prog_cmds);
+		instr = cmd - prog_cmds;
 
         // Advance to the next token
         compiler->cur_token = compiler->cur_token->next;
 
         if (compiler->cur_token && compiler->cur_token->kind == PROG_TOKEN_STR) {
-            *compiler->code_pt++ = compiler->data_pt - compiler->dataseg;
-            strcpy(compiler->data_pt, compiler->cur_token->str);
-            compiler->data_pt += strlen(compiler->data_pt) + 1;
-              
+			prog_compiler_emit(compiler,
+				cmd - prog_cmds,
+				compiler->cur_token->str,
+				strlen(compiler->cur_token->str) + 1);
             compiler->cur_token = compiler->cur_token->next;
         } else {
-            *compiler->code_pt++ = 0;
+			prog_compiler_emit(compiler, cmd - prog_cmds, NULL, 0);
         }
         break;
     case PROG_TOKEN_STR:
         if (compiler->owner_type != PROG_TYPE_MOBILE) {
-            prog_report_compile_err(compiler, compiler->cur_token->linenum,
+            prog_compile_error(compiler, compiler->cur_token->linenum,
                                     "Non-mobs cannot perform in-game commands.");
             return;
         }
 
         // It's an in-game command with a mob, so emit the *do command
-        *compiler->code_pt++ = PROG_CMD_DO;
-
-        *compiler->code_pt++ = compiler->data_pt - compiler->dataseg;
-        strcpy(compiler->data_pt, compiler->cur_token->str);
-        compiler->data_pt += strlen(compiler->data_pt) + 1;
+		prog_compiler_emit(compiler,
+			PROG_CMD_DO,
+			compiler->cur_token->str,
+			strlen(compiler->cur_token->str) + 1);
         compiler->cur_token = compiler->cur_token->next;
         break;
     default:
@@ -311,12 +402,331 @@ prog_compile_statement(prog_compiler_state *compiler)
         
     if (compiler->cur_token) {
         if (compiler->cur_token->kind != PROG_TOKEN_EOL) {
-            prog_report_compile_err(compiler, compiler->cur_token->linenum,
+            prog_compile_error(compiler, compiler->cur_token->linenum,
                                     "Expected end of line");
             return;
         }
         compiler->cur_token = compiler->cur_token->next;
     }
+}
+
+void
+prog_compile_handler(prog_compiler_state *compiler)
+{
+    prog_token *cmd_token;
+    prog_evt_phase phase;
+    prog_evt_kind event;
+    char *arg, *args;
+    int cmd;
+
+    // Make sure the code starts with a handler
+    if (compiler->cur_token->kind != PROG_TOKEN_HANDLER) {
+        prog_compile_error(compiler, compiler->cur_token->linenum,
+                           "Command without handler");
+        return;
+    }
+
+    // Set up new code block
+    compiler->code = new prog_code_block;
+    memset(compiler->code, 0, sizeof(prog_code_block));
+    compiler->code->next = NULL;
+    compiler->code->code_pt = compiler->code->code_seg;
+    compiler->code->data_pt = compiler->code->data_seg;
+    
+    // A data point of 0 should return a null string
+    *compiler->code->data_pt++ = '\0';
+
+    // Retrieve the handler phase
+    cmd_token = compiler->cur_token;
+    if (!strcasecmp(cmd_token->sym, "before")) {
+        phase = PROG_EVT_BEGIN;
+		prog_compiler_emit(compiler, PROG_CMD_BEFORE, NULL, 0);
+    } else if (!strcasecmp(cmd_token->sym, "handle")) {
+        phase = PROG_EVT_HANDLE;
+		prog_compiler_emit(compiler, PROG_CMD_HANDLE, NULL, 0);
+    } else if (!strcasecmp(cmd_token->sym, "after")) {
+        phase = PROG_EVT_AFTER;
+		prog_compiler_emit(compiler, PROG_CMD_AFTER, NULL, 0);
+    } else
+        slog("Can't happen at %s:%d", __FILE__, __LINE__);
+
+    // Advance to the next token, which should be a STR
+    compiler->cur_token = cmd_token->next;
+    if (!compiler->cur_token || compiler->cur_token->kind != PROG_TOKEN_STR) {
+            prog_compile_error(compiler, cmd_token->linenum,
+                                    "Expected parameter to *%s",
+                                    cmd_token->sym);
+            return;
+    }
+
+    // Retrieve the event type
+    args = compiler->cur_token->str;
+    arg = tmp_getword(&args);
+    if (!strcasecmp(arg, "command"))
+        event = PROG_EVT_COMMAND;
+    else if (!strcasecmp(arg, "spell"))
+        event = PROG_EVT_SPELL;
+    else if (!strcasecmp(arg, "idle"))
+        event = PROG_EVT_IDLE;
+    else if (!strcasecmp(arg, "combat"))
+        event = PROG_EVT_COMBAT;
+    else if (!strcasecmp(arg, "fight"))
+        event = PROG_EVT_FIGHT;
+    else if (!strcasecmp(arg, "give"))
+        event = PROG_EVT_GIVE;
+    else if (!strcasecmp(arg, "enter"))
+        event = PROG_EVT_ENTER;
+    else if (!strcasecmp(arg, "leave"))
+        event = PROG_EVT_LEAVE;
+    else if (!strcasecmp(arg, "load"))
+        event = PROG_EVT_LOAD;
+    else if (!strcasecmp(arg, "tick"))
+        event = PROG_EVT_TICK;
+    else if (!strcasecmp(arg, "death"))
+        event = PROG_EVT_DEATH;
+    else {
+        prog_compile_error(compiler, compiler->cur_token->linenum,
+                                "Invalid parameter '%s' to *%s",
+                                arg,
+                                cmd_token->sym);
+        return;
+    }
+
+    // Add code to handle any other conditions attached to the handler
+    switch (event) {
+    case PROG_EVT_COMMAND:
+        arg = tmp_getword(&args);
+        if (!*arg) {
+            prog_compile_error(compiler, compiler->cur_token->linenum,
+                                    "No command specified for *%s command",
+                                    arg,
+                                    cmd_token->sym);
+            return;
+        }
+        while (*arg) {
+            cmd = find_command(arg);
+            if (cmd < 0) {
+                prog_compile_error(compiler, compiler->cur_token->linenum,
+                                        "'%s' is not a valid command", arg);
+                return;
+            }
+			prog_compiler_emit(compiler, PROG_CMD_CMPCMD, &cmd, sizeof(int));
+			prog_compiler_emit(compiler, PROG_CMD_CONDNEXTHANDLER, NULL, 0);
+
+            arg = tmp_getword(&args);
+        }
+        break;
+    case PROG_EVT_SPELL:
+        arg = tmp_getword(&args);
+        if (!*arg) {
+            prog_compile_error(compiler, compiler->cur_token->linenum,
+                                    "No spell numbers specified for *%s spell",
+                                    arg,
+                                    cmd_token->sym);
+            return;
+        }
+        while (*arg) {
+            if (!is_number(arg)) {
+                prog_compile_error(compiler, compiler->cur_token->linenum,
+                                        "Spell number expected, got '%s'",
+                                        arg);
+                return;
+            }
+            cmd = atoi(arg);
+            if (cmd < 0 || cmd > max_spell_num || spells[cmd][0] == '!') {
+                prog_compile_error(compiler, compiler->cur_token->linenum,
+                                        "%s is not a valid spell number",
+                                        arg);
+                return;
+                
+            }
+
+			prog_compiler_emit(compiler, PROG_CMD_CMPCMD, &cmd, sizeof(int));
+			prog_compiler_emit(compiler, PROG_CMD_CONDNEXTHANDLER, NULL, 0);
+
+            arg = tmp_getword(&args);
+        }
+        break;
+    case PROG_EVT_GIVE:
+        arg = tmp_getword(&args);
+        if (*arg) {
+            if (!is_number(arg)) {
+                prog_compile_error(compiler, compiler->cur_token->linenum,
+                                        "Object vnum expected, got '%s'",
+                                        arg);
+                return;
+            }
+            cmd = atoi(arg);
+            if (cmd < 0) {
+                prog_compile_error(compiler, compiler->cur_token->linenum,
+                                        "%s is not a valid object vnum",
+                                        arg);
+                return;
+            }
+            if (!real_object_proto(cmd)) {
+                prog_compile_warning(compiler, compiler->cur_token->linenum,
+                                     "No object %s exists.",
+                                     arg);
+                return;
+            }
+
+			prog_compiler_emit(compiler, PROG_CMD_CMPOBJVNUM, &cmd, sizeof(int));
+			prog_compiler_emit(compiler, PROG_CMD_CONDNEXTHANDLER, NULL, 0);
+
+        }
+        break;
+    default:
+        break;
+    }
+
+    // Advance token and ensure that it's an end of line
+    compiler->cur_token = compiler->cur_token->next;
+    if (!compiler->cur_token || compiler->cur_token->kind != PROG_TOKEN_EOL) {
+        prog_compile_error(compiler, compiler->cur_token->linenum,
+                             "End of line expected.",
+                             arg);
+        return;
+    }
+
+    // Compile statements until an error or the next event handler
+    compiler->cur_token = compiler->cur_token->next;
+    while (compiler->cur_token
+           && compiler->cur_token->kind != PROG_TOKEN_HANDLER
+           && !compiler->error)
+        prog_compile_statement(compiler);
+
+    // If an entry in the event handler table already exists, append
+    // the new code to the end
+    if (compiler->handlers[phase][event]) {
+        prog_code_block *prev_block;
+
+        prev_block = compiler->handlers[phase][event];
+        while (prev_block->next)
+            prev_block = prev_block->next;
+        prev_block->next = compiler->code;
+    } else {
+        // otherwise, just add an entry to the table
+        compiler->handlers[phase][event] = compiler->code;
+    }
+
+    compiler->code = NULL;
+}
+
+void
+prog_display_obj(Creature *ch, unsigned char *exec)
+{
+    int cmd, arg_addr, read_pt;
+    int cmd_count;
+	int phase_idx, event_idx;
+
+    cmd_count = 0;
+    while (prog_cmds[cmd_count].str)
+        cmd_count++;
+
+	for (phase_idx = 0;phase_idx < PROG_PHASE_COUNT;phase_idx++)
+		for (event_idx = 0;event_idx < PROG_EVT_COUNT;event_idx++) {
+			read_pt = *((short *)exec + phase_idx * PROG_EVT_COUNT + event_idx);
+			if (read_pt) {
+				send_to_char(ch, "-- %s %s -------------------------\r\n",
+					tmp_toupper(prog_phases[phase_idx]),
+					tmp_toupper(prog_events[event_idx]));
+				while (read_pt >= 0 && *((short *)&exec[read_pt])) {
+					// Get the command and the arg address
+					cmd = *((short *)(exec + read_pt));
+					arg_addr = *((short *)(exec + read_pt) + 1);
+					// Set the execution point to the next command by default
+					read_pt += sizeof(short) * 2;
+					if (cmd < 0 || cmd >= cmd_count)
+						send_to_char(ch, "<INVALID CMD #%d>\r\n", cmd);
+					else
+						send_to_char(ch, "%-9s %s\n",
+									 tmp_toupper(prog_cmds[cmd].str),
+									 (char *)(exec + arg_addr));
+				}
+			}
+		}
+}
+
+unsigned char *
+prog_map_to_block(prog_compiler_state *compiler)
+{
+    prog_code_block *cur_code;
+    unsigned char *block;
+    unsigned short *code_pt;
+    int code_len, data_len, block_len;
+    int phase_idx, event_idx;
+    int code_offset, data_offset;
+
+    // Find the amount of space we'll need for the final block
+    block_len = PROG_PHASE_COUNT * PROG_EVT_COUNT * sizeof(short);
+	code_len = 0;
+	data_len = 0;
+
+    // Add all code and data segments from all event handlers
+    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++)
+        for (event_idx = 0; event_idx < PROG_EVT_COUNT;event_idx++) {
+			if (compiler->handlers[phase_idx][event_idx]) {
+				for (cur_code = compiler->handlers[phase_idx][event_idx];
+					 cur_code;
+					 cur_code = cur_code->next) {
+					code_len += (cur_code->code_pt - cur_code->code_seg) * sizeof(unsigned short);
+					data_len += (cur_code->data_pt - cur_code->data_seg);
+				}
+				code_len += 2;      // add size of halt command
+			}
+        }
+
+    // Add length for the end of prog marker
+    code_len += 2;
+    block_len += code_len * sizeof(unsigned short) + data_len;
+
+    // Allocate result block and clear it
+    block = new unsigned char[block_len];
+    memset(block, 0, block_len);
+
+    // Assign initial offsets
+    code_offset = PROG_PHASE_COUNT * PROG_EVT_COUNT * sizeof(short);
+    data_offset = code_offset + code_len * sizeof(unsigned short);
+
+    // Iterate through event handling table
+    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++)
+        for (event_idx = 0; event_idx < PROG_EVT_COUNT;event_idx++) {
+            // Go to next event handler if no code attached to it
+            if (!compiler->handlers[phase_idx][event_idx])
+                continue;
+            // Assign current code offset to event table entry
+            *((short *)block + phase_idx * PROG_EVT_COUNT + event_idx) = code_offset;
+
+            // Concatenate and relocate code and data segments
+            for (cur_code = compiler->handlers[phase_idx][event_idx];
+                 cur_code;
+                 cur_code = cur_code->next) {
+                // Copy the data segment
+                memcpy(&block[data_offset], cur_code->data_seg, cur_code->data_pt - cur_code->data_seg);
+                // Backpatch the data addresses
+                for (code_pt = cur_code->code_seg + 1;
+                     code_pt < cur_code->code_pt;
+                     code_pt += 2)
+                    *code_pt += data_offset;
+                // Copy the code segment
+                memcpy(&block[code_offset], cur_code->code_seg, (cur_code->code_pt - cur_code->code_seg) * sizeof(short));
+
+                // Update code and data offsets
+                code_offset += (cur_code->code_pt - cur_code->code_seg) * sizeof(short);
+                data_offset += (cur_code->data_pt - cur_code->data_seg);
+            }
+
+            // Concatenate halt code for end of event handler
+            *((short *)&block[code_offset]) = PROG_CMD_ENDOFPROG;
+            *((short *)&block[code_offset + sizeof(short)]) = 0;
+            code_offset += 2 * sizeof(short);
+        }
+
+    // Concatenate end-of-prog marker to code.
+    *((short *)&block[code_offset]) = PROG_CMD_ENDOFPROG;
+    *((short *)&block[code_offset + sizeof(short)]) = 0;
+
+    return block;
 }
 
 unsigned char *
@@ -327,16 +737,17 @@ prog_compile_prog(Creature *ch,
 {
     prog_compiler_state state;
     unsigned char *obj = NULL;
-    unsigned short *code_pt;
-    int data_len, code_len;
 
     if (!prog_text || !*prog_text)
         return NULL;
+
+	memset(&state, 0, sizeof(state));
 
     state.ch = ch;
     state.prog_text = prog_text;
     state.owner = owner;
     state.owner_type = owner_type;
+    state.code = NULL;
 
     // Get a list of tokens from the prog
     if (!prog_lexify(&state))
@@ -347,71 +758,16 @@ prog_compile_prog(Creature *ch,
     if (!state.token_list)
         return NULL;
 
-    // Initialize object and data segments
-    // FIXME: allocates a large buffer initially.  We should be automatically
-    // adjusting this as needed
-    state.dataseg = new char[65536];
-    if (!state.dataseg) {
-        prog_report_compile_err(&state, 0, "Out of memory");
-        goto error;
-    }
-    state.data_pt = state.dataseg;
-    *state.data_pt++ = '\0';
-
-    data_len = 0;
-    state.codeseg = new unsigned short[32768];
-    // FIXME: allocates a large buffer initially.  We should be automatically
-    // adjusting this as needed
-    if (!state.codeseg) {
-        prog_report_compile_err(&state, 0, "Out of memory");
-        goto error;
-    }
-    state.code_pt = state.codeseg;
-    code_len = 0;
-
-    // Make sure the code starts with a handler
-    if (state.cur_token->kind != PROG_TOKEN_SYM ||
-        (strcasecmp(state.cur_token->sym, "before") &&
-         strcasecmp(state.cur_token->sym, "handle") &&
-         strcasecmp(state.cur_token->sym, "after"))) {
-        prog_report_compile_err(&state, state.cur_token->linenum,
-                                "Command without handler");
-        goto error;
-    }
-
     // Run through tokens until no more tokens are left or a fatal
     // compiler error occurs.
     state.error = 0;
     while (state.cur_token && !state.error)
-        prog_compile_statement(&state);
+        prog_compile_handler(&state);
 
     if (!state.error) {
-        // No error occurred - map object code and data to a single
-        // memory block...
-
-        // Add an endofprog command to the end of the code to make
-        // sure it doesn't wander into the data segment
-        *state.code_pt++ = PROG_CMD_ENDOFPROG;
-        *state.code_pt++ = 0;
-
-        code_len = (state.code_pt - state.codeseg) * sizeof(short);
-        data_len = state.data_pt - state.dataseg;
-        obj = new unsigned char[code_len + data_len];
-        if (!obj) {
-            prog_report_compile_err(&state, 0, "Out of memory");
-
-            goto error;
-        }
-        // Since the code comes first, we have to change all the argument
-        // offsets to take into account the length of the code.
-        for (code_pt = state.codeseg + 1;
-             code_pt - state.codeseg < code_len;
-             code_pt += 2)
-            *code_pt += code_len;
-        memcpy(obj, state.codeseg, code_len);
-
-        // Now copy the data segment
-        memcpy(obj + code_len, state.dataseg, data_len);
+        // No error occurred - map entry table, object code, and data to
+        // a single memory block...
+        obj = prog_map_to_block(&state);
     } else {
         // An error occurred - set the result to NULL
         obj = NULL;
@@ -420,41 +776,13 @@ prog_compile_prog(Creature *ch,
 error:
 
     // Free compiler structures
-    prog_free_tokens(state.token_list);
-    delete [] state.codeseg;
-    delete [] state.dataseg;
-
+    prog_free_compiler(&state);
+    
     // We can potentially use a LOT of temporary string space in our
     // compilation, so we gc it here.
     tmp_gc_strings();
 
     return obj;
-}
-
-void
-prog_display_obj(Creature *ch, unsigned char *exec)
-{
-    int cmd, arg_addr, read_pt;
-    int cmd_count;
-
-    cmd_count = 0;
-    while (prog_cmds[cmd_count].str)
-        cmd_count++;
-
-    read_pt = 0;
-    while (read_pt >= 0 && *((short *)&exec[read_pt])) {
-        // Get the command and the arg address
-        cmd = *((short *)(exec + read_pt));
-        arg_addr = *((short *)(exec + read_pt + sizeof(short)));
-        // Set the execution point to the next command by default
-        read_pt += sizeof(short) * 2;
-        if (cmd < 0 || cmd >= cmd_count)
-            send_to_char(ch, "<INVALID CMD>\r\n");
-        else
-            send_to_char(ch, "%-9s %s\n",
-                         tmp_toupper(prog_cmds[cmd].str),
-                         (char *)(exec + arg_addr));
-    }
 }
 
 void
@@ -468,7 +796,7 @@ prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
 
     // Compile the prog, if one exists.
     obj = (prog) ? prog_compile_prog(ch, prog, owner, owner_type):NULL;
-    
+
     // Set the object code of the owner
     switch (owner_type) {
     case PROG_TYPE_MOBILE:

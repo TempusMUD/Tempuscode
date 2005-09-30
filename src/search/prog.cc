@@ -57,6 +57,9 @@ void prog_do_damage(prog_env * env, prog_evt * evt, char *args);
 void prog_do_doorset(prog_env * env, prog_evt * evt, char *args);
 void prog_do_selfpurge(prog_env * env, prog_evt * evt, char *args);
 void prog_do_hunt(prog_env * env, prog_evt * evt, char *args);
+void prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args);
+void prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args);
+void prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -71,6 +74,9 @@ prog_command prog_cmds[] = {
 	{"after", false, prog_do_after},
 	{"or", false, prog_do_or},
 	{"do", true, prog_do_do},
+	{"!CMPCMD!", false, prog_do_compare_cmd},
+	{"!CMPOBJVNUM!", false, prog_do_compare_obj_vnum},
+	{"!CONDNEXTHANDLER!", false, prog_do_cond_next_handler},
 	{"require", false, prog_do_require},
 	{"unless", false, prog_do_unless},
 	{"randomly", false, prog_do_randomly},
@@ -118,6 +124,18 @@ prog_get_obj(void *owner, prog_evt_type owner_type)
 	return NULL;
 }
 
+int
+prog_event_handler(void *owner, prog_evt_type owner_type,
+                   prog_evt_phase phase,
+                   prog_evt_kind kind)
+{
+    unsigned char *obj = prog_get_obj(owner, owner_type);
+    
+    if (!obj)
+        return 0;
+    return *((short *)obj + phase * PROG_EVT_COUNT + kind);
+}
+
 void
 prog_next_handler(prog_env * env, bool use_resume)
 {
@@ -144,91 +162,18 @@ prog_next_handler(prog_env * env, bool use_resume)
 }
 
 void
-prog_trigger_handler(prog_env * env, prog_evt * evt, int phase, char *args)
-{
-	char *arg;
-	bool matched = false;
-
-	if (phase != evt->phase) {
-		prog_next_handler(env, false);
-		return;
-	}
-
-	arg = tmp_getword(&args);
-	if (!strcmp("command", arg)) {
-		arg = tmp_getword(&args);
-		while (*arg) {
-			if (evt->kind == PROG_EVT_COMMAND
-				&& evt->cmd >= 0
-				&& !strcasecmp(cmd_info[evt->cmd].command, arg)) {
-				matched = true;
-				break;
-			}
-			arg = tmp_getword(&args);
-		}
-	} else if (!strcmp("spell", arg)) {
-		arg = tmp_getword(&args);
-		while (*arg) {
-			if (evt->kind == PROG_EVT_SPELL && evt->cmd >= 0 && is_number(arg)
-				&& atoi(arg) == evt->cmd) {
-				matched = true;
-				break;
-			}
-			arg = tmp_getword(&args);
-		}
-	} else if (!strcmp("idle", arg)) {
-		matched = (evt->kind == PROG_EVT_IDLE);
-	} else if (!strcmp("combat", arg)) {
-		matched = (evt->kind == PROG_EVT_COMBAT);
-	} else if (!strcmp("fight", arg)) {
-		matched = (evt->kind == PROG_EVT_FIGHT);
-	} else if (!strcmp("give", arg)) {
-		arg = tmp_getword(&args);
-		struct obj_data *theObj = (struct obj_data *)(evt->object);
-		if (evt->kind != PROG_EVT_GIVE) {
-			matched = false;
-		} else if (!*arg) {
-			matched = true;
-		} else if (arg && !evt->object) {
-			matched = false;
-		} else if (atoi(arg) != theObj->getVnum()) {
-			matched = false;
-		} else {
-			matched = true;
-		}
-	} else if (!strcmp("enter", arg)) {
-		matched = (evt->kind == PROG_EVT_ENTER);
-	} else if (!strcmp("leave", arg)) {
-		matched = (evt->kind == PROG_EVT_LEAVE);
-	} else if (!strcmp("load", arg)) {
-		matched = (evt->kind == PROG_EVT_LOAD);
-	} else if (!strcmp("tick", arg)) {
-		matched = (evt->kind == PROG_EVT_TICK);
-	} else if (!strcmp("death", arg)) {
-		matched = (evt->kind == PROG_EVT_DEATH);
-	}
-
-
-	if (!matched)
-		prog_next_handler(env, false);
-}
-
-void
 prog_do_before(prog_env * env, prog_evt * evt, char *args)
 {
-	prog_trigger_handler(env, evt, PROG_EVT_BEGIN, args);
 }
 
 void
 prog_do_handle(prog_env * env, prog_evt * evt, char *args)
 {
-	prog_trigger_handler(env, evt, PROG_EVT_HANDLE, args);
 }
 
 void
 prog_do_after(prog_env * env, prog_evt * evt, char *args)
 {
-	prog_trigger_handler(env, evt, PROG_EVT_AFTER, args);
 }
 
 bool
@@ -1022,6 +967,26 @@ prog_do_hunt(prog_env * env, prog_evt * evt, char *args)
 }
 
 void
+prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args)
+{
+	env->condition = (evt->cmd == *((int *)args));
+}
+
+void
+prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args)
+{
+	env->condition = (evt->object
+						&& ((obj_data *)evt->object)->getVnum() == *((int *)args));
+}
+
+void
+prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args)
+{
+	if (!env->condition)
+		prog_next_handler(env, false);
+}
+
+void
 prog_do_nuke(prog_env * env, prog_evt * evt, char *args)
 {
 	struct prog_env *cur_prog, *next_prog;
@@ -1416,6 +1381,10 @@ prog_execute(prog_env *env)
 	unsigned char *exec;
     int cmd, arg_addr;
 
+	// Called with NULL environment
+	if (!env)
+		return;
+
 	// Terminated, but not freed
 	if (env->exec_pt < 0)
 		return;
@@ -1462,11 +1431,11 @@ prog_env *
 prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * evt)
 {
 	prog_env *new_prog;
+    int initial_exec_pt;
 
-	if (!prog_get_text(owner, owner_type)
-        || !prog_get_obj(owner, owner_type)) {
+    initial_exec_pt = prog_event_handler(owner, owner_type, evt->phase, evt->kind);
+    if (!initial_exec_pt)
 		return NULL;
-	}
 
 	CREATE(new_prog, struct prog_env, 1);
 	new_prog->next = prog_list;
@@ -1474,7 +1443,7 @@ prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * 
 
 	new_prog->owner_type = owner_type;
 	new_prog->owner = owner;
-	new_prog->exec_pt = 0;
+    new_prog->exec_pt = initial_exec_pt;
 	new_prog->executed = 0;
 	new_prog->wait = 0;
 	new_prog->speed = 0;
