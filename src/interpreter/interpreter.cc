@@ -1730,8 +1730,6 @@ command_interpreter(struct Creature *ch, char *argument)
 			!special(ch, cmd, cmd_info[cmd].subcmd, line, SPECIAL_CMD)) {
 		cmd_info[cmd].command_pointer(ch, line, cmd, cmd_info[cmd].subcmd, 0);
 	}
-	
-	prog_update_pending();
 }
 
 /**************************************************************************

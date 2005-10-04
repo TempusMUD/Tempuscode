@@ -561,6 +561,9 @@ game_loop(int mother_desc)
 				d->creature->crashSave();
 		}
 
+        /* Update progs triggered by user input that have not run yet */
+        prog_update_pending();
+
 		/* handle heartbeat stuff */
 		/* Note: pulse now changes every 0.10 seconds  */
 
