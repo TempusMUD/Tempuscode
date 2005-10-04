@@ -766,9 +766,6 @@ prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
     // Compile the prog, if one exists.
     obj = (prog) ? prog_compile_prog(ch, prog, owner, owner_type):NULL;
 
-	if (ch && obj)
-		prog_display_obj(ch, obj);
-
     // Set the object code of the owner
     switch (owner_type) {
     case PROG_TYPE_MOBILE:
