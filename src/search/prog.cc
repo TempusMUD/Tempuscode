@@ -987,7 +987,8 @@ prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args)
 {
 	// FIXME: nasty hack
 	if (!env->condition)
-		env->condition = (evt->object
+		env->condition = (evt->object_type == PROG_TYPE_OBJECT
+						&& evt->object
 						&& ((obj_data *)evt->object)->getVnum() == *((int *)args));
 }
 
@@ -1310,7 +1311,7 @@ prog_do_opurge(prog_env * env, prog_evt * evt, char *args)
 	}
 
 	if (obj_list) {
-		for (obj = obj_list->next_content; obj->next_content; obj = next_obj) {
+		for (obj = obj_list; obj->next_content; obj = next_obj) {
 			if (GET_OBJ_VNUM(obj->next_content) == vnum) {
 				next_obj = obj->next_content->next_content;
 				extract_obj(obj->next_content);
@@ -1512,6 +1513,20 @@ destroy_attached_progs(void *owner)
             cur_prog->evt.subject == owner ||
             cur_prog->evt.object == owner)
 			cur_prog->exec_pt = -1;
+	}
+}
+
+void
+prog_unreference_object(obj_data *obj)
+{
+	struct prog_env *cur_prog;
+
+	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
+		if (cur_prog->evt.object_type == PROG_TYPE_OBJECT
+				&& cur_prog->evt.object == obj) {
+			cur_prog->evt.object_type = PROG_TYPE_NONE;
+			cur_prog->evt.object = NULL;
+		}
 	}
 }
 
@@ -1730,12 +1745,18 @@ trigger_prog_give(Creature * ch, Creature * self, struct obj_data *obj)
 
 	if (!self || !self->in_room || !GET_MOB_PROGOBJ(self))
 		return;
+
+	if (!obj) {
+		errlog("trigger_prog_give() called with no object!");
+		return;
+	}
+
 	evt.phase = PROG_EVT_AFTER;
 	evt.kind = PROG_EVT_GIVE;
 	evt.cmd = -1;
 	evt.subject = ch;
-	obj ? evt.object = obj : evt.object = NULL;
-	evt.object_type = PROG_TYPE_NONE;
+	evt.object = obj;
+	evt.object_type = PROG_TYPE_OBJECT;
 	evt.args = strdup("");
 
 	env = prog_start(PROG_TYPE_MOBILE, self, ch, &evt);

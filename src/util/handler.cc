@@ -40,6 +40,7 @@
 #include "utils.h"
 #include "vendor.h"
 #include "flow_room.h"
+#include "prog.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -1981,6 +1982,9 @@ extract_obj(struct obj_data *obj)
 			obj->aux_obj->aux_obj = NULL;
 		obj->aux_obj = NULL;
 	}
+
+	// Make sure no progs are referring to the object
+	prog_unreference_object(obj);
 
 	/* Get rid of the contents of the object, as well. */
 	while (obj->contains)

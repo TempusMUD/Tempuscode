@@ -112,5 +112,6 @@ void prog_state_free(prog_state_data *state);
 char *prog_get_alias_list(char *args);
 void prog_compile(Creature *ch, void *owner, prog_evt_type owner_type);
 char *prog_get_text(void *owner, prog_evt_type owner_type);
+void prog_unreference_object(obj_data *obj);
 
 #endif
