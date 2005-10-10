@@ -173,10 +173,10 @@ int file_to_string_alloc(char *name, char **buf);
 void check_start_rooms(void);
 void renum_world(void);
 void renum_zone_table(void);
+void compile_all_progs(void);
 void reset_time(void);
 void reset_zone_weather(void);
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
-void update_alias_dirs(void);
 void purge_trails(struct Creature *ch);
 void build_old_player_index();
 void randomize_object(struct obj_data *obj);
@@ -305,6 +305,9 @@ boot_world(void)
 	slog("Renumbering zone table.");
 	renum_zone_table();
 
+	slog("Compiling progs.");
+	compile_all_progs();
+
 	/* for quad damage bamfing */
 	if (!(default_quad_zone = real_zone(25)))
 		default_quad_zone = zone_table;
@@ -416,12 +419,6 @@ boot_db(void)
 
 	slog("Booting timewarp data.");
 	boot_timewarp_data();
-
-	if (!no_rent_check) {
-		slog("Deleting unwanted alias files:");
-		update_alias_dirs();
-		slog("Done.");
-	}
 
     if( mini_mud ) {
         slog("HOUSE: Mini-mud detected. Houses not loading.");
@@ -802,24 +799,6 @@ parse_room(FILE * fl, int vnum_nr)
 
 	room->room_flags = asciiflag_conv(flags);
 	room->sector_type = t[2];
-	/* Defaults set in constructor
-	   room->zone = zone;
-	   room->number = vnum_nr;
-	   room->func = NULL;
-	   room->contents = NULL;
-	   room->people = NULL;
-	   room->light = 0;            // Zero light sources
-	   room->max_occupancy = 256;  //Default value set here
-	   room->find_first_step_index = 0;
-	   for (i = 0; i < NUM_OF_DIRS; i++)
-	   room->dir_option[i] = NULL;
-
-	   room->ex_description = NULL;
-	   room->search = NULL;
-	   room->flow_dir = 0;
-	   room->flow_speed = 0;
-	   room->flow_type = 0;
-	 */
 
 	// t[0] is the zone number; ignored with the zone-file system
 	zone = real_zone(t[0]);
@@ -840,8 +819,6 @@ parse_room(FILE * fl, int vnum_nr)
 		switch (*line) {
 		case 'R':
 		  room->prog = fread_string(fl, buf2);
-          if (room->prog)
-            prog_compile(NULL, room, PROG_TYPE_ROOM);
           break;
 		case 'O':
 			room->max_occupancy = atoi(line + 1);
@@ -1287,6 +1264,25 @@ renum_zone_table(void)
 		}
 }
 
+void
+compile_all_progs(void)
+{
+	// Compile all room progs
+    for (zone_data *zone = zone_table; zone; zone = zone->next)
+		for (room_data *room = zone->world; room; room = room->next)
+          if (room->prog)
+            prog_compile(NULL, room, PROG_TYPE_ROOM);
+
+	// Compile all mob progs
+	MobileMap::iterator mit = mobilePrototypes.begin();
+	Creature *mobile;
+
+	for (; mit != mobilePrototypes.end(); ++mit) {
+		mobile = mit->second;
+		if (MOB_SHARED(mobile)->prog)
+		  prog_compile(NULL, mobile, PROG_TYPE_MOBILE);
+	}
+}
 
 void
 set_physical_attribs(struct Creature *ch)
@@ -1729,8 +1725,6 @@ parse_enhanced_mob(FILE * mob_f, struct Creature *mobile, int nr)
 			MOB_SHARED(mobile)->load_param = fread_string(mob_f, buf2);
 		} else if (!strcmp(line, "Prog:")) { /* multi-line prog */
 			MOB_SHARED(mobile)->prog = fread_string(mob_f, buf2);
-            if (MOB_SHARED(mobile)->prog)
-              prog_compile(NULL, mobile, PROG_TYPE_MOBILE);
 		} else if (!strcmp(line, "E"))	/* end of the ehanced section */
 			return;
 		else if (*line == '#') {	/* we've hit the next mob, maybe? */
@@ -2019,18 +2013,7 @@ parse_object(FILE * obj_f, int nr)
 		case '$':
 		case '#':
 			top_of_objt = i++;
-
 			obj->next = NULL;
-
-/*			if (obj_proto) {
-				for (tmp_obj = obj_proto; tmp_obj; tmp_obj = tmp_obj->next)
-					if (!tmp_obj->next) {
-						tmp_obj->next = obj;
-						break;
-					}
-			} else
-				obj_proto = obj;*/
-
             objectPrototypes.add(obj);
 			return line;
 			break;
@@ -3139,25 +3122,6 @@ reset_zone(struct zone_data *zone)
 			REMOVE_BIT(srch->flags, SRCH_TRIPPED);
 }
 
-/* for use in reset_zone; return TRUE if zone 'nr' is free of PC's  */
-/*int 
-  is_empty(struct zone_data *zone)
-  {
-  struct descriptor_data *i;
-
-  for (i = descriptor_list; i; i = i->next)
-  if (!i->connected)
-  if (i->creature->in_room->zone == zone)
-  return 0;
-
-  return 1;
-  }
-*/
-
-/*************************************************************************
-*  stuff related to the save/load player system                                 *
-*********************************************************************** */
-
 /************************************************************************
 *  funcs of a (more or less) general utility nature                        *
 ********************************************************************** */
@@ -3664,38 +3628,4 @@ sql_gc_queries(void)
 	sql_query_list = NULL;
 }
 
-void
-update_alias_dirs(void)
-{
-    slog("Alias directory update disabled.");
-    /*
-    DIR *dir;
-    struct dirent *dirp;
-    char dlist[7][4] = { "A-E", "F-J", "K-O", "P-T", "U-Z", "ZZZ" };
-    char name[1024], name2[1024];
-    int i;
-
-    for (i = 0; i < 6; i++) {
-        sprintf(buf, "plralias/%s", dlist[i]);
-        if (!(dir = opendir(buf))) {
-            errlog("Incorrect plralias directory structure.");
-            safe_exit(1);
-        }
-        while ((dirp = readdir(dir))) {
-            if ((strlen(dirp->d_name) > 3) &&
-                !strcmp(dirp->d_name + strlen(dirp->d_name) - 3, ".al")) {
-                strncpy(name, dirp->d_name, strlen(dirp->d_name) - 3);
-                name[strlen(dirp->d_name) - 3] = 0;
-                if (playerIndex.getID(name) < 0) {
-                    sprintf(name2, "%s/%s", buf, dirp->d_name);
-                    unlink(name2);
-                    sprintf(buf2, "    Deleting %s's alias file.", name);
-                    slog(buf2);
-                }
-            }
-        }
-        closedir(dir);
-    }
-    */
-}
 #undef __db_c__
