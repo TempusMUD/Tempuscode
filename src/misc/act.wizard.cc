@@ -3912,8 +3912,8 @@ do_show_stats(struct Creature *ch)
         tmp_max_used, acc_str_space);
     send_to_char(ch, "  %5d trail count      %dMB total memory\r\n",
 		tr_count, dbg_memory_used() / (1024 * 1024));
-    send_to_char(ch, "  %5u running progs\r\n",
-        prog_count());
+    send_to_char(ch, "  %5u running progs (%u total)\r\n",
+        prog_count(false), prog_count(true));
     send_to_char(ch, "  Lunar day: %2d, phase: %s (%d)\r\n",
         lunar_day, lunar_phases[get_lunar_phase(lunar_day)],
 		get_lunar_phase(lunar_day));
