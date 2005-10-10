@@ -1447,8 +1447,12 @@ prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * 
     int initial_exec_pt;
 
     initial_exec_pt = prog_event_handler(owner, owner_type, evt->phase, evt->kind);
-    if (!initial_exec_pt)
+    if (!initial_exec_pt) {
+		// FIXME: ugly hack
+		if (evt->args)
+			free(evt->args);
 		return NULL;
+	}
 
 	CREATE(new_prog, struct prog_env, 1);
 	new_prog->next = prog_list;
@@ -1943,13 +1947,13 @@ prog_update_pending(void)
 }
 
 int
-prog_count(void)
+prog_count(bool total)
 {
 	int result = 0;
 	prog_env *cur_env;
 
 	for (cur_env = prog_list; cur_env; cur_env = cur_env->next)
-		if (cur_env->exec_pt > 0)
+		if (total || cur_env->exec_pt > 0)
 			result++;
 	return result;
 }
