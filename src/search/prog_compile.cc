@@ -52,6 +52,18 @@ const char *prog_event_strs[] = {
     "spell", "combat", "death", "\n"
 };
 
+// Function prototypes
+void prog_compile_error(prog_compiler_state *compiler,
+                   int linenum,
+                   const char *str,
+                   ...)
+	__attribute__ ((format (printf, 3, 4)));
+void prog_compile_warning(prog_compiler_state *compiler,
+                     int linenum,
+                     const char *str,
+                     ...)
+	__attribute__ ((format (printf, 3, 4)));
+
 char *
 prog_get_text(void *owner, prog_evt_type owner_type)
 {
@@ -262,8 +274,7 @@ prog_lexify(prog_compiler_state *compiler)
                 if (!new_token) {
                     prog_compile_error(compiler,
                                             compiler->cur_token->linenum,
-                                            "Out of memory",
-                                            compiler->cur_token->sym);
+                                            "Out of memory");
                     return false;
                 }
                 if (prev_token)
@@ -279,8 +290,7 @@ prog_lexify(prog_compiler_state *compiler)
                 if (!new_token) {
                     prog_compile_error(compiler,
                                             compiler->cur_token->linenum,
-                                            "Out of memory",
-                                            compiler->cur_token->sym);
+                                            "Out of memory");
                     return false;
                 }
 
@@ -296,8 +306,7 @@ prog_lexify(prog_compiler_state *compiler)
             if (!new_token) {
                     prog_compile_error(compiler,
                                             compiler->cur_token->linenum,
-                                            "Out of memory",
-                                            compiler->cur_token->sym);
+                                            "Out of memory");
                 return false;
             }
             prev_token->next = new_token;
@@ -449,7 +458,8 @@ prog_compile_handler(prog_compiler_state *compiler)
 
     // Retrieve the event type
     args = compiler->cur_token->str;
-	event = search_block(tmp_getword(&args), prog_event_strs, true);
+	arg = tmp_getword(&args);
+	event = search_block(arg, prog_event_strs, true);
 	if (event < 0) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
                                 "Invalid parameter '%s' to *%s",
@@ -465,7 +475,6 @@ prog_compile_handler(prog_compiler_state *compiler)
         if (!*arg) {
             prog_compile_error(compiler, compiler->cur_token->linenum,
                                     "No command specified for *%s command",
-                                    arg,
                                     cmd_token->sym);
             return;
         }
@@ -489,7 +498,6 @@ prog_compile_handler(prog_compiler_state *compiler)
         if (!*arg) {
             prog_compile_error(compiler, compiler->cur_token->linenum,
                                     "No spell numbers specified for *%s spell",
-                                    arg,
                                     cmd_token->sym);
             return;
         }
@@ -552,8 +560,7 @@ prog_compile_handler(prog_compiler_state *compiler)
     compiler->cur_token = compiler->cur_token->next;
     if (!compiler->cur_token || compiler->cur_token->kind != PROG_TOKEN_EOL) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
-                             "End of line expected.",
-                             arg);
+                             "End of line expected.");
         return;
     }
 
