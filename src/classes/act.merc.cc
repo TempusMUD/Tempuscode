@@ -133,6 +133,10 @@ ACMD(do_crossface)
 		return;
 
 	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
+		act("$n catches the butt of your gun and smacks you silly!", true,
+			ch, 0, vict, TO_CHAR);
+		act("$n gets smacked silly for trying to crossface $N!", true,
+			ch, 0, vict, TO_ROOM);
 		WAIT_STATE(ch, PULSE_VIOLENCE * 8);
 		return;
 	}
