@@ -317,9 +317,8 @@ Valid_Name(char *newname)
 	// Check that no character is used more than half the length of the string,
 	// rounded up, excluding the first character of the name
 	// Oog is ok, Ooog is ok, Oooog is not
-	len /= 2;
 	for (i = 0; i < 256; i++)
-		if (alpha_hist[i] - ((i == tempname[0]) ? 1:0) > len)
+		if (alpha_hist[i] - ((i == tempname[0]) ? 1:0) > len / 2)
 			return 0;
 
 	if (alpha_hist[(int)'\''] > 1)
