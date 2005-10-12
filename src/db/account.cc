@@ -208,6 +208,7 @@ Account::load_players(void)
 {
 	long count, idx;
 	PGresult *res;
+	Creature *tmp_ch = new Creature(true);
 
 	_chars.clear();
 	res = sql_query("select idnum from players where account=%d order by idnum", _id);
@@ -215,39 +216,42 @@ Account::load_players(void)
 	for (idx = 0;idx < count;idx++)
 		_chars.push_back(atol(PQgetvalue(res, idx, 0)));
 
-    if (count_chars() > countGens()/10+10) {
-        Creature *tmp_ch = new Creature(true);
+    if (chars_available() < 0) {
         // First, find all the characters with NEW rentcode and
         // whack them as long as we still have more than 10 characters;
-        for (int x = 0; x < count_chars(); x++) {
-            tmp_ch->loadFromXML(_chars[x]);
-            if (count_chars() > countGens()/10+10 && 
-                (tmp_ch->player_specials->rentcode == RENT_NEW_CHAR ||
-                 tmp_ch->player_specials->rentcode == RENT_CREATING)) {
-                delete_char(tmp_ch);
-            }
-        }
+		for (int x = 0; x < get_char_count(); x++) {
+			tmp_ch->loadFromXML(_chars[x]);
+			if (tmp_ch->player_specials->rentcode == RENT_NEW_CHAR ||
+				tmp_ch->player_specials->rentcode == RENT_CREATING)
+				delete_char(tmp_ch);
+			if (chars_available() >= 0)
+				break;
+		}
+	}
 
+	if (chars_available() < 0) {
         // Second, if we still have more than 10 characters, lets delete
         // the characters that have QUIT and are less than level 25
-         for (int x = 0; x < count_chars(); x++) {
+         for (int x = 0; x < get_char_count(); x++) {
             tmp_ch->loadFromXML(_chars[x]);
-            if (count_chars() > countGens()/10+10 && tmp_ch->getLevel() <= 25 && 
-                tmp_ch->player_specials->rentcode == RENT_QUIT) {
+            if (tmp_ch->getLevel() <= 25 && 
+                tmp_ch->player_specials->rentcode == RENT_QUIT)
                 delete_char(tmp_ch);
-            }
+			if (chars_available() >= 0)
+				break;
         }       
-        delete tmp_ch;
     }
 
     // We've deleted as many characters as I feel is prudent.  If this
-    // account still has more than 10 characters, make sure they only
-    // have access to the first 10
-    if (count_chars() > countGens()/10+10) {
+	// account still has more than the maximum, make sure they only
+	// have access to the max.
+    if (chars_available() < 0) {
         vector<long>::iterator vi = _chars.begin();
-        vi += countGens()/10+10;
+        vi += _chars.size() + chars_available();
         _chars.erase(vi, _chars.end());
     }
+
+	delete tmp_ch;
 }
 
 void
@@ -366,6 +370,12 @@ Account::remove(Account *acct)
 	return false;
 }
 
+int
+Account::chars_available()
+{
+	return countGens() / 10 + 10 - get_char_count();
+}
+
 
 // Create a brand new character
 Creature *
@@ -376,9 +386,8 @@ Account::create_char(const char *name)
 
 	ch = new Creature(true);
 
-    if (_chars.size() > 10) {
+    if (chars_available() <= 0)
         return NULL;
-    }
 
     GET_NAME(ch) = strdup(tmp_capitalize(tmp_tolower(name)));
     ch->char_specials.saved.idnum = playerIndex.getTopIDNum() + 1;

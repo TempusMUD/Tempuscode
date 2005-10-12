@@ -58,7 +58,8 @@ class Account {
 		long get_char_by_index(int idx);
 		Creature *get_creature_by_index(int idx);
 		bool invalid_char_index(int idx);
-        unsigned int get_char_count() { return _chars.size(); }
+        int get_char_count(void) { return _chars.size(); }
+		int chars_available(void);
         long get_char( int index ) { return _chars[index]; }
 		bool deny_char_entry(Creature *ch);
 		void move_char(long id, Account *dest);
@@ -104,7 +105,6 @@ class Account {
 
         int countGens();
         
-        inline int count_chars() { return _chars.size(); };
 		class cmp {
 			public:
 				bool operator()(const Account *s1, const Account *s2) const

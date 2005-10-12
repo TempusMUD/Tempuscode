@@ -235,16 +235,17 @@ handle_input(struct descriptor_data *d)
 			set_desc_state(CXN_DISCONNECT, d);
 			break;
 		case 'c':
-            if (d->account->count_chars() >= d->account->countGens()/10+10) {
+            if (d->account->chars_available() <= 0) {
                 send_to_desc(d, "\r\nNo more characters can be "
                                 "created on this account.  Please keep "
                                 "\r\nin mind that it is a violation of "
                                 "policy to start multiple "
                                 "accounts.\r\n\r\n");
-                set_desc_state(CXN_MENU, d);
-                break;
-            }
-			set_desc_state(CXN_NAME_PROMPT, d); break;
+                set_desc_state(CXN_WAIT_MENU, d);
+            } else {
+				set_desc_state(CXN_NAME_PROMPT, d);
+			}
+			break;
 		case 'd':
 			if (!d->account->invalid_char_index(2)) {
 				set_desc_state(CXN_DELETE_PROMPT, d);
@@ -416,19 +417,27 @@ handle_input(struct descriptor_data *d)
 			return;
 		}
 
-		if (Valid_Name(arg)) {
-			if (!d->creature) {
+		if (d->creature) {
+			errlog("Non-NULL creature during name prompt");
+			send_to_desc(d, "\r\nSorry, there was an error creating your character.\r\n\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+			return;
+		}
 
-				d->creature = d->account->create_char(arg);
-				d->creature->desc = d;
-				d->creature->player_specials->rentcode = RENT_CREATING;
-			} else {
-				// reset name in account, playerIndex, creature, ugh...
-			}
-			set_desc_state(CXN_SEX_PROMPT, d);
-		} else {
+		if (!Valid_Name(arg)) {
             send_to_desc(d, "\r\nThat character name is invalid.\r\n\r\n");
-        }
+			return;
+		}
+
+		d->creature = d->account->create_char(arg);
+		if (!d->creature) {
+			errlog("Expected creature, got NULL during char creation");
+			send_to_desc(d, "\r\nSorry, there was an error creating your character.\r\n\r\n");
+			set_desc_state(CXN_WAIT_MENU, d);
+		}
+		d->creature->desc = d;
+		d->creature->player_specials->rentcode = RENT_CREATING;
+		set_desc_state(CXN_SEX_PROMPT, d);
 		break;
 	case CXN_SEX_PROMPT:
 		switch (tolower(arg[0])) {
@@ -644,7 +653,8 @@ handle_input(struct descriptor_data *d)
 			return;
 		}
 
-		send_to_desc(d, "Wrong password!  Delete cancelled.\r\n");
+		send_to_desc(d, "\r\n\r\n              &yWrong password!  %s will not be deleted.\r\n",
+			GET_NAME(d->creature));
 		if (!d->creature->in_room)
 			delete d->creature;
 
@@ -653,7 +663,7 @@ handle_input(struct descriptor_data *d)
 		break;
 	case CXN_DELETE_VERIFY:
 		if (strcmp(arg, "yes")) {
-			send_to_desc(d, "\r\nDelete cancelled.  %s will not be deleted.\r\n\r\n",
+			send_to_desc(d, "\r\n              &yDelete cancelled.  %s will not be deleted.\r\n\r\n",
 				GET_NAME(d->creature));
 			if (!d->creature->in_room)
 				delete d->creature;
@@ -663,7 +673,7 @@ handle_input(struct descriptor_data *d)
 			break;
 		}
 		
-		send_to_desc(d, "\r\n%s has been deleted.\r\n\r\n", GET_NAME(d->creature));
+		send_to_desc(d, "\r\n              &y%s has been deleted.&n\r\n\r\n", GET_NAME(d->creature));
 		slog("%s[%d] has deleted character %s[%ld]",
 				d->account->get_name(), d->account->get_idnum(),
 				GET_NAME(d->creature), GET_IDNUM(d->creature) );
@@ -939,13 +949,13 @@ send_prompt(descriptor_data *d)
 		send_to_desc(d, "\r\n&c                             Choose your selection:&n ");
 		break;
 	case CXN_DELETE_PROMPT:
-		send_to_desc(d, "                   &yWhich character would you like to delete:&n "); break;
+		send_to_desc(d, "              &yWhich character would you like to delete:&n "); break;
 	case CXN_EDIT_PROMPT:
 		send_to_desc(d, "               &cWhich character's description do you want to edit:&n "); break;
 	case CXN_DELETE_PW:
-		send_to_desc(d, "To confirm deletion of %s, enter your account password: ",	GET_NAME(d->creature)); break;
+		send_to_desc(d, "              &yTo confirm deletion of %s, enter your account password: &n",	GET_NAME(d->creature)); break;
 	case CXN_DELETE_VERIFY:
-		send_to_desc(d, "Type 'yes' for final confirmation: "); break;
+		send_to_desc(d, "              &yType 'yes' for final confirmation: &n"); break;
 	case CXN_WAIT_MENU:
 		send_to_desc(d, "Press return to go back to the main menu."); break;
 	case CXN_AFTERLIFE:
@@ -1050,7 +1060,12 @@ send_menu(descriptor_data *d)
 	case CXN_NAME_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d, "\r\n&c                                 CHARACTER CREATION\r\n*******************************************************************************&n\r\n");
-		send_to_desc(d, "\r\n\r\n    Now that you have created your account, you probably want to create a\r\ncharacter to play on the mud.  This character will be your persona on the\r\nmud, allowing you to interact with other people and things.  You may press\r\nreturn at any time to cancel the creation of your character.\r\n\r\n");
+		send_to_desc(d, "\r\n    Now that you have created your account, you probably want to create a\r\ncharacter to play on the mud.  This character will be your persona on the\r\nmud, allowing you to interact with other people and things.  You may press\r\nreturn at any time to cancel the creation of your character.\r\n\r\n");
+		if (d->account->get_char_count())
+			send_to_desc(d, "You have %d character%s in your account, you may create up to %d more.\r\n\r\n", 
+				d->account->get_char_count(),
+				d->account->get_char_count()==1 ? "" : "s",
+				d->account->chars_available());
 		break;
 	case CXN_SEX_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
@@ -1119,14 +1134,16 @@ send_menu(descriptor_data *d)
 			"&n&b|                                 &YT E M P U S&n                                 &b|\r\n"
 			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
 		
-		if (d->account->get_char_count() > 0)
+		if (d->account->get_char_count() > 0) {
 			show_account_chars(d,
 				d->account,
 				false,
 				(d->account->get_char_count() > 5));
-
-		send_to_desc(d, "\r\nYou have %d character%s in your account, you may create up to %d more.\r\n", 
-            d->account->count_chars(), d->account->count_chars()==1 ? "" : "s", d->account->countGens()/10+10-d->account->count_chars());
+			send_to_desc(d, "You have %d character%s in your account, you may create up to %d more.\r\n\r\n", 
+				d->account->get_char_count(),
+				d->account->get_char_count()==1 ? "" : "s",
+				d->account->chars_available());
+		}
         send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
         
