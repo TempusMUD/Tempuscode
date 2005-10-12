@@ -110,6 +110,9 @@ _dbg_free(void *ptr, const void *return_addr)
 		return;
 	}
 	
+    cur_blk->status = dbg_deallocated;
+    cur_blk->dealloc_addr = return_addr;
+
 	// Remove from list of memory blocks
 	if (cur_blk->prev)
 		cur_blk->prev->next = cur_blk->next;

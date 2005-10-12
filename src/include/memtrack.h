@@ -21,7 +21,8 @@ struct dbg_mem_blk {
 	struct dbg_mem_blk *next, *prev;
 	unsigned long long serial_num;
 	size_t size;
-	const void *alloc_addr;
+	const void *alloc_addr;       // address of function that allocated
+    const void *dealloc_addr;     // address of function that deallocated
 	enum dbg_mem_blk_status status;
 	unsigned char data[0];	// four extra bytes on end of block
 };
