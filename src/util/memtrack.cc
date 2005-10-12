@@ -78,6 +78,7 @@ _dbg_alloc(size_t size, const void *return_addr)
 	new_blk->size = size;
 	new_blk->status = dbg_allocated;
 	new_blk->alloc_addr = return_addr;
+    new_blk->dealloc_addr = NULL;
 
 	*((unsigned long *)(new_blk->data + size)) = _dbg_magic;
 
