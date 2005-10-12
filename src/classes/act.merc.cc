@@ -228,9 +228,9 @@ ACMD(do_crossface)
 					"Your $p flies from your head and lands a short distance\n"
 					"away.", TRUE, ch, wear, vict, TO_VICT);
 
-				damage_eq(vict, wear, dam >> 4);
-				obj_to_room(unequip_char(vict, wear_num, MODE_EQ),
-					vict->in_room);
+				if (!damage_eq(vict, wear, dam >> 4))
+					obj_to_room(unequip_char(vict, wear_num, MODE_EQ),
+						vict->in_room);
 				wear = NULL;
 			}
 		} else {
