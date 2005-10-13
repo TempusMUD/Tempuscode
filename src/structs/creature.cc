@@ -21,7 +21,6 @@
 extern CreatureList defendingList;
 extern CreatureList mountedList;
 extern CreatureList huntingList;
-extern struct obj_data *object_list;
 
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(Creature *ch);
@@ -673,23 +672,6 @@ Creature::extract(cxn_state con_state)
 		extract_obj(obj);
 	}
 
-	// DEBUG: This will slow things down considerably when builders zpurge
-
-	for (obj = object_list; obj; obj = obj->next) {
-		if (obj->carried_by == this || obj->worn_by == this) {
-			errlog("Stray object %s (%d) found on extraction of %s (%d)",
-				obj->name, GET_OBJ_VNUM(obj),
-				GET_NAME(this), GET_MOB_VNUM(this));
-			obj->carried_by = NULL;
-			obj->worn_by = NULL;
-			obj_to_room(obj, in_room);
-			act("$p falls to the ground out of nowhere!", false, this, obj, 0, TO_CHAR);
-			act("$p falls to the ground out of nowhere!", false, this, obj, 0, TO_ROOM);
-		}
-	}
-
-	// DEBUG: END
-
 	if (desc && desc->original)
 		do_return(this, "", 0, SCMD_NOEXTRACT, 0);
 
@@ -844,6 +826,17 @@ Creature::clear(void)
 		errlog("attempted clear of creature who is still connected to the world.");
 		raise(SIGSEGV);
 	}
+
+    //
+    // also check equipment and implants
+    //
+    for (int pos = 0;pos < NUM_WEARS;pos++) {
+        if (this->equipment[pos] || this->implants[pos]) {
+            errlog("attempted clear of creature who is still connected to the world.");
+            raise(SIGSEGV);
+        }
+    }
+
 
 	//
 	// next remove and free all alieases
