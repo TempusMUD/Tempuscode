@@ -21,6 +21,7 @@ SPECIAL(courier_imp)
 	    return 0;
 
     if (!data) {
+        slog("IMP: Couldn't find data!");
         act("$n looks confused for a moment then fades away.", false,
             self, 0, 0, TO_NOTVICT);
         self->purge(true);
@@ -33,6 +34,10 @@ SPECIAL(courier_imp)
     // OR we are trying to return cash or the item to the owner
     // and he has logged out
     if (!seeking) {
+        slog("IMP: Can't find player %ld for %s",
+             data->buyer_id,
+             (data->mode == IMP_DELIVER_ITEM) ? "buying":"selling");
+
         act("$n looks around frantically and frowns.", false,
             self, 0, 0, TO_NOTVICT);
         seeking = new Creature(true);
@@ -71,6 +76,8 @@ SPECIAL(courier_imp)
                      data->mode == IMP_NO_BUYER) {
                   obj_data *doomed_obj;
 
+                  slog("IMP: Loading player %ld's objects", data->buyer_id);
+
                   // Load the char's existing eq
                   seeking->loadObjects();
                   // Add the item to char's inventory
@@ -78,8 +85,15 @@ SPECIAL(courier_imp)
                   obj_to_char(data->item, seeking);
                   // Save it to disk
                   seeking->saveObjects();
+                  
                   // Delete all the char's eq, otherwise the destructor
                   // has a cow.
+                  for (int pos = 0;pos < NUM_WEARS;pos++) {
+                      if (GET_EQ(seeking, pos))
+                          extract_obj(unequip_char(seeking, pos, false, true));
+                      if (GET_IMPLANT(seeking, pos))
+                          extract_obj(unequip_char(seeking, pos, true, true));
+                  }
                   while (seeking->carrying) {
                     doomed_obj = seeking->carrying;
                     obj_from_char(doomed_obj);
@@ -122,11 +136,11 @@ SPECIAL(courier_imp)
     if (seeking->in_room == self->in_room) {
         char *msg;
         if (data->mode == IMP_DELIVER_ITEM) {
-            if (imp_take_payment(seeking, data)) {
                 act("$n grins at $N, showing rows of pointed teeth.", false,
                     self, 0, seeking, TO_NOTVICT);
                 act("$N grins at you, showing rows of pointed teeth.", false,
                     seeking, 0, self, TO_CHAR);
+            if (imp_take_payment(seeking, data)) {
                 msg = tmp_sprintf("$n gives %s to $N and takes its payment.",
                                         data->item->name);
                 act(msg, false, self, 0, seeking, TO_NOTVICT);
@@ -142,10 +156,6 @@ SPECIAL(courier_imp)
                        GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
             }
             else {
-                act("$n frowns at $N, showing rows of pointed teeth.", false,
-                    self, 0, seeking, TO_NOTVICT);
-                act("$N frowns at you, showing rows of pointed teeth.", false,
-                    seeking, 0, self, TO_CHAR);
                 do_say(self, tmp_sprintf("%s You ass!  You made me come all "
                        "way out here and you can't even cover your bill?!?", 
                        GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
@@ -167,10 +177,6 @@ SPECIAL(courier_imp)
             if (data->mode == IMP_DELIVER_CASH) {
                 int paygold = (int)(GET_GOLD(self) * AUCTION_PERCENTAGE);
                 int paycash = (int)(GET_CASH(self) * AUCTION_PERCENTAGE);
-                act("$n grins at $N, showing rows of pointed teeth.", false,
-                    self, 0, seeking, TO_NOTVICT);
-                act("$N grins at you, showing rows of pointed teeth.", false,
-                    seeking, 0, self, TO_CHAR);
 
                 msg = tmp_sprintf("$N gives you ");
                 if (GET_GOLD(self))
@@ -192,10 +198,6 @@ SPECIAL(courier_imp)
                 self->purge(true);
             }
             else if (data->mode == IMP_BUYER_BROKE) {
-                act("$n grins at $N, showing rows of pointed teeth.", false,
-                    self, 0, seeking, TO_NOTVICT);
-                act("$N grins at you, showing rows of pointed teeth.", false,
-                    seeking, 0, self, TO_CHAR);
                 do_say(self, tmp_sprintf("%s I'm sorry, your buyer could not "
                        "pay for your item.", GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
                 msg = tmp_sprintf("$n gives $N %s and disappears.", data->item->name);
@@ -208,10 +210,6 @@ SPECIAL(courier_imp)
                 self->purge(true);
             }
             else if (data->mode == IMP_RETURN_ITEM) {
-                act("$n grins at $N, showing rows of pointed teeth.", false,
-                    self, 0, seeking, TO_NOTVICT);
-                act("$N grins at you, showing rows of pointed teeth.", false,
-                    seeking, 0, self, TO_CHAR);
                 do_say(self, tmp_sprintf("%s I'm sorry, there were no bids "
                        "for your item.", GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
                 msg = tmp_sprintf("$n gives $N %s and disappears.", data->item->name);
@@ -224,10 +222,6 @@ SPECIAL(courier_imp)
                 self->purge(true);
             }
             else if (data->mode == IMP_NO_BUYER) {
-                act("$n grins at $N, showing rows of pointed teeth.", false,
-                    self, 0, seeking, TO_NOTVICT);
-                act("$N grins at you, showing rows of pointed teeth.", false,
-                    seeking, 0, self, TO_CHAR);
                 do_say(self, tmp_sprintf("%s I'm sorry, I couldn't find the "
                        "buyer of your item.", GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
                 msg = tmp_sprintf("$n gives $N %s and disappears.", data->item->name);
