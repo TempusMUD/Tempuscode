@@ -6785,7 +6785,8 @@ ACMD(do_rlist)
 {
     struct room_data *room;
     struct zone_data *zone;
-    bool stop = FALSE;
+    bool has_desc, stop = FALSE;
+	char *read_pt;
 
     int first, last, found = 0;
 
@@ -6818,7 +6819,15 @@ ACMD(do_rlist)
                 stop = TRUE;
                 break;
             }
-            if (room->number >= first)
+            if (room->number >= first) {
+				has_desc = false;
+				if (room->description) {
+					for (read_pt = room->description;*read_pt;read_pt++)
+						if (!isspace(*read_pt)) {
+							has_desc = true;
+							break;
+						}	
+				}
                 acc_sprintf("%5d. %s[%s%5d%s]%s %s%-30s%s %s%s\r\n",
 							++found,
 							CCGRN(ch, C_NRM),
@@ -6829,8 +6838,9 @@ ACMD(do_rlist)
 							CCCYN(ch, C_NRM),
 							room->name,
 							CCNRM(ch, C_NRM),
-							room->description ? "" : "(nodesc)",
+							has_desc ? "" : "(nodesc)",
 							room->prog ? "(prog)" : "");
+			}
         }
 
     if (!found)
