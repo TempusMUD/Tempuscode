@@ -754,7 +754,7 @@ ASPELL(song_rhythm_of_alarm)
     }
 
     send_to_room("The music summons a large symbol which "
-                 "dissapears into the ground.\r\n", ch->in_room);
+                 "disappears into the ground.\r\n", ch->in_room);
 
     rm_aff.level = level;
     rm_aff.spell_type = SONG_RHYTHM_OF_ALARM;
