@@ -232,9 +232,18 @@ ACMD(do_crossface)
 					"Your $p flies from your head and lands a short distance\n"
 					"away.", TRUE, ch, wear, vict, TO_VICT);
 
-				if (!damage_eq(vict, wear, dam >> 4))
-					obj_to_room(unequip_char(vict, wear_num, MODE_EQ),
-						vict->in_room);
+				if (!damage_eq(vict, wear, dam >> 4)) {
+					// Object wasn't destroyed by damage
+					if (GET_EQ(ch, wear_num)) {
+						// Object is still being worn (not broken)
+						obj_to_room(unequip_char(vict, wear_num, MODE_EQ),
+							vict->in_room);
+					} else {
+						// Object was broken and is in inventory
+						obj_from_char(wear);
+						obj_to_room(wear, vict->in_room);
+					}
+				}
 				wear = NULL;
 			}
 		} else {
