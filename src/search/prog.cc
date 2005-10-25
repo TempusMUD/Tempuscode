@@ -26,6 +26,7 @@
 
 struct prog_env *prog_list = NULL;
 int loop_fence = 0;
+extern char locate_buf[256];
 
 // Prog command prototypes
 void prog_do_before(prog_env * env, prog_evt * evt, char *args);
@@ -54,6 +55,7 @@ void prog_do_echo(prog_env * env, prog_evt * evt, char *args);
 void prog_do_mobflag(prog_env * env, prog_evt * evt, char *args);
 void prog_do_ldesc(prog_env * env, prog_evt * evt, char *args);
 void prog_do_damage(prog_env * env, prog_evt * evt, char *args);
+void prog_do_spell(prog_env *env, prog_evt *evt, char *args);
 void prog_do_doorset(prog_env * env, prog_evt * evt, char *args);
 void prog_do_selfpurge(prog_env * env, prog_evt * evt, char *args);
 void prog_do_hunt(prog_env * env, prog_evt * evt, char *args);
@@ -98,6 +100,7 @@ prog_command prog_cmds[] = {
 	{"mobflag", true, prog_do_mobflag},
 	{"ldesc", true, prog_do_ldesc},
 	{"damage", true, prog_do_damage},
+	{"spell", true, prog_do_spell},
 	{"doorset", true, prog_do_doorset},
 	{"selfpurge", true, prog_do_selfpurge},
 	{NULL, false, prog_do_halt}
@@ -901,6 +904,122 @@ prog_do_damage(prog_env * env, prog_evt * evt, char *args)
             (!mobs || IS_NPC(*it)) &&
             (*it)->getPosition() > POS_DEAD)
 			damage(NULL, *it, damage_amt, damage_type, WEAR_RANDOM);
+	search_nomessage = false;
+}
+
+void
+prog_do_spell(prog_env *env, prog_evt *evt, char *args)
+{
+	room_data *room;
+	Creature *caster;
+	obj_data *obj;
+	int spell_num, spell_lvl, spell_type;
+	char *target_arg;
+
+    // Parse out arguments
+	target_arg = tmp_getword(&args);
+	if (!*args)
+		return;
+
+    spell_lvl = atoi(tmp_getword(&args));
+    if (spell_lvl > 49)
+        return;
+	if (!*args)
+		return;
+	spell_num = str_to_spell(args);
+	if (spell_num == -1)
+		return;
+
+    // Set locate_buf to avoid accidents
+    locate_buf[0] = '\0';
+
+    // Determine the spell type
+    if (SPELL_IS_MAGIC(spell_num) || SPELL_IS_DIVINE(spell_num))
+        spell_type = CAST_SPELL;
+    else if (SPELL_IS_PHYSICS(spell_num))
+        spell_type = CAST_PHYSIC;
+    else if (SPELL_IS_PSIONIC(spell_num))
+        spell_type = CAST_PSIONIC;
+    else
+        spell_type = CAST_ROD;
+
+    // Determine the caster of the spell, so to speak
+    switch (env->owner_type) {
+    case PROG_TYPE_OBJECT:
+        obj = (obj_data *) env->owner;
+        caster = (obj->worn_by) ? obj->worn_by : obj->carried_by;
+        break;
+    case PROG_TYPE_MOBILE:
+        caster = (Creature *)env->owner;
+        break;
+    case PROG_TYPE_ROOM:
+        caster = *(((room_data *)env->owner)->people.begin());
+        break;
+    default:
+        break;
+    }
+
+	search_nomessage = true;
+	if (!strcmp(target_arg, "self")) {
+		// Cast a spell on the owner of the prog
+		switch (env->owner_type) {
+		case PROG_TYPE_OBJECT:
+			obj = (obj_data *) env->owner;
+			call_magic(caster, caster, obj, NULL,
+                       spell_num, spell_lvl, spell_type, NULL);
+			break;
+		case PROG_TYPE_MOBILE:
+            if (caster->getPosition() > POS_DEAD
+                && !affected_by_spell(caster, spell_num))
+                call_magic(caster, caster, NULL, NULL,
+                           spell_num, spell_lvl, spell_type,
+                           NULL);
+			break;
+		case PROG_TYPE_ROOM:
+			break;
+        default:
+            break;
+		}
+		search_nomessage = false;
+		return;
+	} else if (!strcmp(target_arg, "target")) {
+		// Cast a spell on the target
+		if (!env->target) {
+			search_nomessage = false;
+			return;
+		}
+        if (env->target->getPosition() > POS_DEAD
+            && !affected_by_spell(env->target, spell_num))
+                call_magic(caster, env->target, NULL, NULL,
+                           spell_num, spell_lvl, spell_type,
+                           NULL);
+		search_nomessage = false;
+		return;
+	}
+	// The rest of the options deal with multiple creatures
+
+	bool players = false, mobs = false;
+
+	if (!strcmp(target_arg, "mobiles"))
+		mobs = true;
+	else if (!strcmp(target_arg, "players"))
+		players = true;
+	else if (strcmp(target_arg, "all"))
+		errlog("Bad trans argument 1");
+
+    room = prog_get_owner_room(env);
+    if (!room)
+        return;
+
+	for (CreatureList::iterator it = room->people.begin();
+		it != room->people.end(); ++it)
+		if ((!players || IS_PC(*it)) &&
+            (!mobs || IS_NPC(*it)) &&
+            (*it)->getPosition() > POS_DEAD &&
+            !affected_by_spell(*it, spell_num))
+            call_magic(caster, *it, NULL, NULL,
+                       spell_num, spell_lvl, spell_type,
+                       NULL);
 	search_nomessage = false;
 }
 
