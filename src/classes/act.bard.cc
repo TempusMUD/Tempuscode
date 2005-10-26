@@ -364,7 +364,7 @@ sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songn
   struct bard_song *song = &songs[songnum - TOP_BARD_SONG - 1];
 
   if (songnum < TOP_BARD_SONG || songnum > TOP_BARD_SONG + NUM_BARD_SONGS) {
-	char *errbuf = tmp_sprintf("SYSERR: (%d) Not a bard song in sing_song()", songnum);
+	char *errbuf = tmp_sprintf("(%d) Not a bard song in sing_song()", songnum);
 	mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, true, errbuf);
 	return;
   }
@@ -700,7 +700,7 @@ ASPELL(song_lament_of_longing)
     struct obj_data *rift2 = read_object(QUANTUM_RIFT_VNUM);
 
     if (!rift1 || !rift2) {
-        errlog("SYSERR: QUANTUM_RIFT_VNUM does not exist?  WTF!");
+        errlog("QUANTUM_RIFT_VNUM does not exist?  WTF!");
         send_to_char(ch, "We seem to be having some technical difficulties. "
                      "please report this to the nearest imm.  Thanks.\r\n");
         return;
