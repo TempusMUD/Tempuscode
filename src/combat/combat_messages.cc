@@ -1320,13 +1320,19 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 		return 1;
 	for (i = 0; i < MAX_MESSAGES; i++) {
 		if (fight_messages[i].a_type == attacktype) {
+            // Advance to random message for this attack
 			nr = dice(1, fight_messages[i].number_of_attacks);
 			for (j = 1, msg = fight_messages[i].msg; (j < nr) && msg; j++)
 				msg = msg->next;
 
-			/*      if ( attacktype == TYPE_SLASH ) {
-			   sprintf( buf, "slash [%d]\r\n", nr );
-			   } */
+            // Log an error if no message was found
+            if (!msg) {
+                errlog("Message %d missing for attacktype == %d",
+                       j, attacktype);
+                return 1;
+            }
+
+            // occassionally behead while slashing
 			if (attacktype == TYPE_SLASH && nr == 1
 				&& !isname("headless", vict->player.name))
 				corpse_state = SKILL_BEHEAD;
@@ -1358,7 +1364,7 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 						TO_VICT | TO_SLEEP);
 					send_to_char(vict, CCNRM(vict, C_NRM));
 
-				} else if (msg) {
+				} else {
 					if (ch) {
 						act(msg->hit_msg.room_msg, FALSE, ch, weap, vict,
 							TO_NOTVICT | TO_VICT_RM);
