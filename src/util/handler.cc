@@ -1303,7 +1303,8 @@ obj_from_char(struct obj_data *object)
 	}
 
     if (!object->carried_by) {
-        errlog("SYSERR: object->carried_by == NULL in obj_from_char");
+        errlog("object->carried_by == NULL in obj_from_char");
+        raise(SIGSEGV);
         return;
     }
 
