@@ -1121,13 +1121,11 @@ prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args)
 void
 prog_do_nuke(prog_env * env, prog_evt * evt, char *args)
 {
-	struct prog_env *cur_prog, *next_prog;
+	struct prog_env *cur_prog;
 
-	for (cur_prog = prog_list; cur_prog; cur_prog = next_prog) {
-		next_prog = cur_prog->next;
+	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
 		if (cur_prog != env && cur_prog->owner == env->owner)
-			prog_free(cur_prog);
-	}
+			cur_prog->exec_pt = -1;
 }
 
 void
@@ -1615,7 +1613,8 @@ prog_free(struct prog_env *prog)
 		while (prev_prog && prev_prog->next != prog)
 			prev_prog = prev_prog->next;
 		if (!prev_prog) {
-			// error
+            errlog("prog_free() called on prog not in prog_list!");
+            return;
 		}
 		prev_prog->next = prog->next;
 	}
