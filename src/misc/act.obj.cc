@@ -4009,7 +4009,7 @@ ACMD(do_empty)
 		act("You carefully empty the contents of $p.", FALSE, ch, obj, 0,
 			TO_CHAR);
 	} else {
-		send_to_char(ch, "%s is already empty idiot!\r\n", obj->name);
+		send_to_char(ch, "%s is already empty.\r\n", obj->name);
 	}
 }
 
