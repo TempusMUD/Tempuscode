@@ -89,7 +89,7 @@ ACMD(do_pistolwhip)
 ACMD(do_crossface)
 {
 	struct Creature *vict = NULL;
-	struct obj_data *ovict = NULL, *weap = NULL, *wear = NULL;
+	struct obj_data *ovict = NULL, *weap = NULL;
 	int str_mod, dex_mod, percent = 0, prob = 0, dam = 0;
 	int retval = 0, diff = 0, wear_num;
 	bool prime_merc = false;
@@ -172,17 +172,14 @@ ACMD(do_crossface)
 		dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
 			dice(9, weap->getWeight());
 
-		if ((wear = GET_EQ(vict, WEAR_FACE)))
-			wear_num = WEAR_FACE;
-		else {
-			wear = GET_EQ(vict, WEAR_HEAD);
-			wear_num = WEAR_HEAD;
-		}
+        wear_num = WEAR_FACE;
+        if (!GET_EQ(vict, WEAR_FACE))
+            wear_num = WEAR_HEAD;
 
 		diff = prob - percent;
 
 		// Wow!  vict really took one hell of a shot.  Stun that bastard!
-		if (diff >= 70 && !wear) {
+		if (diff >= 70 && !GET_EQ(vict, wear_num)) {
 			prev_pos = vict->getPosition();
 			retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
 			if (prev_pos != POS_STUNNED && !IS_SET(retval, DAM_VICT_KILLED) &&
@@ -221,8 +218,11 @@ ACMD(do_crossface)
 		}
 		// vict pretty much caught a grazing blow, knock off some eq
 		else if (diff >= 20) {
+            obj_data *wear, *scraps;
+
 			retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
-			if (wear && !IS_SET(retval, DAM_VICT_KILLED) &&
+            wear = GET_EQ(vict, wear_num);
+			if (wear  && !IS_SET(retval, DAM_VICT_KILLED) &&
 				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->numCombatants()) {
 				act("Your crossface has knocked $N's $p from his head!",
 					TRUE, ch, wear, vict, TO_CHAR);
@@ -232,28 +232,23 @@ ACMD(do_crossface)
 					"Your $p flies from your head and lands a short distance\n"
 					"away.", TRUE, ch, wear, vict, TO_VICT);
 
-				if (!damage_eq(vict, wear, dam >> 4)) {
-					// Object wasn't destroyed by damage
-					if (GET_EQ(ch, wear_num)) {
-						// Object is still being worn (not broken)
-						obj_to_room(unequip_char(vict, wear_num, MODE_EQ),
-							vict->in_room);
-					} else {
-						// Object was broken and is in inventory
-						obj_from_char(wear);
-						obj_to_room(wear, vict->in_room);
-					}
-				}
-				wear = NULL;
+                scraps = damage_eq(vict, wear, dam >> 4);
+				if (scraps) {
+                    // Object is destroyed
+                    obj_from_char(scraps);
+                    obj_to_room(scraps, vict->in_room);
+				} else if (GET_EQ(vict, wear_num)) {
+                    // Object is still being worn (not broken)
+                    obj_to_room(unequip_char(vict, wear_num, MODE_EQ),
+                                vict->in_room);
+                } else {
+                    // Object was broken and is in inventory
+                    obj_from_char(wear);
+                    obj_to_room(wear, vict->in_room);
+                }
 			}
 		} else {
 			retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
-		}
-
-		if ( wear && 
-			 !IS_SET(retval, DAM_VICT_KILLED) && 
-			 !IS_SET(retval, DAM_ATTACKER_KILLED) ) {
-			damage_eq(vict, wear, dam >> 4);
 		}
 
 		gain_skill_prof(ch, SKILL_CROSSFACE);
