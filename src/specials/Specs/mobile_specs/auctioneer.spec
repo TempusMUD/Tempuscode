@@ -159,6 +159,10 @@ SPECIAL(do_auctions)
                      (time(NULL) - ai->last_bid_time) > SOLD_TIME) {
                 auc_str = tmp_sprintf("Item number %d, %s, SOLD!", 
                                       ai->item_no, ai->item->name);
+                slog("AUCTION: %s (#%d) has been sold to %s (#%ld)",
+                     ai->item->name, GET_OBJ_VNUM(ai->item),
+                     playerIndex.getName(ai->buyer_id),
+                     ai->buyer_id);
                 imp = create_imp(self->in_room, *ai);
                 ((imp_data *)imp->mob_specials.func_data)->mode = IMP_DELIVER_ITEM;
                 obj_from_char(ai->item);
@@ -470,6 +474,9 @@ SPECIAL(do_auctions)
         aucSaveToXML(self);
 
         send_to_char(ch, "Your item has been entered for auction.\r\n");
+        slog("AUCTION: %s (#%ld) has put up %s (#%d) for auction",
+             GET_NAME(ch), GET_IDNUM(ch),
+             obj->name, GET_OBJ_VNUM(obj));
 
         return 1;
     }
@@ -528,6 +535,9 @@ SPECIAL(do_auctions)
         aucSaveToXML(self);
 
         send_to_char(ch, "Your item has been withdrawn from auction.\r\n");
+        slog("AUCTION: %s (#%ld) has withdrawn %s (#%d)",
+             GET_NAME(ch), GET_IDNUM(ch),
+             obj->name, GET_OBJ_VNUM(obj));
 
         return 1;
     }
