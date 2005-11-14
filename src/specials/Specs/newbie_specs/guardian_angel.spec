@@ -110,7 +110,7 @@ struct angel_spell_data {
 angel_spell_data angel_spells[] = {
     { SPELL_DETECT_INVIS, "This spell will allow you to see invisible "
                           "objects and creatures." },
-    { SPELL_RETINA, "This spell will allow you to see transparant objects and creatures." },
+    { SPELL_RETINA, "This spell will allow you to see transparent objects and creatures." },
     { SPELL_ARMOR, "This spell will offer you a small amount of protection." },
     { SPELL_STRENGTH, "This spell will increase your strength." },
     { -1, "" }
@@ -336,7 +336,9 @@ SPECIAL(guardian_angel)
 	
 	charge = get_char_in_world_by_idnum(data->charge_id);
 	if (!charge && data->counter < 0) {
+        // When the charge couldn't be found, disappear immediately
 		data->action = str_dup("dismiss");
+        data->counter = 0;
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
