@@ -1421,6 +1421,7 @@ prog_do_opurge(prog_env * env, prog_evt * evt, char *args)
 	if (!obj_list)
 		return;
 
+	// Eliminate the selected objects at the head of the list
 	while (obj_list && GET_OBJ_VNUM(obj_list) == vnum) {
 		next_obj = obj_list->next_content;
 		extract_obj(obj_list);
@@ -1428,12 +1429,12 @@ prog_do_opurge(prog_env * env, prog_evt * evt, char *args)
 	}
 
 	if (obj_list) {
-		for (obj = obj_list; obj->next_content; obj = next_obj) {
-			if (GET_OBJ_VNUM(obj->next_content) == vnum) {
-				next_obj = obj->next_content->next_content;
-				extract_obj(obj->next_content);
-			} else
-				next_obj = obj->next_content;
+		// There are still objects in the list, so iterate through
+		// them, extracting the ones of the proper vnum
+		for (obj = obj_list->next_content; obj; obj = next_obj) {
+			next_obj = obj->next_content;
+			if (GET_OBJ_VNUM(obj) == vnum)
+				extract_obj(obj);
 		}
 	}
 
