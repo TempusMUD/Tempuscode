@@ -599,7 +599,6 @@ Creature::extract(cxn_state con_state)
 	if (followers || master)
 		die_follower(this);
 
-
 	// remove fighters, defenders, hunters and mounters
     for (cit = defendingList.begin(); cit != defendingList.end(); ++cit) {
 	  if (this == (*cit)->isDefending())
@@ -677,9 +676,13 @@ Creature::extract(cxn_state con_state)
 
 	char_from_room(this,false);
 
-	// pull the char from the list
-	characterList.remove(this);
+	// pull the char from the various lists
 	combatList.remove(this);
+	defendingList.remove(this);
+	huntingList.remove(this);
+	mountedList.remove(this);
+	characterList.remove(this);
+
 	// remove any paths
 	path_remove_object(this);
 
