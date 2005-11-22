@@ -1038,7 +1038,7 @@ House::collectRent( int cost )
 				GET_OBJ_COST(doomed_obj));
 			repoNotes.push_back(s);
 
-			slog("HOUSE: [%d] Repossesing [%d]%s for %d to cover rent.",
+			slog("HOUSE: [%d] Repossessing [%d]%s for %d to cover rent.",
 				getID(), GET_OBJ_VNUM(doomed_obj), 
 				tmp_capitalize(doomed_obj->name),
 				GET_OBJ_COST(doomed_obj));

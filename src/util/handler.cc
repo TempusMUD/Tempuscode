@@ -1739,6 +1739,12 @@ obj_to_room(struct obj_data *object, struct room_data *room, bool sorted)
 		return;
 	}
 
+    if (object->carried_by) {
+        errlog("Object already carried in obj_to_room()!");
+        raise(SIGSEGV);
+        return;
+    }
+
 	if (!room->contents) {
 		room->contents = object;
 		object->next_content = NULL;
@@ -1768,11 +1774,7 @@ obj_to_room(struct obj_data *object, struct room_data *room, bool sorted)
 		object->next_content = NULL;
 	}
 	object->in_room = room;
-	struct obj_data *temp;
-    if (object->carried_by) {
-        REMOVE_FROM_LIST(object, object->carried_by->carrying, next_content);
-        object->carried_by = NULL;
-    }
+
     if (ROOM_FLAGGED(room, ROOM_HOUSE))
 		SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE_CRASH);
 

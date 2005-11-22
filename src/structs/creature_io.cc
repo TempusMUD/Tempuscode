@@ -17,7 +17,6 @@
 #include "handler.h"
 #include "language.h"
 
-void obj_to_room(struct obj_data *object, struct room_data *room);
 void add_alias(struct Creature *ch, struct alias_data *a);
 void affect_to_char(struct Creature *ch, struct affected_type *af);
 void extract_object_list(obj_data * head);
@@ -334,7 +333,6 @@ Creature::loadObjects()
 			if(!obj->loadFromXML(NULL,this,NULL,node) ) {
 				extract_obj(obj);
 			}
-			//obj_to_room(obj, in_room);
 		}
 	}
 
