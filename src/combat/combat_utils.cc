@@ -204,13 +204,13 @@ update_pos(struct Creature *victim)
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
 				}
-			}
-		} else if (victim->getPosition() == POS_STUNNED) {
-			victim->setPosition(POS_RESTING, 1);
+            } else if (victim->getPosition() == POS_STUNNED) {
+                victim->setPosition(POS_RESTING, 1);
 #ifdef DEBUG_POSITION
-			act("$n moves to POS_RESTING.(From Stunned)", TRUE, victim, 0, 0,
-				TO_ROOM);
+                act("$n moves to POS_RESTING.(From Stunned)", TRUE, victim, 0, 0,
+                    TO_ROOM);
 #endif
+            }
 		}
 	}
 	// Various stages of unhappiness

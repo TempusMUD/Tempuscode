@@ -93,9 +93,7 @@ remove_fighting_affects(struct Creature *ch)
 	} else {
 		if (IS_AFFECTED(ch, AFF_CHARM) && IS_UNDEAD(ch))
 			ch->setPosition(POS_STANDING);
-		else if (!ch->isHunting())
-			ch->setPosition(GET_DEFAULT_POS(ch));
-		else
+		else if (ch->getPosition() > POS_STANDING)
 			ch->setPosition(POS_STANDING);
 	}
 
@@ -148,7 +146,7 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	else
 		ch->die();
 
-    if (PRF2_FLAGGED(killer, PRF2_AUTOLOOT)) 
+    if (killer && PRF2_FLAGGED(killer, PRF2_AUTOLOOT)) 
         perform_autoloot(killer, corpse);
 }
 

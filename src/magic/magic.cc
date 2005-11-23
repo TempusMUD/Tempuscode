@@ -930,10 +930,10 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 				victim->getPosition() > POS_STUNNED) {
 			affected_type af;
 
-			victim->setPosition(POS_STUNNED);
-			WAIT_STATE(victim, 5 RL_SEC);
             victim->removeCombat(ch);
             ch->removeCombat(victim);
+			victim->setPosition(POS_STUNNED);
+			WAIT_STATE(victim, 5 RL_SEC);
 			memset(&af, 0, sizeof(af));
 			af.type = SPELL_PSYCHIC_SURGE;
 			af.duration = 1;

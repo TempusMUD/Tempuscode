@@ -8627,7 +8627,7 @@ ACMD(do_delete)
 }
 
 bool
-check_tempus_pointer(Creature *ch, void *ptr, size_t expected_len, const char *str, int vnum)
+check_ptr(void *ptr, size_t expected_len, const char *str, int vnum)
 {
 	dbg_mem_blk *mem;
 	
@@ -8636,13 +8636,13 @@ check_tempus_pointer(Creature *ch, void *ptr, size_t expected_len, const char *s
 
 	mem = dbg_get_block(ptr);
 	if (!mem) {
-		send_to_char(ch, "Invalid pointer found in %s %d\r\n", str, vnum);
+		slog("Invalid pointer found in %s %d\r\n", str, vnum);
 		return false;
 	}
 
 	if (expected_len > 0 && mem->size != expected_len) {
-		send_to_char(ch, "Expected block of size %d, got size %d in %s %d\r\n",
-			expected_len, mem->size, str, vnum);
+		slog("Expected block of size %d, got size %d in %s %d\r\n",
+             expected_len, mem->size, str, vnum);
 		return false;
 	}
 
@@ -8653,61 +8653,64 @@ check_tempus_pointer(Creature *ch, void *ptr, size_t expected_len, const char *s
 void
 verify_tempus_integrity(Creature *ch)
 {
-	MobileMap::iterator cit;
+	MobileMap::iterator mit;
+    CreatureList::iterator cit;
 	Creature *vict;
-	obj_data *obj;
+	obj_data *obj, *contained;
 	room_data *room;
 	zone_data *zone;
 	extra_descr_data *cur_exdesc;
 	memory_rec_struct *cur_mem;
 	const char *err;
+    tmp_obj_affect *obj_aff;
+    int idx;
 
 	// Check prototype mobs
-	for (cit = mobilePrototypes.begin();cit != mobilePrototypes.end();cit++) {
-		vict = cit->second;
+	for (mit = mobilePrototypes.begin();mit != mobilePrototypes.end();mit++) {
+		vict = mit->second;
 
 		if (!vict->player.name)
 			send_to_char(ch, "Alias of creature proto #%d (%s) is NULL!\r\n",
 				MOB_IDNUM(vict), vict->player.short_descr);
-		check_tempus_pointer(ch, vict->player.name, 0,
+		check_ptr(vict->player.name, 0,
 			"aliases of creature proto", MOB_IDNUM(vict));
-		check_tempus_pointer(ch, vict->player.short_descr, 0,
+		check_ptr(vict->player.short_descr, 0,
 			"name of creature proto", MOB_IDNUM(vict));
-		check_tempus_pointer(ch, vict->player.long_descr, 0,
+		check_ptr(vict->player.long_descr, 0,
 			"linedesc of creature proto", MOB_IDNUM(vict));
-		check_tempus_pointer(ch, vict->player.description, 0,
+		check_ptr(vict->player.description, 0,
 			"description of creature proto", MOB_IDNUM(vict));
-		check_tempus_pointer(ch, vict->player.description, 0,
+		check_ptr(vict->player.description, 0,
 			"description of creature proto", MOB_IDNUM(vict));
-		check_tempus_pointer(ch, vict->mob_specials.func_data, 0,
+		check_ptr(vict->mob_specials.func_data, 0,
 			"func_data of creature proto", MOB_IDNUM(vict));
 		// Loop through responses
 		for (cur_exdesc = vict->mob_specials.response;cur_exdesc;cur_exdesc = cur_exdesc->next) {
-			if (!check_tempus_pointer(ch, cur_exdesc, sizeof(extra_descr_data),
+			if (!check_ptr(cur_exdesc, sizeof(extra_descr_data),
 					"response of creature proto", MOB_IDNUM(vict)))
 				break;
-			check_tempus_pointer(ch, cur_exdesc->keyword, 0,
+			check_ptr(cur_exdesc->keyword, 0,
 				"keyword of response of creature proto", MOB_IDNUM(vict));
-			check_tempus_pointer(ch, cur_exdesc->description, 0,
+			check_ptr(cur_exdesc->description, 0,
 				"description of response of creature proto", MOB_IDNUM(vict));
 		}
 
 		// Loop through memory
 		for (cur_mem = vict->mob_specials.memory;cur_mem;cur_mem = cur_mem->next) {
-			if (!check_tempus_pointer(ch, cur_exdesc, sizeof(memory_rec_struct),
+			if (!check_ptr(cur_exdesc, sizeof(memory_rec_struct),
 					"memory of creature proto", MOB_IDNUM(vict)))
 				break;
 		}
 		// Mobile shared structure
-		if (check_tempus_pointer(ch, vict->mob_specials.func_data,
+		if (check_ptr(vict->mob_specials.func_data,
 				sizeof(mob_shared_data), "shared struct of creature proto",
 				MOB_IDNUM(vict))) {
 
-			check_tempus_pointer(ch, vict->mob_specials.shared->move_buf, 0,
+			check_ptr(vict->mob_specials.shared->move_buf, 0,
 				"move_buf of creature proto", MOB_IDNUM(vict));
-			check_tempus_pointer(ch, vict->mob_specials.shared->func_param, 0,
+			check_ptr(vict->mob_specials.shared->func_param, 0,
 				"func_param of creature proto", MOB_IDNUM(vict));
-			check_tempus_pointer(ch, vict->mob_specials.shared->func_param, 0,
+			check_ptr(vict->mob_specials.shared->func_param, 0,
 				"load_param of creature proto", MOB_IDNUM(vict));
 		}
 
@@ -8720,161 +8723,152 @@ verify_tempus_integrity(Creature *ch)
     ObjectMap::iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
-		check_tempus_pointer(ch, obj, sizeof(obj_data),
+		check_ptr(obj, sizeof(obj_data),
 			"object proto", -1);
-		check_tempus_pointer(ch, obj->name, 0,
+		check_ptr(obj->name, 0,
 			"name of object proto", GET_OBJ_VNUM(obj));
-		check_tempus_pointer(ch, obj->aliases, 0,
+		check_ptr(obj->aliases, 0,
 			"aliases of object proto", GET_OBJ_VNUM(obj));
-		check_tempus_pointer(ch, obj->line_desc, 0,
+		check_ptr(obj->line_desc, 0,
 			"line desc of object proto", GET_OBJ_VNUM(obj));
-		check_tempus_pointer(ch, obj->action_desc, 0,
+		check_ptr(obj->action_desc, 0,
 			"action desc of object proto", GET_OBJ_VNUM(obj));
 		for (cur_exdesc = obj->ex_description;cur_exdesc;cur_exdesc = cur_exdesc->next) {
-			if (!check_tempus_pointer(ch, cur_exdesc, sizeof(extra_descr_data),
+			if (!check_ptr(cur_exdesc, sizeof(extra_descr_data),
 					"extradesc of object proto", GET_OBJ_VNUM(obj)))
 				break;
-			check_tempus_pointer(ch, cur_exdesc->keyword, 0,
+			check_ptr(cur_exdesc->keyword, 0,
 				"keyword of extradesc of object proto", GET_OBJ_VNUM(obj));
-			check_tempus_pointer(ch, cur_exdesc->description, 0,
+			check_ptr(cur_exdesc->description, 0,
 				"description of extradesc of object proto", GET_OBJ_VNUM(obj));
 		}
-		check_tempus_pointer(ch, obj->shared, sizeof(obj_shared_data),
+		check_ptr(obj->shared, sizeof(obj_shared_data),
 			"shared struct of object proto", GET_OBJ_VNUM(obj));
-		check_tempus_pointer(ch, obj->shared->func_param, 0,
+		check_ptr(obj->shared->func_param, 0,
 			"func param of object proto", GET_OBJ_VNUM(obj));
 	}
 
 	// Check rooms
 	for (zone = zone_table;zone;zone = zone->next) {
 		for (room = zone->world;room;room = room->next) {
-			check_tempus_pointer(ch, room->name, 0,
+			check_ptr(room->name, 0,
 				"title of room", room->number);
-			check_tempus_pointer(ch, room->name, 0,
+			check_ptr(room->name, 0,
 				"description of room", room->number);
-			check_tempus_pointer(ch, room->sounds, 0,
+			check_ptr(room->sounds, 0,
 				"sounds of room", room->number);
 			for (cur_exdesc = room->ex_description;cur_exdesc;cur_exdesc = cur_exdesc->next) {
-				if (!check_tempus_pointer(ch, cur_exdesc, sizeof(extra_descr_data),
+				if (!check_ptr(cur_exdesc, sizeof(extra_descr_data),
 						"extradesc of room", room->number))
 					break;
-				check_tempus_pointer(ch, cur_exdesc->keyword, 0,
+				check_ptr(cur_exdesc->keyword, 0,
 					"keyword of extradesc of room", room->number);
-				check_tempus_pointer(ch, cur_exdesc->description, 0,
+				check_ptr(cur_exdesc->description, 0,
 					"description of extradesc of room", room->number);
 			}
 			if (ABS_EXIT(room, NORTH)
-					&& check_tempus_pointer(ch, ABS_EXIT(room, NORTH),
+					&& check_ptr(ABS_EXIT(room, NORTH),
 					sizeof(room_direction_data),
 					"north exit of room", room->number)) {
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, NORTH)->general_description, 0,
+				check_ptr(ABS_EXIT(room, NORTH)->general_description, 0,
 					"description of north exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, NORTH)->keyword, 0,
+				check_ptr(ABS_EXIT(room, NORTH)->keyword, 0,
 					"keywords of north exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, NORTH)->to_room, sizeof(room_data),
+				check_ptr(ABS_EXIT(room, NORTH)->to_room, sizeof(room_data),
 					"destination of north exit of room", room->number);
 			}
 			if (ABS_EXIT(room, SOUTH)
-					&& check_tempus_pointer(ch, ABS_EXIT(room, SOUTH),
+					&& check_ptr(ABS_EXIT(room, SOUTH),
 					sizeof(room_direction_data),
 					"south exit of room", room->number)) {
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, SOUTH)->general_description, 0,
+				check_ptr(ABS_EXIT(room, SOUTH)->general_description, 0,
 					"description of south exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, SOUTH)->keyword, 0,
+				check_ptr(ABS_EXIT(room, SOUTH)->keyword, 0,
 					"keywords of south exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, SOUTH)->to_room, sizeof(room_data),
+				check_ptr(ABS_EXIT(room, SOUTH)->to_room, sizeof(room_data),
 					"destination of south exit of room", room->number);
 			}
 			if (ABS_EXIT(room, EAST)
-					&& check_tempus_pointer(ch, ABS_EXIT(room, EAST),
+					&& check_ptr(ABS_EXIT(room, EAST),
 					sizeof(room_direction_data),
 					"east exit of room", room->number)) {
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, EAST)->general_description, 0,
+				check_ptr(ABS_EXIT(room, EAST)->general_description, 0,
 					"description of east exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, EAST)->keyword, 0,
+				check_ptr(ABS_EXIT(room, EAST)->keyword, 0,
 					"keywords of east exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, EAST)->to_room, sizeof(room_data),
+				check_ptr(ABS_EXIT(room, EAST)->to_room, sizeof(room_data),
 					"destination of east exit of room", room->number);
 			}
 			if (ABS_EXIT(room, WEST)
-					&& check_tempus_pointer(ch, ABS_EXIT(room, WEST),
+					&& check_ptr(ABS_EXIT(room, WEST),
 					sizeof(room_direction_data),
 					"west exit of room", room->number)) {
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, WEST)->general_description, 0,
+				check_ptr(ABS_EXIT(room, WEST)->general_description, 0,
 					"description of west exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, WEST)->keyword, 0,
+				check_ptr(ABS_EXIT(room, WEST)->keyword, 0,
 					"keywords of west exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, WEST)->to_room, sizeof(room_data),
+				check_ptr(ABS_EXIT(room, WEST)->to_room, sizeof(room_data),
 					"destination of west exit of room", room->number);
 			}
 			if (ABS_EXIT(room, UP)
-					&& check_tempus_pointer(ch, ABS_EXIT(room, UP),
+					&& check_ptr(ABS_EXIT(room, UP),
 					sizeof(room_direction_data),
 					"up exit of room", room->number)) {
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, UP)->general_description, 0,
+				check_ptr(ABS_EXIT(room, UP)->general_description, 0,
 					"description of up exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, UP)->keyword, 0,
+				check_ptr(ABS_EXIT(room, UP)->keyword, 0,
 					"keywords of up exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, UP)->to_room, sizeof(room_data),
+				check_ptr(ABS_EXIT(room, UP)->to_room, sizeof(room_data),
 					"destination of up exit of room", room->number);
 			}
 			if (ABS_EXIT(room, DOWN)
-					&& check_tempus_pointer(ch, ABS_EXIT(room, DOWN),
+					&& check_ptr(ABS_EXIT(room, DOWN),
 					sizeof(room_direction_data),
 					"down exit of room", room->number)) {
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, DOWN)->general_description, 0,
+				check_ptr(ABS_EXIT(room, DOWN)->general_description, 0,
 					"description of down exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, DOWN)->keyword, 0,
+				check_ptr(ABS_EXIT(room, DOWN)->keyword, 0,
 					"keywords of down exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, DOWN)->to_room, sizeof(room_data),
+				check_ptr(ABS_EXIT(room, DOWN)->to_room, sizeof(room_data),
 					"destination of down exit of room", room->number);
 			}
 			if (ABS_EXIT(room, PAST)
-					&& check_tempus_pointer(ch, ABS_EXIT(room, PAST),
+					&& check_ptr(ABS_EXIT(room, PAST),
 					sizeof(room_direction_data),
 					"past exit of room", room->number)) {
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, PAST)->general_description, 0,
+				check_ptr(ABS_EXIT(room, PAST)->general_description, 0,
 					"description of past exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, PAST)->keyword, 0,
+				check_ptr(ABS_EXIT(room, PAST)->keyword, 0,
 					"keywords of past exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, PAST)->to_room, sizeof(room_data),
+				check_ptr(ABS_EXIT(room, PAST)->to_room, sizeof(room_data),
 					"destination of past exit of room", room->number);
 			}
 			if (ABS_EXIT(room, FUTURE)
-					&& check_tempus_pointer(ch, ABS_EXIT(room, FUTURE),
+					&& check_ptr(ABS_EXIT(room, FUTURE),
 					sizeof(room_direction_data),
 					"future exit of room", room->number)) {
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, FUTURE)->general_description, 0,
+				check_ptr(ABS_EXIT(room, FUTURE)->general_description, 0,
 					"description of future exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, FUTURE)->keyword, 0,
+				check_ptr(ABS_EXIT(room, FUTURE)->keyword, 0,
 					"keywords of future exit of room", room->number);
-				check_tempus_pointer(ch,
-					ABS_EXIT(room, FUTURE)->to_room, sizeof(room_data),
+				check_ptr(ABS_EXIT(room, FUTURE)->to_room, sizeof(room_data),
 					"destination of future exit of room", room->number);
 			}
+            for (contained = room->contents;
+                 contained;
+                 contained = contained->next_content) {
+                if (!check_ptr(contained, sizeof(obj_data),
+                               "object in room", room->number))
+                    break;
+                if (contained->in_room != room) {
+                    send_to_char(ch, "expected object %ld carrier = room %d (%p), got %p\r\n",
+                                 contained->unique_id,
+                                 room->number,
+                                 room,
+                                 contained->in_room);
+                }
+            }
+            
 		}
 	}
 
@@ -8885,7 +8879,110 @@ verify_tempus_integrity(Creature *ch)
 
 	// Check zones
 	// Check mobiles in game
+    for (cit = characterList.begin();
+         cit != characterList.end();
+         ++cit) {
+        vict = *cit;
+
+        check_ptr(vict, sizeof(Creature),
+                             "mobile", GET_MOB_VNUM(vict));
+        for (idx = 0;idx < NUM_WEARS;idx++) {
+            if (GET_EQ(vict, idx)
+                && check_ptr(GET_EQ(vict, idx), sizeof(obj_data),
+                             "object worn by mobile", GET_MOB_VNUM(vict))) {
+                if (GET_EQ(vict, idx)->worn_by != vict)
+                    slog("expected object wearer wrong!");
+                
+            }
+            if (GET_IMPLANT(vict, idx)
+                && check_ptr(GET_IMPLANT(vict, idx), sizeof(obj_data),
+                             "object implanted in mobile", GET_MOB_VNUM(vict))) {
+                if (GET_IMPLANT(vict, idx)->worn_by != vict)
+                    slog("expected object implanted wrong!");
+                
+            }
+        }
+
+        for (contained = vict->carrying;
+             contained;
+             contained = contained->next_content) {
+            if (!check_ptr(contained, sizeof(obj_data),
+                                      "object carried by mobile vnum %d", GET_MOB_VNUM(vict)))
+                break;
+            if (contained->carried_by != vict) {
+                send_to_char(ch, "expected object %ld carrier = mob %d (%p), got %p\r\n",
+                             contained->unique_id,
+                             GET_MOB_VNUM(vict),
+                             vict,
+                             contained->carried_by);
+            }
+        }
+        
+    }
+
 	// Check objects in game
+    for (obj = object_list; obj; obj = obj->next) {
+        check_ptr(obj, sizeof(obj_data),
+                             "object", obj->unique_id);
+        check_ptr(obj->name, 0,
+                             "name of object", obj->unique_id);
+        check_ptr(obj->aliases, 0,
+                             "aliases of object", obj->unique_id);
+        check_ptr(obj->line_desc, 0,
+                             "line desc of object", obj->unique_id);
+        check_ptr(obj->action_desc, 0,
+                             "action desc of object", obj->unique_id);
+        for (cur_exdesc = obj->ex_description;cur_exdesc;cur_exdesc = cur_exdesc->next) {
+            if (!check_ptr(cur_exdesc, sizeof(extra_descr_data),
+                                      "extradesc of obj", obj->unique_id))
+                break;
+            check_ptr(cur_exdesc->keyword, 0,
+                                 "keyword of extradesc of obj", obj->unique_id);
+            check_ptr(cur_exdesc->description, 0,
+                                 "description of extradesc of room", obj->unique_id);
+        }
+
+        check_ptr(obj->shared, sizeof(obj_shared_data),
+                             "shared data of object", obj->unique_id);
+        check_ptr(obj->in_room, sizeof(room_data),
+                             "room location of object", obj->unique_id);
+        check_ptr(obj->in_obj, sizeof(obj_data),
+                             "object location of object", obj->unique_id);
+        check_ptr(obj->carried_by, sizeof(Creature),
+                             "carried_by location of object", obj->unique_id);
+        check_ptr(obj->worn_by, sizeof(Creature),
+                             "worn_by location of object", obj->unique_id);
+        check_ptr(obj->func_data, 0,
+                             "special data of object", obj->unique_id);
+        if (!(obj->in_room ||
+              obj->in_obj ||
+              obj->carried_by ||
+              obj->worn_by))
+            send_to_char(ch, "object %lu stuck in limbo", obj->unique_id);
+
+        for (contained = obj->contains;
+             contained;
+             contained = contained->next_content) {
+            if (!check_ptr(contained, sizeof(obj_data),
+                                      "object contained by object", obj->unique_id))
+                break;
+            if (contained->in_obj != obj) {
+                send_to_char(ch, "expected object %lu's in_obj = obj %lu(%p), got %p\r\n",
+                             contained->unique_id,
+                             obj->unique_id,
+                             obj,
+                             contained->in_obj);
+            }
+        }
+        for (obj_aff = obj->tmp_affects;
+             obj_aff;
+             obj_aff = obj_aff->next) {
+            if (!check_ptr(obj_aff, sizeof(tmp_obj_affect),
+                           "tmp obj affect in object", obj->unique_id))
+                break;
+        }
+    }
+        
 	// Check accounts
 	// Check descriptors
 	// Check players in game
