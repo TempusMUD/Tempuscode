@@ -1429,11 +1429,12 @@ has_key(struct Creature *ch, int key)
 	struct obj_data *o;
 
 	for (o = ch->carrying; o; o = o->next_content)
-		if (GET_OBJ_VNUM(o) == key)
+		if (GET_OBJ_VNUM(o) == key && !IS_OBJ_STAT2(o, ITEM2_BROKEN))
 			return 1;
 
 	if (GET_EQ(ch, WEAR_HOLD))
-		if (GET_OBJ_VNUM(GET_EQ(ch, WEAR_HOLD)) == key)
+		if (GET_OBJ_VNUM(GET_EQ(ch, WEAR_HOLD)) == key
+            && !IS_OBJ_STAT2(GET_EQ(ch, WEAR_HOLD), ITEM2_BROKEN))
 			return 1;
 
 	return 0;

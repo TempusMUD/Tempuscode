@@ -61,12 +61,6 @@ int get_max_cha( Creature *ch );
 
 #define LEARNED(ch)     (MAX(MORT_LEARNED(ch), REMORT_LEARNED(ch)) + \
                      (GET_REMORT_GEN(ch) << 1))
-             /*
-                                #define MAXGAIN(ch)     (prac_params[1][(int)GET_CLASS(ch)] + (GET_REMORT_GEN(ch) << 2))
-
-                                                #define MINGAIN(ch)     (prac_params[2][(int)GET_CLASS(ch)] + \
-                                                                GET_REMORT_GEN(ch))
-                                                                              */
 #define MINGAIN(ch)     (GET_INT(ch) + GET_REMORT_GEN(ch))
 #define MAXGAIN(ch)     ((GET_INT(ch) << 1) + GET_REMORT_GEN(ch))
 
