@@ -74,6 +74,8 @@ int do_combat_fire(struct Creature *ch, struct Creature *vict);
 int do_casting_weapon(Creature *ch, obj_data *weap);
 int calculate_attack_probability(struct Creature *ch);
 void do_emp_pulse_char(Creature *ch, Creature *vict);
+void perform_autoloot(Creature *ch, obj_data *corpse);
+
 /* 
    corrects position and removes combat related bits.
    Call ONLY from removeCombat()/removeAllCombat() 
@@ -115,11 +117,12 @@ change_alignment(struct Creature *ch, struct Creature *victim)
 void
 raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 {
+    obj_data *corpse;
 
 	if (attacktype != SKILL_GAROTTE)
 		death_cry(ch);
 
-	make_corpse(ch, killer, attacktype);
+	corpse = make_corpse(ch, killer, attacktype);
 
 	struct affected_type *af = ch->affected;
     while (af) {
@@ -131,7 +134,6 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
         }
     }
     
-
 	REMOVE_BIT(AFF2_FLAGS(ch), AFF2_PETRIFIED);
 
 	if (IS_NPC(ch))
@@ -145,6 +147,9 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
         ch->npk_die();
 	else
 		ch->die();
+
+    if (PRF2_FLAGGED(killer, PRF2_AUTOLOOT)) 
+        perform_autoloot(killer, corpse);
 }
 
 

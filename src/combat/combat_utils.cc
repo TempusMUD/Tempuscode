@@ -759,7 +759,7 @@ choose_random_limb(Creature *victim)
 	return i;
 }
 
-void
+obj_data *
 make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 {
 	struct obj_data *corpse = NULL, *head = NULL, *heart = NULL,
@@ -1633,6 +1633,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			obj_to_room(o, ch->in_room);
 		}
 		extract_obj(corpse);
+        corpse = NULL;
 	} else {
 		obj_to_room(corpse, ch->in_room);
         if (CORPSE_IDNUM(corpse) > 0 && !is_arena_combat(killer, ch)) {
@@ -1652,6 +1653,8 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
             }
         }
     }
+
+    return corpse;
 }
 
 

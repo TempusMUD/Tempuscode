@@ -646,6 +646,51 @@ perform_get_from_container(struct Creature * ch,
 	return retval;
 }
 
+void
+perform_autoloot(Creature *ch, obj_data *corpse)
+{
+    struct obj_data *obj, *next_obj;
+    bool found, display;
+    int counter = 1;
+
+    // If they can't see the corse, they can't loot it
+    if (!corpse || !can_see_object(ch, corpse))
+        return;
+
+    // Can't loot player corpses in NPK zones
+    if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK && 
+        !IS_NPC(ch) && ch->getLevel() < LVL_AMBASSADOR &&
+        IS_CORPSE(corpse) && 
+        CORPSE_IDNUM(corpse) != GET_IDNUM(ch) &&
+        CORPSE_IDNUM(corpse) > 0)
+        return;
+
+    // Iterate through the corpse's contents, looking for money
+    for (obj = corpse->contains; obj; obj = next_obj) {
+        next_obj = obj->next_content;
+
+        if (!can_see_object(ch, obj))
+            continue;
+        if (!IS_OBJ_TYPE(obj, ITEM_MONEY))
+            continue;
+
+        display = (!next_obj ||
+                   next_obj->name != obj->name ||
+                   !can_see_object(ch, next_obj)
+                   || !can_take_obj(ch, next_obj, true, false));
+
+        if (perform_get_from_container(ch, obj, corpse, false,
+                                       display, counter)) {
+            found = true;
+            counter = (display) ? 1:(++counter);
+        } else {
+            counter = 1;
+        }
+    }
+    if (found)
+        consolidate_char_money(ch);
+}
+
 //
 // return value same as damage()
 //

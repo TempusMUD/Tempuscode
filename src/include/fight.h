@@ -112,8 +112,8 @@ bool do_gun_special(Creature *ch, obj_data *obj);
 
 void death_cry(struct Creature *ch);
 void appear(struct Creature *ch, struct Creature *vict);
-void make_corpse(struct Creature *ch, struct Creature *killer,
-	int attacktype);
+obj_data *make_corpse(struct Creature *ch, struct Creature *killer,
+                     int attacktype);
 void check_object_killer(struct obj_data *obj, struct Creature *vict);
 void raw_kill(struct Creature *ch, struct Creature *killer, int attacktype);	// prototype
 bool is_arena_combat(struct Creature *ch, struct Creature *vict);
