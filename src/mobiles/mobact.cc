@@ -2731,7 +2731,6 @@ mobile_activity(void)
 					found = 1;
 					act("$n dissolves, and returns to $s home plane!",
 						TRUE, ch, 0, 0, TO_ROOM);
-					//extract_char(ch, FALSE);
 					ch->purge(true);
 				}
 				break;
@@ -2748,7 +2747,6 @@ mobile_activity(void)
 					found = 1;
 					act("$n dissipates, and returns to $s home plane!",
 						TRUE, ch, 0, 0, TO_ROOM);
-					//extract_char(ch, FALSE);
 					ch->purge(true);
 				}
 				break;
@@ -2762,7 +2760,6 @@ mobile_activity(void)
 					found = 1;
 					act("$n dissipates, and returns to $s home plane!",
 						TRUE, ch, 0, 0, TO_ROOM);
-					//extract_char(ch, FALSE);
 					ch->purge(true);
 				}
 				break;
@@ -2774,7 +2771,6 @@ mobile_activity(void)
 					found = 1;
 					act("$n dissipates, and returns to $s home plane!",
 						TRUE, ch, 0, 0, TO_ROOM);
-					//extract_char(ch, FALSE);
 					ch->purge(true);
 				}
 				break;
@@ -2782,7 +2778,6 @@ mobile_activity(void)
 				if (k) {
 					found = 1;
 					act("$n disappears.", TRUE, ch, 0, 0, TO_ROOM);
-					//extract_char(ch, FALSE);
 					ch->purge(true);
 				}
 			}
@@ -2800,6 +2795,7 @@ mobile_activity(void)
                 act("$n dematerializes, removing the chill from the air.",
                     TRUE, ch, 0, 0, TO_ROOM);
                 ch->purge(true);
+                continue;
             }
         }
         
