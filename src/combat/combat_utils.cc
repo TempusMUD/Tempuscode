@@ -127,7 +127,7 @@ update_pos(struct Creature *victim)
 	else if ((GET_HIT(victim) > 0)
 		&& (victim->getPosition() > POS_STUNNED)
 		&& victim->getPosition() < POS_FIGHTING && victim->numCombatants()) {
-		// If they're an npc, and thier wait is 0.
+		// If they're an npc, and their wait is 0.
 		if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
 			if (victim->getPosition() < POS_FIGHTING) {
 				if (!IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL) ||
@@ -204,15 +204,16 @@ update_pos(struct Creature *victim)
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
 				}
-            } else if (victim->getPosition() == POS_STUNNED) {
-                victim->setPosition(POS_RESTING, 1);
-#ifdef DEBUG_POSITION
-                act("$n moves to POS_RESTING.(From Stunned)", TRUE, victim, 0, 0,
-                    TO_ROOM);
-#endif
             }
-		}
-	}
+        } else if (victim->getPosition() == POS_STUNNED) {
+            victim->setPosition(POS_RESTING, 1);
+#ifdef DEBUG_POSITION
+            act("$n moves to POS_RESTING.(From Stunned)", TRUE, victim, 0, 0,
+                TO_ROOM);
+#endif
+        }
+    }
+
 	// Various stages of unhappiness
 	else if (GET_HIT(victim) <= -11)
 		victim->setPosition(POS_DEAD, 1);
