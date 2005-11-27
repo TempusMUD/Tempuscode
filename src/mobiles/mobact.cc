@@ -1741,7 +1741,7 @@ mobile_activity(void)
 		// nothing below this conditional affects FIGHTING characters
 		//
 
-		if (ch->numCombatants() || ch->getPosition() == POS_FIGHTING) {
+		if (ch->getPosition() == POS_FIGHTING || ch->numCombatants()) {
 			continue;
 		}
 
@@ -1749,11 +1749,10 @@ mobile_activity(void)
 		// meditate
 		// 
 		
-		if (IS_NEUTRAL(ch) && ch->getPosition() == POS_SITTING
-		&& IS_AFFECTED_2(ch, AFF2_MEDITATE)) 
-		{
+		if (IS_NEUTRAL(ch)
+            && ch->getPosition() == POS_SITTING
+            && IS_AFFECTED_2(ch, AFF2_MEDITATE))
 			perform_monk_meditate(ch);
-		} 
 
 		//
 		// Check if we've gotten knocked down.
@@ -1797,8 +1796,9 @@ mobile_activity(void)
 		// barbs go BERSERK (berserk)
 		//
 
-		if (GET_LEVEL(ch) < LVL_AMBASSADOR && AFF2_FLAGGED(ch, AFF2_BERSERK) &&
-            !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR
+            && AFF2_FLAGGED(ch, AFF2_BERSERK)
+            && !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 
 			int return_flags = 0;
 			if (perform_barb_berserk(ch, 0, &return_flags))
@@ -2130,8 +2130,10 @@ mobile_activity(void)
 			it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				vict = *it;
-				if (ch != vict && vict->numCombatants() && !vict->findCombat(ch) &&
-					can_see_creature(ch, vict)) {
+				if (ch != vict
+                    && vict->numCombatants()
+                    && !vict->findCombat(ch)
+                    && can_see_creature(ch, vict)) {
 
 					int fvict_help_prob =
 						helper_help_probability(ch, vict->findRandomCombat());
@@ -2217,7 +2219,6 @@ mobile_activity(void)
 				if (IS_ANIMAL(ch) && affected_by_spell(vict, SPELL_ANIMAL_KIN))
 					continue;
 
-				// DIVIDE BY ZERO ERROR! FPE!
 				if (GET_MORALE(ch) + GET_LEVEL(ch) <
 					number(GET_LEVEL(vict), (GET_LEVEL(vict) << 2) +
 						(MAX(1, (GET_HIT(vict)) * GET_LEVEL(vict))
