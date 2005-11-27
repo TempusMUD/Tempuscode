@@ -926,6 +926,8 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 			}
 		}
 
+        obj_p->normalizeApplies();
+
 		if (k >= MAX_OBJ_AFFECT) {
 			if (j)
 				send_to_char(ch, 

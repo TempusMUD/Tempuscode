@@ -344,6 +344,8 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 
 	}
 
+    this->normalizeApplies();
+
 	if (!OBJ_APPROVED(this)) {
 		slog("Unapproved object %d being junked from %s's rent.", 
 			 vnum, (victim && GET_NAME(victim)) ? GET_NAME(victim):"(none)");
@@ -607,6 +609,8 @@ obj_data::affectModify(struct tmp_obj_affect *af, bool add)
                 }
             }
 
+            this->normalizeApplies();
+            
             if (!found)
 				errlog("No affect locations trying to alter object affect on obj vnum %d, id %ld", GET_OBJ_VNUM(this), unique_id);
         }
@@ -703,6 +707,26 @@ obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
     }
 
     this->addAffect(af);
+}
+
+void
+obj_data::normalizeApplies(void)
+{
+    int i,j;
+
+    for (i = 0, j = 0;i < MAX_OBJ_AFFECT;i++,j++) {
+        while (j < MAX_OBJ_AFFECT
+               && (this->affected[j].location == APPLY_NONE
+                   || this->affected[j].modifier == 0))
+            j++;
+        if (j < MAX_OBJ_AFFECT) {
+            this->affected[i] = this->affected[j];
+        } else {
+            this->affected[i].location = APPLY_NONE;
+            this->affected[i].modifier = 0;
+        }
+            
+    }
 }
 
 struct tmp_obj_affect *

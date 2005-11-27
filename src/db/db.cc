@@ -2529,7 +2529,8 @@ randomize_object(struct obj_data *obj)
 			else
 				total_affs++;
 		}
-	
+	obj->normalizeApplies();
+
 	// Affects
 	for (idx = 0;idx < 32;idx++) {
 		bit = (1 << idx);
