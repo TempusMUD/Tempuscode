@@ -93,7 +93,7 @@ remove_fighting_affects(struct Creature *ch)
 	} else {
 		if (IS_AFFECTED(ch, AFF_CHARM) && IS_UNDEAD(ch))
 			ch->setPosition(POS_STANDING);
-		else if (ch->getPosition() > POS_STANDING)
+		else if (ch->getPosition() > POS_SITTING)
 			ch->setPosition(POS_STANDING);
 	}
 
