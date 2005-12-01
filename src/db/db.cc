@@ -3286,6 +3286,13 @@ free_obj(struct obj_data *obj)
 			}
 			obj->ex_description = NULL;
 		}
+        while (obj->tmp_affects) {
+            tmp_obj_affect *aff;
+
+            aff = obj->tmp_affects;
+            obj->removeAffect(aff);
+            free(aff);
+        }
 	}
 	free(obj);
 }
