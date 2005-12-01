@@ -146,7 +146,7 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	else
 		ch->die();
 
-    if (killer && PRF2_FLAGGED(killer, PRF2_AUTOLOOT)) 
+    if (killer && killer != ch && PRF2_FLAGGED(killer, PRF2_AUTOLOOT)) 
         perform_autoloot(killer, corpse);
 }
 
