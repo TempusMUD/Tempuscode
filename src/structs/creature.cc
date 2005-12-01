@@ -677,7 +677,7 @@ Creature::extract(cxn_state con_state)
 	char_from_room(this,false);
 
 	// pull the char from the various lists
-	combatList.remove(this);
+    removeAllCombat();
 	defendingList.remove(this);
 	huntingList.remove(this);
 	mountedList.remove(this);
@@ -925,23 +925,15 @@ Creature::clear(void)
     //
     // next remove all the combat this creature might be involved in
     //
-    CreatureList::iterator it = combatList.begin();
-    for (; it != combatList.end(); ++it) {
-        if (!*it)
-            continue;
-        (*it)->removeCombat(this);
-        if ((*it)->numCombatants() == 0)
-            combatList.remove((*it));
-    }
+    removeAllCombat();
     delete this->fighting;
-    this->fighting = NULL;
+
 	// At this point, everything should be freed, so we null the entire
 	// structure just to be sure
 	memset((char *)this, 0, sizeof(Creature));
 
-    this->fighting = new CombatDataList();
-    this->fighting->clear();
 	// And we reset all the values to their initial settings
+    this->fighting = new CombatDataList();
 	this->setPosition(POS_STANDING);
 	GET_CLASS(this) = -1;
 	GET_REMORT_CLASS(this) = -1;
@@ -1133,7 +1125,6 @@ Creature::die(void)
     room_data *died_in_room = in_room;
 
     removeAllCombat();
-    combatList.remove(this);
 
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
 	// their stuff to the room
@@ -1182,7 +1173,6 @@ Creature::npk_die(void)
     room_data *died_in_room = in_room;
 
     removeAllCombat();
-    combatList.remove(this);
 
 	if (!IS_NPC(this)) {
 		player_specials->rentcode = RENT_QUIT;
@@ -1214,7 +1204,6 @@ Creature::arena_die(void)
     // Remove any combat this character might have been involved in
     // And make sure all defending creatures stop defending
     removeAllCombat();
-    combatList.remove(this);
 
 	// Rent them out
 	if (!IS_NPC(this)) {
