@@ -453,7 +453,7 @@ prog_compile_handler(prog_compiler_state *compiler)
             prog_compile_error(compiler, cmd_token->linenum,
                                     "Expected parameter to *%s",
                                     cmd_token->sym);
-            return;
+            goto err;
     }
 
     // Retrieve the event type
@@ -465,7 +465,7 @@ prog_compile_handler(prog_compiler_state *compiler)
                                 "Invalid parameter '%s' to *%s",
                                 arg,
                                 cmd_token->sym);
-        return;
+        goto err;
     }
 
     // Add code to handle any other conditions attached to the handler
@@ -476,7 +476,7 @@ prog_compile_handler(prog_compiler_state *compiler)
             prog_compile_error(compiler, compiler->cur_token->linenum,
                                     "No command specified for *%s command",
                                     cmd_token->sym);
-            return;
+            goto err;
         }
 		prog_compiler_emit(compiler, PROG_CMD_CLRCOND, NULL, 0);
         while (*arg) {
@@ -484,7 +484,7 @@ prog_compile_handler(prog_compiler_state *compiler)
             if (cmd < 0) {
                 prog_compile_error(compiler, compiler->cur_token->linenum,
                                         "'%s' is not a valid command", arg);
-                return;
+                goto err;
             }
 			prog_compiler_emit(compiler, PROG_CMD_CMPCMD, &cmd, sizeof(int));
 
@@ -499,7 +499,7 @@ prog_compile_handler(prog_compiler_state *compiler)
             prog_compile_error(compiler, compiler->cur_token->linenum,
                                     "No spell numbers specified for *%s spell",
                                     cmd_token->sym);
-            return;
+            goto err;
         }
 		prog_compiler_emit(compiler, PROG_CMD_CLRCOND, NULL, 0);
         while (*arg) {
@@ -507,15 +507,14 @@ prog_compile_handler(prog_compiler_state *compiler)
                 prog_compile_error(compiler, compiler->cur_token->linenum,
                                         "Spell number expected, got '%s'",
                                         arg);
-                return;
+                goto err;
             }
             cmd = atoi(arg);
             if (cmd < 0 || cmd > max_spell_num || spells[cmd][0] == '!') {
                 prog_compile_error(compiler, compiler->cur_token->linenum,
                                         "%s is not a valid spell number",
                                         arg);
-                return;
-                
+                goto err;
             }
 
 			prog_compiler_emit(compiler, PROG_CMD_CMPCMD, &cmd, sizeof(int));
@@ -532,14 +531,14 @@ prog_compile_handler(prog_compiler_state *compiler)
                 prog_compile_error(compiler, compiler->cur_token->linenum,
                                         "Object vnum expected, got '%s'",
                                         arg);
-                return;
+                goto err;
             }
             cmd = atoi(arg);
             if (cmd < 0) {
                 prog_compile_error(compiler, compiler->cur_token->linenum,
                                         "%s is not a valid object vnum",
                                         arg);
-                return;
+                goto err;
             }
             if (!real_object_proto(cmd))
                 prog_compile_warning(compiler, compiler->cur_token->linenum,
@@ -561,7 +560,7 @@ prog_compile_handler(prog_compiler_state *compiler)
     if (!compiler->cur_token || compiler->cur_token->kind != PROG_TOKEN_EOL) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
                              "End of line expected.");
-        return;
+        goto err;
     }
 
     // Compile statements until an error or the next event handler
@@ -585,6 +584,11 @@ prog_compile_handler(prog_compiler_state *compiler)
         compiler->handlers[phase][event] = compiler->code;
     }
 
+    compiler->code = NULL;
+    return;
+
+err:
+    delete compiler->code;
     compiler->code = NULL;
 }
 
