@@ -1,4 +1,5 @@
 /* Memory debugging macros */
+#include <execinfo.h>
 #include "memtrack.h"
 
 void (*__malloc_initialize_hook)(void) = dbg_enable_tracking;
@@ -26,9 +27,16 @@ void _dbg_dump(void);
 void
 dbg_enable_tracking(void)
 {
+    void *dummy[1];
+
 	if (_dbg_enabled)
 		return;
 	_dbg_enabled = 1;
+
+    // This is needed to prevent a race condition where an initial
+    // backtrace would trigger a library load, which would attempt
+    // to allocate memory
+    backtrace(dummy, 1);
 
 	old_malloc_hook = __malloc_hook;
 	old_realloc_hook = __realloc_hook;
@@ -59,7 +67,8 @@ void *
 _dbg_alloc(size_t size, const void *return_addr)
 {
 	dbg_mem_blk *new_blk;
-	
+    void *traces[_DBG_BACKTRACES + 2];
+
 	if (_dbg_total_mem + size > 300 * 1024 * 1024)
 		raise(SIGSEGV);
 
@@ -77,8 +86,11 @@ _dbg_alloc(size_t size, const void *return_addr)
 	new_blk->serial_num = ++_dbg_serial_num;
 	new_blk->size = size;
 	new_blk->status = dbg_allocated;
-	new_blk->alloc_addr = return_addr;
-    new_blk->dealloc_addr = NULL;
+
+    // We cut off the first two backtrace entries, since they will
+    // inevitably be this function and an internal glibc call
+    backtrace(traces, _DBG_BACKTRACES + 2);
+    memcpy(new_blk->alloc_addr, traces + 2, sizeof(void *) * _DBG_BACKTRACES);
 
 	*((unsigned long *)(new_blk->data + size)) = _dbg_magic;
 
@@ -95,6 +107,8 @@ void
 _dbg_free(void *ptr, const void *return_addr)
 {
 	struct dbg_mem_blk *cur_blk;
+    void *traces[_DBG_BACKTRACES + 2];
+
 	if (!ptr)
 		return;
 	cur_blk = (struct dbg_mem_blk *)((char *)ptr - sizeof(struct dbg_mem_blk));
@@ -107,12 +121,15 @@ _dbg_free(void *ptr, const void *return_addr)
 
 	if (*((unsigned long *)(cur_blk->data + cur_blk->size)) != _dbg_magic) {
 		slog("MEMORY: Buffer overrun detected at (%p)\n         Block %lld was allocated at %p",
-			return_addr, cur_blk->serial_num, cur_blk->alloc_addr);
+			return_addr, cur_blk->serial_num, cur_blk->alloc_addr[0]);
 		return;
 	}
 	
     cur_blk->status = dbg_deallocated;
-    cur_blk->dealloc_addr = return_addr;
+    // We cut off the first two backtrace entries, since they will
+    // inevitably be this function and an internal glibc call
+    backtrace(traces, _DBG_BACKTRACES + 2);
+    memcpy(cur_blk->dealloc_addr, traces + 2, sizeof(void *) * _DBG_BACKTRACES);
 
 	// Remove from list of memory blocks
 	if (cur_blk->prev)
@@ -183,7 +200,7 @@ _dbg_dump(void)
 
 		fprintf(ouf, "%10llu %4i %p %p %s\n",
 			cur_blk->serial_num, cur_blk->size, cur_blk->data,
-			cur_blk->alloc_addr,
+			cur_blk->alloc_addr[0],
 			(cur_blk->status == dbg_corrupted) ? "OVERFLOWED":"");
 		
 		/*
@@ -267,14 +284,14 @@ dbg_check_now(char *str, bool abort_now)
 		if (cur_blk->status == dbg_allocated) {
 			if (cur_blk->magic != _dbg_magic) {
 				slog("MEMORY: Header corruption detected: %s (%p)",
-					str, cur_blk->alloc_addr);
+					str, cur_blk->alloc_addr[0]);
 			}
 			
 			if (*((unsigned long *)
 					(cur_blk->data + cur_blk->size)) != 0xAABBCCDD) {
 				cur_blk->status = dbg_corrupted;
 				slog("MEMORY: Footer corruption detected: %s (%p)",
-					str, cur_blk->alloc_addr);
+					str, cur_blk->alloc_addr[0]);
 				if (abort_now)
 					abort();
 			}
