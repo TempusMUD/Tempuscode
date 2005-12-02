@@ -74,11 +74,6 @@ ACMD(do_holytouch)
 int
 holytouch_after_effect(long owner, Creature * vict, int level)
 {
-	affected_type af;
-	af.location = APPLY_NONE;
-	af.is_instant = 0;
-	af.next = NULL;
-    af.owner = owner;
 	int dam = level * 2;
 
 	send_to_char(vict, "Visions of pure evil sear through your mind!\r\n");
@@ -97,14 +92,20 @@ holytouch_after_effect(long owner, Creature * vict, int level)
 	if (damage(vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH, WEAR_EYES))
 		return 1;
 	if (!IS_NPC(vict) || !MOB_FLAGGED(vict, MOB_NOBLIND)) {
+        affected_type af;
+
+        af.next = NULL;
 		af.type = TYPE_MALOVENT_HOLYTOUCH;
 		af.duration = level / 10;
 		af.modifier = -(level / 5);
 		af.location = APPLY_HITROLL;
 		af.bitvector = AFF_BLIND;
+        af.aff_index = 0;
 		af.is_instant = 0;
+        af.owner = owner;
+
+        affect_to_char(vict, &af);
 	}
-	affect_to_char(vict, &af);
 
 	return 0;
 }
