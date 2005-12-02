@@ -2946,11 +2946,17 @@ perform_violence(void)
         
         CombatDataList::iterator li = ch->getCombatList()->begin();
         for (; li != ch->getCombatList()->end(); ++li) {
-            if (ch->in_room != li->getOpponent()->in_room) {
-                li->getOpponent()->removeCombat(ch);
-                ch->removeCombat(li->getOpponent());
+			Creature *opp;
+
+			opp = li->getOpponent();
+            if (ch->in_room != opp->in_room) {
+                opp->removeCombat(ch);
+                ch->removeCombat(opp);
             }
         }
+
+		if (!ch->numCombatants())
+			continue;
         
 		if (IS_NPC(ch)) {
 			if (GET_MOB_WAIT(ch) > 0) {

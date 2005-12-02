@@ -114,6 +114,10 @@ template <class T> class SafeList:protected list <T> {
 			_saved = false;
 			return *this;
 		}
+		void invalidate(void)
+		{
+				_list = NULL;
+		}
 	  private:					// Functions
 		void operator = (const typename list <T>::iterator & it){
 			// If pointing to a list, unregister
@@ -132,6 +136,13 @@ template <class T> class SafeList:protected list <T> {
   SafeList(bool prepend = false):list <T> (), _iterators() {
 		_prepend = prepend;
 	}
+  virtual ~SafeList(void) {
+  	// Tell all the iterators that they no longer have a home
+        typename list <iterator *>::iterator sit = _iterators.begin();
+		for (; sit != _iterators.end(); ++sit) {
+			(*sit)->invalidate();
+		}
+  }
 	// Upgrades from list<T>
 	list <T>::size;
 	list <T>::insert;
