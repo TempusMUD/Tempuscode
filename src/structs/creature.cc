@@ -1124,6 +1124,7 @@ Creature::die(void)
 	int pos;
     room_data *died_in_room = in_room;
 
+    slog("%s (#%d) died in room %d", GET_NAME(this), GET_MOB_VNUM(this), in_room->number);
     removeAllCombat();
 
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
@@ -1484,7 +1485,7 @@ Creature::removeCombat(Creature *ch)
 
     CombatDataList::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
-        if (li->getOpponent() && li->getOpponent() == ch) {
+        if (li->getOpponent() == ch) {
             getCombatList()->remove(li);
             break;
         }
@@ -1502,11 +1503,10 @@ Creature::removeAllCombat()
     if (!getCombatList() || getCombatList()->empty())
         return;
 
-    CombatDataList::iterator li = getCombatList()->begin();
-    for(; li != getCombatList()->end(); ++li) {
-        if (li->getOpponent())
-            li->getOpponent()->removeCombat(this);
-    }
+    CreatureList::iterator cit = combatList.begin();
+    for (;cit != combatList.end(); ++cit)
+        (*cit)->removeCombat(this);
+
     getCombatList()->clear();
 
     remove_fighting_affects(this);
