@@ -1124,7 +1124,6 @@ Creature::die(void)
 	int pos;
     room_data *died_in_room = in_room;
 
-    slog("%s (#%d) died in room %d", GET_NAME(this), GET_MOB_VNUM(this), in_room->number);
     removeAllCombat();
 
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
