@@ -593,7 +593,7 @@ Creature::extract(cxn_state con_state)
 	if (in_room == NULL) {
 		errlog("NOWHERE extracting char. (handler.c, extract_char)");
 		slog("...extract char = %s", GET_NAME(this));
-		exit(1);
+		raise(SIGSEGV);
 	}
 
 	if (followers || master)
@@ -674,10 +674,11 @@ Creature::extract(cxn_state con_state)
 	if (desc && desc->original)
 		do_return(this, "", 0, SCMD_NOEXTRACT, 0);
 
+    removeAllCombat();
+
 	char_from_room(this,false);
 
 	// pull the char from the various lists
-    removeAllCombat();
 	defendingList.remove(this);
 	huntingList.remove(this);
 	mountedList.remove(this);
@@ -1499,16 +1500,20 @@ Creature::removeCombat(Creature *ch)
 void
 Creature::removeAllCombat()
 {
-    if (!getCombatList() || getCombatList()->empty())
-        return;
+    if (!getCombatList()) {
+        slog("getCombatList() returned NULL in removeAllCombat()!");
+        raise(SIGSEGV);
+    }
+
+    if (!getCombatList()->empty()) {
+        getCombatList()->clear();
+        remove_fighting_affects(this);
+    }
 
     CreatureList::iterator cit = combatList.begin();
     for (;cit != combatList.end(); ++cit)
         (*cit)->removeCombat(this);
 
-    getCombatList()->clear();
-
-    remove_fighting_affects(this);
     combatList.remove(this);
 }
 

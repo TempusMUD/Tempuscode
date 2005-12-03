@@ -3923,6 +3923,8 @@ do_show_stats(struct Creature *ch)
 		tr_count, dbg_memory_used() / (1024 * 1024));
     send_to_char(ch, "  %5u running progs (%u total)\r\n",
         prog_count(false), prog_count(true));
+    send_to_char(ch, "  %5u fighting creatures\r\n",
+		combatList.size());
     send_to_char(ch, "  Lunar day: %2d, phase: %s (%d)\r\n",
         lunar_day, lunar_phases[get_lunar_phase(lunar_day)],
 		get_lunar_phase(lunar_day));
@@ -8147,6 +8149,7 @@ static const char* CODER_UTIL_USAGE =
 					"    cmdusage - shows commands and usage counts.\r\n"
 					"  unusedcmds - shows unused commands.\r\n"
 					"      verify - run tempus integrity check.\r\n"
+					"       chaos - makes every mob berserk.\r\n"
                     ;
 ACMD(do_coderutil)
 {
@@ -8198,6 +8201,16 @@ ACMD(do_coderutil)
 		page_string(ch->desc, buf);
 	} else if (strcmp(token, "verify") == 0) {
 		verify_tempus_integrity(ch);
+	} else if (strcmp(token, "chaos") == 0) {
+		CreatureList::iterator cit = characterList.begin();
+
+		for (;cit != characterList.end();++cit) {
+			int ret_flags;
+			Creature *attacked;
+			perform_barb_berserk(*cit, &attacked, &ret_flags);
+		}
+		send_to_char(ch, "The entire world goes mad...\r\n");
+		slog("%s has doomed the world to chaos.", GET_NAME(ch));
 	} else
         send_to_char(ch, CODER_UTIL_USAGE);
 }
