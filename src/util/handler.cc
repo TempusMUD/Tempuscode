@@ -2287,24 +2287,33 @@ get_obj_vis(struct Creature *ch, char *name)
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
-	/* scan items carried */
-	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)))
-		return i;
+	if (is_number(name)) {
+		// Scan the object list for the unique ID given by the number
+		number = atoi(name);
+		for (i = object_list; i; i = i->next)
+			if (i->unique_id == number && can_see_object(ch, i))
+				return i;
+	} else {
+		/* scan items carried */
+		if ((i = get_obj_in_list_vis(ch, name, ch->carrying)))
+			return i;
 
-	/* scan room */
-	if ((i = get_obj_in_list_vis(ch, name, ch->in_room->contents)))
-		return i;
+		/* scan room */
+		if ((i = get_obj_in_list_vis(ch, name, ch->in_room->contents)))
+			return i;
 
-	strcpy(tmp, name);
-	if (!(number = get_number(&tmp)))
-		return NULL;
+		strcpy(tmp, name);
+		if (!(number = get_number(&tmp)))
+			return NULL;
 
-	/* ok.. no luck yet. scan the entire obj list   */
-	for (i = object_list; i && (j <= number); i = i->next)
-		if (isname(tmp, i->aliases))
-			if (can_see_object(ch, i))
-				if (++j == number)
+		/* ok.. no luck yet. scan the entire obj list   */
+		for (i = object_list; i && (j <= number); i = i->next)
+			if (isname(tmp, i->aliases) && can_see_object(ch, i)) {
+				j++;
+				if (j == number)
 					return i;
+			}
+	}
 
 	return NULL;
 }
