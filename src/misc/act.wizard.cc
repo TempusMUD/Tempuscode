@@ -8658,12 +8658,12 @@ check_ptr(void *ptr, size_t expected_len, const char *str, int vnum)
 
 	mem = dbg_get_block(ptr);
 	if (!mem) {
-		slog("Invalid pointer found in %s %d\r\n", str, vnum);
+		slog("Invalid pointer found in %s %d", str, vnum);
 		return false;
 	}
 
 	if (expected_len > 0 && mem->size != expected_len) {
-		slog("Expected block of size %d, got size %d in %s %d\r\n",
+		slog("Expected block of size %d, got size %d in %s %d",
              expected_len, mem->size, str, vnum);
 		return false;
 	}
@@ -8692,7 +8692,7 @@ verify_tempus_integrity(Creature *ch)
 		vict = mit->second;
 
 		if (!vict->player.name)
-			send_to_char(ch, "Alias of creature proto #%d (%s) is NULL!\r\n",
+			slog("Alias of creature proto #%d (%s) is NULL!",
 				MOB_IDNUM(vict), vict->player.short_descr);
 		check_ptr(vict->player.name, 0,
 			"aliases of creature proto", MOB_IDNUM(vict));
@@ -8737,7 +8737,7 @@ verify_tempus_integrity(Creature *ch)
 		}
 
 		if (vict->mob_specials.shared->proto != vict)
-			send_to_char(ch, "Prototype of prototype is not itself on mob %d\r\n",
+			slog("Prototype of prototype is not itself on mob %d",
 				MOB_IDNUM(vict));
 	}
 
@@ -8883,7 +8883,7 @@ verify_tempus_integrity(Creature *ch)
                                "object in room", room->number))
                     break;
                 if (contained->in_room != room) {
-                    send_to_char(ch, "expected object %ld carrier = room %d (%p), got %p\r\n",
+                    slog("expected object %ld carrier = room %d (%p), got %p",
                                  contained->unique_id,
                                  room->number,
                                  room,
@@ -8897,7 +8897,7 @@ verify_tempus_integrity(Creature *ch)
 	// Check tmpstr module
 	err = tmp_string_test();
 	if (err)
-		send_to_char(ch, "%s\r\n", err);
+		slog("%s", err);
 
 	// Check zones
 	// Check mobiles in game
@@ -8932,7 +8932,7 @@ verify_tempus_integrity(Creature *ch)
                                       "object carried by mobile vnum %d", GET_MOB_VNUM(vict)))
                 break;
             if (contained->carried_by != vict) {
-                send_to_char(ch, "expected object %ld carrier = mob %d (%p), got %p\r\n",
+                slog("expected object %ld carrier = mob %d (%p), got %p",
                              contained->unique_id,
                              GET_MOB_VNUM(vict),
                              vict,
@@ -8980,7 +8980,7 @@ verify_tempus_integrity(Creature *ch)
               obj->in_obj ||
               obj->carried_by ||
               obj->worn_by))
-            send_to_char(ch, "object %lu stuck in limbo", obj->unique_id);
+            slog("object %lu stuck in limbo", obj->unique_id);
 
         for (contained = obj->contains;
              contained;
@@ -8989,7 +8989,7 @@ verify_tempus_integrity(Creature *ch)
                                       "object contained by object", obj->unique_id))
                 break;
             if (contained->in_obj != obj) {
-                send_to_char(ch, "expected object %lu's in_obj = obj %lu(%p), got %p\r\n",
+                slog("expected object %lu's in_obj = obj %lu(%p), got %p",
                              contained->unique_id,
                              obj->unique_id,
                              obj,
@@ -9011,5 +9011,5 @@ verify_tempus_integrity(Creature *ch)
 	// Check dyntext items
 	// Check help
 	// Check security groups
-
+	send_to_char(ch, "Tempus verification results sent to syslog.\r\n");
 }
