@@ -2287,11 +2287,11 @@ get_obj_vis(struct Creature *ch, char *name)
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
-	if (is_number(name)) {
+	if (is_number(name) && Security::isMember(ch, "Coder")) {
 		// Scan the object list for the unique ID given by the number
 		number = atoi(name);
 		for (i = object_list; i; i = i->next)
-			if (i->unique_id == number && can_see_object(ch, i))
+			if (i->unique_id == number)
 				return i;
 	} else {
 		/* scan items carried */

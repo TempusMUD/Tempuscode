@@ -1322,6 +1322,16 @@ prog_do_oload(prog_env * env, prog_evt * evt, char *args)
 	if (!obj)
 		return;
 	obj->creation_method = CREATED_PROG;
+	switch (env->owner_type) {
+	case PROG_TYPE_OBJECT:
+		obj->creator = GET_OBJ_VNUM((obj_data *)env->owner); break;
+	case PROG_TYPE_ROOM:
+		obj->creator = ((room_data *)env->owner)->number; break;
+	case PROG_TYPE_MOBILE:
+		obj->creator = GET_MOB_VNUM((Creature *)env->owner); break;
+	default:
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+	}
 
 	if (!*target_str || !strcasecmp(target_str, "room")) {
 		if (target_num == -1) {
@@ -1355,6 +1365,9 @@ prog_do_oload(prog_env * env, prog_evt * evt, char *args)
 		default:
 			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		}
+	} else {
+		// Bad target str, so we need to free the object
+		extract_obj(obj);
 	}
 }
 

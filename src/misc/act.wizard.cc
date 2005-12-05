@@ -1247,6 +1247,11 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
 				playerIndex.getName(j->creator),
 				tmp_ctime(j->creation_time));
 			break;
+		case CREATED_PROG:
+			send_to_char(ch, "Created by prog (mob or room #%ld) on %s\r\n",
+				j->creator,
+				tmp_ctime(j->creation_time));
+			break;
 		default:
 			send_to_char(ch, "Created on %s\r\n", tmp_ctime(j->creation_time));
 			break;
