@@ -3291,7 +3291,6 @@ free_obj(struct obj_data *obj)
 
             aff = obj->tmp_affects;
             obj->removeAffect(aff);
-            free(aff);
         }
 	}
 	free(obj);
