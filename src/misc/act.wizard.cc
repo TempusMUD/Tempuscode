@@ -8663,12 +8663,12 @@ check_ptr(void *ptr, size_t expected_len, const char *str, int vnum)
 
 	mem = dbg_get_block(ptr);
 	if (!mem) {
-		slog("Invalid pointer found in %s %d", str, vnum);
+		slog("CHECK: Invalid pointer found in %s %d", str, vnum);
 		return false;
 	}
 
 	if (expected_len > 0 && mem->size != expected_len) {
-		slog("Expected block of size %d, got size %d in %s %d",
+		slog("CHECK: Expected block of size %d, got size %d in %s %d",
              expected_len, mem->size, str, vnum);
 		return false;
 	}
@@ -8697,7 +8697,7 @@ verify_tempus_integrity(Creature *ch)
 		vict = mit->second;
 
 		if (!vict->player.name)
-			slog("Alias of creature proto #%d (%s) is NULL!",
+			slog("CHECK: Alias of creature proto #%d (%s) is NULL!",
 				MOB_IDNUM(vict), vict->player.short_descr);
 		check_ptr(vict->player.name, 0,
 			"aliases of creature proto", MOB_IDNUM(vict));
@@ -8742,7 +8742,7 @@ verify_tempus_integrity(Creature *ch)
 		}
 
 		if (vict->mob_specials.shared->proto != vict)
-			slog("Prototype of prototype is not itself on mob %d",
+			slog("CHECK: Prototype of prototype is not itself on mob %d",
 				MOB_IDNUM(vict));
 	}
 
@@ -8888,7 +8888,7 @@ verify_tempus_integrity(Creature *ch)
                                "object in room", room->number))
                     break;
                 if (contained->in_room != room) {
-                    slog("expected object %ld carrier = room %d (%p), got %p",
+                    slog("CHECK: expected object %ld carrier = room %d (%p), got %p",
                                  contained->unique_id,
                                  room->number,
                                  room,
@@ -8902,7 +8902,7 @@ verify_tempus_integrity(Creature *ch)
 	// Check tmpstr module
 	err = tmp_string_test();
 	if (err)
-		slog("%s", err);
+		slog("CHECK: %s", err);
 
 	// Check zones
 	// Check mobiles in game
@@ -8918,14 +8918,14 @@ verify_tempus_integrity(Creature *ch)
                 && check_ptr(GET_EQ(vict, idx), sizeof(obj_data),
                              "object worn by mobile", GET_MOB_VNUM(vict))) {
                 if (GET_EQ(vict, idx)->worn_by != vict)
-                    slog("expected object wearer wrong!");
+                    slog("CHECK: expected object wearer wrong!");
                 
             }
             if (GET_IMPLANT(vict, idx)
                 && check_ptr(GET_IMPLANT(vict, idx), sizeof(obj_data),
                              "object implanted in mobile", GET_MOB_VNUM(vict))) {
                 if (GET_IMPLANT(vict, idx)->worn_by != vict)
-                    slog("expected object implanted wrong!");
+                    slog("CHECK: expected object implanted wrong!");
                 
             }
         }
@@ -8937,7 +8937,7 @@ verify_tempus_integrity(Creature *ch)
                                       "object carried by mobile vnum %d", GET_MOB_VNUM(vict)))
                 break;
             if (contained->carried_by != vict) {
-                slog("expected object %ld carrier = mob %d (%p), got %p",
+                slog("CHECK: expected object %ld carrier = mob %d (%p), got %p",
                              contained->unique_id,
                              GET_MOB_VNUM(vict),
                              vict,
@@ -8985,7 +8985,7 @@ verify_tempus_integrity(Creature *ch)
               obj->in_obj ||
               obj->carried_by ||
               obj->worn_by))
-            slog("object %lu stuck in limbo", obj->unique_id);
+            slog("CHECK: object %lu stuck in limbo", obj->unique_id);
 
         for (contained = obj->contains;
              contained;
@@ -8994,7 +8994,7 @@ verify_tempus_integrity(Creature *ch)
                                       "object contained by object", obj->unique_id))
                 break;
             if (contained->in_obj != obj) {
-                slog("expected object %lu's in_obj = obj %lu(%p), got %p",
+                slog("CHECK: expected object %lu's in_obj = obj %lu(%p), got %p",
                              contained->unique_id,
                              obj->unique_id,
                              obj,
