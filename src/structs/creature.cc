@@ -579,11 +579,14 @@ Creature::extract(cxn_state con_state)
 {
 	ACMD(do_return);
 	void die_follower(struct Creature *ch);
+    void verify_tempus_integrity(Creature *);
 
 	struct obj_data* obj;
 	struct descriptor_data* t_desc;
 	int idx;
 	CreatureList::iterator cit;
+
+    verify_tempus_integrity(NULL);
 
 	if (!IS_NPC(this) && !desc) {
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
@@ -657,6 +660,7 @@ Creature::extract(cxn_state con_state)
 			desc->snoop_by.clear();
 		}
 	}
+
 	// destroy all that equipment
 	for (idx = 0; idx < NUM_WEARS; idx++) {
 		if (GET_EQ(this, idx))
@@ -664,6 +668,7 @@ Creature::extract(cxn_state con_state)
 		if (GET_IMPLANT(this, idx))
 			extract_obj(unequip_char(this, idx, MODE_IMPLANT, true));
 	}
+
 	// transfer inventory to room, if any
 	while (carrying) {
 		obj = carrying;

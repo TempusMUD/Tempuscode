@@ -91,7 +91,7 @@ obj_data::saveToXML(FILE *ouf)
     }
 
     // Detach the list of temp affects from the object and remove them
-    // with deleteing them
+    // without deleting them
     af_head = this->tmp_affects;
     for (af = af_head; af; af = af->next)
         this->affectModify(af, false);
