@@ -2475,23 +2475,8 @@ ACMD(do_return)
     struct Creature *orig = NULL;
     bool cloud_found = false;
 
-    if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
-        if (ch->numCombatants()) {
-            send_to_char(ch, "No way!  You're fighting for your life!\r\n");
-        } else if (GET_LEVEL(ch) <= LVL_CAN_RETURN) {
-            act("A whirling globe of multi-colored light appears and whisks you away!", FALSE, ch, NULL, NULL, TO_CHAR);
-            act("A whirling globe of multi-colored light appears and whisks $n away!", FALSE, ch, NULL, NULL, TO_ROOM);
-            char_from_room(ch,false);
-            char_to_room(ch, GET_START_ROOM(ch),false);
-            look_at_room(ch, ch->in_room, 0);
-            act("A whirling globe of multi-colored light appears and deposits $n on the floor!", FALSE, ch, NULL, NULL, TO_ROOM);
-        } else
-            send_to_char(ch, "There is no need to return.\r\n");
-        return;
-    }
-
     if (ch->desc && (orig = ch->desc->original)) {
-
+        // Return from being switched or gasified
         if (IS_MOB(ch) && GET_MOB_VNUM(ch) == 1518) {
             cloud_found = true;
             if (subcmd == SCMD_RETURN) {
@@ -2520,8 +2505,22 @@ ACMD(do_return)
             if (subcmd != SCMD_NOEXTRACT)
                 ch->purge(true);
         }
-    } else
+    } else if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
+        // Return to newbie start room
+        if (ch->numCombatants()) {
+            send_to_char(ch, "No way!  You're fighting for your life!\r\n");
+        } else if (GET_LEVEL(ch) <= LVL_CAN_RETURN) {
+            act("A whirling globe of multi-colored light appears and whisks you away!", FALSE, ch, NULL, NULL, TO_CHAR);
+            act("A whirling globe of multi-colored light appears and whisks $n away!", FALSE, ch, NULL, NULL, TO_ROOM);
+            char_from_room(ch,false);
+            char_to_room(ch, GET_START_ROOM(ch),false);
+            look_at_room(ch, ch->in_room, 0);
+            act("A whirling globe of multi-colored light appears and deposits $n on the floor!", FALSE, ch, NULL, NULL, TO_ROOM);
+        } else
+            send_to_char(ch, "There is no need to return.\r\n");
+    } else {
         send_to_char(ch, "There is no need to return.\r\n");
+    }
 }
 
 #undef GET_START_ROOM

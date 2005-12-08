@@ -593,6 +593,10 @@ Creature::extract(cxn_state con_state)
 			if (t_desc->original == this)
 				do_return(t_desc->creature, "", 0, SCMD_FORCED, 0);
 	}
+    if (desc && desc->original) {
+        do_return(desc->creature, "", 0, SCMD_FORCED, 0);
+    }
+
 	if (in_room == NULL) {
 		errlog("NOWHERE extracting char. (handler.c, extract_char)");
 		slog("...extract char = %s", GET_NAME(this));
