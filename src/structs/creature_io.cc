@@ -150,8 +150,9 @@ Creature::payRent(time_t last_time, int code, int currency)
 			if (!doomed_obj)
 				break;
 
-			slog("%s sold for %d %s to cover %s's rent",
+			slog("%s (%lu) sold for %d %s to cover %s's rent",
 				tmp_capitalize(doomed_obj->name),
+				doomed_obj->unique_id,
 				GET_OBJ_COST(doomed_obj),
 				(currency == TIME_ELECTRO) ? "creds":"gold",
 				GET_NAME(this));

@@ -21,6 +21,7 @@
 #include <vector>
 #include <algorithm>
 #include <string.h>
+#include <execinfo.h>
 using namespace std;
 
 #include "structs.h"
@@ -8656,7 +8657,11 @@ ACMD(do_delete)
 void
 check_log(Creature *ch, const char *fmt, ...)
 {
+    const int MAX_FRAMES = 10;	
 	va_list args;
+	const char *backtrace_str = "";
+    void *ret_addrs[MAX_FRAMES + 1];
+    int x = 0;
     char *msg;
 
 	va_start(args, fmt);
@@ -8665,7 +8670,19 @@ check_log(Creature *ch, const char *fmt, ...)
 
     if (ch)
         send_to_char(ch, "%s\r\n", msg);
-    errlog("CHECK: %s", msg);
+
+    memset(ret_addrs, 0x0, sizeof(ret_addrs));
+    backtrace(ret_addrs, MAX_FRAMES);
+
+    while (x < MAX_FRAMES && ret_addrs[x]) {
+		backtrace_str = tmp_sprintf("%s%p%s", backtrace_str, ret_addrs[x],
+                (ret_addrs[x + 1]) ? " < " : "");
+        x++;
+    }
+
+	mlog(Security::NOONE, LVL_AMBASSADOR, NRM, true, "CHECK: %s", msg);
+	mlog(Security::NOONE, LVL_AMBASSADOR, NRM, true,
+		"TRACE: %s", backtrace_str);
 }
 
 bool
