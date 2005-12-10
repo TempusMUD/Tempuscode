@@ -615,7 +615,8 @@ CEditor::ProcessHelp(char *inStr)
             // TODO: this should use virtual dispatch for extensibility.
             send_to_desc(desc,
                          "            &YC - &nClear Buffer         &YA - &nAdd Recipient\r\n"
-                         "            &YT - &nList Recipients      &YE - &nRemove Recipient\r\n");
+                         "            &YT - &nList Recipients      &YE - &nRemove Recipient\r\n"
+                         "            &YP - &nAttach Package\r\n");
         } else {
             send_to_desc(desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
         }

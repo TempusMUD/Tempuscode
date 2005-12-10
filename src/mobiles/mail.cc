@@ -119,12 +119,12 @@ mail_box_status(long id)
 // Returns 0 if mail not stored.
 int
 store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
-    time_t *cur_time)
+    time_t *cur_time, struct obj_data *obj_list)
 {
     char *mail_file_path;
     FILE *ofile;
-    char *time_str;
-    struct obj_data *obj;
+    char *time_str, *obj_string = NULL;
+    struct obj_data *obj, *temp_o;
     struct stat stat_buf;
     time_t now = time(NULL);
     list<obj_data*> mailBag;
@@ -173,7 +173,15 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
 			acc_strcat((si == cc_list.begin()) ? "\r\n  CC: ":", ",
 				si->c_str(), NULL);
 	}
-
+    if (obj_list) {
+        acc_strcat("\r\nPackages attached to this mail:\r\n", NULL);
+        temp_o = obj_list;
+        while (temp_o) {
+            obj_string = tmp_sprintf("  %s\r\n", temp_o->name);
+            acc_strcat(obj_string, NULL);
+            temp_o = temp_o->next_content;
+        }
+    }
 	acc_strcat("\r\n\r\n", txt, NULL);
     
     obj->action_desc = strdup(acc_get_string());
@@ -193,6 +201,14 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
         for (oi = mailBag.begin(); oi != mailBag.end(); oi++) {
             (*oi)->saveToXML(ofile);
             extract_obj(*oi);
+        }
+        if (obj_list) {
+            temp_o = obj_list;
+            while (temp_o) {
+                temp_o->saveToXML(ofile);
+                extract_obj(temp_o);
+                temp_o = temp_o->next_content;
+            }
         }
         fprintf(ofile, "</objects>");
         fclose(ofile);
@@ -219,7 +235,7 @@ purge_mail(long idnum)
 //     telling him.  We'll let the spec say what it wants.
 // Returns the number of mails received.
 int
-receive_mail(Creature * ch)
+receive_mail(Creature * ch, list<struct obj_data *> &olist)
 {
     int num_letters = 0;
     int counter = 0;
@@ -227,7 +243,6 @@ receive_mail(Creature * ch)
     bool container = false;
     list<obj_data *> mailBag;
     
-
     mailBag = load_mail(path);
 
     if (mailBag.size() > MAIL_BAG_THRESH )
@@ -241,7 +256,12 @@ receive_mail(Creature * ch)
         
     for (oi = mailBag.begin(); oi != mailBag.end(); oi++) {
         counter++;
-        num_letters++;
+
+        if (GET_OBJ_VNUM(*oi) == MAIL_OBJ_VNUM)
+            num_letters++;
+        else 
+            olist.push_back((*oi));
+
         if ((counter > MAIL_BAG_OBJ_CONTAINS) && container) {
             obj_to_char(obj, ch);
             obj = read_object(MAIL_BAG_OBJ_VNUM);
@@ -260,7 +280,7 @@ receive_mail(Creature * ch)
 
     unlink(path);
     
-    return num_letters;
+   return num_letters;
 }
 
 
@@ -501,37 +521,63 @@ void
 postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
     int cmd, char *arg)
 {
-    char buf2[256];
+    char *to_char, *to_room; 
     int num_mails = 0;
+    list<struct obj_data *> olist;
 
     if (!has_mail(GET_IDNUM(ch))) {
-        strcpy(buf2, "Sorry, you don't have any mail waiting.");
-        perform_tell(mailman, ch, buf2);
+        to_char = tmp_sprintf("Sorry, you don't have any mail waiting.");
+        perform_tell(mailman, ch, to_char);
         return;
     }
 
-    num_mails = receive_mail(ch);
+    num_mails = receive_mail(ch, olist);
 
     if (num_mails == 0) {
-        strcpy(buf2, "Sorry, you don't have any mail waiting.");
-        perform_tell(mailman, ch, buf2);
+        to_char = tmp_sprintf("Sorry, you don't have any mail waiting.");
+        perform_tell(mailman, ch, to_char);
     }
     else if (num_mails > MAIL_BAG_THRESH) {
         num_mails = num_mails / MAIL_BAG_OBJ_CONTAINS + 1;
-        sprintf(buf2, "$n gives you %d bag%s of mail.", num_mails,
+        to_char = tmp_sprintf("$n gives you %d bag%s of mail", num_mails,
                (num_mails > 1 ? "s" : ""));
-        act(buf2, FALSE, mailman, 0, ch, TO_VICT);
-        sprintf(buf2, "$N gives $n %d bag%s of mail.", num_mails,
+        to_room = tmp_sprintf("$N gives $n %d bag%s of mail", num_mails,
                (num_mails > 1 ? "s" : ""));
-        act(buf2, FALSE, ch, 0, mailman, TO_ROOM);
     }
     else {
-        sprintf(buf2, "$n gives you %d piece%s of mail.", num_mails,
+        to_char = tmp_sprintf("$n gives you %d piece%s of mail", num_mails,
             (num_mails > 1 ? "s" : ""));
-        act(buf2, FALSE, mailman, 0, ch, TO_VICT);
-        sprintf(buf2, "$N gives $n %d piece%s of mail.", num_mails,
+        to_room = tmp_sprintf("$N gives $n %d piece%s of mail", num_mails,
             (num_mails > 1 ? "s" : ""));
-        act(buf2, FALSE, ch, 0, mailman, TO_ROOM);
     }
+
+    if (olist.size()) {
+        if (olist.size() > 1) {
+            to_room = tmp_strcat(to_room, " and some packages.", NULL);
+        }
+        else {
+            to_room = tmp_strcat(to_room, " and a package.", NULL);
+        }
+
+        list<struct obj_data *>::iterator li = olist.begin();
+        unsigned counter = 0;
+        for (; li != olist.end(); ++li) {
+            counter++;             
+            if (counter == olist.size()) {
+                to_char = tmp_strcat(to_char, " and ", (*li)->name, NULL);
+            }
+            else {
+                to_char = tmp_strcat(to_char, ", ", (*li)->name, NULL);
+            }
+        }
+    }
+    else {
+        to_char = tmp_strcat(to_char, ".", NULL);
+        to_room = tmp_strcat(to_char, ".", NULL);
+    }
+    
+    act(to_char, FALSE, mailman, 0, ch, TO_VICT);
+    act(to_room, FALSE, ch, 0, mailman, TO_ROOM);
+    
     ch->saveToXML();
 }

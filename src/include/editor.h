@@ -89,6 +89,7 @@ public:
     {
         return false;
     }
+
 protected:
     CMailEditor(void);
 
@@ -97,10 +98,14 @@ protected:
     virtual void Finalize(const char *text);
 
 	void ListRecipients(void);
+	void ListAttachments(void);
 	void AddRecipient(char *name);
 	void RemRecipient(char *name);
+	void AddAttachment(char *obj);
+    void ReturnAttachments(void);
 
     mail_recipient_data *mail_to;
+    struct obj_data *obj_list;
 };
 
 class CProgEditor : public CEditor {

@@ -64,8 +64,8 @@ void string_add(struct descriptor_data *d, char *str);
 int has_mail(long recipient);
 int has_mail(Creature * ch);
 int store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
-	time_t * cur_time = NULL);
-int receive_mail(Creature * ch);
+	time_t * cur_time = NULL, struct obj_data *obj_list = NULL);
+int receive_mail(Creature * ch, list<obj_data *> &olist);
 int purge_mail(long idnum);
 
 

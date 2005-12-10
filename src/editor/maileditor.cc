@@ -23,6 +23,7 @@ using namespace std;
 #include "help.h"
 #include "comm.h"
 #include "player_table.h"
+#include "bomb.h"
 
 void
 start_editing_mail(descriptor_data *d, mail_recipient_data *recipients)
@@ -45,18 +46,32 @@ CMailEditor::CMailEditor(descriptor_data *desc,
 {
     mail_to = recipients;
 
+    obj_list = NULL;
+
     SendStartupMessage();
     DisplayBuffer();
 }
 
 CMailEditor::~CMailEditor(void)
 {
+    void extract_obj(struct obj_data *obj);
+
     mail_recipient_data *next_rcpt;
+    struct obj_data *o, *next_obj;
 
     while (mail_to) {
         next_rcpt = mail_to->next;
         free(mail_to);
         mail_to = next_rcpt;
+    }
+
+    if (this->obj_list) {
+        o = this->obj_list;
+        while (o) {
+            next_obj = o->next_content;
+            extract_obj(o);
+            o = next_obj;
+        }
     }
 }
 
@@ -65,6 +80,7 @@ CMailEditor::DisplayBuffer(unsigned int start_line)
 {
     if (start_line == 1) {
         ListRecipients();
+        ListAttachments();
         send_to_desc(desc, "\r\n");
     }
     CEditor::DisplayBuffer(start_line);
@@ -77,6 +93,7 @@ CMailEditor::PerformCommand(char cmd, char *args)
 	case 't':
 		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			ListRecipients();
+            ListAttachments();
 			break;
 		}
 	case 'a':
@@ -87,6 +104,11 @@ CMailEditor::PerformCommand(char cmd, char *args)
 	case 'e':
 		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
 			RemRecipient(args);
+			break;
+		}
+	case 'p':
+		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
+			AddAttachment(args);
 			break;
 		}
     default:
@@ -107,6 +129,7 @@ CMailEditor::Finalize(const char *text)
 	// If they're trying to send a blank message
 	if (!*text) {
 		SendMessage("Why would you send a blank message?\r\n");
+        ReturnAttachments();
         return;
 	}
 
@@ -126,7 +149,8 @@ CMailEditor::Finalize(const char *text)
     list<string>::iterator si;
     for (si = cc_list.begin(); si != cc_list.end(); si++) {
         long id = playerIndex.getID(si->c_str());
-        stored_mail = store_mail(id, GET_IDNUM(desc->creature), text,  cc_list);
+        stored_mail = store_mail(id, GET_IDNUM(desc->creature), 
+                text,  cc_list, NULL, this->obj_list);
         if (stored_mail == 1) {
             for (r_d = descriptor_list; r_d; r_d = r_d->next) {
                 if (IS_PLAYING(r_d) && r_d->creature &&
@@ -171,6 +195,32 @@ CMailEditor::ListRecipients(void)
 }
 
 void
+CMailEditor::ListAttachments(void)
+{
+    struct obj_data *o, *next_obj;
+
+    if (!obj_list) {
+        return;
+    }
+    
+    send_to_desc(desc, "     &y\r\nPackages attached to this mail&b: &c\r\n");
+
+    if (this->obj_list) {
+        o = this->obj_list;
+        while (o) {
+            next_obj = o->next_content;
+            send_to_desc(desc, "       ");
+            send_to_desc(desc, o->name);
+            o = next_obj;
+            if (next_obj) {
+                send_to_desc(desc, ",\r\n");
+            }
+        }
+    }
+    send_to_desc(desc, "&n\r\n");
+}
+
+void
 CMailEditor::AddRecipient(char *name)
 {
 	long new_id_num = 0;
@@ -184,6 +234,12 @@ CMailEditor::AddRecipient(char *name)
 		SendMessage("Cannot find anyone by that name.\r\n");
 		return;
 	}
+
+    if (this->obj_list) {
+		SendMessage("You cannot send a package to more than one "
+                "recipient.\r\n");
+		return;
+    }
 
 	new_rcpt = (mail_recipient_data *)malloc(sizeof(mail_recipient_data));
 	new_rcpt->recpt_idnum = new_id_num;
@@ -357,4 +413,127 @@ CMailEditor::RemRecipient(char *name)
 	SendMessage(msg);
 
 	return;
+}
+
+void
+CMailEditor::AddAttachment(char *obj_name)
+{
+    struct obj_data *obj = NULL, *o = NULL;
+    char *msg;
+	const char *money_desc;
+    unsigned money, cost;
+
+    extern struct obj_data * get_obj_in_list_all(struct Creature *ch, 
+            char *name, struct obj_data *list);
+    extern void obj_to_char(struct obj_data *object, struct Creature *ch, 
+            bool sorted);
+    extern void obj_from_char(struct obj_data *object);
+    
+    obj = get_obj_in_list_all(this->desc->creature, obj_name, 
+            this->desc->creature->carrying);
+
+    if (!obj) {
+        msg = tmp_sprintf("You don't seem to have %s %s.\r\n",
+                AN(obj_name), obj_name);
+        SendMessage(msg);
+        return;
+    }
+
+    if (IS_BOMB(obj) && obj->contains && 
+            IS_FUSE(obj->contains) && FUSE_STATE(obj->contains)) {
+        SendMessage("The postmaster refuses to mail your package.\r\n");
+        return;
+    }
+
+	if (mail_to->next) {
+		SendMessage("You cannot send a package to more than one "
+                "recipiant.\r\n");
+		return;
+    }
+
+    if (obj_list) {
+        int obj_count = 0;
+        o = this->obj_list;
+        for (o = this->obj_list; o->next_content; o = o->next_content) {
+            obj_count++;
+            if (obj_count >= 5) {
+                SendMessage("You may not attach any more packages to "
+                        "this mail\r\n");
+                return;
+            }
+        }
+    }
+
+	if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+		if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
+			money_desc = "creds";
+			money = GET_CASH(desc->creature);
+		} else {
+			money_desc = "gold";
+			money = GET_GOLD(desc->creature);
+		}
+
+		cost = obj->getWeight() * 20;
+
+		if (money < cost) {
+			SendMessage(tmp_sprintf("You don't have the %d %s necessary to "
+                        "send %s.\r\n", cost, money_desc, obj->name));
+			return;
+		} 
+        else {
+            SendMessage(tmp_sprintf("You have been charged an additional %d "
+                        "%s for postage.\r\n", cost, money_desc));
+			if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
+				GET_CASH(desc->creature) -= cost;
+			else
+				GET_GOLD(desc->creature) -= cost;
+		}
+	} 
+    
+    obj_from_char(obj);    
+
+    if (!this->obj_list) {
+        this->obj_list = obj;
+    }
+    else {
+        // Put object at end of list
+        o = this->obj_list;
+        for (o = this->obj_list; o->next_content; o = o->next_content);
+        o->next_content = obj;
+        obj->next_content = NULL;
+        
+    }
+
+    desc->creature->saveToXML();
+    obj->next_content = NULL;
+
+    msg = tmp_sprintf("The postmaster wraps up %s and throws it in a bin.\r\n",
+            obj->name);
+    SendMessage(msg);
+    return;
+}
+
+void 
+CMailEditor::ReturnAttachments(void)
+{
+    struct obj_data *o, *next_obj;
+
+    extern void obj_to_char(struct obj_data *object, struct Creature *ch, 
+            bool sorted);
+
+    if (this->obj_list) {
+        o = this->obj_list;
+        while (o) {
+            next_obj = o->next_content;
+            obj_to_char(o, desc->creature, false);
+			if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
+				GET_CASH(desc->creature) += o->getWeight() * 20;
+			else
+				GET_GOLD(desc->creature) += o->getWeight() * 20;
+            o = next_obj;
+        }
+    }
+
+    desc->creature->saveToXML();
+    this->obj_list = NULL;
 }
