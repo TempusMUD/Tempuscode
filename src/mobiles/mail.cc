@@ -564,7 +564,7 @@ postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
         for (; li != olist.end(); ++li) {
             counter++;             
             if (counter == olist.size()) {
-                to_char = tmp_strcat(to_char, " and ", (*li)->name, NULL);
+                to_char = tmp_strcat(to_char, " and ", (*li)->name, ".", NULL);
             }
             else {
                 to_char = tmp_strcat(to_char, ", ", (*li)->name, NULL);
