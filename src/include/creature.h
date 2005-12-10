@@ -404,6 +404,8 @@ static const int PRF2_DISPALIGN = (1 << 20);
 static const int PRF2_WORLDWRITE = (1 << 21); // allows worldwrite to work
 static const int PRF2_NOGUILDSAY = (1 << 22);
 static const int PRF2_DISPTIME = (1 << 23); //show localtime in the prompt
+static const int PRF2_DISP_VNUMS = (1 << 24); //show vnums after items ldesc
+
 /* Affect bits: used in Creature.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
 static const int AFF_BLIND = (1 << 0);	/* (R) Char is blind        */

@@ -856,9 +856,11 @@ ACMD(do_display)
 
 	if (!*arg1) {
 		send_to_char(ch, 
-			"Usage: prompt { H | M | V | A | T | all | normal | none }\r\n");
+			"Usage: prompt { H | M | V | A | T | all | normal | none %s}\r\n",
+            ch->getLevel() > LVL_IMMORT ? "| vnums" : "");
 		return;
 	}
+
 	if (arg2 != NULL) {
 		if (is_abbrev(arg1, "rows")) {
 
@@ -914,6 +916,12 @@ ACMD(do_display)
 		SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
 	}
 
+    else if ((!str_cmp(arg1, "vnums"))) {
+        if (PRF2_FLAGS(ch) & PRF2_DISP_VNUMS)
+            REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISP_VNUMS);
+        else
+            SET_BIT(PRF2_FLAGS(ch), PRF2_DISP_VNUMS);
+    }
 	else {
 		REMOVE_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
 		REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
