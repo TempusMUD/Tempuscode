@@ -445,6 +445,12 @@ CMailEditor::AddAttachment(char *obj_name)
         return;
     }
 
+    if (IS_OBJ_STAT(obj, ITEM_NODROP) || 
+            IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM)) {
+        SendMessage(tmp_sprintf("You can't let go of %s.\r\n", obj->name));
+        return;
+    }
+
 	if (mail_to->next) {
 		SendMessage("You cannot send a package to more than one "
                 "recipiant.\r\n");
