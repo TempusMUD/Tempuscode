@@ -47,6 +47,7 @@ CMailEditor::CMailEditor(descriptor_data *desc,
     mail_to = recipients;
 
     obj_list = NULL;
+    num_attachments = 0;
 
     SendStartupMessage();
     DisplayBuffer();
@@ -203,7 +204,7 @@ CMailEditor::ListAttachments(void)
         return;
     }
     
-    send_to_desc(desc, "     &y\r\nPackages attached to this mail&b: &c\r\n");
+    send_to_desc(desc, "\r\n     &yPackages attached to this mail&b: &c\r\n");
 
     if (this->obj_list) {
         o = this->obj_list;
@@ -457,17 +458,10 @@ CMailEditor::AddAttachment(char *obj_name)
 		return;
     }
 
-    if (obj_list) {
-        int obj_count = 0;
-        o = this->obj_list;
-        for (o = this->obj_list; o->next_content; o = o->next_content) {
-            obj_count++;
-            if (obj_count >= 5) {
-                SendMessage("You may not attach any more packages to "
-                        "this mail\r\n");
-                return;
-            }
-        }
+    if (this->num_attachments >= MAX_MAIL_ATTACHMENTS) {
+        SendMessage("You may not attach any more packages to "
+                "this mail\r\n");
+        return;
     }
 
 	if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
@@ -479,7 +473,7 @@ CMailEditor::AddAttachment(char *obj_name)
 			money = GET_GOLD(desc->creature);
 		}
 
-		cost = obj->getWeight() * 20;
+		cost = obj->getWeight() * MAIL_COST_MULTIPLIER;
 
 		if (money < cost) {
 			SendMessage(tmp_sprintf("You don't have the %d %s necessary to "
@@ -510,6 +504,8 @@ CMailEditor::AddAttachment(char *obj_name)
         
     }
 
+    this->num_attachments++;
+
     desc->creature->saveToXML();
     obj->next_content = NULL;
 
@@ -533,9 +529,11 @@ CMailEditor::ReturnAttachments(void)
             next_obj = o->next_content;
             obj_to_char(o, desc->creature, false);
 			if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
-				GET_CASH(desc->creature) += o->getWeight() * 20;
+				GET_CASH(desc->creature) += 
+                    o->getWeight() * MAIL_COST_MULTIPLIER;
 			else
-				GET_GOLD(desc->creature) += o->getWeight() * 20;
+				GET_GOLD(desc->creature) += 
+                    o->getWeight() * MAIL_COST_MULTIPLIER;
             o = next_obj;
         }
     }

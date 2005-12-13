@@ -8,6 +8,9 @@
 
 using namespace std;
 
+const int MAX_MAIL_ATTACHMENTS = 5;
+const int MAIL_COST_MULTIPLIER = 30;
+
 class CEditor {
 public:
 	CEditor(struct descriptor_data *d, int max);
@@ -106,6 +109,8 @@ protected:
 
     mail_recipient_data *mail_to;
     struct obj_data *obj_list;
+    int num_attachments;
+
 };
 
 class CProgEditor : public CEditor {
