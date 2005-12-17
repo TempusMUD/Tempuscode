@@ -1879,8 +1879,7 @@ find_spell_targets(struct Creature *ch, char *argument,
 	struct Creature **tch, struct obj_data **tobj, int *tdir, int *target, int *spellnm,
 	int cmd)
 {
-
-	char *s, *t;
+	char *s, *targets = NULL, *ptr;
 	char t3[MAX_INPUT_LENGTH], t2[MAX_INPUT_LENGTH];
 	int i, spellnum;
 
@@ -1888,36 +1887,38 @@ find_spell_targets(struct Creature *ch, char *argument,
     *tobj = NULL;
     *tdir = -1;
 	knock_door = NULL;
-	/* get: blank, spell name, target name */
-	s = strtok(argument, "'");
 
-	if (s == NULL) {
-		sprintf(buf, "%s what where?", cmd_info[cmd].command);
-		act(buf, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
-		return 0;
-	}
-	s = strtok(NULL, "'");
-	if (s == NULL) {
-		if (CMD_IS("alter"))
-			send_to_char(ch, 
-				"The alteration name must be enclosed in the symbols: '\r\n");
-		else if (CMD_IS("trigger"))
-			send_to_char(ch, 
-				"The psitrigger name must be enclosed in the symbols: '\r\n");
-		else if (CMD_IS("arm"))
-			send_to_char(ch, 
-				"The device name must be enclosed in the symbols: '\r\n");
-        else if (CMD_IS("perform"))
-            send_to_char(ch,
-                "The song name must be enclosed in the symbols: '\r\n");
-		else
-			send_to_char(ch, 
-				"Spell names must be enclosed in the Holy Magic Symbols: '\r\n");
-		return 0;
-	}
-	t = strtok(NULL, "\0");
+    // There must be exactly 0 or exactly 2 's in the argument
+    if ((s = strstr(argument, "\'"))) {
+        if (!(strstr(s + 1, "\'"))) {
+            send_to_char(ch, "The skill name must be completely enclosed "
+                    "in the symbols: '\n");
+            return 0;
+        } 
+        else {
+            s = tmp_getquoted(&argument);
+            spellnum = find_skill_num(s);
+            *spellnm = spellnum;
+            targets = tmp_strdup(argument);
+        }
+    }
+    else {
+        s = argument;
+        spellnum = find_skill_num(s);
+        while (spellnum == -1 && *s) {
+            ptr = s + strlen(s) - 1;
+            while (*ptr != '\0' && *ptr != ' ' && ptr != s)
+                ptr--;
+            if (ptr == s)
+                break;
 
-	spellnum = find_skill_num(s);
+            targets = tmp_sprintf("%s%s", targets ? targets : "", ptr);
+            *ptr = '\0';
+
+            spellnum = find_skill_num(s);
+        }       
+    }
+
 	*spellnm = spellnum;
 
 	if ((spellnum < 1) || (spellnum > MAX_SPELLS)) {
@@ -1925,6 +1926,7 @@ find_spell_targets(struct Creature *ch, char *argument,
 		act(buf, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
 		return 0;
 	}
+
 	if (GET_LEVEL(ch) < SINFO.min_level[(int)GET_CLASS(ch)] &&
 		(!IS_REMORT(ch) ||
 			GET_LEVEL(ch) < SINFO.min_level[(int)GET_REMORT_CLASS(ch)]) &&
@@ -1936,6 +1938,7 @@ find_spell_targets(struct Creature *ch, char *argument,
             SPELL_IS_BARD(spellnum) ? "song" : "spell");
 		return 0;
 	}
+
 	if (CHECK_SKILL(ch, spellnum) == 0) {
 		send_to_char(ch, "You are unfamiliar with that %s.\r\n",
 			SPELL_IS_PSIONIC(spellnum) ? "trigger" :
@@ -1946,47 +1949,47 @@ find_spell_targets(struct Creature *ch, char *argument,
 	}
 	/* Find the target */
 
-	if (t != NULL) {
+	if (targets != NULL) {
 		// DL - moved this here so we can handle multiple locate arguments
-		strncpy(locate_buf, t, 255);
+		strncpy(locate_buf, targets, 255);
 		locate_buf[255] = '\0';
-		one_argument(strcpy(arg, t), t);
-		skip_spaces(&t);
+		one_argument(strcpy(arg, targets), targets);
+		skip_spaces(&targets);
 	}
 	if (IS_SET(SINFO.targets, TAR_IGNORE)) {
 		*target = TRUE;
-	} else if (t != NULL && *t) {
+	} else if (targets != NULL && *targets) {
         if (!*target && (IS_SET(SINFO.targets, TAR_DIR))) {
-            *tdir = search_block(t, dirs, false); 
+            *tdir = search_block(targets, dirs, false); 
             if (*tdir >= 0)
                 *target = true;
             
         }
         else if (!*target && (IS_SET(SINFO.targets, TAR_CHAR_ROOM))) {
-			if ((*tch = get_char_room_vis(ch, t)) != NULL)
+			if ((*tch = get_char_room_vis(ch, targets)) != NULL)
 				*target = TRUE;
 		}
 		if (!*target && IS_SET(SINFO.targets, TAR_CHAR_WORLD))
-			if ((*tch = get_char_vis(ch, t)))
+			if ((*tch = get_char_vis(ch, targets)))
 				*target = TRUE;
 
 		if (!*target && IS_SET(SINFO.targets, TAR_OBJ_INV))
-			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)))
+			if ((*tobj = get_obj_in_list_vis(ch, targets, ch->carrying)))
 				*target = TRUE;
 
 		if (!*target && IS_SET(SINFO.targets, TAR_OBJ_EQUIP)) {
 			for (i = 0; !*target && i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && !str_cmp(t, GET_EQ(ch, i)->aliases)) {
+				if (GET_EQ(ch, i) && !str_cmp(targets, GET_EQ(ch, i)->aliases)) {
 					*tobj = GET_EQ(ch, i);
 					*target = TRUE;
 				}
 		}
 		if (!*target && IS_SET(SINFO.targets, TAR_OBJ_ROOM))
-			if ((*tobj = get_obj_in_list_vis(ch, t, ch->in_room->contents)))
+			if ((*tobj = get_obj_in_list_vis(ch, targets, ch->in_room->contents)))
 				*target = TRUE;
 
 		if (!*target && IS_SET(SINFO.targets, TAR_OBJ_WORLD))
-			if ((*tobj = get_obj_vis(ch, t)))
+			if ((*tobj = get_obj_vis(ch, targets)))
 				*target = TRUE;
 
 		if (!*target && IS_SET(SINFO.targets, TAR_DOOR)) {
