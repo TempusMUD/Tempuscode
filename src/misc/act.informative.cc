@@ -2596,7 +2596,8 @@ acc_append_affects(struct Creature *ch, byte mode)
     if (affected_by_spell(ch, SONG_GUIHARIAS_GLORY))
         acc_strcat("The power of dieties is rushing through your veins.\r\n", NULL);
     if ((af = affected_by_spell(ch, SONG_MIRROR_IMAGE_MELODY)))
-        acc_strcat(tmp_sprintf("You are being accompanied by %d mirror images.\r\n", af->modifier), NULL);
+        acc_strcat(tmp_sprintf("You are being accompanied by %d mirror image%s.\r\n", 
+                                af->modifier, af->modifier>1 ? "s" : ""), NULL);
     if (affected_by_spell(ch, SONG_UNLADEN_SWALLOW_SONG))
         acc_strcat("You are under the effect of an uplifting tune!\r\n", NULL);
     if (affected_by_spell(ch, SONG_IRRESISTABLE_DANCE))
