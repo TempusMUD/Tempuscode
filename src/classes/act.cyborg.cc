@@ -2612,6 +2612,11 @@ ACMD(do_insert)
 			GET_NAME(ch), obj->name,
 			GET_NAME(vict), ch->in_room->number);
 	}
+
+    if (!IS_NPC(ch))
+        ch->saveToXML();
+    if (!IS_NPC(vict))
+        vict->saveToXML();
 }
 
 
