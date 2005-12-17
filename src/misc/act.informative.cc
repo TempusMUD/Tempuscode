@@ -2258,6 +2258,9 @@ ACMD(do_encumbrance)
 }
 
 
+//if like me you noticed this mode thing and had no idea what it was meant for
+//it may interest you to know that mode=1 means we should only show bad things
+//IMPORTANT: Add negative messages ABOVE the mode check, positive messages BELOW
 void
 acc_append_affects(struct Creature *ch, byte mode)
 {
@@ -2352,7 +2355,32 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are lost in a sea of vertigo.\r\n", NULL);
 	if (IS_AFFECTED_3(ch, AFF3_TAINTED))
 		acc_strcat("The very essence of your being has been tainted.\r\n", NULL);
-	if (mode)					/* Only asked for bad affs? */
+	if (affected_by_spell(ch, SONG_INSIDIOUS_RHYTHM))
+        acc_strcat("Your senses have been dulled by insidious melodies.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_VERSE_OF_VULNERABILITY))
+        acc_strcat("You feel more vulnerable to attack.\r\n", NULL);
+    
+    // vampiric regeneration
+
+	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
+		if ((name = playerIndex.getName(af->modifier)))
+			acc_sprintf(
+				"You are under the effects of %s's vampiric regeneration.\r\n",
+				name);
+		else
+			acc_strcat("You are under the effects of vampiric regeneration from an unknown source.\r\n", NULL);
+	}
+
+	if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
+		if ((name = playerIndex.getName(af->modifier)))
+			acc_strcat("You are under the effects of ", name,
+				"'s locust regeneration.\r\n", NULL);
+		else
+			acc_strcat(str,
+				"You are under the effects of locust regeneration from an unknown source.\r\n", NULL);
+	}
+    
+    if (mode)					/* Only asked for bad affs? */
 		return;
 	if (IS_SOULLESS(ch))
 		acc_strcat("A deep despair clouds your soulless mind.\r\n", NULL);
@@ -2440,10 +2468,6 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are empowered.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_TELEKINESIS))
 		acc_strcat("You are feeling telekinetic.\r\n", NULL);
-	if (affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
-		acc_strcat("Melee Combat Tactics are in effect.\r\n", NULL);
-	if (affected_by_spell(ch, SKILL_REFLEX_BOOST))
-		acc_strcat("Your Reflex Boosters are active.\r\n", NULL);
 	else if (IS_AFFECTED_2(ch, AFF2_HASTE))
 		acc_strcat("You are moving very fast.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_KATA))
@@ -2544,8 +2568,21 @@ acc_append_affects(struct Creature *ch, byte mode)
     if (affected_by_spell(ch, SPELL_DIMENSIONAL_VOID))
         acc_strcat("You are disoriented from your foray into the interdimensional void!\r\n", NULL);
 
-	if (IS_AFFECTED_3(ch, AFF3_DAMAGE_CONTROL))
+	/*cyborg*/
+    if (IS_AFFECTED_3(ch, AFF3_DAMAGE_CONTROL))
 		acc_strcat("Your Damage Control process is running.\r\n", NULL);
+    if (affected_by_spell(ch, SKILL_DEFENSIVE_POS))
+        acc_strcat("You are postured defensively.\r\n", NULL);
+    if (affected_by_spell(ch, SKILL_OFFENSIVE_POS))
+        acc_strcat("You are postured offensively.\r\n", NULL);
+    if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING))
+        acc_strcat("Your neural pathways have been bridged.\r\n", NULL);
+    if (affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
+		acc_strcat("Melee Combat Tactics are in effect.\r\n", NULL);
+	if (affected_by_spell(ch, SKILL_REFLEX_BOOST))
+		acc_strcat("Your Reflex Boosters are active.\r\n", NULL);
+	
+    
 	if (IS_AFFECTED_3(ch, AFF3_SHROUD_OBSCUREMENT))
 		acc_strcat(str,
 			"You are surrounded by an magical obscurement shroud.\r\n", NULL);
@@ -2563,18 +2600,12 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your implants are undergoing nanite reconstruction\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_PROT_RAD))
 		acc_strcat("You are immune to the effects of radiation.\r\n", NULL);
-	if (affected_by_spell(ch, SONG_WOUNDING_WHISPERS))
-		acc_strcat("You are surrounded by whirling slivers of sound.\r\n", NULL);
-    if (affected_by_spell(ch, SONG_MIRROR_IMAGE_MELODY))
-        acc_strcat("You are surrounded by mirror images.\r\n", NULL);
-    
+	
     /* bard affects */
     if (affected_by_spell(ch, SONG_MISDIRECTION_MELISMA))
         acc_strcat("Your path is cloaked in the tendrils of song.\r\n", NULL);
     if (affected_by_spell(ch, SONG_ARIA_OF_ARMAMENT))
         acc_strcat("You feel protected by song.\r\n", NULL);
-    if (affected_by_spell(ch, SONG_VERSE_OF_VULNERABILITY))
-        acc_strcat("You feel more vulnerable to attack.\r\n", NULL);
     if (affected_by_spell(ch, SONG_MELODY_OF_METTLE))
         acc_strcat("Your vitality is boosted by the Melody of Mettle.\r\n", NULL);
     if (affected_by_spell(ch, SONG_DEFENSE_DITTY))
@@ -2608,31 +2639,13 @@ acc_append_affects(struct Creature *ch, byte mode)
         acc_strcat("Other are impressed by your beautiful voice.\r\n", NULL);
     if (affected_by_spell(ch, SONG_FORTISSIMO))
         acc_strcat("Your voice reverberates with vigor!\r\n", NULL);
-    if (affected_by_spell(ch, SONG_INSIDIOUS_RHYTHM))
-        acc_strcat("Your senses have been dulled by insidious melodies.\r\n", NULL);
     if (affected_by_spell(ch, SONG_REGALERS_RHAPSODY))
         acc_strcat("A tune has soothed your hunger and thirst.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_WOUNDING_WHISPERS))
+		acc_strcat("You are surrounded by whirling slivers of sound.\r\n", NULL);
     
     
-	// vampiric regeneration
-
-	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
-		if ((name = playerIndex.getName(af->modifier)))
-			acc_sprintf(
-				"You are under the effects of %s's vampiric regeneration.\r\n",
-				name);
-		else
-			acc_strcat("You are under the effects of vampiric regeneration from an unknown source.\r\n", NULL);
-	}
-
-	if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
-		if ((name = playerIndex.getName(af->modifier)))
-			acc_strcat("You are under the effects of ", name,
-				"'s locust regeneration.\r\n", NULL);
-		else
-			acc_strcat(str,
-				"You are under the effects of locust regeneration from an unknown source.\r\n", NULL);
-	}
+	
 }
 
 ACMD(do_affects)
