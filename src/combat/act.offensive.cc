@@ -2524,6 +2524,12 @@ ACMD(do_shoot)
 			act("$p is out of ammo.",
 				FALSE, ch, gun->contains ? gun->contains : gun, 0, TO_CHAR);
 			cur_weap = NULL;
+
+            if (IS_ARROW(gun) && IS_ELF(ch))
+                WAIT_STATE(ch, (((i << 1) + 6) >> 2) RL_SEC);
+            else
+                WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
+
 			return;
 		}
 
