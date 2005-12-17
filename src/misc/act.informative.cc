@@ -2567,6 +2567,52 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are surrounded by whirling slivers of sound.\r\n", NULL);
     if (affected_by_spell(ch, SONG_MIRROR_IMAGE_MELODY))
         acc_strcat("You are surrounded by mirror images.\r\n", NULL);
+    
+    /* bard affects */
+    if (affected_by_spell(ch, SONG_MISDIRECTION_MELISMA))
+        acc_strcat("Your path is cloaked in the tendrils of song.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_ARIA_OF_ARMAMENT))
+        acc_strcat("You feel protected by song.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_VERSE_OF_VULNERABILITY))
+        acc_strcat("You feel more vulnerable to attack.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_MELODY_OF_METTLE))
+        acc_strcat("Your vitality is boosted by the Melody of Mettle.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_DEFENSE_DITTY))
+        acc_strcat("Harmonic resonance protects you from deleterious affects.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_ALRONS_ARIA))
+        acc_strcat("Alron guides your hands.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_VERSE_OF_VALOR))
+        acc_strcat("The spirit of fallen heroes fills your being.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_DRIFTERS_DITTY))
+        acc_strcat("A pleasant tune gives you a pep in your step.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_CHANT_OF_LIGHT))
+        acc_strcat("You are surrounded by a warm glow.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_ARIA_OF_ASYLUM))
+        acc_strcat("You are enveloped by a gossimer shield.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_RHYTHM_OF_RAGE))
+        acc_strcat("You are consumed by a feril rage!\r\n", NULL);
+    if (affected_by_spell(ch, SONG_POWER_OVERTURE))
+        acc_strcat("Your strength is bolstered by song.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_GUIHARIAS_GLORY))
+        acc_strcat("The power of dieties is rushing through your veins.\r\n", NULL);
+    if ((af = affected_by_spell(ch, SONG_MIRROR_IMAGE_MELODY)))
+        acc_strcat(tmp_sprintf("You are being accompanied by %d mirror images.\r\n", af->modifier), NULL);
+    if (affected_by_spell(ch, SONG_UNLADEN_SWALLOW_SONG))
+        acc_strcat("You are under the effect of an uplifting tune!\r\n", NULL);
+    if (affected_by_spell(ch, SONG_IRRESISTABLE_DANCE))
+        acc_strcat("You are feet are dancing out of your control!\r\n", NULL);
+    if (affected_by_spell(ch, SONG_WEIGHT_OF_THE_WORLD))
+        acc_strcat("The weight of the world rests lightly upon your shoulders.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_EAGLES_OVERTURE))
+        acc_strcat("Other are impressed by your beautiful voice.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_FORTISSIMO))
+        acc_strcat("Your voice reverberates with vigor!\r\n", NULL);
+    if (affected_by_spell(ch, SONG_INSIDIOUS_RHYTHM))
+        acc_strcat("Your senses have been dulled by insidious melodies.\r\n", NULL);
+    if (affected_by_spell(ch, SONG_REGALERS_RHAPSODY))
+        acc_strcat("A tune has soothed your hunger and thirst.\r\n", NULL);
+    
+    
 	// vampiric regeneration
 
 	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
