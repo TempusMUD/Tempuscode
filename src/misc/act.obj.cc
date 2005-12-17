@@ -1073,6 +1073,7 @@ ACCMD(do_get)
 	struct Creature *tmp_char = NULL;
 	char *arg1 = tmp_getword(&argument);
 	char *arg2 = tmp_getword(&argument);
+    char *tmp_args;
 
 	ACMD_set_return_flags(0);
 	total_coins = total_credits = 0;
@@ -1151,14 +1152,23 @@ ACCMD(do_get)
 			(!match_container_name
 				|| isname(match_container_name, cont->aliases))) {
 
+            // If we don't have a match_container_name then this was a
+            // get (x. | all.)y from all.  In that case, we really shouldn't
+            // scream about everything in their inventory that isn't a
+            // container.
 			if (!IS_OBJ_TYPE(cont, ITEM_CONTAINER)) {
-				act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
+                if (match_container_name)
+				    act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
 				continue;
 			}
 
 			container_found = true;
 
-			int retval = get_from_container(ch, cont, arg1);
+            // We need to copy off the data in arg1 here because if 
+            // it contains dots we want to preserve those for every 
+            // call to get_from_container();
+            tmp_args = tmp_strdup(arg1);
+			int retval = get_from_container(ch, cont, tmp_args);
 
 			if (retval) {
 				ACMD_set_return_flags(retval);
@@ -1177,14 +1187,23 @@ ACCMD(do_get)
 			(!match_container_name
 				|| isname(match_container_name, cont->aliases))) {
 
+            // If we don't have a match_container_name then this was a
+            // get (x. | all.)y from all.  In that case, we really shouldn't
+            // scream about everything in the room that isn't a
+            // container.
 			if (!IS_OBJ_TYPE(cont, ITEM_CONTAINER)) {
-				act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
+                if (match_container_name)
+				    act("$p is not a container.", FALSE, ch, cont, 0, TO_CHAR);
 				continue;
 			}
 
 			container_found = true;
 
-			int retval = get_from_container(ch, cont, arg1);
+            // We need to copy off the data in arg1 here because if 
+            // it contains dots we want to preserve those for every 
+            // call to get_from_container();
+            tmp_args = tmp_strdup(arg1);
+			int retval = get_from_container(ch, cont, tmp_args);
 
 			if (retval) {
 				ACMD_set_return_flags(retval);
