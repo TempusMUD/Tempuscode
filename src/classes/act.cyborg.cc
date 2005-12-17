@@ -2119,11 +2119,13 @@ obj_cond(struct obj_data *obj)
 	int num;
 
 	if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
-		num = 0;
+        return "unbreakable";
 	else if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
 		return "<broken>";
 	else if (GET_OBJ_MAX_DAM(obj) == 0)
 		return "frail";
+    else if (GET_OBJ_DAM(obj) >= GET_OBJ_DAM(obj))
+        num = 0;
 	else
 		num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
 			GET_OBJ_MAX_DAM(obj));
@@ -2152,11 +2154,13 @@ obj_cond_color(struct obj_data *obj, struct Creature *ch)
 	int num;
 
 	if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
-		num = 0;
+        return tmp_sprintf("%sunbreakable%s", CCGRN(ch, C_CMP), CCNRM(ch, C_CMP));
 	else if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
 		return "<broken>";
 	else if (GET_OBJ_MAX_DAM(obj) == 0)
-		return tmp_sprintf("%sfrail%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		return "frail";
+    else if (GET_OBJ_DAM(obj) >= GET_OBJ_DAM(obj))
+        num = 0;
 	else
 		num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
 			GET_OBJ_MAX_DAM(obj));
