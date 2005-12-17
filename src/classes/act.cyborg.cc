@@ -2124,7 +2124,7 @@ obj_cond(struct obj_data *obj)
 		return "<broken>";
 	else if (GET_OBJ_MAX_DAM(obj) == 0)
 		return "frail";
-    else if (GET_OBJ_DAM(obj) >= GET_OBJ_DAM(obj))
+    else if (GET_OBJ_DAM(obj) >= GET_OBJ_MAX_DAM(obj))
         num = 0;
 	else
 		num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
@@ -2159,7 +2159,7 @@ obj_cond_color(struct obj_data *obj, struct Creature *ch)
 		return "<broken>";
 	else if (GET_OBJ_MAX_DAM(obj) == 0)
 		return "frail";
-    else if (GET_OBJ_DAM(obj) >= GET_OBJ_DAM(obj))
+    else if (GET_OBJ_DAM(obj) >= GET_OBJ_MAX_DAM(obj))
         num = 0;
 	else
 		num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
