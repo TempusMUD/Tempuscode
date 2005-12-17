@@ -682,7 +682,7 @@ ACMD(do_bid) {
 }
 
 ACMD(do_bidlist) {
-    const char * obj_cond(struct obj_data *obj);
+    const char * obj_cond_color(struct obj_data *obj, struct Creature *ch);
 
     if (items.empty())
         send_to_char(ch, "There are no items for auction.\r\n");
@@ -697,7 +697,7 @@ ACMD(do_bidlist) {
                     ai->item->name);
         acc_sprintf("%sCondition:%s     %s\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
-                    tmp_capitalize(obj_cond(ai->item)));
+                    tmp_capitalize(obj_cond_color(ai->item, ch)));
         acc_sprintf("%sStarting Bid:%s  %ld coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
                     ai->start_bid);
