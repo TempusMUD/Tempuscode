@@ -451,7 +451,7 @@ ACMD(do_put)
 
 					if (save_obj != NULL
 						&& str_cmp(save_obj->name,
-							obj->name) != 0) {
+							obj->name) != 0 && counter > 0) {
 						if (counter == 1)
 							sprintf(cntbuf, "You put $p in $P.");
 						else
