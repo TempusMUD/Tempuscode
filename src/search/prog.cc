@@ -1503,11 +1503,14 @@ prog_do_echo(prog_env * env, prog_evt * evt, char *args)
 	if (!strcasecmp(arg, "room")) {
 		act(args, false, ch, obj, target, TO_CHAR);
 		act(args, false, ch, obj, target, TO_ROOM);
-	} else if (!strcasecmp(arg, "target"))
+	} else if (!strcasecmp(arg, "target")) {
 		act(args, false, ch, obj, target, TO_VICT);
-	else if (!strcasecmp(arg, "!target"))
+    } else if (!strcasecmp(arg, "!target")) {
 		act(args, false, ch, obj, target, TO_NOTVICT);
-	else if (!strcasecmp(arg, "zone")) {
+        if (ch != target) {
+            act(args, false, ch, obj, target, TO_CHAR);
+        }
+    } else if (!strcasecmp(arg, "zone")) {
 		for (struct descriptor_data * pt = descriptor_list; pt; pt = pt->next) {
 			if (pt->input_mode == CXN_PLAYING &&
 				pt->creature && pt->creature->in_room

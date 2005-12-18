@@ -906,8 +906,7 @@ point_update(void)
 			// keys, unapp, zone only objects && fate portals
 			if (IS_OBJ_TYPE(j, ITEM_KEY)) {	// skip keys still in zone
 				z = zone_number(GET_OBJ_VNUM(j));
-				if (((rm = where_obj(j)) && rm->zone->number == z)
-					|| !obj_owner(j)) {
+				if ((rm = where_obj(j)) && rm->zone->number == z) {
 					continue;
 				}
 			}
