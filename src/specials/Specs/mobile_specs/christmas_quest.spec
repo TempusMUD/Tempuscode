@@ -85,7 +85,11 @@ SPECIAL(christmas_quest)
                 }
 
                 for (int i = 0; i < NUM_WEARS; i++) {
-                    if ((obj = GET_EQ(ch, i))) {
+                    if (GET_EQ(ch, i)) {
+                        // This may be redundant but I want to make sure
+                        // all is as it should be
+                        obj = unequip_char(ch, i, MODE_EQ, true);
+                        obj_to_char(obj, ch, false);
                         obj_from_char(obj);
                         obj_to_obj(obj, cont, false);
                     }
@@ -99,6 +103,8 @@ SPECIAL(christmas_quest)
                 obj_to_char(cont, ch);
                 send_to_char(ch, "You feel very strange...\r\n");
                 ch->saveToXML();
+
+                ch->remort();
             }
 
             grinch_timer = 0;
