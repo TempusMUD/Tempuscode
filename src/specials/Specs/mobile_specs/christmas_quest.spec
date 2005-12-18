@@ -101,6 +101,7 @@ SPECIAL(christmas_quest)
                 ch->saveToXML();
             }
 
+            grinch_timer = 0;
             sql_exec("insert into christmas_quest (idnum) values(%ld)",
                     GET_IDNUM(ch));
 
@@ -132,7 +133,7 @@ SPECIAL(christmas_quest)
             return 1;
         }
 
-        grinch_timer = 60 * dice(30, 3);
+        grinch_timer = 60 * dice(30, 6);
 
         // Move him to one of the least used zones
         vector<struct zone_data *> zone_list;
