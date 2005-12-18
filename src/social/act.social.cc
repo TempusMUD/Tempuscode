@@ -95,6 +95,7 @@ ACMD(do_mood)
     if (!*argument) {
         send_to_char(ch, "%s what?!?\r\n", 
                 tmp_capitalize(cmd_info[cmd].command));
+        GET_MOOD(ch) = NULL;
         return;
     }
 	command_interpreter(ch, argument);
