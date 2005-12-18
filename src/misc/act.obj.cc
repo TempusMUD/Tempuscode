@@ -654,7 +654,7 @@ perform_autoloot(Creature *ch, obj_data *corpse)
     int counter = 1;
 
     // If they can't see the corse, they can't loot it
-    if (!corpse || !can_see_object(ch, corpse))
+    if (!corpse || !can_see_object(ch, corpse) || ch->in_room != corpse->in_room)
         return;
 
     // Can't loot player corpses in NPK zones
