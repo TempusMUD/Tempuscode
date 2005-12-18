@@ -1712,6 +1712,7 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/languagemaster.spec"
 #include "Specs/mobile_specs/auctioneer.spec"
 #include "Specs/mobile_specs/courier_imp.spec"
+#include "Specs/mobile_specs/christmas_quest.spec"
 
 /* RADFORD's SPECS */
 #include "Specs/rad_specs/labyrinth.spec"

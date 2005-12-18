@@ -280,6 +280,7 @@ const struct spec_func_data spec_list[] = {
 	{"bounty_clerk", bounty_clerk, SPEC_MOB},
 	{"auctioneer", do_auctions, SPEC_MOB},
 	{"courier_imp", courier_imp, SPEC_MOB},
+	{"christmas_quest", christmas_quest, SPEC_MOB},
 	{NULL, NULL, 0}				//terminator
 };
 

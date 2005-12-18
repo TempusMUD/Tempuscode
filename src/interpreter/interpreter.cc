@@ -1128,6 +1128,8 @@ struct command_info cmd_info[] = {
 	{"recorporealize", POS_DEAD, do_return, 0, SCMD_RECORP, 0, 0},
 	{"retrieve", POS_RESTING, do_not_here, 0, 0, 0, 0},
 	{"rev", POS_SITTING, do_action, 0, 0, 0, 0},
+	{"reset", POS_SITTING, do_not_here, 0, 0, 0, 0},
+	{"reward", POS_SITTING, do_not_here, 0, 0, 0, 0},
 	{"ridgehand", POS_FIGHTING, do_offensive_skill, 0, SKILL_RIDGEHAND, 0, 0},
     {"ridicule", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"roar", POS_RESTING, do_action, 0, 0, 0, 0},
