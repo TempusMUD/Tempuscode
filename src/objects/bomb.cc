@@ -327,8 +327,27 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 
 	if (!dam)
 		return;
-	CreatureList::iterator it = room->people.begin();
+	
+    CreatureList::iterator it;
+    //make sure we really do want to do damage in this room
+    it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
+		vict = (*it);
+        if (damager && damager != vict && !damager->isOkToAttack(vict,false)) {
+            //display the message to everyone in victs room except damager
+            act("A divine shield flashes into existence protecting you from $N's bomb.", 
+                false, vict, NULL, damager, TO_NOTVICT);
+            act("A divine shield flashes into existence protecting you from $N's bomb.", 
+                false, vict, NULL, damager, TO_CHAR);
+            if (damager->in_room == vict->in_room)
+                send_to_char(damager, "A divine shield flashes into existence absorbing the blast.\r\n");
+            return;
+        }
+    }
+        
+    it = room->people.begin();
+	
+    for (; it != room->people.end(); ++it) {
 		vict = (*it);
 
         if (damager->checkReputations(vict))
@@ -491,8 +510,7 @@ detonate_bomb(struct obj_data *bomb)
 				(cont ? fname(cont->aliases) : "hands")),
 			false, ch, bomb, cont, TO_ROOM);
 		room = ch->in_room;
-        if (ROOM_FLAGGED(room, ROOM_PEACEFUL) ||
-            room->zone->getPKStyle() == ZONE_NO_PK)
+        if (ROOM_FLAGGED(room, ROOM_PEACEFUL))
             BOMB_POWER(bomb) = 1;
 		if( bomb->worn_by ) {
 			unequip_char( ch, bomb->worn_on, 0 );
@@ -506,8 +524,7 @@ detonate_bomb(struct obj_data *bomb)
 				MIN(500, BOMB_POWER(bomb))), TYPE_BLAST, WEAR_HANDS);
 	}
 
-    if (ROOM_FLAGGED(room, ROOM_PEACEFUL) ||
-        room->zone->getPKStyle() == ZONE_NO_PK)
+    if (ROOM_FLAGGED(room, ROOM_PEACEFUL))
         BOMB_POWER(bomb) = 1;
 	if (cont) {
 		while (cont->in_obj)
