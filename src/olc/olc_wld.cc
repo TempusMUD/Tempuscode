@@ -44,7 +44,7 @@ void do_stat_object(struct Creature *ch, struct obj_data *obj);
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
 	0);
 extern struct extra_descr_data *locate_exdesc(char *word,
-	struct extra_descr_data *list);
+	struct extra_descr_data *list, int exact);
 
 int
 write_wld_index(struct Creature *ch, struct zone_data *zone)
@@ -1030,7 +1030,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 	else if (!*buf)
 		send_to_char(ch, "Valid commands are: create, remove, edit, addkey.\r\n");
 	else if (is_abbrev(buf, "remove")) {
-		if ((desc = locate_exdesc(argument, ch->in_room->ex_description))) {
+		if ((desc = locate_exdesc(argument, ch->in_room->ex_description, 1))) {
 			REMOVE_FROM_LIST(desc, ch->in_room->ex_description, next);
 			if (desc->keyword)
 				free(desc->keyword);
@@ -1049,7 +1049,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 
 		return;
 	} else if (is_abbrev(buf, "create")) {
-		if (find_exdesc(argument, ch->in_room->ex_description)) {
+		if (find_exdesc(argument, ch->in_room->ex_description, 1)) {
 			send_to_char(ch, "An extra description already exists with that keyword.\r\n"
 				"Use the '%s remove' command to remove it, or the\r\n"
 				"'%s edit' command to change it, punk.\r\n", cmd, cmd);
@@ -1068,7 +1068,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 			TO_ROOM);
 		return;
 	} else if (is_abbrev(buf, "edit")) {
-		if ((desc = locate_exdesc(argument, ch->in_room->ex_description))) {
+		if ((desc = locate_exdesc(argument, ch->in_room->ex_description, 1))) {
 			start_editing_text(ch->desc, &desc->description);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 			act("$n begins to write an extra description.", TRUE, ch, 0, 0,
@@ -1080,7 +1080,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 		return;
 	} else if (is_abbrev(buf, "addkeyword")) {
 		half_chop(argument, arg1, arg2);
-		if ((desc = locate_exdesc(arg1, ch->in_room->ex_description))) {
+		if ((desc = locate_exdesc(arg1, ch->in_room->ex_description, 1))) {
 			if (!*arg2) {
 				send_to_char(ch, 
 					"What??  How about giving me some keywords to add...\r\n");

@@ -47,7 +47,7 @@ void num2str(char *str, int num);
 void set_physical_attribs(struct Creature *ch);
 void do_stat_character(struct Creature *ch, struct Creature *k);
 struct extra_descr_data *locate_exdesc(char *word,
-	struct extra_descr_data *list);
+	struct extra_descr_data *list, int exact = 0);
 void set_move_buffer(struct Creature *ch);
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact = 0);
 
@@ -1068,7 +1068,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			else if (is_abbrev(buf, "remove")) {
 				if ((reply =
 						locate_exdesc(argument,
-							mob_p->mob_specials.response))) {
+							mob_p->mob_specials.response, 1))) {
 					REMOVE_FROM_LIST(reply, mob_p->mob_specials.response,
 						next);
 					if (reply->keyword)
@@ -1110,7 +1110,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			} else if (is_abbrev(buf, "edit")) {
 				if ((reply =
 						locate_exdesc(argument,
-							mob_p->mob_specials.response))) {
+							mob_p->mob_specials.response, 1))) {
 					start_editing_text(ch->desc, &reply->description);
 					SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 					act("$n begins to edit a mobile response.", TRUE, ch, 0, 0,
@@ -1123,7 +1123,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			} else if (is_abbrev(buf, "addkeyword")) {
 				half_chop(argument, arg1, arg2);
 				if ((reply =
-						locate_exdesc(arg1, mob_p->mob_specials.response))) {
+						locate_exdesc(arg1, mob_p->mob_specials.response, 1))) {
 					if (!*arg2) {
 						send_to_char(ch, 
 							"What??  How about giving me some keywords to add...\r\n");

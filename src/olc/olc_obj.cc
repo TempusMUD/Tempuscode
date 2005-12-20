@@ -49,7 +49,7 @@ int add_path_to_vehicle(struct obj_data *obj, char *name);
 int choose_material(struct obj_data *obj);
 
 struct extra_descr_data *locate_exdesc(char *word,
-	struct extra_descr_data *list);
+	struct extra_descr_data *list, int exact = 0);
 
 const char *olc_oset_keys[] = {
 	"alias",
@@ -592,7 +592,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 			obj_p->ex_description = exdesc_list_dup(proto->ex_description);
 		}
 
-		desc = locate_exdesc(fname(obj_p->aliases), obj_p->ex_description);
+		desc = locate_exdesc(fname(obj_p->aliases), obj_p->ex_description, 1);
 		if (!desc) {
 			CREATE(ndesc, struct extra_descr_data, 1);
 			ndesc->keyword = str_dup(obj_p->aliases);

@@ -280,14 +280,21 @@ const char *olc_commands[] = {
 
 
 struct extra_descr_data *
-locate_exdesc(char *word, struct extra_descr_data *list)
+locate_exdesc(char *word, struct extra_descr_data *list, int exact = 0)
 {
 
 	struct extra_descr_data *i;
 
-	for (i = list; i; i = i->next)
-		if (isname(word, i->keyword))
-			return (i);
+    if (!exact) {
+        for (i = list; i; i = i->next)
+            if (isname(word, i->keyword))
+                return (i);
+    }
+    else {
+        for (i = list; i; i = i->next)
+            if (isname_exact(word, i->keyword))
+                return (i);
+    }
 
 	return NULL;
 }
@@ -757,7 +764,7 @@ ACMD(do_olc)
 			send_to_char(ch, 
 				"Valid commands are: create, remove, edit, addkey.\r\n");
 		else if (is_abbrev(buf, "remove")) {
-			if ((desc = locate_exdesc(argument, obj_p->ex_description))) {
+			if ((desc = locate_exdesc(argument, obj_p->ex_description, 1))) {
 				REMOVE_FROM_LIST(desc, obj_p->ex_description, next);
 				if (desc->keyword)
 					free(desc->keyword);
@@ -801,7 +808,7 @@ ACMD(do_olc)
 
 			return;
 		} else if (is_abbrev(buf, "edit")) {
-			if ((desc = locate_exdesc(argument, obj_p->ex_description))) {
+			if ((desc = locate_exdesc(argument, obj_p->ex_description, 1))) {
 				start_editing_text(ch->desc, &desc->description);
 				SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 				UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
@@ -817,7 +824,7 @@ ACMD(do_olc)
 			return;
 		} else if (is_abbrev(buf, "addkeyword")) {
 			half_chop(argument, arg1, arg2);
-			if ((desc = locate_exdesc(arg1, obj_p->ex_description))) {
+			if ((desc = locate_exdesc(arg1, obj_p->ex_description, 1))) {
 				if (!*arg2) {
 					send_to_char(ch, 
 						"What??  How about giving me some keywords to add...\r\n");

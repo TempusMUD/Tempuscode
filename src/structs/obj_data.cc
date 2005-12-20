@@ -7,7 +7,7 @@
 extern int no_plrtext;
 
 struct extra_descr_data *locate_exdesc(char *word,
-    struct extra_descr_data *list);
+    struct extra_descr_data *list, int exact = 0);
 
 /**
  * Stores this object and it's contents into the given file.
@@ -215,7 +215,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 				ex_description = exdesc_list_dup(shared->proto->ex_description);
 			
 			keyword = xmlGetProp(cur, "keywords");
-			desc = locate_exdesc(fname(keyword), ex_description);
+			desc = locate_exdesc(fname(keyword), ex_description, 1);
 			if (!desc) {
 				desc = new extra_descr_data;
 				desc->keyword = keyword;
