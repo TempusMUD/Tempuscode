@@ -28,6 +28,7 @@ extern struct obj_data *object_list;
 
 int check_mob_reaction(struct Creature *ch, struct Creature *vict);
 void look_at_target(struct Creature *ch, char *arg);
+void perform_extract_all(struct Creature *ch, struct Creature *vict);
 const char *obj_cond(struct obj_data *obj);
 const char *obj_cond_color(struct obj_data *obj, struct Creature *ch);
 
@@ -2730,6 +2731,13 @@ ACMD(do_extract)
         return;
     }
 
+    // Creators and higher should be able to extract everything with
+    // one command
+    if (!strcasecmp(obj_str, "all") && ch->getLevel() > LVL_CREATOR) {
+        perform_extract_all(ch, vict);
+        return;
+    }
+
 	if (!(obj = get_object_in_equip_vis(ch, obj_str, vict->implants, &pos))) {
 		send_to_char(ch, "Invalid object.  Type 'extract' for usage.\r\n");
 		return;
@@ -2803,7 +2811,6 @@ ACMD(do_extract)
 			WAIT_STATE(vict, 6 RL_SEC);
 		}
 	} else {
-		;
 		act(tmp_sprintf("$p extracted from $N's %s.", wear_implantpos[pos]),
 			false, ch, obj, vict, TO_CHAR);
 		act(tmp_sprintf("$n extracts $p from your %s.", wear_implantpos[pos]),
@@ -2829,6 +2836,35 @@ ACMD(do_extract)
 						SKILL_CYBO_SURGERY) - (GET_DEX(ch) << 2))));
 	} else
 		gain_skill_prof(ch, SKILL_CYBO_SURGERY);
+}
+
+void perform_extract_all(struct Creature *ch, struct Creature *vict)
+{
+    struct obj_data *obj;
+
+	for (int i = 0; i < NUM_WEARS; i++) {
+		if ((obj = GET_IMPLANT(vict, i)) && !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
+            obj_to_char((obj = unequip_char(vict, i, MODE_IMPLANT)), ch);
+            SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
+
+            if (ch == vict) {
+                act(tmp_sprintf("$p extracted from your %s.", 
+                    wear_implantpos[i]), false, ch, obj, vict, TO_CHAR);
+                act(tmp_sprintf("$n extracts $p from $s %s.", 
+                    wear_implantpos[i]), false, ch, obj, vict, TO_NOTVICT);
+            } 
+            else {
+                act(tmp_sprintf("$p extracted from $N's %s.", 
+                    wear_implantpos[i]), false, ch, obj, vict, TO_CHAR);
+                act(tmp_sprintf("$n extracts $p from your %s.", 
+                    wear_implantpos[i]), false, ch, obj, vict, TO_VICT);
+                act(tmp_sprintf("$n extracts $p from $N's %s.", 
+                    wear_implantpos[i]), false, ch, obj, vict, TO_NOTVICT);
+            }
+        }
+    }
+
+    return;
 }
 
 ACMD(do_cyberscan)
