@@ -672,13 +672,16 @@ hunt_victim(struct Creature *ch)
             int total = 0;
             int dirs[NUM_OF_DIRS];
             
-            for (int idx = 0;idx < NUM_OF_DIRS; idx++) {
+            memset(dirs, -1, sizeof(dirs));
+
+            for (int idx = 0; idx < NUM_OF_DIRS; idx++) {
                 if (ch->isHunting()->in_room->dir_option[idx] && 
                     ch->isHunting()->in_room->dir_option[idx]->to_room && 
-                    ch->isHunting()->in_room->dir_option[idx]->to_room != ch->isHunting()->in_room) {
+                    ch->isHunting()->in_room->dir_option[idx]->to_room != 
+                    ch->isHunting()->in_room) {
                         dirs[total] = idx;
                         total++;
-                    }
+                }
             }
             dir = dirs[random_number_zero_low(total-1)];
         }
