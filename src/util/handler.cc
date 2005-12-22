@@ -574,8 +574,7 @@ affect_total(struct Creature *ch)
 	for (af = ch->affected; af; af = af->next)
 		affect_modify(ch, af->location, af->modifier, af->bitvector,
 			af->aff_index, FALSE);
-
-
+    
 	/************************************************************************
      * Set stats to real stats                                              *
      ************************************************************************/
@@ -588,6 +587,14 @@ affect_total(struct Creature *ch)
 	for (i = 0; i < 10; i++)
 		GET_SAVE(ch, i) = 0;
 
+    GET_HITROLL(ch) = 0;
+    GET_DAMROLL(ch) = 0;
+
+    GET_COND(ch, THIRST) = 0;
+    GET_COND(ch, FULL) = 0;
+    GET_COND(ch, DRUNK) = 0;
+
+    ch->setSpeed(0);
 	/************************************************************************
      * Reset affected stats                                                 *
      ************************************************************************/
