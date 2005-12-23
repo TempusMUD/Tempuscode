@@ -941,10 +941,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
     // Mirror Image Melody
     if (ch && ch != victim && !IS_WEAPON(attacktype) && 
-        !BAD_ATTACK_TYPE(attacktype)) {
+        !BAD_ATTACK_TYPE(attacktype) && !SPELL_IS_PSIONIC(attacktype)) {
         struct affected_type *paf;
         if ((paf = affected_by_spell(victim, SONG_MIRROR_IMAGE_MELODY))) {
-            if ((number(0, 250) < paf->modifier*10 + victim->getLevelBonus(SONG_MIRROR_IMAGE_MELODY)) &&
+            if ((number(0, 375) < paf->modifier*10 + victim->getLevelBonus(SONG_MIRROR_IMAGE_MELODY)) &&
                 (GET_CLASS(victim) == CLASS_BARD) && paf->modifier > 0) {
                 char *buf = tmp_sprintf("%sYour attack passes right through "
                                         "a mirror image of $N!%s", CCGRN_BLD(ch, C_NRM),
