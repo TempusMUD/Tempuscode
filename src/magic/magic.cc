@@ -776,7 +776,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_ICY_BLAST:
 		audible = TRUE;
 		if (is_cleric || is_ranger || is_knight)
-			dam = dice(level, 10) + (level >> 1);
+			dam = dice(level, 11) + (level >> 2);
 		else
 			dam = dice(level, 7) + 16;
 		ice_room(ch->in_room, level);
@@ -831,7 +831,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 		/* Area spells */
 	case SPELL_EARTHQUAKE:
-		dam = dice((level >> 3), 8) + level;
+		dam = dice((level >> 1), 14) + level << 1;
 		break;
 
 	case SPELL_FISSION_BLAST:
@@ -839,7 +839,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	
 	case SONG_SONIC_DISRUPTION:
-		dam = dice((level >> 1), 8) + (3 * level);
+		dam = dice((level >> 1), 7) + (3 * level);
 		break;
 	
 	case SONG_DIRGE:
