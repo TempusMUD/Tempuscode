@@ -318,8 +318,13 @@ set_title(struct Creature *ch, char *title)
 		title++;
 	GET_TITLE(ch) = (char *)malloc(strlen(title) + 2);
 	if (*title) {
-		strcpy(GET_TITLE(ch), " ");
-		strcat(GET_TITLE(ch), title);
+        if (!strncmp(title, "'s", 2)) {
+            strcpy(GET_TITLE(ch), title);
+        }
+        else {
+            strcpy(GET_TITLE(ch), " ");
+            strcat(GET_TITLE(ch), title);
+        }
 	} else
 		*GET_TITLE(ch) = '\0';
 }
