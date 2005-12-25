@@ -590,10 +590,6 @@ affect_total(struct Creature *ch)
     GET_HITROLL(ch) = 0;
     GET_DAMROLL(ch) = 0;
 
-    GET_COND(ch, THIRST) = 0;
-    GET_COND(ch, FULL) = 0;
-    GET_COND(ch, DRUNK) = 0;
-
     ch->setSpeed(0);
 	/************************************************************************
      * Reset affected stats                                                 *
