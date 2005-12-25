@@ -447,8 +447,14 @@ perform_goto(Creature *ch, room_data *room, bool allow_follow)
 
     was_in = ch->in_room;
 
-    if (POOFOUT(ch))
-        msg = tmp_sprintf("$n %s", POOFOUT(ch));
+    if (POOFOUT(ch)) {
+        if (strstr(POOFOUT(ch), "$$n")) {
+            msg = tmp_gsub(POOFOUT(ch), "$$n", "$n");
+        }
+        else {
+            msg = tmp_sprintf("$n %s", POOFOUT(ch));
+        }
+    }
     else
         msg = "$n disappears in a puff of smoke.";
 
@@ -458,8 +464,14 @@ perform_goto(Creature *ch, room_data *room, bool allow_follow)
     if (room->isOpenAir())
         ch->setPosition(POS_FLYING);
 
-    if (POOFIN(ch))
-        msg = tmp_sprintf("$n %s", POOFIN(ch));
+    if (POOFIN(ch)) {
+        if (strstr(POOFIN(ch), "$$n")) {
+            msg = tmp_gsub(POOFIN(ch), "$$n", "$n");
+        }
+        else {
+            msg = tmp_sprintf("$n %s", POOFIN(ch));
+        }
+    }
     else
         msg = "$n appears with an ear-splitting bang.";
 
