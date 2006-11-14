@@ -97,9 +97,10 @@ teleport_not_ok(Creature *ch, Creature *vict, int level)
 	if (!IS_IMMORT(ch) && IS_IMMORT(vict))
 		return true;
 
-    if (!IS_NPC(vict))
-        if (vict->desc->input_mode == CXN_NETWORK)
-            return true;
+    if (IS_PC(vict) &&
+			vict->desc &&
+			vict->desc->input_mode == CXN_NETWORK)
+		return true;
 
 	if (vict->trusts(ch))
 		return false;
