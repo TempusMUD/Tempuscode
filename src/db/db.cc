@@ -1941,17 +1941,20 @@ parse_object(FILE * obj_f, int nr)
 	obj->obj_flags.max_dam = t[1];
 	obj->obj_flags.damage = t[2];
 
+    t[3] = 0;
 	if (!get_line(obj_f, line) ||
-		(retval = sscanf(line, "%d %d %d", t, t + 1, t + 2)) != 3) {
+		(retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) < 3) {
 		fprintf(stderr,
-			"Format error in fourth numeric line (expecting 3 args, got %d), %s\n",
+			"Format error in fourth numeric line (expecting 3 or 4 args, got %d), %s\n",
 			retval, buf2);
 		safe_exit(1);
 	}
 	obj->setWeight(t[0]);
 	obj->shared->cost = t[1];
 	obj->shared->cost_per_day = t[2];
-
+    if (t[3] < 0)
+	    t[3] = 0;
+    obj->obj_flags.timer = t[3];
 
 	/* check to make sure that weight of containers exceeds curr. quantity */
 	if (obj->obj_flags.type_flag == ITEM_DRINKCON ||

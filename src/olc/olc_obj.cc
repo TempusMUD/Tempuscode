@@ -245,8 +245,8 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 		fprintf(file, "%d %d %d\n", obj->obj_flags.material,
 			obj->obj_flags.max_dam, obj->obj_flags.damage);
 
-		fprintf(file, "%d %d %d\n", obj->getWeight(),
-			obj->shared->cost, obj->shared->cost_per_day);
+		fprintf(file, "%d %d %d %d\n", obj->getWeight(),
+			obj->shared->cost, obj->shared->cost_per_day, obj->obj_flags.timer);
 
 		desc = obj->ex_description;
 		while (desc != NULL) {
