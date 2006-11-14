@@ -777,6 +777,7 @@ ACMD(do_use)
 				TO_NOTVICT);
 			unequip_char(ch, mag_item->worn_on, MODE_EQ);
 			mag_item->obj_flags.damage = 0;
+			extract_obj(mag_item);
 			return;
 		}
 		break;
