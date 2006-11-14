@@ -9028,7 +9028,9 @@ verify_tempus_integrity(Creature *ch)
               obj->in_obj ||
               obj->carried_by ||
               obj->worn_by))
-            check_log(ch, "object %lu stuck in limbo", obj->unique_id);
+            check_log(ch, "object %s (#%d) (uid %lu) stuck in limbo",
+				obj->name, GET_OBJ_VNUM(obj),
+				obj->unique_id);
 
         for (contained = obj->contains;
              contained;
