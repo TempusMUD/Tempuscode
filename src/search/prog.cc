@@ -335,9 +335,11 @@ prog_eval_class(prog_env *env, prog_evt *evt, char *args) {
     if (strstr(rclass, cclass))
         result = true;
 
-    cclass = tmp_tolower(pc_char_class_types[GET_REMORT_CLASS(env->target)]);
-    if (IS_REMORT(env->target) && !result && strstr(rclass, cclass))
-        result = true;
+	if (GET_REMORT_CLASS(env->target)) {
+		cclass = tmp_tolower(pc_char_class_types[GET_REMORT_CLASS(env->target)]);
+		if (IS_REMORT(env->target) && !result && strstr(rclass, cclass))
+			result = true;
+	}
 
     return result;
 }
