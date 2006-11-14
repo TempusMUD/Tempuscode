@@ -114,13 +114,13 @@ _dbg_free(void *ptr, const void *return_addr)
 	cur_blk = (struct dbg_mem_blk *)((char *)ptr - sizeof(struct dbg_mem_blk));
 
 	if (cur_blk->magic != _dbg_magic) {
-		slog("MEMORY: free called on unregistered memory block at %p",
+		errlog("MEMORY: free called on unregistered memory block at %p",
 			return_addr);
 		return;
 	}
 
 	if (*((unsigned long *)(cur_blk->data + cur_blk->size)) != _dbg_magic) {
-		slog("MEMORY: Buffer overrun detected at (%p)\n         Block %lld was allocated at %p",
+		errlog("MEMORY: Buffer overrun detected at (%p)\n         Block %lld was allocated at %p",
 			return_addr, cur_blk->serial_num, cur_blk->alloc_addr[0]);
 		return;
 	}
@@ -283,14 +283,14 @@ dbg_check_now(char *str, bool abort_now)
 		block_count++;
 		if (cur_blk->status == dbg_allocated) {
 			if (cur_blk->magic != _dbg_magic) {
-				slog("MEMORY: Header corruption detected: %s (%p)",
+				errlog("MEMORY: Header corruption detected: %s (%p)",
 					str, cur_blk->alloc_addr[0]);
 			}
 			
 			if (*((unsigned long *)
 					(cur_blk->data + cur_blk->size)) != 0xAABBCCDD) {
 				cur_blk->status = dbg_corrupted;
-				slog("MEMORY: Footer corruption detected: %s (%p)",
+				errlog("MEMORY: Footer corruption detected: %s (%p)",
 					str, cur_blk->alloc_addr[0]);
 				if (abort_now)
 					abort();
