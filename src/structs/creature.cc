@@ -570,6 +570,26 @@ Creature::extractUnrentables()
 	extract_norents(carrying);
 }
 
+void
+verify_inventory_ok(Creature *vict, const char *spot)
+{
+	obj_data *contained;
+	void check_log(Creature *ch, const char *fmt, ...);
+
+	for (contained = vict->carrying;
+		 contained;
+		 contained = contained->next_content) {
+		if (contained->carried_by != vict) {
+			check_log(NULL, "(%s) expected object %ld carrier = mob %d (%p), got %p",
+						 spot,
+						 contained->unique_id,
+						 GET_MOB_VNUM(vict),
+						 vict,
+						 contained->carried_by);
+		}
+	}
+}
+
 /**
  * Extract a ch completely from the world, and destroy his stuff
  * @param con_state the connection state to change the descriptor to, if one exists
@@ -586,13 +606,12 @@ Creature::extract(cxn_state con_state)
 	int idx;
 	CreatureList::iterator cit;
 
-    verify_tempus_integrity(NULL);
-
 	if (!IS_NPC(this) && !desc) {
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
 			if (t_desc->original == this)
 				do_return(t_desc->creature, "", 0, SCMD_FORCED, 0);
 	}
+
     if (desc && desc->original) {
         do_return(desc->creature, "", 0, SCMD_FORCED, 0);
     }
@@ -1849,9 +1868,10 @@ Creature::mount(Creature *vict)
 void
 Creature::startHunting(Creature *vict)
 {
-    char_specials.hunting = vict;
+	if (!char_specials.hunting)
+		huntingList.add(this);
 
-    huntingList.add(this);
+    char_specials.hunting = vict;
 }
 
 void
