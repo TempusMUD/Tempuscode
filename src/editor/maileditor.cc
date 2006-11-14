@@ -58,21 +58,11 @@ CMailEditor::~CMailEditor(void)
     void extract_obj(struct obj_data *obj);
 
     mail_recipient_data *next_rcpt;
-    struct obj_data *o, *next_obj;
 
     while (mail_to) {
         next_rcpt = mail_to->next;
         free(mail_to);
         mail_to = next_rcpt;
-    }
-
-    if (this->obj_list) {
-        o = this->obj_list;
-        while (o) {
-            next_obj = o->next_content;
-            extract_obj(o);
-            o = next_obj;
-        }
     }
 }
 
@@ -491,6 +481,10 @@ CMailEditor::AddAttachment(char *obj_name)
 	} 
     
     obj_from_char(obj);    
+	// The REMOVE_FROM_LIST macro requires a variable named temp.  We should
+	// really convert it to use a c++ template...
+	obj_data *temp = NULL;
+	REMOVE_FROM_LIST(obj, object_list, next);
 
     if (!this->obj_list) {
         this->obj_list = obj;
