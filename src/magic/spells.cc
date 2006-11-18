@@ -2244,7 +2244,7 @@ ASPELL(spell_retrieve_corpse)
 			"You are unable to find the former body of this entity.\r\n");
 		return;
 	}
-	if (ch != victim->master) {
+	if (ch != victim && ch != victim->master) {
 		send_to_char(ch, 
 			"They must be following you in order for this to work.\r\n");
 		return;
@@ -2275,7 +2275,10 @@ ASPELL(spell_retrieve_corpse)
 				TO_ROOM);
 			return;
 		}
-	act("You cannot locate $S corpse.", FALSE, ch, 0, victim, TO_CHAR);
+    if (ch == victim)
+        act("You cannot locate your corpse.", FALSE, ch, 0, victim, TO_CHAR);
+    else
+        act("You cannot locate $S corpse.", FALSE, ch, 0, victim, TO_CHAR);
 	return;
 }
 
