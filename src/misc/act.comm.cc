@@ -677,43 +677,46 @@ ACMD(do_write)
 	}
 }
 
-
-
 ACMD(do_page)
 {
 	struct descriptor_data *d;
 	struct Creature *vict;
+    char *target_str;
 
-	half_chop(argument, arg, buf2);
+    target_str = tmp_getword(&argument);
 
 	if (IS_NPC(ch))
 		send_to_char(ch, "Monsters can't page.. go away.\r\n");
-	else if (!*arg)
+	else if (!*target_str)
 		send_to_char(ch, "Whom do you wish to page?\r\n");
 	else {
-		sprintf(buf, "\007\007*%s* %s\r\n", GET_NAME(ch), buf2);
-		if (!str_cmp(arg, "all")) {
+        char *msg = tmp_sprintf("\007*%s* %s", GET_NAME(ch), argument);
+
+		if (!str_cmp(target_str, "all")) {
 			if (GET_LEVEL(ch) > LVL_GOD) {
 				for (d = descriptor_list; d; d = d->next)
 					if (IS_PLAYING(d) && d->creature) {
-						send_to_char(d->creature, CCYEL(d->creature, C_NRM));
-						send_to_char(d->creature, CCBLD(d->creature, C_SPR));
-						act(buf, FALSE, ch, 0, d->creature, TO_VICT);
-						send_to_char(d->creature, CCNRM(d->creature, C_SPR));
-					}
+                        send_to_char(ch, "%s%s%s%s\r\n",
+                                     CCYEL(ch, C_SPR),
+                                     CCBLD(ch, C_NRM),
+                                     buf,
+                                     CCNRM(ch, C_SPR));
+                    }
 			} else
 				send_to_char(ch, "You will never be godly enough to do that!\r\n");
 			return;
 		}
-		if ((vict = get_char_vis(ch, arg)) != NULL) {
-			send_to_char(vict, CCYEL_BLD(vict, C_SPR));
-			act(buf, FALSE, ch, 0, vict, TO_VICT);
-			send_to_char(vict, CCYEL_BLD(vict, C_SPR));
-			send_to_char(ch, CCYEL(vict, C_NRM));
-			send_to_char(ch, CCBLD(vict, C_SPR));
-			act(buf, FALSE, ch, 0, vict, TO_CHAR);
-			send_to_char(vict, CCNRM(vict, C_SPR));
-
+		if ((vict = get_char_vis(ch, target_str)) != NULL) {
+            send_to_char(vict, "%s%s%s%s\r\n",
+                         CCYEL(vict, C_SPR),
+                         CCBLD(vict, C_NRM),
+                         msg,
+                         CCNRM(vict, C_SPR));
+            send_to_char(ch, "%s%s%s%s\r\n",
+                         CCYEL(ch, C_SPR),
+                         CCBLD(ch, C_NRM),
+                         msg,
+                         CCNRM(ch, C_SPR));
 			return;
 		} else
 			send_to_char(ch, "There is no such person in the game!\r\n");
