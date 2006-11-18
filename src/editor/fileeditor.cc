@@ -7,6 +7,8 @@
 using namespace std;
 #include <ctype.h>
 #include <fcntl.h>
+#include <errno.h>
+
 // Tempus Includes
 #include "screen.h"
 #include "desc_data.h"

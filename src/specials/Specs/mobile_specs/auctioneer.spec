@@ -1,6 +1,7 @@
 #include <list>
 #include <functional>
 #include <time.h>
+#include <math.h>
 #include "obj_data.h"
 #include "room_data.h"
 #include "creature.h"

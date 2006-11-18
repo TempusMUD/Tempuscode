@@ -18,6 +18,8 @@
 #define __combat_code__
 #define __combat_utils__
 
+#include <errno.h>
+
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

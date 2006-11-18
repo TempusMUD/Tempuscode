@@ -4,6 +4,8 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#include <errno.h>
+
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

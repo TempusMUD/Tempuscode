@@ -21,6 +21,7 @@
 #include <string>
 #include <iostream>
 #include <signal.h>
+#include <math.h>
 
 #include "structs.h"
 #include "utils.h"

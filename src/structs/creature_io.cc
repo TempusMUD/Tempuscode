@@ -1079,7 +1079,7 @@ Creature::loadFromDB(long idnum)
 	GET_IDNUM(this) = idnum;
 
 	field_count = PQnfields(res);
-	fields = new (const char *)[field_count];
+	fields = new const char *[field_count];
 	for (field_idx = 0;field_idx < field_count;field_idx++)
 		fields[field_idx] = PQfname(res, field_idx);
 	

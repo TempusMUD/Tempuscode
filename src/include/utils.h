@@ -960,6 +960,7 @@ long GET_SKILL_COST(Creature *ch, int skill);
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
 
+bool room_is_sunny(room_data *room);
 bool room_is_dark(room_data *room);
 bool room_is_light(room_data *room);
 bool has_infravision(Creature *self);

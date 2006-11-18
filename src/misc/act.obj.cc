@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <errno.h>
 
 #include "structs.h"
 #include "utils.h"
