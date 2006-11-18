@@ -172,6 +172,12 @@ CMailEditor::Finalize(const char *text)
 }
 
 void
+CMailEditor::Cancel(void)
+{
+    ReturnAttachments();
+}
+
+void
 CMailEditor::ListRecipients(void)
 {
 	struct mail_recipient_data *mail_rcpt = NULL;

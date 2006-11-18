@@ -80,6 +80,8 @@ CEditor::Finish(bool save)
         this->Finalize(text);
         
         free(text);
+    } else {
+        this->Cancel();
     }
 
 	if (IS_PLAYING(desc) && desc->creature && !IS_NPC(desc->creature)) {
@@ -92,6 +94,12 @@ CEditor::Finish(bool save)
     // Free the editor
 	desc->text_editor = NULL;
 	delete this;
+}
+
+void
+CEditor::Cancel(void)
+{
+    // Do nothing
 }
 
 void
