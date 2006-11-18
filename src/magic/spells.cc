@@ -2271,7 +2271,9 @@ ASPELL(spell_retrieve_corpse)
 				return;
 			}
 			obj_to_room(corpse, ch->in_room);
-			act("$p appears at the center of the room!", FALSE, ch, corpse, 0,
+			act("$p appears in the center of the room!", FALSE, ch, corpse, 0,
+				TO_CHAR);
+			act("$p appears in the center of the room!", FALSE, ch, corpse, 0,
 				TO_ROOM);
 			return;
 		}

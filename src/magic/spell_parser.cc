@@ -3314,7 +3314,7 @@ mag_assign_spells(void)
 		MAG_MAGIC | MAG_AFFECTS);
 
 	spello(SPELL_RETRIEVE_CORPSE, X, 48, X, X, X, X, X, X, X, X, X, X, X, X, X,
-		X, X, 125, 65, 15, POS_STANDING, TAR_CHAR_WORLD, FALSE,
+		X, X, 125, 65, 15, POS_STANDING, TAR_CHAR_ROOM, FALSE,
 		MAG_DIVINE | MAG_MANUAL);
 
 	spello(SPELL_SANCTUARY, X, 28, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
