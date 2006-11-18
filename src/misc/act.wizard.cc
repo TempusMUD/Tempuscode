@@ -316,7 +316,7 @@ ACMD(do_send)
 struct room_data *
 find_target_room(struct Creature *ch, char *rawroomstr)
 {
-    int top_room, tmp;
+    int tmp;
     struct room_data *location;
     struct Creature *target_mob;
     struct obj_data *target_obj;
@@ -334,13 +334,23 @@ find_target_room(struct Creature *ch, char *rawroomstr)
             send_to_char(ch, "No room exists with that number.\r\n");
             return NULL;
         }
+	} else if (is_abbrev(roomstr, "previous")) {
+		int bottom_room = ch->in_room->zone->number * 100;
+		location = NULL;
+		for (tmp = ch->in_room->number - 1;tmp >= bottom_room && !location;tmp--)
+			location = real_room(tmp);
+		if (!location) {
+			send_to_char(ch, "No previous room exists in this zone!\r\n");
+			return NULL;
+		}
 	} else if (is_abbrev(roomstr, "next")) {
-		top_room = ch->in_room->zone->top;
+		int top_room = ch->in_room->zone->top;
+
 		location = NULL;
 		for (tmp = ch->in_room->number + 1;tmp <= top_room && !location;tmp++)
 			location = real_room(tmp);
 		if (!location) {
-			send_to_char(ch, "No next room exists!\r\n");
+			send_to_char(ch, "No next room exists in this zone!\r\n");
 			return NULL;
 		}
     } else if ((target_mob = get_char_vis(ch, roomstr))) {
