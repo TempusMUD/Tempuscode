@@ -3215,7 +3215,7 @@ mag_assign_spells(void)
 		MAG_MAGIC | MAG_DAMAGE | MAG_WATERZAP);
 
 	spello(SPELL_LOCATE_OBJECT, 23, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
-		X, X, 25, 20, 1, POS_STANDING, TAR_OBJ_WORLD, FALSE,
+		X, X, 25, 20, 1, POS_STANDING, TAR_IGNORE, FALSE,
 		MAG_MAGIC | MAG_MANUAL);
 
 	spello(SPELL_MAGIC_MISSILE, 1, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
