@@ -689,6 +689,11 @@ prog_do_walkto(prog_env * env, prog_evt * evt, char *args)
 		return;
 
 	ch = (Creature *) env->owner;
+
+    // Make sure the creature can walk
+    if (ch->getPosition() < POS_STANDING)
+        return;
+
 	room = real_room(atoi(tmp_getword(&args)));
 
 	if (room && room != ch->in_room) {
@@ -721,6 +726,11 @@ prog_do_driveto(prog_env * env, prog_evt * evt, char *args)
 		return;
 
 	ch = (Creature *) env->owner;
+
+    // Make sure the creature can drive
+    if (ch->getPosition() < POS_SITTING)
+        return;
+
 	target_room = real_room(atoi(tmp_getword(&args)));
 
 	// Find the console in the room.  Do nothing if there's no console
