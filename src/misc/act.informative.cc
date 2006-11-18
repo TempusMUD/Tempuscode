@@ -880,35 +880,44 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
 		if (IS_EVIL(i))
 			align = tmp_sprintf(" %s%s(Red Aura)%s",
-				CCRED(ch, C_NRM), CCBLD(ch, C_CMP), CCYEL(ch, C_NRM));
+                                CCRED(ch, C_NRM),
+                                CCBLD(ch, C_CMP),
+                                CCNRM(ch, C_NRM));
 		else if (IS_GOOD(i))
 			align = tmp_sprintf(" %s%s(Blue Aura)%s",
-				CCBLU(ch, C_NRM), CCBLD(ch, C_CMP), CCYEL(ch, C_NRM));
+                                CCBLU(ch, C_NRM),
+                                CCBLD(ch, C_CMP),
+                                CCNRM(ch, C_NRM));
 	}
 
 	if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-		if (IS_EVIL(i))
-			align = tmp_sprintf(" %s%s(%da)%s", CCRED(ch, C_NRM),
-				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCYEL(ch, C_NRM));
-		else if (IS_GOOD(i))
-			align = tmp_sprintf(" %s%s(%da)%s", CCBLU(ch, C_NRM),
-				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCYEL(ch, C_NRM));
-		else
-			align = tmp_sprintf(" %s%s(%da)%s", CCNRM(ch, C_NRM),
-				CCBLD(ch, C_CMP), GET_ALIGNMENT(i), CCYEL(ch, C_NRM));
+        const char *align_color;
+
+        if (IS_EVIL(i))
+            align_color = CCRED(ch, C_NRM);
+        else if (IS_GOOD(i))
+            align_color = CCBLU(ch, C_NRM);
+        else
+            align_color = CCNRM(ch, C_NRM);
+
+        align = tmp_sprintf(" %s%s(%da)%s",
+                            align_color,
+                            CCBLD(ch, C_CMP),
+                            GET_ALIGNMENT(i),
+                            CCNRM(ch, C_CMP));
 	}
+    if (MOB_FLAGGED(i, MOB_UTILITY))
+        appr = tmp_sprintf(" %s<util>", CCCYN(ch, C_NRM));
 	// If they can see it, they probably need to know it's unapproved
 	if (MOB2_FLAGGED(i, MOB2_UNAPPROVED))
-		appr = tmp_sprintf(" %s(!appr)%s",
-			CCRED(ch, C_NRM), CCYEL(ch, C_NRM));
-        
+		appr = tmp_sprintf(" %s(!appr)", CCRED(ch, C_NRM));
+
     if ((IS_NPC(i) && (GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester())) &&
             PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)) {
     	vnum = tmp_sprintf(" %s%s<%s%d%s>%s",
 			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
             GET_MOB_VNUM(i), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
-        
 		
 	desc = tmp_strcat(CCYEL(ch, C_NRM), (is_group) ? CCBLD(ch, C_CMP):"",
 		desc, align, appr, vnum, CCNRM(ch, C_NRM), "\r\n", NULL);
