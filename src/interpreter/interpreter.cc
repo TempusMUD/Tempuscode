@@ -598,6 +598,8 @@ struct command_info cmd_info[] = {
 	{"conceal", POS_RESTING, do_conceal, 0, 0, 0, 0},
 	{"concerned", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"confused", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"congrats", POS_RESTING, do_gen_comm, 0, SCMD_GRATZ, 0, 0},
+	{"congratulate", POS_RESTING, do_gen_comm, 0, SCMD_GRATZ, 0, 0},
 	{"conspire", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"contemplate", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"convert", POS_RESTING, do_convert, 0, 0, 0, 0},
