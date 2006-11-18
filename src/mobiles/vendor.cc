@@ -1038,8 +1038,10 @@ SPECIAL(vendor)
 	if (CMD_IS("steal")) {
 		if (shop->steal_ok && GET_LEVEL(ch) < LVL_IMMORT)
 			return false;
-		do_gen_comm(self, tmp_sprintf("%s is a bloody thief!", GET_NAME(ch)),
-			0, SCMD_SHOUT, 0);
+		do_gen_comm(self,
+                    tmp_capitalize(tmp_sprintf("%s is a bloody thief!",
+                                               GET_NAME(ch))),
+                    0, SCMD_SHOUT, 0);
 		return true;
 	}
 	

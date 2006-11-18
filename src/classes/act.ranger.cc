@@ -186,14 +186,14 @@ ACMD(do_medic)
 		send_to_char(ch, "They are fighting right now.\r\n");
 		return;
 	} else if (GET_HIT(vict) == GET_MAX_HIT(vict)) {
-	  act("What makes you think $e's bleeding?", true, ch, 0, vict, TO_CHAR);
+	  act("What makes you think $E's bleeding?", true, ch, 0, vict, TO_CHAR);
 	} else {
 		if (GET_MOVE(ch) > mod) {
             if (GET_CLASS(ch) == CLASS_RANGER) mod *= 2; //2x multiplier for prime rangers
 			GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
 			GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
-			act("$N gives you some TLC.  You feel better!", TRUE, vict, 0, ch,
-				TO_CHAR);
+			act("$n gives you some TLC.  You feel better!", TRUE, ch, 0, vict,
+				TO_VICT);
 			act("$n gives some TLC to $N.", FALSE, ch, 0, vict, TO_NOTVICT);
 			send_to_char(ch, "You do it.\r\n");
 			if (GET_LEVEL(ch) < LVL_AMBASSADOR)

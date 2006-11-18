@@ -35,8 +35,6 @@ room_is_sunny(room_data *room)
 bool
 room_is_dark(room_data *room)
 {
-	int sunlight;
-
     if (!room) {
 		errlog("room_is_dark() called with NULL room [%d]", room->number);
         return false;

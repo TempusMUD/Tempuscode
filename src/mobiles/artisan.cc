@@ -404,6 +404,7 @@ SPECIAL(artisan)
 	if (CMD_IS("steal") && GET_LEVEL(ch) < LVL_IMMORT) {
 		do_action(keeper, GET_NAME(ch), cmd_slap, 0, 0);
 		sprintf(buf, "%s is a bloody thief!", GET_NAME(ch));
+        buf[0] = toupper(buf[0]);
 		do_say(keeper, buf, 0, SCMD_SHOUT, NULL);
 		return true;
 	}

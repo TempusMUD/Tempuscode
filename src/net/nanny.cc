@@ -925,7 +925,7 @@ send_prompt(descriptor_data *d)
 		if (IS_DROW(d->creature)) {
 			send_to_desc(d, "The Drow race is inherently evil.  Thus you begin your life as evil.\r\n\r\nPress return to continue.\r\n");
 		} else if (IS_MONK(d->creature)) {
-			send_to_desc(d, "The monastic ideology requires that you remain neutral in alignment.\r\nTherefor you begin your life with a perfect neutrality.\r\n\r\nPress return to continue.\r\n");
+			send_to_desc(d, "The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n\r\nPress return to continue.\r\n");
 		} else if (IS_KNIGHT(d->creature) || IS_CLERIC(d->creature)) {
 			send_to_desc(d, "Do you wish to be good or evil? ");
 		} else {

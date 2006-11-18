@@ -2272,10 +2272,10 @@ extern const char *spell_wear_off_msg[] = {
 	"!Cure Critic!",			/* 15 */
 	"!Cure Light!",
 	"You feel more optimistic.",
-	"Your can no longer see the auras of others.",
+	"You can no longer see the auras of others.",
 	"Your eyes stop tingling.",
-	"The detect magic wears off.",	/* 20 */
-	"The detect poison wears off.",
+	"Your magical sensitivity disappears.",	/* 20 */
+	"Your sensitivity to poison is gone.",
 	"!Dispel Evil!",
 	"!Earthquake!",
 	"!Enchant Weapon!",
@@ -2402,7 +2402,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!",
 	"The power of Guiharia leaves you to your own devices.",
 	"The effects of your death knell fade away.",	/* 150 */
-	"You are no longer as telepathic",
+	"You are no longer as telepathic.",
 	"!UNUSED!", 
     "!calm!", 
     "The thorns protruding from your skin wither and fade away.", 
@@ -2421,7 +2421,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 200 */
 	"The strength zone of your brain relaxes.",	/* 201 */
 	"Your mental center of logic relaxes.",
-	"You feel a sense of clarity return to your mind.",
+	"You feel a sense of mental clarity return.",
 	"You feel less afraid.",
 	"!Satiation!",				/* 205 */
 	"!Quench!",
@@ -2436,7 +2436,7 @@ extern const char *spell_wear_off_msg[] = {
 	"You feel the vertigo fade.",	/* 215 */
 	"Your metabolism slows.",
 	"!ego whip!",
-	"You feel the crushing psychic grip dissipate.",
+	"You feel the crushing psychic grip release its hold.",
 	"You feel less relaxed.",
 	"You feel your weakness pass.",	/* 220 */
 	"!iron will!",
@@ -2473,7 +2473,7 @@ extern const char *spell_wear_off_msg[] = {
 	"The attraction field around you dissipates.",
 	"!coordinates!",
 	"The atoms around you cease to fluoresce.",
-	"You feel less irradiated",	/* 305 */
+	"You feel less irradiated.",	/* 305 */
 	"You feel less radioactive.",
 	"!microwave!",
 	"!oxidize!",
@@ -2534,7 +2534,7 @@ extern const char *spell_wear_off_msg[] = {
     "The white noise finally leaves your ears.",	/* 370 */
 	"Your rage subsides.", 
     "Your strength fails with your memory of the Power Overture.", 
-    "The power of the dieties no longer flows in your veins.", 
+    "The power of the deities no longer flows in your veins.", 
     "!UNUSED!", 
     "!SONIC DISRUPTION!",	/* 375 */
 	"Your mirror images waver and disappear.", 
@@ -2545,7 +2545,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!Rhapsody of Remedy!", 
     "!UNUSED!", 
     "!home sweet home!", 
-    "The weight of the world decends upon your shoulders.", 
+    "The weight of the world descends upon your shoulders.", 
     "!UNUSED!",	/* 385 */
 	"The slivers of music whirling around your body fade into nothingness.", 
     "!DIRGE!", 

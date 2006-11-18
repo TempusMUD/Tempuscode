@@ -1053,7 +1053,8 @@ ACCMD(do_offensive_skill)
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			sprintf(buf, "You fiercely %s $p!", CMD_NAME);
 			act(buf, FALSE, ch, ovict, 0, TO_CHAR);
-			sprintf(buf, "$n fiercely %ss $p!", CMD_NAME);
+            sprintf(buf, "$n fiercely %s%ss $p!", CMD_NAME,
+                    (CMD_NAME[strlen(CMD_NAME) - 1] == 's') ? "e":"");
 			act(buf, FALSE, ch, ovict, 0, TO_ROOM);
 			return;
 		} else {
