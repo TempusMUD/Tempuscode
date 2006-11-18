@@ -14,9 +14,8 @@
 # 60 seconds and will not restart the mud until pause is removed.
 
 PORT=2020 
-OLDFLAGS=''
-FLAGS=''
-DM_LOGFILE='/home0/TempusMUD/log/dm-logfile'
+OLDFLAGS='-p'
+FLAGS='-p'
 ulimit -c unlimited
 
 while /bin/true; do
@@ -26,21 +25,18 @@ while /bin/true; do
     echo "autoscript starting game $DATE" >> syslog
 
     if [ -r .wizlock ]; then
-	rm .wizlock
-	OLDFLAGS=$FLAGS
-	FLAGS=$FLAGS' -b'
-	echo 'wizlock enabled, flags='$FLAGS >> syslog
+        rm .wizlock
+        OLDFLAGS=$FLAGS
+        FLAGS=$FLAGS' -b'
+        echo 'wizlock enabled, flags='$FLAGS >> syslog
     fi
 
-# bin/circle $FLAGS $PORT >>& syslog
-
-    #   /home0/realm/cyber/dmall/dmalloc-3.1.3/dmalloc -C -l $DM_LOGFILE -i 100 low
     rm -f pause
     bin/circle $FLAGS $PORT > syslog 2>&1
 
     FLAGS=$OLDFLAGS
 
-    fgrep "self-delete"   syslog >> log/parsed/delete
+    fgrep "delete"   syslog >> log/parsed/delete
     fgrep "death trap"    syslog >> log/parsed/dts
     fgrep "killed"        syslog >> log/parsed/rip
     fgrep "Running"       syslog >> log/parsed/restarts
@@ -82,6 +78,9 @@ while /bin/true; do
     fgrep "siteok'd"      syslog >> log/parsed/siteok_log
     fgrep "joining the soulless masses."      syslog >> log/parsed/soulless
 
+	# Temporary DO NOT REMOVE! LK
+	cp syslog /home/lenon/syslogs/syslog-`date +"%m%d%Y-%k.%M.%S"`
+	cp lib/log/command.log /home/lenon/syslogs/command.log-`date +"%m%d%Y-%k.%M.%S"`
     
     rm log/syslog.1
     mv log/syslog.2 log/syslog.1
@@ -109,15 +108,6 @@ while /bin/true; do
 	mv lib/log/command.log    lib/log/command.log.0
     touch lib/log/command.log 
 
-  
-# rm log/prof_log.1
-# mv log/prof_log.2 log/prof_log.1
-# mv log/prof_log.3 log/prof_log.2
-# mv log/prof_log.4 log/prof_log.3
-# mv log/prof_log.5 log/prof_log.4
-# mv log/prof_log.6 log/prof_log.5
-# gprof bin/circle lib/gmon.out > log/prof_log.6 &
-
     #
     # if the core is newer than the core touch file, send a report
     #
@@ -127,13 +117,10 @@ while /bin/true; do
         touch ./lib/core.timestamp
         ./bin/crash_report.sh
     else
-        TAG=`date +tempus-%Y-%m-%d-%H`
         echo "Reboot requested." | mail -s "TempusMUD Reboot Notification" coders
     fi    
         
-    cp lib/etc/players lib/etc/backup_players
-    rm lib/etc/backup_players.gz
-    gzip -3 lib/etc/backup_players &
+	tar -jcf bak/players.tar.bz2 lib/players &
 
     rm lib/core.1.timestamp
     mv lib/core.2.timestamp lib/core.1.timestamp
@@ -171,6 +158,3 @@ while /bin/true; do
 done
 
 echo "autoscript ending $DATE" >> syslog
-
-
-
