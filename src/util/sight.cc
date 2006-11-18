@@ -6,6 +6,30 @@
 #include "spells.h"
 #include "handler.h"
 
+// Returns true if the room is outside and sunny, otherwise returns false
+bool
+room_is_sunny(room_data *room)
+{
+    int sunlight;
+
+    // Explicitly dark
+    if (ROOM_FLAGGED(room, ROOM_DARK))
+        return true;
+    // Only the prime material plane has a sun
+    if (!PRIME_MATERIAL_ROOM(room))
+        return false;
+    // Sun doesn't reach indoors
+    if (ROOM_FLAGGED(room, ROOM_INDOORS))
+        return false;
+    // Or rooms that are inside
+    if (SECT(room) == SECT_INSIDE)
+        return false;
+
+    // Actual sunlight check
+    sunlight = room->zone->weather->sunlight;
+    return (sunlight == SUN_RISE || sunlight == SUN_LIGHT);
+}
+
 // Returns true if the room is too dark to see, false if the room has enough
 // light to see
 bool
@@ -45,8 +69,7 @@ room_is_dark(room_data *room)
     if (SECT(room) == SECT_CITY)
         return false;
 
-    sunlight = room->zone->weather->sunlight;
-    return (sunlight == SUN_SET || sunlight == SUN_DARK);
+    return !room_is_sunny(room);
 }
 
 // Opposite of room_is_dark()

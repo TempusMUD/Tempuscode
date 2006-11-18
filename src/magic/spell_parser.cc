@@ -1758,7 +1758,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		return 0;
 	}
 	if (SPELL_FLAGGED(spellnum, MAG_NOSUN) && OUTSIDE(ch)
-		&& !room_is_dark(ch->in_room)) {
+		&& room_is_sunny(ch->in_room)) {
 		send_to_char(ch, "This spell cannot be cast in sunlight.\r\n");
 		return 0;
 	}
