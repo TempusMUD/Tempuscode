@@ -1134,7 +1134,10 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af2.modifier = -(3 + (level >> 4));
 		af2.duration = af.duration;
 		accum_duration = TRUE;
-		to_vict = "You feel extremely righteous.";
+        if (IS_GOOD(ch))
+            to_vict = "You feel extremely righteous.";
+        else
+            to_vict = "You feel a dark power enter your soul.";
 		break;
 	case SPELL_BLINDNESS:
 		if (MOB_FLAGGED(victim, MOB_NOBLIND)) {
