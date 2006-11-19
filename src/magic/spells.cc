@@ -2739,11 +2739,14 @@ ASPELL(spell_animate_dead)
 	struct obj_data *i = NULL;
 	float mult = (float)level / 70;
 
-	// Casting it on yourself. (potions etc)
-	if (ch && victim && ch == victim) {
-		if (IS_UNDEAD(ch)) {
-			GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + dice(4, level));
-			send_to_char(ch, "You feel a renewal of your tainted form.\r\n");
+	// Casting it on an undead creature causes it to regenerate somewhat
+	if (victim) {
+		if (IS_UNDEAD(victim) && GET_HIT(victim) < GET_MAX_HIT(victim)) {
+			GET_HIT(victim) = MIN(GET_MAX_HIT(victim),
+                                  GET_HIT(victim) + dice(4, level));
+			send_to_char(victim, "You feel a renewal of your tainted form.\r\n");
+            act("$n glows dimly as $s tainted flesh regenerates.", TRUE,
+                ch, 0, victim, TO_NOTVICT);
 		}
 		return;
 	}
