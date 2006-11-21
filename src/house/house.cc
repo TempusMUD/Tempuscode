@@ -780,7 +780,17 @@ House::calcRentCost() const
 	for( unsigned int i = 0; i < getRoomCount(); i++ ) 
     {
 		room_data *room = real_room( getRoom(i) );
-		sum += calcRentCost( room );
+        bool pc_in_room;
+
+        CreatureList::iterator it = room->people.begin();
+
+        pc_in_room = false;
+        for (; it != room->people.end(); ++it)
+            if( IS_PC(*it) )
+                pc_in_room = true;
+
+        if (!pc_in_room)
+            sum += calcRentCost( room );
 	}
 	
 	if( getType() == RENTAL )
@@ -797,13 +807,6 @@ House::calcRentCost( room_data *room ) const
 		return 0;
 	int room_count = calcObjectCount( room );
 	int room_sum = 0;
-	
-	CreatureList::iterator it = room->people.begin();
-	for (; it != room->people.end(); ++it) {
-		if( IS_PC(*it) ) {
-			return 0;
-		}
-	}
 	
 	for( obj_data* obj = room->contents; obj; obj = obj->next_content ) {
 		room_sum += recurs_obj_cost(obj, false, NULL);

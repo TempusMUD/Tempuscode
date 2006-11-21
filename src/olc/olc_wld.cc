@@ -27,6 +27,7 @@
 #include "tmpstr.h"
 #include "player_table.h"
 #include "prog.h"
+#include "accstr.h"
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
@@ -1196,9 +1197,9 @@ ACMD(do_hedit)
         int tot_cost = 0, tot_num = 0;
         bool local = false;
         bool brief = false;
-		char tmpbuf[1024];
-		tmpbuf[0] = '\0';
-		buf[0] = '\0';
+        
+        acc_string_clear();
+
 		argument = one_argument(argument, arg);
 		skip_spaces(&argument);
 		if ((*arg && is_abbrev(arg, "brief")) ||
@@ -1211,8 +1212,7 @@ ACMD(do_hedit)
 		}
 
 		if (brief) {
-			strcpy(buf,
-				"-- House Room --------------------- Items ------- Cost\r\n");
+			acc_strcat("-- House Room --------------------- Items ------- Cost\r\n", NULL);
             for( unsigned int i = 0; i < house->getRoomCount(); i++ ) 
             {
                 int cost = 0;
@@ -1225,32 +1225,22 @@ ACMD(do_hedit)
 					continue;
 				}
 
-				for( obj_data *o = room->contents; o; o = o->next_content) {
+				for( obj_data *o = room->contents; o; o = o->next_content)
 					num += recurs_obj_contents(o, NULL);
-					cost += recurs_obj_cost(o, false, NULL);
-				}
+
+                num = house->calcObjectCount(room);
+                cost = house->calcRentCost(room);
 				tot_cost += cost;
 				tot_num += num;
-				sprintf(tmpbuf, "%s%-30s%s       %s%3d%s        %5d\r\n",
+				acc_sprintf("%s%-30s%s      %s%5d%s   %10d\r\n",
 					CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM),
 					(num > House::MAX_ITEMS) ? CCRED(ch, C_NRM) : "",
 					num, CCNRM(ch, C_NRM), cost);
-
-				if (strlen(buf) + strlen(tmpbuf) > MAX_STRING_LENGTH - 256) {
-					sprintf(tmpbuf, "%sOVERFLOW\r\n%s", CCRED(ch, C_NRM),
-						CCNRM(ch, C_NRM));
-					strcat(buf, tmpbuf);
-					break;
-				} else {
-					strcat(buf, tmpbuf);
-				}
 			}
 			if (!local)
-				sprintf(buf,
-					"%s"
-					"- Totals -------------------------  %4d        %5d\r\n",
-					buf, tot_num, tot_cost);
-			page_string(ch->desc, buf);
+				acc_sprintf("- Totals -------------------------- %5d   %10d\r\n",
+                            tot_num, tot_cost);
+			page_string(ch->desc, acc_get_string());
 			return;
 		}
 		// not brief mode
