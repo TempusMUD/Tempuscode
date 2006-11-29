@@ -545,6 +545,12 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
         else if (!strcasecmp(arg, "self")) {
 			result = (env->owner == env->target);
 		}
+		else if (!strcasecmp(arg, "visible")) {
+			if (env->owner_type == PROG_TYPE_MOBILE)
+				result = can_see_creature((Creature *)env->owner, env->target);
+			else
+				result = true;
+		}
 	}
 
 	return (not_flag) ? (!result) : result;
