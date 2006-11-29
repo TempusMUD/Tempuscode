@@ -763,9 +763,9 @@ burn_update(void)
 		// animated corpses decaying
 		//
 
-		if (IS_NPC(ch) && GET_MOB_VNUM(ch) == ZOMBIE_VNUM &&
-			OUTSIDE(ch) && room_is_light(ch->in_room)
-			&& PRIME_MATERIAL_ROOM(ch->in_room))
+		if (IS_NPC(ch) &&
+				GET_MOB_VNUM(ch) == ZOMBIE_VNUM &&
+				room_is_sunny(ch->in_room))
 			if (damage(ch, ch, dice(4, 5), TOP_SPELL_DEFINE, -1))
 				continue;
 
