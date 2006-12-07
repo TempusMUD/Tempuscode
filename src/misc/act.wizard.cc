@@ -9063,6 +9063,19 @@ verify_tempus_integrity(Creature *ch)
                            "tmp obj affect in object", obj->unique_id))
                 break;
         }
+        
+        // Check object for empty alias list
+        char *alias;
+
+        alias = obj->aliases;
+        skip_spaces(&alias);
+        if (*alias == '\0') {
+            check_log(ch, "object %s (#%d) (uid %lu) has no alias - setting to obj%lu",
+				obj->name, GET_OBJ_VNUM(obj),
+                      obj->unique_id, obj->unique_id);
+            free(obj->aliases);
+            obj->aliases = strdup(tmp_sprintf("obj%lu", obj->unique_id));
+        }
     }
         
 	// Check accounts
