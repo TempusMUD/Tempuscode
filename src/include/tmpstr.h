@@ -77,6 +77,9 @@ char *tmp_printbits(int val, const char *bit_descs[]);
 // returns a string from the start_pos to the end_pos
 char *tmp_substr(const char *str, int start_pos, int end_pos = -1);
 
+// returns a string with leading and trailing spaces removed
+char *tmp_trim(const char *str);
+
 // Initializes the structures used for the temporary string mechanism
 void tmp_string_init(void);
 

@@ -428,6 +428,10 @@ tmp_gsubi(const char *haystack, const char *needle, const char *sub)
 	size_t len;
 	int matches;
 
+    // Head off an infinite loop at the pass
+    if (!*needle)
+        return tmp_strdup(haystack);
+
 	// Count number of occurences of needle in haystack
 	matches = 0;
 	low_stack = tmp_tolower(haystack);
@@ -678,6 +682,46 @@ tmp_substr(const char *str, int start_pos, int end_pos)
 	return result;
 }
 
+char *
+tmp_trim(const char *str)
+{
+	struct tmp_str_pool *cur_buf;
+	const char *read_pt, *start, *end;
+	char *result, *write_pt;
+	size_t result_len;
+
+    // Find beginning of trimmed string
+    start = str;
+    while (*start && isspace(*start))
+        start++;
+
+    // Find end of trimmed string
+    end = str + strlen(str) - 1;
+    while (end > start && isspace(*end))
+        end--;
+    
+	// This is the true result string length
+	result_len = end - start + 2;
+
+	// If we don't have the space, we allocate another pool
+	if (result_len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(result_len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	cur_buf->used += result_len;
+	write_pt = result;
+	
+	read_pt = start;
+	result_len--;
+	while (result_len--)
+		*write_pt++ = *read_pt++;	
+	*write_pt = '\0';
+
+	return result;
+}
+
 const char *
 tmp_string_test(void)
 {
@@ -724,6 +768,30 @@ tmp_string_test(void)
 		return "tmp_gsub #8 failed";
 	if (strcmp(tmp_gsub("", "", ""), ""))
 		return "tmp_gsub #9 failed";
+    if (strcmp(tmp_gsub("ABCDEF", "def", "xxx"), "ABCDEF"))
+        return "tmp_gsub #10 failed";
+
+	// Testing tmp_gsubi
+	if (strcmp(tmp_gsubi("abcdef", "", ""), "abcdef"))
+		return "tmp_gsubi #1 failed";
+	if (strcmp(tmp_gsubi("abcdef", "ghi", ""), "abcdef"))
+		return "tmp_gsubi #2 failed";
+	if (strcmp(tmp_gsubi("abcdef", "c", "ghi"), "abghidef"))
+		return "tmp_gsubi #3 failed";
+	if (strcmp(tmp_gsubi("abcdef", "cde", "g"), "abgf"))
+		return "tmp_gsubi #4 failed";
+	if (strcmp(tmp_gsubi("abcdef", "abc", ""), "def"))
+		return "tmp_gsubi #5 failed";
+	if (strcmp(tmp_gsubi("abcdef", "abc", "g"), "gdef"))
+		return "tmp_gsubi #6 failed";
+	if (strcmp(tmp_gsubi("abcdef", "def", ""), "abc"))
+		return "tmp_gsubi #7 failed";
+	if (strcmp(tmp_gsubi("abcdef", "def", "g"), "abcg"))
+		return "tmp_gsubi #8 failed";
+	if (strcmp(tmp_gsubi("", "", ""), ""))
+		return "tmp_gsubi #9 failed";
+    if (strcmp(tmp_gsubi("ABCDEF", "def", "xxx"), "ABCxxx"))
+        return "tmp_gsubi #10 failed";
 
 	// Testing tmp_sqlescape
 	if (strcmp(tmp_sqlescape("abcd'ef"), "abcd''ef"))
@@ -764,6 +832,22 @@ tmp_string_test(void)
 		return "tmp_substr #6 failed";
 	if (strcmp(tmp_substr("abcdef", -5, -1), "bcdef"))
 		return "tmp_substr #7 failed";
+
+    // Testing tmp_trim
+    if (strcmp(tmp_trim(""), ""))
+        return "tmp_trim #1 failed";
+    if (strcmp(tmp_trim("abcdef"), "abcdef"))
+        return "tmp_trim #2 failed";
+    if (strcmp(tmp_trim("abcdef"), "abcdef"))
+        return "tmp_trim #3 failed";
+    if (strcmp(tmp_trim("   abcdef"), "abcdef"))
+        return "tmp_trim #4 failed";
+    if (strcmp(tmp_trim("abcdef   "), "abcdef"))
+        return "tmp_trim #5 failed";
+    if (strcmp(tmp_trim("   abcdef   "), "abcdef"))
+        return "tmp_trim #6 failed";
+    if (strcmp(tmp_trim("   abc def   "), "abc def"))
+        return "tmp_trim #7 failed";
 
 	return NULL;
 }
