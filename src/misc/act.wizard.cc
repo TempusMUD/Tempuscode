@@ -1558,15 +1558,24 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         break;
     }
 
-    send_to_char(ch, "%s", buf);
+    send_to_char(ch, "%s\r\n", buf);
+
+	if(j->shared->proto == j) {
+        // This is the last stat displayed if the object is a prototype
+        // All the rest of the stats are only meaningful if the object
+        // is in the game.
+        if (GET_OBJ_PARAM(j) && strlen( GET_OBJ_PARAM(j)) > 0 )
+            send_to_char(ch, "Spec_param: \r\n%s\r\n", GET_OBJ_PARAM(j));
+        return;
+	}
 
     if (j->contains) {
 
-        send_to_char(ch, "\r\nContents:\r\n");
+        send_to_char(ch, "Contents:\r\n");
         list_obj_to_char(j->contains, ch, 2, TRUE);
 
-    } else
-        send_to_char(ch, "\r\n");
+    }
+
     found = 0;
     send_to_char(ch, "Affections:");
     for (i = 0; i < MAX_OBJ_AFFECT; i++)
@@ -1600,13 +1609,6 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             playerIndex.getName(GET_OBJ_SIGIL_IDNUM(j)), GET_OBJ_SIGIL_IDNUM(j),
             GET_OBJ_SIGIL_LEVEL(j));
     }
-
-	if( j->shared->proto == j
-			&& GET_OBJ_PARAM(j)
-			&& strlen( GET_OBJ_PARAM(j)) > 0 ) {
-		send_to_char(ch, "Spec_param: \r\n%s\r\n",
-			GET_OBJ_PARAM(j));
-	}
 
     do_stat_obj_tmp_affs(ch, j);
 }
@@ -2783,34 +2785,66 @@ ACMD(do_pload)
 
 ACMD(do_vstat)
 {
-    struct Creature *mob;
-    struct obj_data *obj;
-    int number;
+    struct Creature *mob = NULL;
+    struct obj_data *obj = NULL;
+    bool mob_stat = false;
+    char *str;
+    int number, tmp;
 
-    two_arguments(argument, buf, buf2);
+    str = tmp_getword(&argument);
 
-    if (!*buf || !*buf2 || !isdigit(*buf2)) {
-        send_to_char(ch, "Usage: vstat { obj | mob } <number>\r\n");
+    if (!*str) {
+        send_to_char(ch, "Usage: vstat { { obj | mob } <number> | <alias> }\r\n");
+        return;
+    } else if ((mob_stat = is_abbrev(str, "mobile")) ||
+               is_abbrev(str, "object")) {
+        str = tmp_getword(&argument);
+        if (!is_number(str)) {
+            send_to_char(ch, "You must specify a vnum when not using an alias.\r\n");
+            return;
+        }
+        number = atoi(str);
+    } else if ((obj = get_object_in_equip_vis(ch, str, ch->equipment, &tmp)))
+        number = GET_OBJ_VNUM(obj);
+    else if ((obj = get_obj_in_list_vis(ch, str, ch->carrying)))
+        number = GET_OBJ_VNUM(obj);
+    else if ((mob = get_char_room_vis(ch, str))) {
+        number = GET_MOB_VNUM(mob);
+        mob_stat = true;
+    } else if ((obj = get_obj_in_list_vis(ch, str, ch->in_room->contents)))
+        number = GET_OBJ_VNUM(obj);
+    else if ((mob = get_char_vis(ch, str))) {
+        number = GET_MOB_VNUM(mob);
+        mob_stat = true;
+    } else if ((obj = get_obj_vis(ch, str)))
+        number = GET_OBJ_VNUM(obj);
+    else {
+        send_to_char(ch, "Nothing around by that name.\r\n");
         return;
     }
-    if ((number = atoi(buf2)) < 0) {
+
+    if (number < 0) {
         send_to_char(ch, "A NEGATIVE number??\r\n");
         return;
     }
-    if (is_abbrev(buf, "mob")) {
-        if (!(mob = real_mobile_proto(number)))
-            send_to_char(ch, "There is no monster with that number.\r\n");
-        else
+
+    if (mob_stat) {
+        mob = real_mobile_proto(number);
+        if (mob) {
             do_stat_character(ch, mob);
-
-    } else if (is_abbrev(buf, "obj")) {
-        if (!(obj = real_object_proto(number)))
-            send_to_char(ch, "There is no object with that number.\r\n");
-        else
+        } else {
+            send_to_char(ch, "There is no mobile with that vnum.\r\n");
+            return;
+        }
+    } else {
+        obj = real_object_proto(number);
+        if (obj) {
             do_stat_object(ch, obj);
-
-    } else
-        send_to_char(ch, "That'll have to be either 'obj' or 'mob'.\r\n");
+        } else {
+            send_to_char(ch, "There is no object with that vnum.\r\n");
+            return;
+        }
+    }
 }
 
 ACMD(do_rstat)
