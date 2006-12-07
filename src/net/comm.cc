@@ -264,9 +264,18 @@ init_game(int port)
 {
 	int mother_desc;
 	void my_srand(unsigned long initial_seed);
+    void verify_tempus_integrity(Creature *ch);
 
 	my_srand(time(0));
 	boot_db();
+
+    slog("Testing internal integrity");
+    const char *result = tmp_string_test();
+    if (result) {
+        fprintf(stderr, "%s\n", result);
+        return;
+    }
+    verify_tempus_integrity(NULL);
 
 	slog("Opening mother connection.");
 	mother_desc = init_socket(port);
