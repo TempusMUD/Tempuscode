@@ -66,7 +66,7 @@ ASPELL(spell_create_water)
 	int water;
 
 	void name_to_drinkcon(struct obj_data *obj, int type);
-	void name_from_drinkcon(struct obj_data *obj);
+	void name_from_drinkcon(struct obj_data *obj, int type);
 
 	if (ch == NULL || obj == NULL)
 		return;
@@ -74,7 +74,7 @@ ASPELL(spell_create_water)
 
 	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
-			name_from_drinkcon(obj);
+			name_from_drinkcon(obj, GET_OBJ_VAL(obj, 2));
 			GET_OBJ_VAL(obj, 2) = LIQ_SLIME;
 			name_to_drinkcon(obj, LIQ_SLIME);
 		} else {
@@ -82,7 +82,7 @@ ASPELL(spell_create_water)
 			if (water > 0) {
 				GET_OBJ_VAL(obj, 2) = LIQ_WATER;
 				GET_OBJ_VAL(obj, 1) += water;
-				name_from_drinkcon(obj);
+				name_from_drinkcon(obj, GET_OBJ_VAL(obj, 2));
 				name_to_drinkcon(obj, LIQ_WATER);
 				act("$p is filled.", FALSE, ch, obj, 0, TO_CHAR);
 			}

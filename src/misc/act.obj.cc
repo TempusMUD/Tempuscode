@@ -2022,55 +2022,40 @@ ACMD(do_plant)
 }
 
 void
-name_from_drinkcon(struct obj_data *obj)
+name_from_drinkcon(struct obj_data *obj, int type)
 {
-	int i;
 	char *new_name;
-	struct obj_data *tmp_obj = NULL;
+	struct obj_data *proto = NULL;
 
-	for (i = 0; (*((obj->aliases) + i) != ' ') && (*((obj->aliases) + i) != '\0');
-		i++);
+    // Remove the name from the alias list
+    new_name = tmp_gsubi(obj->aliases, drinknames[type], "");
+    // Remove double spaces that might be left over
+    new_name = tmp_gsub(new_name, "  ", " ");
+    // Remove leading and trailing spaces that might be left over
+    new_name = tmp_trim(new_name);
 
-	if (*((obj->aliases) + i) == ' ') {
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
-		new_name = str_dup((obj->aliases) + i + 1);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
-		tmp_obj = real_object_proto(GET_OBJ_VNUM(obj));
-		if (GET_OBJ_VNUM(obj) < 0 || obj->aliases != tmp_obj->aliases) {
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
-			free(obj->aliases);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
-		}
-		obj->aliases = new_name;
-	}
+    proto = real_object_proto(GET_OBJ_VNUM(obj));
+    if (GET_OBJ_VNUM(proto) < 0 || obj->aliases != proto->aliases)
+        free(obj->aliases);
+    obj->aliases = str_dup(new_name);
 }
 
 void
 name_to_drinkcon(struct obj_data *obj, int type)
 {
 	char *new_name;
-	struct obj_data *tmp_obj = NULL;
+	struct obj_data *proto = NULL;
 
-	CREATE(new_name, char, strlen(obj->aliases) + strlen(drinknames[type]) + 2);
-	sprintf(new_name, "%s %s", drinknames[type], obj->aliases);
-	tmp_obj = real_object_proto(GET_OBJ_VNUM(obj));
-	if (GET_OBJ_VNUM(obj) < 0 || obj->aliases != tmp_obj->aliases) {
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
+    // Don't add the drink to the aliases if it's already in there
+    if (isname_exact(obj->aliases, drinknames[type]))
+        return;
+
+    new_name = str_dup(tmp_sprintf("%s %s", obj->aliases, drinknames[type]));
+
+	proto = real_object_proto(GET_OBJ_VNUM(obj));
+	if (GET_OBJ_VNUM(obj) < 0 || obj->aliases != proto->aliases)
 		free(obj->aliases);
-#ifdef DMALLOC
-		dmalloc_verify(0);
-#endif
-	}
+
 	obj->aliases = new_name;
 }
 
@@ -2234,7 +2219,7 @@ ACMD(do_drink)
 		if (!GET_OBJ_VAL(temp, 1)) {	/* The last bit */
 			GET_OBJ_VAL(temp, 2) = 0;
 			GET_OBJ_VAL(temp, 3) = 0;
-			name_from_drinkcon(temp);
+			name_from_drinkcon(temp, GET_OBJ_VAL(temp, 2));
 		}
 	}
 	return;
@@ -2478,7 +2463,7 @@ ACMD(do_pour)
                 weight += GET_OBJ_VAL(from_obj, 1) / 10;
                 from_obj->obj_flags.setWeight(weight);
             }
-                name_from_drinkcon(from_obj);
+            name_from_drinkcon(from_obj, GET_OBJ_VAL(from_obj, 2));
 
 			return;
 		}
@@ -2542,7 +2527,7 @@ ACMD(do_pour)
 		GET_OBJ_VAL(from_obj, 1) = 0;
 		GET_OBJ_VAL(from_obj, 2) = 0;
 		GET_OBJ_VAL(from_obj, 3) = 0;
-		name_from_drinkcon(from_obj);
+		name_from_drinkcon(from_obj, GET_OBJ_VAL(from_obj, 2));
 	}
 	/* Then the poison boogie */
 	GET_OBJ_VAL(to_obj, 3) =
