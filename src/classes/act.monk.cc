@@ -34,10 +34,14 @@ perform_monk_meditate(struct Creature *ch)
 	MEDITATE_TIMER(ch)++;
 
 	// meditating makes a monk's alignment correct itself
-	if (GET_ALIGNMENT(ch) > 0)
-	  GET_ALIGNMENT(ch) -= number(0, affected_by_spell(ch, ZEN_DISPASSION) ? 10:1);
-	else if (GET_ALIGNMENT(ch) < 0)
-	  GET_ALIGNMENT(ch) += number(0, affected_by_spell(ch, ZEN_DISPASSION) ? 10:1);
+    if (GET_ALIGNMENT(ch) != 0) {
+        if (GET_ALIGNMENT(ch) > 0)
+            GET_ALIGNMENT(ch) -= number(0, affected_by_spell(ch, ZEN_DISPASSION) ? 10:1);
+        else if (GET_ALIGNMENT(ch) < 0)
+            GET_ALIGNMENT(ch) += number(0, affected_by_spell(ch, ZEN_DISPASSION) ? 10:1);
+        if (GET_ALIGNMENT(ch) == 0)
+            send_to_char(ch, "You have achieved perfect balance.\r\n");
+    }
 
 	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 		send_to_char(ch, "%s[MEDITATE] timer:%d%s\r\n",
