@@ -265,7 +265,7 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 		}
 		if (!isname(obj_str, implant->aliases)) {
 			msg = tmp_sprintf("%s is implanted at %s... not '%s'.",
-				implant->name, wear_implantpos[pos], pos_str);
+				implant->name, wear_implantpos[pos], obj_str);
 			perform_tell(me, ch, msg);
 			return;
 		}
@@ -347,7 +347,7 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 	}
 	if (!isname(obj_str, implant->aliases)) {
 		msg = tmp_sprintf("%s is implanted at %s... not '%s'.",
-			implant->name, wear_implantpos[pos], pos_str);
+			implant->name, wear_implantpos[pos], obj_str);
 		perform_tell(me, ch, msg);
 		return;
 	}
