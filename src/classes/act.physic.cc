@@ -386,6 +386,7 @@ add_rad_sickness(Creature *ch, int level)
 	newaff.level = level;
 	newaff.bitvector = 0;
 	newaff.aff_index = 0;
+	newaff.owner = 0;
 	newaff.next = NULL;
 
 	affect_to_char(ch, &newaff);

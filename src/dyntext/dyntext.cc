@@ -19,12 +19,12 @@
 #include "structs.h"
 #include "comm.h"
 #include "utils.h"
-#include "handler.h"
 #include "db.h"
 #include "editor.h"
 #include "screen.h"
 #include "interpreter.h"
 #include "player_table.h"
+#include "accstr.h"
 
 // external variables
 
@@ -864,7 +864,8 @@ ACMD(do_dyntext_show)
 		strcpy(color3, color1);
 	}
 
-	sprintf(buf,
+    acc_string_clear();
+	acc_sprintf(
 		"   %s=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%s\r\n"
 		"   %s::::::::  :::::::::  ::::::::::::  :::::::::  :::   :::  ::::::::\r\n"
 		"     :::    :::        :::  ::  :::  :::    ::  :::   :::  :::\r\n"
@@ -876,13 +877,14 @@ ACMD(do_dyntext_show)
 		color2, color3, humanname, CCNRM(ch, C_NRM),
 		color2, CCNRM(ch, C_NRM), color1, CCNRM(ch, C_NRM));
 
-	sprintf(buf2, "%s was last updated on %s", dynname,
-		ctime(&(dyntext->last_edit[0].tEdit)));
-	CAP(buf2);
+	acc_strcat(
+        tmp_capitalize(
+            tmp_sprintf("%s was last updated on %s", dynname,
+                        ctime(&(dyntext->last_edit[0].tEdit)))),
+        dyntext->buffer,
+        NULL);
 
-	strcat(buf, strcat(buf2, dyntext->buffer));
-
-	page_string(ch->desc, buf);
+	page_string(ch->desc, acc_get_string());
 }
 
 

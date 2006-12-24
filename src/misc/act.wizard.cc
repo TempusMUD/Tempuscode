@@ -8211,7 +8211,64 @@ static const char* CODER_UTIL_USAGE =
 					"  unusedcmds - shows unused commands.\r\n"
 					"      verify - run tempus integrity check.\r\n"
 					"       chaos - makes every mob berserk.\r\n"
+					"    loadzone - load zone files for zone.\r\n"
                     ;
+
+bool
+load_single_zone(int zone_num)
+{
+    void discrete_load(FILE *fl, int mode);
+    void load_zones(FILE * fl, char *zonename);
+    void reset_zone(struct zone_data *zone);
+    void assign_mobiles(void);
+    void assign_objects(void);
+    void assign_rooms(void);
+    void assign_artisans(void);
+    void compile_all_progs(void);
+    void renum_world(void);
+    void renum_zone_table(void);
+    
+    FILE *db_file;
+    zone_data *zone;
+
+    db_file = fopen(tmp_sprintf("world/zon/%d.zon", zone_num), "r");
+    if (db_file) {
+        load_zones(db_file, tmp_sprintf("zon/%d.zon", zone_num));
+        fclose(db_file);
+    }
+    db_file = fopen(tmp_sprintf("world/wld/%d.wld", zone_num), "r");
+    if (db_file) {
+        discrete_load(db_file, DB_BOOT_WLD);
+        renum_world();
+        fclose(db_file);
+    }
+    db_file = fopen(tmp_sprintf("world/mob/%d.mob", zone_num), "r");
+    if (db_file) {
+        discrete_load(db_file, DB_BOOT_MOB);
+        fclose(db_file);
+    }
+    db_file = fopen(tmp_sprintf("world/obj/%d.obj", zone_num), "r");
+    if (db_file) {
+        discrete_load(db_file, DB_BOOT_OBJ);
+        fclose(db_file);
+    }
+    for (zone = zone_table; zone; zone = zone->next)
+        if (zone->number == zone_num)
+            break;
+    if (zone) {
+        reset_zone(zone);
+        renum_zone_table();
+        compile_all_progs();
+        assign_mobiles();
+        assign_objects();
+        assign_rooms();
+        assign_artisans();
+        return true;
+    } else {
+        return false;
+    }
+}
+
 ACMD(do_coderutil)
 {
     Tokenizer tokens(argument);
@@ -8272,6 +8329,29 @@ ACMD(do_coderutil)
 		}
 		send_to_char(ch, "The entire world goes mad...\r\n");
 		slog("%s has doomed the world to chaos.", GET_NAME(ch));
+    } else if (strcmp(token, "loadzone") == 0) {
+        int zone_num;
+        zone_data *zone;
+
+        tokens.next(token);
+        if (!is_number(token)) {
+            send_to_char(ch, "You must specify a zone number.\r\n");
+            return;
+        }
+        zone_num = atoi(token);
+        for (zone = zone_table; zone; zone = zone->next)
+            if (zone->number == zone_num)
+                break;
+        if (zone) {
+            send_to_char(ch, "Zone %d is already loaded!\r\n", zone_num);
+            return;
+        }
+
+        if (load_single_zone(zone_num)) {
+            send_to_char(ch, "Zone %d loaded and reset.\r\n", zone_num);
+        } else {
+            send_to_char(ch, "Zone could not be found or reset.\r\n");
+        }
 	} else
         send_to_char(ch, CODER_UTIL_USAGE);
 }

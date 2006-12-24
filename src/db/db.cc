@@ -2223,7 +2223,7 @@ load_zones(FILE * fl, char *zonename)
 
 	if (zone_table) {
 		for (zone = zone_table; zone; zone = zone->next)
-			if (!zone->next) {
+			if (!zone->next || (zone->next->number > new_zone->number)) {
 				zone->next = new_zone;
 				break;
 			}

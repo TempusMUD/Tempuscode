@@ -194,6 +194,35 @@ prog_var_equal(prog_state_data * state, char *key, char *arg)
 	return !strcasecmp(cur_var->value, arg);
 }
 
+char *
+prog_get_alias_list(char *args)
+{
+	char *type, *vnum_str;
+	int vnum = 0;
+	struct Creature *mob = NULL;
+	struct obj_data *obj = NULL;
+
+	type = tmp_getword(&args);
+	vnum_str = tmp_getword(&args);
+
+	if (!is_number(vnum_str))
+		return NULL;
+
+	vnum = atoi(vnum_str);
+
+	if (tolower(*type) == 'm') {
+		mob = real_mobile_proto(vnum);
+		if (mob)
+			return tmp_strdup(mob->player.name);
+	} else if (tolower(*type) == 'o') {
+		obj = real_object_proto(vnum);
+		if (obj)
+			return tmp_strdup(obj->aliases);
+	}
+
+	return NULL;
+}
+
 bool 
 prog_eval_alias(prog_env *env, prog_evt *evt, char *args) {
     char *alias_list = NULL;
@@ -2012,12 +2041,13 @@ void
 prog_update(void)
 {
 	struct prog_env *cur_prog, *next_prog;
-	CreatureList::iterator cit;
+	CreatureList::iterator cit, end;
 	zone_data *zone;
 	room_data *room;
 
 	// Unmark mobiles
-	for (cit = characterList.begin();cit != characterList.end();++cit)
+    end = characterList.end();
+	for (cit = characterList.begin();cit != end;++cit)
 		(*cit)->mob_specials.prog_marker = 0;
 	// Unmark rooms
 	for (zone = zone_table; zone; zone = zone->next)  {
@@ -2054,7 +2084,6 @@ prog_update(void)
 
 		prog_execute(cur_prog);
 	}
-
 	// Free threads that have terminated
 	for (cur_prog = prog_list; cur_prog; cur_prog = next_prog) {
 		next_prog = cur_prog->next;
@@ -2063,7 +2092,8 @@ prog_update(void)
 	}
 
 	// Trigger mobile idle and combat progs
-	for (cit = characterList.begin();cit != characterList.end();++cit) {
+    end = characterList.end();
+	for (cit = characterList.begin();cit != end;++cit) {
 		if ((*cit)->mob_specials.prog_marker || !GET_MOB_PROGOBJ(*cit))
 			continue;
 		else if (!(*cit)->numCombatants())
@@ -2125,31 +2155,3 @@ prog_state_free(prog_state_data * state)
 	free(state);
 }
 
-char *
-prog_get_alias_list(char *args)
-{
-	char *type, *vnum_str;
-	int vnum = 0;
-	struct Creature *mob = NULL;
-	struct obj_data *obj = NULL;
-
-	type = tmp_getword(&args);
-	vnum_str = tmp_getword(&args);
-
-	if (!is_number(vnum_str))
-		return NULL;
-
-	vnum = atoi(vnum_str);
-
-	if (tolower(*type) == 'm') {
-		mob = real_mobile_proto(vnum);
-		if (mob)
-			return tmp_strdup(mob->player.name);
-	} else if (tolower(*type) == 'o') {
-		obj = real_object_proto(vnum);
-		if (obj)
-			return tmp_strdup(obj->aliases);
-	}
-
-	return NULL;
-}

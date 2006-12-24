@@ -1776,6 +1776,10 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 		}
 		return;
 	}
+
+	if (strchr(arg, '.'))
+		arg = strchr(arg, '.') + 1;
+
 	/* Does the argument match an extra desc in the room? */
 	if ((desc = find_exdesc(arg, ch->in_room->ex_description)) != NULL) {
 		page_string(ch->desc, desc);
@@ -1799,8 +1803,7 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 			if ((desc =
 					find_exdesc(arg, GET_EQ(ch, j)->ex_description)) != NULL) {
 				page_string(ch->desc, desc);
-				found = 1;
-				bits = 1;
+				found = bits = 1;
 				found_obj = GET_EQ(ch, j);
 			}
 	/* Does the argument match an extra desc in the char's inventory? */
