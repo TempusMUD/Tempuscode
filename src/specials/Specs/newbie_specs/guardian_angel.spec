@@ -1,17 +1,19 @@
 #include <list>
+#include "accstr.h"
 
 #define ANGEL_DUAL_WIELD		(1 << 0)
 #define ANGEL_CONSUME			(1 << 1)
 #define ANGEL_DANGER			(1 << 3)
 #define ANGEL_LOWPOINTS			(1 << 4)
 #define ANGEL_INSTRUCTIONS      (1 << 5)
+#define ANGEL_POISONED			(1 << 6)
+#define ANGEL_DEATHLYPOISONED	(1 << 6)
 
 ACMD(do_follow);
 ACMD(do_rescue);
 bool affected_by_spell( struct char_data *ch, byte skill );
 int cast_spell(struct Creature *ch, struct Creature *tch, 
                struct obj_data *tobj, int *tdir, int spellnum, int *return_flags);
-void angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_data **data);
 
 struct angel_data {
 	Creature *angel;
@@ -35,10 +37,9 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "where get something eat", "respond You can find food at the bakery" },
 	{ CLASS_NONE, 100, "where get things eat", "respond You can find food at the bakery" },
 	{ CLASS_NONE,  50, "where get drink", "respond You can get some water at the aquafitter's" },
+	{ CLASS_NONE, 100, "where get drink", "respond You could drink out of the fountain in a city square." },
 	{ CLASS_NONE,  50, "where get water", "respond You can get some water at the aquafitter's" },
-	{ CLASS_NONE, 100, "where get drink", "respond You could drink out of the fountain in a city square." },
-	{ CLASS_NONE, 100, "where get drink", "respond You could drink out of the fountain in a city square." },
-	{ CLASS_NONE, 100, "where learn spells", "respond Try \"help guild\"." },
+	{ CLASS_NONE, 100, "where get water", "respond You could drink out of the fountain in a city square." },
 	{ CLASS_NONE, 100, "where learn skills", "respond Try \"help guild\"." },
 	{ CLASS_NONE, 100, "where star plaza", "directions 30013" },
 	{ CLASS_NONE, 100, "where get equipment", "respond You can buy equipment or loot it from corpses" },
@@ -46,7 +47,7 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "how stop wearing", "respond Type 'remove <item>' to stop wearing it." },
 	{ CLASS_NONE, 100, "how take off", "respond Type 'remove <item>' to take it off." },
 	{ CLASS_NONE, 100, "why you here", "respond To protect your interests, and serve your needs." },
-	{ CLASS_NONE, 100, "how long stay", "respond I will stay with you until level 10." },
+	{ CLASS_NONE, 100, "how long stay", "respond I will stay with you until you reach level 10." },
 	{ CLASS_NONE, 100, "where holodeck", "directions 2322 then enter rift and go south" },
 	{ CLASS_NONE, 100, "where get food", "respond You can find food at the bakery" },
 	{ CLASS_NONE, 100, "where go fight", "respond You should try the cock fighting arena, the training grounds, or the holodeck.  You could try the halflings, but it might be dangerous." },
@@ -153,19 +154,49 @@ angel_chat_match(const char *key, const char *ref)
 	return true;
 }
 
+void
+angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_data *data)
+{
+    int dir = -1, steps = 0;
+    struct room_data *cur_room = angel->in_room;
+
+    data->counter = 0;
+
+	if (cur_room == dest) {
+		data->action = str_dup("respond We're already here!");
+		return;
+	}
+
+    acc_string_clear();
+	acc_strcat("respond The shortest path there is:", NULL);
+    dir = find_first_step(cur_room, dest, STD_TRACK);
+    while (cur_room && dir >= 0 && steps < 600) {
+        acc_sprintf(" %s", to_dirs[dir]);
+        steps++;
+        cur_room = ABS_EXIT(cur_room, dir)->to_room;
+        dir = find_first_step(cur_room, dest, STD_TRACK);
+    }
+
+    if (cur_room != dest || steps >= 600)
+        data->action = str_dup("respond I don't seem to be able to find that room.");
+	else
+		data->action = acc_get_string();
+}
+
 int
 angel_do_action(Creature *self, Creature *charge, angel_data *data)
 {
-	char *cmd;
+	char *cmd, *action;
     int return_flags = 0;
 
-	cmd = tmp_getword(&data->action);
+	action = data->action;
+	cmd = tmp_getword(&action);
 	if (!strcmp(cmd, "respond")) {
-		perform_tell(self, charge, data->action);
+		perform_tell(self, charge, action);
 		return 1;
 	} 
     else if (!strcmp(cmd, "cast")) {
-        char *spell = tmp_getword(&data->action);
+        char *spell = tmp_getword(&action);
         int spell_no = atoi(spell);
 
         if (spell) {
@@ -175,10 +206,10 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
         }
     }
     else if (!strcmp(cmd, "directions")) {
-        char *room_num = tmp_getword(&data->action);
+        char *room_num = tmp_getword(&action);
         struct room_data *room = real_room(atoi(room_num));
         if (room) {
-            angel_find_path_to_room(self, room, &data);
+            angel_find_path_to_room(self, room, data);
             data->counter = -1;
             perform_tell(self, charge, data->action);
         }
@@ -205,6 +236,15 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
 		return 1;
 	}
 	return 0;
+}
+
+void
+guardian_angel_action(Creature *angel, const char *action)
+{
+	angel_data *data = (angel_data *)angel->mob_specials.func_data;
+	free(data->action);
+	data->action = str_dup(action);
+	data->counter = 0;
 }
 
 int
@@ -280,19 +320,27 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
         }
     }
 
-    if (!ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC) &&
-		affected_by_spell(charge, SPELL_POISON)) {
-	  do_say(self, "You're poisoned!  I'll take care of that for you.", 0, SCMD_SAY, 0);
-	  cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_POISON, &return_flags);
-	  return 1;
-    }
-
-    if (!ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC) &&
-		affected_by_spell(charge, SPELL_SICKNESS)) {
-	  do_say(self, "You're sick!  This spell should fix you up!.", 0, SCMD_SAY, 0);
-	  cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_SICKNESS, &return_flags);
-	  return 1;
-    }
+	if (affected_by_spell(charge, SPELL_POISON)) {
+		// Charge is poisoned
+		if (GET_HIT(charge) < 11) {
+			// Charge is about to die
+			if (ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC)) {
+				do_say(self, "You're about to die from poisoning!  I'll save you!", 0, SCMD_SAY, 0);
+				cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_POISON, &return_flags);
+			} else if (!IS_SET(data->flags, ANGEL_DEATHLYPOISONED)) {
+				do_say(self, "You're about to die from poisoning!  You need to quaff an antidote immediately!", 0, SCMD_SAY, 0);
+			}
+			data->flags |= ANGEL_POISONED | ANGEL_DEATHLYPOISONED;
+		} else if (!IS_SET(data->flags, ANGEL_POISONED)) {
+			// Charge isn't about to die, so just warn
+			do_say(self, "You're poisoned!  You should try to find an antidote as soon as possible!", 0, SCMD_SAY, 0);
+			data->flags |= ANGEL_POISONED;
+		}
+		return 1;
+	} else {
+		// Charge isn't poisoned anymore, so clear the flags
+		data->flags &= ~(ANGEL_POISONED | ANGEL_DEATHLYPOISONED);
+	}
 
     for (int x = 0; angel_spells[x].spell_no != -1; x++) {
         if (charge &&
@@ -305,14 +353,73 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 			(!ROOM_FLAGGED(self->in_room, ROOM_NOPSIONICS) ||
 			 !SPELL_IS_PSIONIC(angel_spells[x].spell_no)) &&
 			(!ROOM_FLAGGED(self->in_room, ROOM_NOSCIENCE) ||
-			 !SPELL_IS_PHYSICS(angel_spells[x].spell_no))
-			) {
-		  data->action = str_dup(tmp_sprintf("cast %d", x));
-		  data->counter = 0;
+			 !SPELL_IS_PHYSICS(angel_spells[x].spell_no)) &&
+			!number(0, 60)) {
+		  guardian_angel_action(self, tmp_sprintf("cast %d", x));
         }
     }
 
 	return 0;
+}
+
+void
+assign_angel(Creature *angel, Creature *ch)
+{
+    angel_data *data;
+
+	CREATE(data, angel_data, 1);
+    angel->mob_specials.func_data = data;
+    data->angel = angel;
+    data->charge_id = ch->getIdNum();
+    data->counter = -1;
+    data->action = str_dup("none");
+
+	// People relate better to others of their own sex
+	GET_SEX(angel) = GET_SEX(ch);
+
+    char_to_room(angel, ch->in_room, false);
+
+    do_follow(angel, GET_NAME(ch), 0, 0, 0);
+
+    angels.push_back(data);
+}
+
+void
+angel_to_char(Creature *ch) 
+{
+/*    static const int ANGEL_VNUM = 3038;
+    static const int DEMON_VNUM = 3039; */
+
+    static const int ANGEL_VNUM = 70603;
+    static const int DEMON_VNUM = 70604;
+    Creature *angel;
+    int vnum;
+    char *msg;
+
+    list<angel_data *>::iterator li = angels.begin();
+
+    for (; li != angels.end(); ++li) {
+        angel_data *tdata = *li;
+        if (tdata->charge_id == ch->getIdNum())
+            return;
+    }
+
+    if (!IS_EVIL(ch)) {
+        vnum = ANGEL_VNUM;
+        msg = tmp_strdup("A guardian angel has been sent to protect you!\r\n");
+    }
+    else {
+        vnum = DEMON_VNUM;
+        msg = tmp_strdup("A guardian demon has been sent to protect you!\r\n");
+    }
+
+    if (!(angel = read_mobile(vnum))) {
+        slog("ANGEL:  read_mobile() failed for vnum [%d]", vnum);
+        return;
+    }
+    send_to_char(ch, msg);
+
+	assign_angel(angel, ch);
 }
 
 SPECIAL(guardian_angel)
@@ -325,20 +432,33 @@ SPECIAL(guardian_angel)
 	const char *word;
 	int result;
 
-	if (!data) {
-		CREATE(data, angel_data, 1);
-		self->mob_specials.func_data = data;
-		data->angel = self;
-		data->charge_id = 0;
-		data->counter = -1;
-		data->action = str_dup("none");
+	if (IS_IMMORT(ch)) {
+		if (CMD_IS("status")) {
+			send_to_char(ch, "Angel status\r\n------------\r\n");
+			if (data) {
+				send_to_char(ch, "Charge: %s [%ld]\r\n",
+					playerIndex.getName(data->charge_id), data->charge_id);
+				send_to_char(ch, "Counter: %d\r\nAction: %s\r\n",
+					data->counter, data->action);
+			} else {
+				send_to_char(ch, "Charge: none\r\n");
+			}
+			return 1;
+		} else if (CMD_IS("beckon") && isname(argument, self->player.name)) {
+			assign_angel(self, ch);
+			perform_tell(self, ch, "I'm all yours, baby.");
+			return 1;
+		}
 	}
+
+	// Below here only applies with bound angels
+	if (!data)
+		return 0;
 	
 	charge = get_char_in_world_by_idnum(data->charge_id);
 	if (!charge && data->counter < 0) {
         // When the charge couldn't be found, disappear immediately
-		data->action = str_dup("dismiss");
-        data->counter = 0;
+		guardian_angel_action(self, "dismiss");
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
@@ -348,8 +468,8 @@ SPECIAL(guardian_angel)
 			return angel_check_charge(self, charge, data);
 		else {
 			result = angel_do_action(self, charge, data);
+			guardian_angel_action(self, "none");
 			data->counter = -1;
-			data->action = str_dup("none");
 			return result;
 		}
 	}
@@ -368,6 +488,7 @@ SPECIAL(guardian_angel)
 		} else if (CMD_IS("beckon") && isname(argument, self->player.name)) {
 			data->charge_id = GET_IDNUM(ch);
 			data->charge_name = GET_NAME(ch);
+			guardian_angel_action(self, "none");
 			GET_SEX(self) = GET_SEX(ch);
 			perform_tell(self, ch, "I'm all yours, baby.");
 			return 1;
@@ -408,91 +529,15 @@ SPECIAL(guardian_angel)
 		if (cur_chat->chance < 100 && number(0, 99) < cur_chat->chance)
 			continue;
 		if (angel_chat_match(cur_chat->keywords, argument)) {
-			data->action = cur_chat->response;
-			data->counter = 0;
+			guardian_angel_action(self, cur_chat->response);
 			return 0;
 		}
 	}
 
 	// Nothing matched - log the question and produce a lame response
     slog("ANGEL:  Unknown Question: \"%s\"", argument);
-    data->action = str_dup("respond I'm sorry, I don't understand that question.");
-    data->counter = 0;
+    guardian_angel_action(self, "respond I'm sorry, I don't understand that question.");
 
 	return 0;
 }
 
-void
-angel_to_char(Creature *ch) 
-{
-/*    static const int ANGEL_VNUM = 3038;
-    static const int DEMON_VNUM = 3039; */
-
-    static const int ANGEL_VNUM = 70603;
-    static const int DEMON_VNUM = 70604;
-    Creature *angel;
-    angel_data *data;
-    int vnum;
-    char *msg;
-
-    list<angel_data *>::iterator li = angels.begin();
-
-    for (; li != angels.end(); ++li) {
-        angel_data *tdata = *li;
-        if (tdata->charge_id == ch->getIdNum())
-            return;
-    }
-
-    if (!IS_EVIL(ch)) {
-        vnum = ANGEL_VNUM;
-        msg = tmp_strdup("A guardian angel has been sent to protect you!\r\n");
-    }
-    else {
-        vnum = DEMON_VNUM;
-        msg = tmp_strdup("A guardian demon has been sent to protect you!\r\n");
-    }
-
-    if (!(angel = read_mobile(vnum))) {
-        slog("ANGEL:  read_mobile() failed for vnum [%d]", vnum);
-        return;
-    }
-    send_to_char(ch, msg);
-
-	CREATE(data, angel_data, 1);
-    angel->mob_specials.func_data = data;
-    data->angel = angel;
-    data->charge_id = ch->getIdNum();
-    data->counter = -1;
-    data->action = str_dup("none");
-
-    char_to_room(angel, ch->in_room, false);
-
-    do_follow(angel, GET_NAME(ch), 0, 0, 0);
-
-    angels.push_back(data);
-}
-
-void
-angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_data **data)
-{
-    int dir = -1, steps = 0;
-    struct room_data *cur_room = angel->in_room;
-    char buf[1024];
-
-    sprintf(buf, "The shortest path there is:");
-    dir = find_first_step(cur_room, dest, STD_TRACK);
-    while (cur_room && dir >= 0 && steps < 600) {
-        strcat(buf, tmp_sprintf(" %s", to_dirs[dir]));
-        steps++;
-        cur_room = ABS_EXIT(cur_room, dir)->to_room;
-        dir = find_first_step(cur_room, dest, STD_TRACK);
-    }
-
-    if (cur_room != dest || steps >= 600)
-        sprintf(buf, "I don't seem to be able to find that room.");
-    else if (cur_room == dest && steps == 0)
-        sprintf(buf, "We're already there!");
-
-    (*data)->counter = 0;
-    (*data)->action = str_dup(buf);
-}
