@@ -2292,7 +2292,6 @@ ACMD(do_cast)
 					FALSE, ch, metal, 0, TO_CHAR);
 			else
 				send_to_char(ch, "You lost your concentration!\r\n");
-			ACMD(do_say);
 			if (!skill_message(0, ch, tch, spellnum)) {
 				send_to_char(ch, NOEFFECT);
 			}

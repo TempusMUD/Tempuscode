@@ -39,7 +39,6 @@ extern struct obj_data *cur_weap;
 
 struct follow_type *order_next_k;
 
-ACMD(do_say);
 /* extern functions */
 int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
@@ -1241,7 +1240,7 @@ ACMD(do_order)
 					}
 
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
-						do_say(vict, "As you command, master.", 0, 0, 0);
+						perform_say(vict, SCMD_INTONE, "As you command, master.");
 					if (vict->numCombatants()) {
                         CombatDataList::iterator li;
                         li = vict->getCombatList()->begin();
@@ -1275,7 +1274,7 @@ ACMD(do_order)
 							&& !GET_MOB_WAIT(k->follower)) {
 							if (IS_NPC(k->follower)
 								&& GET_MOB_VNUM(k->follower) == 5318)
-								do_say(vict, "As you command, master.", 0, 0, 0);
+								perform_say(vict, SCMD_INTONE, "As you command, master.");
 							if (k->follower->numCombatants()) {
                                 CombatDataList::iterator li;
                                 li = k->follower->getCombatList()->begin();

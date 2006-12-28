@@ -142,14 +142,13 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 {
 	if (IS_OBJ_STAT(obj, ITEM_NOSELL) ||
 			!OBJ_APPROVED(obj)|| obj->shared->owner_id != 0 ) {
-		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_badobj),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, shop->msg_badobj);
 		return true;
 	}
     
     if (GET_OBJ_COST(obj) < 1) {
-        do_say(self, tmp_sprintf("%s Why would I want that?  It has no value.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "Why would I want that?  It has no value.");
+		return true;
     }
 
 	if (shop->item_types.size() > 0) {
@@ -162,45 +161,38 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 			}
 		}
 		if (!accepted) {
-			do_say(self, tmp_sprintf("%s %s", GET_NAME(ch),
-				shop->msg_badobj), 0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, shop->msg_badobj);
 			return true;
 		}
 	} else {
-		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch),
-			shop->msg_badobj), 0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, shop->msg_badobj);
 		return true;
 	}
 
 	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
-		do_say(self, tmp_sprintf("%s I'm not buying something that's already broken.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "I'm not buying something that's already broken.");
 		return true;
 	}
 
 	if (GET_OBJ_EXTRA3(obj) & ITEM3_HUNTED) {
-		do_say(self, tmp_sprintf("%s This is hunted by the forces of Hell!  I'm not taking this!", GET_NAME(ch)),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "This is hunted by the forces of Hell!  I'm not taking this!");
 		return true;
 	}
 
 	if (GET_OBJ_SIGIL_IDNUM(obj)) {
-		do_say(self, tmp_sprintf("%s You'll have to remove that warding sigil before I'll bother.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "You'll have to remove that warding sigil before I'll bother.");
 		return true;
 	}
 
 	if (vendor_inventory(self, obj, self->carrying) >= MAX_ITEMS) {
-		do_say(self, tmp_sprintf("%s No thanks.  I've got too many of those in stock already.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "No thanks.  I've got too many of those in stock already.");
 		return true;
 	}
 
 	// Adjust cost for missing charges
 	if (GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) {
 		if (GET_OBJ_VAL(obj, 2) == 0) {
-			do_say(self, tmp_sprintf("%s I don't buy used up wands or staves!", GET_NAME(ch)),
-				0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "I don't buy used up wands or staves!");
 			return true;
 		}
 	}
@@ -275,13 +267,12 @@ vendor_resolve_name(Creature *self, char *obj_str)
 static void
 vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 {
-	char *currency_str, *msg;
+	char *currency_str;
 	const unsigned long cost = 2000;
 	unsigned long amt_carried;
 		
 	if (shop->currency == 2) {
-		do_say(self, tmp_sprintf("%s I don't do appraisals.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "I don't do appraisals.");
 		return;
 	}
 	switch (shop->currency) {
@@ -295,8 +286,7 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 		break;
 	}
 	if (cost > amt_carried) {
-		do_say(self, tmp_sprintf("%s %s",
-			GET_NAME(ch), shop->msg_buyerbroke), 0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, shop->msg_buyerbroke);
 		if (shop->cmd_temper)
 			command_interpreter(self, tmp_gsub(shop->cmd_temper, "$N", GET_NAME(ch)));
 		return;
@@ -322,9 +312,8 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 			currency_str = "-BUGS-";
 	}
 
-	msg = tmp_sprintf("%s That will cost you %lu %s.", GET_NAME(ch),
-		cost, currency_str);
-	do_say(self, msg, 0, SCMD_SAY_TO, NULL);
+	perform_say_to(self, ch,
+		tmp_sprintf("That will cost you %lu %s.", cost, currency_str));
 
 
 	if( IS_MAGE(self) ) {
@@ -359,19 +348,13 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (is_number(obj_str)) {
 		num = atoi(obj_str);
 		if (num < 0) {
-			do_say(self,
-				tmp_sprintf("%s You want to buy a negative amount? Try selling.", GET_NAME(ch)), 
-				0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "You want to buy a negative amount? Try selling.");
 			return;
 		} else if (num == 0) {
-			do_say(self,
-				tmp_sprintf("%s You wanted to buy something?", GET_NAME(ch)), 
-				0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "You wanted to buy something?");
 			return;
 		} else if (num > 24 ) {
-			do_say(self,
-				tmp_sprintf("%s I can't sell that many at once.", GET_NAME(ch)), 
-				0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "I can't sell that many at once.");
 			return;
         }
 
@@ -390,9 +373,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		obj = vendor_resolve_name(self, obj_str);
 
 	if (!obj) {
-		do_say(self,
-			tmp_sprintf("%s %s",
-			GET_NAME(ch), shop->msg_sell_noobj), 0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, shop->msg_sell_noobj);
 		return;
 	}
 
@@ -403,9 +384,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	if (num == -1) {
 		if (vendor_is_produced(obj, shop)) {
-			do_say(self,
-				tmp_sprintf("%s I can make these things all day!",
-				GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "I can make these things all day!");
 			return;
 		}
 		num = vendor_inventory(self, obj, obj);
@@ -414,9 +393,8 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (num > 1) {
 		int obj_cnt = vendor_inventory(self, obj, self->carrying);
 		if (!vendor_is_produced(obj, shop) && num > obj_cnt) {
-			do_say(self,
-				tmp_sprintf("%s I only have %d to sell to you.",
-				GET_NAME(ch), obj_cnt), 0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, 
+				tmp_sprintf("I only have %d to sell to you.", obj_cnt));
 			num = obj_cnt;
 		}
 	}
@@ -436,8 +414,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	}
 	
 	if (cost > amt_carried) {
-		do_say(self, tmp_sprintf("%s %s",
-			GET_NAME(ch), shop->msg_buyerbroke), 0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, shop->msg_buyerbroke);
 		if (shop->cmd_temper)
 			command_interpreter(self, shop->cmd_temper);
 		return;
@@ -445,34 +422,25 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	
 	if (cost * num > amt_carried && cost > 0) {
 		num = amt_carried / cost;
-		do_say(self,
-			tmp_sprintf("%s You only have enough to buy %d.",
-				GET_NAME(ch), num), 0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, 
+			tmp_sprintf("You only have enough to buy %d.", num));
 	}
 
 	if (IS_CARRYING_N(ch) + 1 > CAN_CARRY_N(ch)) {
-		do_say(self,
-			tmp_sprintf("%s You can't carry any more items.",
-				GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "You can't carry any more items.");
 		return;
 	}
 
 	if (IS_CARRYING_W(ch) + obj->getWeight() > CAN_CARRY_W(ch)) {
 		switch (number(0,2)) {
 		case 0:
-			do_say(self,
-				tmp_sprintf("%s You can't carry any more weight.",
-					GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "You can't carry any more weight.");
 			break;
 		case 1:
-			do_say(self,
-				tmp_sprintf("%s You can't carry that much weight.",
-					GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "You can't carry that much weight.");
 			break;
 		case 2:
-			do_say(self,
-				tmp_sprintf("%s You can carry no more weight.",
-					GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "You can carry no more weight.");
 			break;
 		}
 		return;
@@ -484,9 +452,8 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		num = MIN(num, CAN_CARRY_N(ch) - IS_CARRYING_N(ch));
 		num = MIN(num, (CAN_CARRY_W(ch) - IS_CARRYING_W(ch))
 			/ obj->getWeight());
-		do_say(self,
-			tmp_sprintf("%s You can only carry %d.",
-				GET_NAME(ch), num), 0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch,
+			tmp_sprintf("You can only carry %d.", num));
 	}
 
 	switch (shop->currency) {
@@ -509,9 +476,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		currency_str = "-BUGS-";
 	}
 
-	do_say(self,
-		tmp_sprintf("%s %s",
-			GET_NAME(ch), tmp_sprintf(shop->msg_buy, cost * num)), 0, SCMD_SAY_TO, NULL);
+	perform_say_to(self, ch, tmp_sprintf(shop->msg_buy, cost * num));
 	msg = tmp_sprintf("You sell $p %sto $N for %lu %s.",
 		((num == 1) ? "":tmp_sprintf("(x%d) ", num)),
 		cost * num,
@@ -551,9 +516,7 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	unsigned long cost, amt_carried;
 
 	if (shop->currency == 2) {
-		do_say(self,
-			tmp_sprintf("%s Hey, I only sell stuff.", GET_NAME(ch)), 
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "Hey, I only sell stuff.");
 		return;
 	}
 		
@@ -566,14 +529,10 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (is_number(obj_str)) {
 		num = atoi(obj_str);
 		if (num < 0) {
-			do_say(self,
-				tmp_sprintf("%s You want to sell a negative amount? Try buying.", GET_NAME(ch)), 
-				0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "You want to sell a negative amount? Try buying.");
 			return;
 		} else if (num == 0) {
-			do_say(self,
-				tmp_sprintf("%s You wanted to sell something?", GET_NAME(ch)), 
-				0, SCMD_SAY_TO, NULL);
+			perform_say_to(self, ch, "You wanted to sell something?");
 			return;
 		}
 
@@ -586,9 +545,7 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	obj = get_obj_in_list_all(ch, obj_str, ch->carrying);
 	if (!obj) {
-		do_say(self,
-			tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_buy_noobj), 
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, shop->msg_buy_noobj);
 		return;
 	}
 
@@ -608,35 +565,30 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	}
 
 	if (vendor_is_produced(obj, shop)) {
-		do_say(self, tmp_sprintf("%s I make these.  Why should I buy it back from you?", GET_NAME(ch)),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "I make these.  Why should I buy it back from you?");
 		return;
 	}
 	cost = vendor_get_value(obj, shop->markdown, self->getCostModifier(ch));
 	amt_carried = (shop->currency) ? GET_CASH(self):GET_GOLD(self);
 
 	if (amt_carried < cost) {
-		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_selfbroke),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, shop->msg_selfbroke);
 		return;
 	}
 
 	if (amt_carried < cost * num && cost > 0) {
 		num = amt_carried / cost;
-		do_say(self, tmp_sprintf("%s I can only afford to buy %d.",
-			GET_NAME(ch), num),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch,
+			tmp_sprintf("I can only afford to buy %d.", num));
 	}
 
 	if (vendor_inventory(self, obj, self->carrying) + num > MAX_ITEMS) {
 		num = MAX_ITEMS - vendor_inventory(self, obj, self->carrying);
-		do_say(self, tmp_sprintf("%s I only want to buy %d.",
-			GET_NAME(ch), num),
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch,
+				tmp_sprintf("I only want to buy %d.", num));
 	}
 
-	do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), tmp_sprintf(shop->msg_sell, cost * num)),
-		0, SCMD_SAY_TO, NULL);
+	perform_say_to(self, ch, tmp_sprintf(shop->msg_sell, cost * num));
 
 	transfer_money(self, ch, cost * num, shop->currency, false);
 
@@ -712,9 +664,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
     unsigned long cost;
     
 	if (!self->carrying) {
-		do_say(self,
-			tmp_sprintf("%s I'm out of stock at the moment", GET_NAME(ch)), 
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "I'm out of stock at the moment.");
 		return;
 	}
 
@@ -774,12 +724,9 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	obj_data *obj;
 	char *obj_str;
 	unsigned long cost;
-	char *msg;
 
 	if (shop->currency == 2) {
-		do_say(self,
-			tmp_sprintf("%s I'm not the buying kind.", GET_NAME(ch)), 
-			0, SCMD_SAY_TO, NULL);
+		perform_say_to(self, ch, "I'm not the buying kind.");
 		return;
 	}
 		
@@ -800,9 +747,7 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	cost = vendor_get_value(obj, shop->markdown, self->getCostModifier(ch));
 
-	msg = tmp_sprintf("%s I'll give you %lu %s for it!", GET_NAME(ch),
-		cost, shop->currency ? "creds":"gold");
-	do_say(self, msg, 0, SCMD_SAY_TO, NULL);
+	perform_say_to(self, ch, tmp_sprintf("I'll give you %lu %s for it!", cost, shop->currency ? "creds":"gold"));
 }
 
 static void
@@ -1027,9 +972,7 @@ SPECIAL(vendor)
 				mudlog(LVL_IMMORT, NRM, true,
 					"ERR: Mobile %d has %s in line %d of specparam",
 					GET_MOB_VNUM(self), err, err_line);
-				do_say(self, tmp_sprintf(
-					"%s Sorry.  I'm broken, but a god has already been notified.",
-					GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+				perform_say_to(self, ch, "Sorry.  I'm broken, but a god has already been notified.");
 			}
 		}
 		return true;
@@ -1046,14 +989,12 @@ SPECIAL(vendor)
 	}
 	
 	if (!can_see_creature(self, ch)) {
-		do_say(self, "Show yourself if you want to do business with me!",
-			0, 0, 0);
+		perform_say(self, SCMD_YELL, "Show yourself if you want to do business with me!");
 		return true;
 	}
 
 	if (shop->room != -1 && shop->room != self->in_room->number) {
-		do_say(self, tmp_sprintf("%s Catch me when I'm in my store.",
-			GET_NAME(ch)), 0, SCMD_SAY_TO, 0);
+		perform_say_to(self, ch, "Catch me when I'm in my store.");
 		return true;
 	}
 
@@ -1065,20 +1006,18 @@ SPECIAL(vendor)
 		for (shop_time = shop->closed_hours.begin();shop_time != shop->closed_hours.end();shop_time++)
 			if (local_time.hours >= shop_time->start &&
 					local_time.hours < shop_time->end ) {
-				do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_closed), 0, SCMD_SAY_TO, 0);
+				perform_say_to(self, ch, shop->msg_closed);
 				return true;
 			}
 	}
 
 	if (shop->reaction.react(ch) != ALLOW) {
-		do_say(self, tmp_sprintf("%s %s", GET_NAME(ch), shop->msg_denied),
-			0, SCMD_SAY_TO, 0);
+		perform_say_to(self, ch, shop->msg_denied);
 		return true;
 	}
 
 	if (!IS_EVIL(self) && IS_CRIMINAL(ch)) {
-		do_say(self, tmp_sprintf("%s I don't deal with CRIMINALS.",
-			GET_NAME(ch)), 0, SCMD_SAY_TO, 0);
+		perform_say_to(self, ch, "I don't deal with CRIMINALS.");
 		return true;
 	}
 

@@ -111,7 +111,6 @@ char *obj_cond_color(struct obj_data *obj, struct Creature *ch);  /**writes to b
 int same_obj(struct obj_data *obj1, struct obj_data *obj2);
 
 ACMD(do_stand);
-ACMD(do_say);
 
 #define HID_OBJ_PROB(ch, obj) \
 (GET_LEVEL(ch) + GET_INT(ch) +                    \
@@ -1914,23 +1913,23 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 					} else if (!number(0, 4)) {
 						sprintf(glancebuf, "Piss off, %s.",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, 0, 0);
+						perform_say(found_char, 0, glancebuf);
 					} else if (!number(0, 3)) {
 						sprintf(glancebuf, "Take a hike, %s.",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, 0, 0);
+						perform_say(found_char, 0, glancebuf);
 					} else if (!number(0, 2)) {
 						sprintf(glancebuf, "%s You lookin' at me?",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, SCMD_SAY_TO, 0);
+						perform_say(found_char, SCMD_SAY_TO, glancebuf);
 					} else if (!number(0, 1)) {
 						sprintf(glancebuf, "Hit the road, %s.",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, 0, 0);
+						perform_say(found_char, 0, glancebuf);
 					} else {
 						sprintf(glancebuf, "Get lost, %s.",
 							GET_DISGUISED_NAME(found_char, ch));
-						do_say(found_char, glancebuf, 0, 0, 0);
+						perform_say(found_char, 0, glancebuf);
 					}
 
 					if (MOB_FLAGGED(found_char, MOB_AGGRESSIVE) &&

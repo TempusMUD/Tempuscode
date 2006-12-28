@@ -2389,7 +2389,7 @@ process_load_param( Creature *ch )
 				}
 			} else {
 				char* msg = tmp_sprintf("Line %d of my load param has the wrong format!",lineno);
-				do_say(ch, msg, 0, SCMD_YELL, 0);
+				perform_say(ch, SCMD_YELL, msg);
 			}
 		}
 //		else {
@@ -2419,7 +2419,7 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
 			ch->mob_specials.shared->vnum, vnum );
 		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
 			char* msg = tmp_sprintf("Object %d doesn't exist!",vnum);
-			do_say(ch, msg, 0, SCMD_YELL, 0);
+			perform_say(ch, SCMD_YELL, msg);
 		}
         return 3;
     }
@@ -2442,7 +2442,7 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
     if (pos < 0 || pos >= NUM_WEARS) {
 		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
 			char* msg = tmp_sprintf("%s is not a valid position!",position);
-			do_say(ch, msg, 0, SCMD_YELL, 0);
+			perform_say(ch, SCMD_YELL, msg);
 		}
         errlog("Mob num %d trying to equip obj %d to badpos: '%s'",
 			ch->mob_specials.shared->vnum, obj->shared->vnum, position);
@@ -2458,7 +2458,7 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
             ch->mob_specials.shared->vnum, vnum);
 		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
 			char* msg = tmp_sprintf("Loading object %d failed!", vnum );
-			do_say(ch, msg, 0, SCMD_YELL, 0);
+			perform_say(ch, SCMD_YELL, msg);
 		}
         return 5;
     }

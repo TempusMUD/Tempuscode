@@ -59,7 +59,6 @@ ACMD(do_throw);
 ACMD(do_activate);
 ACMD(do_give);
 ACMD(do_extinguish);
-ACMD(do_say);
 ACMD(do_split);
 
 const long MONEY_LOG_LIMIT = 50000000;

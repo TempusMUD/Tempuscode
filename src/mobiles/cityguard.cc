@@ -487,7 +487,7 @@ SPECIAL(cityguard)
 
 		// Save the newbies from themselves
 		if (GET_LEVEL(tch) < 20 && GET_REMORT_GEN(tch) == 0) {
-			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0);
+			perform_say(self, 0, "Here now!");
 			self->removeCombat(tch);
 			tch->removeCombat(self);
 			return true;
@@ -653,14 +653,13 @@ SPECIAL(cityguard)
 		// stopping fight
 		switch (number(0, 2)) {
 		case 0:
-			do_say(self, "Knock it off!", 0, SCMD_BELLOW, 0); 
+			perform_say(self, SCMD_BELLOW, "Knock it off!"); 
             break;
 		case 1:
-			do_say(self, "Stop disturbing the peace of this city!", 
-                   0, SCMD_BELLOW, 0); 
+			perform_say(self, SCMD_BELLOW, "Stop disturbing the peace of this city!"); 
             break;
 		case 2:
-			do_say(self, "Here now, here now!  Stop that!", 0, SCMD_BELLOW, 0); 
+			perform_say(self, 0, "Here now!"); 
             break;
 		}
         Creature *vict = target->findRandomCombat();
@@ -692,9 +691,9 @@ SPECIAL(cityguard)
 		// assist other cityguard
 		if (!number(0, 10)) {
 			if (number(0, 1))
-				do_say(self, "To arms!  To arms!!", 0, SCMD_YELL, 0);
+				perform_say(self, SCMD_YELL, "To arms!  To arms!!");
 			else
-				do_say(self, "BAAAANNNZZZZZAAAAAIIIIII!!!", 0, SCMD_YELL, 0);
+				perform_say(self, SCMD_YELL, "BAAAANNNZZZZZAAAAAIIIIII!!!");
 		}
 
 		if (number(0, 1))

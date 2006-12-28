@@ -254,8 +254,7 @@ Craftshop::list(Creature *keeper, Creature *ch)
 	int idx = 0;
 
 	if (items.empty()) {
-		msg = tmp_sprintf("%s I'm not in business right now.", GET_NAME(ch));
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		perform_say_to(keeper, ch, "I'm not in business right now.");
 		return;
 	}
 
@@ -300,8 +299,7 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 	}
 
 	if (!item) {
-		msg = tmp_sprintf("%s I can't make that!  Use the LIST command!", GET_NAME(ch));
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		perform_say_to(keeper, ch, "I can't make that!  Use the LIST command!");
 		return;
 	}
 
@@ -309,30 +307,30 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 	
 	needed_str = item->next_requirement(keeper);
 	if (needed_str) {
-		msg = tmp_sprintf("%s I don't have the necessary materials.", GET_NAME(ch));
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
-		msg = tmp_sprintf("%s Give me %s.", GET_NAME(ch), needed_str);
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		msg = tmp_sprintf("I don't have the necessary materials.");
+		perform_say_to(keeper, ch, msg);
+		msg = tmp_sprintf("Give me %s.", needed_str);
+		perform_say_to(keeper, ch, msg);
 		return;
 	}
 
 	if (modCost > GET_GOLD(ch)) {
-		msg = tmp_sprintf("%s You don't have enough money", GET_NAME(ch));
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
-		msg = tmp_sprintf("%s It costs %ld.", GET_NAME(ch), modCost);
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		msg = tmp_sprintf("You don't have enough money");
+		perform_say_to(keeper, ch, msg);
+		msg = tmp_sprintf("It costs %ld.", modCost);
+		perform_say_to(keeper, ch, msg);
 		return;
 	}
 
 	if (IS_CARRYING_N(ch) + 1 > CAN_CARRY_N(ch)) {
-		msg = tmp_sprintf("%s You can't carry any more items.", GET_NAME(ch));
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		msg = tmp_sprintf("You can't carry any more items.");
+		perform_say_to(keeper, ch, msg);
 		return;
 	}
 
 	if (IS_CARRYING_W(ch) + real_object_proto(item->vnum)->getWeight() > CAN_CARRY_W(ch)) {
-		msg = tmp_sprintf("%s You can't carry any more weight.", GET_NAME(ch));
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		msg = tmp_sprintf("You can't carry any more weight.");
+		perform_say_to(keeper, ch, msg);
 		return;
 	}
 
@@ -340,8 +338,8 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 	obj = item->create(keeper, ch);
 
 	if (!obj) {
-		msg = tmp_sprintf("%s I am sorry.  I failed to make it and I used up all my materials.", GET_NAME(ch));
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		msg = tmp_sprintf("I am sorry.  I failed to make it and I used up all my materials.");
+		perform_say_to(keeper, ch, msg);
 		return;
 	}
 
@@ -367,7 +365,7 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 			break;
 	}
 	if (msg)
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		perform_say_to(keeper, ch, msg);
 }
 
 void
@@ -405,7 +403,7 @@ SPECIAL(artisan)
 		do_action(keeper, GET_NAME(ch), cmd_slap, 0, 0);
 		sprintf(buf, "%s is a bloody thief!", GET_NAME(ch));
         buf[0] = toupper(buf[0]);
-		do_say(keeper, buf, 0, SCMD_SHOUT, NULL);
+		perform_say(keeper, SCMD_SHOUT, buf);
 		return true;
 	}
 
@@ -415,16 +413,16 @@ SPECIAL(artisan)
 	shop = Craftshop::find(keeper);
 
 	if (!shop || shop->room != keeper->in_room->number) {
-		msg = tmp_sprintf("%s Sorry!  I don't have my tools!", GET_NAME(ch));
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		msg = tmp_sprintf("Sorry!  I don't have my tools!");
+		perform_say_to(keeper, ch, msg);
 		do_action(keeper, "", cmd_cry, 0, 0);
 		return true;
 	}
 
 /*
 	if (!shop->accepts(ch) && shop->refuses(ch)) {
-		sprintf(buf, "%s I don't deal with your type.", GET_NAME(ch));
-		do_say(keeper, buf, 0, SCMD_SAY_TO, NULL);
+		sprintf(buf, "I don't deal with your type.");
+		perform_say_to(keeper, ch, buf);
 		do_action(keeper, GET_NAME(ch), cmd_smirk, 0);
 		return true;
 	}
@@ -435,8 +433,8 @@ SPECIAL(artisan)
 	} else if (CMD_IS("buy")) {
 		shop->buy(keeper, ch, argument);
 	} else if (CMD_IS("sell")) {
-		msg = tmp_sprintf("%s I don't buy things, I make them.", GET_NAME(ch));
-		do_say(keeper, msg, 0, SCMD_SAY_TO, NULL);
+		msg = tmp_sprintf("I don't buy things, I make them.");
+		perform_say_to(keeper, ch, msg);
     } else if( CMD_IS("status") && Security::isMember(ch,"Coder") ) {
         vector<Craftshop *>::iterator shop;
         for (shop = shop_list.begin(); shop != shop_list.end(); shop++) {
