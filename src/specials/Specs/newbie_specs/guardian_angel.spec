@@ -416,6 +416,8 @@ assign_angel(Creature *angel, Creature *ch)
 	// People relate better to others of their own sex
 	GET_SEX(angel) = GET_SEX(ch);
 
+	if (angel->in_room)
+		char_from_room(angel);
     char_to_room(angel, ch->in_room, false);
 
     do_follow(angel, GET_NAME(ch), 0, 0, 0);
@@ -471,7 +473,7 @@ SPECIAL(guardian_angel)
 	const char *word;
 	int result;
 
-	if (IS_IMMORT(ch)) {
+	if (spec_mode == SPECIAL_CMD && IS_IMMORT(ch)) {
 		if (CMD_IS("status")) {
 			send_to_char(ch, "Angel status\r\n------------\r\n");
 			if (data) {
@@ -485,7 +487,18 @@ SPECIAL(guardian_angel)
 			return 1;
 		} else if (CMD_IS("beckon") && isname(argument, self->player.name)) {
 			assign_angel(self, ch);
-			perform_tell(self, ch, "I'm all yours, baby.");
+			perform_tell(self, ch, "I'm all yours.");
+			return 1;
+		} else if (CMD_IS("order") &&
+				isname(tmp_getword(&argument), self->player.name) &&
+				is_abbrev(tmp_getword(&argument), "follow")) {
+			charge = get_player_vis(ch, tmp_getword(&argument), false);
+			if (charge) {
+				assign_angel(self, charge);
+				perform_tell(self, ch, "Sure thing, boss.");
+			} else {
+				perform_tell(self, ch, "Follow who?");
+			}
 			return 1;
 		}
 	}
@@ -516,24 +529,6 @@ SPECIAL(guardian_angel)
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
 	
-	if (IS_IMMORT(ch)) {
-		if (CMD_IS("status")) {
-			send_to_char(ch, "Angel status\r\n------------\r\n");
-			send_to_char(ch, "Charge: %s [%ld]\r\n",
-				playerIndex.getName(data->charge_id), data->charge_id);
-			send_to_char(ch, "Counter: %d\r\nAction: %s\r\n",
-				data->counter, data->action);
-			return 1;
-		} else if (CMD_IS("beckon") && isname(argument, self->player.name)) {
-			data->charge_id = GET_IDNUM(ch);
-			data->charge_name = GET_NAME(ch);
-			guardian_angel_action(self, "none");
-			GET_SEX(self) = GET_SEX(ch);
-			perform_tell(self, ch, "I'm all yours, baby.");
-			return 1;
-		}
-	}
-
 	if (ch != charge)
 		return 0;
 
