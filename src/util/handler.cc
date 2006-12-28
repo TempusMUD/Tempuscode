@@ -1129,6 +1129,12 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 {
 	struct affected_type *aff = NULL, *next_aff = NULL;
 
+	if (ch->in_room) {
+		errlog("creature already in a room in char_to_room()!");
+		raise(SIGSEGV);
+		return false;
+	}
+
 	if (!ch || room == NULL) {
 		errlog("Illegal value(s) passed to char_to_room");
 		raise(SIGSEGV);
