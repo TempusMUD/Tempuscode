@@ -237,7 +237,7 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
         int spell_no = atoi(spell);
 
         if (spell) {
-            do_say(self, angel_spells[spell_no].text, 0, SCMD_SAY, 0);
+            perform_say_to(self, charge, angel_spells[spell_no].text);
             cast_spell(self, charge, NULL, NULL, angel_spells[spell_no].spell_no, &return_flags);
             return 1;
         }
@@ -306,13 +306,13 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 	// First check for mortal danger
     if (GET_HIT(charge) < 15 && charge->numCombatants()) {
         SET_BIT(data->flags, ANGEL_DANGER);
-		do_say(self, "Banzaiiiii!  To the rescue!", 0, SCMD_YELL, 0);
+		perform_say(self, SCMD_YELL, "Banzaiiiii!  To the rescue!");
         do_rescue(self, GET_NAME(charge), 0, 0, 0);
         return 1;
     }
     else if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && charge->numCombatants()) {
 		if (!IS_SET(data->flags, ANGEL_DANGER)) {
-			do_say(self, "Flee!  Flee for your life!", 0, SCMD_YELL, 0);
+			perform_say(self, SCMD_YELL, "Flee!  Flee for your life!");
 			SET_BIT(data->flags, ANGEL_DANGER);
 			return 1;
 		}
@@ -326,14 +326,14 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 	
 	if ((!GET_COND(charge, FULL) || !GET_COND(charge, THIRST))
 			&& !IS_SET(data->flags, ANGEL_CONSUME)) {
-		do_say(self, "You regenerate hitpoints, mana, and move much faster if you aren't hungry or thirsty.", 0, SCMD_SAY, 0);
+		perform_say_to(self, charge, "You regenerate hitpoints, mana, and move much faster if you aren't hungry or thirsty.");
 		SET_BIT(data->flags, ANGEL_CONSUME);
 		return 1;
 	}
 
 	if (GET_EQ(charge, WEAR_WIELD_2)) {
 		if (!IS_SET(data->flags, ANGEL_DUAL_WIELD)) {
-			do_say(self, "It's best not to wield two weapons at once if you don't have the double wield skill.", 0, SCMD_SAY, 0);
+			perform_say_to(self, charge, "It's best not to wield two weapons at once if you don't have the double wield skill.");
 			SET_BIT(data->flags, ANGEL_DUAL_WIELD);
 			return 1;
 		}
@@ -344,15 +344,15 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 			&& charge->getPosition() > POS_FIGHTING) {
 
 		if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4) {
-			do_say(self, "You're running low on hit points.  Maybe you should rest or sleep to regain them faster.", 0, SCMD_SAY, 0);
+			perform_say_to(self, charge, "You're running low on hit points.  Maybe you should rest or sleep to regain them faster.");
 			SET_BIT(data->flags, ANGEL_LOWPOINTS);
 			return 1;
 		} else if (GET_MOVE(charge) < GET_MAX_MOVE(charge) / 4) {
-			do_say(self, "You're running low on move points.  Maybe you should rest or sleep to regain them faster.", 0, SCMD_SAY, 0);
+			perform_say_to(self, charge, "You're running low on move points.  Maybe you should rest or sleep to regain them faster.");
 			SET_BIT(data->flags, ANGEL_LOWPOINTS);
 			return 1;
 		} else if (GET_MANA(charge) < GET_MAX_MANA(charge) / 4) {
-			do_say(self, "You're running low on mana points.  Maybe you should rest or sleep to regain them faster.", 0, SCMD_SAY, 0);
+			perform_say_to(self, charge, "You're running low on mana points.  Maybe you should rest or sleep to regain them faster.");
 			SET_BIT(data->flags, ANGEL_LOWPOINTS);
         }
     }
@@ -362,15 +362,15 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 		if (GET_HIT(charge) < 11) {
 			// Charge is about to die
 			if (ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC)) {
-				do_say(self, "You're about to die from poisoning!  I'll save you!", 0, SCMD_SAY, 0);
+				perform_say_to(self, charge, "You're about to die from poisoning!  I'll save you!");
 				cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_POISON, &return_flags);
 			} else if (!IS_SET(data->flags, ANGEL_DEATHLYPOISONED)) {
-				do_say(self, "You're about to die from poisoning!  You need to quaff an antidote immediately!", 0, SCMD_SAY, 0);
+				perform_say_to(self, charge, "You're about to die from poisoning!  You need to quaff an antidote immediately!");
 			}
 			data->flags |= ANGEL_POISONED | ANGEL_DEATHLYPOISONED;
 		} else if (!IS_SET(data->flags, ANGEL_POISONED)) {
 			// Charge isn't about to die, so just warn
-			do_say(self, "You're poisoned!  You should try to find an antidote as soon as possible!", 0, SCMD_SAY, 0);
+			perform_say_to(self, charge, "You're poisoned!  You should try to find an antidote as soon as possible!");
 			data->flags |= ANGEL_POISONED;
 		}
 		return 1;
@@ -379,22 +379,24 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 		data->flags &= ~(ANGEL_POISONED | ANGEL_DEATHLYPOISONED);
 	}
 
-    for (int x = 0; angel_spells[x].spell_no != -1; x++) {
-        if (charge &&
-			charge->in_room == self->in_room &&
-			can_see_creature(self, charge) &&
-			!affected_by_spell(charge, angel_spells[x].spell_no) &&
-			(!ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC) ||
-			 (!SPELL_IS_MAGIC(angel_spells[x].spell_no) &&
-			  !SPELL_IS_DIVINE(angel_spells[x].spell_no))) &&
-			(!ROOM_FLAGGED(self->in_room, ROOM_NOPSIONICS) ||
-			 !SPELL_IS_PSIONIC(angel_spells[x].spell_no)) &&
-			(!ROOM_FLAGGED(self->in_room, ROOM_NOSCIENCE) ||
-			 !SPELL_IS_PHYSICS(angel_spells[x].spell_no)) &&
-			!number(0, 60)) {
-		  guardian_angel_action(self, tmp_sprintf("cast %d", x));
-        }
-    }
+	if (!number(0,60)) {
+		// Occasionally throw them a bone
+		for (int x = 0; angel_spells[x].spell_no != -1; x++) {
+			if (charge &&
+				charge->in_room == self->in_room &&
+				can_see_creature(self, charge) &&
+				!affected_by_spell(charge, angel_spells[x].spell_no) &&
+				(!ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC) ||
+				 (!SPELL_IS_MAGIC(angel_spells[x].spell_no) &&
+				  !SPELL_IS_DIVINE(angel_spells[x].spell_no))) &&
+				(!ROOM_FLAGGED(self->in_room, ROOM_NOPSIONICS) ||
+				 !SPELL_IS_PSIONIC(angel_spells[x].spell_no)) &&
+				(!ROOM_FLAGGED(self->in_room, ROOM_NOSCIENCE) ||
+				 !SPELL_IS_PHYSICS(angel_spells[x].spell_no))) {
+			  guardian_angel_action(self, tmp_sprintf("cast %d", x));
+			}
+		}
+	}
 
 	return 0;
 }

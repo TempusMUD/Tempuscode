@@ -26,6 +26,9 @@ ASPELL(spell_area_stasis);
 void transfer_money(Creature *from, Creature *to, long long amt, int currency, bool plant);
 void perform_give_credits(Creature *ch, Creature *vict, int amount);
 void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
+void perform_say(Creature *ch, int subcmd, const char *message);
+void perform_say_to(Creature *ch, Creature *target, const char *message);
+void perform_say_to_obj(Creature *ch, obj_data *obj, const char *message);
 
 
 // Sneaking

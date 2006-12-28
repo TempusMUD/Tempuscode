@@ -49,28 +49,82 @@ extern const char *language_names[];
 int parse_player_class(char *arg);
 void summon_cityguards(room_data *room);
 
+const char *say_subcmd_strings[] = {
+	"say", "bellow", "expostulate", "ramble", "babble", "utter",
+	"murmur", "intone", "yell"
+};
+
+bool
+say_lang_pred(struct Creature *ch, struct obj_data *obj, void *vict_obj, struct Creature *to, int mode)
+{
+	return can_speak_language(to, GET_LANGUAGE(ch));
+}
+
+bool
+say_nolang_pred(struct Creature *ch, struct obj_data *obj, void *vict_obj, struct Creature *to, int mode)
+{
+	return !can_speak_language(to, GET_LANGUAGE(ch));
+}
+
+
+void
+perform_say(Creature *ch, int subcmd, const char *message)
+{
+	const char *language_str = (GET_LANGUAGE(ch) != LANGUAGE_COMMON) ?
+		tmp_strcat(" in ", language_names[(int)GET_LANGUAGE(ch)]):"";
+
+	act(tmp_sprintf("&BYou %s$a%s, &c'%s'",
+			say_subcmd_strings[subcmd], language_str, message),
+			0, ch, 0, 0, TO_CHAR);
+	act_if(tmp_sprintf("&B$n %ss$a%s, &c'%s'",
+			say_subcmd_strings[subcmd], language_str, message),
+			0, ch, 0, 0, TO_ROOM, say_lang_pred);
+	act_if(tmp_sprintf("&B$n %ss$a, &c'%s'",
+			say_subcmd_strings[subcmd],
+			translate_string(message, GET_LANGUAGE(ch))),
+			0, ch, 0, 0, TO_ROOM, say_nolang_pred);
+}
+
+void
+perform_say_to(Creature *ch, Creature *target, const char *message)
+{
+	const char *language_str = (GET_LANGUAGE(ch) != LANGUAGE_COMMON) ?
+		tmp_strcat(" in ", language_names[(int)GET_LANGUAGE(ch)]):"";
+
+	act(tmp_sprintf("&BYou$a say to $N%s, &c'%s'", language_str, message),
+			0, ch, 0, target, TO_CHAR);
+	act_if(tmp_sprintf("&B$n$a says to $N%s, &c'%s'", language_str, message),
+			0, ch, 0, target, TO_ROOM, say_lang_pred);
+	act_if(tmp_sprintf("&B$n$a says to $N, &c'%s'",
+				translate_string(message, GET_LANGUAGE(ch))),
+			0, ch, 0, target, TO_ROOM, say_nolang_pred);
+}
+
+void
+perform_say_to_obj(Creature *ch, obj_data *obj, const char *message)
+{
+	const char *language_str = (GET_LANGUAGE(ch) != LANGUAGE_COMMON) ?
+		tmp_strcat(" in ", language_names[(int)GET_LANGUAGE(ch)]):"";
+
+	act(tmp_sprintf("&BYou$a say to $p%s, &c'%s'", language_str, message),
+			0, ch, obj, 0, TO_CHAR);
+	act_if(tmp_sprintf("&B$n$a says to $p%s, &c'%s'", language_str, message),
+			0, ch, obj, 0, TO_ROOM, say_lang_pred);
+	act_if(tmp_sprintf("&B$n$a says to $p, &c'%s'",
+				translate_string(message, GET_LANGUAGE(ch))),
+			0, ch, obj, 0, TO_ROOM, say_nolang_pred);
+}
+
 ACMD(do_say)
 {
 	struct Creature *vict = NULL;
-	char name[MAX_INPUT_LENGTH], buf3[MAX_INPUT_LENGTH],
-		buf[MAX_STRING_LENGTH];
-    char *translated;
-	static room_data *was_in;
-	struct room_data *to_room;
-	static byte recurs_say = 0;
-	char *remote_str;
-	int j;
 	struct obj_data *o = NULL;
-	const char *cur_mood;
-    const char *language_str = "";
-    int language_idx = GET_LANGUAGE(ch);
 
 
-	if PLR_FLAGGED
-		(ch, PLR_AFK) {
+	if PLR_FLAGGED(ch, PLR_AFK) {
 		send_to_char(ch, "You are no longer afk.\r\n");
 		REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
-		}
+	}
 
 	if (!*argument) {
 		switch (subcmd) {
@@ -100,7 +154,6 @@ ACMD(do_say)
 				FALSE, ch, 0, 0, TO_ROOM);
 			break;
 		case SCMD_SAY_TO:
-			send_to_char(ch, "Say what to who?\r\n");
 			break;
 		default:
 			send_to_char(ch, "Yes, but WHAT do you want to say?\r\n");
@@ -108,69 +161,14 @@ ACMD(do_say)
 		return;
 	}
 
-	if (language_idx != LANGUAGE_COMMON)
-		language_str = tmp_strcat(" in ", language_names[language_idx]);
-
-	if (recurs_say == 2)
-		remote_str = tmp_sprintf("(%s) ", was_in->name);
-	else if (recurs_say == 1)
-		remote_str = tmp_sprintf("(remote) ");
-	else {
-		remote_str = "";
-		strcpy(arg, argument);
-
-		for (o = ch->in_room->contents; o; o = o->next_content)
-			if (GET_OBJ_TYPE(o) == ITEM_PODIUM)
-				break;
-
-		if (o) {
-
-			was_in = ch->in_room;
-
-			for (j = 0; j < NUM_OF_DIRS; j++) {
-				if (ABS_EXIT(was_in, j) && ABS_EXIT(was_in, j)->to_room &&
-					was_in != ABS_EXIT(was_in, j)->to_room &&
-					!IS_SET(ABS_EXIT(was_in, j)->exit_info,
-						EX_ISDOOR | EX_CLOSED)) {
-					char_from_room(ch,false);
-					char_to_room(ch, ABS_EXIT(was_in, j)->to_room,false);
-					recurs_say = 1;
-					do_say(ch, arg, cmd, subcmd, 0);
-				}
-			}
-
-			char_from_room(ch,false);
-			char_to_room(ch, was_in,false);
-
-			recurs_say = 0;
-		}
-
-		for (o = ch->in_room->contents; o; o = o->next_content)
-			if (GET_OBJ_TYPE(o) == ITEM_CAMERA) {
-				to_room = real_room(GET_OBJ_VAL(o, 0));
-				if (to_room) {
-					was_in = ch->in_room;
-					char_from_room(ch, false);
-					char_to_room(ch, to_room, false);
-
-					recurs_say = 2;
-					do_say(ch, arg, cmd, subcmd, 0);
-					recurs_say = 0;
-
-					char_from_room(ch, false);
-					char_to_room(ch, was_in, false);
-				}
-			}
-	}
-
-	if (subcmd != SCMD_SAY_TO)
-		skip_spaces(&argument);
-
-	delete_doubledollar(argument);
-	cur_mood = GET_MOOD(ch) ? GET_MOOD(ch):"";
-
 	if (subcmd == SCMD_SAY_TO) {
-		argument = one_argument(argument, name);
+		char *name;
+		int ignore;
+
+		if (!*argument) {
+			send_to_char(ch, "Say what to who?\r\n");
+		}
+		name = tmp_getword(&argument);
 		skip_spaces(&argument);
 
 		o = NULL;
@@ -181,109 +179,24 @@ ACMD(do_say)
 
 		if (!(vict = get_char_room_vis(ch, name))) {
 			if (!o)
-				o = get_object_in_equip_vis(ch, name, ch->equipment, &j);
+				o = get_object_in_equip_vis(ch, name, ch->equipment, &ignore);
 			if (!o)
 				o = get_obj_in_list_vis(ch, name, ch->carrying);
 			if (!o)
 				o = get_obj_in_list_vis(ch, name, ch->in_room->contents);
 		}
 
-		if (!vict && !o) {
-			if (!recurs_say)
-				send_to_char(ch, "No-one by that name here.\r\n");
+		if (vict) {
+			perform_say_to(ch, vict, argument);
+		} else if (o) {
+			perform_say_to_obj(ch, o, argument);
 		} else {
-            translated = translate_string(argument, GET_LANGUAGE(ch));
-			CreatureList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-                char *buf4 = argument;
-
-                if (!can_speak_language((*it), language_idx))
-                    buf4 = tmp_strdup(translated);
-                    
-				if (!AWAKE((*it)) || (*it) == ch ||
-					PLR_FLAGGED((*it), PLR_OLC | PLR_WRITING | PLR_MAILING))
-					continue;
-				strcpy(buf, PERS(ch, (*it)));
-				strcpy(buf2, CAP(buf));
-				if (o)
-					strcpy(buf3, o->name);
-				else if ((*it) == vict)
-					strcpy(buf3, "you");
-				else if (vict == ch) {
-					strcpy(buf3, HMHR(ch));
-					strcat(buf3, "self");
-				} else
-					strcpy(buf3, PERS(vict, (*it)));
-
-                send_to_char(*it, "%s%s%s%s%s says to %s%s,%s %s'%s'%s\r\n",
-                    remote_str, CCBLD((*it), C_NRM),
-                    CCBLU((*it), C_SPR), buf2, cur_mood, buf3,
-					(can_speak_language(*it, language_idx)) ? language_str:"",
-                    CCNRM((*it), C_SPR), CCCYN((*it), C_NRM), buf4,
-                    CCNRM((*it), C_NRM));
-			}
-			if (!recurs_say) {
-				if (o)
-					strcpy(buf3, o->name);
-				else if (vict == ch)
-					strcpy(buf3, "yourself");
-				else
-					strcpy(buf3, PERS(vict, ch));
-				send_to_char(ch, "%s%sYou%s say to %s%s,%s %s'%s'%s\r\n",
-					CCBLD(ch, C_NRM), CCBLU(ch, C_NRM), cur_mood, buf3,
-					(can_speak_language(ch, language_idx)) ? language_str:"",
-					CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-					argument, CCNRM(ch, C_NRM));
-			}
+			send_to_char(ch, "No-one by that name here.\r\n");
 		}
 		return;
-	}
-
-	/* NOT say_to stuff: ********************************************* */
-    translated = translate_string(argument, GET_LANGUAGE(ch));
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-        char *buf4 = argument;
-
-        if (!can_speak_language((*it), GET_LANGUAGE(ch)))
-            buf4 = tmp_strdup(translated);
-
-		if (!AWAKE((*it)) || (*it) == ch ||
-			PLR_FLAGGED((*it), PLR_OLC | PLR_MAILING | PLR_WRITING))
-			continue;
-		strcpy(buf, PERS(ch, (*it)));
-		strcpy(buf2, CAP(buf));
-		sprintf(buf, "%s%s%s%s %s%s%s,%s %s'%s'%s\r\n",
-			remote_str, CCBLD((*it), C_NRM), CCBLU((*it),
-				C_SPR), buf2,
-			(subcmd == SCMD_UTTER ? "utters" : subcmd ==
-				SCMD_EXPOSTULATE ? "expostulates" : subcmd ==
-				SCMD_RAMBLE ? "rambles" : subcmd ==
-				SCMD_BELLOW ? "bellows" : subcmd ==
-				SCMD_MURMUR ? "murmurs" : subcmd ==
-				SCMD_INTONE ? "intones" : subcmd ==
-				SCMD_YELL ? "yells" : subcmd ==
-				SCMD_BABBLE ? "babbles" : "says"),
-			cur_mood,
-			(can_speak_language(*it, language_idx)) ? language_str:"",
-			CCNRM((*it), C_SPR), CCCYN((*it), C_NRM), buf4,
-			CCNRM((*it), C_NRM));
-		send_to_char(*it, "%s", buf);
-	}
-	if (!recurs_say) {
-		send_to_char(ch, "%s%sYou %s%s%s,%s %s'%s'%s\r\n", CCBLD(ch, C_NRM),
-			CCBLU(ch, C_SPR),
-			(subcmd == SCMD_UTTER ? "utter" :
-				subcmd == SCMD_EXPOSTULATE ? "expostulate" :
-				subcmd == SCMD_RAMBLE ? "ramble" :
-				subcmd == SCMD_BELLOW ? "bellow" :
-				subcmd == SCMD_MURMUR ? "murmur" :
-				subcmd == SCMD_INTONE ? "intone" :
-				subcmd == SCMD_YELL ? "yell" :
-				subcmd == SCMD_BABBLE ? "babble" : "say"),
-			cur_mood,
-			(can_speak_language(ch, language_idx)) ? language_str:"",
-			CCNRM(ch, C_SPR), CCCYN(ch, C_NRM), argument, CCNRM(ch, C_NRM));
+	} else {
+		skip_spaces(&argument);
+		perform_say(ch, subcmd, argument);
 	}
 }
 

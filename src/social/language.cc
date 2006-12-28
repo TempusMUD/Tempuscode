@@ -1463,14 +1463,14 @@ find_language_idx_by_race(const char *race_name)
 }
 
 char *
-translate_string(char *phrase, char language_idx)
+translate_string(const char *phrase, char language_idx)
 {
 	int word_length;
 	char *arg = NULL, *outbuf = NULL;
 	bool was_cap;
 
     if (!strcmp(phrase, ""))
-        return phrase;
+        return tmp_strdup(phrase);
 
 	if (language_idx == LANGUAGE_COMMON)
 		return tmp_strdup(phrase);

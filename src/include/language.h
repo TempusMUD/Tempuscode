@@ -23,7 +23,7 @@ int find_language_idx(long long language);
 int find_language_idx_by_name(char *language_name);
 int find_language_idx_by_race(const char *race_name);
 int known_languages(Creature *ch);
-char *translate_string(char *phrase, char language_idx); 
+char *translate_string(const char *phrase, char language_idx); 
 void translate_word(char **word, char language_idx);
 void set_initial_language(Creature *ch);
 void learn_language(Creature *ch, char language_idx);

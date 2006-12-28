@@ -36,9 +36,12 @@ void send_to_comm_channel(struct Creature *ch, char *buff, int chan, int mode,
 void send_to_newbie_helpers(char *messg);
 void close_socket(struct descriptor_data *d);
 
+// Act system
+typedef bool (*act_if_predicate)(struct Creature *ch, struct obj_data *obj, void *vict_obj, struct Creature *to, int mode);
 void perform_act(const char *orig, struct Creature *ch,
 	struct obj_data *obj, void *vict_obj, struct Creature *to, int mode);
-
+void act_if(const char *str, int hide_invisible, struct Creature *ch,
+	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred);
 void act(const char *str, int hide_invisible, struct Creature *ch,
 	struct obj_data *obj, void *vict_obj, int type);
 

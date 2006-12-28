@@ -2064,19 +2064,10 @@ skip_spaces(const char **string)
 char *
 delete_doubledollar(char *string)
 {
-	char *read, *write;
-
-	if ((write = strchr(string, '$')) == NULL)
+	if (!strchr(string, '$') && !strchr(string, '&'))
 		return string;
 
-	read = write;
-
-	while (*read)
-		if ((*(write++) = *(read++)) == '$')
-			if (*read == '$')
-				read++;
-
-	*write = '\0';
+	strcpy(string, tmp_gsub(tmp_gsub(string, "$$", "$"), "&&", "&"));
 
 	return string;
 }

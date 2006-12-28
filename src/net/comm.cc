@@ -1215,11 +1215,16 @@ process_input(struct descriptor_data *t)
 						space_left++;
 				}
 			} else if (isascii(*ptr) && isprint(*ptr)) {
-				if ((*(write_point++) = *ptr) == '$') {	/* copy one character */
-					*(write_point++) = '$';	/* if it's a $, double it */
-					space_left -= 2;
-				} else
-					space_left--;
+				*write_point = *ptr;
+				if (*write_point == '$') {	/* copy one character */
+					*(++write_point) = '$';	/* if it's a $, double it */
+					space_left -= 1;
+				} else if (*write_point == '&') {
+					*(++write_point) = '&';
+					space_left -= 1;
+				}
+				write_point++;
+				space_left--;
 			}
 		}
 
@@ -1890,6 +1895,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 	register char *buf;
 	static char lbuf[MAX_STRING_LENGTH];
 	char outbuf[MAX_STRING_LENGTH];
+	char *first_printed_char = 0;
 
 	if (!to || !to->desc || PLR_FLAGGED((to), PLR_WRITING | PLR_OLC))
 		return;
@@ -1904,10 +1910,23 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 		if (*s == '$') {
 			switch (*(++s)) {
 			case 'n':
-				i = PERS(ch, to);
+				i = (ch==to)?"you":PERS(ch, to);
 				break;
 			case 'N':
-				CHECK_NULL(vict_obj, PERS((struct Creature *)vict_obj, to));
+				if (ch==vict_obj) {
+					if (vict_obj==to)
+						i = "yourself";
+					else if (IS_MALE((Creature *)vict_obj))
+						i = "himself";
+					else if (IS_FEMALE((Creature *)vict_obj))
+						i = "herself";
+					else
+						i = "itself";
+				} else if (to==vict_obj) {
+					i = "you";
+				} else {
+					CHECK_NULL(vict_obj, PERS((struct Creature *)vict_obj, to));
+				}
 				break;
 			case 'm':
 				i = HMHR(ch);
@@ -1970,21 +1989,72 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				i = "---";
 				break;
 			}
+			if (!first_printed_char)
+				first_printed_char = buf;
 			while ((*buf = *(i++)))
 				buf++;
 			s++;
-		} else if (!(*(buf++) = *(s++)))
-			break;
+		} else if (*s == '&') {
+			if (COLOR_LEV(to) > 0) {
+				char c = *(++s);
+
+				if (isupper(c)) {
+					c = tolower(c);
+					if (clr(to, C_NRM)) {
+						strcpy(buf, KBLD);
+						buf += strlen(KBLD);
+					}
+				} else if (c != '&') {
+					strcpy(buf, KNRM);
+					buf += strlen(KNRM);
+				}
+				switch (c) {
+				case 'n':
+					// Normal tag has already been copied
+					break;
+				case 'r':
+					i = KRED; break;
+				case 'g':
+					i = clr(to, C_NRM)?KGRN:KNRM; break;
+				case 'y':
+					i = clr(to, C_NRM)?KYEL:KNRM; break;
+				case 'm':
+					i = KMAG; break;
+				case 'c':
+					i = clr(to, C_NRM)?KCYN:KNRM; break;
+				case 'b':
+					i = KBLU; break;
+				case 'w':
+					i = KWHT; break;
+				case '&':
+					i = "&"; break;
+				default:
+					i = "&&";
+				}
+				while ((*buf = *(i++)))
+					buf++;
+				s++;
+			} else {
+				s += 2;
+			}
+		} else {
+			if (!first_printed_char)
+				first_printed_char = buf;
+			if (!(*(buf++) = *(s++)))
+				break;
+		}
 	}
+	if (first_printed_char)
+		*first_printed_char = toupper(*first_printed_char);
 
 	*(--buf) = '\r';
 	*(++buf) = '\n';
 	*(++buf) = '\0';
 
 	if (mode == 1) {
-		sprintf(outbuf, "(outside) %s", CAP(lbuf));
+		sprintf(outbuf, "(outside) %s", lbuf);
     } else if (mode == 2) {
-		sprintf(outbuf, "(remote) %s", CAP(lbuf));
+		sprintf(outbuf, "(remote) %s", lbuf);
     } else if (mode == 3) {
         room_data *toroom = NULL;
         if( ch != NULL && ch->in_room != NULL ) {
@@ -1992,19 +2062,21 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
         } else if( obj != NULL && obj->in_room != NULL ) {
             toroom = obj->in_room;
         }
-		sprintf(outbuf, "(%s) %s", (toroom) ? toroom->name:"remote", CAP(lbuf));
+		sprintf(outbuf, "(%s) %s", (toroom) ? toroom->name:"remote", lbuf);
     } else {
-		strcpy(outbuf, CAP(lbuf));
+		strcpy(outbuf, lbuf);
     }
 
 	SEND_TO_Q(outbuf, to->desc);
+	if (COLOR_LEV(to) > 0)
+		SEND_TO_Q(KNRM, to->desc);
 }
 
 #define SENDOK(ch) (AWAKE(ch) || sleep)
 
 void
-act(const char *str, int hide_invisible, struct Creature *ch,
-	struct obj_data *obj, void *vict_obj, int type)
+act_if(const char *str, int hide_invisible, struct Creature *ch,
+	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred)
 {
 	struct Creature *to;
 	struct obj_data *o, *o2 = NULL;
@@ -2076,6 +2148,8 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 	}
 	CreatureList::iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
+		if (!pred(ch, obj, vict_obj, (*it), 0))
+			continue;
 		if (SENDOK((*it)) &&
 			!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
 			((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
@@ -2093,6 +2167,8 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 
 					it = o2->in_room->people.begin();
 					for (; it != o2->in_room->people.end(); ++it) {
+						if (!pred(ch, obj, vict_obj, (*it), 1))
+							continue;
 						if (SENDOK((*it)) &&
 							!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
 							((*it) != ch) && (type == TO_ROOM
@@ -2120,6 +2196,8 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 
 				it = ABS_EXIT(room, j)->to_room->people.begin();
 				for (; it != ABS_EXIT(room, j)->to_room->people.end(); ++it) {
+					if (!pred(ch, obj, vict_obj, (*it), 2))
+						continue;
 					if (SENDOK((*it)) &&
 						!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
 						((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
@@ -2135,6 +2213,8 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 			if (room) {
 				it = room->people.begin();
 				for (; it != room->people.end(); ++it) {
+					if (!pred(ch, obj, vict_obj, (*it), 3))
+						continue;
 					if (SENDOK((*it)) &&
 						!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
 						((*it) != ch) && ((*it) != vict_obj))
@@ -2144,6 +2224,20 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 		}
 	}
 }
+
+bool
+standard_act_predicate(struct Creature *ch, struct obj_data *obj, void *vict_obj, struct Creature *to, int mode)
+{
+	return true;
+}
+
+void
+act(const char *str, int hide_invisible, struct Creature *ch,
+	struct obj_data *obj, void *vict_obj, int type)
+{
+	act_if(str, hide_invisible, ch, obj, vict_obj, type, standard_act_predicate);
+}
+
 
 //
 // ramdomly move the quad damage, creating it if needed
