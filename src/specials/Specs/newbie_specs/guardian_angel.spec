@@ -529,10 +529,7 @@ SPECIAL(guardian_angel)
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
 	
-	if (ch != charge)
-		return 0;
-
-	if (CMD_IS("kill") && isname(tmp_getword(&argument), self->player.name)) {
+	if (ch == charge && CMD_IS("kill") && isname(tmp_getword(&argument), self->player.name)) {
 		perform_tell(self, charge, "I see you can get along without my help.  Jerk.");
 		act("$n disappears in a bright flash of light!",
 			false, self, 0, 0, TO_ROOM);
@@ -570,7 +567,7 @@ SPECIAL(guardian_angel)
 
 	// Nothing matched - log the question and produce a lame response
     slog("ANGEL:  Unknown Question: \"%s\"", argument);
-    guardian_angel_action(self, "respond I'm sorry, I don't understand that question.");
+    guardian_angel_action(self, "respond I'm sorry, I don't understand.");
 
 	return 0;
 }
