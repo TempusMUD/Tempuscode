@@ -3149,6 +3149,10 @@ whoString(Creature *ch, Creature *target) {
 		out << BADGE(target);
 		out << tmp_pad(' ', (MAX_BADGE_LENGTH - len + 1) / 2);
         out << CCNRM(ch, C_NRM) << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << ']';
+	} else if (target->isTester()) {
+		out << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << '[' << CCGRN(ch, C_NRM);
+		out << "TESTING";
+        out << CCNRM(ch, C_NRM) << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << ']';
 	} else { //show level/class
 		out << CCGRN(ch, C_NRM) << '[';
         if (PRF2_FLAGGED(target, PRF2_ANONYMOUS) && !Security::isMember(ch, Security::ADMINBASIC)) {
@@ -3296,12 +3300,42 @@ whoKillsString(Creature *ch, Creature *target) {
 	return out.str();
 }
 
+class WhoListComparator {
+	public:
+		bool operator()(Creature *a, Creature *b)
+		{
+			// immorts on top by level,
+			// then testers, then by gen, then by level
+			// then by wealth
+			if (IS_IMMORT(a) || IS_IMMORT(b))
+				return GET_LEVEL(a) > GET_LEVEL(b);
+			if (a->isTester())
+				return true;
+			if (GET_REMORT_GEN(a) != GET_REMORT_GEN(b))
+				return GET_REMORT_GEN(a) > GET_REMORT_GEN(b);
+			if (GET_LEVEL(a) != GET_LEVEL(b))
+				return GET_LEVEL(a) > GET_LEVEL(b);
+			
+			return GET_GOLD(a) +
+					GET_CASH(a) +
+					GET_PAST_BANK(a) +
+					GET_FUTURE_BANK(a) >
+				   GET_GOLD(b) +
+					GET_CASH(b) +
+					GET_PAST_BANK(b) +
+					GET_FUTURE_BANK(b);
+		}
+};
+
 ACMD(do_who)
 {
 	
 	struct descriptor_data *d;
-	ostringstream out, imms, testers, players;
-	int immCount=0, testerCount=0, playerCount=0, playerTotal=0, immTotal=0;
+	ostringstream out;
+	std::vector<Creature *> immortals, testers, players;
+	std::vector<Creature *>::iterator cit;
+	Creature *curr;
+	int playerTotal=0, immTotal=0;
 	char *tester_s="s";
 	bool zone=false, plane=false, time=false, kills=false, noflags=false;
 	bool classes=false, clan=false;
@@ -3385,7 +3419,6 @@ ACMD(do_who)
 	
 	
 	for (d = descriptor_list; d; d = d->next) {
-		Creature *curr;
 		if (d->original) {
 			curr = d->original;
 		} else if (d->creature) {
@@ -3469,81 +3502,68 @@ ACMD(do_who)
 
 		/////////////////END CONDITIONS/////////////////////////
 		
-		
-		if (GET_LEVEL(curr) >= LVL_AMBASSADOR) {
-			immCount++;
-			imms << whoString(ch, curr);
+		if (GET_LEVEL(curr) >= LVL_AMBASSADOR)
+			immortals.push_back(curr);
+		else if (curr->isTester())
+			testers.push_back(curr);
+		else
+			players.push_back(curr);
+	}
+
+	std::sort(immortals.begin(), immortals.end(), WhoListComparator());
+	std::sort(testers.begin(), testers.end(), WhoListComparator());
+	std::sort(players.begin(), players.end(), WhoListComparator());
+
+	out << CCNRM(ch, C_SPR) << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
+	out << "Visible Players of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
+	out << "      **************" << CCNRM(ch, C_SPR) << "\r\n";
+	out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+	for (cit = immortals.begin();cit != immortals.end();++cit) {
+		curr = *cit;
+		out << whoString(ch, curr);
+		if (!noflags) {
+			out << whoFlagsString(ch, curr);
+		}
+		if (kills) {
+			out << whoKillsString(ch, curr);
+		}
+		out << "\r\n";
+	}
+	if (IS_IMMORT(ch) || ch->isTester()) {
+		for (cit = testers.begin();cit != testers.end();++cit) {
+			curr = *cit;
+			out << whoString(ch, curr);
 			if (!noflags) {
-				imms << whoFlagsString(ch, curr);
+				out << whoFlagsString(ch, curr);
 			}
 			if (kills) {
-				imms << whoKillsString(ch, curr);
+				out << whoKillsString(ch, curr);
 			}
-			imms << "\r\n";
-		} else if (curr->isTester()) {
-			testerCount++;
-			testers << whoString(ch, curr);
-			if (!noflags) {
-				testers << whoFlagsString(ch, curr);
-			}
-			if (kills) {
-				testers << whoKillsString(ch, curr);
-			}
-			testers << "\r\n";
-		} else {
-			playerCount++;
-			players << whoString(ch, curr);
-			if (!noflags) {
-				players << whoFlagsString(ch, curr);
-			}
-			if (kills) {
-				players << whoKillsString(ch, curr);
-			}
-			players << "\r\n";
+			out << "\r\n";
 		}
 	}
-	
-	
-	//List the immortals
-	if (immCount > 0) {
-		out << CCBLD(ch, C_CMP) << "**************     " << CCGRN(ch, C_NRM);
-		out << "Visible Immortals of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
-		out << "     **************" << CCNRM(ch, C_SPR) << "\r\n";
-		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
-		out << imms.str();
-		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
-        out << "\r\n";
-	}
-	//testers
-	if ((GET_LEVEL(ch) >= LVL_AMBASSADOR || ch->isTester()) && testerCount > 0) {
-		out << CCNRM(ch, C_SPR) << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
-		out << "Visible Testers of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
-		out << "      **************" << CCNRM(ch, C_SPR) << "\r\n";
-		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
-		out << testers.str();
-		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
-        out << "\r\n";
-	}
-	//players
-	if (playerCount > 0) {
-		out << CCNRM(ch, C_SPR) << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
-		out << "Visible Players of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
-		out << "      **************" << CCNRM(ch, C_SPR) << "\r\n";
-		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
-		out << players.str();
-		out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
-        out << "\r\n";
+	for (cit = players.begin();cit != players.end();++cit) {
+		curr = *cit;
+		out << whoString(ch, curr);
+		if (!noflags) {
+			out << whoFlagsString(ch, curr);
+		}
+		if (kills) {
+			out << whoKillsString(ch, curr);
+		}
+		out << "\r\n";
 	}
 	
 	//determine plurality of nouns
-	if (testerCount == 1)
+	if (testers.size() == 1)
 		tester_s="";
 	
-	out << immCount << " of " << immTotal << " immortals";
+	out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+	out << immortals.size() << " of " << immTotal << " immortals";
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR || ch->isTester()) {
-		out << ", " << testerCount << " tester" << tester_s << ",";
+		out << ", " << testers.size() << " tester" << tester_s << ",";
 	}
-	out << " and " << playerCount << " of " << playerTotal << " players displayed.\r\n";
+	out << " and " << players.size() << " of " << playerTotal << " players displayed.\r\n";
 	page_string(ch->desc, out.str().c_str());
 }
 
