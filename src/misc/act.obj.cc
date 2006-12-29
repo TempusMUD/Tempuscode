@@ -2187,6 +2187,7 @@ ACMD(do_drink)
 		af.bitvector = 0;
 		af.type = SPELL_POISON;
 		af.level = 30;
+		af.owner = 0;
 
 		if (GET_OBJ_VAL(temp, 3) == 2) {
 			if (HAS_POISON_3(ch))

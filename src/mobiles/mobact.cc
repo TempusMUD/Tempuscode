@@ -1667,7 +1667,7 @@ mobile_activity(void)
 
 		if (HAS_POISON_2(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR && !(count % 2)) {
             affected_type *af;
-            if ((af = affected_by_spell(ch, AFF3_POISON_2)))
+            if ((af = affected_by_spell(ch, SPELL_POISON)))
                 damager = get_char_in_world_by_idnum(af->owner);
 			if (damage(damager, ch, dice(4, 3) +
 					(affected_by_spell(ch, SPELL_METABOLISM) ? dice(4,
