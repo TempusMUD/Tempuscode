@@ -157,7 +157,7 @@ burn_update(void)
 			ch->setPosition(POS_RESTING);
 			WAIT_STATE(ch, 1);
             damager = NULL;
-            if ((af = affected_by_spell(ch, AFF3_GRAVITY_WELL)))
+            if ((af = affected_by_spell(ch, SPELL_GRAVITY_WELL)))
                 damager = get_char_in_world_by_idnum(af->owner);
             if (!damager)
                 damager = ch;
@@ -4653,6 +4653,9 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
  *******************************************************************************/
 
 void knight_activity(struct Creature *ch){
+	// Don't cast any spells if tainted
+	if (IS_AFFECTED_3(ch, AFF3_TAINTED))
+		return;
     if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
         if (GET_LEVEL(ch) > 27 && random_binary() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
             cast_spell(ch, ch, 0, NULL, SPELL_HEAL);
