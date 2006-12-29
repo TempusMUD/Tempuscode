@@ -221,14 +221,14 @@ ACMD(do_gsay)
 			k = ch;
 
 
-		if (IS_AFFECTED(k, AFF_GROUP) && (k != ch) && !COMM_NOTOK_ZONES(ch, k)) {
+		if (IS_AFFECTED(k, AFF_GROUP) && (k != ch) && CAN_CHANNEL_COMM(ch, k)) {
 			sprintf(buf, "%s$n tells the group,%s '%s'%s", CCGRN(k, C_NRM),
 				CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
 			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP);
 		}
 		for (f = k->followers; f; f = f->next)
 			if (IS_AFFECTED(f->follower, AFF_GROUP) && (f->follower != ch) &&
-				!COMM_NOTOK_ZONES(ch, f->follower)) {
+				CAN_CHANNEL_COMM(ch, f->follower)) {
 				sprintf(buf, "%s$n tells the group,%s '%s'%s",
 					CCGRN(f->follower, C_NRM), CCYEL(f->follower, C_NRM),
 					argument, CCNRM(f->follower, C_NRM));
@@ -309,7 +309,7 @@ ACMD(do_tell)
 		!(GET_LEVEL(ch) >= LVL_GRGOD && GET_LEVEL(ch) > GET_LEVEL(vict)))
 		act("$E can't hear you.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else {
-		if (COMM_NOTOK_ZONES(ch, vict)) {
+		if (!CAN_SEND_TELL(ch, vict)) {
 			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
 					affected_by_spell(vict, SPELL_TELEPATHY))) {
 				act("Your telepathic voice cannot reach $M.",
@@ -362,7 +362,7 @@ ACMD(do_reply)
 		&& ch->in_room != (*tch)->in_room)
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
 	else {
-		if (COMM_NOTOK_ZONES(ch, (*tch)) && COMM_NOTOK_ZONES((*tch), ch)) {
+		if (!CAN_SEND_TELL(ch, (*tch)) && !CAN_SEND_TELL((*tch), ch)) {
 			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
 					affected_by_spell((*tch), SPELL_TELEPATHY))) {
 				act("Your telepathic voice cannot reach $M.",
@@ -408,7 +408,7 @@ ACMD(do_retell)
 		&& ch->in_room != (*tch)->in_room)
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
 	else {
-		if (COMM_NOTOK_ZONES(ch, (*tch)) && COMM_NOTOK_ZONES((*tch), ch)) {
+		if (!CAN_SEND_TELL(ch, (*tch)) && !CAN_SEND_TELL((*tch), ch)) {
 			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
 					affected_by_spell((*tch), SPELL_TELEPATHY))) {
 				act("Your telepathic voice cannot reach $M.",
@@ -1106,7 +1106,7 @@ ACMD(do_gen_comm)
 					!IS_IMMORT(ch) && i->creature->in_room != ch->in_room)
 				continue;
 
-			if (chan->check_plane && COMM_NOTOK_ZONES(ch, i->creature))
+			if (chan->check_plane && !CAN_CHANNEL_COMM(ch, i->creature))
 				continue;
 		}
 

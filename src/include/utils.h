@@ -432,39 +432,6 @@ PRF2_FLAGGED( Creature *ch, int flag )
      (IS_UNDEAD(vict) || IS_SLIME(vict) || IS_PUDDING(vict) || \
       IS_ROBOT(vict) || IS_PLANT(vict))
 
-inline bool
-COMM_NOTOK_ZONES(Creature *ch, Creature *tch)
-{
-	if (ch->player.level >= LVL_IMMORT)
-		return false;
-	
-	if (ch->in_room == tch->in_room)
-		return false;
-
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
-			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
-		return true;
-	
-	if (ch->in_room->zone == tch->in_room->zone)
-		return false;
-	
-	if (ch->in_room->zone->plane != tch->in_room->zone->plane)
-		return true;
-
-	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
-			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
-		return true;
-
-	if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame)
-		return false;
-
-	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
-			tch->in_room->zone->time_frame == TIME_TIMELESS)
-		return false;
-	
-	return true;
-}
-
 	  /* room utils *********************************************************** */
 
 
@@ -1009,6 +976,94 @@ bool CAN_GO(obj_data * obj, int door);
 struct extra_descr_data *exdesc_list_dup(struct extra_descr_data *list);
 int smart_mobile_move(struct Creature *ch, int dir);
 int drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room);
+
+inline bool
+CAN_SEND_TELL(Creature *ch, Creature *tch)
+{
+	// Immortals are hearable everywhere
+	if (ch->player.level >= LVL_IMMORT)
+		return true;
+	
+	// Anyone can hear people inside the same rooms
+	if (ch->in_room == tch->in_room)
+		return true;
+
+	// People outside of soundproof rooms can't hear or speak out
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
+		return false;
+	
+	// Players can hear each other inside the same zone
+	if (ch->in_room->zone == tch->in_room->zone)
+		return true;
+	
+	// but not outside if the zone is isolated or soundproof
+	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
+			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
+		return false;
+
+	// Can't speak on different planes
+	if (ch->in_room->zone->plane != tch->in_room->zone->plane)
+		return false;
+
+	// Can speak to each other in the same times
+	if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame)
+		return true;
+
+	// or to or from timeless zones
+	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
+			tch->in_room->zone->time_frame == TIME_TIMELESS)
+		return true;
+	
+	// otherwise, they can't
+	return false;
+}
+
+inline bool
+CAN_CHANNEL_COMM(Creature *ch, Creature *tch)
+{
+	// Immortals are hearable everywhere
+	if (ch->player.level >= LVL_IMMORT)
+		return true;
+	
+	// Anyone can hear people inside the same rooms
+	if (ch->in_room == tch->in_room)
+		return true;
+
+	// People outside of soundproof rooms can't hear or speak out
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
+		return false;
+	
+	// Players can hear each other inside the same zone
+	if (ch->in_room->zone == tch->in_room->zone)
+		return true;
+	
+	// but not outside if the zone is isolated or soundproof
+	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
+			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
+		return false;
+
+	// remorts ignore planar and temporal boundries
+	if (IS_REMORT(ch) || IS_REMORT(tch))
+		return true;
+
+	// mortals can't speak on different planes
+	if (ch->in_room->zone->plane != tch->in_room->zone->plane)
+		return false;
+
+	// mortals can speak to each other in the same times
+	if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame)
+		return true;
+
+	// or to or from timeless zones
+	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
+			tch->in_room->zone->time_frame == TIME_TIMELESS)
+		return true;
+	
+	// otherwise, they can't
+	return false;
+}
 
 
 /* OS compatibility ******************************************************/
