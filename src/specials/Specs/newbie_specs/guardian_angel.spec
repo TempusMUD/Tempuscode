@@ -107,13 +107,13 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "who are you", "respond I'm a guardian spirit, a protector and advisor to those new to our world." },
 	{ CLASS_NONE, 100, "help level", "respond No, but I can protect you if you need it." },
 	{ CLASS_NONE, 100, "help fight", "respond I will only help you fight when you are in dire need." },
-    { CLASS_NONE, 100, "do you eat", "respond No.  I feed on the surrounding spiritual energy called mana." }
+    { CLASS_NONE, 100, "do you eat", "respond No.  I feed on the surrounding spiritual energy called mana." },
 	{ CLASS_NONE, 100, "do you food", "respond Sorry.  As a celestial envoy, I have no need for food." },
-    { CLASS_NONE, 100, "you made", "response Thanks for pointing it out." }
-    { CLASS_NONE, 100, "your favorite color", "response My favorite color is purple." }
-    { CLASS_NONE, 33, "my name is", "response Pleased to meet you." }
-    { CLASS_NONE, 33, "my name is", "response Glad to know you." }
-    { CLASS_NONE, 100, "my name is", "response Enchanted, I'm sure." }
+    { CLASS_NONE, 100, "you made", "respond Thanks for pointing it out." },
+    { CLASS_NONE, 100, "your favorite color", "respond My favorite color is purple." },
+    { CLASS_NONE, 33, "my name is", "respond Pleased to meet you." },
+    { CLASS_NONE, 33, "my name is", "respond Glad to know you." },
+    { CLASS_NONE, 100, "my name is", "respond Enchanted, I'm sure." },
 	{ CLASS_NONE, 25, "thanks", "respond No problem." },
 	{ CLASS_NONE, 25, "thanks", "respond Sure thing." },
 	{ CLASS_NONE, 25, "thanks", "respond I'm here to help." },
