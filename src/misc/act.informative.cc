@@ -5007,13 +5007,16 @@ ACMD(do_wizlist)
     send_wizlist_section_title("Administrators",ch);
     getGroup("Wizlist_Admins").sendPublicMemberList(ch, buf,"WizardAdmin");
 
-    send_wizlist_section_title("Directors",ch);
+    send_wizlist_section_title("Architects",ch);
 	strcat(buf, "        ");
     getGroup("Wizlist_Foreman").sendPublicMember(ch, buf, "Foreman: ");
-	strcat(buf,"   ");
-    getGroup("Wizlist_Advisors").sendPublicMember(ch, buf, "Advisor: ");
-	strcat(buf,"   ");
-    getGroup("Wizlist_Architects").sendPublicMember(ch, buf, "Architect: ");
+	strcat(buf, "                 ");
+    getGroup("Wizlist_Arch_P").sendPublicMember(ch, buf, "Past: ");
+	strcat(buf, "\r\n         ");
+    getGroup("Wizlist_ArchEC").sendPublicMember(ch, buf, "Future: ");
+	strcat(buf, "        ");
+    getGroup("Wizlist_ArchOP").sendPublicMember(ch, buf, "Outer Planes: ");
+    strcat(buf, "\r\n");
 
     send_wizlist_section_title("Builders",ch);
     getGroup("Wizlist_Blders").sendPublicMemberList(ch, buf);
