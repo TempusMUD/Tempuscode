@@ -45,15 +45,14 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "what move", "respond Movepoints are a measure of the amount of physical energy you have.  Moving around and fighting use movepoints." },
 	{ CLASS_NONE, 100, "why jail", "respond You probably didn't have enough money to cover your rent, or you attacked one of the cityguards." },
 	{ CLASS_NONE, 100, "out jail", "respond To get out of jail, you can use the 'return' command until level 10.  After that, you'll have to find a way out." },
-	{ CLASS_NONE, 100, "why naked", "respond You should find things to wear!" },
-	{ CLASS_NONE, 100, "where things wear", "respond You can buy equipment or loot it from corpses" },
+	{ CLASS_NONE, 100, "why naked", "respond Everyone starts out naked here.  You should find things to wear!" },
+	{ CLASS_NONE, 100, "where things wear", "respond You can buy equipment or loot clothing from corpses" },
 	{ CLASS_NONE, 100, "where get eq", "respond You can buy equipment or loot it from corpses" },
 	{ CLASS_NONE, 100, "who someone", "respond Invisible people are referred to as 'someone.'  You can't tell who they are." },
 	{ CLASS_NONE, 100, "lost", "respond You can type 'return' to return to your starting position." },
 	{ CLASS_NONE, 100, "cast spells", "respond Fear not!  I will cast spells on you as you need them." },
 	{ CLASS_NONE, 100, "cast spell", "respond Fear not!  I will cast spells on you as you need them." },
 	{ CLASS_NONE, 100, "money", "respond You can get money by looting corpses, selling items, and of course, begging from other players." },
-	{ CLASS_NONE, 100, "do you food", "respond Sorry.  As a celestial envoy, I have no need for food." },
 	{ CLASS_NONE, 100, "where eat", "respond You can find food at the bakery" },
 	{ CLASS_NONE, 100, "hungry", "respond You need to get some food to eat." },
 	{ CLASS_NONE, 100, "thirsty", "respond You need to get something to drink.  There are fountains to drink from or you can buy drinks at shops." },
@@ -104,9 +103,17 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "love you", "respond I love you too." },
 	{ CLASS_NONE, 100, "me levels", "respond No, but I will try to protect you along the way." },
 	{ CLASS_NONE, 100, "how are you", "respond I'm doing ok, thanks for asking!" },
-	{ CLASS_NONE, 100, "who are you", "respond I'm your guardian.  I'm here to help you out!" },
+	{ CLASS_NONE, 100, "what are you", "respond I'm a guardian spirit, a protector and advisor to those new to our world." },
+	{ CLASS_NONE, 100, "who are you", "respond I'm a guardian spirit, a protector and advisor to those new to our world." },
 	{ CLASS_NONE, 100, "help level", "respond No, but I can protect you if you need it." },
 	{ CLASS_NONE, 100, "help fight", "respond I will only help you fight when you are in dire need." },
+    { CLASS_NONE, 100, "do you eat", "respond No.  I feed on the surrounding spiritual energy called mana." }
+	{ CLASS_NONE, 100, "do you food", "respond Sorry.  As a celestial envoy, I have no need for food." },
+    { CLASS_NONE, 100, "you made", "response Thanks for pointing it out." }
+    { CLASS_NONE, 100, "your favorite color", "response My favorite color is purple." }
+    { CLASS_NONE, 33, "my name is", "response Pleased to meet you." }
+    { CLASS_NONE, 33, "my name is", "response Glad to know you." }
+    { CLASS_NONE, 100, "my name is", "response Enchanted, I'm sure." }
 	{ CLASS_NONE, 25, "thanks", "respond No problem." },
 	{ CLASS_NONE, 25, "thanks", "respond Sure thing." },
 	{ CLASS_NONE, 25, "thanks", "respond I'm here to help." },
@@ -119,6 +126,8 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "hello", "respond Hi!  What's happening?" },
 	{ CLASS_NONE, 100, "good morning", "respond Good morning to you, too!" },
 	{ CLASS_NONE, 100, "good evening", "respond Good evening to you, too!" },
+	{ CLASS_NONE, 100, "whazzup", "respond Watchin the game, havin a bud.  You?" },
+	{ CLASS_NONE, 100, "the game a bud", "respond True...  True..." },
 	{ CLASS_NONE, 100, "go away", "dismiss" },
 	{ CLASS_NONE, 100, "leave me", "dismiss" },
 	{ CLASS_NONE, 100, "piss off", "dismiss" },
