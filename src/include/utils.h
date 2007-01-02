@@ -65,7 +65,6 @@ void sprintbit(long vektor, const char *names[], char *result);
 const char *strlist_aref(int idx, const char *names[]);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
-int get_line_count(char *buffer);
 int remove_from_cstring(char *str, char c = '~', char c_to = '.');
 void perform_skillset(Creature *ch, Creature *vict, char *skill_str, int value);
 

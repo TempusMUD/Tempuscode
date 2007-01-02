@@ -60,36 +60,6 @@ int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 /*
  * Special spells appear below.
  */
-
-ASPELL(spell_create_water)
-{
-	int water;
-
-	void name_to_drinkcon(struct obj_data *obj, int type);
-	void name_from_drinkcon(struct obj_data *obj, int type);
-
-	if (ch == NULL || obj == NULL)
-		return;
-	level = MAX(MIN(level, LVL_GRIMP), 1);
-
-	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
-		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
-			name_from_drinkcon(obj, GET_OBJ_VAL(obj, 2));
-			GET_OBJ_VAL(obj, 2) = LIQ_SLIME;
-			name_to_drinkcon(obj, LIQ_SLIME);
-		} else {
-			water = MAX(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
-			if (water > 0) {
-				GET_OBJ_VAL(obj, 2) = LIQ_WATER;
-				GET_OBJ_VAL(obj, 1) += water;
-				name_from_drinkcon(obj, GET_OBJ_VAL(obj, 2));
-				name_to_drinkcon(obj, LIQ_WATER);
-				act("$p is filled.", FALSE, ch, obj, 0, TO_CHAR);
-			}
-		}
-	}
-}
-
 bool
 teleport_not_ok(Creature *ch, Creature *vict, int level)
 {
@@ -797,7 +767,7 @@ ASPELL(spell_summon)
 ASPELL(spell_locate_object)
 {
 	struct obj_data *i;
-	extern char locate_buf[];
+	extern char locate_buf[256];
 	int j, k;
 	char *which_str;
 	struct room_data *rm = NULL;
@@ -1479,43 +1449,6 @@ ASPELL(spell_enchant_weapon)
 	}
 }
 
-
-ASPELL(spell_detect_poison)
-{
-	if (victim) {
-		if (victim == ch) {
-			if (IS_AFFECTED(victim, AFF_POISON))
-				send_to_char(ch, "You can sense poison in your blood.\r\n");
-			else
-				send_to_char(ch, "You feel healthy.\r\n");
-		} else {
-			if (IS_AFFECTED(victim, AFF_POISON))
-				act("You sense that $E is poisoned.", FALSE, ch, 0, victim,
-					TO_CHAR);
-			else
-				act("You sense that $E is healthy.", FALSE, ch, 0, victim,
-					TO_CHAR);
-		}
-	}
-
-	if (obj) {
-		switch (GET_OBJ_TYPE(obj)) {
-		case ITEM_DRINKCON:
-		case ITEM_FOUNTAIN:
-		case ITEM_FOOD:
-			if (GET_OBJ_VAL(obj, 3))
-				act("You sense that $p has been contaminated.", FALSE, ch, obj,
-					0, TO_CHAR);
-			else
-				act("You sense that $p is safe for consumption.", FALSE, ch,
-					obj, 0, TO_CHAR);
-			break;
-		default:
-			send_to_char(ch, "You sense that it should not be consumed.\r\n");
-		}
-	}
-}
-
 ASPELL(spell_enchant_armor)
 {
 	int i;
@@ -1851,10 +1784,6 @@ ASPELL(spell_clairvoyance)
 	return;
 }
 
-ASPELL(spell_coordinates)
-{
-}
-
 ASPELL(spell_conjure_elemental)
 {
 	struct affected_type af;
@@ -1950,50 +1879,6 @@ ASPELL(spell_conjure_elemental)
 		gain_skill_prof(ch, SPELL_CONJURE_ELEMENTAL);
 		return;
 	}
-}
-
-ASPELL(spell_decoy)
-{
-	struct Creature *decoy = NULL;
-	char buf[255];
-
-	if (number(0, GET_INT(ch)) < 4) {
-		send_to_char(ch, "You are unable to construct a decoy.\r\n");
-		return;
-	}
-
-	decoy = read_mobile(92007);
-
-	if (decoy == NULL) {
-		send_to_char(ch, "You are unable to construct a decoy.\r\n");
-		return;
-	}
-
-	strcpy(buf, ch->player.name);
-	strcat(buf, " ");
-	strcat(buf, ch->player.title);
-	strcat(buf, " is standing here.\r\n");
-	decoy->player.long_descr = strdup(buf);
-
-	strcpy(buf, ch->player.name);
-	strcat(buf, " .");
-	strcat(buf, ch->player.name);
-	decoy->player.name = strdup(buf);
-
-	strcpy(buf, ch->player.name);
-	decoy->player.short_descr = strdup(buf);
-
-	act("You have constructed a perfect decoy of yourself!",
-		FALSE, ch, 0, NULL, TO_CHAR);
-	act("$n have constructed a perfect decoy of $mself!",
-		FALSE, ch, 0, NULL, TO_ROOM);
-	char_to_room(decoy, ch->in_room,false);
-
-	SET_BIT(MOB_FLAGS(decoy), MOB_ISNPC);
-	SET_BIT(MOB_FLAGS(decoy), MOB_SENTINEL);
-
-	gain_skill_prof(ch, SPELL_DECOY);
-	return;
 }
 
 ASPELL(spell_death_knell)

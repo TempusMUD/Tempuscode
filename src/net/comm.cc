@@ -50,6 +50,7 @@
 #include "accstr.h"
 #include "player_table.h"
 #include "prog.h"
+#include "quest.h"
 
 /* externs */
 extern HelpCollection *Help;
@@ -137,7 +138,6 @@ void weather_and_time(int mode);
 void autosave_zones(int SAVE_TYPE);
 void mem_cleanup(void);
 void retire_trails(void);
-void qp_reload(int sig = 0);
 void set_desc_state(int state, struct descriptor_data *d);
 void save_quests(); // quests.cc - saves quest data
 void save_all_players();
@@ -1981,6 +1981,14 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 			case 'F':
 				CHECK_NULL(vict_obj, fname((char *)vict_obj));
 				break;
+            case '%':
+                if (ch != to)
+                    i = "s";
+                break;
+            case '^':
+                if (ch != to)
+                    i = "es";
+                break;
 			case '$':
 				i = "$";
 				break;

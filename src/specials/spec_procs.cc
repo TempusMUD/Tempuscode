@@ -1678,7 +1678,6 @@ SPECIAL(cave_bear)
 
 /* Mavernal Specs */
 #include "Specs/mavernal_specs/mavernal_citizen.spec"
-#include "Specs/mavernal_specs/mavernal_obj_specs.spec"
 #include "Specs/mavernal_specs/new_mavernal_talker.spec"
 
 #include "Specs/falling_tower_dt.spec"

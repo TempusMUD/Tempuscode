@@ -1240,7 +1240,6 @@ struct Creature {
     void saveToXML();
 
 	void set(const char *key, const char *val);
-	bool loadFromDB(long id);
 
     // creature needs to be unrented
     int unrent(void);
@@ -1255,7 +1254,6 @@ struct Creature {
     void removeAllCombat();
     bool initiatedCombat(Creature *ch);
     bool isOkToAttack(Creature *vict, bool mssg = true);
-    Creature *hasDefender(Creature *vict);
 
     Creature *isDefending() {
         return char_specials.defending;
@@ -1338,8 +1336,6 @@ struct Creature {
     // world, sets its descriptor's input mode to the given state
 	void extract(cxn_state con_state);
 
-    /** Extracts all unrentable objects carried or worn by this creature **/
-    void extractUnrentables();
     Creature &operator=(const Creature &c) {
         // This is private because it should never be called.  But on 
         // the off chance that it does, it should something appropriate.

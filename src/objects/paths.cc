@@ -420,30 +420,6 @@ clear_path_objects(PHead * phead)
 		}
 	}
 }
-void
-delete_path(PHead * phead)
-{
-	PHead *temp = NULL;
-	int i;
-
-	clear_path_objects(phead);
-
-	if ((phead) == (first_path))
-		first_path = (PHead *) (phead)->next;
-	else {
-		temp = first_path;
-		while (temp && (temp->next != (phead)))
-			temp = (PHead *) temp->next;
-		if (temp)
-			temp->next = (PHead *) (phead)->next;
-	}
-
-	for (i = 0; i < phead->length; i++)
-		if (phead->path[i].str)
-			free(phead->path[i].str);
-	free(phead->path);
-	free(phead);
-}
 
 void
 print_path(PHead * phead, char *str)

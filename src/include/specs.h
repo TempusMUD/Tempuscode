@@ -248,7 +248,6 @@ SPECIAL(abandoned_cavern);
 SPECIAL(dangerous_climb);
 
 SPECIAL(dukes_chamber);
-SPECIAL(wiz_library);
 
 SPECIAL(master_communicator);
 SPECIAL(fountain_good);

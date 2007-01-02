@@ -416,13 +416,6 @@ obj_flag_data::setWeight(int new_weight)
 	return ((weight = new_weight));
 }
 
-void
-obj_data::display_rent(Creature *ch, const char *currency_str)
-{
-	send_to_char(ch, "%10d %s for %s\r\n", GET_OBJ_RENT(this), currency_str,
-		name);
-}
-
 room_data *
 obj_data::find_room(void)
 {

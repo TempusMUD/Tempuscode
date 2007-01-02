@@ -16,7 +16,6 @@ void show_pc_race_help(descriptor_data *d, char *arg);
 void show_pc_class_help(descriptor_data *d, char *arg);
 
 int parse_pc_race(struct descriptor_data *d, char *arg);
-const char *get_hometown_abbrev(int hometown);
 
 #define MODE_RENT_MENU 0
 #define MODE_SHOW_MENU 1

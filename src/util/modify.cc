@@ -157,61 +157,6 @@ one_word(char *argument, char *first_arg)
 	return (argument + begin);
 }
 
-
-struct help_index_element *
-build_help_index(FILE * fl, int *num)
-{
-	int nr = -1, issorted, i;
-	struct help_index_element *list = 0, mem;
-	char buf[128], tmp[128], *scan;
-	long pos;
-	int count_hash_records(FILE * fl);
-
-	i = count_hash_records(fl) * 5;
-	rewind(fl);
-	CREATE(list, struct help_index_element, i);
-
-	for (;;) {
-		pos = ftell(fl);
-		fgets(buf, 128, fl);
-		*(buf + strlen(buf) - 1) = '\0';
-		scan = buf;
-		for (;;) {
-			/* extract the keywords */
-			scan = one_word(scan, tmp);
-
-			if (!*tmp)
-				break;
-
-			nr++;
-
-			list[nr].pos = pos;
-			CREATE(list[nr].keyword, char, strlen(tmp) + 1);
-			strcpy(list[nr].keyword, tmp);
-		}
-		/* skip the text */
-		do
-			fgets(buf, 128, fl);
-		while (*buf != '#');
-		if (*(buf + 1) == '~')
-			break;
-	}
-	/* we might as well sort the stuff */
-	do {
-		issorted = 1;
-		for (i = 0; i < nr; i++)
-			if (str_cmp(list[i].keyword, list[i + 1].keyword) > 0) {
-				mem = list[i];
-				list[i] = list[i + 1];
-				list[i + 1] = mem;
-				issorted = 0;
-			}
-	} while (!issorted);
-
-	*num = nr;
-	return (list);
-}
-
 void
 show_file(struct Creature *ch, char *fname, int lines)
 {

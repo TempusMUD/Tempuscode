@@ -555,42 +555,6 @@ Creature::setPosition(int new_pos, int mode)
 }
 
 /**
- * Extracts all unrentable objects worn on or carried by this creature.
-**/
-void
-Creature::extractUnrentables()
-{
-    for (int j = 0; j < NUM_WEARS; j++) {
-		if (GET_EQ(this, j))
-			extract_norents(GET_EQ(this, j));
-		if (GET_IMPLANT(this, j))
-			extract_norents(GET_EQ(this, j));
-	}
-
-	extract_norents(carrying);
-}
-
-void
-verify_inventory_ok(Creature *vict, const char *spot)
-{
-	obj_data *contained;
-	void check_log(Creature *ch, const char *fmt, ...);
-
-	for (contained = vict->carrying;
-		 contained;
-		 contained = contained->next_content) {
-		if (contained->carried_by != vict) {
-			check_log(NULL, "(%s) expected object %ld carrier = mob %d (%p), got %p",
-						 spot,
-						 contained->unique_id,
-						 GET_MOB_VNUM(vict),
-						 vict,
-						 contained->carried_by);
-		}
-	}
-}
-
-/**
  * Extract a ch completely from the world, and destroy his stuff
  * @param con_state the connection state to change the descriptor to, if one exists
 **/
@@ -1759,27 +1723,6 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
     }
 
    return true;
-}
-
-Creature *
-Creature::hasDefender(Creature *vict)
-{
-    Creature *def = NULL;
-
-    CreatureList::iterator cit;
-    cit = vict->in_room->people.begin();
-    for (; cit != vict->in_room->people.end(); ++cit) {
-        if ((*cit) != vict && 
-            (*cit) != this &&
-            (*cit)->isDefending() == vict &&
-            !(*cit)->numCombatants() &&
-            (*cit)->getPosition() > POS_RESTING) {
-            def = *cit;
-            break;
-        }
-    }
-
-    return def;
 }
 
 void

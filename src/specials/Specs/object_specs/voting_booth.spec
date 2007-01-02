@@ -546,36 +546,6 @@ voting_booth_init(void)
 	voting_booth_load();
 }
 
-void
-voting_booth_forget(int acct_id)
-{
-	struct voting_poll *cur_poll;
-	struct memory_rec_struct *cur_mem, *doomed_mem = NULL;
-	
-	// Remove account from all voting polls
-	for (cur_poll = voting_poll_list; cur_poll; cur_poll = cur_poll->next) {
-		cur_mem = cur_poll->memory;
-		if (cur_mem->id == acct_id) {
-			doomed_mem = cur_mem;
-			cur_poll->memory = cur_poll->memory->next;
-		} else {
-			while (cur_mem->next && cur_mem->next->id != acct_id)
-				cur_mem = cur_mem->next;
-			if (cur_mem->next) {
-				doomed_mem = cur_mem->next;
-				cur_mem->next = cur_mem->next->next;
-			}
-		}
-	}
-
-	if (!doomed_mem) {
-		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-		return;
-	}
-	free(doomed_mem);
-	sql_exec("delete from voting_accounts where account=%d", acct_id);
-}
-
 SPECIAL(voting_booth)
 {
 	struct obj_data *obj = (struct obj_data *)me;

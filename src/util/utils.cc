@@ -148,27 +148,6 @@ disable_vt100(struct Creature *ch)
 {
 }
 
-/* Gets number of lines in a buffer */
-int
-get_line_count(char *buffer)
-{
-	char *tmpbuf, *line, *safebuf;
-	int i = 0;
-
-	if (!buffer)
-		return 0;
-
-	safebuf = tmpbuf = strdup(buffer);
-	line = strsep(&tmpbuf, "\n");
-	while (line != NULL) {
-		i++;
-		line = strsep(&tmpbuf, "\n");
-	}
-	if (safebuf)
-		free(safebuf);
-	return (i);
-}
-
 // removes all occurances of the specified character c from char * str,
 // replacing each occurance with a char c_to
 int
@@ -466,12 +445,6 @@ real_time_passed(time_t t2, time_t t1)
 	now.year = -1;
 
 	return now;
-}
-
-int
-calc_lunar_day(time_t secs, time_t epoch)
-{
-	return ((secs - epoch) / SECS_PER_MUD_DAY) % 24;
 }
 
 /* Calculate the MUD time passed over the last t2-t1 centuries (secs) */
@@ -1064,26 +1037,4 @@ create_object_vector(vector<struct ovect_struct> &ov) {
     }
 
     sort(ov.begin(), ov.end());
-}
-
-void
-delete_duplicate_objects() {
-    vector<struct ovect_struct> ov;
-    create_object_vector(ov);
-
-    for (unsigned int x = 0; x < ov.size(); x++) {
-        if (ov[x].unique_id == ov[x + 1].unique_id) {
-            // I thought about putting some code here to remove
-            // objects from a duped container before we extract
-            // it, but as people usually use containers to hold
-            // eq while they dupe it, might as well just fry
-            // it all.
-            //mudlog(LVL_AMBASSADOR, NRM, true,
-            //       "INFO: Duplicate item id: [%ld] (%s) has been "
-            //       "deleted.", ov[x].unique_id, ov[x].obj->name);
-            errlog("Duplicate item id: [%ld] (%s) has been detected",
-                   ov[x].unique_id, ov[x].obj->name);
-            //extract_obj(ov[x].obj);
-        }
-    }
 }

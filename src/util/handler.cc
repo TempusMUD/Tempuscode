@@ -1703,22 +1703,6 @@ get_char_room(char *name, struct room_data *room)
 	return NULL;
 }
 
-
-
-/* search all over the world for a char num, and return a pointer if found */
-struct Creature *
-get_char_num(int nr)
-{
-
-	CreatureList::iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		if (GET_MOB_VNUM((*cit)) == nr)
-			return (*cit);
-	}
-
-	return NULL;
-}
-
 struct Creature *
 get_char_in_world_by_idnum(int nr)
 {

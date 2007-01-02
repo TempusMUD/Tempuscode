@@ -410,7 +410,6 @@ struct obj_data {
     void normalizeApplies(void);
     struct tmp_obj_affect *affectedBySpell(int spellnum);
 	void saveToXML( FILE* ouf );
-	void display_rent(Creature *ch, const char *currency_str);
 	room_data *find_room();
 
     int getVnum() {

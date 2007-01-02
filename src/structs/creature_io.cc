@@ -1058,34 +1058,3 @@ Creature::set(const char *key, const char *val)
 	else
 		slog("Invalid player field %s set to %s", key, val);
 }
-
-bool
-Creature::loadFromDB(long idnum)
-{
-	const char **fields;
-	PGresult *res;
-	int res_count, acct_count, field_count, field_idx;
-
-	res = sql_query("select race, class, remort, name, title, poofin, poofout, imm_badge, sex, hitp, mana, move, maxhitp, maxmana, maxmove, gold, cash, exp, level, height, weight, align, gen, birth_time, death_time, played_time, login_time, pkills, mkills, akills, deaths, reputation, flag_severity, str, int, wis, dex, con, cha, hunger, thirst, drunk, invis_lvl, wimpy, lifepoints, rent_kind, rent_per_day, currency, cxn_mode, home_town, home_room, load_room, prefs_1, prefs_2, affects_1, affects_2, affects_3, descrip from accounts where idnum=%ld", idnum);
-	res_count = PQntuples(res);
-	if (res_count > 1) {
-		errlog("search for player %ld returned more than one match", idnum);
-		return false;
-	}
-	
-	if (acct_count < 1)
-		return false;
-	
-	GET_IDNUM(this) = idnum;
-
-	field_count = PQnfields(res);
-	fields = new const char *[field_count];
-	for (field_idx = 0;field_idx < field_count;field_idx++)
-		fields[field_idx] = PQfname(res, field_idx);
-	
-	for (field_idx = 0;field_idx < field_count;field_idx++)
-		this->set(fields[field_idx], PQgetvalue(res, 0, field_idx));
-	delete [] fields;
-	return true;
-}
-

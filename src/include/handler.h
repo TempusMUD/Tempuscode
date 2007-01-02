@@ -68,7 +68,6 @@ void extract_obj(struct obj_data *obj);
 /* ******* characters ********* */
 
 struct Creature *get_char_room(char *name, struct room_data *room);
-struct Creature *get_char_num(int nr);
 struct Creature *get_char(char *name);
 struct Creature *get_char_in_world_by_idnum(int nr);
 

@@ -449,26 +449,6 @@ get_char_class_color( Creature *tch, int char_class ) {
     }
 }
 
-
-
-/*
- * The code to interpret a hometown letter -- used in interpreter.c
- */
-
-int
-parse_time_frame(char *arg)
-{
-
-	skip_spaces(&arg);
-
-	if (is_abbrev(arg, "past") || is_abbrev(arg, "modrian"))
-		return HOME_MODRIAN;
-	if (is_abbrev(arg, "future") || is_abbrev(arg, "electro"))
-		return HOME_ELECTRO;
-
-	return HOME_UNDEFINED;
-};
-
 /*
  * The code to interpret a char_class letter -- used in interpreter.c when a
  * new character is selecting a char_class and by 'set char_class' in act.wizard.c.
@@ -1609,32 +1589,6 @@ extern const int exp_scale[LVL_GRIMP + 2] = {
 	2000000012,
 	2000000013
 };
-
-
-/* Names of char_class/levels and exp required for each level */
-
-int
-correct_race( int race ) {
-    switch( race ) {
-        case RACE_ANIMAL:
-        case RACE_DRAGON:
-        case RACE_GIANT:
-        case RACE_UNDEAD:
-        case RACE_TROLL:
-        case RACE_OGRE:
-        case RACE_INSECT:
-        case RACE_GOBLIN:
-        case RACE_ELEMENTAL:
-        case RACE_DUERGAR:
-        case RACE_DEVIL:
-        case RACE_DEVA:
-        case RACE_DEMON:
-        case RACE_ARCHON:
-        case RACE_ALIEN_1:
-            return RACE_HUMAN;
-    }
-    return race;
-}
 
 int
 get_max_str( Creature *ch ) {

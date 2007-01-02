@@ -600,18 +600,6 @@ do_hcollect_cmds(Creature *ch)
 	page_string(ch->desc, gHelpbuf);
 }
 
-// blah blah usage blah
-void
-do_hcollect_usage(Creature *ch, int com)
-{
-	if (com < 0) {
-		do_hcollect_cmds(ch);
-	} else {
-		send_to_char(ch, "Usage: hcollect %s %s\r\n",
-			hc_cmds[com].keyword, hc_cmds[com].usage);
-	}
-}
-
 // group command listing
 void
 do_group_cmds(Creature *ch)
@@ -626,16 +614,6 @@ do_group_cmds(Creature *ch)
 	page_string(ch->desc, gHelpbuf);
 }
 
-void
-do_group_usage(Creature *ch, int com)
-{
-	if (com < 0) {
-		do_group_cmds(ch);
-	} else {
-		send_to_char(ch, "Usage: hcollect group %s %s\r\n",
-			grp_cmds[com].keyword, grp_cmds[com].usage);
-	}
-}
 HelpItem *
 HelpCollection::find_item_by_id(int id)
 {

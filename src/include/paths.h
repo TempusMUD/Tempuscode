@@ -62,6 +62,5 @@ PHead *real_path_by_num(int vnum);
 void path_remove_object(void *object);
 int add_path_to_mob(struct Creature *mob, char *name);
 int add_path(char *spath, int save);
-void delete_path(PHead * phead);
 
 #endif

@@ -884,7 +884,6 @@ static inline int SPELL_GEN( int spell, int char_class ) {
   !SPELL_GEN(spl, GET_REMORT_CLASS(ch))))
 
 ASPELL(spell_astral_spell);
-ASPELL(spell_create_water);
 ASPELL(spell_recall);
 ASPELL(spell_teleport);
 ASPELL(spell_summon);
@@ -898,8 +897,6 @@ ASPELL(spell_enchant_weapon);
 ASPELL(spell_enchant_armor);
 ASPELL(spell_greater_enchant);
 ASPELL(spell_clairvoyance);
-ASPELL(spell_coordinates);
-ASPELL(spell_detect_poison);
 ASPELL(spell_magical_vestment);
 ASPELL(spell_conjure_elemental);
 ASPELL(spell_knock);
@@ -921,7 +918,6 @@ ASPELL(spell_banishment);
 ASPELL(spell_sun_ray);
 ASPELL(spell_emp_pulse);
 ASPELL(spell_quantum_rift);
-ASPELL(spell_decoy);
 ASPELL(spell_death_knell);
 ASPELL(spell_dispel_magic);
 ASPELL(spell_distraction);

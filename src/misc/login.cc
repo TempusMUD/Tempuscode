@@ -323,16 +323,3 @@ show_race_help(struct descriptor_data *d, int race)
 	}
 	SEND_TO_Q("\r\n", d);
 }
-
-const char *
-get_hometown_abbrev(int hometown)
-{
-	int idx = 0;
-
-	while (idx < hometown && home_town_abbrevs[idx][0] != '\n')
-		idx++;
-	if (home_town_abbrevs[idx][0] == '\n')
-		return "INVALID";
-	
-	return home_town_abbrevs[idx];
-}
