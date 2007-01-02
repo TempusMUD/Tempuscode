@@ -229,17 +229,27 @@ angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_da
 		data->action = acc_get_string();
 }
 
+void
+guardian_angel_action(Creature *angel, const char *action)
+{
+	angel_data *data = (angel_data *)angel->mob_specials.func_data;
+	free(data->action);
+	data->action = str_dup(action);
+	data->counter = 0;
+}
+
 int
 angel_do_action(Creature *self, Creature *charge, angel_data *data)
 {
 	char *cmd, *action;
     int return_flags = 0;
+	int result = 0;
 
 	action = data->action;
 	cmd = tmp_getword(&action);
 	if (!strcmp(cmd, "respond")) {
 		perform_tell(self, charge, action);
-		return 1;
+		result = 1;
 	} 
     else if (!strcmp(cmd, "cast")) {
         char *spell = tmp_getword(&action);
@@ -248,7 +258,7 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
         if (spell) {
             perform_say_to(self, charge, angel_spells[spell_no].text);
             cast_spell(self, charge, NULL, NULL, angel_spells[spell_no].spell_no, &return_flags);
-            return 1;
+            result = 1;
         }
     }
     else if (!strcmp(cmd, "directions")) {
@@ -256,13 +266,12 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
         struct room_data *room = real_room(atoi(room_num));
         if (room) {
             angel_find_path_to_room(self, room, data);
-            data->counter = -1;
             perform_tell(self, charge, data->action);
         }
         else {
-            data->counter = -1;
             perform_tell(self, charge, "I don't seem to be able to find that room.");
         }
+		result = 1;
     }
     else if (!strcmp(cmd, "dismiss")) {
 		act("$n shrugs $s shoulders and disappears!", false,
@@ -281,16 +290,10 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
 		self->purge(true);
 		return 1;
 	}
-	return 0;
-}
 
-void
-guardian_angel_action(Creature *angel, const char *action)
-{
-	angel_data *data = (angel_data *)angel->mob_specials.func_data;
-	free(data->action);
-	data->action = str_dup(action);
-	data->counter = 0;
+	guardian_angel_action(self, "none");
+	data->counter = -1;
+	return result;
 }
 
 int
@@ -480,7 +483,6 @@ SPECIAL(guardian_angel)
 	Creature *charge;
 	char *arg;
 	const char *word;
-	int result;
 
 	if (spec_mode == SPECIAL_CMD && IS_IMMORT(ch)) {
 		if (CMD_IS("status")) {
@@ -528,10 +530,7 @@ SPECIAL(guardian_angel)
 		else if (data->counter < 0)
 			return angel_check_charge(self, charge, data);
 		else {
-			result = angel_do_action(self, charge, data);
-			guardian_angel_action(self, "none");
-			data->counter = -1;
-			return result;
+			return angel_do_action(self, charge, data);
 		}
 	}
 
