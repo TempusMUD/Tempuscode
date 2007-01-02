@@ -2122,7 +2122,7 @@ ACMD(do_cast)
 		(IS_CLERIC(ch) || IS_KNIGHT(ch)) && SPELL_IS_DIVINE(spellnum)) {
 		bool need_symbol = true;
 		int gen = GET_REMORT_GEN(ch);
-		if (IS_SOULLESS(ch)) {
+		if (IS_EVIL(ch) && IS_SOULLESS(ch)) {
 			if (GET_CLASS(ch) == CLASS_CLERIC && gen > 4)
 				need_symbol = false;
 			else if (GET_CLASS(ch) == CLASS_KNIGHT && gen > 6)
