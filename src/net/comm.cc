@@ -1975,8 +1975,11 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 			case 'A':
 				CHECK_NULL(vict_obj, SANA((struct obj_data *)vict_obj));
 				break;
+			case 't':
+				i = PERS(ch, to);
+				break;
 			case 'T':
-				CHECK_NULL(vict_obj, (char *)vict_obj);
+				CHECK_NULL(vict_obj, PERS((struct Creature *)vict_obj, to));
 				break;
 			case 'F':
 				CHECK_NULL(vict_obj, fname((char *)vict_obj));
