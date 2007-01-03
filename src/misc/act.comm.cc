@@ -91,11 +91,11 @@ perform_say_to(Creature *ch, Creature *target, const char *message)
 	const char *language_str = (GET_LANGUAGE(ch) != LANGUAGE_COMMON) ?
 		tmp_strcat(" in ", language_names[(int)GET_LANGUAGE(ch)]):"";
 
-	act(tmp_sprintf("&BYou$a say to $N%s, &c'%s'", language_str, message),
+	act(tmp_sprintf("&BYou$a say to $T%s, &c'%s'", language_str, message),
 			0, ch, 0, target, TO_CHAR);
-	act_if(tmp_sprintf("&B$n$a says to $N%s, &c'%s'", language_str, message),
+	act_if(tmp_sprintf("&B$n$a says to $T%s, &c'%s'", language_str, message),
 			0, ch, 0, target, TO_ROOM, say_lang_pred);
-	act_if(tmp_sprintf("&B$n$a says to $N, &c'%s'",
+	act_if(tmp_sprintf("&B$n$a says to $T, &c'%s'",
 				translate_string(message, GET_LANGUAGE(ch))),
 			0, ch, 0, target, TO_ROOM, say_nolang_pred);
 }

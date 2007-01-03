@@ -1910,9 +1910,15 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 		if (*s == '$') {
 			switch (*(++s)) {
 			case 'n':
-				i = (ch==to)?"you":PERS(ch, to);
+				i = PERS(ch, to);
 				break;
 			case 'N':
+				CHECK_NULL(vict_obj, PERS((struct Creature *)vict_obj, to));
+				break;
+			case 't':
+				i = (ch==to)?"you":PERS(ch, to);
+				break;
+			case 'T':
 				if (ch==vict_obj) {
 					if (vict_obj==to)
 						i = "yourself";
@@ -1974,12 +1980,6 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				break;
 			case 'A':
 				CHECK_NULL(vict_obj, SANA((struct obj_data *)vict_obj));
-				break;
-			case 't':
-				i = PERS(ch, to);
-				break;
-			case 'T':
-				CHECK_NULL(vict_obj, PERS((struct Creature *)vict_obj, to));
 				break;
 			case 'F':
 				CHECK_NULL(vict_obj, fname((char *)vict_obj));
