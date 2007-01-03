@@ -24,6 +24,7 @@
 #include <iostream>
 
 #include "structs.h"
+#include "actions.h"
 #include "comm.h"
 #include "handler.h"
 #include "db.h"
@@ -50,7 +51,6 @@ extern int no_plrtext;
 ACMD(do_tell);
 SPECIAL(receptionist);
 SPECIAL(cryogenicist);
-void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
 
 void
 extract_norents(struct obj_data *obj)

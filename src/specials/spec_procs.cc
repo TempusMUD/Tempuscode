@@ -17,6 +17,7 @@
 
 #include <errno.h>
 #include "structs.h"
+#include "actions.h"
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
@@ -50,7 +51,6 @@ extern struct spell_info_type spell_info[];
 /* extern functions */
 void add_follower(struct Creature *ch, struct Creature *leader);
 void do_auto_exits(struct Creature *ch, room_num room);
-void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
 int get_check_money(struct Creature *ch, struct obj_data **obj, int display);
 
 

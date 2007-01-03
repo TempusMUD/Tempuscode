@@ -243,27 +243,13 @@ ACMD(do_gsay)
 
 
 void
-perform_tell(struct Creature *ch, struct Creature *vict, char *arg)
+perform_tell(struct Creature *ch, struct Creature *vict, const char *arg)
 {
-	const char *mood_str;
-	char *str;
+	char *act_str = tmp_sprintf("&r$t$a tell$%% $T,&n '%s'", arg);
 
-	mood_str = GET_MOOD(ch) ? GET_MOOD(ch):"";
+	act(act_str, false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+	act(act_str, false, ch, 0, vict, TO_VICT | TO_SLEEP);
 
-	str = tmp_sprintf("%sYou%s tell $N,%s '%s'",
-		CCRED(ch, C_NRM), mood_str, CCNRM(ch, C_NRM), arg);
-	act(str, FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
-
-	delete_doubledollar(arg);
-
-	str = tmp_strdup(PERS(ch, vict));
-	str[0] = toupper(str[0]);
-	send_to_char(vict, "%s%s%s tells you,%s '%s'\r\n",
-		CCRED(vict, C_NRM),
-		str,
-		mood_str,
-		CCNRM(vict, C_NRM),
-		arg);
 	if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_MOB(ch))
 		send_to_char(vict, "\007\007");
 

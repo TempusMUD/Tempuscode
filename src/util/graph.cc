@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "actions.h"
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -606,7 +607,6 @@ hunt_victim(struct Creature *ch)
 {
 
 	char buf2[MAX_STRING_LENGTH];
-	void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
 	struct affected_type *af_ptr = NULL;
 	int dir;
 	byte found;

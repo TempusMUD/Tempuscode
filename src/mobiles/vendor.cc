@@ -15,7 +15,6 @@
 const int MAX_ITEMS = 10;
 
 // From act.comm.cc
-void perform_tell(struct Creature *ch, struct Creature *vict, char *arg);
 void perform_analyze( Creature *ch, obj_data *obj, bool checklev );
 void perform_appraise( Creature *ch, obj_data *obj, int skill_lvl);
 

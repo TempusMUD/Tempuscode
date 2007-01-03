@@ -216,12 +216,12 @@ angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_da
     data->counter = 0;
 
 	if (cur_room == dest) {
-		data->action = str_dup("respond We're already here!");
+		data->action = str_dup("We're already here!");
 		return;
 	}
 
     acc_string_clear();
-	acc_strcat("respond The shortest path there is:", NULL);
+	acc_strcat("The shortest path there is:", NULL);
     dir = find_first_step(cur_room, dest, STD_TRACK);
     while (cur_room && dir >= 0 && steps < 600) {
         acc_sprintf(" %s", to_dirs[dir]);
@@ -231,7 +231,7 @@ angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_da
     }
 
     if (cur_room != dest || steps >= 600)
-        data->action = str_dup("respond I don't seem to be able to find that room.");
+        data->action = str_dup("I don't seem to be able to find that room.");
 	else
 		data->action = acc_get_string();
 }
@@ -245,6 +245,19 @@ guardian_angel_action(Creature *angel, const char *action)
 	data->counter = 0;
 }
 
+void
+angel_do_respond(Creature *self, angel_data *data, const char *message)
+{
+	Creature *target = get_char_in_world_by_idnum(data->respond_to);
+
+	if (target) {
+		if (self->in_room == target->in_room && data->public_response)
+			perform_say_to(self, target, message);
+		else
+			perform_tell(self, target, message);
+	}
+}
+
 int
 angel_do_action(Creature *self, Creature *charge, angel_data *data)
 {
@@ -255,22 +268,17 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
 	action = data->action;
 	cmd = tmp_getword(&action);
 	if (!strcmp(cmd, "respond")) {
-		Creature *target = get_char_in_world_by_idnum(data->respond_to);
-
-		if (target) {
-			if (self->in_room == target->in_room && data->public_response)
-				perform_say_to(self, target, action);
-			else
-				perform_tell(self, charge, action);
-		}
+		angel_do_respond(self, data, action);
 		result = 1;
 	} 
     else if (!strcmp(cmd, "cast")) {
         char *spell = tmp_getword(&action);
         int spell_no = atoi(spell);
 
-        if (spell) {
-            perform_say_to(self, charge, angel_spells[spell_no].text);
+		if (GET_IDNUM(charge) != data->respond_to) {
+			angel_do_respond(self, data, "Uh, not a chance.");
+		} else if (spell) {
+			angel_do_respond(self, data, angel_spells[spell_no].text);
             cast_spell(self, charge, NULL, NULL, angel_spells[spell_no].spell_no, &return_flags);
             result = 1;
         }
@@ -278,31 +286,39 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
     else if (!strcmp(cmd, "directions")) {
         char *room_num = tmp_getword(&action);
         struct room_data *room = real_room(atoi(room_num));
-        if (room) {
+
+		if (GET_IDNUM(charge) != data->respond_to) {
+			angel_do_respond(self, data, "Find it yourself, eh?");
+        } else if (room) {
             angel_find_path_to_room(self, room, data);
-            perform_tell(self, charge, data->action);
+			angel_do_respond(self, data, data->action);
         }
         else {
-            perform_tell(self, charge, "I don't seem to be able to find that room.");
+			angel_do_respond(self, data, "I don't seem to be able to find that room.");
         }
 		result = 1;
     }
     else if (!strcmp(cmd, "dismiss")) {
-		act("$n shrugs $s shoulders and disappears!", false,
-			self, 0, 0, TO_ROOM);
+		if (GET_IDNUM(charge) != data->respond_to) {
+			angel_do_respond(self, data, "Hah.  Piss off.");
+			result = 1;
+		} else {
+			act("$n shrugs $s shoulders and disappears!", false,
+				self, 0, 0, TO_ROOM);
 
-        list<angel_data *>::iterator li = angels.begin();
-        for (; li != angels.end(); ++li) {
-            if (data->charge_id == (*li)->charge_id) {
-                // We have to do something after this because we're about to
-                // fux0r this iterator.  So, since we already know there can
-                // only be one matching entry, let's just end the loop.
-                angels.erase(li);
-                li = angels.end();
-            }
-        }
-		self->purge(true);
-		return 1;
+			list<angel_data *>::iterator li = angels.begin();
+			for (; li != angels.end(); ++li) {
+				if (data->charge_id == (*li)->charge_id) {
+					// We have to do something after this because we're about to
+					// fux0r this iterator.  So, since we already know there can
+					// only be one matching entry, let's just end the loop.
+					angels.erase(li);
+					li = angels.end();
+				}
+			}
+			self->purge(true);
+			return 1;
+		}
 	}
 
 	guardian_angel_action(self, "none");
@@ -497,7 +513,6 @@ SPECIAL(guardian_angel)
 	angel_chat_data *cur_chat;
 	Creature *charge;
 	char *arg;
-	const char *word;
 
 	if (spec_mode == SPECIAL_CMD && IS_IMMORT(ch)) {
 		if (CMD_IS("status")) {
@@ -560,21 +575,18 @@ SPECIAL(guardian_angel)
 		return 1;
 	}
 
+	// Only respond to actual in-room communications
 	if (cmd_info[cmd].command_pointer != do_spec_comm &&
 			cmd_info[cmd].command_pointer != do_say)
 		return 0;
 	
+	// Require self alias to be the first word unless they're using
+	// the 'say' command and they're the only creature in the room
 	if (cmd_info[cmd].command_pointer == do_spec_comm ||
 			CMD_IS(">") || CMD_IS("sayto") ||
 			ch->in_room->people.size() > 2) {
 		arg = argument;
-		word = arg;
-		while (*word) {
-			word = tmp_getword(&arg);
-			if (isname(word, self->player.name))
-				break;
-		}
-		if (!*word)
+		if (!isname(tmp_getword(&arg), self->player.name))
 			return 0;
 	}
 	
@@ -596,7 +608,7 @@ SPECIAL(guardian_angel)
 
 	// Nothing matched - log the question and produce a lame response
     slog("ANGEL:  Unknown Question: \"%s\"", argument);
-    guardian_angel_action(self, "respond I'm sorry, I don't understand.");
+	guardian_angel_action(self, "respond I'm sorry, I don't understand.");
 
 	return 0;
 }

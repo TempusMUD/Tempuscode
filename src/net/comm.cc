@@ -1985,12 +1985,10 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				CHECK_NULL(vict_obj, fname((char *)vict_obj));
 				break;
             case '%':
-                if (ch != to)
-                    i = "s";
+                i = (ch == to) ? "":"s";
                 break;
             case '^':
-                if (ch != to)
-                    i = "es";
+                i = (ch == to) ? "":"es";
                 break;
 			case '$':
 				i = "$";
@@ -2022,6 +2020,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				switch (c) {
 				case 'n':
 					// Normal tag has already been copied
+					i = "";
 					break;
 				case 'r':
 					i = KRED; break;

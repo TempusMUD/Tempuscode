@@ -16,7 +16,6 @@ SPECIAL(newbie_improve)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	ACMD(do_say);
-	void perform_tell(struct Creature *ch, struct Creature *vict, char *mssg);
 	struct Creature *impro = (struct Creature *)me;
 	byte index = -1;
 	char *mssg = NULL;
