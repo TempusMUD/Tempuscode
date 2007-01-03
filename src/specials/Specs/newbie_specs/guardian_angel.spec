@@ -21,6 +21,8 @@ struct angel_data {
 	char *charge_name;
 	int counter;	// a counter before angel does action
 	char *action;	// action for angel to do
+	bool public_response;
+	int respond_to;
 	unsigned long flags;
 };
 
@@ -124,6 +126,11 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "thank you", "respond You're welcome." },
 	{ CLASS_NONE, 100, "hi", "respond Hi there!  How are you doing today?" },
 	{ CLASS_NONE, 100, "hello", "respond Hi!  What's happening?" },
+	{ CLASS_NONE, 100, "heya", "respond Howdy!  How's it going?" },
+	{ CLASS_NONE, 100, "hiya", "respond Hello!  How are you?" },
+	{ CLASS_NONE, 100, "good", "respond That's good to hear." },
+	{ CLASS_NONE, 100, "bad", "respond I'm sorry to to hear that." },
+	{ CLASS_NONE, 100, "terrible", "respond That's awful!" },
 	{ CLASS_NONE, 100, "good morning", "respond Good morning to you, too!" },
 	{ CLASS_NONE, 100, "good evening", "respond Good evening to you, too!" },
 	{ CLASS_NONE, 100, "whazzup", "respond Watchin the game, havin a bud.  You?" },
@@ -248,7 +255,14 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
 	action = data->action;
 	cmd = tmp_getword(&action);
 	if (!strcmp(cmd, "respond")) {
-		perform_tell(self, charge, action);
+		Creature *target = get_char_in_world_by_idnum(data->respond_to);
+
+		if (target) {
+			if (self->in_room == target->in_room && data->public_response)
+				perform_say_to(self, target, action);
+			else
+				perform_tell(self, charge, action);
+		}
 		result = 1;
 	} 
     else if (!strcmp(cmd, "cast")) {
@@ -477,6 +491,7 @@ angel_to_char(Creature *ch)
 
 SPECIAL(guardian_angel)
 {
+	ACMD(do_spec_comm);
 	Creature *self = (Creature *)me;
 	angel_data *data = (angel_data *)self->mob_specials.func_data;
 	angel_chat_data *cur_chat;
@@ -534,7 +549,7 @@ SPECIAL(guardian_angel)
 		}
 	}
 
-	if (spec_mode != SPECIAL_CMD)
+	if (spec_mode != SPECIAL_CMD || IS_NPC(ch))
 		return 0;
 	
 	if (ch == charge && CMD_IS("kill") && isname(tmp_getword(&argument), self->player.name)) {
@@ -545,10 +560,13 @@ SPECIAL(guardian_angel)
 		return 1;
 	}
 
-	if (!CMD_IS("ask") && !CMD_IS(">"))
+	if (cmd_info[cmd].command_pointer != do_spec_comm &&
+			cmd_info[cmd].command_pointer != do_say)
 		return 0;
 	
-	if (ch->in_room->people.size() > 2) {
+	if (cmd_info[cmd].command_pointer == do_spec_comm ||
+			CMD_IS(">") || CMD_IS("sayto") ||
+			ch->in_room->people.size() > 2) {
 		arg = argument;
 		word = arg;
 		while (*word) {
@@ -560,6 +578,9 @@ SPECIAL(guardian_angel)
 			return 0;
 	}
 	
+	data->public_response = (cmd_info[cmd].command_pointer == do_say);
+	data->respond_to = GET_IDNUM(ch);
+
 	// Ok, they said something to us - lets pattern match
 	for (cur_chat = angel_chat; *cur_chat->keywords; cur_chat++) {
 		if (cur_chat->char_class != CLASS_NONE
