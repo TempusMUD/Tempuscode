@@ -2034,7 +2034,7 @@ name_from_drinkcon(struct obj_data *obj, int type)
     new_name = tmp_trim(new_name);
 
     proto = real_object_proto(GET_OBJ_VNUM(obj));
-    if (GET_OBJ_VNUM(proto) < 0 || obj->aliases != proto->aliases)
+    if (!proto || GET_OBJ_VNUM(proto) < 0 || obj->aliases != proto->aliases)
         free(obj->aliases);
     obj->aliases = str_dup(new_name);
 }
