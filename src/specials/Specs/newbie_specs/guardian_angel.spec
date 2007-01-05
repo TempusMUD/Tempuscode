@@ -584,11 +584,11 @@ SPECIAL(guardian_angel)
 	
 	// Require self alias to be the first word unless they're using
 	// the 'say' command and they're the only creature in the room
+	arg = argument;
 	if (cmd_info[cmd].command_pointer == do_spec_comm ||
 			CMD_IS(">") || CMD_IS("sayto") ||
 			ch->in_room->people.size() > 2) {
-		arg = argument;
-		if (!isname(tmp_getword(&arg), self->player.name))
+		if (!isname_exact(tmp_getword(&arg), self->player.name))
 			return 0;
 	}
 	
@@ -602,16 +602,16 @@ SPECIAL(guardian_angel)
 			continue;
 		if (cur_chat->chance < 100 && number(0, 99) < cur_chat->chance)
 			continue;
-		if (angel_chat_match(cur_chat->keywords, argument)) {
+		if (angel_chat_match(cur_chat->keywords, arg)) {
+			slog("ANGEL: \"%s\" -> %s", arg, cur_chat->response);
 			guardian_angel_action(self, cur_chat->response);
 			return 0;
 		}
 	}
 
+	slog("ANGEL: unmatched \"%s\"", arg);
 	// Nothing matched - log the question and produce a lame response
-    slog("ANGEL:  Unknown Question: \"%s\"", argument);
 	guardian_angel_action(self, "respond I'm sorry, I don't understand.");
 
 	return 0;
 }
-
