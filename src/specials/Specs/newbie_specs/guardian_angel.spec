@@ -60,6 +60,7 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "thirsty", "respond You need to get something to drink.  There are fountains to drink from or you can buy drinks at shops." },
 	{ CLASS_NONE, 100, "what do i do", "respond Go out and explore!  Talk to people!  Increase in power and wealth!  Meet interesting and exotic creatures and kill them!" },
 	{ CLASS_NONE, 100, "where do i go", "respond You can try the 'areas' command to find a likely area, and 'help map' to figure out how to get there.  Or you can ask me for a few places" },
+	{ CLASS_NONE, 100, "retrieve", "respond You can retrieve your corpse for a fee at a retriever, or you can try and find your corpse yourself." },
 
     // Basic information about places
 	{ CLASS_NONE, 100, "where get eat", "respond You can find food at various shops, like the bakery" },
@@ -299,7 +300,7 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
 		result = 1;
     }
     else if (!strcmp(cmd, "dismiss")) {
-		if (GET_IDNUM(charge) != data->respond_to) {
+		if (charge && GET_IDNUM(charge) != data->respond_to) {
 			angel_do_respond(self, data, "Hah.  Piss off.");
 			result = 1;
 		} else {
@@ -552,6 +553,7 @@ SPECIAL(guardian_angel)
 	if (!charge && data->counter < 0) {
         // When the charge couldn't be found, disappear immediately
 		guardian_angel_action(self, "dismiss");
+		return angel_do_action(self, NULL, data);
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
