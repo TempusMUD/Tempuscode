@@ -3304,9 +3304,11 @@ class WhoListComparator {
 	public:
 		bool operator()(Creature *a, Creature *b)
 		{
+			time_t now, time_a, time_b;
+
 			// immorts on top by level,
 			// then testers, then by gen, then by level
-			// then by wealth
+			// then by time played
 			if (IS_IMMORT(a) || IS_IMMORT(b))
 				return GET_LEVEL(a) > GET_LEVEL(b);
 			if (a->isTester())
@@ -3316,14 +3318,10 @@ class WhoListComparator {
 			if (GET_LEVEL(a) != GET_LEVEL(b))
 				return GET_LEVEL(a) > GET_LEVEL(b);
 			
-			return GET_GOLD(a) +
-					GET_CASH(a) +
-					GET_PAST_BANK(a) +
-					GET_FUTURE_BANK(a) >
-				   GET_GOLD(b) +
-					GET_CASH(b) +
-					GET_PAST_BANK(b) +
-					GET_FUTURE_BANK(b);
+			now = time(0);
+			time_a = now - a->player.time.logon + a->player.time.played;
+			time_b = now - b->player.time.logon + b->player.time.played;
+			return time_a > time_b;
 		}
 };
 
