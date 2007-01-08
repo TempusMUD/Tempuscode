@@ -937,7 +937,7 @@ ACMD(do_gen_comm)
 	}
 
 	// Eliminate double dollars, and double percent signs (for sprintf)
-	argument = tmp_gsub(argument, "$$", "$");
+    delete_doubledollar(argument);
 
 	// Construct all the emits ahead of time.
 	if (chan->is_emote) {
