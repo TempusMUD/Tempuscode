@@ -4078,14 +4078,20 @@ ACMD(do_breathe)
     if( IS_PC(ch) ) {
         if( fire != NULL ) {
             call_magic(ch, vict, 0, NULL, SPELL_FIRE_BREATH, GET_LEVEL(ch), CAST_BREATH);
-            fire->duration -= 5;
-            if( fire->duration <= 0 )
-                affect_remove( ch, fire );
+            fire = affected_by_spell(ch, SPELL_FIRE_BREATHING);
+            if (fire) {
+                fire->duration -= 5;
+                if( fire->duration <= 0 )
+                    affect_remove( ch, fire );
+            }
         } else if( frost != NULL ) {
             call_magic(ch, vict, 0, NULL, SPELL_FROST_BREATH, GET_LEVEL(ch), CAST_BREATH);
-            frost->duration -= 5;
-            if( frost->duration <= 0 )
-                affect_remove( ch, frost );
+            frost = affected_by_spell(ch, SPELL_FROST_BREATH);
+            if (frost) {
+                frost->duration -= 5;
+                if( frost->duration <= 0 )
+                    affect_remove( ch, frost );
+            }
         } else {
             send_to_char(ch, "ERROR: No breath type found.\r\n" );
         }
