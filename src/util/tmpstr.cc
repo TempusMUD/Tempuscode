@@ -580,7 +580,7 @@ tmp_printbits(int val, const char *bit_descs[])
 	*write_pt = '\0';
 
 	// Then copy in the rest of the strings
-	for (idx = 0;idx < sizeof(val) * 8;idx++)
+	for (idx = 0;idx < sizeof(val) * 8 && bit_descs[idx] && bit_descs[idx][0] != '\n';idx++)
 		if ((val >> idx) & 1) {
 			if (not_first)
 				*write_pt++ = ' ';

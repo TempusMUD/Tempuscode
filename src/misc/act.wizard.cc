@@ -1202,7 +1202,6 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     struct extra_descr_data *desc;
     extern struct attack_hit_type attack_hit_text[];
     extern const char *egun_types[];
-    
     struct room_data *rm = NULL;
 
     if (IS_OBJ_TYPE(j, ITEM_NOTE) && isname("letter", j->aliases)) {
@@ -1218,199 +1217,177 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         }
     }
 
-    send_to_char(ch, "Name: '%s%s%s', Aliases: %s\r\n", CCGRN(ch, C_NRM),
+    acc_string_clear();
+    acc_sprintf("Name: '%s%s%s', Aliases: %s\r\n", CCGRN(ch, C_NRM),
         ((j->name) ? j->name : "<None>"),
         CCNRM(ch, C_NRM), j->aliases);
-    sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
 
-    strcpy(buf2, j->shared->func ?
-        ((i = find_spec_index_ptr(j->shared->func)) < 0 ? "Exists" :
-            spec_list[i].tag) : "None");
+    acc_sprintf("VNum: [%s%5d%s], Exist: [%3d/%3d], Type: %s, SpecProc: %s\r\n",
+                CCGRN(ch, C_NRM),
+                GET_OBJ_VNUM(j),
+                CCNRM(ch, C_NRM),
+                j->shared->number,
+                j->shared->house_count,
+                strlist_aref(GET_OBJ_TYPE(j), item_types),
+                (j->shared->func) ?
+                ((i = find_spec_index_ptr(j->shared->func)) < 0 ? "Exists" :
+                 spec_list[i].tag) : "None");
+    acc_sprintf("L-Des: %s%s%s\r\n",
+                CCGRN(ch, C_NRM),
+                ((j->line_desc) ? j->line_desc : "None"),
+                CCNRM(ch, C_NRM));
 
-    sprintf(buf,
-        "VNum: [%s%5d%s], Exist: [%3d/%3d], Type: %s, SpecProc: %s\r\n",
-        CCGRN(ch, C_NRM), GET_OBJ_VNUM(j), CCNRM(ch, C_NRM), j->shared->number,
-        j->shared->house_count, buf1, buf2);
-    send_to_char(ch, "%s", buf);
-    send_to_char(ch, "L-Des: %s%s%s\r\n", CCGRN(ch, C_NRM),
-        ((j->line_desc) ? j->line_desc : "None"), CCNRM(ch, C_NRM));
     if (j->action_desc) {
-        send_to_char(ch, "Action desc: %s\r\n", j->action_desc);
+        acc_sprintf("Action desc: %s\r\n", j->action_desc);
     }
 
     if (j->ex_description) {
-        sprintf(buf, "Extra descs:%s", CCCYN(ch, C_NRM));
+        acc_sprintf("Extra descs:%s", CCCYN(ch, C_NRM));
         for (desc = j->ex_description; desc; desc = desc->next) {
-            strcat(buf, " ");
-            strcat(buf, desc->keyword);
-            strcat(buf, ";");
+            acc_strcat(" ", desc->keyword, ";", NULL);
         }
-        strcat(buf, CCNRM(ch, C_NRM));
-        send_to_char(ch, strcat(buf, "\r\n"));
+        acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
     }
 
     if (!j->line_desc) {
-        send_to_char(ch, "**This object currently has no description**\r\n");
+        acc_sprintf("**This object currently has no description**\r\n");
     }
 
 	if (j->creation_time) {
 		switch (j->creation_method) {
 		case CREATED_ZONE:
-			send_to_char(ch, "Created by zone #%ld on %s\r\n",
+			acc_sprintf("Created by zone #%ld on %s\r\n",
 				j->creator, tmp_ctime(j->creation_time));
 			break;
 		case CREATED_MOB:
-			send_to_char(ch, "Loaded onto mob #%ld on %s\r\n",
+			acc_sprintf("Loaded onto mob #%ld on %s\r\n",
 				j->creator, tmp_ctime(j->creation_time));
 		case CREATED_SEARCH:
-			send_to_char(ch, "Created by search in room #%ld on %s\r\n",
+			acc_sprintf("Created by search in room #%ld on %s\r\n",
 				j->creator, tmp_ctime(j->creation_time));
 		case CREATED_IMM:
-			send_to_char(ch, "Loaded by %s on %s\r\n",
+			acc_sprintf("Loaded by %s on %s\r\n",
 				playerIndex.getName(j->creator),
 				tmp_ctime(j->creation_time));
 			break;
 		case CREATED_PROG:
-			send_to_char(ch, "Created by prog (mob or room #%ld) on %s\r\n",
+			acc_sprintf("Created by prog (mob or room #%ld) on %s\r\n",
 				j->creator,
 				tmp_ctime(j->creation_time));
 			break;
 		default:
-			send_to_char(ch, "Created on %s\r\n", tmp_ctime(j->creation_time));
+			acc_sprintf("Created on %s\r\n", tmp_ctime(j->creation_time));
 			break;
 		}
 	}
 
 	if (j->unique_id)
-		send_to_char(ch, "Unique object id: %ld\r\n", j->unique_id);
+		acc_sprintf("Unique object id: %ld\r\n", j->unique_id);
 
 	if( j->shared->owner_id != 0 ) {
 		if( playerIndex.exists(j->shared->owner_id) ) {
-			send_to_char(ch,"Oedit Owned By: %s[%ld]\r\n",
+			acc_sprintf("Oedit Owned By: %s[%ld]\r\n",
 							playerIndex.getName(j->shared->owner_id),
 							j->shared->owner_id );
 		} else {
-			send_to_char(ch,"Oedit Owned By: NOONE[%ld]\r\n",
+			acc_sprintf("Oedit Owned By: NOONE[%ld]\r\n",
 							j->shared->owner_id );
 		}
 					
 	}
-    send_to_char(ch, "Can be worn on: ");
-    sprintbit(j->obj_flags.wear_flags, wear_bits, buf);
-    strcat(buf, "\r\n");
-    send_to_char(ch, "%s", buf);
-    strcpy(buf, "Set char bits : ");
-    found = FALSE;
-    if (j->obj_flags.bitvector[0]) {
-        sprintbit(j->obj_flags.bitvector[0], affected_bits, buf2);
-        strcat(buf, strcat(buf2, "  "));
-        found = TRUE;
+    acc_sprintf("Can be worn on: ");
+    acc_strcat(tmp_printbits(j->obj_flags.wear_flags, wear_bits), "\r\n", NULL);
+    if (j->obj_flags.bitvector[0] ||
+        j->obj_flags.bitvector[1] ||
+        j->obj_flags.bitvector[2]) {
+        acc_strcat("Set char bits : ");
+        if (j->obj_flags.bitvector[0])
+            acc_strcat(tmp_printbits(j->obj_flags.bitvector[0],
+                                      affected_bits),
+                       "  ", NULL);
+        if (j->obj_flags.bitvector[1])
+            acc_strcat(tmp_printbits(j->obj_flags.bitvector[1],
+                                      affected2_bits),
+                       "  ", NULL);
+        if (j->obj_flags.bitvector[2])
+            acc_strcat(tmp_printbits(j->obj_flags.bitvector[2],
+                                      affected3_bits));
+        acc_strcat("\r\n");
     }
-    if (j->obj_flags.bitvector[1]) {
-        sprintbit(j->obj_flags.bitvector[1], affected2_bits, buf2);
-        strcat(buf, strcat(buf2, "  "));
-        found = TRUE;
-    }
-    if (j->obj_flags.bitvector[2]) {
-        sprintbit(j->obj_flags.bitvector[2], affected3_bits, buf2);
-        strcat(buf, buf2);
-        found = TRUE;
-    }
-    if (found) {
-        strcat(buf, "\r\n");
-        send_to_char(ch, "%s", buf);
-    }
+    acc_sprintf("Extra flags : %s\r\n",
+                tmp_printbits(GET_OBJ_EXTRA(j), extra_bits));
+    acc_sprintf("Extra2 flags: %s\r\n",
+                tmp_printbits(GET_OBJ_EXTRA2(j), extra2_bits));
+    acc_sprintf("Extra3 flags: %s\r\n",
+                tmp_printbits(GET_OBJ_EXTRA3(j), extra3_bits));
 
-    send_to_char(ch, "Extra flags   : ");
-    sprintbit(GET_OBJ_EXTRA(j), extra_bits, buf);
-    strcat(buf, "\r\n");
-    send_to_char(ch, "%s", buf);
-
-    send_to_char(ch, "Extra2 flags   : ");
-    sprintbit(GET_OBJ_EXTRA2(j), extra2_bits, buf);
-    strcat(buf, "\r\n");
-    send_to_char(ch, "%s", buf);
-
-    send_to_char(ch, "Extra3 flags   : ");
-    sprintbit(GET_OBJ_EXTRA3(j), extra3_bits, buf);
-    strcat(buf, "\r\n");
-    send_to_char(ch, "%s", buf);
-
-    send_to_char(ch, "Weight: %d, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
+    acc_sprintf("Weight: %d, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
         j->getWeight(), GET_OBJ_COST(j),
         prototype_obj_value(j), GET_OBJ_RENT(j), GET_OBJ_TIMER(j));
 
     if ((rm = where_obj(j))) {
-        send_to_char(ch, "Absolute location: %s (%d)\r\n", rm->name, rm->number);
+        acc_sprintf("Absolute location: %s (%d)\r\n", rm->name, rm->number);
 
-        strcpy(buf, "In room: ");
-        strcat(buf, CCCYN(ch, C_NRM));
-        if (j->in_room == NULL)
-            strcat(buf, "NO");
-        else {
-            sprintf(buf2, "%d", j->in_room ? j->in_room->number : -1);
-            strcat(buf, buf2);
-        }
-        strcat(buf, CCNRM(ch, C_NRM));
-        strcat(buf, ", In obj: ");
-        sprintf(buf, "%s%s%s%s", buf, CCGRN(ch, C_NRM),
-            j->in_obj ? j->in_obj->name : "N", CCNRM(ch, C_NRM));
-        strcat(buf, ", Carry: ");
-        sprintf(buf, "%s%s%s%s", buf, CCYEL(ch, C_NRM),
-            j->carried_by ? GET_NAME(j->carried_by) : "N", CCNRM(ch, C_NRM));
-        strcat(buf, ", Worn: ");
-        sprintf(buf, "%s%s%s%s%s", buf, CCYEL(ch, C_NRM),
-            j->worn_by ? GET_NAME(j->worn_by) : "N",
-            ((!j->worn_by || j == GET_EQ(j->worn_by, j->worn_on)) ?
-                "" : " (impl)"), CCNRM(ch, C_NRM));
-        strcat(buf, ", Aux: ");
-        sprintf(buf, "%s%s%s%s", buf, CCGRN(ch, C_NRM),
-            j->aux_obj ? j->aux_obj->name : "N", CCNRM(ch,
-                C_NRM));
-        strcat(buf, "\r\n");
-        send_to_char(ch, "%s", buf);
+        acc_sprintf("In room: %s%s, In obj: %s%s, Carry: %s%s, Worn: %s%s%s, Aux: %s%s%s\r\n",
+                    CCCYN(ch, C_NRM),
+                    (j->in_room) ? tmp_sprintf("%d", j->in_room->number):"N",
+                    CCGRN(ch, C_NRM),
+                    (j->in_obj) ? j->in_obj->name : "N",
+                    CCYEL(ch, C_NRM),
+                    (j->carried_by) ? GET_NAME(j->carried_by):"N",
+                    CCGRN(ch, C_NRM),
+                    (j->worn_by) ? GET_NAME(j->worn_by):"N",
+                    (!j->worn_by || j == GET_EQ(j->worn_by, j->worn_on)) ? 
+                    "" : " (impl)",
+                    CCGRN(ch, C_NRM),
+                    (j->aux_obj) ? j->aux_obj->name:"N",
+                    CCNRM(ch, C_NRM));
     }
-    sprintf(buf,
-        "Material: [%s%s%s (%d)], Maxdamage: [%d (%d)], Damage: [%d]\r\n",
-        CCYEL(ch, C_NRM), material_names[GET_OBJ_MATERIAL(j)], CCNRM(ch,
-            C_NRM), GET_OBJ_MATERIAL(j), GET_OBJ_MAX_DAM(j), set_maxdamage(j),
-        GET_OBJ_DAM(j));
-    send_to_char(ch, "%s", buf);
+    acc_sprintf("Material: [%s%s%s (%d)], Maxdamage: [%d (%d)], Damage: [%d]\r\n",
+                CCYEL(ch, C_NRM),
+                material_names[GET_OBJ_MATERIAL(j)],
+                CCNRM(ch, C_NRM),
+                GET_OBJ_MATERIAL(j),
+                GET_OBJ_MAX_DAM(j),
+                set_maxdamage(j),
+                GET_OBJ_DAM(j));
 
     switch (GET_OBJ_TYPE(j)) {
     case ITEM_LIGHT:
-        sprintf(buf, "Color: [%d], Type: [%d], Hours: [%d], Value3: [%d]",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
-            GET_OBJ_VAL(j, 3));
+        acc_sprintf("Color: [%d], Type: [%d], Hours: [%d], Value3: [%d]\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    GET_OBJ_VAL(j, 2),
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_INSTRUMENT:
-        sprintf(buf, "Instrument Type: [%d] (%s)", GET_OBJ_VAL(j, 0),
-                GET_OBJ_VAL(j, 0) < 2 ? instrument_types[GET_OBJ_VAL(j, 0)] :
-                "UNDEFINED");
+        acc_sprintf("Instrument Type: [%d] (%s)\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 0) < 2 ? instrument_types[GET_OBJ_VAL(j, 0)] : "UNDEFINED");
         break;
     case ITEM_SCROLL:
     case ITEM_POTION:
     case ITEM_PILL:
     case ITEM_SYRINGE:
-        sprintf(buf, "Level: %d, Spells: %s(%d), %s(%d), %s(%d)",
-            GET_OBJ_VAL(j, 0),
-            (GET_OBJ_VAL(j, 1) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 1)) :
-            "None", GET_OBJ_VAL(j, 1),
-            (GET_OBJ_VAL(j, 2) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 2)) :
-            "None", GET_OBJ_VAL(j, 2),
-            (GET_OBJ_VAL(j, 3) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 3)) :
-            "None", GET_OBJ_VAL(j, 3));
+        acc_sprintf("Level: %d, Spells: %s(%d), %s(%d), %s(%d)\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    (GET_OBJ_VAL(j, 1) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 1)) : "None",
+                    GET_OBJ_VAL(j, 1),
+                    (GET_OBJ_VAL(j, 2) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 2)) : "None",
+                    GET_OBJ_VAL(j, 2),
+                    (GET_OBJ_VAL(j, 3) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 3)) : "None",
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_WAND:
     case ITEM_STAFF:
-        sprintf(buf,
-            "Level: %d, Max Charge: %d, Current Charge: %d, Spell: %s",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
-            spell_to_str((int)GET_OBJ_VAL(j, 3)));
+        acc_sprintf("Level: %d, Max Charge: %d, Current Charge: %d, Spell: %s\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    GET_OBJ_VAL(j, 2),
+                    spell_to_str((int)GET_OBJ_VAL(j, 3)));
         break;
     case ITEM_WEAPON:
-        sprintf(buf,
-            "Spell: %s (%d), Todam: %dd%d (av %d), Damage Type: %s (%d)",
+        acc_sprintf("Spell: %s (%d), Todam: %dd%d (av %d), Damage Type: %s (%d)\r\n",
             ((GET_OBJ_VAL(j, 0) > 0
                     && GET_OBJ_VAL(j,
                         0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j,
@@ -1422,115 +1399,137 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
                     3)].plural : "bunk", GET_OBJ_VAL(j, 3));
         break;
     case ITEM_CAMERA:
-        sprintf(buf, "Targ room: %d", GET_OBJ_VAL(j, 0));
+        acc_sprintf("Targ room: %d\r\n", GET_OBJ_VAL(j, 0));
 		break;
     case ITEM_MISSILE:
-        sprintf(buf, "Tohit: %d, Todam: %d, Type: %d", GET_OBJ_VAL(j, 0),
-            GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3));
+        acc_sprintf("Tohit: %d, Todam: %d, Type: %d\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_ARMOR:
-        sprintf(buf, "AC-apply: [%d]", GET_OBJ_VAL(j, 0));
+        acc_sprintf("AC-apply: [%d]\r\n", GET_OBJ_VAL(j, 0));
         break;
     case ITEM_TRAP:
-        sprintf(buf, "Spell: %d, - Hitpoints: %d",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
+        acc_sprintf("Spell: %d, - Hitpoints: %d\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1));
         break;
     case ITEM_CONTAINER:
-        sprintf(buf,
-            "Max-contains: %d, Locktype: %d, Key/Owner: %d, Corpse: %s, Killer: %d",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
-            GET_OBJ_VAL(j, 3) ? "Yes" : "No", CORPSE_KILLER(j));
+        acc_sprintf("Max-contains: %d, Locktype: %d, Key/Owner: %d, Corpse: %s, Killer: %d\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    GET_OBJ_VAL(j, 2),
+                    GET_OBJ_VAL(j, 3) ? "Yes" : "No",
+                    CORPSE_KILLER(j));
         break;
     case ITEM_DRINKCON:
     case ITEM_FOUNTAIN:
-        sprinttype(GET_OBJ_VAL(j, 2), drinks, buf2);
-        sprintf(buf,
-            "Max-contains: %d, Contains: %d, Liquid: %s(%d), Poisoned: %s (%d)",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), buf2, GET_OBJ_VAL(j, 2),
-            GET_OBJ_VAL(j, 3) ? "Yes" : "No", GET_OBJ_VAL(j, 3));
+        acc_sprintf("Max-contains: %d, Contains: %d, Liquid: %s(%d), Poisoned: %s (%d)\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    strlist_aref(GET_OBJ_VAL(j, 2), drinks),
+                    GET_OBJ_VAL(j, 2),
+                    GET_OBJ_VAL(j, 3) ? "Yes" : "No",
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_KEY:
-        sprintf(buf, "Keytype: %d, Rentable: %s, Car Number: %d",
-            GET_OBJ_VAL(j, 0), YESNO(GET_OBJ_VAL(j, 1)), GET_OBJ_VAL(j, 2));
+        acc_sprintf("Keytype: %d, Rentable: %s, Car Number: %d\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    YESNO(GET_OBJ_VAL(j, 1)),
+                    GET_OBJ_VAL(j, 2));
         break;
     case ITEM_FOOD:
-        sprintf(buf,
-            "Makes full: %d, Spell Lvl: %d, Spell : %s(%d), Poisoned: %d",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), spell_to_str((int)GET_OBJ_VAL(j,
-                    2)), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
+        acc_sprintf("Makes full: %d, Spell Lvl: %d, Spell : %s(%d), Poisoned: %d\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    spell_to_str((int)GET_OBJ_VAL(j, 2)),
+                    GET_OBJ_VAL(j, 2),
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_HOLY_SYMB:
-        sprintf(buf,
-            "Alignment: %s(%d), Class: %s(%d), Min Level: %d, Max Level: %d ",
-            alignments[GET_OBJ_VAL(j, 0)], GET_OBJ_VAL(j, 0),
-            char_class_abbrevs[(int)GET_OBJ_VAL(j, 1)], GET_OBJ_VAL(j, 1),
-            GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
+        // FIXME: buffer overflow possibility
+        acc_sprintf("Alignment: %s(%d), Class: %s(%d), Min Level: %d, Max Level: %d \r\n",
+                    alignments[GET_OBJ_VAL(j, 0)],
+                    GET_OBJ_VAL(j, 0),
+                    char_class_abbrevs[(int)GET_OBJ_VAL(j, 1)],
+                    GET_OBJ_VAL(j, 1),
+                    GET_OBJ_VAL(j, 2),
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_BATTERY:
-        sprintf(buf, "Max_Energy: %d, Cur_Energy: %d, Rate: %d, Cost/Unit: %d",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1),
-            GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
+        acc_sprintf("Max_Energy: %d, Cur_Energy: %d, Rate: %d, Cost/Unit: %d\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    GET_OBJ_VAL(j, 2),
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_VEHICLE:
-        sprintbit(GET_OBJ_VAL(j, 2), vehicle_types, buf2);
-        sprintf(buf, "Room/Key Number: %d, Door State: %d, Type: %s, v3: %d",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), buf2, GET_OBJ_VAL(j, 3));
+        acc_sprintf("Room/Key Number: %d, Door State: %d, Type: %s, v3: %d\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    tmp_printbits(GET_OBJ_VAL(j, 2), vehicle_types),
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_ENGINE:
-        sprintbit(GET_OBJ_VAL(j, 2), engine_flags, buf2);
-        sprintf(buf,
-            "Max_Energy: %d, Cur_Energy: %d, Run_State: %s, Consume_rate: %d",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), buf2, GET_OBJ_VAL(j, 3));
+        acc_sprintf("Max_Energy: %d, Cur_Energy: %d, Run_State: %s, Consume_rate: %d\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    tmp_printbits(GET_OBJ_VAL(j, 2), engine_flags),
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_ENERGY_GUN:
-        sprintf(buf,
-            "Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), 
-            (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,2) + 1)) / 2, 
-            (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < EGUN_TOP) ? 
-            egun_types[(int)GET_OBJ_VAL(j,3)] : "unknown", 
-            GET_OBJ_VAL(j, 3));
+        // FIXME: possible buffer overflow
+        acc_sprintf("Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)\r\n",
+                    GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1),
+                    GET_OBJ_VAL(j, 2), 
+                    (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,2) + 1)) / 2, 
+                    (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < EGUN_TOP) ? 
+                    egun_types[(int)GET_OBJ_VAL(j,3)] : "unknown", 
+                    GET_OBJ_VAL(j, 3));
             break;
     case ITEM_BOMB:
-        sprintf(buf, "Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0],
-            bomb_types[(int)GET_OBJ_VAL(j, 0)], GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
+        // FIXME: possible buffer overflow
+        acc_sprintf("Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0],
+                    bomb_types[(int)GET_OBJ_VAL(j, 0)], GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
     case ITEM_FUSE:
-        sprintf(buf, "Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0],
-            fuse_types[(int)GET_OBJ_VAL(j, 0)], GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
+        acc_sprintf("Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0],
+                    fuse_types[(int)GET_OBJ_VAL(j, 0)], GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
 
     case ITEM_TOBACCO:
-        sprintf(buf, "Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0],
-            smoke_types[(int)MIN(GET_OBJ_VAL(j, 0), NUM_SMOKES - 1)],
-            GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
+        acc_sprintf("Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0],
+                    smoke_types[(int)MIN(GET_OBJ_VAL(j, 0), NUM_SMOKES - 1)],
+                    GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
 
     case ITEM_GUN:
     case ITEM_BULLET:
     case ITEM_CLIP:
-        sprintf(buf, "Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%s (%d)]",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3],
-            (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j, 3) < NUM_GUN_TYPES) ?
-            gun_types[GET_OBJ_VAL(j, 3)] : "ERROR", GET_OBJ_VAL(j, 3));
+        acc_sprintf("Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%s (%d)]\r\n",
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3],
+                    (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j, 3) < NUM_GUN_TYPES) ?
+                    gun_types[GET_OBJ_VAL(j, 3)] : "ERROR", GET_OBJ_VAL(j, 3));
         break;
     case ITEM_INTERFACE:
-        sprintf(buf, "Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]",
+        acc_sprintf("Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
             item_value_types[(int)GET_OBJ_TYPE(j)][0],
             GET_OBJ_VAL(j, 0) >= 0 && GET_OBJ_VAL(j, 0) < NUM_INTERFACES ?
             interface_types[GET_OBJ_VAL(j, 0)] : "Error",
@@ -1540,7 +1539,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
     case ITEM_MICROCHIP:
-        sprintf(buf, "Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]",
+        acc_sprintf("Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
             item_value_types[(int)GET_OBJ_TYPE(j)][0],
             GET_OBJ_VAL(j, 0) >= 0 && GET_OBJ_VAL(j, 0) < NUM_CHIPS ?
             microchip_types[GET_OBJ_VAL(j, 0)] : "Error",
@@ -1550,7 +1549,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
             item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
     default:
-        sprintf(buf, "Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]",
+        acc_sprintf("Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]\r\n",
             item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),
             item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
             item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
@@ -1558,129 +1557,108 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         break;
     }
 
-    send_to_char(ch, "%s\r\n", buf);
+	if(j->shared->proto == j && 
+       GET_OBJ_PARAM(j) &&
+       strlen( GET_OBJ_PARAM(j)) > 0 )
+        acc_sprintf("Spec_param: \r\n%s\r\n", GET_OBJ_PARAM(j));
 
-	if(j->shared->proto == j) {
-        // This is the last stat displayed if the object is a prototype
+    found = 0;
+    acc_sprintf("Affections:");
+    for (i = 0; i < MAX_OBJ_AFFECT; i++)
+        if (j->affected[i].modifier) {
+            acc_sprintf("%s %+d to %s",
+                        found++ ? "," : "",
+                        j->affected[i].modifier,
+                        strlist_aref(j->affected[i].location, apply_types));
+        }
+    if (!found)
+        acc_sprintf(" None");
+
+    acc_sprintf("\r\n");
+
+    if(j->shared->proto == j) {
         // All the rest of the stats are only meaningful if the object
         // is in the game.
-        if (GET_OBJ_PARAM(j) && strlen( GET_OBJ_PARAM(j)) > 0 )
-            send_to_char(ch, "Spec_param: \r\n%s\r\n", GET_OBJ_PARAM(j));
+        page_string(ch->desc, acc_get_string());
         return;
-	}
+    }
 
     if (j->contains) {
 
-        send_to_char(ch, "Contents:\r\n");
+        acc_sprintf("Contents:\r\n");
         list_obj_to_char(j->contains, ch, 2, TRUE);
 
     }
 
-    found = 0;
-    send_to_char(ch, "Affections:");
-    for (i = 0; i < MAX_OBJ_AFFECT; i++)
-        if (j->affected[i].modifier) {
-            sprinttype(j->affected[i].location, apply_types, buf2);
-            send_to_char(ch, "%s %+d to %s", found++ ? "," : "",
-                j->affected[i].modifier, buf2);
-        }
-    if (!found)
-        send_to_char(ch, " None");
-
-    send_to_char(ch, "\r\n");
-
-    if (OBJ_SOILAGE(j)) {
-        found = FALSE;
-        strcpy(buf2, "Soilage: ");
-        for (i = 0; i < 16; i++) {
-            if (OBJ_SOILED(j, (1 << i))) {
-                if (found)
-                    strcat(buf2, ", ");
-                else
-                    found = TRUE;
-                strcat(buf2, soilage_bits[i]);
-            }
-        }
-        send_to_char(ch, "%s\r\n", buf2);
-    }
+    if (OBJ_SOILAGE(j))
+        acc_sprintf("Soilage: %s\r\n",
+                    tmp_printbits(OBJ_SOILAGE(j), soilage_bits));
 
     if (GET_OBJ_SIGIL_IDNUM(j)) {
-        send_to_char(ch, "Warding Sigil: %s (%d), level %d.\r\n",
+        acc_sprintf("Warding Sigil: %s (%d), level %d.\r\n",
             playerIndex.getName(GET_OBJ_SIGIL_IDNUM(j)), GET_OBJ_SIGIL_IDNUM(j),
             GET_OBJ_SIGIL_LEVEL(j));
     }
 
     do_stat_obj_tmp_affs(ch, j);
+
+    page_string(ch->desc, acc_get_string());
 }
 
 void
 do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
 {
-    struct tmp_obj_affect *aff = obj->tmp_affects;
-    char *buf;
-    char buf2[32];
-    char *stat_string;
+    char *stat_prefix;
     
-    if (aff == NULL)
+    if (!obj->tmp_affects)
         return;
 
-    for (; aff != NULL; aff = aff->next) {
-        stat_string = tmp_sprintf("AFF: (%3dhr) [%3hhd] %s%-20s%s ", 
+    for (tmp_obj_affect *aff = obj->tmp_affects;aff; aff = aff->next) {
+        stat_prefix = tmp_sprintf("AFF: (%3dhr) [%3hhd] %s%-20s%s", 
                                   aff->duration, aff->level, CCCYN(ch, C_NRM),
                                   spell_to_str(aff->type), CCNRM(ch, C_NRM));
 
-        for (int i = 0; i < 4; i++) {
-            if (aff->val_mod[i] != 0) {
-                buf = tmp_strcat(stat_string, 
-                                 item_value_types[(int)GET_OBJ_TYPE(obj)][i],
-                                 " by ", tmp_sprintf("%d", 
-                                                     aff->val_mod[i]), NULL);
-                send_to_char(ch, "%s\r\n", buf);
-            }
-        }
+        for (int i = 0; i < 4; i++)
+            if (aff->val_mod[i] != 0)
+                acc_sprintf("%s %s by %d\r\n",
+                            stat_prefix, 
+                            item_value_types[(int)GET_OBJ_TYPE(obj)][i],
+                            aff->val_mod[i]);
 
-        if (aff->type_mod) {
-            send_to_char(ch, "%stype = %s\r\n", stat_string, 
-                         item_type_descs[(int)GET_OBJ_TYPE(obj)]);
-        }
+        if (aff->type_mod)
+            acc_sprintf("%s type = %s\r\n", stat_prefix, 
+                        strlist_aref(GET_OBJ_TYPE(obj), item_type_descs));
 
-        if (aff->worn_mod) {
-            sprintbit(aff->worn_mod, wear_bits, buf2);
-            send_to_char(ch, "%sworn + %s\r\n", stat_string, buf2);
-        }
+        if (aff->worn_mod)
+            acc_sprintf("%s worn + %s\r\n",
+                        stat_prefix,
+                        tmp_printbits(aff->worn_mod, wear_bits));
 
         if (aff->extra_mod) {
-            if (aff->extra_index == 1)
-                sprintbit(aff->extra_mod, extra_bits, buf2);
-            if (aff->extra_index == 2)
-                sprintbit(aff->extra_mod, extra2_bits, buf2);
-            if (aff->extra_index == 3)
-                sprintbit(aff->extra_mod, extra3_bits, buf2);
-            send_to_char(ch, "%sextra + %s\r\n", stat_string, buf2);
+            const char **bit_descs[3] = {
+                extra_bits, extra2_bits, extra3_bits
+            };
+            acc_sprintf("%s extra + %s\r\n",
+                        stat_prefix,
+                        tmp_printbits(aff->extra_mod,
+                                      bit_descs[(int)aff->extra_index - 1]));
         }
 
-        if (aff->weight_mod) {
-            send_to_char(ch, "%sweight by %s\r\n", stat_string,
-                             tmp_sprintf("%d", aff->weight_mod));
-        }
+        if (aff->weight_mod)
+            acc_sprintf("%s weight by %d\r\n", stat_prefix, aff->weight_mod);
 
-        for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-            if (aff->affect_loc[i]) {
-                sprinttype(aff->affect_loc[i], apply_types, buf2);
-                send_to_char(ch, "%s%+d to %s\r\n", stat_string, 
-                             aff->affect_mod[i], buf2);
-            }
-        }
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+            if (aff->affect_loc[i])
+                acc_sprintf("%s %+d to %s\r\n",
+                             stat_prefix, 
+                             aff->affect_mod[i],
+                             strlist_aref(aff->affect_loc[i], apply_types));
 
-        if (aff->dam_mod) {
-            send_to_char(ch, "%sdamage by %s\r\n", stat_string,
-                         tmp_sprintf("%d", aff->dam_mod));
-        }
+        if (aff->dam_mod)
+            acc_sprintf("%s damage by %d\r\n", stat_prefix, aff->dam_mod);
 
-        if (aff->maxdam_mod) {
-            send_to_char(ch, "%smaxdam by %s\r\n", stat_string,
-                         tmp_sprintf("%d", aff->maxdam_mod));
-        }
+        if (aff->maxdam_mod)
+            acc_sprintf("%s maxdam by %d\r\n", stat_prefix, aff->maxdam_mod);
     }
 }
 
