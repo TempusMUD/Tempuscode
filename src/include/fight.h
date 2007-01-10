@@ -69,30 +69,31 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
 	if (NON_CORPOREAL_UNDEAD(vict) ||
 			IS_RAKSHASA(vict) ||
 			IS_GREATER_DEVIL(vict)) {
+		if (ch) {
+			// They can hit each other
+			if (IS_CELESTIAL(ch) ||
+					NON_CORPOREAL_UNDEAD(ch) ||
+					IS_RAKSHASA(ch) ||
+					IS_DEVIL(ch))
+				return false;
 
-		// They can hit each other
-		if (IS_CELESTIAL(ch) ||
-				NON_CORPOREAL_UNDEAD(ch) ||
-				IS_RAKSHASA(ch) ||
-				IS_DEVIL(ch))
-			return true;
+			// bare-handed attacks with kata can hit magical stuff
+			if (IS_WEAPON(attacktype) && !weap &&
+					ch->getLevelBonus(SKILL_KATA) >= 50 &&
+						affected_by_spell(ch, SKILL_KATA)) 
+				return false;	
+		}
 
 		// Spells can hit them
 		if (!IS_WEAPON(attacktype))
 			return false;
 
 		// Magical items can hit them
-		if (IS_WEAPON(attacktype) && weap && IS_OBJ_STAT(weap, ITEM_MAGIC))
+		if (weap && IS_OBJ_STAT(weap, ITEM_MAGIC))
 			return false;
 
-		// bare-handed attacks with kata can hit magical stuff
-		if (IS_WEAPON(attacktype) && !weap && ch &&
-				ch->getLevelBonus(SKILL_KATA) >= 50 &&
-					affected_by_spell(ch, SKILL_KATA)) 
-			return false;	
-
         // energy weapons can hit them
-        if (IS_WEAPON(attacktype) && weap && GET_OBJ_TYPE(weap) == ITEM_ENERGY_GUN)
+        if (weap && GET_OBJ_TYPE(weap) == ITEM_ENERGY_GUN)
             return false;
         
 		// nothing else can
