@@ -198,6 +198,7 @@ ACMD(do_feed);
 ACMD(do_feign);
 ACMD(do_firstaid);
 ACMD(do_flee);
+ACMD(do_flip);
 ACMD(do_fly);
 ACMD(do_follow);
 ACMD(do_force);
@@ -731,7 +732,7 @@ struct command_info cmd_info[] = {
 	{"fly", POS_STANDING, do_fly, 0, 0, 0, 0},
 	{"flex", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"flinch", POS_RESTING, do_action, 0, 0, 0, 0},
-	{"flip", POS_STANDING, do_action, 0, 0, 0, 0},
+	{"flip", POS_STANDING, do_flip, 0, 0, 0, 0},
 	{"flirt", POS_RESTING, do_action, 0, 0, 0, 0},
     {"flog", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"flowers", POS_RESTING, do_action, 0, 0, 0, 0},

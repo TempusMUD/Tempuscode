@@ -217,6 +217,36 @@ ACMD(do_point)
 
 }
 
+ACMD(do_flip)
+{
+	if (is_abbrev(tmp_getword(&argument), "coin")) {
+		obj_data *obj;
+
+		for (obj = ch->carrying;obj;obj = obj->next_content)
+			if (isname("coin", obj->aliases))
+				break;
+
+		if (!obj && GET_GOLD(ch) == 0) {
+			send_to_char(ch, "You don't have a coin to flip!.\r\n");
+			return;
+		}
+		if (random_binary()) {
+			act("You flip a coin and it comes up tails.", false,
+					ch, 0, 0, TO_CHAR);
+			act("$n flips a coin and it comes up tails.", false,
+					ch, 0, 0, TO_ROOM);
+		} else {
+			act("You flip a coin and it comes up heads.", false,
+					ch, 0, 0, TO_CHAR);
+			act("$n flips a coin and it comes up tails.", false,
+					ch, 0, 0, TO_ROOM);
+		}
+	} else {
+		// They're not flipping a coin, so just do the social
+		do_action(ch, argument, cmd, subcmd, return_flags);
+	}
+}
+
 
 ACMD(do_insult)
 {
