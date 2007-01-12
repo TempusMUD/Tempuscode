@@ -1300,7 +1300,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     if (j->obj_flags.bitvector[0] ||
         j->obj_flags.bitvector[1] ||
         j->obj_flags.bitvector[2]) {
-        acc_strcat("Set char bits : ");
+        acc_strcat("Set char bits : ", NULL);
         if (j->obj_flags.bitvector[0])
             acc_strcat(tmp_printbits(j->obj_flags.bitvector[0],
                                       affected_bits),
@@ -1311,8 +1311,8 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
                        "  ", NULL);
         if (j->obj_flags.bitvector[2])
             acc_strcat(tmp_printbits(j->obj_flags.bitvector[2],
-                                      affected3_bits));
-        acc_strcat("\r\n");
+                                     affected3_bits), NULL);
+        acc_strcat("\r\n", NULL);
     }
     acc_sprintf("Extra flags : %s\r\n",
                 tmp_printbits(GET_OBJ_EXTRA(j), extra_bits));
