@@ -305,9 +305,6 @@ boot_world(void)
 	slog("Renumbering zone table.");
 	renum_zone_table();
 
-	slog("Compiling progs.");
-	compile_all_progs();
-
 	/* for quad damage bamfing */
 	if (!(default_quad_zone = real_zone(25)))
 		default_quad_zone = zone_table;
@@ -408,6 +405,9 @@ boot_db(void)
 	sort_spells();
 	sort_skills();
 	Security::loadGroups();
+
+	slog("Compiling progs.");
+	compile_all_progs();
 
 	slog("Reading banned site, invalid-name, and NASTY word lists.");
 	load_banned();
