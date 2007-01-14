@@ -50,6 +50,10 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "why naked", "respond Everyone starts out naked here.  You should find things to wear!" },
 	{ CLASS_NONE, 100, "where things wear", "respond You can buy equipment or loot clothing from corpses" },
 	{ CLASS_NONE, 100, "where get eq", "respond You can buy equipment or loot it from corpses" },
+	{ CLASS_NONE, 50, "where get armor", "respond You could try the leather shop in Modrian." },
+	{ CLASS_NONE, 100, "where get armor", "respond You could try Blacksteel's Armoury in Modrian." },
+	{ CLASS_NONE, 100, "where get clothes", "respond You could visit Erik the Clothier in Modrian." },
+	{ CLASS_NONE, 100, "where get weapon", "respond You should visit the weaponsmith in Modrian." },
 	{ CLASS_NONE, 100, "who someone", "respond Invisible people are referred to as 'someone.'  You can't tell who they are." },
 	{ CLASS_NONE, 100, "lost", "respond You can type 'return' to return to your starting position." },
 	{ CLASS_NONE, 100, "cast spells", "respond Fear not!  I will cast spells on you as you need them." },
@@ -59,7 +63,7 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "hungry", "respond You need to get some food to eat." },
 	{ CLASS_NONE, 100, "thirsty", "respond You need to get something to drink.  There are fountains to drink from or you can buy drinks at shops." },
 	{ CLASS_NONE, 100, "what do i do", "respond Go out and explore!  Talk to people!  Increase in power and wealth!  Meet interesting and exotic creatures and kill them!" },
-	{ CLASS_NONE, 100, "where do i go", "respond You can try the 'areas' command to find a likely area, and 'help map' to figure out how to get there.  Or you can ask me for a few places" },
+	{ CLASS_NONE, 100, "where do i go", "respond You can try the 'areas' command to find a likely area, and 'help cities' to figure out how to get there." },
 	{ CLASS_NONE, 100, "retrieve", "respond You can retrieve your corpse for a fee at a retriever, or you can try and find your corpse yourself." },
 
     // Basic information about places
@@ -73,6 +77,8 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "where fight", "respond You should try the cock fighting arena, the training grounds, or the holodeck.  You could try the halflings, but it might be dangerous." },
 	{ CLASS_NONE, 100, "where buy", "respond You buy things at shops in cities." },
 	{ CLASS_NONE, 100, "where level", "respond You should try the cock fighting arena, the training grounds, or the holodeck" },
+	{ CLASS_NONE, 100, "where rent", "respond You can rent anywhere there's a receptionist.  There's a place in Modrian called the Soulful Inn." },
+
 	{ CLASS_NONE, 100, "where cock", "directions 3047" },
 	{ CLASS_NONE, 100, "where train", "respond Try \"help guild\"." },
 	{ CLASS_NONE, 100, "where training", "respond Try \"help guild\"." },
