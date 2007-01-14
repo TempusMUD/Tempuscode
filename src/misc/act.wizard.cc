@@ -1328,17 +1328,21 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     if ((rm = where_obj(j))) {
         acc_sprintf("Absolute location: %s (%d)\r\n", rm->name, rm->number);
 
-        acc_sprintf("In room: %s%s, In obj: %s%s, Carry: %s%s, Worn: %s%s%s, Aux: %s%s%s\r\n",
+        acc_sprintf("In room: %s%s%s, In obj: %s%s%s, Carry: %s%s%s, Worn: %s%s%s%s, Aux: %s%s%s\r\n",
                     CCCYN(ch, C_NRM),
                     (j->in_room) ? tmp_sprintf("%d", j->in_room->number):"N",
+                    CCNRM(ch, C_NRM),
                     CCGRN(ch, C_NRM),
                     (j->in_obj) ? j->in_obj->name : "N",
-                    CCYEL(ch, C_NRM),
+                    CCNRM(ch, C_NRM),
+                    CCGRN(ch, C_NRM),
                     (j->carried_by) ? GET_NAME(j->carried_by):"N",
+                    CCNRM(ch, C_NRM),
                     CCGRN(ch, C_NRM),
                     (j->worn_by) ? GET_NAME(j->worn_by):"N",
                     (!j->worn_by || j == GET_EQ(j->worn_by, j->worn_on)) ? 
                     "" : " (impl)",
+                    CCNRM(ch, C_NRM),
                     CCGRN(ch, C_NRM),
                     (j->aux_obj) ? j->aux_obj->name:"N",
                     CCNRM(ch, C_NRM));
