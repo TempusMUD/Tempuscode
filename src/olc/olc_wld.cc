@@ -4,12 +4,12 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#include <map>
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -29,6 +29,7 @@
 #include "prog.h"
 #include "accstr.h"
 
+extern std::map<int,room_data*> rooms;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern int top_of_world;
@@ -449,6 +450,7 @@ do_create_room(struct Creature *ch, int vnum)
 		zone->world = new_rm;
 	}
 
+    rooms[vnum] = new_rm;
 	top_of_world++;
 
 	return (new_rm);

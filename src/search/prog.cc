@@ -2141,8 +2141,6 @@ prog_state_free(prog_state_data * state)
 
 	for (cur_var = state->var_list; cur_var; cur_var = next_var) {
 		next_var = cur_var->next;
-		free(cur_var->key);
-		free(cur_var->value);
 		free(cur_var);
 	}
 	free(state);

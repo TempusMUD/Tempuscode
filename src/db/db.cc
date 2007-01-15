@@ -73,6 +73,7 @@ struct obj_data *obj_proto;		/* prototypes for objs                 */
 struct obj_shared_data *null_obj_shared;
 struct mob_shared_data *null_mob_shared;
 int top_of_objt = 0;			/* top of object index table         */
+map<int,room_data*> rooms;
 
 struct zone_data *zone_table;	/* zone table                         */
 int top_of_zone_table = 0;		/* top element of zone tab         */
@@ -1168,7 +1169,6 @@ check_start_rooms(void)
 void
 renum_world(void)
 {
-    map<int,room_data*> rooms;
     // store the rooms in a map temoporarily for use in lookups
 	for( zone_data* zone = zone_table; zone; zone = zone->next) {
 		for( room_data* room = zone->world; room; room = room->next) {
@@ -3363,23 +3363,9 @@ file_to_string(char *name, char *buf)
 struct room_data *
 real_room(int vnum)
 {
-	struct room_data *room;
-	struct zone_data *zone;
-	int num = (vnum / 10);
-
-	for (zone = zone_table; zone; zone = zone->next) {
-
-		if (num >= zone->number && vnum <= zone->top) {
-			for (room = zone->world; room; room = room->next) {
-
-				if (room->number == vnum)
-					return (room);
-			}
-			return NULL;
-		}
-	}
-
-	return (NULL);
+	if (rooms.count(vnum) < 1)
+        return NULL;
+    return rooms[vnum];
 }
 
 
