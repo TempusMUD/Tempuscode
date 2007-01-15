@@ -53,7 +53,7 @@ struct prog_evt {
 	prog_evt_phase phase;
 	prog_evt_kind kind;
 	int cmd;
-	char *args;
+	char args[MAX_INPUT_LENGTH];
 
 	Creature *subject;
 	void *object;
@@ -62,8 +62,8 @@ struct prog_evt {
 
 struct prog_var {
 	struct prog_var *next;
-	char *key;
-	char *value;
+	char key[255];
+	char value[255];
 };
 
 struct prog_state_data {
