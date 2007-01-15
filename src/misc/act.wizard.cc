@@ -57,7 +57,6 @@ using namespace std;
 #include "player_table.h"
 #include "quest.h"
 #include "ban.h"
-#include "memtrack.h"
 #include "boards.h"
 #include "language.h"
 #include "prog.h"
@@ -3962,8 +3961,12 @@ do_show_stats(struct Creature *ch)
         buf_switches, buf_overflows);
     send_to_char(ch, "  %5u tmpstr space     %5u accstr space\r\n",
         tmp_max_used, acc_str_space);
+#ifdef MEMTRACK
     send_to_char(ch, "  %5d trail count      %dMB total memory\r\n",
 		tr_count, dbg_memory_used() / (1024 * 1024));
+#else
+    send_to_char(ch, "  %5d trail count\r\n", tr_count);
+#endif
     send_to_char(ch, "  %5u running progs (%u total)\r\n",
         prog_count(false), prog_count(true));
     send_to_char(ch, "  %5u fighting creatures\r\n",
@@ -8498,25 +8501,28 @@ check_log(Creature *ch, const char *fmt, ...)
 bool
 check_ptr(Creature *ch, void *ptr, size_t expected_len, const char *str, int vnum)
 {
+#ifdef MEMTRACK
 	dbg_mem_blk *mem;
 	
 	if (!ptr)
 		return true;
+    
+        mem = dbg_get_block(ptr);
+        if (!mem) {
+            check_log(ch, "Invalid pointer found in %s %d", str, vnum);
+            return false;
+        }
 
-	mem = dbg_get_block(ptr);
-	if (!mem) {
-		check_log(ch, "Invalid pointer found in %s %d", str, vnum);
-		return false;
-	}
-
-	if (expected_len > 0 && mem->size != expected_len) {
-		check_log(ch, "Expected block of size %d, got size %d in %s %d",
-             expected_len, mem->size, str, vnum);
-		return false;
-	}
-
+        if (expected_len > 0 && mem->size != expected_len) {
+            check_log(ch, "Expected block of size %d, got size %d in %s %d",
+                      expected_len, mem->size, str, vnum);
+            return false;
+        }
+    }
 	return true;
-
+#else
+    return true;
+#endif
 }
 
 void
