@@ -6,8 +6,7 @@
 
 #define MASTER_COMM_USAGE \
                     "Usage:\r\n" \
-		    "         use <unit> scan\r\n" \
-		    "         use <unit> monitor\r\n"
+		    "         use <unit> scan\r\n"
 #define MAX_CHAN 100
 
 SPECIAL(master_communicator)

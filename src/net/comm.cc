@@ -1736,6 +1736,7 @@ void
 send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 	int hide_invis)
 {
+	SPECIAL(master_communicator);
 	Creature *receiver;
 	obj_data *obj = NULL;
 
@@ -1743,7 +1744,11 @@ send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 		if (obj->in_obj || !IS_COMMUNICATOR(obj))
 			continue;
 
-		if (!ENGINE_STATE(obj) || COMM_CHANNEL(obj) != chan)
+		if (!ENGINE_STATE(obj))
+			continue;
+
+		if (GET_OBJ_SPEC(obj) != master_communicator &&
+				COMM_CHANNEL(obj) != chan)
 			continue;
 
 		if (obj->in_room) {
@@ -1769,8 +1774,12 @@ send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 		if (hide_invis && !can_see_creature(receiver, ch))
 			continue;
 
-		send_to_char(receiver, "%s::%s::%s ", CCYEL(receiver, C_NRM),
-			OBJS(obj, receiver), CCNRM(receiver, C_NRM));
+		if (GET_OBJ_SPEC(obj) == master_communicator)
+			send_to_char(receiver, "%s::%s [%d]::%s ", CCYEL(receiver, C_NRM),
+				OBJS(obj, receiver), chan, CCNRM(receiver, C_NRM));
+		else
+			send_to_char(receiver, "%s::%s::%s ", CCYEL(receiver, C_NRM),
+				OBJS(obj, receiver), CCNRM(receiver, C_NRM));
 		act(buf, true, ch, obj, receiver, TO_VICT);
 	}
 }
