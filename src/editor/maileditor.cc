@@ -450,7 +450,7 @@ CMailEditor::AddAttachment(char *obj_name)
 
 	if (mail_to->next) {
 		SendMessage("You cannot send a package to more than one "
-                "recipiant.\r\n");
+                "recipient.\r\n");
 		return;
     }
 
