@@ -2262,7 +2262,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!Burning Hands!",			/* 5 */
 	"!Call Lightning",
 	"You feel more self-confident.",
-	"You feel your strength return.",
+	"Your limbs tingle as you feel your strength return.",
 	"!Clone!",
 	"!Color Spray!",			/* 10 */
 	"!Control Weather!",
@@ -2328,7 +2328,7 @@ extern const char *spell_wear_off_msg[] = {
 	"!minor identify!",
 	"You can no longer fly.",
 	"G Heal",
-	"COC",
+	"Your limbs tingle as you feel your strength return.",
 	"You are no longer super-sensitive.",
 	"The feeling of invulnerability fades.",
 	"You are no longer protected from magical attacks.",
