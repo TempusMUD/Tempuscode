@@ -107,6 +107,7 @@ prog_env *prog_start(prog_evt_type owner_type, void *owner, Creature *target, pr
 void prog_update(void);
 void prog_update_pending(void);
 int prog_count(bool total);
+int free_prog_count(void);
 void prog_state_free(prog_state_data *state);
 void prog_compile(Creature *ch, void *owner, prog_evt_type owner_type);
 char *prog_get_text(void *owner, prog_evt_type owner_type);

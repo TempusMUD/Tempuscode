@@ -3967,8 +3967,8 @@ do_show_stats(struct Creature *ch)
 #else
     send_to_char(ch, "  %5d trail count\r\n", tr_count);
 #endif
-    send_to_char(ch, "  %5u running progs (%u total)\r\n",
-        prog_count(false), prog_count(true));
+    send_to_char(ch, "  %5u running progs (%u total, %u free)\r\n",
+        prog_count(false), prog_count(true), free_prog_count());
     send_to_char(ch, "  %5u fighting creatures\r\n",
 		combatList.size());
     send_to_char(ch, "  Lunar day: %2d, phase: %s (%d)\r\n",

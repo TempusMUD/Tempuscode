@@ -24,6 +24,7 @@
 #include "prog.h"
 #include "clan.h"
 
+struct prog_env *free_progs = NULL;
 struct prog_env *prog_list = NULL;
 int loop_fence = 0;
 extern char locate_buf[256];
@@ -1630,7 +1631,12 @@ prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * 
     if (!initial_exec_pt)
 		return NULL;
 
-	CREATE(new_prog, struct prog_env, 1);
+	if (free_progs) {
+		new_prog = free_progs;
+		free_progs = free_progs->next;
+	} else {
+		CREATE(new_prog, struct prog_env, 1);
+	}
 	new_prog->next = prog_list;
 	prog_list = new_prog;
 
@@ -1678,7 +1684,8 @@ prog_free(struct prog_env *prog)
 		prev_prog->next = prog->next;
 	}
 
-	free(prog);
+	prog->next = free_progs;
+	free_progs = prog;
 }
 
 void
@@ -2131,6 +2138,17 @@ prog_count(bool total)
 	for (cur_env = prog_list; cur_env; cur_env = cur_env->next)
 		if (total || cur_env->exec_pt > 0)
 			result++;
+	return result;
+}
+
+int
+free_prog_count(void)
+{
+	int result = 0;
+	prog_env *cur_env;
+
+	for (cur_env = free_progs; cur_env; cur_env = cur_env->next)
+		result++;
 	return result;
 }
 
