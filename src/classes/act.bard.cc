@@ -364,8 +364,8 @@ sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songn
   struct bard_song *song = &songs[songnum - TOP_BARD_SONG - 1];
 
   if (songnum < TOP_BARD_SONG || songnum > TOP_BARD_SONG + NUM_BARD_SONGS) {
-	char *errbuf = tmp_sprintf("(%d) Not a bard song in sing_song()", songnum);
-	mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, true, errbuf);
+	mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, true,
+			"(%d) Not a bard song in sing_song()", songnum);
 	return;
   }
 
@@ -900,13 +900,12 @@ ACMD(do_ventriloquize)
         else
             target_str = NULL;
         
-        char *buf = tmp_sprintf("%s%s says%s,%s%s \'%s\'%s\r\n", CCBLU_BLD(ch, C_NRM), 
-                                obj->name, (target_str ? target_str : ""), 
-                                CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument, 
-                                CCNRM(ch, C_NRM)); 
-
-        send_to_char(*ci, buf);
-
+        send_to_char(*ci, "%s%s says%s,%s%s \'%s\'%s\r\n",
+                     CCBLU_BLD(ch, C_NRM), 
+                     tmp_capitalize(obj->name),
+                     (target_str ? target_str : ""), 
+                     CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument, 
+                     CCNRM(ch, C_NRM)); 
     }
 
     gain_skill_prof(ch, SKILL_VENTRILOQUISM);

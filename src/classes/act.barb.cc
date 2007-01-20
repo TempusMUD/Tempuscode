@@ -27,7 +27,9 @@ ACMD(do_charge)
 {
 	struct affected_type af;
 	struct Creature *vict = NULL;
-	one_argument(argument, buf);
+	char *arg;
+
+	arg = tmp_getword(&argument);
 	// Check for berserk.
 	// 
 
@@ -36,7 +38,7 @@ ACMD(do_charge)
 		return;
 	}
 	// find out who we're whackin.
-	vict = get_char_in_remote_room_vis(ch, buf, ch->in_room);
+	vict = get_char_in_remote_room_vis(ch, arg, ch->in_room);
 	if (vict == ch) {
 		send_to_char(ch, "You charge in and scare yourself silly!\r\n");
 		return;
