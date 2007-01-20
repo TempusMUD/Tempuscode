@@ -1306,7 +1306,12 @@ ACMD(do_gen_tog)
 		result = PRF2_TOG_CHK(ch, PRF2_NOWRAP);
 		break;
 	case SCMD_WORLDWRITE:
-		result = PRF2_TOG_CHK(ch, PRF2_WORLDWRITE);
+        if (!Security::isMember(ch, "OLCWorldWrite")) {
+            send_to_char(ch, "You do not have the worldwrite power!\n");
+            return;
+        }
+
+        result = PRF2_TOG_CHK(ch, PRF2_WORLDWRITE);
 		break;
 	case SCMD_DEATHLOG:
 		result = ( LOG_DEATHS = !LOG_DEATHS );
