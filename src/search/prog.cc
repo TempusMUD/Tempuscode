@@ -1747,13 +1747,17 @@ trigger_prog_cmd(void *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
 
+    // Check for death or destruction of the owner
+    if (env && !env->owner)
+        return true;
+
 	evt.phase = PROG_EVT_HANDLE;
 	strcpy(evt.args, argument);
 	handler_env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(handler_env);
 
     // Check for death or destruction of the owner
-    if (!handler_env->owner)
+    if (handler_env && !handler_env->owner)
         return true;
 
 	evt.phase = PROG_EVT_AFTER;
