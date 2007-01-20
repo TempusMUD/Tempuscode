@@ -278,12 +278,13 @@ ACMD(do_backstab)
 	struct Creature *vict;
 	int percent, prob;
 	struct obj_data *weap = NULL;
+    char *target_str;
 
 	ACMD_set_return_flags(0);
 
-	one_argument(argument, buf);
+	target_str = tmp_getword(&argument);
 
-	if (!(vict = get_char_room_vis(ch, buf))) {
+	if (!(vict = get_char_room_vis(ch, target_str))) {
 		send_to_char(ch, "Backstab who?\r\n");
 		WAIT_STATE(ch, 4);
 		return;
@@ -337,12 +338,18 @@ ACMD(do_circle)
 	struct Creature *vict;
 	int percent, prob;
 	struct obj_data *weap = NULL;
+    char *target_str;
 
 	ACMD_set_return_flags(0);
 
-	one_argument(argument, buf);
+	target_str = tmp_getword(&argument);
 
-	if (!(vict = get_char_room_vis(ch, buf)) && !(vict = ch->findRandomCombat())) {
+    if (*target_str)
+        vict = get_char_room_vis(ch, target_str);
+    else
+        vict = ch->findRandomCombat();
+
+    if (!vict) {
 		send_to_char(ch, "Circle around who?\r\n");
 		WAIT_STATE(ch, 4);
 		return;
@@ -355,8 +362,8 @@ ACMD(do_circle)
 		return;
 
 	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(weap)) ||
-			((weap = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(weap)) ||
-			((weap = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(weap)))) {
+          ((weap = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(weap)) ||
+          ((weap = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(weap)))) {
 		send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
 		return;
 	}
@@ -379,7 +386,6 @@ ACMD(do_circle)
 		int retval = damage(ch, vict, 0, SKILL_CIRCLE, WEAR_BACK);
 		ACMD_set_return_flags(retval);
 	}
-
 	else {
 		gain_skill_prof(ch, SKILL_CIRCLE);
 		WAIT_STATE(ch, 5 RL_SEC);

@@ -20,7 +20,7 @@
 #define MSHIELD_USAGE "usage: mshield <low|percent> <value>\r\n"
 ACMD(do_mshield)
 {
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    char *arg1, *arg2;
 	int i = 0;
 
 	if (!affected_by_spell(ch, SPELL_MANA_SHIELD)) {
@@ -28,14 +28,13 @@ ACMD(do_mshield)
 		return;
 	}
 
-	argument = two_arguments(argument, arg1, arg2);
+    arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
 
 	if (!*arg1 || !*arg2) {
 		send_to_char(ch, MSHIELD_USAGE);
 		return;
 	}
-
-	strcpy(buf, "Manashield ");
 
 	if (is_abbrev(arg1, "low")) {
 		i = atoi(arg2);
@@ -45,7 +44,7 @@ ACMD(do_mshield)
 			return;
 		}
 		GET_MSHIELD_LOW(ch) = i;
-		strcat(buf, "low ");
+        send_to_char(ch, "Manashield low set to [%d].\r\n", i);
 	} else if (is_abbrev(arg1, "percent")) {
 		i = atoi(arg2);
 		if (i < 1 || i > 100) {
@@ -57,10 +56,11 @@ ACMD(do_mshield)
 			return;
 		}
 		GET_MSHIELD_PCT(ch) = i;
-		strcat(buf, "percent ");
-	}
+        send_to_char(ch, "Manashield percent set to [%d].\r\n", i);
+	} else {
+        send_to_char(ch, MSHIELD_USAGE);
+    }
 
-	send_to_char(ch, "%sset to [%d].\r\n", buf, i);
 }
 
 ACMD(do_empower)

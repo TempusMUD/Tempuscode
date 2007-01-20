@@ -176,6 +176,7 @@
 #include "specs.h"
 #include "vendor.h"
 #include "security.h"
+#include "accstr.h"
 
 static timewarp_data *timewarp_list = NULL;
 static int num_timewarp_data = 0;
@@ -274,14 +275,13 @@ ACMD(do_lecture)
 
 	index = number(0, NUM_TOPICS - 1);
 
-	sprintf(buf, "You begin lecturing $N %s", lecture_topics[index]);
-	act(buf, FALSE, ch, 0, vict, TO_CHAR);
-
-	sprintf(buf, "$n begins lecturing $N %s", lecture_topics[index]);
-	act(buf, FALSE, ch, 0, vict, TO_NOTVICT);
-
-	sprintf(buf, "$n begins lecturing you %s", lecture_topics[index]);
-	act(buf, FALSE, ch, 0, vict, TO_VICT);
+	
+	act(tmp_sprintf("You begin lecturing $N %s", lecture_topics[index]),
+        FALSE, ch, 0, vict, TO_CHAR);
+	act(tmp_sprintf("$n begins lecturing $N %s", lecture_topics[index]),
+        FALSE, ch, 0, vict, TO_NOTVICT);
+	act(tmp_sprintf("$n begins lecturing you %s", lecture_topics[index]),
+        FALSE, ch, 0, vict, TO_VICT);
 
 	percent = (GET_LEVEL(vict) >> 1) + GET_REMORT_GEN(vict) + GET_INT(vict);
 	percent += number(0, 60);
@@ -627,12 +627,13 @@ show_timewarps(Creature *ch)
 	int i;
 	struct zone_data *zn = NULL;
 
-	strcpy(buf, "Timewarp data:\r\n");
+    acc_string_clear();
+    acc_strcat("Timewarp data:\r\n", NULL);
 
 	for (i = 0; i < num_timewarp_data; i++) {
 
-		sprintf(buf, "%s  %3d.]  %s%25s%s [%s%3d%s] --> [%s%3d%s] %s%s%s\r\n",
-			buf, i,
+		acc_sprintf("  %3d.]  %s%25s%s [%s%3d%s] --> [%s%3d%s] %s%s%s\r\n",
+			i,
 			CCCYN(ch, C_NRM), (zn =
 				real_zone(timewarp_list[i].from)) ? zn->name : "FROM-ERROR",
 			CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), timewarp_list[i].from,
@@ -642,8 +643,8 @@ show_timewarps(Creature *ch)
 			CCNRM(ch, C_NRM));
 	}
 
-	sprintf(buf, "%s  %d total.\r\n", buf, num_timewarp_data);
-	page_string(ch->desc, buf);
+	acc_sprintf("  %d total.\r\n", num_timewarp_data);
+	page_string(ch->desc, acc_get_string());
 }
 
 // function to find the matchint zone in the timewarp info
@@ -784,29 +785,23 @@ ASPELL(spell_time_warp)
 
 	}
 	// do the player transferral
-	sprintf(buf, "$n fades silently into the %s.",
-		zone->time_frame == TIME_ELECTRO ? "future" :
-		zone->time_frame == TIME_MODRIAN ? "past" : "unknown");
-
-	act(buf, TRUE, ch, 0, 0, TO_ROOM);
+	act(tmp_sprintf("$n fades silently into the %s.",
+                    zone->time_frame == TIME_ELECTRO ? "future" :
+                    zone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
+        TRUE, ch, 0, 0, TO_ROOM);
 
 	send_to_char(ch, "You fade silently into the %s:\r\n",
 		zone->time_frame == TIME_ELECTRO ? "future" :
 		zone->time_frame == TIME_MODRIAN ? "past" : "unknown");
 
-
 	char_from_room(ch);
-
 	char_to_room(ch, to_room);
-
 	look_at_room(ch, to_room, 0);
 
-	sprintf(buf, "$n fades silently in from the %s.",
-		oldzone->time_frame == TIME_ELECTRO ? "future" :
-		oldzone->time_frame == TIME_MODRIAN ? "past" : "unknown");
-
-	act(buf, TRUE, ch, 0, 0, TO_ROOM);
-
+	act(tmp_sprintf("$n fades silently in from the %s.",
+                    oldzone->time_frame == TIME_ELECTRO ? "future" :
+                    oldzone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
+        TRUE, ch, 0, 0, TO_ROOM);
 }
 
 //
@@ -937,12 +932,12 @@ ACMD(do_econvert)
 			return;
 		}
 
-		num_points =
-			MIN(num_points, MAX_ENERGY(battery) - CUR_ENERGY(battery));
+		num_points = MIN(num_points,
+                         MAX_ENERGY(battery) - CUR_ENERGY(battery));
 		CUR_ENERGY(battery) += num_points;
-		sprintf(buf, "You have increased $p's energy level by %d to %d units.",
-			num_points, CUR_ENERGY(battery));
-		act(buf, FALSE, ch, battery, 0, TO_CHAR);
+		act(tmp_sprintf("You have increased $p's energy level by %d to %d units.",
+                        num_points, CUR_ENERGY(battery)),
+            FALSE, ch, battery, 0, TO_CHAR);
 
 		if (num_points > number(50, 300))
 			gain_skill_prof(ch, SKILL_ENERGY_CONVERSION);
@@ -1019,9 +1014,9 @@ do_emp_pulse_eq(obj_data * list[], Creature * ch = NULL, Creature * vict =
 			&& !random_fractional_3()) {
 			if (GET_OBJ_VAL(list[i], 2) == 1) {
 				do_deactivate_device(list[i]);
-				sprintf(buf, "$p shuts off. %s",
-					internal ? "(internal)" : "(worn)");
-				act(buf, FALSE, ch, list[i], vict, TO_VICT);
+				act(tmp_sprintf("$p shuts off. %s",
+                                internal ? "(internal)" : "(worn)"),
+                    FALSE, ch, list[i], vict, TO_VICT);
 			}
 		}
 	}

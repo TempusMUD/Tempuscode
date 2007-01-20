@@ -34,8 +34,9 @@ ACMD(do_pistolwhip)
 	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL;
 	int percent, prob, dam;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {
@@ -95,11 +96,12 @@ ACMD(do_crossface)
 	int retval = 0, diff = 0, wear_num;
 	bool prime_merc = false;
 	short prev_pos = 0;
+    char *arg;
 
 	if (GET_CLASS(ch) == CLASS_MERCENARY)
 		prime_merc = true;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {
@@ -570,8 +572,9 @@ ACMD(do_wrench)
 	struct obj_data *neck = NULL;
 	int two_handed = 0;
 	int prob, percent, dam;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {
@@ -817,11 +820,14 @@ perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 
 	for (i = 0;i < MIN(MAX_OBJ_AFFECT, skill_lvl / 25); i++) {
 		if (obj->affected[i].location != APPLY_NONE) {
-			sprinttype(obj->affected[i].location, apply_types, buf2);
 			if (obj->affected[i].modifier > 0)
-				acc_sprintf("Item increases %s\r\n", buf2);
+				acc_sprintf("Item increases %s\r\n",
+                            strlist_aref(obj->affected[i].location,
+                                         apply_types));
 			else if (obj->affected[i].modifier < 0)
-				acc_sprintf("Item decreases %s\r\n", buf2);
+				acc_sprintf("Item decreases %s\r\n",
+                            strlist_aref(obj->affected[i].location,
+                                         apply_types));
 		}
 	}
 	page_string(ch->desc, acc_get_string());

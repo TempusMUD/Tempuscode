@@ -240,8 +240,9 @@ ACMD(do_whirlwind)
 	struct obj_data *ovict = NULL;
 	int percent = 0, prob = 0, i;
 	bool all = false;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!*arg) {
 		all = true;
@@ -418,6 +419,8 @@ ACMD(do_combo)
 	struct obj_data *ovict = NULL;
 	int percent = 0, prob = 0, count = 0, i, dam = 0;
 	int dead = 0;
+    char *arg;
+
 	const int which_attack[] = {
 		SKILL_PALM_STRIKE,
 		SKILL_THROAT_STRIKE,
@@ -441,7 +444,7 @@ ACMD(do_combo)
 	};
 
 	ACMD_set_return_flags(0);
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {

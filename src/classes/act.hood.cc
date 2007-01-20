@@ -64,9 +64,9 @@ ACMD(do_hamstring)
 	int percent, prob, dam;
 	struct affected_type af;
 	int retval = 0;
+    char *arg;
 
-
-	one_argument(argument, arg);
+	arg = tmp_getword(&argument);
 	if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 50) {
 		send_to_char(ch, "Even if you knew what that was, you wouldn't do it.\r\n");
 		return;
@@ -208,13 +208,14 @@ ACMD(do_drag_char)
 
 	int percent, prob;
 	int found = 0;
-	char arg2[MAX_INPUT_LENGTH];
+    char *arg, *arg2;
 
 	int dir = -1;
 
 	location = ch->in_room;
 
-	two_arguments(argument, arg, arg2);
+     arg = tmp_getword(&argument);
+     arg2 = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		send_to_char(ch, "Who do you want to drag?\r\n");
@@ -293,12 +294,13 @@ ACMD(do_drag_char)
 	}
 
 	if (prob > percent) {
-		sprintf(buf, "You drag $N to the %s.", to_dirs[dir]);
-		act(buf, FALSE, ch, 0, vict, TO_CHAR);
-		sprintf(buf, "$n grabs you and drags you %s.", to_dirs[dir]);
-		act(buf, FALSE, ch, 0, vict, TO_VICT);
-		sprintf(buf, "$n drags $N to the %s.", to_dirs[dir]);
-		act(buf, FALSE, ch, 0, vict, TO_NOTVICT);
+		
+		act(tmp_sprintf("You drag $N to the %s.", to_dirs[dir]),
+            FALSE, ch, 0, vict, TO_CHAR);
+		act(tmp_sprintf("$n grabs you and drags you %s.", to_dirs[dir]),
+            FALSE, ch, 0, vict, TO_VICT);
+		act(tmp_sprintf("$n drags $N to the %s.", to_dirs[dir]),
+            FALSE, ch, 0, vict, TO_NOTVICT);
 
 		perform_move(ch, dir, MOVE_NORM, 1);
 		perform_move(vict, dir, MOVE_DRAG, 1);

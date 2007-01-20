@@ -1039,10 +1039,11 @@ ACCMD(do_offensive_skill)
 	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	struct affected_type af;
+    char *arg;
 
 	ACMD_set_return_flags(0);
 
-	one_argument(argument, arg);
+	arg = tmp_getword(&argument);
 	af.is_instant = 0;
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
@@ -1050,11 +1051,11 @@ ACCMD(do_offensive_skill)
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			sprintf(buf, "You fiercely %s $p!", CMD_NAME);
-			act(buf, FALSE, ch, ovict, 0, TO_CHAR);
-            sprintf(buf, "$n fiercely %s%ss $p!", CMD_NAME,
-                    (CMD_NAME[strlen(CMD_NAME) - 1] == 's') ? "e":"");
-			act(buf, FALSE, ch, ovict, 0, TO_ROOM);
+			act(tmp_sprintf("You fiercely %s $p!", CMD_NAME),
+                FALSE, ch, ovict, 0, TO_CHAR);
+			act(tmp_sprintf("$n fiercely %s%ss $p!", CMD_NAME,
+                            (CMD_NAME[strlen(CMD_NAME) - 1] == 's') ? "e":""),
+                FALSE, ch, ovict, 0, TO_ROOM);
 			return;
 		} else {
 			send_to_char(ch, "%s who?\r\n", CMD_NAME);
@@ -1075,13 +1076,14 @@ ACCMD(do_offensive_skill)
 ACMD(do_assist)
 {
 	struct Creature *helpee;
+    char *arg;
 
     if (ch->numCombatants() > 0) {
 		send_to_char(ch, 
 			"You're already fighting!  How can you assist someone else?\r\n");
 		return;
 	}
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!*arg)
 		send_to_char(ch, "Whom do you wish to assist?\r\n");
@@ -1117,8 +1119,9 @@ ACMD(do_assist)
 ACMD(do_hit)
 {
 	struct Creature *vict;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!*arg)
 		send_to_char(ch, "Hit who?\r\n");
@@ -1151,12 +1154,14 @@ ACMD(do_hit)
 ACMD(do_kill)
 {
 	struct Creature *vict;
+    char *arg;
 
 	if ((GET_LEVEL(ch) < LVL_CREATOR) || subcmd != SCMD_SLAY || IS_NPC(ch)) {
 		do_hit(ch, argument, cmd, subcmd, 0);
 		return;
 	}
-	one_argument(argument, arg);
+
+    arg = tmp_getword(&argument);
 
 	if (!*arg) {
 		send_to_char(ch, "Kill who?\r\n");
@@ -1500,7 +1505,7 @@ ACMD(do_bash)
 	}
 
 	// If it's an object in the room, it's just a scary social
-	ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents);
+	ovict = get_obj_in_list_vis(ch, arg1, ch->in_room->contents);
 	if (ovict) {
 		act("You bash $p!", FALSE, ch, ovict, 0, TO_CHAR);
 		act("$n bashes $p!", FALSE, ch, ovict, 0, TO_ROOM);
@@ -1624,22 +1629,13 @@ ACMD(do_bash)
 			gain_skill_prof(ch, SKILL_BREAK_DOOR);
 		}
 
-		if (EXIT(ch, door)->to_room->dir_option[rev_dir[door]] &&
-			EXIT(ch,
-				door)->to_room->dir_option[rev_dir[door]]->
-			to_room == ch->in_room) {
-			sprintf(buf,
-				"The %s is bashed open from the other side!!\r\n",
-				EXIT(ch,
-					door)->to_room->dir_option[rev_dir[door]]->
-				keyword ? fname(EXIT(ch,
-						door)->to_room->dir_option[rev_dir[door]]->
-					keyword) : "door");
-			REMOVE_BIT(EXIT(ch, door)->to_room->dir_option[rev_dir[door]]->
-				exit_info, EX_CLOSED);
-			REMOVE_BIT(EXIT(ch, door)->to_room->dir_option[rev_dir[door]]->
-				exit_info, EX_LOCKED);
-			send_to_room(buf, EXIT(ch, door)->to_room);
+        room_direction_data *other_side = EXIT(ch, door)->to_room->dir_option[rev_dir[door]];
+		if (other_side && other_side->to_room == ch->in_room) {
+			REMOVE_BIT(other_side->exit_info, EX_CLOSED);
+			REMOVE_BIT(other_side->exit_info, EX_LOCKED);
+			send_to_room(tmp_sprintf("The %s is bashed open from the other side!!\r\n",
+                        other_side->keyword ? fname(other_side->keyword):"door"),
+                         EXIT(ch, door)->to_room);
 		}
 	}
 	GET_MOVE(ch) -= 20;
@@ -1649,8 +1645,9 @@ ACMD(do_stun)
 {
 	struct Creature *vict = NULL;
 	int percent, prob, wait;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (CHECK_SKILL(ch, SKILL_STUN) < 20) {
 		send_to_char(ch, "You are not particularly stunning.\r\n");
@@ -1789,8 +1786,9 @@ ACMD(do_tag)
 {
 	struct Creature *vict = NULL, *tmp_ch = NULL;
 	int percent, prob;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		send_to_char(ch, "Who do you want to tag in?\r\n");
@@ -1859,8 +1857,9 @@ ACMD(do_rescue)
 {
 	struct Creature *vict = NULL, *tmp_ch;
 	int percent, prob;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		send_to_char(ch, "Who do you want to rescue?\r\n");
@@ -1923,8 +1922,9 @@ ACMD(do_tornado_kick)
 	struct obj_data *ovict = NULL;
 	int percent, prob, dam;
 	bool dead = 0;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {
@@ -2010,10 +2010,11 @@ ACMD(do_sleeper)
 	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob;
+    char *arg;
 
 	ACMD_set_return_flags(0);
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {
@@ -2125,6 +2126,7 @@ ACMD(do_turn)
 	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob;
+    char *arg;
 
 	if (GET_CLASS(ch) != CLASS_CLERIC && GET_CLASS(ch) != CLASS_KNIGHT &&
 		GET_REMORT_CLASS(ch) != CLASS_CLERIC
@@ -2133,7 +2135,8 @@ ACMD(do_turn)
 		send_to_char(ch, "Heathens are not able to turn the undead!\r\n");
 		return;
 	}
-	one_argument(argument, arg);
+
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {
@@ -2211,12 +2214,12 @@ ACMD(do_shoot)
 	int i, dum_ptr = 0, dum_move = 0;
 	bool dead = false;
 	struct affected_type *af = NULL;
-	char arg[MAX_INPUT_LENGTH];
 	int my_return_flags = 0;
+    char *arg, *arrow_name;
 
 	ACMD_set_return_flags(0);
 
-	argument = one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!*arg) {
 		send_to_char(ch, "Shoot what at who?\r\n");
@@ -2321,10 +2324,9 @@ ACMD(do_shoot)
 			dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
 
 			CUR_ENERGY(gun->contains) -= cost;
-			sprintf(buf, "$n blasts %s with $p!", target->name);
-			act(buf, FALSE, ch, gun, 0, TO_ROOM);
+			act(tmp_sprintf("$n blasts %s with $p!", target->name),
+                FALSE, ch, gun, 0, TO_ROOM);
 			act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
-
 			damage_eq(ch, target, dam);
 			return;
 		}
@@ -2443,9 +2445,8 @@ ACMD(do_shoot)
 		dam += BUL_DAM_MOD(bullet);
 
 		if (IS_ARROW(gun)) {
-			sprintf(buf, "$n fires %s from $p into $P!",
-				bullet->name);
-			act(buf, FALSE, ch, gun, target, TO_ROOM);
+			act(tmp_sprintf("$n fires %s from $p into $P!", bullet->name),
+                FALSE, ch, gun, target, TO_ROOM);
 			act("You fire $P into $p!", FALSE, ch, target, bullet, TO_CHAR);
 			obj_from_obj(bullet);
 			obj_to_room(bullet, ch->in_room);
@@ -2453,8 +2454,8 @@ ACMD(do_shoot)
 			damage_eq(ch, target, dam);
 			return;
 		} else {
-			sprintf(buf, "$n blasts %s with $p!", target->name);
-			act(buf, FALSE, ch, gun, 0, TO_ROOM);
+			act(tmp_sprintf("$n blasts %s with $p!", target->name),
+                FALSE, ch, gun, 0, TO_ROOM);
 			act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
 			extract_obj(bullet);
 			damage_eq(ch, target, dam);
@@ -2541,7 +2542,7 @@ ACMD(do_shoot)
 		if (IS_ARROW(gun)) {
 			obj_from_obj(bullet);
 			obj_to_room(bullet, ch->in_room);
-			strcpy(buf2, bullet->name);
+			arrow_name = tmp_strdup(bullet->name);
 			damage_eq(NULL, bullet, dam >> 2);
 		} else {
 			if (!i && !IS_FLAMETHROWER(gun))
@@ -2563,12 +2564,12 @@ ACMD(do_shoot)
 
 			if (number(0, 121) > prob) {
 				if (IS_ARROW(gun)) {
-					sprintf(buf, "$n fires %s at you from $p!", buf2);
-					act(buf, FALSE, ch, gun, vict, TO_VICT);
-					sprintf(buf, "You fire %s at $N from $p!", buf2);
-					act(buf, FALSE, ch, gun, vict, TO_CHAR);
-					sprintf(buf, "$n fires %s at $N from $p!", buf2);
-					act(buf, FALSE, ch, gun, vict, TO_NOTVICT);
+					act(tmp_sprintf("$n fires %s at you from $p!", arrow_name),
+                        FALSE, ch, gun, vict, TO_VICT);
+					act(tmp_sprintf("You fire %s at $N from $p!", arrow_name),
+                        FALSE, ch, gun, vict, TO_CHAR);
+					act(tmp_sprintf("$n fires %s at $N from $p!", arrow_name),
+                        FALSE, ch, gun, vict, TO_NOTVICT);
 				}
 				my_return_flags =
 					damage(ch, vict, 0,
@@ -2582,13 +2583,12 @@ ACMD(do_shoot)
 
 			else if (!dead) {
 				if (IS_ARROW(gun)) {
-					sprintf(buf, "$n fires %s into you from $p!  OUCH!!",
-						buf2);
-					act(buf, FALSE, ch, gun, vict, TO_VICT);
-					sprintf(buf, "You fire %s into $N from $p!", buf2);
-					act(buf, FALSE, ch, gun, vict, TO_CHAR);
-					sprintf(buf, "$n fires %s into $N from $p!", buf2);
-					act(buf, FALSE, ch, gun, vict, TO_NOTVICT);
+					act(tmp_sprintf("$n fires %s into you from $p!  OUCH!!", arrow_name),
+                        FALSE, ch, gun, vict, TO_VICT);
+					act(tmp_sprintf("You fire %s into $N from $p!", arrow_name),
+                        FALSE, ch, gun, vict, TO_CHAR);
+					act(tmp_sprintf("$n fires %s into $N from $p!", arrow_name),
+                        FALSE, ch, gun, vict, TO_NOTVICT);
 				}
 				my_return_flags =
 					damage(ch, vict, dam,
@@ -2703,10 +2703,11 @@ ACCMD(do_disarm)
 	struct Creature *vict = NULL;
 	struct obj_data *weap = NULL, *weap2 = NULL;
 	int percent, prob;
+    char *arg;
 	ACCMD(do_drop);
 	ACCMD(do_get);
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {
@@ -2794,8 +2795,9 @@ ACMD(do_impale)
 	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL;
 	int percent, prob, dam;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {
@@ -2880,8 +2882,9 @@ ACMD(do_intimidate)
 	struct obj_data *ovict = NULL;
 	struct affected_type af;
 	int prob = 0;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
@@ -3028,8 +3031,9 @@ ACMD(do_drain)
 	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob, mana;
+    char *arg;
 
-	one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
 		if (ch->numCombatants()) {
@@ -3189,6 +3193,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 	struct affected_type *af = NULL;
 	int my_return_flags = 0;
     struct obj_data *weap1 = NULL, *weap2 = NULL;
+    char *arrow_name;
 
     weap1 = GET_EQ(ch, WEAR_WIELD);
     weap2 = GET_EQ(ch, WEAR_WIELD_2);
@@ -3330,7 +3335,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
     if (IS_ARROW(gun)) {
         obj_from_obj(bullet);
         obj_to_room(bullet, ch->in_room);
-        strcpy(buf2, bullet->name);
+        strcpy(arrow_name, bullet->name);
         damage_eq(NULL, bullet, dam >> 2);
     } else {
         if (!IS_FLAMETHROWER(gun))
