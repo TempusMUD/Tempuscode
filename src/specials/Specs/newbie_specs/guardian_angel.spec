@@ -65,7 +65,10 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "what do i do", "respond Go out and explore!  Talk to people!  Increase in power and wealth!  Meet interesting and exotic creatures and kill them!" },
 	{ CLASS_NONE, 100, "where do i go", "respond You can try the 'areas' command to find a likely area, and 'help cities' to figure out how to get there." },
 	{ CLASS_NONE, 100, "retrieve", "respond You can retrieve your corpse for a fee at a retriever, or you can try and find your corpse yourself." },
-
+	{ CLASS_NONE, 100, "spots blood", "respond Most creatures bleed all over the place when they are injured." },
+	{ CLASS_NONE, 100, "enter area", "respond Usually you can just walk in with the directional commands.  Sometimes there's a trick, though." },
+	{ CLASS_NONE, 100, "what channels", "respond Channels are public communications you can use to communicate with other players.  You can get a list with the 'toggle' command." },
+    
     // Basic information about places
 	{ CLASS_NONE, 100, "where get eat", "respond You can find food at various shops, like the bakery" },
 	{ CLASS_NONE, 100, "where food", "respond You can find food at various shops, like the bakery" },
@@ -87,11 +90,15 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "where train", "respond Try \"help guild\"." },
 	{ CLASS_NONE, 100, "where training", "respond Try \"help guild\"." },
 	{ CLASS_NONE, 100, "where learn skills", "respond Try \"help guild\"." },
+	{ CLASS_NONE, 100, "where am i", "answer whereami" },
+	{ CLASS_NONE, 100, "who am i", "answer whoami" },
+	{ CLASS_NONE, 100, "which way", "respond Where are you trying to go?" },
 
     // Directions to places
 	{ CLASS_NONE, 100, "where star plaza", "directions 30013" },
 	{ CLASS_NONE, 100, "where sp", "directions 30013" },
 	{ CLASS_NONE, 100, "where holodeck", "directions 2322 then enter rift and go south" },
+    { CLASS_NONE, 100, "where future", "directions 2322 then enter rift" },
 	{ CLASS_NONE, 100, "where bakery", "directions 3028" },
 	{ CLASS_NONE, 100, "where hs", "directions 3013" },
 	{ CLASS_NONE, 100, "where holy square", "directions 3013" },
@@ -143,6 +150,7 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "hi", "respond Hi there!  How are you doing today?" },
 	{ CLASS_NONE, 100, "hello", "respond Hi!  What's happening?" },
 	{ CLASS_NONE, 100, "heya", "respond Howdy!  How's it going?" },
+	{ CLASS_NONE, 100, "hey", "respond Hello, hello." },
 	{ CLASS_NONE, 100, "hiya", "respond Hello!  How are you?" },
 	{ CLASS_NONE, 100, "good", "respond That's good to hear." },
 	{ CLASS_NONE, 100, "bad", "respond I'm sorry to to hear that." },
@@ -151,8 +159,11 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "good evening", "respond Good evening to you, too!" },
 	{ CLASS_NONE, 100, "whazzup", "respond Watchin the game, havin a bud.  You?" },
 	{ CLASS_NONE, 100, "the game a bud", "respond True...  True..." },
+	{ CLASS_NONE, 100, "wowza", "respond Zoinks!" },
+	{ CLASS_NONE, 100, "drone", "respond I'm not quite a drone, I think." },
+	{ CLASS_NONE, 100, "prepare to die", "dismiss" },
 	{ CLASS_NONE, 100, "go away", "dismiss" },
-	{ CLASS_NONE, 100, "leave me", "dismiss" },
+	{ CLASS_NONE, 100, "leave", "dismiss" },
 	{ CLASS_NONE, 100, "piss off", "dismiss" },
 	{ CLASS_NONE, 100, "fuck off", "dismiss" },
 
@@ -161,8 +172,14 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "artificial endurance", "respond Artificial endurance is a pill, so you can swallow it." },
 	{ CLASS_NONE, 100, "new player", "respond You're a new player?  Wonderful!  I hope you enjoy your stay." },
 	{ CLASS_NONE, 100, "level me", "respond No, but I will try to protect you along the way." },
+	{ CLASS_NONE, 100, "help me", "respond Sure.  How would you like me to help?" },
+	{ CLASS_NONE, 100, "give me", "respond I'm not actually carrying anything on me." },
+	{ CLASS_NONE, 100, "killed me", "respond Er, sorry about that.  It was purely an accident." },
 
     // Catch-alls
+    { CLASS_NONE, 33, "kill", "respond Sorry, I'm really a pacifist.  I'm just here to help out." },
+    { CLASS_NONE, 33, "kill", "respond I'm not the violent type.  I'm just here to help you." },
+    { CLASS_NONE, 33, "kill", "respond I'm supposed to help you learn, not do it all for you." },
     { CLASS_NONE, 100, "where", "respond Sorry, I don't really know where that might be." },
     { CLASS_NONE, 100, "what", "respond Sorry, I don't really know." },
     { CLASS_NONE, 100, "who", "respond Sorry, I don't really know." },
@@ -298,6 +315,22 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
             cast_spell(self, charge, NULL, NULL, angel_spells[spell_no].spell_no, &return_flags);
             result = 1;
         }
+    }
+    else if (!strcmp(cmd, "answer")) {
+        char *question = tmp_getword(&action);
+        Creature *ch = get_char_in_world_by_idnum(data->respond_to);
+        if (!strcmp(question, "whoami"))
+            angel_do_respond(self, data,
+                             tmp_sprintf("You are %s, %s %s",
+                                         GET_NAME(ch),
+                                         IS_GOOD(ch) ? "a good":
+                                         IS_EVIL(ch) ? "an evil":"a neutral",
+                                         strlist_aref(GET_CLASS(ch),
+                                                      pc_char_class_types)));
+        else if (!strcmp(question, "whereami"))
+            angel_do_respond(self, data,
+                             tmp_sprintf("You are in %s.",
+                                         ch->in_room->zone->name));
     }
     else if (!strcmp(cmd, "directions")) {
         char *room_num = tmp_getword(&action);
