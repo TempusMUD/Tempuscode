@@ -101,11 +101,54 @@ Account::~Account(void)
 	Account::remove(this);
 }
 
+void
+Account::preload(const char *conditions)
+{
+	long acct_count, field_count, field_idx;
+	const char **fields;
+	PGresult *res;
+
+	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where %s", conditions);
+	acct_count = PQntuples(res);
+
+	if (acct_count < 1)
+		return;
+
+	// Get field names and put them in an array
+	field_count = PQnfields(res);
+	fields = new const char *[field_count];
+	for (field_idx = 0;field_idx < field_count;field_idx++)
+		fields[field_idx] = PQfname(res, field_idx);
+
+    for (int acct_idx = 0;acct_idx < acct_count;acct_idx++) {
+        // Make sure we don't reload one that's already in the cache
+        long idnum = atol(PQgetvalue(res, acct_idx, 0));
+        vector<Account *>::iterator it;
+        
+        it = lower_bound(_cache.begin(), _cache.end(), idnum, Account::cmp());
+        if (it != _cache.end() && (*it)->get_idnum() == idnum)
+            continue;
+
+        // Create a new account and load it up
+        Account *new_acct = new Account;
+        for (field_idx = 0;field_idx < field_count;field_idx++)
+            new_acct->set(fields[field_idx],
+                      PQgetvalue(res, acct_idx, field_idx));
+
+        new_acct->load_players();
+        new_acct->load_trusted();
+
+        _cache.push_back(new_acct);
+        std::sort(_cache.begin(),_cache.end(), Account::cmp());
+        slog("Account %ld preloaded from database", idnum);
+    }
+	delete [] fields;
+}
+
 bool
 Account::load(long idnum)
 {
 	long acct_count, field_count, field_idx;
-	long count, idx;
 	const char **fields;
 	PGresult *res;
 
@@ -131,14 +174,8 @@ Account::load(long idnum)
 			PQgetvalue(res, 0, field_idx));
 	delete [] fields;
 
-	// Now we add the players to the account
 	this->load_players();
-
-	// Add trusted players to account
-	res = sql_query("select player from trusted where account=%ld", idnum);
-	count = PQntuples(res);
-	for (idx = 0;idx < count;idx++)
-		this->add_trusted(atol(PQgetvalue(res, idx, 0)));
+    this->load_trusted();
 
 	slog("Account %d loaded from database", _id);
 	_cache.push_back(this);
@@ -252,6 +289,17 @@ Account::load_players(void)
     }
 
 	delete tmp_ch;
+}
+
+void
+Account::load_trusted(void)
+{
+    PGresult *res;
+
+    res = sql_query("select player from trusted where account=%d", _id);
+    int count = PQntuples(res);
+    for (int idx = 0;idx < count;idx++)
+        this->add_trusted(atol(PQgetvalue(res, idx, 0)));
 }
 
 void

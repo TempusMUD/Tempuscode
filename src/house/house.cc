@@ -745,6 +745,27 @@ HouseControl::load()
 	if( getHouseCount() > 0 ) {
 		topId = getHouse( getHouseCount() -1 )->getID();
 	}
+
+    // Now we preload the accounts that are attached to the house
+    acc_string_clear();
+    acc_sprintf("idnum in (");
+    bool first = true;
+    for (unsigned int i = 0;i < getHouseCount();i++) {
+        House *house = getHouse(i);
+        if (house->getOwnerID() &&
+            (house->getType() == House::PRIVATE ||
+             house->getType() == House::RENTAL)) {
+            if (first)
+                first = false;
+            else
+                acc_strcat(",", NULL);
+            acc_sprintf("%d", house->getOwnerID());
+        }
+    }
+    acc_strcat(")", NULL);
+
+    slog("Preloading accounts with houses...");
+    Account::preload(acc_get_string());
 }
 
 

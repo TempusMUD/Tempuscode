@@ -21,6 +21,7 @@ class Account {
 		static Account *retrieve(const char *name);
 		static Account *retrieve(int id);
 		static Account *retrieve(Creature *ch);
+        static void preload(const char *conditions);
         static bool exists(int accountID);
 		static bool remove(Account *acct);
 		static size_t cache_size(void);
@@ -120,6 +121,7 @@ class Account {
 		static vector <Account *> _cache;
 
 		void load_players(void);
+		void load_trusted(void);
 		void set(const char *key, const char *val);
 		void add_trusted(long idnum);
 
