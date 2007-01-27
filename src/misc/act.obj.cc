@@ -1326,6 +1326,12 @@ perform_drop_credits(struct Creature *ch, int amount,
 bool
 is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool display)
 {
+	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains && 
+		!Security::isMember(ch, Security::WIZARDFULL)) {
+		send_to_char(ch, "You can't %s a player's corpse while it still has objects in it.\r\n", cmdstr);
+		return true;
+	}
+	
 	if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && !IS_CORPSE(obj) &&
 			obj->contains) {
 		if (display)
@@ -3942,12 +3948,6 @@ ACMD(do_sacrifice)
 		return;
 	}
 
-	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains && 
-		!Security::isMember(ch, Security::WIZARDFULL)) {
-		send_to_char(ch, "You can't sacrifice a player's corpse while it still has objects in it.");
-		return;
-	}
-	
 	if (is_undisposable(ch, "sacrifice", obj, true))
 		return;
 
