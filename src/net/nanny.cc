@@ -78,7 +78,6 @@ int perform_alias(struct descriptor_data *d, char *orig);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
 int parse_player_class(char *arg);
 void save_all_players(void);
-void angel_to_char(Creature *ch);
 
 // internal functions
 void set_desc_state(cxn_state state,struct descriptor_data *d );
@@ -1406,15 +1405,15 @@ char_to_game(descriptor_data *d)
 
 	reset_char(d->creature);
 
-	// Report and drop link if buried
+	// Report and go back to menu if buried
 	if (PLR2_FLAGGED(d->creature, PLR2_BURIED)) {
 		SEND_TO_Q(tmp_sprintf(
 			"You lay fresh flowers on the grave of %s.\r\n",
 			GET_NAME(d->creature)), d);
 		mudlog(LVL_GOD, NRM, true,
-			"Disconnecting buried character %s",
+			"Denying entry to buried character %s",
 			GET_NAME(d->creature));
-		set_desc_state( CXN_MENU,d );
+		set_desc_state(CXN_WAIT_MENU, d);
 		return;
 	}
 
@@ -1608,10 +1607,6 @@ char_to_game(descriptor_data *d)
 		}
 	}
     
-    if (d->creature->getLevel() <= 10 && !IS_REMORT(d->creature) &&
-        !d->creature->account->hasCharGen(1))
-        angel_to_char(d->creature);
-
     // Set thier languages here to make sure they speak their race language
     set_initial_language(d->creature);
 	if (shutdown_count > 0)

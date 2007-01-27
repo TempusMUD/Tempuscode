@@ -49,6 +49,9 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "out jail", "respond To get out of jail, you can use the 'return' command until level 10.  After that, you'll have to find a way out." },
 	{ CLASS_NONE, 100, "why naked", "respond Everyone starts out naked here.  You should find things to wear!" },
 	{ CLASS_NONE, 100, "where things wear", "respond You can buy equipment or loot clothing from corpses" },
+	{ CLASS_NONE, 100, "zap", "respond The equipment you're trying to use is differently aligned." },
+	{ CLASS_NONE, 100, "zapped", "respond The equipment you're trying to use is differently aligned." },
+	{ CLASS_NONE, 100, "burned", "respond The equipment you're trying to use is differently aligned." },
 	{ CLASS_NONE, 100, "where get eq", "respond You can buy equipment or loot it from corpses" },
 	{ CLASS_NONE, 50, "where get armor", "respond You could try the leather shop in Modrian." },
 	{ CLASS_NONE, 100, "where get armor", "respond You could try Blacksteel's Armoury in Modrian." },
@@ -118,6 +121,7 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "how stop wielding", "respond Type 'remove <item>' to stop wielding it." },
 	{ CLASS_NONE, 100, "how stop wearing", "respond Type 'remove <item>' to stop wearing it." },
 	{ CLASS_NONE, 100, "how take off", "respond Type 'remove <item>' to take it off." },
+	{ CLASS_NONE, 100, "how strong is", "respond Type 'consider <creature> to see how hard it would be for you to kill." },
 
     // Chatting
 	{ CLASS_NONE, 100, "why you here", "respond To guide you until you no longer need a guide." },
@@ -516,44 +520,6 @@ assign_angel(Creature *angel, Creature *ch)
     angels.push_back(data);
 }
 
-void
-angel_to_char(Creature *ch) 
-{
-/*    static const int ANGEL_VNUM = 3038;
-    static const int DEMON_VNUM = 3039; */
-
-    static const int ANGEL_VNUM = 70603;
-    static const int DEMON_VNUM = 70604;
-    Creature *angel;
-    int vnum;
-    char *msg;
-
-    list<angel_data *>::iterator li = angels.begin();
-
-    for (; li != angels.end(); ++li) {
-        angel_data *tdata = *li;
-        if (tdata->charge_id == ch->getIdNum())
-            return;
-    }
-
-    if (!IS_EVIL(ch)) {
-        vnum = ANGEL_VNUM;
-        msg = tmp_strdup("A guardian angel has been sent to protect you!\r\n");
-    }
-    else {
-        vnum = DEMON_VNUM;
-        msg = tmp_strdup("A guardian demon has been sent to protect you!\r\n");
-    }
-
-    if (!(angel = read_mobile(vnum))) {
-        slog("ANGEL:  read_mobile() failed for vnum [%d]", vnum);
-        return;
-    }
-    send_to_char(ch, msg);
-
-	assign_angel(angel, ch);
-}
-
 SPECIAL(guardian_angel)
 {
 	ACMD(do_spec_comm);
@@ -591,7 +557,11 @@ SPECIAL(guardian_angel)
 			}
 			return 1;
 		}
-	}
+	} else if (!data && CMD_IS("beckon")) {
+        assign_angel(self, ch);
+        perform_say_to(self, ch, "If you ever want me to leave, just let me know.");
+        return 1;
+    }
 
 	// Below here only applies with bound angels
 	if (!data)
