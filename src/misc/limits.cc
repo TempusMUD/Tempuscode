@@ -659,7 +659,7 @@ point_update(void)
 
         while (!GET_LANG_HEARD(i).empty()) {
             int lang = GET_LANG_HEARD(i).front();
-            if (number(0, 300) < GET_INT(i) + GET_WIS(i) + GET_CHA(i))
+            if (number(0, 600) < GET_INT(i) + GET_WIS(i) + GET_CHA(i))
                 SET_TONGUE(i, lang, CHECK_TONGUE(i, lang) + 1);
             GET_LANG_HEARD(i).pop_front();
         }
