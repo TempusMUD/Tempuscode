@@ -52,7 +52,7 @@ Tongue::operator=(const Tongue &o)
     _name = (o._name) ? strdup(o._name):NULL;
     if (_syllable_count) {
         _syllables = new trans_pair[_syllable_count];
-        memcpy(_syllables, o._syllables, _syllable_count);
+        memcpy(_syllables, o._syllables, sizeof(trans_pair) * _syllable_count);
     } else {
         _syllables = NULL;
     }
