@@ -110,7 +110,6 @@ CEditor::Process(char *inStr)
     char *args;
 
 	strncpy(inbuf, inStr, MAX_INPUT_LENGTH);
-	delete_doubledollar(inbuf);
 
 	if (*inbuf == '&') {		// Commands
         if (!inbuf[1]) {

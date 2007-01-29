@@ -54,65 +54,37 @@ const char *say_subcmd_strings[] = {
 	"murmur", "intone", "yell"
 };
 
-bool
-say_lang_pred(struct Creature *ch, struct obj_data *obj, void *vict_obj, struct Creature *to, int mode)
-{
-	return can_speak_language(to, GET_LANGUAGE(ch));
-}
-
-bool
-say_nolang_pred(struct Creature *ch, struct obj_data *obj, void *vict_obj, struct Creature *to, int mode)
-{
-	return !can_speak_language(to, GET_LANGUAGE(ch));
-}
-
-
 void
 perform_say(Creature *ch, int subcmd, const char *message)
 {
-	const char *language_str = (GET_LANGUAGE(ch) != LANGUAGE_COMMON) ?
-		tmp_strcat(" in ", language_names[(int)GET_LANGUAGE(ch)]):"";
-
-	act(tmp_sprintf("&BYou %s$a%s, &c'%s'",
-			say_subcmd_strings[subcmd], language_str, message),
+    message = act_escape(message);
+	act(tmp_sprintf("&BYou %s$a$l, &c'$[%s]'",
+                    say_subcmd_strings[subcmd],
+                    message),
 			0, ch, 0, 0, TO_CHAR);
-	act_if(tmp_sprintf("&B$n %ss$a%s, &c'%s'",
-			say_subcmd_strings[subcmd], language_str, message),
-			0, ch, 0, 0, TO_ROOM, say_lang_pred);
-	act_if(tmp_sprintf("&B$n %ss$a, &c'%s'",
-			say_subcmd_strings[subcmd],
-			translate_string(message, GET_LANGUAGE(ch))),
-			0, ch, 0, 0, TO_ROOM, say_nolang_pred);
+	act(tmp_sprintf("&B$n %ss$a$l, &c'$[%s]'",
+                    say_subcmd_strings[subcmd], message),
+           0, ch, 0, 0, TO_ROOM);
 }
 
 void
 perform_say_to(Creature *ch, Creature *target, const char *message)
 {
-	const char *language_str = (GET_LANGUAGE(ch) != LANGUAGE_COMMON) ?
-		tmp_strcat(" in ", language_names[(int)GET_LANGUAGE(ch)]):"";
-
-	act(tmp_sprintf("&BYou$a say to $T%s, &c'%s'", language_str, message),
-			0, ch, 0, target, TO_CHAR);
-	act_if(tmp_sprintf("&B$n$a says to $T%s, &c'%s'", language_str, message),
-			0, ch, 0, target, TO_ROOM, say_lang_pred);
-	act_if(tmp_sprintf("&B$n$a says to $T, &c'%s'",
-				translate_string(message, GET_LANGUAGE(ch))),
-			0, ch, 0, target, TO_ROOM, say_nolang_pred);
+    message = act_escape(message);
+	act(tmp_sprintf("&BYou$a say to $T$l, &c'$[%s]'", message),
+        0, ch, 0, target, TO_CHAR);
+	act(tmp_sprintf("&B$n$a says to $T$l, &c'$[%s]'", message),
+        0, ch, 0, target, TO_ROOM);
 }
 
 void
 perform_say_to_obj(Creature *ch, obj_data *obj, const char *message)
 {
-	const char *language_str = (GET_LANGUAGE(ch) != LANGUAGE_COMMON) ?
-		tmp_strcat(" in ", language_names[(int)GET_LANGUAGE(ch)]):"";
-
-	act(tmp_sprintf("&BYou$a say to $p%s, &c'%s'", language_str, message),
-			0, ch, obj, 0, TO_CHAR);
-	act_if(tmp_sprintf("&B$n$a says to $p%s, &c'%s'", language_str, message),
-			0, ch, obj, 0, TO_ROOM, say_lang_pred);
-	act_if(tmp_sprintf("&B$n$a says to $p, &c'%s'",
-				translate_string(message, GET_LANGUAGE(ch))),
-			0, ch, obj, 0, TO_ROOM, say_nolang_pred);
+    message = act_escape(message);
+	act(tmp_sprintf("&BYou$a say to $p$l, &c'$[%s]'", message),
+        0, ch, obj, 0, TO_CHAR);
+	act(tmp_sprintf("&B$n$a says to $p$l, &c'$[%s]'", message),
+        0, ch, obj, 0, TO_ROOM);
 }
 
 ACMD(do_say)
@@ -220,10 +192,10 @@ ACMD(do_gsay)
 		else
 			k = ch;
 
-
+        argument = act_escape(argument);
 		if (IS_AFFECTED(k, AFF_GROUP) && (k != ch) && CAN_CHANNEL_COMM(ch, k)) {
 			sprintf(buf, "%s$n tells the group,%s '%s'%s", CCGRN(k, C_NRM),
-				CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
+                    CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
 			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP);
 		}
 		for (f = k->followers; f; f = f->next)
@@ -231,7 +203,7 @@ ACMD(do_gsay)
 				CAN_CHANNEL_COMM(ch, f->follower)) {
 				sprintf(buf, "%s$n tells the group,%s '%s'%s",
 					CCGRN(f->follower, C_NRM), CCYEL(f->follower, C_NRM),
-					argument, CCNRM(f->follower, C_NRM));
+                        argument, CCNRM(f->follower, C_NRM));
 				act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP);
 			}
 
@@ -245,7 +217,8 @@ ACMD(do_gsay)
 void
 perform_tell(struct Creature *ch, struct Creature *vict, const char *arg)
 {
-	char *act_str = tmp_sprintf("&r$t$a tell$%% $T,&n '%s'", arg);
+	char *act_str = tmp_sprintf("&r$t$a tell$%% $T,&n '%s'",
+                                act_escape(arg));
 
 	act(act_str, false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	act(act_str, false, ch, 0, vict, TO_VICT | TO_SLEEP);
@@ -415,10 +388,7 @@ ACMD(do_spec_comm)
 	struct Creature *vict;
 	struct extra_descr_data *rpl_ptr;
 	char *action_sing, *action_plur, *action_others, *word;
-	short found;
-	const char *language_str = "";
-	int language_idx = GET_LANGUAGE(ch);
-
+	bool found;
 
 	if (subcmd == SCMD_WHISPER) {
 		action_sing = "whisper to";
@@ -434,34 +404,20 @@ ACMD(do_spec_comm)
 		action_others = "$n$a asks $N a question.";
 	}
 
-	half_chop(argument, buf, buf2);
+    char *vict_str = tmp_getword(&argument);
 
-	if (!*buf || !*buf2) {
+	if (!*vict_str || !*argument) {
 		send_to_char(ch, "Whom do you want to %s.. and what??\r\n", action_sing);
-	} else if (!(vict = get_char_room_vis(ch, buf))) {
+	} else if (!(vict = get_char_room_vis(ch, vict_str))) {
 		send_to_char(ch, NOPERSON);
 	} else if (vict == ch)
 		send_to_char(ch, 
 			"You can't get your mouth close enough to your ear...\r\n");
 	else {
-        char *buf4 = buf2;
-
-		if (GET_LANGUAGE(ch) != LANGUAGE_COMMON)
-			language_str = tmp_strcat(" in ", language_names[language_idx]);
-
-        if (!can_speak_language(vict, GET_LANGUAGE(ch)))
-            buf4 = tmp_strdup(translate_string(buf2, GET_LANGUAGE(ch)));
-
-
-		sprintf(buf, "%s$n$a %s you%s,%s '%s'", CCYEL(vict, C_NRM), action_plur,
-			(can_speak_language(vict, language_idx)) ? language_str:"",
-			CCNRM(vict, C_NRM), buf4);
-		act(buf, FALSE, ch, 0, vict, TO_VICT);
-		sprintf(buf, "%sYou$a %s %s%s,%s '%s'", CCYEL(ch, C_NRM), action_sing,
-			GET_DISGUISED_NAME(ch, vict),
-			(can_speak_language(ch, language_idx)) ? language_str:"",
-			CCNRM(ch, C_NRM), buf2);
-		act(buf, FALSE, ch, 0, 0, TO_CHAR);
+		act(tmp_sprintf("&yYou$a %s $N$l,&n '$[%s]'", action_sing, argument),
+            FALSE, ch, 0, vict, TO_CHAR);
+		act(tmp_sprintf("&y$n$a %s you$l,&n '$[%s]'", action_plur, argument),
+            FALSE, ch, 0, vict, TO_VICT);
 		act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
 
 		/* add the ask mob <txt> and the mob will reply. -Sarflin 7-19-95 */
@@ -470,14 +426,14 @@ ACMD(do_spec_comm)
 			vict->mob_specials.response != NULL) {
 			rpl_ptr = vict->mob_specials.response;
 			word = NULL;
-			found = 0;
-			word = strtok(buf2, " ");
+			found = false;
+			word = strtok(argument, " ");
 			if (word != NULL) {
 				do {
 					rpl_ptr = vict->mob_specials.response;
 					do {
 						if (strstr(rpl_ptr->keyword, word) != NULL) {
-							found = 1;
+							found = true;
 							break;
 						}
 						rpl_ptr = rpl_ptr->next;
@@ -488,14 +444,10 @@ ACMD(do_spec_comm)
 					word = strtok(NULL, " ");
 				} while (word != NULL);
 			}
-			if (found) {
+			if (found)
 				reply_respond(ch, vict, rpl_ptr->description);
-			} else {
-				sprintf(buf,
-					"%s%s tells you:%s\r\n   I don't know anything about that!",
-					CCRED(ch, C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
-				act(buf, FALSE, ch, 0, 0, TO_CHAR);
-			}
+			else
+                perform_tell(vict, ch, "I don't know anything about that!");
 		}
 	}
 }
@@ -645,61 +597,61 @@ struct channel_info_t {
 
 static const channel_info_t channels[] = {
 	{ "holler", 2, PRF2_NOHOLLER, INTERPLANAR, NOT_EMOTE,
-		KYEL_BLD, KRED,
-		"Ha!  You are noholler buddy.",
-		"You find yourself unable to holler!" },
+      "&Y", "&r",
+      "Ha!  You are noholler buddy.",
+      "You find yourself unable to holler!" },
 	{ "shout", 1, PRF_DEAF, PLANAR, NOT_EMOTE,
-		KYEL, KCYN,
-		"Turn off your noshout flag first!",
-		"You cannot shout!!" },
+      "&y", "&c",
+      "Turn off your noshout flag first!",
+      "You cannot shout!!" },
 	{ "gossip", 1, PRF_NOGOSS, PLANAR, NOT_EMOTE,
-		KGRN, KNRM,
-		"You aren't even on the channel!",
-		"You cannot gossip!!" },
+      "&g", "&n",
+      "You aren't even on the channel!",
+      "You cannot gossip!!" },
 	{ "auction", 1, PRF_NOAUCT, INTERPLANAR, NOT_EMOTE,
-		KMAG, KNRM,
-		"You aren't even on the channel!",
-		"Only licenced auctioneers can auction!!" },
+      "&m", "&n",
+      "You aren't even on the channel!",
+      "Only licenced auctioneers can auction!!" },
 	{ "congrat", 1, PRF_NOGRATZ, PLANAR, NOT_EMOTE,
-		KGRN, KMAG,
-		"You aren't even on the channel!",
-		"You cannot congratulate!!" },
+      "&g", "&m",
+      "You aren't even on the channel!",
+      "You cannot congratulate!!" },
 	{ "sing", 1, PRF_NOMUSIC, PLANAR, NOT_EMOTE,
-		KCYN, KYEL,
-		"You aren't even on the channel!",
-		"You cannot sing!!" },
+      "&c", "&y",
+      "You aren't even on the channel!",
+      "You cannot sing!!" },
 	{ "spew", 1, PRF_NOSPEW, PLANAR, NOT_EMOTE,
-		KRED, KYEL,
-		"You aren't even on the channel!",
-		"You cannot spew!!" },
+      "&r", "&y",
+      "You aren't even on the channel!",
+      "You cannot spew!!" },
 	{ "dream", 1, PRF_NODREAM, PLANAR, NOT_EMOTE,
-		KCYN, KNRM_BLD,
-		"You aren't even on the channel!",
-		"You cannot dream!!" },
+      "&c", "&W",
+      "You aren't even on the channel!",
+      "You cannot dream!!" },
 	{ "project", 1, PRF_NOPROJECT, INTERPLANAR, NOT_EMOTE,
-		KNRM_BLD, KCYN,
-		"You are not open to projections yourself...",
-		"You cannot project.  The immortals have muted you." },
+      "&N", "&c",
+      "You are not open to projections yourself...",
+      "You cannot project.  The immortals have muted you." },
 	{ "newbie", -2, PRF2_NEWBIE_HELPER, PLANAR, NOT_EMOTE,
-		KYEL, KNRM,
-		"You aren't on the illustrious newbie channel.",
-		"The immortals have muted you for bad behavior!" },
+      "&y", "&n",
+      "You aren't on the illustrious newbie channel.",
+      "The immortals have muted you for bad behavior!" },
 	{ "clan-say", 1, PRF_NOCLANSAY, PLANAR, NOT_EMOTE,
-		KCYN, KNRM,
-		"You aren't listening to the words of your clan.",
-		"The immortals have muted you.  You may not clan say." },
+      "&c", "&n",
+      "You aren't listening to the words of your clan.",
+      "The immortals have muted you.  You may not clan say." },
 	{ "guild-say", 2, PRF2_NOGUILDSAY, PLANAR, NOT_EMOTE,
-		KMAG, KYEL,
-		"You aren't listening to the rumors of your guild.",
-		"You may not guild-say, for the immortals have muted you." },
+      "&m", "&y",
+      "You aren't listening to the rumors of your guild.",
+      "You may not guild-say, for the immortals have muted you." },
 	{ "clan-emote", 1, PRF_NOCLANSAY, PLANAR, IS_EMOTE,
-		KCYN, KNRM,
-		"You aren't listening to the words of your clan.",
-		"The immortals have muted you.  You may not clan emote." },
+      "&c", "&c",
+      "You aren't listening to the words of your clan.",
+      "The immortals have muted you.  You may not clan emote." },
 	{ "petition", 1, PRF_NOPETITION, INTERPLANAR, NOT_EMOTE,
-		KMAG, KCYN,
-		"You aren't listening to petitions at this time.",
-		"The immortals have turned a deaf ear to your petitions." },
+      "&m", "&c",
+      "You aren't listening to petitions at this time.",
+      "The immortals have turned a deaf ear to your petitions." },
 };
 
 const char *
@@ -725,14 +677,10 @@ ACMD(do_gen_comm)
 	const channel_info_t *chan;
 	struct descriptor_data *i;
 	struct clan_data *clan;
-	char *plain_emit, *color_emit;
-	char *imm_plain_emit, *imm_color_emit;
-	const char *str, *sub_channel_desc, *mood_str;
+	const char *str, *sub_channel_desc;
 	int eff_is_neutral, eff_is_good, eff_is_evil, eff_class, eff_clan;
-	char *filtered_msg, *translated;
-	int language_idx = GET_LANGUAGE(ch);
-	const char *language_str = "";
-	int idx;
+	int old_language = GET_TONGUE(ch);
+    char *imm_actstr, *actstr;
 
 
 	chan = &channels[subcmd];
@@ -936,71 +884,6 @@ ACMD(do_gen_comm)
 		sub_channel_desc = "";
 	}
 
-	// Eliminate double dollars, and double percent signs (for sprintf)
-    delete_doubledollar(argument);
-
-	// Construct all the emits ahead of time.
-	if (chan->is_emote) {
-		if (COLOR_LEV(ch) >= C_NRM)
-			send_to_char(ch, "%s%s%s%s %s%s%s\r\n", chan->desc_color,
-				(IS_IMMORT(ch) ? sub_channel_desc:""),
-				GET_NAME(ch),
-				KNRM, chan->text_color, argument, KNRM);
-		else
-			send_to_char(ch, "%s%s %s\r\n",
-				(IS_IMMORT(ch) ? sub_channel_desc:""),
-				GET_NAME(ch),
-				argument);
-
-		plain_emit = tmp_sprintf("%%s %s\r\n", argument);
-		color_emit = tmp_sprintf("%s%%s %s%s%s%s\r\n", chan->desc_color,
-			KNRM, chan->text_color, argument, KNRM);
-		imm_plain_emit = tmp_sprintf("%s%%s %s\r\n", sub_channel_desc,
-			argument);
-		imm_color_emit = tmp_sprintf("%s%s%%s%s%s %s%s\r\n",
-			chan->desc_color, sub_channel_desc, KNRM, chan->text_color,
-			argument, KNRM);
-	} else {
-		if (subcmd != SCMD_NEWBIE && language_idx != LANGUAGE_COMMON)
-			language_str = tmp_strcat(" in ", language_names[language_idx]);
-        
-		mood_str = GET_MOOD(ch) ? GET_MOOD(ch):"";
-		if (COLOR_LEV(ch) >= C_NRM)
-			send_to_char(ch, "%s%sYou%s %s%s,%s%s '%s'%s\r\n", chan->desc_color,
-				(IS_IMMORT(ch) ? sub_channel_desc:""),
-				mood_str,
-				chan->name,
-                language_str,
-				KNRM,
-				chan->text_color, argument, KNRM);
-		else
-			send_to_char(ch, "%sYou%s %s%s, '%s'\r\n",
-				(IS_IMMORT(ch) ? sub_channel_desc:""),
-				mood_str,
-				chan->name,
-                language_str,
-				argument);
-
-		plain_emit = tmp_sprintf("%%s%s %ss%%s, '%%s'\r\n", mood_str, chan->name);
-		color_emit = tmp_sprintf("%s%%s%s %ss%%s,%s%s '%%s'%s\r\n",
-			chan->desc_color,
-			mood_str,
-			chan->name, KNRM, chan->text_color, KNRM);
-		imm_plain_emit = tmp_sprintf("%s%%s%s %ss%%s, '%%s'\r\n",
-			sub_channel_desc,
-			mood_str,
-			chan->name);
-		imm_color_emit = tmp_sprintf("%s%s%%s%s %ss%%s,%s%s '%%s'%s\r\n",
-			chan->desc_color, sub_channel_desc, mood_str, chan->name, KNRM,
-			chan->text_color, KNRM);
-	}
-
-	// Check to see if we have naughty words!
-	filtered_msg = argument;
-	if (Nasty_Words(argument))
-		for (idx = 0;idx < num_nasty;idx++)
-			filtered_msg = tmp_gsubi(filtered_msg, nasty_list[idx], random_curses());
-	
 	// Check to see if they're calling for help
 	if (subcmd == SCMD_SHOUT
 			&& IS_NPC(ch)
@@ -1009,26 +892,42 @@ ACMD(do_gen_comm)
 			&& strstr(argument, "!"))
 		summon_cityguards(ch->in_room);
 
+	// Construct all the emits ahead of time.
+	if (chan->is_emote) {
+        imm_actstr = tmp_sprintf("%s%s$t$a %s%s",
+                                 chan->desc_color,
+                                 sub_channel_desc,
+                                 chan->text_color,
+                                 act_escape(argument));
+        actstr = tmp_sprintf("%s$t$a %s%s",
+                             chan->desc_color,
+                             chan->text_color,
+                             act_escape(argument));
+	} else {
+        // Newbie channel is always in common
+        if (subcmd == SCMD_NEWBIE)
+            GET_TONGUE(ch) = TONGUE_COMMON;
+
+        imm_actstr = tmp_sprintf("%s%s$t$a %s$%%$l, %s'$[%s]'",
+                                 chan->desc_color,
+                                 sub_channel_desc,
+                                 chan->name,
+                                 chan->text_color,
+                                 act_escape(argument));
+        actstr = tmp_sprintf("%s$t$a %s$%%$l, %s'$[%s]'",
+                             chan->desc_color,
+                             chan->name,
+                             chan->text_color,
+                             act_escape(argument));
+	}
 
 	/* now send all the strings out */
-	language_idx = GET_LANGUAGE(ch);
-	translated = translate_string(argument, language_idx);
-
 	for (i = descriptor_list; i; i = i->next) {
-        char *buf4 = argument;
-
-		if (STATE(i) != CXN_PLAYING || i == ch->desc || !i->creature ||
+		if (STATE(i) != CXN_PLAYING || !i->creature ||
 				PLR_FLAGGED(i->creature, PLR_WRITING) ||
 				PLR_FLAGGED(i->creature, PLR_OLC))
 			continue;
 
-        if (!PRF_FLAGGED(i->creature, PRF_NASTY))
-            buf4 = filtered_msg;
-
-        if ((!can_speak_language(i->creature, GET_LANGUAGE(ch))) && 
-                subcmd != SCMD_NEWBIE)
-            buf4 = translated;
-                
 		if (chan->deaf_vector == 1 &&
 				PRF_FLAGGED(i->creature, chan->deaf_flag))
 			continue;
@@ -1096,18 +995,14 @@ ACMD(do_gen_comm)
 				continue;
 		}
 
-		if (IS_IMMORT(i->creature))
-			send_to_char(i->creature,
-				COLOR_LEV(i->creature) >= C_NRM ? imm_color_emit : imm_plain_emit,
-				tmp_capitalize(PERS(ch, i->creature)), language_str, buf4);
-		else
-			send_to_char(i->creature,
-				COLOR_LEV(i->creature) >= C_NRM ? color_emit : plain_emit,
-				tmp_capitalize(PERS(ch, i->creature)),
-				(can_speak_language(i->creature, language_idx))
-					? language_str:"",
-				buf4);
+        if (IS_IMMORT(i->creature)) {
+            act(imm_actstr, false, ch, 0, i->creature, TO_VICT);
+        } else {
+            act(actstr, false, ch, 0, i->creature, TO_VICT);
+        }
 	}
+
+    GET_TONGUE(ch) = old_language;
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && !IS_IMMORT(ch))
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
@@ -1142,7 +1037,6 @@ ACMD(do_qcomm)
 			if (subcmd == SCMD_QSAY) {
 				send_to_char(ch, "%s%sYou quest-say,%s '%s'\r\n", CCYEL(ch, C_NRM),
 					CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), argument);
-				delete_doubledollar(buf);
 			} else {
 				send_to_char(ch, "%s%s%s\r\n",
 					CCYEL_BLD(ch, C_NRM),

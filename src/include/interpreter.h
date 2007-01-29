@@ -48,7 +48,6 @@ bool is_number(const char *str);
 int find_command(char *command, bool abbrev = false);
 void skip_spaces(char **string);
 void skip_spaces(const char **string);
-char *delete_doubledollar(char *string);
 void send_unknown_cmd(Creature *ch);
 
 // from search.c

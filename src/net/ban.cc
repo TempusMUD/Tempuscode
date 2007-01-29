@@ -331,14 +331,14 @@ Valid_Name(char *newname)
 	return 1;
 }
 
-int
-Nasty_Words(char *words)
+bool
+Nasty_Words(const char *words)
 {
 	int i;
 	char tempword[MAX_STRING_LENGTH];
 
 	if (!nasty_list || num_nasty < 1)
-		return 0;
+		return false;
 
 	/* change to lowercase */
 	strcpy(tempword, words);
@@ -347,9 +347,9 @@ Nasty_Words(char *words)
 
 	for (i = 0; i < num_nasty; i++)
 		if (strstr(tempword, nasty_list[i]))
-			return 1;
+			return true;
 
-	return 0;
+	return false;
 }
 
 

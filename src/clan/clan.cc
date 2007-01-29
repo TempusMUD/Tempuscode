@@ -285,7 +285,7 @@ ACMD(do_clanlist)
 	bool complete = 0;
 	int visible = 1;
 	int found = 0;
-	char *name;
+	char *name, *arg;
 
 	if (!clan) {
 		send_to_char(ch, "You are not a member of any clan.\r\n");
@@ -294,8 +294,7 @@ ACMD(do_clanlist)
 
 	ch_member = real_clanmember(GET_IDNUM(ch), clan);
 
-	skip_spaces(&argument);
-	argument = one_argument(argument, arg);
+    arg = tmp_getword(&argument);
 	while (*arg) {
 
 		if (is_number(arg)) {
@@ -310,7 +309,7 @@ ACMD(do_clanlist)
 			send_to_char(ch, "Clanlist usage: clanlist [minlevel] ['all']\r\n");
 			return;
 		}
-		argument = one_argument(argument, arg);
+		argument = tmp_getword(&argument);
 	}
 
 	acc_string_clear();

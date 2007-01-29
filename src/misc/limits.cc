@@ -33,6 +33,7 @@
 #include "fight.h"
 #include "screen.h"
 #include "prog.h"
+#include "language.h"
 
 extern struct obj_data *object_list;
 extern struct room_data *world;
@@ -656,6 +657,12 @@ point_update(void)
 		} else if (i->char_specials.timer)
 			i->char_specials.timer -= 1;
 
+        while (!GET_LANG_HEARD(i).empty()) {
+            int lang = GET_LANG_HEARD(i).front();
+            if (number(0, 300) < GET_INT(i) + GET_WIS(i) + GET_CHA(i))
+                SET_TONGUE(i, lang, CHECK_TONGUE(i, lang) + 1);
+            GET_LANG_HEARD(i).pop_front();
+        }
 
 		full = 1;
 		if (affected_by_spell(i, SPELL_METABOLISM))

@@ -7,15 +7,15 @@
 #include "language.h"
 #include "comm.h"
 
-#define LANGUAGE_COST 1500000
+#define TONGUE_COST 150000
 
 SPECIAL(languagemaster)
 {
     struct Creature *master = (struct Creature *)me;
-	int check_only = 0, language_idx = -1;
-    char *buf;
-    int cost = LANGUAGE_COST;
-    cost += (cost*ch->getCostModifier(master))/100;
+	int check_only = 0, tongue_idx = TONGUE_NONE;
+    int cost = TONGUE_COST;
+
+    cost += (cost * ch->getCostModifier(master)) / 100;
     
 	if (spec_mode != SPECIAL_CMD)
 		return FALSE;
@@ -33,27 +33,20 @@ SPECIAL(languagemaster)
 	if (!*argument)
 		return 1;
     
-    language_idx = find_language_idx_by_name(argument);
+    tongue_idx = find_tongue_idx_by_name(argument);
 
-    if (!can_speak_language(master, language_idx)) {
+    if (tongue_idx == TONGUE_NONE ||
+        CHECK_TONGUE(master, tongue_idx) < 100) {
         perform_tell(master, ch, 
-                     "I'm sorry, but I don't know that language.");
+                     "I'm sorry, but I can't teach that language.");
         return 1;
     }
 
-    if (can_speak_language(ch, language_idx)) {
-        perform_tell(master, ch, 
-                     "But you are already fluent in that language.");
+    if (CHECK_TONGUE(ch, tongue_idx) >= 50) {
+        perform_tell(master, ch, "Sorry, but I can't teach you any more.");
         return 1;
     }
     
-    if (known_languages(ch) >= (GET_INT(ch) / 2) - 2) {
-        perform_tell(master, ch,
-                     "You can't learn any more languages now.  "
-                     "Try again later.");
-        return 1;
-    }
-
 	send_to_char(ch,
 		"It will cost you %d gold coins to learn to speak %s.\r\n%s",
 		cost, tmp_capitalize(argument),
@@ -63,14 +56,15 @@ SPECIAL(languagemaster)
 		return 1;
 
 	GET_GOLD(ch) -= cost;
-    learn_language(ch, language_idx);
-    
-    buf = tmp_sprintf("You learn to speak %s!", tmp_capitalize(argument));
-	act(buf, FALSE, ch, NULL, 0, TO_CHAR);
-    buf = tmp_sprintf("$n learns to speak %s!", tmp_capitalize(argument)); 
-	act(buf, FALSE, ch, NULL, 0, TO_ROOM);
+    SET_TONGUE(ch, tongue_idx,
+               CHECK_TONGUE(ch, tongue_idx) + number(3, GET_INT(ch)));
+
+	act(tmp_sprintf("Your fluency in %s increases!",
+                    tongue_name(tongue_idx)),
+        false, ch, NULL, 0, TO_CHAR);
+
 	ch->saveToXML();
 	return 1;
 }
 
-#undef LANGUAGE_COST
+#undef TONGUE_COST

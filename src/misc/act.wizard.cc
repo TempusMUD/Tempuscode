@@ -271,7 +271,7 @@ ACMD(do_echo)
 
     if (subcmd == SCMD_EMOTE) {
         mort_see = tmp_sprintf("$n%s%s", (*argument == '\'') ? "":" ",
-			argument);
+                               act_escape(argument));
 
 		act(mort_see, FALSE, ch, 0, 0, TO_CHAR);
         act(mort_see, FALSE, ch, 0, 0, TO_ROOM);
@@ -2017,25 +2017,39 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 			acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
 	}
     acc_sprintf("Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),
-            ((GET_LANGUAGE(k) > LANGUAGE_COMMON) ?
-             tmp_capitalize(language_names[(int)GET_LANGUAGE(k)]) :
-             "Common"), CCNRM(ch, C_NRM));
-	if (GET_LEVEL(k) < LVL_AMBASSADOR) {
-		acc_sprintf("Known languages: %s%-17s", CCCYN(ch, C_NRM), "Common");
-		int num_languages = 2;
-		for (int x = 0; x < NUM_LANGUAGES; x++) {
-			if (can_speak_language(k, x)) {
-				num_languages++;
-				acc_sprintf("%-17s", tmp_capitalize(language_names[x]));
-				if (num_languages % 4 == 0)
-					acc_strcat("\r\n", NULL);
-			}
-		}
-		if (num_languages % 4 != 0)
-			acc_strcat("\r\n", CCNRM(ch, C_NRM), NULL);
-		else
-			acc_strcat(CCNRM(ch, C_NRM), NULL);
-	}
+                tongue_name(GET_TONGUE(k)), CCNRM(ch, C_NRM));
+
+    if (GET_LANG_HEARD(k).size()) {
+        acc_sprintf("Recently heard: %s", CCCYN(ch, C_NRM));
+        std::list<int>::iterator lang = GET_LANG_HEARD(k).begin();
+        bool first = true;
+        for (;lang != GET_LANG_HEARD(k).end();++lang) {
+            if (first)
+                first = false;
+            else
+                acc_strcat(CCNRM(ch, C_NRM), ", ", CCCYN(ch, C_NRM), NULL);
+
+            acc_strcat(tongue_name(*lang), NULL);
+        }
+        acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
+    }
+    acc_sprintf("Known Languages:\r\n");
+    map<int, Tongue>::iterator it = tongues.begin();
+    for (;it != tongues.end();++it) {
+        if (CHECK_TONGUE(k, it->first)) {
+            acc_sprintf("%s%3d. %-30s %s%-17s%s%s\r\n",
+                        CCCYN(ch, C_NRM),
+                        it->first,
+                        it->second._name,
+                        CCBLD(ch, C_SPR),
+                        fluency_desc(k, it->first),
+                        tmp_sprintf("%s[%3d]%s", CCYEL(ch, C_NRM),
+                                    CHECK_TONGUE(k, it->first),
+                                    CCNRM(ch, C_NRM)),
+                        CCNRM(ch, C_SPR));
+        }
+    }
+    
 
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
@@ -3491,7 +3505,6 @@ ACMD(do_wiznet)
     char *subcmd_desc = NULL;
 
     skip_spaces(&argument);
-    delete_doubledollar(argument);
 
     if (!*argument) {
         if (subcmd == SCMD_IMMCHAT)
@@ -5834,7 +5847,6 @@ ACMD(do_set)
     char is_file = 0, is_mob = 0, is_player = 0;
     int parse_char_class(char *arg);
     int parse_race(char *arg);
-    int mode, idx = 0;
 
     static struct set_struct fields[] = {
         {"brief", LVL_IMMORT, PC, BINARY, "WizardFull"},    /* 0 */
@@ -6641,41 +6653,27 @@ ACMD(do_set)
     case 100:
         vict->set_reputation(RANGE(0, 1000));
         break;
-    case 102:
+    case 101:
         arg1 = tmp_getword(&argument);
         arg2 = tmp_getword(&argument);
 
-        if (((*arg1 != '+') && (*arg1 != '-')) || !*arg2) {
-            send_to_char(ch, "Usage: set <vict> language [+/-] [LANG ...]\r\n");
+        if (*arg1 && *arg2) {
+            i = find_tongue_idx_by_name(arg1);
+            value = atoi(arg2);
+            if (i == TONGUE_NONE) {
+                send_to_char(ch, "%s is not a valid language.\r\n", arg1);
+                return;
+            } else if (!is_number(arg2) || value < 0 || value > 100) {
+                send_to_char(ch, "Language fluency must be a number from 0 to 100.\r\n");
+                return;
+            } else {
+                SET_TONGUE(vict, i, value);
+                sprintf(buf, "You set %s's fluency in %s to %d",
+                        GET_NAME(vict), tongue_name(i), value);
+            }
+        } else {
+            send_to_char(ch, "Usage: set <vict> language <language> <fluency>\r\n");
             return;
-        }
-
-        if (*arg1 == '+') {
-            mode = 0;
-        }
-        else if (*arg1 == '-') {
-            mode = 1;
-        }
-        else {
-            send_to_char(ch, "Usage: set <vict> language [+/-] [LANG ...]\r\n");
-            return;
-        }
-
-        while (*arg2) {
-           idx = search_block(arg2, language_names, FALSE);
-
-           if (idx < 0) {
-               send_to_char(ch, "Invalid language.  Skipping...\r\n");
-               arg2 = tmp_getword(&argument);
-               continue;
-           }
-
-           if (mode == 0)
-               learn_language(vict, idx);
-           else
-               forget_language(vict, idx);
-
-            arg2 = tmp_getword(&argument);
         }
         break;
     default:
@@ -7100,7 +7098,6 @@ ACMD(do_rename)
     char new_desc[MAX_INPUT_LENGTH], logbuf[MAX_STRING_LENGTH];
 
     half_chop(argument, arg, new_desc);
-    delete_doubledollar(new_desc);
 
     if (!new_desc) {
         send_to_char(ch, "What do you want to call it?\r\b");
@@ -7171,7 +7168,6 @@ ACMD(do_addname)
     }
     
     while(args.next(new_name)) {
-        delete_doubledollar(new_name);
 
         if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
             vict = get_char_room_vis(ch, arg);

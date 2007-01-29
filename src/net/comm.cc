@@ -51,7 +51,7 @@
 #include "player_table.h"
 #include "prog.h"
 #include "quest.h"
-
+#include "language.h"
 /* externs */
 extern HelpCollection *Help;
 extern int restrict;
@@ -509,6 +509,12 @@ game_loop(int mother_desc)
 			gettimeofday(&now, (struct timezone *)0);
 			timespent = timediff(&now, &last_time);
 			timeout = timediff(&opt_time, &timespent);
+
+            if (!production_mode && !timeout.tv_sec && !timeout.tv_usec)
+                slog("WARNING: Last pulse %d took %lu.%06lu seconds",
+                     pulse,
+                     timespent.tv_sec,
+                     timespent.tv_usec);
 
 			/* sleep until the next 0.1 second mark */
 			if (select(0, (fd_set *) 0, (fd_set *) 0, (fd_set *) 0,
@@ -1215,15 +1221,7 @@ process_input(struct descriptor_data *t)
 						space_left++;
 				}
 			} else if (isascii(*ptr) && isprint(*ptr)) {
-				*write_point = *ptr;
-				if (*write_point == '$') {	/* copy one character */
-					*(++write_point) = '$';	/* if it's a $, double it */
-					space_left -= 1;
-				} else if (*write_point == '&') {
-					*(++write_point) = '&';
-					space_left -= 1;
-				}
-				write_point++;
+				*write_point++ = *ptr;
 				space_left--;
 			}
 		}
@@ -1888,13 +1886,56 @@ send_to_clan(char *messg, int clan)
 			}
 }
 
-
 char *ACTNULL = "<NULL>";
 
 #define CHECK_NULL(pointer, expression) \
 if ((pointer) == NULL) i = ACTNULL; else i = (expression);
 
 /* higher-level communication: the act() function */
+char *
+act_escape(const char *str)
+{
+    str = tmp_gsub(str, "\\", "\\\\");
+    str = tmp_gsub(str, "&", "\\&");
+    str = tmp_gsub(str, "$", "\\$");
+    return tmp_gsub(str, "]", "\\]");
+}
+
+char *
+act_translate(Creature *ch, Creature *to, const char **s)
+{
+    bool Nasty_Words(const char *words);
+    const char *random_curses(void);
+    const char *c;
+    char *i;
+
+    (*s)++;
+    c = *s;
+    while (*c && *c != ']')
+        if (*c == '\\' && *(c+1) != '\0')
+            c += 2;
+        else
+            c++;
+
+    // Select substr
+    i = tmp_substr(*s, 0, (c - *s) - 1);
+
+    // Advance pointer
+    *s = c;
+
+    // Remove any act-escaping
+    i = tmp_gsub(i, "\\", "");
+
+    if (ch != to && Nasty_Words(i))
+        for (int idx = 0;idx < num_nasty;idx++)
+            i = tmp_gsubi(i, nasty_list[idx], random_curses());
+
+    if (ch != to)
+        return translate_tongue(ch, to, i);
+
+    return i;
+}
+
 void
 perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 	void *vict_obj, struct Creature *to, int mode)
@@ -1916,7 +1957,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 	buf = lbuf;
 
 	for (;;) {
-		if (*s == '$') {
+        if (*s == '$') {
 			switch (*(++s)) {
 			case 'n':
 				i = PERS(ch, to);
@@ -1999,9 +2040,12 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
             case '^':
                 i = (ch == to) ? "":"es";
                 break;
-			case '$':
-				i = "$";
-				break;
+            case 'l':
+                i = make_tongue_str(ch, to);
+                break;
+            case '[':
+                i = act_translate(ch, to, &s);
+                break;
 			default:
 				errlog("Illegal $-code to act(): %s", s);
 				i = "---";
@@ -2057,6 +2101,9 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				s += 2;
 			}
 		} else {
+            // backslashes are literal chars
+            if (*s == '\\')
+                s++;
 			if (!first_printed_char)
 				first_printed_char = buf;
 			if (!(*(buf++) = *(s++)))

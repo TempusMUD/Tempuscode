@@ -166,6 +166,7 @@ void assign_objects(void);
 void assign_rooms(void);
 void assign_artisans(void);
 void boot_dynamic_text(void);
+void boot_tongues(void);
 
 /*int is_empty(struct zone_data *zone); */
 void reset_zone(struct zone_data *zone);
@@ -365,6 +366,9 @@ boot_db(void)
 	file_to_string_alloc(AREAS_REMORT_FILE, &areas_remort);
 	file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
 	file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
+
+    slog("Loading tongues.");
+    boot_tongues();
 
 	boot_dynamic_text();
 	boot_world();
@@ -1681,10 +1685,20 @@ interpret_espec(char *keyword, char *value, struct Creature *mobile, int nr)
         GET_REMORT_GEN(mobile) = (int)num_arg;
     }
     CASE("KnownLang") {
-        KNOWN_LANGUAGES(mobile) = num_arg;
+        // deprecated conversion
+        for (int i = 0;i < 32;i++)
+            if ((1 << i) & num_arg)
+                SET_TONGUE(mobile, i + 1, 100);
     }
     CASE("CurLang") {
-        GET_LANGUAGE(mobile) = num_arg;
+        // deprecated conversion
+        GET_TONGUE(mobile) = num_arg + 1;
+    }
+    CASE("CurTongue") {
+        GET_TONGUE(mobile) = num_arg;
+    }
+    CASE("KnownTongue") {
+        SET_TONGUE(mobile, num_arg, 100);
     }
 	if (!matched) {
 		fprintf(stderr, "Warning: unrecognized espec keyword %s in mob #%d\n",
@@ -1836,8 +1850,7 @@ parse_mobile(FILE * mob_f, int nr)
 		mobile->equipment[j] = NULL;
 
 	mobile->desc = NULL;
-
-    set_initial_language(mobile);
+    set_initial_tongue(mobile);
 
 	mobilePrototypes.add(mobile);
 	top_of_mobt = i++;

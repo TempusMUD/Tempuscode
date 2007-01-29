@@ -256,7 +256,7 @@ ACMD(do_mload);
 ACMD(do_mood);
 ACMD(do_mount);
 ACMD(do_show_more);
-ACMD(do_show_language);
+ACMD(do_show_languages);
 ACMD(do_move);
 ACMD(do_mshield);
 ACMD(do_not_here);
@@ -336,7 +336,7 @@ ACMD(do_snatch);
 ACMD(do_sneak);
 ACMD(do_snipe);
 ACMD(do_snoop);
-ACMD(do_speak_language);
+ACMD(do_speak_tongue);
 ACMD(do_spec_comm);
 ACMD(do_specializations);
 ACMD(do_special);
@@ -1235,7 +1235,7 @@ struct command_info cmd_info[] = {
 	{"sob", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"socials", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0, 0},
 	{"soilage", POS_SLEEPING, do_soilage, 0, 0, 0, 0},
-	{"speak", POS_RESTING, do_speak_language, 0, 0, 0, 0},
+	{"speak", POS_RESTING, do_speak_tongue, 0, 0, 0, 0},
 	{"specials", POS_DEAD, do_special, LVL_IMPL, 0, 0, 0},
 	{"specializations", POS_DEAD, do_specializations, 0, 0, 0, 0},
 	{"spells", POS_SLEEPING, do_skills, 0, SCMD_SPELLS_ONLY, 0, 0},
@@ -1498,7 +1498,7 @@ struct command_info cmd_info[] = {
 	{"jokingly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"kindly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"knowingly", POS_DEAD, do_mood, 0, 0, 0, 0},
-	{"language", POS_DEAD, do_show_language, 0, 0, 0, 0},
+	{"language", POS_DEAD, do_show_languages, 0, 0, 0, 0},
 	{"lazily", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"longingly", POS_DEAD, do_mood, 0, 0, 0, 0},
 	{"loudly", POS_DEAD, do_mood, 0, 0, 0, 0},
@@ -1582,8 +1582,7 @@ send_unknown_cmd(Creature *ch)
 	case 2:
 		send_to_char(ch, "%cQue?!?\r\n", 191); break;
 	case 3:
-		send_to_char(ch, 
-			"You'll have to speak in a language I understand...\r\n"); break;
+		send_to_char(ch, "You must enter a proper command!\n"); break; 
 	case 4:
 		send_to_char(ch, "I don't understand that.\r\n"); break;
 	case 5:
@@ -1849,7 +1848,6 @@ ACMD(do_alias)
 
 		CREATE(cur_alias, struct alias_data, 1);
 		cur_alias->alias = str_dup(arg);
-		delete_doubledollar(repl);
 		cur_alias->replacement = str_dup(repl);
 		if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR))
 			cur_alias->type = ALIAS_COMPLEX;
@@ -2061,19 +2059,6 @@ skip_spaces(const char **string)
 {
 	for (; **string && isspace(**string); (*string)++);
 }
-
-
-char *
-delete_doubledollar(char *string)
-{
-	if (!strchr(string, '$') && !strchr(string, '&'))
-		return string;
-
-	strcpy(string, tmp_gsub(tmp_gsub(string, "$$", "$"), "&&", "&"));
-
-	return string;
-}
-
 
 int
 fill_word(char *argument)

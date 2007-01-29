@@ -2780,9 +2780,7 @@ ACMD(do_score)
 
 	}
 	acc_sprintf("You are currently speaking %s.\r\n",
-				 ((GET_LANGUAGE(ch) > LANGUAGE_COMMON) ? 
-				  language_names[(int)GET_LANGUAGE(ch)] :
-				  "common"));
+                tongue_name(GET_TONGUE(ch)));
 	acc_sprintf(
 		"You carry %s%d%s gold coins.  You have %s%d%s cash credits.\r\n",
 		CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,

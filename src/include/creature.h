@@ -881,7 +881,6 @@ struct char_special_data {
 
         return *this;
     }
-//	struct Creature *fighting;	/* Opponent                */
 	struct Creature *defending;	/* Char defended by this char */
 	struct Creature *hunting;	/* Char hunted by this char        */
 	struct Creature *mounted;	/* creatures mounted ON this char        */
@@ -899,19 +898,9 @@ struct char_special_data {
 	byte weapon_proficiency;	/* Scale of learnedness of weapon prof.   */
 
 	const char *mood_str;		/* Sets mood for $a in act() */
-
 	struct char_special_data_saved saved;	/* constants saved in plrfile    */
 };
 
-
-/*
- *  If you want to add new values to the playerfile, do it here.  DO NOT
- * ADD, DELETE OR MOVE ANY OF THE VARIABLES - doing so will change the
- * size of the structure and ruin the playerfile.  However, you can change
- * the names of the spares to something more meaningful, and then use them
- * in your new code.  They will automatically be transferred from the
- * playerfile into memory when players log in.
- */
 struct player_special_data_saved {
 	byte skills[MAX_SKILLS + 1];	/* array of skills plus skill 0        */
 	weapon_spec weap_spec[MAX_WEAPON_SPEC];
@@ -1132,13 +1121,20 @@ struct follow_type {
 };
 
 struct char_language_data {
+    char_language_data(void) {}
+    char_language_data(const char_language_data &o) { *this = o; }
     char_language_data &operator=(const char_language_data &c) {
-        this->known_languages = c.known_languages;
+        std::copy(c.languages_heard.begin(),
+                  c.languages_heard.end(),
+                  languages_heard.begin());
+        memcpy(this->tongues, c.tongues, sizeof(c.tongues));
         this->current_language = c.current_language;
 
         return *this;
     }
-    long long known_languages;
+
+    std::list<int> languages_heard;
+    byte tongues[MAX_TONGUES];
     char current_language;
 };
 
@@ -1351,10 +1347,9 @@ struct Creature {
 	struct char_ability_data real_abils;	/* Abilities without modifiers   */
 	struct char_ability_data aff_abils;	/* Abils with spells/stones/etc  */
 	struct char_point_data points;	/* Points                        */
-    struct char_language_data language_data;
 	struct player_special_data *player_specials;	/* PC specials          */
 	struct mob_special_data mob_specials;	/* NPC specials          */
-
+    struct char_language_data *language_data;
 	struct char_special_data char_specials;	/* PC/NPC specials      */
 	struct affected_type *affected;	/* affected by what spells       */
 	struct obj_data *equipment[NUM_WEARS];	/* Equipment array               */

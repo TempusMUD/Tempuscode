@@ -16,6 +16,11 @@ char *tmp_sprintf(const char *fmt, ...)
 char *tmp_pad(int c, size_t n);
 
 // get the next word, copied into a temp pool
+char *tmp_gettoken(const char **src);
+inline char *tmp_gettoken(char **src)
+	{ return tmp_gettoken((const char **)src); }
+
+// like tmp_gettoken, except it downcases the result
 char *tmp_getword(const char **src);
 inline char *tmp_getword(char **src)
 	{ return tmp_getword((const char **)src); }

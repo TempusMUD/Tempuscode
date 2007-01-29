@@ -500,8 +500,6 @@ Creature::saveToXML()
 		GET_LEVEL(ch), genders[(int)GET_SEX(ch)], player_race[(int)GET_RACE(ch)],
 		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
 	
-    fprintf(ouf, "<languages known=\"%lld\" current=\"%d\"/>\n",
-            KNOWN_LANGUAGES(ch), GET_LANGUAGE(ch));
 	fprintf(ouf, "<class name=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
 	if( IS_REMORT(ch) ) {
 		fprintf(ouf, " remort=\"%s\" gen=\"%d\"",
@@ -618,11 +616,12 @@ Creature::saveToXML()
 			cur_aff->bitvector,
 			cur_aff->aff_index, cur_aff->owner );
 
-	if (GET_LEVEL(ch) < 50) {
+	if (!IS_IMMORT(ch)) {
 		for (idx = 0;idx < MAX_SKILLS;idx++)
 			if (ch->player_specials->saved.skills[idx] > 0)
 				fprintf(ouf, "<skill name=\"%s\" level=\"%d\"/>\n",
 					spell_to_str(idx), GET_SKILL(ch, idx));
+        write_tongue_xml(ch, ouf);
 	}
 
 	fprintf(ouf, "</creature>\n");
@@ -713,10 +712,6 @@ Creature::loadFromXML( const char *path )
             points.gold = xmlGetIntProp(node, "gold");
             points.cash = xmlGetIntProp(node, "cash");
             points.exp = xmlGetIntProp(node, "xp");
-        } else if (xmlMatches(node->name, "languages")) {
-            GET_LANGUAGE(this) = xmlGetLongLongProp(node, "current");
-            KNOWN_LANGUAGES(this) = xmlGetLongLongProp(node, "known");
-
         } else if ( xmlMatches(node->name, "stats") ) {
             player.level = xmlGetIntProp(node, "level");
             player.height = xmlGetIntProp(node, "height");
@@ -896,6 +891,12 @@ Creature::loadFromXML( const char *path )
 				GET_SKILL( this, index ) = xmlGetIntProp( node, "level" );
 			}
 			free(spellName);
+        } else if ( xmlMatches(node->name, "tongue") ) {
+			char *tongue = xmlGetProp( node, "name" );
+			int index = find_tongue_idx_by_name(tongue);
+			if( index >= 0 )
+                SET_TONGUE(this, index, xmlGetIntProp(node, "level"));
+			free(tongue);
         } else if ( xmlMatches(node->name, "alias") ) {
 			alias_data *alias;
 			CREATE(alias, struct alias_data, 1);
@@ -963,10 +964,11 @@ Creature::loadFromXML( const char *path )
 
 	if (GET_LEVEL(this) >= 50) {
 		for (idx = 0;idx < MAX_SKILLS;idx++)
-			if (player_specials->saved.skills[idx] < 100)
-				player_specials->saved.skills[idx] = 100;
+            player_specials->saved.skills[idx] = 100;
+		for (idx = 0;idx < MAX_TONGUES;idx++)
+            language_data->tongues[idx] = 100;
 	}
-	//read_alias(ch);
+
     return true;
 }
 

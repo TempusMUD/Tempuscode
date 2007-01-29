@@ -335,7 +335,6 @@ ACMD(do_visible)
 ACMD(do_title)
 {
 	skip_spaces(&argument);
-	delete_doubledollar(argument);
 
 	if (IS_NPC(ch))
 		send_to_char(ch, "Your title is fine... go away.\r\n");
@@ -984,7 +983,6 @@ ACMD(do_gen_write)
 	}
 
 	skip_spaces(&argument);
-	delete_doubledollar(argument);
 
 	if (!*argument) {
 		send_to_char(ch, "That must be a mistake...\r\n");

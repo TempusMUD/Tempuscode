@@ -42,6 +42,7 @@ Creature::Creature(bool pc)
 
     this->fighting = new CombatDataList();
     this->fighting->clear();
+    this->language_data = new char_language_data();
 
 	clear();
 }
@@ -85,7 +86,7 @@ Creature::Creature(const Creature &c)
     this->real_abils = c.real_abils;
     this->aff_abils = c.aff_abils;
     this->points = c.points;
-    this->language_data = c.language_data;
+    this->language_data = new char_language_data(*c.language_data);
     this->mob_specials =  c.mob_specials;
     this->char_specials = c.char_specials;
 }
@@ -931,6 +932,10 @@ Creature::clear(void)
 	GET_CLASS(this) = -1;
 	GET_REMORT_CLASS(this) = -1;
 
+    // language data
+    delete this->language_data;
+    this->language_data = new char_language_data();
+
 	GET_AC(this) = 100;			/* Basic Armor */
 	if (this->points.max_mana < 100)
 		this->points.max_mana = 100;
@@ -966,7 +971,8 @@ Creature::restore(void)
 			&& (GET_LEVEL(this) >= LVL_AMBASSADOR)) {
 		for (i = 1; i <= MAX_SKILLS; i++)
 			SET_SKILL(this, i, 100);
-
+        for (i = 0; i < MAX_TONGUES; i++)
+            SET_TONGUE(this, i, 100);
 		if (GET_LEVEL(this) >= LVL_IMMORT) {
 			real_abils.intel = 25;
 			real_abils.wis = 25;

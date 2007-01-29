@@ -39,6 +39,7 @@
 #include "char_class.h"
 #include "tmpstr.h"
 #include "spells.h"
+#include "language.h"
 
 #include <vector>
 
@@ -859,6 +860,12 @@ CHECK_SKILL(struct Creature *ch, int i)
 		level = MAX(0, level - af_ptr->duration);
 
 	return level;
+}
+
+int
+CHECK_TONGUE(struct Creature *ch, int i)
+{
+    return ch->language_data->tongues[i];
 }
 
 void

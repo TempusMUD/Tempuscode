@@ -68,7 +68,6 @@ perform_net_write(descriptor_data *d,char *arg) {
 		return;
 	}
 
-	delete_doubledollar(msg);
 
 	vict = get_player_vis(d->creature, targ, 1);
 	if ( !vict )

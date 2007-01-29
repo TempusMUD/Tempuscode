@@ -1608,7 +1608,7 @@ char_to_game(descriptor_data *d)
 	}
     
     // Set thier languages here to make sure they speak their race language
-    set_initial_language(d->creature);
+    set_initial_tongue(d->creature);
 	if (shutdown_count > 0)
 		SEND_TO_Q(tmp_sprintf(
 				"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",

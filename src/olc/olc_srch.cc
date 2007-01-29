@@ -97,7 +97,6 @@ do_olc_xset(struct Creature *ch, char *argument)
 		send_to_char(ch, "Search argument keywords set.\r\n");
 		break;
 	case 2:					/* to_vict */
-		delete_doubledollar(argument);
 		if (srch_p->to_vict)
 			free(srch_p->to_vict);
 		if (argument[0] == '~')
@@ -107,7 +106,6 @@ do_olc_xset(struct Creature *ch, char *argument)
 		send_to_char(ch, "To_vict message set.\r\n");
 		break;
 	case 3:					/* to_room */
-		delete_doubledollar(argument);
 		if (srch_p->to_room)
 			free(srch_p->to_room);
 		if (argument[0] == '~')
@@ -141,7 +139,6 @@ do_olc_xset(struct Creature *ch, char *argument)
 		send_to_char(ch, "Ok, value set.\r\n");
 		break;
 	case 6:					/* to_remote */
-		delete_doubledollar(argument);
 		if (srch_p->to_remote)
 			free(srch_p->to_remote);
 		if (argument[0] == '~')

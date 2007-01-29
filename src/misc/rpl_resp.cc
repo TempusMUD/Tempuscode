@@ -21,6 +21,7 @@
 #include "handler.h"
 #include "db.h"
 #include "screen.h"
+#include "actions.h"
 #include "rpl_resp.h"
 
 #define RPL(name) \
@@ -56,12 +57,8 @@ reply_respond(struct Creature *ch, struct Creature *vict, char *desc)
 			rpl_user_spec(ch, vict, desc2);
 
 	} else {
-		sprintf(buf_temp, "%s%s tells you:%s\r\n%s", CCRED(ch, C_NRM),
-			GET_NAME(vict), CCNRM(ch, C_NRM), desc);
-		act(buf_temp, FALSE, ch, 0, 0, TO_CHAR);
-		sprintf(buf_temp, "%s tells %s something.", GET_NAME(vict),
-			GET_NAME(ch));
-		act(buf_temp, FALSE, ch, 0, vict, TO_ROOM);
+        perform_tell(vict, ch, desc);
+		act("$t tells something to $T", FALSE, vict, 0, ch, TO_ROOM);
 	}
 }
 

@@ -186,9 +186,9 @@ tmp_strcat(const char *src, ...)
 	return result;
 }
 
-// get the next word, copied into a temp pool
+// get the next token, copied into a temp pool
 char *
-tmp_getword(const char **src)
+tmp_gettoken(const char **src)
 {
 	struct tmp_str_pool *cur_buf;
 	const char *read_pt;
@@ -212,13 +212,25 @@ tmp_getword(const char **src)
 	write_pt = result;
 
 	while (*read_pt && !isspace(*read_pt))
-		*write_pt++ = tolower(*read_pt++);
+		*write_pt++ = *read_pt++;
 	*write_pt = '\0';
 
 	cur_buf->used += len;
 	*src = read_pt;
 
 	skip_spaces(src);
+	return result;
+}
+
+// like tmp_gettoken, but downcases the string before returning it
+char *
+tmp_getword(const char **src)
+{
+    char *result = tmp_gettoken(src);
+    char *c;
+    
+    for (c = result;*c;c++)
+        *c = tolower(*c);
 	return result;
 }
 

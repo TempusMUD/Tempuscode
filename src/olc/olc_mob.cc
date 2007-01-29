@@ -183,8 +183,7 @@ do_create_mob(struct Creature *ch, int vnum)
 	AFF3_FLAGS(new_mob) = 0;
 	GET_ALIGNMENT(new_mob) = 0;
     GET_REMORT_GEN(new_mob) = 0;
-    KNOWN_LANGUAGES(new_mob) = 0;
-    GET_LANGUAGE(new_mob) = LANGUAGE_COMMON;
+    GET_TONGUE(new_mob) = TONGUE_COMMON;
 
 	new_mob->real_abils.str = 11;
 	new_mob->real_abils.intel = 11;
@@ -1000,15 +999,9 @@ do_mob_mset(struct Creature *ch, char *argument)
 				set_physical_attribs(mob_p);
                 set_move_buffer(mob_p);
 				send_to_char(ch, "Mobile Race set.\r\n");
-                KNOWN_LANGUAGES(mob_p) = 0;
-                int idx = 
-                   find_language_idx_by_race(player_race[(int)GET_RACE(mob_p)]);
-                if (idx == LANGUAGE_NONE)
-                    idx = LANGUAGE_COMMON;
-                GET_LANGUAGE(mob_p) = idx;
-
-                if (idx > LANGUAGE_COMMON)
-                    learn_language(mob_p, idx);
+                
+                SET_TONGUE(mob_p, TONGUE_COMMON, 0);
+                set_initial_tongue(mob_p);
 			}
 			break;
 		}
@@ -1250,18 +1243,11 @@ do_mob_mset(struct Creature *ch, char *argument)
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a mobile load param.", TRUE, ch, 0, 0, TO_ROOM);
 		break;
-    case 50: {// Known languages
+    case 50: { // Known language
         char *arguments = tmp_strdup(arg2);
         char *myarg;
-        long long long_tmp_flags = 0;
-        long long long_cur_flags = 0;
 
         myarg = tmp_getword(&arguments);
-
-        for (zone = zone_table; zone; zone = zone->next)
-            if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
-                mob_p->mob_specials.shared->vnum <= zone->top)
-                break;
 
         if (*myarg == '+')
             state = 1;
@@ -1275,57 +1261,34 @@ do_mob_mset(struct Creature *ch, char *argument)
 
         myarg = tmp_getword(&arguments);
 
-        long_cur_flags = KNOWN_LANGUAGES(mob_p);
-
-        while (*myarg) {
-            if ((flag =
-                    search_block(myarg, language_names,
-                        FALSE)) == -1) {
+        for (;*myarg;myarg = tmp_getword(&arguments)) {
+            int idx = find_tongue_idx_by_name(myarg);
+            if (idx == TONGUE_NONE) {
                 send_to_char(ch, "Invalid language %s, skipping...\r\n", arg1);
-            } else
-                long_tmp_flags = long_tmp_flags | ((long long)1 << flag);
-
-            myarg = tmp_getword(&arguments);
+            } else {
+                SET_TONGUE(mob_p, idx, (state == 1) ? 100:0);
+            }
         }
-
-        if (state == 1)
-            long_cur_flags = long_cur_flags | long_tmp_flags;
-        else {
-            long_tmp_flags = long_cur_flags & long_tmp_flags;
-            long_cur_flags = long_cur_flags ^ long_tmp_flags;
-        }
-
-        KNOWN_LANGUAGES(mob_p) = long_cur_flags;
 
         send_to_char(ch, "Mobile languages set.\r\n");
-        break;
+       break;
     }
     case 51: {// Current language
-       int idx = LANGUAGE_NONE;
+       int idx = TONGUE_NONE;
 
        if (!*arg2) {
            send_to_char(ch, "Usage: olc mset curlanguage <language>");
            return;
        }
        
-       if (!strncasecmp(arg2, "common", 6)) {
-           idx = LANGUAGE_COMMON;
-       }
-       else {
-           char *argument = tmp_strdup(arg2);
-           idx = find_language_idx_by_name(argument);
-           if (idx == LANGUAGE_NONE) {
-               send_to_char(ch, "That is not a language!\r\n");
-               return;
-           }
-       
-           if (!can_speak_language(mob_p, idx)) {
-               send_to_char(ch, "But that mob doesn't know that language!\r\n");
-               return;
-           }
+       char *argument = tmp_strdup(arg2);
+       idx = find_tongue_idx_by_name(argument);
+       if (idx == TONGUE_NONE) {
+           send_to_char(ch, "That is not a language!\r\n");
+           return;
        }
 
-       GET_LANGUAGE(mob_p) = idx;
+       GET_TONGUE(mob_p) = idx;
        send_to_char(ch, "Mobile default language set.\r\n");
        break;
 	   }
@@ -1568,10 +1531,13 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 				fprintf(file, "Weight: %d\n", GET_WEIGHT(mob));
 			if (GET_HEIGHT(mob) != 198)
 				fprintf(file, "Height: %d\n", GET_HEIGHT(mob));
-            if (GET_LANGUAGE(mob) != 0)
-                fprintf(file, "CurLang: %d\n", GET_LANGUAGE(mob));
-            if (KNOWN_LANGUAGES(mob) != 0)
-                fprintf(file, "KnownLang: %lld\n", KNOWN_LANGUAGES(mob));
+            if (GET_TONGUE(mob) != 0)
+                fprintf(file, "CurTongue: %d\n", GET_TONGUE(mob));
+            map<int, Tongue>::iterator it = tongues.begin();
+            for (;it != tongues.end();++it)
+                if (CHECK_TONGUE(mob, it->first))
+                    fprintf(file, "KnownTongue: %d\n", it->first);
+
 			if (GET_CASH(mob) != 0)
 				fprintf(file, "Cash: %d\n", GET_CASH(mob));
 			if (GET_MORALE(mob) != 100)
@@ -1606,6 +1572,7 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
             if( GET_REMORT_GEN(mob) > 0 && GET_REMORT_GEN(mob) <= 10 ) {
                 fprintf(file, "Generation: %d\n", GET_REMORT_GEN(mob) );
             }
+
 			fprintf(file, "E\n");
 		}
 

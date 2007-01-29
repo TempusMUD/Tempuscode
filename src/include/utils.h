@@ -139,6 +139,7 @@ int check_idling(struct Creature *ch);
 void point_update(void);
 char *GET_DISGUISED_NAME(struct Creature *ch, struct Creature *tch);
 int CHECK_SKILL(struct Creature *ch, int i);
+int CHECK_TONGUE(struct Creature *ch, int i);
 char *OBJS(obj_data * obj, Creature * vict);
 char *OBJN(obj_data * obj, Creature * vict);
 char *PERS(Creature * ch, Creature * sub);
@@ -170,7 +171,11 @@ void WAIT_STATE(struct Creature *ch, int cycle);
 
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
 #define IF_STR(st) ((st) ? (st) : "\0")
-#define CAP(st)  (*(st) = toupper(*(st)), st)
+inline char *CAP(char *st)
+{
+    *st = toupper(*st);
+    return st;
+}
 
 char *YESNO(bool a);
 char *ONOFF(bool a);
@@ -608,8 +613,8 @@ static inline bool IS_REMORT( const Creature *ch )
 
 #define SET_SKILL(ch, i, pct)        \
                              {(ch)->player_specials->saved.skills[i] = pct; }
-#define SET_SKILL(ch, i, pct)        \
-                             {(ch)->player_specials->saved.skills[i] = pct; }
+#define SET_TONGUE(ch, i, pct)        \
+                             {(ch)->language_data->tongues[i] = pct; }
 
 #define GET_EQ(ch, i)                ((ch)->equipment[i])
 #define GET_IMPLANT(ch, i)      ((ch)->implants[i])
