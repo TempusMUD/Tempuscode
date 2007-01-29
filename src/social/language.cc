@@ -423,24 +423,22 @@ ACMD(do_show_languages)
 void
 set_initial_tongue(Creature * ch)
 {
-	int tongue_idx;
-
     // Only set initial tongues if this is the first time their
     // language is being set.  If they change race, they shouldn't
     // automatically get the language
-    tongue_idx = racial_tongue(GET_RACE(ch));
-
     if (CHECK_TONGUE(ch, TONGUE_COMMON) != 100) {
+        int tongue_idx = racial_tongue(GET_RACE(ch));
+
         // Everyone knows common
         SET_TONGUE(ch, TONGUE_COMMON, 100);
         if (tongue_idx != TONGUE_NONE)
             SET_TONGUE(ch, tongue_idx, 100);
-    }
-    if (tongue_idx == TONGUE_NONE) {
-        GET_TONGUE(ch) = TONGUE_COMMON;
-    } else {
-        // Speakers know their native language
-        GET_TONGUE(ch) = tongue_idx;
+        if (tongue_idx == TONGUE_NONE) {
+            GET_TONGUE(ch) = TONGUE_COMMON;
+        } else {
+            // Speakers know their native language
+            GET_TONGUE(ch) = tongue_idx;
+        }
     }
 }
 
