@@ -573,8 +573,9 @@ Creature::saveToXML()
                 ch->player_specials->thaw_time, ch->player_specials->freezer_id);
     }
 
-	fprintf(ouf, "<prefs flag1=\"%lx\" flag2=\"%lx\"/>\n",
-		ch->player_specials->saved.pref, ch->player_specials->saved.pref2);
+	fprintf(ouf, "<prefs flag1=\"%lx\" flag2=\"%lx\" tongue=\"%s\"/>\n",
+            ch->player_specials->saved.pref, ch->player_specials->saved.pref2,
+            tongue_name(GET_TONGUE(ch)));
 
 	fprintf(ouf, "<affects flag1=\"%lx\" flag2=\"%lx\" flag3=\"%lx\"/>\n",
 		ch->char_specials.saved.affected_by,
@@ -820,6 +821,11 @@ Creature::loadFromXML( const char *path )
 			flag = xmlGetProp( node, "flag2" );
 			player_specials->saved.pref2 = hex2dec(flag);
 			free(flag);
+
+            flag = xmlGetProp(node, "tongue");
+            if (flag)
+                GET_TONGUE(this) = find_tongue_idx_by_name(flag);
+            free(flag);
         } else if ( xmlMatches(node->name, "weaponspec") ) {
 			int vnum = xmlGetIntProp( node, "vnum" );
 			int level = xmlGetIntProp( node, "level" );
