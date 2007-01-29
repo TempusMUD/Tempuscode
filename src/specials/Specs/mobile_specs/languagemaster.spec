@@ -30,8 +30,10 @@ SPECIAL(languagemaster)
 
 	skip_spaces(&argument);
 
-	if (!*argument)
+	if (!*argument) {
+        send_to_char(ch, "What is it you wish to learn?\r\n");
 		return 1;
+    }
     
     tongue_idx = find_tongue_idx_by_name(argument);
 
