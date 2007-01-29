@@ -1121,7 +1121,10 @@ struct follow_type {
 };
 
 struct char_language_data {
-    char_language_data(void) {}
+    char_language_data(void) {
+        memset(tongues, 0,sizeof(tongues));
+        current_language = 0;
+    }
     char_language_data(const char_language_data &o) { *this = o; }
     char_language_data &operator=(const char_language_data &c) {
         std::copy(c.languages_heard.begin(),
