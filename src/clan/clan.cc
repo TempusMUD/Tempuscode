@@ -309,7 +309,7 @@ ACMD(do_clanlist)
 			send_to_char(ch, "Clanlist usage: clanlist [minlevel] ['all']\r\n");
 			return;
 		}
-		argument = tmp_getword(&argument);
+        arg = tmp_getword(&argument);
 	}
 
 	acc_string_clear();
