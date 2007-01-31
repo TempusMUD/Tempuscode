@@ -4634,18 +4634,16 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             match = false;
             while (*arg && !match) {
                 // Find sentence terminating punctuation
-                while (*arg && *arg != '.' && *arg != '!' && *arg != '?')
-                    arg++;
+                arg = strpbrk(arg, ".?!");
+                if (!arg)
+                    break;
                 // Skip past multiple punctuation
-                while (*arg && (*arg == '.' || *arg == '!' || *arg == '?'))
-                    arg++;
-                // Count spaces until end of string, end of line, or a non-space char
-                int count = 0;
-                while (*arg && *arg != '\r' && *arg != '\n' && isspace(*arg)) {
-                    arg++;
-                    count++;
-                }
-
+                arg += strspn(arg, ".?!");
+                // Count spaces
+                int count = strspn(arg, " ");
+                // Ensure that either there were two spaces after the punctuation, or
+                // any spaces were trailing space
+                arg += count;
                 if (*arg && !isspace(*arg) && count != 2)
                     match = true;
             }
