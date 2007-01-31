@@ -179,19 +179,6 @@ load_remort_questions()
 	cur = xmlDocGetRootElement(doc);
 	cur = cur->xmlChildrenNode;
 
-	// Write out the tree with ID's
-	/*
-	   int id = 0;
-	   while (cur != NULL) {
-	   sprintf(buf,"%d",id);
-	   if ((xmlMatches(cur->name, "Question"))) {
-	   xmlSetProp(cur,(const xmlChar *)"ID", (const xmlChar *)buf);
-	   ++id;
-	   }
-	   cur = cur->next;
-	   }
-	   xmlSaveFile("text/remort_quiz_new.xml",doc);
-	 */
 	// Sort them by gen
 	sort(remortQuestions.begin(), remortQuestions.end());
 	xmlFreeDoc(doc);

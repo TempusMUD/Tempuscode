@@ -50,15 +50,14 @@ Creature::Creature(bool pc)
 Creature::~Creature(void)
 {
 	clear();
+
 	if (player_specials != &dummy_mob) {
 		delete player_specials;
 		free(player.title);
 	}
     
-    if (this->fighting != NULL) {
-        delete this->fighting;
-        this->fighting = NULL;
-    }
+    delete this->fighting;
+    delete this->language_data;
 }
 
 Creature::Creature(const Creature &c)
@@ -921,7 +920,7 @@ Creature::clear(void)
     //
     removeAllCombat();
     delete this->fighting;
-
+    delete this->language_data;
 	// At this point, everything should be freed, so we null the entire
 	// structure just to be sure
 	memset((char *)this, 0, sizeof(Creature));
@@ -933,7 +932,6 @@ Creature::clear(void)
 	GET_REMORT_CLASS(this) = -1;
 
     // language data
-    delete this->language_data;
     this->language_data = new char_language_data();
 
 	GET_AC(this) = 100;			/* Basic Armor */

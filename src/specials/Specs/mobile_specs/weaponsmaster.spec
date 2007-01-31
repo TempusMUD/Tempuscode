@@ -4,11 +4,9 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-extern struct {
-	double multiplier;
-	int max;
-} weap_spec_char_class[];
+extern weap_spec_info weap_spec_char_class[];
 #define weap_spec GET_WEAP_SPEC(ch, i)
+
 SPECIAL(weaponsmaster)
 {
 	struct Creature *master = (struct Creature *)me;

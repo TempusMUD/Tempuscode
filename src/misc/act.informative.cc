@@ -99,10 +99,7 @@ extern const char *wear_implantpos[];
 extern const char *moon_sky_types[];
 extern const char *soilage_bits[];
 extern const char *wear_description[];
-extern const struct {
-	double multiplier;
-	int max;
-} weap_spec_char_class[];
+extern const weap_spec_info weap_spec_char_class[];
 long find_char_class_bitvector(char arg);
 
 int isbanned(char *hostname, char *blocking_hostname);

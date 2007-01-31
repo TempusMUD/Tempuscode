@@ -1560,10 +1560,11 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         break;
     }
 
-	if(j->shared->proto == j && 
-       GET_OBJ_PARAM(j) &&
-       strlen( GET_OBJ_PARAM(j)) > 0 )
-        acc_sprintf("Spec_param: \r\n%s\r\n", GET_OBJ_PARAM(j));
+	if (j->shared->proto == j) {
+        char *param = GET_OBJ_PARAM(j);
+        if (param && strlen(param) > 0 )
+            acc_sprintf("Spec_param: \r\n%s\r\n", GET_OBJ_PARAM(j));
+    }
 
     found = 0;
     acc_sprintf("Affections:");
@@ -1920,11 +1921,15 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             acc_sprintf("Move_buf: %s\r\n",
                 MOB_SHARED(k)->move_buf);
 		if (k->mob_specials.shared->proto == k) {
-			if (GET_MOB_PARAM(k) && strlen(GET_MOB_PARAM(k)) > 0 )
+            char *param = GET_MOB_PARAM(k);
+
+			if (param && strlen(param) > 0 )
 				acc_sprintf("Spec_param: \r\n%s\r\n", GET_MOB_PARAM(k));
-			if( GET_LOAD_PARAM(k) && strlen( GET_LOAD_PARAM(k) ) > 0 )
+            param = GET_LOAD_PARAM(k);
+			if (param && strlen(param) > 0 )
 				acc_sprintf("Load_param: \r\n%s\r\n", GET_LOAD_PARAM(k));
-			if( GET_MOB_PROG(k) && strlen( GET_MOB_PROG(k) ) > 0 )
+            param = GET_MOB_PROG(k);
+			if (param && strlen(param) > 0 )
 				acc_sprintf("Prog: \r\n%s\r\n", GET_MOB_PROG(k));
 		}
     }
@@ -6637,8 +6642,8 @@ ACMD(do_set)
 		strcpy(BADGE(vict), argument);
 		// Convert to uppercase
 		arg1 = BADGE(vict);
-		while (*arg1)
-			*arg1++ = toupper(*arg1);
+		for (arg1 = BADGE(vict);*arg1;arg1++)
+			*arg1 = toupper(*arg1);
 		sprintf(buf, "You set %s's badge to %s", GET_NAME(vict),
 			BADGE(vict));
 

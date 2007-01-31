@@ -610,7 +610,7 @@ Creature::saveToXML()
                 xmlEncodeSpecialTmp(cur_alias->alias), 
                 xmlEncodeSpecialTmp(cur_alias->replacement) );
 	for (cur_aff = saved_affs;cur_aff; cur_aff = cur_aff->next)
-		fprintf(ouf, "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" owner=\"%d\"/>\n",
+		fprintf(ouf, "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" owner=\"%ld\"/>\n",
 			cur_aff->type, cur_aff->duration, cur_aff->modifier,
 			cur_aff->location, cur_aff->level,
 			(cur_aff->is_instant) ? "yes":"no", 

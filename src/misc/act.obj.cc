@@ -649,7 +649,7 @@ perform_get_from_container(struct Creature * ch,
 void
 perform_autoloot(Creature *ch, obj_data *corpse)
 {
-    struct obj_data *obj, *next_obj;
+    struct obj_data *obj, *next_obj = NULL;
     bool found, display;
     int counter = 1;
 
@@ -682,7 +682,7 @@ perform_autoloot(Creature *ch, obj_data *corpse)
         if (perform_get_from_container(ch, obj, corpse, false,
                                        display, counter)) {
             found = true;
-            counter = (display) ? 1:(++counter);
+            counter = (display) ? 1:(1 + counter);
         } else {
             counter = 1;
         }

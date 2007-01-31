@@ -382,7 +382,7 @@ handle_input(struct descriptor_data *d)
 			}
             
             if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR && GET_LEVEL(d->creature) < LVL_POWER) {
-                Creature *tmp_ch = tmp_ch = new Creature(true);
+                Creature *tmp_ch = new Creature(true);
                 for (int idx=1; !d->account->invalid_char_index(idx); idx++) {
                     tmp_ch->clear();
                     tmp_ch->loadFromXML(d->account->get_char_by_index(idx));

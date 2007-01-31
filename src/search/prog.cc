@@ -548,7 +548,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
         room_data *room = prog_get_owner_room(env);
 
         arg = tmp_getword(&args);
-        result = (*arg && room) ? result = (room->number == atoi(arg)):false;
+        result = (*arg && room) ? (room->number == atoi(arg)):false;
 	} else if (!strcasecmp(arg, "target")) {
         // These are all subsets of the *require target <attribute> directive
 		arg = tmp_getword(&args);

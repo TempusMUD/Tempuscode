@@ -1583,7 +1583,9 @@ ACMD(do_olc)
             } else if (!GET_MOB_PROG(mob)) {
                 send_to_char(ch, "There is no prog to mimic on %s.\r\n", GET_NAME(mob));
             } else {
-                MOB_SHARED(GET_OLC_MOB(ch))->prog = strdup(GET_MOB_PROG(mob));
+                char *prog = GET_MOB_PROG(mob);
+                if (prog)
+                    MOB_SHARED(GET_OLC_MOB(ch))->prog = strdup(prog);
                 send_to_char(ch, "You have mimiced %s's prog.\r\n", GET_NAME(mob));
             }
         } else if (is_abbrev(arg1, "object")) {
@@ -1595,7 +1597,9 @@ ACMD(do_olc)
             } else if (!GET_ROOM_PROG(room)) {
                 send_to_char(ch, "There is no prog to mimic in %s.\r\n", room->name);
             } else {
-                ch->in_room->prog = strdup(GET_ROOM_PROG(room));
+                char *prog = GET_ROOM_PROG(room);
+                if (prog)
+                    ch->in_room->prog = strdup(prog);
                 send_to_char(ch, "You have mimiced the prog from %s.\r\n", room->name);
             }
         } else {

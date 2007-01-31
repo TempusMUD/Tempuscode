@@ -151,7 +151,7 @@ namespace Security {
 			 * 		  wizlist group. Members will be shown in yellow.
 			 */
             bool sendPublicMemberList( Creature *ch, char *str, char* adminGroup = NULL );
-			bool Group::sendPublicMember( Creature *ch, char *dest, char* prefix );
+			bool sendPublicMember( Creature *ch, char *dest, char* prefix );
             /* Sends a list of this group's members to the given character. */
             bool sendMemberList( Creature *ch );
             /* Sends a list of this group's members to the given character. */

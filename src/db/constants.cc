@@ -3363,10 +3363,7 @@ extern const char *spell_bits[] = {
 	"\n"
 };
 
-extern const struct {
-	double multiplier;
-	int max;
-} weap_spec_char_class[NUM_CLASSES] = {
+extern const weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
 	{
 	3.5, 3},					// mage
 	{

@@ -68,9 +68,9 @@ class House
 		// Finds the most expensive object in the given room
 		obj_data* findCostliestObj(room_data *room);
 		// Withdraws cost from appropriate accounts
-		int House::reconcileCollection( int cost );
-		int House::reconcilePrivateCollection( int cost );
-		int House::reconcileClanCollection( int cost );
+		int reconcileCollection( int cost );
+		int reconcilePrivateCollection( int cost );
+		int reconcileClanCollection( int cost );
 		// the reposession notices created when objects are sold
 		// to cover rent cost.
 		vector<string> repoNotes;

@@ -73,8 +73,6 @@ same_obj(obj_data *obj1, obj_data *obj2)
 bool
 ok_damage_vendor(struct Creature *ch, struct Creature *victim)
 {
-	ShopData shop;
-
 	if (ch && GET_LEVEL(ch) > LVL_CREATOR)
 		return true;
 	if (victim &&
@@ -84,16 +82,22 @@ ok_damage_vendor(struct Creature *ch, struct Creature *victim)
 		return false;
 	
 	if (IS_NPC(victim) && victim->mob_specials.shared->func == vendor) {
+        ShopData *shop = (ShopData *)victim->mob_specials.func_data;
 
 		if (!GET_MOB_PARAM(victim))
 			return false;
 
-		vendor_parse_param(victim, GET_MOB_PARAM(victim), &shop, NULL);
+        if (!shop) {
+            CREATE(shop, ShopData, 1);
+            vendor_parse_param(victim, GET_MOB_PARAM(victim), shop, NULL);
+            victim->mob_specials.func_data = shop;
+        }
 
-		return shop.attack_ok;
+		return shop->attack_ok;
 	}
 
-    if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_UTILITY)) { //utility mobs shouldn't be attacked either
+    if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_UTILITY)) {
+        //utility mobs shouldn't be attacked either
         return false;
     }
     

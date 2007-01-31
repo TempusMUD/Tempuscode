@@ -221,6 +221,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 				desc->keyword = keyword;
 				desc->description = (char *)xmlNodeGetContent(cur);
 			} else {
+                free(keyword);
 				free(desc->description);
 				desc->description = (char *)xmlNodeGetContent(cur);
 			}
