@@ -454,22 +454,22 @@ tmp_gsubi(const char *haystack, const char *needle, const char *sub)
 char *
 tmp_tolower(const char *str)
 {
-	char *result, *c;
+	char *result;
 
-	c = result = tmp_strcat(str, NULL);
-	while (*c)
-		*c++ = tolower(*c);
+	result = tmp_strcat(str, NULL);
+	for (char *c = result;*c;c++)
+		*c = tolower(*c);
 	return result;
 }
 
 char *
 tmp_toupper(const char *str)
 {
-	char *result, *c;
+	char *result;
 
-	c = result = tmp_strcat(str, NULL);
-	while (*c)
-		*c++ = toupper(*c);
+	result = tmp_strcat(str, NULL);
+	for (char *c = result;*c;c++)
+		*c = toupper(*c);
 	return result;
 }
 

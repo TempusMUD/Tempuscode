@@ -262,7 +262,7 @@ boot_tongues(void)
     while (node) {
         // Parse different nodes here.
         if (xmlMatches(node->name, "tongue")) {
-            int idnum = atoi(xmlGetProp(node, "idnum"));
+            int idnum = xmlGetIntProp(node, "idnum");
             Tongue lang;
 
             if (lang.load(node))
