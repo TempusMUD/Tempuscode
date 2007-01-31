@@ -1926,7 +1926,7 @@ act_translate(Creature *ch, Creature *to, const char **s)
     // Remove any act-escaping
     i = tmp_gsub(i, "\\", "");
 
-    if (ch != to && Nasty_Words(i))
+    if (!PRF_FLAGGED(to, PRF_NASTY) && ch != to && Nasty_Words(i))
         for (int idx = 0;idx < num_nasty;idx++)
             i = tmp_gsubi(i, nasty_list[idx], random_curses());
 
