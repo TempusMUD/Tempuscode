@@ -967,6 +967,7 @@ ACMD(do_kata)
 		af.bitvector = 0;
 		af.duration = 1 + (GET_LEVEL(ch) / 12);
 		af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
+        af.owner = ch->getIdNum();
 
 		af.location = APPLY_HITROLL;
 		af.modifier = 1 + (GET_LEVEL(ch) / 6) + (GET_REMORT_GEN(ch) * 2) / 4;
@@ -974,7 +975,6 @@ ACMD(do_kata)
 
 		af.location = APPLY_DAMROLL;
 		af.modifier = 1 + (GET_LEVEL(ch) / 12) + (GET_REMORT_GEN(ch) * 2) / 4;
-        af.owner = ch->getIdNum();
 		affect_to_char(ch, &af);
 	}
 }
