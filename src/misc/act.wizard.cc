@@ -4623,8 +4623,28 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             }
         break;
     case 13: //orphan_words
-        send_to_char(ch, "Disabled until I figure out how to do it.\n");
-        return -1;
+        for (room = zone->world; room;room = room->next) {
+            if (!room->description)
+                continue;
+
+            char *desc = room->description;
+            // find the last line of the desc
+            arg = desc + strlen(desc) - 3;
+            // skip trailing space
+            while (arg > desc && *arg == ' ')
+                arg--;
+            // search for spaces while decrementing to the beginning of the line
+            while (arg > desc && *arg != '\n' && *arg != ' ')
+                arg--;
+            // we don't worry about one-line descs
+            if (arg == desc)
+                continue;
+            // check for a space - if one doesn't exist, we have an orphaned word.
+            if (*arg != ' ') {
+                show_room_append(ch, room, mode, NULL);
+                found = 1;
+            }
+        }
         break;
     case 14: //period_space
         for (room = zone->world; room; room = room->next) {
