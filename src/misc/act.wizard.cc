@@ -4356,6 +4356,7 @@ const char *show_room_flags[] = {
     "desc_length",
     "orphan_words",
     "period_space",
+    "exits",
     "\n"
 };
 
@@ -4404,255 +4405,285 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 	arg = tmp_getword(&args);
 
 	switch (pos) {
-		case 0:  //rflags
-			if (!*arg) {
-				send_to_char(ch, "Usage: show rooms <world | zone> rflags [flag flag ...]\n");
-				return -1;
-			}
+    case 0:  //rflags
+        if (!*arg) {
+            send_to_char(ch, "Usage: show rooms <world | zone> rflags [flag flag ...]\n");
+            return -1;
+        }
 
-			while (*arg) {
-				tmp_flag = search_block(arg, roomflag_names, 0);
-				if (tmp_flag == -1)
-					send_to_char(ch, "Invalid flag %s, skipping...\n", arg);
-				else
-					flags |= (1 << tmp_flag);
-				arg = tmp_getword(&args);
-			}
+        while (*arg) {
+            tmp_flag = search_block(arg, roomflag_names, 0);
+            if (tmp_flag == -1)
+                send_to_char(ch, "Invalid flag %s, skipping...\n", arg);
+            else
+                flags |= (1 << tmp_flag);
+            arg = tmp_getword(&args);
+        }
 
-			for (room = zone->world; room; room = room->next)
-				if ((room->room_flags & flags) == flags) {
-					show_room_append(ch, room, mode, NULL);
-					found = 1;
-				}
-			break;
+        for (room = zone->world; room; room = room->next)
+            if ((room->room_flags & flags) == flags) {
+                show_room_append(ch, room, mode, NULL);
+                found = 1;
+            }
+        break;
 
-		case 1:  //searches
-			while (*arg) {
-				tmp_flag = search_block(arg, search_bits, 0);
-				if (tmp_flag == -1)
-					send_to_char(ch, "Invalid flag %s, skipping...\n", arg);
-				else
-					flags |= (1 << tmp_flag);
-				arg = tmp_getword(&args);
-			}
+    case 1:  //searches
+        while (*arg) {
+            tmp_flag = search_block(arg, search_bits, 0);
+            if (tmp_flag == -1)
+                send_to_char(ch, "Invalid flag %s, skipping...\n", arg);
+            else
+                flags |= (1 << tmp_flag);
+            arg = tmp_getword(&args);
+        }
 
 			
-			for (room = zone->world; room; room = room->next)
-				for (srch = room->search; srch != NULL; srch = srch->next)
-					if ((srch->flags & flags) == flags) {
-						show_room_append(ch, room, mode,
-							tmp_sprintf("[%-6s]",
-								search_cmd_short[(int)srch->command]));
-						found = 1;
-					}
-			break;
+        for (room = zone->world; room; room = room->next)
+            for (srch = room->search; srch != NULL; srch = srch->next)
+                if ((srch->flags & flags) == flags) {
+                    show_room_append(ch, room, mode,
+                                     tmp_sprintf("[%-6s]",
+                                                 search_cmd_short[(int)srch->command]));
+                    found = 1;
+                }
+        break;
 
-		case 2: //title
-			if (!*arg) {
-				send_to_char(ch, "Usage: show rooms <world | zone> title [keyword keyword ...]\n");
-				return -1;
-			}
+    case 2: //title
+        if (!*arg) {
+            send_to_char(ch, "Usage: show rooms <world | zone> title [keyword keyword ...]\n");
+            return -1;
+        }
 
-			while (*arg) {
-				str_list.push_back(arg);
-				arg = tmp_getword(&args);
-			}
+        while (*arg) {
+            str_list.push_back(arg);
+            arg = tmp_getword(&args);
+        }
 
-			for (room = zone->world; room; room = room->next) {
-				match = true;
-				for (str_it = str_list.begin(); str_it != str_list.end(); str_it++)
-					if (room->name && !isname(str_it->c_str(), room->name))
-						match = false;
+        for (room = zone->world; room; room = room->next) {
+            match = true;
+            for (str_it = str_list.begin(); str_it != str_list.end(); str_it++)
+                if (room->name && !isname(str_it->c_str(), room->name))
+                    match = false;
 				
-				if (match) {
-					show_room_append(ch, room, mode, NULL);
-					found = 1;
-				}
-			}
-			break;
-		case 3: //rexdescs 
-			for (room = zone->world; room; room = room->next)
-				if (room->ex_description != NULL) {
-					show_room_append(ch, room, mode, NULL);
-					found = 1;
-				}
-			break;
-		case 4: //noindent
-			for (room = zone->world; room; room = room->next) {
-				if (!room->description)
-					continue;
+            if (match) {
+                show_room_append(ch, room, mode, NULL);
+                found = 1;
+            }
+        }
+        break;
+    case 3: //rexdescs 
+        for (room = zone->world; room; room = room->next)
+            if (room->ex_description != NULL) {
+                show_room_append(ch, room, mode, NULL);
+                found = 1;
+            }
+        break;
+    case 4: //noindent
+        for (room = zone->world; room; room = room->next) {
+            if (!room->description)
+                continue;
 
-				if (strncmp(room->description, "   ", 3) != 0) {
-					show_room_append(ch, room, mode, NULL);
-					found = 1;
-				}
-			}
-			break;
-		case 5: //sounds
-			for (room = zone->world; room; room = room->next)
-				if (room->sounds != NULL) {
-					show_room_append(ch, room, mode, NULL);
-					found = 1;
-				}
-			break;
-		case 6: //occupancy
-			if (!*arg) {
-				send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
-				return -1;
-			}
+            if (strncmp(room->description, "   ", 3) != 0) {
+                show_room_append(ch, room, mode, NULL);
+                found = 1;
+            }
+        }
+        break;
+    case 5: //sounds
+        for (room = zone->world; room; room = room->next)
+            if (room->sounds != NULL) {
+                show_room_append(ch, room, mode, NULL);
+                found = 1;
+            }
+        break;
+    case 6: //occupancy
+        if (!*arg) {
+            send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
+            return -1;
+        }
 			
-			if (*arg == '<')
-				lt = true;
-			else if (*arg == '>')
-				gt = true;
-			else {
-				send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
-				return -1;
-			}
+        if (*arg == '<')
+            lt = true;
+        else if (*arg == '>')
+            gt = true;
+        else {
+            send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
+            return -1;
+        }
 			
-			arg = tmp_getword(&args);
-			if (!*arg || !isnumber(arg)) {
-				send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
-				return -1;
-			}
-			num = atoi(arg);
+        arg = tmp_getword(&args);
+        if (!*arg || !isnumber(arg)) {
+            send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
+            return -1;
+        }
+        num = atoi(arg);
 			
 			
-			for (room = zone->world; room; room = room->next)
-				if ((gt && (room->max_occupancy > num))
-						|| (lt && (room->max_occupancy < num))) {
-					show_room_append(ch, room, mode,
-						tmp_sprintf("[%2d]", room->max_occupancy));
-					found = 1;
-				}
-			break;
-		case 7: //noexits
-			for (room = zone->world; room; room = room->next) {
-				if (!room->countExits()) {
-					show_room_append(ch, room, mode, NULL);
-					found = 1;
-				}
-			}
-			break;
-		case 8: //mobcount
-			if (mode == 3) {
-				// No listing all mobs in world
-				send_to_char(ch, "No way!  Are you losing it?\n");
-				return -1;
-			}
+        for (room = zone->world; room; room = room->next)
+            if ((gt && (room->max_occupancy > num))
+                || (lt && (room->max_occupancy < num))) {
+                show_room_append(ch, room, mode,
+                                 tmp_sprintf("[%2d]", room->max_occupancy));
+                found = 1;
+            }
+        break;
+    case 7: //noexits
+        for (room = zone->world; room; room = room->next) {
+            if (!room->countExits()) {
+                show_room_append(ch, room, mode, NULL);
+                found = 1;
+            }
+        }
+        break;
+    case 8: //mobcount
+        if (mode == 3) {
+            // No listing all mobs in world
+            send_to_char(ch, "No way!  Are you losing it?\n");
+            return -1;
+        }
 
-			if (!*arg || !isnumber(arg)) {
-				send_to_char(ch, "Usage: show rooms <world | zone> mobcount [mobcount]\n");
-				return -1;
-			}
+        if (!*arg || !isnumber(arg)) {
+            send_to_char(ch, "Usage: show rooms <world | zone> mobcount [mobcount]\n");
+            return -1;
+        }
 
-			num = atoi(arg);
-			for (room = zone->world; room; room = room->next) {
-				mob_names.clear();
+        num = atoi(arg);
+        for (room = zone->world; room; room = room->next) {
+            mob_names.clear();
 
-				for (cit = room->people.begin(); cit != room->people.end(); cit++) {
-					if (!IS_NPC(*cit))
-						continue;
-					mob_names.push_front((*cit)->player.short_descr);
-				}
+            for (cit = room->people.begin(); cit != room->people.end(); cit++) {
+                if (!IS_NPC(*cit))
+                    continue;
+                mob_names.push_front((*cit)->player.short_descr);
+            }
 
-				if (mob_names.size() >= (unsigned int)num) {
-					show_room_append(ch, room, mode,
-						tmp_sprintf("[%2d]", mob_names.size()));
-					found = 1;
-					for (str_it = mob_names.begin(); str_it != mob_names.end(); str_it++)
-						acc_sprintf("\t%s%s%s\r\n", CCYEL(ch, C_NRM),
+            if (mob_names.size() >= (unsigned int)num) {
+                show_room_append(ch, room, mode,
+                                 tmp_sprintf("[%2d]", mob_names.size()));
+                found = 1;
+                for (str_it = mob_names.begin(); str_it != mob_names.end(); str_it++)
+                    acc_sprintf("\t%s%s%s\r\n", CCYEL(ch, C_NRM),
 								str_it->c_str(), CCNRM(ch, C_NRM));
-				}
-			}
-			break;
-		case 9: //mobload
-			send_to_char(ch, "disabled.\n");
-			break ;
-		case 10: //deathcount
-			send_to_char(ch, "disabled.\n");
-			break;
-		case 11: //sector
-			if (!*arg) {
-				send_to_char(ch, "Usage: show rooms <world | zone> sector <sector_type>\n");
-				return -1;
-			}
+            }
+        }
+        break;
+    case 9: //mobload
+        send_to_char(ch, "disabled.\n");
+        break ;
+    case 10: //deathcount
+        send_to_char(ch, "disabled.\n");
+        break;
+    case 11: //sector
+        if (!*arg) {
+            send_to_char(ch, "Usage: show rooms <world | zone> sector <sector_type>\n");
+            return -1;
+        }
 
-			num = search_block(arg, sector_types, 0);
-			if (num < 0) {
-				send_to_char(ch, "No such sector type.  Type olc h rsect.\r\n");
-				return -1;
-			}
+        num = search_block(arg, sector_types, 0);
+        if (num < 0) {
+            send_to_char(ch, "No such sector type.  Type olc h rsect.\r\n");
+            return -1;
+        }
 
-			for (room = zone->world; room; room = room->next)
-				if (room->sector_type == num) {
-					show_room_append(ch, room, mode, NULL);
-					found = 1;
-				}
-			break;
-		case 12: //desc_length
-			if (!*arg) {
-				send_to_char(ch, "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
-				return -1;
-			}
+        for (room = zone->world; room; room = room->next)
+            if (room->sector_type == num) {
+                show_room_append(ch, room, mode, NULL);
+                found = 1;
+            }
+        break;
+    case 12: //desc_length
+        if (!*arg) {
+            send_to_char(ch, "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
+            return -1;
+        }
 			
-			if (*arg == '<')
-				lt = true;
-			else if (*arg == '>')
-				gt = true;
-			else {
-				send_to_char(ch, "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
-				return -1;
-			}
+        if (*arg == '<')
+            lt = true;
+        else if (*arg == '>')
+            gt = true;
+        else {
+            send_to_char(ch, "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
+            return -1;
+        }
 			
-			arg = tmp_getword(&args);
-			if (!*arg || !isnumber(arg)) {
-				send_to_char(ch, "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
-				return -1;
-			}
-			num = atoi(arg);
+        arg = tmp_getword(&args);
+        if (!*arg || !isnumber(arg)) {
+            send_to_char(ch, "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
+            return -1;
+        }
+        num = atoi(arg);
 			
-			for (room = zone->world; room; room = room->next)
-				if (room->description
-						&& ((gt && ((unsigned)num <= strlen(room->description)))
-							|| (lt && ((unsigned)num >= strlen(room->description))))) {
-					show_room_append(ch, room, mode, 
-						tmp_sprintf("[%d]", strlen(room->description)));
-					found = 1;
-				}
-			break;
-		case 13: //orphan_words
-			send_to_char(ch, "Disabled until I figure out how to do it.\n");
-			return -1;
-			break;
-		case 14: //period_space
-			for (room = zone->world; room; room = room->next) {
-				if (!room->description)
-					continue;
-				arg = room->description;
-				match = false;
-				while (*arg && !match) {
-					while (*arg && *arg != '.' && *arg != '!' && *arg != '?')
-						arg++;
-					if (*arg) {
-						arg++;
-						if (*arg && *arg != ' ' && *arg != '\r')
-							match = true;
-						arg++;
-						if (*arg && *arg != ' ' && *arg != '\n')
-							match = true;
-						arg++;
-					}
-				}
-				if (match) {
-					show_room_append(ch, room, mode, NULL);
-					found = 1;
-				}
-			}
-			break;
-		default:
-			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-			send_to_char(ch, "Uh, oh... Bad juju...\r\n");
+        for (room = zone->world; room; room = room->next)
+            if (room->description
+                && ((gt && ((unsigned)num <= strlen(room->description)))
+                    || (lt && ((unsigned)num >= strlen(room->description))))) {
+                show_room_append(ch, room, mode, 
+                                 tmp_sprintf("[%d]", strlen(room->description)));
+                found = 1;
+            }
+        break;
+    case 13: //orphan_words
+        send_to_char(ch, "Disabled until I figure out how to do it.\n");
+        return -1;
+        break;
+    case 14: //period_space
+        for (room = zone->world; room; room = room->next) {
+            if (!room->description)
+                continue;
+            arg = room->description;
+            match = false;
+            while (*arg && !match) {
+                while (*arg && *arg != '.' && *arg != '!' && *arg != '?')
+                    arg++;
+                if (*arg) {
+                    arg++;
+                    if (*arg && *arg != ' ' && *arg != '\r')
+                        match = true;
+                    arg++;
+                    if (*arg && *arg != ' ' && *arg != '\n')
+                        match = true;
+                    arg++;
+                }
+            }
+            if (match) {
+                show_room_append(ch, room, mode, NULL);
+                found = 1;
+            }
+        }
+        break;
+    case 15: // exits
+        for (room = zone->world; room; room = room->next) {
+            for (int dir = 0;dir < NUM_DIRS;dir++) {
+                room_direction_data *exit = ABS_EXIT(room, dir);
+                if (exit) {
+                    if (IS_SET(exit->exit_info, EX_CLOSED | EX_LOCKED | EX_HARD_PICK | EX_PICKPROOF | EX_HEAVY_DOOR | EX_TECH | EX_REINFORCED | EX_SPECIAL) &&
+                        !IS_SET(exit->exit_info, EX_ISDOOR)) {
+                        show_room_append(ch, room, mode,
+                                         tmp_sprintf("doorflags on non-door for %s exit", dirs[dir]));
+                        found = 1;
+                    }
+                    if (IS_SET(exit->exit_info, EX_CLOSED | EX_LOCKED) && !exit->keyword) {
+                        show_room_append(ch, room, mode,
+                                         tmp_sprintf("no keyword for %s exit", dirs[dir]));
+                        found = 1;
+                    }
+                    if (exit->key && exit->key != -1 && !objectPrototypes.find(exit->key)) {
+                        show_room_append(ch, room, mode,
+                                         tmp_sprintf("non-existant key for %s exit", dirs[dir]));
+                        found = 1;
+                    }
+                    if (!exit->general_description) {
+                        show_room_append(ch, room, mode,
+                                         tmp_sprintf("no description for %s exit", dirs[dir]));
+                        found = 1;
+                    }
+                }
+            }
+        }
+        break;
+    default:
+        errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+        send_to_char(ch, "Uh, oh... Bad juju...\r\n");
 		break;
 	}
 	return found;
@@ -4719,9 +4750,8 @@ show_rooms(Creature *ch, char *value, char *args)
         
         usage_string += "Valid flags are:\n";
 
-		idx = 0;
-        while (*show_room_flags[idx] != '\n') {
-            usage_string += show_room_flags[idx++];
+		for (idx = 0;*show_room_flags[idx] != '\n';idx++) {
+            usage_string += show_room_flags[idx];
             usage_string += '\r';
             usage_string += '\n';
         }

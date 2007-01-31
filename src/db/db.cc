@@ -2666,23 +2666,7 @@ struct obj_data *
 read_object(int vnum)
 {
 	struct obj_data *obj = NULL, *tmp_obj = NULL;
-//	int found = 0;
 
-/*	for (tmp_obj = obj_proto; tmp_obj; tmp_obj = tmp_obj->next) {
-		if (tmp_obj->shared->vnum >= vnum) {
-			if (tmp_obj->shared->vnum == vnum) {
-				CREATE(obj, struct obj_data, 1);
-				*obj = *tmp_obj;
-				tmp_obj->shared->number++;
-				found = 1;
-				break;
-			} else {
-				slog("Object (V) %d does not exist in database.",
-					vnum);
-				return NULL;
-			}
-		}
-	} */
 	if (!(tmp_obj = objectPrototypes.find(vnum))) {
 		slog("Object (V) %d does not exist in database.", vnum);
 		return NULL;
