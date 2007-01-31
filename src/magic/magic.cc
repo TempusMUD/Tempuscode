@@ -1610,8 +1610,13 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.bitvector = AFF_SANCTUARY;
 
 		accum_duration = FALSE;
-		to_vict = "A white aura momentarily surrounds you!";
-		to_room = "$n is surrounded by a white aura.";
+        if (IS_EVIL(ch)) {
+            to_vict = "A cloud of darkness surrounds you!";
+            to_room = "$n is surrounded by a cloud of darkness.";
+        } else {
+            to_vict = "A white aura momentarily surrounds you!";
+            to_room = "$n is surrounded by a white aura.";
+        }
 		break;
 
 	case SPELL_SLEEP:
