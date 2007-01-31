@@ -4633,17 +4633,21 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             arg = room->description;
             match = false;
             while (*arg && !match) {
+                // Find sentence terminating punctuation
                 while (*arg && *arg != '.' && *arg != '!' && *arg != '?')
                     arg++;
-                if (*arg) {
+                // Skip past multiple punctuation
+                while (*arg && (*arg == '.' || *arg == '!' || *arg == '?'))
                     arg++;
-                    if (*arg && *arg != ' ' && *arg != '\r')
-                        match = true;
+                // Count spaces until end of string, end of line, or a non-space char
+                int count = 0;
+                while (*arg && *arg != '\r' && *arg != '\n' && isspace(*arg)) {
                     arg++;
-                    if (*arg && *arg != ' ' && *arg != '\n')
-                        match = true;
-                    arg++;
+                    count++;
                 }
+
+                if (*arg && !isspace(*arg) && count != 2)
+                    match = true;
             }
             if (match) {
                 show_room_append(ch, room, mode, NULL);
