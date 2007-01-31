@@ -1227,23 +1227,22 @@ ACMD(do_exits)
 
 		if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
 			send_to_char(ch, "%s%s%-8s%s - %s[%s%5d%s] %s%s%s%s%s%s%s\r\n",
-				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM), tmp_capitalize(dirs[door]),
-				CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-				EXIT(ch, door)->to_room->number, CCGRN(ch, C_NRM),
-				CCCYN(ch, C_NRM), EXIT(ch, door)->to_room->name,
-				CCNRM(ch, C_SPR),
-				IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) ?
-				" (closed)" : "",
-				IS_SET(EXIT(ch, door)->exit_info, EX_HIDDEN) ?
-				" (hidden)" : "",
-				IS_SET(EXIT(ch, door)->exit_info, EX_SECRET) ?
-				" (secret)" : "",
-				IS_SET(EXIT(ch, door)->exit_info, EX_NOPASS) ?
-				" (nopass)" : "");
-			continue;
-		}
-
-		if (IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED)) {
+                         CCBLD(ch, C_SPR), CCBLU(ch, C_NRM), tmp_capitalize(dirs[door]),
+                         CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
+                         CCNRM(ch, C_NRM), EXIT(ch, door)->to_room->number,
+                         CCCYN(ch, C_NRM), EXIT(ch, door)->to_room->name,
+                         CCNRM(ch, C_SPR),
+                         IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) ?
+                         " (closed)" : "",
+                         IS_SET(EXIT(ch, door)->exit_info, EX_HIDDEN) ?
+                         " (hidden)" : "",
+                         IS_SET(EXIT(ch, door)->exit_info, EX_SECRET) ?
+                         " (secret)" : "",
+                         IS_SET(EXIT(ch, door)->exit_info, EX_NOPASS) ?
+                         " (nopass)" : "",
+                         (IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) &&
+                          !EXIT(ch, door)->keyword) ? " *NEEDS KEYWORD*":"");
+		}else if (IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED)) {
 			send_to_char(ch, "%s%s%-8s%s - Closed %s\r\n",
 				CCBLD(ch, C_SPR), CCBLU(ch, C_NRM),
 				tmp_capitalize(dirs[door]),
