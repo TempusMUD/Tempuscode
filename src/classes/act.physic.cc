@@ -624,23 +624,22 @@ boot_timewarp_data(void)
 void
 show_timewarps(Creature *ch)
 {
-	int i;
-	struct zone_data *zn = NULL;
-
     acc_string_clear();
     acc_strcat("Timewarp data:\r\n", NULL);
 
-	for (i = 0; i < num_timewarp_data; i++) {
+	for (int i = 0; i < num_timewarp_data; i++) {
+        zone_data *to_zn = real_zone(timewarp_list[i].from);
+        zone_data *from_zn = real_zone(timewarp_list[i].to);
 
 		acc_sprintf("  %3d.]  %s%25s%s [%s%3d%s] --> [%s%3d%s] %s%s%s\r\n",
-			i,
-			CCCYN(ch, C_NRM), (zn =
-				real_zone(timewarp_list[i].from)) ? zn->name : "FROM-ERROR",
-			CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), timewarp_list[i].from,
-			CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), timewarp_list[i].to, CCNRM(ch,
-				C_NRM), CCCYN(ch, C_NRM), (zn =
-				real_zone(timewarp_list[i].to)) ? zn->name : "TO-ERROR",
-			CCNRM(ch, C_NRM));
+                    i,
+                    CCCYN(ch, C_NRM), (from_zn) ? from_zn->name : "FROM-ERROR",
+                    CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+                    timewarp_list[i].from,
+                    CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+                    timewarp_list[i].to, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                    (to_zn) ? to_zn->name : "TO-ERROR",
+                    CCNRM(ch, C_NRM));
 	}
 
 	acc_sprintf("  %d total.\r\n", num_timewarp_data);
@@ -714,10 +713,11 @@ int
 zone_tele_ok(Creature *ch, struct zone_data *zone, int tmode)
 {
 
-	if (!IS_APPR(ch->in_room->zone))
+	if (!IS_APPR(ch->in_room->zone) || !IS_APPR(zone))
 		return 0;
 
-	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)
+	if ((ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED) ||
+         ZONE_FLAGGED(zone, ZONE_ISOLATED))
 		&& zone != ch->in_room->zone)
 		return 0;
 
@@ -1099,14 +1099,12 @@ ASPELL(spell_area_stasis)
 	struct obj_data *o;
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NOPHYSIC)) {
-		send_to_char(ch, 
-			"The surrounding construct of spacetime is already stable.\r\n");
+		send_to_char(ch, "The surrounding construct of spacetime is already stable.\r\n");
 		return;
 	}
 
-	send_to_room
-		("A shockwave ripples through the room stableizing spacetime.\r\n",
-		ch->in_room);
+	send_to_room("A shockwave rips through the fabric of time and space!\r\n",
+                 ch->in_room);
 
 	// Destroy all quantum rifts.
 	for (o = ch->in_room->contents; o; o = o->next) {
@@ -1117,8 +1115,7 @@ ASPELL(spell_area_stasis)
 		}
 	}
 
-	rm_aff.description =
-		str_dup("    The room seems to be physically stable.\r\n");
+	rm_aff.description = str_dup("    The room seems to be physically stable.\r\n");
 	rm_aff.level = ch->getLevelBonus(SPELL_AREA_STASIS);
 	rm_aff.type = RM_AFF_FLAGS;
 	rm_aff.flags = ROOM_NOPHYSIC;
