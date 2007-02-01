@@ -49,10 +49,10 @@ SPECIAL(languagemaster)
         return 1;
     }
     
-	send_to_char(ch,
-		"It will cost you %d gold coins to learn to speak %s.\r\n%s",
-		cost, tmp_capitalize(argument),
-		cost > GET_GOLD(ch) ? "Which you don't have.\r\n" : "");
+	send_to_char(ch, "It will cost you %d gold coins to learn to speak %s%s\r\n",
+                 cost,
+                 tongue_name(tongue_idx),
+                 cost > GET_GOLD(ch) ? ", which I see you don't have." : ".");
 
 	if (check_only || cost > GET_GOLD(ch))
 		return 1;
@@ -61,8 +61,7 @@ SPECIAL(languagemaster)
     SET_TONGUE(ch, tongue_idx,
                CHECK_TONGUE(ch, tongue_idx) + number(3, GET_INT(ch)));
 
-	act(tmp_sprintf("Your fluency in %s increases!",
-                    tongue_name(tongue_idx)),
+	act(tmp_sprintf("Your fluency in %s increases!", tongue_name(tongue_idx)),
         false, ch, NULL, 0, TO_CHAR);
 
 	ch->saveToXML();
