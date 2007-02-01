@@ -1866,7 +1866,6 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 	int bits;
 	struct Creature *found_char = NULL;
 	struct obj_data *found_obj = NULL;
-	char glancebuf[512];
 
 	if (!*arg) {
 		send_to_char(ch, "Look at what?\r\n");
@@ -1906,27 +1905,31 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 							TO_CHAR);
 						act("$N roars at $n.", FALSE, ch, 0, found_char,
 							TO_NOTVICT);
-					} else if (!number(0, 4)) {
-						sprintf(glancebuf, "Piss off, %s.",
-							GET_DISGUISED_NAME(found_char, ch));
-						perform_say(found_char, 0, glancebuf);
-					} else if (!number(0, 3)) {
-						sprintf(glancebuf, "Take a hike, %s.",
-							GET_DISGUISED_NAME(found_char, ch));
-						perform_say(found_char, 0, glancebuf);
-					} else if (!number(0, 2)) {
-						sprintf(glancebuf, "%s You lookin' at me?",
-							GET_DISGUISED_NAME(found_char, ch));
-						perform_say(found_char, SCMD_SAY_TO, glancebuf);
-					} else if (!number(0, 1)) {
-						sprintf(glancebuf, "Hit the road, %s.",
-							GET_DISGUISED_NAME(found_char, ch));
-						perform_say(found_char, 0, glancebuf);
 					} else {
-						sprintf(glancebuf, "Get lost, %s.",
-							GET_DISGUISED_NAME(found_char, ch));
-						perform_say(found_char, 0, glancebuf);
-					}
+                        const char *response = "";
+                        switch (number(0, 4)) {
+                        case 0:
+                            response = tmp_sprintf("Piss off, %s.",
+                                                   GET_DISGUISED_NAME(found_char, ch));
+                            break;
+                        case 1:
+                            response = tmp_sprintf("Take a hike, %s.",
+                                                   GET_DISGUISED_NAME(found_char, ch));
+                            break;
+                        case 2:
+                            response = "You lookin' at me?";
+                            break;
+                        case 3:
+                            response = tmp_sprintf("Hit the road, %s.",
+                                                   GET_DISGUISED_NAME(found_char, ch));
+                            break;
+                        case 4:
+                            response = tmp_sprintf("Get lost, %s.",
+                                                   GET_DISGUISED_NAME(found_char, ch));
+                            break;
+                        }
+                        perform_say_to(found_char, ch, response);
+                    }
 
 					if (MOB_FLAGGED(found_char, MOB_AGGRESSIVE) &&
 						(GET_MORALE(found_char) >
