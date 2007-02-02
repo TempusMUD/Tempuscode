@@ -25,7 +25,7 @@ SPECIAL(languagemaster)
 
 	if (CMD_IS("offer"))
 		check_only = 1;
-	else if (!CMD_IS("learn"))
+	else if (!(CMD_IS("learn") || CMD_IS("practice") || CMD_IS("train")))
 		return 0;
 
 	skip_spaces(&argument);
