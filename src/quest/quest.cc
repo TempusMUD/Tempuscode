@@ -11,6 +11,10 @@
 //  Copyright 1998 John Watson
 //
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>

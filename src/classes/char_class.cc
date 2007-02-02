@@ -24,6 +24,10 @@
   */
 
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #define __char_class_c__
 
 #include <stdio.h>

@@ -14,6 +14,10 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include <iostream>
 #include <iomanip>
 

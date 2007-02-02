@@ -1,4 +1,7 @@
-#include "structs.h"
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include "creature_list.h"
 
 /**

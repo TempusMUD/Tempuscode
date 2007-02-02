@@ -8,6 +8,10 @@
 // act.barb.c      --  Barbarian specific functions,      Fireball, July 1998
 //
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

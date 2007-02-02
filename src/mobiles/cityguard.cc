@@ -1,4 +1,7 @@
-#include <vector>
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 
 #include "creature.h"
 #include "house.h"

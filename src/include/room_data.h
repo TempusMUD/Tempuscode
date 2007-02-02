@@ -15,6 +15,7 @@
 
 #include "defs.h"
 #include "macros.h"
+#include "constants.h"
 #include "creature_list.h"
 
 #define NORTH          0

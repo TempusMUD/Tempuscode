@@ -17,6 +17,10 @@ Rewritten by John Rothe (forget@tempusmud.com)
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>

@@ -1,3 +1,7 @@
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,4 +1,7 @@
-#include <string>
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 using namespace std;
 #include "Mapper.h"
 #include "tokenizer.h"

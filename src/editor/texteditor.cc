@@ -2,6 +2,10 @@
 // File: texteditor.cc                        -- part of TempusMUD
 // 
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include <string>
 #include <list>
 using namespace std;

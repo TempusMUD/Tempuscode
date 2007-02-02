@@ -41,6 +41,10 @@
  authors. WSE" )
 */
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #define	m  (unsigned long)2147483647
 #define	q  (unsigned long)127773
 

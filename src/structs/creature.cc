@@ -1,4 +1,7 @@
-#include <signal.h>
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include "structs.h"
 #include "comm.h"
 #include "creature_list.h"

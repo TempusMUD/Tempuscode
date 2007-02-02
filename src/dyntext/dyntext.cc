@@ -7,6 +7,10 @@
 // ping
 // ping 2
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #define __DYNTEXT_C__
 
 #include <stdlib.h>

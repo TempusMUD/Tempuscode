@@ -8,6 +8,10 @@
         VEHICLE.C
 ****************************************************************************/
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #define __vehicle_c__
 
 #include <stdio.h>

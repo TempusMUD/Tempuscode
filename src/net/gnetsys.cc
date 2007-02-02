@@ -15,6 +15,10 @@
 // Copyright 2001 by Daniel Lowe, all rights reserved.
 //
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include <arpa/telnet.h>
 #include "structs.h"
 #include "comm.h"

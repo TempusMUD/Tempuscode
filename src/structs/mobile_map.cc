@@ -1,3 +1,7 @@
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include "mobile_map.h"
 #include "utils.h"
 

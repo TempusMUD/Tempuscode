@@ -4,6 +4,10 @@
 // Copyright 1998 John Watson, all rights reserved
 //
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include "structs.h"
 #include "comm.h"
 #include "db.h"

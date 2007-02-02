@@ -1,4 +1,7 @@
-#include <string.h>
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include "player_table.h"
 #include "utils.h"
 #include "db.h"

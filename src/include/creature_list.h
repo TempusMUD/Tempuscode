@@ -2,8 +2,9 @@
 #define _CREATURE_LIST_H_
 
 #include <signal.h>
-#include "creature.h"
 #include "safe_list.h"
+
+class Creature;
 
 class CreatureList:public SafeList <Creature *> {
   public:

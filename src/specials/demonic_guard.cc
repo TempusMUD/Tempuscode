@@ -5,6 +5,10 @@
 // Copyright 1998 by John Watson, all rights reserved.
 // Hacked to use classes and XML John Rothe 2001
 //
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include <iostream>
 #include <vector>
 #include <fstream>

@@ -9,6 +9,8 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#include <sys/types.h>
+
 #define NOWHERE    -1			/* nil reference for room-database        */
 #define NOTHING           -1	/* nil reference for objects                */
 #define NOBODY           -1		/* nil reference for mobiles                */

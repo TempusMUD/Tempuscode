@@ -1,5 +1,9 @@
  #include <string.h>
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include "constants.h"
 #include "comm.h"
 #include "creature.h"

@@ -10,6 +10,10 @@
 *   Hacked by Fireball                                                    *
 **************************************************************************/
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #define __flow_room_c__
 
 #include <stdio.h>

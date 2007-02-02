@@ -10,6 +10,10 @@
 // File: tongue.cc                           -- Part of TempusMUD
 //
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include <string.h>
 #include <time.h>
 #include <tmpstr.h>

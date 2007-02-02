@@ -1,4 +1,7 @@
-#include <vector>
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include "db.h"
 #include "structs.h"
 #include "xml_utils.h"

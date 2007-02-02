@@ -18,6 +18,10 @@
 //
 
 
+#ifdef HAS_CONFIG_H
+#include "config.h"
+#endif
+
 #include <list>
 #include <vector>
 using namespace std;
