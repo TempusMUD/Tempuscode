@@ -1,5 +1,6 @@
 bin_PROGRAMS = @top_srcdir@/bin/circle
 INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@ @XML_CPPFLAGS@
+AM_CXXFLAGS = -Wall -Winline -Wcast-qual
 AM_LDFLAGS = @XML_LIBS@
 @top_srcdir@_bin_circle_SOURCES = \
 				 clan/clan.cc \
