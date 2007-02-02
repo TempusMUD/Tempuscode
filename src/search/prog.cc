@@ -963,7 +963,7 @@ void
 prog_do_spell(prog_env *env, prog_evt *evt, char *args)
 {
 	room_data *room;
-	Creature *caster;
+	Creature *caster = NULL;
 	obj_data *obj;
 	int spell_num, spell_lvl, spell_type;
 	char *target_arg;

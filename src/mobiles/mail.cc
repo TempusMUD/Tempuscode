@@ -526,7 +526,7 @@ void
 postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
     int cmd, char *arg)
 {
-    char *to_char, *to_room; 
+    char *to_char = NULL, *to_room = NULL;
     int num_mails = 0;
     list<struct obj_data *> olist;
 

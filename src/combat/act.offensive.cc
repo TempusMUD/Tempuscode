@@ -2219,7 +2219,8 @@ ACMD(do_shoot)
 	bool dead = false;
 	struct affected_type *af = NULL;
 	int my_return_flags = 0;
-    char *arg, *arrow_name;
+    char *arg;
+    const char *arrow_name;
 
 	ACMD_set_return_flags(0);
 
@@ -2552,7 +2553,7 @@ ACMD(do_shoot)
 			if (!i && !IS_FLAMETHROWER(gun))
 				sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
 					/*GUN_TYPE(gun), */ dam, CUR_R_O_F(gun));
-
+			arrow_name = "";
 			extract_obj(bullet);
 		}
 		/* we /must/ have a clip in a clipped gun at this point! */
@@ -3197,7 +3198,6 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 	struct affected_type *af = NULL;
 	int my_return_flags = 0;
     struct obj_data *weap1 = NULL, *weap2 = NULL;
-    char *arrow_name;
 
     weap1 = GET_EQ(ch, WEAR_WIELD);
     weap2 = GET_EQ(ch, WEAR_WIELD_2);
@@ -3339,7 +3339,6 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
     if (IS_ARROW(gun)) {
         obj_from_obj(bullet);
         obj_to_room(bullet, ch->in_room);
-        strcpy(arrow_name, bullet->name);
         damage_eq(NULL, bullet, dam >> 2);
     } else {
         if (!IS_FLAMETHROWER(gun))

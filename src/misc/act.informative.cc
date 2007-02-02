@@ -3341,7 +3341,7 @@ ACMD(do_who)
 	bool mage=false, thief=false, ranger=false, knight=false, cleric=false, barbarian=false;
 	bool bard=false, monk=false, physic=false, cyborg=false, psionic=false, mercenary=false;
 	int low=-1, high=-1;
-	clan_data *realClan;
+	clan_data *realClan = NULL;
 	
 	string args = argument;
 	
