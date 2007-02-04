@@ -75,7 +75,6 @@ AM_LDFLAGS = @XML_LIBS@
                  include/macros.h \
                  include/mail.h \
                  include/materials.h \
-                 include/memtrack.h \
                  include/mobact.h \
                  include/mobile_map.h \
                  include/obj_data.h \
@@ -355,7 +354,6 @@ AM_LDFLAGS = @XML_LIBS@
                  util/accstr.cc \
                  util/handler.cc \
                  util/graph.cc \
-                 util/memtrack.cc \
                  util/modify.cc \
                  util/random.cc \
                  util/sight.cc \
