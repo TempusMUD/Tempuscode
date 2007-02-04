@@ -940,11 +940,7 @@ struct player_special_data_saved {
 	ubyte bad_pws;				/* number of bad password attempts    */
 	sbyte conditions[3];		/* Drunk, full, thirsty            */
 
-	/* spares below for future expansion.  You can change the names from
-	   'sparen' to something meaningful, but don't change the order.  */
-
 	ubyte clan;
-	ubyte spare22;
 	ubyte broken_component;
 	ubyte imm_qp;
 	ubyte qlog_level;			// what level of awareness we have to qlog
