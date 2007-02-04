@@ -1471,11 +1471,7 @@ const int flags_door[] = {
 
 
 #define EXITN(room, door)                (room->dir_option[door])
-/*
-#define OPEN_DOOR(room, obj, door)        ((obj) ?\
-                                         (TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED)) :\
-                                         (TOGGLE_BIT(EXITN(room, door)->exit_info, EX_CLOSED)))
-*/
+
 void
 OPEN_DOOR(room_data * room, obj_data * obj, int direction)
 {
@@ -1486,11 +1482,6 @@ OPEN_DOOR(room_data * room, obj_data * obj, int direction)
 	}
 }
 
-/*                                       
-#define LOCK_DOOR(room, obj, door)        ((obj) ?\
-                                         (TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_LOCKED)) :\
-                                         (TOGGLE_BIT(EXITN(room, door)->exit_info, EX_LOCKED)))
-*/
 void
 LOCK_DOOR(room_data * room, obj_data * obj, int direction)
 {
@@ -1673,7 +1664,8 @@ ok_pick(struct Creature *ch, int keynum, int pickproof, int tech, int scmd)
 ACMD(do_gen_door)
 {
 	int door = 0, keynum;
-	char type[MAX_INPUT_LENGTH], dir[MAX_INPUT_LENGTH], dname[128];
+    char *type, *dir;
+	char dname[128];
 	struct obj_data *obj = NULL;
 	struct Creature *victim = NULL;
 
@@ -1682,7 +1674,10 @@ ACMD(do_gen_door)
 		send_to_char(ch, "%s what?\r\n", cmd_door[subcmd]);
 		return;
 	}
-	two_arguments(argument, type, dir);
+
+    type = tmp_getword(&argument);
+    dir = tmp_getword(&argument);
+
 	if (!generic_find(type, FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_IGNORE_WIERD,
 			ch, &victim, &obj))
 		door = find_door(ch, type, dir, cmd_door[subcmd]);
