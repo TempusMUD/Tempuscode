@@ -901,6 +901,32 @@ struct char_special_data {
 	struct char_special_data_saved saved;	/* constants saved in plrfile    */
 };
 
+static const size_t MAX_RECENT_KILLS = 100;
+static const int MAX_EXPLORE_BONUS = 25;
+static const int EXPLORE_BONUS_DECREASE_RATE = 5;
+
+struct KillRecord {
+    KillRecord(void) : _vnum(0), _times(0) {}
+    KillRecord(const KillRecord &o) : _vnum(o._vnum), _times(o._times) {}
+    KillRecord &operator=(const KillRecord &o)
+        {
+            _vnum = o._vnum;
+            _times = o._times;
+            return *this;
+        }
+    bool operator==(int vnum) { return vnum == _vnum; }
+    void set(int vnum, int times) { _vnum = vnum; _times = times; }
+    void mark_kill(void) { _times++; }
+    int explore_bonus(void)
+        {
+            if (_times / EXPLORE_BONUS_DECREASE_RATE < MAX_EXPLORE_BONUS)
+                return MAX_EXPLORE_BONUS - (_times / EXPLORE_BONUS_DECREASE_RATE);
+            else
+                return 0;
+        }
+    int _vnum, _times;
+};
+
 struct player_special_data_saved {
 	byte skills[MAX_SKILLS + 1];	/* array of skills plus skill 0        */
 	weapon_spec weap_spec[MAX_WEAPON_SPEC];
@@ -954,6 +980,23 @@ struct player_special_data_saved {
 static const int MAX_IMPRINT_ROOMS = 6;
 
 struct player_special_data {
+    player_special_data(void) {
+        memset(&saved, 0, sizeof(saved));
+        memset(&imprint_rooms, 0, sizeof(imprint_rooms));
+        memset(&soilage, 0, sizeof(soilage));
+        poofin = poofout = NULL;
+        aliases = NULL;
+        last_tell_from = last_tell_to = 0;
+        olc_mob = NULL;
+        olc_obj = NULL;
+        olc_shop = NULL;
+        olc_help = NULL;
+        olc_srch = NULL;
+        was_in_room = NULL;
+        olc_help_item = NULL;
+        thaw_time = freezer_id = rentcode = rent_per_day = rent_currency = 0;
+        desc_mode = CXN_UNKNOWN;
+    }
     player_special_data &operator=(const player_special_data &c) {
         this->saved = c.saved;
         if (c.poofin)
@@ -961,6 +1004,8 @@ struct player_special_data {
         if (c.poofout)
             this->poofout = strdup(c.poofout);
         
+        recently_killed = c.recently_killed;
+
         alias_data *head = NULL;
         alias_data *tail = NULL;
         alias_data *cur_alias = c.aliases;
@@ -1015,6 +1060,7 @@ struct player_special_data {
 	long last_tell_from;			/* idnum of last tell from        */
 	long last_tell_to;				/* idnum of last tell to */
 	int imprint_rooms[MAX_IMPRINT_ROOMS];
+    std::list<KillRecord> recently_killed;
 	unsigned int soilage[NUM_WEARS];
 	struct obj_data *olc_obj;	/* which obj being edited               */
 	struct Creature *olc_mob;	/* which mob being edited               */

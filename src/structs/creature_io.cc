@@ -626,6 +626,15 @@ Creature::saveToXML()
 				fprintf(ouf, "<skill name=\"%s\" level=\"%d\"/>\n",
 					spell_to_str(idx), GET_SKILL(ch, idx));
         write_tongue_xml(ch, ouf);
+        if (!GET_RECENT_KILLS(ch).empty()) {
+            std::list<KillRecord>::iterator it;
+
+            for (it = GET_RECENT_KILLS(ch).begin();
+                 it != GET_RECENT_KILLS(ch).end();++it)
+                fprintf(ouf, "<recentkill vnum=\"%d\" times=\"%d\"/>\n",
+                        it->_vnum,
+                        it->_times);
+        }
 	}
 
 	fprintf(ouf, "</creature>\n");
@@ -942,6 +951,11 @@ Creature::loadFromXML( const char *path )
 			txt = (char *)xmlGetProp(node, "state");
 			if (txt)
                 player_specials->desc_mode = (cxn_state)search_block(txt, desc_modes, FALSE);
+        } else if (xmlMatches(node->name, "recentkill")) {
+            KillRecord kill;
+
+            kill.set(xmlGetIntProp(node, "vnum"), xmlGetIntProp(node, "times"));
+            GET_RECENT_KILLS(this).push_back(kill);
 		} else if( xmlMatches(node->name, "account") ) { // Legacy for old char database
             char *pw = xmlGetProp( node, "password" );
             strcpy( GET_PASSWD(this), pw );

@@ -361,7 +361,7 @@ void
 perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 	float multiplier)
 {
-
+    int explore_bonus = 0;
 	int exp = 0;
 
 
@@ -405,12 +405,38 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 
 	exp = ch->getPenalizedExperience( exp, victim );
 
+    if (IS_NPC(victim)) {
+        std::list<KillRecord>::iterator kill_it;
+        KillRecord kill;
+
+        kill_it = std::find(GET_RECENT_KILLS(ch).begin(),
+                       GET_RECENT_KILLS(ch).end(),
+                       GET_MOB_VNUM(victim));
+        if (kill_it == GET_RECENT_KILLS(ch).end()) {
+            // Not found
+            kill.set(GET_MOB_VNUM(victim), 1);
+            if (GET_RECENT_KILLS(ch).size() == MAX_RECENT_KILLS)
+                GET_RECENT_KILLS(ch).pop_front();
+            GET_RECENT_KILLS(ch).push_back(kill);
+        } else {
+            kill = *kill_it;
+            GET_RECENT_KILLS(ch).erase(kill_it);
+            kill.mark_kill();
+            GET_RECENT_KILLS(ch).push_back(kill);
+        }
+        explore_bonus = exp * kill.explore_bonus() / 100;
+        exp += explore_bonus;
+    }
+
 	if (IS_NPC(victim) && !IS_NPC(ch) 
 		&& (GET_EXP(victim) < 0 || exp > 5000000)) {
 		slog("%s Killed %s(%d) for exp: %d.", GET_NAME(ch),
 			GET_NAME(victim), GET_EXP(victim), exp);
 	}
 	if (exp > 0) {
+        if (explore_bonus)
+            send_to_char(ch, "%sYou've received an exploration bonus!%s\r\n",
+                         CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(ch, "%s%sYou have gained %d experience.%s\r\n",
 			CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), exp, CCNRM(ch, C_SPR));
 	} else if (exp < 0) {

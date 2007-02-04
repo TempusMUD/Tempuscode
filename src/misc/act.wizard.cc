@@ -2059,6 +2059,18 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         }
     }
     
+    if (IS_PC(k)) {
+        acc_sprintf("Recently killed:\r\n");
+        std::list<KillRecord>::iterator kill = GET_RECENT_KILLS(k).begin();
+        for (;kill != GET_RECENT_KILLS(k).end();++kill) {
+            acc_sprintf("%s%3d. %-30s %17d%s\r\n",
+                        CCGRN(ch, C_NRM),
+                        kill->_vnum,
+                        GET_NAME(real_mobile_proto(kill->_vnum)),
+                        kill->_times,
+                        CCNRM(ch, C_NRM));
+        }
+    }
 
     /* Routine to show what spells a char is affected by */
     if (k->affected) {

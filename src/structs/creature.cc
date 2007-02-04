@@ -37,7 +37,6 @@ Creature::Creature(bool pc)
 
 	if (pc) {
 		player_specials = new player_special_data;
-		memset((char *)player_specials, 0, sizeof(player_special_data));
 	} else {
 		player_specials = &dummy_mob;
 		SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
@@ -943,8 +942,6 @@ Creature::clear(void)
 
 	if (is_pc) {
 		player_specials = new player_special_data;
-		memset((char *)player_specials, 0, sizeof(player_special_data));
-		player_specials->desc_mode = CXN_UNKNOWN;
 		set_title(this, "");
 	} else {
 		player_specials = &dummy_mob;
