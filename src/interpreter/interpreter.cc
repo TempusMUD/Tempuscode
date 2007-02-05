@@ -356,6 +356,7 @@ ACMD(do_switch);
 ACMD(do_syslog);
 ACMD(do_tag);
 ACMD(do_taunt);
+ACMD(do_teach);
 ACMD(do_teleport);
 ACMD(do_tester);
 ACMD(do_tell);
@@ -1305,6 +1306,7 @@ struct command_info cmd_info[] = {
 	{"taste", POS_RESTING, do_eat, 0, SCMD_TASTE, 0, 0},
 	{"tag", POS_FIGHTING, do_tag, 0, 0, 0, 0},
 	{"tap", POS_FIGHTING, do_action, 0, 0, 0, 0},
+	{"teach", POS_SITTING, do_teach, 0, 0, 0, 0},
 	{"teleport", POS_DEAD, do_teleport, LVL_IMMORT, 0, 0, 0},
 	{"thank", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"think", POS_RESTING, do_action, 0, 0, 0, 0},
