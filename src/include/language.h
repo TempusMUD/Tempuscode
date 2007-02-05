@@ -55,7 +55,7 @@ int racial_tongue(int race_idx);
 const char *tongue_name(int tongue_idx);
 const char *fluency_desc(Creature *ch, int tongue_idx);
 void show_language_help(Creature *ch);
-int find_tongue_idx_by_name(char *tongue_name);
+int find_tongue_idx_by_name(const char *tongue_name);
 
 static const int TONGUE_NONE =                          -1;
 static const int TONGUE_COMMON =                        0;

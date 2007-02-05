@@ -281,7 +281,7 @@ boot_tongues(void)
 }
 
 int
-find_tongue_idx_by_name(char *tongue_name)
+find_tongue_idx_by_name(const char *tongue_name)
 {
     map<int, Tongue>::iterator it = tongues.begin();
     for (;it != tongues.end();++it) {
