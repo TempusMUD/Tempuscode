@@ -601,7 +601,7 @@ static const int SKILL_DEFENSIVE_POS = 645;	// Defensive Posturing
 static const int SKILL_MELEE_COMBAT_TAC = 646;	// Melee combat tactics
 static const int SKILL_NEURAL_BRIDGING = 647;	// Cogenic Neural Bridging
 										// (Ambidextarity)
-// Continue around 670
+// Cyborg skills continue around 675
 
 static const int SKILL_RETREAT = 648;	// controlled flee
 static const int SKILL_DISGUISE = 649;	// look like a mob
