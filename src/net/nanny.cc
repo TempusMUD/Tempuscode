@@ -96,6 +96,7 @@ int check_newbie_ban(struct descriptor_data *desc);
 void
 handle_input(struct descriptor_data *d)
 {
+    extern bool production_mode;
 	char arg[MAX_INPUT_LENGTH * 10];
 	int aliased;
 	int char_id;
@@ -378,7 +379,7 @@ handle_input(struct descriptor_data *d)
 				return;
 			}
 
-			if (d->account->deny_char_entry(d->creature)) {
+			if (production_mode && d->account->deny_char_entry(d->creature)) {
 				send_to_desc(d, "You can't have another character in the game right now.\r\n");
 				delete d->creature;
 				d->creature = NULL;
