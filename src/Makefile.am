@@ -208,7 +208,6 @@ AM_LDFLAGS = @XML_LIBS@
                  specials/Specs/labyrinth/laby_altar.spec \
                  specials/Specs/labyrinth/laby_portal.spec \
                  specials/Specs/mavernal_specs/mavernal_citizen.spec \
-                 specials/Specs/mavernal_specs/mavernal_obj_specs.spec \
                  specials/Specs/mavernal_specs/new_mavernal_talker.spec \
                  specials/Specs/mobile_specs/christmas_quest.spec \
                  specials/Specs/mobile_specs/astral_deva.spec \

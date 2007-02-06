@@ -1,2 +1,2 @@
-EXTRA_DIST = reconf
+EXTRA_DIST = bootstrap
 SUBDIRS = m4 src
