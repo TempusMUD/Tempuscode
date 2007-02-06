@@ -1,1 +1,0 @@
-tail -f syslog | grep CMD #| grep -ve "::west" | grep -ve "::east" | grep -ve "::north" | grep -ve "::south" | grep -ve "::exits" | grep -ve "::up" | grep -ve "::down"
