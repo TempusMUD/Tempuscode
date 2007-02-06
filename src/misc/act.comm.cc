@@ -1000,9 +1000,9 @@ ACMD(do_gen_comm)
 		}
 
         if (IS_IMMORT(i->creature)) {
-            act(imm_actstr, false, ch, 0, i->creature, TO_VICT);
+            act(imm_actstr, false, ch, 0, i->creature, TO_VICT | TO_SLEEP);
         } else {
-            act(actstr, false, ch, 0, i->creature, TO_VICT);
+            act(actstr, false, ch, 0, i->creature, TO_VICT | TO_SLEEP);
         }
 	}
 
