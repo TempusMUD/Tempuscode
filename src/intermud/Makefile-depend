@@ -1,4 +1,0 @@
-$(OBJ)/act.intermud.o : act.intermud.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/intermud.h $(INCLUDE)/screen.h $(INCLUDE)/utils.h 
-	$(CXX) -c $(CXXFLAGS) act.intermud.cc      -o $(OBJ)/act.intermud.o
-OBJFILES= $(OBJ)/act.intermud.o

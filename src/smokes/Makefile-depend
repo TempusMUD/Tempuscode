@@ -1,4 +1,0 @@
-$(OBJ)/smokes.o : smokes.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/house.h $(INCLUDE)/vehicle.h $(INCLUDE)/materials.h $(INCLUDE)/smokes.h $(INCLUDE)/clan.h $(INCLUDE)/char_class.h $(INCLUDE)/bomb.h 
-	$(CXX) -c $(CXXFLAGS) smokes.cc            -o $(OBJ)/smokes.o
-OBJFILES= $(OBJ)/smokes.o

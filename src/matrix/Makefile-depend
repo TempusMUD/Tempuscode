@@ -1,4 +1,0 @@
-$(OBJ)/matrix.o : matrix.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/db.h $(INCLUDE)/comm.h $(INCLUDE)/matrix.h 
-	$(CXX) -c $(CXXFLAGS) matrix.cc            -o $(OBJ)/matrix.o
-OBJFILES= $(OBJ)/matrix.o

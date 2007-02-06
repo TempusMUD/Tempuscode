@@ -1,4 +1,0 @@
-$(OBJ)/elevators.o : elevators.cc \
-	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/db.h $(INCLUDE)/vehicle.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/paths.h $(INCLUDE)/comm.h $(INCLUDE)/screen.h $(INCLUDE)/elevators.h 
-	$(CXX) -c $(CXXFLAGS) elevators.cc         -o $(OBJ)/elevators.o
-OBJFILES= $(OBJ)/elevators.o
