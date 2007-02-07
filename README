@@ -1,0 +1,58 @@
+Welcome to the Tempus code!
+
+Requirements
+------------------------------------------------------------------------
+Tempus currently uses the libpq postgresql access library and libxml2
+from the GNOME project.  Both of these must be installed for tempus to
+build.  In addition, if you wish to do more than minor development, you
+should have the GNU autoconf system installed.
+
+Getting Tempus Code
+------------------------------------------------------------------------
+Tempus development has been through three different source control
+systems in its lifetime.  It started using CVS in 1999, then switched to
+Subversion in 2002.  The repository was converted to darcs in 2007.  You
+can pull the authoritative repository by typing:
+
+$ darcs get --partial https://username:password@www.sanctuary.org/tempus-darcs/
+
+Your username and password should have been assigned to you when you
+were granted access.
+
+The --partial option will get only the patches since the last
+checkpoint.  Usually, you won't want to get all the patches since 1999,
+so this saves a lot of diskspace, bandwidth, and cpu time.
+
+Building Tempus
+------------------------------------------------------------------------
+Tempus uses the autoconf system to generate its configure script, so
+there are a few things you should do to maintain your sanity.
+
+If you've just checked the code out of the repository, run from bash:
+
+$ sh bootstrap
+
+This will generate the configure script and all the necessary makefile
+templates.  Then, run the following to configure your system:
+
+$ cd build
+$ ../configure
+
+This will ensure that intermediate build files are placed in the build
+directory rather than the source directory (which can get very messy).
+There is a makefile in the root tempus directory which will forward its
+make requests to the makefiles in the build directory.
+
+If you add any source files to the system, you must run the bootstrap
+script again.  Don't forget to add them to your repository!
+
+Multiprocessor machines
+------------------------------------------------------------------------
+If you have a multiprocessor machine, you can build Tempus much more
+quickly by putting the following in your .bashrc or .profile script:
+
+export MAKEFLAGS='-j #'
+
+where # is the number of processors (or cores) you have + 1.  Dual-core
+machines should put 3, quad-cpu machines should put 5, etc.  This
+ensures the maximum use of all your processors.
