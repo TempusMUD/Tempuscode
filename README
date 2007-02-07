@@ -11,8 +11,17 @@ Getting Tempus Code
 ------------------------------------------------------------------------
 Tempus development has been through three different source control
 systems in its lifetime.  It started using CVS in 1999, then switched to
-Subversion in 2002.  The repository was converted to darcs in 2007.  You
-can pull the authoritative repository by typing:
+Subversion in 2002.  The repository was converted to darcs in 2007.
+
+Unfortunately, we're too cheap to buy a real SSL certificate, and darcs
+won't allow a non-secure connection so you'llhave to install the
+sanctuary certificate authority cert as a root certificate.  On my
+system, it involved inserting the cert into /usr/share/ca-certificates,
+adding the path to /etc/ca-certificates, and then running
+update-ca-certificates.  YMMV.
+
+Once you've installed the sanctuary CA cert, you can pull the
+authoritative repository by typing:
 
 $ darcs get --partial https://username:password@www.sanctuary.org/tempus-darcs/
 
