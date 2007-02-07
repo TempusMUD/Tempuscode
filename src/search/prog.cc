@@ -52,6 +52,7 @@ void prog_do_set(prog_env * env, prog_evt * evt, char *args);
 void prog_do_oload(prog_env * env, prog_evt * evt, char *args);
 void prog_do_mload(prog_env * env, prog_evt * evt, char *args);
 void prog_do_opurge(prog_env * env, prog_evt * evt, char *args);
+void prog_do_giveexp(prog_env *env, prog_evt *evt, char *args);
 void prog_do_randomly(prog_env * env, prog_evt * evt, char *args);
 void prog_do_or(prog_env * env, prog_evt * evt, char *args);
 void prog_do_resume(prog_env * env, prog_evt * evt, char *args);
@@ -100,6 +101,7 @@ prog_command prog_cmds[] = {
 	{"oload", true, prog_do_oload},
 	{"mload", true, prog_do_mload},
 	{"opurge", true, prog_do_opurge},
+	{"giveexp", true, prog_do_giveexp},
 	{"echo", true, prog_do_echo},
 	{"mobflag", true, prog_do_mobflag},
 	{"ldesc", true, prog_do_ldesc},
@@ -1514,6 +1516,41 @@ prog_do_opurge(prog_env * env, prog_evt * evt, char *args)
     default:
         break;
 	}
+}
+
+void
+prog_do_giveexp(prog_env * env, prog_evt * evt, char *args)
+{
+    int amount = atoi(args);
+    const char *owner_type = "";
+
+    if (!env->target)
+        return;
+
+    if (amount > 1000000) {
+        int num;
+
+        switch (env->owner_type) {
+        case PROG_TYPE_MOBILE:
+            owner_type = "mobile";
+            num = GET_MOB_VNUM((Creature *)env->owner);
+            break;
+        case PROG_TYPE_OBJECT:
+            owner_type = "object";
+            num = GET_OBJ_VNUM((obj_data *)env->owner);
+            break;
+        case PROG_TYPE_ROOM:
+            owner_type = "room";
+            num = ((room_data *)env->owner)->number;
+            break;
+        default:
+            owner_type = "invalid";
+            num = -1;
+        }
+        slog("WARNING: Prog on %s %d giving %d experience", owner_type, num, amount);
+    }
+
+    gain_exp(env->target, amount);
 }
 
 void
