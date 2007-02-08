@@ -1119,7 +1119,6 @@ Creature::die(void)
 {
 	obj_data *obj, *next_obj;
 	int pos;
-    room_data *died_in_room = in_room;
 
     removeAllCombat();
 
@@ -1153,22 +1152,12 @@ Creature::die(void)
 	}
 	extract(CXN_AFTERLIFE);
 
-    if (GET_ROOM_PROG(died_in_room) != NULL)
-	    trigger_prog_death(died_in_room, PROG_TYPE_ROOM);
-    
-    CreatureList::iterator it = died_in_room->people.begin();
-	for (; it != died_in_room->people.end(); ++it)
-		if (GET_MOB_PROGOBJ((*it)) != NULL)
-			trigger_prog_death(*it, PROG_TYPE_MOBILE);
-
 	return true;
 }
 
 bool
 Creature::npk_die(void)
 {
-    room_data *died_in_room = in_room;
-
     removeAllCombat();
 
 	if (!IS_NPC(this)) {
@@ -1183,15 +1172,6 @@ Creature::npk_die(void)
 	}
 	extract(CXN_AFTERLIFE);
 
-    if (GET_ROOM_PROG(died_in_room) != NULL)
-	    trigger_prog_death(died_in_room, PROG_TYPE_ROOM);
-    
-    CreatureList::iterator it = died_in_room->people.begin();
-	for (; it != died_in_room->people.end(); ++it) {
-		if (GET_MOB_PROGOBJ((*it)) != NULL)
-			trigger_prog_death(*it, PROG_TYPE_MOBILE);
-	}
-    
 	return true;
 }
 

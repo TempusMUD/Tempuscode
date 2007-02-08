@@ -31,6 +31,7 @@ enum prog_evt_kind {
     PROG_EVT_SPELL,
     PROG_EVT_COMBAT,
     PROG_EVT_DEATH,
+    PROG_EVT_DYING,
     PROG_EVT_COUNT,             /* Maximum event number + 1 = count */
 };
 
@@ -102,7 +103,8 @@ void trigger_prog_tick(void *owner, prog_evt_type owner_type);
 void trigger_prog_load(Creature *self);
 void trigger_prog_fight(Creature *ch, Creature *self);
 void trigger_prog_give(Creature *ch, Creature *self, struct obj_data *obj);
-void trigger_prog_death(void *owner, prog_evt_type owner_type);
+void trigger_prog_dying(Creature *owner, Creature *killer);
+void trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *doomed);
 prog_env *prog_start(prog_evt_type owner_type, void *owner, Creature *target, prog_evt *evt);
 void prog_update(void);
 void prog_update_pending(void);

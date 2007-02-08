@@ -124,6 +124,18 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	if (attacktype != SKILL_GAROTTE)
 		death_cry(ch);
 
+    trigger_prog_dying(ch, killer);
+
+    // Handle dying progs before creating the corpse
+    if (GET_ROOM_PROG(ch->in_room) != NULL)
+	    trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
+    
+    CreatureList::iterator it = ch->in_room->people.begin();
+	for (; it != ch->in_room->people.end(); ++it)
+		if (GET_MOB_PROGOBJ((*it)) != NULL && *it != ch)
+            trigger_prog_death(*it, PROG_TYPE_MOBILE, ch);
+
+    // Create the corpse itself
 	corpse = make_corpse(ch, killer, attacktype);
 
 	struct affected_type *af = ch->affected;

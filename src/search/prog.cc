@@ -1128,7 +1128,9 @@ prog_do_selfpurge(prog_env * env, prog_evt * evt, char *args)
 	if (env->owner_type == PROG_TYPE_MOBILE) {
 		prog_do_nuke(env, evt, args);
 		env->exec_pt = -1;
-		((Creature *) env->owner)->purge(true);
+
+        if (evt->kind != PROG_EVT_DYING)
+            ((Creature *) env->owner)->purge(true);
 		env->owner = NULL;
 	}
 }
@@ -1941,7 +1943,38 @@ trigger_prog_fight(Creature * ch, Creature * self)
 }
 
 void
-trigger_prog_death(void *owner, prog_evt_type owner_type)
+trigger_prog_dying(Creature *owner, Creature *killer)
+{
+	prog_env *env;
+	prog_evt evt;
+
+    if (!prog_get_obj(owner, PROG_TYPE_MOBILE))
+        return;
+
+	// We don't want an infinite loop with triggered progs that
+	// trigger a prog, etc.
+	if (loop_fence >= 20) {
+		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+		return;
+	}
+
+	loop_fence++;
+
+	evt.phase = PROG_EVT_BEGIN;
+	evt.kind = PROG_EVT_DYING;
+	evt.cmd = -1;
+	evt.subject = killer;
+	evt.object = NULL;
+	evt.object_type = PROG_TYPE_NONE;
+	strcpy(evt.args, "");
+	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, &evt);
+	prog_execute(env);
+
+	loop_fence -= 1;
+}
+
+void
+trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *doomed)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -1958,13 +1991,17 @@ trigger_prog_death(void *owner, prog_evt_type owner_type)
 
 	loop_fence++;
 
-	evt.phase = PROG_EVT_AFTER;
+	evt.phase = PROG_EVT_BEGIN;
 	evt.kind = PROG_EVT_DEATH;
 	evt.cmd = -1;
-	evt.subject = NULL;
+	evt.subject = doomed;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
 	strcpy(evt.args, "");
+	env = prog_start(owner_type, owner, NULL, &evt);
+	prog_execute(env);
+
+	evt.phase = PROG_EVT_AFTER;
 	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
 
