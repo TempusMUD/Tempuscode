@@ -218,6 +218,7 @@ ACMD(do_teach)
         if (CHECK_TONGUE(target, num) > CHECK_TONGUE(ch, num) / 2) {
             act(tmp_sprintf("You don't have anything to teach about '%s' that $e doesn't already know.", skill_name),
                 false, ch, 0, target, TO_CHAR);
+            return;
         }
     } else {
         send_to_char(ch, "You don't know of any such ability.\r\n");
