@@ -561,7 +561,7 @@ struct command_info cmd_info[] = {
 	{"catnap", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"chat", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, 0, 0},
 	{"charge", POS_STANDING, do_charge, 0, 0, 0, 0},
-	{"chant", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"chant", POS_RESTING, do_say, 0, SCMD_CHANT, 0, 0},
 	{"check", POS_STANDING, do_not_here, 1, 0, 0, 0},
 	{"cheer", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"choke", POS_FIGHTING, do_offensive_skill, 0, SKILL_CHOKE, 0, 0},

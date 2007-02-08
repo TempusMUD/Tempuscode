@@ -355,7 +355,8 @@ struct set_struct {
 #define SCMD_MURMUR        6
 #define SCMD_INTONE        7
 #define SCMD_YELL          8
-#define SCMD_SAY_TO        9
+#define SCMD_CHANT         9
+#define SCMD_SAY_TO        10
 
 /* command do_activate */
 #define SCMD_OFF        0

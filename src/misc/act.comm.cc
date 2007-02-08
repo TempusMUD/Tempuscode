@@ -55,7 +55,7 @@ void summon_cityguards(room_data *room);
 
 const char *say_subcmd_strings[] = {
 	"say", "bellow", "expostulate", "ramble", "babble", "utter",
-	"murmur", "intone", "yell"
+	"murmur", "intone", "yell", "chant"
 };
 
 void
@@ -127,6 +127,11 @@ ACMD(do_say)
 		case SCMD_MURMUR:
 			send_to_char(ch, "You murmur softly.\r\n");
 			act("You are disturbed by a low murmur from $n's vicinity.",
+				FALSE, ch, 0, 0, TO_ROOM);
+			break;
+		case SCMD_CHANT:
+			send_to_char(ch, "Pie Jesu domine, dona eis requiem.  *WHAP*\r\n");
+			act("$n chants inaudibly then smacks $mself in the head with a board.",
 				FALSE, ch, 0, 0, TO_ROOM);
 			break;
 		case SCMD_SAY_TO:
