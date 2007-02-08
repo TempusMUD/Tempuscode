@@ -18,6 +18,7 @@ AC_MSG_CHECKING([for PostgreSQL includes in $pg_inc])
 if test "$pg_prefix" != ""; then
     pg_inc="$pg_prefix/include"
     pg_lib="$pg_prefix/lib"
+	LDFLAGS="$LDFLAGS -L$pg_lib"
 else
     for dir in /usr/include/postgresql \
                /usr/local/pgsql/include \
