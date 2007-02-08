@@ -183,6 +183,10 @@ ACMD(do_teach)
         return;
     }
 
+    if (IS_NPC(ch)) {
+        send_to_char(ch, "You can't teach PCs!\r\n");
+        return;
+    }
     if (IS_NPC(target)) {
         send_to_char(ch, "You can't teach NPCs a thing.\r\n");
         return;
