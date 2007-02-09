@@ -249,19 +249,6 @@ do_create_mob(struct Creature *ch, int vnum)
 	new_mob->desc = NULL;
 	new_mob->in_room = NULL;
 
-	/*
-	   new_mob->next = NULL;
-
-	   if (mob) {
-	   new_mob->next = mob->next;
-	   mob->next = new_mob;
-	   } else {
-	   new_mob->next = NULL;
-	   mob_proto = new_mob;
-
-	   }
-	 */
-
 	mobilePrototypes.add(new_mob);
 	top_of_mobt++;
 
