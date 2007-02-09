@@ -3944,7 +3944,6 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 	if (hell_hunter == GET_MOB_SPEC(ch) && PRIME_MATERIAL_ROOM(ch->in_room))
 		return 0;
 
-
 	// see how many devils are already in the room
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
