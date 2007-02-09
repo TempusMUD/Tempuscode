@@ -197,8 +197,15 @@ ACMD(do_teach)
         return;
     }
 
-    num = find_skill_num(skill_str);
-    if (num != -1) {
+    if ((num = find_tongue_idx_by_name(skill_str)) != TONGUE_NONE) {
+        is_skill = false;
+        skill_name = tongue_name(num);
+        if (CHECK_TONGUE(target, num) > CHECK_TONGUE(ch, num) / 2) {
+            act(tmp_sprintf("You don't have anything to teach about '%s' that $e doesn't already know.", skill_name),
+                false, ch, 0, target, TO_CHAR);
+            return;
+        }
+    } else if ((num = find_skill_num(skill_str)) != -1) {
         is_skill = true;
         skill_name = spell_to_str(num);
         if (!ABLE_TO_LEARN(target, num)) {
@@ -208,15 +215,6 @@ ACMD(do_teach)
         }
         if (CHECK_SKILL(target, num) > CHECK_SKILL(ch, num) / 2) {
             act(tmp_sprintf("You don't have anything to teach about '%s' that $E doesn't already know.", skill_name),
-                false, ch, 0, target, TO_CHAR);
-            return;
-        }
-
-    } else if ((num = find_tongue_idx_by_name(skill_str)) != TONGUE_NONE) {
-        is_skill = false;
-        skill_name = tongue_name(num);
-        if (CHECK_TONGUE(target, num) > CHECK_TONGUE(ch, num) / 2) {
-            act(tmp_sprintf("You don't have anything to teach about '%s' that $e doesn't already know.", skill_name),
                 false, ch, 0, target, TO_CHAR);
             return;
         }
