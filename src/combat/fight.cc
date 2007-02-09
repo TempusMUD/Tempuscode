@@ -417,7 +417,7 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 
 	exp = ch->getPenalizedExperience( exp, victim );
 
-    if (IS_NPC(victim)) {
+    if (IS_PC(ch) && IS_NPC(victim)) {
         std::list<KillRecord>::iterator kill_it;
         KillRecord kill;
 
