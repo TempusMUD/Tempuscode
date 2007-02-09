@@ -145,7 +145,7 @@ ACMD(do_teach)
 {
     Creature *target;
     char *s;
-    char *skill_str;
+    char *skill_str, *target_str;
     const char *skill_name;
     int num;
     bool is_skill;
@@ -177,9 +177,14 @@ ACMD(do_teach)
         argument = s + 1;
     }
 
-    target = get_char_room_vis(ch, tmp_getword(&argument));
+    target_str = tmp_getword(&argument);
+    if (!*target_str) {
+        send_to_char(ch, "You should specify who you want to teach.\r\n");
+        return;
+    }
+    target = get_char_room_vis(ch, target_str);
     if (!target) {
-        send_to_char(ch, "You don't see anyone here named '%s'.\r\n", argument);
+        send_to_char(ch, "You don't see anyone here named '%s'.\r\n", target_str);
         return;
     }
 
@@ -200,8 +205,8 @@ ACMD(do_teach)
     if ((num = find_tongue_idx_by_name(skill_str)) != TONGUE_NONE) {
         is_skill = false;
         skill_name = tongue_name(num);
-        if (CHECK_TONGUE(target, num) > CHECK_TONGUE(ch, num) / 2) {
-            act(tmp_sprintf("You don't have anything to teach about '%s' that $e doesn't already know.", skill_name),
+        if (CHECK_TONGUE(target, num) >= CHECK_TONGUE(ch, num) / 2) {
+            act(tmp_sprintf("$E already knows as much as you can teach him of '%s'.", skill_name),
                 false, ch, 0, target, TO_CHAR);
             return;
         }
@@ -213,8 +218,8 @@ ACMD(do_teach)
                 false, ch, 0, target, TO_CHAR);
             return;
         }
-        if (CHECK_SKILL(target, num) > CHECK_SKILL(ch, num) / 2) {
-            act(tmp_sprintf("You don't have anything to teach about '%s' that $E doesn't already know.", skill_name),
+        if (CHECK_SKILL(target, num) >= CHECK_SKILL(ch, num) / 2) {
+            act(tmp_sprintf("$E already knows as much as you can teach him of '%s'.", skill_name),
                 false, ch, 0, target, TO_CHAR);
             return;
         }
