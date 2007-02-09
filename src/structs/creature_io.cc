@@ -913,7 +913,8 @@ Creature::loadFromXML( const char *path )
 			char *tongue = xmlGetProp( node, "name" );
 			int index = find_tongue_idx_by_name(tongue);
 			if( index >= 0 )
-                SET_TONGUE(this, index, xmlGetIntProp(node, "level"));
+                SET_TONGUE(this, index,
+                           MIN(100, xmlGetIntProp(node, "level")));
 			free(tongue);
         } else if ( xmlMatches(node->name, "alias") ) {
 			alias_data *alias;
