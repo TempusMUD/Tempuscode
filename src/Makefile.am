@@ -142,7 +142,6 @@ AM_LDFLAGS = @XML_LIBS@
                  olc/olc_srch.cc \
                  olc/olc_wld.cc \
                  olc/olc_zon.cc \
-                 olc/polc.cc \
                  quest/quest.cc \
                  search/prog_compile.cc \
                  search/prog.cc \

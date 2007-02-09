@@ -71,7 +71,6 @@ void handle_network(struct descriptor_data *d,char *arg);
 int general_search(struct Creature *ch, struct special_search_data *srch, int mode);
 void roll_real_abils(struct Creature * ch);
 void print_attributes_to_buf(struct Creature *ch, char *buff);
-void polc_input(struct descriptor_data * d, char *str);
 void show_character_detail(descriptor_data *d);
 void push_command_onto_list(Creature *ch, char *comm);
 void flush_q(struct txt_q *queue);
