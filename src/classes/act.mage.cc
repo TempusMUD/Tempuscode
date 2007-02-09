@@ -239,9 +239,13 @@ ACMD(do_teach)
 
     // Teaching success
     if (is_skill) {
-        SET_SKILL(target, num, CHECK_SKILL(target, num) + number(1, GET_INT(target)));
+        SET_SKILL(target, num, MIN(CHECK_SKILL(ch, num) / 2,
+                                   CHECK_SKILL(target, num)
+                                   + number(1, GET_INT(target))));
     } else {
-        SET_TONGUE(target, num, CHECK_TONGUE(target, num) + number(1, GET_INT(target)));
+        SET_TONGUE(target, num, MIN(CHECK_TONGUE(ch, num) / 2,
+                                    CHECK_TONGUE(target, num)
+                                    + number(1, GET_INT(target))));
     }
 
     act(tmp_sprintf("You give a quick lesson to $N on '%s'.", skill_name),
