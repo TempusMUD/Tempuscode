@@ -32,7 +32,6 @@
 #include "db.h"
 #include "editor.h"
 #include "screen.h"
-#include "rpl_resp.h"
 #include "creature_list.h"
 #include "clan.h"
 #include "security.h"
@@ -395,9 +394,7 @@ ACMD(do_retell)
 ACMD(do_spec_comm)
 {
 	struct Creature *vict;
-	struct extra_descr_data *rpl_ptr;
-	char *action_sing, *action_plur, *action_others, *word;
-	bool found;
+	const char *action_sing, *action_plur, *action_others;
 
 	if (subcmd == SCMD_WHISPER) {
 		action_sing = "whisper to";
@@ -428,36 +425,6 @@ ACMD(do_spec_comm)
 		act(tmp_sprintf("&y$n$a %s you$l,&n '$[%s]'", action_plur, argument),
             FALSE, ch, 0, vict, TO_VICT);
 		act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
-
-		/* add the ask mob <txt> and the mob will reply. -Sarflin 7-19-95 */
-
-		if (subcmd != SCMD_WHISPER && (vict != 0) && IS_NPC(vict) &&
-			vict->mob_specials.response != NULL) {
-			rpl_ptr = vict->mob_specials.response;
-			word = NULL;
-			found = false;
-			word = strtok(argument, " ");
-			if (word != NULL) {
-				do {
-					rpl_ptr = vict->mob_specials.response;
-					do {
-						if (strstr(rpl_ptr->keyword, word) != NULL) {
-							found = true;
-							break;
-						}
-						rpl_ptr = rpl_ptr->next;
-					} while (rpl_ptr != NULL);
-
-					if (found)
-						break;
-					word = strtok(NULL, " ");
-				} while (word != NULL);
-			}
-			if (found)
-				reply_respond(ch, vict, rpl_ptr->description);
-			else
-                perform_tell(vict, ch, "I don't know anything about that!");
-		}
 	}
 }
 

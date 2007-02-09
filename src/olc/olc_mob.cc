@@ -240,7 +240,6 @@ do_create_mob(struct Creature *ch, int vnum)
 	for (j = 0; j < 5; j++)
 		GET_SAVE(new_mob, j) = 0;
 
-	new_mob->mob_specials.response = NULL;
 	new_mob->aff_abils = new_mob->real_abils;
 
 	for (j = 0; j < NUM_WEARS; j++)
@@ -1035,100 +1034,9 @@ do_mob_mset(struct Creature *ch, char *argument)
 			}
 			break;
 		}
-	case 40:{					/* reply */
-			if (!*argument) {
-				send_to_char(ch, OLC_REPLY_USAGE);
-				return;
-			}
-			half_chop(arg2, buf, argument);
-			if (!mob_p)
-				send_to_char(ch, 
-					"Hey punk, you need an mobile in your editor first!!!\r\n");
-			else if (!*argument)
-				send_to_char(ch, "Which reply would you like to deal with?\r\n");
-			else if (!*buf)
-				send_to_char(ch, 
-					"Valid commands are: create, remove, edit, addkey.\r\n");
-			else if (is_abbrev(buf, "remove")) {
-				if ((reply =
-						locate_exdesc(argument,
-							mob_p->mob_specials.response, 1))) {
-					REMOVE_FROM_LIST(reply, mob_p->mob_specials.response,
-						next);
-					if (reply->keyword)
-						free(reply->keyword);
-					else
-						slog("WTF?? !reply->keyword??");
-
-					if (reply->description)
-						free(reply->description);
-					else
-						slog("WTF?? !reply->description??");
-
-					free(reply);
-
-					send_to_char(ch, "Response removed.\r\n");
-					UPDATE_MOBLIST(mob_p, tmp_mob,->mob_specials.response);
-				} else
-					send_to_char(ch, "No response.\r\n");
-
-				return;
-			} else if (is_abbrev(buf, "create")) {
-				if (find_exdesc(argument, mob_p->mob_specials.response)) {
-					send_to_char(ch, 
-						"A response already exists with that keyword.\r\n"
-						"Use the 'olc mset reply remove' command to remove it, or the\r\n"
-						"'olc mset reply edit' command to change it, punk.\r\n");
-					return;
-				}
-				CREATE(nreply, struct extra_descr_data, 1);
-				nreply->keyword = str_dup(argument);
-				nreply->next = mob_p->mob_specials.response;
-				mob_p->mob_specials.response = nreply;
-				start_editing_text(ch->desc,
-					&mob_p->mob_specials.response->description);
-				SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-				act("$n begins to write a mobile response.", TRUE, ch, 0, 0,
-					TO_ROOM);
-				return;
-			} else if (is_abbrev(buf, "edit")) {
-				if ((reply =
-						locate_exdesc(argument,
-							mob_p->mob_specials.response, 1))) {
-					start_editing_text(ch->desc, &reply->description);
-					SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-					act("$n begins to edit a mobile response.", TRUE, ch, 0, 0,
-						TO_ROOM);
-				} else
-					send_to_char(ch, 
-						"No such response.  Use 'create' to make a new one.\r\n");
-
-				return;
-			} else if (is_abbrev(buf, "addkeyword")) {
-				half_chop(argument, arg1, arg2);
-				if ((reply =
-						locate_exdesc(arg1, mob_p->mob_specials.response, 1))) {
-					if (!*arg2) {
-						send_to_char(ch, 
-							"What??  How about giving me some keywords to add...\r\n");
-						return;
-					} else {
-						strcpy(buf, reply->keyword);
-						strcat(buf, " ");
-						strcat(buf, arg2);
-						free(reply->keyword);
-						reply->keyword = str_dup(buf);
-						UPDATE_MOBLIST(mob_p, tmp_mob,->mob_specials.response);
-						send_to_char(ch, "Keywords added.\r\n");
-						return;
-					}
-				} else
-					send_to_char(ch, 
-						"There is no such response for this mobile.\r\n");
-			} else
-				send_to_char(ch, OLC_REPLY_USAGE);
-			break;
-		}
+    case 40:
+        send_to_char(ch, "Removed.  Use a prog instead.\r\n");
+        break;
 	case 41:{
 			if (!*arg2 || (i = find_spec_index_arg(arg2)) < 0)
 				send_to_char(ch, "That is not a valid special.\r\n"
@@ -1566,27 +1474,6 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 
 			fprintf(file, "E\n");
 		}
-
-		reply = mob->mob_specials.response;
-		while (reply != NULL) {
-			if (!reply->keyword || !reply->description) {
-				slog("OLCERROR: Response with no kywrd or desc, mob #%d.\n",
-					mob->mob_specials.shared->vnum);
-				send_to_char(ch,
-					"I didn't save your bogus response for mob %d.\r\n",
-					mob->mob_specials.shared->vnum);
-				reply = reply->next;
-				continue;
-			}
-			fprintf(file, "R\n");
-			fprintf(file, "%s~\n", reply->keyword);
-			tmp = strlen(reply->description);
-			for (i = 0; i < tmp; i++)
-				if (reply->description[i] != '\r')
-					fputc(reply->description[i], file);
-			fprintf(file, "~\n");
-			reply = reply->next;
-		}
 	}
 
 	fprintf(file, "$\n");
@@ -1692,17 +1579,6 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 		free(mob->player.description);
 	}
 
-	while ((resp = mob->mob_specials.response)) {
-		mob->mob_specials.response = resp->next;
-		if (resp->keyword)
-			free(resp->keyword);
-		if (resp->description)
-			free(resp->description);
-		free(resp);
-	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	mob->mob_specials.shared->proto = NULL;
 	if (mob->mob_specials.shared->move_buf) {
 		free(mob->mob_specials.shared->move_buf);

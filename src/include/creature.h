@@ -1115,10 +1115,6 @@ struct mob_special_data {
             mtail = new_rec;
         }
         this->memory = mhead;
-
-        extra_descr_data *head = NULL;
-        this->response = head;
-
         this->func_data = c.func_data;
         this->shared = c.shared;
         this->wait_state = c.wait_state;
@@ -1129,7 +1125,6 @@ struct mob_special_data {
         return *this;
     }
 	memory_rec *memory;			/* List of attackers to remember           */
-	struct extra_descr_data *response;	/* for response processing */
 	void *func_data;			// Mobile-specific data used for specials
 	struct mob_shared_data *shared;
 	int wait_state;				/* Wait state for bashed mobs           */

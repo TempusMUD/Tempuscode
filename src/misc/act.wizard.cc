@@ -754,13 +754,6 @@ do_stat_memory(struct Creature *ch)
                 al = al->next;
             }
         }
-        tmpdesc = mob->mob_specials.response;
-        while (tmpdesc) {
-            sum += sizeof(struct extra_descr_data);
-            CHARADD(sum, tmpdesc->keyword);
-            CHARADD(sum, tmpdesc->description);
-            tmpdesc = tmpdesc->next;
-        }
         af = mob->affected;
         while (af) {
             sum += sizeof(struct affected_type);
@@ -840,13 +833,6 @@ do_stat_memory(struct Creature *ch)
         }
         if (desc) {
             sum += sizeof(struct descriptor_data);
-        }
-        tmpdesc = chars->mob_specials.response;
-        while (tmpdesc) {
-            sum += sizeof(struct extra_descr_data);
-            CHARADD(sum, tmpdesc->keyword);
-            CHARADD(sum, tmpdesc->description);
-            tmpdesc = tmpdesc->next;
         }
         fol = chars->followers;
         while (fol) {
@@ -8628,16 +8614,6 @@ verify_tempus_integrity(Creature *ch)
 			"description of creature proto", MOB_IDNUM(vict));
 		check_ptr(ch, vict->mob_specials.func_data, 0,
 			"func_data of creature proto", MOB_IDNUM(vict));
-		// Loop through responses
-		for (cur_exdesc = vict->mob_specials.response;cur_exdesc;cur_exdesc = cur_exdesc->next) {
-			if (!check_ptr(ch, cur_exdesc, sizeof(extra_descr_data),
-					"response of creature proto", MOB_IDNUM(vict)))
-				break;
-			check_ptr(ch, cur_exdesc->keyword, 0,
-				"keyword of response of creature proto", MOB_IDNUM(vict));
-			check_ptr(ch, cur_exdesc->description, 0,
-				"description of response of creature proto", MOB_IDNUM(vict));
-		}
 
 		// Loop through memory
 		for (cur_mem = vict->mob_specials.memory;cur_mem;cur_mem = cur_mem->next) {

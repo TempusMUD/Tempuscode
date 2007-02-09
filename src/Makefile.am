@@ -119,7 +119,6 @@ AM_LDFLAGS = @XML_LIBS@
                  misc/config.cc \
                  misc/limits.cc \
                  misc/login.cc \
-                 misc/rpl_resp.cc \
                  mobiles/artisan.cc \
                  mobiles/cityguard.cc \
                  mobiles/guard.cc \

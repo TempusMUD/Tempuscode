@@ -1759,7 +1759,6 @@ parse_enhanced_mob(FILE * mob_f, struct Creature *mobile, int nr)
 void
 parse_mobile(FILE * mob_f, int nr)
 {
-	struct extra_descr_data *new_descr = NULL;
 	bool done = false;
 	static int i = 0;
 	int j, t[10];
@@ -1833,12 +1832,9 @@ parse_mobile(FILE * mob_f, int nr)
 	do {
 		get_line(mob_f, line);
 		switch (line[0]) {
-		case 'R':				/* reply text */
-			CREATE(new_descr, struct extra_descr_data, 1);
-			new_descr->keyword = fread_string(mob_f, buf2);
-			new_descr->description = fread_string(mob_f, buf2);
-			new_descr->next = mobile->mob_specials.response;
-			mobile->mob_specials.response = new_descr;
+		case 'R':				/* reply text - no longer used */
+			free(fread_string(mob_f, buf2));
+            free(fread_string(mob_f, buf2));
 			break;
 		case '$':
 		case '#':				/* we hit a # so there is no end of replys */
