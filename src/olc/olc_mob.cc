@@ -344,7 +344,6 @@ do_mob_mstat(struct Creature *ch)
 void
 do_mob_mset(struct Creature *ch, char *argument)
 {
-	struct extra_descr_data *reply, *nreply, *temp;
 	struct Creature *tmp_mob;
 	struct zone_data *zone;
 	int i, mset_command, tmp_flags, flag, cur_flags, state;
@@ -1290,7 +1289,6 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 	room_num high = 0;
 	char fname[64];
 	char sbuf1[64], sbuf2[64], sbuf3[64], sbuf4[64], sbuf5[64];
-	struct extra_descr_data *reply;
 	struct Creature *mob;
 	FILE *file;
 	FILE *realfile;
@@ -1522,7 +1520,6 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 
 	struct zone_data *zone = NULL;
 	struct Creature *mob = NULL;
-	struct extra_descr_data *resp = NULL;
 	struct descriptor_data *d = NULL;
 	struct memory_rec_struct *mem_r = NULL;
 
