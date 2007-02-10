@@ -8720,7 +8720,7 @@ verify_tempus_integrity(Creature *ch)
 
 		// Loop through memory
 		for (cur_mem = vict->mob_specials.memory;cur_mem;cur_mem = cur_mem->next) {
-			if (!check_ptr(ch, cur_exdesc, sizeof(memory_rec_struct),
+			if (!check_ptr(ch, cur_mem, sizeof(memory_rec_struct),
 					"memory of creature proto", MOB_IDNUM(vict)))
 				break;
 		}
