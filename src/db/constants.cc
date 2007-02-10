@@ -3367,6 +3367,39 @@ extern const char *spell_bits[] = {
 	"\n"
 };
 
+extern const char *spell_bit_keywords[] = {
+	"damage",
+	"affects",
+	"unaffects",
+	"points",
+	"alterations",
+	"groups",
+	"masses",
+	"areas",
+	"summons",
+	"creations",
+	"manual",
+	"objects",
+	"touch",
+	"magic",
+	"divine",
+	"physics",
+	"psionic",
+	"biologic",
+	"cybernetic",
+	"evil",
+	"good",
+	"exits",
+	"outdoors",
+	"nowater",
+	"waterzap",
+	"nosun",
+	"zen",
+	"mercenary",
+	"song",
+	"\n"
+};
+
 extern const weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
 	{
 	3.5, 3},					// mage

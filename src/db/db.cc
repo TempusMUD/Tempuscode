@@ -191,7 +191,7 @@ void randomize_object(struct obj_data *obj);
 extern struct descriptor_data *descriptor_list;
 void load_messages(void);
 void weather_and_time(int mode);
-void mag_assign_spells(void);
+void boot_spells(void);
 void boot_social_messages(void);
 void free_socials(void);
 void sort_commands(void);
@@ -404,7 +404,7 @@ boot_db(void)
 		assign_artisans();
 	}
 	slog("   Spells.");
-	mag_assign_spells();
+    boot_spells();
 	while (spells[max_spell_num][0] != '\n')
 		max_spell_num++;
 

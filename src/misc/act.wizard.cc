@@ -7945,6 +7945,7 @@ static const char* CODER_UTIL_USAGE =
 					"      verify - run tempus integrity check.\r\n"
 					"       chaos - makes every mob berserk.\r\n"
 					"    loadzone - load zone files for zone.\r\n"
+					"   xmlspells - save a spells.xml file.\r\n"
                     ;
 
 bool
@@ -8000,6 +8001,106 @@ load_single_zone(int zone_num)
     } else {
         return false;
     }
+}
+
+struct spell_compare
+{
+    bool operator()(const int &a, const int &b)
+        {
+            return strcmp(spell_to_str(a), spell_to_str(b)) == -1;
+        }
+};
+
+void
+save_xml_abilities(Creature *ch)
+{
+    FILE *ouf;
+
+    ouf = fopen("etc/spells.xml", "w");
+    if (!ouf) {
+        send_to_char(ch, "spells.xml couldn't be opened!\r\n");
+        return;
+    }
+
+    // initialize for sorting
+    std::vector<int> sort_info;
+    for (int i = 0;i < TOP_SPELL_DEFINE;i++)
+        sort_info.push_back(i);
+    std::sort(sort_info.begin(), sort_info.end(), spell_compare());
+
+    fprintf(ouf, "<spells>\n");
+    for (int idx = 1;idx < TOP_SPELL_DEFINE;idx++) {
+        int spell = sort_info[idx];
+        spell_info_type *info = &spell_info[spell];
+
+        if (!spell)
+            break;
+
+        // Skip unused skills
+        if (spell_to_str(spell)[0] == '!')
+            continue;
+
+        const char *ability = (info->routines) ? "spell":"skill";
+
+        fprintf(ouf, "  <%s id=\"%d\" name=\"%s\">\n",
+                ability,
+                spell,
+                spell_to_str(spell));
+        for (int class_idx = 0;class_idx < NUM_CLASSES;class_idx++)
+            if (info->min_level[class_idx] > 0 &&
+                info->min_level[class_idx] < LVL_AMBASSADOR)
+                fprintf(ouf, "    <granted class=\"%s\" level=\"%d\"%s/>\n",
+                        tmp_tolower(strlist_aref(class_idx, pc_char_class_types)),
+                        info->min_level[class_idx],
+                        info->gen[class_idx] ?
+                        tmp_sprintf(" gen=\"%d\"", info->gen[class_idx]):"");
+        if (info->mana_max || info->mana_change || info->mana_min)
+            fprintf(ouf, "    <manacost initial=\"%d\" level_dec=\"%d\" minimum=\"%d\"/>\n",
+                    info->mana_max,
+                    info->mana_change,
+                    info->mana_min);
+        if (info->min_position)
+            fprintf(ouf, "    <position minimum=\"%s\"/>\n",
+                    tmp_tolower(strlist_aref(info->min_position, position_types)));
+
+        if (info->targets) {
+            if (info->targets & TAR_NOT_SELF)
+                fprintf(ouf, "    <target type=\"self\" scope=\"never\"/>\n");
+            if (info->targets & TAR_SELF_ONLY)
+                fprintf(ouf, "    <target type=\"self\" scope=\"only\"/>\n");
+            if (info->targets & TAR_CHAR_ROOM)
+                fprintf(ouf, "    <target type=\"creature\" scope=\"room\"/>\n");
+            if (info->targets & TAR_CHAR_WORLD)
+                fprintf(ouf, "    <target type=\"creature\" scope=\"world\"/>\n");
+            if (info->targets & TAR_FIGHT_SELF)
+                fprintf(ouf, "    <target type=\"self\" scope=\"fighting\"/>\n");
+            if (info->targets & TAR_FIGHT_VICT)
+                fprintf(ouf, "    <target type=\"creature\" scope=\"fighting\"/>\n");
+            if (info->targets & TAR_OBJ_INV)
+                fprintf(ouf, "    <target type=\"object\" scope=\"inventory\"/>\n");
+            if (info->targets & TAR_OBJ_ROOM)
+                fprintf(ouf, "    <target type=\"object\" scope=\"room\"/>\n");
+            if (info->targets & TAR_OBJ_WORLD)
+                fprintf(ouf, "    <target type=\"object\" scope=\"world\"/>\n");
+            if (info->targets & TAR_OBJ_EQUIP)
+                fprintf(ouf, "    <target type=\"object\" scope=\"equip\"/>\n");
+            if (info->targets & TAR_DOOR)
+                fprintf(ouf, "    <target type=\"door\"/>\n");
+            if (info->targets & TAR_DIR)
+                fprintf(ouf, "    <target type=\"direction\"/>\n");
+        }
+        if (info->violent)
+            fprintf(ouf, "    <flag value=\"violent\"/>\n");
+        for (int bit_idx = 0;spell_bit_keywords[bit_idx][0] != '\n';bit_idx++)
+            if (info->routines & (1 << bit_idx))
+                fprintf(ouf, "    <flag value=\"%s\"/>\n",
+                        tmp_tolower(strlist_aref(bit_idx, spell_bit_keywords)));
+        fprintf(ouf, "  </%s>\n", ability);
+    }
+    fprintf(ouf, "</spells>\n");
+    fclose(ouf);
+
+    send_to_char(ch, "Saved spells.\r\n");
 }
 
 ACMD(do_coderutil)
@@ -8085,7 +8186,9 @@ ACMD(do_coderutil)
         } else {
             send_to_char(ch, "Zone could not be found or reset.\r\n");
         }
-	} else
+	} else if (strcmp(token, "xmlspells") == 0) {
+        save_xml_abilities(ch);
+    } else
         send_to_char(ch, CODER_UTIL_USAGE);
 }
 
