@@ -20,7 +20,7 @@ using namespace std;
 #include "tokenizer.h"
 #include "screen.h"
 #include "player_table.h"
-
+#include "accstr.h"
 
 /*
  * The Security Namespace Group function definitions.
@@ -182,21 +182,18 @@ namespace Security {
         return true;
     }
 	
-	bool Group::sendPublicMember( Creature *ch, char *dest, char* prefix ) {
+	bool Group::sendPublicMember( Creature *ch, char* prefix ) {
 		if( members.size() == 0 )
 			return false;
 		const char* name = playerIndex.getName(members[0]);
 		if(!name) 
 			return false;
-		strcat(dest, prefix);
-		strcat(dest, CCYEL_BLD(ch,C_NRM) );
-		strcat(dest, tmp_capitalize(name) );
-		strcat(dest, CCNRM(ch,C_NRM) );
+        acc_strcat(prefix, CCYEL_BLD(ch, C_NRM), name, CCNRM(ch, C_NRM), NULL);
 		return true;
 	}
 	
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendPublicMemberList( Creature *ch, char *str, char* adminGroup ) {
+    bool Group::sendPublicMemberList( Creature *ch, char* adminGroup ) {
         vector<long>::iterator it;
         int pos = 0;
 		const char *name;
@@ -205,7 +202,7 @@ namespace Security {
 		if( Security::isGroup(adminGroup) )
 			group = &( Security::getGroup(adminGroup) );
 
-        strcat(str, "        ");
+        acc_strcat("        ", NULL);
 
 		it = members.begin();
         for( ; it != members.end(); ++it ) {
@@ -215,15 +212,14 @@ namespace Security {
 			admin = (group != NULL) && (group->member(*it));
 			if(! admin )
 				continue;
-            strcat(str,
-				tmp_sprintf("%s%-15s%s", 
-					admin ? CCYEL_BLD(ch,C_NRM) : "", 
-					tmp_capitalize(name),
-					admin ? CCNRM(ch,C_NRM) : ""));
+            acc_sprintf("%s%-15s%s", 
+                        admin ? CCYEL_BLD(ch,C_NRM) : "", 
+                        name,
+                        admin ? CCNRM(ch,C_NRM) : "");
 			pos++;
             if (pos > 3 ) {
                 pos = 0;
-                strcat(str,"\r\n        ");
+                acc_strcat("\r\n        ", NULL);
             } 
         }
 
@@ -235,15 +231,14 @@ namespace Security {
 			admin = (group != NULL) && (group->member(*it));
 			if( admin )
 				continue;
-            strcat(str,
-				tmp_sprintf("%s%-15s%s", 
-					admin ? CCYEL_BLD(ch,C_NRM) : "", 
-					tmp_capitalize(name),
-					admin ? CCNRM(ch,C_NRM) : ""));
+            acc_sprintf("%s%-15s%s", 
+                        admin ? CCYEL_BLD(ch,C_NRM) : "", 
+                        name,
+                        admin ? CCNRM(ch,C_NRM) : "");
 			pos++;
             if (pos > 3 ) {
                 pos = 0;
-                strcat(str,"\r\n        ");
+                acc_strcat("\r\n        ", NULL);
             } 
         }
         return true;

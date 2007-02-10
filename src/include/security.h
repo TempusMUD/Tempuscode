@@ -150,8 +150,8 @@ namespace Security {
 			 * @param adminGroup the name of the administrative group for this
 			 * 		  wizlist group. Members will be shown in yellow.
 			 */
-            bool sendPublicMemberList( Creature *ch, char *str, char* adminGroup = NULL );
-			bool sendPublicMember( Creature *ch, char *dest, char* prefix );
+            bool sendPublicMemberList(Creature *ch, char* adminGroup = NULL );
+			bool sendPublicMember(Creature *ch, char* prefix);
             /* Sends a list of this group's members to the given character. */
             bool sendMemberList( Creature *ch );
             /* Sends a list of this group's members to the given character. */

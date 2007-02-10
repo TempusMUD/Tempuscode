@@ -4978,62 +4978,52 @@ ACMD(do_alignment)
 
 void send_wizlist_section_splitter( Creature *ch )
 {
-    sprintf(buf, 
-            "%s    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
-            buf, CCCYN(ch,C_NRM), CCNRM(ch,C_NRM) );
+    acc_sprintf("    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
+            CCCYN(ch,C_NRM), CCNRM(ch,C_NRM) );
 }
 
 void send_wizlist_section_title( char* name, Creature *ch )
 {
-    sprintf(buf,
-            "%s\r\n\r\n        %s%s%s\r\n", 
-            buf,CCYEL(ch,C_NRM), name, CCNRM(ch,C_NRM) );
+    acc_sprintf("\r\n\r\n        %s%s%s\r\n", 
+            CCYEL(ch,C_NRM), name, CCNRM(ch,C_NRM) );
     send_wizlist_section_splitter(ch);
 }
 
 ACMD(do_wizlist)
 {
     using namespace Security;
-    sprintf(buf,
-            "\r\n                %sThe Immortals of TempusMUD\r\n"
-			"                %s--------------------------%s\r\n",
-             CCBLU(ch,C_NRM),CCBLU_BLD(ch,C_NRM),
-			 CCNRM(ch,C_NRM) );
 
-    send_wizlist_section_title("Greater Implementors",ch);
-    getGroup("Wizlist_Grimps").sendPublicMemberList(ch, buf);
+    acc_string_clear();
 
-    send_wizlist_section_title("Administrators",ch);
-    getGroup("Wizlist_Admins").sendPublicMemberList(ch, buf,"WizardAdmin");
+    acc_sprintf("\r\n                   %sThe Immortals of TempusMUD\r\n"
+                "                   %s--------------------------%s\r\n",
+                CCBLU(ch,C_NRM),CCBLU_BLD(ch,C_NRM),
+                CCNRM(ch,C_NRM) );
 
     send_wizlist_section_title("Architects",ch);
-	strcat(buf, "        ");
-    getGroup("Wizlist_Foreman").sendPublicMember(ch, buf, "Foreman: ");
-	strcat(buf, "                 ");
-    getGroup("Wizlist_Arch_P").sendPublicMember(ch, buf, "Past: ");
-	strcat(buf, "\r\n         ");
-    getGroup("Wizlist_ArchEC").sendPublicMember(ch, buf, "Future: ");
-	strcat(buf, "        ");
-    getGroup("Wizlist_ArchOP").sendPublicMember(ch, buf, "Outer Planes: ");
-    strcat(buf, "\r\n");
+    getGroup("Wizlist_Architects").sendPublicMemberList(ch, "OLCAdmin");
 
     send_wizlist_section_title("Builders",ch);
-    getGroup("Wizlist_Blders").sendPublicMemberList(ch, buf);
+    getGroup("Wizlist_Blders").sendPublicMemberList(ch);
 
     send_wizlist_section_title("Implementors",ch);
-    getGroup("Wizlist_Coders").sendPublicMemberList(ch, buf, "CoderAdmin");
+    getGroup("Wizlist_Coders").sendPublicMemberList(ch, "CoderAdmin");
 
     send_wizlist_section_title("Questors",ch);
-    getGroup("Wizlist_Quests").sendPublicMemberList(ch, buf, "QuestorAdmin" );
+    getGroup("Wizlist_Quests").sendPublicMemberList(ch, "QuestorAdmin" );
+
+    send_wizlist_section_title("Administrators",ch);
+    getGroup("Wizlist_Admins").sendPublicMemberList(ch,"WizardAdmin");
 
     send_wizlist_section_title("Elder Gods",ch);
-    getGroup("Wizlist_Elders").sendPublicMemberList(ch, buf, "GroupsAdmin" );
+    getGroup("Wizlist_Elders").sendPublicMemberList(ch, "GroupsAdmin" );
 
     send_wizlist_section_title("Founders",ch);
-    getGroup("Wizlist_Founders").sendPublicMemberList(ch, buf);
+    getGroup("Wizlist_Founders").sendPublicMemberList(ch);
 
-	strcat(buf, "\r\n\r\n");
-	page_string(ch->desc, buf);
+	acc_strcat("\r\n\r\n", NULL);
+
+	page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_areas)
