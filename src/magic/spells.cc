@@ -3442,6 +3442,11 @@ ASPELL(spell_bless)
 			}
 		}
 
+        if (GET_OBJ_TYPE(obj) == ITEM_FOOD) {
+            GET_OBJ_VAL(obj, 1) = GET_LEVEL(ch) / 2;
+            GET_OBJ_VAL(obj, 2) = SPELL_ESSENCE_OF_GOOD;
+        }
+
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
 		act("$p glows blue.", FALSE, ch, obj, 0, TO_CHAR);
@@ -3537,6 +3542,11 @@ ASPELL(spell_damn)
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
 		act("$p glows red.", FALSE, ch, obj, 0, TO_CHAR);
+
+        if (GET_OBJ_TYPE(obj) == ITEM_FOOD) {
+            GET_OBJ_VAL(obj, 1) = GET_LEVEL(ch) / 2;
+            GET_OBJ_VAL(obj, 2) = SPELL_ESSENCE_OF_EVIL;
+        }
 
 		if (GET_LEVEL(ch) >= 37) {
 			obj->affected[0].location = APPLY_AC;

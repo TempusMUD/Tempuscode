@@ -2292,29 +2292,6 @@ ACMD(do_eat)
 		extract_ok = FALSE;		// sometimes a death extracts the char's objs too
 
 	if (IS_OBJ_TYPE(food, ITEM_FOOD)) {
-		if (IS_OBJ_STAT(food, ITEM_DAMNED)) {
-			if (!call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_EVIL, GET_OBJ_VAL(food, 1), CAST_SPELL, return_flags) ) {
-				if (extract_ok)
-					extract_obj(food);
-				return;
-			} else {
-				if (*return_flags && extract_ok) {
-					extract_obj(food);
-					return;
-				}
-			}
-		} else if (IS_OBJ_STAT(food, ITEM_BLESS)) {
-			if (!call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_GOOD, GET_OBJ_VAL(food, 1), CAST_SPELL, return_flags ) ) {
-				if (extract_ok)
-					extract_obj(food);
-				return;
-			} else {
-				if (*return_flags && extract_ok) {
-					extract_obj(food);
-					return;
-				}
-			}
-		}
 		if ((GET_OBJ_VAL(food, 1) != 0) && (GET_OBJ_VAL(food, 2) != 0) &&
 			(GET_OBJ_TYPE(food) == ITEM_FOOD) && subcmd == SCMD_EAT) {
 			if (!mag_objectmagic(ch, food, buf, return_flags)) {
