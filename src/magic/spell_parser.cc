@@ -2268,6 +2268,10 @@ load_spell(xmlNodePtr node)
             free(value_str);
         }
     }
+
+    if (!spell_info[idnum].targets)
+        spell_info[idnum].targets = TAR_IGNORE;
+
     return true;
 }
 
