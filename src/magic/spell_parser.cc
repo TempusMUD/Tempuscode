@@ -2169,6 +2169,9 @@ load_spell(xmlNodePtr node)
         return false;
     }
 
+    for (int i = 0;i < NUM_CLASSES;i++)
+        spell_info[idnum].min_level[i] = 0;
+
     spells[idnum] = xmlGetProp(node, "name");
     for (child = node->children;child;child = child->next) {
         if (xmlMatches(child->name, "granted")) {
