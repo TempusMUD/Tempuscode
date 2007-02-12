@@ -654,7 +654,7 @@ void
 perform_autoloot(Creature *ch, obj_data *corpse)
 {
     struct obj_data *obj, *next_obj = NULL;
-    bool found, display;
+    bool found = false, display;
     int counter = 1;
 
     // If they can't see the corse, they can't loot it
