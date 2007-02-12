@@ -2169,8 +2169,9 @@ load_spell(xmlNodePtr node)
         return false;
     }
 
-    for (int i = 0;i < NUM_CLASSES;i++)
-        spell_info[idnum].min_level[i] = 0;
+    // for defined classes, initialize minimum level to ambassador
+    for (int class_idx = 0; class_idx < NUM_CLASSES; class_idx++)
+        spell_info[idnum].min_level[class_idx] = LVL_AMBASSADOR;
 
     spells[idnum] = xmlGetProp(node, "name");
     for (child = node->children;child;child = child->next) {
@@ -2282,26 +2283,11 @@ void
 clear_spells(void)
 {
 	for (int spl = 1; spl <= TOP_SPELL_DEFINE; spl++) {
-        for (int i = 0; i < NUM_CLASSES; i++)
-            spell_info[spl].gen[i] = 0;
         spells[spl] = "!UNUSED!";
-        spell_info[spl].min_level[CLASS_MAGIC_USER] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_CLERIC] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_THIEF] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_WARRIOR] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_BARB] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_PSIONIC] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_PHYSIC] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_CYBORG] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_KNIGHT] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_RANGER] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_BARD] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_MONK] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_VAMPIRE] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_MERCENARY] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_SPARE1] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_SPARE2] = LVL_GRIMP + 1;
-        spell_info[spl].min_level[CLASS_SPARE3] = LVL_GRIMP + 1;
+        for (int class_idx = 0; class_idx < NUM_CLASSES; class_idx++) {
+            spell_info[spl].min_level[class_idx] = LVL_GRIMP + 1;
+            spell_info[spl].gen[class_idx] = 0;
+        }
         spell_info[spl].mana_max = 0;
         spell_info[spl].mana_min = 0;
         spell_info[spl].mana_change = 0;
