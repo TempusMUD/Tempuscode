@@ -22,7 +22,7 @@
 #include "tmpstr.h"
 
 extern int max_spell_num;
-extern const char *spells[];
+extern const char **spells;
 
 inline const char *
 spell_to_str(int spell)

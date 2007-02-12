@@ -60,7 +60,7 @@ int perform_taint_burn(Creature *ch, int spellnum);
 
 int max_spell_num = 0;
 
-const char *spells[TOP_SPELL_DEFINE + 1] = { "!RESERVED!", 0 };
+const char **spells = new const char *[TOP_SPELL_DEFINE + 1];
 
 struct syllable {
 	char *org;
@@ -2278,9 +2278,6 @@ load_spell(xmlNodePtr node)
 void
 clear_spells(void)
 {
-    // Initialize string list terminator
-    spells[TOP_SPELL_DEFINE] = "\n";
-
 	for (int spl = 1; spl <= TOP_SPELL_DEFINE; spl++) {
         for (int i = 0; i < NUM_CLASSES; i++)
             spell_info[spl].gen[i] = 0;
@@ -2310,6 +2307,10 @@ clear_spells(void)
         spell_info[spl].violent = 0;
         spell_info[spl].routines = 0;
     }
+
+    // Initialize string list terminator
+    spells[0] = "!RESERVED!";
+    spells[TOP_SPELL_DEFINE] = "\n";
 }
 
 void
