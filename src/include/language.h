@@ -59,5 +59,6 @@ int find_tongue_idx_by_name(const char *tongue_name);
 
 static const int TONGUE_NONE =                          -1;
 static const int TONGUE_COMMON =                        0;
+static const int TONGUE_ARCANUM =                        1;
 
 #endif

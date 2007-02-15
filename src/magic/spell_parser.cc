@@ -36,6 +36,7 @@
 #include "tmpstr.h"
 #include "vendor.h"
 #include "prog.h"
+#include "language.h"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct room_direction_data *knock_door = NULL;
@@ -62,68 +63,6 @@ int max_spell_num = 0;
 
 const char **spells = new const char *[TOP_SPELL_DEFINE + 1];
 
-struct syllable {
-	char *org;
-	char *new_syl;
-};
-
-
-struct syllable syls[] = {
-	{" ", " "},
-	{"ar", "abra"},
-	{"ate", "i"},
-	{"cau", "kada"},
-	{"blind", "nose"},
-	{"bur", "mosa"},
-	{"cu", "judi"},
-	{"de", "oculo"},
-	{"dis", "mar"},
-	{"ect", "kamina"},
-	{"en", "uns"},
-	{"gro", "cra"},
-	{"light", "dies"},
-	{"lo", "hi"},
-	{"magi", "kari"},
-	{"mon", "bar"},
-	{"mor", "zak"},
-	{"move", "sido"},
-	{"ness", "lacri"},
-	{"ning", "illa"},
-	{"per", "duda"},
-	{"ra", "gru"},
-	{"re", "candus"},
-	{"son", "sabru"},
-	{"tect", "infra"},
-	{"tri", "cula"},
-	{"ven", "nofo"},
-	{"word of", "inset"},
-	{"clair", "alto'k"},
-	{"ning", "gzapta"},
-	{"vis", "tappa"},
-	{"light", "lumo"},
-	{"fly", "a lifto"},
-	{"align", "iptor "},
-	{"prot", "provec "},
-	{"fire", "infverrn'o"},
-	{"heat", "skaaldr"},
-	{"divine", "hohhlguihar"},
-	{"sphere", "en'kompaz"},
-	{"animate", "ak'necro pa"},
-	{"a", "i"}, {"b", "v"}, {"c", "q"}, {"d", "m"}, {"e", "o"}, {"f", "y"},
-		{"g", "t"},
-	{"h", "p"}, {"i", "u"}, {"j", "y"}, {"k", "t"}, {"l", "r"}, {"m", "w"},
-		{"n", "b"},
-	{"o", "a"}, {"p", "s"}, {"q", "d"}, {"r", "f"}, {"s", "g"}, {"t", "h"},
-		{"u", "e"},
-	{"v", "z"},
-	{"w", "x"},
-	{"x", "n"},
-	{"y", "l"},
-	{"z", "k"},
-	{"-", "rr't"},
-	{"", ""}
-};
-
 int
 mag_manacost(struct Creature *ch, int spellnum)
 {
@@ -148,118 +87,78 @@ mag_manacost(struct Creature *ch, int spellnum)
 }
 
 
-/* say_spell erodes buf, buf1, buf2 */
 void
-say_spell(struct Creature *ch, int spellnum, struct Creature *tch,
-	struct obj_data *tobj)
+say_spell(struct Creature *ch,
+          int spellnum,
+          struct Creature *tch,
+          struct obj_data *tobj)
 {
-	char lbuf[256], xbuf[256];
-	int j, ofs = 0;
-
-	*buf = '\0';
-	strcpy(lbuf, spell_to_str(spellnum));
-
-	while (*(lbuf + ofs)) {
-		for (j = 0; *(syls[j].org); j++) {
-			if (!strncasecmp(syls[j].org, lbuf + ofs, strlen(syls[j].org))) {
-				strcat(buf, syls[j].new_syl);
-				ofs += strlen(syls[j].org);
-			}
-		}
-	}
-
-	/* Magic Casting messages... */
+    const char *to_char = NULL, *to_vict = NULL, *to_room = NULL;
 
 	if (SPELL_IS_PSIONIC(spellnum)) {
-		if (tch != NULL && tch->in_room == ch->in_room) {
-			if (tch == ch) {
-				sprintf(buf2,
-					"$n momentarily closes $s eyes and concentrates.");
-				send_to_char(ch, "You close your eyes and concentrate.\r\n");
-			} else {
-				sprintf(buf2,
-					"$n closes $s eyes and touches $N with a mental finger.");
-				act("You close your eyes and touch $N with a mental finger.",
-					FALSE, ch, 0, tch, TO_CHAR);
-			}
-		} else if (tobj != NULL && tobj->in_room == ch->in_room) {
-			sprintf(buf2,
-				"$n closes $s eyes and touches $p with a mental finger.");
-			act("You close your eyes and touch $p with a mental finger.",
-				FALSE, ch, tobj, 0, TO_CHAR);
-		} else {
-			sprintf(buf2,
-				"$n closes $s eyes and slips into the psychic world.");
-			send_to_char(ch, 
-				"You close your eyes and slip into a psychic world.\r\n");
-		}
+		if (tobj != NULL && tobj->in_room == ch->in_room) {
+            to_char = "You close your eyes and touch $p with a mental finger.";
+            to_room = "$n closes $s eyes and touches $p with a mental finger.";
+		} else if (tch == NULL || tch->in_room != ch->in_room) {
+            to_char = "You close your eyes and slip into a psychic world.";
+            to_room = "$n closes $s eyes and slips into the psychic world.";
+		} else if (tch == ch) {
+            to_char = "You close your eyes and concentrate.";
+            to_room = "$n momentarily closes $s eyes and concentrates.";
+        } else {
+            to_char = "You close your eyes and touch $N with a mental finger.";
+            to_vict = "$n closes $s eyes and connects with your mind.";
+            to_room = "$n closes $s eyes and touches $N with a mental finger.";
+        }
 	} else if (SPELL_IS_PHYSICS(spellnum)) {
-		if (tch != NULL && tch->in_room == ch->in_room) {
-			if (tch == ch) {
-				sprintf(buf2,
-					"$n momentarily closes $s eyes and concentrates.");
-				send_to_char(ch, "You close your eyes and make a calculation.\r\n");
-			} else {
-				sprintf(buf2, "$n looks at $N and makes a calculation.");
-				act("You look at $N and make a calculation.", FALSE, ch, 0,
-					tch, TO_CHAR);
-			}
-		} else if (tobj != NULL && tobj->in_room == ch->in_room) {
-			sprintf(buf2, "$n looks directly at $p and makes a calculation.");
-			act("You look directly at $p and make a calculation.", FALSE, ch,
-				tobj, 0, TO_CHAR);
-		} else {
-			sprintf(buf2,
-				"$n closes $s eyes and slips into a deep calculation.");
-			send_to_char(ch, 
-				"You close your eyes and make a deep calculation.\r\n");
-		}
+		if (tobj != NULL && tobj->in_room == ch->in_room) {
+            to_char = "You look directly at $p and make a calculation.";
+            to_room = "$n looks directly at $p and makes a calculation.";
+		} else if (tch == NULL || tch->in_room != ch->in_room) {
+            to_char = "You close your eyes and slip into a deep calculation.";
+            to_room = "$n closes $s eyes and makes a deep calculation.";
+		} else if (tch == ch) {
+            to_char = "You close your eyes and make a calculation.";
+            to_room = "$n momentarily closes $s eyes and concentrates.";
+        } else {
+            to_char = "You look at $N and make a calculation.";
+            to_vict = "$n closes $s eyes and alters the reality around you.";
+            to_room = "$n looks at $N and makes a calculation.";
+        }
 	} else {
-		if (tch != NULL && tch->in_room == ch->in_room) {
-			if (tch == ch) {
-				sprintf(lbuf,
-					"$n closes $s eyes and utters the words, '%%s'.");
-				sprintf(xbuf, "You close your eyes and utter the words, '%s'.",
-					buf);
-			} else {
-				sprintf(lbuf, "$n stares at $N and utters, '%%s'.");
-				sprintf(xbuf, "You stare at $N and utter, '%s'.", buf);
-			}
-		} else if (tobj != NULL &&
-			((tobj->in_room == ch->in_room) || (tobj->carried_by == ch))) {
-			sprintf(lbuf, "$n stares at $p and utters the words, '%%s'.");
-			sprintf(xbuf, "You stare at $p and utter the words, '%s'.", buf);
-		} else {
-			sprintf(lbuf, "$n utters the words, '%%s'.");
-			sprintf(xbuf, "You utter the words, '%s'.", buf);
-		}
+        char *spellname = tongues[TONGUE_ARCANUM].translate(spell_to_str(spellnum), 0);
 
-		act(xbuf, FALSE, ch, tobj, tch, TO_CHAR);
-		sprintf(buf1, lbuf, spell_to_str(spellnum));
-		sprintf(buf2, lbuf, buf);
+		if (tobj != NULL && tobj->in_room == ch->in_room) {
+            to_char = "You stare at $p and utter the words, '%s'.";
+            to_room = "$n stares at $p and utters the words, '%s'.";
+		} else if (tch == NULL || tch->in_room != ch->in_room) {
+            to_char = "You utter the words, '%s'.";
+            to_room = "$n utters the words, '%s'.";
+		} else if (tch == ch) {
+            to_char = "You close your eyes and utter the words, '%s'.";
+            to_room = "$n closes $s eyes and utters the words, '%s'.";
+        } else {
+            to_char = "You stare at $N and utter, '%s'.";
+            to_vict = "$n stares at you and utters, '%s'.";
+            to_room = "$n stares at $N and utters, '%s'.";
+        }
+        if (to_char)
+            to_char = tmp_sprintf(to_char, spellname);
+        if (to_vict)
+            to_vict = tmp_sprintf(to_vict, spellname);
+        if (to_room)
+            to_room = tmp_sprintf(to_room, spellname);
 	}
 
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (*it == ch || *it == tch || !(*it)->desc || !AWAKE((*it)) ||
-			PLR_FLAGGED((*it), PLR_WRITING | PLR_OLC))
-			continue;
-		perform_act(buf2, ch, tobj, tch, (*it), 0);
-	}
-
-	if (tch != NULL && tch != ch && tch->in_room == ch->in_room) {
-		if (SPELL_IS_PSIONIC(spellnum)) {
-			sprintf(buf1, "$n closes $s eyes and connects with your mind.");
-			act(buf1, FALSE, ch, NULL, tch, TO_VICT);
-		} else if (SPELL_IS_PHYSICS(spellnum)) {
-			sprintf(buf1,
-				"$n closes $s eyes and alters the reality around you.");
-			act(buf1, FALSE, ch, NULL, tch, TO_VICT);
-		} else {
-			sprintf(buf1, "$n stares at you and utters the words, '%s'.", buf);
-			act(buf1, FALSE, ch, NULL, tch, TO_VICT);
-		}
-	}
+    if (to_char)
+        act(tmp_sprintf(to_char, spell_to_str(spellnum)), false,
+            ch, tobj, tch, TO_CHAR);
+    if (to_vict)
+        act(tmp_sprintf(to_vict, spell_to_str(spellnum)), false,
+            ch, tobj, tch, TO_VICT);
+    if (to_room)
+        act(tmp_sprintf(to_room, spell_to_str(spellnum)), false,
+            ch, tobj, tch, TO_NOTVICT);
 }
 
 // 06/18/99
