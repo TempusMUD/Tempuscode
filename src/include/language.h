@@ -37,7 +37,7 @@ public:
     trans_pair *_syllables;
     int _syllable_count;
     char _letters[256];
-
+    char *_nospeak_msg;
 private:
     char *translate_word(char *word);
 };

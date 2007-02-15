@@ -31,7 +31,7 @@
 #include "accstr.h"
 
 Tongue::Tongue(void)
-    :_idnum(0), _name(NULL), _syllables(NULL), _syllable_count(0)
+    :_idnum(0), _name(NULL), _syllables(NULL), _syllable_count(0), _nospeak_msg(NULL)
 {
     for (int c = 0;c < 256;c++)
         _letters[c] = c;
@@ -45,6 +45,7 @@ Tongue::Tongue(const Tongue &o)
 Tongue::~Tongue(void)
 {
     free(_name);
+    free(_nospeak_msg);
     delete [] _syllables;
 }
 
@@ -54,6 +55,7 @@ Tongue::operator=(const Tongue &o)
     _idnum = o._idnum;
     _syllable_count = o._syllable_count;
     _name = (o._name) ? strdup(o._name):NULL;
+    _nospeak_msg = (o._nospeak_msg) ? strdup(o._nospeak_msg):NULL;
     if (_syllable_count) {
         _syllables = new trans_pair[_syllable_count];
         memcpy(_syllables, o._syllables, sizeof(trans_pair) * _syllable_count);
@@ -71,6 +73,8 @@ Tongue::clear(void)
     _idnum = 0;
     free(_name);
     _name = NULL;
+    free(_nospeak_msg);
+    _nospeak_msg = NULL;
     delete [] _syllables;
     _syllables = NULL;
     _syllable_count = 0;
@@ -113,6 +117,8 @@ Tongue::load(xmlNodePtr node)
             _letters[toupper(*pattern)] = toupper(*replace);
             free(pattern);
             free(replace);
+        } else if (xmlMatches(child->name, "nospeak")) {
+			_nospeak_msg = (char *)xmlNodeGetContent(child);
         }
     }
     return true;
@@ -345,6 +351,11 @@ ACMD(do_speak_tongue)
 		send_to_char(ch, "That's not a tongue!\r\n");
 		return;
 	}
+
+    if (tongues[tongue_idx]._nospeak_msg) {
+        send_to_char(ch, "%s\r\n", tongues[tongue_idx]._nospeak_msg);
+        return;
+    }
 
 	if (CHECK_TONGUE(ch, tongue_idx) > 75) {
 		GET_TONGUE(ch) = tongue_idx;
