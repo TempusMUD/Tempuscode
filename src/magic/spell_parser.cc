@@ -161,9 +161,6 @@ say_spell(struct Creature *ch,
             ch, tobj, tch, TO_NOTVICT);
 }
 
-// 06/18/99
-// reversed order of args to is_abbrev
-// inside while. 
 int
 find_skill_num(char *name)
 {
