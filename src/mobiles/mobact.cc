@@ -1519,20 +1519,26 @@ best_attack(struct Creature *ch, struct Creature *vict)
 
 }
 
-#define ELEMENTAL_LIKES_ROOM(ch, room)  \
-(!IS_ELEMENTAL(ch) ||                \
- (GET_CLASS(ch) == CLASS_WATER &&            \
-  (SECT_TYPE(room) == SECT_WATER_NOSWIM  ||        \
-   SECT_TYPE(room) == SECT_WATER_SWIM ||        \
-   SECT_TYPE(room) == SECT_UNDERWATER || \
-   SECT_TYPE(room) == SECT_DEEP_OCEAN)) ||        \
- GET_CLASS(ch) != CLASS_WATER)
-
 inline bool
 CHAR_LIKES_ROOM(struct Creature * ch, struct room_data * room)
 {
-	if (!ELEMENTAL_LIKES_ROOM(ch, room))
-		return false;
+    if (IS_ELEMENTAL(ch)) {
+        // Keep water elementals in the water
+        if (GET_CLASS(ch) == CLASS_WATER &&
+            !(SECT_TYPE(room) == SECT_WATER_NOSWIM  ||
+              SECT_TYPE(room) == SECT_WATER_SWIM ||
+              SECT_TYPE(room) == SECT_UNDERWATER ||
+              SECT_TYPE(room) == SECT_DEEP_OCEAN))
+            return false;
+
+        // Keep fire elementals out of the water
+        if (GET_CLASS(ch) == CLASS_FIRE &&
+            (SECT_TYPE(room) == SECT_WATER_NOSWIM  ||
+             SECT_TYPE(room) == SECT_WATER_SWIM ||
+             SECT_TYPE(room) == SECT_UNDERWATER ||
+             SECT_TYPE(room) == SECT_DEEP_OCEAN))
+            return false;
+    }
 
 	if (ROOM_FLAGGED(room, ROOM_FLAME_FILLED) && !CHAR_WITHSTANDS_FIRE(ch))
 		return false;
