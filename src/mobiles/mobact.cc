@@ -1429,32 +1429,32 @@ best_attack(struct Creature *ch, struct Creature *vict)
 
 	if (cur_class == CLASS_MONK) {
 		if (GET_LEVEL(ch) >= 39 && vict->getPosition() > POS_STUNNED) {
-			sprintf(buf, "%s omega", fname(vict->player.name));
-			do_pinch(ch, buf, 0, 0, &return_flags);
+			do_pinch(ch, tmp_sprintf("omega %s", fname(vict->player.name)),
+                     0, 0, &return_flags);
 			return return_flags;
 		}
 		// Screw them up.
 		if (vict->getPosition() <= POS_STUNNED) {
 			if (!affected_by_spell(vict, SKILL_PINCH_GAMMA)
 				&& (GET_LEVEL(ch) > 35)) {
-				sprintf(buf, "%s gamma", fname(vict->player.name));
-				do_pinch(ch, buf, 0, 0, &return_flags);
+                do_pinch(ch, tmp_sprintf("gamma %s", fname(vict->player.name)),
+                         0, 0, &return_flags);
 			} else if (!affected_by_spell(vict, SKILL_PINCH_EPSILON)
 				&& (GET_LEVEL(ch) > 26)) {
-				sprintf(buf, "%s epsilon", fname(vict->player.name));
-				do_pinch(ch, buf, 0, 0, &return_flags);
+                do_pinch(ch, tmp_sprintf("epsilon %s", fname(vict->player.name)),
+                         0, 0, &return_flags);
 			} else if (!affected_by_spell(vict, SKILL_PINCH_DELTA)
 				&& (GET_LEVEL(ch) > 19)) {
-				sprintf(buf, "%s delta", fname(vict->player.name));
-				do_pinch(ch, buf, 0, 0, &return_flags);
+                do_pinch(ch, tmp_sprintf("delta %s", fname(vict->player.name)),
+                         0, 0, &return_flags);
 			} else if (!affected_by_spell(vict, SKILL_PINCH_BETA)
 				&& (GET_LEVEL(ch) > 12)) {
-				sprintf(buf, "%s beta", fname(vict->player.name));
-				do_pinch(ch, buf, 0, 0, &return_flags);
+                do_pinch(ch, tmp_sprintf(" beta %s", fname(vict->player.name)),
+                         0, 0, &return_flags);
 			} else if (!affected_by_spell(vict, SKILL_PINCH_ALPHA)
 				&& (GET_LEVEL(ch) > 6)) {
-				sprintf(buf, "%s alpha", fname(vict->player.name));
-				do_pinch(ch, buf, 0, 0, &return_flags);
+                do_pinch(ch, tmp_sprintf("alpha %s", fname(vict->player.name)),
+                         0, 0, &return_flags);
 			} else if (GET_LEVEL(ch) >= 33) {
 				do_combo(ch, fname(vict->player.name), 0, 0, &return_flags);
 			} else if (GET_LEVEL(ch) >= 30) {
