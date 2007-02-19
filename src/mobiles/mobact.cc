@@ -1649,18 +1649,14 @@ mobile_activity(void)
         }
 
 		// Non-special mobs in idle zones don't do anything
-		//
 		if( IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
 			continue;
         
-        //Utility mobs don't do anything
-        if ( IS_NPC(ch) && MOB_FLAGGED(ch, MOB_UTILITY) )
+        // Utility mobs don't do anything
+        if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_UTILITY))
             continue;
 
-		//
 		// poison 2 tick
-		//
-
 		if (HAS_POISON_2(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR && !(count % 2)) {
             affected_type *af;
             if ((af = affected_by_spell(ch, SPELL_POISON)))
@@ -1678,30 +1674,21 @@ mobile_activity(void)
             cur_class = GET_CLASS(ch);
 
 		
-		//
 		// bleed
-		//
-
 		if (GET_HIT(ch) &&
 			CHAR_HAS_BLOOD(ch) &&
 			GET_HIT(ch) < ((GET_MAX_HIT(ch) >> 3) +
 				random_number_zero_low(MAX(1, GET_MAX_HIT(ch) >> 4))))
 			add_blood_to_room(ch->in_room, 1);
 
-		//
 		// Zen of Motion effect
-		//
-
 		if (IS_NEUTRAL(ch) && affected_by_spell(ch, ZEN_MOTION))
 			GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch),
 				GET_MOVE(ch) +
 				random_number_zero_low(MAX(1, CHECK_SKILL(ch,
 							ZEN_MOTION) >> 3)));
 
-		//
 		// Deplete scuba tanks
-		//
-
 		if ((obj = ch->equipment[WEAR_FACE]) &&
 			GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK &&
 			!CAR_CLOSED(obj) &&
