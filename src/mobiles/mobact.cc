@@ -1648,20 +1648,6 @@ mobile_activity(void)
             continue;
         }
 
-        // The auctioneers are very special mobs...make that not
-        // special at all...they shouldn't have any reaction
-        // whatsoever to any activity by a player.  They should
-        // always be level 50...
-        if (ch->mob_specials.shared
-				&& ch->mob_specials.shared->func == do_auctions)
-			continue;
-
-        if (!ch->in_room && !ch->player.name && !ch->player.short_descr
-            && !ch->player.description) {
-            errlog("Skipping null mobile in mobile_activity");
-            continue;
-        }
-		//
 		// Non-special mobs in idle zones don't do anything
 		//
 		if( IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
