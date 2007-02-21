@@ -15,8 +15,6 @@ SPECIAL(jail_locker)
 	room_data *jail_room;
 	int cost, jail_num = 0;
 
-	ACMD(do_say);
-
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
 	if (!CMD_IS("receive") && !CMD_IS("offer"))
@@ -33,19 +31,19 @@ SPECIAL(jail_locker)
 
 	if (jail_num == 0) {
 		slog("Jailer #%d didn't have his jail set", GET_MOB_VNUM(self));
-		do_say(self, "I can't seem to find my files...", 0, 0, 0);
+		perform_say(self, "say", "I can't seem to find my files...");
 		return 0;
 	}
 	jail_room = real_room(jail_num);
 	if (!jail_room) {
 		slog("Jailer #%d couldn't find jail room #%d",
 			GET_MOB_VNUM(self), jail_num);
-		do_say(self, "I can't seem to find my files...", 0, 0, 0);
+		perform_say(self, "say", "I can't seem to find my files...");
 		return 0;
 	}
 
 	if (IS_NPC(ch)) {
-		do_say(self, "Sorry, I don't deal with mobiles.", 0, 0, 0);
+		perform_say(self, "say", "Sorry, I don't deal with mobiles.");
 		return 1;
 	}
 	for (locker = jail_room->contents; locker; locker = locker->next_content)
@@ -64,31 +62,29 @@ SPECIAL(jail_locker)
     cost += (cost*ch->getCostModifier(self))/100;
 	
 	if (CMD_IS("offer")) {
-		do_say(ch, "How much will it cost to get my stuff back, sir?", 0, 0, 0);
+		perform_say(ch, "say", "How much will it cost to get my stuff back, sir?");
 		if (!locker) {
-			do_say(self, "Sorry, you don't seem to have a locker here.", 0, 0, 0);
+			perform_say(self, "say", "Sorry, you don't seem to have a locker here.");
 		} else if (IS_CRIMINAL(ch)) {
-			do_say(self, "Your belongings have been confiscated, criminal.", 0, 0, 0);
+			perform_say(self, "say", "Your belongings have been confiscated, criminal.");
 			summon_cityguards(self->in_room);
 		} else if (GET_TIME_FRAME(self->in_room) == TIME_FUTURE) {
-			do_say(self, tmp_sprintf( "It will cost you %d credits, payable in cash.",
-				cost), 0, 0, 0);
+			perform_say(self, "say", tmp_sprintf( "It will cost you %d credits, payable in cash.", cost));
 		} else {
-			do_say(self, tmp_sprintf( "It will cost you %d gold coins.",
-				cost), 0, 0, 0);
+			perform_say(self, "say", tmp_sprintf( "It will cost you %d gold coins.", cost));
 		}
 		return 1;
 	}
 
-	do_say(ch, "I'd like to get my stuff back, please.", 0, 0, 0);
+	perform_say(ch, "say", "I'd like to get my stuff back, please.");
 
 	if (!locker) {
-		do_say(self, "Sorry, you don't seem to have a locker here.", 0, 0, 0);
+		perform_say(self, "say", "Sorry, you don't seem to have a locker here.");
 		return 1;
 	}
 
 	if (IS_CRIMINAL(ch)) {
-		do_say(self, "Your equipment has been confiscated for the good of the city.  Criminal.", 0, 0, 0);
+		perform_say(self, "say", "Your equipment has been confiscated for the good of the city.  Criminal.");
 		summon_cityguards(self->in_room);
 		return 1;
 	}
@@ -96,26 +92,24 @@ SPECIAL(jail_locker)
 	if (cost > 0) {
 		if (GET_TIME_FRAME(self->in_room) == TIME_FUTURE) {
 			if (GET_CASH(ch) >= cost) {
-				do_say(self, tmp_sprintf(
+				perform_say(self, "say", tmp_sprintf(
 					"That will be %d creds.  Try to stay out of trouble.",
-					cost), 0, 0, 0);
+					cost));
 				GET_CASH(ch) -= cost;
 			} else {
-				do_say(self, tmp_sprintf(
-					"You don't have the %d creds bail which I require.",
-						cost), 0, 0, 0);
+				perform_say(self, "say", tmp_sprintf("You don't have the %d creds bail which I require.", cost));
 				return 1;
 			}
 		} else {
 			if (GET_GOLD(ch) >= cost) {
-				do_say(self, tmp_sprintf(
+				perform_say(self, "say", tmp_sprintf(
 					"That will be %d gold coins.  Try to stay out of trouble.",
-					cost), 0, 0, 0);
+					cost));
 				GET_GOLD(ch) -= cost;
 			} else {
-				do_say(self, tmp_sprintf(
+				perform_say(self, "smirk", tmp_sprintf(
 					"You don't have the %d gold coins bail which I require.",
-						cost), 0, 0, 0);
+                    cost));
 				return 1;
 			}
 		}

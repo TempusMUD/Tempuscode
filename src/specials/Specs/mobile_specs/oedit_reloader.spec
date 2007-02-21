@@ -20,12 +20,12 @@ SPECIAL(oedit_reloader)
 		return false;
 	}
 	if (!can_see_creature(self, ch)) {
-		do_say(self, "Who's there?  I can't see you.", 0, 0, 0);
+		perform_say(self, "say", "Who's there?  I can't see you.");
 		return true;
 	}
 	
 	if( CMD_IS("help") && !*argument ) {
-		do_say(self, "If you want me to retrieve your property, just type 'retrieve'.", 0,0,0);
+		perform_say(self, "say", "If you want me to retrieve your property, just type 'retrieve'.");
 	} else if (CMD_IS("retrieve")) {
 		list<obj_data*> found;
 		act("$n closes $s eyes in deep concentration.", TRUE, self, 0, FALSE, TO_ROOM);

@@ -14,7 +14,6 @@ int do_remort(struct Creature *ch);
 SPECIAL(christmas_quest)
 {
     ACMD(do_echo);
-    ACMD(do_say);
     ACMD(do_advance);
     static int grinch_timer = 0;
     bool topZoneComparison(const struct zone_data* a, 

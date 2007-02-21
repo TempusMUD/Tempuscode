@@ -15,7 +15,6 @@ SPECIAL(newbie_improve)
 #define CHA  5
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	ACMD(do_say);
 	struct Creature *impro = (struct Creature *)me;
 	byte index = -1;
 	char *mssg = NULL;
@@ -27,11 +26,11 @@ SPECIAL(newbie_improve)
 	if (GET_LEVEL(ch) > 7 || GET_REMORT_GEN(ch) > 0) {
 		sprintf(buf3, "Get out of here, %s.  I cannot help you.",
 			GET_NAME(ch));
-		do_say(impro, buf3, 0, 0, 0);
+		perform_say(impro, "say", buf3);
 		return 1;
 	} else if (GET_LEVEL(ch) > 5) {
 		sprintf(buf3, "I am no longer able to train you, %s.", GET_NAME(ch));
-		do_say(impro, buf3, 0, 0, 0);
+		perform_say(impro, "say", buf3);
 		return 1;
 	}
 

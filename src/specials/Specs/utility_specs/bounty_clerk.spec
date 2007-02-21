@@ -198,37 +198,37 @@ register_bounty(Creature *self, Creature *ch, char *argument)
 		return 1;
 	}
 
-	do_say(ch, tmp_sprintf("I'd like to register as a bounty hunter for %s.",
-		tmp_capitalize(tmp_tolower(vict_name))), 0, 0, 0);
+	perform_say(ch, "inquire", tmp_sprintf("I'd like to register as a bounty hunter for %s.",
+                                       tmp_capitalize(tmp_tolower(vict_name))));
 	
 
 	if (IS_CRIMINAL(ch)) {
-		do_say(self, "You're a criminal.  Scum like you don't get to be bounty hunters.", 0, 0, 0);
+		perform_say(self, "say", "You're a criminal.  Scum like you don't get to be bounty hunters.");
 		return 1;
 	}
 
 	if (!playerIndex.exists(vict_name)) {
-		do_say(self, "Never heard of that person.", 0, 0, 0);
+		perform_say(self, "say", "Never heard of that person.");
 		return 1;
 	}
 
 	if (!vict.loadFromXML(playerIndex.getID(vict_name))) {
 		errlog("Could not load victim in place_bounty");
-		do_say(self, "Hmmm.  There seems to be a problem with that person.", 0, 0, 0);
+		perform_say(self, "say", "Hmmm.  There seems to be a problem with that person.");
 		return 1;
 	}
 
 	if (GET_IDNUM(ch) == GET_IDNUM(&vict)) {
-		do_say(self, "You can't be your own hunter, freak!", 0, 0, 0);
+		perform_say(self, "say", "You can't be your own hunter, freak!");
 		return 1;
 	}
 
 	if (!IS_CRIMINAL(&vict)) {
-		do_say(self, "That person isn't a criminal, jerk!", 0, 0, 0);
+		perform_say(self, "say", "That person isn't a criminal, jerk!");
 		return 1;
 	}
 
-	do_say(self, tmp_sprintf("Very well.  You are now registered as a bounty hunter for %s.", GET_NAME(&vict)), 0, 0, 0);
+	perform_say(self, "state", tmp_sprintf("Very well.  You are now registered as a bounty hunter for %s.", GET_NAME(&vict)));
 
 	hunter = find(hunter_list.begin(), hunter_list.end(), GET_IDNUM(ch));
 	if (hunter == hunter_list.end()) {

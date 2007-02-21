@@ -39,7 +39,7 @@ SPECIAL(electrician)
 			act("$n's hair suddenly stands on end.", FALSE, mob, 0, 0, TO_ROOM);
 			break;
 		case 5:
-			do_say(mob, "Uh-oh.", 0, 0, 0);
+			perform_say(mob, "say", "Uh-oh.");
 			do_flee(mob, "", 0, 0, 0);
 			break;
 	}

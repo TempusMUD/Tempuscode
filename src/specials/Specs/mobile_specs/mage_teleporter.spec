@@ -14,14 +14,14 @@ SPECIAL(mage_teleporter)
 
 	// Make sure they follow the format
 	if (!is_abbrev(tmp_getword(&argument), "teleport")) {
-		do_say(self, tmp_sprintf("Type %s teleport <location> to get a quick trip to that location.", cmd_info[cmd].command), 0, 0, 0);
+		perform_say(self, "say", tmp_sprintf("Type %s teleport <location> to get a quick trip to that location.", cmd_info[cmd].command));
 		return 1;
 	}
 
 	// Now find a vstone in the room with that alias
 	arg = tmp_getword(&argument);
 	if (!*arg) {
-		do_say(self, "You want to go where?", 0, 0, 0);
+		perform_say(self, "say", "You want to go where?");
 		return 1;
 	}
 
@@ -35,7 +35,7 @@ SPECIAL(mage_teleporter)
 				&& GET_OBJ_VAL(vstone, 1) == 0))
 		vstone = vstone->next_content;
 	if (!vstone) {
-		do_say(self, "We don't have a v-stone to that location!", 0, 0, 0);
+		perform_say(self, "say", "We don't have a v-stone to that location!");
 		return 1;
 	}
 
@@ -53,11 +53,11 @@ SPECIAL(mage_teleporter)
 
 	dest_room = real_room(GET_OBJ_VAL(vstone, 0));
 	if (!dest_room) {
-		do_say(self, "Hmmm.  That place doesn't seem to exist anymore.", 0, 0, 0);
+		perform_say(self, "say", "Hmmm.  That place doesn't seem to exist anymore.");
 		return 1;
 	}
 	
-	do_say(self, tmp_sprintf("Very well, %s.", GET_NAME(ch)), 0, 0, 0);
+	perform_say(self, "say", tmp_sprintf("Very well, %s.", GET_NAME(ch)));
 	act("You stares at $N and utters, 'horosafh'.", true, self, 0, ch, TO_CHAR);
 	act("$n stares at you and utters, 'horosafh'.", true, self, 0, ch, TO_VICT);
 	act("$n stares at $N and utters, 'horosafh'.", true, self, 0, ch, TO_NOTVICT);

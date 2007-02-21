@@ -7,7 +7,6 @@
 SPECIAL(kata)
 {
 	struct Creature *kata = (struct Creature *)me;
-	ACMD(do_say);
 	char buf[MAX_STRING_LENGTH];
 
 	if (kata->master || IS_AFFECTED(kata, AFF_CHARM))
@@ -22,14 +21,14 @@ SPECIAL(kata)
 		return 0;
 
 	if (IS_EVIL(ch) && IS_GOOD(kata)) {
-		do_say(kata, "No! I will not follow you.", 0, 0, 0);
+		perform_say(kata, "say", "No! I will not follow you.");
 		return 1;
 	}
 
 	sprintf(buf,
 		"Thank you for rescuing me, %s!  I will be a loyal companion.",
 		GET_NAME(ch));
-	do_say(kata, buf, 0, 0, 0);
+	perform_say(kata, "say", buf);
 	add_follower(kata, ch);
 	SET_BIT(AFF_FLAGS(kata), AFF_CHARM);
 	return 1;

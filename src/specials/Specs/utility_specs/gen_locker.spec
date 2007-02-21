@@ -20,8 +20,6 @@ SPECIAL(gen_locker)
 	int rent = 0, hours = 0;
 	int found = 0;
 
-	ACMD(do_say);
-
 	if (!cmd)
 		return 0;
 
@@ -53,7 +51,7 @@ SPECIAL(gen_locker)
 			return 0;
 
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0, 0);
+			perform_say(atten, "say", "Sorry, I cannot store things for mobiles.");
 			return 1;
 		}
 
@@ -129,7 +127,7 @@ SPECIAL(gen_locker)
 			return 0;
 
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0, 0);
+			perform_say(atten, "say", "Sorry, I cannot store things for mobiles.");
 			return 1;
 		}
 
@@ -244,7 +242,7 @@ SPECIAL(gen_locker)
 	if (CMD_IS("receive")) {
 
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I don't deal with mobiles.", 0, 0, 0);
+			perform_say(atten, "say", "Sorry, I don't deal with mobiles.");
 			return 1;
 		}
 
@@ -272,8 +270,7 @@ SPECIAL(gen_locker)
 		if (!locker || GET_OBJ_VNUM(locker) != locker_vnum ||
 			GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)
 			|| (!locker->contains)) {
-			do_say(atten, "Sorry, you don't seem to have a locker here.", 0,
-				0, 0);
+			perform_say(atten, "apologize", "Sorry, you don't seem to have a locker here.");
 			return 1;
 		}
 

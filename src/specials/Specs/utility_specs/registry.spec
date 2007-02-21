@@ -15,7 +15,7 @@ SPECIAL(registry)
 		return 0;
 
 	if (!can_see_creature(reg, ch)) {
-		do_say(reg, "Who's there?  Come visible to register, infidel!", 0, 0, 0);
+		perform_say(reg, "say", "Who's there?  Come visible to register, infidel!");
 		return 1;
 	}
 	cost = GET_LEVEL(ch) * 100;
@@ -116,7 +116,7 @@ SPECIAL(registry)
 		break;
 
 	default:
-		do_say(reg, "Sorry, this office is temporarily closed.", 0, 0, 0);
+		perform_say(reg, "say", "Sorry, this office is temporarily closed.");
 		return 1;
 		break;
 	}
@@ -133,7 +133,7 @@ SPECIAL(registry)
 	GET_HOME(ch) = home;
 	GET_GOLD(ch) -= cost;
 	sprintf(buf3, "Welcome to %s, %s.", home_towns[home], GET_NAME(ch));
-	do_say(reg, buf3, 0, 0, 0);
+	perform_say(reg, "say", buf3);
 	sprintf(buf2, "That will be %d coins.", cost);
 	perform_tell(reg, ch, buf2);
 

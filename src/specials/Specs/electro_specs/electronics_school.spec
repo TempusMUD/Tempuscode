@@ -61,7 +61,7 @@ SPECIAL(electronics_school)
 	cred_cost += (cred_cost*ch->getCostModifier(self))/100;
     
 	if (!can_see_creature(self, ch)) {
-		do_say(self, "I can't train ya if I can't see ya, see?", 0, 0, 0);
+		perform_say(self, "say", "I can't train ya if I can't see ya, see?");
 		return 1;
 	}
 

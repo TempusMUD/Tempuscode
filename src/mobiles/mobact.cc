@@ -66,7 +66,6 @@ ACMD(do_sleeper);
 ACMD(do_stun);
 ACMD(do_circle);
 ACMD(do_backstab);
-ACMD(do_say);
 ACMD(do_feign);
 ACMD(do_hide);
 ACMD(do_gen_comm);
@@ -1081,7 +1080,7 @@ mob_load_unit_gun(struct Creature *ch, struct obj_data *clip,
 	strcat(loadbuf, fname(gun->aliases));
 	do_load(ch, loadbuf, 0, SCMD_LOAD, 0);
 	if (GET_MOB_VNUM(ch) == 1516 && IS_CLIP(clip) && random_binary())
-		do_say(ch, "Let's Rock.", 0, 0, 0);
+		perform_say(ch, "say", "Let's Rock.");
 	return;
 }
 
@@ -2037,7 +2036,7 @@ mobile_activity(void)
 						if (!GET_EQ(ch, WEAR_WIELD)) {
 							do_wield(ch, OBJN(obj, ch), 0, 0, 0);
 							if (IS_GUN(obj) && GET_MOB_VNUM(ch) == 1516)
-								do_say(ch, "Let's Rock.", 0, 0, 0);
+								perform_say(ch, "say", "Let's Rock.");
 						}
 					}
 				}
@@ -2412,7 +2411,7 @@ mobile_activity(void)
 								if (!IS_ANIMAL(ch) && !IS_SLIME(ch)
 									&& !IS_PUDDING(ch)) {
 									if (random_fractional_4())
-										do_say(ch, "Oh, shit!", 0, 0, 0);
+										perform_say(ch, "say", "Oh, shit!");
 									else if (random_fractional_3())
 										act("$n screams in terror!", FALSE, ch, 0,
 											0, TO_ROOM);
@@ -2963,11 +2962,10 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 					ch, 0, 0, TO_ROOM);
 			} else {
 				if (target && can_see_creature(target, ch))
-					do_say(ch,
-						tmp_sprintf("%s you bastard!", PERS(target, ch)),
-						0, 0, 0);
+					perform_say(ch, "yell",
+                                tmp_sprintf("%s you bastard!", PERS(target, ch)));
 				else
-					do_say(ch, "You stinking bastard!", 0, 0, 0);
+					perform_say(ch, "say", "You stinking bastard!");
 			}
 
 			return 0;
@@ -2979,15 +2977,14 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			int pct = random_percentage_zero_low();
 
 			if (pct < 20) {
-				do_say(ch, "Let this be a lesson to you!", 0, 0, 0);
+				perform_say(ch, "say", "Let this be a lesson to you!");
 				return 0;
 			} else if (pct < 50) {
-				do_say(ch, "So you thought you were tough, eh?", 0, 0, 0);
+				perform_say(ch, "say", "So you thought you were tough, eh?");
 				return 0;
 			} else if (pct < 60) {
-				do_say(ch,
-					tmp_sprintf("Kiss my ass, %s!", PERS(ch, target)),
-					0, 0, 0);
+				perform_say(ch, "yell",
+                            tmp_sprintf("Kiss my ass, %s!", PERS(ch, target)));
 				return 0;
 			}
 		}

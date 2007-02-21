@@ -39,13 +39,13 @@ SPECIAL(mugger)
 				if (GET_IDNUM(ch) == mug->idnum) {
                     vict = self->findRandomCombat();
 					if (self->numCombatants() && !IS_NPC(vict)) {
-						do_say(self, tmp_sprintf("Ha!  Let this be a lesson to you, %s!", GET_DISGUISED_NAME(self, vict)), 0, 0, 0);
+						perform_say(self, "say", tmp_sprintf("Ha!  Let this be a lesson to you, %s!", GET_DISGUISED_NAME(self, vict)));
                         self->removeAllCombat();
 					} else {
-						do_say(self, tmp_sprintf("Good move, %s!", GET_DISGUISED_NAME(self, ch)), 0, 0, 0);
+						perform_say(self, "say", tmp_sprintf("Good move, %s!", GET_DISGUISED_NAME(self, ch)));
 					}
 				} else
-					do_say(self, "Ok, that will work.", 0, 0, 0);
+					perform_say(self, "say", "Ok, that will work.");
 				free(self->mob_specials.func_data);
 				self->mob_specials.func_data = NULL;
 				return 1;
@@ -166,7 +166,7 @@ SPECIAL(mugger)
 		if (!vict
 				|| GET_PC_DEATHS(vict) > mug->deaths
 				|| !can_see_creature(self, vict)) {
-			do_say(self, "Curses, foiled again!", 0, 0, 0);
+			perform_say(self, "say", "Curses, foiled again!");
 			free(mug);
 			self->mob_specials.func_data = NULL;
 			return 1;

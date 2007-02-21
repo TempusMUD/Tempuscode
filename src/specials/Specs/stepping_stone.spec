@@ -64,8 +64,6 @@ SPECIAL(arena_locker)
 	struct obj_data *locker, *item, *tmp_item;
 	struct room_data *r_locker_room;
 
-	ACMD(do_say);
-
 	if (spec_mode != SPECIAL_CMD)
 		return false;
 
@@ -73,18 +71,17 @@ SPECIAL(arena_locker)
 		return false;
 
 	if (CMD_IS("store")) {
-		do_say(ch, "I'd like to store my stuff, please.", 0, 0, 0);
+		perform_say(ch, "say", "I'd like to store my stuff, please.");
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I cannot store things for mobiles.", 0, 0, 0);
+			perform_say(atten, "say", "Sorry, I cannot store things for mobiles.");
 			return true;
 		}
 		if (!(IS_CARRYING_W(ch) + IS_WEARING_W(ch))) {
-			do_say(atten, "Looks to me like you're already stark naked.", 0,
-				0, 0);
+			perform_say(atten, "smirk", "Looks to me like you're already stark naked.");
 			return true;
 		}
 		if (IS_WEARING_W(ch)) {
-			do_say(atten, "You need to remove all your gear first.", 0, 0, 0);
+			perform_say(atten, "say", "You need to remove all your gear first.");
 			return true;
 		}
 		for (locker = r_locker_room->contents; locker;
@@ -106,14 +103,13 @@ SPECIAL(arena_locker)
 			act("$N is now stark naked!", false, atten, 0, ch, TO_NOTVICT);
 			return true;
 		}
-		do_say(atten, "Sorry, all the lockers are occupied at the moment.", 0,
-			0, 0);
+		perform_say(atten, "apologize", "Sorry, all the lockers are occupied at the moment.");
 		return true;
 	}
 	if (CMD_IS("receive")) {
-		do_say(ch, "I'd like to get my stuff back , please.", 0, 0, 0);
+		perform_say(ch, "say", "I'd like to get my stuff back , please.");
 		if (IS_NPC(ch)) {
-			do_say(atten, "Sorry, I don't deal with mobiles.", 0, 0, 0);
+			perform_say(atten, "say", "Sorry, I don't deal with mobiles.");
 			return true;
 		}
 
@@ -126,8 +122,7 @@ SPECIAL(arena_locker)
 			if (GET_OBJ_VNUM(locker) != 40099 ||
 				GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)
 				|| (!locker->contains)) {
-				do_say(atten, "Sorry, you don't seem to have a locker here.",
-					0, 0, 0);
+				perform_say(atten, "apologize", "Sorry, you don't seem to have a locker here.");
 				return true;
 			}
 			for (item = locker->contains; item; item = tmp_item) {
@@ -148,7 +143,7 @@ SPECIAL(arena_locker)
 
 			return true;
 		}
-		do_say(atten, "Sorry, you don't seem to have a locker here.", 0, 0, 0);
+		perform_say(atten, "say", "Sorry, you don't seem to have a locker here.");
 		return true;
 	}
 	return false;

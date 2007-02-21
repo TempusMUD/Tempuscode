@@ -37,9 +37,8 @@ SPECIAL(spirit_priestess)
 	act("$n presents $N with $p.", TRUE, ch, am, pri, TO_ROOM);
 	act("You present $N with $p.", FALSE, ch, am, pri, TO_CHAR);
 
-	do_say(pri,
-		"Thank you, you have done well.  I now give you this healing staff.",
-		0, 0, 0);
+	perform_say(pri, "say",
+                "Thank you, you have done well.  I now give you this healing staff.");
 
 	act("$N gives $p to $n.", TRUE, ch, staff, pri, TO_ROOM);
 	act("$N gives $p to you.", FALSE, ch, staff, pri, TO_CHAR);

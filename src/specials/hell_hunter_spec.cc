@@ -58,7 +58,6 @@ int get_check_money(struct Creature *ch, struct obj_data **obj, int display);
 
 
 ACMD(do_echo);
-ACMD(do_say);
 ACMD(do_gen_comm);
 ACMD(do_rescue);
 ACMD(do_steal);

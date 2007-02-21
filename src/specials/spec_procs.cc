@@ -59,7 +59,6 @@ int get_check_money(struct Creature *ch, struct obj_data **obj, int display);
 
 
 ACMD(do_echo);
-ACMD(do_say);
 ACMD(do_gen_comm);
 ACMD(do_rescue);
 ACMD(do_steal);
@@ -843,33 +842,6 @@ SPECIAL(barbarian)
 ******************************************************************** */
 
 int parse_player_class(char *arg, int timeframe);
-
-SPECIAL(puff)
-{
-	ACMD(do_say);
-
-	if (spec_mode != SPECIAL_TICK)
-		return (0);
-
-	switch (number(0, 60)) {
-	case 0:
-		do_say(ch, "My god!  It's full of stars!", 0, 0, 0);
-		return (1);
-	case 1:
-		do_say(ch, "How'd all those fish get up here?", 0, 0, 0);
-		return (1);
-	case 2:
-		do_say(ch, "I'm a very female dragon.", 0, 0, 0);
-		return (1);
-	case 3:
-		do_say(ch, "I've got a peaceful, easy feeling.", 0, 0, 0);
-		return (1);
-	default:
-		return (0);
-	}
-}
-
-
 
 SPECIAL(fido)
 {
@@ -1679,9 +1651,6 @@ SPECIAL(cave_bear)
 #include "Specs/araken_specs/rust_monster.spec"
 
 /* Mavernal Specs */
-#include "Specs/mavernal_specs/mavernal_citizen.spec"
-#include "Specs/mavernal_specs/new_mavernal_talker.spec"
-
 #include "Specs/falling_tower_dt.spec"
 #include "Specs/stepping_stone.spec"
 
@@ -1727,9 +1696,6 @@ SPECIAL(cave_bear)
 /* Bugs' SPECS */
 #include "Specs/bugs_specs/monastery_eating.spec"
 #include "Specs/bugs_specs/red_highlord.spec"
-
-/* Joran's SPECS */
-#include "Specs/joran_specs/quasimodo.spec"
 
 /* skullport SPECS */
 #include "Specs/skullport_specs/corpse_griller.spec"

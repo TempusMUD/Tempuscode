@@ -48,7 +48,6 @@ extern struct room_data *world;
 
 int has_key(struct Creature *ch, obj_num key);
 
-ACMD(do_say);
 ACMD(do_gen_comm);
 ACMD(do_gen_door);
 ACMD(do_fly);
@@ -576,7 +575,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 			else if (IS_PHYSIC(ch))
 				cast_spell(ch, ch, 0, NULL, SPELL_TIDAL_SPACEWARP);
 			else if (!number(0, 10)) {
-				do_say(ch, "Well, SHIT!  I need to be able to fly!", 0, 0, 0);
+				perform_say(ch, "say", "Well, SHIT!  I need to be able to fly!");
 				return 0;
 			}
 		} else if (SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM &&
@@ -631,7 +630,7 @@ hunt_victim(struct Creature *ch)
 	}
 	if (!found) {
 		if (!ch->numCombatants()) {
-			do_say(ch, "Damn!  My prey is gone!!", 0, 0, 0);
+			perform_say(ch, "say", "Damn!  My prey is gone!!");
 			ch->stopHunting();
 		}
 		return 0;
@@ -727,7 +726,7 @@ hunt_victim(struct Creature *ch)
 						else if (!number(0, 2)) {
 							sprintf(buf2, "Well, well well... if it isn't %s!",
 								GET_NAME(ch->isHunting()));
-							do_say(ch, buf2, 0, 0, 0);
+							perform_say(ch, "say", buf2);
 						} else if (!number(0, 1)) {
                             perform_say_to(ch, ch->isHunting(), "You can run but you can't hide!");
 						} else {
@@ -836,7 +835,7 @@ hunt_victim(struct Creature *ch)
 			}
 
 			if (!number(0, 32))
-				do_say(ch, "One of these days..", 0, 0, 0);
+				perform_say(ch, "say", "One of these days..");
 		}
 	}
 	return 0;

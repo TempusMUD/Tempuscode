@@ -6,7 +6,6 @@
 
 SPECIAL(elven_registry)
 {
-	ACMD(do_say);
 	ACMD(do_gen_comm);
 	struct Creature *reg = (struct Creature *)me;
 	struct obj_data *cert;
@@ -17,7 +16,7 @@ SPECIAL(elven_registry)
 		return 0;
 
 	if (!can_see_creature(reg, ch)) {
-		do_say(reg, "Who's there?  Come visible to register.", 0, 0);
+		perform_say(reg, "say", "Who's there?  Come visible to register.");
 		return 1;
 	}
 	cost = GET_LEVEL(ch) * 50;
@@ -69,7 +68,7 @@ SPECIAL(elven_registry)
 	GET_GOLD(ch) -= cost;
 	sprintf(buf3, "You are now a resident of our fine village, %s.",
 		GET_NAME(ch));
-	do_say(reg, buf3, 0, 0);
+	perform_say(reg, "say", buf3);
 	sprintf(buf2, "That will be %d coins.", cost);
 	perform_tell(reg, ch, buf2);
 	if ((cert = read_object(19099))) {

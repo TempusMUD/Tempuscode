@@ -12,7 +12,6 @@ SPECIAL(corpse_retrieval)
 	struct obj_data *corpse;
 	struct Creature *retriever = (struct Creature *)me;
 	char buf2[MAX_STRING_LENGTH];
-	ACMD(do_say);
 	int price;
 	int amt_carried;
 
@@ -27,7 +26,7 @@ SPECIAL(corpse_retrieval)
 	if (!CMD_IS("retrieve"))
 		return 0;
 	if (!can_see_creature(retriever, ch)) {
-		do_say(retriever, "Who's there?  I can't see you.", 0, 0, 0);
+		perform_say(retriever, "say", "Who's there?  I can't see you.");
 		return 1;
 	}
 	if (IS_MOB(ch)) {

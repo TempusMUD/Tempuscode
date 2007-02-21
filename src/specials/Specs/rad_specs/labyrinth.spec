@@ -292,18 +292,18 @@ SPECIAL(gollum)
 
 	if (number(0, 5) == 0) {
 
-		do_say(gollum,
-			"How about I let you go if you can answer my riddle?'.\r\n"
-			"'This thing all things devours: Birds, beasts, trees, flowers;'.\r\n"
-			"'Gnaws iron, bites steel; Grinds hard stone to meal;'.\r\n"
-			"'Slays king, ruins town, And beats high mountain down.", 0, 0, 0);
+		perform_say(gollum, "say",
+                    "How about I let you go if you can answer my riddle?'.\r\n"
+                    "'This thing all things devours: Birds, beasts, trees, flowers;'.\r\n"
+                    "'Gnaws iron, bites steel; Grinds hard stone to meal;'.\r\n"
+                    "'Slays king, ruins town, And beats high mountain down.");
 
 		return 1;
 	} else if (number(0, 2) == 0) {
 
-		do_say(gollum,
+        perform_say(gollum, "say",
 			"Bless us and splash us, my precioussss!'.\r\n"
-			"'Look what issssss caught in our trap, gollum!", 0, 0, 0);
+                    "'Look what issssss caught in our trap, gollum!");
 		act("$n thinks for a while and asks you, 'Do you like riddles?'.\r\n",
 			FALSE, ch, 0, 0, TO_ROOM);
 

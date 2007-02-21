@@ -20,23 +20,22 @@ SPECIAL(duke_nukem)
 		if (GET_HIT(duke) > (GET_MAX_HIT(duke) >> 2) &&
 			GET_HIT(vict) < (GET_MAX_HIT(vict) >> 1)) {
 			if (!number(0, 10))
-				do_say(duke, "You're an inspiration for birth control.", 0, 0, 0);
+				perform_say(duke, "say", "You're an inspiration for birth control.");
 			else if (!number(0, 10))
-				do_say(duke,
-					"What are you, some bottom feeding, scum sucking algae eater?",
-					0, 0, 0);
+				perform_say(duke, "say",
+                            "What are you, some bottom feeding, scum sucking algae eater?");
 			else if (!number(0, 10))
-				do_say(duke, "It hurts to be you.", 0, 0, 0);
+				perform_say(duke, "say", "It hurts to be you.");
 			else if (!number(0, 10))
-				do_say(duke, "Eat shit and die.", 0, 0, 0);
+				perform_say(duke, "say", "Eat shit and die.");
 			else if (!number(0, 10))
-				do_say(duke, "Blow it out your ass.", 0, 0, 0);
+				perform_say(duke, "say", "Blow it out your ass.");
 			else if (IS_MALE(vict) && !number(0, 10))
-				do_say(duke, "Die, you son of a bitch.", 0, 0, 0);
+				perform_say(duke, "say", "Die, you son of a bitch.");
 			else if (IS_FEMALE(vict) && !number(0, 10))
-				do_say(duke, "Shake it baby.", 0, 0, 0);
+				perform_say(duke, "say", "Shake it baby.");
 			else if (GET_HIT(vict) < 50)
-				do_say(duke, "Game Over.", 0, 0, 0);
+				perform_say(duke, "say", "Game Over.");
 		}
 		return 0;
 	}
@@ -112,13 +111,13 @@ SPECIAL(duke_nukem)
 		do_gen_comm(duke, "Shit happens.", 0, SCMD_SPEW, 0);
 		break;
 	case 13:
-		do_say(duke, "Ready for action.", 0, 0, 0);
+		perform_say(duke, "say", "Ready for action.");
 		break;
 	case 14:
 		do_gen_comm(duke, "Ready for action.", 0, SCMD_SHOUT, 0);
 		break;
 	case 15:
-		do_say(duke, "Cool.", 0, 0, 0);
+		perform_say(duke, "say", "Cool.");
 		break;
 	case 16:
 		do_gen_comm(duke, "Let God sort 'em out.", 0, SCMD_SPEW, 0);
