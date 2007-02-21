@@ -855,8 +855,8 @@ struct command_info cmd_info[] = {
 	{"hate", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"hypnotize", POS_RESTING, do_action, 0, 0, 0, 0},
 
-	{"indicate", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"inventory", POS_DEAD, do_inventory, 0, 0, 0, 0},
+	{"indicate", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"inews", POS_SLEEPING, do_dyntext_show, LVL_AMBASSADOR,
 			SCMD_DYNTEXT_INEWS, 0, 0},
 	{"increase", POS_STANDING, do_not_here, 0, 0, 0, 0},
