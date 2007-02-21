@@ -2405,10 +2405,6 @@ process_load_param( Creature *ch )
 				perform_say(ch, "yell", msg);
 			}
 		}
-//		else {
-//			char* command = line;
-//          command_interpreter(ch, tmp_gsub(desc, "\r\n", " "));
-//		}
 	}
     return true;
  }
