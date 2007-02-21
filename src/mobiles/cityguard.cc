@@ -656,10 +656,10 @@ SPECIAL(cityguard)
 		// stopping fight
 		switch (number(0, 2)) {
 		case 0:
-			perform_say(self, SCMD_BELLOW, "Knock it off!"); 
+			perform_say(self, "bellow", "Knock it off!"); 
             break;
 		case 1:
-			perform_say(self, SCMD_BELLOW, "Stop disturbing the peace of this city!"); 
+			perform_say(self, "bellow", "Stop disturbing the peace of this city!"); 
             break;
 		case 2:
 			perform_say(self, 0, "Here now!"); 
@@ -694,9 +694,9 @@ SPECIAL(cityguard)
 		// assist other cityguard
 		if (!number(0, 10)) {
 			if (number(0, 1))
-				perform_say(self, SCMD_YELL, "To arms!  To arms!!");
+				perform_say(self, "yell", "To arms!  To arms!!");
 			else
-				perform_say(self, SCMD_YELL, "BAAAANNNZZZZZAAAAAIIIIII!!!");
+				perform_say(self, "yell", "BAAAANNNZZZZZAAAAAIIIIII!!!");
 		}
 
 		if (number(0, 1))

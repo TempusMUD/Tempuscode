@@ -66,30 +66,25 @@ SPECIAL(electronics_school)
 	}
 
 	if (IS_CYBORG(ch)) {
-		do_say(self, tmp_sprintf(
-			"%s You're a borg, why don't you just download the program?",
-			GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+        perform_say_to(self, ch, "You're a borg, why don't you just download the program?");
 		return 1;
 	}
 
 	if (CMD_IS("offer")) {
-		do_say(self, tmp_sprintf(
-			"%s Yeah, I'll give you a lesson for %d creds.",
-			GET_NAME(ch), cred_cost), 0, SCMD_SAY_TO, NULL);
+        perform_say_to(self, ch,
+                       tmp_sprintf("Yeah, I'll give you a lesson for %d creds.",
+                                   cred_cost));
 		return 1;
 	}
 
 	if (GET_SKILL(ch, SKILL_ELECTRONICS) >= LEARNED(ch)) {
-		do_say(self, tmp_sprintf(
-			"%s I cannot teach you any more about electronics.", GET_NAME(ch)),
-			0, SCMD_SAY_TO, NULL);
+        perform_say_to(self, ch, "I cannot teach you any more about electronics.");
 		return 1;
 	}
 
 	if (GET_CASH(ch) < cred_cost) {
-		do_say(self, tmp_sprintf(
-			"%s You don't have the %d cred tuition I require.", GET_NAME(ch),
-			cred_cost), 0, SCMD_SAY_TO, NULL);
+        perform_say_to(self, ch,
+                       tmp_sprintf("You don't have the %d cred tuition I require.", cred_cost));
 		return 1;
 	}
 

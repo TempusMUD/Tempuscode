@@ -113,8 +113,6 @@ ACMD(do_action)
 	struct Creature *vict = NULL;
 	struct obj_data *obj = NULL;
 
-	/*struct obj_data *weap = GET_EQ(ch, WEAR_WIELD); */
-
 	if ((act_nr = find_action(cmd)) < 0) {
 		send_to_char(ch, "That action is not supported.\r\n");
 		return;
@@ -331,10 +329,6 @@ boot_social_messages(void)
 	int nr, i, hide, min_pos, idx;
 	int social_count = 0;
 	char next_soc[100];
-	struct social_messg temp;
-	struct social_messg tmp_soc_mess_list[MAX_SOCIALS];
-
-	memset(tmp_soc_mess_list, 0, sizeof(tmp_soc_mess_list));
 
 	/* open social file */
 	if (!(fl = fopen(SOCMESS_FILE, "r"))) {
@@ -343,9 +337,10 @@ boot_social_messages(void)
 		safe_exit(1);
 	}
 	/* count socials & allocate space */
-	for (nr = 0; *cmd_info[nr].command != '\n'; nr++)
-		if (cmd_info[nr].command_pointer == do_action)
-			list_top++;
+    list_top = count_hash_records(fl);
+    rewind(fl);
+    soc_mess_list = new social_messg[MAX_SOCIALS];
+	memset(soc_mess_list, 0, sizeof(social_messg) * MAX_SOCIALS);
 
 	/* now read 'em */
 	for (;;) {
@@ -362,50 +357,39 @@ boot_social_messages(void)
 		}
 
 		/* read the stuff */
-		tmp_soc_mess_list[social_count].act_nr = nr;
-		tmp_soc_mess_list[social_count].hide = hide;
-		tmp_soc_mess_list[social_count].min_victim_position = min_pos;
+		soc_mess_list[social_count].act_nr = nr;
+		soc_mess_list[social_count].hide = hide;
+		soc_mess_list[social_count].min_victim_position = min_pos;
 
-		tmp_soc_mess_list[social_count].char_no_arg = fread_action(fl, nr);
-		tmp_soc_mess_list[social_count].others_no_arg = fread_action(fl, nr);
-		tmp_soc_mess_list[social_count].char_found = fread_action(fl, nr);
+		soc_mess_list[social_count].char_no_arg = fread_action(fl, nr);
+		soc_mess_list[social_count].others_no_arg = fread_action(fl, nr);
+		soc_mess_list[social_count].char_found = fread_action(fl, nr);
 
 		/* if no char_found, the rest is to be ignored */
-		if (!tmp_soc_mess_list[social_count].char_found) {
-			tmp_soc_mess_list[social_count].others_found = NULL;
-			tmp_soc_mess_list[social_count].vict_found = NULL;
-			tmp_soc_mess_list[social_count].not_found = NULL;
-			tmp_soc_mess_list[social_count].others_auto = NULL;
+		if (!soc_mess_list[social_count].char_found) {
+			soc_mess_list[social_count].others_found = NULL;
+			soc_mess_list[social_count].vict_found = NULL;
+			soc_mess_list[social_count].not_found = NULL;
+			soc_mess_list[social_count].others_auto = NULL;
 			social_count++;
 			continue;
 		}
 
-		tmp_soc_mess_list[social_count].others_found = fread_action(fl, nr);
-		tmp_soc_mess_list[social_count].vict_found = fread_action(fl, nr);
-		tmp_soc_mess_list[social_count].not_found = fread_action(fl, nr);
-		if ((tmp_soc_mess_list[social_count].char_auto = fread_action(fl, nr)))
-			tmp_soc_mess_list[social_count].others_auto = fread_action(fl, nr);
+		soc_mess_list[social_count].others_found = fread_action(fl, nr);
+		soc_mess_list[social_count].vict_found = fread_action(fl, nr);
+		soc_mess_list[social_count].not_found = fread_action(fl, nr);
+		if ((soc_mess_list[social_count].char_auto = fread_action(fl, nr)))
+			soc_mess_list[social_count].others_auto = fread_action(fl, nr);
 		else
-			tmp_soc_mess_list[social_count].others_auto = NULL;
+			soc_mess_list[social_count].others_auto = NULL;
 		social_count++;
-
-		if (social_count >= MAX_SOCIALS) {
-			errlog("Too many socials.  Increase MAX_SOCIALS in act.social.c");
-			safe_exit(1);
-		}
 	}
 
 	/* close file & set top */
 	fclose(fl);
 
-	CREATE(soc_mess_list, struct social_messg, list_top + 1);
-
-	for (idx = 0, i = 0; idx < social_count && i < list_top;
-		idx++)
-		if (tmp_soc_mess_list[idx].act_nr >= 0) {
-			soc_mess_list[i] = tmp_soc_mess_list[idx];
-			i++;
-		}
+    slog("%d socials loaded.", social_count);
+    list_top = social_count;
 
 	/* now, sort 'em */
 	for (idx = 0; idx < list_top; idx++) {
@@ -414,6 +398,8 @@ boot_social_messages(void)
 			if (soc_mess_list[i].act_nr < soc_mess_list[min_pos].act_nr)
 				min_pos = i;
 		if (idx != min_pos) {
+            social_messg temp;
+
 			temp = soc_mess_list[idx];
 			soc_mess_list[idx] = soc_mess_list[min_pos];
 			soc_mess_list[min_pos] = temp;

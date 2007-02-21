@@ -39,18 +39,18 @@ SPECIAL(christmas_quest)
                     "idnum=%ld", GET_IDNUM(ch));
             long count = PQntuples(res);
             if (count) {
-                // They've already gotten their reward.  Tell them to fuck off.
-                do_say(grinch, tmp_sprintf("%s I remember you!  I already "
-                       "rewarded you once!  Leave before I go mad!", 
-                       GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+                // They've already gotten their reward.  Tell them to
+                // fuck off.
+                perform_say_to(grinch, ch, "I remember you!  I already "
+                               "rewarded you once!  Leave before I go mad!");
                 return 1;
             }
 
-            do_say(grinch, tmp_sprintf("%s Ah, you have found me!  Well done, "
-                   "well done indeed!", GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
-            do_say(grinch, tmp_sprintf("%s As a reward for your diligence I "
-                   "will give you a gift of power beyond your wildest dreams!", 
-                   GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+            perform_say_to(grinch, ch, "Ah, you have found me!  Well done, "
+                           "well done indeed!");
+            perform_say_to(grinch, ch, "As a reward for your diligence, I "
+                           "will give you a gift of power beyond your "
+                           "wildest dreams!");
             do_echo(grinch, "grins and a blinding flash of light engulfs "
                     "the room.", 0, SCMD_EMOTE, NULL);
             ch->setPosition(POS_RESTING);

@@ -90,6 +90,7 @@ struct room_data *real_room(int vnum);
 struct zone_data *real_zone(int number);
 char *fread_string(FILE * fl, char *error);
 int pread_string(FILE * fl, char *str, char *error);
+int count_hash_records(FILE *fl);
 
 struct Creature *read_mobile(int vnum);
 int real_mobile(int vnum);

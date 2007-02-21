@@ -395,34 +395,30 @@ SPECIAL(do_auctions)
             return 0;
 
         if (!*item_name) {
-            do_say(self, tmp_sprintf("%s I see you want to auction something, "
-                   "but WHAT?", GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+            perform_say_to(self, ch, "I see you want to auction something, but WHAT?");
             return 1; 
         }
 
         if (!amount) {
-            do_say(self, tmp_sprintf("%s And how much would you like to sell "
-                   "it for?", GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+            perform_say_to(self, ch, "And how much would you like to sell it for?");
             return 1; 
         }
 
         if (amount < 0) {
-            do_say(self, tmp_sprintf("%s You want to pay someone to take it?!",
-                   GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+            perform_say_to(self, ch, "You want to pay someone to take it?!");
             return 1; 
         }
 
         if (amount > MAX_AUC_VALUE) {
-            do_say(self, tmp_sprintf("%s I'm sorry, we have a maximum value "
-                   "that can be placed on the items we sell.",
-                   GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+            perform_say_to(self, ch, "I'm sorry, we have a maximum value "
+                           "that can be placed on the items we sell.");
             return 1; 
         }
 
         obj_data *obj = get_obj_in_list_all(ch, item_name, ch->carrying);
         if (!obj) {
-            do_say(self, tmp_sprintf("%s You don't even have that!  Stop "
-                   "wasting my time!", GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+            perform_say_to(self, ch, "You don't even have that!  Stop "
+                           "wasting my time!");
             return 1; 
         }
 
@@ -432,24 +428,22 @@ SPECIAL(do_auctions)
                 item_count++;
 
             if ((item_count >= MAX_AUC_ITEMS) && !IS_IMMORT(ch)) {
-                do_say(self, tmp_sprintf("%s You already have too many items "
-                       "up for auction", GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+                perform_say_to(self, ch, "You already have too many items "
+                               "up for auction.");
                 return 1; 
             }
         }
 
         if (BAD_AUCTION(obj) && !IS_IMMORT(ch)) {
-            do_say(self, tmp_sprintf("%s I run a respectable establishment "
-                   "here!  I don't deal in such trash!", GET_NAME(ch)), 
-                    0, SCMD_SAY_TO, NULL);
+            perform_say_to(self, ch, "I run a respectable establishment "
+                           "here!  I don't deal in such trash!");
             return 1; 
         }
 
         int item_no = get_max_auction_item();
         if (item_no == -1) {
-            do_say(self, tmp_sprintf("%s I'm sorry but my auction queue is "
-                   "full at the moment.  Try again later.", GET_NAME(ch)), 
-                    0, SCMD_SAY_TO, NULL);
+            perform_say_to(self, ch, "There are too many items up for "
+                           "auction now.  Try again later.");
             return 1; 
         }
         
@@ -489,8 +483,7 @@ SPECIAL(do_auctions)
             return 0;
 
         if (!item_no || item_no > MAX_TOTAL_AUC) {
-            do_say(self, tmp_sprintf("%s Which item do you want to withdraw?",
-                   GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+            perform_say_to(self, ch, "Which item do you want to withdraw?");
             return 1; 
         }
 
@@ -502,8 +495,8 @@ SPECIAL(do_auctions)
         }
 
         if (ai == items.end()) {
-            send_to_char(ch, "I don't see that item!  "
-                             "Maybe you should try another auctioneer.\r\n");
+            perform_say_to(self, ch, "I don't see that item!  "
+                           "Maybe you should try another auctioneer.\r\n");
             return 1;
         }
 

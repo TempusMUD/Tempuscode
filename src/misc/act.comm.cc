@@ -52,21 +52,13 @@ extern const char *language_names[];
 int parse_player_class(char *arg);
 void summon_cityguards(room_data *room);
 
-const char *say_subcmd_strings[] = {
-	"say", "bellow", "expostulate", "ramble", "babble", "utter",
-	"murmur", "intone", "yell", "chant"
-};
-
 void
-perform_say(Creature *ch, int subcmd, const char *message)
+perform_say(Creature *ch, const char *saystr, const char *message)
 {
     message = act_escape(message);
-	act(tmp_sprintf("&BYou %s$a$l, &c'$[%s]'",
-                    say_subcmd_strings[subcmd],
-                    message),
+	act(tmp_sprintf("&BYou %s$a$l, &c'$[%s]'", saystr, message),
 			0, ch, 0, 0, TO_CHAR);
-	act(tmp_sprintf("&B$n %ss$a$l, &c'$[%s]'",
-                    say_subcmd_strings[subcmd], message),
+	act(tmp_sprintf("&B$n %ss$a$l, &c'$[%s]'", saystr, message),
            0, ch, 0, 0, TO_ROOM);
 }
 
@@ -90,94 +82,67 @@ perform_say_to_obj(Creature *ch, obj_data *obj, const char *message)
         0, ch, obj, 0, TO_ROOM);
 }
 
-ACMD(do_say)
+ACMD(do_sayto)
 {
 	struct Creature *vict = NULL;
 	struct obj_data *o = NULL;
-
+    char *name;
+    int ignore;
 
 	if PLR_FLAGGED(ch, PLR_AFK) {
 		send_to_char(ch, "You are no longer afk.\r\n");
 		REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
 	}
 
-	if (!*argument) {
-		switch (subcmd) {
-		case SCMD_BELLOW:
-			send_to_char(ch, "You bellow loudly.\r\n");
-			act("$n begins to bellow loudly.", FALSE, ch, 0, 0, TO_ROOM);
-			break;
-		case SCMD_EXPOSTULATE:
-			send_to_char(ch, 
-				"You expostulate at length about your latest theories.\r\n");
-			act("$n expostulates at length about $s latest theories.", FALSE,
-				ch, 0, 0, TO_ROOM);
-			break;
-		case SCMD_RAMBLE:
-			send_to_char(ch, "You ramble endlessly, much to your own delight.\r\n");
-			act("$n rambles endlessly, much to your chagrin.", FALSE, ch, 0, 0,
-				TO_ROOM);
-			break;
-		case SCMD_BABBLE:
-			send_to_char(ch, "You babble incoherently for quite some time.\r\n");
-			act("$n babbles completely incoherently for a while.", FALSE, ch,
-				0, 0, TO_ROOM);
-			break;
-		case SCMD_MURMUR:
-			send_to_char(ch, "You murmur softly.\r\n");
-			act("You are disturbed by a low murmur from $n's vicinity.",
-				FALSE, ch, 0, 0, TO_ROOM);
-			break;
-		case SCMD_CHANT:
-			send_to_char(ch, "Pie Jesu domine, dona eis requiem.  *WHAP*\r\n");
-			act("$n chants inaudibly then smacks $mself in the head with a board.",
-				FALSE, ch, 0, 0, TO_ROOM);
-			break;
-		case SCMD_SAY_TO:
-			break;
-		default:
-			send_to_char(ch, "Yes, but WHAT do you want to say?\r\n");
-		}
-		return;
+    if (!*argument) {
+        send_to_char(ch, "Say what to who?\r\n");
+    }
+    name = tmp_getword(&argument);
+    skip_spaces(&argument);
+
+    o = NULL;
+    if (!*name) {
+        send_to_char(ch, "Say what to who?\r\n");
+        return;
+    }
+
+    if (!(vict = get_char_room_vis(ch, name))) {
+        if (!o)
+            o = get_object_in_equip_vis(ch, name, ch->equipment, &ignore);
+        if (!o)
+            o = get_obj_in_list_vis(ch, name, ch->carrying);
+        if (!o)
+            o = get_obj_in_list_vis(ch, name, ch->in_room->contents);
+    }
+
+    if (vict) {
+        perform_say_to(ch, vict, argument);
+    } else if (o) {
+        perform_say_to_obj(ch, o, argument);
+    } else {
+        send_to_char(ch, "No-one by that name here.\r\n");
+    }
+}
+
+ACMD(do_say)
+{
+    int find_action(int cmd);
+    ACMD(do_action);
+    const char *cmdstr = cmd_info[cmd].command;
+
+	if PLR_FLAGGED(ch, PLR_AFK) {
+		send_to_char(ch, "You are no longer afk.\r\n");
+		REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
 	}
 
-	if (subcmd == SCMD_SAY_TO) {
-		char *name;
-		int ignore;
+    skip_spaces(&argument);
 
-		if (!*argument) {
-			send_to_char(ch, "Say what to who?\r\n");
-		}
-		name = tmp_getword(&argument);
-		skip_spaces(&argument);
-
-		o = NULL;
-		if (!*name) {
-			send_to_char(ch, "Say what to who?\r\n");
-			return;
-		}
-
-		if (!(vict = get_char_room_vis(ch, name))) {
-			if (!o)
-				o = get_object_in_equip_vis(ch, name, ch->equipment, &ignore);
-			if (!o)
-				o = get_obj_in_list_vis(ch, name, ch->carrying);
-			if (!o)
-				o = get_obj_in_list_vis(ch, name, ch->in_room->contents);
-		}
-
-		if (vict) {
-			perform_say_to(ch, vict, argument);
-		} else if (o) {
-			perform_say_to_obj(ch, o, argument);
-		} else {
-			send_to_char(ch, "No-one by that name here.\r\n");
-		}
-		return;
-	} else {
-		skip_spaces(&argument);
-		perform_say(ch, subcmd, argument);
-	}
+    if (*argument)
+        perform_say(ch, (cmdstr[0] == '\'') ? "say":cmdstr, argument);
+    else if (find_action(cmd) == -1)
+        send_to_char(ch, "Yes, but WHAT do you want to %s?\r\n", cmdstr);
+    else
+        do_action(ch, argument, cmd, subcmd, return_flags);
 }
 
 

@@ -406,7 +406,7 @@ SPECIAL(artisan)
 		do_action(keeper, GET_NAME(ch), cmd_slap, 0, 0);
 		sprintf(buf, "%s is a bloody thief!", GET_NAME(ch));
         buf[0] = toupper(buf[0]);
-		perform_say(keeper, SCMD_SHOUT, buf);
+		perform_say(keeper, "shout", buf);
 		return true;
 	}
 

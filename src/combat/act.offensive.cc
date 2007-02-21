@@ -1249,7 +1249,7 @@ ACMD(do_order)
 					}
 
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
-						perform_say(vict, SCMD_INTONE, "As you command, master.");
+						perform_say(vict, "intone", "As you command, master.");
 					if (vict->numCombatants()) {
                         CombatDataList::iterator li;
                         li = vict->getCombatList()->begin();
@@ -1283,7 +1283,8 @@ ACMD(do_order)
 							&& !GET_MOB_WAIT(k->follower)) {
 							if (IS_NPC(k->follower)
 								&& GET_MOB_VNUM(k->follower) == 5318)
-								perform_say(vict, SCMD_INTONE, "As you command, master.");
+								perform_say(vict, "intone",
+                                            "As you command, master.");
 							if (k->follower->numCombatants()) {
                                 CombatDataList::iterator li;
                                 li = k->follower->getCombatList()->begin();

@@ -1072,9 +1072,9 @@ SPECIAL(janitor)
 
 		if (!number(0, 5)) {
 			ahole = 1;
-			do_say(ch, "You assholes must like LAG.", 0, SCMD_BELLOW, 0);
+            perform_say(ch, "bellow", "You assholes must like LAG.");
 		} else if (!number(0, 5))
-			do_say(ch, "Why don't you guys junk this crap?", 0, 0, 0);
+            perform_say(ch, "say", "Why don't you guys junk this crap?");
 
 		do_get(ch, fname(i->aliases), 0, 0, 0);
 
@@ -1082,9 +1082,7 @@ SPECIAL(janitor)
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if ((*it) != ch && IS_FEMALE((*it)) && can_see_creature(ch, (*it))) {
-					sprintf(buf, "%s Excuse me, ma'am.",
-						fname(GET_NAME((*it))));
-					do_say(ch, buf, 0, SCMD_SAY_TO, 0);
+                    perform_say_to(ch, *it, "Excuse me, ma'am.");
 				}
 			}
 		}

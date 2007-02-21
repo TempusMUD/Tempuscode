@@ -64,9 +64,7 @@ SPECIAL(duke_nukem)
 				best_attack(duke, vict);
 				return 1;
 			} else if (!number(0, 10)) {
-				sprintf(buf2, ">%s Damn.  You're ugly.",
-					fname(vict->player.name));
-				do_say(duke, buf2, 0, SCMD_SAY_TO, 0);
+                perform_say_to(duke, vict, "Damn.  You're ugly.");
 				return 1;
 			}
 		}

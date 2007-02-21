@@ -31,17 +31,13 @@ SPECIAL(oedit_reloader)
 		act("$n closes $s eyes in deep concentration.", TRUE, self, 0, FALSE, TO_ROOM);
 		int retrieved = retrieve_oedits( ch, found );
 		int existing = load_oedits( ch, found );
+
 		if( existing == 0 ) {
-			char* msg = tmp_sprintf("%s You own nothing that can be retrieved.", 
-									fname(GET_NAME(ch)) );
-			do_say(self, msg, 0, SCMD_SAY_TO, 0);
+            perform_say_to(self, ch, "You own nothing that can be retrieved.");
 		} else if( retrieved == 0 && found.size() > 0 ) {
-			char* msg = tmp_sprintf("%s You already have all that could be retrieved.", 
-									fname(GET_NAME(ch)) );
-			do_say(self, msg, 0, SCMD_SAY_TO, 0);
+            perform_say_to(self, ch, "You already have all that could be retrieved.");
 		} else {
-			char* msg = tmp_sprintf("%s That should be everything.", fname(GET_NAME(ch)) );
-			do_say(self, msg, 0, SCMD_SAY_TO, 0);
+            perform_say_to(self, ch, "That should be everything.");
 		}
 	} else {
 		return false;

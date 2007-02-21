@@ -995,7 +995,7 @@ SPECIAL(vendor)
 	}
 	
 	if (!can_see_creature(self, ch)) {
-		perform_say(self, SCMD_YELL, "Show yourself if you want to do business with me!");
+		perform_say(self, "yell", "Show yourself if you want to do business with me!");
 		return true;
 	}
 

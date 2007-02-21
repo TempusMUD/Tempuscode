@@ -401,13 +401,13 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 	// First check for mortal danger
     if (GET_HIT(charge) < 15 && charge->numCombatants()) {
         SET_BIT(data->flags, ANGEL_DANGER);
-		perform_say(self, SCMD_YELL, "Banzaiiiii!  To the rescue!");
+		perform_say(self, "yell", "Banzaiiiii!  To the rescue!");
         do_rescue(self, GET_NAME(charge), 0, 0, 0);
         return 1;
     }
     else if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && charge->numCombatants()) {
 		if (!IS_SET(data->flags, ANGEL_DANGER)) {
-			perform_say(self, SCMD_YELL, "Flee!  Flee for your life!");
+			perform_say(self, "yell", "Flee!  Flee for your life!");
 			SET_BIT(data->flags, ANGEL_DANGER);
 			return 1;
 		}

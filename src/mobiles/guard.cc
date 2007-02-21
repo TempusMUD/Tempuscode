@@ -106,9 +106,7 @@ SPECIAL(guard)
 				mudlog(LVL_IMMORT, NRM, true,
 					"ERR: Mobile %d has %s in line %d of specparam",
 					GET_MOB_VNUM(self), err, lineno);
-				do_say(self, tmp_sprintf(
-					"%s Sorry.  I'm broken, but a god has already been notified.",
-					GET_NAME(ch)), 0, SCMD_SAY_TO, NULL);
+                perform_say_to(self, ch, "Sorry.  I'm broken, but a god has already been notified.");
 			}
 		}
 	} else if (ch == self || IS_IMMORT(ch) || ALLOW == reaction.react(ch))

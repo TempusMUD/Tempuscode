@@ -45,9 +45,9 @@ SPECIAL(mage_teleporter)
     cost += (cost*ch->getCostModifier(self))/100;
 	if (GET_GOLD(ch) < cost || CMD_IS("offer")) {
 		if (can_see_creature(self, ch))
-			do_say(self, tmp_sprintf("%s It will cost you %d coins to be transported to %s", GET_NAME(ch), cost, tmp_capitalize(fname(vstone->aliases))), 0, SCMD_SAY_TO, 0);
+			perform_say_to(self, ch, tmp_sprintf("It will cost you %d coins to be transported to %s", cost, tmp_capitalize(fname(vstone->aliases))));
 		else
-			do_say(self, tmp_sprintf("It will cost you %d coins to be transported to %s", cost, tmp_capitalize(fname(vstone->aliases))), 0, 0, 0);
+			perform_say(ch, "say", tmp_sprintf("It will cost you %d coins to be transported to %s", cost, tmp_capitalize(fname(vstone->aliases))));
 		return 1;
 	}
 

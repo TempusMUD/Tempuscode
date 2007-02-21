@@ -152,13 +152,12 @@ SPECIAL(courier_imp)
                 data->item = NULL;
                 data->mode = IMP_DELIVER_CASH;
                 data->buyer_id = data->owner_id;
-                do_say(self, tmp_sprintf("%s Thank you for your business!", 
-                       GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
+                perform_say_to(self, seeking, "Thank you for your business!");
             }
             else {
-                do_say(self, tmp_sprintf("%s You ass!  You made me come all "
-                       "way out here and you can't even cover your bill?!?", 
-                       GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
+                perform_say_to(self, seeking, "You ass!  You made me come "
+                               "all the way out here and you can't even "
+                               "cover your bill?!?");
                 act("$n roars with rage!", false,
                     self, 0, 0, TO_NOTVICT);
                 act ("A ball of light streaks from $N's hand and hits you "
@@ -190,16 +189,15 @@ SPECIAL(courier_imp)
                 act(msg, false, seeking, 0, self, TO_CHAR);
                 act("$n gives $N some money.", false, self, 0, seeking, TO_NOTVICT);
 
-                do_say(self, tmp_sprintf("%s Thank you for your business!", 
-                       GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
+                perform_say_to(self, seeking, "Thank you for your business!");
                 GET_GOLD(seeking) += paygold;
                 GET_CASH(seeking) += paycash;
                 seeking->saveToXML();
                 self->purge(true);
             }
             else if (data->mode == IMP_BUYER_BROKE) {
-                do_say(self, tmp_sprintf("%s I'm sorry, your buyer could not "
-                       "pay for your item.", GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
+                perform_say_to(self, seeking, "Sorry, your buyer could not "
+                               "pay for your item.");
                 msg = tmp_sprintf("$n gives $N %s and disappears.", data->item->name);
                 act(msg, false, self, 0, seeking, TO_NOTVICT);
                 msg = tmp_sprintf("$N gives you %s and disappears.", data->item->name);
@@ -210,24 +208,20 @@ SPECIAL(courier_imp)
                 self->purge(true);
             }
             else if (data->mode == IMP_RETURN_ITEM) {
-                do_say(self, tmp_sprintf("%s I'm sorry, there were no bids "
-                       "for your item.", GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
-                msg = tmp_sprintf("$n gives $N %s and disappears.", data->item->name);
-                act(msg, false, self, 0, seeking, TO_NOTVICT);
-                msg = tmp_sprintf("$N gives you %s and disappears.", data->item->name);
-                act(msg, false, seeking, 0, self, TO_CHAR);
+                perform_say_to(self, seeking, "Sorry, there were no bids "
+                               "for your item.");
+                act("$t giv$^ $T $p and disappears.",
+                    false, self, data->item, seeking, TO_NOTVICT);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
                 seeking->saveToXML();
                 self->purge(true);
             }
             else if (data->mode == IMP_NO_BUYER) {
-                do_say(self, tmp_sprintf("%s I'm sorry, I couldn't find the "
-                       "buyer of your item.", GET_NAME(seeking)), 0, SCMD_SAY_TO, NULL);
-                msg = tmp_sprintf("$n gives $N %s and disappears.", data->item->name);
-                act(msg, false, self, 0, seeking, TO_NOTVICT);
-                msg = tmp_sprintf("$N gives you %s and disappears.", data->item->name);
-                act(msg, false, seeking, 0, self, TO_CHAR);
+                perform_say_to(self, seeking, "Sorry, I couldn't find the "
+                               "buyer of your item.");
+                act("$t giv$^ $T $p and disappears.",
+                    false, self, data->item, seeking, TO_NOTVICT);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
                 seeking->saveToXML();

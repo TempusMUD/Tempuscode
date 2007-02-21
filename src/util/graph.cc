@@ -719,7 +719,7 @@ hunt_victim(struct Creature *ch)
 						act("$n shouts, '$N you vile profaner of goodness!",
 							FALSE, ch, 0, ch->isHunting(), TO_ROOM);
 					} else if (GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
-						do_say(ch, "Time to die.", 0, SCMD_INTONE, 0);
+						perform_say(ch, "intone", "Time to die.");
 					} else {
 						if (!number(0, 3))
 							act("$n screams, 'Gotcha, punk ass $N!!'.",
@@ -729,14 +729,9 @@ hunt_victim(struct Creature *ch)
 								GET_NAME(ch->isHunting()));
 							do_say(ch, buf2, 0, 0, 0);
 						} else if (!number(0, 1)) {
-							sprintf(buf2,
-								"%s You can run, but you can't hide!",
-								GET_NAME(ch->isHunting()));
-							do_say(ch, buf2, 0, SCMD_SAY_TO, 0);
+                            perform_say_to(ch, ch->isHunting(), "You can run but you can't hide!");
 						} else {
-							sprintf(buf2, "%s Now I have you!",
-								GET_NAME(ch->isHunting()));
-							do_say(ch, buf2, 0, SCMD_SAY_TO, 0);
+                            perform_say_to(ch, ch->isHunting(), "Now I have you!");
 						}
 					}
 					return best_attack(ch, ch->isHunting());

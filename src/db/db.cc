@@ -2402,7 +2402,7 @@ process_load_param( Creature *ch )
 				}
 			} else {
 				char* msg = tmp_sprintf("Line %d of my load param has the wrong format!",lineno);
-				perform_say(ch, SCMD_YELL, msg);
+				perform_say(ch, "yell", msg);
 			}
 		}
 //		else {
@@ -2430,10 +2430,9 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
     if( obj == NULL ) {
         errlog("Mob num %d: equip object %d nonexistent.",
 			ch->mob_specials.shared->vnum, vnum );
-		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
-			char* msg = tmp_sprintf("Object %d doesn't exist!",vnum);
-			perform_say(ch, SCMD_YELL, msg);
-		}
+		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) )
+			perform_say(ch, "yell",
+                        tmp_sprintf("Object %d doesn't exist!",vnum));
         return 3;
     }
     if( obj->shared->number - obj->shared->house_count >= maxload) {
@@ -2453,10 +2452,10 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
 	}
 
     if (pos < 0 || pos >= NUM_WEARS) {
-		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
-			char* msg = tmp_sprintf("%s is not a valid position!",position);
-			perform_say(ch, SCMD_YELL, msg);
-		}
+		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) )
+			perform_say(ch, "yell",
+                        tmp_sprintf("%s is not a valid position!",position));
+
         errlog("Mob num %d trying to equip obj %d to badpos: '%s'",
 			ch->mob_specials.shared->vnum, obj->shared->vnum, position);
         return 4;
@@ -2469,10 +2468,9 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
     if( obj == NULL ) {
         errlog("Mob num %d cannot load equip object #%d.",
             ch->mob_specials.shared->vnum, vnum);
-		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) ) {
-			char* msg = tmp_sprintf("Loading object %d failed!", vnum );
-			perform_say(ch, SCMD_YELL, msg);
-		}
+		if( MOB2_FLAGGED(ch, MOB2_UNAPPROVED) )
+			perform_say(ch, "yell",
+                        tmp_sprintf("Loading object %d failed!", vnum ));
         return 5;
     }
 

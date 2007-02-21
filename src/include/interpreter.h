@@ -345,19 +345,6 @@ struct set_struct {
 /* command do_kill */
 #define SCMD_SLAY       1
 
-/* command do_say  */
-#define SCMD_SAY           0
-#define SCMD_BELLOW        1
-#define SCMD_EXPOSTULATE   2
-#define SCMD_RAMBLE        3
-#define SCMD_BABBLE        4
-#define SCMD_UTTER         5
-#define SCMD_MURMUR        6
-#define SCMD_INTONE        7
-#define SCMD_YELL          8
-#define SCMD_CHANT         9
-#define SCMD_SAY_TO        10
-
 /* command do_activate */
 #define SCMD_OFF        0
 #define SCMD_ON         1
