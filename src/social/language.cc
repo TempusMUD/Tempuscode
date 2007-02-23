@@ -492,7 +492,8 @@ translate_tongue(Creature *speaker, Creature *listener, const char *message)
     // Listener might gain in fluency by listening to a sufficiently
     // skilled speaker
     if (CHECK_TONGUE(speaker, lang) > 75 &&
-        CHECK_TONGUE(listener, lang) < 100) {
+        CHECK_TONGUE(listener, lang) < 100 &&
+        speaker != listener) {
         std::list<int>::iterator result;
 
         result = std::find(GET_LANG_HEARD(listener).begin(),
