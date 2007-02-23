@@ -201,12 +201,9 @@ AM_LDFLAGS = @XML_LIBS@
                  specials/Specs/hell_specs/unholy_compact.spec \
                  specials/Specs/hell_specs/tiamat.spec \
                  specials/Specs/javelin_specs/clone_lab.spec \
-                 specials/Specs/joran_specs/quasimodo.spec \
                  specials/Specs/labyrinth/laby_carousel.spec \
                  specials/Specs/labyrinth/laby_altar.spec \
                  specials/Specs/labyrinth/laby_portal.spec \
-                 specials/Specs/mavernal_specs/mavernal_citizen.spec \
-                 specials/Specs/mavernal_specs/new_mavernal_talker.spec \
                  specials/Specs/mobile_specs/christmas_quest.spec \
                  specials/Specs/mobile_specs/astral_deva.spec \
                  specials/Specs/mobile_specs/auctioneer.spec \
