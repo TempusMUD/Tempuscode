@@ -1297,6 +1297,7 @@ struct command_info cmd_info[] = {
     {"storm", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"stutter", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"stun", POS_FIGHTING, do_stun, 0, 0, 0, 0},
+	{"suggest", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"sulk", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"support", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"swallow", POS_RESTING, do_use, 0, SCMD_SWALLOW, 0, 0},
