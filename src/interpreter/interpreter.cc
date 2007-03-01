@@ -954,6 +954,7 @@ struct command_info cmd_info[] = {
 	{"miss", POS_RESTING, do_action, 0, 0, 0, 0},
     {"mock", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"mount", POS_STANDING, do_mount, 0, 0, 0, 0},
+	{"mourn", POS_STANDING, do_say, 0, 0, 0, 0},
 	{"moan", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"modrian", POS_DEAD, do_hcollect_help, 0, SCMD_MODRIAN, 0, 0},
 	{"mosh", POS_FIGHTING, do_action, 0, 0, 0, 0},
