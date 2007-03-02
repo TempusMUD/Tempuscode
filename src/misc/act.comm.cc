@@ -134,7 +134,7 @@ select_say_cmd(const char *message)
         return "ask";
     if ('!' == *end)
         return (number(0, 1)) ? "yell":"exclaim";
-    if (len > 3 && !strcmp("...", end - 3))
+    if (len > 3 && !strcmp("...", end - 2))
         return (number(0, 1)) ? "murmur":"mutter";
     if (strcasestr(message, "y'all") || strstr(message, "ain't"))
         return "drawl";
