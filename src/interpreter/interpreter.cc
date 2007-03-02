@@ -1321,7 +1321,6 @@ struct command_info cmd_info[] = {
 	{"tester", POS_FIGHTING, do_tester, 0, 0, 0, 0},
 	{"tackle", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"take", POS_RESTING, do_get, 0, 0, 0, 0},
-	{"talk", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"tada", POS_STANDING, do_action, 0, 0, 0, 0},
 	{"tango", POS_STANDING, do_action, 0, 0, 0, 0},
 	{"tank", POS_RESTING, do_action, 0, 0, 0, 0},
