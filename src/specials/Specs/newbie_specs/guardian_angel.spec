@@ -522,7 +522,7 @@ assign_angel(Creature *angel, Creature *ch)
 
 SPECIAL(guardian_angel)
 {
-	ACMD(do_spec_comm);
+	ACMD(do_whisper);
 	Creature *self = (Creature *)me;
 	angel_data *data = (angel_data *)self->mob_specials.func_data;
 	angel_chat_data *cur_chat;
@@ -596,14 +596,14 @@ SPECIAL(guardian_angel)
 	}
 
 	// Only respond to actual in-room communications
-	if (cmd_info[cmd].command_pointer != do_spec_comm &&
+	if (cmd_info[cmd].command_pointer != do_whisper &&
 			cmd_info[cmd].command_pointer != do_say)
 		return 0;
 	
 	// Require self alias to be the first word unless they're using
 	// the 'say' command and they're the only creature in the room
 	arg = argument;
-	if (cmd_info[cmd].command_pointer == do_spec_comm ||
+	if (cmd_info[cmd].command_pointer == do_whisper ||
 			CMD_IS(">") || CMD_IS("sayto") ||
 			ch->in_room->people.size() > 2) {
 		if (!isname_exact(tmp_getword(&arg), self->player.name))
