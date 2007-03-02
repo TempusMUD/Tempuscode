@@ -356,36 +356,26 @@ ACMD(do_retell)
 }
 
 
-ACMD(do_spec_comm)
+ACMD(do_whisper)
 {
 	struct Creature *vict;
-	const char *action_sing, *action_plur, *action_others;
-
-	if (subcmd == SCMD_WHISPER) {
-		action_sing = "whisper to";
-		action_plur = "whispers to";
-		action_others = "$n$a whispers something to $N.";
-	} else if (subcmd == SCMD_RESPOND) {
-		action_sing = "respond to";
-		action_plur = "responds to";
-		action_others = "$n$a responds to $N.";
-	}
-
     char *vict_str = tmp_getword(&argument);
 
 	if (!*vict_str || !*argument) {
-		send_to_char(ch, "Whom do you want to %s.. and what??\r\n", action_sing);
+		send_to_char(ch, "To whom do you want to whisper.. and what??\r\n");
 	} else if (!(vict = get_char_room_vis(ch, vict_str))) {
 		send_to_char(ch, NOPERSON);
 	} else if (vict == ch)
 		send_to_char(ch, 
 			"You can't get your mouth close enough to your ear...\r\n");
 	else {
-		act(tmp_sprintf("&yYou$a %s $N$l,&n '$[%s]'", action_sing, argument),
-            FALSE, ch, 0, vict, TO_CHAR);
-		act(tmp_sprintf("&y$n$a %s you$l,&n '$[%s]'", action_plur, argument),
-            FALSE, ch, 0, vict, TO_VICT);
-		act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
+		act(tmp_sprintf("&yYou$a whisper to $N$l,&n '$[%s]'",
+                        act_escape(argument)),
+            false, ch, 0, vict, TO_CHAR);
+		act(tmp_sprintf("&y$n$a whispers to you$l,&n '$[%s]'",
+                        act_escape(argument)),
+            false, ch, 0, vict, TO_VICT);
+		act("$n$a whispers something to $N.", FALSE, ch, 0, vict, TO_NOTVICT);
 	}
 }
 

@@ -342,7 +342,7 @@ ACMD(do_sneak);
 ACMD(do_snipe);
 ACMD(do_snoop);
 ACMD(do_speak_tongue);
-ACMD(do_spec_comm);
+ACMD(do_whisper);
 ACMD(do_specializations);
 ACMD(do_special);
 ACMD(do_split);
@@ -1421,7 +1421,7 @@ struct command_info cmd_info[] = {
 	{"whoami", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0, 0},
 	{"where", POS_SLEEPING, do_where, 0, 0, 0, 0},
 	{"whimper", POS_RESTING, do_say, 0, 0, 0, 0},
-	{"whisper", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, 0, 0},
+	{"whisper", POS_RESTING, do_whisper, 0, 0, 0, 0},
 	{"whine", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"whirlwind", POS_FIGHTING, do_whirlwind, 0, 0, 0, 0},
 	{"whee", POS_RESTING, do_action, 0, 0, 0, 0},

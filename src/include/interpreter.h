@@ -222,10 +222,6 @@ struct set_struct {
 /* do_set */
 #define SCMD_TESTER_SET 1
 
-/* do_spec_com */
-#define SCMD_WHISPER	0
-#define SCMD_RESPOND    1
-
 /* do_gen_com */
 #define SCMD_HOLLER		0
 #define SCMD_SHOUT		1
