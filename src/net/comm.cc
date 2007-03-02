@@ -629,35 +629,19 @@ game_loop(int mother_desc)
 			}
 		}
 
-		if (!(pulse % (300 * PASSES_PER_SEC))) {	/* 5 minutes */
+		if (!(pulse % (300 * PASSES_PER_SEC))) // 5 minutes
 			record_usage();
-        }
 
-		if (!(pulse % (130 * PASSES_PER_SEC))) {	// 2.1 minutes
+		if (!(pulse % (130 * PASSES_PER_SEC))) // 2.1 minutes
 			retire_trails();
-            // This is just some debug code. Hopefully it
-            // will confirm a suspicion that I have that one more
-            // more rooms are getting disconnected from their
-            // zones at some point.
-            for (zone_data *zone = zone_table; zone; zone = zone->next) {
-                for (room_data *room = zone->world; room; room = room->next) {
-                    if (!room->zone) {
-	                    mudlog(LVL_AMBASSADOR, BRF, true,
-		                       "WARNING:  room #%d belongs to no zone.",
-                               room->number);
-                    }
-                }
-            }
-		}
-		if (!olc_lock && !(pulse % (900 * PASSES_PER_SEC)))	/* 15 minutes */
+		if (!olc_lock && !(pulse % (900 * PASSES_PER_SEC))) // 15 minutes
 			autosave_zones(ZONE_AUTOSAVE);
 
 		if (!(pulse % (666 * PASSES_PER_SEC)))
 			bamf_quad_damage();
 
-		if (pulse >= (30 * 60 * PASSES_PER_SEC)) {	/* 30 minutes */
+		if (pulse >= (30 * 60 * PASSES_PER_SEC)) // 30 minutes
 			pulse = 0;
-		}
 
 		if (shutdown_count >= 0 && !(pulse % (PASSES_PER_SEC))) {
 			shutdown_count--;	/* units of seconds */
@@ -696,8 +680,7 @@ game_loop(int mother_desc)
 					touch("../.fastboot");
 				}
 
-				send_to_all
-					("Please visit our website at http://tempusmud.com\r\n");
+				send_to_all("Please visit our website at http://tempusmud.com\r\n");
 
 				slog("(GC) %s called by %s EXECUTING.",
 					(shutdown_mode == SHUTDOWN_DIE
@@ -756,7 +739,6 @@ game_loop(int mother_desc)
 		tmp_gc_strings();
 		suppress_output = false; // failsafe
 	}							/* while (!circle_shutdown) */
-	/*  mem_cleanup(); */
 }
 
 

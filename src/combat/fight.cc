@@ -2111,9 +2111,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				}
 
 			}
-			// this is the block that handles things that happen when someone is damaging
-			// someone else.  ( not damaging self or being damaged by a null char, e.g. bomb )
-
+			// this is the block that handles things that happen when
+			// someone is damaging someone else.  ( not damaging self
+			// or being damaged by a null char, e.g. bomb )
 			if (ch && victim != ch) {
 
 				//
@@ -2153,18 +2153,22 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 					break;
 				}
-				// this block handles things that happen IF and ONLY IF the ch has
-				// initiated the attack.  We assume that ch is attacking unless the
-				// damage is from a DEFENSE ATTACK
+				// this block handles things that happen IF and ONLY
+				// IF the ch has initiated the attack.  We assume that
+				// ch is attacking unless the damage is from a DEFENSE
+				// ATTACK
 				if (ch && !IS_DEFENSE_ATTACK(attacktype)) {
 
-					// ch is initiating an attack ?
-					// only if ch is not "attacking" with a fireshield/energy shield/etc...
+					// ch is initiating an attack ?  only if ch is not
+					// "attacking" with a fireshield/energy
+					// shield/etc...
 					if (!ch->numCombatants()) {
 
                         if (IS_NPC(victim)) {
-                            // mages casting spells and shooters should be able to attack
-                            // without initiating melee ( on their part at least )
+                            // mages casting spells and shooters
+                            // should be able to attack without
+                            // initiating melee ( on their part at
+                            // least )
                             if (attacktype != SKILL_ENERGY_WEAPONS &&
                                 attacktype != SKILL_PROJ_WEAPONS &&
                                 ch->in_room == victim->in_room &&
