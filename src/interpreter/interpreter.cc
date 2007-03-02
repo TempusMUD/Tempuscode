@@ -1129,7 +1129,7 @@ struct command_info cmd_info[] = {
 	{"retell", POS_SLEEPING, do_retell, 0, 0, 0, 0},
 	{"redeem", POS_RESTING, do_not_here, 0, 0, 0, 0},
 	{"repair", POS_SITTING, do_repair, 0, 0, 0, 0},
-	{"respond", POS_RESTING, do_spec_comm, 0, SCMD_RESPOND, 0, 0},
+	{"respond", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"rest", POS_RESTING, do_rest, 0, 0, 0, 0},
 	{"resign", POS_SLEEPING, do_resign, 0, 0, 0, 0},
 	{"read", POS_RESTING, do_look, 0, SCMD_READ, 0, 0},
