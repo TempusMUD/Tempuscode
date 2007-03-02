@@ -124,6 +124,30 @@ ACMD(do_sayto)
     }
 }
 
+const char *
+select_say_cmd(const char *message)
+{
+    int len = strlen(message);
+    const char *end = message + len;
+
+    if ('?' == *end)
+        return "ask";
+    if ('!' == *end)
+        return (number(0, 1)) ? "yell":"exclaim";
+    if (len > 3 && !strcmp("...", end - 3))
+        return (number(0, 1)) ? "murmur":"mutter";
+    if (strcasestr(message, "y'all") || strstr(message, "ain't"))
+        return "drawl";
+    if (strcasestr(message, "moo"))
+        return "utter";
+    if (strlen(message) > 100)
+        return "ramble";
+    if (strlen(message) > 200)
+        return "drone";
+    
+    return "say";
+}
+
 ACMD(do_say)
 {
     int find_action(int cmd);
@@ -137,9 +161,11 @@ ACMD(do_say)
 
     skip_spaces(&argument);
 
-    if (*argument)
-        perform_say(ch, (cmdstr[0] == '\'') ? "say":cmdstr, argument);
-    else if (find_action(cmd) == -1)
+    if (*argument) {
+        if (cmdstr[0] == '\'' || !strcmp(cmdstr, "say"))
+            cmdstr = select_say_cmd(argument);
+        perform_say(ch, cmdstr, argument);
+    } else if (find_action(cmd) == -1)
         send_to_char(ch, "Yes, but WHAT do you want to %s?\r\n", cmdstr);
     else
         do_action(ch, argument, cmd, subcmd, return_flags);
