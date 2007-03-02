@@ -128,7 +128,7 @@ const char *
 select_say_cmd(const char *message)
 {
     int len = strlen(message);
-    const char *end = message + len;
+    const char *end = message + len - 1;
 
     if ('?' == *end)
         return "ask";
