@@ -789,7 +789,7 @@ struct command_info cmd_info[] = {
 	{"goose", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"gouge", POS_FIGHTING, do_offensive_skill, 0, SKILL_GOUGE, 0, 0},
 	{"group", POS_SLEEPING, do_group, 1, 0, 0, 0},
-	{"grunt", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"grunt", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"grab", POS_RESTING, do_grab, 0, 0, 0, 0},
 	{"grats", POS_RESTING, do_gen_comm, 0, SCMD_GRATZ, 0, 0},
 	{"greet", POS_RESTING, do_action, 0, 0, 0, 0},
