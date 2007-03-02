@@ -369,10 +369,6 @@ ACMD(do_spec_comm)
 		action_sing = "respond to";
 		action_plur = "responds to";
 		action_others = "$n$a responds to $N.";
-	} else {
-		action_sing = "ask";
-		action_plur = "asks";
-		action_others = "$n$a asks $N a question.";
 	}
 
     char *vict_str = tmp_getword(&argument);

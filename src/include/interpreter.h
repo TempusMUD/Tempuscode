@@ -224,8 +224,7 @@ struct set_struct {
 
 /* do_spec_com */
 #define SCMD_WHISPER	0
-#define SCMD_ASK	1
-#define SCMD_RESPOND    2
+#define SCMD_RESPOND    1
 
 /* do_gen_com */
 #define SCMD_HOLLER		0
