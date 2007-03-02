@@ -125,7 +125,7 @@ ACMD(do_sayto)
 }
 
 const char *
-select_say_cmd(const char *message)
+select_say_cmd(Creature *ch, const char *message)
 {
     int len = strlen(message);
     const char *end = message + len - 1;
@@ -133,18 +133,31 @@ select_say_cmd(const char *message)
     if ('?' == *end)
         return "ask";
     if ('!' == *end)
-        return (number(0, 1)) ? "yell":"exclaim";
+        return "exclaim";
     if (len > 3 && !strcmp("...", end - 2))
-        return (number(0, 1)) ? "murmur":"mutter";
-    if (strcasestr(message, "y'all") || strstr(message, "ain't"))
-        return "drawl";
-    if (strcasestr(message, "moo"))
-        return "utter";
+        return "mutter";
     if (len > 160)
         return "ramble";
     if (len > 320)
         return "drone";
-    
+    if (GET_HIT(ch) < GET_MAX_HIT(ch) / 20)
+        return "moan";
+    if (GET_MOVE(ch) < GET_MAX_MOVE(ch) / 20)
+        return "gasp";
+    if (ch->in_room->sector_type == SECT_UNDERWATER)
+        return "gurgle";
+	if (IS_AFFECTED_2(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch))
+        return "scream";
+    if (IS_POISONED(ch))
+        return "choke";
+    if (IS_SICK(ch))
+        return "wheeze";
+	if (GET_COND(ch, DRUNK) > 10)
+        return "slur";
+    if (strcasestr(message, "y'all") || strstr(message, "ain't"))
+        return "drawl";
+    if (strcasestr(message, "moo"))
+        return "utter";
     return "say";
 }
 
@@ -163,7 +176,7 @@ ACMD(do_say)
 
     if (*argument) {
         if (cmdstr[0] == '\'' || !strcmp(cmdstr, "say"))
-            cmdstr = select_say_cmd(argument);
+            cmdstr = select_say_cmd(ch, argument);
         perform_say(ch, cmdstr, argument);
     } else if (find_action(cmd) == -1)
         send_to_char(ch, "Yes, but WHAT do you want to %s?\r\n", cmdstr);
