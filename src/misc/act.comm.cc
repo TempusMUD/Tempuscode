@@ -140,9 +140,9 @@ select_say_cmd(const char *message)
         return "drawl";
     if (strcasestr(message, "moo"))
         return "utter";
-    if (strlen(message) > 100)
+    if (len > 160)
         return "ramble";
-    if (strlen(message) > 200)
+    if (len > 320)
         return "drone";
     
     return "say";
