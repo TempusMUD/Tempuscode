@@ -1268,9 +1268,10 @@ SPECIAL(bank)
 		arg = tmp_getword(&argument);
 	}
 
-	if( GET_LEVEL(ch) >= LVL_AMBASSADOR || IS_NPC(ch) ) {
+	if((!CMD_IS("transfer") && GET_LEVEL(ch) >= LVL_AMBASSADOR) ||
+       IS_NPC(ch) ) {
 		send_to_char(ch, "Why would you need a bank?\r\n");
-		return 0;
+		return 1;
 	}
 
 	if (!CMD_IS("balance")) {
