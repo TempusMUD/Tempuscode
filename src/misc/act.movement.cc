@@ -110,7 +110,8 @@ can_travel_sector(struct Creature *ch, int sector_type, bool active)
 		sector_type == SECT_DEEP_OCEAN ||
 		sector_type == SECT_PITCH_SUB ||
 		sector_type == SECT_WATER_NOSWIM ||
-		sector_type == SECT_ELEMENTAL_OOZE || sector_type == SECT_FREESPACE) {
+		sector_type == SECT_ELEMENTAL_OOZE ||
+        sector_type == SECT_FREESPACE) {
 
 		if (IS_RACE(ch, RACE_FISH))
 			return true;
