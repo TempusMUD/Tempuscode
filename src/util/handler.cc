@@ -2018,12 +2018,13 @@ extract_obj(struct obj_data *obj)
 void
 update_object(struct obj_data *obj, int use)
 {
-	if (GET_OBJ_TIMER(obj) > 0)
-		GET_OBJ_TIMER(obj) -= use;
-	if (obj->contains)
-		update_object(obj->contains, use);
-	if (obj->next_content)
-		update_object(obj->next_content, use);
+    while (obj) {
+        if (GET_OBJ_TIMER(obj) > 0)
+            GET_OBJ_TIMER(obj) -= use;
+        if (obj->contains)
+            update_object(obj->contains, use);
+        obj = obj->next_content;
+    }
 }
 
 
