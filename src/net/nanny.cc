@@ -1819,7 +1819,7 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 			case RENT_FORCED:
 				status_str = "&yForcerent"; break;
 			case RENT_QUIT:
-				status_str = "&g     Quit"; break;
+				status_str = "&m     Quit"; break;
 			case RENT_REMORTING:
 				status_str = "&YRemorting"; break;
 			default:
