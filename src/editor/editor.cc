@@ -259,15 +259,7 @@ CEditor::ReplaceLine(unsigned int line, char *inStr)
 		SendMessage("Error: The buffer is full.\r\n");
 		return false;
 	}
-	// Erase it
-	theText.erase(s);
-
-	// Find it again (the one after it actually)
-    s = theText.begin();
-    advance(s, line - 1);
-
-	// Insert the new text
-	theText.insert(s, text);
+    *s = text;
 
     if (wrap)
 	    Wrap();
