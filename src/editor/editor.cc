@@ -274,6 +274,25 @@ CEditor::ReplaceLine(unsigned int line, char *inStr)
 }
 
 bool
+CEditor::MoveLines(unsigned int start_line,
+                   unsigned int end_line,
+                   unsigned int dest_line)
+{
+	list<string>::iterator dest, begin, end;
+
+    begin = theText.begin();
+    advance(begin, start_line - 1);
+    end = theText.begin();
+    advance(end, end_line);
+    dest = theText.begin();
+    advance(dest, dest_line - 1);
+
+    theText.splice(dest, theText, begin, end);
+
+	return true;
+}
+
+bool
 CEditor::Find(char *args)
 {
 	list <string>::iterator itr;
@@ -617,11 +636,11 @@ CEditor::ProcessHelp(char *inStr)
 	if (!*inStr) {
         send_to_desc(desc,
                      "     &C*&B-----------------------&Y H E L P &B-----------------------&C*\r\n"
-                     "            &YS - &nSubstitute           &YH - &nHelp         \r\n"
+                     "            &YR - &nRefresh Screen       &YH - &nHelp         \r\n"
                      "            &YE - &nSave and Exit        &YQ - &nQuit (Cancel)\r\n"
                      "            &YL - &nReplace Line         &YD - &nDelete Line  \r\n"
-                     "            &YI - &nInsert Line          &YR - &nRefresh Screen\r\n"
-                     "            &YF - &nFind\r\n");
+                     "            &YI - &nInsert Line          &YM - &nMove Line(s)\r\n"
+                     "            &YF - &nFind                 &YS - &nSubstitute\r\n");
         if (PLR_FLAGGED(ch, PLR_MAILING)) {
             // TODO: this should use virtual dispatch for extensibility.
             send_to_desc(desc,
@@ -659,14 +678,21 @@ CEditor::PerformCommand(char cmd, char *args)
 	case 'h':					// Help
 		ProcessHelp(args);
         break;
-	case 's':					// Find/Replace
-        Substitute(args);
-		break;
-    case 'f':
-        Find(args);
-        break;
 	case 'e':					// Save and Exit
         Finish(true);
+		break;
+	case 'q':					// Quit without saving
+        Finish(false);
+		break;
+	case 's':					// Substitute
+        Substitute(args);
+		break;
+    case 'f':                   // Find
+        Find(args);
+        break;
+	case 'c':					// Clear Buffer
+		Clear();
+		SendMessage("Cleared.\r\n");
 		break;
 	case 'l':					// Replace Line
 		args = one_argument(args, command);
@@ -695,13 +721,6 @@ CEditor::PerformCommand(char cmd, char *args)
 		}
         Insert(line, args);
 		break;
-	case 'c':					// Clear Buffer
-		Clear();
-		SendMessage("Cleared.\r\n");
-		break;
-	case 'q':					// Quit without saving
-        Finish(false);
-		break;
 	case 'd':					// Delete Line
 		args = one_argument(args, command);
 		if (!isdigit(*command)) {
@@ -715,6 +734,53 @@ CEditor::PerformCommand(char cmd, char *args)
 		}
         Remove(line);
 		break;
+    case 'm': {
+        char *arg;
+        int start_line, end_line, dest_line;
+
+        arg = tmp_getword(&args);
+        if (!*arg) {
+            SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+            break;
+        }
+        char *dash = strchr(arg, '-');
+        if (dash) {
+            char *str;
+
+            str = tmp_substr(arg, 0, dash - arg - 1);
+            if (!isnumber(str)) {
+                SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+                break;
+            }
+            start_line = atoi(str);
+            str = tmp_substr(arg, dash - arg + 1);
+            if (!isnumber(str)) {
+                SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+                break;
+            }
+            end_line = atoi(str);
+        } else if (!isnumber(arg)) {
+            SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+            break;
+        } else {
+            start_line = end_line = atoi(arg);
+        }
+
+        arg = tmp_getword(&args);
+        if (!*arg || !isnumber(arg)) {
+            SendMessage("Format for move command is: &m (<start line>-<end line>|<line #>) <destination>\r\n");
+            break;
+        }
+        dest_line = atoi(arg);
+        
+        if (dest_line >= start_line && dest_line <= end_line + 1) {
+            SendMessage("The line range you specified is already at the destination.\r\n");
+            break;
+        }
+
+        MoveLines(start_line, end_line, dest_line);
+        break;
+    }
 	case 'r':					// Refresh Screen
         if (!*args) {
             DisplayBuffer();
