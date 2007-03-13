@@ -291,6 +291,13 @@ CEditor::MoveLines(unsigned int start_line,
 
     theText.splice(dest, theText, begin, end);
 
+    if (start_line == end_line) {
+        SendMessage(tmp_sprintf("Moved line %d above line %d.\r\n",
+                                start_line, dest_line));
+    } else {
+        SendMessage(tmp_sprintf("Moved lines %d-%d to the line above line %d.\r\n",
+                                start_line, end_line, dest_line));
+    }
 	return true;
 }
 
