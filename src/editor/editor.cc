@@ -679,6 +679,40 @@ CEditor::ProcessHelp(char *inStr)
 }
 
 bool
+parse_optional_range(const char *arg, int &start, int &finish)
+{
+    char *dash = strchr(arg, '-');
+
+    if (dash) {
+        char *str;
+
+        // Parse range
+        str = tmp_substr(arg, 0, dash - arg - 1);
+        if (!isnumber(str))
+            return false;
+        start = atoi(str);
+
+        str = tmp_substr(arg, dash - arg + 1);
+        if (!isnumber(str))
+            return false;
+        finish = atoi(str);
+
+        if (start > finish)
+            swap(start, finish);
+
+        return true;
+    }
+
+    // Ensure single arg is numeric
+    if (!isnumber(arg))
+        return false;
+
+    // Single number
+    start = finish = atoi(arg);
+    return true;
+}
+
+bool
 CEditor::PerformCommand(char cmd, char *args)
 {
 	int line;
@@ -753,27 +787,10 @@ CEditor::PerformCommand(char cmd, char *args)
             SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
             break;
         }
-        char *dash = strchr(arg, '-');
-        if (dash) {
-            char *str;
 
-            str = tmp_substr(arg, 0, dash - arg - 1);
-            if (!isnumber(str)) {
-                SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
-                break;
-            }
-            start_line = atoi(str);
-            str = tmp_substr(arg, dash - arg + 1);
-            if (!isnumber(str)) {
-                SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
-                break;
-            }
-            end_line = atoi(str);
-        } else if (!isnumber(arg)) {
+        if (!parse_optional_range(arg, start_line, end_line)) {
             SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
             break;
-        } else {
-            start_line = end_line = atoi(arg);
         }
 
         arg = tmp_getword(&args);
