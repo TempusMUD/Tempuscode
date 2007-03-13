@@ -8538,6 +8538,11 @@ ACMD(do_edit)
 {
     char *arg;
 
+    if (GET_LEVEL(ch) < LVL_GOD) {
+        send_to_char(ch, "You don't see anything you can edit.\r\n");
+        return;
+    }
+
     arg = tmp_getword(&argument);
 
     if (isname(arg, "bugs")) {

@@ -702,7 +702,7 @@ struct command_info cmd_info[] = {
 	{"elbow", POS_FIGHTING, do_offensive_skill, 0, SKILL_ELBOW, 0, 0},
 	{"elude", POS_STANDING, do_elude, 0, 0, 0, 0},
 	{"emote", POS_RESTING, do_echo, 1, SCMD_EMOTE, 0, 0},
-	{"edit", POS_DEAD, do_edit, LVL_GOD, 0, 0, 0},
+	{"edit", POS_DEAD, do_edit, 0, 0, 0, 0},
 	{":", POS_RESTING, do_echo, 1, SCMD_EMOTE, 0, 0},
 	{"embrace", POS_STANDING, do_action, 0, 0, 0, 0},
 	{"empower", POS_STANDING, do_empower, 0, 0, 0, 0},
