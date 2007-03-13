@@ -510,7 +510,7 @@ CEditor::Clear(void)
 }
 
 void
-CEditor::ImportText(char *str)
+CEditor::ImportText(const char *str)
 {
     char *line;
 

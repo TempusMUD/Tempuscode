@@ -32,7 +32,7 @@ protected:
     virtual void Cancel(void);
     virtual void DisplayBuffer(unsigned int start_line = 1, int line_count = -1);
 
-	void ImportText(char *text);	// Run from contructor, imports *d->str
+	void ImportText(const char *text);	// Run from contructor, imports *d->str
 	void SendMessage(const char *message);	// Wrapper for sendtochar
 	void UndoChanges(void);
 
@@ -138,7 +138,7 @@ protected:
 
 class CBoardEditor : public CEditor {
 public:
-    CBoardEditor(descriptor_data *desc, const char *b_name, const char *subject);
+    CBoardEditor(descriptor_data *desc, const char *b_name, int id, const char *subject, const char *body);
     virtual ~CBoardEditor(void);
 
     virtual bool IsEditing(char *inStr)
@@ -149,6 +149,7 @@ public:
 protected:
     CBoardEditor(void);
 
+    int idnum;
     char *board_name;
     char *subject;
 
@@ -207,7 +208,9 @@ void start_editing_prog(struct descriptor_data *d,
                         prog_evt_type owner_type);
 void start_editing_board(struct descriptor_data *d,
                          const char *board,
-                         const char *subject);
+                         int idnum,
+                         const char *subject,
+                         const char *body);
 void start_editing_poll(struct descriptor_data *d,
                         const char *header);
 void start_editing_file(struct descriptor_data *d,

@@ -31,7 +31,9 @@ using namespace std;
 void
 start_editing_board(descriptor_data *d,
                     const char *b_name,
-                    const char *subject)
+                    int idnum,
+                    const char *subject,
+                    const char *body)
 {
 	if (d->text_editor) {
 		errlog("Text editor object not null in start_editing_mail");
@@ -42,18 +44,24 @@ start_editing_board(descriptor_data *d,
 
     SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
 
-	d->text_editor = new CBoardEditor(d, b_name, subject);
+	d->text_editor = new CBoardEditor(d, b_name, idnum, subject, body);
 }
 
 
 
 CBoardEditor::CBoardEditor(descriptor_data *desc,
                            const char *b_name,
-                           const char *s)
+                           int id,
+                           const char *s,
+                           const char *b)
     : CEditor(desc, MAX_STRING_LENGTH)
 {
     board_name = strdup(b_name);
     subject = strdup(s);
+
+    idnum = id;
+    if (b)
+        ImportText(b);
 
     SendStartupMessage();
     DisplayBuffer();
@@ -82,7 +90,7 @@ CBoardEditor::PerformCommand(char cmd, char *args)
 void
 CBoardEditor::Finalize(const char *text)
 {
-    gen_board_save(desc->creature, board_name, subject, text);
+    gen_board_save(desc->creature, board_name, idnum, subject, text);
 
     if (IS_PLAYING(desc))
         act("$n nods with satisfaction as $e saves $s work.", false, desc->creature, 0, 0, TO_NOTVICT);

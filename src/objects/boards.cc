@@ -24,10 +24,12 @@ struct board_data {
 	const char *name;
 	const char *deny_read;
 	const char *deny_post;
+    const char *deny_edit;
 	const char *deny_remove;
 	const char *not_author;
 	Reaction *read_perms;
 	Reaction *post_perms;
+    Reaction *edit_perms;
 	Reaction *remove_perms;
 };
 void gen_board_write(board_data *board, Creature *ch, char *argument);
@@ -36,14 +38,20 @@ void gen_board_read(board_data *board, Creature *ch, char *argument);
 void gen_board_list(board_data *board, Creature *ch);
 
 void
-gen_board_save(Creature *ch, const char *board, const char *subject, const char *body)
+gen_board_save(Creature *ch, const char *board, int idnum, const char *subject, const char *body)
 {
-	sql_insert("insert into board_messages (board, post_time, author, name, subject, body) values ('%s', now(), %ld, '%s', '%s', '%s')",
-               tmp_sqlescape(board),
-               GET_IDNUM(ch),
-               tmp_sqlescape(tmp_capitalize(GET_NAME(ch))),
-               tmp_sqlescape(subject),
-               tmp_sqlescape(body));
+    if (idnum < 0)
+        sql_insert("insert into board_messages (board, post_time, author, name, subject, body) values ('%s', now(), %ld, '%s', '%s', '%s')",
+                   tmp_sqlescape(board),
+                   GET_IDNUM(ch),
+                   tmp_sqlescape(tmp_capitalize(GET_NAME(ch))),
+                   tmp_sqlescape(subject),
+                   tmp_sqlescape(body));
+    else
+        sql_exec("update board_messages set post_time=now(), subject='%s', body='%s' where idnum=%d",
+                 tmp_sqlescape(subject),
+                 tmp_sqlescape(body),
+                 idnum);
 }
 
 void
@@ -92,7 +100,48 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 	}
 
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
-	start_editing_board(ch->desc, board->name, argument);
+	start_editing_board(ch->desc, board->name, -1, argument, NULL);
+}
+
+void
+gen_board_edit(board_data *board, Creature *ch, char *argument)
+{
+    Creature *player;
+    PGresult *res;
+    int idx;
+
+	if (IS_PC(ch))
+		player = ch;
+	else if (ch->desc && ch->desc->original)
+		player = ch->desc->original;
+	else {
+		send_to_char(ch, "You're a mob.  Go awei.\r\n");
+		return;
+	}
+
+	if (ALLOW != board->edit_perms->react(player)) {
+		send_to_char(ch, "%s\r\n", board->deny_edit);
+		return;
+	}
+	
+	idx = atoi(tmp_getword(&argument)) - 1;
+    if (idx < 0) {
+		send_to_char(ch, "That is not a valid message.\r\n");
+		return;
+	}
+    res = sql_query("select idnum, subject, body from board_messages where board='%s' order by idnum limit 1 offset %d",
+                    tmp_sqlescape(board->name),
+                    idx);
+	if (PQntuples(res) == 0) {
+		send_to_char(ch, "That message does not exist on this board.\r\n");
+		return;
+	}
+
+    start_editing_board(ch->desc,
+                        board->name,
+                        atoi(PQgetvalue(res, 0, 0)),
+                        *argument ? argument:PQgetvalue(res, 0, 1),
+                        PQgetvalue(res, 0, 2));
 }
 
 void
@@ -234,12 +283,14 @@ gen_board_load(obj_data *self, char *param, int *err_line)
 
 	CREATE(board, board_data, 1);
 	board->name = "world";
-	board->deny_read = "Try as you might, you cannot bring yourself to read this board";
-	board->deny_post = "Try as you might, you cannot bring yourself to write on this board";
+	board->deny_read = "Try as you might, you cannot bring yourself to read this board.";
+	board->deny_post = "Try as you might, you cannot bring yourself to write on this board.";
+	board->deny_edit = "Try as you might, you cannot bring yourself to edit this board.";
 	board->deny_remove = "Try as you might, you cannot bring yourself to delete anything on this board.";
 	board->not_author = "You can only delete your own posts on this board.";
 	board->read_perms = new Reaction;
 	board->post_perms = new Reaction;
+	board->edit_perms = new Reaction;
 	board->remove_perms = new Reaction;
 
 	while ((line = tmp_getline(&param)) != NULL) {
@@ -253,6 +304,8 @@ gen_board_load(obj_data *self, char *param, int *err_line)
 			board->deny_read = strdup(line);
 		else if (!strcmp(param_key, "deny-post"))
 			board->deny_post = strdup(line);
+		else if (!strcmp(param_key, "deny-edit"))
+			board->deny_edit = strdup(line);
 		else if (!strcmp(param_key, "deny-remove"))
 			board->deny_remove = strdup(line);
 		else if (!strcmp(param_key, "not-author"))
@@ -265,6 +318,11 @@ gen_board_load(obj_data *self, char *param, int *err_line)
 		} else if (!strcmp(param_key, "post")) {
 			if (!board->post_perms->add_reaction(line)) {
 				err = "invalid post permission";
+				break;
+			}
+		} else if (!strcmp(param_key, "edit")) {
+			if (!board->edit_perms->add_reaction(line)) {
+				err = "invalid edit permission";
 				break;
 			}
 		} else if (!strcmp(param_key, "remove")) {
@@ -281,6 +339,7 @@ gen_board_load(obj_data *self, char *param, int *err_line)
 	if (err) {
 		delete board->read_perms;
 		delete board->post_perms;
+        delete board->edit_perms;
 		delete board->remove_perms;
 		free(board);
 	} else
@@ -296,7 +355,7 @@ SPECIAL(gen_board)
 {
 	obj_data *self = (obj_data *)me;
 	board_data *board;
-	char *err;
+	char *err, *arg;
 	int err_line;
 
 	// We only handle commands
@@ -304,7 +363,7 @@ SPECIAL(gen_board)
 		return 0;
 	
 	// In fact, we only handle these commands
-	if (!(CMD_IS("write") || CMD_IS("read") || CMD_IS("remove") || CMD_IS("look") || CMD_IS("examine")))
+	if (!(CMD_IS("write") || CMD_IS("read") || CMD_IS("remove") || CMD_IS("edit") || CMD_IS("look") || CMD_IS("examine")))
 		return 0;
 	
 	skip_spaces(&argument);
@@ -322,6 +381,11 @@ SPECIAL(gen_board)
 	if (CMD_IS("remove") && !isnumber(argument))
 		return 0;
 	
+    // We only handle edit command if it's referring to a message
+    arg = argument;
+    if (CMD_IS("edit") && !isnumber(tmp_getword(&arg)))
+        return 0;
+
 	// If they can't see the board, they can't use it at all
 	if (!can_see_object(ch, self))
 		return 0;
@@ -356,6 +420,8 @@ SPECIAL(gen_board)
 		gen_board_write(board, ch, argument);
 	else if (CMD_IS("remove"))
 		gen_board_remove(board, ch, argument);
+	else if (CMD_IS("edit"))
+		gen_board_edit(board, ch, argument);
 	else if (isnumber(argument))
 		gen_board_read(board, ch, argument);
 	else
