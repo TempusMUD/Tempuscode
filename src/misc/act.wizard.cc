@@ -6767,6 +6767,7 @@ ACMD(do_aset)
         {"qpoints", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},
 		{"qbanned", LVL_IMMORT, PC, BINARY, "QuestorAdmin,AdminFull"},
         {"password", LVL_IMMORT, PC, MISC, "AdminFull"},
+        {"email", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""} };
 	char *name, *field;
 	int i, l, value = 0;
@@ -6855,6 +6856,13 @@ ACMD(do_aset)
 		sprintf(buf, "Password for account %s[%d] has been set.",
 			account->get_name(), account->get_idnum());
 		break;
+    case 6:
+        account->set_email_addr(argument);
+        sprintf(buf, "Email for account %s[%d] has been set to <%s>",
+                account->get_name(),
+                account->get_idnum(),
+                account->get_email_addr());
+        break;
     default:
         sprintf(buf, "Can't set that!");
         break;
