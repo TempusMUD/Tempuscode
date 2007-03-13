@@ -62,7 +62,7 @@ private:
                    unsigned int destination);
 	bool Find(char *args);	// Text search
 	bool Substitute(char *args);	// Text search and replace.
-	bool Remove(unsigned int line);	// Remove a line
+    bool Remove(unsigned int start_line, unsigned int finish_line);
 	bool Clear(void);			// Wipe the text and start over.
 };
 

@@ -508,19 +508,27 @@ CEditor::Wrap(void)
 }
 
 bool
-CEditor::Remove(unsigned int line)
+CEditor::Remove(unsigned int start_line, unsigned int finish_line)
 {
-	list <string>::iterator s;
+	list <string>::iterator start, finish;
 
-	if (line > theText.size()) {
+	if (start_line > theText.size()) {
 		SendMessage("Someone already deleted that line boss.\r\n");
 		return false;
 	}
 
-    s = theText.begin();
-    advance(s, line - 1);
-	theText.erase(s);
-	SendMessage(tmp_sprintf("Line %d deleted.\r\n", line));
+    start = theText.begin();
+    advance(start, start_line - 1);
+    finish = theText.begin();
+    advance(finish, finish_line);
+	theText.erase(start, finish);
+
+    if (start_line == finish_line)
+        SendMessage(tmp_sprintf("Line %d deleted.\r\n", start_line));
+    else
+        SendMessage(tmp_sprintf("Lines %d-%d deleted.\r\n",
+                                start_line,
+                                finish_line));
 
     if (wrap)
 	    Wrap();
@@ -715,7 +723,7 @@ parse_optional_range(const char *arg, int &start, int &finish)
 bool
 CEditor::PerformCommand(char cmd, char *args)
 {
-	int line;
+	int line, start_line, end_line, dest_line;
 	char command[MAX_INPUT_LENGTH];
 
 	switch (tolower(cmd)) {
@@ -767,20 +775,14 @@ CEditor::PerformCommand(char cmd, char *args)
 		break;
 	case 'd':					// Delete Line
 		args = one_argument(args, command);
-		if (!isdigit(*command)) {
+        if (!parse_optional_range(command, start_line, end_line)) {
 			SendMessage("Format for delete command is: &d <line #>\r\n");
 			break;
 		}
-		line = atoi(command);
-		if (line < 1) {
-			SendMessage("Format for delete command is: &d <line #>\r\n");
-			break;
-		}
-        Remove(line);
+        Remove(start_line, end_line);
 		break;
     case 'm': {
         char *arg;
-        int start_line, end_line, dest_line;
 
         arg = tmp_getword(&args);
         if (!*arg) {
