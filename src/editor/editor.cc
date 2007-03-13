@@ -208,8 +208,7 @@ bool
 CEditor::Insert(unsigned int line, char *inStr)
 {
 	string text;
-	list <string>::iterator s;
-	unsigned int i = 1;
+	list<string>::iterator s;
 
 	if (*inStr) {
 		inStr++;
@@ -223,8 +222,9 @@ CEditor::Insert(unsigned int line, char *inStr)
 		SendMessage("Error: The buffer is full.\r\n");
 		return false;
 	}
-	// Find it again (the one after it actually)
-	for (s = theText.begin(); i < line; i++, s++);
+
+    s = theText.begin();
+    advance(s, line - 1);
 
 	// Insert the new text
 	theText.insert(s, text);
@@ -240,7 +240,6 @@ CEditor::ReplaceLine(unsigned int line, char *inStr)
 {
 	string text;
 	list <string>::iterator s;
-	unsigned int i = 1;
 
 	if (*inStr && *inStr == ' ')
 		inStr++;
@@ -251,7 +250,8 @@ CEditor::ReplaceLine(unsigned int line, char *inStr)
 		return false;
 	}
 	// Find the line
-	for (i = 1, s = theText.begin(); i < line; i++, s++);
+    s = theText.begin();
+    advance(s, line - 1);
 
 	// Make sure we can fit the new stuff in
 	if ((text.length() + curSize - s->length()) +
@@ -263,7 +263,9 @@ CEditor::ReplaceLine(unsigned int line, char *inStr)
 	theText.erase(s);
 
 	// Find it again (the one after it actually)
-	for (i = 1, s = theText.begin(); i < line; i++, s++);
+    s = theText.begin();
+    advance(s, line - 1);
+
 	// Insert the new text
 	theText.insert(s, text);
 
@@ -502,13 +504,14 @@ bool
 CEditor::Remove(unsigned int line)
 {
 	list <string>::iterator s;
-	unsigned int i;
+
 	if (line > theText.size()) {
 		SendMessage("Someone already deleted that line boss.\r\n");
 		return false;
 	}
-	for (i = 1, s = theText.begin(); i < line; s++, i++);
 
+    s = theText.begin();
+    advance(s, line - 1);
 	theText.erase(s);
 	SendMessage(tmp_sprintf("Line %d deleted.\r\n", line));
 
