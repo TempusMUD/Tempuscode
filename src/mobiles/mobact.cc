@@ -3289,17 +3289,16 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			return 0;
 		}
 	}
-	if (IS_UNDEAD(ch)) {
-		if (GET_CLASS(ch) == CLASS_GHOUL) {
-			if (random_fractional_10())
-				act(" $n emits a terrible shriek!!", FALSE, ch, 0, 0, TO_ROOM);
-			else if (random_fractional_5()) {
-				call_magic(ch, vict, 0, NULL, SPELL_CHILL_TOUCH, GET_LEVEL(ch),
-					CAST_SPELL, &return_flags);
-                    return return_flags;
-            }
-		}
-	}
+
+    if (GET_CLASS(ch) == CLASS_GHOUL) {
+        if (random_fractional_10())
+            act(" $n emits a terrible shriek!!", FALSE, ch, 0, 0, TO_ROOM);
+        else if (random_fractional_5()) {
+            call_magic(ch, vict, 0, NULL, SPELL_CHILL_TOUCH, GET_LEVEL(ch),
+                       CAST_SPELL, &return_flags);
+            return return_flags;
+        }
+    }
 
 	if (IS_DRAGON(ch)) {
 		if (random_number_zero_low(GET_LEVEL(ch)) > 10) {
