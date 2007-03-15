@@ -915,7 +915,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		corpse->line_desc = str_dup(buf2);
 		strcpy(adj, "legless");
 
-		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_UNDEAD(ch))
+		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_MOB(ch))
 			break;
 
 		leg = create_obj();
@@ -1275,7 +1275,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 	case SPELL_TAINT:
 	case TYPE_TAINT_BURN:
-		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_UNDEAD(ch)) {
+		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_MOB(ch)) {
 			// attack that rips the victim's head off
 			sprintf(buf2, "The smoking %s of %s %s lying here.",
 				typebuf, GET_NAME(ch), isare);
@@ -1343,7 +1343,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		corpse->line_desc = str_dup(buf2);
 		sprintf(adj, "headless");
 
-		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_UNDEAD(ch))
+		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_MOB(ch))
 			break;
 
 		head = create_obj();
@@ -1634,7 +1634,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	}
 
 	// leave no corpse behind
-	if (NON_CORPOREAL_UNDEAD(ch) || GET_MOB_SPEC(ch) == fate) {
+	if (NON_CORPOREAL_MOB(ch) || GET_MOB_SPEC(ch) == fate) {
 		while ((o = corpse->contains)) {
 			obj_from_obj(o);
 			obj_to_room(o, ch->in_room);

@@ -199,7 +199,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			prob = 0;
 
 		if ((!affected_by_spell(ch, SKILL_KATA) && 
-                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))) ||
+                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
@@ -238,7 +238,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 	case SKILL_HEADBUTT:
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
         
@@ -269,7 +269,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			prob -= GET_OBJ_VAL(GET_EQ(vict, WEAR_EYES), 0);
 
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
         
@@ -302,7 +302,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			prob += (10 * (POS_STANDING - vict->getPosition()));
 
 		if ((!affected_by_spell(ch, SKILL_KATA) && 
-                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))) ||
+                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
@@ -355,7 +355,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		}
 
 		if ((!affected_by_spell(ch, SKILL_KATA) && 
-                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))) ||
+                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
@@ -404,7 +404,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			prob = 0;
 
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
         
@@ -419,7 +419,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	case SKILL_GROINKICK:
 
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
         
@@ -489,7 +489,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			prob = 0;
 
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
         
@@ -528,7 +528,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	case SKILL_CLOTHESLINE:
 
 		if ((!affected_by_spell(ch, SKILL_KATA) && 
-                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))) ||
+                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
@@ -544,7 +544,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	case SKILL_TRIP:
 
 		if ((!affected_by_spell(ch, SKILL_KATA) && 
-                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))) ||
+                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
@@ -558,7 +558,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	case SKILL_BEARHUG:
 
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
         
@@ -593,7 +593,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 		need_hand = 1;
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
         *loc = WEAR_NECK_1;
@@ -687,7 +687,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		/** monk skillz here **/
 	case SKILL_PALM_STRIKE:
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
         
@@ -701,7 +701,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_THROAT_STRIKE:
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
         
@@ -715,7 +715,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_CRANE_KICK:
         if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
 
@@ -729,7 +729,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_SCISSOR_KICK:
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
             
@@ -743,7 +743,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_RIDGEHAND:
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
         
@@ -759,7 +759,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_DEATH_TOUCH:
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
         
@@ -773,7 +773,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_HIP_TOSS:
 		if ((!affected_by_spell(ch, SKILL_KATA) && 
-                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))) ||
+                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
@@ -791,7 +791,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		 /** merc offensive skills **/
 	case SKILL_SHOULDER_THROW:
 		if ((!affected_by_spell(ch, SKILL_KATA) && 
-                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))) ||
+                (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
@@ -851,7 +851,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_GAROTTE:
 		if (!affected_by_spell(ch, SKILL_KATA) && 
-            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+            (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
         if (!IS_AFFECTED(ch, AFF_SNEAK) && !IS_AFFECTED_3(ch, AFF3_INFILTRATE))
@@ -909,7 +909,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		*dam *= CHECK_SKILL(ch, skillnum);
 	*dam /= LEARNED(ch);
 
-	if (!affected_by_spell(ch, SKILL_KATA) && NON_CORPOREAL_UNDEAD(vict))
+	if (!affected_by_spell(ch, SKILL_KATA) && NON_CORPOREAL_MOB(vict))
 		*dam = 0;
 
 	prob = MIN(MAX(0, prob), 110);
@@ -1981,7 +1981,7 @@ ACMD(do_tornado_kick)
 
 	RAW_EQ_DAM(ch, WEAR_FEET, &dam);
 
-	if (NON_CORPOREAL_UNDEAD(vict))
+	if (NON_CORPOREAL_MOB(vict))
 		dam = 0;
 
 	WAIT_STATE(ch, PULSE_VIOLENCE * 3);
@@ -2869,7 +2869,7 @@ ACMD(do_impale)
 	if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED) && weap->worn_on == WEAR_WIELD)
 		dam <<= 1;
 
-	if (NON_CORPOREAL_UNDEAD(vict))
+	if (NON_CORPOREAL_MOB(vict))
 		dam = 0;
 
 	if (percent > prob) {

@@ -319,7 +319,7 @@ ACMD(do_whirlwind)
 
 	//if we don't have kata and victim is of a non-solid nature we can't hit
 	if (	!affected_by_spell(ch, SKILL_KATA) && 
-	    	(IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+	    	(IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
 		)
 		prob = 0;
 		
@@ -507,7 +507,7 @@ ACMD(do_combo)
 
 	//if we don't have kata and victim is of a non-solid nature we can't hit
 	if (	!affected_by_spell(ch, SKILL_KATA) && 
-	    	(IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_UNDEAD(vict))
+	    	(IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
 		)
 		prob = 0;
 

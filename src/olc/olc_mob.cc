@@ -1631,7 +1631,7 @@ mobile_experience(struct Creature *mob, FILE *outfile)
 		exp = (int)(exp * 1.7);
 	else if (IS_DEVIL(mob) || IS_DEMON(mob) || IS_SLAAD(mob) || IS_CELESTIAL(mob))
 		exp = (int)(exp * 1.1);
-	else if (NON_CORPOREAL_UNDEAD(mob))
+	else if (NON_CORPOREAL_MOB(mob))
 		exp = (int)(exp * 1.1);
 	else if (IS_GIANT(mob))
 		exp = (int)(exp * 1.1);
@@ -1751,7 +1751,7 @@ oldmobile_experience(struct Creature *mob)
 		exp = (int)(exp * 1.7);
 	else if (IS_DEVIL(mob) || IS_DEMON(mob) || IS_SLAAD(mob) || IS_CELESTIAL(mob))
 		exp = (int)(exp * 1.5);
-	else if (NON_CORPOREAL_UNDEAD(mob))
+	else if (NON_CORPOREAL_MOB(mob))
 		exp = (int)(exp * 1.3);
 	else if (IS_GIANT(mob))
 		exp = (int)(exp * 1.2);

@@ -66,13 +66,13 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
 			!PLR_FLAGGED(vict, PLR_MORTALIZED))
 		return true;
 
-	if (NON_CORPOREAL_UNDEAD(vict) ||
+	if (NON_CORPOREAL_MOB(vict) ||
 			IS_RAKSHASA(vict) ||
 			IS_GREATER_DEVIL(vict)) {
 		if (ch) {
 			// They can hit each other
 			if (IS_CELESTIAL(ch) ||
-					NON_CORPOREAL_UNDEAD(ch) ||
+					NON_CORPOREAL_MOB(ch) ||
 					IS_RAKSHASA(ch) ||
 					IS_DEVIL(ch))
 				return false;

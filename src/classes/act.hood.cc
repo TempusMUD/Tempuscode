@@ -152,7 +152,7 @@ ACMD(do_hamstring)
 	}
 
 	if (IS_PUDDING(vict) || IS_SLIME(vict)
-		|| NON_CORPOREAL_UNDEAD(vict) || IS_ELEMENTAL(vict))
+		|| NON_CORPOREAL_MOB(vict) || IS_ELEMENTAL(vict))
 		prob = 0;
 	if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 30) {
 		prob = 0;
