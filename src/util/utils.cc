@@ -416,13 +416,13 @@ strlist_aref(int idx, const char *names[])
 	int nr;
 
 	if (idx < 0)
-		return "ILLEGAL";
+		return tmp_sprintf("ILLEGAL(%d)", idx);
 
 	for (nr = 0;*names[nr] != '\n';nr++)
 		if (idx == nr)
 			return names[idx];
 	
-	return "UNDEFINED";
+	return tmp_sprintf("UNDEFINED(%d)", idx);
 }
 
 void
