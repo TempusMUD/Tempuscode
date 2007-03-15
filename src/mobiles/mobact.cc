@@ -1924,7 +1924,7 @@ mobile_activity(void)
 		}
 
 		/* Drink from fountains */
-		if (GET_RACE(ch) != RACE_UNDEAD && GET_RACE(ch) != RACE_DRAGON &&
+		if (IS_UNDEAD(ch) && GET_RACE(ch) != RACE_DRAGON &&
 			GET_RACE(ch) != RACE_GOLEM && GET_RACE(ch) != RACE_ELEMENTAL) {
 			if (ch->in_room->contents && random_fractional_100()) {
 				for (obj = ch->in_room->contents; obj; obj = obj->next_content)
@@ -4741,8 +4741,7 @@ int knight_battle_activity(struct Creature *ch, struct Creature *precious_vict){
         && !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_GOOD);
         return 0;
-    } else if ((GET_LEVEL(ch) > 21) &&
-        GET_RACE(vict) == RACE_UNDEAD &&
+    } else if ((GET_LEVEL(ch) > 21) && IS_UNDEAD(ch) &&
         random_fractional_10() &&
         !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
         !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
@@ -4846,10 +4845,11 @@ int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
         cast_spell(ch, ch, NULL, NULL, SPELL_BARKSKIN);
         WAIT_STATE(ch, PULSE_VIOLENCE);
         return 0;
-    } else if ((GET_LEVEL(ch) > 21) && random_fractional_5() &&
-        GET_RACE(vict) == RACE_UNDEAD &&
-		!ch->numCombatants() &&
-        !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
+    } else if ((GET_LEVEL(ch) > 21) &&
+               random_fractional_5() &&
+               IS_UNDEAD(vict) &&
+               !ch->numCombatants() &&
+               !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_INVIS_TO_UNDEAD);
         WAIT_STATE(ch, PULSE_VIOLENCE);
         return 0;

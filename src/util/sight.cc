@@ -90,13 +90,13 @@ has_infravision(Creature *ch)
 		(GET_RACE(ch) == RACE_DWARF) ||    
 		(GET_RACE(ch) == RACE_HALF_ORC) || 
 		(GET_RACE(ch) == RACE_TABAXI) ||   
-		(GET_RACE(ch) == RACE_UNDEAD) ||   
 		(GET_RACE(ch) == RACE_DRAGON) ||   
 		(GET_RACE(ch) == RACE_ORC) ||      
 		(GET_RACE(ch) == RACE_OGRE) ||      
 		(GET_RACE(ch) == RACE_GOBLIN) ||   
 		(GET_RACE(ch) == RACE_TROLL) ||    
-		(GET_RACE(ch) == RACE_BUGBEAR)  ||   
+		(GET_RACE(ch) == RACE_BUGBEAR)  ||
+        IS_UNDEAD(ch) ||
 		(GET_CLASS(ch) == CLASS_VAMPIRE && IS_EVIL(ch)));
 }
 
