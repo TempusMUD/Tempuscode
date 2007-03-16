@@ -1305,9 +1305,12 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 	if (PRF_FLAGGED(ch, PRF_ROOMFLAGS) ||
 		(ch->desc->original
 			&& PRF_FLAGGED(ch->desc->original, PRF_ROOMFLAGS))) {
-		sprintbit((long)ROOM_FLAGS(room), room_bits, buf);
 		send_to_char(ch, "[%5d] %s [ %s] [ %s ]", room->number,
-			room->name, buf, sector_types[room->sector_type]);
+                     room->name,
+                     tmp_printbits(ROOM_FLAGS(room), room_bits),
+                     strlist_aref(room->sector_type, sector_types));
+        if (room->max_occupancy < 256)
+            send_to_char(ch, " [ Max: %d ]", room->max_occupancy);
 	} else {
 		send_to_char(ch, room->name);
 	}
