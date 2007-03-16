@@ -312,6 +312,15 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 			GET_BROKE(ch) = 0;
 		}
 		GET_PC_DEATHS(ch)++;
+
+        // Tally kills for quest purposes
+        if (GET_QUEST(ch)) {
+            Quest *quest;
+            
+            quest = quest_by_vnum(GET_QUEST(ch));
+            if (quest)
+                quest->tallyDeath(GET_IDNUM(ch));
+        }
 	}
 
 	REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
@@ -2296,6 +2305,15 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                         }
 					}
 
+                    // Tally kills for quest purposes
+                    if (GET_QUEST(ch)) {
+                        Quest *quest;
+                        
+                        quest = quest_by_vnum(GET_QUEST(ch));
+                        if (quest)
+                            quest->tallyPlayerKill(GET_IDNUM(ch));
+                    }
+
 					// If it's not arena, give em a pkill and adjust reputation
 					if (!arena) {
 						if (dam_object)
@@ -2305,8 +2323,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					} else {
 						// Else adjust arena kills
 						GET_ARENAKILLS(ch) += 1;
-					}
-
+                    }
 				} else {
 					const char *attack_desc;
 
@@ -2358,6 +2375,15 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					is_humil = TRUE;
 			} else {
 				GET_MOBKILLS(ch) += 1;
+                // Tally kills for quest purposes
+                if (GET_QUEST(ch)) {
+                    Quest *quest;
+                        
+                    quest = quest_by_vnum(GET_QUEST(ch));
+                    if (quest)
+                        quest->tallyMobKill(GET_IDNUM(ch));
+                }
+
 			}
 
 			if (ch->isHunting() && ch->isHunting() == victim)

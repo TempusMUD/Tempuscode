@@ -39,6 +39,7 @@
 #include "utils.h"
 #include "security.h"
 #include "player_table.h"
+#include "accstr.h"
 
 // external funcs here
 ACMD(do_switch);
@@ -693,7 +694,7 @@ do_qcontrol_show(Creature *ch, char *argument)
 	timestr_s = asctime(localtime(&started));
 	*(timestr_s + strlen(timestr_s) - 1) = '\0';
 
-
+    
 	// quest is over, show summary information
 	if (quest->getEnded() ) {
 
@@ -704,62 +705,65 @@ do_qcontrol_show(Creature *ch, char *argument)
 		timestr_e = asctime(localtime(&started));
 		*(timestr_e + strlen(timestr_e) - 1) = '\0';
 
-		sprintf(buf,
-			"Owner:  %-30s [%2d]\r\n"
-			"Name:   %s\r\n"
-			"Status: COMPLETED\r\n"
-			"Description:\r\n%s"
-			"  Type:           %s\r\n"
-			"  Started:        %s\r\n"
-			"  Ended:          %s\r\n"
-			"  Age:            %s\r\n"
-			"  Min Level:   Gen %-2d, Level %2d\r\n"
-			"  Max Level:   Gen %-2d, Level %2d\r\n"
-			"  Max Players:    %d\r\n"
-			"  Pts. Awarded:   %d\r\n",
-			playerIndex.getName(quest->getOwner()), quest->owner_level,
-			quest->name,
-			quest->description ? quest->description : "None.\r\n",
-			qtypes[(int)quest->type], timestr_s,
-			timestr_e, timestr_a,
-			quest->mingen , quest->minlevel,
-			quest->maxgen , quest->maxlevel,
-			quest->getMaxPlayers(), quest->getAwarded());
-		page_string(ch->desc, buf);
-		return;
+        acc_string_clear();
 
+        acc_sprintf("Owner:  %-30s [%2d]\r\n"
+                    "Name:   %s\r\n"
+                    "Status: COMPLETED\r\n"
+                    "Description:\r\n%s"
+                    "  Type:           %s\r\n"
+                    "  Started:        %s\r\n"
+                    "  Ended:          %s\r\n"
+                    "  Age:            %s\r\n"
+                    "  Min Level:   Gen %-2d, Level %2d\r\n"
+                    "  Max Level:   Gen %-2d, Level %2d\r\n"
+                    "  Max Players:    %d\r\n"
+                    "  Pts. Awarded:   %d\r\n",
+                    playerIndex.getName(quest->getOwner()), quest->owner_level,
+                    quest->name,
+                    quest->description ? quest->description : "None.\r\n",
+                    qtypes[(int)quest->type], timestr_s,
+                    timestr_e, timestr_a,
+                    quest->mingen , quest->minlevel,
+                    quest->maxgen , quest->maxlevel,
+                    quest->getMaxPlayers(), quest->getAwarded());
+        
+		page_string(ch->desc, acc_get_string());
+
+		return;
 	}
 	// quest is still active
 
 	timediff = time(0) - quest->getStarted();
 	sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
-	sprintbit(quest->flags, quest_bits, buf2);
-
-	sprintf(buf,
-		"Owner:  %-30s [%2d]\r\n"
-		"Name:   %s\r\n"
-		"Status: ACTIVE\r\n"
-		"Description:\r\n%s"
-		"Updates:\r\n%s"
-		"  Type:            %s\r\n"
-		"  Flags:           %s\r\n"
-		"  Started:         %s\r\n"
-		"  Age:             %s\r\n"
-		"  Min Level:   Gen %-2d, Level %2d\r\n"
-		"  Max Level:   Gen %-2d, Level %2d\r\n"
-		"  Num Players:     %d\r\n"
-		"  Max Players:     %d\r\n"
-		"  Pts. Awarded:    %d\r\n",
-		playerIndex.getName(quest->getOwner()), quest->owner_level,
-		quest->name,
-		quest->description ? quest->description : "None.\r\n",
-		quest->updates ? quest->updates : "None.\r\n",
-		qtypes[(int)quest->type], buf2, timestr_s,
-		timestr_a,
-		quest->mingen , quest->minlevel,
-		quest->maxgen , quest->maxlevel,
-		quest->getNumPlayers(), quest->getMaxPlayers(), quest->getAwarded());
+	acc_sprintf("Owner:  %-30s [%2d]\r\n"
+                "Name:   %s\r\n"
+                "Status: ACTIVE\r\n"
+                "Description:\r\n%s"
+                "Updates:\r\n%s"
+                "  Type:            %s\r\n"
+                "  Flags:           %s\r\n"
+                "  Started:         %s\r\n"
+                "  Age:             %s\r\n"
+                "  Min Level:   Gen %-2d, Level %2d\r\n"
+                "  Max Level:   Gen %-2d, Level %2d\r\n"
+                "  Num Players:     %d\r\n"
+                "  Max Players:     %d\r\n"
+                "  Pts. Awarded:    %d\r\n",
+                playerIndex.getName(quest->getOwner()), quest->owner_level,
+                quest->name,
+                quest->description ? quest->description : "None.\r\n",
+                quest->updates ? quest->updates : "None.\r\n",
+                qtypes[(int)quest->type], 
+                tmp_printbits(quest->flags, quest_bits),
+                timestr_s,
+                timestr_a,
+                quest->mingen , quest->minlevel,
+                quest->maxgen , quest->maxlevel,
+                quest->getNumPlayers(),
+                quest->getMaxPlayers(),
+                quest->getAwarded());
 
 	if (quest->getNumPlayers()) {
 		list_quest_players(ch, quest, buf2);
@@ -1887,9 +1891,7 @@ list_quest_players(Creature *ch, Quest * quest, char *outbuf)
 	strcpy(buf2, "  -Offline Players-----------------------------------\r\n");
 
 	for (i = num_online = num_offline = 0; i < quest->getNumPlayers(); i++) {
-
-
-		sprintf(name, "%s", playerIndex.getName(quest->getPlayer(i).idnum));
+		strcpy(name, playerIndex.getName(quest->getPlayer(i).idnum));
 
 		if (!*name) {
 			strcat(buf, "BOGUS player idnum!\r\n");
@@ -1910,11 +1912,20 @@ list_quest_players(Creature *ch, Quest * quest, char *outbuf)
 			can_see_creature(ch, vict)) {
 
 			// see if we can see the locations of the players
-			if (PRF_FLAGGED(ch, PRF_HOLYLIGHT) ||
-				QUEST_FLAGGED(quest, QUEST_WHOWHERE)) {
-				sprintf(buf, "%s  %2d. %-15s - %-10s - [%5d] %s %s\r\n", buf,
-					++num_online, name, bitbuf, vict->in_room->number,
-					vict->in_room->name, vict->desc ? "" : "   (linkless)");
+			if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+				sprintf(buf, "%s  %2d. %-15s - %-10s %s[%5d] D%d/MK%d/PK%d %s\r\n", buf,
+                        ++num_online,
+                        name,
+                        bitbuf,
+                        vict->in_room->name,
+                        vict->in_room->number,
+                        quest->getPlayer(i).deaths,
+                        quest->getPlayer(i).mobkills,
+                        quest->getPlayer(i).pkills,
+                        vict->desc ? "" : "   (linkless)");
+            } else if (QUEST_FLAGGED(quest, QUEST_WHOWHERE)) {
+				sprintf(buf, "%s  %2d. %-15s - %s\r\n", buf,
+                        ++num_online, name, vict->in_room->name);
 			} else {
 				sprintf(buf, "%s  %2d. %-15s - %-10s\r\n", buf, ++num_online,
 					name, bitbuf);
@@ -2898,6 +2909,9 @@ Quest::Quest( xmlNodePtr n, xmlDocPtr doc )
 			int flags = xmlGetIntProp(cur, "FLAGS");
 			qplayer_data player(id);
 			player.setFlag(flags);
+            player.deaths = xmlGetIntProp(cur, "DEATHS");
+            player.mobkills = xmlGetIntProp(cur, "MKILLS");
+            player.pkills = xmlGetIntProp(cur, "PKILLS");
 			players.push_back(player);
 		} else if ((xmlMatches(cur->name, "Ban"))) {
 			long id = xmlGetLongProp(cur, "ID");
@@ -3038,7 +3052,10 @@ bool qplayer_data::isFlagged( int flag ) {
 qplayer_data& qplayer_data::operator=( const qplayer_data &q )
 {
 	idnum = q.idnum; 
-	flags = q.flags; 
+	flags = q.flags;
+    deaths = q.deaths;
+    mobkills = q.mobkills;
+    pkills = q.pkills;
 	return *this;
 }
 
@@ -3152,12 +3169,34 @@ Quest::save(std::ostream &out)
 	out << indent << "  <Update>" << xmlEncodeTmp(updates) << "</Update>" << endl;
 
 	for( unsigned int i = 0; i < players.size(); i++ ) {
-		out << indent << "  <Player ID=\"" << players[i].idnum 
-					  << "\" FLAGS=\"" << players[i].getFlags() << "\" />" << endl;
+		out << indent
+            << "  <Player ID=\"" << players[i].idnum << '"'
+            << " FLAGS=\"" << players[i].flags << '"'
+            << " DEATHS=\"" << players[i].deaths << '"'
+            << " MKILLS=\"" << players[i].mobkills << '"'
+            << " PKILLS=\"" << players[i].pkills << '"'
+            << "/>" << endl;
 	}
 	for( unsigned int i = 0; i < bans.size(); i++ ) {
 		out << indent << "  <Ban ID=\"" << bans[i].idnum 
 					  << "\" FLAGS=\"" << bans[i].getFlags() << "\" />" << endl;
 	}
 	out << indent << "</Quest>" << endl;
+}
+
+void
+Quest::tallyDeath(int player)
+{
+    getPlayer((long)player).deaths += 1;
+    quests.save();
+}
+void
+Quest::tallyMobKill(int player) {
+    getPlayer((long)player).mobkills += 1;
+    quests.save();
+}
+void
+Quest::tallyPlayerKill(int player) {
+    getPlayer((long)player).pkills += 1;
+    quests.save();
 }

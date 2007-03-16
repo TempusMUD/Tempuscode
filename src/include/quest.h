@@ -56,7 +56,10 @@ using namespace std;
 **/
 class qplayer_data {
 	public:
-		qplayer_data( long id ) { idnum = id; flags = 0; }
+		qplayer_data( long id ) {
+            idnum = id;
+            flags = deaths = mobkills = pkills = 0;
+        }
 		qplayer_data( const qplayer_data &q) { *this = q; }
 		qplayer_data& operator=( const qplayer_data &q );
 		bool operator==( const qplayer_data &q ) const { return idnum == q.idnum; }
@@ -70,10 +73,12 @@ class qplayer_data {
 		void removeFlag( int flag );
 		void toggleFlag( int flag );
 		int getFlags() { return flags; }
-	public:
+
 		long idnum;
-	private:
 		int flags;
+        int deaths;
+        int mobkills;
+        int pkills;
 };
 
 class Quest {
@@ -116,7 +121,9 @@ class Quest {
 		void setEnded( time_t end ) { ended = end; }
 		time_t getStarted() { return started; }
 		long getOwner() { return owner_id; }
-
+        void tallyDeath(int player);
+        void tallyMobKill(int player);
+        void tallyPlayerKill(int player);
 	private: // utils
 		void clearDescs();
 		bool levelOK( Creature *ch );
