@@ -203,7 +203,7 @@ void perform_net_finger(struct Creature *ch, char *arg)
             "Logged in at: %s.\r\n",
             GET_NAME(vict), GET_LEVEL(vict), 
             player_race[(int)GET_RACE(vict)], 
-            pc_char_class_types[(int)GET_CLASS(vict)], 
+            class_names[(int)GET_CLASS(vict)], 
             vict->in_room != NULL ?ch->in_room->name: "NOWHERE");
 }
 

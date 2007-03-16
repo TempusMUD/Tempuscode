@@ -146,7 +146,7 @@ show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
 	acc_string_clear();
 
     acc_strcat("The ",
-        pc_char_class_types[con],
+        class_names[con],
         " class can learn the following ",
         IS_SET(bits, SPELL_BIT) ? "spells" :
             IS_SET(bits, TRIG_BIT) ? "triggers" :
@@ -1722,13 +1722,13 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 /* Race, Class */
     acc_sprintf("Race: %s, Class: %s%s/%s Gen: %d\r\n",
 		strlist_aref(k->player.race, player_race),
-		strlist_aref(k->player.char_class, pc_char_class_types),
+		strlist_aref(k->player.char_class, class_names),
 		(IS_CYBORG(k) ?
 			tmp_sprintf("(%s)",
 				strlist_aref(GET_OLD_CLASS(k), borg_subchar_class_names)) :
 			""),
 		(IS_REMORT(k) ?
-			strlist_aref(GET_REMORT_CLASS(k), pc_char_class_types) :
+			strlist_aref(GET_REMORT_CLASS(k), class_names) :
 			"None"),
 		GET_REMORT_GEN(k));
 
@@ -8058,7 +8058,7 @@ save_xml_abilities(Creature *ch)
             if (info->min_level[class_idx] > 0 &&
                 info->min_level[class_idx] < LVL_AMBASSADOR)
                 fprintf(ouf, "    <granted class=\"%s\" level=\"%d\"%s/>\n",
-                        tmp_tolower(strlist_aref(class_idx, pc_char_class_types)),
+                        tmp_tolower(strlist_aref(class_idx, class_names)),
                         info->min_level[class_idx],
                         info->gen[class_idx] ?
                         tmp_sprintf(" gen=\"%d\"", info->gen[class_idx]):"");

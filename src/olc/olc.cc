@@ -2095,9 +2095,9 @@ show_olc_help(struct Creature *ch, char *arg)
 	case 26:		   /** char_class **/
 		strcpy(buf, "CLASSES:\r\n");
 		for (i = 0; i < TOP_CLASS; i++) {
-			if (str_cmp(pc_char_class_types[i], "ILL")) {
+			if (str_cmp(class_names[i], "ILL")) {
 				sprintf(buf2, "%2d         %s%s%s\r\n",
-					i, CCCYN(ch, C_NRM), pc_char_class_types[i], CCNRM(ch,
+					i, CCCYN(ch, C_NRM), class_names[i], CCNRM(ch,
 						C_NRM));
 				strcat(buf, buf2);
 			}

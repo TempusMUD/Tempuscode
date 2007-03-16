@@ -503,10 +503,10 @@ Creature::saveToXML()
 		GET_LEVEL(ch), genders[(int)GET_SEX(ch)], player_race[(int)GET_RACE(ch)],
 		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
 	
-	fprintf(ouf, "<class name=\"%s\"", pc_char_class_types[GET_CLASS(ch)]);
+	fprintf(ouf, "<class name=\"%s\"", class_names[GET_CLASS(ch)]);
 	if( IS_REMORT(ch) ) {
 		fprintf(ouf, " remort=\"%s\" gen=\"%d\"",
-			pc_char_class_types[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
+			class_names[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
     }
 	if (IS_CYBORG(ch)) {
 		if (GET_OLD_CLASS(ch) != -1)
@@ -748,13 +748,13 @@ Creature::loadFromXML( const char *path )
 
             char *trade = xmlGetProp(node, "name");
             if( trade != NULL ) {
-                GET_CLASS(this) = search_block(trade, pc_char_class_types, FALSE);
+                GET_CLASS(this) = search_block(trade, class_names, FALSE);
 				free(trade);
 			}
 			
             trade = xmlGetProp(node, "remort");
             if( trade != NULL ) {
-                GET_REMORT_CLASS(this) = search_block(trade, pc_char_class_types, FALSE);
+                GET_REMORT_CLASS(this) = search_block(trade, class_names, FALSE);
 				free(trade);
 			}
 

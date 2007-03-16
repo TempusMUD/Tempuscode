@@ -41,7 +41,7 @@
 #include "language.h"
 
 /* extern variables */
-extern const char *pc_char_class_types[];
+extern const char *class_names[];
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern struct zone_data *zone_table;
@@ -832,7 +832,7 @@ ACMD(do_gen_comm)
 
 	if (subcmd == SCMD_GUILDSAY) {
 		if (eff_class >= 0 && eff_class < TOP_CLASS)
-			str = tmp_tolower(pc_char_class_types[eff_class]);
+			str = tmp_tolower(class_names[eff_class]);
 		else
 			str = tmp_sprintf("#%d", eff_class);
 		if (eff_class == CLASS_CLERIC || eff_class == CLASS_KNIGHT)

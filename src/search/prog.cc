@@ -361,18 +361,18 @@ prog_eval_class(prog_env *env, prog_evt *evt, char *args) {
     // Actual character class
     char *cclass;
 
-	extern const char *pc_char_class_types[];
+	extern const char *class_names[];
 
     if (!env->target)
         return false;
 
-    cclass = tmp_tolower(pc_char_class_types[GET_CLASS(env->target)]);
+    cclass = tmp_tolower(class_names[GET_CLASS(env->target)]);
     if (strstr(rclass, cclass))
         result = true;
 
 	if (IS_REMORT(env->target) &&
         GET_REMORT_CLASS(env->target) != CLASS_NONE) {
-		cclass = tmp_tolower(pc_char_class_types[GET_REMORT_CLASS(env->target)]);
+		cclass = tmp_tolower(class_names[GET_REMORT_CLASS(env->target)]);
 		if (strstr(rclass, cclass))
 			result = true;
 	}

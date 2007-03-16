@@ -30,7 +30,7 @@ static char gHelpbuf[MAX_STRING_LENGTH];
 static char linebuf[MAX_STRING_LENGTH];
 static fstream help_file;
 static fstream index_file;
-extern const char *pc_char_class_types[];
+extern const char *class_names[];
 
 char *one_word(char *argument, char *first_arg);
 static const struct hcollect_command {
@@ -660,7 +660,7 @@ ACMD(do_hcollect_help)
 	} else if (subcmd == SCMD_SKILLS) {
 		sprintf(buf,
 			"Type 'Help %s' to see the skills available to your char_class.\r\n",
-			pc_char_class_types[(int)GET_CLASS(ch)]);
+			class_names[(int)GET_CLASS(ch)]);
 		send_to_char(ch, "%s", buf);
 	} else if (subcmd == SCMD_POLICIES) {
 		cur = Help->find_item_by_id(667);

@@ -11,7 +11,7 @@
 
 extern const char *player_race[];
 extern const int race_lifespan[];
-extern const char *pc_char_class_types[];
+extern const char *class_names[];
 extern const char *char_class_abbrevs[];
 extern const int prac_params[4][NUM_CLASSES];
 extern const float thaco_factor[NUM_CLASSES];

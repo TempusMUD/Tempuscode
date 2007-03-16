@@ -75,7 +75,7 @@ SPECIAL(weaponsmaster)
 	if (i >= weap_spec_char_class[char_class].max) {
 		send_to_char(ch,
 			"The %s char_class can only specialize in %d weapons.\r\n",
-			pc_char_class_types[char_class],
+			class_names[char_class],
 			weap_spec_char_class[char_class].max);
 		return 1;
 	}

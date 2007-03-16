@@ -922,7 +922,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 29:{			   /** remortchar_class **/
 			if (!strncmp(arg2, "none", 4))
 				i = -1;
-			else if ((i = search_block(arg2, pc_char_class_types, FALSE)) < 0) {
+			else if ((i = search_block(arg2, class_names, FALSE)) < 0) {
 				send_to_char(ch, "Invalid char_class type, '%s'.\r\n", arg2);
 				break;
 			}
@@ -971,7 +971,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			break;
 		}
 	case 34:{			   /** char_class **/
-			if ((i = search_block(arg2, pc_char_class_types, FALSE)) < 0) {
+			if ((i = search_block(arg2, class_names, FALSE)) < 0) {
 				send_to_char(ch, "Invalid char_class type, '%s'.\r\n", arg2);
 			} else {
 				GET_CLASS(mob_p) = i;

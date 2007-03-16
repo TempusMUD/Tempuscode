@@ -270,7 +270,7 @@ extern const char *char_class_abbrevs[] = {
 	"\n"
 };
 
-extern const char *pc_char_class_types[] = {
+extern const char *class_names[] = {
 	"Mage",
 	"Cleric",
 	"Thief",
@@ -599,7 +599,7 @@ parse_char_class(char *arg)
 	int j;
 
 	for (j = 0; j < TOP_CLASS; j++)
-		if (is_abbrev(arg, pc_char_class_types[j]))
+		if (is_abbrev(arg, class_names[j]))
 			return j;
 
 	return (-1);

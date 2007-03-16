@@ -1244,7 +1244,7 @@ ASPELL(spell_identify)
 		}
 		send_to_char(ch, "Race: %s, Class: %s, Alignment: %d.\r\n",
 			player_race[(int)MIN(NUM_RACES, GET_RACE(victim))],
-			pc_char_class_types[(int)MIN(TOP_CLASS, GET_CLASS(victim))],
+			class_names[(int)MIN(TOP_CLASS, GET_CLASS(victim))],
 			GET_ALIGNMENT(victim));
 		send_to_char(ch, "Height %d cm, Weight %d pounds\r\n",
 			GET_HEIGHT(victim), GET_WEIGHT(victim));

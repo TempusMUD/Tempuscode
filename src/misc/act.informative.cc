@@ -92,7 +92,7 @@ extern const char *fullness[];
 extern const char *char_class_abbrevs[];
 extern const char *level_abbrevs[];
 extern const char *player_race[];
-extern const char *pc_char_class_types[];
+extern const char *class_names[];
 extern const char *room_bits[];
 extern const char *sector_types[];
 extern const char *genders[];
@@ -2710,10 +2710,10 @@ ACMD(do_score)
 		(GET_RACE(ch) >= 0 && GET_RACE(ch) < NUM_RACES) ?
 		player_race[(int)GET_RACE(ch)] : "BAD RACE",
 		(GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS) ?
-		pc_char_class_types[(int)GET_CLASS(ch)] : "BAD CLASS", GET_LEVEL(ch));
+		class_names[(int)GET_CLASS(ch)] : "BAD CLASS", GET_LEVEL(ch));
 	if (!IS_NPC(ch) && IS_REMORT(ch))
 		acc_sprintf("You have remortalized as a %s (generation %d).\r\n",
-			pc_char_class_types[(int)GET_REMORT_CLASS(ch)],
+			class_names[(int)GET_REMORT_CLASS(ch)],
 			GET_REMORT_GEN(ch));
 	if ((age(ch).month == 0) && (age(ch).day == 0))
 		acc_strcat("  It's your birthday today!\r\n\r\n", NULL);
@@ -4352,7 +4352,7 @@ ACMD(do_attributes)
 			C_SPR), GET_NAME(ch), CCWHT(ch, C_SPR), CCRED(ch, C_SPR),
 		player_race[(int)GET_RACE(ch)], CCWHT(ch, C_SPR));
 	send_to_char(ch, "        Class: %s%20s%s        Level: %s%9d%s\r\n\r\n",
-		CCRED(ch, C_SPR), pc_char_class_types[(int)GET_CLASS(ch)], CCWHT(ch,
+		CCRED(ch, C_SPR), class_names[(int)GET_CLASS(ch)], CCWHT(ch,
 			C_SPR), CCRED(ch, C_SPR), GET_LEVEL(ch), CCWHT(ch, C_SPR));
 
 	print_attributes_to_buf(ch, buf);
@@ -4932,7 +4932,7 @@ ACMD(do_specializations)
 	}
 
 	send_to_char(ch, "As a %s you can specialize in %d weapons.\r\n",
-		pc_char_class_types[char_class], weap_spec_char_class[char_class].max);
+		class_names[char_class], weap_spec_char_class[char_class].max);
 	for (i = 0; i < MAX_WEAPON_SPEC; i++) {
 		if (!GET_WEAP_SPEC(ch, i).level)
 			break;

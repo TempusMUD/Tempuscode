@@ -542,8 +542,8 @@ handle_input(struct descriptor_data *d)
 			mudlog(LVL_IMMORT, BRF, true,
 				   "%s has remorted to gen %d as a %s/%s",
 				   GET_NAME(d->creature), GET_REMORT_GEN(d->creature),
-				   pc_char_class_types[(int)GET_CLASS(d->creature)],
-				   pc_char_class_types[(int)GET_REMORT_CLASS(d->creature)]);
+				   class_names[(int)GET_CLASS(d->creature)],
+				   class_names[(int)GET_REMORT_CLASS(d->creature)]);
 				d->creature->saveToXML();
 				set_desc_state( CXN_MENU,d );
 		}
@@ -1188,7 +1188,7 @@ send_menu(descriptor_data *d)
 			send_to_desc(d, "    &r[&y%2d&r] &y%-20s %10s %10s %6s %s\r\n",
 				idx, GET_NAME(tmp_ch),
 				player_race[(int)GET_RACE(tmp_ch)],
-				pc_char_class_types[GET_CLASS(tmp_ch)],
+				class_names[GET_CLASS(tmp_ch)],
 				genders[(int)GET_SEX(tmp_ch)],
 				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new");
 			idx++;
@@ -1208,7 +1208,7 @@ send_menu(descriptor_data *d)
 			send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
 				idx, GET_NAME(tmp_ch),
 				player_race[(int)GET_RACE(tmp_ch)],
-				pc_char_class_types[GET_CLASS(tmp_ch)],
+				class_names[GET_CLASS(tmp_ch)],
 				genders[(int)GET_SEX(tmp_ch)],
 				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new");
 			idx++;
@@ -1228,7 +1228,7 @@ send_menu(descriptor_data *d)
 			send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
 				idx, GET_NAME(tmp_ch),
 				player_race[(int)GET_RACE(tmp_ch)],
-				pc_char_class_types[GET_CLASS(tmp_ch)],
+				class_names[GET_CLASS(tmp_ch)],
 				genders[(int)GET_SEX(tmp_ch)],
 				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new");
 			idx++;
@@ -1687,7 +1687,7 @@ show_character_detail(descriptor_data *d)
 	} else {
 		str = tmp_sprintf("%s%9s&n",
 			get_char_class_color(ch, GET_CLASS(ch)),
-			pc_char_class_types[GET_CLASS(ch)]);
+			class_names[GET_CLASS(ch)]);
 	}
 	send_to_desc(d, "&BName:&n %-20s &BLvl:&n %2d &BGen:&n %2d     &BClass:&n %s\r\n",
 		GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch), str);
@@ -1781,7 +1781,7 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 		} else {
 			class_str = tmp_sprintf( "%s%9s&n",
 				get_char_class_color( tmp_ch, GET_CLASS(tmp_ch) ),
-				pc_char_class_types[GET_CLASS(tmp_ch)] );
+				class_names[GET_CLASS(tmp_ch)] );
 		}
 		if (immort)
 			strftime(laston_str, sizeof(laston_str), "%a, %d %b %Y %H:%M:%S",

@@ -2405,17 +2405,17 @@ ACMD(do_analyze)
 				C_NRM), player_race[(int)GET_RACE(vict)], CCNRM(ch, C_NRM));
 		if (GET_CLASS(vict) < NUM_CLASSES) {
 			acc_sprintf("Primary Occupation:    %s%s%s\r\n", CCCYN(ch,
-					C_NRM), pc_char_class_types[(int)GET_CLASS(vict)],
+					C_NRM), class_names[(int)GET_CLASS(vict)],
 				CCNRM(ch, C_NRM));
 		} else {
 			acc_sprintf("Primary Type:          %s%s%s\r\n", CCCYN(ch,
-					C_NRM), pc_char_class_types[(int)GET_CLASS(vict)],
+					C_NRM), class_names[(int)GET_CLASS(vict)],
 				CCNRM(ch, C_NRM));
 		}
 		if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
 			acc_sprintf("Secondary Occupation:  %s%s%s\r\n",
 				CCCYN(ch, C_NRM),
-				pc_char_class_types[(int)GET_REMORT_CLASS(vict)], CCNRM(ch,
+				class_names[(int)GET_REMORT_CLASS(vict)], CCNRM(ch,
 					C_NRM));
 
 		GET_MOVE(ch) -= 10;

@@ -330,7 +330,7 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
                                          IS_GOOD(ch) ? "a good":
                                          IS_EVIL(ch) ? "an evil":"a neutral",
                                          strlist_aref(GET_CLASS(ch),
-                                                      pc_char_class_types)));
+                                                      class_names)));
         else if (!strcmp(question, "whereami"))
             angel_do_respond(self, data,
                              tmp_sprintf("You are in %s.",
