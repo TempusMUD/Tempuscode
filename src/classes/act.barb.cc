@@ -102,9 +102,9 @@ perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
 			}
 		}
 		act("You go berserk and attack $N!", FALSE, ch, 0, vict, TO_CHAR);
+		act("$n attacks you in a BERSERK rage!!", FALSE, ch, 0, vict, TO_VICT);
 		act("$n attacks $N in a BERSERK rage!!", FALSE, ch, 0, vict,
 			TO_NOTVICT);
-		act("$n attacks you in a BERSERK rage!!", FALSE, ch, 0, vict, TO_VICT);
         if (return_flags) {
             *return_flags = hit(ch, vict, TYPE_UNDEFINED);
 
@@ -185,10 +185,10 @@ ACMD(do_berserk)
 			else {
 				act("You attack $N in your berserk rage!!!",
 					FALSE, ch, 0, (*it), TO_CHAR);
-				act("$n attacks you in $s berserk rage!!!",
-					FALSE, (*it), 0, ch, TO_CHAR);
-				act("$n attacks $N in $s berserk rage!!!",
-					TRUE, ch, 0, (*it), TO_ROOM);
+				act("$n attacks you in a berserk rage!!!",
+					FALSE, ch, 0, (*it), TO_VICT);
+				act("$n attacks $N in a berserk rage!!!",
+					TRUE, ch, 0, (*it), TO_NOTVICT);
 				hit(ch, (*it), TYPE_UNDEFINED);
 				break;
 			}

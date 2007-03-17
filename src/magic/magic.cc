@@ -2663,9 +2663,9 @@ Fireball: like harder bones, skin, organ membranecs
                 act("You attack $N in your berserk rage!!!",
                     FALSE, ch, 0, (*it), TO_CHAR);
                 act("$n attacks you in $s berserk rage!!!",
-                    FALSE, (*it), 0, ch, TO_CHAR);
+                    FALSE, ch, 0, (*it), TO_VICT);
                 act("$n attacks $N in $s berserk rage!!!",
-                    TRUE, ch, 0, (*it), TO_ROOM);
+                    TRUE, ch, 0, (*it), TO_NOTVICT);
                 hit(ch, (*it), TYPE_UNDEFINED);
                 break;
             }
