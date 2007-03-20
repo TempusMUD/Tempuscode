@@ -6,16 +6,21 @@
 #include "room_data.h"
 #include "creature.h"
 
-#define BAD_AUCTION(obj) (obj->obj_flags.type_flag == ITEM_FOOD || \
-                          obj->obj_flags.type_flag == ITEM_TRASH || \
-                          obj->obj_flags.type_flag == ITEM_NOTE || \
-                          obj->obj_flags.type_flag == ITEM_KEY || \
-                          obj->obj_flags.type_flag == ITEM_PORTAL || \
-                          obj->obj_flags.type_flag == ITEM_SCRIPT || \
-                          obj->obj_flags.type_flag == ITEM_CONTAINER || \
-                          (obj->obj_flags.type_flag == ITEM_BOMB && \
-                           obj->contains && FUSE_STATE(obj->contains)) || \
-                          obj->shared->vnum == -1)
+inline static bool
+BAD_AUCTION(obj_data *obj)
+{
+    return (obj->obj_flags.type_flag == ITEM_FOOD ||
+            obj->obj_flags.type_flag == ITEM_TRASH ||
+            obj->obj_flags.type_flag == ITEM_NOTE ||
+            obj->obj_flags.type_flag == ITEM_KEY ||
+            obj->obj_flags.type_flag == ITEM_PORTAL ||
+            obj->obj_flags.type_flag == ITEM_SCRIPT ||
+            obj->obj_flags.type_flag == ITEM_CONTAINER ||
+            IS_NODROP(obj) ||
+            (obj->obj_flags.type_flag == ITEM_BOMB &&
+             obj->contains && FUSE_STATE(obj->contains)) ||
+            obj->shared->vnum == -1);
+}
 
 #define AUC_FILE_NAME "etc/auctioneer_data_%d.xml"
 
