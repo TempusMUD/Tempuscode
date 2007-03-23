@@ -632,8 +632,10 @@ burn_update(void)
 			&& !CHAR_WITHSTANDS_COLD(ch)) {
 			if (damage(NULL, ch, dice(4, 5), TYPE_FREEZING, -1))
 				continue;
-			if (IS_MOB(ch) && (IS_CLERIC(ch) || IS_RANGER(ch))
-				&& GET_LEVEL(ch) > 15)
+			if (IS_MOB(ch) &&
+                (IS_CLERIC(ch) || IS_RANGER(ch)) &&
+                GET_LEVEL(ch) > 15 &&
+                ch->getPosition() != POS_FIGHTING)
 				cast_spell(ch, ch, 0, NULL, SPELL_ENDURE_COLD);
 
 		}
