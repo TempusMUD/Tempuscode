@@ -577,18 +577,18 @@ GET_REPUTATION_RANK(Creature *ch)
 #define GET_DEITY(ch)                ((ch)->player_specials->saved.deity)
 #define GET_CLAN(ch)                ((ch)->player_specials->saved.clan)
 #define GET_REMORT_GEN(ch)     ((ch)->char_specials.saved.remort_generation)
-//#define IS_REMORT(ch)   ((ch) && (GET_REMORT_GEN(ch) > 0))
+
 static inline bool IS_REMORT( const Creature *ch ) 
 {
 	if( ch == NULL )
 		return false;
-	if( GET_REMORT_CLASS(ch) == CLASS_UNDEFINED ) {
+	if( GET_REMORT_CLASS(ch) == CLASS_UNDEFINED )
 		return false;
-	}
 	if( IS_PC(ch) && GET_REMORT_GEN(ch) <= 0 )
 		return false;
 	return true;
 }
+
 #define GET_IMMORT_QP(ch)    ((ch)->player_specials->saved.imm_qp)
 #define GET_QUEST_ALLOWANCE(ch) ((ch)->player_specials->saved.qp_allowance)
 #define GET_QLOG_LEVEL(ch)     ((ch)->player_specials->saved.qlog_level)
