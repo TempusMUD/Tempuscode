@@ -1601,7 +1601,7 @@ int
 mobile_experience(struct Creature *mob, FILE *outfile)
 {
 	int exp = 0, tmp = 0;
-	exp = 13 * ((GET_LEVEL(mob) * GET_LEVEL(mob) + 24) >> 3);
+	exp = 13 * ((GET_LEVEL(mob) * GET_LEVEL(mob) + 24) / 8);
 	tmp = exp_scale[(int)MIN(GET_LEVEL(mob) + 1, LVL_GRIMP)];
 	tmp += (tmp * GET_LEVEL(mob)) / 100;
 	exp = tmp / MAX(1, exp);
@@ -1649,7 +1649,7 @@ mobile_experience(struct Creature *mob, FILE *outfile)
 	exp -= (exp * (MAX(-200, GET_AC(mob)) - 100)) / 200;
 	exp += (exp * GET_MORALE(mob)) / 300;
 
-    float factor = 1.0;
+    float factor = 1.5;
 
     // Damaging shield modifiers
 	if (AFF3_FLAGGED(mob, AFF3_DOUBLE_DAMAGE))
