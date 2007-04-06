@@ -174,8 +174,11 @@ ACMD(do_say)
 
     skip_spaces(&argument);
 
+    if (cmdstr[0] == '\'')
+        cmdstr = "say";
+
     if (*argument) {
-        if (cmdstr[0] == '\'' || !strcmp(cmdstr, "say"))
+        if (!strcmp(cmdstr, "say"))
             cmdstr = select_say_cmd(ch, argument);
         perform_say(ch, cmdstr, argument);
     } else if (find_action(cmd) == -1)
