@@ -145,10 +145,31 @@ write_ban_list(void)
 }
 
 
+void
+perform_ban(int flag, const char *site, const char *name, const char *reason)
+{
+    ban_list_element *ban_node;
+
+	CREATE(ban_node, struct ban_list_element, 1);
+	strncpy(ban_node->site, tmp_tolower(site), BANNED_SITE_LENGTH);
+	ban_node->site[BANNED_SITE_LENGTH] = '\0';
+	strncpy(ban_node->name, name, MAX_NAME_LENGTH);
+	ban_node->name[MAX_NAME_LENGTH] = '\0';
+	ban_node->date = time(0);
+	strncpy(ban_node->reason, reason, MAX_NAME_LENGTH);
+	ban_node->reason[MAX_NAME_LENGTH] = '\0';
+    ban_node->type = flag;
+
+	ban_node->next = ban_list;
+	ban_list = ban_node;
+
+	write_ban_list();
+}
+
 ACMD(do_ban)
 {
-	char *nextchar, timestr[30];
-	int i;
+	char timestr[30];
+	int type = BAN_NEW;
 	struct ban_list_element *ban_node;
 	char *write_pt, *site, *flag;
 
@@ -202,29 +223,16 @@ ACMD(do_ban)
 		return;
 	}
 
-	CREATE(ban_node, struct ban_list_element, 1);
-	strncpy(ban_node->site, site, BANNED_SITE_LENGTH);
-	for (nextchar = ban_node->site; *nextchar; nextchar++)
-		*nextchar = tolower(*nextchar);
-	ban_node->site[BANNED_SITE_LENGTH] = '\0';
-	strncpy(ban_node->name, GET_NAME(ch), MAX_NAME_LENGTH);
-	ban_node->name[MAX_NAME_LENGTH] = '\0';
-	ban_node->date = time(0);
-	strncpy(ban_node->reason, argument, MAX_NAME_LENGTH);
-	ban_node->reason[MAX_NAME_LENGTH] = '\0';
-	
-	for (i = BAN_NEW; i <= BAN_ALL; i++)
+	for (int i = BAN_NEW; i <= BAN_ALL; i++)
 		if (!str_cmp(flag, ban_types[i]))
-			ban_node->type = i;
+			type = i;
 
-	ban_node->next = ban_list;
-	ban_list = ban_node;
+    perform_ban(type, site, GET_NAME(ch), argument);
 
 	mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
 		"%s has banned %s for %s players.", GET_NAME(ch), site,
 		ban_types[ban_node->type]);
 	send_to_char(ch, "Site banned.\r\n");
-	write_ban_list();
 }
 
 

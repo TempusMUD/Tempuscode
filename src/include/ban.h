@@ -25,6 +25,11 @@ extern namestring *nasty_list;
 extern int num_nasty;
 
 int isbanned(char *hostname, char *blocking_hostname);
+void perform_ban(int flag,
+                 const char *site,
+                 const char *name,
+                 const char *reason);
+
 int Valid_Name(char *newname);
 
 #endif
