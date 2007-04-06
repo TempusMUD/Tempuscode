@@ -43,7 +43,6 @@
 #include "search.h"
 #include "weather.h"
 #include "zone_data.h"
-#include "ban.h"
 
 /***********************************************************************
  * Structures                                                          *

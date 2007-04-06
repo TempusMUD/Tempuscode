@@ -33,6 +33,7 @@
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
+#include "ban.h"
 
 struct ban_list_element *ban_list = NULL;
 

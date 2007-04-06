@@ -56,6 +56,8 @@
 #include "prog.h"
 #include "quest.h"
 #include "language.h"
+#include "ban.h"
+
 /* externs */
 extern HelpCollection *Help;
 extern int restrict;
