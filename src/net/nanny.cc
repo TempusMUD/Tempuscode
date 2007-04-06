@@ -21,6 +21,7 @@
 
 #include <arpa/telnet.h>
 #include "structs.h"
+#include "ban.h"
 #include "comm.h"
 #include "interpreter.h"
 #include "db.h"
@@ -154,15 +155,22 @@ handle_input(struct descriptor_data *d)
 			set_desc_state(CXN_ACCOUNT_PROMPT, d);
 		break;
 	case CXN_ACCOUNT_PW:
-		if (d->account->authenticate(arg))
-			d->account->login(d);
-		else {
+		if (!d->account->authenticate(arg)) {
 			slog("PASSWORD: account %s[%d] failed to authenticate. [%s]",
 				d->account->get_name(),
 				d->account->get_idnum(),
 				d->host);
 			send_to_desc(d, "Invalid password.\r\n");
 			set_desc_state(CXN_ACCOUNT_LOGIN, d);
+        } else if (d->account->is_banned()) {
+            slog("Autobanning IP address of account %s[%d]",
+                 d->account->get_name(),
+                 d->account->get_idnum());
+            perform_ban(BAN_ALL, d->host, "autoban",
+                        tmp_sprintf("account %s", d->account->get_name()));
+            d->account->login(d);
+        } else {
+			d->account->login(d);
 		}
 		break;
 	case CXN_ACCOUNT_PROMPT:
@@ -1554,8 +1562,10 @@ char_to_game(descriptor_data *d)
 
 	} else {
 		mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature), NRM, true,
-			"%s has entered the game in room #%d",
-			GET_NAME(d->creature), d->creature->in_room->number);
+			"%s has entered the game in room #%d%s",
+             GET_NAME(d->creature),
+             d->creature->in_room->number,
+             d->account->is_banned() ? " [BANNED]":"");
 		act("$n has entered the game.", true, d->creature, 0, 0, TO_ROOM);
 	}
 

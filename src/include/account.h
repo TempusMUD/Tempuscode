@@ -67,6 +67,9 @@ class Account {
 		// Attempts to add the given orphaned character to this account
 		void exhume_char( Creature *exhumer, long id );
 
+        inline bool is_banned(void) { return _banned; }
+        void set_banned(bool bannination);
+
 		inline int get_reputation(void) { return _reputation; }
 		void set_reputation(int amt);
 		void gain_reputation(int amt);
@@ -144,6 +147,7 @@ class Account {
 		// Game data
 		vector<long> _chars;
 		vector<long> _trusted;
+        bool _banned;
 		int _reputation;
 		int _quest_points;
 		bool _quest_banned;

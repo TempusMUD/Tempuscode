@@ -4072,7 +4072,9 @@ show_account(Creature *ch, char *value)
 	House *h = Housing.findHouseByOwner( account->get_idnum() );
     if (h)
         send_to_desc(ch->desc, " &y House: &n%d", h->getID());
-	if (account->is_quest_banned())
+	if (account->is_banned())
+		send_to_desc(ch->desc, " &y(BANNED)&n");
+	else if (account->is_quest_banned())
 		send_to_desc(ch->desc, " &y(QBANNED)&n");
     send_to_desc(ch->desc, "\r\n\r\n");
     
@@ -6768,6 +6770,7 @@ ACMD(do_aset)
 		{"qbanned", LVL_IMMORT, PC, BINARY, "QuestorAdmin,AdminFull"},
         {"password", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"email", LVL_IMMORT, PC, MISC, "AdminFull"},
+        {"banned", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""} };
 	char *name, *field;
 	int i, l, value = 0;
@@ -6872,6 +6875,8 @@ ACMD(do_aset)
              account->get_idnum(),
              account->get_email_addr());
         break;
+    case 7:
+        account->set_banned(on); break;
     default:
         sprintf(buf, "Can't set that!");
         break;

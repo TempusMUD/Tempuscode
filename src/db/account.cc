@@ -82,6 +82,7 @@ Account::Account(void)
 	_compact_level = 0;
     _bank_past = 0;
     _bank_future = 0;
+    _banned = false;
 	_reputation = 0;
 	_quest_points = 0;
 	_quest_banned = false;
@@ -112,7 +113,7 @@ Account::preload(const char *conditions)
 	const char **fields;
 	PGresult *res;
 
-	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where %s", conditions);
+	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where %s", conditions);
 	acct_count = PQntuples(res);
 
 	if (acct_count < 1)
@@ -156,7 +157,7 @@ Account::load(long idnum)
 	const char **fields;
 	PGresult *res;
 
-	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where idnum=%ld", idnum);
+	res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where idnum=%ld", idnum);
 	acct_count = PQntuples(res);
 
 	if (acct_count > 1) {
@@ -230,6 +231,8 @@ Account::set(const char *key, const char *val)
 		_login_addr = strdup(val);
 	else if (!strcmp(key, "entry_time"))
 		_entry_time = atol(val);
+	else if (!strcmp(key, "banned"))
+		_banned = !strcasecmp(val, "T");
 	else if (!strcmp(key, "reputation"))
 		_reputation = atoi(val);
 	else if (!strcmp(key, "quest_points"))
@@ -646,6 +649,8 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 	_term_width = 80;
 	_bank_past = 0;
 	_bank_future = 0;
+    _banned = false;
+    _reputation = 0;
 	_quest_points = 0;
 	_quest_banned = false;
 
@@ -677,6 +682,14 @@ Account::set_password(const char *pw)
 	_password = strdup(crypt(pw, salt));
 	sql_exec("update accounts set password='%s' where idnum=%d",
 		tmp_sqlescape(_password), _id);
+}
+
+void
+Account::set_banned(bool banned)
+{
+	_banned = banned;
+	sql_exec("update accounts set banned='%s' where idnum=%d",
+		_banned ? "T":"F", _id);
 }
 
 void
