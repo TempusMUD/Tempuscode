@@ -1910,7 +1910,17 @@ act_translate(Creature *ch, Creature *to, const char **s)
     *s = c;
 
     // Remove any act-escaping
-    i = tmp_gsub(i, "\\", "");
+    char *read_pt, *write_pt;
+    read_pt = write_pt = i;
+    while (*read_pt) {
+        if (*read_pt == '\\')
+            read_pt++;
+        if (write_pt != read_pt)
+            *write_pt = *read_pt;
+        write_pt++;
+        read_pt++;
+    }
+    *write_pt = '\0';
 
     if (!PRF_FLAGGED(to, PRF_NASTY) && ch != to && Nasty_Words(i))
         for (int idx = 0;idx < num_nasty;idx++)
