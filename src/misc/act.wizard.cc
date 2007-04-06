@@ -6855,6 +6855,10 @@ ACMD(do_aset)
 		account->set_password(argument);
 		sprintf(buf, "Password for account %s[%d] has been set.",
 			account->get_name(), account->get_idnum());
+        slog("(GC) %s set password for account %s[%d]",
+             GET_NAME(ch),
+             account->get_name(),
+             account->get_idnum());
 		break;
     case 6:
         account->set_email_addr(argument);
@@ -6862,6 +6866,11 @@ ACMD(do_aset)
                 account->get_name(),
                 account->get_idnum(),
                 account->get_email_addr());
+        slog("(GC) %s set email for account %s[%d] to %s",
+             GET_NAME(ch),
+             account->get_name(),
+             account->get_idnum(),
+             account->get_email_addr());
         break;
     default:
         sprintf(buf, "Can't set that!");
@@ -6869,10 +6878,21 @@ ACMD(do_aset)
     }
 
     if (fields[l].type == BINARY) {
+        slog("(GC) %s set %s for account %s[%d] to %s",
+             GET_NAME(ch),
+             fields[l].cmd,
+             account->get_name(),
+             account->get_idnum(),
+             ONOFF(on));
         send_to_char(ch, "%s %s for %s.\r\n", fields[l].cmd, ONOFF(on),
 			account->get_name());
-            
     } else if (fields[l].type == NUMBER) {
+        slog("(GC) %s set %s for account %s[%d] to %d",
+             GET_NAME(ch),
+             fields[l].cmd,
+             account->get_name(),
+             account->get_idnum(),
+             value);
         send_to_char(ch, "%s's %s set to %d.\r\n", account->get_name(),
             fields[l].cmd, value);
     } else
