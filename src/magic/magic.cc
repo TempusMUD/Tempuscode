@@ -2548,7 +2548,7 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].location = APPLY_INT;
 
         to_vict = "$N's music snakes it's way into your brain, dulling your senses.";
-        to_room = "Tme music causes $n's eyes glaze over.";
+        to_room = "The music causes $n's eyes glaze over.";
         break;
 
 	case SONG_EAGLES_OVERTURE:
