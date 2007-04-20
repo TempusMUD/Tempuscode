@@ -6336,7 +6336,9 @@ ACMD(do_set)
 
         break;
     case 38:
-		if (IS_PC(vict) && !Valid_Name(argument)) {
+		if (!Security::isMember(ch, "AdminFull") &&
+                    IS_PC(vict) &&
+                    !Valid_Name(argument)) {
 			send_to_char(ch, "That character name is invalid.\r\n");
 			return;
 		}
