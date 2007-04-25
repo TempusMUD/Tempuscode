@@ -1055,6 +1055,7 @@ struct command_info cmd_info[] = {
 	{"place", POS_RESTING, do_put, 0, 0, 0, 0},
 	{"plead", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"prattle", POS_RESTING, do_say, 0, 0, 0, 0},
+	{"pronounce", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"pry", POS_RESTING, do_not_here, 0, 0, 0, 0},
 	{"put", POS_RESTING, do_put, 0, 0, 0, 0},
 	{"pull", POS_RESTING, do_not_here, 0, 0, 0, 0},
