@@ -767,15 +767,15 @@ do_qcontrol_show(Creature *ch, char *argument)
 
 	if (quest->getNumPlayers()) {
 		list_quest_players(ch, quest, buf2);
-		strcat(buf, buf2);
+		acc_strcat(buf2, NULL);
 	}
 
 	if (quest->getNumBans()) {
 		list_quest_bans(ch, quest, buf2);
-		strcat(buf, buf2);
+		acc_strcat(buf2, NULL);
 	}
 
-	page_string(ch->desc, buf);
+	page_string(ch->desc, acc_get_string());
 
 }
 
