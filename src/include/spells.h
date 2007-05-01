@@ -321,6 +321,7 @@ static const int SPELL_CLUMSINESS = 233;
 static const int SPELL_ENDURANCE = 234;
 static const int SPELL_AMNESIA = 235;	// psi remorts
 static const int SPELL_NULLPSI = 236;	// remove psi affects
+static const int SPELL_PSIONIC_SHOCKWAVE = 237;
 static const int SPELL_DISTRACTION = 238;
 static const int SPELL_CALL_RODENT = 239;
 static const int SPELL_CALL_BIRD = 240;

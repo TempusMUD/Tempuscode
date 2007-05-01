@@ -945,6 +945,21 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
             af.owner = ch->getIdNum();
 			affect_to_char(victim, &af);
 		}
+	} else if (spellnum == SPELL_PSIONIC_SHOCKWAVE && victim->getPosition() > POS_SITTING) {
+		if (number(5, 25) > GET_DEX(victim) / 3) {
+			act("$N is knocked to the ground by your psionic shockwave!",
+				FALSE, ch, 0, victim, TO_CHAR);
+			if (IS_PSIONIC(victim))
+				act("You are knocked to the ground by $n's psionic shockwave!",
+					FALSE, ch, 0, victim, TO_VICT);
+			else
+				act("Your head suddenly explodes in pain and you fall to the ground in agony!",
+					FALSE, ch, 0, victim, TO_VICT);
+			act("$N suddenly falls to the ground, clutching $S head!",
+				FALSE, ch, 0, victim, TO_ROOM);
+			victim->setPosition(POS_SITTING);
+			WAIT_STATE(victim, 2 RL_SEC);
+		}
 	} else if (spellnum == SPELL_EGO_WHIP
 		&& victim->getPosition() > POS_SITTING) {
 		if (number(5, 25) > GET_DEX(victim)) {
