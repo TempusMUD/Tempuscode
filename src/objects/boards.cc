@@ -99,6 +99,7 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 
+        act("$n starts to write on the board.", TRUE, ch, 0, 0, TO_ROOM);
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 	start_editing_board(ch->desc, board->name, -1, argument, NULL);
 }
@@ -137,6 +138,7 @@ gen_board_edit(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 
+    act("$n starts to write on the board.", TRUE, ch, 0, 0, TO_ROOM);
     start_editing_board(ch->desc,
                         board->name,
                         atoi(PQgetvalue(res, 0, 0)),
@@ -189,6 +191,7 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 	sql_exec("delete from board_messages where idnum=%s",
 		PQgetvalue(res, 0, 0));
 
+        act("$n rips a post off of the board.", TRUE, ch, 0, 0, TO_ROOM);
 	send_to_char(ch, "The posting was deleted.\r\n");
 }
 
