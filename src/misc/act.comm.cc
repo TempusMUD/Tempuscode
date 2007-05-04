@@ -164,6 +164,9 @@ select_say_cmd(Creature *ch, const char *message)
         return "slur";
     if (strcasestr(message, "y'all") || strstr(message, "ain't"))
         return "drawl";
+    for (int i = 0;i < num_nasty;i++)
+        if (strcasestr(message, nasty_list[i]))
+            return "curse";
     if (strcasestr(message, "moo"))
         return "utter";
     return "say";
