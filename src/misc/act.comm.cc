@@ -130,15 +130,15 @@ select_say_cmd(Creature *ch, const char *message)
     int len = strlen(message);
     const char *end = message + len - 1;
 
-    if (len > 3 && !strcmp("???", end - 3))
+    if (len > 3 && !strcmp("???", end - 2))
         return "yell";
-    if (len > 2 && !strcmp("??", end - 2))
+    if (len > 2 && !strcmp("??", end - 1))
         return "demand";
     if ('?' == *end)
         return "ask";
-    if (len > 3 && !strcmp("!!!", end - 3))
+    if (len > 3 && !strcmp("!!!", end - 2))
         return "scream";
-    if (len > 2 && !strcmp("!!", end - 2))
+    if (len > 2 && !strcmp("!!", end - 1))
         return "yell";
     if ('!' == *end)
         return "exclaim";
