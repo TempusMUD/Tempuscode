@@ -97,5 +97,5 @@ CProgEditor::Finalize(const char *text)
     prog_compile(desc->creature, owner, owner_type);
 
     if (IS_PLAYING(desc))
-        act("$n nods with satisfaction as $e saves $s work.", false, desc->creature, 0, 0, TO_NOTVICT);
+        act("$n nods with satisfaction as $e saves $s work.", true, desc->creature, 0, 0, TO_NOTVICT);
 }

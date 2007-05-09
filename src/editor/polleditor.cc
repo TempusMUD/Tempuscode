@@ -65,5 +65,5 @@ CPollEditor::Finalize(const char *text)
     voting_add_poll(header, text);
 
     if (IS_PLAYING(desc))
-        act("$n nods with satisfaction as $e saves $s work.", false, desc->creature, 0, 0, TO_NOTVICT);
+        act("$n nods with satisfaction as $e saves $s work.", true, desc->creature, 0, 0, TO_NOTVICT);
 }

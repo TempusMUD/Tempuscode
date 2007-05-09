@@ -170,7 +170,7 @@ CMailEditor::Finalize(const char *text)
     if (GET_LEVEL(desc->creature) >= LVL_AMBASSADOR) {
         // Presumably, this message is only displayed for imms for
         // pk avoidance reasons.
-        act("$n postmarks and dispatches $s mail.", false, desc->creature, 0, 0, TO_NOTVICT);
+        act("$n postmarks and dispatches $s mail.", true, desc->creature, 0, 0, TO_NOTVICT);
     }
     
 }

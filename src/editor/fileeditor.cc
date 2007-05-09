@@ -148,7 +148,7 @@ CFileEditor::Finalize(const char *text)
     REMOVE_BIT(PLR_FLAGS(desc->creature), PLR_WRITING);
 
     if (IS_PLAYING(desc))
-        act("$n finishes editing.", false, desc->creature, 0, 0, TO_NOTVICT);
+        act("$n finishes editing.", true, desc->creature, 0, 0, TO_NOTVICT);
 
     if (!fd)
         send_to_char(desc->creature, "Your file was not saved.  Please bug this.\r\n");
