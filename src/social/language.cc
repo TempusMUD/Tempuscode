@@ -135,7 +135,7 @@ Tongue::translate(const char *phrase, int amount)
 	while (*phrase) {
 		arg = tmp_gettoken(&phrase);
 
-        if (number(0, 100) > amount)
+        if (number(1, 100) > amount)
             arg = translate_word(arg);
 
 		if (outbuf)
