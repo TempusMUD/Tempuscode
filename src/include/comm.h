@@ -27,7 +27,7 @@ void send_to_char(struct Creature *ch, const char *str, ...)
 void send_to_desc(struct descriptor_data *d, const char *str, ...)
 	__attribute__ ((format (printf, 2, 3)));
 void send_to_room(char *messg, struct room_data *room);
-void send_to_clerics(char *messg);
+void send_to_clerics(int align, char *messg);
 void send_to_outdoor(char *messg, int isecho = 0);
 void send_to_clan(char *messg, int clan);
 void send_to_zone(char *messg, struct zone_data *zone, int outdoor);

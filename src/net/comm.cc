@@ -57,6 +57,7 @@
 #include "quest.h"
 #include "language.h"
 #include "ban.h"
+#include "char_class.h"
 
 /* externs */
 extern HelpCollection *Help;
@@ -1661,7 +1662,7 @@ send_to_all(char *messg)
 }
 
 void
-send_to_clerics(char *messg)
+send_to_clerics(int align, char *messg)
 {
 	struct descriptor_data *i;
 
@@ -1672,7 +1673,10 @@ send_to_clerics(char *messg)
 		if (!i->input_mode && i->creature && AWAKE(i->creature) &&
 			!PLR_FLAGGED(i->creature, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
 			PRIME_MATERIAL_ROOM(i->creature->in_room)
-			&& IS_CLERIC(i->creature)) {
+			&& IS_CLERIC(i->creature)
+            && !IS_NEUTRAL(i->creature)
+            && (align != EVIL || IS_EVIL(i->creature))
+            && (align != GOOD || IS_GOOD(i->creature))) {
 			SEND_TO_Q(messg, i);
 		}
 	}

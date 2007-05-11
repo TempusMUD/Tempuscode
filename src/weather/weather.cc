@@ -29,6 +29,7 @@
 #include "interpreter.h"
 #include "db.h"
 #include "quest.h"
+#include "char_class.h"
 
 extern struct time_info_data time_info;
 extern int lunar_day;
@@ -95,6 +96,8 @@ another_hour(int mode)
 
 	time_info.hours++;
 
+    lunar_phase = get_lunar_phase(lunar_day);
+
 	while (time_info.hours > 23) {
 		time_info.hours -= 24;
 		time_info.day++;
@@ -102,19 +105,28 @@ another_hour(int mode)
 		if (lunar_day > 23)
 			lunar_day = 0;
 
-		lunar_phase = get_lunar_phase(lunar_day);
-		switch (lunar_phase) {
-		case MOON_FULL:
-			send_to_clerics("The time of full moon has begun.\r\n"); break;
-		case MOON_WANE_GIBBOUS:
-			send_to_clerics("The time of full moon has passed.\r\n"); break;
-		case MOON_NEW:
-			send_to_clerics("The dark time of new moon has begun.\r\n"); break;
-		case MOON_WAX_CRESCENT:
-			send_to_clerics("The dark time of new moon has passed.\r\n"); break;
-		}
+        if (lunar_phase != get_lunar_phase(lunar_day)) {
+            lunar_phase = get_lunar_phase(lunar_day);
+            switch (lunar_phase) {
+            case MOON_FULL:
+                send_to_clerics(EVIL, "The vile light of the full moon dampens your magic power.\r\n");
+                send_to_clerics(GOOD, "The blessed light of the full moon fills you with strength.\r\n");
+                break;
+            case MOON_WANE_GIBBOUS:
+                send_to_clerics(EVIL, "Your magic strengthens as the blasphemous light of the full moon passes.\r\n");
+                send_to_clerics(GOOD, "The blessing of the full moon leaves you as the moon wanes.\r\n");
+                break;
+            case MOON_NEW:
+                send_to_clerics(EVIL, "The unholy strength of the new moon fills you.\r\n");
+                send_to_clerics(GOOD, "The cold darkness of the new moon drains your strength.\r\n");
+                break;
+            case MOON_WAX_CRESCENT:
+                send_to_clerics(EVIL, "Your unholy strength wanes with the passing of the new moon.\r\n");
+                send_to_clerics(GOOD, "You feel your strength return as the new moon passes.\r\n");
+                break;
+            }
+        }
 	}
-	lunar_phase = get_lunar_phase(lunar_day);
 
 	while (time_info.day > 34) {
 		time_info.day -= 35;
