@@ -1569,6 +1569,10 @@ char_to_game(descriptor_data *d)
 		act("$n has entered the game.", true, d->creature, 0, 0, TO_ROOM);
 	}
 
+    // Wait 5-15 seconds before kicking them off for being banned
+    if (d->account->is_banned() && !d->ban_dc_counter)
+        d->ban_dc_counter = number(5 RL_SEC, 15 RL_SEC);
+
 	look_at_room(d->creature, d->creature->in_room, 0);
 
 	

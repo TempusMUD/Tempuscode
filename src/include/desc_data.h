@@ -113,6 +113,7 @@ struct descriptor_data {
 	char output_broken;
 	char *output;				/* ptr to the current output buffer */
 	int idle;					// how long idle for
+    int ban_dc_counter;         // countdown to disconnection due to ban
 	pthread_t resolver_thread;	// thread to resolve hostname
 	Account *account;
 	struct Creature *creature;	/* linked to char           */

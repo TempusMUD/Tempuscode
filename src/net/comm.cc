@@ -728,6 +728,16 @@ game_loop(int mother_desc)
 			}
 		}
 
+        // Enforce an autoban disconnection
+        for (d = descriptor_list; d; d = next_d) {
+			next_d = d->next;
+            if (d->ban_dc_counter) {
+                d->ban_dc_counter--;
+                if (!d->ban_dc_counter)
+                    close_socket(d);
+            }
+        }
+
 		/* kick out folks in the CXN_DISCONNECT state */
 		for (d = descriptor_list; d; d = next_d) {
 			next_d = d->next;
@@ -1046,6 +1056,7 @@ new_descriptor(int s)
 	newd->login_time = time(0);
 	newd->text_editor = NULL;
 	newd->idle = 0;
+    newd->ban_dc_counter = 0;
 
 	if (++last_desc == 10000)
 		last_desc = 1;
