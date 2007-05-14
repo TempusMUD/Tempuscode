@@ -773,7 +773,10 @@ prog_do_driveto(prog_env * env, prog_evt * evt, char *args)
     if (ch->getPosition() < POS_SITTING)
         return;
 
+    // Get the target room, bailing if it doesn't actually exist
 	target_room = real_room(atoi(tmp_getword(&args)));
+    if (!target_room)
+        return;
 
 	// Find the console in the room.  Do nothing if there's no console
 	for (console = ch->in_room->contents; console;
