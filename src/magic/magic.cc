@@ -4407,8 +4407,16 @@ notify_cleric_moon(struct Creature *ch)
 
 	switch (get_lunar_phase(lunar_day)) {
 	case MOON_FULL:
-		send_to_char(ch, "The moon is full.\r\n");
+        if (IS_EVIL(ch))
+            send_to_char(ch, "The moon is full, its blasphemous light draining your dark magic.\r\n");
+        else if (IS_GOOD(ch))
+            send_to_char(ch, "The moon is full, blessing your magic with its radiance.\r\n");
+        break;
 	case MOON_NEW:
-		send_to_char(ch, "The moon is new.\r\n");
+        if (IS_EVIL(ch))
+            send_to_char(ch, "It is a new moon today, filling you with unholy power.\r\n");
+        else if (IS_GOOD(ch))
+            send_to_char(ch, "It is a new moon today, draining your strength with darkness.\r\n");
+        break;
 	}
 }
