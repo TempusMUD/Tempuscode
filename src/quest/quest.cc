@@ -649,7 +649,7 @@ do_qcontrol_purge(Creature *ch, char *argument, int com)
 			GET_NAME(vict), vict->in_room->number);
 		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), TRUE);
 		if (vict->desc) {
-			close_socket(vict->desc);
+            set_desc_state(CXN_DISCONNECT, vict->desc);
 			vict->desc = NULL;
 		}
 		vict->purge(false);

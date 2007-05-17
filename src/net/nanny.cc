@@ -345,7 +345,7 @@ handle_input(struct descriptor_data *d)
 					send_to_desc(d->creature->desc, "You have logged on from another location!\r\n");
                     // This descriptor should be closed immediately to prevent
                     // a race condition
-                    close_socket(d->creature->desc);
+                    d->creature->desc->input_mode = CXN_DISCONNECT;
 					d->creature->desc = d;
 					send_to_desc(d, "\r\n\r\nYou take over your own body, already in use!\r\n");
 					mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature),

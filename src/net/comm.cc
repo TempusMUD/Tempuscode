@@ -546,40 +546,38 @@ game_loop(int mother_desc)
 			new_descriptor(mother_desc);
 
 		/* kick out the freaky folks in the exception set */
-		for (d = descriptor_list; d; d = next_d) {
-			next_d = d->next;
+		for (d = descriptor_list; d; d = d->next) {
 			if (FD_ISSET(d->descriptor, &exc_set)) {
 				FD_CLR(d->descriptor, &input_set);
 				FD_CLR(d->descriptor, &output_set);
-				close_socket(d);
+                set_desc_state(CXN_DISCONNECT, d);
 			}
 		}
 
 		/* process descriptors with input pending */
-		for (d = descriptor_list; d; d = next_d) {
-			next_d = d->next;
-			if (FD_ISSET(d->descriptor, &input_set))
+		for (d = descriptor_list; d; d = d->next) {
+			if (d->input_mode != CXN_DISCONNECT &&
+                FD_ISSET(d->descriptor, &input_set))
 				if (process_input(d) < 0)
-					close_socket(d);
+                    set_desc_state(CXN_DISCONNECT, d);
 		}
 
 		/* process commands we just read from process_input */
-		for (d = descriptor_list; d; d = next_d) {
-
-			next_d = d->next;
-
-			if (--(d->wait) > 0)
-				continue;
-			handle_input(d);
+		for (d = descriptor_list; d; d = d->next) {
+            if (d->input_mode != CXN_DISCONNECT) {
+                if (--(d->wait) > 0)
+                    continue;
+                handle_input(d);
+            }
 		}
 
 		/* save all players that need to be immediately */
-		for (d = descriptor_list; d; d = next_d) {
-			next_d = d->next;
-			if (d->creature &&
-					IS_PLAYING(d) &&
-					IS_PC(d->creature) &&
-					PLR_FLAGGED(d->creature, PLR_CRASH))
+		for (d = descriptor_list; d; d = d->next) {
+			if (d->input_mode != CXN_DISCONNECT &&
+                d->creature &&
+                IS_PLAYING(d) &&
+                IS_PC(d->creature) &&
+                PLR_FLAGGED(d->creature, PLR_CRASH))
 				d->creature->crashSave();
 		}
 
@@ -691,11 +689,9 @@ game_loop(int mother_desc)
 						SHUTDOWN_DIE) ? "Shutdown" : "Reboot",
 					playerIndex.getName(shutdown_idnum));
 				circle_shutdown = TRUE;
-				for (d = descriptor_list; d; d = next_d) {
-					next_d = d->next;
+				for (d = descriptor_list; d; d = d->next)
 					if (FD_ISSET(d->descriptor, &output_set) && *(d->output))
 						process_output(d);
-				}
 			}
 		}
 
@@ -720,21 +716,19 @@ game_loop(int mother_desc)
 		}
 
 		/* send queued output out to the operating system (ultimately to user) */
-		for (d = descriptor_list; d; d = next_d) {
-			next_d = d->next;
+		for (d = descriptor_list; d; d = d->next) {
 			if (FD_ISSET(d->descriptor, &output_set) && *(d->output)) {
 				if (process_output(d) < 0)
-					close_socket(d);
+                    set_desc_state(CXN_DISCONNECT, d);
 			}
 		}
 
         // Enforce an autoban disconnection
-        for (d = descriptor_list; d; d = next_d) {
-			next_d = d->next;
+        for (d = descriptor_list; d; d = d->next) {
             if (d->ban_dc_counter) {
                 d->ban_dc_counter--;
                 if (!d->ban_dc_counter)
-                    close_socket(d);
+                    set_desc_state(CXN_DISCONNECT, d);
             }
         }
 
