@@ -1389,7 +1389,7 @@ close_socket(struct descriptor_data *d)
 		d->creature->desc = d;
 	}
 
-	if (d->creature && IS_PLAYING(d)) {
+	if (d->creature && d->creature->in_room) {
 	  // Lost link in-game
 		d->creature->player.time.logon = time(0);
 		d->creature->saveToXML();
