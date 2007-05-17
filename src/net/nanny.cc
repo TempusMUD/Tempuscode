@@ -342,11 +342,14 @@ handle_input(struct descriptor_data *d)
 				REMOVE_BIT(PLR_FLAGS(d->creature), PLR_WRITING | PLR_OLC |
 					PLR_MAILING | PLR_AFK);
 				if (d->creature->desc) {
-					send_to_desc(d->creature->desc, "You have logged on from another location!\r\n");
+					descriptor_data *other_desc = d->creature->desc;
+
+					send_to_desc(other_desc, "You have logged on from another location!\r\n");
                     // This descriptor should be closed immediately to prevent
                     // a race condition
-                    d->creature->desc->input_mode = CXN_DISCONNECT;
 					d->creature->desc = d;
+                    other_desc->input_mode = CXN_DISCONNECT;
+					other_desc->creature = NULL;
 					send_to_desc(d, "\r\n\r\nYou take over your own body, already in use!\r\n");
 					mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature),
 						NRM, true,

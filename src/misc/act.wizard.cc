@@ -3283,7 +3283,6 @@ ACMD(do_wizcut)
     int level;
     struct descriptor_data *d;
 
-
     one_argument(argument, arg);
 
     if (*arg) {
