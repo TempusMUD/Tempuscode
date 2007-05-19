@@ -230,8 +230,6 @@ const struct spec_func_data spec_list[] = {
 	{"vehicle_console", vehicle_console, SPEC_OBJ},
 	{"vehicle_door", vehicle_door, SPEC_OBJ},
 	{"djinn_lamp", djinn_lamp, SPEC_OBJ | SPEC_RES},
-	{"improve_stat_book", improve_stat_book, SPEC_OBJ | SPEC_RES},
-	{"improve_prac_book", improve_prac_book, SPEC_OBJ | SPEC_RES},
 	{"life_point_potion", life_point_potion, SPEC_OBJ | SPEC_RES},
 	{"master_communicator", master_communicator, SPEC_OBJ | SPEC_RES},
 	{"fountain_good", fountain_good, SPEC_OBJ},
