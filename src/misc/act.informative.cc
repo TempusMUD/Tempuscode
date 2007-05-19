@@ -4971,20 +4971,6 @@ ACMD(do_alignment)
 
 }
 
-
-void send_wizlist_section_splitter( Creature *ch )
-{
-    acc_sprintf("    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
-            CCCYN(ch,C_NRM), CCNRM(ch,C_NRM) );
-}
-
-void send_wizlist_section_title( char* name, Creature *ch )
-{
-    acc_sprintf("\r\n\r\n        %s%s%s\r\n", 
-            CCYEL(ch,C_NRM), name, CCNRM(ch,C_NRM) );
-    send_wizlist_section_splitter(ch);
-}
-
 ACMD(do_wizlist)
 {
     using namespace Security;
@@ -4996,26 +4982,13 @@ ACMD(do_wizlist)
                 CCBLU(ch,C_NRM),CCBLU_BLD(ch,C_NRM),
                 CCNRM(ch,C_NRM) );
 
-    send_wizlist_section_title("Architects",ch);
-    getGroup("Wizlist_Architects").sendPublicMemberList(ch, "OLCAdmin");
-
-    send_wizlist_section_title("Builders",ch);
-    getGroup("Wizlist_Blders").sendPublicMemberList(ch);
-
-    send_wizlist_section_title("Implementors",ch);
-    getGroup("Wizlist_Coders").sendPublicMemberList(ch, "CoderAdmin");
-
-    send_wizlist_section_title("Questors",ch);
-    getGroup("Wizlist_Quests").sendPublicMemberList(ch, "QuestorAdmin" );
-
-    send_wizlist_section_title("Administrators",ch);
-    getGroup("Wizlist_Admins").sendPublicMemberList(ch,"WizardAdmin");
-
-    send_wizlist_section_title("Elder Gods",ch);
-    getGroup("Wizlist_Elders").sendPublicMemberList(ch, "GroupsAdmin" );
-
-    send_wizlist_section_title("Founders",ch);
-    getGroup("Wizlist_Founders").sendPublicMemberList(ch);
+    getGroup("Wizlist_Architects").sendPublicMemberList(ch, "Architects", "OLCAdmin");
+    getGroup("Wizlist_Blders").sendPublicMemberList(ch, "Builders");
+    getGroup("Wizlist_Coders").sendPublicMemberList(ch, "Implementors", "CoderAdmin");
+    getGroup("Wizlist_Quests").sendPublicMemberList(ch, "Questors", "QuestorAdmin" );
+    getGroup("Wizlist_Admins").sendPublicMemberList(ch, "Administrators", "WizardAdmin");
+    getGroup("Wizlist_Elders").sendPublicMemberList(ch, "Elder Gods", "GroupsAdmin" );
+    getGroup("Wizlist_Founders").sendPublicMemberList(ch, "Founders");
 
 	acc_strcat("\r\n\r\n", NULL);
 
