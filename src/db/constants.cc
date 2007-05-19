@@ -1407,6 +1407,7 @@ extern const char *item_types[] = {
 	"COMMUNICATOR",
 	"SCRIPT",
     "INSTRUMENT",
+	"BOOK",
 	"\n"
 };
 
@@ -1474,6 +1475,8 @@ extern const char *item_type_descs[] = {
 	"a microchip",
 	"a communicator",
 	"a mobile script",
+	"a musical instrument",
+	"a book",
 	"\n"
 };
 extern const char *item_value_types[][4] = {
@@ -1539,6 +1542,8 @@ extern const char *item_value_types[][4] = {
 	{"Type", "Data", "Max", "UNDEFINED"},	/* chip */
 	{"Max Charge", "Cur Charge", "State", "Channel"},	/* Communicator  */
 	{"Top Message", "Mode", "Wait Time", "Counter"},	/* Script  */
+	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"}, /* Instrument */
+	{"Level", "Spell1", "Spell2", "Spell3"},	/* Book */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"}
 };
 

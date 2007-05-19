@@ -1134,7 +1134,7 @@ struct command_info cmd_info[] = {
 	{"respond", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"rest", POS_RESTING, do_rest, 0, 0, 0, 0},
 	{"resign", POS_SLEEPING, do_resign, 0, 0, 0, 0},
-	{"read", POS_RESTING, do_look, 0, SCMD_READ, 0, 0},
+	{"read", POS_RESTING, do_use, 0, SCMD_READ, 0, 0},
 	{"reboot", POS_SLEEPING, do_cyborg_reboot, 0, 0, 0, 0},
 	{"rabbitpunch", POS_FIGHTING, do_offensive_skill, 0, SKILL_RABBITPUNCH, 0, 0},
 	{"reload", POS_DEAD, do_reboot, LVL_IMMORT, 0, 0, 0},

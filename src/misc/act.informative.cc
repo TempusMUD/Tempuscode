@@ -2100,13 +2100,6 @@ ACMD(do_look)
 	} else {
 		half_chop(argument, arg, arg2);
 
-		if (subcmd == SCMD_READ) {
-			if (!*arg)
-				send_to_char(ch, "Read what?\r\n");
-			else
-				look_at_target(ch, arg, cmd);
-			return;
-		}
 		if (!*arg)				/* "look" alone, without an argument at all */
 			look_at_room(ch, ch->in_room, 1);
 		else if (is_abbrev(arg, "into"))

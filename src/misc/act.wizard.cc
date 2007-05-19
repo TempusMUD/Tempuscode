@@ -1362,6 +1362,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     case ITEM_POTION:
     case ITEM_PILL:
     case ITEM_SYRINGE:
+	case ITEM_BOOK:
         acc_sprintf("Level: %d, Spells: %s(%d), %s(%d), %s(%d)\r\n",
                     GET_OBJ_VAL(j, 0),
                     (GET_OBJ_VAL(j, 1) > 0) ? spell_to_str((int)GET_OBJ_VAL(j, 1)) : "None",

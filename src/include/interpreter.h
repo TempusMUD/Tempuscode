@@ -269,7 +269,6 @@ struct set_struct {
 
 /* do_look */
 #define SCMD_LOOK	0
-#define SCMD_READ	1
 
 /* do_qcomm */
 #define SCMD_QSAY	0
@@ -303,6 +302,7 @@ struct set_struct {
 #define SCMD_RECITE	2
 #define SCMD_INJECT     3
 #define SCMD_SWALLOW    4
+#define SCMD_READ	5
 
 /* do_echo */
 #define SCMD_ECHO	0

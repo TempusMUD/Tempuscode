@@ -96,7 +96,8 @@ static const int ITEM_MICROCHIP = 59;
 static const int ITEM_COMMUNICATOR = 60;
 static const int ITEM_SCRIPT = 61;
 static const int ITEM_INSTRUMENT = 62;
-static const int NUM_ITEM_TYPES = 63;
+static const int ITEM_BOOK = 63;
+static const int NUM_ITEM_TYPES = 64;
 
 // Instrument Types
 static const int ITEM_PERCUSSION = 0;

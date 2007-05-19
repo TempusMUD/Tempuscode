@@ -630,6 +630,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
  * staff  - [0]        level        [1] max charges        [2] num charges        [3] spell num
  * wand   - [0]        level        [1] max charges        [2] num charges        [3] spell num
  * scroll - [0]        level        [1] spell num        [2] spell num        [3] spell num
+ * book - [0]        level        [1] spell num        [2] spell num        [3] spell num
  * potion - [0] level        [1] spell num        [2] spell num        [3] spell num
  * syringe- [0] level        [1] spell num        [2] spell num        [3] spell num
  * pill   - [0] level        [1] spell num        [2] spell num        [3] spell num
@@ -805,6 +806,45 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 				break;
 			}
 		}
+		extract_obj(obj);
+		break;
+	case ITEM_BOOK:
+		if (GET_OBJ_VAL(obj, 0) == 0) {
+			send_to_char(ch, "The pages are blank.\r\n");
+			break;
+		}
+
+		if (obj->action_desc)
+			act(obj->action_desc, FALSE, ch, obj, NULL, TO_ROOM);
+		else
+			act("$n opens $p and studies it carefully.", TRUE, ch, obj, 0, TO_ROOM);
+
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
+			|| invalid_char_class(ch, obj)) {
+			act("You try to read $p but the writing doesn't make any sense to you.", FALSE, ch,
+				obj, 0, TO_CHAR);
+			return 1;
+		}
+
+		act("You study the writing in $p carefully.", TRUE, ch, obj, 0, TO_CHAR);
+
+		level = GET_OBJ_VAL(obj, 0);
+		level = MIN(level, LVL_AMBASSADOR);
+
+		WAIT_STATE(ch, 2 RL_SEC);
+
+		for (i = 1; i < 4; i++) {
+			call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, i),
+				level, CAST_SCROLL, &my_return_flags);
+			if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED) ||
+				IS_SET(my_return_flags, DAM_VICT_KILLED)) {
+				*return_flags = my_return_flags;
+				break;
+			}
+		}
+
+		act("$p bursts into flame and disappears!", TRUE, ch, obj, 0, TO_CHAR);
+		act("$p bursts into flame and disappears!", TRUE, ch, obj, 0, TO_ROOM);
 		extract_obj(obj);
 		break;
 	case ITEM_FOOD:

@@ -55,7 +55,7 @@ extern int log_cmds;
 extern int jet_stream_state;
 
 extern int check_mob_reaction(struct Creature *ch, struct Creature *vict);
-void look_at_target(struct Creature *ch, char *arg);
+void look_at_target(struct Creature *ch, char *arg, int cmd);
 int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
 void enable_vt100(struct Creature *ch);
@@ -683,6 +683,7 @@ ACMD(do_use)
 		case SCMD_RECITE:
 		case SCMD_QUAFF:
 		case SCMD_SWALLOW:
+		case SCMD_READ:
 			equipped = 0;
 			if (!(mag_item = get_obj_in_list_all(ch, arg, ch->carrying))) {
 				send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg),
@@ -691,6 +692,11 @@ ACMD(do_use)
 			}
 			if (subcmd == SCMD_RECITE && !can_see_object(ch, mag_item)) {
 				act("You can't see $p well enough to recite from it.",
+					FALSE, ch, mag_item, 0, TO_CHAR);
+				return;
+			}
+			if (subcmd == SCMD_READ && !can_see_object(ch, mag_item)) {
+				act("You can't see $p well enough to read it.",
 					FALSE, ch, mag_item, 0, TO_CHAR);
 				return;
 			}
@@ -736,6 +742,12 @@ ACMD(do_use)
 			return;
 		}
 		break;
+	case SCMD_READ:
+		if (GET_OBJ_TYPE(mag_item) != ITEM_BOOK) {
+			look_at_target(ch, arg, SCMD_LOOK);
+			return;
+		}
+		break;
 	case SCMD_USE:
 		if (GET_OBJ_TYPE(mag_item) == ITEM_TRANSPORTER) {
 			send_to_char(ch, 
@@ -758,7 +770,6 @@ ACMD(do_use)
 				FALSE, ch, mag_item, 0, TO_CHAR);
 			return;
 		}
-
 		break;
 	case SCMD_INJECT:
 		if (GET_OBJ_TYPE(mag_item) != ITEM_SYRINGE) {
