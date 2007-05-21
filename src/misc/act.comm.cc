@@ -963,7 +963,7 @@ ACMD(do_gen_comm)
 					i->creature->getPosition() < POS_RESTING))
 				continue;
 
-			if (subcmd == SCMD_PETITION)
+			if (subcmd == SCMD_PETITION && i->creature != ch)
 				continue;
 
 			if ((ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
