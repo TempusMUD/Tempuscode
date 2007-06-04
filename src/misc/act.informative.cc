@@ -145,7 +145,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 		if (object->line_desc)
 			acc_strcat(object->line_desc, NULL);
 		else if (IS_IMMORT(ch))
-			acc_sprintf("%s exists here.\r\n", object->name);
+			acc_sprintf("%s exists here.", object->name);
 	} else if (mode == SHOW_OBJ_ROOM ||
                mode == SHOW_OBJ_INV ||
                mode == SHOW_OBJ_CONTENT) {
