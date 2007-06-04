@@ -348,7 +348,7 @@ handle_input(struct descriptor_data *d)
                     // This descriptor should be closed immediately to prevent
                     // a race condition
 					d->creature->desc = d;
-                    other_desc->input_mode = CXN_DISCONNECT;
+					set_desc_state(CXN_DISCONNECT, other_desc);
 					other_desc->creature = NULL;
 					send_to_desc(d, "\r\n\r\nYou take over your own body, already in use!\r\n");
 					mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature),
@@ -1281,6 +1281,19 @@ send_menu(descriptor_data *d)
 void
 set_desc_state(cxn_state state,struct descriptor_data *d)
 	{
+	if (d->account)
+		slog("Link [%s] for account %s[%d] changing mode from %s to %s",
+			d->host,
+			d->account->get_name(),
+			d->account->get_idnum(),
+			strlist_aref(d->input_mode, desc_modes),
+			strlist_aref(state, desc_modes));
+	else
+		slog("Link [%s] changing mode from %s to %s",
+			d->host,
+			strlist_aref(d->input_mode, desc_modes),
+			strlist_aref(state, desc_modes));
+
 	if (d->mode_data)
 		free(d->mode_data);
 	d->mode_data = NULL;

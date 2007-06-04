@@ -54,7 +54,8 @@ extern struct obj_shared_data *null_obj_shared;
 extern int log_cmds;
 extern int jet_stream_state;
 
-extern int check_mob_reaction(struct Creature *ch, struct Creature *vict);
+int check_mob_reaction(struct Creature *ch, struct Creature *vict);
+void set_desc_state(cxn_state state,struct descriptor_data *d );
 void look_at_target(struct Creature *ch, char *arg, int cmd);
 int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
@@ -114,7 +115,7 @@ ACMD(do_quit)
 			if (d == ch->desc)
 				continue;
 			if (d->creature && (GET_IDNUM(d->creature) == GET_IDNUM(ch)))
-				d->input_mode = CXN_DISCONNECT;
+				set_desc_state(CXN_DISCONNECT, d);
 		}
 
 		if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR ||
