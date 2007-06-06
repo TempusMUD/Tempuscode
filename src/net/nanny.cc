@@ -1282,16 +1282,14 @@ void
 set_desc_state(cxn_state state,struct descriptor_data *d)
 	{
 	if (d->account)
-		slog("Link [%s] for account %s[%d] changing mode from %s to %s",
+		slog("Link [%s] for account %s[%d] changing mode to %s",
 			d->host,
 			d->account->get_name(),
 			d->account->get_idnum(),
-			strlist_aref(d->input_mode, desc_modes),
 			strlist_aref(state, desc_modes));
 	else
-		slog("Link [%s] changing mode from %s to %s",
+		slog("Link [%s] changing mode to %s",
 			d->host,
-			strlist_aref(d->input_mode, desc_modes),
 			strlist_aref(state, desc_modes));
 
 	if (d->mode_data)
