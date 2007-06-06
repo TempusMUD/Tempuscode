@@ -703,7 +703,7 @@ ACMD(do_use)
 				look_at_target(ch, arg, SCMD_LOOK);
 				return;
 			}
-			if (subcmd == SCMD_READ && !can_see_object(ch, mag_item)) {
+			if (!can_see_object(ch, mag_item)) {
 				act("You can't see $p well enough to read it.",
 					FALSE, ch, mag_item, 0, TO_CHAR);
 				return;
@@ -736,6 +736,13 @@ ACMD(do_use)
 		}
 		break;
 
+	case SCMD_READ:
+		if (ch->numCombatants()) {
+			act("What, while fighting $N?!", FALSE, ch, 0, ch->findRandomCombat(),
+				TO_CHAR);
+			return;
+		}
+		break;
 	case SCMD_RECITE:
 		if (ch->numCombatants()) {
 			act("What, while fighting $N?!", FALSE, ch, 0, ch->findRandomCombat(),
