@@ -135,6 +135,23 @@ prog_get_obj(void *owner, prog_evt_type owner_type)
 	return NULL;
 }
 
+char *
+prog_get_desc(prog_env *env)
+{
+	switch (env->owner_type) {
+	case PROG_TYPE_OBJECT:
+		return tmp_sprintf("object %d", GET_OBJ_VNUM((obj_data *)env->owner));
+	case PROG_TYPE_MOBILE:
+		return tmp_sprintf("mobile %d", GET_MOB_VNUM((Creature *)env->owner));
+	case PROG_TYPE_ROOM:
+		return tmp_sprintf("room %d", ((room_data *)env->owner)->number);
+	default:
+		break;
+	}
+	errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+	return tmp_strdup("");
+}
+
 int
 prog_event_handler(void *owner, prog_evt_type owner_type,
                    prog_evt_phase phase,
@@ -944,16 +961,17 @@ prog_do_damage(prog_env * env, prog_evt * evt, char *args)
 
 	bool players = false, mobs = false;
 
+    room = prog_get_owner_room(env);
+    if (!room)
+        return;
+
 	if (!strcmp(target_arg, "mobiles"))
 		mobs = true;
 	else if (!strcmp(target_arg, "players"))
 		players = true;
 	else if (strcmp(target_arg, "all"))
-		errlog("Bad trans argument 1");
-
-    room = prog_get_owner_room(env);
-    if (!room)
-        return;
+		zerrlog(room->zone, "Bad *damage argument '%s' in prog in %s",
+			target_arg, prog_get_desc(env));
 
 	for (CreatureList::iterator it = room->people.begin();
 		it != room->people.end(); ++it)
@@ -1055,6 +1073,10 @@ prog_do_spell(prog_env *env, prog_evt *evt, char *args)
 	}
 	// The rest of the options deal with multiple creatures
 
+    room = prog_get_owner_room(env);
+    if (!room)
+        return;
+
 	bool players = false, mobs = false;
 
 	if (!strcmp(target_arg, "mobiles"))
@@ -1062,11 +1084,8 @@ prog_do_spell(prog_env *env, prog_evt *evt, char *args)
 	else if (!strcmp(target_arg, "players"))
 		players = true;
 	else if (strcmp(target_arg, "all"))
-		errlog("Bad trans argument 1");
-
-    room = prog_get_owner_room(env);
-    if (!room)
-        return;
+		zerrlog(room->zone, "Bad *spell argument '%s' in prog in %s",
+			target_arg, prog_get_desc(env));
 
 	for (CreatureList::iterator it = room->people.begin();
 		it != room->people.end(); ++it)
@@ -1243,7 +1262,8 @@ prog_do_trans(prog_env * env, prog_evt * evt, char *args)
 
 	targ_num = atoi(tmp_getword(&args));
 	if ((targ_room = real_room(targ_num)) == NULL) {
-		errlog("prog trans targ room %d nonexistent.", targ_num);
+		errlog("trans target room %d nonexistent in prog in %s",
+			targ_num, prog_get_desc(env));
 		return;
 	}
 
@@ -1283,6 +1303,10 @@ prog_do_trans(prog_env * env, prog_evt * evt, char *args)
 	}
 	// The rest of the options deal with multiple creatures
 
+    room = prog_get_owner_room(env);
+    if (!room)
+        return;
+
 	bool players = false, mobs = false;
 
 	if (!strcmp(target_arg, "mobiles"))
@@ -1290,11 +1314,8 @@ prog_do_trans(prog_env * env, prog_evt * evt, char *args)
 	else if (!strcmp(target_arg, "players"))
 		players = true;
 	else if (strcmp(target_arg, "all"))
-		errlog("Bad trans argument 1");
-
-    room = prog_get_owner_room(env);
-    if (!room)
-        return;
+		zerrlog(room->zone, "Bad *trans argument '%s' in prog in %s",
+			target_arg, prog_get_desc(env));
 
 	for (CreatureList::iterator it = room->people.begin();
 		it != room->people.end(); ++it)
@@ -1327,7 +1348,7 @@ prog_do_set(prog_env * env, prog_evt * evt, char *args)
 		}
 		break;
 	default:
-		errlog("Can't happen");
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		return;
 	}
 
