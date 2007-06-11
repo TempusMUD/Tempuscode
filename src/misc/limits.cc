@@ -497,6 +497,7 @@ check_idling(struct Creature *ch)
 				char_to_room(ch, real_room(3),true);
 				if (ch->desc)
                     set_desc_state(CXN_DISCONNECT, ch->desc);
+				ch->desc->creature = NULL;
 				ch->desc = NULL;
 				ch->idle();
 				return true;
