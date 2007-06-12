@@ -495,10 +495,11 @@ check_idling(struct Creature *ch)
 				if (ch->in_room != NULL)
 					char_from_room(ch,false);
 				char_to_room(ch, real_room(3),true);
-				if (ch->desc)
+				if (ch->desc) {
                     set_desc_state(CXN_DISCONNECT, ch->desc);
-				ch->desc->creature = NULL;
-				ch->desc = NULL;
+					ch->desc->creature = NULL;
+					ch->desc = NULL;
+				}
 				ch->idle();
 				return true;
 			}
