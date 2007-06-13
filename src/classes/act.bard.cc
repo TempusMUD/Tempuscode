@@ -454,9 +454,9 @@ ASPELL(song_lament_of_longing)
     obj_to_room(rift1, ch->in_room);
     obj_to_room(rift2, targ_room);
 
-    act("A beautiful rift in space appears, pulsing to to sound of your music!",
+    act("A beautiful rift in space appears, pulsing to the sound of your music!",
          true, ch, NULL, NULL, TO_CHAR);
-    act("A beautiful rift in space appears, pulsing to to sound of $n's music!",
+    act("A beautiful rift in space appears, pulsing to the sound of $n's music!",
          true, ch, NULL, NULL, TO_ROOM);
 
     if (targ_room == victim->in_room) {
