@@ -2196,6 +2196,8 @@ load_spell(xmlNodePtr node)
 
             if (!strcmp(value_str, "violent")) {
                 spell_info[idnum].violent = true;
+            } else if (!strcmp(value_str, "unpleasant")) {
+                spell_info[idnum].targets |= TAR_UNPLEASANT;
             } else {
                 int flag = search_block(value_str, spell_bit_keywords, true);
                 if (flag < 0) {
