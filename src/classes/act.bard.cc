@@ -36,274 +36,6 @@ void sing_song(Creature *ch, Creature *vict, int songnum);
 bool check_instrument(Creature *ch, int songnum);
 char *get_instrument_type(int songnum);
 
-static const int TOP_BARD_SONG = 345;
-static const int NUM_BARD_SONGS = 51;
-
-struct bard_song {
-    char *name;
-    char *lyrics; // The lyrics, if any
-    bool instrumental; // is it an instrumental
-    int type; // what type of instrument do we need?
-};
-
-struct bard_song songs[] = {
-    { "Instant Audience",
-      "Come one come all to hear my tune,\nThe likes of which you'll not hear again soon.", // 346
-      false,
-      ITEM_PERCUSSION 
-    },
-    { "Wall of Sound", // 347
-      "a loud and boisterous tune",
-      true,
-      ITEM_WIND
-    },
-    { "Ventriloquism (error)", // 348
-      "(error)",
-      false,
-      -1 
-    },
-    { "Lament of Longing", // 349
-      "a mild and melancholy tune",
-      true,
-      ITEM_WIND
-    },
-    { "Misdirection Melisma", // 350
-      "The hunter shall not see my face\n,The melody removes my trace.",
-      false,
-      ITEM_STRING
-    },
-    { "Aria of Armament",
-      "Of bravery I sing to thee,\nTake up your swords and follow me!", // 351
-      false,
-      ITEM_STRING
-    },
-    { "Lullaby", // 352
-      "The sweet allure of pleasant dreams\nIs irresistable, so it seems.\nSo have no fear, just close your eyes\n And meditate on what you prize.",
-      false,
-      ITEM_STRING
-    },
-    { "Verse of Vulnerability",
-      "The music flows from me to you,\nIt guides my blade as I strike true!", // 353
-      false,
-      ITEM_STRING
-    },
-    { "Exposure Overture", // 354
-      "a light and revealing tune",
-      true,
-      ITEM_WIND
-    },
-    { "Verse of Vibration", // 355
-      "",
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Regalers Rhapsody",
-      "A morsel of a melody keeps appetites in line,\nFor when the battle's finally won, we all will drink and dine!", // 356
-      false,
-      ITEM_STRING
-    },
-    { "Melody of Mettle",
-      "Our courage has seen us through worse times before;\nSuch mettle is forged in the fires of war.", // 357
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Lustration Melisma",
-      "The poison, the plague, the malady's cold,\nWe beg for release from these sicknesses' hold.", // 358
-      false,
-      ITEM_STRING
-    },
-    { "Defense Ditty", // 359
-      "a spirited march",
-      true,
-      ITEM_WIND
-    },
-    { "Alron's Aria", // 360
-      "The courage and strength with which Alron is blessed\nWill come to our aid 'til our souls are at rest.",
-      false,
-      ITEM_STRING
-    },
-    { "Song Shield", // 361
-      "a light, comforting melody",
-      true,
-      ITEM_WIND
-    },
-    { "Verse of Valor",
-      "The battle, still it rages,\nAs it has for many ages,\nBut a piercing strike can hope to end it all.", // 362
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Hymn of Peace", // 363
-      "a cool and peaceful hymn",
-      true,
-      ITEM_WIND
-    },
-    { "Song of Silence", // 364
-      "a quiet and doleful song",
-      true,
-      ITEM_WIND
-    },
-    { "Drifters Ditty",
-      "The journey of a thousand miles begins with just one step,\nSo I'll provide a merry tune to give our step some pep!", // 365
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Unravelling Diapason", // 366
-      "Oh mystic forces, hear my yell,\nUnmake your magic, break this spell!",
-      false,
-      ITEM_STRING
-    },
-    { "Rhapsody of Depression", // 367
-      "a depressing rhapsody",
-      true,
-      ITEM_WIND
-    },
-    { "Chant of Light",
-      "Oh sun, sweet kiss of warmth and bright,\nRepel the frigid cold of night!", // 368
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Aria of Asylum", // 369
-      "Through pouring rain and stinging sleet,\nAs swords and arrows fall,\nWe fear no pain in our retreat.\nAsylum saves us all!",
-      false,
-      ITEM_STRING
-    },
-    { "White Noise", // 370
-      "a cacophony of sound",
-      true,
-      ITEM_WIND
-    },
-    { "Rhythm of Rage", // 371
-      "an intense an violent rhythm",
-      true,
-      ITEM_PERCUSSION
-    },
-    { "Power Overture",
-      "Such strength to rule without dispute;\nA surge of power, absolute.", // 372
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Guiharia's Glory",
-      "Guiharia's Glory, her essense so pure,\nHer soul, it renews me, my heart can endure.", // 373
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Siren's Song", // 374
-      "an alluring melody",
-      true,
-      ITEM_WIND
-    },
-    { "Sonic Disruption", // 375
-      "a sickening rhythm",
-      true,
-      ITEM_PERCUSSION
-    },
-    { "Mirror Image Melody", // 376
-      "an off-beat, confusing tune",
-      true,
-      ITEM_WIND
-    },
-    { "Clarifying Harmonies",
-      "The magic uncovered as choruses sing,\nTo answer the mysteries one's life can bring.", // 377
-      false,
-      ITEM_STRING
-    },
-    { "Unladen Swallow Song", // 378
-      "The sky is the swallow's place to be in,\nWhether African or European.",
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Irresistable Dance", // 379
-      "They found the gold, they did the dance,\nAs treasure seekers do.\nTheir cheerful spirit lingers on,\nIn me as well as you.",
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Rhythm of Alarm", // 380
-      "The rogue may stalk, but I can see,\nHis presence is revealed to me.",
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Rhapsody of Remedy", // 381
-      "As blades can rend and magic freeze,\nA song can mend it all with ease.",
-      false,
-      ITEM_STRING
-    },
-    { "Shatter", // 382
-      "a primitive syncopation",
-      true,
-      ITEM_PERCUSSION
-    },
-    { "Home Sweet Home",
-      "I'm on my way, just set me free,\nHome, sweet home.", // 383
-      false,
-      ITEM_STRING
-    },
-    { "Weight of the World", // 384
-      "We carry the weight of the world on our shoulders,\nHolding us down as surely as boulders.\nTo lighten our loads, this song we'll sing,\nAnd to our packs a lighness bring!",
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Purple Haze", // 385
-      "Purple Haze was in my eyes.\nDon't know if it's day or night.\nYou've got me blowing, blowing my mind.\nIs it tomorrow or just the end of time?",
-      false,
-      ITEM_STRING
-    },
-    { "Wounding Whispers", // 386
-      "The whispered lies and gossip told\nCome back to haunt the young and old.\nThe barrier they form is thin,\nBut blocks true love and harbors sin.",
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Dirge",
-      "a slow and mournful tune", // 387
-      true,
-      ITEM_WIND
-    },
-    { "Eagle's Overture",
-      "a loud and boisterous tune", // 388
-      true,
-      ITEM_WIND
-    },
-    { "Ghost Instrument", // 389
-      "an ethereal,haunting song",
-      true,
-      ITEM_WIND
-    },
-    { "Lich's Lyrics", // 390
-      "Your life leaks, your soul drips.\nRun slowly down his fingertips.\nInto the palm and see him smile.\nThe Lich controls you all the while.",
-      false,
-      ITEM_PERCUSSION
-    },
-    { "Fortissimo",
-      "an upbeat tune that swells to a deafening pitch", // 391
-      true,
-      ITEM_WIND
-    },
-    { "Insidious Rythm", // 392
-      "an insidious, bewitching rythm",
-      true,
-      ITEM_WIND
-    },
-    { "Tumbling (error)", // 393
-      "(error)",
-      false,
-      -1
-    },
-    { "Lingering Song (error)", // 394
-      "(error)",
-      false,
-      -1
-    },
-    { "Requiem", // 395
-      "a dark and joyless requiem",
-      true,
-      ITEM_WIND
-    },
-    { "Scream (error)", // 396
-      "(error)",
-      false,
-      -1
-    }
-};
-
 // incomplete
 /*
     static const int SONG_LULLABY = 352; // puts a room to sleep
@@ -365,9 +97,9 @@ void
 sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songnum)
 {
   char *buf, *vbuf;
-  struct bard_song *song = &songs[songnum - TOP_BARD_SONG - 1];
+  struct bard_song *song = &songs[songnum];
 
-  if (songnum < TOP_BARD_SONG || songnum > TOP_BARD_SONG + NUM_BARD_SONGS) {
+  if (!SPELL_FLAGGED(songnum, MAG_BARD)) {
 	mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, true,
 			"(%d) Not a bard song in sing_song()", songnum);
 	return;
@@ -465,7 +197,7 @@ bool bard_can_charm_more(Creature *ch)
 bool check_instrument(Creature *ch, int songnum)
 {
     struct obj_data *objs[4];
-    short req_type = songs[songnum - TOP_BARD_SONG - 1].type;
+    short req_type = songs[songnum].type;
     bool found = false;
     int x = 0;
     
@@ -489,7 +221,7 @@ bool check_instrument(Creature *ch, int songnum)
 
 char *get_instrument_type(int songnum)
 {
-    char *type = tmp_strdup(instrument_types[songs[songnum - TOP_BARD_SONG - 1].type]);
+    char *type = tmp_strdup(instrument_types[songs[songnum].type]);
 
     return tmp_tolower(type);
 }

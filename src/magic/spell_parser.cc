@@ -39,6 +39,7 @@
 #include "language.h"
 
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
+struct bard_song songs[TOP_SPELL_DEFINE + 1];
 struct room_direction_data *knock_door = NULL;
 char locate_buf[256];
 
@@ -2208,7 +2209,34 @@ load_spell(xmlNodePtr node)
                 spell_info[idnum].routines |= (1 << flag);
             }
             free(value_str);
-        }
+		} else if (xmlMatches(child->name, "instrument")) {
+			char *type_str = xmlGetProp(child, "type");
+
+			if (!strcmp(type_str, "wind")) {
+				songs[idnum].type = ITEM_WIND;
+			} else if (!strcmp(type_str, "percussion")) {
+				songs[idnum].type = ITEM_PERCUSSION;
+			} else if (!strcmp(type_str, "string")) {
+				songs[idnum].type = ITEM_STRING;
+			} else {
+				errlog("Invalid instrument type '%s' in spell", type_str);
+				free(type_str);
+				return false;
+			}
+			free(type_str);
+		} else if (xmlMatches(child->name, "description")) {
+			char *text = (char *)xmlNodeGetContent(child);
+
+			songs[idnum].lyrics = strdup(text);
+			songs[idnum].instrumental = true;
+			free(text);
+        } else if (xmlMatches(child->name, "lyrics")) {
+			char *text = (char *)xmlNodeGetContent(child);
+
+			songs[idnum].lyrics = strdup(text);
+			songs[idnum].instrumental = false;
+			free(text);
+		}
     }
 
     if (!spell_info[idnum].targets)
@@ -2233,6 +2261,9 @@ clear_spells(void)
         spell_info[spl].targets = 0;
         spell_info[spl].violent = 0;
         spell_info[spl].routines = 0;
+		songs[spl].lyrics = NULL;
+		songs[spl].instrumental = false;
+		songs[spl].type = 0;
     }
 
     // Initialize string list terminator

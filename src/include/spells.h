@@ -825,7 +825,15 @@ struct spell_info_type {
 	sh_int targets;				/* See below for use with TAR_XXX  */
 };
 
+struct bard_song {
+    char *lyrics; // The lyrics or song description
+    bool instrumental; // is it an instrumental
+    int type; // what type of instrument do we need?
+};
+
 extern struct spell_info_type spell_info[];
+extern struct bard_song songs[];
+
 /* Possible Targets:
 
    bit 0 : IGNORE TARGET
