@@ -855,7 +855,7 @@ long GET_SKILL_COST(Creature *ch, int skill);
                                  IS_ZOMBIE(ch))
 
 #define NON_CORPOREAL_MOB(ch) \
-            (IS_SHADOW(ch) || IS_WIGHT(ch) ||   \
+            ((IS_SHADOW(ch) || IS_WIGHT(ch) ||   \
             IS_WRAITH(ch) || IS_SPECTRE(ch) || \
             IS_GHOST(ch))                      \
             || (GET_RACE(ch) == RACE_ELEMENTAL &&       \
@@ -863,7 +863,7 @@ long GET_SKILL_COST(Creature *ch, int skill);
                 GET_CLASS(ch) == CLASS_AIR ||           \
                 GET_CLASS(ch) == CLASS_WATER ||         \
                 GET_CLASS(ch) == CLASS_FIRE             \
-                ))
+                )))
 
 #define IS_HUMAN(ch)                     (GET_RACE(ch) == RACE_HUMAN)
 #define IS_ELF(ch)                     (GET_RACE(ch) == RACE_ELF)

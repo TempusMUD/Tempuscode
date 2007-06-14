@@ -1283,11 +1283,13 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 		dir = number(0, 7);
 	}
 
-	if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NULL ||
-		((IS_SET(EXIT(ch, dir)->exit_info, EX_NOPASS) ||
-				(IS_SET(EXIT(ch, dir)->exit_info, EX_SECRET | EX_HIDDEN) &&
-					IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED))) &&
-			GET_LEVEL(ch) < LVL_AMBASSADOR && !NON_CORPOREAL_MOB(ch))) {
+	if ((!EXIT(ch, dir)
+         || EXIT(ch, dir)->to_room == NULL
+         ||	((IS_SET(EXIT(ch, dir)->exit_info, EX_NOPASS)
+              || (IS_SET(EXIT(ch, dir)->exit_info, EX_SECRET | EX_HIDDEN)
+                  && IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED)))))
+         && GET_LEVEL(ch) < LVL_AMBASSADOR
+         && !NON_CORPOREAL_MOB(ch)) {
 		switch (number(0, 5)) {
 		case 0:
 			send_to_char(ch, "Alas, you cannot go that way...\r\n");
