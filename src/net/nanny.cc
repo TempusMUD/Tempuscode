@@ -42,6 +42,8 @@
 #include "quest.h"
 #include "player_table.h"
 #include "language.h"
+#include "accstr.h"
+#include "help.h"
 
 extern char *motd;
 extern char *ansi_motd;
@@ -235,8 +237,17 @@ handle_input(struct descriptor_data *d)
 			send_to_desc(d, "Passwords did not match.  Please try again.\r\n");
 			set_desc_state(CXN_PW_PROMPT, d);
 		} else {
-			set_desc_state(CXN_NAME_PROMPT, d);
+			set_desc_state(CXN_VIEW_POLICY, d);
 		}
+		break;
+	case CXN_VIEW_POLICY:
+        if (d->showstr_head) {
+            show_string(d);
+            if (!d->showstr_head)
+                send_to_desc(d, "&r**** &nPress return to start creating a character! &r****&n");
+        } else {
+            set_desc_state(CXN_NAME_PROMPT, d);
+        }
 		break;
 	case CXN_MENU:
 		switch (tolower(arg[0])) {
@@ -975,6 +986,7 @@ send_prompt(descriptor_data *d)
 	case CXN_AFTERLIFE:
 	case CXN_REMORT_AFTERLIFE:
 		send_to_desc(d, "Press return to continue into the afterlife.\r\n"); break;
+    case CXN_VIEW_POLICY:
 	case CXN_VIEW_BG:
 	case CXN_CLASS_HELP:
 	case CXN_RACE_HELP:
@@ -992,6 +1004,8 @@ send_prompt(descriptor_data *d)
 void
 send_menu(descriptor_data *d)
 {
+    extern HelpCollection *Help;
+    HelpItem *policy;
 	Creature *tmp_ch;
 	int idx;
 
@@ -1071,6 +1085,18 @@ send_menu(descriptor_data *d)
 		send_to_desc(d,"&c\r\n                                 EMAIL ADDRESS\r\n*******************************************************************************&n\r\n");
 		send_to_desc(d, "\r\n\r\n    You may elect to associate an email address with this account.  This\r\nis entirely optional, and will not be sold to anyone.  Its primary use is\r\npassword reminders but may soon be used for Realm board login.\r\n\r\n");
 		break;
+	case CXN_VIEW_POLICY:
+		send_to_desc(d, "\e[H\e[J");
+        acc_string_clear();
+        acc_sprintf("%s\r\n                             POLICY\r\n*******************************************************************************%s\r\n",
+                    (d->account->get_ansi_level() >= C_NRM) ? KCYN:"",
+                    (d->account->get_ansi_level() >= C_NRM) ? KNRM:"");
+        policy = Help->find_item_by_id(667);
+        if (!policy->text)
+            policy->LoadText();
+        acc_strcat(policy->text, NULL);
+		page_string(d, acc_get_string());
+        break;
 	case CXN_NAME_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d, "\r\n&c                                 CHARACTER CREATION\r\n*******************************************************************************&n\r\n");
@@ -1262,6 +1288,7 @@ send_menu(descriptor_data *d)
 		// If there's no showstr_point, they finished already
 		if (!d->showstr_point)
 			set_desc_state(CXN_WAIT_MENU, d);
+        break;
 	case CXN_CLASS_HELP:
 		if (!d->showstr_head)
 			send_to_desc(d,

@@ -285,7 +285,10 @@ show_string(struct descriptor_data *d)
 		if(d->creature)
 			send_to_desc(d,
 				"&r**** &nUse the 'more' command to continue. &r****&n\r\n");
-		else
+		else if (STATE(d) == CXN_VIEW_POLICY)
+			send_to_desc(d,
+				"&r**** &nPress return to continue &r****&n");
+        else
 			send_to_desc(d,
 				"&r**** &nPress return to continue, 'q' to quit &r****&n");
 	} else {

@@ -35,6 +35,7 @@ enum cxn_state {
 	CXN_ANSI_PROMPT,			// Do you have color?
 	CXN_COMPACT_PROMPT,			// What compactness do you prefer?
 	CXN_EMAIL_PROMPT,			// Optional email address
+    CXN_VIEW_POLICY,            // View policy before char creation
 	CXN_OLDPW_PROMPT,			// Get old password for pw change
 	CXN_NEWPW_PROMPT,			// Get new password for pw change
 	CXN_NEWPW_VERIFY,			// Verify new password for pw change
