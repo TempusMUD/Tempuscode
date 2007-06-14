@@ -728,7 +728,28 @@ prog_do_target(prog_env * env, prog_evt * evt, char *args)
 		default:
 			env->target = NULL;
 		}
-	}
+	} else if (!strcasecmp(arg, "player")) {
+		switch (env->owner_type) {
+            case PROG_TYPE_MOBILE:
+                ch_self = (Creature *) env->owner;
+                env->target = get_player_random_vis(ch_self, ch_self->in_room);
+                break;
+            case PROG_TYPE_OBJECT:
+                obj_self = (obj_data *) env->owner;
+                if (obj_self->in_room)
+                    env->target = get_player_random(obj_self->in_room);
+                else if (obj_self->worn_by)
+                    env->target = get_player_random(obj_self->worn_by->in_room);
+                else if (obj_self->carried_by)
+                    env->target = get_player_random(obj_self->carried_by->in_room);
+                break;
+            case PROG_TYPE_ROOM:
+                env->target = get_player_random((room_data *) env->owner);
+                break;
+        default:
+            break;
+		}
+    }
 }
 
 void
