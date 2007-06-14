@@ -17,9 +17,8 @@ SPECIAL(slaver)
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(slaver))
+	if (cmd || slaver->getPosition() < POS_STANDING)
 		return 0;
-
 	if (!r_pit_lip || !r_slave_pit)
 		return 0;
 
