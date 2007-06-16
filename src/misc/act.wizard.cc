@@ -8562,6 +8562,163 @@ int do_freeze_char(char *argument, Creature *vict, Creature *ch)
     return 1;
 }
 
+#define USERS_USAGE \
+"format: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c char_claslist] [-o] [-p]\r\n"
+
+ACMD(do_users)
+{
+    long find_char_class_bitvector(char arg);
+
+	char *name_search = NULL, *host_search = NULL;
+    const char *char_name, *account_name, *state;
+	struct Creature *tch;
+	struct descriptor_data *d;
+	int low = 0, high = LVL_GRIMP, i, num_can_see = 0;
+	int showchar_class = 0, outlaws = 0, playing = 0, deadweight = 0;
+    char *arg;
+    char timebuf[27], idletime[10];
+
+    while (*(arg = tmp_getword(&argument)) != '\0') {
+		if (*arg == '-') {
+			switch (*(arg + 1)) {
+			case 'o':
+			case 'k':
+				outlaws = 1;
+				playing = 1;
+				break;
+			case 'p':
+				playing = 1;
+				break;
+			case 'd':
+				deadweight = 1;
+				break;
+			case 'l':
+				playing = 1;
+                arg = tmp_getword(&argument);
+				sscanf(arg, "%d-%d", &low, &high);
+				break;
+			case 'n':
+				playing = 1;
+                name_search = tmp_getword(&argument);
+				break;
+			case 'h':
+				playing = 1;
+                host_search = tmp_getword(&argument);
+				break;
+			case 'c':
+				playing = 1;
+                arg = tmp_getword(&argument);
+				for (i = 0; i < (int)strlen(arg); i++)
+					showchar_class |= find_char_class_bitvector(arg[i]);
+				break;
+			default:
+				send_to_char(ch, USERS_USAGE);
+				return;
+				break;
+			}					/* end of switch */
+
+		} else {				/* endif */
+			send_to_char(ch, USERS_USAGE);
+			return;
+		}
+	}							/* end while (parser) */
+
+    acc_string_clear();
+    acc_strcat(
+		" Num Account      Character     State          Idl Login@   Site\r\n",
+		" --- ------------ ------------- --------------- -- -------- ---------------\r\n",
+        NULL);
+
+	for (d = descriptor_list; d; d = d->next) {
+		if (IS_PLAYING(d) && playing)
+			continue;
+		if (STATE(d) == CXN_PLAYING && deadweight)
+			continue;
+		if (STATE(d) == CXN_PLAYING) {
+			if (d->original)
+				tch = d->original;
+			else if (!(tch = d->creature))
+				continue;
+			if (host_search && !strstr(d->host, host_search))
+				continue;
+			if (name_search && str_cmp(GET_NAME(tch), name_search))
+				continue;
+			if (GET_LEVEL(ch) < LVL_LUCIFER)
+				if (!can_see_creature(ch, tch) || GET_LEVEL(tch) < low
+					|| GET_LEVEL(tch) > high)
+					continue;
+			if (outlaws && !PLR_FLAGGED(tch, PLR_KILLER) &&
+				!PLR_FLAGGED(tch, PLR_THIEF))
+				continue;
+			if (showchar_class && !(showchar_class & (1 << GET_CLASS(tch))))
+				continue;
+			if (GET_LEVEL(ch) < LVL_LUCIFER &&
+                GET_INVIS_LVL(ch) > GET_LEVEL(ch))
+                continue;
+            if (!can_see_creature(ch, d->creature))
+                continue;
+		}
+
+        strftime(timebuf, 24, "%H:%M:%S", localtime(&d->login_time));
+		if (STATE(d) == CXN_PLAYING && d->original)
+            state = "switched";
+		else
+            state = strlist_aref(STATE(d), desc_modes);
+
+		if (d->creature && STATE(d) == CXN_PLAYING &&
+			(GET_LEVEL(d->creature) < GET_LEVEL(ch)
+				|| GET_LEVEL(ch) >= LVL_LUCIFER))
+			sprintf(idletime, "%2d",
+				d->creature->char_specials.timer * SECS_PER_MUD_HOUR /
+				SECS_PER_REAL_MIN);
+		else
+			sprintf(idletime, "%2d", d->idle);
+
+        if (!d->creature)
+            char_name = "      -      ";
+        else if (d->original)
+            char_name = tmp_sprintf("%s%-13s%s",
+                                    CCCYN(ch, C_NRM),
+                                    d->original->player.name,
+                                    CCNRM(ch, C_NRM));
+        else if (IS_IMMORT(d->creature))
+            char_name = tmp_sprintf("%s%-13s%s",
+                                    CCGRN(ch, C_NRM),
+                                    d->creature->player.name,
+                                    CCNRM(ch, C_NRM));
+        else
+            char_name = tmp_sprintf("%-13s", d->creature->player.name);
+
+        if (d->account)
+            account_name = tmp_substr(d->account->get_name(), 0, 12);
+        else
+            account_name = "   -   ";
+
+        acc_sprintf("%4d %-12s %s %-15s %-2s %-8s ",
+                    d->desc_num,
+                    account_name,
+                    char_name,
+                    state, idletime, timebuf);
+
+		if (d->host && *d->host)
+			acc_sprintf("%s%s%s\r\n", isbanned(d->host,
+					buf) ? (d->creature
+					&& PLR_FLAGGED(d->creature, PLR_SITEOK) ? CCMAG(ch,
+						C_NRM) : CCRED(ch, C_SPR)) : CCGRN(ch, C_NRM), d->host,
+				CCNRM(ch, C_SPR));
+		else
+			acc_strcat(CCRED_BLD(ch, C_SPR),
+                       "[unknown]\r\n",
+                       CCNRM(ch, C_SPR));
+
+        num_can_see++;
+	}
+
+	acc_sprintf("\r\n%d visible sockets connected.\r\n", num_can_see);
+	page_string(ch->desc, acc_get_string());
+}
+
+
 ACMD(do_edit)
 {
     char *arg;
