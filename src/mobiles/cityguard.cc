@@ -67,7 +67,7 @@ bool
 char_is_arrested(Creature *ch)
 {
 	memory_rec_struct *cur_mem;
-	
+
 	if (IS_NPC(ch))
 		return false;
 
@@ -185,7 +185,7 @@ breakup_fight(Creature *ch, Creature *vict1, Creature *vict2)
 			send_to_char(tch,
 				"%s gets between %s and %s, ending the fight!\r\n",
 				PERS(ch, tch), PERS(vict1, tch), PERS(vict2, tch));
-			
+
 	}
 
 	vict1->removeCombat(vict2);
@@ -328,7 +328,7 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 			ch, 0, vict, TO_VICT | TO_SLEEP);
 	act(tmp_sprintf("$n drags a semi-conscious $N %s.", to_dirs[dir]), false,
 		ch, 0, vict, TO_NOTVICT);
-	
+
 	// Get other guards to follow
 	for (it = ch->in_room->people.begin(); it != ch->in_room->people.end();it++) {
 		if (IS_NPC(*it) && GET_MOB_SPEC(*it) == cityguard) {
@@ -386,7 +386,7 @@ knock_unconscious(Creature *ch, Creature *target)
 			ch, 0, target, TO_NOTVICT);
 	}
 
-		
+
 	af.is_instant = 0;
 	af.duration = MAX(5, target->get_reputation()/50);
 	af.bitvector = AFF_SLEEP;
@@ -402,20 +402,20 @@ knock_unconscious(Creature *ch, Creature *target)
 	affect_join(target, &af, false, false, false, false);
 }
 
-bool 
+bool
 is_fighting_cityguard(Creature *ch)
 {
     CombatDataList::iterator li;
-    
+
     if (ch == NULL)
         return false;
     li = ch->getCombatList()->begin();
     for (; li != ch->getCombatList()->end(); ++li) {
-        if (IS_NPC(li->getOpponent()) && 
+        if (IS_NPC(li->getOpponent()) &&
             GET_MOB_SPEC(li->getOpponent()) == cityguard)
             return true;
     }
-    
+
     return false;
 }
 
@@ -529,7 +529,6 @@ SPECIAL(cityguard)
 	// action == 2 : stop fight
 	// action == 3 : drag creature to jail
 	// action == 4 : attack criminal
-	// action == 4
 	// action == 5 : assist guard
 	action = 0;
 	lawful = !ZONE_FLAGGED(self->in_room->zone, ZONE_NOLAW);
@@ -656,10 +655,10 @@ SPECIAL(cityguard)
 		// stopping fight
 		switch (number(0, 2)) {
 		case 0:
-			perform_say(self, "bellow", "Knock it off!"); 
+			perform_say(self, "bellow", "Knock it off!");
             break;
 		case 1:
-			perform_say(self, "bellow", "Stop disturbing the peace of this city!"); 
+			perform_say(self, "bellow", "Stop disturbing the peace of this city!");
             break;
 		case 2:
 			perform_say(self, "declare", "Here now!");
@@ -703,10 +702,10 @@ SPECIAL(cityguard)
 			knock_unconscious(self, target);
 		else
 			hit(self, target, TYPE_UNDEFINED);
-		
+
 		return true;
 	default:
-		errlog("Can't happen at %s:%d", __FILE__, __LINE__); 
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
         break;
 	}
 
