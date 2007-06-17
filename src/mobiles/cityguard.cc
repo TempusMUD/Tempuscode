@@ -490,7 +490,7 @@ SPECIAL(cityguard)
 
 		// Save the newbies from themselves
 		if (GET_LEVEL(tch) < 20 && GET_REMORT_GEN(tch) == 0) {
-			perform_say(self, 0, "Here now!");
+			perform_say(self, "declare", "Here now!");
 			self->removeCombat(tch);
 			tch->removeCombat(self);
 			return true;
@@ -662,7 +662,7 @@ SPECIAL(cityguard)
 			perform_say(self, "bellow", "Stop disturbing the peace of this city!"); 
             break;
 		case 2:
-			perform_say(self, 0, "Here now!"); 
+			perform_say(self, "declare", "Here now!");
             break;
 		}
         Creature *vict = target->findRandomCombat();
