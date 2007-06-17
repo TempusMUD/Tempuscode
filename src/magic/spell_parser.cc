@@ -2245,11 +2245,18 @@ load_spell(xmlNodePtr node)
     return true;
 }
 
+char *UNUSED_SPELL_NAME = NULL;
+
 void
 clear_spells(void)
 {
-	for (int spl = 1; spl <= TOP_SPELL_DEFINE; spl++) {
-        spells[spl] = "!UNUSED!";
+    if (!UNUSED_SPELL_NAME)
+        UNUSED_SPELL_NAME = strdup("!UNUSED!");
+
+	for (int spl = 1; spl < TOP_SPELL_DEFINE; spl++) {
+        if (spells[spl] != UNUSED_SPELL_NAME)
+            free(const_cast<char *>(spells[spl]));
+        spells[spl] = UNUSED_SPELL_NAME;
         for (int class_idx = 0; class_idx < NUM_CLASSES; class_idx++) {
             spell_info[spl].min_level[class_idx] = LVL_GRIMP + 1;
             spell_info[spl].gen[class_idx] = 0;
@@ -2261,6 +2268,8 @@ clear_spells(void)
         spell_info[spl].targets = 0;
         spell_info[spl].violent = 0;
         spell_info[spl].routines = 0;
+        if (songs[spl].lyrics)
+            free(songs[spl].lyrics);
 		songs[spl].lyrics = NULL;
 		songs[spl].instrumental = false;
 		songs[spl].type = 0;

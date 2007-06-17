@@ -268,6 +268,8 @@ ACMD(do_reboot)
 	} else if (!str_cmp(arg, "socials")) {
 		free_socials();
 		boot_social_messages();
+	} else if (!str_cmp(arg, "spells")) {
+        boot_spells();
     } else if( !str_cmp(arg, "xml") ) {
         xml_reload(ch);
         return;
