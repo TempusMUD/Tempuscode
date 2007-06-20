@@ -3980,7 +3980,7 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 	else if (str == 18 && stradd <= 50)
 		strcat(buff, "You are exceptionally strong.");
 	else if (str == 18 && stradd <= 70)
-		strcat(buff, "You strength is awe inspiring.");
+		strcat(buff, "Your strength is awe inspiring.");
 	else if (str == 18 && stradd <= 90)
 		strcat(buff, "Your strength is super-human.");
 	else if (str == 18)
