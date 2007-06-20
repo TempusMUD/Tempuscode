@@ -2553,7 +2553,7 @@ acc_append_affects(struct Creature *ch, byte mode)
 	if (affected_by_spell(ch, SPELL_ENDURANCE))
 		acc_strcat("Your endurance is increased.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_CAPACITANCE_BOOST))
-        acc_strcat("You energy capacitance is boosted.\r\n", NULL);
+        acc_strcat("Your energy capacitance is boosted.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
 		acc_strcat("Your mind is resistant to external energies.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_PSYCHIC_FEEDBACK))
