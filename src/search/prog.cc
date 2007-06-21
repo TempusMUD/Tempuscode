@@ -694,32 +694,19 @@ prog_do_force(prog_env * env, prog_evt * evt, char *args)
 void
 prog_do_target(prog_env * env, prog_evt * evt, char *args)
 {
-	Creature *ch_self;
-	obj_data *obj_self;
+    room_data *room = prog_get_owner_room(env);
 	char *arg;
 
 	arg = tmp_getword(&args);
 	if (!strcasecmp(arg, "random")) {
-		switch (env->owner_type) {
-            case PROG_TYPE_MOBILE:
-                ch_self = (Creature *) env->owner;
-                env->target = get_char_random_vis(ch_self, ch_self->in_room);
-                break;
-            case PROG_TYPE_OBJECT:
-                obj_self = (obj_data *) env->owner;
-                if (obj_self->in_room)
-                    env->target = get_char_random(obj_self->in_room);
-                else if (obj_self->worn_by)
-                    env->target = get_char_random(obj_self->worn_by->in_room);
-                else if (obj_self->carried_by)
-                    env->target = get_char_random(obj_self->carried_by->in_room);
-                break;
-            case PROG_TYPE_ROOM:
-                env->target = get_char_random((room_data *) env->owner);
-                break;
-        default:
-            break;
-		}
+        if (!strcasecmp(tmp_getword(&args), "player"))
+            env->target = (env->owner_type == PROG_TYPE_MOBILE) ?
+                get_player_random_vis((Creature *)env->owner, room) :
+                get_player_random(room);
+        else
+            env->target = (env->owner_type == PROG_TYPE_MOBILE) ?
+                get_char_random_vis((Creature *)env->owner, room) :
+                get_char_random(room);
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
 		case PROG_TYPE_MOBILE:
@@ -728,27 +715,9 @@ prog_do_target(prog_env * env, prog_evt * evt, char *args)
 		default:
 			env->target = NULL;
 		}
-	} else if (!strcasecmp(arg, "player")) {
-		switch (env->owner_type) {
-            case PROG_TYPE_MOBILE:
-                ch_self = (Creature *) env->owner;
-                env->target = get_player_random_vis(ch_self, ch_self->in_room);
-                break;
-            case PROG_TYPE_OBJECT:
-                obj_self = (obj_data *) env->owner;
-                if (obj_self->in_room)
-                    env->target = get_player_random(obj_self->in_room);
-                else if (obj_self->worn_by)
-                    env->target = get_player_random(obj_self->worn_by->in_room);
-                else if (obj_self->carried_by)
-                    env->target = get_player_random(obj_self->carried_by->in_room);
-                break;
-            case PROG_TYPE_ROOM:
-                env->target = get_player_random((room_data *) env->owner);
-                break;
-        default:
-            break;
-		}
+    } else {
+		zerrlog(room->zone, "Bad *target argument '%s' in prog in %s",
+			arg, prog_get_desc(env));
     }
 }
 
