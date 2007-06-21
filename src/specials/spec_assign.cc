@@ -238,6 +238,7 @@ const struct spec_func_data spec_list[] = {
 	{"weapon_lister", weapon_lister, SPEC_OBJ | SPEC_RES},
 	{"ancient_artifact", ancient_artifact, SPEC_OBJ | SPEC_RES},
 	{"finger_of_death", finger_of_death, SPEC_OBJ | SPEC_RES},
+    {"wand_of_wonder", wand_of_wonder, SPEC_OBJ},
 
 	{"dukes_chamber", dukes_chamber, SPEC_RM | SPEC_RES},
 	{"dump", dump, SPEC_RM | SPEC_RES},

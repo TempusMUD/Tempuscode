@@ -263,6 +263,7 @@ SPECIAL(fountain_youth);
 SPECIAL(clone_lab);
 SPECIAL(ancient_artifact);
 SPECIAL(finger_of_death);
+SPECIAL(wand_of_wonder);
 SPECIAL(vendor);
 SPECIAL(quest_sphere);
 SPECIAL(demonic_overmind);
