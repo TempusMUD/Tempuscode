@@ -251,11 +251,12 @@ bool
 Creature::saveObjects(void) 
 {
 	FILE *ouf;
-	char *path;
+	char *path, *tmp_path;
 	int idx;
 
     path = get_equipment_file_path(GET_IDNUM(this));
-	ouf = fopen(path, "w");
+    tmp_path = tmp_sprintf("%s.new", path);
+	ouf = fopen(tmp_path, "w");
 
 	if(!ouf) {
 		fprintf(stderr, "Unable to open XML equipment file for save.[%s] (%s)\n",
@@ -276,6 +277,10 @@ Creature::saveObjects(void)
 	}
 	fprintf( ouf, "</objects>\n" );
 	fclose(ouf);
+
+    // on success, move the new object file onto the old one 
+    rename(tmp_path, path);
+
     return true;
 }
 
@@ -442,7 +447,7 @@ Creature::saveToXML()
 	obj_data *saved_impl[NUM_WEARS];
 	affected_type *saved_affs, *cur_aff;
 	FILE *ouf;
-	char *path;
+	char *path, *tmp_path;
 	struct alias_data *cur_alias;
 	int idx, pos;
 	int hit = GET_HIT(this), mana = GET_MANA(this), move = GET_MOVE(this);
@@ -454,7 +459,8 @@ Creature::saveToXML()
 	}
 
     path = get_player_file_path(GET_IDNUM(ch));
-	ouf = fopen(path, "w");
+    tmp_path = tmp_sprintf("%s.tmp", path);
+	ouf = fopen(tmp_path, "w");
 
 	if(!ouf) {
 		fprintf(stderr, "Unable to open XML player file for save.[%s] (%s)\n",
@@ -640,6 +646,8 @@ Creature::saveToXML()
 	fprintf(ouf, "</creature>\n");
 	fclose(ouf);
 
+    // on success, move temp file on top of the old file
+    rename(tmp_path, path);
 
 	// Now we get to put all that eq back on and reinstate the spell affects
 	for (pos = 0;pos < NUM_WEARS;pos++) {
