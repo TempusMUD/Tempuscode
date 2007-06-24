@@ -235,12 +235,12 @@ ACMD(do_flip)
 		if (random_binary()) {
 			act("You flip a coin and it comes up tails.", false,
 					ch, 0, 0, TO_CHAR);
-			act("$n flips a coin and it comes up tails.", false,
+			act("You see $n flip a coin and it comes up tails.", false,
 					ch, 0, 0, TO_ROOM);
 		} else {
 			act("You flip a coin and it comes up heads.", false,
 					ch, 0, 0, TO_CHAR);
-			act("$n flips a coin and it comes up tails.", false,
+			act("You see $n flip a coin and it comes up heads.", false,
 					ch, 0, 0, TO_ROOM);
 		}
 	} else {
