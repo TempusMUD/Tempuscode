@@ -28,15 +28,6 @@
 #include "player_table.h"
 #include "mobile_map.h"
 
-const char *door_flags[] = {
-	"OPEN",
-	"CLOSED",
-	"LOCKED",
-	"HIDDEN",
-	"\n"
-};
-
-
 const char *olc_zset_keys[] = {
 	"name",
 	"lifespan",
@@ -931,7 +922,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			tmp_door_flags = 0;
 
 			while (*arg2) {
-				if ((tmp_flag = search_block(arg2, door_flags, FALSE)) == -1) {
+				if ((tmp_flag = search_block(arg2, exit_bits, FALSE)) == -1) {
 					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg2);
 				} else
 					tmp_door_flags = tmp_door_flags | (1 << tmp_flag);
@@ -1801,7 +1792,7 @@ do_zdoor_cmd(struct Creature *ch, char *argument)
 	tmp_door_flags = 0;
 
 	while (*arg2) {
-		if ((tmp_flag = search_block(arg2, door_flags, FALSE)) == -1) {
+		if ((tmp_flag = search_block(arg2, exit_bits, FALSE)) == -1) {
 			send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg2);
 		} else
 			tmp_door_flags = tmp_door_flags | (1 << tmp_flag);
@@ -2944,7 +2935,7 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 		case 'D':
 			if (!mode_all && !mode_door)
 				break;
-			sprintbit(zcmd->arg3, door_flags, door_flg);
+			sprintbit(zcmd->arg3, exit_bits, door_flg);
 			tmp_rom = real_room(zcmd->arg1);
 			sprintf(buf,
 				"%3d. %sDoor%s  : % d [%3d] %5d dir  %5s,          (%s)\r\n",
