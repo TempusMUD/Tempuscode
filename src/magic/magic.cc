@@ -1946,6 +1946,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.modifier = -(level);
 		if (GET_CLASS(ch) == CLASS_PHYSIC)
 			af.modifier *= (GET_REMORT_GEN(ch) + 2) / 2;
+        af.modifier = MAX(-(GET_MAX_HIT(victim) - 1), af.modifier);
 		af2.location = APPLY_MOVE;
 		af2.modifier = -(level >> 1);
 		af2.duration = af.duration;
@@ -2263,6 +2264,7 @@ Fireball: like harder bones, skin, organ membranecs
 		af.duration = level >> 2;
 		af.location = APPLY_HIT;
 		af.modifier = -level;
+        af.modifier = MAX(-(GET_MAX_HIT(victim) - 1), af.modifier);
 		to_room = "A mantle of darkness briefly surrounds $n.";
 		to_vict = "An evil black mantle of magic surrounds you.";
 		break;
