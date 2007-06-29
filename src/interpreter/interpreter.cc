@@ -617,7 +617,6 @@ struct command_info cmd_info[] = {
 	{"coo", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"corner", POS_FIGHTING, do_corner, 0, 0, 0, 0},
 	{"cough", POS_RESTING, do_action, 0, 0, 0, 0},
-	{"council", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_COUNCIL, 0, 0},
 	{"cover", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"cower", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"crack", POS_RESTING, do_action, 0, 0, 0, 0},

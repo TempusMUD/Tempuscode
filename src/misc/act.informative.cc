@@ -3278,11 +3278,6 @@ whoFlagsString(Creature *ch, Creature *target) {
 		out << CCRED(ch, C_NRM) << " (KILLER)" << CCNRM(ch, C_NRM);
 	}
 	
-	//council
-	if (PLR_FLAGGED(target, PLR_COUNCIL)) {
-		out << CCBLU_BLD(ch, C_NRM) << " <COUNCIL>" << CCNRM(ch, C_NRM);
-	}
-	
 	return out.str();
 }
 

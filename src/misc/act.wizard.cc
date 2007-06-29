@@ -3764,16 +3764,6 @@ ACMD(do_wizutil)
             mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true, "(GC) %s", msg);
             break;
         }
-        case SCMD_COUNCIL: {
-            result = PLR_TOG_CHK(vict, PLR_COUNCIL);
-            msg = tmp_sprintf("Council %s for %s by %s.", 
-                                    ONOFF(result),
-                                    GET_NAME(vict), 
-                                    GET_NAME(ch));
-            send_to_char(ch,"%s\r\n",msg);
-            mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true, "(GC) %s", msg);
-            break;
-        }
         case SCMD_SQUELCH: {
             result = PLR_TOG_CHK(vict, PLR_NOSHOUT);
             msg = tmp_sprintf("Squelch %s for %s by %s.", 
@@ -6594,11 +6584,9 @@ ACMD(do_set)
         break;
     case 84:
     case 85:
+    case 86:
 		send_to_char(ch, "Disabled.\r\n");
         return;
-    case 86:
-        SET_OR_REMOVE(PLR_FLAGS(vict), PLR_COUNCIL);
-        break;
     case 87:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOPOST);
         break;

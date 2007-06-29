@@ -216,8 +216,7 @@ struct set_struct {
 #define SCMD_FREEZE	4
 #define SCMD_THAW	5
 #define SCMD_UNAFFECT	6
-#define SCMD_COUNCIL    7
-#define SCMD_NOPOST     8
+#define SCMD_NOPOST     7
 
 /* do_set */
 #define SCMD_TESTER_SET 1

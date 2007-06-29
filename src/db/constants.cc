@@ -856,7 +856,7 @@ extern const char *player_bits[] = {
 	"Q-GOD",
 	"MORTALIZED",
 	"REMORT_TOUGH",
-	"COUNCIL",
+	"!UNUSED!",
 	"NOPOST",
 	"KRN",
 	"!UNUSED!",
