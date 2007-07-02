@@ -283,8 +283,9 @@ sub process_room
 		"up", "down", "future", "past" );
 
 	if ( $room{"flags"} !~ /[lmn]/ ) {
+        $capitalized = capitalize($room{"title"});
 		if ($room{"title"} ne capitalize( $room{"title"} )) {
-			print "Title capitalization must be fixed in room $idnum\n";
+			print "Title capitalization should be '$capitalized' in room $idnum\n";
 		}
 
 		if ( $room{"flags"} !~ /[b]/ ) {
@@ -346,7 +347,7 @@ sub check_desc
     }
 
 	# Bad period spacing
-	if ($str =~ /\.+( \S|\S)/) {
+	if ($str =~ /\.+( \S|[^. \n"'])/m) {
 		print "Two spaces missing after period in $where\n";
 	}
 
@@ -385,11 +386,11 @@ sub capitalize
 
 	$cap_next = 1;
     foreach $word ( split /([^A-Za-z']+)/,$str ) {
+        $word = lc $word;
 		if ( $cap_next ) {
 			$word = ucfirst $word;
 			$cap_next = 0;
 		} elsif ($word !~ /[^A-Za-z']/ && grep { $_ eq lc $word } @nocap_words) {
-			$word = lc $word;
 		} else {
 			$cap_next = ( $word =~ /[!.?]/ );
 			$word = ucfirst $word;
