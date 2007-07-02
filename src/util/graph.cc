@@ -575,7 +575,10 @@ smart_mobile_move(struct Creature *ch, int dir)
 			else if (IS_PHYSIC(ch))
 				cast_spell(ch, ch, 0, NULL, SPELL_TIDAL_SPACEWARP);
 			else if (!number(0, 10)) {
-				perform_say(ch, "say", "Well, SHIT!  I need to be able to fly!");
+                if (IS_ANIMAL(ch))
+                    act("$n growls and sniffs the wind.", true, ch, 0, 0, TO_ROOM);
+                else
+                    perform_say(ch, "yell", "Well, SHIT!  I need to be able to fly!");
 				return 0;
 			}
 		} else if (SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM &&
@@ -630,7 +633,10 @@ hunt_victim(struct Creature *ch)
 	}
 	if (!found) {
 		if (!ch->numCombatants()) {
-			perform_say(ch, "say", "Damn!  My prey is gone!!");
+                if (IS_ANIMAL(ch))
+                    act("$n whines and looks confused.", true, ch, 0, 0, TO_ROOM);
+                else
+                    perform_say(ch, "say", "Damn!  My prey is gone!!");
 			ch->stopHunting();
 		}
 		return 0;
