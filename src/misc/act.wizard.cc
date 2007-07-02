@@ -6321,7 +6321,7 @@ ACMD(do_set)
     case 38:
 		if (IS_PC(vict)
             && !(Security::isMember(ch, "AdminFull")
-                 && Valid_Name(argument)))) {
+                 && Valid_Name(argument))) {
 			send_to_char(ch, "That character name is invalid.\r\n");
 			return;
 		}
