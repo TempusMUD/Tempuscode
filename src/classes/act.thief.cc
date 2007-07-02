@@ -142,7 +142,7 @@ ACMD(do_steal)
 							TO_CHAR);
 						act("$n steals $p from $N.", FALSE, ch, obj, vict,
 							TO_NOTVICT);
-						obj_to_char(unequip_char(vict, eq_pos, MODE_EQ), ch);
+						obj_to_char(unequip_char(vict, eq_pos, EQUIP_WORN), ch);
 						gain_exp(ch, MIN(1000, GET_OBJ_COST(obj)));
 						gain_skill_prof(ch, SKILL_STEAL);
 						if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {

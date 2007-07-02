@@ -954,17 +954,17 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 			/* transfer character's leg EQ to room, if applicable */
 			if (GET_EQ(ch, WEAR_LEGS))
-				obj_to_room(unequip_char(ch, WEAR_LEGS, MODE_EQ), ch->in_room);
+				obj_to_room(unequip_char(ch, WEAR_LEGS, EQUIP_WORN), ch->in_room);
 			if (GET_EQ(ch, WEAR_FEET))
-				obj_to_room(unequip_char(ch, WEAR_FEET, MODE_EQ), ch->in_room);
+				obj_to_room(unequip_char(ch, WEAR_FEET, EQUIP_WORN), ch->in_room);
 
 		/** transfer implants to leg or corpse randomly**/
 			if (GET_IMPLANT(ch, WEAR_LEGS) && number(0, 1)) {
-				obj_to_obj(unequip_char(ch, WEAR_LEGS, MODE_IMPLANT), leg);
+				obj_to_obj(unequip_char(ch, WEAR_LEGS, EQUIP_IMPLANT), leg);
 				REMOVE_BIT(GET_OBJ_WEAR(leg), ITEM_WEAR_TAKE);
 			}
 			if (GET_IMPLANT(ch, WEAR_FEET) && number(0, 1)) {
-				obj_to_obj(unequip_char(ch, WEAR_FACE, MODE_IMPLANT), leg);
+				obj_to_obj(unequip_char(ch, WEAR_FACE, EQUIP_IMPLANT), leg);
 				REMOVE_BIT(GET_OBJ_WEAR(leg), ITEM_WEAR_TAKE);
 			}
 		}						// end if !arena room
@@ -1295,40 +1295,40 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			obj_data *o;
 			/* transfer character's head EQ to room, if applicable */
 			if (GET_EQ(ch, WEAR_HEAD))
-				obj_to_room(unequip_char(ch, WEAR_HEAD, MODE_EQ), ch->in_room);
+				obj_to_room(unequip_char(ch, WEAR_HEAD, EQUIP_WORN), ch->in_room);
 			if (GET_EQ(ch, WEAR_FACE))
-				obj_to_room(unequip_char(ch, WEAR_FACE, MODE_EQ), ch->in_room);
+				obj_to_room(unequip_char(ch, WEAR_FACE, EQUIP_WORN), ch->in_room);
 			if (GET_EQ(ch, WEAR_EAR_L))
-				obj_to_room(unequip_char(ch, WEAR_EAR_L, MODE_EQ),
+				obj_to_room(unequip_char(ch, WEAR_EAR_L, EQUIP_WORN),
 					ch->in_room);
 			if (GET_EQ(ch, WEAR_EAR_R))
-				obj_to_room(unequip_char(ch, WEAR_EAR_R, MODE_EQ),
+				obj_to_room(unequip_char(ch, WEAR_EAR_R, EQUIP_WORN),
 					ch->in_room);
 			if (GET_EQ(ch, WEAR_EYES))
-				obj_to_room(unequip_char(ch, WEAR_EYES, MODE_EQ), ch->in_room);
+				obj_to_room(unequip_char(ch, WEAR_EYES, EQUIP_WORN), ch->in_room);
 			/** transfer implants to ground **/
 			if ((o = GET_IMPLANT(ch, WEAR_HEAD))) {
-				obj_to_room(unequip_char(ch, WEAR_HEAD, MODE_IMPLANT),
+				obj_to_room(unequip_char(ch, WEAR_HEAD, EQUIP_IMPLANT),
 					ch->in_room);
 				SET_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
 			if ((o = GET_IMPLANT(ch, WEAR_FACE))) {
-				obj_to_room(unequip_char(ch, WEAR_FACE, MODE_IMPLANT),
+				obj_to_room(unequip_char(ch, WEAR_FACE, EQUIP_IMPLANT),
 					ch->in_room);
 				SET_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
 			if ((o = GET_IMPLANT(ch, WEAR_EAR_L))) {
-				obj_to_room(unequip_char(ch, WEAR_EAR_L, MODE_IMPLANT),
+				obj_to_room(unequip_char(ch, WEAR_EAR_L, EQUIP_IMPLANT),
 					ch->in_room);
 				SET_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
 			if ((o = GET_IMPLANT(ch, WEAR_EAR_R))) {
-				obj_to_room(unequip_char(ch, WEAR_EAR_R, MODE_IMPLANT),
+				obj_to_room(unequip_char(ch, WEAR_EAR_R, EQUIP_IMPLANT),
 					ch->in_room);
 				SET_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
 			if ((o = GET_IMPLANT(ch, WEAR_EYES))) {
-				obj_to_room(unequip_char(ch, WEAR_EYES, MODE_IMPLANT),
+				obj_to_room(unequip_char(ch, WEAR_EYES, EQUIP_IMPLANT),
 					ch->in_room);
 				SET_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
@@ -1390,36 +1390,36 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			obj_data *o;
 			/* transfer character's head EQ to room, if applicable */
 			if (GET_EQ(ch, WEAR_HEAD))
-				obj_to_room(unequip_char(ch, WEAR_HEAD, MODE_EQ), ch->in_room);
+				obj_to_room(unequip_char(ch, WEAR_HEAD, EQUIP_WORN), ch->in_room);
 			if (GET_EQ(ch, WEAR_FACE))
-				obj_to_room(unequip_char(ch, WEAR_FACE, MODE_EQ), ch->in_room);
+				obj_to_room(unequip_char(ch, WEAR_FACE, EQUIP_WORN), ch->in_room);
 			if (GET_EQ(ch, WEAR_EAR_L))
-				obj_to_room(unequip_char(ch, WEAR_EAR_L, MODE_EQ),
+				obj_to_room(unequip_char(ch, WEAR_EAR_L, EQUIP_WORN),
 					ch->in_room);
 			if (GET_EQ(ch, WEAR_EAR_R))
-				obj_to_room(unequip_char(ch, WEAR_EAR_R, MODE_EQ),
+				obj_to_room(unequip_char(ch, WEAR_EAR_R, EQUIP_WORN),
 					ch->in_room);
 			if (GET_EQ(ch, WEAR_EYES))
-				obj_to_room(unequip_char(ch, WEAR_EYES, MODE_EQ), ch->in_room);
+				obj_to_room(unequip_char(ch, WEAR_EYES, EQUIP_WORN), ch->in_room);
 			/** transfer implants to head **/
 			if ((o = GET_IMPLANT(ch, WEAR_HEAD))) {
-				obj_to_obj(unequip_char(ch, WEAR_HEAD, MODE_IMPLANT), head);
+				obj_to_obj(unequip_char(ch, WEAR_HEAD, EQUIP_IMPLANT), head);
 				REMOVE_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
 			if ((o = GET_IMPLANT(ch, WEAR_FACE))) {
-				obj_to_obj(unequip_char(ch, WEAR_FACE, MODE_IMPLANT), head);
+				obj_to_obj(unequip_char(ch, WEAR_FACE, EQUIP_IMPLANT), head);
 				REMOVE_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
 			if ((o = GET_IMPLANT(ch, WEAR_EAR_L))) {
-				obj_to_obj(unequip_char(ch, WEAR_EAR_L, MODE_IMPLANT), head);
+				obj_to_obj(unequip_char(ch, WEAR_EAR_L, EQUIP_IMPLANT), head);
 				REMOVE_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
 			if ((o = GET_IMPLANT(ch, WEAR_EAR_R))) {
-				obj_to_obj(unequip_char(ch, WEAR_EAR_R, MODE_IMPLANT), head);
+				obj_to_obj(unequip_char(ch, WEAR_EAR_R, EQUIP_IMPLANT), head);
 				REMOVE_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
 			if ((o = GET_IMPLANT(ch, WEAR_EYES))) {
-				obj_to_obj(unequip_char(ch, WEAR_EYES, MODE_IMPLANT), head);
+				obj_to_obj(unequip_char(ch, WEAR_EYES, EQUIP_IMPLANT), head);
 				REMOVE_BIT(GET_OBJ_WEAR(o), ITEM_WEAR_TAKE);
 			}
 		}						// end if !arena room
@@ -1593,10 +1593,10 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	/* transfer character's equipment to the corpse */
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i) && (lose_eq || GET_EQ(ch, i)->isUnrentable()))
-			obj_to_obj(unequip_char(ch, i, MODE_EQ, true), corpse);
+			obj_to_obj(unequip_char(ch, i, EQUIP_WORN, true), corpse);
 		if (GET_IMPLANT(ch, i) && (lose_implants || GET_IMPLANT(ch, i)->isUnrentable())) {
 			REMOVE_BIT(GET_OBJ_WEAR(GET_IMPLANT(ch, i)), ITEM_WEAR_TAKE);
-			obj_to_obj(unequip_char(ch, i, MODE_IMPLANT, true), corpse);
+			obj_to_obj(unequip_char(ch, i, EQUIP_IMPLANT, true), corpse);
 		}
 	}
 

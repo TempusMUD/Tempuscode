@@ -77,7 +77,7 @@ SPECIAL(vr_arcade_game)
 
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_EQ(ch, i))
-			obj_to_obj(unequip_char(ch, i, MODE_EQ), lckr);
+			obj_to_obj(unequip_char(ch, i, EQUIP_WORN), lckr);
 	}
 
 	GET_OBJ_VAL(lckr, 0) = GET_IDNUM(ch);

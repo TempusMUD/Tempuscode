@@ -654,7 +654,7 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 		if (obj->worn_by && (obj != GET_EQ(obj->worn_by, obj->worn_on))) {
 			tmp = obj->worn_on;
 			eqdam_extract_obj(obj);
-			if (equip_char(vict, new_obj, tmp, MODE_IMPLANT))
+			if (equip_char(vict, new_obj, tmp, EQUIP_IMPLANT))
 				return (new_obj);
 		} else {
 			eqdam_extract_obj(obj);
@@ -735,7 +735,7 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 		act(buf2, FALSE, vict, obj, 0, TO_CHAR);
 		if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
 			if (obj == GET_EQ(vict, obj->worn_on))
-				obj_to_char(unequip_char(vict, obj->worn_on, MODE_EQ), vict);
+				obj_to_char(unequip_char(vict, obj->worn_on, EQUIP_WORN), vict);
 			else {
 				if (IS_DEVICE(obj))
 					ENGINE_STATE(obj) = 0;
@@ -2938,19 +2938,19 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 			// weapon is the 1st of 2 wielded
 			if (weap->worn_on == WEAR_WIELD &&
 				GET_EQ(ch, WEAR_WIELD_2)) {
-				weap2 = unequip_char(ch, WEAR_WIELD_2, MODE_EQ);
-				obj_to_room(unequip_char(ch, weap->worn_on, MODE_EQ),
+				weap2 = unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN);
+				obj_to_room(unequip_char(ch, weap->worn_on, EQUIP_WORN),
 					ch->in_room);
-				if (equip_char(ch, weap2, WEAR_WIELD, MODE_EQ))
+				if (equip_char(ch, weap2, WEAR_WIELD, EQUIP_WORN))
 					return DAM_ATTACKER_KILLED;
 			}
 			// weapon should fall to ground
 			else if (number(0, 20) > GET_DEX(ch))
-				obj_to_room(unequip_char(ch, weap->worn_on, MODE_EQ),
+				obj_to_room(unequip_char(ch, weap->worn_on, EQUIP_WORN),
 					ch->in_room);
 			// weapon should drop to inventory
 			else
-				obj_to_char(unequip_char(ch, weap->worn_on, MODE_EQ),
+				obj_to_char(unequip_char(ch, weap->worn_on, EQUIP_WORN),
 					ch);
 
 		}

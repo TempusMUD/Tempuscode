@@ -1269,7 +1269,7 @@ prog_do_trans(prog_env * env, prog_evt * evt, char *args)
 			else if (obj->worn_by)
 				unequip_char(obj->worn_by, obj->worn_on,
 					(obj == GET_EQ(obj->worn_by, obj->worn_on) ?
-						MODE_EQ : MODE_IMPLANT), false);
+						EQUIP_WORN : EQUIP_IMPLANT), false);
 			else if (obj->in_obj)
 				obj_from_obj(obj);
 

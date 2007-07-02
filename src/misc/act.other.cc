@@ -798,7 +798,7 @@ ACMD(do_use)
 				TO_VICT);
 			act("$n breaks $p on $N's arm!", TRUE, ch, mag_item, vict,
 				TO_NOTVICT);
-			unequip_char(ch, mag_item->worn_on, MODE_EQ);
+			unequip_char(ch, mag_item->worn_on, EQUIP_WORN);
 			mag_item->obj_flags.damage = 0;
 			extract_obj(mag_item);
 			return;
@@ -1597,8 +1597,8 @@ ACMD(do_throw)
 		if (!*arg1) {
 			if (obj->worn_on >= 0) {
 				if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-					obj_to_char(unequip_char(ch, WEAR_WIELD_2, MODE_EQ), ch);
-				obj_to_char(unequip_char(ch, obj->worn_on, MODE_EQ), ch);
+					obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN), ch);
+				obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 			}
 
 			act("$n throws $p across the room.", FALSE, ch, obj, 0, TO_ROOM);
@@ -1642,9 +1642,9 @@ ACMD(do_throw)
 			if (IS_SET(EXIT(ch, dir - 1)->exit_info, EX_CLOSED)) {
 				if (obj->worn_on >= 0) {
 					if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-						obj_to_char(unequip_char(ch, WEAR_WIELD_2, MODE_EQ),
+						obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN),
 							ch);
-					obj_to_char(unequip_char(ch, obj->worn_on, MODE_EQ), ch);
+					obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 				}
 
 				sprintf(buf, "$n throws $p %sward against the closed %s.",
@@ -1670,9 +1670,9 @@ ACMD(do_throw)
 			}
 			if (obj->worn_on >= 0) {
 				if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-					obj_to_char(unequip_char(ch, WEAR_WIELD_2, MODE_EQ), ch);
+					obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN), ch);
 
-				obj_to_char(unequip_char(ch, obj->worn_on, MODE_EQ), ch);
+				obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 			}
 
 			sprintf(buf, "$n throws $p %sward.", dirs[(int)(dir - 1)]);
@@ -1703,9 +1703,9 @@ ACMD(do_throw)
 		if (target_vict) {
 			if (obj->worn_on >= 0) {
 				if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-					obj_to_char(unequip_char(ch, WEAR_WIELD_2, MODE_EQ), ch);
+					obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN), ch);
 
-				obj_to_char(unequip_char(ch, obj->worn_on, MODE_EQ), ch);
+				obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 			}
 
 			if (target_vict != ch) {
@@ -1776,9 +1776,9 @@ ACMD(do_throw)
 		} else if (target_obj) {
 			if (obj->worn_on >= 0) {
 				if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-					obj_to_char(unequip_char(ch, WEAR_WIELD_2, MODE_EQ), ch);
+					obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN), ch);
 
-				obj_to_char(unequip_char(ch, obj->worn_on, MODE_EQ), ch);
+				obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 			}
 			sprintf(buf, "$n hurls $p up against %s with brute force!",
 				target_obj->name);

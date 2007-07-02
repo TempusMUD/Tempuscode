@@ -184,7 +184,7 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 	}
 
 	obj_from_char(implant);
-	equip_char(ch, implant, pos, MODE_IMPLANT);
+	equip_char(ch, implant, pos, EQUIP_IMPLANT);
 
 	msg = tmp_sprintf("$n implants $p in your %s.", wear_implantpos[pos]);
 	act(msg, FALSE, me, implant, ch, TO_VICT);
@@ -296,7 +296,7 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 		act(msg, FALSE, me, implant, ch, TO_VICT);
 		act("$n extracts $p from $N.", FALSE, me, implant, ch, TO_NOTVICT);
 
-		obj_to_char((implant = unequip_char(ch, pos, MODE_IMPLANT)), ch);
+		obj_to_char((implant = unequip_char(ch, pos, EQUIP_IMPLANT)), ch);
 		SET_BIT(GET_OBJ_WEAR(implant), ITEM_WEAR_TAKE);
 		GET_HIT(ch) = 1;
 		GET_MOVE(ch) = 1;

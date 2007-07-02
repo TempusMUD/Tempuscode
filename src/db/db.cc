@@ -2479,9 +2479,9 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
 	if( pos == ITEM_WEAR_TAKE ) {
 		obj_to_char( obj, ch, true );
 	} else {
-		int mode = MODE_EQ;
+		int mode = EQUIP_WORN;
 		if( IS_OBJ_STAT2(obj, ITEM2_IMPLANT) ) {
-			mode = MODE_IMPLANT;
+			mode = EQUIP_IMPLANT;
 			if( ch->implants[pos] ) {
 				extract_obj(obj);
 				return 2;
@@ -2997,7 +2997,7 @@ reset_zone(struct zone_data *zone)
 						SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 						GET_OBJ_TIMER(obj) = 60;
 					}
-					if (equip_char(mob, obj, zonecmd->arg3, MODE_EQ)) {
+					if (equip_char(mob, obj, zonecmd->arg3, EQUIP_WORN)) {
 						mob = NULL;
 						last_cmd = 0;
 					} else
@@ -3031,7 +3031,7 @@ reset_zone(struct zone_data *zone)
 						SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 						GET_OBJ_TIMER(obj) = 60;
 					}
-					if (equip_char(mob, obj, zonecmd->arg3, MODE_IMPLANT)) {
+					if (equip_char(mob, obj, zonecmd->arg3, EQUIP_IMPLANT)) {
 						mob = NULL;
 						last_cmd = 0;
 					} else

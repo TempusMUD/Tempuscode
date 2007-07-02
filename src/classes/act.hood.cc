@@ -520,16 +520,16 @@ ACMD(do_snatch)
 
 				// weapon is the 1st of 2 wielded, shift to the second weapon.
 				if (obj->worn_on == WEAR_WIELD && GET_EQ(vict, WEAR_WIELD_2)) {
-					sec_weap = unequip_char(vict, WEAR_WIELD_2, MODE_EQ);
-					obj_to_room(unequip_char(vict, eq_pos, MODE_EQ),
+					sec_weap = unequip_char(vict, WEAR_WIELD_2, EQUIP_WORN);
+					obj_to_room(unequip_char(vict, eq_pos, EQUIP_WORN),
 						vict->in_room);
-					equip_char(vict, sec_weap, WEAR_WIELD, MODE_EQ);
+					equip_char(vict, sec_weap, WEAR_WIELD, EQUIP_WORN);
 					act("You shift $p to your primary hand.",
 						FALSE, ch, obj, vict, TO_VICT);
 
 					// Otherwise, just drop it.
 				} else {
-					obj_to_room(unequip_char(vict, eq_pos, MODE_EQ),
+					obj_to_room(unequip_char(vict, eq_pos, EQUIP_WORN),
 						vict->in_room);
 				}
 
@@ -604,12 +604,12 @@ ACMD(do_snatch)
 			if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict))
 				slog("%s stole %s from %s.",
 					GET_NAME(ch), obj->name, GET_NAME(vict));
-			obj_to_char(unequip_char(vict, eq_pos, MODE_EQ), ch);
+			obj_to_char(unequip_char(vict, eq_pos, EQUIP_WORN), ch);
 
 			// weapon is the 1st of 2 wielded
 			if (obj->worn_on == WEAR_WIELD && GET_EQ(vict, WEAR_WIELD_2)) {
-				sec_weap = unequip_char(vict, WEAR_WIELD_2, MODE_EQ);
-				equip_char(vict, sec_weap, WEAR_WIELD, MODE_EQ);
+				sec_weap = unequip_char(vict, WEAR_WIELD_2, EQUIP_WORN);
+				equip_char(vict, sec_weap, WEAR_WIELD, EQUIP_WORN);
 				act("You shift $p to your primary hand.",
 					FALSE, ch, obj, vict, TO_VICT);
 			}

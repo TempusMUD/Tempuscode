@@ -226,7 +226,7 @@ check_interface(struct Creature *ch, struct obj_data *obj, int mode)
 }
 
 bool
-obj_gives_affects(obj_data *obj, Creature *ch, bool internal)
+obj_gives_affects(obj_data *obj, Creature *ch, int mode)
 {
 	if (obj->worn_by != ch)
 		return false;
@@ -234,13 +234,14 @@ obj_gives_affects(obj_data *obj, Creature *ch, bool internal)
 	if (invalid_char_class(ch, obj))
 		return false;
 
-	if (!internal && obj->worn_on == WEAR_BELT &&
-			(GET_OBJ_TYPE(obj) == ITEM_WEAPON ||
-			GET_OBJ_TYPE(obj) == ITEM_PIPE))
-		return false;
-	
-	if (!internal && IS_IMPLANT(obj))
-		return false;
+	if (mode == EQUIP_WORN) {
+        if (obj->worn_on == WEAR_BELT
+            && (GET_OBJ_TYPE(obj) == ITEM_WEAPON ||
+                GET_OBJ_TYPE(obj) == ITEM_PIPE))
+            return false;
+        if (IS_IMPLANT(obj))
+            return false;
+    }
 
 	if (IS_DEVICE(obj) && !ENGINE_STATE(obj))
 		return false;
@@ -1416,7 +1417,7 @@ weapon_prof(struct Creature *ch, struct obj_data *obj)
 
 /* equip_char returns TRUE if victim is killed by equipment :> */
 int
-equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
+equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode)
 {
 	int j;
 	int invalid_char_class(struct Creature *ch, struct obj_data *obj);
@@ -1427,12 +1428,6 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 		return 0;
 	}
 
-	if ((!internal && GET_EQ(ch, pos)) || (internal && GET_IMPLANT(ch, pos))) {
-		errlog("Char is already equipped: %s, %s %s",
-			GET_NAME(ch), obj->name, internal ? "(impl)" : "");
-		obj_to_room(obj, zone_table->world);
-		return 0;
-	}
 	if (obj->carried_by) {
 		errlog("EQUIP: Obj is carried_by when equip.");
 		obj_to_room(obj, zone_table->world);
@@ -1442,7 +1437,14 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 		errlog("EQUIP: Obj is in_room when equip.");
 		return 0;
 	}
-	if (!internal) {
+
+    switch (mode) {
+    case EQUIP_WORN:
+        if (GET_EQ(ch, pos)) {
+            errlog("%s is already equipped: %s", GET_NAME(ch), obj->name);
+            obj_to_room(obj, zone_table->world);
+            return 0;
+        }
 		GET_EQ(ch, pos) = obj;
 		if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
 			GET_AC(ch) -= apply_ac(ch, pos);
@@ -1454,16 +1456,30 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 				if (GET_OBJ_VAL(obj, 2))	/* if light is ON */
 					ch->in_room->light++;
 		}
-	} else {
+        break;
+    case EQUIP_IMPLANT:
+        if (GET_IMPLANT(ch, pos)) {
+            errlog("%s is already implanted: %s", GET_NAME(ch), obj->name);
+            obj_to_room(obj, zone_table->world);
+            return 0;
+        }
 		GET_IMPLANT(ch, pos) = obj;
 		GET_WEIGHT(ch) += obj->getWeight();
-	}
+        break;
+    case EQUIP_TATTOO:
+        if (GET_TATTOO(ch, pos)) {
+            errlog("%s is already tattooed: %s", GET_NAME(ch), obj->name);
+            obj_to_room(obj, zone_table->world);
+            return 0;
+        }
+        // Tattoos don't weigh anything
+        break;
+    }
 
 	obj->worn_by = ch;
 	obj->worn_on = pos;
 
-
-	if (obj_gives_affects(obj, ch, internal)) {
+	if (obj_gives_affects(obj, ch, mode)) {
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location,
 				obj->affected[j].modifier, 0, 0, TRUE);
@@ -1484,7 +1500,7 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int internal)
 }
 
 struct obj_data *
-unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
+unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
 {
 	int j;
 	struct obj_data *obj = NULL;
@@ -1496,13 +1512,12 @@ unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 		return NULL;
 	}
 
-	if ((!internal && !GET_EQ(ch, pos)) || (internal && !GET_IMPLANT(ch, pos))) {
-		errlog("%s pointer NULL at pos %d in unequip_char.",
-			internal ? "implant" : "eq", pos);
-		return NULL;
-	}
-
-	if (!internal) {
+    switch (mode) {
+    case EQUIP_WORN:
+        if (!GET_EQ(ch, pos)) {
+            errlog("eq pointer NULL at pos %d in unequip_char.",pos);
+            return NULL;
+        }
 		obj = GET_EQ(ch, pos);
 
 		if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
@@ -1517,13 +1532,26 @@ unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 		}
 
 		GET_EQ(ch, pos) = NULL;
-	} else {
-
+        break;
+    case EQUIP_IMPLANT:
+        if (!GET_IMPLANT(ch, pos)) {
+            errlog("eq pointer NULL at pos %d in unequip_char.",pos);
+            return NULL;
+        }
 		obj = GET_IMPLANT(ch, pos);
 		GET_IMPLANT(ch, pos) = NULL;
 
 		GET_WEIGHT(ch) -= obj->getWeight();
-	}
+        break;
+    case EQUIP_TATTOO:
+        if (!GET_TATTOO(ch, pos)) {
+            errlog("eq pointer NULL at pos %d in unequip_char.",pos);
+            return NULL;
+        }
+        obj = GET_TATTOO(ch, pos);
+        GET_TATTOO(ch, pos) = NULL;
+        break;
+    }
 
 #ifdef TRACK_OBJS
 	obj->obj_flags.tracker.lost_time = time(0);
@@ -1532,7 +1560,7 @@ unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 	strncpy(obj->obj_flags.tracker.string, buf, TRACKER_STR_LEN - 1);
 #endif
 
-	if (obj_gives_affects(obj, ch, internal)) {
+	if (obj_gives_affects(obj, ch, mode)) {
 		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 			affect_modify(ch, obj->affected[j].location,
 				obj->affected[j].modifier, 0, 0, FALSE);
@@ -1551,12 +1579,12 @@ unequip_char(struct Creature *ch, int pos, int internal, bool disable_checks)
 
 	affect_total(ch);
 
-	if (!disable_checks && !internal) {
+	if (!disable_checks && mode == EQUIP_WORN) {
 		if (pos == WEAR_WAIST && GET_EQ(ch, WEAR_BELT))
 			obj_to_char(unequip_char(ch, WEAR_BELT, false), ch);
 		if (pos == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2)) {
-			equip_char(ch, unequip_char(ch, WEAR_WIELD_2, MODE_EQ),
-				WEAR_WIELD, MODE_EQ);
+			equip_char(ch, unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN),
+				WEAR_WIELD, EQUIP_WORN);
 		}
 	}
 
@@ -1578,7 +1606,7 @@ check_eq_align(Creature *ch)
                 if ((IS_GOOD(ch) && IS_OBJ_STAT(ch->implants[pos], ITEM_DAMNED)) ||
                     (IS_EVIL(ch) && IS_OBJ_STAT(ch->implants[pos], ITEM_BLESS))) {
                 
-                    obj_to_char(unequip_char(ch, pos, MODE_IMPLANT), ch);
+                    obj_to_char(unequip_char(ch, pos, EQUIP_IMPLANT), ch);
                 
                     act("$p burns its way out through your flesh!", FALSE, ch, implant, 0, TO_CHAR);
                     act("$n screams in horror as $p burns its way out through $s flesh!", FALSE, ch,
@@ -1968,7 +1996,7 @@ extract_obj(struct obj_data *obj)
 	if (obj->worn_by != NULL)
 		if (unequip_char(obj->worn_by, obj->worn_on,
 				(obj == GET_EQ(obj->worn_by, obj->worn_on) ?
-					MODE_EQ : MODE_IMPLANT), false) != obj)
+					EQUIP_WORN : EQUIP_IMPLANT), false) != obj)
 			errlog("Inconsistent worn_by and worn_on pointers!!");
 	if (obj->in_room != NULL)
 		obj_from_room(obj);

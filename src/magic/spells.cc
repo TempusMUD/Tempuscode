@@ -2153,7 +2153,7 @@ ASPELL(spell_retrieve_corpse)
 			} else if (corpse->worn_by) {
 				act("$p disappears off of your body!", FALSE, corpse->worn_by,
 					corpse, 0, TO_CHAR);
-				unequip_char(corpse->worn_by, corpse->worn_on, MODE_EQ);
+				unequip_char(corpse->worn_by, corpse->worn_on, EQUIP_WORN);
 			} else {
 				act("$S corpse has shifted out of the universe.", FALSE, ch, 0,
 					victim, TO_CHAR);

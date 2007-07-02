@@ -1394,6 +1394,7 @@ struct Creature {
 	struct affected_type *affected;	/* affected by what spells       */
 	struct obj_data *equipment[NUM_WEARS];	/* Equipment array               */
 	struct obj_data *implants[NUM_WEARS];
+    struct obj_data *tattoos[NUM_WEARS];
 
 	struct obj_data *carrying;	/* Head of list                  */
 	struct descriptor_data *desc;	/* NULL for mobiles              */

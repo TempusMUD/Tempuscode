@@ -268,9 +268,9 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			char *type = xmlGetProp(cur, "type");
 			if( type != NULL && victim != NULL ) {
 				if( strcmp(type,"equipped") == 0 ) {
-					equip_char( victim, this, position, MODE_EQ );
+					equip_char( victim, this, position, EQUIP_WORN );
 				} else if( strcmp(type,"implanted") == 0 ) {
-					equip_char( victim, this, position, MODE_IMPLANT );
+					equip_char( victim, this, position, EQUIP_IMPLANT );
 				} else if (container) {
 					obj_to_obj(this, container, false);
 				} else if (victim) {

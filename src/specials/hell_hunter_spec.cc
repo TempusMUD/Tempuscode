@@ -240,7 +240,7 @@ SPECIAL(hell_hunter_brain)
 				if (hunters[targets[i].level][j].weapon >= 0 &&
 					(weap =
 						read_object(hunters[targets[i].level][j].weapon))) {
-					if (equip_char(mob, weap, WEAR_WIELD, MODE_EQ)) {	// mob equipped
+					if (equip_char(mob, weap, WEAR_WIELD, EQUIP_WORN)) {	// mob equipped
 						errlog("(non-critical) Hell Hunter killed by eq.");
 						return 1;	// return if equip killed mob
 					}

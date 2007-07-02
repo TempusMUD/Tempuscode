@@ -246,7 +246,7 @@ ACMD(do_crossface)
                     obj_to_room(scraps, vict->in_room);
 				} else if (GET_EQ(vict, wear_num)) {
                     // Object is still being worn (not broken)
-                    obj_to_room(unequip_char(vict, wear_num, MODE_EQ),
+                    obj_to_room(unequip_char(vict, wear_num, EQUIP_WORN),
                                 vict->in_room);
                 } else {
                     // Object was broken and is in inventory

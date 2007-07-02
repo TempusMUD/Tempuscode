@@ -229,7 +229,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 					extract_obj(GET_EQ(vict, i));
 				else if (!IS_OBJ_STAT2(GET_EQ(vict, i), ITEM2_NOREMOVE) &&
 					!IS_OBJ_STAT(GET_EQ(vict, i), ITEM_NODROP))
-					obj_to_obj(unequip_char(vict, i, MODE_EQ), locker);
+					obj_to_obj(unequip_char(vict, i, EQUIP_WORN), locker);
 			}
 		}
 		for (obj = vict->carrying; obj; obj = next_obj) {

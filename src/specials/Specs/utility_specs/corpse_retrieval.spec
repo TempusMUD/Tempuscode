@@ -108,10 +108,10 @@ SPECIAL(corpse_retrieval)
 			FALSE, corpse->worn_by, corpse, 0, TO_CHAR);
 		if (corpse == GET_EQ(corpse->worn_by, corpse->worn_on))
 			unequip_char(corpse->worn_by, corpse->worn_on,
-				MODE_EQ);
+				EQUIP_WORN);
 		else
 			unequip_char(corpse->worn_by, corpse->worn_on,
-				MODE_IMPLANT);
+				EQUIP_IMPLANT);
 	} else {
 		perform_tell(retriever, ch,
 			"I'm sorry, your corpse has shifted out of the universe.");

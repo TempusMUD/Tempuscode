@@ -87,7 +87,7 @@ SPECIAL(christmas_quest)
                     if (GET_EQ(ch, i)) {
                         // This may be redundant but I want to make sure
                         // all is as it should be
-                        obj = unequip_char(ch, i, MODE_EQ, true);
+                        obj = unequip_char(ch, i, EQUIP_WORN, true);
                         obj_to_char(obj, ch, false);
                         obj_from_char(obj);
                         obj_to_obj(obj, cont, false);

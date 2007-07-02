@@ -482,11 +482,11 @@ Creature::saveToXML()
 	// we restore the eq and affects
 	for (pos = 0;pos < NUM_WEARS;pos++) {
 		if (GET_EQ(this, pos))
-			saved_eq[pos] = unequip_char(this, pos, MODE_EQ, true);
+			saved_eq[pos] = unequip_char(this, pos, EQUIP_WORN, true);
 		else
 			saved_eq[pos] = NULL;
 		if (GET_IMPLANT(this, pos))
-			saved_impl[pos] = unequip_char(this, pos, MODE_IMPLANT, true);
+			saved_impl[pos] = unequip_char(this, pos, EQUIP_IMPLANT, true);
 		else
 			saved_impl[pos] = NULL;
 	}
@@ -652,9 +652,9 @@ Creature::saveToXML()
 	// Now we get to put all that eq back on and reinstate the spell affects
 	for (pos = 0;pos < NUM_WEARS;pos++) {
 		if (saved_eq[pos])
-			equip_char(this, saved_eq[pos], pos, MODE_EQ);
+			equip_char(this, saved_eq[pos], pos, EQUIP_WORN);
 		if (saved_impl[pos])
-			equip_char(this, saved_impl[pos], pos, MODE_IMPLANT);
+			equip_char(this, saved_impl[pos], pos, EQUIP_IMPLANT);
 	}
 
 	for (cur_aff = saved_affs;cur_aff;cur_aff = cur_aff->next)

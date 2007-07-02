@@ -619,6 +619,7 @@ static inline bool IS_REMORT( const Creature *ch )
 
 #define GET_EQ(ch, i)                ((ch)->equipment[i])
 #define GET_IMPLANT(ch, i)      ((ch)->implants[i])
+#define GET_TATTOO(ch, i)      ((ch)->tattoos[i])
 
 #define GET_MOB_SPEC(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->func) : NULL)
 #define GET_MOB_PROG(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->prog) : NULL)

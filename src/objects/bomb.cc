@@ -594,7 +594,7 @@ engage_self_destruct(struct Creature *ch)
 	// kill the cyborg first
 	for (i = 0; i < NUM_WEARS; i++)
 		if (GET_EQ(ch, i))
-			obj_to_room(unequip_char(ch, i, MODE_EQ), ch->in_room);
+			obj_to_room(unequip_char(ch, i, EQUIP_WORN), ch->in_room);
 
 	for (obj = ch->carrying; obj; obj = n_obj) {
 		n_obj = obj->next_content;

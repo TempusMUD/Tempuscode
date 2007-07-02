@@ -19,7 +19,7 @@
 //
 
 /* handling the affected-structures */
-bool obj_gives_affects(obj_data *obj, Creature *ch, bool internal);
+bool obj_gives_affects(obj_data *obj, Creature *ch, int internal);
 void affect_total(struct Creature *ch);
 void affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 	int index, bool add);
@@ -122,8 +122,9 @@ int generic_find(char *arg, int bitvector, struct Creature *ch,
 #define FIND_IGNORE_WIERD   (1 << 7)
 
 
-#define MODE_EQ      0
-#define MODE_IMPLANT 1
+#define EQUIP_WORN    0
+#define EQUIP_IMPLANT 1
+#define EQUIP_TATTOO  2
 
 
 /* prototypes from crash save system */

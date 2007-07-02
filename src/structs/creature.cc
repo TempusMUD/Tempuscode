@@ -653,9 +653,9 @@ Creature::extract(cxn_state con_state)
 	// destroy all that equipment
 	for (idx = 0; idx < NUM_WEARS; idx++) {
 		if (GET_EQ(this, idx))
-			extract_obj(unequip_char(this, idx, MODE_EQ, true));
+			extract_obj(unequip_char(this, idx, EQUIP_WORN, true));
 		if (GET_IMPLANT(this, idx))
-			extract_obj(unequip_char(this, idx, MODE_IMPLANT, true));
+			extract_obj(unequip_char(this, idx, EQUIP_IMPLANT, true));
 	}
 
 	// transfer inventory to room, if any
@@ -1048,14 +1048,14 @@ Creature::quit(void)
 					obj_to_room(obj, in_room);
 				}
 			} else {
-				obj = unequip_char(this, pos, MODE_EQ);
+				obj = unequip_char(this, pos, EQUIP_WORN);
 				obj_to_room(obj, in_room);
 			}
 		}
 
 		// Drop all implanted items, breaking them
 		if (GET_IMPLANT(this, pos)) {
-			obj = unequip_char(this, pos, MODE_IMPLANT);
+			obj = unequip_char(this, pos, EQUIP_IMPLANT);
 			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) >> 3 - 1;
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
 			obj_to_room(obj, in_room);
@@ -1126,11 +1126,11 @@ Creature::die(void)
 	// their stuff to the room
 	for (pos = 0;pos < NUM_WEARS;pos++) {
 		if (GET_EQ(this, pos)) {
-			obj = unequip_char(this, pos, MODE_EQ);
+			obj = unequip_char(this, pos, EQUIP_WORN);
 			obj_to_room(obj, in_room);
 		}
 		if (GET_IMPLANT(this, pos)) {
-			obj = unequip_char(this, pos, MODE_IMPLANT);
+			obj = unequip_char(this, pos, EQUIP_IMPLANT);
 			obj_to_room(obj, in_room);
 		}
 	}
@@ -1215,11 +1215,11 @@ Creature::purge(bool destroy_obj)
 
 		for (pos = 0;pos < NUM_WEARS;pos++) {
 			if (GET_EQ(this, pos)) {
-				obj = unequip_char(this, pos, MODE_EQ);
+				obj = unequip_char(this, pos, EQUIP_WORN);
 				obj_to_room(obj, in_room);
 			}
 			if (GET_IMPLANT(this, pos)) {
-				obj = unequip_char(this, pos, MODE_IMPLANT);
+				obj = unequip_char(this, pos, EQUIP_IMPLANT);
 				obj_to_room(obj, in_room);
 			}
 		}

@@ -1518,7 +1518,7 @@ do_zimplant_cmd(struct Creature *ch, char *argument)
 	if (obj->shared->number - obj->shared->house_count <
 		zonecmd->arg2 && !mob->equipment[zonecmd->arg3]) {
 		obj = read_object(int_arg1);
-		equip_char(mob, obj, zonecmd->arg3, MODE_IMPLANT);
+		equip_char(mob, obj, zonecmd->arg3, EQUIP_IMPLANT);
 	}
 	send_to_char(ch, "Command completed ok.\r\n");
 }
@@ -1643,7 +1643,7 @@ do_zequip_cmd(struct Creature *ch, char *argument)
 	if (obj->shared->number - obj->shared->house_count <
 		zonecmd->arg2 && !mob->equipment[zonecmd->arg3]) {
 		obj = read_object(int_arg1);
-		equip_char(mob, obj, zonecmd->arg3, MODE_EQ);
+		equip_char(mob, obj, zonecmd->arg3, EQUIP_WORN);
 	}
 	send_to_char(ch, "Command completed ok.\r\n");
 }

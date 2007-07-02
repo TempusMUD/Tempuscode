@@ -49,7 +49,7 @@ SPECIAL(javelin_of_lightning)
 			damage(ch, vict, dam, JAVELIN_OF_LIGHTNING, -1);
 		} else
 			damage(ch, vict, 0, JAVELIN_OF_LIGHTNING, -1);
-		obj_to_char(unequip_char(ch, WEAR_WIELD, MODE_EQ), ch);
+		obj_to_char(unequip_char(ch, WEAR_WIELD, EQUIP_WORN), ch);
 		obj_from_char(jav);
 		extract_obj(jav);
 		return 1;

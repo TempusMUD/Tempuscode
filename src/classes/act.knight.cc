@@ -89,9 +89,9 @@ holytouch_after_effect(long owner, Creature * vict, int level)
 	}
 	WAIT_STATE(vict, 1 RL_SEC);
 	if (GET_EQ(vict, WEAR_FACE))
-		obj_to_char(unequip_char(vict, WEAR_FACE, MODE_EQ), vict);
+		obj_to_char(unequip_char(vict, WEAR_FACE, EQUIP_WORN), vict);
 	if (GET_EQ(vict, WEAR_EYES))
-		obj_to_char(unequip_char(vict, WEAR_EYES, MODE_EQ), vict);
+		obj_to_char(unequip_char(vict, WEAR_EYES, EQUIP_WORN), vict);
 
 	if (damage(vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH, WEAR_EYES))
 		return 1;

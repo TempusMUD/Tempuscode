@@ -283,7 +283,7 @@ obj_affect_update(void)
     extern struct obj_data *object_list;
     struct obj_data *obj;
     struct tmp_obj_affect *af, *next_af;
-	int pos = -1, pos_mode = MODE_EQ;
+	int pos = -1, pos_mode = EQUIP_WORN;
     int last = 0;
 	bool aff_removed = false;
 
@@ -304,10 +304,10 @@ obj_affect_update(void)
 					// inventory.  Then below, we remove it from inventory and
 					// place it back at its proper position
 					ch = obj->worn_by;
-					pos_mode = MODE_EQ;
+					pos_mode = EQUIP_WORN;
 					pos = obj->getEquipPos();
 					if (pos < 0) {
-						pos_mode = MODE_IMPLANT;
+						pos_mode = EQUIP_IMPLANT;
 						pos = obj->getImplantPos();
 					}
 					if (pos >= 0) {

@@ -242,12 +242,12 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		if (IS_IMPLANT(obj)) {
 			if (ch->implants[srch->arg[2]])
 				obj_to_char(obj, ch);
-			else if (equip_char(ch, obj, srch->arg[2], MODE_IMPLANT))
+			else if (equip_char(ch, obj, srch->arg[2], EQUIP_IMPLANT))
 				return 2;
 		} else {
 			if (ch->equipment[srch->arg[2]])
 				obj_to_char(obj, ch);
-			else if (equip_char(ch, obj, srch->arg[2], MODE_EQ))
+			else if (equip_char(ch, obj, srch->arg[2], EQUIP_WORN))
 				return 2;
 		}
 		break;

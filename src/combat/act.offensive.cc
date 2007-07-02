@@ -2762,11 +2762,11 @@ ACCMD(do_disarm)
 		act("$n knocks $p out of $N's hand!", FALSE, ch, weap, vict,
 			TO_NOTVICT);
 		act("$n knocks $p out of your hand!", FALSE, ch, weap, vict, TO_VICT);
-		unequip_char(vict, WEAR_WIELD, MODE_EQ);
+		unequip_char(vict, WEAR_WIELD, EQUIP_WORN);
 		obj_to_char(weap, vict);
 		if (GET_EQ(vict, WEAR_WIELD_2)) {
-			if ((weap2 = unequip_char(vict, WEAR_WIELD_2, MODE_EQ)))
-				if (equip_char(vict, weap2, WEAR_WIELD, MODE_EQ))
+			if ((weap2 = unequip_char(vict, WEAR_WIELD_2, EQUIP_WORN)))
+				if (equip_char(vict, weap2, WEAR_WIELD, EQUIP_WORN))
 					return;
 		}
 

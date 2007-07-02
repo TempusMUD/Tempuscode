@@ -908,7 +908,7 @@ ACMD(do_activate)
 							internal ? " (internal)" : ""),
 						true, ch, obj, 0, TO_ROOM);
 
-					if (obj_gives_affects(obj, ch, internal)) {
+					if (obj_gives_affects(obj, ch, (internal) ? EQUIP_IMPLANT:EQUIP_WORN)) {
 						for (i = 0; i < MAX_OBJ_AFFECT; i++)
 							affect_modify(obj->worn_by,
 								obj->affected[i].location,
@@ -2572,7 +2572,7 @@ ACMD(do_insert)
 	}
 
 	obj_from_char(obj);
-	if (equip_char(vict, obj, pos, MODE_IMPLANT))
+	if (equip_char(vict, obj, pos, EQUIP_IMPLANT))
 		return;
 
 	if (ch == vict) {
@@ -2786,7 +2786,7 @@ ACMD(do_extract)
 
 	if (!GET_IMPLANT(vict, pos)) {
 		act("ERROR: $E is not implanted there.", FALSE, ch, 0, vict, TO_CHAR);
-		return;					// unequip_char(vict, pos, MODE_IMPLANT);
+		return;					// unequip_char(vict, pos, EQUIP_IMPLANT);
 	}
 
 	if ((CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
@@ -2796,7 +2796,7 @@ ACMD(do_extract)
 		return;
 	}
 
-	obj_to_char((obj = unequip_char(vict, pos, MODE_IMPLANT)), ch);
+	obj_to_char((obj = unequip_char(vict, pos, EQUIP_IMPLANT)), ch);
 	SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
 
 	if (ch == vict) {
@@ -2850,7 +2850,7 @@ void perform_extract_all(struct Creature *ch, struct Creature *vict)
 
 	for (int i = 0; i < NUM_WEARS; i++) {
 		if ((obj = GET_IMPLANT(vict, i)) && !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
-            obj_to_char((obj = unequip_char(vict, i, MODE_IMPLANT)), ch);
+            obj_to_char((obj = unequip_char(vict, i, EQUIP_IMPLANT)), ch);
             SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
 
             if (ch == vict) {

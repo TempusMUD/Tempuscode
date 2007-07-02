@@ -52,12 +52,12 @@ SPECIAL(abandoned_cavern)
 				if ((rubble = read_object(RUBBLE_VNUM))) {
 					for (i = 0; i < NUM_WEARS; i++) {
 						if ((obj = GET_EQ(vict, i))) {
-							unequip_char(vict, i, MODE_EQ);
+							unequip_char(vict, i, EQUIP_WORN);
 							obj_to_obj(obj, rubble);
 							damage_eq(NULL, obj, dice(10, 40));
 						}
 						if ((obj = GET_IMPLANT(ch, i))) {
-							unequip_char(vict, i, MODE_IMPLANT);
+							unequip_char(vict, i, EQUIP_IMPLANT);
 							obj_to_obj(obj, rubble);
 							damage_eq(NULL, obj, dice(10, 60));
 						}

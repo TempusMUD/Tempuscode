@@ -2798,7 +2798,7 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 			if (GET_EQ(ch, i) && !IS_OBJ_STAT2(GET_EQ(ch, i), ITEM2_GODEQ)) {
 				act("$p swiftly slides off your body, into your hands.",
 					FALSE, ch, GET_EQ(ch, i), 0, TO_CHAR);
-				obj_to_char(unequip_char(ch, i, MODE_EQ), ch);
+				obj_to_char(unequip_char(ch, i, EQUIP_WORN), ch);
 			}
 		}
 	} else if (GET_LEVEL(ch) < LVL_IMPL) {
@@ -2806,7 +2806,7 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 			if (GET_EQ(ch, i) && IS_OBJ_STAT2(GET_EQ(ch, i), ITEM2_GODEQ)) {
 				act("$p swiftly leaps off your body, into your hands.",
 					FALSE, ch, GET_EQ(ch, i), 0, TO_CHAR);
-				obj_to_char(unequip_char(ch, i, MODE_EQ), ch);
+				obj_to_char(unequip_char(ch, i, EQUIP_WORN), ch);
 			}
 		}
 	} 
@@ -2818,7 +2818,7 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 		act(obj->action_desc, FALSE, ch, obj, 0, TO_CHAR);
 	}
 	obj_from_char(obj);
-	if (equip_char(ch, obj, where, MODE_EQ))
+	if (equip_char(ch, obj, where, EQUIP_WORN))
 		return 1;
 	return check_eq_align(ch);
 }
@@ -3092,7 +3092,7 @@ perform_remove(struct Creature *ch, int pos)
 			act("You stop using $p.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n stops using $p.", TRUE, ch, obj, 0, TO_ROOM);
 		}
-		obj_to_char(unequip_char(ch, pos, MODE_EQ), ch);
+		obj_to_char(unequip_char(ch, pos, EQUIP_WORN), ch);
 	}
 }
 
