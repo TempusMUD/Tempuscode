@@ -1572,12 +1572,11 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	bool lose_eq = (!is_arena_combat(killer, ch) || IS_MOB(ch))
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR;
 
-    bool lose_implants = true;
-    if ((is_npk_combat(killer,ch) || is_arena_combat(killer, ch)) || 
-        (IS_MOB(ch) && GET_LEVEL(ch) > LVL_AMBASSADOR)) {
-        lose_implants = false;
+    bool lose_implants = !(is_npk_combat(killer,ch) ||
+                           is_arena_combat(killer, ch) || 
+                           (IS_MOB(ch) && GET_LEVEL(ch) > LVL_AMBASSADOR));
 
-    } 
+    bool lose_tattoos = lose_eq;
     
 	obj_data *next_obj;
 
@@ -1598,6 +1597,9 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			REMOVE_BIT(GET_OBJ_WEAR(GET_IMPLANT(ch, i)), ITEM_WEAR_TAKE);
 			obj_to_obj(unequip_char(ch, i, EQUIP_IMPLANT, true), corpse);
 		}
+        // Tattoos get discarded
+        if (GET_TATTOO(ch, i) && lose_tattoos)
+            extract_obj(unequip_char(ch, i, EQUIP_TATTOO, true));
 	}
 
 	/* transfer gold */

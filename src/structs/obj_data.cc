@@ -25,15 +25,15 @@ void obj_data::clear()
 char*
 get_worn_type( obj_data *obj ) 
 {
-	if( obj->worn_on == -1 ) {
-		return "none";
-	} else if( obj->worn_by != NULL ) {
-		if( GET_EQ(obj->worn_by, obj->worn_on) == obj ) {
-			return "equipped";
-		} else if( GET_IMPLANT(obj->worn_by, obj->worn_on) == obj ) {
-			return "implanted";
-		}
-	} 
+    if (obj->worn_on == -1 || !obj->worn_by)
+        return "none";
+    else if( GET_EQ(obj->worn_by, obj->worn_on) == obj )
+        return "equipped";
+    else if( GET_IMPLANT(obj->worn_by, obj->worn_on) == obj )
+        return "implanted";
+    else if (GET_TATTOO(obj->worn_by, obj->worn_on) == obj)
+        return "tattooed";
+
 	return "unknown";
 }
 
@@ -271,6 +271,8 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 					equip_char( victim, this, position, EQUIP_WORN );
 				} else if( strcmp(type,"implanted") == 0 ) {
 					equip_char( victim, this, position, EQUIP_IMPLANT );
+				} else if( strcmp(type,"tattooed") == 0 ) {
+					equip_char( victim, this, position, EQUIP_TATTOO );
 				} else if (container) {
 					obj_to_obj(this, container, false);
 				} else if (victim) {

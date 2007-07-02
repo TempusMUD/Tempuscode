@@ -737,7 +737,8 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 	if (CMD_IS("examine") || CMD_IS("glance")) {
 		found = FALSE;
 		for (j = 0; !found && j < NUM_WEARS; j++)
-			if (GET_EQ(i, j) && can_see_object(ch, GET_EQ(i, j)))
+			if ((GET_EQ(i, j) && can_see_object(ch, GET_EQ(i, j)))
+                || GET_TATTOO(i, j))
 				found = TRUE;
 
 		if (found) {
@@ -757,7 +758,14 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 					send_to_char(ch, CCNRM(ch, C_NRM));
 					show_obj_to_char(GET_EQ(i, (int)eq_pos_order[j]), ch, 1,
 						0);
-				}
+				} else if (GET_TATTOO(ch, (int)eq_pos_order[j])){
+					send_to_char(ch, CCGRN(ch, C_NRM));
+					send_to_char(ch, tattoo_pos_descs[(int)eq_pos_order[j]]);
+					send_to_char(ch, CCNRM(ch, C_NRM));
+					show_obj_to_char(GET_TATTOO(i, (int)eq_pos_order[j]), ch, 1,
+						0);
+                    
+                }
 		}
 		if (ch != i && (IS_THIEF(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
 			found = FALSE;
@@ -2938,6 +2946,31 @@ ACMD(do_equipment)
 		if (!found && !show_all) {
 			send_to_char(ch, "You're totally naked!\r\n");
 		}
+		return;
+	}
+
+	if (subcmd == SCMD_TATTOOS) {
+        show_all = (*argument && is_abbrev(argument, "all"));
+		
+		if(show_all)
+			send_to_char(ch, "You have the following tattoos:\r\n");
+		for (idx = 0; idx < NUM_WEARS; idx++) {
+			pos = tattoo_pos_order[idx];
+			if (GET_TATTOO(ch, pos)) {
+				if (!found && !show_all) {
+					send_to_char(ch, "You have the following tattoos:\r\n");
+					found = true;
+				}
+                send_to_char(ch, "%s%s%s", CCGRN(ch, C_NRM),
+                             tattoo_pos_descs[pos], CCNRM(ch, C_NRM));
+                show_obj_to_char(GET_TATTOO(ch, pos), ch, 1, 0);
+			} else if (show_all) {
+				send_to_char(ch, "%sNothing!\r\n", where[pos]);
+			}
+		}
+
+		if (!found && !show_all)
+			send_to_char(ch, "You're a tattoo virgin!\r\n");
 		return;
 	}
 

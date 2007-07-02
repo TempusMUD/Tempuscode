@@ -1472,7 +1472,7 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode)
             obj_to_room(obj, zone_table->world);
             return 0;
         }
-        // Tattoos don't weigh anything
+        GET_TATTOO(ch, pos) = obj;
         break;
     }
 

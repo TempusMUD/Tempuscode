@@ -359,6 +359,7 @@ struct set_struct {
 /** commmand do_equipment **/
 #define SCMD_EQ          0
 #define SCMD_IMPLANTS    1
+#define SCMD_TATTOOS     2
 
 /** command do_battle_cry **/
 #define SCMD_BATTLE_CRY        0

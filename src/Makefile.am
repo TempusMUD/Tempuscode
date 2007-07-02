@@ -124,6 +124,7 @@ AM_LDFLAGS = @XML_LIBS@
                  mobiles/guard.cc \
                  mobiles/mail.cc \
                  mobiles/mobact.cc \
+                 mobiles/tattooist.cc \
                  mobiles/vendor.cc \
                  net/gnetsys.cc \
                  net/ban.cc \

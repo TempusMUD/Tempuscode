@@ -325,6 +325,13 @@ char *AN(char *str);
       pos == WEAR_WIELD || pos == WEAR_BELT || pos == WEAR_WIELD_2 || \
 	  pos == WEAR_RANDOM)
 
+#define ILLEGAL_TATTOOPOS(pos) \
+     (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
+      pos == WEAR_WIELD || pos == WEAR_HOLD || pos == WEAR_BELT ||    \
+      pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2 || \
+      pos == WEAR_FINGER_L || pos == WEAR_FINGER_R ||                 \
+      pos == WEAR_EYES || pos == WEAR_RANDOM)
+
 #define GET_ROWS(ch)    ((ch)->player_specials->saved.page_length)
 #define GET_COLS(ch)    ((ch)->player_specials->saved.columns)
 

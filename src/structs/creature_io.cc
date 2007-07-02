@@ -274,6 +274,8 @@ Creature::saveObjects(void)
 			(GET_EQ(this,idx))->saveToXML(ouf);
 		if( GET_IMPLANT(this, idx) )
 			(GET_IMPLANT(this,idx))->saveToXML(ouf);
+		if( GET_TATTOO(this, idx) )
+			(GET_TATTOO(this,idx))->saveToXML(ouf);
 	}
 	fprintf( ouf, "</objects>\n" );
 	fclose(ouf);

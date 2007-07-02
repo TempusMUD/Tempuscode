@@ -233,7 +233,7 @@ vendor_get_value(obj_data *obj, int percent, int costModifier)
 	return cost;
 }
 
-static obj_data *
+obj_data *
 vendor_resolve_hash(Creature *self, char *obj_str)
 {
 	obj_data *last_obj = NULL, *cur_obj;
@@ -258,7 +258,7 @@ vendor_resolve_hash(Creature *self, char *obj_str)
 	return cur_obj;
 }
 
-static obj_data *
+obj_data *
 vendor_resolve_name(Creature *self, char *obj_str)
 {
 	obj_data *cur_obj;
@@ -270,7 +270,7 @@ vendor_resolve_name(Creature *self, char *obj_str)
 	return NULL;
 }
 
-static void
+void
 vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 {
 	char *currency_str;

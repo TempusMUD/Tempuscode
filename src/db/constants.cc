@@ -271,6 +271,36 @@ extern const char *wear_implantpos[] = {
 	"\n"
 };
 
+extern const char *wear_tattoopos[] = {
+	"-",
+	"-",
+	"-",
+	"neck",
+	"-",
+	"chest",		 /** 5 **/
+	"scalp",
+	"legs",
+	"feet",
+	"hands",
+	"arms",		 /** 10 **/
+	"-",
+	"-",
+	"waist",
+	"wrist_right",
+	"wrist_left", /** 15 **/
+	"-",
+	"-",
+	"crotch",
+	"-",
+	"back",		  /** 20 **/
+	"-",
+	"face",
+	"ear_left",
+	"ear_right",
+	"-",
+	"buttocks",
+	"\n"
+};
 
 /* Attack types */
 extern const char *attack_type[] = {
@@ -1342,6 +1372,36 @@ extern const char *where[] = {
 	"\n"
 };
 
+extern const char *tattoo_pos_descs[] = {
+	"<INVALID>        ",
+	"<INVALID>        ",
+	"<INVALID>        ",
+	"<on neck>        ",
+	"<INVALID>        ",
+	"<on chest>       ",
+	"<on scalp>       ",
+	"<on legs>        ",
+	"<on feet>        ",
+	"<on hands>       ",
+	"<on arms>        ",
+	"<INVALID>        ",
+	"<INVALID>        ",
+	"<about waist>    ",
+	"<around wrist>   ",
+	"<around wrist>   ",
+	"<INVALID>        ",
+	"<INVALID>        ",
+	"<around crotch>  ",
+	"<INVALID>        ",
+	"<on back>        ",
+	"<INVALID>        ",
+	"<on face>        ",
+	"<on left ear>    ",
+	"<on right ear>   ",
+	"<INVALID>        ",
+	"<on buttocks>    ",
+	"\n"
+};
 /* ITEM_x (ordinal object types) */
 extern const char *item_types[] = {
 	"UNDEFINED",
@@ -3039,6 +3099,27 @@ extern const char implant_pos_order[] = {
 	WEAR_LEGS,
 	WEAR_FEET,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+extern const char tattoo_pos_order[] = {
+	WEAR_HEAD,
+	WEAR_FACE,
+	WEAR_EAR_L,
+	WEAR_EAR_R,
+	WEAR_NECK_1,
+	WEAR_BODY,
+	WEAR_BACK,
+	WEAR_ARMS,					/* 10 */
+	WEAR_WRIST_R,
+	WEAR_WRIST_L,
+	WEAR_HANDS,
+	WEAR_WAIST,
+	WEAR_BELT,
+	WEAR_CROTCH,
+	WEAR_LEGS,
+	WEAR_FEET,
+	WEAR_ASS,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 extern const char *material_names[] = {

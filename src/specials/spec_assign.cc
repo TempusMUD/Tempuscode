@@ -269,6 +269,7 @@ const struct spec_func_data spec_list[] = {
 	{"hell_domed_chamber", hell_domed_chamber, SPEC_RM | SPEC_RES},
 	{"malagard_lightning_room", malagard_lightning_room, SPEC_RM | SPEC_RES},
 	{"vendor", vendor, SPEC_MOB},
+	{"tattooist", tattooist, SPEC_MOB},
 	{"voting_booth", voting_booth, SPEC_OBJ},
 	{"fountain_youth", fountain_youth, SPEC_OBJ},
 	{"clone_lab", clone_lab, SPEC_RM | SPEC_RES},
