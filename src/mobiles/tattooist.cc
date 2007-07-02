@@ -161,17 +161,15 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	}
 
 	perform_say_to(self, ch, tmp_sprintf(shop->msg_buy, cost * num));
-	msg = tmp_sprintf("You sell $p %sto $N for %lu %s.",
-		((num == 1) ? "":tmp_sprintf("(x%d) ", num)),
-		cost,
-		currency_str);
+	msg = tmp_sprintf("You carefully ink $p onto $N's %s for %lu %s.",
+                      wear_tattoopos[pos], cost, currency_str);
 	act(msg, false, self, obj, ch, TO_CHAR);
-	msg = tmp_sprintf("$n sells $p %sto you for %lu %s.",
-		((num == 1) ? "":tmp_sprintf("(x%d) ", num)),
-		cost,
-		currency_str);
+	msg = tmp_sprintf("$n carefully inks $p onto your %s for %lu %s.",
+                      wear_tattoopos[pos], cost, currency_str);
 	act(msg, false, self, obj, ch, TO_VICT);
-	act("$n sells $p to $N.", false, self, obj, ch, TO_NOTVICT);
+	msg = tmp_sprintf("$n carefully inks $p onto $N's %s.",
+                      wear_tattoopos[pos]);
+	act(msg, false, self, obj, ch, TO_NOTVICT);
 
     // Load all-new item
     obj = read_object(GET_OBJ_VNUM(obj));
