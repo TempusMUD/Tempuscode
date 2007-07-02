@@ -118,6 +118,15 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
         return;
     }
         
+    for (int idx = 0;idx < NUM_WEARS;idx++) {
+        if (GET_TATTOO(ch, idx) &&
+            GET_OBJ_VNUM(GET_TATTOO(ch, idx)) == GET_OBJ_VNUM(obj)) {
+            perform_tell(self, ch,
+                         tmp_sprintf("You already have that tattoo on your %s!",
+                                     wear_tattoopos[idx]));
+        }
+    }
+
     cost = GET_OBJ_COST(obj);
     cost += ch->getCostModifier(self) * cost / 100;
 	switch (shop->currency) {
