@@ -23,7 +23,7 @@ IO.foreach(inf_name) { |line|
 			break
 		end
 	}
-	if /SYSERR: /.match(line)
+	if /SYSERR: /.match(line) or /CHECK: /.match(line)
 		error = line
 	end
 	if /TRACE: /.match(line)
