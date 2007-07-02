@@ -106,9 +106,11 @@ sub process_file
 			elsif ( /^Z/ ) # Search
 				{
 				$state = "search-cmd";
-				$sub_id = $room{"searchcount"};
+				$sub_id = $room{"searchcount"} || 0;
 				$room{"searchcount"}++;
 				}
+			elsif ( /^R/ ) # Prog
+				{ $state = "prog" }
 			else
 				{ print STDERR "Invalid directive in $inf_name:$line_num\n"; exit }
 			}
@@ -256,6 +258,17 @@ sub process_file
 			$room{"searches"}[$sub_id]{"failure"} .= $6;
 			$state = "optional";
 			}
+		elsif ( $state eq "prog" )
+			{
+			if ( /~/ )
+				{
+				$state = "optional";
+				s/~//g;
+				}
+			if ( $room{"prog"} )
+				{ $room{"prog"} .= "\n"; }
+			$room{"prog"} .= $_;
+			}
 		else
 			{ print STDERR "Invalid state '$state' reached at $inf_name:$line_num!!!\n"; exit }
 		}
@@ -271,7 +284,7 @@ sub process_room
 
 	if ( $room{"flags"} !~ /[lmn]/ ) {
 		if ($room{"title"} ne capitalize( $room{"title"} )) {
-			print "Capitalization must be fixed in room $idnum\n";
+			print "Title capitalization must be fixed in room $idnum\n";
 		}
 
 		if ( $room{"flags"} !~ /[b]/ ) {
@@ -287,13 +300,13 @@ sub process_room
 			foreach $search ( @{$room{"searches"}} ) {
 				$emit = ${$search}{"vict"};
 				$emit =~ s/\$.//g;
-				check_desc($emit, "vict emit of search " . $search{"cmd"} . " " .  $search{"keywords"} . " in room $idnum");
+				check_desc($emit, "vict emit of search [${$search}{'cmd'}/${$search}{'keywords'}] in room $idnum");
 				$emit = ${$search}{"room"};
 				$emit =~ s/\$.//g;
-				check_desc($emit, "room emit of search " . $search{"cmd"} . " " .  $search{"keywords"} . " in room $idnum");
+				check_desc($emit, "room emit of search [${$search}{'cmd'}/${$search}{'keywords'}] in room $idnum");
 				$emit = ${$search}{"remote"};
 				$emit =~ s/\$.//g;
-				check_desc($emit, "remote emit of search " . $search{"cmd"} . " " .  $search{"keywords"} . " in room $idnum");
+				check_desc($emit, "remote emit of search [${$search}{'cmd'}/${$search}{'keywords'}] in room $idnum");
 			}
 			if ( $room{"sound"} ) {
 				check_desc($room{"sound"}, "sound of room $idnum");
@@ -328,13 +341,13 @@ sub check_desc
 	open(EXT, "/home/httpd/lib/dspell -d /usr/dict/ds.words -d ./tempus.words /tmp/desc.txt|");
 	while (<EXT>) {
 		if (/^M \d+ \d+ \[([^\]]+)\]$/) {
-			print "Possible misspelling of $1 in $where\n";
+			print "Possible mispelling of $1 in $where\n";
 		}
 	}
 	close(EXT);
 
 	# Bad period spacing
-	if ($str =~ /\.+( \S|\S)/) {
+	if ($str =~ /\.\+( \S|\S)/) {
 		print "Two spaces missing after period in $where (got '$1')\n";
 	}
 }

@@ -1,5 +1,10 @@
 #!/usr/local/bin/ruby
 
+if ARGV.size < 2
+	$stderr.print "Usage: analyze_memusage.rb <memusage file> <executable>\n"
+	exit 1
+end
+
 block_sums = Hash.new
 block_sums.default = 0
 block_counts = Hash.new

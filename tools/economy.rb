@@ -21,6 +21,8 @@ accounts = $sql.query("select bank_past, bank_future from accounts" + ACCOUNT_CL
 accounts.each {|acct|
 	total_p_bank += acct[0].to_i
 	total_f_bank += acct[1].to_i
+	total_gold += acct[0].to_i
+	total_cash += acct[1].to_i
 	account_count += 1
 }
 
