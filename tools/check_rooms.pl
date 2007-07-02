@@ -260,14 +260,14 @@ sub process_file
 			}
 		elsif ( $state eq "prog" )
 			{
-			if ( /~/ )
-				{
-				$state = "optional";
-				s/~//g;
-				}
-			if ( $room{"prog"} )
-				{ $room{"prog"} .= "\n"; }
-			$room{"prog"} .= $_;
+            if ( /~/ )
+                {
+                $state = "optional";
+                s/~//g;
+                }
+            if ( $room{"prog"} )
+                { $room{"prog"} .= "\n"; }
+            $room{"prog"} .= $_;
 			}
 		else
 			{ print STDERR "Invalid state '$state' reached at $inf_name:$line_num!!!\n"; exit }
@@ -288,6 +288,9 @@ sub process_room
 		}
 
 		if ( $room{"flags"} !~ /[b]/ ) {
+            if ($room{"fulldesc"} =~ /\S/ && $room{"fulldesc"} !~ /^   /) {
+                print "Description of room $idnum does not begin with three spaces\n";
+            }
 			check_desc($room{"fulldesc"}, "room $idnum" );
 			foreach $dir (keys %{$room{"dir"}}) {
 				check_desc($room{"dir"}{$dir}{"desc"},
@@ -324,6 +327,10 @@ sub check_desc
 	$str = shift;
 	$where = shift;
 
+    if ($str =~ /^\s*$/ && $where !~ / emit /) {
+        print "No desc in $where\n";
+    }
+
 	# Not properly wrapped
 	$linenum = 1;
 	foreach $line ( split /[\n\r]+/m,$str ) {
@@ -332,6 +339,23 @@ sub check_desc
 			last;
 		}
 		$linenum++;
+	}
+
+    if ($str =~ /^\S+\Z/m) {
+        print "Orphaned word in $where\n";
+    }
+
+	# Bad period spacing
+	if ($str =~ /\.+( \S|\S)/) {
+		print "Two spaces missing after period in $where\n";
+	}
+
+	if ($str =~ /you/i && $where !~ /^vict emit/) {
+		print "Use of the word 'you' in $where\n";
+	}
+	
+	if ($str =~ /very/i) {
+		print "Use of the word 'very' in $where\n";
 	}
 	
 	# Misspelled words
@@ -345,11 +369,6 @@ sub check_desc
 		}
 	}
 	close(EXT);
-
-	# Bad period spacing
-	if ($str =~ /\.\+( \S|\S)/) {
-		print "Two spaces missing after period in $where (got '$1')\n";
-	}
 }
 
 sub capitalize
