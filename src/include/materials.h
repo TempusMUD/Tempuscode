@@ -245,5 +245,6 @@
 #define MAT_CHAROLITE        239
 #define MAT_BASALT           240
 #define MAT_ASH              241
-#define TOP_MATERIAL         242
+#define MAT_INK              242
+#define TOP_MATERIAL         243
 #endif

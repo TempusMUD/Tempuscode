@@ -1525,7 +1525,7 @@ extern const char *item_value_types[][4] = {
 	{"Level", "Spell1", "Spell2", "Spell3"},	/* Syringe     */
 	{"Credits  ", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* chit */
 	{"Max Units", "Cur Unit", "UNDEFINED", "UNDEFINED"},	/* scuba tank   */
-	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},
+	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},   /* tattoo */
 	{"skillnum", "modifier", "UNDEFINED", "UNDEFINED"},	/* tool * */
 	{"Type", "Power", "UND", "Idnum"},	/* bomb * */
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},	/* detonator */
@@ -3284,7 +3284,8 @@ extern const char *material_names[] = {
 	"charolite",
 	"basalt",
 	"ash",
-	"\n"
+	"ink",
+    "\n"
 };
 
 
