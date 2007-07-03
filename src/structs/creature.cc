@@ -1133,6 +1133,10 @@ Creature::die(void)
 			obj = unequip_char(this, pos, EQUIP_IMPLANT);
 			obj_to_room(obj, in_room);
 		}
+        if (GET_TATTOO(this, pos)) {
+            obj = unequip_char(this, pos, EQUIP_TATTOO);
+            extract_obj(obj);
+        }
 	}
 	for (obj = carrying;obj;obj = next_obj) {
 		next_obj = obj->next_content;
