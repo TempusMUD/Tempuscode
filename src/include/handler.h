@@ -126,6 +126,13 @@ int generic_find(char *arg, int bitvector, struct Creature *ch,
 #define EQUIP_IMPLANT 1
 #define EQUIP_TATTOO  2
 
+#define SHOW_OBJ_ROOM    0
+#define SHOW_OBJ_INV     1
+#define SHOW_OBJ_CONTENT 2
+#define SHOW_OBJ_NOBITS  3
+#define SHOW_OBJ_UNUSED  4
+#define SHOW_OBJ_EXTRA   5
+#define SHOW_OBJ_BITS    6
 
 /* prototypes from crash save system */
 

@@ -1579,9 +1579,8 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     }
 
     if (j->contains) {
-
         acc_sprintf("Contents:\r\n");
-        list_obj_to_char(j->contains, ch, 2, TRUE);
+        list_obj_to_char(j->contains, ch, SHOW_OBJ_CONTENT, TRUE);
 
     }
 

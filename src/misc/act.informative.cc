@@ -124,243 +124,213 @@ ACMD(do_stand);
  ((IS_OBJ_STAT(obj, ITEM_MAGIC) &&                \
    AFF_FLAGGED(ch, AFF_DETECT_MAGIC)) ? 20 : 0))
 
-#define SHOW_OBJ_ROOM    0
-#define SHOW_OBJ_INV     1
-#define SHOW_OBJ_CONTENT 2
-#define SHOW_OBJ_NOBITS  3
-#define SHOW_OBJ_UNUSED  4
-#define SHOW_OBJ_EXTRA   5
-#define SHOW_OBJ_BITS    6
+void
+show_obj_extra(obj_data *object, Creature *ch)
+{
+    if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
+        if (object->action_desc)
+            acc_strcat(object->action_desc, NULL);
+        else
+            act("It's blank.", FALSE, ch, 0, 0, TO_CHAR);
+        return;
+    } else if (GET_OBJ_TYPE(object) == ITEM_DRINKCON)
+        acc_strcat("It looks like a drink container.", NULL);
+    else if (GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
+        acc_strcat("It looks like a source of drink.", NULL);
+    else if (GET_OBJ_TYPE(object) == ITEM_FOOD)
+        acc_strcat("It looks edible.", NULL);
+    else if (GET_OBJ_TYPE(object) == ITEM_HOLY_SYMB)
+        acc_strcat("It looks like the symbol of some deity.", NULL);
+    else if (GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
+             GET_OBJ_TYPE(object) == ITEM_PIPE) {
+        if (GET_OBJ_VAL(object, 3))
+            acc_strcat("It appears to be lit and smoking.", NULL);
+        else
+            acc_strcat("It appears to be unlit.", NULL);
+    } else if (GET_OBJ_TYPE(object) == ITEM_CONTAINER) {
+        if (GET_OBJ_VAL(object, 3)) {
+            acc_strcat("It looks like a corpse.\r\n", NULL);
+        } else {
+            acc_strcat("It looks like a container.\r\n", NULL);
+            if (CAR_CLOSED(object) && CAR_OPENABLE(object))	/*macro maps to containers too */
+                acc_strcat("It appears to be closed.\r\n", NULL);
+            else if (CAR_OPENABLE(object)) {
+                acc_strcat("It appears to be open.\r\n", NULL);
+                if (object->contains)
+                    acc_strcat(
+                        "There appears to be something inside.\r\n", NULL);
+                else
+                    acc_strcat("It appears to be empty.\r\n", NULL);
+            }
+        }
+    } else if (GET_OBJ_TYPE(object) == ITEM_SYRINGE) {
+        if (GET_OBJ_VAL(object, 0)) {
+            acc_strcat("It is full.", NULL);
+        } else {
+            acc_strcat("It's empty.", NULL);
+        }
+    } else if (GET_OBJ_MATERIAL(object) > MAT_NONE &&
+               GET_OBJ_MATERIAL(object) < TOP_MATERIAL) {
+        acc_sprintf("It appears to be composed of %s.",
+                    material_names[GET_OBJ_MATERIAL(object)]);
+    } else {
+        acc_strcat("You see nothing special.", NULL);
+    }
+}
 
+void
+show_obj_bits(obj_data *object, Creature *ch)
+{
+    if (IS_OBJ_STAT2(object, ITEM2_BROKEN))
+        acc_sprintf(" %s<broken>", CCNRM(ch, C_NRM));
+    if (object->in_obj && IS_CORPSE(object->in_obj) && IS_IMPLANT(object)
+        && !CAN_WEAR(object, ITEM_WEAR_TAKE))
+        acc_strcat(" (implanted)", NULL);
+
+    if (ch == object->carried_by || ch == object->worn_by) {
+        if (OBJ_REINFORCED(object))
+            acc_sprintf(" %s[%sreinforced%s]%s",
+                        CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+                        CCNRM(ch, C_NRM));
+        if (OBJ_ENHANCED(object))
+            acc_sprintf(" %s|enhanced|%s",
+                        CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
+    }
+
+    if (IS_OBJ_TYPE(object, ITEM_DEVICE) && ENGINE_STATE(object))
+        acc_strcat(" (active)", NULL);
+
+    if (((GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
+          GET_OBJ_TYPE(object) == ITEM_PIPE) &&
+         GET_OBJ_VAL(object, 3)) ||
+        (IS_BOMB(object) && object->contains && IS_FUSE(object->contains)
+         && FUSE_STATE(object->contains)))
+        acc_sprintf(" %s(lit)%s",
+                    CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (IS_OBJ_STAT(object, ITEM_INVISIBLE))
+        acc_sprintf(" %s(invisible)%s",
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (IS_OBJ_STAT(object, ITEM_TRANSPARENT))
+        acc_sprintf(" %s(transparent)%s",
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (IS_OBJ_STAT2(object, ITEM2_HIDDEN))
+        acc_sprintf(" %s(hidden)%s",
+                    CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
+        (IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
+        if (IS_OBJ_STAT(object, ITEM_BLESS))
+            acc_sprintf(" %s(holy aura)%s",
+                        CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
+        else if (IS_OBJ_STAT(object, ITEM_DAMNED))
+            acc_sprintf(" %s(unholy aura)%s",
+                        CCRED_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
+     }
+    if ((IS_AFFECTED(ch, AFF_DETECT_MAGIC)
+         || IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
+        && IS_OBJ_STAT(object, ITEM_MAGIC))
+        acc_sprintf(" %s(yellow aura)%s",
+                    CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
+    if ((IS_AFFECTED(ch, AFF_DETECT_MAGIC)
+         || IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)
+         || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
+        && GET_OBJ_SIGIL_IDNUM(object))
+        acc_sprintf(" %s(%ssigil%s)%s",
+                    CCYEL(ch, C_NRM), CCMAG(ch, C_NRM), CCYEL(ch, C_NRM),
+                    CCNRM(ch, C_NRM));
+    if (IS_OBJ_STAT(object, ITEM_GLOW))
+        acc_sprintf(" %s(glowing)%s",
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (IS_OBJ_STAT(object, ITEM_HUM))
+        acc_sprintf(" %s(humming)%s",
+                    CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (IS_OBJ_STAT2(object, ITEM2_ABLAZE))
+        acc_sprintf(" %s*burning*%s",
+                    CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (IS_OBJ_STAT3(object, ITEM3_HUNTED))
+        acc_sprintf(" %s(hunted)%s",
+                    CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (OBJ_SOILED(object, SOIL_BLOOD))
+        acc_sprintf(" %s(bloody)%s",
+                    CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (OBJ_SOILED(object, SOIL_WATER))
+        acc_sprintf(" %s(wet)%s",
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (OBJ_SOILED(object, SOIL_MUD))
+        acc_sprintf(" %s(muddy)%s",
+                    CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (OBJ_SOILED(object, SOIL_ACID))
+        acc_sprintf(" %s(acid covered)%s",
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+    if ( object->shared->owner_id != 0 )
+        acc_sprintf(" %s(protected)%s",
+                    CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
+    if( object->tmp_affects != NULL ) {
+        if( object->affectedBySpell(SPELL_ITEM_REPULSION_FIELD) != NULL ) {
+            acc_sprintf(" %s(repulsive)%s",
+                        CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
+        } else if( object->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD) != NULL ) {
+            acc_sprintf(" %s(attractive)%s",
+                        CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
+        }
+        if( object->affectedBySpell(SPELL_ENVENOM) != NULL ) {
+            acc_sprintf(" %s(venom)%s",
+                        CCGRN(ch, C_SPR), CCNRM(ch, C_SPR));
+        }
+        if( object->affectedBySpell(SPELL_ELEMENTAL_BRAND) != NULL ) {
+            acc_sprintf(" %s(branded)%s",
+                        CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
+        }
+    }
+    if ((GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester()) &&
+        PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)) {
+        acc_sprintf(" %s<%s%d%s>%s",
+                    CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+                    GET_OBJ_VNUM(object), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+    }
+}
+
+void
+show_room_obj(obj_data *object, Creature *ch, int count)
+{
+	acc_string_clear();
+
+    if (object->line_desc)
+        acc_strcat(object->line_desc, NULL);
+    else if (IS_IMMORT(ch))
+        acc_sprintf("%s exists here.", tmp_capitalize(object->name));
+    else
+        return;
+
+    show_obj_bits(object, ch);
+    acc_strcat(CCGRN(ch, C_NRM), NULL);
+
+    if (count > 1)
+        acc_sprintf(" [%d]", count);
+    acc_strcat("\r\n", NULL);
+
+    page_string(ch->desc, acc_get_string());
+}
 
 void
 show_obj_to_char(struct obj_data *object, struct Creature *ch,
 	int mode, int count)
 {
-	bool found = false;
-
 	acc_string_clear();
-	if (mode == SHOW_OBJ_ROOM) {
-		if (object->line_desc)
-			acc_strcat(object->line_desc, NULL);
-		else if (IS_IMMORT(ch))
-			acc_sprintf("%s exists here.", object->name);
-	} else if (mode == SHOW_OBJ_ROOM ||
-               mode == SHOW_OBJ_INV ||
-               mode == SHOW_OBJ_CONTENT) {
-		if (object->name)
-			acc_strcat(object->name, NULL);
-	} else if (mode == SHOW_OBJ_EXTRA) {
-		if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
-			if (object->action_desc) {
-				page_string(ch->desc, object->action_desc);
-			} else {
-				act("It's blank.", FALSE, ch, 0, 0, TO_CHAR);
-			}
-			return;
-		} else if (GET_OBJ_TYPE(object) == ITEM_DRINKCON)
-			acc_strcat("It looks like a drink container.", NULL);
-		else if (GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
-			acc_strcat("It looks like a source of drink.", NULL);
-		else if (GET_OBJ_TYPE(object) == ITEM_FOOD)
-			acc_strcat("It looks edible.", NULL);
-		else if (GET_OBJ_TYPE(object) == ITEM_HOLY_SYMB)
-			acc_strcat("It looks like the symbol of some deity.", NULL);
-		else if (GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
-			GET_OBJ_TYPE(object) == ITEM_PIPE) {
-			if (GET_OBJ_VAL(object, 3))
-				acc_strcat("It appears to be lit and smoking.", NULL);
-			else
-				acc_strcat("It appears to be unlit.", NULL);
-		} else if (GET_OBJ_TYPE(object) == ITEM_CONTAINER) {
-			if (GET_OBJ_VAL(object, 3)) {
-				acc_strcat("It looks like a corpse.\r\n", NULL);
-			} else {
-				acc_strcat("It looks like a container.\r\n", NULL);
-				if (CAR_CLOSED(object) && CAR_OPENABLE(object))	/*macro maps to containers too */
-					acc_strcat("It appears to be closed.\r\n", NULL);
-				else if (CAR_OPENABLE(object)) {
-					acc_strcat("It appears to be open.\r\n", NULL);
-					if (object->contains)
-						acc_strcat(
-							"There appears to be something inside.\r\n", NULL);
-					else
-						acc_strcat("It appears to be empty.\r\n", NULL);
-				}
-			}
-		} else if (GET_OBJ_TYPE(object) == ITEM_SYRINGE) {
-			if (GET_OBJ_VAL(object, 0)) {
-				acc_strcat("It is full.", NULL);
-			} else {
-				acc_strcat("It's empty.", NULL);
-			}
-		} else if (GET_OBJ_MATERIAL(object) > MAT_NONE &&
-			GET_OBJ_MATERIAL(object) < TOP_MATERIAL) {
-			acc_sprintf("It appears to be composed of %s.",
-				material_names[GET_OBJ_MATERIAL(object)]);
-		} else {
-			acc_strcat("You see nothing special.", NULL);
-		}
-	}
-	if (mode != SHOW_OBJ_NOBITS) {
-		found = false;
+    if (mode == SHOW_OBJ_ROOM) {
+        show_room_obj(object, ch, count);
+        return;
+    } else if ((mode == SHOW_OBJ_INV || mode == SHOW_OBJ_CONTENT)
+               && object->name) {
+        acc_strcat(object->name, NULL);
+	} else if (mode == SHOW_OBJ_EXTRA)
+        show_obj_extra(object, ch);
 
-		if (IS_OBJ_STAT2(object, ITEM2_BROKEN)) {
-			acc_sprintf(" %s<broken>", CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (object->in_obj && IS_CORPSE(object->in_obj) && IS_IMPLANT(object)
-			&& !CAN_WEAR(object, ITEM_WEAR_TAKE)) {
-			acc_strcat(" (implanted)", NULL);
-			found = true;
-		}
+	if (mode != SHOW_OBJ_NOBITS)
+        show_obj_bits(object, ch);
 
-		if (ch == object->carried_by || ch == object->worn_by) {
-			if (OBJ_REINFORCED(object))
-				acc_sprintf(" %s[%sreinforced%s]%s",
-					CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
-					CCNRM(ch, C_NRM));
-			if (OBJ_ENHANCED(object))
-				acc_sprintf(" %s|enhanced|%s",
-					CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
-		}
-
-		if (IS_OBJ_TYPE(object, ITEM_DEVICE) && ENGINE_STATE(object))
-			acc_strcat(" (active)", NULL);
-
-		if (((GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
-					GET_OBJ_TYPE(object) == ITEM_PIPE) &&
-				GET_OBJ_VAL(object, 3)) ||
-			(IS_BOMB(object) && object->contains && IS_FUSE(object->contains)
-				&& FUSE_STATE(object->contains))) {
-			acc_sprintf(" %s(lit)%s",
-				CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (IS_OBJ_STAT(object, ITEM_INVISIBLE)) {
-			acc_sprintf(" %s(invisible)%s",
-				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (IS_OBJ_STAT(object, ITEM_TRANSPARENT)) {
-			acc_sprintf(" %s(transparent)%s",
-				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (IS_OBJ_STAT2(object, ITEM2_HIDDEN)) {
-			acc_sprintf(" %s(hidden)%s",
-				CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-
-		if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
-			(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
-			if (IS_OBJ_STAT(object, ITEM_BLESS)) {
-				acc_sprintf(" %s(holy aura)%s",
-					CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
-				found = true;
-			} else if (IS_OBJ_STAT(object, ITEM_DAMNED)) {
-				acc_sprintf(" %s(unholy aura)%s",
-					CCRED_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
-				found = true;
-			}
-		}
-		if ((IS_AFFECTED(ch, AFF_DETECT_MAGIC)
-				|| IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
-			&& IS_OBJ_STAT(object, ITEM_MAGIC)) {
-			acc_sprintf(" %s(yellow aura)%s",
-				CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
-			found = true;
-		}
-
-		if ((IS_AFFECTED(ch, AFF_DETECT_MAGIC)
-				|| IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)
-				|| PRF_FLAGGED(ch, PRF_HOLYLIGHT))
-			&& GET_OBJ_SIGIL_IDNUM(object)) {
-			acc_sprintf(" %s(%ssigil%s)%s",
-				CCYEL(ch, C_NRM), CCMAG(ch, C_NRM), CCYEL(ch, C_NRM),
-				CCNRM(ch, C_NRM));
-		}
-
-		if (IS_OBJ_STAT(object, ITEM_GLOW)) {
-			acc_sprintf(" %s(glowing)%s",
-				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (IS_OBJ_STAT(object, ITEM_HUM)) {
-			acc_sprintf(" %s(humming)%s",
-				CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (IS_OBJ_STAT2(object, ITEM2_ABLAZE)) {
-			acc_sprintf(" %s*burning*%s",
-				CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (IS_OBJ_STAT3(object, ITEM3_HUNTED)) {
-			acc_sprintf(" %s(hunted)%s",
-				CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (OBJ_SOILED(object, SOIL_BLOOD)) {
-			acc_sprintf(" %s(bloody)%s",
-				CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (OBJ_SOILED(object, SOIL_WATER)) {
-			acc_sprintf(" %s(wet)%s",
-				CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (OBJ_SOILED(object, SOIL_MUD)) {
-			acc_sprintf(" %s(muddy)%s",
-				CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if (OBJ_SOILED(object, SOIL_ACID)) {
-			acc_sprintf(" %s(acid covered)%s",
-				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-			found = true;
-		}
-		if ( object->shared->owner_id != 0 ) {
-			acc_sprintf(" %s(protected)%s",
-				CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
-			found = true;
-		}
-        if( object->tmp_affects != NULL ) {
-            if( object->affectedBySpell(SPELL_ITEM_REPULSION_FIELD) != NULL ) {
-                acc_sprintf(" %s(repulsive)%s",
-                                  CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
-            } else if( object->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD) != NULL ) {
-                acc_sprintf(" %s(attractive)%s",
-                                  CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
-            }
-            if( object->affectedBySpell(SPELL_ENVENOM) != NULL ) {
-                acc_sprintf(" %s(venom)%s",
-                                  CCGRN(ch, C_SPR), CCNRM(ch, C_SPR));
-            }
-            if( object->affectedBySpell(SPELL_ELEMENTAL_BRAND) != NULL ) {
-                acc_sprintf(" %s(branded)%s",
-                                  CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
-            }
-        }
-        if ((GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester()) &&
-            PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)) {
-            acc_sprintf(" %s<%s%d%s>%s",
-                CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-                GET_OBJ_VNUM(object), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-        }
-		if (mode == SHOW_OBJ_ROOM)
-			acc_strcat(CCGRN(ch, C_NRM), NULL);
-	}
-
-	if (!((mode == SHOW_OBJ_ROOM) && !object->line_desc)) {
-		if (count > 1)
-			acc_sprintf(" [%d]", count);
-		acc_strcat("\r\n", NULL);
-	}
-
-	page_string(ch->desc, acc_get_string());
+    if (count > 1)
+        acc_sprintf(" [%d]", count);
+    acc_strcat("\r\n", NULL);
 
 	if (GET_OBJ_TYPE(object) == ITEM_VEHICLE && mode == SHOW_OBJ_BITS) {
 		if (CAR_OPENABLE(object)) {
@@ -370,6 +340,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 				act("The door of $p is open.", TRUE, ch, object, 0, TO_CHAR);
 		}
 	}
+    page_string(ch->desc, acc_get_string());
 }
 
 void
@@ -756,14 +727,14 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 					send_to_char(ch, CCGRN(ch, C_NRM));
 					send_to_char(ch, where[(int)eq_pos_order[j]]);
 					send_to_char(ch, CCNRM(ch, C_NRM));
-					show_obj_to_char(GET_EQ(i, (int)eq_pos_order[j]), ch, 1,
-						0);
+					show_obj_to_char(GET_EQ(i, (int)eq_pos_order[j]), ch,
+                                     SHOW_OBJ_INV, 0);
 				} else if (GET_TATTOO(ch, (int)eq_pos_order[j])){
 					send_to_char(ch, CCGRN(ch, C_NRM));
 					send_to_char(ch, tattoo_pos_descs[(int)eq_pos_order[j]]);
 					send_to_char(ch, CCNRM(ch, C_NRM));
-					show_obj_to_char(GET_TATTOO(i, (int)eq_pos_order[j]), ch, 1,
-						0);
+					show_obj_to_char(GET_TATTOO(i, (int)eq_pos_order[j]), ch,
+                                     SHOW_OBJ_INV, 0);
                     
                 }
 		}
@@ -771,7 +742,7 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 			found = FALSE;
 			act("\r\nYou attempt to peek at $s inventory:", FALSE, i, 0, ch,
 				TO_VICT);
-			list_obj_to_char_GLANCE(i->carrying, ch, i, 1, TRUE,
+			list_obj_to_char_GLANCE(i->carrying, ch, i, SHOW_OBJ_INV, TRUE,
 				(GET_LEVEL(ch) >= LVL_AMBASSADOR));
 		}
 	}
@@ -1411,7 +1382,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 		}
 
 		send_to_char(ch, CCGRN(ch, C_NRM));
-		list_obj_to_char(room->contents, ch, 0, FALSE);
+		list_obj_to_char(room->contents, ch, SHOW_OBJ_ROOM, FALSE);
 		send_to_char(ch, CCYEL(ch, C_NRM));
 		list_char_to_char(room->people, ch);
 		send_to_char(ch, CCNRM(ch, C_NRM));
@@ -1473,7 +1444,7 @@ look_in_direction(struct Creature *ch, int dir)
 
 				/* now list characters & objects */
 				send_to_char(ch, CCGRN(ch, C_NRM));
-				list_obj_to_char(EXNUMB->contents, ch, 0, FALSE);
+				list_obj_to_char(EXNUMB->contents, ch, SHOW_OBJ_ROOM, FALSE);
 				send_to_char(ch, CCYEL(ch, C_NRM));
 				list_char_to_char(EXNUMB->people, ch);
 				send_to_char(ch, CCNRM(ch, C_NRM));
@@ -1695,7 +1666,7 @@ look_in_obj(struct Creature *ch, char *arg)
 					break;
 				}
 
-				list_obj_to_char(obj->contains, ch, 2, TRUE);
+				list_obj_to_char(obj->contains, ch, SHOW_OBJ_CONTENT, TRUE);
 			}
 		} else if (GET_OBJ_TYPE(obj) == ITEM_VEHICLE) {
 			if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED))
@@ -1865,9 +1836,9 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 					found = 1;
 				}
 			} else if (!found)
-				show_obj_to_char(found_obj, ch, 5, 0);	/* Show no-description */
+				show_obj_to_char(found_obj, ch, SHOW_OBJ_EXTRA, 0);	/* Show no-description */
 			else
-				show_obj_to_char(found_obj, ch, 6, 0);	/* Find hum, glow etc */
+				show_obj_to_char(found_obj, ch, SHOW_OBJ_BITS, 0);	/* Find hum, glow etc */
 		}
 
 	} else if (!found)
@@ -2885,7 +2856,7 @@ ACMD(do_score)
 ACMD(do_inventory)
 {
 	send_to_char(ch, "You are carrying:\r\n");
-	list_obj_to_char(ch->carrying, ch, 1, TRUE);
+	list_obj_to_char(ch->carrying, ch, SHOW_OBJ_INV, TRUE);
 }
 
 
@@ -2934,7 +2905,7 @@ ACMD(do_equipment)
 				if (can_see_object(ch, GET_EQ(ch, pos))) {
 					send_to_char(ch, "%s%s%s", CCGRN(ch, C_NRM),
 						where[pos], CCNRM(ch, C_NRM));
-					show_obj_to_char(GET_EQ(ch, pos), ch, 1, 0);
+					show_obj_to_char(GET_EQ(ch, pos), ch, SHOW_OBJ_INV, 0);
 				} else {
 					send_to_char(ch, "%sSomething.\r\n", where[pos]);
 				}
@@ -2963,7 +2934,7 @@ ACMD(do_equipment)
 				}
                 send_to_char(ch, "%s%s%s", CCGRN(ch, C_NRM),
                              tattoo_pos_descs[pos], CCNRM(ch, C_NRM));
-                show_obj_to_char(GET_TATTOO(ch, pos), ch, 1, 0);
+                show_obj_to_char(GET_TATTOO(ch, pos), ch, SHOW_OBJ_INV, 0);
 			} else if (show_all) {
 				send_to_char(ch, "%sNothing!\r\n", where[pos]);
 			}
