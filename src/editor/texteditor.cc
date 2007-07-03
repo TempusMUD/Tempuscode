@@ -89,6 +89,17 @@ CTextEditor::PerformCommand(char cmd, char *args)
 }
 
 void
+CTextEditor::Cancel(void)
+{
+	// If editing their description.
+	if (STATE(desc) == CXN_EDIT_DESC) {
+		send_to_desc(desc, "\033[H\033[J");
+		set_desc_state(CXN_MENU, desc);
+		return;
+	}
+}
+
+void
 CTextEditor::Finalize(const char *text)
 {
 	// If we were editing rather than creating, wax what was there.
@@ -101,7 +112,7 @@ CTextEditor::Finalize(const char *text)
   
     *target = strdup(text);
 
-	// If editing thier description.
+	// If editing their description.
 	if (STATE(desc) == CXN_EDIT_DESC) {
 		send_to_desc(desc, "\033[H\033[J");
 		set_desc_state(CXN_MENU, desc);

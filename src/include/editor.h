@@ -83,6 +83,7 @@ protected:
 	char **target;
 
     virtual bool PerformCommand(char cmd, char *args);
+    virtual void Cancel(void);
     virtual void Finalize(const char *text);
 };
 
