@@ -127,7 +127,8 @@ mana_gain(struct Creature *ch)
 		break;
 	}
 
-	if (IS_MAGE(ch) || IS_CLERIC(ch) || IS_PSYCHIC(ch) || IS_PHYSIC(ch))
+	if (IS_MAGE(ch) || IS_CLERIC(ch) || IS_PSYCHIC(ch) || IS_PHYSIC(ch) ||
+        IS_BARD(ch))
 		gain <<= 1;
 
 	if (IS_AFFECTED(ch, AFF_POISON))
