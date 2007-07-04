@@ -183,6 +183,8 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
     // Load all-new item
     obj = read_object(GET_OBJ_VNUM(obj));
     equip_char(ch, obj, pos, EQUIP_TATTOO);
+
+    WAIT_STATE(ch, 5 RL_SEC);
 }
 
 char *
