@@ -844,9 +844,9 @@ roll_real_abils(struct Creature *ch)
 			ch->real_abils.str_add = str_add;
 		break;
     case CLASS_BARD:
-		ch->real_abils.str = table[2];
-		ch->real_abils.dex = table[1];
 		ch->real_abils.cha = table[0];
+		ch->real_abils.dex = table[1];
+		ch->real_abils.str = table[2];
 		ch->real_abils.con = table[3];
 		ch->real_abils.wis = table[4];
 		ch->real_abils.intel = table[5];

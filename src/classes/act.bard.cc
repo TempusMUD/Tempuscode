@@ -319,8 +319,8 @@ ASPELL(song_exposure_overture)
         if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
             continue;
 
-        prob = ((ch->getLevelBonus(SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_INT(ch));
-        percent = GET_LEVEL(tch) + (GET_INT(tch) / 2) + number(1, 60);
+        prob = ((ch->getLevelBonus(SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_CHA(ch));
+        percent = GET_LEVEL(tch) + (GET_CHA(tch) / 2) + number(1, 60);
 
         if (prob < percent)
             continue;
@@ -416,7 +416,7 @@ ASPELL(song_lament_of_longing)
     if (GET_PLANE(ch->in_room) != GET_PLANE(victim->in_room)) {
         if (GET_PLANE(victim->in_room) != PLANE_ASTRAL) {
             if (number(0, 120) > (CHECK_SKILL(ch, SONG_LAMENT_OF_LONGING) + 
-                (GET_INT(ch) / 2))) {
+                (GET_CHA(ch) / 2))) {
                 if ((targ_room = real_room(number(41100, 41863))) == NULL)
                     targ_room = victim->in_room;
             }
