@@ -3976,6 +3976,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
             sprintf(buf, " imm %shardening", GET_NAME(ch));
             strcpy(buf2, obj->aliases);
             strcat(buf2, buf);
+            free(obj->aliases);
             obj->aliases = str_dup(buf2);
             mudlog(GET_LEVEL(ch), CMP, true,
                 "ENCHANT: %s lattice hardened by %s.",
@@ -4278,6 +4279,7 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 			sprintf(buf, " imm %senchant blessed", GET_NAME(ch));
 			strcpy(buf2, obj->aliases);
 			strcat(buf2, buf);
+            free(obj->aliases);
 			obj->aliases = str_dup(buf2);
 			mudlog(GET_INVIS_LVL(ch), CMP, true,
 				"ENCHANT: Bless. %s by %s.", obj->name,
