@@ -2979,10 +2979,10 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			int pct = random_percentage_zero_low();
 
 			if (pct < 20) {
-				perform_say(ch, "say", "Let this be a lesson to you!");
+				perform_say(ch, "sneer", "Let this be a lesson to you!");
 				return 0;
 			} else if (pct < 50) {
-				perform_say(ch, "say", "So you thought you were tough, eh?");
+				perform_say(ch, "smirk", "So you thought you were tough, eh?");
 				return 0;
 			} else if (pct < 60) {
 				perform_say(ch, "yell",
@@ -3136,7 +3136,6 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	if (IS_MANTICORE(ch)) {
-
 		if (!(vict = choose_opponent(ch, precious_vict)))
 			return 0;
 
