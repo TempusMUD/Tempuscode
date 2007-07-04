@@ -4045,6 +4045,13 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
             break;
         }
         af = obj->affectedBySpell(SPELL_ELEMENTAL_BRAND);
+        oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
+        oaf[0].type = SPELL_ELEMENTAL_BRAND;
+        oaf[0].duration = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) / 2;
+        oaf[1].level = oaf[0].level;
+        oaf[1].type = oaf[0].type;
+        oaf[1].duration = oaf[0].duration;
+
         switch (num) {
             case 0: // Earth brand adds maxdam to the weapon
                 for(; af != NULL; af = af->next) {
@@ -4057,17 +4064,11 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 if (to_char != NULL)
                     break;
                 
-                oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
-                oaf[0].type = SPELL_ELEMENTAL_BRAND;
-                oaf[0].duration = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) / 15;
                 oaf[0].dam_mod = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) *
                                     GET_INT(ch) * 2;
                 oaf[0].maxdam_mod = oaf[0].dam_mod;
                 oaf[0].extra_mod = ITEM3_REQ_RANGER;
                 oaf[0].extra_index = 3;
-                oaf[1].level = oaf[0].level;
-                oaf[1].type = oaf[0].type;
-                oaf[1].duration = oaf[0].duration;
                 oaf[1].extra_mod = ITEM_MAGIC;
                 oaf[1].extra_index = 1;
                 to_char = "The rune of earth solidifies onto $p.";
@@ -4084,16 +4085,10 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 }
                 if (to_char != NULL)
                     break;
-                oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
-                oaf[0].type = SPELL_ELEMENTAL_BRAND;
-                oaf[0].duration = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) / 15;
                 oaf[0].weight_mod = 
                     -((int)(obj->getWeight() * 0.10) + ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) / 25);
                 oaf[0].extra_mod = ITEM3_REQ_RANGER;
                 oaf[0].extra_index = 3;
-                oaf[1].level = oaf[0].level;
-                oaf[1].type = oaf[0].type;
-                oaf[1].duration = oaf[0].duration;
                 oaf[1].extra_mod = ITEM_MAGIC;
                 oaf[1].extra_index = 1;
                 to_char = "The rune of air swirls around $p.";
@@ -4112,16 +4107,10 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 }
                 if (to_char != NULL)
                     break;
-                oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
-                oaf[0].type = SPELL_ELEMENTAL_BRAND;
-                oaf[0].duration = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) / 15;
                 oaf[0].affect_loc[0] = APPLY_DAMROLL;
                 oaf[0].affect_mod[0] = MAX(2, GET_REMORT_GEN(ch) / 2);
                 oaf[0].extra_mod = ITEM3_REQ_RANGER;
                 oaf[0].extra_index = 3;
-                oaf[1].level = oaf[0].level;
-                oaf[1].type = oaf[0].type;
-                oaf[1].duration = oaf[0].duration;
                 oaf[1].extra_mod = ITEM_MAGIC;
                 oaf[1].extra_index = 1;
                 to_char = "The rune of fire is emblazoned upon $p.";
@@ -4140,16 +4129,10 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
                 }
                 if (to_char != NULL)
                     break;
-                oaf[0].level = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND);
-                oaf[0].type = SPELL_ELEMENTAL_BRAND;
-                oaf[0].duration = ch->getLevelBonus(SPELL_ELEMENTAL_BRAND) / 15;
                 oaf[0].affect_loc[0] = APPLY_HITROLL;
                 oaf[0].affect_mod[0] = MAX(2, GET_REMORT_GEN(ch) / 2);
                 oaf[0].extra_mod = ITEM3_REQ_RANGER;
                 oaf[0].extra_index = 3;
-                oaf[1].level = oaf[0].level;
-                oaf[1].type = oaf[0].type;
-                oaf[1].duration = oaf[0].duration;
                 oaf[1].extra_mod = ITEM_MAGIC;
                 oaf[1].extra_index = 1;
                 to_char = "The rune of water permeates $p.";
