@@ -3960,12 +3960,10 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         }
         int increase;
         if (GET_CLASS(ch) == CLASS_PHYSIC)
-            increase =
-                obj->obj_flags.max_dam * (GET_LEVEL(ch) +
+            increase = obj->obj_flags.max_dam * (GET_LEVEL(ch) +
                 (GET_REMORT_GEN(ch) * 2)) / 200;
         else
-            increase =
-                obj->obj_flags.max_dam * (GET_LEVEL(ch) +
+            increase = obj->obj_flags.max_dam * (GET_LEVEL(ch) +
                 (GET_REMORT_GEN(ch) * 2)) / 240;
         obj->obj_flags.max_dam += increase;
         obj->obj_flags.damage =
@@ -4038,6 +4036,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 
     case SPELL_ELEMENTAL_BRAND: {
         int num = number(0, 3);
+
         struct tmp_obj_affect *af;
 
         if (!(GET_OBJ_TYPE(obj) == ITEM_WEAPON)) {
