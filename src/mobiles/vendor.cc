@@ -84,7 +84,9 @@ ok_damage_vendor(struct Creature *ch, struct Creature *victim)
 		 !PLR_FLAGGED(victim, PLR_MORTALIZED)))
 		return false;
 	
-	if (IS_NPC(victim) && victim->mob_specials.shared->func == vendor) {
+	if (IS_NPC(victim)
+        && (MOB2_FLAGGED(victim, MOB2_SELLER)
+            || victim->mob_specials.shared->func == vendor)) {
         ShopData *shop = (ShopData *)victim->mob_specials.func_data;
 
 		if (!GET_MOB_PARAM(victim))
