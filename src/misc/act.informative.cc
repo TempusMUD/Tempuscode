@@ -4230,7 +4230,7 @@ ACMD(do_consider)
 	else if (diff <= 6)
 		send_to_char(ch, "You probably couldn't do it bare handed...\r\n");
 	else if (diff <= 8)
-		send_to_char(ch, "You won't ctach me betting on you.\r\n");
+		send_to_char(ch, "You won't catch me betting on you.\r\n");
 	else if (diff <= 10)
 		send_to_char(ch, "You may get your ass whipped!\r\n");
 	else if (diff <= 14)
