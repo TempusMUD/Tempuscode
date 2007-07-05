@@ -1163,26 +1163,6 @@ do_start(struct Creature *ch, int mode)
 
 }
 
-// prac_gain: mode==TRUE means to return a prac gain value
-//            mode==FALSE means to return an average value
-float
-prac_gain(struct Creature *ch, int mode)
-{
-	float gain;
-	double max, min;
-
-	min = (double)((double)GET_WIS(ch) / 8);
-	max = (double)((double)GET_WIS(ch) / 5) + 0.5;
-	if (mode) {
-		gain = (MIN(6, float_number(min, max)));
-		return (gain);
-	}
-
-	else
-		return ((max + min) / 2);
-}
-
-
 /*
  * This function controls the change to maxmove, maxmana, and maxhp for
  * each char_class every time they gain a level.
