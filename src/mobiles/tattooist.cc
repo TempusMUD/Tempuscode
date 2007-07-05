@@ -93,6 +93,11 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 	}
 
+    if (GET_OBJ_TYPE(obj) != ITEM_TATTOO) {
+        perform_say_to(self, ch, "That's not a tattoo, now is it?");
+        return;
+    }
+
     char *pos_str = tmp_getword(&arg);
     if (!pos_str[0]) {
         perform_say_to(self, ch, "Where did you want that tattoo?");
