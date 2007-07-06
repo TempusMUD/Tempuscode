@@ -447,6 +447,7 @@ Creature::saveToXML()
 	// Save vital statistics
 	obj_data *saved_eq[NUM_WEARS];
 	obj_data *saved_impl[NUM_WEARS];
+	obj_data *saved_tattoo[NUM_WEARS];
 	affected_type *saved_affs, *cur_aff;
 	FILE *ouf;
 	char *path, *tmp_path;
@@ -491,6 +492,10 @@ Creature::saveToXML()
 			saved_impl[pos] = unequip_char(this, pos, EQUIP_IMPLANT, true);
 		else
 			saved_impl[pos] = NULL;
+		if (GET_TATTOO(this, pos))
+			saved_tattoo[pos] = unequip_char(this, pos, EQUIP_TATTOO, true);
+		else
+			saved_tattoo[pos] = NULL;
 	}
 
 	// we need to update time played every time we save...
@@ -657,6 +662,8 @@ Creature::saveToXML()
 			equip_char(this, saved_eq[pos], pos, EQUIP_WORN);
 		if (saved_impl[pos])
 			equip_char(this, saved_impl[pos], pos, EQUIP_IMPLANT);
+		if (saved_tattoo[pos])
+			equip_char(this, saved_tattoo[pos], pos, EQUIP_TATTOO);
 	}
 
 	for (cur_aff = saved_affs;cur_aff;cur_aff = cur_aff->next)
