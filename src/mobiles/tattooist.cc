@@ -98,6 +98,11 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
         return;
     }
 
+	if (appraisal_only) {
+		vendor_appraise(ch, obj, self, shop);
+		return;
+	}
+
     char *pos_str = tmp_getword(&arg);
     if (!pos_str[0]) {
         perform_say_to(self, ch, "Where did you want that tattoo?");
