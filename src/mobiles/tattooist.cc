@@ -352,13 +352,11 @@ SPECIAL(tattooist)
 
     if (CMD_IS("list"))
 		tattooist_list(ch, argument, self, shop);
-
-	if (CMD_IS("buy")) {
+	else if (CMD_IS("buy"))
 		tattooist_sell(ch, argument, self, shop);
-	} else {
+	else
 		mudlog(LVL_IMPL, CMP, true, "Can't happen at %s:%d", __FILE__,
 			__LINE__);
-	}
-	
+
 	return true;
 }
