@@ -729,7 +729,7 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 					send_to_char(ch, CCNRM(ch, C_NRM));
 					show_obj_to_char(GET_EQ(i, (int)eq_pos_order[j]), ch,
                                      SHOW_OBJ_INV, 0);
-				} else if (GET_TATTOO(ch, (int)eq_pos_order[j])){
+				} else if (GET_TATTOO(i, (int)eq_pos_order[j])){
 					send_to_char(ch, CCGRN(ch, C_NRM));
 					send_to_char(ch, tattoo_pos_descs[(int)eq_pos_order[j]]);
 					send_to_char(ch, CCNRM(ch, C_NRM));
