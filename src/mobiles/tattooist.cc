@@ -250,6 +250,7 @@ tattooist_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
         if (!*arg || namelist_match(arg, last_obj->aliases)) {
             cost = tattooist_get_value(cur_obj, shop->markup, ch->getCostModifier(self));
             msg = tmp_strcat(msg, tattooist_list_obj(ch, cur_obj, idx, cost));
+            idx++;
         }
 	}
 
