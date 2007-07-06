@@ -1018,13 +1018,19 @@ do_start(struct Creature *ch, int mode)
 	byte new_player = 0;
 	int i;
 	obj_data *implant_save[NUM_WEARS];
+	obj_data *tattoo_save[NUM_WEARS];
 
 	// remove implant affects
-	for (i = 0; i < NUM_WEARS; i++)
+	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_IMPLANT(ch, i))
-			implant_save[i] = unequip_char(ch, i, true, true);
+			implant_save[i] = unequip_char(ch, i, EQUIP_IMPLANT, true);
 		else
 			implant_save[i] = NULL;
+		if (GET_TATTOO(ch, i))
+			tattoo_save[i] = unequip_char(ch, i, EQUIP_TATTOO, true);
+		else
+			tattoo_save[i] = NULL;
+    }
 
 	if (GET_EXP(ch) == 0 && !IS_REMORT(ch) && !IS_VAMPIRE(ch))
 		new_player = TRUE;
@@ -1138,9 +1144,12 @@ do_start(struct Creature *ch, int mode)
 		ch->player.time.logon = time(0);
 	}
 
-	for (i = 0; i < NUM_WEARS; i++)
+	for (i = 0; i < NUM_WEARS; i++) {
 		if (implant_save[i])
-			equip_char(ch, implant_save[i], i, true);
+			equip_char(ch, implant_save[i], i, EQUIP_IMPLANT);
+		if (tattoo_save[i])
+			equip_char(ch, tattoo_save[i], i, EQUIP_TATTOO);
+    }
     
     // If there are no characters >= level 45 on this account enroll
     // this character in the academey.
