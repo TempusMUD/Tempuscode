@@ -656,6 +656,8 @@ Creature::extract(cxn_state con_state)
 			extract_obj(unequip_char(this, idx, EQUIP_WORN, true));
 		if (GET_IMPLANT(this, idx))
 			extract_obj(unequip_char(this, idx, EQUIP_IMPLANT, true));
+		if (GET_TATTOO(this, idx))
+			extract_obj(unequip_char(this, idx, EQUIP_TATTOO, true));
 	}
 
 	// transfer inventory to room, if any
