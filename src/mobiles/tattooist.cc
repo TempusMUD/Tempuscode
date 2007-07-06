@@ -137,8 +137,7 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
         }
     }
 
-    cost = GET_OBJ_COST(obj);
-    cost += ch->getCostModifier(self) * cost / 100;
+    cost = tattooist_get_value(obj, shop->markup, ch->getCostModifier(self));
 	switch (shop->currency) {
 	case 0:	
 		amt_carried = GET_GOLD(ch); break;
