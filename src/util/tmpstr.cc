@@ -405,7 +405,7 @@ tmp_gsubi(const char *haystack, const char *needle, const char *sub)
 	char *low_stack;
 	char *write_pt, *result;
 	const char *read_pt, *search_pt;
-	size_t len;
+	size_t len, needle_len;
 	int matches;
 
     // Head off an infinite loop at the pass
@@ -416,14 +416,15 @@ tmp_gsubi(const char *haystack, const char *needle, const char *sub)
 	matches = 0;
 	low_stack = tmp_tolower(haystack);
 	needle = tmp_tolower(needle);
+    needle_len = strlen(needle);
 	read_pt = low_stack;
 	while ((read_pt = strstr(read_pt, needle)) != NULL) {
 		matches++;
-		read_pt += strlen(needle);
+		read_pt += needle_len;
 	}
 
 	// Figure out how much space we'll need
-	len = strlen(haystack) + matches * (strlen(sub) - strlen(needle)) + 1;
+	len = strlen(haystack) + matches * (strlen(sub) - needle_len) + 1;
 
 	// If we don't have the space, we allocate another pool
 	if (len > tmp_list_tail->space - tmp_list_tail->used)
@@ -444,8 +445,8 @@ tmp_gsubi(const char *haystack, const char *needle, const char *sub)
 		read_pt = sub;
 		while (*read_pt)
 			*write_pt++ = *read_pt++;
-		search_pt += strlen(needle);
-		read_pt = search_pt;
+		search_pt += needle_len;
+		read_pt = haystack + (search_pt - low_stack);
 	}
 
 	// Copy the rest of the string
@@ -772,6 +773,8 @@ tmp_string_test(void)
 		return "tmp_gsubi #9 failed";
     if (strcmp(tmp_gsubi("ABCDEF", "def", "xxx"), "ABCxxx"))
         return "tmp_gsubi #10 failed";
+    if (strcmp(tmp_gsubi("ABCDEFEDCBA", "d", "xxx"), "ABCxxxEFExxxCBA"))
+        return "tmp_gsubi #11 failed";
 
 	// Testing tmp_sqlescape
 	if (strcmp(tmp_sqlescape("abcd'ef"), "abcd''ef"))
