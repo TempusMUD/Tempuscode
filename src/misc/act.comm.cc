@@ -872,12 +872,12 @@ ACMD(do_gen_comm)
 
 	// Construct all the emits ahead of time.
 	if (chan->is_emote) {
-        imm_actstr = tmp_sprintf("%s%s$t$a %s%s",
+        imm_actstr = tmp_sprintf("%s%s$n$a %s%s",
                                  chan->desc_color,
                                  sub_channel_desc,
                                  chan->text_color,
                                  act_escape(argument));
-        actstr = tmp_sprintf("%s$t$a %s%s",
+        actstr = tmp_sprintf("%s$n$a %s%s",
                              chan->desc_color,
                              chan->text_color,
                              act_escape(argument));
