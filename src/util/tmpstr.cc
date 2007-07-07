@@ -751,6 +751,8 @@ tmp_string_test(void)
 		return "tmp_gsub #9 failed";
     if (strcmp(tmp_gsub("ABCDEF", "def", "xxx"), "ABCDEF"))
         return "tmp_gsub #10 failed";
+    if (strcmp(tmp_gsub("ABCDEFEDCBA", "D", "xxx"), "ABCxxxEFExxxCBA"))
+        return "tmp_gsub #11 failed";
 
 	// Testing tmp_gsubi
 	if (strcmp(tmp_gsubi("abcdef", "", ""), "abcdef"))
