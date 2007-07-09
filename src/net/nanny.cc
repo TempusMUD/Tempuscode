@@ -1825,6 +1825,8 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 		name_str = tmp_strdup(GET_NAME(tmp_ch));
 		if (strlen(name_str) > ((brief) ? 8:13))
 			name_str[(brief) ? 8:13] = '\0';
+        if (IS_IMMORT(tmp_ch))
+            name_str = tmp_sprintf((brief) ? "&g%-8s&n":"&g%-13s&n", name_str);
 
 		// Construct compact menu entry for each character
 		if (IS_REMORT(tmp_ch)) {
@@ -1901,8 +1903,7 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 			if (brief)
 				send_to_desc(d,
 					"&b[&y%2d&b] &n%-8s %10s %s %s&n",
-					idx, name_str,
-					laston_str, status_str, mail_str);
+					idx, name_str, laston_str, status_str, mail_str);
 			else
 				send_to_desc(d,
 					"&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
