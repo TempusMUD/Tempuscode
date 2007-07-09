@@ -571,6 +571,20 @@ affect_total(struct Creature *ch)
 				check_interface(ch, ch->implants[i], FALSE);
 
 			}
+        }
+		// remove implant affects
+		if (ch->tattoos[i] && !invalid_char_class(ch, ch->tattoos[i])) {
+
+			for (j = 0; j < MAX_OBJ_AFFECT; j++) {
+				affect_modify(ch, ch->tattoos[i]->affected[j].location,
+					ch->tattoos[i]->affected[j].modifier, 0, 0, FALSE);
+			}
+			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[0], 1,
+				FALSE);
+			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[1], 2,
+				FALSE);
+			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[2], 3,
+				FALSE);
 		}
 	}
 
@@ -646,8 +660,20 @@ affect_total(struct Creature *ch)
 				INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
 				ch->implants[i]->contains) {
 				check_interface(ch, ch->implants[i], TRUE);
-
 			}
+		}
+		if (ch->tattoos[i] && !invalid_char_class(ch, ch->tattoos[i])) {
+
+			for (j = 0; j < MAX_OBJ_AFFECT; j++) {
+				affect_modify(ch, ch->tattoos[i]->affected[j].location,
+                              ch->tattoos[i]->affected[j].modifier, 0, 0, TRUE);
+			}
+			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[0], 1,
+                          TRUE);
+			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[1], 2,
+                          TRUE);
+			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[2], 3,
+                          TRUE);
 		}
 	}
 	for (af = ch->affected; af; af = af->next)
