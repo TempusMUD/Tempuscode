@@ -2927,6 +2927,9 @@ ACMD(do_equipment)
 			send_to_char(ch, "You have the following tattoos:\r\n");
 		for (idx = 0; idx < NUM_WEARS; idx++) {
 			pos = tattoo_pos_order[idx];
+			if (ILLEGAL_TATTOOPOS(pos))
+				continue;
+
 			if (GET_TATTOO(ch, pos)) {
 				if (!found && !show_all) {
 					send_to_char(ch, "You have the following tattoos:\r\n");
