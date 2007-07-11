@@ -541,18 +541,19 @@ postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
     if (num_mails == 0) {
         to_char = tmp_sprintf("Sorry, you don't have any mail waiting.");
         perform_tell(mailman, ch, to_char);
+        return;
     }
     else if (num_mails > MAIL_BAG_THRESH) {
         num_mails = num_mails / MAIL_BAG_OBJ_CONTAINS + 1;
         to_char = tmp_sprintf("$n gives you %d bag%s of mail", num_mails,
                (num_mails > 1 ? "s" : ""));
-        to_room = tmp_sprintf("$N gives $n %d bag%s of mail", num_mails,
+        to_room = tmp_sprintf("$n gives $N %d bag%s of mail", num_mails,
                (num_mails > 1 ? "s" : ""));
     }
     else {
         to_char = tmp_sprintf("$n gives you %d piece%s of mail", num_mails,
             (num_mails > 1 ? "s" : ""));
-        to_room = tmp_sprintf("$N gives $n %d piece%s of mail", num_mails,
+        to_room = tmp_sprintf("$n gives $N %d piece%s of mail", num_mails,
             (num_mails > 1 ? "s" : ""));
     }
 
@@ -578,11 +579,11 @@ postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
     }
     else {
         to_char = tmp_strcat(to_char, ".", NULL);
-        to_room = tmp_strcat(to_char, ".", NULL);
+        to_room = tmp_strcat(to_room, ".", NULL);
     }
     
     act(to_char, FALSE, mailman, 0, ch, TO_VICT);
-    act(to_room, FALSE, ch, 0, mailman, TO_ROOM);
+    act(to_room, FALSE, mailman, 0, ch, TO_NOTVICT);
     
     ch->saveToXML();
 }
