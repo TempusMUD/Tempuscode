@@ -134,6 +134,7 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
             perform_tell(self, ch,
                          tmp_sprintf("You already have that tattoo on your %s!",
                                      wear_tattoopos[idx]));
+            return;
         }
     }
 
