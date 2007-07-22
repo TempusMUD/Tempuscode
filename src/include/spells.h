@@ -609,7 +609,7 @@ static const int SKILL_DISGUISE = 649;	// look like a mob
 static const int SKILL_AMBUSH = 650;	// surprise victim
 
 static const int SKILL_CHEMISTRY = 651; // merc skill
-static const int SKILL_SPARE2 = 652;
+static const int SKILL_ADVANCED_CYBO_SURGERY = 652;
 static const int SKILL_SPARE3 = 653;
 static const int SKILL_SPARE4 = 654;
 static const int SKILL_BEGUILE = 655;

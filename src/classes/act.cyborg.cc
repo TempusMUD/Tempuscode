@@ -2470,9 +2470,8 @@ ACMD(do_insert)
 			return;
 		}
 
-		if (!IS_CYBORG(vict)) {
-			send_to_char(ch,
-				"Your subject is not prepared for such enhancement.\r\n");
+		if (!IS_CYBORG(vict) && CHECK_SKILL(ch, SKILL_ADVANCED_CYBO_SURGERY) < LEARNED(ch)) {
+			send_to_char(ch, "Your subject is not prepared for implanting without advanced techniques.\r\n");
 			return;
 		}
 	}
