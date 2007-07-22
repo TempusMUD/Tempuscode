@@ -608,15 +608,14 @@ static const int SKILL_RETREAT = 648;	// controlled flee
 static const int SKILL_DISGUISE = 649;	// look like a mob
 static const int SKILL_AMBUSH = 650;	// surprise victim
 
-//--------------  VAMPIRE SKILLS  ------------------
-static const int SKILL_FLYING = 651;
-static const int SKILL_SUMMON = 652;
-static const int SKILL_FEED = 653;
-static const int SKILL_DRAIN = 654;
+static const int SKILL_CHEMISTRY = 651; // merc skill
+static const int SKILL_SPARE2 = 652;
+static const int SKILL_SPARE3 = 653;
+static const int SKILL_SPARE4 = 654;
 static const int SKILL_BEGUILE = 655;
-static const int SKILL_CREATE_VAMPIRE = 656;
-static const int SKILL_CONTROL_UNDEAD = 657;
-static const int SKILL_TERRORIZE = 658;
+static const int SKILL_SPARE6 = 656;
+static const int SKILL_SPARE7 = 657;
+static const int SKILL_SPARE8 = 658;
 
 //-------------  Hood Skillz... yeah. Just two
 static const int SKILL_SNATCH = 667;

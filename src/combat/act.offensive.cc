@@ -1234,20 +1234,10 @@ ACMD(do_order)
 					GET_CHA(ch) < number(0, GET_INT(vict))) &&
 				(GET_LEVEL(ch) < LVL_CREATOR ||
 					GET_LEVEL(vict) >= GET_LEVEL(ch))
-				&& (!MOB2_FLAGGED(vict, MOB2_FAMILIAR) || vict->master != ch)
-				&& (!IS_VAMPIRE(ch) || !IS_EVIL(ch) || !IS_UNDEAD(vict) ||
-					!IS_NPC(vict) ||
-					(GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_CONTROL_UNDEAD)) <
-					(number(40, 110) + GET_LEVEL(vict))))
+				&& (!MOB2_FLAGGED(vict, MOB2_FAMILIAR) || vict->master != ch))
 				act("$n has an indifferent look.", FALSE, vict, 0, 0, TO_ROOM);
 			else {
 				if (!CHECK_WAIT(vict) && !GET_MOB_WAIT(vict)) {
-
-					if ((vict->master != ch || !IS_AFFECTED(vict, AFF_CHARM))
-						&& GET_LEVEL(ch) < LVL_AMBASSADOR && IS_VAMPIRE(ch)) {
-						gain_skill_prof(ch, SKILL_CONTROL_UNDEAD);
-					}
-
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
 						perform_say(vict, "intone", "As you command, master.");
 					if (vict->numCombatants()) {
@@ -2897,22 +2887,14 @@ ACMD(do_intimidate)
 		if (ch->numCombatants()) {
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
-				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			if (subcmd == SKILL_TERRORIZE) {
-				act("You attempt to terrorize $p!", FALSE, ch, ovict, 0,
-					TO_CHAR);
-				act("$n attempts to terrorize $p!", FALSE, ch, ovict, 0,
-					TO_ROOM);
-			} else {
-				act("You attempt to intimidate $p!", FALSE, ch, ovict, 0,
-					TO_CHAR);
-				act("$n attempts to intimidate $p!", FALSE, ch, ovict, 0,
-					TO_ROOM);
-			}
+                    get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+            act("You attempt to intimidate $p!", FALSE, ch, ovict, 0,
+                TO_CHAR);
+            act("$n attempts to intimidate $p!", FALSE, ch, ovict, 0,
+                TO_ROOM);
 			return;
 		} else {
-			send_to_char(ch, "%s who?\r\n",
-				subcmd == SKILL_TERRORIZE ? "Terrorize" : "Intimidate");
+			send_to_char(ch, "Intimidate who?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
 		}
@@ -2927,11 +2909,6 @@ ACMD(do_intimidate)
 		return;
 	}
 	if (vict == ch) {
-		if (subcmd == SKILL_TERRORIZE) {
-			send_to_char(ch, "You cannot succeed at this.\r\n");
-			return;
-		}
-
 		send_to_char(ch, "You attempt to intimidate yourself.\r\n"
 			"You feel intimidated!\r\n");
 		act("$n intimidates $mself!", TRUE, ch, 0, 0, TO_ROOM);
@@ -2957,147 +2934,36 @@ ACMD(do_intimidate)
 	if (!ok_damage_vendor(ch, vict))
 		return;
 
-	if (subcmd == SKILL_TERRORIZE) {
-		act("You peer into $S soul with terrible malice.",
-			FALSE, ch, 0, vict, TO_CHAR);
-		act("$n peers into $N's soul with terrible malice.",
-			FALSE, ch, 0, vict, TO_NOTVICT);
-		act("$n peers into your soul with terrible malice.",
-			FALSE, ch, 0, vict, TO_VICT);
+    act("You attempt to intimidate $N.", FALSE, ch, 0, vict, TO_CHAR);
+    act("$n attempts to intimidate $N.", FALSE, ch, 0, vict, TO_NOTVICT);
+    act("$n attempts to intimidate you.", FALSE, ch, 0, vict, TO_VICT);
 
-		if (affected_by_spell(vict, SKILL_TERRORIZE)) {
-			act("$n PANICS and attempt to escape!", FALSE, vict, 0, 0,
-				TO_ROOM);
-			send_to_char(vict, "You PANIC and attempt to escape!\r\n");
-			if (!MOB_FLAGGED(vict, MOB_SENTINEL))
-				do_flee(vict, "", 0, 0, 0);
-
-			act("$n cowers in fear!", TRUE, vict, 0, 0, TO_ROOM);
-			send_to_char(vict, "You cower in paralyzing fear!\r\n");
-		} else if ((affected_by_spell(vict, SPELL_FEAR) ||
-				GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_TERRORIZE) > prob) &&
-			!IS_UNDEAD(vict)) {
-			af.type = SKILL_TERRORIZE;
-			af.duration = 2 + 2 * (GET_LEVEL(ch) > 40);
-			af.modifier = -5;
-			af.location = APPLY_HITROLL;
-            af.owner = ch->getIdNum();
-			af.bitvector = 0;
-			affect_to_char(vict, &af);
-
-		} else {
-			act("$N glares at $n with contempt.", TRUE, ch, 0, vict,
-				TO_NOTVICT);
-			act("$N glares at you with contempt!", TRUE, ch, 0, vict, TO_CHAR);
-			send_to_char(vict, "You glare back with contempt!\r\n");
-			if (IS_NPC(vict))
-				hit(vict, ch, TYPE_UNDEFINED);
-		}
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-		return;
-
-	} else {
-		act("You attempt to intimidate $N.", FALSE, ch, 0, vict, TO_CHAR);
-		act("$n attempts to intimidate $N.", FALSE, ch, 0, vict, TO_NOTVICT);
-		act("$n attempts to intimidate you.", FALSE, ch, 0, vict, TO_VICT);
-
-		if (affected_by_spell(vict, SKILL_INTIMIDATE)) {
-			act("$n cringes in terror!", FALSE, vict, 0, 0, TO_ROOM);
-			send_to_char(vict, "You cringe in terror!\r\n");
-		} else if ((affected_by_spell(vict, SPELL_FEAR) ||
+    if (affected_by_spell(vict, SKILL_INTIMIDATE)) {
+        act("$n cringes in terror!", FALSE, vict, 0, 0, TO_ROOM);
+        send_to_char(vict, "You cringe in terror!\r\n");
+    } else if ((affected_by_spell(vict, SPELL_FEAR) ||
 				GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_INTIMIDATE) > prob) &&
-			!IS_UNDEAD(vict)) {
-			act("$n looks intimidated!", TRUE, vict, 0, 0, TO_ROOM);
-			send_to_char(vict, "You feel intimidated!\r\n");
+               !IS_UNDEAD(vict)) {
+        act("$n looks intimidated!", TRUE, vict, 0, 0, TO_ROOM);
+        send_to_char(vict, "You feel intimidated!\r\n");
 
-			af.type = SKILL_INTIMIDATE;
-			af.duration = 2 + 2 * (GET_LEVEL(ch) > 40);
-			af.modifier = -5;
-			af.location = APPLY_HITROLL;
-			af.bitvector = 0;
-            af.owner = ch->getIdNum();
-			affect_to_char(vict, &af);
+        af.type = SKILL_INTIMIDATE;
+        af.duration = 2 + 2 * (GET_LEVEL(ch) > 40);
+        af.modifier = -5;
+        af.location = APPLY_HITROLL;
+        af.bitvector = 0;
+        af.owner = ch->getIdNum();
+        affect_to_char(vict, &af);
 
-		} else {
-			act("$N snickers at $n", TRUE, ch, 0, vict, TO_NOTVICT);
-			act("$N snickers at you!", TRUE, ch, 0, vict, TO_CHAR);
-			send_to_char(vict, "You snicker!\r\n");
-			if (IS_NPC(vict))
-				hit(vict, ch, TYPE_UNDEFINED);
-		}
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-		return;
-	}
-}
-
-
-
-ACMD(do_drain)
-{
-	struct Creature *vict = NULL;
-	struct obj_data *ovict = NULL;
-	int percent, prob, mana;
-    char *arg;
-
-    arg = tmp_getword(&argument);
-
-	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->numCombatants()) {
-			vict = ch->findRandomCombat();
-		} else if ((ovict =
-				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			send_to_char(ch, "You can't drain objects!\r\n");
-			return;
-		} else {
-			send_to_char(ch, "Drain whose life force?\r\n");
-			WAIT_STATE(ch, 4);
-			return;
-		}
-	}
-
-    if (ch->checkReputations(vict))
-        return;
-
-	if (vict == ch) {
-		send_to_char(ch, "Aren't we funny today...\r\n");
-		return;
-	}
-	if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-		send_to_char(ch, 
-			"You are using both hands to wield your weapon right now!\r\n");
-		return;
-	}
-	if (GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_WIELD_2) ||
-			GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_SHIELD))) {
-		send_to_char(ch, "You need a hand free to do that!\r\n");
-		return;
-	}
-
-	if (!ch->isOkToAttack(vict, true))
-		return;
-
-	percent = ((10 - (GET_AC(vict) / 10)) >> 1) + number(1, 91);
-
-	prob = CHECK_SKILL(ch, SKILL_DRAIN);
-
-	if (IS_PUDDING(vict) || IS_SLIME(vict))
-		prob = 0;
-
-	WAIT_STATE(ch, PULSE_VIOLENCE * 3);
-
-	if (percent > prob) {
-		damage(ch, vict, 0, SKILL_DRAIN, -1);
-	} else {
-		gain_skill_prof(ch, SKILL_DRAIN);
-
-		WAIT_STATE(vict, PULSE_VIOLENCE);
-		mana = MIN(GET_MANA(vict), GET_LEVEL(ch) * 5);
-		GET_MANA(vict) -= mana;
-		GET_MANA(ch) = MAX(GET_MAX_MANA(ch), GET_MANA(ch) + mana);
-
-		damage(ch, vict, ((GET_LEVEL(ch) + GET_STR(ch)) >> 1), SKILL_DRAIN,
-			-1);
-	}
+    } else {
+        act("$N snickers at $n", TRUE, ch, 0, vict, TO_NOTVICT);
+        act("$N snickers at you!", TRUE, ch, 0, vict, TO_CHAR);
+        send_to_char(vict, "You snicker!\r\n");
+        if (IS_NPC(vict))
+            hit(vict, ch, TYPE_UNDEFINED);
+    }
+    WAIT_STATE(ch, PULSE_VIOLENCE);
+    return;
 }
 
 ACMD(do_beguile)
@@ -3144,7 +3010,6 @@ ACMD(do_beguile)
 		send_to_char(ch, "There appears to be no effect.\r\n");
 
 	WAIT_STATE(ch, 2 RL_SEC);
-
 }
 
 //This function assumes that ch is a merc.  It provides for  mercs

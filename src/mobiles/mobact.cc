@@ -170,8 +170,7 @@ burn_update(void)
 
 		// char is flying but unable to continue
 		if (ch->getPosition() == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT)
-			&& GET_LEVEL(ch) < LVL_AMBASSADOR
-			&& (CHECK_SKILL(ch, SKILL_FLYING) < 30)) {
+			&& GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			send_to_char(ch, "You can no longer fly!\r\n");
 			ch->setPosition(POS_STANDING);
 		}

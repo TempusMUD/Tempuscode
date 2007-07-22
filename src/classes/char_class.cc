@@ -1099,9 +1099,6 @@ do_start(struct Creature *ch, int mode)
 	case CLASS_MONK:
 		SET_SKILL(ch, SKILL_PUNCH, 20);
 		break;
-	case CLASS_VAMPIRE:
-		SET_SKILL(ch, SKILL_FEED, 20);
-		break;
 	case CLASS_MERCENARY:
 		SET_SKILL(ch, SKILL_PUNCH, 20);
     case CLASS_BARD:

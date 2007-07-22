@@ -838,9 +838,6 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		strcpy(isare, "are");
 		strcpy(typebuf, "remains");
 		strcpy(namestr, typebuf);
-	} else if (attacktype == SKILL_DRAIN) {
-		strcpy(typebuf, "husk");
-		strcpy(namestr, typebuf);
 	} else if (attacktype == TYPE_SWALLOW) {
 		strcpy(typebuf, "bones");
 		strcpy(namestr, typebuf);
@@ -1066,13 +1063,6 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		strcpy(buf2, "A bloody pile of bones is lying here.");
 		corpse->line_desc = str_dup(buf2);
 		strcpy(adj, "bloody pile bones");
-		break;
-
-	case SKILL_FEED:
-		sprintf(buf2, "The drained %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = str_dup(buf2);
-		strcpy(adj, "drained");
 		break;
 
 	case TYPE_BLAST:
@@ -1508,13 +1498,6 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 		corpse->line_desc = str_dup(buf2);
 		strcpy(adj, "drowned");
-		break;
-
-	case SKILL_DRAIN:
-		sprintf(buf2, "The withered %s of %s %s lying here.", typebuf,
-			GET_NAME(ch), ISARE(typebuf));
-		corpse->line_desc = str_dup(buf2);
-		strcpy(adj, "withered");
 		break;
 
 	default:

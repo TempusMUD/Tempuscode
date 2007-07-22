@@ -132,7 +132,6 @@ ACMD(do_discharge);
 ACMD(do_distrust);
 ACMD(do_dismiss);
 ACMD(do_distance);
-ACMD(do_drain);
 ACMD(do_dynedit);
 ACMD(do_dyntext_show);
 ACMD(do_berserk);
@@ -690,7 +689,6 @@ struct command_info cmd_info[] = {
 	{"dream", POS_SLEEPING, do_gen_comm, 0, SCMD_DREAM, 0, 0},
 	{"drop", POS_RESTING, do_drop, 0, SCMD_DROP, 0, 0},
 	{"drool", POS_RESTING, do_action, 0, 0, 0, 0},
-	{"drain", POS_FIGHTING, do_drain, 10, 0, 0, 0},
 	{"duck", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"dynedit", POS_DEAD, do_dynedit, LVL_IMMORT, 0, 0, 0},
 
@@ -1318,7 +1316,6 @@ struct command_info cmd_info[] = {
 
 	{"tell", POS_DEAD, do_tell, 0, 0, 0, 0},
 	{"tempus", POS_DEAD, do_hcollect_help, 0, 0, 0, 0},
-	{"terrorize", POS_FIGHTING, do_intimidate, 5, SKILL_TERRORIZE, 0, 0},
 	{"tester", POS_FIGHTING, do_tester, 0, 0, 0, 0},
 	{"tackle", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"take", POS_RESTING, do_get, 0, 0, 0, 0},
