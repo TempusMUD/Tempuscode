@@ -1708,71 +1708,96 @@ ACMD(do_throw)
 				obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 			}
 
-			if (target_vict != ch) {
-				act("$n throws $p at $N!", FALSE, ch, obj, target_vict,
-					TO_NOTVICT);
-				act("$n throws $p at you!", FALSE, ch, obj, target_vict,
-					TO_VICT);
-				act("You throw $p at $N.", FALSE, ch, obj, target_vict,
-					TO_CHAR);
+			if (target_vict == ch) {
+                send_to_char(ch, "You can't throw something at yourself!\r\n");
+                return;
+            }
+            act("$n throws $p at $N!", FALSE, ch, obj, target_vict,
+                TO_NOTVICT);
+            act("$n throws $p at you!", FALSE, ch, obj, target_vict,
+                TO_VICT);
+            act("You throw $p at $N.", FALSE, ch, obj, target_vict,
+                TO_CHAR);
 
+            calc_thaco = calculate_thaco(ch, target_vict, NULL) + 10;
+            calc_thaco -= (CHECK_SKILL(ch, SKILL_THROWING) / 10);
+            if (!IS_OBJ_STAT2(obj, ITEM2_THROWN_WEAPON))
+                calc_thaco += 2 * obj->getWeight();
 
-				if (GET_OBJ_TYPE(obj) == ITEM_WEAPON && 
-                    ch->isOkToAttack(target_vict)) {
-					calc_thaco = calculate_thaco(ch, target_vict, NULL) + 10;
-					calc_thaco -= (CHECK_SKILL(ch, SKILL_THROWING) / 10);
-					if (!IS_OBJ_STAT2(obj, ITEM2_THROWN_WEAPON))
-						calc_thaco += 2 * obj->getWeight();
+            victim_ac = GET_AC(target_vict) / 10;
+            victim_ac = MAX(-10, victim_ac);	/* -10 is lowest */
+            if (AWAKE(target_vict))
+                victim_ac += dex_app[GET_DEX(target_vict)].defensive;
+            diceroll = number(1, 20);
+            if ((diceroll < 20 && AWAKE(target_vict)) &&
+                ((diceroll == 1) || ((calc_thaco - diceroll) > victim_ac))) {
+                // Missed throw
+                if (IS_POTION(obj)) {
+                    act("$p narrowly misses you and shatters on the ground!", FALSE, ch, obj,
+                        target_vict, TO_VICT);
+                    act("$p narrowly misses $M and shatters on the ground!", FALSE, ch, obj,
+                        target_vict, TO_NOTVICT);
+                    act("$p narrowly misses $M and shatters on the ground!", FALSE, ch, obj,
+                        target_vict, TO_CHAR);
+                    extract_obj(obj);
+                } else {
+                    act("$p narrowly misses you!", FALSE, ch, obj,
+                        target_vict, TO_VICT);
+                    act("$p narrowly misses $M!", FALSE, ch, obj,
+                        target_vict, TO_NOTVICT);
+                    act("$p narrowly misses $M!", FALSE, ch, obj,
+                        target_vict, TO_CHAR);
+                }
+            } else if (GET_OBJ_TYPE(obj) == ITEM_WEAPON
+                       && ch->isOkToAttack(target_vict)) {
+                // Hit throw with a weapon
+                damage(ch, target_vict,
+                       dice(GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)) +
+                       str_app[STRENGTH_APPLY_INDEX(ch)].todam,
+                       GET_OBJ_VAL(obj, 3) + TYPE_HIT, number(0,
+                                                              NUM_WEARS - 1));
+            } else if (GET_OBJ_TYPE(obj) == ITEM_POTION) {
+                // Hit throw with a potion
+                act("$p hits $M in the head and shatters!",
+                    false, ch, obj, target_vict, TO_CHAR);
+                act("$p hits $N in the head and shatters!",
+                    false, ch, obj, target_vict, TO_NOTVICT);
+                act("$p hits you in the head and shatters!",
+                    false, ch, obj, target_vict, TO_VICT);
+                // TODO: Copied from mag_objectmagic... Needs to be refactored
+                if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+                    for (int i = 1; i < 4; i++) {
+                        int return_flags = 0;
+                        call_magic(ch, target_vict,
+                                   NULL, NULL, GET_OBJ_VAL(obj, i),
+                                   MAX(1, GET_OBJ_VAL(obj, 0) / 4),
+                                   CAST_POTION, &return_flags);
+                        if (IS_SET(return_flags, DAM_ATTACKER_KILLED) ||
+                            IS_SET(return_flags, DAM_VICT_KILLED)) {
+                            break;
+                        }
+                    }
+                }
+                extract_obj(obj);
+            } else {
+                act("$p hits $M in the head!",
+                    false, ch, obj, target_vict, TO_CHAR);
+                act("$p hits $N in the head!",
+                    false, ch, obj, target_vict, TO_NOTVICT);
+                act("$p hits you in the head!",
+                    false, ch, obj, target_vict, TO_VICT);
+                obj_from_char(obj);
+                obj_to_room(obj, ch->in_room);
+            }
 
-					victim_ac = GET_AC(target_vict) / 10;
-					victim_ac = MAX(-10, victim_ac);	/* -10 is lowest */
-					if (AWAKE(target_vict))
-						victim_ac += dex_app[GET_DEX(target_vict)].defensive;
-					diceroll = number(1, 20);
-					if ((diceroll < 20 && AWAKE(target_vict)) &&
-						((diceroll == 1)
-							|| ((calc_thaco - diceroll) > victim_ac))) {
-						act("$p narrowly misses you!", FALSE, ch, obj,
-							target_vict, TO_VICT);
-						act("$p narrowly misses $M!", FALSE, ch, obj,
-							target_vict, TO_NOTVICT);
-						act("$p narrowly misses $M!", FALSE, ch, obj,
-							target_vict, TO_CHAR);
-					} else {
-						damage(ch, target_vict,
-							dice(GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)) +
-							str_app[STRENGTH_APPLY_INDEX(ch)].todam,
-							GET_OBJ_VAL(obj, 3) + TYPE_HIT, number(0,
-								NUM_WEARS - 1));
-						gain_skill_prof(ch, SKILL_THROWING);
-					}
+            gain_skill_prof(ch, SKILL_THROWING);
+            WAIT_STATE(ch, PULSE_VIOLENCE * 1);
+            if (CHECK_SKILL(ch, SKILL_THROWING) < 90)
+                WAIT_STATE(ch, PULSE_VIOLENCE * 1);
+            if (CHECK_SKILL(ch, SKILL_THROWING) < 60)
+                WAIT_STATE(ch, PULSE_VIOLENCE * 1);
 
-					WAIT_STATE(ch, PULSE_VIOLENCE * 1);
-					if (CHECK_SKILL(ch, SKILL_THROWING) < 90)
-						WAIT_STATE(ch, PULSE_VIOLENCE * 1);
-					if (CHECK_SKILL(ch, SKILL_THROWING) < 60)
-						WAIT_STATE(ch, PULSE_VIOLENCE * 1);
-
-					//if (IS_MOB(target_vict) && !target_vict->numCombatants())
-					//	hit(target_vict, ch, TYPE_UNDEFINED);
-
-					obj_from_char(obj);
-					obj_to_room(obj, ch->in_room);
-					return;
-				}
-			} else {
-				act("$n throws $p at $mself!", FALSE, ch, obj, target_vict,
-					TO_ROOM);
-				act("You throw $p at yourself.", FALSE, ch, obj, target_vict,
-					TO_CHAR);
-			}
-			if (ch != target_vict)
-				act("$p hits $M in the head!", FALSE, ch, obj, target_vict,
-					TO_CHAR);
-			act("$p hits $N in the head!", FALSE, ch, obj, target_vict,
-				TO_NOTVICT);
-			act("$p hits you in the head!", FALSE, ch, obj, target_vict,
-				TO_VICT);
+            return;
 		} else if (target_obj) {
 			if (obj->worn_on >= 0) {
 				if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
