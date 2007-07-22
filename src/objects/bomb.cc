@@ -207,14 +207,14 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 		case BOMB_FLASH:
 			sprintf(buf,
 				"A blinding flash fills the room as %s explodes!!", bomb_name);
-			damage_type = 0;
+			damage_type = TYPE_ENERGY_GUN;
 			dam = MIN(1, dam);
 			break;
 		case BOMB_SMOKE:
 			sprintf(buf, "Clouds of smoke begin to billow from %s!!",
 				bomb_name);
 			dam = 0;
-			damage_type = 0;
+			damage_type = TYPE_DROWNING;
 			break;
 		case BOMB_ARTIFACT:
 			sprintf(buf, "%s unfolds itself with a screaming roar!\nYou are engulfed in a bright blue light...", bomb_name);
@@ -294,13 +294,13 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 				break;
 			case BOMB_FLASH:
 				strcpy(buf, "There is a flash of light");
-				damage_type = 0;
+				damage_type = TYPE_ENERGY_GUN;
 				dam = MIN(1, dam);
 				break;
 			case BOMB_SMOKE:
 				strcpy(buf, "Clouds of smoke begin to billow in");
 				dam = MAX(1, dam);
-				damage_type = 0;
+				damage_type = TYPE_DROWNING;
 				break;
 			case BOMB_ARTIFACT:	
 				strcpy(buf, "You are engulfed by a blinding bright blue light");

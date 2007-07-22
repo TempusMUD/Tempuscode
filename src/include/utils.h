@@ -760,6 +760,7 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 #define OBJ_IS_RAD(obj) (IS_OBJ_STAT2(obj, ITEM2_RADIOACTIVE))
 
 #define QUAD_VNUM  1578
+#define MIXED_POTION_VNUM 15
 
 #define BLOOD_VNUM 1579
 #define ICE_VNUM   1576

@@ -276,6 +276,7 @@ static const int CREATED_SEARCH = 3;
 static const int CREATED_ZONE = 4;
 static const int CREATED_MOB = 5;
 static const int CREATED_PROG = 6;
+static const int CREATED_PLAYER = 7;
 
 // These constants are to be passed to affectJoin()
 static const int AFF_ADD = 0;

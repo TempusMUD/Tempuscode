@@ -164,6 +164,7 @@ ACMD(do_tornado_kick);
 ACMD(do_tune);
 ACMD(do_color);
 ACMD(do_combo);
+ACMD(do_combine);
 ACMD(do_commands);
 ACMD(do_compare);
 ACMD(do_compact);
@@ -599,6 +600,7 @@ struct command_info cmd_info[] = {
 	{"collapse", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"comfort", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"comb", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"combine", POS_STANDING, do_combine, 0, 0, 0, 0},
 	{"combo", POS_FIGHTING, do_combo, 0, 0, 0, 0},
 	{"commands", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0, 0},
 	{"compact", POS_DEAD, do_compact, 0, 0, 0, 0},

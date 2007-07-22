@@ -1264,6 +1264,11 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
 				j->creator,
 				tmp_ctime(j->creation_time));
 			break;
+		case CREATED_PLAYER:
+			acc_sprintf("Created by player %s on %s\r\n",
+				playerIndex.getName(j->creator),
+				tmp_ctime(j->creation_time));
+			break;
 		default:
 			acc_sprintf("Created on %s\r\n", tmp_ctime(j->creation_time));
 			break;

@@ -863,3 +863,95 @@ ACMD(do_appraise)
 
 	perform_appraise(ch, obj, CHECK_SKILL(ch, SKILL_APPRAISE));
 }
+
+ACMD(do_combine)
+{
+    obj_data *potion1, *potion2;
+    char *arg;
+    int bits;
+
+    arg = tmp_getword(&argument);
+    if (!*arg) {
+        send_to_char(ch, "Usage: combine <potion1> <potion2>\r\n");
+        return;
+    }
+
+    // Find the first potion
+    bits = generic_find(arg, FIND_OBJ_INV, ch, NULL, &potion1);
+    if (!bits) {
+        send_to_char(ch, "You don't see any %s here.\r\n", arg);
+        return;
+    }
+    if (!IS_POTION(potion1)) {
+        send_to_char(ch, "%s is not a potion.\r\n", OBJN(potion1, ch));
+        return;
+    }
+
+    // Find the second potion
+    arg = tmp_getword(&argument);
+    bits = generic_find(arg, FIND_OBJ_INV, ch, NULL, &potion2);
+    if (!bits) {
+        send_to_char(ch, "You don't see any %s here.\r\n", arg);
+        return;
+    }
+    if (!IS_POTION(potion2)) {
+        send_to_char(ch, "%s is not a potion.\r\n", OBJN(potion2, ch));
+        return;
+    }
+
+    // See if the combination explodes :D
+    int spell_count = 0;
+    int level_count = 0;
+    for (int idx = 1;idx < 4;idx++) {
+        if (GET_OBJ_VAL(potion1, idx) > 0)
+            spell_count++;
+        if (GET_OBJ_VAL(potion2, idx) > 0)
+            spell_count++;
+    }
+    level_count = GET_OBJ_VAL(potion1, 0) + GET_OBJ_VAL(potion2, 0);
+    // Create the combined potion
+    obj_data *new_potion = read_object(MIXED_POTION_VNUM);
+
+    new_potion->creation_method = CREATED_PLAYER;
+    new_potion->creator = GET_IDNUM(ch);
+    GET_OBJ_VAL(new_potion, 0) = level_count * 100 / (2 * ch->getLevelBonus(SKILL_CHEMISTRY));
+    spell_count = 1;
+    for (int idx = 1;idx < 4;idx++) {
+        if (GET_OBJ_VAL(potion1, idx) > 0)
+            GET_OBJ_VAL(new_potion, spell_count++) = GET_OBJ_VAL(potion1, idx);
+        if (GET_OBJ_VAL(potion2, idx) > 0)
+            GET_OBJ_VAL(new_potion, spell_count++) = GET_OBJ_VAL(potion2, idx);
+    }
+
+    extract_obj(potion1);
+    extract_obj(potion2);
+    obj_to_char(new_potion, ch);
+
+    if (spell_count > 3 || level_count > 49) {
+        // Handle failure
+        switch (number(0, 5)) {
+        case 0:
+            BOMB_TYPE(new_potion) = BOMB_CONCUSSION; break;
+        case 1:
+            BOMB_TYPE(new_potion) = BOMB_INCENDIARY; break;
+        case 2:
+            BOMB_TYPE(new_potion) = BOMB_FRAGMENTATION; break;
+        case 3:
+            BOMB_TYPE(new_potion) = BOMB_FLASH; break;
+        case 4:
+            BOMB_TYPE(new_potion) = BOMB_SMOKE; break;
+        default:
+            BOMB_TYPE(new_potion) = BOMB_DISRUPTION; break;
+        }
+        BOMB_POWER(new_potion) = number(20, 40);
+        BOMB_IDNUM(new_potion) = GET_IDNUM(ch);
+
+        detonate_bomb(new_potion);
+        return;
+    }
+
+    act("You mix them together and create $p!",
+        false, ch, new_potion, 0, TO_CHAR);
+    act("$n mixes two potions together and creates $p!",
+        false, ch, new_potion, 0, TO_ROOM);
+}
