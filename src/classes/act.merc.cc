@@ -840,7 +840,6 @@ perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 ACMD(do_appraise)
 {
 	struct obj_data *obj = NULL;	// the object that will be emptied 
-	struct Creature *dummy = NULL;
 	int bits;
 	char *arg;
 
@@ -856,7 +855,7 @@ ACMD(do_appraise)
 		return;
 	}
 
-	if (!(bits = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &dummy, &obj))) {
+	if (!(bits = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, NULL, &obj))) {
 		send_to_char(ch, "You can't find any %s to appraise\r\n.", arg);
 		return;
 	}

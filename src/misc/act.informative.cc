@@ -1631,14 +1631,13 @@ void
 look_in_obj(struct Creature *ch, char *arg)
 {
 	struct obj_data *obj = NULL;
-	struct Creature *dummy = NULL;
 	int amt, bits;
 	struct room_data *room_was_in = NULL;
 
 	if (!*arg)
 		send_to_char(ch, "Look in what?\r\n");
 	else if (!(bits = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM |
-				FIND_OBJ_EQUIP, ch, &dummy, &obj))) {
+				FIND_OBJ_EQUIP, ch, NULL, &obj))) {
 		send_to_char(ch, "There doesn't seem to be %s %s here.\r\n", AN(arg), arg);
 	} else if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON) &&
 		(GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN) &&

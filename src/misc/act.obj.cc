@@ -387,7 +387,6 @@ ACMD(do_put)
 	char arg2[MAX_INPUT_LENGTH];
 	char cntbuf[80];
 	struct obj_data *obj, *next_obj, *cont, *save_obj = NULL;
-	struct Creature *tmp_char;
 	int obj_dotmode, cont_dotmode, found = 0, counter = 0;
 	bool bomb = false;
 
@@ -405,7 +404,7 @@ ACMD(do_put)
 			((obj_dotmode == FIND_INDIV) ? "it" : "them"));
 	} else {
 		generic_find(arg2, FIND_OBJ_INV | FIND_OBJ_EQUIP_CONT | FIND_OBJ_ROOM,
-			ch, &tmp_char, &cont);
+			ch, NULL, &cont);
 		if (!cont) {
 			send_to_char(ch, "You don't see %s %s here.\r\n", AN(arg2), arg2);
 		} else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER &&
@@ -1074,7 +1073,6 @@ ACCMD(do_get)
 {
 	int cont_dotmode = -1;
 	struct obj_data *cont = NULL;
-	struct Creature *tmp_char = NULL;
 	char *arg1 = tmp_getword(&argument);
 	char *arg2 = tmp_getword(&argument);
     char *tmp_args;
@@ -1110,7 +1108,7 @@ ACCMD(do_get)
 
 		generic_find(arg2,
 			FIND_OBJ_INV | FIND_OBJ_EQUIP_CONT | FIND_OBJ_ROOM,
-			ch, &tmp_char, &cont);
+			ch, NULL, &cont);
 
 		if (!cont) {
 			send_to_char(ch, "You don't have %s %s.\r\n", AN(arg2), arg2);
@@ -3960,7 +3958,6 @@ ACMD(do_empty)
 	struct obj_data *next_obj = NULL;
 	struct obj_data *o = NULL;
 	struct obj_data *container = NULL;
-	struct Creature *dummy = NULL;
 	int bits;
 	int bits2;
 	char arg1[MAX_INPUT_LENGTH];
@@ -3974,7 +3971,7 @@ ACMD(do_empty)
 		return;
 	}
 
-	if (!(bits = generic_find(arg1, FIND_OBJ_INV, ch, &dummy, &obj))) {
+	if (!(bits = generic_find(arg1, FIND_OBJ_INV, ch, NULL, &obj))) {
 		send_to_char(ch, "You can't find any %s to empty\r\n.", arg1);
 		return;
 	}
@@ -4009,7 +4006,7 @@ ACMD(do_empty)
 
 		if (!(bits2 =
 				generic_find(arg2,
-					FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM, ch, &dummy,
+					FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM, ch, NULL,
 					&container))) {
 			send_to_char(ch, "Empty %s into what?\r\n", obj->name);
 			return;
