@@ -1342,7 +1342,10 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
             flush_q(&d->input);
         }
 	}
-	if (d->creature)
+    
+    if (d->original)
+        d->original->saveToXML();
+    else if (d->creature)
 		d->creature->saveToXML();
 
     send_menu(d);
