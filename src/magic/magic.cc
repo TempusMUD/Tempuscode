@@ -3420,7 +3420,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_REFRESH:
 		move = 50 + number(0, level) + GET_WIS(ch);
 		move = (skill * move) / 100;
-		to_vict = "You feel refreshed!.";
+		to_vict = "You feel refreshed!";
 		break;
 	case SPELL_MANA_RESTORE:
 		mana = dice(level, 10);
