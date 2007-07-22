@@ -382,7 +382,7 @@ do_qcontrol_mload(Creature *ch, char *argument, int com)
 		return;
 	}
 	if (quest->getEnded() ) {
-		send_to_char(ch, "Pay attentionu dummy! That quest is over!\r\n");
+		send_to_char(ch, "Pay attention dummy! That quest is over!\r\n");
 		return;
 	}
 
