@@ -899,7 +899,10 @@ ACMD(do_combine)
         return;
     }
 
-    // See if the combination explodes :D
+	if (CHECK_SKILL(ch, SKILL_CHEMISTRY) <= 0) {
+		send_to_char(ch, "You aren't familiar with how to combine them.\r\n");
+	}
+
     int spell_count = 0;
     int level_count = 0;
     for (int idx = 1;idx < 4;idx++) {
@@ -927,8 +930,8 @@ ACMD(do_combine)
     extract_obj(potion2);
     obj_to_char(new_potion, ch);
 
+    // See if the combination explodes :D
     if (spell_count > 3 || level_count > 49) {
-        // Handle failure
         switch (number(0, 5)) {
         case 0:
             BOMB_TYPE(new_potion) = BOMB_CONCUSSION; break;
