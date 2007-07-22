@@ -917,20 +917,12 @@ ACMD(do_combine)
 
     new_potion->creation_method = CREATED_PLAYER;
     new_potion->creator = GET_IDNUM(ch);
-    GET_OBJ_VAL(new_potion, 0) = level_count * 100 / (2 * ch->getLevelBonus(SKILL_CHEMISTRY));
-    spell_count = 1;
-    for (int idx = 1;idx < 4;idx++) {
-        if (GET_OBJ_VAL(potion1, idx) > 0)
-            GET_OBJ_VAL(new_potion, spell_count++) = GET_OBJ_VAL(potion1, idx);
-        if (GET_OBJ_VAL(potion2, idx) > 0)
-            GET_OBJ_VAL(new_potion, spell_count++) = GET_OBJ_VAL(potion2, idx);
-    }
 
     extract_obj(potion1);
     extract_obj(potion2);
     obj_to_char(new_potion, ch);
 
-    // See if the combination explodes :D
+    // Check to see if mixture explodes :D
     if (spell_count > 3 || level_count > 49) {
         switch (number(0, 5)) {
         case 0:
@@ -953,6 +945,19 @@ ACMD(do_combine)
         return;
     }
 
+    if (number(0, 120) < CHECK_SKILL(ch, SKILL_CHEMISTRY)) {
+        // Didn't explode - set up the level and spells
+        GET_OBJ_VAL(new_potion, 0) = level_count * 100 / (2 * ch->getLevelBonus(SKILL_CHEMISTRY));
+        spell_count = 1;
+        for (int idx = 1;idx < 4;idx++) {
+            if (GET_OBJ_VAL(potion1, idx) > 0)
+                GET_OBJ_VAL(new_potion, spell_count++) = GET_OBJ_VAL(potion1, idx);
+            if (GET_OBJ_VAL(potion2, idx) > 0)
+                GET_OBJ_VAL(new_potion, spell_count++) = GET_OBJ_VAL(potion2, idx);
+        }
+    }
+
+    // They don't know if they succeeded unless they identify it or use it
     act("You mix them together and create $p!",
         false, ch, new_potion, 0, TO_CHAR);
     act("$n mixes two potions together and creates $p!",
