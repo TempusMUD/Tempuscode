@@ -324,7 +324,8 @@ ACMD(do_snipe)
 	// I don't know if a skill can be less than 0
 	// but I don't think it can hurt to check for it
 	if (CHECK_SKILL(ch, SKILL_SNIPE) <= 0) {
-		send_to_char(ch, "You have no idea how!");
+		send_to_char(ch, "You have no idea how!\r\n");
+        return;
 	}
 
 	// is ch's gun loaded?
