@@ -2669,8 +2669,10 @@ generic_find(char *arg, int bitvector, struct Creature *ch,
 	int i, found;
 	char *name;
 
-	*tar_ch = NULL;
-	*tar_obj = NULL;
+    if (tar_ch)
+        *tar_ch = NULL;
+    if (tar_obj)
+        *tar_obj = NULL;
 
 	name = tmp_getword(&arg);
 
