@@ -1747,6 +1747,8 @@ ACMD(do_throw)
                         target_vict, TO_NOTVICT);
                     act("$p narrowly misses $M!", FALSE, ch, obj,
                         target_vict, TO_CHAR);
+                    obj_from_char(obj);
+                    obj_to_room(obj, ch->in_room);
                 }
             } else if (GET_OBJ_TYPE(obj) == ITEM_WEAPON
                        && ch->isOkToAttack(target_vict)) {
