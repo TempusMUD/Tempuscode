@@ -899,6 +899,11 @@ ACMD(do_combine)
         return;
     }
 
+    if (potion1 == potion2) {
+        send_to_char(ch, "You can't combine a potion with itself.\r\n");
+        return;
+    }
+
 	if (CHECK_SKILL(ch, SKILL_CHEMISTRY) <= 0) {
 		send_to_char(ch, "You aren't familiar with how to combine them.\r\n");
 	}
