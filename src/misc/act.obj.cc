@@ -181,12 +181,12 @@ consolidate_char_money(struct Creature *ch)
 		next_obj = obj->next_content;
 
 		if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
-
-			if (GET_OBJ_VAL(obj, 1) == 1)
-				num_credits += GET_OBJ_VAL(obj, 0);
-			else
-				num_gold += GET_OBJ_VAL(obj, 0);
-
+            if (OBJ_APPROVED(obj) || Security::isMember(ch, "WizardFull")) {
+                if (GET_OBJ_VAL(obj, 1) == 1)
+                    num_credits += GET_OBJ_VAL(obj, 0);
+                else
+                    num_gold += GET_OBJ_VAL(obj, 0);
+            }
 			extract_obj(obj);
 		}
 	}
