@@ -219,7 +219,7 @@ ACMD(do_teach)
             return;
         }
         if (CHECK_SKILL(target, num) >= CHECK_SKILL(ch, num) / 2) {
-            act(tmp_sprintf("$E already knows as much as you can teach $m of '%s'.", skill_name),
+            act(tmp_sprintf("$E already knows as much as you can teach $M of '%s'.", skill_name),
                 false, ch, 0, target, TO_CHAR);
             return;
         }
