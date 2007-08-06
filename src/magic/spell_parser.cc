@@ -800,7 +800,10 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		gain_skill_prof(ch, SKILL_READ_SCROLLS);
 
         // Remove object in case it's destroyed by its own spells
-        obj_from_char(obj);
+        if (obj->worn_by)
+            unequip_char(ch, obj->worn_on, EQUIP_WORN);
+        else if (obj->carried_by)
+            obj_from_char(obj);
 
 		for (i = 1; i < 4; i++) {
 			call_magic(ch, tch, tobj, NULL, GET_OBJ_VAL(obj, i),
@@ -839,7 +842,10 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		WAIT_STATE(ch, 2 RL_SEC);
 
         // Remove object in case it's destroyed by its own spells
-        obj_from_char(obj);
+        if (obj->worn_by)
+            unequip_char(ch, obj->worn_on, EQUIP_WORN);
+        else if (obj->carried_by)
+            obj_from_char(obj);
 
 		for (i = 1; i < 4; i++) {
 			call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, i),
@@ -874,7 +880,10 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 
         // Remove object in case it's destroyed by its own spells
-        obj_from_char(obj);
+        if (obj->worn_by)
+            unequip_char(ch, obj->worn_on, EQUIP_WORN);
+        else if (obj->carried_by)
+            obj_from_char(obj);
 
 		if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
 			for (i = 1; i < 4; i++) {
@@ -918,7 +927,10 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 
         // Remove object in case it's destroyed by its own spells
-        obj_from_char(obj);
+        if (obj->worn_by)
+            unequip_char(ch, obj->worn_on, EQUIP_WORN);
+        else if (obj->carried_by)
+            obj_from_char(obj);
 
 		for (i = 1; i < 4; i++) {
 			call_magic(ch, tch, NULL, NULL, GET_OBJ_VAL(obj, i),
@@ -945,7 +957,10 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 
         // Remove object in case it's destroyed by its own spells
-        obj_from_char(obj);
+        if (obj->worn_by)
+            unequip_char(ch, obj->worn_on, EQUIP_WORN);
+        else if (obj->carried_by)
+            obj_from_char(obj);
 
 		for (i = 1; i < 4; i++) {
 			call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, i),
