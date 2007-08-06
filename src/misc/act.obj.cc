@@ -606,9 +606,11 @@ perform_get_from_container(struct Creature * ch,
 		// log corpse looting
 		//
 
-		if (GET_OBJ_VAL(cont, 3) && CORPSE_IDNUM(cont) > 0 &&
-			playerIndex.exists(CORPSE_IDNUM(cont)) &&
-			CORPSE_IDNUM(cont) != GET_IDNUM(ch)) {
+		if (GET_OBJ_VAL(cont, 3)
+            && CORPSE_IDNUM(cont) > 0
+            && playerIndex.exists(CORPSE_IDNUM(cont))
+            && CORPSE_IDNUM(cont) != GET_IDNUM(ch)
+            && playerIndex.getAccountID(CORPSE_IDNUM(cont)) != ch->account->get_idnum()) {
 			mudlog(LVL_DEMI, CMP, true,
 				"%s looted %s from %s.", GET_NAME(ch),
 				obj->name, cont->name);
