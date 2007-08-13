@@ -7565,7 +7565,7 @@ ACMD(do_oset)
     struct Creature *vict = NULL;
     int where_worn = 0;
     char arg1[MAX_INPUT_LENGTH];
-    bool internal = 0;
+    int equip_mode = EQUIP_WORN;
 
     if (!*argument) {
         send_to_char(ch, OSET_FORMAT);
@@ -7580,13 +7580,17 @@ ACMD(do_oset)
 
     if ((vict = obj->worn_by)) {
         where_worn = obj->worn_on;
-        if (obj == GET_IMPLANT(obj->worn_by, obj->worn_on))
-            internal = 1;
-        unequip_char(vict, where_worn, internal);
+        if (obj == GET_EQ(obj->worn_by, obj->worn_on))
+            equip_mode = EQUIP_WORN;
+        else if (obj == GET_IMPLANT(obj->worn_by, obj->worn_on))
+            equip_mode = EQUIP_IMPLANT;
+        else if (obj == GET_TATTOO(obj->worn_by, obj->worn_on))
+            equip_mode = EQUIP_TATTOO;
+        unequip_char(vict, where_worn, equip_mode);
     }
     perform_oset(ch, obj, argument, NORMAL_OSET);
     if (vict) {
-        if (equip_char(vict, obj, where_worn, internal))
+        if (equip_char(vict, obj, where_worn, equip_mode))
             return;
         if (!IS_NPC(vict))
             vict->saveToXML();
