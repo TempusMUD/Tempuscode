@@ -309,8 +309,9 @@ burn_update(void)
 				if (obj) {
 					obj_found = true;
 					if (GET_OBJ_MAX_DAM(obj) != -1
-							&& GET_OBJ_DAM(obj) != -1
-							&& GET_OBJ_DAM(obj) < GET_OBJ_MAX_DAM(obj)) {
+                        && GET_OBJ_DAM(obj) != -1
+                        && !IS_OBJ_STAT2(obj, ITEM2_BROKEN)
+                        && GET_OBJ_DAM(obj) < GET_OBJ_MAX_DAM(obj)) {
 						repaired = true;
                         float amount =  
                             (ch->getLevelBonus(SKILL_NANITE_RECONSTRUCTION) / 
