@@ -867,6 +867,7 @@ struct command_info cmd_info[] = {
 	{"intimidate", POS_STANDING, do_intimidate, 0, SKILL_INTIMIDATE, 0, 0},
 	{"intone", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"introduce", POS_RESTING, do_action, 0, 0, 0, 0},
+	{"ide", POS_DEAD, do_gen_write, 0, SCMD_BAD_IDEA, 0, 0},
 	{"idea", POS_DEAD, do_gen_write, 0, SCMD_IDEA, 0, 0},
 	{"imbibe", POS_RESTING, do_drink, 0, SCMD_DRINK, 0, 0},
 	{"immchat", POS_DEAD, do_wiznet, LVL_AMBASSADOR, SCMD_IMMCHAT, 0, 0},

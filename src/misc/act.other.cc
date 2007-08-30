@@ -994,6 +994,9 @@ ACMD(do_gen_write)
 	case SCMD_IDEA:
 		filename = IDEA_FILE;
 		break;
+    case SCMD_BAD_IDEA:
+		send_to_char(ch, "You have to type idea - no less, to submit an idea!\r\n");
+        return;
 	default:
 		return;
 	}
