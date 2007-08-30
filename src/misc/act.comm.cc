@@ -162,8 +162,16 @@ select_say_cmd(Creature *ch, const char *message)
         return "wheeze";
 	if (GET_COND(ch, DRUNK) > 10)
         return "slur";
+	if (GET_COND(ch, THIRST) == 0)
+        return "rasp";
     if (strcasestr(message, "y'all") || strstr(message, "ain't"))
         return "drawl";
+    if (IS_AFFECTED_2(ch, AFF2_BERSERK))
+        return "rave";
+    if (IS_AFFECTED_2(ch, AFF2_INTIMIDATED))
+        return "whimper";
+    if (IS_AFFECTED(ch, AFF_CONFUSION))
+        return "stammer";
     for (int i = 0;i < num_nasty;i++)
         if (!strcasecmp(message, nasty_list[i]))
             return "curse";
