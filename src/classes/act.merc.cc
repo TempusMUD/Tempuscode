@@ -883,7 +883,7 @@ ACMD(do_combine)
         return;
     }
     if (!IS_POTION(potion1)) {
-        send_to_char(ch, "%s is not a potion.\r\n", OBJN(potion1, ch));
+        act("$p is not a potion.", true, ch, 0, potion1, TO_CHAR);
         return;
     }
 
@@ -895,7 +895,7 @@ ACMD(do_combine)
         return;
     }
     if (!IS_POTION(potion2)) {
-        send_to_char(ch, "%s is not a potion.\r\n", OBJN(potion2, ch));
+        act("$p is not a potion.", true, ch, 0, potion2, TO_CHAR);
         return;
     }
 
