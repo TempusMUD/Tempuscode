@@ -904,7 +904,7 @@ Creature::clear(void)
         free(this->player_specials->poofin);
         free(this->player_specials->poofout);
         free(this->player_specials->afk_reason);
-
+        this->player_specials->afk_notifies.clear();
 		delete this->player_specials;
 
 		if (IS_NPC(this)) {

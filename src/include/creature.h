@@ -1003,6 +1003,7 @@ struct player_special_data {
         
         recently_killed = c.recently_killed;
         afk_reason = strdup(c.afk_reason);
+        afk_notifies = c.afk_notifies;
 
         alias_data *head = NULL;
         alias_data *tail = NULL;
@@ -1055,6 +1056,8 @@ struct player_special_data {
 	char *poofin;				/* Description on arrival of a god.     */
 	char *poofout;				/* Description upon a god's exit.       */
     char *afk_reason;           /* Reason the player is AFK */
+    std::list<int> afk_notifies; /* People who have sent tells while
+                                  * player is AFK */
 	struct alias_data *aliases;	/* Character's aliases            */
 	long last_tell_from;			/* idnum of last tell from        */
 	long last_tell_to;				/* idnum of last tell to */

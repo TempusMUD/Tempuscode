@@ -1374,6 +1374,7 @@ ACMD(do_afk)
 
         free(AFK_REASON(ch));
         AFK_REASON(ch) = strdup(argument);
+        AFK_NOTIFIES(ch).clear();
         SET_BIT(PLR_FLAGS(ch), PLR_AFK);
         send_to_char(ch, "You are now afk: %s.\r\n", argument);
         act(tmp_sprintf("$n has gone away from the keyboard: %s", argument),
@@ -1382,6 +1383,7 @@ ACMD(do_afk)
         // Leaving afk
         free(AFK_REASON(ch));
         AFK_REASON(ch) = NULL;
+        AFK_NOTIFIES(ch).clear();
         REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
         send_to_char(ch, "You have returned to the keyboard.\r\n");
         act("$n has returned to the keyboard", false, ch, 0, 0, TO_ROOM);
@@ -1389,6 +1391,7 @@ ACMD(do_afk)
         // Afk with no reason
         free(AFK_REASON(ch));
         AFK_REASON(ch) = NULL;
+        AFK_NOTIFIES(ch).clear();
         send_to_char(ch, "You are now afk.  When you move again, you will no longer be.\r\n");
         SET_BIT(PLR_FLAGS(ch), PLR_AFK);
         act("$n has gone away from the keyboard.", false, ch, 0, 0, TO_ROOM);

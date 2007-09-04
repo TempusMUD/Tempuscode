@@ -259,6 +259,19 @@ perform_tell(struct Creature *ch, struct Creature *vict, const char *arg)
 	act(act_str, false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	act(act_str, false, ch, 0, vict, TO_VICT | TO_SLEEP);
 
+    if (PLR_FLAGGED(vict, PLR_AFK)
+        && std::find(AFK_NOTIFIES(vict).begin(),
+                     AFK_NOTIFIES(vict).end(),
+                     GET_IDNUM(ch)) == AFK_NOTIFIES(vict).end()) {
+        AFK_NOTIFIES(vict).push_back(GET_IDNUM(ch));
+        if (AFK_REASON(vict))
+            act(tmp_sprintf("$N is away from the keyboard: %s",
+                            AFK_REASON(vict)),
+                true, ch, 0, vict, TO_CHAR);
+        else
+            act("$N is away from the keyboard.", true, ch, 0, vict, TO_CHAR);
+    }
+
 	if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_MOB(ch))
 		send_to_char(vict, "\007\007");
 
