@@ -1665,11 +1665,13 @@ command_interpreter(struct Creature *ch, char *argument)
         ch->dismount();
 	}
 
+    // Skip any initial spaces, slashes or backslashes
+    while (strchr(" \\/", *argument))
+        argument++;
+
 	/* just drop to next line for hitting CR */
-	skip_spaces(&argument);
 	if (!*argument)
 		return;
-
 	/*
 	 * special case to handle one-character, non-alphanumeric commands;
 	 * requested by many people so "'hi" or ";godnet test" is possible.
