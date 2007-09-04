@@ -428,6 +428,8 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	if (PLR_FLAGGED(ch, PLR_AFK)) {
 		send_to_char(ch, "You are no longer afk.\r\n");
 		REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
+        free(AFK_REASON(ch));
+        AFK_REASON(ch) = NULL;
 	}
 
 	/* charmed? */

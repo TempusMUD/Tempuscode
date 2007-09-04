@@ -1195,9 +1195,6 @@ ACMD(do_gen_tog)
 	case SCMD_AUTOEXIT:
 		result = PRF_TOG_CHK(ch, PRF_AUTOEXIT);
 		break;
-	case SCMD_AFK:
-		result = PLR_TOG_CHK(ch, PLR_AFK);
-		break;
 	case SCMD_NOMUSIC:
 		result = PRF_TOG_CHK(ch, PRF_NOMUSIC);
 		break;
@@ -1363,6 +1360,39 @@ ACMD(do_gen_tog)
 		send_to_char(ch, tog_messages[subcmd][TOG_OFF]);
 
 	return;
+}
+
+ACMD(do_afk)
+{
+    if (*argument) {
+        // Afk with a reason always keeps afk
+        skip_spaces(&argument);
+        if (strlen(argument) > MAX_AFK_LENGTH) {
+            send_to_char(ch, "Your afk reason must be limited to %d characters.\r\n", MAX_AFK_LENGTH);
+            return;
+        }
+
+        free(AFK_REASON(ch));
+        AFK_REASON(ch) = strdup(argument);
+        SET_BIT(PLR_FLAGS(ch), PLR_AFK);
+        send_to_char(ch, "You are now afk: %s.\r\n", argument);
+        act(tmp_sprintf("$n has gone away from the keyboard: %s", argument),
+            false, ch, 0, 0, TO_ROOM);
+    } else if (PLR_FLAGGED(ch, PLR_AFK)) {
+        // Leaving afk
+        free(AFK_REASON(ch));
+        AFK_REASON(ch) = NULL;
+        REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
+        send_to_char(ch, "You have returned to the keyboard.\r\n");
+        act("$n has returned to the keyboard", false, ch, 0, 0, TO_ROOM);
+    }  else {
+        // Afk with no reason
+        free(AFK_REASON(ch));
+        AFK_REASON(ch) = NULL;
+        send_to_char(ch, "You are now afk.  When you move again, you will no longer be.\r\n");
+        SET_BIT(PLR_FLAGS(ch), PLR_AFK);
+        act("$n has gone away from the keyboard.", false, ch, 0, 0, TO_ROOM);
+    }
 }
 
 ACMD(do_store)

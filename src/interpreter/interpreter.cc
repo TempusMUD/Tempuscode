@@ -91,6 +91,7 @@ ACMD(do_addname);
 ACMD(do_addpos);
 ACMD(do_advance);
 ACMD(do_affects);
+ACMD(do_afk);
 ACMD(do_alias);
 ACMD(do_alignment);
 ACMD(do_alter);
@@ -486,7 +487,7 @@ struct command_info cmd_info[] = {
 	{"autosplit", POS_DEAD, do_gen_tog, 1, SCMD_AUTOSPLIT, 0, 0},
 	{"autowrap", POS_DEAD, do_gen_tog, LVL_IMMORT, SCMD_AUTOWRAP, 0, 0},
 	{"affects", POS_SLEEPING, do_affects, 0, 0, 0, 0},
-	{"afk", POS_SLEEPING, do_gen_tog, 0, SCMD_AFK, 0, 0},
+	{"afk", POS_SLEEPING, do_afk, 0, 0, 0, 0},
 	{"admire", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"aucset", POS_RESTING, do_not_here, 0, 0, 0, 0},
 

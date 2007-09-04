@@ -897,19 +897,13 @@ Creature::clear(void)
 			free(this->player.description);
 	}
 
-	//
-	// remove player_specials:
-	// - poofin
-	// - poofout
-	//
-
+	// remove player_specials
 	is_pc = !IS_NPC(this);
 
 	if (this->player_specials != NULL && this->player_specials != &dummy_mob) {
-		if (this->player_specials->poofin)
-			free(this->player_specials->poofin);
-		if (this->player_specials->poofout)
-			free(this->player_specials->poofout);
+        free(this->player_specials->poofin);
+        free(this->player_specials->poofout);
+        free(this->player_specials->afk_reason);
 
 		delete this->player_specials;
 

@@ -983,6 +983,7 @@ struct player_special_data {
         poofin = poofout = NULL;
         aliases = NULL;
         last_tell_from = last_tell_to = 0;
+        afk_reason = NULL;
         olc_mob = NULL;
         olc_obj = NULL;
         olc_shop = NULL;
@@ -1001,6 +1002,7 @@ struct player_special_data {
             this->poofout = strdup(c.poofout);
         
         recently_killed = c.recently_killed;
+        afk_reason = strdup(c.afk_reason);
 
         alias_data *head = NULL;
         alias_data *tail = NULL;
@@ -1052,6 +1054,7 @@ struct player_special_data {
 	struct player_special_data_saved saved;
 	char *poofin;				/* Description on arrival of a god.     */
 	char *poofout;				/* Description upon a god's exit.       */
+    char *afk_reason;           /* Reason the player is AFK */
 	struct alias_data *aliases;	/* Character's aliases            */
 	long last_tell_from;			/* idnum of last tell from        */
 	long last_tell_to;				/* idnum of last tell to */

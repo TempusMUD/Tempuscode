@@ -795,9 +795,16 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		if (PLR_FLAGGED(i, PLR_OLC))
 			desc = tmp_sprintf("%s %s(creating)%s", desc,
 				CCGRN(ch, C_NRM), CCYEL(ch, C_NRM));
-		if (PLR_FLAGGED(i, PLR_AFK))
-			desc = tmp_sprintf("%s %s(afk)%s", desc,
-				CCGRN(ch, C_NRM), CCYEL(ch, C_NRM));
+		if (PLR_FLAGGED(i, PLR_AFK)) {
+            if (AFK_REASON(i))
+                desc = tmp_sprintf("%s %s(afk: %s)%s", desc,
+                                   CCGRN(ch, C_NRM),
+                                   AFK_REASON(i),
+                                   CCYEL(ch, C_NRM));
+            else
+                desc = tmp_sprintf("%s %s(afk)%s", desc,
+                                   CCGRN(ch, C_NRM), CCYEL(ch, C_NRM));
+        }
 	}
 
 
@@ -3271,7 +3278,7 @@ whoFlagsString(Creature *ch, Creature *target) {
 	
 	//afk
 	if (PLR_FLAGGED(target, PLR_AFK)) {
-		out << CCGRN(ch, C_NRM) << " (afk)" << CCNRM(ch, C_NRM);
+        out << CCGRN(ch, C_NRM) << " (afk)" << CCNRM(ch, C_NRM);
 	}
 	
 	//thief
