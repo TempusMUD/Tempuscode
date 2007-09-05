@@ -929,11 +929,14 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 		if (ch == i)
 			continue;
         
-        if (ch->in_room != i->in_room && AFF_FLAGGED(i, AFF_HIDE | AFF_SNEAK))
+        if (ch->in_room != i->in_room
+            && AFF_FLAGGED(i, AFF_HIDE | AFF_SNEAK)
+            && !PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 			continue;
 
-		if (room_is_dark(ch->in_room) && !has_dark_sight(ch) &&
-			IS_AFFECTED(i, AFF_INFRAVISION)) {
+		if (room_is_dark(ch->in_room)
+            && !has_dark_sight(ch)
+            && IS_AFFECTED(i, AFF_INFRAVISION)) {
 			switch (number(0, 2)) {
 			case 0:
 				msg = tmp_strcat(msg,
@@ -961,7 +964,9 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 			continue;
 		}
 
-		if (AFF_FLAGGED(i, AFF_HIDE) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
+		if (AFF_FLAGGED(i, AFF_HIDE)
+            && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)
+            && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
 			hide_prob = number(0, i->getLevelBonus(SKILL_HIDE));
 			hide_roll = number(0, ch->getLevelBonus(true));
 			if (affected_by_spell(ch, ZEN_AWARENESS))
@@ -977,10 +982,9 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 		}
 
 		if (IS_AFFECTED(ch, AFF_GROUP) && IS_AFFECTED(i, AFF_GROUP)) {
-			is_group =
-				ch->master == i ||
-				i->master == ch ||
-				(ch->master && i->master == ch->master);
+			is_group = (ch->master == i
+                        || i->master == ch
+                        || (ch->master && i->master == ch->master));
 		}
 
 		desc = desc_one_char(ch, i, is_group);
