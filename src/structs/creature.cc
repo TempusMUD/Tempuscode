@@ -831,7 +831,9 @@ Creature::clear(void)
     // also check equipment and implants
     //
     for (int pos = 0;pos < NUM_WEARS;pos++) {
-        if (this->equipment[pos] || this->implants[pos]) {
+        if (this->equipment[pos]
+            || this->implants[pos]
+            || this->tattoos[pos]) {
             errlog("attempted clear of creature who is still connected to the world.");
             raise(SIGSEGV);
         }
