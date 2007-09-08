@@ -1667,7 +1667,7 @@ command_interpreter(struct Creature *ch, char *argument)
 	}
 
     // Skip any initial spaces, slashes or backslashes
-    while (strchr(" \\/", *argument))
+    while (*argument && strchr(" \\/", *argument))
         argument++;
 
 	/* just drop to next line for hitting CR */
