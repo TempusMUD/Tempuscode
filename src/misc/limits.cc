@@ -491,6 +491,7 @@ check_idling(struct Creature *ch)
 					send_to_char(ch,
 						"You have been idle, and are now marked afk.\r\n");
 					SET_BIT(PLR_FLAGS(ch), PLR_AFK);
+                    AFK_REASON(ch) = strdup("idle");
 				}
 			} else {
 				if (ch->in_room != NULL)
