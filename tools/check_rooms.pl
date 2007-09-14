@@ -355,8 +355,12 @@ sub check_desc
 		print "Use of the word 'you' in $where\n";
 	}
 	
-	if ($str =~ /very/i) {
+	if ($str =~ /\bvery\b/i) {
 		print "Use of the word 'very' in $where\n";
+	}
+	
+	if ($str =~ /\b(\w+)\s+\1\b/i) {
+		print "Duplicated word '$1' in $where\n";
 	}
 	
 	# Misspelled words
