@@ -14,8 +14,11 @@ def format_desc(original, indent)
 
   # Insure at least one space after punctuation
   str.gsub!(/([.?!;]+["']?)/, "\\1 ")
+  last_word = ""
   str.split(/\s+/m).each do |word|
-    next if word.match(/^very/)
+    next if word == "very"
+    next if word == last_word
+    last_word = word
     if line.size + word.size >= SCREEN_WIDTH
       lines << line.rstrip
       line = word
