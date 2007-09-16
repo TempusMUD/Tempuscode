@@ -1637,17 +1637,20 @@ ACMD(do_status)
 		acc_sprintf(
 			"%sHITP%s:                 %3d percent   (%4d/%4d)\r\n",
 			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-			(GET_HIT(ch) * 100) / GET_MAX_HIT(ch), GET_HIT(ch),
-			GET_MAX_HIT(ch));
+			(GET_MAX_HIT(ch) ? ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch)):0),
+            GET_HIT(ch),
+            GET_MAX_HIT(ch));
 		acc_sprintf(
 			"%sMANA%s:                 %3d percent   (%4d/%4d)\r\n",
 			CCMAG(ch, C_NRM), CCNRM(ch, C_NRM),
-			(GET_MANA(ch) * 100) / GET_MAX_MANA(ch), GET_MANA(ch),
+			(GET_MAX_MANA(ch) ? ((GET_MANA(ch) * 100) / GET_MAX_MANA(ch)):0),
+            GET_MANA(ch),
 			GET_MAX_MANA(ch));
 		acc_sprintf(
 			"%sMOVE%s:                 %3d percent   (%4d/%4d)\r\n",
 			CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-			(GET_MOVE(ch) * 100) / GET_MAX_MOVE(ch), GET_MOVE(ch),
+			(GET_MAX_MOVE(ch) ? ((GET_MOVE(ch) * 100) / GET_MAX_MOVE(ch)):0),
+            GET_MOVE(ch),
 			GET_MAX_MOVE(ch));
 		acc_sprintf(
 			"%s+++++>>>---   ---   ---   ---   ---   ---<<<+++++%s\r\n",
