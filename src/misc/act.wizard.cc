@@ -6323,14 +6323,21 @@ ACMD(do_set)
 
         break;
     case 38:
-		if (IS_PC(vict)
-            && !(Security::isMember(ch, "AdminFull")
-                 && Valid_Name(argument))) {
-			send_to_char(ch, "That character name is invalid.\r\n");
-			return;
+		if (IS_PC(vict)) {
+            if (!(Security::isMember(ch, "AdminFull")
+                  && Valid_Name(argument))) {
+                send_to_char(ch, "That character name is invalid.\r\n");
+                return;
+            }
+
+            if (playerIndex.exists(argument)) {
+                send_to_char(ch, "There is already a player by that name.\r\n");
+                return;
+            }
 		}
 
-		slog("%s set %s %s's name to '%s'",
+		slog("%s%s set %s %s's name to '%s'",
+			(IS_NPC(vict) ? "":"(GC) "),
 			GET_NAME(ch),
 			(IS_NPC(vict) ? "NPC":"PC"),
 			GET_NAME(vict),
