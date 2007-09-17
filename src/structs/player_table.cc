@@ -72,15 +72,18 @@ PlayerTable::exists(long id)
 bool PlayerTable::exists(const char* name) 
 {
 	PGresult *res;
-	bool result;
+	int result;
 
 	res = sql_query("select COUNT(*) from players where lower(name)='%s'",
 		tmp_sqlescape(tmp_tolower(name)));
 	if (PQresultStatus(res) != PGRES_TUPLES_OK)
 		return 0;
-	result = (atoi(PQgetvalue(res, 0, 0)) == 1);
+	result = atoi(PQgetvalue(res, 0, 0));
 
-    return result;
+    if (result > 1)
+        errlog("Found %d characters named '%s'", result, tmp_tolower(name));
+
+    return (result == 1);
 }
 
 /**
