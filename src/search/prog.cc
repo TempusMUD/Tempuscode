@@ -204,17 +204,162 @@ prog_do_after(prog_env * env, prog_evt * evt, char *args)
 {
 }
 
-bool
-prog_var_equal(prog_state_data * state, char *key, char *arg)
+room_data *
+prog_get_owner_room(prog_env *env)
+{
+    switch (env->owner_type) {
+    case PROG_TYPE_MOBILE:
+        return ((Creature *)env->owner)->in_room;
+    case PROG_TYPE_ROOM:
+        return ((room_data *)env->owner);
+    case PROG_TYPE_OBJECT:
+        return ((obj_data *)env->owner)->find_room();
+    default:
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+    }
+
+    return NULL;
+}
+
+struct prog_var *
+prog_get_var(prog_env *env, const char *key, bool exact)
 {
 	struct prog_var *cur_var;
 
-	for (cur_var = state->var_list; cur_var; cur_var = cur_var->next)
-		if (!strcasecmp(cur_var->key, key))
-			break;
-	if (!cur_var || !cur_var->key)
+    if (!env->state)
+        return NULL;
+
+    if (exact) {
+        for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
+            if (!strcmp(cur_var->key, key))
+                return cur_var;
+    } else {
+        for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
+            if (!strncmp(cur_var->key, key, strlen(cur_var->key)))
+                return cur_var;
+    }
+    return NULL;
+}
+
+void
+prog_set_var(prog_env *env, const char *key, const char *arg)
+{
+	prog_state_data *state;
+	prog_var *var;
+
+	switch (env->owner_type) {
+	case PROG_TYPE_OBJECT:
+		return;
+	case PROG_TYPE_MOBILE:
+		state = GET_MOB_STATE(env->owner);
+		if (!state) {
+			CREATE(GET_MOB_STATE(env->owner), prog_state_data, 1);
+			state = env->state = GET_MOB_STATE(env->owner);
+		}
+		break;
+	case PROG_TYPE_ROOM:
+		state = GET_ROOM_STATE(env->owner);
+		if (!state) {
+			CREATE(GET_ROOM_STATE(env->owner), prog_state_data, 1);
+			state = env->state = GET_ROOM_STATE(env->owner);
+		}
+		break;
+	default:
+		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+		return;
+	}
+
+    var = prog_get_var(env, key, true);
+
+	if (!var) {
+		CREATE(var, prog_var, 1);
+		strcpy(var->key, key);
+
+        // Sort by key length descending so inexact matches will work
+        // properly
+        if (!state->var_list || strlen(key) > strlen(state->var_list->key)) {
+            var->next = state->var_list;
+            state->var_list = var;
+        } else {
+            prog_var *prev_var = state->var_list;
+            while (prev_var->next && strlen(prev_var->next->key) < strlen(key))
+                prev_var = prev_var->next;
+            var->next = prev_var->next;
+            prev_var->next = var;
+        }
+	}
+
+	strcpy(var->value, arg);
+}
+
+void
+prog_set_target(prog_env *env, Creature *target)
+{
+    env->target = target;
+    prog_set_var(env, "N", (target) ? fname(target->player.name):"");
+}
+
+bool
+prog_var_equal(prog_env *env, char *key, char *arg)
+{
+	struct prog_var *var;
+
+    var = prog_get_var(env, key, true);
+	if (!var || !var->key)
 		return !(*arg);
-	return !strcasecmp(cur_var->value, arg);
+	return !strcasecmp(var->value, arg);
+}
+
+char *
+prog_expand_vars(prog_env *env, char *args)
+{
+    char *search_pt = strchr(args, '$');
+    char *result = NULL;
+    struct prog_var *var;
+
+    if (!search_pt)
+        return args;
+
+    while (search_pt) {
+        result = tmp_substr(args, 0, search_pt - args - 1);
+        args = search_pt + 1;
+        if (*args == '$') {
+            // Double dollar expands to simple dollar sign
+            result = tmp_strcat(result, "$", NULL);
+        } else if (*args == '{') {
+            // Variable reference
+            args++;
+            search_pt = strchr(args, '}');
+            if (!search_pt) {
+                room_data *room = prog_get_owner_room(env);
+                zerrlog(room->zone, "Invalid variable reference: no } found");
+                result = tmp_strcat(result, "<TYPO ME>", NULL);
+                break;
+            }
+            var = prog_get_var(env, tmp_substr(args, 0, search_pt - args - 1), true);
+            if (var) {
+                result = tmp_strcat(result, var->value, NULL);
+            } else {
+                room_data *room = prog_get_owner_room(env);
+                zerrlog(room->zone, "Invalid variable reference: %s not a variable",
+                        tmp_substr(args, 0, search_pt - args - 1));
+                result = tmp_strcat(result, "<TYPO ME>", NULL);
+                continue;
+            }
+            args = search_pt + 1;
+        } else {
+            // Potential variable reference
+            var = prog_get_var(env, args, false);
+            if (var) {
+                result = tmp_strcat(result, var->value, NULL);
+                args += strlen(var->key);
+            } else {
+                result = tmp_strcat(result, "$", NULL);
+            }
+        }
+        search_pt = strchr(args, '$');
+    }
+    return tmp_strcat(result, args, NULL);
 }
 
 char *
@@ -495,23 +640,6 @@ prog_eval_wearing(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-room_data *
-prog_get_owner_room(prog_env *env)
-{
-    switch (env->owner_type) {
-    case PROG_TYPE_MOBILE:
-        return ((Creature *)env->owner)->in_room;
-    case PROG_TYPE_ROOM:
-        return ((room_data *)env->owner);
-    case PROG_TYPE_OBJECT:
-        return ((obj_data *)env->owner)->find_room();
-    default:
-		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-    }
-
-    return NULL;
-}
-
 // If have a new condition to add and you can do it in
 // 3 lines or less, you can add it inline here.  Otherwise
 // factor it out into a function
@@ -557,7 +685,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 	} else if (!strcmp(arg, "variable")) {
 		if (env->state) {
 			arg = tmp_getword(&args);
-			result = prog_var_equal(env->state, arg, args);
+			result = prog_var_equal(env, arg, args);
 		} else if (!*args)
 			result = true;
 	} else if (!strcasecmp(arg, "holding")) {
@@ -660,22 +788,16 @@ prog_do_or(prog_env * env, prog_evt * evt, char *args)
 void
 prog_do_do(prog_env * env, prog_evt * evt, char *args)
 {
-	if (env->owner_type == PROG_TYPE_MOBILE) {
-		if (env->target)
-			args = tmp_gsub(args, "$N", fname(env->target->player.name));
+	if (env->owner_type == PROG_TYPE_MOBILE)
 		command_interpreter((Creature *) env->owner, args);
-	}
 }
 
 void
 prog_do_silently(prog_env * env, prog_evt * evt, char *args)
 {
 	suppress_output = true;
-	if (env->owner_type == PROG_TYPE_MOBILE) {
-		if (env->target)
-			args = tmp_gsub(args, "$N", fname(env->target->player.name));
+	if (env->owner_type == PROG_TYPE_MOBILE)
 		command_interpreter((Creature *) env->owner, args);
-	}
 	suppress_output = false;
 }
 
@@ -685,40 +807,41 @@ prog_do_force(prog_env * env, prog_evt * evt, char *args)
 	if (!env->target)
 		return;
 
-	if (env->owner_type == PROG_TYPE_MOBILE) {
-		args = tmp_gsub(args, "$N", fname(env->target->player.name));
+	if (env->owner_type == PROG_TYPE_MOBILE)
 		command_interpreter((Creature *) env->target, args);
-	}
 }
 
 void
 prog_do_target(prog_env * env, prog_evt * evt, char *args)
 {
     room_data *room = prog_get_owner_room(env);
+    Creature *new_target = NULL;
 	char *arg;
 
 	arg = tmp_getword(&args);
 	if (!strcasecmp(arg, "random")) {
         if (!strcasecmp(tmp_getword(&args), "player"))
-            env->target = (env->owner_type == PROG_TYPE_MOBILE) ?
+            new_target = (env->owner_type == PROG_TYPE_MOBILE) ?
                 get_player_random_vis((Creature *)env->owner, room) :
                 get_player_random(room);
         else
-            env->target = (env->owner_type == PROG_TYPE_MOBILE) ?
+            new_target = (env->owner_type == PROG_TYPE_MOBILE) ?
                 get_char_random_vis((Creature *)env->owner, room) :
                 get_char_random(room);
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
 		case PROG_TYPE_MOBILE:
-			env->target = ((Creature *) env->owner)->findRandomCombat();
+			new_target = ((Creature *) env->owner)->findRandomCombat();
 			break;
 		default:
-			env->target = NULL;
+			new_target = NULL;
 		}
     } else {
 		zerrlog(room->zone, "Bad *target argument '%s' in prog in %s",
 			arg, prog_get_desc(env));
     }
+
+    prog_set_target(env, new_target);
 }
 
 void
@@ -1316,46 +1439,10 @@ prog_do_trans(prog_env * env, prog_evt * evt, char *args)
 void
 prog_do_set(prog_env * env, prog_evt * evt, char *args)
 {
-	prog_state_data *state;
-	prog_var *cur_var;
-	char *key;
-
-	switch (env->owner_type) {
-	case PROG_TYPE_OBJECT:
-		return;
-	case PROG_TYPE_MOBILE:
-		state = GET_MOB_STATE(env->owner);
-		if (!state) {
-			CREATE(GET_MOB_STATE(env->owner), prog_state_data, 1);
-			state = GET_MOB_STATE(env->owner);
-		}
-		break;
-	case PROG_TYPE_ROOM:
-		state = GET_ROOM_STATE(env->owner);
-		if (!state) {
-			CREATE(GET_ROOM_STATE(env->owner), prog_state_data, 1);
-			state = GET_ROOM_STATE(env->owner);
-		}
-		break;
-	default:
-		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-		return;
-	}
-
 	// Now find the variable record.  If they don't have one
 	// with the right key, create one
-	key = tmp_getword(&args);
-	for (cur_var = state->var_list; cur_var; cur_var = cur_var->next)
-		if (!strcasecmp(cur_var->key, key))
-			break;
-	if (!cur_var) {
-		CREATE(cur_var, prog_var, 1);
-		strcpy(cur_var->key, key);
-		cur_var->next = state->var_list;
-		state->var_list = cur_var;
-	}
-
-	strcpy(cur_var->value, args);
+	char *key = tmp_getword(&args);
+    prog_set_var(env, key, args);
 }
 
 void
@@ -1667,7 +1754,8 @@ prog_execute(prog_env *env)
         // Set the execution point to the next command by default
         env->exec_pt += sizeof(short) * 2;
         // Call the handler for the command
-        prog_cmds[cmd].func(env, &env->evt, (char *)exec + arg_addr);
+        prog_cmds[cmd].func(env, &env->evt,
+                            prog_expand_vars(env, (char *)exec + arg_addr));
         // If the command did something, count it
         if (prog_cmds[cmd].count)
             env->executed +=1 ;
@@ -1702,7 +1790,7 @@ prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * 
 	new_prog->executed = 0;
 	new_prog->wait = 0;
 	new_prog->speed = 0;
-	new_prog->target = target;
+	new_prog->target = NULL;
 	new_prog->evt = *evt;
 
 	switch (owner_type) {
@@ -1718,6 +1806,8 @@ prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * 
     default:
         break;
 	}
+
+    prog_set_target(new_prog, target);
 
 	return new_prog;
 }
