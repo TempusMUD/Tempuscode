@@ -297,6 +297,9 @@ prog_set_target(prog_env *env, Creature *target)
 {
     env->target = target;
     prog_set_var(env, "N", (target) ? fname(target->player.name):"");
+    prog_set_var(env, "E", HSSH(target));
+    prog_set_var(env, "S", HSHR(target));
+    prog_set_var(env, "M", HMHR(target));
 }
 
 bool
