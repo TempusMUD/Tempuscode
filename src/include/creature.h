@@ -902,8 +902,8 @@ struct char_special_data {
 };
 
 static const size_t MAX_RECENT_KILLS = 100;
-static const int MAX_EXPLORE_BONUS = 25;
-static const int EXPLORE_BONUS_DECREASE_RATE = 5;
+static const int EXPLORE_BONUS_KILL_LIMIT = 10;
+static const int EXPLORE_BONUS_PERCENT = 25;
 
 struct KillRecord {
     KillRecord(void) : _vnum(0), _times(0) {}
@@ -919,8 +919,8 @@ struct KillRecord {
     void mark_kill(void) { _times++; }
     int explore_bonus(void)
         {
-            if (_times / EXPLORE_BONUS_DECREASE_RATE < MAX_EXPLORE_BONUS)
-                return MAX_EXPLORE_BONUS - (_times / EXPLORE_BONUS_DECREASE_RATE);
+            if (_times <= EXPLORE_BONUS_KILL_LIMIT)
+                return EXPLORE_BONUS_PERCENT;
             else
                 return 0;
         }
