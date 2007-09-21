@@ -38,6 +38,7 @@
 #include "prog.h"
 #include "language.h"
 
+const char **spells = new const char *[TOP_SPELL_DEFINE + 1];
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct bard_song songs[TOP_SPELL_DEFINE + 1];
 struct room_direction_data *knock_door = NULL;
@@ -53,16 +54,7 @@ int find_door(struct Creature *ch, char *type, char *dir,
 void name_from_drinkcon(struct obj_data *obj);
 struct obj_data *find_item_kit(Creature *ch);
 int perform_taint_burn(Creature *ch, int spellnum);
-/*
- * This arrangement is pretty stupid, but the number of skills is limited by
- * the playerfile.  We can arbitrarily increase the number of skills by
- * increasing the space in the playerfile. Meanwhile, this should provide
- * ample slots for skills.
- */
-
 int max_spell_num = 0;
-
-const char **spells = new const char *[TOP_SPELL_DEFINE + 1];
 
 int
 mag_manacost(struct Creature *ch, int spellnum)
@@ -2319,6 +2311,9 @@ boot_spells(void)
 	xmlNodePtr node;
     int num_spells = 0;
 
+    memset(spells, 0, sizeof(char *) * (TOP_SPELL_DEFINE + 1));
+    memset(spell_info, 0, sizeof(spell_info));
+    memset(songs, 0, sizeof(songs));
     clear_spells();
 
     doc = xmlParseFile(path);
