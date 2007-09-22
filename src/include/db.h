@@ -76,7 +76,7 @@
 
 #define PLAYER_FILE	"etc/players"	/* the player database      */
 #define MAIL_FILE	"etc/plrmail"	/* for the mudmail system   */
-#define BAN_FILE	"etc/badsites"	/* for the siteban system   */
+#define BAN_FILE	"etc/banned.xml"	/* for the siteban system   */
 #define HCONTROL_FILE	"etc/hcontrol"	/* for the house system     */
 #define ALIAS_DIR       "plralias/"
 

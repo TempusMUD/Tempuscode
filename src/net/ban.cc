@@ -34,10 +34,9 @@
 #include "handler.h"
 #include "db.h"
 #include "ban.h"
+#include "accstr.h"
 
-struct ban_list_element *ban_list = NULL;
-
-
+std::list<ban_entry> ban_list;
 
 char *ban_types[] = {
 	"no",
@@ -47,88 +46,93 @@ char *ban_types[] = {
 	"ERROR"
 };
 
+void
+load_banned_entry(xmlNodePtr node)
+{
+    ban_entry ban;
+    xmlNodePtr child;
+    char *text;
+
+    for (child = node->children;child;child = child->next) {
+        if (xmlMatches(child->name, "site")) {
+            text = (char *)xmlNodeGetContent(child);
+            strcpy(ban._site, text);
+            free(text);
+        } else if (xmlMatches(child->name, "name")) {
+            text = (char *)xmlNodeGetContent(child);
+            strcpy(ban._name, text);
+            free(text);
+        } else if (xmlMatches(child->name, "reason")) {
+            text = (char *)xmlNodeGetContent(child);
+            strcpy(ban._reason, text);
+            free(text);
+        } else if (xmlMatches(child->name, "type")) {
+            text = (char *)xmlNodeGetContent(child);
+            if (!strcmp(text, "all"))
+                ban._type = BAN_ALL;
+            else if (!strcmp(text, "select"))
+                ban._type = BAN_SELECT;
+            else if (!strcmp(text, "new"))
+                ban._type = BAN_NEW;
+            free(text);
+        } else if (xmlMatches(child->name, "date")) {
+            text = (char *)xmlNodeGetContent(child);
+            ban._date = atol(text);
+        }
+    }
+
+    ban_list.push_back(ban);
+}
 
 void
 load_banned(void)
 {
-	FILE *fl;
-	int i;
-	char *read_pt, *ban_type;
-	struct ban_list_element *next_node;
+	xmlDocPtr doc;
+	xmlNodePtr node;
 
-	ban_list = 0;
+    ban_list.clear();
 
-	if (!(fl = fopen(BAN_FILE, "r"))) {
-		perror("Unable to open banfile");
-		return;
-	}
-	while (fgets(buf, MAX_STRING_LENGTH, fl)) {
-		if (!buf[0] || buf[0] == '#')
-			continue;
-		buf[strlen(buf) - 1] = '\0';
-		read_pt = buf;
-		CREATE(next_node, struct ban_list_element, 1);
-		ban_type = tmp_getword(&read_pt);
+    doc = xmlParseFile(BAN_FILE);
+    if (!doc) {
+        errlog("Couldn't load %s", BAN_FILE);
+        return;
+    }
 
-		strncpy(next_node->site, tmp_getword(&read_pt), BANNED_SITE_LENGTH);
-		next_node->site[BANNED_SITE_LENGTH] = '\0';
+    node = xmlDocGetRootElement(doc);
+    if (!node) {
+        xmlFreeDoc(doc);
+        errlog("%s is empty", BAN_FILE);
+        return;
+    }
 
-		next_node->date = atol(tmp_getword(&read_pt));
-
-		strncpy(next_node->name, tmp_getword(&read_pt), MAX_NAME_LENGTH);
-		next_node->name[MAX_NAME_LENGTH] = '\0';
-		next_node->name[0] = toupper(next_node->name[0]);
-
-		strncpy(next_node->reason, read_pt, 79);
-		next_node->name[79] = '\0';
-
-		for (i = BAN_NOT; i <= BAN_ALL; i++)
-			if (!strcmp(ban_type, ban_types[i]))
-				next_node->type = i;
-
-		next_node->next = ban_list;
-		ban_list = next_node;
-	}
-
-	fclose(fl);
+    for (node = node->children;node;node = node->next) {
+        if (xmlMatches(node->name, "banned"))
+            load_banned_entry(node);
+    }
+    
+    xmlFreeDoc(doc);
 }
-
 
 int
 isbanned(char *hostname, char *blocking_hostname)
 {
-	int i;
-	struct ban_list_element *banned_node;
-	char *nextchar;
+    std::list<ban_entry>::iterator node = ban_list.begin();
+	int i = BAN_NOT;
 
 	if (!hostname || !*hostname)
-		return (0);
+		return BAN_NOT;
 
-	i = 0;
-	for (nextchar = hostname; *nextchar; nextchar++)
-		*nextchar = tolower(*nextchar);
+    hostname = tmp_tolower(hostname);
 
-	for (banned_node = ban_list; banned_node; banned_node = banned_node->next)
-		if (strstr(hostname, banned_node->site)) {	/* if hostname is a substring */
-			i = MAX(i, banned_node->type);
-			strcpy(blocking_hostname, banned_node->site);
-		}
+    for (;node != ban_list.end();++node) {
+        if (!strncmp(hostname, node->_site, strlen(node->_site))) {
+            i = MAX(i, node->_type);
+            strcpy(blocking_hostname, node->_site);
+        }
+    }
 
 	return i;
 }
-
-
-void
-_write_one_node(FILE * fp, struct ban_list_element *node)
-{
-	if (node) {
-		_write_one_node(fp, node->next);
-		fprintf(fp, "%s %s %ld %s %s\n", ban_types[node->type],
-			node->site, (long)node->date, node->name, node->reason);
-	}
-}
-
-
 
 void
 write_ban_list(void)
@@ -139,7 +143,18 @@ write_ban_list(void)
 		perror("write_ban_list");
 		return;
 	}
-	_write_one_node(fl, ban_list);	/* recursively write from end to start */
+    fprintf(fl, "<banlist>\n");
+    std::list<ban_entry>::iterator node = ban_list.begin();
+    for (;node != ban_list.end();++node) {
+        fprintf(fl, "  <banned>\n");
+        fprintf(fl, "    <site>%s</site>\n", node->_site);
+        fprintf(fl, "    <name>%s</name>\n", node->_name);
+        fprintf(fl, "    <reason>%s</reason>\n", node->_reason);
+        fprintf(fl, "    <date>%ld</date>\n", (long)node->_date);
+        fprintf(fl, "    <type>%s</type>\n", ban_types[node->_type]);
+        fprintf(fl, "  </banned>\n");
+    }
+    fprintf(fl, "</banlist>\n");
 	fclose(fl);
 	return;
 }
@@ -148,57 +163,50 @@ write_ban_list(void)
 void
 perform_ban(int flag, const char *site, const char *name, const char *reason)
 {
-    ban_list_element *ban_node;
-
-	CREATE(ban_node, struct ban_list_element, 1);
-	strncpy(ban_node->site, tmp_tolower(site), BANNED_SITE_LENGTH);
-	ban_node->site[BANNED_SITE_LENGTH] = '\0';
-	strncpy(ban_node->name, name, MAX_NAME_LENGTH);
-	ban_node->name[MAX_NAME_LENGTH] = '\0';
-	ban_node->date = time(0);
-	strncpy(ban_node->reason, reason, MAX_NAME_LENGTH);
-	ban_node->reason[MAX_NAME_LENGTH] = '\0';
-    ban_node->type = flag;
-
-	ban_node->next = ban_list;
-	ban_list = ban_node;
-
+    ban_list.push_back(ban_entry(site, flag, time(0), name, reason));
 	write_ban_list();
+}
+
+void
+show_bans(Creature *ch)
+{
+    if (ban_list.empty()) {
+        send_to_char(ch, "No sites are banned.\r\n");
+        return;
+    }
+
+    acc_string_clear();
+
+    acc_strcat("* Site             Date            Banned by   Reason\r\n",
+               "- ---------------  --------------  ----------  -------------------------------\r\n", NULL);
+
+    std::list<ban_entry>::iterator node = ban_list.begin();
+    for (;node != ban_list.end();++node) {
+        char timestr[30];
+
+        if (node->_date) {
+            strftime(timestr, 29, "%a %m/%d/%Y", localtime(&node->_date));
+        } else
+            strcpy(timestr, "Unknown");
+        acc_sprintf("%c %-15s  %-14s  %-10s  %-30s\r\n",
+				toupper(ban_types[node->_type][0]), node->_site,
+				timestr, node->_name, node->_reason);
+    }
+    page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_ban)
 {
-	char timestr[30];
 	int type = BAN_NEW;
-	struct ban_list_element *ban_node;
-	char *write_pt, *site, *flag;
+	char *site, *flag;
 
 	*buf = '\0';
 
 	if (!*argument || GET_LEVEL(ch) < LVL_CAN_BAN) {
-		if (!ban_list) {
-			send_to_char(ch, "No sites are banned.\r\n");
-			return;
-		}
+        show_bans(ch);
+        return;
+    }
 
-		strcpy(buf, "* Site             Date            Banned by   Reason\r\n");
-		strcat(buf, "- ---------------  --------------  ----------  -------------------------------\r\n");
-		write_pt = buf + strlen(buf);
-
-		for (ban_node = ban_list; ban_node; ban_node = ban_node->next) {
-			if (ban_node->date) {
-				strftime(timestr, 29, "%a %m/%d/%Y", localtime(&ban_node->date));
-			} else
-				strcpy(timestr, "Unknown");
-			sprintf(buf2, "%c %-15s  %-14s  %-10s  %-30s\r\n",
-				toupper(ban_types[ban_node->type][0]), ban_node->site,
-				timestr, ban_node->name, ban_node->reason);
-			strcpy(write_pt, buf2);
-			write_pt += strlen(buf2);
-		}
-		page_string(ch->desc, buf);
-		return;
-	}
 	flag = tmp_getword(&argument);
 	site = tmp_getword(&argument);
 	if (!*site || !*flag) {
@@ -210,8 +218,10 @@ ACMD(do_ban)
 		send_to_char(ch, "Flag must be ALL, SELECT, or NEW.\r\n");
 		return;
 	}
-	for (ban_node = ban_list; ban_node; ban_node = ban_node->next) {
-		if (!str_cmp(ban_node->site, site)) {
+
+    std::list<ban_entry>::iterator node = ban_list.begin();
+    for (;node != ban_list.end();++node) {
+		if (!str_cmp(node->_site, site)) {
 			send_to_char(ch, 
 				"That site has already been banned -- unban it to change the ban type.\r\n");
 			return;
@@ -231,7 +241,7 @@ ACMD(do_ban)
 
 	mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
 		"%s has banned %s for %s players.", GET_NAME(ch), site,
-		ban_types[ban_node->type]);
+		ban_types[type]);
 	send_to_char(ch, "Site banned.\r\n");
 }
 
@@ -239,38 +249,28 @@ ACMD(do_ban)
 ACMD(do_unban)
 {
 	char site[MAX_INPUT_LENGTH];
-	struct ban_list_element *ban_node, *temp;
-	int found = 0;
 
 	one_argument(argument, site);
 	if (!*site) {
 		send_to_char(ch, "A site to unban might help.\r\n");
 		return;
 	}
-	ban_node = ban_list;
-	while (ban_node && !found) {
-		if (!str_cmp(ban_node->site, site))
-			found = 1;
-		else
-			ban_node = ban_node->next;
-	}
+    std::list<ban_entry>::iterator node = ban_list.begin();
+    for (;node != ban_list.end();++node)
+		if (!str_cmp(node->_site, site))
+            break;
 
-	if (!found) {
+	if (node == ban_list.end()) {
 		send_to_char(ch, "That site is not currently banned.\r\n");
 		return;
 	}
-	REMOVE_FROM_LIST(ban_node, ban_list, next);
 	send_to_char(ch, "Site unbanned.\r\n");
 	mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
 		"%s removed the %s-player ban on %s.",
-		GET_NAME(ch), ban_types[ban_node->type], ban_node->site);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-	free(ban_node);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
+		GET_NAME(ch), ban_types[node->_type], node->_site);
+
+    ban_list.erase(node);
+
 	write_ban_list();
 }
 
