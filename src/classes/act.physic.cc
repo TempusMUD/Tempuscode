@@ -513,10 +513,12 @@ ASPELL(spell_quantum_rift)
 		send_to_char(ch, "You are unable to open the rift into that place.\r\n");
 		return;
 	}
-	for (o = object_list; o; o = o->next) {
+    obj_data *next_o;
+	for (o = object_list; o; o = next_o) {
+        next_o = o->next;
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM
 			&& GET_OBJ_VAL(o, 2) == GET_IDNUM(ch)
-			&& o->in_room->people) {
+			&& !o->in_room->people.empty()) {
 			Creature *occupant = o->in_room->people;
 			act("$p collapses in on itself.", TRUE, occupant, o, 0, TO_CHAR);
 			act("$p collapses in on itself.", TRUE, occupant, o, 0, TO_ROOM);
