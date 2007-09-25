@@ -1810,7 +1810,8 @@ prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * 
         break;
 	}
 
-    prog_set_target(new_prog, target);
+    if (target)
+        prog_set_target(new_prog, target);
 
 	return new_prog;
 }
