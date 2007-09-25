@@ -317,14 +317,14 @@ char *
 prog_expand_vars(prog_env *env, char *args)
 {
     char *search_pt = strchr(args, '$');
-    char *result = NULL;
+    char *result = "";
     struct prog_var *var;
 
     if (!search_pt)
         return args;
 
     while (search_pt) {
-        result = tmp_substr(args, 0, search_pt - args - 1);
+        result = tmp_strcat(result, tmp_substr(args, 0, search_pt - args - 1));
         args = search_pt + 1;
         if (*args == '$') {
             // Double dollar expands to simple dollar sign
