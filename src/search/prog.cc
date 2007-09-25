@@ -1758,7 +1758,7 @@ prog_execute(prog_env *env)
         env->exec_pt += sizeof(short) * 2;
         // Call the handler for the command
         prog_cmds[cmd].func(env, &env->evt,
-                            prog_expand_vars(env, (char *)exec + arg_addr));
+                            (arg_addr) ? prog_expand_vars(env, (char *)exec + arg_addr):NULL);
         // If the command did something, count it
         if (prog_cmds[cmd].count)
             env->executed +=1 ;
