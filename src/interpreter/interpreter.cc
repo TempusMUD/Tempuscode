@@ -80,6 +80,26 @@ cmdlog(char *str)
 	commandLog.flush();
 }
 
+void
+newbielog(Creature *ch, const char *cmd, const char *args)
+{
+	static char *log;
+	static ofstream newbieLog("log/newbie.log", ios::app);
+	time_t ct;
+	char *tmstr;
+
+	ct = time(0);
+	tmstr = asctime(localtime(&ct));
+	*(tmstr + strlen(tmstr) - 1) = '\0';
+	log = tmp_sprintf("%-19.19s :: [%05d] %s :: %s %s",
+                      tmstr,
+                      ch->in_room->number,
+                      GET_NAME(ch),
+                      cmd,
+                      args);
+	newbieLog << log << endl;
+	newbieLog.flush();
+}
 
 ACMD(do_objupdate);
 
@@ -1709,23 +1729,23 @@ command_interpreter(struct Creature *ch, char *argument)
 		strcpy(d->last_argument, line);
 		d->last_cmd = cmd;
 
-		/* log cmds */
+        // Log commands
 		if (log_cmds || PLR_FLAGGED(ch, PLR_LOG) || 
               (GET_LEVEL(ch) >= 50 && GET_LEVEL(ch) < 65)) {
 			// Don't log movement, that's just silly.
-			if(strcmp(cmd_info[cmd].command,"north")
-			 && strcmp(cmd_info[cmd].command,"south")
-			 && strcmp(cmd_info[cmd].command,"east")
-			 && strcmp(cmd_info[cmd].command,"west") 
-			 && strcmp(cmd_info[cmd].command,"up") 
-			 && strcmp(cmd_info[cmd].command,"down") 
-			 && strcmp(cmd_info[cmd].command,"exits")) {
+            if (cmd_info[cmd].command_pointer != do_move) {
 				cmdlog(tmp_sprintf("CMD: [%s] %s ::%s '%s'",
 					(ch->in_room) ? tmp_sprintf("%5d", ch->in_room->number):"NULL",
 					GET_NAME(ch), cmd_info[cmd].command, line));
 			}
 		}
-		/* end log cmds */
+
+        // Log newbie experience
+        if (GET_LEVEL(ch) < 10
+            && GET_REMORT_GEN(ch) == 0
+            && cmd_info[cmd].command_pointer != do_move) {
+            newbielog(ch, cmd_info[cmd].command, line);
+        }
 
 		// Now we gather statistics on which commands are being used
 		cmd_info[cmd].usage += 1;
