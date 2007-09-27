@@ -1147,26 +1147,6 @@ do_start(struct Creature *ch, int mode)
 		if (tattoo_save[i])
 			equip_char(ch, tattoo_save[i], i, EQUIP_TATTOO);
     }
-    
-    // If there are no characters >= level 45 on this account enroll
-    // this character in the academey.
-    if (!ch->account->hasCharLevel(45) &&
-        !ch->account->hasCharGen(1) &&
-        !GET_CLAN(ch) && new_player) {
-		struct clanmember_data *member = NULL;
-		struct clan_data *clan = real_clan(TEMPUS_ACADEMY);
-
-        GET_CLAN(ch) = TEMPUS_ACADEMY;
-        CREATE(member, struct clanmember_data, 1);
-        member->idnum = GET_IDNUM(ch);
-        member->rank = 0;
-        member->next = clan->member_list;
-        clan->member_list = member;
-        sort_clanmembers(clan);
-        sql_exec("insert into clan_members (clan, player, rank) values (%d, %ld, %d)",
-			 clan->number, GET_IDNUM(ch), 0);
-    }
-
 }
 
 /*

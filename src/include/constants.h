@@ -15,8 +15,6 @@
 #define NOTHING           -1	/* nil reference for objects                */
 #define NOBODY           -1		/* nil reference for mobiles                */
 
-static const int TEMPUS_ACADEMY = 5;
-
 enum special_mode {
 	SPECIAL_CMD =    0,	// special command response
 	SPECIAL_TICK =   1,	// special periodic action

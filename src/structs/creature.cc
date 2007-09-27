@@ -232,8 +232,6 @@ Creature::isNewbie()
 {
 	if (char_specials.saved.act & MOB_ISNPC)
 		return false;
-    if (GET_CLAN(this) == TEMPUS_ACADEMY)
-        return true;
 	if ((char_specials.saved.remort_generation) > 0)
 		return false;
 	if (player.level > 24)
