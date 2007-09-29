@@ -2772,24 +2772,21 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 	int dir = -1;
 	int drag_wait = 0;
 	int mvm_cost = 0;
-	char arg1[MAX_INPUT_LENGTH];
-	char arg2[MAX_INPUT_LENGTH];
-
+    char *arg1, *arg2;
 	struct room_data *theroom = NULL;
 
-	two_arguments(argument, arg1, arg2);
+    arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
 
-
-
-	// a character can drag an object twice the weight of his maximum encumberance + a little luck
+	// a character can drag an object twice the weight of his maximum
+	// encumberance + a little luck
 	drag_wait = MAX(1, (obj->getWeight() / 100));
 	drag_wait = MIN(drag_wait, 3);
 
 	mvm_cost = MAX(15, (obj->getWeight() / 30));
 	mvm_cost = MIN(mvm_cost, 30);
 
-	max_drag =
-		(2 * str_app[GET_STR(ch)].carry_w) + (dice(1, (2 * GET_LEVEL(ch))));
+	max_drag = (2 * str_app[GET_STR(ch)].carry_w) + (dice(1, (2 * GET_LEVEL(ch))));
 
 	if (CHECK_SKILL(ch, SKILL_DRAG) > 30) {
 		max_drag += (3 * CHECK_SKILL(ch, SKILL_DRAG));
@@ -2841,13 +2838,9 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 		return 0;
 	}
 
-	if (EXIT(ch, dir)) {
-		if (EXIT(ch, dir)->to_room) {
-			theroom = EXIT(ch, dir)->to_room;
-		}
-	}
-
-	if (!theroom) {
+	if (EXIT(ch, dir) && EXIT(ch, dir)->to_room) {
+        theroom = EXIT(ch, dir)->to_room;
+    } else {
 		send_to_char(ch, "You can't go in that direction.\r\n");
 		WAIT_STATE(ch, 1 RL_SEC);
 		return 0;
@@ -2860,12 +2853,7 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 		return 0;
 	}
 
-
-	//here is where we check for sectors
-
-
-
-
+	// check for sectors
 	if (SECT_TYPE(ch->in_room) == SECT_FLYING ||
 		SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
 		SECT_TYPE(ch->in_room) == SECT_CLIMBING ||
@@ -2879,8 +2867,8 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 		WAIT_STATE(ch, 1 RL_SEC);
 		return 0;
 	}
-	//now check to make sure the character can go in the specified direction
 
+	//now check to make sure the character can go in the specified direction
 	if (!CAN_GO(ch, dir) || !can_travel_sector(ch, SECT_TYPE(theroom), 0)) {
 		send_to_char(ch, "Sorry you can't go in that direction.\r\n");
 		WAIT_STATE(ch, 1 RL_SEC);
@@ -2919,25 +2907,24 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 		act("You can't drag $p you buffoon!", FALSE, ch, obj, 0, TO_CHAR);
 		WAIT_STATE(ch, 1 RL_SEC);
 		return 0;
-
 	}
 
+	// Now we're going to move the character and the object from the
+	// original room to the new one
 
-	// Now we're going to move the character and the object from the original room to the new one
-
-	sprintf(buf, "You drag $p %s.", to_dirs[dir]);
-	act(buf, FALSE, ch, obj, 0, TO_CHAR);
-	sprintf(buf, "$n drags $p %s.", to_dirs[dir]);
-	act(buf, FALSE, ch, obj, 0, TO_ROOM);
-	if( !char_from_room(ch) || !char_to_room(ch, theroom) )
-		return 2;
-	obj_from_room(obj);
-	obj_to_room(obj, theroom);
-	look_at_room(ch, ch->in_room, 0);
-	sprintf(buf, "$n drags $p in from %s.", from_dirs[dir]);
-	act(buf, FALSE, ch, obj, 0, TO_ROOM);
+	act(tmp_sprintf("You drag $p %s", to_dirs[dir]),
+        false, ch, obj, 0, TO_CHAR);
+	act(tmp_sprintf("$n drags $p %s", to_dirs[dir]),
+        false, ch, obj, 0, TO_ROOM);
+    if (perform_move(ch, dir, MOVE_NORM, 1) == 0) {
+        // Move the object on a successful move
+        obj_from_room(obj);
+        obj_to_room(obj, theroom);
+        act(tmp_sprintf("$n drags $p in from %s.", from_dirs[dir]),
+            false, ch, obj, 0, TO_ROOM);
+    }
 	GET_MOVE(ch) = MAX(0, (GET_MOVE(ch) - mvm_cost));
 	WAIT_STATE(ch, (drag_wait RL_SEC));
-	return 1;
 
+	return 1;
 }
