@@ -2912,19 +2912,32 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 	// Now we're going to move the character and the object from the
 	// original room to the new one
 
-	act(tmp_sprintf("You drag $p %s", to_dirs[dir]),
+	act(tmp_sprintf("You drag $p %s.", to_dirs[dir]),
         false, ch, obj, 0, TO_CHAR);
-	act(tmp_sprintf("$n drags $p %s", to_dirs[dir]),
+	act(tmp_sprintf("$n drags $p %s.", to_dirs[dir]),
         false, ch, obj, 0, TO_ROOM);
-    if (perform_move(ch, dir, MOVE_NORM, 1) == 0) {
-        // Move the object on a successful move
-        obj_from_room(obj);
-        obj_to_room(obj, theroom);
+    
+    // We want the player to see the object in the room, so we move it
+    // before the player.  If the move fails, we move it back to its
+    // previous position.
+    room_data *orig_room = obj->in_room;
+    obj_from_room(obj);
+    obj_to_room(obj, theroom);
+    switch (perform_move(ch, dir, MOVE_NORM, 1)) {
+    case 0:                     // Success
         act(tmp_sprintf("$n drags $p in from %s.", from_dirs[dir]),
             false, ch, obj, 0, TO_ROOM);
+        GET_MOVE(ch) = MAX(0, (GET_MOVE(ch) - mvm_cost));
+        WAIT_STATE(ch, (drag_wait RL_SEC));
+        break;
+    case 1:                     // Simple failure
+        obj_from_room(obj);
+        obj_to_room(obj, orig_room);
+        break;
+    case 2:                     // Death failure
+        // Leave object where it is
+        break;
     }
-	GET_MOVE(ch) = MAX(0, (GET_MOVE(ch) - mvm_cost));
-	WAIT_STATE(ch, (drag_wait RL_SEC));
 
 	return 1;
 }
