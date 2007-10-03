@@ -357,7 +357,8 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 		return;
 	}
 
-	if (GET_OBJ_DAM(implant) == GET_OBJ_MAX_DAM(implant)) {
+	if (GET_OBJ_DAM(implant) == GET_OBJ_MAX_DAM(implant)
+        && !IS_OBJ_STAT2(implant, ITEM2_BROKEN)) {
 		perform_tell(me, ch,
 			"Don't waste my time! It's in perfectly good condition.");
 		return;
