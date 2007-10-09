@@ -3069,69 +3069,70 @@ ASPELL(spell_sun_ray)
         return;
     }
 	// check for players if caster is not a pkiller
-	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
+	if (!IS_NPC(ch)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == *it)
 				continue;
-			if (!IS_NPC((*it)) && IS_UNDEAD((*it))) {
+			if (!PRF2_FLAGGED(ch, PRF2_PKILLER)
+                && !IS_NPC((*it))
+                && IS_UNDEAD((*it))) {
 				act("You cannot do this, because this action might cause harm to $N,\r\n"
                     "and you have not chosen to be a Pkiller.\r\n"
                     "You can toggle this with the command 'pkiller'.", 
                     FALSE, ch, 0, *it, TO_CHAR );
 				return;
 			}
-            if (!ch->isOkToAttack(*it))
+            if (IS_UNDEAD(*it) && !ch->isOkToAttack(*it))
 				return;
 		}
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if (ch == (*it))
-			continue;
-		if (PRF_FLAGGED((*it), PRF_NOHASSLE))
-			continue;
-		if (IS_UNDEAD((*it))) {
-			dam = dice(level, 18) + level;
-			if( IS_EVIL((*it)) ) {
-				dam += ( GET_ALIGNMENT(ch) - GET_ALIGNMENT((*it)) )/4;
-			}
-			if( !damage(ch, (*it), dam, TYPE_ABLAZE, -1) ) {
-				if (!IS_AFFECTED(*it, AFF_BLIND) &&
-					!MOB_FLAGGED(*it, MOB_NOBLIND)) {
+		if (ch == (*it)
+            || PRF_FLAGGED((*it), PRF_NOHASSLE)
+            || !IS_UNDEAD(*it)
+            || !ch->isOkToAttack(*it))
+            continue;
 
-					struct affected_type af, af2;
-					af.is_instant = af2.is_instant = 0;
-					af.type = af2.type = SPELL_BLINDNESS;
-					af.location = APPLY_HITROLL;
-					af.modifier = -4;
-					af.duration = 2;
-					af.bitvector = AFF_BLIND;
-                    af.level = af2.level = level;
-                    af.owner = ch->getIdNum();
-					af2.location = APPLY_AC;
-					af2.modifier = 40;
-					af2.duration = 2;
-					af2.bitvector = AFF_BLIND;
-                    af2.owner = ch->getIdNum();
-					affect_join(*it, &af, FALSE, FALSE, FALSE, FALSE);
-					if (af2.bitvector || af2.location)
-						affect_join((*it), &af2, FALSE, FALSE, FALSE, FALSE);
+        dam = dice(level, 18) + level;
+        if( IS_EVIL((*it)) )
+            dam += ( GET_ALIGNMENT(ch) - GET_ALIGNMENT((*it)) )/4;
 
-					act("$n cries out in pain, clutching $s eyes!",
-						FALSE, (*it), NULL, ch, TO_ROOM);
-					act("You begin to scream as the flames of light sear out your eyes!", 
-                        FALSE, ch, NULL, (*it), TO_VICT);
-				} else {
-					act("$n screams in agony!",
-						FALSE, (*it), NULL, ch, TO_ROOM);
-					act("You cry out in pain as the flames of light consume your body!", 
-                        FALSE, ch, NULL, (*it), TO_VICT);
-				}
-			}
-		}
-	}
+        if( !damage(ch, (*it), dam, TYPE_ABLAZE, -1) ) {
+            if (!IS_AFFECTED(*it, AFF_BLIND) &&
+                !MOB_FLAGGED(*it, MOB_NOBLIND)) {
 
+                struct affected_type af, af2;
+                af.is_instant = af2.is_instant = 0;
+                af.type = af2.type = SPELL_BLINDNESS;
+                af.location = APPLY_HITROLL;
+                af.modifier = -4;
+                af.duration = 2;
+                af.bitvector = AFF_BLIND;
+                af.level = af2.level = level;
+                af.owner = ch->getIdNum();
+                af2.location = APPLY_AC;
+                af2.modifier = 40;
+                af2.duration = 2;
+                af2.bitvector = AFF_BLIND;
+                af2.owner = ch->getIdNum();
+                affect_join(*it, &af, FALSE, FALSE, FALSE, FALSE);
+                if (af2.bitvector || af2.location)
+                    affect_join((*it), &af2, FALSE, FALSE, FALSE, FALSE);
+
+                act("$n cries out in pain, clutching $s eyes!",
+                    FALSE, (*it), NULL, ch, TO_ROOM);
+                act("You begin to scream as the flames of light sear out your eyes!", 
+                    FALSE, ch, NULL, (*it), TO_VICT);
+            } else {
+                act("$n screams in agony!",
+                    FALSE, (*it), NULL, ch, TO_ROOM);
+                act("You cry out in pain as the flames of light consume your body!", 
+                    FALSE, ch, NULL, (*it), TO_VICT);
+            }
+        }
+    }
 }
 
 ASPELL(spell_inferno)
