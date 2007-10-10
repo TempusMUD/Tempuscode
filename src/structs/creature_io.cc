@@ -792,7 +792,7 @@ Creature::loadFromXML( const char *path )
 					xmlGetLongProp(node, "manash_pct");
 			}
 
-			GET_REMORT_GEN(this) = xmlGetIntProp( node, "gen" );
+			GET_REAL_GEN(this) = xmlGetIntProp( node, "gen" );
 			GET_TOT_DAM(this) = xmlGetIntProp( node, "total_dam" );
 
         } else if ( xmlMatches(node->name, "time") ) {
@@ -1061,7 +1061,7 @@ Creature::set(const char *key, const char *val)
 	else if (!strcmp(key, "align"))
 		GET_ALIGNMENT(this) = atoi(val);
 	else if (!strcmp(key, "gen"))
-		GET_REMORT_GEN(this) = atoi(val);
+		GET_REAL_GEN(this) = atoi(val);
 	else if (!strcmp(key, "birth_time"))
 		player.time.birth = atol(val);
 	else if (!strcmp(key, "death_time"))

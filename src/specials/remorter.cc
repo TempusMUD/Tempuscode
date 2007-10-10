@@ -148,7 +148,7 @@ SPECIAL(remorter)
 			return 1;
 		} else if (isname_exact(arg2, "bribe")) {
             value = GET_GOLD(ch);
-            level = MIN(10, 3 + GET_REMORT_GEN(ch));
+            level = MIN(10,3 + GET_REMORT_GEN(ch));
             if (value < level * 7000000) {
                 send_to_char(ch, "The remorter laughs and spits on your shoes!\r\n"
                                  "Try a real bribe next time!\r\n");
@@ -284,8 +284,7 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 	// Give em another gen
 	if (GET_REMORT_GEN(ch) == 10)
 		ch->account->set_quest_points(ch->account->get_quest_points() + 1);
-	if (GET_REMORT_GEN(ch) < 10)
-		GET_REMORT_GEN(ch)++;
+    GET_REAL_GEN(ch)++;
 
     // At gen 1 they enter the world of pk, like it or not
     if (GET_REMORT_GEN(ch) >= 1 && GET_REPUTATION(ch) <= 0)

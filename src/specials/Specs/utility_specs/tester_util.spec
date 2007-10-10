@@ -168,8 +168,8 @@ SPECIAL(tester_util)
 		if (!*arg2)
 			send_to_char(ch, "Set gen to what?\r\n");
 		else {
-			GET_REMORT_GEN(ch) = atoi(arg2);
-			send_to_char(ch, "gen set to %d.\r\n", GET_REMORT_GEN(ch));
+			GET_REAL_GEN(ch) = atoi(arg2);
+			send_to_char(ch, "gen set to %d.\r\n", GET_REAL_GEN(ch));
 		}
 		break;
 	case 16:

@@ -168,7 +168,7 @@ int Creature::getPenalizedExperience( int experience, Creature *victim)
 	//  9     71.8%  81.8%  91.8%
 	// 10     73.3%  83.3%  93.3%
 	if( IS_REMORT(this) ) {
-		float gen = MIN( 10, GET_REMORT_GEN(this) );
+		float gen = GET_REAL_GEN(this);
 		float multiplier = (gen / ( gen + 2 ));
 
 		if( getLevel() <= 15 )

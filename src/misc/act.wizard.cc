@@ -1735,7 +1735,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
 		(IS_REMORT(k) ?
 			strlist_aref(GET_REMORT_CLASS(k), class_names) :
 			"None"),
-		GET_REMORT_GEN(k));
+		GET_REAL_GEN(k));
 
     if (!IS_NPC(k)) {
         acc_sprintf("Lev: [%s%2d%s], XP: [%s%7d%s/%s%d%s], Align: [%4d]\r\n",
@@ -4123,7 +4123,7 @@ show_player(Creature *ch, char *value)
     vict->account = Account::retrieve(playerIndex.getAccountID(idnum));
 
 
-    if (GET_REMORT_GEN(vict) <= 0) {
+    if (GET_REAL_GEN(vict) <= 0) {
         strcpy(remort_desc, "");
     } else {
         sprintf(remort_desc, "/%s",
@@ -4134,7 +4134,7 @@ show_player(Creature *ch, char *value)
             playerIndex.getAccountID(GET_IDNUM(vict)),
             genders[(int)GET_SEX(vict)], GET_LEVEL(vict), 
             player_race[(int)GET_RACE(vict)], char_class_abbrevs[GET_CLASS(vict)], 
-            remort_desc, GET_REMORT_GEN(vict));
+            remort_desc, GET_REAL_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
             "%sAu: %-8d  Cr: %-8d  Past: %-8lld  Fut: %-8lld\r\n",
@@ -6584,7 +6584,7 @@ ACMD(do_set)
         GET_CASH(vict) = RANGE(0, 1000000000);
         break;
     case 82:
-        GET_REMORT_GEN(vict) = RANGE(0, 1000);
+        GET_REAL_GEN(vict) = RANGE(0, 1000);
         break;
     case 83:
         if (add_path_to_mob(vict, argument)) {
@@ -8435,8 +8435,8 @@ ACMD(do_tester)
             if (!*arg2)
               send_to_char(ch, "Set gen to what?\r\n");
             else {
-              GET_REMORT_GEN(ch) = atoi(arg2);
-              send_to_char(ch, "gen set to %d.\r\n", GET_REMORT_GEN(ch));
+              GET_REAL_GEN(ch) = atoi(arg2);
+              send_to_char(ch, "gen set to %d.\r\n", GET_REAL_GEN(ch));
             }
             break;
         case 16:
