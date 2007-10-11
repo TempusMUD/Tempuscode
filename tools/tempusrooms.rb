@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+$linenum = 0
+
 class Roomsearch
   COMMANDS = [ "NONE", "DOOR", "MOBILE", "OBJECT", "REMOVE",
                "GIVE", "EQUIP", "TRANS", "SPELL", "DAMAGE",
@@ -178,6 +180,9 @@ class Room
     @searches = Array.new
     @flows = Array.new
     @directions = Hash.new
+	@flags = "0"
+	@sector = 0
+	@occupancy = 255
   end
 
   def inspect
