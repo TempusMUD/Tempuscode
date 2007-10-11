@@ -2,7 +2,7 @@
 
 require 'tempusrooms'
 
-SCREEN_WIDTH = 70
+SCREEN_WIDTH = 72
 
 $change_count = 0
 $skip_count = 0
