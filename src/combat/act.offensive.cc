@@ -1773,7 +1773,7 @@ ACMD(do_feign)
 	}
 	ch->setPosition(POS_RESTING);
 
-	WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+	WAIT_STATE(ch, SEG_VIOLENCE * 2);
 }
 
 ACMD(do_tag)
