@@ -1769,8 +1769,7 @@ ACMD(do_feign)
 			gain_skill_prof(ch, SKILL_FEIGN);
 		}
 		send_to_char(ch, "You fall over dead!\r\n");
-		act("Your blood freezes as you hear $n's death cry.", FALSE, ch, 0, 0,
-			TO_ROOM);
+        death_cry(ch);
 	}
 	ch->setPosition(POS_RESTING);
 
