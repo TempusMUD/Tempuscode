@@ -9,8 +9,8 @@ if ARGV.length != 1
 	exit 1
 end
 
-accounts = sql.query("select idnum,name, creation_time, login_time from accounts where login_addr like '#{ARGV[0]}%' or creation_addr like '#{ARGV[0]}%'")
+accounts = sql.query("select idnum,name, creation_addr, login_addr, creation_time, login_time from accounts where login_addr like '#{ARGV[0]}%' or creation_addr like '#{ARGV[0]}%'")
 
 accounts.each { |account|
-	printf("%10d %s\n", account[0], account[1])
+	printf("%10d %s %s %s\n", account[0], account[1], account[2], account[3])
 }
