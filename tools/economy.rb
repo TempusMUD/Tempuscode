@@ -15,7 +15,7 @@ accounts_rejected = 0
 
 $sql = PGconn.connect("", -1, "", "", "tempus", "realm")
 
-ACCOUNT_CLAUSE = " where age(login_time) < '1 month' and age(login_time, creation_time) > interval '1 day' and idnum not in (select distinct account from players where idnum in (select player from sgroup_members where sgroup=20))"
+ACCOUNT_CLAUSE = " where age(login_time) < '1 month' and age(creation_time) > interval '1 month' and idnum not in (select distinct account from players where idnum in (select player from sgroup_members where sgroup=20))"
 
 accounts = $sql.query("select bank_past, bank_future from accounts" + ACCOUNT_CLAUSE)
 accounts.each {|acct|
