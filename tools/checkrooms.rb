@@ -22,10 +22,13 @@ def check_desc(str, where)
     }
 
     print "#{where}: Orphaned word\n" if /^\S+\Z/m.match(str)
-    print "#{where}: Two spaces missing after punctuation\n" if /[.?!;]+["']?[^ ][^ ][A-Za-z]/m.match(str)
-    print "#{where}: Use of the word 'you'\n" if /you/.match(str) and !/^vict emit/.match(str)
+    print "#{where}: Two spaces missing after punctuation\n" if /[.?!;]+["']?[^ \n][^ ][A-Za-z]/.match(str)
+    print "#{where}: Use of the word 'you'\n" if /\byou\b/.match(str) and !/^vict emit/.match(str)
+    print "#{where}: Use of the word 'your'\n" if /\byour\b/.match(str) and !/^vict emit/.match(str)
+    print "#{where}: Use of the word 'you're'\n" if /\byou're\b/.match(str) and !/^vict emit/.match(str)
     print "#{where}: Use of the word 'very'\n" if /\bvery\b/.match(str)
-    print "#{where}: Duplicated word '#{$1}'\n" if /\b(\w+)\s+\1\b/i.match(str)
+    print "#{where}: Use of the word 'whatever'\n" if /\bwhatever\b/.match(str)
+    print "#{where}: Duplicated word '#{$1}'\n" if /\b(\w+)\s+\1\b/mi.match(str)
     File.open("/tmp/desc.txt", "w") { |ouf|
         ouf.print str
     }
@@ -78,7 +81,7 @@ def check_room(room)
   title = capitalize(room.title)
   print "room #{room.idnum}: Title capitalization should be '#{title}' in room #{room.idnum}\n" if title != room.title
   return if room.flags.match(/[b]/) # Skip DTs
-  room.description = check_desc(room.description, "room #{room.idnum}")
+  room.description = check_desc(room.description, "room #{room.idnum} desc")
   room.sound = check_desc(room.sound, "room #{room.idnum} sound") unless room.sound.empty?
   room.extradescs.each { |exd|
     # ASCII art detect
@@ -88,6 +91,12 @@ def check_room(room)
   }
   room.directions.each { |ignore, dir|
     dir.description = check_desc(dir.description, "room #{room.idnum} #{Roomexit::DIRECTIONS[dir.direction]} exit")
+    if dir.exit_info.match(/a/) && dir.keywords.empty?
+      print "room #{room.idnum} #{Roomexit::DIRECTIONS[dir.direction]} exit: door exists with no keyword\n"
+    end    
+    if dir.exit_info.match(/b/) && !dir.exit_info.match(/a/)
+      print "room #{room.idnum} #{Roomexit::DIRECTIONS[dir.direction]} exit: exit is closed with no door\n"
+    end    
   }
   
 end
