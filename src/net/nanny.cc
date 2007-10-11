@@ -1039,7 +1039,7 @@ send_menu(descriptor_data *d)
         }
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d,"&n\r\n                                ACCOUNT CREATION\r\n*******************************************************************************&n\r\n");
-		send_to_desc(d, "\r\n\r\n    On TempusMUD, you have an account, which is a handy way of keeping\r\ntrack of all your characters here.  All your characters share a bank\r\naccount, and you can see at a single glance which of your character have\r\nreceived mail.  Quest points are also shared by all your characters.\r\n\r\n");
+		send_to_desc(d, "\r\n\r\n    On TempusMUD, you have an account, which is a handy way of keeping\r\ntrack of all your characters here.  All your characters share a bank\r\naccount, and you can see at a single glance which of your character have\r\nreceived mail.  Quest points are also shared by all your characters.  Your account name will also never be shown to other players.\r\n\r\n");
 		break;
 	case CXN_ANSI_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
