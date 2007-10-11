@@ -493,14 +493,14 @@ void
 obj_data::affectModify(struct tmp_obj_affect *af, bool add)
 {
     // Set or restore damage
-    if (af->dam_mod) {
+    if (af->dam_mod && this->obj_flags.max_dam > 0) {
         if (add)
             this->obj_flags.damage += af->dam_mod;
         else
             this->obj_flags.damage -= af->dam_mod;
     }
     //Set or restore maxdam
-    if (af->maxdam_mod) {
+    if (af->maxdam_mod && this->obj_flags.max_dam > 0) {
         if (add)
             this->obj_flags.max_dam += af->maxdam_mod;
         else
