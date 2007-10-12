@@ -1527,7 +1527,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
 	GET_OBJ_EXTRA(corpse) = ITEM_NODONATE;
 	if (ch->isTester())
-		SET_BIT(GET_OBJ_EXTRA(corpse), ITEM2_UNAPPROVED);
+		SET_BIT(GET_OBJ_EXTRA2(corpse), ITEM2_UNAPPROVED);
 	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
 	corpse->setWeight(GET_WEIGHT(ch) + IS_CARRYING_W(ch));

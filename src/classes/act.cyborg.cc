@@ -2997,12 +2997,12 @@ ACMD(do_load)
 			send_to_char(ch, "Real funny.\r\n");
 			return;
 		}
-		if (IS_OBJ_STAT(obj1, ITEM2_BROKEN)) {
+		if (IS_OBJ_STAT2(obj1, ITEM2_BROKEN)) {
 			act("$p is broken, and cannot be loaded.",
 				FALSE, ch, obj1, obj2, TO_CHAR);
 			return;
 		}
-		if (IS_OBJ_STAT(obj2, ITEM2_BROKEN)) {
+		if (IS_OBJ_STAT2(obj2, ITEM2_BROKEN)) {
 			act("$P is broken, and cannot be loaded.",
 				FALSE, ch, obj1, obj2, TO_CHAR);
 			return;
