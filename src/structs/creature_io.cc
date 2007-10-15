@@ -519,7 +519,7 @@ Creature::saveToXML()
 	fprintf(ouf, "<class name=\"%s\"", class_names[GET_CLASS(ch)]);
 	if( IS_REMORT(ch) ) {
 		fprintf(ouf, " remort=\"%s\" gen=\"%d\"",
-			class_names[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
+			class_names[GET_REMORT_CLASS(ch)], GET_REAL_GEN(ch));
     }
 	if (IS_CYBORG(ch)) {
 		if (GET_OLD_CLASS(ch) != -1)
