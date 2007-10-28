@@ -586,7 +586,7 @@ ACMD(do_wrench)
 			vict = (ch->findRandomCombat());
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You fiercly wrench $p!", FALSE, ch, ovict, 0, TO_CHAR);
+			act("You fiercely wrench $p!", FALSE, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
 			send_to_char(ch, "Wrench who?\r\n");
