@@ -58,6 +58,9 @@ acc_vsprintf(const char *fmt, va_list args)
 {
 	size_t wanted;
 	char *result;
+    va_list args_copy;
+
+    va_copy(args_copy, args);
 
 	result = acc_str_data + acc_str_len;
 	wanted = vsnprintf(result, acc_str_space - acc_str_len, fmt, args);
@@ -68,7 +71,7 @@ acc_vsprintf(const char *fmt, va_list args)
 	if (acc_str_space - acc_str_len < wanted) {
 		acc_string_adjust(acc_str_space + wanted);
 		result = acc_str_data + acc_str_len;
-		wanted = vsnprintf(result, acc_str_space - acc_str_len, fmt, args);
+		wanted = vsnprintf(result, acc_str_space - acc_str_len, fmt, args_copy);
 	}
 
 	acc_str_len += wanted;
