@@ -960,9 +960,7 @@ room_is_watery(room_data *room)
             sect == SECT_WATER_SWIM ||
             sect == SECT_UNDERWATER ||
             sect == SECT_ELEMENTAL_WATER ||
-            sect == SECT_DEEP_OCEAN ||
-			((!ROOM_FLAGGED(room, ROOM_INDOORS) && sect != SECT_INSIDE ) &&
-             room->zone->weather->sky >= SKY_RAINING));
+            sect == SECT_DEEP_OCEAN);
 }
 
 inline bool
