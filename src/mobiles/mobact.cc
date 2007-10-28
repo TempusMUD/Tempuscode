@@ -214,8 +214,7 @@ burn_update(void)
 					dam =
 						dice(GET_FALL_COUNT(ch) * (GET_FALL_COUNT(ch) + 2),
 						12);
-					if ((SECT_TYPE(ch->in_room) >= SECT_WATER_SWIM
-							&& SECT_TYPE(ch->in_room) <= SECT_UNDERWATER)
+					if (room_is_watery(ch->in_room)
 						|| SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER
 						|| SECT_TYPE(ch->in_room) == SECT_PITCH_PIT
 						|| SECT_TYPE(ch->in_room) == SECT_PITCH_SUB) {
@@ -576,10 +575,7 @@ burn_update(void)
         }
 		// burning character
 		if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
-			if (SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
-				SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN ||
-				SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
-				SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM) {
+			if (room_is_watery(ch->in_room)) {
 				send_to_char(ch, 
 					"The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n");
 				act("The flames on $n sizzle and die, leaving a cloud of steam.", FALSE, ch, 0, 0, TO_ROOM);
@@ -689,12 +685,8 @@ burn_update(void)
 			if (damage(ch, ch, dice(8, 10), TYPE_CRUSHING_DEPTH, -1))
 				continue;
 		}
-		// underwater (underliquid)
-		if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
-				SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN ||
-				SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
-				SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
-             SECT_TYPE(ch->in_room) == SECT_FREESPACE) &&
+		// no air
+		if (!room_has_air(ch->in_room) &&
 			!can_travel_sector(ch, SECT_TYPE(ch->in_room), 1) &&
 			!ROOM_FLAGGED(ch->in_room, ROOM_DOCK) &&
 			GET_LEVEL(ch) < LVL_AMBASSADOR) {
@@ -1525,19 +1517,11 @@ CHAR_LIKES_ROOM(struct Creature * ch, struct room_data * room)
 {
     if (IS_ELEMENTAL(ch)) {
         // Keep water elementals in the water
-        if (GET_CLASS(ch) == CLASS_WATER &&
-            !(SECT_TYPE(room) == SECT_WATER_NOSWIM  ||
-              SECT_TYPE(room) == SECT_WATER_SWIM ||
-              SECT_TYPE(room) == SECT_UNDERWATER ||
-              SECT_TYPE(room) == SECT_DEEP_OCEAN))
+        if (GET_CLASS(ch) == CLASS_WATER && !room_is_watery(room))
             return false;
 
         // Keep fire elementals out of the water
-        if (GET_CLASS(ch) == CLASS_FIRE &&
-            (SECT_TYPE(room) == SECT_WATER_NOSWIM  ||
-             SECT_TYPE(room) == SECT_WATER_SWIM ||
-             SECT_TYPE(room) == SECT_UNDERWATER ||
-             SECT_TYPE(room) == SECT_DEEP_OCEAN))
+        if (GET_CLASS(ch) == CLASS_FIRE && room_is_watery(room))
             return false;
     }
 
@@ -2608,11 +2592,9 @@ mobile_activity(void)
 				&& GET_MANA(ch) > mag_manacost(ch, SPELL_DISPLACEMENT)) {
 				cast_spell(ch, ch, 0, NULL, SPELL_DISPLACEMENT);
 			} else if (GET_LEVEL(ch) > 16
-				&& !IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD)
-				&& GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD)
-				&& SECT(ch->in_room) != SECT_UNDERWATER
-				&& SECT(ch->in_room) != SECT_DEEP_OCEAN
-				&& SECT(ch->in_room) != SECT_ELEMENTAL_WATER) {
+                       && !IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD)
+                       && GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD)
+                       && !room_is_watery(ch->in_room)) {
 				cast_spell(ch, ch, 0, NULL, SPELL_FIRE_SHIELD);
 			} else if (GET_LEVEL(ch) > 48
 				&& !IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE)
@@ -2648,12 +2630,9 @@ mobile_activity(void)
 				!AFF_FLAGGED(ch, AFF_SANCTUARY))
 				cast_spell(ch, ch, 0, NULL, SPELL_NOPAIN);
 			else if (GET_LEVEL(ch) >= 21 &&
-				(ch->in_room->sector_type == SECT_UNDERWATER ||
-					ch->in_room->sector_type == SECT_DEEP_OCEAN ||
-					ch->in_room->sector_type == SECT_WATER_NOSWIM ||
-					ch->in_room->sector_type == SECT_PITCH_SUB) &&
-				!can_travel_sector(ch, ch->in_room->sector_type, 0) &&
-				!AFF3_FLAGGED(ch, AFF3_NOBREATHE))
+                     !room_has_air(ch->in_room) &&
+                     !can_travel_sector(ch, ch->in_room->sector_type, 0) &&
+                     !AFF3_FLAGGED(ch, AFF3_NOBREATHE))
 				cast_spell(ch, ch, 0, NULL, SPELL_BREATHING_STASIS);
 			else if (GET_LEVEL(ch) >= 42 &&
 				!affected_by_spell(ch, SPELL_DERMAL_HARDENING))
@@ -2709,11 +2688,8 @@ mobile_activity(void)
 			switch (GET_CLASS(ch)) {
 			case CLASS_EARTH:
 				if (k
-					|| sect == SECT_WATER_SWIM
-					|| sect == SECT_WATER_NOSWIM
-					|| ch->in_room->isOpenAir()
-					|| sect == SECT_UNDERWATER
-					|| sect == SECT_DEEP_OCEAN) {
+					|| room_is_watery(ch->in_room)
+					|| ch->in_room->isOpenAir()) {
 					found = 1;
 					act("$n dissolves, and returns to $s home plane!",
 						TRUE, ch, 0, 0, TO_ROOM);
@@ -2722,13 +2698,10 @@ mobile_activity(void)
 				break;
 			case CLASS_FIRE:
 				if ((k
-						|| sect == SECT_WATER_SWIM
-						|| sect == SECT_WATER_NOSWIM
-						|| ch->in_room->isOpenAir()
-						|| sect == SECT_UNDERWATER
-						|| sect == SECT_DEEP_OCEAN
-						|| (OUTSIDE(ch)
-							&& ch->in_room->zone->weather->sky == SKY_RAINING))
+                     || room_is_watery(ch->in_room)
+                     || ch->in_room->isOpenAir()
+                     || (OUTSIDE(ch)
+                         && ch->in_room->zone->weather->sky == SKY_RAINING))
 					&& !ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED)) {
 					found = 1;
 					act("$n dissipates, and returns to $s home plane!",
@@ -2737,12 +2710,7 @@ mobile_activity(void)
 				}
 				break;
 			case CLASS_WATER:
-				if (k ||
-					(sect != SECT_WATER_SWIM &&
-						sect != SECT_WATER_NOSWIM &&
-						sect != SECT_UNDERWATER &&
-						sect != SECT_DEEP_OCEAN &&
-						ch->in_room->zone->weather->sky != SKY_RAINING)) {
+				if (k || !room_is_watery(ch->in_room)) {
 					found = 1;
 					act("$n dissipates, and returns to $s home plane!",
 						TRUE, ch, 0, 0, TO_ROOM);
@@ -2750,10 +2718,7 @@ mobile_activity(void)
 				}
 				break;
 			case CLASS_AIR:
-				if (k
-						|| sect == SECT_UNDERWATER
-						|| sect == SECT_DEEP_OCEAN
-						|| sect == SECT_PITCH_SUB) {
+				if (k && !room_has_air(ch->in_room)) {
 					found = 1;
 					act("$n dissipates, and returns to $s home plane!",
 						TRUE, ch, 0, 0, TO_ROOM);

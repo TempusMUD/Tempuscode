@@ -952,6 +952,43 @@ long GET_SKILL_COST(Creature *ch, int skill);
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
+inline bool
+room_is_watery(room_data *room)
+{
+    int sect = SECT_TYPE(room);
+    return (sect == SECT_WATER_NOSWIM ||
+            sect == SECT_WATER_SWIM ||
+            sect == SECT_UNDERWATER ||
+            sect == SECT_ELEMENTAL_WATER ||
+            sect == SECT_DEEP_OCEAN ||
+			((!ROOM_FLAGGED(room, ROOM_INDOORS) && sect != SECT_INSIDE ) &&
+             room->zone->weather->sky >= SKY_RAINING));
+}
+
+inline bool
+room_is_underwater(room_data *room)
+{
+    int sect = SECT_TYPE(room);
+    return (sect == SECT_UNDERWATER ||
+            sect == SECT_ELEMENTAL_WATER ||
+            sect == SECT_DEEP_OCEAN);
+}
+
+inline bool
+room_has_air(room_data *room)
+{
+    if (room_is_underwater(room))
+        return false;
+
+    int sect = SECT_TYPE(room);
+    if (sect == SECT_PITCH_SUB
+        || sect == SECT_ELEMENTAL_OOZE
+        || sect == SECT_WATER_NOSWIM
+        || sect == SECT_FREESPACE)
+        return false;
+        
+    return true;
+}
 
 bool room_is_sunny(room_data *room);
 bool room_is_dark(room_data *room);

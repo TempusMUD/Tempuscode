@@ -1082,9 +1082,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		send_to_char(ch, "You can't do this if you're not in a group!\r\n");
 		return 0;
 	}
-	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
-				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
-			&& SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
+	if (room_is_underwater(ch->in_room) && SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
 		send_to_char(ch, "This spell does not function underwater.\r\n");
 		return 0;
 	}
@@ -1730,9 +1728,8 @@ ACMD(do_trigger)
 		return;
 	}
 
-	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
-				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
-			&& SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
+	if (room_is_underwater(ch->in_room)
+        && SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
 		send_to_char(ch, "This trigger will not function underwater.\r\n");
 		return;
 	}
@@ -1824,9 +1821,8 @@ ACMD(do_arm)
 		return;
 	}
 
-	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
-				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
-			&& SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
+	if (room_is_underwater(ch->in_room)
+        && SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
 		send_to_char(ch, "This device will not function underwater.\r\n");
 		return 0;
 	}
@@ -1980,8 +1976,7 @@ ACMD(do_alter)
 		return;
 	}
 
-	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
-				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
+	if (room_is_underwater(ch->in_room)
 			&& SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
 		send_to_char(ch, "This alteration will not function underwater.\r\n");
 		return;
@@ -2084,8 +2079,7 @@ ACMD(do_perform)
 		return;
 	}
 
-	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER
-				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)) {
+	if (room_is_underwater(ch->in_room)) {
 		send_to_char(ch, "You can't sing or play underwater!.\r\n");
 		return;
 	}

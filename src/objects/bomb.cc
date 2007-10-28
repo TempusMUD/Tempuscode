@@ -435,10 +435,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 	// room affects here
 
 	if (bomb_type == BOMB_INCENDIARY &&
-		room->sector_type != SECT_WATER_SWIM &&
-		room->sector_type != SECT_WATER_NOSWIM &&
-		room->sector_type != SECT_UNDERWATER &&
-		room->sector_type != SECT_DEEP_OCEAN &&
+        !room_is_watery(room) &&
 		!ROOM_FLAGGED(room, ROOM_FLAME_FILLED)) {
 		rm_aff.description =
 			str_dup("   The room is ablaze with raging flames!\r\n");

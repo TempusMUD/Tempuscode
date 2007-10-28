@@ -809,11 +809,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 			if (to_room[1])
 				act(to_room[1], FALSE, ch, 0, 0, TO_ROOM);
 
-			if (mode == SKILL_ENERGY_FIELD &&
-				(SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
-					SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN ||
-					SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
-					SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)) {
+			if (mode == SKILL_ENERGY_FIELD && room_is_watery(ch->in_room)) {
 				CreatureList::iterator it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					if (*it != ch) {
@@ -825,9 +821,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 				send_to_char(ch, 
 					"DANGER: Hazardous short detected!!  Energy fields shutting down.\r\n");
 				affect_from_char(ch, mode);
-
 			}
-
 		} else {
 			affect_from_char(ch, mode);
 			if (to_char[0])
@@ -1339,11 +1333,7 @@ ACMD(do_discharge)
 		return;
 	}
 
-	if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
-			SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN ||
-			SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
-			SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
-			SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_WATER)) {
+    if (room_is_watery(ch->in_room)) {
 		send_to_char(ch, 
 			"ERROR: Systems halted a process that would have caused a short circuit.\r\n");
 		return;

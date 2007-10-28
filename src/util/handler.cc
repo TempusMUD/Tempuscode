@@ -1834,17 +1834,10 @@ obj_to_room(struct obj_data *object, struct room_data *room, bool sorted)
 		object->in_room->light++;
 	REMOVE_BIT(GET_OBJ_EXTRA2(object), ITEM2_HIDDEN);
 
-	if (IS_CIGARETTE(object) && SMOKE_LIT(object) &&
-		(SECT(room) == SECT_UNDERWATER ||
-			SECT(room) == SECT_DEEP_OCEAN ||
-			SECT(room) == SECT_WATER_SWIM ||
-			SECT(room) == SECT_WATER_NOSWIM ||
-			SECT(room) == SECT_SWAMP ||
-			SECT(room) == SECT_PITCH_PIT ||
-			SECT(room) == SECT_PITCH_SUB ||
-			(OUTSIDE(object) && room->zone->weather->sky >= SKY_RAINING)))
+	if (IS_CIGARETTE(object)
+        && SMOKE_LIT(object)
+        && (room_is_watery(room) || !room_has_air(room)))
 		SMOKE_LIT(object) = 0;
-
 }
 
 /* Take an object from a room */

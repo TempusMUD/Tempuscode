@@ -1796,34 +1796,22 @@ ASPELL(spell_conjure_elemental)
 	sect_type = ch->in_room->sector_type;
 
 	if (GET_LEVEL(ch) >= 35
-			&& number(0, GET_INT(ch)) > 3
-			&& sect_type != SECT_WATER_SWIM
-			&& sect_type != SECT_WATER_NOSWIM
-			&& sect_type != SECT_UNDERWATER
-			&& sect_type != SECT_DEEP_OCEAN)
+        && number(0, GET_INT(ch)) > 3
+        && !room_is_watery(ch->in_room))
 		elemental = read_mobile(1283);	/*  Air Elemental */
 	else if (GET_LEVEL(ch) >= 30
-			&& number(0, GET_INT(ch)) > 3
-			&& (sect_type == SECT_WATER_SWIM
-				|| sect_type == SECT_WATER_NOSWIM
-				|| sect_type == SECT_UNDERWATER
-				|| sect_type == SECT_DEEP_OCEAN))
+             && number(0, GET_INT(ch)) > 3
+             && room_is_watery(ch->in_room))
 		elemental = read_mobile(1282);	/*  Water Elemental */
 	else if (GET_LEVEL(ch) >= 25
-			&& number(0, GET_INT(ch)) > 3
-			&& sect_type != SECT_WATER_SWIM
-			&& sect_type != SECT_WATER_NOSWIM
-			&& sect_type != SECT_UNDERWATER
-			&& sect_type != SECT_DEEP_OCEAN
-			&& !ch->in_room->isOpenAir())
+             && number(0, GET_INT(ch)) > 3
+             && !room_is_watery(ch->in_room)
+             && !ch->in_room->isOpenAir())
 		elemental = read_mobile(1281);	/*  Fire Elemental */
 	else if (GET_LEVEL(ch) >= 20
-			&& number(0, GET_INT(ch)) > 3
-			&& sect_type != SECT_WATER_SWIM
-			&& sect_type != SECT_WATER_NOSWIM
-			&& sect_type != SECT_UNDERWATER
-			&& sect_type != SECT_DEEP_OCEAN
-			&& !ch->in_room->isOpenAir())
+             && number(0, GET_INT(ch)) > 3
+             && !room_is_watery(ch->in_room)
+             && !ch->in_room->isOpenAir())
 		elemental = read_mobile(1280);	/* Earth Elemental */
 	else
 		elemental = NULL;

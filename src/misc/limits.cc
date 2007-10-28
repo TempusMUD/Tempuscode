@@ -782,7 +782,7 @@ point_update(void)
 							j->in_room->people, j, 0, TO_ROOM);
 						act("$p sinks beneath the surface and is gone.", TRUE,
 							j->in_room->people, j, 0, TO_CHAR);
-					} else if (SECT_TYPE(j->in_room) == SECT_UNDERWATER) {
+					} else if (room_is_underwater(j->in_room)) {
 						act("A school of small fish appears and devours $p.",
 							TRUE, j->in_room->people, j, 0, TO_ROOM);
 						act("A school of small fish appears and devours $p.",

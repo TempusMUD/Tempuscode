@@ -111,6 +111,7 @@ can_travel_sector(struct Creature *ch, int sector_type, bool active)
 		sector_type == SECT_PITCH_SUB ||
 		sector_type == SECT_WATER_NOSWIM ||
 		sector_type == SECT_ELEMENTAL_OOZE ||
+		sector_type == SECT_ELEMENTAL_WATER ||
         sector_type == SECT_FREESPACE) {
 
 		if (IS_RACE(ch, RACE_FISH))
@@ -653,7 +654,6 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ||
 		SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ||
 		SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
-		SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
 		SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN) {
 		if (((SECT_TYPE(ch->in_room) != SECT_UNDERWATER &&
 					SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_UNDERWATER)
@@ -1050,14 +1050,12 @@ do_simple_move(struct Creature *ch, int dir, int mode,
                 return 2;
     }
 
-	if (ch->in_room->sector_type == SECT_UNDERWATER) {
-		if (was_in->sector_type != SECT_UNDERWATER &&
-			was_in->sector_type != SECT_WATER_NOSWIM) {
-
+	if (room_is_underwater(ch->in_room)) {
+        if (room_is_underwater(was_in)) {
+			ch->modifyBreathCount(1);
+		} else {
 			send_to_char(ch, "You are now submerged in water.\r\n");
 			ch->setBreathCount(0);
-		} else {
-			ch->modifyBreathCount(1);
 		}
 	}
 	if (ch->in_room->sector_type == SECT_WATER_NOSWIM) {
@@ -2875,12 +2873,8 @@ drag_object(Creature *ch, struct obj_data *obj, char *argument)
 		return 0;
 	}
 
-	if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
-		SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
-		SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN ||
-		SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_OOZE ||
-		SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_WATER) {
-
+	if (room_is_underwater(ch->in_room) ||
+		SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_OOZE) {
 		mvm_cost = mvm_cost * 2;
 		drag_wait = drag_wait * 2;
 	}

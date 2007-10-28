@@ -167,11 +167,9 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 				eq_wt += ovict->getWeight();
 	}
 
-	if (ch->in_room->sector_type == SECT_UNDERWATER ||
-		ch->in_room->sector_type == SECT_DEEP_OCEAN ||
-		ch->in_room->sector_type == SECT_WATER_NOSWIM ||
-		ch->in_room->sector_type == SECT_WATER_SWIM ||
-		ch->in_room->sector_type == SECT_ASTRAL || ch->in_room->isOpenAir())
+    if (room_is_watery(ch->in_room) ||
+		ch->in_room->sector_type == SECT_ASTRAL ||
+        ch->in_room->isOpenAir())
 		bad_sect = TRUE;
 
 	if (bad_sect)

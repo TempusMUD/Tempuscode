@@ -211,8 +211,7 @@ move_car(struct Creature *ch, struct obj_data *car, int dir)
 				SECT_TYPE(dest) != SECT_ROAD &&
 				SECT_TYPE(dest) != SECT_INSIDE &&
 				SECT_TYPE(dest) != SECT_FIELD)) ||
-		(IS_SKYCAR(car) && (SECT_TYPE(dest) == SECT_UNDERWATER ||
-			SECT_TYPE(dest) == SECT_DEEP_OCEAN))) {
+		(IS_SKYCAR(car) && room_is_underwater(dest))) {
 		return ERR_NODRIVE;
 	}
 

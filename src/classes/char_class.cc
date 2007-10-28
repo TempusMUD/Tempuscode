@@ -1478,17 +1478,18 @@ int
 char_class_race_hit_bonus(struct Creature *ch, struct Creature *vict)
 {
 	int bonus = 0;
+    // Height modifiers
 	bonus += (IS_DWARF(ch) && (IS_OGRE(vict) || IS_TROLL(vict) ||
 			IS_GIANT(vict) || (GET_HEIGHT(vict) > 2 * GET_HEIGHT(ch))));
-	bonus -= (IS_DWARF(ch) && (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
-			SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM ||
-			ch->in_room->isOpenAir() ||
-			SECT_TYPE(ch->in_room) == SECT_UNDERWATER ||
-			SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN));
+    // Dwarven dislike of water or heights
+	bonus -= (IS_DWARF(ch) && (room_is_watery(ch->in_room) || ch->in_room->isOpenAir()));
+    // Thieves operating in the dark
 	bonus += (IS_THIEF(ch) && room_is_dark(ch->in_room));
+    // Rangers like being outside
 	bonus += (IS_RANGER(ch) && (SECT_TYPE(ch->in_room) == SECT_FOREST ||
 			(SECT_TYPE(ch->in_room) != SECT_CITY &&
 				SECT_TYPE(ch->in_room) != SECT_INSIDE && OUTSIDE(ch))));
+    // Tabaxi in their native habitat
 	bonus += (IS_TABAXI(ch) && SECT_TYPE(ch->in_room) == SECT_FOREST &&
 		OUTSIDE(ch));
 	return (bonus);

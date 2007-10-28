@@ -848,15 +848,13 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		(!IS_AFFECTED(i, AFF_WATERWALK)
 			|| ch->getPosition() < POS_STANDING))
 		desc = tmp_strcat(desc, " is swimming here.");
-	else if ((SECT_TYPE(i->in_room) == SECT_UNDERWATER
-				|| SECT_TYPE(i->in_room) == SECT_DEEP_OCEAN)
-			&& i->getPosition() > POS_RESTING)
+	else if (room_is_underwater(i->in_room) && i->getPosition() > POS_RESTING)
 		desc = tmp_strcat(desc, " is swimming here.");
 	else if (SECT_TYPE(i->in_room) == SECT_PITCH_PIT
-		&& i->getPosition() < POS_FLYING)
-		desc = tmp_strcat(desc, " is struggling in the pitch.");
+             && i->getPosition() < POS_FLYING)
+		desc = tmp_strcat(desc, " struggles in the pitch.");
 	else if (SECT_TYPE(i->in_room) == SECT_PITCH_SUB)
-		desc = tmp_strcat(desc, " is struggling blindly in the pitch.");
+		desc = tmp_strcat(desc, " struggles blindly in the pitch.");
 	else
 		desc = tmp_strcat(desc, positions[(int)MAX(0, MIN(i->getPosition(),
 						POS_SWIMMING))]);
@@ -1582,10 +1580,10 @@ look_in_direction(struct Creature *ch, int dir)
 					else
 						send_to_char(ch, "You see the sky above you.\r\n");
 				}
-			} else if ((ch->in_room->sector_type == SECT_UNDERWATER))
-				send_to_char(ch, "You see water above you.\r\n");
-			else if ((ch->in_room->sector_type == SECT_DEEP_OCEAN))
+			} else if ((ch->in_room->sector_type == SECT_DEEP_OCEAN))
 				send_to_char(ch, "You see dark waters above you.\r\n");
+            else if (room_is_underwater(ch->in_room))
+				send_to_char(ch, "You see water above you.\r\n");
 			else
 				send_to_char(ch, "Nothing special there...\r\n");
 			break;
@@ -1608,8 +1606,9 @@ look_in_direction(struct Creature *ch, int dir)
 				(ch->in_room->sector_type == SECT_ROCK) ||
 				(ch->in_room->sector_type == SECT_CATACOMBS))
 				send_to_char(ch, "You see the rocky ground below you.\r\n");
-			else if ((ch->in_room->sector_type == SECT_WATER_SWIM) ||
-				(ch->in_room->sector_type == SECT_WATER_NOSWIM))
+			else if (ch->in_room->sector_type == SECT_SWAMP)
+				send_to_char(ch, "You see the swampy ground below your feet.\r\n");
+			else if (room_is_watery(ch->in_room))
 				send_to_char(ch, "You see the water below you.\r\n");
 			else if (ch->in_room->isOpenAir()) {
 				if (ch->in_room->sector_type == SECT_FLYING ||
@@ -1623,8 +1622,6 @@ look_in_direction(struct Creature *ch, int dir)
 						"Nothing substantial lies below your feet.\r\n");
 			} else if (ch->in_room->sector_type == SECT_DESERT)
 				send_to_char(ch, "You see the sands below your feet.\r\n");
-			else if (ch->in_room->sector_type == SECT_SWAMP)
-				send_to_char(ch, "You see the swampy ground below your feet.\r\n");
 			else if (ch->in_room->sector_type == SECT_MUDDY)
 				send_to_char(ch, "You see the mud underneath your feet.\r\n");
 			else

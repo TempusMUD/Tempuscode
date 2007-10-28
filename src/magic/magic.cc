@@ -3085,13 +3085,11 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		act(to_room, FALSE, ch, 0, 0, TO_ROOM);
 
 	if (spellnum == SPELL_EARTHQUAKE &&
-		(SECT_TYPE(ch->in_room) == SECT_UNDERWATER
-				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN
+        (room_is_underwater(ch->in_room)
 				|| ch->in_room->isOpenAir()))
 		return 0;
 	if (spellnum == SPELL_METEOR_STORM
-			&& (SECT_TYPE(ch->in_room) == SECT_UNDERWATER
-				|| SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN))
+        && room_is_underwater(ch->in_room))
 		return 0;
 
 	// check for players if caster is not a pkiller

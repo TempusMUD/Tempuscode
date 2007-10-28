@@ -154,7 +154,7 @@ select_say_cmd(Creature *ch, const char *message)
         return "moan";
     if (GET_MOVE(ch) < GET_MAX_MOVE(ch) / 20)
         return "gasp";
-    if (ch->in_room->sector_type == SECT_UNDERWATER)
+    if (room_is_underwater(ch->in_room))
         return "gurgle";
 	if (IS_AFFECTED_2(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch))
         return "scream";

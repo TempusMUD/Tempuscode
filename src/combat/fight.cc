@@ -2987,10 +2987,8 @@ do_gun_special(Creature *ch, obj_data *obj) {
         bool chain = !number(0, MAX(5, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
                     (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)));
         //in water we get a second chance
-        if ((SECT_TYPE(ch->in_room) == SECT_UNDERWATER || SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN)
-            && !number(0,3)) {
+        if (room_is_watery(ch->in_room) && !number(0,3))
             chain = true;
-        }
         return chain;
     } else if (GET_OBJ_VAL(obj, 3) == EGUN_PLASMA) {
         return number(0, MAX(0,ch->getLevelBonus(SKILL_ENERGY_WEAPONS))/20);//almost always ignite if applicable
