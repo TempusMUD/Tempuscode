@@ -4026,8 +4026,10 @@ print_attributes_to_buf(struct Creature *ch, char *buff)
 		strcat(buff, tmp_sprintf(" [%d]", wis));
 	if (wis <= 5)
 		strcat(buff, "Yoda you are not.");
+	else if (wis <= 6)
+		strcat(buff, "You are pretty foolish.");
 	else if (wis <= 8)
-		strcat(buff, "You enjoy intelligent conversations with grass.");
+		strcat(buff, "You are fairly foolhardy.");
 	else if (wis <= 10)
 		strcat(buff, "Your wisdom is average.");
 	else if (wis <= 12)
