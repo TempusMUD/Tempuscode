@@ -265,8 +265,7 @@ move_car(struct Creature *ch, struct obj_data *car, int dir)
 
 	if (car->action_desc && CAN_GO(car, dir) &&
 		(other_rm = EXIT(car, dir)->to_room) && other_rm->people) {
-		strcpy(buf, car->action_desc);
-		sprintf(buf, "%s %s.", buf, from_dirs[dir]);
+		sprintf(buf, "%s %s.", car->action_desc, from_dirs[dir]);
 		act(buf, FALSE, other_rm->people, car, 0, TO_ROOM);
 		act(buf, FALSE, other_rm->people, car, 0, TO_CHAR);
 	}
