@@ -651,18 +651,18 @@ ACMD(do_wrench)
 			vict, TO_CHAR);
 		check_killer(ch, vict);
 		damage_eq(ch, neck, dam);
-		WAIT_STATE(ch, 2 RL_SEC);
+		WAIT_STATE(ch, 1 RL_SEC);
 		return;
 	}
 
 	if (prob > percent && (CHECK_SKILL(ch, SKILL_WRENCH) >= 30)) {
-		WAIT_STATE(ch, PULSE_VIOLENCE * 4);
-		WAIT_STATE(vict, PULSE_VIOLENCE * 2);
+		WAIT_STATE(ch, SEG_VIOLENCE * 4);
+		WAIT_STATE(vict, SEG_VIOLENCE * 2);
 		damage(ch, vict, dam, SKILL_WRENCH, WEAR_NECK_1);
 		gain_skill_prof(ch, SKILL_WRENCH);
 		return;
 	} else {
-		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+		WAIT_STATE(ch, SEG_VIOLENCE * 2);
 		damage(ch, vict, 0, SKILL_WRENCH, WEAR_NECK_1);
 	}
 }
