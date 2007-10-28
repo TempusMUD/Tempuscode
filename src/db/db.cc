@@ -69,14 +69,12 @@ using namespace std;
 
 int top_of_world = 0;			/* ref to top element of world         */
 
-int top_of_mobt = 0;			/* top of mobile index table         */
 int current_mob_idnum = 0;
 
 struct obj_data *object_list = NULL;	/* global linked list of objs         */
 struct obj_data *obj_proto;		/* prototypes for objs                 */
 struct obj_shared_data *null_obj_shared;
 struct mob_shared_data *null_mob_shared;
-int top_of_objt = 0;			/* top of object index table         */
 map<int,room_data*> rooms;
 
 struct zone_data *zone_table;	/* zone table                         */
@@ -1762,7 +1760,6 @@ void
 parse_mobile(FILE * mob_f, int nr)
 {
 	bool done = false;
-	static int i = 0;
 	int j, t[10];
 	char line[256], *tmpptr, letter;
 	char f1[128], f2[128], f3[128], f4[128], f5[128];
@@ -1854,15 +1851,15 @@ parse_mobile(FILE * mob_f, int nr)
 	mobile->desc = NULL;
     set_initial_tongue(mobile);
 
-	mobilePrototypes.add(mobile);
-	top_of_mobt = i++;
+	if (!mobilePrototypes.add(mobile))
+        delete mobile;
 }
 
 /* read all objects from obj file; generate index and prototypes */
 char *
 parse_object(FILE * obj_f, int nr)
 {
-	static int i = 0, retval;
+	static int retval;
 	static char line[256];
 	int t[10], j;
 	char *tmpptr;
@@ -2030,9 +2027,9 @@ parse_object(FILE * obj_f, int nr)
 			obj->shared->func_param = fread_string(obj_f, buf2); break;
 		case '$':
 		case '#':
-			top_of_objt = i++;
 			obj->next = NULL;
-            objectPrototypes.add(obj);
+            if (!objectPrototypes.add(obj))
+                delete obj;
 			return line;
 			break;
 		default:

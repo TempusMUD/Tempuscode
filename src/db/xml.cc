@@ -20,8 +20,6 @@ void load_xml_zone(xmlNodePtr node);
 void load_xml_room(xmlNodePtr node);
 
 // Needed from db.cc
-extern int top_of_objt;
-extern int top_of_mobt;
 extern player_special_data dummy_mob;
 void set_physical_attribs(struct Creature *ch);
 
@@ -227,7 +225,6 @@ load_xml_object(xmlNodePtr node)
 	}
 */
 
-	top_of_objt++;
 	obj->next = NULL;
 /*	if (obj_proto) {
 		tmp_obj = obj_proto;
@@ -344,8 +341,8 @@ load_xml_mobile(xmlNodePtr node)
 	set_physical_attribs(mob);
 	mob->aff_abils = mob->real_abils;
 
-	mobilePrototypes.add(mob);
-	top_of_mobt++;
+	if (!mobilePrototypes.add(mob))
+        delete mob;
 }
 
 void

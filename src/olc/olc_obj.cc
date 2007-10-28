@@ -37,7 +37,6 @@ extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern int olc_lock;
 extern int *obj_index;
-extern int top_of_objt;
 extern char *olc_guide;
 long asciiflag_conv(char *buf);
 
@@ -412,8 +411,8 @@ do_create_obj(struct Creature *ch, int vnum)
 
 	new_obj->in_room = NULL;
 
-    objectPrototypes.add(new_obj);
-	top_of_objt++;
+    if (!objectPrototypes.add(new_obj))
+        raise(SIGSEGV);
 
 	return (new_obj);
 }
@@ -491,7 +490,6 @@ do_destroy_object(struct Creature *ch, int vnum)
 	if (obj->shared)
 		free(obj->shared);
 
-	top_of_objt--;
 	free(obj);
 
 #ifdef DMALLOC

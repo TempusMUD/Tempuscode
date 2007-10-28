@@ -78,8 +78,6 @@ extern struct zone_data *zone_table;
 extern int top_of_zone_table;
 extern int restrict;
 extern int top_of_world;
-extern int top_of_mobt;
-extern int top_of_objt;
 extern int log_cmds;
 extern int olc_lock;
 extern int lunar_day;
@@ -731,7 +729,7 @@ do_stat_memory(struct Creature *ch)
     total = sum;
     send_to_char(ch, "%s  world structs: %9d  (%d)\r\n", buf, sum, i);
 
-    sum = top_of_mobt * (sizeof(struct Creature));
+    sum = mobilePrototypes.size() * (sizeof(struct Creature));
 
     MobileMap::iterator mit = mobilePrototypes.begin();
     for (; mit != mobilePrototypes.end(); ++mit) {
@@ -3955,11 +3953,11 @@ do_show_stats(struct Creature *ch)
     send_to_char(ch, "Current statistics of Tempus:\r\n");
     send_to_char(ch, "  %5d players in game  %5d connected\r\n", i, con);
     send_to_char(ch, "  %5ld accounts cached  %5ld characters\r\n",
-		Account::cache_size(), playerIndex.size());
-    send_to_char(ch, "  %5d mobiles          %5d prototypes (%d id'd)\r\n",
-        j, top_of_mobt + 1, current_mob_idnum);
-    send_to_char(ch, "  %5d objects          %5d prototypes\r\n",
-        k, top_of_objt + 1);
+                 Account::cache_size(), playerIndex.size());
+    send_to_char(ch, "  %5d mobiles          %5ld prototypes (%d id'd)\r\n",
+                 j, mobilePrototypes.size(), current_mob_idnum);
+    send_to_char(ch, "  %5d objects          %5ld prototypes\r\n",
+                 k, objectPrototypes.size());
     send_to_char(ch, "  %5d rooms            %5d zones (%d active)\r\n",
         top_of_world + 1, top_of_zone_table, num_active_zones);
     send_to_char(ch, "  %5d searches\r\n", srch_count);

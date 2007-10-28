@@ -36,7 +36,6 @@ extern struct descriptor_data *descriptor_list;
 extern struct player_special_data dummy_mob;
 extern int top_of_zone_table;
 extern int olc_lock;
-extern int top_of_mobt;
 extern int *obj_index;
 extern int *mob_index;
 extern int *shp_index;
@@ -248,8 +247,8 @@ do_create_mob(struct Creature *ch, int vnum)
 	new_mob->desc = NULL;
 	new_mob->in_room = NULL;
 
-	mobilePrototypes.add(new_mob);
-	top_of_mobt++;
+	if (!mobilePrototypes.add(new_mob))
+        raise(SIGSEGV);
 
 	return (new_mob);
 }
@@ -1592,7 +1591,7 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 	if (mob->mob_specials.shared) {
 		free(mob->mob_specials.shared);
 	}
-	top_of_mobt--;
+
 	delete mob;
 	return 0;
 }
