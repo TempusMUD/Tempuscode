@@ -15,7 +15,6 @@ struct tmp_str_pool {
 	struct tmp_str_pool *next;		// Ptr to next in linked list
 	size_t space;					// Amount of space allocated
 	size_t used;					// Amount of space used in pool
-	unsigned long underflow;		// Buffer underflow detection
 	char data[0];					// The actual data
 };
 
@@ -46,12 +45,6 @@ tmp_gc_strings(void)
 	// Free the extra space (if any), adding up the amount we needed
 	for(cur_buf = tmp_list_head->next;cur_buf;cur_buf = next_buf) {
 		next_buf = cur_buf->next;
-
-		if (cur_buf->underflow != 0xddccbbaa)
-			slog("WARNING: buffer underflow detected in tmpstr module");
-		if (*((unsigned long *)&cur_buf->data[cur_buf->space]) != 0xaabbccdd)
-			slog("WARNING: buffer overflow detected in tmpstr module");
-
 		wanted += cur_buf->used;
 		free(cur_buf);
 	}
@@ -83,7 +76,7 @@ tmp_alloc_pool(size_t size_req)
 	struct tmp_str_pool *new_buf;
 	size_t size = MAX(size_req,DEFAULT_POOL_SIZE);
 
-	new_buf = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size + 4);
+	new_buf = (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size);
 	new_buf->next = NULL;
 	if (tmp_list_tail)
 		tmp_list_tail->next = new_buf;
@@ -91,9 +84,7 @@ tmp_alloc_pool(size_t size_req)
 	new_buf->space = size;
 	new_buf->used = 0;
 
-	// Add buffer overflow detection
-	new_buf->underflow = 0xddccbbaa;
-	*((unsigned long *)&new_buf->data[new_buf->space]) = 0xaabbccdd;
+    memset(new_buf->data, 0, size);
 
 	return new_buf;
 }
@@ -105,6 +96,9 @@ tmp_vsprintf(const char *fmt, va_list args)
 	struct tmp_str_pool *cur_buf;
 	size_t wanted;
 	char *result;
+    va_list args_copy;
+
+    va_copy(args_copy, args);
 
 	cur_buf = tmp_list_tail;
 
@@ -118,7 +112,7 @@ tmp_vsprintf(const char *fmt, va_list args)
 	if (cur_buf->space - cur_buf->used < wanted) {
 		cur_buf = tmp_alloc_pool(wanted);
 		result = &cur_buf->data[0];
-		wanted = vsnprintf(result, cur_buf->space - cur_buf->used, fmt, args) + 1;
+		wanted = vsnprintf(result, cur_buf->space, fmt, args_copy) + 1;
 	}
 
 	cur_buf->used += wanted;
