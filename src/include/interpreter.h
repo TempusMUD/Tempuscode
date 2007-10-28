@@ -154,7 +154,6 @@ struct set_struct {
 #define SCMD_IMOTD	7
 #define SCMD_CLEAR	8
 #define SCMD_WHOAMI	9
-#define SCMD_AREAS	10
 
 /* do_gen_tog */
 #define CMD_TESTER 1

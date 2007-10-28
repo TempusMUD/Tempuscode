@@ -3585,19 +3585,6 @@ ACMD(do_gen_ps)
 	case SCMD_INFO:
 		page_string(ch->desc, info);
 		break;
-    /*
-	case SCMD_WIZLIST:
-		if (clr(ch, C_NRM))
-			page_string(ch->desc, ansi_wizlist);
-		else
-			page_string(ch->desc, wizlist);
-	case SCMD_IMMLIST:
-		if (clr(ch, C_NRM))
-			page_string(ch->desc, ansi_immlist);
-		else
-			page_string(ch->desc, immlist);
-		break;
-    */
 	case SCMD_MOTD:
 		if (clr(ch, C_NRM))
 			page_string(ch->desc, ansi_motd);
@@ -3618,23 +3605,6 @@ ACMD(do_gen_ps)
 		break;
 	case SCMD_WHOAMI:
 		send_to_char(ch, strcat(strcpy(buf, GET_NAME(ch)), "\r\n"));
-		break;
-	case SCMD_AREAS:
-		skip_spaces(&argument);
-		if (!*argument)
-			send_to_char(ch, 
-				"Do you want a list of low, mid, high, or remort level areas?\r\n"
-				"Usage: areas < low | mid | high | remort >\r\n");
-		else if (is_abbrev(argument, "low"))
-			page_string(ch->desc, areas_low);
-		else if (is_abbrev(argument, "mid"))
-			page_string(ch->desc, areas_mid);
-		else if (is_abbrev(argument, "high"))
-			page_string(ch->desc, areas_high);
-		else if (is_abbrev(argument, "remort"))
-			page_string(ch->desc, areas_remort);
-		else
-			send_to_char(ch, "Usage: areas < low | mid | high | remort >\r\n");
 		break;
 	default:
 		return;
@@ -4842,8 +4812,8 @@ ACMD(do_areas)
         if (IS_IMMORT(ch) ||
                 (zone->min_lvl <= GET_LEVEL(ch)
                     && zone->max_lvl >= GET_LEVEL(ch)
-                    && zone->min_gen <= GET_REAL_GEN(ch)
-                    && zone->max_gen >= GET_REAL_GEN(ch))) {
+                    && zone->min_gen <= GET_REMORT_GEN(ch)
+                    && zone->max_gen >= GET_REMORT_GEN(ch))) {
             // name
             acc_strcat((found_one) ? "\r\n":"", CCCYN(ch, C_NRM), 
                         zone->name, CCNRM(ch, C_NRM), "\r\n", NULL );
