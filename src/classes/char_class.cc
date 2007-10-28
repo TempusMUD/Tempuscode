@@ -901,6 +901,17 @@ roll_real_abils(struct Creature *ch)
 		ch->real_abils.con += 1;
 		ch->real_abils.cha -= 3;
 		break;
+    case RACE_ORC:
+		if (ch->real_abils.str == 18)
+			ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+		else
+			ch->real_abils.str += 1;
+
+		ch->real_abils.intel -= 1;
+		ch->real_abils.wis -= 2;
+		ch->real_abils.con += 2;
+		ch->real_abils.cha -= 3;
+		break;
 	case RACE_TABAXI:
 		ch->real_abils.dex = MIN(20, ch->real_abils.dex + 3);
 		ch->real_abils.intel -= 1;
