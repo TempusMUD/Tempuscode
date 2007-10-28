@@ -1185,14 +1185,14 @@ renum_world(void)
             rooms[room->number] = room;
         }
     }
-	slog("%d rooms loaded.", rooms.size());
+	slog("%ld rooms loaded.", rooms.size());
     // lookup each room's doors and reconnect the to_room pointers
     for( zone_data* zone = zone_table; zone; zone = zone->next) {
 		for( room_data* room = zone->world; room; room = room->next) {
 			for (int door = 0; door < NUM_OF_DIRS; ++door) {
 				if (room->dir_option[door]) {
                     // the to_room pointer has the room # stored in it during bootup
-                    int vnum = (room_num)room->dir_option[door]->to_room;
+                    int vnum = (long int)room->dir_option[door]->to_room;
                     room->dir_option[door]->to_room = NULL;
                     // if it points somewhere and is in the map
 					if( vnum != NOWHERE && rooms.count(vnum) > 0 ) {

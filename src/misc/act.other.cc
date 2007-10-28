@@ -349,7 +349,7 @@ ACMD(do_title)
 	else if (strstr(argument, "(") || strstr(argument, ")"))
 		send_to_char(ch, "Titles can't contain the ( or ) characters.\r\n");
 	else if (strlen(argument) > MAX_TITLE_LENGTH) {
-		send_to_char(ch, "Sorry, titles can't be longer than %d characters.\r\n",
+		send_to_char(ch, "Sorry, titles can't be longer than %ld characters.\r\n",
 			MAX_TITLE_LENGTH);
 	} else {
 		set_title(ch, argument);
@@ -1368,7 +1368,7 @@ ACMD(do_afk)
         // Afk with a reason always keeps afk
         skip_spaces(&argument);
         if (strlen(argument) > MAX_AFK_LENGTH) {
-            send_to_char(ch, "Your afk reason must be limited to %d characters.\r\n", MAX_AFK_LENGTH);
+            send_to_char(ch, "Your afk reason must be limited to %ld characters.\r\n", MAX_AFK_LENGTH);
             return;
         }
 

@@ -3954,7 +3954,7 @@ do_show_stats(struct Creature *ch)
 
     send_to_char(ch, "Current statistics of Tempus:\r\n");
     send_to_char(ch, "  %5d players in game  %5d connected\r\n", i, con);
-    send_to_char(ch, "  %5d accounts cached  %5d characters\r\n",
+    send_to_char(ch, "  %5ld accounts cached  %5ld characters\r\n",
 		Account::cache_size(), playerIndex.size());
     send_to_char(ch, "  %5d mobiles          %5d prototypes (%d id'd)\r\n",
         j, top_of_mobt + 1, current_mob_idnum);
@@ -3966,17 +3966,17 @@ do_show_stats(struct Creature *ch)
     send_to_char(ch, "  %5d large bufs\r\n", buf_largecount);
     send_to_char(ch, "  %5d buf switches     %5d overflows\r\n",
         buf_switches, buf_overflows);
-    send_to_char(ch, "  %5u tmpstr space     %5u accstr space\r\n",
+    send_to_char(ch, "  %5lu tmpstr space     %5lu accstr space\r\n",
         tmp_max_used, acc_str_space);
 #ifdef MEMTRACK
-    send_to_char(ch, "  %5d trail count      %dMB total memory\r\n",
+    send_to_char(ch, "  %5ld trail count      %ldMB total memory\r\n",
 		tr_count, dbg_memory_used() / (1024 * 1024));
 #else
     send_to_char(ch, "  %5d trail count\r\n", tr_count);
 #endif
     send_to_char(ch, "  %5u running progs (%u total, %u free)\r\n",
         prog_count(false), prog_count(true), free_prog_count());
-    send_to_char(ch, "  %5u fighting creatures\r\n",
+    send_to_char(ch, "  %5lu fighting creatures\r\n",
 		combatList.size());
     send_to_char(ch, "  Lunar day: %2d, phase: %s (%d)\r\n",
         lunar_day, lunar_phases[get_lunar_phase(lunar_day)],
@@ -4279,7 +4279,7 @@ show_topzones(Creature *ch, char *value)
     } else {
         for (i = zone_list.size()-1; i >= (int)zone_list.size()-num_zones; i--)
             sprintf(buf,
-        "%s%2d.[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s accesses.  Owner: %s%s%s\r\n",
+        "%s%2ld.[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s accesses.  Owner: %s%s%s\r\n",
         buf, zone_list.size()-i, CCYEL(ch, C_NRM), zone_list[i]->number, CCNRM(ch, C_NRM),
         CCCYN(ch, C_NRM), zone_list[i]->name, CCNRM(ch, C_NRM), CCGRN(ch,
         C_NRM), CCNRM(ch, C_NRM), zone_list[i]->enter_count, CCGRN(ch,
@@ -4550,7 +4550,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 
             if (mob_names.size() >= (unsigned int)num) {
                 show_room_append(ch, room, mode,
-                                 tmp_sprintf("[%2d]", mob_names.size()));
+                                 tmp_sprintf("[%2ld]", mob_names.size()));
                 found = 1;
                 for (str_it = mob_names.begin(); str_it != mob_names.end(); str_it++)
                     acc_sprintf("\t%s%s%s\r\n", CCYEL(ch, C_NRM),
@@ -4609,7 +4609,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
                 && ((gt && ((unsigned)num <= strlen(room->description)))
                     || (lt && ((unsigned)num >= strlen(room->description))))) {
                 show_room_append(ch, room, mode, 
-                                 tmp_sprintf("[%d]", strlen(room->description)));
+                                 tmp_sprintf("[%ld]", strlen(room->description)));
                 found = 1;
             }
         break;

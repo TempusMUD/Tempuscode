@@ -85,7 +85,7 @@ namespace Security {
         const char *grn = CCGRN(ch,C_NRM);
 
         send_to_char(ch,
-                "%s%15s %s[%s%4d%s] [%s%4d%s]%s - %s\r\n",
+                "%s%15s %s[%s%4ld%s] [%s%4ld%s]%s - %s\r\n",
                 grn, _name, cyn,
                 nrm, commands.size(), cyn,
                 nrm, members.size(), cyn,
@@ -99,7 +99,7 @@ namespace Security {
         const char *grn = CCGRN(ch,C_NRM);
 
         send_to_char(ch,
-                "Name: %s%s%s [%s%4d%s][%s%4d%s]%s\r\n",
+                "Name: %s%s%s [%s%4ld%s][%s%4ld%s]%s\r\n",
                 grn, _name, cyn,
                 nrm, commands.size(), cyn,
                 nrm, members.size(), cyn,

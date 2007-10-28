@@ -3352,7 +3352,7 @@ ACMD(do_who)
 	
 	string args = argument;
 	
-	unsigned int dashPos = string::npos;
+    string::size_type dashPos = string::npos;
 	if ((dashPos = args.find("-")) != string::npos) {
 		string levelRange = args.substr(args.rfind(' ', dashPos), args.find(' ', dashPos));
 		sscanf(levelRange.c_str(), "%d-%d", &low, &high);
@@ -3413,8 +3413,8 @@ ACMD(do_who)
 	}
 	if (args.find("clan") != string::npos) {
 		clan = true;
-		unsigned int start = args.find(' ', args.find("clan"));
-		unsigned int end = args.find(' ', start+1);
+        string::size_type start = args.find(' ', args.find("clan"));
+        string::size_type end = args.find(' ', start+1);
         if (start == string::npos || start == end) {
             realClan = NULL;
         } else {

@@ -64,7 +64,7 @@ tmp_gc_strings(void)
 			free(tmp_list_head);
 			tmp_list_tail = NULL;
 			tmp_list_head = tmp_alloc_pool(tmp_max_used);
-			slog("NOTICE: tmpstr pool allocated increased to %d bytes", 
+			slog("NOTICE: tmpstr pool allocated increased to %ld bytes", 
 				tmp_max_used);
 		}
 	}

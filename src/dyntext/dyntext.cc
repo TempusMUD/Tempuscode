@@ -375,8 +375,8 @@ show_dyntext(Creature *ch, dynamic_text_file * dyntext, char *argument)
 				"             last: %s (%ld) @ %s\r"
 				"            level: %d\r\n"
 				"             lock: %s (%ld)\r\n"
-				"              old: %-3s (Len: %d)\r\n"
-				"              new: %-3s (Len: %d)\r\n",
+				"              old: %-3s (Len: %ld)\r\n"
+				"              new: %-3s (Len: %ld)\r\n",
 				dyntext->filename,
 				playerIndex.getName(dyntext->last_edit[0].idnum),
 				dyntext->last_edit[0].idnum,

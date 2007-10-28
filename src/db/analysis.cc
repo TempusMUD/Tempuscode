@@ -187,7 +187,7 @@ do_show_objects( Creature *ch, char *value, char *arg ) {
     }
 
 	int objNum = 1;
-	char *msg = tmp_sprintf("Matched %d objects with: '%s%s'\r\n",
+	char *msg = tmp_sprintf("Matched %ld objects with: '%s%s'\r\n",
                              objects.size(),value,arg);
 
 	list<obj_data*>::iterator it = objects.begin();

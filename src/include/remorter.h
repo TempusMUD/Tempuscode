@@ -385,12 +385,12 @@ Quiz::sendStatus(Creature * ch)
 	send_to_char(ch, "Quiz Subject: %s (%d)\r\n",
 		studentID > 0 ? playerIndex.getName(studentID) : "NONE", studentID);
 	send_to_char(ch,
-		"Ready [%s] Complete[%s] In Progress[%s] Number of Questions[%d]\r\n",
+		"Ready [%s] Complete[%s] In Progress[%s] Number of Questions[%ld]\r\n",
 		isReady()? "Yes" : "No", isComplete()? "Yes" : "No",
 		inProgress()? "Yes" : "No", size());
 	send_to_char(ch, "Earned[%d] Missed[%d] Needed[%d] Limit[%d] Score(%%%d)\r\n",
 		earnedPoints, lostPoints, neededPoints, maximumPoints, getScore());
-	send_to_char(ch, "[ ALL] Questions [%4d] Average [%5.2f]\r\n",
+	send_to_char(ch, "[ ALL] Questions [%4ld] Average [%5.2f]\r\n",
 		remortQuestions.size(), getAverage());
 	sendGenDistribution(ch);
 }
@@ -421,7 +421,7 @@ Quiz::reset()
 		remortQuestions.erase(remortQuestions.begin(), remortQuestions.end());
 	}
 	if (load_remort_questions()) {
-		sprintf(buf, "Remorter: %d questions loaded.", remortQuestions.size());
+		sprintf(buf, "Remorter: %ld questions loaded.", remortQuestions.size());
 		log(buf);
 	}
 	studentID = 0;
