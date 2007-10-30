@@ -2230,19 +2230,23 @@ trigger_prog_tick(void *owner, prog_evt_type owner_type)
 	prog_execute(env);
 }
 
-void
-prog_update(void)
+static void
+prog_unmark_mobiles(void)
 {
-	struct prog_env *cur_prog, *next_prog;
 	CreatureList::iterator cit, end;
-	zone_data *zone;
-	room_data *room;
 
 	// Unmark mobiles
     end = characterList.end();
 	for (cit = characterList.begin();cit != end;++cit)
 		(*cit)->mob_specials.prog_marker = 0;
-	// Unmark rooms
+}
+
+static void
+prog_unmark_rooms(void)
+{
+	zone_data *zone;
+	room_data *room;
+
 	for (zone = zone_table; zone; zone = zone->next)  {
 		if (ZONE_FLAGGED(zone, ZONE_FROZEN)
 				|| zone->idle_time >= ZONE_IDLE_TIME)
@@ -2252,7 +2256,12 @@ prog_update(void)
 			if (GET_ROOM_PROG(room))
 				room->prog_marker = 0;
 	}
+}
 
+static void
+prog_execute_and_mark(void)
+{
+	struct prog_env *cur_prog;
 
 	// Execute progs and mark them as non-idle
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
@@ -2277,14 +2286,25 @@ prog_update(void)
 
 		prog_execute(cur_prog);
 	}
-	// Free threads that have terminated
+}
+
+static void
+prog_free_terminated(void)
+{
+	struct prog_env *cur_prog, *next_prog;
+
 	for (cur_prog = prog_list; cur_prog; cur_prog = next_prog) {
 		next_prog = cur_prog->next;
 		if (cur_prog->exec_pt < 0 || !cur_prog->owner)
 			prog_free(cur_prog);
 	}
+}
 
-	// Trigger mobile idle and combat progs
+static void
+prog_trigger_idle_mobs(void)
+{
+	CreatureList::iterator cit, end;
+
     end = characterList.end();
 	for (cit = characterList.begin();cit != end;++cit) {
 		if ((*cit)->mob_specials.prog_marker || !GET_MOB_PROGOBJ(*cit))
@@ -2294,8 +2314,14 @@ prog_update(void)
 		else
 			trigger_prog_combat((*cit), PROG_TYPE_MOBILE);
 	}
+}
 
-	// Trigger room idle progs
+static void
+prog_trigger_idle_rooms(void)
+{
+	zone_data *zone;
+	room_data *room;
+
 	for (zone = zone_table; zone; zone = zone->next)  {
 		if (ZONE_FLAGGED(zone, ZONE_FROZEN)
 				|| zone->idle_time >= ZONE_IDLE_TIME)
@@ -2305,7 +2331,20 @@ prog_update(void)
 			if (GET_ROOM_PROGOBJ(room) && !room->prog_marker)
 				trigger_prog_idle(room, PROG_TYPE_ROOM);
 	}
+}
 
+void
+prog_update(void)
+{
+    prog_unmark_mobiles();
+    prog_unmark_rooms();
+
+    prog_execute_and_mark();
+
+    prog_free_terminated();
+
+    prog_trigger_idle_mobs();
+    prog_trigger_idle_rooms();
 }
 
 void
