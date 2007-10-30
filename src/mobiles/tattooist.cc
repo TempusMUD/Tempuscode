@@ -67,7 +67,6 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *obj;
 	char *obj_str, *currency_str, *msg;
-	int num;
 	unsigned long cost, amt_carried;
 	bool appraisal_only = false;
 
@@ -171,7 +170,7 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		currency_str = "creds";
 		break;
 	case 2:
-		ch->account->set_quest_points(ch->account->get_quest_points() - (cost * num));
+		ch->account->set_quest_points(ch->account->get_quest_points() - cost);
 		currency_str = "quest points";
 		break;
 	default:
@@ -179,7 +178,7 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		currency_str = "-BUGS-";
 	}
 
-	perform_say_to(self, ch, tmp_sprintf(shop->msg_buy, cost * num));
+	perform_say_to(self, ch, tmp_sprintf(shop->msg_buy, cost));
 	msg = tmp_sprintf("You carefully ink $p onto $N's %s for %lu %s.",
                       wear_tattoopos[pos], cost, currency_str);
 	act(msg, false, self, obj, ch, TO_CHAR);
