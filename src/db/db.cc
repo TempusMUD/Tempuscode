@@ -2029,7 +2029,7 @@ parse_object(FILE * obj_f, int nr)
 		case '#':
 			obj->next = NULL;
             if (!objectPrototypes.add(obj))
-                delete obj;
+                free_obj(obj);
 			return line;
 			break;
 		default:
