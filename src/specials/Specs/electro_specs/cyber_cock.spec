@@ -9,7 +9,7 @@ SPECIAL(cyber_cock)
 	if (cmd)
 		return 0;
 
-	if (!ch->numCombatants()) {
+	if (!ch->isFighting()) {
 		switch (number(0, 40)) {
 		case 0:
 			act("$n scratches the ground with $s metal claw.", TRUE, ch, 0, 0,

@@ -38,7 +38,7 @@ SPECIAL(mugger)
 			if (GET_OBJ_VNUM(obj) == mug->vnum) {
 				if (GET_IDNUM(ch) == mug->idnum) {
                     vict = self->findRandomCombat();
-					if (self->numCombatants() && !IS_NPC(vict)) {
+					if (self->isFighting() && !IS_NPC(vict)) {
 						perform_say(self, "say", tmp_sprintf("Ha!  Let this be a lesson to you, %s!", GET_DISGUISED_NAME(self, vict)));
                         self->removeAllCombat();
 					} else {
@@ -57,7 +57,7 @@ SPECIAL(mugger)
 	if (spec_mode == SPECIAL_CMD)
 		return 0;
 	
-	if (self->numCombatants() || self->isHunting())
+	if (self->isFighting() || self->isHunting())
 		return 0;
 
 	// We're not mugging anyone, so look for a new victim

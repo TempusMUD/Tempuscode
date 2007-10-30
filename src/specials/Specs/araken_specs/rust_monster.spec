@@ -15,7 +15,7 @@ SPECIAL(rust_monster)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (!ch->numCombatants()) {
+	if (!ch->isFighting()) {
 
 		for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
 

@@ -896,7 +896,7 @@ send_prompt(descriptor_data *d)
             }
         }
 
-		if (d->creature->numCombatants() &&
+		if (d->creature->isFighting() &&
 			PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE))
 			sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->creature, C_NRM),
 					diag_conditions(d->creature->findRandomCombat()),

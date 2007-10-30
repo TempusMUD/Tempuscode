@@ -141,7 +141,7 @@ burn_update(void)
 				continue;
 		}
 
-		if (!ch->numCombatants() && GET_MOB_WAIT(ch))
+		if (!ch->isFighting() && GET_MOB_WAIT(ch))
 			GET_MOB_WAIT(ch) = MAX(0, GET_MOB_WAIT(ch) - FIRE_TICK);
 
 		if ((IS_NPC(ch) && ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN)) ||
@@ -178,7 +178,7 @@ burn_update(void)
 		if (ch->in_room->dir_option[DOWN] &&
 			ch->getPosition() < POS_FLYING &&
 			!IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED) &&
-			(!ch->numCombatants() || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
+			(!ch->isFighting() || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
 			ch->in_room->isOpenAir() &&
 			!NOGRAV_ZONE(ch->in_room->zone) &&
 			(!ch->isMounted() || !AFF_FLAGGED(ch->isMounted(), AFF_INFLIGHT)) &&
@@ -640,7 +640,7 @@ burn_update(void)
 			&& ch->getPosition() < POS_FLYING) {
 			if (damage(ch, ch, dice(4, 5), TYPE_HOLYOCEAN, WEAR_RANDOM))
 				continue;
-			if (IS_MOB(ch) && !ch->numCombatants()) {
+			if (IS_MOB(ch) && !ch->isFighting()) {
 				do_flee(ch, "", 0, 0, 0);
 			}
 		}
@@ -1318,7 +1318,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 			((gun = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(gun)) ||
 			((gun = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(gun))) {
 
-			if (!vict->numCombatants())
+			if (!vict->isFighting())
 				do_backstab(ch, fname(vict->player.name), 0, 0, &return_flags);
 			else if (GET_LEVEL(ch) > 43)
 				do_circle(ch, fname(vict->player.name), 0, 0, &return_flags);
@@ -1710,7 +1710,7 @@ mobile_activity(void)
 		// nothing below this conditional affects FIGHTING characters
 		//
 
-		if (ch->getPosition() == POS_FIGHTING || ch->numCombatants()) {
+		if (ch->getPosition() == POS_FIGHTING || ch->isFighting()) {
 			continue;
 		}
 
@@ -1974,7 +1974,7 @@ mobile_activity(void)
 
 		/* Wearing Objects */
 		if (!MOB2_FLAGGED(ch, MOB2_WONT_WEAR) && !IS_ANIMAL(ch) &&
-			!ch->numCombatants() && !IS_DRAGON(ch) && !IS_ELEMENTAL(ch)) {
+			!ch->isFighting() && !IS_DRAGON(ch) && !IS_ELEMENTAL(ch)) {
 			if (ch->carrying && random_fractional_4()) {
 				for (obj = ch->carrying; obj; obj = best_obj) {
 					best_obj = obj->next_content;
@@ -2100,7 +2100,7 @@ mobile_activity(void)
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				vict = *it;
 				if (ch != vict
-                    && vict->numCombatants()
+                    && vict->isFighting()
                     && !vict->findCombat(ch)
                     && can_see_creature(ch, vict)) {
 
@@ -2900,7 +2900,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	ACCMD(do_disarm);
 	ACMD(do_feign);
 
-	if (!ch->numCombatants()) {
+	if (!ch->isFighting()) {
 		errlog("mobile_battle_activity called on non-fighting ch.");
 		raise(SIGSEGV);
 	}
@@ -2981,7 +2981,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 					(IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun))))) {
 
 			
-            if (ch->numCombatants())
+            if (ch->isFighting())
 			    do_shoot(ch, tmp_sprintf("%s %s",
 				         fname(gun->aliases), ch->findRandomCombat()->player.name),
 				         0, 0, &return_flags);
@@ -3861,7 +3861,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-    num = ch->numCombatants();
+    num = ch->isFighting();
     
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -4124,7 +4124,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	num = ch->numCombatants();
+	num = ch->isFighting();
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -4263,7 +4263,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	num = ch->numCombatants();
+	num = ch->isFighting();
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -4413,7 +4413,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-    num = ch->numCombatants();
+    num = ch->isFighting();
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -4813,7 +4813,7 @@ int ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict){
     } else if ((GET_LEVEL(ch) > 21) &&
                random_fractional_5() &&
                IS_UNDEAD(vict) &&
-               !ch->numCombatants() &&
+               !ch->isFighting() &&
                !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_INVIS_TO_UNDEAD);
         WAIT_STATE(ch, PULSE_VIOLENCE);

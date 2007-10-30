@@ -43,7 +43,7 @@ ACMD(do_pistolwhip)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -108,7 +108,7 @@ ACMD(do_crossface)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -193,7 +193,7 @@ ACMD(do_crossface)
 				!IS_SET(retval, DAM_ATTACKER_KILLED)) {
 				if (!IS_NPC(vict) || (IS_NPC(vict) &&
 						!MOB2_FLAGGED(vict, MOB2_NOSTUN))
-					&& ch->numCombatants()) {
+					&& ch->isFighting()) {
 					ch->removeCombat(vict);
 					vict->removeAllCombat();
 					vict->setPosition(POS_STUNNED);
@@ -212,7 +212,7 @@ ACMD(do_crossface)
 			retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
 			if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
 				&& !IS_SET(retval, DAM_VICT_KILLED) &&
-				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->numCombatants()) {
+				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->isFighting()) {
 				vict->setPosition(POS_RESTING);
 				act("Your crossface has knocked $N on his ass!",
 					TRUE, ch, NULL, vict, TO_CHAR);
@@ -230,7 +230,7 @@ ACMD(do_crossface)
 			retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
             wear = GET_EQ(vict, wear_num);
 			if (wear  && !IS_SET(retval, DAM_VICT_KILLED) &&
-				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->numCombatants()) {
+				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->isFighting()) {
 				act("Your crossface has knocked $N's $p from his head!",
 					TRUE, ch, wear, vict, TO_CHAR);
 				act("$n's nasty crossface just knocked $p from $N's head!",
@@ -391,7 +391,7 @@ ACMD(do_snipe)
 	}
 	// if vict is fighting someone you have a 50% chance of hitting the person
 	// vict is fighting
-	if ((vict->numCombatants()) && (number(0, 1))) {
+	if ((vict->isFighting()) && (number(0, 1))) {
 		vict = (vict->findRandomCombat());
 	}
 	// Has vict been sniped once and is vict a sentinel mob?
@@ -582,7 +582,7 @@ ACMD(do_wrench)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			vict = (ch->findRandomCombat());
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -631,7 +631,7 @@ ACMD(do_wrench)
 		dam += dam / 2;
 	}
 
-	if (!(ch->numCombatants()) && !(vict->numCombatants())) {
+	if (!(ch->isFighting()) && !(vict->isFighting())) {
 		dam += dam / 3;
 	}
 

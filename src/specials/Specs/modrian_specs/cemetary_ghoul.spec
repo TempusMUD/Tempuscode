@@ -10,7 +10,7 @@ SPECIAL(cemetary_ghoul)
 		return 0;
 	struct room_data *r_ghoul_hole = real_room(4299), *r_cemetary_room = NULL;
 
-	if (cmd || ch->numCombatants())
+	if (cmd || ch->isFighting())
 		return 0;
 
 	if (OUTSIDE(ch) && ch->in_room->zone->weather->sunlight == SUN_LIGHT) {

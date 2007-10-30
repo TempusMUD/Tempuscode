@@ -2371,7 +2371,7 @@ ASPELL(spell_id_insinuation)
 
 	if (!victim)
 		return;
-	if (victim->numCombatants())
+	if (victim->isFighting())
 		return;
 
 	send_to_char(victim, "You feel an intense desire to KILL someone!!\r\n");

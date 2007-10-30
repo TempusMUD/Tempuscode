@@ -546,7 +546,7 @@ Creature::setPosition(int new_pos, int mode)
 			return false;
 		}
 	}
-	if (new_pos == POS_STANDING && this->numCombatants()) {
+	if (new_pos == POS_STANDING && this->isFighting()) {
 		char_specials.setPosition(POS_FIGHTING);
 	} else {
 		char_specials.setPosition(new_pos);
@@ -823,7 +823,7 @@ Creature::clear(void)
 	// first make sure the char is no longer in the world
 	//
 	if (this->in_room != NULL || this->carrying != NULL ||
-		(this->getCombatList() && this->numCombatants() != 0) || 
+		(this->getCombatList() && this->isFighting() != 0) || 
         this->followers != NULL || this->master != NULL) {
 		errlog("attempted clear of creature who is still connected to the world.");
 		raise(SIGSEGV);
@@ -1375,7 +1375,7 @@ Creature::addCombat(Creature *ch, bool initiated)
         if ((*cit) != ch && 
             (*cit) != this &&
             (*cit)->isDefending() == ch &&
-            !(*cit)->numCombatants() &&
+            !(*cit)->isFighting() &&
             (*cit)->getPosition() > POS_RESTING) {
             
             defender = *cit;
@@ -1438,7 +1438,7 @@ Creature::addCombat(Creature *ch, bool initiated)
     update_pos(this);
     trigger_prog_fight(this, ch);
 
-    if (!previously_fighting && numCombatants() > 0) {
+    if (!previously_fighting && isFighting() > 0) {
         CreatureList::iterator li;
         bool found = false;
         for (li = combatList.begin(); li != combatList.end(); ++li) {
@@ -1471,7 +1471,7 @@ Creature::removeCombat(Creature *ch)
         }
     }
 
-    if (numCombatants() == 0) {
+    if (!isFighting()) {
         remove_fighting_affects(this);
         combatList.remove(this);
     }
@@ -1529,6 +1529,12 @@ Creature::initiatedCombat(Creature *ch)
     return false;
 }
 
+bool
+Creature::isFighting()
+{
+    return !getCombatList()->empty();
+}
+
 int
 Creature::numCombatants()
 {
@@ -1542,7 +1548,7 @@ Creature *
 Creature::findRandomCombat()
 {
 
-    if (numCombatants() == 0)
+    if (!isFighting())
         return NULL;
         
     // Most of the time fighting will be one on one so let's save

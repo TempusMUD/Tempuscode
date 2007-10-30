@@ -83,7 +83,7 @@ ACMD(do_hamstring)
 	// If there's noone in the room that matches your alias
 	// Then it must be an object.
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			vict = ch->findRandomCombat();
 		} else {
 			if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -429,7 +429,7 @@ ACMD(do_snatch)
 	if (vict->getPosition() < POS_SLEEPING)
 		percent = -150;			// ALWAYS SUCCESS
 
-	if (ch->numCombatants())
+	if (ch->isFighting())
 		percent += 30;
 
 	if (vict->getPosition() < POS_FIGHTING)

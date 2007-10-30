@@ -10,7 +10,7 @@ SPECIAL(puppet)
 		return 0;
 	struct Creature *me2 = (struct Creature *)me;
 	struct affected_type af;
-	if (!cmd && !me2->numCombatants() && !number(0, 3)) {
+	if (!cmd && !me2->isFighting() && !number(0, 3)) {
 		switch (number(0, 10)) {
 		case 0:
 			act("The puppet says: I am now the willing slave of $N.", FALSE,

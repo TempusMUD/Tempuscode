@@ -849,7 +849,7 @@ SPECIAL(fido)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || ch->numCombatants())
+	if (cmd || !AWAKE(ch) || ch->isFighting())
 		return (FALSE);
 
 	vict = get_char_random_vis(ch, ch->in_room);
@@ -1486,7 +1486,7 @@ SPECIAL(cave_bear)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !ch->numCombatants())
+	if (cmd || !ch->isFighting())
 		return FALSE;
 
 	if (!number(0, 12)) {

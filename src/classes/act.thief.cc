@@ -311,7 +311,7 @@ ACMD(do_backstab)
 		send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
 		return;
 	}
-	if (vict->numCombatants()) {
+	if (vict->isFighting()) {
 		send_to_char(ch, "Backstab a fighting person? -- they're too alert!\r\n");
 		return;
 	}
@@ -380,7 +380,7 @@ ACMD(do_circle)
 	percent = number(1, 101) + GET_INT(vict);	/* 101% is a complete failure */
 	prob = CHECK_SKILL(ch, SKILL_CIRCLE) +
 		number(0, 20) * (IS_AFFECTED(ch, AFF_SNEAK));
-	if (ch->numCombatants())
+	if (ch->isFighting())
 		prob -= number(20, 30);
 	prob += 20 * can_see_creature(vict, ch);
 

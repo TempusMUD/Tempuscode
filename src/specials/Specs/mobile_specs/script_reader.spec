@@ -43,7 +43,7 @@ SPECIAL(mob_read_script)
 	if (spec_mode != SPECIAL_TICK)
 		return false;
 
-	if (ch->numCombatants() && !SCRIPT_FLAGGED(MODE_FIGHTING))
+	if (ch->isFighting() && !SCRIPT_FLAGGED(MODE_FIGHTING))
 		return false;
 
 	if (!SCRIPT_FLAGGED(MODE_ALONE)) {

@@ -13,7 +13,7 @@ SPECIAL(junker)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (cmd || !AWAKE(ch) || ch->numCombatants())
+	if (cmd || !AWAKE(ch) || ch->isFighting())
 		return 0;
 
 	for (obj = ch->carrying; obj; obj = next_obj) {

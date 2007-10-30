@@ -451,7 +451,7 @@ ACMD(do_combo)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -592,7 +592,7 @@ ACMD(do_pinch)
 	vict_str = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, vict_str))) {
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			vict = ch->findRandomCombat();
 		} else if ((ovict = get_obj_in_list_vis(ch, vict_str,
 					ch->in_room->contents))) {
@@ -729,7 +729,7 @@ ACMD(do_pinch)
 			ch->setPosition(POS_STUNNED);
 			return;
 		}
-		if (ch->numCombatants() || vict->numCombatants()
+		if (ch->isFighting() || vict->isFighting()
 			|| MOB2_FLAGGED(vict, MOB2_NOSTUN)
 			|| (AFF_FLAGGED(vict, AFF_ADRENALINE)
 				&& number(0, 60) < GET_LEVEL(vict))) {
@@ -744,7 +744,7 @@ ACMD(do_pinch)
 		af.type = 0;
 		break;
 	case SKILL_PINCH_GAMMA:
-		if (ch->numCombatants() || vict->numCombatants()) {
+		if (ch->isFighting() || vict->isFighting()) {
 			send_to_char(ch, "You fail.\r\n");
 			send_to_char(vict, NOEFFECT);
 			return;
@@ -885,7 +885,7 @@ ACMD(do_pinch)
 
 	if (which_pinch != SKILL_PINCH_ZETA) {
 		check_killer(ch, vict);
-		if (IS_NPC(vict) && !vict->numCombatants()
+		if (IS_NPC(vict) && !vict->isFighting()
 			&& vict->getPosition() >= POS_FIGHTING) {
 			int retval = hit(vict, ch, TYPE_UNDEFINED);
 			retval = SWAP_DAM_RETVAL(retval);
@@ -904,7 +904,7 @@ ACMD(do_meditate)
 		send_to_char(ch, "You cease to meditate.\r\n");
 		act("$n comes out of a trance.", TRUE, ch, 0, 0, TO_ROOM);
 		MEDITATE_TIMER(ch) = 0;
-	} else if (ch->numCombatants())
+	} else if (ch->isFighting())
 		send_to_char(ch, "You cannot meditate while in battle.\r\n");
 	else if (ch->getPosition() != POS_SITTING || !AWAKE(ch))
 		send_to_char(ch, "You are not in the proper position to meditate.\r\n");

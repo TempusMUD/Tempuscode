@@ -11,7 +11,7 @@ SPECIAL(maladomini_jailer)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (cmd || !ch->numCombatants())
+	if (cmd || !ch->isFighting())
 		return 0;
 
     vict = ch->findRandomCombat();

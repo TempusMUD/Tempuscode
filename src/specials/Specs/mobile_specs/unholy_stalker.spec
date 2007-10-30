@@ -11,14 +11,14 @@ SPECIAL(unholy_stalker)
 
 	Creature *mob = (Creature *) me;
 
-	if (!mob->isHunting() && !mob->numCombatants()) {
+	if (!mob->isHunting() && !mob->isFighting()) {
 		act("$n dematerializes, returning to the negative planes.", TRUE, mob,
 			0, 0, TO_ROOM);
 		mob->purge(true);
 		return 1;
 	}
 
-	if (mob->numCombatants()) {
+	if (mob->isFighting()) {
 		if (!number(0, 3)) {
 			call_magic(mob, mob->findRandomCombat(), NULL, 0, SPELL_CHILL_TOUCH,
 				GET_LEVEL(mob) + 10, CAST_SPELL);

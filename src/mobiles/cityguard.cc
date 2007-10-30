@@ -485,7 +485,7 @@ SPECIAL(cityguard)
 		return false;
 
 	// We're fighting someone - call for help
-	if (self->numCombatants()) {
+	if (self->isFighting()) {
 		tch = self->findRandomCombat();
 
 		// Save the newbies from themselves
@@ -564,7 +564,7 @@ SPECIAL(cityguard)
 		if (action < 2
 				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
-				&& tch->numCombatants()) {
+				&& tch->isFighting()) {
 			action = 2;
 			target = tch;
 		}

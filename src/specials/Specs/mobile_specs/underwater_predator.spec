@@ -46,7 +46,7 @@ SPECIAL(underwater_predator)
 				return 1;
 			}
 		}
-	} else if (!pred->numCombatants() && MOB_FLAGGED(pred, MOB_AGGRESSIVE) &&
+	} else if (!pred->isFighting() && MOB_FLAGGED(pred, MOB_AGGRESSIVE) &&
 		(SECT_TYPE(pred->in_room) == SECT_UNDERWATER
 			|| SECT_TYPE(pred->in_room) == SECT_DEEP_OCEAN) &&
 		EXIT(pred, UP) &&

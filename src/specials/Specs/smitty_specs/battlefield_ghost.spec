@@ -20,7 +20,7 @@ SPECIAL(battlefield_ghost)
 	if (r_ghost_hole == NULL)
 		return 0;
 
-	if (cmd || ch->numCombatants())
+	if (cmd || ch->isFighting())
 		return 0;
 
 	if (OUTSIDE(ch) && ch->in_room != r_ghost_hole &&

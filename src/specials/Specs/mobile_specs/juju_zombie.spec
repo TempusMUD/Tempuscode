@@ -10,7 +10,7 @@ SPECIAL(juju_zombie)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (ch->getPosition() != POS_FIGHTING || !ch->numCombatants())
+	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
 		return 0;
 
     Creature *vict = ch->findRandomCombat();

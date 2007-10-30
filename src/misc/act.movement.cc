@@ -543,7 +543,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		return 1;
 	}
 
-	if (ch->numCombatants() && mode == MOVE_CRAWL) {
+	if (ch->isFighting() && mode == MOVE_CRAWL) {
 		send_to_char(ch, "No way!  You're fighting for your life!\r\n");
 		return 1;
 	}
@@ -713,7 +713,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	} else if (IS_TARRASQUE(ch)) {
 		sprintf(buf, "$n rampages off %sward.", to_dirs[dir]);
 	} else {
-		if (ch->numCombatants())
+		if (ch->isFighting())
 			sprintf(buf, "$n splits %s!", to_dirs[dir]);
 		else if (GET_RACE(ch) != RACE_MOBILE && !IS_SPECTRE(ch) &&
 			!IS_WRAITH(ch) && !IS_SHADOW(ch)) {

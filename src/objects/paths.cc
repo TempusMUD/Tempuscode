@@ -616,7 +616,7 @@ path_activity(void)
 		}
 
 		if (o->type == PMOBILE && (ch = (Creature *) o->object) &&
-			((ch->numCombatants() || GET_MOB_WAIT(ch) > 0)))
+			((ch->isFighting() || GET_MOB_WAIT(ch) > 0)))
 			continue;
 
 		o->time = 0;

@@ -17,7 +17,7 @@ SPECIAL(rat_mama)
 	};
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || ch->numCombatants() || ch->getPosition() == POS_FIGHTING)
+	if (cmd || ch->isFighting() || ch->getPosition() == POS_FIGHTING)
 		return (0);
 
 	CreatureList::iterator it;

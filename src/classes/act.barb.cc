@@ -86,7 +86,7 @@ perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
-		if (vict == ch || ch->numCombatants() ||
+		if (vict == ch || ch->isFighting() ||
 			PRF_FLAGGED(vict, PRF_NOHASSLE) ||
 			(IS_NPC(ch) && IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS)) ||
 			!can_see_creature(ch, vict) || !number(0, 1 + (GET_LEVEL(ch) >> 4)))

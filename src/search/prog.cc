@@ -682,7 +682,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
         result = prog_eval_abbrev(env, evt, args);
 	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
-			&& ((Creature *) env->owner)->numCombatants());
+			&& ((Creature *) env->owner)->isFighting());
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {
@@ -2309,7 +2309,7 @@ prog_trigger_idle_mobs(void)
 	for (cit = characterList.begin();cit != end;++cit) {
 		if ((*cit)->mob_specials.prog_marker || !GET_MOB_PROGOBJ(*cit))
 			continue;
-		else if (!(*cit)->numCombatants())
+		else if ((*cit)->isFighting())
 			trigger_prog_idle((*cit), PROG_TYPE_MOBILE);
 		else
 			trigger_prog_combat((*cit), PROG_TYPE_MOBILE);

@@ -15,7 +15,7 @@ SPECIAL(energy_drainer)
 	if (spec_mode != SPECIAL_TICK)
 		return FALSE;
 
-	if (ch->getPosition() != POS_FIGHTING || !ch->numCombatants())
+	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
 		return FALSE;
 
     vict = ch->findRandomCombat();

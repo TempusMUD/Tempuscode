@@ -1851,7 +1851,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         if (k->in_room)
             acc_sprintf(", %sFT%s: %s, %sHNT%s: %s, Timer: %d",
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                (k->numCombatants() ? GET_NAME(k->findRandomCombat()) : "N"),
+                (k->isFighting() ? GET_NAME(k->findRandomCombat()) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                 k->isHunting() ? PERS(k->isHunting(), ch) : "N",
                 k->char_specials.timer);
@@ -1860,7 +1860,7 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
             position_types[k->getPosition()],
             CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-            (k->numCombatants() ? GET_NAME(k->findRandomCombat()) : "N"),
+            (k->isFighting() ? GET_NAME(k->findRandomCombat()) : "N"),
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
             k->isHunting() ? PERS(k->isHunting(), ch) : "N");
     }
@@ -2536,7 +2536,7 @@ ACMD(do_return)
         }
     } else if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
         // Return to newbie start room
-        if (ch->numCombatants()) {
+        if (ch->isFighting()) {
             send_to_char(ch, "No way!  You're fighting for your life!\r\n");
         } else if (GET_LEVEL(ch) <= LVL_CAN_RETURN) {
             act("A whirling globe of multi-colored light appears and whisks you away!", FALSE, ch, NULL, NULL, TO_CHAR);

@@ -10,7 +10,7 @@ SPECIAL(basher)
 	ACMD(do_bash);
 	if (spec_mode != SPECIAL_TICK)
 		return false;
-	if (ch->getPosition() != POS_FIGHTING || !ch->numCombatants())
+	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
 		return 0;
 
 	if (number(0, 81) > GET_LEVEL(ch))

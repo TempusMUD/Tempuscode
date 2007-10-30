@@ -2181,7 +2181,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					// ch is initiating an attack ?  only if ch is not
 					// "attacking" with a fireshield/energy
 					// shield/etc...
-					if (!ch->numCombatants()) {
+					if (!ch->isFighting()) {
 
                         if (IS_NPC(victim)) {
                             // mages casting spells and shooters
@@ -2213,7 +2213,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                             victim->addCombat(ch, false);
                         }
 					} else {
-						if (!victim->numCombatants() && 
+						if (!victim->isFighting() && 
                             ch->in_room == victim->in_room) {
                             victim->addCombat(ch, false);
                         }
@@ -2918,7 +2918,7 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 				spell_info[GET_OBJ_VAL(weap, 0)].violent ||
 				IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].targets,
 					TAR_UNPLEASANT)) {
-            if (ch->numCombatants()) {
+            if (ch->isFighting()) {
                 Creature *vict = ch->findRandomCombat();
 			    call_magic(ch, vict, 0, NULL, GET_OBJ_VAL(weap, 0),
 				           GET_LEVEL(ch), CAST_WAND);
@@ -3011,7 +3011,7 @@ perform_violence(void)
 	CreatureList::iterator cit = combatList.begin();
 	for (; cit != combatList.end(); ++cit) {
 		ch = *cit;
-		if (!ch->in_room || !ch->numCombatants())
+		if (!ch->in_room || !ch->isFighting())
 			continue;
 		if (ch == ch->findCombat(ch)) {	// intentional crash here.
 			errlog("ch == ch->findCombat(ch) in perform_violence.");
@@ -3035,7 +3035,7 @@ perform_violence(void)
             }
         }
 
-		if (!ch->numCombatants())
+		if (!ch->isFighting())
 			continue;
         
 		if (IS_NPC(ch)) {
@@ -3087,7 +3087,7 @@ perform_violence(void)
 			bool stop = false;
 
 			for (i = 0; i < 4; i++) {
-				if (!ch->numCombatants() || GET_LEVEL(ch) < (i << 3))
+				if (!ch->isFighting() || GET_LEVEL(ch) < (i << 3))
 					break;
 				if (ch->getPosition() < POS_FIGHTING) {
 					if (CHECK_WAIT(ch) < 10)
@@ -3111,7 +3111,7 @@ perform_violence(void)
 			if (IS_CYBORG(ch)) {
 				int implant_prob;
 
-				if (!ch->numCombatants())
+				if (!ch->isFighting())
 					continue;
 
 				if (ch->getPosition() < POS_FIGHTING) {
@@ -3138,7 +3138,7 @@ perform_violence(void)
 					}
 				}
 
-				if (!ch->numCombatants())
+				if (!ch->isFighting())
 					continue;
 
 				if (IS_NPC(ch) && (GET_REMORT_CLASS(ch) == CLASS_UNDEFINED
@@ -3178,7 +3178,7 @@ perform_violence(void)
 				continue;
 			}
 
-			if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && ch->numCombatants()) {
+			if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && ch->isFighting()) {
 
 				mobile_battle_activity(ch, NULL);
 

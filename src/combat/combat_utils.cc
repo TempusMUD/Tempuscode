@@ -120,7 +120,7 @@ update_pos(struct Creature *victim)
 	// If everything is normal and they're fighting, set them fighting
 	else if (GET_HIT(victim) > 0 &&
 		(victim->getPosition() == POS_STANDING
-			|| victim->getPosition() == POS_FLYING) && victim->numCombatants()) {
+			|| victim->getPosition() == POS_FLYING) && victim->isFighting()) {
 #ifdef DEBUG_POSITION
 		if (victim->setPosition(POS_FIGHTING, 1))
 			act("$n moves to POS_FIGHTING.(from standing or flying)",
@@ -132,7 +132,7 @@ update_pos(struct Creature *victim)
 	// (Making mobs stand when they get popped.
 	else if ((GET_HIT(victim) > 0)
 		&& (victim->getPosition() > POS_STUNNED)
-		&& victim->getPosition() < POS_FIGHTING && victim->numCombatants()) {
+		&& victim->getPosition() < POS_FIGHTING && victim->isFighting()) {
 		// If they're an npc, and their wait is 0.
 		if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
 			if (victim->getPosition() < POS_FIGHTING) {
@@ -164,7 +164,7 @@ update_pos(struct Creature *victim)
 				victim->setPosition(POS_FLYING, 1);
 			else if (!IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL)
 				&& victim->getPosition() < POS_FIGHTING) {
-				if (victim->numCombatants()) {
+				if (victim->isFighting()) {
 					if (victim->setPosition(POS_FIGHTING, 1)) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(B1)", TRUE, victim, 0,
@@ -188,7 +188,7 @@ update_pos(struct Creature *victim)
 				}
 			} else if (number(1, 20) < GET_STR(victim)
 				&& victim->getPosition() < POS_FIGHTING) {
-				if (victim->numCombatants()) {
+				if (victim->isFighting()) {
 					if (victim->setPosition(POS_FIGHTING, 1)) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(C1)", TRUE, victim, 0,
@@ -1649,7 +1649,7 @@ int calculate_attack_probability(struct Creature *ch)
     int prob;
     struct obj_data *weap = NULL;
 
-    if (!ch->numCombatants())
+    if (!ch->isFighting())
         return 0;
 
     prob = 1 + (GET_LEVEL(ch) / 7) + (GET_DEX(ch) << 1);

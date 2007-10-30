@@ -814,7 +814,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		else
 			desc = tmp_strcat(tmp_capitalize(desc), " exists here.");
 	} else if (i->getPosition() == POS_FIGHTING) {
-		if (!i->numCombatants())
+		if (!i->isFighting())
 			desc = tmp_sprintf("%s is here, fighting thin air!", desc);
 		else if (i->findRandomCombat() == ch)
 			desc = tmp_sprintf("%s is here, fighting YOU!", desc);
@@ -1877,7 +1877,7 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 				act("$n glances sidelong at $N.", TRUE, ch, 0, found_char,
 					TO_NOTVICT);
 
-				if (IS_NPC(found_char) && !(found_char->numCombatants())
+				if (IS_NPC(found_char) && !(found_char->isFighting())
 					&& AWAKE(found_char) && (!found_char->master
 						|| found_char->master != ch)) {
 					if (IS_ANIMAL(found_char) || IS_BUGBEAR(found_char)
@@ -1954,7 +1954,7 @@ ACMD(do_listen)
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it)->numCombatants()) {
+		if ((*it)->isFighting()) {
 			fighting_vict = *it;
 			break;
 		}
@@ -2051,7 +2051,7 @@ ACMD(do_listen)
 						ch->in_room->dir_option[i]->to_room->people.begin();
 					for (; it != end; ++it) {
 						fighting_vict = *it;
-						if ((fighting_vict->numCombatants()))
+						if ((fighting_vict->isFighting()))
 							break;
 					}
 					if (fighting_vict && !number(0, 1)) {
@@ -2809,7 +2809,7 @@ ACMD(do_score)
 				CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_FIGHTING:
-		if ((ch->numCombatants()))
+		if ((ch->isFighting()))
 			acc_strcat(CCYEL(ch, C_NRM),
 				"You are fighting ", PERS(ch->findRandomCombat(), ch), ".",
 				CCNRM(ch, C_NRM), "\r\n", NULL);
@@ -4301,7 +4301,7 @@ ACMD(do_diagnose)
 		} else
 			diag_char_to_char(vict, ch);
 	} else {
-		if (ch->numCombatants())
+		if (ch->isFighting())
 			diag_char_to_char(ch->findRandomCombat(), ch);
 		else
 			send_to_char(ch, "Diagnose who?\r\n");

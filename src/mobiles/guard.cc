@@ -32,7 +32,7 @@ SPECIAL(guard)
 	// movement commands
 	if (!GET_MOB_PARAM(self)
 			|| (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
-			|| (spec_mode == SPECIAL_TICK && !self->numCombatants())
+			|| (spec_mode == SPECIAL_TICK && !self->isFighting())
 			|| (spec_mode == SPECIAL_CMD && !IS_MOVE(cmd)))
 		return 0;
 
@@ -85,7 +85,7 @@ SPECIAL(guard)
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
-		if (callsforhelp && !number(0, 10) && self->numCombatants()) {
+		if (callsforhelp && !number(0, 10) && self->isFighting()) {
 			call_for_help(self, self->findRandomCombat());
 			return true;
 		}
@@ -129,7 +129,7 @@ SPECIAL(guard)
 	act(to_room, FALSE, self, 0, ch, TO_NOTVICT);
 	if (!err
 			&& attack
-			&& !self->numCombatants()
+			&& !self->isFighting()
 			&& IS_PC(ch)
 			&& !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
         self->addCombat(ch, false);

@@ -629,7 +629,7 @@ hunt_victim(struct Creature *ch)
 			found = 1;
 	}
 	if (!found) {
-		if (!ch->numCombatants()) {
+		if (!ch->isFighting()) {
                 if (IS_ANIMAL(ch))
                     act("$n whines and looks confused.", true, ch, 0, 0, TO_ROOM);
                 else
@@ -646,7 +646,7 @@ hunt_victim(struct Creature *ch)
 		return 0;
 
 	if (ch->in_room == ch->isHunting()->in_room &&
-		!ch->numCombatants() && can_see_creature(ch, ch->isHunting()) &&
+		!ch->isFighting() && can_see_creature(ch, ch->isHunting()) &&
 		!PLR_FLAGGED(ch->isHunting(), PLR_WRITING | PLR_OLC) &&
 		(!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE)) ||
 			CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))) {
@@ -711,7 +711,7 @@ hunt_victim(struct Creature *ch)
 			&& !check_infiltrate(ch->isHunting(), ch)) {
 			if (ch->isOkToAttack(ch->isHunting(), false)
 				&& !PLR_FLAGGED(ch->isHunting(), PLR_OLC | PLR_WRITING)) {
-				if (ch->getPosition() >= POS_STANDING && !ch->numCombatants()) {
+				if (ch->getPosition() >= POS_STANDING && !ch->isFighting()) {
 					if (IS_ANIMAL(ch)) {
 						act("$n snarls and attacks $N!!!",
 							FALSE, ch, 0, ch->isHunting(), TO_NOTVICT);

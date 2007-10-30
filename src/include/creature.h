@@ -1303,6 +1303,7 @@ struct Creature {
 
     void startDefending(Creature *vict);
     void stopDefending();
+    bool isFighting();
     int numCombatants();
 
     Creature *isMounted() {

@@ -1142,7 +1142,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 
 	if (tch && ch != tch && IS_NPC(tch) &&
 		ch->in_room == tch->in_room &&
-		SINFO.violent && !tch->numCombatants() && tch->getPosition() > POS_SLEEPING &&
+		SINFO.violent && !tch->isFighting() && tch->getPosition() > POS_SLEEPING &&
 		(!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master)) {
 		int my_return_flags = hit(tch, ch, TYPE_UNDEFINED);
 
@@ -1338,12 +1338,12 @@ find_spell_targets(struct Creature *ch, char *argument,
 
 	} else {					/* if target string is empty */
 		if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_SELF))
-			if (ch->numCombatants()) {
+			if (ch->isFighting()) {
 				*tch = ch;
 				*target = TRUE;
 			}
 		if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_VICT))
-			if (ch->numCombatants()) {
+			if (ch->isFighting()) {
 				*tch = ch->findRandomCombat();
 				*target = TRUE;
 			}

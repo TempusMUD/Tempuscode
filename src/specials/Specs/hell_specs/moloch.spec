@@ -18,7 +18,7 @@ SPECIAL(moloch)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (moloch->numCombatants() && GET_MOB_WAIT(moloch) <= 0) {
+	if (moloch->isFighting() && GET_MOB_WAIT(moloch) <= 0) {
         vict = moloch->findRandomCombat();
 		if (!number(0, 10)) {
 			call_magic(moloch, vict, 0, NULL, SPELL_FLAME_STRIKE, 50,
@@ -41,7 +41,7 @@ SPECIAL(moloch)
 		return 0;
 	}
 
-	if (moloch->numCombatants() || number(0, 20))
+	if (moloch->isFighting() || number(0, 20))
 		return 0;
 
 	if (ch->in_room->number == throne_rooms[(index = number(0, 3))])

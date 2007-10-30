@@ -208,7 +208,7 @@ tarrasque_fight(struct Creature *tarr)
 	struct Creature *vict = NULL, *vict2 = NULL;
 	CreatureList::iterator it;
 
-	if (!tarr->numCombatants()) {
+	if (!tarr->isFighting()) {
 		errlog("FIGHTING(tarr) == NULL in tarrasque_fight!!");
 		return 0;
 	}
@@ -437,7 +437,7 @@ SPECIAL(tarrasque)
 	if (pursuit)
 		return tarrasque_follow(tarr);
 
-	if (tarr->numCombatants())
+	if (tarr->isFighting())
 		return tarrasque_fight(tarr);
 
 	if (poop_timer > T_POOP_LEN) {

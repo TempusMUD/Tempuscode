@@ -7,7 +7,7 @@ SPECIAL(pit_keeper)
 	if (cmd)
 		return 0;
 
-	if (!(ch->numCombatants()))
+	if (!(ch->isFighting()))
 		return 0;
 
     vict = ch->findRandomCombat();

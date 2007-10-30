@@ -9,7 +9,7 @@ SPECIAL(cock_fight)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (!ch->numCombatants()) {
+	if (!ch->isFighting()) {
 		switch (number(0, 40)) {
 		case 0:
 			act("$n scratches the ground with $s claw.", TRUE, ch, 0, 0,

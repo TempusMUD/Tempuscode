@@ -15,7 +15,7 @@ SPECIAL(duke_nukem)
 		return 0;
 
 
-	if (duke->numCombatants()) {
+	if (duke->isFighting()) {
         vict = duke->findRandomCombat();
 		if (GET_HIT(duke) > (GET_MAX_HIT(duke) >> 2) &&
 			GET_HIT(vict) < (GET_MAX_HIT(vict) >> 1)) {
@@ -58,7 +58,7 @@ SPECIAL(duke_nukem)
 			vict = *it;
 			if (vict == duke || !can_see_creature(duke, vict))
 				continue;
-			if (GET_LEVEL(vict) > 40 && !vict->numCombatants() &&
+			if (GET_LEVEL(vict) > 40 && !vict->isFighting() &&
 				!PRF_FLAGGED(vict, PRF_NOHASSLE)) {
 				best_attack(duke, vict);
 				return 1;

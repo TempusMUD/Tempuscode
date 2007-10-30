@@ -124,7 +124,7 @@ SPECIAL(christmas_quest)
         if (grinch->in_room)
             grinch->in_room->zone->idle_time = 0;
 
-        if (grinch->numCombatants()) {
+        if (grinch->isFighting()) {
             grinch_timer = 0;
             GET_HIT(grinch) = GET_MAX_HIT(grinch);
             return 0;

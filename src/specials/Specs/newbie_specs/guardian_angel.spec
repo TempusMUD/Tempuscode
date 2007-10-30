@@ -399,13 +399,13 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 	}
 
 	// First check for mortal danger
-    if (GET_HIT(charge) < 15 && charge->numCombatants()) {
+    if (GET_HIT(charge) < 15 && charge->isFighting()) {
         SET_BIT(data->flags, ANGEL_DANGER);
 		perform_say(self, "yell", "Banzaiiiii!  To the rescue!");
         do_rescue(self, GET_NAME(charge), 0, 0, 0);
         return 1;
     }
-    else if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && charge->numCombatants()) {
+    else if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && charge->isFighting()) {
 		if (!IS_SET(data->flags, ANGEL_DANGER)) {
 			perform_say(self, "yell", "Flee!  Flee for your life!");
 			SET_BIT(data->flags, ANGEL_DANGER);
@@ -416,7 +416,7 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 	}
 
 	// Everything below here only applies to not fighting
-	if (charge->numCombatants())
+	if (charge->isFighting())
 		return 0;
 	
 	if ((!GET_COND(charge, FULL) || !GET_COND(charge, THIRST))

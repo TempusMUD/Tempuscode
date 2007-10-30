@@ -12,7 +12,7 @@ SPECIAL(Aziz)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!ch->numCombatants())
+	if (!ch->isFighting())
 		return 0;
 
 	/* pseudo-randomly choose a mage in the room who is fighting me */

@@ -11,14 +11,14 @@ SPECIAL(mob_helper)
 
 	if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || ch->numCombatants())
+	if (cmd || ch->isFighting())
 		return 0;
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		helpee = *it;
         // Being drawn into combat via a death cry will cause this
         // mob to attack a dead creature
-        if (!helpee->numCombatants())
+        if (!helpee->isFighting())
             continue;
         
         vict = helpee->findRandomCombat();

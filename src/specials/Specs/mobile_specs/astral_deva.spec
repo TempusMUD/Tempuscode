@@ -8,7 +8,7 @@ SPECIAL(astral_deva)
 {
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!ch->numCombatants() || cmd)
+	if (!ch->isFighting() || cmd)
 		return 0;
 
     Creature *vict = ch->findRandomCombat();

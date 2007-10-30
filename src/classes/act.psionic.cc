@@ -69,7 +69,7 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (ch->numCombatants() && vict->in_room != ch->in_room) {
+	if (ch->isFighting() && vict->in_room != ch->in_room) {
 		send_to_char(ch, "You cannot focus outside the room during battle!\r\n");
 		return;
 	}
@@ -150,7 +150,7 @@ ACMD(do_psidrain)
 	prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch) +
 		(AFF3_FLAGGED(vict, AFF3_PSISHIELD) ? -20 : 0);
 
-	if (vict->numCombatants())
+	if (vict->isFighting())
 		prob += 15;
 
 	if (dist > 0)
@@ -166,7 +166,7 @@ ACMD(do_psidrain)
 		send_to_char(ch, "You are unable to create the drainage link!\r\n");
 		WAIT_STATE(ch, 2 RL_SEC);
 
-		if (IS_NPC(vict) && !vict->numCombatants()) {
+		if (IS_NPC(vict) && !vict->isFighting()) {
 
 			if (ch->in_room == vict->in_room) {
 				vict->addCombat(ch, false);
@@ -201,7 +201,7 @@ ACMD(do_psidrain)
 		WAIT_STATE(ch, 5 RL_SEC);
 		gain_skill_prof(ch, SKILL_PSIDRAIN);
 
-		if (IS_NPC(vict) && !(vict->numCombatants())) {
+		if (IS_NPC(vict) && !(vict->isFighting())) {
 			if (ch->in_room == vict->in_room) {
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
@@ -219,7 +219,7 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 
 	Creature *vict = 0;
 
-	if (!ch->numCombatants())
+	if (!ch->isFighting())
 		return 0;
 
 	// pick an enemy
@@ -287,10 +287,10 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 	// psiblast
 	else if (GET_LEVEL(ch) >= 5 &&
 		GET_MANA(ch) > mag_manacost(ch, SKILL_PSIBLAST)) {
-		if (!can_see_creature(ch, vict) && ch->numCombatants())
+		if (!can_see_creature(ch, vict) && ch->isFighting())
 			// just attack the default opponent
 			perform_offensive_skill(ch, ch->findRandomCombat(), SKILL_PSIBLAST, 0);
-		else if (ch->numCombatants())
+		else if (ch->isFighting())
 			perform_offensive_skill(ch, vict, SKILL_PSIBLAST, 0);
 	} else
 		return 0;

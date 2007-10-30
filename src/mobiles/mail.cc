@@ -343,7 +343,7 @@ list<obj_data *> load_mail(char *path)
 SPECIAL(postmaster)
 {
 	if (spec_mode == SPECIAL_TICK) {
-		if (((Creature *)me)->numCombatants() && !number(0, 4)) {
+		if (((Creature *)me)->isFighting() && !number(0, 4)) {
 			call_for_help(((Creature *)me), ((Creature *)me)->findRandomCombat());
 			return 1;
 		}

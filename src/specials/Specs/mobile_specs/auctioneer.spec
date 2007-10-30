@@ -121,7 +121,7 @@ SPECIAL(do_auctions)
     }
 
     Creature *dick;
-    while (self->numCombatants()) {
+    while (self->isFighting()) {
         dick = self->findRandomCombat();
         act ("A ball of light streaks from $N's hand and hits you "
              "square in the chest, burning you to a cinder!", false,

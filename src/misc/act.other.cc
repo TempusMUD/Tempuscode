@@ -737,14 +737,14 @@ ACMD(do_use)
 		break;
 
 	case SCMD_READ:
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			act("What, while fighting $N?!", FALSE, ch, 0, ch->findRandomCombat(),
 				TO_CHAR);
 			return;
 		}
 		break;
 	case SCMD_RECITE:
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			act("What, while fighting $N?!", FALSE, ch, 0, ch->findRandomCombat(),
 				TO_CHAR);
 			return;
@@ -1229,7 +1229,7 @@ ACMD(do_gen_tog)
 		result = PLR_TOG_CHK(ch, PLR_HALT);
 		break;
 	case SCMD_MORTALIZE:
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			send_to_char(ch, "You can't do this while fighting.\r\n");
 			return;
 		}
@@ -1314,7 +1314,7 @@ ACMD(do_gen_tog)
 			send_to_char(ch, "Nothing happens.\r\n");
 			return;
 		}
-		if (ch->numCombatants()) {
+		if (ch->isFighting()) {
 			send_to_char(ch, "You can't change your mind about playerkilling while you're fighting!\r\n");
 			return;
 		}
