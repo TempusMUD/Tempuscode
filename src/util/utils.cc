@@ -330,7 +330,7 @@ errlog(const char *fmt, ...)
 
     while (x < MAX_FRAMES && ret_addrs[x]) {
 		backtrace_str = tmp_sprintf("%s%p%s", backtrace_str, ret_addrs[x],
-                (ret_addrs[x + 1]) ? " < " : "");
+                (ret_addrs[x + 1]) ? " " : "");
         x++;
     }
 
