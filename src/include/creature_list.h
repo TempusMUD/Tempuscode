@@ -2,6 +2,7 @@
 #define _CREATURE_LIST_H_
 
 #include <signal.h>
+#include <map>
 #include "safe_list.h"
 
 class Creature;
