@@ -677,6 +677,10 @@ Creature::extract(cxn_state con_state)
 	huntingList.remove(this);
 	mountedList.remove(this);
 	characterList.remove(this);
+    if (IS_NPC(this))
+        characterMap.erase(-MOB_IDNUM(this));
+    else
+        characterMap.erase(GET_IDNUM(this));
 
 	// remove any paths
 	path_remove_object(this);

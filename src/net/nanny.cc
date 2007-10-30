@@ -1575,6 +1575,7 @@ char_to_game(descriptor_data *d)
 		CCNRM(d->creature, C_NRM));
 
 	characterList.add(d->creature);
+    characterMap[GET_IDNUM(d->creature)] = d->creature;
 
 	if(!load_room)
 		load_room = d->creature->getLoadroom();

@@ -10,6 +10,7 @@
 
 /** The list of in-game characters. (i.e. players & mobs) **/
 CreatureList characterList(false);
+std::map<int, Creature *> characterMap;
 
 /** The list of characters currently involved in combat **/
 CreatureList combatList(false);

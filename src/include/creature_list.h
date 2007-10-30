@@ -33,6 +33,7 @@ class CreatureList:public SafeList <Creature *> {
 
 /* prototypes for mobs		 */
 extern CreatureList characterList;
+extern map<int, Creature *> characterMap;
 extern CreatureList combatList;
 
 

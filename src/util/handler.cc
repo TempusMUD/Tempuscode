@@ -1764,16 +1764,7 @@ get_char_room(char *name, struct room_data *room)
 struct Creature *
 get_char_in_world_by_idnum(int nr)
 {
-	struct Creature *ch;
-	CreatureList::iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		ch = *cit;
-		if (nr > 0 && !IS_NPC(ch) && GET_IDNUM(ch) == nr)
-			return ch;
-		if (nr < 0 && IS_NPC(ch) && MOB_IDNUM(ch) == (unsigned int)-nr)	// nr must be < 0... -nr will be >= 0
-			return ch;
-	}
-	return NULL;
+	return (characterMap.count(nr)) ? characterMap[nr]:NULL;
 }
 
 /* put an object in a room */

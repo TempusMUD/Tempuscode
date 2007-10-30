@@ -2327,7 +2327,6 @@ read_mobile(int vnum)
     tmp_mob->mob_specials.shared->number++;
     tmp_mob->mob_specials.shared->loaded++;
     
-	characterList.add(mob);
 	if (!mob->points.max_hit) {
 		mob->points.max_hit = dice(mob->points.hit, mob->points.mana) +
 			mob->points.move;
@@ -2356,6 +2355,9 @@ read_mobile(int vnum)
             GET_CASH(mob) = rand_value(GET_CASH(mob), 
                                        (int)(GET_CASH(mob) * 0.15), -1, -1);
     }
+
+    characterList.add(mob);
+    characterMap[-MOB_IDNUM(mob)] = mob;
 
 	return mob;
 }
