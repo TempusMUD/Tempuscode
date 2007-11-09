@@ -854,7 +854,8 @@ long GET_SKILL_COST(Creature *ch, int skill);
 #define IS_GHOST(ch)                IS_CLASS(ch, CLASS_GHOST)
 #define IS_LICH(ch)              IS_CLASS(ch, CLASS_LICH)
 #define IS_ZOMBIE(ch)                  IS_CLASS(ch, CLASS_ZOMBIE)
-#define IS_UNDEAD(ch)            (IS_SKELETON(ch) || \
+#define IS_UNDEAD(ch)            (IS_RACE(ch, RACE_UNDEAD) || \
+                                 IS_SKELETON(ch) || \
                                  IS_GHOUL(ch) || \
                                  IS_SHADOW(ch) || \
                                  IS_WIGHT(ch) || \
