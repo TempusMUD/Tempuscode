@@ -2310,9 +2310,9 @@ prog_trigger_idle_mobs(void)
 		if ((*cit)->mob_specials.prog_marker || !GET_MOB_PROGOBJ(*cit))
 			continue;
 		else if ((*cit)->isFighting())
-			trigger_prog_idle((*cit), PROG_TYPE_MOBILE);
-		else
 			trigger_prog_combat((*cit), PROG_TYPE_MOBILE);
+		else
+			trigger_prog_idle((*cit), PROG_TYPE_MOBILE);
 	}
 }
 
