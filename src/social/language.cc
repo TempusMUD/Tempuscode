@@ -283,7 +283,7 @@ boot_tongues(void)
     
     xmlFreeDoc(doc);
     
-    slog("%ld tongues loaded", tongues.size());
+    slog("%zd tongues loaded", tongues.size());
 }
 
 int

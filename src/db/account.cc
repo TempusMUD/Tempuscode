@@ -52,7 +52,7 @@ Account::boot(void)
 
 	slog("Getting character count");
 	if (playerIndex.size())
-		slog("... %ld character%s in db", playerIndex.size(), (playerIndex.size() == 1) ? "":"s");
+		slog("... %zd character%s in db", playerIndex.size(), (playerIndex.size() == 1) ? "":"s");
 	else
 		slog("WARNING: No characters loaded");
 }

@@ -243,7 +243,7 @@ Craftshop::sendStatus( Creature *ch ) {
     Creature *keeper = real_mobile_proto(keeper_vnum);
     if( keeper != NULL )
         name = GET_NAME(keeper);
-    send_to_char(ch, "[%6d] %15s [%6d] ( %ld items )\r\n", 
+    send_to_char(ch, "[%6d] %15s [%6d] ( %zd items )\r\n", 
                     id, name, keeper_vnum, items.size() );
 }
  

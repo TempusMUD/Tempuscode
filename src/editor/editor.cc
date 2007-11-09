@@ -60,7 +60,7 @@ CEditor::SendStartupMessage(void)
 void
 CEditor::SendPrompt(void)
 {
-    send_to_desc(desc, "%3ld&b]&n ", theText.size() + 1);
+    send_to_desc(desc, "%3zd&b]&n ", theText.size() + 1);
 }
 
 void
@@ -581,7 +581,7 @@ CEditor::SendMessage(const char *message)
 	if (strlen(message) >= LARGE_BUFSIZE) {
         char *temp = NULL;
 
-		slog("SendMessage Truncating message. NAME(%s) Length(%ld)",
+		slog("SendMessage Truncating message. NAME(%s) Length(%zd)",
              GET_NAME(desc->creature),
              strlen(message));
         temp = new char[LARGE_BUFSIZE];

@@ -1183,7 +1183,7 @@ renum_world(void)
             rooms[room->number] = room;
         }
     }
-	slog("%ld rooms loaded.", rooms.size());
+	slog("%zd rooms loaded.", rooms.size());
     // lookup each room's doors and reconnect the to_room pointers
     for( zone_data* zone = zone_table; zone; zone = zone->next) {
 		for( room_data* room = zone->world; room; room = room->next) {
