@@ -608,6 +608,13 @@ ASPELL(spell_summon)
 	if (ch == NULL || victim == NULL || ch == victim)
 		return;
 
+	if (GET_LEVEL(victim) >= LVL_AMBASSADOR &&
+		GET_LEVEL(ch) < GET_LEVEL(victim)) {
+		send_to_char(ch, "Cannot find the target of your spell!\r\n");
+		act("$n has just tried to summon you.",
+			FALSE, ch, 0, victim, TO_VICT);
+		return;
+	}
 	if (ch->in_room == victim->in_room) {
 		send_to_char(ch, "Nothing happens.\r\n");
 		return;
@@ -1744,7 +1751,7 @@ ASPELL(spell_clairvoyance)
 	int prob = 0;
 	if (GET_LEVEL(victim) >= LVL_AMBASSADOR &&
 		GET_LEVEL(ch) < GET_LEVEL(victim)) {
-		send_to_char(ch, "That is impossible.\r\n");
+		send_to_char(ch, "Cannot find the target of your spell!\r\n");
 		act("$n has just attempted to get clairvoyant on your ass.",
 			FALSE, ch, 0, victim, TO_VICT);
 		return;
@@ -2827,6 +2834,13 @@ ASPELL(spell_unholy_stalker)
 	struct Creature *stalker = NULL;
 	float mult = (float)level / 70;
 
+	if (GET_LEVEL(victim) >= LVL_AMBASSADOR &&
+		GET_LEVEL(ch) < GET_LEVEL(victim)) {
+		send_to_char(ch, "Cannot find the target of your spell!\r\n");
+		act("$n has just tried to send a stalker after you.",
+			FALSE, ch, 0, victim, TO_VICT);
+		return;
+	}
     if (!ch->isOkToAttack(victim)) {
         return;
     }

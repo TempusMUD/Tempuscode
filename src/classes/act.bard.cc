@@ -377,6 +377,14 @@ ASPELL(song_lament_of_longing)
         return;
     }
 
+    if (GET_LEVEL(victim) >= LVL_AMBASSADOR &&
+		GET_LEVEL(ch) < GET_LEVEL(victim)) {
+		send_to_char(ch, "Cannot find the target of your spell!\r\n");
+		act("$n has sung a song of longing for you.", false,
+            ch, 0, victim, TO_VICT);
+    }
+
+
     if (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {
         send_to_char(ch, "A portal tries to form but snaps suddenly out of existence.\r\n");
         act("A shimmering portal appears for a moment but "

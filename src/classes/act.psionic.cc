@@ -61,6 +61,14 @@ ACMD(do_psidrain)
 			return;
 		}
 	}
+	if (GET_LEVEL(vict) >= LVL_AMBASSADOR &&
+		GET_LEVEL(ch) < GET_LEVEL(vict)) {
+        send_to_char(ch, "You cannot locate %s '%s'.\r\n", AN(argument),
+                     argument);
+		act("$n has just tried to psidrain you.",
+			FALSE, ch, 0, vict, TO_VICT);
+		return;
+	}
 	if (!vict)
 		return;
 
