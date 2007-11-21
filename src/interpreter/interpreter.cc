@@ -970,6 +970,7 @@ struct command_info cmd_info[] = {
 	{"massage", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"medic", POS_STANDING, do_medic, 0, 0, 0, 0},
 	{"meditate", POS_SITTING, do_meditate, 0, 0, 0, 0},
+	{"me", POS_RESTING, do_echo, 1, SCMD_EMOTE, 0, 0},
     {"mindtrick", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"mischievous", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"miss", POS_RESTING, do_action, 0, 0, 0, 0},
