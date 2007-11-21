@@ -27,7 +27,7 @@ SPECIAL(courier_imp)
         self->purge(true);
         return 1;
     }
-     
+
     seeking = get_char_in_world_by_idnum(data->buyer_id);
 
     // This means that someone placed a bid and then logged out
@@ -43,7 +43,7 @@ SPECIAL(courier_imp)
         seeking = new Creature(true);
         if (!seeking->loadFromXML(data->buyer_id)) {
             // WTF?
-            slog("IMP:  Failed to load character [%ld] from file.", 
+            slog("IMP:  Failed to load character [%ld] from file.",
                  data->buyer_id);
             delete seeking;
             self->purge(true);
@@ -53,7 +53,7 @@ SPECIAL(courier_imp)
         seeking->account = Account::retrieve(seeking);
         if (!seeking->account) {
             // WTF?
-            slog("IMP:  Failed to load character account [%ld] from file.", 
+            slog("IMP:  Failed to load character account [%ld] from file.",
                  data->buyer_id);
             delete seeking;
             self->purge(true);
@@ -85,14 +85,16 @@ SPECIAL(courier_imp)
                   obj_to_char(data->item, seeking);
                   // Save it to disk
                   seeking->saveObjects();
-                  
+
                   // Delete all the char's eq, otherwise the destructor
                   // has a cow.
                   for (int pos = 0;pos < NUM_WEARS;pos++) {
                       if (GET_EQ(seeking, pos))
-                          extract_obj(unequip_char(seeking, pos, false, true));
+                          extract_obj(unequip_char(seeking, pos, EQUIP_WORN, true));
                       if (GET_IMPLANT(seeking, pos))
-                          extract_obj(unequip_char(seeking, pos, true, true));
+                          extract_obj(unequip_char(seeking, pos, EQUIP_IMPLANT, true));
+                      if (GET_TATTOO(seeking, pos))
+                          extract_obj(unequip_char(seeking, pos, EQUIP_TATTOO, true));
                   }
                   while (seeking->carrying) {
                     doomed_obj = seeking->carrying;
@@ -102,7 +104,7 @@ SPECIAL(courier_imp)
             }
             self->purge(true);
         }
-        
+
         delete seeking;
         return 0;
     }
@@ -113,7 +115,7 @@ SPECIAL(courier_imp)
             int tries = 0, nm = 0;
             room = NULL;
             while (!room && tries < 50) {
-                nm = number(seeking->in_room->zone->number * 100, 
+                nm = number(seeking->in_room->zone->number * 100,
                             seeking->in_room->zone->top);
                 room = real_room(nm);
             }
@@ -233,7 +235,7 @@ SPECIAL(courier_imp)
     }
 
     int dir;
-    dir = find_first_step(self->in_room, seeking->in_room, STD_TRACK); 
+    dir = find_first_step(self->in_room, seeking->in_room, STD_TRACK);
     if (dir > 0) {
         smart_mobile_move(self, dir);
     }
@@ -272,7 +274,7 @@ bool imp_take_payment(Creature *seeking,  imp_data *data)
             GET_CASH(seeking) = 0;
         }
     }
-    
+
     if (data->owed) {
         if (GET_PAST_BANK(seeking) >= data->owed) {
             GET_GOLD(data->imp) += data->owed;

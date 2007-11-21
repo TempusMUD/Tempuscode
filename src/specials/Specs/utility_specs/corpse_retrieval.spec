@@ -107,11 +107,13 @@ SPECIAL(corpse_retrieval)
 		act("$p disappears off of your body!",
 			FALSE, corpse->worn_by, corpse, 0, TO_CHAR);
 		if (corpse == GET_EQ(corpse->worn_by, corpse->worn_on))
-			unequip_char(corpse->worn_by, corpse->worn_on,
-				EQUIP_WORN);
+			unequip_char(corpse->worn_by, corpse->worn_on, EQUIP_WORN);
+		else if (corpse == GET_IMPLANT(corpse->worn_by, corpse->worn_on))
+			unequip_char(corpse->worn_by, corpse->worn_on, EQUIP_IMPLANT);
+		else if (corpse == GET_TATTOO(corpse->worn_by, corpse->worn_on))
+			unequip_char(corpse->worn_by, corpse->worn_on, EQUIP_TATTOO);
 		else
-			unequip_char(corpse->worn_by, corpse->worn_on,
-				EQUIP_IMPLANT);
+            errlog("Can't happen");
 	} else {
 		perform_tell(retriever, ch,
 			"I'm sorry, your corpse has shifted out of the universe.");

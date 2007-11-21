@@ -23,7 +23,7 @@ SPECIAL(oedit_reloader)
 		perform_say(self, "say", "Who's there?  I can't see you.");
 		return true;
 	}
-	
+
 	if( CMD_IS("help") && !*argument ) {
 		perform_say(self, "say", "If you want me to retrieve your property, just type 'retrieve'.");
 	} else if (CMD_IS("retrieve")) {
@@ -42,7 +42,7 @@ SPECIAL(oedit_reloader)
 	} else {
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -76,7 +76,7 @@ load_oedits( Creature *ch, list<obj_data*> &found )
         obj = oi->second;
 		if( obj->shared->owner_id == GET_IDNUM(ch)  ) {
 			++count;
-			if( !contains( found, obj->shared->vnum ) ) { 
+			if( !contains( found, obj->shared->vnum ) ) {
 				obj_data* o = read_object( obj->shared->vnum );
 				obj_to_char( o, ch, false );
 				act("$p appears in your hands!", FALSE, ch, o, 0, TO_CHAR);
@@ -88,7 +88,7 @@ load_oedits( Creature *ch, list<obj_data*> &found )
 
 int
 retrieve_oedits( Creature *ch, list<obj_data*> &found )
-{	
+{
 	int count = 0;
 	for( obj_data* obj = object_list; obj; obj = obj->next) {
 		if( obj->shared->owner_id == GET_IDNUM(ch) ) {
@@ -105,17 +105,25 @@ retrieve_oedits( Creature *ch, list<obj_data*> &found )
 				}
 			}
 			// todo: check house
-			if( obj->worn_by != NULL ) {
-				act("$p disappears off of your body!", 
+			if (obj->worn_by && obj == GET_EQ(obj->worn_by, obj->worn_on)) {
+				act("$p disappears off of your body!",
 					FALSE, obj->worn_by, obj, 0, TO_CHAR);
-				unequip_char(obj->worn_by, obj->worn_on, false);
-			} else if( obj->carried_by != NULL ) {
+				unequip_char(obj->worn_by, obj->worn_on, EQUIP_WORN);
+            } else if (obj->worn_by && obj == GET_IMPLANT(obj->worn_by, obj->worn_on)) {
+				act("$p disappears out of your body!",
+					FALSE, obj->worn_by, obj, 0, TO_CHAR);
+				unequip_char(obj->worn_by, obj->worn_on, EQUIP_IMPLANT);
+            } else if (obj->worn_by && obj == GET_TATTOO(obj->worn_by, obj->worn_on)) {
+				act("$p fades off of your body!",
+					FALSE, obj->worn_by, obj, 0, TO_CHAR);
+				unequip_char(obj->worn_by, obj->worn_on, EQUIP_TATTOO);
+			} else if( obj->carried_by ) {
 				act("$p disappears out of your hands!", FALSE,
 					obj->carried_by, obj, 0, TO_CHAR);
 				obj_from_char( obj );
-			} else if( obj->in_room != NULL ) {
+			} else if( obj->in_room ) {
 				if( obj->in_room->people.size() > 0 )  {
-					act("$p fades out of existence!", 
+					act("$p fades out of existence!",
 						FALSE, NULL, obj, NULL, TO_ROOM);
 				}
 				obj_from_room( obj );
