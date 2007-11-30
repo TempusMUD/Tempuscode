@@ -162,7 +162,7 @@ gain_skill_prof(struct Creature *ch, int skl)
 		return;
 
 	if (GET_SKILL(ch, skl) >= (learned - 10))
-		if ((GET_SKILL(ch, skl) - GET_LEVEL(ch)) <= 60
+		if ((GET_SKILL(ch, skl) - GET_LEVEL(ch)) <= 66
 			&& !number(0, GET_LEVEL(ch)))
 			GET_SKILL(ch, skl) += 1;
 }
