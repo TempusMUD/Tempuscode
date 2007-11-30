@@ -285,6 +285,7 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 
 		} else {				/* remove aff (!add) */
 			if (index == 2) {
+				REMOVE_BIT(AFF2_FLAGS(ch), bitv);
 				if (ch->in_room &&
 					((bitv == AFF2_FLUORESCENT) ||
 						(bitv == AFF2_DIVINE_ILLUMINATION)) &&
@@ -293,10 +294,10 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 						AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION)
 					&& !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
 					ch->in_room->light--;
-				REMOVE_BIT(AFF2_FLAGS(ch), bitv);
 			} else if (index == 3)
 				REMOVE_BIT(AFF3_FLAGS(ch), bitv);
 			else {
+				REMOVE_BIT(AFF_FLAGS(ch), bitv);
 				if (bitv == AFF_GLOWLIGHT &&
 					ch->in_room &&
 					!AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
@@ -304,7 +305,6 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 						AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION)
 					&& !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
 					ch->in_room->light--;
-				REMOVE_BIT(AFF_FLAGS(ch), bitv);
 
 			}
 			mod = -mod;
