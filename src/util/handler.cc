@@ -275,9 +275,9 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 			} else {
 				if (bitv == AFF_GLOWLIGHT &&
 					ch->in_room &&
-					!AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
+					!AFF_FLAGGED(ch, AFF_GLOWLIGHT) &&
 					!AFF2_FLAGGED(ch,
-						AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION)
+                                  AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION)
 					&& !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
 					ch->in_room->light++;
 				SET_BIT(AFF_FLAGS(ch), bitv);
