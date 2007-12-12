@@ -610,7 +610,8 @@ perform_get_from_container(struct Creature * ch,
             && CORPSE_IDNUM(cont) > 0
             && playerIndex.exists(CORPSE_IDNUM(cont))
             && CORPSE_IDNUM(cont) != GET_IDNUM(ch)
-            && playerIndex.getAccountID(CORPSE_IDNUM(cont)) != ch->account->get_idnum()) {
+            && (!ch->account ||
+                playerIndex.getAccountID(CORPSE_IDNUM(cont)) != ch->account->get_idnum())) {
 			mudlog(LVL_DEMI, CMP, true,
 				"%s looted %s from %s.", GET_NAME(ch),
 				obj->name, cont->name);
