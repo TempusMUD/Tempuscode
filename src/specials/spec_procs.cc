@@ -258,9 +258,19 @@ SPECIAL(guild)
 
 	if (spec_mode != SPECIAL_CMD )
 		return 0;
-	if ((!CMD_IS("practice") && !CMD_IS("train") && !CMD_IS("learn") && !CMD_IS("offer")) ||
-		!AWAKE(ch))
-		return 0;
+    if (!AWAKE(ch) || !AWAKE(master))
+        return 0;
+
+    if (CMD_IS("list")) {
+        list_skills(ch, 1, 3);
+        return 1;
+    }
+
+    if (!(CMD_IS("practice") ||
+          CMD_IS("train") ||
+          CMD_IS("learn") ||
+          CMD_IS("offer")))
+        return 0;
 
 	skip_spaces(&argument);
 
