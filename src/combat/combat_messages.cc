@@ -1387,7 +1387,7 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 
 				}
 			} else if (ch != vict) {	/* Dam == 0 */
-				if (ch && !PRF_FLAGGED(ch, PRF_GAGMISS)) {
+				if (ch) {
                     if (ch->in_room == vict->in_room) {
 					    send_to_char(ch, CCYEL(ch, C_NRM));
 					    act(msg->miss_msg.attacker_msg, FALSE, ch, weap, vict,
@@ -1399,12 +1399,10 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 						TO_NOTVICT | TO_VICT_RM);
 				}
 
-				if (!PRF_FLAGGED(vict, PRF_GAGMISS)) {
-					send_to_char(vict, CCRED(vict, C_NRM));
-					act(msg->miss_msg.victim_msg, FALSE, ch, weap, vict,
-						TO_VICT | TO_SLEEP);
-					send_to_char(vict, CCNRM(vict, C_NRM));
-				}
+                send_to_char(vict, CCRED(vict, C_NRM));
+                act(msg->miss_msg.victim_msg, FALSE, ch, weap, vict,
+                    TO_VICT | TO_SLEEP);
+                send_to_char(vict, CCNRM(vict, C_NRM));
 			}
 			if (BLOODLET(vict, dam, attacktype))
 				blood_spray(ch, vict, dam, attacktype);
