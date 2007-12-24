@@ -2970,7 +2970,8 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 //actual performance code is in damage because the different special types
 //require access to different damage variables at different times
 bool
-do_gun_special(Creature *ch, obj_data *obj) {
+do_gun_special(Creature *ch, obj_data *obj)
+{
     if (!IS_ENERGY_GUN(obj) || !EGUN_CUR_ENERGY(obj)) {
         return false;
     }

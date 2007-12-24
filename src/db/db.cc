@@ -2038,6 +2038,8 @@ parse_object(FILE * obj_f, int nr)
 			break;
 		}
 	}
+    fprintf(stderr, "Can't happen\r\n");
+    raise(SIGSEGV);
 }
 
 

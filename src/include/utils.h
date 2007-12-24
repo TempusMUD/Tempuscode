@@ -1130,12 +1130,6 @@ CAN_CHANNEL_COMM(Creature *ch, Creature *tch)
 
 /* OS compatibility ******************************************************/
 
-
-/* there could be some strange OS which doesn't have NULL... */
-#ifndef NULL
-#define NULL (void *)0
-#endif
-
 #if !defined(FALSE)
 #define FALSE 0
 #endif

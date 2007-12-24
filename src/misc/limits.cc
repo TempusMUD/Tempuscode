@@ -317,9 +317,8 @@ set_title(struct Creature *ch, char *title)
 	if (strlen(title) > MAX_TITLE_LENGTH)
 		title[MAX_TITLE_LENGTH] = '\0';
 
-	if (GET_TITLE(ch) != NULL) {
-		free(GET_TITLE(ch));
-	}
+    free(GET_TITLE(ch));
+
 	while (*title && ' ' == *title)
 		title++;
 	GET_TITLE(ch) = (char *)malloc(strlen(title) + 2);
