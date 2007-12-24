@@ -22,6 +22,7 @@ AM_LDFLAGS = @XML_LIBS@
                  combat/combat_messages.cc \
                  combat/combat_utils.cc \
                  combat/fight.cc \
+                 combat/pvp.cc \
                  db/account.cc \
                  db/obj_matcher.cc \
                  db/analysis.cc \
