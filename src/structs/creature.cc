@@ -1632,6 +1632,20 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
         }
         return false;
     }
+
+    // Disallow attacking members of your own group
+    if (IS_PC(this)
+        && IS_AFFECTED(this, AFF_GROUP)
+        && IS_AFFECTED(vict, AFF_GROUP)
+        && this->master
+        && vict->master
+        && (this->master == vict
+            || vict->master == this
+            || this->master == vict->master)) {
+        send_to_char(this, "You can't attack a member of your group!\r\n");
+        return false;
+    }
+
     // If either Creature is a mob and we're not in an NVZ
     // It's always ok
     if (IS_NPC(vict) || IS_NPC(this))
