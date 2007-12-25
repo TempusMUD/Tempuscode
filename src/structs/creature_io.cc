@@ -983,6 +983,7 @@ Creature::loadFromXML( const char *path )
 			txt = (char *)xmlGetProp(node, "state");
 			if (txt)
                 player_specials->desc_mode = (cxn_state)search_block(txt, desc_modes, FALSE);
+            free(txt);
         } else if (xmlMatches(node->name, "recentkill")) {
             KillRecord kill;
 
