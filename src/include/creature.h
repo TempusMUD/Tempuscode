@@ -10,6 +10,7 @@
 #include <signal.h>
 
 #include <list>
+#include "thing.h"
 #include "combat_data_list.h"
 #include "structs.h"
 #include "constants.h"
@@ -1219,7 +1220,7 @@ struct char_language_data {
 };
 
 /* ================== Structure for player/non-player ===================== */
-struct Creature {
+struct Creature : public thing {
 
   public:						// *******   METHODS ******
   	Creature(bool pc);	// constructor
@@ -1227,6 +1228,8 @@ struct Creature {
 
     Creature(const Creature &c); // Copy constructor
 
+    // Initialize creature to initial state
+    void initialize();
 	// Reset creature to initial state
 	void clear();    
 

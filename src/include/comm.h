@@ -37,14 +37,14 @@ void send_to_newbie_helpers(char *messg);
 void close_socket(struct descriptor_data *d);
 
 // Act system
-typedef bool (*act_if_predicate)(struct Creature *ch, struct obj_data *obj, void *vict_obj, struct Creature *to, int mode);
+typedef bool (*act_if_predicate)(struct Creature *ch, struct obj_data *obj, struct thing *vict_obj, struct Creature *to, int mode);
 char *act_escape(const char *str);
 void perform_act(const char *orig, struct Creature *ch,
-	struct obj_data *obj, void *vict_obj, struct Creature *to, int mode);
+	struct obj_data *obj, thing *vict_obj, struct Creature *to, int mode);
 void act_if(const char *str, int hide_invisible, struct Creature *ch,
-	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred);
+	struct obj_data *obj, thing *vict_obj, int type, act_if_predicate pred);
 void act(const char *str, int hide_invisible, struct Creature *ch,
-	struct obj_data *obj, void *vict_obj, int type);
+	struct obj_data *obj, thing *vict_obj, int type);
 
 #define TO_ROOM		1
 #define TO_VICT		2

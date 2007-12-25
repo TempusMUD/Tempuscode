@@ -24,7 +24,7 @@ room_data::isOpenAir(void)
 }
 
 room_data::room_data(room_num n, zone_data *z)
-:	people(true)
+    : thing(ROOM), people(true)
 {
 
 	affects = NULL;

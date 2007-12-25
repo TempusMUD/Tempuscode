@@ -14,6 +14,7 @@
 /* The cardinal directions: used as index to room_data.dir_option[] */
 
 #include "defs.h"
+#include "thing.h"
 #include "macros.h"
 #include "constants.h"
 #include "creature_list.h"
@@ -202,7 +203,7 @@ struct room_trail_data {
 };
 
 /* ================== Memory Structure for room ======================= */
-class room_data {
+class room_data : public thing {
   public:						// methods
 	room_data(room_num n = -1, struct zone_data *z = NULL);
 	bool isOpenAir(void);

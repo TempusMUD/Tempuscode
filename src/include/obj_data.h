@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include "defs.h"
+#include "thing.h"
 #include "constants.h"
 #include "xml_utils.h"
 #include "macros.h"
@@ -361,7 +362,9 @@ struct obj_shared_data {
 };
 
 /* ================== Memory Structure for Objects ================== */
-struct obj_data {
+struct obj_data : public thing {
+    obj_data(void) : thing(OBJECT) {}
+
 	bool isUnrentable();
 	int save(FILE * fl);
 	int modifyWeight(int mod_weight);

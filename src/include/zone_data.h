@@ -95,7 +95,8 @@ static const int ZONE_NEUTRAL_PK  = 1;
 static const int ZONE_CHAOTIC_PK  = 2;
 
 /* zone definition structure. for the 'zone-table'   */
-struct zone_data {
+struct zone_data : public thing {
+    zone_data(void) : thing(ZONE) {}
     inline int getPKStyle() {
         return pk_style;
     }

@@ -713,7 +713,7 @@ path_activity(void)
 	}
 }
 void
-path_remove_object(void *object)
+path_remove_object(thing *object)
 {
 	Link *i;
 

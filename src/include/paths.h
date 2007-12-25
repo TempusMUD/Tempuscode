@@ -49,7 +49,7 @@ typedef struct {
 	int pos;
 	int flags;
 	int step;
-	void *object;
+	thing *object;
 	PHead *phead;
 } PObject;
 
@@ -59,7 +59,7 @@ void show_pathobjs(struct Creature *ch);
 void print_path(PHead * phead, char *str);
 int add_path_to_vehicle(struct obj_data *obj, char *name);
 PHead *real_path_by_num(int vnum);
-void path_remove_object(void *object);
+void path_remove_object(thing *object);
 int add_path_to_mob(struct Creature *mob, char *name);
 int add_path(char *spath, int save);
 

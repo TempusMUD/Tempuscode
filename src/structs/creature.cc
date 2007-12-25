@@ -32,9 +32,8 @@ extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 
 Creature::Creature(bool pc)
+    : thing(CREATURE)
 {
-	memset((char *)this, 0, sizeof(Creature));
-
 	if (pc) {
 		player_specials = new player_special_data;
 	} else {
@@ -46,6 +45,7 @@ Creature::Creature(bool pc)
     this->fighting->clear();
     this->language_data = new char_language_data();
 
+    initialize();
 	clear();
 }
 
@@ -63,15 +63,16 @@ Creature::~Creature(void)
 }
 
 Creature::Creature(const Creature &c)
+    : thing(c)
 {
-    memset((char *)this, 0, sizeof(Creature));
-
     // Far as I'm concerned there is NEVER a good reason to copy a player
     // this way
     if (!IS_NPC(&c)) {
 		slog("Creature::Creature(const Creature &c) called on a player!");
         raise(SIGSEGV);
     }
+    initialize();
+
     this->in_room = c.in_room;
 	this->player_specials = &dummy_mob;
     //todo: duplicate affects
@@ -809,6 +810,28 @@ room_data *Creature::getLoadroom() {
     return load_room;
 }
 
+// Called by constructors to initialize 
+void
+Creature::initialize(void)
+{
+    in_room = NULL;
+    carrying = NULL;
+    master = NULL;
+    followers = NULL;
+    affected = NULL;
+    desc = NULL;
+    account = NULL;
+    memset(&aff_abils, 0, sizeof(aff_abils));
+    memset(&real_abils, 0, sizeof(real_abils));
+    memset(&points, 0, sizeof(points));
+    memset(&mob_specials, 0, sizeof(mob_specials));
+    memset(&char_specials, 0, sizeof(char_specials));
+    memset(&player, 0, sizeof(player));
+    memset(equipment, 0, sizeof(equipment));
+    memset(implants, 0, sizeof(implants));
+    memset(tattoos, 0, sizeof(tattoos));
+}
+
 // Free all structures and return to a virginal state
 void
 Creature::clear(void)
@@ -923,9 +946,8 @@ Creature::clear(void)
     removeAllCombat();
     delete this->fighting;
     delete this->language_data;
-	// At this point, everything should be freed, so we null the entire
-	// structure just to be sure
-	memset((char *)this, 0, sizeof(Creature));
+
+    initialize();
 
 	// And we reset all the values to their initial settings
     this->fighting = new CombatDataList();

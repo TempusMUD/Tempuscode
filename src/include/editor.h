@@ -121,7 +121,7 @@ protected:
 
 class CProgEditor : public CEditor {
 public:
-    CProgEditor(descriptor_data *desc, void *o, prog_evt_type t);
+    CProgEditor(descriptor_data *desc, thing *o, prog_evt_type t);
     virtual ~CProgEditor(void);
 
     virtual bool IsEditing(char *inStr)
@@ -133,7 +133,7 @@ protected:
     CProgEditor(void);
 
 	// The destination char **
-	void *owner;
+	thing *owner;
     prog_evt_type owner_type;
 
     virtual bool PerformCommand(char cmd, char *args);
@@ -208,7 +208,7 @@ void start_editing_mail(struct descriptor_data *d,
                         mail_recipient_data *recipients);
 
 void start_editing_prog(struct descriptor_data *d,
-                        void *owner,
+                        thing *owner,
                         prog_evt_type owner_type);
 void start_editing_board(struct descriptor_data *d,
                          const char *board,

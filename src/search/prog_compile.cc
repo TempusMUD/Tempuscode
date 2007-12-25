@@ -41,7 +41,7 @@ struct prog_code_block {
 struct prog_compiler_state {
     Creature *ch;               // Player doing the compiling
     char *prog_text;            // Text to be compiled
-    void *owner;                // Owner of the prog
+    thing *owner;                // Owner of the prog
     prog_evt_type owner_type;   // Owner type of the prog
     prog_token *token_list;     // The prog converted to a list of tokens
     prog_token *cur_token;      // The token under inspection
@@ -69,14 +69,14 @@ void prog_compile_warning(prog_compiler_state *compiler,
 	__attribute__ ((format (printf, 3, 4)));
 
 char *
-prog_get_text(void *owner, prog_evt_type owner_type)
+prog_get_text(thing *owner, prog_evt_type owner_type)
 {
 	switch (owner_type) {
 	case PROG_TYPE_OBJECT:
 		break;
 	case PROG_TYPE_MOBILE:
-		if ((Creature *)owner) {
-			return GET_MOB_PROG(((Creature *)owner));
+		if (owner) {
+			return GET_MOB_PROG((owner->to_c()));
 		} else {
 			errlog("Mobile Prog with no owner - Can't happen at %s:%d",
 				__FILE__, __LINE__);
@@ -111,7 +111,7 @@ prog_compile_message(prog_compiler_state *compiler,
     switch (compiler->owner_type) {
     case PROG_TYPE_MOBILE:
         place = tmp_sprintf("mobile %d%s",
-                            GET_MOB_VNUM((Creature *)compiler->owner),
+                            GET_MOB_VNUM(compiler->owner->to_c()),
                             linestr);
         break;
     case PROG_TYPE_ROOM:
@@ -716,7 +716,7 @@ prog_map_to_block(prog_compiler_state *compiler)
 unsigned char *
 prog_compile_prog(Creature *ch,
                   char *prog_text,
-                  void *owner,
+                  thing *owner,
                   prog_evt_type owner_type)
 {
     prog_compiler_state state;
@@ -770,7 +770,7 @@ error:
 }
 
 void
-prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
+prog_compile(Creature *ch, thing *owner, prog_evt_type owner_type)
 {
     char *prog;
     unsigned char *obj;
@@ -784,8 +784,8 @@ prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
     // Set the object code of the owner
     switch (owner_type) {
     case PROG_TYPE_MOBILE:
-        delete [] ((Creature *)owner)->mob_specials.shared->progobj;
-        ((Creature *)owner)->mob_specials.shared->progobj = obj;
+        delete [] owner->to_c()->mob_specials.shared->progobj;
+        owner->to_c()->mob_specials.shared->progobj = obj;
         break;
     case PROG_TYPE_ROOM:
         delete [] ((room_data *)owner)->progobj;

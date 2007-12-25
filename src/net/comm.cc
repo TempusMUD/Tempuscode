@@ -1945,7 +1945,7 @@ act_translate(Creature *ch, Creature *to, const char **s)
 
 void
 perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
-	void *vict_obj, struct Creature *to, int mode)
+	thing *vict_obj, struct Creature *to, int mode)
 {
 	register const char *i = 0;
 	register const char *s = orig;
@@ -1970,7 +1970,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				i = PERS(ch, to);
 				break;
 			case 'N':
-				CHECK_NULL(vict_obj, PERS((struct Creature *)vict_obj, to));
+				CHECK_NULL(vict_obj, PERS(vict_obj->to_c(), to));
 				break;
 			case 't':
 				i = (ch==to)?"you":PERS(ch, to);
@@ -1979,35 +1979,35 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				if (ch==vict_obj) {
 					if (vict_obj==to)
 						i = "yourself";
-					else if (IS_MALE((Creature *)vict_obj))
+					else if (IS_MALE(vict_obj->to_c()))
 						i = "himself";
-					else if (IS_FEMALE((Creature *)vict_obj))
+					else if (IS_FEMALE(vict_obj->to_c()))
 						i = "herself";
 					else
 						i = "itself";
 				} else if (to==vict_obj) {
 					i = "you";
 				} else {
-					CHECK_NULL(vict_obj, PERS((struct Creature *)vict_obj, to));
+					CHECK_NULL(vict_obj, PERS(vict_obj->to_c(), to));
 				}
 				break;
 			case 'm':
 				i = HMHR(ch);
 				break;
 			case 'M':
-				CHECK_NULL(vict_obj, HMHR((struct Creature *)vict_obj));
+				CHECK_NULL(vict_obj, HMHR(vict_obj->to_c()));
 				break;
 			case 's':
 				i = HSHR(ch);
 				break;
 			case 'S':
-				CHECK_NULL(vict_obj, HSHR((struct Creature *)vict_obj));
+				CHECK_NULL(vict_obj, HSHR(vict_obj->to_c()));
 				break;
 			case 'e':
 				i = HSSH(ch);
 				break;
 			case 'E':
-				CHECK_NULL(vict_obj, HSSH((struct Creature *)vict_obj));
+				CHECK_NULL(vict_obj, HSSH(vict_obj->to_c()));
 				break;
 			case 'o':
 				CHECK_NULL(obj, OBJN(obj, to));
@@ -2036,10 +2036,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 				}
 				break;
 			case 'A':
-				CHECK_NULL(vict_obj, SANA((struct obj_data *)vict_obj));
-				break;
-			case 'F':
-				CHECK_NULL(vict_obj, fname((char *)vict_obj));
+				CHECK_NULL(vict_obj, SANA(vict_obj->to_o()));
 				break;
             case '%':
                 i = (ch == to) ? "":"s";
@@ -2149,7 +2146,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 
 void
 act_if(const char *str, int hide_invisible, struct Creature *ch,
-	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred)
+	struct obj_data *obj, thing *vict_obj, int type, act_if_predicate pred)
 {
 	struct Creature *to;
 	struct obj_data *o, *o2 = NULL;
@@ -2183,7 +2180,7 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 		type &= ~TO_SLEEP;
 
     if (vict_obj && (type & TO_VICT_RM)) {
-        room = ((Creature *)vict_obj)->in_room;
+        room = (vict_obj->to_c())->in_room;
         type &= ~TO_VICT_RM;  
     }
 
@@ -2197,9 +2194,8 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 			perform_act(str, ch, obj, vict_obj, ch, 0);
 		return;
 	}
-	if (type == TO_VICT) {
-		if ((to = (struct Creature *)vict_obj) && SENDOK(to))
-			perform_act(str, ch, obj, vict_obj, to, 0);
+	if (type == TO_VICT && vict_obj && SENDOK(vict_obj->to_c())) {
+        perform_act(str, ch, obj, vict_obj, vict_obj->to_c(), 0);
 		return;
 	}
 	/* ASSUMPTION: at this point we know type must be TO_NOTVICT TO_ROOM,
@@ -2210,7 +2206,7 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
     }
 	else if (obj && obj->in_room != NULL) {
 		room = obj->in_room;
-	} else if (!room && (to = (struct Creature *)vict_obj) && to->in_room != NULL) { //needed for bombs
+	} else if (!room && (to = vict_obj->to_c()) && to->in_room != NULL) { //needed for bombs
         room = to->in_room;
     }
 
@@ -2299,14 +2295,14 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 }
 
 bool
-standard_act_predicate(struct Creature *ch, struct obj_data *obj, void *vict_obj, struct Creature *to, int mode)
+standard_act_predicate(struct Creature *ch, struct obj_data *obj, thing *vict_obj, struct Creature *to, int mode)
 {
 	return true;
 }
 
 void
 act(const char *str, int hide_invisible, struct Creature *ch,
-	struct obj_data *obj, void *vict_obj, int type)
+	struct obj_data *obj, thing *vict_obj, int type)
 {
 	act_if(str, hide_invisible, ch, obj, vict_obj, type, standard_act_predicate);
 }

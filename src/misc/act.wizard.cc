@@ -648,7 +648,7 @@ ACMD(do_teleport)
         char_from_room(victim,false);
         char_to_room(victim, target,false);
         act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
-        act("$n has teleported you!", FALSE, ch, 0, (char *)victim, TO_VICT);
+        act("$n has teleported you!", FALSE, ch, 0, victim, TO_VICT);
         look_at_room(victim, victim->in_room, 0);
 
         slog("(GC) %s has teleported %s to [%d] %s.", GET_NAME(ch),

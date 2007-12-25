@@ -57,7 +57,7 @@ struct prog_evt {
 	char args[MAX_INPUT_LENGTH];
 
 	Creature *subject;
-	void *object;
+	thing *object;
 	int object_type;
 };
 
@@ -79,7 +79,7 @@ struct prog_env {
     int wait;					// the number of seconds to wait
 	int condition;				// T/F depending on last compare
     prog_evt_type owner_type;	// type of the owner
-	void *owner;				// pointer to the actual owner
+	thing *owner;				// pointer to the actual owner
 	Creature *target;			// target of prog
 	prog_evt evt;				// copy of event that caused prog to trigger
 	prog_state_data *state;		// state record of owner
@@ -93,26 +93,26 @@ struct prog_command {
 
 extern prog_command prog_cmds[];
 
-void destroy_attached_progs(void *self);
-bool trigger_prog_cmd(void *owner, prog_evt_type owner_type, Creature *ch, int cmd, char *argument);
-bool trigger_prog_spell(void *owner, prog_evt_type owner_type, Creature *ch, int cmd);
-bool trigger_prog_move(void *owner, prog_evt_type owner_type, Creature *ch, special_mode mode);
-void trigger_prog_idle(void *owner, prog_evt_type owner_type);
-void trigger_prog_combat(void *owner, prog_evt_type owner_type);
-void trigger_prog_tick(void *owner, prog_evt_type owner_type);
+void destroy_attached_progs(thing *self);
+bool trigger_prog_cmd(thing *owner, prog_evt_type owner_type, Creature *ch, int cmd, char *argument);
+bool trigger_prog_spell(thing *owner, prog_evt_type owner_type, Creature *ch, int cmd);
+bool trigger_prog_move(thing *owner, prog_evt_type owner_type, Creature *ch, special_mode mode);
+void trigger_prog_idle(thing *owner, prog_evt_type owner_type);
+void trigger_prog_combat(thing *owner, prog_evt_type owner_type);
+void trigger_prog_tick(thing *owner, prog_evt_type owner_type);
 void trigger_prog_load(Creature *self);
 void trigger_prog_fight(Creature *ch, Creature *self);
 void trigger_prog_give(Creature *ch, Creature *self, struct obj_data *obj);
 void trigger_prog_dying(Creature *owner, Creature *killer);
-void trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *doomed);
-prog_env *prog_start(prog_evt_type owner_type, void *owner, Creature *target, prog_evt *evt);
+void trigger_prog_death(thing *owner, prog_evt_type owner_type, Creature *doomed);
+prog_env *prog_start(prog_evt_type owner_type, thing *owner, Creature *target, prog_evt *evt);
 void prog_update(void);
 void prog_update_pending(void);
 int prog_count(bool total);
 int free_prog_count(void);
 void prog_state_free(prog_state_data *state);
-void prog_compile(Creature *ch, void *owner, prog_evt_type owner_type);
-char *prog_get_text(void *owner, prog_evt_type owner_type);
+void prog_compile(Creature *ch, thing *owner, prog_evt_type owner_type);
+char *prog_get_text(thing *owner, prog_evt_type owner_type);
 void prog_unreference_object(obj_data *obj);
 
 #endif

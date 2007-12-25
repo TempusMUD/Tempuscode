@@ -29,7 +29,7 @@ using namespace std;
 #include "player_table.h"
 
 void
-start_editing_prog(descriptor_data *d, void *owner, prog_evt_type owner_type)
+start_editing_prog(descriptor_data *d, thing *owner, prog_evt_type owner_type)
 {
 	if (d->text_editor) {
 		errlog("Text editor object not null in start_editing_mail");
@@ -44,7 +44,7 @@ start_editing_prog(descriptor_data *d, void *owner, prog_evt_type owner_type)
 }
 
 CProgEditor::CProgEditor(descriptor_data *desc,
-                         void *o,
+                         thing *o,
                          prog_evt_type t)
     : CEditor(desc, MAX_STRING_LENGTH)
 {

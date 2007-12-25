@@ -255,7 +255,7 @@ HoloZone *holo_newzone(struct char_data *ch)
   if ((i>=stop) || !(zonefile=fopen(buf,"w")))
     return NULL;
 
-  zone = (void *)calloc(1,sizeof(HoloZone));
+  CREATE(zone, HoloZone, 1);
   strcpy (zone->creator,ch->player.name);
   fprintf (zonefile,"%s\n",ch->player.name);
   zone->holodeck = ch->in_room->number;
@@ -284,7 +284,7 @@ HoloZone *holo_loadzone(struct char_data *ch, int num)
   if (strcmp(buf,ch->player.name))
     return NULL;			/* Not the creator		*/
 
-  zone = (void *)calloc(1,sizeof(HoloZone));
+  CREATE(zone, HoloZone, 1);
   strcpy (zone->creator,ch->player.name);
   zone->holodeck = ch->in_room->number;
   zone->zonenum = num;
@@ -476,7 +476,7 @@ int holo_addroom(HoloRoom *this, HoloZone *zone)
     return -1;
   }
   this->nextroom = tmp->nextroom;
-  tmp->nextroom = (void *)this;
+  tmp->nextroom = this;
   return 0;
 }
 

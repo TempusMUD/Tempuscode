@@ -113,14 +113,14 @@ prog_command prog_cmds[] = {
 };
 
 unsigned char *
-prog_get_obj(void *owner, prog_evt_type owner_type)
+prog_get_obj(thing *owner, prog_evt_type owner_type)
 {
 	switch (owner_type) {
 	case PROG_TYPE_OBJECT:
 		break;
 	case PROG_TYPE_MOBILE:
-		if ((Creature *)owner) {
-			return GET_MOB_PROGOBJ(((Creature *)owner));
+		if (owner->to_c()) {
+			return GET_MOB_PROGOBJ((owner->to_c()));
 		} else {
 			errlog("Mobile Prog with no owner - Can't happen at %s:%d",
 				__FILE__, __LINE__);
@@ -142,7 +142,7 @@ prog_get_desc(prog_env *env)
 	case PROG_TYPE_OBJECT:
 		return tmp_sprintf("object %d", GET_OBJ_VNUM((obj_data *)env->owner));
 	case PROG_TYPE_MOBILE:
-		return tmp_sprintf("mobile %d", GET_MOB_VNUM((Creature *)env->owner));
+		return tmp_sprintf("mobile %d", GET_MOB_VNUM(env->owner->to_c()));
 	case PROG_TYPE_ROOM:
 		return tmp_sprintf("room %d", ((room_data *)env->owner)->number);
 	default:
@@ -153,7 +153,7 @@ prog_get_desc(prog_env *env)
 }
 
 int
-prog_event_handler(void *owner, prog_evt_type owner_type,
+prog_event_handler(thing *owner, prog_evt_type owner_type,
                    prog_evt_phase phase,
                    prog_evt_kind kind)
 {
@@ -209,7 +209,7 @@ prog_get_owner_room(prog_env *env)
 {
     switch (env->owner_type) {
     case PROG_TYPE_MOBILE:
-        return ((Creature *)env->owner)->in_room;
+        return (env->owner->to_c())->in_room;
     case PROG_TYPE_ROOM:
         return ((room_data *)env->owner);
     case PROG_TYPE_OBJECT:
@@ -731,7 +731,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 		}
 		else if (!strcasecmp(arg, "visible")) {
 			if (env->owner_type == PROG_TYPE_MOBILE)
-				result = can_see_creature((Creature *)env->owner, env->target);
+				result = can_see_creature(env->owner->to_c(), env->target);
 			else
 				result = true;
 		}
@@ -825,11 +825,11 @@ prog_do_target(prog_env * env, prog_evt * evt, char *args)
 	if (!strcasecmp(arg, "random")) {
         if (!strcasecmp(tmp_getword(&args), "player"))
             new_target = (env->owner_type == PROG_TYPE_MOBILE) ?
-                get_player_random_vis((Creature *)env->owner, room) :
+                get_player_random_vis(env->owner->to_c(), room) :
                 get_player_random(room);
         else
             new_target = (env->owner_type == PROG_TYPE_MOBILE) ?
-                get_char_random_vis((Creature *)env->owner, room) :
+                get_char_random_vis(env->owner->to_c(), room) :
                 get_char_random(room);
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
@@ -1141,7 +1141,7 @@ prog_do_spell(prog_env *env, prog_evt *evt, char *args)
         caster = (obj->worn_by) ? obj->worn_by : obj->carried_by;
         break;
     case PROG_TYPE_MOBILE:
-        caster = (Creature *)env->owner;
+        caster = env->owner->to_c();
         break;
     case PROG_TYPE_ROOM:
         caster = *(((room_data *)env->owner)->people.begin());
@@ -1486,7 +1486,7 @@ prog_do_oload(prog_env * env, prog_evt * evt, char *args)
 	case PROG_TYPE_ROOM:
 		obj->creator = ((room_data *)env->owner)->number; break;
 	case PROG_TYPE_MOBILE:
-		obj->creator = GET_MOB_VNUM((Creature *)env->owner); break;
+		obj->creator = GET_MOB_VNUM(env->owner->to_c()); break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
@@ -1639,7 +1639,7 @@ prog_do_giveexp(prog_env * env, prog_evt * evt, char *args)
         switch (env->owner_type) {
         case PROG_TYPE_MOBILE:
             owner_type = "mobile";
-            num = GET_MOB_VNUM((Creature *)env->owner);
+            num = GET_MOB_VNUM(env->owner->to_c());
             break;
         case PROG_TYPE_OBJECT:
             owner_type = "object";
@@ -1677,7 +1677,7 @@ prog_do_echo(prog_env * env, prog_evt * evt, char *args)
     room = prog_get_owner_room(env);
     switch (env->owner_type) {
     case PROG_TYPE_MOBILE:
-        ch = ((Creature *)env->owner); break;
+        ch = (env->owner->to_c()); break;
     case PROG_TYPE_OBJECT:
         obj = ((obj_data *)env->owner); break;
     case PROG_TYPE_ROOM:
@@ -1769,7 +1769,7 @@ prog_execute(prog_env *env)
 }
 
 prog_env *
-prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * evt)
+prog_start(prog_evt_type owner_type, thing *owner, Creature * target, prog_evt * evt)
 {
 	prog_env *new_prog;
     int initial_exec_pt;
@@ -1839,7 +1839,7 @@ prog_free(struct prog_env *prog)
 }
 
 void
-destroy_attached_progs(void *owner)
+destroy_attached_progs(thing *owner)
 {
 	struct prog_env *cur_prog;
 
@@ -1867,7 +1867,7 @@ prog_unreference_object(obj_data *obj)
 }
 
 bool
-trigger_prog_cmd(void *owner, prog_evt_type owner_type, Creature * ch, int cmd,
+trigger_prog_cmd(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 	char *argument)
 {
 	prog_env *env, *handler_env;
@@ -1924,7 +1924,7 @@ trigger_prog_cmd(void *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 }
 
 bool
-trigger_prog_spell(void *owner, prog_evt_type owner_type, Creature * ch, int cmd)
+trigger_prog_spell(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd)
 {
 	prog_env *env, *handler_env;
 	prog_evt evt;
@@ -1975,7 +1975,7 @@ trigger_prog_spell(void *owner, prog_evt_type owner_type, Creature * ch, int cmd
 
 
 bool
-trigger_prog_move(void *owner, prog_evt_type owner_type, Creature * ch,
+trigger_prog_move(thing *owner, prog_evt_type owner_type, Creature * ch,
 	special_mode mode)
 {
 	prog_env *env, *handler_env;
@@ -2082,7 +2082,7 @@ trigger_prog_dying(Creature *owner, Creature *killer)
 }
 
 void
-trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *doomed)
+trigger_prog_death(thing *owner, prog_evt_type owner_type, Creature *doomed)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2143,7 +2143,7 @@ trigger_prog_give(Creature * ch, Creature * self, struct obj_data *obj)
 }
 
 void
-trigger_prog_idle(void *owner, prog_evt_type owner_type)
+trigger_prog_idle(thing *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2166,7 +2166,7 @@ trigger_prog_idle(void *owner, prog_evt_type owner_type)
 
 //handles idle combat actions
 void
-trigger_prog_combat(void *owner, prog_evt_type owner_type)
+trigger_prog_combat(thing *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2210,7 +2210,7 @@ trigger_prog_load(Creature * owner)
 }
 
 void
-trigger_prog_tick(void *owner, prog_evt_type owner_type)
+trigger_prog_tick(thing *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2277,7 +2277,7 @@ prog_execute_and_mark(void)
 		case PROG_TYPE_OBJECT:
 			break;
 		case PROG_TYPE_MOBILE:
-			((Creature *)cur_prog->owner)->mob_specials.prog_marker = 1; break;
+			(cur_prog->owner->to_c())->mob_specials.prog_marker = 1; break;
 		case PROG_TYPE_ROOM:
 			((room_data *)cur_prog->owner)->prog_marker = 1; break;
         default:
