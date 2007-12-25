@@ -444,6 +444,7 @@ Creature::loadCorpse()
 void
 Creature::saveToXML() 
 {
+    void expire_old_grievances(Creature *);
 	// Save vital statistics
 	obj_data *saved_eq[NUM_WEARS];
 	obj_data *saved_impl[NUM_WEARS];
@@ -501,6 +502,8 @@ Creature::saveToXML()
 	// we need to update time played every time we save...
 	player.time.played += time(0) - player.time.logon;
 	player.time.logon = time(0);
+
+    expire_old_grievances(this);
 
 	fprintf(ouf, "<creature name=\"%s\" idnum=\"%ld\">\n",
 		GET_NAME(ch), ch->char_specials.saved.idnum);
@@ -647,6 +650,17 @@ Creature::saveToXML()
                 fprintf(ouf, "<recentkill vnum=\"%d\" times=\"%d\"/>\n",
                         it->_vnum,
                         it->_times);
+        }
+        if (!GET_GRIEVANCES(ch).empty()) {
+            std::list<Grievance>::iterator it;
+
+            for (it = GET_GRIEVANCES(ch).begin();
+                 it != GET_GRIEVANCES(ch).end();++it)
+                fprintf(ouf, "<grievance time=\"%lu\" player=\"%d\" reputation=\"%d\" kind=\"%s\"/>\n",
+                        (long unsigned)it->_time,
+                        it->_player_id,
+                        it->_rep,
+                        Grievance::kind_descs[it->_grievance]);
         }
 	}
 
@@ -974,6 +988,18 @@ Creature::loadFromXML( const char *path )
 
             kill.set(xmlGetIntProp(node, "vnum"), xmlGetIntProp(node, "times"));
             GET_RECENT_KILLS(this).push_back(kill);
+        } else if (xmlMatches(node->name, "grievance")) {
+            Grievance grievance;
+
+            txt = (char *)xmlGetProp(node, "kind");
+            if (txt) {
+                grievance.set(xmlGetIntProp(node, "time"),
+                              xmlGetIntProp(node, "player"),
+                              xmlGetIntProp(node, "reputation"),
+                              (Grievance::kind)search_block(txt, Grievance::kind_descs, false));
+                GET_GRIEVANCES(this).push_back(grievance);
+            }
+            free(txt);
 		} else if( xmlMatches(node->name, "account") ) { // Legacy for old char database
             char *pw = xmlGetProp( node, "password" );
             strcpy( GET_PASSWD(this), pw );

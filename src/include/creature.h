@@ -927,6 +927,37 @@ struct KillRecord {
     int _vnum, _times;
 };
 
+
+struct Grievance {
+    enum kind { MURDER, THEFT };
+    static const char *kind_descs[];
+
+    Grievance(void) : _time(0), _player_id(0), _rep(0), _grievance(MURDER) {};
+    Grievance(const Grievance &o) : _time(o._time), _player_id(o._player_id), _rep(o._rep), _grievance(o._grievance) {}
+    Grievance(time_t time, int player_id, int rep, kind grievance) : _time(time), _player_id(player_id), _rep(rep), _grievance(grievance) {}
+    Grievance &operator=(const Grievance &o)
+        {
+            _time = o._time;
+            _player_id = o._player_id;
+            _rep = o._rep;
+            _grievance = o._grievance;
+            return *this;
+        }
+    void set(time_t time, int player_id, int rep, kind grievance)
+        {
+            _time = time;
+            _player_id = player_id;
+            _rep = rep;
+            _grievance = grievance;
+        }
+    bool operator==(int player_id) { return _player_id == player_id; }
+
+    time_t _time;
+    int _player_id;
+    int _rep;
+    kind _grievance;
+};
+
 struct player_special_data_saved {
 	byte skills[MAX_SKILLS + 1];	/* array of skills plus skill 0        */
 	weapon_spec weap_spec[MAX_WEAPON_SPEC];
@@ -976,7 +1007,8 @@ struct player_special_data_saved {
 static const int MAX_IMPRINT_ROOMS = 6;
 
 struct player_special_data {
-    player_special_data(void) {
+    player_special_data(void)
+        : afk_reason(), recently_killed(), grievances() {
         memset(&saved, 0, sizeof(saved));
         memset(&imprint_rooms, 0, sizeof(imprint_rooms));
         memset(&soilage, 0, sizeof(soilage));
@@ -1002,6 +1034,7 @@ struct player_special_data {
             this->poofout = strdup(c.poofout);
         
         recently_killed = c.recently_killed;
+        grievances = c.grievances;
         afk_reason = strdup(c.afk_reason);
         afk_notifies = c.afk_notifies;
 
@@ -1063,6 +1096,7 @@ struct player_special_data {
 	long last_tell_to;				/* idnum of last tell to */
 	int imprint_rooms[MAX_IMPRINT_ROOMS];
     std::list<KillRecord> recently_killed;
+    std::list<Grievance> grievances;
 	unsigned int soilage[NUM_WEARS];
 	struct obj_data *olc_obj;	/* which obj being edited               */
 	struct Creature *olc_mob;	/* which mob being edited               */

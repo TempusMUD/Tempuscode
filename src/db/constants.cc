@@ -81,7 +81,6 @@ extern const char *trade_letters[] = {
 	"\n"
 };
 
-
 const char *desc_modes[] = {
 	"playing",
 	"disconnect",
@@ -3533,5 +3532,7 @@ extern const int wear_bitvectors[] =
 	ITEM_WEAR_BELT, ITEM_WEAR_FACE, ITEM_WEAR_EAR,
 	ITEM_WEAR_EAR, ITEM_WEAR_WIELD, ITEM_WEAR_ASS
 };
+
+const char *Grievance::kind_descs[] = { "murder", "theft", "\n" };
 
 #undef __constants_cc__

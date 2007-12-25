@@ -2049,15 +2049,33 @@ do_stat_character(struct Creature *ch, struct Creature *k)
     }
     
     if (IS_PC(k)) {
-        acc_sprintf("Recently killed:\r\n");
-        std::list<KillRecord>::iterator kill = GET_RECENT_KILLS(k).begin();
-        for (;kill != GET_RECENT_KILLS(k).end();++kill) {
-            acc_sprintf("%s%3d. %-30s %17d%s\r\n",
-                        CCGRN(ch, C_NRM),
-                        kill->_vnum,
-                        GET_NAME(real_mobile_proto(kill->_vnum)),
-                        kill->_times,
-                        CCNRM(ch, C_NRM));
+        if (!GET_RECENT_KILLS(k).empty()) {
+            acc_sprintf("Recently killed:\r\n");
+            std::list<KillRecord>::iterator kill = GET_RECENT_KILLS(k).begin();
+            for (;kill != GET_RECENT_KILLS(k).end();++kill) {
+                Creature *killed = real_mobile_proto(kill->_vnum);
+                acc_sprintf("%s%3d. %-30s %17d%s\r\n",
+                            CCGRN(ch, C_NRM),
+                            kill->_vnum,
+                            (killed) ? GET_NAME(killed):"<unknown>",
+                            kill->_times,
+                            CCNRM(ch, C_NRM));
+            }
+        }
+
+        if (!GET_GRIEVANCES(k).empty()) {
+            acc_sprintf("Grievances:\r\n");
+            std::list<Grievance>::iterator grievance = GET_GRIEVANCES(k).begin();
+            for (;grievance != GET_GRIEVANCES(k).end();++grievance) {
+                acc_sprintf("%s%3d. %s got %d rep for %s at %s%s\r\n",
+                            CCGRN(ch, C_NRM),
+                            grievance->_player_id,
+                            playerIndex.getName(grievance->_player_id),
+                            grievance->_rep,
+                            Grievance::kind_descs[grievance->_grievance],
+                            tmp_ctime(grievance->_time),
+                            CCNRM(ch, C_NRM));
+            }
         }
     }
 
@@ -3733,18 +3751,6 @@ ACMD(do_wizutil)
                 "New stats: Str %d/%d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
                 GET_STR(vict), GET_ADD(vict), GET_INT(vict), GET_WIS(vict),
                 GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
-            break;
-        case SCMD_PARDON:
-            if (!PLR_FLAGGED(vict, PLR_THIEF | PLR_KILLER)) {
-                send_to_char(ch, "Your victim is not flagged.\r\n");
-                return;
-            }
-            REMOVE_BIT(PLR_FLAGS(vict), PLR_THIEF | PLR_KILLER);
-            send_to_char(ch, "Pardoned.\r\n");
-            send_to_char(vict, "You have been pardoned by the Gods!\r\n");
-            mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
-                "(GC) %s pardoned by %s", GET_NAME(vict),
-                GET_NAME(ch));
             break;
         case SCMD_NOTITLE: {
             result = PLR_TOG_CHK(vict, PLR_NOTITLE);

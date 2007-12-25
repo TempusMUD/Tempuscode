@@ -297,6 +297,7 @@ ACMD(do_overhaul);
 ACMD(do_overdrain);
 ACMD(do_page);
 ACMD(do_palette);
+ACMD(do_pardon);
 ACMD(do_peace);
 ACMD(do_pinch);
 ACMD(do_pistolwhip);
@@ -1062,7 +1063,7 @@ struct command_info cmd_info[] = {
 	{"pants", POS_SITTING, do_action, 0, 0, 0, 0},
 	{"pat", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"page", POS_DEAD, do_page, LVL_IMMORT, 0, 0, 0},
-	{"pardon", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_PARDON, 0, 0},
+	{"pardon", POS_DEAD, do_pardon, 0, 0, 0, 0},
 	{"park", POS_SITTING, do_not_here, 0, 0, 0, 0},
 	{"passout", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"peace", POS_SLEEPING, do_peace, LVL_IMMORT, 0, 0, 0},
