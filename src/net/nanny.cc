@@ -1854,9 +1854,9 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 			strftime(laston_str, sizeof(laston_str), "%b %d, %Y",
 				localtime(&tmp_ch->player.time.logon));
 		if (PLR_FLAGGED(tmp_ch, PLR_FROZEN))
-			status_str = "&CFROZEN!";
+			status_str = "&C  FROZEN!";
 		else if (PLR2_FLAGGED(tmp_ch, PLR2_BURIED))
-			status_str = "&GBURIED!";
+			status_str = "&G  BURIED!";
 		else if ((real_ch = get_char_in_world_by_idnum(GET_IDNUM(tmp_ch))) != NULL) {
 			if (real_ch->desc)
 				status_str = "&g  Playing";
