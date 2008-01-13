@@ -8408,76 +8408,58 @@ int do_freeze_char(char *argument, Creature *vict, Creature *ch)
     static const int ONE_DAY    = 86400;
     static const int ONE_YEAR   = 31536000;
 
-    char arg1[256], arg2[256];
-    char *ptr;
-    time_t freeze_time, thaw_time;
-    int hours, minutes, seconds, days;
-     
-    memset(arg1, 0x0, sizeof(arg1));
-    memset(arg2, 0x0, sizeof(arg2));
-
-    freeze_time = thaw_time = time(NULL);
-
     if (ch == vict) {
         send_to_char(ch, "Oh, yeah, THAT'S real smart...\r\n");
         return 0;
     }
 
-    argument = two_arguments(argument, arg1, arg2);
+    char *thaw_time_str = tmp_getword(&argument);
+    time_t now = time(NULL);
+    time_t thaw_time;
+    char *msg = "";
 
-    if (!*arg2) {
-        thaw_time += ONE_DAY;
+    if (!*thaw_time_str) {
+        thaw_time = now + ONE_DAY;
+        msg = tmp_sprintf("%s frozen for 1 day", vict->player.name);
     }
-    else if (isname_exact(arg2, "forever")) {
+    else if (isname_exact(thaw_time_str, "forever")) {
         thaw_time = -1;
+        msg = tmp_sprintf("%s frozen forever", vict->player.name);
     }
     else {
-        ptr = arg2;
-        while (*(ptr + 1) != '\0') {
-            if (!isdigit(*ptr)) {
-                send_to_char(ch, 
-                             "Usage: freeze <target> [ XXXs | XXXm | XXXh | XXXd | forever]\r\n");
-                return 0;
-            }
-            ptr++;
-        }
-        
-        switch (*ptr) {
+        int amt = atoi(thaw_time_str);
+        switch (thaw_time_str[strlen(thaw_time_str) - 1]) {
             case 's':
-                *ptr = '\0';
-                thaw_time += atoi(arg2);
-            break;
+                thaw_time = now + amt;
+                msg = tmp_sprintf("%s frozen for %d second%s",
+                             vict->player.name, amt, (amt == 1) ? "":"s");
+                break;
             case 'm':
-                *ptr = '\0';
-                thaw_time += (atoi(arg2) * ONE_MINUTE);
-            break;
+                thaw_time = now + (amt * ONE_MINUTE);
+                msg = tmp_sprintf("%s frozen for %d minute%s",
+                             vict->player.name, amt, (amt == 1) ? "":"s");
+                break;
             case 'h':
-                *ptr = '\0';
-                thaw_time += (atoi(arg2) * ONE_HOUR);
-            break;
+                thaw_time = now + (amt * ONE_HOUR);
+                msg = tmp_sprintf("%s frozen for %d hour%s",
+                             vict->player.name, amt, (amt == 1) ? "":"s");
+                break;
             case 'd':
-                *ptr = '\0';
-                thaw_time += (atoi(arg2) * ONE_DAY);
-            break;
+                thaw_time = now + (amt * ONE_DAY);
+                msg = tmp_sprintf("%s frozen for %d day%s",
+                             vict->player.name, amt, (amt == 1) ? "":"s");
+                break;
             default:
                 send_to_char(ch, 
                              "Usage: freeze <target> [ XXXs | XXXm | XXXh | XXXd | forever]\r\n");
-                return 0;
+                return false;
         }
 
-        if ((thaw_time - freeze_time) >= ONE_YEAR) {
+        if ((thaw_time - now) >= ONE_YEAR) {
             send_to_char(ch, "Come now, Let's be reasonable, shall we?\r\n");
-            return 0;
+            return false;
         }
     }
-    
-    time_t freeze_secs = thaw_time - freeze_time;
-
-    days = freeze_secs / ONE_DAY;
-    hours = (freeze_secs / ONE_HOUR) - (days * 24);
-    minutes = (freeze_secs / ONE_MINUTE) - (days * (24 * ONE_MINUTE)) - (hours * ONE_MINUTE);
-    seconds = freeze_secs - (days * (24 * ONE_MINUTE * 60)) - (hours * ONE_MINUTE * 60) -
-              (minutes * ONE_MINUTE);
     
     SET_BIT(PLR_FLAGS(vict), PLR_FROZEN);
     GET_FREEZE_LEV(vict) = GET_LEVEL(ch);
@@ -8487,17 +8469,15 @@ int do_freeze_char(char *argument, Creature *vict, Creature *ch)
     send_to_char(vict, "A bitter wind suddenly rises and drains every erg "
                        "of heat from your body!\r\nYou feel frozen!\r\n");
     
-    send_to_char(ch, "%s frozen for %3d days, %2d hours, %2d minutes, %2d seconds.\r\n", 
-                 vict->player.name, days, hours, minutes, seconds);
+    send_to_char(ch, "%s\r\n", msg);
+    mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true, "(GC) %s by %s", 
+           msg, GET_NAME(ch)); 
     
     if (vict->in_room)
-        act("A sudden cold wind conjured from nowhere freezes $n!", FALSE,
-            vict, 0, 0, TO_ROOM);
+        act("A sudden cold wind conjured from nowhere freezes $N!", false,
+            ch, 0, vict, TO_ROOM);
     
-    mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true, "(GC) %s frozen by %s.", 
-           GET_NAME(vict), GET_NAME(ch)); 
- 
-    return 1;
+    return true;
 }
 
 #define USERS_USAGE \
