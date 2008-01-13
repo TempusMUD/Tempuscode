@@ -3730,14 +3730,34 @@ ACMD(do_wizutil)
     long result;
     char *msg;
     void roll_real_abils(struct Creature *ch);
+    char *arg = tmp_getword(&argument);
+    bool loaded = false;
 
-    one_argument(argument, arg);
-
-    if (!*arg)
+    // Make sure they entered something useful
+    if (!*arg) {
         send_to_char(ch, "Yes, but for whom?!?\r\n");
-    else if (!(vict = get_char_vis(ch, arg)))
+        return;
+    }
+
+    // Make sure they specified a valid player name
+    if (!playerIndex.exists(arg)) {
         send_to_char(ch, "There is no such player.\r\n");
-    else if (IS_NPC(vict))
+        return;
+    }
+            
+    // Get the player or load it from file
+    vict = get_char_vis(ch, arg);
+    if (!vict) {
+        vict = new Creature(true);
+        if (!vict->loadFromXML(playerIndex.getID(arg))) {
+            send_to_char(ch, "That player could not be loaded.\r\n");
+            delete vict;
+            return;
+        }
+        loaded = true;
+    }
+
+    if (IS_NPC(vict))
         send_to_char(ch, "You can't do that to a mob!\r\n");
     else if (GET_LEVEL(vict) > GET_LEVEL(ch))
         send_to_char(ch, "Hmmm...you'd better not.\r\n");
@@ -3784,20 +3804,20 @@ ACMD(do_wizutil)
         }
         case SCMD_FREEZE:
 			do_freeze_char(argument, vict, ch);
-			return;
+            break;
             
         case SCMD_THAW:
             if (!PLR_FLAGGED(vict, PLR_FROZEN)) {
                 send_to_char(ch, 
                     "Sorry, your victim is not morbidly encased in ice at the moment.\r\n");
-                return;
+                break;
             }
             if (GET_FREEZE_LEV(vict) > GET_LEVEL(ch)) {
                 sprintf(buf,
                     "Sorry, a level %d God froze %s... you can't unfreeze %s.\r\n",
                     GET_FREEZE_LEV(vict), GET_NAME(vict), HMHR(vict));
                 send_to_char(ch, "%s", buf);
-                return;
+                break;
             }
             mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true,
                 "(GC) %s un-frozen by %s.", GET_NAME(vict),
@@ -3806,8 +3826,9 @@ ACMD(do_wizutil)
             send_to_char(vict, 
                 "A fireball suddenly explodes in front of you, melting the ice!\r\nYou feel thawed.\r\n");
             send_to_char(ch, "Thawed.\r\n");
-            act("A sudden fireball conjured from nowhere thaws $n!", FALSE,
-                vict, 0, 0, TO_ROOM);
+            if (vict->in_room)
+                act("A sudden fireball conjured from nowhere thaws $n!", FALSE,
+                    vict, 0, 0, TO_ROOM);
             break;
         case SCMD_UNAFFECT:
             if (vict->affected) {
@@ -3818,7 +3839,7 @@ ACMD(do_wizutil)
                     affect_remove(vict, vict->affected);
             } else {
                 send_to_char(ch, "Your victim does not have any affections!\r\n");
-                return;
+                break;
             }
             break;
         default:
@@ -3827,6 +3848,9 @@ ACMD(do_wizutil)
         }
         vict->saveToXML();
     }
+
+    if (loaded)
+        delete vict;
 }
 
 
@@ -8456,8 +8480,9 @@ int do_freeze_char(char *argument, Creature *vict, Creature *ch)
     send_to_char(ch, "%s frozen for %3d days, %2d hours, %2d minutes, %2d seconds.\r\n", 
                  vict->player.name, days, hours, minutes, seconds);
     
-    act("A sudden cold wind conjured from nowhere freezes $n!", FALSE,
-        vict, 0, 0, TO_ROOM);
+    if (vict->in_room)
+        act("A sudden cold wind conjured from nowhere freezes $n!", FALSE,
+            vict, 0, 0, TO_ROOM);
     
     mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true, "(GC) %s frozen by %s.", 
            GET_NAME(vict), GET_NAME(ch)); 
