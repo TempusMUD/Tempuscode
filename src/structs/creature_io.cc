@@ -1022,6 +1022,12 @@ Creature::loadFromXML( const char *path )
 			GET_NAME(this));
 	}
 
+    // Check for freezer expiration
+    if (PLR_FLAGGED(this, PLR_FROZEN)
+        && time(NULL) >= player_specials->thaw_time) {
+        REMOVE_BIT(PLR_FLAGS(this), PLR_FROZEN);
+    }
+
 	// If you're not poisioned and you've been away for more than an hour,
 	// we'll set your HMV back to full
 	if (!IS_POISONED(this) && (((long)(time(0) - player.time.logon)) >= SECS_PER_REAL_HOUR)) {
