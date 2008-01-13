@@ -511,6 +511,7 @@ ASPELL(song_rhythm_of_alarm)
 
 ASPELL(song_wall_of_sound)
 {
+    const char *dir_adj[] = { "northern", "southern", "eastern", "western", "upwards", "downwards", "past", "future" };
     struct room_affect_data rm_aff;
     struct room_affect_data *rm_aff_ptr, *next_aff;
     const char *dir_str;
@@ -536,11 +537,8 @@ ASPELL(song_wall_of_sound)
 	  }
 	}
 
-    dir_str = dirs[*dir]; 
-	if (*dir == FUTURE || *dir == PAST)
-	  dir_str = tmp_sprintf("to the %s", dir_str);
-
-    send_to_room(tmp_sprintf("A wall of sound appears, sealing the exit %s!\r\n",
+    dir_str = dir_adj[*dir]; 
+    send_to_room(tmp_sprintf("A wall of sound appears, sealing the %s exit!\r\n",
 							 dir_str),
 				 ch->in_room);
 
@@ -550,7 +548,7 @@ ASPELL(song_wall_of_sound)
     rm_aff.duration = number(1, 50) + (ch->getLevelBonus(SONG_WALL_OF_SOUND));
     rm_aff.flags = EX_NOPASS;
     rm_aff.owner = ch->getIdNum();
-	rm_aff.description = str_dup(tmp_sprintf("A wall of sound appears, sealing the exit %s.\r\n",
+	rm_aff.description = str_dup(tmp_sprintf("A shimmering wall seals the %s exit.\r\n",
 											 dir_str));
     affect_to_room(ch->in_room, &rm_aff);
 
