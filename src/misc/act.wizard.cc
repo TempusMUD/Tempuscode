@@ -1897,6 +1897,16 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         sprintbit(PRF2_FLAGS(k), preference2_bits, buf);
         acc_sprintf("PRF2: %s%s%s\r\n", CCGRN(ch, C_NRM), buf,
 			CCNRM(ch, C_NRM));
+        if (PLR_FLAGGED(k, PLR_FROZEN)) {
+            acc_sprintf("%sFrozen by: %s", CCCYN(ch, C_NRM),
+                        playerIndex.getName(k->player_specials->freezer_id));
+            if (k->player_specials->thaw_time > 0)
+                acc_sprintf(", will auto-thaw at %s%s\r\n",
+                            tmp_ctime(k->player_specials->thaw_time),
+                            CCNRM(ch, C_NRM));
+            else
+                acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
+        }
     }
 
     if (IS_MOB(k)) {
