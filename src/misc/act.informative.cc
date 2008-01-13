@@ -53,6 +53,7 @@ using namespace std;
 #include "tokenizer.h"
 #include "player_table.h"
 #include "language.h"
+#include "house.h"
 
 /* extern variables */
 extern int mini_mud;
@@ -1298,6 +1299,10 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
                      strlist_aref(room->sector_type, sector_types));
         if (room->max_occupancy < 256)
             send_to_char(ch, " [ Max: %d ]", room->max_occupancy);
+
+        House *house = Housing.findHouseByRoom(room->number);
+        if (house)
+            send_to_char(ch, " [ House: %d ]", house->getID());
 	} else {
 		send_to_char(ch, room->name);
 	}
