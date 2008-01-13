@@ -718,6 +718,7 @@ point_update(void)
 			if (now > i->player_specials->thaw_time) {
 				REMOVE_BIT(PLR_FLAGS(i), PLR_FROZEN);
 				i->player_specials->thaw_time = 0;
+                i->saveToXML();
 				mudlog(MAX(LVL_POWER, GET_INVIS_LVL(i)), BRF, true,
 					   "(GC) %s un-frozen by timeout.", GET_NAME(i));
 				send_to_char(i, "You thaw out and can move again.\r\n");
