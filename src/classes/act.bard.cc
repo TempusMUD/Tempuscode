@@ -521,8 +521,13 @@ ASPELL(song_wall_of_sound)
         return;
     }
 
-    if ((rm_aff_ptr = room_affected_by(ch->in_room, SONG_WALL_OF_SOUND)) &&
-        rm_aff_ptr->type == *dir) {
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        send_to_char(ch, "Your wall of sound falters and fades.\r\n");
+        return;
+    }
+
+    rm_aff_ptr = room_affected_by(ch->in_room, SONG_WALL_OF_SOUND);
+    if (rm_aff_ptr) {
         send_to_char(ch, "There is already a wall of sound in that direction!\r\n");
         return;
     }
