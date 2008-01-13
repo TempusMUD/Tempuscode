@@ -1587,7 +1587,7 @@ do_doorcmd(struct Creature *ch, struct obj_data *obj, int door, int scmd)
     if (obj)
         strcpy(buf + strlen(buf), "$p.");
     else if (EXIT(ch, door)->keyword)
-        sprintf(buf + strlen(buf), "the %s.", EXIT(ch, door)->keyword);
+        sprintf(buf + strlen(buf), "the %s.", fname(EXIT(ch, door)->keyword));
     else
         strcpy(buf + strlen(buf), "the door.");
 
