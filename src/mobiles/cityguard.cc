@@ -349,59 +349,6 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 	return TRUE;
 }
 
-void
-knock_unconscious(Creature *ch, Creature *target)
-{
-	CreatureList::iterator it;
-	struct affected_type af;
-
-
-    if (!ch->isOkToAttack(target, false))
-        return;
-
-	// Knock the person out
-	it = target->in_room->people.begin();
-	for (;it != target->in_room->people.end(); it++) {
-		if ((*it)->findCombat(target) || *it == target)
-			(*it)->removeAllCombat();
-		if (((*it)->isHunting()) == target)
-			(*it)->stopHunting();
-		if (IS_NPC((*it)))
-			forget(*it, target);
-	}
-
-	if (GET_EQ(ch, WEAR_WIELD)) {
-		act("You smack $N across the head with the hilt of $p!.", false,
-			ch, GET_EQ(ch, WEAR_WIELD), target, TO_CHAR);
-		act("$n smacks you across the head with the hilt of $p! OW!.", false,
-			ch, GET_EQ(ch, WEAR_WIELD), target, TO_VICT);
-		act("$n smacks $N across the head with the hilt of $p!.", false,
-			ch, GET_EQ(ch, WEAR_WIELD), target, TO_NOTVICT);
-	} else {
-		act("You smack $N across the head, knocking $m unconscious.", false,
-			ch, 0, target, TO_CHAR);
-		act("$n smacks you across the head, knocking you unconscious!", false,
-			ch, 0, target, TO_VICT);
-		act("$n smacks $N across the head, knocking $m unconscious!", false,
-			ch, 0, target, TO_NOTVICT);
-	}
-
-
-	af.is_instant = 0;
-	af.duration = MAX(5, target->get_reputation()/50);
-	af.bitvector = AFF_SLEEP;
-	af.type = SKILL_SLEEPER;
-	af.modifier = 0;
-	af.aff_index = 0;
-	af.location = APPLY_NONE;
-	af.level = 49;
-    af.owner = ch->getIdNum();
-
-	target->setPosition(POS_SLEEPING);
-	WAIT_STATE(target, 4 RL_SEC);
-	affect_join(target, &af, false, false, false, false);
-}
-
 bool
 is_fighting_cityguard(Creature *ch)
 {
@@ -671,9 +618,9 @@ SPECIAL(cityguard)
     }
 	case 3:
 		// drag criminal to jail
-		if (!affected_by_spell(target, SKILL_SLEEPER) && !GET_QUEST(ch))
-			knock_unconscious(self, target);
-		else if (jail_num > 0)
+		if (target->getPosition() < POS_FIGHTING
+            && !GET_QUEST(ch)
+            && jail_num > 0)
 			drag_char_to_jail(self, target, real_room(jail_num));
 		return true;
 	case 4:
@@ -699,8 +646,6 @@ SPECIAL(cityguard)
 		}
 
 		if (number(0, 1))
-			knock_unconscious(self, target);
-		else
 			hit(self, target, TYPE_UNDEFINED);
 
 		return true;
