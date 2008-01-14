@@ -513,7 +513,7 @@ ASPELL(song_wall_of_sound)
 {
     const char *dir_adj[] = { "northern", "southern", "eastern", "western", "upwards", "downwards", "past", "future" };
     struct room_affect_data rm_aff;
-    struct room_affect_data *rm_aff_ptr, *next_aff;
+    struct room_affect_data *rm_aff_ptr;
     const char *dir_str;
 
     if (!EXIT(ch, *dir)) {
@@ -528,19 +528,11 @@ ASPELL(song_wall_of_sound)
 
     rm_aff_ptr = room_affected_by(ch->in_room, SONG_WALL_OF_SOUND);
     if (rm_aff_ptr) {
-        send_to_char(ch, "There is already a wall of sound in that direction!\r\n");
-        return;
-    }
-
-	for (rm_aff_ptr = ch->in_room->affects; rm_aff_ptr; rm_aff_ptr = next_aff) {
-	  next_aff = rm_aff_ptr->next;
-	  if (rm_aff_ptr->spell_type == SONG_WALL_OF_SOUND) {
 		send_to_room(tmp_sprintf("The wall of sound to the %s falters and fades.\r\n",
 								 dirs[(int)rm_aff_ptr->type]),
 					 ch->in_room);
 		affect_from_room(ch->in_room, rm_aff_ptr);
-	  }
-	}
+    }
 
     dir_str = dir_adj[*dir]; 
     send_to_room(tmp_sprintf("A wall of sound appears, sealing the %s exit!\r\n",
