@@ -644,6 +644,8 @@ ASPELL(spell_summon)
 
 	if (GET_LEVEL(victim) > MIN(LVL_AMBASSADOR - 1, level + GET_INT(ch))) {
 		send_to_char(ch, SUMMON_FAIL);
+		slog("%s failed summoning %s to %s[%d]", GET_NAME(ch),
+			GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 		return;
 	}
 
@@ -652,7 +654,7 @@ ASPELL(spell_summon)
 			true, ch, 0, victim, TO_CHAR);
 		act("You resist $n's attempt to summon you!",
 			true, ch, 0, victim, TO_VICT);
-		slog("%s failed summoning %s to %s[%d]", GET_NAME(ch),
+		slog("%s attempted summoning %s to %s[%d] (!ok)", GET_NAME(ch),
 			GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 		return;
 	}
@@ -660,6 +662,8 @@ ASPELL(spell_summon)
 	if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
 		(IS_NPC(victim) && mag_savingthrow(victim, level, SAVING_SPELL))) {
 		send_to_char(ch, SUMMON_FAIL);
+		slog("%s attempted summoning %s to %s[%d] (!summon)", GET_NAME(ch),
+			GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 		return;
 	}
 	if ((ROOM_FLAGGED(ch->in_room, ROOM_ARENA) &&
@@ -671,6 +675,8 @@ ASPELL(spell_summon)
 		if (ch != victim)
 			act("$n has attempted to summon you.", FALSE, ch, 0, victim,
 				TO_VICT);
+		slog("%s attempted summoning %s to %s[%d] (arena failure)", GET_NAME(ch),
+			GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 		return;
 	}
 
@@ -704,14 +710,20 @@ ASPELL(spell_summon)
 			ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) {
 		act("The place $E exists is completely isolated from this.",
 			FALSE, ch, 0, victim, TO_CHAR);
+		slog("%s attempted summoning %s to %s[%d] (isolated)", GET_NAME(ch),
+			GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 		return;
 	}
 	if (GET_PLANE(victim->in_room) != GET_PLANE(ch->in_room)) {
 		if (GET_PLANE(ch->in_room) == PLANE_DOOM) {
 			send_to_char(ch, "You cannot summon characters into VR.\r\n");
+            slog("%s attempted summoning %s to %s[%d] (into vr)", GET_NAME(ch),
+                 GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 			return;
 		} else if (GET_PLANE(victim->in_room) == PLANE_DOOM) {
 			send_to_char(ch, "You cannot summon characters out of VR.\r\n");
+            slog("%s attempted summoning %s to %s[%d] (out of vr)", GET_NAME(ch),
+                 GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 			return;
 		} else if (GET_PLANE(victim->in_room) != PLANE_ASTRAL) {
 			if (number(0, 120) > (CHECK_SKILL(ch, SPELL_SUMMON) + GET_INT(ch))) {
@@ -764,13 +776,11 @@ ASPELL(spell_summon)
 	look_at_room(victim, victim->in_room, 0);
 	WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 
-	if (!IS_NPC(victim)) {
-		mudlog(LVL_AMBASSADOR, BRF, true,
-			"%s has%s summoned %s to %s (%d)",
-			GET_NAME(ch),
-			(victim->distrusts(ch)) ? " forcibly":"",
-			GET_NAME(victim), ch->in_room->name, ch->in_room->number);
-	}
+    mudlog(LVL_AMBASSADOR, BRF, true,
+           "%s has%s summoned %s to %s (%d)",
+           GET_NAME(ch),
+           (victim->distrusts(ch)) ? " forcibly":"",
+           GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 }
 
 #define MAX_LOCATE_TERMS	4
