@@ -4421,7 +4421,7 @@ show_all_toggles(Creature *ch)
 		"     Brief Mode: %-3s    "
 		"     See misses: %-3s    "
 		"Compact Display: %s\r\n"
-		"  Screen Length: %-3d    "
+		"  Terminal Size: %-7s"
 		"     Notrailers: %-3s    "
 		"    Color Level: %s\r\n\r\n"
 		"-- CHANNELS ------------------------------------------------------------------\r\n"
@@ -4459,7 +4459,9 @@ show_all_toggles(Creature *ch)
         (IS_NPC(ch) ? "mob" :
 		compact_levels[ch->account->get_compact_level()]),
 		YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
-		GET_PAGE_LENGTH(ch),
+		tmp_sprintf("%dx%d",
+			    GET_PAGE_LENGTH(ch),
+			    GET_PAGE_WIDTH(ch)),
 		ONOFF(PRF2_FLAGGED(ch, PRF2_NOTRAILERS)),
 		ansi_levels[COLOR_LEV(ch)],
 

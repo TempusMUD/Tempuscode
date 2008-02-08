@@ -213,13 +213,22 @@ page_string(struct descriptor_data *d, const char *str)
 	if (!d || !str || suppress_output)
 		return;
 
+    // Free any previous paged string
 	if (d->showstr_head)
 		free(d->showstr_head);
 
+    // If term height is zero, just send the string
+    if (!d->account->get_term_height()) {
+        send_to_desc(d, "%s", str);
+        return;
+    }
+
+    // Create a new paged string
 	CREATE(d->showstr_head, char, strlen(str) + 1);
 	strcpy(d->showstr_head, str);
 	d->showstr_point = d->showstr_head;
 
+    // Show the first page
 	show_string(d);
 }
 

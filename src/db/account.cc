@@ -962,8 +962,8 @@ Account::set_future_bank(long long amt)
 void
 Account::set_term_height(int height)
 {
-	if (height < 2)
-		height = 2;
+	if (height < 0)
+		height = 0;
 	if (height > 200)
 		height = 200;
 	_term_height = height;
@@ -974,8 +974,8 @@ Account::set_term_height(int height)
 void
 Account::set_term_width(int width)
 {
-	if (width < 2)
-		width = 2;
+	if (width < 0)
+		width = 0;
 	if (width > 200)
 		width = 200;
 	_term_width = width;

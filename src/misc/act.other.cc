@@ -1587,20 +1587,57 @@ ACMD(do_screen)
 	if( ch->desc == NULL || ch->desc->account == NULL ) {
         send_to_char(ch, "You don't have an account to put the screen in.\r\n");
 	}
-	skip_spaces(&argument);
+
+    skip_spaces(&argument);
     if(!*argument) {
+        // Handle the no argument option
         send_to_char(ch, "Your current screen length is: %d lines.\r\n",
             ch->desc->account->get_term_height());
         return;
     }
-	if (isnumber(argument)) {
-		ch->desc->account->set_term_height(atoi(argument));
-		send_to_char(ch, "Your screen length will now be %d lines.\r\n",
-			GET_PAGE_LENGTH(ch));
-		return;
-	} else {
-		send_to_char(ch, 
-			"Specify the length of your screen from top to bottom, in lines.\r\n");
+
+    char *height_str = tmp_getword(&argument);
+    char *width_str = tmp_getword(&argument);
+
+    // Validate the arguments
+    if ((!isnumber(height_str) && strcmp(height_str, "off"))
+        || (*width_str && !isnumber(width_str) && strcmp(width_str, "off"))) {
+		send_to_char(ch, "Usage: screen (<terminal height>|off) [(<terminal width>|off)]\r\n");
+        return;
+    }
+
+    int new_height = 0;
+    if (strcmp(height_str, "off")) {
+        new_height = atoi(height_str);
+        if (new_height < 0 || new_height > 200)
+            new_height = 0;
+    }
+
+    int new_width = 0;
+    if (*width_str && strcmp(width_str, "off")) {
+        new_width = atoi(width_str);
+        if (new_width < 0 || new_width > 200)
+            new_width = 0;
+    }
+
+    // Now change the validated values
+    if (*height_str) {
+        ch->desc->account->set_term_height(new_height);
+        if (GET_PAGE_LENGTH(ch)) {
+            send_to_char(ch, "Your screen length will now be %d lines.\r\n",
+                         GET_PAGE_LENGTH(ch));
+        } else {
+            send_to_char(ch, "Long descriptions will no longer be paged for you.\r\n");
+        }
+    }
+    if (*width_str) {
+        ch->desc->account->set_term_width(new_width);
+        if (GET_PAGE_WIDTH(ch)) {
+            send_to_char(ch, "Your screen width will now be %d characters.\r\n",
+                         GET_PAGE_WIDTH(ch));
+        } else {
+            send_to_char(ch, "Line overruns will no longer be calculated when paging large texts.\r\n");
+        }
     }
 }
 
