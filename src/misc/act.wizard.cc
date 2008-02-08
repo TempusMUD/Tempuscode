@@ -7650,10 +7650,12 @@ static const char *show_mob_keys[] = {
     "flags",
     "extreme",
     "special",
+    "race",
+    "class",
     "\n"
 };
 
-#define NUM_SHOW_MOB 6
+#define NUM_SHOW_MOB 8
 
 void
 do_show_mobiles(struct Creature *ch, char *value, char *arg)
@@ -7860,6 +7862,72 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
 
 
         break;
+    case 6:  // race
+        if( !*arg){
+            send_to_char(ch, "Show mobiles with what race?\r\n");
+            return;
+                        
+        }
+        skip_spaces(&arg);
+
+        if ((i = search_block(arg, player_race, FALSE)) < 0) {
+            send_to_char(ch, "Type olchelp race for a valid list.\r\n");
+            return;
+        }
+
+        sprintf(buf, "Mobiles with race %s%s%s:\r\n", CCYEL(ch, C_NRM),
+            player_race[i], CCNRM(ch, C_NRM));
+
+        mit = mobilePrototypes.begin();
+        for (j = 0; mit != mobilePrototypes.end(); ++mit) {
+            mob = mit->second;
+            if ( i == GET_RACE(mob)) {
+                sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
+                    CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
+                    GET_NAME(mob), CCNRM(ch, C_NRM));
+                if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
+                    strcat(buf, "**OVERFLOW**\r\n");
+                    break;
+                }
+                strcat(buf, buf2);
+            }
+        }
+        page_string(ch->desc, buf);
+        return;
+    case 7:  // class
+        if( !*arg){
+            send_to_char(ch, "Show mobiles with what class?\r\n");
+            return;
+                        
+        }
+        skip_spaces(&arg);
+
+        if ((i = search_block(arg, class_names, FALSE)) < 0) {
+            send_to_char(ch, "Type olchelp class for a valid list.\r\n");
+            return;
+        }
+
+        sprintf(buf, "Mobiles with class %s%s%s:\r\n", CCYEL(ch, C_NRM),
+            class_names[i], CCNRM(ch, C_NRM));
+
+        mit = mobilePrototypes.begin();
+        for (j = 0; mit != mobilePrototypes.end(); ++mit) {
+            mob = mit->second;
+            if ( i == GET_CLASS(mob) || mob->player.remort_char_class == i ) {
+                sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
+                    CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
+                    GET_NAME(mob), CCNRM(ch, C_NRM));
+                if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
+                    strcat(buf, "**OVERFLOW**\r\n");
+                    break;
+                }
+                strcat(buf, buf2);
+            }
+        }
+        page_string(ch->desc, buf);
+        return;
     default:
         send_to_char(ch, "DOH!!!!\r\n");
         break;
