@@ -2194,8 +2194,9 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 			perform_act(str, ch, obj, vict_obj, ch, 0);
 		return;
 	}
-	if (type == TO_VICT && vict_obj && SENDOK(vict_obj->to_c())) {
-        perform_act(str, ch, obj, vict_obj, vict_obj->to_c(), 0);
+	if (type == TO_VICT) {
+        if (vict_obj && SENDOK(vict_obj->to_c())) {
+            perform_act(str, ch, obj, vict_obj, vict_obj->to_c(), 0);
 		return;
 	}
 	/* ASSUMPTION: at this point we know type must be TO_NOTVICT TO_ROOM,
