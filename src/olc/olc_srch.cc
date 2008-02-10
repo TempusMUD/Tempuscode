@@ -22,6 +22,8 @@
 #include "screen.h"
 #include "spells.h"
 #include "materials.h"
+#include "accstr.h"
+#include "tmpstr.h"
 
 int clan_house_can_enter(struct Creature *ch, struct room_data *room);
 const char *olc_xset_keys[] = {
@@ -353,6 +355,112 @@ set_char_xedit(struct Creature *ch, char *argument)
 		}
 	send_to_char(ch, "No such search in room.\r\n");
 	return 0;
+}
+
+void
+acc_format_search_data(Creature *ch,
+                       room_data *room,
+                       special_search_data *cur_search)
+{
+	struct obj_data *obj = NULL;
+	struct Creature *mob = NULL;
+
+	acc_sprintf("%sCommand triggers:%s %s, %skeywords:%s %s\r\n",
+		CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+		cur_search->command_keys ? cur_search->command_keys : "None.",
+		CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+		(SRCH_FLAGGED(cur_search, SRCH_CLANPASSWD) && room &&
+			!clan_house_can_enter(ch, room)) ? "*******" :
+		(cur_search->keywords ? cur_search->keywords : "None."));
+	acc_sprintf(" To_vict  : %s\r\n To_room  : %s\r\n To_remote: %s\r\n",
+		cur_search->to_vict ? cur_search->to_vict : "None",
+		cur_search->to_room ? cur_search->to_room : "None",
+		cur_search->to_remote ? cur_search->to_remote : "None");
+
+	acc_sprintf("Fail_chance: %d\r\n", cur_search->fail_chance);
+
+	switch (cur_search->command) {
+	case SEARCH_COM_DOOR:
+		acc_sprintf("DOOR  Room #: %d, Direction: %d, Mode: %d.\r\n",
+			cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
+		break;
+	case SEARCH_COM_MOBILE:
+		mob = real_mobile_proto(cur_search->arg[0]);
+		acc_sprintf("MOB  Vnum : %d (%s%s%s), to room: %d, Max: %d.\r\n",
+			cur_search->arg[0], CCYEL(ch, C_NRM),
+			mob ? GET_NAME(mob) : "NULL", CCNRM(ch, C_NRM), cur_search->arg[1],
+			cur_search->arg[2]);
+		break;
+	case SEARCH_COM_OBJECT:
+		obj = real_object_proto(cur_search->arg[0]);
+		acc_sprintf("OBJECT Vnum : %d (%s%s%s), to room: %d, Max: %d.\r\n",
+			cur_search->arg[0],
+			CCGRN(ch, C_NRM),
+			obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
+			cur_search->arg[1], cur_search->arg[2]);
+		break;
+	case SEARCH_COM_REMOVE:
+		obj = real_object_proto(cur_search->arg[0]);
+		acc_sprintf("REMOVE  Obj Vnum : %d (%s%s%s), Room # : %d, Val 2: %d.\r\n",
+			cur_search->arg[0], CCGRN(ch, C_NRM),
+			obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
+			cur_search->arg[1], cur_search->arg[2]);
+		break;
+	case SEARCH_COM_EQUIP:
+		obj = real_object_proto(cur_search->arg[1]);
+		acc_sprintf("EQUIP  ----- : %d, Obj Vnum : %d (%s%s%s), Pos : %d.\r\n",
+			cur_search->arg[0], cur_search->arg[1], CCGRN(ch, C_NRM),
+			obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
+			cur_search->arg[2]);
+		break;
+	case SEARCH_COM_GIVE:
+		obj = real_object_proto(cur_search->arg[1]);
+		acc_sprintf("GIVE  ----- : %d, Obj Vnum : %d (%s%s%s), Max : %d.\r\n",
+			cur_search->arg[0], cur_search->arg[1], CCGRN(ch, C_NRM),
+			obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
+			cur_search->arg[2]);
+		break;
+	case SEARCH_COM_NONE:
+		acc_sprintf("NONE       %5d        %5d        %5d\r\n",
+			cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
+		break;
+	case SEARCH_COM_TRANSPORT:
+		acc_sprintf("TRANS      %5d        %5d        %5d\r\n",
+			cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
+		break;
+	case SEARCH_COM_SPELL:
+		acc_sprintf("SPELL      %5d        %5d        %5d (%s)\r\n",
+			cur_search->arg[0],
+			cur_search->arg[1], cur_search->arg[2],
+			(cur_search->arg[2] > 0 && cur_search->arg[2] < TOP_NPC_SPELL) ?
+			spell_to_str(cur_search->arg[2]) : "NULL");
+		break;
+	case SEARCH_COM_DAMAGE:
+		acc_sprintf("DAMAGE      %5d        %5d        %5d (%s)\r\n",
+			cur_search->arg[0],
+			cur_search->arg[1], cur_search->arg[2],
+			(cur_search->arg[2] > 0 && cur_search->arg[2] < TYPE_SUFFERING) ?
+			spell_to_str(cur_search->arg[2]) : "NULL");
+		break;
+	case SEARCH_COM_SPAWN:
+		acc_sprintf("SPAWN  Spawn_rm: %5d   Targ_rm:%5d   Hunt: %5d\r\n",
+			cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
+		break;
+	case SEARCH_COM_LOADROOM:
+		acc_sprintf("LOADROOM  NewLoad: %5d    MaxLevel:%5d    %5d\r\n",
+			cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
+		break;
+
+	default:
+		acc_sprintf("ERROR (%d)  %5d        %5d        %5d\r\n",
+			cur_search->command, cur_search->arg[0],
+			cur_search->arg[1], cur_search->arg[2]);
+		break;
+	}
+	acc_sprintf("Flags: %s%s%s\r\n",
+                CCBLU_BLD(ch, C_NRM),
+                tmp_printbits(cur_search->flags, search_bits),
+                CCNRM(ch, C_NRM));
 }
 
 void

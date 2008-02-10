@@ -991,6 +991,48 @@ do_stat_trails(struct Creature *ch)
 }
 
 void
+acc_format_prog(Creature *ch, char *prog)
+{
+    acc_sprintf("Prog:\r\n");
+
+    int line_num = 1;
+    for (char *line = tmp_getline(&prog);
+         line;
+         line = tmp_getline(&prog), line_num++) {
+        acc_sprintf("%s%3d%s] ",
+                    CCYEL(ch, C_NRM),
+                    line_num,
+                    CCBLU(ch, C_NRM));
+        char *c = line;
+        skip_spaces(&c);
+        if (*c == '-') {
+            // comment
+            acc_sprintf("%s%s\r\n", CCBLU(ch, C_NRM), line);
+        } else if (*c == '*') {
+            // prog command
+            c++;
+            char *cmd = tmp_getword(&c);
+            if (!strcasecmp(cmd, "before")
+                || !strcasecmp(cmd, "handle")
+                || !strcasecmp(cmd, "after"))
+                acc_sprintf("%s%s\r\n", CCCYN(ch, C_NRM), line);
+            else if (!strcasecmp(cmd, "require")
+                     || !strcasecmp(cmd, "unless")
+                     || !strcasecmp(cmd, "randomly")
+                     || !strcasecmp(cmd, "or"))
+                acc_sprintf("%s%s\r\n", CCMAG(ch, C_NRM), line);
+            else
+                acc_sprintf("%s%s\r\n", CCYEL(ch, C_NRM), line);
+        } else if (*c) {
+            // mob command
+            acc_sprintf("%s%s\r\n", CCNRM(ch, C_NRM), line);
+        } else {
+            acc_sprintf("\r\n");
+        }
+    }
+}
+
+void
 do_stat_room(struct Creature *ch, char *roomstr)
 {
     int tmp;
@@ -998,10 +1040,10 @@ do_stat_room(struct Creature *ch, char *roomstr)
     struct room_data *rm = ch->in_room;
     struct room_affect_data *aff = NULL;
     struct special_search_data *cur_search = NULL;
-    char out_buf[MAX_STRING_LENGTH];
     int i, found = 0;
     struct obj_data *j = 0;
     struct Creature *k = 0;
+
     if (roomstr && *roomstr) {
         if (isdigit(*roomstr) && !strchr(roomstr, '.')) {
             tmp = atoi(roomstr);
@@ -1014,78 +1056,70 @@ do_stat_room(struct Creature *ch, char *roomstr)
             return;
         }
     }
-    sprintf(out_buf, "Room name: %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name,
-        CCNRM(ch, C_NRM));
 
-    sprinttype(rm->sector_type, sector_types, buf2);
-    sprintf(buf,
-        "Zone: [%s%3d%s], VNum: [%s%5d%s], Type: %s, Lighting: [%d], Max: [%d]\r\n",
-        CCYEL(ch, C_NRM), rm->zone->number, CCNRM(ch, C_NRM),
-        CCGRN(ch, C_NRM), rm->number, CCNRM(ch, C_NRM), buf2,
-        rm->light, rm->max_occupancy);
-    strcat(out_buf, buf);
+    acc_string_clear();
+    acc_sprintf("Room name: %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name,
+                CCNRM(ch, C_NRM));
 
-    sprintbit((long)rm->room_flags, room_bits, buf2);
-    sprintf(buf, "SpecProc: %s, Flags: %s\r\n",
+    acc_sprintf("Zone: [%s%3d%s], VNum: [%s%5d%s], Type: %s, Lighting: [%d], Max: [%d]\r\n",
+                CCYEL(ch, C_NRM),
+                rm->zone->number,
+                CCNRM(ch, C_NRM),
+                CCGRN(ch, C_NRM),
+                rm->number,
+                CCNRM(ch, C_NRM),
+                strlist_aref(rm->sector_type, sector_types),
+                rm->light, rm->max_occupancy);
+
+    acc_sprintf("SpecProc: %s, Flags: %s\r\n",
         (rm->func == NULL) ? "None" :
         (i = find_spec_index_ptr(rm->func)) < 0 ? "Exists" :
-        spec_list[i].tag, buf2);
-    strcat(out_buf, buf);
+            spec_list[i].tag, tmp_printbits(rm->room_flags, room_bits));
 
     if (FLOW_SPEED(rm)) {
-        sprintf(buf, "Flow (Direction: %s, Speed: %d, Type: %s (%d)).\r\n",
+        acc_sprintf("Flow (Direction: %s, Speed: %d, Type: %s (%d)).\r\n",
             dirs[(int)FLOW_DIR(rm)], FLOW_SPEED(rm),
             flow_types[(int)FLOW_TYPE(rm)], (int)FLOW_TYPE(rm));
-        strcat(out_buf, buf);
     }
 
-    strcat(out_buf, "Description:\r\n");
-    if (rm->description)
-        strcat(out_buf, rm->description);
-    else
-        strcat(out_buf, "  None.\r\n");
+    acc_sprintf("Description:\r\n%s",
+                (rm->description) ? rm->description:"  None.\r\n");
 
     if (rm->sounds) {
-        sprintf(buf, "%sSound:%s\r\n%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+        acc_sprintf("%sSound:%s\r\n%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
             rm->sounds);
-        strcat(out_buf, buf);
     }
 
     if (rm->ex_description) {
-        sprintf(buf, "Extra descs:%s", CCCYN(ch, C_NRM));
-        for (desc = rm->ex_description; desc; desc = desc->next) {
-            strcat(buf, " ");
-            strcat(buf, desc->keyword);
-            if (desc->next);
-            strcat(buf, ";");
-        }
-        strcat(buf, CCNRM(ch, C_NRM));
-        strcat(buf, "\r\n");
-        strcat(out_buf, buf);
+        acc_sprintf("Extra descs:%s", CCCYN(ch, C_NRM));
+        for (desc = rm->ex_description; desc; desc = desc->next)
+            acc_sprintf(" %s%s", desc->keyword, (desc->next) ? ";":"");
+        acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
     }
 
     if (rm->affects) {
-        strcpy(buf, "Room affects:\r\n");
+        acc_sprintf("Room affects:\r\n");
         for (aff = rm->affects; aff; aff = aff->next) {
             if (aff->type == RM_AFF_FLAGS) {
-                sprintbit((long)aff->flags, room_bits, buf2);
-                sprintf(buf, "%s  Room flags: %s%s%s, duration[%d]\r\n",
-                    buf, CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
-                    aff->duration);
+                acc_sprintf("  Room flags: %s%s%s, duration[%d]\r\n",
+                            CCCYN(ch, C_NRM),
+                            tmp_printbits(aff->flags, room_bits),
+                            CCNRM(ch, C_NRM),
+                            aff->duration);
             } else if (aff->type < NUM_DIRS) {
-                sprintbit((long)aff->flags, exit_bits, buf2);
-                sprintf(buf, "%s  Door flags exit [%s], %s, duration[%d]\r\n",
-                    buf, dirs[(int)aff->type], buf2, aff->duration);
+                acc_sprintf("  Door flags exit [%s], %s, duration[%d]\r\n",
+                            dirs[(int)aff->type],
+                            tmp_printbits(aff->flags, exit_bits),
+                            aff->duration);
             } else
-                sprintf(buf, "%s  ERROR: Type %d.\r\n", buf, aff->type);
+                acc_sprintf("  ERROR: Type %d.\r\n", aff->type);
 
-            sprintf(buf, "%s  Desc: %s\r\n", buf, aff->description ?
-                aff->description : "None.");
+            acc_sprintf("  Desc: %s\r\n",
+                        aff->description ? aff->description : "None.");
         }
-        strcat(out_buf, buf);
     }
 
-    sprintf(buf, "Chars present:%s", CCYEL(ch, C_NRM));
+    acc_sprintf("Chars present:%s", CCYEL(ch, C_NRM));
 
     CreatureList::iterator it = rm->people.begin();
     CreatureList::iterator nit = it;
@@ -1094,93 +1128,61 @@ do_stat_room(struct Creature *ch, char *roomstr)
         k = *it;
         if (!can_see_creature(ch, k))
             continue;
-        sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
-            (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
-        strcat(buf, buf2);
-        if (strlen(buf) >= 62) {
-            if (nit != rm->people.end())
-                strcat(out_buf, strcat(buf, ",\r\n"));
-            else
-                strcat(out_buf, strcat(buf, "\r\n"));
-            *buf = found = 0;
-        }
+        acc_sprintf("%s %s(%s)", found++ ? "," : "", GET_NAME(k),
+                    (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
     }
-
-    if (*buf)
-        strcat(out_buf, strcat(buf, "\r\n"));
-    strcat(out_buf, CCNRM(ch, C_NRM));
+    acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
 
     if (rm->contents) {
-        sprintf(buf, "Contents:%s", CCGRN(ch, C_NRM));
+        acc_sprintf("Contents:%s", CCGRN(ch, C_NRM));
         for (found = 0, j = rm->contents; j; j = j->next_content) {
             if (!can_see_object(ch, j))
                 continue;
-            sprintf(buf2, "%s %s", found++ ? "," : "", j->name);
-            strcat(buf, buf2);
-            if (strlen(buf) >= 62) {
-                if (j->next_content)
-                    strcat(out_buf, strcat(buf, ",\r\n"));
-                else
-                    strcat(out_buf, strcat(buf, "\r\n"));
-                *buf = found = 0;
-            }
+            acc_sprintf("%s %s", found++ ? "," : "", j->name);
         }
-
-        if (*buf)
-            strcat(out_buf, strcat(buf, "\r\n"));
-        strcat(out_buf, CCNRM(ch, C_NRM));
+        acc_strcat(CCNRM(ch, C_NRM), NULL);
     }
 
     if (rm->search) {
-        strcat(out_buf, "SEARCHES:\r\n");
-        for (cur_search = rm->search; cur_search;
-            cur_search = cur_search->next) {
-
-            print_search_data_to_buf(ch, rm, cur_search, buf);
-            strcat(out_buf, buf);
-        }
+        acc_sprintf("SEARCHES:\r\n");
+        for (cur_search = rm->search;
+             cur_search;
+             cur_search = cur_search->next)
+            acc_format_search_data(ch, rm, cur_search);
     }
 
     for (i = 0; i < NUM_OF_DIRS; i++) {
-        if (rm->dir_option[i]) {
-            if (rm->dir_option[i]->to_room == NULL) {
-                sprintf(buf1, " %sNONE%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        if (ABS_EXIT(rm, i)) {
+            acc_sprintf("Exit %s%-5s%s:  To: [%s%s%s], Key: [%5d], Keywrd: %s, Type: %s\r\n",
+                        CCCYN(ch, C_NRM),
+                        dirs[i],
+                        CCNRM(ch, C_NRM),
+                        CCCYN(ch, C_NRM),
+                        ((ABS_EXIT(rm, i)->to_room) ? tmp_sprintf("%5d", ABS_EXIT(rm, i)->to_room->number):"NONE"),
+                        CCNRM(ch, C_NRM),
+                        ABS_EXIT(rm, i)->key,
+                        ABS_EXIT(rm, i)->keyword ? ABS_EXIT(rm, i)->keyword : "None",
+                        tmp_printbits(ABS_EXIT(rm, i)->exit_info, exit_bits));
+            if (ABS_EXIT(rm, i)->general_description) {
+                acc_strcat(ABS_EXIT(rm, i)->general_description, NULL);
             } else {
-                sprintf(buf1, "%s%5d%s", CCCYN(ch, C_NRM),
-                    rm->dir_option[i]->to_room->number, CCNRM(ch, C_NRM));
+                acc_strcat("  No exit description.\r\n", NULL);
             }
-            sprintbit(rm->dir_option[i]->exit_info, exit_bits, buf2);
-            sprintf(buf,
-                "Exit %s%-5s%s:  To: [%s], Key: [%5d], Keywrd: %s, Type: %s\r\n",
-                CCCYN(ch, C_NRM), dirs[i], CCNRM(ch, C_NRM), buf1,
-                rm->dir_option[i]->key, rm->dir_option[i]->keyword ?
-                rm->dir_option[i]->keyword : "None", buf2);
-            strcat(out_buf, buf);
-            if (rm->dir_option[i]->general_description) {
-                strcpy(buf, rm->dir_option[i]->general_description);
-            } else {
-                strcpy(buf, "  No exit description.\r\n");
-            }
-            strcat(out_buf, buf);
         }
     }
     if (GET_ROOM_STATE(rm) && GET_ROOM_STATE(rm)->var_list) {
 		prog_var *cur_var;
-		strcat(out_buf, "Prog state variables:\r\n");
+		acc_strcat("Prog state variables:\r\n", NULL);
 		for (cur_var = GET_ROOM_STATE(rm)->var_list;cur_var;cur_var = cur_var->next) {
-            sprintf(buf, "     %s = '%s'\r\n", cur_var->key, cur_var->value);
-            strcat(out_buf, buf);
+            acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
         }
     }
 	if (rm->prog) {
-	  strcat(out_buf, "PROG:\r\n");
-	  strcat(out_buf, rm->prog);
+        acc_format_prog(ch, rm->prog);
 	}
 
-    page_string(ch->desc, out_buf);
+    page_string(ch->desc, acc_get_string());
 }
-
-
 
 void
 do_stat_object(struct Creature *ch, struct obj_data *j)
@@ -1693,7 +1695,7 @@ do_stat_character_prog(Creature *ch, Creature *k)
                      GET_MOB_VNUM(k));
     } else {
         acc_string_clear();
-        acc_sprintf("Prog:\r\n%s\r\n", GET_MOB_PROG(k));
+        acc_format_prog(ch, GET_MOB_PROG(k));
         page_string(ch->desc, acc_get_string());
     }
 }

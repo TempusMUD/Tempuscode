@@ -112,9 +112,13 @@ bool OLCIMP(Creature * ch);
 		   "<keywords> [new keywords]\r\n"
 
 
-void
- print_search_data_to_buf(struct Creature *ch, struct room_data *room,
-	struct special_search_data *cur_search, char *buf);
+void acc_format_search_data(Creature *ch,
+                            room_data *room,
+                            special_search_data *cur_search);
+void print_search_data_to_buf(struct Creature *ch,
+                              struct room_data *room,
+                              struct special_search_data *cur_search,
+                              char *buf);
 
 void show_olc_help(struct Creature *ch, char *arg);
 int mobile_experience(struct Creature *mob, FILE *outfile = NULL);
