@@ -993,42 +993,57 @@ do_stat_trails(struct Creature *ch)
 void
 acc_format_prog(Creature *ch, char *prog)
 {
+    const char *line_color = NULL;
+
     acc_sprintf("Prog:\r\n");
 
     int line_num = 1;
     for (char *line = tmp_getline(&prog);
          line;
          line = tmp_getline(&prog), line_num++) {
+
+        // Line number looks like TEDII
         acc_sprintf("%s%3d%s] ",
                     CCYEL(ch, C_NRM),
                     line_num,
                     CCBLU(ch, C_NRM));
         char *c = line;
         skip_spaces(&c);
-        if (*c == '-') {
-            // comment
-            acc_sprintf("%s%s\r\n", CCBLU(ch, C_NRM), line);
-        } else if (*c == '*') {
-            // prog command
-            c++;
-            char *cmd = tmp_getword(&c);
-            if (!strcasecmp(cmd, "before")
-                || !strcasecmp(cmd, "handle")
-                || !strcasecmp(cmd, "after"))
-                acc_sprintf("%s%s\r\n", CCCYN(ch, C_NRM), line);
-            else if (!strcasecmp(cmd, "require")
-                     || !strcasecmp(cmd, "unless")
-                     || !strcasecmp(cmd, "randomly")
-                     || !strcasecmp(cmd, "or"))
-                acc_sprintf("%s%s\r\n", CCMAG(ch, C_NRM), line);
-            else
-                acc_sprintf("%s%s\r\n", CCYEL(ch, C_NRM), line);
-        } else if (*c) {
-            // mob command
-            acc_sprintf("%s%s\r\n", CCNRM(ch, C_NRM), line);
-        } else {
-            acc_sprintf("\r\n");
+        if (!line_color) {
+            // We don't know the line color of this line
+            if (*c == '-') {
+                // comment
+                line_color = CCBLU(ch, C_NRM);
+            } else if (*c == '*') {
+                // prog command
+                c++;
+                char *cmd = tmp_getword(&c);
+                if (!strcasecmp(cmd, "before")
+                    || !strcasecmp(cmd, "handle")
+                    || !strcasecmp(cmd, "after"))
+                    line_color = CCCYN(ch, C_NRM);
+                else if (!strcasecmp(cmd, "require")
+                         || !strcasecmp(cmd, "unless")
+                         || !strcasecmp(cmd, "randomly")
+                         || !strcasecmp(cmd, "or"))
+                    line_color = CCMAG(ch, C_NRM);
+                else
+                    line_color = CCYEL(ch, C_NRM);
+            } else if (*c) {
+                // mob command
+                line_color = CCNRM(ch, C_NRM);
+            } else {
+                // blank line
+                line_color = "";
+            }
         }
+
+        // Append the line
+        acc_sprintf("%s%s\r\n", line_color, line);
+
+        // If not a continued line, zero out the line color
+        if (line[strlen(line) - 1] != '\\')
+            line_color = NULL;
     }
 }
 
