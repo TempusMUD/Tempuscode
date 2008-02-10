@@ -186,7 +186,9 @@ handle_input(struct descriptor_data *d)
 				d->account = NULL;
 				send_to_desc(d, "That account name has already been taken.  Try another.\r\n");
 			}
-		}
+		} else {
+            send_to_desc(d, "That account name is invalid.  Please try another.\r\n");
+        }
 		break;
 	case CXN_ACCOUNT_VERIFY:
 		switch (tolower(arg[0])) {
