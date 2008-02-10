@@ -48,7 +48,7 @@ int search_block_no_lower(char *arg, char **list, bool exact);
 int fill_word_no_lower(char *argument);
 void num2str(char *str, int num);
 void set_physical_attribs(struct Creature *ch);
-void do_stat_character(struct Creature *ch, struct Creature *k);
+void do_stat_character(struct Creature *ch, struct Creature *k, char *options);
 struct extra_descr_data *locate_exdesc(char *word,
 	struct extra_descr_data *list, int exact = 0);
 void set_move_buffer(struct Creature *ch);
@@ -324,7 +324,7 @@ do_mob_medit(struct Creature *ch, char *argument)
 }
 
 void
-do_mob_mstat(struct Creature *ch)
+do_mob_mstat(struct Creature *ch, char *argument)
 {
 	struct Creature *mob = NULL;
 
@@ -333,7 +333,7 @@ do_mob_mstat(struct Creature *ch)
 	if (!mob)
 		send_to_char(ch, "You are not currently editing a mobile.\r\n");
 	else
-		do_stat_character(ch, mob);
+		do_stat_character(ch, mob, argument);
 }
 
 #define mob_p GET_OLC_MOB(ch)

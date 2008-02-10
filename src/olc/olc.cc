@@ -211,7 +211,7 @@ void do_zequip_cmd(struct Creature *ch, char *argument);
 void do_zimplant_cmd(struct Creature *ch, char *argument);
 void do_zpath_cmd(struct Creature *ch, char *argument);
 void do_mob_medit(struct Creature *ch, char *argument);
-void do_mob_mstat(struct Creature *ch);
+void do_mob_mstat(struct Creature *ch, char *argument);
 void do_mob_mset(struct Creature *ch, char *argument);
 void do_olc_xset(struct Creature *ch, char *argument);
 void do_olc_rset(struct Creature *ch, char *argument);
@@ -1290,7 +1290,7 @@ ACMD(do_olc)
 		do_mob_medit(ch, argument);
 		break;
 	case 34:					/* mstat */
-		do_mob_mstat(ch);
+		do_mob_mstat(ch, argument);
 		break;
 	case 35:					/* mset */
 		do_mob_mset(ch, argument);

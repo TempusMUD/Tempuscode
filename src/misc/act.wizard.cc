@@ -1660,7 +1660,46 @@ do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
 }
 
 void
-do_stat_character(struct Creature *ch, struct Creature *k)
+do_stat_character_kills(Creature *ch, Creature *k)
+{
+    if (!IS_PC(k)) {
+        send_to_char(ch, "Recent kills by a mob are not recorded.\r\n");
+    } else if (GET_RECENT_KILLS(k).empty()) {
+        send_to_char(ch, "This player has not killed anything yet.\r\n");
+    } else {
+        acc_string_clear();
+        acc_sprintf("Recently killed by %s:\r\n", GET_NAME(k));
+        std::list<KillRecord>::iterator kill = GET_RECENT_KILLS(k).begin();
+        for (;kill != GET_RECENT_KILLS(k).end();++kill) {
+            Creature *killed = real_mobile_proto(kill->_vnum);
+            acc_sprintf("%s%3d. %-30s %17d%s\r\n",
+                        CCGRN(ch, C_NRM),
+                        kill->_vnum,
+                        (killed) ? GET_NAME(killed):"<unknown>",
+                        kill->_times,
+                        CCNRM(ch, C_NRM));
+        }
+        page_string(ch->desc, acc_get_string());
+    }
+}
+
+void
+do_stat_character_prog(Creature *ch, Creature *k)
+{
+    if (IS_PC(k)) {
+        send_to_char(ch, "Players don't have progs!\r\n");
+    } else if (!GET_MOB_PROG(k)) {
+        send_to_char(ch, "Mobile %d does not have a prog.\r\n",
+                     GET_MOB_VNUM(k));
+    } else {
+        acc_string_clear();
+        acc_sprintf("Prog:\r\n%s\r\n", GET_MOB_PROG(k));
+        page_string(ch->desc, acc_get_string());
+    }
+}
+
+void
+do_stat_character(Creature *ch, Creature *k, char *options)
 {
     int i, num, num2, found = 0, rexp;
 	char *line_buf;
@@ -1679,6 +1718,16 @@ do_stat_character(struct Creature *ch, struct Creature *k)
         return;
 	}
 		
+    for (char *opt_str = tmp_getword(&options);*opt_str;opt_str = tmp_getword(&options)) {
+        if (is_abbrev(opt_str, "kills")) {
+            do_stat_character_kills(ch, k);
+            return;
+        } else if (is_abbrev(opt_str, "prog")) {
+            do_stat_character_prog(ch, k);
+            return;
+        }
+    }
+
 	acc_string_clear();
     switch (GET_SEX(k)) {
     case SEX_NEUTRAL:
@@ -1931,9 +1980,6 @@ do_stat_character(struct Creature *ch, struct Creature *k)
             param = GET_LOAD_PARAM(k);
 			if (param && strlen(param) > 0 )
 				acc_sprintf("Load_param: \r\n%s\r\n", GET_LOAD_PARAM(k));
-            param = GET_MOB_PROG(k);
-			if (param && strlen(param) > 0 )
-				acc_sprintf("Prog: \r\n%s\r\n", GET_MOB_PROG(k));
 		}
     }
 
@@ -2059,20 +2105,6 @@ do_stat_character(struct Creature *ch, struct Creature *k)
     }
     
     if (IS_PC(k)) {
-        if (!GET_RECENT_KILLS(k).empty()) {
-            acc_sprintf("Recently killed:\r\n");
-            std::list<KillRecord>::iterator kill = GET_RECENT_KILLS(k).begin();
-            for (;kill != GET_RECENT_KILLS(k).end();++kill) {
-                Creature *killed = real_mobile_proto(kill->_vnum);
-                acc_sprintf("%s%3d. %-30s %17d%s\r\n",
-                            CCGRN(ch, C_NRM),
-                            kill->_vnum,
-                            (killed) ? GET_NAME(killed):"<unknown>",
-                            kill->_times,
-                            CCNRM(ch, C_NRM));
-            }
-        }
-
         if (!GET_GRIEVANCES(k).empty()) {
             acc_sprintf("Grievances:\r\n");
             std::list<Grievance>::iterator grievance = GET_GRIEVANCES(k).begin();
@@ -2125,22 +2157,22 @@ ACMD(do_stat)
     struct obj_data *object = 0;
     struct zone_data *zone = NULL;
     int tmp, found;
+    char *arg1 = tmp_getword(&argument);
+    char *arg2 = tmp_getword(&argument);
 
-    half_chop(argument, buf1, buf2);
-
-    if (!*buf1) {
+    if (!*arg1) {
         send_to_char(ch, "Stats on who or what?\r\n");
         return;
-    } else if (is_abbrev(buf1, "room")) {
-        do_stat_room(ch, buf2);
-    } else if (!strncmp(buf1, "trails", 6)) {
+    } else if (is_abbrev(arg1, "room")) {
+        do_stat_room(ch, arg2);
+    } else if (!strncmp(arg1, "trails", 6)) {
         do_stat_trails(ch);
-    } else if (is_abbrev(buf1, "zone")) {
-        if (!*buf2)
+    } else if (is_abbrev(arg1, "zone")) {
+        if (!*arg2)
             do_stat_zone(ch, ch->in_room->zone);
         else {
-            if (is_number(buf2)) {
-                tmp = atoi(buf2);
+            if (is_number(arg2)) {
+                tmp = atoi(arg2);
                 for (found = 0, zone = zone_table; zone && found != 1;
                     zone = zone->next)
                     if (zone->number <= tmp && zone->top > tmp*100) {
@@ -2152,67 +2184,67 @@ ACMD(do_stat)
             } else
                 send_to_char(ch, "Invalid zone number.\r\n");
         }
-    } else if (is_abbrev(buf1, "mob")) {
-        if (!*buf2)
+    } else if (is_abbrev(arg1, "mob")) {
+        if (!*arg2)
             send_to_char(ch, "Stats on which mobile?\r\n");
         else {
-            if ((victim = get_char_vis(ch, buf2)) &&
+            if ((victim = get_char_vis(ch, arg2)) &&
                 (IS_NPC(victim) || GET_LEVEL(ch) >= LVL_DEMI))
-                do_stat_character(ch, victim);
+                do_stat_character(ch, victim, argument);
             else
                 send_to_char(ch, "No such mobile around.\r\n");
         }
-    } else if (is_abbrev(buf1, "player")) {
-        if (!*buf2) {
+    } else if (is_abbrev(arg1, "player")) {
+        if (!*arg2) {
             send_to_char(ch, "Stats on which player?\r\n");
         } else {
-            if ((victim = get_player_vis(ch, buf2, 0)))
-                do_stat_character(ch, victim);
+            if ((victim = get_player_vis(ch, arg2, 0)))
+                do_stat_character(ch, victim, argument);
             else
                 send_to_char(ch, "No such player around.\r\n");
         }
-    } else if (is_abbrev(buf1, "file")) {
+    } else if (is_abbrev(arg1, "file")) {
         if (GET_LEVEL(ch) < LVL_TIMEGOD && !Security::isMember(ch, "AdminFull")
             && !Security::isMember(ch, "WizardFull")) {
             send_to_char(ch, "You cannot peer into the playerfile.\r\n");
             return;
         }
-        if (!*buf2) {
+        if (!*arg2) {
             send_to_char(ch, "Stats on which player?\r\n");
         } else {
 			victim = new Creature(true);
-			if (!playerIndex.exists(buf2)) {
+			if (!playerIndex.exists(arg2)) {
                 send_to_char(ch, "There is no such player.\r\n");
             } else {
-				if (victim->loadFromXML(playerIndex.getID(buf2)))
-					do_stat_character(ch, victim);
+				if (victim->loadFromXML(playerIndex.getID(arg2)))
+					do_stat_character(ch, victim, argument);
 				else
-					send_to_char(ch, "Error loading character '%s'\r\n",buf2);
+					send_to_char(ch, "Error loading character '%s'\r\n",arg2);
 			}
             delete victim;
         }
-    } else if (is_abbrev(buf1, "object")) {
-        if (!*buf2)
+    } else if (is_abbrev(arg1, "object")) {
+        if (!*arg2)
             send_to_char(ch, "Stats on which object?\r\n");
         else {
-            if ((object = get_obj_vis(ch, buf2)))
+            if ((object = get_obj_vis(ch, arg2)))
                 do_stat_object(ch, object);
             else
                 send_to_char(ch, "No such object around.\r\n");
         }
     } else {
-        if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)))
+        if ((object = get_object_in_equip_vis(ch, arg1, ch->equipment, &tmp)))
             do_stat_object(ch, object);
-        else if ((object = get_obj_in_list_vis(ch, buf1, ch->carrying)))
+        else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)))
             do_stat_object(ch, object);
-        else if ((victim = get_char_room_vis(ch, buf1)))
-            do_stat_character(ch, victim);
+        else if ((victim = get_char_room_vis(ch, arg1)))
+            do_stat_character(ch, victim, argument);
         else if ((object =
-                get_obj_in_list_vis(ch, buf1, ch->in_room->contents)))
+                get_obj_in_list_vis(ch, arg1, ch->in_room->contents)))
             do_stat_object(ch, object);
-        else if ((victim = get_char_vis(ch, buf1)))
-            do_stat_character(ch, victim);
-        else if ((object = get_obj_vis(ch, buf1)))
+        else if ((victim = get_char_vis(ch, arg1)))
+            do_stat_character(ch, victim, argument);
+        else if ((object = get_obj_vis(ch, arg1)))
             do_stat_object(ch, object);
         else
             send_to_char(ch, "Nothing around by that name.\r\n");
@@ -2864,7 +2896,7 @@ ACMD(do_vstat)
     if (mob_stat) {
         mob = real_mobile_proto(number);
         if (mob) {
-            do_stat_character(ch, mob);
+            do_stat_character(ch, mob, argument);
         } else {
             send_to_char(ch, "There is no mobile with that vnum.\r\n");
             return;
@@ -2899,7 +2931,7 @@ ACMD(do_rstat)
         if (!(mob = get_char_in_world_by_idnum(-number)))
             send_to_char(ch, "There is no monster with that id number.\r\n");
         else
-            do_stat_character(ch, mob);
+            do_stat_character(ch, mob, "");
     } else if (is_abbrev(buf, "obj")) {
         send_to_char(ch, "Not enabled.\r\n");
     } else
