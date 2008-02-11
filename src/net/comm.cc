@@ -2195,7 +2195,7 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 		return;
 	}
 	if (type == TO_VICT) {
-        if (vict_obj && SENDOK(vict_obj->to_c())) {
+        if (vict_obj && SENDOK(vict_obj->to_c()))
             perform_act(str, ch, obj, vict_obj, vict_obj->to_c(), 0);
 		return;
 	}
