@@ -220,6 +220,7 @@ page_string(struct descriptor_data *d, const char *str)
     // If term height is zero, just send the string
     if (!d->account->get_term_height()) {
         send_to_desc(d, "%s", str);
+        d->showstr_point = d->showstr_head = NULL;
         return;
     }
 
