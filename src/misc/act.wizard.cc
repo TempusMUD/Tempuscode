@@ -9149,6 +9149,12 @@ verify_tempus_integrity(Creature *ch)
                     check_log(ch, "expected object implanted wrong!");
                 
             }
+            if (GET_TATTOO(vict, idx)
+                && check_ptr(ch, GET_TATTOO(vict, idx), sizeof(obj_data),
+                             "object tattooed in mobile", GET_MOB_VNUM(vict))) {
+                if (GET_TATTOO(vict, idx)->worn_by != vict)
+                    check_log(ch, "expected object tattooed wrong!");
+            }
         }
 
         for (contained = vict->carrying;
