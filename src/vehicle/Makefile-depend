@@ -1,0 +1,4 @@
+$(OBJ)/vehicle.o : vehicle.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/utils.h $(INCLUDE)/comm.h $(INCLUDE)/interpreter.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/spells.h $(INCLUDE)/screen.h $(INCLUDE)/vehicle.h $(INCLUDE)/house.h $(INCLUDE)/clan.h 
+	$(CXX) -c $(CXXFLAGS) vehicle.cc           -o $(OBJ)/vehicle.o
+OBJFILES= $(OBJ)/vehicle.o

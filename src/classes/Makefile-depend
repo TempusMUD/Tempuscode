@@ -1,0 +1,460 @@
+$(OBJ)/act.barb.o: act.barb.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/flow_room.h ../include/house.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h ../include/bomb.h \
+  ../include/fight.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.bard.o: act.bard.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/vehicle.h ../include/materials.h \
+  ../include/fight.h ../include/guns.h ../include/bomb.h \
+  ../include/house.h ../include/vendor.h ../include/security.h \
+  ../include/clan.h ../include/specs.h ../include/flow_room.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.cleric.o: act.cleric.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/flow_room.h ../include/house.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h ../include/fight.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.cyborg.o: act.cyborg.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/char_class.h ../include/actions.h ../include/mobact.h \
+  ../include/guns.h ../include/bomb.h ../include/fight.h \
+  ../include/house.h ../include/accstr.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.hood.o: act.hood.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/vehicle.h ../include/materials.h \
+  ../include/fight.h ../include/guns.h ../include/bomb.h \
+  ../include/house.h ../include/vendor.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.knight.o: act.knight.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/flow_room.h ../include/house.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h ../include/fight.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.mage.o: act.mage.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/flow_room.h ../include/house.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.merc.o: act.merc.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/vehicle.h ../include/materials.h \
+  ../include/fight.h ../include/guns.h ../include/bomb.h \
+  ../include/smokes.h ../include/player_table.h ../include/vendor.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.monk.o: act.monk.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/flow_room.h ../include/house.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h ../include/fight.h \
+  ../include/vendor.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.physic.o: act.physic.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/flow_room.h ../include/house.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h ../include/fight.h \
+  ../include/bomb.h ../include/specs.h ../include/vendor.h \
+  ../include/security.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.psionic.o: act.psionic.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/vehicle.h ../include/materials.h \
+  ../include/fight.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.ranger.o: act.ranger.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/flow_room.h ../include/house.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h ../include/fight.h \
+  ../include/player_table.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/act.thief.o: act.thief.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/utils.h \
+  ../include/comm.h ../include/handler.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/spells.h \
+  ../include/screen.h ../include/vehicle.h ../include/materials.h \
+  ../include/flow_room.h ../include/house.h ../include/char_class.h \
+  ../include/actions.h ../include/mobact.h ../include/fight.h \
+  ../include/vendor.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+$(OBJ)/char_class.o: char_class.cc ../include/structs.h ../include/defs.h \
+  ../include/macros.h ../include/constants.h ../include/obj_data.h \
+  ../include/xml_utils.h /usr/include/libxml2/libxml/parser.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h \
+  /usr/include/libxml2/libxml/xmlIO.h \
+  /usr/include/libxml2/libxml/globals.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/threads.h ../include/tmpstr.h \
+  ../include/creature_list.h ../include/creature.h \
+  ../include/combat_data_list.h ../include/safe_list.h \
+  ../include/account.h ../include/desc_data.h ../include/interpreter.h \
+  ../include/room_data.h ../include/search.h ../include/weather.h \
+  ../include/zone_data.h ../include/ban.h ../include/db.h \
+  /usr/local/pgsql/include/libpq-fe.h \
+  /usr/local/pgsql/include/postgres_ext.h ../include/utils.h \
+  ../include/spells.h ../include/char_class.h ../include/actions.h \
+  ../include/mobact.h ../include/comm.h ../include/vehicle.h \
+  ../include/handler.h ../include/security.h ../include/screen.h \
+  ../include/clan.h ../include/player_table.h
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+OBJFILES= $(OBJ)/act.barb.o $(OBJ)/act.bard.o $(OBJ)/act.cleric.o $(OBJ)/act.cyborg.o $(OBJ)/act.hood.o $(OBJ)/act.knight.o $(OBJ)/act.mage.o $(OBJ)/act.merc.o $(OBJ)/act.monk.o $(OBJ)/act.physic.o $(OBJ)/act.psionic.o $(OBJ)/act.ranger.o $(OBJ)/act.thief.o $(OBJ)/char_class.o

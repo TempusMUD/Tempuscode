@@ -1,0 +1,4 @@
+$(OBJ)/shop.o : shop.cc \
+	$(INCLUDE)/structs.h $(INCLUDE)/comm.h $(INCLUDE)/handler.h $(INCLUDE)/db.h $(INCLUDE)/interpreter.h $(INCLUDE)/spells.h $(INCLUDE)/utils.h $(INCLUDE)/shop.h $(INCLUDE)/screen.h $(INCLUDE)/fight.h 
+	$(CXX) -c $(CXXFLAGS) shop.cc              -o $(OBJ)/shop.o
+OBJFILES= $(OBJ)/shop.o
