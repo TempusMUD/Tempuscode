@@ -857,9 +857,10 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
     int numm = 0, numo = 0, nump = 0, numr = 0, nums = 0, av_lev = 0,
         numm_proto = 0, numo_proto = 0, av_lev_proto = 0, numur = 0;
 
-    send_to_char(ch, "Zone name: %s%s%s   #%s%d%s\r\n",
-        CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM),
-        CCYEL(ch, C_NRM), zone->number, CCNRM(ch, C_NRM));
+    send_to_char(ch, "Zone #%s%d: %s%s%s\r\n",
+                 CCYEL(ch, C_NRM), zone->number,
+                 CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM));
+    send_to_char(ch, "Authored by: %s\r\n", (zone->author) ? zone->author:"<none>");
     send_to_char(ch,
         "Rooms: [%d-%d]  Respawn pt: [%d]  Reset Mode: %s\r\n",
         zone->number * 100, zone->top,
@@ -893,10 +894,9 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
 
 
     send_to_char(ch, "Owner: %s  ", (playerIndex.getName(zone->owner_idnum) ?
-            playerIndex.getName(zone->owner_idnum) : "None"));
-    send_to_char(ch, "Co-Owner: %s  \r\n", (playerIndex.getName(zone->co_owner_idnum) ?
-            playerIndex.getName(zone->co_owner_idnum) : "None"));
-
+            playerIndex.getName(zone->owner_idnum) : "<none>"));
+    send_to_char(ch, "Co-Owner: %s\r\n", (playerIndex.getName(zone->co_owner_idnum) ?
+            playerIndex.getName(zone->co_owner_idnum) : "<none>"));
     send_to_char(ch, "Hours: [%3d]  Years: [%3d]  Idle:[%3d]  Lifespan: [%d]  Age: [%d]\r\n",
         zone->hour_mod, zone->year_mod, zone->idle_time,
 		zone->lifespan, zone->age);

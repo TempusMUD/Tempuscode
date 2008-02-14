@@ -127,6 +127,7 @@ struct zone_data : public thing {
     int pk_style;
 	char *public_desc;			// Public description of zone
 	char *private_desc;			// Private description of zone
+    char *author;               // Author string
 	unsigned char num_players;	/* number of players in zone */
 	unsigned short int idle_time;	/* num tics idle */
 

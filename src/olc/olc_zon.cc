@@ -51,6 +51,7 @@ const char *olc_zset_keys[] = {
 	"public_desc",
 	"private_desc", /** 20 **/
 	"pk_style", /** 21 **/
+    "author",
 	"\n"
 };
 
@@ -2372,6 +2373,15 @@ do_zset_command(struct Creature *ch, char *argument)
 	    zone->pk_style = search_block(argument, zone_pk_names, FALSE);
             send_to_char(ch, "PK style set.\r\n");
         break;
+    case 22:
+        free(zone->author);
+        if (*argument) {
+            zone->author = strdup(argument);
+            send_to_char(ch, "Zone author set to %s\r\n", zone->author);
+        } else {
+            zone->author = NULL;
+            send_to_char(ch, "Zone author cleared\r\n");
+        }
     }
 }
 
@@ -2553,6 +2563,9 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 	if (zone->private_desc)
 		fprintf(zone_file, "private-desc:\n%s~\n",
 			tmp_gsub(zone->private_desc, "\r", ""));
+
+    if (zone->author)
+        fprintf(zone_file, "author: %s\n", zone->author);
 
 	tmp = zone->flags;
 

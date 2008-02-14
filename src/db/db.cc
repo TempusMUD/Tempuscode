@@ -2125,6 +2125,8 @@ load_zones(FILE * fl, char *zonename)
 			new_zone->public_desc = fread_string(fl, buf2);
 		else if (!strcmp(arg1, "private-desc:"))
 			new_zone->private_desc = fread_string(fl, buf2);
+		else if (!strcmp(arg1, "author:"))
+			new_zone->author = strdup(arg2);
 		else
 			break;
 
