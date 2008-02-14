@@ -511,7 +511,7 @@ ASPELL(song_rhythm_of_alarm)
 
 ASPELL(song_wall_of_sound)
 {
-    const char *dir_adj[] = { "northern", "southern", "eastern", "western", "upwards", "downwards", "past", "future" };
+    const char *dir_adj[] = { "northern", "eastern", "southern", "western", "upwards", "downwards", "future", "past" };
     struct room_affect_data rm_aff;
     struct room_affect_data *rm_aff_ptr;
     const char *dir_str;
