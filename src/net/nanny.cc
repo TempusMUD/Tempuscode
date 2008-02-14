@@ -1894,8 +1894,9 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 			mail_str = "&n No ";
 		if (immort) {
 			send_to_desc(d,
-				"&y%5ld &n%-13s %s&n %s\r\n",
-				GET_IDNUM(tmp_ch), name_str, status_str, laston_str);
+                         "&y%5ld &n%-13s %s&n %s  %2d&c(&n%2d&c)&n %s\r\n",
+                         GET_IDNUM(tmp_ch), name_str, status_str, laston_str,
+                         GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch), class_str);
 		} else if (tmp_ch->player_specials->rentcode == RENT_CREATING) {
 			if (brief)
 				send_to_desc(d,
