@@ -1716,6 +1716,17 @@ do_stat_character_prog(Creature *ch, Creature *k)
 }
 
 void
+do_stat_character_description(Creature *ch, Creature *k)
+{
+    if (k->player.description) {
+        page_string(ch->desc, k->player.description);
+    } else {
+        send_to_char(ch, "Mobile %d does not have a description.\r\n",
+                     GET_MOB_VNUM(k));
+    }
+}
+
+void
 do_stat_character(Creature *ch, Creature *k, char *options)
 {
     int i, num, num2, found = 0, rexp;
@@ -1741,6 +1752,9 @@ do_stat_character(Creature *ch, Creature *k, char *options)
             return;
         } else if (is_abbrev(opt_str, "prog")) {
             do_stat_character_prog(ch, k);
+            return;
+        } else if (is_abbrev(opt_str, "description")) {
+            do_stat_character_description(ch, k);
             return;
         }
     }
