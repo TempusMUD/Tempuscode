@@ -1278,7 +1278,7 @@ boot_clans(void)
 
 	slog("Reading clans");
 
-	res = sql_query("select idnum, name, badge, bank, owner, flags from clans");
+	res = sql_query("select idnum, name, badge, bank, owner from clans");
 	count = PQntuples(res);
 	if (count == 0) {
 		slog("WARNING: No clans loaded");
@@ -1293,7 +1293,6 @@ boot_clans(void)
 		clan->badge = str_dup(PQgetvalue(res, idx, 2));
 		clan->bank_account = atoll(PQgetvalue(res, idx, 3));
 		clan->owner = atoi(PQgetvalue(res, idx, 4));
-		clan->flags = atoi(PQgetvalue(res, idx, 5));
 		clan->member_list = NULL;
 		clan->room_list = NULL;
 		clan->next = NULL;
@@ -1395,7 +1394,7 @@ create_clan(int vnum)
 			}
 	}
 
-	sql_exec("insert into clans (idnum, name, badge, bank, flags) values (%d, 'New', '(//NEW\\\\)', 0, 0)", newclan->number);
+	sql_exec("insert into clans (idnum, name, badge, bank) values (%d, 'New', '(//NEW\\\\)', 0)", newclan->number);
 	return (newclan);
 }
 
@@ -1477,8 +1476,8 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
 			clan->bank_account);
 
 		if (GET_LEVEL(ch) > LVL_AMBASSADOR)
-			acc_sprintf("Owner: %ld (%s), Flags: %d\r\n",
-				clan->owner, playerIndex.getName(clan->owner), clan->flags);
+			acc_sprintf("Owner: %ld (%s)\r\n",
+				clan->owner, playerIndex.getName(clan->owner));
 
 		for (i = clan->top_rank; i >= 0; i--) {
 			acc_sprintf("Rank %2d: %s%s%s\r\n", i,

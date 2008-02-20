@@ -8,23 +8,6 @@
 //
 
 #define CLAN_NONE	0
-#define CLAN_COSMO	1
-#define CLAN_CRACKER	2
-#define CLAN_CRONUS 	3
-#define CLAN_BOO_YAA	4
-#define CLAN_DOOMGUARD  5
-#define CLAN_QUAKER     6
-#define CLAN_BLADE      7
-#define CLAN_DISFAVOR   8
-#define CLAN_SNARFITES  9
-#define CLAN_JERRYTOWN  10
-#define CLAN_TOREADOR   11
-#define CLAN_ASSASSIN   12
-#define CLAN_G_THANG    13
-#define CLAN_DAGGER     14
-#define CLAN_GETALONG_GANG    15
-#define CLAN_INDEPENDENT 16
-#define CLAN_YAKUZA      17
 
 #define MAX_CLAN_NAME      24
 #define MAX_CLAN_BADGE     16
@@ -62,7 +45,6 @@ struct clan_data {
 	long long int bank_account;
 	byte top_rank;
 	long owner;
-	int flags;
 	char *name;					/* official clan name */
 	char *badge;				/* title of clan for who list, etc. */
 	char *ranknames[NUM_CLAN_RANKS];
