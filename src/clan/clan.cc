@@ -739,7 +739,6 @@ typedef struct cedit_command_data {
 } cedit_command_data;
 
 cedit_command_data cedit_keys[] = {
-	{"save", 0},
 	{"create", 1},
 	{"delete", 1},
 	{"set", 0},
@@ -802,11 +801,7 @@ ACMD(do_cedit)
 
 	switch (cedit_command) {
 
-	case 0:			 /*** save ***/
-		send_to_char(ch, "Clans saved after every change now!\r\n");
-		break;
-
-	case 1:			/*** create ***/
+	case 0:			/*** create ***/
 		{
 			int clan_number = 0;
 			if (!*arg1) {
@@ -836,7 +831,7 @@ ACMD(do_cedit)
 			}
 			break;
 		}
-	case 2:			  /*** delete ***/
+	case 1:			  /*** delete ***/
 		if (!clan) {
 			if (!*arg1)
 				send_to_char(ch, "Delete what clan?\r\n");
@@ -854,7 +849,7 @@ ACMD(do_cedit)
 		}
 		break;
 
-	case 3:			  /*** set    ***/
+	case 2:			  /*** set    ***/
 		if (!*arg1) {
 			send_to_char(ch, 
 				"Usage: cedit set <vnum> <name|badge|rank|bank|member|owner>['top']<value>\r\n");
@@ -1081,7 +1076,7 @@ ACMD(do_cedit)
 		send_to_char(ch, "Successful.\r\n");
 		break;
 
-	case 4:			  /*** show   ***/
+	case 3:			  /*** show   ***/
 
 		if (!clan && *arg1) {
 			send_to_char(ch, "Clan '%s' does not exist.\r\n", arg1);
@@ -1090,7 +1085,7 @@ ACMD(do_cedit)
 		do_show_clan(ch, clan);
 		break;
 
-	case 5:			  /*** add    ***/
+	case 4:			  /*** add    ***/
 		if (!*arg1) {
 			send_to_char(ch, "Usage: cedit add <clan> <room|member> <number>\r\n");
 			return;
@@ -1170,7 +1165,7 @@ ACMD(do_cedit)
 			send_to_char(ch, "Invalid command, punk.\r\n");
 		}
 		break;
-	case 6:			  /** remove ***/
+	case 5:			  /** remove ***/
 
 		if (!*arg1) {
 			send_to_char(ch, 
@@ -1252,7 +1247,7 @@ ACMD(do_cedit)
 
 		break;
 
-	case 7: /** sort **/
+	case 6: /** sort **/
 		if (!clan) {
 			if (!*arg1)
 				send_to_char(ch, "Sort what clan?\r\n");
