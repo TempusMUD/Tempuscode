@@ -526,9 +526,8 @@ ACMD(do_goto)
 
 
 
-ACMD(do_trans)
+ACMD(do_transport)
 {
-    struct descriptor_data *i;
     struct room_data *was_in;
     struct Creature *victim;
 	char *name_str;
@@ -544,37 +543,7 @@ ACMD(do_trans)
     name_str = tmp_getword(&argument);
 
     if (!*name_str) {
-        send_to_char(ch, "Whom do you wish to transfer?\r\n");
-		return;
-    }
-
-	if (!str_cmp("all", name_str)) {
-		// Transfer all (below ch's level)
-        if (GET_LEVEL(ch) < LVL_GRGOD) {
-            send_to_char(ch, "I think not.\r\n");
-            return;
-        }
-
-        for (i = descriptor_list; i; i = i->next)
-            if (STATE(i) == CXN_PLAYING && i->creature && i->creature != ch) {
-                victim = i->creature;
-                if (GET_LEVEL(victim) >= GET_LEVEL(ch))
-                    continue;
-                act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
-                    TO_ROOM);
-
-                was_in = victim->in_room;
-
-                char_from_room(victim,false);
-                char_to_room(victim, ch->in_room,false);
-
-                act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0,
-                    TO_ROOM);
-                act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
-                look_at_room(victim, victim->in_room, 0);
-
-            }
-        send_to_char(ch, OK);
+        send_to_char(ch, "Whom do you wish to transport?\r\n");
 		return;
     }
 
@@ -600,7 +569,7 @@ ACMD(do_trans)
 			char_to_room(victim, ch->in_room,false);
 			act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0,
 				TO_ROOM);
-			act("$n has transferred you!", FALSE, ch, 0, victim, TO_VICT);
+			act("$n has transported you!", FALSE, ch, 0, victim, TO_VICT);
 			look_at_room(victim, victim->in_room, 0);
 
 			if (victim->followers) {
@@ -616,7 +585,7 @@ ACMD(do_trans)
 				}
 			}
 
-			slog("(GC) %s has transferred %s to %s.", GET_NAME(ch),
+			slog("(GC) %s has transported %s to %s.", GET_NAME(ch),
 				GET_NAME(victim), ch->in_room->name);
 		}
 		name_str = tmp_getword(&argument);

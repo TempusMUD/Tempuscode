@@ -387,7 +387,8 @@ ACMD(do_time);
 ACMD(do_title);
 ACMD(do_toggle);
 ACMD(do_track);
-ACMD(do_trans);
+ACMD(do_transport);
+ACMD(do_transfer);
 ACMD(do_turn);
 ACMD(do_unban);
 ACMD(do_ungroup);
@@ -1382,7 +1383,8 @@ struct command_info cmd_info[] = {
 	{"track", POS_STANDING, do_track, 0, 0, 0, 0},
 	{"train", POS_STANDING, do_practice, 1, 0, 0, 0},
 	{"trample", POS_STANDING, do_not_here, 0, 0, 0, 0},
-	{"transfer", POS_SLEEPING, do_trans, 0, 0, 0, 0},
+	{"transport", POS_SLEEPING, do_transport, 0, 0, 0, 0},
+	{"transfer", POS_SLEEPING, do_action, 0, 0, 0, 0},
 	{"translocate", POS_RESTING, do_translocate, 20, ZEN_TRANSLOCATION, 0, 0},
 	{"transmit", POS_RESTING, do_transmit, 0, 0, 0, 0},
     {"tremble", POS_RESTING, do_action, 0, 0, 0, 0},
