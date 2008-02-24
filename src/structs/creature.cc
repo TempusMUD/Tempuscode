@@ -34,6 +34,8 @@ struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 Creature::Creature(bool pc)
     : thing(CREATURE)
 {
+    initialize();
+
 	if (pc) {
 		player_specials = new player_special_data;
 	} else {
@@ -45,7 +47,6 @@ Creature::Creature(bool pc)
     this->fighting->clear();
     this->language_data = new char_language_data();
 
-    initialize();
 	clear();
 }
 
