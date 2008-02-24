@@ -3404,17 +3404,6 @@ real_mobile_proto(int vnum)
 struct obj_data *
 real_object_proto(int vnum)
 {
-/*	struct obj_data *object = NULL;
-
-	for (object = obj_proto; object; object = object->next)
-		if (object->shared->vnum >= vnum) {
-			if (object->shared->vnum == vnum)
-				return (object);
-			else
-				return NULL;
-		}
-	return (NULL);*/
-
     return objectPrototypes.find(vnum);
 }
 
