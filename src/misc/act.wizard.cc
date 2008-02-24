@@ -3895,25 +3895,6 @@ ACMD(do_wizutil)
         delete vict;
 }
 
-
-/* single zone printing fn used by "show zone" so it's not repeated in the
-   code 3 times ... -je, 4/6/93 */
-
-void
-print_zone_to_buf(struct Creature *ch, char *bufptr, struct zone_data *zone)
-{
-    sprintf(bufptr,
-        "%s%s%s%3d%s %s%-30.30s%s Age:%s%3d%s;Reset:%s%3d%s(%s%1d%s);Top: %s%5d%s;Own:%s%4d%s%s%s\r\n",
-        bufptr, CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), zone->number, CCNRM(ch,
-            C_CMP), CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM), CCGRN(ch,
-            C_NRM), zone->age, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
-        zone->lifespan, CCNRM(ch, C_NRM), CCRED(ch, C_NRM), zone->reset_mode,
-        CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), zone->top, CCNRM(ch, C_NRM),
-        CCYEL(ch, C_NRM), zone->owner_idnum, CCRED(ch, C_NRM), (olc_lock
-            || IS_SET(zone->flags, ZONE_LOCKED)) ? "L" : "", CCNRM(ch, C_NRM));
-}
-
-
 #define PRAC_TYPE        3        /* should it say 'spell' or 'skill'? */
 
 void
@@ -4962,6 +4943,133 @@ show_mlevels(Creature *ch, char *value, char *arg)
     page_string(ch->desc, buf);
 }
 
+void
+acc_print_zone(struct Creature *ch, struct zone_data *zone)
+{
+    acc_sprintf("%s%s%3d%s %s%-30.30s%s Age:%s%3d%s;Reset:%s%3d%s(%s%1d%s);Top: %s%5d%s;Own:%s%4d%s%s%s\r\n",
+                CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), zone->number,
+                CCNRM(ch, C_CMP), CCCYN(ch, C_NRM), zone->name,
+                CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), zone->age,
+                CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), zone->lifespan,
+                CCNRM(ch, C_NRM), CCRED(ch, C_NRM), zone->reset_mode,
+                CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), zone->top,
+                CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), zone->owner_idnum,
+                CCRED(ch, C_NRM),
+                (olc_lock || IS_SET(zone->flags, ZONE_LOCKED)) ? "L" : "",
+                CCNRM(ch, C_NRM));
+}
+
+void
+show_zones(Creature *ch, char *arg, char *value)
+{
+    static const char *usage =
+        "Usage: show zone [ . | all | <begin#> <end#> | name <partial name>\r\n"
+		"                     | fullcontrol | owner | co-owner | past | future\r\n"
+		"                     | timeless | lawless | norecalc ]\r\n";
+    Tokenizer tokens(arg);
+    zone_data *zone;
+
+    if (value[0] == '\0') {
+        send_to_char(ch, usage);
+        return;
+    }
+
+    acc_string_clear();
+
+    if (!strcmp(value, ".")) {
+        acc_print_zone(ch, ch->in_room->zone);
+    } else if (is_number(value)) {    // show a range ( from a to b )
+        int a = atoi(value);
+        int b = a;
+
+        if (tokens.next(value))
+            b = atoi(value);
+
+        for (zone = zone_table; zone; zone = zone->next)
+            if (zone->number >= a && zone->number <= b)
+                acc_print_zone(ch, zone);
+
+        if (acc_get_string()[0] == '\0') {
+            send_to_char(ch, "That is not a valid zone.\r\n");
+            return;
+        }
+    } else if (strcasecmp("owner", value) == 0 && tokens.next(value)) {
+        int owner_id;
+
+        if (is_number(value)) {
+            owner_id = atoi(value);
+        } else {
+            owner_id = playerIndex.getID(value);
+            if (!owner_id) {
+                send_to_char(ch, "That player does not exist.\r\n");
+                return;
+            }
+        }
+
+        for (zone = zone_table; zone; zone = zone->next)
+            if (owner_id == zone->owner_idnum
+                || owner_id == zone->co_owner_idnum)
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp("co-owner", value) == 0 && tokens.next(value)) {    // Show by name
+        int owner_id;
+
+        if (is_number(value)) {
+            owner_id = atoi(value);
+        } else {
+            owner_id = playerIndex.getID(value);
+            if (!owner_id) {
+                send_to_char(ch, "That player does not exist.\r\n");
+                return;
+            }
+        }
+
+        for (zone = zone_table; zone; zone = zone->next)
+            if (owner_id == zone->co_owner_idnum)
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp("name", value) == 0 && tokens.next(value)) {    // Show by name
+        for (zone = zone_table; zone; zone = zone->next)
+            if (stristr(zone->name, value))
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "all") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "fullcontrol") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (ZONE_FLAGGED(zone, ZONE_FULLCONTROL))
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "norecalc") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (ZONE_FLAGGED(zone, ZONE_NORECALC))
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "lawless") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (ZONE_FLAGGED(zone, ZONE_NOLAW))
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "past") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (zone->time_frame == TIME_PAST)
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "future") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (zone->time_frame == TIME_FUTURE)
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "timeless") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (zone->time_frame == TIME_TIMELESS)
+                acc_print_zone(ch, zone);
+    } else {
+        send_to_char(ch, usage);
+        return;
+    }
+
+    if (acc_get_string()[0] == '\0') {
+        send_to_char(ch, "No zones match that criteria.\r\n");
+        return;
+    }
+
+    page_string(ch->desc, acc_get_string());
+}
+
 #define SFC_OBJ 1
 #define SFC_MOB 2
 #define SFC_ROOM 3
@@ -5035,7 +5143,6 @@ struct show_struct fields[] = {
 ACMD(do_show)
 {
     int i = 0, j = 0, k = 0, l = 0, con = 0, percent, num_rms = 0, tot_rms = 0;
-    char self = 0;
     int found = 0;
     int sfc_mode = 0;
     struct Creature *vict;
@@ -5083,96 +5190,12 @@ ACMD(do_show)
         return;
     }
 
-    if (!strcmp(value, "."))
-        self = 1;
     buf[0] = '\0';
 
     switch (l) {
     case 1:                    /* zone */
-        {
-            static const char *usage =
-                "Usage: show zone [ . | all | <begin#> <end#> | name <partial name>\r\n"
-		"                     | fullcontrol | owner | co-owner | past | future\r\n"
-		"                     | timeless | lawless | norecalc ]\r\n";
-            Tokenizer tokens(arg);
-            if (value[0] == '\0') {
-                send_to_char(ch, usage);
-                return;
-            } else if (self) {
-                print_zone_to_buf(ch, buf, ch->in_room->zone);
-            } else if (is_number(value)) {    // show a range ( from a to b )
-                int a = atoi(value);
-                int b = a;
-                list <zone_data *>zone_list;
-                if (tokens.next(value))
-                    b = atoi(value);
-                for (zone = zone_table; zone; zone = zone->next) {
-                    if (zone->number >= a && zone->number <= b) {
-                        zone_list.push_front(zone);
-                    }
-                }
-                if (zone_list.size() <= 0) {
-                    send_to_char(ch, "That is not a valid zone.\r\n");
-                    return;
-                }
-                zone_list.reverse();
-                list <zone_data *>::iterator it = zone_list.begin();
-                for (; it != zone_list.end(); it++) {
-                    print_zone_to_buf(ch, buf, *it);
-                }
-            } else if (strcasecmp("owner", value) == 0 && tokens.next(value)) {    // Show by name
-                for (zone = zone_table; zone; zone = zone->next) {
-                    const char *ownerName = playerIndex.getName(zone->owner_idnum);
-                    if (ownerName && strcasecmp(value, ownerName) == 0) {
-                        print_zone_to_buf(ch, buf, zone);
-                    }
-                }
-            } else if (strcasecmp("co-owner", value) == 0 && tokens.next(value)) {    // Show by name
-                for (zone = zone_table; zone; zone = zone->next) {
-                    const char *ownerName = playerIndex.getName(zone->co_owner_idnum);
-                    if (ownerName && strcasecmp(value, ownerName) == 0) {
-                        print_zone_to_buf(ch, buf, zone);
-                    }
-                }
-            } else if (strcasecmp("name", value) == 0 && tokens.next(value)) {    // Show by name
-                for (zone = zone_table; zone; zone = zone->next)
-                    if (stristr(zone->name, value))
-                        print_zone_to_buf(ch, buf, zone);
-            } else if (strcasecmp(value, "all") == 0) {
-                for (zone = zone_table; zone; zone = zone->next)
-                    print_zone_to_buf(ch, buf, zone);
-            } else if (strcasecmp(value, "fullcontrol") == 0) {
-                for (zone = zone_table; zone; zone = zone->next)
-                    if (ZONE_FLAGGED(zone, ZONE_FULLCONTROL))
-                        print_zone_to_buf(ch, buf, zone);
-            } else if (strcasecmp(value, "norecalc") == 0) {
-                for (zone = zone_table; zone; zone = zone->next)
-                    if (ZONE_FLAGGED(zone, ZONE_NORECALC))
-                        print_zone_to_buf(ch, buf, zone);
-            } else if (strcasecmp(value, "lawless") == 0) {
-                for (zone = zone_table; zone; zone = zone->next)
-                    if (ZONE_FLAGGED(zone, ZONE_NOLAW))
-                        print_zone_to_buf(ch, buf, zone);
-            } else if (strcasecmp(value, "past") == 0) {
-				for (zone = zone_table; zone; zone = zone->next)
-					if (zone->time_frame == TIME_PAST)
-                        print_zone_to_buf(ch, buf, zone);
-            } else if (strcasecmp(value, "future") == 0) {
-				for (zone = zone_table; zone; zone = zone->next)
-					if (zone->time_frame == TIME_FUTURE)
-                        print_zone_to_buf(ch, buf, zone);
-            } else if (strcasecmp(value, "timeless") == 0) {
-				for (zone = zone_table; zone; zone = zone->next)
-					if (zone->time_frame == TIME_TIMELESS)
-                        print_zone_to_buf(ch, buf, zone);
-            } else {
-                send_to_char(ch, usage);
-                return;
-            }
-            page_string(ch->desc, buf);
-            break;
-        }
-
+        show_zones(ch, arg, value);
+        break;
     case 2:                    /* player */
         show_player(ch, value);
         break;
