@@ -60,12 +60,146 @@ REMOVE_MEMBER_FROM_CLAN(struct clanmember_data *member, struct clan_data *clan)
 	REMOVE_FROM_LIST(member, clan->member_list, next);
 }
 
+int
+clan_member_count(clan_data *clan)
+{
+    clanmember_data *member = NULL;
+    int result = 0;
+
+    for (member = clan->member_list;member;member = member->next)
+        result++;
+    return result;
+}
+
+bool
+char_can_enroll(Creature *ch, Creature *vict, clan_data *clan)
+{
+    // Ensure data integrity between clan structures
+    if (GET_CLAN(vict) && real_clan(GET_CLAN(vict))) {
+        if (!real_clanmember(GET_IDNUM(vict), real_clan(GET_CLAN(vict))))
+            GET_CLAN(vict) = 0;
+
+		if (GET_CLAN(vict) == GET_CLAN(ch)) {
+            send_to_char(ch, "That person is already in your clan.\r\n");
+            return false;
+		} else {
+			send_to_char(ch, "You cannot while they are a member of another clan.\r\n");
+            return false;
+        }
+    } else {
+        clanmember_data *member;
+
+        member = real_clanmember(GET_IDNUM(vict), clan);
+        if (member) {
+            send_to_char(ch, "Something weird just happened... try again.\r\n");
+            REMOVE_MEMBER_FROM_CLAN(member, clan);
+            free(member);
+        }
+    }
+
+    // Enrollment conditions that apply to everyone
+    if (IS_NPC(vict)) {
+		send_to_char(ch, "You can only enroll player characters.\r\n");
+        return false;
+    }
+    if (IS_AFFECTED(ch, AFF_CHARM)) {
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
+        return false;
+    }
+
+    if (Security::isMember(ch, "Clan"))
+        return true;
+    // Enrollment conditions that don't apply to clan administrators
+    else if (PLR_FLAGGED(vict, PLR_FROZEN))
+		send_to_char(ch, "They are frozen right now.  Wait until a god has mercy.\r\n");
+	else if (GET_LEVEL(vict) < LVL_CAN_CLAN)
+		send_to_char(ch, "Players must be level 10 before being inducted into the clan.\r\n");
+    else if (clan_member_count(clan) > MAX_CLAN_MEMBERS)
+        send_to_char(ch, "The max number of members has been reached for this clan.\r\n");
+    else if (clan->owner == GET_CLAN(ch))
+        return true;
+    // Enrollment conditions that don't apply to clan owners
+    else if (GET_CLAN(ch) != clan->number || !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
+		send_to_char(ch, "You are not a leader of the clan!\r\n");
+    else
+        return true;
+
+    return false;
+}
+
+bool
+char_can_dismiss(Creature *ch, Creature *vict, clan_data *clan)
+{
+    clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
+    clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
+
+    if (vict == ch)
+        send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
+    else if (IS_AFFECTED(ch, AFF_CHARM))
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
+    else if (Security::isMember(ch, "Clan"))
+        return true;
+    // Dismissal conditions that don't apply to clan administrators
+    else if (!clan)
+        send_to_char(ch, "Try joining a clan first.\r\n");
+    else if (GET_CLAN(vict) != GET_CLAN(ch))
+        send_to_char(ch, "Umm, why don't you check the clan list, okay?\r\n");
+    else if (clan->owner == GET_CLAN(ch))
+        return true;
+    // Dismissal conditions that don't apply to clan owners
+    else if (GET_CLAN(ch) != clan->number || !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
+		send_to_char(ch, "You are not a leader of the clan!\r\n");
+    else if (ch_member->rank <= vict_member->rank)
+		send_to_char(ch, "You don't have the rank for that.\r\n");
+    else if (PLR_FLAGGED(vict, PLR_CLAN_LEADER))
+		send_to_char(ch, "You cannot dismiss co-leaders.\r\n");
+    else
+        return true;
+
+    return false;
+}
+
+bool
+char_can_promote(Creature *ch, Creature *vict, clan_data *clan)
+{
+    clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
+    clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
+
+    if (IS_AFFECTED(ch, AFF_CHARM))
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
+    else if (vict_member->rank >= clan->top_rank
+             && PLR_FLAGGED(vict, PLR_CLAN_LEADER))
+		send_to_char(ch, "That person is already at the top rank.\r\n");
+    else if (Security::isMember(ch, "Clan"))
+        return true;
+    // Promotion conditions that don't apply to clan administrators
+    else if (!clan)
+        send_to_char(ch, "Try joining a clan first.\r\n");
+    else if (GET_CLAN(vict) != GET_CLAN(ch))
+        send_to_char(ch, "Umm, why don't you check the clan list, okay?\r\n");
+    else if (real_clan(GET_CLAN(vict)) != clan)
+		send_to_char(ch, "You are not a member of that person's clan!\r\n");
+    else if (clan->owner == GET_CLAN(ch))
+        return true;
+    // Promotion conditions that don't apply to clan owners
+    else if (vict == ch)
+        send_to_char(ch, "Promote yourself?  Haha.\r\n");
+    else if (PLR_FLAGGED(ch, PLR_CLAN_LEADER))
+        return true;
+    // Promotion conditions that don't apply to clan leaders
+    else if (ch_member->rank <= vict_member->rank)
+		send_to_char(ch, "You don't have the rank for that.\r\n");
+    else
+        return true;
+
+    return false;
+}
+
 ACMD(do_enroll)
 {
 	struct Creature *vict = 0;
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL;
-	int count = 0;
 	char *msg, *member_str;
 
 	member_str = tmp_getword(&argument);
@@ -91,45 +225,7 @@ ACMD(do_enroll)
 		send_to_char(ch, "You must specify the player to enroll.\r\n");
 	else if (!(vict = get_char_room_vis(ch, member_str)))
 		send_to_char(ch, "You don't see that person.\r\n");
-	else if( IS_NPC(vict) )
-		send_to_char(ch, "You can only enroll player characters.\r\n");
-	else if (vict == ch && !Security::isMember(ch, "Clan"))
-		send_to_char(ch, "Yeah, yeah, yeah... enroll yourself, huh?\r\n");
-	else if (!IS_IMMORT(ch) && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
-		send_to_char(ch, "You are not the leader of the clan!\r\n");
-	else if (IS_MOB(vict) && GET_LEVEL(ch) < LVL_CREATOR)
-		send_to_char(ch, "What's the point of that?\r\n");
-	else if (IS_AFFECTED(ch, AFF_CHARM))
-		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-	else if (real_clan(GET_CLAN(vict))) {
-		if (GET_CLAN(vict) == GET_CLAN(ch)) {
-			if (!(member = real_clanmember(GET_IDNUM(vict), clan))) {
-				send_to_char(ch, "Clan flag purged on vict.  Re-enroll.\r\n");
-				GET_CLAN(vict) = 0;
-			} else
-				send_to_char(ch, "That person is already in your clan.\r\n");
-		} else
-			send_to_char(ch, 
-				"You cannot while they are a member of another clan.\r\n");
-	} else if (PLR_FLAGGED(vict, PLR_FROZEN))
-		send_to_char(ch, 
-			"They are frozen right now.  Wait until a god has mercy.\r\n");
-	else if (GET_LEVEL(vict) < LVL_CAN_CLAN)
-		send_to_char(ch, 
-			"Players must be level 10 before being inducted into the clan.\r\n");
-	else if ((member = real_clanmember(GET_IDNUM(vict), clan))) {
-		send_to_char(ch, "Something weird just happened... try again.\r\n");
-		REMOVE_MEMBER_FROM_CLAN(member, clan);
-		free(member);
-	} else {
-
-		for (count = 0, member = clan->member_list; member;
-			count++, member = member->next);
-		if (count >= MAX_CLAN_MEMBERS) {
-			send_to_char(ch, 
-				"The max number of members has been reached for this clan.\r\n");
-			return;
-		}
+    else if (char_can_enroll(ch, vict, clan)) {
 		REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
 		send_to_char(vict, "You have been inducted into clan %s by %s!\r\n",
 			clan->name, GET_NAME(ch));
@@ -154,7 +250,7 @@ ACMD(do_dismiss)
 {
 	struct Creature *vict;
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
-	struct clanmember_data *member = NULL, *member2 = NULL;
+	struct clanmember_data *member = NULL;
 	bool in_file = false;
 	long idnum = -1;
 	char *arg, *msg;
@@ -199,26 +295,7 @@ ACMD(do_dismiss)
 	clan = real_clan(GET_CLAN(vict));
 	if (!clan)
 		send_to_char(ch, "They aren't in the clan.\r\n");
-	else if (vict == ch)
-		send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
-	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER) && !IS_IMMORT(ch))
-		send_to_char(ch, "You are not the leader of the clan!\r\n");
-	else if (GET_CLAN(vict) != GET_CLAN(ch) && !Security::isMember(ch, "Clan"))
-		send_to_char(ch, "Umm, why don't you check the clan list, okay?\r\n");
-	else if (!Security::isMember(ch, "Clan") &&
-			(member = real_clanmember(GET_IDNUM(ch), clan)) &&
-			(member2 = real_clanmember(GET_IDNUM(vict), clan)) &&
-			(member->rank <= member2->rank && member->rank < clan->top_rank))
-		send_to_char(ch, "You don't have the rank for that.\r\n");
-	else if (PLR_FLAGGED(ch, PLR_FROZEN))
-		send_to_char(ch, "You are frozen solid, and can't lift a finger!\r\n");
-	else if (!Security::isMember(ch, "Clan") &&
-			PLR_FLAGGED(vict, PLR_CLAN_LEADER) &&
-			(GET_IDNUM(ch) != clan->owner && GET_LEVEL(ch) < LVL_IMMORT))
-		send_to_char(ch, "You cannot dismiss co-leaders.\r\n");
-	else if (IS_AFFECTED(ch, AFF_CHARM))
-		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-	else {
+	else if (char_can_dismiss(ch, vict, clan)) {
 		send_to_char(vict, "You have been dismissed from clan %s by %s!\r\n",
 			clan->name, GET_NAME(ch));
 		GET_CLAN(vict) = 0;
@@ -276,6 +353,117 @@ ACMD(do_resign)
 			free(member);
 		}
 		sql_exec("delete from clan_members where player=%ld", GET_IDNUM(ch));
+	}
+}
+
+ACMD(do_promote)
+{
+	struct clan_data *clan = real_clan(GET_CLAN(ch));
+	struct Creature *vict = NULL;
+	char *msg;
+
+	skip_spaces(&argument);
+
+	if (!clan)
+		send_to_char(ch, "You are not even in a clan.\r\n");
+    if (!*argument)
+		send_to_char(ch, "You must specify the person to promote.\r\n");
+	else if (!(vict = get_char_room_vis(ch, argument)))
+		send_to_char(ch, "No-one around by that name.\r\n");
+    else if (char_can_promote(ch, vict, clan)) {
+        clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
+        
+        if (vict_member->rank >= clan->top_rank) {
+            // Promotion to clan leader
+            SET_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
+            msg = tmp_sprintf("%s has promoted %s to clan leader status.",
+                              GET_NAME(ch),
+                              (ch == vict) ? "self":GET_NAME(vict));
+            slog("%s", msg);
+            msg = tmp_strcat(msg, "\r\n",NULL);
+            send_to_clan(msg, clan->number);
+            vict->saveToXML();
+        } else {
+            // Normal rank promotion
+			vict_member->rank++;
+			sql_exec("update clan_members set rank=%d where player=%ld",
+				vict_member->rank, GET_IDNUM(vict));
+			msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
+                              GET_NAME(ch), 
+                              (ch == vict) ? "self":GET_NAME(vict),
+                              clan->ranknames[(int)vict_member->rank] ?
+                              clan->ranknames[(int)vict_member->rank] : "member", vict_member->rank);
+			slog("%s", msg);
+			msg = tmp_strcat(msg, "\r\n",NULL);
+			send_to_clan(msg, clan->number);
+			sort_clanmembers(clan);
+        }
+    }
+}
+
+ACMD(do_demote)
+{
+	struct clan_data *clan = real_clan(GET_CLAN(ch));
+	struct clanmember_data *member1, *member2;
+	struct Creature *vict = NULL;
+	char *msg;
+
+	skip_spaces(&argument);
+
+	if (!clan)
+		send_to_char(ch, "You are not even in a clan.\r\n");
+	else if (!*argument)
+		send_to_char(ch, "You must specify the person to demote.\r\n");
+	else if (!(vict = get_char_room_vis(ch, argument)))
+		send_to_char(ch, "No-one around by that name.\r\n");
+	else if (!(member1 = real_clanmember(GET_IDNUM(ch), clan)))
+		send_to_char(ch, "You are not properly installed in the clan.\r\n");
+	else if (IS_AFFECTED(ch, AFF_CHARM))
+		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
+	else if (ch == vict) {
+		if (!member1->rank)
+			send_to_char(ch, "You already at the bottom of the totem pole.\r\n");
+		else {
+			member1->rank--;
+			sql_exec("update clan_members set rank=%d where player=%ld",
+				member1->rank, GET_IDNUM(vict));
+			msg = tmp_sprintf("%s has demoted self to clan rank %s (%d)",
+				GET_NAME(ch), clan->ranknames[(int)member1->rank],
+				member1->rank);
+			slog("%s", msg);
+			msg = tmp_strcat(msg, "\r\n",NULL);
+			send_to_clan(msg, clan->number);
+			sort_clanmembers(clan);
+		}
+	} else if (real_clan(GET_CLAN(vict)) != clan) {
+		act("$N is not a member of your clan.", FALSE, ch, 0, vict, TO_CHAR);
+	} else if (!(member2 = real_clanmember(GET_IDNUM(vict), clan))) {
+		act("$N is not properly installed in the clan.\r\n",
+			FALSE, ch, 0, vict, TO_CHAR);
+	} else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
+		&& !Security::isMember(ch, "Clan")) {
+		send_to_char(ch, "You are unable to demote.\r\n");
+	} else if (member2->rank >= member1->rank
+		|| PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
+		act("You are not in a position to demote $M.", FALSE, ch, 0, vict,
+			TO_CHAR);
+	} else if (member2->rank <= 0) {
+		send_to_char(ch, "They are already as low as they can go.\r\n");
+		if (member2->rank < 0) {
+			errlog("clan member with rank < 0");
+			member2->rank = 0;
+		}
+	} else {
+		member2->rank--;
+		sql_exec("update clan_members set rank=%d where player=%ld",
+			member2->rank, GET_IDNUM(vict));
+		msg = tmp_sprintf("%s has demoted %s to clan rank %s (%d)",
+			GET_NAME(ch), GET_NAME(vict),
+			clan->ranknames[(int)member2->rank], member2->rank);
+		slog("%s", msg);
+		msg = tmp_strcat(msg, "\r\n",NULL);
+		send_to_clan(msg, clan->number);
+		sort_clanmembers(clan);
 	}
 }
 
@@ -470,159 +658,6 @@ ACMD(do_cinfo)
 			acc_strcat("None.\r\n",NULL);
 
 		page_string(ch->desc, acc_get_string());
-	}
-}
-
-ACMD(do_demote)
-{
-	struct clan_data *clan = real_clan(GET_CLAN(ch));
-	struct clanmember_data *member1, *member2;
-	struct Creature *vict = NULL;
-	char *msg;
-
-	skip_spaces(&argument);
-
-	if (!clan)
-		send_to_char(ch, "You are not even in a clan.\r\n");
-	else if (!*argument)
-		send_to_char(ch, "You must specify the person to demote.\r\n");
-	else if (!(vict = get_char_room_vis(ch, argument)))
-		send_to_char(ch, "No-one around by that name.\r\n");
-	else if (!(member1 = real_clanmember(GET_IDNUM(ch), clan)))
-		send_to_char(ch, "You are not properly installed in the clan.\r\n");
-	else if (IS_AFFECTED(ch, AFF_CHARM))
-		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-	else if (ch == vict) {
-		if (!member1->rank)
-			send_to_char(ch, "You already at the bottom of the totem pole.\r\n");
-		else {
-			member1->rank--;
-			sql_exec("update clan_members set rank=%d where player=%ld",
-				member1->rank, GET_IDNUM(vict));
-			msg = tmp_sprintf("%s has demoted self to clan rank %s (%d)",
-				GET_NAME(ch), clan->ranknames[(int)member1->rank],
-				member1->rank);
-			slog("%s", msg);
-			msg = tmp_strcat(msg, "\r\n",NULL);
-			send_to_clan(msg, clan->number);
-			sort_clanmembers(clan);
-		}
-	} else if (real_clan(GET_CLAN(vict)) != clan) {
-		act("$N is not a member of your clan.", FALSE, ch, 0, vict, TO_CHAR);
-	} else if (!(member2 = real_clanmember(GET_IDNUM(vict), clan))) {
-		act("$N is not properly installed in the clan.\r\n",
-			FALSE, ch, 0, vict, TO_CHAR);
-	} else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
-		&& !Security::isMember(ch, "Clan")) {
-		send_to_char(ch, "You are unable to demote.\r\n");
-	} else if (member2->rank >= member1->rank
-		|| PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
-		act("You are not in a position to demote $M.", FALSE, ch, 0, vict,
-			TO_CHAR);
-	} else if (member2->rank <= 0) {
-		send_to_char(ch, "They are already as low as they can go.\r\n");
-		if (member2->rank < 0) {
-			errlog("clan member with rank < 0");
-			member2->rank = 0;
-		}
-	} else {
-		member2->rank--;
-		sql_exec("update clan_members set rank=%d where player=%ld",
-			member2->rank, GET_IDNUM(vict));
-		msg = tmp_sprintf("%s has demoted %s to clan rank %s (%d)",
-			GET_NAME(ch), GET_NAME(vict),
-			clan->ranknames[(int)member2->rank], member2->rank);
-		slog("%s", msg);
-		msg = tmp_strcat(msg, "\r\n",NULL);
-		send_to_clan(msg, clan->number);
-		sort_clanmembers(clan);
-	}
-}
-
-ACMD(do_promote)
-{
-	struct clan_data *clan = real_clan(GET_CLAN(ch));
-	struct clanmember_data *member1, *member2;
-	struct Creature *vict = NULL;
-	char *msg;
-
-	skip_spaces(&argument);
-
-	if (!clan)
-		send_to_char(ch, "You are not even in a clan.\r\n");
-	else if (!*argument)
-		send_to_char(ch, "You must specify the person to promote.\r\n");
-	else if (!(vict = get_char_room_vis(ch, argument)))
-		send_to_char(ch, "No-one around by that name.\r\n");
-	else if (ch == vict && clan->owner != GET_IDNUM(ch))
-		send_to_char(ch, "Very funny.  Really.\r\n");
-	else if (real_clan(GET_CLAN(vict)) != clan)
-		act("$N is not a member of your clan.", FALSE, ch, 0, vict, TO_CHAR);
-	else if (!(member1 = real_clanmember(GET_IDNUM(ch), clan)))
-		send_to_char(ch, "You are not properly installed in the clan.\r\n");
-	else if (!(member2 = real_clanmember(GET_IDNUM(vict), clan)))
-		act("$N is not properly installed in the clan.\r\n",
-			FALSE, ch, 0, vict, TO_CHAR);
-	else if (IS_AFFECTED(ch, AFF_CHARM))
-		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-	else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
-			&& !Security::isMember(ch, "Clan")) {
-		if (member2->rank >= member1->rank - 1 && GET_IDNUM(ch) != clan->owner) {
-			act("You are not in a position to promote $M.",
-				FALSE, ch, 0, vict, TO_CHAR);
-		} else {
-			if (member2->rank >= clan->top_rank) {
-				act("$E is already fully advanced.", FALSE, ch, 0, vict,
-					TO_CHAR);
-				return;
-			}
-			member2->rank++;
-			sql_exec("update clan_members set rank=%d where player=%ld",
-				member2->rank, GET_IDNUM(vict));
-			msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
-				GET_NAME(ch), GET_NAME(vict),
-				clan->ranknames[(int)member2->rank] ?
-				clan->ranknames[(int)member2->rank] : "member", member2->rank);
-			slog("%s", msg);
-			msg = tmp_strcat(msg, "\r\n",NULL);
-			send_to_clan(msg, clan->number);
-			sort_clanmembers(clan);
-		}
-	} else {
-		// Unconditional advancement
-		if (member2->rank >= clan->top_rank
-			&& PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
-			if (PLR_FLAGGED(vict, PLR_CLAN_LEADER))
-				act("$E is already fully advanced.", FALSE, ch, 0, vict,
-					TO_CHAR);
-			else {
-				SET_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
-				msg = tmp_sprintf("%s has promoted %s to clan leader status.",
-					GET_NAME(ch), GET_NAME(vict));
-				slog("%s", msg);
-				msg = tmp_strcat(msg, "\r\n",NULL);
-				send_to_clan(msg, clan->number);
-				vict->saveToXML();
-			}
-		} else {
-			if (member2->rank >= member1->rank && GET_IDNUM(ch) != clan->owner)
-				act("You cannot promote $M further.", FALSE, ch, 0, vict,
-					TO_CHAR);
-			else {
-				member2->rank++;
-				sql_exec("update clan_members set rank=%d where player=%ld",
-					member2->rank, GET_IDNUM(vict));
-				msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
-					GET_NAME(ch), GET_NAME(vict),
-					clan->ranknames[(int)member2->rank] ?
-					clan->ranknames[(int)member2->rank] : "member",
-					member2->rank);
-				slog("%s", msg);
-				msg = tmp_strcat(msg, "\r\n",NULL);
-				send_to_clan(msg, clan->number);
-				sort_clanmembers(clan);
-			}
-		}
 	}
 }
 
