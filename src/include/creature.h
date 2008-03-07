@@ -736,7 +736,7 @@ struct char_player_data {
 };
 
 
-/* Char's abilities.  Used in char_file_u *DO*NOT*CHANGE* */
+/* Char's abilities. */
 struct char_ability_data {
     char_ability_data &operator=(const char_ability_data &c) {
         this->str = c.str;
@@ -759,7 +759,7 @@ struct char_ability_data {
 };
 
 
-/* Char's points.  Used in char_file_u *DO*NOT*CHANGE* */
+/* Char's points */
 struct char_point_data {
     char_point_data &operator=(const char_point_data &c) {
         this->mana = c.mana;
@@ -799,10 +799,6 @@ struct char_point_data {
 /* 
  * char_special_data_saved: specials which both a PC and an NPC have in
  * common, but which must be saved to the playerfile for PC's.
- *
- * WARNING:  Do not change this structure.  Doing so will ruin the
- * playerfile.  If you want to add to the playerfile, use the spares
- * in player_special_data.
  */
 struct char_special_data_saved {
     char_special_data_saved &operator=(const char_special_data_saved &c) {
@@ -1000,11 +996,7 @@ struct player_special_data_saved {
 };
 
 /*
- * Specials needed only by PCs, not NPCs.  Space for this structure is
- * not allocated in memory for NPCs, but it is for PCs and the portion
- * of it labelled 'saved' is saved in the playerfile.  This structure can
- * be changed freely; beware, though, that changing the contents of
- * player_special_data_saved will corrupt the playerfile.
+ * Specials needed only by PCs, not NPCs.
  */
 static const int MAX_IMPRINT_ROOMS = 6;
 
@@ -1177,7 +1169,7 @@ struct mob_special_data {
 };
 
 
-/* An affect structure.  Used in char_file_u *DO*NOT*CHANGE* */
+/* An affect structure */
 struct affected_type {
 	int type;				/* The type of spell that caused this      */
 	int duration;			/* For how long its effects will last      */
