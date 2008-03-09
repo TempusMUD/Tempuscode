@@ -2197,18 +2197,388 @@ ACMD(do_turn)
 	}
 }
 
-ACMD(do_shoot)
+void
+shoot_energy_gun(Creature *ch,
+                 Creature *vict,
+                 obj_data *target,
+                 obj_data *gun,
+                 int *return_flags)
 {
-
-	struct Creature *vict = NULL, *tmp_vict = NULL;
-	struct obj_data *gun = NULL, *target = NULL, *bullet = NULL;
 	sh_int prob, dam, cost;
-	int i, dum_ptr = 0, dum_move = 0;
-	bool dead = false;
+	int dum_ptr = 0, dum_move = 0;
 	struct affected_type *af = NULL;
 	int my_return_flags = 0;
-    char *arg;
+
+    if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
+        act("$p is not loaded with an energy cell.", FALSE, ch, gun, 0,
+            TO_CHAR);
+        return;
+    }
+    if (CUR_ENERGY(gun->contains) <= 0) {
+        act("$p is out of energy.", FALSE, ch, gun, 0, TO_CHAR);
+        if (vict)
+            act("$n points $p at $N!", TRUE, ch, gun, vict, TO_ROOM);
+        act("$p hums faintly in $n's hand.", FALSE, ch, gun, 0, TO_ROOM);
+        return;
+    }
+
+    cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
+    if (target) {
+        dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
+
+        CUR_ENERGY(gun->contains) -= cost;
+        act(tmp_sprintf("$n blasts %s with $p!", target->name),
+            FALSE, ch, gun, 0, TO_ROOM);
+        act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
+        damage_eq(ch, target, dam);
+        return;
+    }
+
+    prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
+                               &dum_ptr, &dum_ptr, &dum_move, &dum_move,
+                               &dum_ptr, &dum_ptr, &dum_ptr, &dum_ptr, af,
+                               &my_return_flags);
+
+    if (my_return_flags) {
+        ACMD_set_return_flags(my_return_flags);
+        return;
+    }
+
+    prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
+    CreatureList::iterator it = ch->in_room->people.begin();
+    for (; it != ch->in_room->people.end(); ++it)
+        if (*it != ch && (*it)->findCombat(ch))
+            prob -= (GET_LEVEL(*it) >> 3);
+        
+    if (vict->isFighting() && !vict->findCombat(ch) && number(1, 121) > prob)
+        vict = vict->findRandomCombat();
+    else if (vict->isFighting() && number(1, 101) > prob) {
+        it = ch->in_room->people.begin();
+        for (; it != ch->in_room->people.end(); ++it) {
+            if ((*it) != ch && (*it) != vict && (*it)->findCombat(vict) &&
+                !number(0, 2)) {
+                vict = (*it);
+                break;
+            }
+        }
+    } else if (number(1, 81) > prob) {
+        CreatureList::iterator it = ch->in_room->people.begin();
+        for (; it != ch->in_room->people.end(); ++it) {
+            if ((*it) != ch && (*it) != vict && !number(0, 2)) {
+                vict = (*it);
+                break;
+            }
+        }
+    }
+        
+    cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
+        
+    dam = dice(GET_OBJ_VAL(gun,1), GET_OBJ_VAL(gun,2));
+    dam += dam*ch->getLevelBonus(SKILL_SHOOT)/100; //damage bonus for taking the time to aim and shoot
+    dam += GET_HITROLL(ch);
+        
+    CUR_ENERGY(gun->contains) -= cost;
+        
+    cur_weap = gun;
+        
+    //
+    // miss
+    //
+        
+    if (number(0, 121) > prob) {
+        check_killer(ch, vict);
+        my_return_flags =
+            damage(ch, vict, 0, GUN_TYPE(gun)+TYPE_EGUN_LASER, number(0,
+                                                                      NUM_WEARS - 1));
+    }
+    //
+    // hit
+    //
+        
+    else {
+        check_killer(ch, vict);
+        my_return_flags =
+            damage(ch, vict, dam, GUN_TYPE(gun)+TYPE_EGUN_LASER, number(0,
+                                                                        NUM_WEARS - 1));
+    }
+    //
+    // if the attacker was somehow killed, return immediately
+    //
+        
+    if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
+        ACMD_set_return_flags(my_return_flags);
+        return;
+    }
+                
+    if (!CUR_ENERGY(gun->contains)) {
+        act("$p has been depleted of fuel.  You must replace the energy cell before firing again.",
+            FALSE, ch, gun, 0, TO_CHAR);
+    }
+    
+    cur_weap = NULL;
+    WAIT_STATE(ch, 4 RL_SEC);
+    //don't do the extra stuff because we're only shooting one blast at a time 
+    //ROF doesn't exist anymore
+}
+
+int
+bullet_damage(obj_data *gun, obj_data *bullet)
+{
+    sh_int dam;
+
+    dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
+    dam += BUL_DAM_MOD(bullet);
+    return dam;
+}
+
+void
+fire_projectile_round(Creature *ch,
+                      Creature *vict,
+                      obj_data *gun,
+                      obj_data *bullet,
+                      int prob,
+                      int *return_flags)
+{
+	sh_int dam;
+	int i;
+    int my_return_flags = 0;
     const char *arrow_name;
+
+    if (!bullet) {
+        act("$p is out of ammo.",
+            FALSE, ch, gun->contains ? gun->contains : gun, 0, TO_CHAR);
+        cur_weap = NULL;
+
+        if (IS_ARROW(gun) && IS_ELF(ch))
+            WAIT_STATE(ch, (((i << 1) + 6) >> 2) RL_SEC);
+        else
+            WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
+
+        return;
+    }
+
+    prob -= (i * 4);
+
+    dam = bullet_damage(gun, bullet);
+    if (IS_ARROW(gun)) {
+        obj_from_obj(bullet);
+        obj_to_room(bullet, ch->in_room);
+        arrow_name = tmp_strdup(bullet->name);
+        damage_eq(NULL, bullet, dam >> 2);
+    } else {
+        if (!i && !IS_FLAMETHROWER(gun))
+            sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
+                           /*GUN_TYPE(gun), */ dam, CUR_R_O_F(gun));
+        arrow_name = "";
+        extract_obj(bullet);
+    }
+    /* we /must/ have a clip in a clipped gun at this point! */
+    bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
+
+    cur_weap = gun;
+
+    if (number(0, 121) > prob) {
+        //
+        // miss
+        //
+        if (IS_ARROW(gun)) {
+            act(tmp_sprintf("$n fires %s at you from $p!", arrow_name),
+                FALSE, ch, gun, vict, TO_VICT);
+            act(tmp_sprintf("You fire %s at $N from $p!", arrow_name),
+                FALSE, ch, gun, vict, TO_CHAR);
+            act(tmp_sprintf("$n fires %s at $N from $p!", arrow_name),
+                FALSE, ch, gun, vict, TO_NOTVICT);
+        }
+        my_return_flags =
+            damage(ch, vict, 0,
+                   IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : (IS_ARROW(gun) ?
+                                                               SKILL_ARCHERY : SKILL_PROJ_WEAPONS), number(0,
+                                                                                                           NUM_WEARS - 1));
+    } else {
+        //
+        // hit
+        //
+        if (IS_ARROW(gun)) {
+            act(tmp_sprintf("$n fires %s into you from $p!  OUCH!!", arrow_name),
+                FALSE, ch, gun, vict, TO_VICT);
+            act(tmp_sprintf("You fire %s into $N from $p!", arrow_name),
+                FALSE, ch, gun, vict, TO_CHAR);
+            act(tmp_sprintf("$n fires %s into $N from $p!", arrow_name),
+                FALSE, ch, gun, vict, TO_NOTVICT);
+        }
+        my_return_flags = damage(ch, vict, dam,
+                               (IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
+                                (IS_ARROW(gun) ? SKILL_ARCHERY :
+                                 SKILL_PROJ_WEAPONS)),
+                                 number(0, NUM_WEARS - 1));
+    }
+
+    ACMD_set_return_flags(my_return_flags);
+}
+
+void
+projectile_blast_corpse(Creature *ch, obj_data *gun, obj_data *bullet)
+{
+    //
+    // vict is dead, blast the corpse
+    //
+    sh_int dam = bullet_damage(gun, bullet);
+
+    if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents) &&
+        CORPSE_KILLER(ch->in_room->contents) ==
+        (IS_NPC(ch) ? -GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
+        if (IS_ARROW(gun)) {
+            act("You shoot $p with $P!!",
+                FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
+            act("$n shoots $p with $P!!",
+                FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+        } else {
+            act("You blast $p with $P!!",
+                FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
+            act("$n blasts $p with $P!!",
+                FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+        }
+        if (damage_eq(ch, ch->in_room->contents, dam))
+            return;
+    } else {
+        act("You fire off a round from $P.",
+            FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+        act("$n fires off a round from $P.",
+            FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+    }
+}
+
+void
+shoot_projectile_gun(Creature *ch,
+                     Creature *vict,
+                     obj_data *target,
+                     obj_data *gun,
+                     int *return_flags)
+{
+	struct Creature *tmp_vict = NULL;
+	struct obj_data *bullet = NULL;
+	sh_int prob, dam;
+	int my_return_flags = 0;
+	int i, dum_ptr = 0, dum_move = 0;
+	struct affected_type *af = NULL;
+
+	if (GUN_TYPE(gun) < 0 || GUN_TYPE(gun) >= NUM_GUN_TYPES) {
+		act("$p is a bogus gun.  extracting.", FALSE, ch, gun, 0, TO_CHAR);
+		extract_obj(gun);
+		return;
+	}
+
+	if (!(bullet = gun->contains)) {
+		act("$p is not loaded.", FALSE, ch, gun, 0, TO_CHAR);
+		return;
+	}
+
+	if (!MAX_LOAD(gun) && !(bullet = gun->contains->contains)) {
+		act("$P is not loaded.", FALSE, ch, gun, gun->contains, TO_CHAR);
+		return;
+	}
+
+	if (target) {
+		dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
+		dam += BUL_DAM_MOD(bullet);
+
+		if (IS_ARROW(gun)) {
+			act(tmp_sprintf("$n fires %s from $p into $P!", bullet->name),
+                FALSE, ch, gun, target, TO_ROOM);
+			act("You fire $P into $p!", FALSE, ch, target, bullet, TO_CHAR);
+			obj_from_obj(bullet);
+			obj_to_room(bullet, ch->in_room);
+			damage_eq(NULL, bullet, dam >> 2);
+		} else {
+			act(tmp_sprintf("$n blasts %s with $p!", target->name),
+                FALSE, ch, gun, 0, TO_ROOM);
+			act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
+			extract_obj(bullet);
+		}
+        damage_eq(ch, target, dam);
+        return;
+	}
+
+	prob = calc_skill_prob(ch, vict,
+                           (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_SHOOT),
+                           &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
+                           &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
+
+
+	if (my_return_flags)
+		return;
+
+    if (!IS_ARROW(gun))
+        prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
+    else if (IS_ELF(ch))
+        prob += number(GET_LEVEL(ch) >> 2,
+                       GET_LEVEL(ch) >> 1) + (GET_REMORT_GEN(ch) << 2);
+
+	CreatureList::iterator it = ch->in_room->people.begin();
+	for (; it != ch->in_room->people.end(); ++it) {
+		if ((*it) != ch && (*it)->findCombat(ch))
+			prob -= (GET_LEVEL((*it)) >> 3);
+	}
+
+	if (ch->isFighting())
+	    prob -= 10;
+
+	if (vict->isFighting() && !vict->findCombat(ch) && number(1, 121) > prob)
+		vict = vict->findRandomCombat();
+	else if (vict->isFighting() && number(1, 101) > prob) {
+		CreatureList::iterator it = ch->in_room->people.begin();
+		for (; it != ch->in_room->people.end(); ++it) {
+			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
+				!number(0, 2)) {
+				vict = *it;
+				break;
+			}
+		}
+	} else if (number(1, 81) > prob) {
+		CreatureList::iterator it = ch->in_room->people.begin();
+		for (; it != ch->in_room->people.end(); ++it) {
+			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
+				!number(0, 2)) {
+				vict = *it;
+				break;
+			}
+		}
+	}
+
+	if (CUR_R_O_F(gun) <= 0)
+		CUR_R_O_F(gun) = 1;
+
+	// loop through ROF of the gun for burst fire
+
+	for (i = 0; i < CUR_R_O_F(gun); i++) {
+        if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
+            // if victim was killed, fire at their corpse
+            projectile_blast_corpse(ch, gun, bullet);
+        } else {
+            fire_projectile_round(ch, vict, gun, bullet, prob, return_flags);
+        }
+        // if the attacker was somehow killed, return immediately
+        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
+            ACMD_set_return_flags(my_return_flags);
+            return;
+        }
+        break;
+    }
+
+	if (IS_ARROW(gun) && IS_ELF(ch))
+		WAIT_STATE(ch, (((i << 1) + 6) >> 2) RL_SEC);
+	else
+		WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
+
+    ACMD_set_return_flags(my_return_flags);
+}
+
+ACMD(do_shoot)
+{
+	struct Creature *vict = NULL;
+	struct obj_data *gun = NULL, *target = NULL, *bullet = NULL;
+	int i;
+    char *arg;
 
 	ACMD_set_return_flags(0);
 
@@ -2221,7 +2591,7 @@ ACMD(do_shoot)
 
 	if (!strncmp(arg, "internal", 8)) {
 
-		argument = one_argument(argument, arg);
+        arg = tmp_getword(&argument);
 
 		if (!*arg) {
 			send_to_char(ch, "Discharge which implant at who?\r\n");
@@ -2294,355 +2664,11 @@ ACMD(do_shoot)
 			return;
 
 	}
-	//
-	// The Energy Gun block 
-	//
 
-	if (IS_ENERGY_GUN(gun)) {
-		if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
-			act("$p is not loaded with an energy cell.", FALSE, ch, gun, 0,
-				TO_CHAR);
-			return;
-		}
-		if (CUR_ENERGY(gun->contains) <= 0) {
-			act("$p is out of energy.", FALSE, ch, gun, 0, TO_CHAR);
-			if (vict)
-				act("$n points $p at $N!", TRUE, ch, gun, vict, TO_ROOM);
-			act("$p hums faintly in $n's hand.", FALSE, ch, gun, 0, TO_ROOM);
-			return;
-		}
-
-		cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
-		if (target) {
-			dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
-
-			CUR_ENERGY(gun->contains) -= cost;
-			act(tmp_sprintf("$n blasts %s with $p!", target->name),
-                FALSE, ch, gun, 0, TO_ROOM);
-			act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
-			damage_eq(ch, target, dam);
-			return;
-		}
-
-		prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
-			&dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-			&dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
-
-		if (my_return_flags) {
-			ACMD_set_return_flags(my_return_flags);
-			return;
-		}
-
-		prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it)
-			if (*it != ch && (*it)->findCombat(ch))
-				prob -= (GET_LEVEL(*it) >> 3);
-        
-		if (vict->isFighting() && !vict->findCombat(ch) && number(1, 121) > prob)
-			vict = vict->findRandomCombat();
-		else if (vict->isFighting() && number(1, 101) > prob) {
-			it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				if ((*it) != ch && (*it) != vict && (*it)->findCombat(vict) &&
-                !number(0, 2)) {
-					vict = (*it);
-					break;
-				}
-			}
-		} else if (number(1, 81) > prob) {
-			CreatureList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				if ((*it) != ch && (*it) != vict && !number(0, 2)) {
-					vict = (*it);
-					break;
-				}
-			}
-		}
-        
-        cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
-        
-        dam = dice(GET_OBJ_VAL(gun,1), GET_OBJ_VAL(gun,2));
-        dam += dam*ch->getLevelBonus(SKILL_SHOOT)/100; //damage bonus for taking the time to aim and shoot
-        dam += GET_HITROLL(ch);
-        
-        CUR_ENERGY(gun->contains) -= cost;
-        
-        cur_weap = gun;
-        
-        //
-        // miss
-        //
-        
-        if (number(0, 121) > prob) {
-            check_killer(ch, vict);
-            my_return_flags =
-            damage(ch, vict, 0, GUN_TYPE(gun)+TYPE_EGUN_LASER, number(0,
-            NUM_WEARS - 1));
-        }
-        //
-        // hit
-        //
-        
-        else {
-            check_killer(ch, vict);
-            my_return_flags =
-            damage(ch, vict, dam, GUN_TYPE(gun)+TYPE_EGUN_LASER, number(0,
-            NUM_WEARS - 1));
-        }
-        //
-        // if the attacker was somehow killed, return immediately
-        //
-        
-        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-            ACMD_set_return_flags(my_return_flags);
-            return;
-        }
-                
-        if (!CUR_ENERGY(gun->contains)) {
-            act("$p has been depleted of fuel.  You must replace the energy cell before firing again.",
-            FALSE, ch, gun, 0, TO_CHAR);
-        }
-    
-    cur_weap = NULL;
-    WAIT_STATE(ch, 4 RL_SEC);
-    //don't do the extra stuff because we're only shooting one blast at a time 
-    //ROF doesn't exist anymore
-    return; 
-	}
-    
-    
-	//
-	// The Projectile Gun block
-	//
-
-	if (GUN_TYPE(gun) < 0 || GUN_TYPE(gun) >= NUM_GUN_TYPES) {
-		act("$p is a bogus gun.  extracting.", FALSE, ch, gun, 0, TO_CHAR);
-		extract_obj(gun);
-		return;
-	}
-
-	if (!(bullet = gun->contains)) {
-		act("$p is not loaded.", FALSE, ch, gun, 0, TO_CHAR);
-		return;
-	}
-
-	if (!MAX_LOAD(gun) && !(bullet = gun->contains->contains)) {
-		act("$P is not loaded.", FALSE, ch, gun, gun->contains, TO_CHAR);
-		return;
-	}
-
-	if (target) {
-
-		dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
-		dam += BUL_DAM_MOD(bullet);
-
-		if (IS_ARROW(gun)) {
-			act(tmp_sprintf("$n fires %s from $p into $P!", bullet->name),
-                FALSE, ch, gun, target, TO_ROOM);
-			act("You fire $P into $p!", FALSE, ch, target, bullet, TO_CHAR);
-			obj_from_obj(bullet);
-			obj_to_room(bullet, ch->in_room);
-			damage_eq(NULL, bullet, dam >> 2);
-			damage_eq(ch, target, dam);
-			return;
-		} else {
-			act(tmp_sprintf("$n blasts %s with $p!", target->name),
-                FALSE, ch, gun, 0, TO_ROOM);
-			act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
-			extract_obj(bullet);
-			damage_eq(ch, target, dam);
-			return;
-		}
-	}
-
-	prob = calc_skill_prob(ch, vict,
-		(IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_SHOOT),
-		&dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-		&dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
-
-
-	if (my_return_flags) {
-		ACMD_set_return_flags(my_return_flags);
-		return;
-	}
-
-
-	if (IS_ARROW(gun)) {
-		if (IS_ELF(ch))
-			prob +=
-				number(GET_LEVEL(ch) >> 2,
-				GET_LEVEL(ch) >> 1) + (GET_REMORT_GEN(ch) << 2);
-	} else
-		prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
-
-	CreatureList::iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) != ch && (*it)->findCombat(ch))
-			prob -= (GET_LEVEL((*it)) >> 3);
-	}
-
-	if (ch->isFighting())
-	    prob -= 10;
-
-	if (vict->isFighting() && !vict->findCombat(ch) && number(1, 121) > prob)
-		vict = vict->findRandomCombat();
-	else if (vict->isFighting() && number(1, 101) > prob) {
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
-				!number(0, 2)) {
-				vict = *it;
-				break;
-			}
-		}
-	} else if (number(1, 81) > prob) {
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
-				!number(0, 2)) {
-				vict = *it;
-				break;
-			}
-		}
-	}
-
-	if (CUR_R_O_F(gun) <= 0)
-		CUR_R_O_F(gun) = 1;
-
-	// loop through ROF of the gun for burst fire
-
-	for (i = 0, dead = 0; i < CUR_R_O_F(gun); i++) {
-
-		if (!bullet) {
-			act("$p is out of ammo.",
-				FALSE, ch, gun->contains ? gun->contains : gun, 0, TO_CHAR);
-			cur_weap = NULL;
-
-            if (IS_ARROW(gun) && IS_ELF(ch))
-                WAIT_STATE(ch, (((i << 1) + 6) >> 2) RL_SEC);
-            else
-                WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
-
-			return;
-		}
-
-		prob -= (i * 4);
-
-		dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
-		dam += BUL_DAM_MOD(bullet);
-
-		if (IS_ARROW(gun)) {
-			obj_from_obj(bullet);
-			obj_to_room(bullet, ch->in_room);
-			arrow_name = tmp_strdup(bullet->name);
-			damage_eq(NULL, bullet, dam >> 2);
-		} else {
-			if (!i && !IS_FLAMETHROWER(gun))
-				sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
-					/*GUN_TYPE(gun), */ dam, CUR_R_O_F(gun));
-			arrow_name = "";
-			extract_obj(bullet);
-		}
-		/* we /must/ have a clip in a clipped gun at this point! */
-		bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
-
-		cur_weap = gun;
-
-		if (dead == false) {
-
-			//
-			// miss
-			//
-
-			if (number(0, 121) > prob) {
-				if (IS_ARROW(gun)) {
-					act(tmp_sprintf("$n fires %s at you from $p!", arrow_name),
-                        FALSE, ch, gun, vict, TO_VICT);
-					act(tmp_sprintf("You fire %s at $N from $p!", arrow_name),
-                        FALSE, ch, gun, vict, TO_CHAR);
-					act(tmp_sprintf("$n fires %s at $N from $p!", arrow_name),
-                        FALSE, ch, gun, vict, TO_NOTVICT);
-				}
-				my_return_flags =
-					damage(ch, vict, 0,
-					IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : (IS_ARROW(gun) ?
-						SKILL_ARCHERY : SKILL_PROJ_WEAPONS), number(0,
-						NUM_WEARS - 1));
-			}
-			//
-			// hit
-			//
-
-			else if (!dead) {
-				if (IS_ARROW(gun)) {
-					act(tmp_sprintf("$n fires %s into you from $p!  OUCH!!", arrow_name),
-                        FALSE, ch, gun, vict, TO_VICT);
-					act(tmp_sprintf("You fire %s into $N from $p!", arrow_name),
-                        FALSE, ch, gun, vict, TO_CHAR);
-					act(tmp_sprintf("$n fires %s into $N from $p!", arrow_name),
-                        FALSE, ch, gun, vict, TO_NOTVICT);
-				}
-				my_return_flags =
-					damage(ch, vict, dam,
-					IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : (IS_ARROW(gun) ?
-						SKILL_ARCHERY : SKILL_PROJ_WEAPONS), number(0,
-						NUM_WEARS - 1));
-			}
-		}
-		//
-		// vict is dead, blast the corpse
-		//
-
-		else {
-			if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents) &&
-				CORPSE_KILLER(ch->in_room->contents) ==
-				(IS_NPC(ch) ? -GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
-				if (IS_ARROW(gun)) {
-					act("You shoot $p with $P!!",
-						FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
-					act("$n shoots $p with $P!!",
-						FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-				} else {
-					act("You blast $p with $P!!",
-						FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
-					act("$n blasts $p with $P!!",
-						FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-				}
-				if (damage_eq(ch, ch->in_room->contents, dam))
-					break;
-			} else {
-				act("You fire off a round from $P.",
-					FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-				act("$n fires off a round from $P.",
-					FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
-			}
-		}
-
-		//
-		// if the attacker was somehow killed, return immediately
-		//
-
-		if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-			if (return_flags) {
-				*return_flags = my_return_flags;
-			}
-			return;
-		}
-
-		if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-			if (return_flags) {
-				*return_flags = my_return_flags;
-			}
-			dead = true;
-		}
-
-	}
-	if (IS_ARROW(gun) && IS_ELF(ch))
-		WAIT_STATE(ch, (((i << 1) + 6) >> 2) RL_SEC);
-	else
-		WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
-
+    if (IS_ENERGY_GUN(gun))
+        shoot_energy_gun(ch, vict, target, gun, return_flags);
+    else
+        shoot_projectile_gun(ch, vict, target, gun, return_flags);
 }
 
 ACMD(do_ceasefire)
