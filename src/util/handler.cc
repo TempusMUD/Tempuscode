@@ -606,8 +606,13 @@ affect_total(struct Creature *ch)
 	for (i = 0; i < 10; i++)
 		GET_SAVE(ch, i) = 0;
 
-    GET_HITROLL(ch) = 0;
-    GET_DAMROLL(ch) = 0;
+    if (IS_NPC(ch) && ch->mob_specials.shared->proto) {
+        GET_HITROLL(ch) = ch->mob_specials.shared->proto->points.hitroll;
+        GET_DAMROLL(ch) = ch->mob_specials.shared->proto->points.damroll;
+    } else {
+        GET_HITROLL(ch) = 0;
+        GET_DAMROLL(ch) = 0;
+    }
 
     ch->setSpeed(0);
 	/************************************************************************
