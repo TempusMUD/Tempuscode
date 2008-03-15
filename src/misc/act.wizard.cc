@@ -4946,12 +4946,9 @@ show_mlevels(Creature *ch, char *value, char *arg)
 void
 acc_print_zone(struct Creature *ch, struct zone_data *zone)
 {
-    acc_sprintf("%s%s%3d%s %s%-30.30s%s Age:%s%3d%s;Reset:%s%3d%s(%s%1d%s);Top: %s%5d%s;Own:%s%4d%s%s%s\r\n",
+    acc_sprintf("%s%s%3d%s %s%-50.50s%s Top: %s%5d%s Owner:%s%5d%s%s%s\r\n",
                 CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), zone->number,
                 CCNRM(ch, C_CMP), CCCYN(ch, C_NRM), zone->name,
-                CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), zone->age,
-                CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), zone->lifespan,
-                CCNRM(ch, C_NRM), CCRED(ch, C_NRM), zone->reset_mode,
                 CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), zone->top,
                 CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), zone->owner_idnum,
                 CCRED(ch, C_NRM),
@@ -5037,10 +5034,6 @@ show_zones(Creature *ch, char *arg, char *value)
         for (zone = zone_table; zone; zone = zone->next)
             if (ZONE_FLAGGED(zone, ZONE_FULLCONTROL))
                 acc_print_zone(ch, zone);
-    } else if (strcasecmp(value, "norecalc") == 0) {
-        for (zone = zone_table; zone; zone = zone->next)
-            if (ZONE_FLAGGED(zone, ZONE_NORECALC))
-                acc_print_zone(ch, zone);
     } else if (strcasecmp(value, "lawless") == 0) {
         for (zone = zone_table; zone; zone = zone->next)
             if (ZONE_FLAGGED(zone, ZONE_NOLAW))
@@ -5056,6 +5049,14 @@ show_zones(Creature *ch, char *arg, char *value)
     } else if (strcasecmp(value, "timeless") == 0) {
         for (zone = zone_table; zone; zone = zone->next)
             if (zone->time_frame == TIME_TIMELESS)
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "norecalc") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (ZONE_FLAGGED(zone, ZONE_NORECALC))
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "noauthor") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (!zone->author || !*zone->author)
                 acc_print_zone(ch, zone);
     } else {
         send_to_char(ch, usage);
