@@ -2541,8 +2541,10 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		else
 			cur_weap = get_next_weap(ch);
 		if (cur_weap) {
-			if ((IS_ENERGY_GUN(cur_weap) &&  (!cur_weap->contains ||  
-                (cur_weap->contains && CUR_ENERGY(cur_weap->contains) <= 0)))
+			if ((IS_ENERGY_GUN(cur_weap)
+                 && (!cur_weap->contains
+                     || (cur_weap->contains
+                         && CUR_ENERGY(cur_weap->contains) <= 0)))
                 || IS_GUN(cur_weap)) {
 				w_type = TYPE_BLUDGEON;
             } else if (IS_ENERGY_GUN(cur_weap) && cur_weap->contains) {
