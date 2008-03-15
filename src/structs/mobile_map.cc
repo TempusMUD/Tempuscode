@@ -17,11 +17,15 @@ bool MobileMap::add(Creature *ch)
 {
     int vnum = 0;
     
-    if (!ch || !ch->mob_specials.shared)
+    if (!ch || !ch->mob_specials.shared) {
+        mudlog(LVL_GRGOD, NRM, true, "WARNING:  Attempt to add NULL mobile to MobileMap");
         return false;
+    }
 
-    if ((vnum = ch->mob_specials.shared->vnum) == 0)
+    if ((vnum = ch->mob_specials.shared->vnum) == 0) {
+        mudlog(LVL_GRGOD, NRM, true, "WARNING:  Attempt to add mobile with vnum 0 to MobileMap");
         return false;
+    }
 
     if (count(vnum) > 0) {
         mudlog(LVL_GRGOD, NRM, true, "WARNING:  MobileMap::add() tried to insert "

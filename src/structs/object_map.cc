@@ -17,12 +17,15 @@ bool ObjectMap::add(obj_data *obj)
 {
     int vnum = 0;
     
-    if (!obj || !obj->shared)
+    if (!obj || !obj->shared) {
+        mudlog(LVL_GRGOD, NRM, true, "WARNING:  Attempt to add NULL object to ObjectMap");
         return false;
+    }
 
-    if ((vnum = obj->shared->vnum) == 0)
+    if ((vnum = obj->shared->vnum) == 0) {
+        mudlog(LVL_GRGOD, NRM, true, "WARNING:  Attempt to add object with vnum 0 to ObjectMap");
         return false;
-
+    }
     if (count(vnum) > 0) {
         mudlog(LVL_GRGOD, NRM, true, "WARNING:  ObjectMap::add() tried to insert "
                "existing vnum [%d].", vnum);
