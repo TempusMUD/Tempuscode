@@ -2468,7 +2468,7 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are empowered.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_TELEKINESIS))
 		acc_strcat("You are feeling telekinetic.\r\n", NULL);
-	else if (IS_AFFECTED_2(ch, AFF2_HASTE))
+    if (IS_AFFECTED_2(ch, AFF2_HASTE))
 		acc_strcat("You are moving very fast.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_KATA))
 		acc_strcat("You feel focused from your kata.\r\n", NULL);
@@ -2492,10 +2492,10 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are protected from heat.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_RIGHTEOUS_PENETRATION))
 		acc_strcat("You feel overwhelmingly righteous!\r\n", NULL);
-	if (affected_by_spell(ch, SPELL_PRAY))
-		acc_strcat("You feel extremely righteous.\r\n", NULL);
-	else if (affected_by_spell(ch, SPELL_BLESS))
-		acc_strcat("You feel righteous.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_PRAY))
+		acc_strcat("You feel guided by divine forces.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_BLESS))
+		acc_strcat("You feel blessed.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_DEATH_KNELL))
 		acc_strcat("You feel giddy from the absorption of a life.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_MALEFIC_VIOLATION))
