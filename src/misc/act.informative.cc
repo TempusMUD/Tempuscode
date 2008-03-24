@@ -351,6 +351,7 @@ list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 	struct obj_data *i = NULL, *o = NULL;
 	bool found = false, corpse = false;
 	int count = 0;
+	bool tea = false;
 
 	if (list && list->in_obj && IS_CORPSE(list->in_obj))
 		corpse = true;
@@ -392,8 +393,25 @@ list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 		show_obj_to_char(i, ch, mode, count);
 		count = 0;
 		found = true;
+		if (i->obj_flags.type_flag == ITEM_DRINKCON
+                    && i->obj_flags.value[2] == LIQ_TEA
+                    && i->obj_flags.value[1] > 0)
+			tea = true;
 	}
-	if (!found && show)
+
+	time_t unix_now = time(NULL);
+	struct tm *now = localtime(&unix_now);
+
+	if (mode == SHOW_OBJ_INV
+            && now->tm_mday == 1
+            && now->tm_mon == 3
+	    && ch->desc
+	    && !tea) {
+		if (found)
+			SEND_TO_Q("no tea.\r\n", ch->desc);
+		else
+			send_to_char(ch, " No tea.\r\n");
+	} else if (!found && show)
 		send_to_char(ch, " Nothing.\r\n");
 
 }
