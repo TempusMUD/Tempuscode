@@ -5958,11 +5958,10 @@ ACMD(do_show)
 	case 61: // boards
 		gen_board_show(ch);
     case 62: // rexits
-        if (!*value) {
-            send_to_char(ch, "Usage: show rexits <room>\r\n");
-            return;
-        }
-        k = atoi(value);
+        if (*value)
+            k = atoi(value);
+        else 
+            k = ch->in_room->number;
 
         if (!real_room(k)) {
             send_to_char(ch, "Room %d does not exist.\r\n", k);
