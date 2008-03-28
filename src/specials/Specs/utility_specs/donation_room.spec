@@ -15,7 +15,7 @@ SPECIAL(donation_room)
 	}
 
 	skip_spaces(&argument);
-	if (argument && !strn_cmp(argument, "all", 3) && GET_LEVEL(ch) < 51 ) {
+	if (argument && !strncasecmp(argument, "all", 3) && GET_LEVEL(ch) < 51 ) {
 		send_to_char(ch, "One at a time, please.\r\n");
 		return 1;
 	}

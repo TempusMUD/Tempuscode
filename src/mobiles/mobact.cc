@@ -543,11 +543,11 @@ burn_update(void)
                 
                 flesh->shared = null_obj_shared;
                 flesh->in_room = NULL;
-                flesh->aliases = str_dup("decaying flesh hunk");
+                flesh->aliases = strdup("decaying flesh hunk");
                 sprintf(desc, "A decaying hunk of %s's flesh is lying here.", GET_NAME(ch));
-                flesh->line_desc = str_dup(desc);
+                flesh->line_desc = strdup(desc);
                 sprintf(desc, "a decaying hunk of %s's flesh", GET_NAME(ch));
-                flesh->name = str_dup(desc);
+                flesh->name = strdup(desc);
                 GET_OBJ_TYPE(flesh) = ITEM_FOOD;
                 GET_OBJ_WEAR(flesh) = ITEM_WEAR_TAKE;
                 GET_OBJ_EXTRA(flesh) = ITEM_NODONATE + ITEM_NOSELL;

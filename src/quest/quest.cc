@@ -2815,7 +2815,7 @@ Quest::Quest( Creature *ch, int type, const char* name )
 {
 	this->vnum = quests.getNextVnum();
 	this->type = type;
-	this->name = str_dup(name);
+	this->name = strdup(name);
 	this->owner_id = GET_IDNUM(ch);
 	this->owner_level = GET_LEVEL(ch);
 
@@ -2930,7 +2930,7 @@ Quest& Quest::operator=( const Quest &q )
 
 	vnum = q.vnum;
 	type = q.type;
-	name = str_dup(q.name);
+	name = strdup(q.name);
 	owner_id = q.owner_id;
 	owner_level = q.owner_level;
 	players = q.players;
@@ -2940,9 +2940,9 @@ Quest& Quest::operator=( const Quest &q )
 	started = q.started;
 	ended = q.ended;
 	if( q.description != NULL )
-		description = str_dup(q.description);
+		description = strdup(q.description);
 	if( q.updates != NULL )
-		updates = str_dup(q.updates);
+		updates = strdup(q.updates);
 	max_players = q.max_players;
 	awarded = q.awarded;
 	penalized = q.penalized;

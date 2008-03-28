@@ -412,7 +412,7 @@ ASPELL(spell_nuclear_wasteland)
 		ch->in_room);
 
 	rm_aff.description =
-		str_dup
+		strdup
 		("   This area bears a strong resemblance to a radioactive wasteland.\r\n");
 	rm_aff.level = level;
 	rm_aff.type = RM_AFF_FLAGS;
@@ -1121,7 +1121,7 @@ ASPELL(spell_area_stasis)
 		}
 	}
 
-	rm_aff.description = str_dup("    The room seems to be physically stable.\r\n");
+	rm_aff.description = strdup("    The room seems to be physically stable.\r\n");
 	rm_aff.level = ch->getLevelBonus(SPELL_AREA_STASIS);
 	rm_aff.type = RM_AFF_FLAGS;
 	rm_aff.flags = ROOM_NOPHYSIC;

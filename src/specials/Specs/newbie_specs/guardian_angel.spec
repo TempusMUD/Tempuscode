@@ -253,7 +253,7 @@ angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_da
     data->counter = 0;
 
 	if (cur_room == dest) {
-		data->action = str_dup("We're already here!");
+		data->action = strdup("We're already here!");
 		return;
 	}
 
@@ -268,7 +268,7 @@ angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_da
     }
 
     if (cur_room != dest || steps >= 600)
-        data->action = str_dup("I don't seem to be able to find that room.");
+        data->action = strdup("I don't seem to be able to find that room.");
 	else
 		data->action = acc_get_string();
 }
@@ -278,7 +278,7 @@ guardian_angel_action(Creature *angel, const char *action)
 {
 	angel_data *data = (angel_data *)angel->mob_specials.func_data;
 	free(data->action);
-	data->action = str_dup(action);
+	data->action = strdup(action);
 	data->counter = 0;
 }
 
@@ -506,7 +506,7 @@ assign_angel(Creature *angel, Creature *ch)
     data->angel = angel;
     data->charge_id = ch->getIdNum();
     data->counter = -1;
-    data->action = str_dup("none");
+    data->action = strdup("none");
 
 	// People relate better to others of their own sex
 	GET_SEX(angel) = GET_SEX(ch);

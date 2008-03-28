@@ -1451,7 +1451,7 @@ char_to_game(descriptor_data *d)
 	for (k = descriptor_list; k; k = next) {
 		next = k->next;
 		if (!k->input_mode && k->creature &&
-			!str_cmp(GET_NAME(k->creature), GET_NAME(d->creature))) {
+			!strcasecmp(GET_NAME(k->creature), GET_NAME(d->creature))) {
 			SEND_TO_Q("Your character has been deleted.\r\n", d);
 			set_desc_state( CXN_DISCONNECT,d );
 			return;

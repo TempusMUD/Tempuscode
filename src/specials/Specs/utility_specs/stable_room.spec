@@ -52,13 +52,13 @@ SPECIAL(stable_room)
 		if (*pet_name) {
 			sprintf(buf, "%s %s", pet->player.name, pet_name);
 			/* free(pet->player.name); don't free the prototype! */
-			pet->player.name = str_dup(buf);
+			pet->player.name = strdup(buf);
 
 			sprintf(buf,
 				"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
 				pet->player.description, pet_name);
 			/* free(pet->player.description); don't free the prototype! */
-			pet->player.description = str_dup(buf);
+			pet->player.description = strdup(buf);
 		}
 		char_to_room(pet, ch->in_room, false);
 		add_follower(pet, ch);

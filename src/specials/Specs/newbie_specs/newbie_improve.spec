@@ -58,17 +58,17 @@ SPECIAL(newbie_improve)
 		return 1;
 	}
 
-	if (!strn_cmp(argument, "s", 1))
+	if (!strncasecmp(argument, "s", 1))
 		index = STR;
-	else if (!strn_cmp(argument, "i", 1))
+	else if (!strncasecmp(argument, "i", 1))
 		index = INT;
-	else if (!strn_cmp(argument, "w", 1))
+	else if (!strncasecmp(argument, "w", 1))
 		index = WIS;
-	else if (!strn_cmp(argument, "d", 1))
+	else if (!strncasecmp(argument, "d", 1))
 		index = DEX;
-	else if (!strn_cmp(argument, "co", 2))
+	else if (!strncasecmp(argument, "co", 2))
 		index = CON;
-	else if (!strn_cmp(argument, "ch", 2))
+	else if (!strncasecmp(argument, "ch", 2))
 		index = CHA;
 	else {
 		send_to_char(ch, "You must specify one of:\r\n"

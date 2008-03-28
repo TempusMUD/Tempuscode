@@ -1008,13 +1008,13 @@ prog_do_ldesc(prog_env * env, prog_evt * evt, char *args)
 				mob->mob_specials.shared->proto->player.long_descr)
 				free(mob->player.long_descr);
 		}
-		mob->player.long_descr = str_dup(args);
+		mob->player.long_descr = strdup(args);
 		break;
 	case PROG_TYPE_OBJECT:
 		obj = (obj_data *) env->owner;
 		if (obj->line_desc && obj->line_desc != obj->shared->proto->line_desc)
 			free(obj->line_desc);
-		obj->line_desc = str_dup(args);
+		obj->line_desc = strdup(args);
 		break;
 	default:
 		// do nothing

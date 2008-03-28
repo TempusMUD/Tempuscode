@@ -671,8 +671,8 @@ namespace Security {
 		count = PQntuples(res);
 		for (idx = 0;idx < count;idx++) {
 			name = PQgetvalue(res, idx, 1);
-			groups.push_back(Group(str_dup(name),
-					str_dup(PQgetvalue(res, idx, 2))));
+			groups.push_back(Group(strdup(name),
+					strdup(PQgetvalue(res, idx, 2))));
 			getGroup(name).setAdminGroup(PQgetvalue(res, idx, 3));
 			getGroup(name).setID(atoi(PQgetvalue(res, idx, 0)));
 		}

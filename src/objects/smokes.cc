@@ -40,15 +40,15 @@ roll_joint(struct obj_data *tobac, struct obj_data *paper)
 	CREATE(new_descr, struct extra_descr_data, 1);
 
 	sprintf(buf, "cig cigarette joint %s", fname(tobac->aliases));
-	obj->aliases = str_dup(buf);
+	obj->aliases = strdup(buf);
 	sprintf(buf, "a %s cigarette", fname(tobac->aliases));
-	obj->name = str_dup(buf);
+	obj->name = strdup(buf);
 	sprintf(buf, "%s has been dropped here.", buf);
-	obj->line_desc = str_dup(buf);
-	new_descr->keyword = str_dup("cig cigarette joint");
+	obj->line_desc = strdup(buf);
+	new_descr->keyword = strdup("cig cigarette joint");
 	sprintf(buf, "It looks like a %s cigarette, waiting to be smoked.",
 		fname(tobac->aliases));
-	new_descr->description = str_dup(buf);
+	new_descr->description = strdup(buf);
 	new_descr->next = NULL;
 	obj->ex_description = new_descr;
 
@@ -370,10 +370,10 @@ ACMD(do_convert)
 		gain_skill_prof(ch, SKILL_PIPEMAKING);
 
 		sprintf(buf, "a pipe made from %s", obj->name);
-		obj->name = str_dup(buf);
+		obj->name = strdup(buf);
 		strcpy(buf, "pipe ");
 		strcat(buf, obj->aliases);
-		obj->aliases = str_dup(buf);
+		obj->aliases = strdup(buf);
 
 	}
 }

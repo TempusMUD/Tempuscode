@@ -472,7 +472,7 @@ ACMD(do_olc)
 				EXIT(ch, edir)->keyword = NULL;
 			}
 			if (argument && *argument) {
-				EXIT(ch, edir)->keyword = str_dup(argument);
+				EXIT(ch, edir)->keyword = strdup(argument);
 				send_to_char(ch, "Keywords set.\r\n");
 			} else
 				send_to_char(ch, "What keywords?!\r\n");
@@ -796,7 +796,7 @@ ACMD(do_olc)
 				return;
 			}
 			CREATE(ndesc, struct extra_descr_data, 1);
-			ndesc->keyword = str_dup(argument);
+			ndesc->keyword = strdup(argument);
 			ndesc->next = obj_p->ex_description;
 			obj_p->ex_description = ndesc;
 
@@ -838,7 +838,7 @@ ACMD(do_olc)
 					strcat(buf, " ");
 					strcat(buf, arg2);
 					free(desc->keyword);
-					desc->keyword = str_dup(buf);
+					desc->keyword = strdup(buf);
 					UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
 					send_to_char(ch, "Keywords added.\r\n");
 					return;
@@ -917,28 +917,28 @@ ACMD(do_olc)
 		if (obj_p->aliases)
 			free(obj_p->aliases);
 		if (tmp_obj->aliases)
-			obj_p->aliases = str_dup(tmp_obj->aliases);
+			obj_p->aliases = strdup(tmp_obj->aliases);
 		else
 			obj_p->aliases = NULL;
 
 		if (obj_p->name)
 			free(obj_p->name);
 		if (tmp_obj->name)
-			obj_p->name = str_dup(tmp_obj->name);
+			obj_p->name = strdup(tmp_obj->name);
 		else
 			obj_p->name = NULL;
 
 		if (obj_p->line_desc)
 			free(obj_p->line_desc);
 		if (tmp_obj->line_desc)
-			obj_p->line_desc = str_dup(tmp_obj->line_desc);
+			obj_p->line_desc = strdup(tmp_obj->line_desc);
 		else
 			obj_p->line_desc = NULL;
 
 		if (obj_p->action_desc)
 			free(obj_p->action_desc);
 		if (tmp_obj->action_desc)
-			obj_p->action_desc = str_dup(tmp_obj->action_desc);
+			obj_p->action_desc = strdup(tmp_obj->action_desc);
 		else
 			obj_p->action_desc = NULL;
 		obj_p->obj_flags.type_flag = tmp_obj->obj_flags.type_flag;
@@ -983,7 +983,7 @@ ACMD(do_olc)
 		desc = tmp_obj->ex_description;
 		while (desc) {
 			CREATE(ndesc, struct extra_descr_data, 1);
-			ndesc->keyword = str_dup(desc->keyword);
+			ndesc->keyword = strdup(desc->keyword);
 			ndesc->description = strdup(desc->description);
 			ndesc->next = obj_p->ex_description;
 			obj_p->ex_description = ndesc;
@@ -2025,7 +2025,7 @@ show_olc_help(struct Creature *ch, char *arg)
 
 		strcpy(buf, "MATERIALS:\r\n");
 		for (i = 0; i < TOP_MATERIAL; i++) {
-			if (str_cmp(material_names[i], "*")) {
+			if (strcasecmp(material_names[i], "*")) {
 				sprintf(buf2, "%2d         %s%s%s\r\n",
 					i, CCYEL(ch, C_NRM), material_names[i], CCNRM(ch, C_NRM));
 				if ((strlen(buf2) + strlen(buf) + 128) > MAX_STRING_LENGTH) {
@@ -2095,7 +2095,7 @@ show_olc_help(struct Creature *ch, char *arg)
 	case 26:		   /** char_class **/
 		strcpy(buf, "CLASSES:\r\n");
 		for (i = 0; i < TOP_CLASS; i++) {
-			if (str_cmp(class_names[i], "ILL")) {
+			if (strcasecmp(class_names[i], "ILL")) {
 				sprintf(buf2, "%2d         %s%s%s\r\n",
 					i, CCCYN(ch, C_NRM), class_names[i], CCNRM(ch,
 						C_NRM));
@@ -2107,7 +2107,7 @@ show_olc_help(struct Creature *ch, char *arg)
 	case 27:		   /** itemtypes **/
 		strcpy(buf, "ITEM TYPES:\r\n");
 		for (i = 0; i < NUM_ITEM_TYPES; i++) {
-			if (str_cmp(item_types[i], "ILL")) {
+			if (strcasecmp(item_types[i], "ILL")) {
 				sprintf(buf2, "%2d         %s%s%s\r\n",
 					i, CCCYN(ch, C_NRM), item_types[i], CCNRM(ch, C_NRM));
 				strcat(buf, buf2);

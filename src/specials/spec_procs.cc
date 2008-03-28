@@ -1208,12 +1208,12 @@ SPECIAL(pet_shops)
 				char *tmp;
 
 				tmp = tmp_strcat(pet->player.name, " ", pet_name, NULL);
-				pet->player.name = str_dup(tmp);
+				pet->player.name = strdup(tmp);
 
 				tmp = tmp_sprintf( "A small sign on a chain around the neck says 'My name is %s\r\n'", pet_name );
 				if( pet->player.description != NULL )
 					tmp = tmp_strcat( pet->player.description, tmp );
-				pet->player.description = str_dup(tmp);
+				pet->player.description = strdup(tmp);
 			}
 			char_to_room(pet, ch->in_room,false);
 
@@ -1266,7 +1266,7 @@ SPECIAL(bank)
     }
 
 	arg = tmp_getword(&argument);
-	if (!str_cmp(arg, "clan")) {
+	if (!strcasecmp(arg, "clan")) {
 		clan = real_clan(GET_CLAN(ch));
 		member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
 		
@@ -1286,7 +1286,7 @@ SPECIAL(bank)
 
 	if (!CMD_IS("balance")) {
 		// Do checks for deposit, withdraw, and transfer
-		if (str_cmp(arg, "all")) {
+		if (strcasecmp(arg, "all")) {
 			if (!is_number(arg)) {
 				send_to_char(ch, "You must specify an amount!\r\n");
 				return 1;

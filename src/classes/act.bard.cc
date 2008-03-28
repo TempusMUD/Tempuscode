@@ -453,8 +453,8 @@ ASPELL(song_lament_of_longing)
     GET_OBJ_TIMER(rift1) = 1 + ch->getLevelBonus(SONG_LAMENT_OF_LONGING) >> 5;
     GET_OBJ_TIMER(rift2) = GET_OBJ_TIMER(rift1);
 
-    rift1->line_desc = str_dup("A beautiful, shimmering rift has been opened here.");
-    rift2->line_desc = str_dup("A beautiful, shimmering rift has been opened here.");
+    rift1->line_desc = strdup("A beautiful, shimmering rift has been opened here.");
+    rift2->line_desc = strdup("A beautiful, shimmering rift has been opened here.");
 
     GET_OBJ_VAL(rift1, 0) = targ_room->number;
     GET_OBJ_VAL(rift2, 0) = ch->in_room->number;
@@ -545,7 +545,7 @@ ASPELL(song_wall_of_sound)
     rm_aff.duration = number(1, 50) + (ch->getLevelBonus(SONG_WALL_OF_SOUND));
     rm_aff.flags = EX_NOPASS;
     rm_aff.owner = ch->getIdNum();
-	rm_aff.description = str_dup(tmp_sprintf("A shimmering wall seals the %s exit.\r\n",
+	rm_aff.description = strdup(tmp_sprintf("A shimmering wall seals the %s exit.\r\n",
 											 dir_str));
     affect_to_room(ch->in_room, &rm_aff);
 

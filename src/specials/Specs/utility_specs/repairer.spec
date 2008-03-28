@@ -30,7 +30,7 @@ SPECIAL(repairer)
 
 	argument = two_arguments(argument, arg1, arg2);
 
-	if (str_cmp(arg1, "repairs")) {
+	if (strcasecmp(arg1, "repairs")) {
 		perform_tell(repairer, ch,
 			"To deal with me: buy/value repairs <item>");
 		return 1;

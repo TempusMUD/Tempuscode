@@ -315,7 +315,7 @@ add_path(char *spath, int save)
 			strncat(buf, spath, (tmpc - spath));
 			spath = tmpc + 1;
 			*tmpc = 0;
-			phead->path[i].str = str_dup(buf + 2);
+			phead->path[i].str = strdup(buf + 2);
 			break;
 
 		case 'c':

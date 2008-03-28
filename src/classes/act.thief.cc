@@ -105,8 +105,8 @@ ACMD(do_steal)
 	if (!ok_damage_vendor(ch, vict))
 		percent = 121;			/* Failure */
 
-	if (str_cmp(obj_name, "coins") && str_cmp(obj_name, "gold") && 
-	    str_cmp(obj_name, "cash") && str_cmp(obj_name, "credits") && str_cmp(obj_name, "creds")) {
+	if (strcasecmp(obj_name, "coins") && strcasecmp(obj_name, "gold") && 
+	    strcasecmp(obj_name, "cash") && strcasecmp(obj_name, "credits") && strcasecmp(obj_name, "creds")) {
 
 		if (!(obj = get_obj_in_list_vis(ch, obj_name, vict->carrying))) {
 
@@ -211,7 +211,7 @@ ACMD(do_steal)
 		}
 
 	} else {					/* Steal some coins */
-		if (!str_cmp(obj_name, "coins") || !str_cmp(obj_name, "gold")) {
+		if (!strcasecmp(obj_name, "coins") || !strcasecmp(obj_name, "gold")) {
 			
 			if (AWAKE(vict) && (percent > CHECK_SKILL(ch, SKILL_STEAL)) &&
 			GET_LEVEL(ch) < LVL_IMPL) {

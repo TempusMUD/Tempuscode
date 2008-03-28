@@ -216,7 +216,7 @@ ACMD(do_reboot)
 {
 	one_argument(argument, arg);
 
-	if (!str_cmp(arg, "all") || *arg == '*') {
+	if (!strcasecmp(arg, "all") || *arg == '*') {
 		file_to_string_alloc(CREDITS_FILE, &credits);
 		file_to_string_alloc(MOTD_FILE, &motd);
 		file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
@@ -233,42 +233,42 @@ ACMD(do_reboot)
 		file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
 		free_socials();
 		boot_social_messages();
-	} else if (!str_cmp(arg, "credits")) {
+	} else if (!strcasecmp(arg, "credits")) {
 		file_to_string_alloc(CREDITS_FILE, &credits);
-	} else if (!str_cmp(arg, "motd")) {
+	} else if (!strcasecmp(arg, "motd")) {
 		file_to_string_alloc(MOTD_FILE, &motd);
 		file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
-	} else if (!str_cmp(arg, "imotd")) {
+	} else if (!strcasecmp(arg, "imotd")) {
 		file_to_string_alloc(IMOTD_FILE, &imotd);
 		file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
-	} else if (!str_cmp(arg, "info")){
+	} else if (!strcasecmp(arg, "info")){
 		file_to_string_alloc(INFO_FILE, &info);
-	} else if (!str_cmp(arg, "handbook")) {
+	} else if (!strcasecmp(arg, "handbook")) {
 		file_to_string_alloc(HANDBOOK_FILE, &handbook);
-	} else if (!str_cmp(arg, "background")){
+	} else if (!strcasecmp(arg, "background")){
 		file_to_string_alloc(BACKGROUND_FILE, &background);
-	} else if (!str_cmp(arg, "areas")) {
+	} else if (!strcasecmp(arg, "areas")) {
 		file_to_string_alloc(AREAS_LOW_FILE, &areas_low);
 		file_to_string_alloc(AREAS_MID_FILE, &areas_mid);
 		file_to_string_alloc(AREAS_HIGH_FILE, &areas_high);
 		file_to_string_alloc(AREAS_REMORT_FILE, &areas_remort);
 		file_to_string_alloc(TYPO_FILE, &typos);
-	} else if (!str_cmp(arg, "olc_guide")) {
+	} else if (!strcasecmp(arg, "olc_guide")) {
 		file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
-	} else if (!str_cmp(arg, "quest_guide")) {
+	} else if (!strcasecmp(arg, "quest_guide")) {
 		file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
-	} else if (!str_cmp(arg, "paths")) {
+	} else if (!strcasecmp(arg, "paths")) {
 		Load_paths();
-	} else if (!str_cmp(arg, "trails")) {
+	} else if (!strcasecmp(arg, "trails")) {
 		purge_trails(ch);
-	} else if (!str_cmp(arg, "timewarps")) {
+	} else if (!strcasecmp(arg, "timewarps")) {
 		boot_timewarp_data();
-	} else if (!str_cmp(arg, "socials")) {
+	} else if (!strcasecmp(arg, "socials")) {
 		free_socials();
 		boot_social_messages();
-	} else if (!str_cmp(arg, "spells")) {
+	} else if (!strcasecmp(arg, "spells")) {
         boot_spells();
-    } else if( !str_cmp(arg, "xml") ) {
+    } else if( !strcasecmp(arg, "xml") ) {
         xml_reload(ch);
         return;
 	} else {
@@ -333,7 +333,7 @@ boot_db(void)
 	if (production_mode)
 		sql_cxn = PQconnectdb("user=realm dbname=tempus");
 	else
-		sql_cxn = PQconnectdb("hostaddr=206.41.250.2 user=realm dbname=devtempus password=tarrasque");
+		sql_cxn = PQconnectdb("hostaddr=127.0.0.1 user=realm dbname=devtempus password=tarrasque");
 	if (!sql_cxn) {
 		slog("Couldn't allocate postgres connection!");
 		safe_exit(1);
@@ -1577,7 +1577,7 @@ parse_simple_mob(FILE * mob_f, struct Creature *mobile, int nr)
  * function!  No other changes need to be made anywhere in the code.
  */
 
-#define CASE(test) if (!matched && !str_cmp(keyword, test) && (matched = 1))
+#define CASE(test) if (!matched && !strcasecmp(keyword, test) && (matched = 1))
 #define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
 
 void
@@ -1593,7 +1593,7 @@ interpret_espec(char *keyword, char *value, struct Creature *mobile, int nr)
 	}
 
 	CASE("Move_buf") {
-		MOB_SHARED(mobile)->move_buf = str_dup(value);
+		MOB_SHARED(mobile)->move_buf = strdup(value);
 	}
 
 	CASE("Str") {
@@ -1783,8 +1783,8 @@ parse_mobile(FILE * mob_f, int nr)
 	mobile->player.name = fread_string(mob_f, buf2);
 	tmpptr = mobile->player.short_descr = fread_string(mob_f, buf2);
 	if (tmpptr && *tmpptr)
-		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") ||
-			!str_cmp(fname(tmpptr), "the"))
+		if (!strcasecmp(fname(tmpptr), "a") || !strcasecmp(fname(tmpptr), "an") ||
+			!strcasecmp(fname(tmpptr), "the"))
 			*tmpptr = tolower(*tmpptr);
 	mobile->player.long_descr = fread_string(mob_f, buf2);
 	if (mobile->player.long_descr) {
@@ -1891,8 +1891,8 @@ parse_object(FILE * obj_f, int nr)
 	}
 	tmpptr = obj->name = fread_string(obj_f, buf2);
 	if (tmpptr && *tmpptr)
-		if (!str_cmp(fname(tmpptr), "a") || !str_cmp(fname(tmpptr), "an") ||
-			!str_cmp(fname(tmpptr), "the"))
+		if (!strcasecmp(fname(tmpptr), "a") || !strcasecmp(fname(tmpptr), "an") ||
+			!strcasecmp(fname(tmpptr), "the"))
 			*tmpptr = tolower(*tmpptr);
 
 	tmpptr = obj->line_desc = fread_string(obj_f, buf2);
@@ -2082,7 +2082,7 @@ load_zones(FILE * fl, char *zonename)
 	if ((ptr = strchr(buf, '~')) != NULL)	/* take off the '~' if it's there */
 		*ptr = '\0';
 
-	new_zone->name = str_dup(buf);
+	new_zone->name = strdup(buf);
 
 	line_num += get_line(fl, buf);
 	if (!strncmp(buf, "C ", 2)) {
@@ -3310,7 +3310,7 @@ file_to_string_alloc(char *name, char **buf)
 		*buf = NULL;
 		return -1;
 	} else {
-		*buf = str_dup(temp);
+		*buf = strdup(temp);
 		return 0;
 	}
 }

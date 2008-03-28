@@ -421,7 +421,7 @@ do_create_room(struct Creature *ch, int vnum)
 	}
 	//CREATE( new_rm, struct room_data, 1 );
 	new_rm = new room_data(vnum, zone);
-	new_rm->name = str_dup("A Freshly Made Room");
+	new_rm->name = strdup("A Freshly Made Room");
 
 	/*
 	   new_rm->zone = zone;
@@ -1063,7 +1063,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 			return;
 		}
 		CREATE(ndesc, struct extra_descr_data, 1);
-		ndesc->keyword = str_dup(argument);
+		ndesc->keyword = strdup(argument);
 		ndesc->next = ch->in_room->ex_description;
 		ch->in_room->ex_description = ndesc;
 
@@ -1097,7 +1097,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 				strcat(buf, " ");
 				strcat(buf, arg2);
 				free(desc->keyword);
-				desc->keyword = str_dup(buf);
+				desc->keyword = strdup(buf);
 				send_to_char(ch, "Keywords added.\r\n");
 				return;
 			}

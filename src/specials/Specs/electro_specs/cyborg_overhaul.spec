@@ -21,7 +21,7 @@ SPECIAL(cyborg_overhaul)
 
 	skip_spaces(&argument);
 
-	if (!str_cmp(argument, "overhaul")) {
+	if (!strcasecmp(argument, "overhaul")) {
 		cost = GET_TOT_DAM(ch);
 		if (GET_BROKE(ch))
 			cost += GET_LEVEL(ch) * 100;
@@ -68,7 +68,7 @@ SPECIAL(cyborg_overhaul)
 
 	}
 
-	if (!str_cmp(argument, "repairs")) {
+	if (!strcasecmp(argument, "repairs")) {
 		cost = (GET_MAX_HIT(ch) - GET_HIT(ch)) * 100;
         cost += (cost*ch->getCostModifier(borg))/100;
         

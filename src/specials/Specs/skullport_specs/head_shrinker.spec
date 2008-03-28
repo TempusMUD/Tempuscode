@@ -86,13 +86,13 @@ SPECIAL(head_shrinker)
 		sprintf(buf, "the shrunken head of %s", corpse->name);
 	}
 
-	head->name = str_dup(buf);
+	head->name = strdup(buf);
 
 	sprintf(buf, "talisman head shrunken %s", corpse->aliases);
-	head->aliases = str_dup(buf);
+	head->aliases = strdup(buf);
 
 	sprintf(buf, "%s is here.", head->name);
-	head->line_desc = str_dup(buf);
+	head->line_desc = strdup(buf);
 
 	obj_to_char(head, ch);
 	extract_obj(corpse);

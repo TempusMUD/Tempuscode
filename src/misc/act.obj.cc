@@ -453,7 +453,7 @@ ACMD(do_put)
 						continue;
 
 					if (save_obj != NULL
-						&& str_cmp(save_obj->name,
+						&& strcasecmp(save_obj->name,
 							obj->name) != 0 && counter > 0) {
 						if (counter == 1)
 							sprintf(cntbuf, "You put $p in $P.");
@@ -1538,9 +1538,9 @@ ACCMD(do_drop)
 	} else if (is_number(arg1)) {
 		amount = atoi(arg1);
 
-		if (!str_cmp("coins", arg2) || !str_cmp("coin", arg2))
+		if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2))
 			perform_drop_gold(ch, amount, mode, RDR);
-		else if (!str_cmp("credits", arg2) || !str_cmp("credit", arg2))
+		else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2))
 			perform_drop_credits(ch, amount, mode, RDR);
 		else {
 			/* code to drop multiple items.  anyone want to write it? -je */
@@ -1868,7 +1868,7 @@ ACMD(do_give)
 		return;
 	}
 	if (!*arg2) {
-		if (!str_cmp(arg1, "all"))
+		if (!strcasecmp(arg1, "all"))
 			send_to_char(ch, "To whom do you wish to give everything?\r\n");
 		else
 			send_to_char(ch, "To whom do you wish to give %s %s?\r\n",
@@ -1884,9 +1884,9 @@ ACMD(do_give)
 		if (!vict)
 			return;
 
-		if (!str_cmp("coins", arg2) || !str_cmp("coin", arg2))
+		if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2))
 			transfer_money(ch, vict, amount, 0, false);
-		else if (!str_cmp("credits", arg2) || !str_cmp("credit", arg2))
+		else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2))
 			transfer_money(ch, vict, amount, 1, false);
 		else
 			/* code to give multiple items.  anyone want to write it? -je */
@@ -1987,12 +1987,12 @@ ACMD(do_plant)
 	else if (is_number(arg)) {
 		amount = atoi(arg);
 		argument = one_argument(argument, arg);
-		if (!str_cmp("coins", arg) || !str_cmp("coin", arg)) {
+		if (!strcasecmp("coins", arg) || !strcasecmp("coin", arg)) {
 			argument = one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)))
 				transfer_money(ch, vict, amount, 0, true);
 			return;
-		} else if (!str_cmp("credits", arg) || !str_cmp("credit", arg)) {
+		} else if (!strcasecmp("credits", arg) || !strcasecmp("credit", arg)) {
 			argument = one_argument(argument, arg);
 			if ((vict = give_find_vict(ch, arg)))
 				transfer_money(ch, vict, amount, 1, true);
@@ -2047,7 +2047,7 @@ name_from_drinkcon(struct obj_data *obj, int type)
     proto = real_object_proto(GET_OBJ_VNUM(obj));
     if (!proto || GET_OBJ_VNUM(proto) < 0 || obj->aliases != proto->aliases)
         free(obj->aliases);
-    obj->aliases = str_dup(new_name);
+    obj->aliases = strdup(new_name);
 }
 
 void
@@ -2060,7 +2060,7 @@ name_to_drinkcon(struct obj_data *obj, int type)
     if (isname_exact(obj->aliases, drinknames[type]))
         return;
 
-    new_name = str_dup(tmp_sprintf("%s %s", obj->aliases, drinknames[type]));
+    new_name = strdup(tmp_sprintf("%s %s", obj->aliases, drinknames[type]));
 
 	proto = real_object_proto(GET_OBJ_VNUM(obj));
 	if (GET_OBJ_VNUM(obj) < 0 || obj->aliases != proto->aliases)
@@ -2430,7 +2430,7 @@ ACMD(do_pour)
 				TO_CHAR);
 			return;
 		}
-		if (!str_cmp(arg2, "out")) {
+		if (!strcasecmp(arg2, "out")) {
 			if (GET_OBJ_VAL(from_obj, 0) == -1) {
 				send_to_char(ch, "Now that would be an exercise in futility!\r\n");
 				return;
@@ -3521,10 +3521,10 @@ choose_material(struct obj_data *obj)
 
 	ptr = one_argument(ptr, name);
 	while (*name) {
-		if (str_cmp(name, "a") && str_cmp(name, "an") && str_cmp(name, "the")
-			&& str_cmp(name, "some") && str_cmp(name, "of")
-			&& str_cmp(name, "black") && str_cmp(name, "white")
-			&& str_cmp(name, "green") && str_cmp(name, "brown")) {
+		if (strcasecmp(name, "a") && strcasecmp(name, "an") && strcasecmp(name, "the")
+			&& strcasecmp(name, "some") && strcasecmp(name, "of")
+			&& strcasecmp(name, "black") && strcasecmp(name, "white")
+			&& strcasecmp(name, "green") && strcasecmp(name, "brown")) {
 			for (i = 0; i < TOP_MATERIAL; i++)
 				if (isname(material_names[i], name))
 					return (i);
@@ -3538,18 +3538,18 @@ choose_material(struct obj_data *obj)
 
 		ptr = one_argument(ptr, name);
 		while (*name) {
-			if (str_cmp(name, "a") && str_cmp(name, "an")
-				&& str_cmp(name, "the") && str_cmp(name, "some")
-				&& str_cmp(name, "of") && str_cmp(name, "black")
-				&& str_cmp(name, "white") && str_cmp(name, "green")
-				&& str_cmp(name, "brown") && str_cmp(name, "lying")
-				&& str_cmp(name, "has") && str_cmp(name, "been")
-				&& str_cmp(name, "is") && str_cmp(name, "left")
-				&& str_cmp(name, "here") && str_cmp(name, "set")
-				&& str_cmp(name, "lies") && str_cmp(name, "looking")
-				&& str_cmp(name, "pair") && str_cmp(name, "someone")
-				&& str_cmp(name, "there") && str_cmp(name, "has")
-				&& str_cmp(name, "on") && str_cmp(name, "dropped")) {
+			if (strcasecmp(name, "a") && strcasecmp(name, "an")
+				&& strcasecmp(name, "the") && strcasecmp(name, "some")
+				&& strcasecmp(name, "of") && strcasecmp(name, "black")
+				&& strcasecmp(name, "white") && strcasecmp(name, "green")
+				&& strcasecmp(name, "brown") && strcasecmp(name, "lying")
+				&& strcasecmp(name, "has") && strcasecmp(name, "been")
+				&& strcasecmp(name, "is") && strcasecmp(name, "left")
+				&& strcasecmp(name, "here") && strcasecmp(name, "set")
+				&& strcasecmp(name, "lies") && strcasecmp(name, "looking")
+				&& strcasecmp(name, "pair") && strcasecmp(name, "someone")
+				&& strcasecmp(name, "there") && strcasecmp(name, "has")
+				&& strcasecmp(name, "on") && strcasecmp(name, "dropped")) {
 				for (i = 0; i < TOP_MATERIAL; i++)
 					if (isname(material_names[i], name))
 						return (i);

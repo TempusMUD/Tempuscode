@@ -724,7 +724,7 @@ ACMD(do_clanpasswd)
 		return;
 	}
 	free(srch->keywords);
-	srch->keywords = str_dup(argument);
+	srch->keywords = strdup(argument);
 	if (!save_wld(ch, ch->in_room->zone))
 		send_to_char(ch, "New clan password set here to '%s'.\r\n", argument);
 	else
@@ -932,7 +932,7 @@ ACMD(do_cedit)
 			if (clan->name) {
 				free(clan->name);
 			}
-			clan->name = str_dup(argument);
+			clan->name = strdup(argument);
 			sql_exec("update clans set name='%s' where idnum=%d",
 				clan->name, clan->number);
 			slog("(cedit) %s set clan %d name to '%s'.", GET_NAME(ch),
@@ -949,7 +949,7 @@ ACMD(do_cedit)
 			if (clan->badge) {
 				free(clan->badge);
 			}
-			clan->badge = str_dup(argument);
+			clan->badge = strdup(argument);
 			sql_exec("update clans set badge='%s' where idnum=%d",
                 tmp_sqlescape(clan->badge), clan->number);
 			slog("(cedit) %s set clan %d badge to '%s'.", GET_NAME(ch),
@@ -1022,7 +1022,7 @@ ACMD(do_cedit)
 				sql_exec("insert into clan_ranks (clan, rank, title) values (%d, %d, '%s')",
 					clan->number, i, tmp_sqlescape(argument));
 			}
-			clan->ranknames[i] = str_dup(argument);
+			clan->ranknames[i] = strdup(argument);
 
 			send_to_char(ch, "Rank title set.\r\n");
 			slog("(cedit) %s set clan %d rank %d to '%s'.",
@@ -1343,8 +1343,8 @@ boot_clans(void)
 		CREATE(clan, struct clan_data, 1);
 
 		clan->number = atoi(PQgetvalue(res, idx, 0));
-		clan->name = str_dup(PQgetvalue(res, idx, 1));
-		clan->badge = str_dup(PQgetvalue(res, idx, 2));
+		clan->name = strdup(PQgetvalue(res, idx, 1));
+		clan->badge = strdup(PQgetvalue(res, idx, 2));
 		clan->bank_account = atoll(PQgetvalue(res, idx, 3));
 		clan->owner = atoi(PQgetvalue(res, idx, 4));
 		clan->member_list = NULL;
@@ -1369,7 +1369,7 @@ boot_clans(void)
 		clan = real_clan(atol(PQgetvalue(res, idx, 0)));
 		num = atoi(PQgetvalue(res, idx, 1));
 		clan->top_rank = MAX(clan->top_rank, num);
-		clan->ranknames[num] = str_dup(PQgetvalue(res, idx, 2));
+		clan->ranknames[num] = strdup(PQgetvalue(res, idx, 2));
 	}
 
 
@@ -1421,8 +1421,8 @@ create_clan(int vnum)
 	newclan->number = vnum;
 	newclan->bank_account = 0;
 	newclan->top_rank = 0;
-	newclan->name = str_dup("New");
-	newclan->badge = str_dup("(//NEW\\\\)");
+	newclan->name = strdup("New");
+	newclan->badge = strdup("(//NEW\\\\)");
 	for (i = 0; i < NUM_CLAN_RANKS; i++)
 		newclan->ranknames[i] = NULL;
 

@@ -2093,8 +2093,8 @@ do_zset_command(struct Creature *ch, char *argument)
 
 		cmd = atoi(arg1);
 
-		if (!str_cmp(arg2, "if") && !str_cmp(arg2, "max") &&
-			!str_cmp(arg2, "prob")) {
+		if (!strcasecmp(arg2, "if") && !strcasecmp(arg2, "max") &&
+			!strcasecmp(arg2, "prob")) {
 			send_to_char(ch, ZSET_COMMAND_USAGE);
 			return;
 		}
@@ -2108,7 +2108,7 @@ do_zset_command(struct Creature *ch, char *argument)
 
 		state = atoi(arg1);
 
-		if ((str_cmp(arg2, "if") == 0) && (state != 0 && state != 1
+		if ((strcasecmp(arg2, "if") == 0) && (state != 0 && state != 1
 				&& state != -1)) {
 			send_to_char(ch, "Value for if_flag must be either -1, 0 or 1.\r\n");
 			return;
@@ -2117,11 +2117,11 @@ do_zset_command(struct Creature *ch, char *argument)
 		for (i = 0, tmp_zonecmd = zone->cmd; tmp_zonecmd;
 			i++, tmp_zonecmd = tmp_zonecmd->next)
 			if (i == cmd) {
-				if (str_cmp(arg2, "if") == 0) {
+				if (strcasecmp(arg2, "if") == 0) {
 					tmp_zonecmd->if_flag = state;
 					send_to_char(ch, "IF flag of command %d set to %d.\r\n", cmd,
 						state);
-				} else if (str_cmp(arg2, "prob") == 0) {
+				} else if (strcasecmp(arg2, "prob") == 0) {
 					if (state < 0 || state > 100) {
 						send_to_char(ch, "'%d' is a silly probability.\r\n",
 							state);

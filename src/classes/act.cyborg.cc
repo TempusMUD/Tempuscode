@@ -325,7 +325,7 @@ ACMD(do_recharge)
 		return;
 	}
 
-	if (*arg1 && !str_cmp(arg1, "internal")) {
+	if (*arg1 && !strcasecmp(arg1, "internal")) {
 		if (!*arg2 || !*arg3) {
 			send_to_char(ch, 
 				"USAGE:  Recharge internal <component> energy_source\r\n");
@@ -1245,7 +1245,7 @@ ACMD(do_self_destruct)
 		send_to_char(ch, 
 			"You must provide a countdown time, in 3-second pulses.\r\n");
 	} else if (!is_number(argument)) {
-		if (!str_cmp(argument, "abort")) {
+		if (!strcasecmp(argument, "abort")) {
 			if (!AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT)) {
 				send_to_char(ch, 
 					"Self-destruct sequence not currently initiated.\r\n");
@@ -3217,7 +3217,7 @@ ACMD(do_refill)
 		if (!syr->shared->proto || syr->shared->proto->aliases != syr->aliases) {
 			free(syr->aliases);
 		}
-		syr->aliases = str_dup(tmp_sprintf("%s %s", fname(vial->aliases), syr->aliases));
+		syr->aliases = strdup(tmp_sprintf("%s %s", fname(vial->aliases), syr->aliases));
 
 		if (IS_POTION(vial)) {
 			act("$P dissolves before your eyes.", FALSE, ch, syr, vial,

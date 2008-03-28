@@ -403,7 +403,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
 
     mail_list = NULL;
 
-    if (!str_cmp(buf, "clan")) {
+    if (!strcasecmp(buf, "clan")) {
         if (!(clan = real_clan(GET_CLAN(ch)))) {
             perform_tell(mailman, ch, "You are not a member of any clan!");
             return;

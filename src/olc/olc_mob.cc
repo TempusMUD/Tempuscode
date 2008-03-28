@@ -170,10 +170,10 @@ do_create_mob(struct Creature *ch, int vnum)
 	new_mob->player_specials = &dummy_mob;
 
 	/***** String data *** */
-	new_mob->player.name = str_dup("Fresh Blank Mobile");
-	new_mob->player.short_descr = str_dup("A Fresh Blank Mobile");
+	new_mob->player.name = strdup("Fresh Blank Mobile");
+	new_mob->player.short_descr = strdup("A Fresh Blank Mobile");
 	new_mob->player.long_descr =
-		str_dup("A Fresh Blank Mobile is here waiting to be violated.");
+		strdup("A Fresh Blank Mobile is here waiting to be violated.");
 	new_mob->player.description = NULL;
 	new_mob->player.title = NULL;
 
@@ -1860,10 +1860,10 @@ do_clear_olc_mob(struct Creature *ch)
 #ifdef DMALLOC
 	dmalloc_verify(0);
 #endif
-	targ->player.name = str_dup("Fresh Blank Mobile");
-	targ->player.short_descr = str_dup("a Fresh Blank Mobile");
+	targ->player.name = strdup("Fresh Blank Mobile");
+	targ->player.short_descr = strdup("a Fresh Blank Mobile");
 	targ->player.long_descr =
-		str_dup("A Fresh Blank Mobile is here waiting to be violated.");
+		strdup("A Fresh Blank Mobile is here waiting to be violated.");
 	targ->player.description = NULL;
 	targ->player.title = NULL;
 

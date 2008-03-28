@@ -1894,7 +1894,7 @@ ACMD(do_alias)
 		}
 		page_string(ch->desc, buf);
 	} else {					/* otherwise, add or display aliases */
-		if (!str_cmp(arg, "alias")) {
+		if (!strcasecmp(arg, "alias")) {
 			send_to_char(ch, "You can't alias 'alias'.\r\n");
 			return;
 		}
@@ -1913,8 +1913,8 @@ ACMD(do_alias)
 		}
 
 		CREATE(cur_alias, struct alias_data, 1);
-		cur_alias->alias = str_dup(arg);
-		cur_alias->replacement = str_dup(repl);
+		cur_alias->alias = strdup(arg);
+		cur_alias->replacement = strdup(repl);
 		if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR))
 			cur_alias->type = ALIAS_COMPLEX;
 		else

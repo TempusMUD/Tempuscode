@@ -65,13 +65,13 @@ SPECIAL(corpse_griller)
 		return 0;
 
 	sprintf(buf, "a steak made from %s", corpse->name);
-	steak->name = str_dup(buf);
+	steak->name = strdup(buf);
 
 	sprintf(buf, "steak meat %s", corpse->aliases);
-	steak->aliases = str_dup(buf);
+	steak->aliases = strdup(buf);
 
 	sprintf(buf, "%s is here.", steak->name);
-	steak->line_desc = str_dup(buf);
+	steak->line_desc = strdup(buf);
 
 	obj_to_char(steak, ch);
 	extract_obj(corpse);

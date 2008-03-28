@@ -546,7 +546,7 @@ ACMD(do_page)
 	else {
         char *msg = tmp_sprintf("\007*%s* %s", GET_NAME(ch), argument);
 
-		if (!str_cmp(target_str, "all")) {
+		if (!strcasecmp(target_str, "all")) {
 			if (GET_LEVEL(ch) > LVL_GOD) {
 				for (d = descriptor_list; d; d = d->next)
 					if (IS_PLAYING(d) && d->creature) {

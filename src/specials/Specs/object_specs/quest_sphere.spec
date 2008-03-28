@@ -231,7 +231,7 @@ SPECIAL(quest_sphere)
 			GET_OBJ_COST(self), GET_NAME(ch));
 		if (targ_obj->aliases != targ_obj->shared->proto->aliases)
 			free(targ_obj->aliases);
-		targ_obj->aliases = str_dup(targ_str);
+		targ_obj->aliases = strdup(targ_str);
 		mudlog(GET_LEVEL(ch), CMP, true,
 			"%s has used %s on %s", GET_NAME(ch), self->name,
 			targ_obj->name);

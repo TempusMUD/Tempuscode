@@ -50,9 +50,9 @@ same_obj(obj_data *obj1, obj_data *obj2)
 
 	if ((obj1->name != obj2->name ||
 			obj1->line_desc != obj2->line_desc) &&
-		(str_cmp(obj1->name, obj2->name) ||
+		(strcasecmp(obj1->name, obj2->name) ||
 			!obj1->line_desc || !obj2->line_desc ||
-			str_cmp(obj1->line_desc, obj2->line_desc)))
+			strcasecmp(obj1->line_desc, obj2->line_desc)))
 		return (FALSE);
 
 	if (GET_OBJ_COST(obj1) != GET_OBJ_COST(obj2) ||

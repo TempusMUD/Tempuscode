@@ -213,15 +213,15 @@ ACMD(do_ban)
 		send_to_char(ch, "Usage: ban {all | select | new} site_name\r\n");
 		return;
 	}
-	if (!(!str_cmp(flag, "select") || !str_cmp(flag, "all")
-			|| !str_cmp(flag, "new"))) {
+	if (!(!strcasecmp(flag, "select") || !strcasecmp(flag, "all")
+			|| !strcasecmp(flag, "new"))) {
 		send_to_char(ch, "Flag must be ALL, SELECT, or NEW.\r\n");
 		return;
 	}
 
     std::list<ban_entry>::iterator node = ban_list.begin();
     for (;node != ban_list.end();++node) {
-		if (!str_cmp(node->_site, site)) {
+		if (!strcasecmp(node->_site, site)) {
 			send_to_char(ch, 
 				"That site has already been banned -- unban it to change the ban type.\r\n");
 			return;
@@ -234,7 +234,7 @@ ACMD(do_ban)
 	}
 
 	for (int i = BAN_NEW; i <= BAN_ALL; i++)
-		if (!str_cmp(flag, ban_types[i]))
+		if (!strcasecmp(flag, ban_types[i]))
 			type = i;
 
     perform_ban(type, site, GET_NAME(ch), argument);
@@ -257,7 +257,7 @@ ACMD(do_unban)
 	}
     std::list<ban_entry>::iterator node = ban_list.begin();
     for (;node != ban_list.end();++node)
-		if (!str_cmp(node->_site, site))
+		if (!strcasecmp(node->_site, site))
             break;
 
 	if (node == ban_list.end()) {

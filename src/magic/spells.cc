@@ -1462,7 +1462,7 @@ ASPELL(spell_enchant_weapon)
 			sprintf(buf, " imm %senchant", GET_NAME(ch));
 			strcpy(buf2, obj->aliases);
 			strcat(buf2, buf);
-			obj->aliases = str_dup(buf2);
+			obj->aliases = strdup(buf2);
 			mudlog(GET_LEVEL(ch), CMP, true,
 				"ENCHANT: %s by %s.", obj->name,
 				GET_NAME(ch));
@@ -1535,7 +1535,7 @@ ASPELL(spell_enchant_armor)
 			sprintf(buf, " imm %senchant", GET_NAME(ch));
 			strcpy(buf2, obj->aliases);
 			strcat(buf2, buf);
-			obj->aliases = str_dup(buf2);
+			obj->aliases = strdup(buf2);
 			mudlog(GET_LEVEL(ch), CMP, true,
 				"ENCHANT: %s by %s.", obj->name,
 				GET_NAME(ch));
@@ -1648,7 +1648,7 @@ ASPELL(spell_greater_enchant)
 		sprintf(buf, " imm %senchant", GET_NAME(ch));
 		strcpy(buf2, obj->aliases);
 		strcat(buf2, buf);
-		obj->aliases = str_dup(buf2);
+		obj->aliases = strdup(buf2);
 		mudlog(GET_LEVEL(ch), CMP, true,
 			"ENCHANT: %s by %s.", obj->name,
 			GET_NAME(ch));
@@ -2456,7 +2456,7 @@ ASPELL(spell_shadow_breath)
 
 	if (!ROOM_FLAGGED(victim->in_room, ROOM_DARK)) {
 		rm_aff.description =
-			str_dup("This room is covered in a deep magical darkness.\r\n");
+			strdup("This room is covered in a deep magical darkness.\r\n");
 		rm_aff.duration = 1;
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.flags = ROOM_DARK;
@@ -2705,12 +2705,12 @@ ASPELL(spell_animate_dead)
 	// strings
 	//
 	sprintf(buf2, "%s zombie animated", obj->aliases);
-	zombie->player.name = str_dup(buf2);
-	zombie->player.short_descr = str_dup(obj->name);
+	zombie->player.name = strdup(buf2);
+	zombie->player.short_descr = strdup(obj->name);
 	strcpy(buf, obj->name);
 	strcat(buf, " is standing here.");
 	CAP(buf);
-	zombie->player.long_descr = str_dup(buf);
+	zombie->player.long_descr = strdup(buf);
 	zombie->player.description = NULL;
 
 	//
@@ -3177,7 +3177,7 @@ ASPELL(spell_inferno)
 	}
 
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED)) {
-		rm_aff.description = str_dup("   The room is ablaze in a hellish inferno of flame!\r\n");
+		rm_aff.description = strdup("   The room is ablaze in a hellish inferno of flame!\r\n");
 		rm_aff.level = level;
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.flags = ROOM_FLAME_FILLED;

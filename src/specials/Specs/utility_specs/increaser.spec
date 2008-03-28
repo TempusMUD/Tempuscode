@@ -58,11 +58,11 @@ SPECIAL(increaser)
 			status_desc);
 		return 1;
 	}
-	if (!str_cmp(arg1, "hit")) {
+	if (!strcasecmp(arg1, "hit")) {
 		mode = MODE_HITP;
-	} else if (!str_cmp(arg1, "mana")) {
+	} else if (!strcasecmp(arg1, "mana")) {
 		mode = MODE_MANA;
-	} else if (!str_cmp(arg1, "move")) {
+	} else if (!strcasecmp(arg1, "move")) {
 		mode = MODE_MOVE;
 	} else {
 		send_to_char(ch, "Increase what?\r\nType 'increase %s <amount>.\r\n",

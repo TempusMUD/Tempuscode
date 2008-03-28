@@ -403,9 +403,9 @@ do_create_obj(struct Creature *ch, int vnum)
 		new_obj->affected[i].modifier = 0;
 	}
 
-	new_obj->aliases = str_dup("fresh blank object");
-	new_obj->line_desc = str_dup("A fresh blank object is here.");
-	new_obj->name = str_dup("a fresh blank object");
+	new_obj->aliases = strdup("fresh blank object");
+	new_obj->line_desc = strdup("A fresh blank object is here.");
+	new_obj->name = strdup("a fresh blank object");
 	new_obj->action_desc = NULL;
 	new_obj->ex_description = NULL;
 
@@ -567,7 +567,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 			obj_p->name)
 			free(obj_p->name);
 
-		obj_p->name = str_dup(arg2);
+		obj_p->name = strdup(arg2);
 		if (subcmd == OLC_OSET)
 			UPDATE_OBJLIST_NAMES(obj_p, tmp_obj,->name);
 		send_to_char(ch, "Object name set.\r\n");
@@ -581,7 +581,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		if (arg2[0] == '~') {
 			obj_p->line_desc = NULL;
 		} else {
-			obj_p->line_desc = str_dup(arg2);
+			obj_p->line_desc = strdup(arg2);
 		}
 		if (subcmd == OLC_OSET) {
 			UPDATE_OBJLIST(obj_p, tmp_obj,->line_desc);
@@ -597,7 +597,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		desc = locate_exdesc(fname(obj_p->aliases), obj_p->ex_description, 1);
 		if (!desc) {
 			CREATE(ndesc, struct extra_descr_data, 1);
-			ndesc->keyword = str_dup(obj_p->aliases);
+			ndesc->keyword = strdup(obj_p->aliases);
 			ndesc->next = obj_p->ex_description;
 			obj_p->ex_description = ndesc;
 			desc = obj_p->ex_description;
@@ -1198,13 +1198,13 @@ do_clear_olc_object(struct Creature *ch)
 #endif
 	if (obj_p->aliases)
 		free(obj_p->aliases);
-	obj_p->aliases = str_dup("blank object");
+	obj_p->aliases = strdup("blank object");
 	if (obj_p->name)
 		free(obj_p->name);
-	obj_p->name = str_dup("a blank object");
+	obj_p->name = strdup("a blank object");
 	if (obj_p->line_desc)
 		free(obj_p->line_desc);
-	obj_p->line_desc = str_dup("A blank object has been dropped here.");
+	obj_p->line_desc = strdup("A blank object has been dropped here.");
 	if (obj_p->action_desc)
 		free(obj_p->action_desc);
 	obj_p->action_desc = NULL;

@@ -1799,7 +1799,7 @@ ACMD(do_enter)
 	// Handle entering doorways
 	for (door = 0; door < NUM_OF_DIRS; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->keyword)
-				if (!str_cmp(EXIT(ch, door)->keyword, arg)) {
+				if (!strcasecmp(EXIT(ch, door)->keyword, arg)) {
 					perform_move(ch, door, MOVE_NORM, 1);
 					return;
 				}

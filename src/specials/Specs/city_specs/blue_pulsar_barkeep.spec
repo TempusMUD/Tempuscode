@@ -17,7 +17,7 @@ SPECIAL(blue_pulsar)
 		return 0;
 	skip_spaces(&argument);
 
-	if (!*argument || str_cmp(argument, "beer"))
+	if (!*argument || strcasecmp(argument, "beer"))
 		return 0;
 
 	if (!(beer = read_object(beer_vnum)))

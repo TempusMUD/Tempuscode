@@ -32,13 +32,13 @@ SPECIAL(hell_domed_chamber)
 		ch->points.max_move;
 
 	sprintf(buf, "anti-%s anti %s", GET_NAME(ch), GET_NAME(ch));
-	cloned_char->player.name = str_dup(buf);
+	cloned_char->player.name = strdup(buf);
 
 	sprintf(buf, "the Anti-%s", GET_NAME(ch));
-	cloned_char->player.short_descr = str_dup(buf);
+	cloned_char->player.short_descr = strdup(buf);
 
 	sprintf(buf, "%s stands before you.\n", CAP(buf));
-	cloned_char->player.long_descr = str_dup(buf);
+	cloned_char->player.long_descr = strdup(buf);
 
 	cloned_char->player.description = NULL;
 

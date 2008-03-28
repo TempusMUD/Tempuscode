@@ -2296,7 +2296,7 @@ ACMD(do_shutdown)
             "Shutting down.\r\n"
             "Please visit our website at http://tempusmud.com\r\n");
         circle_shutdown = 1;
-    } else if (!str_cmp(arg, "abort")) {
+    } else if (!strcasecmp(arg, "abort")) {
         if (shutdown_count < 0)
             send_to_char(ch, "Shutdown process is not currently running.\r\n");
         else {
@@ -2308,7 +2308,7 @@ ACMD(do_shutdown)
         }
         return;
 
-    } else if (!str_cmp(arg, "reboot")) {
+    } else if (!strcasecmp(arg, "reboot")) {
         if (!count) {
             touch("../.fastboot");
             slog("(GC) Reboot by %s.", GET_NAME(ch));
@@ -2336,7 +2336,7 @@ ACMD(do_shutdown)
             shutdown_count = count;
             shutdown_mode = SHUTDOWN_REBOOT;
         }
-    } else if (!str_cmp(arg, "die")) {
+    } else if (!strcasecmp(arg, "die")) {
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
 		save_all_players();
 		Housing.collectRent();
@@ -2353,7 +2353,7 @@ ACMD(do_shutdown)
 
         touch("../.killscript");
         circle_shutdown = 1;
-    } else if (!str_cmp(arg, "pause")) {
+    } else if (!strcasecmp(arg, "pause")) {
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
 		save_all_players();
 		Housing.collectRent();
@@ -3308,7 +3308,7 @@ ACMD(do_poofset)
     if (!*argument)
         *msg = NULL;
     else {
-        *msg = str_dup(argument);
+        *msg = strdup(argument);
     }
     send_to_char(ch, OK);
 }
@@ -6100,10 +6100,10 @@ ACMD(do_set)
     if (!strcmp(name, "file")) {
         is_file = 1;
         name = tmp_getword(&argument);
-    } else if (!str_cmp(name, "player")) {
+    } else if (!strcasecmp(name, "player")) {
         is_player = 1;
         name = tmp_getword(&argument);
-    } else if (!str_cmp(name, "mob")) {
+    } else if (!strcasecmp(name, "mob")) {
         is_mob = 1;
         name = tmp_getword(&argument);
     }
@@ -6298,11 +6298,11 @@ ACMD(do_set)
         affect_total(vict);
         break;
     case 17:
-        if (!str_cmp(argument, "male"))
+        if (!strcasecmp(argument, "male"))
             vict->player.sex = SEX_MALE;
-        else if (!str_cmp(argument, "female"))
+        else if (!strcasecmp(argument, "female"))
             vict->player.sex = SEX_FEMALE;
-        else if (!str_cmp(argument, "neutral"))
+        else if (!strcasecmp(argument, "neutral"))
             vict->player.sex = SEX_NEUTRAL;
         else {
             send_to_char(ch, "Must be 'male', 'female', or 'neutral'.\r\n");
@@ -6364,7 +6364,7 @@ ACMD(do_set)
     case 29:
     case 30:
     case 31:
-        if (!str_cmp(argument, "off")) {
+        if (!strcasecmp(argument, "off")) {
             GET_COND(vict, (l - 29)) = (char)-1;
             sprintf(buf, "%s's %s now off.", GET_NAME(vict), fields[l].cmd);
         } else if (is_number(argument)) {
@@ -7308,20 +7308,20 @@ ACMD(do_rename)
     if (obj) {
         sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
             obj->name, new_desc);
-        obj->name = str_dup(new_desc);
+        obj->name = strdup(new_desc);
         sprintf(buf, "%s has been left here.", new_desc);
         strcpy(buf, CAP(buf));
-        obj->line_desc = str_dup(buf);
+        obj->line_desc = strdup(buf);
     } else if (vict) {
         sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
             GET_NAME(vict), new_desc);
-        vict->player.short_descr = str_dup(new_desc);
+        vict->player.short_descr = strdup(new_desc);
         if (vict->getPosition() == POS_FLYING)
             sprintf(buf, "%s is hovering here.", new_desc);
         else
             sprintf(buf, "%s is standing here.", new_desc);
         strcpy(buf, CAP(buf));
-        vict->player.long_descr = str_dup(buf);
+        vict->player.long_descr = strdup(buf);
     }
     send_to_char(ch, "Okay, you do it.\r\n");
     mudlog(MAX(LVL_ETERNAL, GET_INVIS_LVL(ch)), CMP, true, "%s", logbuf);
@@ -7376,7 +7376,7 @@ ACMD(do_addname)
                 continue;
             }
             snprintf(buf, EXDSCR_LENGTH, "%s %s", obj->aliases, new_name);
-            obj->aliases = str_dup(buf);
+            obj->aliases = strdup(buf);
         } else if (vict) {
             if(strstr(vict->player.name, new_name) != NULL) {
                 send_to_char(ch, "Name: \'%s\' is already an alias.\r\n", new_name);
@@ -7385,7 +7385,7 @@ ACMD(do_addname)
             
             sprintf(buf, "%s ", new_name);
             strcat(buf, vict->player.name);
-            vict->player.name = str_dup(buf);
+            vict->player.name = strdup(buf);
         }
     }
     send_to_char(ch, "Okay, you do it.\r\n");
@@ -8683,7 +8683,7 @@ ACMD(do_users)
 				continue;
 			if (host_search && !strstr(d->host, host_search))
 				continue;
-			if (name_search && str_cmp(GET_NAME(tch), name_search))
+			if (name_search && strcasecmp(GET_NAME(tch), name_search))
 				continue;
 			if (GET_LEVEL(ch) < LVL_LUCIFER)
 				if (!can_see_creature(ch, tch) || GET_LEVEL(tch) < low

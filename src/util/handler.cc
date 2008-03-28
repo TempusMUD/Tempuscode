@@ -1010,13 +1010,13 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 		trail->next = room->trail;
 		room->trail = trail;
 
-		trail->name = str_dup(tmp_capitalize(GET_NAME(ch)));
+		trail->name = strdup(tmp_capitalize(GET_NAME(ch)));
 		if (IS_NPC(ch)) {
 			trail->idnum = -MOB_IDNUM(ch);
-			trail->aliases = str_dup(ch->player.name);
+			trail->aliases = strdup(ch->player.name);
 		} else {
 			trail->idnum = GET_IDNUM(ch);
-			trail->aliases = str_dup(tmp_sprintf("%s .%s", ch->player.name,
+			trail->aliases = strdup(tmp_sprintf("%s .%s", ch->player.name,
 				ch->player.name));
 		}
 		trail->from_dir = -1;
@@ -1283,7 +1283,7 @@ obj_to_char(struct obj_data *object, struct Creature *ch, bool sorted)
 		if (ch->carrying && ch->carrying->shared->vnum ==
 			object->shared->vnum &&
 			((object->shared->proto && object->name == ch->carrying->name)
-				|| !str_cmp(object->name, ch->carrying->name))
+				|| !strcasecmp(object->name, ch->carrying->name))
 			&& GET_OBJ_EXTRA(ch->carrying) == GET_OBJ_EXTRA(object)
 			&& GET_OBJ_EXTRA2(ch->carrying) == GET_OBJ_EXTRA2(object)) {
 			object->next_content = ch->carrying;
@@ -1297,7 +1297,7 @@ obj_to_char(struct obj_data *object, struct Creature *ch, bool sorted)
 				((object->shared->proto &&
 						object->name ==
 						o->next_content->name)
-					|| !str_cmp(object->name,
+					|| !strcasecmp(object->name,
 						o->next_content->name))
 				&& GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(object)
 				&& GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(object)) {
@@ -2170,7 +2170,7 @@ get_char_room_vis(struct Creature *ch, char *name)
 	if( number == 0 )
 		return get_player_vis(ch, tmp, 1);
 
-	if( str_cmp(name, "self") == 0 )
+	if( strcasecmp(name, "self") == 0 )
 		return ch;
 
 	CreatureList::iterator it = ch->in_room->people.begin();
@@ -2545,31 +2545,31 @@ create_money(int amount, int mode)
 
 	if (mode == 0) {
 		if (amount == 1) {
-			obj->aliases = str_dup("coin gold");
-			new_descr->keyword = str_dup("coin gold");
-			obj->name = str_dup("a gold coin");
+			obj->aliases = strdup("coin gold");
+			new_descr->keyword = strdup("coin gold");
+			obj->name = strdup("a gold coin");
 			obj->line_desc =
-				str_dup("One miserable gold coin is lying here.");
+				strdup("One miserable gold coin is lying here.");
 		} else {
-			obj->aliases = str_dup("coins gold");
-			new_descr->keyword = str_dup("coins gold");
-			obj->name = str_dup(money_desc(amount, mode));
-			obj->line_desc = str_dup(tmp_capitalize(tmp_sprintf(
+			obj->aliases = strdup("coins gold");
+			new_descr->keyword = strdup("coins gold");
+			obj->name = strdup(money_desc(amount, mode));
+			obj->line_desc = strdup(tmp_capitalize(tmp_sprintf(
 				"%s is lying here.", obj->name)));
 		}
 		GET_OBJ_MATERIAL(obj) = MAT_GOLD;
 	} else {					// credits
 		if (amount == 1) {
-			obj->aliases = str_dup("credit money note one-credit");
-			obj->name = str_dup("a one-credit note");
+			obj->aliases = strdup("credit money note one-credit");
+			obj->name = strdup("a one-credit note");
 			obj->line_desc =
-				str_dup("A single one-credit note has been dropped here.");
-			new_descr->keyword = str_dup("credit money note one-credit");
+				strdup("A single one-credit note has been dropped here.");
+			new_descr->keyword = strdup("credit money note one-credit");
 		} else {
-			obj->aliases = str_dup("credits money cash");
-			new_descr->keyword = str_dup("credits money cash");
-			obj->name = str_dup(money_desc(amount, mode));
-			obj->line_desc = str_dup(tmp_capitalize(tmp_sprintf(
+			obj->aliases = strdup("credits money cash");
+			new_descr->keyword = strdup("credits money cash");
+			obj->name = strdup(money_desc(amount, mode));
+			obj->line_desc = strdup(tmp_capitalize(tmp_sprintf(
 				"%s is lying here.", obj->name)));
 		}
 		GET_OBJ_MATERIAL(obj) = MAT_PAPER;
@@ -2577,28 +2577,28 @@ create_money(int amount, int mode)
 
 	if (amount == 1) {
 		if (mode)
-			new_descr->description = str_dup("It's one almighty credit!");
+			new_descr->description = strdup("It's one almighty credit!");
 		else
 			new_descr->description =
-				str_dup("It's just one miserable little gold coin.");
+				strdup("It's just one miserable little gold coin.");
 	} else if (amount < 10) {
-		new_descr->description = str_dup(tmp_sprintf(
+		new_descr->description = strdup(tmp_sprintf(
 			"There are %d %s.", amount, mode ? "credits" : "coins"));
 	} else if (amount < 100) {
-		new_descr->description = str_dup(tmp_sprintf(
+		new_descr->description = strdup(tmp_sprintf(
 			"There are about %d %s.", 10 * (amount / 10),
 			mode ? "credits" : "coins"));
 	} else if (amount < 1000) {
-		new_descr->description = str_dup(tmp_sprintf(
+		new_descr->description = strdup(tmp_sprintf(
 			"It looks to be about %d %s.", 100 * (amount / 100),
 			mode ? "credits" : "coins"));
 	} else if (amount < 100000) {
-		new_descr->description = str_dup(tmp_sprintf(
+		new_descr->description = strdup(tmp_sprintf(
 			"You guess there are, maybe, %d %s.",
 			1000 * ((amount / 1000) + number(0, (amount / 1000))),
 			mode ? "credits" : "coins"));
 	} else {
-		new_descr->description = str_dup(tmp_sprintf(
+		new_descr->description = strdup(tmp_sprintf(
 			"There are a LOT of %s.", mode ? "credits" : "coins"));
 	}
 	new_descr->next = NULL;

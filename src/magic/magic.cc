@@ -3973,7 +3973,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
             strcpy(buf2, obj->aliases);
             strcat(buf2, buf);
             free(obj->aliases);
-            obj->aliases = str_dup(buf2);
+            obj->aliases = strdup(buf2);
             mudlog(GET_LEVEL(ch), CMP, true,
                 "ENCHANT: %s lattice hardened by %s.",
                 obj->name, GET_NAME(ch));
@@ -4260,7 +4260,7 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 			strcpy(buf2, obj->aliases);
 			strcat(buf2, buf);
             free(obj->aliases);
-			obj->aliases = str_dup(buf2);
+			obj->aliases = strdup(buf2);
 			mudlog(GET_INVIS_LVL(ch), CMP, true,
 				"ENCHANT: Bless. %s by %s.", obj->name,
 				GET_NAME(ch));
@@ -4369,11 +4369,11 @@ mag_exits(int level, struct Creature *caster, struct room_data *room,
 	}
 
 	sprintf(buf2, "%s %s.\r\n", buf, to_dirs[dir]);
-	rm_aff.description = str_dup(buf2);
+	rm_aff.description = strdup(buf2);
 
 	if (o_room) {
 		sprintf(buf2, "%s %s.\r\n", buf, to_dirs[(int)o_rm_aff.type]);
-		o_rm_aff.description = str_dup(buf2);
+		o_rm_aff.description = strdup(buf2);
 		o_rm_aff.duration = rm_aff.duration;
 		o_rm_aff.flags = EX_WALL_THORNS;
 		affect_to_room(o_room, &o_rm_aff);

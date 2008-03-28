@@ -464,7 +464,7 @@ ACMD(do_group)
 		return;
 	}
 
-	if (!str_cmp(buf, "all")) {
+	if (!strcasecmp(buf, "all")) {
 		perform_group(ch, ch);
 		for (found = 0, f = ch->followers; f; f = f->next)
 			found += perform_group(ch, f->follower);
@@ -930,17 +930,17 @@ ACMD(do_display)
 			}
 	}
 
-	if ((!str_cmp(arg1, "on")) || (!str_cmp(arg1, "normal"))) {
+	if ((!strcasecmp(arg1, "on")) || (!strcasecmp(arg1, "normal"))) {
 		REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
 		SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
 	}
 
-	else if ((!str_cmp(arg1, "all"))) {
+	else if ((!strcasecmp(arg1, "all"))) {
 		SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
 		SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
 	}
 
-    else if ((!str_cmp(arg1, "vnums"))) {
+    else if ((!strcasecmp(arg1, "vnums"))) {
         if (PRF2_FLAGS(ch) & PRF2_DISP_VNUMS)
             REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISP_VNUMS);
         else

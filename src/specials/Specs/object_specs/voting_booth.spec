@@ -429,8 +429,8 @@ voting_add_poll(const char *header, const char *text)
 
 	CREATE(voting_new_poll, struct voting_poll, 1);
 	voting_new_poll->next = NULL;
-	voting_new_poll->header = str_dup(header);
-	voting_new_poll->descrip = str_dup(text);
+	voting_new_poll->header = strdup(header);
+	voting_new_poll->descrip = strdup(text);
 	voting_new_poll->creation_time = time(NULL);
 	voting_new_poll->count = 0;
 	voting_new_poll->options = NULL;
@@ -459,13 +459,13 @@ voting_add_poll(const char *header, const char *text)
 				line_pt++;
 				skip_spaces(&line_pt);
 				if (reading_desc) {
-					voting_new_poll->descrip = str_dup(buf);
+					voting_new_poll->descrip = strdup(buf);
 					reading_desc = 0;
 					buf[0] = '\0';
 				} else {
 					CREATE(new_option, struct voting_option, 1);
 					new_option->idx = opt_idx++;
-					new_option->descrip = str_dup(buf);
+					new_option->descrip = strdup(buf);
 					new_option->count = 0;
 					new_option->next = NULL;
 					if (prev_option)
@@ -488,11 +488,11 @@ voting_add_poll(const char *header, const char *text)
 
 	if (buf[0]) {
 		if (reading_desc) {
-			voting_new_poll->descrip = str_dup(buf);
+			voting_new_poll->descrip = strdup(buf);
 		} else {
 			CREATE(new_option, struct voting_option, 1);
 			new_option->idx = opt_idx++;
-			new_option->descrip = str_dup(buf);
+			new_option->descrip = strdup(buf);
 			new_option->count = 0;
 			new_option->next = NULL;
 			if (prev_option)

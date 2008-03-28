@@ -1312,7 +1312,7 @@ find_spell_targets(struct Creature *ch, char *argument,
 
 		if (!*target && IS_SET(SINFO.targets, TAR_OBJ_EQUIP)) {
 			for (i = 0; !*target && i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && !str_cmp(targets, GET_EQ(ch, i)->aliases)) {
+				if (GET_EQ(ch, i) && !strcasecmp(targets, GET_EQ(ch, i)->aliases)) {
 					*tobj = GET_EQ(ch, i);
 					*target = TRUE;
 				}

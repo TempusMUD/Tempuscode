@@ -488,62 +488,62 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 	GET_OBJ_DAM(new_obj) = 100;
 	if (type == SPELL_OXIDIZE && IS_FERROUS(obj)) {
 		msg = "$p dissolves into a pile of rust!!";
-		new_obj->aliases = str_dup("pile rust");
-		new_obj->name = str_dup("a pile of rust");
+		new_obj->aliases = strdup("pile rust");
+		new_obj->name = strdup("a pile of rust");
 		strcat(CAP(buf), " is lying here.");
-		new_obj->line_desc = str_dup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
+		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
 		GET_OBJ_MATERIAL(new_obj) = MAT_RUST;
 	} else if (type == SPELL_OXIDIZE && IS_BURNABLE_TYPE(obj)) {
 		msg = "$p is incinerated!!";
-		new_obj->aliases = str_dup("pile ash");
-		new_obj->name = str_dup("a pile of ash");
-		new_obj->line_desc = str_dup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
+		new_obj->aliases = strdup("pile ash");
+		new_obj->name = strdup("a pile of ash");
+		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
 		GET_OBJ_MATERIAL(new_obj) = MAT_ASH;
 
 	} else if (type == SPELL_BLESS) {
 		msg = "$p glows bright blue and shatters to pieces!!";
-		new_obj->aliases = str_dup(tmp_sprintf("%s %s shattered fragments",
+		new_obj->aliases = strdup(tmp_sprintf("%s %s shattered fragments",
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
-		new_obj->name = str_dup(tmp_strcat(
+		new_obj->name = strdup(tmp_strcat(
 			"shattered fragments of ", mat_name));
-		new_obj->line_desc = str_dup(tmp_capitalize(
+		new_obj->line_desc = strdup(tmp_capitalize(
 			tmp_strcat(new_obj->name, " are lying here.")));
 	} else if (type == SPELL_DAMN) {
 		msg = "$p glows bright red and shatters to pieces!!";
-		new_obj->aliases = str_dup(tmp_sprintf("%s %s shattered fragments",
+		new_obj->aliases = strdup(tmp_sprintf("%s %s shattered fragments",
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
-		new_obj->name = str_dup(tmp_strcat(
+		new_obj->name = strdup(tmp_strcat(
 			"shattered pieces of ", mat_name));
-		new_obj->line_desc = str_dup(tmp_capitalize(
+		new_obj->line_desc = strdup(tmp_capitalize(
 			tmp_strcat(new_obj->name, " are lying here.")));
 	} else if (IS_METAL_TYPE(obj)) {
 		msg = "$p is reduced to a mangled pile of scrap!!";
-		new_obj->aliases = str_dup(tmp_sprintf("%s %s mangled heap",
+		new_obj->aliases = strdup(tmp_sprintf("%s %s mangled heap",
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
-		new_obj->name = str_dup(tmp_strcat("a mangled heap of ", mat_name));
-		new_obj->line_desc = str_dup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
+		new_obj->name = strdup(tmp_strcat("a mangled heap of ", mat_name));
+		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
 
 	} else if (IS_STONE_TYPE(obj) || IS_GLASS_TYPE(obj)) {
 		msg = "$p shatters into a thousand fragments!!";
-		new_obj->aliases = str_dup(tmp_sprintf("%s %s shattered fragments",
+		new_obj->aliases = strdup(tmp_sprintf("%s %s shattered fragments",
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
-		new_obj->name = str_dup(tmp_strcat(
+		new_obj->name = strdup(tmp_strcat(
 			"shattered fragments of ", mat_name));
-		new_obj->line_desc = str_dup(tmp_capitalize(
+		new_obj->line_desc = strdup(tmp_capitalize(
 			tmp_strcat(new_obj->name, " are lying here.")));
 
 	} else {
 		msg =  "$p has been destroyed!";
-		new_obj->aliases = str_dup(tmp_sprintf("%s %s mutilated heap",
+		new_obj->aliases = strdup(tmp_sprintf("%s %s mutilated heap",
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
-		new_obj->name = str_dup(tmp_strcat(
+		new_obj->name = strdup(tmp_strcat(
 			"a mutilated heap of ", mat_name));
-		new_obj->line_desc = str_dup(tmp_capitalize(
+		new_obj->line_desc = strdup(tmp_capitalize(
 			tmp_strcat(new_obj->name, " is lying here.")));
 
 		if (IS_CORPSE(obj)) {
@@ -1574,10 +1574,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				victim->in_room);
 			if (victim->in_room->sector_type == SECT_PITCH_PIT)
 				rm_aff.description =
-					str_dup("   The pitch is ablaze with raging flames!\r\n");
+					strdup("   The pitch is ablaze with raging flames!\r\n");
 			else
 				rm_aff.description =
-					str_dup("   The room is ablaze with raging flames!\r\n");
+					strdup("   The room is ablaze with raging flames!\r\n");
 
 			rm_aff.level = (ch != NULL) ? GET_LEVEL(ch) : number(1, 49);
 			rm_aff.duration = number(3, 8);

@@ -16,7 +16,7 @@ SPECIAL(free_bricks)
 
 	skip_spaces(&argument);
 
-	if (str_cmp(argument, "brick"))
+	if (strcasecmp(argument, "brick"))
 		return 0;
 
 	for (obj = ch->in_room->contents; obj; obj = obj->next_content)

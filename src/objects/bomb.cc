@@ -438,7 +438,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
         !room_is_watery(room) &&
 		!ROOM_FLAGGED(room, ROOM_FLAME_FILLED)) {
 		rm_aff.description =
-			str_dup("   The room is ablaze with raging flames!\r\n");
+			strdup("   The room is ablaze with raging flames!\r\n");
 		rm_aff.duration = 1 + number(power >> 3, power);
 		rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
 		rm_aff.type = RM_AFF_FLAGS;
@@ -448,7 +448,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 	} else if (bomb_type == BOMB_NUCLEAR &&
 		!ROOM_FLAGGED(room, ROOM_RADIOACTIVE)) {
 		rm_aff.description =
-			str_dup("   You feel a warm glowing feeling.\r\n");
+			strdup("   You feel a warm glowing feeling.\r\n");
 		rm_aff.duration = number(power << 1, power << 4);
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
@@ -458,7 +458,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 	} else if (bomb_type == BOMB_SMOKE &&
 		!ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)) {
 		rm_aff.description =
-			str_dup
+			strdup
 			("   The room is filled with thick smoke, hindering your vision.\r\n");
 		rm_aff.duration = number(power, power << 1);
 		rm_aff.type = RM_AFF_FLAGS;
