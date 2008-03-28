@@ -103,18 +103,18 @@ count_pkill(Creature *killer, Creature *victim)
             int gain = 10;
 
             // adjust for level/gen difference
-            gain += ((GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)
-                     - (GET_LEVEL(killer) + GET_REMORT_GEN(killer) * 50)) / 5;
+            gain += ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
+                     - (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
 
             // Additional adjustment for killing an innocent
-            if (GET_REPUTATION(killer) == 0)
+            if (GET_REPUTATION(victim) == 0)
                 gain *= 2;
 
             // Additional adjustment for killing a lower gen
-            if (GET_REMORT_GEN(victim) > GET_REMORT_GEN(killer))
-                gain += (GET_REMORT_GEN(victim) - GET_REMORT_GEN(killer)) * 9;
+            if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
+                gain += (GET_REMORT_GEN(perp) - GET_REMORT_GEN(victim)) * 9;
 
-            if (IS_CRIMINAL(killer))
+            if (IS_CRIMINAL(victim))
                 gain /= 4;
 
             gain = MAX(1, gain);
@@ -291,19 +291,16 @@ check_thief(struct Creature *ch, struct Creature *victim,
     int gain = 10;
 
     // adjust for level/gen difference
-    gain += ((GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)
-             - (GET_LEVEL(ch) + GET_REMORT_GEN(ch) * 50)) / 5;
+    gain += ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
+             - (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
 
-    // Additional adjustment for killing an innocent
-    if (GET_REPUTATION(ch) == 0)
+    // Additional adjustment for stealing from an innocent
+    if (GET_REPUTATION(victim) == 0)
         gain *= 2;
 
-    // Additional adjustment for killing a lower gen
-    if (GET_REMORT_GEN(victim) > GET_REMORT_GEN(ch))
-        gain += (GET_REMORT_GEN(victim) - GET_REMORT_GEN(ch)) * 9;
-
-    if (IS_CRIMINAL(ch))
-        gain /= 4;
+    // Additional adjustment for stealing from a lower gen
+    if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
+        gain += (GET_REMORT_GEN(perp) - GET_REMORT_GEN(victim)) * 9;
 
     // Theft has a much lower penalty
     gain /= 10;
