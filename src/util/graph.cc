@@ -825,16 +825,7 @@ hunt_victim(struct Creature *ch)
 					return 0;
 				}
 
-				if (!number(0, 4))
-					do_gen_comm(ch, buf2, 0, SCMD_SHOUT, 0);
-				if (!number(0, 5))
-					do_gen_comm(ch, buf2, 0, SCMD_HOLLER, 0);
-				else if (!number(0, 2))
-					do_gen_comm(ch, buf2, 0, SCMD_GOSSIP, 0);
-				else if (!number(0, 1))
-					do_gen_comm(ch, buf2, 0, SCMD_SPEW, 0);
-				else
-					do_gen_comm(ch, buf2, 0, SCMD_MUSIC, 0);
+                do_gen_comm(ch, buf2, 0, SCMD_SHOUT, 0);
 			}
 
 			if (!number(0, 32))
