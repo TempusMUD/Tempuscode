@@ -496,6 +496,7 @@ struct command_info cmd_info[] = {
 	{"arm", POS_SITTING, do_arm, 1, 0, 0, 0},
 	{"assist", POS_FIGHTING, do_assist, 1, 0, 0, 0},
 	{"assemble", POS_RESTING, do_not_here, 0, 0, 0, 0},
+	{"assert", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"assimilate", POS_RESTING, do_assimilate, 0, 0, 0, 0},
 	{"aset", POS_DEAD, do_aset, 51, 0, 0, 0},
 	{"ask", POS_RESTING, do_say, 0, 0, 0, 0},
