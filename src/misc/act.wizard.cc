@@ -5848,45 +5848,44 @@ ACMD(do_show)
 
     case 50:                    // zexits
 
-        if (!*arg || !*value) {
+        if (*value != 'f' && *value != 't') {
+            send_to_char(ch, "First argument must be 'to' or 'from'.\r\n");
             send_to_char(ch, ZEXITS_USAGE);
             return;
         }
+        if (!*arg) {
+            send_to_char(ch, "Second argument must be a zone number.\r\n");
+            send_to_char(ch, ZEXITS_USAGE);
+            return;
+        }
+
         k = atoi(arg);
 
         if (!(zone = real_zone(k))) {
             send_to_char(ch, "Zone %d does not exist.\r\n", k);
             return;
         }
-        // check for exits FROM zone k, easy to do
-        if (*value == 'f') {
+        acc_string_clear();
 
-            sprintf(buf, "Rooms with exits FROM zone %d:\r\n", k);
+        if (*value == 'f') {
+            // check for exits FROM zone k, easy to do
+            acc_sprintf("Rooms with exits FROM zone %d:\r\n", k);
 
             for (room = zone->world, j = 0; room; room = room->next) {
                 for (i = 0; i < NUM_DIRS; i++) {
                     if (room->dir_option[i] && room->dir_option[i]->to_room &&
                         room->dir_option[i]->to_room->zone != zone) {
-                        if (strlen(buf) > MAX_STRING_LENGTH - 128) {
-                            strcat(buf, "**OVERFLOW**\r\n");
-                            break;
-                        }
-
-                        sprintf(buf, "%s%3d. [%5d] %-40s %5s -> %7d\r\n", buf,
+                        acc_sprintf("%3d. [%5d] %-40s %5s -> %7d\r\n",
                             ++j, room->number, room->name, dirs[i],
                             room->dir_option[i]->to_room->number);
                     }
                 }
             }
-            page_string(ch->desc, buf);
-            return;
-        }
-        // check for exits TO zone k, a slow operation
-        if (*value == 't') {
+        } else if (*value == 't') {
+            // check for exits TO zone k, a slow operation
+            acc_sprintf("Rooms with exits TO zone %d:\r\n", k);
 
-            sprintf(buf, "Rooms with exits TO zone %d:\r\n", k);
-
-            for (zone = zone_table, j = 0, found = 0; zone; zone = zone->next) {
+            for (zone = zone_table, j = 0; zone; zone = zone->next) {
                 if (zone->number == k)
                     continue;
                 for (room = zone->world; room; room = room->next) {
@@ -5894,28 +5893,15 @@ ACMD(do_show)
                         if (room->dir_option[i] && room->dir_option[i]->to_room
                             && room->dir_option[i]->to_room->zone->number ==
                             k) {
-                            if (strlen(buf) > MAX_STRING_LENGTH - 128) {
-                                strcat(buf, "**OVERFLOW**\r\n");
-                                break;
-                            }
-                            if (!found) {
-                                strcat(buf, "------------\r\n");
-                                ++found;
-                            }
-                            sprintf(buf, "%s%3d. [%5d] %-40s %5s -> %7d\r\n",
-                                buf, ++j, room->number, room->name, dirs[i],
-                                room->dir_option[i]->to_room->number);
+                            acc_sprintf("%3d. [%5d] %-40s %5s -> %7d\r\n",
+                                        ++j, room->number, room->name, dirs[i],
+                                        room->dir_option[i]->to_room->number);
                         }
                     }
                 }
             }
-            page_string(ch->desc, buf);
-            return;
         }
-
-        send_to_char(ch, "First argument must be 'to' or 'from'.\r\n");
-        send_to_char(ch, ZEXITS_USAGE);
-
+        page_string(ch->desc, acc_get_string());
         break;
 
     case 51:                    // mlevels
