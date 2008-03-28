@@ -211,7 +211,7 @@ ACMD(do_steal)
 		}
 
 	} else {					/* Steal some coins */
-		if (str_cmp(obj_name, "coins") && str_cmp(obj_name, "gold")) {
+		if (!str_cmp(obj_name, "coins") || !str_cmp(obj_name, "gold")) {
 			
 			if (AWAKE(vict) && (percent > CHECK_SKILL(ch, SKILL_STEAL)) &&
 			GET_LEVEL(ch) < LVL_IMPL) {
