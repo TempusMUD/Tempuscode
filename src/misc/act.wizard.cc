@@ -5138,6 +5138,7 @@ struct show_struct fields[] = {
     {"account", LVL_IMMORT, "AdminBasic"},
     {"rooms", LVL_IMMORT, "OLC"}, // 60
 	{"boards", LVL_IMMORT, "OLC"},
+	{"rexits", LVL_IMMORT, "OLC"},
     {"\n", 0, ""}
 };
 
@@ -5956,6 +5957,40 @@ ACMD(do_show)
         break;
 	case 61: // boards
 		gen_board_show(ch);
+    case 62: // rexits
+        if (!*value) {
+            send_to_char(ch, "Usage: show rexits <room>\r\n");
+            return;
+        }
+        k = atoi(value);
+
+        if (!real_room(k)) {
+            send_to_char(ch, "Room %d does not exist.\r\n", k);
+            return;
+        }
+
+        acc_string_clear();
+        // check for exits TO room k, a slow operation
+        acc_sprintf("Rooms with exits TO room %d:\r\n", k);
+
+        for (zone = zone_table, j = 0; zone; zone = zone->next) {
+            for (room = zone->world; room; room = room->next) {
+                if (room->number == k)
+                    continue;
+                for (i = 0; i < NUM_DIRS; i++) {
+                    if (room->dir_option[i]
+                        && room->dir_option[i]->to_room
+                        && room->dir_option[i]->to_room->number == k) {
+                        acc_sprintf("%3d. [%5d] %-40s %5s -> %7d\r\n",
+                                    ++j, room->number, room->name, dirs[i],
+                                    room->dir_option[i]->to_room->number);
+                    }
+                }
+            }
+        }
+
+        page_string(ch->desc, acc_get_string());
+        break;
     default:
         send_to_char(ch, "Sorry, I don't understand that.\r\n");
         break;
