@@ -484,20 +484,22 @@ void
 acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev)
 {
 	struct Creature *i;
-	struct clanmember_data *member = NULL, *ch_member = NULL;
+	struct clanmember_data *member = NULL;
 	struct descriptor_data *d;
-	int visible = 1;
-	int found = 0;
 	char *name;
 
-	for (member = clan->member_list; member; member = member->next, found = 0) {
+	for (member = clan->member_list; member; member = member->next) {
+        bool found = false;
 		for (d = descriptor_list; d && !found; d = d->next) {
 			if (IS_PLAYING(d)) {
 				i = ((d->original && GET_LEVEL(ch) > GET_LEVEL(d->original)) ?
 					d->original : d->creature);
-				if (i && GET_CLAN(i) == GET_CLAN(ch) &&
-					GET_IDNUM(i) == member->idnum && (visible = can_see_creature(ch, i))
-					&& GET_LEVEL(i) >= min_lev && (i->in_room != NULL)) {
+				if (i
+                    && GET_CLAN(i) == GET_CLAN(ch)
+                    && GET_IDNUM(i) == member->idnum
+                    && can_see_creature(ch, i)
+					&& GET_LEVEL(i) >= min_lev
+                    && i->in_room) {
 					name = tmp_strcat(GET_NAME(i), " ",
                                       clan_rankname(clan, member->rank),
                                       " (online)", NULL);
@@ -570,10 +572,6 @@ acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev
 			}
 		}
 		if (complete && !found) {
-			if (!ch_member || member->rank > ch_member->rank ||
-				!playerIndex.getName(member->idnum)) {
-				continue;
-			}
 			i = new Creature(true);
 			if (i->loadFromXML(member->idnum)) {
 				name = tmp_strcat(GET_NAME(i), " ",
