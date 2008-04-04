@@ -8,153 +8,120 @@
 
 # converted to bash by John Watson, June 22 1999.
 
-# If .fastboot exists, the script will sleep for only 5 seconds between reboot
-# attempts.  If .killscript exists, the script commit suicide (and remove
-# .killscript).  If pause exists, the script will repeatedly sleep for
-# 60 seconds and will not restart the mud until pause is removed.
+# If .killscript exists, the script will commit suicide (and remove
+# .killscript).  If pause exists, the script will sleep and will not
+# restart the mud until pause is removed.
 
-PORT=2020 
-OLDFLAGS='-p'
+udate() {
+    date -u +"%Y-%m-%dT%H%M%SZ"
+}
+
+PORT=2020
 FLAGS='-p'
-ulimit -c unlimited
 
-while /bin/true; do
+rm -f .killscript
 
-    DATE=`date`
+while [ ! -e .killscript ]; do
+
+    rm -f pause
+
+    DATE=`udate`
 
     echo "autoscript starting game $DATE" >> syslog
 
-    if [ -r .wizlock ]; then
-        rm .wizlock
-        OLDFLAGS=$FLAGS
-        FLAGS=$FLAGS' -b'
-        echo 'wizlock enabled, flags='$FLAGS >> syslog
-    fi
+    bin/circle $FLAGS $PORT > syslog 2>&1 &
+    PID=$!
+    echo $PID >/var/run/tempus.pid
 
-    rm -f pause
-    bin/circle $FLAGS $PORT > syslog 2>&1
+    wait $PID                   # Wait for tempus to finish running
+    RESULT=$?
 
-    FLAGS=$OLDFLAGS
+    rm /var/run/tempus.pid
 
-    fgrep "delete"   syslog >> log/parsed/delete
-    fgrep "death trap"    syslog >> log/parsed/dts
-    fgrep "killed"        syslog >> log/parsed/rip
-    fgrep "Running"       syslog >> log/parsed/restarts
-    fgrep "advanced"      syslog >> log/parsed/levels
-    fgrep "equipment lost" syslog >> log/parsed/rentgone
-    fgrep "usage"         syslog >> log/parsed/usage
-    fgrep "new player"    syslog >> log/parsed/newplayers
-    fgrep "new player"    syslog >> log/parsed/cur_newplayers
-    fgrep "SYSERR"        syslog >> log/parsed/errors
-    fgrep "DEBUG"         syslog >> log/parsed/debug
-    fgrep "(GC)"          syslog >> log/parsed/godcmds
-    fgrep "(QC)"          syslog >> log/parsed/questcmds
-    fgrep "Bad PW"        syslog >> log/parsed/badpws
-    fgrep "undefined rent" syslog >> log/parsed/undef_rent
-    fgrep "REIMB"         syslog >> log/parsed/bad_reimb
-    fgrep "WIPE"          syslog >> log/parsed/mudwipes
-    fgrep "rename"        syslog >> log/parsed/eq_renames
-    fgrep "been restored" syslog >> log/parsed/restores
-    fgrep "ENCHANT"       syslog >> log/parsed/imm_enchants
-    fgrep " Killed"       syslog >> log/parsed/exp_log
-    fgrep "Failed a"      syslog >> log/parsed/failed_olc
-    fgrep "OLC"           syslog >> log/parsed/olc_log
-    fgrep "register"      syslog >> log/parsed/home_register
-    fgrep "pkilled"       syslog >> log/parsed/pkills
-    fgrep "stole"         syslog >> log/parsed/imm_larceny
-    fgrep "ImmCast"       syslog >> log/parsed/imm_magic
-    fgrep "approved object"        syslog >> log/parsed/olc_obj_approve
-    fgrep "approved mobile"        syslog >> log/parsed/olc_mob_approve
-    fgrep "has gained"    syslog >> log/parsed/no_hunger_t_d
-    fgrep "(RTEST)"       syslog >> log/parsed/remorts
-    fgrep "jail"          syslog >> log/parsed/jail_log
-    fgrep "looted"        syslog >> log/parsed/corpse_looting
-    fgrep "MONEY"         syslog >> log/parsed/cash_transfer
-    fgrep "CLAN:"         syslog >> log/parsed/clan_accounts
-    fgrep "SRCH:"         syslog >> log/parsed/searches
-    fgrep "(cedit)"       syslog >> log/parsed/cedit_log
-    fgrep "increased"     syslog >> log/parsed/increase_log
-    fgrep "improved"      syslog >> log/parsed/improve_log
-    fgrep "siteok'd"      syslog >> log/parsed/siteok_log
-    fgrep "joining the soulless masses."      syslog >> log/parsed/soulless
+    fgrep "has deleted c"   syslog >> log/parsed/delete
+    fgrep "death trap"      syslog >> log/parsed/dts
+    fgrep "killed"          syslog >> log/parsed/rip
+    fgrep "Running"         syslog >> log/parsed/restarts
+    fgrep "advanced"        syslog >> log/parsed/levels
+    fgrep "equipment lost"  syslog >> log/parsed/rentgone
+    fgrep "usage"           syslog >> log/parsed/usage
+    fgrep "new character"   syslog >> log/parsed/newchar
+    fgrep "new account:"    syslog >> log/parsed/newplayers
+    fgrep "SYSERR"          syslog >> log/parsed/errors
+    fgrep "DEBUG"           syslog >> log/parsed/debug
+    fgrep "(GC)"            syslog >> log/parsed/godcmds
+    fgrep "(QC)"            syslog >> log/parsed/questcmds
+    fgrep "PASSWORD:"       syslog >> log/parsed/badpws
+    fgrep "undefined rent"  syslog >> log/parsed/undef_rent
+    fgrep "rename"          syslog >> log/parsed/eq_renames
+    fgrep "been restored"   syslog >> log/parsed/restores
+    fgrep "ENCHANT"         syslog >> log/parsed/imm_enchants
+    fgrep " Killed"         syslog >> log/parsed/exp_log
+    fgrep "Failed a"        syslog >> log/parsed/failed_olc
+    fgrep "OLC"             syslog >> log/parsed/olc_log
+    fgrep "register"        syslog >> log/parsed/home_register
+    fgrep "pkilled"         syslog >> log/parsed/pkills
+    fgrep "stole"           syslog >> log/parsed/larceny
+    fgrep "ImmCast"         syslog >> log/parsed/imm_magic
+    fgrep "approved object" syslog >> log/parsed/olc_obj_approve
+    fgrep "approved mobile" syslog >> log/parsed/olc_mob_approve
+    fgrep "has gained"      syslog >> log/parsed/no_hunger_t_d
+    fgrep "(RTEST)"         syslog >> log/parsed/remorts
+    fgrep "jail"            syslog >> log/parsed/jail_log
+    fgrep "looted"          syslog >> log/parsed/corpse_looting
+    fgrep "MONEY"           syslog >> log/parsed/cash_transfer
+    fgrep "CLAN:"           syslog >> log/parsed/clan_accounts
+    fgrep "SRCH:"           syslog >> log/parsed/searches
+    fgrep "(cedit)"         syslog >> log/parsed/cedit_log
+    fgrep "increased"       syslog >> log/parsed/increase_log
+    fgrep "improved"        syslog >> log/parsed/improve_log
+    fgrep "siteok'd"        syslog >> log/parsed/siteok_log
+    fgrep "soulless"        syslog >> log/parsed/soulless
 
-	# Temporary DO NOT REMOVE! LK
-	cp syslog /home/lenon/syslogs/syslog-`date +"%m%d%Y-%k.%M.%S"`
-	cp lib/log/command.log /home/lenon/syslogs/command.log-`date +"%m%d%Y-%k.%M.%S"`
-    
-    rm log/syslog.1
-    mv log/syslog.2 log/syslog.1
-    mv log/syslog.3 log/syslog.2
-    mv log/syslog.4 log/syslog.3
-    mv log/syslog.5 log/syslog.4
-    mv log/syslog.6 log/syslog.5
-    mv log/syslog.7 log/syslog.6
-    mv log/syslog.8 log/syslog.7
-    mv log/syslog.9 log/syslog.8
-    mv log/syslog.0 log/syslog.9
-    mv syslog       log/syslog.0
-    touch syslog
-
-    rm lib/log/command.log.1
-    mv lib/log/command.log.2  lib/log/command.log.1
-    mv lib/log/command.log.3  lib/log/command.log.2
-    mv lib/log/command.log.4  lib/log/command.log.3
-    mv lib/log/command.log.5  lib/log/command.log.4
-    mv lib/log/command.log.6  lib/log/command.log.5
-    mv lib/log/command.log.7  lib/log/command.log.6
-    mv lib/log/command.log.8  lib/log/command.log.7
-    mv lib/log/command.log.9  lib/log/command.log.8
-    mv lib/log/command.log.0  lib/log/command.log.9
-	mv lib/log/command.log    lib/log/command.log.0
-    touch lib/log/command.log 
+    mv syslog log/$DATE-system.log
+    mv lib/log/command.log log/$DATE-commands.log
 
     #
     # if the core is newer than the core touch file, send a report
     #
 
-    if [ -x ./bin/crash_report.sh ] && [ -r ./lib/core ] && \
-        ( [ ! -r ./lib/core.timestamp ] || [ ./lib/core -nt ./lib/core.timestamp ] ); then
-        touch ./lib/core.timestamp
-        ./bin/crash_report.sh
+    if [ $RESULT -gt "128" ]; then
+        # We died as a result of a signal here: this pretty much means
+        # a segfault
+        if [ ! -x ./bin/crash_report.sh ]; then
+            echo "A crash was detected but the crash report permissions were wrong." | mail -s "TempusMUD CRASH REPORT" coders
+        elif [ ! -e ./lib/core ]; then
+            echo "A crash was detected but no core file was made." | mail -s "TempusMUD CRASH REPORT" coders
+        else
+            ./bin/crash_report.sh lib/core >log/$DATE-crashreport.txt
+            mv lib/core log/$DATE-core
+            cat $DATE-crashreport.txt | mail -s "TempusMUD CRASH REPORT" coders
+        fi
+
+        # Check to see if the mud ever actually started.  If the mud
+        # never came up, we have a crash loop and need to stop the mud
+        # until someone comes and rescues it
+        if [ ! fgrep "Entering game loop" syslog ]; then
+            touch pause
+        fi
+    elif [ -e .killscript ]; then
+        # Peaceful process death - permadeath
+        echo "autoscript killed" `udate` >> syslog
+        rm .killscript
+        exit
     else
+        # Peaceful process death - a reboot is desired
         echo "Reboot requested." | mail -s "TempusMUD Reboot Notification" coders
     fi    
         
 	tar -jcf bak/players.tar.bz2 lib/players &
 
-    rm lib/core.1.timestamp
-    mv lib/core.2.timestamp lib/core.1.timestamp
-    mv lib/core.3.timestamp lib/core.2.timestamp
-    mv lib/core.4.timestamp lib/core.3.timestamp
-    mv lib/core.5.timestamp lib/core.4.timestamp
-    mv lib/core.6.timestamp lib/core.5.timestamp
-    mv lib/core.timestamp   lib/core.6.timestamp
+    sleep 5
 
-    rm lib/core.1.timestamp
-    mv lib/core.2 lib/core.1
-    mv lib/core.3 lib/core.2
-    mv lib/core.4 lib/core.3
-    mv lib/core.5 lib/core.4
-    mv lib/core.6 lib/core.5
-    mv lib/core   lib/core.6
-    
-    if [ ! -r .fastboot ]; then
-        sleep 40
-    else
-        sleep 5
-    fi
-
-    if [ -r .killscript ]; then
-        DATE=`date`
-        echo "autoscript killed $DATE"  >> syslog
-        rm .killscript
-        exit
-    fi
-    
     while [ -r pause ]; do
-        sleep 60
+        # Pause while the pause file still exists
+        sleep 5
     done
-    
 done
 
-echo "autoscript ending $DATE" >> syslog
+echo "autoscript ending" `udate` >> syslog

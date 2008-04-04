@@ -33,8 +33,7 @@ function print_report() {
 }
 
 
-print_report $0 | mail -s "TempusMUD CRASH REPORT" ${MAIL_RECIPIENTS}
-
+print_report $0
 
 exit
 
