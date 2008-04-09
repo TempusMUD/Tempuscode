@@ -17,8 +17,8 @@ enum thing_kind {
 
 class thing {
 public:
-    thing(thing_kind kind) { _kind = kind; }
-    thing(const thing &o) { _kind = o._kind; }
+    thing(thing_kind kind) : _kind(kind) {}
+    thing(const thing &o) : _kind(o._kind) {}
     virtual ~thing(void) {};
 
     inline thing_kind kind(void) const { return _kind; }

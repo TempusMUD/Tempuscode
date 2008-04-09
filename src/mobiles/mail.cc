@@ -343,8 +343,8 @@ list<obj_data *> load_mail(char *path)
 SPECIAL(postmaster)
 {
 	if (spec_mode == SPECIAL_TICK) {
-		if (((Creature *)me)->isFighting() && !number(0, 4)) {
-			call_for_help(((Creature *)me), ((Creature *)me)->findRandomCombat());
+		if (me->to_c()->isFighting() && !number(0, 4)) {
+			call_for_help(me->to_c(), me->to_c()->findRandomCombat());
 			return 1;
 		}
 		return 0;
@@ -361,13 +361,13 @@ SPECIAL(postmaster)
         return 0;
 
     if (CMD_IS("mail")) {
-        postmaster_send_mail(ch, (struct Creature *)me, cmd, argument);
+        postmaster_send_mail(ch, me->to_c(), cmd, argument);
         return 1;
     } else if (CMD_IS("check")) {
-        postmaster_check_mail(ch, (struct Creature *)me, cmd, argument);
+        postmaster_check_mail(ch, me->to_c(), cmd, argument);
         return 1;
     } else if (CMD_IS("receive")) {
-        postmaster_receive_mail(ch, (struct Creature *)me, cmd, argument);
+        postmaster_receive_mail(ch, me->to_c(), cmd, argument);
         return 1;
     } else
         return 0;
@@ -503,7 +503,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
     sprintf(buf2, "I'll take %d coins for the postage.", total_cost);
     perform_tell(mailman, ch, buf2);
 
-    tmp_char = (char **)malloc(sizeof(char *));
+    tmp_char = reinterpret_cast<char **>(malloc(sizeof(char *)));
     *(tmp_char) = NULL;
 
     start_editing_mail(ch->desc, mail_list);

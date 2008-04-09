@@ -793,7 +793,6 @@ ASPELL(spell_locate_object)
 	char *which_str;
 	struct room_data *rm = NULL;
 	char buf3[MAX_STRING_LENGTH];
-	void *ptr;
 	char terms[MAX_LOCATE_TERMS][MAX_INPUT_LENGTH];
 	int term_idx, term_count = 0;
 	int found;
@@ -900,8 +899,7 @@ ASPELL(spell_locate_object)
 			sprintf(buf3, "%s's location is uncertain.\r\n",
 				i->name);
 
-		// this ptr crap is to quiet a compiler warning!
-		ptr = (void *)CAP(buf3);
+		(void)CAP(buf3);
 
 		if (strlen(which_str) + strlen(buf3) > MAX_STRING_LENGTH - 64)
 			break;

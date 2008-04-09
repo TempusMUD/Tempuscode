@@ -65,13 +65,13 @@ CMailEditor::~CMailEditor(void)
 
     while (mail_to) {
         next_rcpt = mail_to->next;
-        free(mail_to);
+        delete mail_to;
         mail_to = next_rcpt;
     }
 }
 
 void
-CMailEditor::DisplayBuffer(unsigned int start_line)
+CMailEditor::DisplayBuffer(unsigned int start_line, int line_count)
 {
     if (start_line == 1) {
         ListRecipients();
@@ -137,7 +137,7 @@ CMailEditor::Finalize(const char *text)
  	mail_rcpt = mail_to;
 	while (mail_rcpt) {
 		mail_to = mail_to->next;
-		free(mail_rcpt);
+		delete mail_rcpt;
 		mail_rcpt = mail_to;
 	}
    
@@ -242,7 +242,7 @@ CMailEditor::AddRecipient(char *name)
 		return;
     }
 
-	new_rcpt = (mail_recipient_data *)malloc(sizeof(mail_recipient_data));
+	new_rcpt = new mail_recipient_data;
 	new_rcpt->recpt_idnum = new_id_num;
 	new_rcpt->next = NULL;
 
@@ -255,7 +255,7 @@ CMailEditor::AddRecipient(char *name)
 		SendMessage(tmp_sprintf(
 			"%s is already on the recipient list.\r\n",
 			tmp_capitalize(playerIndex.getName(new_id_num))));
-		free(new_rcpt);
+		delete new_rcpt;
 		return;
 	}
 
@@ -278,7 +278,7 @@ CMailEditor::AddRecipient(char *name)
 			SendMessage(tmp_sprintf("You don't have the %d %s necessary to add %s.\r\n",
                                     cost, money_desc, 
                                     tmp_capitalize(playerIndex.getName(new_id_num))));
-			free(new_rcpt);
+			delete new_rcpt;
 			return;
 		} else {
 			SendMessage(tmp_sprintf("%s added to recipient list.  You have been charged %d %s.\r\n",
@@ -320,7 +320,7 @@ CMailEditor::RemRecipient(char *name)
 	if (mail_to->recpt_idnum == removed_idnum) {
 		cur = mail_to;
 		mail_to = mail_to->next;
-		free(cur);
+		delete cur;
 		if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
 			if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
 
@@ -375,7 +375,7 @@ CMailEditor::RemRecipient(char *name)
 	}
 	// Link around the recipient to be removed.
 	prev->next = cur->next;
-	free(cur);
+	delete cur;
 	if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
 		if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
 			if (removed_idnum == 1) {	//fireball :P

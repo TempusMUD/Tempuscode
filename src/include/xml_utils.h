@@ -16,10 +16,10 @@ static inline long long
 xmlGetLongLongProp(xmlNodePtr n, const char *name, long defValue = 0 )
 {
 	long long prop = 0;
-	xmlChar *c = xmlGetProp(n, (const xmlChar *)name);
+	xmlChar *c = xmlGetProp(n, reinterpret_cast<const xmlChar *>(name));
 	if (c == NULL)
 		return defValue;
-	prop = atoll((const char *)c);
+	prop = atoll(reinterpret_cast<const char *>(c));
 	free(c);
 	return prop;
 }
@@ -31,10 +31,10 @@ static inline long
 xmlGetLongProp(xmlNodePtr n, const char *name, long defValue = 0 )
 {
 	long prop = 0;
-	xmlChar *c = xmlGetProp(n, (const xmlChar *)name);
+	xmlChar *c = xmlGetProp(n, reinterpret_cast<const xmlChar *>(name));
 	if (c == NULL)
 		return defValue;
-	prop = atol((const char *)c);
+	prop = atol(reinterpret_cast<const char *>(c));
 	free(c);
 	return prop;
 }
@@ -46,10 +46,10 @@ static inline int
 xmlGetIntProp(xmlNodePtr n, const char *name, int defValue = 0)
 {
 	int prop = 0;
-	xmlChar *c = xmlGetProp(n, (const xmlChar *)name);
+	xmlChar *c = xmlGetProp(n, reinterpret_cast<const xmlChar *>(name));
 	if (c == NULL)
 		return defValue;
-	prop = atoi((const char *)c);
+	prop = atoi(reinterpret_cast<const char *>(c));
 	free(c);
 	return prop;
 }
@@ -62,7 +62,7 @@ static inline char
 xmlGetCharProp(xmlNodePtr n, const char *name)
 {
 	char prop = 0;
-	xmlChar *c = xmlGetProp(n, (const xmlChar *)name);
+	xmlChar *c = xmlGetProp(n, reinterpret_cast<const xmlChar *>(name));
 	if (c == NULL)
 		return 0;
 	prop = *c;
@@ -73,13 +73,15 @@ xmlGetCharProp(xmlNodePtr n, const char *name)
 static inline char *
 xmlGetProp(xmlNodePtr node, const char *name)
 {
-	return (char *)(xmlGetProp(node, (const xmlChar *)name));
+	return reinterpret_cast<char *>(xmlGetProp(node, reinterpret_cast<const xmlChar *>(name)));
 }
 
 static inline xmlAttrPtr
 xmlSetProp(xmlNodePtr node, const char *name, const char *value)
 {
-	return xmlSetProp(node, (const xmlChar *)name, (const xmlChar *)value);
+	return xmlSetProp(node,
+                      reinterpret_cast<const xmlChar *>(name),
+                      reinterpret_cast<const xmlChar *>(value));
 }
 
 static inline xmlAttrPtr
@@ -87,14 +89,14 @@ xmlSetProp(xmlNodePtr node, const char *name, const int value)
 {
 	char xmlSetPropBuf[80];
 	sprintf(xmlSetPropBuf, "%d", value);
-	return xmlSetProp(node, (const xmlChar *)name,
-		(const xmlChar *)xmlSetPropBuf);
+	return xmlSetProp(node, reinterpret_cast<const xmlChar *>(name),
+		reinterpret_cast<const xmlChar *>(xmlSetPropBuf));
 }
 
 static inline bool
 xmlMatches(const xmlChar *str_a, const char *str_b)
 {
-	return !strcmp((const char *)str_a, str_b);
+	return !strcmp(reinterpret_cast<const char *>(str_a), str_b);
 }
 
 /**
@@ -105,7 +107,7 @@ xmlMatches(const xmlChar *str_a, const char *str_b)
 static inline char*
 xmlEncodeTmp( char* text ) 
 {
-	char *encoded = (char*)xmlEncodeEntitiesReentrant(NULL, (xmlChar*)text);
+	char *encoded = reinterpret_cast<char *>(xmlEncodeEntitiesReentrant(NULL, reinterpret_cast<xmlChar *>(text)));
 	char *tmp_encoded = tmp_strdup(encoded);
 	free(encoded);
 	return tmp_encoded;
@@ -123,7 +125,8 @@ xmlEncodeTmp( char* text )
 static inline char*
 xmlEncodeSpecialTmp( const char* text ) 
 {
-	char *encoded = (char*)xmlEncodeSpecialChars(NULL, (const xmlChar*)text);
+	char *encoded = reinterpret_cast<char *>(xmlEncodeSpecialChars(NULL,
+                                                                   reinterpret_cast<const xmlChar *>(text)));
 	char *tmp_encoded = tmp_gsub(encoded, "\"", "&quot;");
 	free(encoded);
 	return tmp_encoded;
@@ -137,7 +140,8 @@ xmlEncodeSpecialTmp( const char* text )
 **/
 static inline char* xmlEncodeEntities( char* text ) 
 {
-	return (char*)xmlEncodeEntitiesReentrant(NULL, (xmlChar*)text);
+	return reinterpret_cast<char *>(xmlEncodeEntitiesReentrant(NULL,
+                                                              reinterpret_cast<xmlChar *>(text)));
 }
 
 #endif							// __TEMPUS_XML_UTILS_H

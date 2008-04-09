@@ -509,7 +509,7 @@ acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev
 							CCGRN(ch, C_NRM),
 							CCNRM(ch, C_NRM),
 							GET_LEVEL(i),
-							char_class_abbrevs[(int)GET_CLASS(i)],
+							char_class_abbrevs[GET_CLASS(i)],
 							CCGRN(ch, C_NRM),
 							CCNRM(ch, C_NRM),
 							(GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,
@@ -534,7 +534,7 @@ acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev
 						acc_sprintf("%s[%s%s%s]%s %-40s%s - %s%s%s\r\n",
 							CCYEL_BLD(ch, C_NRM),
 							CCNRM_GRN(ch, C_SPR),
-							level_abbrevs[(int)(GET_LEVEL(i) - LVL_AMBASSADOR)],
+							level_abbrevs[GET_LEVEL(i) - LVL_AMBASSADOR],
 							CCYEL_BLD(ch, C_NRM),
 							CCNRM_GRN(ch, C_SPR),
 							name,
@@ -551,7 +551,7 @@ acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev
 							CCGRN(ch, C_NRM),
 							CCNRM(ch, C_NRM),
 							GET_LEVEL(i),
-							char_class_abbrevs[(int)GET_CLASS(i)],
+							char_class_abbrevs[GET_CLASS(i)],
 							CCGRN(ch, C_NRM),
 							CCNRM(ch, C_NRM),
 							(PLR_FLAGGED(i, PLR_CLAN_LEADER) ?
@@ -580,13 +580,13 @@ acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev
 				if (GET_LEVEL(i) >= LVL_AMBASSADOR)
 					acc_sprintf("%s[%s%s%s]%s %-40s%s\r\n",
 						CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
-						level_abbrevs[(int)(GET_LEVEL(i) - LVL_AMBASSADOR)],
+						level_abbrevs[GET_LEVEL(i) - LVL_AMBASSADOR],
 						CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
 						name, CCNRM(ch, C_SPR));
 				else
 					acc_sprintf("%s[%s%2d %s%s]%s %s%-40s%s\r\n",
 						CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(i),
-						char_class_abbrevs[(int)GET_CLASS(i)], CCGRN(ch,
+						char_class_abbrevs[GET_CLASS(i)], CCGRN(ch,
 							C_NRM), CCNRM(ch, C_NRM), (PLR_FLAGGED(i,
 								PLR_CLAN_LEADER) ? CCCYN(ch, C_NRM) : ""),
 						name, CCNRM(ch, C_NRM));
@@ -1207,8 +1207,8 @@ ACMD(do_cedit)
 
 			send_to_char(ch, "Clan member added to list.\r\n");;
 
-			slog("(cedit) %s added member %d to clan %d.",
-				GET_NAME(ch), (int)member->idnum, clan->number);
+			slog("(cedit) %s added member %ld to clan %d.",
+				GET_NAME(ch), member->idnum, clan->number);
 			sql_exec("insert into clan_members (clan, player, rank) values (%d, %d, 0)",
 				clan->number, i);
 

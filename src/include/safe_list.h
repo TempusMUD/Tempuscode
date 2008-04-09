@@ -53,9 +53,9 @@ template <class T> class SafeList:protected list <T> {
 	    iterator(SafeList <T> *l, bool begin=true):list <T>::iterator() {
 			_saved = false;
 			if (begin) {
-                list <T>::iterator::operator = (((list <T> *)l)->begin());
+                list <T>::iterator::operator = ((dynamic_cast<list <T> *>(l))->begin());
             } else {
-                list <T>::iterator::operator = (((list <T> *)l)->end());
+                list <T>::iterator::operator = ((dynamic_cast<list <T> *>(l))->end());
             }
 			_list = l;
 			if (_list != NULL)

@@ -51,12 +51,12 @@ int get_max_cha( Creature *ch );
 #define EVIL        3
 #define NUM_NEWBIE_EQ 10
 #define MORT_LEARNED(ch) \
-                       (prac_params[0][(int)MIN(NUM_CLASSES-1, \
+                       (prac_params[0][MIN(NUM_CLASSES-1, \
                                                                         GET_CLASS(ch))])
 
 #define REMORT_LEARNED(ch) \
                        (!IS_REMORT(ch) ? 0 : \
-                                    prac_params[0][(int)MIN(NUM_CLASSES-1, \
+                                    prac_params[0][MIN(NUM_CLASSES-1, \
                                                                 GET_REMORT_CLASS(ch))])
 
 #define LEARNED(ch)     (MAX(MORT_LEARNED(ch), REMORT_LEARNED(ch)) + \

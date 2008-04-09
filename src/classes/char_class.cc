@@ -1198,7 +1198,7 @@ advance_level(struct Creature *ch, byte keep_internal)
 			add_move[i] += number(1, 4);
 			break;
 		case CLASS_BARD:
-            add_hp[i] = (int)(add_hp[i] / 3);
+            add_hp[i] = add_hp[i] / 3;
 			add_hp[i] += number(5, 10);
 			add_mana[i] += number(1, 4) + (GET_LEVEL(ch) / 10);
 			add_move[i] += number(10, 18);
@@ -1206,71 +1206,71 @@ advance_level(struct Creature *ch, byte keep_internal)
 		case CLASS_THIEF:
 			add_hp[i] /= 3;
 			add_hp[i] += number(4, 10);
-			add_mana[i] = (int)(add_mana[i] * 0.3);
+			add_mana[i] = add_mana[i] * 3 / 10;
 			add_move[i] += number(2, 6);
 			break;
 		case CLASS_MERCENARY:
 			add_hp[i] += number(6, 14);
-			add_mana[i] = (int)(add_mana[i] * 0.5);
+			add_mana[i] = add_mana[i] * 5 / 10;
 			add_mana[i] += number(1, 5) + GET_LEVEL(ch) / 10;
 			add_move[i] += number(3, 9);
 			break;
 		case CLASS_WARRIOR:
 			add_hp[i] += number(10, 15);
-			add_mana[i] = (int)(add_mana[i] * 0.4);
+			add_mana[i] = add_mana[i] * 4 / 10;
 			add_mana[i] += number(1, 5);
 			add_move[i] += number(5, 10);
 			break;
 		case CLASS_BARB:
 			add_hp[i] += number(13, 18);
-			add_mana[i] = (int)(add_mana[i] * 0.3);
+			add_mana[i] = add_mana[i] * 3 / 10;
 			add_mana[i] += number(0, 3);
 			add_move[i] += number(5, 10);
 			break;
 		case CLASS_KNIGHT:
 			add_hp[i] += number(7, 13);
-			add_mana[i] = (int)(add_mana[i] * 0.7);
+			add_mana[i] = add_mana[i] * 7 / 10;
 			add_mana[i] += number(1, 4) + (GET_LEVEL(ch) / 15);
 			add_move[i] += number(3, 8);
 			break;
 		case CLASS_RANGER:
 			add_hp[i] += number(4, 11);
-			add_mana[i] = (int)(add_mana[i] * 0.6);
+			add_mana[i] = add_mana[i] * 6 / 10;
 			add_mana[i] += number(1, 6) + (GET_LEVEL(ch) / 8);
 			add_move[i] += number(6, 14);
 			break;
 		case CLASS_PSIONIC:
 			add_hp[i] /= 3;
 			add_hp[i] += number(3, 8);
-			add_mana[i] = (int)(add_mana[i] * 0.6);
+			add_mana[i] = add_mana[i] * 6 / 10;
 			add_mana[i] += number(1, 7) + (GET_LEVEL(ch) / 5);
 			add_move[i] += number(2, 6);
 			break;
 		case CLASS_PHYSIC:
 			add_hp[i] /= 4;
 			add_hp[i] += number(4, 9);
-			add_mana[i] = (int)(add_mana[i] * 0.6);
+			add_mana[i] = add_mana[i] * 6 / 10;
 			add_mana[i] += number(1, 6) + (GET_LEVEL(ch) / 3);
 			add_move[i] += number(2, 10);
 			break;
 		case CLASS_CYBORG:
 			add_hp[i] /= 2;
 			add_hp[i] += number(6, 14);
-			add_mana[i] = (int)(add_mana[i] * 0.3);
+			add_mana[i] = add_mana[i] * 3 / 10;
 			add_mana[i] += number(1, 2) + (GET_LEVEL(ch) / 15);
 			add_move[i] += number(5, 8);
 			break;
 		case CLASS_MONK:
 			add_hp[i] /= 3;
 			add_hp[i] += number(6, 12);
-			add_mana[i] = (int)(add_mana[i] * 0.3);
+			add_mana[i] = add_mana[i] * 3 / 10;
 			add_mana[i] += number(1, 2) + (GET_LEVEL(ch) / 22);
 			add_move[i] += number(6, 9);
 			break;
 		default:
 			add_hp[i] /= 2;
 			add_hp[i] += number(5, 16);
-			add_mana[i] = (int)(add_mana[i] * 0.5);
+			add_mana[i] = add_mana[i] * 5 / 10;
 			add_mana[i] += number(1, 13) + (GET_LEVEL(ch) / 4);
 			add_move[i] += number(7, 15);
 			break;
@@ -1304,7 +1304,7 @@ advance_level(struct Creature *ch, byte keep_internal)
 
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 		for (i = 0; i < 3; i++)
-			GET_COND(ch, i) = (char)-1;
+			GET_COND(ch, i) = -1;
 		SET_BIT(PRF_FLAGS(ch), PRF_HOLYLIGHT);
 		SET_BIT(PRF_FLAGS(ch), PRF_NOHASSLE);
 	}

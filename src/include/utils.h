@@ -182,11 +182,11 @@ char *AN(char *str);
 
 
 #define CREATE(result, type, number)  do {\
-        if (!((result) = (type *) calloc ((number), sizeof(type))))\
+        if (!((result) = reinterpret_cast<type *>(calloc ((number), sizeof(type))))) \
                 { perror("malloc failure"); abort(); } } while(0)
 
 #define RECREATE(result,type,number) do {\
-  if (!((result) = (type *) realloc ((result), sizeof(type) * (number))))\
+        if (!((result) = reinterpret_cast<type *>(realloc ((result), sizeof(type) * (number))))) \
                 { perror("realloc failure"); abort(); } } while(0)
 
 /*

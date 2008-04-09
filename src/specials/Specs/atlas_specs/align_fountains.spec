@@ -6,9 +6,7 @@
 
 SPECIAL(fountain_good)
 {
-	struct obj_data *obj = (struct obj_data *)me;
-	// the variable (void * me) is passed to all SPECIAL funcs.  it points
-	// to an obj, room, or char, depending on what called the func
+	struct obj_data *obj = me->to_o();
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
 
