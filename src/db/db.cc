@@ -162,7 +162,7 @@ void parse_room(FILE * fl, int vnum_nr);
 void parse_mobile(FILE * mob_f, int nr);
 char *parse_object(FILE * obj_f, int nr);
 void load_zones(FILE * fl, char *zonename);
-void Load_paths(void);
+void load_paths(void);
 void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
@@ -258,7 +258,7 @@ ACMD(do_reboot)
 	} else if (!strcasecmp(arg, "quest_guide")) {
 		file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
 	} else if (!strcasecmp(arg, "paths")) {
-		Load_paths();
+		load_paths();
 	} else if (!strcasecmp(arg, "trails")) {
 		purge_trails(ch);
 	} else if (!strcasecmp(arg, "timewarps")) {
@@ -424,7 +424,7 @@ boot_db(void)
 	Read_Nasty_List();
 
 	slog("Reading paths.");
-	Load_paths();
+	load_paths();
 
 	slog("Booting timewarp data.");
 	boot_timewarp_data();
@@ -2788,7 +2788,6 @@ reset_zone(struct zone_data *zone)
 	struct reset_com *zonecmd;
 	struct room_data *room;
 	struct special_search_data *srch = NULL;
-	PHead *p_head = NULL;
 
 	// Send SPECIAL_RESET notification to all mobiles with specials
 	CreatureList::iterator cit = characterList.begin();
@@ -2941,11 +2940,11 @@ reset_zone(struct zone_data *zone)
 				ZONE_ERROR("target obj not found");
 				break;
 			}
-			if (!(p_head = real_path_by_num(zonecmd->arg1))) {
+            if (!path_vnum_exists(zonecmd->arg1)) {
 				ZONE_ERROR("path not found");
 				break;
 			}
-			if (add_path_to_vehicle(tobj, p_head->name))
+			if (add_path_to_vehicle(tobj, zonecmd->arg1))
 				last_cmd = 1;
 			break;
 
@@ -3051,11 +3050,11 @@ reset_zone(struct zone_data *zone)
 				break;
 			}
 			last_cmd = 0;
-			if (!(p_head = real_path_by_num(zonecmd->arg1))) {
+            if (!path_vnum_exists(zonecmd->arg1)) {
 				ZONE_ERROR("invalid path vnum");
 				break;
 			}
-			if (!add_path_to_mob(mob, p_head->name)) {
+			if (!add_path_to_mob(mob, zonecmd->arg1)) {
 				ZONE_ERROR("unable to attach path to mob");
 			} else
 				last_cmd = 1;

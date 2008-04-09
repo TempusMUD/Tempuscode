@@ -2525,7 +2525,6 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 	struct Creature *mob;
 	struct reset_com *zcmd = NULL;
 	FILE *zone_file, *realfile;
-	PHead *p_head = NULL;
 
 	/* Open the zone file */
 
@@ -2621,16 +2620,16 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 					strcpy(comment, " BOGUS");
 				break;
 			case 'V':
-				if ((obj = real_object_proto(zcmd->arg3)) &&
-					(p_head = real_path_by_num(zcmd->arg1))) {
-					strcpy(comment, p_head->name);
+				if ((obj = real_object_proto(zcmd->arg3))
+                    && path_vnum_exists(zcmd->arg1)) {
+					strcpy(comment, path_name_by_vnum(zcmd->arg1));
 				} else
 					strcpy(comment, " BOGUS");
 				break;
 			case 'W':
-				if ((mob = real_mobile_proto(zcmd->arg3)) &&
-					(p_head = real_path_by_num(zcmd->arg1))) {
-					strcpy(comment, p_head->name);
+				if ((mob = real_mobile_proto(zcmd->arg3))
+                    && path_vnum_exists(zcmd->arg1)) {
+					strcpy(comment, path_name_by_vnum(zcmd->arg1));
 				} else
 					strcpy(comment, " BOGUS");
 				break;
@@ -2756,7 +2755,6 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 		0, mode_implant = 0, mode_path = 0, mode_range = 0;
 	int i;
 	int startcmd = 0, endcmd = 0;
-	PHead *p_head = NULL;
 
 	if (!zone) {
 		errlog("Improper zone passed to do_zone_cmdlist.");
@@ -2881,22 +2879,34 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 		case 'V':
 			if (!mode_all && !mode_path)
 				break;
-			p_head = real_path_by_num(zcmd->arg1);
 			sprintf(buf,
-				"%3d.  %sPath%s : % d [%3d] %5d   to obj %5d     : (%s%s%s)\r\n",
-				zcmd->line, CCYEL_REV(ch, C_NRM), CCNRM(ch, C_NRM),
-				zcmd->if_flag, zcmd->prob, zcmd->arg1, zcmd->arg3, CCCYN(ch,
-					C_NRM), p_head->name, CCNRM(ch, C_NRM));
+                    "%3d.  %sPath%s : % d [%3d] %5d   to obj %5d     : (%s%s%s)\r\n",
+                    zcmd->line,
+                    CCYEL_REV(ch, C_NRM),
+                    CCNRM(ch, C_NRM),
+                    zcmd->if_flag,
+                    zcmd->prob,
+                    zcmd->arg1,
+                    zcmd->arg3,
+                    CCCYN(ch, C_NRM),
+                    path_name_by_vnum(zcmd->arg1),
+                    CCNRM(ch, C_NRM));
 			break;
 		case 'W':
 			if (!mode_all && !mode_path)
 				break;
-			p_head = real_path_by_num(zcmd->arg1);
 			sprintf(buf,
-				"%3d.   %sPath%s: % d [%3d] %5d to mob %5d   : (%s%s%s)\r\n",
-				zcmd->line, CCYEL_REV(ch, C_NRM), CCNRM(ch, C_NRM),
-				zcmd->if_flag, zcmd->prob, zcmd->arg1, zcmd->arg3, CCCYN(ch,
-					C_NRM), p_head->name, CCNRM(ch, C_NRM));
+                    "%3d.   %sPath%s: % d [%3d] %5d to mob %5d   : (%s%s%s)\r\n",
+                    zcmd->line,
+                    CCYEL_REV(ch, C_NRM),
+                    CCNRM(ch, C_NRM),
+                    zcmd->if_flag,
+                    zcmd->prob,
+                    zcmd->arg1,
+                    zcmd->arg3,
+                    CCCYN(ch, C_NRM),
+                    path_name_by_vnum(zcmd->arg1),
+                    CCNRM(ch, C_NRM));
 			break;
 		case 'G':
 			if (!mode_all && !mode_give)
@@ -3042,8 +3052,6 @@ fill_word_no_lower(char *argument)
 void
 do_zpath_cmd(struct Creature *ch, char *argument)
 {
-
-	PHead *p_head = NULL;
 	struct obj_data *obj = NULL;
 	struct Creature *mob = NULL;
 	struct zone_data *zone = ch->in_room->zone;
@@ -3087,10 +3095,12 @@ do_zpath_cmd(struct Creature *ch, char *argument)
 		return;
 	}
 
-	if (!(p_head = real_path(buf2))) {
+    if (path_name_exists(buf2)) {
 		send_to_char(ch, "There is no path called '%s'.\r\n", buf2);
 		return;
 	}
+
+    int path_vnum = path_vnum_by_name(buf2);
 
 	if (mob_mode) {
 		if (!(mob = get_char_room_vis(ch, buf))) {
@@ -3103,7 +3113,7 @@ do_zpath_cmd(struct Creature *ch, char *argument)
 			return;
 		}
 
-		if (!add_path_to_mob(mob, p_head->name)) {
+		if (!add_path_to_mob(mob, path_vnum)) {
 			send_to_char(ch, "Cannot add that path to that mobile.\r\n");
 			return;
 		}
@@ -3113,7 +3123,7 @@ do_zpath_cmd(struct Creature *ch, char *argument)
 
 		zonecmd->command = 'W';
 		zonecmd->if_flag = 1;
-		zonecmd->arg1 = p_head->number;
+		zonecmd->arg1 = path_vnum;
 		zonecmd->arg2 = 0;
 		zonecmd->arg3 = GET_MOB_VNUM(mob);
 		zonecmd->prob = 100;
@@ -3149,7 +3159,7 @@ do_zpath_cmd(struct Creature *ch, char *argument)
 		}
 
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-		add_path_to_mob(mob, p_head->name);
+		add_path_to_mob(mob, path_vnum);
 		send_to_char(ch, "Command completed ok.\r\n");
 		return;
 	}
@@ -3161,7 +3171,7 @@ do_zpath_cmd(struct Creature *ch, char *argument)
 			return;
 		}
 
-		if (!add_path_to_vehicle(obj, p_head->name)) {
+		if (!add_path_to_vehicle(obj, path_vnum)) {
 			send_to_char(ch, "Cannot add that path to that object.\r\n");
 			return;
 		}
@@ -3171,7 +3181,7 @@ do_zpath_cmd(struct Creature *ch, char *argument)
 
 		zonecmd->command = 'V';
 		zonecmd->if_flag = 1;
-		zonecmd->arg1 = p_head->number;
+		zonecmd->arg1 = path_vnum;
 		zonecmd->arg2 = 0;
 		zonecmd->arg3 = GET_OBJ_VNUM(obj);
 		zonecmd->prob = 100;
@@ -3206,7 +3216,7 @@ do_zpath_cmd(struct Creature *ch, char *argument)
 		}
 
 		SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-		add_path_to_vehicle(obj, p_head->name);
+		add_path_to_vehicle(obj, path_vnum);
 		send_to_char(ch, "Command completed ok.\r\n");
 		return;
 	}

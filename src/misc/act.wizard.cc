@@ -6094,7 +6094,7 @@ ACMD(do_set)
         {"age_adjust", LVL_IMMORT, PC, NUMBER, "Coder"},    /* 80 */
         {"cash", LVL_IMMORT, BOTH, NUMBER, "AdminFull"},
         {"generation", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
-        {"path", LVL_LUCIFER, NPC, MISC, "Coder"},
+        {"path", LVL_LUCIFER, NPC, NUMBER, "Coder"},
         {"lightread", LVL_IMMORT, PC, BINARY, "Coder"},
         {"remort_tough", LVL_IMMORT, PC, BINARY, "AdminFull"},    /* 85 */
         {"council", LVL_IMMORT, PC, BINARY, "WizardFull"},
@@ -6701,7 +6701,7 @@ ACMD(do_set)
         GET_REAL_GEN(vict) = RANGE(0, 1000);
         break;
     case 83:
-        if (add_path_to_mob(vict, argument)) {
+        if (add_path_to_mob(vict, value)) {
             sprintf(buf, "%s now follows the path titled: %s.",
                 GET_NAME(vict), argument);
         } else

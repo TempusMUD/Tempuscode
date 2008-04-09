@@ -449,7 +449,7 @@ SPECIAL(tarrasque)
 	case T_SLEEP:
 		if (diurnal_timer > T_SLEEP_LEN) {
 			tarr->setPosition(POS_STANDING);
-			if (!add_path_to_mob(tarr, "tarr_exit_mod")) {
+			if (!add_path_to_mob(tarr, path_vnum_by_name("tarr_exit_mod"))) {
 				errlog("error assigning tarr_exit_mod path to tarrasque.");
 				mode = T_ERROR;
 				return 1;
@@ -469,7 +469,7 @@ SPECIAL(tarrasque)
 			mode = T_RETURN;
 			diurnal_timer = 0;
 
-			if (!add_path_to_mob(tarr, "tarr_return_mod")) {
+			if (!add_path_to_mob(tarr, path_vnum_by_name("tarr_return_mod"))) {
 				errlog("error assigning tarr_return_mod path to tarrasque.");
 				mode = T_ERROR;
 				return 1;

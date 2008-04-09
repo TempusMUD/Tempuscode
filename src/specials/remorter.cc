@@ -35,7 +35,6 @@ using namespace std;
 #include "clan.h"
 #include "vehicle.h"
 #include "materials.h"
-#include "paths.h"
 #include "specs.h"
 #include "login.h"
 #include "house.h"

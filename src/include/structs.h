@@ -48,14 +48,6 @@
  * Structures                                                          *
  **********************************************************************/
 
-typedef struct Link {
-	int type;
-	int flags;
-	void *object;
-	struct Link *prev;
-	struct Link *next;
-} Link;
-
 /* Extra description: used in objects, mobiles, and rooms */
 struct extra_descr_data {
 	char *keyword;				/* Keyword in look/examine          */

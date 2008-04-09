@@ -24,6 +24,7 @@
 #include "editor.h"
 #include "security.h"
 #include "olc.h"
+#include "paths.h"
 #include "screen.h"
 #include "spells.h"
 #include "materials.h"
@@ -994,7 +995,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 			send_to_char(ch, "Cannot set with OLC.\r\n");
 			return;
 		}
-		if (add_path_to_vehicle(obj_p, arg2)) {
+		if (add_path_to_vehicle(obj_p, path_vnum_by_name(arg2))) {
 			send_to_char(ch, "%s now follows the path titled: %s.\r\n",
 				obj_p->name, arg2);
 		} else {

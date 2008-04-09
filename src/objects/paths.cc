@@ -22,14 +22,68 @@
 #include "screen.h"
 #include "player_table.h"
 
-int move_car(struct Creature *ch, struct obj_data *car, int dir);
+const char *PATH_FILE = "etc/paths";
 
+const int PATH_WAIT = 0;
+const int PATH_ROOM = 1;
+const int PATH_DIR = 2;
+const int PATH_CMD = 3;
+const int PATH_EXIT = 4;
+const int PATH_ECHO = 5;
+
+const int PATH_LOCKED = (1 << 0);
+const int PATH_REVERSIBLE = (1 << 1);
+const int PATH_SAVE = (1 << 2);
+
+const int POBJECT_STALLED = (1 << 0);
+
+const int PMOBILE = 1;
+const int PVEHICLE = 2;
+
+struct Link {
+	int type;
+	int flags;
+	void *object;
+	struct Link *prev;
+	struct Link *next;
+};
+
+struct Path {
+	int type;
+	int data;
+	char *str;
+};
+
+struct PHead {
+	int number;
+	char name[64];
+	long owner;
+	int wait_time;
+	int flags;
+	int length;
+	unsigned int find_first_step_calls;
+	Path *path;
+	struct PHead *next;
+};
+
+struct PObject {
+	int type;
+	int wait_time;
+	int time;
+	int pos;
+	int flags;
+	int step;
+	thing *object;
+	PHead *phead;
+};
 
 PHead *first_path = NULL;
 Link *path_object_list = NULL;
 Link *path_command_list = NULL;
 int path_command_length = 0;
 int path_locked = 1;
+
+int move_car(struct Creature *ch, struct obj_data *car, int dir);
 
 inline void
 PATH_MOVE(PObject *o)
@@ -51,7 +105,7 @@ PATH_MOVE(PObject *o)
 }
 
 PHead *
-real_path(char *str)
+real_path(const char *str)
 {
 	PHead *path_head = NULL;
 
@@ -77,6 +131,32 @@ real_path_by_num(int vnum)
 			return (path_head);
 
 	return (NULL);
+}
+
+bool
+path_vnum_exists(int vnum)
+{
+    return real_path_by_num(vnum) != NULL;
+}
+
+bool
+path_name_exists(const char *name)
+{
+    return real_path(name) != NULL;
+}
+
+int
+path_vnum_by_name(const char *name)
+{
+    PHead *phead = real_path(name);
+    return (phead) ? phead->number:0;
+}
+
+char *
+path_name_by_vnum(int vnum)
+{
+    PHead *phead = real_path_by_num(vnum);
+    return (phead) ? tmp_strdup(phead->name):0;
 }
 
 void
@@ -107,6 +187,66 @@ show_pathobjs(struct Creature *ch)
 			strcat(buf, "ERROR!\r\n");
 	}
 	page_string(ch->desc, buf);
+}
+
+void
+print_path(PHead * phead, char *str)
+{
+	char buf[MAX_STRING_LENGTH];
+	int i, j, ll;
+	int cmds = 0, fcmd = 0, cmdl;
+	Link *cmd;
+
+	if (!phead)
+		return;
+
+	sprintf(str, "%d %s %ld %d %d ", phead->number, phead->name, phead->owner,
+		phead->wait_time, phead->length);
+	ll = strlen(str);
+
+	for (i = 0; i < phead->length; i++) {
+		switch (phead->path[i].type) {
+		case PATH_ROOM:
+			sprintf(buf, "%d ", phead->path[i].data);
+			break;
+		case PATH_WAIT:
+			sprintf(buf, "W%d ", phead->path[i].data);
+			break;
+		case PATH_DIR:
+			sprintf(buf, "D%c ", *(dirs[phead->path[i].data]));
+			break;
+		case PATH_EXIT:
+			strcpy(buf, "X ");
+			break;
+		case PATH_CMD:
+			cmd = path_command_list;
+			if (phead->path[i].data >= (fcmd + cmds)) {
+				cmdl = phead->path[i].data;
+				if (!cmds)
+					fcmd = cmdl;
+				cmds++;
+
+				for (j = 1; j < cmdl; j++, cmd = cmd->next);
+				sprintf(buf, "C\"%s\" ", (char *)(cmd->object));
+			} else {
+				cmdl = phead->path[i].data - fcmd + 1;
+				sprintf(buf, "C%d ", cmdl);
+			}
+			break;
+		}
+
+		if ((ll + strlen(buf)) > 79) {
+			strcat(str, "\n");
+			ll = 0;
+		}
+		ll += strlen(buf);
+		strcat(str, buf);
+	}
+
+	if (IS_SET(phead->flags, PATH_REVERSIBLE))
+		strcat(str, "R");
+
+	strcat(str, "\n~\n");
 }
 
 void
@@ -171,10 +311,6 @@ add_path(char *spath, int save)
 	CREATE(phead, PHead, 1);
 	phead->number = vnum;
 
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
-
 	/* Get the path name */
 	spath = one_argument(spath, buf);
 	if (!*buf) {
@@ -211,9 +347,6 @@ add_path(char *spath, int save)
 		free(phead);
 		return 5;
 	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 
 	for (i = 0; i < phead->length; i++) {
 		spath = one_argument(spath, buf);
@@ -279,9 +412,6 @@ add_path(char *spath, int save)
 			default:
 				free(phead->path);
 				free(phead);
-#ifdef DMALLOC
-				dmalloc_verify(0);
-#endif
 				return (i + 6);
 			}
 			break;
@@ -290,9 +420,6 @@ add_path(char *spath, int save)
 			if (!buf[1]) {
 				free(phead->path);
 				free(phead);
-#ifdef DMALLOC
-				dmalloc_verify(0);
-#endif
 				return (i + 6);
 			}
 			phead->path[i].type = PATH_WAIT;
@@ -305,9 +432,6 @@ add_path(char *spath, int save)
 				|| !(tmpc = strchr((char *)spath, '"'))) {
 				free(phead->path);
 				free(phead);
-#ifdef DMALLOC
-				dmalloc_verify(0);
-#endif
 				return (i + 6);
 			}
 			phead->path[i].type = PATH_ECHO;
@@ -323,9 +447,6 @@ add_path(char *spath, int save)
 			if (!buf[1]) {
 				free(phead->path);
 				free(phead);
-#ifdef DMALLOC
-				dmalloc_verify(0);
-#endif
 				return (i + 6);
 			}
 			phead->path[i].type = PATH_CMD;
@@ -335,9 +456,6 @@ add_path(char *spath, int save)
 				if (!tmpc) {
 					free(phead->path);
 					free(phead);
-#ifdef DMALLOC
-					dmalloc_verify(0);
-#endif
 					return (i + 6);
 				}
 				strncat(buf, spath, (tmpc - spath) + 1);	// +1 added to get last?
@@ -345,9 +463,6 @@ add_path(char *spath, int save)
 				if (strlen(buf) < 4) {
 					free(phead->path);
 					free(phead);
-#ifdef DMALLOC
-					dmalloc_verify(0);
-#endif
 					return (i + 6);
 				}
 			}
@@ -355,9 +470,6 @@ add_path(char *spath, int save)
 				if (strlen(buf) < 4) {
 					free(phead->path);
 					free(phead);
-#ifdef DMALLOC
-					dmalloc_verify(0);
-#endif
 					return (i + 6);
 				}
 				buf[strlen(buf) - 1] = '\0';
@@ -381,9 +493,6 @@ add_path(char *spath, int save)
 				if (phead->path[i].data > (start_len + cmds)) {
 					free(phead->path);
 					free(phead);
-#ifdef DMALLOC
-					dmalloc_verify(0);
-#endif
 					return (i + 6);
 				}
 			}
@@ -391,9 +500,6 @@ add_path(char *spath, int save)
 		default:
 			free(phead->path);
 			free(phead);
-#ifdef DMALLOC
-			dmalloc_verify(0);
-#endif
 			return (i + 6);
 		}
 	}
@@ -426,70 +532,7 @@ clear_path_objects(PHead * phead)
 }
 
 void
-print_path(PHead * phead, char *str)
-{
-	char buf[MAX_STRING_LENGTH];
-	int i, j, ll;
-	int cmds = 0, fcmd = 0, cmdl;
-	Link *cmd;
-
-	if (!phead)
-		return;
-
-	sprintf(str, "%d %s %ld %d %d ", phead->number, phead->name, phead->owner,
-		phead->wait_time, phead->length);
-	ll = strlen(str);
-
-	for (i = 0; i < phead->length; i++) {
-		switch (phead->path[i].type) {
-		case PATH_ROOM:
-			sprintf(buf, "%d ", phead->path[i].data);
-			break;
-		case PATH_WAIT:
-			sprintf(buf, "W%d ", phead->path[i].data);
-			break;
-		case PATH_DIR:
-			sprintf(buf, "D%c ", *(dirs[phead->path[i].data]));
-			break;
-		case PATH_EXIT:
-			strcpy(buf, "X ");
-			break;
-		case PATH_CMD:
-			cmd = path_command_list;
-			if (phead->path[i].data >= (fcmd + cmds)) {
-				cmdl = phead->path[i].data;
-				if (!cmds)
-					fcmd = cmdl;
-				cmds++;
-
-				for (j = 1; j < cmdl; j++, cmd = cmd->next);
-				sprintf(buf, "C\"%s\" ", (char *)(cmd->object));
-			} else {
-				cmdl = phead->path[i].data - fcmd + 1;
-				sprintf(buf, "C%d ", cmdl);
-			}
-			break;
-		}
-
-		if ((ll + strlen(buf)) > 79) {
-			strcat(str, "\n");
-			ll = 0;
-		}
-		ll += strlen(buf);
-		strcat(str, buf);
-	}
-
-	if (IS_SET(phead->flags, PATH_REVERSIBLE))
-		strcat(str, "R");
-
-	strcat(str, "\n~\n");
-}
-
-#define NONEWLINE(s) for(_tc=s;*_tc;_tc++){if(*_tc=='\n')*_tc=' ';}
-char *_tc;
-
-void
-Load_paths(void)
+load_paths(void)
 {
 	FILE *pathfile;
 	int line = 0, fail, ret;
@@ -502,9 +545,6 @@ Load_paths(void)
 
 	if (!(pathfile = fopen(PATH_FILE, "r")))
 		return;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	while ((obj_link = path_object_list)) {
 		path_object_list = path_object_list->next;
 		free(obj_link->object);
@@ -522,14 +562,12 @@ Load_paths(void)
 		free(obj_link->object);
 		free(obj_link);
 	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 	path_command_length = 0;
 
 	while ((pread_string(pathfile, buf, "paths."))) {
 		line++;
-		NONEWLINE(buf);
+        for (char *tc = strchr(buf, '\n');tc;tc = strchr(tc, '\n'))
+            *tc = ' ';
 
 		fail = 0;
 		switch ((ret = add_path(buf, TRUE))) {
@@ -736,25 +774,22 @@ path_remove_object(thing *object)
 		i->prev->next = i->next;
 
 	free(i);
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 }
 
 int
-add_path_to_mob(struct Creature *mob, char *name)
+add_path_to_mob(struct Creature *mob, int vnum)
 {
 	PHead *phead;
 	Link *i;
 	PObject *o;
 
 
-	if (!name || !mob)
+	if (!vnum || !mob)
 		return 0;
 
 	/* Find the requested path */
 	for (phead = first_path; phead; phead = (PHead *) phead->next)
-		if (!strcasecmp(phead->name, name))
+		if (phead->number == vnum)
 			break;
 
 	if (!phead)
@@ -787,18 +822,18 @@ add_path_to_mob(struct Creature *mob, char *name)
 }
 
 int
-add_path_to_vehicle(struct obj_data *obj, char *name)
+add_path_to_vehicle(struct obj_data *obj, int vnum)
 {
 	PHead *phead;
 	Link *i;
 	PObject *o;
 
-	if (!obj || !name || !IS_VEHICLE(obj))
+	if (!obj || !vnum || !IS_VEHICLE(obj))
 		return 0;
 
 	/* Find the requested path */
 	for (phead = first_path; phead; phead = (PHead *) phead->next)
-		if (!strcasecmp(phead->name, name))
+		if (phead->number == vnum)
 			break;
 
 	if (!phead)
@@ -834,9 +869,7 @@ free_paths()
 {
 	PHead *p_head = NULL;
 	Link *p_obj = NULL;
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
+
 	while ((p_obj = path_object_list)) {
 		path_object_list = path_object_list->next;
 		free(p_obj->object);
@@ -854,7 +887,4 @@ free_paths()
 		free(p_obj->object);
 		free(p_obj);
 	}
-#ifdef DMALLOC
-	dmalloc_verify(0);
-#endif
 }

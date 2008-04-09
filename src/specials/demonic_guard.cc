@@ -36,7 +36,6 @@ using namespace std;
 #include "clan.h"
 #include "desc_data.h"
 #include "materials.h"
-#include "paths.h"
 #include "specs.h"
 #include "login.h"
 #include "house.h"
