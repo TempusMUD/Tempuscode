@@ -17,7 +17,8 @@ void acc_sprintf(const char *fmt, ...)
 // strcat into a string accumulator.  You must terminate the arguments with
 // a NULL, since the va_arg method is too stupid to give us the number of
 // arguments.
-void acc_strcat(const char *str, ...);
+void acc_strcat(const char *str, ...)
+    __attribute__((sentinel));
 
 // Get the current size of the accumulator
 size_t acc_get_length(void);

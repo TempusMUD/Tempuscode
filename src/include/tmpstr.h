@@ -38,7 +38,8 @@ inline char *tmp_getline(char **src)
 
 // strcat into a temp str.  You must terminate the arguments with a NULL,
 // since the va_arg method is too stupid to give us the number of arguments.
-char *tmp_strcat(const char *src, ...);
+char *tmp_strcat(const char *src, ...)
+    __attribute__((sentinel));
 
 // strcat into a temp str.  
 inline char *tmp_strcat(const char *src_a, const char *src_b)

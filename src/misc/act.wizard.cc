@@ -2029,7 +2029,7 @@ do_stat_character(Creature *ch, Creature *k, char *options)
 				(*line_buf) ? "," : "",
 				PERS(fol->follower, ch));
             if (strlen(line_buf) >= 62) {
-				acc_strcat(line_buf, "\r\n");
+				acc_strcat(line_buf, "\r\n", NULL);
 				line_buf = "";
             }
         }
@@ -8771,7 +8771,8 @@ ACMD(do_users)
 		else
 			acc_strcat(CCRED_BLD(ch, C_SPR),
                        "[unknown]\r\n",
-                       CCNRM(ch, C_SPR));
+                       CCNRM(ch, C_SPR),
+                       NULL);
 
         num_can_see++;
 	}
