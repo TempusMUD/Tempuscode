@@ -78,7 +78,7 @@ CMailEditor::DisplayBuffer(unsigned int start_line, int line_count)
         ListAttachments();
         send_to_desc(desc, "\r\n");
     }
-    CEditor::DisplayBuffer(start_line);
+    CEditor::DisplayBuffer(start_line, line_count);
 }
 
 bool
