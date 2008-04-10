@@ -1914,6 +1914,12 @@ act_translate(Creature *ch, Creature *to, const char **s)
         else
             c++;
 
+    // Check for empty translation string
+    if (c == *s) {
+        errlog("act_translate called with empty string");
+        return tmp_strdup("");
+    }
+
     // Select substr
     i = tmp_substr(*s, 0, (c - *s) - 1);
 
