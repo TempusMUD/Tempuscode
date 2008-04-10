@@ -107,6 +107,10 @@ ACMD(do_sayto)
         send_to_char(ch, "Say what to who?\r\n");
         return;
     }
+    if (!*argument) {
+        send_to_char(ch, "Yes, but WHAT do you want to say?\r\n");
+        return;
+    }
 
     if (!(vict = get_char_room_vis(ch, name))) {
         if (!o)
