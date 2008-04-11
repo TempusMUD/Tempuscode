@@ -16,6 +16,7 @@
 #include "comm.h"
 #include "security.h"
 #include "clan.h"
+#include "quest.h"
 #include "handler.h"
 #include "db.h"
 
@@ -559,6 +560,16 @@ Account::delete_char(Creature *ch)
 	for (group = Security::groups.begin();group != Security::groups.end();group++)
 		group->removeMember(GET_IDNUM(ch));
 	sql_exec("delete from sgroup_members where player=%ld", GET_IDNUM(ch));
+
+    // Remove character from any quests they might have joined
+    if (GET_QUEST(ch)) {
+        Quest *quest = quest_by_vnum(GET_QUEST(ch));
+
+        if (quest) {
+            quest->removePlayer(GET_IDNUM(ch));
+            save_quests();
+        }
+    }
 
 	// Remove character from trusted lists - we have to take the accounts
 	// in memory into consideration when we do this, so we have to go
