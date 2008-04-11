@@ -1882,7 +1882,7 @@ list_inactive_quests(Creature *ch)
 void
 list_quest_players(Creature *ch, Quest * quest, char *outbuf)
 {
-	char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH], name[128];
+	char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
 	int i, num_online, num_offline;
 	Creature *vict = NULL;
 	char bitbuf[1024];
@@ -1891,15 +1891,14 @@ list_quest_players(Creature *ch, Quest * quest, char *outbuf)
 	strcpy(buf2, "  -Offline Players-----------------------------------\r\n");
 
 	for (i = num_online = num_offline = 0; i < quest->getNumPlayers(); i++) {
-		strcpy(name, playerIndex.getName(quest->getPlayer(i).idnum));
+        const char *name = playerIndex.getName(quest->getPlayer(i).idnum);
 
-		if (!*name) {
+		if (!name) {
 			strcat(buf, "BOGUS player idnum!\r\n");
 			strcat(buf2, "BOGUS player idnum!\r\n");
 			errlog("bogus player idnum in list_quest_players.");
 			break;
 		}
-		strcpy(name, CAP(name));
 
 		if (quest->getPlayer(i).getFlags()) {
 			sprintbit(quest->getPlayer(i).getFlags(), qp_bits, bitbuf);
@@ -1953,29 +1952,25 @@ list_quest_players(Creature *ch, Quest * quest, char *outbuf)
 void
 list_quest_bans(Creature *ch, Quest * quest, char *outbuf)
 {
-	char buf[MAX_STRING_LENGTH], name[128];
+    const char *name;
 	int i, num;
 
-	strcpy(buf, "  -Banned Players------------------------------------\r\n");
+    acc_string_clear();
+    acc_strcat("  -Banned Players------------------------------------\r\n", NULL);
 
 	for (i = num = 0; i < quest->getNumBans(); i++) {
-
-		sprintf(name, "%s", playerIndex.getName(quest->getBan(i).idnum));
-		if (!*name) {
-			strcat(buf, "BOGUS player idnum!\r\n");
-			errlog("bogus player idnum in list_quest_bans.");
+		name = playerIndex.getName(quest->getBan(i).idnum);
+		if (!name) {
+			acc_sprintf("BOGUS player idnum %ld!\r\n", quest->getBan(i).idnum);
+			errlog("bogus player idnum %ld in list_quest_bans.",
+                   quest->getBan(i).idnum);
 			break;
 		}
-		strcpy(name, CAP(name));
 
-		sprintf(buf, "%s  %2d. %-20s\r\n", buf, ++num, name);
+		acc_sprintf("  %2d. %-20s\r\n", ++num, name);
 	}
 
-	if (outbuf)
-		strcpy(outbuf, buf);
-	else
-		page_string(ch->desc, buf);
-
+    page_string(ch->desc, acc_get_string());
 }
 
 void
