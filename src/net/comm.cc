@@ -1501,12 +1501,6 @@ hupsig(int sig = 0)
 
 }
 
-void
-pipesig(int sig = 0)
-{
-	errlog(" Ignoring SIGPIPE signal.");
-}
-
 /*
  * This is an implementation of signal() using sigaction() for portability.
  * (sigaction() is POSIX; signal() is not.)  Taken from Stevens' _Advanced

@@ -603,20 +603,6 @@ do_hcollect_cmds(Creature *ch)
 	page_string(ch->desc, gHelpbuf);
 }
 
-// group command listing
-void
-do_group_cmds(Creature *ch)
-{
-	strcpy(gHelpbuf, "hcollect group commands:\r\n");
-	for (int i = 0; grp_cmds[i].keyword; i++) {
-		if (GET_LEVEL(ch) < grp_cmds[i].level)
-			continue;
-		sprintf(gHelpbuf, "%s  %-15s %s\r\n", gHelpbuf,
-			grp_cmds[i].keyword, grp_cmds[i].usage);
-	}
-	page_string(ch->desc, gHelpbuf);
-}
-
 HelpItem *
 HelpCollection::find_item_by_id(int id)
 {

@@ -40,7 +40,6 @@ class Account {
 
 		inline const char *get_name(void) const { return _name; }
 		inline int get_idnum(void) const { return _id; }
-		inline void set_idnum(int idnum) { _id = idnum; }
 
 		inline int get_ansi_level(void) { return _ansi_level; }
 		void set_ansi_level(int level);

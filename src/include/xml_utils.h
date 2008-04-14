@@ -12,21 +12,6 @@ void xml_boot(void);
 /** 
  * Parses an integer from a named property in the given node
  **/
-static inline long long
-xmlGetLongLongProp(xmlNodePtr n, const char *name, long defValue = 0 )
-{
-	long long prop = 0;
-	xmlChar *c = xmlGetProp(n, reinterpret_cast<const xmlChar *>(name));
-	if (c == NULL)
-		return defValue;
-	prop = atoll(reinterpret_cast<const char *>(c));
-	free(c);
-	return prop;
-}
-
-/** 
- * Parses an integer from a named property in the given node
- **/
 static inline long
 xmlGetLongProp(xmlNodePtr n, const char *name, long defValue = 0 )
 {

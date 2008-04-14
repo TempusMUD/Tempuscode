@@ -459,15 +459,6 @@ pop_imprint(Creature *ch)
 	return (ret);
 }
 
-void
-show_imprint_rooms(Creature *ch)
-{
-	int i;
-	for (i = 0; i < MAX_IMPRINT_ROOMS; i++) {
-		send_to_char(ch, "%2d. [%5d]\r\n", i, GET_IMPRINT_ROOM(ch, i));
-	}
-}
-
 ASPELL(spell_spacetime_imprint)
 {
 
@@ -482,7 +473,6 @@ ASPELL(spell_spacetime_imprint)
 	act("You feel a strange sensation, which quickly passes.", FALSE, ch, 0, 0,
 		TO_ROOM);
 	send_to_char(ch, "A spacetime imprint has been made of this place.\r\n");
-	//  show_imprint_rooms(ch);
 }
 
 ASPELL(spell_quantum_rift)
@@ -492,8 +482,6 @@ ASPELL(spell_quantum_rift)
 	obj_data *rift = NULL;
 	obj_data *o = NULL;
 	rnum = pop_imprint(ch);
-
-	//  show_imprint_rooms(ch);
 
 	if (rnum < 0) {
 		// Change this to open a REALLY random portal.
@@ -554,8 +542,6 @@ ASPELL(spell_spacetime_recall)
 	struct room_data *room = NULL;
 
 	rnum = pop_imprint(ch);
-
-	//  show_imprint_rooms(ch);
 
 	if (rnum < 0) {
 		send_to_char(ch, 
