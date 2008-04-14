@@ -109,9 +109,9 @@ void autosave_zones(int SAVE_TYPE);
 void perform_oset(struct Creature *ch, struct obj_data *obj_p,
     char *argument, byte subcmd);
 void do_show_objects(struct Creature *ch, char *value, char *arg);
-void do_show_mobiles(struct Creature *ch, char *value, char *arg);
+static void do_show_mobiles(struct Creature *ch, char *value, char *arg);
 void show_searches(struct Creature *ch, char *value, char *arg);
-void show_rooms(struct Creature *ch, char *value, char *arg);
+static void show_rooms(struct Creature *ch, char *value, char *arg);
 void do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg);
 const char *stristr(const char *haystack, const char *needle);
 
@@ -123,9 +123,9 @@ void list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
     bool show);
 void save_quests(); // quests.cc - saves quest data
 void save_all_players();
-int do_freeze_char(char *argument, Creature *vict, Creature *ch);
+static int do_freeze_char(char *argument, Creature *vict, Creature *ch);
 void verify_tempus_integrity(Creature *ch);
-void do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj);
+static void do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj);
 
 ACMD(do_equipment);
 
@@ -218,47 +218,6 @@ show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
     page_string(ch->desc, acc_get_string());
 }
 
-void
-list_residents_to_char(struct Creature *ch, int town)
-{
-    struct descriptor_data *d;
-    byte found = 0;
-
-	acc_string_clear();
-    if (town < 0) {
-        acc_strcat("       HOMETOWNS\r\n", NULL);
-        for (d = descriptor_list; d; d = d->next) {
-            if (!d->creature || !can_see_creature(ch, d->creature))
-                continue;
-            acc_sprintf("%s%-20s%s -- %s%-30s%s\r\n",
-                GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCYEL(ch,
-                    C_NRM) : "", GET_NAME(d->creature),
-                GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCNRM(ch,
-                    C_NRM) : "", CCCYN(ch, C_NRM),
-                home_towns[(int)GET_HOME(d->creature)], CCNRM(ch, C_NRM));
-        }
-    } else {
-        acc_sprintf("On-line residents of %s.\r\n", home_towns[town]);
-        for (d = descriptor_list; d; d = d->next) {
-            if (!d->creature || !can_see_creature(ch, d->creature))
-                continue;
-            if (GET_HOME(d->creature) == town) {
-                acc_sprintf("%s%-20s%s\r\n",
-                    GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCYEL(ch,
-                        C_NRM) : "", GET_NAME(d->creature),
-                    GET_LEVEL(d->creature) >= LVL_AMBASSADOR ? CCNRM(ch,
-                        C_NRM) : "");
-                found = 1;
-            }
-        }
-        if (!found)
-            acc_strcat("None online.\r\n", NULL);
-    }
-    page_string(ch->desc, acc_get_string());
-    return;
-}
-
-
 ACMD(do_echo)
 {
     char *mort_see;
@@ -314,7 +273,7 @@ ACMD(do_send)
 
 
 /* take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93 */
-struct room_data *
+static struct room_data *
 find_target_room(struct Creature *ch, char *rawroomstr)
 {
     int tmp;
@@ -647,7 +606,7 @@ ACMD(do_vnum)
 }
 
 #define CHARADD(sum,var) if (var) {sum += strlen(var) +1;}
-void
+static void
 do_stat_memory(struct Creature *ch)
 {
     int sum = 0, total = 0;
@@ -816,7 +775,7 @@ do_stat_memory(struct Creature *ch)
 
 #undef CHARADD
 
-void
+static void
 do_stat_zone(struct Creature *ch, struct zone_data *zone)
 {
     struct obj_data *obj;
@@ -927,7 +886,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), av_lev_proto, CCNRM(ch, C_NRM));
 }
 
-void
+static void
 do_stat_trails(struct Creature *ch)
 {
 
@@ -959,7 +918,7 @@ do_stat_trails(struct Creature *ch)
     page_string(ch->desc, acc_get_string());
 }
 
-void
+static void
 acc_format_prog(Creature *ch, char *prog)
 {
     const char *line_color = NULL;
@@ -1016,7 +975,7 @@ acc_format_prog(Creature *ch, char *prog)
     }
 }
 
-void
+static void
 do_stat_room(struct Creature *ch, char *roomstr)
 {
     int tmp;
@@ -1588,7 +1547,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     page_string(ch->desc, acc_get_string());
 }
 
-void
+static void
 do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
 {
     char *stat_prefix;
@@ -1645,7 +1604,7 @@ do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
     }
 }
 
-void
+static void
 do_stat_character_kills(Creature *ch, Creature *k)
 {
     if (!IS_PC(k)) {
@@ -1669,7 +1628,7 @@ do_stat_character_kills(Creature *ch, Creature *k)
     }
 }
 
-void
+static void
 do_stat_character_prog(Creature *ch, Creature *k)
 {
     if (IS_PC(k)) {
@@ -1684,7 +1643,7 @@ do_stat_character_prog(Creature *ch, Creature *k)
     }
 }
 
-void
+static void
 do_stat_character_description(Creature *ch, Creature *k)
 {
     if (k->player.description) {
@@ -2375,7 +2334,7 @@ ACMD(do_shutdown)
 }
 
 
-void
+static void
 stop_snooping(struct Creature *ch)
 {
     if (!ch->desc->snooping)
@@ -3104,7 +3063,7 @@ ACMD(do_restore)
     }
 }
 
-void
+static void
 perform_vis(struct Creature *ch)
 {
 
@@ -3129,7 +3088,7 @@ perform_vis(struct Creature *ch)
 }
 
 
-void
+static void
 perform_invis(struct Creature *ch, int level)
 {
     int old_level;
@@ -3897,7 +3856,7 @@ ACMD(do_wizutil)
 
 #define PRAC_TYPE        3        /* should it say 'spell' or 'skill'? */
 
-void
+static void
 list_skills_to_char(struct Creature *ch, struct Creature *vict)
 {
     extern struct spell_info_type spell_info[];
@@ -3966,7 +3925,7 @@ list_skills_to_char(struct Creature *ch, struct Creature *vict)
     page_string(ch->desc, buf2);
 }
 
-void
+static void
 do_show_stats(struct Creature *ch)
 {
     int i = 0, j = 0, k = 0, con = 0, tr_count = 0, srch_count = 0;
@@ -4046,7 +4005,7 @@ do_show_stats(struct Creature *ch)
     }
 }
 
-void
+static void
 show_wizcommands(Creature *ch)
 {
     if (IS_PC(ch))
@@ -4056,7 +4015,7 @@ show_wizcommands(Creature *ch)
 }
 
 
-void
+static void
 show_account(Creature *ch, char *value)
 {
     char created_buf[30];
@@ -4145,7 +4104,7 @@ show_account(Creature *ch, char *value)
 	show_account_chars(ch->desc, account, true, false);
 }
 
-void
+static void
 show_player(Creature *ch, char *value)
 {
     Creature *vict;
@@ -4222,13 +4181,7 @@ show_player(Creature *ch, char *value)
 	delete vict;
 }
 
-void
-show_multi(Creature *ch, char *arg)
-{
-	send_to_char(ch, "show multi has been removed.\r\n");
-}
-
-void
+static void
 show_zoneusage(Creature *ch, char *value)
 {
     int i;
@@ -4262,7 +4215,7 @@ topZoneComparison(const struct zone_data* a, const struct zone_data* b)
    return a->enter_count < b->enter_count;
 }
 
-void
+static void
 show_topzones(Creature *ch, char *value)
 {
     int i, num_zones = 0;
@@ -4342,7 +4295,7 @@ show_topzones(Creature *ch, char *value)
 
 }
 
-void
+static void
 show_mobkills(Creature *ch, char *value, char *arg)
 {
     Creature *mob = NULL;
@@ -4410,7 +4363,7 @@ const char *show_room_modes[] = {
 	"\n"
 };
 
-void
+static void
 show_room_append(Creature *ch, room_data *room, int mode, const char *extra)
 {
 	if (!extra)
@@ -4431,7 +4384,7 @@ show_room_append(Creature *ch, room_data *room, int mode, const char *extra)
 }
 
 // returns 0 if none found, 1 if found, -1 if error
-int
+static int
 show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 {
 	special_search_data *srch = NULL; 
@@ -4753,7 +4706,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 	return found;
 }
 
-void
+static void
 show_rooms(Creature *ch, char *value, char *args)
 {
     const char *usage = "Usage: show rooms <zone | time | plane | world> <flag> [options]";
@@ -4825,7 +4778,7 @@ show_rooms(Creature *ch, char *value, char *args)
 
 #define MLEVELS_USAGE "Usage: show mlevels <real | proto> [remort] [expand]\r\n"
 
-void
+static void
 show_mlevels(Creature *ch, char *value, char *arg)
 {
 
@@ -4943,7 +4896,7 @@ show_mlevels(Creature *ch, char *value, char *arg)
     page_string(ch->desc, buf);
 }
 
-void
+static void
 acc_print_zone(struct Creature *ch, struct zone_data *zone)
 {
     acc_sprintf("%s%s%3d%s %s%-50.50s%s Top: %s%5d%s Owner:%s%5d%s%s%s\r\n",
@@ -4956,7 +4909,7 @@ acc_print_zone(struct Creature *ch, struct zone_data *zone)
                 CCNRM(ch, C_NRM));
 }
 
-void
+static void
 show_zones(Creature *ch, char *arg, char *value)
 {
     static const char *usage =
@@ -5076,69 +5029,50 @@ show_zones(Creature *ch, char *arg, char *value)
 #define SFC_ROOM 3
 
 struct show_struct fields[] = {
-    {"nothing", 0, ""},            // 0 
+    {"nothing", 0, ""},               // 0 
     {"zones", LVL_AMBASSADOR, ""},    // 1 
     {"player", LVL_IMMORT, "AdminBasic"},
-    {"rent", LVL_IMMORT, "AdminFull"},
+	{"rexits", LVL_IMMORT, "OLC"},
     {"stats", LVL_AMBASSADOR, ""},
-    {"errors", LVL_GRIMP, "Coder"},    // 5
+	{"boards", LVL_IMMORT, "OLC"}, // 5
     {"death", LVL_IMMORT, "WizardBasic"},
-    {"godrooms", LVL_CREATOR, "WizardFull"},
-    {"shops", LVL_IMMORT, ""},
+    {"account", LVL_IMMORT, "AdminBasic"},
+    {"rooms", LVL_IMMORT, "OLC"},
     {"bugs", LVL_IMMORT, "WizardBasic"},
     {"typos", LVL_IMMORT, ""},    // 10 
     {"ideas", LVL_IMMORT, ""},
     {"skills", LVL_IMMORT, "AdminBasic"},
-    {"spells", LVL_GRIMP, ""},
-    {"residents", LVL_AMBASSADOR, ""},    // 14
-    {"aliases", LVL_IMMORT, "AdminBasic"},
+    {"zonecommands", LVL_IMMORT, ""},
+    {"nohelps", LVL_IMMORT, "Help"},
+    {"aliases", LVL_IMMORT, "AdminBasic"}, // 15
     {"memory use", LVL_IMMORT, "Coder"},
-    {"social", LVL_DEMI, ""},    // 17 
-    {"quest", LVL_IMMORT, ""},
-    {"questguide", LVL_IMMORT, ""},    // 19 
-    {"zoneusage", LVL_IMMORT, ""},    // 20
-    {"population", LVL_AMBASSADOR, ""},
+    {"social", LVL_DEMI, ""},
+    {"zoneusage", LVL_IMMORT, ""},
     {"topzones", LVL_AMBASSADOR, ""},
-    {"nomaterial", LVL_IMMORT, ""},
+    {"nomaterial", LVL_IMMORT, ""}, // 20
     {"objects", LVL_IMMORT, ""},
-    {"broken", LVL_IMMORT, ""},    // 25
-    {"quiz", LVL_GRIMP, ""},
+    {"broken", LVL_IMMORT, ""},
     {"clans", LVL_AMBASSADOR, ""},
     {"specials", LVL_IMMORT, ""},
-    {"implants", LVL_IMMORT, ""},
-    {"paths", LVL_IMMORT, ""},    // 30
+    {"paths", LVL_IMMORT, ""},  // 25
     {"pathobjs", LVL_IMMORT, ""},
-    {"searches", LVL_IMMORT, "OLCApproval"},
     {"str_app", LVL_IMMORT, ""},
     {"timezones", LVL_IMMORT, ""},
-    {"class", LVL_IMMORT, ""},    // 35 
-    {"unapproved", LVL_IMMORT, ""},
-    {"elevators", LVL_IMMORT, ""},
     {"free_create", LVL_IMMORT, ""},
-    {"exp_percent", LVL_IMMORT, "OLCApproval"},
-    {"demand_items", LVL_IMMORT, "OLCApproval"},    // 40 
-    {"descriptor", LVL_CREATOR, ""},
+    {"exp_percent", LVL_IMMORT, "OLCApproval"},     // 30
+    {"demand_items", LVL_IMMORT, "OLCApproval"}, 
     {"fighting", LVL_IMMORT, "WizardBasic"},
     {"quad", LVL_IMMORT, ""},
     {"mobiles", LVL_IMMORT, ""},
-    {"hunting", LVL_IMMORT, "WizardBasic"},    // 45 
+    {"hunting", LVL_IMMORT, "WizardBasic"},    // 35 
     {"last_cmd", LVL_LUCIFER, ""},
     {"duperooms", LVL_IMMORT, "OLCWorldWrite"},
     {"specialization", LVL_IMMORT, ""},
-    {"p_index", LVL_IMMORT, ""},
-    {"zexits", LVL_IMMORT, ""},    // 50
-    {"mlevels", LVL_IMMORT, ""},
-    {"plevels", LVL_IMMORT, ""},
+    {"zexits", LVL_IMMORT, ""},
+    {"mlevels", LVL_IMMORT, ""}, // 40
     {"mobkills", LVL_IMMORT, "WizardBasic"},
     {"wizcommands", LVL_IMMORT, ""},
-    {"timewarps", LVL_IMMORT, ""},    // 55
-    {"zonecommands", LVL_IMMORT, ""},
-    {"multi", LVL_IMMORT, "AdminBasic"},
-    {"nohelps", LVL_IMMORT, "Help"},
-    {"account", LVL_IMMORT, "AdminBasic"},
-    {"rooms", LVL_IMMORT, "OLC"}, // 60
-	{"boards", LVL_IMMORT, "OLC"},
-	{"rexits", LVL_IMMORT, "OLC"},
+    {"timewarps", LVL_IMMORT, ""},    // 43
     {"\n", 0, ""}
 };
 
@@ -5152,9 +5086,7 @@ ACMD(do_show)
     struct alias_data *a;
     struct zone_data *zone = NULL;
     struct room_data *room = NULL, *tmp_room = NULL;
-    struct descriptor_data *tmp_d = NULL;
     char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH];
-    extern char *quest_guide;
     struct Creature *mob = NULL;
     CreatureList::iterator cit;
     MobileMap::iterator mit;
@@ -5195,28 +5127,50 @@ ACMD(do_show)
     buf[0] = '\0';
 
     switch (l) {
-    case 1:                    /* zone */
+    case 1:                     // zone
         show_zones(ch, arg, value);
         break;
-    case 2:                    /* player */
+    case 2:                     // player
         show_player(ch, value);
         break;
-    case 3:
-		send_to_char(ch, "Disabled.\r\n");
-		return;
+    case 3:                     // rexits
+        if (*value)
+            k = atoi(value);
+        else 
+            k = ch->in_room->number;
+
+        if (!real_room(k)) {
+            send_to_char(ch, "Room %d does not exist.\r\n", k);
+            return;
+        }
+
+        acc_string_clear();
+        // check for exits TO room k, a slow operation
+        acc_sprintf("Rooms with exits TO room %d:\r\n", k);
+
+        for (zone = zone_table, j = 0; zone; zone = zone->next) {
+            for (room = zone->world; room; room = room->next) {
+                if (room->number == k)
+                    continue;
+                for (i = 0; i < NUM_DIRS; i++) {
+                    if (room->dir_option[i]
+                        && room->dir_option[i]->to_room
+                        && room->dir_option[i]->to_room->number == k) {
+                        acc_sprintf("%3d. [%5d] %-40s %5s -> %7d\r\n",
+                                    ++j, room->number, room->name, dirs[i],
+                                    room->dir_option[i]->to_room->number);
+                    }
+                }
+            }
+        }
+
+        page_string(ch->desc, acc_get_string());
+        break;
     case 4:
         do_show_stats(ch);
         break;
     case 5:
-        break;
-        strcpy(buf, "Errant Rooms\r\n------------\r\n");
-        for (zone = zone_table; zone; zone = zone->next)
-            for (room = zone->world; room; room = room->next)
-                for (j = 0; j < NUM_OF_DIRS; j++)
-                    if (room->dir_option[j]
-                        && room->dir_option[j]->to_room == NULL)
-                        send_to_char(ch, "%s%2d: [%5d] %s\r\n", buf, ++k,
-                            room->number, room->name);
+		gen_board_show(ch);
         break;
     case 6:
         strcpy(buf, "Death Traps\r\n-----------\r\n");
@@ -5233,18 +5187,12 @@ ACMD(do_show)
                 }
         page_string(ch->desc, buf);
         break;
-    case 7:
-#define GOD_ROOMS_ZONE 12
-        strcpy(buf, "Godrooms\r\n--------------------------\r\n");
-        for (j = 0, zone = zone_table; zone; zone = zone->next)
-            for (room = zone->world; room; room = room->next)
-                if (room->zone->number == GOD_ROOMS_ZONE ||
-                    ROOM_FLAGGED(room, ROOM_GODROOM))
-                    send_to_char(ch, "%s%2d: [%5d] %s\r\n", buf, j++, room->number,
-                        room->name);
+    case 7:                     // account
+        show_account( ch, value ); 
         break;
-    case 8:
-        send_to_char(ch, "Disabled.\r\n"); break;
+    case 8:                     // rooms
+        show_rooms(ch, value, arg);
+        break;
     case 9:
         if (*value && isdigit(*value)) {
             j = atoi(value);
@@ -5299,31 +5247,13 @@ ACMD(do_show)
             list_skills_to_char(ch, vict);
         }
         break;
-    case 13:                    /* spells */
-        send_to_char(ch, "Try using 'spells list <class>' instead.\r\n");
+    case 13:                    // zone commands
+        strcpy(buf, value);
+        strcat(buf, arg);
+        do_zone_cmdlist(ch, ch->in_room->zone, buf);
         break;
-
     case 14:
-        if (!*value)
-            list_residents_to_char(ch, -1);
-        else {
-            if (is_abbrev(value, "modrian"))
-                list_residents_to_char(ch, HOME_MODRIAN);
-            else if (is_abbrev(value, "new thalos"))
-                list_residents_to_char(ch, HOME_NEW_THALOS);
-            else if (is_abbrev(value, "electro centralis"))
-                list_residents_to_char(ch, HOME_ELECTRO);
-            else if (is_abbrev(value, "elven village"))
-                list_residents_to_char(ch, HOME_ELVEN_VILLAGE);
-            else if (is_abbrev(value, "istan"))
-                list_residents_to_char(ch, HOME_ISTAN);
-            else if (is_abbrev(value, "arena"))
-                list_residents_to_char(ch, HOME_ARENA);
-            else if (is_abbrev(value, "kromguard"))
-                list_residents_to_char(ch, HOME_KROMGUARD);
-            else
-                send_to_char(ch, "Unrecognized City.\r\n");
-        }
+        show_file(ch, "log/help.log", 0); 
         break;
     case 15:                    // aliases
         if (!(vict = get_char_vis(ch, value)))
@@ -5356,28 +5286,13 @@ ACMD(do_show)
     case 17:                    /* social */
         show_social_messages(ch, value);
         break;
-    case 18:
-        send_to_char(ch, "Command not implemented yet.\r\n");
-        break;
-    case 19:                    // questguide
-        page_string(ch->desc, quest_guide);
-        break;
-    case 20:                    // zoneusage 
+    case 18:                    // zoneusage 
         show_zoneusage(ch, value);
         break;
-    case 21:
-        sprintf(buf, "POPULATION RECORD:\r\n");
-        for (i = 0; i < NUM_HOMETOWNS; i++) {
-            if (isalpha(home_towns[i][0]))
-                sprintf(buf, "%s%-30s -- [%4d]\r\n", buf, home_towns[i],
-                    population_record[i]);
-        }
-        page_string(ch->desc, buf);
-        break;
-    case 22:                    // topzones
+    case 19:                    // topzones
         show_topzones(ch, tmp_strcat(value, arg));
         break;
-    case 23:                    /* nomaterial */
+    case 20:                    /* nomaterial */
         strcpy(buf, "Objects without material types:\r\n");
         oi = objectPrototypes.begin();
         for (i = 1; oi != objectPrototypes.end(); ++oi) {
@@ -5397,11 +5312,11 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
     
-    case 24:  /** objects **/
+    case 21:  /** objects **/
         do_show_objects(ch, value, arg);
         break;
 
-    case 25:  /** broken **/
+    case 22:  /** broken **/
 
         strcpy(buf, "Broken objects in the game:\r\n");
 
@@ -5433,70 +5348,22 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
 
-    case 26:  /** quiz **/
-        send_to_char(ch, "Disabled.\r\n");
-        return;
-    case 27:     /** clans **/
+    case 23:     /** clans **/
         if (GET_LEVEL(ch) < LVL_ELEMENT)
             do_show_clan(ch, NULL);
         else
             do_show_clan(ch, clan_by_name(value));
         break;
-    case 28:    /** specials **/
+    case 24:    /** specials **/
         do_show_specials(ch, value);
         break;
-    case 29:  /** implants **/
-        if (!*value) {
-            strcpy(buf2, "OBJECTS IMPLANTED IN THE GAME:\r\n");
-            for (obj = object_list, i = 0; obj; obj = obj->next)
-                if (IS_IMPLANT(obj) && obj->worn_by &&
-                    GET_IMPLANT(obj->worn_by, obj->worn_on) &&
-                    GET_IMPLANT(obj->worn_by, obj->worn_on) == obj) {
-                    sprintf(buf, "%3d. %30s - implanted in %s%s%s (%s)\r\n",
-                        i++, obj->name,
-                        !IS_NPC(obj->worn_by) ? CCYEL(ch, C_NRM) : "",
-                        GET_NAME(obj->worn_by),
-                        !IS_NPC(obj->worn_by) ? CCNRM(ch, C_NRM) : "",
-                        wear_implantpos[(int)obj->worn_on]);
-                    if ((strlen(buf) + strlen(buf2) + 128) > MAX_STRING_LENGTH) {
-                        strcat(buf2, "**OVERFLOW**\r\n");
-                        break;
-                    } else
-                        strcat(buf2, buf);
-                }
-
-            page_string(ch->desc, buf2);
-            return;
-        }
-        if (!(vict = get_char_vis(ch, value))) {
-            send_to_char(ch, "You cannot see any such person.\r\n");
-            return;
-        }
-
-        if ((tmp_d = vict->desc)) {
-            tmp_d->creature = NULL;
-        }
-        ch->desc->creature = vict;
-        vict->desc = ch->desc;
-        do_equipment(vict, arg, 0, SCMD_IMPLANTS, 0);
-        ch->desc->creature = ch;
-        if ((vict->desc = tmp_d))
-            tmp_d->creature = vict;
-        break;
-
-    case 30:                    /*paths */
+    case 25:                    /*paths */
         show_path(ch, value);
         break;
-
-    case 31:                    /* pathobjs */
+    case 26:                    /* pathobjs */
         show_pathobjs(ch);
         break;
-
-    case 32:                    /* searches */
-        show_searches(ch, value, arg);
-        break;
-
-    case 33:                    /* str_app */
+    case 27:                    /* str_app */
         strcpy(buf, "STR      to_hit    to_dam    max_encum    max_weap\r\n");
         for (i = 0; i < 35; i++) {
             if (i > 25)
@@ -5518,7 +5385,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
 
-    case 34:                    /* timezones */
+    case 28:                    /* timezones */
         if (!*value) {
             send_to_char(ch, "What time frame?\r\n");
             return;
@@ -5547,34 +5414,7 @@ ACMD(do_show)
         }
         page_string(ch->desc, buf);
         break;
-    case 35:                    /* char_class */
-        if (!*value) {
-            send_to_char(ch, "Show which PC char_class?\r\n");
-            return;
-        }
-        if ((con = parse_char_class(value)) == CLASS_UNDEFINED) {
-            send_to_char(ch, "That is not a char_class.\r\n");
-            return;
-        }
-        if (con >= NUM_CLASSES) {
-            send_to_char(ch, "That is not a PC char_class.\r\n");
-            return;
-        }
-        show_char_class_skills(ch, con, TRUE, 0);
-        break;
-    case 36:                    /* unapproved */
-        strcpy(buf, "ZCMD approved zones:\r\n");
-        for (zone = zone_table; zone; zone = zone->next)
-            if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED))
-                sprintf(buf, "%s %3d. %s\r\n", buf, zone->number, zone->name);
-
-        page_string(ch->desc, buf);
-        break;
-    case 37:
-		send_to_char(ch, "This command has been disabled.\r\n");
-        break;
-
-    case 38:
+    case 29:
         if (!*value) {
             send_to_char(ch, "Show free_create mobs, objs, or rooms?\r\n");
             return;
@@ -5605,7 +5445,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         return;
 
-    case 39:                    /* exp_percent */
+    case 30:                    /* exp_percent */
         if (!*arg || !*value) {
             send_to_char(ch, "Usage: show exp <min percent> <max percent>\r\n");
             return;
@@ -5653,7 +5493,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
 
-    case 40:                    /* demand_items */
+    case 31:                    /* demand_items */
         if (!*value) {
             send_to_char(ch, "What demand level (in total units existing)?\r\n");
             return;
@@ -5687,7 +5527,7 @@ ACMD(do_show)
             send_to_char(ch, "No items.\r\n");
         break;
 
-    case 42: {                   /* fighting */
+    case 32: {                   /* fighting */
         strcpy(buf, "Fighting characters:\r\n");
 
         CombatDataList::iterator it;
@@ -5723,7 +5563,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
     }
-    case 43:                    /* quad */
+    case 33:                    /* quad */
 
         strcpy(buf, "Characters with Quad Damage:\r\n");
 
@@ -5746,11 +5586,11 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
 
-    case 44:
+    case 34:
         do_show_mobiles(ch, value, arg);
         break;
 
-    case 45:                    /* hunting */
+    case 35:                    /* hunting */
 
         strcpy(buf, "Characters hunting:\r\n");
         cit = characterList.begin();
@@ -5771,7 +5611,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
 
-    case 46:                    /* last_cmd */
+    case 36:                    /* last_cmd */
 
         strcpy(buf, "Last cmds:\r\n");
         for (i = 0; i < NUM_SAVE_CMDS; i++)
@@ -5782,7 +5622,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
 
-    case 47:                    // duperooms
+    case 37:                    // duperooms
 
         strcpy(buf,
             " Zone  Name                          Rooms       Bytes\r\n");
@@ -5824,7 +5664,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
 
-    case 48:                    // specialization
+    case 38:                    // specialization
         if (!(vict = get_char_vis(ch, value))) {
             send_to_char(ch, "You cannot see any such person.\r\n");
             return;
@@ -5840,13 +5680,10 @@ ACMD(do_show)
         }
         page_string(ch->desc, buf);
         break;
-    case 49:                    // p_index
-		send_to_char(ch, "Disabled.");
-        return;
 
 #define ZEXITS_USAGE "Usage: zexit <f|t> <zone>\r\n"
 
-    case 50:                    // zexits
+    case 39:                    // zexits
 
         if (*value != 'f' && *value != 't') {
             send_to_char(ch, "First argument must be 'to' or 'from'.\r\n");
@@ -5904,77 +5741,20 @@ ACMD(do_show)
         page_string(ch->desc, acc_get_string());
         break;
 
-    case 51:                    // mlevels
-
+    case 40:                    // mlevels
         show_mlevels(ch, value, arg);
         break;
 
-    case 52:                    // plevels
-        send_to_char(ch, "Unimped.\r\n");
-        break;
-
-    case 53:                    // mobkills
+    case 41:                    // mobkills
         show_mobkills(ch, value, arg);
         break;
 
-    case 54:                    // wizcommands
+    case 42:                    // wizcommands
         show_wizcommands(ch);
         break;
 
-    case 55:                    // timewarps
+    case 43:                    // timewarps
         show_timewarps(ch);
-        break;
-    case 56:                    // zone commands
-        strcpy(buf, value);
-        strcat(buf, arg);
-        do_zone_cmdlist(ch, ch->in_room->zone, buf);
-        break;
-    case 57:
-        show_multi(ch, value);
-        break;
-    case 58:
-        show_file(ch, "log/help.log", 0); 
-        break;
-    case 59:
-        show_account( ch, value ); 
-        break;
-    case 60: // rooms
-        show_rooms(ch, value, arg);
-        break;
-	case 61: // boards
-		gen_board_show(ch);
-    case 62: // rexits
-        if (*value)
-            k = atoi(value);
-        else 
-            k = ch->in_room->number;
-
-        if (!real_room(k)) {
-            send_to_char(ch, "Room %d does not exist.\r\n", k);
-            return;
-        }
-
-        acc_string_clear();
-        // check for exits TO room k, a slow operation
-        acc_sprintf("Rooms with exits TO room %d:\r\n", k);
-
-        for (zone = zone_table, j = 0; zone; zone = zone->next) {
-            for (room = zone->world; room; room = room->next) {
-                if (room->number == k)
-                    continue;
-                for (i = 0; i < NUM_DIRS; i++) {
-                    if (room->dir_option[i]
-                        && room->dir_option[i]->to_room
-                        && room->dir_option[i]->to_room->number == k) {
-                        acc_sprintf("%3d. [%5d] %-40s %5s -> %7d\r\n",
-                                    ++j, room->number, room->name, dirs[i],
-                                    room->dir_option[i]->to_room->number);
-                    }
-                }
-            }
-        }
-
-        page_string(ch->desc, acc_get_string());
         break;
     default:
         send_to_char(ch, "Sorry, I don't understand that.\r\n");
@@ -6480,9 +6260,6 @@ ACMD(do_set)
         break;
     case 40:
 		send_to_char(ch, "Disabled.");
-        break;
-    case 41:
-		GET_QUEST(vict) = value;
         break;
     case 42:
 		if (real_room(i = atoi(argument)) != NULL) {
@@ -7733,7 +7510,7 @@ static const char *show_mob_keys[] = {
 
 #define NUM_SHOW_MOB 8
 
-void
+static void
 do_show_mobiles(struct Creature *ch, char *value, char *arg)
 {
 
@@ -8160,7 +7937,7 @@ static const char* CODER_UTIL_USAGE =
 					"    loadzone - load zone files for zone.\r\n"
                     ;
 
-bool
+static bool
 load_single_zone(int zone_num)
 {
     void discrete_load(FILE *fl, int mode);
@@ -8545,7 +8322,7 @@ ACMD(do_tester)
     return;
 }
 
-int do_freeze_char(char *argument, Creature *vict, Creature *ch)
+static int do_freeze_char(char *argument, Creature *vict, Creature *ch)
 {
     static const int ONE_MINUTE = 60;
     static const int ONE_HOUR   = 3600;
@@ -8878,7 +8655,7 @@ ACMD(do_delete)
 		delete vict;
 }
 
-void
+static void
 check_log(Creature *ch, const char *fmt, ...)
 {
     const int MAX_FRAMES = 10;	
@@ -8909,7 +8686,7 @@ check_log(Creature *ch, const char *fmt, ...)
 		"TRACE: %s", backtrace_str);
 }
 
-bool
+static bool
 check_ptr(Creature *ch, void *ptr, size_t expected_len, const char *str, int vnum)
 {
 #ifdef MEMTRACK
