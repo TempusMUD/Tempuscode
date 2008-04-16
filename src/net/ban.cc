@@ -78,6 +78,7 @@ load_banned_entry(xmlNodePtr node)
         } else if (xmlMatches(child->name, "date")) {
             text = (char *)xmlNodeGetContent(child);
             ban._date = atol(text);
+            free(text);
         }
     }
 
