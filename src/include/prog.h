@@ -82,7 +82,7 @@ struct prog_env {
 	thing *owner;				// pointer to the actual owner
 	Creature *target;			// target of prog
 	prog_evt evt;				// copy of event that caused prog to trigger
-	prog_state_data *state;		// state record of owner
+	struct prog_state_data *state; // thread-local state
 };
 
 struct prog_command {

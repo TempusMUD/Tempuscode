@@ -226,31 +226,46 @@ prog_get_var(prog_env *env, const char *key, bool exact)
 {
 	struct prog_var *cur_var;
 
-    if (!env->state)
-        return NULL;
-
     if (exact) {
-        for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
-            if (!strcmp(cur_var->key, key))
-                return cur_var;
+        if (env->state)
+            for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
+                if (!strncmp(cur_var->key, key, strlen(cur_var->key)))
+                    return cur_var;
+        if (env->owner->prog_state)
+            for (cur_var = env->owner->prog_state->var_list; cur_var; cur_var = cur_var->next)
+                if (!strcmp(cur_var->key, key))
+                    return cur_var;
     } else {
-        for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
-            if (!strncmp(cur_var->key, key, strlen(cur_var->key)))
-                return cur_var;
+        if (env->state)
+            for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
+                if (!strncmp(cur_var->key, key, strlen(cur_var->key)))
+                    return cur_var;
+        if (env->owner->prog_state)
+            for (cur_var = env->owner->prog_state->var_list; cur_var; cur_var = cur_var->next)
+                if (!strncmp(cur_var->key, key, strlen(cur_var->key)))
+                    return cur_var;
     }
     return NULL;
 }
 
 void
-prog_set_var(prog_env *env, const char *key, const char *arg)
+prog_set_var(prog_env *env, bool local, const char *key, const char *arg)
 {
 	prog_state_data *state;
 	prog_var *var;
 
-    state = env->owner->prog_state;
-    if (!state) {
-        CREATE(env->owner->prog_state, prog_state_data, 1);
-        state = env->state = env->owner->prog_state;
+    if (local) {
+        state = env->state;
+        if (!state) {
+            CREATE(env->state, prog_state_data, 1);
+            state = env->state;
+        }
+    } else {
+        state = env->owner->prog_state;
+        if (!state) {
+            CREATE(env->owner->prog_state, prog_state_data, 1);
+            state = env->owner->prog_state;
+        }
     }
 
     var = prog_get_var(env, key, true);
@@ -280,10 +295,10 @@ void
 prog_set_target(prog_env *env, Creature *target)
 {
     env->target = target;
-    prog_set_var(env, "N", (target) ? fname(target->player.name):"");
-    prog_set_var(env, "E", (target) ? HSSH(target):"");
-    prog_set_var(env, "S", (target) ? HSHR(target):"");
-    prog_set_var(env, "M", (target) ? HMHR(target):"");
+    prog_set_var(env, true, "N", (target) ? fname(target->player.name):"");
+    prog_set_var(env, true, "E", (target) ? HSSH(target):"");
+    prog_set_var(env, true, "S", (target) ? HSHR(target):"");
+    prog_set_var(env, true, "M", (target) ? HMHR(target):"");
 }
 
 bool
@@ -1429,7 +1444,7 @@ prog_do_set(prog_env * env, prog_evt * evt, char *args)
 	// Now find the variable record.  If they don't have one
 	// with the right key, create one
 	char *key = tmp_getword(&args);
-    prog_set_var(env, key, args);
+    prog_set_var(env, false, key, args);
 }
 
 void
