@@ -1113,10 +1113,10 @@ do_stat_room(struct Creature *ch, char *roomstr)
             }
         }
     }
-    if (GET_ROOM_STATE(rm) && GET_ROOM_STATE(rm)->var_list) {
+    if (rm->prog_state && rm->prog_state->var_list) {
 		prog_var *cur_var;
 		acc_strcat("Prog state variables:\r\n", NULL);
-		for (cur_var = GET_ROOM_STATE(rm)->var_list;cur_var;cur_var = cur_var->next) {
+		for (cur_var = rm->prog_state->var_list;cur_var;cur_var = cur_var->next) {
             acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
         }
     }
@@ -2023,10 +2023,10 @@ do_stat_character(Creature *ch, Creature *k, char *options)
             acc_sprintf("Self-destruct Timer: [%d]\r\n", MEDITATE_TIMER(k));
     }
 
-	if (GET_MOB_STATE(k) && GET_MOB_STATE(k)->var_list) {
+	if (k->prog_state && k->prog_state->var_list) {
 		prog_var *cur_var;
 		acc_strcat("Prog state variables:\r\n", NULL);
-		for (cur_var = GET_MOB_STATE(k)->var_list;cur_var;cur_var = cur_var->next)
+		for (cur_var = k->prog_state->var_list;cur_var;cur_var = cur_var->next)
 			acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
 	}
     acc_sprintf("Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),

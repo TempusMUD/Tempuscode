@@ -7,6 +7,7 @@ class Creature;
 class obj_data;
 class room_data;
 class zone_data;
+struct prog_state_data;
 
 enum thing_kind {
     CREATURE,
@@ -17,8 +18,8 @@ enum thing_kind {
 
 class thing {
 public:
-    thing(thing_kind kind) : _kind(kind) {}
-    thing(const thing &o) : _kind(o._kind) {}
+    thing(thing_kind kind) : prog_state(0), prog_marker(0), _kind(kind) {}
+    thing(const thing &o) : prog_state(0), prog_marker(o.prog_marker), _kind(o._kind) {}
     virtual ~thing(void) {};
 
     inline thing_kind kind(void) const { return _kind; }
@@ -48,6 +49,9 @@ public:
             raise(SIGSEGV);
         return reinterpret_cast<zone_data *>(const_cast<thing *>(this));
     }
+
+    prog_state_data *prog_state;
+    int prog_marker;
 private:
     thing_kind _kind;
 };

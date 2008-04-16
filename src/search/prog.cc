@@ -247,27 +247,11 @@ prog_set_var(prog_env *env, const char *key, const char *arg)
 	prog_state_data *state;
 	prog_var *var;
 
-	switch (env->owner_type) {
-	case PROG_TYPE_OBJECT:
-		return;
-	case PROG_TYPE_MOBILE:
-		state = GET_MOB_STATE(env->owner);
-		if (!state) {
-			CREATE(GET_MOB_STATE(env->owner), prog_state_data, 1);
-			state = env->state = GET_MOB_STATE(env->owner);
-		}
-		break;
-	case PROG_TYPE_ROOM:
-		state = GET_ROOM_STATE(env->owner);
-		if (!state) {
-			CREATE(GET_ROOM_STATE(env->owner), prog_state_data, 1);
-			state = env->state = GET_ROOM_STATE(env->owner);
-		}
-		break;
-	default:
-		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
-		return;
-	}
+    state = env->owner->prog_state;
+    if (!state) {
+        CREATE(env->owner->prog_state, prog_state_data, 1);
+        state = env->state = env->owner->prog_state;
+    }
 
     var = prog_get_var(env, key, true);
 
@@ -1796,20 +1780,7 @@ prog_start(prog_evt_type owner_type, thing *owner, Creature * target, prog_evt *
 	new_prog->target = NULL;
 	new_prog->evt = *evt;
 
-	switch (owner_type) {
-	case PROG_TYPE_MOBILE:
-		new_prog->state = GET_MOB_STATE(owner);
-		break;
-	case PROG_TYPE_OBJECT:
-		new_prog->state = NULL;
-		break;
-	case PROG_TYPE_ROOM:
-		new_prog->state = GET_ROOM_STATE(owner);
-		break;
-    default:
-        break;
-	}
-
+    new_prog->state = NULL;
     if (target)
         prog_set_target(new_prog, target);
 
@@ -2238,7 +2209,7 @@ prog_unmark_mobiles(void)
 	// Unmark mobiles
     end = characterList.end();
 	for (cit = characterList.begin();cit != end;++cit)
-		(*cit)->mob_specials.prog_marker = 0;
+		(*cit)->prog_marker = 0;
 }
 
 static void
@@ -2273,17 +2244,7 @@ prog_execute_and_mark(void)
 			continue;
 		}
 			
-		switch (cur_prog->owner_type) {
-		case PROG_TYPE_OBJECT:
-			break;
-		case PROG_TYPE_MOBILE:
-			(cur_prog->owner->to_c())->mob_specials.prog_marker = 1; break;
-		case PROG_TYPE_ROOM:
-			((room_data *)cur_prog->owner)->prog_marker = 1; break;
-        default:
-            break;
-		}
-
+        cur_prog->owner->prog_marker = 1;
 		prog_execute(cur_prog);
 	}
 }
@@ -2307,7 +2268,7 @@ prog_trigger_idle_mobs(void)
 
     end = characterList.end();
 	for (cit = characterList.begin();cit != end;++cit) {
-		if ((*cit)->mob_specials.prog_marker || !GET_MOB_PROGOBJ(*cit))
+		if ((*cit)->prog_marker || !GET_MOB_PROGOBJ(*cit))
 			continue;
 		else if ((*cit)->isFighting())
 			trigger_prog_combat((*cit), PROG_TYPE_MOBILE);

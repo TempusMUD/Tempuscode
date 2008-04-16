@@ -219,8 +219,6 @@ class room_data : public thing {
 	char *prog;
     unsigned char *progobj;
     size_t progobj_len;
-	int prog_marker;
-	struct prog_state_data *prog_state;
 	struct extra_descr_data *ex_description;	// for examine/look
 	struct room_direction_data *dir_option[NUM_OF_DIRS];	// Directions
 	struct special_search_data *search;	// Specials to be searched

@@ -822,6 +822,7 @@ Creature::initialize(void)
     affected = NULL;
     desc = NULL;
     account = NULL;
+    prog_state = NULL;
     memset(&aff_abils, 0, sizeof(aff_abils));
     memset(&real_abils, 0, sizeof(real_abils));
     memset(&points, 0, sizeof(points));
@@ -906,8 +907,8 @@ Creature::clear(void)
 			free(this->player.description);
 		if (this->mob_specials.func_data)
 			free(this->mob_specials.func_data);
-		if (this->mob_specials.prog_state)
-			prog_state_free(this->mob_specials.prog_state);
+		if (this->prog_state)
+			prog_state_free(this->prog_state);
 	} else {
 		//
 		// otherwise this is a player, so free all
