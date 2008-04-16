@@ -1058,8 +1058,7 @@ do_auto_exits(struct Creature *ch, struct room_data *room)
 
 /* functions and macros for 'scan' command */
 void
-list_scanned_chars(struct Creature *list, struct Creature *ch,
-	int distance, int door)
+list_scanned_chars(Creature *list, Creature *ch, int distance, int door)
 {
 	const char *how_far[] = {
 		"close by",
@@ -1068,9 +1067,10 @@ list_scanned_chars(struct Creature *list, struct Creature *ch,
 	};
 
 	int count = 0;
-	*buf = '\0';
-	if (list == NULL)
+
+	if (!list)
 		return;
+
 	/* this loop is a quick, easy way to help make a grammatical sentence
 	   (i.e., "You see x, x, y, and z." with commas, "and", etc.) */
 	CreatureList::iterator it = list->in_room->people.begin();
@@ -1088,34 +1088,30 @@ list_scanned_chars(struct Creature *list, struct Creature *ch,
 	if (!count)
 		return;
 
+    acc_string_clear();
 	it = list->in_room->people.begin();
 	for (; it != list->in_room->people.end(); ++it) {
-		/* make sure to add changes to the if statement above to this one also, using
-		   or's to join them.. i.e., 
-		   if (!can_see_creature(ch, i) || !condition2 || !condition3) */
+		/* make sure to add changes to the if statement above to this
+		   one also, using or's to join them.. i.e.,
+           if (!can_see_creature(ch, i) || !condition2 || !condition3) */
 
 		if (!can_see_creature(ch, (*it)) || ch == (*it) ||
 			((AFF_FLAGGED((*it), AFF_SNEAK | AFF_HIDE)) &&
 				!PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 			continue;
-		if (!*buf)
-			sprintf(buf, "You see %s%s%s",
-				CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, (*it)), CCNRM(ch,
-					C_NRM));
-		else
-			sprintf(buf, "%s%s%s%s",
-				buf, CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, (*it)),
-				CCNRM(ch, C_NRM));
+        acc_sprintf("%s%s%s",
+                    CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, (*it)),
+                    CCNRM(ch, C_NRM));
+
 		if (--count > 1)
-			strcat(buf, ", ");
+			acc_strcat(", ", NULL);
 		else if (count == 1)
-			strcat(buf, " and ");
+			acc_strcat(" and ", NULL);
 		else {
-			sprintf(buf2, " %s %s.\r\n", how_far[distance], dirs[door]);
-			strcat(buf, buf2);
+            acc_sprintf(" %s %s.", how_far[distance], dirs[door]);
 		}
 	}
-	send_to_char(ch, "%s", buf);
+	send_to_char(ch, "You see %s\r\n", acc_get_string());
 }
 
 ACMD(do_scan)
