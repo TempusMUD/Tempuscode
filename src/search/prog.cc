@@ -68,6 +68,7 @@ void prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args);
 void prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args);
 void prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args);
 void prog_do_clear_cond(prog_env *env, prog_evt *evt, char *args);
+void prog_do_trace(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -89,6 +90,7 @@ prog_command prog_cmds[] = {
 	{"require", false, prog_do_require},
 	{"unless", false, prog_do_unless},
 	{"randomly", false, prog_do_randomly},
+    {"trace", false, prog_do_trace},
 	{"pause", true, prog_do_pause},
 	{"walkto", true, prog_do_walkto},
 	{"driveto", true, prog_do_driveto},
@@ -841,6 +843,12 @@ prog_do_target(prog_env * env, prog_evt * evt, char *args)
     }
 
     prog_set_target(env, new_target);
+}
+
+void
+prog_do_trace(prog_env * env, prog_evt * evt, char *args)
+{
+	env->tracing = !strcasecmp(args, "on");
 }
 
 void
@@ -1712,10 +1720,33 @@ prog_do_echo(prog_env * env, prog_evt * evt, char *args)
 }
 
 void
+prog_emit_trace(prog_env *env, int cmd, const char *arg)
+{
+    room_data *room = prog_get_owner_room(env);
+    
+
+    for (CreatureList::iterator cit = room->people.begin();
+         cit != room->people.end();
+         ++cit) {
+        Creature *ch = *cit;
+
+        if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+            send_to_char(ch, "%sprog x%lx:: %s %s%s\r\n",
+                         CCCYN(ch, C_NRM),
+                         (unsigned long)env,
+                         prog_cmds[cmd].str,
+                         arg,
+                         CCNRM(ch, C_NRM));
+        }
+    }
+}
+
+void
 prog_execute(prog_env *env)
 {
 	unsigned char *exec;
     int cmd, arg_addr;
+    char *arg_str;
 
 	// Called with NULL environment
 	if (!env)
@@ -1753,8 +1784,14 @@ prog_execute(prog_env *env)
         // Set the execution point to the next command by default
         env->exec_pt += sizeof(short) * 2;
         // Call the handler for the command
-        prog_cmds[cmd].func(env, &env->evt,
-                            (arg_addr) ? prog_expand_vars(env, (char *)exec + arg_addr):NULL);
+        arg_str = (arg_addr) ? prog_expand_vars(env, (char *)exec + arg_addr):NULL;
+        // Emit a trace if the prog is being traced
+        if (env->tracing)
+            prog_emit_trace(env, cmd, arg_str);
+
+        // Execute the command
+        prog_cmds[cmd].func(env, &env->evt, arg_str);
+
         // If the command did something, count it
         if (prog_cmds[cmd].count)
             env->executed +=1 ;
