@@ -229,7 +229,7 @@ prog_get_var(prog_env *env, const char *key, bool exact)
     if (exact) {
         if (env->state)
             for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
-                if (!strncmp(cur_var->key, key, strlen(cur_var->key)))
+                if (!strcmp(cur_var->key, key))
                     return cur_var;
         if (env->owner->prog_state)
             for (cur_var = env->owner->prog_state->var_list; cur_var; cur_var = cur_var->next)
@@ -685,11 +685,8 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {
-		if (env->state) {
-			arg = tmp_getword(&args);
-			result = prog_var_equal(env, arg, args);
-		} else if (!*args)
-			result = true;
+        arg = tmp_getword(&args);
+        result = prog_var_equal(env, arg, args);
 	} else if (!strcasecmp(arg, "holding")) {
         result = prog_eval_holding(env, evt, args);
 	} else if (!strcasecmp(arg, "hour")) {
