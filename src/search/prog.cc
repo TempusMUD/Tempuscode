@@ -1828,8 +1828,9 @@ prog_start(prog_evt_type owner_type, thing *owner, Creature * target, prog_evt *
 	new_prog->speed = 0;
 	new_prog->target = NULL;
 	new_prog->evt = *evt;
-
+    new_prog->tracing = false;
     new_prog->state = NULL;
+
     if (target)
         prog_set_target(new_prog, target);
 
