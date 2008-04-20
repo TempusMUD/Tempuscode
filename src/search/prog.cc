@@ -1820,6 +1820,13 @@ prog_free(struct prog_env *prog)
 		prev_prog->next = prog->next;
 	}
 
+    if (prog->state && prog->state->var_list) {
+        for (prog_var *var = prog->state->var_list,*next_var = 0;var;var = next_var) {
+            next_var = var->next;
+            free(var);
+        }
+    }
+
 	prog->next = free_progs;
 	free_progs = prog;
 }
