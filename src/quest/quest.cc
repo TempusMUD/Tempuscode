@@ -974,10 +974,13 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 	Quest *quest = NULL;
 	Creature *vict = NULL;
 	unsigned int idnum;
+    const char *vict_name;
 	int pid;
 	int level = 0;
+    char *arg1, *arg2;
 
-	argument = two_arguments(argument, arg1, arg2);
+    arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
 
 	if (!*arg1 || !*arg2) {
 		do_qcontrol_usage(ch, com);
@@ -1013,15 +1016,18 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 		if (pid > 0) {
 			vict->loadFromXML(pid);
 			level = GET_LEVEL(vict);
+            vict_name = tmp_strdup(GET_NAME(vict));
 			delete vict;
 			vict = NULL;
 		} else {
+            delete vict;
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
 		}
 
 	} else {
 		level = GET_LEVEL(vict);
+        vict_name = tmp_strdup(GET_NAME(vict));
 	}
 
 	if (level >= GET_LEVEL(ch) && vict && ch != vict) {
@@ -1034,25 +1040,27 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 		return;
 	}
 
-	send_to_char(ch, "%s kicked from quest %d.\r\n", arg1, quest->getVnum());
+	send_to_char(ch, "%s kicked from quest %d.\r\n",
+                 vict_name, quest->getVnum());
 	if (vict) {
 		sprintf(buf, "kicked %s from quest %d '%s'.", 
-				arg1, quest->getVnum(),quest->name);
+				vict_name, quest->getVnum(),quest->name);
 		qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(vict), LVL_AMBASSADOR),
              TRUE);
 
 		send_to_char(vict, "%s kicked you from quest %d.\r\n",
                      GET_NAME(ch), quest->getVnum());
 
-		sprintf(buf, "%s has been kicked from the quest.", arg1);
+		sprintf(buf, "%s has been kicked from the quest.", vict_name);
 		send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(vict),
                                             LVL_AMBASSADOR), QCOMM_ECHO);
 	} else {
 		sprintf(buf, "kicked %s from quest %d '%s'.", 
-				arg1, quest->getVnum(),quest->name);
+				vict_name, quest->getVnum(),quest->name);
 		qlog(ch, buf, QLOG_BRIEF, LVL_AMBASSADOR, TRUE);
 
-		sprintf(buf, "%s has been kicked from the quest.", arg1);
+		sprintf(buf, "%s has been kicked from the quest.",
+                vict_name);
 		send_to_quest(NULL, buf, quest, LVL_AMBASSADOR, QCOMM_ECHO);
 	}
 
@@ -1950,39 +1958,37 @@ list_quest_bans(Creature *ch, Quest * quest, char *outbuf)
 }
 
 void
-qlog(Creature *ch, char *str, int type, int level, int file)
+qlog(Creature *ch, char *str, int type, int min_level, int file)
 {
-	time_t ct;
-	char *tmstr;
-	Creature *vict = NULL;
-	char buf[MAX_STRING_LENGTH];
-
 	// Mortals don't need to be seeing logs
-	if (level < LVL_IMMORT)
-		level = LVL_IMMORT;
+	if (min_level < LVL_IMMORT)
+		min_level = LVL_IMMORT;
 
 	if (type) {
-		CreatureList::iterator cit = characterList.begin();
-		for (; cit != characterList.end(); ++cit) {
-			vict = *cit;
-			if (GET_LEVEL(vict) >= level && GET_QLOG_LEVEL(vict) >= type) {
+        struct descriptor_data *d = NULL;
 
-				sprintf(buf,
-                        "%s[%s QLOG: %s %s %s]%s\r\n",
-                        CCYEL_BLD(vict, C_NRM), CCNRM_GRN(vict, C_NRM),
-                        ch ? PERS(ch, vict) : "",
-                        str, CCYEL_BLD(vict, C_NRM), CCNRM(vict, C_NRM));
-				send_to_char(vict, "%s", buf);
+        for (d = descriptor_list; d; d = d->next) {
+            if (d->input_mode == CXN_PLAYING
+				&& !PLR_FLAGGED(d->creature, PLR_WRITING)
+				&& !PLR_FLAGGED(d->creature, PLR_OLC)) {
+                int level = (d->original) ?
+                    GET_LEVEL(d->original):GET_LEVEL(d->creature);
+                int qlog_level = (d->original) ?
+                    GET_QLOG_LEVEL(d->original):GET_QLOG_LEVEL(d->creature);
+                
+                if (level >= min_level && qlog_level >= type)
+                    send_to_desc(d, "&Y[&g QLOG: %s %s &Y]&n\r\n",
+                                 ch ? PERS(ch, d->creature) : "",
+                                 str);
 			}
 		}
 	}
 
 	if (file) {
-		sprintf(buf, "%s %s\n", ch ? GET_NAME(ch) : "", str);
-		ct = time(0);
-		tmstr = asctime(localtime(&ct));
-		*(tmstr + strlen(tmstr) - 1) = '\0';
-		fprintf(qlogfile, "%-19.19s :: %s", tmstr, buf);
+		fprintf(qlogfile, "%-19.19s :: %s %s\n",
+                tmp_ctime(time(NULL)),
+                ch ? GET_NAME(ch) : "",
+                str);
 		fflush(qlogfile);
 	}
 }
@@ -2006,7 +2012,6 @@ boot_quests(void)
 		safe_exit(1);
 	}
 	quests.loadQuests();
-	qlog(NULL, "Quests REBOOTED.", QLOG_OFF, 0, TRUE);
 	return 1;
 }
 
