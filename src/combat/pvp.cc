@@ -244,10 +244,10 @@ ACMD(do_pardon)
                          GET_NAME(pardoned));
             return;
         }
-        send_to_char(ch, "You pardon %s of %s crimes against you.\r\n",
-                     GET_NAME(pardoned),
-                     HSHR(pardoned));
-
+        act("You pardon $N of $S crimes against you.",
+            true, ch, 0, pardoned, TO_CHAR);
+        act("$n pardons your crimes against $m.",
+            true, ch, 0, pardoned, TO_VICT);
         perform_pardon(ch, pardoned);
     }
 
