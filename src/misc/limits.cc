@@ -556,6 +556,9 @@ point_update(void)
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
         
+        full = 1;
+        thirst = 1;
+        drunk = 1;
         //reputation should slowly decrease when not in a house, clan, arena, or afk
         if (IS_PC(i) &&
             !ROOM_FLAGGED(i->in_room, ROOM_ARENA) &&
@@ -582,49 +585,57 @@ point_update(void)
 			if (i->getPosition() <= POS_STUNNED)
 				update_pos(i);
 
-			if (IS_SICK(i) && affected_by_spell(i, SPELL_SICKNESS)
+			if (IS_SICK(i)
+                && affected_by_spell(i, SPELL_SICKNESS)
 				&& !number(0, 4)) {
+                // You lose a lot when you puke
+                full = 10;
+                thirst = 10;
 				switch (number(0, 6)) {
 				case 0:
+                    act("You puke all over the place.",
+                        true, i, 0, 0, TO_CHAR);
 					act("$n pukes all over the place.", FALSE, i, 0, 0,
 						TO_ROOM);
-					send_to_char(i, "You puke all over the place.\r\n");
 					break;
-
 				case 1:
+                    act("You vomit uncontrollably.",
+                        true, i, 0, 0, TO_CHAR);
 					act("$n vomits uncontrollably.", FALSE, i, 0, 0, TO_ROOM);
-					send_to_char(i, "You vomit uncontrollably.\r\n");
 					break;
 
 				case 2:
+                    act("You begin to regurgitate steaming bile.",
+                        true, i, 0, 0, TO_CHAR);
 					act("$n begins to regurgitate steaming bile.", FALSE, i, 0,
 						0, TO_ROOM);
-					send_to_char(i, "You begin to regurgitate bile.\r\n");
 					break;
 
 				case 3:
+                    act("You are violently overcome with a fit of dry heaving.",
+                        true, i, 0, 0, TO_CHAR);
 					act("$n is violently overcome with a fit of dry heaving.",
 						FALSE, i, 0, 0, TO_ROOM);
-					send_to_char(i, 
-						"You are violently overcome with a fit of dry heaving.\r\n");
 					break;
 
 				case 4:
+                    act("You begin to retch.",
+                        true, i, 0, 0, TO_CHAR);
 					act("$n begins to retch.", FALSE, i, 0, 0, TO_ROOM);
-					send_to_char(i, "You begin to retch.\r\n");
 					break;
 
 				case 5:
+                    act("You violently eject your lunch!",
+                        true, i, 0, 0, TO_CHAR);
 					act("$n violently ejects $s lunch!", FALSE, i, 0, 0,
 						TO_ROOM);
-					send_to_char(i, "You violently eject your lunch!\r\n");
 					break;
 
 				default:
+                    act("You begin an extended session of tossing your cookies.",
+                        true, i, 0, 0, TO_CHAR);
 					act("$n begins an extended session of tossing $s cookies.",
 						FALSE, i, 0, 0, TO_ROOM);
-					send_to_char(i, 
-						"You begin an extended session of tossing your cookies.\r\n");
 					break;
 				}
 			}
@@ -671,7 +682,6 @@ point_update(void)
             GET_LANG_HEARD(i).pop_front();
         }
 
-		full = 1;
 		if (affected_by_spell(i, SPELL_METABOLISM))
 			full += 1;
 
@@ -684,7 +694,6 @@ point_update(void)
 
 		gain_condition(i, FULL, -full);
 
-		thirst = 1;
 		if (SECT_TYPE(i->in_room) == SECT_DESERT)
 			thirst += 2;
 		if (ROOM_FLAGGED(i->in_room, ROOM_FLAME_FILLED))
@@ -700,7 +709,6 @@ point_update(void)
 
 		gain_condition(i, THIRST, -thirst);
 
-		drunk = 1;
 		if (IS_MONK(i))
 			drunk += 1;
 		if (IS_CYBORG(i))
