@@ -864,20 +864,6 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		desc = tmp_strcat(desc, positions[(int)MAX(0, MIN(i->getPosition(),
 						POS_SWIMMING))]);
 
-	if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
-		(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
-		if (IS_EVIL(i))
-			align = tmp_sprintf(" %s%s(Red Aura)%s",
-                                CCRED(ch, C_NRM),
-                                CCBLD(ch, C_CMP),
-                                CCNRM(ch, C_NRM));
-		else if (IS_GOOD(i))
-			align = tmp_sprintf(" %s%s(Blue Aura)%s",
-                                CCBLU(ch, C_NRM),
-                                CCBLD(ch, C_CMP),
-                                CCNRM(ch, C_NRM));
-	}
-
 	if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
         const char *align_color;
 
@@ -893,6 +879,18 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
                             CCBLD(ch, C_CMP),
                             GET_ALIGNMENT(i),
                             CCNRM(ch, C_CMP));
+	} else if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
+		(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
+		if (IS_EVIL(i))
+			align = tmp_sprintf(" %s%s(Red Aura)%s",
+                                CCRED(ch, C_NRM),
+                                CCBLD(ch, C_CMP),
+                                CCNRM(ch, C_NRM));
+		else if (IS_GOOD(i))
+			align = tmp_sprintf(" %s%s(Blue Aura)%s",
+                                CCBLU(ch, C_NRM),
+                                CCBLD(ch, C_CMP),
+                                CCNRM(ch, C_NRM));
 	}
 
     if (IS_AFFECTED_3(ch, AFF3_DETECT_POISON)) {
