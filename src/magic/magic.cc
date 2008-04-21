@@ -1248,17 +1248,12 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "Your eyes tingle.";
 		break;
 	case SPELL_DETECT_POISON:
-		if (victim == ch)
-			if (IS_AFFECTED(victim, AFF_POISON))
-				send_to_char(ch, "You can sense poison in your blood.\r\n");
-			else
-				send_to_char(ch, "You feel healthy.\r\n");
-		else if (IS_AFFECTED(victim, AFF_POISON))
-			act("You sense that $E is poisoned.", FALSE, ch, 0, victim,
-				TO_CHAR);
-		else
-			act("You sense that $E is healthy.", FALSE, ch, 0, victim,
-				TO_CHAR);
+        af.duration = 12 + level;
+        af.bitvector = AFF3_DETECT_POISON;
+        af.aff_index = 3;
+        to_vict = "Your eyes tingle.";
+        if (IS_AFFECTED(victim, AFF_POISON))
+            send_to_char(victim, "You can sense poison in your blood.\r\n");
 		break;
 	case SPELL_DETECT_SCRYING:
 		to_vict = "You are now aware.";

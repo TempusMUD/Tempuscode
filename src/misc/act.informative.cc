@@ -217,6 +217,13 @@ show_obj_bits(obj_data *object, Creature *ch)
     if (IS_OBJ_STAT2(object, ITEM2_HIDDEN))
         acc_sprintf(" %s(hidden)%s",
                     CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+    if (IS_AFFECTED_3(ch, AFF3_DETECT_POISON)
+        && (((IS_OBJ_TYPE(object, ITEM_FOOD)
+              || IS_OBJ_TYPE(object, ITEM_DRINKCON)
+              || IS_OBJ_TYPE(object, ITEM_FOUNTAIN))
+             && GET_OBJ_VAL(object, 3))
+            || object->affectedBySpell(SPELL_ENVENOM)))
+        acc_sprintf(" %s(poisoned)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
         (IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
         if (IS_OBJ_STAT(object, ITEM_BLESS))
@@ -272,10 +279,6 @@ show_obj_bits(obj_data *object, Creature *ch)
         } else if( object->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD) != NULL ) {
             acc_sprintf(" %s(attractive)%s",
                         CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
-        }
-        if( object->affectedBySpell(SPELL_ENVENOM) != NULL ) {
-            acc_sprintf(" %s(venom)%s",
-                        CCGRN(ch, C_SPR), CCNRM(ch, C_SPR));
         }
         if( object->affectedBySpell(SPELL_ELEMENTAL_BRAND) != NULL ) {
             acc_sprintf(" %s(branded)%s",
@@ -771,7 +774,8 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 	char *desc = "";
 	char *appr = "";
     char *vnum = "";
-    
+    char *poisoned = "";
+
 	if (AFF2_FLAGGED(i, AFF2_MOUNTED))
 		return "";
 
@@ -890,6 +894,14 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
                             GET_ALIGNMENT(i),
                             CCNRM(ch, C_CMP));
 	}
+
+    if (IS_AFFECTED_3(ch, AFF3_DETECT_POISON)) {
+        if (HAS_POISON_1(i) || HAS_POISON_2(i) || HAS_POISON_3(i))
+            poisoned = tmp_sprintf(" %s(poisoned)%s",
+                                   CCGRN(ch, C_NRM),
+                                   CCNRM(ch, C_NRM));
+    }
+
     if (MOB_FLAGGED(i, MOB_UTILITY))
         appr = tmp_sprintf(" %s<util>", CCCYN(ch, C_NRM));
 	// If they can see it, they probably need to know it's unapproved
@@ -904,7 +916,8 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
     }
 		
 	desc = tmp_strcat(CCYEL(ch, C_NRM), (is_group) ? CCBLD(ch, C_CMP):"",
-		desc, align, appr, vnum, CCNRM(ch, C_NRM), "\r\n", NULL);
+                      desc, align, poisoned, appr, vnum,
+                      CCNRM(ch, C_NRM), "\r\n", NULL);
 
 	return desc;
 }
@@ -2391,6 +2404,9 @@ acc_append_affects(struct Creature *ch, byte mode)
 	if (IS_AFFECTED(ch, AFF_DETECT_INVIS))
 		acc_strcat(str,
 			"You are sensitive to the presence of invisible things.\r\n", NULL);
+    if (IS_AFFECTED_3(ch, AFF3_DETECT_POISON))
+        acc_strcat(str,
+                   "You are sensitive to the presence of poisons.\r\n", NULL);
 	if (IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
 		acc_strcat("You are seeing truly.\r\n", NULL);
 	if (IS_AFFECTED(ch, AFF_SANCTUARY))
