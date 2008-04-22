@@ -4,5 +4,4 @@ aclocal -I m4
 autoconf
 autoheader
 automake -a
-mkdir -p build lib/world/{wld,obj,mob,zon}/olc log/parsed lib/bak
-chmod a+x bin/crashreport.sh bin/autorun
+mkdir -p build lib/world/{wld,obj,mob,zon}/olc lib/log log/parsed lib/bak
