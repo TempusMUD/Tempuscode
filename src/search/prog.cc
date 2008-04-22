@@ -2325,12 +2325,13 @@ prog_trigger_idle_mobs(void)
 
     end = characterList.end();
 	for (cit = characterList.begin();cit != end;++cit) {
-		if ((*cit)->prog_marker || !GET_MOB_PROGOBJ(*cit))
+        Creature *ch = *cit;
+		if (ch->prog_marker || !GET_MOB_PROGOBJ(ch))
 			continue;
-		else if ((*cit)->isFighting())
-			trigger_prog_combat((*cit), PROG_TYPE_MOBILE);
+		else if (ch->isFighting())
+			trigger_prog_combat(ch, PROG_TYPE_MOBILE);
 		else
-			trigger_prog_idle((*cit), PROG_TYPE_MOBILE);
+			trigger_prog_idle(ch, PROG_TYPE_MOBILE);
 	}
 }
 
