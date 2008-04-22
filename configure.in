@@ -7,7 +7,7 @@ AM_INIT_AUTOMAKE([tempusmud], [1.0])
 
 # Checks for programs.
 if test -z "${CXXFLAGS}"; then
-   CXXFLAGS="-g"
+   CXXFLAGS="-g -pg"
 fi
 AC_PROG_CXX
 AC_PROG_CC
