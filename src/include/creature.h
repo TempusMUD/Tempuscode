@@ -1348,7 +1348,8 @@ struct Creature : public thing {
 
     Creature *findCombat(Creature *ch);
     Creature *findRandomCombat();
-    CombatDataList *getCombatList();
+    CombatDataList *getCombatList() { return fighting; }
+
     
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
 

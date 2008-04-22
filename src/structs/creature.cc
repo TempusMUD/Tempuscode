@@ -1366,15 +1366,6 @@ Creature::set_reputation(int amt)
 	player_specials->saved.reputation = MIN(1000, MAX(0, amt));
 }
 
-CombatDataList *
-Creature::getCombatList()
-{
-    if (this)
-        return fighting;
-
-    return NULL;
-}
-
 void
 Creature::addCombat(Creature *ch, bool initiated)
 {
