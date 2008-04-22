@@ -411,6 +411,7 @@ ASPELL(song_lament_of_longing)
     if (ROOM_FLAGGED(victim->in_room, ROOM_CLAN_HOUSE) &&
         !clan_house_can_enter(ch, victim->in_room)) {
         send_to_char(ch, "You are not allowed in that clan house!\r\n");
+        return;
     }
 
     if (victim->in_room->zone != ch->in_room->zone &&

@@ -68,6 +68,7 @@ void prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args);
 void prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args);
 void prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args);
 void prog_do_clear_cond(prog_env *env, prog_evt *evt, char *args);
+void prog_do_trace(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -89,6 +90,7 @@ prog_command prog_cmds[] = {
 	{"require", false, prog_do_require},
 	{"unless", false, prog_do_unless},
 	{"randomly", false, prog_do_randomly},
+    {"trace", false, prog_do_trace},
 	{"pause", true, prog_do_pause},
 	{"walkto", true, prog_do_walkto},
 	{"driveto", true, prog_do_driveto},
@@ -229,7 +231,7 @@ prog_get_var(prog_env *env, const char *key, bool exact)
     if (exact) {
         if (env->state)
             for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
-                if (!strncmp(cur_var->key, key, strlen(cur_var->key)))
+                if (!strcmp(cur_var->key, key))
                     return cur_var;
         if (env->owner->prog_state)
             for (cur_var = env->owner->prog_state->var_list; cur_var; cur_var = cur_var->next)
@@ -685,11 +687,8 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {
-		if (env->state) {
-			arg = tmp_getword(&args);
-			result = prog_var_equal(env, arg, args);
-		} else if (!*args)
-			result = true;
+        arg = tmp_getword(&args);
+        result = prog_var_equal(env, arg, args);
 	} else if (!strcasecmp(arg, "holding")) {
         result = prog_eval_holding(env, evt, args);
 	} else if (!strcasecmp(arg, "hour")) {
@@ -844,6 +843,12 @@ prog_do_target(prog_env * env, prog_evt * evt, char *args)
     }
 
     prog_set_target(env, new_target);
+}
+
+void
+prog_do_trace(prog_env * env, prog_evt * evt, char *args)
+{
+	env->tracing = !strcasecmp(args, "on");
 }
 
 void
@@ -1715,10 +1720,33 @@ prog_do_echo(prog_env * env, prog_evt * evt, char *args)
 }
 
 void
+prog_emit_trace(prog_env *env, int cmd, const char *arg)
+{
+    room_data *room = prog_get_owner_room(env);
+    
+
+    for (CreatureList::iterator cit = room->people.begin();
+         cit != room->people.end();
+         ++cit) {
+        Creature *ch = *cit;
+
+        if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+            send_to_char(ch, "%sprog x%lx:: %s %s%s\r\n",
+                         CCCYN(ch, C_NRM),
+                         (unsigned long)env,
+                         prog_cmds[cmd].str,
+                         arg,
+                         CCNRM(ch, C_NRM));
+        }
+    }
+}
+
+void
 prog_execute(prog_env *env)
 {
 	unsigned char *exec;
     int cmd, arg_addr;
+    char *arg_str;
 
 	// Called with NULL environment
 	if (!env)
@@ -1756,8 +1784,14 @@ prog_execute(prog_env *env)
         // Set the execution point to the next command by default
         env->exec_pt += sizeof(short) * 2;
         // Call the handler for the command
-        prog_cmds[cmd].func(env, &env->evt,
-                            (arg_addr) ? prog_expand_vars(env, (char *)exec + arg_addr):NULL);
+        arg_str = (arg_addr) ? prog_expand_vars(env, (char *)exec + arg_addr):NULL;
+        // Emit a trace if the prog is being traced
+        if (env->tracing)
+            prog_emit_trace(env, cmd, arg_str);
+
+        // Execute the command
+        prog_cmds[cmd].func(env, &env->evt, arg_str);
+
         // If the command did something, count it
         if (prog_cmds[cmd].count)
             env->executed +=1 ;
@@ -1794,8 +1828,9 @@ prog_start(prog_evt_type owner_type, thing *owner, Creature * target, prog_evt *
 	new_prog->speed = 0;
 	new_prog->target = NULL;
 	new_prog->evt = *evt;
-
+    new_prog->tracing = false;
     new_prog->state = NULL;
+
     if (target)
         prog_set_target(new_prog, target);
 
@@ -1819,6 +1854,13 @@ prog_free(struct prog_env *prog)
 		}
 		prev_prog->next = prog->next;
 	}
+
+    if (prog->state && prog->state->var_list) {
+        for (prog_var *var = prog->state->var_list,*next_var = 0;var;var = next_var) {
+            next_var = var->next;
+            free(var);
+        }
+    }
 
 	prog->next = free_progs;
 	free_progs = prog;
