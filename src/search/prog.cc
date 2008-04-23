@@ -1855,12 +1855,7 @@ prog_free(struct prog_env *prog)
 		prev_prog->next = prog->next;
 	}
 
-    if (prog->state && prog->state->var_list) {
-        for (prog_var *var = prog->state->var_list,*next_var = 0;var;var = next_var) {
-            next_var = var->next;
-            free(var);
-        }
-    }
+    prog_state_free(prog->state);
 
 	prog->next = free_progs;
 	free_progs = prog;
@@ -2408,10 +2403,12 @@ prog_state_free(prog_state_data * state)
 {
 	struct prog_var *cur_var, *next_var;
 
-	for (cur_var = state->var_list; cur_var; cur_var = next_var) {
-		next_var = cur_var->next;
-		free(cur_var);
-	}
-	free(state);
+    if (state) {
+        for (cur_var = state->var_list; cur_var; cur_var = next_var) {
+            next_var = cur_var->next;
+            free(cur_var);
+        }
+        free(state);
+    }
 }
 
