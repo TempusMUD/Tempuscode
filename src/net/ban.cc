@@ -128,7 +128,7 @@ isbanned(char *hostname, char *blocking_hostname)
     for (;node != ban_list.end();++node) {
         if (!strncmp(hostname, node->_site, strlen(node->_site))) {
             i = MAX(i, node->_type);
-            strcpy(blocking_hostname, node->_site);
+            strcpy(blocking_hostname, node->_reason);
         }
     }
 

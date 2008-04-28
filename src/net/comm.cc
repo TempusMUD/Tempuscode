@@ -1028,7 +1028,9 @@ new_descriptor(int s)
                                   "we hope to see you soon!\r\n\r\n");
 		close(desc);
 		mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
-			"Connection attempt denied from [%s]", newd->host);
+             "Connection attempt denied from [%s]%s",
+             newd->host,
+             (buf2[0]) ? tmp_sprintf(" (%s)", buf2):"");
 		free(newd);
 		return 0;
 	}
