@@ -93,15 +93,15 @@ while [ ! -e .killscript ]; do
         elif [ ! -e ./lib/core ]; then
             echo "A crash was detected but no core file was made." | mail -s "TempusMUD CRASH REPORT" coders
         else
-            ./bin/crash_report.sh lib/core >log/$DATE-crashreport.txt
+            ./bin/crash_report.sh lib/core log/$DATE-system.log >log/$DATE-crashreport.txt
             mv lib/core log/$DATE-core
-            cat $DATE-crashreport.txt | mail -s "TempusMUD CRASH REPORT" coders
+            cat log/$DATE-crashreport.txt | mail -s "TempusMUD CRASH REPORT" coders
         fi
 
         # Check to see if the mud ever actually started.  If the mud
         # never came up, we have a crash loop and need to stop the mud
         # until someone comes and rescues it
-        if [ ! fgrep "Entering game loop" syslog ]; then
+        if ! fgrep "Entering game loop" syslog; then
             touch pause
         fi
     elif [ -e .killscript ]; then

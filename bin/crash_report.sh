@@ -19,7 +19,7 @@ function print_report() {
     echo " >>>>"
     echo
 
-    tail log/syslog.0
+    tail $1
 
     echo
     echo " >>>>"
@@ -33,7 +33,7 @@ function print_report() {
 }
 
 
-print_report $0
+print_report $0 $1
 
 exit
 
