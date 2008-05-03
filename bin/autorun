@@ -38,6 +38,8 @@ while [ ! -e .killscript ]; do
 
     rm /var/run/tempus.pid
 
+	tar -jcf bak/players.tar.bz2 lib/players &
+
     fgrep "has deleted c"   syslog >> log/parsed/delete
     fgrep "death trap"      syslog >> log/parsed/dts
     fgrep "killed"          syslog >> log/parsed/rip
@@ -101,7 +103,7 @@ while [ ! -e .killscript ]; do
         # Check to see if the mud ever actually started.  If the mud
         # never came up, we have a crash loop and need to stop the mud
         # until someone comes and rescues it
-        if ! fgrep "Entering game loop" syslog; then
+        if ! fgrep "Entering game loop" log/$DATE-system.log; then
             touch pause
         fi
     elif [ -e .killscript ]; then
@@ -114,8 +116,6 @@ while [ ! -e .killscript ]; do
         echo "Reboot requested." | mail -s "TempusMUD Reboot Notification" coders
     fi    
         
-	tar -jcf bak/players.tar.bz2 lib/players &
-
     sleep 5
 
     while [ -r pause ]; do
