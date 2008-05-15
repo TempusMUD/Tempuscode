@@ -32,18 +32,25 @@ struct CraftComponent {
 
 class CraftItem {
 	public:
-        CraftItem() : required() {
-            vnum = 0;
-            cost = 999999999;
-            fail_pct = 100;
+    CraftItem() : required() {
+        vnum = 0;
+        cost = 999999999;
+        fail_pct = 100;
+    }
+    ~CraftItem(void) {
+        vector<CraftComponent*>::iterator cmp;
+        for (cmp = required.begin();cmp != required.end();cmp++) {
+            delete (*cmp);
         }
-		char *next_requirement(Creature *keeper);
-		obj_data *create(Creature *keeper, Creature *recipient);
+        required.clear();
+    }
+    char *next_requirement(Creature *keeper);
+    obj_data *create(Creature *keeper, Creature *recipient);
 
-		int vnum;	// object to be offered when all components are held
-		long cost; // -1 means to use default cost
-		int fail_pct;
-		vector<CraftComponent *> required;
+    int vnum;	// object to be offered when all components are held
+    long cost; // -1 means to use default cost
+    int fail_pct;
+    vector<CraftComponent *> required;
 };
 
 
@@ -51,8 +58,8 @@ class CraftItem {
  * Loads the Craftshop described by the given xml node.
  * If the sho has already been created, it is reinitialized.
 **/
-void 
-load_craft_shop(xmlNodePtr node) 
+void
+load_craft_shop(xmlNodePtr node)
 {
     Craftshop *shop = NULL;
     int id = xmlGetIntProp(node,"id");
@@ -83,7 +90,7 @@ Craftshop::parse_item(xmlNodePtr node)
 	xmlNodePtr sub_node;
 	CraftItem *new_item;
 	CraftComponent *compon;
-	
+
 	new_item = new CraftItem();
 	new_item->vnum = xmlGetIntProp(node, "vnum");
 	new_item->cost = xmlGetIntProp(node, "cost");
@@ -109,7 +116,7 @@ Craftshop::parse_item(xmlNodePtr node)
 /**
  * creates and initializes a new Craftshop. Wee.
 **/
-Craftshop::Craftshop(xmlNodePtr node) 
+Craftshop::Craftshop(xmlNodePtr node)
 : items()
 {
     id = xmlGetIntProp(node, "id");
@@ -117,17 +124,29 @@ Craftshop::Craftshop(xmlNodePtr node)
 }
 
 /**
+ * destructor for the craftshop
+**/
+Craftshop::~Craftshop(void)
+{
+    vector<CraftItem*>::iterator item;
+    for (item = items.begin();item != items.end();item++) {
+        delete (*item);
+	}
+    items.clear();
+}
+
+/**
  * Loads this Craftshop's data from the given xml node.
 **/
-void 
-Craftshop::load( xmlNodePtr node ) 
+void
+Craftshop::load( xmlNodePtr node )
 {
     xmlNodePtr sub_node;
 	xmlChar *prop;
     room = xmlGetIntProp(node, "room");
     keeper_vnum = xmlGetIntProp(node, "keeper");
 
-    
+
     // Remove all the currently stored items.
     vector<CraftItem*>::iterator item;
     for (item = items.begin();item != items.end();item++) {
@@ -227,26 +246,26 @@ list_commission_item(Creature *ch, Creature *keeper, int idx, CraftItem *item, c
 		needed = tmp_strcat(CCRED(ch, C_NRM), "Unavailable", CCNRM(ch, C_NRM), NULL);
 	else
 		needed = tmp_strcat(CCGRN(ch, C_NRM), " Available ", CCNRM(ch, C_NRM), NULL);
-	
+
 	return tmp_sprintf("%s%s  %s %-43s %11ld\r\n", msg,
 		item_prefix,
 		needed,
 		CAP(tmp_strdup(obj->name)),
 		item->cost+(item->cost*ch->getCostModifier(keeper))/100);
-		
+
 }
 
 // sends a simple status message to the given Creature.
-void 
+void
 Craftshop::sendStatus( Creature *ch ) {
     char *name = "<not loaded>";
     Creature *keeper = real_mobile_proto(keeper_vnum);
     if( keeper != NULL )
         name = GET_NAME(keeper);
-    send_to_char(ch, "[%6d] %15s [%6d] ( %zd items )\r\n", 
+    send_to_char(ch, "[%6d] %15s [%6d] ( %zd items )\r\n",
                     id, name, keeper_vnum, items.size() );
 }
- 
+
 
 // Lists the items for sale.
 void
@@ -307,7 +326,7 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 	}
 
     long modCost = item->cost+(item->cost*ch->getCostModifier(keeper))/100;
-	
+
 	needed_str = item->next_requirement(keeper);
 	if (needed_str) {
 		msg = tmp_sprintf("I don't have the necessary materials.");
@@ -446,6 +465,6 @@ SPECIAL(artisan)
 	} else {
 		return false;
     }
-	
+
 	return true;
 }

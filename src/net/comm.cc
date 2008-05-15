@@ -128,6 +128,7 @@ int write_to_descriptor(int desc, char *txt);
 
 /* extern fcnts */
 void boot_world(void);
+void clear_world(void);
 void affect_update(void);		/* In spells.c */
 void obj_affect_update(void);
 void mobile_activity(void);
@@ -254,11 +255,14 @@ main(int argc, char **argv)
 	if (scheck) {
 		boot_world();
 		slog("Done.");
+        clear_world();
 		safe_exit(0);
 	} else {
 		slog("Running game on port %d.", port);
 		init_game(port);
 	}
+
+    clear_world();
 
 	return 0;
 }

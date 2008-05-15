@@ -6,7 +6,7 @@ class CraftItem;
 class Craftshop {
 	public:
 		Craftshop(xmlNodePtr node);
-        ~Craftshop();
+        ~Craftshop(void);
 		static Craftshop *find(Creature *keeper);
         //Loads the Craftshop described by the given xml node.
 		void load(xmlNodePtr node);
