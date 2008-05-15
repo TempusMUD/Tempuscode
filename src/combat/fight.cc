@@ -44,7 +44,6 @@
 #include "mobact.h"
 #include "security.h"
 #include "quest.h"
-#include "vendor.h"
 #include "utils.h"
 #include "prog.h"
 

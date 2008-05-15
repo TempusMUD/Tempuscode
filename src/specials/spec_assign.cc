@@ -29,7 +29,6 @@
 #include "specs.h"
 #include "screen.h"
 #include "comm.h"
-#include "vendor.h"
 #include "tmpstr.h"
 #include "mobile_map.h"
 #include "object_map.h"

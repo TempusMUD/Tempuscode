@@ -109,6 +109,7 @@ class CallerDiedException {
 //
 // internal functions
 //
+bool ok_damage_vendor(Creature *ch, Creature *victim);
 void update_pos(struct Creature *victim);
 struct obj_data *destroy_object(Creature *ch, struct obj_data *obj, int type);
 struct obj_data *damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type = -1);

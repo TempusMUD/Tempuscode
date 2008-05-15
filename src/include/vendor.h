@@ -65,7 +65,5 @@ struct ShopData {
 
 SPECIAL(vendor);
 char *vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line);
-bool ok_damage_vendor(Creature *ch, Creature *victim);
-bool same_obj(obj_data *obj1, obj_data *obj2);
 
 #endif

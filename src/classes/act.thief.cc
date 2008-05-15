@@ -26,7 +26,6 @@
 #include "char_class.h"
 #include "fight.h"
 #include "constants.h"
-#include "vendor.h"
 
 int check_mob_reaction(struct Creature *ch, struct Creature *vict);
 

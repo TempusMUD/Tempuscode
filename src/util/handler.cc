@@ -31,7 +31,6 @@
 #include "spells.h"
 #include "screen.h"
 #include "vehicle.h"
-#include "vendor.h"
 #include "clan.h"
 #include "smokes.h"
 #include "materials.h"
@@ -42,7 +41,6 @@
 #include "security.h"
 #include "tmpstr.h"
 #include "utils.h"
-#include "vendor.h"
 #include "flow_room.h"
 #include "prog.h"
 
@@ -1770,6 +1768,54 @@ struct Creature *
 get_char_in_world_by_idnum(int nr)
 {
 	return (characterMap.count(nr)) ? characterMap[nr]:NULL;
+}
+
+bool
+same_obj(obj_data *obj1, obj_data *obj2)
+{
+	int index;
+
+	if (!obj1 || !obj2)
+		return (obj1 == obj2);
+
+	if (GET_OBJ_VNUM(obj1) != GET_OBJ_VNUM(obj2))
+		return (FALSE);
+
+	if (GET_OBJ_SIGIL_IDNUM(obj1) != GET_OBJ_SIGIL_IDNUM(obj2) ||
+		GET_OBJ_SIGIL_LEVEL(obj1) != GET_OBJ_SIGIL_LEVEL(obj2))
+		return FALSE;
+
+	if ((obj1->shared->proto &&
+			(obj1->name != obj1->shared->proto->name
+				|| obj1->line_desc != obj1->shared->proto->line_desc))
+		|| (obj2->shared->proto
+			&& (obj2->name !=
+				obj2->shared->proto->name
+				|| obj2->line_desc != obj2->shared->proto->line_desc)))
+		return FALSE;
+
+	if ((obj1->name != obj2->name ||
+			obj1->line_desc != obj2->line_desc) &&
+		(strcasecmp(obj1->name, obj2->name) ||
+			!obj1->line_desc || !obj2->line_desc ||
+			strcasecmp(obj1->line_desc, obj2->line_desc)))
+		return (FALSE);
+
+	if (GET_OBJ_COST(obj1) != GET_OBJ_COST(obj2) ||
+		GET_OBJ_EXTRA(obj1) != GET_OBJ_EXTRA(obj2) ||
+		GET_OBJ_EXTRA2(obj1) != GET_OBJ_EXTRA2(obj2))
+		return (FALSE);
+
+	for (index = 0; index < MAX_OBJ_AFFECT; index++)
+		if ((obj1->affected[index].location != obj2->affected[index].location)
+			|| (obj1->affected[index].modifier !=
+				obj2->affected[index].modifier))
+			return (FALSE);
+
+	if (obj1->getWeight() != obj2->getWeight())
+		return FALSE;
+
+	return (TRUE);
 }
 
 /* put an object in a room */

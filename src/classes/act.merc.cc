@@ -24,7 +24,6 @@
 #include "tmpstr.h"
 #include "smokes.h"
 #include "player_table.h"
-#include "vendor.h"
 #include "accstr.h"
 
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))

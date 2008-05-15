@@ -23,8 +23,6 @@
 #include "bomb.h"
 #include "utils.h"
 #include "house.h"
-#include "vendor.h"
-
 
 int check_mob_reaction(Creature *ch, Creature *vict);
 int apply_soil_to_char(Creature *ch, obj_data *obj, int type, int pos);
