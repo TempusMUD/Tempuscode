@@ -417,18 +417,15 @@ HelpCollection::SaveIndex(Creature * ch)
 bool
 HelpCollection::LoadIndex()
 {
-	char fname[256], *s;
 	HelpItem *n;
 	int num_items = 0;
-	s = fname;
-	sprintf(fname, "%s/%s", Help_Directory, "index");
-	index_file.open(fname, ios::in);
+
+	index_file.open(tmp_sprintf("%s/%s", Help_Directory, "index"), ios::in);
 	if (!index_file) {
 		errlog("Cannot open help index.");
 		return false;
 	}
 	index_file >> top_id;
-	s = buf;
 	for (int i = 1; i <= top_id; i++) {
 		n = new HelpItem;
 		index_file >> n->idnum >> n->groups
@@ -436,18 +433,17 @@ HelpCollection::LoadIndex()
 
 		index_file.getline(buf, 250, '\n');
 		index_file.getline(buf, 250, '\n');
-		n->SetName(s);
+		n->SetName(buf);
 
-		s = buf;
 		index_file.getline(buf, 250, '\n');
-		n->SetKeyWords(s);
+		n->SetKeyWords(buf);
 		REMOVE_BIT(n->flags, HFLAG_MODIFIED);
 		Push(n);
 		num_items++;
 	}
 	index_file.close();
 	if (num_items == 0) {
-		errlog("No records read from help file index.");
+		slog("WARNING: No records read from help file index.");
 		return false;
 	}
 	slog("%d items read from help file index", num_items);
