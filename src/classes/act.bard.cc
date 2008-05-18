@@ -23,7 +23,6 @@
 #include "bomb.h"
 #include "utils.h"
 #include "house.h"
-#include "vendor.h"
 #include "security.h"
 #include "clan.h"
 #include "specs.h"

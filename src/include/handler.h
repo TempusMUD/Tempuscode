@@ -50,6 +50,7 @@ int get_number(char **name);
 int equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode);
 struct obj_data *unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks = false);
 int check_eq_align(struct Creature *ch);
+bool same_obj(obj_data *obj1, obj_data *obj2);
 
 struct obj_data *get_obj_in_list(char *name, struct obj_data *list);
 struct obj_data *get_obj_in_list_num(int num, struct obj_data *list);

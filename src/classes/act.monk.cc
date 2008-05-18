@@ -25,7 +25,6 @@
 #include "house.h"
 #include "char_class.h"
 #include "fight.h"
-#include "vendor.h"
 
 void
 perform_monk_meditate(struct Creature *ch)

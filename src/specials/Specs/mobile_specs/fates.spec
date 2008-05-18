@@ -94,7 +94,7 @@ SPECIAL(fate)
 			break;
 	}
 	if (!dyntext) {
-		errlog("Fate unable to access dyntext doc.(%s)\r\n", dyn_name);
+		errlog("Fate unable to access %s dyntext doc.", dyn_name);
 		return 1;
 	}
 	// If the file is null, return

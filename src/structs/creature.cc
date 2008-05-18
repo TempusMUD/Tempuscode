@@ -892,38 +892,30 @@ Creature::clear(void)
 
 		tmp_mob = real_mobile_proto(GET_MOB_VNUM(this));
 
-		if (this->player.name && this->player.name != tmp_mob->player.name)
+		if (this->player.name != tmp_mob->player.name)
 			free(this->player.name);
-		if (this->player.title && this->player.title != tmp_mob->player.title)
+		if (this->player.title != tmp_mob->player.title)
 			free(this->player.title);
-		if (this->player.short_descr &&
-			this->player.short_descr != tmp_mob->player.short_descr)
+		if (this->player.short_descr != tmp_mob->player.short_descr)
 			free(this->player.short_descr);
-		if (this->player.long_descr &&
-			this->player.long_descr != tmp_mob->player.long_descr)
+		if (this->player.long_descr != tmp_mob->player.long_descr)
 			free(this->player.long_descr);
-		if (this->player.description &&
-			this->player.description != tmp_mob->player.description)
+		if (this->player.description != tmp_mob->player.description)
 			free(this->player.description);
-		if (this->mob_specials.func_data)
-			free(this->mob_specials.func_data);
-		if (this->prog_state)
-			prog_state_free(this->prog_state);
+        free(this->mob_specials.func_data);
+        prog_state_free(this->prog_state);
 	} else {
 		//
 		// otherwise this is a player, so free all
 		//
 
-		if (GET_NAME(this))
-			free(GET_NAME(this));
-		if (this->player.title)
-			free(this->player.title);
-		if (this->player.short_descr)
-			free(this->player.short_descr);
-		if (this->player.long_descr)
-			free(this->player.long_descr);
-		if (this->player.description)
-			free(this->player.description);
+        free(this->player.name);
+        free(this->player.title);
+        free(this->player.short_descr);
+        free(this->player.long_descr);
+        free(this->player.description);
+        free(this->mob_specials.func_data);
+        prog_state_free(this->prog_state);
 	}
 
 	// remove player_specials

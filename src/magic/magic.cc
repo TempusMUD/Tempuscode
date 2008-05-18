@@ -35,7 +35,7 @@
 #include "flow_room.h"
 #include "fight.h"
 #include "obj_data.h"
-#include "vendor.h"
+#include "specs.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
@@ -3090,25 +3090,26 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 	// check for players if caster is not a pkiller
     CreatureList::iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) == ch)
+        Creature *vict = *it;
+		if (vict == ch)
 			continue;
-		if (!IS_NPC((*it)) && PRF_FLAGGED((*it), PRF_NOHASSLE))
+		if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
 			continue;
-		if (!IS_NPC(ch) && IS_NPC((*it)) && IS_AFFECTED((*it), AFF_CHARM))
+		if (!IS_NPC(ch) && IS_NPC(vict) && IS_AFFECTED(vict, AFF_CHARM))
 			continue;
-		if (spellnum == SPELL_EARTHQUAKE && (*it)->getPosition() == POS_FLYING)
+		if (spellnum == SPELL_EARTHQUAKE && vict->getPosition() == POS_FLYING)
 			continue;
-		if (spellnum == SONG_SONIC_DISRUPTION && IS_UNDEAD(*it)) {
-			continue;
-		}
-		if (spellnum == SONG_DIRGE && !IS_UNDEAD(*it)) {
+		if (spellnum == SONG_SONIC_DISRUPTION && IS_UNDEAD(vict)) {
 			continue;
 		}
-        if (spellnum == SONG_LICHS_LYRICS && !LIFE_FORM(*it)) {
+		if (spellnum == SONG_DIRGE && !IS_UNDEAD(vict)) {
+			continue;
+		}
+        if (spellnum == SONG_LICHS_LYRICS && !LIFE_FORM(vict)) {
             continue;
         }
 
-        if ((*it) != ch && !ch->isOkToAttack(*it, false)) {
+        if (vict != ch && !ch->isOkToAttack(*it, false)) {
             if (SPELL_IS_PSIONIC(spellnum)) {
                 send_to_char(ch, "The Universal Psyche decends on your "
                              "mind and renders you powerless!\r\n");
@@ -3142,6 +3143,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 	
     it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
+        Creature *vict = *it;
 		// skips:
 		//          caster
 		//          nohassle-flagged players (imms)
@@ -3151,40 +3153,40 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		//			non-undead chars if spell is dirge
 		//          non-living chars if spell is lich's lyric
         
-		if ((*it) == ch)
+		if (vict == ch)
 			continue;
-		if (!IS_NPC((*it)) && PRF_FLAGGED((*it), PRF_NOHASSLE))
+		if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
 			continue;
-		if (!IS_NPC(ch) && IS_NPC((*it)) && IS_AFFECTED((*it), AFF_CHARM))
+		if (!IS_NPC(ch) && IS_NPC(vict) && IS_AFFECTED(vict, AFF_CHARM))
 			continue;
-		if (spellnum == SPELL_EARTHQUAKE && (*it)->getPosition() == POS_FLYING)
+		if (spellnum == SPELL_EARTHQUAKE && vict->getPosition() == POS_FLYING)
 			continue;
-		if (spellnum == SONG_SONIC_DISRUPTION && IS_UNDEAD(*it)) {
-			continue;
-		}
-		if (spellnum == SONG_DIRGE && !IS_UNDEAD(*it)) {
+		if (spellnum == SONG_SONIC_DISRUPTION && IS_UNDEAD(vict)) {
 			continue;
 		}
-        if (spellnum == SONG_LICHS_LYRICS && !LIFE_FORM(*it)) {
+		if (spellnum == SONG_DIRGE && !IS_UNDEAD(vict)) {
+			continue;
+		}
+        if (spellnum == SONG_LICHS_LYRICS && !LIFE_FORM(vict)) {
             continue;
         }
 
 		if (spellnum == SPELL_MASS_HYSTERIA) {
-			call_magic(ch, (*it), 0, NULL, SPELL_FEAR, level, CAST_PSIONIC);
+			call_magic(ch, vict, 0, NULL, SPELL_FEAR, level, CAST_PSIONIC);
 			continue;
 		}
 
 		if (spellnum == SPELL_FISSION_BLAST
-			&& !(mag_savingthrow((*it), level, SAVING_PHY))) {
-			add_rad_sickness((*it), level);
+			&& !(mag_savingthrow(vict, level, SAVING_PHY))) {
+			add_rad_sickness(vict, level);
 		}
 		if (spellnum == SONG_SONIC_DISRUPTION) { //drop things
 			obj_data *obj = NULL;
-            if (IS_NPC(*it) && (*it)->mob_specials.shared->func == vendor) {
+            if (IS_NPC(vict) && vict->mob_specials.shared->func == vendor) {
                 continue;
             }
-			if ((random_number_zero_low(3 + (level >> 2)) + 3) > GET_DEX(*it) && 
-				!is_arena_combat(ch, *it) && (obj = (*it)->carrying)) { //assignment to obj
+			if ((random_number_zero_low(3 + (level >> 2)) + 3) > GET_DEX(vict) && 
+				!is_arena_combat(ch, *it) && (obj = vict->carrying)) { //assignment to obj
 				while (obj) {
 					if (can_see_object(*it, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
 						break;
@@ -3198,14 +3200,14 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 					act("$p is blasted from the hands of $N by your powerful sonic waves!", 
 					TRUE, ch, obj, *it, TO_CHAR);
 					obj_from_char(obj);
-					obj_to_room(obj, (*it)->in_room);
+					obj_to_room(obj, vict->in_room);
 				}
 			}
 		}
         if (spellnum == SONG_LICHS_LYRICS) {
             mag_affects(level, ch, *it, 0, SONG_LICHS_LYRICS, savetype);
         }
-		int retval = mag_damage(level, ch, (*it), spellnum, 1);
+		int retval = mag_damage(level, ch, vict, spellnum, 1);
 		return_value |= retval;
 		if (retval == 0) {
 			if (spellnum == SPELL_EARTHQUAKE && number(10, 20) > GET_DEX(ch)) {
@@ -3225,19 +3227,20 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 
 				CreatureList::iterator it = adjoin_room->people.begin();
 				for (; it != adjoin_room->people.end(); ++it) {
-					if (!IS_NPC((*it)) && GET_LEVEL((*it)) >= LVL_AMBASSADOR)
+                    Creature *vict = *it;
+					if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR)
 						continue;
-					if (!IS_NPC(ch) && IS_NPC((*it))
-						&& IS_AFFECTED((*it), AFF_CHARM))
-						continue;
-					if (spellnum == SPELL_EARTHQUAKE
-						&& (*it)->getPosition() == POS_FLYING)
+					if (!IS_NPC(ch) && IS_NPC(vict)
+						&& IS_AFFECTED(vict, AFF_CHARM))
 						continue;
 					if (spellnum == SPELL_EARTHQUAKE
-						&& (*it)->getPosition() == POS_STANDING
-						&& number(10, 20) > GET_DEX((*it))) {
-						send_to_char((*it), "You stumble and fall to the ground!\r\n");
-						(*it)->setPosition(POS_SITTING);
+						&& vict->getPosition() == POS_FLYING)
+						continue;
+					if (spellnum == SPELL_EARTHQUAKE
+						&& vict->getPosition() == POS_STANDING
+						&& number(10, 20) > GET_DEX(vict)) {
+						send_to_char(vict, "You stumble and fall to the ground!\r\n");
+						vict->setPosition(POS_SITTING);
 					}
 				}
 			}

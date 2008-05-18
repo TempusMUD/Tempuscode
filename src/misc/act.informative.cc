@@ -109,7 +109,6 @@ extern const weap_spec_info weap_spec_char_class[];
 int isbanned(char *hostname, char *blocking_hostname);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
 char *obj_cond_color(struct obj_data *obj, struct Creature *ch);  /**writes to buf2 **/
-int same_obj(struct obj_data *obj1, struct obj_data *obj2);
 
 ACMD(do_stand);
 

@@ -59,6 +59,7 @@ using namespace std;
 #include "prog.h"
 #include "mobile_map.h"
 #include "object_map.h"
+#include "vendor.h"
 
 #define ZONE_ERROR(message) \
 { zerrlog(zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); last_cmd = 0; }
@@ -460,6 +461,42 @@ boot_db(void)
 	slog("Boot db -- DONE.");
 }
 
+// Clear the world enough to not trip up memory leak detection.  Since
+// we're storing vectors and maps of pointers, when the global
+// containers are freed, the memory blocks are left dangling.  To
+// prevent this, we have to deallocate everything that is tracked in
+// this manner.
+void
+clear_world(void)
+{
+	MobileMap::iterator mit = mobilePrototypes.begin();
+	for (; mit != mobilePrototypes.end(); ++mit) {
+		Creature *mobile = mit->second;
+        free(MOB_SHARED(mobile)->func_param);
+        free(MOB_SHARED(mobile)->load_param);
+        free(MOB_SHARED(mobile)->prog);
+        delete [] MOB_SHARED(mobile)->progobj;
+        free(MOB_SHARED(mobile)->move_buf);
+        free(mobile->mob_specials.shared);
+        mobile->mob_specials.shared = NULL;
+        delete mobile;
+    }
+
+	ObjectMap::iterator oit = objectPrototypes.begin();
+	for (; oit != objectPrototypes.end(); ++oit) {
+		obj_data *object = oit->second;
+        free(object->shared->func_param);
+        free(object->shared);
+        object->shared = NULL;
+        free_obj(object);
+    }
+
+
+    extern std::vector<Craftshop *> shop_list;
+    std::vector<Craftshop *>::iterator sit = shop_list.begin();
+    for (; sit != shop_list.end(); ++sit)
+        delete *sit;
+}
 
 /* reset the time in the game from file */
 void
@@ -1297,7 +1334,7 @@ set_physical_attribs(struct Creature *ch)
 {
 	GET_MAX_MANA(ch) = MAX(100, (GET_LEVEL(ch) << 3));
 	GET_MAX_MOVE(ch) = MAX(100, (GET_LEVEL(ch) << 4));
-    
+
 	if (GET_RACE(ch) == RACE_HUMAN || IS_HUMANOID(ch) ||
 		GET_RACE(ch) == RACE_MOBILE) {
 		ch->player.weight = number(130, 180) + (GET_STR(ch) << 1);
@@ -1459,7 +1496,7 @@ set_physical_attribs(struct Creature *ch)
 }
 
 
-void recalculate_based_on_level( Creature *mob_p ) 
+void recalculate_based_on_level( Creature *mob_p )
 {
     int level = GET_LEVEL(mob_p);
     int doubleLevel = level + (level * GET_REMORT_GEN(mob_p))/10;
@@ -1851,8 +1888,16 @@ parse_mobile(FILE * mob_f, int nr)
 	mobile->desc = NULL;
     set_initial_tongue(mobile);
 
-	if (!mobilePrototypes.add(mobile))
+	if (!mobilePrototypes.add(mobile)) {
+        free(MOB_SHARED(mobile)->func_param);
+        free(MOB_SHARED(mobile)->load_param);
+        free(MOB_SHARED(mobile)->prog);
+        free(MOB_SHARED(mobile)->progobj);
+        free(MOB_SHARED(mobile)->move_buf);
+        free(mobile->mob_specials.shared);
+        mobile->mob_specials.shared = NULL;
         delete mobile;
+    }
 }
 
 /* read all objects from obj file; generate index and prototypes */
@@ -1868,7 +1913,7 @@ parse_object(FILE * obj_f, int nr)
 	struct obj_data *obj = NULL;
 
 	CREATE(obj, struct obj_data, 1);
-	
+
 	obj->clear();
 
 	CREATE(obj->shared, struct obj_shared_data, 1);
@@ -2028,8 +2073,12 @@ parse_object(FILE * obj_f, int nr)
 		case '$':
 		case '#':
 			obj->next = NULL;
-            if (!objectPrototypes.add(obj))
+            if (!objectPrototypes.add(obj)) {
+                free(obj->shared->func_param);
+                free(obj->shared);
+                obj->shared = NULL;
                 free_obj(obj);
+            }
 			return line;
 			break;
 		default:
@@ -2096,13 +2145,13 @@ load_zones(FILE * fl, char *zonename)
 		line_num += get_line(fl, buf);
 	} else
 		new_zone->co_owner_idnum = -1;
-	
+
 	if (!strncmp(buf, "RP ", 3)) {
 		new_zone->respawn_pt = atoi(buf + 3);
 		line_num += get_line(fl, buf);
 	} else
 		new_zone->respawn_pt = 0;
-	
+
 	// New format reading starts now.
 	while (true) {
 		arg2 = buf;
@@ -2136,7 +2185,7 @@ load_zones(FILE * fl, char *zonename)
     int result = sscanf(buf, " %d %d %d %d %d %s %d %d %d", &new_zone->top,
                         &new_zone->lifespan, &new_zone->reset_mode,
                         &new_zone->time_frame, &new_zone->plane, flags,
-                        &new_zone->hour_mod, &new_zone->year_mod, 
+                        &new_zone->hour_mod, &new_zone->year_mod,
                         &new_zone->pk_style);
 	if (result == 8) {
         new_zone->pk_style = ZONE_CHAOTIC_PK;
@@ -2330,7 +2379,7 @@ read_mobile(int vnum)
     mob = new Creature(*tmp_mob);
     tmp_mob->mob_specials.shared->number++;
     tmp_mob->mob_specials.shared->loaded++;
-    
+
 	if (!mob->points.max_hit) {
 		mob->points.max_hit = dice(mob->points.hit, mob->points.mana) +
 			mob->points.move;
@@ -2353,10 +2402,10 @@ read_mobile(int vnum)
 		GET_GOLD(mob) = GET_CASH(mob) = GET_EXP(mob) = 0;
     else { // randomize mob gold and cash
         if (GET_GOLD(mob) > 0)
-            GET_GOLD(mob) = rand_value(GET_GOLD(mob), 
+            GET_GOLD(mob) = rand_value(GET_GOLD(mob),
                                        (int)(GET_GOLD(mob) * 0.15), -1, -1);
         if (GET_CASH(mob) > 0)
-            GET_CASH(mob) = rand_value(GET_CASH(mob), 
+            GET_CASH(mob) = rand_value(GET_CASH(mob),
                                        (int)(GET_CASH(mob) * 0.15), -1, -1);
     }
 
@@ -2370,7 +2419,7 @@ int on_load_equip( Creature *ch, int vnum, char* position, int maxload, int perc
 
 // Processes the given mobile's load_parameter, executing the commands in it.
 // returns true if the creature dies
-bool 
+bool
 process_load_param( Creature *ch )
 {
 	char* str = GET_LOAD_PARAM(ch);
@@ -2389,7 +2438,7 @@ process_load_param( Creature *ch )
 			char* max = tmp_getword(&line); //max loaded
 			char* p = tmp_getword(&line); // percent
 			int if_flag = atoi( tmp_getword(&line) ); // if flag
-			// if_flag 
+			// if_flag
 			// 1 == "Do if previous succeded"
 			if( if_flag == 1 && last_cmd == 1 )
 				continue;
@@ -2424,7 +2473,7 @@ process_load_param( Creature *ch )
 // 5, read_obj failed
 // 6, Not loaded, maxload failure
 // 100, Creature died in equip process
-int 
+int
 on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent )
 {
     obj_data *obj = real_object_proto(vnum);
@@ -2572,7 +2621,7 @@ randomize_object(struct obj_data *obj)
 	// Remove magicalness if no affects are left
 	if (!total_affs)
 		REMOVE_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED);
-	
+
 	switch (GET_OBJ_TYPE(obj)) {
 	// Spell level in first value
 	case ITEM_SCROLL:
@@ -2807,7 +2856,7 @@ reset_zone(struct zone_data *zone)
 
 	for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S';
 		zonecmd = zonecmd->next, cmd_no++) {
-		// if_flag 
+		// if_flag
 		// 0 == "Do regardless of previous"
 		// 1 == "Do if previous succeded"
 		// 2 == "Do if previous failed"
@@ -2860,7 +2909,7 @@ reset_zone(struct zone_data *zone)
 							}
 						}
 						if( process_load_param( mob ) ) { // true on death
-							last_cmd = 0; 
+							last_cmd = 0;
 						} else {
 							last_cmd = 1;
 						}
@@ -3480,25 +3529,25 @@ get_mail_file_path( long id )
 }
 
 char*
-get_player_file_path( long id ) 
+get_player_file_path( long id )
 {
     return tmp_sprintf( "players/character/%0ld/%ld.dat", (id % 10), id );
 }
 
 char*
-get_account_file_path( long id ) 
+get_account_file_path( long id )
 {
     return tmp_sprintf( "players/accounts/%0ld/%ld.acct", (id % 10), id );
 }
 
 char*
-get_equipment_file_path( long id ) 
+get_equipment_file_path( long id )
 {
     return tmp_sprintf( "players/equipment/%0ld/%ld.dat", (id % 10), id );
 }
 
 char*
-get_corpse_file_path( long id ) 
+get_corpse_file_path( long id )
 {
     return tmp_sprintf( "players/corpses/%0ld/%ld.dat", (id % 10), id );
 }

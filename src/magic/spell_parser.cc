@@ -34,7 +34,6 @@
 #include "fight.h"
 #include "screen.h"
 #include "tmpstr.h"
-#include "vendor.h"
 #include "prog.h"
 #include "language.h"
 

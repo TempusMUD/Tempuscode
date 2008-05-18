@@ -178,7 +178,6 @@
 #include "fight.h"
 #include "bomb.h"
 #include "specs.h"
-#include "vendor.h"
 #include "security.h"
 #include "accstr.h"
 

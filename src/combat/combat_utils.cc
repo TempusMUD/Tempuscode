@@ -44,6 +44,7 @@
 #include "house.h"
 #include "quest.h"
 #include "player_table.h"
+#include "vendor.h"
 
 #include <iostream>
 
@@ -54,6 +55,43 @@ int calculate_weapon_probability(struct Creature *ch, int prob,
 	struct obj_data *weap);
 int calculate_attack_probability(struct Creature *ch);
 
+
+//checks for both vendors and utility mobs
+bool
+ok_damage_vendor(struct Creature *ch, struct Creature *victim)
+{
+	if (ch && GET_LEVEL(ch) > LVL_CREATOR)
+		return true;
+	if (victim &&
+		GET_LEVEL(victim) > LVL_IMMORT &&
+		(IS_NPC(victim) ||
+		 !PLR_FLAGGED(victim, PLR_MORTALIZED)))
+		return false;
+	
+	if (IS_NPC(victim)
+        && (MOB2_FLAGGED(victim, MOB2_SELLER)
+            || victim->mob_specials.shared->func == vendor)) {
+        ShopData *shop = (ShopData *)victim->mob_specials.func_data;
+
+		if (!GET_MOB_PARAM(victim))
+			return false;
+
+        if (!shop) {
+            CREATE(shop, ShopData, 1);
+            vendor_parse_param(victim, GET_MOB_PARAM(victim), shop, NULL);
+            victim->mob_specials.func_data = shop;
+        }
+
+		return shop->attack_ok;
+	}
+
+    if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_UTILITY)) {
+        //utility mobs shouldn't be attacked either
+        return false;
+    }
+    
+	return true;
+}
 
 int
 calculate_weapon_probability(struct Creature *ch, int prob,
