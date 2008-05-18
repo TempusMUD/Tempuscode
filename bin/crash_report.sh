@@ -19,7 +19,7 @@ function print_report() {
     echo " >>>>"
     echo
 
-    tail $1
+    tail $2
 
     echo
     echo " >>>>"
@@ -27,13 +27,13 @@ function print_report() {
     echo " >>>>"
     echo
 
-    tail -${TAILCOUNT} $0 > /tmp/tempus.crash.cmds
-	chmod g+r lib/core
-	gdb bin/circle lib/core </tmp/tempus.crash.cmds
+    tail -${TAILCOUNT} $0 >/tmp/tempus.crash.cmds
+	gdb bin/circle $1 </tmp/tempus.crash.cmds
+	chmod g+r $1
 }
 
 
-print_report $0 $1
+print_report $1 $2
 
 exit
 
