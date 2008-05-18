@@ -2409,22 +2409,24 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	room_data *theRoom = ch->in_room;
 	CreatureList::iterator it = theRoom->people.begin();
 	for (; it != theRoom->people.end(); ++it) {
-		if (GET_MOB_SPEC((*it)) != NULL) {
-			specAddress = (long)GET_MOB_SPEC((*it));
-			if (GET_MOB_SPEC((*it)) (ch, (*it), cmd, arg, spec_mode)) {
+        Creature *mob = *it;
+
+		if (GET_MOB_SPEC(mob) != NULL) {
+			specAddress = (long)GET_MOB_SPEC(mob);
+			if (GET_MOB_SPEC(mob) (ch, mob, cmd, arg, spec_mode)) {
 				return specAddress;
 			}
 		}
-		if (GET_MOB_PROGOBJ((*it)) != NULL) {
+		if (GET_MOB_PROGOBJ(mob) != NULL) {
 			if (spec_mode == SPECIAL_CMD && 
-                trigger_prog_cmd(*it, PROG_TYPE_MOBILE, ch, cmd, arg) &&
-                (!(*it)->master || ((*it)->master->in_room != (*it)->in_room)))
+                trigger_prog_cmd(mob, PROG_TYPE_MOBILE, ch, cmd, arg) &&
+                (!mob->master || (mob->master->in_room != mob->in_room)))
 				return true;
 			if (spec_mode == SPECIAL_ENTER
-					&& trigger_prog_move(*it, PROG_TYPE_MOBILE, ch, SPECIAL_ENTER))
+					&& trigger_prog_move(mob, PROG_TYPE_MOBILE, ch, SPECIAL_ENTER))
 				return true;
 			if (spec_mode == SPECIAL_LEAVE
-					&& trigger_prog_move(*it, PROG_TYPE_MOBILE, ch, SPECIAL_LEAVE))
+					&& trigger_prog_move(mob, PROG_TYPE_MOBILE, ch, SPECIAL_LEAVE))
 				return true;
 		}
 	}
