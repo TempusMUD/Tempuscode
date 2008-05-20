@@ -41,12 +41,12 @@ void
 gen_board_save(Creature *ch, const char *board, int idnum, const char *subject, const char *body)
 {
     if (idnum < 0)
-        sql_insert("insert into board_messages (board, post_time, author, name, subject, body) values ('%s', now(), %ld, '%s', '%s', '%s')",
-                   tmp_sqlescape(board),
-                   GET_IDNUM(ch),
-                   tmp_sqlescape(tmp_capitalize(GET_NAME(ch))),
-                   tmp_sqlescape(subject),
-                   tmp_sqlescape(body));
+        sql_exec("insert into board_messages (board, post_time, author, name, subject, body) values ('%s', now(), %ld, '%s', '%s', '%s')",
+                 tmp_sqlescape(board),
+                 GET_IDNUM(ch),
+                 tmp_sqlescape(tmp_capitalize(GET_NAME(ch))),
+                 tmp_sqlescape(subject),
+                 tmp_sqlescape(body));
     else
         sql_exec("update board_messages set post_time=now(), subject='%s', body='%s' where idnum=%d",
                  tmp_sqlescape(subject),

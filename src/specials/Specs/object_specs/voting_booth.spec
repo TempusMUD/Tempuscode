@@ -515,10 +515,10 @@ voting_add_poll(const char *header, const char *text)
 	free(main_buf);
 
 	// Store new poll in database
-	poll_oid = sql_insert("insert into voting_polls (creation_time, header, descrip, secret) values (now(), '%s', '%s', true)",
-		tmp_sqlescape(voting_new_poll->header),
-		tmp_sqlescape(voting_new_poll->descrip));
-	res = sql_query("select idnum from voting_polls where oid=%u", poll_oid);
+	sql_exec("insert into voting_polls (creation_time, header, descrip, secret) values (now(), '%s', '%s', true)",
+             tmp_sqlescape(voting_new_poll->header),
+             tmp_sqlescape(voting_new_poll->descrip));
+	res = sql_query("select lastval()");
 	voting_new_poll->idnum = atoi(PQgetvalue(res, 0, 0));
 
 	// Now store new options for poll

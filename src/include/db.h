@@ -235,10 +235,6 @@ struct sql_query_data {
 	PGresult *res;
 };
 
-// Executes a SQL insertion, returning the Oid if successful
-Oid sql_insert(const char *str, ...)
-	__attribute__ ((format (printf, 1, 2))); 
-
 // Executes a SQL command, returns true if successful
 bool sql_exec(const char *str, ...)
 	__attribute__ ((format (printf, 1, 2))); 
