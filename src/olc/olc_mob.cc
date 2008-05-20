@@ -1939,8 +1939,9 @@ do_clear_olc_mob(struct Creature *ch)
 	targ->real_abils.con = 11;
 	targ->real_abils.cha = 11;
 
+	send_to_char(ch, "Okay, mobile #%d fully cleared.\r\n",
+                 GET_MOB_VNUM(targ));
 	return 0;
-
 }
 
 int
