@@ -199,6 +199,11 @@ ACMD(do_pardon)
         return;
     }
 
+    if (IS_AFFECTED(ch, AFF_CHARM)) {
+        send_to_char(ch, "You don't seem quite in your right mind...\r\n");
+        return;
+    }
+
     // Find who they're accusing
     char *pardoned_name = tmp_getword(&argument);
     if (!playerIndex.exists(pardoned_name)) {
