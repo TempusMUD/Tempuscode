@@ -1663,7 +1663,9 @@ do_stat_character(Creature *ch, Creature *k, char *options)
     struct affected_type *aff;
     extern struct attack_hit_type attack_hit_text[];
 
-	if (IS_PC(k) && !Security::isMember(ch, Security::ADMINBASIC)) {
+	if (IS_PC(k)
+        && !(ch->isTester() && ch == k)
+        && !Security::isMember(ch, Security::ADMINBASIC)) {
         send_to_char(ch, "You can't stat this player.\r\n");
         return;
 	}
@@ -7876,55 +7878,6 @@ ACMD(do_qpreload)
 
 }
 
-static const char* TESTER_UTIL_USAGE =
-    "Options are:\r\n"        \
-    "    advance <level>\r\n"   \
-    "    unaffect\r\n"          \
-    "    reroll\r\n"            \
-    "    stat\r\n"              \
-    "    goto\r\n"              \
-    "    restore\r\n"           \
-    "    class <char_class>\r\n"     \
-    "    race <race>\r\n"       \
-    "    remort <char_class>\r\n"    \
-    "    maxhit <value>\r\n"    \
-    "    maxmana <value>\r\n"   \
-    "    maxmove <value>\r\n"   \
-    "    nohassle\r\n"          \
-    "    roomflags\r\n"         \
-    "    align\r\n"             \
-    "    generation\r\n"        \
-    "    debug\r\n"                \
-    "    str|con|int|wis|dex|cha <val>\r\n";
-
-static const char *tester_cmds[] = {
-  "advance",
-  "unaffect",
-  "reroll",
-  "stat",
-  "goto",
-  "restore",          /* 5 */
-  "class",
-  "race",
-  "remort",
-  "maxhit",
-  "maxmana",          /* 10 */
-  "maxmove",
-  "nohassle",
-  "roomflags",
-  "align",
-  "generation",
-  "debug",
-  "str",
-  "int",
-  "wis",
-  "con",
-  "dex",
-  "cha",
-  "maxstat",
-  "\n"
-};
-
 static const char* CODER_UTIL_USAGE = 
                     "Usage: coderutil <command> <args>\r\n"
                     "Commands: \r\n"
@@ -8190,6 +8143,62 @@ ACMD(do_tester)
 {
     ACMD(do_gen_tog);
     void do_start(struct Creature *ch, int mode);
+
+    static const char* TESTER_UTIL_USAGE =
+        "Options are:\r\n"        \
+        "    advance <level>\r\n"   \
+        "    unaffect\r\n"          \
+        "    reroll\r\n"            \
+        "    stat\r\n"              \
+        "    goto\r\n"              \
+        "    restore\r\n"           \
+        "    class <char_class>\r\n"     \
+        "    race <race>\r\n"       \
+        "    remort <char_class>\r\n"    \
+        "    maxhit <value>\r\n"    \
+        "    maxmana <value>\r\n"   \
+        "    maxmove <value>\r\n"   \
+        "    nohassle\r\n"          \
+        "    roomflags\r\n"         \
+        "    align\r\n"             \
+        "    generation\r\n"        \
+        "    debug\r\n"             \
+        "    loadroom <val>\r\n"    \
+        "    hunger|thirst|drunk <val>|off\r\n"   \
+        "    str|con|int|wis|dex|cha <val>\r\n";
+
+    static const char *tester_cmds[] = {
+        "advance",
+        "unaffect",
+        "reroll",
+        "stat",
+        "goto",
+        "restore",          /* 5 */
+        "class",
+        "race",
+        "remort",
+        "maxhit",
+        "maxmana",          /* 10 */
+        "maxmove",
+        "nohassle",
+        "roomflags",
+        "align",
+        "generation",
+        "debug",
+        "str",
+        "int",
+        "wis",
+        "con",
+        "dex",
+        "cha",
+        "maxstat",
+        "hunger",
+        "thirst",
+        "drunk",
+        "loadroom",
+        "\n"
+    };
+
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     byte tcmd;
     int i;
@@ -8213,111 +8222,115 @@ ACMD(do_tester)
     }
 
     switch (tcmd) {
-        case 0:                    /* advance */
-            if (!*arg2)
-                send_to_char(ch, "Advance to what level?\r\n");
-            else if (!is_number(arg2))
-                send_to_char(ch, "The argument must be a number.\r\n");
-            else if ((i = atoi(arg2)) <= 0)
-                send_to_char(ch, "That's not a level!\r\n");
-            else if (i >= LVL_AMBASSADOR)
-                send_to_char(ch, "Advance: I DON'T THINK SO!\r\n");
-            else {
-                if (i < GET_LEVEL(ch)) {
-                    do_start(ch, TRUE);
-                    GET_LEVEL(ch) = i;
-                  } 
+    case 0:                    /* advance */
+        if (!*arg2)
+            send_to_char(ch, "Advance to what level?\r\n");
+        else if (!is_number(arg2))
+            send_to_char(ch, "The argument must be a number.\r\n");
+        else if ((i = atoi(arg2)) <= 0)
+            send_to_char(ch, "That's not a level!\r\n");
+        else if (i >= LVL_AMBASSADOR)
+            send_to_char(ch, "Advance: I DON'T THINK SO!\r\n");
+        else {
+            if (i < GET_LEVEL(ch)) {
+                do_start(ch, TRUE);
+                GET_LEVEL(ch) = i;
+            } 
               
-                  send_to_char(ch, "Your body vibrates for a moment.... you feel different!\r\n");
-                  gain_exp_regardless(ch, exp_scale[i] - GET_EXP(ch));
+            send_to_char(ch, "Your body vibrates for a moment.... you feel different!\r\n");
+            gain_exp_regardless(ch, exp_scale[i] - GET_EXP(ch));
 
-                  for (i = 1; i < MAX_SKILLS; i++) {
-                      if (spell_info[i].min_level[(int)GET_CLASS(ch)] <= GET_LEVEL(ch) 
-                      || (IS_REMORT(ch) 
-                      &&  spell_info[i].min_level[(int)CHECK_REMORT_CLASS(ch)] <= GET_LEVEL(ch))) 
-                      {
-                            GET_SKILL(ch, i) = LEARNED(ch);
-                      }
-                  }
-                  GET_HIT(ch) = GET_MAX_HIT(ch);
-                  GET_MANA(ch) = GET_MAX_MANA(ch);
-                  GET_MOVE(ch) = GET_MAX_MOVE(ch);
-                  ch->saveToXML();
+            for (i = 1; i < MAX_SKILLS; i++) {
+                if (spell_info[i].min_level[(int)GET_CLASS(ch)] <= GET_LEVEL(ch) 
+                    || (IS_REMORT(ch) 
+                        &&  spell_info[i].min_level[(int)CHECK_REMORT_CLASS(ch)] <= GET_LEVEL(ch))) 
+                {
+                    GET_SKILL(ch, i) = LEARNED(ch);
+                }
             }
-            break;
-        case 1:                    /* unaffect */
-            do_wizutil(ch, "self", 0, SCMD_UNAFFECT, 0);
-            break;
-        case 2:                    /* reroll */
-            do_wizutil(ch, "self", 0, SCMD_REROLL, 0);
-            break;
-        case 3:                    /* stat */
-            do_stat(ch, arg2, 0, 0, 0);
-            break;
-        case 4:                    /* goto */
-            do_goto(ch, arg2, 0, 0, 0);
-            break;
-        case 5:                    /* restore */
             GET_HIT(ch) = GET_MAX_HIT(ch);
             GET_MANA(ch) = GET_MAX_MANA(ch);
             GET_MOVE(ch) = GET_MAX_MOVE(ch);
-            send_to_char(ch, "You are fully healed!\r\n");
-            break;
-        case 6:                    /* char_class  */
-        case 7:                    /* race   */
-        case 8:                    /* remort */
-        case 9:                    /* maxhit */
-        case 10:                   /* maxmana */
-        case 11:                   /* maxmove */
-            sprintf(buf, "self %s %s", arg1, arg2);
-            do_set(ch, buf, 0, SCMD_TESTER_SET, 0);
-            break;
-        case 12:
-            do_gen_tog(ch, "", CMD_TESTER, SCMD_NOHASSLE, 0);
-            break;
-        case 13:
-            do_gen_tog(ch, "", CMD_TESTER, SCMD_ROOMFLAGS, 0);
-            break;
-        case 14:
-            if (!*arg2)
-              send_to_char(ch, "Set align to what?\r\n");
-            else {
-              GET_ALIGNMENT(ch) = atoi(arg2);
-              send_to_char(ch, "Align set to %d.\r\n", GET_ALIGNMENT(ch));
-            }
-            break;
-        case 15:
-            if (!*arg2)
-              send_to_char(ch, "Set gen to what?\r\n");
-            else {
-              GET_REAL_GEN(ch) = atoi(arg2);
-              send_to_char(ch, "gen set to %d.\r\n", GET_REAL_GEN(ch));
-            }
-            break;
-        case 16:
-            do_gen_tog(ch, "", CMD_TESTER, SCMD_DEBUG, 0);
-            break;
-        case 17: // strength
-        case 18: // intelligence
-        case 19: // wisdom
-        case 20: // constitution
-        case 21: // dexterity
-        case 22: // charisma
-            sprintf(buf, "self %s %s", arg1, arg2);
-            do_set(ch, buf, 0, SCMD_TESTER_SET, 0);
-            break;
-        case 23: // Max Stats
-            do_set(ch, "self str 25", 0, SCMD_TESTER_SET, 0);
-            do_set(ch, "self int 25", 0, SCMD_TESTER_SET, 0);
-            do_set(ch, "self wis 25", 0, SCMD_TESTER_SET, 0);
-            do_set(ch, "self con 25", 0, SCMD_TESTER_SET, 0);
-            do_set(ch, "self dex 25", 0, SCMD_TESTER_SET, 0);
-            do_set(ch, "self cha 25", 0, SCMD_TESTER_SET, 0);
-            break;
-        default:
-            sprintf(buf, "$p: Invalid command '%s'.", arg1);
-            send_to_char(ch, TESTER_UTIL_USAGE);
-            break;
+            ch->saveToXML();
+        }
+        break;
+    case 1:                    /* unaffect */
+        do_wizutil(ch, "self", 0, SCMD_UNAFFECT, 0);
+        break;
+    case 2:                    /* reroll */
+        do_wizutil(ch, "self", 0, SCMD_REROLL, 0);
+        break;
+    case 3:                    /* stat */
+        do_stat(ch, arg2, 0, 0, 0);
+        break;
+    case 4:                    /* goto */
+        do_goto(ch, arg2, 0, 0, 0);
+        break;
+    case 5:                    /* restore */
+        GET_HIT(ch) = GET_MAX_HIT(ch);
+        GET_MANA(ch) = GET_MAX_MANA(ch);
+        GET_MOVE(ch) = GET_MAX_MOVE(ch);
+        send_to_char(ch, "You are fully healed!\r\n");
+        break;
+    case 6:                    /* char_class  */
+    case 7:                    /* race   */
+    case 8:                    /* remort */
+    case 9:                    /* maxhit */
+    case 10:                   /* maxmana */
+    case 11:                   /* maxmove */
+        sprintf(buf, "self %s %s", arg1, arg2);
+        do_set(ch, buf, 0, SCMD_TESTER_SET, 0);
+        break;
+    case 12:
+        do_gen_tog(ch, "", CMD_TESTER, SCMD_NOHASSLE, 0);
+        break;
+    case 13:
+        do_gen_tog(ch, "", CMD_TESTER, SCMD_ROOMFLAGS, 0);
+        break;
+    case 14:
+        if (!*arg2)
+            send_to_char(ch, "Set align to what?\r\n");
+        else {
+            GET_ALIGNMENT(ch) = atoi(arg2);
+            send_to_char(ch, "Align set to %d.\r\n", GET_ALIGNMENT(ch));
+        }
+        break;
+    case 15:
+        if (!*arg2)
+            send_to_char(ch, "Set gen to what?\r\n");
+        else {
+            GET_REAL_GEN(ch) = atoi(arg2);
+            send_to_char(ch, "gen set to %d.\r\n", GET_REAL_GEN(ch));
+        }
+        break;
+    case 16:
+        do_gen_tog(ch, "", CMD_TESTER, SCMD_DEBUG, 0);
+        break;
+    case 17:                    // strength
+    case 18:                    // intelligence
+    case 19:                    // wisdom
+    case 20:                    // constitution
+    case 21:                    // dexterity
+    case 22:                    // charisma
+    case 24:                    // Hunger
+    case 25:                    // Thirst
+    case 26:                    // Drunk
+    case 27:                    // Loadroom
+        do_set(ch, tmp_sprintf("self %s %s", arg1, arg2), 0,
+               SCMD_TESTER_SET, 0);
+        break;
+    case 23: // Max Stats
+        do_set(ch, "self str 25", 0, SCMD_TESTER_SET, 0);
+        do_set(ch, "self int 25", 0, SCMD_TESTER_SET, 0);
+        do_set(ch, "self wis 25", 0, SCMD_TESTER_SET, 0);
+        do_set(ch, "self con 25", 0, SCMD_TESTER_SET, 0);
+        do_set(ch, "self dex 25", 0, SCMD_TESTER_SET, 0);
+        do_set(ch, "self cha 25", 0, SCMD_TESTER_SET, 0);
+        break;
+    default:
+        sprintf(buf, "$p: Invalid command '%s'.", arg1);
+        send_to_char(ch, TESTER_UTIL_USAGE);
+        break;
     }
     return;
 }
