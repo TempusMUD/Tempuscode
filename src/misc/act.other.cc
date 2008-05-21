@@ -1044,9 +1044,6 @@ ACMD(do_gen_write)
 #define TOG_OFF 0
 #define TOG_ON  1
 
-#define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch), (flag))) & (flag))
-#define PRF2_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF2_FLAGS(ch), (flag))) & (flag))
-
 bool LOG_DEATHS = false;
 ACMD(do_gen_tog)
 {

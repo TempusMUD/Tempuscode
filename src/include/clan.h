@@ -32,6 +32,7 @@ void REMOVE_MEMBER_FROM_CLAN(struct clanmember_data *member,
 struct clanmember_data {
 	long idnum;
 	byte rank;
+    bool no_mail;
 	struct clanmember_data *next;
 };
 

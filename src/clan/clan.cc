@@ -251,7 +251,7 @@ ACMD(do_enroll)
 		member->next = clan->member_list;
 		clan->member_list = member;
 		sort_clanmembers(clan);
-		sql_exec("insert into clan_members (clan, player, rank) values (%d, %ld, %d)",
+		sql_exec("insert into clan_members (clan, player, rank, no_mail) values (%d, %ld, %d, 'f')",
 			clan->number, GET_IDNUM(vict), 0);
 	}
 }
@@ -478,6 +478,29 @@ ACMD(do_demote)
 		send_to_clan(msg, clan->number);
 		sort_clanmembers(clan);
 	}
+}
+
+ACMD(do_clanmail)
+{
+	struct clan_data *clan = real_clan(GET_CLAN(ch));
+    struct clanmember_data *member;
+
+	skip_spaces(&argument);
+
+	if (!clan)
+		send_to_char(ch, "You are not even in a clan.\r\n");
+	else if (!(member = real_clanmember(GET_IDNUM(ch), clan)))
+		send_to_char(ch, "You are not properly installed in the clan.\r\n");
+    else {
+        member->no_mail = !member->no_mail;
+        sql_exec("update clan_members set no_mail='%c' where player=%ld",
+                 (member->no_mail) ? 'T':'F', GET_IDNUM(ch));
+        if (member->no_mail)
+
+            send_to_char(ch, "You will no longer receive mail addressed to your clan.\r\n");
+        else
+			send_to_char(ch, "You will now receive mail addressed to your clan.\r\n");
+    }
 }
 
 void
@@ -1209,7 +1232,7 @@ ACMD(do_cedit)
 
 			slog("(cedit) %s added member %ld to clan %d.",
 				GET_NAME(ch), member->idnum, clan->number);
-			sql_exec("insert into clan_members (clan, player, rank) values (%d, %d, 0)",
+			sql_exec("insert into clan_members (clan, player, rank, no_mail) values (%d, %d, 0, 'f')",
 				clan->number, i);
 
 			return;
@@ -1372,12 +1395,13 @@ boot_clans(void)
 
 
 	// Now add all the members to the clans
-	res = sql_query("select clan, player, rank from clan_members order by rank");
+	res = sql_query("select clan, player, rank, no_mail from clan_members order by rank");
 	count = PQntuples(res);
 	for (idx = 0;idx < count;idx++) {
 		CREATE(member, struct clanmember_data, 1);
 		member->idnum = atol(PQgetvalue(res, idx, 1));
 		member->rank = atol(PQgetvalue(res, idx, 2));
+		member->no_mail = !strcmp(PQgetvalue(res, idx, 3), "T");
 		member->next = NULL;
 
 		clan = real_clan(atol(PQgetvalue(res, idx, 0)));

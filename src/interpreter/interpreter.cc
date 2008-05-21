@@ -170,6 +170,7 @@ ACMD(do_cinfo);
 ACMD(do_cleave);
 ACMD(do_clanpasswd);
 ACMD(do_clanlist);
+ACMD(do_clanmail);
 ACMD(do_clean);
 ACMD(do_cyborg_reboot);
 ACMD(do_cyberscan);
@@ -599,6 +600,7 @@ struct command_info cmd_info[] = {
 	{"clanpasswd", POS_RESTING, do_clanpasswd, 0, 0, 0, 0},
 	{"clanemote", POS_RESTING, do_gen_comm, 0, SCMD_CLANEMOTE, 0, 0},
 	{"clanhide", POS_STUNNED, do_gen_tog, 0, SCMD_CLAN_HIDE, 0, 0},
+	{"clanmail", POS_STUNNED, do_clanmail, 0, 0, 0, 0},
 	{"cleave", POS_FIGHTING, do_cleave, 1, 0, 0, 0},
 	{"clue", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"clueless", POS_RESTING, do_action, 0, 0, 0, 0},

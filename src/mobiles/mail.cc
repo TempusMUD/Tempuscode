@@ -409,11 +409,13 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
             return;
         }
         for (member = clan->member_list; member; member = member->next) {
-            total_cost += STAMP_PRICE;
-            CREATE(n_mail_to, struct mail_recipient_data, 1);
-            n_mail_to->next = mail_list;
-            n_mail_to->recpt_idnum = member->idnum;
-            mail_list = n_mail_to;
+            if (!member->no_mail) {
+                total_cost += STAMP_PRICE;
+                CREATE(n_mail_to, struct mail_recipient_data, 1);
+                n_mail_to->next = mail_list;
+                n_mail_to->recpt_idnum = member->idnum;
+                mail_list = n_mail_to;
+            }
         }
     } else {
 

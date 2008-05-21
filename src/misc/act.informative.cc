@@ -4412,6 +4412,8 @@ ACMD(do_color)
 void
 show_all_toggles(Creature *ch)
 {
+    bool gets_clanmail = false;
+
 	if (IS_NPC(ch))
 		return;
 	if (GET_WIMP_LEV(ch) == 0)
@@ -4419,6 +4421,14 @@ show_all_toggles(Creature *ch)
 	else
 		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
 
+    if (GET_CLAN(ch)) {
+        struct clan_data *clan = real_clan(GET_CLAN(ch));
+        if (clan) {
+            struct clanmember_data *member = real_clanmember(GET_IDNUM(ch), clan);
+            if (member)
+                gets_clanmail = !member->no_mail;
+        }
+    }
 	send_to_char(ch,
 		"-- DISPLAY -------------------------------------------------------------------\r\n"
 		"Display Hit Pts: %-3s    "
@@ -4455,7 +4465,8 @@ show_all_toggles(Creature *ch)
 		"       On Quest: %-3s\r\n"
 		"   Show Affects: %-3s    "
 		"      Clan hide: %-3s    "
-		"      Anonymous: %-3s\r\n"
+        "      Clan mail: %-3s\r\n"
+		"      Anonymous: %-3s    "
 		"        PKILLER: %-3s\r\n"
 		,
 		ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
@@ -4494,6 +4505,7 @@ show_all_toggles(Creature *ch)
 		YESNO(GET_QUEST(ch)),
 		YESNO(!PRF2_FLAGGED(ch, PRF2_NOAFFECTS)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_CLAN_HIDE)),
+        YESNO(gets_clanmail),
 		YESNO(PRF2_FLAGGED(ch, PRF2_ANONYMOUS)),
 		YESNO(PRF2_FLAGGED(ch, PRF2_PKILLER)));
 
