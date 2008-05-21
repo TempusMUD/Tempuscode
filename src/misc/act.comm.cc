@@ -659,6 +659,10 @@ static const channel_info_t channels[] = {
       "&m", "&c",
       "You aren't listening to petitions at this time.",
       "The immortals have turned a deaf ear to your petitions." },
+	{ "haggle", 1, PRF_NOHAGGLE, PLANAR, NOT_EMOTE,
+      "&m", "&n",
+      "You're not haggling with your peers.",
+      "Your haggling has been muted." },
 };
 
 const char *
