@@ -79,8 +79,6 @@ int calculate_attack_probability(struct Creature *ch);
 void do_emp_pulse_char(Creature *ch, Creature *vict);
 void perform_autoloot(Creature *ch, obj_data *corpse);
 
-FILE *damage_log = fopen("lib/log/damage.log", "a");
-
 /* 
    corrects position and removes combat related bits.
    Call ONLY from removeCombat()/removeAllCombat() 
@@ -1759,14 +1757,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	GET_HIT(victim) -= dam;
 	if (!IS_NPC(victim))
 		GET_TOT_DAM(victim) += dam;
-    if (ch && !IS_NPC(ch))
-        fprintf(damage_log, "%s %d %s %d %d %d\n",
-                strlist_aref(GET_CLASS(ch), char_class_abbrevs),
-                GET_LEVEL(ch),
-                (IS_REMORT(ch)) ? strlist_aref(GET_REMORT_CLASS(ch), char_class_abbrevs):"Mort",
-                GET_REMORT_GEN(ch),
-                attacktype,
-                dam);
                                                
 	if (ch && ch != victim
 		&& !(MOB2_FLAGGED(victim, MOB2_UNAPPROVED) ||
