@@ -424,7 +424,6 @@ voting_add_poll(const char *header, const char *text)
 	int reading_desc = 1;
 	char opt_idx = 'a';
 	char *main_buf;
-	Oid poll_oid;
 	PGresult *res;
 
 	CREATE(voting_new_poll, struct voting_poll, 1);
