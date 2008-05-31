@@ -1401,7 +1401,7 @@ boot_clans(void)
 		CREATE(member, struct clanmember_data, 1);
 		member->idnum = atol(PQgetvalue(res, idx, 1));
 		member->rank = atol(PQgetvalue(res, idx, 2));
-		member->no_mail = !strcmp(PQgetvalue(res, idx, 3), "T");
+		member->no_mail = !strcmp(PQgetvalue(res, idx, 3), "t");
 		member->next = NULL;
 
 		clan = real_clan(atol(PQgetvalue(res, idx, 0)));
