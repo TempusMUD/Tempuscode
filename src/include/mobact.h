@@ -14,6 +14,7 @@ struct Creature *choose_opponent(struct Creature *ch,
 int mobile_battle_activity(struct Creature *ch,
 	struct Creature *previous_vict);
 
+int mob_fight_slaad(struct Creature *ch, struct Creature *precious_vict);
 int mob_fight_devil(struct Creature *ch, struct Creature *precious_vict);
 int mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict);
 int mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict);
