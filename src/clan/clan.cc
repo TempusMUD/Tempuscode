@@ -177,6 +177,8 @@ char_can_promote(Creature *ch, Creature *vict, clan_data *clan)
 
     if (IS_AFFECTED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
+    else if (!vict_member)
+        send_to_char(ch, "You are not a member of that person's clan!\r\n");
     else if (vict_member->rank >= clan->top_rank
              && PLR_FLAGGED(vict, PLR_CLAN_LEADER))
 		send_to_char(ch, "That person is already at the top rank.\r\n");
@@ -185,8 +187,6 @@ char_can_promote(Creature *ch, Creature *vict, clan_data *clan)
     // Promotion conditions that don't apply to clan administrators
     else if (!clan)
         send_to_char(ch, "Try joining a clan first.\r\n");
-    else if (GET_CLAN(vict) != GET_CLAN(ch))
-        send_to_char(ch, "Umm, why don't you check the clan list, okay?\r\n");
     else if (real_clan(GET_CLAN(vict)) != clan)
 		send_to_char(ch, "You are not a member of that person's clan!\r\n");
     else if (clan->owner == GET_CLAN(ch))
