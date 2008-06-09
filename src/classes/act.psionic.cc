@@ -293,8 +293,7 @@ mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict)
 		(!number(0, 2) || (!can_see_creature(ch, vict) && !ch->findCombat(vict))))
 		cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP);
 	// psiblast
-	else if (GET_LEVEL(ch) >= 5 &&
-		GET_MANA(ch) > mag_manacost(ch, SKILL_PSIBLAST)) {
+	else if (GET_MANA(ch) > mag_manacost(ch, SKILL_PSIBLAST)) {
 		if (!can_see_creature(ch, vict) && ch->isFighting())
 			// just attack the default opponent
 			perform_offensive_skill(ch, ch->findRandomCombat(), SKILL_PSIBLAST, 0);
