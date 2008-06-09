@@ -2892,8 +2892,8 @@ int
 mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 {
 
-	struct Creature *vict = NULL, *new_mob = NULL;
-	int num = 0, prob = 0, dam = 0;
+	struct Creature *vict = NULL;
+	int prob = 0, dam = 0;
 	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
 	int return_flags = 0;
 
@@ -3161,86 +3161,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	/* Slaad */
 	if (IS_SLAAD(ch)) {
-		num = 12;
-		new_mob = NULL;
-
-		if (!(vict = choose_opponent(ch, precious_vict)))
-			return 0;
-		CreatureList::iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it)
-			if (IS_SLAAD((*it)))
-				num++;
-
-		switch (GET_CLASS(ch)) {
-		case CLASS_SLAAD_BLUE:
-			if (!IS_PET(ch)) {
-				if (!random_number_zero_low(3 * num)
-					&& ch->mob_specials.shared->number > 1)
-					new_mob = read_mobile(GET_MOB_VNUM(ch));
-				else if (!random_number_zero_low(3 * num))	/* red saad */
-					new_mob = read_mobile(42000);
-			}
-			break;
-		case CLASS_SLAAD_GREEN:
-			if (!IS_PET(ch)) {
-				if (!random_number_zero_low(4 * num)
-					&& ch->mob_specials.shared->number > 1)
-					new_mob = read_mobile(GET_MOB_VNUM(ch));
-				else if (!random_number_zero_low(3 * num))	/* blue slaad */
-					new_mob = read_mobile(42001);
-				else if (!random_number_zero_low(2 * num))	/* red slaad */
-					new_mob = read_mobile(42000);
-			}
-			break;
-		case CLASS_SLAAD_GREY:
-			if (GET_EQ(ch, WEAR_WIELD) &&
-				(IS_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD), ITEM_WEAPON) &&
-					(GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
-						TYPE_SLASH - TYPE_HIT) && random_fractional_4()) &&
-				GET_MOVE(ch) > 20) {
-				perform_offensive_skill(ch, vict, SKILL_BEHEAD, &return_flags);
-				return 0;
-			}
-			if (!IS_PET(ch)) {
-				if (!random_number_zero_low(4 * num)
-					&& ch->mob_specials.shared->number > 1)
-					new_mob = read_mobile(GET_MOB_VNUM(ch));
-				else if (!random_number_zero_low(4 * num))	/* green slaad */
-					new_mob = read_mobile(42002);
-				else if (!random_number_zero_low(3 * num))	/* blue slaad */
-					new_mob = read_mobile(42001);
-				else if (!random_number_zero_low(2 * num))	/* red slaad */
-					new_mob = read_mobile(42000);
-			}
-			break;
-		case CLASS_SLAAD_DEATH:
-		case CLASS_SLAAD_LORD:
-			if (!IS_PET(ch)) {
-				if (!random_number_zero_low(4 * num))	/* grey slaad */
-					new_mob = read_mobile(42003);
-				else if (!random_number_zero_low(3 * num))	/* green slaad */
-					new_mob = read_mobile(42002);
-				else if (!random_number_zero_low(3 * num))	/* blue slaad */
-					new_mob = read_mobile(42001);
-				else if (!random_number_zero_low(4 * num))	/* red slaad */
-					new_mob = read_mobile(42000);
-			}
-			break;
-		}
-		if (new_mob) {
-			WAIT_STATE(ch, 5 RL_SEC);
-			GET_MOVE(ch) -= 100;
-			char_to_room(new_mob, ch->in_room,false);
-			act("$n gestures, a glowing portal appears with a whine!",
-				FALSE, ch, 0, 0, TO_ROOM);
-			act("$n steps out of the portal with a crack of lightning!",
-				FALSE, new_mob, 0, 0, TO_ROOM);
-            Creature *target = ch->findRandomCombat();
-			if (target && IS_MOB(target))
-				hit(new_mob, target, TYPE_UNDEFINED);
-			return 0;
-		}
+        mob_fight_slaad(ch, precious_vict);
 	}
+
 	if (IS_TROG(ch)) {
 		if (random_fractional_5()) {
 			act("$n begins to secrete a disgustingly malodorous oil!",
@@ -3817,6 +3740,97 @@ char_in_memory(struct Creature *victim, struct Creature *rememberer)
 	return FALSE;
 }
 
+int
+mob_fight_slaad(Creature *ch, Creature *precious_vict)
+{
+	Creature *new_mob = NULL;
+	Creature *vict = NULL;
+	int num = 0;
+	int return_flags = 0;
+
+    num = 12;
+    new_mob = NULL;
+
+    if (!(vict = choose_opponent(ch, precious_vict)))
+        return 0;
+    CreatureList::iterator it = ch->in_room->people.begin();
+    for (; it != ch->in_room->people.end(); ++it)
+        if (IS_SLAAD((*it)))
+            num++;
+
+    switch (GET_CLASS(ch)) {
+    case CLASS_SLAAD_BLUE:
+        if (!IS_PET(ch)) {
+            if (!random_number_zero_low(3 * num)
+                && ch->mob_specials.shared->number > 1)
+                new_mob = read_mobile(GET_MOB_VNUM(ch));
+            else if (!random_number_zero_low(3 * num))	/* red saad */
+                new_mob = read_mobile(42000);
+        }
+        break;
+    case CLASS_SLAAD_GREEN:
+        if (!IS_PET(ch)) {
+            if (!random_number_zero_low(4 * num)
+                && ch->mob_specials.shared->number > 1)
+                new_mob = read_mobile(GET_MOB_VNUM(ch));
+            else if (!random_number_zero_low(3 * num))	/* blue slaad */
+                new_mob = read_mobile(42001);
+            else if (!random_number_zero_low(2 * num))	/* red slaad */
+                new_mob = read_mobile(42000);
+        }
+        break;
+    case CLASS_SLAAD_GREY:
+        if (GET_EQ(ch, WEAR_WIELD) &&
+            (IS_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD), ITEM_WEAPON) &&
+             (GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) ==
+              TYPE_SLASH - TYPE_HIT) && random_fractional_4()) &&
+            GET_MOVE(ch) > 20) {
+            perform_offensive_skill(ch, vict, SKILL_BEHEAD, &return_flags);
+            return 0;
+        }
+        if (!IS_PET(ch)) {
+            if (!random_number_zero_low(4 * num)
+                && ch->mob_specials.shared->number > 1)
+                new_mob = read_mobile(GET_MOB_VNUM(ch));
+            else if (!random_number_zero_low(4 * num))	/* green slaad */
+                new_mob = read_mobile(42002);
+            else if (!random_number_zero_low(3 * num))	/* blue slaad */
+                new_mob = read_mobile(42001);
+            else if (!random_number_zero_low(2 * num))	/* red slaad */
+                new_mob = read_mobile(42000);
+        }
+        break;
+    case CLASS_SLAAD_DEATH:
+    case CLASS_SLAAD_LORD:
+        if (!IS_PET(ch)) {
+            if (!random_number_zero_low(4 * num))	/* grey slaad */
+                new_mob = read_mobile(42003);
+            else if (!random_number_zero_low(3 * num))	/* green slaad */
+                new_mob = read_mobile(42002);
+            else if (!random_number_zero_low(3 * num))	/* blue slaad */
+                new_mob = read_mobile(42001);
+            else if (!random_number_zero_low(4 * num))	/* red slaad */
+                new_mob = read_mobile(42000);
+        }
+        break;
+    }
+    if (new_mob) {
+        WAIT_STATE(ch, 5 RL_SEC);
+        GET_MOVE(ch) -= 100;
+        char_to_room(new_mob, ch->in_room,false);
+        act("$n gestures, a glowing portal appears with a whine!",
+            FALSE, ch, 0, 0, TO_ROOM);
+        act("$n steps out of the portal with a crack of lightning!",
+            FALSE, new_mob, 0, 0, TO_ROOM);
+        Creature *target = ch->findRandomCombat();
+        if (target && IS_MOB(target))
+            hit(new_mob, target, TYPE_UNDEFINED);
+        return 0;
+    }
+
+    return -1;
+}
+
 //
 // devils
 //
@@ -3833,9 +3847,6 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 	Creature *vict = NULL;
 	int num = 0;
 	int return_flags = 0;
-
-
-
 
 	if (IS_PET(ch)) {			// pets should only fight who they're told to
 		vict = ch->findRandomCombat();
@@ -3887,7 +3898,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 
 	// see how many devils are already in the room
 	CreatureList::iterator it = ch->in_room->people.begin();
-	for (num = 0; it != ch->in_room->people.end(); ++it)
+	for (num = 12; it != ch->in_room->people.end(); ++it)
 		if (IS_DEVIL((*it)))
 			num++;
 
@@ -3905,7 +3916,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 	// gating results depend on devil char_class
 	switch (GET_CLASS(ch)) {
 	case CLASS_LESSER:
-		if (random_number_zero_low(8) > num) {
+		if (random_number_zero_low(1) > num) {
 			if (ch->mob_specials.shared->number > 1 && random_binary())
 				new_mob = read_mobile(GET_MOB_VNUM(ch));
 			else if (random_fractional_3())	// nupperibo-spined
@@ -3925,7 +3936,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_GREATER:
-		if (random_number_zero_low(10) > num) {
+		if (random_number_zero_low(2) > num) {
 			if (ch->mob_specials.shared->number > 1 && random_binary())
 				new_mob = read_mobile(GET_MOB_VNUM(ch));
 			else if (GET_MOB_VNUM(ch) == 16118 ||	// Pit Fiends
@@ -3958,17 +3969,18 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 					do_flee(vict, "", 0, 0, 0);
 			}
 
-        }else if( GET_MOB_VNUM(ch) == 16142 ){ // Sekolah
-            if( random_number_zero_low(12) > num ){
-                new_mob = read_mobile( 16165 ); // DEVIL FISH
+        } else if (random_number_zero_low(4) > num) {
+            if( GET_MOB_VNUM(ch) == 16142 ){ // Sekolah
+                if( random_number_zero_low(12) > num ){
+                    new_mob = read_mobile( 16165 ); // DEVIL FISH
+                }
+
+            } else if (random_number_zero_low(12) > num) {
+                if (random_binary())
+                    new_mob = read_mobile(16118);	// Pit Fiend 
+                else
+                    new_mob = read_mobile(number(16114, 16118));	// barbed bone horned ice pit 
             }
-
-		} else if (random_number_zero_low(12) > num) {
-			if (random_binary())
-				new_mob = read_mobile(16118);	// Pit Fiend 
-			else
-				new_mob = read_mobile(number(16114, 16118));	// barbed bone horned ice pit 
-
 		}
 		break;
 	}
@@ -3998,93 +4010,6 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 
 	return -1;
 }
-
-ACMD(do_breathe)
-{								// Breath Weapon Attack
-    struct affected_type *fire = affected_by_spell( ch, SPELL_FIRE_BREATHING );
-    struct affected_type *frost = affected_by_spell( ch, SPELL_FROST_BREATHING );
-
-	if (IS_PC(ch) && fire == NULL && frost == NULL ) {
-        act("You breathe heavily.", FALSE, ch, 0, 0, TO_CHAR);
-        act("$n seems to be out of breath.", FALSE, ch, 0, 0, TO_ROOM);
-        return;
-	}
-    // Find the victim
-	skip_spaces(&argument);
-	Creature *vict = get_char_room_vis(ch, argument);
-	if (vict == NULL)
-		vict = ch->findRandomCombat();
-	if (vict == NULL) {
-		act("Breathe on whom?", FALSE, ch, 0, 0, TO_CHAR);
-		return;
-	}
-
-    if( IS_PC(ch) ) {
-        if( fire != NULL ) {
-            call_magic(ch, vict, 0, NULL, SPELL_FIRE_BREATH, GET_LEVEL(ch), CAST_BREATH);
-            fire = affected_by_spell(ch, SPELL_FIRE_BREATHING);
-            if (fire) {
-                fire->duration -= 5;
-                if( fire->duration <= 0 )
-                    affect_remove( ch, fire );
-            }
-        } else if( frost != NULL ) {
-            call_magic(ch, vict, 0, NULL, SPELL_FROST_BREATH, GET_LEVEL(ch), CAST_BREATH);
-            frost = affected_by_spell(ch, SPELL_FROST_BREATH);
-            if (frost) {
-                frost->duration -= 5;
-                if( frost->duration <= 0 )
-                    affect_remove( ch, frost );
-            }
-        } else {
-            send_to_char(ch, "ERROR: No breath type found.\r\n" );
-        }
-        return;
-    }
-
-	switch (GET_CLASS(ch)) {
-	case CLASS_GREEN:
-		call_magic(ch, vict, 0, NULL, SPELL_GAS_BREATH, GET_LEVEL(ch), CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
-		break;
-
-	case CLASS_BLACK:
-		call_magic(ch, vict, 0, NULL, SPELL_ACID_BREATH, GET_LEVEL(ch), CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
-		break;
-	case CLASS_BLUE:
-		call_magic(ch, vict, 0, NULL, 
-			SPELL_LIGHTNING_BREATH, GET_LEVEL(ch), CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
-		break;
-	case CLASS_WHITE:
-	case CLASS_SILVER:
-		call_magic(ch, vict, 0, NULL, SPELL_FROST_BREATH, GET_LEVEL(ch),
-			CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
-		break;
-	case CLASS_RED:
-		call_magic(ch, vict, 0, NULL, SPELL_FIRE_BREATH, GET_LEVEL(ch), CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
-		break;
-	case CLASS_SHADOW_D:
-		call_magic(ch, vict, 0, NULL, SPELL_SHADOW_BREATH, GET_LEVEL(ch),
-			CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
-		break;
-	case CLASS_TURTLE:
-		call_magic(ch, vict, 0, NULL, SPELL_STEAM_BREATH, GET_LEVEL(ch),
-			CAST_BREATH);
-		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
-		break;
-	default:
-		act("You don't seem to have a breath weapon.", FALSE, ch, 0, 0,
-			TO_CHAR);
-		break;
-	}
-
-}
-
 
 int
 mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
@@ -4156,7 +4081,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 	// gating results depend on celestials char_class
 	switch (GET_CLASS(ch)) {
 	case CLASS_LESSER:
-		if (random_number_zero_low(8) > num) {
+		if (random_number_zero_low(1) > num) {
 			if (random_fractional_4()){	// Warden Archon
 				new_mob = read_mobile(WARDEN_ARCHON);
             } else if (random_fractional_3()) {  //Hound Archon
@@ -4167,7 +4092,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_GREATER:
-		if (random_number_zero_low(10) > num) {
+		if (random_number_zero_low(2) > num) {
             if(random_fractional_3()){
                 if(random_binary()){
                     new_mob = read_mobile(TOME_ARCHON);
@@ -4183,7 +4108,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
     case CLASS_GODLING:
-		if (random_number_zero_low(12) > num) {
+		if (random_number_zero_low(3) > num) {
 			if (random_binary())
 				new_mob = read_mobile(TOME_ARCHON);	// Tome Archon
 			else
@@ -4192,7 +4117,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_DIETY:
-		if (random_number_zero_low(15) > num) {
+		if (random_number_zero_low(5) > num) {
 			if (random_binary())
 				new_mob = read_mobile(TOME_ARCHON);	// Tome Archon
 			else
@@ -4295,7 +4220,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 	// gating results depend on guardinal char_class
 	switch (GET_CLASS(ch)) {
 	case CLASS_LESSER:
-		if (random_number_zero_low(8) > num) {
+		if (random_number_zero_low(1) > num) {
 			if (random_binary()){	
 				new_mob = read_mobile(AVORIAL_GUARDINAL);
             } else if (!random_fractional_5()) { 
@@ -4306,7 +4231,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_GREATER:
-		if (random_number_zero_low(10) > num) {
+		if (random_number_zero_low(2) > num) {
             if(!random_fractional_3()){
                 if(random_binary()){
                     new_mob = read_mobile(AVORIAL_GUARDINAL);
@@ -4322,7 +4247,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
     case CLASS_GODLING:
-		if (random_number_zero_low(12) > num) {
+		if (random_number_zero_low(3) > num) {
 			if (random_binary() || ch->in_room->zone->number == 481 )
 				new_mob = read_mobile(PANTHRAL_GUARDINAL);
 			else
@@ -4331,7 +4256,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_DIETY:
-		if (random_number_zero_low(15) > num) {
+		if (random_number_zero_low(5) > num) {
 			if (random_binary() || ch->in_room->zone->number == 481)
 				new_mob = read_mobile(PANTHRAL_GUARDINAL);
 			else
@@ -4360,8 +4285,6 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 
 	return -1;
 }
-
-
 
 /**mob_fight_demon:  /
 *  This is the port and combat code for the demonic mobs that enhabit the abyss
@@ -4464,7 +4387,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_DEMON_III:
-		if (random_number_zero_low(10) > num) {
+		if (random_number_zero_low(1) > num) {
 			if (random_fractional_3()){	
                 if( random_binary() ){
                     new_mob = read_mobile(DRETCH_DEMON);
@@ -4485,7 +4408,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_DEMON_IV:
-		if (random_number_zero_low(12) > num) {
+		if (random_number_zero_low(2) > num) {
             if (random_fractional_3() ){
                 if( random_binary() ){
                     new_mob = read_mobile(HEZROU_DEMON);
@@ -4508,7 +4431,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_DEMON_V:
-		if (random_number_zero_low(13) > num) {
+		if (random_number_zero_low(3) > num) {
             if ( random_binary()){
                 if( random_binary() ){
                     new_mob = read_mobile(GLABREZU_DEMON);
@@ -4533,14 +4456,14 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
     case CLASS_DEMON_LORD:
 	case CLASS_SLAAD_LORD:
         if( GET_MOB_VNUM(ch) == 42819 ){ // Pigeon God
-            if( random_number_zero_low(14) > num ){
+            if( random_number_zero_low(4) > num ){
                 if( random_binary() ){
                     new_mob = read_mobile( 42875 ); // grey pigeion
                 } else {
                     new_mob = read_mobile( 42888 ); // roosting pigeon
                 }
             }
-		} else if (random_number_zero_low(14) > num) {
+		} else if (random_number_zero_low(4) > num) {
             if ( !random_fractional_3() ){
                 if( random_fractional_3() ){
                     new_mob = read_mobile(KNECHT_DEMON);
@@ -4557,7 +4480,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		}
 		break;
 	case CLASS_DEMON_PRINCE:
-		if (random_number_zero_low(15) > num) {
+		if (random_number_zero_low(6) > num) {
 			if ( random_binary() ){                  
 				new_mob = read_mobile( GORISTRO_DEMON );
             } else {
@@ -4592,8 +4515,91 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 	return -1;
 }
 
+ACMD(do_breathe)
+{								// Breath Weapon Attack
+    struct affected_type *fire = affected_by_spell( ch, SPELL_FIRE_BREATHING );
+    struct affected_type *frost = affected_by_spell( ch, SPELL_FROST_BREATHING );
 
+	if (IS_PC(ch) && fire == NULL && frost == NULL ) {
+        act("You breathe heavily.", FALSE, ch, 0, 0, TO_CHAR);
+        act("$n seems to be out of breath.", FALSE, ch, 0, 0, TO_ROOM);
+        return;
+	}
+    // Find the victim
+	skip_spaces(&argument);
+	Creature *vict = get_char_room_vis(ch, argument);
+	if (vict == NULL)
+		vict = ch->findRandomCombat();
+	if (vict == NULL) {
+		act("Breathe on whom?", FALSE, ch, 0, 0, TO_CHAR);
+		return;
+	}
 
+    if( IS_PC(ch) ) {
+        if( fire != NULL ) {
+            call_magic(ch, vict, 0, NULL, SPELL_FIRE_BREATH, GET_LEVEL(ch), CAST_BREATH);
+            fire = affected_by_spell(ch, SPELL_FIRE_BREATHING);
+            if (fire) {
+                fire->duration -= 5;
+                if( fire->duration <= 0 )
+                    affect_remove( ch, fire );
+            }
+        } else if( frost != NULL ) {
+            call_magic(ch, vict, 0, NULL, SPELL_FROST_BREATH, GET_LEVEL(ch), CAST_BREATH);
+            frost = affected_by_spell(ch, SPELL_FROST_BREATH);
+            if (frost) {
+                frost->duration -= 5;
+                if( frost->duration <= 0 )
+                    affect_remove( ch, frost );
+            }
+        } else {
+            send_to_char(ch, "ERROR: No breath type found.\r\n" );
+        }
+        return;
+    }
+
+	switch (GET_CLASS(ch)) {
+	case CLASS_GREEN:
+		call_magic(ch, vict, 0, NULL, SPELL_GAS_BREATH, GET_LEVEL(ch), CAST_BREATH);
+		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+		break;
+
+	case CLASS_BLACK:
+		call_magic(ch, vict, 0, NULL, SPELL_ACID_BREATH, GET_LEVEL(ch), CAST_BREATH);
+		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+		break;
+	case CLASS_BLUE:
+		call_magic(ch, vict, 0, NULL, 
+			SPELL_LIGHTNING_BREATH, GET_LEVEL(ch), CAST_BREATH);
+		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+		break;
+	case CLASS_WHITE:
+	case CLASS_SILVER:
+		call_magic(ch, vict, 0, NULL, SPELL_FROST_BREATH, GET_LEVEL(ch),
+			CAST_BREATH);
+		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+		break;
+	case CLASS_RED:
+		call_magic(ch, vict, 0, NULL, SPELL_FIRE_BREATH, GET_LEVEL(ch), CAST_BREATH);
+		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+		break;
+	case CLASS_SHADOW_D:
+		call_magic(ch, vict, 0, NULL, SPELL_SHADOW_BREATH, GET_LEVEL(ch),
+			CAST_BREATH);
+		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+		break;
+	case CLASS_TURTLE:
+		call_magic(ch, vict, 0, NULL, SPELL_STEAM_BREATH, GET_LEVEL(ch),
+			CAST_BREATH);
+		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
+		break;
+	default:
+		act("You don't seem to have a breath weapon.", FALSE, ch, 0, 0,
+			TO_CHAR);
+		break;
+	}
+
+}
 /***********************************************************************************
  *
  *                        Knight Activity
