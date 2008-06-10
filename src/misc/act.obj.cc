@@ -174,8 +174,8 @@ void
 consolidate_char_money(struct Creature *ch)
 {
 	struct obj_data *obj = 0, *next_obj = 0;
-	long num_gold = 0;
-	long num_credits = 0;
+	long long num_gold = 0;
+	long long num_credits = 0;
 
 	for (obj = ch->carrying; obj; obj = next_obj) {
 		next_obj = obj->next_content;
@@ -193,32 +193,32 @@ consolidate_char_money(struct Creature *ch)
 
 	if (num_gold) {
 		if (num_gold > MONEY_LOG_LIMIT)
-			slog("MONEY: %s picked up %ld gold in room #%d (%s)",
+			slog("MONEY: %s picked up %lld gold in room #%d (%s)",
 				GET_NAME(ch), num_gold, ch->in_room->number,
 				ch->in_room->name);
 		GET_GOLD(ch) += num_gold;
 		if (num_gold == 1)
 			send_to_char(ch, "There was only a single gold coin.\r\n");
 		else
-			send_to_char(ch, "There were %ld coins.\r\n", num_gold);
+			send_to_char(ch, "There were %lld coins.\r\n", num_gold);
 
 		if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT))
-			do_split(ch, tmp_sprintf("%ld", num_gold), 0, 0, 0);
+			do_split(ch, tmp_sprintf("%lld", num_gold), 0, 0, 0);
 	}
 
 	if (num_credits) {
 		if (num_credits > MONEY_LOG_LIMIT)
-			slog("MONEY: %s picked up %ld credits in room #%d (%s)",
+			slog("MONEY: %s picked up %lld credits in room #%d (%s)",
 				GET_NAME(ch), num_gold, ch->in_room->number,
 				ch->in_room->name);
 		GET_CASH(ch) += num_credits;
 		if (num_credits == 1)
 			send_to_char(ch, "There was only a single credit.\r\n");
 		else
-			send_to_char(ch, "There were %ld credits.\r\n", num_credits);
+			send_to_char(ch, "There were %lld credits.\r\n", num_credits);
 
 		if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT))
-			do_split(ch, tmp_sprintf("%ld credits", num_credits), 0, 0, 0);
+			do_split(ch, tmp_sprintf("%lld credits", num_credits), 0, 0, 0);
 	}
 }
 

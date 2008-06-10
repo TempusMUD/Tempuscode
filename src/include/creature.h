@@ -787,8 +787,8 @@ struct char_point_data {
 	int max_move;			/* Max move for PC/NPC                     */
 
 	sh_int armor;				/* Internal -100..100, external -10..10 AC */
-	int gold;					/* Money carried                           */
-	int cash;					// cash on hand
+    long long gold;					/* Money carried                           */
+	long long cash;					// cash on hand
 	int exp;					/* The experience of the player            */
 
 	sbyte hitroll;				/* Any bonus or penalty to the hit roll    */

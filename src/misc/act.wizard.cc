@@ -1845,11 +1845,11 @@ do_stat_character(Creature *ch, Creature *k, char *options)
             CCYEL(ch, C_NRM), GET_SAVE(k, 7), CCNRM(ch, C_NRM));
     }
     if (IS_NPC(k))
-        acc_sprintf("Gold:[%8d], Cash:[%8d], (Total: %d)\r\n",
+        acc_sprintf("Gold:[%8lld], Cash:[%8lld], (Total: %lld)\r\n",
             GET_GOLD(k), GET_CASH(k), GET_GOLD(k) + GET_CASH(k));
     else
         acc_sprintf(
-            "Au:[%8d], Bank:[%9lld], Cash:[%8d], Enet:[%9lld], (Total: %lld)\r\n",
+            "Au:[%8lld], Bank:[%9lld], Cash:[%8lld], Enet:[%9lld], (Total: %lld)\r\n",
             GET_GOLD(k), GET_PAST_BANK(k), GET_CASH(k), GET_FUTURE_BANK(k),
             GET_GOLD(k) + GET_PAST_BANK(k) + GET_FUTURE_BANK(k) + GET_CASH(k));
 
@@ -4149,7 +4149,7 @@ show_player(Creature *ch, char *value)
             remort_desc, GET_REAL_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
-            "%sAu: %-8d  Cr: %-8d  Past: %-8lld  Fut: %-8lld\r\n",
+            "%sAu: %-8lld  Cr: %-8lld  Past: %-8lld  Fut: %-8lld\r\n",
             buf, GET_GOLD(vict), GET_CASH(vict), 
                  GET_PAST_BANK(vict), GET_FUTURE_BANK(vict) );
     // Trim and fit the date to show year but not seconds.
@@ -7578,7 +7578,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
             if (GET_GOLD(mob) >= k &&
                 (!j || vendor != mob->mob_specials.shared->func))
                 sprintf(buf,
-                    "%s %3d. [%5d] %-30s (%2d) %2d\r\n",
+                    "%s %3d. [%5d] %-30s (%2d) %2lld\r\n",
                     buf, ++i, GET_MOB_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
                     GET_GOLD(mob));
         }
@@ -7664,13 +7664,13 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
                 continue;
 
             if (i && (GET_CASH(mob) > (GET_LEVEL(mob) * l))) {
-                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6d)\r\n",
+                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6lld)\r\n",
                     buf, ++k, GET_MOB_VNUM(mob), GET_NAME(mob),
                     GET_LEVEL(mob), GET_GOLD(mob));
 
             } else if (!i && (GET_GOLD(mob) > (GET_LEVEL(mob) * l))) {
 
-                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6d)\r\n",
+                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6lld)\r\n",
                     buf, ++k, GET_MOB_VNUM(mob), GET_NAME(mob),
                     GET_LEVEL(mob), GET_GOLD(mob));
             }

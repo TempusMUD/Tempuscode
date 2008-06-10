@@ -512,7 +512,7 @@ Creature::saveToXML()
 		ch->points.hit, ch->points.mana, ch->points.move,
 		ch->points.max_hit, ch->points.max_mana, ch->points.max_move);
 
-    fprintf(ouf, "<money gold=\"%d\" cash=\"%d\" xp=\"%d\"/>\n",
+    fprintf(ouf, "<money gold=\"%lld\" cash=\"%lld\" xp=\"%d\"/>\n",
         ch->points.gold, ch->points.cash,  ch->points.exp);
 
 	fprintf(ouf, "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%d\" align=\"%d\"/>\n",

@@ -92,7 +92,7 @@ const char *moods[] = {
 int number(int from, int to);
 int get_max_auction_item();
 Creature *create_imp(room_data *inroom, auction_data &);
-bool bidder_can_afford(Creature *bidder, long amount);
+bool bidder_can_afford(Creature *bidder, long long amount);
 void aucSaveToXML(Creature *auc);
 bool aucLoadFromXML(Creature *auc);
 
@@ -721,8 +721,8 @@ ACMD(do_bidlist) {
     page_string(ch->desc, acc_get_string());
 }
 
-bool bidder_can_afford(Creature *bidder, long amount) {
-    long tamount = amount;
+bool bidder_can_afford(Creature *bidder, long long amount) {
+    long long tamount = amount;
 
     list<auction_data>::iterator ai = items.begin();
     for (; ai != items.end(); ai++) {
