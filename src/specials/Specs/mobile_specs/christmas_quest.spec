@@ -223,9 +223,10 @@ int do_remort(struct Creature *ch)
     GET_COND(ch, THIRST) = 0;
 
     // Give em another gen
-    GET_REAL_GEN(ch)++;
-    if (GET_REAL_GEN(ch) > 10)
+    if (GET_REMORT_GEN(ch) > 10)
         ch->account->set_quest_points(ch->account->get_quest_points() + 1);
+    else
+        GET_REMORT_GEN(ch)++;
 
     // At gen 1 they enter the world of pk, like it or not
     if (GET_REMORT_GEN(ch) >= 1 && GET_REPUTATION(ch) <= 0)

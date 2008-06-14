@@ -2709,7 +2709,7 @@ ACMD(do_score)
 	if (!IS_NPC(ch) && IS_REMORT(ch))
 		acc_sprintf("You have remortalized as a %s (generation %d).\r\n",
 			class_names[(int)GET_REMORT_CLASS(ch)],
-			GET_REAL_GEN(ch));
+			GET_REMORT_GEN(ch));
 	if ((age(ch).month == 0) && (age(ch).day == 0))
 		acc_strcat("  It's your birthday today!\r\n\r\n", NULL);
 	else
@@ -3194,7 +3194,7 @@ whoString(Creature *ch, Creature *target) {
 			if (GET_REMORT_GEN(target) < 10) {
 				out << ' ';
 			}
-			out << (int)GET_REAL_GEN(target) << CCCYN(ch, C_NRM) << ')' << CCNRM(ch, C_NRM);
+			out << (int)GET_REMORT_GEN(target) << CCCYN(ch, C_NRM) << ')' << CCNRM(ch, C_NRM);
 		} else {
 			out << CCNRM(ch, C_NRM); 
 			if (GET_LEVEL(target) < 10) {
@@ -3332,8 +3332,8 @@ class WhoListComparator {
 				return GET_LEVEL(a) > GET_LEVEL(b);
 			if (a->isTester())
 				return true;
-			if (GET_REAL_GEN(a) != GET_REAL_GEN(b))
-				return GET_REAL_GEN(a) > GET_REAL_GEN(b);
+			if (GET_REMORT_GEN(a) != GET_REMORT_GEN(b))
+				return GET_REMORT_GEN(a) > GET_REMORT_GEN(b);
 			if (GET_LEVEL(a) != GET_LEVEL(b))
 				return GET_LEVEL(a) > GET_LEVEL(b);
 			

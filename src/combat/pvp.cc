@@ -396,9 +396,9 @@ punish_killer_death(Creature *ch)
         }
     }
         
-    GET_REAL_GEN(ch) -= MIN(GET_REAL_GEN(ch), loss / 50);
+    GET_REMORT_GEN(ch) -= MIN(GET_REMORT_GEN(ch), loss / 50);
     if (GET_LEVEL(ch) <= (loss % 50)) {
-        GET_REAL_GEN(ch) -= 1;
+        GET_REMORT_GEN(ch) -= 1;
         lvl = 49 - (loss % 50) + GET_LEVEL(ch);
     } else
         lvl = GET_LEVEL(ch) - (loss % 50);

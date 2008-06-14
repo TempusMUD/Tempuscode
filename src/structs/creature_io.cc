@@ -522,7 +522,7 @@ Creature::saveToXML()
 	fprintf(ouf, "<class name=\"%s\"", class_names[GET_CLASS(ch)]);
 	if( IS_REMORT(ch) ) {
 		fprintf(ouf, " remort=\"%s\" gen=\"%d\"",
-			class_names[GET_REMORT_CLASS(ch)], GET_REAL_GEN(ch));
+			class_names[GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
     }
 	if (IS_CYBORG(ch)) {
 		if (GET_OLD_CLASS(ch) != -1)
@@ -806,7 +806,7 @@ Creature::loadFromXML( const char *path )
 					xmlGetLongProp(node, "manash_pct");
 			}
 
-			GET_REAL_GEN(this) = xmlGetIntProp( node, "gen" );
+			GET_REMORT_GEN(this) = xmlGetIntProp( node, "gen" );
 			GET_TOT_DAM(this) = xmlGetIntProp( node, "total_dam" );
 
         } else if ( xmlMatches(node->name, "time") ) {
@@ -1094,7 +1094,7 @@ Creature::set(const char *key, const char *val)
 	else if (!strcmp(key, "align"))
 		GET_ALIGNMENT(this) = atoi(val);
 	else if (!strcmp(key, "gen"))
-		GET_REAL_GEN(this) = atoi(val);
+		GET_REMORT_GEN(this) = atoi(val);
 	else if (!strcmp(key, "birth_time"))
 		player.time.birth = atol(val);
 	else if (!strcmp(key, "death_time"))

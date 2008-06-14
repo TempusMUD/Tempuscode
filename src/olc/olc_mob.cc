@@ -185,7 +185,7 @@ do_create_mob(struct Creature *ch, int vnum)
 	AFF2_FLAGS(new_mob) = 0;
 	AFF3_FLAGS(new_mob) = 0;
 	GET_ALIGNMENT(new_mob) = 0;
-    GET_REAL_GEN(new_mob) = 0;
+    GET_REMORT_GEN(new_mob) = 0;
     GET_TONGUE(new_mob) = TONGUE_COMMON;
 
 	new_mob->real_abils.str = 11;
@@ -1128,7 +1128,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			if (i < 0 || i > 10 ) {
 				send_to_char(ch, "Generation must be between 1 and 10.\r\n");
 			} else {
-                GET_REAL_GEN(mob_p) = i;
+                GET_REMORT_GEN(mob_p) = i;
 				send_to_char(ch, "Mobile generation set.\r\n");
                 recalculate_based_on_level( mob_p );
 			}
@@ -1878,7 +1878,7 @@ do_clear_olc_mob(struct Creature *ch)
 	AFF2_FLAGS(targ) = 0;
 	AFF3_FLAGS(targ) = 0;
 	GET_ALIGNMENT(targ) = 0;
-    GET_REAL_GEN(targ) = 0;
+    GET_REMORT_GEN(targ) = 0;
 
 	targ->real_abils.str = 11;
 	targ->real_abils.intel = 11;
@@ -1990,7 +1990,7 @@ olc_mimic_mob(struct Creature *ch,
 	AFF2_FLAGS(targ) = AFF2_FLAGS(orig);
 	AFF3_FLAGS(targ) = AFF3_FLAGS(orig);
 	GET_ALIGNMENT(targ) = GET_ALIGNMENT(orig);
-    GET_REAL_GEN(targ) = GET_REMORT_GEN(orig);
+    GET_REMORT_GEN(targ) = GET_REMORT_GEN(orig);
 
 
 	GET_LEVEL(targ) = GET_LEVEL(orig);

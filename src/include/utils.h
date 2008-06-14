@@ -580,8 +580,7 @@ GET_REPUTATION_RANK(Creature *ch)
 #define GET_WEAP_SPEC(ch, i)    ((ch)->player_specials->saved.weap_spec[(i)])
 #define GET_DEITY(ch)                ((ch)->player_specials->saved.deity)
 #define GET_CLAN(ch)                ((ch)->player_specials->saved.clan)
-#define GET_REMORT_GEN(ch)     (MIN((ch)->char_specials.saved.remort_generation, 10))
-#define GET_REAL_GEN(ch) ((ch)->char_specials.saved.remort_generation)
+#define GET_REMORT_GEN(ch) ((ch)->char_specials.saved.remort_generation)
 
 static inline bool IS_REMORT( const Creature *ch ) 
 {

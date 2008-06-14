@@ -283,7 +283,8 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 	// Give em another gen
 	if (GET_REMORT_GEN(ch) == 10)
 		ch->account->set_quest_points(ch->account->get_quest_points() + 1);
-    GET_REAL_GEN(ch)++;
+    else
+        GET_REMORT_GEN(ch)++;
 
     // At gen 1 they enter the world of pk, like it or not
     if (GET_REMORT_GEN(ch) >= 1 && GET_REPUTATION(ch) <= 0)
