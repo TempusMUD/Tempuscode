@@ -1015,7 +1015,9 @@ ACMD(do_gen_comm)
 
     GET_TONGUE(ch) = old_language;
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) && !IS_IMMORT(ch))
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
+        && !IS_IMMORT(ch)
+        && subcmd != SCMD_PETITION)
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
 }
 
