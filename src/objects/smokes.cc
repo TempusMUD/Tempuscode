@@ -114,7 +114,7 @@ void
 perform_smoke(struct Creature *ch, int type)
 {
 
-	char *to_vict = NULL;
+	const char *to_vict = NULL;
 	struct affected_type af;
 	int hp_mod = 0, mana_mod = 0, move_mod = 0, spell = 0;
 	ubyte lev = 0;

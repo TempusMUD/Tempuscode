@@ -809,7 +809,7 @@ real_clanmember(long idnum, struct clan_data *clan)
 };
 
 typedef struct cedit_command_data {
-	char *keyword;
+	const char *keyword;
 	int level;
 } cedit_command_data;
 

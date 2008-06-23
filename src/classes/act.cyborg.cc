@@ -527,7 +527,7 @@ void
 perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 {
 	struct affected_type af[3];
-	char *to_room[2], *to_char[2];
+	const char *to_room[2], *to_char[2];
 	int opposite_mode = 0;
 
 	if (!CHECK_SKILL(ch, mode))

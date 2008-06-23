@@ -297,7 +297,7 @@ push_update_to_history(Creature *ch, dynamic_text_file * dyntext)
 
 }
 
-char *dynedit_options[][2] = {
+const char *dynedit_options[][2] = {
 	{"show", "[ <filename> [old|new|perms|last] ]"},
 	{"set", "<filename> <level> <arg>"},
 	{"add", "<filename> <idnum>"},
@@ -825,8 +825,8 @@ ACMD(do_dynedit)
 
 ACMD(do_dyntext_show)
 {
-	char *dynname;
-	char *humanname;
+	const char *dynname;
+	const char *humanname;
 	char color1[16], color2[16], color3[16];
 	dynamic_text_file *dyntext = NULL;
 
@@ -931,7 +931,7 @@ dynedit_update_string(dynamic_text_file * d)
 
 	if (!strncmp(d->filename, "fate", 4)
 		|| !strncmp(d->filename, "arenalist", 9))
-		return "";
+		return tmp_strdup("");
 	printf("Updating File: %s\r\n", d->filename);
 	t = time(0);
 	tmTime = *(localtime(&t));

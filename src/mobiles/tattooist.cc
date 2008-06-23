@@ -66,7 +66,8 @@ static void
 tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *obj;
-	char *obj_str, *currency_str, *msg;
+	char *obj_str;
+    const char *currency_str, *msg;
 	unsigned long cost, amt_carried;
 	bool appraisal_only = false;
 
@@ -154,7 +155,7 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (cost > amt_carried) {
 		perform_say_to(self, ch, shop->msg_buyerbroke);
 		if (shop->cmd_temper)
-			command_interpreter(self, shop->cmd_temper);
+			command_interpreter(self, tmp_strdup(shop->cmd_temper));
 		return;
 	}
 	
@@ -221,7 +222,7 @@ tattooist_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *cur_obj;
 	int idx, cnt;
-	char *msg;
+	const char *msg;
     unsigned long cost;
     
 	if (!self->carrying) {
@@ -263,7 +264,8 @@ tattooist_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 SPECIAL(tattooist)
 {
 	Creature *self = (Creature *)me;
-	char *config, *err = NULL;
+	char *config;
+    const char *err = NULL;
 	int err_line;
 	ShopData *shop;
 

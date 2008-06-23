@@ -125,7 +125,7 @@ show_char_class_menu(struct descriptor_data *d, bool remort)
 	char *left_col, *right_col;
 	char *left_line, *right_line;
 
-	left_col = right_col = "";
+	left_col = right_col = tmp_strdup("");
 	if (valid_class_race(ch, CLASS_MAGE, remort))
 		left_col = tmp_strcat(left_col,
 			"&gMage&n\r\n    Delver in Magical Arts\r\n");
@@ -170,10 +170,10 @@ show_char_class_menu(struct descriptor_data *d, bool remort)
 	do {
 		left_line = tmp_getline(&left_col);
 		if (!left_line)
-			left_line = "";
+			left_line = tmp_strdup("");
 		right_line = tmp_getline(&right_col);
 		if (!right_line)
-			right_line = "";
+			right_line = tmp_strdup("");
 		send_to_desc(d, " %s%s%s\r\n",
 			left_line,
 			tmp_pad(' ', 39 + (count_ampers(left_line) * 2) - strlen(left_line)),

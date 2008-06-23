@@ -858,14 +858,14 @@ static const int SPELL_TYPE_SCROLL = 4;
 /* Attacktypes with grammar */
 
 struct attack_hit_type {
-	char *singular;
-	char *plural;
+	const char *singular;
+	const char *plural;
 };
 
 struct gun_hit_type {
-    char *singular;
-    char *plural;
-    char *substance;
+    const char *singular;
+    const char *plural;
+    const char *substance;
 };
 
 

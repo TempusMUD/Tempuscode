@@ -63,7 +63,7 @@ fname(char *namelist)
 
 	if (!namelist) {
 		errlog("Null namelist passed to fname().");
-		return "";
+		return tmp_strdup("");
 	}
 	for (point = holder; isalnum(*namelist); namelist++, point++)
 		*point = *namelist;
@@ -81,7 +81,7 @@ fname(const char *namelist)
 
 	if (!namelist) {
 		errlog("Null namelist passed to fname().");
-		return "";
+		return tmp_strdup("");
 	}
 	for (point = holder; isalnum(*namelist); namelist++, point++)
 		*point = *namelist;
@@ -1124,7 +1124,7 @@ char_from_room( Creature *ch, bool check_specials)
     room_data *tmp_room = ch->in_room;
 	long spec_rc = 0;
     if( check_specials ) {
-		spec_rc = special(ch, 0, 0, "", SPECIAL_LEAVE);
+		spec_rc = special(ch, 0, 0, tmp_strdup(""), SPECIAL_LEAVE);
 	}
 
 	if( spec_rc != 0 ) {
@@ -1241,7 +1241,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
     
 	long spec_rc = 0;
     if( check_specials )
-		spec_rc = special(ch, 0, 0, "", SPECIAL_ENTER);
+		spec_rc = special(ch, 0, 0, tmp_strdup(""), SPECIAL_ENTER);
 
 	if( spec_rc != 0 ) {
 		CreatureList::iterator it = 

@@ -591,15 +591,15 @@ const bool NOT_EMOTE = false;
 const bool IS_EMOTE = true;
 
 struct channel_info_t {
-	char *name;
+	const char *name;
 	int deaf_vector;
 	int deaf_flag;
 	bool check_plane;
 	bool is_emote;
-	char *desc_color;
-	char *text_color;
-	char *msg_noton;
-	char *msg_muted;
+	const char *desc_color;
+	const char *text_color;
+	const char *msg_noton;
+	const char *msg_muted;
 };
 
 static const channel_info_t channels[] = {

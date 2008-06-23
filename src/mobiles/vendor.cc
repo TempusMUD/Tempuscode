@@ -188,7 +188,7 @@ vendor_resolve_name(Creature *self, char *obj_str)
 void
 vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 {
-	char *currency_str;
+	const char *currency_str;
 	const unsigned long cost = 2000;
 	unsigned long amt_carried;
 		
@@ -250,7 +250,8 @@ static void
 vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *obj, *next_obj;
-	char *obj_str, *currency_str, *msg;
+	char *obj_str, *msg;
+    const char *currency_str;
 	int num;
 	unsigned long cost, amt_carried;
 	bool appraisal_only = false;
@@ -337,7 +338,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (cost > amt_carried) {
 		perform_say_to(self, ch, shop->msg_buyerbroke);
 		if (shop->cmd_temper)
-			command_interpreter(self, shop->cmd_temper);
+			command_interpreter(self, tmp_strdup(shop->cmd_temper));
 		return;
 	}
 	
@@ -581,7 +582,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *cur_obj, *last_obj;
 	int idx, cnt;
-	char *msg;
+	const char *msg;
     unsigned long cost;
     
 	if (!self->carrying) {
@@ -689,11 +690,11 @@ vendor_revenue(Creature *self, ShopData *shop)
 	return;
 }
 
-char *
+const char *
 vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 {
 	char *line, *param_key;
-	char *err = NULL;
+	const char *err = NULL;
 	int val, lineno = 0;
 
 	// Initialize default values
@@ -841,7 +842,8 @@ vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
 SPECIAL(vendor)
 {
 	Creature *self = (Creature *)me;
-	char *config, *err = NULL;
+	char *config;
+    const char *err = NULL;
 	int err_line;
 	ShopData *shop;
 

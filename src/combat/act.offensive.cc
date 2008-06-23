@@ -1421,7 +1421,7 @@ ACMD(do_retreat)
 		if (CHECK_SKILL(ch, SKILL_RETREAT) + GET_LEVEL(ch) <
 			number(60, 70 + GET_LEVEL(ch->findRandomCombat()))) {
 			send_to_char(ch, "You panic!\r\n");
-			do_flee(ch, "", 0, 0, 0);
+			do_flee(ch, tmp_strdup(""), 0, 0, 0);
 			return;
 		}
 	}
@@ -2186,7 +2186,7 @@ ACMD(do_turn)
 				FALSE, ch, 0, vict, TO_ROOM);
 			act("You call upon the power of your deity and force $N to flee!",
 				TRUE, ch, 0, vict, TO_CHAR);
-			do_flee(vict, "", 0, 0, 0);
+			do_flee(vict, tmp_strdup(""), 0, 0, 0);
 			gain_skill_prof(ch, SKILL_TURN);
 		} else {
 			damage(ch, vict, GET_LEVEL(ch) >> 1, SKILL_TURN, -1);

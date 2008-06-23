@@ -271,8 +271,11 @@ update_pos(struct Creature *victim)
 }
 
 char *
-replace_string(char *str, char *weapon_singular, char *weapon_plural,
-	const char *location, char *substance)
+replace_string(const char *str,
+               const char *weapon_singular,
+               const char *weapon_plural,
+               const char *location,
+               const char *substance)
 {
 	static char buf[256];
 	char *cp;

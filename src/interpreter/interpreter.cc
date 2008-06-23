@@ -1682,7 +1682,7 @@ command_interpreter(struct Creature *ch, char *argument)
 	descriptor_data *d;
 	int cmd, length;
 	extern int no_specials;
-	char *line;
+    char *line;
 
 	REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
 	if (IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
@@ -2294,7 +2294,7 @@ half_chop(char *string, char *arg1, char *arg2)
 
 /* Used in specprocs, mostly.  (Exactly) matches "command" to cmd number */
 int
-find_command(char *command, bool abbrev)
+find_command(const char *command, bool abbrev)
 {
 	int cmd;
 

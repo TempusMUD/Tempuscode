@@ -289,8 +289,7 @@ do_destroy_search(struct Creature *ch, char *arg)
 
 	for (srch = ch->in_room->search; srch; srch = srch->next) {
 		if (isname_exact(triggers, srch->command_keys) &&
-			(!keywords || (!srch->keywords
-					|| isname_exact(keywords, srch->keywords)))) {
+			(!keywords[0] || (!srch->keywords || isname_exact(keywords, srch->keywords)))) {
 			break;
 		}
 	}

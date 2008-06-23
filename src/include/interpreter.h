@@ -45,7 +45,7 @@ void half_chop(char *string, char *arg1, char *arg2);
 void handle_input(struct descriptor_data *d);
 int is_abbrev(const char *arg1, const char *arg2, int count = 0);
 bool is_number(const char *str);
-int find_command(char *command, bool abbrev = false);
+int find_command(const char *command, bool abbrev = false);
 void skip_spaces(char **string);
 void skip_spaces(const char **string);
 void send_unknown_cmd(Creature *ch);
@@ -69,7 +69,7 @@ int triggers_search(struct Creature *ch, int cmd, char *arg,
 //
 
 struct command_info {
-	char *command;
+	const char *command;
 	byte minimum_position;
     ACMD(*command_pointer);
 	sh_int minimum_level;

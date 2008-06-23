@@ -95,7 +95,8 @@ char *get_instrument_type(int songnum);
 void
 sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songnum)
 {
-  char *buf, *vbuf;
+    char *buf;
+    const char *vbuf;
   struct bard_song *song = &songs[songnum];
 
   if (!SPELL_FLAGGED(songnum, MAG_BARD)) {

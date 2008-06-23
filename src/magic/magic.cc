@@ -410,7 +410,7 @@ affect_update(void)
 							if (!found) {
 
 								if (!i->in_room->isOpenAir()) {
-									do_stand(i, "", 0, 0, 0);
+									do_stand(i, tmp_strdup(""), 0, 0, 0);
 								}
 
 								else if (EXIT(i, DOWN)
@@ -418,7 +418,7 @@ affect_update(void)
 
 									if (IS_SET(EXIT(i, DOWN)->exit_info,
 											EX_CLOSED)) {
-										do_stand(i, "", 0, 0, 0);
+										do_stand(i, tmp_strdup(""), 0, 0, 0);
 									}
 
 									else if (do_simple_move(i, DOWN, MOVE_NORM,
@@ -1006,8 +1006,8 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	int is_physic = FALSE;
 	int accum_affect = FALSE;
 	int accum_duration = FALSE;
-	char *to_vict = NULL;
-	char *to_room = NULL;
+	const char *to_vict = NULL;
+	const char *to_room = NULL;
 
 	if (victim == NULL || ch == NULL)
 		return;
@@ -2830,7 +2830,7 @@ Fireball: like harder bones, skin, organ membranecs
 
 	if (spellnum == SPELL_FEAR && !mag_savingthrow(victim, level, SAVING_PSI)
 		&& victim->getPosition() > POS_SITTING)
-		do_flee(victim, "", 0, 0, 0);
+		do_flee(victim, tmp_strdup(""), 0, 0, 0);
 
 	// This looks redundant, but serves as a reminder that the damage()
 	// function might kill the character
@@ -3007,9 +3007,9 @@ int
 mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 {
 	//struct Creature *tch, *next_tch;
-	char *to_char = NULL;
-	char *to_room = NULL;
-	char *to_next_room = NULL;
+	const char *to_char = NULL;
+	const char *to_room = NULL;
+	const char *to_next_room = NULL;
 	room_data *was_in, *adjoin_room;
 	byte count;
 	int return_value = 0;
@@ -3257,7 +3257,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
   for spells like clone, ariel servant, etc.
 */
 
-static char *mag_summon_msgs[] = {
+static const char *mag_summon_msgs[] = {
 	"\r\n",
 	"$n makes a strange magical gesture; you feel a strong breeze!\r\n",
 	"$n animates a corpse!\r\n",
@@ -3273,7 +3273,7 @@ static char *mag_summon_msgs[] = {
 	"$n animates a corpse!\r\n"
 };
 
-static char *mag_summon_fail_msgs[] = {
+static const char *mag_summon_fail_msgs[] = {
 	"\r\n",
 	"There are no such creatures.\r\n",
 	"Uh oh...\r\n",
@@ -3374,7 +3374,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 	int align = 0;
 	int hunger = 0;
 	int thirst = 0;
-	char *to_vict = NULL, *to_room = NULL;
+	const char *to_vict = NULL, *to_room = NULL;
 	int skill;
 
 	if (victim == NULL)
@@ -3531,7 +3531,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 	int spellnum, int type)
 {
 	int spell = 0, spell2 = 0, spell3 = 0, spell4 = 0, spell5 = 0;
-	char *to_vict = NULL, *to_room = NULL, *to_vict2 = NULL, *to_room2 = NULL,
+	const char *to_vict = NULL, *to_room = NULL, *to_vict2 = NULL, *to_room2 = NULL,
 		*to_vict3 = NULL, *to_room3 = NULL, *to_vict4 = NULL, *to_room4 = NULL,
 		*to_vict5 = NULL, *to_room5 = NULL;
 	struct affected_type *aff = NULL, *next_aff = NULL;
@@ -3742,8 +3742,8 @@ void
 mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 	int spellnum, int savetype)
 {
-	char *to_char = NULL;
-	char *to_room = NULL;
+	const char *to_char = NULL;
+	const char *to_room = NULL;
     struct tmp_obj_affect oaf[5];
     int dur_mode, val_mode, aff_mode;
     int max_repulsions=0;

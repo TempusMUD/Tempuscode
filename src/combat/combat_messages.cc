@@ -41,8 +41,11 @@
 
 #include <iostream>
 extern int corpse_state;
-char *replace_string(char *str, char *weapon_singular, char *weapon_plural,
-	const char *location, char* substance=NULL);
+char *replace_string(const char *str,
+                     const char *weapon_singular,
+                     const char *weapon_plural,
+                     const char *location,
+                     const char* substance=NULL);
 
 
 void
@@ -277,7 +280,7 @@ void
 blood_spray(struct Creature *ch, struct Creature *victim,
 	int dam, int attacktype)
 {
-	char *to_char, *to_vict, *to_notvict;
+	const char *to_char, *to_vict, *to_notvict;
 	int pos, found = 0;
 	struct Creature *nvict;
 
@@ -432,9 +435,9 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 	struct obj_data *weap = cur_weap;
 
 	static struct dam_weapon_type {
-		char *to_room;
-		char *to_char;
-		char *to_victim;
+		const char *to_room;
+		const char *to_char;
+		const char *to_victim;
 	} dam_weapons[] = {
 
 		/* use #w for singular ( i.e. "slash" ) and #W for plural ( i.e. "slashes" ) */

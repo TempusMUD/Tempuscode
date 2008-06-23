@@ -465,7 +465,7 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 	struct room_data *room = NULL;
 	struct Creature *vict = NULL;
 	const char *mat_name;
-	char *msg = NULL;
+	const char *msg = NULL;
 	int tmp;
 
 	if (GET_OBJ_MATERIAL(obj))
@@ -969,7 +969,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
         !number(0,100)) { //1% chance of working
             paf->duration--;
             
-            char *buf = "You become caught in a dimensional void trying to reach $N!";
+            const char *buf = "You become caught in a dimensional void trying to reach $N!";
             act(buf, false, ch, NULL, victim, TO_CHAR);
             
             act("$n becomes caught in a dimensional void trying to reach $N!", 
@@ -2004,7 +2004,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 				if (GET_HIT(victim) > 0) {
 					int retval = 0;
-					do_flee(victim, "", 0, 0, &retval);
+					do_flee(victim, tmp_strdup(""), 0, 0, &retval);
 					if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
 						DAM_RETURN(DAM_ATTACKER_KILLED);
 					}
@@ -2067,7 +2067,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						victim->setPosition(POS_SITTING);
 
 					int retval = 0;
-					do_flee(victim, "", 0, 0, &retval);
+					do_flee(victim, tmp_strdup(""), 0, 0, &retval);
 					if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
 						DAM_RETURN(DAM_ATTACKER_KILLED);
 					}
@@ -2085,7 +2085,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						victim->setPosition(POS_SITTING);
 
 					int retval = 0;
-					do_flee(victim, "", 0, 0, &retval);
+					do_flee(victim, tmp_strdup(""), 0, 0, &retval);
 					if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
 						DAM_RETURN(DAM_ATTACKER_KILLED);
 					}
@@ -2198,7 +2198,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                 char *buf3 = NULL;
 
 				if (victim != ch) {
-					char *room_str;
+					const char *room_str;
 
 					if (victim->in_room)
 						room_str = tmp_sprintf("in room #%d (%s)",
@@ -3096,7 +3096,7 @@ perform_violence(void)
 			if (MOB_FLAGGED(ch, MOB_SPEC) && ch->in_room &&
 				ch->mob_specials.shared->func && !number(0, 2)) {
 
-				(ch->mob_specials.shared->func) (ch, ch, 0, "", SPECIAL_TICK);
+				(ch->mob_specials.shared->func) (ch, ch, 0, tmp_strdup(""), SPECIAL_TICK);
 
 				continue;
 			}

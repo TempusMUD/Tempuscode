@@ -258,7 +258,7 @@ list_commission_item(Creature *ch, Creature *keeper, int idx, CraftItem *item, c
 // sends a simple status message to the given Creature.
 void
 Craftshop::sendStatus( Creature *ch ) {
-    char *name = "<not loaded>";
+    const char *name = "<not loaded>";
     Creature *keeper = real_mobile_proto(keeper_vnum);
     if( keeper != NULL )
         name = GET_NAME(keeper);
@@ -272,7 +272,6 @@ void
 Craftshop::list(Creature *keeper, Creature *ch)
 {
 	vector<CraftItem *>::iterator item;
-	char *msg = "";
 	int idx = 0;
 
 	if (items.empty()) {
@@ -280,7 +279,7 @@ Craftshop::list(Creature *keeper, Creature *ch)
 		return;
 	}
 
-	msg = tmp_strcat(msg,
+	char *msg = tmp_strcat(
 		CCCYN(ch, C_NRM),
 		" ##               Item                                               Cost\r\n-------------------------------------------------------------------------\r\n",
 		CCNRM(ch, C_NRM),
@@ -437,7 +436,7 @@ SPECIAL(artisan)
 	if (!shop || shop->room != keeper->in_room->number) {
 		msg = tmp_sprintf("Sorry!  I don't have my tools!");
 		perform_say_to(keeper, ch, msg);
-		do_action(keeper, "", cmd_cry, 0, 0);
+		do_action(keeper, tmp_strdup(""), cmd_cry, 0, 0);
 		return true;
 	}
 

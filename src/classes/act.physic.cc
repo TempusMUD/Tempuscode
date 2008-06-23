@@ -198,7 +198,7 @@ check_char_room_vis(Creature *ch, char *argument)
 // physic's boring-ass lecture
 #define NUM_TOPICS 19
 
-char *lecture_topics[NUM_TOPICS] = {
+const char *lecture_topics[NUM_TOPICS] = {
 	"on the subject of particle physics.",
 	"on the benefits of Hilbert Spaces.",
 	"about the lesser-known properties of the cross product.",

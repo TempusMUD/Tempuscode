@@ -1688,7 +1688,7 @@ send_to_clerics(int align, char *messg)
 }
 
 void
-send_to_outdoor(char *messg, int isecho)
+send_to_outdoor(const char *messg, int isecho)
 {
 	struct descriptor_data *i;
 
@@ -1798,7 +1798,7 @@ send_to_zone(char *messg, struct zone_data *zn, int outdoor)
 }
 
 void
-send_to_room(char *messg, struct room_data *room)
+send_to_room(const char *messg, struct room_data *room)
 {
 	struct Creature *i;
 	room_data *to_room;

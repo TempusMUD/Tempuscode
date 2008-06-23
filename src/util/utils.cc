@@ -176,7 +176,7 @@ log_death_trap(struct Creature *ch)
 
 /* the "touch" command, essentially. */
 int
-touch(char *path)
+touch(const char *path)
 {
 	FILE *fl;
 
@@ -877,8 +877,8 @@ PERS(Creature * ch, Creature * sub)
 		return "someone";
 }
 
-char *
-AN(char *str)
+const char *
+AN(const char *str)
 {
 	if (PLUR(str))
 		return "some";
@@ -887,7 +887,7 @@ AN(char *str)
 	return "a";
 }
 
-char *
+const char *
 YESNO(bool a)
 {
 	if (a)
@@ -896,7 +896,7 @@ YESNO(bool a)
 		return "NO";
 }
 
-char *
+const char *
 ONOFF(bool a)
 {
 	if (a)
@@ -904,7 +904,7 @@ ONOFF(bool a)
 	return "OFF";
 }
 
-char *
+const char *
 CURRENCY(Creature * ch)
 {
 	if (ch->in_room->zone->time_frame == TIME_ELECTRO)

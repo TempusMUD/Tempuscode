@@ -25,7 +25,7 @@
 /* external declarations and prototypes **********************************/
 
 /* public functions in utils.c */
-int touch(char *path);
+int touch(const char *path);
 void create_object_vector(vector<struct ovect_struct> &ov);
 void delete_duplicate_objects();
 
@@ -128,7 +128,7 @@ int mana_gain(struct Creature *ch);
 int hit_gain(struct Creature *ch);
 int move_gain(struct Creature *ch);
 void advance_level(struct Creature *ch, byte keep_internal);
-void set_title(struct Creature *ch, char *title);
+void set_title(struct Creature *ch, const char *title);
 void gain_exp(struct Creature *ch, int gain);
 void gain_exp_regardless(struct Creature *ch, int gain);
 void gain_condition(struct Creature *ch, int condition, int value);
@@ -174,9 +174,9 @@ inline char *CAP(char *st)
     return st;
 }
 
-char *YESNO(bool a);
-char *ONOFF(bool a);
-char *AN(char *str);
+const char *YESNO(bool a);
+const char *ONOFF(bool a);
+const char *AN(const char *str);
 
 /* memory utils **********************************************************/
 
@@ -513,7 +513,7 @@ SECT(room_data * room)
                         GET_FUTURE_BANK(ch) : GET_PAST_BANK(ch))
 #define CASH_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
                     GET_CASH(ch) : GET_GOLD(ch))
-char *CURRENCY(Creature * ch);
+const char *CURRENCY(Creature * ch);
 
 #define GET_HITROLL(ch)          ((ch)->points.hitroll)
 #define GET_DAMROLL(ch)   ((ch)->points.damroll)

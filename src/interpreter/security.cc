@@ -46,8 +46,8 @@ using namespace Security;
   *
   **/
 const struct {
-    char *command;
-    char *usage;
+    const char *command;
+    const char *usage;
 } access_cmds[] = {
     { "addmember",  "<group name> <member> [<member>...]" },
     { "addcmd",     "<group name> <command> [<command>...]" },

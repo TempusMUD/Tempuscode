@@ -42,16 +42,16 @@ struct ShopData {
 	vector<int> item_list;	// list of produced items
 	vector<int> item_types;	// list of types of items self deals in
 	vector<ShopTime> closed_hours;
-	char *msg_denied;		// Message sent to those of wrong race, creed, etc
-	char *msg_badobj;		// Attempt to sell invalid obj to self
-	char *msg_sell_noobj;	// Attempt to sell missing obj to player
-	char *msg_buy_noobj;	// Attempt to buy missing obj from player
-	char *msg_selfbroke;	// Shop ran out of money
-	char *msg_buyerbroke;	// Buyer doesn't have any money
-	char *msg_buy;			// Keeper successfully bought something
-	char *msg_sell;			// Keeper successfully sold something
-	char *cmd_temper;		// Command to run after buyerbroke
-	char *msg_closed;		// Shop is closed at the time
+	const char *msg_denied;		// Message sent to those of wrong race, creed, etc
+	const char *msg_badobj;		// Attempt to sell invalid obj to self
+	const char *msg_sell_noobj;	// Attempt to sell missing obj to player
+	const char *msg_buy_noobj;	// Attempt to buy missing obj from player
+	const char *msg_selfbroke;	// Shop ran out of money
+	const char *msg_buyerbroke;	// Buyer doesn't have any money
+	const char *msg_buy;			// Keeper successfully bought something
+	const char *msg_sell;			// Keeper successfully sold something
+	const char *cmd_temper;		// Command to run after buyerbroke
+	const char *msg_closed;		// Shop is closed at the time
 	int markup;				// Price increase when player buying
 	int markdown;			// Price decrease when player is selling
 	int currency;			// 0 == gold, 1 == cash, 2 == quest points
@@ -64,6 +64,6 @@ struct ShopData {
 };
 
 SPECIAL(vendor);
-char *vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line);
+const char *vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line);
 
 #endif

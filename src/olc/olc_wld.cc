@@ -923,7 +923,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 		strcpy(argument, arg2);
 		half_chop(argument, arg2, arg3);
 		if (!*arg2) {
-			if (*arg1 && arg1 && is_abbrev(arg1, "remove")) {
+			if (*arg1 && is_abbrev(arg1, "remove")) {
 				FLOW_SPEED(ch->in_room) = 0;
 				send_to_char(ch, "Flow removed from room.\r\n");
 				return;

@@ -752,10 +752,10 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 }
 
 
-char *
+const char *
 desc_one_char(Creature *ch, Creature *i, bool is_group)
 {
-	char *positions[] = {
+	const char *positions[] = {
 		" is lying here, dead.",
 		" is lying here, badly wounded.",
 		" is lying here, incapacitated.",
@@ -769,11 +769,11 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		"!MOUNTED!",
 		" is swimming here."
 	};
-	char *align = "";
-	char *desc = "";
-	char *appr = "";
-    char *vnum = "";
-    char *poisoned = "";
+	const char *align = "";
+	const char *desc = "";
+	const char *appr = "";
+    const char *vnum = "";
+    const char *poisoned = "";
 
 	if (AFF2_FLAGGED(i, AFF2_MOUNTED))
 		return "";
@@ -924,7 +924,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 {
 	struct Creature *i;
 	bool is_group = false;
-	char *msg = "", *desc;
+	const char *msg = "", *desc;
 	int unseen = 0;
 	int hide_prob, hide_roll;
 

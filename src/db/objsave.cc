@@ -248,11 +248,11 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 {
 	int cost = 0;
 	extern int free_rent;
-	char *action_table[] = { "smile", "dance", "sigh", "blush", "burp",
+	const char *action_table[] = { "smile", "dance", "sigh", "blush", "burp",
 		"cough", "fart", "twiddle", "yawn"
 	};
 	const char *curr;
-	char *msg;
+	const char *msg;
 
 	ACMD(do_action);
 
@@ -265,7 +265,7 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 		return false;
 
 	if (!cmd && !number(0, 5)) {
-		do_action(recep, "", find_command(action_table[number(0, 8)]), 0, 0);
+		do_action(recep, tmp_strdup(""), find_command(action_table[number(0, 8)]), 0, 0);
 		return false;
 	}
 

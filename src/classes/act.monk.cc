@@ -582,7 +582,7 @@ ACMD(do_pinch)
 	struct Creature *vict = NULL;
 	int prob, percent, which_pinch, i;
 	char *pinch_str, *vict_str;
-	char *to_vict = NULL, *to_room = NULL;
+	const char *to_vict = NULL, *to_room = NULL;
 	bool happened;
 
 	ACMD_set_return_flags(0);

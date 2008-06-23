@@ -173,8 +173,8 @@ void boot_tongues(void);
 
 /*int is_empty(struct zone_data *zone); */
 void reset_zone(struct zone_data *zone);
-int file_to_string(char *name, char *buf);
-int file_to_string_alloc(char *name, char **buf);
+int file_to_string(const char *name, char *buf);
+int file_to_string_alloc(const char *name, char **buf);
 void check_start_rooms(void);
 void renum_world(void);
 void renum_zone_table(void);
@@ -587,7 +587,8 @@ count_hash_records(FILE * fl)
 void
 index_boot(int mode)
 {
-	char *index_filename, *prefix = NULL;
+	const char *index_filename;
+    const char *prefix = NULL;
 	FILE *index, *db_file;
 	int rec_count = 0, index_count = 0, number = 9, i;
 
@@ -738,7 +739,7 @@ discrete_load(FILE * fl, int mode)
 	int nr = -1, last = 0;
 	char line[256];
 
-	char *modes[] = { "world", "mob", "obj", "zon", "shp" };
+	const char *modes[] = { "world", "mob", "obj", "zon", "shp" };
 
 	for (;;) {
 		/*
@@ -1618,7 +1619,7 @@ parse_simple_mob(FILE * mob_f, struct Creature *mobile, int nr)
 #define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
 
 void
-interpret_espec(char *keyword, char *value, struct Creature *mobile, int nr)
+interpret_espec(char *keyword, const char *value, struct Creature *mobile, int nr)
 {
 	long long num_arg, matched = 0;
 
@@ -1759,10 +1760,9 @@ parse_espec(char *buf, struct Creature *mobile, int nr)
 		*(ptr++) = '\0';
 		while (isspace(*ptr))
 			ptr++;
+        interpret_espec(buf, ptr, mobile, nr);
 	} else
-		ptr = "";
-
-	interpret_espec(buf, ptr, mobile, nr);
+        interpret_espec(buf, "", mobile, nr);
 }
 
 
@@ -2849,7 +2849,7 @@ reset_zone(struct zone_data *zone)
 			continue;
 		// Mobile with special gets a reset notice
 		if (GET_MOB_SPEC((*cit))) {
-			GET_MOB_SPEC((*cit))((*cit), (*cit), 0, "", SPECIAL_RESET);
+			GET_MOB_SPEC((*cit))((*cit), (*cit), 0, tmp_strdup(""), SPECIAL_RESET);
 			continue;
 		}
 	}
@@ -3346,7 +3346,7 @@ free_obj(struct obj_data *obj)
 
 /* read contets of a text file, alloc space, point buf to it */
 int
-file_to_string_alloc(char *name, char **buf)
+file_to_string_alloc(const char *name, char **buf)
 {
 	char temp[MAX_STRING_LENGTH];
 
@@ -3368,7 +3368,7 @@ file_to_string_alloc(char *name, char **buf)
 
 /* read contents of a text file, and place in buf */
 int
-file_to_string(char *name, char *buf)
+file_to_string(const char *name, char *buf)
 {
 	FILE *fl;
 	char tmp[129];

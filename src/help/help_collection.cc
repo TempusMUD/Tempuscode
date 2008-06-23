@@ -34,8 +34,8 @@ extern const char *class_names[];
 
 char *one_word(char *argument, char *first_arg);
 static const struct hcollect_command {
-	char *keyword;
-	char *usage;
+	const char *keyword;
+	const char *usage;
 	int level;
 } hc_cmds[] = {
 	{
@@ -57,8 +57,8 @@ static const struct hcollect_command {
 	NULL, NULL, 0}				// list terminator
 };
 static const struct group_command {
-	char *keyword;
-	char *usage;
+	const char *keyword;
+    const char *usage;
 	int level;
 } grp_cmds[] = {
 	{

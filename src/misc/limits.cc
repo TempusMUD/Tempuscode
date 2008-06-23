@@ -308,14 +308,14 @@ move_gain(struct Creature *ch)
 
 
 void
-set_title(struct Creature *ch, char *title)
+set_title(struct Creature *ch, const char *title)
 {
     if( title == NULL ) {
         title = strdup( "" );
     }
 
 	if (strlen(title) > MAX_TITLE_LENGTH)
-		title[MAX_TITLE_LENGTH] = '\0';
+		title = tmp_substr(title, 0, MAX_TITLE_LENGTH);
 
     free(GET_TITLE(ch));
 
