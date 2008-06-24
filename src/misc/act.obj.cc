@@ -174,8 +174,8 @@ void
 consolidate_char_money(struct Creature *ch)
 {
 	struct obj_data *obj = 0, *next_obj = 0;
-	long long num_gold = 0;
-	long long num_credits = 0;
+	money_t num_gold = 0;
+	money_t num_credits = 0;
 
 	for (obj = ch->carrying; obj; obj = next_obj) {
 		next_obj = obj->next_content;
@@ -1784,10 +1784,10 @@ give_find_vict(struct Creature *ch, char *arg)
 }
 
 void
-transfer_money(Creature *from, Creature *to, long long amt, int currency, bool plant)
+transfer_money(Creature *from, Creature *to, money_t amt, int currency, bool plant)
 {
 	const char *currency_str, *cmd_str;
-	long long on_hand;
+	money_t on_hand;
 
 	if (currency == 1) {
 		currency_str = "cred";

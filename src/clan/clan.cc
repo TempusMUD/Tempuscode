@@ -832,7 +832,7 @@ ACMD(do_cedit)
 	struct room_list_elem *rm_list = NULL;
 	struct room_data *room = NULL;
 	int cedit_command, i, j;
-	long long int money;
+	money_t money;
 	char *arg1, *arg2, *arg3;
 
 	skip_spaces(&argument);

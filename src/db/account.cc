@@ -724,21 +724,21 @@ Account::gain_reputation(int amt)
 }
 
 void
-Account::deposit_past_bank(long long amt)
+Account::deposit_past_bank(money_t amt)
 {
 	if (amt > 0)
 		set_past_bank(_bank_past + amt);
 }
 
 void
-Account::deposit_future_bank(long long amt)
+Account::deposit_future_bank(money_t amt)
 {
 	if (amt > 0)
 		set_future_bank(_bank_future + amt);
 }
 
 void
-Account::withdraw_past_bank(long long amt)
+Account::withdraw_past_bank(money_t amt)
 {
 	if (amt <= 0)
 		return;
@@ -748,7 +748,7 @@ Account::withdraw_past_bank(long long amt)
 }
 
 void
-Account::withdraw_future_bank(long long amt)
+Account::withdraw_future_bank(money_t amt)
 {
 	if (amt <= 0)
 		return;
@@ -955,7 +955,7 @@ Account::set_compact_level(int level)
 }
 
 void
-Account::set_past_bank(long long amt)
+Account::set_past_bank(money_t amt)
 {
 	_bank_past = amt;
 	sql_exec("update accounts set bank_past=%lld where idnum=%d",
@@ -963,7 +963,7 @@ Account::set_past_bank(long long amt)
 }
 
 void
-Account::set_future_bank(long long amt)
+Account::set_future_bank(money_t amt)
 {
 	_bank_future = amt;
 	sql_exec("update accounts set bank_future=%lld where idnum=%d",

@@ -78,14 +78,14 @@ class Account {
 		inline int is_quest_banned(void) { return _quest_banned; }
 		void set_quest_banned(bool bannination);
 
-		inline long long get_past_bank(void) { return _bank_past; }
-		inline long long get_future_bank(void) { return _bank_future; }
-		void set_past_bank(long long amt);
-		void set_future_bank(long long amt);
-		void deposit_past_bank(long long amt);
-		void deposit_future_bank(long long amt);
-		void withdraw_past_bank(long long amt);
-		void withdraw_future_bank(long long amt);
+		inline money_t get_past_bank(void) { return _bank_past; }
+		inline money_t get_future_bank(void) { return _bank_future; }
+		void set_past_bank(money_t amt);
+		void set_future_bank(money_t amt);
+		void deposit_past_bank(money_t amt);
+		void deposit_future_bank(money_t amt);
+		void withdraw_past_bank(money_t amt);
+		void withdraw_future_bank(money_t amt);
 
 		void set_password(const char *password);
 		
@@ -150,8 +150,8 @@ class Account {
 		int _reputation;
 		int _quest_points;
 		bool _quest_banned;
-		long long _bank_past;
-		long long _bank_future;
+		money_t _bank_past;
+		money_t _bank_future;
 };
 
 #endif

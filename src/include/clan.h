@@ -43,7 +43,7 @@ struct room_list_elem {
 
 struct clan_data {
 	int number;
-	long long int bank_account;
+	money_t bank_account;
 	byte top_rank;
 	long owner;
 	char *name;					/* official clan name */

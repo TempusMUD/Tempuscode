@@ -1615,13 +1615,14 @@ parse_simple_mob(FILE * mob_f, struct Creature *mobile, int nr)
  * function!  No other changes need to be made anywhere in the code.
  */
 
-#define CASE(test) if (!matched && !strcasecmp(keyword, test) && (matched = 1))
+#define CASE(test) if (!matched && !strcasecmp(keyword, test) && (matched = true))
 #define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
 
 void
 interpret_espec(char *keyword, const char *value, struct Creature *mobile, int nr)
 {
-	long long num_arg, matched = 0;
+	money_t num_arg;
+    bool matched = false;
 
 	num_arg = atoll(value);
 
