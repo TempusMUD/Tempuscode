@@ -150,10 +150,10 @@ select_say_cmd(Creature *ch, const char *message)
         return "exclaim";
     if (len > 3 && !strcmp("...", end - 2))
         return "mutter";
-    if (len > 160)
-        return "ramble";
     if (len > 320)
         return "drone";
+    if (len > 160)
+        return "ramble";
     if (GET_HIT(ch) < GET_MAX_HIT(ch) / 20)
         return "moan";
     if (GET_MOVE(ch) < GET_MAX_MOVE(ch) / 20)
