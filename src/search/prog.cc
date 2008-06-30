@@ -49,6 +49,7 @@ void prog_do_target(prog_env * env, prog_evt * evt, char *args);
 void prog_do_nuke(prog_env * env, prog_evt * evt, char *args);
 void prog_do_trans(prog_env * env, prog_evt * evt, char *args);
 void prog_do_set(prog_env * env, prog_evt * evt, char *args);
+void prog_do_let(prog_env * env, prog_evt * evt, char *args);
 void prog_do_oload(prog_env * env, prog_evt * evt, char *args);
 void prog_do_mload(prog_env * env, prog_evt * evt, char *args);
 void prog_do_opurge(prog_env * env, prog_evt * evt, char *args);
@@ -100,6 +101,7 @@ prog_command prog_cmds[] = {
 	{"nuke", true, prog_do_nuke},
 	{"trans", true, prog_do_trans},
 	{"set", true, prog_do_set},
+	{"let", true, prog_do_let},
 	{"oload", true, prog_do_oload},
 	{"mload", true, prog_do_mload},
 	{"opurge", true, prog_do_opurge},
@@ -1443,6 +1445,7 @@ prog_do_trans(prog_env * env, prog_evt * evt, char *args)
 			prog_trans_creature(*it, targ_room);
 }
 
+// Set the value for an owner-scoped variable
 void
 prog_do_set(prog_env * env, prog_evt * evt, char *args)
 {
@@ -1450,6 +1453,14 @@ prog_do_set(prog_env * env, prog_evt * evt, char *args)
 	// with the right key, create one
 	char *key = tmp_getword(&args);
     prog_set_var(env, false, key, args);
+}
+
+// Set the value for a thread-scoped variable
+void
+prog_do_let(prog_env * env, prog_evt * evt, char *args)
+{
+	char *key = tmp_getword(&args);
+    prog_set_var(env, true, key, args);
 }
 
 void
