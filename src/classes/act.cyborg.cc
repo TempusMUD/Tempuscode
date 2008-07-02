@@ -970,7 +970,7 @@ ACMD(do_activate)
 			}
 
 			/* charmed? */
-			if (IS_AFFECTED(ch, AFF_CHARM) && ch->master &&
+			if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
 				ch->in_room == ch->master->in_room) {
 				send_to_char(ch, 
 					"The thought of leaving your master makes you weep.\r\n");

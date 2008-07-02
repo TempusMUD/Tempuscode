@@ -971,13 +971,13 @@ ASPELL(spell_charm)
 			REMOVE_BIT(MOB_FLAGS(ch), MOB_AGGRESSIVE);
 			REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
 		}
-	} else if (IS_AFFECTED(victim, AFF_SANCTUARY))
+	} else if (AFF_FLAGGED(victim, AFF_SANCTUARY))
 		send_to_char(ch, "Your victim is protected by sanctuary!\r\n");
 	else if (MOB_FLAGGED(victim, MOB_NOCHARM) && GET_LEVEL(ch) < LVL_IMPL)
 		send_to_char(ch, "Your victim resists!\r\n");
-	else if (IS_AFFECTED(ch, AFF_CHARM))
+	else if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You can't have any followers of your own!\r\n");
-	else if (IS_AFFECTED(victim, AFF_CHARM) ||
+	else if (AFF_FLAGGED(victim, AFF_CHARM) ||
 		(level + number(0, MAX(0, GET_CHA(ch)))) <
 		(GET_LEVEL(victim) + number(0, MAX(GET_CHA(victim), 1)))) {
 		send_to_char(ch, "You fail.\r\n");
@@ -1053,13 +1053,13 @@ ASPELL(spell_charm_animal)
     af.owner = ch->getIdNum();
 	if (victim == ch)
 		send_to_char(ch, "You like yourself even better!\r\n");
-	else if (IS_AFFECTED(victim, AFF_SANCTUARY))
+	else if (AFF_FLAGGED(victim, AFF_SANCTUARY))
 		send_to_char(ch, "Your victim is protected by sanctuary!\r\n");
 	else if (MOB_FLAGGED(victim, MOB_NOCHARM))
 		send_to_char(ch, "Your victim resists!\r\n");
-	else if (IS_AFFECTED(ch, AFF_CHARM))
+	else if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You can't have any followers of your own!\r\n");
-	else if (IS_AFFECTED(victim, AFF_CHARM) || level < GET_LEVEL(victim))
+	else if (AFF_FLAGGED(victim, AFF_CHARM) || level < GET_LEVEL(victim))
 		send_to_char(ch, "You fail.\r\n");
 	else if (circle_follow(victim, ch))
 		send_to_char(ch, "Sorry, following in circles can not be allowed.\r\n");
@@ -2997,7 +2997,7 @@ ASPELL(spell_control_undead)
 
 	}
 
-	else if (IS_AFFECTED(victim, AFF_SANCTUARY)) {
+	else if (AFF_FLAGGED(victim, AFF_SANCTUARY)) {
 		send_to_char(ch, "Your victim is protected by sanctuary!\r\n");
 	}
 
@@ -3005,11 +3005,11 @@ ASPELL(spell_control_undead)
 		send_to_char(ch, "Your victim resists!\r\n");
 	}
 
-	else if (IS_AFFECTED(ch, AFF_CHARM)) {
+	else if (AFF_FLAGGED(ch, AFF_CHARM)) {
 		send_to_char(ch, "You can't have any followers of your own!\r\n");
 	}
 
-	else if (IS_AFFECTED(victim, AFF_CHARM)) {
+	else if (AFF_FLAGGED(victim, AFF_CHARM)) {
 		send_to_char(ch, "You can't do that.\r\n");
 	}
 
@@ -3109,7 +3109,7 @@ ASPELL(spell_sun_ray)
             dam += ( GET_ALIGNMENT(ch) - GET_ALIGNMENT((*it)) )/4;
 
         if( !damage(ch, (*it), dam, TYPE_ABLAZE, -1) ) {
-            if (!IS_AFFECTED(*it, AFF_BLIND) &&
+            if (!AFF_FLAGGED(*it, AFF_BLIND) &&
                 !MOB_FLAGGED(*it, MOB_NOBLIND)) {
 
                 struct affected_type af, af2;

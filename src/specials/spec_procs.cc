@@ -580,10 +580,10 @@ SPECIAL(magic_user)
 		!affected_by_spell(ch, SPELL_ARMOR)) {
 		cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
     } else if ((GET_LEVEL(ch) > 14) && (number(0, 8) == 0)
-		&& !IS_AFFECTED(ch, AFF_BLUR)) {
+		&& !AFF_FLAGGED(ch, AFF_BLUR)) {
 		cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
     } else if ((GET_LEVEL(ch) > 18) && (number(0, 8) == 0) &&
-		!IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD)) {
+		!AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
 		cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
     } else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch))
@@ -1192,7 +1192,7 @@ SPECIAL(pet_shops)
 			struct follow_type *f;
 
 			for (f = ch->followers; f; f = f->next) {
-				if (IS_AFFECTED(f->follower, AFF_CHARM)) {
+				if (AFF_FLAGGED(f->follower, AFF_CHARM)) {
 					send_to_char(ch, "You seem to already have a pet.\r\n");
 					return 1;
 				}
@@ -1355,7 +1355,7 @@ SPECIAL(bank)
 			}
 		}
 
-		if (IS_AFFECTED(ch, AFF_CHARM)) {
+		if (AFF_FLAGGED(ch, AFF_CHARM)) {
 			send_to_char(ch, "You can't do that while charmed!\r\n");
 			send_to_char(ch->master,
 				"You can't force %s to do that, even while charmed!\r\n",
@@ -1424,7 +1424,7 @@ SPECIAL(bank)
 			return 1;
 		}
 
-		if (IS_AFFECTED(ch, AFF_CHARM)) {
+		if (AFF_FLAGGED(ch, AFF_CHARM)) {
 			send_to_char(ch, "You can't do that while charmed!\r\n");
 			if (ch->master)
 				send_to_char(ch->master,

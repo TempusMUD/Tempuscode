@@ -291,7 +291,7 @@ ACMD(do_snipe)
 	dir_str = tmp_getword(&argument);
 
 	// ch is blind?
-	if (IS_AFFECTED(ch, AFF_BLIND)) {
+	if (AFF_FLAGGED(ch, AFF_BLIND)) {
 		send_to_char(ch, "You can't snipe anyone! you're blind!\r\n");
 		return;
 	}
@@ -421,7 +421,7 @@ ACMD(do_snipe)
 	// someone if his skill is less than 40
 	percent = number(40, 125);
 	if (affected_by_spell(vict, ZEN_AWARENESS) ||
-		IS_AFFECTED(vict, AFF2_TRUE_SEEING)) {
+		AFF_FLAGGED(vict, AFF2_TRUE_SEEING)) {
 		percent += 25;
 	}
 
@@ -429,7 +429,7 @@ ACMD(do_snipe)
 		percent += 15;
 	}
 
-	if (IS_AFFECTED_2(vict, AFF2_HASTE) && !IS_AFFECTED_2(ch, AFF2_HASTE)) {
+	if (AFF2_FLAGGED(vict, AFF2_HASTE) && !AFF2_FLAGGED(ch, AFF2_HASTE)) {
 		percent += 25;
 	}
 	// if the victim has already been sniped (wears off in 3 ticks)
@@ -670,7 +670,7 @@ ACMD(do_infiltrate)
 {
 	struct affected_type af;
 
-	if (IS_AFFECTED_3(ch, AFF3_INFILTRATE)) {
+	if (AFF3_FLAGGED(ch, AFF3_INFILTRATE)) {
 		send_to_char(ch, "Okay, you are no longer attempting to infiltrate.\r\n");
 		affect_from_char(ch, SKILL_INFILTRATE);
 		affect_from_char(ch, SKILL_SNEAK);

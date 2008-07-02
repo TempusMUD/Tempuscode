@@ -28,7 +28,7 @@ SPECIAL(newbie_healer)
 		if (!IS_NPC(i) && GET_LEVEL(i) < 5 && !number(0, GET_LEVEL(i))) {
 			if (GET_HIT(i) < GET_MAX_HIT(i))
 				cast_spell(ch, i, 0, NULL, SPELL_CURE_CRITIC);
-			else if (IS_AFFECTED(i, AFF_POISON))
+			else if (AFF_FLAGGED(i, AFF_POISON))
 				cast_spell(ch, i, 0, NULL, SPELL_REMOVE_POISON);
 			else if (!affected_by_spell(i, SPELL_BLESS))
 				cast_spell(ch, i, 0, NULL, SPELL_BLESS);

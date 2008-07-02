@@ -158,7 +158,7 @@ ACMD(do_steal)
 							vict->setPosition(POS_RESTING);
 							ohoh = true;
 						} else if (vict->getPosition() == POS_SITTING &&
-							IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
+							AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
 
 							act("You disturb $M in your clumsy attempt.",
 								FALSE, ch, 0, vict, TO_CHAR);
@@ -318,7 +318,7 @@ ACMD(do_backstab)
 	percent = number(1, 101) + GET_INT(vict);
 
 	prob = CHECK_SKILL(ch, SKILL_BACKSTAB) + (!can_see_creature(vict, ch) ? (32) : 0) +
-		(IS_AFFECTED(ch, AFF_SNEAK) ? number(10, 25) : (-5)) +
+		(AFF_FLAGGED(ch, AFF_SNEAK) ? number(10, 25) : (-5)) +
 		dex_app_skill[GET_DEX(ch)].sneak;
 
 	cur_weap = weap;
@@ -378,7 +378,7 @@ ACMD(do_circle)
 
 	percent = number(1, 101) + GET_INT(vict);	/* 101% is a complete failure */
 	prob = CHECK_SKILL(ch, SKILL_CIRCLE) +
-		number(0, 20) * (IS_AFFECTED(ch, AFF_SNEAK));
+		number(0, 20) * (AFF_FLAGGED(ch, AFF_SNEAK));
 	if (ch->isFighting())
 		prob -= number(20, 30);
 	prob += 20 * can_see_creature(vict, ch);
@@ -414,7 +414,7 @@ ACMD(do_sneak)
 {
 	struct affected_type af;
 
-	if (IS_AFFECTED(ch, AFF_SNEAK)) {
+	if (AFF_FLAGGED(ch, AFF_SNEAK)) {
 		send_to_char(ch, "Okay, you will now attempt to walk normally.\r\n");
 		affect_from_char(ch, SKILL_SNEAK);
 		return;
@@ -444,7 +444,7 @@ ACMD(do_hide)
 
 	send_to_char(ch, "You attempt to hide yourself.\r\n");
 
-	if (IS_AFFECTED(ch, AFF_HIDE))
+	if (AFF_FLAGGED(ch, AFF_HIDE))
 		REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
 
 	percent = number(1, 101);	/* 101% is a complete failure */
@@ -454,10 +454,10 @@ ACMD(do_hide)
 			"...but it sure will be hard with all that heavy equipment.\r\n");
 		percent += 30;
 	}
-	if (IS_AFFECTED(ch, AFF_SANCTUARY) || IS_AFFECTED(ch, AFF_GLOWLIGHT) ||
-		IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) ||
+	if (AFF_FLAGGED(ch, AFF_SANCTUARY) || AFF_FLAGGED(ch, AFF_GLOWLIGHT) ||
+		AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION) ||
 		affected_by_spell(ch, SPELL_QUAD_DAMAGE) ||
-		IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD))
+		AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD))
 		percent += 60;
 	if (room_is_dark(ch->in_room))
 		percent -= 30;

@@ -29,7 +29,7 @@ SPECIAL(temple_healer)
 			case 5:
 			case 6:
 			case 7:
-				if (!IS_AFFECTED(self, AFF_SANCTUARY)) {
+				if (!AFF_FLAGGED(self, AFF_SANCTUARY)) {
 					perform_say(self, "say", "Guiharia, aid me now!!");
 					call_magic(self, self, NULL, NULL, SPELL_SANCTUARY, 50, CAST_SPELL);
 					return true;

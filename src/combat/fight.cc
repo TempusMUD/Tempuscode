@@ -94,7 +94,7 @@ remove_fighting_affects(struct Creature *ch)
 		else if (ch->getPosition() >= POS_RESTING)
 			ch->setPosition(POS_SITTING);
 	} else {
-		if (IS_AFFECTED(ch, AFF_CHARM) && IS_UNDEAD(ch))
+		if (AFF_FLAGGED(ch, AFF_CHARM) && IS_UNDEAD(ch))
 			ch->setPosition(POS_STANDING);
 		else if (ch->getPosition() > POS_SITTING)
 			ch->setPosition(POS_STANDING);
@@ -415,7 +415,7 @@ gain_kill_exp(struct Creature *ch, struct Creature *victim)
 	if ((IS_NPC(ch) && IS_PET(ch)) || IS_NPC(victim) && IS_PET(victim))
 		return;
 
-	if (IS_AFFECTED(ch, AFF_GROUP)) {
+	if (AFF_FLAGGED(ch, AFF_GROUP)) {
 		group_gain(ch, victim);
 		return;
 	}
@@ -765,7 +765,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		} else if (AFF3_FLAGGED(ch, AFF3_DOUBLE_DAMAGE)) {
 			dam <<= 1;
 		}
-		if (IS_AFFECTED_3(ch, AFF3_INST_AFF)) {	// In combat instant affects
+		if (AFF3_FLAGGED(ch, AFF3_INST_AFF)) {	// In combat instant affects
 			// Charging into combat gives a damage bonus
 			if ((af = affected_by_spell(ch, SKILL_CHARGE))) {
 				dam += (dam * af->modifier / 10);
@@ -1248,7 +1248,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			// vict has prismatic sphere
 			//
 
-			if (IS_AFFECTED_3(victim, AFF3_PRISMATIC_SPHERE) &&
+			if (AFF3_FLAGGED(victim, AFF3_PRISMATIC_SPHERE) &&
 				attacktype < MAX_SKILLS &&
 				(CHECK_SKILL(ch, attacktype) + GET_LEVEL(ch))
 				< (GET_INT(victim) + number(70, 130 + GET_LEVEL(victim)))) {
@@ -1361,7 +1361,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				// vict has prismatic sphere
 				//
 
-				if (IS_AFFECTED_3(victim, AFF3_PRISMATIC_SPHERE) &&
+				if (AFF3_FLAGGED(victim, AFF3_PRISMATIC_SPHERE) &&
 					!mag_savingthrow(ch, GET_LEVEL(victim), SAVING_ROD)) {
 
 					retval =
@@ -1378,7 +1378,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				// vict has blade barrier
 				//
 
-				else if (IS_AFFECTED_2(victim, AFF2_BLADE_BARRIER)) {
+				else if (AFF2_FLAGGED(victim, AFF2_BLADE_BARRIER)) {
 					retval = damage_attacker(victim, ch,
 						GET_LEVEL(victim) + (dam >> 4),
 						SPELL_BLADE_BARRIER, -1);
@@ -1395,10 +1395,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				// vict has fire shield
 				//
 
-				else if (IS_AFFECTED_2(victim, AFF2_FIRE_SHIELD) &&
+				else if (AFF2_FLAGGED(victim, AFF2_FIRE_SHIELD) &&
 					attacktype != SKILL_BACKSTAB &&
 					!mag_savingthrow(ch, GET_LEVEL(victim), SAVING_BREATH) &&
-					!IS_AFFECTED_2(ch, AFF2_ABLAZE) &&
+					!AFF2_FLAGGED(ch, AFF2_ABLAZE) &&
 					!CHAR_WITHSTANDS_FIRE(ch)) {
 
 					retval = damage_attacker(victim, ch, dice(8, 8) +
@@ -1414,7 +1414,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				// vict has energy field
 				//
 
-				else if (IS_AFFECTED_2(victim, AFF2_ENERGY_FIELD)) {
+				else if (AFF2_FLAGGED(victim, AFF2_ENERGY_FIELD)) {
 					af = affected_by_spell(victim, SKILL_ENERGY_FIELD);
 					if (!mag_savingthrow(ch,
 							af ? af->level : GET_LEVEL(victim),
@@ -1538,7 +1538,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		if (OUTSIDE(victim)
 			&& victim->in_room->zone->weather->sky == SKY_LIGHTNING)
 			dam <<= 1;
-		if (IS_AFFECTED_2(victim, AFF2_PROT_LIGHTNING))
+		if (AFF2_FLAGGED(victim, AFF2_PROT_LIGHTNING))
 			dam >>= 1;
 		if (IS_CYBORG(victim))
 			dam <<= 1;
@@ -1657,7 +1657,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
         //plasma special
         if (attacktype == TYPE_EGUN_PLASMA && dam) {
             if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_FIRE(victim) && 
-                !IS_AFFECTED_2(victim, AFF2_ABLAZE)) {
+                !AFF2_FLAGGED(victim, AFF2_ABLAZE)) {
 				act("$n's body suddenly ignites into flame!",
 					FALSE, victim, 0, 0, TO_ROOM);
 				act("Your body suddenly ignites into flame!",
@@ -1775,7 +1775,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	if (ch && ch != victim) {
 		// remove sleep/flood on a damaging hit
 		if (dam) {
-			if (IS_AFFECTED(victim, AFF_SLEEP)) {
+			if (AFF_FLAGGED(victim, AFF_SLEEP)) {
 				if (affected_by_spell(victim, SPELL_SLEEP))
 					affect_from_char(victim, SPELL_SLEEP);
 				if (affected_by_spell(victim, SPELL_MELATONIC_FLOOD))
@@ -1825,7 +1825,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			damage_eq(ch, impl, impl_dam, attacktype);
 
 		// ignite the victim if applicable
-		if (!IS_AFFECTED_2(victim, AFF2_ABLAZE) &&
+		if (!AFF2_FLAGGED(victim, AFF2_ABLAZE) &&
 			(attacktype == SPELL_FIREBALL ||
 				attacktype == SPELL_FIRE_BREATH ||
 				attacktype == SPELL_HELL_FIRE ||
@@ -2455,7 +2455,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		send_to_char(ch, "You are not allowed to attack mobiles!\r\n");
 		return DAM_ATTACK_FAILED;
 	}
-	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT) {
+	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT) {
 		if (!number(0, 2))
 			act("You want to fight back against $N's attack, but cannot!",
 				FALSE, ch, 0, victim, TO_CHAR | TO_SLEEP);
@@ -2503,7 +2503,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		act("You are knocked from your mount by $N's attack!",
 			FALSE, victim, 0, ch, TO_CHAR);
 	}
-	if (IS_AFFECTED_2(victim, AFF2_MOUNTED)) {
+	if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
@@ -2741,7 +2741,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		}
 
         // ignite the victim if applicable
-        if( ablaze_level > 0 && !IS_AFFECTED_2(victim, AFF2_ABLAZE) ) {
+        if( ablaze_level > 0 && !AFF2_FLAGGED(victim, AFF2_ABLAZE) ) {
             if (!mag_savingthrow(victim, 10, SAVING_SPELL) 
              && !CHAR_WITHSTANDS_FIRE(victim)) 
             {

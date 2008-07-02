@@ -26,7 +26,7 @@ SPECIAL(falling_tower_dt)
 			FALSE, ch, 0, 0, TO_ROOM);
 		look_at_room(ch, ch->in_room, 0);
 		GET_HIT(ch) = MAX(-8, GET_HIT(ch) -
-			dice(10, 100 - GET_DEX(ch) - 40 * IS_AFFECTED(ch, AFF_INFLIGHT)));
+			dice(10, 100 - GET_DEX(ch) - 40 * AFF_FLAGGED(ch, AFF_INFLIGHT)));
 		if (GET_HIT(ch) > 0)
 			ch->setPosition(POS_SITTING);
 		else if (GET_HIT(ch) < -6)

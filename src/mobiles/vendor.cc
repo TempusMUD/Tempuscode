@@ -559,7 +559,7 @@ vendor_list_obj(Creature *ch, obj_data *obj, int cnt, int idx, int cost)
 		obj_desc = tmp_strcat(obj_desc, " (invisible)");
 	if (IS_OBJ_STAT(obj, ITEM_TRANSPARENT))
 		obj_desc = tmp_strcat(obj_desc, " (transparent)");
-	if (IS_AFFECTED(ch, AFF_DETECT_ALIGN)) {
+	if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN)) {
 		if (IS_OBJ_STAT(obj, ITEM_BLESS))	
 			obj_desc = tmp_strcat(obj_desc, " (holy aura)");
 		if (IS_OBJ_STAT(obj, ITEM_DAMNED))

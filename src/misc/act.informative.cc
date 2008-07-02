@@ -216,15 +216,15 @@ show_obj_bits(obj_data *object, Creature *ch)
     if (IS_OBJ_STAT2(object, ITEM2_HIDDEN))
         acc_sprintf(" %s(hidden)%s",
                     CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-    if (IS_AFFECTED_3(ch, AFF3_DETECT_POISON)
+    if (AFF3_FLAGGED(ch, AFF3_DETECT_POISON)
         && (((IS_OBJ_TYPE(object, ITEM_FOOD)
               || IS_OBJ_TYPE(object, ITEM_DRINKCON)
               || IS_OBJ_TYPE(object, ITEM_FOUNTAIN))
              && GET_OBJ_VAL(object, 3))
             || object->affectedBySpell(SPELL_ENVENOM)))
         acc_sprintf(" %s(poisoned)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-    if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
-        (IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
+    if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN) ||
+        (IS_CLERIC(ch) && AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))) {
         if (IS_OBJ_STAT(object, ITEM_BLESS))
             acc_sprintf(" %s(holy aura)%s",
                         CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
@@ -232,13 +232,13 @@ show_obj_bits(obj_data *object, Creature *ch)
             acc_sprintf(" %s(unholy aura)%s",
                         CCRED_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
      }
-    if ((IS_AFFECTED(ch, AFF_DETECT_MAGIC)
-         || IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
+    if ((AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
+         || AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
         && IS_OBJ_STAT(object, ITEM_MAGIC))
         acc_sprintf(" %s(yellow aura)%s",
                     CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
-    if ((IS_AFFECTED(ch, AFF_DETECT_MAGIC)
-         || IS_AFFECTED_2(ch, AFF2_TRUE_SEEING)
+    if ((AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
+         || AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)
          || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
         && GET_OBJ_SIGIL_IDNUM(object))
         acc_sprintf(" %s(%ssigil%s)%s",
@@ -534,14 +534,14 @@ desc_char_trailers(Creature *ch, Creature *i)
 		acc_strcat("...", HSSH(i),
 			" is glowing with a bright blue light!\r\n", NULL);
 
-	if (IS_AFFECTED_2(i, AFF2_ABLAZE))
+	if (AFF2_FLAGGED(i, AFF2_ABLAZE))
 		acc_strcat("...", HSHR(i),
 			" body is blazing like a bonfire!\r\n", NULL);
-	if (IS_AFFECTED(i, AFF_BLIND))
+	if (AFF_FLAGGED(i, AFF_BLIND))
 		acc_strcat("...", HSSH(i),
 			" is groping around blindly!\r\n", NULL);
 
-	if (IS_AFFECTED(i, AFF_SANCTUARY)) {
+	if (AFF_FLAGGED(i, AFF_SANCTUARY)) {
 		if (IS_EVIL(i))
 			acc_strcat("...", HSSH(i),
 				" is surrounded by darkness!\r\n", NULL);
@@ -550,33 +550,33 @@ desc_char_trailers(Creature *ch, Creature *i)
 				" glows with a bright light!\r\n", NULL);
 	}
 	
-	if (IS_AFFECTED(i, AFF_CONFUSION))
+	if (AFF_FLAGGED(i, AFF_CONFUSION))
 		acc_strcat("...", HSSH(i),
 			" is looking around in confusion!\r\n", NULL);
-	if (IS_AFFECTED_3(i, AFF3_SYMBOL_OF_PAIN))
+	if (AFF3_FLAGGED(i, AFF3_SYMBOL_OF_PAIN))
 		acc_strcat("...a symbol of pain burns bright on ",
 			HSHR(i), " forehead!\r\n", NULL);
-	if (IS_AFFECTED(i, AFF_BLUR))
+	if (AFF_FLAGGED(i, AFF_BLUR))
 		acc_strcat("...", HSHR(i),
 			" form appears to be blurry and shifting.\r\n", NULL);
-	if (IS_AFFECTED_2(i, AFF2_FIRE_SHIELD))
+	if (AFF2_FLAGGED(i, AFF2_FIRE_SHIELD))
 		acc_strcat("...a blazing sheet of fire floats before ",
 			HSHR(i), " body!\r\n", NULL);
-	if (IS_AFFECTED_2(i, AFF2_BLADE_BARRIER))
+	if (AFF2_FLAGGED(i, AFF2_BLADE_BARRIER))
 		acc_strcat("...", HSSH(i),
 			" is surrounded by whirling blades!\r\n", NULL);
-	if (IS_AFFECTED_2(i, AFF2_ENERGY_FIELD))
+	if (AFF2_FLAGGED(i, AFF2_ENERGY_FIELD))
 		acc_strcat("...", HSSH(i),
 			" is covered by a crackling field of energy!\r\n", NULL);
 
 	if (IS_SOULLESS(i))
 		acc_strcat("...a deep red pentagram has been burned into ",
 			HSHR(i), " forehead!\r\n", NULL);
-	else if (IS_AFFECTED_3(i, AFF3_TAINTED))
+	else if (AFF3_FLAGGED(i, AFF3_TAINTED))
 		acc_strcat("...the mark of the tainted has been burned into ",
 			HSHR(i), " forehead!\r\n", NULL);
 
-	if (IS_AFFECTED_3(i, AFF3_PRISMATIC_SPHERE))
+	if (AFF3_FLAGGED(i, AFF3_PRISMATIC_SPHERE))
 		acc_strcat("...", HSSH(i),
 			" is surrounded by a prismatic sphere of light!\r\n", NULL);
 
@@ -585,7 +585,7 @@ desc_char_trailers(Creature *ch, Creature *i)
 		acc_strcat("...", HSSH(i),
 			" is followed by a malodorous stench...\r\n", NULL);
 
-	if (IS_AFFECTED_2(i, AFF2_PETRIFIED))
+	if (AFF2_FLAGGED(i, AFF2_PETRIFIED))
 		acc_strcat("...", HSSH(i),
 			" is petrified into solid stone.\r\n", NULL);
 
@@ -599,16 +599,16 @@ desc_char_trailers(Creature *ch, Creature *i)
 				" is hopelessly tangled in the undergrowth.\r\n", NULL);
 	}
 
-	if (IS_AFFECTED_2(i, AFF2_DISPLACEMENT) &&
-			IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
+	if (AFF2_FLAGGED(i, AFF2_DISPLACEMENT) &&
+			AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		acc_strcat("...the image of ", HSHR(i),
 			" body is strangely displaced.\r\n", NULL);
 
-	if (IS_AFFECTED(i, AFF_INVISIBLE))
+	if (AFF_FLAGGED(i, AFF_INVISIBLE))
 		acc_strcat("...", HSSH(i),
 			" is invisible to the unaided eye.\r\n", NULL);
 
-	if (IS_AFFECTED_2(i, AFF2_TRANSPARENT))
+	if (AFF2_FLAGGED(i, AFF2_TRANSPARENT))
 		acc_strcat("...", HSHR(i),
 			" body is completely transparent.\r\n", NULL);
 
@@ -839,7 +839,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 		else
 			desc = tmp_sprintf("%s is here, mounted on someone who already left!",
 				desc);
-	} else if (IS_AFFECTED_2(i, AFF2_MEDITATE) && i->getPosition() == POS_SITTING)
+	} else if (AFF2_FLAGGED(i, AFF2_MEDITATE) && i->getPosition() == POS_SITTING)
 		desc = tmp_strcat(desc, " is meditating here.");
 	else if (AFF_FLAGGED(i, AFF_HIDE))
 		desc = tmp_strcat(desc, " is hiding here.");
@@ -849,7 +849,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 	else if ((SECT_TYPE(i->in_room) == SECT_WATER_NOSWIM ||
 			SECT_TYPE(i->in_room) == SECT_WATER_SWIM ||
 			SECT_TYPE(i->in_room) == SECT_FIRE_RIVER) &&
-		(!IS_AFFECTED(i, AFF_WATERWALK)
+		(!AFF_FLAGGED(i, AFF_WATERWALK)
 			|| ch->getPosition() < POS_STANDING))
 		desc = tmp_strcat(desc, " is swimming here.");
 	else if (room_is_underwater(i->in_room) && i->getPosition() > POS_RESTING)
@@ -878,8 +878,8 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
                             CCBLD(ch, C_CMP),
                             GET_ALIGNMENT(i),
                             CCNRM(ch, C_CMP));
-	} else if (IS_AFFECTED(ch, AFF_DETECT_ALIGN) ||
-		(IS_CLERIC(ch) && IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))) {
+	} else if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN) ||
+		(IS_CLERIC(ch) && AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))) {
 		if (IS_EVIL(i))
 			align = tmp_sprintf(" %s%s(Red Aura)%s",
                                 CCRED(ch, C_NRM),
@@ -892,7 +892,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
                                 CCNRM(ch, C_NRM));
 	}
 
-    if (IS_AFFECTED_3(ch, AFF3_DETECT_POISON)) {
+    if (AFF3_FLAGGED(ch, AFF3_DETECT_POISON)) {
         if (HAS_POISON_1(i) || HAS_POISON_2(i) || HAS_POISON_3(i))
             poisoned = tmp_sprintf(" %s(poisoned)%s",
                                    CCGRN(ch, C_NRM),
@@ -945,7 +945,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 
 		if (room_is_dark(ch->in_room)
             && !has_dark_sight(ch)
-            && IS_AFFECTED(i, AFF_INFRAVISION)) {
+            && AFF_FLAGGED(i, AFF_INFRAVISION)) {
 			switch (number(0, 2)) {
 			case 0:
 				msg = tmp_strcat(msg,
@@ -990,7 +990,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 				send_to_char(i, "%s seems to have seen you.\r\n", GET_NAME(ch));
 		}
 
-		if (IS_AFFECTED(ch, AFF_GROUP) && IS_AFFECTED(i, AFF_GROUP)) {
+		if (AFF_FLAGGED(ch, AFF_GROUP) && AFF_FLAGGED(i, AFF_GROUP)) {
 			is_group = (ch->master == i
                         || i->master == ch
                         || (ch->master && i->master == ch->master));
@@ -1138,7 +1138,7 @@ ACMD(do_scan)
 
 	*buf = '\0';
 
-	if (IS_AFFECTED(ch, AFF_BLIND) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
+	if (AFF_FLAGGED(ch, AFF_BLIND) && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
 		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
 		return;
 	}
@@ -1246,7 +1246,7 @@ ACMD(do_exits)
 				tmp_capitalize(dirs[door]),
 				(EXIT(ch, door)->keyword) ? fname(EXIT(ch, door)->keyword):"TYPO ME>",
 				CCNRM(ch, C_SPR));
-		} else if ((IS_AFFECTED(ch, AFF_BLIND) ||
+		} else if ((AFF_FLAGGED(ch, AFF_BLIND) ||
 				ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED)) &&
 				AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
 			send_to_char(ch, "%s%s%-8s%s - Out of range\r\n",
@@ -2119,7 +2119,7 @@ ACMD(do_glance)
 
 	if (ch->getPosition() < POS_SLEEPING)
 		send_to_char(ch, "You can't see anything but stars!\r\n");
-	else if (IS_AFFECTED(ch, AFF_BLIND)
+	else if (AFF_FLAGGED(ch, AFF_BLIND)
 		&& !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
 		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
 	else if (room_is_dark(ch->in_room) && !has_dark_sight(ch)) {
@@ -2147,7 +2147,7 @@ ACMD(do_examine)
 		send_to_char(ch, "You can't see anything but stars!\r\n");
 		return;
 	}
-	if (IS_AFFECTED(ch, AFF_BLIND)
+	if (AFF_FLAGGED(ch, AFF_BLIND)
 		&& !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
 		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
 		return;
@@ -2281,17 +2281,17 @@ acc_append_affects(struct Creature *ch, byte mode)
     } else if (affected_by_spell(ch, SPELL_FROST_BREATHING)) {
 		acc_strcat("You are empowered with breath of FROST!\r\n", NULL);
     }
-	if (IS_AFFECTED(ch, AFF_BLIND))
+	if (AFF_FLAGGED(ch, AFF_BLIND))
 		acc_strcat("You have been blinded!\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_POISON))
+	if (AFF_FLAGGED(ch, AFF_POISON))
 		acc_strcat("You are poisoned!\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 		acc_strcat("You have been turned to stone.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_RADIOACTIVE))
+	if (AFF3_FLAGGED(ch, AFF3_RADIOACTIVE))
 		acc_strcat("You are radioactive.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_GAMMA_RAY))
 		acc_strcat("You have been irradiated.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_ABLAZE))
+	if (AFF2_FLAGGED(ch, AFF2_ABLAZE))
 		acc_sprintf("You are %s%sON FIRE!!%s\r\n",
 			CCRED_BLD(ch, C_SPR), CCBLK(ch, C_CMP), CCNRM(ch, C_SPR));
 	if (affected_by_spell(ch, SPELL_QUAD_DAMAGE))
@@ -2321,14 +2321,14 @@ acc_append_affects(struct Creature *ch, byte mode)
 
 	if (AFF2_FLAGGED(ch, AFF2_SLOW))
 		acc_strcat("You feel unnaturally slowed.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_CHARM))
+	if (AFF_FLAGGED(ch, AFF_CHARM))
 		acc_strcat("You have been charmed!\r\n", NULL);
-    if (IS_AFFECTED_3(ch, AFF3_MANA_LEAK) && !IS_AFFECTED_3(ch, AFF3_MANA_TAP))
+    if (AFF3_FLAGGED(ch, AFF3_MANA_LEAK) && !AFF3_FLAGGED(ch, AFF3_MANA_TAP))
         acc_strcat(str, "You are slowly being drained of your spiritual energy.\r\n", NULL);
-    if (IS_AFFECTED_3(ch, AFF3_ENERGY_LEAK) && !IS_AFFECTED_3(ch, AFF3_ENERGY_TAP))
+    if (AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK) && !AFF3_FLAGGED(ch, AFF3_ENERGY_TAP))
         acc_strcat(str, "Your body is slowly being drained of physical energy.\r\n", NULL);
 
-	if (IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN))
+	if (AFF3_FLAGGED(ch, AFF3_SYMBOL_OF_PAIN))
 		acc_strcat("Your mind burns with the symbol of pain!\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_WEAKNESS))
 		acc_strcat("You feel unusually weakened.\r\n", NULL);
@@ -2338,28 +2338,28 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("The world is a terribly frightening place!\r\n", NULL);
 	if (AFF3_FLAGGED(ch, AFF3_ACIDITY))
 		acc_strcat("Your body is producing self-corroding acids!\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
+	if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL))
 		acc_strcat(
 			"Spacetime is bent around you in a powerful gravity well!\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
+	if (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG))
 		acc_sprintf(
 			"%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
 			CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
 				C_SPR), CCNRM(ch, C_SPR));
 	if (IS_SICK(ch))
 		acc_strcat("You are afflicted with a terrible sickness!\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
+	if (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG))
 		acc_sprintf(
 			"%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
 			CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
 				C_SPR), CCNRM(ch, C_SPR));
-	if (IS_AFFECTED(ch, AFF_CONFUSION))
+	if (AFF_FLAGGED(ch, AFF_CONFUSION))
 		acc_strcat("You are very confused.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_MOTOR_SPASM))
 		acc_strcat("Your muscles are spasming uncontrollably!\r\n", NULL);
 	if (AFF2_FLAGGED(ch, AFF2_VERTIGO))
 		acc_strcat("You are lost in a sea of vertigo.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_TAINTED))
+	if (AFF3_FLAGGED(ch, AFF3_TAINTED))
 		acc_strcat("The very essence of your being has been tainted.\r\n", NULL);
 	if (affected_by_spell(ch, SONG_INSIDIOUS_RHYTHM))
         acc_strcat("Your senses have been dulled by insidious melodies.\r\n", NULL);
@@ -2390,23 +2390,23 @@ acc_append_affects(struct Creature *ch, byte mode)
 		return;
 	if (IS_SOULLESS(ch))
 		acc_strcat("A deep despair clouds your soulless mind.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_SNEAK) && !IS_AFFECTED_3(ch, AFF3_INFILTRATE))
+	if (AFF_FLAGGED(ch, AFF_SNEAK) && !AFF3_FLAGGED(ch, AFF3_INFILTRATE))
 		acc_strcat("You are sneaking.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_INFILTRATE))
+	if (AFF3_FLAGGED(ch, AFF3_INFILTRATE))
 		acc_strcat("You are infiltrating.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_INVISIBLE))
+	if (AFF_FLAGGED(ch, AFF_INVISIBLE))
 		acc_strcat("You are invisible.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_TRANSPARENT))
+	if (AFF2_FLAGGED(ch, AFF2_TRANSPARENT))
 		acc_strcat("You are transparent.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_DETECT_INVIS))
+	if (AFF_FLAGGED(ch, AFF_DETECT_INVIS))
 		acc_strcat(str,
 			"You are sensitive to the presence of invisible things.\r\n", NULL);
-    if (IS_AFFECTED_3(ch, AFF3_DETECT_POISON))
+    if (AFF3_FLAGGED(ch, AFF3_DETECT_POISON))
         acc_strcat(str,
                    "You are sensitive to the presence of poisons.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
+	if (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		acc_strcat("You are seeing truly.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_SANCTUARY))
+	if (AFF_FLAGGED(ch, AFF_SANCTUARY))
 		acc_strcat("You are protected by Sanctuary.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_ARMOR))
 		acc_strcat("You feel protected.\r\n", NULL);
@@ -2414,17 +2414,17 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your skin is thick and tough like tree bark.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_STONESKIN))
 		acc_strcat("Your skin is as hard as granite.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_INFRAVISION))
+	if (AFF_FLAGGED(ch, AFF_INFRAVISION))
 		acc_strcat("Your eyes are glowing red.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_REJUV))
+	if (AFF_FLAGGED(ch, AFF_REJUV))
 		acc_strcat("You feel like your body will heal with a good rest.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_REGEN))
+	if (AFF_FLAGGED(ch, AFF_REGEN))
 		acc_strcat("Your body is regenerating itself rapidly.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_GLOWLIGHT))
+	if (AFF_FLAGGED(ch, AFF_GLOWLIGHT))
 		acc_strcat("You are followed by a ghostly illumination.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_BLUR))
+	if (AFF_FLAGGED(ch, AFF_BLUR))
 		acc_strcat("Your image is blurred and shifting.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_DISPLACEMENT)) {
+	if (AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)) {
 		if (affected_by_spell(ch, SPELL_REFRACTION))
 			acc_strcat("Your body is irregularly refractive.\r\n", NULL);
 		else
@@ -2432,17 +2432,17 @@ acc_append_affects(struct Creature *ch, byte mode)
 	}
 	if (affected_by_spell(ch, SPELL_ELECTROSTATIC_FIELD))
 		acc_strcat("You are surrounded by an electrostatic field.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD))
+	if (AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD))
 		acc_strcat("You are protected by a shield of fire.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_BLADE_BARRIER))
+	if (AFF2_FLAGGED(ch, AFF2_BLADE_BARRIER))
 		acc_strcat("You are protected by whirling blades.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_ENERGY_FIELD))
+	if (AFF2_FLAGGED(ch, AFF2_ENERGY_FIELD))
 		acc_strcat("You are surrounded by a field of energy.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE))
+	if (AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE))
 		acc_strcat("You are surrounded by a prismatic sphere of light.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_FLUORESCENT))
+	if (AFF2_FLAGGED(ch, AFF2_FLUORESCENT))
 		acc_strcat("The atoms in your vicinity are fluorescent.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION)) {
+	if (AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION)) {
 		if (IS_EVIL(ch))
 			acc_strcat("An unholy light is following you.\r\n", NULL);
 		else if (IS_GOOD(ch))
@@ -2450,38 +2450,38 @@ acc_append_affects(struct Creature *ch, byte mode)
 		else
 			acc_strcat("A sickly light is following you.\r\n", NULL);
 	}
-	if (IS_AFFECTED_2(ch, AFF2_BERSERK))
+	if (AFF2_FLAGGED(ch, AFF2_BERSERK))
 		acc_strcat("You are BERSERK!\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_PROTECT_GOOD))
+	if (AFF_FLAGGED(ch, AFF_PROTECT_GOOD))
 		acc_strcat("You are protected from good.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_PROTECT_EVIL))
+	if (AFF_FLAGGED(ch, AFF_PROTECT_EVIL))
 		acc_strcat("You are protected from evil.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_PROT_DEVILS))
+	if (AFF2_FLAGGED(ch, AFF2_PROT_DEVILS))
 		acc_strcat("You are protected from devils.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_PROT_DEMONS))
+	if (AFF2_FLAGGED(ch, AFF2_PROT_DEMONS))
 		acc_strcat("You are protected from demons.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_PROTECT_UNDEAD))
+	if (AFF2_FLAGGED(ch, AFF2_PROTECT_UNDEAD))
 		acc_strcat("You are protected from the undead.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_PROT_LIGHTNING))
+	if (AFF2_FLAGGED(ch, AFF2_PROT_LIGHTNING))
 		acc_strcat("You are protected from lightning.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_PROT_FIRE))
+	if (AFF2_FLAGGED(ch, AFF2_PROT_FIRE))
 		acc_strcat("You are protected from fire.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_MAGICAL_PROT))
 		acc_strcat("You are protected against magic.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_ENDURE_COLD))
+	if (AFF2_FLAGGED(ch, AFF2_ENDURE_COLD))
 		acc_strcat("You can endure extreme cold.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_SENSE_LIFE))
+	if (AFF_FLAGGED(ch, AFF_SENSE_LIFE))
 		acc_strcat(str,
 			"You are sensitive to the presence of living creatures\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_EMPOWER))
 		acc_strcat("You are empowered.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_TELEKINESIS))
+	if (AFF2_FLAGGED(ch, AFF2_TELEKINESIS))
 		acc_strcat("You are feeling telekinetic.\r\n", NULL);
-    if (IS_AFFECTED_2(ch, AFF2_HASTE))
+    if (AFF2_FLAGGED(ch, AFF2_HASTE))
 		acc_strcat("You are moving very fast.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_KATA))
 		acc_strcat("You feel focused from your kata.\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_OBLIVITY))
+	if (AFF2_FLAGGED(ch, AFF2_OBLIVITY))
 		acc_strcat("You are oblivious to pain.\r\n", NULL);
 	if (affected_by_spell(ch, ZEN_MOTION))
 		acc_strcat("The zen of motion is one with your body.\r\n", NULL);
@@ -2489,15 +2489,15 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("You are as one with the zen of translocation.\r\n", NULL);
 	if (affected_by_spell(ch, ZEN_CELERITY))
 		acc_strcat("You are under the effects of the zen of celerity.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_MANA_TAP) && !IS_AFFECTED_3(ch, AFF3_MANA_LEAK))
+	if (AFF3_FLAGGED(ch, AFF3_MANA_TAP) && !AFF3_FLAGGED(ch, AFF3_MANA_LEAK))
 		acc_strcat(str,
 			"You have a direct tap to the spiritual energies of the universe.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_ENERGY_TAP) && !IS_AFFECTED_3(ch, AFF3_ENERGY_LEAK))
+	if (AFF3_FLAGGED(ch, AFF3_ENERGY_TAP) && !AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK))
 		acc_strcat(str,
 			"Your body is absorbing physical energy from the universe.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_SONIC_IMAGERY))
+	if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
 		acc_strcat("You are perceiving sonic images.\r\n", NULL);
-	if (IS_AFFECTED_3(ch, AFF3_PROT_HEAT))
+	if (AFF3_FLAGGED(ch, AFF3_PROT_HEAT))
 		acc_strcat("You are protected from heat.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_RIGHTEOUS_PENETRATION))
 		acc_strcat("You feel overwhelmingly righteous!\r\n", NULL);
@@ -2528,15 +2528,15 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your physical strength is augmented.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_INTELLECT))
 		acc_strcat("Your mental faculties are augmented.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_NOPAIN))
+	if (AFF_FLAGGED(ch, AFF_NOPAIN))
 		acc_strcat("Your mind is ignoring pain.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_RETINA))
+	if (AFF_FLAGGED(ch, AFF_RETINA))
 		acc_strcat("Your retina is especially sensitive.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER))
 		acc_strcat("Shukutei Adrenal Maximizations are active.\r\n", NULL);
-	else if (IS_AFFECTED(ch, AFF_ADRENALINE))
+	else if (AFF_FLAGGED(ch, AFF_ADRENALINE))
 		acc_strcat("Your adrenaline is pumping.\r\n", NULL);
-	if (IS_AFFECTED(ch, AFF_CONFIDENCE))
+	if (AFF_FLAGGED(ch, AFF_CONFIDENCE))
 		acc_strcat("You feel very confident.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_DERMAL_HARDENING))
 		acc_strcat("Your dermal surfaces are hardened.\r\n", NULL);
@@ -2578,7 +2578,7 @@ acc_append_affects(struct Creature *ch, byte mode)
         acc_strcat("You are disoriented from your foray into the interdimensional void!\r\n", NULL);
 
 	/*cyborg*/
-    if (IS_AFFECTED_3(ch, AFF3_DAMAGE_CONTROL))
+    if (AFF3_FLAGGED(ch, AFF3_DAMAGE_CONTROL))
 		acc_strcat("Your Damage Control process is running.\r\n", NULL);
     if (affected_by_spell(ch, SKILL_DEFENSIVE_POS))
         acc_strcat("You are postured defensively.\r\n", NULL);
@@ -2592,7 +2592,7 @@ acc_append_affects(struct Creature *ch, byte mode)
 		acc_strcat("Your Reflex Boosters are active.\r\n", NULL);
 	
     
-	if (IS_AFFECTED_3(ch, AFF3_SHROUD_OBSCUREMENT))
+	if (AFF3_FLAGGED(ch, AFF3_SHROUD_OBSCUREMENT))
 		acc_strcat(str,
 			"You are surrounded by an magical obscurement shroud.\r\n", NULL);
 	if (affected_by_spell(ch, SPELL_DETECT_SCRYING))
@@ -2607,7 +2607,7 @@ acc_append_affects(struct Creature *ch, byte mode)
         acc_strcat("There are thorns protruding from your skin.\r\n", NULL);
 	if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION))
 		acc_strcat("Your implants are undergoing nanite reconstruction\r\n", NULL);
-	if (IS_AFFECTED_2(ch, AFF2_PROT_RAD))
+	if (AFF2_FLAGGED(ch, AFF2_PROT_RAD))
 		acc_strcat("You are immune to the effects of radiation.\r\n", NULL);
 	
     /* bard affects */
@@ -2815,7 +2815,7 @@ ACMD(do_score)
 			CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_SITTING:
-		if (IS_AFFECTED_2(ch, AFF2_MEDITATE))
+		if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
 			acc_strcat(CCGRN(ch, C_NRM), "You are meditating.",
 				CCNRM(ch, C_NRM), "\r\n", NULL);
 		else
@@ -3255,12 +3255,12 @@ whoFlagsString(Creature *ch, Creature *target) {
 	}
 	
 	//invis
-	if (IS_AFFECTED(target, AFF_INVISIBLE)) {
+	if (AFF_FLAGGED(target, AFF_INVISIBLE)) {
 		out << CCCYN(ch, C_NRM) << " (invis)" << CCNRM(ch, C_NRM);
 	}
 	
 	//trans
-	if (IS_AFFECTED_2(target, AFF2_TRANSPARENT)) {
+	if (AFF2_FLAGGED(target, AFF2_TRANSPARENT)) {
 		out << CCCYN(ch, C_NRM) << " (transp)" << CCNRM(ch, C_NRM);
 	}
 	

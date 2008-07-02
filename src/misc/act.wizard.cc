@@ -2013,7 +2013,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
         acc_sprintf("AFF3: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
 			CCNRM(ch, C_NRM));
     }
-    if (k->getPosition() == POS_SITTING && IS_AFFECTED_2(k, AFF2_MEDITATE))
+    if (k->getPosition() == POS_SITTING && AFF2_FLAGGED(k, AFF2_MEDITATE))
         acc_sprintf("Meditation Timer: [%d]\r\n", MEDITATE_TIMER(k));
 
     if (IS_CYBORG(k)) {
@@ -3071,7 +3071,7 @@ perform_vis(struct Creature *ch)
 
     int level = GET_INVIS_LVL(ch);
 
-    if (!GET_INVIS_LVL(ch) && !IS_AFFECTED(ch, AFF_HIDE | AFF_INVISIBLE)) {
+    if (!GET_INVIS_LVL(ch) && !AFF_FLAGGED(ch, AFF_HIDE | AFF_INVISIBLE)) {
         send_to_char(ch, "You are already fully visible.\r\n");
         return;
     }
@@ -3202,7 +3202,7 @@ ACMD(do_zecho)
     struct zone_data *here;
     // charmed mobs and players < LVL_GOD cant use this
     if ((!IS_NPC(ch) && !Security::isMember(ch, "WizardBasic"))
-        || (IS_NPC(ch) && IS_AFFECTED(ch, AFF_CHARM))) {
+        || (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))) {
         send_to_char(ch, "You probably shouldn't be using this.\r\n");
     }
     if (ch->in_room && ch->in_room->zone) {

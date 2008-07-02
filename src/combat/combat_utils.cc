@@ -174,7 +174,7 @@ update_pos(struct Creature *victim)
 		// If they're an npc, and their wait is 0.
 		if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
 			if (victim->getPosition() < POS_FIGHTING) {
-				if (!IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL) ||
+				if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) ||
 					number(1, 20) < GET_STR(victim)) {
 					if (victim->setPosition(POS_FIGHTING, 1)) {
 #ifdef DEBUG_POSITION
@@ -197,10 +197,10 @@ update_pos(struct Creature *victim)
 		if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
 			// Flying?
 			if (victim->in_room && victim->in_room->isOpenAir()
-				&& !IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL)
+				&& !AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
 				&& victim->getPosition() != POS_FLYING)
 				victim->setPosition(POS_FLYING, 1);
-			else if (!IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL)
+			else if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
 				&& victim->getPosition() < POS_FIGHTING) {
 				if (victim->isFighting()) {
 					if (victim->setPosition(POS_FIGHTING, 1)) {
@@ -412,9 +412,9 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 		}
 	}
 	/* end if ( weap ) */
-	if ((IS_EVIL(ch) && IS_AFFECTED(victim, AFF_PROTECT_EVIL)) ||
-		(IS_GOOD(ch) && IS_AFFECTED(victim, AFF_PROTECT_GOOD)) ||
-		(IS_UNDEAD(ch) && IS_AFFECTED(victim, AFF2_PROTECT_UNDEAD)))
+	if ((IS_EVIL(ch) && AFF_FLAGGED(victim, AFF_PROTECT_EVIL)) ||
+		(IS_GOOD(ch) && AFF_FLAGGED(victim, AFF_PROTECT_GOOD)) ||
+		(IS_UNDEAD(ch) && AFF_FLAGGED(victim, AFF2_PROTECT_UNDEAD)))
 		calc_thaco += 2;
 
 	if (IS_CARRYING_N(ch) > (CAN_CARRY_N(ch) * 0.80))
@@ -425,10 +425,10 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 	else
 		calc_thaco += 10;
 
-	if (IS_AFFECTED_2(ch, AFF2_DISPLACEMENT) &&
-		!IS_AFFECTED_2(victim, AFF2_TRUE_SEEING))
+	if (AFF2_FLAGGED(ch, AFF2_DISPLACEMENT) &&
+		!AFF2_FLAGGED(victim, AFF2_TRUE_SEEING))
 		calc_thaco -= 2;
-	if (IS_AFFECTED(ch, AFF_BLUR))
+	if (AFF_FLAGGED(ch, AFF_BLUR))
 		calc_thaco -= 1;
 	if (!can_see_creature(victim, ch))
 		calc_thaco -= 3;
@@ -439,10 +439,10 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 		calc_thaco += 2;
 	if (IS_SICK(ch))
 		calc_thaco += 2;
-	if (IS_AFFECTED_2(victim, AFF2_DISPLACEMENT) &&
-		!IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
+	if (AFF2_FLAGGED(victim, AFF2_DISPLACEMENT) &&
+		!AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		calc_thaco += 2;
-	if (IS_AFFECTED_2(victim, AFF2_EVADE))
+	if (AFF2_FLAGGED(victim, AFF2_EVADE))
 		calc_thaco +=  victim->getLevelBonus(SKILL_EVASION) / 6;
 
     if (room_is_watery(ch->in_room) && !IS_MOB(ch))
@@ -728,17 +728,17 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		leg = create_obj();
 		leg->shared = null_obj_shared;
 		leg->in_room = NULL;
-		if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 			leg->aliases = strdup("blood leg stone");
 		else
 			leg->aliases = strdup("leg severed");
 
 		sprintf(buf2, "The severed %sleg of %s %s lying here.",
-			IS_AFFECTED_2(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
+			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
 			isare);
 		leg->line_desc = strdup(buf2);
 		sprintf(buf2, "the severed %sleg of %s",
-			IS_AFFECTED_2(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch));
+			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch));
 		leg->name = strdup(buf2);
 		GET_OBJ_TYPE(leg) = ITEM_WEAPON;
 		GET_OBJ_WEAR(leg) = ITEM_WEAR_TAKE + ITEM_WEAR_WIELD;
@@ -1041,7 +1041,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			spine = create_obj();
 			spine->shared = null_obj_shared;
 			spine->in_room = NULL;
-			if (IS_AFFECTED_2(ch, AFF2_PETRIFIED)) {
+			if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
 				spine->aliases = strdup("spine spinal column stone");
 				strcpy(buf2, "A stone spinal column is lying here.");
 				spine->line_desc = strdup(buf2);
@@ -1149,17 +1149,17 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		head = create_obj();
 		head->shared = null_obj_shared;
 		head->in_room = NULL;
-		if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 			head->aliases = strdup("blood head skull stone");
 		else
 			head->aliases = strdup("blood head skull");
 
 		sprintf(buf2, "The severed %shead of %s %s lying here.",
-			IS_AFFECTED_2(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
+			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
 			isare);
 		head->line_desc = strdup(buf2);
 		sprintf(buf2, "the severed %shead of %s",
-			IS_AFFECTED_2(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch));
+			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch));
 		head->name = strdup(buf2);
 		GET_OBJ_TYPE(head) = ITEM_DRINKCON;
 		GET_OBJ_WEAR(head) = ITEM_WEAR_TAKE;
@@ -1171,7 +1171,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 		head->worn_on = -1;
 
-		if (IS_AFFECTED_2(ch, AFF2_PETRIFIED)) {
+		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
 			GET_OBJ_MATERIAL(head) = MAT_STONE;
 			head->setWeight(25);
 		} else {
@@ -1236,7 +1236,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		heart = create_obj();
 		heart->shared = null_obj_shared;
 		heart->in_room = NULL;
-		if (IS_AFFECTED_2(ch, AFF2_PETRIFIED)) {
+		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
 			GET_OBJ_TYPE(heart) = ITEM_OTHER;
 			heart->aliases = strdup("heart stone");
 			sprintf(buf2, "the stone heart of %s", GET_NAME(ch));
@@ -1249,7 +1249,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		}
 
 		sprintf(buf2, "The %sheart of %s %s lying here.",
-			IS_AFFECTED_2(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
+			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
 			isare);
 		heart->line_desc = strdup(buf2);
 
@@ -1502,28 +1502,28 @@ int calculate_attack_probability(struct Creature *ch)
                         CHECK_SKILL(ch, SKILL_SHOOT) > 50)) 
         prob += (int)(CHECK_SKILL(ch, SKILL_SHOOT) * 0.18);
 
-    if (IS_AFFECTED(ch, AFF_ADRENALINE))
+    if (AFF_FLAGGED(ch, AFF_ADRENALINE))
         prob = (int)(prob * 1.10);
 
-    if (IS_AFFECTED_2(ch, AFF2_HASTE))
+    if (AFF2_FLAGGED(ch, AFF2_HASTE))
         prob = (int)(prob * 1.30);
 
     if (ch->getSpeed())
         prob += (prob * ch->getSpeed()) / 100;
 
-    if (IS_AFFECTED_2(ch, AFF2_SLOW))
+    if (AFF2_FLAGGED(ch, AFF2_SLOW))
         prob = (int)(prob * 0.70);
 
     if (SECT(ch->in_room) == SECT_ELEMENTAL_OOZE)
         prob = (int)(prob * 0.70);
 
-    if (IS_AFFECTED_2(ch, AFF2_BERSERK))
+    if (AFF2_FLAGGED(ch, AFF2_BERSERK))
         prob += (GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2)) >> 1;
 
     if (IS_MONK(ch))
         prob += GET_LEVEL(ch) >> 2;
 
-    if (IS_AFFECTED_3(ch, AFF3_DIVINE_POWER))
+    if (AFF3_FLAGGED(ch, AFF3_DIVINE_POWER))
         prob += (ch->getLevelBonus(SPELL_DIVINE_POWER) / 3);
 
     if (ch->desc)

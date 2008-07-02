@@ -1043,7 +1043,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		}
 		return 0;
 	}
-	if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master == tch)) {
+	if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master == tch)) {
 		send_to_char(ch, "You are afraid you might hurt your master!\r\n");
 		return 0;
 	}
@@ -1076,7 +1076,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 			"cast any spells!");
 		return 0;
 	}
-	if (IS_SET(SINFO.routines, MAG_GROUPS) && !IS_AFFECTED(ch, AFF_GROUP) && 
+	if (IS_SET(SINFO.routines, MAG_GROUPS) && !AFF_FLAGGED(ch, AFF_GROUP) && 
         !IS_SET(SINFO.routines, MAG_BARD)) {
 		send_to_char(ch, "You can't do this if you're not in a group!\r\n");
 		return 0;

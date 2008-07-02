@@ -1685,7 +1685,7 @@ command_interpreter(struct Creature *ch, char *argument)
     char *line;
 
 	REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
-	if (IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
+	if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
 		send_to_char(ch, "You stop meditating.\r\n");
 		REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
 	}
@@ -1764,7 +1764,7 @@ command_interpreter(struct Creature *ch, char *argument)
 
 	if (PLR_FLAGGED(ch, PLR_FROZEN) && GET_LEVEL(ch) < LVL_GRIMP)
 		send_to_char(ch, "You try, but the mind-numbing cold prevents you...\r\n");
-	else if (IS_AFFECTED_2(ch, AFF2_PETRIFIED) && !IS_IMMORT(ch)
+	else if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) && !IS_IMMORT(ch)
 		&& (!d || !d->original)) {
 		if (!number(0, 3))
 			send_to_char(ch, "You have been turned to stone!\r\n");

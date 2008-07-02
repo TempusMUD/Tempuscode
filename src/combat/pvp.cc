@@ -87,7 +87,7 @@ count_pkill(Creature *killer, Creature *victim)
 	Creature *perp;
 
 	perp = killer;
-	while (IS_AFFECTED(perp, AFF_CHARM) && perp->master &&
+	while (AFF_FLAGGED(perp, AFF_CHARM) && perp->master &&
 			perp->in_room == perp->master->in_room)
 		perp = perp->master;
 
@@ -199,7 +199,7 @@ ACMD(do_pardon)
         return;
     }
 
-    if (IS_AFFECTED(ch, AFF_CHARM)) {
+    if (AFF_FLAGGED(ch, AFF_CHARM)) {
         send_to_char(ch, "You don't seem quite in your right mind...\r\n");
         return;
     }
@@ -277,7 +277,7 @@ check_thief(struct Creature *ch, struct Creature *victim,
 
 	// First we need to find the perp
 	perp = ch;
-	while (IS_AFFECTED(perp, AFF_CHARM) && perp->master &&
+	while (AFF_FLAGGED(perp, AFF_CHARM) && perp->master &&
 			perp->in_room == perp->master->in_room)
 		perp = perp->master;
 	

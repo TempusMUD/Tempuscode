@@ -51,7 +51,7 @@ perform_monk_meditate(struct Creature *ch)
 			CCCYN(ch, C_NRM), MEDITATE_TIMER(ch), CCNRM(ch, C_NRM));
 
 	// oblivity
-	if (!IS_AFFECTED_2(ch, AFF2_OBLIVITY) 
+	if (!AFF2_FLAGGED(ch, AFF2_OBLIVITY) 
 	&& CHECK_SKILL(ch, ZEN_OBLIVITY) >= LEARNED(ch)) 
 	{
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_OBLIVITY) >> 2) + GET_WIS(ch);
@@ -833,14 +833,14 @@ ACMD(do_pinch)
 	// victim has fire on or around him
 	//
 
-	if (!CHAR_WITHSTANDS_FIRE(ch) && !IS_AFFECTED_2(ch, AFF2_ABLAZE) &&
+	if (!CHAR_WITHSTANDS_FIRE(ch) && !AFF2_FLAGGED(ch, AFF2_ABLAZE) &&
 		GET_LEVEL(ch) < LVL_AMBASSADOR) {
 
 		//
 		// victim has fire shield
 		//
 
-		if (IS_AFFECTED_2(vict, AFF2_FIRE_SHIELD)) {
+		if (AFF2_FLAGGED(vict, AFF2_FIRE_SHIELD)) {
 			int retval = damage(vict, ch, dice(3, 8), SPELL_FIRE_SHIELD, -1);
 			retval = SWAP_DAM_RETVAL(retval);
 
@@ -855,7 +855,7 @@ ACMD(do_pinch)
 		// victim is simply on fire
 		//
 
-		else if (IS_AFFECTED_2(vict, AFF2_ABLAZE) && !number(0, 3)) {
+		else if (AFF2_FLAGGED(vict, AFF2_ABLAZE) && !number(0, 3)) {
 			act("You burst into flames on contact with $N!",
 				FALSE, ch, 0, vict, TO_CHAR);
 			act("$n bursts into flames on contact with $N!",
@@ -870,7 +870,7 @@ ACMD(do_pinch)
 	// victim has blade barrier
 	//
 
-	if (IS_AFFECTED_2(vict, AFF2_BLADE_BARRIER)) {
+	if (AFF2_FLAGGED(vict, AFF2_BLADE_BARRIER)) {
 		int retval =
 			damage(vict, ch, GET_LEVEL(vict), SPELL_BLADE_BARRIER, -1);
 		retval = SWAP_DAM_RETVAL(retval);
@@ -898,7 +898,7 @@ ACMD(do_meditate)
 {
 	byte percent;
 
-	if (IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
+	if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
 		REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
 		send_to_char(ch, "You cease to meditate.\r\n");
 		act("$n comes out of a trance.", TRUE, ch, 0, 0, TO_ROOM);
@@ -907,9 +907,9 @@ ACMD(do_meditate)
 		send_to_char(ch, "You cannot meditate while in battle.\r\n");
 	else if (ch->getPosition() != POS_SITTING || !AWAKE(ch))
 		send_to_char(ch, "You are not in the proper position to meditate.\r\n");
-	else if (IS_AFFECTED(ch, AFF_POISON))
+	else if (AFF_FLAGGED(ch, AFF_POISON))
 		send_to_char(ch, "You cannot meditate while you are poisoned!\r\n");
-	else if (IS_AFFECTED_2(ch, AFF2_BERSERK))
+	else if (AFF2_FLAGGED(ch, AFF2_BERSERK))
 		send_to_char(ch, "You cannot meditate while BERSERK!\r\n");
 	else {
 		send_to_char(ch, "You begin to meditate.\r\n");

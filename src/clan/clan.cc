@@ -112,7 +112,7 @@ char_can_enroll(Creature *ch, Creature *vict, clan_data *clan)
 		send_to_char(ch, "You can only enroll player characters.\r\n");
         return false;
     }
-    if (IS_AFFECTED(ch, AFF_CHARM)) {
+    if (AFF_FLAGGED(ch, AFF_CHARM)) {
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
         return false;
     }
@@ -145,7 +145,7 @@ char_can_dismiss(Creature *ch, Creature *vict, clan_data *clan)
 
     if (vict == ch)
         send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
-    else if (IS_AFFECTED(ch, AFF_CHARM))
+    else if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
     else if (Security::isMember(ch, "Clan"))
         return true;
@@ -175,7 +175,7 @@ char_can_promote(Creature *ch, Creature *vict, clan_data *clan)
     clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
     clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
 
-    if (IS_AFFECTED(ch, AFF_CHARM))
+    if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
     else if (!vict_member)
         send_to_char(ch, "You are not a member of that person's clan!\r\n");
@@ -342,7 +342,7 @@ ACMD(do_resign)
 		send_to_char(ch, "NPC's cannot resign...\r\n");
 	else if (!clan)
 		send_to_char(ch, "You need to be in a clan before you resign from it.\r\n");
-	else if (IS_AFFECTED(ch, AFF_CHARM))
+	else if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 	else if (strcmp(argument, "yes"))
 		send_to_char(ch,
@@ -428,7 +428,7 @@ ACMD(do_demote)
 		send_to_char(ch, "No-one around by that name.\r\n");
 	else if (!(member1 = real_clanmember(GET_IDNUM(ch), clan)))
 		send_to_char(ch, "You are not properly installed in the clan.\r\n");
-	else if (IS_AFFECTED(ch, AFF_CHARM))
+	else if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 	else if (ch == vict) {
 		if (!member1->rank)
@@ -740,7 +740,7 @@ ACMD(do_clanpasswd)
 		return;
 	}
 
-	if (IS_AFFECTED(ch, AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, AFF_CHARM)) {
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 		return;
 	}

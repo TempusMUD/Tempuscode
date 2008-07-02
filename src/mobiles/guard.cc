@@ -121,7 +121,7 @@ SPECIAL(guard)
 		return false;
 
 	// Petrified guards can't do much
-	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 		return false;
 
 	// Set to deny if undecided

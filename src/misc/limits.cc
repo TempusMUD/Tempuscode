@@ -131,7 +131,7 @@ mana_gain(struct Creature *ch)
         IS_BARD(ch))
 		gain <<= 1;
 
-	if (IS_AFFECTED(ch, AFF_POISON))
+	if (AFF_FLAGGED(ch, AFF_POISON))
 		gain >>= 2;
 
 	if ((GET_COND(ch, FULL) == 0) || (GET_COND(ch, THIRST) == 0))
@@ -142,7 +142,7 @@ mana_gain(struct Creature *ch)
 		ch->in_room->zone->weather->sunlight == SUN_LIGHT)
 		gain >>= 1;
 
-	if (IS_AFFECTED_2(ch, AFF2_MEDITATE)) {
+	if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
 		if (CHECK_SKILL(ch, ZEN_HEALING) > number(40, 100) ||
 			(IS_NPC(ch) && IS_MONK(ch) && GET_LEVEL(ch) > 40))
 			gain *= ((16 + GET_LEVEL(ch)) / 22);
@@ -196,19 +196,19 @@ hit_gain(struct Creature *ch)
 	/* Position calculations    */
 	switch (ch->getPosition()) {
 	case POS_SLEEPING:
-		if (IS_AFFECTED(ch, AFF_REJUV))
+		if (AFF_FLAGGED(ch, AFF_REJUV))
 			gain += (gain >> 0);	/*  gain + gain  */
 		else
 			gain += (gain >> 1);	/* gain + gain/2 */
 		break;
 	case POS_RESTING:
-		if (IS_AFFECTED(ch, AFF_REJUV))
+		if (AFF_FLAGGED(ch, AFF_REJUV))
 			gain += (gain >> 1);	/* divide by 2 */
 		else
 			gain += (gain >> 2);	/* Divide by 4 */
 		break;
 	case POS_SITTING:
-		if (IS_AFFECTED(ch, AFF_REJUV))
+		if (AFF_FLAGGED(ch, AFF_REJUV))
 			gain += (gain >> 2);	/* divide by 4 */
 		else
 			gain += (gain >> 3);	/* Divide by 8 */
@@ -226,7 +226,7 @@ hit_gain(struct Creature *ch)
 	if ((GET_COND(ch, FULL) == 0) || (GET_COND(ch, THIRST) == 0))
 		gain >>= 2;
 
-	else if (IS_AFFECTED_2(ch, AFF2_MEDITATE))
+	else if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
 		gain += (gain >> 1);
 
 	if (affected_by_spell(ch, SPELL_METABOLISM))
@@ -267,19 +267,19 @@ move_gain(struct Creature *ch)
 	/* Position calculations    */
 	switch (ch->getPosition()) {
 	case POS_SLEEPING:
-		if (IS_AFFECTED(ch, AFF_REJUV))
+		if (AFF_FLAGGED(ch, AFF_REJUV))
 			gain += (gain >> 0);	/* divide by 1 */
 		else
 			gain += (gain >> 1);	/* Divide by 2 */
 		break;
 	case POS_RESTING:
-		if (IS_AFFECTED(ch, AFF_REJUV))
+		if (AFF_FLAGGED(ch, AFF_REJUV))
 			gain += (gain >> 1);	/* divide by 2 */
 		else
 			gain += (gain >> 2);	/* Divide by 4 */
 		break;
 	case POS_SITTING:
-		if (IS_AFFECTED(ch, AFF_REJUV))
+		if (AFF_FLAGGED(ch, AFF_REJUV))
 			gain += (gain >> 2);	/* divide by 4 */
 		else
 			gain += (gain >> 3);	/* Divide by 8 */
@@ -294,7 +294,7 @@ move_gain(struct Creature *ch)
 	if ((GET_COND(ch, FULL) == 0) || (GET_COND(ch, THIRST) == 0))
 		gain >>= 2;
 
-	if (IS_AFFECTED_2(ch, AFF2_MEDITATE))
+	if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
 		gain += (gain >> 1);
 
 	if (IS_REMORT(ch) && GET_REMORT_GEN(ch))
@@ -579,7 +579,7 @@ point_update(void)
 			GET_MANA(i) = MIN(GET_MANA(i) + mana_gain(i), GET_MAX_MANA(i));
 			GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_MAX_MOVE(i));
 
-			if (IS_AFFECTED(i, AFF_POISON) &&
+			if (AFF_FLAGGED(i, AFF_POISON) &&
 				damage(i, i, dice(4, 11) + (affected_by_spell(i,
 							SPELL_METABOLISM) ? dice(4, 3) : 0), SPELL_POISON,
 					-1))

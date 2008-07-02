@@ -13,7 +13,7 @@ SPECIAL(cloak_of_deception)
 	if (!cloak->worn_by || cloak->worn_by != ch)
 		return 0;
 
-	if (IS_AFFECTED(ch, AFF_HIDE))
+	if (AFF_FLAGGED(ch, AFF_HIDE))
 		send_to_char(ch, "You are already hidden.\r\n");
 	else {
 		SET_BIT(AFF_FLAGS(ch), AFF_HIDE);

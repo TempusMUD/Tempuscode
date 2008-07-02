@@ -186,7 +186,7 @@ bool bard_can_charm_more(Creature *ch)
         return true;
 
     for (cur = ch->followers;cur;cur = cur->next)
-        if (IS_AFFECTED(cur->follower, AFF_CHARM))
+        if (AFF_FLAGGED(cur->follower, AFF_CHARM))
             count++;
 
     return ((GET_CHA(ch) >> 2 - count) > 0);
@@ -346,7 +346,7 @@ ASPELL(song_exposure_overture)
             to_room = "$N is no longer transparent!";
         }
 
-        if (IS_AFFECTED(tch, AFF_HIDE)) {
+        if (AFF_FLAGGED(tch, AFF_HIDE)) {
             REMOVE_BIT(AFF_FLAGS(tch), AFF_HIDE);
             to_char = "$N is no longer hidden!";
             to_vict = "You are no longer hidden!!";

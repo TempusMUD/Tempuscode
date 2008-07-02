@@ -136,7 +136,7 @@ burn_update(void)
 			continue;
 		}
 
-		if (IS_AFFECTED_3(ch, AFF3_INST_AFF)) {
+		if (AFF3_FLAGGED(ch, AFF3_INST_AFF)) {
 			if (update_iaffects(ch))
 				continue;
 		}
@@ -145,10 +145,10 @@ burn_update(void)
 			GET_MOB_WAIT(ch) = MAX(0, GET_MOB_WAIT(ch) - FIRE_TICK);
 
 		if ((IS_NPC(ch) && ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN)) ||
-			IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+			AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 			continue;
 
-		if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)
+		if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
 			&& ch->getPosition() == POS_FLYING
 			&& (!ch->in_room->dir_option[DOWN]
 				|| !ch->in_room->isOpenAir()
@@ -186,7 +186,7 @@ burn_update(void)
 			fall_to != ch->in_room) {
 
 			if (AFF_FLAGGED(ch, AFF_INFLIGHT) && AWAKE(ch)
-				&& !IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)) {
+				&& !AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)) {
 				send_to_char(ch, 
 					"You realize you are about to fall and resume your flight!\r\n");
 				ch->setPosition(POS_FLYING);
@@ -219,7 +219,7 @@ burn_update(void)
 						|| SECT_TYPE(ch->in_room) == SECT_PITCH_PIT
 						|| SECT_TYPE(ch->in_room) == SECT_PITCH_SUB) {
 						dam >>= 1;
-						if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL))
+						if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL))
 							dam <<= 2;
 
 						act("$n makes an enormous splash!", TRUE, ch, 0, 0, TO_ROOM);
@@ -415,7 +415,7 @@ burn_update(void)
 				continue;
 		}
 		// Gravity Well
-		if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)
+		if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
 			&& !random_fractional_10()
 			&& !NOGRAV_ZONE(ch->in_room->zone)) {
             damager = NULL;
@@ -529,7 +529,7 @@ burn_update(void)
         //Lich's Lyrics rotting flesh
         if ((af = affected_by_spell(ch, SONG_LICHS_LYRICS)) && !random_fractional_10()) {
             int dam = 0;
-            if ((GET_CON(ch) >> 1) + 85 > random_number_zero_low(100) || IS_AFFECTED_2(ch, AFF2_PETRIFIED)) {
+            if ((GET_CON(ch) >> 1) + 85 > random_number_zero_low(100) || AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
                 dam = (af->level >> 3) + dice(2,5);
                 send_to_char(ch, "You feel your life force being drawn away!\r\n");
                 act("$n begins to pale as $s life force fades.", FALSE, ch, 0, 0, TO_ROOM);
@@ -574,7 +574,7 @@ burn_update(void)
             }
         }
 		// burning character
-		if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
+		if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
 			if (room_is_watery(ch->in_room)) {
 				send_to_char(ch, 
 					"The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n");
@@ -1231,23 +1231,23 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 		char_in_memory(ch, vict))
 		return false;
 
-	if (!IS_AFFECTED_3(ch, AFF3_INFILTRATE) && !IS_AFFECTED(ch, AFF_HIDE))
+	if (!AFF3_FLAGGED(ch, AFF3_INFILTRATE) && !AFF_FLAGGED(ch, AFF_HIDE))
 		return false;
 
 	if (affected_by_spell(vict, ZEN_AWARENESS) ||
-		IS_AFFECTED_2(vict, AFF2_TRUE_SEEING))
+		AFF2_FLAGGED(vict, AFF2_TRUE_SEEING))
 		percent += 17;
 
-	if (IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
+	if (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		prob += 17;
 
 	if (vict->getPosition() <= POS_FIGHTING)
 		prob += 10;
 
-	if (IS_AFFECTED_2(ch, AFF2_HASTE))
+	if (AFF2_FLAGGED(ch, AFF2_HASTE))
 		prob += 15;
 
-	if (IS_AFFECTED_2(vict, AFF2_HASTE))
+	if (AFF2_FLAGGED(vict, AFF2_HASTE))
 		percent += 15;
 
 	percent += (vict->getLevelBonus(SKILL_INFILTRATE) / 2);
@@ -1269,7 +1269,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 	int return_flags = 0;
 
 	if (ch->getPosition() < POS_STANDING) {
-		if (!IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)
+		if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
 			|| number(1, 20) < GET_STR(ch)) {
 			act("$n jumps to $s feet!", TRUE, ch, 0, 0, TO_ROOM);
 			ch->setPosition(POS_STANDING);
@@ -1720,7 +1720,7 @@ mobile_activity(void)
 		
 		if (IS_NEUTRAL(ch)
             && ch->getPosition() == POS_SITTING
-            && IS_AFFECTED_2(ch, AFF2_MEDITATE))
+            && AFF2_FLAGGED(ch, AFF2_MEDITATE))
 			perform_monk_meditate(ch);
 
 		//
@@ -1745,7 +1745,7 @@ mobile_activity(void)
 				ch->setPosition(POS_SITTING);
 				break;
 			default:
-				if (!IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)
+				if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
 					|| number(1, 20) < GET_STR(ch)) {
 					act("$n stands up.", TRUE, ch, 0, 0, TO_ROOM);
 					ch->setPosition(POS_STANDING);
@@ -1796,7 +1796,7 @@ mobile_activity(void)
 			continue;
 
 		// If players can't do anything while petrified, neither can mobs
-		if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 			continue;
 
 
@@ -2090,10 +2090,10 @@ mobile_activity(void)
 			int vict_retval = 0;
 			vict = NULL;
 
-			if (IS_AFFECTED(ch, AFF_CHARM))
+			if (AFF_FLAGGED(ch, AFF_CHARM))
 				continue;
 
-			if (IS_AFFECTED(ch, AFF_BLIND))
+			if (AFF_FLAGGED(ch, AFF_BLIND))
 				continue;
 
 			it = ch->in_room->people.begin();
@@ -2179,7 +2179,7 @@ mobile_activity(void)
 				vict = *it;
 				if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
 					|| !can_see_creature(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
-					IS_AFFECTED_2(vict, AFF2_PETRIFIED))
+					AFF2_FLAGGED(vict, AFF2_PETRIFIED))
 					continue;
 
 				if (check_infiltrate(vict, ch))
@@ -2227,7 +2227,7 @@ mobile_activity(void)
 
 				if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
 					|| !can_see_creature(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
-					IS_AFFECTED_2(vict, AFF2_PETRIFIED)) {
+					AFF2_FLAGGED(vict, AFF2_PETRIFIED)) {
 					continue;
 				}
 				if (AWAKE(vict) &&
@@ -2455,7 +2455,7 @@ mobile_activity(void)
 			&& !((MOB_FLAGGED(ch, MOB_PET) || MOB2_FLAGGED(ch, MOB2_FAMILIAR))
 				&& ch->master)
 			&& ch->getPosition() >= POS_STANDING 
-			&& !IS_AFFECTED_2(ch, AFF2_MOUNTED) ){
+			&& !AFF2_FLAGGED(ch, AFF2_MOUNTED) ){
 
 			int door;
 			
@@ -2511,9 +2511,9 @@ mobile_activity(void)
 			} else if ((affected_by_spell(ch, SPELL_BLINDNESS) ||
 					affected_by_spell(ch, SKILL_GOUGE)) && GET_LEVEL(ch) > 6) {
 				cast_spell(ch, ch, 0, NULL, SPELL_CURE_BLIND);
-			} else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 7) {
+			} else if (AFF_FLAGGED(ch, AFF_POISON) && GET_LEVEL(ch) > 7) {
 				cast_spell(ch, ch, 0, NULL, SPELL_REMOVE_POISON);
-			} else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 26) {
+			} else if (AFF_FLAGGED(ch, AFF_CURSE) && GET_LEVEL(ch) > 26) {
 				cast_spell(ch, ch, 0, NULL, SPELL_REMOVE_CURSE);
 			} else if (GET_MANA(ch) > (GET_MAX_MANA(ch) * 0.75) &&
 				GET_LEVEL(ch) >= 28 &&
@@ -2577,27 +2577,27 @@ mobile_activity(void)
 				GET_MANA(ch) > mag_manacost(ch, SPELL_ARMOR) &&
 				!has_dark_sight(ch) && GET_LEVEL(ch) > 5) {
 				cast_spell(ch, ch, 0, NULL, SPELL_INFRAVISION);
-			} else if (GET_LEVEL(ch) > 12 && !IS_AFFECTED(ch, AFF_BLUR) &&
+			} else if (GET_LEVEL(ch) > 12 && !AFF_FLAGGED(ch, AFF_BLUR) &&
 				GET_MANA(ch) > mag_manacost(ch, SPELL_BLUR)) {
 				cast_spell(ch, ch, 0, NULL, SPELL_BLUR);
 			} else if (GET_LEVEL(ch) > 27
-				&& !IS_AFFECTED_2(ch, AFF2_TELEKINESIS)
+				&& !AFF2_FLAGGED(ch, AFF2_TELEKINESIS)
 				&& GET_MANA(ch) > mag_manacost(ch, SPELL_TELEKINESIS)) {
 				cast_spell(ch, ch, 0, NULL, SPELL_TELEKINESIS);
-			} else if (GET_LEVEL(ch) > 43 && !IS_AFFECTED_2(ch, AFF2_HASTE) &&
+			} else if (GET_LEVEL(ch) > 43 && !AFF2_FLAGGED(ch, AFF2_HASTE) &&
 				GET_MANA(ch) > mag_manacost(ch, SPELL_HASTE)) {
 				cast_spell(ch, ch, 0, NULL, SPELL_HASTE);
 			} else if (GET_LEVEL(ch) > 45
-				&& !IS_AFFECTED_2(ch, AFF2_DISPLACEMENT)
+				&& !AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)
 				&& GET_MANA(ch) > mag_manacost(ch, SPELL_DISPLACEMENT)) {
 				cast_spell(ch, ch, 0, NULL, SPELL_DISPLACEMENT);
 			} else if (GET_LEVEL(ch) > 16
-                       && !IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD)
+                       && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)
                        && GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD)
                        && !room_is_watery(ch->in_room)) {
 				cast_spell(ch, ch, 0, NULL, SPELL_FIRE_SHIELD);
 			} else if (GET_LEVEL(ch) > 48
-				&& !IS_AFFECTED_3(ch, AFF3_PRISMATIC_SPHERE)
+				&& !AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)
 				&& GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD)) {
 				cast_spell(ch, ch, 0, NULL, SPELL_PRISMATIC_SPHERE);
 			} else if (IS_REMORT(ch)) {
@@ -2757,15 +2757,15 @@ mobile_activity(void)
 
 		if (GET_RACE(ch) == RACE_ANIMAL &&
 			GET_CLASS(ch) == CLASS_BIRD &&
-			IS_AFFECTED(ch, AFF_INFLIGHT) &&
+			AFF_FLAGGED(ch, AFF_INFLIGHT) &&
 			!ch->in_room->isOpenAir() && random_fractional_3()) {
-			if (GET_CLASS(ch) == CLASS_BIRD && IS_AFFECTED(ch, AFF_INFLIGHT) &&
+			if (GET_CLASS(ch) == CLASS_BIRD && AFF_FLAGGED(ch, AFF_INFLIGHT) &&
 				!ch->in_room->isOpenAir()) {
 				if (ch->getPosition() == POS_FLYING && random_fractional_5()) {
 					act("$n flutters to the ground.", TRUE, ch, 0, 0, TO_ROOM);
 					ch->setPosition(POS_STANDING);
 				} else if (ch->getPosition() == POS_STANDING
-					&& !IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)) {
+					&& !AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)) {
 					act("$n flaps $s wings and takes flight.", TRUE, ch, 0, 0,
 						TO_ROOM);
 					ch->setPosition(POS_FLYING);
@@ -2777,7 +2777,7 @@ mobile_activity(void)
 		// non-birds flying around
 		//
 
-		if (IS_AFFECTED(ch, AFF_INFLIGHT) && random_fractional_10()) {
+		if (AFF_FLAGGED(ch, AFF_INFLIGHT) && random_fractional_10()) {
 			if (!ch->in_room->isOpenAir()) {
 				if (ch->getPosition() == POS_FLYING && random_fractional_10()) {
 					ch->setPosition(POS_STANDING);
@@ -2910,7 +2910,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		return 0;
 	}
 
-	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 		return 0;
 
 	if (IS_TARRASQUE(ch)) {	/* tarrasque */
@@ -3196,7 +3196,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
             for (; it != ch->getCombatList()->end(); it++) {
                 vict = it->getOpponent();
                 if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
-                    !IS_AFFECTED(vict, AFF_CONFIDENCE)) {
+                    !AFF_FLAGGED(vict, AFF_CONFIDENCE)) {
                     do_flee(vict, tmp_strdup(""), 0, 0, 0);
                 }
             }
@@ -3369,11 +3369,11 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			}
 
 			if ((GET_LEVEL(ch) > 18) && random_fractional_5() &&
-				!IS_AFFECTED_2(ch, AFF2_FIRE_SHIELD)) {
+				!AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
 				cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
 				return 0;
 			} else if ((GET_LEVEL(ch) > 14) && random_fractional_5() &&
-				!IS_AFFECTED(ch, AFF_BLUR)) {
+				!AFF_FLAGGED(ch, AFF_BLUR)) {
 				cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
 				return 0;
 			} else if ((GET_LEVEL(ch) > 5) && random_fractional_5() &&
@@ -3965,7 +3965,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 				if (vict->findCombat(ch) &&
 					GET_LEVEL(vict) < LVL_AMBASSADOR &&
 					!mag_savingthrow(vict, GET_LEVEL(ch) << 2, SAVING_SPELL) &&
-					!IS_AFFECTED(vict, AFF_CONFIDENCE))
+					!AFF_FLAGGED(vict, AFF_CONFIDENCE))
 					do_flee(vict, tmp_strdup(""), 0, 0, 0);
 			}
 
@@ -4610,7 +4610,7 @@ ACMD(do_breathe)
 
 void knight_activity(struct Creature *ch){
 	// Don't cast any spells if tainted
-	if (IS_AFFECTED_3(ch, AFF3_TAINTED))
+	if (AFF3_FLAGGED(ch, AFF3_TAINTED))
 		return;
     if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
         if (GET_LEVEL(ch) > 27 && random_binary() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
@@ -4631,10 +4631,10 @@ void knight_activity(struct Creature *ch){
                 (affected_by_spell(ch, SPELL_BLINDNESS) ||
                 affected_by_spell(ch, SKILL_GOUGE)) ) {
         cast_spell(ch, ch, 0, NULL, SPELL_CURE_BLIND);
-    } else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 18 &&
+    } else if (AFF_FLAGGED(ch, AFF_POISON) && GET_LEVEL(ch) > 18 &&
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)){
         cast_spell(ch, ch, 0, NULL, SPELL_REMOVE_POISON);
-    } else if (IS_AFFECTED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30 &&
+    } else if (AFF_FLAGGED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30 &&
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
         cast_spell(ch, ch, 0, NULL, SPELL_REMOVE_CURSE);
     } else if (IS_GOOD(ch) && GET_LEVEL(ch) > 32 &&
@@ -4778,7 +4778,7 @@ void ranger_activity(struct Creature *ch){
             do_firstaid(ch, tmp_strdup("self"), 0, 0, 0);
         else if (GET_LEVEL(ch) > 9)
             do_bandage(ch, tmp_strdup("self"), 0, 0, 0);
-    } else if (IS_AFFECTED(ch, AFF_POISON) && GET_LEVEL(ch) > 11) {
+    } else if (AFF_FLAGGED(ch, AFF_POISON) && GET_LEVEL(ch) > 11) {
         cast_spell(ch, ch, 0, NULL, SPELL_REMOVE_POISON);
     } else if (!affected_by_spell(ch, SPELL_STONESKIN) && GET_LEVEL(ch) > 19 &&
                 GET_REMORT_CLASS(ch) != CLASS_RANGER &&

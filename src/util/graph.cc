@@ -581,7 +581,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 		} else if (SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM &&
         ch->getPosition() != POS_FLYING &&
         can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
-			if (IS_AFFECTED(ch, AFF_INFLIGHT))
+			if (AFF_FLAGGED(ch, AFF_INFLIGHT))
 				do_fly(ch, tmp_strdup(""), 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 32)
 				cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK);
@@ -667,7 +667,7 @@ hunt_victim(struct Creature *ch)
 		}
 	}
     
-    if (!IS_AFFECTED(ch->isHunting(), AFF_NOTRACK) ||
+    if (!AFF_FLAGGED(ch->isHunting(), AFF_NOTRACK) ||
         (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER))) {
         dir = find_first_step(ch->in_room, ch->isHunting()->in_room, STD_TRACK);
         

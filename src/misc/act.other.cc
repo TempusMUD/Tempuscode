@@ -362,7 +362,7 @@ ACMD(do_title)
 int
 perform_group(struct Creature *ch, struct Creature *vict)
 {
-	if (IS_AFFECTED(vict, AFF_GROUP) || !can_see_creature(ch, vict))
+	if (AFF_FLAGGED(vict, AFF_GROUP) || !can_see_creature(ch, vict))
 		return 0;
 
 	SET_BIT(AFF_FLAGS(vict), AFF_GROUP);
@@ -398,14 +398,14 @@ print_group(struct Creature *ch)
 	struct Creature *k;
 	struct follow_type *f;
 
-	if (!IS_AFFECTED(ch, AFF_GROUP))
+	if (!AFF_FLAGGED(ch, AFF_GROUP))
 		send_to_char(ch, "But you are not the member of a group!\r\n");
 	else {
 		send_to_char(ch, "Your group consists of:\r\n");
 
 		k = (ch->master ? ch->master : ch);
 
-		if (IS_AFFECTED(k, AFF_GROUP)) {
+		if (AFF_FLAGGED(k, AFF_GROUP)) {
 			sprintf(buf,
 				"     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N %s(%sHead of group%s)%s",
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -422,7 +422,7 @@ print_group(struct Creature *ch)
 		}
 
 		for (f = k->followers; f; f = f->next) {
-			if (!IS_AFFECTED(f->follower, AFF_GROUP))
+			if (!AFF_FLAGGED(f->follower, AFF_GROUP))
 				continue;
 
 			sprintf(buf, "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N",
@@ -480,7 +480,7 @@ ACMD(do_group)
 		act("$N must follow you to enter your group.", FALSE, ch, 0, vict,
 			TO_CHAR);
 	else {
-		if (!IS_AFFECTED(vict, AFF_GROUP))
+		if (!AFF_FLAGGED(vict, AFF_GROUP))
 			perform_group(ch, vict);
 		else {
 			if (ch != vict)
@@ -506,15 +506,15 @@ ACMD(do_ungroup)
 	one_argument(argument, buf);
 
 	if (!*buf) {
-		if (ch->master || !(IS_AFFECTED(ch, AFF_GROUP))) {
+		if (ch->master || !(AFF_FLAGGED(ch, AFF_GROUP))) {
 			send_to_char(ch, "But you lead no group!\r\n");
 			return;
 		}
 		for (f = ch->followers; f; f = next_fol) {
 			next_fol = f->next;
-			if (IS_AFFECTED(f->follower, AFF_GROUP)) {
+			if (AFF_FLAGGED(f->follower, AFF_GROUP)) {
 				REMOVE_BIT(AFF_FLAGS(f->follower), AFF_GROUP);
-				if (!IS_AFFECTED(f->follower, AFF_CHARM)) {
+				if (!AFF_FLAGGED(f->follower, AFF_CHARM)) {
 					send_to_char(f->follower, "%s has disbanded the group.\r\n", PERS(ch, f->follower));
 					stop_follower(f->follower);
 				}
@@ -534,7 +534,7 @@ ACMD(do_ungroup)
 		return;
 	}
 
-	if (!IS_AFFECTED(tch, AFF_GROUP)) {
+	if (!AFF_FLAGGED(tch, AFF_GROUP)) {
 		send_to_char(ch, "That person isn't in your group.\r\n");
 		return;
 	}
@@ -546,7 +546,7 @@ ACMD(do_ungroup)
 	act("$N has been kicked out of $n's group!", FALSE, ch, 0, tch,
 		TO_NOTVICT);
 
-	if (!IS_AFFECTED(tch, AFF_CHARM))
+	if (!AFF_FLAGGED(tch, AFF_CHARM))
 		stop_follower(tch);
 }
 
@@ -558,7 +558,7 @@ ACMD(do_report)
 	struct Creature *k;
 	struct follow_type *f;
 
-	if (!IS_AFFECTED(ch, AFF_GROUP)) {
+	if (!AFF_FLAGGED(ch, AFF_GROUP)) {
 		send_to_char(ch, "But you are not a member of any group!\r\n");
 		return;
 	}
@@ -570,7 +570,7 @@ ACMD(do_report)
 	k = (ch->master ? ch->master : ch);
 
 	for (f = k->followers; f; f = f->next)
-		if (IS_AFFECTED(f->follower, AFF_GROUP) && f->follower != ch)
+		if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower != ch)
 			send_to_char(f->follower, "%s", buf);
 	if (k != ch)
 		send_to_char(k, "%s", buf);
@@ -618,17 +618,17 @@ ACMD(do_split)
 	}
 	k = (ch->master ? ch->master : ch);
 
-	if (IS_AFFECTED(k, AFF_GROUP) && (k->in_room == ch->in_room))
+	if (AFF_FLAGGED(k, AFF_GROUP) && (k->in_room == ch->in_room))
 		num = 1;
 	else
 		num = 0;
 
 	for (f = k->followers; f; f = f->next)
-		if (IS_AFFECTED(f->follower, AFF_GROUP) &&
+		if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
 			(!IS_NPC(f->follower)) && (f->follower->in_room == ch->in_room))
 			num++;
 
-	if (num && IS_AFFECTED(ch, AFF_GROUP))
+	if (num && AFF_FLAGGED(ch, AFF_GROUP))
 		share = amount / num;
 	else {
 		send_to_char(ch, "With whom do you wish to share your loot?\r\n");
@@ -640,7 +640,7 @@ ACMD(do_split)
 	else
 		GET_GOLD(ch) -= share * (num - 1);
 
-	if (IS_AFFECTED(k, AFF_GROUP) && (k->in_room == ch->in_room)
+	if (AFF_FLAGGED(k, AFF_GROUP) && (k->in_room == ch->in_room)
 		&& !(IS_NPC(k)) && k != ch) {
 		if (mode)
 			GET_CASH(k) += share;
@@ -650,7 +650,7 @@ ACMD(do_split)
 			amount, mode ? "credits" : "coins", share);
 	}
 	for (f = k->followers; f; f = f->next) {
-		if (IS_AFFECTED(f->follower, AFF_GROUP) &&
+		if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
 			(!IS_NPC(f->follower)) &&
 			(f->follower->in_room == ch->in_room) && f->follower != ch) {
 			if (mode)

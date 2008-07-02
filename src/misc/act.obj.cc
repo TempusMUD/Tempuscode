@@ -1759,7 +1759,7 @@ perform_plant(struct Creature *ch, struct Creature *vict,
 	act("You plant $p on $N.", FALSE, ch, obj, vict, TO_CHAR);
 	if ((CHECK_SKILL(ch, SKILL_PLANT) + GET_DEX(ch)) <
 		(number(0, 83) + GET_WIS(vict)) ||
-		IS_AFFECTED_2(vict, AFF2_TRUE_SEEING))
+		AFF2_FLAGGED(vict, AFF2_TRUE_SEEING))
 		act("$n puts $p in your pocket.", FALSE, ch, obj, vict, TO_VICT);
 	else
 		gain_skill_prof(ch, SKILL_PLANT);
@@ -3071,7 +3071,7 @@ perform_remove(struct Creature *ch, int pos)
 			TO_CHAR);
 	else if ((ch->getPosition() == POS_FLYING)
 		&& (GET_OBJ_TYPE(ch->equipment[pos]) == ITEM_WINGS)
-		&& (!IS_AFFECTED(ch, AFF_INFLIGHT))) {
+		&& (!AFF_FLAGGED(ch, AFF_INFLIGHT))) {
 		act("$p: you probably shouldn't remove those while flying!", FALSE, ch,
 			obj, 0, TO_CHAR);
 	} else if (GET_OBJ_TYPE(obj) == ITEM_TATTOO)

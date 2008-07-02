@@ -9,7 +9,7 @@ SPECIAL(kata)
 	struct Creature *kata = (struct Creature *)me;
 	char buf[MAX_STRING_LENGTH];
 
-	if (kata->master || IS_AFFECTED(kata, AFF_CHARM))
+	if (kata->master || AFF_FLAGGED(kata, AFF_CHARM))
 		return 0;
 
 	if (!CMD_IS("rescue"))

@@ -118,7 +118,7 @@ can_travel_sector(struct Creature *ch, int sector_type, bool active)
 			return true;
 
 		if (sector_type == SECT_WATER_NOSWIM) {
-			if (IS_AFFECTED(ch, AFF_WATERWALK)
+			if (AFF_FLAGGED(ch, AFF_WATERWALK)
 				|| ch->getPosition() >= POS_FLYING || (IS_ELEMENTAL(ch)
 					&& GET_CLASS(ch) == CLASS_WATER))
 				return true;
@@ -135,7 +135,7 @@ can_travel_sector(struct Creature *ch, int sector_type, bool active)
 		if (!NEEDS_TO_BREATHE(ch) ||
 			((sector_type == SECT_UNDERWATER ||
 					sector_type == SECT_WATER_NOSWIM) &&
-				(IS_AFFECTED(ch, AFF_WATERBREATH) ||
+				(AFF_FLAGGED(ch, AFF_WATERBREATH) ||
 					(IS_ELEMENTAL(ch) && GET_CLASS(ch) == CLASS_WATER))))
 			return true;
 
@@ -173,7 +173,7 @@ can_travel_sector(struct Creature *ch, int sector_type, bool active)
 		sector_type == SECT_ELEMENTAL_LIGHTNING ||
 		sector_type == SECT_ELEMENTAL_VACUUM) {
 
-		if (IS_AFFECTED(ch, AFF_INFLIGHT) ||
+		if (AFF_FLAGGED(ch, AFF_INFLIGHT) ||
 			(IS_ELEMENTAL(ch) && GET_CLASS(ch) == CLASS_AIR))
 			return true;
 		for (i = 0; i < NUM_WEARS; i++) {
@@ -301,12 +301,12 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 		return SNEAK_FAILED;
 
 	// People on fire are quite noticible
-	if (IS_AFFECTED_2(ch, AFF2_ABLAZE))
+	if (AFF2_FLAGGED(ch, AFF2_ABLAZE))
 		return SNEAK_FAILED;
 
 	// If they're not sneaking, they are always seen.  If they're invisible,
 	// they're always heard.
-	if (!IS_AFFECTED(ch, AFF_SNEAK)) {
+	if (!AFF_FLAGGED(ch, AFF_SNEAK)) {
 		if (!AWAKE(vict))
 			return SNEAK_OK;
 
@@ -368,7 +368,7 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
 	
 	}
 
-	if (IS_AFFECTED(vict, AFF_SENSE_LIFE) && !IS_UNDEAD(ch) && msgs) {
+	if (AFF_FLAGGED(vict, AFF_SENSE_LIFE) && !IS_UNDEAD(ch) && msgs) {
 		if (departing)
 			send_to_char(vict, "You sense a departing lifeform.\r\n");
 		else
@@ -434,7 +434,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	}
 
 	/* charmed? */
-	if (IS_AFFECTED(ch, AFF_CHARM) && ch->master &&
+	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
 		ch->in_room == ch->master->in_room) {
 		send_to_char(ch, "The thought of leaving your master makes you weep.\r\n");
 		if (IS_UNDEAD(ch))
@@ -500,7 +500,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		if (ch->getPosition() == POS_FLYING) {
 			has_boat = TRUE;
 			send_to_char(ch, "You fly over the waters.\r\n");
-		} else if (IS_FISH(ch) || IS_AFFECTED(ch, AFF_WATERWALK))
+		} else if (IS_FISH(ch) || AFF_FLAGGED(ch, AFF_WATERWALK))
 			has_boat = TRUE;
 		else {
 			for (obj = ch->carrying; obj; obj = obj->next_content)
@@ -630,7 +630,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	if (mount)
 		GET_MOVE(mount) -= need_movement;
 
-	if (IS_AFFECTED(ch, AFF_BLUR) || (mount && IS_AFFECTED(mount, AFF_BLUR)))
+	if (AFF_FLAGGED(ch, AFF_BLUR) || (mount && AFF_FLAGGED(mount, AFF_BLUR)))
 		blur_msg = tmp_sprintf("A blurred, shifted image leaves %s",
 			to_dirs[dir]);
 
@@ -685,11 +685,11 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			sprintf(buf, "$n walks %s across the water.", to_dirs[dir]);
 		else
 			sprintf(buf, "$n swims %s.", to_dirs[dir]);
-	} else if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
+	} else if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
 		sprintf(buf, "$n staggers %s, covered in flames.", to_dirs[dir]);
 	} else if (GET_COND(ch, DRUNK) > GET_CON(ch) / 2) {
 		sprintf(buf, "$n staggers %s.", to_dirs[dir]);
-	} else if (IS_AFFECTED(ch, AFF_SNEAK)) {
+	} else if (AFF_FLAGGED(ch, AFF_SNEAK)) {
 		sprintf(buf, "$n sneaks off %sward.", dirs[dir]);
 	} else if (IS_NPC(ch) && MOB_SHARED(ch)->move_buf) {
 		sprintf(buf, "$n %s off %s.",
@@ -737,7 +737,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	if (mount)
 		sprintf(buf + strlen(buf) - 1, ", carrying $N.");
 	if (blur_msg) {
-		if (mount && !IS_AFFECTED(ch, AFF_BLUR))
+		if (mount && !AFF_FLAGGED(ch, AFF_BLUR))
 			blur_msg = tmp_strcat(blur_msg, ", carrying $N.");
 		else
 			blur_msg = tmp_strcat(blur_msg, ".");
@@ -750,7 +750,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			continue;
 		if (check_sneak(ch, tch, true, true) == SNEAK_FAILED) {
 			if (blur_msg && !PRF_FLAGGED(tch, PRF_HOLYLIGHT) &&
-					!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+					!AFF2_FLAGGED(tch, AFF2_TRUE_SEEING))
 				perform_act(blur_msg, ch, 0, ch, tch, 0);
 			else if (mount)
 				perform_act(buf, mount, 0, ch, tch, 0);
@@ -778,7 +778,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
 					if (check_sneak(ch, tch, true, false) == SNEAK_FAILED) {
 						if (blur_msg && !PRF_FLAGGED(tch, PRF_HOLYLIGHT) &&
-								!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+								!AFF2_FLAGGED(tch, AFF2_TRUE_SEEING))
 							perform_act(blur_msg, ch, 0, ch, tch, 1);
 						else if (mount)
 							perform_act(buf, mount, 0, ch, tch, 1);
@@ -866,7 +866,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			return 2;
 	}
 
-	if (IS_AFFECTED(ch, AFF_BLUR) || (mount && IS_AFFECTED(mount, AFF_BLUR)))
+	if (AFF_FLAGGED(ch, AFF_BLUR) || (mount && AFF_FLAGGED(mount, AFF_BLUR)))
 		blur_msg = tmp_sprintf("A blurred, shifted image arrives from %s",
 					from_dirs[dir]);
 
@@ -882,7 +882,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	} else if (mode == MOVE_CRAWL) {
 		sprintf(buf, "$n crawls slowly in from %s.", from_dirs[dir]);
 	} else if (ch->getPosition() == POS_FLYING || ch->in_room->isOpenAir()) {
-		if (!IS_AFFECTED_2(ch, AFF2_ABLAZE))
+		if (!AFF2_FLAGGED(ch, AFF2_ABLAZE))
 			sprintf(buf, "$n flies in from %s.", from_dirs[dir]);
 		else
 			sprintf(buf, "$n flies in from %s, covered in flames.",
@@ -894,12 +894,12 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 		else
 			sprintf(buf, "$n arrives from what appears to be %s.",
 				from_dirs[dir]);
-	} else if (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG)
+	} else if (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG)
 		&& ch->getPosition() == POS_STANDING) {
 		sprintf(buf, "$n limps in from the %s, bleeding profusely.",
 			from_dirs[dir]);
 		add_blood_to_room(ch->in_room, 5);
-	} else if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
+	} else if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
 		sprintf(buf, "$n staggers in from %s, covered in flames.",
 			from_dirs[dir]);
 	} else if (GET_COND(ch, DRUNK) > GET_CON(ch) / 2) {
@@ -929,7 +929,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 			sprintf(buf, "$n struggles in from %s.", from_dirs[dir]);
 		else
 			sprintf(buf, "$n swims in from %s.", from_dirs[dir]);
-	} else if (IS_AFFECTED(ch, AFF_SNEAK)) {
+	} else if (AFF_FLAGGED(ch, AFF_SNEAK)) {
 		if (!number(0, 1))
 			sprintf(buf, "$n sneaks in from %s.", from_dirs[dir]);
 		else
@@ -977,7 +977,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	if (mount)
 		sprintf(buf + strlen(buf) - 1, ", carrying $N.");
 	if (blur_msg) {
-		if (mount && !IS_AFFECTED(ch, AFF_BLUR))
+		if (mount && !AFF_FLAGGED(ch, AFF_BLUR))
 			blur_msg = tmp_strcat(blur_msg, ", carrying $N.");
 		else
 			blur_msg = tmp_strcat(blur_msg, ".");
@@ -991,7 +991,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
 		if (check_sneak(ch, tch, false, true) == SNEAK_FAILED) {
 			if (blur_msg && !PRF_FLAGGED(tch, PRF_HOLYLIGHT) &&
-					!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+					!AFF2_FLAGGED(tch, AFF2_TRUE_SEEING))
 				perform_act(blur_msg, ch, 0, ch, tch, 0);
 			else if (mount)
 				perform_act(buf, mount, 0, ch, tch, 0);
@@ -1023,7 +1023,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
 					if (check_sneak(ch, tch, false, false) == SNEAK_FAILED) {
 						if (blur_msg && !PRF_FLAGGED(tch, PRF_HOLYLIGHT) &&
-								!IS_AFFECTED_2(tch, AFF2_TRUE_SEEING))
+								!AFF2_FLAGGED(tch, AFF2_TRUE_SEEING))
 							perform_act(blur_msg, ch, 0, ch, tch, 1);
 						else if (mount)
 							perform_act(buf, mount, 0, ch, tch, 1);
@@ -1222,7 +1222,7 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 		return 1;
 
 	if (mode != MOVE_CRAWL &&
-			((IS_AFFECTED_2(ch, AFF2_VERTIGO) &&
+			((AFF2_FLAGGED(ch, AFF2_VERTIGO) &&
 				GET_LEVEL(ch) < LVL_AMBASSADOR &&
 				number(0, 60) > (GET_LEVEL(ch) + GET_DEX(ch)) &&
 				ch->getPosition() >= POS_FIGHTING)
@@ -1979,7 +1979,7 @@ ACMD(do_stand)
 	int can_land = 0;
 	const char *to_char, *to_room;
 
-	if (IS_AFFECTED(ch, AFF_WATERWALK))
+	if (AFF_FLAGGED(ch, AFF_WATERWALK))
 		can_land = true;
 	for (obj = ch->carrying; obj && !can_land; obj = obj->next_content) {
 		if (GET_OBJ_TYPE(obj) == ITEM_BOAT)
@@ -1990,7 +1990,7 @@ ACMD(do_stand)
 	case POS_SLEEPING:
 	case POS_RESTING:
 	case POS_SITTING:
-		if (IS_AFFECTED_3(ch, AFF3_GRAVITY_WELL)) {
+		if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)) {
 			if (number(1, 20) < GET_STR(ch)) {
 				act("You defy the probability waves of the gravity well and struggle to your feet.", FALSE, ch, 0, 0, TO_CHAR);
 				act("$n defies the gravity well and struggles to $s feet.",
@@ -2117,7 +2117,7 @@ creature_can_fly(Creature *ch)
 				return true;
 		}
 	}
-	if (IS_AFFECTED(ch, AFF_INFLIGHT))
+	if (AFF_FLAGGED(ch, AFF_INFLIGHT))
 		return true;
 	return false;
 }
@@ -2251,7 +2251,7 @@ ACMD(do_rest)
 
 ACMD(do_sleep)
 {
-	if (IS_AFFECTED_2(ch, AFF2_BERSERK)) {
+	if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
 		send_to_char(ch, "What, sleep while in a berserk rage??\r\n");
 		return;
 	}
@@ -2312,7 +2312,7 @@ ACMD(do_wake)
 		} else if (vict == ch)
 			self = 1;
 		else if (vict->getPosition() > POS_SLEEPING) {
-			if (IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
+			if (AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
 				REMOVE_BIT(AFF2_FLAGS(vict), AFF2_MEDITATE);
 				act("You break $M out of $S trance.", FALSE, ch, 0, vict,
 					TO_CHAR);
@@ -2320,7 +2320,7 @@ ACMD(do_wake)
 					TO_NOTVICT);
 				act("$n interrupts your state of meditation.", FALSE, ch, 0,
 					vict, TO_VICT);
-			} else if (IS_AFFECTED(vict, AFF_CONFUSION)) {
+			} else if (AFF_FLAGGED(vict, AFF_CONFUSION)) {
 				act("You shake $M around, snapping $s out of a daze.",
 					TRUE, ch, 0, vict, TO_CHAR);
 				act("$n snaps you out of your daze.", TRUE, ch, 0, vict,
@@ -2328,7 +2328,7 @@ ACMD(do_wake)
 				REMOVE_BIT(AFF_FLAGS(ch), AFF_CONFUSION);
 			} else
 				act("$E is already awake.", FALSE, ch, 0, vict, TO_CHAR);
-		} else if (IS_AFFECTED(vict, AFF_SLEEP))
+		} else if (AFF_FLAGGED(vict, AFF_SLEEP))
 			act("You can't wake $M up!", FALSE, ch, 0, vict, TO_CHAR);
 		else if (vict->getPosition() == POS_STUNNED)
 			act("$E is stunned, and you fail to rouse $M.",
@@ -2352,7 +2352,7 @@ ACMD(do_wake)
 		if (!self)
 			return;
 	}
-	if (IS_AFFECTED(ch, AFF_SLEEP))
+	if (AFF_FLAGGED(ch, AFF_SLEEP))
 		send_to_char(ch, "You can't wake up!\r\n");
 	else if (IS_VAMPIRE(ch) && ch->in_room->zone->weather->sunlight ==
 		SUN_LIGHT && PRIME_MATERIAL_ROOM(ch->in_room))
@@ -2422,7 +2422,7 @@ ACMD(do_mount)
 		act("You cannot mount $M.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	if (IS_AFFECTED_2(vict, AFF2_MOUNTED)) {
+	if (AFF2_FLAGGED(vict, AFF2_MOUNTED)) {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if ((*it)->isMounted() == vict) {
@@ -2437,7 +2437,7 @@ ACMD(do_mount)
 		act("You need to stand up first!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
-	if ((!IS_AFFECTED(vict, AFF_CHARM) || !vict->master || vict->master != ch)
+	if ((!AFF_FLAGGED(vict, AFF_CHARM) || !vict->master || vict->master != ch)
 		&& (CHECK_SKILL(ch, SKILL_RIDING) < number(50, 101) + GET_LEVEL(vict))
 		&& GET_LEVEL(ch) < LVL_ETERNAL) {
 		act("$N refuses to be mounted by $n.", FALSE, ch, 0, vict, TO_NOTVICT);
@@ -2508,7 +2508,7 @@ ACMD(do_stalk)
 		act("You are already following $M.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master)) {
+	if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master)) {
 		act("But you only feel like following $N!", FALSE, ch, 0, ch->master,
 			TO_CHAR);
 	} else {					/* Not Charmed follow person */
@@ -2555,7 +2555,7 @@ ACMD(do_follow)
 		act("You are already following $M.", FALSE, ch, 0, leader, TO_CHAR);
 		return;
 	}
-	if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master)) {
+	if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master)) {
 		act("But you only feel like following $N!", FALSE, ch, 0, ch->master,
 			TO_CHAR);
 	} else {					/* Not Charmed follow person */
@@ -2608,7 +2608,7 @@ ACMD(do_defend)
 		act("You are already defending $M.", FALSE, ch, 0, targ, TO_CHAR);
 		return;
 	}
-	if (IS_AFFECTED(ch, AFF_CHARM) && ch->master && targ != ch->master) {
+	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master && targ != ch->master) {
 		act("But you only feel like defending $N!", FALSE, ch, 0, ch->master,
 			TO_CHAR);
 	} else {

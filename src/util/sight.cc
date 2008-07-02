@@ -84,7 +84,7 @@ room_is_light(room_data *room)
 bool
 has_infravision(Creature *ch)
 {
-	return (IS_AFFECTED(ch, AFF_INFRAVISION) ||
+	return (AFF_FLAGGED(ch, AFF_INFRAVISION) ||
 		(GET_RACE(ch) == RACE_ELF) ||     
 		(GET_RACE(ch) == RACE_DROW) ||    
 		(GET_RACE(ch) == RACE_DWARF) ||    
@@ -104,7 +104,7 @@ has_infravision(Creature *ch)
 bool
 check_sight_self(Creature *self)
 {
-	return !IS_AFFECTED(self, AFF_BLIND) ||
+	return !AFF_FLAGGED(self, AFF_BLIND) ||
 			AFF3_FLAGGED(self, AFF3_SONIC_IMAGERY);
 }
 
@@ -149,13 +149,13 @@ check_sight_object(Creature *self, obj_data *obj)
 		return false;
 
 	if (IS_OBJ_STAT(obj, ITEM_TRANSPARENT) &&
-			!(IS_AFFECTED_3(self, AFF3_SONIC_IMAGERY) ||
-				IS_AFFECTED(self, AFF_RETINA) ||
+			!(AFF3_FLAGGED(self, AFF3_SONIC_IMAGERY) ||
+				AFF_FLAGGED(self, AFF_RETINA) ||
 				affected_by_spell(self, ZEN_AWARENESS)))
 		return false;
 
-	if (IS_AFFECTED(self, AFF_DETECT_INVIS) ||
-			IS_AFFECTED_2(self, AFF2_TRUE_SEEING))
+	if (AFF_FLAGGED(self, AFF_DETECT_INVIS) ||
+			AFF2_FLAGGED(self, AFF2_TRUE_SEEING))
 		return true;
 
 	if (IS_OBJ_STAT(obj, ITEM_INVISIBLE))
@@ -192,23 +192,23 @@ check_sight_vict(Creature *self, Creature *vict)
 		return true;
 
 	// Sonic imagery and retina detects transparent creatures
-	if (IS_AFFECTED_2(vict, AFF2_TRANSPARENT) &&
-			!(IS_AFFECTED_3(self, AFF3_SONIC_IMAGERY) ||
-				IS_AFFECTED(self, AFF_RETINA) ||
+	if (AFF2_FLAGGED(vict, AFF2_TRANSPARENT) &&
+			!(AFF3_FLAGGED(self, AFF3_SONIC_IMAGERY) ||
+				AFF_FLAGGED(self, AFF_RETINA) ||
 				affected_by_spell(self, ZEN_AWARENESS)))
 		return false;
 
 	// True seeing and detect invisibility counteract all magical invis
-	if (IS_AFFECTED_2(self, AFF2_TRUE_SEEING) ||
+	if (AFF2_FLAGGED(self, AFF2_TRUE_SEEING) ||
 			AFF_FLAGGED(self, AFF_DETECT_INVIS))
 		return true;
 
 	// Invis/Transparent
-	if (IS_AFFECTED(vict, AFF_INVISIBLE))
+	if (AFF_FLAGGED(vict, AFF_INVISIBLE))
 		return false;
 
 	// Invis to Undead
-	if (IS_UNDEAD(self) && IS_AFFECTED_2(vict, AFF2_INVIS_TO_UNDEAD))
+	if (IS_UNDEAD(self) && AFF2_FLAGGED(vict, AFF2_INVIS_TO_UNDEAD))
 		return false;
 
 	return true;

@@ -27,7 +27,7 @@ SPECIAL(gen_shower_rm)
 		acid_cleaned = true;
 	}
 
-	if (IS_AFFECTED_2(ch, AFF2_ABLAZE)) {
+	if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
 		send_to_char(ch, "The flames surrounding you are extinguished in a burst of steam!\r\n");
         ch->extinguish();
 	}

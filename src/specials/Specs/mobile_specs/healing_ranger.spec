@@ -65,7 +65,7 @@ SPECIAL(healing_ranger)
 			found = FALSE;
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
-				if (IS_AFFECTED((*it), AFF_POISON)) {
+				if (AFF_FLAGGED((*it), AFF_POISON)) {
 					if (GET_MANA(ch) > 50) {
 						cast_spell(ch, *it, 0, NULL, SPELL_REMOVE_POISON);
 						return TRUE;

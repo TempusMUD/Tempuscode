@@ -28,7 +28,7 @@ SPECIAL(medusa)
 			TO_NOTVICT);
 		call_magic(ch, vict, 0, NULL, SPELL_PETRIFY, GET_LEVEL(ch),
 			CAST_PETRI);
-		if (IS_AFFECTED_2(vict, AFF2_PETRIFIED))
+		if (AFF2_FLAGGED(vict, AFF2_PETRIFIED))
             ch->removeAllCombat();
 		return 1;
 	}

@@ -439,7 +439,7 @@ ACMD(do_extinguish)
 	one_argument(argument, arg1);
 
 	if (!*arg1 || ch == get_char_room_vis(ch, arg1)) {
-		if (!IS_AFFECTED_2(ch, AFF2_ABLAZE))
+		if (!AFF2_FLAGGED(ch, AFF2_ABLAZE))
 			send_to_char(ch, "You're not even on fire!\r\n");
 		else if (((number(1,
 						80) > (GET_LEVEL(ch) + GET_WIS(ch) - GET_AC(ch) / 10))
@@ -491,7 +491,7 @@ ACMD(do_extinguish)
 	}
 
 	if ((vict = get_char_room_vis(ch, arg1))) {
-		if (!IS_AFFECTED_2(vict, AFF2_ABLAZE))
+		if (!AFF2_FLAGGED(vict, AFF2_ABLAZE))
 			act("$N's not even on fire!", FALSE, ch, 0, vict, TO_CHAR);
 		else if (number(40,
 				80) > (GET_LEVEL(ch) + GET_WIS(ch) - GET_AC(vict) / 10)) {
@@ -527,7 +527,7 @@ ACMD(do_ignite)
 		send_to_char(ch, "No-one by that name around here.\r\n");
 	else if (GET_LEVEL(vict) > GET_LEVEL(ch))
 		send_to_char(ch, "That's probably a really bad idea.\r\n");
-	else if (IS_AFFECTED_2(vict, AFF2_ABLAZE))
+	else if (AFF2_FLAGGED(vict, AFF2_ABLAZE))
 		act("$N is already ablaze!", FALSE, ch, 0, vict, TO_CHAR);
 	else {
 		act("$n makes an arcane gesture...", FALSE, ch, 0, 0, TO_ROOM);

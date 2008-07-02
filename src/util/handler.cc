@@ -778,8 +778,8 @@ affect_to_char(struct Creature *ch, struct affected_type *af)
 		af->bitvector, af->aff_index, TRUE);
 	affect_total(ch);
 	if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
-		!IS_AFFECTED(ch, AFF_GLOWLIGHT) &&
-		!IS_AFFECTED_2(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
+		!AFF_FLAGGED(ch, AFF_GLOWLIGHT) &&
+		!AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
 		!prev_quad)
 		ch->in_room->light++;
 
@@ -825,9 +825,9 @@ affect_remove(struct Creature *ch, struct affected_type *af)
 		apply_soil_to_char(ch, GET_EQ(ch, WEAR_FACE), SOIL_BLOOD, WEAR_FACE);
 		apply_soil_to_char(ch, GET_EQ(ch, WEAR_EYES), SOIL_BLOOD, WEAR_EYES);
 	} else if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
-		!IS_AFFECTED(ch, AFF_GLOWLIGHT) &&
-		!IS_AFFECTED_2(ch, AFF2_FLUORESCENT) &&
-		!IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) &&
+		!AFF_FLAGGED(ch, AFF_GLOWLIGHT) &&
+		!AFF2_FLAGGED(ch, AFF2_FLUORESCENT) &&
+		!AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION) &&
 		!affected_by_spell(ch, SPELL_QUAD_DAMAGE))
 		ch->in_room->light--;
 
@@ -1029,7 +1029,7 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 
 	if (ch->getPosition() == POS_FLYING)
 		trail->track = 0;
-	else if (IS_AFFECTED(ch, AFF_NOTRACK)
+	else if (AFF_FLAGGED(ch, AFF_NOTRACK)
 			|| affected_by_spell(ch, SKILL_ELUSION))
 		trail->track = 3;
 	else
@@ -1106,8 +1106,8 @@ char_from_room( Creature *ch, bool check_specials)
 		if (GET_OBJ_TYPE(ch->equipment[WEAR_LIGHT]) == ITEM_LIGHT)
 			if (GET_OBJ_VAL(ch->equipment[WEAR_LIGHT], 2))	/* Light is ON */
 				ch->in_room->light--;
-	if (IS_AFFECTED(ch, AFF_GLOWLIGHT) || IS_AFFECTED_2(ch, AFF2_FLUORESCENT)
-		|| IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) ||
+	if (AFF_FLAGGED(ch, AFF_GLOWLIGHT) || AFF2_FLAGGED(ch, AFF2_FLUORESCENT)
+		|| AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION) ||
 		affected_by_spell(ch, SPELL_QUAD_DAMAGE))
 		ch->in_room->light--;
 
@@ -1185,8 +1185,8 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 		if (GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT)
 			if (GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))	/* Light ON */
 				room->light++;
-	if (IS_AFFECTED(ch, AFF_GLOWLIGHT) || IS_AFFECTED_2(ch, AFF2_FLUORESCENT)
-		|| IS_AFFECTED_2(ch, AFF2_DIVINE_ILLUMINATION) ||
+	if (AFF_FLAGGED(ch, AFF_GLOWLIGHT) || AFF2_FLAGGED(ch, AFF2_FLUORESCENT)
+		|| AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION) ||
 		affected_by_spell(ch, SPELL_QUAD_DAMAGE))
 		room->light++;
 
@@ -1214,7 +1214,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) &&
-		!IS_AFFECTED_2(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch)) {
+		!AFF2_FLAGGED(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch)) {
 		act("$n suddenly bursts into flames!", FALSE, ch, 0, 0, TO_ROOM);
 		act("You suddenly burst into flames!", FALSE, ch, 0, 0, TO_CHAR);
         ch->ignite(NULL);

@@ -145,7 +145,7 @@ award_bounty(Creature *killer, Creature *vict)
 		// count the people in the group
 		count = 1;
 		for (f = killer->followers;f;f = f->next)
-			if (IS_AFFECTED(f->follower, AFF_GROUP) && !IS_NPC(f->follower))
+			if (AFF_FLAGGED(f->follower, AFF_GROUP) && !IS_NPC(f->follower))
 				count++;
 
 		amt /= count;
@@ -158,7 +158,7 @@ award_bounty(Creature *killer, Creature *vict)
 		GET_GOLD(killer) += amt;
 
 		for (f = killer->followers;f;f = f->next)
-			if (IS_AFFECTED(f->follower, AFF_GROUP) && !IS_NPC(f->follower)) {
+			if (AFF_FLAGGED(f->follower, AFF_GROUP) && !IS_NPC(f->follower)) {
 				send_to_char(f->follower, "You have been paid %d gold coins for your part in killing %s!\r\n",
 					amt, GET_NAME(vict));
 				GET_GOLD(f->follower) += amt;

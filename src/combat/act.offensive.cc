@@ -134,10 +134,10 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			prob += 10;
 	}
 
-	if (IS_AFFECTED_2(ch, AFF2_DISPLACEMENT) &&
-		!IS_AFFECTED_2(vict, AFF2_TRUE_SEEING))
+	if (AFF2_FLAGGED(ch, AFF2_DISPLACEMENT) &&
+		!AFF2_FLAGGED(vict, AFF2_TRUE_SEEING))
 		prob += 5;
-	if (IS_AFFECTED(ch, AFF_BLUR))
+	if (AFF_FLAGGED(ch, AFF_BLUR))
 		prob += 5;
 	if (!can_see_creature(vict, ch))
 		prob += 20;
@@ -148,10 +148,10 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		prob -= (GET_COND(ch, DRUNK) * 2);
 	if (IS_SICK(ch))
 		prob -= 5;
-	if (IS_AFFECTED_2(vict, AFF2_DISPLACEMENT) &&
-		!IS_AFFECTED_2(ch, AFF2_TRUE_SEEING))
+	if (AFF2_FLAGGED(vict, AFF2_DISPLACEMENT) &&
+		!AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		prob -= GET_LEVEL(vict) >> 1;
-	if (IS_AFFECTED_2(vict, AFF2_EVADE))
+	if (AFF2_FLAGGED(vict, AFF2_EVADE))
 		prob -= (GET_LEVEL(vict) >> 2) + 5;
 
 	if (IS_BARB(ch)) {
@@ -573,7 +573,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	case SKILL_CHOKE:
-		if (IS_AFFECTED_2(vict, AFF2_NECK_PROTECTED) &&
+		if (AFF2_FLAGGED(vict, AFF2_NECK_PROTECTED) &&
 			number(0, GET_LEVEL(vict) * 4) > number(0, GET_LEVEL(ch))) {
 			if ((neck = GET_EQ(vict, WEAR_NECK_1)) ||
 				(neck = GET_EQ(vict, WEAR_NECK_2))) {
@@ -639,7 +639,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			}
 		}
 
-		if( IS_AFFECTED_2(vict, AFF2_NECK_PROTECTED) 
+		if( AFF2_FLAGGED(vict, AFF2_NECK_PROTECTED) 
 			&& number(0, GET_LEVEL(vict) * 4) > number(0, (GET_LEVEL(ch) >> 1))) 
 		{
 			// Try to find the nobehead eq.
@@ -851,7 +851,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
-        if (!IS_AFFECTED(ch, AFF_SNEAK) && !IS_AFFECTED_3(ch, AFF3_INFILTRATE))
+        if (!AFF_FLAGGED(ch, AFF_SNEAK) && !AFF3_FLAGGED(ch, AFF3_INFILTRATE))
 			prob = 0;
 		if (GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_HOLD) ||
 				GET_EQ(ch, WEAR_SHIELD)) {
@@ -1137,7 +1137,7 @@ ACMD(do_hit)
             0, ch, 0, vict, TO_CHAR);
         ch->addCombat(vict, true);
     }
-	else if (IS_AFFECTED(ch, AFF_CHARM) && (ch->master == vict))
+	else if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master == vict))
 		act("$N is just such a good friend, you simply can't hit $M.", FALSE,
 			ch, 0, vict, TO_CHAR);
 	else {
@@ -1210,7 +1210,7 @@ ACMD(do_order)
 	else if (ch == vict)
 		send_to_char(ch, "You obviously suffer from schizophrenia.\r\n");
 	else {
-		if (IS_AFFECTED(ch, AFF_CHARM)) {
+		if (AFF_FLAGGED(ch, AFF_CHARM)) {
 			send_to_char(ch, 
 				"Your superior would not approve of you giving orders.\r\n");
 			return;
@@ -1227,7 +1227,7 @@ ACMD(do_order)
 			send_to_char(ch, "You order %s to '%s'.\r\n", PERS(vict, ch), message);
 			send_to_char(ch, CCNRM(ch, C_SPR));
 
-			if (((vict->master != ch) || !IS_AFFECTED(vict, AFF_CHARM) ||
+			if (((vict->master != ch) || !AFF_FLAGGED(vict, AFF_CHARM) ||
 					GET_CHA(ch) < number(0, GET_INT(vict))) &&
 				(GET_LEVEL(ch) < LVL_CREATOR ||
 					GET_LEVEL(vict) >= GET_LEVEL(ch))
@@ -1261,7 +1261,7 @@ ACMD(do_order)
 			for (k = ch->followers; k; k = order_next_k) {
 				order_next_k = k->next;
 				if (org_room == k->follower->in_room)
-					if ((IS_AFFECTED(k->follower, AFF_CHARM) &&
+					if ((AFF_FLAGGED(k->follower, AFF_CHARM) &&
 							GET_CHA(ch) > number(0, GET_INT(k->follower)))
 							|| GET_LEVEL(ch) >= LVL_CREATOR
 							|| MOB2_FLAGGED(k->follower, MOB2_FAMILIAR)) {
@@ -1304,11 +1304,11 @@ ACMD(do_flee)
 
 	ACMD_set_return_flags(0);
 
-	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED)) {
+	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
 		send_to_char(ch, "You are solid stone!\r\n");
 		return;
 	}
-	if (IS_AFFECTED_2(ch, AFF2_BERSERK) && ch->isFighting() &&
+	if (AFF2_FLAGGED(ch, AFF2_BERSERK) && ch->isFighting() &&
 		!number(0, 1 + (GET_INT(ch) >> 2))) {
 		send_to_char(ch, "You are too enraged to flee!\r\n");
 		return;
@@ -1337,7 +1337,7 @@ ACMD(do_flee)
 			act("$n panics, and attempts to flee!", TRUE, ch, 0, 0, TO_ROOM);
 			if (ch->in_room->isOpenAir()
 				|| EXIT(ch, attempt)->to_room->isOpenAir()) {
-				if (IS_AFFECTED(ch, AFF_INFLIGHT))
+				if (AFF_FLAGGED(ch, AFF_INFLIGHT))
 					ch->setPosition(POS_FLYING);
 				else
 					continue;

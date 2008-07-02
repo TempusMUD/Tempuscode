@@ -293,7 +293,7 @@ ACMD(do_lecture)
 		percent += 10;
 	if( AFF_FLAGGED(vict, AFF_ADRENALINE) )
 		percent += 10;
-	if( IS_AFFECTED_2(vict, AFF2_BERSERK) )
+	if( AFF2_FLAGGED(vict, AFF2_BERSERK) )
 		percent += 50;
 
 
@@ -1018,7 +1018,7 @@ do_emp_pulse_char(Creature * ch, Creature * vict)
 	affected_type *af = NULL;
 	int removed = 0;
 
-	if (IS_AFFECTED_3(vict, AFF3_EMP_SHIELD) && !random_fractional_5()) {
+	if (AFF3_FLAGGED(vict, AFF3_EMP_SHIELD) && !random_fractional_5()) {
 		send_to_char(vict, "Your emp shielding stops the pulse!\r\n");
 		return;
 	}

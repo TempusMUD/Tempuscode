@@ -468,7 +468,7 @@ ACMD(do_snatch)
 
 		// Monks are cool. They stand up when someone tries to snatch from em.
 		if (vict->getPosition() == POS_SITTING
-			&& IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
+			&& AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
 			vict->setPosition(POS_STANDING);
 			act("You jump to your feet, glaring at $s!", FALSE, ch, 0, vict,
 				TO_VICT);
@@ -563,7 +563,7 @@ ACMD(do_snatch)
 						FALSE, ch, obj, vict, TO_NOTVICT);
 				}
 			} else if (vict->getPosition() == POS_SITTING &&
-				IS_AFFECTED_2(vict, AFF2_MEDITATE)) {
+				AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
 				vict->setPosition(POS_STANDING);
 				if (eq_pos == WEAR_BELT) {
 					act("$n breaks your trance snatching $p off your belt!",

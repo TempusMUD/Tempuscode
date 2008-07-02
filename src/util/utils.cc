@@ -482,7 +482,7 @@ can_charm_more(Creature *ch)
 		return true;
 
 	for (cur = ch->followers;cur;cur= cur->next)
-		if (IS_AFFECTED(cur->follower, AFF_CHARM))
+		if (AFF_FLAGGED(cur->follower, AFF_CHARM))
 			count++;
 
 	return (count < GET_CHA(ch)/2 + GET_REMORT_GEN(ch));
@@ -500,7 +500,7 @@ stop_follower(struct Creature *ch)
 	if (!ch->master)
 		raise(SIGSEGV);
 
-	if (IS_AFFECTED(ch, AFF_CHARM) && !MOB2_FLAGGED(ch, MOB2_MOUNT)) {
+	if (AFF_FLAGGED(ch, AFF_CHARM) && !MOB2_FLAGGED(ch, MOB2_MOUNT)) {
 		act("You realize that $N is a jerk!", FALSE, ch, 0, ch->master,
 			TO_CHAR);
 		act("$n realizes that $N is a jerk!", FALSE, ch, 0, ch->master,
@@ -512,7 +512,7 @@ stop_follower(struct Creature *ch)
 		act("You stop following $N.", FALSE, ch, 0, ch->master, TO_CHAR);
 		act("$n stops following $N.", TRUE, ch, 0, ch->master, TO_NOTVICT);
 		if (GET_INVIS_LVL(ch) < GET_LEVEL(ch->master)
-			&& !IS_AFFECTED(ch, AFF_SNEAK))
+			&& !AFF_FLAGGED(ch, AFF_SNEAK))
 			act("$n stops following you.", TRUE, ch, 0, ch->master, TO_VICT);
 	}
 

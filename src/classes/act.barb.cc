@@ -132,7 +132,7 @@ ACMD(do_berserk)
 
     perform_barb_berserk(ch, NULL, return_flags);
 
-	if (IS_AFFECTED_2(ch, AFF2_BERSERK)) {
+	if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
 		if (percent > CHECK_SKILL(ch, SKILL_BERSERK)) {
 			send_to_char(ch, "You cannot calm down!!\r\n");
 			return;

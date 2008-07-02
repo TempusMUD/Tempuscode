@@ -57,8 +57,8 @@ appear(struct Creature *ch, struct Creature *vict)
     // Sonic imagery and retina detects transparent creatures
 	if (affected_by_spell(ch, SPELL_TRANSMITTANCE) &&
     !affected_by_spell(ch, SPELL_DIMENSIONAL_SHIFT) &&
-    !(IS_AFFECTED_3(vict, AFF3_SONIC_IMAGERY) ||
-    IS_AFFECTED(vict, AFF_RETINA) ||
+    !(AFF3_FLAGGED(vict, AFF3_SONIC_IMAGERY) ||
+    AFF_FLAGGED(vict, AFF_RETINA) ||
     affected_by_spell(vict, ZEN_AWARENESS)))
     {
         affect_from_char(ch, SPELL_TRANSMITTANCE);
@@ -68,7 +68,7 @@ appear(struct Creature *ch, struct Creature *vict)
 
 	// True seeing and detect invisibility counteract all magical invis
 	if (affected_by_spell(ch, SPELL_INVISIBLE) &&
-    (IS_AFFECTED_2(vict, AFF2_TRUE_SEEING) ||
+    (AFF2_FLAGGED(vict, AFF2_TRUE_SEEING) ||
     AFF_FLAGGED(vict, AFF_DETECT_INVIS)))
     {
         affect_from_char(ch, SPELL_INVISIBLE);

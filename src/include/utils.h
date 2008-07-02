@@ -245,7 +245,7 @@ const char *AN(const char *str);
     (ch->getPosition() < POS_FLYING || !SRCH_FLAGGED(srch, SRCH_NOTRIG_FLY)) && \
     (!IS_NPC(ch) || !SRCH_FLAGGED(srch, SRCH_NOMOB)) &&        \
     ( IS_NPC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPLAYER)) &&        \
-	(!IS_AFFECTED(ch, AFF_CHARM) || !SRCH_FLAGGED(srch, SRCH_NOPLAYER)) &&	  \
+	(!AFF_FLAGGED(ch, AFF_CHARM) || !SRCH_FLAGGED(srch, SRCH_NOPLAYER)) &&	  \
     (!IS_MAGE(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMAGE)) &&    \
     (!IS_CLERIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOCLERIC)) && \
     (!IS_THIEF(ch)  || !SRCH_FLAGGED(srch, SRCH_NOTHIEF)) &&  \
@@ -381,12 +381,8 @@ PRF2_FLAGGED( Creature *ch, int flag )
 #define IS_PET(ch)       (MOB_FLAGGED(ch, MOB_PET))
 #define IS_SOULLESS(ch) (MOB_FLAGGED(ch, MOB_SOULLESS) || PLR2_FLAGGED(ch, PLR2_SOULLESS))
 #define HAS_SYMBOL(ch) (IS_SOULLESS(ch) || affected_by_spell(ch, SPELL_STIGMATA) \
-                        || IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN) \
-                        || IS_AFFECTED_3(ch, AFF3_TAINTED))
-// IS_AFFECTED for backwards compatibility
-#define IS_AFFECTED(ch, skill) (AFF_FLAGGED((ch), (skill)))
-#define IS_AFFECTED_2(ch, skill) (AFF2_FLAGGED((ch), (skill)))
-#define IS_AFFECTED_3(ch, skill) (AFF3_FLAGGED((ch), (skill)))
+                        || AFF3_FLAGGED(ch, AFF3_SYMBOL_OF_PAIN) \
+                        || AFF3_FLAGGED(ch, AFF3_TAINTED))
 
 #define PLR_TOG_CHK(ch,flag) ((TOGGLE_BIT(PLR_FLAGS(ch), (flag))) & (flag))
 #define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch), (flag))) & (flag))
@@ -396,7 +392,7 @@ PRF2_FLAGGED( Creature *ch, int flag )
                                    AFF2_FLAGGED(ch, AFF2_PROT_RAD))
 
 #define CHAR_WITHSTANDS_FIRE(ch)  (GET_LEVEL(ch) >= LVL_IMMORT      ||  \
-                                  IS_AFFECTED_2(ch, AFF2_PROT_FIRE) ||  \
+                                  AFF2_FLAGGED(ch, AFF2_PROT_FIRE) ||  \
                                         GET_CLASS(ch) == CLASS_FIRE ||  \
                       (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_RED) ||  \
              (IS_DEVIL(ch) && (GET_PLANE(ch->in_room) == PLANE_HELL_4 || \
@@ -404,8 +400,8 @@ PRF2_FLAGGED( Creature *ch, int flag )
 
 #define CHAR_WITHSTANDS_COLD(ch)  (GET_LEVEL(ch) >= LVL_IMMORT        || \
                                    IS_VAMPIRE(ch) || \
-                                  IS_AFFECTED_2(ch, AFF2_ENDURE_COLD) || \
-                                  IS_AFFECTED_2(ch, AFF2_ABLAZE)      || \
+                                  AFF2_FLAGGED(ch, AFF2_ENDURE_COLD) || \
+                                  AFF2_FLAGGED(ch, AFF2_ABLAZE)      || \
                                    (ch->getPosition() == POS_SLEEPING &&       \
                                     AFF3_FLAGGED(ch, AFF3_STASIS))    || \
                       (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_WHITE) || \
@@ -415,7 +411,7 @@ PRF2_FLAGGED( Creature *ch, int flag )
                                GET_PLANE(ch->in_room) == PLANE_HELL_8)))
 
 #define CHAR_WITHSTANDS_HEAT(ch)  (GET_LEVEL(ch) >= LVL_IMMORT        || \
-                                   IS_AFFECTED_3(ch, AFF3_PROT_HEAT)   || \
+                                   AFF3_FLAGGED(ch, AFF3_PROT_HEAT)   || \
                                    (ch->getPosition() == POS_SLEEPING &&       \
                                     AFF3_FLAGGED(ch, AFF3_STASIS))    || \
                         (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_RED) || \
@@ -427,7 +423,7 @@ PRF2_FLAGGED( Creature *ch, int flag )
                                    GET_PLANE(ch->in_room) == PLANE_HELL_6)))
 
 #define CHAR_WITHSTANDS_ELECTRIC(ch)   \
-                                (IS_AFFECTED_2(ch, AFF2_PROT_LIGHTNING) || \
+                                (AFF2_FLAGGED(ch, AFF2_PROT_LIGHTNING) || \
                                  IS_VAMPIRE(ch) || \
                            (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_BLUE))
 
@@ -660,7 +656,7 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 
 #define CAN_CARRY_W(ch) (MAX(10, RAW_CARRY_W(ch)))
 
-#define RAW_CARRY_W(ch) (IS_AFFECTED_2(ch, AFF2_TELEKINESIS) ? \
+#define RAW_CARRY_W(ch) (AFF2_FLAGGED(ch, AFF2_TELEKINESIS) ? \
                          (str_app[STRENGTH_APPLY_INDEX(ch)].carry_w << 1) : \
                          str_app[STRENGTH_APPLY_INDEX(ch)].carry_w + \
                          ((GET_LEVEL(ch) >= LVL_GOD) ? 100000 : 0) + \
@@ -668,23 +664,23 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 #define CAN_CARRY_N(ch) (1 + GET_DEX(ch) + \
                          ((GET_LEVEL(ch) >= LVL_GOD) ? 100000 : 0) + \
 						 ((GET_LEVEL(ch) >= LVL_IMMORT) ? 1000 : 0) + \
-                         (IS_AFFECTED_2(ch, AFF2_TELEKINESIS) ? \
+                         (AFF2_FLAGGED(ch, AFF2_TELEKINESIS) ? \
                           (GET_LEVEL(ch) >> 2) : 0))
 
-#define AWAKE(ch) ((ch)->getPosition() > POS_SLEEPING && !IS_AFFECTED_2(ch, AFF2_MEDITATE))
+#define AWAKE(ch) ((ch)->getPosition() > POS_SLEEPING && !AFF2_FLAGGED(ch, AFF2_MEDITATE))
 
 #define IS_GOOD(ch)    (GET_ALIGNMENT(ch) >= 350)
 #define IS_EVIL(ch)    (GET_ALIGNMENT(ch) <= -350)
 #define IS_NEUTRAL(ch) (!IS_GOOD(ch) && !IS_EVIL(ch))
-#define IS_SICK(ch)    (IS_AFFECTED_3(ch, AFF3_SICKNESS))
-#define IS_HAMSTRUNG(ch)    (IS_AFFECTED_3(ch, AFF3_HAMSTRUNG))
-#define HAS_POISON_1(ch) (IS_AFFECTED(ch, AFF_POISON))
-#define HAS_POISON_2(ch) (IS_AFFECTED_3(ch, AFF3_POISON_2))
-#define HAS_POISON_3(ch) (IS_AFFECTED_3(ch, AFF3_POISON_3))
+#define IS_SICK(ch)    (AFF3_FLAGGED(ch, AFF3_SICKNESS))
+#define IS_HAMSTRUNG(ch)    (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG))
+#define HAS_POISON_1(ch) (AFF_FLAGGED(ch, AFF_POISON))
+#define HAS_POISON_2(ch) (AFF3_FLAGGED(ch, AFF3_POISON_2))
+#define HAS_POISON_3(ch) (AFF3_FLAGGED(ch, AFF3_POISON_3))
 #define IS_POISONED(ch) (HAS_POISON_1(ch) || HAS_POISON_2(ch) || \
                          HAS_POISON_3(ch))
-#define IS_CONFUSED(ch)  (IS_AFFECTED(ch, AFF_CONFUSION) \
-                          || IS_AFFECTED_3(ch, AFF3_SYMBOL_OF_PAIN))
+#define IS_CONFUSED(ch)  (AFF_FLAGGED(ch, AFF_CONFUSION) \
+                          || AFF3_FLAGGED(ch, AFF3_SYMBOL_OF_PAIN))
 #define THACO(char_class, level) \
      ((char_class < 0) ? 20 :                             \
       ((char_class < NUM_CLASSES) ?                       \

@@ -160,7 +160,7 @@ select_say_cmd(Creature *ch, const char *message)
         return "gasp";
     if (room_is_underwater(ch->in_room))
         return "gurgle";
-	if (IS_AFFECTED_2(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch))
+	if (AFF2_FLAGGED(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch))
         return "scream";
     if (IS_POISONED(ch))
         return "choke";
@@ -172,11 +172,11 @@ select_say_cmd(Creature *ch, const char *message)
         return "rasp";
     if (strcasestr(message, "y'all") || strstr(message, "ain't"))
         return "drawl";
-    if (IS_AFFECTED_2(ch, AFF2_BERSERK))
+    if (AFF2_FLAGGED(ch, AFF2_BERSERK))
         return "rave";
-    if (IS_AFFECTED_2(ch, AFF2_INTIMIDATED))
+    if (AFF2_FLAGGED(ch, AFF2_INTIMIDATED))
         return "whimper";
-    if (IS_AFFECTED(ch, AFF_CONFUSION))
+    if (AFF_FLAGGED(ch, AFF_CONFUSION))
         return "stammer";
     for (int i = 0;i < num_nasty;i++)
         if (!strcasecmp(message, nasty_list[i]))
@@ -220,7 +220,7 @@ ACMD(do_gsay)
 
 	skip_spaces(&argument);
 
-	if (!IS_AFFECTED(ch, AFF_GROUP)) {
+	if (!AFF_FLAGGED(ch, AFF_GROUP)) {
 		send_to_char(ch, "But you are not the member of a group!\r\n");
 		return;
 	}
@@ -233,13 +233,13 @@ ACMD(do_gsay)
 			k = ch;
 
         argument = act_escape(argument);
-		if (IS_AFFECTED(k, AFF_GROUP) && (k != ch) && CAN_CHANNEL_COMM(ch, k)) {
+		if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && CAN_CHANNEL_COMM(ch, k)) {
 			sprintf(buf, "%s$n tells the group,%s '%s'%s", CCGRN(k, C_NRM),
                     CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
 			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP);
 		}
 		for (f = k->followers; f; f = f->next)
-			if (IS_AFFECTED(f->follower, AFF_GROUP) && (f->follower != ch) &&
+			if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
 				CAN_CHANNEL_COMM(ch, f->follower)) {
 				sprintf(buf, "%s$n tells the group,%s '%s'%s",
 					CCGRN(f->follower, C_NRM), CCYEL(f->follower, C_NRM),
@@ -898,7 +898,7 @@ ACMD(do_gen_comm)
 	// Check to see if they're calling for help
 	if (subcmd == SCMD_SHOUT
 			&& IS_NPC(ch)
-			&& !IS_AFFECTED(ch, AFF_CHARM)
+			&& !AFF_FLAGGED(ch, AFF_CHARM)
 			&& strstr(argument, "help")
 			&& strstr(argument, "!"))
 		summon_cityguards(ch->in_room);

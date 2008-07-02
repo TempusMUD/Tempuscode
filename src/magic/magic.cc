@@ -153,7 +153,7 @@ mag_savingthrow(struct Creature *ch, int level, int type)
 	save += GET_SAVE(ch, type);
 	save += (level >> 1);
 
-	if (IS_AFFECTED_2(ch, AFF2_EVADE))
+	if (AFF2_FLAGGED(ch, AFF2_EVADE))
 		save -= (GET_LEVEL(ch) / 5);
 	if (ch->getPosition() < POS_FIGHTING)
 		save += ((10 - ch->getPosition()) << 2);
@@ -724,7 +724,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		dam = dice(level / 2, 5);
 		if (!GET_CLASS(ch) == CLASS_PHYSIC)
 			dam = dam >> 1;
-		if (IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL))
+		if (AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL))
 			dam = dam >> 1;
 		break;
 
@@ -914,7 +914,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			return retval;
 		}
 		WAIT_STATE(victim, 2 RL_SEC);
-		if (!IS_AFFECTED_3(victim, AFF3_GRAVITY_WELL) &&
+		if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) &&
 			(victim->getPosition() > POS_STANDING
 				|| number(1, level / 2) > GET_STR(victim))) {
 			victim->setPosition(POS_RESTING);
@@ -972,7 +972,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		}
 	} else if (spellnum == SPELL_CONE_COLD || spellnum == SPELL_HAILSTORM ||
 			spellnum == SPELL_HELL_FROST) {
-		if (IS_AFFECTED_2(victim, AFF2_ABLAZE)) {
+		if (AFF2_FLAGGED(victim, AFF2_ABLAZE)) {
             victim->extinguish();
 			act("The flames on your body sizzle out and die.",
 				true, victim, 0, 0, TO_CHAR);
@@ -1252,7 +1252,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
         af.bitvector = AFF3_DETECT_POISON;
         af.aff_index = 3;
         to_vict = "Your eyes tingle.";
-        if (IS_AFFECTED(victim, AFF_POISON))
+        if (AFF_FLAGGED(victim, AFF_POISON))
             send_to_char(victim, "You can sense poison in your blood.\r\n");
 		break;
 	case SPELL_DETECT_SCRYING:
@@ -1348,7 +1348,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_GREATER_INVIS:
 		af.duration = 3 + (level >> 3);
-		if (!IS_AFFECTED(victim, AFF_INVISIBLE)) {
+		if (!AFF_FLAGGED(victim, AFF_INVISIBLE)) {
 			af.modifier = -20;
 			af.location = APPLY_AC;
 		} else {
@@ -1668,7 +1668,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		accum_duration = FALSE;
 		accum_affect = FALSE;
 
-		if IS_AFFECTED
+		if AFF_FLAGGED
 			(victim, AFF_CONFUSION) {
 			REMOVE_BIT(AFF_FLAGS(victim), AFF_CONFUSION);
 			}
@@ -2412,7 +2412,7 @@ Fireball: like harder bones, skin, organ membranecs
 		aff_array[0].modifier = ch->getLevelBonus(SPELL_DIVINE_POWER);
 		aff_array[1].modifier = ch->getLevelBonus(SPELL_DIVINE_POWER);
 
-		if (!IS_AFFECTED_3(ch, AFF3_DIVINE_POWER))
+		if (!AFF3_FLAGGED(ch, AFF3_DIVINE_POWER))
 			accum_affect = 1;
 		break;
 
@@ -2763,19 +2763,19 @@ Fireball: like harder bones, skin, organ membranecs
 		afp = &af;
 		while (!done) {
 			if (afp->aff_index == 0) {
-				if (IS_AFFECTED(victim, afp->bitvector) &&
+				if (AFF_FLAGGED(victim, afp->bitvector) &&
 					!affected_by_spell(victim, spellnum)) {
 					send_to_char(ch, NOEFFECT);
 					return;
 				}
 			} else if (afp->aff_index == 2) {
-				if (IS_AFFECTED_2(victim, afp->bitvector) &&
+				if (AFF2_FLAGGED(victim, afp->bitvector) &&
 					!affected_by_spell(victim, spellnum)) {
 					send_to_char(ch, NOEFFECT);
 					return;
 				}
 			} else if (afp->aff_index == 3) {
-				if (IS_AFFECTED_3(victim, afp->bitvector) &&
+				if (AFF3_FLAGGED(victim, afp->bitvector) &&
 					!affected_by_spell(victim, spellnum)) {
 					send_to_char(ch, NOEFFECT);
 					return;
@@ -2943,7 +2943,7 @@ mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
 	if (ch == NULL)
 		return;
 
-	if (!IS_AFFECTED(ch, AFF_GROUP) && !SPELL_IS_BARD(spellnum))
+	if (!AFF_FLAGGED(ch, AFF_GROUP) && !SPELL_IS_BARD(spellnum))
 		return;
 
 	if (ch->master != NULL)
@@ -2955,7 +2955,7 @@ mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
 		tch = f->follower;
 		if (tch->in_room != ch->in_room)
 			continue;
-		if (!IS_AFFECTED(tch, AFF_GROUP))
+		if (!AFF_FLAGGED(tch, AFF_GROUP))
 			continue;
 		if (ch == tch)
 			continue;
@@ -2965,7 +2965,7 @@ mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
 		perform_mag_groups(level, ch, tch, &tdir, spellnum, savetype);
 	}
 
-	if ((k != ch) && IS_AFFECTED(k, AFF_GROUP))
+	if ((k != ch) && AFF_FLAGGED(k, AFF_GROUP))
 		perform_mag_groups(level, ch, k, &tdir, spellnum, savetype);
 	perform_mag_groups(level, ch, ch, &tdir, spellnum, savetype);
 }
@@ -3095,7 +3095,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 			continue;
 		if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
 			continue;
-		if (!IS_NPC(ch) && IS_NPC(vict) && IS_AFFECTED(vict, AFF_CHARM))
+		if (!IS_NPC(ch) && IS_NPC(vict) && AFF_FLAGGED(vict, AFF_CHARM))
 			continue;
 		if (spellnum == SPELL_EARTHQUAKE && vict->getPosition() == POS_FLYING)
 			continue;
@@ -3157,7 +3157,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 			continue;
 		if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
 			continue;
-		if (!IS_NPC(ch) && IS_NPC(vict) && IS_AFFECTED(vict, AFF_CHARM))
+		if (!IS_NPC(ch) && IS_NPC(vict) && AFF_FLAGGED(vict, AFF_CHARM))
 			continue;
 		if (spellnum == SPELL_EARTHQUAKE && vict->getPosition() == POS_FLYING)
 			continue;
@@ -3231,7 +3231,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 					if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR)
 						continue;
 					if (!IS_NPC(ch) && IS_NPC(vict)
-						&& IS_AFFECTED(vict, AFF_CHARM))
+						&& AFF_FLAGGED(vict, AFF_CHARM))
 						continue;
 					if (spellnum == SPELL_EARTHQUAKE
 						&& vict->getPosition() == POS_FLYING)
@@ -3332,7 +3332,7 @@ mag_summons(int level, struct Creature *ch, struct obj_data *obj,
 		return;
 	}
 
-	if (IS_AFFECTED(ch, AFF_CHARM)) {
+	if (AFF_FLAGGED(ch, AFF_CHARM)) {
 		send_to_char(ch, "You are too giddy to have any followers!\r\n");
 		return;
 	}

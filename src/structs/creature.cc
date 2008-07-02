@@ -250,7 +250,7 @@ Creature::affBySanc(Creature *attacker)
 
 	Creature *ch = this;
 
-	if (IS_AFFECTED(ch, AFF_SANCTUARY)) {
+	if (AFF_FLAGGED(ch, AFF_SANCTUARY)) {
 		if (attacker && IS_EVIL(ch) &&
 			affected_by_spell(attacker, SPELL_RIGHTEOUS_PENETRATION))
 			return false;
@@ -296,7 +296,7 @@ Creature::getDamReduction(Creature *attacker)
 	//***************************** Oblivity ****************************
 	//*******************************************************************
 	// damage reduction ranges up to about 35%
-	if (IS_AFFECTED_2(ch, AFF2_OBLIVITY) && IS_NEUTRAL(ch)) {
+	if (AFF2_FLAGGED(ch, AFF2_OBLIVITY) && IS_NEUTRAL(ch)) {
 		dam_reduction += (((GET_LEVEL(ch) +
 					ch->getLevelBonus(ZEN_OBLIVITY)) * 10) +
 			(1000 - abs(GET_ALIGNMENT(ch))) +
@@ -304,12 +304,12 @@ Creature::getDamReduction(Creature *attacker)
 	}
 	//**************************** No Pain *****************************
 	//******************************************************************
-	if (IS_AFFECTED(ch, AFF_NOPAIN)) {
+	if (AFF_FLAGGED(ch, AFF_NOPAIN)) {
 		dam_reduction += 25;
 	}
 	//**************************** Berserk *****************************
 	//******************************************************************
-	if (IS_AFFECTED_2(ch, AFF2_BERSERK)) {
+	if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
 		if (IS_BARB(ch))
 			dam_reduction += (ch->getLevelBonus(SKILL_BERSERK)) / 6;
 		else
@@ -415,21 +415,21 @@ Creature::getDamReduction(Creature *attacker)
 
 	//************************** Petrification **************************
 	//*******************************************************************
-	if (IS_AFFECTED_2(ch, AFF2_PETRIFIED))
+	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 		dam_reduction += 75;
 
 
 	if (attacker) {
 		///****************** Various forms of protection ***************
-		if (IS_EVIL(attacker) && IS_AFFECTED(ch, AFF_PROTECT_EVIL))
+		if (IS_EVIL(attacker) && AFF_FLAGGED(ch, AFF_PROTECT_EVIL))
 			dam_reduction += 8;
-		if (IS_GOOD(attacker) && IS_AFFECTED(ch, AFF_PROTECT_GOOD))
+		if (IS_GOOD(attacker) && AFF_FLAGGED(ch, AFF_PROTECT_GOOD))
 			dam_reduction += 8;
-		if (IS_UNDEAD(attacker) && IS_AFFECTED_2(ch, AFF2_PROTECT_UNDEAD))
+		if (IS_UNDEAD(attacker) && AFF2_FLAGGED(ch, AFF2_PROTECT_UNDEAD))
 			dam_reduction += 8;
-		if (IS_DEMON(attacker) && IS_AFFECTED_2(ch, AFF2_PROT_DEMONS))
+		if (IS_DEMON(attacker) && AFF2_FLAGGED(ch, AFF2_PROT_DEMONS))
 			dam_reduction += 8;
-		if (IS_DEVIL(attacker) && IS_AFFECTED_2(ch, AFF2_PROT_DEVILS))
+		if (IS_DEVIL(attacker) && AFF2_FLAGGED(ch, AFF2_PROT_DEVILS))
 			dam_reduction += 8;
 	}
 
@@ -539,7 +539,7 @@ Creature::setPosition(int new_pos, int mode)
 	if (new_pos < BOTTOM_POS || new_pos > TOP_POS)
 		return false;
 	// Petrified
-	if (IS_AFFECTED_2(this, AFF2_PETRIFIED)) {
+	if (AFF2_FLAGGED(this, AFF2_PETRIFIED)) {
 		// Stoners can stop fighting
 		if (char_specials.getPosition() == POS_FIGHTING && new_pos == POS_STANDING ) {
 			char_specials.setPosition(new_pos);
@@ -1304,7 +1304,7 @@ Creature::trusts(Creature *ch)
 	if (IS_NPC(this))
 		return false;
 	
-	if (IS_AFFECTED(this, AFF_CHARM) && master == ch)
+	if (AFF_FLAGGED(this, AFF_CHARM) && master == ch)
 		return true;
 
 	return trusts(GET_IDNUM(ch));
@@ -1594,7 +1594,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
     }
 
     // Charmed players can't attack their master
-    if (IS_AFFECTED(this, AFF_CHARM) && (this->master == vict)) {
+    if (AFF_FLAGGED(this, AFF_CHARM) && (this->master == vict)) {
         if (mssg)
             act("$N is just such a good friend, you simply can't hurt $M.",
                 false, this, NULL, vict, TO_CHAR);
@@ -1642,8 +1642,8 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
 
     // Disallow attacking members of your own group
     if (IS_PC(this)
-        && IS_AFFECTED(this, AFF_GROUP)
-        && IS_AFFECTED(vict, AFF_GROUP)
+        && AFF_FLAGGED(this, AFF_GROUP)
+        && AFF_FLAGGED(vict, AFF_GROUP)
         && this->master
         && vict->master
         && (this->master == vict

@@ -23,7 +23,7 @@ SPECIAL(astral_deva)
 		return 1;
 	}
 
-	if (!IS_AFFECTED_2(ch, AFF2_BLADE_BARRIER) &&
+	if (!AFF2_FLAGGED(ch, AFF2_BLADE_BARRIER) &&
 		!GET_MOB_WAIT(ch) && GET_MANA(ch) > 100) {
 		act("$n concentrates for a moment...\r\n"
 			"...a flurry of whirling blades appears in the air before $m!",

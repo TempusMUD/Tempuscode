@@ -17,9 +17,9 @@ SPECIAL(phantasmic_sword)
 			act("$n starts to emit a piercing whine!", FALSE, ch, 0, 0,
 				TO_ROOM);
 			af.type = SPELL_STRENGTH;
-			if (!IS_AFFECTED(ch, AFF_ADRENALINE))
+			if (!AFF_FLAGGED(ch, AFF_ADRENALINE))
 				af.bitvector = AFF_ADRENALINE;
-			else if (!IS_AFFECTED_2(ch, AFF2_HASTE)) {
+			else if (!AFF2_FLAGGED(ch, AFF2_HASTE)) {
 				af.bitvector = AFF2_HASTE;
 				af.aff_index = 2;
 			} else
@@ -36,7 +36,7 @@ SPECIAL(phantasmic_sword)
 		return 0;
 	} else {
 
-		if ((!(mast = ch->master) || !IS_AFFECTED(ch, AFF_CHARM))
+		if ((!(mast = ch->master) || !AFF_FLAGGED(ch, AFF_CHARM))
 			&& !ch->isFighting()) {
 			if (ch->in_room == NULL)
 				return 0;
