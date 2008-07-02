@@ -21,19 +21,19 @@
 #define NUM_RESERVED_DESCS	8
 
 /* comm.c */
-void send_to_all(char *messg);
+void send_to_all(const char *messg);
 void send_to_char(struct Creature *ch, const char *str, ...)
 	__attribute__ ((format (printf, 2, 3)));
 void send_to_desc(struct descriptor_data *d, const char *str, ...)
 	__attribute__ ((format (printf, 2, 3)));
 void send_to_room(const char *messg, struct room_data *room);
-void send_to_clerics(int align, char *messg);
+void send_to_clerics(int align, const char *messg);
 void send_to_outdoor(const char *messg, int isecho = 0);
-void send_to_clan(char *messg, int clan);
-void send_to_zone(char *messg, struct zone_data *zone, int outdoor);
+void send_to_clan(const char *messg, int clan);
+void send_to_zone(const char *messg, struct zone_data *zone, int outdoor);
 void send_to_comm_channel(struct Creature *ch, char *buff, int chan, int mode,
 	int hide_invis);
-void send_to_newbie_helpers(char *messg);
+void send_to_newbie_helpers(const char *messg);
 void close_socket(struct descriptor_data *d);
 
 // Act system
@@ -64,7 +64,7 @@ class Account;
 void write_to_q(char *txt, struct txt_q *queue, int aliased);
 void write_to_output(const char *txt, struct descriptor_data *d);
 void page_string(struct descriptor_data *d, const char *str);
-void show_file(struct Creature *ch, char *fname, int lines);
+void show_file(struct Creature *ch, const char *fname, int lines);
 void show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief);
 
 extern bool suppress_output;

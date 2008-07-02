@@ -163,7 +163,7 @@ perform_net_load(descriptor_data *d,char *arg)
 }
 
 void 
-perform_net_who(struct Creature *ch, char *arg)
+perform_net_who(struct Creature *ch, const char *arg)
 {
     struct descriptor_data *d = NULL;
     int count = 0;
@@ -183,7 +183,7 @@ perform_net_who(struct Creature *ch, char *arg)
     page_string(ch->desc, buf);
 }
 
-void perform_net_finger(struct Creature *ch, char *arg)
+void perform_net_finger(struct Creature *ch, const char *arg)
 {
     struct Creature *vict = NULL;
 

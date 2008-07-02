@@ -284,7 +284,7 @@ SPECIAL(christmas_quest);
 #define SPEC_RES 8
 
 struct spec_func_data {
-	char *tag;
+	const char *tag;
     SPECIAL(*func);
 	byte flags;
 };

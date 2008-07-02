@@ -11,7 +11,7 @@
 #define MODE_CON    4
 #define MODE_CHA    5
 
-char *improve_modes[7] = {
+const char *improve_modes[7] = {
 	"strength", "intelligence", "wisdom",
 	"dexterity", "constitution", "charisma",
 	"\n"

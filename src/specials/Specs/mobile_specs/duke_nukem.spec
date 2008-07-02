@@ -71,56 +71,57 @@ SPECIAL(duke_nukem)
 
 	switch (number(0, 1000)) {
 	case 0:
-		do_gen_comm(duke, "Damn.  I'm looking good.", 0, SCMD_GOSSIP, 0);
+		do_gen_comm(duke, tmp_strdup("Damn.  I'm looking good."), 0, SCMD_GOSSIP, 0);
 		break;
 	case 1:
-		do_gen_comm(duke, "Hail to the king, baby!", 0, SCMD_HOLLER, 0);
+		do_gen_comm(duke, tmp_strdup("Hail to the king, baby!"), 0, SCMD_HOLLER, 0);
 		break;
 	case 2:
-		do_gen_comm(duke, "Your face, your ass.  What's the difference?",
+		do_gen_comm(duke, tmp_strdup("Your face, your ass.  What's the difference?"),
 			0, SCMD_SPEW, 0);
 		break;
 	case 3:
 	case 4:
-		do_gen_comm(duke, "Holy Shit!", 0, SCMD_SPEW, 0);
+		do_gen_comm(duke, tmp_strdup("Holy Shit!"), 0, SCMD_SPEW, 0);
 		break;
 	case 5:
-		do_gen_comm(duke, "Hehehe.  What a mess.", 0, SCMD_GOSSIP, 0);
+		do_gen_comm(duke, tmp_strdup("Hehehe.  What a mess."), 0, SCMD_GOSSIP, 0);
 		break;
 	case 6:
-		do_gen_comm(duke, "Damn I'm good.", 0, SCMD_GOSSIP, 0);
+		do_gen_comm(duke, tmp_strdup("Damn I'm good."), 0, SCMD_GOSSIP, 0);
 		break;
 	case 7:
-		do_gen_comm(duke, "Hmm.  Don't have time to play with myself.",
+		do_gen_comm(duke, tmp_strdup("Hmm.  Don't have time to play with myself."),
 			0, SCMD_SPEW, 0);
 		break;
 	case 8:
-		do_gen_comm(duke, "Suck it down.", 0, SCMD_SPEW, 0);
+		do_gen_comm(duke, tmp_strdup("Suck it down."), 0, SCMD_SPEW, 0);
 		break;
 	case 9:
-		do_gen_comm(duke, "Gonna rip 'em a new one.", 0, SCMD_SPEW, 0);
+		do_gen_comm(duke, tmp_strdup("Gonna rip 'em a new one."), 0, SCMD_SPEW, 0);
 		break;
 	case 10:
-		do_gen_comm(duke, "It's time to kick ass and chew bubble gum.\r\n"
-			"And I'm all out of gum.", 0, SCMD_SHOUT, 0);
+		do_gen_comm(duke, tmp_strdup("It's time to kick ass and chew bubble gum.\r\n"
+                                     "And I'm all out of gum."),
+                    0, SCMD_SHOUT, 0);
 		break;
 	case 11:
-		do_gen_comm(duke, "This really pisses me off.", 0, SCMD_SPEW, 0);
+		do_gen_comm(duke, tmp_strdup("This really pisses me off."), 0, SCMD_SPEW, 0);
 		break;
 	case 12:
-		do_gen_comm(duke, "Shit happens.", 0, SCMD_SPEW, 0);
+		do_gen_comm(duke, tmp_strdup("Shit happens."), 0, SCMD_SPEW, 0);
 		break;
 	case 13:
 		perform_say(duke, "say", "Ready for action.");
 		break;
 	case 14:
-		do_gen_comm(duke, "Ready for action.", 0, SCMD_SHOUT, 0);
+		do_gen_comm(duke, tmp_strdup("Ready for action."), 0, SCMD_SHOUT, 0);
 		break;
 	case 15:
 		perform_say(duke, "say", "Cool.");
 		break;
 	case 16:
-		do_gen_comm(duke, "Let God sort 'em out.", 0, SCMD_SPEW, 0);
+		do_gen_comm(duke, tmp_strdup("Let God sort 'em out."), 0, SCMD_SPEW, 0);
 		break;
 	case 17:
 	case 18:
@@ -128,12 +129,12 @@ SPECIAL(duke_nukem)
 	case 20:
 	case 21:
 	case 22:
-		do_gen_comm(duke, "Who wants some?", 0, SCMD_GOSSIP, 0);
+		do_gen_comm(duke, tmp_strdup("Who wants some?"), 0, SCMD_GOSSIP, 0);
 		break;
 	case 23:
 		do_gen_comm(duke,
-			"Those alien bastards are gonna PAY for shooting up my ride!", 0,
-			SCMD_SHOUT, 0);
+                    tmp_strdup("Those alien bastards are gonna PAY for shooting up my ride!"),
+                    0, SCMD_SHOUT, 0);
 		break;
 	default:
 		break;

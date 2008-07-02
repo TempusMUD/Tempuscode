@@ -76,25 +76,25 @@ bool char_from_room( Creature *ch, bool check_specials = true );
 bool char_to_room( Creature *ch, room_data *room, bool check_specials = true );
 
 /* find if character can see */
-struct Creature *get_char_room_vis(struct Creature *ch, char *name);
+struct Creature *get_char_room_vis(struct Creature *ch, const char *name);
 struct Creature *get_char_random(room_data *room);
 struct Creature *get_char_random_vis(struct Creature *ch, room_data *room);
 struct Creature *get_player_random(room_data *room);
 struct Creature *get_player_random_vis(struct Creature *ch, room_data *room);
-struct Creature *get_char_in_remote_room_vis(struct Creature *ch, char *name,
+struct Creature *get_char_in_remote_room_vis(struct Creature *ch, const char *name,
 	struct room_data *inroom);
-struct Creature *get_player_vis(struct Creature *ch, char *name, int inroom);
-struct Creature *get_char_vis(struct Creature *ch, char *name);
-struct obj_data *get_obj_in_list_vis(struct Creature *ch, char *name,
+struct Creature *get_player_vis(struct Creature *ch, const char *name, int inroom);
+struct Creature *get_char_vis(struct Creature *ch, const char *name);
+struct obj_data *get_obj_in_list_vis(struct Creature *ch, const char *name,
 	struct obj_data *list);
-struct obj_data *get_obj_in_list_all(struct Creature *ch, char *name,
+struct obj_data *get_obj_in_list_all(struct Creature *ch, const char *name,
 	struct obj_data *list);
-struct obj_data *get_obj_vis(struct Creature *ch, char *name);
+struct obj_data *get_obj_vis(struct Creature *ch, const char *name);
 struct obj_data *get_object_in_equip_vis(struct Creature *ch,
-	char *arg, struct obj_data *equipment[], int *j);
-struct obj_data *get_object_in_equip_pos(struct Creature *ch, char *arg,
+	const char *arg, struct obj_data *equipment[], int *j);
+struct obj_data *get_object_in_equip_pos(struct Creature *ch, const char *arg,
 	int pos);
-struct obj_data *get_object_in_equip_all(struct Creature *ch, char *arg,
+struct obj_data *get_object_in_equip_all(struct Creature *ch, const char *arg,
 	struct obj_data *equipment[], int *j);
 
 int weapon_prof(struct Creature *ch, struct obj_data *obj);

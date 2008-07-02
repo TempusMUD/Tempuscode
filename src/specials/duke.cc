@@ -100,7 +100,7 @@ member_of_royal_guard(struct Creature *chChar)
 /* Returns a pointer to an npc by the given name */
 /* Used by Tim and Tom */
 struct Creature *
-find_npc_by_name(struct Creature *chAtChar, char *pszName, int iLen)
+find_npc_by_name(struct Creature *chAtChar, const char *pszName, int iLen)
 {
 	CreatureList::iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
@@ -319,7 +319,7 @@ SPECIAL(duke_araken)
 	struct time_info_data local_time;
 	ACMD(do_gen_door);
 
-	static char *monolog[] = {
+	static const char *monolog[] = {
 		"$n proclaims 'Primus in regnis Geticis coronam'.",
 		"$n proclaims 'regiam gessi, subiique regis'.",
 		"$n proclaims 'munus et mores colui sereno'.",
@@ -419,13 +419,13 @@ SPECIAL(duke_araken)
 		break;
 
 	case 'o':
-		do_gen_door(ch, "door", 0, SCMD_UNLOCK, 0);
-		do_gen_door(ch, "door", 0, SCMD_OPEN, 0);
+		do_gen_door(ch, tmp_strdup("door"), 0, SCMD_UNLOCK, 0);
+		do_gen_door(ch, tmp_strdup("door"), 0, SCMD_OPEN, 0);
 		break;
 
 	case 'c':
-		do_gen_door(ch, "door", 0, SCMD_CLOSE, 0);
-		do_gen_door(ch, "door", 0, SCMD_LOCK, 0);
+		do_gen_door(ch, tmp_strdup("door"), 0, SCMD_CLOSE, 0);
+		do_gen_door(ch, tmp_strdup("door"), 0, SCMD_LOCK, 0);
 		break;
 
 	case '.':
@@ -557,7 +557,7 @@ SPECIAL(tom)
 
 	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
 		if (!ch->master)
-			do_follow(ch, "Duke Araken", 0, 0, 0);
+			do_follow(ch, tmp_strdup("Duke Araken"), 0, 0, 0);
 		if (king->isFighting())
 			do_npc_rescue(ch, king);
 	}
@@ -588,7 +588,7 @@ SPECIAL(tim)
 
 	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
 		if (!ch->master)
-			do_follow(ch, "Duke Araken", 0, 0, 0);
+			do_follow(ch, tmp_strdup("Duke Araken"), 0, 0, 0);
 		if (king->isFighting())
 			do_npc_rescue(ch, king);
 	}

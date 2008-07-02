@@ -1942,7 +1942,7 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 							if (found_char->isOkToAttack(ch, false))
 								hit(found_char, ch, TYPE_UNDEFINED);
 						} else
-							do_stand(found_char, "", 0, 0, 0);
+							do_stand(found_char, tmp_strdup(""), 0, 0, 0);
 					}
 				}
 			} else
@@ -2274,7 +2274,7 @@ acc_append_affects(struct Creature *ch, byte mode)
 	struct affected_type *af = NULL;
 	struct Creature *mob = NULL;
 	const char *name = NULL;
-	char *str = "";
+	const char *str = "";
 
     if (affected_by_spell(ch, SPELL_FIRE_BREATHING)) {
 		acc_strcat("You are empowered with breath of FIRE!\r\n", NULL);
@@ -2887,7 +2887,7 @@ ACMD(do_equipment)
 	bool found = false;
 	struct obj_data *obj = NULL;
 	char outbuf[MAX_STRING_LENGTH];
-	char *str;
+	const char *str;
 	const char *active_buf[2] = { "(inactive)", "(active)" };
 	bool show_all = false;
 	skip_spaces(&argument);
@@ -3041,7 +3041,7 @@ void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 
 ACMD(do_time)
 {
-	char *suf;
+	const char *suf;
 	int weekday, day;
 	struct time_info_data local_time;
 	extern const char *weekdays[7];
@@ -3096,7 +3096,7 @@ ACMD(do_time)
 void
 show_mud_date_to_char(struct Creature *ch)
 {
-	char *suf;
+	const char *suf;
 	struct time_info_data local_time;
 	extern const char *month_name[16];
 	int day;
@@ -3134,7 +3134,7 @@ show_mud_date_to_char(struct Creature *ch)
 
 ACMD(do_weather)
 {
-	static char *sky_look[] = {
+	static const char *sky_look[] = {
 		"cloudless",
 		"cloudy",
 		"rainy",
@@ -3353,7 +3353,7 @@ ACMD(do_who)
 	std::vector<Creature *>::iterator cit;
 	Creature *curr;
 	int playerTotal=0, immTotal=0;
-	char *tester_s="s";
+	const char *tester_s="s";
 	bool zone=false, plane=false, time=false, kills=false, noflags=false;
 	bool classes=false, clan=false;
 	bool mage=false, thief=false, ranger=false, knight=false, cleric=false, barbarian=false;

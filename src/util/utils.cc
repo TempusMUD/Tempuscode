@@ -848,7 +848,7 @@ WAIT_STATE(struct Creature *ch, int cycle)
 	}
 }
 
-char *
+const char *
 OBJN(obj_data * obj, Creature * vict)
 {
 	if (can_see_object(vict, obj))
@@ -857,7 +857,7 @@ OBJN(obj_data * obj, Creature * vict)
 		return "something";
 }
 
-char *
+const char *
 OBJS(obj_data * obj, Creature * vict)
 {
 	if (can_see_object((vict), (obj)))
@@ -866,7 +866,7 @@ OBJS(obj_data * obj, Creature * vict)
 		return "something";
 }
 
-char *
+const char *
 PERS(Creature * ch, Creature * sub)
 {
 	if (can_see_creature(sub, ch))

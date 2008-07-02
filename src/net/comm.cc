@@ -124,7 +124,7 @@ void record_usage(void);
 void send_prompt(struct descriptor_data *point);
 void bamf_quad_damage(void);
 void descriptor_update(void);
-int write_to_descriptor(int desc, char *txt);
+int write_to_descriptor(int desc, const char *txt);
 
 /* extern fcnts */
 void boot_world(void);
@@ -1121,7 +1121,7 @@ process_output(struct descriptor_data *d)
 
 
 int
-write_to_descriptor(int desc, char *txt)
+write_to_descriptor(int desc, const char *txt)
 {
 	int total, bytes_written;
 
@@ -1656,7 +1656,7 @@ send_to_desc(descriptor_data *d, const char *str, ...)
 }
 
 void
-send_to_all(char *messg)
+send_to_all(const char *messg)
 {
 	struct descriptor_data *i;
 
@@ -1667,7 +1667,7 @@ send_to_all(char *messg)
 }
 
 void
-send_to_clerics(int align, char *messg)
+send_to_clerics(int align, const char *messg)
 {
 	struct descriptor_data *i;
 
@@ -1705,7 +1705,7 @@ send_to_outdoor(const char *messg, int isecho)
 }
 
 void
-send_to_newbie_helpers(char *messg)
+send_to_newbie_helpers(const char *messg)
 {
 	struct descriptor_data *i;
 	extern int level_can_shout;
@@ -1780,7 +1780,7 @@ send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 }
 
 void
-send_to_zone(char *messg, struct zone_data *zn, int outdoor)
+send_to_zone(const char *messg, struct zone_data *zn, int outdoor)
 {
 	struct descriptor_data *i;
 
@@ -1868,7 +1868,7 @@ send_to_room(const char *messg, struct room_data *room)
 }
 
 void
-send_to_clan(char *messg, int clan)
+send_to_clan(const char *messg, int clan)
 {
 	struct descriptor_data *i;
 
@@ -1883,7 +1883,7 @@ send_to_clan(char *messg, int clan)
 			}
 }
 
-char *ACTNULL = "<NULL>";
+const char *ACTNULL = "<NULL>";
 
 #define CHECK_NULL(pointer, expression) \
 if ((pointer) == NULL) i = ACTNULL; else i = (expression);

@@ -979,7 +979,8 @@ ACMD(do_display)
 ACMD(do_gen_write)
 {
 	FILE *fl;
-	char *tmp, *filename;
+	char *tmp;
+    const char *filename;
 	struct stat fbuf;
 	extern int max_filesize;
 	time_t ct;
@@ -1050,7 +1051,7 @@ ACMD(do_gen_tog)
 	long result;
 	extern int nameserver_is_slow;
 
-	char *tog_messages[][2] = {
+	const char *tog_messages[][2] = {
 		{"You are now safe from summoning by other players.\r\n",
 			"You may now be summoned by other players.\r\n"},
 		{"Nohassle disabled.\r\n",

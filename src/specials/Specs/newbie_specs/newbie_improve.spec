@@ -17,7 +17,7 @@ SPECIAL(newbie_improve)
 		return 0;
 	struct Creature *impro = (struct Creature *)me;
 	byte index = -1;
-	char *mssg = NULL;
+	const char *mssg = NULL;
 	char buf3[MAX_STRING_LENGTH];
 
 	if (!CMD_IS("improve") && !CMD_IS("train"))

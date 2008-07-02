@@ -22,7 +22,7 @@ void obj_data::clear()
 	worn_on = -1;
 }
 
-char*
+const char*
 get_worn_type( obj_data *obj ) 
 {
     if (obj->worn_on == -1 || !obj->worn_by)

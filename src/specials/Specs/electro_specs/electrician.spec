@@ -40,7 +40,7 @@ SPECIAL(electrician)
 			break;
 		case 5:
 			perform_say(mob, "say", "Uh-oh.");
-			do_flee(mob, "", 0, 0, 0);
+			do_flee(mob, tmp_strdup(""), 0, 0, 0);
 			break;
 	}
 	return 1;

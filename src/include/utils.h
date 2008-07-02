@@ -137,9 +137,9 @@ void point_update(void);
 char *GET_DISGUISED_NAME(struct Creature *ch, struct Creature *tch);
 int CHECK_SKILL(struct Creature *ch, int i);
 int CHECK_TONGUE(struct Creature *ch, int i);
-char *OBJS(obj_data * obj, Creature * vict);
-char *OBJN(obj_data * obj, Creature * vict);
-char *PERS(Creature * ch, Creature * sub);
+const char *OBJS(obj_data * obj, Creature * vict);
+const char *OBJN(obj_data * obj, Creature * vict);
+const char *PERS(Creature * ch, Creature * sub);
 
 void WAIT_STATE(struct Creature *ch, int cycle);
 /* various constants *****************************************************/

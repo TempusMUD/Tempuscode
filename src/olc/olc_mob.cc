@@ -48,7 +48,7 @@ int search_block_no_lower(char *arg, char **list, bool exact);
 int fill_word_no_lower(char *argument);
 void num2str(char *str, int num);
 void set_physical_attribs(struct Creature *ch);
-void do_stat_character(struct Creature *ch, struct Creature *k, char *options);
+void do_stat_character(struct Creature *ch, struct Creature *k, const char *options);
 struct extra_descr_data *locate_exdesc(char *word,
 	struct extra_descr_data *list, int exact = 0);
 void set_move_buffer(struct Creature *ch);

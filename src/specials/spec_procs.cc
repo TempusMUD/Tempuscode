@@ -482,9 +482,10 @@ npc_steal(struct Creature *ch, struct Creature *victim)
 
 SPECIAL(venom_attack)
 {
-	char *act_toroom = "$n bites $N!";
-	char *act_tovict = "$n bites you!";
-	char *str, *err = NULL;
+	const char *act_toroom = "$n bites $N!";
+	const char *act_tovict = "$n bites you!";
+	char *str;
+    const char *err = NULL;
 	int lineno, perc_damaged;
 	char *line, *param_key;
 

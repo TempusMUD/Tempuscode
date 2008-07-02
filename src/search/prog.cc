@@ -320,7 +320,7 @@ char *
 prog_expand_vars(prog_env *env, char *args)
 {
     char *search_pt = strchr(args, '$');
-    char *result = "";
+    const char *result = "";
     struct prog_var *var;
 
     if (!search_pt)

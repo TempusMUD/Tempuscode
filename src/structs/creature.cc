@@ -575,11 +575,11 @@ Creature::extract(cxn_state con_state)
 	if (!IS_NPC(this) && !desc) {
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
 			if (t_desc->original == this)
-				do_return(t_desc->creature, "", 0, SCMD_FORCED, 0);
+				do_return(t_desc->creature, tmp_strdup(""), 0, SCMD_FORCED, 0);
 	}
 
     if (desc && desc->original) {
-        do_return(desc->creature, "", 0, SCMD_FORCED, 0);
+        do_return(desc->creature, tmp_strdup(""), 0, SCMD_FORCED, 0);
     }
 
 	if (in_room == NULL) {
@@ -668,7 +668,7 @@ Creature::extract(cxn_state con_state)
 	}
 
 	if (desc && desc->original)
-		do_return(this, "", 0, SCMD_NOEXTRACT, 0);
+		do_return(this, tmp_strdup(""), 0, SCMD_NOEXTRACT, 0);
 
     removeAllCombat();
 

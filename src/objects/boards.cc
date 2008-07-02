@@ -276,11 +276,11 @@ gen_board_list(board_data *board, Creature *ch)
 	page_string(ch->desc, acc_get_string());
 }
 
-char *
+const char *
 gen_board_load(obj_data *self, char *param, int *err_line)
 {
 	char *line, *param_key;
-	char *err = NULL;
+	const char *err = NULL;
 	board_data *board;
 	int lineno = 0;
 
@@ -358,7 +358,8 @@ SPECIAL(gen_board)
 {
 	obj_data *self = (obj_data *)me;
 	board_data *board;
-	char *err, *arg;
+	const char *err;
+    char *arg;
 	int err_line;
 
 	// We only handle commands

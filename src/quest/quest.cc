@@ -53,14 +53,14 @@ void do_qcontrol_oload_list(Creature * ch);
 void do_qcontrol_oload(Creature *ch, char *argument, int com);
 void do_qcontrol_restore(Creature *ch, char *argument, int com);
 void do_qcontrol_loadroom(Creature *ch, char *argument, int com);
-char *compose_qcomm_string(Creature *ch, Creature *vict, Quest * quest, int mode, char *str);
-void send_to_quest(Creature *ch, char *str, Quest * quest, int level, int mode);
+char *compose_qcomm_string(Creature *ch, Creature *vict, Quest * quest, int mode, const char *str);
+void send_to_quest(Creature *ch, const char *str, Quest * quest, int level, int mode);
 
 // internal vars here
 
 const struct qcontrol_option {
-	char *keyword;
-	char *usage;
+	const char *keyword;
+	const char *usage;
 	int level;
 } qc_options[] = {
 	{"show", "[quest vnum]", LVL_AMBASSADOR},
@@ -180,7 +180,7 @@ public:
     }
 private:
     int top_vnum;
-    char *filename;
+    const char *filename;
 } quests;
 
 void
@@ -668,7 +668,7 @@ do_qcontrol_show(Creature *ch, char *argument)
 
 	// show all quests
 	if (!*argument) {
-		char *msg;
+		const char *msg;
 
 		msg = list_active_quests(ch);
 		msg = tmp_strcat(msg, list_inactive_quests(ch));
@@ -1792,13 +1792,13 @@ quest_by_vnum(int vnum)
  * function to list active quests to both mortals and gods               *
  *************************************************************************/
 
-char *
+const char *
 list_active_quests(Creature *ch)
 {
 	int timediff;
 	int questCount = 0;
 	char timestr_a[32];
-	char *msg = 
+	const char *msg = 
         "Active quests:\r\n"
         "-Vnum--Owner-------Type------Name----------------------Age------Players\r\n";
 
@@ -1829,13 +1829,13 @@ list_active_quests(Creature *ch)
                        questCount, questCount == 1 ? "" : "s");
 }
 
-char *
+const char *
 list_inactive_quests(Creature *ch)
 {
 	int timediff;
 	char timestr_a[128];
 	int questCount = 0;
-	char *msg =
+	const char *msg =
         "Finished Quests:\r\n"
         "-Vnum--Owner-------Type------Name----------------------Age------Players\r\n";
 
@@ -1958,7 +1958,7 @@ list_quest_bans(Creature *ch, Quest * quest, char *outbuf)
 }
 
 void
-qlog(Creature *ch, char *str, int type, int min_level, int file)
+qlog(Creature *ch, const char *str, int type, int min_level, int file)
 {
 	// Mortals don't need to be seeing logs
 	if (min_level < LVL_IMMORT)
@@ -2063,7 +2063,7 @@ ACMD(do_qlog)
 /***************************************************************************/
 /***************************************************************************/
 
-char *quest_commands[][2] = {
+const char *quest_commands[][2] = {
 	{"list", "shows currently active quests"},
 	{"info", "get info about a specific quest"},
 	{"join", "join an active quest"},
@@ -2307,7 +2307,7 @@ do_quest_status(Creature *ch, char *argument)
 	int timediff;
 	bool found = false;
 
-	char *msg = "You are participating in the following quests:\r\n"
+	const char *msg = "You are participating in the following quests:\r\n"
 		"-Vnum--Owner-------Type------Name----------------------Age------Players\r\n";
 
 	for( unsigned int i = 0; i < quests.size(); i++ ) {
@@ -2740,7 +2740,7 @@ save_quests() {
 }
 
 char *
-compose_qcomm_string(Creature *ch, Creature *vict, Quest * quest, int mode, char *str)
+compose_qcomm_string(Creature *ch, Creature *vict, Quest * quest, int mode, const char *str)
 {
 	if (mode == QCOMM_SAY && ch) {
 		if (ch == vict) {
@@ -2759,7 +2759,7 @@ compose_qcomm_string(Creature *ch, Creature *vict, Quest * quest, int mode, char
 	}
 }
 void
-send_to_quest(Creature *ch, char *str, Quest * quest, int level, int mode)
+send_to_quest(Creature *ch, const char *str, Quest * quest, int level, int mode)
 {
 	struct Creature *vict = NULL;
 	int i;

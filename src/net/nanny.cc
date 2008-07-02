@@ -1444,7 +1444,7 @@ char_to_game(descriptor_data *d)
 	struct descriptor_data *k, *next;
 	struct room_data *load_room = NULL;
 	time_t now = time(0);
-	char *notes = "";
+	const char *notes = "";
     Quest *quest;
 
 	// this code is to prevent people from multiply logging in
@@ -1779,7 +1779,7 @@ void
 show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 {
 	const char *class_str, *status_str, *mail_str;
-	char *sex_color = "";
+	const char *sex_color = "";
 	char *sex_str, *name_str;
 	Creature *tmp_ch, *real_ch;
 	char laston_str[40];

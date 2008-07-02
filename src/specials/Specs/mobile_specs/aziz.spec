@@ -29,7 +29,7 @@ SPECIAL(Aziz)
 	if (vict == NULL)
 		vict = ch->findRandomCombat();
 
-	do_bash(ch, "", 0, 0, 0);
+	do_bash(ch, tmp_strdup(""), 0, 0, 0);
 
 	return 0;
 }

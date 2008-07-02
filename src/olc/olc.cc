@@ -509,7 +509,7 @@ ACMD(do_olc)
 					send_to_char(ch, "The destination room has been created.\r\n");
 			}
 
-			if (*arg2 && arg2 && is_abbrev(arg2, "one-way"))
+			if (*arg2 && is_abbrev(arg2, "one-way"))
 				one_way = TRUE;
 			EXIT(ch, edir)->to_room = room;
 			if (!one_way && !ABS_EXIT(room, rev_dir[edir])) {
@@ -1271,7 +1271,7 @@ ACMD(do_olc)
 			do_zdoor_cmd(ch, argument);
 		break;
 	case 28:					/* zreset */
-		do_zreset(ch, ".", 0, SCMD_OLC, 0);
+		do_zreset(ch, tmp_strdup("."), 0, SCMD_OLC, 0);
 		break;
 	case 29:					/* zonepurge */
 		sprintf(buf, " %d", ch->in_room->zone->number);

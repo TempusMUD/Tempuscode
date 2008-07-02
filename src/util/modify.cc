@@ -162,7 +162,7 @@ one_word(char *argument, char *first_arg)
 }
 
 void
-show_file(struct Creature *ch, char *fname, int lines)
+show_file(struct Creature *ch, const char *fname, int lines)
 {
 	fstream file;
 

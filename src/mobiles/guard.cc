@@ -20,11 +20,11 @@ SPECIAL(guard)
 	struct Creature *self = (struct Creature *)me;
 	int cmd_idx, lineno, dir = -1;
 	Reaction reaction;
-	char *to_vict = "You are blocked by $n.";
-	char *to_room = "$N is blocked by $n.";
+	const char *to_vict = "You are blocked by $n.";
+	const char *to_room = "$N is blocked by $n.";
 	char *str, *line, *param_key, *dir_str, *room_str;
 	bool attack = false, fallible = false, callsforhelp = false;
-	char *err = NULL;
+	const char *err = NULL;
 	long room_num = -1;
 
 

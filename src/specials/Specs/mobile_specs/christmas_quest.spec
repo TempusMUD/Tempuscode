@@ -50,8 +50,8 @@ SPECIAL(christmas_quest)
             perform_say_to(grinch, ch, "As a reward for your diligence, I "
                            "will give you a gift of power beyond your "
                            "wildest dreams!");
-            do_echo(grinch, "grins and a blinding flash of light engulfs "
-                    "the room.", 0, SCMD_EMOTE, NULL);
+            do_echo(grinch, tmp_strdup("grins and a blinding flash of light engulfs the room."),
+                    0, SCMD_EMOTE, NULL);
             ch->setPosition(POS_RESTING);
 
             if (GET_LEVEL(ch) < 49) {

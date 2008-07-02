@@ -897,7 +897,7 @@ print_room_contents(Creature *ch, room_data *real_house_room, bool showContents 
 {
 	int count;
 	char* buf = NULL;
-	char* buf2 = "";
+	const char* buf2 = "";
 
 	obj_data *obj, *cont;
 	if( PRF_FLAGGED(ch, PRF_HOLYLIGHT) ) {
@@ -937,7 +937,7 @@ print_room_contents(Creature *ch, room_data *real_house_room, bool showContents 
 void
 House::listRooms(Creature *ch, bool showContents )
 {
-	char *buf = "";
+	const char *buf = "";
 	for( unsigned int i = 0; i < getRoomCount(); ++i ) {
 		room_data* room = real_room( getRoom(i) );
 		if( room != NULL ) {
@@ -960,7 +960,7 @@ House::listGuests( Creature *ch )
 		return;
 	}
 
-	char *buf = "     Guests: ";
+	const char *buf = "     Guests: ";
 	char namebuf[80];
 	for( unsigned int i = 0; i < getGuestCount(); ++i) {
 		sprintf(namebuf, "%s ", playerIndex.getName(getGuest(i)) );
@@ -1933,19 +1933,16 @@ HouseControl::displayHouses( list<House*> houses, Creature *ch )
     for(; cur != houses.end(); ++cur) 
 	{
 		House *house = *cur;
-		char *roomlist = "";
+		const char *roomlist = "";
 		if(  house->getRoomCount() > 0 ) {
 			roomlist = tmp_sprintf("%d", house->getRoom(0) );
 			for( unsigned int i = 1; i < house->getRoomCount(); i++ ) {
 				roomlist = tmp_sprintf("%s, %d", roomlist, house->getRoom(i));
 			}
 		}
-		if( strlen(roomlist) > 40 ) {
-			roomlist[36] = '.';
-			roomlist[37] = '.';
-			roomlist[38] = '.';
-			roomlist[39] = '\0';
-		}
+		if( strlen(roomlist) > 40 )
+            roomlist = tmp_strcat(tmp_substr(roomlist, 0, 35), "...");
+
 		const char* landlord = "none";
 		if( playerIndex.exists(house->getLandlord()) )
 			landlord = playerIndex.getName(house->getLandlord());

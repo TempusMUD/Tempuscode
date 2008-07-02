@@ -2783,10 +2783,10 @@ ACCMD(do_disarm)
 		}
 
 		if (GET_STR(ch) + number(0, 20) > GET_STR(vict) + GET_DEX(vict)) {
-			do_drop(vict, OBJN(weap, vict), 0, 0, 0);
+			do_drop(vict, fname(weap->aliases), 0, 0, 0);
 			if (IS_NPC(vict) && !GET_MOB_WAIT(vict) && AWAKE(vict) &&
 				number(0, GET_LEVEL(vict)) > (GET_LEVEL(vict) >> 1))
-				do_get(vict, OBJN(weap, vict), 0, 0, 0);
+				do_get(vict, fname(weap->aliases), 0, 0, 0);
 		}
 
 		GET_EXP(ch) += MIN(100, weap->getWeight());

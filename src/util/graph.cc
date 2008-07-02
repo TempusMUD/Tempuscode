@@ -564,7 +564,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 		} else if (EXIT(ch, dir)->to_room->isOpenAir() &&
         ch->getPosition() != POS_FLYING) {
 			if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
-				do_fly(ch, "", 0, 0, 0);
+				do_fly(ch, tmp_strdup(""), 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 33)
 				cast_spell(ch, ch, 0, NULL, SPELL_FLY);
 			else if (IS_CLERIC(ch) && GET_LEVEL(ch) >= 32)
@@ -582,12 +582,11 @@ smart_mobile_move(struct Creature *ch, int dir)
         ch->getPosition() != POS_FLYING &&
         can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
 			if (IS_AFFECTED(ch, AFF_INFLIGHT))
-				do_fly(ch, "", 0, 0, 0);
+				do_fly(ch, tmp_strdup(""), 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 32)
 				cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK);
 			else if (!number(0, 10)) {
-				do_say(ch, "Damn this water!  Can anybody help me cross?", 0,
-                0, 0);
+				perform_say(ch, "say", "Damn this water!  Can anybody help me cross?");
 				return 0;
 			}
 		} else if (perform_move(ch, dir, MOVE_NORM, 1) == 2) { 

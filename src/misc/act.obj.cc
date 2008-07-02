@@ -1359,7 +1359,7 @@ is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool dis
 
 int
 perform_drop(struct Creature *ch, struct obj_data *obj,
-	byte mode, char *sname, struct room_data *RDR, int display)
+	byte mode, const char *sname, struct room_data *RDR, int display)
 {
 	int value;
 	string sbuf;
@@ -1452,7 +1452,8 @@ ACCMD(do_drop)
 	byte oldmode;
 	byte mode = SCMD_DROP;
 	int dotmode, amount = 0, counter = 0, found;
-	char *sname = NULL, *short_desc = NULL;
+	const char *sname = NULL;
+    char *short_desc = NULL;
 	char *arg1, *arg2;
 	char *to_char, *to_room;
 
@@ -2537,7 +2538,7 @@ ACMD(do_pour)
 void
 wear_message(struct Creature *ch, struct obj_data *obj, int where)
 {
-	char *wear_messages[][2] = {
+	const char *wear_messages[][2] = {
 		{"$n lights $p and holds it.",
 			"You light $p and hold it."},
 
@@ -2630,7 +2631,7 @@ int
 perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 {
 	int i;
-	char *already_wearing[] = {
+	const char *already_wearing[] = {
 		"You're already using a light.\r\n",
 		"YOU SHOULD NEVER SEE THIS MESSAGE.  PLEASE REPORT.\r\n",
 		"You're already wearing something on both of your ring fingers.\r\n",

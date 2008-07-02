@@ -469,7 +469,7 @@ make_tongue_str(Creature *ch, Creature *to)
     int lang = GET_TONGUE(ch);
 
     if (lang == TONGUE_COMMON || !CHECK_TONGUE(to, lang))
-        return "";
+        return tmp_strdup("");
     if (CHECK_TONGUE(ch, lang) < 50 && CHECK_TONGUE(to, lang) > 50)
         return tmp_sprintf(" in broken %s", tongues[lang]._name);
     return tmp_sprintf(" in %s", tongues[lang]._name);

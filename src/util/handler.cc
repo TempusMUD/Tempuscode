@@ -2161,7 +2161,7 @@ update_char_objects(struct Creature *ch)
 
 
 struct Creature *
-get_player_vis(struct Creature *ch, char *name, int inroom)
+get_player_vis(struct Creature *ch, const char *name, int inroom)
 {
 	struct Creature *i, *match;
 	CreatureList::iterator cit;
@@ -2202,7 +2202,7 @@ get_player_vis(struct Creature *ch, char *name, int inroom)
 
 
 struct Creature *
-get_char_room_vis(struct Creature *ch, char *name)
+get_char_room_vis(struct Creature *ch, const char *name)
 {
 	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
@@ -2318,7 +2318,7 @@ get_player_random_vis(struct Creature *ch, room_data *room)
 }
 
 struct Creature *
-get_char_in_remote_room_vis(struct Creature *ch, char *name,
+get_char_in_remote_room_vis(struct Creature *ch, const char *name,
 	struct room_data *inroom)
 {
 	struct room_data *was_in = ch->in_room;
@@ -2331,7 +2331,7 @@ get_char_in_remote_room_vis(struct Creature *ch, char *name,
 }
 
 struct Creature *
-get_char_vis(struct Creature *ch, char *name)
+get_char_vis(struct Creature *ch, const char *name)
 {
 	struct Creature *i;
 	int j = 0, number;
@@ -2360,7 +2360,7 @@ get_char_vis(struct Creature *ch, char *name)
 
 
 struct obj_data *
-get_obj_in_list_vis(struct Creature *ch, char *name, struct obj_data *list)
+get_obj_in_list_vis(struct Creature *ch, const char *name, struct obj_data *list)
 {
 	struct obj_data *i;
 	int j = 0, number;
@@ -2381,7 +2381,7 @@ get_obj_in_list_vis(struct Creature *ch, char *name, struct obj_data *list)
 }
 
 struct obj_data *
-get_obj_in_list_all(struct Creature *ch, char *name, struct obj_data *list)
+get_obj_in_list_all(struct Creature *ch, const char *name, struct obj_data *list)
 {
 	struct obj_data *i;
 	int j = 0, number;
@@ -2405,7 +2405,7 @@ get_obj_in_list_all(struct Creature *ch, char *name, struct obj_data *list)
 
 /* search the entire world for an object, and return a pointer  */
 struct obj_data *
-get_obj_vis(struct Creature *ch, char *name)
+get_obj_vis(struct Creature *ch, const char *name)
 {
 	struct obj_data *i;
 	int j = 0, number;
@@ -2445,7 +2445,7 @@ get_obj_vis(struct Creature *ch, char *name)
 
 
 struct obj_data *
-get_object_in_equip_pos(struct Creature *ch, char *arg, int pos)
+get_object_in_equip_pos(struct Creature *ch, const char *arg, int pos)
 {
 	if (GET_EQ(ch, pos) && isname(arg, GET_EQ(ch, pos)->aliases) &&
 		can_see_object(ch, GET_EQ(ch, pos)))
@@ -2456,7 +2456,9 @@ get_object_in_equip_pos(struct Creature *ch, char *arg, int pos)
 
 struct obj_data *
 get_object_in_equip_vis(struct Creature *ch,
-	char *arg, struct obj_data *equipment[], int *j)
+                        const char *arg,
+                        struct obj_data *equipment[],
+                        int *j)
 {
 	int x = 0;
 	int number = 0;
@@ -2479,7 +2481,9 @@ get_object_in_equip_vis(struct Creature *ch,
 
 struct obj_data *
 get_object_in_equip_all(struct Creature *ch,
-	char *arg, struct obj_data *equipment[], int *j)
+                        const char *arg,
+                        struct obj_data *equipment[],
+                        int *j)
 {
 	int x = 0;
 	int number = 0;

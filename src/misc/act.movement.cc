@@ -422,7 +422,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	 * Check for special routines (North is 1 in command list, but 0 here) Note
 	 * -- only check if following; this avoids 'double spec-proc' bug
 	 */
-	if (need_specials_check && special(ch, dir + 1, dir + 1, "", SPECIAL_CMD))
+	if (need_specials_check && special(ch, dir + 1, dir + 1, tmp_strdup(""), SPECIAL_CMD))
 		return 2;
 
 	/* afk?     */
@@ -1454,7 +1454,7 @@ has_key(struct Creature *ch, int key)
 #define NEED_UNLOCKED        4
 #define NEED_LOCKED        8
 
-char *cmd_door[] = {
+const char *cmd_door[] = {
 	"open",
 	"close",
 	"unlock",
@@ -1977,7 +1977,7 @@ ACMD(do_stand)
 
 	struct obj_data *obj;
 	int can_land = 0;
-	char *to_char, *to_room;
+	const char *to_char, *to_room;
 
 	if (IS_AFFECTED(ch, AFF_WATERWALK))
 		can_land = true;

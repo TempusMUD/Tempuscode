@@ -68,9 +68,9 @@ int max_pc_corpse_time = 10;
 int dts_are_dumps = NO;
 
 /* "okay" etc. */
-char *OK = "You got it.\r\n";
-char *NOPERSON = "No-one by that name here.\r\n";
-char *NOEFFECT = "Nothing seems to happen.\r\n";
+const char *OK = "You got it.\r\n";
+const char *NOPERSON = "No-one by that name here.\r\n";
+const char *NOEFFECT = "Nothing seems to happen.\r\n";
 
 /****************************************************************************/
 /****************************************************************************/
@@ -232,7 +232,7 @@ int guild_donation_info[][4] = {
 int DFLT_PORT = 8888;
 
 /* default directory to use as data directory */
-char *DFLT_DIR = "lib";
+const char *DFLT_DIR = "lib";
 
 /* maximum number of players allowed before game starts to turn people away */
 unsigned int MAX_PLAYERS = 300;
@@ -262,7 +262,7 @@ int max_bad_pws = 2;
 int nameserver_is_slow = YES;
 
 
-char *GREETINGS =
+const char *GREETINGS =
 	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
 	"\r\n"
 	".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
@@ -288,7 +288,7 @@ char *GREETINGS =
 	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
 	"\r\n";
 
-char *MUD_MOVED_MSG =
+const char *MUD_MOVED_MSG =
 	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
 	"\r\n"
 	".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"

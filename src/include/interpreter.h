@@ -112,16 +112,16 @@ struct alias_data {
 #define ALIAS_GLOB_CHAR	'*'
 
 struct show_struct {
-	char *cmd;
-	char level;
-	char *group;
+	const char *cmd;
+	const char level;
+	const char *group;
 };
 struct set_struct {
-	char *cmd;
+	const char *cmd;
 	char level;
 	char pcnpc;
 	char type;
-	char *group;
+	const char *group;
 };
 
 /*

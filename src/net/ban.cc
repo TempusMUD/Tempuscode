@@ -38,7 +38,7 @@
 
 std::list<ban_entry> ban_list;
 
-char *ban_types[] = {
+const char *ban_types[] = {
 	"no",
 	"new",
 	"select",

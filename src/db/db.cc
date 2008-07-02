@@ -3228,7 +3228,7 @@ fread_string(FILE * fl, char *error)
 /* read and copy for a '~'-terminated string from a given file
    copying it into str, returning 1 on success or 0 on failure  */
 int
-pread_string(FILE * fl, char *str, char *error)
+pread_string(FILE * fl, char *str, const char *error)
 {
 	char tmp[512];
 	register char *point;

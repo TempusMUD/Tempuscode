@@ -29,10 +29,10 @@ struct angel_data {
 list<angel_data *> angels;
 
 struct angel_chat_data {
-	int char_class;			// class restriction of response
-	int chance;			// percent chance this response will be chosen
-	char *keywords;		// keywords of response
-	char *response;		// the actual response
+	int char_class;             // class restriction of response
+	int chance;			        // percent chance this response will be chosen
+	const char *keywords;		// keywords of response
+	const char *response;		// the actual response
 };
 
 angel_chat_data angel_chat[] = {
@@ -195,7 +195,7 @@ angel_chat_data angel_chat[] = {
 
 struct angel_spell_data {
     int spell_no;
-    char *text;    
+    const char *text;    
 };
 
 angel_spell_data angel_spells[] = {

@@ -28,6 +28,7 @@ using namespace std;
 #include "comm.h"
 #include "player_table.h"
 #include "bomb.h"
+#include "handler.h"
 
 void
 start_editing_mail(descriptor_data *d, mail_recipient_data *recipients)
@@ -424,12 +425,6 @@ CMailEditor::AddAttachment(char *obj_name)
 	const char *money_desc;
     unsigned money, cost;
 
-    extern struct obj_data * get_obj_in_list_all(struct Creature *ch, 
-            char *name, struct obj_data *list);
-    extern void obj_to_char(struct obj_data *object, struct Creature *ch, 
-            bool sorted);
-    extern void obj_from_char(struct obj_data *object);
-    
     obj = get_obj_in_list_all(this->desc->creature, obj_name, 
             this->desc->creature->carrying);
 

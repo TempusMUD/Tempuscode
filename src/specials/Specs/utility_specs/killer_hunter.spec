@@ -38,7 +38,7 @@ SPECIAL(killer_hunter)
 					find_first_step(hunter->in_room, d->creature->in_room,
 						STD_TRACK) >= 0) {
 					ch->startHunting(d->creature);
-					do_gen_comm(ch, "Okay.  Now I'm pissed.", 0, SCMD_HOLLER, 0);
+					do_gen_comm(ch, tmp_strdup("Okay.  Now I'm pissed."), 0, SCMD_HOLLER, 0);
 					return 1;
 				}
 			}

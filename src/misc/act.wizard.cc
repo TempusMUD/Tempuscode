@@ -406,7 +406,7 @@ void
 perform_goto(Creature *ch, room_data *room, bool allow_follow)
 {
     room_data *was_in = NULL;
-    char *msg;
+    const char *msg;
 
     if (!Housing.canEnter(ch, room->number) ||
         !clan_house_can_enter(ch, room) ||
@@ -1655,10 +1655,10 @@ do_stat_character_description(Creature *ch, Creature *k)
 }
 
 void
-do_stat_character(Creature *ch, Creature *k, char *options)
+do_stat_character(Creature *ch, Creature *k, const char *options)
 {
     int i, num, num2, found = 0, rexp;
-	char *line_buf;
+	const char *line_buf;
     struct follow_type *fol;
     struct affected_type *aff;
     extern struct attack_hit_type attack_hit_text[];
@@ -1972,7 +1972,7 @@ do_stat_character(Creature *ch, Creature *k, char *options)
 		acc_strcat("\r\n", NULL);
 
     if (!IS_NPC(k) && GET_QUEST(k)) {
-        char* name = "None";
+        const char* name = "None";
         Quest *quest = quest_by_vnum( GET_QUEST(k) );
 
         if( quest != NULL && quest->isPlaying(GET_IDNUM(k)) )
@@ -3333,7 +3333,7 @@ ACMD(do_wizcut)
 ACMD(do_wizlock)
 {
     int value;
-    char *when;
+    const char *when;
 
     one_argument(argument, arg);
     if (*arg) {
@@ -3524,8 +3524,8 @@ ACMD(do_wiznet)
     char emote = FALSE;
     char any = FALSE;
     int level = LVL_AMBASSADOR;
-    char *subcmd_str = NULL;
-    char *subcmd_desc = NULL;
+    const char *subcmd_str = NULL;
+    const char *subcmd_desc = NULL;
 
     skip_spaces(&argument);
 
@@ -7078,11 +7078,11 @@ ACMD(do_rename)
 
     half_chop(argument, arg, new_desc);
 
-    if (!new_desc) {
+    if (!*new_desc) {
         send_to_char(ch, "What do you want to call it?\r\b");
         return;
     }
-    if (!arg) {
+    if (!*arg) {
         send_to_char(ch, "Rename usage: rename <target> <string>\r\n");
         return;
     }
@@ -8255,10 +8255,10 @@ ACMD(do_tester)
         }
         break;
     case 1:                    /* unaffect */
-        do_wizutil(ch, "self", 0, SCMD_UNAFFECT, 0);
+        do_wizutil(ch, tmp_strdup("self"), 0, SCMD_UNAFFECT, 0);
         break;
     case 2:                    /* reroll */
-        do_wizutil(ch, "self", 0, SCMD_REROLL, 0);
+        do_wizutil(ch, tmp_strdup("self"), 0, SCMD_REROLL, 0);
         break;
     case 3:                    /* stat */
         do_stat(ch, arg2, 0, 0, 0);
@@ -8282,10 +8282,10 @@ ACMD(do_tester)
         do_set(ch, buf, 0, SCMD_TESTER_SET, 0);
         break;
     case 12:
-        do_gen_tog(ch, "", CMD_TESTER, SCMD_NOHASSLE, 0);
+        do_gen_tog(ch, tmp_strdup(""), CMD_TESTER, SCMD_NOHASSLE, 0);
         break;
     case 13:
-        do_gen_tog(ch, "", CMD_TESTER, SCMD_ROOMFLAGS, 0);
+        do_gen_tog(ch, tmp_strdup(""), CMD_TESTER, SCMD_ROOMFLAGS, 0);
         break;
     case 14:
         if (!*arg2)
@@ -8304,7 +8304,7 @@ ACMD(do_tester)
         }
         break;
     case 16:
-        do_gen_tog(ch, "", CMD_TESTER, SCMD_DEBUG, 0);
+        do_gen_tog(ch, tmp_strdup(""), CMD_TESTER, SCMD_DEBUG, 0);
         break;
     case 17:                    // strength
     case 18:                    // intelligence
@@ -8320,12 +8320,12 @@ ACMD(do_tester)
                SCMD_TESTER_SET, 0);
         break;
     case 23: // Max Stats
-        do_set(ch, "self str 25", 0, SCMD_TESTER_SET, 0);
-        do_set(ch, "self int 25", 0, SCMD_TESTER_SET, 0);
-        do_set(ch, "self wis 25", 0, SCMD_TESTER_SET, 0);
-        do_set(ch, "self con 25", 0, SCMD_TESTER_SET, 0);
-        do_set(ch, "self dex 25", 0, SCMD_TESTER_SET, 0);
-        do_set(ch, "self cha 25", 0, SCMD_TESTER_SET, 0);
+        do_set(ch, tmp_strdup("self str 25"), 0, SCMD_TESTER_SET, 0);
+        do_set(ch, tmp_strdup("self int 25"), 0, SCMD_TESTER_SET, 0);
+        do_set(ch, tmp_strdup("self wis 25"), 0, SCMD_TESTER_SET, 0);
+        do_set(ch, tmp_strdup("self con 25"), 0, SCMD_TESTER_SET, 0);
+        do_set(ch, tmp_strdup("self dex 25"), 0, SCMD_TESTER_SET, 0);
+        do_set(ch, tmp_strdup("self cha 25"), 0, SCMD_TESTER_SET, 0);
         break;
     default:
         sprintf(buf, "$p: Invalid command '%s'.", arg1);
@@ -8350,7 +8350,7 @@ static int do_freeze_char(char *argument, Creature *vict, Creature *ch)
     char *thaw_time_str = tmp_getword(&argument);
     time_t now = time(NULL);
     time_t thaw_time;
-    char *msg = "";
+    const char *msg = "";
 
     if (!*thaw_time_str) {
         thaw_time = now + ONE_DAY;

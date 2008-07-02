@@ -183,12 +183,12 @@ void do_qcontrol_title(Creature *ch, char *argument, int com);
 // utility functions
 void do_qcontrol_usage(Creature *ch, int com);
 Quest *find_quest(Creature *ch, char *argument);
-char *list_active_quests(Creature *ch);
-char *list_inactive_quests(Creature *ch);
+const char *list_active_quests(Creature *ch);
+const char *list_inactive_quests(Creature *ch);
 Quest *quest_by_vnum(int vnum);
 void qp_reload(int sig = 0);
 
-void qlog(Creature *ch, char *str, int type, int level, int file);
+void qlog(Creature *ch, const char *str, int type, int level, int file);
 
 Creature *check_char_vis(Creature *ch, char *name);
 void list_quest_players(Creature *ch, Quest * quest, char *outbuf);

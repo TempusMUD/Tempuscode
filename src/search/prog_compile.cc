@@ -236,7 +236,7 @@ prog_lexify(prog_compiler_state *compiler)
     line_start = line_end = compiler->prog_text;
     linenum = 1;
     compiler->token_list = prev_token = NULL;
-    line = "";
+    line = tmp_strdup("");
 
     // Skip initial spaces and blank lines in prog
     while (isspace(*line_start))
@@ -257,7 +257,7 @@ prog_lexify(prog_compiler_state *compiler)
             line[strlen(line) - 1] = '\0';
         } else if (line[0] == '\0' || line[0] == '-') {
             // comment or blank line - ignore this line
-            line = "";
+            line = tmp_strdup("");
         } else {
             // We have an actual line, so we need to lexify it.  Currently,
             // the lexical format is just a symbol followed by a string.
@@ -317,7 +317,7 @@ prog_lexify(prog_compiler_state *compiler)
             prev_token = new_token;
 
             // Set line to empty string so it won't be concatenated again
-            line = "";
+            line = tmp_strdup("");
         }
 
         while (isspace(*line_end)) {

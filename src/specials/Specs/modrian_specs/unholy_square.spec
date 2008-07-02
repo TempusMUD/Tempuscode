@@ -47,8 +47,8 @@ perform_defile(struct room_data *room, int *state, char **olddesc,
 
 	*olddesc = room->description;
 	*oldtitle = room->name;
-	room->name = TITLE_UNHOLY;
-	room->description = DESC_UNHOLY;
+	room->name = strdup(TITLE_UNHOLY);
+	room->description = strdup(DESC_UNHOLY);
 
 	SET_BIT(room->zone->flags, ZONE_LOCKED);
 
