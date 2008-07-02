@@ -347,6 +347,9 @@ gain_exp(struct Creature *ch, int gain)
 				|| GET_LEVEL(ch) >= LVL_AMBASSADOR)))
 		return;
 
+    if (IS_PC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
+        return;
+
 	if (IS_NPC(ch)) {
 		GET_EXP(ch) = MIN(2000000000,
 			((unsigned int)GET_EXP(ch) + (unsigned int)gain));
