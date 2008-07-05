@@ -133,6 +133,7 @@ ACMD(do_attach);
 ACMD(do_attributes);
 ACMD(do_autopsy);
 ACMD(do_backstab);
+ACMD(do_badge);
 ACMD(do_bash);
 ACMD(do_ban);
 ACMD(do_battlecry);
@@ -517,6 +518,7 @@ struct command_info cmd_info[] = {
 
 	{"babble", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"backstab", POS_STANDING, do_backstab, 1, 0, 0, 0},
+	{"badge", POS_DEAD, do_badge, LVL_BUILDER, 0, 0, 0},
 	{"ban", POS_DEAD, do_ban, LVL_IMMORT, 0, 0, 0},
 	{"bandage", POS_STANDING, do_bandage, 0, 0, 0, 0},
 	{"balance", POS_STANDING, do_not_here, 1, 0, 0, 0},
