@@ -149,7 +149,7 @@ show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
         IS_SET(bits, SPELL_BIT) ? "spells" :
             IS_SET(bits, TRIG_BIT) ? "triggers" :
             IS_SET(bits, ZEN_BIT) ? "zens" :
-            IS_SET(bits, ALTER_BIT) ? "alterations" : 
+            IS_SET(bits, ALTER_BIT) ? "alterations" :
             IS_SET(bits, SONG_BIT) ? "songs" : "skills",
         ":\r\n", NULL);
 
@@ -209,7 +209,7 @@ show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
                         spell_info[skl].mana_min, spell_info[skl].mana_change,
                         CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
                 }
-                
+
                 acc_strcat("\r\n", NULL);
                 found = true;
             }
@@ -840,9 +840,9 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         zone->weather->pressure, zone->weather->change);
 
     sprintbit(zone->flags, zone_flags, buf2);
-    send_to_char(ch, "Flags: %s%s%s%s\r\n", CCGRN(ch, C_NRM), buf2, 
+    send_to_char(ch, "Flags: %s%s%s%s\r\n", CCGRN(ch, C_NRM), buf2,
                  zone_pk_flags[zone->getPKStyle()], CCNRM(ch, C_NRM));
-	
+
 	if (zone->min_lvl)
 		send_to_char(ch, "Target lvl/gen: [% 2d/% 2d - % 2d/% 2d]\r\n",
 			zone->min_lvl, zone->min_gen, zone->max_lvl, zone->max_gen);
@@ -1230,7 +1230,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
 			acc_sprintf("Oedit Owned By: NOONE[%ld]\r\n",
 							j->shared->owner_id );
 		}
-					
+
 	}
     acc_sprintf("Can be worn on: ");
     acc_strcat(tmp_printbits(j->obj_flags.wear_flags, wear_bits), "\r\n", NULL);
@@ -1277,7 +1277,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
                     CCNRM(ch, C_NRM),
                     CCGRN(ch, C_NRM),
                     (j->worn_by) ? GET_NAME(j->worn_by):"N",
-                    (!j->worn_by || j == GET_EQ(j->worn_by, j->worn_on)) ? 
+                    (!j->worn_by || j == GET_EQ(j->worn_by, j->worn_on)) ?
                     "" : " (impl)",
                     CCNRM(ch, C_NRM),
                     CCGRN(ch, C_NRM),
@@ -1425,10 +1425,10 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
         acc_sprintf("Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)\r\n",
                     GET_OBJ_VAL(j, 0),
                     GET_OBJ_VAL(j, 1),
-                    GET_OBJ_VAL(j, 2), 
-                    (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,2) + 1)) / 2, 
-                    (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < EGUN_TOP) ? 
-                    egun_types[(int)GET_OBJ_VAL(j,3)] : "unknown", 
+                    GET_OBJ_VAL(j, 2),
+                    (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,2) + 1)) / 2,
+                    (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j,3) < EGUN_TOP) ?
+                    egun_types[(int)GET_OBJ_VAL(j,3)] : "unknown",
                     GET_OBJ_VAL(j, 3));
             break;
     case ITEM_BOMB:
@@ -1551,24 +1551,24 @@ static void
 do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
 {
     char *stat_prefix;
-    
+
     if (!obj->tmp_affects)
         return;
 
     for (tmp_obj_affect *aff = obj->tmp_affects;aff; aff = aff->next) {
-        stat_prefix = tmp_sprintf("AFF: (%3dhr) [%3hhd] %s%-20s%s", 
+        stat_prefix = tmp_sprintf("AFF: (%3dhr) [%3hhd] %s%-20s%s",
                                   aff->duration, aff->level, CCCYN(ch, C_NRM),
                                   spell_to_str(aff->type), CCNRM(ch, C_NRM));
 
         for (int i = 0; i < 4; i++)
             if (aff->val_mod[i] != 0)
                 acc_sprintf("%s %s by %d\r\n",
-                            stat_prefix, 
+                            stat_prefix,
                             item_value_types[(int)GET_OBJ_TYPE(obj)][i],
                             aff->val_mod[i]);
 
         if (aff->type_mod)
-            acc_sprintf("%s type = %s\r\n", stat_prefix, 
+            acc_sprintf("%s type = %s\r\n", stat_prefix,
                         strlist_aref(GET_OBJ_TYPE(obj), item_type_descs));
 
         if (aff->worn_mod)
@@ -1592,7 +1592,7 @@ do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
         for (int i = 0; i < MAX_OBJ_AFFECT; i++)
             if (aff->affect_loc[i])
                 acc_sprintf("%s %+d to %s\r\n",
-                             stat_prefix, 
+                             stat_prefix,
                              aff->affect_mod[i],
                              strlist_aref(aff->affect_loc[i], apply_types));
 
@@ -1675,7 +1675,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
         send_to_char(ch, "You can't stat this mob.\r\n");
         return;
 	}
-		
+
     for (char *opt_str = tmp_getword(&options);*opt_str;opt_str = tmp_getword(&options)) {
         if (is_abbrev(opt_str, "kills")) {
             do_stat_character_kills(ch, k);
@@ -1772,10 +1772,10 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
         strcpy(buf2, (char *)asctime(localtime(&(k->player.time.logon))));
         buf1[10] = buf2[10] = '\0';
 
-        acc_sprintf("Created: [%s], Last Logon: [%s], Played [%ldh %ldm], Age [%d]\r\n", 
-                buf1, buf2, 
-                k->player.time.played / 3600, 
-                ((k->player.time.played / 3600) % 60), 
+        acc_sprintf("Created: [%s], Last Logon: [%s], Played [%ldh %ldm], Age [%d]\r\n",
+                buf1, buf2,
+                k->player.time.played / 3600,
+                ((k->player.time.played / 3600) % 60),
                 GET_AGE(k) );
 
         acc_sprintf("Homeroom:[%d], Loadroom: [%d], Clan: %s%s%s\r\n",
@@ -1786,7 +1786,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
 
         acc_sprintf(
             "Life: [%d], Thac0: [%d], Reputation: [%4d]",
-            GET_LIFE_POINTS(k), (int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)), 
+            GET_LIFE_POINTS(k), (int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)),
                      THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))),
 			GET_REPUTATION(k));
 
@@ -2064,7 +2064,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
                         CCNRM(ch, C_SPR));
         }
     }
-    
+
     if (IS_PC(k)) {
         if (!GET_GRIEVANCES(k).empty()) {
             acc_sprintf("Grievances:\r\n");
@@ -2087,7 +2087,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
         for (aff = k->affected; aff; aff = aff->next) {
             acc_sprintf("SPL: (%3d%s) [%2d] %s(%ld) %s%-24s%s ", aff->duration + 1,
                 aff->is_instant ? "sec" : "hr", aff->level,
-                CCYEL(ch, C_NRM), aff->owner, 
+                CCYEL(ch, C_NRM), aff->owner,
                 CCCYN(ch, C_NRM), spell_to_str(aff->type), CCNRM(ch, C_NRM));
             if (aff->modifier) {
                 acc_sprintf("%+d to %s", aff->modifier,
@@ -2410,7 +2410,7 @@ ACMD(do_snoop)
             }
         }
 
-        slog("(GC) %s has begun to snoop %s.", 
+        slog("(GC) %s has begun to snoop %s.",
 			 GET_NAME(ch), GET_NAME(victim) );
 
         ch->desc->snooping = victim->desc;
@@ -2617,12 +2617,12 @@ ACMD(do_oload)
 
     temp = tmp_getword(&argument);
     temp2 = tmp_getword(&argument);
-    
+
     if (!*temp || !isdigit(*temp)) {
         send_to_char(ch, "Usage: oload [quantity] <object vnum>\r\n");
         return;
     }
-    
+
     if(!*temp2 || !isdigit(*temp2)) {
         number = atoi(temp);
         quantity = 1;
@@ -2667,11 +2667,11 @@ ACMD(do_oload)
             obj->name, ch->in_room->number);
     }
     else {
-        act(tmp_sprintf("%s has created %s! (x%d)", GET_NAME(ch), obj->name, 
+        act(tmp_sprintf("%s has created %s! (x%d)", GET_NAME(ch), obj->name,
             quantity), FALSE, ch, obj, 0, TO_ROOM);
         act(tmp_sprintf("You create %s. (x%d)", obj->name, quantity), FALSE,
             ch, obj, 0, TO_CHAR);
-        slog("(GC) %s loaded %s at %d. (x%d)", GET_NAME(ch), obj->name, 
+        slog("(GC) %s loaded %s at %d. (x%d)", GET_NAME(ch), obj->name,
             ch->in_room->number, quantity);
     }
 }
@@ -2685,7 +2685,7 @@ ACMD(do_pload)
 
     temp = tmp_getword(&argument);
     temp2 = tmp_getword(&argument);
-    
+
     if (!*temp || !isdigit(*temp)) {
         send_to_char(ch, "Usage: pload [quantity] <object vnum> [target char]\r\n");
         return;
@@ -2721,7 +2721,7 @@ ACMD(do_pload)
             }
         }
     }
-    
+
     if (number < 0) {
         send_to_char(ch, "A NEGATIVE number??\r\n");
         return;
@@ -2739,7 +2739,7 @@ ACMD(do_pload)
         send_to_char(ch, "You can't possibly need THAT many!\r\n");
         return;
     }
-    
+
     /*//no visible characters corresponding to vict.
     if (!vict) {
         send_to_char(ch, NOPERSON);
@@ -2757,28 +2757,28 @@ ACMD(do_pload)
 			obj->creator = GET_IDNUM(ch);
             obj_to_char(obj, vict);
         }
-        
-        
+
+
         act("$n does something suspicious and alters reality.", TRUE, ch, 0, 0,
             TO_ROOM);
-        
+
         //no quantity list if there's only one object.
         if(quantity == 1) {
             act("You load $p onto $N.", TRUE, ch, obj, vict, TO_CHAR);
             act("$N causes $p to appear in your hands.", TRUE, vict, obj, ch,
                 TO_CHAR);
         }
-        
+
         else {
-            act(tmp_sprintf("You load %s onto %s. (x%d)", obj->name, 
+            act(tmp_sprintf("You load %s onto %s. (x%d)", obj->name,
                     GET_NAME(vict), quantity), FALSE, ch, obj, vict, TO_CHAR);
-            act(tmp_sprintf("%s causes %s to appear in your hands. (x%d)", 
-                    GET_NAME(ch), obj->name, quantity), FALSE, ch, obj, 
+            act(tmp_sprintf("%s causes %s to appear in your hands. (x%d)",
+                    GET_NAME(ch), obj->name, quantity), FALSE, ch, obj,
                     vict, TO_VICT);
         }
-        
-        
-        
+
+
+
     } else {
         act("$n does something suspicious and alters reality.", TRUE, ch, 0, 0,
             TO_ROOM);
@@ -2788,12 +2788,12 @@ ACMD(do_pload)
 			obj->creator = GET_IDNUM(ch);
             obj_to_char(obj, ch);
         }
-        
+
         if(quantity == 1) {
             act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
-        } 
+        }
         else {
-            act(tmp_sprintf("You create %s. (x%d)", obj->name, 
+            act(tmp_sprintf("You create %s. (x%d)", obj->name,
                 quantity), FALSE, ch, obj, 0, TO_CHAR);
         }
     }
@@ -2802,8 +2802,8 @@ ACMD(do_pload)
             vict ? GET_NAME(vict) : GET_NAME(ch));
     }
     else {
-        slog("(GC) %s ploaded %s on %s. (x%d)", GET_NAME(ch), 
-            obj->name, vict ? GET_NAME(vict) : GET_NAME(ch), 
+        slog("(GC) %s ploaded %s on %s. (x%d)", GET_NAME(ch),
+            obj->name, vict ? GET_NAME(vict) : GET_NAME(ch),
             quantity);
     }
 }
@@ -3041,7 +3041,7 @@ ACMD(do_advance)
 
     mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(victim)), NRM, true,
         "(GC) %s has advanced %s to level %d (from %d)",
-        GET_NAME(ch), GET_NAME(victim), 
+        GET_NAME(ch), GET_NAME(victim),
         newlevel, GET_LEVEL(victim) );
     gain_exp_regardless(victim, exp_scale[newlevel] - GET_EXP(victim));
     victim->saveToXML();
@@ -3094,7 +3094,7 @@ static void
 perform_invis(struct Creature *ch, int level)
 {
     int old_level;
-    
+
     if (IS_NPC(ch))
         return;
 
@@ -3217,7 +3217,7 @@ ACMD(do_zecho)
         send_to_char(ch, "That must be a mistake...\r\n");
     else {
         for (pt = descriptor_list; pt; pt = pt->next) {
-            if (pt->input_mode == CXN_PLAYING && 
+            if (pt->input_mode == CXN_PLAYING &&
 				pt->creature && pt->creature != ch &&
                 pt->creature->in_room && pt->creature->in_room->zone == here
                 && !PRF2_FLAGGED(pt->creature, PRF2_NOGECHO)
@@ -3283,7 +3283,7 @@ ACMD(do_dc)
 
     one_argument(argument, arg);
     if (!(num_to_dc = atoi(arg))) {
-        send_to_char(ch, 
+        send_to_char(ch,
             "Usage: DC <connection number> (type USERS for a list)\r\n");
         return;
     }
@@ -3325,7 +3325,7 @@ ACMD(do_wizcut)
                 "All players level %d and below have been disconnected.\r\n",
                 level );
         slog("(GC) %s wizcut everyone level %d and below.\r\n",
-            GET_NAME(ch), 
+            GET_NAME(ch),
             level);
     }
 }
@@ -3483,7 +3483,7 @@ ACMD(do_force)
             }
             return;
         }
-        
+
         if (!strcasecmp("room", arg)) {
             send_to_char(ch, OK);
             mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
@@ -3531,11 +3531,11 @@ ACMD(do_wiznet)
 
     if (!*argument) {
         if (subcmd == SCMD_IMMCHAT)
-            send_to_char(ch, 
+            send_to_char(ch,
                 "Usage: imm <text> | #<level> <text> | *<emotetext> |\r\n "
                 "       imm @<level> *<emotetext> | imm @\r\n");
         else
-            send_to_char(ch, 
+            send_to_char(ch,
                 "Usage: wiz <text> | #<level> <text> | *<emotetext> |\r\n "
                 "       wiz @<level> *<emotetext> | wiz @\r\n");
         return;
@@ -3747,7 +3747,7 @@ ACMD(do_wizutil)
         send_to_char(ch, "There is no such player.\r\n");
         return;
     }
-            
+
     // Get the player or load it from file
     vict = get_char_vis(ch, arg);
     if (!vict) {
@@ -3777,9 +3777,9 @@ ACMD(do_wizutil)
             break;
         case SCMD_NOTITLE: {
             result = PLR_TOG_CHK(vict, PLR_NOTITLE);
-            msg = tmp_sprintf("Notitle %s for %s by %s.", 
+            msg = tmp_sprintf("Notitle %s for %s by %s.",
                                     ONOFF(result),
-                                    GET_NAME(vict), 
+                                    GET_NAME(vict),
                                     GET_NAME(ch));
             send_to_char(ch,"%s\r\n",msg);
             mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true, "(GC) %s", msg);
@@ -3787,9 +3787,9 @@ ACMD(do_wizutil)
         }
         case SCMD_NOPOST: {
             result = PLR_TOG_CHK(vict, PLR_NOPOST);
-            msg = tmp_sprintf("Nopost %s for %s by %s.", 
+            msg = tmp_sprintf("Nopost %s for %s by %s.",
                                     ONOFF(result),
-                                    GET_NAME(vict), 
+                                    GET_NAME(vict),
                                     GET_NAME(ch));
             send_to_char(ch,"%s\r\n",msg);
             mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true, "(GC) %s", msg);
@@ -3797,9 +3797,9 @@ ACMD(do_wizutil)
         }
         case SCMD_SQUELCH: {
             result = PLR_TOG_CHK(vict, PLR_NOSHOUT);
-            msg = tmp_sprintf("Squelch %s for %s by %s.", 
+            msg = tmp_sprintf("Squelch %s for %s by %s.",
                                     ONOFF(result),
-                                    GET_NAME(vict), 
+                                    GET_NAME(vict),
                                     GET_NAME(ch) );
             send_to_char(ch,"%s\r\n",msg);
             mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true, "(GC) %s", msg);
@@ -3808,10 +3808,10 @@ ACMD(do_wizutil)
         case SCMD_FREEZE:
 			do_freeze_char(argument, vict, ch);
             break;
-            
+
         case SCMD_THAW:
             if (!PLR_FLAGGED(vict, PLR_FROZEN)) {
-                send_to_char(ch, 
+                send_to_char(ch,
                     "Sorry, your victim is not morbidly encased in ice at the moment.\r\n");
                 break;
             }
@@ -3826,7 +3826,7 @@ ACMD(do_wizutil)
                 "(GC) %s un-frozen by %s.", GET_NAME(vict),
                 GET_NAME(ch));
             REMOVE_BIT(PLR_FLAGS(vict), PLR_FROZEN);
-            send_to_char(vict, 
+            send_to_char(vict,
                 "A fireball suddenly explodes in front of you, melting the ice!\r\nYou feel thawed.\r\n");
             send_to_char(ch, "Thawed.\r\n");
             if (vict->in_room)
@@ -4063,7 +4063,7 @@ show_account(Creature *ch, char *value)
         return;
     }
 
-    send_to_desc(ch->desc, "&y  Account: &n%s [%d]", account->get_name(), 
+    send_to_desc(ch->desc, "&y  Account: &n%s [%d]", account->get_name(),
 		  account->get_idnum());
 	if (account->get_email_addr() && *account->get_email_addr())
 		send_to_desc(ch->desc, " &c<%s>&n",
@@ -4076,9 +4076,9 @@ show_account(Creature *ch, char *value)
 	else if (account->is_quest_banned())
 		send_to_desc(ch->desc, " &y(QBANNED)&n");
     send_to_desc(ch->desc, "\r\n\r\n");
-    
-    
-    
+
+
+
     last = account->get_login_time();
     creation = account->get_creation_time();
 
@@ -4088,9 +4088,9 @@ show_account(Creature *ch, char *value)
 		localtime(&last));
     send_to_desc(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n", created_buf, last_buf);
 	if( Security::isMember(ch, "AdminFull") ) {
-		send_to_desc(ch->desc, "&y  Created: &n%-15s   &yLast: &n%-15s       &yReputation: &n%d\r\n", 
+		send_to_desc(ch->desc, "&y  Created: &n%-15s   &yLast: &n%-15s       &yReputation: &n%d\r\n",
 					 account->get_creation_addr(),
-					 account->get_login_addr(), 
+					 account->get_login_addr(),
 					 account->get_reputation());
 	}
 	send_to_desc(ch->desc, "&y  Past bank: &n%-12lld    &yFuture Bank: &n%-12lld",
@@ -4141,16 +4141,16 @@ show_player(Creature *ch, char *value)
         sprintf(remort_desc, "/%s",
             char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
-    sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d", 
+    sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d",
             GET_IDNUM(vict), GET_NAME(vict),
             playerIndex.getAccountID(GET_IDNUM(vict)),
-            genders[(int)GET_SEX(vict)], GET_LEVEL(vict), 
-            player_race[(int)GET_RACE(vict)], char_class_abbrevs[GET_CLASS(vict)], 
+            genders[(int)GET_SEX(vict)], GET_LEVEL(vict),
+            player_race[(int)GET_RACE(vict)], char_class_abbrevs[GET_CLASS(vict)],
             remort_desc, GET_REMORT_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
             "%sAu: %-8lld  Cr: %-8lld  Past: %-8lld  Fut: %-8lld\r\n",
-            buf, GET_GOLD(vict), GET_CASH(vict), 
+            buf, GET_GOLD(vict), GET_CASH(vict),
                  GET_PAST_BANK(vict), GET_FUTURE_BANK(vict) );
     // Trim and fit the date to show year but not seconds.
     strcpy(birth, ctime(&vict->player.time.birth));
@@ -4166,7 +4166,7 @@ show_player(Creature *ch, char *value)
         "%sStarted: %-22.21s Last: %-22.21s Played: %3dh %2dm\r\n",
         buf, birth, last_login, (int)(vict->player.time.played / 3600),
         (int)(vict->player.time.played / 60 % 60));
-    
+
     if (IS_SET(vict->char_specials.saved.act, PLR_FROZEN))
         sprintf(buf, "%s%s%s is FROZEN!%s\r\n", buf, CCCYN(ch, C_NRM),
             GET_NAME(vict), CCNRM(ch, C_NRM));
@@ -4211,7 +4211,7 @@ show_zoneusage(Creature *ch, char *value)
     page_string(ch->desc, buf);
 }
 
-bool 
+bool
 topZoneComparison(const struct zone_data* a, const struct zone_data* b)
 {
    return a->enter_count < b->enter_count;
@@ -4221,14 +4221,14 @@ static void
 show_topzones(Creature *ch, char *value)
 {
     int i, num_zones = 0;
-    struct zone_data *zone; 
+    struct zone_data *zone;
     vector<zone_data*> zone_list;
-    
+
     char *temp = NULL;
     char *lower = tmp_tolower(value);
-    int lessThan=INT_MAX, greaterThan=-1; 
+    int lessThan=INT_MAX, greaterThan=-1;
     bool reverse = false;
-    
+
     temp = strstr(lower, "limit ");
     if (temp && strlen(temp) > 6) {
         num_zones = atoi(temp+6);
@@ -4240,7 +4240,7 @@ show_topzones(Creature *ch, char *value)
         else
             num_zones = 50;
     }
-    
+
     temp = strstr(lower, ">");
     if (temp && strlen(temp) > 1) {
         greaterThan = atoi(temp+1);
@@ -4251,28 +4251,28 @@ show_topzones(Creature *ch, char *value)
         lessThan = atoi(temp+1);
     }
     temp = NULL;
-    
+
     temp = strstr(lower, "reverse");
     if (temp) {
         reverse = true;
     }
     temp = NULL;
-    
-    
+
+
     for (i=0, zone=zone_table; i < top_of_zone_table; zone = zone->next, i++) {
         if (zone->enter_count > greaterThan && zone->enter_count < lessThan
                 && zone->number < 700) {
             zone_list.push_back(zone);
         }
     }
-    
+
     sort(zone_list.begin(), zone_list.end(), topZoneComparison);
-    
+
     num_zones = MIN((int)zone_list.size(), num_zones);
 
     sprintf(buf, "Usage Options: [limit #] [>#] [<#] [reverse]\r\nTOP %d zones:\r\n", num_zones);
 
-    
+
     if (reverse) {
         for (i = 0; i < num_zones; i++)
             sprintf(buf,
@@ -4292,7 +4292,7 @@ show_topzones(Creature *ch, char *value)
         C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         playerIndex.getName(zone_list[i]->owner_idnum), CCNRM(ch, C_NRM));
     }
-        
+
     page_string(ch->desc, buf);
 
 }
@@ -4376,12 +4376,12 @@ show_room_append(Creature *ch, room_data *room, int mode, const char *extra)
 			CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), room->zone->number,
 			CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), room->zone->name,
 			CCYEL(ch, C_NRM), room->number,
-			CCCYN(ch, C_NRM), room->name, 
+			CCCYN(ch, C_NRM), room->name,
 			CCNRM(ch, C_NRM), extra);
 	else
 		acc_sprintf("%s#%d %s%-40s %s%s\r\n",
 			CCYEL(ch, C_NRM), room->number,
-			CCCYN(ch, C_NRM), room->name, 
+			CCCYN(ch, C_NRM), room->name,
 			CCNRM(ch, C_NRM), extra);
 }
 
@@ -4389,7 +4389,7 @@ show_room_append(Creature *ch, room_data *room, int mode, const char *extra)
 static int
 show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 {
-	special_search_data *srch = NULL; 
+	special_search_data *srch = NULL;
 	list<string> str_list;
 	list<string>::iterator str_it;
 	list<string> mob_names;
@@ -4434,7 +4434,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             arg = tmp_getword(&args);
         }
 
-			
+
         for (room = zone->world; room; room = room->next)
             for (srch = room->search; srch != NULL; srch = srch->next)
                 if ((srch->flags & flags) == flags) {
@@ -4461,14 +4461,14 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             for (str_it = str_list.begin(); str_it != str_list.end(); str_it++)
                 if (room->name && !isname(str_it->c_str(), room->name))
                     match = false;
-				
+
             if (match) {
                 show_room_append(ch, room, mode, NULL);
                 found = 1;
             }
         }
         break;
-    case 3: //rexdescs 
+    case 3: //rexdescs
         for (room = zone->world; room; room = room->next)
             if (room->ex_description != NULL) {
                 show_room_append(ch, room, mode, NULL);
@@ -4498,7 +4498,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
             return -1;
         }
-			
+
         if (*arg == '<')
             lt = true;
         else if (*arg == '>')
@@ -4507,15 +4507,15 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
             return -1;
         }
-			
+
         arg = tmp_getword(&args);
         if (!*arg || !isnumber(arg)) {
             send_to_char(ch, "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
             return -1;
         }
         num = atoi(arg);
-			
-			
+
+
         for (room = zone->world; room; room = room->next)
             if ((gt && (room->max_occupancy > num))
                 || (lt && (room->max_occupancy < num))) {
@@ -4593,7 +4593,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             send_to_char(ch, "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
             return -1;
         }
-			
+
         if (*arg == '<')
             lt = true;
         else if (*arg == '>')
@@ -4602,19 +4602,19 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             send_to_char(ch, "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
             return -1;
         }
-			
+
         arg = tmp_getword(&args);
         if (!*arg || !isnumber(arg)) {
             send_to_char(ch, "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
             return -1;
         }
         num = atoi(arg);
-			
+
         for (room = zone->world; room; room = room->next)
             if (room->description
                 && ((gt && ((unsigned)num <= strlen(room->description)))
                     || (lt && ((unsigned)num >= strlen(room->description))))) {
-                show_room_append(ch, room, mode, 
+                show_room_append(ch, room, mode,
                                  tmp_sprintf("[%zd]", strlen(room->description)));
                 found = 1;
             }
@@ -4724,7 +4724,7 @@ show_rooms(Creature *ch, char *value, char *args)
         send_to_char(ch, "%s\n", usage);
         return;
     }
-    
+
 	arg = tmp_getword(&args);
     if (arg && ((pos = search_block(arg, show_room_flags, 0)) >= 0)) {
 		switch (show_mode) {
@@ -4766,7 +4766,7 @@ show_rooms(Creature *ch, char *value, char *args)
 			send_to_char(ch, "No matching rooms.\r\n");
     } else {
         string usage_string;
-        
+
         usage_string += "Valid flags are:\n";
 
 		for (idx = 0;*show_room_flags[idx] != '\n';idx++) {
@@ -5031,8 +5031,8 @@ show_zones(Creature *ch, char *arg, char *value)
 #define SFC_ROOM 3
 
 struct show_struct fields[] = {
-    {"nothing", 0, ""},               // 0 
-    {"zones", LVL_AMBASSADOR, ""},    // 1 
+    {"nothing", 0, ""},               // 0
+    {"zones", LVL_AMBASSADOR, ""},    // 1
     {"player", LVL_IMMORT, "AdminBasic"},
 	{"rexits", LVL_IMMORT, "OLC"},
     {"stats", LVL_AMBASSADOR, ""},
@@ -5041,7 +5041,7 @@ struct show_struct fields[] = {
     {"account", LVL_IMMORT, "AdminBasic"},
     {"rooms", LVL_IMMORT, "OLC"},
     {"bugs", LVL_IMMORT, "WizardBasic"},
-    {"typos", LVL_IMMORT, ""},    // 10 
+    {"typos", LVL_IMMORT, ""},    // 10
     {"ideas", LVL_IMMORT, ""},
     {"skills", LVL_IMMORT, "AdminBasic"},
     {"zonecommands", LVL_IMMORT, ""},
@@ -5062,11 +5062,11 @@ struct show_struct fields[] = {
     {"timezones", LVL_IMMORT, ""},
     {"free_create", LVL_IMMORT, ""},
     {"exp_percent", LVL_IMMORT, "OLCApproval"},     // 30
-    {"demand_items", LVL_IMMORT, "OLCApproval"}, 
+    {"demand_items", LVL_IMMORT, "OLCApproval"},
     {"fighting", LVL_IMMORT, "WizardBasic"},
     {"quad", LVL_IMMORT, ""},
     {"mobiles", LVL_IMMORT, ""},
-    {"hunting", LVL_IMMORT, "WizardBasic"},    // 35 
+    {"hunting", LVL_IMMORT, "WizardBasic"},    // 35
     {"last_cmd", LVL_LUCIFER, ""},
     {"duperooms", LVL_IMMORT, "OLCWorldWrite"},
     {"specialization", LVL_IMMORT, ""},
@@ -5138,7 +5138,7 @@ ACMD(do_show)
     case 3:                     // rexits
         if (*value)
             k = atoi(value);
-        else 
+        else
             k = ch->in_room->number;
 
         if (!real_room(k)) {
@@ -5190,7 +5190,7 @@ ACMD(do_show)
         page_string(ch->desc, buf);
         break;
     case 7:                     // account
-        show_account( ch, value ); 
+        show_account( ch, value );
         break;
     case 8:                     // rooms
         show_rooms(ch, value, arg);
@@ -5227,7 +5227,7 @@ ACMD(do_show)
             send_to_char(ch, "View who's skills?\r\n");
         } else if (!(vict = get_player_vis(ch, value, 0))) {
             if (!Security::isMember(ch, "AdminBasic")) {
-                send_to_char(ch, 
+                send_to_char(ch,
                     "Getting that data from file requires basic administrative rights.\r\n");
             } else {
                 vict = new Creature(true);
@@ -5255,7 +5255,7 @@ ACMD(do_show)
         do_zone_cmdlist(ch, ch->in_room->zone, buf);
         break;
     case 14:
-        show_file(ch, "log/help.log", 0); 
+        show_file(ch, "log/help.log", 0);
         break;
     case 15:                    // aliases
         if (!(vict = get_char_vis(ch, value)))
@@ -5288,7 +5288,7 @@ ACMD(do_show)
     case 17:                    /* social */
         show_social_messages(ch, value);
         break;
-    case 18:                    // zoneusage 
+    case 18:                    // zoneusage
         show_zoneusage(ch, value);
         break;
     case 19:                    // topzones
@@ -5313,7 +5313,7 @@ ACMD(do_show)
         }
         page_string(ch->desc, buf);
         break;
-    
+
     case 21:  /** objects **/
         do_show_objects(ch, value, arg);
         break;
@@ -5536,7 +5536,7 @@ ACMD(do_show)
         cit = combatList.begin();
         for (; cit != combatList.end(); ++cit) {
             vict = *cit;
-    
+
             if (!can_see_creature(ch, vict))
                 continue;
 
@@ -5544,18 +5544,18 @@ ACMD(do_show)
                 break;
 
             sprintf(buf, "%s%3d: %s[%s%5d%s] %s%s%s\r\n", buf, ++i,
-                    CCRED(ch, C_NRM), 
+                    CCRED(ch, C_NRM),
                     CCGRN(ch, C_NRM),
                     vict->in_room->number,
                     CCRED(ch, C_NRM),
                     IS_NPC(vict) ? CCCYN(ch, C_NRM) : CCYEL(ch, C_NRM),
                     GET_NAME(vict),
-                    CCNRM(ch, C_NRM)); 
+                    CCNRM(ch, C_NRM));
 
             it = vict->getCombatList()->begin();
             for (; it != vict->getCombatList()->end(); ++it) {
                 sprintf(buf, "%s             - %s%s%s\r\n", buf,
-                        CCWHT(ch, C_NRM), 
+                        CCWHT(ch, C_NRM),
                         GET_NAME(it->getOpponent()),
                         CCNRM(ch, C_NRM));
             }
@@ -5642,7 +5642,7 @@ ACMD(do_show)
                             continue;
                         if (!strncasecmp(tmp_room->description,
                                 room->description, l)) {
-                            i++;    // number of duplicate rooms in zone 
+                            i++;    // number of duplicate rooms in zone
                             j += l;    // total length of duplicates in zone;
                             break;
                         }
@@ -6060,7 +6060,7 @@ ACMD(do_set)
         break;
     case 12:
         if (vict->real_abils.str != 18) {
-            send_to_char(ch, 
+            send_to_char(ch,
                 "Stradd is only applicable with 18 str... asshole.\r\n");
             return;
         }
@@ -6153,10 +6153,10 @@ ACMD(do_set)
             send_to_char(ch, "Better not -- could be a long winter!\r\n");
             return;
         }
-        slog("(GC) %s set %s %sfrozen.", 
-                GET_NAME(ch), 
+        slog("(GC) %s set %s %sfrozen.",
+                GET_NAME(ch),
                 GET_NAME(vict),
-                PLR_FLAGGED(vict, PLR_FROZEN) ? "" : "UN-"); 
+                PLR_FLAGGED(vict, PLR_FROZEN) ? "" : "UN-");
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_FROZEN);
         break;
     case 27:
@@ -6428,7 +6428,7 @@ ACMD(do_set)
         break;
     case 71:
         if (((tp = search_block(argument, logtypes, FALSE)) == -1)) {
-            send_to_char(ch, 
+            send_to_char(ch,
                 "Usage: syslog { Off | Brief | Normal | Complete }\r\n");
             return;
         }
@@ -6496,13 +6496,13 @@ ACMD(do_set)
         break;
     case 88:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_LOG);
-        slog("(GC) Logging %sactivated for %s by %s.", 
-                PLR_FLAGGED(vict, PLR_LOG) ? "" : "de-", 
-                GET_NAME(ch), 
+        slog("(GC) Logging %sactivated for %s by %s.",
+                PLR_FLAGGED(vict, PLR_LOG) ? "" : "de-",
+                GET_NAME(ch),
                 GET_NAME(vict) );
         break;
     case 89:
-		send_to_char(ch, "Disabled.\r\n"); 
+		send_to_char(ch, "Disabled.\r\n");
 		return;
     case 90:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOPK);
@@ -6663,7 +6663,7 @@ ACMD(do_aset)
 	int i, l, value = 0;
 	Account *account;
 	bool on = false, off = false;
-	
+
     name = tmp_getword(&argument);
     field = tmp_getword(&argument);
 
@@ -6693,7 +6693,7 @@ ACMD(do_aset)
 		account = Account::retrieve(atoi(name));
 	else
 		account = Account::retrieve(name);
-	
+
 	if (!account) {
 		send_to_char(ch, "There is no such account.\r\n");
 		return;
@@ -6860,7 +6860,7 @@ ACMD(do_rlist)
 						if (!isspace(*read_pt)) {
 							has_desc = true;
 							break;
-						}	
+						}
 				}
                 acc_sprintf("%5d. %s[%s%5d%s]%s %s%-30s%s %s%s\r\n",
 							++found,
@@ -7138,14 +7138,14 @@ ACMD(do_addname)
         send_to_char(ch, "Addname usage: addname <target> <strings>\r\n");
         return;
     }
-    
+
     args.next(arg);
-    
+
     if(!args.hasNext()) {
         send_to_char(ch, "What name keywords do you want to add?\r\b");
         return;
     }
-    
+
     while(args.next(new_name)) {
 
         if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
@@ -7160,16 +7160,16 @@ ACMD(do_addname)
                 return;
             }
         }
-        
+
         if (strlen(new_name) >= MAX_INPUT_LENGTH) {
             send_to_char(ch, "Name: \'%s\' too long.\r\n", new_name);
             continue;
         }
         //check to see if the name is already in the list
-        
-        
+
+
         if (obj) {
-            
+
             if(strstr(obj->aliases, new_name) != NULL) {
                 send_to_char(ch, "Name: \'%s\' is already an alias.\r\n", new_name);
                 continue;
@@ -7181,7 +7181,7 @@ ACMD(do_addname)
                 send_to_char(ch, "Name: \'%s\' is already an alias.\r\n", new_name);
                 continue;
             }
-            
+
             sprintf(buf, "%s ", new_name);
             strcat(buf, vict->player.name);
             vict->player.name = strdup(buf);
@@ -7521,7 +7521,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     MobileMap::iterator mit;
     if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
-        send_to_char(ch, 
+        send_to_char(ch,
             "Show mobiles:  utility to search the mobile prototype list.\r\n"
             "Usage: show mob <option> <argument>\r\n" "Options:\r\n");
         for (i = 0; i < NUM_SHOW_MOB; i++) {
@@ -7631,7 +7631,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
 
         arg = two_arguments(arg, arg1, arg2);
         if (!*arg1) {
-            send_to_char(ch, 
+            send_to_char(ch,
                 "Usage: show mob extreme <gold | cash> [multiplier]\r\n");
             return;
         }
@@ -7721,7 +7721,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
         if( !*arg){
             send_to_char(ch, "Show mobiles with what race?\r\n");
             return;
-                        
+
         }
         skip_spaces(&arg);
 
@@ -7754,7 +7754,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
         if( !*arg){
             send_to_char(ch, "Show mobiles with what class?\r\n");
             return;
-                        
+
         }
         skip_spaces(&arg);
 
@@ -7878,7 +7878,7 @@ ACMD(do_qpreload)
 
 }
 
-static const char* CODER_UTIL_USAGE = 
+static const char* CODER_UTIL_USAGE =
                     "Usage: coderutil <command> <args>\r\n"
                     "Commands: \r\n"
                     "      tick - forces a mud-wide tick to occur.\r\n"
@@ -7888,28 +7888,31 @@ static const char* CODER_UTIL_USAGE =
 					"      verify - run tempus integrity check.\r\n"
 					"       chaos - makes every mob berserk.\r\n"
 					"    loadzone - load zone files for zone.\r\n"
-                    ;
+        			"	 progstat - stat the progs for a room or mob.\r\n"
+					"  progscript - translate a script to a prog.\r\n"
+					"	  progall - translate all scripts to progs\r\n"
+					;
 
 static bool
 load_single_zone(int zone_num)
 {
-    void discrete_load(FILE *fl, int mode);
-    void load_zones(FILE * fl, char *zonename);
-    void reset_zone(struct zone_data *zone);
-    void assign_mobiles(void);
-    void assign_objects(void);
-    void assign_rooms(void);
-    void assign_artisans(void);
-    void compile_all_progs(void);
-    void renum_world(void);
-    void renum_zone_table(void);
-    
-    FILE *db_file;
-    zone_data *zone;
+	void discrete_load(FILE *fl, int mode);
+	void load_zones(FILE * fl, char *zonename);
+	void reset_zone(struct zone_data *zone);
+	void assign_mobiles(void);
+	void assign_objects(void);
+	void assign_rooms(void);
+	void assign_artisans(void);
+	void compile_all_progs(void);
+	void renum_world(void);
+	void renum_zone_table(void);
 
-    db_file = fopen(tmp_sprintf("world/zon/%d.zon", zone_num), "r");
-    if (db_file) {
-        load_zones(db_file, tmp_sprintf("zon/%d.zon", zone_num));
+	FILE *db_file;
+	zone_data *zone;
+
+	db_file = fopen(tmp_sprintf("world/zon/%d.zon", zone_num), "r");
+	if (db_file) {
+		load_zones(db_file, tmp_sprintf("zon/%d.zon", zone_num));
         fclose(db_file);
     }
     db_file = fopen(tmp_sprintf("world/wld/%d.wld", zone_num), "r");
@@ -7944,6 +7947,96 @@ load_single_zone(int zone_num)
         return false;
     }
 }
+
+char *
+get_script_node(obj_data *script, int node)
+{
+    char *find_exdesc(char *word,
+                      struct extra_descr_data *list,
+                      int find_exact = 0);
+    char *num_str = tmp_sprintf("%d", node);
+    char *desc = find_exdesc(num_str, script->ex_description, 1);
+
+    if (!desc)
+        return NULL;
+
+    desc = tmp_gsub(desc, "\r\n", " \\\r\n");
+    // remove trailing backslash
+    if (strlen(desc) > 4
+        && !strcmp(desc + strlen(desc) - 4, " \\\r\n"))
+        strcpy(desc + strlen(desc) - 4, "\r\n");
+    // add a comment for empty lines
+    if (!*desc || !strcmp(desc, "\r\n"))
+        desc = tmp_strdup("-- do nothing\r\n");
+
+    return desc;
+}
+
+char *
+script_to_prog(obj_data *script)
+{
+    const int MODE_RANDOM = (1 << 0);
+    const int MODE_ALONE = (1 << 1);
+//    const int MODE_FIGHTING = (1 << 2);
+    acc_string_clear();
+    if (GET_OBJ_VAL(script, 1) & MODE_RANDOM) {
+        // Random mode
+        acc_strcat("*handle idle\r\n", NULL);
+        if (!(GET_OBJ_VAL(script, 1) & MODE_ALONE)) {
+            acc_strcat("*target random player\r\n", NULL);
+            acc_strcat("*require target player\r\n", NULL);
+        }
+        acc_strcat("*randomly\r\n", NULL);
+        for (int i = 0;i < GET_OBJ_VAL(script, 0);i++) {
+            char *desc = get_script_node(script, i);
+            if (!desc)
+                break;
+            if (i == 0)
+                acc_strcat(desc, NULL);
+            else
+                acc_strcat("*or\r\n", desc, NULL);
+        }
+        acc_sprintf("*resume\r\n*pause %d\r\n", GET_OBJ_VAL(script, 2) * 4);
+    } else if (GET_OBJ_VAL(script, 3)) {
+        // We have a non-zero initial counter, so we need a sort of
+        // state machine to manage where we should be
+        acc_sprintf("*after load\r\n*set script_counter %d\r\n",
+                    GET_OBJ_VAL(script, 3));
+        acc_strcat("*handle idle\r\n", NULL);
+        for (int i = 0;i < GET_OBJ_VAL(script, 0);i++) {
+            acc_sprintf("*require variable script_counter %d\r\n", i);
+            if (!(GET_OBJ_VAL(script, 1) & MODE_ALONE)) {
+                acc_strcat("*target random player\r\n", NULL);
+                acc_strcat("*require target player\r\n", NULL);
+            }
+            char *desc = get_script_node(script, i);
+            if (!desc)
+                break;
+            acc_sprintf("%s*set script_counter %d\r\n*pause %d\r\n*halt\r\n*resume\r\n",
+                        desc,
+                        (i + 1) % GET_OBJ_VAL(script, 0),
+                        GET_OBJ_VAL(script, 2) * 4);
+        }
+    } else {
+        // We have a zero initial counter, which means we get to use a
+        // simpler format
+        acc_strcat("*handle idle\r\n", NULL);
+        for (int i = 0;i < GET_OBJ_VAL(script, 0);i++) {
+            if (!(GET_OBJ_VAL(script, 1) & MODE_ALONE)) {
+                acc_strcat("*target random player\r\n", NULL);
+                acc_strcat("*require target player\r\n", NULL);
+            }
+            char *desc = get_script_node(script, i);
+            if (!desc)
+                break;
+            acc_sprintf("%s*pause %d\r\n",
+                        desc, GET_OBJ_VAL(script, 2) * 4);
+        }
+    }
+
+    return acc_get_string();
+}
+
 ACMD(do_coderutil)
 {
     Tokenizer tokens(argument);
@@ -8027,13 +8120,121 @@ ACMD(do_coderutil)
         } else {
             send_to_char(ch, "Zone could not be found or reset.\r\n");
         }
+    } else if (strcmp(token, "progstat") == 0) {
+        void *owner;
+        extern prog_env *prog_list;
+        unsigned char *prog_get_obj(thing *owner, prog_evt_type owner_type);
+
+
+        tokens.next(token);
+        if (!strcmp(token, "room")) {
+            owner = ch->in_room;
+        } else {
+            owner = get_char_room_vis(ch, token);
+            if (!owner)
+                owner = get_char_vis(ch, token);
+            if (!owner) {
+                send_to_char(ch, "You can't find any '%s'\r\n", token);
+                return;
+            }
+        }
+        acc_string_clear();
+        acc_sprintf("progid    trigger   target          wait statement\r\n");
+        acc_sprintf("--------- --------- --------------- ---- ----------------------------\r\n");
+        const char *prog_event_kind_desc[] = {"command", "idle", "fight", "give", "enter", "leave", "load", "tick", "spell", "combat", "death", "dying"};
+
+        for (prog_env *prog = prog_list;prog;prog = prog->next) {
+            if (prog->owner == owner) {
+                unsigned char *exec = prog_get_obj(prog->owner, prog->owner_type);
+                int cmd = *((short *)(exec + prog->exec_pt));
+                int arg_addr = *((short *)(exec + prog->exec_pt + sizeof(short)));
+                acc_sprintf("0x%lx %-8s  %-15s %4d %s %s\r\n",
+                            (unsigned long)prog,
+                            prog_event_kind_desc[(int)prog->evt.kind],
+                            (prog->target) ? GET_NAME(prog->target):"<none>",
+                            prog->wait,
+                            prog_cmds[cmd].str,
+                            (char *)exec + arg_addr);
+            }
+        }
+        page_string(ch->desc, acc_get_string());
+    } else if (strcmp(token, "progscript") == 0) {
+        int vnum;
+        obj_data *obj;
+        char *result;
+
+        tokens.next(token);
+        if (!is_number(token)) {
+            send_to_char(ch, "You must specify an object vnum.\r\n");
+            return;
+        }
+
+        vnum = atoi(token);
+        obj = real_object_proto(vnum);
+        if (!obj) {
+            send_to_char(ch, "There's no object with vnum %d\r\n", vnum);
+            return;
+        }
+        if (!IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
+            send_to_char(ch, "That isn't a script.\r\n");
+            return;
+        }
+
+        result = tmp_strdup(script_to_prog(obj));
+        if (!*result) {
+            send_to_char(ch, "-- No prog was generated.\r\n");
+            return;
+        }
+        acc_string_clear();
+        acc_format_prog(ch, result);
+        page_string(ch->desc, acc_get_string());
+    } else if (strcmp(token, "progall") == 0) {
+        // Go through zcmds that implant into hold, convert scripts,
+        // insert progs into the mob vnum, then unset the mob's script
+        // flag
+        void compile_all_progs(void);
+
+        Creature *mob = NULL;
+        for (zone_data *zone = zone_table; zone; zone = zone->next) {
+            for (reset_com *cmd = zone->cmd; cmd; cmd = cmd->next) {
+                if (cmd->command == 'M')
+                    mob = real_mobile_proto(cmd->arg1);
+                if (cmd->command == 'I' && cmd->arg3 == WEAR_HOLD) {
+                    obj_data *obj = real_object_proto(cmd->arg1);
+                    if (obj && mob && IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
+                        char *prog = script_to_prog(obj);
+                        if (MOB2_FLAGGED(mob, MOB2_SCRIPT)) {
+                            if (GET_MOB_PROG(mob)) {
+                                char *old_prog = GET_MOB_PROG(mob);
+                                mob->mob_specials.shared->prog = strdup(tmp_strcat(old_prog, prog));
+                                free(old_prog);
+                            } else {
+                                mob->mob_specials.shared->prog = strdup(prog);
+                            }
+                            MOB2_FLAGS(mob) = (MOB2_FLAGS(mob) & (~MOB2_SCRIPT));
+                            send_to_char(ch, "Adding prog to #%d\r\n", GET_MOB_VNUM(mob));
+                        }
+                        tmp_gc_strings();
+                    }
+                }
+            }
+        }
+
+        for (CreatureList::iterator cit = characterList.begin();
+             cit != characterList.end();
+             ++cit) {
+            Creature *vict = *cit;
+            if (MOB2_FLAGGED(vict, MOB2_SCRIPT))
+                MOB2_FLAGS(vict) = (MOB2_FLAGS(vict) & (~MOB2_SCRIPT));
+            if (GET_IMPLANT(vict, WEAR_HOLD))
+                extract_obj(unequip_char(vict, WEAR_HOLD, EQUIP_IMPLANT, true));
+        }
+        compile_all_progs();
     } else
         send_to_char(ch, CODER_UTIL_USAGE);
 }
 
-
-
-static const char* ACCOUNT_USAGE = 
+static const char* ACCOUNT_USAGE =
                     "Usage: account <command> <args>\r\n"
                     "Commands: \r\n"
                     "      disable <id>\r\n"
@@ -8044,14 +8245,14 @@ static const char* ACCOUNT_USAGE =
                     ;
 ACMD(do_account)
 {
-	
+
     Tokenizer tokens(argument);
     char token[MAX_INPUT_LENGTH];
 	int account_id = 0;
 	long vict_id = 0;
 	Account *account = NULL;
 	Creature *vict;
-    
+
     if(!tokens.next(token)) {
         send_to_char( ch, ACCOUNT_USAGE );
         return;
@@ -8077,10 +8278,10 @@ ACMD(do_account)
 			send_to_char(ch, "Specify an account id.\r\n");
 			return;
 		}
-			
+
 		account_id = playerIndex.getAccountID(vict_id);
 		account = Account::retrieve(account_id);
-		
+
         account_id = atoi(token);
 		if (!Account::exists(account_id)) {
             send_to_char(ch, "That account does not exist.\r\n");
@@ -8235,15 +8436,15 @@ ACMD(do_tester)
             if (i < GET_LEVEL(ch)) {
                 do_start(ch, TRUE);
                 GET_LEVEL(ch) = i;
-            } 
-              
+            }
+
             send_to_char(ch, "Your body vibrates for a moment.... you feel different!\r\n");
             gain_exp_regardless(ch, exp_scale[i] - GET_EXP(ch));
 
             for (i = 1; i < MAX_SKILLS; i++) {
-                if (spell_info[i].min_level[(int)GET_CLASS(ch)] <= GET_LEVEL(ch) 
-                    || (IS_REMORT(ch) 
-                        &&  spell_info[i].min_level[(int)CHECK_REMORT_CLASS(ch)] <= GET_LEVEL(ch))) 
+                if (spell_info[i].min_level[(int)GET_CLASS(ch)] <= GET_LEVEL(ch)
+                    || (IS_REMORT(ch)
+                        &&  spell_info[i].min_level[(int)CHECK_REMORT_CLASS(ch)] <= GET_LEVEL(ch)))
                 {
                     GET_SKILL(ch, i) = LEARNED(ch);
                 }
@@ -8384,7 +8585,7 @@ static int do_freeze_char(char *argument, Creature *vict, Creature *ch)
                              vict->player.name, amt, (amt == 1) ? "":"s");
                 break;
             default:
-                send_to_char(ch, 
+                send_to_char(ch,
                              "Usage: freeze <target> [ XXXs | XXXm | XXXh | XXXd | forever]\r\n");
                 return false;
         }
@@ -8394,23 +8595,23 @@ static int do_freeze_char(char *argument, Creature *vict, Creature *ch)
             return false;
         }
     }
-    
+
     SET_BIT(PLR_FLAGS(vict), PLR_FROZEN);
     GET_FREEZE_LEV(vict) = GET_LEVEL(ch);
     vict->player_specials->thaw_time = thaw_time;
     vict->player_specials->freezer_id = GET_IDNUM(ch);
-     
+
     send_to_char(vict, "A bitter wind suddenly rises and drains every erg "
                        "of heat from your body!\r\nYou feel frozen!\r\n");
-    
+
     send_to_char(ch, "%s\r\n", msg);
-    mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true, "(GC) %s by %s", 
-           msg, GET_NAME(ch)); 
-    
+    mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true, "(GC) %s by %s",
+           msg, GET_NAME(ch));
+
     if (vict->in_room)
         act("A sudden cold wind conjured from nowhere freezes $N!", false,
             ch, 0, vict, TO_ROOM);
-    
+
     return true;
 }
 
@@ -8623,7 +8824,7 @@ ACMD(do_delete)
 		send_to_char(ch, "Come, come.  Don't you want to delete SOMEONE?\r\n");
 		return;
 	}
-	
+
 	if (!playerIndex.exists(name)) {
 		send_to_char(ch, "That player does not exist.\r\n");
 		return;
@@ -8671,7 +8872,7 @@ ACMD(do_delete)
 static void
 check_log(Creature *ch, const char *fmt, ...)
 {
-    const int MAX_FRAMES = 10;	
+    const int MAX_FRAMES = 10;
 	va_list args;
 	const char *backtrace_str = "";
     void *ret_addrs[MAX_FRAMES + 1];
@@ -8704,10 +8905,10 @@ check_ptr(Creature *ch, void *ptr, size_t expected_len, const char *str, int vnu
 {
 #ifdef MEMTRACK
 	dbg_mem_blk *mem;
-	
+
 	if (!ptr)
 		return true;
-    
+
         mem = dbg_get_block(ptr);
         if (!mem) {
             check_log(ch, "Invalid pointer found in %s %d", str, vnum);
@@ -8934,7 +9135,7 @@ verify_tempus_integrity(Creature *ch)
                                  contained->in_room);
                 }
             }
-            
+
 		}
 	}
 
@@ -8958,14 +9159,14 @@ verify_tempus_integrity(Creature *ch)
                              "object worn by mobile", GET_MOB_VNUM(vict))) {
                 if (GET_EQ(vict, idx)->worn_by != vict)
                     check_log(ch, "expected object wearer wrong!");
-                
+
             }
             if (GET_IMPLANT(vict, idx)
                 && check_ptr(ch, GET_IMPLANT(vict, idx), sizeof(obj_data),
                              "object implanted in mobile", GET_MOB_VNUM(vict))) {
                 if (GET_IMPLANT(vict, idx)->worn_by != vict)
                     check_log(ch, "expected object implanted wrong!");
-                
+
             }
             if (GET_TATTOO(vict, idx)
                 && check_ptr(ch, GET_TATTOO(vict, idx), sizeof(obj_data),
@@ -8989,7 +9190,7 @@ verify_tempus_integrity(Creature *ch)
                              contained->carried_by);
             }
         }
-        
+
     }
 
 	// Check objects in game
@@ -9055,7 +9256,7 @@ verify_tempus_integrity(Creature *ch)
                            "tmp obj affect in object", obj->unique_id))
                 break;
         }
-        
+
         // Check object for empty alias list
         char *alias;
 
@@ -9069,7 +9270,7 @@ verify_tempus_integrity(Creature *ch)
             obj->aliases = strdup(tmp_sprintf("obj%lu", obj->unique_id));
         }
     }
-        
+
 	// Check accounts
 	// Check descriptors
 	// Check players in game
