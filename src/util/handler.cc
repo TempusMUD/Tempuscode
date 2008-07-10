@@ -2271,9 +2271,11 @@ get_char_random_vis(struct Creature *ch, room_data *room)
 
 	CreatureList::iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
-		if (*cit != ch && can_see_creature(ch, *cit) && !number(0, total))
-			result = *cit;
-		total++;
+		if (*cit != ch && can_see_creature(ch, *cit)) {
+            if (!number(0, total))
+                result = *cit;
+            total++;
+        }
 	}
 	
 	return result;
@@ -2290,9 +2292,11 @@ get_player_random(room_data *room)
 
 	CreatureList::iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
-		if (IS_PC(*cit) && !number(0, total))
-			result = *cit;
-		total++;
+		if (IS_PC(*cit)) {
+            if (!number(0, total))
+                result = *cit;
+            total++;
+        }
 	}
 	
 	return result;
@@ -2309,9 +2313,11 @@ get_player_random_vis(struct Creature *ch, room_data *room)
 
 	CreatureList::iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
-		if (*cit != ch && IS_PC(*cit) && can_see_creature(ch, *cit) && !number(0, total))
-			result = *cit;
-		total++;
+		if (*cit != ch && IS_PC(*cit) && can_see_creature(ch, *cit)) {
+            if (!number(0, total))
+                result = *cit;
+            total++;
+        }
 	}
 	
 	return result;
