@@ -225,6 +225,23 @@ prog_get_owner_room(prog_env *env)
     return NULL;
 }
 
+void
+prog_send_debug(prog_env *env, const char *msg)
+{
+    room_data *room = prog_get_owner_room(env);
+    
+
+    for (CreatureList::iterator cit = room->people.begin();
+         cit != room->people.end();
+         ++cit) {
+        Creature *ch = *cit;
+
+        if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+            send_to_char(ch, "%sprog x%p:: %s%s\r\n",
+                         CCCYN(ch, C_NRM), env, msg, CCNRM(ch, C_NRM));
+    }
+}
+
 struct prog_var *
 prog_get_var(prog_env *env, const char *key, bool exact)
 {
@@ -298,6 +315,13 @@ prog_set_var(prog_env *env, bool local, const char *key, const char *arg)
 void
 prog_set_target(prog_env *env, Creature *target)
 {
+    if (env->tracing) {
+        if (target) 
+            prog_send_debug(env, tmp_sprintf("(setting target to %s)",
+                                             GET_NAME(target)));
+        else
+            prog_send_debug(env, "(setting target to <none>)");
+    }
     env->target = target;
     prog_set_var(env, true, "N", (target) ? fname(target->player.name):"");
     prog_set_var(env, true, "E", (target) ? HSSH(target):"");
@@ -1733,23 +1757,7 @@ prog_do_echo(prog_env * env, prog_evt * evt, char *args)
 void
 prog_emit_trace(prog_env *env, int cmd, const char *arg)
 {
-    room_data *room = prog_get_owner_room(env);
-    
-
-    for (CreatureList::iterator cit = room->people.begin();
-         cit != room->people.end();
-         ++cit) {
-        Creature *ch = *cit;
-
-        if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-            send_to_char(ch, "%sprog x%lx:: %s %s%s\r\n",
-                         CCCYN(ch, C_NRM),
-                         (unsigned long)env,
-                         prog_cmds[cmd].str,
-                         arg,
-                         CCNRM(ch, C_NRM));
-        }
-    }
+    prog_send_debug(env, tmp_sprintf("%s %s", prog_cmds[cmd].str, arg));
 }
 
 void
