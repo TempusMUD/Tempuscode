@@ -8869,6 +8869,25 @@ ACMD(do_delete)
 		delete vict;
 }
 
+ACMD(do_badge)
+{
+	skip_spaces(&argument);
+
+	if (IS_NPC(ch))
+		send_to_char(ch, "You've got no badge.\r\n");
+	else if (strlen(argument) > MAX_BADGE_LENGTH) {
+		send_to_char(ch, "Sorry, badges can't be longer than %zd characters.\r\n",
+                     MAX_BADGE_LENGTH);
+	} else {
+		strcpy(BADGE(ch), argument);
+		// Convert to uppercase
+		char *cp = BADGE(ch);
+		for (cp = BADGE(ch);*cp;cp++)
+			*cp = toupper(*cp);
+		send_to_char(ch, "Okay, your badge is now %s.\r\n", BADGE(ch));
+	}
+}
+
 static void
 check_log(Creature *ch, const char *fmt, ...)
 {
