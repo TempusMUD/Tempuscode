@@ -316,9 +316,9 @@ const char *MUD_MOVED_MSG =
 	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
 	"\r\n";
 
-char *WELC_MESSG = "\r\n" "Welcome to the realms of Tempus, adventurer.\r\n";
+const char *WELC_MESSG = "\r\n" "Welcome to the realms of Tempus, adventurer.\r\n";
 
-char *START_MESSG =
+const char *START_MESSG =
 	"Welcome.  This is your new character in the world of Tempus! \r\n"
 	"You must be strong to survive, but in time you may become powerful\r\n"
 	"beyond your wildest dreams...\r\n\r\n";
