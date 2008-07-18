@@ -7977,11 +7977,14 @@ script_to_prog(obj_data *script)
 {
     const int MODE_RANDOM = (1 << 0);
     const int MODE_ALONE = (1 << 1);
-//    const int MODE_FIGHTING = (1 << 2);
+    const int MODE_FIGHTING = (1 << 2);
     acc_string_clear();
     if (GET_OBJ_VAL(script, 1) & MODE_RANDOM) {
         // Random mode
         acc_strcat("*handle idle\r\n", NULL);
+        if (!(GET_OBJ_VAL(script, 0) & MODE_FIGHTING)) {
+            acc_strcat("*require not fighting\r\n", NULL);
+        }
         if (!(GET_OBJ_VAL(script, 1) & MODE_ALONE)) {
             acc_strcat("*target random player\r\n", NULL);
             acc_strcat("*require target player\r\n", NULL);
@@ -8000,11 +8003,17 @@ script_to_prog(obj_data *script)
     } else if (GET_OBJ_VAL(script, 3)) {
         // We have a non-zero initial counter, so we need a sort of
         // state machine to manage where we should be
+        slog("NOTE: Object #%d has a non-zero initial counter",
+             GET_OBJ_VNUM(script));
         acc_sprintf("*after load\r\n*set script_counter %d\r\n",
                     GET_OBJ_VAL(script, 3));
-        acc_strcat("*handle idle\r\n", NULL);
+        if (GET_OBJ_VAL(script, 0) & MODE_FIGHTING)
+            acc_strcat("*handle idle\r\n", NULL);
         for (int i = 0;i < GET_OBJ_VAL(script, 0);i++) {
             acc_sprintf("*require variable script_counter %d\r\n", i);
+            if (!(GET_OBJ_VAL(script, 0) & MODE_FIGHTING)) {
+                acc_strcat("*require not fighting\r\n", NULL);
+            }
             if (!(GET_OBJ_VAL(script, 1) & MODE_ALONE)) {
                 acc_strcat("*target random player\r\n", NULL);
                 acc_strcat("*require target player\r\n", NULL);
@@ -8022,6 +8031,9 @@ script_to_prog(obj_data *script)
         // simpler format
         acc_strcat("*handle idle\r\n", NULL);
         for (int i = 0;i < GET_OBJ_VAL(script, 0);i++) {
+            if (!(GET_OBJ_VAL(script, 0) & MODE_FIGHTING)) {
+                acc_strcat("*require not fighting\r\n", NULL);
+            }
             if (!(GET_OBJ_VAL(script, 1) & MODE_ALONE)) {
                 acc_strcat("*target random player\r\n", NULL);
                 acc_strcat("*require target player\r\n", NULL);
@@ -8193,26 +8205,36 @@ ACMD(do_coderutil)
         // insert progs into the mob vnum, then unset the mob's script
         // flag
         void compile_all_progs(void);
+        void save_zone(Creature *ch, zone_data *zone);
+        void save_mobs(Creature *ch, zone_data *zone);
+        void save_objs(Creature *ch, zone_data *zone);
+        extern obj_data *object_list;
 
         Creature *mob = NULL;
+        obj_data *obj = NULL;
         for (zone_data *zone = zone_table; zone; zone = zone->next) {
             for (reset_com *cmd = zone->cmd; cmd; cmd = cmd->next) {
                 if (cmd->command == 'M')
                     mob = real_mobile_proto(cmd->arg1);
                 if (cmd->command == 'I' && cmd->arg3 == WEAR_HOLD) {
-                    obj_data *obj = real_object_proto(cmd->arg1);
+                    obj = real_object_proto(cmd->arg1);
                     if (obj && mob && IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
                         char *prog = script_to_prog(obj);
                         if (MOB2_FLAGGED(mob, MOB2_SCRIPT)) {
                             if (GET_MOB_PROG(mob)) {
                                 char *old_prog = GET_MOB_PROG(mob);
+                                send_to_char(ch, "WARNING: Concatenating script from #%d to #%d\r\n",
+                                             GET_OBJ_VNUM(obj),
+                                             GET_MOB_VNUM(mob));
                                 mob->mob_specials.shared->prog = strdup(tmp_strcat(old_prog, prog));
                                 free(old_prog);
                             } else {
+                                send_to_char(ch, "Adding script from #%d to #%d\r\n",
+                                             GET_OBJ_VNUM(obj),
+                                             GET_MOB_VNUM(mob));
                                 mob->mob_specials.shared->prog = strdup(prog);
                             }
                             MOB2_FLAGS(mob) = (MOB2_FLAGS(mob) & (~MOB2_SCRIPT));
-                            send_to_char(ch, "Adding prog to #%d\r\n", GET_MOB_VNUM(mob));
                         }
                         tmp_gc_strings();
                     }
@@ -8220,6 +8242,7 @@ ACMD(do_coderutil)
             }
         }
 
+        // Destroy all installed scripts in-game
         for (CreatureList::iterator cit = characterList.begin();
              cit != characterList.end();
              ++cit) {
@@ -8229,6 +8252,42 @@ ACMD(do_coderutil)
             if (GET_IMPLANT(vict, WEAR_HOLD))
                 extract_obj(unequip_char(vict, WEAR_HOLD, EQUIP_IMPLANT, true));
         }
+
+        // Destroy all scripts in game
+        obj_data *next_obj;
+        for (obj = object_list;obj;obj = next_obj) {
+            next_obj = obj->next;
+            if (IS_OBJ_TYPE(obj, ITEM_SCRIPT))
+                extract_obj(obj);
+        }
+
+        // Destroy all script prototypes in game
+        ObjectMap::iterator oit = objectPrototypes.begin();
+        std::vector<int> doomed_vnums;
+        for (; oit != objectPrototypes.end(); ++oit) {
+            obj = oit->second;
+            if (IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
+                doomed_vnums.push_back(GET_OBJ_VNUM(obj));
+                free(obj->shared->func_param);
+                free(obj->shared);
+                obj->shared = NULL;
+                free_obj(obj);
+            }
+        }
+
+        for (std::vector<int>::iterator vnum_it = doomed_vnums.begin();
+             vnum_it != doomed_vnums.end();
+             ++vnum_it) {
+            objectPrototypes.remove(*vnum_it);
+        }
+        
+        // Save changes to the zone, object, and mobile files
+		for (zone_data *zone = zone_table;zone;zone = zone->next) {
+            save_zone(ch, zone);
+            save_objs(ch, zone);
+            save_mobs(ch, zone);
+        }
+        // Compile all the progs
         compile_all_progs();
     } else
         send_to_char(ch, CODER_UTIL_USAGE);
