@@ -1644,6 +1644,21 @@ do_stat_character_prog(Creature *ch, Creature *k)
 }
 
 static void
+do_stat_character_progobj(Creature *ch, Creature *k)
+{
+    void prog_display_obj(Creature *ch, unsigned char *exec);
+
+    if (IS_PC(k)) {
+        send_to_char(ch, "Players don't have progs!\r\n");
+    } else if (!GET_MOB_PROG(k)) {
+        send_to_char(ch, "Mobile %d does not have a prog.\r\n",
+                     GET_MOB_VNUM(k));
+    } else {
+        prog_display_obj(ch, GET_MOB_PROGOBJ(k));
+    }
+}
+
+static void
 do_stat_character_description(Creature *ch, Creature *k)
 {
     if (k->player.description) {
@@ -1682,6 +1697,9 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
             return;
         } else if (is_abbrev(opt_str, "prog")) {
             do_stat_character_prog(ch, k);
+            return;
+        } else if (is_abbrev(opt_str, "progobj")) {
+            do_stat_character_progobj(ch, k);
             return;
         } else if (is_abbrev(opt_str, "description")) {
             do_stat_character_description(ch, k);
@@ -8222,6 +8240,7 @@ ACMD(do_coderutil)
                         char *prog = script_to_prog(obj);
                         if (MOB2_FLAGGED(mob, MOB2_SCRIPT)) {
                             if (GET_MOB_PROG(mob)) {
+                                send_to_char(ch, "CAUTION: Concatenating prog from script #%d to #%d\r\n", GET_OBJ_VNUM(obj), GET_MOB_VNUM(mob));
                                 char *old_prog = GET_MOB_PROG(mob);
                                 send_to_char(ch, "WARNING: Concatenating script from #%d to #%d\r\n",
                                              GET_OBJ_VNUM(obj),
