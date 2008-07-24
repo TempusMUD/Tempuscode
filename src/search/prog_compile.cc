@@ -44,6 +44,7 @@ struct prog_compiler_state {
     thing *owner;                // Owner of the prog
     prog_evt_type owner_type;   // Owner type of the prog
     prog_token *token_list;     // The prog converted to a list of tokens
+    prog_token *token_tail;     // End of list of tokens, for appending
     prog_token *cur_token;      // The token under inspection
     prog_code_block *code;      // The current code block being compiled
     prog_code_block *handlers[PROG_PHASE_COUNT][PROG_EVT_COUNT]; // entry table for event handlers
@@ -167,34 +168,50 @@ prog_compile_warning(prog_compiler_state *compiler,
     va_end(args);
 }
 
-prog_token *
-prog_create_token(prog_token_kind kind, int linenum, const char *value)
+bool
+prog_push_new_token(prog_compiler_state *compiler,
+                    prog_token_kind kind,
+                    int linenum,
+                    const char *value)
 {
     prog_token *new_token;
 
     new_token = new prog_token;
-    if (!new_token)
-        return NULL;
+    if (!new_token) {
+        prog_compile_error(compiler,
+                           compiler->cur_token->linenum,
+                           "Out of memory while creating symbol");
+        return false;
+    }
     memset(new_token, 0, sizeof(prog_token));
 
     new_token->kind = kind;
     new_token->linenum = linenum;
     switch (kind) {
     case PROG_TOKEN_SYM:
-        new_token->sym = strdup(value); break;
+        new_token->sym = tmp_strdup(value); break;
     case PROG_TOKEN_STR:
-        new_token->str = strdup(value); break;
+        new_token->str = tmp_strdup(value); break;
     case PROG_TOKEN_HANDLER:
-        new_token->sym = strdup(value); break;
+        new_token->sym = tmp_strdup(value); break;
     case PROG_TOKEN_EOL:
         // EOL has no data
         break;
     default:
         errlog("Can't happen");
-        return NULL;
+        prog_compile_error(compiler,
+                           compiler->cur_token->linenum,
+                           "Internal Compiler Error #194");
+        delete new_token;
+        return false;
     }
 
-    return new_token;
+    if (compiler->token_tail)
+        compiler->token_tail = compiler->token_tail->next = new_token;
+    else
+        compiler->token_list = compiler->token_tail = new_token;
+
+    return true;
 }
 
 void
@@ -206,7 +223,6 @@ prog_free_compiler(prog_compiler_state *compiler)
 
     for (cur_token = compiler->token_list;cur_token;cur_token = next_token) {
         next_token = cur_token->next;
-        free(cur_token->str);
         delete cur_token;
     }
 
@@ -231,11 +247,10 @@ prog_lexify(prog_compiler_state *compiler)
     const char *cmd_str;
     char *line_start, *line_end, *line;
     int linenum;
-    prog_token *prev_token, *new_token;
 
     line_start = line_end = compiler->prog_text;
     linenum = 1;
-    compiler->token_list = prev_token = NULL;
+    compiler->token_list = compiler->token_tail = NULL;
     line = tmp_strdup("");
 
     // Skip initial spaces and blank lines in prog
@@ -262,59 +277,33 @@ prog_lexify(prog_compiler_state *compiler)
             // We have an actual line, so we need to lexify it.  Currently,
             // the lexical format is just a symbol followed by a string.
             // We'll improve things once we start parsing arguments
-            
+            bool ok = true;
             if (*line == '*') {
                 cmd_str = tmp_getword(&line) + 1;
                 if (!strcasecmp(cmd_str, "before")
                     || !strcasecmp(cmd_str, "handle")
                     || !strcasecmp(cmd_str, "after"))
-                    new_token = prog_create_token(PROG_TOKEN_HANDLER,
-                                                  linenum,
-                                                  cmd_str);
+                    ok = prog_push_new_token(compiler,
+                                             PROG_TOKEN_HANDLER,
+                                             linenum,
+                                             cmd_str);
                 else
-                    new_token = prog_create_token(PROG_TOKEN_SYM,
-                                                  linenum,
-                                                  cmd_str);
-                if (!new_token) {
-                    prog_compile_error(compiler,
-                                            compiler->cur_token->linenum,
-                                            "Out of memory");
+                    ok = prog_push_new_token(compiler,
+                                             PROG_TOKEN_SYM,
+                                             linenum,
+                                             cmd_str);
+                if (!ok)
                     return false;
-                }
-                if (prev_token)
-                    prev_token->next = new_token;
-                else
-                    compiler->token_list = new_token;
-                prev_token = new_token;
             }
 
             // if we have an argument to the command, tokenize it
-            if (*line) {
-                new_token = prog_create_token(PROG_TOKEN_STR, linenum, line);
-                if (!new_token) {
-                    prog_compile_error(compiler,
-                                            compiler->cur_token->linenum,
-                                            "Out of memory");
+            if (*line)
+                if (!prog_push_new_token(compiler, PROG_TOKEN_STR, linenum, line))
                     return false;
-                }
-
-                if (prev_token)
-                    prev_token->next = new_token;
-                else
-                    compiler->token_list = new_token;
-                prev_token = new_token;
-            }
 
             // The end-of-line is a language token in progs
-            new_token = prog_create_token(PROG_TOKEN_EOL, linenum, line);
-            if (!new_token) {
-                    prog_compile_error(compiler,
-                                            compiler->cur_token->linenum,
-                                            "Out of memory");
+            if (!prog_push_new_token(compiler, PROG_TOKEN_EOL, linenum, line))
                 return false;
-            }
-            prev_token->next = new_token;
-            prev_token = new_token;
 
             // Set line to empty string so it won't be concatenated again
             line = tmp_strdup("");
