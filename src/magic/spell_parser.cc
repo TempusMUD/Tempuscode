@@ -1379,6 +1379,11 @@ ACMD(do_cast)
 	if (IS_NPC(ch))
 		return;
 
+    if (!*argument) {
+        send_to_char(ch, "You were going to cast something?\r\n");
+        return;
+    }
+
 	if (!IS_MAGE(ch) && !IS_CLERIC(ch) && !IS_KNIGHT(ch) && !IS_RANGER(ch)
 		&& !IS_VAMPIRE(ch) && GET_CLASS(ch) < NUM_CLASSES
 		&& (GET_LEVEL(ch) < LVL_GRGOD)) {
@@ -1668,6 +1673,11 @@ ACMD(do_trigger)
 	if (IS_NPC(ch))
 		return;
 
+    if (!*argument) {
+        send_to_char(ch, "You were going to trigger a psionic potential?\r\n");
+        return;
+    }
+
 	if (!IS_PSYCHIC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
 		send_to_char(ch, "You are not able to trigger the mind.\r\n");
 		return;
@@ -1904,6 +1914,11 @@ ACMD(do_alter)
 	if (IS_NPC(ch))
 		return;
 
+    if (!*argument) {
+        send_to_char(ch, "You were going to alter a physical law?\r\n");
+        return;
+    }
+
 	if (GET_CLASS(ch) != CLASS_PHYSIC &&
 		GET_REMORT_CLASS(ch) != CLASS_PHYSIC
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR) {
@@ -2018,6 +2033,11 @@ ACMD(do_perform)
 
 	if (IS_NPC(ch))
 		return;
+
+    if (!*argument) {
+        send_to_char(ch, "You were going to perform something?\r\n");
+        return;
+    }
 
 	if (GET_CLASS(ch) != CLASS_BARD &&
 		GET_REMORT_CLASS(ch) != CLASS_BARD
