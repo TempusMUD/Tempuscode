@@ -12,8 +12,7 @@
 							&& !ZONE_FLAGGED(zone, ZONE_ROOMS_APPROVED)\
 							&& !ZONE_FLAGGED(zone, ZONE_OBJS_APPROVED) \
 							&& !ZONE_FLAGGED(zone, ZONE_SEARCH_APPROVED)\
-							&& !ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)\
-							&& !ZONE_FLAGGED(zone, ZONE_SHOPS_APPROVED))
+							&& !ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED))
 
   /* Zone flags */
 #define ZONE_AUTOSAVE           (1 << 0)
@@ -39,7 +38,7 @@
 #define ZONE_OBJS_APPROVED      (1 << 21)
 #define ZONE_ROOMS_APPROVED     (1 << 22)
 #define ZONE_ZCMDS_APPROVED     (1 << 23)
-#define ZONE_SHOPS_APPROVED     (1 << 24)
+#define ZONE_INPLAY             (1 << 24)
 #define ZONE_MOBS_MODIFIED      (1 << 25)
 #define ZONE_OBJS_MODIFIED      (1 << 26)
 #define ZONE_ROOMS_MODIFIED     (1 << 27)
