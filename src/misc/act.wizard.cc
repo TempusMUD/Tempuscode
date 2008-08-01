@@ -8308,6 +8308,90 @@ ACMD(do_coderutil)
         }
         // Compile all the progs
         compile_all_progs();
+    } else if (strcmp(token, "inplayify") == 0) {
+        void save_zone(Creature *ch, zone_data *zone);
+
+        std::list<int> zones_todo;
+        std::list<const char *> reasons;
+        int zone_count = 0;
+        int zone_num;
+
+        // Initialize known zones
+        zones_todo.push_back(30); reasons.push_back("preloaded");
+        zones_todo.push_back(300); reasons.push_back("preloaded");
+
+        // Set all zones to be not in-game
+		for (zone_data *zone = zone_table;zone;zone = zone->next)
+            REMOVE_BIT(zone->flags, ZONE_INPLAY);
+
+        // Iterate through known in-game zones
+        while (!zones_todo.empty()) {
+            zone_num = zones_todo.front();
+            const char *reason = reasons.front();
+            zones_todo.pop_front();
+            reasons.pop_front();
+            zone_data *zone = real_zone(zone_num);
+
+            SET_BIT(zone->flags, ZONE_INPLAY);
+            send_to_char(ch, "%3d %s %s\r\n",
+                         zone->number,
+                         reason,
+                         zone->name);
+            zone_count++;
+            // Iterate through rooms of each zone
+            for (room_data *room = zone->world, j = 0; room; room = room->next) {
+                // Check exits for different zone
+                for (int i = 0; i < NUM_DIRS; i++) {
+                    if (room->dir_option[i]
+                        && room->dir_option[i]->to_room
+                        && room->dir_option[i]->to_room->zone != zone
+                        && !ZONE_FLAGGED(room->dir_option[i]->to_room->zone, ZONE_INPLAY)) {
+                        SET_BIT(room->dir_option[i]->to_room->zone->flags, ZONE_INPLAY);
+                        zones_todo.push_back(room->dir_option[i]->to_room->zone->number);
+                        reasons.push_back(tmp_sprintf("room-exit   %5d", room->number));
+                    }
+                }
+
+                // Check searches for different zone
+                for (special_search_data *srch = room->search; srch; srch = srch->next) {
+                    if (srch->command == SEARCH_COM_TRANSPORT) {
+                        room_data *targ_room = real_room(srch->arg[0]);
+                        if (targ_room
+                            && targ_room->zone != zone
+                            && !ZONE_FLAGGED(targ_room->zone, ZONE_INPLAY)) {
+                            SET_BIT(targ_room->zone->flags, ZONE_INPLAY);
+                            zones_todo.push_back(targ_room->zone->number);
+                            reasons.push_back(tmp_sprintf("room-search %5d", room->number));
+                        }
+                    }
+                }
+        
+            }
+
+            // Iterate through loaded portals of each zone
+            for (reset_com *cmd = zone->cmd; cmd; cmd = cmd->next) {
+                if (cmd->command == 'O') {
+                    obj_data *obj = real_object_proto(cmd->arg1);
+                    if (obj
+                        && IS_OBJ_TYPE(obj, ITEM_PORTAL)
+                        && GET_OBJ_VAL(obj, 0)) {
+                        room_data *room = real_room(GET_OBJ_VAL(obj, 0));
+                        if (room
+                            && room->zone != zone
+                            && !ZONE_FLAGGED(room->zone, ZONE_INPLAY)) {
+                            SET_BIT(room->zone->flags, ZONE_INPLAY);
+                            zones_todo.push_back(room->zone->number);
+                            reasons.push_back(tmp_sprintf("portal      %5d", cmd->arg3));
+                        }
+                    }
+                }
+            }
+        }
+
+        send_to_char(ch, "Found %d zones in game.\r\n", zone_count);
+        // Save changes to the zone, object, and mobile files
+		for (zone_data *zone = zone_table;zone;zone = zone->next)
+            save_zone(ch, zone);
     } else
         send_to_char(ch, CODER_UTIL_USAGE);
 }

@@ -2295,10 +2295,12 @@ ACMD(do_unapprove)
 		slog("%s approved zone [%d] %s for OLC.", GET_NAME(ch),
 			zone->number, zone->name);
 
-		SET_BIT(zone->flags, ZONE_MOBS_APPROVED |
-			ZONE_OBJS_APPROVED |
-			ZONE_ROOMS_APPROVED |
-			ZONE_ZCMDS_APPROVED | ZONE_SEARCH_APPROVED | ZONE_SHOPS_APPROVED);
+		SET_BIT(zone->flags,
+                ZONE_MOBS_APPROVED |
+                ZONE_OBJS_APPROVED |
+                ZONE_ROOMS_APPROVED |
+                ZONE_ZCMDS_APPROVED |
+                ZONE_SEARCH_APPROVED);
 		save_zone(ch, zone);
 
         first = ch->in_room->zone->number * 100;
@@ -2465,10 +2467,12 @@ ACMD(do_approve)
 		slog("%s approved zone [%d] %s.", GET_NAME(ch), zone->number,
 			zone->name);
 
-		REMOVE_BIT(zone->flags, ZONE_MOBS_APPROVED |
-			ZONE_OBJS_APPROVED |
-			ZONE_ROOMS_APPROVED |
-			ZONE_ZCMDS_APPROVED | ZONE_SEARCH_APPROVED | ZONE_SHOPS_APPROVED);
+		REMOVE_BIT(zone->flags,
+                   ZONE_MOBS_APPROVED |
+                   ZONE_OBJS_APPROVED |
+                   ZONE_ROOMS_APPROVED |
+                   ZONE_ZCMDS_APPROVED |
+                   ZONE_SEARCH_APPROVED);
 		save_zone(ch, zone);
 
         first = ch->in_room->zone->number * 100;

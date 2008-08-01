@@ -153,8 +153,7 @@ SPECIAL(christmas_quest)
                 IS_SET(zone->flags, ZONE_OBJS_APPROVED) || 
                 IS_SET(zone->flags, ZONE_ROOMS_APPROVED) ||
                 IS_SET(zone->flags, ZONE_ZCMDS_APPROVED) || 
-                IS_SET(zone->flags, ZONE_SEARCH_APPROVED) ||
-                IS_SET(zone->flags, ZONE_SHOPS_APPROVED))
+                IS_SET(zone->flags, ZONE_SEARCH_APPROVED))
                 continue;
 
             if (zone->number < 700)
