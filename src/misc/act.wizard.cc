@@ -4932,21 +4932,12 @@ acc_print_zone(struct Creature *ch, struct zone_data *zone)
 static void
 show_zones(Creature *ch, char *arg, char *value)
 {
-    static const char *usage =
-        "Usage: show zone [ . | all | <begin#> <end#> | name <partial name>\r\n"
-		"                     | fullcontrol | owner | co-owner | past | future\r\n"
-		"                     | timeless | lawless | norecalc ]\r\n";
     Tokenizer tokens(arg);
     zone_data *zone;
 
-    if (value[0] == '\0') {
-        send_to_char(ch, usage);
-        return;
-    }
-
     acc_string_clear();
 
-    if (!strcmp(value, ".")) {
+    if (!*value) {
         acc_print_zone(ch, ch->in_room->zone);
     } else if (is_number(value)) {    // show a range ( from a to b )
         int a = atoi(value);
@@ -4996,10 +4987,6 @@ show_zones(Creature *ch, char *arg, char *value)
         for (zone = zone_table; zone; zone = zone->next)
             if (owner_id == zone->co_owner_idnum)
                 acc_print_zone(ch, zone);
-    } else if (strcasecmp("name", value) == 0 && tokens.next(value)) {    // Show by name
-        for (zone = zone_table; zone; zone = zone->next)
-            if (stristr(zone->name, value))
-                acc_print_zone(ch, zone);
     } else if (strcasecmp(value, "all") == 0) {
         for (zone = zone_table; zone; zone = zone->next)
             acc_print_zone(ch, zone);
@@ -5031,9 +5018,18 @@ show_zones(Creature *ch, char *arg, char *value)
         for (zone = zone_table; zone; zone = zone->next)
             if (!zone->author || !*zone->author)
                 acc_print_zone(ch, zone);
-    } else {
-        send_to_char(ch, usage);
-        return;
+    } else if (strcasecmp(value, "inplay") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (ZONE_FLAGGED(zone, ZONE_INPLAY))
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "!inplay") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (!ZONE_FLAGGED(zone, ZONE_INPLAY))
+                acc_print_zone(ch, zone);
+    } else {    // Show by name
+        for (zone = zone_table; zone; zone = zone->next)
+            if (stristr(zone->name, value))
+                acc_print_zone(ch, zone);
     }
 
     if (acc_get_string()[0] == '\0') {
