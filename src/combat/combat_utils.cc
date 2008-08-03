@@ -374,6 +374,12 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 				}
 		}
 
+        // Bonuses for bless/damn
+        if (IS_EVIL(victim) && IS_OBJ_STAT(cur_weap, ITEM_BLESS))
+            calc_thaco -= 1;
+        if (IS_GOOD(victim) && IS_OBJ_STAT(cur_weap, ITEM_DAMNED))
+            calc_thaco -= 1;
+
 		wpn_wgt = weap->getWeight();
 		if (wpn_wgt > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
 			calc_thaco += 2;

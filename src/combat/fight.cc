@@ -1477,7 +1477,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		else
 			dam -= (int)((dam * GET_ALIGNMENT(ch)) / 10000);
 	}
-
+    
 	//******************* Reduction based on the attacker ********************/
 	//************ Knights, Clerics, and Monks out of alignment **************/
 	if (ch) {
@@ -2619,6 +2619,14 @@ hit(struct Creature *ch, struct Creature *victim, int type)
         dam += GET_DAMROLL(ch);
 	}
     
+    // If a weapon is involved, apply bless/damn bonuses
+    if (cur_weap) {
+        if (IS_EVIL(victim) && IS_OBJ_STAT(cur_weap, ITEM_BLESS))
+            dam += 5;
+        if (IS_GOOD(victim) && IS_OBJ_STAT(cur_weap, ITEM_DAMNED))
+            dam += 5;
+    }
+
 	tmp_dam = dam;
 
 	if (cur_weap) {
