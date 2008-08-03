@@ -1644,6 +1644,21 @@ do_stat_character_prog(Creature *ch, Creature *k)
 }
 
 static void
+do_stat_character_progobj(Creature *ch, Creature *k)
+{
+    void prog_display_obj(Creature *ch, unsigned char *exec);
+
+    if (IS_PC(k)) {
+        send_to_char(ch, "Players don't have progs!\r\n");
+    } else if (!GET_MOB_PROG(k)) {
+        send_to_char(ch, "Mobile %d does not have a prog.\r\n",
+                     GET_MOB_VNUM(k));
+    } else {
+        prog_display_obj(ch, GET_MOB_PROGOBJ(k));
+    }
+}
+
+static void
 do_stat_character_description(Creature *ch, Creature *k)
 {
     if (k->player.description) {
@@ -1682,6 +1697,9 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
             return;
         } else if (is_abbrev(opt_str, "prog")) {
             do_stat_character_prog(ch, k);
+            return;
+        } else if (is_abbrev(opt_str, "progobj")) {
+            do_stat_character_progobj(ch, k);
             return;
         } else if (is_abbrev(opt_str, "description")) {
             do_stat_character_description(ch, k);
@@ -4914,21 +4932,12 @@ acc_print_zone(struct Creature *ch, struct zone_data *zone)
 static void
 show_zones(Creature *ch, char *arg, char *value)
 {
-    static const char *usage =
-        "Usage: show zone [ . | all | <begin#> <end#> | name <partial name>\r\n"
-		"                     | fullcontrol | owner | co-owner | past | future\r\n"
-		"                     | timeless | lawless | norecalc ]\r\n";
     Tokenizer tokens(arg);
     zone_data *zone;
 
-    if (value[0] == '\0') {
-        send_to_char(ch, usage);
-        return;
-    }
-
     acc_string_clear();
 
-    if (!strcmp(value, ".")) {
+    if (!*value) {
         acc_print_zone(ch, ch->in_room->zone);
     } else if (is_number(value)) {    // show a range ( from a to b )
         int a = atoi(value);
@@ -4978,10 +4987,6 @@ show_zones(Creature *ch, char *arg, char *value)
         for (zone = zone_table; zone; zone = zone->next)
             if (owner_id == zone->co_owner_idnum)
                 acc_print_zone(ch, zone);
-    } else if (strcasecmp("name", value) == 0 && tokens.next(value)) {    // Show by name
-        for (zone = zone_table; zone; zone = zone->next)
-            if (stristr(zone->name, value))
-                acc_print_zone(ch, zone);
     } else if (strcasecmp(value, "all") == 0) {
         for (zone = zone_table; zone; zone = zone->next)
             acc_print_zone(ch, zone);
@@ -5013,9 +5018,18 @@ show_zones(Creature *ch, char *arg, char *value)
         for (zone = zone_table; zone; zone = zone->next)
             if (!zone->author || !*zone->author)
                 acc_print_zone(ch, zone);
-    } else {
-        send_to_char(ch, usage);
-        return;
+    } else if (strcasecmp(value, "inplay") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (ZONE_FLAGGED(zone, ZONE_INPLAY))
+                acc_print_zone(ch, zone);
+    } else if (strcasecmp(value, "!inplay") == 0) {
+        for (zone = zone_table; zone; zone = zone->next)
+            if (!ZONE_FLAGGED(zone, ZONE_INPLAY))
+                acc_print_zone(ch, zone);
+    } else {    // Show by name
+        for (zone = zone_table; zone; zone = zone->next)
+            if (stristr(zone->name, value))
+                acc_print_zone(ch, zone);
     }
 
     if (acc_get_string()[0] == '\0') {
@@ -8222,6 +8236,7 @@ ACMD(do_coderutil)
                         char *prog = script_to_prog(obj);
                         if (MOB2_FLAGGED(mob, MOB2_SCRIPT)) {
                             if (GET_MOB_PROG(mob)) {
+                                send_to_char(ch, "CAUTION: Concatenating prog from script #%d to #%d\r\n", GET_OBJ_VNUM(obj), GET_MOB_VNUM(mob));
                                 char *old_prog = GET_MOB_PROG(mob);
                                 send_to_char(ch, "WARNING: Concatenating script from #%d to #%d\r\n",
                                              GET_OBJ_VNUM(obj),
@@ -8289,6 +8304,90 @@ ACMD(do_coderutil)
         }
         // Compile all the progs
         compile_all_progs();
+    } else if (strcmp(token, "inplayify") == 0) {
+        void save_zone(Creature *ch, zone_data *zone);
+
+        std::list<int> zones_todo;
+        std::list<const char *> reasons;
+        int zone_count = 0;
+        int zone_num;
+
+        // Initialize known zones
+        zones_todo.push_back(30); reasons.push_back("preloaded");
+        zones_todo.push_back(300); reasons.push_back("preloaded");
+
+        // Set all zones to be not in-game
+		for (zone_data *zone = zone_table;zone;zone = zone->next)
+            REMOVE_BIT(zone->flags, ZONE_INPLAY);
+
+        // Iterate through known in-game zones
+        while (!zones_todo.empty()) {
+            zone_num = zones_todo.front();
+            const char *reason = reasons.front();
+            zones_todo.pop_front();
+            reasons.pop_front();
+            zone_data *zone = real_zone(zone_num);
+
+            SET_BIT(zone->flags, ZONE_INPLAY);
+            send_to_char(ch, "%3d %s %s\r\n",
+                         zone->number,
+                         reason,
+                         zone->name);
+            zone_count++;
+            // Iterate through rooms of each zone
+            for (room_data *room = zone->world, j = 0; room; room = room->next) {
+                // Check exits for different zone
+                for (int i = 0; i < NUM_DIRS; i++) {
+                    if (room->dir_option[i]
+                        && room->dir_option[i]->to_room
+                        && room->dir_option[i]->to_room->zone != zone
+                        && !ZONE_FLAGGED(room->dir_option[i]->to_room->zone, ZONE_INPLAY)) {
+                        SET_BIT(room->dir_option[i]->to_room->zone->flags, ZONE_INPLAY);
+                        zones_todo.push_back(room->dir_option[i]->to_room->zone->number);
+                        reasons.push_back(tmp_sprintf("room-exit   %5d", room->number));
+                    }
+                }
+
+                // Check searches for different zone
+                for (special_search_data *srch = room->search; srch; srch = srch->next) {
+                    if (srch->command == SEARCH_COM_TRANSPORT) {
+                        room_data *targ_room = real_room(srch->arg[0]);
+                        if (targ_room
+                            && targ_room->zone != zone
+                            && !ZONE_FLAGGED(targ_room->zone, ZONE_INPLAY)) {
+                            SET_BIT(targ_room->zone->flags, ZONE_INPLAY);
+                            zones_todo.push_back(targ_room->zone->number);
+                            reasons.push_back(tmp_sprintf("room-search %5d", room->number));
+                        }
+                    }
+                }
+        
+            }
+
+            // Iterate through loaded portals of each zone
+            for (reset_com *cmd = zone->cmd; cmd; cmd = cmd->next) {
+                if (cmd->command == 'O') {
+                    obj_data *obj = real_object_proto(cmd->arg1);
+                    if (obj
+                        && IS_OBJ_TYPE(obj, ITEM_PORTAL)
+                        && GET_OBJ_VAL(obj, 0)) {
+                        room_data *room = real_room(GET_OBJ_VAL(obj, 0));
+                        if (room
+                            && room->zone != zone
+                            && !ZONE_FLAGGED(room->zone, ZONE_INPLAY)) {
+                            SET_BIT(room->zone->flags, ZONE_INPLAY);
+                            zones_todo.push_back(room->zone->number);
+                            reasons.push_back(tmp_sprintf("portal      %5d", cmd->arg3));
+                        }
+                    }
+                }
+            }
+        }
+
+        send_to_char(ch, "Found %d zones in game.\r\n", zone_count);
+        // Save changes to the zone, object, and mobile files
+		for (zone_data *zone = zone_table;zone;zone = zone->next)
+            save_zone(ch, zone);
     } else
         send_to_char(ch, CODER_UTIL_USAGE);
 }

@@ -3461,14 +3461,16 @@ ASPELL(spell_bless)
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
 		act("$p glows blue.", FALSE, ch, obj, 0, TO_CHAR);
 
-		if (GET_LEVEL(ch) >= 37) {
-			obj->affected[0].location = APPLY_AC;
-			obj->affected[0].modifier =
-				-(char)(2 + ((int)(level + GET_WIS(ch)) >> 4));
-		}
+        if (IS_OBJ_TYPE(obj, ITEM_ARMOR) || IS_OBJ_TYPE(obj, ITEM_WORN)) {
+            if (GET_LEVEL(ch) >= 37) {
+                obj->affected[0].location = APPLY_AC;
+                obj->affected[0].modifier =
+                    -(char)(2 + ((int)(level + GET_WIS(ch)) >> 4));
+            }
+        }
 
-		if (level > number(35, 53))
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
+        if (level > number(35, 53))
+            SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
 	} else {
 		if (IS_EVIL(victim)) {
 			send_to_char(ch, "%s is not worthy of your blessing.\r\n",

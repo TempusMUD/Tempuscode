@@ -373,7 +373,7 @@ extern const char *zone_flag_names[] = {
 	"objs_appr",
 	"rooms_appr",
 	"zcmds_appr",
-	"shops_appr",
+	"inplay",
 	"mobs_mod",					/* 25 */
 	"objs_mod",
 	"rms_mod",
@@ -406,7 +406,7 @@ extern const char *zone_flags[] = {
 	"OBJS_APPR",
 	"ROOMS_APPR",
 	"ZCMDS_APPR",
-	"SHOPS_APPR",
+	"INPLAY",
 	"MOBS_MOD",					/* 25 */
 	"OBJS_MOD",
 	"RMS_MOD",
