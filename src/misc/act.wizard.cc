@@ -8236,6 +8236,7 @@ ACMD(do_coderutil)
                         char *prog = script_to_prog(obj);
                         if (MOB2_FLAGGED(mob, MOB2_SCRIPT)) {
                             if (GET_MOB_PROG(mob)) {
+                                send_to_char(ch, "CAUTION: Concatenating prog from script #%d to #%d\r\n", GET_OBJ_VNUM(obj), GET_MOB_VNUM(mob));
                                 char *old_prog = GET_MOB_PROG(mob);
                                 send_to_char(ch, "WARNING: Concatenating script from #%d to #%d\r\n",
                                              GET_OBJ_VNUM(obj),
