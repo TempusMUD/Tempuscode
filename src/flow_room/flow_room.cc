@@ -365,7 +365,7 @@ dynamic_object_pulse()
 	struct Creature *vict = NULL;
 	struct room_data *fall_to = NULL;
 	static int counter = 0;
-	int j, tenpulse = 0, fallpulse = 0;
+	int tenpulse = 0, fallpulse = 0;
 
 	counter += PULSE_FLOWS;
 
@@ -447,17 +447,7 @@ dynamic_object_pulse()
 						act("$p auto switching off: depleted of energy.",
 							FALSE, vict, obj, 0, TO_CHAR | TO_SLEEP);
 						if (obj->worn_by) {
-
-							for (j = 0; j < MAX_OBJ_AFFECT; j++)
-								affect_modify(obj->worn_by,
-									obj->affected[j].location,
-									obj->affected[j].modifier, 0, 0, FALSE);
-							affect_modify(obj->worn_by, 0, 0,
-								obj->obj_flags.bitvector[0], 1, FALSE);
-							affect_modify(obj->worn_by, 0, 0,
-								obj->obj_flags.bitvector[1], 2, FALSE);
-							affect_modify(obj->worn_by, 0, 0,
-								obj->obj_flags.bitvector[2], 3, FALSE);
+                            apply_object_affects(obj->worn_by, obj, false);
 							affect_total(obj->worn_by);
 						}
 					}

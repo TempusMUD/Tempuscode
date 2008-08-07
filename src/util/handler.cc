@@ -204,25 +204,6 @@ namelist_match(const char *sub_list, const char *super_list)
 	return true;
 }
 
-void
-check_interface(struct Creature *ch, struct obj_data *obj, int mode)
-{
-	struct obj_data *chip = NULL;
-	int j;
-
-	for (chip = obj->contains; chip; chip = chip->next_content) {
-		if (SKILLCHIP(chip) && CHIP_DATA(chip) > 0 &&
-			CHIP_DATA(chip) < MAX_SKILLS)
-			affect_modify(ch, -CHIP_DATA(chip), CHIP_MAX(chip), 0, 0, mode);
-		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			affect_modify(ch, chip->affected[j].location,
-				chip->affected[j].modifier, 0, 0, mode);
-		affect_modify(ch, 0, 0, chip->obj_flags.bitvector[0], 1, mode);
-		affect_modify(ch, 0, 0, chip->obj_flags.bitvector[1], 1, mode);
-		affect_modify(ch, 0, 0, chip->obj_flags.bitvector[2], 1, mode);
-	}
-}
-
 bool
 obj_gives_affects(obj_data *obj, Creature *ch, int mode)
 {
@@ -231,6 +212,11 @@ obj_gives_affects(obj_data *obj, Creature *ch, int mode)
 
 	if (invalid_char_class(ch, obj))
 		return false;
+    
+    if ((IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch))
+        || (IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
+        || (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))
+        return false;
 
 	if (mode == EQUIP_WORN) {
         if (obj->worn_on == WEAR_BELT
@@ -245,6 +231,34 @@ obj_gives_affects(obj_data *obj, Creature *ch, int mode)
 		return false;
 
 	return true;
+}
+
+void
+apply_object_affects(Creature *ch, obj_data *obj, bool mode)
+{
+    if (obj_gives_affects(obj, ch, mode)) {
+        for (int j = 0; j < MAX_OBJ_AFFECT; j++)
+            affect_modify(ch, obj->affected[j].location,
+                          obj->affected[j].modifier,
+                          0, 0, mode);
+        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[0], 1, mode);
+        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[1], 2, mode);
+        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, mode);
+    }
+}
+
+void
+check_interface(struct Creature *ch, struct obj_data *obj, int mode)
+{
+	struct obj_data *chip = NULL;
+
+	for (chip = obj->contains; chip; chip = chip->next_content) {
+		if (SKILLCHIP(chip)
+            && CHIP_DATA(chip) > 0
+            && CHIP_DATA(chip) < MAX_SKILLS)
+			affect_modify(ch, -CHIP_DATA(chip), CHIP_MAX(chip), 0, 0, mode);
+        apply_object_affects(ch, chip, mode);
+	}
 }
 
 #define APPLY_SKILL(ch, skill, mod) \
@@ -262,7 +276,7 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 				if (ch->in_room &&
 					((bitv == AFF2_FLUORESCENT) ||
 						(bitv == AFF2_DIVINE_ILLUMINATION)) &&
-					!AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
+					!AFF_FLAGGED(ch, AFF_GLOWLIGHT) &&
 					!AFF2_FLAGGED(ch,
 						AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION)
 					&& !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
@@ -513,7 +527,7 @@ void
 affect_total(struct Creature *ch)
 {
 	struct affected_type *af;
-	int i, j;
+	int i;
 	int max_intel, max_dex, max_wis, max_con, max_cha;
 
 	if (GET_STR(ch) > 18)
@@ -523,45 +537,12 @@ affect_total(struct Creature *ch)
 	for (i = 0; i < NUM_WEARS; i++) {
 
 		// remove equipment affects
-		if (ch->equipment[i] &&
-			(i != WEAR_BELT ||
-				(GET_OBJ_TYPE(ch->equipment[i]) != ITEM_WEAPON &&
-					GET_OBJ_TYPE(ch->equipment[i]) != ITEM_PIPE)) &&
-			!invalid_char_class(ch, ch->equipment[i])
-			&& !IS_IMPLANT(ch->equipment[i]) && (!IS_DEVICE(ch->equipment[i])
-				|| ENGINE_STATE(ch->equipment[i]))) {
+		if (ch->equipment[i])
+            apply_object_affects(ch, ch->equipment[i], false);
 
-			for (j = 0; j < MAX_OBJ_AFFECT; j++) {
-				affect_modify(ch, ch->equipment[i]->affected[j].location,
-					ch->equipment[i]->affected[j].modifier, 0, 0, FALSE);
-			}
-			affect_modify(ch, 0, 0, ch->equipment[i]->obj_flags.bitvector[0],
-				1, FALSE);
-			affect_modify(ch, 0, 0, ch->equipment[i]->obj_flags.bitvector[1],
-				2, FALSE);
-			affect_modify(ch, 0, 0, ch->equipment[i]->obj_flags.bitvector[2],
-				3, FALSE);
-
-			if (IS_INTERFACE(ch->equipment[i]) &&
-				INTERFACE_TYPE(ch->equipment[i]) == INTERFACE_CHIPS &&
-				ch->equipment[i]->contains)
-				check_interface(ch, ch->equipment[i], FALSE);
-
-		}
 		// remove implant affects
-		if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-			(!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
-
-			for (j = 0; j < MAX_OBJ_AFFECT; j++) {
-				affect_modify(ch, ch->implants[i]->affected[j].location,
-					ch->implants[i]->affected[j].modifier, 0, 0, FALSE);
-			}
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[0], 1,
-				FALSE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[1], 2,
-				FALSE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[2], 3,
-				FALSE);
+		if (ch->implants[i]) {
+            apply_object_affects(ch, ch->implants[i], false);
 
 			if (IS_INTERFACE(ch->implants[i]) &&
 				INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
@@ -571,19 +552,8 @@ affect_total(struct Creature *ch)
 			}
         }
 		// remove implant affects
-		if (ch->tattoos[i] && !invalid_char_class(ch, ch->tattoos[i])) {
-
-			for (j = 0; j < MAX_OBJ_AFFECT; j++) {
-				affect_modify(ch, ch->tattoos[i]->affected[j].location,
-					ch->tattoos[i]->affected[j].modifier, 0, 0, FALSE);
-			}
-			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[0], 1,
-				FALSE);
-			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[1], 2,
-				FALSE);
-			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[2], 3,
-				FALSE);
-		}
+		if (ch->tattoos[i] && !invalid_char_class(ch, ch->tattoos[i]))
+            apply_object_affects(ch, ch->tattoos[i], false);
 	}
 
 
@@ -621,43 +591,11 @@ affect_total(struct Creature *ch)
 	for (i = 0; i < NUM_WEARS; i++) {
 
 		// apply equipment affects
-		if (ch->equipment[i] && (i != WEAR_BELT ||
-				(GET_OBJ_TYPE(ch->equipment[i]) != ITEM_WEAPON &&
-					GET_OBJ_TYPE(ch->equipment[i]) != ITEM_PIPE)) &&
-			!invalid_char_class(ch, ch->equipment[i])
-			&& !IS_IMPLANT(ch->equipment[i]) && (!IS_DEVICE(ch->equipment[i])
-				|| ENGINE_STATE(ch->equipment[i]))) {
-			for (j = 0; j < MAX_OBJ_AFFECT; j++)
-				affect_modify(ch, ch->equipment[i]->affected[j].location,
-					ch->equipment[i]->affected[j].modifier, 0, 0, TRUE);
-			affect_modify(ch, 0, 0, ch->equipment[i]->obj_flags.bitvector[0],
-				1, TRUE);
-			affect_modify(ch, 0, 0, ch->equipment[i]->obj_flags.bitvector[1],
-				2, TRUE);
-			affect_modify(ch, 0, 0, ch->equipment[i]->obj_flags.bitvector[2],
-				3, TRUE);
-
-			if (IS_INTERFACE(ch->equipment[i]) &&
-				INTERFACE_TYPE(ch->equipment[i]) == INTERFACE_CHIPS &&
-				ch->equipment[i]->contains)
-				check_interface(ch, ch->equipment[i], TRUE);
-		}
+		if (ch->equipment[i])
+            apply_object_affects(ch, ch->equipment[i], true);
 		// apply implant affects
-		if (ch->implants[i] && !invalid_char_class(ch, ch->implants[i]) &&
-			    !((IS_GOOD(ch) && IS_OBJ_STAT(ch->implants[i], ITEM_ANTI_GOOD)) ||
-                (IS_NEUTRAL(ch) && IS_OBJ_STAT(ch->implants[i], ITEM_ANTI_NEUTRAL)) ||
-                (IS_EVIL(ch) && IS_OBJ_STAT(ch->implants[i], ITEM_ANTI_EVIL))) &&
-                (!IS_DEVICE(ch->implants[i]) || ENGINE_STATE(ch->implants[i]))) {
-
-			for (j = 0; j < MAX_OBJ_AFFECT; j++)
-				affect_modify(ch, ch->implants[i]->affected[j].location,
-					ch->implants[i]->affected[j].modifier, 0, 0, TRUE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[0], 1,
-				TRUE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[1], 2,
-				TRUE);
-			affect_modify(ch, 0, 0, ch->implants[i]->obj_flags.bitvector[2], 3,
-				TRUE);
+		if (ch->implants[i]) {
+            apply_object_affects(ch, ch->implants[i], true);
 
 			if (IS_INTERFACE(ch->implants[i]) &&
 				INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
@@ -665,19 +603,8 @@ affect_total(struct Creature *ch)
 				check_interface(ch, ch->implants[i], TRUE);
 			}
 		}
-		if (ch->tattoos[i] && !invalid_char_class(ch, ch->tattoos[i])) {
-
-			for (j = 0; j < MAX_OBJ_AFFECT; j++) {
-				affect_modify(ch, ch->tattoos[i]->affected[j].location,
-                              ch->tattoos[i]->affected[j].modifier, 0, 0, TRUE);
-			}
-			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[0], 1,
-                          TRUE);
-			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[1], 2,
-                          TRUE);
-			affect_modify(ch, 0, 0, ch->tattoos[i]->obj_flags.bitvector[2], 3,
-                          TRUE);
-		}
+		if (ch->tattoos[i])
+            apply_object_affects(ch, ch->tattoos[i], true);
 	}
 	for (af = ch->affected; af; af = af->next)
 		affect_modify(ch, af->location, af->modifier, af->bitvector,
