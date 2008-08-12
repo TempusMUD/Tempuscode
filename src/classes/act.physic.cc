@@ -964,15 +964,7 @@ do_deactivate_device(obj_data * obj)
 {
 	ENGINE_STATE(obj) = 0;
 	if (obj->worn_by) {
-		for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-			affect_modify(obj->worn_by, obj->affected[i].location,
-				obj->affected[i].modifier, 0, 0, FALSE);
-		affect_modify(obj->worn_by, 0, 0,
-			obj->obj_flags.bitvector[0], 1, FALSE);
-		affect_modify(obj->worn_by, 0, 0,
-			obj->obj_flags.bitvector[1], 2, FALSE);
-		affect_modify(obj->worn_by, 0, 0,
-			obj->obj_flags.bitvector[2], 3, FALSE);
+        apply_object_affects(obj->worn_by, obj, false);
 		affect_total(obj->worn_by);
 	}
 

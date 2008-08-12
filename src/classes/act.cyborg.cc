@@ -903,16 +903,7 @@ ACMD(do_activate)
 						true, ch, obj, 0, TO_ROOM);
 
 					if (obj_gives_affects(obj, ch, (internal) ? EQUIP_IMPLANT:EQUIP_WORN)) {
-						for (i = 0; i < MAX_OBJ_AFFECT; i++)
-							affect_modify(obj->worn_by,
-								obj->affected[i].location,
-								obj->affected[i].modifier, 0, 0, FALSE);
-						affect_modify(obj->worn_by, 0, 0,
-							obj->obj_flags.bitvector[0], 1, FALSE);
-						affect_modify(obj->worn_by, 0, 0,
-							obj->obj_flags.bitvector[1], 2, FALSE);
-						affect_modify(obj->worn_by, 0, 0,
-							obj->obj_flags.bitvector[2], 3, FALSE);
+                        apply_object_affects(ch, obj, false);
 
 						ENGINE_STATE(obj) = 0;
 						affect_total(ch);
@@ -941,18 +932,8 @@ ACMD(do_activate)
 					CUR_ENERGY(obj) -= USE_RATE(obj);
 					ENGINE_STATE(obj) = 1;
 					if (obj_gives_affects(obj, ch, internal)) {
-						for (i = 0; i < MAX_OBJ_AFFECT; i++)
-							affect_modify(obj->worn_by,
-								obj->affected[i].location,
-								obj->affected[i].modifier, 0, 0, TRUE);
-						affect_modify(obj->worn_by, 0, 0,
-							obj->obj_flags.bitvector[0], 1, TRUE);
-						affect_modify(obj->worn_by, 0, 0,
-							obj->obj_flags.bitvector[1], 2, TRUE);
-						affect_modify(obj->worn_by, 0, 0,
-							obj->obj_flags.bitvector[2], 3, TRUE);
+                        apply_object_affects(ch, obj, false);
 						affect_total(obj->worn_by);
-
 					}
 				}
 			}
