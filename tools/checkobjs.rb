@@ -1,20 +1,13 @@
 #!/usr/bin/ruby
 
-require 'tempusrooms'
-
-$change_count = 0
-$skip_count = 0
+require 'tempusobjs'
 
 def process_file(path)
   begin
-    File.open(path, "r") { |inf|
-      $linenum = 0
-      until inf.eof?
-        new_room = Room.new
-        new_room.check if new_room.load(inf)
-      end
+    objs = read_objects(path)
+    objs.each {|obj|
+      obj.check
     }
-    
   rescue RuntimeError => exc
     print exc, " at  ", path, ":", $linenum, "\n"
     print exc.backtrace.join("\n")

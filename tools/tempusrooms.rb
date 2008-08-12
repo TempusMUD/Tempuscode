@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+require 'stringutils'
+
 $linenum = 0
 
 class Roomsearch
@@ -15,7 +17,7 @@ class Roomsearch
             "NOABBREV", "NOAFFMOB", "NOPLAYER", "REMORT_ONLY",
             "MATCH_ALL", "NOLOOK", "FAIL_TRIP" ]
 
-  
+
   attr_accessor :triggers, :keywords, :to_vict, :to_room, :to_remote,
                 :command, :arg0, :arg1, :arg2, :flags, :failure
   def initialize
@@ -368,6 +370,31 @@ EOF
       when :special_param
         @special_param = read_tilde_str(line, inf)
         state = :optional
+      end
+    }
+  end
+
+  def check
+    return if @flags.match(/[lm]/) # Skip houses
+    return if @title.match(/(unused|reuse)/i) # Skip unused rooms
+    title = capitalize(@title)
+    print "room #{@idnum}: Title capitalization should be '#{title}' in room #{@idnum}\n" if title != @title
+    return if @flags.match(/[b]/) # Skip DTs
+    @description = check_desc(@description, "room #{@idnum} desc")
+    @sound = check_desc(@sound, "room #{@idnum} sound") unless @sound.empty?
+    @extradescs.each { |exd|
+      # ASCII art detect
+      if !exd.description.match(/(---|___)/)
+        exd.description = check_desc(exd.description, "room #{@idnum} extradesc #{exd.keywords}")
+      end
+    }
+    @directions.each { |ignore, dir|
+      dir.description = check_desc(dir.description, "room #{@idnum} #{Roomexit::DIRECTIONS[dir.direction]} exit")
+      if dir.exit_info.match(/a/) && dir.keywords.empty?
+        print "room #{@idnum} #{Roomexit::DIRECTIONS[dir.direction]} exit: door exists with no keyword\n"
+      end
+      if dir.exit_info.match(/b/) && !dir.exit_info.match(/a/)
+        print "room #{@idnum} #{Roomexit::DIRECTIONS[dir.direction]} exit: exit is closed with no door\n"
       end
     }
   end

@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+require 'stringutils'
+
 $linenum = 0
 
 class Apply
@@ -361,6 +363,20 @@ EOF
       end
     }
   end
+
+  def check
+    print "Object ##{@vnum} has key in its alias, and is of #{TYPES[@type - 1]} type\n" if @aliases.match(/\bkey\b/) && @type != 18
+    
+    if ! @extradescs.empty?
+      @extradescs.each { |exd|
+        check_desc(exd.description, "object #{@vnum} extradesc #{exd.keywords}")
+      }
+      @aliases.scan(/\S+/).each { |a|
+        exds = @extradescs.select { |exd| exd.keywords.match(/\b#{a}\b/) }
+        print "object #{@vnum} has alias #{a} with no description\n" if exds.empty?
+      }
+    end
+  end
 end
 
 def read_objects(path)
@@ -382,19 +398,4 @@ def read_objects(path)
     end
   }
   return result
-end
-
-def check_objects
-  fnames = IO.read('lib/world/obj/index').collect { |fname| fname.chomp }
-  fnames.each { |fname|
-    if fname != '$'
-      path = 'lib/world/obj/' + fname
-#      print "Checking #{path}\n"
-      objs = read_objects(path)
-      objs.each {|obj|
-        print "Object ##{obj.vnum} has key in its alias, and is of UNDEFINED type\n" if obj.aliases.match(/\bkey\b/) && obj.type == 0
-    }
-    end
-  }
-  nil
 end
