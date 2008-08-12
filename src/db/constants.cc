@@ -2008,6 +2008,7 @@ extern const char *drinks[] = {
 	"sake",
 	"chocolate milk",
 	"juice",
+    "mead",
 	"\n"
 };
 
@@ -2054,7 +2055,10 @@ extern const char *drinknames[] = {
 	"cappucino coffee",
 	"rum",
 	"sake",
-	"chocolate milk" "\n"
+	"chocolate milk",
+    "juice",
+    "mead",
+    "\n"
 };
 
 

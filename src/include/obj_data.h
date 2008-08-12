@@ -269,7 +269,8 @@ static const int LIQ_RUM = 35;
 static const int LIQ_SAKE = 36;
 static const int LIQ_CHOCOLATE_MILK = 37;
 static const int LIQ_JUICE = 38;
-static const int NUM_LIQUID_TYPES = 39;
+static const int LIQ_MEAD = 39;
+static const int NUM_LIQUID_TYPES = 40;
 
 static const int CREATED_UNKNOWN = 0;
 static const int CREATED_IMM = 2;
