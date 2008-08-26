@@ -902,14 +902,9 @@ ACMD(do_activate)
 							internal ? " (internal)" : ""),
 						true, ch, obj, 0, TO_ROOM);
 
-					if (obj_gives_affects(obj, ch, (internal) ? EQUIP_IMPLANT:EQUIP_WORN)) {
-                        apply_object_affects(ch, obj, false);
-
-						ENGINE_STATE(obj) = 0;
-						affect_total(ch);
-					}
-
-					ENGINE_STATE(obj) = 0;
+                    apply_object_affects(ch, obj, false);
+                    ENGINE_STATE(obj) = 0;
+                    affect_total(ch);
 				}
 			} else {
 				if (ENGINE_STATE(obj))
@@ -931,10 +926,8 @@ ACMD(do_activate)
 							TO_CHAR);
 					CUR_ENERGY(obj) -= USE_RATE(obj);
 					ENGINE_STATE(obj) = 1;
-					if (obj_gives_affects(obj, ch, internal)) {
-                        apply_object_affects(ch, obj, false);
-						affect_total(obj->worn_by);
-					}
+                    apply_object_affects(ch, obj, true);
+                    affect_total(obj->worn_by);
 				}
 			}
 			break;

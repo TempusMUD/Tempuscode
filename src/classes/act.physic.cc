@@ -962,13 +962,11 @@ ACMD(do_econvert)
 void
 do_deactivate_device(obj_data * obj)
 {
+    apply_object_affects(obj->worn_by, obj, false);
 	ENGINE_STATE(obj) = 0;
-	if (obj->worn_by) {
-        apply_object_affects(obj->worn_by, obj, false);
-		affect_total(obj->worn_by);
-	}
-
+    affect_total(obj->worn_by);
 }
+
 void
 do_emp_pulse_olist(obj_data * list, Creature * ch = NULL, Creature * vict =
 	NULL)

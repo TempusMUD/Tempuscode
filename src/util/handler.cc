@@ -204,61 +204,57 @@ namelist_match(const char *sub_list, const char *super_list)
 	return true;
 }
 
-bool
-obj_gives_affects(obj_data *obj, Creature *ch, int mode)
+void
+apply_object_affects(Creature *ch, obj_data *obj, bool add)
 {
-	if (obj->worn_by != ch)
-		return false;
+    if (!obj)
+        return;
+
+    if (obj->worn_by != ch)
+        return;
 
 	if (invalid_char_class(ch, obj))
-		return false;
-    
+		return;
+
     if ((IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch))
         || (IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
         || (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))
-        return false;
+        return;
 
-	if (mode == EQUIP_WORN) {
+	if (ch->equipment[obj->worn_on]) {
         if (obj->worn_on == WEAR_BELT
             && (GET_OBJ_TYPE(obj) == ITEM_WEAPON ||
                 GET_OBJ_TYPE(obj) == ITEM_PIPE))
-            return false;
+            return;
         if (IS_IMPLANT(obj))
-            return false;
+            return;
     }
 
 	if (IS_DEVICE(obj) && !ENGINE_STATE(obj))
-		return false;
+		return;
 
-	return true;
-}
+    // Apply object affects
+    for (int j = 0; j < MAX_OBJ_AFFECT; j++)
+        affect_modify(ch, obj->affected[j].location,
+                      obj->affected[j].modifier,
+                      0, 0, add);
+    affect_modify(ch, 0, 0, obj->obj_flags.bitvector[0], 1, add);
+    affect_modify(ch, 0, 0, obj->obj_flags.bitvector[1], 2, add);
+    affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, add);
 
-void
-apply_object_affects(Creature *ch, obj_data *obj, bool mode)
-{
-    if (obj_gives_affects(obj, ch, mode)) {
-        for (int j = 0; j < MAX_OBJ_AFFECT; j++)
-            affect_modify(ch, obj->affected[j].location,
-                          obj->affected[j].modifier,
-                          0, 0, mode);
-        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[0], 1, mode);
-        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[1], 2, mode);
-        affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, mode);
+    // Special skill chip affects
+    if (SKILLCHIP(obj)
+        && CHIP_DATA(obj) > 0
+        && CHIP_DATA(obj) < MAX_SKILLS)
+        affect_modify(ch, -CHIP_DATA(obj), CHIP_MAX(obj), 0, 0, add);
+
+    // Apply affects of contained chips, if this is a chip interface
+    if (IS_INTERFACE(obj)
+        && INTERFACE_TYPE(obj) == INTERFACE_CHIPS
+        && obj->contains) {
+        for (obj_data *chip = obj->contains; chip; chip = chip->next_content)
+            apply_object_affects(ch, chip, add);
     }
-}
-
-void
-check_interface(struct Creature *ch, struct obj_data *obj, int mode)
-{
-	struct obj_data *chip = NULL;
-
-	for (chip = obj->contains; chip; chip = chip->next_content) {
-		if (SKILLCHIP(chip)
-            && CHIP_DATA(chip) > 0
-            && CHIP_DATA(chip) < MAX_SKILLS)
-			affect_modify(ch, -CHIP_DATA(chip), CHIP_MAX(chip), 0, 0, mode);
-        apply_object_affects(ch, chip, mode);
-	}
 }
 
 #define APPLY_SKILL(ch, skill, mod) \
@@ -269,7 +265,6 @@ void
 affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 	int index, bool add)
 {
-
 	if (bitv) {
 		if (add) {
 			if (index == 2) {
@@ -519,8 +514,6 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 	}							/* switch */
 }
 
-
-
 /* This updates a character by subtracting everything he is affected by */
 /* restoring original abilities, and then affecting all again           */
 void
@@ -535,33 +528,16 @@ affect_total(struct Creature *ch)
 
 	// remove all item-based affects
 	for (i = 0; i < NUM_WEARS; i++) {
-
-		// remove equipment affects
-		if (ch->equipment[i])
-            apply_object_affects(ch, ch->equipment[i], false);
-
-		// remove implant affects
-		if (ch->implants[i]) {
-            apply_object_affects(ch, ch->implants[i], false);
-
-			if (IS_INTERFACE(ch->implants[i]) &&
-				INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
-				ch->implants[i]->contains) {
-				check_interface(ch, ch->implants[i], FALSE);
-
-			}
-        }
-		// remove implant affects
-		if (ch->tattoos[i] && !invalid_char_class(ch, ch->tattoos[i]))
-            apply_object_affects(ch, ch->tattoos[i], false);
+        apply_object_affects(ch, ch->equipment[i], false);
+        apply_object_affects(ch, ch->implants[i], false);
+        apply_object_affects(ch, ch->tattoos[i], false);
 	}
-
 
 	// remove all spell affects
 	for (af = ch->affected; af; af = af->next)
 		affect_modify(ch, af->location, af->modifier, af->bitvector,
 			af->aff_index, FALSE);
-    
+
 	/************************************************************************
      * Set stats to real stats                                              *
      ************************************************************************/
@@ -583,28 +559,16 @@ affect_total(struct Creature *ch)
     }
 
     ch->setSpeed(0);
+
 	/************************************************************************
      * Reset affected stats                                                 *
      ************************************************************************/
 
 	// re-apply all item-based affects
 	for (i = 0; i < NUM_WEARS; i++) {
-
-		// apply equipment affects
-		if (ch->equipment[i])
-            apply_object_affects(ch, ch->equipment[i], true);
-		// apply implant affects
-		if (ch->implants[i]) {
-            apply_object_affects(ch, ch->implants[i], true);
-
-			if (IS_INTERFACE(ch->implants[i]) &&
-				INTERFACE_TYPE(ch->implants[i]) == INTERFACE_CHIPS &&
-				ch->implants[i]->contains) {
-				check_interface(ch, ch->implants[i], TRUE);
-			}
-		}
-		if (ch->tattoos[i])
-            apply_object_affects(ch, ch->tattoos[i], true);
+        apply_object_affects(ch, ch->equipment[i], true);
+        apply_object_affects(ch, ch->implants[i], true);
+        apply_object_affects(ch, ch->tattoos[i], true);
 	}
 	for (af = ch->affected; af; af = af->next)
 		affect_modify(ch, af->location, af->modifier, af->bitvector,
@@ -713,7 +677,6 @@ affect_to_char(struct Creature *ch, struct affected_type *af)
 	if (IS_SET(af->bitvector, AFF3_SELF_DESTRUCT) && af->aff_index == 3) {
 		raise(SIGSEGV);
 	}
-
 }
 
 /*
@@ -774,8 +737,6 @@ affect_remove(struct Creature *ch, struct affected_type *af)
 	return 0;
 }
 
-
-
 /* Call affect_remove with every spell of spelltype "skill" */
 int
 affect_from_char(struct Creature *ch, sh_int type)
@@ -792,8 +753,6 @@ affect_from_char(struct Creature *ch, sh_int type)
 	}
 	return found;
 }
-
-
 
 /*
  * Return if a char is affected by a spell (SPELL_XXX), NULL indicates
@@ -1375,7 +1334,6 @@ weapon_prof(struct Creature *ch, struct obj_data *obj)
 int
 equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode)
 {
-	int j;
 	int invalid_char_class(struct Creature *ch, struct obj_data *obj);
 
 	if (pos < 0 || pos >= NUM_WEARS) {
@@ -1435,21 +1393,7 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode)
 	obj->worn_by = ch;
 	obj->worn_on = pos;
 
-	if (obj_gives_affects(obj, ch, mode)) {
-		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			affect_modify(ch, obj->affected[j].location,
-				obj->affected[j].modifier, 0, 0, TRUE);
-
-		affect_modify(ch, 0, 0, obj->obj_flags.bitvector[0], 1, TRUE);
-		affect_modify(ch, 0, 0, obj->obj_flags.bitvector[1], 2, TRUE);
-		affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, TRUE);
-
-		if (IS_INTERFACE(obj) && INTERFACE_TYPE(obj) == INTERFACE_CHIPS &&
-			obj->contains)
-			check_interface(ch, obj, TRUE);
-
-	}
-
+    apply_object_affects(ch, obj, true);
 	affect_total(ch);
 
 	return 0;
@@ -1458,7 +1402,6 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode)
 struct obj_data *
 unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
 {
-	int j;
 	struct obj_data *obj = NULL;
 	int invalid_char_class(struct Creature *ch, struct obj_data *obj);
 
@@ -1516,19 +1459,7 @@ unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
 	strncpy(obj->obj_flags.tracker.string, buf, TRACKER_STR_LEN - 1);
 #endif
 
-	if (obj_gives_affects(obj, ch, mode)) {
-		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-			affect_modify(ch, obj->affected[j].location,
-				obj->affected[j].modifier, 0, 0, FALSE);
-		affect_modify(ch, 0, 0, obj->obj_flags.bitvector[0], 1, FALSE);
-		affect_modify(ch, 0, 0, obj->obj_flags.bitvector[1], 2, FALSE);
-		affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, FALSE);
-
-		if (IS_INTERFACE(obj) && INTERFACE_TYPE(obj) == INTERFACE_CHIPS &&
-			obj->contains)
-			check_interface(ch, obj, FALSE);
-
-	}
+    apply_object_affects(ch, obj, false);
 
 	obj->worn_by = NULL;
 	obj->worn_on = -1;
@@ -1851,7 +1782,7 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted)
 {
 	struct obj_data *o = NULL;
 	struct Creature *vict = NULL;
-	int found, j;
+	int found;
 
 	if (!obj || !obj_to || obj == obj_to) {
 		errlog("NULL object or same src and targ obj passed to obj_to_obj");
@@ -1893,27 +1824,12 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted)
 	if (obj_to->in_room && ROOM_FLAGGED(obj_to->in_room, ROOM_HOUSE))
 		SET_BIT(ROOM_FLAGS(obj_to->in_room), ROOM_HOUSE_CRASH);
 
-	if (IS_INTERFACE(obj_to)) {
-		if ((vict = obj_to->worn_by) &&
-			(obj_to != GET_EQ(vict, obj_to->worn_on) ||
-				obj_to->worn_on != WEAR_BELT ||
-				(GET_OBJ_TYPE(obj) != ITEM_WEAPON &&
-					GET_OBJ_TYPE(obj) != ITEM_PIPE)) &&
-			!invalid_char_class(vict, obj) &&
-			(obj_to != GET_EQ(vict, obj_to->worn_on) || !IS_IMPLANT(obj))) {
-			if (SKILLCHIP(obj) && CHIP_DATA(obj) > 0 &&
-				CHIP_DATA(obj) < MAX_SKILLS)
-				affect_modify(vict, -CHIP_DATA(obj), CHIP_MAX(obj), 0, 0,
-					TRUE);
-			for (j = 0; j < MAX_OBJ_AFFECT; j++)
-				affect_modify(vict, obj->affected[j].location,
-					obj->affected[j].modifier, 0, 0, TRUE);
-			affect_modify(vict, 0, 0, obj->obj_flags.bitvector[0], 1, TRUE);
-			affect_modify(vict, 0, 0, obj->obj_flags.bitvector[1], 1, TRUE);
-			affect_modify(vict, 0, 0, obj->obj_flags.bitvector[2], 1, TRUE);
-			affect_total(vict);
-		}
-	}
+    if (IS_INTERFACE(obj_to)
+        && (vict = obj_to->worn_by)
+        && obj_to == GET_IMPLANT(vict, obj_to->worn_on)) {
+        apply_object_affects(vict, obj, true);
+        affect_total(vict);
+    }
 }
 
 /* remove an object from an object */
@@ -1922,7 +1838,6 @@ obj_from_obj(struct obj_data *obj)
 {
 	struct obj_data *obj_from = 0, *temp = 0;
 	struct Creature *vict = NULL;
-	int j;
 
 	if (obj->in_obj == NULL) {
 		errlog("(handler.c): trying to illegally extract obj from obj");
@@ -1940,29 +1855,12 @@ obj_from_obj(struct obj_data *obj)
 
 	REMOVE_FROM_LIST(obj, obj_from->contains, next_content);
 
-	if (IS_INTERFACE(obj_from)) {
-		if ((vict = obj_from->worn_by) &&
-			(obj_from != GET_EQ(vict, obj_from->worn_on) ||
-				obj_from->worn_on != WEAR_BELT ||
-				(GET_OBJ_TYPE(obj) != ITEM_WEAPON &&
-					GET_OBJ_TYPE(obj) != ITEM_PIPE)) &&
-			!invalid_char_class(vict, obj) &&
-			(obj_from != GET_EQ(vict, obj_from->worn_on)
-				|| !IS_IMPLANT(obj))) {
-
-			if (SKILLCHIP(obj) && CHIP_DATA(obj) > 0 &&
-				CHIP_DATA(obj) < MAX_SKILLS)
-				affect_modify(vict, -CHIP_DATA(obj), CHIP_MAX(obj), 0, 0,
-					FALSE);
-			for (j = 0; j < MAX_OBJ_AFFECT; j++)
-				affect_modify(vict, obj->affected[j].location,
-					obj->affected[j].modifier, 0, 0, FALSE);
-			affect_modify(vict, 0, 0, obj->obj_flags.bitvector[0], 1, FALSE);
-			affect_modify(vict, 0, 0, obj->obj_flags.bitvector[1], 1, FALSE);
-			affect_modify(vict, 0, 0, obj->obj_flags.bitvector[2], 1, FALSE);
-			affect_total(vict);
-		}
-	}
+    if (IS_INTERFACE(obj_from)
+        && (vict = obj_from->worn_by)
+        && obj_from == GET_IMPLANT(vict, obj_from->worn_on)) {
+        apply_object_affects(vict, obj, false);
+        affect_total(vict);
+    }
 
 	if (obj_from->in_room && ROOM_FLAGGED(obj_from->in_room, ROOM_HOUSE))
 		SET_BIT(ROOM_FLAGS(obj_from->in_room), ROOM_HOUSE_CRASH);

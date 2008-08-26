@@ -442,15 +442,16 @@ dynamic_object_pulse()
 				CUR_ENERGY(obj) -= USE_RATE(obj);
 				if (CUR_ENERGY(obj) <= 0) {
 					CUR_ENERGY(obj) = 0;
-					ENGINE_STATE(obj) = 0;
 					if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
 						act("$p auto switching off: depleted of energy.",
 							FALSE, vict, obj, 0, TO_CHAR | TO_SLEEP);
 						if (obj->worn_by) {
                             apply_object_affects(obj->worn_by, obj, false);
+                            ENGINE_STATE(obj) = 0;
 							affect_total(obj->worn_by);
 						}
 					}
+                    ENGINE_STATE(obj) = 0;
 				}
 			}
 			// radioactive objects worn/carried                           (RADIOACTIVE)
