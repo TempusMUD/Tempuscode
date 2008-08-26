@@ -66,7 +66,6 @@
                                      attacktype == TYPE_RAD_SICKNESS || \
                                      attacktype == SKILL_HOLY_TOUCH)
 
-
 int corpse_state = 0;
 
 /* The Fight related routines */
@@ -79,9 +78,9 @@ int calculate_attack_probability(struct Creature *ch);
 void do_emp_pulse_char(Creature *ch, Creature *vict);
 void perform_autoloot(Creature *ch, obj_data *corpse);
 
-/* 
+/*
    corrects position and removes combat related bits.
-   Call ONLY from removeCombat()/removeAllCombat() 
+   Call ONLY from removeCombat()/removeAllCombat()
 */
 void
 remove_fighting_affects(struct Creature *ch)
@@ -114,7 +113,6 @@ change_alignment(struct Creature *ch, struct Creature *victim)
 	check_eq_align(ch);
 }
 
-
 void
 raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 {
@@ -128,7 +126,7 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
     // Handle dying progs before creating the corpse
     if (GET_ROOM_PROG(ch->in_room) != NULL)
 	    trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
-    
+
     CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it)
 		if (GET_MOB_PROGOBJ((*it)) != NULL && *it != ch)
@@ -146,13 +144,13 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
             af = af->next;
         }
     }
-    
+
 	REMOVE_BIT(AFF2_FLAGS(ch), AFF2_PETRIFIED);
 
 	if (IS_NPC(ch))
 		ch->mob_specials.shared->kills++;
 
-	// Equipment dealt with in make_corpse. 
+	// Equipment dealt with in make_corpse.
 	// Do not save it here.
 	if (is_arena_combat(killer, ch))
 		ch->arena_die();
@@ -161,10 +159,9 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 	else
 		ch->die();
 
-    if (killer && killer != ch && PRF2_FLAGGED(killer, PRF2_AUTOLOOT)) 
+    if (killer && killer != ch && PRF2_FLAGGED(killer, PRF2_AUTOLOOT))
         perform_autoloot(killer, corpse);
 }
-
 
 extern bool LOG_DEATHS;
 
@@ -179,14 +176,14 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 				GET_NAME(ch));
 			return;
 		}
-	} 
+	}
 
 	if( LOG_DEATHS ) {
 		if( IS_NPC(ch) ) {
 			slog("DEATH: %s killed by %s. attacktype: %d SPEC[%p]",
 				GET_NAME(ch),
 				killer ? GET_NAME(killer) : "(NULL)",
-				attacktype, 
+				attacktype,
 				GET_MOB_SPEC(ch));
 		} else {
 			slog("DEATH: %s killed by %s. attacktype: %d PC",
@@ -216,11 +213,11 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 			if (GET_LIFE_POINTS(ch) <= 0 && GET_MAX_HIT(ch) <= 1) {
 
 				if (IS_EVIL(ch) || IS_NEUTRAL(ch))
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Your soul screeches in agony as it's torn from the mortal realms... forever.\r\n");
 
 				else if (IS_GOOD(ch))
-					send_to_char(ch, 
+					send_to_char(ch,
 						"The righteous rejoice as your soul departs the mortal realms... forever.\r\n");
 
 				SET_BIT(PLR2_FLAGS(ch), PLR2_BURIED);
@@ -246,7 +243,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
         // Tally kills for quest purposes
         if (GET_QUEST(ch)) {
             Quest *quest;
-            
+
             quest = quest_by_vnum(GET_QUEST(ch));
             if (quest)
                 quest->tallyDeath(GET_IDNUM(ch));
@@ -275,7 +272,7 @@ group_gain(struct Creature *ch, struct Creature *victim)
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (AFF_FLAGGED((*it), AFF_GROUP) && ((*it) == leader
-		|| leader == (*it)->master)) 
+		|| leader == (*it)->master))
 		{
 			total_levs += GET_LEVEL((*it));
 			if( IS_PC(*it) ) {
@@ -287,8 +284,8 @@ group_gain(struct Creature *ch, struct Creature *victim)
 	it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (AFF_FLAGGED((*it), AFF_GROUP) &&
-            ((*it) != victim) && 
-            ((*it) == leader || leader == (*it)->master)) 
+            ((*it) != victim) &&
+            ((*it) == leader || leader == (*it)->master))
 		{
 			mult = (float)GET_LEVEL((*it));
 			if( IS_PC( (*it) ) )
@@ -307,14 +304,12 @@ group_gain(struct Creature *ch, struct Creature *victim)
 	}
 }
 
-
 void
 perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 	float multiplier)
 {
     int explore_bonus = 0;
 	int exp = 0;
-
 
 	if (!IS_NPC(victim))
 		exp = (int)MIN(max_exp_gain, (GET_EXP(victim) * multiplier) / 8);
@@ -340,18 +335,17 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 				(((exp_scale[GET_LEVEL(ch) + 2] - exp_scale[GET_LEVEL(ch) + 1])
 					>> 1) + exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch);
 
-		
         if (!IS_NPC(victim)) {
 			exp >>= 8;
 		}
-        
-        if (is_arena_combat(ch, victim) || 
+
+        if (is_arena_combat(ch, victim) ||
             ROOM_FLAGGED(victim->in_room, ROOM_HOUSE) ||
-            ROOM_FLAGGED(victim->in_room, ROOM_CLAN_HOUSE)) 
+            ROOM_FLAGGED(victim->in_room, ROOM_CLAN_HOUSE))
         {
 			exp = 1;
-        } 
-        
+        }
+
 	}
 
 	exp = ch->getPenalizedExperience( exp, victim );
@@ -379,7 +373,7 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
         exp += explore_bonus;
     }
 
-	if (IS_NPC(victim) && !IS_NPC(ch) 
+	if (IS_NPC(victim) && !IS_NPC(ch)
 		&& (GET_EXP(victim) < 0 || exp > 5000000)) {
 		slog("%s Killed %s(%d) for exp: %d.", GET_NAME(ch),
 			GET_NAME(victim), GET_EXP(victim), exp);
@@ -426,7 +420,6 @@ gain_kill_exp(struct Creature *ch, struct Creature *victim)
 
 	perform_gain_kill_exp(ch, victim, 1);
 }
-
 
 void
 eqdam_extract_obj(struct obj_data *obj)
@@ -553,9 +546,9 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 			/* TODO: Make this work
 			   if ( GET_OBJ_VAL( obj, 3 ) && CORPSE_IDNUM( obj ) > 0 &&
 			   CORPSE_IDNUM( obj ) <= top_of_p_table ){
-			   sprintf(buf, "%s destroyed by %s.", 
+			   sprintf(buf, "%s destroyed by %s.",
 			   obj->name, GET_NAME( ch ));
-			   mudlog(buf, CMP, LVL_DEMI, TRUE);
+			   mudlog(buf, CMP, LVL_DEMI, true);
 			   }
 			 */
 		}
@@ -565,12 +558,12 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 		SET_BIT(GET_OBJ_EXTRA2(new_obj), ITEM2_IMPLANT);
 
 	if ((room = obj->in_room) && (vict = obj->in_room->people)) {
-		act(msg, FALSE, vict, obj, 0, TO_CHAR);
-		act(msg, FALSE, vict, obj, 0, TO_ROOM);
+		act(msg, false, vict, obj, 0, TO_CHAR);
+		act(msg, false, vict, obj, 0, TO_ROOM);
 	} else if ((vict = obj->worn_by))
-		act(msg, FALSE, vict, obj, 0, TO_CHAR);
+		act(msg, false, vict, obj, 0, TO_CHAR);
 	else
-		act(msg, FALSE, ch, obj, 0, TO_CHAR);
+		act(msg, false, ch, obj, 0, TO_CHAR);
 
 	if (!obj->shared->proto) {
 		eqdam_extract_obj(obj);
@@ -601,7 +594,6 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 	return (new_obj);
 }
 
-
 struct obj_data *
 damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 {
@@ -609,12 +601,12 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 	struct obj_data *inobj = NULL, *next_obj = NULL;
 
     /* test to see if item should take damage */
-	if ((GET_OBJ_TYPE(obj) == ITEM_MONEY) || GET_OBJ_DAM(obj) < 0 || 
+	if ((GET_OBJ_TYPE(obj) == ITEM_MONEY) || GET_OBJ_DAM(obj) < 0 ||
         GET_OBJ_MAX_DAM(obj) < 0 ||
 		(ch && GET_LEVEL(ch) < LVL_IMMORT && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) ||
 		(ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) ||
 		(obj->in_room && ROOM_FLAGGED(obj->in_room, ROOM_ARENA)) ||
-        	(obj->worn_by && GET_QUEST(obj->worn_by) && 
+        	(obj->worn_by && GET_QUEST(obj->worn_by) &&
 	 		QUEST_FLAGGED(quest_by_vnum(GET_QUEST(obj->worn_by)), QUEST_ARENA)) ||
 		(GET_OBJ_TYPE(obj) == ITEM_KEY) || (GET_OBJ_TYPE(obj) == ITEM_SCRIPT)
 		|| obj->in_room == zone_table->world)
@@ -631,7 +623,6 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 
 		return destroy_object(ch, obj, type);
 	}
-
 
 	if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 3))
 			&& (GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 3)) {
@@ -657,10 +648,10 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 
 	/* send out messages and unequip if needed */
 	if (obj->in_room && (vict = obj->in_room->people)) {
-		act(buf2, FALSE, vict, obj, 0, TO_CHAR);
-		act(buf2, FALSE, vict, obj, 0, TO_ROOM);
+		act(buf2, false, vict, obj, 0, TO_CHAR);
+		act(buf2, false, vict, obj, 0, TO_ROOM);
 	} else if ((vict = obj->worn_by)) {
-		act(buf2, FALSE, vict, obj, 0, TO_CHAR);
+		act(buf2, false, vict, obj, 0, TO_CHAR);
 		if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
 			if (obj == GET_EQ(vict, obj->worn_on))
 				obj_to_char(unequip_char(vict, obj->worn_on, EQUIP_WORN), vict);
@@ -670,12 +661,11 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 			}
 		}
 	} else
-		act(buf2, FALSE, ch, obj, 0, TO_CHAR);
+		act(buf2, false, ch, obj, 0, TO_CHAR);
 
 	GET_OBJ_DAM(obj) -= eq_dam;
 	return NULL;
 }
-
 
 int
 SWAP_DAM_RETVAL(int val)
@@ -700,7 +690,7 @@ damage_attacker(struct Creature *ch, struct Creature *victim, int dam,
 #define DAM_RETURN( flags ) { cur_weap = 0; return flags; }
 
 //
-// damage( ) returns TRUE on a kill, FALSE otherwise
+// damage( ) returns true on a kill, false otherwise
 // damage(  ) MUST return with DAM_RETURN(  ) macro !!!
 // the return value bits can be a combination of:
 // DAM_VICT_KILLED
@@ -759,7 +749,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 
 	if (ch) {
-		if( ( IS_NPC(ch) || IS_NPC(victim) ) && 
+		if( ( IS_NPC(ch) || IS_NPC(victim) ) &&
 			  affected_by_spell(ch, SPELL_QUAD_DAMAGE) ) {
 			dam <<= 2;
 		} else if (AFF3_FLAGGED(ch, AFF3_DOUBLE_DAMAGE)) {
@@ -790,8 +780,8 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	}
 
 	/* newbie protection and PLR_NOPK check */
-	if (ch && ch != victim && ((!IS_NPC(ch) && !IS_NPC(victim)) || 
-        (!IS_NPC(victim) && IS_NPC(ch) && ch->master && !IS_NPC(ch->master)))) 
+	if (ch && ch != victim && ((!IS_NPC(ch) && !IS_NPC(victim)) ||
+        (!IS_NPC(victim) && IS_NPC(ch) && ch->master && !IS_NPC(ch->master))))
 	{
 		if(!is_arena_combat(ch, victim)) {
 			if (PLR_FLAGGED(ch, PLR_NOPK)) {
@@ -811,9 +801,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			!is_arena_combat(ch, victim) &&
 			GET_LEVEL(ch) < LVL_IMMORT) {
 			act("$N is currently under new character protection.",
-				FALSE, ch, 0, victim, TO_CHAR);
+				false, ch, 0, victim, TO_CHAR);
 			act("You are protected by the gods against $n's attack!",
-				FALSE, ch, 0, victim, TO_VICT);
+				false, ch, 0, victim, TO_VICT);
 			slog("%s protected against %s ( damage ) at %d\n",
 				GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
             victim->removeCombat(ch);
@@ -823,7 +813,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 		if (ch->isNewbie() &&
 			!is_arena_combat(ch, victim)) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You are currently under new player protection, which expires at level 41.\r\n"
 				"You cannot attack other players while under this protection.\r\n");
 			DAM_RETURN(DAM_ATTACK_FAILED);
@@ -921,7 +911,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
     }
 
     // Mirror Image Melody
-    if (ch && ch != victim && !IS_WEAPON(attacktype) && 
+    if (ch && ch != victim && !IS_WEAPON(attacktype) &&
         !BAD_ATTACK_TYPE(attacktype) && !SPELL_IS_PSIONIC(attacktype)) {
         struct affected_type *paf;
         if ((paf = affected_by_spell(victim, SONG_MIRROR_IMAGE_MELODY))) {
@@ -962,25 +952,25 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
     !SPELL_IS_BARD(attacktype) &&
     !SPELL_IS_PHYSICS(attacktype) &&
     !SPELL_IS_MAGIC(attacktype)) {
-        
+
         struct affected_type *paf;
         if ((paf = affected_by_spell(victim, SPELL_DIMENSIONAL_SHIFT)) &&
         !mag_savingthrow(ch, GET_LEVEL(ch), SAVING_PHY) &&
         !number(0,100)) { //1% chance of working
             paf->duration--;
-            
+
             const char *buf = "You become caught in a dimensional void trying to reach $N!";
             act(buf, false, ch, NULL, victim, TO_CHAR);
-            
-            act("$n becomes caught in a dimensional void trying to reach $N!", 
+
+            act("$n becomes caught in a dimensional void trying to reach $N!",
             false, ch, NULL, victim, TO_NOTVICT);
-            
+
             buf = "$N becomes caught in a dimensional void trying to reach you!";
             act(buf, false, victim, NULL, ch, TO_CHAR);
-            
+
             //ok they hit the void and don't manage to land the attack
             //now, does anything else happen to them?
-            
+
             struct affected_type shiftAf;
             shiftAf.is_instant = 0;
             shiftAf.bitvector = 0;
@@ -992,7 +982,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
             shiftAf.level = victim->getLevelBonus(SPELL_DIMENSIONAL_SHIFT);
             shiftAf.type = SPELL_DIMENSIONAL_VOID;
             bool applyAffect = false;
-            
+
             if (victim->isOkToAttack(ch)) {
                 switch (number(0,14)) {
                     case 0:
@@ -1028,15 +1018,15 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                 if (applyAffect) {
                     affect_join(ch, &shiftAf, true, false, true, false);
                 }
-                
+
                 ch->addCombat(victim, true);
                 victim->addCombat(ch, false);
             }
-            
+
             DAM_RETURN(DAM_ATTACK_FAILED);
         }
     } // end dimensional shift
-			
+
 	/** check for armor **/
 	if (location != -1) {
 
@@ -1202,8 +1192,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			damage_eq(ch, weap, MAX(weap_dam, dam >> 6), attacktype);
 		DAM_RETURN(0);
 	}
-    
-    
+
     //
 	// attacker is a character
 	//
@@ -1232,8 +1221,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                 }
             }
         }
-        
-        
+
 		//
 		// attack type is a skill type
 		//
@@ -1253,11 +1241,11 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				(CHECK_SKILL(ch, attacktype) + GET_LEVEL(ch))
 				< (GET_INT(victim) + number(70, 130 + GET_LEVEL(victim)))) {
 				act("You are deflected by $N's prismatic sphere!",
-					FALSE, ch, 0, victim, TO_CHAR);
+					false, ch, 0, victim, TO_CHAR);
 				act("$n is deflected by $N's prismatic sphere!",
-					FALSE, ch, 0, victim, TO_NOTVICT);
+					false, ch, 0, victim, TO_NOTVICT);
 				act("$n is deflected by your prismatic sphere!",
-					FALSE, ch, 0, victim, TO_VICT);
+					false, ch, 0, victim, TO_VICT);
 				int retval =
 					damage_attacker(victim, ch, dice(30, 3) + (dam >> 2),
 					SPELL_PRISMATIC_SPHERE, -1);
@@ -1303,11 +1291,11 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                     }
                     int retval = damage_attacker(victim, ch, dice(3, af->level),
                                                  SPELL_THORN_SKIN, -1);
-                    
+
                     if (!IS_SET(retval, DAM_VICT_KILLED)) {
                         gain_skill_prof(victim, SPELL_THORN_SKIN);
                     }
-                    
+
                     if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
                         if (!mag_savingthrow(ch, af->level, SAVING_BREATH) &&
                             !IS_POISONED(ch) && random_fractional_4()) {
@@ -1318,7 +1306,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                             af.duration = MAX(1, level_bonus / 10);
                             af.modifier = -(number(1, level_bonus / 20));
                             af.owner = ch->getIdNum();
-                            
+
                             if (level_bonus > (85 + number(0, 30))) {
                                 af.bitvector = AFF3_POISON_3;
                                 af.aff_index = 3;
@@ -1477,7 +1465,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		else
 			dam -= (int)((dam * GET_ALIGNMENT(ch)) / 10000);
 	}
-    
+
 	//******************* Reduction based on the attacker ********************/
 	//************ Knights, Clerics, and Monks out of alignment **************/
 	if (ch) {
@@ -1489,7 +1477,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				dam = dam / 4;
 		}
 	}
-	// ALL previous damage reduction code that was based off of character 
+	// ALL previous damage reduction code that was based off of character
 	// attributes has been moved to the function below.  See structs/Creature.cc
 	dam_reduction = victim->getDamReduction(ch);
 
@@ -1615,14 +1603,12 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		break;
 	}
 
-
-
 	// rangers' critical hit
 	if (ch && IS_RANGER(ch) && dam > 10 &&
-		IS_WEAPON(attacktype) && 
+		IS_WEAPON(attacktype) &&
         number(0, 650) <= ch->getLevelBonus(GET_CLASS(ch) == CLASS_RANGER)) {
 		send_to_char(ch, "CRITICAL HIT!\r\n");
-		act("$n has scored a CRITICAL HIT!", FALSE, ch, 0, victim,
+		act("$n has scored a CRITICAL HIT!", false, ch, 0, victim,
 			TO_VICT);
 		dam += (dam * (GET_REMORT_GEN(ch) + 4)) / 14;
 	}
@@ -1647,32 +1633,32 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                 }
             }
         }
-        
+
         //photon special
         if (attacktype == TYPE_EGUN_PHOTON && dam) {
             if (do_gun_special(ch, weap)) {
                 mag_affects(ch->getLevelBonus(SKILL_ENERGY_WEAPONS), ch, victim, NULL, SPELL_BLINDNESS, SAVING_ROD);
-            }    
+            }
         }
         //plasma special
         if (attacktype == TYPE_EGUN_PLASMA && dam) {
-            if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_FIRE(victim) && 
+            if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_FIRE(victim) &&
                 !AFF2_FLAGGED(victim, AFF2_ABLAZE)) {
 				act("$n's body suddenly ignites into flame!",
-					FALSE, victim, 0, 0, TO_ROOM);
+					false, victim, 0, 0, TO_ROOM);
 				act("Your body suddenly ignites into flame!",
-					FALSE, victim, 0, 0, TO_CHAR);
+					false, victim, 0, 0, TO_CHAR);
                 victim->ignite(ch);
-            }  
+            }
         }
         //ion special
         if (attacktype == TYPE_EGUN_ION && dam) {
             if (do_gun_special(ch,weap)) {
                 do_emp_pulse_char(ch, victim);
                 act("$n's body suddenly ignites into flame!",
-					FALSE, victim, 0, 0, TO_ROOM);
+					false, victim, 0, 0, TO_ROOM);
 				act("Your body suddenly ignites into flame!",
-					FALSE, victim, 0, 0, TO_CHAR);
+					false, victim, 0, 0, TO_CHAR);
             }
         }
         //gamma special
@@ -1680,9 +1666,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
             if (do_gun_special(ch,weap) && !CHAR_WITHSTANDS_RAD(victim)) {
                 add_rad_sickness(victim, GET_LEVEL(ch));
                 act("$n begins to look sick.",
-					FALSE, victim, 0, 0, TO_ROOM);
+					false, victim, 0, 0, TO_ROOM);
 				act("You start to feel sick.",
-					FALSE, victim, 0, 0, TO_CHAR);
+					false, victim, 0, 0, TO_CHAR);
             }
         }
         //sonic special
@@ -1702,7 +1688,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                 act("$N becomes disoriented!", false, ch, NULL, victim, TO_NOTVICT);
                 affect_join(victim, &sonicAf, false, false, true, false);
             }
-        }       
+        }
     }
 	//
 	// characters under the effects of vampiric regeneration
@@ -1712,7 +1698,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		// pc caster
 		if (ch && !IS_NPC(ch) && GET_IDNUM(ch) == af->modifier) {
 			sprintf(buf, "You drain %d hitpoints from $N!", dam);
-			act(buf, FALSE, ch, 0, victim, TO_CHAR);
+			act(buf, false, ch, 0, victim, TO_CHAR);
 			GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + dam);
 			af->duration--;
 			if (af->duration <= 0) {
@@ -1728,14 +1714,14 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				int manadrain = MIN((int)(dam * 0.90), GET_MANA(victim));
 				if (GET_MOVE(ch) > 0) {
 				    sprintf(buf, "You drain %d mana from $N!", manadrain);
-				    act(buf, FALSE, ch, 0, victim, TO_CHAR);
+				    act(buf, false, ch, 0, victim, TO_CHAR);
 				    GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - (int)(dam * 0.10));
-					GET_MANA(ch) = MIN(GET_MAX_MANA(ch), 
+					GET_MANA(ch) = MIN(GET_MAX_MANA(ch),
                                        GET_MANA(ch) + manadrain);
                 }
                 else {
                     act("You don't have the stamina to drain any mana from $N!",
-                        FALSE, ch, 0, victim, TO_CHAR);
+                        false, ch, 0, victim, TO_CHAR);
                 }
 				af->duration--;
 				if (af->duration <= 0) {
@@ -1743,7 +1729,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				}
 			}
             else {
-                act("$N is completely drained of mana!", FALSE, ch,
+                act("$N is completely drained of mana!", false, ch,
                     0, victim, TO_CHAR);
             }
 		}
@@ -1757,7 +1743,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	GET_HIT(victim) -= dam;
 	if (!IS_NPC(victim))
 		GET_TOT_DAM(victim) += dam;
-                                               
+
 	if (ch && ch != victim
 		&& !(MOB2_FLAGGED(victim, MOB2_UNAPPROVED) ||
 			ch->isTester() || IS_PET(ch) || IS_PET(victim))) {
@@ -1803,7 +1789,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	 * dam_message just sends a generic "You hit $n extremely hard.".
 	 * skill_message is preferable to dam_message because it is more
 	 * descriptive.
-	 * 
+	 *
 	 * If we are _not_ attacking with a weapon ( i.e. a spell ), always use
 	 * skill_message. If we are attacking with a weapon: If this is a miss or a
 	 * death blow, send a skill_message if one exists; if not, default to a
@@ -1836,9 +1822,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			if (!mag_savingthrow(victim, 50, SAVING_BREATH) &&
 				!CHAR_WITHSTANDS_FIRE(victim)) {
 				act("$n's body suddenly ignites into flame!",
-					FALSE, victim, 0, 0, TO_ROOM);
+					false, victim, 0, 0, TO_ROOM);
 				act("Your body suddenly ignites into flame!",
-					FALSE, victim, 0, 0, TO_CHAR);
+					false, victim, 0, 0, TO_CHAR);
                 victim->ignite(ch);
 			}
 		}
@@ -1940,37 +1926,36 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
         }
     }
 
-    
 	// Use send_to_char -- act(  ) doesn't send message if you are DEAD.
 	switch (victim->getPosition()) {
 
 		// Mortally wounded
 	case POS_MORTALLYW:
 		act("$n is badly wounded, but will recover very slowly.",
-			TRUE, victim, 0, 0, TO_ROOM);
-		send_to_char(victim, 
+			true, victim, 0, 0, TO_ROOM);
+		send_to_char(victim,
 			"You are badly wounded, but will recover very slowly.\r\n");
 		break;
 
 		// Incapacitated
 	case POS_INCAP:
-		act("$n is incapacitated but will probably recover.", TRUE,
+		act("$n is incapacitated but will probably recover.", true,
 			victim, 0, 0, TO_ROOM);
-		send_to_char(victim, 
+		send_to_char(victim,
 			"You are incapacitated but will probably recover.\r\n");
 		break;
 
 		// Stunned
 	case POS_STUNNED:
 		act("$n is stunned, but will probably regain consciousness again.",
-			TRUE, victim, 0, 0, TO_ROOM);
-		send_to_char(victim, 
+			true, victim, 0, 0, TO_ROOM);
+		send_to_char(victim,
 			"You're stunned, but will probably regain consciousness again.\r\n");
 		break;
 
 		// Dead
 	case POS_DEAD:
-		act("$n is dead!  R.I.P.", FALSE, victim, 0, 0, TO_ROOM);
+		act("$n is dead!  R.I.P.", false, victim, 0, 0, TO_ROOM);
 		send_to_char(victim, "You are dead!  Sorry...\r\n");
 		break;
 
@@ -1978,7 +1963,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	default:
 		{
 			if (dam > (GET_MAX_HIT(victim) >> 2))
-				act("That really did HURT!", FALSE, victim, 0, 0, TO_CHAR);
+				act("That really did HURT!", false, victim, 0, 0, TO_CHAR);
 
 			if (GET_HIT(victim) < (GET_MAX_HIT(victim) >> 2) &&
 				GET_HIT(victim) < 200) {
@@ -2033,7 +2018,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 								GET_BROKE(victim)][GET_OLD_CLASS(victim)],
 							CCRED_BLD(victim, C_NRM), CCNRM(victim, C_NRM));
 						act("$n has auto-initiated self destruct sequence!\r\n"
-							"CLEAR THE AREA!!!!", FALSE, victim, 0, 0,
+							"CLEAR THE AREA!!!!", false, victim, 0, 0,
 							TO_ROOM | TO_SLEEP);
 						MEDITATE_TIMER(victim) = 4;
 						SET_BIT(AFF3_FLAGS(victim), AFF3_SELF_DESTRUCT);
@@ -2041,7 +2026,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					}
 				} else {
 					GET_BROKE(victim) = number(1, NUM_COMPS);
-					act("$n staggers and begins to smoke!", FALSE, victim, 0,
+					act("$n staggers and begins to smoke!", false, victim, 0,
 						0, TO_ROOM);
 					send_to_char(victim, "Your %s has been damaged!\r\n",
 						component_names[(int)
@@ -2133,7 +2118,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                             victim->addCombat(ch, false);
                         }
 					} else {
-						if (!victim->isFighting() && 
+						if (!victim->isFighting() &&
                             ch->in_room == victim->in_room) {
                             victim->addCombat(ch, false);
                         }
@@ -2144,14 +2129,13 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 	}							/* end switch ( victim->getPosition() ) */
 
-
 	// Victim is Linkdead
 	// Send him to the void
 
 	if (!IS_NPC(victim) && !(victim->desc)
 		&& !is_arena_combat(ch, victim)) {
 
-		act("$n is rescued by divine forces.", FALSE, victim, 0, 0, TO_ROOM);
+		act("$n is rescued by divine forces.", false, victim, 0, 0, TO_ROOM);
 		GET_WAS_IN(victim) = victim->in_room;
 		if (ch) {
 			victim->removeAllCombat();
@@ -2159,7 +2143,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 		char_from_room(victim,false);
 		char_to_room(victim, zone_table->world,false);
-		act("$n is carried in by divine forces.", FALSE, victim, 0, 0,
+		act("$n is carried in by divine forces.", false, victim, 0, 0,
 			TO_ROOM);
 	}
 
@@ -2238,7 +2222,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                     // Tally kills for quest purposes
                     if (GET_QUEST(ch)) {
                         Quest *quest;
-                        
+
                         quest = quest_by_vnum(GET_QUEST(ch));
                         if (quest)
                             quest->tallyPlayerKill(GET_IDNUM(ch));
@@ -2293,7 +2277,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				// and tag it
 				if (arena) {
 					strcat(buf2, " [ARENA]");
-					qlog(NULL, buf2, QLOG_COMP, GET_INVIS_LVL(victim), TRUE);
+					qlog(NULL, buf2, QLOG_COMP, GET_INVIS_LVL(victim), true);
 				} else {
 					mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", buf2);
                     if (buf3)
@@ -2302,13 +2286,13 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				if (MOB_FLAGGED(ch, MOB_MEMORY))
 					forget(ch, victim);
 				if (!IS_NPC(ch) && ch != victim)
-					is_humil = TRUE;
+					is_humil = true;
 			} else {
 				GET_MOBKILLS(ch) += 1;
                 // Tally kills for quest purposes
                 if (GET_QUEST(ch)) {
                     Quest *quest;
-                        
+
                     quest = quest_by_vnum(GET_QUEST(ch));
                     if (quest)
                         quest->tallyMobKill(GET_IDNUM(ch));
@@ -2398,10 +2382,9 @@ get_next_weap(struct Creature *ch)
 
 	// Check equipment on head
 	cur_weap = GET_EQ(ch, WEAR_HEAD);
-	if (cur_weap && (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap)) 
+	if (cur_weap && (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap))
         && !number(0, 2))
 		return cur_weap;
-	
 
 	cur_weap = GET_EQ(ch, WEAR_WIELD);
 	if (cur_weap)
@@ -2419,7 +2402,6 @@ static inline int BACKSTAB_MULT( Creature *ch  ) {
 	mult += ( 6 * bonus ) / 50;
 	return mult;
 }
-
 
 //
 // generic hit
@@ -2458,9 +2440,9 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT) {
 		if (!number(0, 2))
 			act("You want to fight back against $N's attack, but cannot!",
-				FALSE, ch, 0, victim, TO_CHAR | TO_SLEEP);
+				false, ch, 0, victim, TO_CHAR | TO_SLEEP);
 		else if (!number(0, 1))
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You have been turned to stone, and cannot fight!\r\n");
 		else
 			send_to_char(ch, "You cannot fight back!!  You are petrified!\r\n");
@@ -2472,9 +2454,9 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		!is_arena_combat(ch, victim) &&
 		GET_LEVEL(ch) < LVL_IMMORT) {
 		act("$N is currently under new character protection.",
-			FALSE, ch, 0, victim, TO_CHAR);
+			false, ch, 0, victim, TO_CHAR);
 		act("You are protected by the gods against $n's attack!",
-			FALSE, ch, 0, victim, TO_VICT);
+			false, ch, 0, victim, TO_VICT);
 		slog("%s protected against %s ( hit ) at %d\n",
 			GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
 
@@ -2501,7 +2483,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		REMOVE_BIT(AFF2_FLAGS(victim->isMounted()), AFF2_MOUNTED);
 		victim->dismount();
 		act("You are knocked from your mount by $N's attack!",
-			FALSE, victim, 0, ch, TO_CHAR);
+			false, victim, 0, ch, TO_CHAR);
 	}
 	if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
@@ -2509,7 +2491,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		for (; it != ch->in_room->people.end(); ++it) {
 			if ((*it)->isMounted() && (*it)->isMounted() == victim) {
 				act("You are knocked from your mount by $N's attack!",
-					FALSE, (*it), 0, ch, TO_CHAR);
+					false, (*it), 0, ch, TO_CHAR);
 				(*it)->dismount();
 				(*it)->setPosition(POS_STANDING);
 			}
@@ -2541,7 +2523,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
                 int cost = MIN(CUR_ENERGY(cur_weap->contains), GUN_DISCHARGE(cur_weap));
                 CUR_ENERGY(cur_weap->contains) -= cost;
                 if (CUR_ENERGY(cur_weap->contains) <= 0) {
-                    act("$p has been depleted of fuel.  Replace cell before further use.", FALSE, ch, cur_weap, 0, TO_CHAR);
+                    act("$p has been depleted of fuel.  Replace cell before further use.", false, ch, cur_weap, 0, TO_CHAR);
                 }
             } else if (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON))
 				w_type = GET_OBJ_VAL(cur_weap, 3) + TYPE_HIT;
@@ -2618,7 +2600,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
         dam = str_app[STRENGTH_APPLY_INDEX(ch)].todam;
         dam += GET_DAMROLL(ch);
 	}
-    
+
     // If a weapon is involved, apply bless/damn bonuses
     if (cur_weap) {
         if (IS_EVIL(victim) && IS_OBJ_STAT(cur_weap, ITEM_BLESS))
@@ -2646,8 +2628,8 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 						break;
 					}
 			}
-			if (IS_TWO_HAND(cur_weap) && IS_BARB(ch) && !IS_ENERGY_GUN(cur_weap) && 
-                cur_weap->worn_on == WEAR_WIELD) 
+			if (IS_TWO_HAND(cur_weap) && IS_BARB(ch) && !IS_ENERGY_GUN(cur_weap) &&
+                cur_weap->worn_on == WEAR_WIELD)
             {
 				int dam_add;
 				dam_add = cur_weap->getWeight() / 4;
@@ -2675,21 +2657,21 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	}
 
      //bludgeoning with our gun
-    if (cur_weap && IS_ENERGY_GUN(cur_weap) && 
+    if (cur_weap && IS_ENERGY_GUN(cur_weap) &&
         !(w_type >= TYPE_EGUN_LASER && w_type <= TYPE_EGUN_TOP)) {
         dam /= 10;
     }
 
 	dam = MAX(1, dam);			/* at least 1 hp damage min per hit */
 	dam = MIN(dam, 30 + (GET_LEVEL(ch) << 3));	/* level limit */
-	  
+
 	if( type == SKILL_CLEAVE ) {
 		if (GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50)
 			dam *= 5 + GET_REMORT_GEN(ch) / 5;
 		else
 			dam *= 4;
 		w_type = SKILL_CLEAVE;
-	} 
+	}
 
 	if (type == SKILL_BACKSTAB) {
 		gain_skill_prof(ch, type);
@@ -2741,7 +2723,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
             && GET_SKILL(ch, SKILL_ENERGY_WEAPONS) > 60) {
             gain_skill_prof(ch, SKILL_ENERGY_WEAPONS);
         }
-        
+
 		retval = damage(ch, victim, dam, w_type, limb);
 
 		if (retval) {
@@ -2750,13 +2732,13 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 
         // ignite the victim if applicable
         if( ablaze_level > 0 && !AFF2_FLAGGED(victim, AFF2_ABLAZE) ) {
-            if (!mag_savingthrow(victim, 10, SAVING_SPELL) 
-             && !CHAR_WITHSTANDS_FIRE(victim)) 
+            if (!mag_savingthrow(victim, 10, SAVING_SPELL)
+             && !CHAR_WITHSTANDS_FIRE(victim))
             {
                 act("$n's body suddenly ignites into flame!",
-                    FALSE, victim, 0, 0, TO_ROOM);
+                    false, victim, 0, 0, TO_ROOM);
                 act("Your body suddenly ignites into flame!",
-                    FALSE, victim, 0, 0, TO_CHAR);
+                    false, victim, 0, 0, TO_CHAR);
                 victim->ignite(ch);
             }
         }
@@ -2769,9 +2751,9 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 				(!IS_OBJ_STAT(weap, ITEM_MAGIC_NODISPEL) ||
 					mag_savingthrow(ch, GET_LEVEL(victim), SAVING_ROD))) {
 
-				act("$p spontaneously oxidizes and crumbles into a pile of rust!", FALSE, ch, weap, 0, TO_CHAR);
+				act("$p spontaneously oxidizes and crumbles into a pile of rust!", false, ch, weap, 0, TO_CHAR);
 				act("$p crumbles into rust on contact with $N!",
-					FALSE, ch, weap, victim, TO_ROOM);
+					false, ch, weap, victim, TO_ROOM);
 
 				extract_obj(weap);
 
@@ -2791,7 +2773,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 					return retval;
 		}
 	}
-	
+
 	if (!IS_NPC(ch) && GET_MOVE(ch) > 20) {
 		GET_MOVE(ch)--;
 		if (IS_DROW(ch) && ch->in_room && OUTSIDE(ch) && PRIME_MATERIAL_ROOM(ch->in_room) &&
@@ -2837,9 +2819,9 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 		weap->worn_on == WEAR_WIELD ||
 		weap->worn_on == WEAR_WIELD_2 ? " in $n's hand" : "");
 	send_to_char(ch, CCCYN(ch, C_NRM));
-	act(buf, FALSE, ch, weap, 0, TO_CHAR);
+	act(buf, false, ch, weap, 0, TO_CHAR);
 	send_to_char(ch, CCNRM(ch, C_NRM));
-	act(buf2, TRUE, ch, weap, 0, TO_ROOM);
+	act(buf2, true, ch, weap, 0, TO_ROOM);
 	if ((((!IS_DWARF(ch) && !IS_CYBORG(ch)) ||
 				!IS_OBJ_STAT(weap, ITEM_MAGIC) ||
 				!SPELL_IS_MAGIC(GET_OBJ_VAL(weap, 0))) &&
@@ -2863,7 +2845,7 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 				weap->worn_on == WEAR_WIELD_2) &&
 			GET_EQ(ch, weap->worn_on) == weap) {
 			act("$p shocks you!  You are forced to drop it!",
-				FALSE, ch, weap, 0, TO_CHAR);
+				false, ch, weap, 0, TO_CHAR);
 
 			// weapon is the 1st of 2 wielded
 			if (weap->worn_on == WEAR_WIELD &&
@@ -2887,10 +2869,10 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 		// just shock the victim
 		else {
 			act("$p blasts the hell out of you!  OUCH!!",
-				FALSE, ch, weap, 0, TO_CHAR);
+				false, ch, weap, 0, TO_CHAR);
 			GET_HIT(ch) -= dice(3, 4);
 		}
-		act("$n cries out as $p shocks $m!", FALSE, ch, weap, 0,
+		act("$n cries out as $p shocks $m!", false, ch, weap, 0,
 			TO_ROOM);
 	}
 	return 0;
@@ -2905,14 +2887,14 @@ do_gun_special(Creature *ch, obj_data *obj)
     if (!IS_ENERGY_GUN(obj) || !EGUN_CUR_ENERGY(obj)) {
         return false;
     }
-    
+
     //calculation code here, future skills could and should affect this
     if (GET_OBJ_VAL(obj, 3) == EGUN_PARTICLE) {
         int penetrate = MAX(3,35-(GET_HITROLL(ch)/10)-GET_DEX(ch));
         if (number(0, penetrate)) {
             return false;
         }
-                        
+
     } else if (GET_OBJ_VAL(obj, 3) == EGUN_LIGHTNING) {
         //basic chance to chain
         bool chain = !number(0, MAX(5, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
@@ -2927,7 +2909,7 @@ do_gun_special(Creature *ch, obj_data *obj)
                 (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)))) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -2954,7 +2936,7 @@ perform_violence(void)
             ch->removeAllCombat();
 			continue;
 		}
-        
+
         CombatDataList::iterator li = ch->getCombatList()->begin();
         for (; li != ch->getCombatList()->end(); ++li) {
 			Creature *opp;
@@ -2968,7 +2950,7 @@ perform_violence(void)
 
 		if (!ch->isFighting())
 			continue;
-        
+
 		if (IS_NPC(ch)) {
 			if (GET_MOB_WAIT(ch) > 0) {
 				GET_MOB_WAIT(ch) = MAX(GET_MOB_WAIT(ch) - SEG_VIOLENCE, 0);

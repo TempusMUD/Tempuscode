@@ -30,11 +30,10 @@ SPECIAL(corpse_retrieval)
 		return 1;
 	}
 	if (IS_MOB(ch)) {
-		act("$n snickers at $N.", FALSE, retriever, 0, ch, TO_NOTVICT);
-		act("$n snickers at you.", FALSE, retriever, 0, ch, TO_VICT);
+		act("$n snickers at $N.", false, retriever, 0, ch, TO_NOTVICT);
+		act("$n snickers at you.", false, retriever, 0, ch, TO_VICT);
 		return 1;
 	}
-
 
 	corpse = object_list;
 	while (corpse) {
@@ -72,7 +71,7 @@ SPECIAL(corpse_retrieval)
 			tmp_sprintf("You don't have enough money.  It costs %d %s.",
 				price, currency));
 		return 1;
-	} 
+	}
 
 	if (corpse->carried_by && corpse->carried_by == ch) {
 		perform_tell(retriever, ch,
@@ -94,18 +93,18 @@ SPECIAL(corpse_retrieval)
 			send_to_char(ch, "Your corpse cannot be located!\r\n");
 			return 1;
 		}
-		act("$p disappears with a flash!", TRUE, 0, corpse, 0,
+		act("$p disappears with a flash!", true, 0, corpse, 0,
 			TO_ROOM);
 		obj_from_room(corpse);
 	} else if (corpse->in_obj)
 		obj_from_obj(corpse);
 	else if (corpse->carried_by) {
 		act("$p disappears out of your hands!",
-			FALSE, corpse->carried_by, corpse, 0, TO_CHAR);
+			false, corpse->carried_by, corpse, 0, TO_CHAR);
 		obj_from_char(corpse);
 	} else if (corpse->worn_by) {
 		act("$p disappears off of your body!",
-			FALSE, corpse->worn_by, corpse, 0, TO_CHAR);
+			false, corpse->worn_by, corpse, 0, TO_CHAR);
 		if (corpse == GET_EQ(corpse->worn_by, corpse->worn_on))
 			unequip_char(corpse->worn_by, corpse->worn_on, EQUIP_WORN);
 		else if (corpse == GET_IMPLANT(corpse->worn_by, corpse->worn_on))
@@ -129,22 +128,22 @@ SPECIAL(corpse_retrieval)
 	case TIME_MODRIAN:
 		GET_GOLD(ch) -= price;
 		act("$n makes some strange gestures and howls!",
-			FALSE, retriever, 0, 0, TO_ROOM);
+			false, retriever, 0, 0, TO_ROOM);
 		break;
 	case TIME_ELECTRO:
 		GET_CASH(ch) -= price;
 		act("$n slips into a deep concentration and there is a momentary flash of light!",
-			FALSE, retriever, 0, 0, TO_ROOM);
+			false, retriever, 0, 0, TO_ROOM);
 		break;
 	case TIME_TIMELESS:
 		GET_GOLD(ch) -= price;
 		act("The air shimmers violently as $n lifts $s hands to the heavens!",
-			FALSE, retriever, 0, 0, TO_ROOM);
+			false, retriever, 0, 0, TO_ROOM);
 		break;
 	}
-	act("$p appears in your hands!", FALSE, ch, corpse, 0,
+	act("$p appears in your hands!", false, ch, corpse, 0,
 		TO_CHAR);
-	
+
 	ch->saveToXML();
 
 	return 1;

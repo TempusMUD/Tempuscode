@@ -75,14 +75,14 @@ SPECIAL(tester_util)
 	two_arguments(argument, arg1, arg2);
 
 	if (!*arg1) {
-		act("$p: ERROR: Activate what?", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p: ERROR: Activate what?", false, ch, obj, 0, TO_CHAR);
 		send_to_char(ch, TESTER_UTIL_USAGE);
 		return 1;
 	}
 
-	if ((tcmd = search_block(arg1, tester_util_cmds, FALSE)) < 0) {
+	if ((tcmd = search_block(arg1, tester_util_cmds, false)) < 0) {
 		sprintf(buf, "$p: Invalid command '%s'.", arg1);
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
+		act(buf, false, ch, obj, 0, TO_CHAR);
 		send_to_char(ch, TESTER_UTIL_USAGE);
 		return 1;
 	}
@@ -96,15 +96,15 @@ SPECIAL(tester_util)
 		else if ((i = atoi(arg2)) <= 0)
 			send_to_char(ch, "That's not a level!\r\n");
 		else if (i >= LVL_AMBASSADOR)
-			act("$p: Advance: I DON'T THINK SO!", FALSE, ch, obj, 0, TO_CHAR);
+			act("$p: Advance: I DON'T THINK SO!", false, ch, obj, 0, TO_CHAR);
 		else {
 			if (i < GET_LEVEL(ch)) {
-				do_start(ch, TRUE);
+				do_start(ch, true);
 				GET_LEVEL(ch) = i;
 			}
 
 			act("$p hums and blinks for a moment.... you feel different!",
-				FALSE, ch, obj, 0, TO_CHAR);
+				false, ch, obj, 0, TO_CHAR);
 			gain_exp_regardless(ch, exp_scale[i] - GET_EXP(ch));
 
 			for (i = 1; i < MAX_SKILLS; i++) {

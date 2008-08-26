@@ -76,7 +76,7 @@ ACMD(do_show_more)
 	}
 
 	show_string(ch->desc);
-	
+
 }
 
 ACMD(do_quit)
@@ -124,11 +124,11 @@ ACMD(do_quit)
 				mlog(Security::ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has departed from the known multiverse",
 					GET_NAME(ch));
-				act("$n steps out of the universe.", TRUE, ch, 0, 0, TO_ROOM);
+				act("$n steps out of the universe.", true, ch, 0, 0, TO_ROOM);
 				send_to_char(ch, "Goodbye.  We will be awaiting your return.\r\n");
 			} else {
 				send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
-				act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
+				act("$n flickers out of reality.", true, ch, 0, 0, TO_ROOM);
 				mlog(Security::ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has left the game%s", GET_NAME(ch),
 					ch->isTester() ? " (tester)" : " naked");
@@ -137,18 +137,18 @@ ACMD(do_quit)
 		} else if ((ch->carrying || IS_WEARING_W(ch)) &&
 			!ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) &&
 			strncasecmp(argument, "yes", 3)) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"If you quit without renting, you will lose all your things.\r\n"
 				"If you would rather rent, type HELP INNS to find out where the nearest\r\n"
 				"inn is.  If you are SURE you want to QUIT, type 'quit yes'.\r\n");
 			return;
 
-		} else if (IS_CARRYING_N(ch) || IS_WEARING_W(ch) 
-			       || ROOM_FLAGGED(ch->in_room, ROOM_HOUSE )) 
+		} else if (IS_CARRYING_N(ch) || IS_WEARING_W(ch)
+			       || ROOM_FLAGGED(ch->in_room, ROOM_HOUSE ))
 		{
 			if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
 				act("You fear that your death will grieve $N.",
-					FALSE, ch, 0, ch->master, TO_CHAR);
+					false, ch, 0, ch->master, TO_CHAR);
 				return;
 			}
 			if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
@@ -167,14 +167,14 @@ ACMD(do_quit)
 					GET_NAME(ch), ch->in_room->number);
 				send_to_char(ch, "You smoothly slip out of existence.\r\n");
 				act("$n smoothly slips out of existence and is gone.",
-					TRUE, ch, 0, 0, TO_ROOM);
+					true, ch, 0, 0, TO_ROOM);
 				ch->rent();
 			} else {
 				send_to_char(ch,
 					"\r\nVery well %s.  You drop all your things and vanish!\r\n",
 					GET_NAME(ch));
 				act("$n disappears, leaving all $s equipment behind!",
-					TRUE, ch, 0, 0, TO_ROOM);
+					true, ch, 0, 0, TO_ROOM);
 				mlog(Security::ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s (%d) has quit the game, EQ drop at %d",
 					GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
@@ -182,7 +182,7 @@ ACMD(do_quit)
 			}
 		} else {
 			send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
-			act("$n flickers out of reality.", TRUE, ch, 0, 0, TO_ROOM);
+			act("$n flickers out of reality.", true, ch, 0, 0, TO_ROOM);
 			mlog(Security::ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 				"%s has left the game naked", GET_NAME(ch));
 			ch->quit();
@@ -207,15 +207,12 @@ ACMD(do_save)
 	}
 }
 
-
 /* generic function for commands which are normally overridden by
    special procedures - i.e., shop commands, mail commands, etc. */
 ACMD(do_not_here)
 {
 	send_to_char(ch, "Sorry, but you cannot do that here!\r\n");
 }
-
-
 
 ACMD(do_elude)
 {
@@ -241,7 +238,6 @@ ACMD(do_elude)
 		send_to_char(ch, "You begin to elude any followers.\r\n");
 	}
 }
-
 
 ACMD(do_practice)
 {
@@ -334,7 +330,7 @@ ACMD(do_visible)
 	if (!found)
 		send_to_char(ch, "You are already visible.\r\n");
 	else
-		act("$n fades into view.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n fades into view.", true, ch, 0, 0, TO_ROOM);
 }
 
 ACMD(do_title)
@@ -344,7 +340,7 @@ ACMD(do_title)
 	if (IS_NPC(ch))
 		send_to_char(ch, "Your title is fine... go away.\r\n");
 	else if (PLR_FLAGGED(ch, PLR_NOTITLE))
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You can't title yourself -- you shouldn't have abused it!\r\n");
 	else if (strstr(argument, "(") || strstr(argument, ")"))
 		send_to_char(ch, "Titles can't contain the ( or ) characters.\r\n");
@@ -358,7 +354,6 @@ ACMD(do_title)
 	}
 }
 
-
 int
 perform_group(struct Creature *ch, struct Creature *vict)
 {
@@ -367,9 +362,9 @@ perform_group(struct Creature *ch, struct Creature *vict)
 
 	SET_BIT(AFF_FLAGS(vict), AFF_GROUP);
 	if (ch != vict)
-		act("$N is now a member of your group.", FALSE, ch, 0, vict, TO_CHAR);
-	act("You are now a member of $n's group.", FALSE, ch, 0, vict, TO_VICT);
-	act("$N is now a member of $n's group.", FALSE, ch, 0, vict, TO_NOTVICT);
+		act("$N is now a member of your group.", false, ch, 0, vict, TO_CHAR);
+	act("You are now a member of $n's group.", false, ch, 0, vict, TO_VICT);
+	act("$N is now a member of $n's group.", false, ch, 0, vict, TO_NOTVICT);
 	return 1;
 }
 
@@ -377,7 +372,7 @@ const char *
 desc_exp_tnl(Creature *ch)
 {
 	long tnl;
-	
+
 	if (GET_LEVEL(ch) > 49 || IS_NPC(ch))
 		return "";
 
@@ -388,7 +383,7 @@ desc_exp_tnl(Creature *ch)
 		return tmp_sprintf("%ldmil tnl", tnl / 1000000);
 	if (tnl > 1000)
 		return tmp_sprintf("%ldk tnl", tnl / 1000);
-	
+
 	return tmp_sprintf("%ld tnl", tnl);
 }
 
@@ -418,7 +413,7 @@ print_group(struct Creature *ch)
 				GET_LEVEL(k), CLASS_ABBR(k),
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM), CCBLU(ch, C_NRM), CCCYN(ch,
 					C_NRM), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-			act(buf, FALSE, ch, 0, k, TO_CHAR | TO_SLEEP);
+			act(buf, false, ch, 0, k, TO_CHAR | TO_SLEEP);
 		}
 
 		for (f = k->followers; f; f = f->next) {
@@ -435,7 +430,7 @@ print_group(struct Creature *ch)
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 				CCRED(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(f->follower),
 				CLASS_ABBR(f->follower), CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-			act(buf, FALSE, ch, 0, f->follower, TO_CHAR | TO_SLEEP);
+			act(buf, false, ch, 0, f->follower, TO_CHAR | TO_SLEEP);
 		}
 	}
 }
@@ -460,7 +455,7 @@ ACMD(do_group)
 
 	if (ch->master) {
 		act("You can not enroll group members without being head of a group.",
-			FALSE, ch, 0, 0, TO_CHAR);
+			false, ch, 0, 0, TO_CHAR);
 		return;
 	}
 
@@ -469,7 +464,7 @@ ACMD(do_group)
 		for (found = 0, f = ch->followers; f; f = f->next)
 			found += perform_group(ch, f->follower);
 		if (!found)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Everyone following you is already in your group.\r\n");
 		return;
 	}
@@ -477,25 +472,23 @@ ACMD(do_group)
 	if (!(vict = get_char_room_vis(ch, buf))) {
 		send_to_char(ch, NOPERSON);
 	} else if ((vict->master != ch) && (vict != ch))
-		act("$N must follow you to enter your group.", FALSE, ch, 0, vict,
+		act("$N must follow you to enter your group.", false, ch, 0, vict,
 			TO_CHAR);
 	else {
 		if (!AFF_FLAGGED(vict, AFF_GROUP))
 			perform_group(ch, vict);
 		else {
 			if (ch != vict)
-				act("$N is no longer a member of your group.", FALSE, ch, 0,
+				act("$N is no longer a member of your group.", false, ch, 0,
 					vict, TO_CHAR);
-			act("You have been kicked out of $n's group!", FALSE, ch, 0, vict,
+			act("You have been kicked out of $n's group!", false, ch, 0, vict,
 				TO_VICT);
-			act("$N has been kicked out of $n's group!", FALSE, ch, 0, vict,
+			act("$N has been kicked out of $n's group!", false, ch, 0, vict,
 				TO_NOTVICT);
 			REMOVE_BIT(AFF_FLAGS(vict), AFF_GROUP);
 		}
 	}
 }
-
-
 
 ACMD(do_ungroup)
 {
@@ -541,17 +534,14 @@ ACMD(do_ungroup)
 
 	REMOVE_BIT(AFF_FLAGS(tch), AFF_GROUP);
 
-	act("$N is no longer a member of your group.", FALSE, ch, 0, tch, TO_CHAR);
-	act("You have been kicked out of $n's group!", FALSE, ch, 0, tch, TO_VICT);
-	act("$N has been kicked out of $n's group!", FALSE, ch, 0, tch,
+	act("$N is no longer a member of your group.", false, ch, 0, tch, TO_CHAR);
+	act("You have been kicked out of $n's group!", false, ch, 0, tch, TO_VICT);
+	act("$N has been kicked out of $n's group!", false, ch, 0, tch,
 		TO_NOTVICT);
 
 	if (!AFF_FLAGGED(tch, AFF_CHARM))
 		stop_follower(tch);
 }
-
-
-
 
 ACMD(do_report)
 {
@@ -580,8 +570,6 @@ ACMD(do_report)
 		GET_MANA(ch), GET_MAX_MANA(ch),
 		GET_MOVE(ch), GET_MAX_MOVE(ch), GET_ALIGNMENT(ch));
 }
-
-
 
 ACMD(do_split)
 {
@@ -692,7 +680,7 @@ ACMD(do_use)
 			}
 			if (subcmd == SCMD_RECITE && !can_see_object(ch, mag_item)) {
 				act("You can't see $p well enough to recite from it.",
-					FALSE, ch, mag_item, 0, TO_CHAR);
+					false, ch, mag_item, 0, TO_CHAR);
 				return;
 			}
 			break;
@@ -705,7 +693,7 @@ ACMD(do_use)
 			}
 			if (!can_see_object(ch, mag_item)) {
 				act("You can't see $p well enough to read it.",
-					FALSE, ch, mag_item, 0, TO_CHAR);
+					false, ch, mag_item, 0, TO_CHAR);
 				return;
 			}
 			break;
@@ -738,28 +726,28 @@ ACMD(do_use)
 
 	case SCMD_READ:
 		if (ch->isFighting()) {
-			act("What, while fighting $N?!", FALSE, ch, 0, ch->findRandomCombat(),
+			act("What, while fighting $N?!", false, ch, 0, ch->findRandomCombat(),
 				TO_CHAR);
 			return;
 		}
 		break;
 	case SCMD_RECITE:
 		if (ch->isFighting()) {
-			act("What, while fighting $N?!", FALSE, ch, 0, ch->findRandomCombat(),
+			act("What, while fighting $N?!", false, ch, 0, ch->findRandomCombat(),
 				TO_CHAR);
 			return;
 		} else if (GET_OBJ_TYPE(mag_item) != ITEM_SCROLL) {
 			send_to_char(ch, "You can only recite scrolls.\r\n");
 			return;
 		} else if (CHECK_SKILL(ch, SKILL_READ_SCROLLS) < 10) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You do not know how to recite the magical script.\r\n");
 			return;
 		}
 		break;
 	case SCMD_USE:
 		if (GET_OBJ_TYPE(mag_item) == ITEM_TRANSPORTER) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You must use the command 'activate' to use this.\r\n");
 			return;
 		} else if (GET_OBJ_TYPE(mag_item) == ITEM_SYRINGE) {
@@ -776,7 +764,7 @@ ACMD(do_use)
 			return;
 		} else if (CHECK_SKILL(ch, SKILL_USE_WANDS) < 10) {
 			act("You do not know how to harness the magical power of $p.",
-				FALSE, ch, mag_item, 0, TO_CHAR);
+				false, ch, mag_item, 0, TO_CHAR);
 			return;
 		}
 		break;
@@ -793,10 +781,10 @@ ACMD(do_use)
 				|| (affected_by_spell(vict, SPELL_BARKSKIN) && random_binary())
 			)
 			) {
-			act("$p breaks.", TRUE, ch, mag_item, vict, TO_CHAR);
-			act("$n breaks $p on your arm!", TRUE, ch, mag_item, vict,
+			act("$p breaks.", true, ch, mag_item, vict, TO_CHAR);
+			act("$n breaks $p on your arm!", true, ch, mag_item, vict,
 				TO_VICT);
-			act("$n breaks $p on $N's arm!", TRUE, ch, mag_item, vict,
+			act("$n breaks $p on $N's arm!", true, ch, mag_item, vict,
 				TO_NOTVICT);
 			unequip_char(ch, mag_item->worn_on, EQUIP_WORN);
 			mag_item->obj_flags.damage = 0;
@@ -812,8 +800,6 @@ ACMD(do_use)
 	mag_objectmagic(ch, mag_item, buf);
 }
 
-
-
 ACMD(do_wimpy)
 {
 	int wimp_lev;
@@ -826,7 +812,7 @@ ACMD(do_wimpy)
 				GET_WIMP_LEV(ch));
 			return;
 		} else {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"At the moment, you're not a wimp.  (sure, sure...)\r\n");
 			return;
 		}
@@ -834,12 +820,12 @@ ACMD(do_wimpy)
 	if (isdigit(*arg)) {
 		if ((wimp_lev = atoi(arg))) {
 			if (wimp_lev < 0)
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Heh, heh, heh.. we are jolly funny today, eh?\r\n");
 			else if (wimp_lev > GET_MAX_HIT(ch))
 				send_to_char(ch, "That doesn't make much sense, now does it?\r\n");
 			else if (wimp_lev > (GET_MAX_HIT(ch) >> 1))
-				send_to_char(ch, 
+				send_to_char(ch,
 					"You can't set your wimp level above half your hit points.\r\n");
 			else {
 				sprintf(buf,
@@ -849,18 +835,17 @@ ACMD(do_wimpy)
 				GET_WIMP_LEV(ch) = wimp_lev;
 			}
 		} else {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Okay, you'll now tough out fights to the bitter end.\r\n");
 			GET_WIMP_LEV(ch) = 0;
 		}
 	} else
-		send_to_char(ch, 
+		send_to_char(ch,
 			"Specify at how many hit points you want to wimp out at.  (0 to disable)\r\n");
 
 	return;
 
 }
-
 
 ACMD(do_display)
 {
@@ -879,7 +864,7 @@ ACMD(do_display)
 	argument = two_arguments(argument, arg1, arg2);
 
 	if (!*arg1) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"Usage: prompt { H | M | V | A | T | all | normal | none %s}\r\n",
             ch->getLevel() > LVL_IMMORT ? "| vnums" : "");
 		return;
@@ -974,8 +959,6 @@ ACMD(do_display)
 	send_to_char(ch, OK);
 }
 
-
-
 ACMD(do_gen_write)
 {
 	FILE *fl;
@@ -1025,7 +1008,7 @@ ACMD(do_gen_write)
 		return;
 	}
 	if (fbuf.st_size >= max_filesize) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"Sorry, the file is full right now.. try again later.\r\n");
 		return;
 	}
@@ -1039,8 +1022,6 @@ ACMD(do_gen_write)
 	fclose(fl);
 	send_to_char(ch, "Okay.  Thanks!\r\n");
 }
-
-
 
 #define TOG_OFF 0
 #define TOG_ON  1
@@ -1337,7 +1318,7 @@ ACMD(do_gen_tog)
 		break;
 	case SCMD_DEATHLOG:
 		result = ( LOG_DEATHS = !LOG_DEATHS );
-		slog("%s has toggled jet_stream_state %s.", GET_NAME(ch), 
+		slog("%s has toggled jet_stream_state %s.", GET_NAME(ch),
 				ONOFF(LOG_DEATHS));
 		break;
 	case SCMD_NOGUILDSAY:
@@ -1444,17 +1425,17 @@ ACMD(do_compare)
 		if (GET_OBJ_DAM(item1) * 100 / GET_OBJ_MAX_DAM(item1) >
 			GET_OBJ_DAM(item2) * 100 / GET_OBJ_MAX_DAM(item2))
 			act("$p appears to be in better condition than $P.",
-				FALSE, ch, item1, item2, TO_CHAR);
+				false, ch, item1, item2, TO_CHAR);
 		if (GET_OBJ_DAM(item1) * 100 / GET_OBJ_MAX_DAM(item1) <
 			GET_OBJ_DAM(item2) * 100 / GET_OBJ_MAX_DAM(item2))
 			act("$P appears to be in better condition than $p.",
-				FALSE, ch, item1, item2, TO_CHAR);
+				false, ch, item1, item2, TO_CHAR);
 		else if (GET_OBJ_MAX_DAM(item1) > GET_OBJ_MAX_DAM(item2))
 			act("$p appears to be sturdier than $P.",
-				FALSE, ch, item1, item2, TO_CHAR);
+				false, ch, item1, item2, TO_CHAR);
 		else
 			act("$P appears to be sturdier than $p.",
-				FALSE, ch, item1, item2, TO_CHAR);
+				false, ch, item1, item2, TO_CHAR);
 	}
 	if (GET_OBJ_TYPE(item1) != GET_OBJ_TYPE(item2))
 		return;
@@ -1466,7 +1447,7 @@ ACMD(do_compare)
 	case ITEM_POTION:
 		if (!IS_MAGE(ch) || IS_DWARF(ch) || GET_INT(ch) < 15)
 			break;
-		send_to_char(ch, "%s seems to carry a greater aura of power.\r\n",	
+		send_to_char(ch, "%s seems to carry a greater aura of power.\r\n",
 			GET_OBJ_VAL(item1, 0) >= GET_OBJ_VAL(item2, 0) ?
 			item1->name : item2->name);
 		break;
@@ -1476,7 +1457,7 @@ ACMD(do_compare)
 		avg2 =
 			(int)(((GET_OBJ_VAL(item2, 2) + 1) / 2.0) * GET_OBJ_VAL(item2, 1));
 		if (avg1 == avg2)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Both weapons appear to have similar damage potential.\r\n");
 		else {
 			send_to_char(ch, "%s appears to be a more formidable weapon.\r\n",
@@ -1500,7 +1481,7 @@ ACMD(do_compare)
 		avg1 = GET_OBJ_VAL(item1, 0);
 		avg2 = GET_OBJ_VAL(item2, 0);
 		if (avg1 == avg2)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Looks like they will each hold about the same amount.\r\n");
 		else {
 			send_to_char(ch, "%s looks like it will hold more.\r\n",
@@ -1549,7 +1530,7 @@ ACMD(do_compare)
 		avg1 = GET_OBJ_VAL(item1, 0);
 		avg2 = GET_OBJ_VAL(item2, 0);
 		if (avg1 == avg2)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"They appear to be able to store the same amount of energy.\r\n");
 		else {
 			send_to_char(ch, "%s looks like it will hold more energy.\r\n",
@@ -1561,7 +1542,7 @@ ACMD(do_compare)
 		avg1 = GET_OBJ_VAL(item1, 0);
 		avg2 = GET_OBJ_VAL(item2, 0);
 		if (avg1 == avg2)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"They appear to be able to store the same amount of energy.\r\n");
 		else {
 			send_to_char(ch, "%s looks like it will hold more energy.\r\n",
@@ -1571,7 +1552,7 @@ ACMD(do_compare)
 		avg1 = GET_OBJ_VAL(item1, 2);
 		avg2 = GET_OBJ_VAL(item2, 2);
 		if (avg1 == avg2)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"They can both discharge energy at comparable rates.\r\n");
 		else {
 			send_to_char(ch, "%s can release energy at a greater rate.\r\n",
@@ -1663,9 +1644,9 @@ ACMD(do_throw)
 		send_to_char(ch, "You can't find that to throw it.\r\n");
 	else if (obj) {
 		if (IS_OBJ_STAT(obj, ITEM_NODROP) && GET_LEVEL(ch) < LVL_ETERNAL) {
-			act("Arrrgh!  $p won't come off of your hand!", FALSE, ch, obj, 0,
+			act("Arrrgh!  $p won't come off of your hand!", false, ch, obj, 0,
 				TO_CHAR);
-			act("$n struggles with $p for a moment.", FALSE, ch, obj, 0,
+			act("$n struggles with $p for a moment.", false, ch, obj, 0,
 				TO_ROOM);
 			return;
 		}
@@ -1677,8 +1658,8 @@ ACMD(do_throw)
 				obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 			}
 
-			act("$n throws $p across the room.", FALSE, ch, obj, 0, TO_ROOM);
-			act("You throw $p across the room.", FALSE, ch, obj, 0, TO_CHAR);
+			act("$n throws $p across the room.", false, ch, obj, 0, TO_ROOM);
+			act("You throw $p across the room.", false, ch, obj, 0, TO_CHAR);
 			obj_from_char(obj);
 			obj_to_room(obj, ch->in_room);
 			return;
@@ -1726,11 +1707,11 @@ ACMD(do_throw)
 				sprintf(buf, "$n throws $p %sward against the closed %s.",
 					dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
 					fname(EXIT(ch, dir - 1)->keyword) : "door");
-				act(buf, FALSE, ch, obj, 0, TO_ROOM);
+				act(buf, false, ch, obj, 0, TO_ROOM);
 				sprintf(buf, "You throw $p %sward against the closed %s.",
 					dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
 					fname(EXIT(ch, dir - 1)->keyword) : "door");
-				act(buf, FALSE, ch, obj, 0, TO_CHAR);
+				act(buf, false, ch, obj, 0, TO_CHAR);
 				obj_from_char(obj);
 				obj_to_room(obj, ch->in_room);
 				return;
@@ -1752,26 +1733,26 @@ ACMD(do_throw)
 			}
 
 			sprintf(buf, "$n throws $p %sward.", dirs[(int)(dir - 1)]);
-			act(buf, FALSE, ch, obj, 0, TO_ROOM);
+			act(buf, false, ch, obj, 0, TO_ROOM);
 			sprintf(buf, "You throw $p %sward.", dirs[(int)(dir - 1)]);
-			act(buf, FALSE, ch, obj, 0, TO_CHAR);
+			act(buf, false, ch, obj, 0, TO_CHAR);
 			obj_from_char(obj);
 			obj_to_room(obj, r_toroom);
 			if (target_vict) {
 				sprintf(buf, "$p flies in from %s and hits you in the head!",
 					from_dirs[(int)(dir - 1)]);
-				act(buf, FALSE, 0, obj, target_vict, TO_VICT);
+				act(buf, false, 0, obj, target_vict, TO_VICT);
 				sprintf(buf, "$p flies in from %s and hits $N in the head!",
 					from_dirs[(int)(dir - 1)]);
-				act(buf, FALSE, 0, obj, target_vict, TO_NOTVICT);
+				act(buf, false, 0, obj, target_vict, TO_NOTVICT);
 			} else if (target_obj) {
 				sprintf(buf, "$p flies in from %s and slams into %s!",
 					from_dirs[(int)(dir - 1)], target_obj->name);
-				act(buf, FALSE, 0, obj, target_vict, TO_ROOM);
+				act(buf, false, 0, obj, target_vict, TO_ROOM);
 			} else {
 				sprintf(buf, "$p flies in from %s and lands by your feet.",
 					from_dirs[(int)(dir - 1)]);
-				act(buf, FALSE, 0, obj, 0, TO_ROOM);
+				act(buf, false, 0, obj, 0, TO_ROOM);
 			}
 			return;
 		}
@@ -1788,11 +1769,11 @@ ACMD(do_throw)
                 send_to_char(ch, "You can't throw something at yourself!\r\n");
                 return;
             }
-            act("$n throws $p at $N!", FALSE, ch, obj, target_vict,
+            act("$n throws $p at $N!", false, ch, obj, target_vict,
                 TO_NOTVICT);
-            act("$n throws $p at you!", FALSE, ch, obj, target_vict,
+            act("$n throws $p at you!", false, ch, obj, target_vict,
                 TO_VICT);
-            act("You throw $p at $N.", FALSE, ch, obj, target_vict,
+            act("You throw $p at $N.", false, ch, obj, target_vict,
                 TO_CHAR);
 
             calc_thaco = calculate_thaco(ch, target_vict, NULL) + 10;
@@ -1809,19 +1790,19 @@ ACMD(do_throw)
                 ((diceroll == 1) || ((calc_thaco - diceroll) > victim_ac))) {
                 // Missed throw
                 if (IS_POTION(obj)) {
-                    act("$p narrowly misses you and shatters on the ground!", FALSE, ch, obj,
+                    act("$p narrowly misses you and shatters on the ground!", false, ch, obj,
                         target_vict, TO_VICT);
-                    act("$p narrowly misses $M and shatters on the ground!", FALSE, ch, obj,
+                    act("$p narrowly misses $M and shatters on the ground!", false, ch, obj,
                         target_vict, TO_NOTVICT);
-                    act("$p narrowly misses $M and shatters on the ground!", FALSE, ch, obj,
+                    act("$p narrowly misses $M and shatters on the ground!", false, ch, obj,
                         target_vict, TO_CHAR);
                     extract_obj(obj);
                 } else {
-                    act("$p narrowly misses you!", FALSE, ch, obj,
+                    act("$p narrowly misses you!", false, ch, obj,
                         target_vict, TO_VICT);
-                    act("$p narrowly misses $M!", FALSE, ch, obj,
+                    act("$p narrowly misses $M!", false, ch, obj,
                         target_vict, TO_NOTVICT);
-                    act("$p narrowly misses $M!", FALSE, ch, obj,
+                    act("$p narrowly misses $M!", false, ch, obj,
                         target_vict, TO_CHAR);
                     obj_from_char(obj);
                     obj_to_room(obj, ch->in_room);
@@ -1885,10 +1866,10 @@ ACMD(do_throw)
 			}
 			sprintf(buf, "$n hurls $p up against %s with brute force!",
 				target_obj->name);
-			act(buf, FALSE, ch, obj, 0, TO_ROOM);
+			act(buf, false, ch, obj, 0, TO_ROOM);
 			sprintf(buf, "You hurl $p up against %s with brute force!",
 				target_obj->name);
-			act(buf, FALSE, ch, obj, 0, TO_CHAR);
+			act(buf, false, ch, obj, 0, TO_CHAR);
 		}
 		obj_from_char(obj);
 		obj_to_room(obj, ch->in_room);
@@ -1916,25 +1897,24 @@ ACMD(do_feed)
         send_to_char(ch, "No-one around by that name.\r\n");
     else if (GET_OBJ_TYPE(food) != ITEM_FOOD)
         act("I don't think anyone wants to eat $p.",
-            FALSE, ch, food, 0, TO_CHAR);
+            false, ch, food, 0, TO_CHAR);
     else if (!MOB2_FLAGGED(vict, MOB2_MOUNT))
-        act("You cannot feed $p to $N.", FALSE, ch, food, vict, TO_CHAR);
+        act("You cannot feed $p to $N.", false, ch, food, vict, TO_CHAR);
     else if (!AWAKE(vict))
-        act("$N is in no position to be eating.", FALSE, ch, food, vict,
+        act("$N is in no position to be eating.", false, ch, food, vict,
             TO_CHAR);
     else if (GET_MOVE(vict) >= GET_MAX_MOVE(vict))
-        act("$N must not be hungry -- $E refuses $p.", FALSE, ch, food,
+        act("$N must not be hungry -- $E refuses $p.", false, ch, food,
             vict, TO_CHAR);
     else {
-        act("$n feeds $p to $N.", FALSE, ch, food, vict, TO_NOTVICT);
-        act("$N devours $p.", FALSE, ch, food, vict, TO_CHAR);
+        act("$n feeds $p to $N.", false, ch, food, vict, TO_NOTVICT);
+        act("$N devours $p.", false, ch, food, vict, TO_CHAR);
         GET_MOVE(vict) = MIN(GET_MAX_MOVE(vict), GET_MOVE(vict) +
             GET_OBJ_VAL(food, 0));
         extract_obj(food);
         return;
     }
 }
-
 
 ACMD(do_weigh)
 {
@@ -1952,9 +1932,9 @@ ACMD(do_weigh)
 		return;
 	}
 
-	act("You carefully judge the weight of $p.", FALSE, ch, obj, 0, TO_CHAR);
+	act("You carefully judge the weight of $p.", false, ch, obj, 0, TO_CHAR);
 	act("$n gauges the weight of $p by tossing it in one hand.",
-		TRUE, ch, obj, 0, TO_ROOM);
+		true, ch, obj, 0, TO_ROOM);
 
 	send_to_char(ch, "It seems to weigh about %d pounds.\r\n",
 		(obj->getWeight() + number(-(obj->getWeight() / GET_INT(ch)),
@@ -1980,14 +1960,14 @@ ACMD(do_knock)
 	if ((vict = get_char_room_vis(ch, arg1))) {
 		if (vict == ch) {
 			send_to_char(ch, "You rap your knuckles on your head.\r\n");
-			act("$n raps $s knuckles on $s head.", TRUE, ch, 0, ch, TO_ROOM);
+			act("$n raps $s knuckles on $s head.", true, ch, 0, ch, TO_ROOM);
 			return;
 		}
-		act("You knock on $N's skull.  Anybody home?", FALSE, ch, 0, vict,
+		act("You knock on $N's skull.  Anybody home?", false, ch, 0, vict,
 			TO_CHAR);
-		act("$n knocks on your skull.  Anybody home?", FALSE, ch, 0, vict,
+		act("$n knocks on your skull.  Anybody home?", false, ch, 0, vict,
 			TO_VICT | TO_SLEEP);
-		act("$n knocks on $N's skull.  Anybody home?", FALSE, ch, 0, vict,
+		act("$n knocks on $N's skull.  Anybody home?", false, ch, 0, vict,
 			TO_NOTVICT);
 		if (vict->getPosition() == POS_SLEEPING
 			&& !AFF_FLAGGED(vict, AFF_SLEEP))
@@ -2000,15 +1980,15 @@ ACMD(do_knock)
 		obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents);
 
 	if (obj) {
-		act("$n knocks on $p.", FALSE, ch, obj, 0, TO_ROOM);
-		act("You knock on $p.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$n knocks on $p.", false, ch, obj, 0, TO_ROOM);
+		act("You knock on $p.", false, ch, obj, 0, TO_CHAR);
 
 		if (IS_VEHICLE(obj)) {
 			if ((other_room = real_room(ROOM_NUMBER(obj)))
 				&& other_room->people) {
-				act("$N knocks on the outside of $p.", FALSE,
+				act("$N knocks on the outside of $p.", false,
 					other_room->people, obj, ch, TO_NOTVICT);
-				act("$N knocks on the outside of $p.", FALSE,
+				act("$N knocks on the outside of $p.", false,
 					other_room->people, obj, ch, TO_CHAR);
 			}
 		}
@@ -2022,7 +2002,7 @@ ACMD(do_knock)
 			strcpy(dname, "door");
 
 		sprintf(buf, "$n knocks on the %s.", dname);
-		act(buf, FALSE, ch, 0, 0, TO_ROOM);
+		act(buf, false, ch, 0, 0, TO_ROOM);
 		send_to_char(ch, "You knock on the %s.\r\n", dname);
 
 		if ((other_room = EXIT(ch, dir)->to_room) &&
@@ -2037,15 +2017,14 @@ ACMD(do_knock)
 
 			sprintf(buf, "Someone knocks on the %s from the other side.",
 				dname);
-			act(buf, FALSE, other_room->people, 0, 0, TO_CHAR | TO_SLEEP);
-			act(buf, FALSE, other_room->people, 0, 0, TO_ROOM | TO_SLEEP);
+			act(buf, false, other_room->people, 0, 0, TO_CHAR | TO_SLEEP);
+			act(buf, false, other_room->people, 0, 0, TO_ROOM | TO_SLEEP);
 		}
 		return;
 	}
 	// They're hallucinating something to knock on, but find_door has already
 	// told them that.
 }
-
 
 ACMD(do_loadroom)
 {
@@ -2108,7 +2087,7 @@ ACMD(do_gasify)
 	IS_CARRYING_N(gas) = 200;
 
 	act("$n slowly fades away, leaving only a gaseous cloud behind.",
-		TRUE, ch, 0, 0, TO_ROOM);
+		true, ch, 0, 0, TO_ROOM);
 	send_to_char(ch, "You become gaseous.\r\n");
 
 	char_to_room(gas, ch->in_room,false);
@@ -2151,7 +2130,7 @@ ACMD(do_clean)
 			send_to_char(ch, "Clean what position?\r\n");
 			return;
 		}
-		if ((pos = search_block(arg2, wear_eqpos, FALSE)) < 0) {
+		if ((pos = search_block(arg2, wear_eqpos, false)) < 0) {
 			strcpy(buf, "Invalid position.  Valid positions are:\r\n");
 			for (i = 0, j = 0; i < NUM_WEARS; i++) {
 				if (ILLEGAL_SOILPOS(i))
@@ -2174,25 +2153,25 @@ ACMD(do_clean)
 		if (!CHAR_SOILAGE(vict, pos)) {
 			sprintf(buf, "%s not soiled there.",
 				ch == vict ? "You are" : "$E is");
-			act(buf, FALSE, ch, 0, vict, TO_CHAR);
+			act(buf, false, ch, 0, vict, TO_CHAR);
 			return;
 		}
 
 		if (vict == ch) {
 			sprintf(buf, "$n carefully cleans $s %s.", wear_description[pos]);
-			act(buf, TRUE, ch, 0, 0, TO_ROOM);
+			act(buf, true, ch, 0, 0, TO_ROOM);
 			send_to_char(ch, "You carefully clean your %s.\r\n",
 				wear_description[pos]);
 		} else {
 			sprintf(buf, "$n carefully cleans $N's %s.",
 				wear_description[pos]);
-			act(buf, TRUE, ch, 0, vict, TO_NOTVICT);
+			act(buf, true, ch, 0, vict, TO_NOTVICT);
 			sprintf(buf, "You carefully clean $N's %s.",
 				wear_description[pos]);
-			act(buf, FALSE, ch, 0, vict, TO_CHAR);
+			act(buf, false, ch, 0, vict, TO_CHAR);
 			sprintf(buf, "$n carefully cleans your %s.",
 				wear_description[pos]);
-			act(buf, FALSE, ch, 0, vict, TO_VICT);
+			act(buf, false, ch, 0, vict, TO_VICT);
 		}
 		found = 0;
 		strcpy(buf, "no longer ");
@@ -2214,12 +2193,12 @@ ACMD(do_clean)
 		}
 		sprintf(buf2, "Your %s %s %s.", wear_description[pos],
 			pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
-		act(buf2, FALSE, ch, obj, vict, TO_VICT);
+		act(buf2, false, ch, obj, vict, TO_VICT);
 		sprintf(buf2, "$N's %s %s %s.", wear_description[pos],
 			pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
-		act(buf2, TRUE, ch, obj, vict, TO_NOTVICT);
+		act(buf2, true, ch, obj, vict, TO_NOTVICT);
 		if (ch != vict)
-			act(buf2, TRUE, ch, obj, vict, TO_CHAR);
+			act(buf2, true, ch, obj, vict, TO_CHAR);
 
 		CHAR_SOILAGE(vict, pos) = 0;
 		return;
@@ -2228,14 +2207,14 @@ ACMD(do_clean)
 	/* obj */
 
 	if (!OBJ_SOILAGE(obj))
-		act("$p is not soiled.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p is not soiled.", false, ch, obj, 0, TO_CHAR);
 	else {
 		sprintf(buf, "$n carefully cleans $p. (%s)",
 			obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
-		act(buf, TRUE, ch, obj, 0, TO_ROOM);
+		act(buf, true, ch, obj, 0, TO_ROOM);
 		sprintf(buf, "You carefully clean $p. (%s)",
 			obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
+		act(buf, false, ch, obj, 0, TO_CHAR);
 
 		found = 0;
 		strcpy(buf, "$p is no longer ");
@@ -2256,8 +2235,8 @@ ACMD(do_clean)
 			}
 		}
 		strcat(buf, ".");
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
-		act(buf, FALSE, ch, obj, 0, TO_ROOM);
+		act(buf, false, ch, obj, 0, TO_CHAR);
+		act(buf, false, ch, obj, 0, TO_ROOM);
 		OBJ_SOILAGE(obj) = 0;
 	}
 }
@@ -2273,7 +2252,6 @@ ACMD(do_drag)
 		generic_find(argument, FIND_OBJ_ROOM | FIND_CHAR_ROOM, ch, &found_char,
 		&found_obj);
 
-
 	//Target is a character
 	if (!bits) {
 		send_to_char(ch, "What do you want to drag?\r\n");
@@ -2288,12 +2266,11 @@ ACMD(do_drag)
 
 }
 
-
 void
 ice_room(struct room_data *room, int amount)
 {
 	struct obj_data *ice;
-	int new_ice = FALSE;
+	int new_ice = false;
 
 	if ((!(room)) || amount <= 0) {
 		return;
@@ -2305,11 +2282,10 @@ ice_room(struct room_data *room, int amount)
 		}
 	}
 
-	if (!ice && (new_ice = TRUE) && !(ice = read_object(ICE_VNUM))) {
+	if (!ice && (new_ice = true) && !(ice = read_object(ICE_VNUM))) {
 		errlog("Unable to load ice.");
 		return;
 	}
-
 
 	if (GET_OBJ_TIMER(ice) > 50) {
 		return;
@@ -2361,7 +2337,7 @@ ACMD(do_trust)
 	}
 
 	if (ch->trusts(idnum)) {
-		send_to_char(ch, "You already trust %s.\r\n", 
+		send_to_char(ch, "You already trust %s.\r\n",
 			playerIndex.getName(idnum));
 		return;
 	}
@@ -2404,7 +2380,7 @@ ACMD(do_distrust)
 	}
 
 	if (ch->distrusts(idnum)) {
-		send_to_char(ch, "You already don't trust %s.\r\n", 
+		send_to_char(ch, "You already don't trust %s.\r\n",
 			playerIndex.getName(idnum));
 		return;
 	}

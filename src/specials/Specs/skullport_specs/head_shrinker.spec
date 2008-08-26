@@ -97,7 +97,7 @@ SPECIAL(head_shrinker)
 	obj_to_char(head, ch);
 	extract_obj(corpse);
 
-	act("You now have $p.", FALSE, ch, head, 0, TO_CHAR);
-	act("$n now has $p.", FALSE, ch, head, 0, TO_ROOM);
+	act("You now have $p.", false, ch, head, 0, TO_CHAR);
+	act("$n now has $p.", false, ch, head, 0, TO_ROOM);
 	return 1;
 }

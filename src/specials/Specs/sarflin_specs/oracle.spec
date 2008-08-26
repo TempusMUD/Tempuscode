@@ -10,7 +10,7 @@ SPECIAL(oracle)
 	struct obj_data *od = NULL;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-/* 
+/*
    cmd line is Give #### coin XXXXXXX
    where #### is a number of gold
    xxxxx is the name of the orcal..
@@ -38,12 +38,12 @@ SPECIAL(oracle)
 		}
 
 		if (GET_OBJ_VAL(od, 0) < GET_OBJ_VAL(od, 1)) {
-			act("Sorry you have not payed my fee for this question", TRUE, ch,
+			act("Sorry you have not payed my fee for this question", true, ch,
 				0, 0, TO_CHAR);
 			sprintf(buf, "My fee for this question is %d gold.",
 				GET_OBJ_VAL(od, 1));
-			act(buf, TRUE, ch, 0, 0, TO_CHAR);
-			act("Just give me the gold and ask your question again.", TRUE, ch,
+			act(buf, true, ch, 0, 0, TO_CHAR);
+			act("Just give me the gold and ask your question again.", true, ch,
 				0, 0, TO_CHAR);
 			return 1;
 

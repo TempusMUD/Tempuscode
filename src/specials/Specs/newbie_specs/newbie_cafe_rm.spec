@@ -20,11 +20,11 @@ SPECIAL(newbie_cafe_rm)
 			return 1;
 		}
 	} else if (CMD_IS("return")) {
-		act("$n vanishes in a flash of light!", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n vanishes in a flash of light!", true, ch, 0, 0, TO_ROOM);
 		send_to_char(ch, "You are teleported in a flash of light!\r\n\r\n");
 		char_from_room(ch, false);
 		char_to_room(ch, real_room(3013), false);
-		act("$n appears at the center of the square with a flash!", FALSE, ch,
+		act("$n appears at the center of the square with a flash!", false, ch,
 			0, 0, TO_ROOM);
 		look_at_room(ch, ch->in_room, 0);
 		return 1;

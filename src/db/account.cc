@@ -68,7 +68,7 @@ Account::Account(void)
 	: _chars(), _trusted()
 {
 	time_t now;
-	
+
 	now = time(NULL);
 	_id = 0;
 	_name = NULL;
@@ -130,7 +130,7 @@ Account::preload(const char *conditions)
         // Make sure we don't reload one that's already in the cache
         long idnum = atol(PQgetvalue(res, acct_idx, 0));
         vector<Account *>::iterator it;
-        
+
         it = lower_bound(_cache.begin(), _cache.end(), idnum, Account::cmp());
         if (it != _cache.end() && (*it)->get_idnum() == idnum)
             continue;
@@ -279,12 +279,12 @@ Account::load_players(void)
         // the characters that have QUIT and are less than level 25
          for (int x = 0; x < get_char_count(); x++) {
             tmp_ch->loadFromXML(_chars[x]);
-            if (tmp_ch->getLevel() <= 25 && 
+            if (tmp_ch->getLevel() <= 25 &&
                 tmp_ch->player_specials->rentcode == RENT_QUIT)
                 delete_char(tmp_ch);
 			if (chars_available() >= 0)
 				break;
-        }       
+        }
     }
 
     // We've deleted as many characters as I feel is prudent.  If this
@@ -316,17 +316,17 @@ Account::add_trusted(long idnum)
 	_trusted.push_back(idnum);
 }
 
-Account* 
-Account::retrieve(int id) 
+Account*
+Account::retrieve(int id)
 {
 	vector <Account *>::iterator it;
 	Account *acct;
-	
+
 	// First check to see if we already have it in memory
 	it = lower_bound( _cache.begin(), _cache.end(), id, Account::cmp() );
 	if( it != _cache.end() && (*it)->get_idnum() == id )
 		return *it;
-	
+
 	// Apprently, we don't, so look it up on the db
 	acct = new Account;
 	if (acct->load(id))
@@ -335,7 +335,7 @@ Account::retrieve(int id)
 	return NULL;
 }
 
-bool 
+bool
 Account::exists( int accountID )
 {
 	PGresult *res;
@@ -347,8 +347,8 @@ Account::exists( int accountID )
     return result;
 }
 
-Account* 
-Account::retrieve(const char *name) 
+Account*
+Account::retrieve(const char *name)
 {
 	vector <Account *>::iterator it;
 	Account *acct;
@@ -378,8 +378,8 @@ Account::retrieve(const char *name)
 	return NULL;
 }
 
-Account* 
-Account::retrieve(Creature *ch) 
+Account*
+Account::retrieve(Creature *ch)
 {
 	int acct_id;
 
@@ -422,7 +422,7 @@ Account::remove(Account *acct)
 			_cache.erase(it);
 			return true;
 		}
-	
+
 	return false;
 }
 
@@ -431,7 +431,6 @@ Account::chars_available()
 {
 	return countGens() / 10 + 10 - get_char_count();
 }
-
 
 // Create a brand new character
 Creature *
@@ -450,7 +449,7 @@ Account::create_char(const char *name)
 	_chars.push_back(GET_IDNUM(ch));
 	sql_exec("insert into players (idnum, name, account) values (%ld, '%s', %d)",
 		GET_IDNUM(ch), tmp_sqlescape(name), _id);
-	
+
     // *** if this is our first player --- he be God ***
 	if( GET_IDNUM(ch) == 1) {
 		GET_EXP(ch) = 160000000;
@@ -508,7 +507,6 @@ Account::create_char(const char *name)
 	SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW);
 	SET_BIT(PRF2_FLAGS(ch), PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN | PRF2_NEWBIE_HELPER);
 
-	
 	ch->char_specials.saved.affected_by = 0;
 	ch->char_specials.saved.affected2_by = 0;
 	ch->char_specials.saved.affected3_by = 0;
@@ -633,7 +631,7 @@ Account::logout(descriptor_data *d, bool forced)
 		sql_exec("update accounts set login_addr='%s', login_time='%s' where idnum=%d",
 			tmp_sqlescape(_login_addr), tmp_ctime(_login_time), _id);
 
-		slog("%slogout: %s[%d] from %s", (forced) ? "forced ":"", 
+		slog("%slogout: %s[%d] from %s", (forced) ? "forced ":"",
              _name, get_idnum(), _login_addr);
 	} else {
 		slog("%slogout: unfinished account from %s", (forced) ? "forced ":"",
@@ -810,7 +808,7 @@ Account::exhume_char( Creature *exhumer, long id )
 		sql_exec("insert into players (idnum, account, name) values (%ld, %d, '%s')",
 			GET_IDNUM(victim), _id, tmp_sqlescape(GET_NAME(victim)));
 		this->load_players();
-		send_to_char(exhumer, "%s exhumed.\r\n", 
+		send_to_char(exhumer, "%s exhumed.\r\n",
 					tmp_capitalize( GET_NAME(victim) ) );
 		slog("%s[%ld] exhumed into account %s[%d]", GET_NAME(victim),
 			GET_IDNUM(victim), _name, _id);
@@ -829,7 +827,7 @@ Account::deny_char_entry(Creature *ch)
     if (Security::isMember(ch, "WizardFull"))
         return false;
     if (Security::isMember(ch, "AdminFull"))
-        return false;	
+        return false;
 
 	CreatureList::iterator cit = characterList.begin();
 	for (;cit != characterList.end(); ++cit) {
@@ -854,7 +852,7 @@ Account::deny_char_entry(Creature *ch)
 	return false;
 }
 
-bool 
+bool
 Account::is_logged_in() const
 {
     list<descriptor_data*> connections;
@@ -1073,7 +1071,7 @@ Account::countGens()
 	char *path;
     int idx;
     int genCount = 0;
-    
+
     for (idx = 1;!this->invalid_char_index(idx);idx++) {
         tmp_ch->clear();
 

@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 #ifdef HAS_CONFIG_H
 #include "config.h"
 #endif
@@ -214,7 +213,7 @@ do_create_mob(struct Creature *ch, int vnum)
 
 	new_mob->player.char_class = CLASS_NORMAL;
 	new_mob->player.race = RACE_MOBILE;
-    
+
 	GET_GOLD(new_mob) = 0;
 	GET_EXP(new_mob) = 100;
 	GET_MORALE(new_mob) = 100;
@@ -252,7 +251,6 @@ do_create_mob(struct Creature *ch, int vnum)
 
 	return (new_mob);
 }
-
 
 void
 do_mob_medit(struct Creature *ch, char *argument)
@@ -296,7 +294,7 @@ do_mob_medit(struct Creature *ch, char *argument)
 			}
 
 			if (!CAN_EDIT_ZONE(ch, zone)) {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"You do not have permission to edit those mobiles.\r\n");
 				return;
 			}
@@ -308,7 +306,7 @@ do_mob_medit(struct Creature *ch, char *argument)
 
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->creature && GET_OLC_MOB(d->creature) == tmp_mob) {
-					act("$N is already editing that mobile.", FALSE, ch, 0,
+					act("$N is already editing that mobile.", false, ch, 0,
 						d->creature, TO_CHAR);
 					return;
 				}
@@ -369,12 +367,12 @@ do_mob_mset(struct Creature *ch, char *argument)
 	half_chop(argument, arg1, arg2);
 	skip_spaces(&argument);
 
-	if ((mset_command = search_block(arg1, olc_mset_keys, FALSE)) < 0) {
+	if ((mset_command = search_block(arg1, olc_mset_keys, false)) < 0) {
 		send_to_char(ch, "Invalid mset command '%s'.\r\n", arg1);
 		return;
 	}
 	// Check for desc and specparam setting, both of which use tedii
-	if (mset_command != 3 && mset_command != 47 
+	if (mset_command != 3 && mset_command != 47
 	&& mset_command != 49 && mset_command != 52 && !*arg2) {
 		send_to_char(ch, "Set %s to what??\r\n", olc_mset_keys[mset_command]);
 		return;
@@ -419,10 +417,10 @@ do_mob_mset(struct Creature *ch, char *argument)
 		}
 	case 3:{				   /** desc **/
 			if (mob_p->player.description == NULL) {
-				act("$n starts to write a mobile description.", TRUE, ch, 0, 0,
+				act("$n starts to write a mobile description.", true, ch, 0, 0,
 					TO_ROOM);
 			} else {
-				act("$n begins to edit a mobile description.", TRUE, ch, 0, 0,
+				act("$n begins to edit a mobile description.", true, ch, 0, 0,
 					TO_ROOM);
 			}
 			start_editing_text(ch->desc, &mob_p->player.description);
@@ -456,7 +454,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			else if (*arg1 == '-')
 				state = 2;
 			else {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc mset flags [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
@@ -466,11 +464,11 @@ do_mob_mset(struct Creature *ch, char *argument)
 			cur_flags = MOB_FLAGS(mob_p);
 
 			while (*arg1) {
-				if ((flag = search_block(arg1, action_bits_desc, FALSE)) == -1) {
+				if ((flag = search_block(arg1, action_bits_desc, false)) == -1) {
 					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else if ((1 << flag) == MOB_SPEC && !GET_MOB_SPEC(mob_p) &&
 					state == 1)
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Can't set SPEC bit until special is assigned.\r\n");
 				else
 					tmp_flags = tmp_flags | (1 << flag);
@@ -514,7 +512,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			else if (*arg1 == '-')
 				state = 2;
 			else {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc mset flags2 [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
@@ -525,7 +523,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 
 			while (*arg1) {
 				if ((flag =
-						search_block(arg1, action2_bits_desc, FALSE)) == -1) {
+						search_block(arg1, action2_bits_desc, false)) == -1) {
 					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_flags = tmp_flags | (1 << flag);
@@ -578,7 +576,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 
 			while (*arg1) {
 				if ((flag =
-						search_block(arg1, affected_bits_desc, FALSE)) == -1) {
+						search_block(arg1, affected_bits_desc, false)) == -1) {
 					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_flags = tmp_flags | (1 << flag);
@@ -620,7 +618,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			else if (*arg1 == '-')
 				state = 2;
 			else {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc mset aff2 [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
@@ -632,7 +630,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			while (*arg1) {
 				if ((flag =
 						search_block(arg1, affected2_bits_desc,
-							FALSE)) == -1) {
+							false)) == -1) {
 					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_flags = tmp_flags | (1 << flag);
@@ -674,7 +672,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			else if (*arg1 == '-')
 				state = 2;
 			else {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc mset aff3 [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
@@ -686,7 +684,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			while (*arg1) {
 				if ((flag =
 						search_block(arg1, affected3_bits_desc,
-							FALSE)) == -1) {
+							false)) == -1) {
 					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_flags = tmp_flags | (1 << flag);
@@ -798,7 +796,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 17:{			   /** hitp_mod **/
 			i = atoi(arg2);
 			if (i < 0 || i > 32767)
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Hit point modifier must be between 1 and 32767.\r\n");
 			else {
 				GET_MOVE(mob_p) = i;
@@ -809,7 +807,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 18:{				/** hitd_num **/
 			i = atoi(arg2);
 			if (i < 0 || i > 200)
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Hit point dice number must be between 1 and 200.\r\n");
 			else {
 				GET_HIT(mob_p) = i;
@@ -820,7 +818,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 19:{			   /** hitd_size **/
 			i = atoi(arg2);
 			if (i < 0 || i > 200)
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Hit point dice size must be between 1 and 200.\r\n");
 			else {
 				GET_MANA(mob_p) = i;
@@ -862,7 +860,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 23:{			   /** baredsize **/
 			i = atoi(arg2);
 			if (i < 1 || i > 125)
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Bare handed damage dice size must be between 1 and 125.\r\n");
 			else {
 				mob_p->mob_specials.shared->damsizedice = i;
@@ -883,7 +881,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 25:{			   /** exp **/
 			i = atoi(arg2);
 			if (i < 0 || i > 200000000)
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Experience must be between 0 and 200,000,000.\r\n");
 			else {
 				GET_EXP(mob_p) = i;
@@ -892,7 +890,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			break;
 		}
 	case 26:{			   /** attack **/
-			if ((i = search_block(arg2, attack_type, FALSE)) < 0) {
+			if ((i = search_block(arg2, attack_type, false)) < 0) {
 				send_to_char(ch, "Invalid attack type, '%s'.\r\n", arg2);
 			} else {
 				mob_p->mob_specials.shared->attack_type = i;
@@ -901,7 +899,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			break;
 		}
 	case 27:{			  /** position **/
-			if ((i = search_block(arg2, position_types, FALSE)) < 0) {
+			if ((i = search_block(arg2, position_types, false)) < 0) {
 				send_to_char(ch, "Invalid position, '%s'.\r\n", arg2);
 			} else {
 				mob_p->setPosition(i);
@@ -910,7 +908,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			break;
 		}
 	case 28:{			   /** sex **/
-			if ((i = search_block(arg2, genders, FALSE)) < 0) {
+			if ((i = search_block(arg2, genders, false)) < 0) {
 				send_to_char(ch, "Invalid gender, '%s'.\r\n", arg2);
 			} else {
 				mob_p->player.sex = i;
@@ -921,7 +919,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 29:{			   /** remortchar_class **/
 			if (!strncmp(arg2, "none", 4))
 				i = -1;
-			else if ((i = search_block(arg2, class_names, FALSE)) < 0) {
+			else if ((i = search_block(arg2, class_names, false)) < 0) {
 				send_to_char(ch, "Invalid char_class type, '%s'.\r\n", arg2);
 				break;
 			}
@@ -970,7 +968,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			break;
 		}
 	case 34:{			   /** char_class **/
-			if ((i = search_block(arg2, class_names, FALSE)) < 0) {
+			if ((i = search_block(arg2, class_names, false)) < 0) {
 				send_to_char(ch, "Invalid char_class type, '%s'.\r\n", arg2);
 			} else {
 				GET_CLASS(mob_p) = i;
@@ -980,21 +978,21 @@ do_mob_mset(struct Creature *ch, char *argument)
 			break;
 		}
 	case 35:{			   /** race **/
-			if ((i = search_block(arg2, player_race, FALSE)) < 0) {
+			if ((i = search_block(arg2, player_race, false)) < 0) {
 				send_to_char(ch, "Invalid race, '%s'.\r\n", arg2);
 			} else {
 				GET_RACE(mob_p) = i;
 				set_physical_attribs(mob_p);
                 set_move_buffer(mob_p);
 				send_to_char(ch, "Mobile Race set.\r\n");
-                
+
                 SET_TONGUE(mob_p, TONGUE_COMMON, 0);
                 set_initial_tongue(mob_p);
 			}
 			break;
 		}
 	case 36:{			   /** dpos **/
-			if ((i = search_block(arg2, position_types, FALSE)) < 0) {
+			if ((i = search_block(arg2, position_types, false)) < 0) {
 				send_to_char(ch, "Invalid default position, '%s'.\r\n", arg2);
 			} else {
 				GET_DEFAULT_POS(mob_p) = i;
@@ -1120,7 +1118,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 		// It's ok.  Let em set it.
 		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->func_param);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-		act("$n begins to write a mobile spec param.", TRUE, ch, 0, 0,
+		act("$n begins to write a mobile spec param.", true, ch, 0, 0,
 			TO_ROOM);
 		break;
     case 48:{ // generation
@@ -1138,7 +1136,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 49:
 		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->load_param);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-		act("$n begins to write a mobile load param.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n begins to write a mobile load param.", true, ch, 0, 0, TO_ROOM);
 		break;
     case 50: { // Known language
         char *arguments = tmp_strdup(arg2);
@@ -1151,7 +1149,7 @@ do_mob_mset(struct Creature *ch, char *argument)
         else if (*myarg == '-')
             state = 2;
         else {
-            send_to_char(ch, 
+            send_to_char(ch,
                 "Usage: olc mset knownlanguage [+/-] [LANG, LANG, ...]\r\n");
             return;
         }
@@ -1177,7 +1175,7 @@ do_mob_mset(struct Creature *ch, char *argument)
            send_to_char(ch, "Usage: olc mset curlanguage <language>");
            return;
        }
-       
+
        char *argument = tmp_strdup(arg2);
        idx = find_tongue_idx_by_name(argument);
        if (idx == TONGUE_NONE) {
@@ -1192,7 +1190,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 52:
 		start_editing_prog(ch->desc, mob_p, PROG_TYPE_MOBILE);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-		act("$n begins to write a mobile prog.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n begins to write a mobile prog.", true, ch, 0, 0, TO_ROOM);
 		break;
 	default:{
 			break;
@@ -1211,8 +1209,6 @@ do_mob_mset(struct Creature *ch, char *argument)
 		SET_BIT(MOB2_FLAGS(mob_p), MOB2_UNAPPROVED);
 
 }
-
-
 
 int
 write_mob_index(struct Creature *ch, struct zone_data *zone)
@@ -1484,7 +1480,7 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 		sprintf(fname, "world/mob/olc/%d.mob", zone->number);
 		if (!(file = fopen(fname, "r"))) {
 			errlog("Failure to reopen olc mob file.");
-			send_to_char(ch, 
+			send_to_char(ch,
 				"OLC Error: Failure to duplicate mob file in main dir."
 				"\r\n");
 			fclose(realfile);
@@ -1494,7 +1490,7 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 			tmp = fread(buf, 1, 512, file);
 			if (fwrite(buf, 1, tmp, realfile) != tmp) {
 				errlog("Failure to duplicate olc mob file in the main wld dir.");
-				send_to_char(ch, 
+				send_to_char(ch,
 					"OLC Error: Failure to duplicate mob file in main dir."
 					"\r\n");
 				fclose(realfile);
@@ -1511,7 +1507,6 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 	REMOVE_BIT(zone->flags, ZONE_MOBS_MODIFIED);
 	return true;
 }
-
 
 int
 do_destroy_mobile(struct Creature *ch, int vnum)
@@ -1687,7 +1682,7 @@ mobile_experience(struct Creature *mob, FILE *outfile)
         factor += 0.1;
 
     // Thac0 modifiers
-	if (AFF2_FLAGGED(mob, AFF2_TRUE_SEEING))
+	if (AFF2_FLAGGED(mob, AFF2_true_SEEING))
 		factor += 0.1;
 
     // Regen modifiers
@@ -1708,7 +1703,7 @@ mobile_experience(struct Creature *mob, FILE *outfile)
 		int percent = (int) ( ((float)exp)/((float)oldexp) * 100.0 );
 		if( oldexp <= 0 )
 			percent = 9999;
-		
+
 		fprintf(outfile, "%d %6d \'%20s\' L%2d G%2d %10d %10d [%5d] (%2.2f)\r\n",
                 exp,
                 GET_MOB_VNUM(mob), name,
@@ -1774,7 +1769,7 @@ oldmobile_experience(struct Creature *mob)
 
 	const int MAXAFF = 3;
 	int affs = 0;
-	
+
 	if (affs < MAXAFF && AFF3_FLAGGED(mob, AFF3_DOUBLE_DAMAGE)) {
 		exp = (int)(exp * 1.3);
 		++affs;
@@ -1795,7 +1790,7 @@ oldmobile_experience(struct Creature *mob)
 		exp = (int)(exp * 1.2);
 		++affs;
 	}
-	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_TRUE_SEEING)) {
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_true_SEEING)) {
 		exp = (int)(exp * 1.2);
 		++affs;
 	}
@@ -1839,9 +1834,9 @@ oldmobile_experience(struct Creature *mob)
 		exp = (int)(exp * 1.1);
 		++affs;
 	}
-	
+
 	exp = (int)(exp * 1.5); // arbitrary exp bonus. :)
-	
+
 	exp = (exp / 10) * 10;
 	exp = MAX(0, exp);
 
@@ -1992,7 +1987,6 @@ olc_mimic_mob(struct Creature *ch,
 	GET_ALIGNMENT(targ) = GET_ALIGNMENT(orig);
     GET_REMORT_GEN(targ) = GET_REMORT_GEN(orig);
 
-
 	GET_LEVEL(targ) = GET_LEVEL(orig);
 	targ->points.hitroll = orig->points.hitroll;
 	targ->points.armor = orig->points.armor;
@@ -2056,11 +2050,11 @@ void set_move_buffer(struct Creature *ch)
     if (GET_RACE(ch) == RACE_GRIFFIN) {
         if (MOB_SHARED(ch)->move_buf)
             free(MOB_SHARED(ch)->move_buf);
-        MOB_SHARED(ch)->move_buf = strdup("treads"); 
+        MOB_SHARED(ch)->move_buf = strdup("treads");
     }
     if (GET_RACE(ch) == RACE_ROTARIAN) {
         if (MOB_SHARED(ch)->move_buf)
             free(MOB_SHARED(ch)->move_buf);
-        MOB_SHARED(ch)->move_buf = strdup("lumbers"); 
+        MOB_SHARED(ch)->move_buf = strdup("lumbers");
     }
 }

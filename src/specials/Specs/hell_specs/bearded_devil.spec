@@ -14,9 +14,9 @@ SPECIAL(bearded_devil)
 	if (!number(0, 3)) {
         Creature *vict = ch->findRandomCombat();
 		act("$n thrusts $s wirelike beard at you!",
-			FALSE, ch, 0, vict, TO_VICT);
+			false, ch, 0, vict, TO_VICT);
 		act("$n thrusts $s wirelike beard at $N!",
-			FALSE, ch, 0, vict, TO_NOTVICT);
+			false, ch, 0, vict, TO_NOTVICT);
 		if (GET_DEX(vict) > number(0, 25))
 			damage(ch, vict, 0, TYPE_RIP, WEAR_FACE);
 		else

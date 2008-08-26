@@ -7,7 +7,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 #define IS_PAPER_TYPE(obj)     (obj->obj_flags.material >= MAT_PAPER && \
 				obj->obj_flags.material < MAT_CLOTH)
 #define IS_CLOTH_TYPE(obj)     (obj->obj_flags.material >= MAT_CLOTH && \
@@ -109,7 +108,6 @@
 #define MAT_MEAT_RAW      54
 #define MAT_CHEESE        55
 #define MAT_EGG           56
-
 
 #define MAT_VEGETABLE     60
 #define MAT_LEAF          61

@@ -34,7 +34,7 @@ SPECIAL(labyrinth_portal)
 	}
 
 	// No equip
-	for (idx = 0; idx < NUM_WEARS;idx++) 
+	for (idx = 0; idx < NUM_WEARS;idx++)
 		if (GET_EQ(ch, idx)) {
 			send_to_char(ch, "The portal of the labyrinth repulses you.\r\n");
 			return 1;
@@ -50,7 +50,7 @@ SPECIAL(labyrinth_portal)
 	act("$n steps into $p", true, ch, portal, 0, TO_ROOM);
 	if (!IS_NPC(ch) && ch->in_room->zone != room->zone)
 		room->zone->enter_count++;
-	
+
 	char_from_room(ch);
 	char_to_room(ch, room);
 	act("$n steps out of the portal.", true, ch, 0, 0, TO_ROOM);

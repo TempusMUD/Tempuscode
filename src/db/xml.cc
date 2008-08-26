@@ -87,8 +87,6 @@ xml_boot(void)
 		slog("No xml files loaded");
 }
 
-
-
 void
 xml_reload( Creature *ch = NULL )
 {
@@ -101,7 +99,7 @@ xml_reload( Creature *ch = NULL )
 
     if( ch != NULL ) {
         mudlog( GET_INVIS_LVL(ch), NRM, false,
-                "%s Reloading XML data files.", 
+                "%s Reloading XML data files.",
                 GET_NAME(ch) );
     } else {
         slog("Reloading XML data files.");
@@ -163,7 +161,6 @@ xml_reload( Creature *ch = NULL )
         send_to_char( ch, msg );
     }
 }
-
 
 void
 load_xml_object(xmlNodePtr node)

@@ -16,7 +16,6 @@ static const int H_REGULATOR = 16907;
 static const int H_SPINED = 16900;
 static int freq = 80;
 
-
 class Devil {
   public:
 	Devil(xmlChar * name, int vnum) {
@@ -60,7 +59,6 @@ class Target {
 		return o_vnum > t.o_vnum;
 	} bool operator == (const Target & t)const { return o_vnum == t.o_vnum;
 }};
-
 
 class Hunter {
   public:

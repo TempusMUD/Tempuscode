@@ -8,7 +8,7 @@ using namespace std;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 // Undefine CHAR to avoid collisions
-#undef CHAR 
+#undef CHAR
 #include "xml_utils.h"
 // Tempus includes
 #include "structs.h"
@@ -28,27 +28,26 @@ using namespace std;
 namespace Security {
     /** The global container of Group objects. **/
     list<Group> groups;
-    
+
     char buf[MAX_STRING_LENGTH + 1];
-    
+
     void log( const char* msg, const char* name ) {
         slog("<SECURITY> %s : %s", msg, name);
     }
-    
+
     void log( const char* msg, const long id ) {
         slog("<SECURITY> %s : %ld", msg, id );
     }
-    
+
     void updateSecurity(command_info *command) {
 
-        list<Group>::iterator it = groups.begin(); 
+        list<Group>::iterator it = groups.begin();
         for( ; it != groups.end(); ++it ) {
             if( (*it).member( command ) )
                 return;
         }
         command->security &= ~(GROUP);
     }
-
 
     /* sets this group's description */
     void Group::setDescription(const char *desc) {
@@ -58,13 +57,13 @@ namespace Security {
     }
 
     // These membership checks should be binary searches.
-    bool Group::member( long player ) { 
-        return binary_search(members.begin(), members.end(), player); 
+    bool Group::member( long player ) {
+        return binary_search(members.begin(), members.end(), player);
     }
-    bool Group::member(  Creature *ch ) { 
-        return member(GET_IDNUM(ch)); 
+    bool Group::member(  Creature *ch ) {
+        return member(GET_IDNUM(ch));
     }
-    bool Group::member( const command_info *command ) { 
+    bool Group::member( const command_info *command ) {
         return binary_search( commands.begin(), commands.end(), command );
     }
     bool Group::givesAccess(  Creature *ch, const command_info *command ) {
@@ -138,7 +137,7 @@ namespace Security {
 
         // Remove the group bit from the command
         updateSecurity(command);
-        
+
         sort( commands.begin(), commands.end() );
         return true;
     }
@@ -146,7 +145,7 @@ namespace Security {
     /* Removes a member from this group by player name. Fails if not a member. */
     bool Group::removeMember( const char *name ) {
         long id = playerIndex.getID(name);
-        if( id < 0 ) 
+        if( id < 0 )
             return false;
         return removeMember(id);
     }
@@ -158,7 +157,7 @@ namespace Security {
         if( it == members.end() )
             return false;
         members.erase(it);
-        
+
         sort( members.begin(), members.end() );
         return true;
     }
@@ -166,9 +165,9 @@ namespace Security {
     /* Adds a member to this group by name. Fails if already added. */
     bool Group::addMember( const char *name ) {
         long id = playerIndex.getID(name);
-        if( id < 0 ) 
+        if( id < 0 )
             return false;
-            
+
         return addMember(id);
     }
 
@@ -177,21 +176,21 @@ namespace Security {
         if( member(player) )
             return true;
         members.push_back(player);
-        
+
         sort( members.begin(), members.end() );
         return true;
     }
-	
+
 	bool Group::sendPublicMember( Creature *ch, char* prefix ) {
 		if( members.size() == 0 )
 			return false;
 		const char* name = playerIndex.getName(members[0]);
-		if(!name) 
+		if(!name)
 			return false;
         acc_strcat(prefix, CCYEL_BLD(ch, C_NRM), name, CCNRM(ch, C_NRM), NULL);
 		return true;
 	}
-	
+
     /* Sends a list of this group's members to the given character. */
     bool Group::sendPublicMemberList( Creature *ch, const char *title, const char *adminGroup ) {
         vector<long>::iterator it;
@@ -206,7 +205,7 @@ namespace Security {
 		if( Security::isGroup(adminGroup) )
 			group = &( Security::getGroup(adminGroup) );
 
-		acc_sprintf("\r\n\r\n        %s%s%s\r\n", 
+		acc_sprintf("\r\n\r\n        %s%s%s\r\n",
 				CCYEL(ch,C_NRM), title, CCNRM(ch,C_NRM) );
 		acc_sprintf("    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
 
@@ -221,15 +220,15 @@ namespace Security {
 			admin = (group != NULL) && (group->member(*it));
 			if(! admin )
 				continue;
-            acc_sprintf("%s%-15s%s", 
-                        admin ? CCYEL_BLD(ch,C_NRM) : "", 
+            acc_sprintf("%s%-15s%s",
+                        admin ? CCYEL_BLD(ch,C_NRM) : "",
                         name,
                         admin ? CCNRM(ch,C_NRM) : "");
 			pos++;
             if (pos > 3 ) {
                 pos = 0;
                 acc_strcat("\r\n        ", NULL);
-            } 
+            }
         }
 
 		it = members.begin();
@@ -240,15 +239,15 @@ namespace Security {
 			admin = (group != NULL) && (group->member(*it));
 			if( admin )
 				continue;
-            acc_sprintf("%s%-15s%s", 
-                        admin ? CCYEL_BLD(ch,C_NRM) : "", 
+            acc_sprintf("%s%-15s%s",
+                        admin ? CCYEL_BLD(ch,C_NRM) : "",
                         name,
                         admin ? CCNRM(ch,C_NRM) : "");
 			pos++;
             if (pos > 3 ) {
                 pos = 0;
                 acc_strcat("\r\n        ", NULL);
-            } 
+            }
         }
         return true;
     }
@@ -260,19 +259,19 @@ namespace Security {
         send_to_char(ch, "Members:\r\n");
         for( ; it != members.end(); ++it ) {
             send_to_char(ch,
-                    "%s[%s%6ld%s] %s%-15s%s", 
+                    "%s[%s%6ld%s] %s%-15s%s",
                     CCCYN(ch,C_NRM),
                     CCNRM(ch,C_NRM),
-                    *it, 
+                    *it,
                     CCCYN(ch,C_NRM),
-                    CCGRN(ch,C_NRM), 
-                    playerIndex.getName(*it), 
-                    CCNRM(ch,C_NRM) 
+                    CCGRN(ch,C_NRM),
+                    playerIndex.getName(*it),
+                    CCNRM(ch,C_NRM)
                     );
             if( pos++ % 3 == 0 ) {
                 pos = 1;
                 send_to_char(ch, "\r\n");
-            } 
+            }
         }
         if( pos != 1 )
             send_to_char(ch, "\r\n");
@@ -290,7 +289,7 @@ namespace Security {
                     "%s[%s%4d%s] %s%-15s",
                     CCCYN(ch,C_NRM),
                     CCNRM(ch,C_NRM),
-                    i, 
+                    i,
                     CCCYN(ch,C_NRM),
                     CCGRN(ch,C_NRM),
                     (*it)->command);
@@ -304,7 +303,7 @@ namespace Security {
         send_to_char(ch, CCNRM(ch,C_NRM));
         return true;
     }
-    
+
     /*
      * Makes a copy of name
      */
@@ -369,8 +368,7 @@ namespace Security {
             node = node->next;
         }
     }
-    
-    
+
     /*
      * Assignment operator
      */
@@ -398,12 +396,12 @@ namespace Security {
      */
     bool Group::save( xmlNodePtr parent ) {
         xmlNodePtr node = NULL;
-        
+
         parent = xmlNewChild( parent, NULL, (const xmlChar *)"Group", NULL );
-        xmlSetProp( parent , "Name", _name ); 
-        xmlSetProp( parent , "Description", _description ); 
-        xmlSetProp( parent , "Admin", _adminGroup ); 
-       
+        xmlSetProp( parent , "Name", _name );
+        xmlSetProp( parent , "Description", _description );
+        xmlSetProp( parent , "Admin", _adminGroup );
+
         vector<command_info*>::iterator cit = commands.begin();
         for( ; cit != commands.end(); ++cit ) {
             node = xmlNewChild( parent, NULL, (const xmlChar *)"Command", NULL );
@@ -431,7 +429,6 @@ namespace Security {
         members.erase( members.begin(), members.end() );
     }
 
-
     /*
      *
      */
@@ -441,15 +438,15 @@ namespace Security {
         }
         members.erase( members.begin(), members.end() );
 
-        if( _description != NULL ) 
+        if( _description != NULL )
             free(_description);
         _description = NULL;
 
-        if( _name != NULL ) 
+        if( _name != NULL )
             free(_name);
         _name = NULL;
 
-        if( _adminGroup != NULL ) 
+        if( _adminGroup != NULL )
             free(_adminGroup);
         _adminGroup = NULL;
     }

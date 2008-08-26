@@ -131,14 +131,14 @@ tally_obj_rent(obj_data *obj, const char *currency_str, char *display)
 				count++;
 			}
 		}
-		
+
 		if (cur_obj->contains)
 			cur_obj = cur_obj->contains;	// descend into obj
 		else if (!cur_obj->next_content && cur_obj->in_obj)
 			cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
 		else
 			cur_obj = cur_obj->next_content; // go to next obj
-	}	
+	}
 	if (last_obj && display)
 		append_obj_rent(display, currency_str, count, last_obj);
 
@@ -154,7 +154,7 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
 	long total_cost = 0;
     float f_factor = factor;
 	long level_adj;
-    
+
     if (real_room(GET_LOADROOM(ch)) || ch->in_room) {
         struct room_data *room = NULL;
         if (ch->in_room)
@@ -163,14 +163,14 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
             room = real_room(GET_LOADROOM(ch));
         CreatureList::iterator cit = room->people.begin();
         for ( ; cit != room->people.end(); ++cit) {
-            if (GET_MOB_SPEC((*cit)) == cryogenicist || 
+            if (GET_MOB_SPEC((*cit)) == cryogenicist ||
             GET_MOB_SPEC((*cit)) == receptionist) {
                 f_factor += (f_factor*ch->getCostModifier((*cit)))/100;
                 break;
             }
         }
     }
-    
+
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return 0;
 
@@ -196,7 +196,7 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display)
 				"        x%.2f for services\r\n", f_factor);
 		sprintf(display + strlen(display),
 			"-------------------------------------------\r\n");
-		sprintf(display + strlen(display),	
+		sprintf(display + strlen(display),
 		"%10ld %s TOTAL\r\n", total_cost, currency_str);
 	}
 
@@ -238,7 +238,7 @@ offer_rent(struct Creature *ch, struct Creature *receptionist,
 	} else {
 		cost_per_day = calc_daily_rent(ch, factor, curr, NULL);
 	}
-	
+
 	return cost_per_day;
 }
 
@@ -337,7 +337,6 @@ gen_receptionist(struct Creature *ch, struct Creature *recep,
 	return true;
 }
 
-
 SPECIAL(receptionist)
 {
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
@@ -345,7 +344,6 @@ SPECIAL(receptionist)
 	return (gen_receptionist(ch, (struct Creature *)me, cmd, argument,
 			RENT_FACTOR));
 }
-
 
 SPECIAL(cryogenicist)
 {

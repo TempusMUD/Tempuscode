@@ -2,7 +2,6 @@
 #include "config.h"
 #endif
 
-
 #include "actions.h"
 #include "db.h"
 #include "comm.h"
@@ -54,13 +53,12 @@ static unsigned long
 tattooist_get_value(obj_data *obj, int percent, int costModifier)
 {
 	unsigned long cost;
-    
+
 	cost = GET_OBJ_COST(obj) * percent / 100;
     cost += (costModifier*(int)cost)/100;
-    
+
 	return cost;
 }
-
 
 static void
 tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
@@ -127,7 +125,7 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
         perform_tell(self, ch, "You already have a tattoo inscribed there.");
         return;
     }
-        
+
     for (int idx = 0;idx < NUM_WEARS;idx++) {
         if (GET_TATTOO(ch, idx) &&
             GET_OBJ_VNUM(GET_TATTOO(ch, idx)) == GET_OBJ_VNUM(obj)) {
@@ -140,25 +138,25 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
     cost = tattooist_get_value(obj, shop->markup, ch->getCostModifier(self));
 	switch (shop->currency) {
-	case 0:	
+	case 0:
 		amt_carried = GET_GOLD(ch); break;
-	case 1:	
+	case 1:
 		amt_carried = GET_CASH(ch); break;
-	case 2:	
+	case 2:
 		amt_carried = ch->account->get_quest_points(); break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		amt_carried = 0;
 		break;
 	}
-	
+
 	if (cost > amt_carried) {
 		perform_say_to(self, ch, shop->msg_buyerbroke);
 		if (shop->cmd_temper)
 			command_interpreter(self, tmp_strdup(shop->cmd_temper));
 		return;
 	}
-	
+
 	switch (shop->currency) {
 	case 0:
 		GET_GOLD(ch) -= cost;
@@ -206,7 +204,7 @@ tattooist_list_obj(Creature *ch, obj_data *obj, int idx, int cost)
 
 	obj_desc = obj->name;
 	if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN)) {
-		if (IS_OBJ_STAT(obj, ITEM_BLESS))	
+		if (IS_OBJ_STAT(obj, ITEM_BLESS))
 			obj_desc = tmp_strcat(obj_desc, " (holy aura)");
 		if (IS_OBJ_STAT(obj, ITEM_DAMNED))
 			obj_desc = tmp_strcat(obj_desc, " (unholy aura)");
@@ -224,7 +222,7 @@ tattooist_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	int idx, cnt;
 	const char *msg;
     unsigned long cost;
-    
+
 	if (!self->carrying) {
 		perform_say_to(self, ch, "I'm out of stock at the moment.");
 		return;
@@ -295,7 +293,7 @@ SPECIAL(tattooist)
 	}
 
 	if (spec_mode != SPECIAL_CMD)
-		return 0;	
+		return 0;
 
 	if (!(CMD_IS("buy") || CMD_IS("list") || CMD_IS("steal")))
 		return 0;
@@ -325,7 +323,7 @@ SPECIAL(tattooist)
                     0, SCMD_SHOUT, 0);
 		return true;
 	}
-	
+
 	if (!can_see_creature(self, ch)) {
 		perform_say(self, "yell", "Show yourself if you want to do business with me!");
 		return true;

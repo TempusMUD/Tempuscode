@@ -14,7 +14,7 @@ SPECIAL(weaponsmaster)
 	int pos, cost, i, char_class, check_only = 0;
 
 	if (spec_mode != SPECIAL_CMD)
-		return FALSE;
+		return false;
 
 	if (IS_NPC(ch))
 		return 0;
@@ -31,7 +31,7 @@ SPECIAL(weaponsmaster)
 	}
 	for (pos = 0; pos < NUM_WEARS && !weap; pos++) {
 		weap = GET_EQ(ch, pos);
-		if (weap && 
+		if (weap &&
             (GET_OBJ_TYPE(weap) == ITEM_WEAPON || GET_OBJ_TYPE(weap) == ITEM_ENERGY_GUN)
             && isname(argument, weap->aliases))
 			break;
@@ -88,7 +88,7 @@ SPECIAL(weaponsmaster)
 
 	cost = (weap_spec.level + 1) * 300000;
     cost += (cost*ch->getCostModifier(master))/100;
-    
+
 	send_to_char(ch,
 		"It will cost you %d gold coin%s to train your specialization with %s to level %d.\r\n%s",
 		cost, cost == 1 ? "" : "s", weap->name,
@@ -101,9 +101,9 @@ SPECIAL(weaponsmaster)
 	GET_GOLD(ch) -= cost;
 	weap_spec.vnum = GET_OBJ_VNUM(weap);
 	weap_spec.level++;
-	act("You improve your fighting aptitude with $p.", FALSE, ch, weap, 0,
+	act("You improve your fighting aptitude with $p.", false, ch, weap, 0,
 		TO_CHAR);
-	act("$n improves $s fighting aptitude with $p.", FALSE, ch, weap, 0,
+	act("$n improves $s fighting aptitude with $p.", false, ch, weap, 0,
 		TO_ROOM);
 	ch->saveToXML();
 	return 1;

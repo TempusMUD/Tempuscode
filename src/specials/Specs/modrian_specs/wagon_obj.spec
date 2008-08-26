@@ -49,13 +49,13 @@ SPECIAL(wagon_obj)
 		}
 
 		send_to_char(ch, "You deftly leap aboard the wagon.\r\n\r\n");
-		act("$n deftly leaps aboard the wagon.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n deftly leaps aboard the wagon.", true, ch, 0, 0, TO_ROOM);
 
 		char_from_room(ch, false);
 		char_to_room(ch, wagon_room, false);
 		look_at_room(ch, ch->in_room, 1);
 
-		act("$n climbs onto the wagon.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n climbs onto the wagon.", true, ch, 0, 0, TO_ROOM);
 		return true;
 	}
 

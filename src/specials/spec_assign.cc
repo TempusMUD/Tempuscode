@@ -318,7 +318,6 @@ find_spec_index_arg(char *arg)
 		}
 	}
 
-
 	return (-1);
 }
 
@@ -457,7 +456,7 @@ do_show_specials(struct Creature *ch, char *arg)
 
 //
 // do_special -- a utility command
-//  
+//
 
 ACMD(do_special)
 {
@@ -507,7 +506,6 @@ assign_mobiles(void)
 	char *ptr_name, *str;
 	struct Creature *mob = NULL;
 
-
 	file = fopen(SPEC_FILE_MOB, "r");
 	if (!file) {
 		slog("Fatal error opening mob spec file: %s", strerror(errno));
@@ -517,7 +515,7 @@ assign_mobiles(void)
 	while (!feof(file) && !ferror(file)) {
 		if (!get_line(file, buf))
 			break;
-		
+
 		// eliminate comments
 		str = strstr(buf, "##");
 		if (str) {
@@ -551,7 +549,7 @@ assign_mobiles(void)
 			slog("Attempt to assign ptr <%s> to a mobile.", ptr_name);
 		else
 			mob->mob_specials.shared->func = spec_list[index].func;
-		
+
 	}
 	fclose(file);
 }
@@ -568,7 +566,6 @@ assign_objects(void)
 	int vnum, index;
 	char *str, *ptr_name;
 	struct obj_data *obj = NULL;
-
 
 	if (!(file = fopen(SPEC_FILE_OBJ, "r"))) {
 		slog("Fatal error opening obj spec file.");
@@ -610,7 +607,6 @@ assign_objects(void)
 	}
 	fclose(file);
 }
-
 
 //
 // assign_rooms

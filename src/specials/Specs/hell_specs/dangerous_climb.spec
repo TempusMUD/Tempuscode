@@ -14,7 +14,7 @@ SPECIAL(dangerous_climb)
 		ch->getPosition() < POS_FLYING && number(5, 25) > GET_DEX(ch) &&
 		EXIT(ch, DOWN) && (toroom = EXIT(ch, DOWN)->to_room)) {
 		act("A rock shifts and $n goes crashing down the steep path!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 		send_to_char(ch,
 			"A rock shifts under your feet sending you tumbling down the path!\r\n"
 			"Your body crashes painfully against the rocks below!!\r\n");
@@ -27,7 +27,7 @@ SPECIAL(dangerous_climb)
 		char_to_room(ch, toroom, false);
 		look_at_room(ch, ch->in_room, 0);
 		act("$n comes crashing down the rocks from above!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 		return 1;
 	}
 	return 0;

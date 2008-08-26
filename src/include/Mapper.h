@@ -47,8 +47,6 @@ class MapPixel {
 	bool mapped;
 };
 
-
-
 class Mapper {
   public:
 	Mapper(Creature * ch, int rows, int columns);

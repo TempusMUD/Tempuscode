@@ -54,7 +54,7 @@ SPECIAL(boulder_thrower)
 		// object found, throw it
 		if (obj) {
 
-			char *str = tmp_sprintf("%s %s", 
+			char *str = tmp_sprintf("%s %s",
                                     fname(obj->aliases),
                                     fname(vict->player.name) );
 			do_throw(ch, str, 0, 0, 0);
@@ -76,7 +76,7 @@ SPECIAL(boulder_thrower)
 		if (THROW_OK(obj) &&
 			obj->getWeight() < (CAN_CARRY_W(ch) -
 				IS_CARRYING_W(ch) - IS_WEARING_W(ch))) {
-			act("$n picks up $p.", TRUE, ch, obj, 0, TO_ROOM);
+			act("$n picks up $p.", true, ch, obj, 0, TO_ROOM);
 			obj_from_room(obj);
 			obj_to_char(obj, ch);
 			return 1;

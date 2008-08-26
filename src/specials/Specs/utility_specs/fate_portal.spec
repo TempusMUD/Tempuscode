@@ -4,7 +4,6 @@
 // Copyright 1999 by John Watson & John Rothe, all rights reserved.
 //
 
-
 SPECIAL(fate_portal)
 {
 	struct obj_data *portal = (struct obj_data *)me;
@@ -30,7 +29,7 @@ SPECIAL(fate_portal)
 			return 0;
 		}
 	}
-	act("$n is repulsed by $p.", FALSE, ch, portal, 0, TO_ROOM);
-	act("You are repulsed by $p.", FALSE, ch, portal, 0, TO_CHAR);
+	act("$n is repulsed by $p.", false, ch, portal, 0, TO_ROOM);
+	act("You are repulsed by $p.", false, ch, portal, 0, TO_CHAR);
 	return 1;
 }

@@ -25,13 +25,13 @@ SPECIAL(vein)
 
 	if (!pick) {
 		act("You don't have a pick! how do you think to mine with out one?",
-			TRUE, ch, 0, 0, TO_CHAR);
+			true, ch, 0, 0, TO_CHAR);
 		return true;
 	}
 
 	if (number(0, GET_OBJ_VAL(self, 1))) {
-		act("$n hits the vein with $p.", TRUE, ch, pick, 0, TO_ROOM);
-		act("You hit the vein knocking some rock lose.", TRUE, ch, 0, 0,
+		act("$n hits the vein with $p.", true, ch, pick, 0, TO_ROOM);
+		act("You hit the vein knocking some rock lose.", true, ch, 0, 0,
 			TO_CHAR);
 		return (1);
 	}
@@ -47,8 +47,8 @@ SPECIAL(vein)
 	}
 
 	act("$n hits the vein with $p, and breaks off $P.",
-		TRUE, ch, pick, new_obj, TO_ROOM);
-	act("You knock $P off $p.", TRUE, ch, self, new_obj, TO_CHAR);
+		true, ch, pick, new_obj, TO_ROOM);
+	act("You knock $P off $p.", true, ch, self, new_obj, TO_CHAR);
 
 	if (self->in_room)
 		obj_to_room(new_obj, self->in_room);

@@ -6,11 +6,11 @@
 
 // vsprintf into a temp str
 char *tmp_vsprintf(const char *fmt, va_list args)
-	__attribute__ ((format_arg (1))); 
+	__attribute__ ((format_arg (1)));
 
 // sprintf into a temp str
 char *tmp_sprintf(const char *fmt, ...)
-	__attribute__ ((format (printf, 1, 2))); 
+	__attribute__ ((format (printf, 1, 2)));
 
 // returns a temp str of length n filled with c
 char *tmp_pad(int c, size_t n);
@@ -41,7 +41,7 @@ inline char *tmp_getline(char **src)
 char *tmp_strcat(const char *src, ...)
     __attribute__((sentinel));
 
-// strcat into a temp str.  
+// strcat into a temp str.
 inline char *tmp_strcat(const char *src_a, const char *src_b)
 {
 	return tmp_strcat(src_a, src_b, NULL);

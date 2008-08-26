@@ -36,21 +36,21 @@ SPECIAL(watchdog)
 	if (vict) {
 		switch (number(0, 4)) {
 		case 0:
-			act("$n growls menacingly at $N.", FALSE, dog, 0, vict,
+			act("$n growls menacingly at $N.", false, dog, 0, vict,
 				TO_NOTVICT);
-			act("$n growls menacingly at you.", FALSE, dog, 0, vict, TO_VICT);
+			act("$n growls menacingly at you.", false, dog, 0, vict, TO_VICT);
 			break;
 		case 1:
-			act("$n barks loudly at $N.", FALSE, dog, 0, vict, TO_NOTVICT);
-			act("$n barks loudly at you.", FALSE, dog, 0, vict, TO_VICT);
+			act("$n barks loudly at $N.", false, dog, 0, vict, TO_NOTVICT);
+			act("$n barks loudly at you.", false, dog, 0, vict, TO_VICT);
 			break;
 		case 2:
-			act("$n growls at $N.", FALSE, dog, 0, vict, TO_NOTVICT);
-			act("$n growls at you.", FALSE, dog, 0, vict, TO_VICT);
+			act("$n growls at $N.", false, dog, 0, vict, TO_NOTVICT);
+			act("$n growls at you.", false, dog, 0, vict, TO_VICT);
 			break;
 		case 3:
-			act("$n snarls at $N.", FALSE, dog, 0, vict, TO_NOTVICT);
-			act("$n snarls at you.", FALSE, dog, 0, vict, TO_VICT);
+			act("$n snarls at $N.", false, dog, 0, vict, TO_NOTVICT);
+			act("$n snarls at you.", false, dog, 0, vict, TO_VICT);
 			break;
 		default:
 			break;

@@ -10,7 +10,7 @@ SPECIAL(newbie_portal_rm)
 	struct room_data *room = (struct room_data *)me;
 
 	if (CMD_IS("north") || CMD_IS("enter")) {
-		act("$n steps into the portal.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n steps into the portal.", false, ch, 0, 0, TO_ROOM);
 		char_from_room(ch, false);
 		if (IS_REMORT(ch)) {
 			char_to_room(ch, room, false);
@@ -36,7 +36,7 @@ SPECIAL(newbie_portal_rm)
 		}
 		look_at_room(ch, ch->in_room, 0);
 		act("$n has stepped through the portal into the arena.",
-			TRUE, ch, 0, 0, TO_ROOM);
+			true, ch, 0, 0, TO_ROOM);
 		return 1;
 	}
 	return 0;

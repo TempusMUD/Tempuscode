@@ -18,7 +18,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 #include <stdio.h>
 #include "defs.h"
 #include "creature.h"
@@ -115,23 +114,23 @@ long calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display
 
 #define ZONE_IDLE_TIME 5
 
-/** 
+/**
  * Returns a temporarily allocated char* containing the path to the given
  * player_id's mail file.
 **/
 char*get_mail_file_path( long id );
-/** 
+/**
  * Returns a temporarily allocated char* containing the path to the given
  * player_id's player file.
 **/
 char* get_player_file_path( long id );
-/** 
+/**
  * Returns a temporarily allocated char* containing the path to the given
  * player_id's equipment file.
 **/
 char* get_equipment_file_path( long id );
 
-/** 
+/**
  * Returns a temporarily allocated char* containing the path to the given
  * player_id's corpse file.
 **/
@@ -141,7 +140,7 @@ char* get_corpse_file_path( long id );
 struct reset_com {
 	char command;				/* current command                      */
 
-	int if_flag;				/* if TRUE: exe only if preceding exe'd */
+	int if_flag;				/* if true: exe only if preceding exe'd */
 	int arg1;					/*                                      */
 	int arg2;					/* Arguments to the command             */
 	int arg3;					/*                                      */
@@ -149,7 +148,7 @@ struct reset_com {
 	int prob;
 	struct reset_com *next;
 
-	/* 
+	/*
 	 *  Commands:              *
 	 *  'M': Read a mobile     *
 	 *  'O': Read an object    *
@@ -201,7 +200,6 @@ extern char *NOEFFECT;
 #define DYN_TEXT_BACKUP_DIR "text/dyn/text_backup"
 #define DYN_TEXT_CONTROL_DIR "text/dyn/control"
 
-
 typedef struct dynamic_edit_data {
 	long idnum;
 	time_t tEdit;
@@ -237,16 +235,15 @@ struct sql_query_data {
 
 // Executes a SQL command, returns true if successful
 bool sql_exec(const char *str, ...)
-	__attribute__ ((format (printf, 1, 2))); 
+	__attribute__ ((format (printf, 1, 2)));
 // Executes a SQL query.  Returns the result, which must be deallocated
 // with PQclear() after use
 PGresult *sql_query(const char *str, ...)
-	__attribute__ ((format (printf, 1, 2))); 
+	__attribute__ ((format (printf, 1, 2)));
 
 // Deallocates all SQL query result structures
 void sql_gc_queries(void);
 void update_unique_id(void);
-
 
 #ifndef __db_c__
 

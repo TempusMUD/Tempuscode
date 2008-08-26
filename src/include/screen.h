@@ -68,7 +68,6 @@
 #define KNRM_MAG  	"\x1B[0m\x1B[35m"
 #define KNRM_CYN  	"\x1B[0m\x1B[36m"
 
-
 /* conditional color.  pass it a pointer to a Creature and a color level. */
 #define C_OFF	0
 #define C_SPR	1

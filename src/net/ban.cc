@@ -110,7 +110,7 @@ load_banned(void)
         if (xmlMatches(node->name, "banned"))
             load_banned_entry(node);
     }
-    
+
     xmlFreeDoc(doc);
 }
 
@@ -159,7 +159,6 @@ write_ban_list(void)
 	fclose(fl);
 	return;
 }
-
 
 void
 perform_ban(int flag, const char *site, const char *name, const char *reason)
@@ -223,7 +222,7 @@ ACMD(do_ban)
     std::list<ban_entry>::iterator node = ban_list.begin();
     for (;node != ban_list.end();++node) {
 		if (!strcasecmp(node->_site, site)) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"That site has already been banned -- unban it to change the ban type.\r\n");
 			return;
 		}
@@ -245,7 +244,6 @@ ACMD(do_ban)
 		ban_types[type]);
 	send_to_char(ch, "Site banned.\r\n");
 }
-
 
 ACMD(do_unban)
 {
@@ -274,7 +272,6 @@ ACMD(do_unban)
 
 	write_ban_list();
 }
-
 
 /**************************************************************************
  *  Code to check for invalid names (i.e., profanity, etc.)                  *
@@ -365,7 +362,6 @@ Nasty_Words(const char *words)
 
 	return false;
 }
-
 
 void
 Read_Invalid_List(void)

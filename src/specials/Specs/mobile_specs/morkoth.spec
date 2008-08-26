@@ -18,9 +18,9 @@ SPECIAL(morkoth)
 
 	if (CMD_IS("down")) {
 		act("$n prevents you from going down the tunnel.",
-			FALSE, morkoth, 0, ch, TO_VICT);
+			false, morkoth, 0, ch, TO_VICT);
 		act("$n prevents $N from going down the tunnel.",
-			FALSE, morkoth, 0, ch, TO_NOTVICT);
+			false, morkoth, 0, ch, TO_NOTVICT);
 		return 1;
 	}
 

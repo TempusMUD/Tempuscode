@@ -21,7 +21,7 @@ SPECIAL(rust_monster)
 
 			if (IS_MAT(obj, MAT_RUST)) {
 
-				act("$n hungrily devours $p.", TRUE, ch, obj, 0, TO_ROOM);
+				act("$n hungrily devours $p.", true, ch, obj, 0, TO_ROOM);
 				extract_obj(obj);
 				GET_HIT(ch) = MAX(GET_MAX_HIT(ch), GET_HIT(ch) + 10);
 				return 1;
@@ -29,12 +29,12 @@ SPECIAL(rust_monster)
 
 			if (IS_FERROUS(obj)) {
 
-				act("$n flays $p with $s antennae.", TRUE, ch, obj, 0,
+				act("$n flays $p with $s antennae.", true, ch, obj, 0,
 					TO_ROOM);
 				if ((!IS_OBJ_STAT(obj, ITEM_MAGIC | ITEM_MAGIC_NODISPEL)
 						|| mag_savingthrow(ch, 40, SAVING_ROD))) {
 
-					act("$p spontaneously oxidizes and crumbles into a pile of rust!", FALSE, ch, obj, 0, TO_ROOM);
+					act("$p spontaneously oxidizes and crumbles into a pile of rust!", false, ch, obj, 0, TO_ROOM);
 
 					extract_obj(obj);
 
@@ -51,7 +51,6 @@ SPECIAL(rust_monster)
 		return 0;
 	}
 
-
 	while (count < 35) {
 
 		i = number(2, NUM_WEARS - 2);
@@ -66,9 +65,9 @@ SPECIAL(rust_monster)
 			!IS_FERROUS(obj) || !number(0, 2))
 			continue;
 
-		act("$n flays $p with $s antennae.", TRUE, ch, obj, vict,
+		act("$n flays $p with $s antennae.", true, ch, obj, vict,
 			TO_VICT);
-		act("$n flays $N with $s antennae.", TRUE, ch, obj, vict,
+		act("$n flays $N with $s antennae.", true, ch, obj, vict,
 			TO_NOTVICT);
 
 		if ((!IS_OBJ_STAT(obj, ITEM_MAGIC) ||
@@ -77,7 +76,7 @@ SPECIAL(rust_monster)
 				mag_savingthrow(ch, 40, SAVING_ROD))) {
 
 			act("$p spontaneously oxidizes and crumbles into a pile of rust!",
-				FALSE, ch, obj, 0, TO_ROOM);
+				false, ch, obj, 0, TO_ROOM);
 
 			extract_obj(obj);
 

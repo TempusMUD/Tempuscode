@@ -21,9 +21,9 @@ SPECIAL(juju_zombie)
 		if (prob < number(20, 70))
 			return 0;
 
-		act("$n reaches out and touches you!  You feel paralyzed!", FALSE, ch,
+		act("$n reaches out and touches you!  You feel paralyzed!", false, ch,
 			0, vict, TO_VICT);
-		act("$n reaches out and paralyzes $N!", FALSE, ch, 0, vict,
+		act("$n reaches out and paralyzes $N!", false, ch, 0, vict,
 			TO_NOTVICT);
 		WAIT_STATE(vict, number(1, 3) * PULSE_VIOLENCE);
 		return 1;

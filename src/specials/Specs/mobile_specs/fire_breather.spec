@@ -8,11 +8,11 @@ SPECIAL(fire_breather)
 {
 
 	if (cmd)
-		return FALSE;
+		return false;
 	if (spec_mode != SPECIAL_TICK)
-		return FALSE;
+		return false;
 	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
-		return FALSE;
+		return false;
 
     Creature *vict = ch->findRandomCombat();
 	if (vict && (vict->in_room == ch->in_room) &&
@@ -22,7 +22,7 @@ SPECIAL(fire_breather)
 		else
 			damage(ch, vict, GET_LEVEL(ch) + number(8, 30),
 				SPELL_FIRE_BREATH, -1);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }

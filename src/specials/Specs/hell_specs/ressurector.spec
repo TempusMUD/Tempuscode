@@ -39,7 +39,7 @@ SPECIAL(hell_ressurector)
 		//
 
 		if (!IS_DEVIL(vict)) {
-			act("$n disintegrates $p in a flash of light!", FALSE, ch, corpse,
+			act("$n disintegrates $p in a flash of light!", false, ch, corpse,
 				NULL, TO_ROOM);
 			extract_obj(corpse);
 			GET_MANA(ch) =
@@ -77,7 +77,7 @@ SPECIAL(hell_ressurector)
 		// messages
 		//
 
-		act("$n slams $s hands together, accompanied by a deafening thunderclap!\n" " ... An aura of flame appears around $p...\n" " ... You watch in terror as $N slowly rises from the dead.", FALSE, ch, corpse, vict, TO_ROOM);
+		act("$n slams $s hands together, accompanied by a deafening thunderclap!\n" " ... An aura of flame appears around $p...\n" " ... You watch in terror as $N slowly rises from the dead.", false, ch, corpse, vict, TO_ROOM);
 
 		//
 		// get rid of the corpse
@@ -94,7 +94,5 @@ SPECIAL(hell_ressurector)
 
 	return 0;
 }
-
-
 
 #undef RESS_IS_DEVIL_VNUM

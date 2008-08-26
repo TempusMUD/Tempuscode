@@ -18,7 +18,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 /* preamble *************************************************************/
 
 #include <stdio.h>
@@ -55,7 +54,6 @@ struct extra_descr_data {
 	struct extra_descr_data *next;	/* Next in list                      */
 };
 
-
 /* This structure is purely intended to be an easy way to transfer */
 /* and return information about time (real or mudwise).            */
 struct time_info_data {
@@ -63,18 +61,15 @@ struct time_info_data {
 	short year;
 };
 
-
 /* ====================================================================== */
 
 /* other miscellaneous structures ***************************************/
-
 
 struct msg_type {
 	char *attacker_msg;			/* message to attacker */
 	char *victim_msg;			/* message to victim   */
 	char *room_msg;				/* message to room     */
 };
-
 
 struct message_type {
 	struct msg_type die_msg;	/* messages when death                        */
@@ -83,7 +78,6 @@ struct message_type {
 	struct msg_type god_msg;	/* messages when hit on god                */
 	struct message_type *next;	/* to next messages of this kind.        */
 };
-
 
 struct message_list {
 	int a_type;					/* Attack type                                */

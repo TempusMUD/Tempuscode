@@ -71,5 +71,4 @@ room_data::countExits(void)
 	return result;
 }
 
-
 #undef __room_data_cc__

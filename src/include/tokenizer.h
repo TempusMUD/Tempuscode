@@ -28,7 +28,6 @@ class Tokenizer {
             }
         }
 
-
         /*
          * Frees the copy of the given input.
          */
@@ -95,7 +94,7 @@ class Tokenizer {
 			data = tmpData;
 			index = 0;
 		}
-        
+
         /*
          * Copies all remaining data into out
          */
@@ -106,7 +105,7 @@ class Tokenizer {
             index = length;
             return true;
         }
-		
+
 		void setDelimiter( char delim ) {
 			this->delim = delim;
 		}

@@ -17,9 +17,9 @@ SPECIAL(cyberfiend)
 	if (CMD_IS("enter") || CMD_IS("hop")) {
 
 		act("$n levels you with a terrible blow to the head!!",
-			FALSE, fiend, 0, ch, TO_VICT);
+			false, fiend, 0, ch, TO_VICT);
 		act("$n levels $N with a terrible blow to the head!!",
-			FALSE, fiend, 0, ch, TO_NOTVICT);
+			false, fiend, 0, ch, TO_NOTVICT);
 
 		ch->setPosition(POS_SITTING);
 		WAIT_STATE(ch, 4 RL_SEC);

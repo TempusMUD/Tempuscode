@@ -111,13 +111,12 @@ SPECIAL(underworld_goddess)
 	if (!cmd && styx) {
 		switch (number(0, 20)) {
 		case 0:
-			act("The Goddess of the Underworld kisses $n.", FALSE, styx, 0, 0,
+			act("The Goddess of the Underworld kisses $n.", false, styx, 0, 0,
 				TO_ROOM);
 			break;
 		}
 		return 1;
 	}
-
 
 	/* If styx is not with ME then he might be in the dungeon with that HARLET, */
 	/*   so, she might as well worship him TOO! */
@@ -139,11 +138,10 @@ SPECIAL(underworld_goddess)
 				if ((IS_MOB(vict)) && (GET_MOB_VNUM(vict) == STYX_PRIESTESS))
 					break;		/* breaks for loop! */
 
-
 			if (vict) {
 				act("The young priestess starts kissing $n all over his body!",
-					FALSE, styx, 0, 0, TO_ROOM);
-				return TRUE;
+					false, styx, 0, 0, TO_ROOM);
+				return true;
 			}
 		}
 	}
@@ -152,9 +150,9 @@ SPECIAL(underworld_goddess)
 
 	if (CMD_IS("say") && !strncasecmp(argument, " styx sent me", 13)) {
 		act("The Goddess of the Underworld starts stroking $n's inner thigh.",
-			FALSE, ch, 0, 0, TO_ROOM);
-		return TRUE;
+			false, ch, 0, 0, TO_ROOM);
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }

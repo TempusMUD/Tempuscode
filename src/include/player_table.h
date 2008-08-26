@@ -14,7 +14,7 @@ struct Creature;
  * name and the other by id.  Lookups are done via a binary search of the
  * appropriate vector.
 **/
-class PlayerTable 
+class PlayerTable
 {
     public:
         /** Creates a blank PlayerTable  **/
@@ -24,7 +24,7 @@ class PlayerTable
         bool exists( long id );
         /** Returns true if the given name is present in the player table. **/
         bool exists( const char* name );
-        
+
         /** returns the char's name or NULL if not found. **/
         const char *getName( long id );
         /** returns chars id or 0 if not found **/
@@ -40,13 +40,13 @@ class PlayerTable
 
         /** Retrieves the largest player id in the table **/
         long getTopIDNum();
-		
+
 		/** loads the named victim into the provided Creature **/
 		bool loadPlayer( const char* name, Creature *victim ) const;
 
 		/** loads the victim with the given id into the provided Creature **/
 		bool loadPlayer( const long id, Creature *victim ) const;
-	
+
 		/** Returns the number of id->name mappings in this player table. **/
 		size_t size() const;
 };

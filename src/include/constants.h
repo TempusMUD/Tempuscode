@@ -1,7 +1,6 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
-
 //
 // File: constants.h                      -- Part of TempusMUD
 //

@@ -13,7 +13,7 @@ SPECIAL(corpse_griller)
 	char arg[MAX_INPUT_LENGTH];
     int cost = GRILL_COST;
     cost += (cost*ch->getCostModifier(griller))/100;
-    
+
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!cmd || !CMD_IS("buy"))
@@ -76,7 +76,7 @@ SPECIAL(corpse_griller)
 	obj_to_char(steak, ch);
 	extract_obj(corpse);
 
-	act("You now have $p.", FALSE, ch, steak, 0, TO_CHAR);
-	act("$n now has $p.", FALSE, ch, steak, 0, TO_ROOM);
+	act("You now have $p.", false, ch, steak, 0, TO_CHAR);
+	act("$n now has $p.", false, ch, steak, 0, TO_ROOM);
 	return 1;
 }

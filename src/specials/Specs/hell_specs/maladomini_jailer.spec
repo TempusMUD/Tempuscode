@@ -33,22 +33,22 @@ SPECIAL(maladomini_jailer)
 
 		if (str_app[GET_STR(ch)].carry_w + number(100, 500) <
 			(GET_WEIGHT(vict) + IS_CARRYING_W(vict) + IS_WEARING_W(vict))) {
-			act("$n attempts to lift you and hurl you into the chasm to the west!", FALSE, ch, 0, vict, TO_VICT);
-			act("$n attempts to lift $N and hurl $M into the chasm to the west!", FALSE, ch, 0, vict, TO_NOTVICT);
+			act("$n attempts to lift you and hurl you into the chasm to the west!", false, ch, 0, vict, TO_VICT);
+			act("$n attempts to lift $N and hurl $M into the chasm to the west!", false, ch, 0, vict, TO_NOTVICT);
 			WAIT_STATE(ch, 2 RL_SEC);
 			return 1;
 		}
 
 		else {
 			act("** $n lifts you and hurls you into the chasm to the west! **",
-				FALSE, ch, 0, vict, TO_VICT);
-			act("$n lifts $N and hurls $M into the chasm to the west!", FALSE,
+				false, ch, 0, vict, TO_VICT);
+			act("$n lifts $N and hurls $M into the chasm to the west!", false,
 				ch, 0, vict, TO_NOTVICT);
 			WAIT_STATE(ch, 2 RL_SEC);
             ch->removeAllCombat();
 			char_from_room(vict, false);
 			char_to_room(vict, to_room, false);
-			act("$n is hurled in from the east!", FALSE, vict, 0, 0, TO_ROOM);
+			act("$n is hurled in from the east!", false, vict, 0, 0, TO_ROOM);
 			look_at_room(vict, to_room, 0);
 			WAIT_STATE(vict, 3 RL_SEC);
 			return 1;

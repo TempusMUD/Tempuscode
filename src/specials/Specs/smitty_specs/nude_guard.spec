@@ -21,7 +21,7 @@ SPECIAL(nude_guard)
 
 	if (found || ch->carrying) {
 		perform_tell(guard, ch, "You can't take a bath with your clothes on!");
-		act("$n blocks $N.", FALSE, guard, 0, ch, TO_NOTVICT);
+		act("$n blocks $N.", false, guard, 0, ch, TO_NOTVICT);
 		return 1;
 	}
 	return 0;

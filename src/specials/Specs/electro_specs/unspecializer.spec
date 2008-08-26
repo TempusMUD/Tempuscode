@@ -63,7 +63,7 @@ SPECIAL(unspecializer)
 	lp_cost = GET_WEAP_SPEC(ch, i).level;
 	cash_cost = GET_WEAP_SPEC(ch, i).level * 200000;
     cash_cost += (cash_cost*ch->getCostModifier(self))/100;
-    
+
 	msg =
 		tmp_sprintf
 		("The service of complete neural erasure of the weapon specialization of\r\n"
@@ -108,7 +108,7 @@ SPECIAL(unspecializer)
 		"with his left hand.  He lays his right hand on a large double bladed knife\r\n"
 		"switch on the side of your chair.\r\n\r\n"
 		"He grins at you and says, 'This won't hurt a bit.\r\n\r\n"
-		"You black out...\r\n\r\n", FALSE, self, 0, ch, TO_VICT);
+		"You black out...\r\n\r\n", false, self, 0, ch, TO_VICT);
 
 	act("$n straps $N into the chair at the center of the room.\r\n"
 		"$n proceeds to inhale heavily on an ether-laden rag, and then\r\n"
@@ -118,7 +118,7 @@ SPECIAL(unspecializer)
 		"$N twitches and writhes for a while, and finally, seemingly\r\n"
 		"prompted by some information on a glowing monitor,\r\n"
 		"$n turns the switch off and walks away.\r\n\r\n"
-		"$N lies on the chair motionless...\r\n\r\n", FALSE, self, 0, ch,
+		"$N lies on the chair motionless...\r\n\r\n", false, self, 0, ch,
 		TO_NOTVICT);
 
 	WAIT_STATE(ch, 10 RL_SEC);

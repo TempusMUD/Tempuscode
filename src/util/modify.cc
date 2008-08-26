@@ -59,7 +59,6 @@ extern char *handbook;
 extern char *policies;
 extern char *areas;
 
-
 void show_string(struct descriptor_data *d);
 extern struct descriptor_data *descriptor_list;
 
@@ -116,12 +115,11 @@ ACMD(do_skillset)
 		send_to_char(ch, NOPERSON);
 		return;
 	}
-	
+
 	perform_skillset(ch, vict, skill, atoi(val_str));
 }
 
 /* db stuff *********************************************** */
-
 
 /* One_Word is like one_argument, execpt that words in quotes "" are */
 /* regarded as ONE word                                              */
@@ -178,13 +176,13 @@ show_file(struct Creature *ch, const char *fname, int lines)
 		return;
 	}
 	file.seekg(0, ios::beg);
-    
+
     if (lines > 100) {
-        send_to_char(ch, 
+        send_to_char(ch,
             "If you want that many lines, you might as well read the whole thing.\r\n");
         return;
     }
-	
+
     char buff[2048];
     vector<string> oLines;
 
@@ -194,7 +192,7 @@ show_file(struct Creature *ch, const char *fname, int lines)
     } while (!file.eof());
 
     if (lines == 0)
-       lines = oLines.size() -1; 
+       lines = oLines.size() -1;
 
     acc_string_clear();
     vector<string>::reverse_iterator ri = oLines.rbegin();

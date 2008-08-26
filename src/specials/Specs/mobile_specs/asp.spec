@@ -7,7 +7,7 @@
 SPECIAL(asp)
 {
 	if (spec_mode != SPECIAL_TICK)
-		return FALSE;
+		return false;
 
 	if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) &&
 		(number(0, 57 - GET_LEVEL(ch)) == 0)) {
@@ -18,7 +18,7 @@ SPECIAL(asp)
 		call_magic(ch, FIGHTING(ch), 0, SPELL_POISON, GET_LEVEL(ch),
 			CAST_SPELL);
 
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }

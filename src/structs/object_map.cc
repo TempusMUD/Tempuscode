@@ -16,7 +16,7 @@ ObjectMap::~ObjectMap()
 bool ObjectMap::add(obj_data *obj)
 {
     int vnum = 0;
-    
+
     if (!obj || !obj->shared) {
         mudlog(LVL_GRGOD, NRM, true, "WARNING:  Attempt to add NULL object to ObjectMap");
         return false;
@@ -31,7 +31,7 @@ bool ObjectMap::add(obj_data *obj)
                "existing vnum [%d].", vnum);
         return false;
     }
-    
+
     (*this)[vnum] = obj;
 
     return true;

@@ -65,43 +65,43 @@ const char *flow_types[] = {
 };
 
 const char *char_flow_msg[NUM_FLOW_TYPES + 1][3] = {
-	{"$n flows %s.",			// Default       
+	{"$n flows %s.",			// Default
 			"$n flows in from %s.",
 		"You flow %s."},
-	{"$n is blown %s by the wind.",	// Winds         
+	{"$n is blown %s by the wind.",	// Winds
 			"$n blows in from %s.",
 		"The wind blows you %s."},
-	{"$n falls %s.",			// Falling       
+	{"$n falls %s.",			// Falling
 			"$n falls in from %s.",
 		"You fall %s."},
-	{"The current pulls $n %s.",	// River Surface 
+	{"The current pulls $n %s.",	// River Surface
 			"$n flows in from %s on the current.",
 		"The current pulls you %s."},
-	{"$n is sucked %s by the current!",	// Water Vortex  
+	{"$n is sucked %s by the current!",	// Water Vortex
 			"$n is sucked in from %s by the current.",
 		"You are sucked %s by the current!"},
-	{"The current pulls $n %s.",	// Underwater    
+	{"The current pulls $n %s.",	// Underwater
 			"$n flows in from %s on the current.",
 		"The current pulls you %s."},
-	{"$n spirals off %s through the conduit.",	// Astral Conduit 
+	{"$n spirals off %s through the conduit.",	// Astral Conduit
 			"$n spirals in from %s through the conduit.",
 		"You spiral %s through the conduit."},
-	{"$n moves off %s on the conveyor.",	// Conveyor Belt 
+	{"$n moves off %s on the conveyor.",	// Conveyor Belt
 			"$n moves in from %s on the conveyor.",
 		"The conveyor pulls you %s."},
-	{"$n is dragged %s by the lava flow.",	// Lava Flow     
+	{"$n is dragged %s by the lava flow.",	// Lava Flow
 			"$n moves in from %s with the lava flow.",
 		"The lava flow drags you relentlessly %s."},
-	{"The fiery current pulls $n %s.",	// River Surface 
+	{"The fiery current pulls $n %s.",	// River Surface
 			"$n flows in from %s on the fiery current.",
 		"The fiery current pulls you %s."},
-	{"$n is blown %s by the hot updraft.",	// Volcanic Winds 
+	{"$n is blown %s by the hot updraft.",	// Volcanic Winds
 			"$n is blown in from %s by the hot updraft.",
 		"The hot updraft blows you %swards."},
-	{"The rotating disc takes $n %sward.",	// Rotating Disc 
+	{"The rotating disc takes $n %sward.",	// Rotating Disc
 			"The rotating disc brings $n in from %s.",
 		"The rotating disc takes you %sward."},
-	{"$n moves %s along the escalator.",	// Escalator   
+	{"$n moves %s along the escalator.",	// Escalator
 			"$n comes into view from %s riding the escalator.",
 		"You ride the escalator %s."},
 	{"$n is dragged %s into the swamp.",	// Sinking Swamp
@@ -120,7 +120,6 @@ const char *char_flow_msg[NUM_FLOW_TYPES + 1][3] = {
 	{"$n is beaten %sward by the bloodthirsty mob!",	// Crowds
 			"A wild mob of spectators shoves $n in from %s",
 		"Your reluctance is overcome as the bloodthirsty mob shoves you %s!",},
-
 
 	{"\n", "\n", "\n"}		  /******* LEAVE THIS LINE LAST *********/
 };
@@ -287,11 +286,11 @@ flow_room(int pulse)
 					sprintf(buf,
 						char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1],
 						to_dirs[dir]);
-					act(buf, TRUE, vict, 0, 0, TO_ROOM);
+					act(buf, true, vict, 0, 0, TO_ROOM);
 					sprintf(buf,
 						char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TOCHAR],
 						to_dirs[dir]);
-					act(buf, FALSE, vict, 0, 0, TO_CHAR);
+					act(buf, false, vict, 0, 0, TO_CHAR);
 
 					char_from_room(vict);
 					char_to_room(vict, ABS_EXIT(rnum, dir)->to_room);
@@ -299,7 +298,7 @@ flow_room(int pulse)
 					sprintf(buf,
 						char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2],
 						from_dirs[dir]);
-					act(buf, TRUE, vict, 0, 0, TO_ROOM);
+					act(buf, true, vict, 0, 0, TO_ROOM);
 
 					if (ROOM_FLAGGED(vict->in_room, ROOM_DEATH)
 						&& GET_LEVEL(vict) < LVL_AMBASSADOR) {
@@ -343,19 +342,18 @@ flow_room(int pulse)
 					sprintf(buf,
 						obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1],
 						to_dirs[dir]);
-					act(buf, TRUE, 0, obj, 0, TO_ROOM);
+					act(buf, true, 0, obj, 0, TO_ROOM);
 					obj_from_room(obj);
 					obj_to_room(obj, ABS_EXIT(rnum, dir)->to_room);
 					sprintf(buf,
 						obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2],
 						from_dirs[dir]);
-					act(buf, TRUE, 0, obj, 0, TO_ROOM);
+					act(buf, true, 0, obj, 0, TO_ROOM);
 				}
 			}
 		}
 	}
 }
-
 
 void
 dynamic_object_pulse()
@@ -387,12 +385,12 @@ dynamic_object_pulse()
 			fall_to != obj->in_room &&
 			!IS_SET(obj->in_room->dir_option[DOWN]->exit_info, EX_CLOSED)) {
 			if (obj->in_room->people)
-				act("$p falls downward through the air!", TRUE, 0, obj, 0,
+				act("$p falls downward through the air!", true, 0, obj, 0,
 					TO_ROOM);
 			obj_from_room(obj);
 			obj_to_room(obj, fall_to);
 			if (obj->in_room->people)
-				act("$p falls in from above.", FALSE, 0, obj, 0, TO_ROOM);
+				act("$p falls in from above.", false, 0, obj, 0, TO_ROOM);
 			continue;
 		}
 
@@ -409,11 +407,11 @@ dynamic_object_pulse()
 				if (CUR_DRAGS(obj) <= 0) {
 					if (obj->worn_by || obj->carried_by)
 						act("$p burns itself out.",
-							TRUE,
+							true,
 							obj->worn_by ? obj->worn_by : obj->carried_by, obj,
 							0, TO_CHAR);
 					else if (obj->in_room && obj->in_room->people)
-						act("$p burns itself out.", TRUE, 0, obj, 0, TO_ROOM);
+						act("$p burns itself out.", true, 0, obj, 0, TO_ROOM);
 					extract_obj(obj);
 					continue;
 				}
@@ -432,7 +430,7 @@ dynamic_object_pulse()
 
 					if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
 						act("$p auto switching off: depleted of energy.",
-							FALSE, vict, obj, 0, TO_CHAR | TO_SLEEP);
+							false, vict, obj, 0, TO_CHAR | TO_SLEEP);
 					}
 				}
 				continue;
@@ -444,7 +442,7 @@ dynamic_object_pulse()
 					CUR_ENERGY(obj) = 0;
 					if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
 						act("$p auto switching off: depleted of energy.",
-							FALSE, vict, obj, 0, TO_CHAR | TO_SLEEP);
+							false, vict, obj, 0, TO_CHAR | TO_SLEEP);
 						if (obj->worn_by) {
                             apply_object_affects(obj->worn_by, obj, false);
                             ENGINE_STATE(obj) = 0;
@@ -534,7 +532,7 @@ affect_to_room(struct room_data *room, struct room_affect_data *aff)
 	tmp_aff->level = aff->level;
 	tmp_aff->type = aff->type;
     tmp_aff->owner = aff->owner;
-    tmp_aff->spell_type = aff->spell_type; 
+    tmp_aff->spell_type = aff->spell_type;
     for (int i = 0; i < 4; i++)
         tmp_aff->val[i] = aff->val[i];
 	room->affects = tmp_aff;

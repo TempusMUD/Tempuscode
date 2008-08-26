@@ -9,7 +9,7 @@ SPECIAL(medusa)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (ch->getPosition() != POS_FIGHTING)
-		return FALSE;
+		return false;
 
     Creature *vict = ch->findRandomCombat();
 	if (isname("medusa", ch->player.name) &&
@@ -21,10 +21,10 @@ SPECIAL(medusa)
 		call_magic(ch, vict, 0, NULL, SPELL_POISON, GET_LEVEL(ch),
 			CAST_SPELL);
 
-		return TRUE;
+		return true;
 	} else if (vict && !number(0, 4)) {
-		act("$n gazes into your eyes!", FALSE, ch, 0, vict, TO_VICT);
-		act("$n gazes into $N's eyes!", FALSE, ch, 0, vict,
+		act("$n gazes into your eyes!", false, ch, 0, vict, TO_VICT);
+		act("$n gazes into $N's eyes!", false, ch, 0, vict,
 			TO_NOTVICT);
 		call_magic(ch, vict, 0, NULL, SPELL_PETRIFY, GET_LEVEL(ch),
 			CAST_PETRI);
@@ -32,5 +32,5 @@ SPECIAL(medusa)
             ch->removeAllCombat();
 		return 1;
 	}
-	return FALSE;
+	return false;
 }

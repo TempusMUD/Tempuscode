@@ -12,8 +12,8 @@ PlayerTable playerIndex;
 /**
  *  Creates a blank PlayerTable
 **/
-PlayerTable::PlayerTable() 
-{ 
+PlayerTable::PlayerTable()
+{
 }
 
 long
@@ -32,7 +32,7 @@ PlayerTable::getTopIDNum()
 
 /** loads the named victim into the provided Creature **/
 bool
-PlayerTable::loadPlayer(const char* name, Creature *victim) const 
+PlayerTable::loadPlayer(const char* name, Creature *victim) const
 {
 	long id = getID(name);
 	return loadPlayer(id, victim);
@@ -40,7 +40,7 @@ PlayerTable::loadPlayer(const char* name, Creature *victim) const
 
 /** loads the victim with the given id into the provided Creature **/
 bool
-PlayerTable::loadPlayer(const long id, Creature *victim) const 
+PlayerTable::loadPlayer(const long id, Creature *victim) const
 {
 	if(id <= 0) {
 		return false;
@@ -48,12 +48,11 @@ PlayerTable::loadPlayer(const long id, Creature *victim) const
 	return victim->loadFromXML(id);
 }
 
-
 /**
  * Returns true if and only if the given id is present in the player table.
 **/
 bool
-PlayerTable::exists(long id) 
+PlayerTable::exists(long id)
 {
 	PGresult *res;
 	bool result;
@@ -69,7 +68,7 @@ PlayerTable::exists(long id)
 /**
  * Returns true if and only if the given name is present in the player table.
 **/
-bool PlayerTable::exists(const char* name) 
+bool PlayerTable::exists(const char* name)
 {
 	PGresult *res;
 	int result;
@@ -90,7 +89,7 @@ bool PlayerTable::exists(const char* name)
  * returns the char's name or NULL if not found.
 **/
 const char *
-PlayerTable::getName(long id) 
+PlayerTable::getName(long id)
 {
 	PGresult *res;
 	char *result;
@@ -111,7 +110,7 @@ PlayerTable::getName(long id)
  *
 **/
 long
-PlayerTable::getID(const char *name) const 
+PlayerTable::getID(const char *name) const
 {
 	PGresult *res;
 	long result;

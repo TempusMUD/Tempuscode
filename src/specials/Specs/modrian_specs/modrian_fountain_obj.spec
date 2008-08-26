@@ -19,11 +19,11 @@ SPECIAL(modrian_fountain_obj)
 		return 0;
 
 	if (isname(arg, fount->aliases)) {
-		act("$n leaps into $p.", FALSE, ch, fount, 0, TO_ROOM);
-		act("You leaps into $p.", FALSE, ch, fount, 0, TO_CHAR);
+		act("$n leaps into $p.", false, ch, fount, 0, TO_ROOM);
+		act("You leaps into $p.", false, ch, fount, 0, TO_CHAR);
 		char_from_room(ch, false);
 		char_to_room(ch, fountain_room, false);
-		act("$n leaps into $p, splashig water all over you.", FALSE, ch, fount,
+		act("$n leaps into $p, splashig water all over you.", false, ch, fount,
 			0, TO_ROOM);
 		look_at_room(ch, ch->in_room, 0);
 		return 1;

@@ -18,7 +18,7 @@ SPECIAL(lawyer)
 
     cost = GET_SEVERITY(ch) * 1000000;
     cost += (cost*ch->getCostModifier(lawy))/100;
-    
+
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);
 
@@ -75,7 +75,7 @@ SPECIAL(lawyer)
 				"That will cost you %d credits bucko..."
 				" which you don't have.\r\n", cost);
 
-			act("$n snickers.", FALSE, lawy, 0, 0, TO_ROOM);
+			act("$n snickers.", false, lawy, 0, 0, TO_ROOM);
 			return 1;
 		}
 

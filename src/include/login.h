@@ -7,7 +7,6 @@
 // Copyright 1998 John Watson, all rights reserved
 //
 
-
 void show_menu(struct descriptor_data *d);
 void show_pc_race_menu(struct descriptor_data *d);
 void show_race_restrict(struct descriptor_data *d, int timeframe = 0);

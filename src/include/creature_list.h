@@ -11,7 +11,7 @@ class CreatureList:public SafeList <Creature *> {
   public:
 	CreatureList(bool prepend = false)
 	:SafeList <Creature *>(prepend) {
-	} 
+	}
     ~CreatureList() {
 	}
 	inline operator bool() {
@@ -36,6 +36,5 @@ class CreatureList:public SafeList <Creature *> {
 extern CreatureList characterList;
 extern map<int, Creature *> characterMap;
 extern CreatureList combatList;
-
 
 #endif

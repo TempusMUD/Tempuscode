@@ -54,7 +54,7 @@ HelpItem::SetFlags(char *argument)
 	argument = one_argument(argument, arg1);
 	old_flags = cur_flags = flags;
 	while (*arg1) {
-		if ((flag = search_block(arg1, help_bits, FALSE)) == -1) {
+		if ((flag = search_block(arg1, help_bits, false)) == -1) {
 			send_to_char(editor, "Invalid flag %s, skipping...\r\n", arg1);
 		} else {
 			tmp_flags = tmp_flags | (1 << flag);
@@ -92,7 +92,7 @@ HelpItem::EditText(void)
 	start_editing_text(editor->desc, &text, MAX_HELP_TEXT_LENGTH);
 	SET_BIT(PLR_FLAGS(editor), PLR_OLC);
 
-	act("$n begins to edit a help file.\r\n", TRUE, editor, 0, 0, TO_ROOM);
+	act("$n begins to edit a help file.\r\n", true, editor, 0, 0, TO_ROOM);
 }
 
 // Sets the groups bitvector much like the
@@ -121,7 +121,7 @@ HelpItem::SetGroups(char *argument)
 	argument = one_argument(argument, arg1);
 	old_groups = cur_groups = groups;
 	while (*arg1) {
-		if ((flag = search_block(arg1, help_group_names, FALSE)) == -1) {
+		if ((flag = search_block(arg1, help_group_names, false)) == -1) {
 			send_to_char(editor, "Invalid group: %s, skipping...\r\n", arg1);
 		} else {
 			tmp_groups = tmp_groups | (1 << flag);
@@ -304,7 +304,7 @@ HelpItem::Edit(Creature * ch)
 			send_to_char(ch, "%s is already editing that item. Tough!\r\n",
 				GET_NAME(editor));
 		} else {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"I don't see how editing it _again_ will help any.\r\n");
 		}
 		return false;
@@ -358,12 +358,12 @@ HelpItem::LoadText()
 	int di;
 	if (text)
 		return true;
-	
+
 	text = new char[MAX_HELP_TEXT_LENGTH];
 	strcpy(text, "");
 
 	sprintf(fname, "%s/%04d.topic", Help_Directory, idnum);
-	
+
 	if( access(fname, F_OK) < 0 ) { // no file found. Likely just a new entry
 		return true;
 	}
@@ -392,7 +392,7 @@ HelpItem::LoadText()
 	return true;
 }
 
-// Show the entry. 
+// Show the entry.
 // buffer is output buffer.
 void
 HelpItem::Show(Creature * ch, char *buffer, int mode)
@@ -413,7 +413,7 @@ HelpItem::Show(Creature * ch, char *buffer, int mode)
                 name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                 groupbuf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), bitbuf);
 		break;
-	case 2:					// 2 == Entire Entry  
+	case 2:					// 2 == Entire Entry
 		if (!text)
 			LoadText();
 		strcpy(buffer, "");

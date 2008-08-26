@@ -24,7 +24,6 @@ SPECIAL(Aziz)
         }
     }
 
-
 	/* if I didn't pick any of those, then just slam the guy I'm fighting */
 	if (vict == NULL)
 		vict = ch->findRandomCombat();

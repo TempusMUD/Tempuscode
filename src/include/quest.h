@@ -50,7 +50,6 @@ using namespace std;
 #define QTYPE_HIDE_AND_SEEK 3
 #define QTYPE_ROLEPLAY      4
 
-
 /**
  * An entry representing a player in a quest and the flags set on him/her.
 **/
@@ -152,7 +151,7 @@ class Quest {
 		ubyte type;
 };
 
-// qcontrol subfunctions  
+// qcontrol subfunctions
 void do_qcontrol_show(Creature * ch, char *argument);
 void do_qcontrol_options(Creature *ch);
 void do_qcontrol_create(Creature *ch, char *argument, int com);

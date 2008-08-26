@@ -115,7 +115,7 @@ bool ObjectApplyMatcher::init( Creature *ch, Tokenizer &tokens ) {
 }
 bool ObjectApplyMatcher::isMatch( obj_data *obj ) {
     for (int k = 0; k < MAX_OBJ_AFFECT; k++) {
-        if (obj->affected[k].location == apply) 
+        if (obj->affected[k].location == apply)
             return isReady();
     }
     return false;
@@ -173,7 +173,7 @@ bool ObjectAffectMatcher::init( Creature *ch, Tokenizer &tokens ) {
             break;
         if( (!(index = 1) || (affect = search_block(arg, affected_bits_desc,  0)) < 0)
         &&  (!(index = 2) || (affect = search_block(arg, affected2_bits_desc, 0)) < 0)
-        &&  (!(index = 3) || (affect = search_block(arg, affected3_bits_desc, 0)) < 0)) 
+        &&  (!(index = 3) || (affect = search_block(arg, affected3_bits_desc, 0)) < 0))
         {
             send_to_char(ch, "There is no affect '%s'.\r\n", arg);
             return false;
@@ -221,8 +221,8 @@ bool ObjectCostMatcher::init( Creature *ch, Tokenizer &tokens ) {
 }
 
 bool ObjectCostMatcher::isMatch( obj_data *obj ) {
-    return isReady() && 
-           ( GET_OBJ_COST(obj) > costAbove && 
+    return isReady() &&
+           ( GET_OBJ_COST(obj) > costAbove &&
              GET_OBJ_COST(obj) < costBelow );
 }
 
@@ -233,7 +233,6 @@ ObjectCostMatcher::getAddedInfo( Creature *ch, obj_data *obj ) {
 		obj->shared->cost,
 		CCYEL(ch, C_NRM), CCNRM(ch,C_NRM) );
 }
-
 
 //
 // SPELL
@@ -250,7 +249,7 @@ bool ObjectSpellMatcher::init( Creature *ch, Tokenizer &tokens ) {
         if( arg[0] == '&' )
             break;
         if( spellName[0] != '\0' )
-            strncat( spellName, " ", 256 ); 
+            strncat( spellName, " ", 256 );
         strncat( spellName, arg, 256 );
     }
     if (is_number(spellName)) {
@@ -261,7 +260,7 @@ bool ObjectSpellMatcher::init( Creature *ch, Tokenizer &tokens ) {
     if (spell < 0 || spell > TOP_SPELL_DEFINE) {
         if( spellName[0] == '\'' ) {
             send_to_char(ch, "Thou shalt not quote thy spell name.\r\n");
-        } else { 
+        } else {
             send_to_char(ch, "What kinda spell is '%s'?\r\n",spellName);
         }
         return false;
@@ -270,10 +269,9 @@ bool ObjectSpellMatcher::init( Creature *ch, Tokenizer &tokens ) {
     return true;
 }
 
-
 bool ObjectSpellMatcher::isMatch( obj_data *obj ) {
     switch (GET_OBJ_TYPE(obj)) {
-        case ITEM_WAND:	// val 3 
+        case ITEM_WAND:	// val 3
         case ITEM_STAFF:	// val 3
             if (GET_OBJ_VAL(obj, 3) != spell)
                 return false;
@@ -301,12 +299,12 @@ bool ObjectSpellMatcher::isMatch( obj_data *obj ) {
 
 const char*
 ObjectSpellMatcher::getAddedInfo( Creature *ch, obj_data *obj ) {
-	const char *spell1 = "0"; 
+	const char *spell1 = "0";
 	const char *spell2 = "0";
 	const char *spell3 = "0";
 
 	switch (GET_OBJ_TYPE(obj)) {
-		case ITEM_WAND:	// val 3 
+		case ITEM_WAND:	// val 3
 		case ITEM_STAFF:	// val 3
 			spell1 = spell_to_str(GET_OBJ_VAL(obj, 3));
 			break;
@@ -360,7 +358,6 @@ bool ObjectWornMatcher::isMatch( obj_data *obj ) {
     return ( isReady() && CAN_WEAR(obj, 1 << worn) );
 }
 
-
 //
 // EXTRA
 //
@@ -392,7 +389,6 @@ bool ObjectExtraMatcher::init( Creature *ch, Tokenizer &tokens ) {
 	setReady(true);
 	return true;
 }
-
 
 bool ObjectExtraMatcher::addExtra( Creature *ch, char *arg ) {
     int i =  search_block(arg, extra_names, 0);
@@ -435,7 +431,6 @@ bool ObjectExtraMatcher::addNoExtra( Creature *ch, char *arg ) {
     send_to_char(ch, "There is no extra '%s'.\r\n", arg);
     return false;
 }
-
 
 bool ObjectExtraMatcher::isMatch( obj_data *obj ) {
 	if( extra != 0 && (GET_OBJ_EXTRA(obj) & extra) != extra ) {

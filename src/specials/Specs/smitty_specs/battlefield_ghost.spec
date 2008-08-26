@@ -27,22 +27,22 @@ SPECIAL(battlefield_ghost)
 		ch->in_room->zone->weather->sunlight == SUN_LIGHT) {
 		if (number(0, 2)) {
 			if (!number(0, 3))
-				act("$n looks to the sun with sorrow.", TRUE, ch, 0, 0,
+				act("$n looks to the sun with sorrow.", true, ch, 0, 0,
 					TO_ROOM);
 			else if (!number(0, 2))
-				act("$n seems to recoil from the sun.", TRUE, ch, 0, 0,
+				act("$n seems to recoil from the sun.", true, ch, 0, 0,
 					TO_ROOM);
 			else
 				act("$n begins to fade out of reality as the sun rises.",
-					TRUE, ch, 0, 0, TO_ROOM);
+					true, ch, 0, 0, TO_ROOM);
 			return 1;
 		}
 
 		act("$n lies down on the pile of bones and disappears!",
-			TRUE, ch, 0, 0, TO_ROOM);
+			true, ch, 0, 0, TO_ROOM);
 		char_from_room(ch);
 		char_to_room(ch, r_ghost_hole);
-		act("$n has disappeared into the netherworld.", FALSE, ch, 0, 0,
+		act("$n has disappeared into the netherworld.", false, ch, 0, 0,
 			TO_ROOM);
 		return 1;
 
@@ -63,11 +63,11 @@ SPECIAL(battlefield_ghost)
 			return 0;
 		}
 
-		act("$n seems to rise out of the pile of bones.", FALSE, ch, 0, 0,
+		act("$n seems to rise out of the pile of bones.", false, ch, 0, 0,
 			TO_ROOM);
 		char_from_room(ch);
 		char_to_room(ch, r_bones_room);
-		act("$n seems to rise out of the pile of bones.", FALSE, ch, 0, 0,
+		act("$n seems to rise out of the pile of bones.", false, ch, 0, 0,
 			TO_ROOM);
 		return 1;
 	} else

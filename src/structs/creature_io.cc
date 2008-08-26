@@ -24,8 +24,8 @@ void add_alias(struct Creature *ch, struct alias_data *a);
 void affect_to_char(struct Creature *ch, struct affected_type *af);
 void extract_object_list(obj_data * head);
 
-// Saves the given characters equipment to a file. Intended for use while 
-// the character is still in the game. 
+// Saves the given characters equipment to a file. Intended for use while
+// the character is still in the game.
 bool
 Creature::crashSave()
 {
@@ -147,7 +147,7 @@ Creature::payRent(time_t last_time, int code, int currency)
 	// If they still don't have enough, start selling stuff
 	if (cost > 0) {
 		obj_data *doomed_obj, *tmp_obj;
-		
+
 		while (cost > 0) {
 			doomed_obj = findCostliestObj();
 			if (!doomed_obj)
@@ -248,7 +248,7 @@ Creature::displayUnrentables(void)
 }
 
 bool
-Creature::saveObjects(void) 
+Creature::saveObjects(void)
 {
 	FILE *ouf;
 	char *path, *tmp_path;
@@ -280,7 +280,7 @@ Creature::saveObjects(void)
 	fprintf( ouf, "</objects>\n" );
 	fclose(ouf);
 
-    // on success, move the new object file onto the old one 
+    // on success, move the new object file onto the old one
     rename(tmp_path, path);
 
     return true;
@@ -317,7 +317,7 @@ Creature::loadObjects()
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
-			errlog("Unable to open xml equipment file '%s': %s", 
+			errlog("Unable to open xml equipment file '%s': %s",
 				 path, strerror(errno) );
 			return -1;
 		} else {
@@ -359,7 +359,7 @@ Creature::checkLoadCorpse()
     int axs = access(path, W_OK);
     struct stat file_stat;
     extern time_t boot_time;
-    
+
     if (axs != 0) {
         if (errno != ENOENT) {
             errlog("Unable to open xml corpse file '%s' : %s",
@@ -370,12 +370,12 @@ Creature::checkLoadCorpse()
             return false;
         }
     }
-    
+
     stat(path, &file_stat);
 
     if (file_stat.st_ctime < boot_time)
         return true;
-    
+
     return false;
 }
 
@@ -389,7 +389,7 @@ Creature::loadCorpse()
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
-			errlog("Unable to open xml corpse file '%s': %s", 
+			errlog("Unable to open xml corpse file '%s': %s",
 				 path, strerror(errno) );
 			return -1;
 		} else {
@@ -408,7 +408,7 @@ Creature::loadCorpse()
         errlog("XML file %s is empty", path);
         return 1;
     }
-    
+
     xmlNodePtr node = root->xmlChildrenNode;
     while (!xmlMatches(node->name, "object")) {
         node = node->next;
@@ -418,7 +418,7 @@ Creature::loadCorpse()
             return 1;
         }
     }
-    
+
     corpse_obj = create_obj();
     corpse_obj->shared = null_obj_shared;
     if (!corpse_obj->loadFromXML(NULL, this, NULL, node)) {
@@ -434,15 +434,15 @@ Creature::loadCorpse()
         errlog("First object in corpse file %s not a corpse", path);
         return 1;
     }
-    
+
     xmlFreeDoc(doc);
 
     remove(path);
-	return 0; 
+	return 0;
 }
 
 void
-Creature::saveToXML() 
+Creature::saveToXML()
 {
     void expire_old_grievances(Creature *);
 	// Save vital statistics
@@ -471,7 +471,6 @@ Creature::saveToXML()
 			path, strerror(errno) );
 		return;
 	}
-
 
 	// Remove all spell affects without deleting them
 	saved_affs = affected;
@@ -518,7 +517,7 @@ Creature::saveToXML()
 	fprintf(ouf, "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%d\" align=\"%d\"/>\n",
 		GET_LEVEL(ch), genders[(int)GET_SEX(ch)], player_race[(int)GET_RACE(ch)],
 		GET_HEIGHT(ch), GET_WEIGHT(ch), GET_ALIGNMENT(ch));
-	
+
 	fprintf(ouf, "<class name=\"%s\"", class_names[GET_CLASS(ch)]);
 	if( IS_REMORT(ch) ) {
 		fprintf(ouf, " remort=\"%s\" gen=\"%d\"",
@@ -534,7 +533,7 @@ Creature::saveToXML()
 			fprintf(ouf, " broken=\"%d\"", GET_BROKE(ch));
 	} else if (GET_CLASS(ch) == CLASS_MAGE &&
 			GET_SKILL(ch, SPELL_MANA_SHIELD) > 0) {
-		fprintf(ouf, " manash_low=\"%ld\" manash_pct=\"%ld\"",	
+		fprintf(ouf, " manash_low=\"%ld\" manash_pct=\"%ld\"",
 			ch->player_specials->saved.mana_shield_low,
 			ch->player_specials->saved.mana_shield_pct);
 	}
@@ -584,11 +583,11 @@ Creature::saveToXML()
 	if( GET_IMMORT_QP(ch) != 0 )
 		fprintf(ouf, " points=\"%d\"", GET_IMMORT_QP(ch));
 	fprintf(ouf, "/>\n");
-		
+
 	fprintf(ouf, "<bits flag1=\"%lx\" flag2=\"%x\"/>\n",
 		ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits);
 	if (PLR_FLAGGED(ch, PLR_FROZEN)) {
-        fprintf(ouf, "<frozen thaw_time=\"%d\" freezer_id=\"%d\"/>\n", 
+        fprintf(ouf, "<frozen thaw_time=\"%d\" freezer_id=\"%d\"/>\n",
                 ch->player_specials->thaw_time, ch->player_specials->freezer_id);
     }
 
@@ -625,14 +624,14 @@ Creature::saveToXML()
 		fprintf(ouf, "<description>%s</description>\n",  xmlEncodeTmp(tmp_gsub(tmp_gsub(ch->player.description, "\r\n", "\n"), "\r", "")));
 	}
 	for (cur_alias = ch->player_specials->aliases; cur_alias; cur_alias = cur_alias->next)
-		fprintf(ouf, "<alias type=\"%d\" alias=\"%s\" replace=\"%s\"/>\n", cur_alias->type, 
-                xmlEncodeSpecialTmp(cur_alias->alias), 
+		fprintf(ouf, "<alias type=\"%d\" alias=\"%s\" replace=\"%s\"/>\n", cur_alias->type,
+                xmlEncodeSpecialTmp(cur_alias->alias),
                 xmlEncodeSpecialTmp(cur_alias->replacement) );
 	for (cur_aff = saved_affs;cur_aff; cur_aff = cur_aff->next)
 		fprintf(ouf, "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" owner=\"%ld\"/>\n",
 			cur_aff->type, cur_aff->duration, cur_aff->modifier,
 			cur_aff->location, cur_aff->level,
-			(cur_aff->is_instant) ? "yes":"no", 
+			(cur_aff->is_instant) ? "yes":"no",
 			cur_aff->bitvector,
 			cur_aff->aff_index, cur_aff->owner );
 
@@ -691,7 +690,7 @@ Creature::saveToXML()
 	GET_MOVE(this) = MIN(GET_MAX_MOVE(ch), move);
 }
 
-bool 
+bool
 Creature::loadFromXML( long id )
 {
     return loadFromXML(get_player_file_path(id));
@@ -700,9 +699,9 @@ Creature::loadFromXML( long id )
 bool
 Creature::loadFromXML( const char *path )
 {
-	char *txt; 
+	char *txt;
 	int idx;
-    
+
 	if( access(path, W_OK) ) {
 		errlog("Unable to open xml player file '%s': %s", path, strerror(errno) );
 		return false;
@@ -720,14 +719,12 @@ Creature::loadFromXML( const char *path )
         return false;
     }
 
-
     /* to save memory, only PC's -- not MOB's -- have player_specials */
 	if (player_specials == NULL)
 		CREATE(player_specials, struct player_special_data, 1);
 
     player.name = xmlGetProp(root, "name");
     char_specials.saved.idnum = xmlGetIntProp(root, "idnum");
-    
 
 	player.short_descr = NULL;
 	player.long_descr = NULL;
@@ -761,17 +758,17 @@ Creature::loadFromXML( const char *path )
             player.height = xmlGetIntProp(node, "height");
             player.weight = xmlGetIntProp(node, "weight");
             GET_ALIGNMENT(this) = xmlGetIntProp(node, "align");
-            
+
             GET_SEX(this) = 0;
             char *sex = xmlGetProp(node, "sex");
             if( sex != NULL )
-                GET_SEX(this) = search_block(sex, genders, FALSE);
+                GET_SEX(this) = search_block(sex, genders, false);
 			free(sex);
 
             GET_RACE(this) = 0;
             char *race = xmlGetProp(node, "race");
             if( race != NULL )
-                GET_RACE(this) = search_block(race, player_race, FALSE);
+                GET_RACE(this) = search_block(race, player_race, false);
 			free(race);
 
         } else if ( xmlMatches(node->name, "class") ) {
@@ -779,22 +776,22 @@ Creature::loadFromXML( const char *path )
 
             char *trade = xmlGetProp(node, "name");
             if( trade != NULL ) {
-                GET_CLASS(this) = search_block(trade, class_names, FALSE);
+                GET_CLASS(this) = search_block(trade, class_names, false);
 				free(trade);
 			}
-			
+
             trade = xmlGetProp(node, "remort");
             if( trade != NULL ) {
-                GET_REMORT_CLASS(this) = search_block(trade, class_names, FALSE);
+                GET_REMORT_CLASS(this) = search_block(trade, class_names, false);
 				free(trade);
 			}
 
 			if( IS_CYBORG(this) ) {
 				char *subclass = xmlGetProp( node, "subclass" );
 				if( subclass != NULL ) {
-					GET_OLD_CLASS(this) = search_block( subclass, 
-														borg_subchar_class_names, 
-														FALSE);
+					GET_OLD_CLASS(this) = search_block( subclass,
+														borg_subchar_class_names,
+														false);
 					free(subclass);
 				}
 			}
@@ -883,7 +880,7 @@ Creature::loadFromXML( const char *path )
 			}
         } else if ( xmlMatches(node->name, "title") ) {
 			char *txt;
-			
+
 			txt = (char*)xmlNodeGetContent( node );
 			set_title(this, txt);
 			if (txt)
@@ -982,7 +979,7 @@ Creature::loadFromXML( const char *path )
 			player_specials->rent_currency = xmlGetIntProp(node, "currency");
 			txt = (char *)xmlGetProp(node, "state");
 			if (txt)
-                player_specials->desc_mode = (cxn_state)search_block(txt, desc_modes, FALSE);
+                player_specials->desc_mode = (cxn_state)search_block(txt, desc_modes, false);
             free(txt);
         } else if (xmlMatches(node->name, "recentkill")) {
             KillRecord kill;

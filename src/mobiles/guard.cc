@@ -2,7 +2,6 @@
 #include "config.h"
 #endif
 
-
 #include "actions.h"
 #include "db.h"
 #include "comm.h"
@@ -26,7 +25,6 @@ SPECIAL(guard)
 	bool attack = false, fallible = false, callsforhelp = false;
 	const char *err = NULL;
 	long room_num = -1;
-
 
 	// we only handle ticks if we're fighting, and commands only if they're
 	// movement commands
@@ -115,7 +113,7 @@ SPECIAL(guard)
 	// If we're a fallible guard, check to see if they can get past us
 	if (fallible && check_sneak(ch, self, true, true) == SNEAK_OK)
 		return false;
-	
+
 	// Guards must be at least standing to be able to block people
 	if (self->getPosition() <= POS_SITTING)
 		return false;
@@ -125,8 +123,8 @@ SPECIAL(guard)
 		return false;
 
 	// Set to deny if undecided
-	act(to_vict, FALSE, self, 0, ch, TO_VICT);
-	act(to_room, FALSE, self, 0, ch, TO_NOTVICT);
+	act(to_vict, false, self, 0, ch, TO_VICT);
+	act(to_room, false, self, 0, ch, TO_NOTVICT);
 	if (!err
 			&& attack
 			&& !self->isFighting()

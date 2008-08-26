@@ -16,12 +16,12 @@ SPECIAL(tiamat)
 		return 0;
 	if (GET_HIT(ch) < 200 && ch->in_room != lair && lair != NULL) {
 		act("$n vanishes in a prismatic blast of light!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
         ch->removeAllCombat();
 		char_from_room(ch);
 		char_to_room(ch, lair, false);
 		act("$n appears in a prismatic blast of light!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 		return 1;
 	}
 	switch (number(0, 4)) {

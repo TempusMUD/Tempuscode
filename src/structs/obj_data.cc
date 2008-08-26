@@ -15,7 +15,7 @@ struct extra_descr_data *locate_exdesc(char *word,
 /**
  * Stores this object and it's contents into the given file.
  */
-void obj_data::clear() 
+void obj_data::clear()
 {
 	memset((char *)this, 0, sizeof(struct obj_data));
 	in_room = NULL;
@@ -23,7 +23,7 @@ void obj_data::clear()
 }
 
 const char*
-get_worn_type( obj_data *obj ) 
+get_worn_type( obj_data *obj )
 {
     if (obj->worn_on == -1 || !obj->worn_by)
         return "none";
@@ -37,23 +37,22 @@ get_worn_type( obj_data *obj )
 	return "unknown";
 }
 
-
 void
 obj_data::saveToXML(FILE *ouf)
 {
-    struct tmp_obj_affect *af = NULL; 
+    struct tmp_obj_affect *af = NULL;
     struct tmp_obj_affect *af_head = NULL;
 	static string indent = "\t";
-	fprintf( ouf, "%s<object vnum=\"%d\">\n", 
+	fprintf( ouf, "%s<object vnum=\"%d\">\n",
 			indent.c_str(), shared->vnum );
 	indent += "\t";
 
     obj_data *proto = shared->proto;
 
     char *s = name;
-    if( s != NULL && 
-        ( proto == NULL || 
-          proto->name == NULL || 
+    if( s != NULL &&
+        ( proto == NULL ||
+          proto->name == NULL ||
           strcmp(s, proto->name) ) )
     {
         fprintf( ouf, "%s<name>%s</name>\n",
@@ -61,14 +60,14 @@ obj_data::saveToXML(FILE *ouf)
     }
 
     s = aliases;
-    if( s != NULL && 
+    if( s != NULL &&
         ( proto == NULL ||   proto->aliases == NULL ||  strcmp(s, proto->aliases) ) )
     {
         fprintf( ouf, "%s<aliases>%s</aliases>\n",  indent.c_str(), xmlEncodeTmp(s) );
     }
 
     s = line_desc;
-    if( s != NULL && 
+    if( s != NULL &&
         ( proto == NULL ||  proto->line_desc == NULL ||  strcmp(s, proto->line_desc ) ) )
     {
         fprintf( ouf, "%s<line_desc>%s</line_desc>\n", indent.c_str(),  xmlEncodeTmp(s) );
@@ -79,17 +78,17 @@ obj_data::saveToXML(FILE *ouf)
 
 		for (desc = ex_description;desc;desc = desc->next)
 			if (desc->keyword && desc->description)
-				fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n", 
-                        indent.c_str(),  xmlEncodeSpecialTmp(desc->keyword), 
+				fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n",
+                        indent.c_str(),  xmlEncodeSpecialTmp(desc->keyword),
                         xmlEncodeTmp(desc->description) );
 	}
 
     s = action_desc;
-    if( s != NULL && 
-        ( proto == NULL || proto->action_desc == NULL || 
+    if( s != NULL &&
+        ( proto == NULL || proto->action_desc == NULL ||
           strcmp(s, proto->action_desc) ) )
     {
-        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(), 
+        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(),
                 xmlEncodeTmp(tmp_gsub(tmp_gsub(s, "\r\n", "\n"), "\r", "")));
     }
 
@@ -100,22 +99,22 @@ obj_data::saveToXML(FILE *ouf)
         this->affectModify(af, false);
 
 	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
-			  indent.c_str(), obj_flags.type_flag, soilage, 
+			  indent.c_str(), obj_flags.type_flag, soilage,
 			 getObjWeight(), obj_flags.material, obj_flags.timer );
 	fprintf(ouf, "%s<tracking id=\"%ld\" method=\"%d\" creator=\"%ld\" time=\"%ld\"/>\n",
 		indent.c_str(), unique_id, creation_method, creator, creation_time);
 	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
-			 indent.c_str(), obj_flags.damage, obj_flags.max_dam, 
+			 indent.c_str(), obj_flags.damage, obj_flags.max_dam,
 			obj_flags.sigil_idnum, obj_flags.sigil_level );
 	fprintf( ouf, "%s<flags extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />\n",
-			 indent.c_str(), obj_flags.extra_flags, 
+			 indent.c_str(), obj_flags.extra_flags,
 			obj_flags.extra2_flags, obj_flags.extra3_flags );
 	fprintf( ouf, "%s<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />\n",
 			 indent.c_str(), obj_flags.value[0],obj_flags.value[1],
 			obj_flags.value[2],obj_flags.value[3] );
 
 	fprintf( ouf, "%s<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />\n",
-			 indent.c_str(), obj_flags.bitvector[0], 
+			 indent.c_str(), obj_flags.bitvector[0],
 			obj_flags.bitvector[1], obj_flags.bitvector[2] );
 
 	for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
@@ -130,7 +129,7 @@ obj_data::saveToXML(FILE *ouf)
                 "dam_mod=\"%d\" maxdam_mod=\"%d\" val_mod1=\"%d\" "
                 "val_mod2=\"%d\" val_mod3=\"%d\" val_mod4=\"%d\" "
                 "type_mod=\"%d\" old_type=\"%d\" worn_mod=\"%d\" "
-                "extra_mod=\"%d\" extra_index=\"%d\" weight_mod=\"%d\" ", 
+                "extra_mod=\"%d\" extra_index=\"%d\" weight_mod=\"%d\" ",
                 indent.c_str(), af->level, af->type, af->duration,
                 af->dam_mod, af->maxdam_mod, af->val_mod[0], af->val_mod[1],
                 af->val_mod[2], af->val_mod[3], af->type_mod, af->old_type,
@@ -149,16 +148,16 @@ obj_data::saveToXML(FILE *ouf)
 		obj->saveToXML(ouf);
 	}
 	indent.erase(indent.size() - 1);
-	// Intentionally done last since reading this property in loadFromXML 
+	// Intentionally done last since reading this property in loadFromXML
     // causes the eq to be worn on the character.
-	fprintf( ouf, "%s<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n", 
+	fprintf( ouf, "%s<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n",
 			 indent.c_str(), obj_flags.wear_flags, worn_on, get_worn_type(this) );
 
     // Ok, we'll restore the affects to the object right here
     this->tmp_affects = af_head;
     for (af = af_head; af; af = af->next)
         this->affectModify(af, true);
-    
+
 	indent.erase(indent.size() - 1);
 	fprintf( ouf, "%s</object>\n", indent.c_str() );
 	return;
@@ -172,7 +171,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 	char *str;
 
 	placed = false;
-	
+
     // Commenting out the code below may be a horrible idea, but I need
     // this function to handle corpses.
 
@@ -216,7 +215,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
 			if (shared->proto
 					&& ex_description == shared->proto->ex_description)
 				ex_description = exdesc_list_dup(shared->proto->ex_description);
-			
+
 			keyword = xmlGetProp(cur, "keywords");
 			desc = locate_exdesc(fname(keyword), ex_description, 1);
 			if (!desc) {
@@ -353,7 +352,7 @@ obj_data::loadFromXML(obj_data *container, Creature *victim, room_data* room, xm
     this->normalizeApplies();
 
 	if (!OBJ_APPROVED(this)) {
-		slog("Unapproved object %d being junked from %s's rent.", 
+		slog("Unapproved object %d being junked from %s's rent.",
 			 vnum, (victim && GET_NAME(victim)) ? GET_NAME(victim):"(none)");
 		return false;
 	}
@@ -433,7 +432,7 @@ obj_data::find_room(void)
 		return in_obj->find_room();
 	else if (in_room)
 		return in_room;
-	
+
 	errlog("Object in limbo at %s:%d", __FILE__, __LINE__);
 	return NULL;
 }
@@ -442,7 +441,7 @@ void
 obj_data::addAffect(struct tmp_obj_affect *af)
 {
     struct tmp_obj_affect *new_aff;
-    
+
     CREATE(new_aff, struct tmp_obj_affect, 1);
 
     memcpy(new_aff, af, sizeof(struct tmp_obj_affect));
@@ -462,7 +461,7 @@ obj_data::removeAffect(struct tmp_obj_affect *af)
     affectModify(af, false);
 
     curr_aff = this->tmp_affects;
-    
+
     while(curr_aff != NULL) {
         found = false;
         if (curr_aff == af) {
@@ -471,7 +470,7 @@ obj_data::removeAffect(struct tmp_obj_affect *af)
                 prev_aff->next = af->next;
             else
                 this->tmp_affects = curr_aff->next;
-            
+
             free(af);
             break;
         }
@@ -596,7 +595,7 @@ obj_data::affectModify(struct tmp_obj_affect *af, bool add)
                     }
                 }
             }
-            
+
             if (!found) {
                 for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
                     if (this->affected[j].location == APPLY_NONE) {
@@ -609,7 +608,7 @@ obj_data::affectModify(struct tmp_obj_affect *af, bool add)
             }
 
             this->normalizeApplies();
-            
+
             if (!found)
 				errlog("No affect locations trying to alter object affect on obj vnum %d, id %ld", GET_OBJ_VNUM(this), unique_id);
         }
@@ -626,7 +625,7 @@ obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
     bool found = false;
 
     for (; cur_aff != NULL; cur_aff = cur_aff->next) {
-        if ((cur_aff->type == af->type) && 
+        if ((cur_aff->type == af->type) &&
             (cur_aff->extra_index == af->extra_index)) {
             memcpy(&tmp_aff, cur_aff, sizeof(struct tmp_obj_affect));
             if (dur_mode == AFF_ADD)
@@ -639,7 +638,7 @@ obj_data::affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
                     if (val_mode == AFF_ADD)
                         tmp_aff.val_mod[i] += af->val_mod[i];
                     else if (val_mode == AFF_AVG)
-                        tmp_aff.val_mod[i] = (af->val_mod[i] + 
+                        tmp_aff.val_mod[i] = (af->val_mod[i] +
                                                tmp_aff.val_mod[i]) / 2;
                 }
             }
@@ -724,7 +723,7 @@ obj_data::normalizeApplies(void)
             this->affected[i].location = APPLY_NONE;
             this->affected[i].modifier = 0;
         }
-            
+
     }
 }
 
@@ -735,9 +734,9 @@ obj_data::affectedBySpell(int spellnum)
 
     for (; cur_aff != NULL; cur_aff = cur_aff->next) {
         if (cur_aff->type == spellnum)
-            return cur_aff; 
+            return cur_aff;
     }
- 
+
     return NULL;
 }
 
@@ -752,7 +751,7 @@ obj_data::getEquipPos(void)
 	for (result = 0;result < NUM_WEARS;result++)
 		if (GET_EQ(worn_by, result) == this)
 			return result;
-	
+
 	return -1;
 }
 
@@ -767,7 +766,7 @@ obj_data::getImplantPos(void)
 	for (result = 0;result < NUM_WEARS;result++)
 		if (GET_IMPLANT(worn_by, result) == this)
 			return result;
-	
+
 	return -1;
 }
 #undef __obj_data_cc__

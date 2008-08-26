@@ -20,7 +20,7 @@ struct _sectToPen Map::sectToPen[NUM_SECT_TYPES] = {
     { SECT_WATER_SWIM, "", "", "", "~", "^", "^", "^" },
     { SECT_WATER_NOSWIM, "", "", "", "~", "^", "^", "^" },
     { SECT_UNDERWATER, "", "", "", "~", "^", "^", "^" },
-    { SECT_FLYING, "", "", "", ".", "^", "^", "^" }, 
+    { SECT_FLYING, "", "", "", ".", "^", "^", "^" },
     { SECT_NOTIME, "", "", "", ",", "^", "^", "^" },
     { SECT_CLIMBING, "", "", "", ".", "^", "^", "^" },
     { SECT_FREESPACE, "", "", "", "O", "^", "^", "^" },
@@ -82,7 +82,7 @@ ACMD(do_map)
         if (*ptr != 0) {
             *ptr = 0;
             ptr++;
-        } 
+        }
 
         rows = atoi(arg1);
         if (*ptr)
@@ -166,203 +166,203 @@ Map::Map(Creature *ch, int hsize, int vsize) {
 
     Map::sectToPen[SECT_INSIDE].penColor = CCYEL_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_INSIDE].vNoExitColor = CCNRM_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_INSIDE].hNoExitColor = CCNRM_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_INSIDE].hNoExitColor = CCNRM_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_CITY].penColor = CCYEL_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_CITY].vNoExitColor = CCNRM_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_CITY].hNoExitColor = CCNRM_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_CITY].hNoExitColor = CCNRM_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_FIELD].penColor = CCYEL(_ch, C_SPR);
     Map::sectToPen[SECT_FIELD].vNoExitColor = CCYEL(_ch, C_SPR);
-    Map::sectToPen[SECT_FIELD].hNoExitColor = CCYEL(_ch, C_SPR); 
+    Map::sectToPen[SECT_FIELD].hNoExitColor = CCYEL(_ch, C_SPR);
 
     Map::sectToPen[SECT_FOREST].penColor = CCGRN(_ch, C_SPR);
     Map::sectToPen[SECT_FOREST].vNoExitColor = CCGRN(_ch, C_SPR);
-    Map::sectToPen[SECT_FOREST].hNoExitColor = CCGRN(_ch, C_SPR); 
+    Map::sectToPen[SECT_FOREST].hNoExitColor = CCGRN(_ch, C_SPR);
 
     Map::sectToPen[SECT_HILLS].penColor = CCYEL(_ch, C_SPR);
     Map::sectToPen[SECT_HILLS].vNoExitColor = CCYEL(_ch, C_SPR);
-    Map::sectToPen[SECT_HILLS].hNoExitColor = CCGRN(_ch, C_SPR); 
+    Map::sectToPen[SECT_HILLS].hNoExitColor = CCGRN(_ch, C_SPR);
 
     Map::sectToPen[SECT_MOUNTAIN].penColor = CCNRM_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_MOUNTAIN].vNoExitColor = CCNRM_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_MOUNTAIN].hNoExitColor = CCNRM_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_MOUNTAIN].hNoExitColor = CCNRM_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_WATER_SWIM].penColor = CCBLU_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_WATER_SWIM].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_WATER_SWIM].hNoExitColor = CCNRM(_ch, C_SPR); 
+    Map::sectToPen[SECT_WATER_SWIM].hNoExitColor = CCNRM(_ch, C_SPR);
 
     Map::sectToPen[SECT_WATER_NOSWIM].penColor = CCBLU(_ch, C_SPR);
     Map::sectToPen[SECT_WATER_NOSWIM].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_WATER_NOSWIM].hNoExitColor = CCNRM(_ch, C_SPR); 
+    Map::sectToPen[SECT_WATER_NOSWIM].hNoExitColor = CCNRM(_ch, C_SPR);
 
     Map::sectToPen[SECT_UNDERWATER].penColor = CCBLU(_ch, C_SPR);
     Map::sectToPen[SECT_UNDERWATER].vNoExitColor = CCBLU(_ch, C_SPR);
-    Map::sectToPen[SECT_UNDERWATER].hNoExitColor = CCBLU(_ch, C_SPR); 
+    Map::sectToPen[SECT_UNDERWATER].hNoExitColor = CCBLU(_ch, C_SPR);
 
     Map::sectToPen[SECT_FLYING].penColor = CCCYN_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_FLYING].vNoExitColor = CCCYN_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_FLYING].hNoExitColor = CCCYN_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_FLYING].hNoExitColor = CCCYN_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_NOTIME].penColor = CCMAG(_ch, C_SPR);
     Map::sectToPen[SECT_NOTIME].vNoExitColor = CCMAG(_ch, C_SPR);
-    Map::sectToPen[SECT_NOTIME].hNoExitColor = CCMAG(_ch, C_SPR); 
+    Map::sectToPen[SECT_NOTIME].hNoExitColor = CCMAG(_ch, C_SPR);
 
     Map::sectToPen[SECT_CLIMBING].penColor = CCWHT(_ch, C_SPR);
     Map::sectToPen[SECT_CLIMBING].vNoExitColor = CCWHT(_ch, C_SPR);
-    Map::sectToPen[SECT_CLIMBING].hNoExitColor = CCWHT(_ch, C_SPR); 
+    Map::sectToPen[SECT_CLIMBING].hNoExitColor = CCWHT(_ch, C_SPR);
 
     Map::sectToPen[SECT_FREESPACE].penColor = CCMAG(_ch, C_SPR);
     Map::sectToPen[SECT_FREESPACE].vNoExitColor = CCMAG(_ch, C_SPR);
-    Map::sectToPen[SECT_FREESPACE].hNoExitColor = CCMAG(_ch, C_SPR); 
+    Map::sectToPen[SECT_FREESPACE].hNoExitColor = CCMAG(_ch, C_SPR);
 
     Map::sectToPen[SECT_ROAD].penColor = CCBLA_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_ROAD].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_ROAD].hNoExitColor = CCNRM(_ch, C_SPR); 
+    Map::sectToPen[SECT_ROAD].hNoExitColor = CCNRM(_ch, C_SPR);
 
     Map::sectToPen[SECT_VEHICLE].penColor = CCWHT(_ch, C_SPR);
     Map::sectToPen[SECT_VEHICLE].vNoExitColor = CCWHT(_ch, C_SPR);
-    Map::sectToPen[SECT_VEHICLE].hNoExitColor = CCWHT(_ch, C_SPR); 
+    Map::sectToPen[SECT_VEHICLE].hNoExitColor = CCWHT(_ch, C_SPR);
 
     Map::sectToPen[SECT_FARMLAND].penColor = CCGRN(_ch, C_SPR);
     Map::sectToPen[SECT_FARMLAND].vNoExitColor = CCGRN(_ch, C_SPR);
-    Map::sectToPen[SECT_FARMLAND].hNoExitColor = CCGRN(_ch, C_SPR); 
+    Map::sectToPen[SECT_FARMLAND].hNoExitColor = CCGRN(_ch, C_SPR);
 
     Map::sectToPen[SECT_SWAMP].penColor = CCGRN(_ch, C_SPR);
     Map::sectToPen[SECT_SWAMP].vNoExitColor = CCGRN(_ch, C_SPR);
-    Map::sectToPen[SECT_SWAMP].hNoExitColor = CCGRN(_ch, C_SPR); 
+    Map::sectToPen[SECT_SWAMP].hNoExitColor = CCGRN(_ch, C_SPR);
 
     Map::sectToPen[SECT_DESERT].penColor = CCYEL_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_DESERT].vNoExitColor = CCYEL_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_DESERT].hNoExitColor = CCYEL_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_DESERT].hNoExitColor = CCYEL_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_FIRE_RIVER].penColor = CCRED(_ch, C_SPR);
     Map::sectToPen[SECT_FIRE_RIVER].vNoExitColor = CCRED(_ch, C_SPR);
-    Map::sectToPen[SECT_FIRE_RIVER].hNoExitColor = CCRED(_ch, C_SPR); 
+    Map::sectToPen[SECT_FIRE_RIVER].hNoExitColor = CCRED(_ch, C_SPR);
 
     Map::sectToPen[SECT_JUNGLE].penColor = CCGRN_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_JUNGLE].vNoExitColor = CCGRN_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_JUNGLE].hNoExitColor = CCGRN_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_JUNGLE].hNoExitColor = CCGRN_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_PITCH_PIT].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_PITCH_PIT].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_PITCH_PIT].hNoExitColor = CCNRM(_ch, C_SPR); 
-    
+    Map::sectToPen[SECT_PITCH_PIT].hNoExitColor = CCNRM(_ch, C_SPR);
+
     Map::sectToPen[SECT_PITCH_SUB].penColor = CCBLA_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_PITCH_SUB].vNoExitColor = CCBLA_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_PITCH_SUB].hNoExitColor = CCBLA_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_PITCH_SUB].hNoExitColor = CCBLA_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_BEACH].penColor = CCYEL_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_BEACH].vNoExitColor = CCYEL_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_BEACH].hNoExitColor = CCYEL_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_BEACH].hNoExitColor = CCYEL_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_ASTRAL].penColor = CCBLA_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_ASTRAL].vNoExitColor = CCBLA_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_ASTRAL].hNoExitColor = CCBLA_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_ASTRAL].hNoExitColor = CCBLA_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_FIRE].penColor = CCRED_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_FIRE].vNoExitColor = CCRED_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_FIRE].hNoExitColor = CCRED_BLD(_ch, C_SPR); 
-    
+    Map::sectToPen[SECT_ELEMENTAL_FIRE].hNoExitColor = CCRED_BLD(_ch, C_SPR);
+
     Map::sectToPen[SECT_ELEMENTAL_EARTH].penColor = CCYEL(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_EARTH].vNoExitColor = CCYEL(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_EARTH].hNoExitColor = CCYEL(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_EARTH].hNoExitColor = CCYEL(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_AIR].penColor = CCCYN_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_AIR].vNoExitColor = CCCYN_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_AIR].hNoExitColor = CCCYN_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_AIR].hNoExitColor = CCCYN_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_WATER].penColor = CCBLU_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_WATER].vNoExitColor = CCBLU_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_WATER].hNoExitColor = CCBLU_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_WATER].hNoExitColor = CCBLU_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_POSITIVE].penColor = CCWHT(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_POSITIVE].vNoExitColor = CCWHT(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_POSITIVE].hNoExitColor = CCWHT(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_POSITIVE].hNoExitColor = CCWHT(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_NEGATIVE].penColor = CCBLA_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_NEGATIVE].vNoExitColor = CCBLA_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_NEGATIVE].hNoExitColor = CCBLA_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_NEGATIVE].hNoExitColor = CCBLA_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_SMOKE].penColor = CCBLA_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_SMOKE].vNoExitColor = CCBLA_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_SMOKE].hNoExitColor = CCBLA_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_SMOKE].hNoExitColor = CCBLA_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_ICE].penColor = CCCYN_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_ICE].vNoExitColor = CCCYN_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_ICE].hNoExitColor = CCCYN_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_ICE].hNoExitColor = CCCYN_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_OOZE].penColor = CCGRN(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_OOZE].vNoExitColor = CCGRN(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_OOZE].hNoExitColor = CCGRN(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_OOZE].hNoExitColor = CCGRN(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_MAGMA].penColor = CCRED_BLD(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_MAGMA].vNoExitColor = CCRED_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_MAGMA].hNoExitColor = CCRED_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_MAGMA].hNoExitColor = CCRED_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_LIGHTNING].penColor = CCBLU(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_LIGHTNING].vNoExitColor = CCBLU(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_LIGHTNING].hNoExitColor = CCBLU(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_LIGHTNING].hNoExitColor = CCBLU(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_STEAM].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_STEAM].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_STEAM].hNoExitColor = CCNRM(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_STEAM].hNoExitColor = CCNRM(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_RADIANCE].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_RADIANCE].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_RADIANCE].hNoExitColor = CCNRM(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_RADIANCE].hNoExitColor = CCNRM(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_MINERALS].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_MINERALS].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_MINERALS].hNoExitColor = CCNRM(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_MINERALS].hNoExitColor = CCNRM(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_VACUUM].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_VACUUM].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_VACUUM].hNoExitColor = CCNRM(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_VACUUM].hNoExitColor = CCNRM(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_SALT].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_SALT].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_SALT].hNoExitColor = CCNRM(_ch, C_SPR); 
+    Map::sectToPen[SECT_ELEMENTAL_SALT].hNoExitColor = CCNRM(_ch, C_SPR);
 
     Map::sectToPen[SECT_ELEMENTAL_ASH].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_ASH].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_ASH].hNoExitColor = CCNRM(_ch, C_SPR); 
-    
+    Map::sectToPen[SECT_ELEMENTAL_ASH].hNoExitColor = CCNRM(_ch, C_SPR);
+
     Map::sectToPen[SECT_ELEMENTAL_DUST].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_ELEMENTAL_DUST].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_ELEMENTAL_DUST].hNoExitColor = CCNRM(_ch, C_SPR); 
-    
+    Map::sectToPen[SECT_ELEMENTAL_DUST].hNoExitColor = CCNRM(_ch, C_SPR);
+
     Map::sectToPen[SECT_BLOOD].penColor = CCRED(_ch, C_SPR);
     Map::sectToPen[SECT_BLOOD].vNoExitColor = CCRED(_ch, C_SPR);
-    Map::sectToPen[SECT_BLOOD].hNoExitColor = CCRED(_ch, C_SPR); 
+    Map::sectToPen[SECT_BLOOD].hNoExitColor = CCRED(_ch, C_SPR);
 
     Map::sectToPen[SECT_ROCK].penColor = CCWHT(_ch, C_SPR);
     Map::sectToPen[SECT_ROCK].vNoExitColor = CCWHT(_ch, C_SPR);
-    Map::sectToPen[SECT_ROCK].hNoExitColor = CCWHT(_ch, C_SPR); 
-    
+    Map::sectToPen[SECT_ROCK].hNoExitColor = CCWHT(_ch, C_SPR);
+
     Map::sectToPen[SECT_MUDDY].penColor = CCYEL(_ch, C_SPR);
     Map::sectToPen[SECT_MUDDY].vNoExitColor = CCYEL(_ch, C_SPR);
-    Map::sectToPen[SECT_MUDDY].hNoExitColor = CCYEL(_ch, C_SPR); 
+    Map::sectToPen[SECT_MUDDY].hNoExitColor = CCYEL(_ch, C_SPR);
 
     Map::sectToPen[SECT_TRAIL].penColor = CCYEL(_ch, C_SPR);
     Map::sectToPen[SECT_TRAIL].vNoExitColor = CCYEL(_ch, C_SPR);
-    Map::sectToPen[SECT_TRAIL].hNoExitColor = CCYEL(_ch, C_SPR); 
+    Map::sectToPen[SECT_TRAIL].hNoExitColor = CCYEL(_ch, C_SPR);
 
     Map::sectToPen[SECT_TUNDRA].penColor = CCYEL(_ch, C_SPR);
     Map::sectToPen[SECT_TUNDRA].vNoExitColor = CCYEL(_ch, C_SPR);
-    Map::sectToPen[SECT_TUNDRA].hNoExitColor = CCYEL(_ch, C_SPR); 
+    Map::sectToPen[SECT_TUNDRA].hNoExitColor = CCYEL(_ch, C_SPR);
 
     Map::sectToPen[SECT_CATACOMBS].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_CATACOMBS].vNoExitColor = CCBLA_BLD(_ch, C_SPR);
-    Map::sectToPen[SECT_CATACOMBS].hNoExitColor = CCBLA_BLD(_ch, C_SPR); 
+    Map::sectToPen[SECT_CATACOMBS].hNoExitColor = CCBLA_BLD(_ch, C_SPR);
 
     Map::sectToPen[SECT_CRACKED_ROAD].penColor = CCNRM(_ch, C_SPR);
     Map::sectToPen[SECT_CRACKED_ROAD].vNoExitColor = CCNRM(_ch, C_SPR);
-    Map::sectToPen[SECT_CRACKED_ROAD].hNoExitColor = CCNRM(_ch, C_SPR); 
+    Map::sectToPen[SECT_CRACKED_ROAD].hNoExitColor = CCNRM(_ch, C_SPR);
 
     Map::sectToPen[SECT_DEEP_OCEAN].penColor = CCBLU(_ch, C_SPR);
     Map::sectToPen[SECT_DEEP_OCEAN].vNoExitColor = CCBLU(_ch, C_SPR);
-    Map::sectToPen[SECT_DEEP_OCEAN].hNoExitColor = CCBLU(_ch, C_SPR); 
+    Map::sectToPen[SECT_DEEP_OCEAN].hNoExitColor = CCBLU(_ch, C_SPR);
 };
 
 #define MARK(room) ( room->find_first_step_index = find_first_step_index )
@@ -419,7 +419,7 @@ Map::build()
 
     // Process the queue
     while (!_roomQueue.empty()) {
-        pix = _roomQueue.front(); 
+        pix = _roomQueue.front();
 		_roomQueue.pop();
 
         // Do nothing with this for the moment
@@ -504,7 +504,7 @@ Map::display() {
         for (int j = 0; j < (_hsize * 2) + 1; j++) {
             line += _map[i * ((_hsize * 2) + 1) + j];
         }
-        send_to_char(_ch, "%s%s|%s%s|\r\n", CCNRM(_ch, C_SPR), indent, line.c_str(), 
+        send_to_char(_ch, "%s%s|%s%s|\r\n", CCNRM(_ch, C_SPR), indent, line.c_str(),
                 CCNRM(_ch, C_SPR));
         line.clear();
     }
@@ -539,7 +539,7 @@ Map::draw() {
     return true;
 };
 
-bool 
+bool
 MapPixel::drawDoor(int d, vector<string> &_map, string pen) {
     int hsize = (MapPixel::hSize * 2) + 1;
     int index = int((float)((_yCoord * 2) * (hsize)) + (float)(_xCoord * 2) + 1);
@@ -672,7 +672,7 @@ MapPixel::drawDoor(int d, vector<string> &_map, string pen) {
     return false;
 }
 
-void 
+void
 MapPixel::drawTerrain(int d, vector<string> &_map) {
     int hsize = (MapPixel::hSize * 2) + 1;
     int index = int((float)((_yCoord * 2) * (hsize)) + (float)(_xCoord * 2) + 1);
@@ -754,7 +754,7 @@ MapPixel::drawOneCorner(int d, vector<string> &_map) {
     }
 
     if (d == SouthEast && _yCoord < MapPixel::vSize) {
-        if ((theRoom = validEdge(South)) && (theRoom2 = validEdge(East)) && 
+        if ((theRoom = validEdge(South)) && (theRoom2 = validEdge(East)) &&
              validEdge(East, theRoom) && validEdge(South, theRoom2)) {
             _map[index + hsize + 1] = sectInfo->penColor + sectInfo->pen + KNRM;
         }
@@ -776,7 +776,7 @@ MapPixel::draw(vector<string> &_map) {
 
     // Currently, the rooms will arrive to this function starting in the Northwest and ending
     // in the Southeast.
-    
+
     // Center room.  It wants to draw everything in every direction
     if (_xCoord == MapPixel::centerX && _yCoord == MapPixel::centerY) {
         drawOneCorner(NorthWest, _map);
@@ -962,5 +962,4 @@ MapPixel::draw(vector<string> &_map) {
 
     return true;
 }
-
 

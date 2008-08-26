@@ -24,7 +24,7 @@ SPECIAL(multi_healer)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd)
-		return FALSE;
+		return false;
 
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
@@ -39,7 +39,7 @@ SPECIAL(multi_healer)
 		} else if (IS_SICK(vict)) {
 			cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_SICKNESS);
 		} else if (GET_HIT(vict) < GET_MAX_HIT(vict)) {
-			cast_spell(ch, vict, 0, NULL, 
+			cast_spell(ch, vict, 0, NULL,
 				GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
 				GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
 				GET_LEVEL(vict) <= 30 ? SPELL_HEAL : SPELL_GREATER_HEAL);

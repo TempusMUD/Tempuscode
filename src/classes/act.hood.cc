@@ -41,18 +41,18 @@ find_hamstring_weapon( Creature *ch )
 		return weap;
 	} else if( (weap = GET_EQ(ch, WEAR_WIELD_2)) && SLASHING(weap)) {
 		return weap;
-	} else if( (weap = GET_EQ(ch, WEAR_HANDS)) && 
+	} else if( (weap = GET_EQ(ch, WEAR_HANDS)) &&
 			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) ) {
 		return weap;
-	} else if( (weap = GET_EQ(ch, WEAR_ARMS)) && 
+	} else if( (weap = GET_EQ(ch, WEAR_ARMS)) &&
 			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) ) {
 		return weap;
-	} else if( (weap = GET_IMPLANT(ch, WEAR_HANDS)) && 
-			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) && 
+	} else if( (weap = GET_IMPLANT(ch, WEAR_HANDS)) &&
+			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) &&
 			   GET_EQ(ch, WEAR_HANDS) == NULL ) {
 		return weap;
-	} else if( (weap = GET_IMPLANT(ch, WEAR_ARMS)) && 
-			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) && 
+	} else if( (weap = GET_IMPLANT(ch, WEAR_ARMS)) &&
+			   IS_OBJ_TYPE(weap, ITEM_WEAPON) && SLASHING(weap) &&
 			   GET_EQ(ch, WEAR_ARMS) == NULL ) {
 		return weap;
 	}
@@ -85,7 +85,7 @@ ACMD(do_hamstring)
 			vict = ch->findRandomCombat();
 		} else {
 			if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-				act("You open a deep gash in $p's hamstring!", FALSE, ch,
+				act("You open a deep gash in $p's hamstring!", false, ch,
 					ovict, 0, TO_CHAR);
 				return;
 			} else {
@@ -103,10 +103,10 @@ ACMD(do_hamstring)
 	if (vict == ch) {
 		if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
 			act("You fear that your death will grieve $N.",
-				FALSE, ch, 0, ch->master, TO_CHAR);
+				false, ch, 0, ch->master, TO_CHAR);
 			return;
 		}
-		send_to_char(ch, 
+		send_to_char(ch,
 			"Cutting off your own leg just doesn't sound like fun.\r\n");
 		return;
 	}
@@ -200,8 +200,6 @@ ACMD(do_hamstring)
 	}
 }
 
-
-
 ACMD(do_drag_char)
 {
 	struct Creature *vict = NULL;
@@ -239,7 +237,7 @@ ACMD(do_drag_char)
 	if (!ch->isOkToAttack(vict, true)) {
 		return;
 	}
-// Find out which direction the player wants to drag in    
+// Find out which direction the player wants to drag in
 	for (dir = 0; dir < NUM_DIRS && !found; dir++) {
 		if (is_abbrev(arg2, dirs[dir])) {
 			found = 1;
@@ -257,7 +255,7 @@ ACMD(do_drag_char)
 			(ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
 				&& !clan_house_can_enter(ch, target_room))
 			|| (ROOM_FLAGGED(target_room, ROOM_DEATH))) {
-			act("You are unable to drag $M there.", FALSE, ch, 0, vict,
+			act("You are unable to drag $M there.", false, ch, 0, vict,
 				TO_CHAR);
 			return;
 		}
@@ -277,7 +275,6 @@ ACMD(do_drag_char)
 		percent -= (GET_STR(ch));
 	}
 
-
 	prob =
 		MAX(0, (GET_LEVEL(ch) + (CHECK_SKILL(ch,
 					SKILL_DRAG)) - GET_STR(vict)));
@@ -296,13 +293,13 @@ ACMD(do_drag_char)
 	}
 
 	if (prob > percent) {
-		
+
 		act(tmp_sprintf("You drag $N to the %s.", to_dirs[dir]),
-            FALSE, ch, 0, vict, TO_CHAR);
+            false, ch, 0, vict, TO_CHAR);
 		act(tmp_sprintf("$n grabs you and drags you %s.", to_dirs[dir]),
-            FALSE, ch, 0, vict, TO_VICT);
+            false, ch, 0, vict, TO_VICT);
 		act(tmp_sprintf("$n drags $N to the %s.", to_dirs[dir]),
-            FALSE, ch, 0, vict, TO_NOTVICT);
+            false, ch, 0, vict, TO_NOTVICT);
 
 		perform_move(ch, dir, MOVE_NORM, 1);
 		perform_move(vict, dir, MOVE_DRAG, 1);
@@ -316,11 +313,11 @@ ACMD(do_drag_char)
 		}
 		return;
 	} else {
-		act("$n grabs $N but fails to move $m.", FALSE, ch, 0, vict,
+		act("$n grabs $N but fails to move $m.", false, ch, 0, vict,
 			TO_NOTVICT);
-		act("You attempt to man-handle $N but you fail!", FALSE, ch, 0, vict,
+		act("You attempt to man-handle $N but you fail!", false, ch, 0, vict,
 			TO_CHAR);
-		act("$n attempts to drag you, but you hold your ground.", FALSE, ch, 0,
+		act("$n attempts to drag you, but you hold your ground.", false, ch, 0,
 			vict, TO_VICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 
@@ -435,13 +432,12 @@ ACMD(do_snatch)
 	if (vict->getPosition() <= POS_SLEEPING)
 		percent = -150;			// ALWAYS SUCCESS
 
-
 	// NO NO With Imp's and Shopkeepers!
 	if (!ok_damage_vendor(ch, vict) || (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_UTILITY)))
 		percent = 121;			// Failure
 
 	// Mod the percentage based on position and flags
-	if (obj) {					// If hes got his hand on something, 
+	if (obj) {					// If hes got his hand on something,
 		//lets see if he gets it.
 		if (IS_OBJ_STAT(obj, ITEM_NODROP))
 			percent += 10;
@@ -461,20 +457,20 @@ ACMD(do_snatch)
 	// If they succeed the leftover is thier bonus.
 	// If they fail thier roll, or choose an empty position
 	if (percent > CHECK_SKILL(ch, SKILL_SNATCH) || !obj) {
-		act("$n tries to snatch something from $N but comes away empty handed!", FALSE, ch, 0, vict, TO_NOTVICT);
-		act("$n tries to snatch something from you but comes away empty handed!", FALSE, ch, 0, vict, TO_VICT);
+		act("$n tries to snatch something from $N but comes away empty handed!", false, ch, 0, vict, TO_NOTVICT);
+		act("$n tries to snatch something from you but comes away empty handed!", false, ch, 0, vict, TO_VICT);
 		act("You try to snatch something from $N but come away empty handed!",
-			FALSE, ch, 0, vict, TO_CHAR);
+			false, ch, 0, vict, TO_CHAR);
 
 		// Monks are cool. They stand up when someone tries to snatch from em.
 		if (vict->getPosition() == POS_SITTING
 			&& AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
 			vict->setPosition(POS_STANDING);
-			act("You jump to your feet, glaring at $s!", FALSE, ch, 0, vict,
+			act("You jump to your feet, glaring at $s!", false, ch, 0, vict,
 				TO_VICT);
-			act("$N jumps to $S feet, glaring at You!", FALSE, ch, 0, vict,
+			act("$N jumps to $S feet, glaring at You!", false, ch, 0, vict,
 				TO_CHAR);
-			act("$N jumps to $S feet, glaring at $n!", FALSE, ch, 0, vict,
+			act("$N jumps to $S feet, glaring at $n!", false, ch, 0, vict,
 				TO_NOTVICT);
 		}
 
@@ -510,11 +506,11 @@ ACMD(do_snatch)
 
 			// If it was close, drop the item.
 			if (prob < percent + 10) {
-				act("$n tries to take $p away from you, forcing you to drop it!", FALSE, ch, obj, vict, TO_VICT);
+				act("$n tries to take $p away from you, forcing you to drop it!", false, ch, obj, vict, TO_VICT);
 				act("You try to snatch $p away from $N but $E drops it!",
-					FALSE, ch, obj, vict, TO_CHAR);
+					false, ch, obj, vict, TO_CHAR);
 				act("$n tries to snatch $p from $N but $E drops it!",
-					FALSE, ch, obj, vict, TO_NOTVICT);
+					false, ch, obj, vict, TO_NOTVICT);
 
 				// weapon is the 1st of 2 wielded, shift to the second weapon.
 				if (obj->worn_on == WEAR_WIELD && GET_EQ(vict, WEAR_WIELD_2)) {
@@ -523,7 +519,7 @@ ACMD(do_snatch)
 						vict->in_room);
 					equip_char(vict, sec_weap, WEAR_WIELD, EQUIP_WORN);
 					act("You shift $p to your primary hand.",
-						FALSE, ch, obj, vict, TO_VICT);
+						false, ch, obj, vict, TO_VICT);
 
 					// Otherwise, just drop it.
 				} else {
@@ -531,14 +527,14 @@ ACMD(do_snatch)
 						vict->in_room);
 				}
 
-				// It wasnt close. He deffinately failed.    
+				// It wasnt close. He deffinately failed.
 			} else {
 				act("$n grabs your $p but you manage to hold onto it!",
-					FALSE, ch, obj, vict, TO_VICT);
+					false, ch, obj, vict, TO_VICT);
 				act("You grab $S $p but can't snatch it away!",
-					FALSE, ch, obj, vict, TO_CHAR);
+					false, ch, obj, vict, TO_CHAR);
 				act("$n grabs $N's $p but can't snatch it away!",
-					FALSE, ch, obj, vict, TO_NOTVICT);
+					false, ch, obj, vict, TO_NOTVICT);
 			}
 
 			// success, hand on and wrestled away.
@@ -549,52 +545,52 @@ ACMD(do_snatch)
 				vict->setPosition(POS_RESTING);
 				if (eq_pos == WEAR_BELT) {
 					act("$n wakes you up snatching something off your belt!",
-						FALSE, ch, obj, vict, TO_VICT);
+						false, ch, obj, vict, TO_VICT);
 					act("You wake $N up snatching $p off $S belt!",
-						FALSE, ch, obj, vict, TO_CHAR);
+						false, ch, obj, vict, TO_CHAR);
 					act("$n wakes $N up snatching $p off $S belt!",
-						FALSE, ch, obj, vict, TO_NOTVICT);
+						false, ch, obj, vict, TO_NOTVICT);
 				} else {
 					act("$n wakes you up snatching out of your hand!",
-						FALSE, ch, obj, vict, TO_VICT);
+						false, ch, obj, vict, TO_VICT);
 					act("You wake $N up snatching $p out of $S hand!",
-						FALSE, ch, obj, vict, TO_CHAR);
+						false, ch, obj, vict, TO_CHAR);
 					act("$n wakes $N up snatching $p out of $S hand!",
-						FALSE, ch, obj, vict, TO_NOTVICT);
+						false, ch, obj, vict, TO_NOTVICT);
 				}
 			} else if (vict->getPosition() == POS_SITTING &&
 				AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
 				vict->setPosition(POS_STANDING);
 				if (eq_pos == WEAR_BELT) {
 					act("$n breaks your trance snatching $p off your belt!",
-						FALSE, ch, obj, vict, TO_VICT);
+						false, ch, obj, vict, TO_VICT);
 					act("You break $S trance snatching $p off $S belt!",
-						FALSE, ch, obj, vict, TO_CHAR);
+						false, ch, obj, vict, TO_CHAR);
 					act("$n breaks $N's trance snatching $p off $S belt!",
-						FALSE, ch, obj, vict, TO_NOTVICT);
+						false, ch, obj, vict, TO_NOTVICT);
 				} else {
 					act("$n breaks your trance snatching $p out of your hand!",
-						FALSE, ch, obj, vict, TO_VICT);
+						false, ch, obj, vict, TO_VICT);
 					act("You break $N's trance snatching $p out of $S hand!",
-						FALSE, ch, obj, vict, TO_CHAR);
+						false, ch, obj, vict, TO_CHAR);
 					act("$n breaks $N's trance snatching $p out of $S hand!",
-						FALSE, ch, obj, vict, TO_NOTVICT);
+						false, ch, obj, vict, TO_NOTVICT);
 				}
 			} else {
 				if (eq_pos == WEAR_BELT) {
 					act("$n snatches $p off your belt!",
-						FALSE, ch, obj, vict, TO_VICT);
+						false, ch, obj, vict, TO_VICT);
 					act("You snatch $p off $N's belt!",
-						FALSE, ch, obj, vict, TO_CHAR);
+						false, ch, obj, vict, TO_CHAR);
 					act("$n snatches $p off $N's belt!",
-						FALSE, ch, obj, vict, TO_NOTVICT);
+						false, ch, obj, vict, TO_NOTVICT);
 				} else {
 					act("$n snatches $p out of your hand!",
-						FALSE, ch, obj, vict, TO_VICT);
+						false, ch, obj, vict, TO_VICT);
 					act("You snatch $p out of $N's hand!",
-						FALSE, ch, obj, vict, TO_CHAR);
+						false, ch, obj, vict, TO_CHAR);
 					act("$n snatches $p out of $N's hand!",
-						FALSE, ch, obj, vict, TO_NOTVICT);
+						false, ch, obj, vict, TO_NOTVICT);
 				}
 			}
 
@@ -609,7 +605,7 @@ ACMD(do_snatch)
 				sec_weap = unequip_char(vict, WEAR_WIELD_2, EQUIP_WORN);
 				equip_char(vict, sec_weap, WEAR_WIELD, EQUIP_WORN);
 				act("You shift $p to your primary hand.",
-					FALSE, ch, obj, vict, TO_VICT);
+					false, ch, obj, vict, TO_VICT);
 			}
 			// Punks tend to break shit.
 			dam =

@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 SPECIAL(arena_object)
 {
 	struct obj_data *me2 = (struct obj_data *)me;

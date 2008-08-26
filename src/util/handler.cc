@@ -91,8 +91,6 @@ fname(const char *namelist)
 	return (holder);
 }
 
-
-
 int
 isname(const char *str, const char *namelist)
 {
@@ -189,7 +187,7 @@ bool
 namelist_match(const char *sub_list, const char *super_list)
 {
 	const char *word_pt;
-	
+
 	word_pt = sub_list;
 	if (!*word_pt)
 		return false;
@@ -536,7 +534,7 @@ affect_total(struct Creature *ch)
 	// remove all spell affects
 	for (af = ch->affected; af; af = af->next)
 		affect_modify(ch, af->location, af->modifier, af->bitvector,
-			af->aff_index, FALSE);
+			af->aff_index, false);
 
 	/************************************************************************
      * Set stats to real stats                                              *
@@ -572,7 +570,7 @@ affect_total(struct Creature *ch)
 	}
 	for (af = ch->affected; af; af = af->next)
 		affect_modify(ch, af->location, af->modifier, af->bitvector,
-			af->aff_index, TRUE);
+			af->aff_index, true);
 
 	/* Make certain values are between 0..25, not < 0 and not > 25! */
 
@@ -650,7 +648,6 @@ affect_total(struct Creature *ch)
 
 }
 
-
 /* Insert an affect_type in a Creature structure
    Automatically sets apropriate bits and apply's */
 void
@@ -666,7 +663,7 @@ affect_to_char(struct Creature *ch, struct affected_type *af)
 	ch->affected = affected_alloc;
 
 	affect_modify(ch, af->location, af->modifier,
-		af->bitvector, af->aff_index, TRUE);
+		af->bitvector, af->aff_index, true);
 	affect_total(ch);
 	if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
 		!AFF_FLAGGED(ch, AFF_GLOWLIGHT) &&
@@ -722,7 +719,7 @@ affect_remove(struct Creature *ch, struct affected_type *af)
 		ch->in_room->light--;
 
 	affect_modify(ch, af->location, af->modifier, af->bitvector, af->aff_index,
-		FALSE);
+		false);
 	REMOVE_FROM_LIST(af, ch->affected, next);
 	free(af);
 	affect_total(ch);
@@ -782,7 +779,6 @@ count_affect(struct Creature *ch, sh_int type)
     }
     return count;
 }
-
 
 //
 // add a new affect to a character, joining it with an existing one if possible
@@ -907,7 +903,6 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 		trail->to_dir = -1;
 	}
 
-
 	if (mode == TRAIL_ENTER && (dir >= 0 || trail->from_dir < 0)) {
 		trail->from_dir = dir;
 	} else if (dir >= 0 || trail->to_dir < 0)
@@ -961,12 +956,12 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
 
 }
 
-/* 
+/*
  * move a creature out of a room;
- * 
+ *
  *
  * @param ch the Creature to remove from the room
- * @param check_specials if true, special procedures will be 
+ * @param check_specials if true, special procedures will be
  * 		searched for and run.
  *
  * @return true on success, false if the Creature may have died.
@@ -983,7 +978,7 @@ char_from_room( Creature *ch, bool check_specials)
 			sprintf(buf, "Char is in_room %d\r\n", ch->in_room->number);
 		exit(1);
 	}
-    
+
     ch->removeAllCombat();
 
 	if (GET_RACE(ch) == RACE_ELEMENTAL && IS_CLASS(ch, CLASS_FIRE))
@@ -1014,7 +1009,7 @@ char_from_room( Creature *ch, bool check_specials)
 	}
 
 	if( spec_rc != 0 ) {
-		CreatureList::iterator it = 
+		CreatureList::iterator it =
 			find(tmp_room->people.begin(),tmp_room->people.end(), ch);
 		if( it == tmp_room->people.end() ) {
 			if( spec_rc == 1 ) {
@@ -1025,7 +1020,7 @@ char_from_room( Creature *ch, bool check_specials)
 						spec_rc,(long)tmp_room, tmp_room->number);
 			}
 			return false;
-		} 
+		}
 	}
 
 	tmp_room->people.remove(ch);
@@ -1033,13 +1028,12 @@ char_from_room( Creature *ch, bool check_specials)
 	return true;
 }
 
-
-/* 
+/*
  * place a character in a room
  *
  * @param ch the Creature to move to the room
  * @param room the room to move the Creature into
- * @param check_specials if true, special procedures will be 
+ * @param check_specials if true, special procedures will be
  * 		searched for and run.
  *
  * @return true on success, false if the Creature may have died.
@@ -1084,10 +1078,10 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NULL_MAGIC) &&
 		!PRF_FLAGGED(ch, PRF_NOHASSLE)) {
 		if (ch->affected) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You are dazed by a blinding flash inside your brain!\r\n"
 				"You feel different...\r\n");
-			act("Light flashes from behind $n's eyes.", FALSE, ch, 0, 0,
+			act("Light flashes from behind $n's eyes.", false, ch, 0, 0,
 				TO_ROOM);
 			for (aff = ch->affected; aff; aff = next_aff) {
 				next_aff = aff->next;
@@ -1101,8 +1095,8 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 
 	if (ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) &&
 		!AFF2_FLAGGED(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch)) {
-		act("$n suddenly bursts into flames!", FALSE, ch, 0, 0, TO_ROOM);
-		act("You suddenly burst into flames!", FALSE, ch, 0, 0, TO_CHAR);
+		act("$n suddenly bursts into flames!", false, ch, 0, 0, TO_ROOM);
+		act("You suddenly burst into flames!", false, ch, 0, 0, TO_CHAR);
         ch->ignite(NULL);
 	}
 
@@ -1115,7 +1109,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 
 	  if (raff_owner &&
 		  raff_owner->in_room != ch->in_room &&
-		  (GET_LEVEL(ch) + number(1, 70)) < 
+		  (GET_LEVEL(ch) + number(1, 70)) <
 		  raff_owner->getLevelBonus(SONG_RHYTHM_OF_ALARM)) {
 
             raff->duration--;
@@ -1124,13 +1118,13 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
                          ch->in_room->name);
 	  }
     }
-    
+
 	long spec_rc = 0;
     if( check_specials )
 		spec_rc = special(ch, 0, 0, tmp_strdup(""), SPECIAL_ENTER);
 
 	if( spec_rc != 0 ) {
-		CreatureList::iterator it = 
+		CreatureList::iterator it =
 			find(room->people.begin(),room->people.end(), ch);
 		if( it == room->people.end() ) {
 			if( spec_rc == 1 ) {
@@ -1142,7 +1136,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 			}
 
 			return false;
-		} 
+		}
 	}
 	return true;
 }
@@ -1263,8 +1257,6 @@ obj_from_char(struct obj_data *object)
 	object->next_content = NULL;
 }
 
-
-
 /* Return the effect of a piece of armor in position eq_pos */
 int
 apply_ac(struct Creature *ch, int eq_pos)
@@ -1330,7 +1322,7 @@ weapon_prof(struct Creature *ch, struct obj_data *obj)
 		return 0;
 }
 
-/* equip_char returns TRUE if victim is killed by equipment :> */
+/* equip_char returns true if victim is killed by equipment :> */
 int
 equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode)
 {
@@ -1404,7 +1396,6 @@ unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
 {
 	struct obj_data *obj = NULL;
 	int invalid_char_class(struct Creature *ch, struct obj_data *obj);
-
 
 	if (pos < 0 || pos >= NUM_WEARS) {
 		errlog("Illegal pos in unequip_char.");
@@ -1486,21 +1477,21 @@ check_eq_align(Creature *ch)
 
 	if (!ch->in_room || GET_LEVEL(ch) >= LVL_GOD)
 		return 0;
-    
+
         for (pos = 0;pos < NUM_WEARS;pos++) {
             if ((implant = ch->implants[pos])) {
-                 
+
                 if ((IS_GOOD(ch) && IS_OBJ_STAT(ch->implants[pos], ITEM_DAMNED)) ||
                     (IS_EVIL(ch) && IS_OBJ_STAT(ch->implants[pos], ITEM_BLESS))) {
-                
+
                     obj_to_char(unequip_char(ch, pos, EQUIP_IMPLANT), ch);
-                
-                    act("$p burns its way out through your flesh!", FALSE, ch, implant, 0, TO_CHAR);
-                    act("$n screams in horror as $p burns its way out through $s flesh!", FALSE, ch,
+
+                    act("$p burns its way out through your flesh!", false, ch, implant, 0, TO_CHAR);
+                    act("$n screams in horror as $p burns its way out through $s flesh!", false, ch,
                         implant, 0, TO_ROOM);
-                
+
                     damage_eq(NULL, implant, (GET_OBJ_DAM(implant) >> 1));
-                
+
                     int extraction_damage = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
                     if (pos == WEAR_BODY)
                         extraction_damage *= 3;
@@ -1510,34 +1501,33 @@ check_eq_align(Creature *ch)
                     return damage(ch, ch, dice(extraction_damage, 3), TOP_SPELL_DEFINE, pos);
                 }
             }
-            
+
             obj = GET_EQ(ch, pos);
             if (!obj)
                 continue;
-            
+
                     if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
                         (IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_GOOD(ch))) {
                     int skill;
-                
-                    act("You are burned by $p and frantically take it off!", FALSE, ch, obj, 0, TO_CHAR);
-                    act("$n frantically takes off $p as $e screams in agony!", FALSE, ch, obj, 0,
+
+                    act("You are burned by $p and frantically take it off!", false, ch, obj, 0, TO_CHAR);
+                    act("$n frantically takes off $p as $e screams in agony!", false, ch, obj, 0,
                         TO_ROOM);
                     skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
                     skill >>= 5;
                     skill = MAX(1, skill);
                     obj_to_char(unequip_char(ch, pos, false), ch);
-                
+
                     return damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos);
                 }
-                    
-                    
+
                 if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
                     (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
                     (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
                     act("You are zapped by $p and instantly let go of it.",
-                        FALSE, ch, obj, 0, TO_CHAR);
+                        false, ch, obj, 0, TO_CHAR);
                     act("$n is zapped by $p and instantly lets go of it.",
-                        FALSE, ch, obj, 0, TO_ROOM);
+                        false, ch, obj, 0, TO_ROOM);
                     obj_to_char(unequip_char(ch, pos, false), ch);
                     if (IS_NPC(ch)) {
                         obj_from_char(obj);
@@ -1571,8 +1561,6 @@ get_number(char **name)
 	return 1;
 }
 
-
-
 /* Search a given list for an object number, and return a ptr to that obj */
 struct obj_data *
 get_obj_in_list_num(int num, struct obj_data *list)
@@ -1586,8 +1574,6 @@ get_obj_in_list_num(int num, struct obj_data *list)
 	return NULL;
 }
 
-
-
 /* search the entire world for an object number, and return a pointer  */
 struct obj_data *
 get_obj_num(int nr)
@@ -1600,8 +1586,6 @@ get_obj_num(int nr)
 
 	return NULL;
 }
-
-
 
 /* search a room for a char, and return a pointer if found..  */
 struct Creature *
@@ -1637,11 +1621,11 @@ same_obj(obj_data *obj1, obj_data *obj2)
 		return (obj1 == obj2);
 
 	if (GET_OBJ_VNUM(obj1) != GET_OBJ_VNUM(obj2))
-		return (FALSE);
+		return (false);
 
 	if (GET_OBJ_SIGIL_IDNUM(obj1) != GET_OBJ_SIGIL_IDNUM(obj2) ||
 		GET_OBJ_SIGIL_LEVEL(obj1) != GET_OBJ_SIGIL_LEVEL(obj2))
-		return FALSE;
+		return false;
 
 	if ((obj1->shared->proto &&
 			(obj1->name != obj1->shared->proto->name
@@ -1650,30 +1634,30 @@ same_obj(obj_data *obj1, obj_data *obj2)
 			&& (obj2->name !=
 				obj2->shared->proto->name
 				|| obj2->line_desc != obj2->shared->proto->line_desc)))
-		return FALSE;
+		return false;
 
 	if ((obj1->name != obj2->name ||
 			obj1->line_desc != obj2->line_desc) &&
 		(strcasecmp(obj1->name, obj2->name) ||
 			!obj1->line_desc || !obj2->line_desc ||
 			strcasecmp(obj1->line_desc, obj2->line_desc)))
-		return (FALSE);
+		return (false);
 
 	if (GET_OBJ_COST(obj1) != GET_OBJ_COST(obj2) ||
 		GET_OBJ_EXTRA(obj1) != GET_OBJ_EXTRA(obj2) ||
 		GET_OBJ_EXTRA2(obj1) != GET_OBJ_EXTRA2(obj2))
-		return (FALSE);
+		return (false);
 
 	for (index = 0; index < MAX_OBJ_AFFECT; index++)
 		if ((obj1->affected[index].location != obj2->affected[index].location)
 			|| (obj1->affected[index].modifier !=
 				obj2->affected[index].modifier))
-			return (FALSE);
+			return (false);
 
 	if (obj1->getWeight() != obj2->getWeight())
-		return FALSE;
+		return false;
 
-	return (TRUE);
+	return (true);
 }
 
 /* put an object in a room */
@@ -1775,7 +1759,6 @@ obj_from_room(struct obj_data *object)
 	REMOVE_BIT(GET_OBJ_EXTRA2(object), ITEM2_HIDDEN);
 }
 
-
 /* put an object in an object (quaint)  */
 void
 obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted)
@@ -1871,7 +1854,6 @@ obj_from_obj(struct obj_data *obj)
 	REMOVE_BIT(GET_OBJ_EXTRA2(obj), ITEM2_HIDDEN);
 }
 
-
 /* Extract an object from the world */
 void
 extract_obj(struct obj_data *obj)
@@ -1918,7 +1900,7 @@ extract_obj(struct obj_data *obj)
 
     if (IS_CORPSE(obj)) {
         char *fname;
-        
+
         if (CORPSE_IDNUM(obj)) {
             fname = get_corpse_file_path(CORPSE_IDNUM(obj));
             remove(fname);
@@ -1926,8 +1908,6 @@ extract_obj(struct obj_data *obj)
     }
 	free_obj(obj);
 }
-
-
 
 void
 update_object(struct obj_data *obj, int use)
@@ -1940,7 +1920,6 @@ update_object(struct obj_data *obj, int use)
         obj = obj->next_content;
     }
 }
-
 
 void
 update_char_objects(struct Creature *ch)
@@ -1955,14 +1934,14 @@ update_char_objects(struct Creature *ch)
 			if (GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2) > 0) {
 				i = --GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2);
 				if (i == 1) {
-					act("Your light begins to flicker and fade.", FALSE, ch, 0,
+					act("Your light begins to flicker and fade.", false, ch, 0,
 						0, TO_CHAR);
-					act("$n's light begins to flicker and fade.", FALSE, ch, 0,
+					act("$n's light begins to flicker and fade.", false, ch, 0,
 						0, TO_ROOM);
 				} else if (i == 0) {
-					act("Your light sputters out and dies.", FALSE, ch, 0, 0,
+					act("Your light sputters out and dies.", false, ch, 0, 0,
 						TO_CHAR);
-					act("$n's light sputters out and dies.", FALSE, ch, 0, 0,
+					act("$n's light sputters out and dies.", false, ch, 0, 0,
 						TO_ROOM);
 					ch->in_room->light--;
 				}
@@ -1976,14 +1955,10 @@ update_char_objects(struct Creature *ch)
 		update_object(ch->carrying, 1);
 }
 
-
-
-
 /* ***********************************************************************
    Here follows high-level versions of some earlier routines, ie functions
    which incorporate the actual player-data.
    *********************************************************************** */
-
 
 struct Creature *
 get_player_vis(struct Creature *ch, const char *name, int inroom)
@@ -2025,7 +2000,6 @@ get_player_vis(struct Creature *ch, const char *name, int inroom)
 	return match;
 }
 
-
 struct Creature *
 get_char_room_vis(struct Creature *ch, const char *name)
 {
@@ -2050,7 +2024,7 @@ get_char_room_vis(struct Creature *ch, const char *name)
 		af = affected_by_spell( (*it), SKILL_DISGUISE );
 		if( af != NULL ) {
 			mob = real_mobile_proto(af->modifier);
-		} 
+		}
 
 		if( (mob != NULL && isname(tmp, mob->player.name)) ||
 			(( af == NULL || CAN_DETECT_DISGUISE(ch, (*it), af->duration))
@@ -2081,7 +2055,7 @@ get_char_random(room_data *room)
 			result = *cit;
 		total++;
 	}
-	
+
 	return result;
 }
 
@@ -2102,7 +2076,7 @@ get_char_random_vis(struct Creature *ch, room_data *room)
             total++;
         }
 	}
-	
+
 	return result;
 }
 
@@ -2123,7 +2097,7 @@ get_player_random(room_data *room)
             total++;
         }
 	}
-	
+
 	return result;
 }
 
@@ -2144,7 +2118,7 @@ get_player_random_vis(struct Creature *ch, room_data *room)
             total++;
         }
 	}
-	
+
 	return result;
 }
 
@@ -2188,8 +2162,6 @@ get_char_vis(struct Creature *ch, const char *name)
 	return NULL;
 }
 
-
-
 struct obj_data *
 get_obj_in_list_vis(struct Creature *ch, const char *name, struct obj_data *list)
 {
@@ -2232,8 +2204,6 @@ get_obj_in_list_all(struct Creature *ch, const char *name, struct obj_data *list
 	return NULL;
 }
 
-
-
 /* search the entire world for an object, and return a pointer  */
 struct obj_data *
 get_obj_vis(struct Creature *ch, const char *name)
@@ -2273,7 +2243,6 @@ get_obj_vis(struct Creature *ch, const char *name)
 
 	return NULL;
 }
-
 
 struct obj_data *
 get_object_in_equip_pos(struct Creature *ch, const char *arg, int pos)
@@ -2409,7 +2378,6 @@ money_desc(int amount, int mode)
 	return result;
 }
 
-
 struct obj_data *
 create_money(int amount, int mode)
 {
@@ -2422,7 +2390,6 @@ create_money(int amount, int mode)
 	}
 	obj = create_obj();
 	CREATE(new_descr, struct extra_descr_data, 1);
-
 
 	if (mode == 0) {
 		if (amount == 1) {
@@ -2495,7 +2462,6 @@ create_money(int amount, int mode)
 	return obj;
 }
 
-
 /* Generic Find, designed to find any object/character                    */
 /* Calling :                                                              */
 /*  *arg     is the sting containing the string to be searched for.       */
@@ -2549,7 +2515,6 @@ generic_find(char *arg, int bitvector, struct Creature *ch,
 	if (!*name)
 		return (0);
 
-
 	if (IS_SET(bitvector, FIND_CHAR_ROOM)) {	/* Find person in room */
 		if ((*tar_ch = get_char_room_vis(ch, name))) {
 			return (FIND_CHAR_ROOM);
@@ -2561,22 +2526,22 @@ generic_find(char *arg, int bitvector, struct Creature *ch,
 		}
 	}
 	if (IS_SET(bitvector, FIND_OBJ_EQUIP)) {
-		for (found = FALSE, i = 0; i < NUM_WEARS && !found; i++)
+		for (found = false, i = 0; i < NUM_WEARS && !found; i++)
 			if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->aliases)) {
 				*tar_obj = GET_EQ(ch, i);
-				found = TRUE;
+				found = true;
 			}
 		if (found) {
 			return (FIND_OBJ_EQUIP);
 		}
 	}
 	if (IS_SET(bitvector, FIND_OBJ_EQUIP_CONT)) {
-		for (found = FALSE, i = 0; i < NUM_WEARS && !found; i++)
+		for (found = false, i = 0; i < NUM_WEARS && !found; i++)
 			if (GET_EQ(ch, i) && isname(name, GET_EQ(ch, i)->aliases) &&
 				(GET_OBJ_TYPE(GET_EQ(ch, i)) == ITEM_CONTAINER) &&
 				(i != WEAR_BACK)) {
 				*tar_obj = GET_EQ(ch, i);
-				found = TRUE;
+				found = true;
 			}
 		if (found) {
 			return (FIND_OBJ_EQUIP_CONT);
@@ -2609,7 +2574,6 @@ generic_find(char *arg, int bitvector, struct Creature *ch,
 	}
 	return (0);
 }
-
 
 /* a function to scan for "all" or "all.x" */
 int
@@ -2660,7 +2624,7 @@ Reaction::add_reaction(decision_t action, char *arg)
 	clan_data *clan;
 	char *condition;
 	char new_reaction[3];
-	
+
 	if (action != ALLOW && action != DENY)
 		return false;
 
@@ -2715,7 +2679,7 @@ Reaction::add_reaction(decision_t action, char *arg)
 	} else {
 		_reaction = strdup(new_reaction);
 	}
-	
+
 	return true;
 }
 

@@ -1,6 +1,6 @@
 //
 // File: boardeditor.cc                        -- part of TempusMUD
-// 
+//
 
 #ifdef HAS_CONFIG_H
 #include "config.h"
@@ -46,8 +46,6 @@ start_editing_board(descriptor_data *d,
 
 	d->text_editor = new CBoardEditor(d, b_name, idnum, subject, body);
 }
-
-
 
 CBoardEditor::CBoardEditor(descriptor_data *desc,
                            const char *b_name,

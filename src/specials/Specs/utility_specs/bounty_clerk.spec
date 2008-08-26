@@ -47,7 +47,7 @@ int
 get_bounty_amount(int idnum)
 {
 	Creature vict(true);
-	
+
 	if (!vict.loadFromXML(idnum)) {
 		errlog("Could not load victim in place_bounty");
 		return 0;
@@ -55,7 +55,7 @@ get_bounty_amount(int idnum)
 
 	if (!IS_CRIMINAL(&vict))
 		return 0;
-	
+
 	return GET_REPUTATION(&vict) * 20000;
 }
 
@@ -72,7 +72,7 @@ award_bounty(Creature *killer, Creature *vict)
 		return false;
 
 	// first find and remove the hunter record - if they aren't a registered
-	// hunter, they don't get the bounty.. 
+	// hunter, they don't get the bounty..
 	hunter = find(hunter_list.begin(), hunter_list.end(), GET_IDNUM(killer));
 	// no hunter record for this killer
 	if (hunter == hunter_list.end())
@@ -131,7 +131,7 @@ award_bounty(Creature *killer, Creature *vict)
 	amt -= amt_left;
 	if (!amt)
 		return true;
-	
+
 	// Award them the amount
 	if (!AFF_FLAGGED(killer, AFF_GROUP)) {
 		send_to_char(killer, "You have been paid %d gold coins for killing %s!\r\n",
@@ -200,7 +200,6 @@ register_bounty(Creature *self, Creature *ch, char *argument)
 
 	perform_say(ch, "inquire", tmp_sprintf("I'd like to register as a bounty hunter for %s.",
                                        tmp_capitalize(tmp_tolower(vict_name))));
-	
 
 	if (IS_CRIMINAL(ch)) {
 		perform_say(self, "say", "You're a criminal.  Scum like you don't get to be bounty hunters.");
@@ -240,7 +239,7 @@ register_bounty(Creature *self, Creature *ch, char *argument)
 		sql_exec("update bounty_hunters set victim=%ld where idnum=%ld",
 			GET_IDNUM(&vict), GET_IDNUM(ch));
 	}
-		
+
 	return 1;
 }
 
@@ -248,9 +247,9 @@ SPECIAL(bounty_clerk)
 {
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
-	
+
 	if (CMD_IS("register"))
 		return register_bounty((Creature *)me, ch, argument);
-	
+
 	return 0;
 }

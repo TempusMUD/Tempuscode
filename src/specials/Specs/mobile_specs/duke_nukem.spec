@@ -14,7 +14,6 @@ SPECIAL(duke_nukem)
 	if (cmd || !AWAKE(duke))
 		return 0;
 
-
 	if (duke->isFighting()) {
         vict = duke->findRandomCombat();
 		if (GET_HIT(duke) > (GET_MAX_HIT(duke) >> 2) &&

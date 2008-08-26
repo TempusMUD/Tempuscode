@@ -15,7 +15,7 @@ SPECIAL(fountain_good)
 	if (!CMD_IS("drink") || *argument || !isname(argument, obj->aliases))
 		return 0;
 
-	act("$n drinks from $p.", TRUE, ch, obj, 0, TO_ROOM);
+	act("$n drinks from $p.", true, ch, obj, 0, TO_ROOM);
 	WAIT_STATE(ch, 2 RL_SEC);	// don't let them spam drink
 	call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_GOOD, 25, CAST_SPELL);
 	// everything you need is handled in call_magic(), damage, etc...
@@ -39,7 +39,7 @@ SPECIAL(fountain_evil)
 		return 0;
 	}
 
-	act("$n drinks from $p.", TRUE, ch, obj, 0, TO_ROOM);
+	act("$n drinks from $p.", true, ch, obj, 0, TO_ROOM);
 	WAIT_STATE(ch, 2 RL_SEC);
 	call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_EVIL, 25, CAST_SPELL);
 

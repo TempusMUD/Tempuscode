@@ -19,14 +19,14 @@ SPECIAL(increaser)
 	byte mode, status = 0;
 
 	if ((!CMD_IS("increase")) || IS_NPC(ch))
-		return FALSE;
+		return false;
 
 	two_arguments(argument, arg1, arg2);
 
 	if (GET_LEVEL(ch) < 20) {
 		send_to_char(ch, "You are not yet ready to increase.\r\n");
 		send_to_char(ch, "Come back when you are level 20 or above.\r\n");
-		return TRUE;
+		return true;
 	}
 
 	if (GET_MOB_VNUM(increaser) == 30100)
@@ -107,14 +107,14 @@ SPECIAL(increaser)
 	if (CASH_MONEY(ch) < gold) {
 		send_to_char(ch,
 			"But you do not have enough money on you for that.\r\n");
-		act(buf, TRUE, ch, 0, 0, TO_ROOM);
+		act(buf, true, ch, 0, 0, TO_ROOM);
 		return 1;
 	}
 	if (GET_LIFE_POINTS(ch) < life_cost) {
 		send_to_char(ch,
 			"But you do not have enough life points for that.\r\n");
-		act(buf, TRUE, ch, 0, 0, TO_ROOM);
-		return TRUE;
+		act(buf, true, ch, 0, 0, TO_ROOM);
+		return true;
 	}
 
 	CASH_MONEY(ch) = MAX(0, CASH_MONEY(ch) - gold);
@@ -136,12 +136,12 @@ SPECIAL(increaser)
 		GET_NAME(ch), arg1, incr, ch->in_room->number);
 
 	send_to_char(ch, "You begin your improvement.\r\n");
-	act("$n begins to improve.", FALSE, ch, 0, 0, TO_ROOM);
+	act("$n begins to improve.", false, ch, 0, 0, TO_ROOM);
 	if (GET_COND(ch, FULL) != -1)
 		GET_COND(ch, FULL) = 1;
 	if (GET_COND(ch, THIRST) != -1)
 		GET_COND(ch, THIRST) = 1;
 	WAIT_STATE(ch, PULSE_VIOLENCE * 5);
 	ch->saveToXML();
-	return TRUE;
+	return true;
 }

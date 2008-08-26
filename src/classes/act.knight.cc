@@ -82,10 +82,10 @@ holytouch_after_effect(long owner, Creature * vict, int level)
 
 	send_to_char(vict, "Visions of pure evil sear through your mind!\r\n");
 	if (vict->getPosition() > POS_SITTING) {
-		act("$n falls to $s knees screaming!", TRUE, vict, 0, 0, TO_ROOM);
+		act("$n falls to $s knees screaming!", true, vict, 0, 0, TO_ROOM);
 		vict->setPosition(POS_SITTING);
 	} else {
-		act("$n begins to scream!", TRUE, vict, 0, 0, TO_ROOM);
+		act("$n begins to scream!", true, vict, 0, 0, TO_ROOM);
 	}
 	WAIT_STATE(vict, 1 RL_SEC);
 	if (GET_EQ(vict, WEAR_FACE))
@@ -134,7 +134,7 @@ malovent_holy_touch(Creature * ch, Creature * vict)
 
 	if (affected_by_spell(vict, SKILL_HOLY_TOUCH)
 		|| affected_by_spell(vict, TYPE_MALOVENT_HOLYTOUCH)) {
-		act("There is nothing more you can show $N.", FALSE, ch, 0, vict,
+		act("There is nothing more you can show $N.", false, ch, 0, vict,
 			TO_CHAR);
 		return;
 	}
@@ -216,9 +216,9 @@ healing_holytouch(Creature * ch, Creature * vict)
 			act("$n covers $s head with $s hands and prays.", true, ch, 0, 0,
 				TO_ROOM);
 		} else {
-			act("$N places $S hands on your head and prays.", FALSE, vict, 0,
+			act("$N places $S hands on your head and prays.", false, vict, 0,
 				ch, TO_CHAR);
-			act("$n places $s hands on the head of $N.", FALSE, ch, 0, vict,
+			act("$n places $s hands on the head of $N.", false, ch, 0, vict,
 				TO_NOTVICT);
 			send_to_char(ch, "You do it.\r\n");
 		}

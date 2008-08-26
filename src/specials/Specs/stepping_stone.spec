@@ -57,7 +57,6 @@ SPECIAL(portal_out)
 	return false;
 }
 
-
 SPECIAL(arena_locker)
 {
 	struct Creature *atten = (struct Creature *)me;

@@ -11,7 +11,6 @@
 #include "handler.h"
 #include "utils.h"
 
-
 #define DAM_OBJECT_IDNUM(obj) (IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj))
 
 #define IS_WEAPON(type) ((((type)>=TYPE_HIT) && ((type)<TOP_ATTACKTYPE)) || \
@@ -50,7 +49,6 @@
 #define BLOODLET(ch, dam, attacktype) \
  (MIN(BLOODLET_FACTOR(attacktype) * dam, 10000) > number(0, 20000))
 
-
 #define POS_DAMAGE_OK(location) \
 (location != WEAR_LIGHT && location != WEAR_ABOUT && \
  location != WEAR_HOLD  && location != WEAR_BELT &&  \
@@ -80,8 +78,8 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
 			// bare-handed attacks with kata can hit magical stuff
 			if (IS_WEAPON(attacktype) && !weap &&
 					ch->getLevelBonus(SKILL_KATA) >= 50 &&
-						affected_by_spell(ch, SKILL_KATA)) 
-				return false;	
+						affected_by_spell(ch, SKILL_KATA))
+				return false;
 		}
 
 		// Spells can hit them
@@ -95,7 +93,7 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
         // energy weapons can hit them
         if (weap && GET_OBJ_TYPE(weap) == ITEM_ENERGY_GUN)
             return false;
-        
+
 		// nothing else can
 		return true;
 	}
@@ -272,6 +270,5 @@ int skill_message(int dam, struct Creature *ch, struct Creature *vict,
 int best_attack(struct Creature *ch, struct Creature *vict);
 bool check_infiltrate(struct Creature *ch, struct Creature *vict);
 void add_blood_to_room(struct room_data *rm, int amount);
-
 
 #endif							// __fight_h__

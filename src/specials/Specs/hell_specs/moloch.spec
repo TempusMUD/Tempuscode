@@ -12,7 +12,6 @@ SPECIAL(moloch)
 	room_data *targ_room = NULL;
 	int throne_rooms[4] = { 16645, 16692, 16692, 16623 }, index;
 
-
 	if (cmd)
 		return 0;
 	if (spec_mode != SPECIAL_TICK)
@@ -30,9 +29,9 @@ SPECIAL(moloch)
 			return 1;
 		} else if (!number(0, 8) && GET_DEX(vict) < number(10, 25)) {
 			act("$n picks you up in his jaws and flails you around!!",
-				FALSE, moloch, 0, vict, TO_VICT);
+				false, moloch, 0, vict, TO_VICT);
 			act("$n picks $N up in his jaws and flails $M around!!",
-				FALSE, moloch, 0, vict, TO_NOTVICT);
+				false, moloch, 0, vict, TO_NOTVICT);
 			damage(moloch, vict, dice(30, 29), TYPE_RIP,
 				WEAR_BODY);
 			WAIT_STATE(moloch, 7 RL_SEC);
@@ -51,11 +50,11 @@ SPECIAL(moloch)
 		return 0;
 
 	act("A devilish voice rumbles from all around, in an unknown language.",
-		FALSE, moloch, 0, 0, TO_ROOM);
-	act("$n slowly fades from existence.", TRUE, moloch, 0, 0, TO_ROOM);
+		false, moloch, 0, 0, TO_ROOM);
+	act("$n slowly fades from existence.", true, moloch, 0, 0, TO_ROOM);
 	char_from_room(moloch, false);
 	char_to_room(moloch, targ_room, false);
-	act("$n slowly appears from another place.", TRUE, moloch, 0, 0, TO_ROOM);
+	act("$n slowly appears from another place.", true, moloch, 0, 0, TO_ROOM);
 	CreatureList::iterator it = moloch->in_room->people.begin();
 	for (index = 0; it != moloch->in_room->people.end(); ++it) {
 		if (*it != moloch) {

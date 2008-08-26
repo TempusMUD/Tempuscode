@@ -78,13 +78,11 @@ void engage_self_destruct(struct Creature *ch);
 #define SKILLCHIP(obj)         (CHIP_TYPE(obj) == CHIP_SKILL)
 #define AFFCHIP(obj)           (CHIP_TYPE(obj) == CHIP_AFFECTS)
 
-
 #define RECHARGABLE(obj)         (IS_VEHICLE(target) || IS_BATTERY(target) ||\
 				  IS_ENERGY_CELL(target) ||  \
 				  IS_TRANSPORTER(target) || \
 				  IS_COMMUNICATOR(target) || \
 				  IS_DEVICE(target))
-
 
 #define IS_SYRINGE(obj)  (GET_OBJ_TYPE(obj) == ITEM_SYRINGE)
 #define IS_VIAL(obj)     (GET_OBJ_TYPE(obj) == ITEM_VIAL)
@@ -109,7 +107,6 @@ extern const char *microchip_types[];
 extern const char *interface_types[];
 extern const char *borg_subchar_class_names[];
 extern const char *component_names[][3];
-
 
 void perform_monk_meditate(struct Creature *ch);
 

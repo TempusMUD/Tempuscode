@@ -4,14 +4,12 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 /* To make a telescope, simply make an object for the scope. To use
    it, one will type 'look scope <keyword>', where the keyword will
    be an exdesc on the scope.
 
    You must set value 3 of the scope to be -999.
 */
-
 
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
 	0);
@@ -36,7 +34,7 @@ SPECIAL(telescope)
 	if ((desc = find_exdesc(arg2, scope->ex_description)) != NULL) {
 		page_string(ch->desc, desc);
 	} else
-		act("You cannot look at that with $p.", FALSE, ch, scope, 0, TO_CHAR);
+		act("You cannot look at that with $p.", false, ch, scope, 0, TO_CHAR);
 
 	return 1;
 }

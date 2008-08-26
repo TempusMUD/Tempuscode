@@ -22,20 +22,19 @@
 #include "char_class.h"
 #include "fight.h"
 
-
 ASPELL(spell_dispel_evil)
 {
     int dam = 0;
     int retval = 0;
-    
+
     if (IS_EVIL(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
-        send_to_char(ch, 
+        send_to_char(ch,
                      "Your soul is not righteous enough to cast this spell.\n");
         return;
     }
 
     if (victim == ch) {
-        send_to_char(ch, 
+        send_to_char(ch,
                      "That is not the way to the path of righteousness.\n");
         return;
     }
@@ -45,7 +44,7 @@ ASPELL(spell_dispel_evil)
             if (!IS_NPC(victim) && IS_EVIL(victim)) {
                 act("You cannot do this because you have chosen not "
                     "to be a pkiller.\r\nYou can toggle this with the "
-                    "command 'pkiller'.", FALSE, ch, 0, victim, TO_CHAR);
+                    "command 'pkiller'.", false, ch, 0, victim, TO_CHAR);
                 return;
             }
         }
@@ -54,7 +53,7 @@ ASPELL(spell_dispel_evil)
             retval = damage(ch, victim, dam, SPELL_DISPEL_EVIL, WEAR_RANDOM);
         }
 
-        GET_ALIGNMENT(victim) += MAX(10, 
+        GET_ALIGNMENT(victim) += MAX(10,
                                      ch->getLevelBonus(SPELL_DISPEL_EVIL) >> 2);
 
         if (!IS_SET(retval, DAM_ATTACKER_KILLED))
@@ -67,15 +66,15 @@ ASPELL(spell_dispel_evil)
 
     if (obj) {
         if (!IS_OBJ_STAT(obj, ITEM_DAMNED)) {
-            act("This item does not need to be cleansed.", FALSE, ch, 0,
+            act("This item does not need to be cleansed.", false, ch, 0,
                 NULL, TO_CHAR);
             return;
         }
 
         if (dice(30, (ch->getLevelBonus(SPELL_DISPEL_EVIL) / 5)) < 50) {
-            act("$p crumbles to dust as you attempt to cleanse it.", FALSE,
+            act("$p crumbles to dust as you attempt to cleanse it.", false,
                 ch, obj, NULL, TO_CHAR);
-            act("$p crumbles to dust as $n tries to cleanse it.", FALSE,
+            act("$p crumbles to dust as $n tries to cleanse it.", false,
                 ch, obj, NULL, TO_NOTVICT);
             destroy_object(ch, obj, SPELL_DISPEL_EVIL);
 
@@ -83,7 +82,7 @@ ASPELL(spell_dispel_evil)
         }
 
         REMOVE_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
-        act("$p has been cleansed of evil!", FALSE, ch, obj, NULL, TO_CHAR);
+        act("$p has been cleansed of evil!", false, ch, obj, NULL, TO_CHAR);
 
         return;
     }
@@ -91,19 +90,19 @@ ASPELL(spell_dispel_evil)
     return;
 }
 
-ASPELL(spell_dispel_good) 
+ASPELL(spell_dispel_good)
 {
     int dam = 0;
     int retval = 0;
-    
+
     if (IS_GOOD(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
-        send_to_char(ch, 
+        send_to_char(ch,
                      "Your soul is not stained enough to cast this spell.\n");
         return;
     }
 
     if (victim == ch) {
-        send_to_char(ch, 
+        send_to_char(ch,
                      "That is not the way to the path of unrighteousness.\n");
         return;
     }
@@ -113,7 +112,7 @@ ASPELL(spell_dispel_good)
             if (!IS_NPC(victim) && IS_GOOD(victim)) {
                 act("You cannot do this because you have chosen not "
                     "to be a pkiller.\r\nYou can toggle this with the "
-                    "command 'pkiller'.", FALSE, ch, 0, victim, TO_CHAR);
+                    "command 'pkiller'.", false, ch, 0, victim, TO_CHAR);
                 return;
             }
         }
@@ -123,7 +122,7 @@ ASPELL(spell_dispel_good)
             retval = damage(ch, victim, dam, SPELL_DISPEL_GOOD, WEAR_RANDOM);
         }
 
-        GET_ALIGNMENT(victim) -= MAX(5, 
+        GET_ALIGNMENT(victim) -= MAX(5,
                                      ch->getLevelBonus(SPELL_DISPEL_GOOD) / 5);
 
         if (!IS_SET(retval, DAM_ATTACKER_KILLED))
@@ -136,15 +135,15 @@ ASPELL(spell_dispel_good)
 
     if (obj) {
         if (!IS_OBJ_STAT(obj, ITEM_BLESS)) {
-            act("This item does not need to be defiled.", FALSE, ch, 0,
+            act("This item does not need to be defiled.", false, ch, 0,
                 NULL, TO_CHAR);
             return;
         }
 
         if (dice(30, (ch->getLevelBonus(SPELL_DISPEL_GOOD) / 5)) < 50) {
-            act("$p crumbles to dust as you attempt to defile it.", FALSE,
+            act("$p crumbles to dust as you attempt to defile it.", false,
                 ch, obj, NULL, TO_CHAR);
-            act("$p crumbles to dust as $n tries to defile it.", FALSE,
+            act("$p crumbles to dust as $n tries to defile it.", false,
                 ch, obj, NULL, TO_NOTVICT);
             destroy_object(ch, obj, SPELL_DISPEL_GOOD);
 
@@ -152,7 +151,7 @@ ASPELL(spell_dispel_good)
         }
 
         REMOVE_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
-        act("$p has been defiled!", FALSE, ch, obj, NULL, TO_CHAR);
+        act("$p has been defiled!", false, ch, obj, NULL, TO_CHAR);
 
         return;
     }

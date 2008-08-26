@@ -139,7 +139,6 @@ OLCIMP(Creature * ch)
 "olc zcmd [zone] <D> <if_flag> <room> <door> <state>\r\n" \
 "olc zcmd [zone] <I> <if_flag> <obj> <num> <pos> <mob> <prob>\r\n"
 
-
 #define SEARCH_USAGE "Values:\r\n"  \
 "Command  Values: 0              1            2\r\n" \
 "OBJECT       object vnum    room vnum     max exist\r\n" \
@@ -282,7 +281,6 @@ const char *olc_commands[] = {
 	"\n"						/* many more to be added */
 };
 
-
 struct extra_descr_data *
 locate_exdesc(char *word, struct extra_descr_data *list, int exact = 0)
 {
@@ -303,7 +301,6 @@ locate_exdesc(char *word, struct extra_descr_data *list, int exact = 0)
 	return NULL;
 }
 
-
 #define obj_p     GET_OLC_OBJ(ch)
 #define mob_p     GET_OLC_MOB(ch)
 
@@ -318,7 +315,7 @@ ACMD(do_olc)
 	struct room_data *rnum, *room;
 	int edir;
 	int i = 0, j, k;
-	byte one_way = FALSE;
+	byte one_way = false;
 	struct extra_descr_data *desc, *ndesc, *temp;
 	struct obj_data *tmp_obj = NULL, *obj = NULL;
 	struct descriptor_data *d = NULL;
@@ -326,7 +323,6 @@ ACMD(do_olc)
 	struct Creature *mob = NULL;
 	struct Creature *tmp_mob = NULL;
 	struct special_search_data *tmp_search;
-
 
 	if (olc_lock || (IS_SET(ch->in_room->zone->flags, ZONE_LOCKED))) {
 		if (GET_LEVEL(ch) >= LVL_IMPL) {
@@ -348,7 +344,7 @@ ACMD(do_olc)
 		page_string(ch->desc, OLC_USAGE);
 		return;
 	}
-	if ((olc_command = search_block(mode_arg, olc_commands, FALSE)) < 0) {
+	if ((olc_command = search_block(mode_arg, olc_commands, false)) < 0) {
 		send_to_char(ch, "Invalid command '%s'.\r\n", mode_arg);
 		return;
 	}
@@ -389,7 +385,7 @@ ACMD(do_olc)
 		break;
 	case 1:					/* rmimic */
 		if (!*argument) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Usage: olc rmimic <room num> [all] [sounds] [flags] [desc] [exdesc]\r\n");
 			break;
 		}
@@ -411,14 +407,14 @@ ACMD(do_olc)
 
 	case 3:					/* exit */
 		if (!*argument) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Usage: olc exit <direction> <parameter> <value>.\r\n");
 			return;
 		}
 		half_chop(argument, buf, argument);
 		skip_spaces(&argument);
 
-		if ((!*buf) || ((edir = search_block(buf, dirs, FALSE)) < 0)) {
+		if ((!*buf) || ((edir = search_block(buf, dirs, false)) < 0)) {
 			send_to_char(ch, "What exit?\r\n");
 			return;
 		}
@@ -426,7 +422,7 @@ ACMD(do_olc)
 		half_chop(argument, buf, argument);
 		skip_spaces(&argument);
 		if (!*buf) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Options are: description, doorflags, toroom, keynumber, keywords, remove.\r\n");
 			return;
 		}
@@ -457,10 +453,10 @@ ACMD(do_olc)
 			}
 
 			if (EXIT(ch, edir)->general_description == NULL) {
-				act("$n begins to create an exit description.", TRUE, ch, 0, 0,
+				act("$n begins to create an exit description.", true, ch, 0, 0,
 					TO_ROOM);
 			} else {
-				act("$n begins to edit an exit description.", TRUE, ch, 0, 0,
+				act("$n begins to edit an exit description.", true, ch, 0, 0,
 					TO_ROOM);
 			}
 			start_editing_text(ch->desc, &EXIT(ch, edir)->general_description);
@@ -510,27 +506,27 @@ ACMD(do_olc)
 			}
 
 			if (*arg2 && is_abbrev(arg2, "one-way"))
-				one_way = TRUE;
+				one_way = true;
 			EXIT(ch, edir)->to_room = room;
 			if (!one_way && !ABS_EXIT(room, rev_dir[edir])) {
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"To room set.  Unable to create return exit.\r\n");
 				} else {
 					CREATE(ABS_EXIT(room, rev_dir[edir]),
 						struct room_direction_data, 1);
 					ABS_EXIT(room, rev_dir[edir])->to_room = ch->in_room;
-					send_to_char(ch, 
+					send_to_char(ch,
 						"To room set.  Return exit created from to room.\r\n");
 				}
 			} else if (!one_way &&
 				ABS_EXIT(room, rev_dir[edir])->to_room == NULL) {
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"To room set.  Unable to set return exit.\r\n");
 				} else {
 					ABS_EXIT(room, rev_dir[edir])->to_room = ch->in_room;
-					send_to_char(ch, 
+					send_to_char(ch,
 						"To room set.  Return exit set in to room.\r\n");
 				}
 			} else
@@ -538,7 +534,7 @@ ACMD(do_olc)
 
 			return;
 		} else {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Options are: description, doorflags, toroom, keynumber.\r\n");
 			return;
 		}
@@ -569,11 +565,11 @@ ACMD(do_olc)
 				if (zone->number == j) {
 					if (CAN_EDIT_ZONE(ch, zone)) {
 						if (!IS_SET(zone->flags, ZONE_LOCKED))
-							send_to_char(ch, 
+							send_to_char(ch,
 								"That zone is currently unlocked.\r\n");
 						else {
 							REMOVE_BIT(zone->flags, ZONE_LOCKED);
-							send_to_char(ch, 
+							send_to_char(ch,
 								"Zone unlocked for online creation.\r\n");
 							mudlog(GET_INVIS_LVL(ch), NRM, true,
 								"OLC: %s has unlocked zone %d (%s).",
@@ -687,27 +683,27 @@ ACMD(do_olc)
 						break;
 
 				if (!zone) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"That object does not belong to any zone!!\r\n");
 					errlog("object not in any zone.");
 					return;
 				}
 
 				if (!CAN_EDIT_ZONE(ch, zone)) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"You do not have permission to edit those objects.\r\n");
 					return;
 				}
 
 				if (!OLC_EDIT_OK(ch, zone, ZONE_OBJS_APPROVED)) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Object OLC is not approved for this zone.\r\n");
 					return;
 				}
 
 				for (d = descriptor_list; d; d = d->next) {
 					if (d->creature && GET_OLC_OBJ(d->creature) == tmp_obj) {
-						act("$N is already editing that object.", FALSE, ch, 0,
+						act("$N is already editing that object.", false, ch, 0,
 							d->creature, TO_CHAR);
 						return;
 					}
@@ -759,13 +755,13 @@ ACMD(do_olc)
 		}
 		half_chop(argument, buf, argument);
 		if (!obj_p)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Hey punk, you need an object in your editor first!!!\r\n");
 		else if (!*argument)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Which extra description would you like to deal with?\r\n");
 		else if (!*buf)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Valid commands are: create, remove, edit, addkey.\r\n");
 		else if (is_abbrev(buf, "remove")) {
 			if ((desc = locate_exdesc(argument, obj_p->ex_description, 1))) {
@@ -789,7 +785,7 @@ ACMD(do_olc)
 			return;
 		} else if (is_abbrev(buf, "create")) {
 			if (find_exdesc(argument, obj_p->ex_description)) {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"An extra description already exists with that keyword.\r\n"
 					"Use the 'olc rexdesc remove' command to remove it, or the\r\n"
 					"'olc rexdesc edit' command to change it, punk.\r\n");
@@ -804,7 +800,7 @@ ACMD(do_olc)
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
 			act("$n begins to write an object description.",
-				TRUE, ch, 0, 0, TO_ROOM);
+				true, ch, 0, 0, TO_ROOM);
 			UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
 			for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)
 				if (GET_OBJ_VNUM(tmp_obj) == GET_OBJ_VNUM(obj_p))
@@ -817,12 +813,12 @@ ACMD(do_olc)
 				SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 				UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
 				act("$n begins to write an object description.",
-					TRUE, ch, 0, 0, TO_ROOM);
+					true, ch, 0, 0, TO_ROOM);
 				for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)
 					if (GET_OBJ_VNUM(tmp_obj) == GET_OBJ_VNUM(obj_p))
 						tmp_obj->ex_description = NULL;
 			} else
-				send_to_char(ch, 
+				send_to_char(ch,
 					"No such description.  Use 'create' to make a new one.\r\n");
 
 			return;
@@ -830,7 +826,7 @@ ACMD(do_olc)
 			half_chop(argument, arg1, arg2);
 			if ((desc = locate_exdesc(arg1, obj_p->ex_description, 1))) {
 				if (!*arg2) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"What??  How about giving me some keywords to add...\r\n");
 					return;
 				} else {
@@ -844,7 +840,7 @@ ACMD(do_olc)
 					return;
 				}
 			} else
-				send_to_char(ch, 
+				send_to_char(ch,
 					"There is no such description on this object.\r\n");
 		} else
 			send_to_char(ch, OLC_EXDESC_USAGE);
@@ -873,7 +869,7 @@ ACMD(do_olc)
 			}
 			if (j < (GET_ZONE(ch->in_room) * 100)
 				|| j > ch->in_room->zone->top) {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"You cannot olc oload objects from other zones.\r\n");
 				return;
 			}
@@ -888,8 +884,8 @@ ACMD(do_olc)
 		else {
 			obj_to_char(tmp_obj, ch);
 			GET_OBJ_TIMER(tmp_obj) = GET_LEVEL(ch);
-			act("$p appears in your hands.", FALSE, ch, tmp_obj, 0, TO_CHAR);
-			act("$n creates $p in $s hands.", TRUE, ch, tmp_obj, 0, TO_ROOM);
+			act("$p appears in your hands.", false, ch, tmp_obj, 0, TO_CHAR);
+			act("$n creates $p in $s hands.", true, ch, tmp_obj, 0, TO_ROOM);
 			slog("OLC: %s oloaded [%d] %s.", GET_NAME(ch),
 				GET_OBJ_VNUM(tmp_obj), tmp_obj->name);
 		}
@@ -906,7 +902,7 @@ ACMD(do_olc)
 			break;
 		}
 		if (!obj_p) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You need to have an object in your editing buffer first.\r\n");
 			return;
 		}
@@ -1061,7 +1057,7 @@ ACMD(do_olc)
 
 	case 20:  /*** create ***/
 		if (!*argument)
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Usage: olc create <room|zone|obj|mob|help> <vnum|next>\r\n");
 		else {
 			int tmp_vnum = 0;
@@ -1152,17 +1148,17 @@ ACMD(do_olc)
 						tmp_search->command_keys, tmp_search->keywords);
 				}
 			} else if (is_abbrev(arg1, "path") && OLCIMP(ch)) {
-				if (!add_path(strcat(arg2, argument), TRUE))
+				if (!add_path(strcat(arg2, argument), true))
 					send_to_char(ch, "Path added.\r\n");
 			} else
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc create <room|zone|obj|mob> <vnum>\r\n");
 		}
 		break;
 
 	case 21:/**** destroy ****/
 		if (!*argument) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Usage: olc destroy <room|zone|obj|mob> <vnum>\r\n");
 			return;
 		}
@@ -1339,7 +1335,7 @@ ACMD(do_olc)
 			send_to_char(ch, "No sUcH mObiLE eSiSTs, foOl!\r\n");
 		else if (mob == GET_OLC_MOB(ch))
 			send_to_char(ch, "wHooah.. geT a griP, aYe?\r\n");
-		else if (olc_mimic_mob(ch, mob, GET_OLC_MOB(ch), TRUE))
+		else if (olc_mimic_mob(ch, mob, GET_OLC_MOB(ch), true))
 			send_to_char(ch, "dUde...  cOulDn't dO it.\r\n");
 		else
 			send_to_char(ch, "aLriGHtY thEn.\r\n");
@@ -1350,10 +1346,10 @@ ACMD(do_olc)
 	case 44:
 		if (!*argument) {
 			if (!GET_OLC_SRCH(ch))
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc xedit <command trigger> <keyword>\r\n");
 			else {
-				send_to_char(ch, 
+				send_to_char(ch,
 				    "You are currently editing a search that triggers on:\r\n"
 					"%s (%s)\r\n", GET_OLC_SRCH(ch)->command_keys,
 					GET_OLC_SRCH(ch)->keywords);
@@ -1392,12 +1388,11 @@ ACMD(do_olc)
 
 			if (j < (GET_ZONE(ch->in_room) * 100)
 				|| j > ch->in_room->zone->top) {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"You cannot olc mload mobiles from other zones.\r\n");
 				return;
 			}
 		}
-
 
 		if (!OLCIMP(ch) && !MOB2_FLAGGED(tmp_mob, MOB2_UNAPPROVED)) {
 			send_to_char(ch, "You cannot olc mload approved mobiles.\r\n");
@@ -1408,8 +1403,8 @@ ACMD(do_olc)
 			send_to_char(ch, "Unable to load mobile.\r\n");
 		} else {
 			char_to_room(tmp_mob, ch->in_room,false);
-			act("$N appears next to you.", FALSE, ch, 0, tmp_mob, TO_CHAR);
-			act("$n creates $N in $s hands.", TRUE, ch, 0, tmp_mob, TO_ROOM);
+			act("$N appears next to you.", false, ch, 0, tmp_mob, TO_CHAR);
+			act("$n creates $N in $s hands.", true, ch, 0, tmp_mob, TO_ROOM);
 			slog("OLC: %s mloaded [%d] %s.", GET_NAME(ch),
 				GET_MOB_VNUM(tmp_mob), GET_NAME(tmp_mob));
 		}
@@ -1464,7 +1459,7 @@ ACMD(do_olc)
 
 			//
 			// modes
-			// mode 1 = ONLY exits with no toroom 
+			// mode 1 = ONLY exits with no toroom
 			// mode 2 = ONLY exits with a toroom
 			// mode 3 = ALL exits
 			//
@@ -1564,20 +1559,20 @@ ACMD(do_olc)
     }
     case 50: { //olc progmimic {room|obj|mob} <vnum>
         int number;
-        
+
         char* arg1 = tmp_getword(&argument); //room|obj|mob
         char* arg2 = tmp_getword(&argument); //vnum
-        
+
         if (!*arg1 || !*arg2 || !isdigit(*arg2)) {
             send_to_char(ch, "Usage: olc progmimic {room|obj|mob} <vnum>\r\n");
             return;
         }
-        
+
         if ((number = atoi(arg2)) < 0) {
             send_to_char(ch, "A NEGATIVE number??\r\n");
             return;
         }
-                
+
         if (is_abbrev(arg1, "mobile")) {
             Creature *mob = real_mobile_proto(number);
             if (!mob) {
@@ -1644,7 +1639,7 @@ recalc_all_mobs(Creature *ch, const char *argument)
 		if (ZONE_FLAGGED(zone, ZONE_NORECALC))
 			send_to_char(ch, "Zone #%d is not being recalculated.\r\n",
 				zone->number);
-	
+
 	if( exptest ) {
 		outfile = fopen("recalc.log","w");
 		if( outfile == NULL ) {
@@ -1678,7 +1673,7 @@ recalc_all_mobs(Creature *ch, const char *argument)
 		}
 		count++;
 	}
-	
+
 	if( exptest ) {
 		fclose(outfile);
 		send_to_char(ch, "%d mobiles tested.\r\n", count);
@@ -1693,7 +1688,6 @@ recalc_all_mobs(Creature *ch, const char *argument)
 		send_to_char(ch, "%d mobiles recalculated.\r\n", count);
 	}
 }
-
 
 const char *olc_help_keys[] = {
 	"rflags",
@@ -1764,8 +1758,8 @@ show_olc_help(struct Creature *ch, char *arg)
 		strcat(buf, CCNRM(ch, C_NRM));
 		page_string(ch->desc, buf);
 		return;
-	} else if ((which_help = search_block(arg1, olc_help_keys, FALSE)) < 0) {
-		send_to_char(ch, 
+	} else if ((which_help = search_block(arg1, olc_help_keys, false)) < 0) {
+		send_to_char(ch,
 			"No such keyword.  Type 'olc help' for a list of valid keywords.\r\n");
 		return;
 	}
@@ -2008,7 +2002,7 @@ show_olc_help(struct Creature *ch, char *arg)
 		if (*arg2) {
 			if (!is_number(arg2)) {
 				if ((i = search_block(arg2, material_names, 0)) < 0) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Type olc help materials for a valid list.\r\n");
 					return;
 				}
@@ -2237,7 +2231,7 @@ show_olc_help(struct Creature *ch, char *arg)
         break;
     }
 	default:
-		send_to_char(ch, 
+		send_to_char(ch,
 			"There is no help on this word yet.  Maybe you should write it.\r\n");
 	}
 	return;
@@ -2324,7 +2318,7 @@ ACMD(do_unapprove)
                  oi != objectPrototypes.upper_bound(last); ++oi) {
                 obj = oi->second;
 		        SET_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
-                
+
             }
 		    save_objs(ch, zone);
             send_to_char(ch, "Objects approved for olc.\r\n");
@@ -2414,7 +2408,6 @@ ACMD(do_unapprove)
 	}
 }
 
-
 #define APPR_USE  "Usage: approve <zone | mob | obj> <vnum> [all | mob | object]\r\n"
 ACMD(do_approve)
 {
@@ -2430,7 +2423,7 @@ ACMD(do_approve)
     arg1 = tmp_getword(&argument);
     arg2 = tmp_getword(&argument);
     arg3 = tmp_getword(&argument);
-    
+
 	if (*arg1) {
 		if (is_abbrev(arg1, "object"))
 			o_m = 0;
@@ -2497,7 +2490,7 @@ ACMD(do_approve)
                  oi != objectPrototypes.upper_bound(last); ++oi) {
                 obj = oi->second;
 		        REMOVE_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
-                
+
             }
 		    save_objs(ch, zone);
             send_to_char(ch, "Objects approved for full inclusion in the game.\r\n");
@@ -2591,7 +2584,7 @@ ACMD(do_approve)
 bool
 CAN_EDIT_ZONE(Creature *ch, struct zone_data * zone)
 {
-	if (Security::isMember(ch, "OLCWorldWrite") 
+	if (Security::isMember(ch, "OLCWorldWrite")
 		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
 		return true;
 

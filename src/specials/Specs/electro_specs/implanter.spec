@@ -57,7 +57,6 @@ SPECIAL(implanter)
 	return 0;
 }
 
-
 void
 implanter_implant(Creature * me, Creature * ch, char *args)
 {
@@ -102,7 +101,6 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 		return;
 	}
 
-
 	if (!CAN_WEAR(implant, wear_bitvectors[pos])) {
 		msg = tmp_sprintf("%s cannot be implanted there.",
 			implant->name);
@@ -114,7 +112,7 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 	if ((IS_OBJ_STAT(implant, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
 		(IS_OBJ_STAT(implant, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
 		(IS_OBJ_STAT(implant, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
-		act("You are unable to safely utilize $p.", FALSE, ch, implant, 0,
+		act("You are unable to safely utilize $p.", false, ch, implant, 0,
 			TO_CHAR);
 		return;
 	}
@@ -164,7 +162,7 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 
 	cost = GET_OBJ_COST(implant);
     cost += (cost*ch->getCostModifier(me))/100;
-    
+
 	if (!IS_CYBORG(ch))
 		cost <<= 1;
 
@@ -187,8 +185,8 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 	equip_char(ch, implant, pos, EQUIP_IMPLANT);
 
 	msg = tmp_sprintf("$n implants $p in your %s.", wear_implantpos[pos]);
-	act(msg, FALSE, me, implant, ch, TO_VICT);
-	act("$n implants $p in $N.", FALSE, me, implant, ch, TO_NOTVICT);
+	act(msg, false, me, implant, ch, TO_VICT);
+	act("$n implants $p in $N.", false, me, implant, ch, TO_NOTVICT);
 
 	GET_HIT(ch) = 1;
 	GET_MOVE(ch) = 1;
@@ -273,7 +271,7 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 
 	cost = GET_OBJ_COST(implant);
     cost += (cost*ch->getCostModifier(me))/100;
-    
+
 	if (!obj && !IS_CYBORG(ch))
 		cost <<= 1;
 	if (obj)
@@ -293,8 +291,8 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 	if (!obj) {
 		msg =
 			tmp_sprintf("$n extracts $p from your %s.", wear_implantpos[pos]);
-		act(msg, FALSE, me, implant, ch, TO_VICT);
-		act("$n extracts $p from $N.", FALSE, me, implant, ch, TO_NOTVICT);
+		act(msg, false, me, implant, ch, TO_VICT);
+		act("$n extracts $p from $N.", false, me, implant, ch, TO_NOTVICT);
 
 		obj_to_char((implant = unequip_char(ch, pos, EQUIP_IMPLANT)), ch);
 		SET_BIT(GET_OBJ_WEAR(implant), ITEM_WEAR_TAKE);
@@ -303,7 +301,7 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 		WAIT_STATE(ch, 10 RL_SEC);
 		ch->saveToXML();
 	} else {
-		act("$n extracts $p from $P.", FALSE, me, implant, obj, TO_ROOM);
+		act("$n extracts $p from $P.", false, me, implant, obj, TO_ROOM);
 		obj_from_obj(implant);
 		SET_BIT(GET_OBJ_WEAR(implant), ITEM_WEAR_TAKE);
 		obj_to_char(implant, ch);
@@ -374,7 +372,7 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 	// implant repairs cost 1.5 the amount of insertion/extraction
 	cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) >> 1;
     cost += (cost*ch->getCostModifier(me))/100;
-    
+
     if (!IS_CYBORG(ch))
 		cost <<= 1;
 
@@ -389,8 +387,8 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 	if (!in_session)
 		GET_CASH(ch) -= cost;
 
-	act("$n repairs $p.", FALSE, me, implant, ch, TO_VICT);
-	act("$n repairs $p inside $N.", FALSE, me, implant, ch, TO_NOTVICT);
+	act("$n repairs $p.", false, me, implant, ch, TO_VICT);
+	act("$n repairs $p inside $N.", false, me, implant, ch, TO_NOTVICT);
 
 	if (IS_OBJ_STAT2(implant, ITEM2_BROKEN)) {
 		GET_OBJ_MAX_DAM(implant) -=

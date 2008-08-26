@@ -16,21 +16,21 @@ SPECIAL(ancient_artifact)
 		strcpy(buf,
 			"A bright blue beam erupts from $p with a screaming roar!");
 		send_to_char(ch, CCCYN(ch, C_NRM));
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
+		act(buf, false, ch, obj, 0, TO_CHAR);
 		send_to_char(ch, CCNRM(ch, C_NRM));
-		act(buf, TRUE, ch, obj, 0, TO_ROOM);
+		act(buf, true, ch, obj, 0, TO_ROOM);
 		strcpy(buf, "$N screams silently as $E briefly fades from existence!");
-		act(buf, FALSE, ch, obj, ch->findRandomCombat(), TO_CHAR);
-		act(buf, TRUE, ch, obj, ch->findRandomCombat(), TO_ROOM);
+		act(buf, false, ch, obj, ch->findRandomCombat(), TO_CHAR);
+		act(buf, true, ch, obj, ch->findRandomCombat(), TO_ROOM);
         Creature *target = ch->findRandomCombat();
 		GET_HIT(target) -= GET_HIT(target) / 10;
 	} else if (number(0, 99)) {
 		strcpy(buf, "$p rumbles disquietingly in your hands.");
 		send_to_char(ch, CCCYN(ch, C_NRM));
-		act(buf, FALSE, ch, obj, 0, TO_CHAR);
+		act(buf, false, ch, obj, 0, TO_CHAR);
 		send_to_char(ch, CCNRM(ch, C_NRM));
 		strcpy(buf, "$p rumbles disquietingly in $n's hands.");
-		act(buf, TRUE, ch, obj, 0, TO_ROOM);
+		act(buf, true, ch, obj, 0, TO_ROOM);
 	} else {
 		// self-destruct
 		bomb_radius_list *rad_elem, *next_elem;

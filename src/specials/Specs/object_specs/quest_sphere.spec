@@ -32,12 +32,12 @@ quest_weapon_enchant(Creature *ch, obj_data *obj, int lvl)
 
 	if (IS_GOOD(ch)) {
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
-		act("$p glows a bright blue.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p glows a bright blue.", false, ch, obj, 0, TO_CHAR);
 	} else if (IS_EVIL(ch)) {
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_GOOD);
-		act("$p glows a bright red.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p glows a bright red.", false, ch, obj, 0, TO_CHAR);
 	} else {
-		act("$p glows a bright yellow.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p glows a bright yellow.", false, ch, obj, 0, TO_CHAR);
 	}
 
     SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC | ITEM_GLOW);
@@ -72,12 +72,12 @@ quest_armor_enchant(Creature *ch, obj_data *obj, int lvl)
 
 	if (IS_GOOD(ch)) {
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
-		act("$p glows a bright blue.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p glows a bright blue.", false, ch, obj, 0, TO_CHAR);
 	} else if (IS_EVIL(ch)) {
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_GOOD);
-		act("$p glows a bright red.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p glows a bright red.", false, ch, obj, 0, TO_CHAR);
 	} else {
-		act("$p glows a bright yellow.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$p glows a bright yellow.", false, ch, obj, 0, TO_CHAR);
 	}
 
 	SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC | ITEM_GLOW);
@@ -136,7 +136,7 @@ SPECIAL(quest_sphere)
 
 	if (spec_mode != SPECIAL_CMD)
 		return false;
-	
+
 	if (!CMD_IS("use") || GET_EQ(ch, WEAR_HOLD) != self)
 		return false;
 

@@ -22,18 +22,18 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
 	if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA) ||
 			GET_ZONE(vict->in_room) == 400)
 		return true;
-    
+
     //mobs don't quest
     if (!IS_NPC(vict)) {
         if (GET_QUEST(vict)) {
             Quest *quest;
-            
+
             quest = quest_by_vnum(GET_QUEST(vict));
             if (QUEST_FLAGGED(quest, QUEST_ARENA))
                 return true;
-        }        
+        }
     }
-	
+
 	if (!ch || !ch->in_room)
 		return false;
 
@@ -45,17 +45,17 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
     if (!IS_NPC(ch)) {
         if (GET_QUEST(ch)) {
             Quest *quest;
-            
+
             quest = quest_by_vnum(GET_QUEST(ch));
             if (QUEST_FLAGGED(quest, QUEST_ARENA))
                 return true;
         }
     }
-    
+
     return false;
 }
 
-bool 
+bool
 is_npk_combat(struct Creature *ch, struct Creature *vict) {
     if (!ch || !vict) {
         return false;
@@ -189,7 +189,7 @@ expire_old_grievances(Creature *ch)
                            std::bind2nd(std::less<time_t>(), min_time),
                            grievance_time()));
     GET_GRIEVANCES(ch).erase(last_it, GET_GRIEVANCES(ch).end());
-        
+
 }
 
 ACMD(do_pardon)
@@ -280,7 +280,7 @@ check_thief(struct Creature *ch, struct Creature *victim,
 	while (AFF_FLAGGED(perp, AFF_CHARM) && perp->master &&
 			perp->in_room == perp->master->in_room)
 		perp = perp->master;
-	
+
 	if (perp == victim)
 		return;
 
@@ -291,7 +291,7 @@ check_thief(struct Creature *ch, struct Creature *victim,
 	// Criminals have NO protection vs psteal
 	if (IS_CRIMINAL(victim))
 		return;
-	
+
     // Start with 10 for causing hassle
     int gain = 10;
 
@@ -315,7 +315,7 @@ check_thief(struct Creature *ch, struct Creature *victim,
     mudlog(LVL_IMMORT, CMP, true,
            "%s gained %d reputation for stealing from %s", GET_NAME(ch),
            gain, GET_NAME(victim));
-    
+
     GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance::THEFT));
 
     if (is_arena_combat(ch, victim))
@@ -395,14 +395,14 @@ punish_killer_death(Creature *ch)
             af = af->next;
         }
     }
-        
+
     GET_REMORT_GEN(ch) -= MIN(GET_REMORT_GEN(ch), loss / 50);
     if (GET_LEVEL(ch) <= (loss % 50)) {
         GET_REMORT_GEN(ch) -= 1;
         lvl = 49 - (loss % 50) + GET_LEVEL(ch);
     } else
         lvl = GET_LEVEL(ch) - (loss % 50);
-		
+
     lvl = MIN(49, MAX(1, lvl));
     // Initialize their character to a level 1 of that gen, without
     // messing with skills/spells and such
@@ -418,7 +418,7 @@ punish_killer_death(Creature *ch)
     advance_level(ch, true);
     GET_MAX_MOVE(ch) += GET_CON(ch);
 
-    // 
+    //
     while (--lvl) {
         GET_LEVEL(ch)++;
         advance_level(ch, true);

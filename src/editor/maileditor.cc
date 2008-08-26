@@ -1,6 +1,6 @@
 //
 // File: maileditor.cc                        -- part of TempusMUD
-// 
+//
 
 #ifdef HAS_CONFIG_H
 #include "config.h"
@@ -141,11 +141,11 @@ CMailEditor::Finalize(const char *text)
 		delete mail_rcpt;
 		mail_rcpt = mail_to;
 	}
-   
+
     list<string>::iterator si;
     for (si = cc_list.begin(); si != cc_list.end(); si++) {
         long id = playerIndex.getID(si->c_str());
-        stored_mail = store_mail(id, GET_IDNUM(desc->creature), 
+        stored_mail = store_mail(id, GET_IDNUM(desc->creature),
                 text,  cc_list, NULL, this->obj_list);
         if (stored_mail == 1) {
             for (r_d = descriptor_list; r_d; r_d = r_d->next) {
@@ -167,13 +167,13 @@ CMailEditor::Finalize(const char *text)
         SendMessage("Your message was not received by one or more recipients.\r\n"
                     "Please try again later!\r\n");
         errlog("store_mail() has returned <= 0");
-    } 
+    }
     if (GET_LEVEL(desc->creature) >= LVL_AMBASSADOR) {
         // Presumably, this message is only displayed for imms for
         // pk avoidance reasons.
         act("$n postmarks and dispatches $s mail.", true, desc->creature, 0, 0, TO_NOTVICT);
     }
-    
+
 }
 
 void
@@ -204,7 +204,7 @@ CMailEditor::ListAttachments(void)
     if (!obj_list) {
         return;
     }
-    
+
     send_to_desc(desc, "\r\n     &yPackages attached to this mail&b: &c\r\n");
 
     if (this->obj_list) {
@@ -277,7 +277,7 @@ CMailEditor::AddRecipient(char *name)
 
 		if (money < cost) {
 			SendMessage(tmp_sprintf("You don't have the %d %s necessary to add %s.\r\n",
-                                    cost, money_desc, 
+                                    cost, money_desc,
                                     tmp_capitalize(playerIndex.getName(new_id_num))));
 			delete new_rcpt;
 			return;
@@ -329,12 +329,12 @@ CMailEditor::RemRecipient(char *name)
                     msg = tmp_sprintf(
 						"%s removed from recipient list.  %d credits have been refunded.\r\n",
 						tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-					GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient 
+					GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient
 				} else {
                     msg = tmp_sprintf(
 						"%s removed from recipient list.  %d credits have been refunded.\r\n",
 						tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-					GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
+					GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
 				}
 			} else {
                 msg = tmp_sprintf("%s removed from recipient list.\r\n",
@@ -346,12 +346,12 @@ CMailEditor::RemRecipient(char *name)
                     msg = tmp_sprintf(
 						"%s removed from recipient list.  %d gold has been refunded.\r\n",
 						tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-					GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient 
+					GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient
 				} else {
 					msg = tmp_sprintf(
 						"%s removed from recipient list.  %d gold has been refunded.\r\n",
 						tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-					GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
+					GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
 				}
 			} else {
                 msg = tmp_sprintf("%s removed from recipient list.\r\n",
@@ -383,12 +383,12 @@ CMailEditor::RemRecipient(char *name)
 				msg = tmp_sprintf(
 					"%s removed from recipient list.  %d credits have been refunded.\r\n",
 					tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-				GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient 
+				GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient
 			} else {
 				msg = tmp_sprintf(
 					"%s removed from recipient list.  %d credits have been refunded.\r\n",
 					tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-				GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
+				GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
 			}
 		} else {
 			msg = tmp_sprintf("%s removed from recipient list.\r\n",
@@ -400,12 +400,12 @@ CMailEditor::RemRecipient(char *name)
                 msg = tmp_sprintf(
 					"%s removed from recipient list.  %d gold has been refunded.\r\n",
 					tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-				GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient 
+				GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient
 			} else {
                 msg = tmp_sprintf(
 					"%s removed from recipient list.  %d gold has been refunded.\r\n",
 					tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-				GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient 
+				GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
 			}
 		} else {
 			msg = tmp_sprintf("%s removed from recipient list.\r\n",
@@ -425,7 +425,7 @@ CMailEditor::AddAttachment(char *obj_name)
 	const char *money_desc;
     unsigned money, cost;
 
-    obj = get_obj_in_list_all(this->desc->creature, obj_name, 
+    obj = get_obj_in_list_all(this->desc->creature, obj_name,
             this->desc->creature->carrying);
 
     if (!obj) {
@@ -435,13 +435,13 @@ CMailEditor::AddAttachment(char *obj_name)
         return;
     }
 
-    if (IS_BOMB(obj) && obj->contains && 
+    if (IS_BOMB(obj) && obj->contains &&
             IS_FUSE(obj->contains) && FUSE_STATE(obj->contains)) {
         SendMessage("The postmaster refuses to mail your package.\r\n");
         return;
     }
 
-    if (IS_OBJ_STAT(obj, ITEM_NODROP) || 
+    if (IS_OBJ_STAT(obj, ITEM_NODROP) ||
             IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM)) {
         SendMessage(tmp_sprintf("You can't let go of %s.\r\n", obj->name));
         return;
@@ -474,7 +474,7 @@ CMailEditor::AddAttachment(char *obj_name)
 			SendMessage(tmp_sprintf("You don't have the %d %s necessary to "
                         "send %s.\r\n", cost, money_desc, obj->name));
 			return;
-		} 
+		}
         else {
             SendMessage(tmp_sprintf("You have been charged an additional %d "
                         "%s for postage.\r\n", cost, money_desc));
@@ -483,9 +483,9 @@ CMailEditor::AddAttachment(char *obj_name)
 			else
 				GET_GOLD(desc->creature) -= cost;
 		}
-	} 
-    
-    obj_from_char(obj);    
+	}
+
+    obj_from_char(obj);
 	// The REMOVE_FROM_LIST macro requires a variable named temp.  We should
 	// really convert it to use a c++ template...
 	obj_data *temp = NULL;
@@ -500,7 +500,7 @@ CMailEditor::AddAttachment(char *obj_name)
         for (o = this->obj_list; o->next_content; o = o->next_content);
         o->next_content = obj;
         obj->next_content = NULL;
-        
+
     }
 
     this->num_attachments++;
@@ -514,12 +514,12 @@ CMailEditor::AddAttachment(char *obj_name)
     return;
 }
 
-void 
+void
 CMailEditor::ReturnAttachments(void)
 {
     struct obj_data *o, *next_obj;
 
-    extern void obj_to_char(struct obj_data *object, struct Creature *ch, 
+    extern void obj_to_char(struct obj_data *object, struct Creature *ch,
             bool sorted);
 
     if (this->obj_list) {
@@ -528,10 +528,10 @@ CMailEditor::ReturnAttachments(void)
             next_obj = o->next_content;
             obj_to_char(o, desc->creature, false);
 			if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
-				GET_CASH(desc->creature) += 
+				GET_CASH(desc->creature) +=
                     o->getWeight() * MAIL_COST_MULTIPLIER;
 			else
-				GET_GOLD(desc->creature) += 
+				GET_GOLD(desc->creature) +=
                     o->getWeight() * MAIL_COST_MULTIPLIER;
             o = next_obj;
         }

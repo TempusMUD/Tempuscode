@@ -45,7 +45,6 @@
 #define ZONE_ZONE_MODIFIED      (1 << 28)
 #define TOT_ZONE_FLAGS          29
 
-
 #define PLANE_PRIME_1        0
 #define PLANE_PRIME_2        1
 #define PLANE_NEVERWHERE     2
@@ -143,7 +142,6 @@ struct zone_data : public thing {
 	 */
 };
 
-
 /* for queueing zones for update   */
 struct reset_q_element {
 	struct zone_data *zone_to_reset;	/* ref to zone_data */
@@ -155,6 +153,5 @@ struct reset_q_type {
 	struct reset_q_element *head;
 	struct reset_q_element *tail;
 };
-
 
 #endif

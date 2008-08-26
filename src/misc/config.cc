@@ -47,7 +47,6 @@
 /****************************************************************************/
 /****************************************************************************/
 
-
 /* GAME PLAY OPTIONS */
 
 /* minimum level a player must be to shout/holler/gossip/auction */
@@ -74,7 +73,6 @@ const char *NOEFFECT = "Nothing seems to happen.\r\n";
 
 /****************************************************************************/
 /****************************************************************************/
-
 
 /* RENT/CRASHSAVE OPTIONS */
 
@@ -109,10 +107,8 @@ int crash_file_timeout = 15;
 /* Lifetime of normal rent files in days */
 int rent_file_timeout = 90;
 
-
 /****************************************************************************/
 /****************************************************************************/
-
 
 /* ROOM NUMBERS */
 
@@ -225,7 +221,6 @@ int guild_donation_info[][4] = {
 /****************************************************************************/
 /****************************************************************************/
 
-
 /* GAME OPERATION OPTIONS */
 
 /* default port the game should run on if no port given on command-line */
@@ -244,7 +239,7 @@ int max_filesize = 50000;
 int max_bad_pws = 2;
 
 /*
- * Some nameservers are very slow and cause the game to lag terribly every 
+ * Some nameservers are very slow and cause the game to lag terribly every
  * time someone logs in.  The lag is caused by the gethostbyaddr() function
  * which is responsible for resolving numeric IP addresses to alphabetic names.
  * Sometimes, nameservers can be so slow that the incredible lag caused by
@@ -260,7 +255,6 @@ int max_bad_pws = 2;
  */
 
 int nameserver_is_slow = YES;
-
 
 const char *GREETINGS =
 	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
@@ -325,7 +319,6 @@ const char *START_MESSG =
 
 /****************************************************************************/
 /****************************************************************************/
-
 
 /* AUTOWIZ OPTIONS */
 

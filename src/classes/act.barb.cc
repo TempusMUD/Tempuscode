@@ -35,7 +35,7 @@ ACMD(do_charge)
 
 	arg = tmp_getword(&argument);
 	// Check for berserk.
-	// 
+	//
 
 	if (CHECK_SKILL(ch, SKILL_CHARGE) < 50) {
 		send_to_char(ch, "Do you really think you know what you're doing?\r\n");
@@ -95,15 +95,15 @@ perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
 		if (!IS_NPC(ch) && !IS_NPC(vict)) {
 			if (!ok_to_damage(ch, vict)) {
 				act("You feel a strong urge to attack $N.",
-					FALSE, ch, 0, vict, TO_CHAR);
+					false, ch, 0, vict, TO_CHAR);
 				act("$n looks like $e wants to kill you!",
-					TRUE, ch, 0, vict, TO_VICT);
+					true, ch, 0, vict, TO_VICT);
 				break;
 			}
 		}
-		act("You go berserk and attack $N!", FALSE, ch, 0, vict, TO_CHAR);
-		act("$n attacks you in a BERSERK rage!!", FALSE, ch, 0, vict, TO_VICT);
-		act("$n attacks $N in a BERSERK rage!!", FALSE, ch, 0, vict,
+		act("You go berserk and attack $N!", false, ch, 0, vict, TO_CHAR);
+		act("$n attacks you in a BERSERK rage!!", false, ch, 0, vict, TO_VICT);
+		act("$n attacks $N in a BERSERK rage!!", false, ch, 0, vict,
 			TO_NOTVICT);
         if (return_flags) {
             *return_flags = hit(ch, vict, TYPE_UNDEFINED);
@@ -139,7 +139,7 @@ ACMD(do_berserk)
 		} else {
 			affect_from_char(ch, SKILL_BERSERK);
 			send_to_char(ch, "You are no longer berserk.\r\n");
-			act("$n calms down by taking deep breaths.", TRUE, ch, 0, 0,
+			act("$n calms down by taking deep breaths.", true, ch, 0, 0,
 				TO_ROOM);
 		}
 		return;
@@ -174,7 +174,7 @@ ACMD(do_berserk)
 		affect_to_char(ch, &af3);
 
 		send_to_char(ch, "You go BERSERK!\r\n");
-		act("$n goes BERSERK! Run for cover!", TRUE, ch, 0, ch, TO_ROOM);
+		act("$n goes BERSERK! Run for cover!", true, ch, 0, ch, TO_ROOM);
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == (*it) || !can_see_creature(ch, (*it)) ||
@@ -184,11 +184,11 @@ ACMD(do_berserk)
 				continue;
 			else {
 				act("You attack $N in your berserk rage!!!",
-					FALSE, ch, 0, (*it), TO_CHAR);
+					false, ch, 0, (*it), TO_CHAR);
 				act("$n attacks you in a berserk rage!!!",
-					FALSE, ch, 0, (*it), TO_VICT);
+					false, ch, 0, (*it), TO_VICT);
 				act("$n attacks $N in a berserk rage!!!",
-					TRUE, ch, 0, (*it), TO_NOTVICT);
+					true, ch, 0, (*it), TO_NOTVICT);
 				hit(ch, (*it), TYPE_UNDEFINED);
 				break;
 			}
@@ -213,7 +213,7 @@ ACMD(do_battlecry)
     }
     else if (CHECK_SKILL(ch, skillnum) < number(50, 110)) {
 		send_to_char(ch, "You emit a feeble warbling sound.\r\n");
-		act("$n makes a feeble warbling sound.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n makes a feeble warbling sound.", false, ch, 0, 0, TO_ROOM);
 	} else if (GET_MANA(ch) < 5)
 		send_to_char(ch, "You cannot work up the energy to do it.\r\n");
 	else if (skillnum == SKILL_CRY_FROM_BEYOND &&
@@ -221,14 +221,14 @@ ACMD(do_battlecry)
 		send_to_char(ch, "But you are feeling in perfect health!\r\n");
 	else if (skillnum != SKILL_CRY_FROM_BEYOND &&
 		GET_MOVE(ch) == GET_MAX_MOVE(ch))
-		send_to_char(ch, 
+		send_to_char(ch,
 			"There is no need to do this when your movement is at maximum.\r\n");
 	else if (subcmd == SCMD_CRY_FROM_BEYOND) {
 
 		GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + GET_MANA(ch));
 		GET_MANA(ch) = 0;
 		WAIT_STATE(ch, 4 RL_SEC);
-		did = TRUE;
+		did = true;
 
 	} else {
 
@@ -256,14 +256,14 @@ ACMD(do_battlecry)
 	if (subcmd == SCMD_BATTLE_CRY) {
 		send_to_char(ch, "Your fearsome battle cry rings out across the land!\r\n");
 		act("$n releases a battle cry that makes your blood run cold!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 	} else if (subcmd == SCMD_CRY_FROM_BEYOND) {
 		send_to_char(ch, "Your cry from beyond shatters the air!!\r\n");
 		act("$n unleashes a cry from beyond that makes your blood run cold!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 	} else {
 		send_to_char(ch, "You release an earsplitting 'KIA!'\r\n");
-		act("$n releases an earsplitting 'KIA!'", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n releases an earsplitting 'KIA!'", false, ch, 0, 0, TO_ROOM);
 	}
 
 	sound_gunshots(ch->in_room, skillnum, 1, 1);
@@ -292,7 +292,7 @@ perform_cleave(Creature *ch, Creature *vict, int *return_flags)
         maxWhack = 2;
     }
 
-    for( int i = 0; i < maxWhack && vict != NULL; i++ ) 
+    for( int i = 0; i < maxWhack && vict != NULL; i++ )
     {
         percent = number(1, 101) + GET_DEX(vict);
         cur_weap = weap;
@@ -322,13 +322,13 @@ perform_cleave(Creature *ch, Creature *vict, int *return_flags)
             // find a new victim
             CreatureList::iterator it = ch->in_room->people.begin();
 			for( ; it != ch->in_room->people.end(); ++it ) {
-				if((*it) == ch || !(*it)->findCombat(ch) || 
+				if((*it) == ch || !(*it)->findCombat(ch) ||
                    !can_see_creature(ch, (*it)))
                     continue;
                 vict = *it;
                 break;
             }
-            
+
         }
     }
 }
@@ -361,7 +361,7 @@ ACMD(do_cleave)
 
 	if (!ch->isOkToAttack(vict, true))
 		return;
-	
+
 	perform_cleave(ch, vict, return_flags);
 }
 

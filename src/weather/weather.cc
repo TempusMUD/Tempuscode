@@ -40,7 +40,7 @@ void weather_change(void);
 void zone_weather_change(struct zone_data *zone);
 void jet_stream(void);
 
-int jet_stream_state = TRUE;
+int jet_stream_state = true;
 void
 weather_and_time(int mode)
 {

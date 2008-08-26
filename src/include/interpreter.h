@@ -345,7 +345,6 @@ struct set_struct {
 #define SCMD_OFF        0
 #define SCMD_ON         1
 
-
 /* command do_switch */
 #define SCMD_NORMAL     0
 #define SCMD_QSWITCH    1

@@ -14,7 +14,7 @@ SPECIAL(mugger)
 		WEAR_WIELD, WEAR_WIELD_2, WEAR_NECK_1, WEAR_NECK_2, WEAR_BODY,
 		WEAR_HEAD, WEAR_ARMS, WEAR_HANDS, WEAR_WRIST_R, WEAR_WRIST_L,
 		WEAR_HOLD, WEAR_EYES, WEAR_BACK, WEAR_BELT, WEAR_FACE,
-		WEAR_SHIELD, WEAR_ABOUT 
+		WEAR_SHIELD, WEAR_ABOUT
 	};
 	const int MUG_MAX = 17;
 
@@ -27,7 +27,7 @@ SPECIAL(mugger)
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
 		return 0;
-	
+
 	mug = (mob_mugger_data *)self->mob_specials.func_data;
 
 	// Handle the give command
@@ -56,7 +56,7 @@ SPECIAL(mugger)
 
 	if (spec_mode == SPECIAL_CMD)
 		return 0;
-	
+
 	if (self->isFighting() || self->isHunting())
 		return 0;
 
@@ -90,7 +90,7 @@ SPECIAL(mugger)
 
 		if (!found_vict)
 			return 0;
-		
+
 		vict = found_vict;
 		act("You examine $N.", true, ch, 0, vict, TO_CHAR);
 		act("$n examines you.", true, ch, 0, vict, TO_VICT);
@@ -152,7 +152,6 @@ SPECIAL(mugger)
 		else
 			obj = obj->next_content;
 	}
-
 
 	// A mugging is in progress
 	vict = NULL;

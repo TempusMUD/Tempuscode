@@ -55,18 +55,16 @@ connect_rooms(int link_room, int dest_room, int dir)
 // of shadow disconnects from the rest of the world.
 // Shadow zones are also isolated when they are disconnected.
 // This is kind of cool in that any player trapped there at
-// night is actually trapped there until morning.  
+// night is actually trapped there until morning.
 // Thought:
 // Spawn a given number of creatures in a shadow zone when it
 // becomes disconnected?
 // Shadow zones are also !weather
 
-
 SPECIAL(shade_zone)
 {
 	struct time_info_data local_time;
 	struct zone_data *zone = (struct zone_data *)me;
-
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;

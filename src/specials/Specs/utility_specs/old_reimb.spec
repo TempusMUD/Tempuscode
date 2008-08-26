@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 SPECIAL(old_reimb)
 {
 	extern struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
@@ -116,11 +115,11 @@ SPECIAL(old_reimb)
 				send_to_char(ch,
 					"You'd better train your stats up and get to level 3 first.\r\n");
 			else if (GET_LEVEL(ch) >= data[i].level)
-				act("$n says, 'Piss off, $N.", FALSE, reimber, 0, ch, TO_ROOM);
+				act("$n says, 'Piss off, $N.", false, reimber, 0, ch, TO_ROOM);
 			else {
-				act("$n whaps you upside the head!", FALSE, reimber, 0, ch,
+				act("$n whaps you upside the head!", false, reimber, 0, ch,
 					TO_VICT);
-				act("$n whaps $N upside the head!", FALSE, reimber, 0, ch,
+				act("$n whaps $N upside the head!", false, reimber, 0, ch,
 					TO_NOTVICT);
 				if (!(data[i].level > 54 || data[i].level < 1))
 					gain_exp_regardless(ch,

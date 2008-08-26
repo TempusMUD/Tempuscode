@@ -139,7 +139,7 @@ show_gun_status(struct Creature *ch, struct obj_data *gun)
 		sprintf(buf,
 			"%sGun Classification:    %s[%s]%s\r\n",
 			buf, QGRN, egun_types[MIN(GET_OBJ_VAL(gun,3), EGUN_TOP)], QNRM);
-		
+
 		send_to_char(ch, "%s", buf);
 	}
 
@@ -163,7 +163,7 @@ show_gun_status(struct Creature *ch, struct obj_data *gun)
 				QGRN, count, MAX_LOAD(gun->contains), QNRM,
 				count == 1 ? "" : "s");
 		}
-		act(buf, FALSE, ch, gun, gun->contains, TO_CHAR);
+		act(buf, false, ch, gun, gun->contains, TO_CHAR);
 		if (MAX_R_O_F(gun) > 1) {
 			send_to_char(ch, "The Rate of Fire is set to:        %s[%d/%d]%s.\r\n",
 				QGRN, CUR_R_O_F(gun), MAX_R_O_F(gun), QNRM);
@@ -171,7 +171,6 @@ show_gun_status(struct Creature *ch, struct obj_data *gun)
 	} else
 		send_to_char(ch, "Unsupported gun type.\r\n");
 }
-
 
 #define GUNSET_RATE      1
 #define GUNSET_DISCHARGE 2
@@ -213,7 +212,7 @@ ACMD(do_gunset)
 	}
 
 	if (!IS_ENERGY_GUN(gun) && !IS_GUN(gun)) {
-		act("$p is not a gun.", FALSE, ch, gun, 0, TO_CHAR);
+		act("$p is not a gun.", false, ch, gun, 0, TO_CHAR);
 		return;
 	}
 
@@ -243,7 +242,7 @@ ACMD(do_gunset)
 		send_to_char(ch, "A NEGATIVE value?  Consider the implications...\r\n");
 		return;
 	}
-    
+
 	if (mode == GUNSET_RATE) {
 		if (IS_ENERGY_GUN(gun)) {
             send_to_char(ch, "You may not set the rate of fire for energy weapons.\r\n");
@@ -255,10 +254,10 @@ ACMD(do_gunset)
 		} else if (!number) {
 			send_to_char(ch, "A zero rate of fire doesn't make much sense.\r\n");
 		} else {
-			act("$n adjusts the configuration of $p.", TRUE, ch, gun, 0,
+			act("$n adjusts the configuration of $p.", true, ch, gun, 0,
             TO_ROOM);
 			CUR_R_O_F(gun) = number;
-            
+
 			send_to_char(ch, "The rate of fire of %s set to %d/%d.\r\n",
 				gun->name, CUR_R_O_F(gun), MAX_R_O_F(gun));
 		}

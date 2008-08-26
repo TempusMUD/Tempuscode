@@ -93,7 +93,7 @@ class MapPixel {
         int getYCoord() { return _yCoord; };
         room_data *getRoomPointer() { return _r; };
         bool dontDraw() { return _dontDraw; };
-        
+
         void setXCoord(int s) { _xCoord = s; };
         void setYCoord(int s) { _yCoord = s; };
         void setRoomPointer(room_data *r) { _r = r; };

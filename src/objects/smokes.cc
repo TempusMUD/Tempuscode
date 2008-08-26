@@ -73,19 +73,19 @@ ACMD(do_roll)
 
 	if (!*arg1) {
 		send_to_char(ch, "You roll your eyes in disgust.\r\n");
-		act("$n rolls $s eyes in disgust.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n rolls $s eyes in disgust.", true, ch, 0, 0, TO_ROOM);
 	} else if (!(tobac = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
 		if ((vict = get_char_room_vis(ch, arg1))) {
-			act("You roll your eyes at $M.", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n rolls $s eyes at $N.", TRUE, ch, 0, vict, TO_NOTVICT);
-			act("$n rolls $s eyes at you.", TRUE, ch, 0, vict, TO_VICT);
+			act("You roll your eyes at $M.", false, ch, 0, vict, TO_CHAR);
+			act("$n rolls $s eyes at $N.", true, ch, 0, vict, TO_NOTVICT);
+			act("$n rolls $s eyes at you.", true, ch, 0, vict, TO_VICT);
 		} else {
 			send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg1), arg1);
 		}
 	} else if (GET_OBJ_TYPE(tobac) != ITEM_TOBACCO)
 		send_to_char(ch, "That's not smoking material!\r\n");
 	else if (!*arg2)
-		act("What would you like to roll $p in?", FALSE, ch, tobac, 0,
+		act("What would you like to roll $p in?", false, ch, tobac, 0,
 			TO_CHAR);
 	else if (!(paper = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
 		send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg2), arg2);
@@ -93,11 +93,11 @@ ACMD(do_roll)
 		send_to_char(ch, "You can't roll %s in %s!\r\n", tobac->name,
 			paper->name);
 	} else if (tobac->getWeight() > (paper->getWeight() + 3)) {
-		act("$p is too big to fit in $P.", FALSE, ch, tobac, paper, TO_CHAR);
+		act("$p is too big to fit in $P.", false, ch, tobac, paper, TO_CHAR);
 	} else {
 		send_to_char(ch, "You roll up %s in %s.\r\n", tobac->name,
 			paper->name);
-		act("$n rolls a cigarette with $p.", TRUE, ch, tobac, 0, TO_ROOM);
+		act("$n rolls a cigarette with $p.", true, ch, tobac, 0, TO_ROOM);
 		joint = roll_joint(tobac, paper);
 		if (!joint) {
 			send_to_char(ch, "JOINT ERROR!\r\n");
@@ -213,7 +213,7 @@ perform_smoke(struct Creature *ch, int type)
 	}
 
 	if (to_vict)
-		act(to_vict, FALSE, ch, 0, 0, TO_CHAR);
+		act(to_vict, false, ch, 0, 0, TO_CHAR);
 
 	GET_HIT(ch) = MIN(MAX(GET_HIT(ch) + hp_mod, 0), GET_MAX_HIT(ch));
 	GET_MANA(ch) = MIN(MAX(GET_MANA(ch) + mana_mod, 0), GET_MAX_MANA(ch));
@@ -221,7 +221,7 @@ perform_smoke(struct Creature *ch, int type)
 
 	if (af.type &&
 		(!affected_by_spell(ch, af.type) || accum_affect || accum_dur))
-		affect_join(ch, &af, accum_dur, TRUE, accum_affect, TRUE);
+		affect_join(ch, &af, accum_dur, true, accum_affect, true);
 
 	if (spell && lev)
 		call_magic(ch, ch, 0, NULL, spell, (int)lev, CAST_CHEM);
@@ -229,7 +229,6 @@ perform_smoke(struct Creature *ch, int type)
 	WAIT_STATE(ch, 6);
 
 }
-
 
 ACMD(do_smoke)
 {
@@ -241,7 +240,7 @@ ACMD(do_smoke)
 
 	if (!*arg1) {
 		send_to_char(ch, "Smoke blows out of your ears.\r\n");
-		act("Smoke blows out of $n's ears.", FALSE, ch, 0, 0, TO_ROOM);
+		act("Smoke blows out of $n's ears.", false, ch, 0, 0, TO_ROOM);
 	} else if (!(joint = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
 		(!GET_EQ(ch, WEAR_HOLD) ||
 			!(joint = get_obj_in_list_vis(ch, arg1, GET_EQ(ch, WEAR_HOLD))))) {
@@ -250,9 +249,9 @@ ACMD(do_smoke)
 		else if (vict == ch)
 			send_to_char(ch, "Hmmm... okay.\r\n");
 		else {
-			act("You blow smoke in $N's face.", FALSE, ch, 0, vict, TO_CHAR);
-			act("$n blows smoke in your face.", FALSE, ch, 0, vict, TO_VICT);
-			act("$n blows smoke in $N's face.", FALSE, ch, 0, vict,
+			act("You blow smoke in $N's face.", false, ch, 0, vict, TO_CHAR);
+			act("$n blows smoke in your face.", false, ch, 0, vict, TO_VICT);
+			act("$n blows smoke in $N's face.", false, ch, 0, vict,
 				TO_NOTVICT);
 		}
 	} else if (GET_OBJ_TYPE(joint) == ITEM_TOBACCO)
@@ -262,12 +261,12 @@ ACMD(do_smoke)
 			GET_OBJ_VAL(joint, 0) = MAX(0, GET_OBJ_VAL(joint, 0) - 1);
 			type = SMOKE_TYPE(joint);
 			if (GET_OBJ_VAL(joint, 0)) {
-				act("You take a drag on $p.", FALSE, ch, joint, 0, TO_CHAR);
-				act("$n takes a drag on $p.", FALSE, ch, joint, 0, TO_ROOM);
+				act("You take a drag on $p.", false, ch, joint, 0, TO_CHAR);
+				act("$n takes a drag on $p.", false, ch, joint, 0, TO_ROOM);
 			} else {
-				act("You burn your finger as you smoke the last of $p.", FALSE,
+				act("You burn your finger as you smoke the last of $p.", false,
 					ch, joint, 0, TO_CHAR);
-				act("$n burns $s finger on $p.", FALSE, ch, joint, 0, TO_ROOM);
+				act("$n burns $s finger on $p.", false, ch, joint, 0, TO_ROOM);
 				extract_obj(joint);
 			}
 			perform_smoke(ch, type);
@@ -278,13 +277,13 @@ ACMD(do_smoke)
 
 			GET_OBJ_VAL(joint, 0) = MAX(0, GET_OBJ_VAL(joint, 0) - 1);
 			if (GET_OBJ_VAL(joint, 0)) {
-				act("You take a drag on $p.", FALSE, ch, joint, 0, TO_CHAR);
-				act("$n takes a drag on $p.", FALSE, ch, joint, 0, TO_ROOM);
+				act("You take a drag on $p.", false, ch, joint, 0, TO_CHAR);
+				act("$n takes a drag on $p.", false, ch, joint, 0, TO_ROOM);
 			} else {
-				act("You inhale a burning ash as you finish $p.", FALSE, ch,
+				act("You inhale a burning ash as you finish $p.", false, ch,
 					joint, 0, TO_CHAR);
 				act("$n coughs harshly after inhaling the comet from $p.",
-					FALSE, ch, joint, 0, TO_ROOM);
+					false, ch, joint, 0, TO_ROOM);
 				GET_OBJ_VAL(joint, 3) = 0;
 			}
 			perform_smoke(ch, SMOKE_TYPE(joint));
@@ -295,7 +294,6 @@ ACMD(do_smoke)
 		send_to_char(ch, "You can't smoke that!\r\n");
 	return;
 }
-
 
 ACMD(do_convert)
 {
@@ -363,9 +361,9 @@ ACMD(do_convert)
 		}
 
 		act("You skillfully convert $p into a smoking pipe.",
-			FALSE, ch, obj, 0, TO_CHAR);
+			false, ch, obj, 0, TO_CHAR);
 		act("$n skillfully converts $p into a smoking pipe.",
-			TRUE, ch, obj, 0, TO_ROOM);
+			true, ch, obj, 0, TO_ROOM);
 
 		gain_skill_prof(ch, SKILL_PIPEMAKING);
 
@@ -377,7 +375,6 @@ ACMD(do_convert)
 
 	}
 }
-
 
 ACMD(do_light)
 {
@@ -406,15 +403,15 @@ ACMD(do_light)
 	else {
 		if (IS_BOMB(obj)) {
 			if (!obj->contains)
-				act("$p is not fused.", FALSE, ch, obj, 0, TO_CHAR);
+				act("$p is not fused.", false, ch, obj, 0, TO_CHAR);
 			else if (!IS_FUSE(obj->contains) || !FUSE_IS_BURN(obj->contains))
 				act("$p is not equipped with a conventional fuse.",
-					FALSE, ch, obj, 0, TO_CHAR);
+					false, ch, obj, 0, TO_CHAR);
 			else if (FUSE_STATE(obj->contains))
-				act("$p is already lit.", FALSE, ch, obj, 0, TO_CHAR);
+				act("$p is already lit.", false, ch, obj, 0, TO_CHAR);
 			else {
-				act("You light $p.", TRUE, ch, obj, 0, TO_CHAR);
-				act("$n lights $p.", TRUE, ch, obj, 0, TO_ROOM);
+				act("You light $p.", true, ch, obj, 0, TO_CHAR);
+				act("$n lights $p.", true, ch, obj, 0, TO_ROOM);
 				FUSE_STATE(obj->contains) = 1;
 				BOMB_IDNUM(obj) = GET_IDNUM(ch);
 			}
@@ -423,8 +420,8 @@ ACMD(do_light)
 		else if (GET_OBJ_TYPE(obj) == ITEM_PIPE && !GET_OBJ_VAL(obj, 0))
 			send_to_char(ch, "There's nothing in it!\r\n");
 		else {
-			act("You light $p.", TRUE, ch, obj, 0, TO_CHAR);
-			act("$n lights $p.", TRUE, ch, obj, 0, TO_ROOM);
+			act("You light $p.", true, ch, obj, 0, TO_CHAR);
+			act("$n lights $p.", true, ch, obj, 0, TO_ROOM);
 			GET_OBJ_VAL(obj, 3) = 1;
 		}
 	}
@@ -449,16 +446,16 @@ ACMD(do_extinguish)
 					&& GET_PLANE(ch->in_room) < PLANE_ASTRAL))
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			send_to_char(ch, "You fail to extinguish yourself!\r\n");
-			act("$n tries to put out the flames which cover $s body, but fails!", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n tries to put out the flames which cover $s body, but fails!", false, ch, 0, 0, TO_ROOM);
 		} else {
 			send_to_char(ch, "You succeed in putting out the flames.  WHEW!\r\n");
 			act("$n hastily extinguishes the flames which cover $s body.",
-				FALSE, ch, 0, 0, TO_ROOM);
+				false, ch, 0, 0, TO_ROOM);
             ch->extinguish();
 		}
 	return;
 	}
-	
+
 	if (GET_EQ(ch, WEAR_HOLD) &&
 			isname(arg1, GET_EQ(ch, WEAR_HOLD)->aliases))
 		ovict = GET_EQ(ch, WEAR_HOLD);
@@ -480,8 +477,8 @@ ACMD(do_extinguish)
 					!FUSE_IS_BURN(ovict->contains))))
 			send_to_char(ch, "That's not ablaze!\r\n");
 		else {
-			act("You extinguish $p.", FALSE, ch, ovict, 0, TO_CHAR);
-			act("$n extinguishes $p.", FALSE, ch, ovict, 0, TO_ROOM);
+			act("You extinguish $p.", false, ch, ovict, 0, TO_CHAR);
+			act("$n extinguishes $p.", false, ch, ovict, 0, TO_ROOM);
 			if (IS_BOMB(ovict))
 				FUSE_STATE(ovict->contains) = 0;
 			else
@@ -492,19 +489,19 @@ ACMD(do_extinguish)
 
 	if ((vict = get_char_room_vis(ch, arg1))) {
 		if (!AFF2_FLAGGED(vict, AFF2_ABLAZE))
-			act("$N's not even on fire!", FALSE, ch, 0, vict, TO_CHAR);
+			act("$N's not even on fire!", false, ch, 0, vict, TO_CHAR);
 		else if (number(40,
 				80) > (GET_LEVEL(ch) + GET_WIS(ch) - GET_AC(vict) / 10)) {
-			act("You fail to extinguish $M!", FALSE, ch, 0, vict, TO_CHAR);
+			act("You fail to extinguish $M!", false, ch, 0, vict, TO_CHAR);
 			act("$n tries to put out the flames on $N's body, but fails!",
-				FALSE, ch, 0, vict, TO_NOTVICT);
+				false, ch, 0, vict, TO_NOTVICT);
 			act("$n tries to put out the flames on your body, but fails!",
-				FALSE, ch, 0, vict, TO_VICT);
+				false, ch, 0, vict, TO_VICT);
 		} else {
 			send_to_char(ch, "You succeed in putting out the flames.  WHEW!\r\n");
-			act("$n hastily puts out the flames on your body.", FALSE, ch, 0,
+			act("$n hastily puts out the flames on your body.", false, ch, 0,
 				vict, TO_VICT);
-			act("$n hastily extinguishes the flames on $N's body.", FALSE, ch,
+			act("$n hastily extinguishes the flames on $N's body.", false, ch,
 				0, vict, TO_NOTVICT);
             vict->extinguish();
 		}
@@ -528,15 +525,15 @@ ACMD(do_ignite)
 	else if (GET_LEVEL(vict) > GET_LEVEL(ch))
 		send_to_char(ch, "That's probably a really bad idea.\r\n");
 	else if (AFF2_FLAGGED(vict, AFF2_ABLAZE))
-		act("$N is already ablaze!", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N is already ablaze!", false, ch, 0, vict, TO_CHAR);
 	else {
-		act("$n makes an arcane gesture...", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n makes an arcane gesture...", false, ch, 0, 0, TO_ROOM);
 		if (ch != vict)
-			act("$N is suddenly consumed in burning flames!!!", FALSE, ch, 0,
+			act("$N is suddenly consumed in burning flames!!!", false, ch, 0,
 				vict, TO_CHAR);
-		act("$N is suddenly consumed in burning flames!!!", FALSE, ch, 0, vict,
+		act("$N is suddenly consumed in burning flames!!!", false, ch, 0, vict,
 			TO_NOTVICT);
-		act("You are suddenly consumed in burning flames!!!", FALSE, ch, 0,
+		act("You are suddenly consumed in burning flames!!!", false, ch, 0,
 			vict, TO_VICT);
         vict->ignite(ch);
 	}

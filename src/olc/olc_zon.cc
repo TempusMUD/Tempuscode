@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 #ifdef HAS_CONFIG_H
 #include "config.h"
 #endif
@@ -121,9 +120,8 @@ do_zcmd(struct Creature *ch, char *argument)
 		return;
 	}
 
-
 	if (!CAN_EDIT_ZONE(ch, zone)) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You looking to getting a BEAT-DOWN?!  Permission denied.\r\n");
 		return;
 	}
@@ -162,7 +160,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
@@ -187,7 +185,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
@@ -198,7 +196,7 @@ do_zcmd(struct Creature *ch, char *argument)
 					return;
 				}
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Let's not load mobs in other ppl's zones, shall we?\r\n");
 					return;
 				}
@@ -265,7 +263,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
@@ -290,7 +288,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
@@ -301,7 +299,7 @@ do_zcmd(struct Creature *ch, char *argument)
 					return;
 				}
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Let's not load objs in other ppl's zones, shall we?\r\n");
 					return;
 				}
@@ -369,7 +367,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
@@ -394,13 +392,13 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
 				int_arg3 = atoi(arg2);
 				if (!real_object_proto(int_arg3)) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Object (V) %d does not exist, buttmunch.\r\n",
 						int_arg3);
 					return;
@@ -468,7 +466,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
@@ -493,7 +491,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
@@ -568,7 +566,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
@@ -582,7 +580,7 @@ do_zcmd(struct Creature *ch, char *argument)
 				send_to_char(ch, ZCMD_E_USAGE);
 				return;
 			}
-			// Maxload and Wear Position 
+			// Maxload and Wear Position
 			argument = two_arguments(argument, arg1, arg2);
 			if (!*arg1 || !*arg2) {
 				send_to_char(ch, ZCMD_E_USAGE);
@@ -591,7 +589,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
@@ -681,7 +679,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"if_flag dependancy flag must be 0, 1 or 1\r\n");
 					return;
 				}
@@ -706,7 +704,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				int_arg2 = atoi(arg1);
 				if (int_arg2 < 1 || int_arg2 > 1000) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Number loaded must be between 1 and 1000.\r\n");
 					return;
 				}
@@ -800,7 +798,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
@@ -830,7 +828,7 @@ do_zcmd(struct Creature *ch, char *argument)
 					return;
 				}
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Let's not remove objs from other ppl's zones, asshole.\r\n");
 					return;
 				}
@@ -872,7 +870,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc zcmd [zone] D <if_flag> <room vnum> <direction> [+/-] <FLAG FLAG ...>\r\n");
 				return;
 			}
@@ -880,7 +878,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			if (is_number(arg1) && is_number(arg2)) {
 				if_flag = atoi(arg1);
 				if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"if_flag dependancy flag must be 0, 1 or -1\r\n");
 					return;
 				}
@@ -890,12 +888,12 @@ do_zcmd(struct Creature *ch, char *argument)
 					return;
 				}
 				if (!CAN_EDIT_ZONE(ch, room->zone)) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Let's not close doors in other ppl's zones, shall we?\r\n");
 					return;
 				}
 			} else {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc zcmd [zone] D <if_flag> <room vnum> <direction> <FLAG FLAG ...>\r\n");
 				return;
 			}
@@ -903,13 +901,13 @@ do_zcmd(struct Creature *ch, char *argument)
 			argument = two_arguments(argument, arg1, arg2);
 
 			if (!*arg1 || !*arg2) {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc zcmd [zone] D <if_flag> <room vnum> <direction> <FLAG FLAG ...>\r\n");
 				return;
 			}
 
-			if ((int_arg2 = search_block(arg1, dirs, FALSE)) < 0) {
-				send_to_char(ch, 
+			if ((int_arg2 = search_block(arg1, dirs, false)) < 0) {
+				send_to_char(ch,
 					"You must supply a valid direction of the door.\r\n");
 				return;
 			}
@@ -923,7 +921,7 @@ do_zcmd(struct Creature *ch, char *argument)
 			tmp_door_flags = 0;
 
 			while (*arg2) {
-				if ((tmp_flag = search_block(arg2, exit_bits, FALSE)) == -1) {
+				if ((tmp_flag = search_block(arg2, exit_bits, false)) == -1) {
 					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg2);
 				} else
 					tmp_door_flags = tmp_door_flags | (1 << tmp_flag);
@@ -994,7 +992,7 @@ do_zone_cmdmove(struct Creature *ch, struct zone_data *zone, char *argument)
 		where = atoi(arg2);
 
 		if (!zone->cmd) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Why not get some zcmds before trying to move them... SHEESH!!\r\n");
 			return;
 		}
@@ -1005,13 +1003,13 @@ do_zone_cmdmove(struct Creature *ch, struct zone_data *zone, char *argument)
 		}
 
 		if (where == num + 1) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Moving the command one down will have no effect.\r\n");
 			return;
 		}
 
 		if (!zone->cmd->next) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"WHAT??  You've only got one command, and its number is ZERO.\r\n");
 			return;
 		}
@@ -1393,8 +1391,6 @@ do_zgive_cmd(struct Creature *ch, char *argument)
 	send_to_char(ch, "Command completed ok.\r\n");
 }
 
-
-
 #define ZIMPLANT_USAGE "Usage: olc zimplant <mob name> <obj vnum> <max loaded> <implant pos> [prob]\r\n"
 
 void
@@ -1459,7 +1455,7 @@ do_zimplant_cmd(struct Creature *ch, char *argument)
 		return;
 	}
 
-	if ((int_arg3 = search_block(arg2, wear_implantpos, FALSE)) < 0) {
+	if ((int_arg3 = search_block(arg2, wear_implantpos, false)) < 0) {
 		send_to_char(ch, "You must supply a valid implant position.\r\n");
 		return;
 	}
@@ -1523,7 +1519,6 @@ do_zimplant_cmd(struct Creature *ch, char *argument)
 	}
 	send_to_char(ch, "Command completed ok.\r\n");
 }
-
 
 #define ZEQUIP_USAGE "Usage: olc zequip <mob name> <obj vnum> <max loaded>"\
 " <wear pos> [prob]\r\n"
@@ -1590,7 +1585,7 @@ do_zequip_cmd(struct Creature *ch, char *argument)
 		return;
 	}
 
-	if ((int_arg3 = search_block(arg2, wear_eqpos, FALSE)) < 0) {
+	if ((int_arg3 = search_block(arg2, wear_eqpos, false)) < 0) {
 		send_to_char(ch, "You must supply a valid wear position.\r\n");
 		return;
 	}
@@ -1718,7 +1713,6 @@ do_zobj_cmd(struct Creature *ch, char *argument)
 
 	rzonecmd->next = zonecmd;
 
-
 	zone = ch->in_room->zone;
 
 	if (zone->cmd) {
@@ -1767,7 +1761,7 @@ do_zdoor_cmd(struct Creature *ch, char *argument)
 		return;
 	}
 
-	if ((int_arg2 = search_block(arg1, dirs, FALSE)) < 0) {
+	if ((int_arg2 = search_block(arg1, dirs, false)) < 0) {
 		send_to_char(ch, "You must supply a valid direction of the door.\r\n");
 		return;
 	}
@@ -1787,13 +1781,12 @@ do_zdoor_cmd(struct Creature *ch, char *argument)
 		ch->in_room == other_rm->dir_option[rev_dir[int_arg2]]->to_room)
 		rev_room_vnum = other_rm->number;
 
-
 	int_arg1 = ch->in_room->number;
 
 	tmp_door_flags = 0;
 
 	while (*arg2) {
-		if ((tmp_flag = search_block(arg2, exit_bits, FALSE)) == -1) {
+		if ((tmp_flag = search_block(arg2, exit_bits, false)) == -1) {
 			send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg2);
 		} else
 			tmp_door_flags = tmp_door_flags | (1 << tmp_flag);
@@ -1880,7 +1873,6 @@ do_zdoor_cmd(struct Creature *ch, char *argument)
 			zcmd->arg3 = cur_door_flags;
 	}
 
-
 	SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 	send_to_char(ch, "Door flags set.\r\n");
 
@@ -1925,8 +1917,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		return;
 	}
 
-
-	if ((zset_command = search_block(arg2, olc_zset_keys, FALSE)) < 0) {
+	if ((zset_command = search_block(arg2, olc_zset_keys, false)) < 0) {
 		send_to_char(ch, "Invalid zset command '%s'.\r\n", arg2);
 		return;
 	}
@@ -1980,7 +1971,7 @@ do_zset_command(struct Creature *ch, char *argument)
 	case 3:					/* reset */
 		i = atoi(argument);
 		if (i < 0 || i > 2 || !is_number(argument)) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Zone reset mode must either be 0, 1, or 2.  Buttmunch.\r\n");
 			return;
 		}
@@ -1992,7 +1983,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		return;
 		break;
 	case 4:
-		if ((timeframe = search_block(argument, time_frames, FALSE)) < 0) {
+		if ((timeframe = search_block(argument, time_frames, false)) < 0) {
 			send_to_char(ch, "Invalid time frame '%s'.\r\n", argument);
 			return;
 		}
@@ -2004,7 +1995,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		return;
 		break;
 	case 5:
-		if ((plane = search_block(argument, planes, FALSE)) < 0) {
+		if ((plane = search_block(argument, planes, false)) < 0) {
 			send_to_char(ch, "Invalid plane: %s\r\n", argument);
 			return;
 		}
@@ -2038,7 +2029,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		else if (*arg1 == '-')
 			state = 2;
 		else {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Usage: olc zset [zone] flags [+/-] [FLAG, FLAG, ...]\r\n");
 			return;
 		}
@@ -2048,7 +2039,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		cur_zone_flags = zone->flags;
 
 		while (*arg1) {
-			if ((tmp_flag = search_block(arg1, zone_flag_names, FALSE)) == -1 ||
+			if ((tmp_flag = search_block(arg1, zone_flag_names, false)) == -1 ||
 				(tmp_flag >= NUM_ZONE_FLAGS && !OLCIMP(ch)) ||
 				(tmp_flag == ZONE_FULLCONTROL && !OLCIMP(ch))) {
 				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
@@ -2183,7 +2174,7 @@ do_zset_command(struct Creature *ch, char *argument)
 
 					GET_EXP(vict) = totexp;
 				}
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Blanket exp modified.  Don't forget to save.\r\n");
 			}
 			break;
@@ -2216,11 +2207,9 @@ do_zset_command(struct Creature *ch, char *argument)
 			top = zone->top;
 			bottom = (zone->number) * 100;
 
-
-
 			if (!ZONE_FLAGGED(zone, ZONE_ROOMS_APPROVED)
 				&& !ZONE_FLAGGED(zone, ZONE_FULLCONTROL) && !OLCIMP(ch)) {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"You do not have the appropriate permissions biznitch.\r\n");
 				return;
 			}
@@ -2230,7 +2219,7 @@ do_zset_command(struct Creature *ch, char *argument)
 			else if (*arg1 == '-')
 				add_flags = 0;
 			else {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"Usage: olc zset [zone] blanket_flags [+/-] [FLAG, FLAG, ...]\r\n");
 				return;
 			}
@@ -2238,20 +2227,19 @@ do_zset_command(struct Creature *ch, char *argument)
 			argument = one_argument(argument, arg1);
 			while (*arg1) {
 				if ((tmp_flags =
-						search_block(arg1, roomflag_names, FALSE)) == -1
+						search_block(arg1, roomflag_names, false)) == -1
 					|| (tmp_flags >= NUM_ROOM_FLAGS && !OLCIMP(ch))) {
 					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_room_flags = tmp_room_flags | (1 << tmp_flags);
 
 				if (tmp_room_flags == 0) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"No valid flags specified...hard drive crash imminent.\r\n");
 					return;
 				}
 				argument = one_argument(argument, arg1);
 			}
-
 
 			for (count = bottom; count <= top; ++count) {
 				room = real_room(count);
@@ -2347,30 +2335,30 @@ do_zset_command(struct Creature *ch, char *argument)
 		break;
 	case 19:	// public description
 		if (zone->public_desc)
-			act("$n begins to edit a zone description.", TRUE, ch, 0, 0,
+			act("$n begins to edit a zone description.", true, ch, 0, 0,
 				TO_ROOM);
 		else
-			act("$n starts to write a zone description.", TRUE, ch, 0, 0,
+			act("$n starts to write a zone description.", true, ch, 0, 0,
 				TO_ROOM);
 		start_editing_text(ch->desc, &zone->public_desc);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		break;
 	case 20:	// private description
 		if (zone->private_desc)
-			act("$n begins to edit a zone description.", TRUE, ch, 0, 0,
+			act("$n begins to edit a zone description.", true, ch, 0, 0,
 				TO_ROOM);
 		else
-			act("$n starts to write a zone description.", TRUE, ch, 0, 0,
+			act("$n starts to write a zone description.", true, ch, 0, 0,
 				TO_ROOM);
 		start_editing_text(ch->desc, &zone->private_desc);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
         break;
     case 21:    // pk_style
-        if (search_block(argument, zone_pk_names, FALSE) <= -1) {
+        if (search_block(argument, zone_pk_names, false) <= -1) {
             send_to_char(ch, "Unknown PK style..\r\n");
             return;
         }
-	    zone->pk_style = search_block(argument, zone_pk_names, FALSE);
+	    zone->pk_style = search_block(argument, zone_pk_names, false);
             send_to_char(ch, "PK style set.\r\n");
         break;
     case 22:
@@ -2398,7 +2386,6 @@ do_create_zone(struct Creature *ch, int num)
 	char fname[64];
 	FILE *index;
 	FILE *zone_file;
-
 
 	/* Check to see if the zone already exists */
 
@@ -2434,7 +2421,6 @@ do_create_zone(struct Creature *ch, int num)
 			num);
 		return (1);
 	}
-
 
 	/* Create the new zone and set the defualts */
 
@@ -2515,7 +2501,6 @@ do_create_zone(struct Creature *ch, int num)
 	return (0);
 }
 
-
 bool
 save_zone(struct Creature *ch, struct zone_data *zone)
 {
@@ -2542,7 +2527,7 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 
 	if (zone->co_owner_idnum != -1)
 		fprintf(zone_file, "co-owner: %d\n", zone->co_owner_idnum);
-	
+
 	if (zone->respawn_pt)
 		fprintf(zone_file, "respawn-pt: %d\n", zone->respawn_pt);
 
@@ -2554,7 +2539,7 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 		fprintf(zone_file, "maximum-level: %d\n", zone->max_lvl);
 	if (zone->max_gen)
 		fprintf(zone_file, "maximum-gen: %d\n", zone->max_gen);
-		
+
 	if (zone->public_desc)
 		fprintf(zone_file, "public-desc:\n%s~\n",
 			tmp_gsub(zone->public_desc, "\r", ""));
@@ -2685,7 +2670,6 @@ save_zone(struct Creature *ch, struct zone_data *zone)
 	return true;
 }
 
-
 void
 autosave_zones(int SAVE_TYPE)
 {
@@ -2697,7 +2681,6 @@ autosave_zones(int SAVE_TYPE)
 			if (save_zone(NULL, zone) == 0)
 				errlog("Could not save zone : %s\n", zone->name);
 }
-
 
 void
 do_zone_cmdrem(struct Creature *ch, struct zone_data *zone, int num)
@@ -2712,7 +2695,7 @@ do_zone_cmdrem(struct Creature *ch, struct zone_data *zone, int num)
 	if (!num) {
 		zone->cmd = zcmd->next;
 		free(zcmd);
-		found = TRUE;
+		found = true;
 	}
 
 	for (i = 0, zcmd = zone->cmd; zcmd; i++, zcmd = next_zcmd) {
@@ -2722,7 +2705,7 @@ do_zone_cmdrem(struct Creature *ch, struct zone_data *zone, int num)
 				next_zcmd = zcmd->next->next;
 				free(zcmd->next);
 				zcmd->next = next_zcmd;
-				found = TRUE;
+				found = true;
 			}
 			continue;
 		}
@@ -2736,7 +2719,6 @@ do_zone_cmdrem(struct Creature *ch, struct zone_data *zone, int num)
 			num, zone->number);
 	}
 }
-
 
 void
 do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
@@ -2806,7 +2788,7 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 					send_to_char(ch, "Invalid zone command segment.\r\n");
 					return;
 				}
-			} else if (is_abbrev(arg1, "errors") 
+			} else if (is_abbrev(arg1, "errors")
 				|| is_abbrev(arg1, "comments")) {
 				mode_error = 1;
 			} else {
@@ -2818,15 +2800,13 @@ do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
 		}
 	}
 	// Yeah, ugly. I know.
-	// If mode all is on and anything other than range is on, 
+	// If mode all is on and anything other than range is on,
 	//  turn "mode_all" off.
 	if (mode_all &&
 		(mode_obj || mode_rem || mode_mob || mode_eq
 			|| mode_give || mode_put || mode_door
 			|| mode_error || mode_implant || mode_path))
 		mode_all = 0;
-
-
 
 	sprintf(out_buf, "Command list for zone %d :\r\n\r\n", zone->number);
 
@@ -3009,7 +2989,6 @@ one_argument_no_lower(char *argument, char *first_arg)
 	return argument;
 }
 
-
 /*
  * searches an array of strings for a target string.  "exact" can be
  * 0 or non-0, depending on whether or not the match must be exact for
@@ -3040,11 +3019,10 @@ search_block_no_lower(char *arg, const char **list, bool exact)
 	return -1;
 }
 
-
 int
 fill_word_no_lower(char *argument)
 {
-	return (search_block_no_lower(argument, fill_words, FALSE) >= 0);
+	return (search_block_no_lower(argument, fill_words, false) >= 0);
 }
 
 #define ZPATH_USAGE "Usage: olc zpath <'mob'|'obj'> <name> <path name>\r\n"

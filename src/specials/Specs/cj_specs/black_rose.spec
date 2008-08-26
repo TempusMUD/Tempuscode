@@ -22,7 +22,7 @@ SPECIAL(black_rose)
 
 	send_to_char(ch,
 		"You smell the scent of the black rose and feel oddly invigorated!\r\n");
-	act("$n smells $p.", TRUE, ch, trash, 0, TO_ROOM);
+	act("$n smells $p.", true, ch, trash, 0, TO_ROOM);
 
 	num = number(10, 30);
 	GET_MANA(ch) = MIN(GET_MANA(ch) + num, GET_MAX_MANA(ch));

@@ -34,7 +34,7 @@ SPECIAL(elven_registry)
 			perform_tell(reg, ch, "But you don't need to be, EVIL scum!");
 			send_to_char(ch,
 				"You are no longer a resident of the Elven Village.\r\n");
-			act("$n just lost $s residence in the village!", TRUE, ch, 0, 0,
+			act("$n just lost $s residence in the village!", true, ch, 0, 0,
 				TO_ROOM);
 			GET_HOME(ch) = HOME_MODRIAN;
 		}
@@ -72,8 +72,8 @@ SPECIAL(elven_registry)
 	sprintf(buf2, "That will be %d coins.", cost);
 	perform_tell(reg, ch, buf2);
 	if ((cert = read_object(19099))) {
-		act("$n presents $N with $p.", FALSE, reg, cert, ch, TO_NOTVICT);
-		act("$n presents you with $p.", FALSE, reg, cert, ch, TO_VICT);
+		act("$n presents $N with $p.", false, reg, cert, ch, TO_NOTVICT);
+		act("$n presents you with $p.", false, reg, cert, ch, TO_VICT);
 		obj_to_char(cert, ch);
 	}
 	mudlog(GET_INVIS_LVL(ch), CMP, true,

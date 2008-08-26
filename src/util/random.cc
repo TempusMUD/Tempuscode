@@ -73,7 +73,6 @@ my_srand(unsigned long initial_seed)
 	seed = initial_seed;
 }
 
-
 unsigned long
 my_rand(void)
 {

@@ -92,7 +92,7 @@ GET_SKILL_COST(Creature *ch, int skill)
 	skill_lvl = SPELL_LEVEL(skill, GET_CLASS(ch));
 	if (IS_REMORT(ch) && skill_lvl > SPELL_LEVEL(skill, GET_REMORT_CLASS(ch)))
 		skill_lvl = SPELL_LEVEL(skill, GET_REMORT_CLASS(ch));
-		
+
 	cost = skill_lvl * skill_lvl * 100;
 
 	// Remort costs: gen 1, lvl 35: 245k  gen 10, lvl 49: 2641100
@@ -141,7 +141,7 @@ enable_vt100(struct Creature *ch)
 	strcat(buf, VT_GOPOS(3, 1));
 	strcat(buf, VT_SVPOS);
 
-/*  
+/*
     send_to_char(ch, "%s%s%s%s%s%s%s%s%s%s%s%s%s", VT_CLEAR, VT_GOPOS(0,0), VT_SVPOS, VT_GOPOS(2,1), seperator,
     VT_RTPOS, VT_SVPOS, VT_GOPOS(rows-1,1), seperator,
     VT_RTPOS, VT_RPPOS(3,rows-2), VT_GOPOS(3,1), VT_SVPOS);
@@ -173,7 +173,6 @@ log_death_trap(struct Creature *ch)
 		ch->in_room->number, ch->in_room->name);
 }
 
-
 /* the "touch" command, essentially. */
 int
 touch(const char *path)
@@ -188,7 +187,6 @@ touch(const char *path)
 		return 0;
 	}
 }
-
 
 /*
  * mudlog -- log mud messages to a file & to online imm's syslogs
@@ -258,7 +256,7 @@ slog(const char *fmt, ...)
 void
 mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 {
-	
+
 	va_list args;
 
 	va_start(args, fmt);
@@ -269,7 +267,7 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 void
 errlog(const char *fmt, ...)
 {
-    const int MAX_FRAMES = 10;	
+    const int MAX_FRAMES = 10;
 	va_list args;
 	const char *backtrace_str = "";
     void *ret_addrs[MAX_FRAMES + 1];
@@ -358,8 +356,6 @@ sprintbit(long vektor, const char *names[], char *result)
 		strcat(result, "NOBITS ");
 }
 
-
-
 const char *
 strlist_aref(int idx, const char *names[])
 {
@@ -371,7 +367,7 @@ strlist_aref(int idx, const char *names[])
 	for (nr = 0;*names[nr] != '\n';nr++)
 		if (idx == nr)
 			return names[idx];
-	
+
 	return tmp_sprintf("UNDEFINED(%d)", idx);
 }
 
@@ -425,8 +421,6 @@ mud_time_passed(time_t t2, time_t t1)
 	return now;
 }
 
-
-
 struct time_info_data
 age(struct Creature *ch)
 {
@@ -453,9 +447,6 @@ age(struct Creature *ch)
 	return player_age;
 }
 
-
-
-
 /* Check if making CH follow VICTIM will create an illegal */
 /* Follow "Loop/circle"                                    */
 bool
@@ -465,10 +456,10 @@ circle_follow(struct Creature * ch, struct Creature * victim)
 
 	for (k = victim; k; k = k->master) {
 		if (k == ch)
-			return TRUE;
+			return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool
@@ -488,8 +479,6 @@ can_charm_more(Creature *ch)
 	return (count < GET_CHA(ch)/2 + GET_REMORT_GEN(ch));
 }
 
-
-
 /* Called when stop following persons, or stopping charm */
 /* This will NOT do if a character quits/dies!!          */
 void
@@ -501,19 +490,19 @@ stop_follower(struct Creature *ch)
 		raise(SIGSEGV);
 
 	if (AFF_FLAGGED(ch, AFF_CHARM) && !MOB2_FLAGGED(ch, MOB2_MOUNT)) {
-		act("You realize that $N is a jerk!", FALSE, ch, 0, ch->master,
+		act("You realize that $N is a jerk!", false, ch, 0, ch->master,
 			TO_CHAR);
-		act("$n realizes that $N is a jerk!", FALSE, ch, 0, ch->master,
+		act("$n realizes that $N is a jerk!", false, ch, 0, ch->master,
 			TO_NOTVICT);
-		act("$n hates your guts!", FALSE, ch, 0, ch->master, TO_VICT);
+		act("$n hates your guts!", false, ch, 0, ch->master, TO_VICT);
 		if (affected_by_spell(ch, SPELL_CHARM))
 			affect_from_char(ch, SPELL_CHARM);
 	} else {
-		act("You stop following $N.", FALSE, ch, 0, ch->master, TO_CHAR);
-		act("$n stops following $N.", TRUE, ch, 0, ch->master, TO_NOTVICT);
+		act("You stop following $N.", false, ch, 0, ch->master, TO_CHAR);
+		act("$n stops following $N.", true, ch, 0, ch->master, TO_NOTVICT);
 		if (GET_INVIS_LVL(ch) < GET_LEVEL(ch->master)
 			&& !AFF_FLAGGED(ch, AFF_SNEAK))
-			act("$n stops following you.", TRUE, ch, 0, ch->master, TO_VICT);
+			act("$n stops following you.", true, ch, 0, ch->master, TO_VICT);
 	}
 
 	if (ch->master->followers->follower == ch) {	/* Head of follower-list? */
@@ -537,8 +526,6 @@ stop_follower(struct Creature *ch)
 	ch->master = NULL;
 	REMOVE_BIT(AFF_FLAGS(ch), AFF_CHARM | AFF_GROUP);
 }
-
-
 
 /* Called when a character that follows/is followed dies */
 void
@@ -568,8 +555,6 @@ player_in_room(struct room_data *room)
 	return 0;
 }
 
-
-
 /* Do NOT call this before having checked if a circle of followers */
 /* will arise. CH will follow leader                               */
 void
@@ -588,10 +573,10 @@ add_follower(struct Creature *ch, struct Creature *leader)
 	k->next = leader->followers;
 	leader->followers = k;
 
-	act("You now follow $N.", FALSE, ch, 0, leader, TO_CHAR);
+	act("You now follow $N.", false, ch, 0, leader, TO_CHAR);
 	if (can_see_creature(leader, ch))
-		act("$n starts following you.", TRUE, ch, 0, leader, TO_VICT);
-	act("$n starts to follow $N.", TRUE, ch, 0, leader, TO_NOTVICT);
+		act("$n starts following you.", true, ch, 0, leader, TO_VICT);
+	act("$n starts to follow $N.", true, ch, 0, leader, TO_NOTVICT);
 }
 
 void
@@ -610,11 +595,11 @@ add_stalker(struct Creature *ch, struct Creature *leader)
 	k->next = leader->followers;
 	leader->followers = k;
 
-	act("You are now stalking $N.", FALSE, ch, 0, leader, TO_CHAR);
+	act("You are now stalking $N.", false, ch, 0, leader, TO_CHAR);
 	if (can_see_creature(leader, ch)) {
 		if (CHECK_SKILL(ch, SKILL_STALK) < (number(0, 80) + GET_WIS(leader))) {
-			act("$n starts following you.", TRUE, ch, 0, leader, TO_VICT);
-			act("$n starts to follow $N.", TRUE, ch, 0, leader, TO_NOTVICT);
+			act("$n starts following you.", true, ch, 0, leader, TO_VICT);
+			act("$n starts to follow $N.", true, ch, 0, leader, TO_NOTVICT);
 		} else
 			gain_skill_prof(ch, SKILL_STALK);
 	}
@@ -649,7 +634,6 @@ get_line(FILE * fl, char *buf)
 		return lines;
 	}
 }
-
 
 void
 num2str(char *str, int num)

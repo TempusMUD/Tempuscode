@@ -38,20 +38,20 @@ enum log_type
 };
 // mudlog() and slog() are shorter interfaces to mlog()
 void mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
-	__attribute__ ((format (printf, 4, 5))); 
+	__attribute__ ((format (printf, 4, 5)));
 void slog(const char *str, ...)
-	__attribute__ ((format (printf, 1, 2))); 
+	__attribute__ ((format (printf, 1, 2)));
 void errlog(const char *str, ...)
-	__attribute__ ((format (printf, 1, 2))); 
+	__attribute__ ((format (printf, 1, 2)));
 void zerrlog(struct zone_data *zone, const char *str, ...)
-	__attribute__ ((format (printf, 2, 3))); 
+	__attribute__ ((format (printf, 2, 3)));
 
 void mlog(const char *group,
 		sbyte level,
 		log_type type,
 		bool file,
 		const char *fmt, ...)
-	__attribute__ ((format (printf, 5, 6))); 
+	__attribute__ ((format (printf, 5, 6)));
 
 void log_death_trap(struct Creature *ch);
 void show_string(struct descriptor_data *desc);
@@ -144,7 +144,6 @@ const char *PERS(Creature * ch, Creature * sub);
 void WAIT_STATE(struct Creature *ch, int cycle);
 /* various constants *****************************************************/
 
-
 /* breadth-first searching */
 #define BFS_ERROR                -1
 #define BFS_ALREADY_THERE        -2
@@ -162,7 +161,6 @@ void WAIT_STATE(struct Creature *ch, int cycle);
 #define SECS_PER_REAL_DAY        (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR        (365*SECS_PER_REAL_DAY)
 
-
 #define ABS(a)  MAX(a, -a)
 /* string utils **********************************************************/
 
@@ -179,7 +177,6 @@ const char *ONOFF(bool a);
 const char *AN(const char *str);
 
 /* memory utils **********************************************************/
-
 
 #define CREATE(result, type, number)  do {\
         if (!((result) = reinterpret_cast<type *>(calloc ((number), sizeof(type))))) \
@@ -209,15 +206,12 @@ const char *AN(const char *str);
          temp->next = (item)->next;        \
    }                                        \
 
-
 /* basic bitvector utils *************************************************/
-
 
 #define IS_SET(flag,bit)  ((flag) & (bit))
 #define SET_BIT(var,bit)  ((var) |= (bit))
 #define REMOVE_BIT(var,bit)  ((var) &= ~(bit))
 #define TOGGLE_BIT(var,bit) ((var) = (var) ^ (bit))
-
 
 /* room utils ************************************************************/
 #define ROOM_FLAGS(loc)           ((loc)->room_flags)
@@ -344,8 +338,8 @@ const char *AN(const char *str);
 #define AFF2_FLAGGED(ch, flag)  (IS_SET(AFF2_FLAGS(ch), (flag)))
 #define AFF3_FLAGGED(ch, flag)  (IS_SET(AFF3_FLAGS(ch), (flag)))
 
-static inline bool 
-PRF_FLAGGED( Creature *ch, int flag ) 
+static inline bool
+PRF_FLAGGED( Creature *ch, int flag )
 {
     if( IS_NPC(ch) ) {
         if(ch->desc && ch->desc->original) {
@@ -357,8 +351,8 @@ PRF_FLAGGED( Creature *ch, int flag )
         return IS_SET(PRF_FLAGS(ch),flag);
     }
 }
-static inline bool 
-PRF2_FLAGGED( Creature *ch, int flag ) 
+static inline bool
+PRF2_FLAGGED( Creature *ch, int flag )
 {
     if( IS_NPC(ch) ) {
         if(ch->desc && ch->desc->original) {
@@ -438,7 +432,6 @@ PRF2_FLAGGED( Creature *ch, int flag )
 
 	  /* room utils *********************************************************** */
 
-
 static inline int
 SECT(room_data * room)
 {
@@ -451,7 +444,6 @@ SECT(room_data * room)
 #define GET_ROOM_PROGOBJ(room) ((room) != NULL ? (room)->progobj : NULL)
 
 /* char utils ************************************************************/
-
 
 #define IN_ROOM(ch)        ((ch)->in_room)
 #define GET_WAS_IN(ch)        ((ch)->player_specials->was_in_room)
@@ -578,7 +570,7 @@ GET_REPUTATION_RANK(Creature *ch)
 #define GET_CLAN(ch)                ((ch)->player_specials->saved.clan)
 #define GET_REMORT_GEN(ch) ((ch)->char_specials.saved.remort_generation)
 
-static inline bool IS_REMORT( const Creature *ch ) 
+static inline bool IS_REMORT( const Creature *ch )
 {
 	if( ch == NULL )
 		return false;
@@ -689,13 +681,10 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 
 /* descriptor-based utils ************************************************/
 
-
 #define CHECK_WAIT(ch)        (((ch)->desc) ? ((ch)->desc->wait > 1) : 0)
 #define STATE(d)        ((d)->input_mode)
 
-
 /* object utils **********************************************************/
-
 
 #define GET_OBJ_TYPE(obj)        ((obj)->obj_flags.type_flag)
 #define IS_OBJ_TYPE(obj, type)  (GET_OBJ_TYPE(obj) == type)
@@ -768,8 +757,6 @@ STRENGTH_APPLY_INDEX(Creature *ch)
                              !IS_PLANT(ch) && !IS_ALIEN_1(ch) && \
                              !IS_PUDDING(ch) && !IS_SLIME(ch))
 
-
-
 #define OBJ_REINFORCED(obj) (IS_OBJ_STAT2(obj, ITEM2_REINFORCED))
 #define OBJ_ENHANCED(obj) (IS_OBJ_STAT2(obj, ITEM2_ENHANCED))
 
@@ -779,7 +766,6 @@ STRENGTH_APPLY_INDEX(Creature *ch)
       (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))
 
 /* compound utilities and other macros **********************************/
-
 
 #define HSHR(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "his":"her") :"its")
 #define HSSH(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "he" :"she") : "it")
@@ -928,7 +914,6 @@ long GET_SKILL_COST(Creature *ch, int skill);
                                  IS_RACE(ch, RACE_RAKSHASA) || \
                                  IS_RACE(ch, RACE_ROWLAHR))
 
-
 #define IS_TIAMAT(ch)           (GET_MOB_VNUM(ch) == 61119)
 #define IS_TARRASQUE(ch)           (GET_MOB_VNUM(ch) == 24800)
 
@@ -941,7 +926,6 @@ long GET_SKILL_COST(Creature *ch, int skill);
                                  GET_MOB_VNUM(ch) == 16132)
 
 #define LIFE_FORM(ch)           (!IS_ROBOT(ch) && !IS_UNDEAD(ch))
-
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
@@ -977,7 +961,7 @@ room_has_air(room_data *room)
         || sect == SECT_WATER_NOSWIM
         || sect == SECT_FREESPACE)
         return false;
-        
+
     return true;
 }
 
@@ -1005,7 +989,7 @@ bool can_see_room(Creature *self, room_data *room);
 
 #define CAN_DETECT_DISGUISE(ch, vict, level) \
                           (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \
-                           AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
+                           AFF2_FLAGGED(ch, AFF2_true_SEEING) ||\
                            (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
 
 static inline room_direction_data*& EXIT( obj_data *ch, int dir ) {
@@ -1037,7 +1021,7 @@ CAN_SEND_TELL(Creature *ch, Creature *tch)
 	// Immortals are hearable everywhere
 	if (ch->player.level >= LVL_IMMORT)
 		return true;
-	
+
 	// Anyone can hear people inside the same rooms
 	if (ch->in_room == tch->in_room)
 		return true;
@@ -1046,11 +1030,11 @@ CAN_SEND_TELL(Creature *ch, Creature *tch)
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
 			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
 		return false;
-	
+
 	// Players can hear each other inside the same zone
 	if (ch->in_room->zone == tch->in_room->zone)
 		return true;
-	
+
 	// but not outside if the zone is isolated or soundproof
 	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
 			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
@@ -1068,7 +1052,7 @@ CAN_SEND_TELL(Creature *ch, Creature *tch)
 	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
 			tch->in_room->zone->time_frame == TIME_TIMELESS)
 		return true;
-	
+
 	// otherwise, they can't
 	return false;
 }
@@ -1079,7 +1063,7 @@ CAN_CHANNEL_COMM(Creature *ch, Creature *tch)
 	// Immortals are hearable everywhere
 	if (ch->player.level >= LVL_IMMORT)
 		return true;
-	
+
 	// Anyone can hear people inside the same rooms
 	if (ch->in_room == tch->in_room)
 		return true;
@@ -1088,11 +1072,11 @@ CAN_CHANNEL_COMM(Creature *ch, Creature *tch)
 	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
 			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
 		return false;
-	
+
 	// Players can hear each other inside the same zone
 	if (ch->in_room->zone == tch->in_room->zone)
 		return true;
-	
+
 	// but not outside if the zone is isolated or soundproof
 	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
 			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
@@ -1114,20 +1098,19 @@ CAN_CHANNEL_COMM(Creature *ch, Creature *tch)
 	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
 			tch->in_room->zone->time_frame == TIME_TIMELESS)
 		return true;
-	
+
 	// otherwise, they can't
 	return false;
 }
 
-
 /* OS compatibility ******************************************************/
 
-#if !defined(FALSE)
-#define FALSE 0
+#if !defined(false)
+#define false 0
 #endif
 
-#if !defined(TRUE)
-#define TRUE  (!FALSE)
+#if !defined(true)
+#define true  (!false)
 #endif
 
 /* defines for fseek */

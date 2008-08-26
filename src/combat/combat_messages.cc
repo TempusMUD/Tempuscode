@@ -47,7 +47,6 @@ char *replace_string(const char *str,
                      const char *location,
                      const char* substance=NULL);
 
-
 void
 appear(struct Creature *ch, struct Creature *vict)
 {
@@ -68,14 +67,14 @@ appear(struct Creature *ch, struct Creature *vict)
 
 	// True seeing and detect invisibility counteract all magical invis
 	if (affected_by_spell(ch, SPELL_INVISIBLE) &&
-    (AFF2_FLAGGED(vict, AFF2_TRUE_SEEING) ||
+    (AFF2_FLAGGED(vict, AFF2_true_SEEING) ||
     AFF_FLAGGED(vict, AFF_DETECT_INVIS)))
     {
         affect_from_char(ch, SPELL_INVISIBLE);
         send_to_char(ch, "Your invisibility spell has expired.\r\n");
         found = 1;
     }
-	
+
 	if (IS_ANIMAL(vict) && affected_by_spell(ch, SPELL_ANIMAL_KIN)) {
 		affect_from_char(ch, SPELL_ANIMAL_KIN);
 		send_to_char(ch, "You no longer feel kinship with animals.\r\n");
@@ -103,16 +102,15 @@ appear(struct Creature *ch, struct Creature *vict)
 	if (found) {
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			act("$n suddenly appears, seemingly from nowhere.",
-				TRUE, ch, 0, 0, TO_ROOM);
+				true, ch, 0, 0, TO_ROOM);
 			if (to_char)
 				send_to_char(ch, to_char);
 			else
 				send_to_char(ch, "You fade into visibility.\r\n");
 		} else
-			act("You feel a strange presence as $n appears, seemingly from nowhere.", FALSE, ch, 0, 0, TO_ROOM);
+			act("You feel a strange presence as $n appears, seemingly from nowhere.", false, ch, 0, 0, TO_ROOM);
 	}
 }
-
 
 void
 load_messages(void)
@@ -132,7 +130,6 @@ load_messages(void)
 		fight_messages[i].number_of_attacks = 0;
 		fight_messages[i].msg = 0;
 	}
-
 
 	fgets(chk, 128, fl);
 	while (!feof(fl) && (*chk == '\n' || *chk == '*'))
@@ -185,25 +182,25 @@ death_cry(struct Creature *ch)
 
 	if (GET_MOB_SPEC(ch) == fate)
 		act("$n dissipates in a cloud of mystery, leaving you to your fate.",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 	else if (IS_GHOUL(ch) || IS_WIGHT(ch) || IS_MUMMY(ch))
 		act("$n falls lifeless to the floor with a shriek.",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 	else if (IS_SKELETON(ch))
 		act("$n clatters noisily into a lifeless heap.",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 	else if (IS_GHOST(ch) || IS_SHADOW(ch) || IS_WRAITH(ch) || IS_SPECTRE(ch))
 		act("$n vanishes into the void with a terrible shriek.",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 	else if (IS_VAMPIRE(ch))
 		act("$n screams as $e is consumed in a blazing fire!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 	else if (IS_LICH(ch))
 		act("A roar fills your ears as $n is ripped into the void!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 	else if (IS_UNDEAD(ch))
 		act("Your skin crawls as you hear $n's final shriek.",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 	else {
 		CreatureList::iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
@@ -214,12 +211,12 @@ death_cry(struct Creature *ch)
 			if (!found && IS_BARB((*it)) && !number(0, 1)) {
 				found = 1;
 				act("You feel a rising bloodlust as you hear $n's death cry.",
-					FALSE, ch, 0, (*it), TO_VICT);
+					false, ch, 0, (*it), TO_VICT);
 			}
 
 			if (!found)
 				act("Your blood freezes as you hear $n's death cry.",
-					FALSE, ch, 0, (*it), TO_VICT);
+					false, ch, 0, (*it), TO_VICT);
 		}
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
@@ -239,7 +236,7 @@ death_cry(struct Creature *ch)
 			sprintf(buf,
 				"Your blood freezes as you hear someone's death cry from %s.",
 				from_dirs[door]);
-			act(buf, FALSE, ch, 0, 0, TO_ROOM);
+			act(buf, false, ch, 0, 0, TO_ROOM);
 			adjoin_room = ch->in_room;
 			ch->in_room = was_in;
 			if (adjoin_room->dir_option[rev_dir[door]] &&
@@ -346,7 +343,7 @@ blood_spray(struct Creature *ch, struct Creature *victim,
 		attacktype >= TYPE_HIT ?
 		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
 	send_to_char(ch, CCRED(ch, C_NRM));
-	act(buf, FALSE, ch, 0, victim, TO_CHAR);
+	act(buf, false, ch, 0, victim, TO_CHAR);
 	send_to_char(ch, CCNRM(ch, C_NRM));
 
 	sprintf(buf,
@@ -354,7 +351,7 @@ blood_spray(struct Creature *ch, struct Creature *victim,
 		attacktype >= TYPE_HIT ?
 		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
 	send_to_char(victim, CCRED(victim, C_NRM));
-	act(buf, FALSE, ch, 0, victim, TO_VICT);
+	act(buf, false, ch, 0, victim, TO_VICT);
 	send_to_char(victim, CCNRM(victim, C_NRM));
 
 	CreatureList::iterator it = ch->in_room->people.begin();
@@ -368,7 +365,7 @@ blood_spray(struct Creature *ch, struct Creature *victim,
 		attacktype >= TYPE_HIT ?
 		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
 
-	act(buf, FALSE, ch, 0, victim, TO_NOTVICT);
+	act(buf, false, ch, 0, victim, TO_NOTVICT);
 	it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || (*it) == victim || !(*it)->desc || !AWAKE((*it)))
@@ -400,7 +397,7 @@ blood_spray(struct Creature *ch, struct Creature *victim,
 					sprintf(buf, "$N's blood splatters all over your %s!",
 						wear_description[pos]);
 
-				act(buf, FALSE, nvict, 0, victim, TO_CHAR);
+				act(buf, false, nvict, 0, victim, TO_CHAR);
 				found = 1;
 
 				if (nvict == ch && IS_CLERIC(ch) && IS_EVIL(ch)) {
@@ -446,160 +443,160 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			"$n tries to #w $N, but misses.",
 		    "You try to #w $N, but miss.",
 			"$n tries to #w you, but misses."
-        }, 
+        },
         {   // 1: 1 - 4
 			"$n tickles $N as $e #W $M.",
-		    "You tickle $N as you #w $M.", 
+		    "You tickle $N as you #w $M.",
             "$n tickles you as $e #W you."
-        }, 
+        },
         {   // 2: 3 - 6
 			"$n barely #W $N.",
-		    "You barely #w $N.", 
+		    "You barely #w $N.",
             "$n barely #W you."
-        }, 
+        },
         {   // 3: 5 - 10
 			"$n #W $N.",
-		    "You #w $N.", 
+		    "You #w $N.",
             "$n #W you."
-        }, 
+        },
         {   // 4: 7 - 14
 			"$n #W $N hard.",
-		    "You #w $N hard.", 
+		    "You #w $N hard.",
             "$n #W you hard."
-        }, 
+        },
         {   // 5: 11 - 19
 			"$n #W $N very hard.",
-		    "You #w $N very hard.", 
+		    "You #w $N very hard.",
             "$n #W you very hard."
-        }, 
+        },
         {   // 6: 15 - 23
 			"$n #W $N extremely hard.",
-		    "You #w $N extremely hard.", 
+		    "You #w $N extremely hard.",
             "$n #W you extremely hard."
-        }, 
+        },
         {   // 7: 19 - 27
 			"$n massacres $N to small fragments with $s #w.",
 		    "You massacre $N to small fragments with your #w.",
 			"$n massacres you to small fragments with $s #w."
-        }, 
+        },
         {   // 8: 23 - 32
-			"$n devastates $N with $s incredible #w!!",	
+			"$n devastates $N with $s incredible #w!!",
 		    "You devastate $N with your incredible #w!!",
 			"$n devastates you with $s incredible #w!!"
-        }, 
+        },
         {   // 9: 32 - 37
 			"$n OBLITERATES $N with $s deadly #w!!",
 		    "You OBLITERATE $N with your deadly #w!!",
 			"$n OBLITERATES you with $s deadly #w!!"
-        }, 
+        },
         {   // 10: 37 - 45
 			"$n utterly DEMOLISHES $N with $s unbelievable #w!!",
 		    "You utterly DEMOLISH $N with your unbelievable #w!!",
 			"$n utterly DEMOLISHES you with $s unbelievable #w!!"
-        }, 
+        },
         {   // 11: 46 - 69
 			"$n PULVERIZES $N with $s vicious #w!!",
 		    "You PULVERIZE $N with your vicious #w!!",
 			"$n PULVERIZES you with $s vicious #w!!"
-        }, 
+        },
         {   // 12: 70 - 99
 			"$n *DECIMATES* $N with $s horrible #w!!",
 		    "You *DECIMATE* $N with your horrible #w!!",
 			"$n *DECIMATES* you with $s horrible #w!!"
-        }, 
+        },
         {   // 13: 100 - 139
 			"$n *LIQUIFIES* $N with $s incredibly vicious #w!!",
 		    "You **LIQUIFY** $N with your incredibly vicious #w!!",
 			"$n *LIQUIFIES* you with $s incredibly vicious #w!!"
-        }, 
+        },
         {   // 14: 140 - 189
 			"$n **VAPORIZES** $N with $s terrible #w!!",
 		    "You **VAPORIZE** $N with your terrible #w!!",
 			"$n **VAPORIZES** you with $s terrible #w!!"
-        }, 
+        },
         {   // 15: >189
 			"$n **ANNIHILATES** $N with $s ultra powerful #w!!",
 		    "You **ANNIHILATE** $N with your ultra powerful #w!!",
 			"$n **ANNIHILATES** you with $s ultra powerful #w!!"
         }
 	};
-    
+
     static struct dam_weapon_type dam_mana_shield[] = {
 		{   // 0: 0
 			"$n tries to #w $N, but misses.",
 		    "You try to #w $N, but miss.",
 			"$n tries to #w you, but misses."
-        }, 
+        },
         {   // 1: 1 - 4
 			"$n tickles $N's mana shield as $e #W $M.",
-		    "You tickle $N's mana shield as you #w $M.", 
+		    "You tickle $N's mana shield as you #w $M.",
             "$n tickles your mana shield as $e #W you."
-        }, 
+        },
         {   // 2: 3 - 6
 			"$n barely #W $N's mana shield.",
-		    "You barely #w $N's mana shield.", 
+		    "You barely #w $N's mana shield.",
             "$n barely #W your mana shield."
-        }, 
+        },
         {   // 3: 5 - 10
 			"$n #W $N's mana shield.",
-		    "You #w $N's mana shield.", 
+		    "You #w $N's mana shield.",
             "$n #W your mana shield."
-        }, 
+        },
         {   // 4: 7 - 14
 			"$n #W $N's mana shield hard.",
-		    "You #w $N's mana shield hard.", 
+		    "You #w $N's mana shield hard.",
             "$n #W your mana shield hard."
-        }, 
+        },
         {   // 5: 11 - 19
 			"$n #W $N's mana shield very hard.",
-		    "You #w $N's mana shield very hard.", 
+		    "You #w $N's mana shield very hard.",
             "$n #W your mana shield very hard."
-        }, 
+        },
         {   // 6: 15 - 23
 			"$n #W $N's mana shield extremely hard.",
-		    "You #w $N's mana shield extremely hard.", 
+		    "You #w $N's mana shield extremely hard.",
             "$n #W your mana shield extremely hard."
-        }, 
+        },
         {   // 7: 19 - 27
 			"$n massacres $N's mana shield to small fragments with $s #w.",
 		    "You massacre $N's mana shield to small fragments with your #w.",
 			"$n massacres your mana shield to small fragments with $s #w."
-        }, 
+        },
         {   // 8: 23 - 32
-			"$n devastates $N's mana shield with $s incredible #w!!",	
+			"$n devastates $N's mana shield with $s incredible #w!!",
 		    "You devastate $N's mana shield with your incredible #w!!",
 			"$n devastates your mana shield with $s incredible #w!!"
-        }, 
+        },
         {   // 9: 32 - 37
 			"$n OBLITERATES $N's mana shield with $s deadly #w!!",
 		    "You OBLITERATE $N's mana shield with your deadly #w!!",
 			"$n OBLITERATES your mana shield with $s deadly #w!!"
-        }, 
+        },
         {   // 10: 37 - 45
 			"$n utterly DEMOLISHES $N's mana shield with $s unbelievable #w!!",
 		    "You utterly DEMOLISH $N's mana shield with your unbelievable #w!!",
 			"$n utterly DEMOLISHES your mana shield with $s unbelievable #w!!"
-        }, 
+        },
         {   // 11: 46 - 69
 			"$n PULVERIZES $N's mana shield with $s vicious #w!!",
 		    "You PULVERIZE $N's mana shield with your vicious #w!!",
 			"$n PULVERIZES your mana shield with $s vicious #w!!"
-        }, 
+        },
         {   // 12: 70 - 99
 			"$n *DECIMATES* $N's mana shield with $s horrible #w!!",
 		    "You *DECIMATE* $N's mana shield with your horrible #w!!",
 			"$n *DECIMATES* your mana shield with $s horrible #w!!"
-        }, 
+        },
         {   // 13: 100 - 139
 			"$n *LIQUIFIES* $N's mana shield with $s incredibly vicious #w!!",
 		    "You **LIQUIFY** $N's mana shield with your incredibly vicious #w!!",
 			"$n *LIQUIFIES* your mana shield with $s incredibly vicious #w!!"
-        }, 
+        },
         {   // 14: 140 - 189
 			"$n **VAPORIZES** $N's mana shield with $s terrible #w!!",
 		    "You **VAPORIZE** $N's mana shield with your terrible #w!!",
 			"$n **VAPORIZES** your mana shield with $s terrible #w!!"
-        }, 
+        },
         {   // 15: >189
 			"$n **ANNIHILATES** $N's mana shield with $s ultra powerful #w!!",
 		    "You **ANNIHILATE** $N's mana shield with your ultra powerful #w!!",
@@ -676,7 +673,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			"$n *DECIMATES* you with $p!!"
         },
 		{   // 13: 100 - 139
-			"$n *LIQUIFIES* $N with a #w from $p!!",	
+			"$n *LIQUIFIES* $N with a #w from $p!!",
 			"You **LIQUIFY** $N with a #w from $p!!",
 			"$n *LIQUIFIES* you with a #w from $p"
         },
@@ -741,7 +738,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			"$n devastates your #p with $s incredible #w!!"
         },
 		{   // 9: 32 - 37
-			"$n OBLITERATES $N's #p with $s #w!!",	
+			"$n OBLITERATES $N's #p with $s #w!!",
 			"You OBLITERATE $N's #p with your #w!!",
 			"$n OBLITERATES your #p with $s #w!!"
         },
@@ -791,12 +788,12 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			"$n grazes you as $e #W you with $p."
         },
 		{   // 2: 3 - 6
-			"$n barely #W $N with $p.",	
+			"$n barely #W $N with $p.",
 			"You barely #w $N with $p.",
 			"$n barely #W you with $p."
         },
 		{   // 3: 5 - 10
-			"$n #W $N with $p.",	
+			"$n #W $N with $p.",
 			"You #w $N with $p.",
 			"$n #W you with $p."
         },
@@ -862,7 +859,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
         }
 
 	};
-    
+
     /* fifth set of possible mssgs, IF ENERGY_WEAPON. */
 	static struct dam_weapon_type dam_energyguns[] = {
 
@@ -877,12 +874,12 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 			"$n grazes you with #s."
         },
 		{   // 2: 3 - 6
-			"$n barely marks $N with $p.",	
+			"$n barely marks $N with $p.",
 			"You barely mark $N with #s.",
 			"$n barely marks you with #s."
         },
 		{   // 3: 5 - 10
-			"$n hurts $N with #s.",	
+			"$n hurts $N with #s.",
 			"You hurt $N with #s.",
 			"$n hurts you with #s."
         },
@@ -948,7 +945,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
         }
 
 	};
-    
+
     /* 6th set of possible mssgs, IF ENERGY_WEAPON version 2. */
 	static struct dam_weapon_type dam_energyguns2[] = {
 
@@ -1120,7 +1117,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
         }
 
 	};
-    
+
 	if (search_nomessage)
 		return;
 
@@ -1210,7 +1207,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 		buf = replace_string(dam_weapons[msgnum].to_room,
 			attack_hit_text[w_type].singular,
 			attack_hit_text[w_type].plural, NULL);
-	act(buf, FALSE, ch, weap, victim, TO_NOTVICT);
+	act(buf, false, ch, weap, victim, TO_NOTVICT);
 	/* damage message to damager */
 	if ((msgnum || !PRF_FLAGGED(ch, PRF_GAGMISS)) && ch->desc) {
         if (location == WEAR_MSHIELD) // Mana shield hit
@@ -1255,7 +1252,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
             send_to_char(ch, CCMAG(ch, C_NRM));
         else
 		    send_to_char(ch, CCYEL(ch, C_NRM));
-		act(buf, FALSE, ch, weap, victim, TO_CHAR | TO_SLEEP);
+		act(buf, false, ch, weap, victim, TO_CHAR | TO_SLEEP);
 		send_to_char(ch, CCNRM(ch, C_NRM));
 	}
 	/* damage message to damagee */
@@ -1302,14 +1299,13 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
             send_to_char(victim, CCCYN(victim, C_NRM));
         else
 		    send_to_char(victim, CCRED(victim, C_NRM));
-		act(buf, FALSE, ch, weap, victim, TO_VICT | TO_SLEEP);
+		act(buf, false, ch, weap, victim, TO_VICT | TO_SLEEP);
 		send_to_char(victim, CCNRM(victim, C_NRM));
 	}
 
 	if (BLOODLET(victim, dam, w_type + TYPE_HIT))
 		blood_spray(ch, victim, dam, w_type + TYPE_HIT);
 }
-
 
 /*
  * message for doing damage with a spell or skill
@@ -1348,18 +1344,18 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 
 			if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
 				(!PLR_FLAGGED(vict, PLR_MORTALIZED) || dam == 0)) {
-				act(msg->god_msg.attacker_msg, FALSE, ch, weap, vict, TO_CHAR);
-				act(msg->god_msg.victim_msg, FALSE, ch, weap, vict, TO_VICT);
-				act(msg->god_msg.room_msg, FALSE, ch, weap, vict, TO_NOTVICT);
+				act(msg->god_msg.attacker_msg, false, ch, weap, vict, TO_CHAR);
+				act(msg->god_msg.victim_msg, false, ch, weap, vict, TO_VICT);
+				act(msg->god_msg.room_msg, false, ch, weap, vict, TO_NOTVICT);
 			} else if (dam != 0) {
 				if (vict->getPosition() == POS_DEAD) {
 					if (ch) {
-						act(msg->die_msg.room_msg, FALSE, ch, weap, vict,
+						act(msg->die_msg.room_msg, false, ch, weap, vict,
 							TO_NOTVICT | TO_VICT_RM);
-						if (ch != vict && 
+						if (ch != vict &&
                             find_distance(ch->in_room, vict->in_room) < 3) {
 							send_to_char(ch, CCYEL(ch, C_NRM));
-							act(msg->die_msg.attacker_msg, FALSE, ch, weap,
+							act(msg->die_msg.attacker_msg, false, ch, weap,
 								vict, TO_CHAR);
 							send_to_char(ch, CCNRM(ch, C_NRM));
 						}
@@ -1367,24 +1363,24 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 					}
 
 					send_to_char(vict, CCRED(vict, C_NRM));
-					act(msg->die_msg.victim_msg, FALSE, ch, weap, vict,
+					act(msg->die_msg.victim_msg, false, ch, weap, vict,
 						TO_VICT | TO_SLEEP);
 					send_to_char(vict, CCNRM(vict, C_NRM));
 
 				} else {
 					if (ch) {
-						act(msg->hit_msg.room_msg, FALSE, ch, weap, vict,
+						act(msg->hit_msg.room_msg, false, ch, weap, vict,
 							TO_NOTVICT | TO_VICT_RM);
 						if (ch != vict && ch->in_room == vict->in_room) {
 							send_to_char(ch, CCYEL(ch, C_NRM));
-							act(msg->hit_msg.attacker_msg, FALSE, ch, weap,
+							act(msg->hit_msg.attacker_msg, false, ch, weap,
 								vict, TO_CHAR);
 							send_to_char(ch, CCNRM(ch, C_NRM));
 						}
 					}
 
 					send_to_char(vict, CCRED(vict, C_NRM));
-					act(msg->hit_msg.victim_msg, FALSE, ch, weap, vict,
+					act(msg->hit_msg.victim_msg, false, ch, weap, vict,
 						TO_VICT | TO_SLEEP);
 					send_to_char(vict, CCNRM(vict, C_NRM));
 
@@ -1393,19 +1389,19 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 				if (ch && (!IS_WEAPON(attacktype) || !PRF_FLAGGED(ch, PRF_GAGMISS))) {
                     if (ch->in_room == vict->in_room) {
 					    send_to_char(ch, CCYEL(ch, C_NRM));
-					    act(msg->miss_msg.attacker_msg, FALSE, ch, weap, vict,
+					    act(msg->miss_msg.attacker_msg, false, ch, weap, vict,
 						    TO_CHAR);
 					    send_to_char(ch, CCNRM(ch, C_NRM));
                     }
 
-					act(msg->miss_msg.room_msg, FALSE, ch, weap, vict,
+					act(msg->miss_msg.room_msg, false, ch, weap, vict,
 						TO_NOTVICT | TO_VICT_RM);
 				}
 
 				if (!IS_WEAPON(attacktype)
                     || !PRF_FLAGGED(vict, PRF_GAGMISS)) {
                     send_to_char(vict, CCRED(vict, C_NRM));
-                    act(msg->miss_msg.victim_msg, FALSE, ch, weap, vict,
+                    act(msg->miss_msg.victim_msg, false, ch, weap, vict,
                         TO_VICT | TO_SLEEP);
                     send_to_char(vict, CCNRM(vict, C_NRM));
                 }

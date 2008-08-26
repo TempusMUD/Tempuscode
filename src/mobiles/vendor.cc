@@ -2,7 +2,6 @@
 #include "config.h"
 #endif
 
-
 #include "actions.h"
 #include "db.h"
 #include "comm.h"
@@ -66,7 +65,7 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 		perform_say_to(self, ch, shop->msg_badobj);
 		return true;
 	}
-    
+
     if (GET_OBJ_COST(obj) < 1) {
 		perform_say_to(self, ch, "Why would I want that?  It has no value.");
 		return true;
@@ -126,7 +125,7 @@ static unsigned long
 vendor_get_value(obj_data *obj, int percent, int costModifier)
 {
 	unsigned long cost;
-    
+
 	// Adjust cost for wear and tear on a direct percentage basis
 	if (GET_OBJ_DAM(obj) != -1 && GET_OBJ_MAX_DAM(obj) != -1 &&
 			GET_OBJ_MAX_DAM(obj) != 0)
@@ -144,7 +143,7 @@ vendor_get_value(obj_data *obj, int percent, int costModifier)
 		cost += cost >> 2;
 
     cost += (costModifier*(int)cost)/100;
-    
+
 	return cost;
 }
 
@@ -191,15 +190,15 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 	const char *currency_str;
 	const unsigned long cost = 2000;
 	unsigned long amt_carried;
-		
+
 	if (shop->currency == 2) {
 		perform_say_to(self, ch, "I don't do appraisals.");
 		return;
 	}
 	switch (shop->currency) {
-	case 0:	
+	case 0:
 		amt_carried = GET_GOLD(ch); break;
-	case 1:	
+	case 1:
 		amt_carried = GET_CASH(ch); break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
@@ -212,7 +211,7 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 			command_interpreter(self, tmp_gsub(shop->cmd_temper, "$N", GET_NAME(ch)));
 		return;
 	}
-	
+
 	switch (shop->currency) {
 		case 0:
 			GET_GOLD(ch) -= cost;
@@ -235,7 +234,6 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 
 	perform_say_to(self, ch,
 		tmp_sprintf("That will cost you %lu %s.", cost, currency_str));
-
 
 	if( IS_MAGE(self) ) {
 		spell_identify(50, ch, NULL, obj, NULL );
@@ -315,7 +313,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (num > 1) {
 		int obj_cnt = vendor_inventory(self, obj, self->carrying);
 		if (!vendor_is_produced(obj, shop) && num > obj_cnt) {
-			perform_say_to(self, ch, 
+			perform_say_to(self, ch,
 				tmp_sprintf("I only have %d to sell to you.", obj_cnt));
 			num = obj_cnt;
 		}
@@ -323,28 +321,28 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	cost = vendor_get_value(obj, shop->markup, ch->getCostModifier(self));
 	switch (shop->currency) {
-	case 0:	
+	case 0:
 		amt_carried = GET_GOLD(ch); break;
-	case 1:	
+	case 1:
 		amt_carried = GET_CASH(ch); break;
-	case 2:	
+	case 2:
 		amt_carried = ch->account->get_quest_points(); break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		amt_carried = 0;
 		break;
 	}
-	
+
 	if (cost > amt_carried) {
 		perform_say_to(self, ch, shop->msg_buyerbroke);
 		if (shop->cmd_temper)
 			command_interpreter(self, tmp_strdup(shop->cmd_temper));
 		return;
 	}
-	
+
 	if (cost * num > amt_carried && cost > 0) {
 		num = amt_carried / cost;
-		perform_say_to(self, ch, 
+		perform_say_to(self, ch,
 			tmp_sprintf("You only have enough to buy %d.", num));
 	}
 
@@ -441,7 +439,7 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		perform_say_to(self, ch, "Hey, I only sell stuff.");
 		return;
 	}
-		
+
 	if (!*arg) {
 		send_to_char(ch, "What do you wish to sell?\r\n");
 		return;
@@ -560,7 +558,7 @@ vendor_list_obj(Creature *ch, obj_data *obj, int cnt, int idx, int cost)
 	if (IS_OBJ_STAT(obj, ITEM_TRANSPARENT))
 		obj_desc = tmp_strcat(obj_desc, " (transparent)");
 	if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN)) {
-		if (IS_OBJ_STAT(obj, ITEM_BLESS))	
+		if (IS_OBJ_STAT(obj, ITEM_BLESS))
 			obj_desc = tmp_strcat(obj_desc, " (holy aura)");
 		if (IS_OBJ_STAT(obj, ITEM_DAMNED))
 			obj_desc = tmp_strcat(obj_desc, " (unholy aura)");
@@ -584,7 +582,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	int idx, cnt;
 	const char *msg;
     unsigned long cost;
-    
+
 	if (!self->carrying) {
 		perform_say_to(self, ch, "I'm out of stock at the moment.");
 		return;
@@ -630,7 +628,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (last_obj) {
 		if (vendor_is_produced(last_obj, shop))
 			cnt = -1;
-		if (!*arg || namelist_match(arg, last_obj->aliases)) 
+		if (!*arg || namelist_match(arg, last_obj->aliases))
 			msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
 				vendor_get_value(last_obj, shop->markup, ch->getCostModifier(self))));
 	}
@@ -638,7 +636,6 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	act("$n peruses the shop's wares.", false, ch, 0, 0, TO_ROOM);
 	page_string(ch->desc, msg);
 }
-
 
 static void
 vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
@@ -651,7 +648,7 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		perform_say_to(self, ch, "I'm not the buying kind.");
 		return;
 	}
-		
+
 	if (!*arg) {
 		send_to_char(ch, "What do you wish to value?\r\n");
 		return;
@@ -878,9 +875,9 @@ SPECIAL(vendor)
 	}
 
 	if (spec_mode != SPECIAL_CMD)
-		return 0;	
+		return 0;
 
-	if (!(CMD_IS("buy")   || CMD_IS("sell")  || CMD_IS("list")  || 
+	if (!(CMD_IS("buy")   || CMD_IS("sell")  || CMD_IS("list")  ||
 		  CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal"))) {
 		return 0;
 	}
@@ -910,7 +907,7 @@ SPECIAL(vendor)
                     0, SCMD_SHOUT, 0);
 		return true;
 	}
-	
+
 	if (!can_see_creature(self, ch)) {
 		perform_say(self, "yell", "Show yourself if you want to do business with me!");
 		return true;
@@ -956,6 +953,6 @@ SPECIAL(vendor)
 		mudlog(LVL_IMPL, CMP, true, "Can't happen at %s:%d", __FILE__,
 			__LINE__);
 	}
-	
+
 	return true;
 }

@@ -36,7 +36,7 @@ extern struct descriptor_data *descriptor_list;
 extern HelpCollection *Help;
 
 // Constructor
-// Params: Users descriptor, The final destination of the text, 
+// Params: Users descriptor, The final destination of the text,
 //      the max size of the text.
 CEditor::CEditor(struct descriptor_data *d, int max)
     :theText()
@@ -82,7 +82,7 @@ CEditor::Finish(bool save)
 
         // Call the finalizer
         this->Finalize(text);
-        
+
         free(text);
     } else {
         this->Cancel();
@@ -793,7 +793,7 @@ CEditor::PerformCommand(char cmd, char *args)
             break;
         }
         dest_line = atoi(arg);
-        
+
         if (dest_line >= start_line && dest_line <= end_line + 1) {
             SendMessage("The line range you specified is already at the destination.\r\n");
             break;

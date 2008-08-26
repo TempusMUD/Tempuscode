@@ -12,7 +12,7 @@ SPECIAL(unholy_stalker)
 	Creature *mob = (Creature *) me;
 
 	if (!mob->isHunting() && !mob->isFighting()) {
-		act("$n dematerializes, returning to the negative planes.", TRUE, mob,
+		act("$n dematerializes, returning to the negative planes.", true, mob,
 			0, 0, TO_ROOM);
 		mob->purge(true);
 		return 1;

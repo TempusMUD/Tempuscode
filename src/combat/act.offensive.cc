@@ -60,12 +60,11 @@ check_mob_reaction(struct Creature *ch, struct Creature *vict)
 	num -= GET_CHA(ch);
 
 	if (num > number(0, 101)) {
-		act("$n gets pissed off!", FALSE, vict, 0, 0, TO_ROOM);
+		act("$n gets pissed off!", false, vict, 0, 0, TO_ROOM);
 		return 1;
 	} else
 		return 0;
 }
-
 
 // #define RAW_EQ_DAM(ch, pos, var)
 
@@ -135,7 +134,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	}
 
 	if (AFF2_FLAGGED(ch, AFF2_DISPLACEMENT) &&
-		!AFF2_FLAGGED(vict, AFF2_TRUE_SEEING))
+		!AFF2_FLAGGED(vict, AFF2_true_SEEING))
 		prob += 5;
 	if (AFF_FLAGGED(ch, AFF_BLUR))
 		prob += 5;
@@ -149,7 +148,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	if (IS_SICK(ch))
 		prob -= 5;
 	if (AFF2_FLAGGED(vict, AFF2_DISPLACEMENT) &&
-		!AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
+		!AFF2_FLAGGED(ch, AFF2_true_SEEING))
 		prob -= GET_LEVEL(vict) >> 1;
 	if (AFF2_FLAGGED(vict, AFF2_EVADE))
 		prob -= (GET_LEVEL(vict) >> 2) + 5;
@@ -169,7 +168,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
     if (room_is_watery(ch->in_room) ||
 		ch->in_room->sector_type == SECT_ASTRAL ||
         ch->in_room->isOpenAir())
-		bad_sect = TRUE;
+		bad_sect = true;
 
 	if (bad_sect)
 		prob -= (prob * 20) / 100;
@@ -186,7 +185,6 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		if (ch->equipment[WEAR_SHIELD])
 			prob += ch->equipment[WEAR_SHIELD]->getWeight();
 
-
 		if (bad_sect)
 			prob = (int)(prob * 0.90);
 
@@ -195,12 +193,12 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR)
 			prob = 0;
 
-		if ((!affected_by_spell(ch, SKILL_KATA) && 
+		if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
-            
+
 		*dam = dice(2, (GET_LEVEL(ch) >> 2));
 		*fail_pos = POS_SITTING;
 		*vict_pos = POS_SITTING;
@@ -234,11 +232,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		*vict_wait = 1 RL_SEC;
 		break;
 	case SKILL_HEADBUTT:
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
-        
+
 		*dam = dice(3, (GET_LEVEL(ch) >> 3));
 		ADD_EQ_DAM(ch, WEAR_HEAD);
 
@@ -265,11 +263,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			IS_OBJ_TYPE(vict->equipment[WEAR_EYES], ITEM_ARMOR))
 			prob -= GET_OBJ_VAL(GET_EQ(vict, WEAR_EYES), 0);
 
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
-        
+
 		*dam = dice(6, (GET_LEVEL(ch) >> 4));
 		*wait = 6 RL_SEC;
 		*vict_wait = 1 RL_SEC;
@@ -298,19 +296,19 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		if (vict->getPosition() < POS_STANDING)
 			prob += (10 * (POS_STANDING - vict->getPosition()));
 
-		if ((!affected_by_spell(ch, SKILL_KATA) && 
+		if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
-        
+
 		if ((GET_WEIGHT(vict) + ((IS_CARRYING_W(vict) +
 						IS_WEARING_W(vict)) >> 1)) > CAN_CARRY_W(ch) * 1.5) {
-			act("$N is too heavy for you to lift!", FALSE, ch, 0, vict,
+			act("$N is too heavy for you to lift!", false, ch, 0, vict,
 				TO_CHAR);
-			act("$n tries to pick you up and piledrive you!", FALSE, ch, 0,
+			act("$n tries to pick you up and piledrive you!", false, ch, 0,
 				vict, TO_VICT);
-			act("$n tries to pick $N up and piledrive $M!", FALSE, ch, 0, vict,
+			act("$n tries to pick $N up and piledrive $M!", false, ch, 0, vict,
 				TO_NOTVICT);
 			prob = 0;
 			if (check_mob_reaction(ch, vict)) {
@@ -337,11 +335,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 		if ((GET_WEIGHT(vict) + ((IS_CARRYING_W(vict) +
 						IS_WEARING_W(vict)) >> 1)) > CAN_CARRY_W(ch) * 1.5) {
-			act("$N is too heavy for you to lift!", FALSE, ch, 0, vict,
+			act("$N is too heavy for you to lift!", false, ch, 0, vict,
 				TO_CHAR);
-			act("$n tries to pick you up and bodyslam you!", FALSE, ch, 0,
+			act("$n tries to pick you up and bodyslam you!", false, ch, 0,
 				vict, TO_VICT);
-			act("$n tries to pick $N up and bodyslam $M!", FALSE, ch, 0, vict,
+			act("$n tries to pick $N up and bodyslam $M!", false, ch, 0, vict,
 				TO_NOTVICT);
 			prob = 0;
 			if (check_mob_reaction(ch, vict)) {
@@ -351,12 +349,12 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			return -1;
 		}
 
-		if ((!affected_by_spell(ch, SKILL_KATA) && 
+		if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
-        
+
 		need_hand = 1;
 		*dam = dice(10, GET_LEVEL(ch) >> 3);
 		*vict_pos = POS_SITTING;
@@ -400,11 +398,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR)
 			prob = 0;
 
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
-        
+
 		*dam = dice(5, (GET_LEVEL(ch) >> 2));
 		ADD_EQ_DAM(ch, WEAR_FEET);
 		*wait = 5 RL_SEC;
@@ -415,11 +413,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_GROINKICK:
 
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
-        
+
 		*dam = dice(3, (GET_LEVEL(ch) >> 2));
 		ADD_EQ_DAM(ch, WEAR_FEET);
 		*wait = 5 RL_SEC;
@@ -485,11 +483,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR)
 			prob = 0;
 
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
-        
+
 		need_hand = 1;
 		*dam = dice(8, GET_LEVEL(ch) >> 3) + 1;
 		ADD_EQ_DAM(ch, WEAR_HANDS);
@@ -524,12 +522,12 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_CLOTHESLINE:
 
-		if ((!affected_by_spell(ch, SKILL_KATA) && 
+		if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
-        
+
 		*loc = WEAR_NECK_1;
 		*dam = dice(2, GET_LEVEL(ch) >> 3);
 		ADD_EQ_DAM(ch, WEAR_ARMS);
@@ -540,12 +538,12 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	case SKILL_SWEEPKICK:
 	case SKILL_TRIP:
 
-		if ((!affected_by_spell(ch, SKILL_KATA) && 
+		if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
-        
+
 		*dam = dice(2, GET_LEVEL(ch) >> 3);
 		*wait = 5 RL_SEC;
 		*vict_pos = POS_SITTING;
@@ -554,11 +552,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	case SKILL_BEARHUG:
 
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
-        
+
         need_hand = 1;
 		*loc = WEAR_BODY;
 		*dam = dice(4, GET_LEVEL(ch) >> 3);
@@ -578,18 +576,18 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			if ((neck = GET_EQ(vict, WEAR_NECK_1)) ||
 				(neck = GET_EQ(vict, WEAR_NECK_2))) {
 				act("$n attempts to choke you, but $p has you covered!",
-					FALSE, ch, neck, vict, TO_VICT);
+					false, ch, neck, vict, TO_VICT);
 				act("$n attempts to choke $N, but $p has $M covered!",
-					FALSE, ch, neck, vict, TO_NOTVICT);
+					false, ch, neck, vict, TO_NOTVICT);
 				act("You attempt to choke $N, but $p has $M covered!",
-					FALSE, ch, neck, vict, TO_CHAR);
+					false, ch, neck, vict, TO_CHAR);
 				prob = 0;
 				return -1;
 			}
 		}
 
 		need_hand = 1;
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
@@ -609,7 +607,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		if ((!weap || !SLASHING(weap)) &&
 			(!(weap = GET_EQ(ch, WEAR_HANDS)) ||
 				!IS_OBJ_TYPE(weap, ITEM_WEAPON) || !SLASHING(weap))) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You need to wield a good slashing weapon to do this.\r\n");
 			return -1;
 		}
@@ -623,7 +621,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 			*dam = (int)(*dam * 0.80);
 
 		if (isname("headless", vict->player.name)) {
-			act("$N doesn't have a head!", FALSE, ch, 0, vict, TO_CHAR);
+			act("$N doesn't have a head!", false, ch, 0, vict, TO_CHAR);
 			return -1;
 		}
 
@@ -633,14 +631,14 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 				*dam >>= 2;
 			else {
 				act("$N is over twice your height!  You can't reach $S head!",
-					FALSE, ch, 0, vict, TO_CHAR);
+					false, ch, 0, vict, TO_CHAR);
 				prob = 0;
 				return -1;
 			}
 		}
 
-		if( AFF2_FLAGGED(vict, AFF2_NECK_PROTECTED) 
-			&& number(0, GET_LEVEL(vict) * 4) > number(0, (GET_LEVEL(ch) >> 1))) 
+		if( AFF2_FLAGGED(vict, AFF2_NECK_PROTECTED)
+			&& number(0, GET_LEVEL(vict) * 4) > number(0, (GET_LEVEL(ch) >> 1)))
 		{
 			// Try to find the nobehead eq.
 			neck = GET_EQ(vict, WEAR_NECK_1);
@@ -683,11 +681,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 		/** monk skillz here **/
 	case SKILL_PALM_STRIKE:
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
-        
+
 		need_hand = 1;
 		*loc = WEAR_BODY;
 		*dam = dice(GET_LEVEL(ch), GET_STR(ch) >> 2);
@@ -697,11 +695,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	case SKILL_THROAT_STRIKE:
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
-        
+
 		need_hand = 1;
 		*loc = WEAR_NECK_1;
 		*dam = dice(GET_LEVEL(ch), 5);
@@ -711,7 +709,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	case SKILL_CRANE_KICK:
-        if (!affected_by_spell(ch, SKILL_KATA) && 
+        if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
@@ -725,11 +723,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	case SKILL_SCISSOR_KICK:
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
-            
+
 		*dam = dice(GET_LEVEL(ch), 9);
 		ADD_EQ_DAM(ch, WEAR_FEET);
 		*wait = 6 RL_SEC;
@@ -739,11 +737,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	case SKILL_RIDGEHAND:
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
-        
+
         need_hand = 1;
 		*loc = WEAR_NECK_1;
 		*dam = dice(GET_LEVEL(ch), 9);
@@ -753,13 +751,12 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		*move = 10;
 		break;
 
-
 	case SKILL_DEATH_TOUCH:
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
         )
             prob = 0;
-        
+
 		need_hand = 1;
 		*loc = WEAR_NECK_1;
 		*dam = dice(GET_LEVEL(ch), 13);
@@ -769,12 +766,11 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	case SKILL_HIP_TOSS:
-		if ((!affected_by_spell(ch, SKILL_KATA) && 
+		if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
-        
 
 		need_hand = 1;
 		*dam = dice(2, GET_LEVEL(ch));
@@ -787,12 +783,12 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 		 /** merc offensive skills **/
 	case SKILL_SHOULDER_THROW:
-		if ((!affected_by_spell(ch, SKILL_KATA) && 
+		if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
             MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect
             )
             prob = 0;
-        
+
 		need_hand = 1;
 		*dam = dice(3, (GET_LEVEL(ch) >> 2) + GET_STR(ch));
 		*wait = 6 RL_SEC;
@@ -836,7 +832,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
             // This should be +175 damage at gen 10/49
 			*dam += ch->getLevelBonus(SONG_FORTISSIMO) + fortissimoAff->level;
 		}
-	
+
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))
 			*dam >>= 1;
 
@@ -847,7 +843,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		break;
 
 	case SKILL_GAROTTE:
-		if (!affected_by_spell(ch, SKILL_KATA) && 
+		if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )
             prob = 0;
@@ -874,7 +870,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 
 	if (need_hand) {
 		if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You are using both hands to wield your weapon right now!\r\n");
 			return -1;
 		}
@@ -942,7 +938,7 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 	}
 	if ((skill == SKILL_SWEEPKICK || skill == SKILL_TRIP) &&
 		vict->getPosition() <= POS_SITTING) {
-		act("$N is already on the ground.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N is already on the ground.", false, ch, 0, vict, TO_CHAR);
 		return false;
 	}
 
@@ -1034,7 +1030,6 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 	return false;
 }
 
-
 ACCMD(do_offensive_skill)
 {
 	struct Creature *vict = NULL;
@@ -1053,10 +1048,10 @@ ACCMD(do_offensive_skill)
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act(tmp_sprintf("You fiercely %s $p!", CMD_NAME),
-                FALSE, ch, ovict, 0, TO_CHAR);
+                false, ch, ovict, 0, TO_CHAR);
 			act(tmp_sprintf("$n fiercely %s%ss $p!", CMD_NAME,
                             (CMD_NAME[strlen(CMD_NAME) - 1] == 's') ? "e":""),
-                FALSE, ch, ovict, 0, TO_ROOM);
+                false, ch, ovict, 0, TO_ROOM);
 			return;
 		} else {
 			send_to_char(ch, "%s who?\r\n", CMD_NAME);
@@ -1073,14 +1068,13 @@ ACCMD(do_offensive_skill)
 	perform_offensive_skill(ch, vict, subcmd, return_flags);
 }
 
-
 ACMD(do_assist)
 {
 	struct Creature *helpee;
     char *arg;
 
     if (ch->isFighting() > 0) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You're already fighting!  How can you assist someone else?\r\n");
 		return;
 	}
@@ -1091,31 +1085,30 @@ ACMD(do_assist)
 	else if (!(helpee = get_char_room_vis(ch, arg))) {
 		send_to_char(ch, NOPERSON);
 		WAIT_STATE(ch, 4);
-	} 
-    else if (helpee == ch) 
+	}
+    else if (helpee == ch)
 		send_to_char(ch, "You can't help yourself any more than this!\r\n");
     else if (!helpee->isFighting())
-	    act("But nobody is fighting $M!", FALSE, ch, 0, helpee, TO_CHAR);
+	    act("But nobody is fighting $M!", false, ch, 0, helpee, TO_CHAR);
 	else {
         Creature *opponent = helpee->findRandomCombat();
 		if (!can_see_creature(ch, (opponent))) {
-			act("You can't see who is fighting $M!", FALSE, ch, 0, helpee,
+			act("You can't see who is fighting $M!", false, ch, 0, helpee,
 				TO_CHAR);
 		} else if (!IS_NPC(ch) && !IS_NPC((opponent))
 			&& !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 			act("That rescue would entail attacking $N, but you are "
-                "flagged NO PK.", FALSE, ch, 0, (opponent), TO_CHAR);
+                "flagged NO PK.", false, ch, 0, (opponent), TO_CHAR);
 			return;
 		} else {
 			send_to_char(ch, "You join the fight!\r\n");
 			act("$N assists you!", 0, helpee, 0, ch, TO_CHAR);
-			act("$n assists $N.", FALSE, ch, 0, helpee, TO_NOTVICT);
+			act("$n assists $N.", false, ch, 0, helpee, TO_NOTVICT);
 			hit(ch, (opponent), TYPE_UNDEFINED);
 			WAIT_STATE(ch, 1 RL_SEC);
 		}
 	}
 }
-
 
 ACMD(do_hit)
 {
@@ -1131,14 +1124,14 @@ ACMD(do_hit)
 		WAIT_STATE(ch, 4);
 	} else if (vict == ch) {
 		send_to_char(ch, "You hit yourself...OUCH!.\r\n");
-		act("$n hits $mself, and says OUCH!", FALSE, ch, 0, vict, TO_ROOM);
+		act("$n hits $mself, and says OUCH!", false, ch, 0, vict, TO_ROOM);
     } else if (ch->findCombat(vict)) {
-		act("Ok, you will now concentrate your attacks on $N!", 
+		act("Ok, you will now concentrate your attacks on $N!",
             0, ch, 0, vict, TO_CHAR);
         ch->addCombat(vict, true);
     }
 	else if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master == vict))
-		act("$N is just such a good friend, you simply can't hit $M.", FALSE,
+		act("$N is just such a good friend, you simply can't hit $M.", false,
 			ch, 0, vict, TO_CHAR);
 	else {
 		if (!ch->isOkToAttack(vict, true))
@@ -1149,8 +1142,6 @@ ACMD(do_hit)
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 	}
 }
-
-
 
 ACMD(do_kill)
 {
@@ -1173,12 +1164,12 @@ ACMD(do_kill)
 		} else if (ch == vict)
 			send_to_char(ch, "Your mother would be so sad.. :(\r\n");
 		else if (GET_LEVEL(vict) >= GET_LEVEL(ch)) {
-			act("That's a really bad idea.", FALSE, ch, 0, 0, TO_CHAR);
+			act("That's a really bad idea.", false, ch, 0, 0, TO_CHAR);
 		} else {
-			act("You chop $M to pieces!  Ah!  The blood!", FALSE, ch, 0, vict,
+			act("You chop $M to pieces!  Ah!  The blood!", false, ch, 0, vict,
 				TO_CHAR);
-			act("$N chops you to pieces!", FALSE, vict, 0, ch, TO_CHAR);
-			act("$n brutally slays $N!", FALSE, ch, 0, vict, TO_NOTVICT);
+			act("$N chops you to pieces!", false, vict, 0, ch, TO_CHAR);
+			act("$n brutally slays $N!", false, ch, 0, vict, TO_NOTVICT);
 			mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(vict)), NRM, true,
 				"%s killed %s with a wiz-slay at %s.",
 				GET_NAME(ch), GET_NAME(vict), ch->in_room->name);
@@ -1188,14 +1179,13 @@ ACMD(do_kill)
 	}
 }
 
-
 ACMD(do_order)
 {
 	bool detect_opponent_master(Creature *ch, Creature *opp);
 
 	char name[MAX_INPUT_LENGTH], message[MAX_INPUT_LENGTH];
 	char buf[MAX_INPUT_LENGTH + 56];
-	bool found = FALSE;
+	bool found = false;
 	struct room_data *org_room;
 	struct Creature *vict;
 	struct follow_type *k = NULL;
@@ -1211,7 +1201,7 @@ ACMD(do_order)
 		send_to_char(ch, "You obviously suffer from schizophrenia.\r\n");
 	else {
 		if (AFF_FLAGGED(ch, AFF_CHARM)) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Your superior would not approve of you giving orders.\r\n");
 			return;
 		}
@@ -1219,9 +1209,9 @@ ACMD(do_order)
 			send_to_char(vict, CCBLD(vict, C_SPR));
 			send_to_char(vict, CCRED(vict, C_NRM));
 			sprintf(buf, "$N orders you to '%s'", message);
-			act(buf, FALSE, vict, 0, ch, TO_CHAR);
+			act(buf, false, vict, 0, ch, TO_CHAR);
 			send_to_char(vict, CCNRM(vict, C_SPR));
-			act("$n gives $N an order.", FALSE, ch, 0, vict, TO_NOTVICT);
+			act("$n gives $N an order.", false, ch, 0, vict, TO_NOTVICT);
 			send_to_char(ch, CCBLD(ch, C_SPR));
 			send_to_char(ch, CCRED(ch, C_NRM));
 			send_to_char(ch, "You order %s to '%s'.\r\n", PERS(vict, ch), message);
@@ -1232,7 +1222,7 @@ ACMD(do_order)
 				(GET_LEVEL(ch) < LVL_CREATOR ||
 					GET_LEVEL(vict) >= GET_LEVEL(ch))
 				&& (!MOB2_FLAGGED(vict, MOB2_FAMILIAR) || vict->master != ch))
-				act("$n has an indifferent look.", FALSE, vict, 0, 0, TO_ROOM);
+				act("$n has an indifferent look.", false, vict, 0, 0, TO_ROOM);
 			else {
 				if (!CHECK_WAIT(vict) && !GET_MOB_WAIT(vict)) {
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
@@ -1249,7 +1239,7 @@ ACMD(do_order)
 			}
 		} else {				/* This is order "followers" */
 			sprintf(buf, "$n issues the order '%s'.", message);
-			act(buf, FALSE, ch, 0, vict, TO_ROOM);
+			act(buf, false, ch, 0, vict, TO_ROOM);
 
 			send_to_char(ch, CCBLD(ch, C_SPR));
 			send_to_char(ch, CCRED(ch, C_NRM));
@@ -1265,7 +1255,7 @@ ACMD(do_order)
 							GET_CHA(ch) > number(0, GET_INT(k->follower)))
 							|| GET_LEVEL(ch) >= LVL_CREATOR
 							|| MOB2_FLAGGED(k->follower, MOB2_FAMILIAR)) {
-						found = TRUE;
+						found = true;
 						if (!CHECK_WAIT(k->follower)
 							&& !GET_MOB_WAIT(k->follower)) {
 							if (IS_NPC(k->follower)
@@ -1281,7 +1271,7 @@ ACMD(do_order)
 							command_interpreter(k->follower, message);
 						}
 					} else
-						act("$n has an indifferent look.", TRUE, k->follower,
+						act("$n has an indifferent look.", true, k->follower,
 							0, 0, TO_CHAR);
 			}
 			order_next_k = NULL;
@@ -1334,7 +1324,7 @@ ACMD(do_flee)
 			(!IS_NPC(ch) || !ROOM_FLAGGED(ch->in_room, ROOM_NOMOB)) &&
 			!IS_SET(ROOM_FLAGS(EXIT(ch, attempt)->to_room),
 				ROOM_DEATH | ROOM_GODROOM)) {
-			act("$n panics, and attempts to flee!", TRUE, ch, 0, 0, TO_ROOM);
+			act("$n panics, and attempts to flee!", true, ch, 0, 0, TO_ROOM);
 			if (ch->in_room->isOpenAir()
 				|| EXIT(ch, attempt)->to_room->isOpenAir()) {
 				if (AFF_FLAGGED(ch, AFF_INFLIGHT))
@@ -1349,7 +1339,7 @@ ACMD(do_flee)
                 if ((*ci)->findCombat(ch))
                     (*ci)->removeCombat(ch);
             }
-			int move_result = do_simple_move(ch, attempt, MOVE_FLEE, TRUE);
+			int move_result = do_simple_move(ch, attempt, MOVE_FLEE, true);
 
 			//
 			// return of 2 indicates critical failure of do_simple_move
@@ -1370,7 +1360,7 @@ ACMD(do_flee)
 				if (ch->in_room->isOpenAir())
 					ch->setPosition(POS_FLYING);
 			} else if (move_result == 1) {
-				act("$n tries to flee, but can't!", TRUE, ch, 0, 0, TO_ROOM);
+				act("$n tries to flee, but can't!", true, ch, 0, 0, TO_ROOM);
 			}
 			return;
 		}
@@ -1448,7 +1438,7 @@ ACMD(do_retreat)
 		}
 	}
 
-	int retval = perform_move(ch, dir, MOVE_RETREAT, TRUE);
+	int retval = perform_move(ch, dir, MOVE_RETREAT, true);
 
 	if (retval == 0) {
 
@@ -1462,7 +1452,7 @@ ACMD(do_retreat)
 		return;
 	} else if (retval == 1) {
 		send_to_char(ch, "You try to retreat, but you can't!\r\n");
-		act("$n attempts to retreat, but fails!", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n attempts to retreat, but fails!", true, ch, 0, 0, TO_ROOM);
 	}
 	// critical failure, possible ch death
 	else if (retval == 2) {
@@ -1499,15 +1489,15 @@ ACMD(do_bash)
 	// If it's an object in the room, it's just a scary social
 	ovict = get_obj_in_list_vis(ch, arg1, ch->in_room->contents);
 	if (ovict) {
-		act("You bash $p!", FALSE, ch, ovict, 0, TO_CHAR);
-		act("$n bashes $p!", FALSE, ch, ovict, 0, TO_ROOM);
+		act("You bash $p!", false, ch, ovict, 0, TO_CHAR);
+		act("$n bashes $p!", false, ch, ovict, 0, TO_ROOM);
 		if (GET_OBJ_TYPE(ovict) == ITEM_VEHICLE &&
 			(room = real_room(ROOM_NUMBER(ovict))) != NULL &&
 			room->people) {
 			act("$N bashes the outside of $p!",
-				FALSE, room->people, ovict, ch, TO_ROOM);
+				false, room->people, ovict, ch, TO_ROOM);
 			act("$N bashes the outside of $p!",
-				FALSE, room->people, ovict, ch, TO_CHAR);
+				false, room->people, ovict, ch, TO_CHAR);
 		}
 		return;
 	}
@@ -1524,7 +1514,7 @@ ACMD(do_bash)
 		send_to_char(ch, "You cannot bash that!\r\n");
 		return;
 	}
-	
+
 	if (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED)) {
 		send_to_char(ch, "It's already open!\r\n");
 		return;
@@ -1567,7 +1557,7 @@ ACMD(do_bash)
 			act(tmp_sprintf(
 					"$n throws $mself against the %s, $s last futile effort.",
 					door_str),
-				FALSE, ch, 0, 0, TO_ROOM);
+				false, ch, 0, 0, TO_ROOM);
 			send_to_char(ch,
 				"You kill yourself as you hurl yourself against the %s!\r\n",
 				door_str);
@@ -1581,7 +1571,7 @@ ACMD(do_bash)
 			act(tmp_sprintf(
 					"$n throws $mself against the %s in an attempt to break it.",
 					door_str),
-				FALSE, ch, 0, 0, TO_ROOM);
+				false, ch, 0, 0, TO_ROOM);
 			send_to_char(ch,
 				"You slam yourself against the %s in a futile effort.\r\n",
 				EXIT(ch, door)->keyword ?
@@ -1592,7 +1582,7 @@ ACMD(do_bash)
 		// Success
 		act(tmp_sprintf("$n bashes the %s open with a powerful blow!",
 				door_str),
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 		send_to_char(ch, "The %s gives way under your powerful bash!\r\n",
 			door_str);
 
@@ -1601,9 +1591,9 @@ ACMD(do_bash)
 		GET_HIT(ch) -= prob;
 
 		if (number(0, 20) > GET_DEX(ch)) {
-			act("$n staggers and falls down.", TRUE, ch, 0, 0,
+			act("$n staggers and falls down.", true, ch, 0, 0,
 				TO_ROOM);
-			act("You stagger and fall down.", TRUE, ch, 0, 0,
+			act("You stagger and fall down.", true, ch, 0, 0,
 				TO_CHAR);
 			ch->setPosition(POS_SITTING);
 		}
@@ -1682,10 +1672,10 @@ ACMD(do_stun)
         return;
 
 	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
-		act("$N stuns you with a swift blow!", FALSE, ch, 0, vict, TO_CHAR);
-		act("You stun $n with a swift blow!", FALSE, ch, 0, vict, TO_VICT);
+		act("$N stuns you with a swift blow!", false, ch, 0, vict, TO_CHAR);
+		act("You stun $n with a swift blow!", false, ch, 0, vict, TO_VICT);
 		act("$N stuns $n with a swift blow to the neck!",
-			FALSE, ch, 0, vict, TO_NOTVICT);
+			false, ch, 0, vict, TO_NOTVICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 		ch->setPosition(POS_STUNNED);
 		return;
@@ -1717,19 +1707,19 @@ ACMD(do_stun)
 
 	if ((prob < percent || MOB2_FLAGGED(vict, MOB2_NOSTUN)) &&
 		(GET_LEVEL(ch) < LVL_AMBASSADOR || GET_LEVEL(ch) < GET_LEVEL(vict))) {
-		act("Uh-oh!  You fumbled while trying to stun $N!", FALSE, ch, 0, vict, TO_CHAR);
-		act("$n pokes your neck trying to stun you!  Ow!", FALSE, ch, 0, vict, TO_VICT);
-		act("$n pokes at $N's neck, but nothing happens!", FALSE, ch, 0, vict, TO_NOTVICT);
+		act("Uh-oh!  You fumbled while trying to stun $N!", false, ch, 0, vict, TO_CHAR);
+		act("$n pokes your neck trying to stun you!  Ow!", false, ch, 0, vict, TO_VICT);
+		act("$n pokes at $N's neck, but nothing happens!", false, ch, 0, vict, TO_NOTVICT);
         ch->addCombat(vict, true);
         vict->addCombat(ch, false);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		return;
 	}
 
-	act("You stun $N with a swift blow!", FALSE, ch, 0, vict, TO_CHAR);
+	act("You stun $N with a swift blow!", false, ch, 0, vict, TO_CHAR);
 	act("$n strikes a nerve center in your neck!  You are stunned!",
-		FALSE, ch, 0, vict, TO_VICT);
-	act("$n stuns $N with a swift blow!", FALSE, ch, 0, vict, TO_NOTVICT);
+		false, ch, 0, vict, TO_VICT);
+	act("$n stuns $N with a swift blow!", false, ch, 0, vict, TO_NOTVICT);
 	if (vict->isFighting()) {
 		vict->removeAllCombat();
 		ch->removeAllCombat();
@@ -1758,10 +1748,10 @@ ACMD(do_feign)
 
 	if (prob < percent) {
 		send_to_char(ch, "You fall over dead!\r\n");
-		act("$n staggers and falls to the ground!", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n staggers and falls to the ground!", true, ch, 0, 0, TO_ROOM);
 	} else {
 		if ((foe = ch->findRandomCombat())) {
-			act("You have killed $N!", FALSE, foe, 0, ch, TO_CHAR);
+			act("You have killed $N!", false, foe, 0, ch, TO_CHAR);
 			ch->removeAllCombat();
 			gain_skill_prof(ch, SKILL_FEIGN);
 		}
@@ -1799,17 +1789,17 @@ ACMD(do_tag)
 	}
 
     tmp_ch = ch->findRandomCombat();
-    
+
 	if (!tmp_ch) {
-		act("But nobody is fighting you!", FALSE, ch, 0, vict, TO_CHAR);
+		act("But nobody is fighting you!", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 	if (IS_NPC(vict)) {
-		act("You can't tag them in!", FALSE, ch, 0, vict, TO_CHAR);
+		act("You can't tag them in!", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 	if (CHECK_SKILL(vict, SKILL_TAG) <= 0) {
-		act("$E don't know how to tag in!", FALSE, ch, 0, vict, TO_CHAR);
+		act("$E don't know how to tag in!", false, ch, 0, vict, TO_CHAR);
 		return;
 	} else {
 		percent = number(1, 101);	/* 101% is a complete failure */
@@ -1817,22 +1807,22 @@ ACMD(do_tag)
 
 		if (percent > prob) {
 			send_to_char(ch, "You fail the tag!\r\n");
-			act("$n tries to tag you into the fight, but fails.", FALSE, vict,
+			act("$n tries to tag you into the fight, but fails.", false, vict,
 				0, ch, TO_CHAR);
 			return;
 		}
 		prob = CHECK_SKILL(vict, SKILL_TAG);
 		if (percent > prob) {
-			act("You try to tag $N, but $E misses the tag!", FALSE, ch, 0,
+			act("You try to tag $N, but $E misses the tag!", false, ch, 0,
 				vict, TO_CHAR);
-			act("$n tries to tag you, but you miss it!", FALSE, vict, 0, ch,
+			act("$n tries to tag you, but you miss it!", false, vict, 0, ch,
 				TO_CHAR);
 			return;
 		} else {
-			act("You tag $N!  $E jumps into the fray!", FALSE, ch, 0, vict,
+			act("You tag $N!  $E jumps into the fray!", false, ch, 0, vict,
 				TO_CHAR);
-			act("$N tags you into the fight!", FALSE, vict, 0, ch, TO_CHAR);
-			act("$n tags $N into the fight!", FALSE, ch, 0, vict, TO_NOTVICT);
+			act("$N tags you into the fight!", false, vict, 0, ch, TO_CHAR);
+			act("$n tags $N into the fight!", false, ch, 0, vict, TO_NOTVICT);
 
             ch->removeCombat(tmp_ch);
             tmp_ch->removeCombat(ch);
@@ -1865,14 +1855,14 @@ ACMD(do_rescue)
 		return;
 	}
 	tmp_ch = vict->findRandomCombat();
-    
+
 	if (!tmp_ch) {
-		act("But nobody is fighting $M!", FALSE, ch, 0, vict, TO_CHAR);
+		act("But nobody is fighting $M!", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 	// check for PKILLER flag
 	if (!IS_NPC(ch) && !IS_NPC(tmp_ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-		act("That rescue would entail attacking $N, but you are flagged NO PK.", FALSE, ch, 0, tmp_ch, TO_CHAR);
+		act("That rescue would entail attacking $N, but you are flagged NO PK.", false, ch, 0, tmp_ch, TO_CHAR);
 		return;
 	}
 
@@ -1892,20 +1882,19 @@ ACMD(do_rescue)
 			return;
 		}
 		send_to_char(ch, "Banzai!  To the rescue...\r\n");
-		act("You are rescued by $N, you are confused!", FALSE, vict, 0, ch,
+		act("You are rescued by $N, you are confused!", false, vict, 0, ch,
 			TO_CHAR);
-		act("$n heroically rescues $N!", FALSE, ch, 0, vict, TO_NOTVICT);
+		act("$n heroically rescues $N!", false, ch, 0, vict, TO_NOTVICT);
 
         tmp_ch->removeCombat(vict);
         vict->removeCombat(tmp_ch);
-        
+
         ch->addCombat(tmp_ch, true);
         tmp_ch->addCombat(ch, false);
 		WAIT_STATE(vict, 2 * PULSE_VIOLENCE);
 		gain_skill_prof(ch, SKILL_RESCUE);
 	}
 }
-
 
 ACMD(do_tornado_kick)
 {
@@ -1922,13 +1911,13 @@ ACMD(do_tornado_kick)
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You spin into the air, kicking $p!", FALSE, ch, ovict, 0,
+			act("You spin into the air, kicking $p!", false, ch, ovict, 0,
 				TO_CHAR);
-			act("$n spins into the air, kicking $p!", FALSE, ch, ovict, 0,
+			act("$n spins into the air, kicking $p!", false, ch, ovict, 0,
 				TO_ROOM);
 			return;
 		} else {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Upon who would you like to inflict your tornado kick?\r\n");
 			WAIT_STATE(ch, 4);
 			return;
@@ -1995,7 +1984,6 @@ ACMD(do_tornado_kick)
 	}
 }
 
-
 ACMD(do_sleeper)
 {
 	struct Creature *vict = NULL;
@@ -2012,9 +2000,9 @@ ACMD(do_sleeper)
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You try to put the sleeper on $p!", FALSE, ch, ovict, 0,
+			act("You try to put the sleeper on $p!", false, ch, ovict, 0,
 				TO_CHAR);
-			act("$n tries to put the sleeper on $p!", FALSE, ch, ovict, 0,
+			act("$n tries to put the sleeper on $p!", false, ch, ovict, 0,
 				TO_ROOM);
 			return;
 		} else {
@@ -2028,13 +2016,13 @@ ACMD(do_sleeper)
 		return;
 	}
 	if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You are using both hands to wield your weapon right now!\r\n");
 		return;
 	}
 	if (IS_NPC(vict) && IS_UNDEAD(vict)) {
 		act("$N is undead! You can't put it to sleep!",
-			TRUE, ch, 0, vict, TO_CHAR);
+			true, ch, 0, vict, TO_CHAR);
 		return;
 	}
 	if (vict->getPosition() <= POS_SLEEPING) {
@@ -2091,7 +2079,7 @@ ACMD(do_sleeper)
 
 			WAIT_STATE(vict, 4 RL_SEC);
 			vict->setPosition(POS_SLEEPING);
-			
+
 			af.is_instant = false;
 			af.duration = 2;
 			af.bitvector = AFF_SLEEP;
@@ -2134,8 +2122,8 @@ ACMD(do_turn)
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You turn $p!", FALSE, ch, ovict, 0, TO_CHAR);
-			act("$n turns $p!", FALSE, ch, ovict, 0, TO_ROOM);
+			act("You turn $p!", false, ch, ovict, 0, TO_CHAR);
+			act("$n turns $p!", false, ch, ovict, 0, TO_ROOM);
 			return;
 		} else {
 			send_to_char(ch, "Turn who?\r\n");
@@ -2171,9 +2159,9 @@ ACMD(do_turn)
 	} else {
 		if ((GET_LEVEL(ch) - GET_LEVEL(vict) - number(0, 10)) > 20) {
 			act("$n calls upon the power of $s deity and DESTROYS $N!!",
-				FALSE, ch, 0, vict, TO_ROOM);
+				false, ch, 0, vict, TO_ROOM);
 			act("You call upon the power of your deity and DESTROY $N!!",
-				TRUE, ch, 0, vict, TO_CHAR);
+				true, ch, 0, vict, TO_CHAR);
 			gain_exp(ch, GET_EXP(vict));
 
 			slog("%s killed %s with a turn at %d.",
@@ -2183,9 +2171,9 @@ ACMD(do_turn)
 			raw_kill(vict, ch, SKILL_TURN);	// Destroying a victime with turn
 		} else if ((GET_LEVEL(ch) - GET_LEVEL(vict)) > 10) {
 			act("$n calls upon the power of $s deity and forces $N to flee!",
-				FALSE, ch, 0, vict, TO_ROOM);
+				false, ch, 0, vict, TO_ROOM);
 			act("You call upon the power of your deity and force $N to flee!",
-				TRUE, ch, 0, vict, TO_CHAR);
+				true, ch, 0, vict, TO_CHAR);
 			do_flee(vict, tmp_strdup(""), 0, 0, 0);
 			gain_skill_prof(ch, SKILL_TURN);
 		} else {
@@ -2209,15 +2197,15 @@ shoot_energy_gun(Creature *ch,
 	int my_return_flags = 0;
 
     if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
-        act("$p is not loaded with an energy cell.", FALSE, ch, gun, 0,
+        act("$p is not loaded with an energy cell.", false, ch, gun, 0,
             TO_CHAR);
         return;
     }
     if (CUR_ENERGY(gun->contains) <= 0) {
-        act("$p is out of energy.", FALSE, ch, gun, 0, TO_CHAR);
+        act("$p is out of energy.", false, ch, gun, 0, TO_CHAR);
         if (vict)
-            act("$n points $p at $N!", TRUE, ch, gun, vict, TO_ROOM);
-        act("$p hums faintly in $n's hand.", FALSE, ch, gun, 0, TO_ROOM);
+            act("$n points $p at $N!", true, ch, gun, vict, TO_ROOM);
+        act("$p hums faintly in $n's hand.", false, ch, gun, 0, TO_ROOM);
         return;
     }
 
@@ -2227,8 +2215,8 @@ shoot_energy_gun(Creature *ch,
 
         CUR_ENERGY(gun->contains) -= cost;
         act(tmp_sprintf("$n blasts %s with $p!", target->name),
-            FALSE, ch, gun, 0, TO_ROOM);
-        act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
+            false, ch, gun, 0, TO_ROOM);
+        act("You blast $p!", false, ch, target, 0, TO_CHAR);
         damage_eq(ch, target, dam);
         return;
     }
@@ -2248,7 +2236,7 @@ shoot_energy_gun(Creature *ch,
     for (; it != ch->in_room->people.end(); ++it)
         if (*it != ch && (*it)->findCombat(ch))
             prob -= (GET_LEVEL(*it) >> 3);
-        
+
     if (vict->isFighting() && !vict->findCombat(ch) && number(1, 121) > prob)
         vict = vict->findRandomCombat();
     else if (vict->isFighting() && number(1, 101) > prob) {
@@ -2269,21 +2257,21 @@ shoot_energy_gun(Creature *ch,
             }
         }
     }
-        
+
     cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
-        
+
     dam = dice(GET_OBJ_VAL(gun,1), GET_OBJ_VAL(gun,2));
     dam += dam*ch->getLevelBonus(SKILL_SHOOT)/100; //damage bonus for taking the time to aim and shoot
     dam += GET_HITROLL(ch);
-        
+
     CUR_ENERGY(gun->contains) -= cost;
-        
+
     cur_weap = gun;
-        
+
     //
     // miss
     //
-        
+
     if (number(0, 121) > prob) {
         check_killer(ch, vict);
         my_return_flags =
@@ -2293,7 +2281,7 @@ shoot_energy_gun(Creature *ch,
     //
     // hit
     //
-        
+
     else {
         check_killer(ch, vict);
         my_return_flags =
@@ -2303,20 +2291,20 @@ shoot_energy_gun(Creature *ch,
     //
     // if the attacker was somehow killed, return immediately
     //
-        
+
     if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
         ACMD_set_return_flags(my_return_flags);
         return;
     }
-                
+
     if (!CUR_ENERGY(gun->contains)) {
         act("$p has been depleted of fuel.  You must replace the energy cell before firing again.",
-            FALSE, ch, gun, 0, TO_CHAR);
+            false, ch, gun, 0, TO_CHAR);
     }
-    
+
     cur_weap = NULL;
     WAIT_STATE(ch, 4 RL_SEC);
-    //don't do the extra stuff because we're only shooting one blast at a time 
+    //don't do the extra stuff because we're only shooting one blast at a time
     //ROF doesn't exist anymore
 }
 
@@ -2345,7 +2333,7 @@ fire_projectile_round(Creature *ch,
 
     if (!bullet) {
         act("$p is out of ammo.",
-            FALSE, ch, gun->contains ? gun->contains : gun, 0, TO_CHAR);
+            false, ch, gun->contains ? gun->contains : gun, 0, TO_CHAR);
         cur_weap = NULL;
 
         if (IS_ARROW(gun) && IS_ELF(ch))
@@ -2382,11 +2370,11 @@ fire_projectile_round(Creature *ch,
         //
         if (IS_ARROW(gun)) {
             act(tmp_sprintf("$n fires %s at you from $p!", arrow_name),
-                FALSE, ch, gun, vict, TO_VICT);
+                false, ch, gun, vict, TO_VICT);
             act(tmp_sprintf("You fire %s at $N from $p!", arrow_name),
-                FALSE, ch, gun, vict, TO_CHAR);
+                false, ch, gun, vict, TO_CHAR);
             act(tmp_sprintf("$n fires %s at $N from $p!", arrow_name),
-                FALSE, ch, gun, vict, TO_NOTVICT);
+                false, ch, gun, vict, TO_NOTVICT);
         }
         my_return_flags =
             damage(ch, vict, 0,
@@ -2399,11 +2387,11 @@ fire_projectile_round(Creature *ch,
         //
         if (IS_ARROW(gun)) {
             act(tmp_sprintf("$n fires %s into you from $p!  OUCH!!", arrow_name),
-                FALSE, ch, gun, vict, TO_VICT);
+                false, ch, gun, vict, TO_VICT);
             act(tmp_sprintf("You fire %s into $N from $p!", arrow_name),
-                FALSE, ch, gun, vict, TO_CHAR);
+                false, ch, gun, vict, TO_CHAR);
             act(tmp_sprintf("$n fires %s into $N from $p!", arrow_name),
-                FALSE, ch, gun, vict, TO_NOTVICT);
+                false, ch, gun, vict, TO_NOTVICT);
         }
         my_return_flags = damage(ch, vict, dam,
                                (IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
@@ -2428,22 +2416,22 @@ projectile_blast_corpse(Creature *ch, obj_data *gun, obj_data *bullet)
         (IS_NPC(ch) ? -GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
         if (IS_ARROW(gun)) {
             act("You shoot $p with $P!!",
-                FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
+                false, ch, ch->in_room->contents, gun, TO_CHAR);
             act("$n shoots $p with $P!!",
-                FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+                false, ch, ch->in_room->contents, gun, TO_ROOM);
         } else {
             act("You blast $p with $P!!",
-                FALSE, ch, ch->in_room->contents, gun, TO_CHAR);
+                false, ch, ch->in_room->contents, gun, TO_CHAR);
             act("$n blasts $p with $P!!",
-                FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+                false, ch, ch->in_room->contents, gun, TO_ROOM);
         }
         if (damage_eq(ch, ch->in_room->contents, dam))
             return;
     } else {
         act("You fire off a round from $P.",
-            FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+            false, ch, ch->in_room->contents, gun, TO_ROOM);
         act("$n fires off a round from $P.",
-            FALSE, ch, ch->in_room->contents, gun, TO_ROOM);
+            false, ch, ch->in_room->contents, gun, TO_ROOM);
     }
 }
 
@@ -2462,18 +2450,18 @@ shoot_projectile_gun(Creature *ch,
 	struct affected_type *af = NULL;
 
 	if (GUN_TYPE(gun) < 0 || GUN_TYPE(gun) >= NUM_GUN_TYPES) {
-		act("$p is a bogus gun.  extracting.", FALSE, ch, gun, 0, TO_CHAR);
+		act("$p is a bogus gun.  extracting.", false, ch, gun, 0, TO_CHAR);
 		extract_obj(gun);
 		return;
 	}
 
 	if (!(bullet = gun->contains)) {
-		act("$p is not loaded.", FALSE, ch, gun, 0, TO_CHAR);
+		act("$p is not loaded.", false, ch, gun, 0, TO_CHAR);
 		return;
 	}
 
 	if (!MAX_LOAD(gun) && !(bullet = gun->contains->contains)) {
-		act("$P is not loaded.", FALSE, ch, gun, gun->contains, TO_CHAR);
+		act("$P is not loaded.", false, ch, gun, gun->contains, TO_CHAR);
 		return;
 	}
 
@@ -2483,15 +2471,15 @@ shoot_projectile_gun(Creature *ch,
 
 		if (IS_ARROW(gun)) {
 			act(tmp_sprintf("$n fires %s from $p into $P!", bullet->name),
-                FALSE, ch, gun, target, TO_ROOM);
-			act("You fire $P into $p!", FALSE, ch, target, bullet, TO_CHAR);
+                false, ch, gun, target, TO_ROOM);
+			act("You fire $P into $p!", false, ch, target, bullet, TO_CHAR);
 			obj_from_obj(bullet);
 			obj_to_room(bullet, ch->in_room);
 			damage_eq(NULL, bullet, dam >> 2);
 		} else {
 			act(tmp_sprintf("$n blasts %s with $p!", target->name),
-                FALSE, ch, gun, 0, TO_ROOM);
-			act("You blast $p!", FALSE, ch, target, 0, TO_CHAR);
+                false, ch, gun, 0, TO_ROOM);
+			act("You blast $p!", false, ch, target, 0, TO_CHAR);
 			extract_obj(bullet);
 		}
         damage_eq(ch, target, dam);
@@ -2502,7 +2490,6 @@ shoot_projectile_gun(Creature *ch,
                            (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_SHOOT),
                            &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
                            &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
-
 
 	if (my_return_flags)
 		return;
@@ -2610,12 +2597,12 @@ ACMD(do_shoot)
 	}
 
 	if (!IS_ENERGY_GUN(gun) && !IS_GUN(gun)) {
-		act("$p is not a gun.", FALSE, ch, gun, 0, TO_CHAR);
+		act("$p is not a gun.", false, ch, gun, 0, TO_CHAR);
 		return;
 	}
 
-	if (ch->isFighting() && ch->findRandomCombat()->findCombat(ch) 
-        && !number(0, 3) && (!ch->getLevelBonus(SKILL_ENERGY_WEAPONS > 60)) 
+	if (ch->isFighting() && ch->findRandomCombat()->findCombat(ch)
+        && !number(0, 3) && (!ch->getLevelBonus(SKILL_ENERGY_WEAPONS > 60))
         && (GET_LEVEL(ch) < LVL_GRGOD)) {
 		send_to_char(ch, "You are in too close to get off a shot!\r\n");
 		return;
@@ -2631,11 +2618,11 @@ ACMD(do_shoot)
 
 				if (!(bullet = gun->contains) || (!MAX_LOAD(gun)
 						&& !(bullet = bullet->contains)))
-					act("$p is not loaded.", FALSE, ch, gun, 0, TO_CHAR);
+					act("$p is not loaded.", false, ch, gun, 0, TO_CHAR);
 				else {
-					act("$n fires $p into the air.", FALSE, ch, gun, 0,
+					act("$n fires $p into the air.", false, ch, gun, 0,
 						TO_ROOM);
-					act("You fire $p into the air.", FALSE, ch, gun, 0,
+					act("You fire $p into the air.", false, ch, gun, 0,
 						TO_CHAR);
 					sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,	/*GUN_TYPE(gun), */
 						dice(gun_damage[GUN_TYPE(gun)][0],
@@ -2644,7 +2631,7 @@ ACMD(do_shoot)
 					extract_obj(bullet);
 				}
 			} else
-				act("Shoot $p at what?", FALSE, ch, gun, 0, TO_CHAR);
+				act("Shoot $p at what?", false, ch, gun, 0, TO_CHAR);
 			return;
 		}
 	} else if (!(vict = get_char_room_vis(ch, argument)) &&
@@ -2693,22 +2680,22 @@ ACMD(do_ceasefire)
         send_to_char(ch, "You can't ceasefire while your enemy is actively "
                          "attacking you!\r\n");
     else {
-        act("You stop attacking your opponents.", FALSE, ch, 
+        act("You stop attacking your opponents.", false, ch,
             0, NULL, TO_CHAR);
-		act("$n stops attacking $s opponents.", FALSE, ch, 0, 
+		act("$n stops attacking $s opponents.", false, ch, 0,
             NULL, TO_NOTVICT);
         it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++ it) {
             if (ch->findCombat((*it))) {
                 (*it)->removeCombat(ch);
                 ch->removeCombat((*it));
-		        act("$n stops attacking you.", FALSE, ch, 0, 
+		        act("$n stops attacking you.", false, ch, 0,
                     ch->findCombat((*it)), TO_VICT);
             }
         }
 		WAIT_STATE(ch, 2 RL_SEC);
         if (f) {
-            act("You start defending yourself against $N", FALSE, ch, 0, f,
+            act("You start defending yourself against $N", false, ch, 0, f,
                 TO_CHAR);
             ch->addCombat(f, false);
             f->addCombat(ch, false);
@@ -2770,10 +2757,10 @@ ACCMD(do_disarm)
 		prob = 0;
 
 	if (prob > percent) {
-		act("You knock $p out of $N's hand!", FALSE, ch, weap, vict, TO_CHAR);
-		act("$n knocks $p out of $N's hand!", FALSE, ch, weap, vict,
+		act("You knock $p out of $N's hand!", false, ch, weap, vict, TO_CHAR);
+		act("$n knocks $p out of $N's hand!", false, ch, weap, vict,
 			TO_NOTVICT);
-		act("$n knocks $p out of your hand!", FALSE, ch, weap, vict, TO_VICT);
+		act("$n knocks $p out of your hand!", false, ch, weap, vict, TO_VICT);
 		unequip_char(vict, WEAR_WIELD, EQUIP_WORN);
 		obj_to_char(weap, vict);
 		if (GET_EQ(vict, WEAR_WIELD_2)) {
@@ -2797,7 +2784,7 @@ ACCMD(do_disarm)
         }
 	} else {
 		send_to_char(ch, "You fail the disarm!\r\n");
-		act("$n tries to disarm you!", FALSE, ch, 0, vict, TO_VICT);
+		act("$n tries to disarm you!", false, ch, 0, vict, TO_VICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		if (IS_NPC(vict) && !vict->isFighting()) {
             ch->addCombat(vict, true);
@@ -2822,7 +2809,7 @@ ACMD(do_impale)
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You try to impale $p!", FALSE, ch, ovict, 0, TO_CHAR);
+			act("You try to impale $p!", false, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
 			send_to_char(ch, "Impale who?\r\n");
@@ -2838,14 +2825,14 @@ ACMD(do_impale)
 	if (vict == ch) {
 		if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
 			act("You fear that your death will grieve $N.",
-				FALSE, ch, 0, ch->master, TO_CHAR);
+				false, ch, 0, ch->master, TO_CHAR);
 			return;
 		}
 		if (!strcmp(arg, "self")) {
 			if (!(ch->in_room && is_arena_combat(ch, ch))) {
-				act("You impale yourself with $p!", FALSE, ch, weap, 0,
+				act("You impale yourself with $p!", false, ch, weap, 0,
 					TO_CHAR);
-				act("$n suddenly impales $mself with $p!", TRUE, ch, weap, 0,
+				act("$n suddenly impales $mself with $p!", true, ch, weap, 0,
 					TO_ROOM);
 				mudlog(GET_INVIS_LVL(ch), NRM, true,
 					"%s killed self with an impale at %d.",
@@ -2858,7 +2845,7 @@ ACMD(do_impale)
 				return;
 			}
 		} else {
-			act("Are you sure $p is supposed to go there?", FALSE, ch, weap, 0,
+			act("Are you sure $p is supposed to go there?", false, ch, weap, 0,
 				TO_CHAR);
 			return;
 		}
@@ -2893,7 +2880,6 @@ ACMD(do_impale)
 	WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 }
 
-
 ACMD(do_intimidate)
 {
 	struct Creature *vict = NULL;
@@ -2910,9 +2896,9 @@ ACMD(do_intimidate)
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
                     get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-            act("You attempt to intimidate $p!", FALSE, ch, ovict, 0,
+            act("You attempt to intimidate $p!", false, ch, ovict, 0,
                 TO_CHAR);
-            act("$n attempts to intimidate $p!", FALSE, ch, ovict, 0,
+            act("$n attempts to intimidate $p!", false, ch, ovict, 0,
                 TO_ROOM);
 			return;
 		} else {
@@ -2921,19 +2907,19 @@ ACMD(do_intimidate)
 			return;
 		}
 	}
-    
+
     if (ch->checkReputations(vict))
         return;
 
 	if (!can_see_creature(vict, ch)) {
-		act("$N doesn't seem to be able to see you.", FALSE, ch, 0, vict,
+		act("$N doesn't seem to be able to see you.", false, ch, 0, vict,
 			TO_CHAR);
 		return;
 	}
 	if (vict == ch) {
 		send_to_char(ch, "You attempt to intimidate yourself.\r\n"
 			"You feel intimidated!\r\n");
-		act("$n intimidates $mself!", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n intimidates $mself!", true, ch, 0, 0, TO_ROOM);
 		if (affected_by_spell(ch, SKILL_INTIMIDATE))
 			return;
 		af.type = SKILL_INTIMIDATE;
@@ -2956,17 +2942,17 @@ ACMD(do_intimidate)
 	if (!ok_damage_vendor(ch, vict))
 		return;
 
-    act("You attempt to intimidate $N.", FALSE, ch, 0, vict, TO_CHAR);
-    act("$n attempts to intimidate $N.", FALSE, ch, 0, vict, TO_NOTVICT);
-    act("$n attempts to intimidate you.", FALSE, ch, 0, vict, TO_VICT);
+    act("You attempt to intimidate $N.", false, ch, 0, vict, TO_CHAR);
+    act("$n attempts to intimidate $N.", false, ch, 0, vict, TO_NOTVICT);
+    act("$n attempts to intimidate you.", false, ch, 0, vict, TO_VICT);
 
     if (affected_by_spell(vict, SKILL_INTIMIDATE)) {
-        act("$n cringes in terror!", FALSE, vict, 0, 0, TO_ROOM);
+        act("$n cringes in terror!", false, vict, 0, 0, TO_ROOM);
         send_to_char(vict, "You cringe in terror!\r\n");
     } else if ((affected_by_spell(vict, SPELL_FEAR) ||
 				GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_INTIMIDATE) > prob) &&
                !IS_UNDEAD(vict)) {
-        act("$n looks intimidated!", TRUE, vict, 0, 0, TO_ROOM);
+        act("$n looks intimidated!", true, vict, 0, 0, TO_ROOM);
         send_to_char(vict, "You feel intimidated!\r\n");
 
         af.type = SKILL_INTIMIDATE;
@@ -2978,8 +2964,8 @@ ACMD(do_intimidate)
         affect_to_char(vict, &af);
 
     } else {
-        act("$N snickers at $n", TRUE, ch, 0, vict, TO_NOTVICT);
-        act("$N snickers at you!", TRUE, ch, 0, vict, TO_CHAR);
+        act("$N snickers at $n", true, ch, 0, vict, TO_NOTVICT);
+        act("$N snickers at you!", true, ch, 0, vict, TO_CHAR);
         send_to_char(vict, "You snicker!\r\n");
         if (IS_NPC(vict))
             hit(vict, ch, TYPE_UNDEFINED);
@@ -3007,20 +2993,20 @@ ACMD(do_beguile)
         return;
 
 	act("$n looks deeply into your eyes with an enigmatic look.",
-		TRUE, ch, 0, vict, TO_VICT);
+		true, ch, 0, vict, TO_VICT);
 	act("You look deeply into $S eyes with an enigmatic look.",
-		FALSE, ch, 0, vict, TO_CHAR);
+		false, ch, 0, vict, TO_CHAR);
 	act("$n looks deeply into $N's eyes with an enigmatic look.",
-		TRUE, ch, 0, vict, TO_NOTVICT);
+		true, ch, 0, vict, TO_NOTVICT);
 
 	if (!can_see_creature(vict, ch))
 		return;
 
     if (!ch->isOkToAttack(vict))
         return;
-    
+
 	if (GET_INT(vict) < 4) {
-		act("$N is too stupid to be beguiled.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N is too stupid to be beguiled.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 	check_killer(ch, vict);
@@ -3040,7 +3026,7 @@ ACMD(do_beguile)
 struct Creature *randomize_target(struct Creature *ch, struct Creature *vict, short prob)
 {
     CreatureList::iterator it;
-    
+
     it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         if (*it != ch && (*it)->findCombat(ch))
@@ -3048,7 +3034,7 @@ struct Creature *randomize_target(struct Creature *ch, struct Creature *vict, sh
     }
 
     it = ch->in_room->people.begin();
-    
+
     if (vict->isFighting() && !vict->findCombat(ch)) {
         if (number(1, 121) > prob)
             vict = vict->findRandomCombat();
@@ -3089,7 +3075,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 
     weap1 = GET_EQ(ch, WEAR_WIELD);
     weap2 = GET_EQ(ch, WEAR_WIELD_2);
-    
+
     if ((weap1 && (IS_GUN(weap1) || IS_ENERGY_GUN(weap1))) &&
         (weap2 && (IS_GUN(weap2) || IS_ENERGY_GUN(weap2)))) {
         prob = number(1, 101);
@@ -3112,7 +3098,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 		errlog("NULL vict in %s().", __FUNCTION__);
 		return 0;
 	}
-	// This should never happen 
+	// This should never happen
 	if (vict == ch) {
 		mudlog(LVL_AMBASSADOR, NRM, true,
 			"ERROR: ch == vict in %s()!", __FUNCTION__);
@@ -3135,7 +3121,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 
 		if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
             act("$p doesn't contain an energy cell!.",
-                FALSE, ch, gun, 0, TO_CHAR);
+                false, ch, gun, 0, TO_CHAR);
             return -1;
 		}
 		if (CUR_ENERGY(gun->contains) <= 0) {
@@ -3148,7 +3134,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 
 		prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
         prob += dex_app[GET_DEX(ch)].tohit;
-        
+
         vict = randomize_target(ch, vict, prob);
 
         cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
@@ -3156,18 +3142,18 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
         dam = dice(GET_OBJ_VAL(gun, 1), GET_OBJ_VAL(gun,2));
         dam += GET_HITROLL(ch);
         dam += dex_app[GET_DEX(ch)].todam;
-        
+
         CUR_ENERGY(gun->contains) -= cost;
 
         cur_weap = gun;
         if (number(0, 121) > prob) { //miss
             check_killer(ch, vict);
-            my_return_flags = damage(ch, vict, 0, SKILL_ENERGY_WEAPONS, 
+            my_return_flags = damage(ch, vict, 0, SKILL_ENERGY_WEAPONS,
                     number(0, NUM_WEARS - 1));
         }
         else { // hit
             check_killer(ch, vict);
-            my_return_flags = damage(ch, vict, dam, SKILL_ENERGY_WEAPONS, 
+            my_return_flags = damage(ch, vict, dam, SKILL_ENERGY_WEAPONS,
                     number(0, NUM_WEARS - 1));
         }
 
@@ -3182,7 +3168,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 
         if (!CUR_ENERGY(gun->contains)) {
             act("$p has been depleted of fuel.  Replace cell before further use.",
-                FALSE, ch, gun, 0, TO_CHAR);
+                false, ch, gun, 0, TO_CHAR);
         }
 		cur_weap = NULL;
 		return 0;
@@ -3193,17 +3179,17 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 	//
 
 	if (GUN_TYPE(gun) < 0 || GUN_TYPE(gun) >= NUM_GUN_TYPES) {
-		act("$p is a bogus gun.  extracting.", FALSE, ch, gun, 0, TO_CHAR);
+		act("$p is a bogus gun.  extracting.", false, ch, gun, 0, TO_CHAR);
 		extract_obj(gun);
 		return 0;
 	}
 	if (!(bullet = gun->contains)) {
-		act("$p is not loaded.", FALSE, ch, gun, 0, TO_CHAR);
+		act("$p is not loaded.", false, ch, gun, 0, TO_CHAR);
 		return -1;
 	}
 
 	if (!MAX_LOAD(gun) && !(bullet = gun->contains->contains)) {
-		act("$P is not loaded.", FALSE, ch, gun, gun->contains, TO_CHAR);
+		act("$P is not loaded.", false, ch, gun, gun->contains, TO_CHAR);
 		return -1;
 	}
 
@@ -3211,7 +3197,6 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 		(SKILL_SHOOT),
 		&dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
 		&dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
-
 
 	prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
 
@@ -3241,13 +3226,13 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
     cur_weap = gun;
 
     if (number(0, 121) > prob) { //miss
-        my_return_flags = damage(ch, vict, 0, 
-                   IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS, 
+        my_return_flags = damage(ch, vict, 0,
+                   IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS,
                    number(0, NUM_WEARS - 1));
     }
     else { //hit
-        my_return_flags = damage(ch, vict, dam, 
-                                 IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS, 
+        my_return_flags = damage(ch, vict, dam,
+                                 IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS,
                                  number(0, NUM_WEARS - 1));
     }
 

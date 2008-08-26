@@ -46,7 +46,7 @@ ACMD(do_pistolwhip)
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You pistolwhip $p!", FALSE, ch, ovict, 0, TO_CHAR);
+			act("You pistolwhip $p!", false, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
 			send_to_char(ch, "Pistolwhip who?\r\n");
@@ -62,11 +62,11 @@ ACMD(do_pistolwhip)
 	if (vict == ch) {
 		if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
 			act("You fear that your death will grieve $N.",
-				FALSE, ch, 0, ch->master, TO_CHAR);
+				false, ch, 0, ch->master, TO_CHAR);
 			return;
 		}
-		act("You slam $p into your head!", FALSE, ch, weap, 0, TO_CHAR);
-		act("$n beats $mself senseless with $p!", TRUE, ch, weap, 0, TO_ROOM);
+		act("You slam $p into your head!", false, ch, weap, 0, TO_CHAR);
+		act("$n beats $mself senseless with $p!", true, ch, weap, 0, TO_ROOM);
 		return;
 	}
 	if (!ch->isOkToAttack(vict, true))
@@ -111,7 +111,7 @@ ACMD(do_crossface)
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You fiercely crossface $p!", FALSE, ch, ovict, 0, TO_CHAR);
+			act("You fiercely crossface $p!", false, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
 			send_to_char(ch, "Crossface who?\r\n");
@@ -127,11 +127,11 @@ ACMD(do_crossface)
 	if (vict == ch) {
 		if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
 			act("You fear that your death will grieve $N.",
-				FALSE, ch, 0, ch->master, TO_CHAR);
+				false, ch, 0, ch->master, TO_CHAR);
 			return;
 		}
-		act("You slam $p into your head!", FALSE, ch, weap, 0, TO_CHAR);
-		act("$n beats $mself senseless with $p!", TRUE, ch, weap, 0, TO_ROOM);
+		act("You slam $p into your head!", false, ch, weap, 0, TO_CHAR);
+		act("$n beats $mself senseless with $p!", true, ch, weap, 0, TO_ROOM);
 		return;
 	}
 
@@ -197,10 +197,10 @@ ACMD(do_crossface)
 					vict->removeAllCombat();
 					vict->setPosition(POS_STUNNED);
 					act("Your crossface has knocked $N senseless!",
-						TRUE, ch, NULL, vict, TO_CHAR);
+						true, ch, NULL, vict, TO_CHAR);
 					act("$n stuns $N with a vicious crossface!",
-						TRUE, ch, NULL, vict, TO_ROOM);
-					act("Your jaw cracks as $n whips his gun across your face.   Your vision fades...",  TRUE, ch, NULL, vict, TO_VICT);
+						true, ch, NULL, vict, TO_ROOM);
+					act("Your jaw cracks as $n whips his gun across your face.   Your vision fades...",  true, ch, NULL, vict, TO_VICT);
 				}
 			}
 		}
@@ -214,12 +214,12 @@ ACMD(do_crossface)
 				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->isFighting()) {
 				vict->setPosition(POS_RESTING);
 				act("Your crossface has knocked $N on his ass!",
-					TRUE, ch, NULL, vict, TO_CHAR);
+					true, ch, NULL, vict, TO_CHAR);
 				act("$n's nasty crossface just knocked $N on his ass!",
-					TRUE, ch, NULL, vict, TO_ROOM);
+					true, ch, NULL, vict, TO_ROOM);
 				act("Your jaw cracks as $n whips his gun across your face.\n"
-					"You stagger and fall to the ground ", 
-					TRUE, ch, NULL, vict, TO_VICT);
+					"You stagger and fall to the ground ",
+					true, ch, NULL, vict, TO_VICT);
 			}
 		}
 		// vict pretty much caught a grazing blow, knock off some eq
@@ -231,12 +231,12 @@ ACMD(do_crossface)
 			if (wear  && !IS_SET(retval, DAM_VICT_KILLED) &&
 				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->isFighting()) {
 				act("Your crossface has knocked $N's $p from his head!",
-					TRUE, ch, wear, vict, TO_CHAR);
+					true, ch, wear, vict, TO_CHAR);
 				act("$n's nasty crossface just knocked $p from $N's head!",
-					TRUE, ch, wear, vict, TO_ROOM);
+					true, ch, wear, vict, TO_ROOM);
 				act("Your jaw cracks as $n whips his gun across your face.\n"
 					"Your $p flies from your head and lands a short distance\n"
-					"away.", TRUE, ch, wear, vict, TO_VICT);
+					"away.", true, ch, wear, vict, TO_VICT);
 
                 scraps = damage_eq(vict, wear, dam >> 4);
 				if (scraps) {
@@ -334,7 +334,7 @@ ACMD(do_snipe)
 	}
 
 	//in what direction is ch attempting to snipe?
-	snipe_dir = search_block(dir_str, dirs, FALSE);
+	snipe_dir = search_block(dir_str, dirs, false);
 	if (snipe_dir < 0) {
 		send_to_char(ch, "Snipe in which direction?!\r\n");
 		return;
@@ -347,7 +347,7 @@ ACMD(do_snipe)
 			"You aren't going to be sniping anyone in that direction...\r\n");
 		return;
 	}
-	
+
 	// is the victim in sight in that direction?
 	// line of sight stops at a DT, smoke-filled room, or closed door
 	distance = 0;
@@ -366,7 +366,7 @@ ACMD(do_snipe)
 		if (ROOM_FLAGGED(cur_room, ROOM_DEATH) ||
 				ROOM_FLAGGED(cur_room, ROOM_SMOKE_FILLED))
 			break;
-		
+
 		vict = get_char_in_remote_room_vis(ch, vict_str, cur_room);
         if (!nvz_room && vict && (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)))
             nvz_room = cur_room;
@@ -396,7 +396,7 @@ ACMD(do_snipe)
 	// Has vict been sniped once and is vict a sentinel mob?
 	if ((MOB_FLAGGED(vict, MOB_SENTINEL)) &&
 			affected_by_spell(ch, SKILL_SNIPE)) {
-		act("$N has taken cover!\r\n", TRUE, ch, NULL, vict, TO_CHAR);
+		act("$N has taken cover!\r\n", true, ch, NULL, vict, TO_CHAR);
 		return;
 	}
 	if (!vict)
@@ -421,7 +421,7 @@ ACMD(do_snipe)
 	// someone if his skill is less than 40
 	percent = number(40, 125);
 	if (affected_by_spell(vict, ZEN_AWARENESS) ||
-		AFF_FLAGGED(vict, AFF2_TRUE_SEEING)) {
+		AFF_FLAGGED(vict, AFF2_true_SEEING)) {
 		percent += 25;
 	}
 
@@ -452,7 +452,7 @@ ACMD(do_snipe)
 	if (IS_CLIP(bullet)) {
 		bullet = bullet->contains;
 	}
-	
+
 	if (nvz_room) {
 		send_to_char(ch, "You watch in shock as your bullet stops in mid-air and drops to the ground.\r\n");
 		act("$n takes careful aim, fires, and gets a shocked look on $s face.",
@@ -481,11 +481,11 @@ ACMD(do_snipe)
 		vict->removeCombat(ch);
 		send_to_char(ch, "Damn!  You missed!\r\n");
 		act("$n fires $p to the %s, and a look of irritation crosses $s face.",
-			TRUE, ch, gun, vict, TO_ROOM);
+			true, ch, gun, vict, TO_ROOM);
 		act(tmp_sprintf("A bullet screams past your head from the %s!",
-			from_dirs[snipe_dir]), TRUE, ch, NULL, vict, TO_VICT);
+			from_dirs[snipe_dir]), true, ch, NULL, vict, TO_VICT);
 		act(tmp_sprintf("A bullet screams past $n's head from the %s!",
-			from_dirs[snipe_dir]), TRUE, vict, NULL, ch, TO_ROOM);
+			from_dirs[snipe_dir]), true, vict, NULL, ch, TO_ROOM);
 		WAIT_STATE(ch, 3 RL_SEC);
 		return;
 	} else {
@@ -541,13 +541,13 @@ ACMD(do_snipe)
 		}
 
 		act("You smirk with satisfaction as your bullet rips into $N.",
-			FALSE, ch, NULL, vict, TO_CHAR);
+			false, ch, NULL, vict, TO_CHAR);
 		act(tmp_sprintf("A bullet rips into your flesh from the %s!",
-			dirs[snipe_dir]), TRUE, ch, NULL, vict, TO_VICT);
-		act("A bullet rips into $n's flesh!", TRUE, vict, NULL, ch,
+			dirs[snipe_dir]), true, ch, NULL, vict, TO_VICT);
+		act("A bullet rips into $n's flesh!", true, vict, NULL, ch,
 			TO_ROOM);
 		act(tmp_sprintf("$n takes careful aim and fires $p to the %s!",
-			dirs[snipe_dir]), TRUE, ch, gun, vict, TO_ROOM);
+			dirs[snipe_dir]), true, ch, gun, vict, TO_ROOM);
 		mudlog(LVL_AMBASSADOR, NRM, true,
 			"INFO: %s has sniped %s from room %d to room %d",
 			GET_NAME(ch), GET_NAME(vict),
@@ -560,9 +560,9 @@ ACMD(do_snipe)
 			return;
 
 		if (IS_SET(retval, DAM_VICT_KILLED)) {
-			act(kill_msg, TRUE, ch, 0, 0, TO_CHAR);
+			act(kill_msg, true, ch, 0, 0, TO_CHAR);
 			act("$n gets a look of predatory satisfaction.",
-				TRUE, ch, 0, 0, TO_ROOM);
+				true, ch, 0, 0, TO_ROOM);
 		}
 		gain_skill_prof(ch, SKILL_SNIPE);
 		WAIT_STATE(ch, 5 RL_SEC);
@@ -585,7 +585,7 @@ ACMD(do_wrench)
 			vict = (ch->findRandomCombat());
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You fiercely wrench $p!", FALSE, ch, ovict, 0, TO_CHAR);
+			act("You fiercely wrench $p!", false, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
 			send_to_char(ch, "Wrench who?\r\n");
@@ -594,7 +594,7 @@ ACMD(do_wrench)
 	}
 
 	if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You are using both hands to wield your weapon right now!\r\n");
 		return;
 	}
@@ -642,11 +642,11 @@ ACMD(do_wrench)
 
 	if (((neck = GET_EQ(vict, WEAR_NECK_1)) && NOBEHEAD_EQ(neck)) ||
 		((neck = GET_EQ(vict, WEAR_NECK_2)) && NOBEHEAD_EQ(neck))) {
-		act("$n grabs you around the neck, but you are covered by $p!", FALSE,
+		act("$n grabs you around the neck, but you are covered by $p!", false,
 			ch, neck, vict, TO_VICT);
-		act("$n grabs $N's neck, but $N is covered by $p!", FALSE, ch, neck,
+		act("$n grabs $N's neck, but $N is covered by $p!", false, ch, neck,
 			vict, TO_NOTVICT);
-		act("You grab $N's neck, but $e is covered by $p!", FALSE, ch, neck,
+		act("You grab $N's neck, but $e is covered by $p!", false, ch, neck,
 			vict, TO_CHAR);
 		check_killer(ch, vict);
 		damage_eq(ch, neck, dam);
@@ -752,7 +752,7 @@ perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 
 	acc_sprintf("Item weighs around %d lbs, and is made of %s.\n",
 		obj->getWeight(), material_names[GET_OBJ_MATERIAL(obj)]);
-	
+
 	if (skill_lvl > 100)
 		cost = 0;
 	else
@@ -794,7 +794,7 @@ perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 	case ITEM_WEAPON:
 		acc_sprintf("This weapon can deal up to %d points of damage.\r\n",
 			GET_OBJ_VAL(obj, 2) * GET_OBJ_VAL(obj, 1));
-			
+
 		if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
 			acc_sprintf("This weapon casts an offensive spell.\r\n");
 		break;
@@ -839,7 +839,7 @@ perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
 
 ACMD(do_appraise)
 {
-	struct obj_data *obj = NULL;	// the object that will be emptied 
+	struct obj_data *obj = NULL;	// the object that will be emptied
 	int bits;
 	char *arg;
 

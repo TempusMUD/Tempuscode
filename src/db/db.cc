@@ -211,8 +211,6 @@ extern int scheck;
 *  routines for booting the system                                       *
 *********************************************************************** */
 
-
-
 ACMD(do_reboot)
 {
 	one_argument(argument, arg);
@@ -284,7 +282,6 @@ ACMD(do_reboot)
 		"%s has reloaded %s file", GET_NAME(ch), arg);
 }
 
-
 void
 boot_world(void)
 {
@@ -316,7 +313,6 @@ boot_world(void)
 	if (!(default_quad_zone = real_zone(25)))
 		default_quad_zone = zone_table;
 }
-
 
 /* body of the booting system */
 void
@@ -409,7 +405,6 @@ boot_db(void)
 	while (spells[max_spell_num][0] != '\n')
 		max_spell_num++;
 
-
 	slog("Sorting command list and spells.");
 	sort_commands();
 	sort_spells();
@@ -490,7 +485,6 @@ clear_world(void)
         object->shared = NULL;
         free_obj(object);
     }
-
 
     extern std::vector<Craftshop *> shop_list;
     std::vector<Craftshop *>::iterator sit = shop_list.begin();
@@ -581,8 +575,6 @@ count_hash_records(FILE * fl)
 
 	return count;
 }
-
-
 
 void
 index_boot(int mode)
@@ -785,7 +777,6 @@ discrete_load(FILE * fl, int mode)
 	}
 }
 
-
 long
 asciiflag_conv(char *flag)
 {
@@ -808,7 +799,6 @@ asciiflag_conv(char *flag)
 
 	return flags;
 }
-
 
 /* load the rooms */
 void
@@ -854,7 +844,6 @@ parse_room(FILE * fl, int vnum_nr)
 		fprintf(stderr, "Room %d outside of any zone.\n", vnum_nr);
 		safe_exit(1);
 	}
-
 
 	sprintf(buf, "Format error in room #%d (expecting D/E/S)", vnum_nr);
 
@@ -1026,7 +1015,6 @@ parse_room(FILE * fl, int vnum_nr)
 		REMOVE_BIT(room->room_flags, ROOM_TUNNEL);
 	}
 }
-
 
 /* read direction data */
 void
@@ -1208,7 +1196,6 @@ check_start_rooms(void)
 		// set it to the normal zul dane room ...
 		r_newbie_school_start_room = r_mortal_start_room;
 	}
-
 
 }
 
@@ -1496,7 +1483,6 @@ set_physical_attribs(struct Creature *ch)
 	ch->aff_abils = ch->real_abils;
 }
 
-
 void recalculate_based_on_level( Creature *mob_p )
 {
     int level = GET_LEVEL(mob_p);
@@ -1509,7 +1495,6 @@ void recalculate_based_on_level( Creature *mob_p )
     GET_MANA(mob_p) = MOB_D2(level);// hitd_size
     GET_MOVE(mob_p) = MOB_MOD(level);// hitp_mod
     GET_MOVE(mob_p) += (int) ( 3.26 * ( gen * gen ) * level );
-
 
     GET_AC(mob_p) = (100 - (doubleLevel * 3));
 
@@ -1605,8 +1590,6 @@ parse_simple_mob(FILE * mob_f, struct Creature *mobile, int nr)
 	for (j = 0; j < 5; j++)
 		GET_SAVE(mobile, j) = 0;
 }
-
-
 
 /*
  * interpret_espec is the function that takes espec keywords and values
@@ -1766,7 +1749,6 @@ parse_espec(char *buf, struct Creature *mobile, int nr)
         interpret_espec(buf, "", mobile, nr);
 }
 
-
 void
 parse_enhanced_mob(FILE * mob_f, struct Creature *mobile, int nr)
 {
@@ -1848,8 +1830,6 @@ parse_mobile(FILE * mob_f, int nr)
 	AFF2_FLAGS(mobile) = asciiflag_conv(f4);
 	AFF3_FLAGS(mobile) = asciiflag_conv(f5);
 	GET_ALIGNMENT(mobile) = t[5];
-
-
 
 	switch (letter) {
 	case 'S':					/* Simple monsters */
@@ -2092,8 +2072,6 @@ parse_object(FILE * obj_f, int nr)
     raise(SIGSEGV);
 }
 
-
-
 /* load the zone table and command tables */
 void
 load_zones(FILE * fl, char *zonename)
@@ -2296,18 +2274,14 @@ load_zones(FILE * fl, char *zonename)
 	} else
 		zone_table = new_zone;
 
-
 	top_of_zone_table++;
 }
 
 #undef Z
 
-
 /*************************************************************************
 *  procedures for resetting, both play-time and boot-time                  *
 *********************************************************************** */
-
-
 
 int
 vnum_mobile(char *searchname, struct Creature *ch)
@@ -2337,8 +2311,6 @@ vnum_mobile(char *searchname, struct Creature *ch)
 	return (found);
 }
 
-
-
 int
 vnum_object(char *searchname, struct Creature *ch)
 {
@@ -2365,7 +2337,6 @@ vnum_object(char *searchname, struct Creature *ch)
 
 	return (found);
 }
-
 
 /* create a new mobile from a prototype */
 struct Creature *
@@ -2464,7 +2435,6 @@ process_load_param( Creature *ch )
     return true;
  }
 
-
 // returns:
 // 0, Success
 // 1, Not loaded, percentage failure.
@@ -2497,9 +2467,9 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
 	if( strcasecmp( position, "take" ) == 0 ) {
 		pos = ITEM_WEAR_TAKE;
 	} else if( IS_OBJ_STAT2(obj, ITEM2_IMPLANT) ) {
-		pos = search_block(position, wear_implantpos, FALSE);
+		pos = search_block(position, wear_implantpos, false);
 	} else {
-		pos = search_block(position, wear_eqpos, FALSE);
+		pos = search_block(position, wear_eqpos, false);
 	}
 
     if (pos < 0 || pos >= NUM_WEARS) {
@@ -2552,7 +2522,6 @@ on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent 
 	}
     return 0;
 }
-
 
 /* create an object, and add it to the object list */
 struct obj_data *
@@ -2747,8 +2716,6 @@ read_object(int vnum)
 	return obj;
 }
 
-
-
 #define ZO_DEAD  999
 
 /* update zone ages, queue for reset if necessary, and dequeue when possible */
@@ -2799,8 +2766,6 @@ zone_update(void)
 			}
 		}
 	}
-
-
 
 	/* end - one minute has passed */
 	/* dequeue zones (if possible) and reset */
@@ -3175,7 +3140,6 @@ reset_zone(struct zone_data *zone)
 *  funcs of a (more or less) general utility nature                        *
 ********************************************************************** */
 
-
 /* read and allocate space for a '~'-terminated string from a given file */
 char *
 fread_string(FILE * fl, char *error)
@@ -3344,13 +3308,11 @@ free_obj(struct obj_data *obj)
 	free(obj);
 }
 
-
 /* read contets of a text file, alloc space, point buf to it */
 int
 file_to_string_alloc(const char *name, char **buf)
 {
 	char temp[MAX_STRING_LENGTH];
-
 
 	if (*buf)
 		free(*buf);
@@ -3363,7 +3325,6 @@ file_to_string_alloc(const char *name, char **buf)
 		return 0;
 	}
 }
-
 
 #define READ_SIZE 128
 
@@ -3401,9 +3362,6 @@ file_to_string(const char *name, char *buf)
 	return (0);
 }
 
-
-
-
 /* returns the real number of the room with given vnum number */
 struct room_data *
 real_room(int vnum)
@@ -3412,7 +3370,6 @@ real_room(int vnum)
         return NULL;
     return rooms[vnum];
 }
-
 
 struct zone_data *
 real_zone(int number)

@@ -123,11 +123,11 @@ SPECIAL(demonic_overmind)
 			// reputation 700 : 3 - 4 hours : 2025 - 4500 updates
 			// reputation 1000: 30 - 60 minutes : 427 - 947 updates
 
-			// Reputation 700 -- 
+			// Reputation 700 --
 			//    Min: 162000 / (700 - 620) = 2025 = 2.25 hours
 			//    Max: 360000 / (700 - 620) = 4500 = 5 hours
 
-			// Reputation 1000 -- 
+			// Reputation 1000 --
 			//    Min: 162000 / (1000 - 620) = 427 = 28 minutes
 			//    Max: 360000 / (1000 - 620) = 947 = 63 minutes
 
@@ -159,7 +159,7 @@ SPECIAL(demonic_overmind)
 				cur_rec->grace -= GET_REPUTATION(vict) - 620;
 				continue;
 			}
-			
+
 			// If they're in an arena or a quest, their grace still
 			// decrements.  They just get attacked as soon as they leave
 			if (GET_QUEST(cur_desc->creature))
@@ -224,18 +224,18 @@ SPECIAL(demonic_guard)
 	ch = get_char_in_world_by_idnum(vict_id);
 	if (!ch || !self->isHunting() || GET_REPUTATION(ch) < 700) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
-			FALSE, self, 0, 0, TO_ROOM);
+			false, self, 0, 0, TO_ROOM);
 		self->purge(true);
 		return true;
 	}
 
 	if (self->isHunting()->in_room->zone != self->in_room->zone) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
-			FALSE, self, 0, 0, TO_ROOM);
+			false, self, 0, 0, TO_ROOM);
 		char_from_room(self);
 		char_to_room(self, self->isHunting()->in_room);
 		act("The air suddenly cracks open and $n steps out!",
-			FALSE, self, 0, 0, TO_ROOM);
+			false, self, 0, 0, TO_ROOM);
 		return true;
 	}
 

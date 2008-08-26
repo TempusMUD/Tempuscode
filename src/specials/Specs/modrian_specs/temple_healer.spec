@@ -15,7 +15,7 @@ SPECIAL(temple_healer)
 
     if (self->isFighting()) {
 		vict = self->findRandomCombat();
-        
+
 		if (vict->in_room == self->in_room) {
 			switch (number(0, 20)) {
 			case 0:
@@ -61,7 +61,7 @@ SPECIAL(temple_healer)
 		case 11:
 		case 12:
 		case 13:{
-				found = FALSE;
+				found = false;
 				CreatureList::iterator it = self->in_room->people.begin();
 				for (; it != self->in_room->people.end() && !found; ++it) {
 					vict = *it;
@@ -69,14 +69,14 @@ SPECIAL(temple_healer)
 						continue;
 					if (GET_MOB_VNUM(self) == 11000 && IS_EVIL(vict)) {
 						if (!number(0, 20)) {
-							act("$n looks at you with distaste.", FALSE, self, 0,
+							act("$n looks at you with distaste.", false, self, 0,
 								vict, TO_VICT);
-							act("$n looks at $N with distaste.", FALSE, self, 0,
+							act("$n looks at $N with distaste.", false, self, 0,
 								vict, TO_NOTVICT);
 						} else if (!number(0, 20)) {
-							act("$n looks at you scornfully.", FALSE, self, 0,
+							act("$n looks at you scornfully.", false, self, 0,
 								vict, TO_VICT);
-							act("$n looks at $N scornfully.", FALSE, self, 0,
+							act("$n looks at $N scornfully.", false, self, 0,
 								vict, TO_NOTVICT);
 						}
 						continue;
@@ -85,11 +85,11 @@ SPECIAL(temple_healer)
 						continue;
 
 					if (GET_HIT(vict) < GET_MAX_HIT(vict)) {
-						act("$n touches your forehead, and your pain subsides.", TRUE, self, 0, vict, TO_VICT);
-						act("$n touches $N, and heals $M.", TRUE, self, 0, vict,
+						act("$n touches your forehead, and your pain subsides.", true, self, 0, vict, TO_VICT);
+						act("$n touches $N, and heals $M.", true, self, 0, vict,
 							TO_NOTVICT);
 
-						cast_spell(self, vict, 0, NULL, 
+						cast_spell(self, vict, 0, NULL,
 							GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
 							GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
 							GET_LEVEL(vict) <=
@@ -113,11 +113,11 @@ SPECIAL(temple_healer)
 						continue;
 
 					if (IS_POISONED(vict) || IS_SICK(vict)) {
-						act("$n sweeps $s hand over your body, and your sickness ceases.", FALSE, self, 0, vict, TO_VICT);
+						act("$n sweeps $s hand over your body, and your sickness ceases.", false, self, 0, vict, TO_VICT);
 						act("$n sweeps $s hand over $N's body.",
-							TRUE, self, 0, vict, TO_NOTVICT);
+							true, self, 0, vict, TO_NOTVICT);
 						act("You sweep your hand over $N's body.",
-							FALSE, self, 0, vict, TO_CHAR);
+							false, self, 0, vict, TO_CHAR);
 
 						if (IS_POISONED(vict))
 							call_magic(self, vict, 0, NULL, SPELL_REMOVE_POISON,
@@ -132,7 +132,7 @@ SPECIAL(temple_healer)
 			}
 		case 17:
 		case 18:{
-				found = FALSE;
+				found = false;
 				CreatureList::iterator it = self->in_room->people.begin();
 				for (; it != self->in_room->people.end() && !found; ++it) {
 					vict = *it;
@@ -144,10 +144,10 @@ SPECIAL(temple_healer)
 					if (affected_by_spell(vict, SPELL_BLINDNESS) ||
 						affected_by_spell(vict, SKILL_GOUGE)) {
 						act("$n touches your eyes, and your vision returns.",
-							FALSE, self, 0, vict, TO_VICT);
-						act("$n touches the eyes of $N.", TRUE, self, 0, vict,
+							false, self, 0, vict, TO_VICT);
+						act("$n touches the eyes of $N.", true, self, 0, vict,
 							TO_NOTVICT);
-						act("You touch the eyes of $N.", FALSE, self, 0, vict,
+						act("You touch the eyes of $N.", false, self, 0, vict,
 							TO_CHAR);
 						call_magic(self, vict, 0, NULL, SPELL_CURE_BLIND,
 							GET_LEVEL(self), CAST_SPELL);

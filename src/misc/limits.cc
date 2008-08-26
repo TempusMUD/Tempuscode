@@ -159,7 +159,6 @@ mana_gain(struct Creature *ch)
 	return (gain);
 }
 
-
 int
 hit_gain(struct Creature *ch)
 /* Hitpoint gain pr. game hour */
@@ -241,8 +240,6 @@ hit_gain(struct Creature *ch)
 	return (gain);
 }
 
-
-
 int
 move_gain(struct Creature *ch)
 /* move gain pr. game hour */
@@ -306,7 +303,6 @@ move_gain(struct Creature *ch)
 	return (gain);
 }
 
-
 void
 set_title(struct Creature *ch, const char *title)
 {
@@ -337,7 +333,7 @@ set_title(struct Creature *ch, const char *title)
 void
 gain_exp(struct Creature *ch, int gain)
 {
-	int is_altered = FALSE;
+	int is_altered = false;
 	int num_levels = 0;
 
 	if (ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
@@ -372,7 +368,7 @@ gain_exp(struct Creature *ch, int gain)
 			GET_LEVEL(ch) += 1;
 			num_levels++;
 			advance_level(ch, false);
-			is_altered = TRUE;
+			is_altered = true;
 		}
 
 		if (is_altered) {
@@ -395,11 +391,10 @@ gain_exp(struct Creature *ch, int gain)
 	}
 }
 
-
 void
 gain_exp_regardless(struct Creature *ch, int gain)
 {
-	int is_altered = FALSE;
+	int is_altered = false;
 	int num_levels = 0;
 
 	GET_EXP(ch) += gain;
@@ -412,7 +407,7 @@ gain_exp_regardless(struct Creature *ch, int gain)
 			GET_LEVEL(ch) += 1;
 			num_levels++;
 			advance_level(ch, 1);
-			is_altered = TRUE;
+			is_altered = true;
 		}
 
 		if (is_altered) {
@@ -424,7 +419,6 @@ gain_exp_regardless(struct Creature *ch, int gain)
 		}
 	}
 }
-
 
 void
 gain_condition(struct Creature *ch, int condition, int value)
@@ -473,7 +467,6 @@ gain_condition(struct Creature *ch, int condition, int value)
 	}
 }
 
-
 int
 check_idling(struct Creature *ch)
 {
@@ -509,9 +502,8 @@ check_idling(struct Creature *ch)
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
-
 
 void
 save_all_players(void)
@@ -558,7 +550,7 @@ point_update(void)
 	CreatureList::iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
-        
+
         full = 1;
         thirst = 1;
         drunk = 1;
@@ -572,8 +564,7 @@ point_update(void)
             GET_REPUTATION(i) > 1 &&
             number(0, 153) == 0)
                 i->gain_reputation(-1);
-        
-        
+
 		if (i->getPosition() >= POS_STUNNED) {
 			GET_HIT(i) = MIN(GET_HIT(i) + hit_gain(i), GET_MAX_HIT(i));
 			GET_MANA(i) = MIN(GET_MANA(i) + mana_gain(i), GET_MAX_MANA(i));
@@ -598,19 +589,19 @@ point_update(void)
 				case 0:
                     act("You puke all over the place.",
                         true, i, 0, 0, TO_CHAR);
-					act("$n pukes all over the place.", FALSE, i, 0, 0,
+					act("$n pukes all over the place.", false, i, 0, 0,
 						TO_ROOM);
 					break;
 				case 1:
                     act("You vomit uncontrollably.",
                         true, i, 0, 0, TO_CHAR);
-					act("$n vomits uncontrollably.", FALSE, i, 0, 0, TO_ROOM);
+					act("$n vomits uncontrollably.", false, i, 0, 0, TO_ROOM);
 					break;
 
 				case 2:
                     act("You begin to regurgitate steaming bile.",
                         true, i, 0, 0, TO_CHAR);
-					act("$n begins to regurgitate steaming bile.", FALSE, i, 0,
+					act("$n begins to regurgitate steaming bile.", false, i, 0,
 						0, TO_ROOM);
 					break;
 
@@ -618,19 +609,19 @@ point_update(void)
                     act("You are violently overcome with a fit of dry heaving.",
                         true, i, 0, 0, TO_CHAR);
 					act("$n is violently overcome with a fit of dry heaving.",
-						FALSE, i, 0, 0, TO_ROOM);
+						false, i, 0, 0, TO_ROOM);
 					break;
 
 				case 4:
                     act("You begin to retch.",
                         true, i, 0, 0, TO_CHAR);
-					act("$n begins to retch.", FALSE, i, 0, 0, TO_ROOM);
+					act("$n begins to retch.", false, i, 0, 0, TO_ROOM);
 					break;
 
 				case 5:
                     act("You violently eject your lunch!",
                         true, i, 0, 0, TO_CHAR);
-					act("$n violently ejects $s lunch!", FALSE, i, 0, 0,
+					act("$n violently ejects $s lunch!", false, i, 0, 0,
 						TO_ROOM);
 					break;
 
@@ -638,7 +629,7 @@ point_update(void)
                     act("You begin an extended session of tossing your cookies.",
                         true, i, 0, 0, TO_CHAR);
 					act("$n begins an extended session of tossing $s cookies.",
-						FALSE, i, 0, 0, TO_ROOM);
+						false, i, 0, 0, TO_ROOM);
 					break;
 				}
 			}
@@ -663,7 +654,7 @@ point_update(void)
                 GET_HIT(i) += 2;
             else if (i->getPosition() == POS_MORTALLYW)
                 GET_HIT(i) += 1;
-                
+
 			continue;
 		}
 
@@ -755,10 +746,10 @@ point_update(void)
 
 			if (GET_OBJ_TIMER(j) <= 0) {
 				if (j->carried_by)
-					act("$p decays in your hands.", FALSE, j->carried_by, j, 0,
+					act("$p decays in your hands.", false, j->carried_by, j, 0,
 						TO_CHAR);
 				if (j->worn_by)
-					act("$p disintegrates as you are wearing it.", FALSE,
+					act("$p disintegrates as you are wearing it.", false,
 						j->worn_by, j, 0, TO_CHAR);
 				else if ((j->in_room != NULL) && (j->in_room->people)) {
 					if (ROOM_FLAGGED(j->in_room, ROOM_FLAME_FILLED) ||
@@ -766,54 +757,54 @@ point_update(void)
 						GET_PLANE(j->in_room) == PLANE_HELL_4 ||
 						GET_PLANE(j->in_room) == PLANE_HELL_1
 						|| !number(0, 50)) {
-						act("$p spontaneously combusts and is devoured by flames.", TRUE, j->in_room->people, j, 0, TO_ROOM);
-						act("$p spontaneously combusts and is devoured by flames.", TRUE, j->in_room->people, j, 0, TO_CHAR);
+						act("$p spontaneously combusts and is devoured by flames.", true, j->in_room->people, j, 0, TO_ROOM);
+						act("$p spontaneously combusts and is devoured by flames.", true, j->in_room->people, j, 0, TO_CHAR);
 					} else if (ROOM_FLAGGED(j->in_room, ROOM_ICE_COLD) ||
 						GET_PLANE(j->in_room) == PLANE_HELL_5
 						|| !number(0, 250)) {
-						act("$p freezes and shatters into dust.", TRUE,
+						act("$p freezes and shatters into dust.", true,
 							j->in_room->people, j, 0, TO_ROOM);
-						act("$p freezes and shatters into dust.", TRUE,
+						act("$p freezes and shatters into dust.", true,
 							j->in_room->people, j, 0, TO_CHAR);
 					} else if (GET_PLANE(j->in_room) == PLANE_ASTRAL
 						|| !number(0, 250)) {
-						act("A sudden psychic wind rips through $p.", TRUE,
+						act("A sudden psychic wind rips through $p.", true,
 							j->in_room->people, j, 0, TO_ROOM);
-						act("A sudden psychic wind rips through $p.", TRUE,
+						act("A sudden psychic wind rips through $p.", true,
 							j->in_room->people, j, 0, TO_CHAR);
 					} else if (GET_TIME_FRAME(j->in_room) == TIME_TIMELESS
 						|| !number(0, 250)) {
 						act("$p is pulled into a timeless void and nullified.",
-							TRUE, j->in_room->people, j, 0, TO_ROOM);
+							true, j->in_room->people, j, 0, TO_ROOM);
 						act("$p is pulled into a timeless void and nullified.",
-							TRUE, j->in_room->people, j, 0, TO_CHAR);
+							true, j->in_room->people, j, 0, TO_CHAR);
 					} else if (SECT_TYPE(j->in_room) == SECT_WATER_SWIM
 						|| SECT_TYPE(j->in_room) == SECT_WATER_NOSWIM) {
-						act("$p sinks beneath the surface and is gone.", TRUE,
+						act("$p sinks beneath the surface and is gone.", true,
 							j->in_room->people, j, 0, TO_ROOM);
-						act("$p sinks beneath the surface and is gone.", TRUE,
+						act("$p sinks beneath the surface and is gone.", true,
 							j->in_room->people, j, 0, TO_CHAR);
 					} else if (room_is_underwater(j->in_room)) {
 						act("A school of small fish appears and devours $p.",
-							TRUE, j->in_room->people, j, 0, TO_ROOM);
+							true, j->in_room->people, j, 0, TO_ROOM);
 						act("A school of small fish appears and devours $p.",
-							TRUE, j->in_room->people, j, 0, TO_CHAR);
+							true, j->in_room->people, j, 0, TO_CHAR);
 					} else if (!ROOM_FLAGGED(j->in_room, ROOM_INDOORS)
 						&& !number(0, 2)) {
 						act("A flock of carrion birds hungrily devours $p.",
-							TRUE, j->in_room->people, j, 0, TO_ROOM);
+							true, j->in_room->people, j, 0, TO_ROOM);
 						act("A flock of carrion birds hungrily devours $p.",
-							TRUE, j->in_room->people, j, 0, TO_CHAR);
+							true, j->in_room->people, j, 0, TO_CHAR);
 					} else if (number(0, 3)) {
 						act("A quivering horde of maggots consumes $p.",
-							TRUE, j->in_room->people, j, 0, TO_ROOM);
+							true, j->in_room->people, j, 0, TO_ROOM);
 						act("A quivering horde of maggots consumes $p.",
-							TRUE, j->in_room->people, j, 0, TO_CHAR);
+							true, j->in_room->people, j, 0, TO_CHAR);
 					} else {
 						act("$p decays into nothing before your eyes.",
-							TRUE, j->in_room->people, j, 0, TO_ROOM);
+							true, j->in_room->people, j, 0, TO_ROOM);
 						act("$p decays into nothing before your eyes.",
-							TRUE, j->in_room->people, j, 0, TO_CHAR);
+							true, j->in_room->people, j, 0, TO_CHAR);
 					}
 				}
 
@@ -855,12 +846,12 @@ point_update(void)
 			if (GET_OBJ_TIMER(j) == 0) {
 				if (j->carried_by)
 					act("$p collapses into mush in your hands.",
-						FALSE, j->carried_by, j, 0, TO_CHAR);
+						false, j->carried_by, j, 0, TO_CHAR);
 				else if ((j->in_room != NULL) && (j->in_room->people)) {
 					act("$p collapses into nothing.",
-						TRUE, j->in_room->people, j, 0, TO_ROOM);
+						true, j->in_room->people, j, 0, TO_ROOM);
 					act("$p collapses into nothing.",
-						TRUE, j->in_room->people, j, 0, TO_CHAR);
+						true, j->in_room->people, j, 0, TO_CHAR);
 				}
 				// drop out the (damaged) implants
 				for (jj = j->contains; jj; jj = next_thing2) {
@@ -899,9 +890,9 @@ point_update(void)
 			if (GET_OBJ_TIMER(j) <= 0) {
 				if (j->action_desc && j->in_room) {
 					act("$p collapses in on itself.",
-						TRUE, j->in_room->people, j, 0, TO_CHAR);
+						true, j->in_room->people, j, 0, TO_CHAR);
 					act("$p collapses in on itself.",
-						TRUE, j->in_room->people, j, 0, TO_ROOM);
+						true, j->in_room->people, j, 0, TO_ROOM);
 				}
 				extract_obj(j);
 			}
@@ -922,9 +913,9 @@ point_update(void)
 				if (GET_OBJ_TIMER(j) <= 0) {
 					if (j->action_desc) {
 						act("$p melts and is gone.",
-							TRUE, j->in_room->people, j, 0, TO_CHAR);
+							true, j->in_room->people, j, 0, TO_CHAR);
 						act("$p melts and is gone.",
-							TRUE, j->in_room->people, j, 0, TO_ROOM);
+							true, j->in_room->people, j, 0, TO_ROOM);
 					}
 					extract_obj(j);
 				}
@@ -957,15 +948,15 @@ point_update(void)
 
 				if (j->carried_by)
 					act("$p slowly fades out of existence.",
-						FALSE, j->carried_by, j, 0, TO_CHAR);
+						false, j->carried_by, j, 0, TO_CHAR);
 				if (j->worn_by)
 					act("$p disintegrates as you are wearing it.",
-						FALSE, j->worn_by, j, 0, TO_CHAR);
+						false, j->worn_by, j, 0, TO_CHAR);
 				else if ((j->in_room != NULL) && (j->in_room->people)) {
 					act("$p slowly fades out of existence.",
-						TRUE, j->in_room->people, j, 0, TO_ROOM);
+						true, j->in_room->people, j, 0, TO_ROOM);
 					act("$p slowly fades out of existence.",
-						TRUE, j->in_room->people, j, 0, TO_CHAR);
+						true, j->in_room->people, j, 0, TO_CHAR);
 				}
 				for (jj = j->contains; jj; jj = next_thing2) {
 					next_thing2 = jj->next_content;	/* Next in inventory */

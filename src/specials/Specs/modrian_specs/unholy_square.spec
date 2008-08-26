@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 #define STATE_HOLY    0
 #define STATE_UNHOLY  1
 
@@ -93,7 +92,6 @@ SPECIAL(unholy_square)
 
 	two_arguments(argument, arg1, arg2);
 
-
 	if (CMD_IS("pour") && state == STATE_UNHOLY && ch->in_room->number == 3013) {
 
 		if (!*arg1 || !(obj = GET_EQ(ch, WEAR_HOLD))
@@ -108,14 +106,14 @@ SPECIAL(unholy_square)
 		if (!fount || !isname(arg2, fount->aliases))
 			return 0;
 
-		act("$n pours the contents of $p into $P...", FALSE, ch, obj, fount,
+		act("$n pours the contents of $p into $P...", false, ch, obj, fount,
 			TO_ROOM);
-		act("You pour the contents of $p into $P...", FALSE, ch, obj, fount,
+		act("You pour the contents of $p into $P...", false, ch, obj, fount,
 			TO_CHAR);
 
-		act("A strong wind suddenly begins blowing through the square from above,\r\n" "sending debris and dust flying into the adjoining streets.  Thunderclouds\r\n" "swirl overhead, and lightning flickers across the sky.\r\n\r\n" "With a blinding flash of lightning and a deafening crash of thunder,\r\n" "$P is shattered into a million pieces!", FALSE, ch, obj, fount, TO_ROOM);
+		act("A strong wind suddenly begins blowing through the square from above,\r\n" "sending debris and dust flying into the adjoining streets.  Thunderclouds\r\n" "swirl overhead, and lightning flickers across the sky.\r\n\r\n" "With a blinding flash of lightning and a deafening crash of thunder,\r\n" "$P is shattered into a million pieces!", false, ch, obj, fount, TO_ROOM);
 
-		act("A strong wind suddenly begins blowing through the square from above,\r\n" "sending debris and dust flying into the adjoining streets.  Thunderclouds\r\n" "swirl overhead, and lightning flickers across the sky.\r\n\r\n" "With a blinding flash of lightning and a deafening crash of thunder,\r\n" "$P is shattered into a million pieces!", FALSE, ch, obj, fount, TO_CHAR);
+		act("A strong wind suddenly begins blowing through the square from above,\r\n" "sending debris and dust flying into the adjoining streets.  Thunderclouds\r\n" "swirl overhead, and lightning flickers across the sky.\r\n\r\n" "With a blinding flash of lightning and a deafening crash of thunder,\r\n" "$P is shattered into a million pieces!", false, ch, obj, fount, TO_CHAR);
 
 		extract_obj(fount);
 
@@ -127,9 +125,9 @@ SPECIAL(unholy_square)
 		obj_to_room(fount, ch->in_room);
 
 		act("\r\nWhen the dust clears, $P is left standing in its place.",
-			FALSE, ch, obj, fount, TO_ROOM);
+			false, ch, obj, fount, TO_ROOM);
 		act("\r\nWhen the dust clears, $P is left standing in its place.",
-			FALSE, ch, obj, fount, TO_CHAR);
+			false, ch, obj, fount, TO_CHAR);
 
 		send_to_zone("The Holy Square has been re-sanctified.\r\n",
 			ch->in_room->zone, 1);
@@ -146,7 +144,6 @@ SPECIAL(unholy_square)
 
 		return 1;
 	}
-
 
 	if (GET_LEVEL(ch) < LVL_GRGOD || !CMD_IS("status"))
 		return 0;

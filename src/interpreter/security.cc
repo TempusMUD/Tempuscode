@@ -8,7 +8,7 @@ using namespace std;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 // Undefine CHAR to avoid collisions
-#undef CHAR 
+#undef CHAR
 #include "xml_utils.h"
 // Tempus includes
 #include "structs.h"
@@ -24,12 +24,11 @@ using namespace std;
 
 using namespace Security;
 
-
  /**
   *
   * The command struct for access commands
   * ( with 'pissers' being a group )
-  * 
+  *
   * access list
   * access create pissers
   * access remove pissers
@@ -62,7 +61,7 @@ const struct {
     { "remmember",  "<group name> <member> [<member>...]" },
     { "remcmd",     "<group name> <command> [<command>...]" },
     { "destroy",     "<group name>" },
-    { "stat",       "<group name>"}, 
+    { "stat",       "<group name>"},
     { NULL,         NULL }
 };
 
@@ -98,7 +97,7 @@ const char *Security::WORLDADMIN = "WorldAdmin";
  *  Sends usage info to the given character
  */
 void send_access_options( Creature *ch ) {
-    int i = 0; 
+    int i = 0;
     strcpy(out_buf, "access usage :\r\n");
     while (1) {
         if (!access_cmds[i].command)
@@ -116,14 +115,14 @@ int find_access_command( char *command ) {
     if( command == NULL || *command == '\0' )
         return -1;
     for( int i = 0; access_cmds[i].command != NULL ; i++ ) {
-        if( strncmp( access_cmds[i].command, command, strlen(command) ) == 0 ) 
+        if( strncmp( access_cmds[i].command, command, strlen(command) ) == 0 )
             return i;
     }
     return -1;
 }
 
 /**
- *  The access command itself. 
+ *  The access command itself.
  *  Used as an interface for the modification of security settings
  *  from within the mud.
  */
@@ -132,7 +131,7 @@ ACCMD(do_access) {
         send_access_options(ch);
         return;
     }
-    
+
     Tokenizer tokens(argument, ' ');
     char token1[256];
     char token2[256];
@@ -142,7 +141,7 @@ ACCMD(do_access) {
 
     switch( find_access_command(token1) ) {
         case 0: // addmember
-            
+
             if( tokens.next(token1) && isGroup(token1) ) {
                 if(! canAdminGroup( ch, token1 ) ) {
                     send_to_char(ch, "You cannot add members to this group.\r\n");
@@ -154,9 +153,9 @@ ACCMD(do_access) {
 
                 while( tokens.next(token2) ) {
                     if( addMember( token2, token1 ) ) {
-						
+
                         send_to_char(ch, "Member added : %s\r\n", token2);
-						slog("Security:  %s added to group '%s' by %s.", 
+						slog("Security:  %s added to group '%s' by %s.",
 						      token2, token1, GET_NAME(ch) );
 					} else {
                         send_to_char(ch, "Unable to add member: %s\r\n", token2);
@@ -177,7 +176,7 @@ ACCMD(do_access) {
                 while( tokens.next(token2) ) {
                     if( addCommand( token2, token1 ) ) {
                         send_to_char(ch, "Command added : %s\r\n", token2);
-						slog("Security:  Command '%s' added to '%s' by %s.", 
+						slog("Security:  Command '%s' added to '%s' by %s.",
 						      token2, token1, GET_NAME(ch) );
                     } else {
                         send_to_char(ch, "Unable to add command: %s\r\n", token2);
@@ -222,7 +221,7 @@ ACCMD(do_access) {
             if( tokens.next(token1) ) {
                 if( Security::createGroup( token1 ) ) {
                     send_to_char(ch,  "Group created.\r\n");
-					slog("Security:  Group '%s' created by %s.", 
+					slog("Security:  Group '%s' created by %s.",
 						  token1, GET_NAME(ch) );
                 } else {
                     send_to_char(ch,  "Group creation failed.\r\n");
@@ -242,7 +241,7 @@ ACCMD(do_access) {
                     send_to_char(ch, "Description set.\r\n");
 					sql_exec("update sgroups set descrip='%s' where idnum=%d",
 						tmp_sqlescape(linebuf), getGroup(token1).getID());
-					slog("Security:  Group '%s' described by %s.", 
+					slog("Security:  Group '%s' described by %s.",
 						  token1, GET_NAME(ch) );
                 } else {
                     send_to_char(ch, "Set what description?\r\n");
@@ -297,7 +296,7 @@ ACCMD(do_access) {
                 while( tokens.next(token2) ) {
                     if( removeMember( token2, token1 ) ) {
                         send_to_char(ch, "Member removed : %s\r\n", token2);
-						slog("Security:  %s removed from group '%s' by %s.", 
+						slog("Security:  %s removed from group '%s' by %s.",
 						      token2, token1, GET_NAME(ch) );
                     } else {
                         send_to_char(ch, "Unable to remove member: %s\r\n", token2);
@@ -319,7 +318,7 @@ ACCMD(do_access) {
                 while( tokens.next(token2) ) {
                     if( removeCommand( token2, token1 ) ) {
                         send_to_char(ch, "Command removed : %s\r\n", token2);
-						slog("Security:  Command '%s' removed from '%s' by %s.", 
+						slog("Security:  Command '%s' removed from '%s' by %s.",
 						      token2, token1, GET_NAME(ch) );
                     } else {
                         send_to_char(ch, "Unable to remove command: %s\r\n", token2);
@@ -377,7 +376,7 @@ namespace Security {
             }
         }
 
-        list<Group>::iterator it = groups.begin(); 
+        list<Group>::iterator it = groups.begin();
         for( ; it != groups.end(); ++it ) {
             if( (*it).givesAccess(ch, command) )
                 return true;
@@ -394,7 +393,7 @@ namespace Security {
             return false;
         if( *(command.group) =='\0')
             return true;
-        if( isMember(ch, command.group) ) 
+        if( isMember(ch, command.group) )
             return true;
         return false;
      }
@@ -408,7 +407,7 @@ namespace Security {
             return false;
         if( *(command.group) =='\0')
             return true;
-        if( isMember(ch, command.group) ) 
+        if( isMember(ch, command.group) )
             return true;
         return false;
      }
@@ -418,7 +417,7 @@ namespace Security {
      * in the groups list or groups.end() if not found.
     **/
     list<Group>::iterator findGroup( const char* name ) {
-        list<Group>::iterator it = groups.begin(); 
+        list<Group>::iterator it = groups.begin();
         for( ; it != groups.end(); ++it ) {
             if( (*it) == name )
                 break;
@@ -517,7 +516,7 @@ namespace Security {
         }
         return (*it).sendMemberList(ch);
     }
-    
+
      bool sendCommandList( Creature *ch, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
@@ -544,7 +543,7 @@ namespace Security {
         send_to_char(ch, out_buf);
         return true;
     }
-    
+
     /* sends a list of the commands a char has access to and the
      * groups that contain them.
     **/
@@ -566,7 +565,7 @@ namespace Security {
         }
         return true;
     }
-    
+
     bool addCommand( char *command, char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
@@ -584,7 +583,7 @@ namespace Security {
 			it->getID(), cmd_info[index].command);
         return (*it).addCommand( &cmd_info[index] );
     }
-    
+
     bool addMember( const char *member, const char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
 		long player_id;
@@ -626,7 +625,7 @@ namespace Security {
 			it->getID(), cmd_info[index].command);
         return (*it).removeCommand( &cmd_info[index] );
     }
-    
+
     bool removeMember( const char *member, const char *group_name ) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
 		long player_id;
@@ -640,12 +639,12 @@ namespace Security {
 			trace("removeMember: player not found");
 			return false;
 		}
-			
+
 		sql_exec("delete from sgroup_members where sgroup=%d and player=%ld",
 			it->getID(), player_id);
         return (*it).removeMember( member );
     }
-    
+
     /** returns true if the named group exists. **/
     bool isGroup( const char* name ) {
 		if( name == NULL )
@@ -653,8 +652,7 @@ namespace Security {
         list<Group>::iterator it = find( groups.begin(), groups.end(), name );
         return( it != groups.end() );
     }
-    
-    
+
     /** retrieves the named group. **/
     Group& getGroup( const char* name) {
         list<Group>::iterator it = find( groups.begin(), groups.end(), name );
@@ -697,11 +695,11 @@ namespace Security {
         slog("Security:  Access group data loaded.");
         return true;
     }
-    
+
     bool canAdminGroup( Creature *ch, const char* groupName ) {
         // The name of the administrative group
         const char* admin = NULL;
-        
+
         if(! isGroup(groupName) )
             return false;
         if( isMember(ch, "GroupsAdmin") )

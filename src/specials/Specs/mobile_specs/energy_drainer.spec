@@ -10,13 +10,13 @@ SPECIAL(energy_drainer)
 	int loss;
 
 	if (cmd)
-		return FALSE;
+		return false;
 
 	if (spec_mode != SPECIAL_TICK)
-		return FALSE;
+		return false;
 
 	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
-		return FALSE;
+		return false;
 
     vict = ch->findRandomCombat();
 	if (vict && (vict->in_room == ch->in_room) &&
@@ -27,8 +27,8 @@ SPECIAL(energy_drainer)
 			damage(ch, vict, number(8, 30), SPELL_ENERGY_DRAIN, -1);
 			loss = GET_EXP(vict) >> 5;
 			GET_EXP(vict) = MAX(0, GET_EXP(vict) - loss);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }

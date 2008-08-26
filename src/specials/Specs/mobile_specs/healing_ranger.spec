@@ -33,7 +33,7 @@ SPECIAL(healing_ranger)
 	case 11:
 	case 12:
 	case 13:{
-			found = FALSE;
+			found = false;
 			CreatureList::iterator it = ch->in_room->people.begin();
 			CreatureList::iterator nit = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
@@ -53,7 +53,7 @@ SPECIAL(healing_ranger)
 						else
 							do_medic(ch, GET_NAME(vict), 0, 0, 0);
 
-						return TRUE;
+						return true;
 					}
 				}
 			}
@@ -62,13 +62,13 @@ SPECIAL(healing_ranger)
 	case 14:
 	case 15:
 	case 16:{
-			found = FALSE;
+			found = false;
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				if (AFF_FLAGGED((*it), AFF_POISON)) {
 					if (GET_MANA(ch) > 50) {
 						cast_spell(ch, *it, 0, NULL, SPELL_REMOVE_POISON);
-						return TRUE;
+						return true;
 					}
 				}
 			}
@@ -76,33 +76,33 @@ SPECIAL(healing_ranger)
 		}
 	case 17:
 	case 18:{
-			found = FALSE;
-			found = FALSE;
+			found = false;
+			found = false;
 			CreatureList::iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it)
 				vict = *it;
 			if (!IS_NPC(vict) && (affected_by_spell(vict, SPELL_BLINDNESS) ||
 					affected_by_spell(vict, SKILL_GOUGE))) {
 				cast_spell(ch, vict, 0, NULL, SPELL_CURE_BLIND);
-				return TRUE;
+				return true;
 			} else
-				return FALSE;
+				return false;
 			break;
 		}
 	case 19:
 	case 20:
 	case 21:
 	case 22:{
-			found = FALSE;
+			found = false;
 			if (ch->in_room->zone->weather->sky == SKY_LIGHTNING) {
-				found = FALSE;
+				found = false;
 				CreatureList::iterator it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end() && !found; ++it) {
 					vict = *it;
 					if (!affected_by_spell(vict, SPELL_PROT_FROM_LIGHTNING) &&
 						GET_MANA(ch) > 50) {
 						cast_spell(ch, vict, 0, NULL, SPELL_PROT_FROM_LIGHTNING);
-						return TRUE;
+						return true;
 					}
 				}
 			}

@@ -35,7 +35,6 @@ void check_interface(struct Creature *ch, struct obj_data *obj, int mode);
 void check_flying(struct Creature *ch);
 bool can_travel_sector(struct Creature *ch, int sect_type, bool active);
 
-
 /* utility */
 char *money_desc(int amount, int mode);
 struct obj_data *create_money(int amount, int mode);
@@ -107,7 +106,6 @@ int find_all_dots(char *arg);
 #define FIND_ALL	1
 #define FIND_ALLDOT	2
 
-
 /* Generic Find */
 
 int generic_find(char *arg, int bitvector, struct Creature *ch,
@@ -121,7 +119,6 @@ int generic_find(char *arg, int bitvector, struct Creature *ch,
 #define FIND_OBJ_EQUIP      (1 << 5)
 #define FIND_OBJ_EQUIP_CONT (1 << 6)
 #define FIND_IGNORE_WIERD   (1 << 7)
-
 
 #define EQUIP_WORN    0
 #define EQUIP_IMPLANT 1

@@ -28,7 +28,7 @@ SPECIAL(oedit_reloader)
 		perform_say(self, "say", "If you want me to retrieve your property, just type 'retrieve'.");
 	} else if (CMD_IS("retrieve")) {
 		list<obj_data*> found;
-		act("$n closes $s eyes in deep concentration.", TRUE, self, 0, FALSE, TO_ROOM);
+		act("$n closes $s eyes in deep concentration.", true, self, 0, false, TO_ROOM);
 		int retrieved = retrieve_oedits( ch, found );
 		int existing = load_oedits( ch, found );
 
@@ -79,7 +79,7 @@ load_oedits( Creature *ch, list<obj_data*> &found )
 			if( !contains( found, obj->shared->vnum ) ) {
 				obj_data* o = read_object( obj->shared->vnum );
 				obj_to_char( o, ch, false );
-				act("$p appears in your hands!", FALSE, ch, o, 0, TO_CHAR);
+				act("$p appears in your hands!", false, ch, o, 0, TO_CHAR);
 			}
 		}
 	}
@@ -107,24 +107,24 @@ retrieve_oedits( Creature *ch, list<obj_data*> &found )
 			// todo: check house
 			if (obj->worn_by && obj == GET_EQ(obj->worn_by, obj->worn_on)) {
 				act("$p disappears off of your body!",
-					FALSE, obj->worn_by, obj, 0, TO_CHAR);
+					false, obj->worn_by, obj, 0, TO_CHAR);
 				unequip_char(obj->worn_by, obj->worn_on, EQUIP_WORN);
             } else if (obj->worn_by && obj == GET_IMPLANT(obj->worn_by, obj->worn_on)) {
 				act("$p disappears out of your body!",
-					FALSE, obj->worn_by, obj, 0, TO_CHAR);
+					false, obj->worn_by, obj, 0, TO_CHAR);
 				unequip_char(obj->worn_by, obj->worn_on, EQUIP_IMPLANT);
             } else if (obj->worn_by && obj == GET_TATTOO(obj->worn_by, obj->worn_on)) {
 				act("$p fades off of your body!",
-					FALSE, obj->worn_by, obj, 0, TO_CHAR);
+					false, obj->worn_by, obj, 0, TO_CHAR);
 				unequip_char(obj->worn_by, obj->worn_on, EQUIP_TATTOO);
 			} else if( obj->carried_by ) {
-				act("$p disappears out of your hands!", FALSE,
+				act("$p disappears out of your hands!", false,
 					obj->carried_by, obj, 0, TO_CHAR);
 				obj_from_char( obj );
 			} else if( obj->in_room ) {
 				if( obj->in_room->people.size() > 0 )  {
 					act("$p fades out of existence!",
-						FALSE, NULL, obj, NULL, TO_ROOM);
+						false, NULL, obj, NULL, TO_ROOM);
 				}
 				obj_from_room( obj );
 			} else if( obj->in_obj != NULL ) {
@@ -132,7 +132,7 @@ retrieve_oedits( Creature *ch, list<obj_data*> &found )
 			}
 			++count;
 			obj_to_char( obj, ch, false );
-			act("$p appears in your hands!", FALSE, ch, obj, 0, TO_CHAR);
+			act("$p appears in your hands!", false, ch, obj, 0, TO_CHAR);
 		}
 	}
 	return count;

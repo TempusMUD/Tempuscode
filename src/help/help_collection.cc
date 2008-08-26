@@ -170,7 +170,7 @@ HelpCollection::Push(HelpItem * n)
 	}
 }
 
-// Calls FindItems 
+// Calls FindItems
 // Mode is how to show the item.
 // Type: 0==normal help, 1==immhelp, 2==olchelp
 void
@@ -330,7 +330,7 @@ HelpCollection::SaveItem(Creature * ch)
 	return true;
 }
 
-// Find an Item in the index 
+// Find an Item in the index
 // This should take an optional "mode" argument to specify groups the
 //  returned topic can be part of. e.g. (FindItems(argument,FIND_MODE_OLC))
 HelpItem *
@@ -461,7 +461,7 @@ HelpCollection::Set(Creature * ch, char *argument)
 		return false;
 	}
 	if (!argument || !*argument) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"hcollect set <groups[+/-]|flags[+/-]|name|keywords|description> [args]\r\n");
 		return false;
 	}
@@ -606,7 +606,6 @@ HelpCollection::find_item_by_id(int id)
 	for (cur = items; cur && cur->idnum != id; cur = cur->Next());
 	return cur;
 }
-
 
 // The "immhelp" command
 ACMD(do_immhelp)

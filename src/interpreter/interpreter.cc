@@ -62,7 +62,6 @@ int general_search(struct Creature *ch, struct special_search_data *srch,
 	int mode);
 long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 
-
 /* writes a string to the command log */
 void
 cmdlog(char *str)
@@ -432,7 +431,6 @@ ACMD(do_immhelp);
 ACMD(do_map);
 ACMD(do_ventriloquize);
 
-
 /* This is the Master Command List(tm).
  *
  * You can put new commands in, take commands out, change the order
@@ -445,8 +443,6 @@ ACMD(do_ventriloquize);
  * infrequently used and dangerously destructive commands should have low
  * priority.
  */
-
-
 
 struct command_info cmd_info[] = {
 	{"RESERVED", 0, 0, 0, 0, 0, 0},	/* this must be first -- for specprocs */
@@ -721,7 +717,6 @@ struct command_info cmd_info[] = {
 	{"drool", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"duck", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"dynedit", POS_DEAD, do_dynedit, LVL_IMMORT, 0, 0, 0},
-
 
 	{"eat", POS_RESTING, do_eat, 0, SCMD_EAT, 0, 0},
 	{"echo", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, 0, 0},
@@ -1653,7 +1648,7 @@ send_unknown_cmd(Creature *ch)
 	case 2:
 		send_to_char(ch, "%cQue?!?\r\n", 191); break;
 	case 3:
-		send_to_char(ch, "You must enter a proper command!\n"); break; 
+		send_to_char(ch, "You must enter a proper command!\n"); break;
 	case 4:
 		send_to_char(ch, "I don't understand that.\r\n"); break;
 	case 5:
@@ -1743,7 +1738,7 @@ command_interpreter(struct Creature *ch, char *argument)
 		d->last_cmd = cmd;
 
         // Log commands
-		if (log_cmds || PLR_FLAGGED(ch, PLR_LOG) || 
+		if (log_cmds || PLR_FLAGGED(ch, PLR_LOG) ||
               (GET_LEVEL(ch) >= 50 && GET_LEVEL(ch) < 65)) {
 			// Don't log movement, that's just silly.
             if (cmd_info[cmd].command_pointer != do_move) {
@@ -1788,18 +1783,18 @@ command_interpreter(struct Creature *ch, char *argument)
 			break;
 		case POS_INCAP:
 		case POS_MORTALLYW:
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You are in a pretty bad shape, unable to do anything!\r\n");
 			break;
 		case POS_STUNNED:
-			send_to_char(ch, 
+			send_to_char(ch,
 				"All you can do right now is think about the stars!\r\n");
 			break;
 		case POS_SLEEPING:
 			send_to_char(ch, "In your dreams, or what?\r\n");
 			break;
 		case POS_RESTING:
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Nah... You're resting.  Why don't you sit up first?\r\n");
 			break;
 		case POS_SITTING:
@@ -1818,7 +1813,6 @@ command_interpreter(struct Creature *ch, char *argument)
  * Routines to handle aliasing                                             *
   **************************************************************************/
 
-
 struct alias_data *
 find_alias(struct alias_data *alias_list, char *str)
 {
@@ -1832,7 +1826,6 @@ find_alias(struct alias_data *alias_list, char *str)
 
 	return NULL;
 }
-
 
 void
 free_alias(struct alias_data *a)
@@ -2022,7 +2015,6 @@ perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a)
 	}
 }
 
-
 /*
  * Given a character and a string, perform alias replacement on it.
  *
@@ -2060,8 +2052,6 @@ perform_alias(struct descriptor_data *d, char *orig)
 		return 1;
 	}
 }
-
-
 
 /***************************************************************************
  * Various other parsing utilities                                         *
@@ -2103,7 +2093,6 @@ search_block(const char *arg, const char **list, bool exact)
 	return -1;
 }
 
-
 bool
 is_number(const char *str)
 {
@@ -2120,7 +2109,6 @@ is_number(const char *str)
 	return true;
 }
 
-
 void
 skip_spaces(char **string)
 {
@@ -2136,9 +2124,8 @@ skip_spaces(const char **string)
 int
 fill_word(char *argument)
 {
-	return (search_block(argument, fill_words, TRUE) >= 0);
+	return (search_block(argument, fill_words, true) >= 0);
 }
-
 
 /*
  * copy the first non-fill-word, space-delimited argument of 'argument'
@@ -2185,7 +2172,6 @@ one_argument(const char *argument, char *first_arg)
 	} while (fill_word(begin));
 }
 
-
 /* same as one_argument except that it doesn't ignore fill words */
 char *
 any_one_arg(char *argument, char *first_arg)
@@ -2201,7 +2187,6 @@ any_one_arg(char *argument, char *first_arg)
 
 	return argument;
 }
-
 
 /*
  * Same as one_argument except that it takes two args and returns the rest;
@@ -2245,13 +2230,12 @@ two_arguments(const char *argument, char *first_arg, char *second_arg)
 	} while (fill_word(begin));
 }
 
-
 /*
  * determine if a given string is an abbreviation of another
  * (now works symmetrically -- JE 7/25/94)
  *
  * that was dumb.  it shouldn't be symmetrical.  JE 5/1/95
- * 
+ *
  * returns 1 if arg1 is an abbreviation of arg2
  * returns 2 if arg1 is an extact match to arg2
  * returns 0 otherwise
@@ -2272,7 +2256,7 @@ is_abbrev(const char *needle, const char *haystack, int count)
 		if (tolower(*needle++) != tolower(*haystack++))
 			return 0;
     }
-	
+
 	if (!*needle && !*haystack)
 		return 2;
 	if ((!*needle) && matched >= count)
@@ -2291,8 +2275,6 @@ half_chop(char *string, char *arg1, char *arg2)
 	skip_spaces(&temp);
     memmove(arg2, temp, strlen(temp) + 1);
 }
-
-
 
 /* Used in specprocs, mostly.  (Exactly) matches "command" to cmd number */
 int
@@ -2315,7 +2297,6 @@ find_command(const char *command, bool abbrev)
 	return -1;
 }
 
-
 long
 special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode)
 {
@@ -2334,7 +2315,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
         }
     }
 	if (GET_ROOM_PROG(ch->in_room) != NULL) {
-	  if (spec_mode == SPECIAL_CMD && 
+	  if (spec_mode == SPECIAL_CMD &&
 		  trigger_prog_cmd(ch->in_room, PROG_TYPE_ROOM, ch, cmd, arg))
 		return true;
 	  if (spec_mode == SPECIAL_ENTER
@@ -2352,7 +2333,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	/* translate cmd for jumping, etc... */
 	if (cmd_info[cmd].command_pointer == do_move &&
 		subcmd > SCMD_MOVE && *tmp_arg) {
-		if ((j = search_block(tmp_arg, dirs, FALSE)) >= 0) {
+		if ((j = search_block(tmp_arg, dirs, false)) >= 0) {
 			tmp_cmd = j + 1;
 		}
 	}
@@ -2388,7 +2369,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 				FUSE_TIMER(i->contains)--;
 				if (FUSE_TIMER(i->contains) <= 0) {
 					detonate_bomb(i);
-					return TRUE;
+					return true;
 				}
 			}
 		}
@@ -2406,7 +2387,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 			FUSE_TIMER(i->contains)--;
 			if (FUSE_TIMER(i->contains) <= 0) {
 				detonate_bomb(i);
-				return TRUE;
+				return true;
 			}
 		}
 	}
@@ -2424,7 +2405,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 			}
 		}
 		if (GET_MOB_PROGOBJ(mob) != NULL) {
-			if (spec_mode == SPECIAL_CMD && 
+			if (spec_mode == SPECIAL_CMD &&
                 trigger_prog_cmd(mob, PROG_TYPE_MOBILE, ch, cmd, arg) &&
                 (!mob->master || (mob->master->in_room != mob->in_room)))
 				return true;
@@ -2450,7 +2431,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 			FUSE_TIMER(i->contains)--;
 			if (FUSE_TIMER(i->contains) <= 0) {
 				detonate_bomb(i);
-				return TRUE;
+				return true;
 			}
 		}
 	}
@@ -2487,7 +2468,7 @@ sort_commands(void)
 	}
 
 	/* the infernal special case */
-	cmd_sort_info[find_command("insult")].is_social = TRUE;
+	cmd_sort_info[find_command("insult")].is_social = true;
 
 	/* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
 	for (a = 1; a < num_of_cmds - 1; a++)
@@ -2499,7 +2480,5 @@ sort_commands(void)
 				cmd_sort_info[b].sort_pos = tmp;
 			}
 }
-
-
 
 #undef __interpreter_c__

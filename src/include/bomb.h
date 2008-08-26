@@ -58,7 +58,6 @@ struct obj_data *detonate_bomb(struct obj_data *bomb);
 #define IS_DETONATOR(obj)         (GET_OBJ_TYPE(obj) == ITEM_DETONATOR)
 #define IS_FUSE(obj)              (GET_OBJ_TYPE(obj) == ITEM_FUSE)
 
-
 #ifndef __bomb_c__
 
 extern const char *bomb_types[];

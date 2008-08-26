@@ -8,7 +8,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 /*#define DMALLOC 1 */
 
 /* preamble *************************************************************/
@@ -32,7 +31,6 @@
 /* object-related defines ********************************************/
 struct Creature;
 class room_data;
-
 
 /* Item types: used by obj_data.obj_flags.type_flag */
 static const int ITEM_LIGHT = 1;	/* Item is a light source   */
@@ -105,7 +103,6 @@ static const int ITEM_PERCUSSION = 0;
 static const int ITEM_STRING = 1;
 static const int ITEM_WIND = 2;
 
-
 /* Take/Wear flags: used by obj_data.obj_flags.wear_flags */
 static const int ITEM_WEAR_TAKE = (1 << 0);	/* Item can be takes      */
 static const int ITEM_WEAR_FINGER = (1 << 1);	/* Can be worn on finger    */
@@ -130,7 +127,6 @@ static const int ITEM_WEAR_FACE = (1 << 19);
 static const int ITEM_WEAR_EAR = (1 << 20);
 static const int ITEM_WEAR_ASS = (1 << 21);	/*Can be RAMMED up an asshole */
 static const int NUM_WEAR_FLAGS = 22;
-
 
 /* Extra object flags: used by obj_data.obj_flags.extra_flags */
 static const int ITEM_GLOW = (1 << 0);	/* Item is glowing      */
@@ -221,13 +217,11 @@ static const int ITEM3_NOMAG = (1 << 20);
 static const int ITEM3_NOSCI = (1 << 21);
 static const int NUM_EXTRA3_FLAGS = 22;
 
-
 /* Container flags - value[1] */
 static const int CONT_CLOSEABLE = (1 << 0);	/* Container can be closed  */
 static const int CONT_PICKPROOF = (1 << 1);	/* Container is pickproof   */
 static const int CONT_CLOSED = (1 << 2);	/* Container is closed      */
 static const int CONT_LOCKED = (1 << 3);	/* Container is locked      */
-
 
 /* Some different kind of liquids for use in values of drink containers */
 static const int LIQ_WATER = 0;
@@ -297,7 +291,6 @@ liquid_to_str(int liquid)
 	return drinks[liquid];
 }
 
-
 /* object-related structures ******************************************/
 
 /* object flags; used in obj_data */
@@ -305,7 +298,7 @@ struct obj_flag_data {
 	int setWeight(int new_weight);
 	inline int getWeight(void) {
 		return weight;
-	} 
+	}
 	int value[4];				/* Values of the item (see list)    */
 	byte type_flag;				/* Type of item             */
 	int wear_flags;				/* Where you can wear it        */
@@ -372,7 +365,7 @@ struct obj_data : public thing {
 	int setWeight(int new_weight);
 	inline int getWeight(void) {
 		return obj_flags.getWeight();
-	} 
+	}
 	inline int getContainedWeight(void) {
 		obj_data *cur_obj;
 		int result = 0;
@@ -401,10 +394,10 @@ struct obj_data : public thing {
 	int getImplantPos(void);
 
 	void clear();
-	
-	bool loadFromXML( obj_data *container, 
-				 	  Creature *victim, 
-					  room_data *room, 
+
+	bool loadFromXML( obj_data *container,
+				 	  Creature *victim,
+					  room_data *room,
 					  xmlNodePtr node);
 
     void addAffect(struct tmp_obj_affect *af);

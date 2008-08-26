@@ -212,7 +212,6 @@ ACMD(do_say)
         do_action(ch, argument, cmd, subcmd, return_flags);
 }
 
-
 ACMD(do_gsay)
 {
 	struct Creature *k;
@@ -236,7 +235,7 @@ ACMD(do_gsay)
 		if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && CAN_CHANNEL_COMM(ch, k)) {
 			sprintf(buf, "%s$n tells the group,%s '%s'%s", CCGRN(k, C_NRM),
                     CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
-			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP);
+			act(buf, false, ch, 0, k, TO_VICT | TO_SLEEP);
 		}
 		for (f = k->followers; f; f = f->next)
 			if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
@@ -244,15 +243,14 @@ ACMD(do_gsay)
 				sprintf(buf, "%s$n tells the group,%s '%s'%s",
 					CCGRN(f->follower, C_NRM), CCYEL(f->follower, C_NRM),
                         argument, CCNRM(f->follower, C_NRM));
-				act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP);
+				act(buf, false, ch, 0, f->follower, TO_VICT | TO_SLEEP);
 			}
 
 		sprintf(buf, "%sYou tell the group,%s '%s'%s", CCGRN(ch, C_NRM),
 			CCYEL(ch, C_NRM), argument, CCNRM(ch, C_NRM));
-		act(buf, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
+		act(buf, false, ch, 0, 0, TO_CHAR | TO_SLEEP);
 	}
 }
-
 
 void
 perform_tell(struct Creature *ch, struct Creature *vict, const char *arg)
@@ -303,29 +301,29 @@ ACMD(do_tell)
 	} else if (ch == vict)
 		send_to_char(ch, "You try to tell yourself something.\r\n");
 	else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You can't tell other people while you have notell on.\r\n");
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
 		&& GET_LEVEL(ch) < LVL_GRGOD && ch->in_room != vict->in_room)
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
 	else if (!IS_NPC(vict) && !vict->desc)	/* linkless */
-		act("$E's linkless at the moment.", FALSE, ch, 0, vict,
+		act("$E's linkless at the moment.", false, ch, 0, vict,
 			TO_CHAR | TO_SLEEP);
 	else if (PLR_FLAGGED(vict, PLR_WRITING | PLR_MAILING))
 		act("$E's writing a message right now; try again later.",
-			FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+			false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else if ((PRF_FLAGGED(vict, PRF_NOTELL) ||
 			PLR_FLAGGED(vict, PLR_OLC) ||
 			(ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF) &&
 				ch->in_room != vict->in_room)) &&
 		!(GET_LEVEL(ch) >= LVL_GRGOD && GET_LEVEL(ch) > GET_LEVEL(vict)))
-		act("$E can't hear you.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$E can't hear you.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else {
 		if (!CAN_SEND_TELL(ch, vict)) {
 			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
 					affected_by_spell(vict, SPELL_TELEPATHY))) {
 				act("Your telepathic voice cannot reach $M.",
-					FALSE, ch, 0, vict, TO_CHAR);
+					false, ch, 0, vict, TO_CHAR);
 				return;
 			}
 
@@ -335,7 +333,6 @@ ACMD(do_tell)
 		perform_tell(ch, vict, buf2);
 	}
 }
-
 
 ACMD(do_reply)
 {
@@ -363,7 +360,7 @@ ACMD(do_reply)
 	if (tch == characterList.end())
 		send_to_char(ch, "They are no longer playing.\r\n");
 	else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You can't tell other people while you have notell on.\r\n");
 	else if (!IS_NPC(*tch) && (*tch)->desc == NULL)
 		send_to_char(ch, "They are linkless at the moment.\r\n");
@@ -378,7 +375,7 @@ ACMD(do_reply)
 			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
 					affected_by_spell((*tch), SPELL_TELEPATHY))) {
 				act("Your telepathic voice cannot reach $M.",
-					FALSE, ch, 0, (*tch), TO_CHAR);
+					false, ch, 0, (*tch), TO_CHAR);
 				return;
 			}
 
@@ -409,7 +406,7 @@ ACMD(do_retell)
 	if (tch == characterList.end())
 		send_to_char(ch, "They are no longer playing.\r\n");
 	else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You can't tell other people while you have notell on.\r\n");
 	else if (!IS_NPC(*tch) && (*tch)->desc == NULL)
 		send_to_char(ch, "They are linkless at the moment.\r\n");
@@ -424,7 +421,7 @@ ACMD(do_retell)
 			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
 					affected_by_spell((*tch), SPELL_TELEPATHY))) {
 				act("Your telepathic voice cannot reach $M.",
-					FALSE, ch, 0, (*tch), TO_CHAR);
+					false, ch, 0, (*tch), TO_CHAR);
 				return;
 			}
 
@@ -434,7 +431,6 @@ ACMD(do_retell)
 		perform_tell(ch, (*tch), argument);
 	}
 }
-
 
 ACMD(do_whisper)
 {
@@ -446,7 +442,7 @@ ACMD(do_whisper)
 	} else if (!(vict = get_char_room_vis(ch, vict_str))) {
 		send_to_char(ch, NOPERSON);
 	} else if (vict == ch)
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You can't get your mouth close enough to your ear...\r\n");
 	else {
 		act(tmp_sprintf("&yYou$a whisper to $N$l,&n '$[%s]'",
@@ -455,10 +451,9 @@ ACMD(do_whisper)
 		act(tmp_sprintf("&y$n$a whispers to you$l,&n '$[%s]'",
                         act_escape(argument)),
             false, ch, 0, vict, TO_VICT);
-		act("$n$a whispers something to $N.", FALSE, ch, 0, vict, TO_NOTVICT);
+		act("$n$a whispers something to $N.", false, ch, 0, vict, TO_NOTVICT);
 	}
 }
-
 
 #define MAX_NOTE_LENGTH 16384	/* arbitrary */
 
@@ -476,7 +471,7 @@ ACMD(do_write)
 		return;
 
 	if (!*papername) {			/* nothing was delivered */
-		send_to_char(ch, 
+		send_to_char(ch,
 			"Write?  With what?  ON what?  What are you trying to do?!?\r\n");
 		return;
 	}
@@ -517,12 +512,11 @@ ACMD(do_write)
 			pen = GET_EQ(ch, WEAR_HOLD);
 	}
 
-
 	/* ok.. now let's see what kind of stuff we've found */
 	if (GET_OBJ_TYPE(pen) != ITEM_PEN) {
-		act("$p is no good for writing with.", FALSE, ch, pen, 0, TO_CHAR);
+		act("$p is no good for writing with.", false, ch, pen, 0, TO_CHAR);
 	} else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {
-		act("You can't write on $p.", FALSE, ch, paper, 0, TO_CHAR);
+		act("You can't write on $p.", false, ch, paper, 0, TO_CHAR);
 	} else if (paper->action_desc) {
 		send_to_char(ch, "There's something written on it already.\r\n");
 	} else {
@@ -531,7 +525,7 @@ ACMD(do_write)
 		start_editing_text(ch->desc, &paper->action_desc,
 			MAX_NOTE_LENGTH);
 		SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
-		act("$n begins to jot down a note..", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n begins to jot down a note..", true, ch, 0, 0, TO_ROOM);
 	}
 }
 
@@ -580,7 +574,6 @@ ACMD(do_page)
 			send_to_char(ch, "There is no such person in the game!\r\n");
 	}
 }
-
 
 /**********************************************************************
  * generalized communication func, originally by Fred C. Merkel (Torg) *
@@ -693,7 +686,6 @@ ACMD(do_gen_comm)
 	int old_language = GET_TONGUE(ch);
     char *imm_actstr, *actstr;
 
-
 	chan = &channels[subcmd];
 
 	// pets can't shout on interplanar channels
@@ -729,8 +721,8 @@ ACMD(do_gen_comm)
 	// These are all restrictions, to which immortals and npcs are uncaring
 	if (!IS_NPC(ch) && !IS_IMMORT(ch)) {
 		/* level_can_shout defined in config.c */
-		if (GET_LEVEL(ch) < level_can_shout && 
-            subcmd != SCMD_NEWBIE && 
+		if (GET_LEVEL(ch) < level_can_shout &&
+            subcmd != SCMD_NEWBIE &&
             subcmd != SCMD_CLANSAY &&
             GET_REMORT_GEN(ch) <= 0 ) {
 			send_to_char(ch, "You must be at least level %d before you can %s.\r\n",
@@ -755,7 +747,7 @@ ACMD(do_gen_comm)
 		if ((subcmd == SCMD_DREAM &&
 				(ch->getPosition() != POS_SLEEPING)) &&
 				!ZONE_IS_ASLEEP(ch->in_room->zone)) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You attempt to dream, but realize you need to sleep first.\r\n");
 			return;
 		}
@@ -778,7 +770,7 @@ ACMD(do_gen_comm)
 						"You have been cast out of the ranks of the honored.\r\n");
 					return;
 				}
-					
+
 			} else {
 				// Monks must be neutral
 				if (GET_CLASS(ch) == CLASS_MONK) {

@@ -91,7 +91,6 @@ prog_get_text(thing *owner, prog_evt_type owner_type)
 	return NULL;
 }
 
-
 void
 prog_compile_message(prog_compiler_state *compiler,
                     int level,
@@ -357,7 +356,7 @@ prog_compile_statement(prog_compiler_state *compiler)
                                     compiler->cur_token->sym);
             return;
         }
-        
+
         // Emit prog command code
 		instr = cmd - prog_cmds;
 
@@ -391,7 +390,7 @@ prog_compile_statement(prog_compiler_state *compiler)
     default:
         errlog("Can't happen");
     }
-        
+
     if (compiler->cur_token) {
         if (compiler->cur_token->kind != PROG_TOKEN_EOL) {
             prog_compile_error(compiler, compiler->cur_token->linenum,
@@ -422,7 +421,7 @@ prog_compile_handler(prog_compiler_state *compiler)
     compiler->code->next = NULL;
     compiler->code->code_pt = compiler->code->code_seg;
     compiler->code->data_pt = compiler->code->data_seg;
-    
+
     // A data point of 0 should return a null string
     *compiler->code->data_pt++ = '\0';
 
@@ -750,7 +749,7 @@ error:
 
     // Free compiler structures
     prog_free_compiler(&state);
-    
+
     // We can potentially use a LOT of temporary string space in our
     // compilation, so we gc it here.
     tmp_gc_strings();

@@ -20,17 +20,17 @@ class CharCombat {
             this->_initiated = a._initiated;
             this->_opponent = a._opponent;
         }
-        inline bool getInitiated() { 
-            return _initiated; 
+        inline bool getInitiated() {
+            return _initiated;
         }
-        inline void setInitiated(bool init) { 
+        inline void setInitiated(bool init) {
             _initiated = init;
         }
-        inline void setOpponent(Creature *ch) { 
-            _opponent = ch; 
-        } 
-        inline Creature *getOpponent() { 
-            return _opponent; 
+        inline void setOpponent(Creature *ch) {
+            _opponent = ch;
+        }
+        inline Creature *getOpponent() {
+            return _opponent;
         }
         bool operator==( const Creature* c ) {
                    return _opponent == c;

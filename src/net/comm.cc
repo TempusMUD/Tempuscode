@@ -96,7 +96,6 @@ int shutdown_idnum = -1;		/* idnum of person calling shutdown */
 int shutdown_mode = SHUTDOWN_NONE;	/* what type of shutdown */
 bool suppress_output = false;
 
-
 struct last_command_data last_cmd[NUM_SAVE_CMDS];
 
 extern int nameserver_is_slow;	/* see config.c */
@@ -163,7 +162,7 @@ main(int argc, char **argv)
 
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
-	
+
 	tmp_string_init();
 	acc_string_init();
 
@@ -217,7 +216,7 @@ main(int argc, char **argv)
 			slog("Disabling nameserver.");
 			break;
 		case 'l':
-			log_cmds = TRUE;
+			log_cmds = true;
 			slog("Enabling log_cmds.");
 			break;
 		case 'p':
@@ -267,8 +266,6 @@ main(int argc, char **argv)
 	return 0;
 }
 
-
-
 /* Init sockets, run game, and cleanup sockets */
 void
 init_game(int port)
@@ -293,7 +290,6 @@ init_game(int port)
 
 	avail_descs = get_avail_descs();
 
-
 	slog("Signal trapping.");
 	signal_setup();
 
@@ -314,8 +310,6 @@ init_game(int port)
 	}
 	slog("Normal termination of game.");
 }
-
-
 
 /*
  * init_socket sets up the mother descriptor - creates the socket, sets
@@ -394,7 +388,6 @@ init_socket(int port)
 	return s;
 }
 
-
 int
 get_avail_descs(void)
 {
@@ -448,8 +441,6 @@ get_avail_descs(void)
 	slog("Setting player limit to %d.", max_descs);
 	return max_descs;
 }
-
-
 
 /*
  * game_loop contains the main loop which drives the entire MUD.  It
@@ -692,7 +683,7 @@ game_loop(int mother_desc)
 						|| shutdown_mode ==
 						SHUTDOWN_DIE) ? "Shutdown" : "Reboot",
 					playerIndex.getName(shutdown_idnum));
-				circle_shutdown = TRUE;
+				circle_shutdown = true;
 				for (d = descriptor_list; d; d = d->next)
 					if (FD_ISSET(d->descriptor, &output_set) && *(d->output))
 						process_output(d);
@@ -743,7 +734,6 @@ game_loop(int mother_desc)
 				close_socket(d);
 		}
 
-
 		update_unique_id();
 		tics++;					/* tics since last checkpoint signal */
 		sql_gc_queries();
@@ -751,8 +741,6 @@ game_loop(int mother_desc)
 		suppress_output = false; // failsafe
 	}							/* while (!circle_shutdown) */
 }
-
-
 
 /* ******************************************************************
 *  general utility stuff (for local use)                            *
@@ -794,7 +782,6 @@ timediff(struct timeval *a, struct timeval *b)
 	}
 }
 
-
 void
 record_usage(void)
 {
@@ -822,7 +809,6 @@ record_usage(void)
 
 }
 
-
 void
 write_to_q(char *txt, struct txt_q *queue, int aliased)
 {
@@ -843,8 +829,6 @@ write_to_q(char *txt, struct txt_q *queue, int aliased)
 		new_txt_block->next = NULL;
 	}
 }
-
-
 
 int
 get_from_q(struct txt_q *queue, char *dest, int *aliased, int length )
@@ -877,7 +861,6 @@ flush_q(struct txt_q *queue)
 	queue->head = NULL;
 }
 
-
 /* Empty the queues before closing connection */
 void
 flush_queues(struct descriptor_data *d)
@@ -889,7 +872,6 @@ flush_queues(struct descriptor_data *d)
 	flush_q(&d->input);
 }
 
-
 void
 write_to_output(const char *txt, struct descriptor_data *t)
 {
@@ -900,7 +882,7 @@ write_to_output(const char *txt, struct descriptor_data *t)
 	/* if we're in the overflow state already, ignore this new output */
 	if (t->bufptr < 0)
 		return;
-	
+
 	if (suppress_output)
 		return;
 
@@ -953,14 +935,9 @@ write_to_output(const char *txt, struct descriptor_data *t)
 	}
 }
 
-
-
-
-
 /* ******************************************************************
 *  socket handling                                                  *
 ****************************************************************** */
-
 
 int
 new_descriptor(int s)
@@ -1075,12 +1052,10 @@ new_descriptor(int s)
 	return 0;
 }
 
-
 int
 process_output(struct descriptor_data *d)
 {
 	static int result;
-
 
 	result = write_to_descriptor(d->descriptor, d->output);
 
@@ -1118,8 +1093,6 @@ process_output(struct descriptor_data *d)
 	return result;
 }
 
-
-
 int
 write_to_descriptor(int desc, const char *txt)
 {
@@ -1146,7 +1119,6 @@ write_to_descriptor(int desc, const char *txt)
 
 	return 0;
 }
-
 
 /*
  * ASSUMPTION: There will be no newlines in the raw input buffer when this
@@ -1262,7 +1234,7 @@ process_input(struct descriptor_data *t)
 			if (t->creature && t->creature->in_room) {
 				act("SAY NO TO SPAM.\r\n"
 					"Begone oh you waster of electrons,"
-					" ye vile profaner of CPU time!", TRUE, t->creature, 0, 0,
+					" ye vile profaner of CPU time!", true, t->creature, 0, 0,
 					TO_ROOM);
 				slog("SPAM-death on the queue!");
 				return (-1);
@@ -1305,8 +1277,6 @@ process_input(struct descriptor_data *t)
 
 	return 1;
 }
-
-
 
 /*
  * perform substitution for the '^..^' csh-esque syntax
@@ -1364,8 +1334,6 @@ perform_subst(struct descriptor_data *t, char *orig, char *subst)
 	return 0;
 }
 
-
-
 void
 close_socket(struct descriptor_data *d)
 {
@@ -1414,7 +1382,7 @@ close_socket(struct descriptor_data *d)
 			d->creature = NULL;
 		}
 		mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, false,
-                "%s[%d] logging off from %s", 
+                "%s[%d] logging off from %s",
                 d->account->get_name(), d->account->get_idnum(), d->host);
 		d->account->logout(d, false);
 	} else {
@@ -1432,7 +1400,6 @@ close_socket(struct descriptor_data *d)
 
 	free(d);
 }
-
 
 /*
  * I tried to universally convert Circle over to POSIX compliance, but
@@ -1458,11 +1425,9 @@ nonblock(int s)
 	}
 }
 
-
 /* ******************************************************************
 *  signal-handling functions (formerly signals.c)                   *
 ****************************************************************** */
-
 
 void
 checkpointing(int sig = 0)
@@ -1476,8 +1441,6 @@ checkpointing(int sig = 0)
 		tics = 0;
 }
 
-
-
 void
 unrestrict_game(int sig = 0)
 {
@@ -1490,7 +1453,6 @@ unrestrict_game(int sig = 0)
 	restrict = 0;
 	num_invalid = 0;
 }
-
 
 void
 hupsig(int sig = 0)
@@ -1569,8 +1531,6 @@ signal_setup(void)
 	my_signal(SIGALRM, SIG_IGN);
 
 }
-
-
 
 /* ****************************************************************
 *       Public routines for system-to-player-communication        *
@@ -1726,7 +1686,7 @@ send_to_newbie_helpers(const char *messg)
 		}
 }
 
-/* mode == TRUE -> hide from sender.  FALSE -> show to all */
+/* mode == true -> hide from sender.  false -> show to all */
 void
 send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 	int hide_invis)
@@ -1747,19 +1707,19 @@ send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 			continue;
 
 		if (obj->in_room) {
-			act("$p makes some noises.", FALSE, 0, obj, 0, TO_ROOM);
+			act("$p makes some noises.", false, 0, obj, 0, TO_ROOM);
 			continue;
 		}
 
 		receiver = obj->carried_by ? obj->carried_by:obj->worn_by;
 		if (!receiver || !receiver->desc)
 			continue;
-		
+
 		if (!IS_PLAYING(receiver->desc) || !receiver->desc ||
 				PLR_FLAGGED(receiver, PLR_WRITING) ||
 				PLR_FLAGGED(receiver, PLR_OLC))
 			continue;
-			
+
 		if (!COMM_UNIT_SEND_OK(ch, receiver))
 			continue;
 
@@ -2166,7 +2126,7 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 
 	/*
 	 * Warning: the following TO_SLEEP code is a hack.
-	 * 
+	 *
 	 * I wanted to be able to tell act to deliver a message regardless of sleep
 	 * without adding an additional argument.  TO_SLEEP is 128 (a single bit
 	 * high up).  It's ONLY legal to combine TO_SLEEP with one other TO_x
@@ -2187,7 +2147,7 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 
     if (vict_obj && (type & TO_VICT_RM)) {
         room = (vict_obj->to_c())->in_room;
-        type &= ~TO_VICT_RM;  
+        type &= ~TO_VICT_RM;
     }
 
 	if (IS_SET(type, ACT_HIDECAR)) {
@@ -2269,7 +2229,6 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 				room != ABS_EXIT(room, j)->to_room &&
 				!IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
 
-
 				it = ABS_EXIT(room, j)->to_room->people.begin();
 				for (; it != ABS_EXIT(room, j)->to_room->people.end(); ++it) {
 					if (!pred(ch, obj, vict_obj, (*it), 2))
@@ -2314,7 +2273,6 @@ act(const char *str, int hide_invisible, struct Creature *ch,
 	act_if(str, hide_invisible, ch, obj, vict_obj, type, standard_act_predicate);
 }
 
-
 //
 // ramdomly move the quad damage, creating it if needed
 // bamf as in *>BAMF<* nightcrawler from X-Men
@@ -2333,7 +2291,7 @@ bamf_quad_damage(void)
 
 	if (quad) {
 		if (quad->in_room->people)
-			act("$p starts spinning faster and faster, and disappears in a flash!", FALSE, 0, quad, 0, TO_ROOM);
+			act("$p starts spinning faster and faster, and disappears in a flash!", false, 0, quad, 0, TO_ROOM);
 		orig_room = quad->in_room;
 		obj_from_room(quad);
 	} else if (!(quad = read_object(QUAD_VNUM))) {
@@ -2376,10 +2334,9 @@ bamf_quad_damage(void)
 
 	if (room->people)
 		act("$p appears slowly spinning at the center of the room.",
-			FALSE, 0, quad, 0, TO_ROOM);
+			false, 0, quad, 0, TO_ROOM);
 
 }
-
 
 void
 push_command_onto_list(Creature *ch, char *string)
@@ -2398,8 +2355,8 @@ push_command_onto_list(Creature *ch, char *string)
 	last_cmd[0].idnum = GET_IDNUM(ch);
 	strncpy(last_cmd[0].name, GET_NAME(ch), MAX_INPUT_LENGTH);
 	last_cmd[0].roomnum = (ch->in_room) ? ch->in_room->number:-1;
-	strncpy(last_cmd[0].room, 
-                (ch->in_room && ch->in_room->name) ? 
+	strncpy(last_cmd[0].room,
+                (ch->in_room && ch->in_room->name) ?
                     ch->in_room->name : "<NULL>", MAX_INPUT_LENGTH );
 	strncpy(last_cmd[0].string, string, MAX_INPUT_LENGTH);
 }

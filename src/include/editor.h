@@ -198,7 +198,6 @@ protected:
     virtual void Finalize(const char *text);
 };
 
-
 // Interfaces to the editor from the outside world.
 void start_editing_text(struct descriptor_data *d,
                         char **target,

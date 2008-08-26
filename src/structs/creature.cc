@@ -58,7 +58,7 @@ Creature::~Creature(void)
 		delete player_specials;
 		free(player.title);
 	}
-    
+
     delete this->fighting;
     delete this->language_data;
 }
@@ -79,7 +79,7 @@ Creature::Creature(const Creature &c)
     //todo: duplicate affects
 
     this->account = c.account;
-    
+
     //todo: duplicate equipment?
 
     this->fighting = new CombatDataList(*(c.fighting));
@@ -121,10 +121,10 @@ bool Creature::isTester(){
 }
 
 // Returns this creature's account id.
-long Creature::getAccountID() const { 
-    if( account == NULL ) 
-        return 0; 
-    return account->get_idnum(); 
+long Creature::getAccountID() const {
+    if( account == NULL )
+        return 0;
+    return account->get_idnum();
 }
 
 /**
@@ -134,7 +134,7 @@ long Creature::getAccountID() const {
  *  experience.
  *
 **/
-int Creature::getPenalizedExperience( int experience, Creature *victim) 
+int Creature::getPenalizedExperience( int experience, Creature *victim)
 {
 
 	// Mobs are easily trained
@@ -150,7 +150,7 @@ int Creature::getPenalizedExperience( int experience, Creature *victim)
 			return 0;
 
 		// good clerics & knights penalized for killing good
-		if( IS_GOOD(victim) && IS_GOOD(this) && 
+		if( IS_GOOD(victim) && IS_GOOD(this) &&
 			(IS_CLERIC(this) || IS_KNIGHT(this)) ) {
 			experience /= 2;
 		}
@@ -264,7 +264,7 @@ Creature::affBySanc(Creature *attacker)
 	return false;
 }
 
-// Pass in the attacker for conditional reduction such as PROT_GOOD and 
+// Pass in the attacker for conditional reduction such as PROT_GOOD and
 // PROT_EVIL.  Or leave it blank for the characters base reduction --N
 float
 Creature::getDamReduction(Creature *attacker)
@@ -379,7 +379,7 @@ Creature::getDamReduction(Creature *attacker)
 
         // We found the aria of asylum singer
         if (af && af->modifier == GET_IDNUM(ch)) {
-            dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT(ch))) / 100) + 
+            dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT(ch))) / 100) +
                                   (ch->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
         } else if (af && ch->in_room) {
 
@@ -387,11 +387,11 @@ Creature::getDamReduction(Creature *attacker)
             for (; it != ch->in_room->people.end(); ++it) {
                 if (IS_NPC((*it))
                     && af->modifier == (short int)-MOB_IDNUM((*it))) {
-                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) + 
+                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) +
                                          ((*it)->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
                     break;
                 } else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
-                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) + 
+                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) +
                                          ((*it)->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
                     break;
                 }
@@ -418,7 +418,6 @@ Creature::getDamReduction(Creature *attacker)
 	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 		dam_reduction += 75;
 
-
 	if (attacker) {
 		///****************** Various forms of protection ***************
 		if (IS_EVIL(attacker) && AFF_FLAGGED(ch, AFF_PROTECT_EVIL))
@@ -433,7 +432,6 @@ Creature::getDamReduction(Creature *attacker)
 			dam_reduction += 8;
 	}
 
-    
     dam_reduction += abs(MIN(0, GET_AC(ch) + 300) / 5);
 	dam_reduction = MIN(dam_reduction, 75);
 
@@ -443,7 +441,7 @@ Creature::getDamReduction(Creature *attacker)
 //
 // Compute level bonus factor.
 // Currently, a gen 4 level 49 secondary should equate to level 49 mort primary.
-//   
+//
 //   params: primary - Add in remort gen as a primary?
 //   return: a number from 1-100 based on level and primary/secondary)
 
@@ -483,7 +481,7 @@ Creature::getLevelBonus(bool primary)
 int
 Creature::getLevelBonus(int skill)
 {
-	// Immorts get full bonus. 
+	// Immorts get full bonus.
 	if( player.level >= 50 )
 		return 100;
 
@@ -512,10 +510,10 @@ Creature::getLevelBonus(int skill)
 
 		if( spell_lvl <= player.level && spell_gen <= GET_REMORT_GEN(this) ) {
 			return getLevelBonus(true);
-		} 
+		}
         else if( sclass >= 0 && (SPELL_LEVEL(skill, sclass) <= player.level)) {
 			return getLevelBonus(false);
-		} 
+		}
         else {
 			return player.level/2;
 		}
@@ -719,7 +717,6 @@ Creature::clearMemory()
 	MEMORY(this) = NULL;
 }
 
-
 // Retrieves the characters appropriate loadroom.
 room_data *Creature::getLoadroom() {
     room_data *load_room = NULL;
@@ -729,24 +726,23 @@ room_data *Creature::getLoadroom() {
 	} else if (GET_LOADROOM(this)) {
 		if ((load_room = real_room(GET_LOADROOM(this))) &&
 			(!House_can_enter(this, load_room->number) ||
-			!clan_house_can_enter(this, load_room))) 
+			!clan_house_can_enter(this, load_room)))
 		{
 			load_room = NULL;
 		}
 	} else if (GET_HOMEROOM(this)) {
 		if ((load_room = real_room(GET_HOMEROOM(this))) &&
 			(!House_can_enter(this, load_room->number) ||
-			!clan_house_can_enter(this, load_room))) 
+			!clan_house_can_enter(this, load_room)))
 		{
 			load_room = NULL;
 		}
-		
+
 	}
 
 	if( load_room != NULL )
 		return load_room;
 
-	
 	if ( GET_LEVEL(this) >= LVL_AMBASSADOR ) {
 		load_room = r_immort_start_room;
 	} else {
@@ -811,7 +807,7 @@ room_data *Creature::getLoadroom() {
     return load_room;
 }
 
-// Called by constructors to initialize 
+// Called by constructors to initialize
 void
 Creature::initialize(void)
 {
@@ -848,7 +844,7 @@ Creature::clear(void)
 	// first make sure the char is no longer in the world
 	//
 	if (this->in_room != NULL || this->carrying != NULL ||
-		(this->getCombatList() && this->isFighting() != 0) || 
+		(this->getCombatList() && this->isFighting() != 0) ||
         this->followers != NULL || this->master != NULL) {
 		errlog("attempted clear of creature who is still connected to the world.");
 		raise(SIGSEGV);
@@ -866,7 +862,6 @@ Creature::clear(void)
         }
     }
 
-
 	//
 	// next remove and free all alieases
 	//
@@ -882,7 +877,6 @@ Creature::clear(void)
 
 	while (this->affected)
 		affect_remove(this, this->affected);
-
 
 	//
 	// free mob strings:
@@ -1035,7 +1029,7 @@ Creature::cryo(void)
 	player.time.logon = time(0);
 	saveObjects();
 	saveToXML();
-	
+
 	mlog(Security::ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)),
 		NRM, true,
 		"%s has cryo-rented", GET_NAME(this));
@@ -1159,7 +1153,7 @@ Creature::die(void)
 		obj_from_char(obj);
 		obj_to_room(obj, in_room);
 	}
-	
+
 	if (!IS_NPC(this)) {
 		player_specials->rentcode = RENT_QUIT;
 		player_specials->rent_per_day = 0;
@@ -1288,7 +1282,7 @@ Creature::trusts(long idnum)
 {
 	if (IS_NPC(this))
 		return false;
-	
+
 	return account->isTrusted(idnum);
 }
 
@@ -1303,7 +1297,7 @@ Creature::trusts(Creature *ch)
 {
 	if (IS_NPC(this))
 		return false;
-	
+
 	if (AFF_FLAGGED(this, AFF_CHARM) && master == ch)
 		return true;
 
@@ -1323,7 +1317,7 @@ Creature::get_reputation(void)
 
 	if (IS_NPC(this))
 		return 0;
-	
+
 	acct = account;
 	if (!acct)
 		acct = Account::retrieve(playerIndex.getAccountID(GET_IDNUM(this)));
@@ -1349,7 +1343,7 @@ Creature::gain_reputation(int amt)
 
 	if (player_specials->saved.reputation + amt > 0)
         player_specials->saved.reputation += amt;
-    
+
 }
 
 void
@@ -1374,31 +1368,31 @@ Creature::addCombat(Creature *ch, bool initiated)
         return;
 
 	previously_fighting = (getCombatList()->size() != 0);
-    
+
 	CreatureList::iterator cit;
     cit = ch->in_room->people.begin();
     for (; cit != ch->in_room->people.end(); ++cit) {
         defender = NULL;
-        if ((*cit) != ch && 
+        if ((*cit) != ch &&
             (*cit) != this &&
             (*cit)->isDefending() == ch &&
             !(*cit)->isFighting() &&
             (*cit)->getPosition() > POS_RESTING) {
-            
+
             defender = *cit;
 			if (findCombat(defender))
 				return;
-			
+
 			send_to_char(defender, "You defend %s from %s's vicious attack!\r\n",
 				PERS(ch, defender), PERS(this, defender));
 			send_to_char(ch, "%s defends you from %s's vicious attack!\r\n",
 				PERS(defender, ch), PERS(this, ch));
 			act("$n comes to $N's defense!", false, defender, 0,
 				ch, TO_NOTVICT);
-			
+
 			if (defender->isDefending() == this)
 				defender->stopDefending();
-			
+
 			// If we're already in combat with the victim, move him
 			// to the front of the list
 			CombatDataList::iterator li = getCombatList()->begin();
@@ -1406,13 +1400,13 @@ Creature::addCombat(Creature *ch, bool initiated)
 				if (li->getOpponent() == ch) {
 					bool ini = li->getInitiated();
 					getCombatList()->remove(li);
-					getCombatList()->add_front(CharCombat(defender, ini)); 
+					getCombatList()->add_front(CharCombat(defender, ini));
 					return;
 				}
 			}
-			
+
 			getCombatList()->add_back(CharCombat(defender, initiated));
-			
+
 			update_pos(this);
 			trigger_prog_fight(this, defender);
 
@@ -1424,10 +1418,10 @@ Creature::addCombat(Creature *ch, bool initiated)
             //theory at least.
         }
     }
-    
+
     if (ch->isDefending() == this)
         ch->stopDefending();
-        
+
     // If we're already in combat with the victim, move him
     // to the front of the list
     CombatDataList::iterator li = getCombatList()->begin();
@@ -1435,7 +1429,7 @@ Creature::addCombat(Creature *ch, bool initiated)
         if (li->getOpponent() == ch) {
             bool ini = li->getInitiated();
             getCombatList()->remove(li);
-            getCombatList()->add_front(CharCombat(ch, ini)); 
+            getCombatList()->add_front(CharCombat(ch, ini));
             return;
         }
     }
@@ -1458,7 +1452,7 @@ Creature::addCombat(Creature *ch, bool initiated)
             combatList.add(this);
         }
     }
-    
+
 }
 
 void
@@ -1514,7 +1508,7 @@ Creature::findCombat(Creature *ch)
     for (; li != getCombatList()->end(); li++) {
         if (li->getOpponent() == ch)
             return (li->getOpponent());
-    }   
+    }
 
     return NULL;
 }
@@ -1531,7 +1525,7 @@ Creature::initiatedCombat(Creature *ch)
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() == ch)
             return (li->getInitiated());
-    }   
+    }
 
     return false;
 }
@@ -1557,7 +1551,7 @@ Creature::findRandomCombat()
 
     if (!isFighting())
         return NULL;
-        
+
     // Most of the time fighting will be one on one so let's save
     // the iterator creation and the call to random_fractional_10
     if (numCombatants() == 1)
@@ -1566,7 +1560,7 @@ Creature::findRandomCombat()
     CombatDataList::iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
        if (!random_fractional_10())
-           return (li->getOpponent()); 
+           return (li->getOpponent());
     }
 
     return getCombatList()->begin()->getOpponent();
@@ -1581,7 +1575,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
         errlog("ERROR:  NULL victim passed to isOkToAttack()");
         return false;
     }
-    
+
     // Immortals over level LVL_GOD can always attack
     // anyone they want
     if (this->getLevel() >= LVL_GOD) {
@@ -1602,7 +1596,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
     }
 
     // If we have a bounty situation, we ignore NVZs and !PKs
-    if (IS_PC(this) && IS_PC(vict) && 
+    if (IS_PC(this) && IS_PC(vict) &&
         get_hunted_id(this->getIdNum()) == vict->getIdNum()) {
         return true;
     }
@@ -1617,7 +1611,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
             send_to_char(this, "The universal forces of order "
                          "prevent violence here!\r\n");
             if (!number(0, 1))
-                act("$n seems to be violently disturbed.", false, 
+                act("$n seems to be violently disturbed.", false,
                     this, NULL, NULL, TO_ROOM);
             else
                 act("$n becomes violently agitated for a moment.",
@@ -1631,7 +1625,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
             send_to_char(this, "The universal forces of order "
                          "prevent violence there!\r\n");
             if (!number(0, 1))
-                act("$n seems to be violently disturbed.", false, 
+                act("$n seems to be violently disturbed.", false,
                     this, NULL, NULL, TO_ROOM);
             else
                 act("$n becomes violently agitated for a moment.",
@@ -1678,7 +1672,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
         }
         return false;
     }
-    
+
     // If someone is trying to attack a newbie, also don't let it
     // happen
     if (vict->isNewbie()) {
@@ -1693,7 +1687,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
 
         return false;
     }
-       
+
     // If they aren't in the same quest it's not ok to attack them
     if (GET_QUEST(this) && GET_QUEST(this) != GET_QUEST(vict)) {
         if (mssg)
@@ -1728,7 +1722,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
         vict->in_room->zone->getPKStyle() == ZONE_NO_PK) {
         if (mssg) {
             send_to_char(this, "You seem to be unable to bring "
-                             "your weapon to bear on %s.\r\n", 
+                             "your weapon to bear on %s.\r\n",
                          GET_NAME(vict));
             act("$n shakes with rage as $e tries to bring $s "
                 "weapon to bear.", false, this, NULL, NULL, TO_ROOM);
@@ -1744,13 +1738,13 @@ void
 Creature::ignite(Creature *ch)
 {
     affected_type af;
-    
+
     memset(&af, 0x0, sizeof(affected_type));
     af.type = SPELL_ABLAZE;
     af.duration = -1;
     af.bitvector = AFF2_ABLAZE;
     af.aff_index = 2;
-    
+
     if (ch)
         af.owner = ch->getIdNum();
 
@@ -1865,7 +1859,7 @@ Creature::checkReputations(Creature *vict)
     }
     else if (IS_NPC(this))
         return false;
-    
+
     if (GET_REPUTATION(this) <= 0)
         ch_msg = true;
     else if (GET_REPUTATION(vict) <= 0)
@@ -1875,7 +1869,7 @@ Creature::checkReputations(Creature *vict)
         send_to_char(this, "Your reputation is 0.  If you want to be "
                            "a player killer, type PK on yes.\r\n");
         send_to_char(vict, "%s has just tried to attack you but was "
-                           "prevented by %s reputation being 0.\r\n", 
+                           "prevented by %s reputation being 0.\r\n",
                      GET_NAME(this), HSHR(this));
         return true;
     }
@@ -1884,7 +1878,7 @@ Creature::checkReputations(Creature *vict)
         send_to_char(this, "%s's reputation is 0 and %s is immune to player "
                            "versus player violence.\r\n", GET_NAME(vict), HSSH(vict));
         send_to_char(vict, "%s has just tried to attack you but was "
-                           "prevented by your reputation being 0.\r\n", 
+                           "prevented by your reputation being 0.\r\n",
                      GET_NAME(this));
         return true;
     }
@@ -1894,7 +1888,7 @@ Creature::checkReputations(Creature *vict)
 
 //not inlined because we need access to spells.h
 bool
-affected_type::clearAtDeath(void) { 
+affected_type::clearAtDeath(void) {
     return (type != SPELL_ITEM_REPULSION_FIELD &&
     type != SPELL_ITEM_ATTRACTION_FIELD);
 }

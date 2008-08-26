@@ -4,11 +4,8 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
-
 #define CONVERT_TIME_TO_CONT(time) \
      (time.year * 15960 + time.month * 840 + time.day * 24 + time.hours)
-
 
 SPECIAL(gen_locker)
 {
@@ -40,9 +37,9 @@ SPECIAL(gen_locker)
 		locker_vnum = locker_room->number;
 		cost_factor = 75;
 	}
-    
+
     cost_factor += (cost_factor*ch->getCostModifier(atten))/100;
-    
+
 	skip_spaces(&argument);
 
 	if (CMD_IS("offer")) {
@@ -222,9 +219,9 @@ SPECIAL(gen_locker)
 			house->save();
 		ch->saveToXML();
 
-		act("$n takes all your things and locks them in a locker.", FALSE,
+		act("$n takes all your things and locks them in a locker.", false,
 			atten, 0, ch, TO_VICT);
-		act("$n takes all $N's things and locks them in a locker.", FALSE,
+		act("$n takes all $N's things and locks them in a locker.", false,
 			atten, 0, ch, TO_NOTVICT);
 
 		if (GET_OBJ_VAL(locker, 1)) {
@@ -316,9 +313,9 @@ SPECIAL(gen_locker)
 		ch->saveToXML();
 
 		act("$n opens a locker and gives you all your things.",
-			FALSE, atten, 0, ch, TO_VICT);
+			false, atten, 0, ch, TO_VICT);
 		act("$n opens a locker and gives $N all $S things.",
-			FALSE, atten, 0, ch, TO_NOTVICT);
+			false, atten, 0, ch, TO_NOTVICT);
 		return 1;
 	}
 	return 0;

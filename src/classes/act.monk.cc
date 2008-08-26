@@ -51,18 +51,18 @@ perform_monk_meditate(struct Creature *ch)
 			CCCYN(ch, C_NRM), MEDITATE_TIMER(ch), CCNRM(ch, C_NRM));
 
 	// oblivity
-	if (!AFF2_FLAGGED(ch, AFF2_OBLIVITY) 
-	&& CHECK_SKILL(ch, ZEN_OBLIVITY) >= LEARNED(ch)) 
+	if (!AFF2_FLAGGED(ch, AFF2_OBLIVITY)
+	&& CHECK_SKILL(ch, ZEN_OBLIVITY) >= LEARNED(ch))
 	{
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_OBLIVITY) >> 2) + GET_WIS(ch);
 		int test   =  (mag_manacost(ch, ZEN_OBLIVITY) + number(20, 40));
 
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 			send_to_char(ch,
 				"%s[MEDITATE] Oblivity   test:%d   target:%d%s\r\n",
 				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
-					
-		if( target > test ) 
+
+		if( target > test )
 		{
 			send_to_char(ch, "You begin to perceive the zen of oblivity.\r\n");
 			af.type = ZEN_OBLIVITY;
@@ -79,18 +79,18 @@ perform_monk_meditate(struct Creature *ch)
 		}
 	}
 	// awareness
-	if (!affected_by_spell(ch, ZEN_AWARENESS) 
-	&& CHECK_SKILL(ch, ZEN_AWARENESS) >= LEARNED(ch)) 
+	if (!affected_by_spell(ch, ZEN_AWARENESS)
+	&& CHECK_SKILL(ch, ZEN_AWARENESS) >= LEARNED(ch))
 	{
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_AWARENESS) >> 2);
 		int test   = (mag_manacost(ch, ZEN_AWARENESS) + number(6, 40) - GET_WIS(ch));
 
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 			send_to_char(ch,
 				"%s[MEDITATE] Awareness   test:%d   target:%d%s\r\n",
 				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
 
-		if( target > test ) 
+		if( target > test )
 		{
 			send_to_char(ch, "You become one with the zen of awareness.\r\n");
 			af.type = ZEN_AWARENESS;
@@ -99,7 +99,7 @@ perform_monk_meditate(struct Creature *ch)
 				af.bitvector = AFF_DETECT_INVIS;
 				af.aff_index = 1;
 			} else {
-				af.bitvector = AFF2_TRUE_SEEING;
+				af.bitvector = AFF2_true_SEEING;
 				af.aff_index = 2;
 			}
 			af.duration = af.level / 5;
@@ -113,13 +113,13 @@ perform_monk_meditate(struct Creature *ch)
 		}
 	}
 	// motion
-	if (!affected_by_spell(ch, ZEN_MOTION) 
-	&& CHECK_SKILL(ch, ZEN_MOTION) >= LEARNED(ch)) 
+	if (!affected_by_spell(ch, ZEN_MOTION)
+	&& CHECK_SKILL(ch, ZEN_MOTION) >= LEARNED(ch))
 	{
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_MOTION) >> 2);
 		int test   = (mag_manacost(ch, ZEN_MOTION) + number(10, 40) - GET_WIS(ch));
 
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 			send_to_char(ch,
 				"%s[MEDITATE] Motion   test:%d   target:%d%s\r\n",
 				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
@@ -149,14 +149,14 @@ perform_monk_meditate(struct Creature *ch)
 	}
 
 	// translocation
-	if (!affected_by_spell(ch, ZEN_TRANSLOCATION) 
-	&& CHECK_SKILL(ch, ZEN_TRANSLOCATION) >= LEARNED(ch)) 
+	if (!affected_by_spell(ch, ZEN_TRANSLOCATION)
+	&& CHECK_SKILL(ch, ZEN_TRANSLOCATION) >= LEARNED(ch))
 	{
 
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_TRANSLOCATION) >> 2);
 		int test   = number(20, 25);
 
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 			send_to_char(ch,
 				"%s[MEDITATE] Translocation   test:%d   target:%d%s\r\n",
 				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
@@ -179,12 +179,12 @@ perform_monk_meditate(struct Creature *ch)
 
 	// celerity
 	if (!affected_by_spell(ch, ZEN_CELERITY)
-	&& CHECK_SKILL(ch, ZEN_CELERITY) >= LEARNED(ch)) 
+	&& CHECK_SKILL(ch, ZEN_CELERITY) >= LEARNED(ch))
 	{
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_CELERITY) >> 2);
 		int test   = number(20, 25);
 
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 			send_to_char(ch,
 				"%s[MEDITATE] Celerity   test:%d   target:%d%s\r\n",
 				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
@@ -207,12 +207,12 @@ perform_monk_meditate(struct Creature *ch)
 	}
 
 	if (!affected_by_spell(ch, ZEN_DISPASSION)
-	&& CHECK_SKILL(ch, ZEN_DISPASSION) >= LEARNED(ch)) 
+	&& CHECK_SKILL(ch, ZEN_DISPASSION) >= LEARNED(ch))
 	{
 		int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_DISPASSION) >> 2);
 		int test   = number(30, 50) - GET_WIS(ch) / 4;
 
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) 
+		if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 			send_to_char(ch,
 				"%s[MEDITATE] Dispassion   test:%d   target:%d%s\r\n",
 				CCCYN(ch, C_NRM), test, target, CCNRM(ch, C_NRM));
@@ -254,7 +254,7 @@ ACMD(do_whirlwind)
 		vict = get_char_room_vis(ch, arg);
 		ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents);
 	}
-	
+
 	//do we have a target?
 	if (!vict && !ovict) {
 		send_to_char(ch, "Whirlwind who?\r\n");
@@ -264,9 +264,9 @@ ACMD(do_whirlwind)
 
 	//hit an object
 	if (ovict && !vict) {
-		act("You whirl through the air hitting $p!", FALSE, ch, ovict, 0,
+		act("You whirl through the air hitting $p!", false, ch, ovict, 0,
 			TO_CHAR);
-		act("$n whirls through the air hitting $p!", FALSE, ch, ovict, 0,
+		act("$n whirls through the air hitting $p!", false, ch, ovict, 0,
 			TO_ROOM);
 		return;
 	}
@@ -283,14 +283,13 @@ ACMD(do_whirlwind)
 		return;
 	}
 
-	
 	//101% is a complete failure
-	percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 86);	
-	
+	percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 86);
+
 	//adjust for equipment
 	for (i = 0; i < NUM_WEARS; i++) {
         obj_data* obj = GET_EQ(ch, i);
-        if( obj == NULL ) 
+        if( obj == NULL )
             continue;
 		if( GET_OBJ_TYPE(obj) == ITEM_ARMOR ) {
             if(IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
@@ -305,7 +304,7 @@ ACMD(do_whirlwind)
 
 	//check skill and stat modifiers for prob
 	prob = CHECK_SKILL(ch, SKILL_WHIRLWIND) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
-	
+
 	//adjust prob based on victims position
 	if (vict->getPosition() < POS_STANDING)
 		prob += 30;
@@ -317,11 +316,10 @@ ACMD(do_whirlwind)
 		prob -= (prob * (ABS(GET_ALIGNMENT(ch)))) / 1000;
 
 	//if we don't have kata and victim is of a non-solid nature we can't hit
-	if (	!affected_by_spell(ch, SKILL_KATA) && 
+	if (	!affected_by_spell(ch, SKILL_KATA) &&
 	    	(IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
 		)
 		prob = 0;
-		
 
 	//do we fail outright?
 	if (percent > prob) {
@@ -329,13 +327,13 @@ ACMD(do_whirlwind)
 		//do we fall down too?
 		if (GET_LEVEL(ch) + GET_DEX(ch) < number(0, 77)) {
 			send_to_char(ch, "You fall on your ass!\r\n");
-			act("$n falls smack on $s ass!\r\n", TRUE, ch, 0, 0, TO_ROOM);
+			act("$n falls smack on $s ass!\r\n", true, ch, 0, 0, TO_ROOM);
 			ch->setPosition(POS_SITTING);
 		}
 		GET_MOVE(ch) -= 5;
 	} else {
 		//lets kick ass
-		
+
 		//how many times will we hit?
 		int hits = 0;
 		if (GET_CLASS(ch) == CLASS_MONK) {
@@ -343,13 +341,13 @@ ACMD(do_whirlwind)
 		} else {
 			hits = number(3,4);
 		}
-		
+
 		//attack our chosen victim first
 		int dam = 0;
 		if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80)+GET_DEX(vict)) {
 			dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
 		}
-        
+
         bool killedFirst = false;
 		int my_return_flags = damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
         if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
@@ -358,12 +356,12 @@ ACMD(do_whirlwind)
             killedFirst = true;
         }
 		GET_MOVE(ch) -= 3;
-		
+
 		//attack up to hits-1 more victims at random
 		CombatDataList *combatList = ch->getCombatList();
 		CombatDataList::iterator combatIter;
 		int i=1;
-        for (combatIter=combatList->begin(); 
+        for (combatIter=combatList->begin();
                 (i < hits) && (combatIter != combatList->end());
                 ++combatIter) {
 			int my_return_flags = 0;
@@ -386,7 +384,7 @@ ACMD(do_whirlwind)
                     killedFirst = true;
             }
 		}
-		
+
 		//if we still haven't attacked hits times send the rest of them too
 		//our initially chosen victim as long as he's alive
 		if (!killedFirst) {
@@ -405,7 +403,7 @@ ACMD(do_whirlwind)
 				}
 			}
 		}
-		
+
 		gain_skill_prof(ch, SKILL_WHIRLWIND);
 	}
 	WAIT_STATE(ch, PULSE_VIOLENCE * 3);
@@ -454,9 +452,9 @@ ACMD(do_combo)
 			vict = ch->findRandomCombat();
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-			act("You perform a devastating combo to the $p!", FALSE, ch, ovict,
+			act("You perform a devastating combo to the $p!", false, ch, ovict,
 				0, TO_CHAR);
-			act("$n performs a devastating combo on the $p!", FALSE, ch, ovict,
+			act("$n performs a devastating combo on the $p!", false, ch, ovict,
 				0, TO_ROOM);
 			return;
 		} else {
@@ -481,7 +479,7 @@ ACMD(do_combo)
 																	 * failure */
 	for (i = 0; i < NUM_WEARS; i++) {
         obj_data* obj = GET_EQ(ch, i);
-        if( obj == NULL ) 
+        if( obj == NULL )
             continue;
 		if( GET_OBJ_TYPE(obj) == ITEM_ARMOR ) {
             if(IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
@@ -492,7 +490,6 @@ ACMD(do_combo)
 
 	if( GET_EQ(ch, WEAR_WIELD) )
 		percent += (LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) / 2;
-
 
 	prob = CHECK_SKILL(ch, SKILL_COMBO) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
 
@@ -505,14 +502,13 @@ ACMD(do_combo)
 		prob -= (prob * (ABS(GET_ALIGNMENT(ch)))) / 1000;
 
 	//if we don't have kata and victim is of a non-solid nature we can't hit
-	if (	!affected_by_spell(ch, SKILL_KATA) && 
+	if (	!affected_by_spell(ch, SKILL_KATA) &&
 	    	(IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
 		)
 		prob = 0;
 
-
 	dam = dice(6, GET_LEVEL(ch)/2 ) + GET_DAMROLL(ch);
-    dam = (dam * CHECK_SKILL(ch, SKILL_COMBO)) / 100; 
+    dam = (dam * CHECK_SKILL(ch, SKILL_COMBO)) / 100;
 	GET_MOVE(ch) -= 20;
 
 	//
@@ -595,7 +591,7 @@ ACMD(do_pinch)
 			vict = ch->findRandomCombat();
 		} else if ((ovict = get_obj_in_list_vis(ch, vict_str,
 					ch->in_room->contents))) {
-			act("You can't pinch that.", FALSE, ch, ovict, 0, TO_CHAR);
+			act("You can't pinch that.", false, ch, ovict, 0, TO_CHAR);
 			return;
 		} else {
 			send_to_char(ch, "Pinch who?\r\n");
@@ -604,13 +600,13 @@ ACMD(do_pinch)
 		}
 	}
 	if (vict == ch) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"Using this skill on yourself is probably a bad idea...\r\n");
 		return;
 	}
 	if (GET_EQ(ch, WEAR_WIELD)) {
 		if (IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You are using both hands to wield your weapon right now!\r\n");
 			return;
 		} else if (GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_WIELD_2)) {
@@ -643,9 +639,9 @@ ACMD(do_pinch)
 
     if (which_pinch != SKILL_PINCH_ZETA && ch->checkReputations(vict))
         return;
-    
+
 	if (!CHECK_SKILL(ch, which_pinch)) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You have absolutely no idea how to perform this pinch.\r\n");
 		return;
 	}
@@ -665,12 +661,12 @@ ACMD(do_pinch)
 	if (IS_PUDDING(vict) || IS_SLIME(vict))
 		prob = 0;
 
-	act("$n grabs a nerve on your body!", FALSE, ch, 0, vict, TO_VICT);
-	act("$n suddenly grabs $N!", FALSE, ch, 0, vict, TO_NOTVICT);
+	act("$n grabs a nerve on your body!", false, ch, 0, vict, TO_VICT);
+	act("$n suddenly grabs $N!", false, ch, 0, vict, TO_NOTVICT);
 
 	if (percent > prob || IS_UNDEAD(vict)) {
 		send_to_char(ch, "You fail the pinch!\r\n");
-		act("You quickly shake off $n's attack!", FALSE, ch, 0, vict, TO_VICT);
+		act("You quickly shake off $n's attack!", false, ch, 0, vict, TO_VICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		if (IS_MOB(vict) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
 			hit(vict, ch, TYPE_UNDEFINED);
@@ -720,9 +716,9 @@ ACMD(do_pinch)
 		break;
 	case SKILL_PINCH_OMEGA:
 		if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
-			act("$N stuns you with a swift blow!", FALSE, ch, 0, vict,
+			act("$N stuns you with a swift blow!", false, ch, 0, vict,
 				TO_CHAR);
-			act("$N stuns $n with a swift blow to the neck!", FALSE, ch, 0,
+			act("$N stuns $n with a swift blow to the neck!", false, ch, 0,
 				vict, TO_ROOM);
 			WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 			ch->setPosition(POS_STUNNED);
@@ -761,7 +757,7 @@ ACMD(do_pinch)
 		if (vict->affected) {
 			struct affected_type *doomed_aff, *next_aff;
 			int level;
-			
+
 			level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 1);
 			for (doomed_aff = vict->affected;doomed_aff;doomed_aff = next_aff) {
 				next_aff = doomed_aff->next;
@@ -814,10 +810,9 @@ ACMD(do_pinch)
 		affect_to_char(vict, &af);
 
 	if (to_vict)
-		act(to_vict, FALSE, vict, 0, ch, TO_CHAR);
+		act(to_vict, false, vict, 0, ch, TO_CHAR);
 	if (to_room)
-		act(to_room, FALSE, vict, 0, ch, TO_ROOM);
-
+		act(to_room, false, vict, 0, ch, TO_ROOM);
 
 	gain_skill_prof(ch, which_pinch);
 
@@ -857,11 +852,11 @@ ACMD(do_pinch)
 
 		else if (AFF2_FLAGGED(vict, AFF2_ABLAZE) && !number(0, 3)) {
 			act("You burst into flames on contact with $N!",
-				FALSE, ch, 0, vict, TO_CHAR);
+				false, ch, 0, vict, TO_CHAR);
 			act("$n bursts into flames on contact with $N!",
-				FALSE, ch, 0, vict, TO_NOTVICT);
+				false, ch, 0, vict, TO_NOTVICT);
 			act("$n bursts into flames on contact with you!",
-				FALSE, ch, 0, vict, TO_VICT);
+				false, ch, 0, vict, TO_VICT);
 
             ch->ignite(vict);
 		}
@@ -901,7 +896,7 @@ ACMD(do_meditate)
 	if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
 		REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
 		send_to_char(ch, "You cease to meditate.\r\n");
-		act("$n comes out of a trance.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n comes out of a trance.", true, ch, 0, 0, TO_ROOM);
 		MEDITATE_TIMER(ch) = 0;
 	} else if (ch->isFighting())
 		send_to_char(ch, "You cannot meditate while in battle.\r\n");
@@ -921,7 +916,7 @@ ACMD(do_meditate)
 
 		if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.75)
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"You find it difficult with all your heavy equipment.\r\n");
 			percent += 30;
 		}
@@ -936,7 +931,7 @@ ACMD(do_meditate)
 
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 			WAIT_STATE(ch, PULSE_VIOLENCE * 3);
-		act("$n goes into a trance.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n goes into a trance.", true, ch, 0, 0, TO_ROOM);
 	}
 }
 
@@ -955,7 +950,7 @@ ACMD(do_kata)
 		send_to_char(ch, "You are too spiritually exhausted.\r\n");
 	else {
 		send_to_char(ch, "You carefully perform your finest kata.\r\n");
-		act("$n begins to perform a kata with fluid motions.", TRUE, ch, 0, 0,
+		act("$n begins to perform a kata with fluid motions.", true, ch, 0, 0,
 			TO_ROOM);
 
 		GET_MANA(ch) -= 40;

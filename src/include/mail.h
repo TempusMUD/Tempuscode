@@ -22,7 +22,6 @@ using namespace std;
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 // The vnum of the "letter" object
 extern const int MAIL_OBJ_VNUM;
 
@@ -67,8 +66,6 @@ int store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
 	time_t * cur_time = NULL, struct obj_data *obj_list = NULL);
 int receive_mail(Creature * ch, list<obj_data *> &olist);
 int purge_mail(long idnum);
-
-
 
 // The actual mail file entry struct.
 struct mail_data {

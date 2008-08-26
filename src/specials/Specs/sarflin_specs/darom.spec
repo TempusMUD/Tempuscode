@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 #define QUEST_PATH "etc/"
 #include <string.h>
 
@@ -89,8 +88,8 @@ SPECIAL(darom)
 			read_quest(file_handle);
 			if ((quest_rec.max >= GET_LEVEL(ch))
 				&& (quest_rec.min <= GET_LEVEL(ch))) {
-				act("Darom tells $n something.", TRUE, ch, 0, 0, TO_ROOM);
-				act(quest_rec.quest_desc, TRUE, ch, 0, 0, TO_CHAR);
+				act("Darom tells $n something.", true, ch, 0, 0, TO_ROOM);
+				act(quest_rec.quest_desc, true, ch, 0, 0, TO_CHAR);
 
 			}
 			clear_quest();
@@ -111,8 +110,8 @@ SPECIAL(darom)
 			for (i = 0; i < num_quest; i++) {
 				read_quest(file_handle);
 				if (!strncasecmp(quest_rec.key_wrd, buf2, strlen(buf2))) {
-					act("Darom tells $n something.", TRUE, ch, 0, 0, TO_ROOM);
-					act(quest_rec.first_clue, TRUE, ch, 0, 0, TO_CHAR);
+					act("Darom tells $n something.", true, ch, 0, 0, TO_ROOM);
+					act(quest_rec.first_clue, true, ch, 0, 0, TO_CHAR);
 					flag = 1;
 				}
 				clear_quest();

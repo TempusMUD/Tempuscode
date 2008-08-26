@@ -9,7 +9,7 @@ using namespace std;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 // Undefine CHAR to avoid collisions
-#undef CHAR 
+#undef CHAR
 #include "xml_utils.h"
 #include "screen.h"
 
@@ -60,8 +60,6 @@ namespace Security {
 	extern const char *WIZARDFULL;
 	extern const char *WORLDADMIN;
 
-
-
     /**  Constant Command Flags **/
     const int GROUP = (1 << 0);
 
@@ -75,7 +73,7 @@ namespace Security {
             Group( const Group &g );
             /* Loads a group from it's xmlnode */
             Group( xmlNodePtr node );
-            
+
             /* Adds a command to this group. Fails if already added. */
             bool addCommand( command_info *command );
             int getCommandCount() { return commands.size(); }
@@ -83,10 +81,10 @@ namespace Security {
             bool addMember( const char *name );
             /* Adds a member to this group by player id. Fails if already added. */
             bool addMember( long player );
-            
+
             /* Removes a command from this group. Fails if not a member. */
             bool removeCommand( command_info *command );
-            /* Removes a member from this group by player name. Fails if not a member. */ 
+            /* Removes a member from this group by player name. Fails if not a member. */
             bool removeMember( const char *name );
             /* Removes a member from this group by player id. Fails if not a member. */
             bool removeMember( long player );
@@ -97,10 +95,10 @@ namespace Security {
             bool member( Creature *ch );
             /* membership check for a given command */
             bool member( const command_info *command );
-            
+
             /* membership check for players by player id */
             bool givesAccess( Creature *ch, const command_info *command );
-            
+
             /* Retrieves this group's description */
             const char *getDescription() { return _description; }
             /* sets this group's description */
@@ -115,36 +113,36 @@ namespace Security {
             const char *getAdminGroup() { return _adminGroup; }
             /* sets the name of the group that can admin this group. */
             void setAdminGroup(const char *group);
-            
+
             /* assignment operator. Used by copy constructor and sorting. */
             Group &operator=( const Group &g );
-            /* 
+            /*
              * Equivilance of this groups name with the given name.
              * Used for sorting and searching.
              */
-            bool operator==( const char *name ) 
+            bool operator==( const char *name )
                 { return ( strcasecmp(_name,name) == 0 ); }
-            /* 
+            /*
              * Inequivilance of this groups name with the given name.
              * Used for sorting and searching.
              */
-            bool operator!=( const char *name ) 
+            bool operator!=( const char *name )
                 { return !(*this == name); }
-            /* 
+            /*
              * Less than as defined by strcasecmp() on this._name vs g._name.
              * Used for sorting and searching.
              */
-            bool operator<( const Group& g )  
+            bool operator<( const Group& g )
                 { return ( strcasecmp(_name, g._name) < 0 ); }
-            /* 
+            /*
              * Greater than as defined by strcasecmp() on this._name vs g._name.
              * Used for sorting and searching.
              */
-            bool operator>( const Group& g )  
+            bool operator>( const Group& g )
                 { return ( strcasecmp(_name, g._name) > 0 ); }
 
-            /* 
-			 * Sends a list of this group's members to the given character. 
+            /*
+			 * Sends a list of this group's members to the given character.
 			 * without player id's etc.
 			 *
 			 * @param adminGroup the name of the administrative group for this
@@ -156,12 +154,12 @@ namespace Security {
             bool sendMemberList( Creature *ch );
             /* Sends a list of this group's members to the given character. */
             bool sendCommandList( Creature *ch, bool prefix = true );
-            
+
             /* Create the required xmlnodes to recreate this group; */
             bool save( xmlNodePtr parent );
-            
+
             /* sends a multi-line status of this group to ch */
-            void sendStatus( Creature *ch ); 
+            void sendStatus( Creature *ch );
             /* sprintf's a one line desc of this group into out */
             void sendString(Creature *ch );
 
@@ -178,8 +176,8 @@ namespace Security {
             char *_adminGroup;
 
 			int _id;
-            /** 
-             * resolved on group load/creation. 
+            /**
+             * resolved on group load/creation.
              * Command names stored in file.
              * Pointers sorted as if they're ints.
              **/
@@ -189,7 +187,7 @@ namespace Security {
     };
     /* The list of existing groups (group.cc) */
     extern list<Group> groups;
-    
+
     /**
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
@@ -210,20 +208,20 @@ namespace Security {
 
     /* can this character add/remove characters from this group. **/
     bool canAdminGroup( Creature *ch, const char* groupName );
-    
+
     /* send a list of the current groups to a character */
     void sendGroupList( Creature *ch );
-    /** 
-     * creates a new group with the given name.  
-     * returns false if the name is taken. 
+    /**
+     * creates a new group with the given name.
+     * returns false if the name is taken.
      **/
     bool createGroup( char *name );
-    /** 
-     * removes the group with the given name. 
-     * returns false if there is no such group. 
+    /**
+     * removes the group with the given name.
+     * returns false if there is no such group.
      **/
     bool removeGroup( char *name );
-    
+
     /** returns true if the named group exists. **/
     bool isGroup( const char* name );
     /** retrieves the named group. **/
@@ -234,35 +232,35 @@ namespace Security {
     bool sendCommandList( Creature *ch, char *group_name );
     /** sends a list of the groups that the id is a member if. **/
     bool sendMembership( Creature *ch, long id );
-    /* 
+    /*
      * sends a list of the commands a char has access to and the
      * groups that contain them.
      **/
     bool sendAvailableCommands( Creature *ch, long id );
-    /** 
-     * adds the named command to the named group.  
-     * returns false if either doesn't exist. 
+    /**
+     * adds the named command to the named group.
+     * returns false if either doesn't exist.
      **/
     bool addCommand( char *command, char *group_name );
-    /** 
-     * adds the named character to the named group.  
-     * returns false if either doesn't exist. 
+    /**
+     * adds the named character to the named group.
+     * returns false if either doesn't exist.
      **/
     bool addMember( const char *member, const char *group_name );
-    
-    /** 
-     * removes the named command from the named group.  
-     * returns false if either doesn't exist. 
+
+    /**
+     * removes the named command from the named group.
+     * returns false if either doesn't exist.
      **/
     bool removeCommand( char *command, char *group_name );
-    /** 
-     * removes the named character from the named group.  
-     * returns false if either doesn't exist. 
+    /**
+     * removes the named character from the named group.
+     * returns false if either doesn't exist.
      **/
     bool removeMember( const char *member, const char *group_name );
-    
-    /** 
-     * clears the current security groups and loads new groups and 
+
+    /**
+     * clears the current security groups and loads new groups and
      * membership from the database
      **/
     bool loadGroups(void);
@@ -272,12 +270,12 @@ namespace Security {
      * clears security related memory and shuts the system down.
      */
     void shutdown();
-    
+
     void log( const char* msg, const char* name );
     void log( const char* msg, const long id );
 }
 
-/*  <Security> 
+/*  <Security>
  *    <Group  Name="test"  Description="Testing Group" >
  *      <Member ID="1"/>
  *      <Command Name="look"/>

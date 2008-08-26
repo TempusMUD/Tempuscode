@@ -58,10 +58,10 @@ SPECIAL(nohunger_dude)
 				life_cost);
 			perform_tell(dude, ch, buf);
 		} else {
-			act("$n outstretches $s arms in supplication to the powers that be.", TRUE, dude, 0, 0, TO_ROOM);
+			act("$n outstretches $s arms in supplication to the powers that be.", true, dude, 0, 0, TO_ROOM);
 			send_to_char(ch,
 				"You feel a strange sensation pass through your soul.\r\n");
-			act("A strange expression crosses $N's face...", TRUE, dude, 0, ch,
+			act("A strange expression crosses $N's face...", true, dude, 0, ch,
 				TO_NOTVICT);
 			GET_LIFE_POINTS(ch) -= life_cost;
 			GET_GOLD(ch) -= gold;

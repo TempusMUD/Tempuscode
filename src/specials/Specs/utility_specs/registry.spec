@@ -90,7 +90,7 @@ SPECIAL(registry)
 				perform_tell(reg, ch, "But you don't need to be, EVIL scum!");
 				send_to_char(ch,
 					"You are no longer a resident of the Elven Village.\r\n");
-				act("$n just lost $s residence in the village!", TRUE, ch, 0,
+				act("$n just lost $s residence in the village!", true, ch, 0,
 					0, TO_ROOM);
 				population_record[GET_HOME(ch)]--;
 				GET_HOME(ch) = HOME_MODRIAN;
@@ -139,8 +139,8 @@ SPECIAL(registry)
 
 	if ((cert = read_object(vcert))) {
 		obj_to_char(cert, ch);
-		act("$n presents $N with $p.", FALSE, reg, cert, ch, TO_NOTVICT);
-		act("$n presents you with $p.", FALSE, reg, cert, ch, TO_VICT);
+		act("$n presents $N with $p.", false, reg, cert, ch, TO_NOTVICT);
+		act("$n presents you with $p.", false, reg, cert, ch, TO_VICT);
 	}
 
 	mudlog(GET_INVIS_LVL(ch), CMP, true,

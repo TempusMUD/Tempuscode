@@ -8,7 +8,6 @@ void do_start(struct Creature *ch, int mode);
 // Argument storage for the remorter
 static char arg1[MAX_INPUT_LENGTH];
 
-
 /**
  * This class represents a remort quiz question.
  **/
@@ -147,7 +146,7 @@ static vector <Question> remortQuestions;
 
 /**
  *  Attempts to load the remort quiz from remort_quiz.xml
- *  Makes repeated calls to Quiz(...) pushing them into 
+ *  Makes repeated calls to Quiz(...) pushing them into
  *  remortQuestions as it goes.
 **/
 static inline bool
@@ -184,7 +183,6 @@ load_remort_questions()
 	xmlFreeDoc(doc);
 	return true;
 }
-
 
 class Quiz:private vector < Question * > {
   public:

@@ -32,7 +32,6 @@
 #define MSG_TORM_2    1
 #define MSG_TOCHAR    2
 
-
 #define RM_AFF_FLAGS     NUM_DIRS
 #define RM_AFF_OTHER     (RM_AFF_FLAGS + 1)
 

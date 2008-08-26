@@ -4,7 +4,6 @@
 // Copyright 1999 by John Watson & John Rothe, all rights reserved.
 //
 
-
 struct room_list_struct {
 	struct room_data *room;
 	struct room_list_struct *next;
@@ -30,8 +29,8 @@ SPECIAL(fate)
 			return 0;
 		} else if( CMD_IS("status") ) {
 			send_to_char(ch, "Fate timers: %d, %d, %d\r\n",
-							 fate_timers[0], 
-							 fate_timers[1], 
+							 fate_timers[0],
+							 fate_timers[1],
 							 fate_timers[2] );
 			return 1;
 		} else if( CMD_IS("reset") ) {
@@ -151,13 +150,13 @@ SPECIAL(fate)
 		roomlist = cur_room_list_item;
 	}
 
-	slog("FATE: Fate #%d moving to %d.  Timer reset to %d.", 
-		 which_fate, dest->number, fate_timers[which_fate] ); 
+	slog("FATE: Fate #%d moving to %d.  Timer reset to %d.",
+		 which_fate, dest->number, fate_timers[which_fate] );
 
-	act("$n disappears into a green mist.", FALSE, fate, 0, 0, TO_ROOM);
+	act("$n disappears into a green mist.", false, fate, 0, 0, TO_ROOM);
 	char_from_room(fate, false);
 	char_to_room(fate, dest, false);
 	fate->in_room->zone->idle_time = 0;
-	act("$n appears out of a green mist.", FALSE, fate, 0, 0, TO_ROOM);
+	act("$n appears out of a green mist.", false, fate, 0, 0, TO_ROOM);
 	return 1;
 }

@@ -9,13 +9,13 @@
 using namespace std;
 
 /**
- *  A Templated, doubly-linked, type-safe list that provides "safe iterators" 
+ *  A Templated, doubly-linked, type-safe list that provides "safe iterators"
  *  into it's nodes.  A "safe iterator" is defined as one that is incremented
  *  any time the node it "points to" is removed.
 **/
 template <class T> class SafeList:protected list <T> {
   public:
-	/** 
+	/**
      *  A 'safe iterator' for use with this safelist
      *
     **/
@@ -69,7 +69,7 @@ template <class T> class SafeList:protected list <T> {
 				_list->removeIterator(*this);
 			_list = NULL;
 		}
-		/** 
+		/**
 		 *  Postincrements this iterator.
 		 *  If iterator was previously "saved" then it is set unsaved rather
 		 *    than incremented again.
@@ -84,7 +84,7 @@ template <class T> class SafeList:protected list <T> {
 			++(*this);
 			return it;
 		}
-		/** 
+		/**
 		 *  Preincrements this iterator.
 		 *  If iterator was previously "saved" then it is set unsaved rather
 		 *    than incremented again.
@@ -100,7 +100,7 @@ template <class T> class SafeList:protected list <T> {
 			list <T>::iterator::operator++ ();
 			return *this;
 		}
-		/**  Assignment **/ 
+		/**  Assignment **/
 		iterator & operator = (const iterator & it) {
 			// superclass assignment
 			list <T>::iterator::operator = (it);
@@ -218,7 +218,7 @@ template <class T> class SafeList:protected list <T> {
 		}
 	}
 	list <iterator *>_iterators;
-	
+
 };
 
 #endif

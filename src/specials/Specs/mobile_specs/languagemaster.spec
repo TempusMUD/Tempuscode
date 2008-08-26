@@ -16,9 +16,9 @@ SPECIAL(languagemaster)
     int cost = TONGUE_COST;
 
     cost += (cost * ch->getCostModifier(master)) / 100;
-    
+
 	if (spec_mode != SPECIAL_CMD)
-		return FALSE;
+		return false;
 
 	if (IS_NPC(ch))
 		return 0;
@@ -34,12 +34,12 @@ SPECIAL(languagemaster)
         send_to_char(ch, "What is it you wish to learn?\r\n");
 		return 1;
     }
-    
+
     tongue_idx = find_tongue_idx_by_name(argument);
 
     if (tongue_idx == TONGUE_NONE ||
         CHECK_TONGUE(master, tongue_idx) < 100) {
-        perform_tell(master, ch, 
+        perform_tell(master, ch,
                      "I'm sorry, but I can't teach that language.");
         return 1;
     }
@@ -48,7 +48,7 @@ SPECIAL(languagemaster)
         perform_tell(master, ch, "Sorry, but I can't teach you any more.");
         return 1;
     }
-    
+
 	send_to_char(ch, "It will cost you %d gold coins to learn to speak %s%s\r\n",
                  cost,
                  tongue_name(tongue_idx),

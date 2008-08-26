@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 SPECIAL(beer_tree)
 {
 	struct obj_data *obj = NULL;
@@ -18,7 +17,7 @@ SPECIAL(beer_tree)
 	if (!*argument)
 		return 0;
 
-	if ((beer = search_block(argument, beers, FALSE)) < 0)
+	if ((beer = search_block(argument, beers, false)) < 0)
 		return 0;
 
 	switch (beer) {

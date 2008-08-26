@@ -12,7 +12,7 @@
 ACMD(do_follow);
 ACMD(do_rescue);
 bool affected_by_spell( struct char_data *ch, byte skill );
-int cast_spell(struct Creature *ch, struct Creature *tch, 
+int cast_spell(struct Creature *ch, struct Creature *tch,
                struct obj_data *tobj, int *tdir, int spellnum, int *return_flags);
 
 struct angel_data {
@@ -71,7 +71,7 @@ angel_chat_data angel_chat[] = {
 	{ CLASS_NONE, 100, "spots blood", "respond Most creatures bleed all over the place when they are injured." },
 	{ CLASS_NONE, 100, "enter area", "respond Usually you can just walk in with the directional commands.  Sometimes there's a trick, though." },
 	{ CLASS_NONE, 100, "what channels", "respond Channels are public communications you can use to communicate with other players.  You can get a list with the 'toggle' command." },
-    
+
     // Basic information about places
 	{ CLASS_NONE, 100, "where get eat", "respond You can find food at various shops, like the bakery" },
 	{ CLASS_NONE, 100, "where food", "respond You can find food at various shops, like the bakery" },
@@ -195,7 +195,7 @@ angel_chat_data angel_chat[] = {
 
 struct angel_spell_data {
     int spell_no;
-    const char *text;    
+    const char *text;
 };
 
 angel_spell_data angel_spells[] = {
@@ -307,7 +307,7 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
 	if (!strcmp(cmd, "respond")) {
 		angel_do_respond(self, data, action);
 		result = 1;
-	} 
+	}
     else if (!strcmp(cmd, "cast")) {
         char *spell = tmp_getword(&action);
         int spell_no = atoi(spell);
@@ -418,7 +418,7 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 	// Everything below here only applies to not fighting
 	if (charge->isFighting())
 		return 0;
-	
+
 	if ((!GET_COND(charge, FULL) || !GET_COND(charge, THIRST))
 			&& !IS_SET(data->flags, ANGEL_CONSUME)) {
 		perform_say_to(self, charge, "You regenerate hitpoints, mana, and move much faster if you aren't hungry or thirsty.");
@@ -566,7 +566,7 @@ SPECIAL(guardian_angel)
 	// Below here only applies with bound angels
 	if (!data)
 		return 0;
-	
+
 	charge = get_char_in_world_by_idnum(data->charge_id);
 	if (!charge && data->counter < 0) {
         // When the charge couldn't be found, disappear immediately
@@ -586,7 +586,7 @@ SPECIAL(guardian_angel)
 
 	if (spec_mode != SPECIAL_CMD || IS_NPC(ch))
 		return 0;
-	
+
 	if (ch == charge && CMD_IS("kill") && isname(tmp_getword(&argument), self->player.name)) {
 		perform_tell(self, charge, "I see you can get along without my help.  Jerk.");
 		act("$n disappears in a bright flash of light!",
@@ -599,7 +599,7 @@ SPECIAL(guardian_angel)
 	if (cmd_info[cmd].command_pointer != do_whisper &&
 			cmd_info[cmd].command_pointer != do_say)
 		return 0;
-	
+
 	// Require self alias to be the first word unless they're using
 	// the 'say' command and they're the only creature in the room
 	arg = argument;
@@ -609,7 +609,7 @@ SPECIAL(guardian_angel)
 		if (!isname_exact(tmp_getword(&arg), self->player.name))
 			return 0;
 	}
-	
+
 	data->public_response = (cmd_info[cmd].command_pointer == do_say);
 	data->respond_to = GET_IDNUM(ch);
 

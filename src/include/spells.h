@@ -194,7 +194,7 @@ static const int SPELL_MINOR_IDENTIFY = 71;
 static const int SPELL_FLY = 72;
 static const int SPELL_GREATER_HEAL = 73;
 static const int SPELL_CONE_COLD = 74;
-static const int SPELL_TRUE_SEEING = 75;
+static const int SPELL_true_SEEING = 75;
 static const int SPELL_PROT_FROM_GOOD = 76;
 static const int SPELL_MAGICAL_PROT = 77;
 static const int SPELL_UNDEAD_PROT = 78;
@@ -265,7 +265,7 @@ static const int SPELL_VAMPIRIC_REGENERATION = 142;	// evil cleric vamp. regen
 static const int SPELL_BANISHMENT = 143;	// evil cleric sends devils away
 static const int SPELL_CONTROL_UNDEAD = 144;	// evil clerics charm undead
 static const int SPELL_STONESKIN = 145;	// remort rangers stone skin
-static const int SPELL_SUN_RAY = 146;	// Good cleric remort, 
+static const int SPELL_SUN_RAY = 146;	// Good cleric remort,
 											 // destroys undead.
 static const int SPELL_TAINT = 147;	// Evil knight remort spell, taint.
 static const int SPELL_LOCUST_REGENERATION = 148;	// Mage remort skill, drains mana
@@ -564,7 +564,6 @@ static const int SKILL_PIPEMAKING = 610;	//Make a pipe!
 static const int SKILL_CHARGE = 611;	// BANG!
 static const int SKILL_COUNTER_ATTACK = 612;
 
-
   /*****************  CYBORG SKILLS  ********************/
 static const int SKILL_RECONFIGURE = 613;	// Re-allocate stats
 static const int SKILL_REBOOT = 614;	// Start over from scratch
@@ -573,10 +572,10 @@ static const int SKILL_STASIS = 616;	// State of rapid healing
 static const int SKILL_ENERGY_FIELD = 617;	// Protective field
 static const int SKILL_REFLEX_BOOST = 618;	// Speeds up processes
 static const int SKILL_POWER_BOOST = 619;	// Increases Strength
-static const int SKILL_UNUSED_1 = 620;	//  
+static const int SKILL_UNUSED_1 = 620;	//
 static const int SKILL_FASTBOOT = 621;	// Reboots are faster
 static const int SKILL_SELF_DESTRUCT = 622;	// Effective self destructs
-static const int SKILL_UNUSED_2 = 623;	//  
+static const int SKILL_UNUSED_2 = 623;	//
 static const int SKILL_BIOSCAN = 624;	// Sense Life scan
 static const int SKILL_DISCHARGE = 625;	// Discharge attack
 static const int SKILL_SELFREPAIR = 626;	// Repair hit points
@@ -584,7 +583,7 @@ static const int SKILL_CYBOREPAIR = 627;	// Repair other borgs
 static const int SKILL_OVERHAUL = 628;	// Overhaul other borgs
 static const int SKILL_DAMAGE_CONTROL = 629;	// Damage Control System
 static const int SKILL_ELECTRONICS = 630;	// Operation of Electronics
-static const int SKILL_HACKING = 631;	// hack electronic systems 
+static const int SKILL_HACKING = 631;	// hack electronic systems
 static const int SKILL_CYBERSCAN = 632;	// scan others for implants
 static const int SKILL_CYBO_SURGERY = 633;	// implant objects
 static const int SKILL_ENERGY_WEAPONS = 634;	// energy weapon use
@@ -633,7 +632,7 @@ static const int SKILL_SHOULDER_THROW = 671;	// grounding skill between hiptoss
 // Bard Skills
 static const int SKILL_SCREAM = 672; // damage like psiblast, chance to stun
 static const int SKILL_VENTRILOQUISM = 673; // makes objects talk
-static const int SKILL_TUMBLING = 674; // like uncanny dodge 
+static const int SKILL_TUMBLING = 674; // like uncanny dodge
 static const int SKILL_LINGERING_SONG = 676; // increases duration of song affects
 
 // Overflow Cyborg
@@ -656,7 +655,6 @@ static const int SKILL_ARCHERY = 688;
 static const int SKILL_BOW_FLETCH = 689;
 static const int SKILL_READ_SCROLLS = 690;
 static const int SKILL_USE_WANDS = 691;
-
 
 /* New skills may be added here up to MAX_SKILLS (700) */
 static const int SKILL_DISCIPLINE_OF_STEEL = 692;
@@ -734,7 +732,6 @@ static const int TOP_NPC_SPELL = 770;
 static const int TOP_SPELL_DEFINE = 799;
 /* NEW NPC/OBJECT SPELLS can be inserted here up to 799 */
 
-
 /* WEAPON ATTACK TYPES */
 
 static const int TYPE_HIT = 800;
@@ -757,7 +754,6 @@ static const int TYPE_RIP = 816;
 static const int TYPE_CHOP = 817;
 static const int TYPE_SHOOT = 818;
 
-
 static const int TOP_ATTACKTYPE = 819;
 /* new attack types can be added here - up to TYPE_SUFFERING */
 
@@ -775,7 +771,6 @@ static const int TYPE_EGUN_TOP = 828;
 //energy weapon spec types
 static const int TYPE_EGUN_SPEC_LIGHTNING = 831;
 static const int TYPE_EGUN_SPEC_SONIC = 832;
-
 
 static const int TYPE_CRUSHING_DEPTH = 892;	// in deep ocean without vehicle
 static const int TYPE_TAINT_BURN = 893;	// casting while tainted
@@ -854,7 +849,6 @@ static const int SPELL_TYPE_WAND = 2;
 static const int SPELL_TYPE_STAFF = 3;
 static const int SPELL_TYPE_SCROLL = 4;
 
-
 /* Attacktypes with grammar */
 
 struct attack_hit_type {
@@ -867,7 +861,6 @@ struct gun_hit_type {
     const char *plural;
     const char *substance;
 };
-
 
 #define ASPELL(spellname) \
 	void spellname(__attribute__ ((unused)) int level, \
@@ -999,6 +992,5 @@ int cast_spell(struct Creature *ch, struct Creature *tch,
 int mag_savingthrow(struct Creature *ch, int level, int type);
 
 int mag_manacost(struct Creature *ch, int spellnum);
-
 
 #endif

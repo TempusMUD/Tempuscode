@@ -21,7 +21,7 @@ SPECIAL(wand_of_wonder)
     char *arg = tmp_getword(&argument);
     if (!isname(arg, self->aliases))
 		return 0;
-    
+
     // they're about to use it, randomize the spell and let pass
     // through
     int selected_spell = 0;

@@ -32,19 +32,19 @@ do_gen_improve(struct Creature *ch, struct Creature *trainer, int cmd, int mode,
 	int max_stat;
 
 	if ((!CMD_IS("improve") && !CMD_IS("train")) || IS_NPC(ch))
-		return FALSE;
+		return false;
 
 	if (GET_LEVEL(ch) < 10) {
 		send_to_char(ch, "You are not yet ready to improve this way.\r\n");
 		send_to_char(ch, "Come back when you are level 10 or above.\r\n");
-		return TRUE;
+		return true;
 	}
 
 	gold = REAL_STAT * GET_LEVEL(ch) * 50;
 	if (mode == MODE_STR && IS_MAGE(ch))
 		gold <<= 1;
     gold += (gold*ch->getCostModifier(trainer))/100;
-    
+
 	life_cost = MAX(6, (REAL_STAT << 1) - (GET_WIS(ch)));
 
 	skip_spaces(&argument);
@@ -69,7 +69,7 @@ do_gen_improve(struct Creature *ch, struct Creature *trainer, int cmd, int mode,
             max_stat = get_max_wis(ch);
             break;
         default:
-            return FALSE;
+            return false;
 	}
 
 	if (!*argument) {
@@ -79,7 +79,7 @@ do_gen_improve(struct Creature *ch, struct Creature *trainer, int cmd, int mode,
 					&& ch->real_abils.str_add < 100))) {
 			send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
 				CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
-			return TRUE;
+			return true;
 		}
 
 		send_to_char(ch,
@@ -87,7 +87,7 @@ do_gen_improve(struct Creature *ch, struct Creature *trainer, int cmd, int mode,
 			gold, life_cost, improve_modes[mode]);
 		sprintf(buf, "$n considers the implications of improving $s %s.",
 			improve_modes[mode]);
-		act(buf, TRUE, ch, 0, 0, TO_ROOM);
+		act(buf, true, ch, 0, 0, TO_ROOM);
 		if (GET_GOLD(ch) < gold)
 			send_to_char(ch,
 				"But you do not have enough gold on you for that.\r\n");
@@ -95,13 +95,13 @@ do_gen_improve(struct Creature *ch, struct Creature *trainer, int cmd, int mode,
 			send_to_char(ch,
 				"But you do not have enough life points for that.\r\n");
 
-		return TRUE;
+		return true;
 	}
 
 	if (!is_abbrev(argument, improve_modes[mode])) {
 		send_to_char(ch, "The only thing you can improve here is %s.\r\n",
 			improve_modes[mode]);
-		return TRUE;
+		return true;
 	}
 
 	if (REAL_STAT >= max_stat &&	// Thier stat is maxed
@@ -110,7 +110,7 @@ do_gen_improve(struct Creature *ch, struct Creature *trainer, int cmd, int mode,
 				&& ch->real_abils.str_add < 100))) {
 		send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
 			CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
-		return TRUE;
+		return true;
 	}
 
 	if (GET_GOLD(ch) < gold) {
@@ -166,11 +166,11 @@ do_gen_improve(struct Creature *ch, struct Creature *trainer, int cmd, int mode,
 			ch->real_abils.str_add, ch->in_room->number);
 
 	send_to_char(ch, "You begin your training.\r\n");
-	act("$n begins to train.", FALSE, ch, 0, 0, TO_ROOM);
+	act("$n begins to train.", false, ch, 0, 0, TO_ROOM);
 	WAIT_STATE(ch, REAL_STAT RL_SEC);
 	ch->saveToXML();
 
-	return TRUE;
+	return true;
 }
 
 SPECIAL(improve_dex)

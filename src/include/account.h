@@ -88,15 +88,15 @@ class Account {
 		void withdraw_future_bank(money_t amt);
 
 		void set_password(const char *password);
-		
+
 		inline const char* get_login_addr() { return _login_addr; }
 		inline const char* get_creation_addr() { return _creation_addr; }
-		
+
         inline time_t get_login_time() { return _login_time; }
         inline time_t get_creation_time() { return _creation_time; }
 		inline time_t get_entry_time() { return _entry_time; }
 		void update_last_entry(void);
-        
+
 		bool isTrusted(long idnum);
 		void trust(long idnum);
 		void distrust(long idnum);
@@ -107,7 +107,7 @@ class Account {
         int hasCharGen(int level);
 
         int countGens();
-        
+
 		class cmp {
 			public:
 				bool operator()(const Account *s1, const Account *s2) const

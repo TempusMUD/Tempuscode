@@ -43,7 +43,7 @@ ACMD(do_map)
 	if (theMap.build(stayzone)) {
 		theMap.display(rows, columns);
 		if (theMap.full) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Room mapping limit reached. Some rooms not mapped.\r\n");
 		}
 		send_to_char(ch, "%d rooms processed.\r\n", theMap.processed);
@@ -452,7 +452,6 @@ Mapper::build(bool stayzone)
 	MapToken *token = NULL;
 	MapToken *curToken;
 
-
 	// Make sure we are really going to map.
 
 	curRoom = ch->in_room;
@@ -463,7 +462,7 @@ Mapper::build(bool stayzone)
 			break;
 	}
 	if (i >= 4) {				// no exits
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You glance around and take note of your vast surroundings.\r\n");
 		return false;
 	}
@@ -477,9 +476,8 @@ Mapper::build(bool stayzone)
 		for (curRoom = zone->world; curRoom; curRoom = curRoom->next)
 			curRoom->find_first_step_index = 0;
 
-
 	// Queue up the first room
-	//         MapToken( int d, int r, int c, room_data *s, room_data *t ); 
+	//         MapToken( int d, int r, int c, room_data *s, room_data *t );
 
 	token = new MapToken(Up, row, col, ch->in_room, ch->in_room);
 	push(token);
@@ -502,7 +500,6 @@ Mapper::build(bool stayzone)
 				curToken->row, curToken->column))
 			drawLink(curToken->getSource(), curToken->getTarget(),
 				curToken->row, curToken->column);
-
 
 		if (!full) {
 			room_direction_data *exit = NULL;
@@ -559,7 +556,6 @@ Mapper::build(bool stayzone)
 		curToken->clear();
 		delete curToken;
 	}
-
 
 	// Set the current position pixel
 	// terrain 125 (*), exits 5 ( magenta )

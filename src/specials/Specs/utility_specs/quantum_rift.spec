@@ -4,7 +4,6 @@
 // Copyright 1999 by John Watson & John Rothe, all rights reserved.
 //
 
-
 SPECIAL(quantum_rift)
 {
 	struct obj_data *rift = (struct obj_data *)me;

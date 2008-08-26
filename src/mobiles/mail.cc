@@ -120,7 +120,7 @@ mail_box_status(long id)
     return flag;
 }
 
-// Like it says, store the mail.  
+// Like it says, store the mail.
 // Returns 0 if mail not stored.
 int
 store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
@@ -133,18 +133,18 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
     struct stat stat_buf;
     time_t now = time(NULL);
     list<obj_data*> mailBag;
-    
+
     // NO zero length mail!
     // This should never happen.
     if (!txt || !strlen(txt)) {
-        send_to_char(get_char_in_world_by_idnum(from_id), 
+        send_to_char(get_char_in_world_by_idnum(from_id),
                      "Why would you send a blank message?\r\n");
         return 0;
     }
-    
+
     // Recipient is frozen, buried, or deleted
     if (!can_receive_mail(to_id)) {
-        send_to_char(get_char_in_world_by_idnum(from_id), 
+        send_to_char(get_char_in_world_by_idnum(from_id),
                      "%s doesn't seem to be able to receive mail.\r\n",
             playerIndex.getName(to_id));
         return 0;
@@ -161,11 +161,10 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
     if (stat(mail_file_path, &stat_buf) == 0)
         mailBag = load_mail(mail_file_path);
 
-
     obj = read_object(MAIL_OBJ_VNUM);
     time_str = asctime(localtime(&now));
     *(time_str + strlen(time_str) - 1) = '\0';
-     
+
 	acc_string_clear();
     acc_sprintf(" * * * *  Tempus Mail System  * * * *\r\n"
 		"Date: %s\r\n  To: %s\r\nFrom: %s",
@@ -188,14 +187,14 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
         }
     }
 	acc_strcat("\r\n\r\n", txt, NULL);
-    
+
     obj->action_desc = strdup(acc_get_string());
-    
+
     obj->plrtext_len = strlen(obj->action_desc) + 1;
     mailBag.push_back(obj);
-    
+
     if ((ofile = fopen(mail_file_path, "w")) == NULL) {
-        errlog("Unable to open xml mail file '%s': %s", 
+        errlog("Unable to open xml mail file '%s': %s",
              mail_file_path, strerror(errno) );
         return 0;
     }
@@ -218,7 +217,7 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
         fprintf(ofile, "</objects>");
         fclose(ofile);
     }
-    
+
     return 1;
 }
 
@@ -247,24 +246,24 @@ receive_mail(Creature * ch, list<struct obj_data *> &olist)
     char *path = get_mail_file_path( GET_IDNUM(ch) );
     bool container = false;
     list<obj_data *> mailBag;
-    
+
     mailBag = load_mail(path);
 
     if (mailBag.size() > MAIL_BAG_THRESH )
         container = true;
-        
+
     list<obj_data *>::iterator oi;
-    
+
     obj_data *obj = NULL;
     if (container)
         obj = read_object(MAIL_BAG_OBJ_VNUM);
-        
+
     for (oi = mailBag.begin(); oi != mailBag.end(); oi++) {
         counter++;
 
         if (GET_OBJ_VNUM(*oi) == MAIL_OBJ_VNUM)
             num_letters++;
-        else 
+        else
             olist.push_back((*oi));
 
         if ((counter > MAIL_BAG_OBJ_CONTAINS) && container) {
@@ -284,10 +283,9 @@ receive_mail(Creature * ch, list<struct obj_data *> &olist)
         obj_to_char(obj, ch);
 
     unlink(path);
-    
+
    return num_letters;
 }
-
 
 list<obj_data *> load_mail(char *path)
 {
@@ -296,7 +294,7 @@ list<obj_data *> load_mail(char *path)
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
-			errlog("Unable to open xml mail file '%s': %s", 
+			errlog("Unable to open xml mail file '%s': %s",
 				 path, strerror(errno) );
 			return mailBag;
 		} else {
@@ -350,8 +348,7 @@ SPECIAL(postmaster)
 		return 0;
 	}
 
-
-    if( spec_mode != SPECIAL_CMD ) 
+    if( spec_mode != SPECIAL_CMD )
         return 0;
 
     if (!ch || !ch->desc || IS_NPC(ch))
@@ -372,7 +369,6 @@ SPECIAL(postmaster)
     } else
         return 0;
 }
-
 
 void
 postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
@@ -452,7 +448,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
                     total_cost += 1000000;
                 else
                     total_cost += STAMP_PRICE;
-                
+
                 CREATE(n_mail_to, struct mail_recipient_data, 1);
                 n_mail_to->next = mail_list;
                 n_mail_to->recpt_idnum = recipient;
@@ -501,7 +497,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
         }
     }
 
-    act("$n starts to write some mail.", TRUE, ch, 0, 0, TO_ROOM);
+    act("$n starts to write some mail.", true, ch, 0, 0, TO_ROOM);
     sprintf(buf2, "I'll take %d coins for the postage.", total_cost);
     perform_tell(mailman, ch, buf2);
 
@@ -570,7 +566,7 @@ postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
         list<struct obj_data *>::iterator li = olist.begin();
         unsigned counter = 0;
         for (; li != olist.end(); ++li) {
-            counter++;             
+            counter++;
             if (counter == olist.size()) {
                 to_char = tmp_strcat(to_char, " and ", (*li)->name, ".", NULL);
             }
@@ -583,9 +579,9 @@ postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
         to_char = tmp_strcat(to_char, ".", NULL);
         to_room = tmp_strcat(to_room, ".", NULL);
     }
-    
-    act(to_char, FALSE, mailman, 0, ch, TO_VICT);
-    act(to_room, FALSE, mailman, 0, ch, TO_NOTVICT);
-    
+
+    act(to_char, false, mailman, 0, ch, TO_VICT);
+    act(to_room, false, mailman, 0, ch, TO_NOTVICT);
+
     ch->saveToXML();
 }

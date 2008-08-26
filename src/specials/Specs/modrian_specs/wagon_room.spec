@@ -22,14 +22,14 @@ SPECIAL(wagon_room)
 		mudlog(LVL_DEMI, BRF, true,
 			"WARNING: Chars may be trapped in wagon (room 10)!");
 		act("You suddenly realize that reality is not what it seems to be...",
-			FALSE, ch, 0, 0, TO_CHAR);
+			false, ch, 0, 0, TO_CHAR);
 		return 1;
 	}
 
 	if (i->in_room < 0) {
 		errlog("Wagon_obj(10)->in_room < 0!!!  Aww shit!");
 		act("You suddenly realize that reality is not what it seems to be...",
-			FALSE, ch, 0, 0, TO_CHAR);
+			false, ch, 0, 0, TO_CHAR);
 		return 1;
 	}
 
@@ -41,18 +41,18 @@ SPECIAL(wagon_room)
 			return 0;
 		send_to_char(ch, "You look off the side of the wagon...\r\n\r\n");
 		look_at_room(ch, i->in_room, 1);
-		return TRUE;
+		return true;
 	}
 
 	if (CMD_IS("disembark") || CMD_IS("leave")) {
 		send_to_char(ch, "You leap off the side of the wagon.\r\n\r\n");
-		act("$n leaps off the side of the wagon.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n leaps off the side of the wagon.", true, ch, 0, 0, TO_ROOM);
 
 		char_from_room(ch, false);
 		char_to_room(ch, i->in_room, false);
 		look_at_room(ch, ch->in_room, 0);
 
-		act("$n leaps off the wagon and lands near you.", TRUE, ch, 0, 0,
+		act("$n leaps off the wagon and lands near you.", true, ch, 0, 0,
 			TO_ROOM);
 		return 1;
 	}

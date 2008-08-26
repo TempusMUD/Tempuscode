@@ -21,7 +21,7 @@ SPECIAL(newbie_healer)
 		if (i == ch)
 			continue;
 		if (IS_NPC(i)) {
-			act("$n banishes $N!", FALSE, ch, 0, i, TO_ROOM);
+			act("$n banishes $N!", false, ch, 0, i, TO_ROOM);
 			i->purge(false);
 			continue;
 		}
@@ -42,7 +42,7 @@ SPECIAL(newbie_healer)
 		}
 	}
 	for (p = ch->carrying; p; p = p->next_content) {
-		act("$p.", FALSE, ch, p, 0, TO_CHAR);
+		act("$p.", false, ch, p, 0, TO_CHAR);
 		if (GET_OBJ_TYPE(p) == ITEM_WORN)
 			cast_spell(ch, 0, p, NULL, SPELL_MAGICAL_VESTMENT);
 		else

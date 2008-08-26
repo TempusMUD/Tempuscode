@@ -12,7 +12,7 @@ void acc_vsprintf(const char *fmt, va_list args);
 
 // sprintf into the string accumulator
 void acc_sprintf(const char *fmt, ...)
-	__attribute__ ((format (printf, 1, 2))); 
+	__attribute__ ((format (printf, 1, 2)));
 
 // strcat into a string accumulator.  You must terminate the arguments with
 // a NULL, since the va_arg method is too stupid to give us the number of

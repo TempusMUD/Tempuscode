@@ -23,10 +23,10 @@ SPECIAL(blue_pulsar)
 	if (!(beer = read_object(beer_vnum)))
 		errlog("Blue Pulsar beer not in database.");
 	else {
-		act("$N yells, 'BEER!!!!'", FALSE, ch, 0, 0, TO_NOTVICT);
-		act("$n throws $p across the room to $N!", FALSE, bartender, beer, ch,
+		act("$N yells, 'BEER!!!!'", false, ch, 0, 0, TO_NOTVICT);
+		act("$n throws $p across the room to $N!", false, bartender, beer, ch,
 			TO_NOTVICT);
-		act("$n throws $p to you.", FALSE, bartender, beer, ch, TO_VICT);
+		act("$n throws $p to you.", false, bartender, beer, ch, TO_VICT);
 		return 1;
 	}
 	return 0;

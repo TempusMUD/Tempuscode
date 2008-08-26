@@ -31,8 +31,8 @@ SPECIAL(underwater_predator)
 			if ((STRENGTH_APPLY_INDEX(pred) + number(1, 6) >
 					STRENGTH_APPLY_INDEX(vict))) {
 
-				act("$n drags you under!!!", FALSE, pred, 0, vict, TO_VICT);
-				act("$n drags $N under!!!", FALSE, pred, 0, vict, TO_NOTVICT);
+				act("$n drags you under!!!", false, pred, 0, vict, TO_VICT);
+				act("$n drags $N under!!!", false, pred, 0, vict, TO_NOTVICT);
 				char_from_room(pred, false);
 				char_to_room(pred, troom, false);
 				char_from_room(vict, false);
@@ -40,7 +40,7 @@ SPECIAL(underwater_predator)
 				look_at_room(vict, vict->in_room, 0);
 
 				act("$N is dragged, struggling,  in from above by $n!!",
-					FALSE, pred, 0, vict, TO_NOTVICT);
+					false, pred, 0, vict, TO_NOTVICT);
 
 				WAIT_STATE(pred, PULSE_VIOLENCE);
 				return 1;
@@ -51,7 +51,7 @@ SPECIAL(underwater_predator)
 			|| SECT_TYPE(pred->in_room) == SECT_DEEP_OCEAN) &&
 		EXIT(pred, UP) &&
 		((troom = EXIT(pred, UP)->to_room) != NULL) &&
-		!ROOM_FLAGGED(troom, ROOM_NOMOB | ROOM_PEACEFUL | 
+		!ROOM_FLAGGED(troom, ROOM_NOMOB | ROOM_PEACEFUL |
                       ROOM_DEATH | ROOM_GODROOM)) {
 		CreatureList::iterator it = troom->people.begin();
 		for (; it != troom->people.end(); ++it) {
@@ -66,12 +66,12 @@ SPECIAL(underwater_predator)
 				continue;
 
 			act("$n cruises up out of sight with deadly intention.",
-				TRUE, pred, 0, 0, TO_ROOM);
+				true, pred, 0, 0, TO_ROOM);
 			char_from_room(pred, false);
 
 			char_to_room(pred, troom, false);
 			act("$n emerges from the depths and attacks!!!",
-				TRUE, pred, 0, 0, TO_ROOM);
+				true, pred, 0, 0, TO_ROOM);
 
 			hit(pred, vict, TYPE_UNDEFINED);
 			return 1;

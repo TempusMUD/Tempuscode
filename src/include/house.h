@@ -14,7 +14,7 @@ class Creature;
 class obj_data;
 class room_data;
 
-static inline char* 
+static inline char*
 get_house_file_path( int id )
 {
 	return tmp_sprintf( "players/housing/%d/%04d.dat", (id % 10), id );
@@ -23,7 +23,7 @@ get_house_file_path( int id )
 // Modes used for match_houses
 enum HC_SearchModes { INVALID=0, HC_OWNER, HC_LANDLORD, HC_GUEST };
 
-class House 
+class House
 {
 	public:
 		static const unsigned int MAX_GUESTS = 50;
@@ -62,7 +62,7 @@ class House
 		RoomList rooms;
 
 		// Loads a room and it's contents from the given node
-		bool loadRoom( xmlNodePtr node ); 
+		bool loadRoom( xmlNodePtr node );
 		// Finds the most expensive object in the house.
 		obj_data* findCostliestObj();
 		// Finds the most expensive object in the given room
@@ -128,7 +128,7 @@ class House
 		bool hasRoom( room_num room ) const;
 		// returns true if the given room is part of this house
 		bool hasRoom( room_data *room ) const;
-		
+
 		// retrieves the number of repo notes currently stored in this house
 		unsigned int getRepoNoteCount() const { return repoNotes.size(); }
 		// retrieves the given repo note
@@ -136,7 +136,6 @@ class House
 		// removes all repo notes
 		void clearRepoNotes() { repoNotes.erase( repoNotes.begin(), repoNotes.end() ); }
 		void notifyReposession( Creature *ch );
-
 
 		// retrieves the rent charged per day on this house
 		int getRentalRate() const { return rentalRate; }
@@ -155,7 +154,7 @@ class House
 		void listRooms( Creature *ch, bool showContents = false );
 		void listGuests( Creature *ch );
 		void display( Creature *ch );
-		
+
 		House& operator=( const House &h );
 		// Comparators for sorting
 		bool operator==( const House &h ) const { return id == h.id; }
@@ -164,20 +163,19 @@ class House
 		bool operator> ( const House &h ) const { return id >  h.id; }
 };
 
-
-class HouseControl : private std::vector<House*> 
+class HouseControl : private std::vector<House*>
 {
 	private:
 		// the last time rent was paid.
 		time_t lastCollection;
 		int topId;
-		class HouseComparator { 
+		class HouseComparator {
 			public:
 				bool operator()( House *a, House *b ) {
 					return a->getID() < b->getID();
 				}
 		};
-		
+
 	public:
 		HouseControl() : lastCollection(0), topId(0) { }
 		// saves the house control file and all house contents
@@ -225,7 +223,6 @@ House_can_enter( Creature *ch, room_num room )
 {
 	return Housing.canEnter( ch, room );
 }
-
 
 #define TOROOM(room, dir) (world[room].dir_option[dir] ? \
 			    world[room].dir_option[dir]->to_room : NOWHERE)

@@ -8,13 +8,11 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 /* Sun state for weather_data */
 #define SUN_DARK	0
 #define SUN_RISE	1
 #define SUN_LIGHT	2
 #define SUN_SET		3
-
 
 /* Sky conditions for weather_data */
 #define SKY_CLOUDLESS	0
@@ -37,7 +35,6 @@
 #define MOON_SKY_HIGH      3
 #define MOON_SKY_WEST      4
 #define MOON_SKY_SET       5
-
 
 struct weather_data {
 	int pressure;				/* How is the pressure ( Mb ) */

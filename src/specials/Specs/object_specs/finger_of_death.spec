@@ -11,18 +11,18 @@ SPECIAL(finger_of_death)
 
 	if (!CMD_IS("activate"))
 		return 0;
-	
+
 	Tokenizer tokens(argument);
 	char token[256];
 
 	if(!tokens.next(token))
 		return 0;
-	
+
 	if (!isname(token, finger->aliases))
 		return 0;
 
 	if (!tokens.next(token)) {
-        send_to_char(ch, "%s has %d charges remaining.\r\n", 
+        send_to_char(ch, "%s has %d charges remaining.\r\n",
                      finger->name, GET_OBJ_VAL(finger,0) );
         send_to_char(ch, "Usage: 'activate %s <mobile name>'\r\n",
                      finger->name);
@@ -36,14 +36,14 @@ SPECIAL(finger_of_death)
     if( target == NULL ) {
         send_to_char(ch, "There doesn't seem to be a '%s' here.\r\n", token);
     } else if( IS_PC(target) ) {
-        act("$n gives you the finger.", TRUE, ch, finger, target, TO_VICT);
-        act("You give $N the finger.", TRUE, ch, finger, target, TO_CHAR);
+        act("$n gives you the finger.", true, ch, finger, target, TO_VICT);
+        act("You give $N the finger.", true, ch, finger, target, TO_CHAR);
     } else {
-        act("$n disintegrates $N with $p.", FALSE, ch, finger, target, TO_NOTVICT);
-        act("$n disintegrates you with $p.", FALSE, ch, finger, target, TO_VICT);
-        act("You give $N the finger, destroying it utterly.", TRUE, ch, finger, target, TO_CHAR);
+        act("$n disintegrates $N with $p.", false, ch, finger, target, TO_NOTVICT);
+        act("$n disintegrates you with $p.", false, ch, finger, target, TO_VICT);
+        act("You give $N the finger, destroying it utterly.", true, ch, finger, target, TO_CHAR);
 		mudlog( 0, BRF, true, "(f0d) %s has purged %s with %s at %d",
-				GET_NAME(ch), GET_NAME(target), 
+				GET_NAME(ch), GET_NAME(target),
 				finger->name, target->in_room->number);
         target->purge(true);
         GET_OBJ_VAL(finger,0) -= 1;

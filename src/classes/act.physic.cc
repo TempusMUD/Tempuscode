@@ -11,7 +11,7 @@
 /*
   //
   ************************************************************************
-  
+
   State of the physics:
 
   #define SPELL_ACIDITY              301
@@ -39,9 +39,9 @@
   complete
 
   #define SPELL_RANDOM_COORDINATES   309  // random teleport
-  complete 
+  complete
 
-  #define SPELL_REPULSION_FIELD      310  
+  #define SPELL_REPULSION_FIELD      310
   complete
 
   #define SPELL_TRANSMITTANCE        311  // transparency
@@ -75,7 +75,6 @@
   complete
 
   #define SPELL_UNUSED_321
-  
 
   #define SPELL_ENTROPY_FIELD        322  // drains move on victim (time effect)
   complete
@@ -88,7 +87,7 @@
 
   #define SPELL_ELECTRIC_ARC         325  // lightning bolt
   complete
-  
+
   #define SPELL_SONIC_BOOM           326  // area damage + wait state
   incomplete
 
@@ -96,11 +95,11 @@
   complete
 
   #define SPELL_NULLIFY              328  // like dispel magic
-  
+
   #define SPELL_FORCE_WALL           329  // sets up an exit blocker
   incomplete
 
-  #define SPELL_UNUSED_330           330  // 
+  #define SPELL_UNUSED_330           330  //
 
   #define SPELL_PHASING              331  // invuln.
   incomplete
@@ -136,7 +135,7 @@
 
   #define SKILL_WORMHOLE              599 // physic's wormhole
   complete
-  
+
   #define SKILL_LECTURE               600 // physic's boring-ass lecture
   complete
 
@@ -145,7 +144,6 @@
   #define SPELL_EMP_PULSE            342  // Shuts off devices, communicators
                                           // deactivats all cyborg programs
                                           // blocked by emp shield
-
 
   ************************************************************************
   //
@@ -244,26 +242,26 @@ ACMD(do_lecture)
         return;
 
 	if (!AWAKE(vict)) {
-		act("$E is not in a state which is receptive to the finer points of lecturing.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$E is not in a state which is receptive to the finer points of lecturing.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 	if (CHECK_SKILL(ch, SKILL_LECTURE) < 30) {
-		act("$n explains the finer points of gravity, by tossing $mself to the ground!", FALSE, ch, 0, 0, TO_ROOM);
-		act("Your flying leap seems to have convinced $N.", FALSE, ch, 0, vict,
+		act("$n explains the finer points of gravity, by tossing $mself to the ground!", false, ch, 0, 0, TO_ROOM);
+		act("Your flying leap seems to have convinced $N.", false, ch, 0, vict,
 			TO_CHAR);
 		ch->setPosition(POS_RESTING);
 		return;
 	}
 
 	if (vict->isFighting()) {
-		act("$E is busy fighting right now!", FALSE, ch, 0, vict, TO_CHAR);
+		act("$E is busy fighting right now!", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
 	if (!ch->isOkToAttack(vict, true))
 		return;
     if (!ok_damage_vendor(ch, vict)) {
-		act("$E is interested in your wallet, not your words.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$E is interested in your wallet, not your words.", false, ch, 0, vict, TO_CHAR);
 		return;
     }
 
@@ -278,13 +276,12 @@ ACMD(do_lecture)
 
 	index = number(0, NUM_TOPICS - 1);
 
-	
 	act(tmp_sprintf("You begin lecturing $N %s", lecture_topics[index]),
-        FALSE, ch, 0, vict, TO_CHAR);
+        false, ch, 0, vict, TO_CHAR);
 	act(tmp_sprintf("$n begins lecturing $N %s", lecture_topics[index]),
-        FALSE, ch, 0, vict, TO_NOTVICT);
+        false, ch, 0, vict, TO_NOTVICT);
 	act(tmp_sprintf("$n begins lecturing you %s", lecture_topics[index]),
-        FALSE, ch, 0, vict, TO_VICT);
+        false, ch, 0, vict, TO_VICT);
 
 	percent = (GET_LEVEL(vict) >> 1) + GET_REMORT_GEN(vict) + GET_INT(vict);
 	percent += number(0, 60);
@@ -296,20 +293,19 @@ ACMD(do_lecture)
 	if( AFF2_FLAGGED(vict, AFF2_BERSERK) )
 		percent += 50;
 
-
 	if (MOB_FLAGGED(vict, MOB_NOSLEEP) || IS_UNDEAD(vict) ||
 		CHECK_SKILL(ch, SKILL_LECTURE) < 30 || IS_PHYSIC(vict))
 		prob = 0;
 
 	// he likes it!
 	if (IS_PHYSIC(vict)) {
-		act("$n appears to be fascinated, and nods in agreement.", TRUE, vict,
+		act("$n appears to be fascinated, and nods in agreement.", true, vict,
 			0, 0, TO_ROOM);
 		send_to_char(vict, "Fascinating!\r\n");
 	}
 	// victim falls asleep
 	else if (percent < prob) {
-		act("$n immediately dozes off to sleep.", TRUE, vict, 0, 0, TO_ROOM);
+		act("$n immediately dozes off to sleep.", true, vict, 0, 0, TO_ROOM);
 		send_to_char(vict, "You start to feel very sleepy...\r\n");
 		vict->setPosition(POS_SLEEPING);
 		wait = 2 RL_SEC + ((prob - percent) >> 1);
@@ -318,7 +314,7 @@ ACMD(do_lecture)
 	}
 	// resist
 	else {
-		act("$n starts to doze off, but resists.", TRUE, vict, 0, 0, TO_ROOM);
+		act("$n starts to doze off, but resists.", true, vict, 0, 0, TO_ROOM);
 		send_to_char(vict, "You start to doze off, but resist.\r\n");
 	}
 
@@ -346,7 +342,6 @@ ACMD(do_evaluate)
 
 	if (!(vict = check_char_room_vis(ch, argument)))
 		return;
-
 
 	cost = (GET_LEVEL(vict) >> 2) + GET_REMORT_GEN(vict);
 
@@ -395,7 +390,6 @@ add_rad_sickness(Creature *ch, int level)
 	affect_to_char(ch, &newaff);
 
 }
-
 
 ASPELL(spell_nuclear_wasteland)
 {
@@ -469,7 +463,7 @@ ASPELL(spell_spacetime_imprint)
 	}
 
 	push_imprint(ch, max);
-	act("You feel a strange sensation, which quickly passes.", FALSE, ch, 0, 0,
+	act("You feel a strange sensation, which quickly passes.", false, ch, 0, 0,
 		TO_ROOM);
 	send_to_char(ch, "A spacetime imprint has been made of this place.\r\n");
 }
@@ -485,13 +479,13 @@ ASPELL(spell_quantum_rift)
 	if (rnum < 0) {
 		// Change this to open a REALLY random portal.
 		// Include DT's in this room list.
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You do not have any outstanding spacetime imprints in effect.\r\n");
 		return;
 	}
 
 	if (!(room = real_room(rnum))) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"The imprinted location you have requested no longer exists!\r\n");
 		return;
 	}
@@ -507,8 +501,8 @@ ASPELL(spell_quantum_rift)
 			&& GET_OBJ_VAL(o, 2) == GET_IDNUM(ch)
 			&& !o->in_room->people.empty()) {
 			Creature *occupant = o->in_room->people;
-			act("$p collapses in on itself.", TRUE, occupant, o, 0, TO_CHAR);
-			act("$p collapses in on itself.", TRUE, occupant, o, 0, TO_ROOM);
+			act("$p collapses in on itself.", true, occupant, o, 0, TO_CHAR);
+			act("$p collapses in on itself.", true, occupant, o, 0, TO_ROOM);
 			extract_obj(o);
 		}
 	}
@@ -524,11 +518,11 @@ ASPELL(spell_quantum_rift)
 		GET_OBJ_VAL(rift, 0) = rnum;
 
 		act("$n shreds the fabric of space and time creating $p!",
-			TRUE, ch, rift, 0, TO_ROOM);
+			true, ch, rift, 0, TO_ROOM);
 		act("You shred the fabric of space and time creating $p!",
-			TRUE, ch, rift, 0, TO_CHAR);
+			true, ch, rift, 0, TO_CHAR);
 	} else {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"The rift has failed to form.  Something is terribly wrong.\r\n");
 		return;
 	}
@@ -543,19 +537,19 @@ ASPELL(spell_spacetime_recall)
 	rnum = pop_imprint(ch);
 
 	if (rnum < 0) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You do not have any outstanding spacetime imprints in effect.\r\n");
 		return;
 	}
 
 	if (!(room = real_room(rnum))) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"The imprinted location you have requested no longer exists!\r\n");
 		return;
 	}
 
 	if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You are unable to make the transition into that place.\r\n");
 		return;
 	}
@@ -565,12 +559,12 @@ ASPELL(spell_spacetime_recall)
 		return;
 	}
 
-	act("$n fades from view and disappears.", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n fades from view and disappears.", true, ch, 0, 0, TO_ROOM);
 	char_from_room(ch);
 	send_to_char(ch, "You shift through space and time:\r\n");
 	char_to_room(ch, room);
 	look_at_room(ch, room, 0);
-	act("$n fades into view from some other place and time.", TRUE, ch, 0, 0,
+	act("$n fades into view from some other place and time.", true, ch, 0, 0,
 		TO_ROOM);
 
 }
@@ -676,7 +670,6 @@ room_tele_ok(Creature *ch, struct room_data *room)
 	return 1;
 }
 
-
 struct room_data *
 random_room(Creature *ch, struct zone_data *zone)
 {
@@ -699,7 +692,7 @@ random_room(Creature *ch, struct zone_data *zone)
 	return (NULL);
 }
 
-// tmode == TRUE, choose other time frame
+// tmode == true, choose other time frame
 int
 zone_tele_ok(Creature *ch, struct zone_data *zone, int tmode)
 {
@@ -724,7 +717,7 @@ zone_tele_ok(Creature *ch, struct zone_data *zone, int tmode)
 	return 1;
 }
 
-// choose a random teleportable zone.  mode == TRUE means only choose other times (timewarp)
+// choose a random teleportable zone.  mode == true means only choose other times (timewarp)
 struct zone_data *
 random_zone(Creature *ch, int mode)
 {
@@ -779,7 +772,7 @@ ASPELL(spell_time_warp)
 	act(tmp_sprintf("$n fades silently into the %s.",
                     zone->time_frame == TIME_ELECTRO ? "future" :
                     zone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
-        TRUE, ch, 0, 0, TO_ROOM);
+        true, ch, 0, 0, TO_ROOM);
 
 	send_to_char(ch, "You fade silently into the %s:\r\n",
 		zone->time_frame == TIME_ELECTRO ? "future" :
@@ -792,7 +785,7 @@ ASPELL(spell_time_warp)
 	act(tmp_sprintf("$n fades silently in from the %s.",
                     oldzone->time_frame == TIME_ELECTRO ? "future" :
                     oldzone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
-        TRUE, ch, 0, 0, TO_ROOM);
+        true, ch, 0, 0, TO_ROOM);
 }
 
 //
@@ -833,7 +826,6 @@ recurs_econvert_points(struct obj_data *obj, bool top)
 		(top ? 0 : recurs_econvert_points(obj->next_content, false)));
 }
 
-
 ACMD(do_econvert)
 {
 
@@ -847,7 +839,7 @@ ACMD(do_econvert)
 	int wait;
 
 	if (CHECK_SKILL(ch, SKILL_ENERGY_CONVERSION) < 40) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You have not been trained in the science of matter conversion.\r\n");
 		return;
 	}
@@ -864,13 +856,13 @@ ACMD(do_econvert)
 			AN(arg1), arg1);
 		return;
 	}
-	
-	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains && 
+
+	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
 		!Security::isMember(ch, Security::WIZARDFULL)) {
 		send_to_char(ch, "You can't econvert a player's corpse while it still has objects in it.");
 		return;
 	}
-	
+
 	// check for a battery to store in
 	if (*arg2) {
 		argument = one_argument(argument, arg3);
@@ -890,7 +882,7 @@ ACMD(do_econvert)
 		}
 
 		if (!IS_BATTERY(battery)) {
-			act("Sorry, $p is not a battery.", FALSE, ch, battery, 0, TO_CHAR);
+			act("Sorry, $p is not a battery.", false, ch, battery, 0, TO_CHAR);
 			return;
 		}
 	}
@@ -905,21 +897,19 @@ ACMD(do_econvert)
 	if (GET_CLASS(ch) != CLASS_PHYSIC)
 		num_points /= 2;
 
-
 	// adjust it for remort gen ( gen x 2 )
 	// num_points += GET_REMORT_GEN( ch ) << 1;
 
-
-	act("E=mc^2.... Voila!  You convert $p into raw energy.", FALSE, ch, obj,
+	act("E=mc^2.... Voila!  You convert $p into raw energy.", false, ch, obj,
 		0, TO_CHAR);
-	act("With a flash, $n converts $p into raw energy.", FALSE, ch, obj, 0,
+	act("With a flash, $n converts $p into raw energy.", false, ch, obj, 0,
 		TO_ROOM);
 
 	extract_obj(obj);
 
 	if (battery) {
 		if (CUR_ENERGY(battery) >= MAX_ENERGY(battery)) {
-			act("The newly converted energy dissipates into the void, because\r\n" "$p is already maxed out.", FALSE, ch, battery, 0, TO_CHAR);
+			act("The newly converted energy dissipates into the void, because\r\n" "$p is already maxed out.", false, ch, battery, 0, TO_CHAR);
 			return;
 		}
 
@@ -928,7 +918,7 @@ ACMD(do_econvert)
 		CUR_ENERGY(battery) += num_points;
 		act(tmp_sprintf("You have increased $p's energy level by %d to %d units.",
                         num_points, CUR_ENERGY(battery)),
-            FALSE, ch, battery, 0, TO_CHAR);
+            false, ch, battery, 0, TO_CHAR);
 
 		if (num_points > number(50, 300))
 			gain_skill_prof(ch, SKILL_ENERGY_CONVERSION);
@@ -937,7 +927,7 @@ ACMD(do_econvert)
 
 	if (GET_MANA(ch) >= GET_MAX_MANA(ch)) {
 		act("The newly converted energy dissipates into the void, because\r\n"
-			"your mana is already maxed out.", FALSE, ch, 0, 0, TO_CHAR);
+			"your mana is already maxed out.", false, ch, 0, 0, TO_CHAR);
 		return;
 	}
 
@@ -978,10 +968,10 @@ do_emp_pulse_olist(obj_data * list, Creature * ch = NULL, Creature * vict =
 			if (GET_OBJ_VAL(o, 2) == 1) {
 				do_deactivate_device(o);
 				if (vict)
-					act("$p shuts off. (carried)", FALSE, ch, o, vict,
+					act("$p shuts off. (carried)", false, ch, o, vict,
 						TO_VICT);
 				else
-					act("$p shuts off.", FALSE, ch, o, vict, TO_ROOM);
+					act("$p shuts off.", false, ch, o, vict, TO_ROOM);
 			}
 		}
 	}
@@ -997,7 +987,7 @@ do_emp_pulse_eq(obj_data * list[], Creature * ch = NULL, Creature * vict =
 				do_deactivate_device(list[i]);
 				act(tmp_sprintf("$p shuts off. %s",
                                 internal ? "(internal)" : "(worn)"),
-                    FALSE, ch, list[i], vict, TO_VICT);
+                    false, ch, list[i], vict, TO_VICT);
 			}
 		}
 	}
@@ -1023,9 +1013,9 @@ do_emp_pulse_char(Creature * ch, Creature * vict)
 			}
 		}
 		if (removed > 0) {
-			send_to_char(vict, 
+			send_to_char(vict,
 				"ERROR: Excessive electromagnetic interference! Some systems failing!\r\n");
-			act("$N twitches and begins to smoke.", FALSE, ch, NULL, vict,
+			act("$N twitches and begins to smoke.", false, ch, NULL, vict,
 				TO_NOTVICT);
 		}
 	}
@@ -1044,7 +1034,7 @@ ASPELL(spell_emp_pulse)
 	if (ch->in_room == NULL)
 		return;
 	if (ROOM_FLAGGED(ch->in_room, ROOM_NOPHYSIC)) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You are unable to alter physical reality in this space.\r\n");
 		return;
 	}
@@ -1091,7 +1081,7 @@ ASPELL(spell_area_stasis)
 	for (o = ch->in_room->contents; o; o = o->next) {
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM) {
 			act("$p collapses in on itself.",
-				TRUE, (*o->in_room->people.begin()), o, 0, TO_NOTVICT);
+				true, (*o->in_room->people.begin()), o, 0, TO_NOTVICT);
 			extract_obj(o);
 		}
 	}

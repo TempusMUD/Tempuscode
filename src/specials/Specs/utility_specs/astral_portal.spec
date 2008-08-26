@@ -20,8 +20,8 @@ SPECIAL(astral_portal)
 	}
 	skip_spaces(&argument);
 	if (isname(argument, portal->aliases)) {
-		act("$n steps into $p.", FALSE, ch, portal, 0, TO_ROOM);
-		act("You step into $p.", FALSE, ch, portal, 0, TO_CHAR);
+		act("$n steps into $p.", false, ch, portal, 0, TO_ROOM);
+		act("You step into $p.", false, ch, portal, 0, TO_CHAR);
 		call_magic(ch, ch, 0, NULL, SPELL_ASTRAL_SPELL, GET_LEVEL(ch), CAST_SPELL);
 		return 1;
 	}

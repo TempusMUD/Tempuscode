@@ -162,7 +162,7 @@ prog_event_handler(thing *owner, prog_evt_type owner_type,
                    prog_evt_kind kind)
 {
     unsigned char *obj = prog_get_obj(owner, owner_type);
-    
+
     if (!obj)
         return 0;
     return *((short *)obj + phase * PROG_EVT_COUNT + kind);
@@ -172,7 +172,7 @@ void
 prog_next_handler(prog_env * env, bool use_resume)
 {
     unsigned char *prog;
-    
+
     prog = prog_get_obj(env->owner, env->owner_type);
 	// skip over lines until we find another handler (or bust)
     while (*((short *)&prog[env->exec_pt])) {
@@ -229,7 +229,6 @@ void
 prog_send_debug(prog_env *env, const char *msg)
 {
     room_data *room = prog_get_owner_room(env);
-    
 
     for (CreatureList::iterator cit = room->people.begin();
          cit != room->people.end();
@@ -316,7 +315,7 @@ void
 prog_set_target(prog_env *env, Creature *target)
 {
     if (env->tracing) {
-        if (target) 
+        if (target)
             prog_send_debug(env, tmp_sprintf("(setting target to %s)",
                                              GET_NAME(target)));
         else
@@ -421,7 +420,7 @@ prog_get_alias_list(char *args)
 	return NULL;
 }
 
-bool 
+bool
 prog_eval_alias(prog_env *env, prog_evt *evt, char *args) {
     char *alias_list = NULL;
     bool result = false;
@@ -444,7 +443,7 @@ prog_eval_alias(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_keyword(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
     char *str, *arg;
@@ -464,7 +463,7 @@ prog_eval_keyword(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_abbrev(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
     char *str, *arg;
@@ -494,7 +493,7 @@ prog_eval_abbrev(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_holding(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
 	int vnum;
@@ -523,7 +522,7 @@ prog_eval_holding(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_phase(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
     char *str;
@@ -545,7 +544,7 @@ prog_eval_phase(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_class(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
     // Required class
@@ -572,7 +571,7 @@ prog_eval_class(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_vnum(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
     char *arg;
@@ -592,7 +591,7 @@ prog_eval_vnum(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_level(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
     char *arg;
@@ -611,7 +610,7 @@ prog_eval_level(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_gen(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
     char *arg;
@@ -630,7 +629,7 @@ prog_eval_gen(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_tar_holding(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
     obj_data *obj;
@@ -651,7 +650,7 @@ prog_eval_tar_holding(prog_env *env, prog_evt *evt, char *args) {
     return result;
 }
 
-bool 
+bool
 prog_eval_wearing(prog_env *env, prog_evt *evt, char *args) {
     bool result = false;
     int vnum;
@@ -731,25 +730,25 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 		arg = tmp_getword(&args);
 		if (!strcasecmp(arg, "class")) {
             result = prog_eval_class(env, evt, args);
-		} 
+		}
         else if (!strcasecmp(arg, "player")) {
 			result = env->target && IS_PC(env->target);
-		} 
+		}
         else if (!strcasecmp(arg, "vnum")) {
             result = prog_eval_vnum(env, evt, args);
-		} 
+		}
         else if (!strcasecmp(arg, "level")) {
             result = prog_eval_level(env, evt, args);
-		} 
+		}
         else if (!strcasecmp(arg, "gen")) {
             result = prog_eval_gen(env, evt, args);
-		} 
+		}
         else if (!strcasecmp(arg, "holding")) {
             result = prog_eval_tar_holding(env, evt, args);
-		} 
+		}
         else if (!strcasecmp(arg, "wearing")) {
             result = prog_eval_wearing(env, evt, args);
-		} 
+		}
         else if (!strcasecmp(arg, "self")) {
 			result = (env->owner == env->target);
 		}
@@ -2015,7 +2014,6 @@ trigger_prog_spell(thing *owner, prog_evt_type owner_type, Creature * ch, int cm
 	return handled;
 }
 
-
 bool
 trigger_prog_move(thing *owner, prog_evt_type owner_type, Creature * ch,
 	special_mode mode)
@@ -2074,7 +2072,6 @@ trigger_prog_fight(Creature * ch, Creature * self)
 {
 	prog_env *env;
 	prog_evt evt;
-
 
 	if (!self || !self->in_room || !GET_MOB_PROG(self))
 		return;
@@ -2314,7 +2311,7 @@ prog_execute_and_mark(void)
 			errlog("Prog without owner");
 			continue;
 		}
-			
+
         cur_prog->owner->prog_marker = 1;
 		prog_execute(cur_prog);
 	}
@@ -2387,7 +2384,7 @@ prog_update_pending(void)
 
 	if (!prog_list)
 		return;
-    
+
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
 		if (cur_prog->executed == 0)
 			prog_execute(cur_prog);

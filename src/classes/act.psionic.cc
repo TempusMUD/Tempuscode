@@ -26,7 +26,6 @@
 #include "materials.h"
 #include "fight.h"
 
-
 ACMD(do_psidrain)
 {
 
@@ -66,7 +65,7 @@ ACMD(do_psidrain)
         send_to_char(ch, "You cannot locate %s '%s'.\r\n", AN(argument),
                      argument);
 		act("$n has just tried to psidrain you.",
-			FALSE, ch, 0, vict, TO_VICT);
+			false, ch, 0, vict, TO_VICT);
 		return;
 	}
 	if (!vict)
@@ -84,13 +83,13 @@ ACMD(do_psidrain)
 
 	if (ch->in_room != vict->in_room &&
 		ch->in_room->zone != vict->in_room->zone) {
-		act("$N is not in your zone.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N is not in your zone.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
 	if (ROOM_FLAGGED(vict->in_room, ROOM_NOPSIONICS)
 		&& GET_LEVEL(ch) < LVL_GOD) {
-		act("Psychic powers are useless where $E is!", FALSE, ch, 0, vict,
+		act("Psychic powers are useless where $E is!", false, ch, 0, vict,
 			TO_CHAR);
 		return;
 	}
@@ -105,17 +104,17 @@ ACMD(do_psidrain)
 
 	if ((dist = find_distance(ch->in_room, vict->in_room)) >
 		((GET_LEVEL(ch) / 6))) {
-		act("$N is out of your psychic range.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N is out of your psychic range.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
 	if (NULL_PSI(vict)) {
-		act("It is pointless to attempt this on $M.", FALSE, ch, 0, vict,
+		act("It is pointless to attempt this on $M.", false, ch, 0, vict,
 			TO_CHAR);
 		return;
 	}
 
-	if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) && vict->distrusts(ch)) { 
+	if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) && vict->distrusts(ch)) {
         prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch);
         prob += ch->getLevelBonus(SKILL_PSIDRAIN);
 
@@ -124,17 +123,17 @@ ACMD(do_psidrain)
 
         if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI))
             percent <<= 1;
-        
+
         if (GET_INT(vict) > GET_INT(ch))
-            percent += (GET_INT(vict) - GET_INT(ch)) << 3;    
-            
+            percent += (GET_INT(vict) - GET_INT(ch)) << 3;
+
         if (percent >= prob) {
             act("Your attack is deflected by $N's psishield!",
-                FALSE, ch, 0, vict, TO_CHAR); 
+                false, ch, 0, vict, TO_CHAR);
             act("$n's psychic attack is deflected by your psishield!",
-                FALSE, ch, 0, vict, TO_VICT);
+                false, ch, 0, vict, TO_VICT);
             act("$n staggers under an unseen force.",
-                TRUE, ch, 0, vict, TO_NOTVICT);
+                true, ch, 0, vict, TO_NOTVICT);
 
 		    return;
         }
@@ -142,7 +141,7 @@ ACMD(do_psidrain)
 
 	if (GET_MANA(vict) <= 0) {
 		act("$E is completely drained of psychic energy.",
-			TRUE, ch, 0, vict, TO_CHAR);
+			true, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
@@ -164,7 +163,7 @@ ACMD(do_psidrain)
 	if (dist > 0)
 		prob -= dist * 3;
 
-	act("$n strains against an unseen force.", FALSE, ch, 0, vict, TO_ROOM);
+	act("$n strains against an unseen force.", false, ch, 0, vict, TO_ROOM);
 
 	//
 	// failure
@@ -193,15 +192,15 @@ ACMD(do_psidrain)
 	else {
 
 		act("A torrent of psychic energy is ripped out of $N's mind!",
-			FALSE, ch, 0, vict, TO_CHAR);
+			false, ch, 0, vict, TO_CHAR);
 		if (ch->in_room != vict->in_room &&
 			GET_LEVEL(vict) + number(0, CHECK_SKILL(vict, SKILL_PSIDRAIN)) >
 			GET_LEVEL(ch))
 			act("Your psychic energy is ripped from you from afar!",
-				FALSE, ch, 0, vict, TO_VICT);
+				false, ch, 0, vict, TO_VICT);
 		else
 			act("Your psychic energy is ripped from you by $n!",
-				FALSE, ch, 0, vict, TO_VICT);
+				false, ch, 0, vict, TO_VICT);
 		GET_MANA(vict) -= drain;
 		GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + drain);
 		GET_MOVE(ch) -= 20;

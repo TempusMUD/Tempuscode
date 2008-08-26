@@ -13,7 +13,7 @@
 //
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
-// 
+//
 
 #ifdef HAS_CONFIG_H
 #include "config.h"
@@ -117,7 +117,6 @@ bfs_enqueue(struct room_data *room, char dir)
 		queue_head = queue_tail = curr;
 }
 
-
 inline void
 bfs_dequeue(void)
 {
@@ -138,7 +137,6 @@ bfs_dequeue(void)
 #endif
 }
 
-
 inline void
 bfs_clear_queue(void)
 {
@@ -146,16 +144,14 @@ bfs_clear_queue(void)
 		bfs_dequeue();
 }
 
-
 /* find_first_step: given a source room and a target room, find the first
    step on the shortest path from the source to the target.
 
    Intended usage: in mobile_activity, give a mob a dir to go if they're
    tracking another mob or a PC.  Or, a 'track' skill for PCs.
 
-   mode: TRUE -> go thru DT's, doorz, !track roomz 
+   mode: true -> go thru DT's, doorz, !track roomz
 */
-
 
 int
 find_first_step(struct room_data *src, struct room_data *target, track_mode mode)
@@ -220,7 +216,6 @@ find_distance(struct room_data *start, struct room_data *dest)
 	int dir = -1, steps = 0;
 	struct room_data *cur_room = start;
 
-
 	dir = find_first_step(cur_room, dest, GOD_TRACK);
 	while (cur_room && dir >= 0 && steps < 600) {
 		cur_room = ABS_EXIT(cur_room, dir)->to_room;
@@ -233,7 +228,6 @@ find_distance(struct room_data *start, struct room_data *dest)
 
 	return steps;
 }
-
 
 /************************************************************************
 *  Functions and Commands which use the above fns		        *
@@ -254,7 +248,7 @@ show_trails_to_char(Creature *ch, char *str)
 	}
 
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && room_is_watery(ch->in_room)) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"You find it difficult to follow the ripples of the water.\r\n");
 		return;
 	}
@@ -320,7 +314,7 @@ show_trails_to_char(Creature *ch, char *str)
 			acc_sprintf("%s lead%s %s.\r\n",
 				foot_desc, drop_desc, to_dirs[(int)trail->to_dir]);
 	}
-	
+
 	if (!found) {
 		if (str)
 			acc_sprintf("You don't see any matching footprints here.\r\n");
@@ -335,16 +329,16 @@ ACMD(do_track)
 	struct Creature *vict;
 	int dir;
 	bool spirit = affected_by_spell(ch, SPELL_SPIRIT_TRACK);
-    
+
     if (GET_MOVE(ch) < 15 && !spirit) {
         send_to_char(ch, "You are too exhausted!\r\n");
 		return;
     }
-    
+
     bool good_track = false;
     if (number(30, 200) < ch->getLevelBonus(SKILL_TRACK))
         good_track = true;
-	
+
 	if (!GET_SKILL(ch, SKILL_TRACK) && !spirit) {
 		send_to_char(ch, "You have no idea how.\r\n");
 		return;
@@ -379,10 +373,10 @@ ACMD(do_track)
     if (misdirection && misdirection->level + 40 > random_number_zero_low(150)) {
         int total = 0;
         int dirs[NUM_OF_DIRS];
-        
+
         for (int idx = 0;idx < NUM_OF_DIRS; idx++) {
-            if (vict->in_room->dir_option[idx] && 
-                vict->in_room->dir_option[idx]->to_room && 
+            if (vict->in_room->dir_option[idx] &&
+                vict->in_room->dir_option[idx]->to_room &&
                 vict->in_room->dir_option[idx]->to_room != vict->in_room) {
                 dirs[total] = idx;
                 total++;
@@ -390,7 +384,7 @@ ACMD(do_track)
         }
         dir = dirs[random_number_zero_low(total-1)];
     }
-    
+
     switch (dir) {
 	case BFS_ERROR:
 		send_to_char(ch, "Hmm.. something seems to be wrong.\r\n");
@@ -441,13 +435,13 @@ ACMD(do_psilocate)
 	}
 	if (ROOM_FLAGGED(vict->in_room, ROOM_NOPSIONICS)
 		&& GET_LEVEL(ch) < LVL_GOD) {
-		act("Psychic powers are useless where $E is!", FALSE, ch, 0, vict,
+		act("Psychic powers are useless where $E is!", false, ch, 0, vict,
 			TO_CHAR);
 		return;
 	}
 	if (vict && (IS_UNDEAD(vict) || IS_SLIME(vict) || IS_PUDDING(vict) ||
 			IS_ROBOT(vict) || IS_PLANT(vict))) {
-		act("It is pointless to attempt this on $M.", FALSE, ch, 0, vict,
+		act("It is pointless to attempt this on $M.", false, ch, 0, vict,
 			TO_CHAR);
 		return;
 	}
@@ -458,20 +452,20 @@ ACMD(do_psilocate)
 
 	GET_MANA(ch) -= mag_manacost(ch, SKILL_PSILOCATE);
 	act("$n begins concentrating deeply, on a distant psyche.",
-		TRUE, ch, 0, 0, TO_ROOM);
+		true, ch, 0, 0, TO_ROOM);
 
 	if ((AFF3_FLAGGED(vict, AFF3_SHROUD_OBSCUREMENT) &&
 			((GET_LEVEL(vict) * 3) >> 2 > number(10, CHECK_SKILL(ch,
 						SKILL_PSILOCATE))))
 		|| AFF3_FLAGGED(vict, AFF3_PSISHIELD)) {
-		act("You cannot sense $S psi.", FALSE, ch, 0, vict, TO_CHAR);
+		act("You cannot sense $S psi.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
 	if ((dist = find_distance(ch->in_room, vict->in_room)) +
 		(AFF3_FLAGGED(vict, AFF3_PSISHIELD) ? (GET_LEVEL(vict) >> 1) : 0) >
 		GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 4) + GET_INT(ch)) {
-		act("$N is out of your psychic range.", FALSE, ch, 0, vict, TO_CHAR);
+		act("$N is out of your psychic range.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
@@ -481,16 +475,16 @@ ACMD(do_psilocate)
 		return;
 	}
 	if (dir < 0) {
-		act("You cannot sense $S psi.", FALSE, ch, 0, vict, TO_CHAR);
+		act("You cannot sense $S psi.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
 	if (CHECK_SKILL(vict, SKILL_PSILOCATE) >
 		number(10, CHECK_SKILL(ch, SKILL_PSILOCATE) + GET_LEVEL(ch)))
 		act("You feel $n's psyche connect with your mind briefly.",
-			FALSE, ch, 0, vict, TO_VICT);
+			false, ch, 0, vict, TO_VICT);
 	else
-		send_to_char(vict, 
+		send_to_char(vict,
 			"You feel a strange sensation on the periphery of your psyche.\r\n");
 
     //misdirection melisma and psilocate failure
@@ -499,10 +493,10 @@ ACMD(do_psilocate)
         (misdirection && misdirection->level + 40 > random_number_zero_low(150))) {
         int total = 0;
         int dirs[NUM_OF_DIRS];
-        
+
         for (int idx = 0;idx < NUM_OF_DIRS; idx++) {
-            if (vict->in_room->dir_option[idx] && 
-                vict->in_room->dir_option[idx]->to_room && 
+            if (vict->in_room->dir_option[idx] &&
+                vict->in_room->dir_option[idx]->to_room &&
                 vict->in_room->dir_option[idx]->to_room != vict->in_room) {
                 dirs[total] = idx;
                 total++;
@@ -530,12 +524,12 @@ ACMD(do_psilocate)
 int
 smart_mobile_move(struct Creature *ch, int dir)
 {
-    
+
 	char doorbuf[128];
-    
+
 	if (dir < 0)
 		return 0;
-    
+
 	if (EXIT(ch, dir) && EXIT(ch, dir)->to_room != NULL) {
 		if (IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED)) {
 			if (IS_SET(EXIT(ch, dir)->exit_info, EX_SPECIAL))	// can't open here
@@ -544,7 +538,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 				strcpy(doorbuf, fname(EXIT(ch, dir)->keyword));
 			else
 				sprintf(doorbuf, "door %s", dirs[dir]);
-            
+
 			if (IS_SET(EXIT(ch, dir)->exit_info, EX_LOCKED)) {
 				if (has_key(ch, EXIT(ch, dir)->key))
 					do_gen_door(ch, doorbuf, 0, SCMD_UNLOCK, 0);
@@ -560,7 +554,7 @@ smart_mobile_move(struct Creature *ch, int dir)
                 do_bash(ch, doorbuf, 0, 0, 0);
 			} else
             do_gen_door(ch, doorbuf, 0, SCMD_OPEN, 0);
-            
+
 		} else if (EXIT(ch, dir)->to_room->isOpenAir() &&
         ch->getPosition() != POS_FLYING) {
 			if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
@@ -589,11 +583,11 @@ smart_mobile_move(struct Creature *ch, int dir)
 				perform_say(ch, "say", "Damn this water!  Can anybody help me cross?");
 				return 0;
 			}
-		} else if (perform_move(ch, dir, MOVE_NORM, 1) == 2) { 
+		} else if (perform_move(ch, dir, MOVE_NORM, 1) == 2) {
             //critical failure - possible death
             return -1;
         }
-        
+
 	}
 	return 0;
 }
@@ -666,23 +660,23 @@ hunt_victim(struct Creature *ch)
 			}
 		}
 	}
-    
+
     if (!AFF_FLAGGED(ch->isHunting(), AFF_NOTRACK) ||
         (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER))) {
         dir = find_first_step(ch->in_room, ch->isHunting()->in_room, STD_TRACK);
-        
+
         //misdirection melisma
         affected_type *misdirection = affected_by_spell(ch->isHunting(), SONG_MISDIRECTION_MELISMA);
         if (misdirection && misdirection->level + 40 > random_number_zero_low(150)) {
             int total = 0;
             int dirs[NUM_OF_DIRS];
-            
+
             memset(dirs, -1, sizeof(dirs));
 
             for (int idx = 0; idx < NUM_OF_DIRS; idx++) {
-                if (ch->isHunting()->in_room->dir_option[idx] && 
-                    ch->isHunting()->in_room->dir_option[idx]->to_room && 
-                    ch->isHunting()->in_room->dir_option[idx]->to_room != 
+                if (ch->isHunting()->in_room->dir_option[idx] &&
+                    ch->isHunting()->in_room->dir_option[idx]->to_room &&
+                    ch->isHunting()->in_room->dir_option[idx]->to_room !=
                     ch->isHunting()->in_room) {
                         dirs[total] = idx;
                         total++;
@@ -695,7 +689,7 @@ hunt_victim(struct Creature *ch)
     }
 	if (dir < 0 ||
 			find_distance(ch->in_room, ch->isHunting()->in_room) > GET_INT(ch)) {
-		act("$n says, 'Damn! Lost $M!'", FALSE, ch, 0, ch->isHunting(), TO_ROOM);
+		act("$n says, 'Damn! Lost $M!'", false, ch, 0, ch->isHunting(), TO_ROOM);
 		ch->stopHunting();
 		return 0;
 	} else {
@@ -713,18 +707,18 @@ hunt_victim(struct Creature *ch)
 				if (ch->getPosition() >= POS_STANDING && !ch->isFighting()) {
 					if (IS_ANIMAL(ch)) {
 						act("$n snarls and attacks $N!!!",
-							FALSE, ch, 0, ch->isHunting(), TO_NOTVICT);
+							false, ch, 0, ch->isHunting(), TO_NOTVICT);
 						act("$n snarls and attacks you!!!",
-							FALSE, ch, 0, ch->isHunting(), TO_VICT);
+							false, ch, 0, ch->isHunting(), TO_VICT);
 					} else if (IS_RACE(ch, RACE_ARCHON)) {
 						act("$n shouts, '$N you vile profaner of goodness!",
-							FALSE, ch, 0, ch->isHunting(), TO_ROOM);
+							false, ch, 0, ch->isHunting(), TO_ROOM);
 					} else if (GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
 						perform_say(ch, "intone", "Time to die.");
 					} else {
 						if (!number(0, 3))
 							act("$n screams, 'Gotcha, punk ass $N!!'.",
-								FALSE, ch, 0, ch->isHunting(), TO_ROOM);
+								false, ch, 0, ch->isHunting(), TO_ROOM);
 						else if (!number(0, 2)) {
 							sprintf(buf2, "Well, well well... if it isn't %s!",
 								GET_NAME(ch->isHunting()));
@@ -741,13 +735,13 @@ hunt_victim(struct Creature *ch)
 		} else if (ch->in_room == ch->isHunting()->in_room) {
 			if (!number(0, 10))
 				act("$n says, 'I know that jerk $N is around here somewhere!",
-					FALSE, ch, 0, ch->isHunting(), TO_ROOM);
+					false, ch, 0, ch->isHunting(), TO_ROOM);
 			return 0;
 		} else {
 			if (!number(0, 64))
-				act("$n sniffs the ground.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n sniffs the ground.", false, ch, 0, 0, TO_ROOM);
 			else if (!number(0, 64))
-				act("$n says 'Im gonna get that freak $N!'", FALSE, ch, 0,
+				act("$n says 'Im gonna get that freak $N!'", false, ch, 0,
 					ch->isHunting(), TO_ROOM);
 			else if (!IS_ANIMAL(ch) && !MOB2_FLAGGED(ch, MOB2_SILENT_HUNTER) &&
 				(GET_LEVEL(ch) + number(1, 12)) > GET_LEVEL(ch->isHunting())) {

@@ -19,7 +19,6 @@
 #include "desc_data.h"
 #include "interpreter.h"
 
-
 /* char and mob-related defines *****************************************/
 
 /* Rent codes */
@@ -32,7 +31,6 @@ static const int RENT_QUIT		= 5;
 static const int RENT_NEW_CHAR  = 6;
 static const int RENT_CREATING  = 7;
 static const int RENT_REMORTING = 8;
-
 
 /* PC char_classes */
 static const int CLASS_HELP = -2;
@@ -240,12 +238,10 @@ static const int DEITY_JUSTICE = 3;
 static const int DEITY_ARES = 4;
 static const int DEITY_KALAR = 5;
 
-
 /* Sex */
 static const int SEX_NEUTRAL = 0;
 static const int SEX_MALE = 1;
 static const int SEX_FEMALE = 2;
-
 
 /* Positions */
 static const int BOTTOM_POS = 0;
@@ -262,7 +258,6 @@ static const int POS_FLYING = 9;	/* flying around        */
 static const int POS_MOUNTED = 10;
 static const int POS_SWIMMING = 11;
 static const int TOP_POS = 11;
-
 
 /* Player flags: used by Creature.char_specials.act */
 static const int PLR_KILLER = (1 << 0);	/* Player is a player-killer        */
@@ -451,7 +446,7 @@ static const int AFF2_MOUNTED = (1 << 4);	/*DO NOT SET THIS IN MOB FILE */
 static const int AFF2_FIRE_SHIELD = (1 << 5);	/* affected by Fire Shield  */
 static const int AFF2_BERSERK = (1 << 6);
 static const int AFF2_INTIMIDATED = (1 << 7);
-static const int AFF2_TRUE_SEEING = (1 << 8);
+static const int AFF2_true_SEEING = (1 << 8);
 static const int AFF2_DIVINE_ILLUMINATION = (1 << 9);
 static const int AFF2_PROTECT_UNDEAD = (1 << 10);
 static const int AFF2_INVIS_TO_UNDEAD = (1 << 11);
@@ -497,7 +492,7 @@ static const int AFF3_PSISHIELD = (1 << 17);
 static const int AFF3_PSYCHIC_CRUSH = (1 << 18);
 static const int AFF3_DOUBLE_DAMAGE = (1 << 19);
 static const int AFF3_ACIDITY = (1 << 20);
-static const int AFF3_HAMSTRUNG = (1 << 21);	// Bleeding badly from the leg 
+static const int AFF3_HAMSTRUNG = (1 << 21);	// Bleeding badly from the leg
 static const int AFF3_GRAVITY_WELL = (1 << 22);	// Pissed off a phyz and got hit by gravity well
 static const int AFF3_SYMBOL_OF_PAIN = (1 << 23);	// Char's mind is burning with pain
 static const int AFF3_EMP_SHIELD = (1 << 24);	// EMP SHIELDING
@@ -545,7 +540,6 @@ static const int WEAR_ASS = 26;
 static const int NUM_WEARS = 27;	/* This must be the # of eq positions!! */
 static const int WEAR_RANDOM = 28;
 static const int WEAR_MSHIELD = 29; /* This is for mana shield messages just increase it if new wear positions are added */
-
 
 /* Modifier constants used with obj affects ('A' fields) */
 static const int APPLY_NONE = 0;	/* No effect            */
@@ -601,16 +595,12 @@ static const int APPLY_NODRUNK = 49;
 static const int APPLY_SPEED = 50;
 static const int NUM_APPLIES = 51;
 
-
 /* other miscellaneous defines *******************************************/
-
 
 /* Player conditions */
 static const int DRUNK = 0;
 static const int FULL = 1;
 static const int THIRST = 2;
-
-
 
 /* other #defined constants **********************************************/
 
@@ -645,7 +635,6 @@ static const int LVL_VIOLENCE = LVL_POWER;
 static const int LVL_LOGALL = LVL_CREATOR;
 static const int LVL_CAN_RETURN = 10;
 
-
 /* char-related structures ************************************************/
 
 /* memory structure for characters */
@@ -655,7 +644,6 @@ struct memory_rec_struct {
 };
 
 typedef struct memory_rec_struct memory_rec;
-
 
 /* These data contain information about a players time data */
 struct time_data {
@@ -683,7 +671,7 @@ typedef struct weapon_spec {
 struct char_player_data {
     char_player_data &operator=(const char_player_data &c) {
         memcpy(&this->passwd, &c.passwd, MAX_PWD_LENGTH +1);
-        if (c.name) 
+        if (c.name)
             this->name = strdup(c.name);
         if (c.short_descr)
             this->short_descr = strdup(c.short_descr);
@@ -693,7 +681,7 @@ struct char_player_data {
             this->description = strdup(c.description);
         if (c.title)
             this->title = strdup(c.title);
-        
+
         this->char_class = c.char_class;
         this->remort_char_class = c.remort_char_class;
         this->weight = c.weight;
@@ -720,7 +708,7 @@ struct char_player_data {
 	sh_int weight;				/* PC / NPC's weight                    */
 	short getWeight() {
 		return weight;
-	} 
+	}
 	short setWeight(const short new_weight) {
 		return (weight = new_weight);
 	}
@@ -734,7 +722,6 @@ struct char_player_data {
 	byte age_adjust;			/* PC age adjust to maintain sanity     */
 	struct time_data time;		/* PC's AGE in days                 */
 };
-
 
 /* Char's abilities. */
 struct char_ability_data {
@@ -757,7 +744,6 @@ struct char_ability_data {
 	sbyte con;
 	sbyte cha;
 };
-
 
 /* Char's points */
 struct char_point_data {
@@ -795,8 +781,7 @@ struct char_point_data {
 	sbyte damroll;				/* Any bonus or penalty to the damage roll */
 };
 
-
-/* 
+/*
  * char_special_data_saved: specials which both a PC and an NPC have in
  * common, but which must be saved to the playerfile for PC's.
  */
@@ -806,7 +791,7 @@ struct char_special_data_saved {
         this->idnum = c.idnum;
         this->act = c.act;
         this->act2 = c.act2;
-        
+
         this->affected_by = c.affected_by;
         this->affected2_by = c.affected2_by;
         this->affected3_by = c.affected3_by;
@@ -830,13 +815,12 @@ struct char_special_data_saved {
 	sh_int apply_saving_throw[10];	/* Saving throw (Bonuses)        */
 };
 
-
 /* Special playing constants shared by PCs and NPCs which aren't in pfile */
 struct char_special_data {
 
 	int setCarriedWeight(int new_weight) {
 		return (carry_weight = new_weight);
-	} 
+	}
 	int setWornWeight(int new_weight) {
 		return (worn_weight = new_weight);
 	}
@@ -872,7 +856,7 @@ struct char_special_data {
         this->position = c.position;
         this->carry_items = c.carry_items;
         this->weapon_proficiency = c.weapon_proficiency;
-        
+
         if (c.mood_str)
             this->mood_str = strdup(c.mood_str);
         this->saved = c.saved;
@@ -925,7 +909,6 @@ struct KillRecord {
     int _vnum, _times;
 };
 
-
 struct Grievance {
     enum kind { MURDER, THEFT };
     static const char *kind_descs[];
@@ -974,7 +957,7 @@ struct player_special_data_saved {
 	ubyte imm_qp;
 	ubyte qlog_level;			// what level of awareness we have to qlog
 	ubyte speed;				// percentage of speedup
-	ubyte qp_allowance;			// Quest point allowance 
+	ubyte qp_allowance;			// Quest point allowance
 	char badge[MAX_BADGE_LENGTH+1];
 	int deity;
 	int life_points;
@@ -1026,7 +1009,7 @@ struct player_special_data {
             this->poofin = strdup(c.poofin);
         if (c.poofout)
             this->poofout = strdup(c.poofout);
-        
+
         recently_killed = c.recently_killed;
         grievances = c.grievances;
         afk_reason = strdup(c.afk_reason);
@@ -1067,7 +1050,7 @@ struct player_special_data {
         this->olc_help = NULL;
         this->olc_srch = NULL;
         this->olc_help_item = NULL;
-         
+
         this->was_in_room = c.was_in_room;
         this->thaw_time = c.thaw_time;
         this->freezer_id = c.freezer_id;
@@ -1165,7 +1148,6 @@ struct mob_special_data {
 	unsigned int mob_idnum;		/* mobile's unique idnum */
 };
 
-
 /* An affect structure */
 struct affected_type {
 	int type;				/* The type of spell that caused this      */
@@ -1180,7 +1162,6 @@ struct affected_type {
 	struct affected_type *next;
     bool clearAtDeath(void);
 };
-
 
 /* Structure used for chars following other chars */
 struct follow_type {
@@ -1221,7 +1202,7 @@ struct Creature : public thing {
     // Initialize creature to initial state
     void initialize();
 	// Reset creature to initial state
-	void clear();    
+	void clear();
 
     long getIdNum() {
         if (char_specials.saved.act & MOB_ISNPC)
@@ -1264,7 +1245,7 @@ struct Creature : public thing {
 	 * If victim != NULL, assume that this char is fighting victim to gain experience.
 	 **/
 	int getPenalizedExperience( int experience, Creature *victim = NULL );
-	
+
     //Positive or negative percent modifier based on buyer vs seller charisma.
     int getCostModifier(Creature* seller);
 
@@ -1350,15 +1331,14 @@ struct Creature : public thing {
     Creature *findRandomCombat();
     CombatDataList *getCombatList() { return fighting; }
 
-    
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
 
 	bool displayUnrentables(void);
 	obj_data *findCostliestObj(void);
 	int payRent(time_t last_time, int code, int currency);
 
-    // Saves the given characters equipment to a file. Intended for use while 
-    // the character is still in the game. 
+    // Saves the given characters equipment to a file. Intended for use while
+    // the character is still in the game.
     bool crashSave();
 	// player has chosen to rent at a receptionist
 	bool rent(void);
@@ -1408,12 +1388,12 @@ struct Creature : public thing {
 	void extract(cxn_state con_state);
 
     Creature &operator=(const Creature &c) {
-        // This is private because it should never be called.  But on 
+        // This is private because it should never be called.  But on
         // the off chance that it does, it should something appropriate.
         raise(SIGSEGV);
         return *this;
     }
-    
+
   public:						// ******  Data ****
 	struct room_data *in_room;	/* Location (real room number)      */
 
@@ -1441,7 +1421,6 @@ struct Creature : public thing {
 
 /* ====================================================================== */
 
-
 struct dex_skill_type {
 	sh_int p_pocket;
 	sh_int p_locks;
@@ -1449,7 +1428,6 @@ struct dex_skill_type {
 	sh_int sneak;
 	sh_int hide;
 };
-
 
 struct dex_app_type {
 	sh_int reaction;
@@ -1459,14 +1437,12 @@ struct dex_app_type {
     sh_int todam;
 };
 
-
 struct str_app_type {
 	sh_int tohit;				/* To Hit (THAC0) Bonus/Penalty        */
 	sh_int todam;				/* Damage Bonus/Penalty                */
 	sh_int carry_w;				/* Maximum weight that can be carrried */
 	sh_int wield_w;				/* Maximum weight that can be wielded  */
 };
-
 
 struct con_app_type {
 	sh_int hitp;

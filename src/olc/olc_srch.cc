@@ -172,7 +172,7 @@ do_olc_xset(struct Creature *ch, char *argument)
 		cur_flags = srch_p->flags;
 
 		while (*arg1) {
-			if ((flag = search_block(arg1, search_bits, FALSE)) == -1) {
+			if ((flag = search_block(arg1, search_bits, false)) == -1) {
 				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);

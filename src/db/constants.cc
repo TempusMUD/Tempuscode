@@ -28,12 +28,9 @@ extern const char circlemud_version[] = {
 	"CircleMUD, version 3.00 beta patchlevel 8\r\n"
 };
 
-
 /* strings corresponding to ordinals/bitvectors in structs.h ***********/
 
-
 /* (Note: strings for char_class definitions in char_class.c instead of here) */
-
 
 extern const char *operator_str[] = {
 	"[({",
@@ -136,7 +133,6 @@ extern const char *shop_bits[] = {
 	"WANDERS",
 	"\n"
 };
-
 
 extern const char *search_bits[] = {
 	"REPEATABLE",
@@ -823,7 +819,6 @@ extern const char *time_frames[] = {
 	"\n"
 };
 
-
 /* SEX_x */
 extern const char *genders[] = {
 	"Neuter",
@@ -831,7 +826,6 @@ extern const char *genders[] = {
 	"Female",
 	"\n"
 };
-
 
 /* POS_x */
 extern const char *position_types[] = {
@@ -893,7 +887,6 @@ extern const char *player_bits[] = {
 	"SOULLESS",
 	"\n"
 };
-
 
 /* MOB_x */
 extern const char *action_bits[] = {
@@ -1136,7 +1129,7 @@ extern const char *affected2_bits[] = {
 	"FIRESHLD",
 	"BERSERK",
 	"INTIMD",
-	"TRUE_SEE",
+	"true_SEE",
 	"DIV_ILL",
 	"PROT_UND",
 	"INVS_UND",
@@ -1313,7 +1306,7 @@ extern const char *affected2_bits_ident[] = {
 	"FIRESHLD",
 	"BERSERK",
 	"INTIMD",
-	"TRUE_SEE",
+	"true_SEE",
 	"DIV_ILL",
 	"PROT_UND",
 	"INVS_UND",
@@ -1779,7 +1772,6 @@ extern const char *extra_names[] = {
 	"\n"
 };
 
-
 extern const char *extra2_bits[] = {
 	"RADACT",
 	"!MERC",
@@ -1956,7 +1948,6 @@ extern const char *apply_types[] = {
 	"\n"
 };
 
-
 /* CONT_x */
 extern const char *container_bits[] = {
 	"CLOSEABLE",
@@ -1965,7 +1956,6 @@ extern const char *container_bits[] = {
 	"LOCKED",
 	"\n",
 };
-
 
 /* LIQ_x */
 extern const char *drinks[] = {
@@ -2012,9 +2002,7 @@ extern const char *drinks[] = {
 	"\n"
 };
 
-
 /* other extern constants for liquids ******************************************/
-
 
 /* one-word alias for each drink */
 extern const char *drinknames[] = {
@@ -2061,7 +2049,6 @@ extern const char *drinknames[] = {
     "\n"
 };
 
-
 /* effect of drinks on hunger, thirst, and drunkenness -- see values.doc */
 /* (DRUNK, HUNGER, THIRST)*/
 extern const char drink_aff[][3] = {
@@ -2105,7 +2092,6 @@ extern const char drink_aff[][3] = {
 	{0, 3, 6},					// chocolate milk
 	{-1, -1, -1},
 };
-
 
 /* color of the various drinks */
 extern const char *color_liquid[] = {
@@ -2158,9 +2144,7 @@ extern const char *fullness[] = {
 	""
 };
 
-
 /* str, int, wis, dex, con applies **************************************/
-
 
 /* [ch] strength apply (all) */
 extern const struct str_app_type str_app[] = {
@@ -2203,8 +2187,6 @@ extern const struct str_app_type str_app[] = {
 	{3, 12, 600, 31}			/* 18/00 */
 };
 
-
-
 /* [dex] skill apply (thieves only) */
 /* p_pocket, p_locks, traps, sneak, hide */
 extern const struct dex_skill_type dex_app_skill[26] = {
@@ -2236,7 +2218,6 @@ extern const struct dex_skill_type dex_app_skill[26] = {
 	{50, 40, 15, 45, 40}
 };
 
-
 /* [dex] apply (all) */
 /* reaction, miss_att, defensive, tohit, todam */
 extern const struct dex_app_type dex_app[26] = {
@@ -2267,8 +2248,6 @@ extern const struct dex_app_type dex_app[26] = {
 	{6, 6, -7, 7, 19},
 	{7, 7, -8, 8, 20}					/* 25 */
 };
-
-
 
 /* [con] apply (all) */
 /* hitp, shock */
@@ -2302,7 +2281,7 @@ extern const struct con_app_type con_app[26] = {
 };
 
 extern const int mana_bonus[26] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 10 
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 10
 	1, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8,	// 21
 	9, 10, 11, 12
 };
@@ -2321,7 +2300,6 @@ extern const char *reputation_msg[] = {
 	"Monstrous",			// 900-999
 	"True Killer"			// 1000 reputation
 };
-
 
 extern const char *spell_wear_off_msg[] = {
 	"RESERVED DB.C",			/* 0 */
@@ -2473,13 +2451,13 @@ extern const char *spell_wear_off_msg[] = {
 	"The power of Guiharia leaves you to your own devices.",
 	"The effects of your death knell fade away.",	/* 150 */
 	"You are no longer as telepathic.",
-	"!UNUSED!", 
-    "!calm!", 
-    "The thorns protruding from your skin wither and fade away.", 
+	"!UNUSED!",
+    "!calm!",
+    "The thorns protruding from your skin wither and fade away.",
     "!UNUSED!",	/* 155 */
-	"!UNUSED!", "!UNUSED!", 
-    "The fiery tingling in your throat has ceased.", 
-    "The cold tingling in your throat has ceased.", 
+	"!UNUSED!", "!UNUSED!",
+    "The fiery tingling in your throat has ceased.",
+    "The cold tingling in your throat has ceased.",
     "!UNUSED!",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
@@ -2566,9 +2544,9 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!",
 	"Your molecular structure weakens.",
 	"!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 330 */
-	"!UNUSED!", "!UNUSED!", 
+	"!UNUSED!", "!UNUSED!",
     "Time speeds back up to normal.",
-    "Time seems to slow down as your movements return to normal.", 
+    "Time seems to slow down as your movements return to normal.",
     "You feel less protected from metal.",	/* 335 */
 	"Your albedo shield flickers and dissipates.",
 	"!UNUSED!",
@@ -2577,55 +2555,55 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!",					/* 340 */
 	"Your electrostatic field dissipates.",
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 345 */
-	"!instant audience!", 
-    "The wall of sound falters and fades.", 
-    "!UNUSED!", 
-    "!lament of longing!", 
+	"!instant audience!",
+    "The wall of sound falters and fades.",
+    "!UNUSED!",
+    "!lament of longing!",
     "You are no longer misdirecting your pursuers.",	/* 350 */
-	"The song of armament fades.", 
-    "!UNUSED!", 
-    "Your armor returns to normal harness.", 
-    "!exposure overture!", 
+	"The song of armament fades.",
+    "!UNUSED!",
+    "Your armor returns to normal harness.",
+    "!exposure overture!",
     "!UNUSED!",	/* 355 */
-	"You start to feel hungry again.", 
-    "The effects of the melody of mettle dissipate.", 
-    "!lustration melisma!", 
-    "You feel more vulnerable to external forces.", 
+	"You start to feel hungry again.",
+    "The effects of the melody of mettle dissipate.",
+    "!lustration melisma!",
+    "You feel more vulnerable to external forces.",
     "Your song bolstered confidence fades.",	/* 360 */
-	"!UNUSED!", 
-    "The valor of fallen heros leaves you to your own devices.", 
-    "!UNUSED!", 
-    "!UNUSED!", 
+	"!UNUSED!",
+    "The valor of fallen heros leaves you to your own devices.",
+    "!UNUSED!",
+    "!UNUSED!",
     "You feel tired as the effect of the music leaves you.",	/* 365 */
-	"!unravelling diapason!", 
-    "!UNUSED!", 
-    "The light leaves the air around you.  A chill sets in.", 
-    "Your musical asylum fades away.", 
+	"!unravelling diapason!",
+    "!UNUSED!",
+    "The light leaves the air around you.  A chill sets in.",
+    "Your musical asylum fades away.",
     "The white noise finally leaves your ears.",	/* 370 */
-	"Your rage subsides.", 
-    "Your strength fails with your memory of the Power Overture.", 
-    "The power of the deities no longer flows in your veins.", 
-    "!UNUSED!", 
+	"Your rage subsides.",
+    "Your strength fails with your memory of the Power Overture.",
+    "The power of the deities no longer flows in your veins.",
+    "!UNUSED!",
     "!SONIC DISRUPTION!",	/* 375 */
-	"Your mirror images waver and disappear.", 
-    "!clarifying harmonies!", 
-    "The swallow's wings return you gently to the ground.", 
-    "You no longer feel compelled to dance.", 
+	"Your mirror images waver and disappear.",
+    "!clarifying harmonies!",
+    "The swallow's wings return you gently to the ground.",
+    "You no longer feel compelled to dance.",
     "!rhythm of alarm!",	/* 380 */
-	"!Rhapsody of Remedy!", 
-    "!UNUSED!", 
-    "!home sweet home!", 
-    "The weight of the world descends upon your shoulders.", 
+	"!Rhapsody of Remedy!",
+    "!UNUSED!",
+    "!home sweet home!",
+    "The weight of the world descends upon your shoulders.",
     "!UNUSED!",	/* 385 */
-	"The slivers of music whirling around your body fade into nothingness.", 
-    "!DIRGE!", 
-    "You feel less charming.", 
-    "!UNUSED!", 
+	"The slivers of music whirling around your body fade into nothingness.",
+    "!DIRGE!",
+    "You feel less charming.",
+    "!UNUSED!",
     "Your life force is no longer fading.",	/* 390 */
-	"The air around you returns to normal.", 
-    "The rhythm invading your brain dissipates.", 
-    "!UNUSED!", 
-    "!UNUSED!", 
+	"The air around you returns to normal.",
+    "The rhythm invading your brain dissipates.",
+    "!UNUSED!",
+    "!UNUSED!",
     "!UNUSED!",	/* 395 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 400 */
 	"!zen healing!",
@@ -2654,8 +2632,8 @@ extern const char *spell_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 490 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 495 */
 
-	"!UNUSED!", "!UNUSED!", 
-    "You are no longer shifted into a parallel dimension.", /*498*/ 
+	"!UNUSED!", "!UNUSED!",
+    "You are no longer shifted into a parallel dimension.", /*498*/
     "You recover from the effects of your cross-dimensional mishap.", /*499*/
     "!UNUSED!",	/* 500 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 505 */
@@ -2742,13 +2720,12 @@ extern const char *spell_wear_off_msg[] = {
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 820 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 825 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 830 */
-    "!LIGHTNING GUN SPEC!", 
-    "You feel less disoriented.", 
+    "!LIGHTNING GUN SPEC!",
+    "You feel less disoriented.",
     "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 835 */
     "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 840 */
 	"\n"
 };
-
 
 extern const char *item_wear_off_msg[] = {
     "!RESERVED!",                                               /* 0 */
@@ -2782,10 +2759,10 @@ extern const char *item_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 140 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 145 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 150 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", 
+	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",
     "$p is no longer producing poison.",	/* 155 */
-	"The elemental brands on $p shimmer and fade.", 
-    "!UNUSED!", "!UNUSED!", "!UNUSED!", 
+	"The elemental brands on $p shimmer and fade.",
+    "!UNUSED!", "!UNUSED!", "!UNUSED!",
     "The flame of faith on $p flickers and dies out.",	/* 160 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 165 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 170 */
@@ -2823,8 +2800,8 @@ extern const char *item_wear_off_msg[] = {
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 330 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 335 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 340 */
-	"!UNUSED!", "!UNUSED!", "!UNUSED!", 
-    "$p ceases repelling matter.", 
+	"!UNUSED!", "!UNUSED!", "!UNUSED!",
+    "$p ceases repelling matter.",
     "The attraction field on $p fades.",	/* 345 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 350 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 355 */
@@ -2924,7 +2901,6 @@ extern const int rev_dir[] = {
 	6
 };
 
-
 extern const char movement_loss[] = {
 	1,							// Inside
 	1,							// City
@@ -2977,7 +2953,6 @@ extern const char movement_loss[] = {
 	6,							// deep ocean
 };
 
-
 extern const char *weekdays[7] = {
 	"the Day of the Moon",
 	"the Day of the Bull",
@@ -2987,7 +2962,6 @@ extern const char *weekdays[7] = {
 	"the day of the Herb",
 	"the Day of the Sun"
 };
-
 
 extern const char *month_name[16] = {
 	"Month of Winter",			/* 0 */
@@ -3371,7 +3345,6 @@ extern const char *material_names[] = {
 	"ink",
     "\n"
 };
-
 
 extern const int weapon_proficiencies[] = {
 	0,							/* TYPE_HIT */

@@ -10,7 +10,7 @@ SPECIAL(credit_exchange)
 	int amount;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
-		return FALSE;
+		return false;
 	if (!cmd || !CMD_IS("exchange"))
 		return 0;
 
@@ -35,10 +35,10 @@ SPECIAL(credit_exchange)
 
 	act("$N takes your gold and carefully inserts it in a security module.\r\n"
 		"$E presses a button and the gold slowly disappears.",
-		FALSE, ch, 0, teller, TO_CHAR);
+		false, ch, 0, teller, TO_CHAR);
 	act("$N takes some gold from $n and inserts it in a security module.\r\n"
 		"$E presses a button and the gold slowly disappears.",
-		FALSE, ch, 0, teller, TO_NOTVICT);
+		false, ch, 0, teller, TO_NOTVICT);
 
 	send_to_char(ch, "You receive %d creds.\r\n", amount);
 
@@ -77,9 +77,9 @@ SPECIAL(gold_exchange)
 	}
 
 	act(tmp_sprintf("$N takes your money and gives you %d gold coins.",
-		amount), FALSE, ch, 0, teller, TO_CHAR);
+		amount), false, ch, 0, teller, TO_CHAR);
 	act("$N takes some cash from $n and gives $m some gold coins.",
-		FALSE, ch, 0, teller, TO_NOTVICT);
+		false, ch, 0, teller, TO_NOTVICT);
 
 	GET_CASH(ch) -= amount;
 	GET_GOLD(ch) += amount;

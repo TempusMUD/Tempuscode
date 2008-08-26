@@ -19,7 +19,6 @@
 #define OLC_DESC	2
 #define OLC_ALIASES	3
 
-
 #define MAX_ROOM_NAME	75
 #define MAX_MOB_NAME	50
 #define MAX_OBJ_NAME	50
@@ -38,7 +37,6 @@ struct olc_help_r {
 	char *text;
 };
 
-
 #define MOB_D1(lev)    (lev + 1)
 #define MOB_D2(lev)    (6 + (lev >> 1))
 #define MOB_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
@@ -46,7 +44,6 @@ void set_physical_attribs(struct Creature *ch);
 //recalculates the given mob prototype's statistics based on it's current level.
 void recalculate_based_on_level(Creature *mob_p);
 void recalc_all_mobs(Creature *ch, const char *argument);
-
 
 bool CAN_EDIT_ZONE(Creature *ch, struct zone_data *zone);
 bool OLC_EDIT_OK(Creature *ch, struct zone_data *zone, int bits);
@@ -111,7 +108,6 @@ bool OLCIMP(Creature * ch);
 #define OLC_EXDESC_USAGE "olc <r|o>exdesc <create | remove | edit | addkey>" \
 		   "<keywords> [new keywords]\r\n"
 
-
 void acc_format_search_data(Creature *ch,
                             room_data *room,
                             special_search_data *cur_search);
@@ -122,6 +118,5 @@ void print_search_data_to_buf(struct Creature *ch,
 
 void show_olc_help(struct Creature *ch, char *arg);
 int mobile_experience(struct Creature *mob, FILE *outfile = NULL);
-
 
 #endif							// __OLC_H__

@@ -1,6 +1,6 @@
 //
 // File: texteditor.cc                        -- part of TempusMUD
-// 
+//
 
 #ifdef HAS_CONFIG_H
 #include "config.h"
@@ -109,7 +109,7 @@ CTextEditor::Finalize(const char *text)
 			*target = NULL;
 		}
 	}
-  
+
     *target = strdup(text);
 
 	// If editing their description.

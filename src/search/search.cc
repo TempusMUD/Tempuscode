@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 #ifdef HAS_CONFIG_H
 #include "config.h"
 #endif
@@ -79,7 +78,6 @@ search_trans_character(Creature * ch,
 				perform_goto(k->follower, ch->in_room, true);
 		}
 	}
-					
 
 	if (GET_LEVEL(ch) < LVL_ETERNAL && !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 		SET_BIT(srch->flags, SRCH_TRIPPED);
@@ -112,9 +110,9 @@ SRCH_LOG(Creature *ch, special_search_data *srch)
 {
 	if (!ZONE_FLAGGED( ch->in_room->zone, ZONE_SEARCH_APPROVED)
 			&& GET_LEVEL( ch ) < LVL_GOD )
-		slog("SRCH: %s at %d: %c %d %d %d.",       
-			GET_NAME( ch ), ch->in_room->number,         
-			*search_commands[( int )srch->command],      
+		slog("SRCH: %s at %d: %c %d %d %d.",
+			GET_NAME( ch ), ch->in_room->number,
+			*search_commands[( int )srch->command],
 			srch->arg[0], srch->arg[1], srch->arg[2]);
 }
 
@@ -145,7 +143,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 	if (SRCH_FLAGGED(srch, SRCH_NEWBIE_ONLY) &&
 		GET_LEVEL(ch) > 6 && !NOHASS(ch)) {
-		send_to_char(ch, 
+		send_to_char(ch,
 			"This can only be done here by players less than level 7.\r\n");
 		return 1;
 	}
@@ -186,7 +184,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 		obj_to_room(obj, targ_room);
 		if (srch->to_remote)
-			act(srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM);
+			act(srch->to_remote, false, targ_room->people, obj, mob, TO_ROOM);
 		break;
 
 	case SEARCH_COM_MOBILE:
@@ -213,7 +211,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			// Mobile Died in load_param
 		} else {
 			if (srch->to_remote)
-				act(srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM);
+				act(srch->to_remote, false, targ_room->people, obj, mob, TO_ROOM);
 			if (GET_MOB_PROGOBJ(mob))
 				trigger_prog_load(mob);
 		}
@@ -284,9 +282,9 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			}
 
 			if (srch->to_room)
-				act(srch->to_room, FALSE, ch, obj, mob, TO_ROOM);
+				act(srch->to_room, false, ch, obj, mob, TO_ROOM);
 			if (srch->to_vict)
-				act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
+				act(srch->to_vict, false, ch, obj, mob, TO_CHAR);
 			else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 				send_to_char(ch, "Okay.\r\n");
 
@@ -297,9 +295,9 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			ch->in_room->zone->enter_count++;
             if (!SRCH_FLAGGED(srch, SRCH_NO_LOOK))
 			    look_at_room(ch, ch->in_room, 0);
-					
+
 			if (srch->to_remote)
-				act(srch->to_remote, FALSE, ch, obj, mob, TO_ROOM);
+				act(srch->to_remote, false, ch, obj, mob, TO_ROOM);
 
 			if (GET_LEVEL(ch) < LVL_ETERNAL
 				&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
@@ -342,14 +340,14 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		} else if (srch->arg[1] == 1) {
 
 			if (srch->to_vict)
-				act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
+				act(srch->to_vict, false, ch, obj, mob, TO_CHAR);
 			else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 				send_to_char(ch, "Okay.\r\n");
 
 			if (srch->to_remote && targ_room->people) {
-				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_ROOM);
-				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
 
@@ -361,7 +359,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			for (; it != src_room->people.end(); ++it) {
 				mob = *it;
 				if (srch->to_room)
-					act(srch->to_room, FALSE, ch, obj, mob, TO_VICT);
+					act(srch->to_room, false, ch, obj, mob, TO_VICT);
 				if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
 					continue;
 				int r = search_trans_character(mob, srch, targ_room, obj, mob);
@@ -455,11 +453,11 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 		if (srch->to_remote) {
 			if (targ_room != ch->in_room && targ_room->people.size() > 0) {
-				act(srch->to_remote, FALSE, targ_room->people, obj, ch,
+				act(srch->to_remote, false, targ_room->people, obj, ch,
 					TO_NOTVICT);
 			}
 			if (other_rm && other_rm != ch->in_room && other_rm->people) {
-				act(srch->to_remote, FALSE, other_rm->people, obj, ch,
+				act(srch->to_remote, false, other_rm->people, obj, ch,
 					TO_NOTVICT);
 			}
 		}
@@ -482,9 +480,9 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		}
 
 		if (srch->to_room)
-			act(srch->to_room, FALSE, ch, obj, mob, TO_ROOM);
+			act(srch->to_room, false, ch, obj, mob, TO_ROOM);
 		if (srch->to_vict)
-			act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
+			act(srch->to_vict, false, ch, obj, mob, TO_CHAR);
 		else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 			send_to_char(ch, "Okay.\r\n");
 
@@ -500,9 +498,9 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 			if (srch->to_remote && ch->in_room != targ_room
 				&& targ_room->people.size() > 0) {
-				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_ROOM);
-				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
 			CreatureList::iterator it = targ_room->people.begin();
@@ -569,9 +567,9 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		}
 
 		if (srch->to_room)
-			act(srch->to_room, FALSE, ch, obj, mob, TO_ROOM);
+			act(srch->to_room, false, ch, obj, mob, TO_ROOM);
 		if (srch->to_vict)
-			act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
+			act(srch->to_vict, false, ch, obj, mob, TO_CHAR);
 		else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 			send_to_char(ch, "Okay.\r\n");
 
@@ -587,9 +585,9 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 			if (srch->to_remote && ch->in_room != targ_room
 				&& targ_room->people.size() > 0) {
-				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_ROOM);
-				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
 			CreatureList::iterator it = targ_room->people.begin();
@@ -633,15 +631,15 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				targ_room = ch->in_room;
 
 			if (srch->to_room)
-				act(srch->to_room, FALSE, ch, obj, mob, TO_ROOM);
+				act(srch->to_room, false, ch, obj, mob, TO_ROOM);
 			if (srch->to_remote && targ_room->people.size() > 0) {
-				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_ROOM);
-				act(srch->to_remote, FALSE, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
 			if (srch->to_vict)
-				act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
+				act(srch->to_vict, false, ch, obj, mob, TO_CHAR);
 			else if (!SRCH_FLAGGED(srch, SRCH_TRIG_ENTER | SRCH_TRIG_FALL))
 				send_to_char(ch, "Okay.\r\n");
 
@@ -655,10 +653,10 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				if (!IS_NPC(mob))
 					continue;
 				if (other_rm != targ_room) {
-					act("$n suddenly disappears.", TRUE, mob, 0, 0, TO_ROOM);
+					act("$n suddenly disappears.", true, mob, 0, 0, TO_ROOM);
 					char_from_room(mob,false);
 					char_to_room(mob, targ_room,false);
-					act("$n suddenly appears.", TRUE, mob, 0, 0, TO_ROOM);
+					act("$n suddenly appears.", true, mob, 0, 0, TO_ROOM);
 				}
 				if (srch->arg[2])
 					mob->startHunting(ch);
@@ -674,7 +672,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 	case SEARCH_COM_LOADROOM:
 		maxlevel = srch->arg[1];
 		targ_room = real_room(srch->arg[0]);
-
 
 		if ((GET_LEVEL(ch) < maxlevel) && (targ_room)) {
 
@@ -695,8 +692,8 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		if ((targ_room = real_room(srch->arg[1])) &&
 			srch->to_remote && ch->in_room != targ_room
 			&& targ_room->people.size() > 0) {
-			act(srch->to_remote, FALSE, targ_room->people, obj, mob, TO_ROOM);
-			act(srch->to_remote, FALSE, targ_room->people, obj, mob, TO_CHAR);
+			act(srch->to_remote, false, targ_room->people, obj, mob, TO_ROOM);
+			act(srch->to_remote, false, targ_room->people, obj, mob, TO_CHAR);
 		}
 
 		break;
@@ -708,9 +705,9 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 	}
 
 	if (srch->to_room)
-		act(srch->to_room, FALSE, ch, obj, mob, TO_ROOM);
+		act(srch->to_room, false, ch, obj, mob, TO_ROOM);
 	if (srch->to_vict)
-		act(srch->to_vict, FALSE, ch, obj, mob, TO_CHAR);
+		act(srch->to_vict, false, ch, obj, mob, TO_CHAR);
 	else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
 		send_to_char(ch, "Okay.\r\n");
 
@@ -754,7 +751,7 @@ show_searches(struct Creature *ch, char *value, char *argument)
 				send_to_char(ch, "No type specified.\r\n");
 				return;
 			}
-			if ((srch_type = search_block(arg1, search_commands, FALSE)) < 0) {
+			if ((srch_type = search_block(arg1, search_commands, false)) < 0) {
 				send_to_char(ch, "No such search type ( %s ).\r\n", arg1);
 				return;
 			}
@@ -773,8 +770,8 @@ show_searches(struct Creature *ch, char *value, char *argument)
 				continue;
 		}
 
-		for (room = zone->world, found = FALSE; room && !overflow;
-			found = FALSE, room = room->next) {
+		for (room = zone->world, found = false; room && !overflow;
+			found = false, room = room->next) {
 
 			for (srch = room->search, count = 0; srch && !overflow;
 				srch = srch->next, count++) {
@@ -786,7 +783,7 @@ show_searches(struct Creature *ch, char *value, char *argument)
 					sprintf(buf, "Room [%s%5d%s]:\n", CCCYN(ch, C_NRM),
 						room->number, CCNRM(ch, C_NRM));
 					strcat(outbuf, buf);
-					found = TRUE;
+					found = true;
 				}
 
 				print_search_data_to_buf(ch, room, srch, buf);

@@ -33,12 +33,10 @@
 #include "db.h"
 #include "spells.h"
 
-
 /*   external vars  */
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern struct time_info_data time_info;
-
 
 #define DUNGEON_SE      126
 #define STYX_PRIESTESS  103
@@ -121,7 +119,7 @@ SPECIAL(underworld_goddess)
 	if (!cmd && styx && ((GET_MAX_HIT(styx) - GET_HIT(styx)) > 0)) {
 		switch (number(0, 1)) {
 		case 0:
-			send_to_char(styx, 
+			send_to_char(styx,
 				"The goddess tell you, 'My Love, you are hurt!  Let me heal you.'\r\n");
 			cast_spell(ch, styx, NULL, NULL, SPELL_GREATER_HEAL);
 			break;
@@ -131,17 +129,17 @@ SPECIAL(underworld_goddess)
 		if ((vict = styx->findRandomCombat()))
 			switch (number(0, 4)) {
 			case 0:
-				send_to_char(vict, 
+				send_to_char(vict,
 					"The Goddess shouts, 'Chew on this worm face!'\r\n");
 				cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
 				break;
 			case 1:
-				send_to_char(vict, 
+				send_to_char(vict,
 					"The Goddess shouts, 'You FIEND!  Take this!'\r\n");
 				cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
 				break;
 			case 2:
-				send_to_char(vict, 
+				send_to_char(vict,
 					"The Goddess shouts, 'Have a LIGHT sewer breath!'\r\n");
 				cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
 				break;
@@ -156,14 +154,13 @@ SPECIAL(underworld_goddess)
 	if (!cmd && styx) {
 		switch (number(0, 20)) {
 		case 0:
-			act("The Goddess of the Underworld kisses $n.", FALSE, styx, 0, 0,
+			act("The Goddess of the Underworld kisses $n.", false, styx, 0, 0,
 				TO_ROOM);
 			send_to_char(styx, "The goddess kisses you very gently.\r\n");
 			break;
 		}
 		return 1;
 	}
-
 
 	/* If styx is not with ME then he might be in the dungeon with that HARLET, */
 	/*   so, she might as well worship him TOO! */
@@ -192,10 +189,10 @@ SPECIAL(underworld_goddess)
 
 			if (vict) {
 				act("The young priestess starts kissing $n all over his body!",
-					FALSE, styx, 0, 0, TO_ROOM);
-				send_to_char(styx, 
+					false, styx, 0, 0, TO_ROOM);
+				send_to_char(styx,
 					"The young priestess starts kissing you in some very sensitive areas!.\r\n");
-				return TRUE;
+				return true;
 			}
 		}
 	}
@@ -204,11 +201,11 @@ SPECIAL(underworld_goddess)
 
 	if (CMD_IS("say") && !strncasecmp(argument, " styx sent me", 13)) {
 		act("The Goddess of the Underworld starts stroking $n's inner thigh.",
-			FALSE, ch, 0, 0, TO_ROOM);
-		send_to_char(ch, 
+			false, ch, 0, 0, TO_ROOM);
+		send_to_char(ch,
 			"The Goddess of the Underworld gently strokes your inner thigh with feathery touches.\r\n");
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }

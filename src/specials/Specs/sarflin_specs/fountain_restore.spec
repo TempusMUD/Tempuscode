@@ -35,7 +35,7 @@ SPECIAL(fountain_restore)
             arg = tmp_strdup(tmp);
         }
     }
-	
+
 	if( GET_OBJ_VAL(fountain,1) == 0 ) {
 		send_to_char(ch, "It's empty.\r\n");
 		return 1;

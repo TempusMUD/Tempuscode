@@ -44,16 +44,16 @@ SPECIAL(wagon_driver)
 	else {
 		destination = EXIT(i, dir)->to_room;
 
-		act("$n twitches the reins.", TRUE, driver, 0, 0, TO_ROOM);
-		act("The wagon driver twitches the reins.", TRUE, 0, i, 0, TO_ROOM);
+		act("$n twitches the reins.", true, driver, 0, 0, TO_ROOM);
+		act("The wagon driver twitches the reins.", true, 0, i, 0, TO_ROOM);
 		sprintf(buf, "$p rolls off to the %s.", to_dirs[dir]);
-		act(buf, TRUE, 0, i, 0, TO_ROOM);
+		act(buf, true, 0, i, 0, TO_ROOM);
 
 		obj_from_room(i);
 		obj_to_room(i, destination);
 
 		sprintf(buf, "$p drives in from %s.", from_dirs[dir]);
-		act(buf, FALSE, 0, i, 0, TO_ROOM);
+		act(buf, false, 0, i, 0, TO_ROOM);
 
 		return 1;
 	}

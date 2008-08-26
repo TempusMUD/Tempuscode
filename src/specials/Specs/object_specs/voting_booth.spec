@@ -105,7 +105,6 @@ voting_booth_load(void)
 		}
 	}
 
-
 	res = sql_query("select poll, account from voting_accounts");
 	count = PQntuples(res);
 	for (idx = 0;idx < count;idx++) {
@@ -250,7 +249,7 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 	poll->count++;
 
 	send_to_char(ch, "You have voted for %c) %s", opt->idx, opt->descrip);
-	act("$n votes on $P.", TRUE, ch, 0, obj, TO_ROOM);
+	act("$n votes on $P.", true, ch, 0, obj, TO_ROOM);
 
 	CREATE(new_memory, struct memory_rec_struct, 1);
 	new_memory->next = poll->memory;
@@ -412,7 +411,7 @@ voting_booth_write(Creature * ch, char *argument)
 
     start_editing_poll(ch->desc, argument);
 
-	act("$n starts to add a poll.", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n starts to add a poll.", true, ch, 0, 0, TO_ROOM);
 }
 
 void

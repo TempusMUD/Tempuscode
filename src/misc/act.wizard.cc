@@ -92,7 +92,6 @@ extern const char *language_names[];
 extern const char *instrument_types[];
 extern const char *zone_pk_flags[];
 
-
 char *how_good(int percent);
 extern char *prac_types[];
 int spell_sort_info[MAX_SPELLS + 1];
@@ -132,7 +131,6 @@ ACMD(do_equipment);
 static const char *logtypes[] = {
     "off", "brief", "normal", "complete", "\n"
 };
-
 
 void
 show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
@@ -234,8 +232,8 @@ ACMD(do_echo)
         mort_see = tmp_sprintf("$n%s%s", (*argument == '\'') ? "":" ",
                                act_escape(argument));
 
-		act(mort_see, FALSE, ch, 0, 0, TO_CHAR);
-        act(mort_see, FALSE, ch, 0, 0, TO_ROOM);
+		act(mort_see, false, ch, 0, 0, TO_CHAR);
+        act(mort_see, false, ch, 0, 0, TO_ROOM);
     } else {
         mort_see = tmp_strdup(argument);
         imm_see = tmp_sprintf("[$n] %s", argument);
@@ -243,13 +241,12 @@ ACMD(do_echo)
         CreatureList::iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if (GET_LEVEL((*it)) > GET_LEVEL(ch))
-                act(imm_see, FALSE, ch, 0, (*it), TO_VICT);
+                act(imm_see, false, ch, 0, (*it), TO_VICT);
             else
-                act(mort_see, FALSE, ch, 0, (*it), TO_VICT);
+                act(mort_see, false, ch, 0, (*it), TO_VICT);
         }
     }
 }
-
 
 ACMD(do_send)
 {
@@ -269,8 +266,6 @@ ACMD(do_send)
 	send_to_char(ch, "You send '%s' to %s.\r\n", buf, GET_NAME(vict));
 	slog("(GC) %s send %s %s", GET_NAME(ch), GET_NAME(vict), buf);
 }
-
-
 
 /* take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93 */
 static struct room_data *
@@ -350,8 +345,6 @@ find_target_room(struct Creature *ch, char *rawroomstr)
     return location;
 }
 
-
-
 ACMD(do_at)
 {
     char command[MAX_INPUT_LENGTH];
@@ -428,7 +421,7 @@ perform_goto(Creature *ch, room_data *room, bool allow_follow)
     else
         msg = "$n disappears in a puff of smoke.";
 
-    act(msg, TRUE, ch, 0, 0, TO_ROOM);
+    act(msg, true, ch, 0, 0, TO_ROOM);
     char_from_room(ch,false);
     char_to_room(ch, room,false);
     if (room->isOpenAir())
@@ -445,8 +438,7 @@ perform_goto(Creature *ch, room_data *room, bool allow_follow)
     else
         msg = "$n appears with an ear-splitting bang.";
 
-
-    act(msg, TRUE, ch, 0, 0, TO_ROOM);
+    act(msg, true, ch, 0, 0, TO_ROOM);
     look_at_room(ch, ch->in_room, 0);
 
     if (allow_follow && ch->followers) {
@@ -468,7 +460,6 @@ perform_goto(Creature *ch, room_data *room, bool allow_follow)
     }
 }
 
-
 ACMD(do_goto)
 {
     struct room_data *location = NULL;
@@ -482,8 +473,6 @@ ACMD(do_goto)
 
     perform_goto(ch, location, true);
 }
-
-
 
 ACMD(do_transport)
 {
@@ -520,15 +509,15 @@ ACMD(do_transport)
 			send_to_char(ch, "You are in midair and %s isn't flying.\r\n",
 				GET_NAME(victim));
 		} else {
-			act("$n disappears in a mushroom cloud.", FALSE, victim, 0, 0,
+			act("$n disappears in a mushroom cloud.", false, victim, 0, 0,
 				TO_ROOM);
 			was_in = victim->in_room;
 
 			char_from_room(victim,false);
 			char_to_room(victim, ch->in_room,false);
-			act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0,
+			act("$n arrives from a puff of smoke.", false, victim, 0, 0,
 				TO_ROOM);
-			act("$n has transported you!", FALSE, ch, 0, victim, TO_VICT);
+			act("$n has transported you!", false, ch, 0, victim, TO_VICT);
 			look_at_room(victim, victim->in_room, 0);
 
 			if (victim->followers) {
@@ -551,8 +540,6 @@ ACMD(do_transport)
 	}
 }
 
-
-
 ACMD(do_teleport)
 {
     struct Creature *victim;
@@ -572,19 +559,17 @@ ACMD(do_teleport)
         send_to_char(ch, "Where do you wish to send this person?\r\n");
     else if ((target = find_target_room(ch, buf2)) != NULL) {
         send_to_char(ch, OK);
-        act("$n disappears in a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
+        act("$n disappears in a puff of smoke.", false, victim, 0, 0, TO_ROOM);
         char_from_room(victim,false);
         char_to_room(victim, target,false);
-        act("$n arrives from a puff of smoke.", FALSE, victim, 0, 0, TO_ROOM);
-        act("$n has teleported you!", FALSE, ch, 0, victim, TO_VICT);
+        act("$n arrives from a puff of smoke.", false, victim, 0, 0, TO_ROOM);
+        act("$n has teleported you!", false, ch, 0, victim, TO_VICT);
         look_at_room(victim, victim->in_room, 0);
 
         slog("(GC) %s has teleported %s to [%d] %s.", GET_NAME(ch),
             GET_NAME(victim), victim->in_room->number, victim->in_room->name);
     }
 }
-
-
 
 ACMD(do_vnum)
 {
@@ -819,7 +804,6 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
 
     if (numm_proto)
         av_lev_proto /= numm_proto;
-
 
     send_to_char(ch, "Owner: %s  ", (playerIndex.getName(zone->owner_idnum) ?
             playerIndex.getName(zone->owner_idnum) : "<none>"));
@@ -1139,7 +1123,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
     if (IS_OBJ_TYPE(j, ITEM_NOTE) && isname("letter", j->aliases)) {
         if (j->carried_by && GET_LEVEL(j->carried_by) > GET_LEVEL(ch)) {
             act("$n just tried to stat your mail.",
-                FALSE, ch, 0, j->carried_by, TO_VICT);
+                false, ch, 0, j->carried_by, TO_VICT);
             send_to_char(ch, "You're pretty brave, bucko.\r\n");
             return;
         }
@@ -1528,7 +1512,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
 
     if (j->contains) {
         acc_sprintf("Contents:\r\n");
-        list_obj_to_char(j->contains, ch, SHOW_OBJ_CONTENT, TRUE);
+        list_obj_to_char(j->contains, ch, SHOW_OBJ_CONTENT, true);
 
     }
 
@@ -1969,7 +1953,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
             num2++;
     }
 
-    found = FALSE;
+    found = false;
     if (k->in_room) {
         acc_sprintf(
             "Encum : (%d inv + %d eq) = (%d tot)/%d, Number: %d/%d inv, %d eq, %d imp\r\n",
@@ -1979,7 +1963,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
         if (k->getBreathCount() || GET_FALL_COUNT(k)) {
             acc_sprintf("Breath_count: %d, Fall_count: %d",
                 k->getBreathCount(), GET_FALL_COUNT(k));
-            found = TRUE;
+            found = true;
         }
     }
     if (!IS_MOB(k)) {
@@ -2129,7 +2113,6 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
     page_string(ch->desc, acc_get_string());
 }
 
-
 ACMD(do_stat)
 {
     struct Creature *victim = 0;
@@ -2229,7 +2212,6 @@ ACMD(do_stat)
             send_to_char(ch, "Nothing around by that name.\r\n");
     }
 }
-
 
 ACMD(do_shutdown)
 {
@@ -2353,7 +2335,6 @@ ACMD(do_shutdown)
         send_to_char(ch, "Unknown shutdown option.\r\n");
 }
 
-
 static void
 stop_snooping(struct Creature *ch)
 {
@@ -2371,7 +2352,6 @@ stop_snooping(struct Creature *ch)
         ch->desc->snooping = NULL;
     }
 }
-
 
 ACMD(do_snoop)
 {
@@ -2401,7 +2381,7 @@ ACMD(do_snoop)
         if (victim->desc->snoop_by.size()) {
             for (unsigned x = 0; x < victim->desc->snoop_by.size(); x++) {
                 if (victim->desc->snoop_by[x] == ch->desc) {
-                    act("You're already snooping $M.", FALSE, ch, 0, victim, TO_CHAR);
+                    act("You're already snooping $M.", false, ch, 0, victim, TO_CHAR);
                     return;
                 }
             }
@@ -2435,8 +2415,6 @@ ACMD(do_snoop)
         victim->desc->snoop_by.push_back(ch->desc);
     }
 }
-
-
 
 ACMD(do_switch)
 {
@@ -2569,7 +2547,7 @@ ACMD(do_return)
             char_from_room(orig,false);
             char_to_room(orig, ch->in_room,false);
             act("$n materializes from a cloud of gas.",
-                FALSE, orig, 0, 0, TO_ROOM);
+                false, orig, 0, 0, TO_ROOM);
             if (subcmd != SCMD_NOEXTRACT)
                 ch->purge(true);
         }
@@ -2578,12 +2556,12 @@ ACMD(do_return)
         if (ch->isFighting()) {
             send_to_char(ch, "No way!  You're fighting for your life!\r\n");
         } else if (GET_LEVEL(ch) <= LVL_CAN_RETURN) {
-            act("A whirling globe of multi-colored light appears and whisks you away!", FALSE, ch, NULL, NULL, TO_CHAR);
-            act("A whirling globe of multi-colored light appears and whisks $n away!", FALSE, ch, NULL, NULL, TO_ROOM);
+            act("A whirling globe of multi-colored light appears and whisks you away!", false, ch, NULL, NULL, TO_CHAR);
+            act("A whirling globe of multi-colored light appears and whisks $n away!", false, ch, NULL, NULL, TO_ROOM);
             char_from_room(ch,false);
             char_to_room(ch, GET_START_ROOM(ch),false);
             look_at_room(ch, ch->in_room, 0);
-            act("A whirling globe of multi-colored light appears and deposits $n on the floor!", FALSE, ch, NULL, NULL, TO_ROOM);
+            act("A whirling globe of multi-colored light appears and deposits $n on the floor!", false, ch, NULL, NULL, TO_ROOM);
         } else
             send_to_char(ch, "There is no need to return.\r\n");
     } else {
@@ -2615,10 +2593,10 @@ ACMD(do_mload)
     mob = read_mobile(number);
     char_to_room(mob, ch->in_room,false);
 
-    act("$n makes a quaint, magical gesture with one hand.", TRUE, ch,
+    act("$n makes a quaint, magical gesture with one hand.", true, ch,
         0, 0, TO_ROOM);
-    act("$n has created $N!", FALSE, ch, 0, mob, TO_ROOM);
-    act("You create $N.", FALSE, ch, 0, mob, TO_CHAR);
+    act("$n has created $N!", false, ch, 0, mob, TO_ROOM);
+    act("You create $N.", false, ch, 0, mob, TO_CHAR);
 
     slog("(GC) %s mloaded %s at %d.", GET_NAME(ch), GET_NAME(mob),
         ch->in_room->number);
@@ -2677,17 +2655,17 @@ ACMD(do_oload)
 		obj->creator = GET_IDNUM(ch);
         obj_to_room(obj, ch->in_room);
     }
-    act("$n makes a strange magical gesture.", TRUE, ch, 0, 0, TO_ROOM);
+    act("$n makes a strange magical gesture.", true, ch, 0, 0, TO_ROOM);
     if(quantity == 1) {
-        act("$n has created $p!", FALSE, ch, obj, 0, TO_ROOM);
-        act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
+        act("$n has created $p!", false, ch, obj, 0, TO_ROOM);
+        act("You create $p.", false, ch, obj, 0, TO_CHAR);
         slog("(GC) %s loaded %s at %d.", GET_NAME(ch),
             obj->name, ch->in_room->number);
     }
     else {
         act(tmp_sprintf("%s has created %s! (x%d)", GET_NAME(ch), obj->name,
-            quantity), FALSE, ch, obj, 0, TO_ROOM);
-        act(tmp_sprintf("You create %s. (x%d)", obj->name, quantity), FALSE,
+            quantity), false, ch, obj, 0, TO_ROOM);
+        act(tmp_sprintf("You create %s. (x%d)", obj->name, quantity), false,
             ch, obj, 0, TO_CHAR);
         slog("(GC) %s loaded %s at %d. (x%d)", GET_NAME(ch), obj->name,
             ch->in_room->number, quantity);
@@ -2776,29 +2754,26 @@ ACMD(do_pload)
             obj_to_char(obj, vict);
         }
 
-
-        act("$n does something suspicious and alters reality.", TRUE, ch, 0, 0,
+        act("$n does something suspicious and alters reality.", true, ch, 0, 0,
             TO_ROOM);
 
         //no quantity list if there's only one object.
         if(quantity == 1) {
-            act("You load $p onto $N.", TRUE, ch, obj, vict, TO_CHAR);
-            act("$N causes $p to appear in your hands.", TRUE, vict, obj, ch,
+            act("You load $p onto $N.", true, ch, obj, vict, TO_CHAR);
+            act("$N causes $p to appear in your hands.", true, vict, obj, ch,
                 TO_CHAR);
         }
 
         else {
             act(tmp_sprintf("You load %s onto %s. (x%d)", obj->name,
-                    GET_NAME(vict), quantity), FALSE, ch, obj, vict, TO_CHAR);
+                    GET_NAME(vict), quantity), false, ch, obj, vict, TO_CHAR);
             act(tmp_sprintf("%s causes %s to appear in your hands. (x%d)",
-                    GET_NAME(ch), obj->name, quantity), FALSE, ch, obj,
+                    GET_NAME(ch), obj->name, quantity), false, ch, obj,
                     vict, TO_VICT);
         }
 
-
-
     } else {
-        act("$n does something suspicious and alters reality.", TRUE, ch, 0, 0,
+        act("$n does something suspicious and alters reality.", true, ch, 0, 0,
             TO_ROOM);
         for(int i=0; i < quantity; i++) {
             obj = read_object(number);
@@ -2808,11 +2783,11 @@ ACMD(do_pload)
         }
 
         if(quantity == 1) {
-            act("You create $p.", FALSE, ch, obj, 0, TO_CHAR);
+            act("You create $p.", false, ch, obj, 0, TO_CHAR);
         }
         else {
             act(tmp_sprintf("You create %s. (x%d)", obj->name,
-                quantity), FALSE, ch, obj, 0, TO_CHAR);
+                quantity), false, ch, obj, 0, TO_CHAR);
         }
     }
     if(quantity == 1) {
@@ -2825,7 +2800,6 @@ ACMD(do_pload)
             quantity);
     }
 }
-
 
 ACMD(do_vstat)
 {
@@ -2917,9 +2891,6 @@ ACMD(do_rstat)
         send_to_char(ch, "That'll have to be either 'obj' or 'mob'.\r\n");
 }
 
-
-
-
 /* clean a room of all mobiles and objects */
 ACMD(do_purge)
 {
@@ -2952,7 +2923,7 @@ ACMD(do_purge)
                 send_to_char(ch, "Fuuuuuuuuu!\r\n");
                 return;
             }
-            act("$n disintegrates $N.", FALSE, ch, 0, vict, TO_NOTVICT);
+            act("$n disintegrates $N.", false, ch, 0, vict, TO_NOTVICT);
 
             if (!IS_NPC(vict)) {
                 mudlog(LVL_POWER, BRF, true,
@@ -2961,7 +2932,7 @@ ACMD(do_purge)
             }
             vict->purge(false);
         } else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
-            act("$n destroys $p.", FALSE, ch, obj, 0, TO_ROOM);
+            act("$n destroys $p.", false, ch, obj, 0, TO_ROOM);
             slog("(GC) %s purged %s at %d.", GET_NAME(ch),
                 obj->name, ch->in_room->number);
             extract_obj(obj);
@@ -2974,7 +2945,7 @@ ACMD(do_purge)
         send_to_char(ch, OK);
     } else {                    /* no argument. clean out the room */
         act("$n gestures... You are surrounded by scorching flames!",
-            FALSE, ch, 0, 0, TO_ROOM);
+            false, ch, 0, 0, TO_ROOM);
         send_to_room("The world seems a little cleaner.\r\n", ch->in_room);
 
         CreatureList::iterator it = ch->in_room->people.begin();
@@ -2996,8 +2967,6 @@ ACMD(do_purge)
 
     }
 }
-
-
 
 ACMD(do_advance)
 {
@@ -3038,7 +3007,7 @@ ACMD(do_advance)
         return;
     }
     if (newlevel < GET_LEVEL(victim)) {
-        do_start(victim, FALSE);
+        do_start(victim, false);
         GET_LEVEL(victim) = newlevel;
     } else {
         act("$n makes some strange gestures.\r\n"
@@ -3052,7 +3021,7 @@ ACMD(do_advance)
             "to the elements of time and space itself.\r\n"
             "Suddenly a silent explosion of light\r\n"
             "snaps you back to reality.\r\n\r\n"
-            "You feel slightly different.", FALSE, ch, 0, victim, TO_VICT);
+            "You feel slightly different.", false, ch, 0, victim, TO_VICT);
     }
 
     send_to_char(ch, OK);
@@ -3077,7 +3046,7 @@ ACMD(do_restore)
     } else {
 		vict->restore();
         send_to_char(ch, OK);
-        act("You have been fully healed by $N!", FALSE, vict, 0, ch, TO_CHAR);
+        act("You have been fully healed by $N!", false, vict, 0, ch, TO_CHAR);
         mudlog(GET_LEVEL(ch), CMP, true,
             "%s has been restored by %s.", GET_NAME(vict), GET_NAME(ch));
     }
@@ -3106,7 +3075,6 @@ perform_vis(struct Creature *ch)
 
     send_to_char(ch, "You are now fully visible.\r\n");
 }
-
 
 static void
 perform_invis(struct Creature *ch, int level)
@@ -3144,14 +3112,13 @@ perform_invis(struct Creature *ch, int level)
                     false, ch, 0, (*it), TO_VICT);
             else if (GET_REMORT_GEN(*it) <= GET_REMORT_GEN(ch))
                 act("$n suddenly vanishes from your reality.",
-                    FALSE, ch, 0, (*it), TO_VICT);
+                    false, ch, 0, (*it), TO_VICT);
         }
     }
 
     GET_INVIS_LVL(ch) = level;
     send_to_char(ch, "Your invisibility level is %d.\r\n", level);
 }
-
 
 ACMD(do_invis)
 {
@@ -3187,7 +3154,6 @@ ACMD(do_invis)
             perform_invis(ch, level);
     }
 }
-
 
 ACMD(do_gecho)
 {
@@ -3292,8 +3258,6 @@ ACMD(do_poofset)
     send_to_char(ch, OK);
 }
 
-
-
 ACMD(do_dc)
 {
     struct descriptor_data *d;
@@ -3381,7 +3345,6 @@ ACMD(do_wizlock)
         "(GC) %s has set wizlock to %d.", GET_NAME(ch), restrict);
 }
 
-
 ACMD(do_date)
 {
     char *tmstr;
@@ -3410,8 +3373,6 @@ ACMD(do_date)
     }
 
 }
-
-
 
 ACMD(do_last)
 {
@@ -3450,7 +3411,6 @@ ACMD(do_last)
 	delete vict;
 }
 
-
 ACMD(do_force)
 {
     struct descriptor_data *i, *next_desc;
@@ -3478,7 +3438,7 @@ ACMD(do_force)
                  cit != characterList.end();
                  ++cit) {
                 if (ch != (*cit) && GET_LEVEL(ch) > GET_LEVEL(*cit)) {
-                    act(buf1, TRUE, ch, NULL, *cit, TO_VICT);
+                    act(buf1, true, ch, NULL, *cit, TO_VICT);
                     command_interpreter(*cit, to_force);
                 }
             }
@@ -3496,7 +3456,7 @@ ACMD(do_force)
                 if (STATE(i) || !(vict = i->creature) ||
                     GET_LEVEL(vict) >= GET_LEVEL(ch))
                     continue;
-                act(buf1, TRUE, ch, NULL, vict, TO_VICT);
+                act(buf1, true, ch, NULL, vict, TO_VICT);
                 command_interpreter(vict, to_force);
             }
             return;
@@ -3511,7 +3471,7 @@ ACMD(do_force)
                 if (GET_LEVEL((*it)) >= GET_LEVEL(ch) ||
                     (!IS_NPC((*it)) && GET_LEVEL(ch) < LVL_GRGOD))
                     continue;
-                act(buf1, TRUE, ch, NULL, (*it), TO_VICT);
+                act(buf1, true, ch, NULL, (*it), TO_VICT);
                 command_interpreter((*it), to_force);
             }
             return;
@@ -3527,20 +3487,18 @@ ACMD(do_force)
         send_to_char(ch, "You cannot force players to do things.\r\n");
     else {
         send_to_char(ch, OK);
-        act(buf1, TRUE, ch, NULL, vict, TO_VICT);
+        act(buf1, true, ch, NULL, vict, TO_VICT);
         mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced %s to %s",
                GET_NAME(ch), GET_NAME(vict), to_force);
         command_interpreter(vict, to_force);
     }
 }
 
-
-
 ACMD(do_wiznet)
 {
     struct descriptor_data *d;
-    char emote = FALSE;
-    char any = FALSE;
+    char emote = false;
+    char any = false;
     int level = LVL_AMBASSADOR;
     const char *subcmd_str = NULL;
     const char *subcmd_desc = NULL;
@@ -3564,7 +3522,7 @@ ACMD(do_wiznet)
 
     switch (*argument) {
     case '*':
-        emote = TRUE;
+        emote = true;
     case '#':
         one_argument(argument + 1, buf1);
         if (is_number(buf1)) {
@@ -3590,7 +3548,7 @@ ACMD(do_wiznet)
                 (can_see_creature(ch, d->creature) || GET_LEVEL(ch) == LVL_GRIMP)) {
                 if (!any) {
                     sprintf(buf1, "Gods online:\r\n");
-                    any = TRUE;
+                    any = true;
                 }
                 sprintf(buf1, "%s  %s", buf1, GET_NAME(d->creature));
                 if (PLR_FLAGGED(d->creature, PLR_WRITING))
@@ -3608,7 +3566,7 @@ ACMD(do_wiznet)
         if (!any)                /* hacked bug fix */
             strcpy(buf1, "");
 
-        any = FALSE;
+        any = false;
         for (d = descriptor_list; d; d = d->next) {
             if (STATE(d) == CXN_PLAYING
                 && GET_LEVEL(d->creature) >= LVL_AMBASSADOR
@@ -3620,7 +3578,7 @@ ACMD(do_wiznet)
                 && can_see_creature(ch, d->creature)) {
                 if (!any) {
                     sprintf(buf1, "%sGods offline:\r\n", buf1);
-                    any = TRUE;
+                    any = true;
                 }
                 send_to_char(ch, "%s  %s\r\n", buf1, GET_NAME(d->creature));
             }
@@ -3698,8 +3656,6 @@ ACMD(do_wiznet)
     }
 }
 
-
-
 ACMD(do_zreset)
 {
     void reset_zone(struct zone_data *zone);
@@ -3739,7 +3695,6 @@ ACMD(do_zreset)
     } else
         send_to_char(ch, "Invalid zone number.\r\n");
 }
-
 
 /*
  *  General fn for wizcommands of the sort: cmd <player>
@@ -3848,7 +3803,7 @@ ACMD(do_wizutil)
                 "A fireball suddenly explodes in front of you, melting the ice!\r\nYou feel thawed.\r\n");
             send_to_char(ch, "Thawed.\r\n");
             if (vict->in_room)
-                act("A sudden fireball conjured from nowhere thaws $n!", FALSE,
+                act("A sudden fireball conjured from nowhere thaws $n!", false,
                     vict, 0, 0, TO_ROOM);
             break;
         case SCMD_UNAFFECT:
@@ -4034,7 +3989,6 @@ show_wizcommands(Creature *ch)
         send_to_char(ch, "You are a mobile. Deal with it.\r\n");
 }
 
-
 static void
 show_account(Creature *ch, char *value)
 {
@@ -4095,8 +4049,6 @@ show_account(Creature *ch, char *value)
 		send_to_desc(ch->desc, " &y(QBANNED)&n");
     send_to_desc(ch->desc, "\r\n\r\n");
 
-
-
     last = account->get_login_time();
     creation = account->get_creation_time();
 
@@ -4151,7 +4103,6 @@ show_player(Creature *ch, char *value)
 	vict = new Creature(true);
 	vict->loadFromXML(idnum);
     vict->account = Account::retrieve(playerIndex.getAccountID(idnum));
-
 
     if (GET_REMORT_GEN(vict) <= 0) {
         strcpy(remort_desc, "");
@@ -4276,7 +4227,6 @@ show_topzones(Creature *ch, char *value)
     }
     temp = NULL;
 
-
     for (i=0, zone=zone_table; i < top_of_zone_table; zone = zone->next, i++) {
         if (zone->enter_count > greaterThan && zone->enter_count < lessThan
                 && zone->number < 700) {
@@ -4289,7 +4239,6 @@ show_topzones(Creature *ch, char *value)
     num_zones = MIN((int)zone_list.size(), num_zones);
 
     sprintf(buf, "Usage Options: [limit #] [>#] [<#] [reverse]\r\nTOP %d zones:\r\n", num_zones);
-
 
     if (reverse) {
         for (i = 0; i < num_zones; i++)
@@ -4452,7 +4401,6 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             arg = tmp_getword(&args);
         }
 
-
         for (room = zone->world; room; room = room->next)
             for (srch = room->search; srch != NULL; srch = srch->next)
                 if ((srch->flags & flags) == flags) {
@@ -4532,7 +4480,6 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
             return -1;
         }
         num = atoi(arg);
-
 
         for (room = zone->world; room; room = room->next)
             if ((gt && (room->max_occupancy > num))
@@ -5277,9 +5224,9 @@ ACMD(do_show)
         else if (IS_MOB(vict))
             send_to_char(ch, "Now... what would a mob need with aliases??\r\n");
         else if (GET_LEVEL(vict) > GET_LEVEL(ch)) {
-            act("You cannot determine what $S aliases might be.", FALSE, ch, 0,
+            act("You cannot determine what $S aliases might be.", false, ch, 0,
                 vict, TO_CHAR);
-            act("$n has attempted to examine your aliases.", FALSE, ch, 0,
+            act("$n has attempted to examine your aliases.", false, ch, 0,
                 vict, TO_VICT);
         } else {                /* no argument specified -- list currently defined aliases */
             sprintf(buf, "Currently defined aliases for %s:\r\n",
@@ -5778,7 +5725,6 @@ ACMD(do_show)
     }
 }
 
-
 #define PC   1
 #define NPC  2
 #define BOTH 3
@@ -5995,7 +5941,6 @@ ACMD(do_set)
         return;
     }
 
-
     if (IS_NPC(vict) && !(fields[l].pcnpc & NPC)) {
         send_to_char(ch, "You can't do that to a beast!\r\n");
         return;
@@ -6018,7 +5963,6 @@ ACMD(do_set)
     }
 
     strcpy(buf, "Okay.");        /* can't use OK macro here 'cause of \r\n */
-
 
     switch (l) {
     case 0:
@@ -6441,7 +6385,7 @@ ACMD(do_set)
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_HALT);
         break;
     case 71:
-        if (((tp = search_block(argument, logtypes, FALSE)) == -1)) {
+        if (((tp = search_block(argument, logtypes, false)) == -1)) {
             send_to_char(ch,
                 "Usage: syslog { Off | Brief | Normal | Complete }\r\n");
             return;
@@ -6528,7 +6472,7 @@ ACMD(do_set)
             send_to_char(ch, "Usage: set <vict> soilage <pos> <value>\r\n");
             return;
         }
-        if ((i = search_block(arg1, wear_eqpos, FALSE)) < 0) {
+        if ((i = search_block(arg1, wear_eqpos, false)) < 0) {
             send_to_char(ch, "No such eqpos.\r\n");
             return;
         }
@@ -6743,7 +6687,6 @@ ACMD(do_aset)
 
     strcpy(buf, "Okay.");        /* can't use OK macro here 'cause of \r\n */
 
-
     switch (l) {
     case 0:
 		account->set_past_bank(value); break;
@@ -6805,7 +6748,6 @@ ACMD(do_aset)
         send_to_char(ch, "%s\r\n", buf);
 }
 
-
 ACMD(do_syslog)
 {
     int tp;
@@ -6818,7 +6760,7 @@ ACMD(do_syslog)
         send_to_char(ch, "Your syslog is currently %s.\r\n", logtypes[tp]);
         return;
     }
-    if (((tp = search_block(arg, logtypes, FALSE)) == -1)) {
+    if (((tp = search_block(arg, logtypes, false)) == -1)) {
         send_to_char(ch, "Usage: syslog { Off | Brief | Normal | Complete }\r\n");
         return;
     }
@@ -6828,12 +6770,11 @@ ACMD(do_syslog)
     send_to_char(ch, "Your syslog is now %s.\r\n", logtypes[tp]);
 }
 
-
 ACMD(do_rlist)
 {
     struct room_data *room;
     struct zone_data *zone;
-    bool has_desc, stop = FALSE;
+    bool has_desc, stop = false;
 	char *read_pt;
 
     int first, last, found = 0;
@@ -6864,7 +6805,7 @@ ACMD(do_rlist)
     for (zone = zone_table; zone && !stop; zone = zone->next)
         for (room = zone->world; room; room = room->next) {
             if (room->number > last) {
-                stop = TRUE;
+                stop = true;
                 break;
             }
             if (room->number >= first) {
@@ -6897,7 +6838,6 @@ ACMD(do_rlist)
 	  page_string(ch->desc, acc_get_string());
 }
 
-
 ACMD(do_xlist)
 {
     struct special_search_data *srch = NULL;
@@ -6926,7 +6866,7 @@ ACMD(do_xlist)
                 send_to_char(ch, "No type specified.\r\n");
                 return;
             }
-            if ((srch_type = search_block(arg, search_commands, FALSE)) < 0) {
+            if ((srch_type = search_block(arg, search_commands, false)) < 0) {
                 send_to_char(ch, "No such search type ( %s ).\r\n", arg);
                 return;
             }
@@ -6957,8 +6897,8 @@ ACMD(do_xlist)
 	acc_string_clear();
 	acc_strcat("Searches: \r\n", NULL);
 
-    for (room = zone->world, found = FALSE; room && !overflow;
-        found = FALSE, room = room->next) {
+    for (room = zone->world, found = false; room && !overflow;
+        found = false, room = room->next) {
 
         for (srch = room->search, count = 0; srch && !overflow;
             srch = srch->next, count++) {
@@ -6969,7 +6909,7 @@ ACMD(do_xlist)
             if (!found) {
                 acc_sprintf("Room [%s%5d%s]:\n", CCCYN(ch, C_NRM),
                     room->number, CCNRM(ch, C_NRM));
-                found = TRUE;
+                found = true;
             }
 
             print_search_data_to_buf(ch, room, srch, buf);
@@ -7034,7 +6974,6 @@ ACMD(do_mlist)
 	  page_string(ch->desc, acc_get_string());
 }
 
-
 ACMD(do_olist)
 {
     struct obj_data *obj = NULL;
@@ -7082,7 +7021,6 @@ ACMD(do_olist)
     else
 	  page_string(ch->desc, acc_get_string());
 }
-
 
 ACMD(do_rename)
 {
@@ -7181,7 +7119,6 @@ ACMD(do_addname)
         }
         //check to see if the name is already in the list
 
-
         if (obj) {
 
             if(strstr(obj->aliases, new_name) != NULL) {
@@ -7256,7 +7193,7 @@ ACMD(do_addpos)
         send_to_char(ch, "You carry no such thing.\r\n");
         return;
     }
-    bit = search_block(new_pos, keywords, FALSE);
+    bit = search_block(new_pos, keywords, false);
     if (bit < 0) {
         send_to_char(ch, "That is not a valid position!\r\n");
         return;
@@ -7398,7 +7335,6 @@ ACMD(do_zonepurge)
             if (ROOM_FLAGGED(rm, ROOM_GODROOM) || ROOM_FLAGGED(rm, ROOM_HOUSE))
                 continue;
 
-
             CreatureList::iterator it = rm->people.begin();
             for (; it != rm->people.end(); ++it) {
                 if (IS_MOB((*it))) {
@@ -7437,24 +7373,23 @@ ACMD(do_zonepurge)
     }
 }
 
-
 ACMD(do_searchfor)
 {
     struct Creature *mob = NULL;
     struct obj_data *obj = NULL;
-    byte mob_found = FALSE, obj_found = FALSE;
+    byte mob_found = false, obj_found = false;
     CreatureList::iterator cit = characterList.begin();
     for (; cit != characterList.end(); ++cit) {
         mob = *cit;
         if (!mob->in_room) {
-            mob_found = TRUE;
+            mob_found = true;
             send_to_char(ch, "Char out of room: %s,  Master is: %s.\r\n",
                 GET_NAME(mob), mob->master ? GET_NAME(mob->master) : "N");
         }
     }
     for (obj = object_list; obj; obj = obj->next) {
         if (!obj->in_room && !obj->carried_by && !obj->worn_by && !obj->in_obj) {
-            obj_found = TRUE;
+            obj_found = true;
 
 #ifdef TRACK_OBJS
             sprintf(buf, "Object: %s [%s] %s", obj->name,
@@ -7670,7 +7605,6 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
         sprintf(buf, "Mobs with extreme %s >= (level * %d):\r\n",
             i ? "cash" : "gold", l);
 
-
         mit = mobilePrototypes.begin();
         for (k = 0; mit != mobilePrototypes.end(); ++mit) {
             mob = mit->second;
@@ -7728,8 +7662,6 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
         page_string(ch->desc, buf);
         return;
 
-
-
         break;
     case 6:  // race
         if( !*arg){
@@ -7739,7 +7671,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
         }
         skip_spaces(&arg);
 
-        if ((i = search_block(arg, player_race, FALSE)) < 0) {
+        if ((i = search_block(arg, player_race, false)) < 0) {
             send_to_char(ch, "Type olchelp race for a valid list.\r\n");
             return;
         }
@@ -7772,7 +7704,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
         }
         skip_spaces(&arg);
 
-        if ((i = search_block(arg, class_names, FALSE)) < 0) {
+        if ((i = search_block(arg, class_names, false)) < 0) {
             send_to_char(ch, "Type olchelp class for a valid list.\r\n");
             return;
         }
@@ -7842,7 +7774,6 @@ ACMD(do_peace)
 {
     bool found = 0;
 
-
     CreatureList::iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         found = 1;
@@ -7854,7 +7785,7 @@ ACMD(do_peace)
     else {
         send_to_char(ch, "You have brought peace to this room.\r\n");
         act("A feeling of peacefulness descends on the room.",
-            FALSE, ch, 0, 0, TO_ROOM);
+            false, ch, 0, 0, TO_ROOM);
     }
 }
 
@@ -8151,7 +8082,6 @@ ACMD(do_coderutil)
         extern prog_env *prog_list;
         unsigned char *prog_get_obj(thing *owner, prog_evt_type owner_type);
 
-
         tokens.next(token);
         if (!strcmp(token, "room")) {
             owner = ch->in_room;
@@ -8295,7 +8225,7 @@ ACMD(do_coderutil)
              ++vnum_it) {
             objectPrototypes.remove(*vnum_it);
         }
-        
+
         // Save changes to the zone, object, and mobile files
 		for (zone_data *zone = zone_table;zone;zone = zone->next) {
             save_zone(ch, zone);
@@ -8361,7 +8291,7 @@ ACMD(do_coderutil)
                         }
                     }
                 }
-        
+
             }
 
             // Iterate through loaded portals of each zone
@@ -8575,7 +8505,7 @@ ACMD(do_tester)
         return;
     }
 
-    if ((tcmd = search_block(arg1, tester_cmds, FALSE)) < 0) {
+    if ((tcmd = search_block(arg1, tester_cmds, false)) < 0) {
         send_to_char(ch, TESTER_UTIL_USAGE);
         return;
     }
@@ -8592,7 +8522,7 @@ ACMD(do_tester)
             send_to_char(ch, "Advance: I DON'T THINK SO!\r\n");
         else {
             if (i < GET_LEVEL(ch)) {
-                do_start(ch, TRUE);
+                do_start(ch, true);
                 GET_LEVEL(ch) = i;
             }
 
@@ -8929,7 +8859,6 @@ ACMD(do_users)
 	acc_sprintf("\r\n%d visible sockets connected.\r\n", num_can_see);
 	page_string(ch->desc, acc_get_string());
 }
-
 
 ACMD(do_edit)
 {

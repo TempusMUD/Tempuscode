@@ -42,13 +42,13 @@ town_crier_select(town_crier_data *data)
 		data->last_msg = 0;
 		return false;	// no messages
 	}
-	
+
 	res = sql_query("select idnum, body from board_messages where board='town_crier' and not idnum=%d limit 1 offset %d", data->last_msg, number(0, count - 1));
 	if (PQntuples(res) != 1) {
 		errlog("town_crier found %d tuples from selection\n", PQntuples(res));
 		return false;
 	}
-	
+
 	data->last_msg = atol(PQgetvalue(res, 0, 0));
 	data->msg_head = data->msg_pos = strdup(PQgetvalue(res, 0, 1));
 
@@ -91,7 +91,7 @@ SPECIAL(town_crier)
 		return 1;
 	} else if (spec_mode != SPECIAL_TICK)
 		return 0;
-	
+
 	if (self->getPosition() < POS_STANDING)
 		return 0;
 

@@ -53,13 +53,13 @@ SPECIAL(electronics_school)
 			electronics_raoe(self);
 		return 0;
 	}
-		
+
 	if (!CMD_IS("learn") && !CMD_IS("train") && !CMD_IS("offer"))
 		return 0;
 
 	cred_cost = (GET_LEVEL(ch) << 6) + 2000;
 	cred_cost += (cred_cost*ch->getCostModifier(self))/100;
-    
+
 	if (!can_see_creature(self, ch)) {
 		perform_say(self, "say", "I can't train ya if I can't see ya, see?");
 		return 1;
@@ -87,7 +87,6 @@ SPECIAL(electronics_school)
                        tmp_sprintf("You don't have the %d cred tuition I require.", cred_cost));
 		return 1;
 	}
-
 
 	GET_CASH(ch) -= cred_cost;
 

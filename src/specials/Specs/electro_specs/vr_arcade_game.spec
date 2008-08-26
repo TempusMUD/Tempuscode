@@ -81,7 +81,7 @@ SPECIAL(vr_arcade_game)
 	}
 
 	GET_OBJ_VAL(lckr, 0) = GET_IDNUM(ch);
-	
+
 	House* house = Housing.findHouseByRoom( lckr->in_room->number );
 	if( house != NULL )
 		house->save();
@@ -93,7 +93,7 @@ SPECIAL(vr_arcade_game)
 	send_to_char(ch,
 		"You step into the interface... You are blinded by a bright"
 		" light!!\r\n");
-	act("$n steps into $p's interface and disappears in a flash!", FALSE, ch,
+	act("$n steps into $p's interface and disappears in a flash!", false, ch,
 		game, 0, TO_ROOM);
 
 	GET_HOMEROOM(ch) = GET_HOME(ch);
@@ -103,7 +103,7 @@ SPECIAL(vr_arcade_game)
 	char_to_room(ch, r_startroom, false);
 
 	act("$n appears at the center of the room with a flash!",
-		FALSE, ch, 0, 0, TO_ROOM);
+		false, ch, 0, 0, TO_ROOM);
 
 	look_at_room(ch, ch->in_room, 0);
 

@@ -1,6 +1,6 @@
 //
 // File: progeditor.cc                        -- part of TempusMUD
-// 
+//
 
 #ifdef HAS_CONFIG_H
 #include "config.h"

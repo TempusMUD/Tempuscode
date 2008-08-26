@@ -32,7 +32,7 @@ SPECIAL(newbie_fodder)
 	for (idx = NEWBIE_ROOM_MIN;idx < NEWBIE_ROOM_MAX;idx++) {
 		room_data *room;
 		CreatureList::iterator it;
-		
+
 		room = real_room(idx);
 		if (!room)
 			continue;

@@ -1,7 +1,6 @@
 #ifndef _COMBAT_H_
 #define _COMBAT_H_
 
-
 #define COMBAT_DIR "combat"
 #define COMBATFILENAME "combat/combatlog"
 
@@ -44,8 +43,6 @@ typedef struct cplayer_data {
 	struct cplayer_data *next;
 } cplayer_data;
 
-
-
 typedef struct combat_data {
 	int vnum;
 	int creator;
@@ -86,7 +83,6 @@ typedef struct ladder_player {
 	int losses;
 	struct ladder_player *next;
 } ladder_player;
-
 
 void list_combat_players(Creature *ch, combat_data * combat, char *outbuf);
 void comlog(Creature *ch, char *str, int file, int to_char);
@@ -146,8 +142,6 @@ void do_ccontrol_wizoptions(Creature *ch, char *argument);
 void do_ccontrol_destroy(Creature *ch, char *argument);
 void do_ccontrol_lock(Creature *ch);
 void do_ccontrol_stats(Creature *ch);
-
-
 
 // Ladder functions
 void show_ladder(ladder_data * the_ladder);

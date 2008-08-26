@@ -16,7 +16,7 @@ MobileMap::~MobileMap()
 bool MobileMap::add(Creature *ch)
 {
     int vnum = 0;
-    
+
     if (!ch || !ch->mob_specials.shared) {
         mudlog(LVL_GRGOD, NRM, true, "WARNING:  Attempt to add NULL mobile to MobileMap");
         return false;
@@ -32,7 +32,7 @@ bool MobileMap::add(Creature *ch)
                "existing vnum [%d].", vnum);
         return false;
     }
-    
+
     (*this)[vnum] = ch;
 
     return true;

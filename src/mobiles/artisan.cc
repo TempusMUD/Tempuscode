@@ -21,7 +21,6 @@ SPECIAL(artisan);
 static int cmd_slap, cmd_smirk, cmd_cry;
 vector<Craftshop *> shop_list;
 
-
 struct CraftComponent {
 	int item;
 	int material;
@@ -52,7 +51,6 @@ class CraftItem {
     int fail_pct;
     vector<CraftComponent *> required;
 };
-
 
 /**
  * Loads the Craftshop described by the given xml node.
@@ -146,7 +144,6 @@ Craftshop::load( xmlNodePtr node )
     room = xmlGetIntProp(node, "room");
     keeper_vnum = xmlGetIntProp(node, "keeper");
 
-
     // Remove all the currently stored items.
     vector<CraftItem*>::iterator item;
     for (item = items.begin();item != items.end();item++) {
@@ -164,7 +161,6 @@ Craftshop::load( xmlNodePtr node )
 		}
 	}
 }
-
 
 Craftshop *
 Craftshop::find(Creature *keeper)
@@ -265,7 +261,6 @@ Craftshop::sendStatus( Creature *ch ) {
     send_to_char(ch, "[%6d] %15s [%6d] ( %zd items )\r\n",
                     id, name, keeper_vnum, items.size() );
 }
-
 
 // Lists the items for sale.
 void

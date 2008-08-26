@@ -74,7 +74,7 @@ SPECIAL(repairer)
 	obj_damage = GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj);
 	cost = (obj_damage * GET_OBJ_COST(obj) / GET_OBJ_MAX_DAM(obj)) / 8;
     cost += (cost*ch->getCostModifier(repairer))/100;
-    
+
 	currency = (ch->in_room->zone->time_frame == TIME_ELECTRO);
 
 	if (CMD_IS("value")) {
@@ -93,7 +93,7 @@ SPECIAL(repairer)
 	}
 
 	act("$n takes $p into $s shop and repairs it.",
-		FALSE, repairer, obj, 0, TO_ROOM);
+		false, repairer, obj, 0, TO_ROOM);
 	WAIT_STATE(ch, 5 RL_SEC);
 
 	if (currency)

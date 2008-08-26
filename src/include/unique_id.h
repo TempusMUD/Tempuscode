@@ -4,7 +4,7 @@
 /******************************************************************
 *  This class is responsible for providing unique IDs for whatever
 *  wants them.  Utilized getNextID() which updates and returns, or
-*  peekNextID() which just returns without updating.  All other 
+*  peekNextID() which just returns without updating.  All other
 *  functions are just for database interaction.
 ******************************************************************/
 

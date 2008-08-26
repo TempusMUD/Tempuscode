@@ -9,7 +9,7 @@
 
 void xml_boot(void);
 
-/** 
+/**
  * Parses an integer from a named property in the given node
  **/
 static inline long
@@ -24,7 +24,7 @@ xmlGetLongProp(xmlNodePtr n, const char *name, long defValue = 0 )
 	return prop;
 }
 
-/** 
+/**
  * Parses an integer from a named property in the given node
  **/
 static inline int
@@ -39,8 +39,7 @@ xmlGetIntProp(xmlNodePtr n, const char *name, int defValue = 0)
 	return prop;
 }
 
-
-/** 
+/**
  * Parses a character from a named property in the given node
  **/
 static inline char
@@ -85,12 +84,12 @@ xmlMatches(const xmlChar *str_a, const char *str_b)
 }
 
 /**
- * Do a global encoding of a string, replacing the predefined entities and 
- * non ASCII values with their entities and CharRef counterparts. 
+ * Do a global encoding of a string, replacing the predefined entities and
+ * non ASCII values with their entities and CharRef counterparts.
  * Contrary to xmlEncodeEntities, uses the tmpstr utility.
 **/
 static inline char*
-xmlEncodeTmp( char* text ) 
+xmlEncodeTmp( char* text )
 {
 	char *encoded = reinterpret_cast<char *>(xmlEncodeEntitiesReentrant(NULL, reinterpret_cast<xmlChar *>(text)));
 	char *tmp_encoded = tmp_strdup(encoded);
@@ -101,14 +100,14 @@ xmlEncodeTmp( char* text )
 /**
  * tmp_string wrapped xmlEncodeSpecialChars:
  *
- * Do a global encoding of a string, replacing the predefined entities 
+ * Do a global encoding of a string, replacing the predefined entities
  * this routine is reentrant, and result must be deallocated.
  *
- * NOTE: This should be used for name="value" elements rather 
+ * NOTE: This should be used for name="value" elements rather
  *       than <name>value</name>.
 **/
 static inline char*
-xmlEncodeSpecialTmp( const char* text ) 
+xmlEncodeSpecialTmp( const char* text )
 {
 	char *encoded = reinterpret_cast<char *>(xmlEncodeSpecialChars(NULL,
                                                                    reinterpret_cast<const xmlChar *>(text)));
@@ -118,12 +117,12 @@ xmlEncodeSpecialTmp( const char* text )
 }
 
 /**
- * Do a global encoding of a string, replacing the predefined entities and 
- * non ASCII values with their entities and CharRef counterparts. 
- * Contrary to xmlEncodeEntities, this routine is reentrant, and result 
+ * Do a global encoding of a string, replacing the predefined entities and
+ * non ASCII values with their entities and CharRef counterparts.
+ * Contrary to xmlEncodeEntities, this routine is reentrant, and result
  * must be deallocated.
 **/
-static inline char* xmlEncodeEntities( char* text ) 
+static inline char* xmlEncodeEntities( char* text )
 {
 	return reinterpret_cast<char *>(xmlEncodeEntitiesReentrant(NULL,
                                                               reinterpret_cast<xmlChar *>(text)));

@@ -67,7 +67,6 @@ int get_max_cha( Creature *ch );
 #define SPLSKL(ch)  (GET_CLASS(ch) > NUM_CLASSES ? "spell" :          \
                                  prac_types[prac_params[3][(int)GET_CLASS(ch)]])
 
-
 #define PAST_CLASS(i)  (i == CLASS_MAGIC_USER || \
                     i == CLASS_CLERIC || \
                     i == CLASS_RANGER || \
@@ -81,7 +80,6 @@ int get_max_cha( Creature *ch );
                      i == CLASS_PSIONIC || \
                      i == CLASS_PHYSIC || \
                      i == CLASS_CYBORG)
-
 
 #endif
 

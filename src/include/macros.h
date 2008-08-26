@@ -4,7 +4,6 @@
 #ifndef _MACROS_
 #define _MACROS_
 
-
 #define SPECIAL(name) \
 int (name)(__attribute__ ((unused)) struct Creature *ch, \
 	__attribute__ ((unused)) thing *me, \

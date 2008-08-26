@@ -72,16 +72,15 @@ perform_net_write(descriptor_data *d,char *arg) {
 		return;
 	}
 
-
 	vict = get_player_vis(d->creature, targ, 1);
 	if ( !vict )
 		vict = get_player_vis(d->creature, targ, 0);
-	
+
 	if ( !vict || STATE(vict->desc) != CXN_NETWORK) {
 		SEND_TO_Q("Error: user not logged in\r\n", d);
 		return;
 	}
-	
+
 	sprintf(buf,"Message sent to %s: %s\r\n",GET_NAME(vict),msg);
 	SEND_TO_Q(buf, d);
 	sprintf(buf,"Message from %s: %s\r\n",GET_NAME(d->creature),msg);
@@ -151,7 +150,7 @@ perform_net_load(descriptor_data *d,char *arg)
 	percent = MIN(MAXGAIN(d->creature),
 				  MAX(MINGAIN(d->creature),
 					  INT_APP(GET_INT(d->creature))));
-	percent = MIN(LEARNED(d->creature) - 
+	percent = MIN(LEARNED(d->creature) -
 				GET_SKILL(d->creature,skill_num),percent);
 	SET_SKILL(d->creature, skill_num, GET_SKILL(d->creature, skill_num) + percent);
 	send_to_desc(d, "Program download: %s terminating, %d percent transfer.\r\n", spell_to_str(skill_num), percent);
@@ -162,7 +161,7 @@ perform_net_load(descriptor_data *d,char *arg)
 			GET_SKILL(d->creature,skill_num));
 }
 
-void 
+void
 perform_net_who(struct Creature *ch, const char *arg)
 {
     struct descriptor_data *d = NULL;
@@ -174,7 +173,7 @@ perform_net_who(struct Creature *ch, const char *arg)
             continue;
         if (!can_see_creature(ch, d->creature))
             continue;
-    
+
         count++;
         sprintf(buf, "%s   (%03d)     %s\r\n", buf, count, GET_NAME(d->creature));
         continue;
@@ -201,18 +200,18 @@ void perform_net_finger(struct Creature *ch, const char *arg)
     send_to_char(ch, "Finger results:\r\n"
             "Name:  %s, Level %d %s %s.\r\n"
             "Logged in at: %s.\r\n",
-            GET_NAME(vict), GET_LEVEL(vict), 
-            player_race[(int)GET_RACE(vict)], 
-            class_names[(int)GET_CLASS(vict)], 
+            GET_NAME(vict), GET_LEVEL(vict),
+            player_race[(int)GET_RACE(vict)],
+            class_names[(int)GET_CLASS(vict)],
             vict->in_room != NULL ?ch->in_room->name: "NOWHERE");
 }
 
-void 
+void
 perform_net_list(struct Creature * ch, int char_class) {
     int i, sortpos;
 
     strcpy(buf2, "Directory listing for local programs.\r\n\r\n");
-  
+
     for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
         i = skill_sort_info[sortpos];
         if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
@@ -221,10 +220,10 @@ perform_net_list(struct Creature * ch, int char_class) {
         }
         if ((CHECK_SKILL(ch, i) || ABLE_TO_LEARN(ch, i)) &&
             SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
-            sprintf(buf, "%-30s [%3d] percent installed.\r\n", 
+            sprintf(buf, "%-30s [%3d] percent installed.\r\n",
                     spell_to_str(i), GET_SKILL(ch, i));
             strcat(buf2, buf);
-        } 
+        }
     }
 
     page_string(ch->desc, buf2);
@@ -256,7 +255,7 @@ handle_network(descriptor_data *d,char *arg) {
 		slog("User %s disconnecting from net.", GET_NAME(d->creature));
 		set_desc_state( CXN_PLAYING,d );
 		SEND_TO_Q("Connection closed.\r\n",d);
-		act("$n disconnects from the network.", TRUE, d->creature, 0, 0, TO_ROOM);
+		act("$n disconnects from the network.", true, d->creature, 0, 0, TO_ROOM);
 	} else if ( IS_CYBORG(d->creature) && is_abbrev( arg1,"list" ) ) {
 		perform_net_list(d->creature, CLASS_CYBORG);
 	} else if ( IS_CYBORG(d->creature) && ( is_abbrev( arg1,"load" ) || is_abbrev(arg,"download"))) {

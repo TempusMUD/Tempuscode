@@ -2,7 +2,6 @@
 #include "config.h"
 #endif
 
-
 #include "creature.h"
 #include "house.h"
 #include "actions.h"
@@ -346,7 +345,7 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 	act(tmp_sprintf("$n drags $N in from %s.",
 		from_dirs[dir]), false, ch, 0, vict, TO_NOTVICT);
 	WAIT_STATE(ch, 1 RL_SEC);
-	return TRUE;
+	return true;
 }
 
 bool
@@ -423,7 +422,6 @@ SPECIAL(cityguard)
 				}
 			}
 		}
-
 
 		return 0;
 	}

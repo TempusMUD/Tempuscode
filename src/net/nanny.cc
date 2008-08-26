@@ -65,7 +65,6 @@ extern struct house_control_rec house_control[];
 extern int shutdown_count;
 extern const char *language_names[];
 
-
 // external functions
 ACMD(do_hcollect_help);
 void do_start(struct Creature * ch, int mode);
@@ -203,8 +202,8 @@ handle_input(struct descriptor_data *d)
 		}
 		break;
 	case CXN_ANSI_PROMPT:
-		
-		i = search_block(arg, ansi_levels, FALSE);
+
+		i = search_block(arg, ansi_levels, false);
 		if (i == -1) {
 			send_to_desc(d, "\r\nPlease enter one of the selections.\r\n\r\n");
 			return;
@@ -214,7 +213,7 @@ handle_input(struct descriptor_data *d)
 		set_desc_state(CXN_COMPACT_PROMPT, d);
 		break;
 	case CXN_COMPACT_PROMPT:
-		i = search_block(arg, compact_levels, FALSE);
+		i = search_block(arg, compact_levels, false);
 		if (i == -1) {
 			send_to_desc(d, "\r\nPlease enter one of the selections.\r\n\r\n");
 			return;
@@ -408,7 +407,7 @@ handle_input(struct descriptor_data *d)
 				d->creature = NULL;
 				return;
 			}
-            
+
             if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR && GET_LEVEL(d->creature) < LVL_POWER) {
                 Creature *tmp_ch = new Creature(true);
                 for (int idx=1; !d->account->invalid_char_index(idx); idx++) {
@@ -427,7 +426,7 @@ handle_input(struct descriptor_data *d)
                 delete tmp_ch;
                 tmp_ch = NULL;
             }
-            
+
 			char_to_game(d);
 
 			break;
@@ -549,7 +548,7 @@ handle_input(struct descriptor_data *d)
 		} else if (GET_REMORT_CLASS(d->creature) == GET_CLASS(d->creature)) {
 			SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
 			SEND_TO_Q("\r\nYou can't remort to your primary class!\r\n\r\n", d);
-			
+
 		} else if ((GET_CLASS(d->creature) == CLASS_MONK &&
 				(GET_REMORT_CLASS(d->creature) == CLASS_KNIGHT ||
 				GET_REMORT_CLASS(d->creature) == CLASS_CLERIC)) ||
@@ -559,7 +558,7 @@ handle_input(struct descriptor_data *d)
 			// No being a monk and a knight or cleric
 			SEND_TO_Q(CCGRN(d->creature, C_NRM), d);
 			SEND_TO_Q("\r\nYour religious beliefs are in conflict with that class!\r\n\r\n", d);
-			
+
 		} else {
 			if (GET_CLASS(d->creature) == CLASS_VAMPIRE)
 				GET_CLASS(d->creature) = GET_OLD_CLASS(d->creature);
@@ -694,12 +693,12 @@ handle_input(struct descriptor_data *d)
 				GET_NAME(d->creature));
 			if (!d->creature->in_room)
 				delete d->creature;
-			
+
 			d->creature = NULL;
 			set_desc_state(CXN_WAIT_MENU, d);
 			break;
 		}
-		
+
 		send_to_desc(d, "\r\n              &y%s has been deleted.&n\r\n\r\n", GET_NAME(d->creature));
 		slog("%s[%d] has deleted character %s[%ld]",
 				d->account->get_name(), d->account->get_idnum(),
@@ -806,7 +805,6 @@ handle_input(struct descriptor_data *d)
 	}
 }
 
-
 void
 send_prompt(descriptor_data *d)
 {
@@ -852,7 +850,7 @@ send_prompt(descriptor_data *d)
 					CCBLD(d->creature, C_CMP), CCMAG(d->creature, C_SPR),
 					GET_MANA(d->creature), CCNRM(d->creature, C_SPR),
 					CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
-	
+
 		if (PRF_FLAGGED(d->creature, PRF_DISPMOVE))
 			sprintf(prompt, "%s%s%s%d%s%sV%s ", prompt,
 					CCCYN(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
@@ -860,7 +858,7 @@ send_prompt(descriptor_data *d)
 					CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
 
 		if ( PRF2_FLAGGED( d->creature, PRF2_DISPALIGN ) ) {
-			
+
 			if( IS_GOOD( d->creature ) ) {
 			sprintf( colorbuf, "%s", CCCYN( d->creature, C_SPR ) );
 		} else if ( IS_EVIL( d->creature ) ) {
@@ -874,7 +872,7 @@ send_prompt(descriptor_data *d)
 					GET_ALIGNMENT( d->creature ), CCNRM( d->creature, C_SPR ),
 					CCYEL_BLD( d->creature, C_CMP ), CCNRM( d->creature,C_SPR ) );
 		}
-        
+
         if ( PRF2_FLAGGED( d->creature, PRF2_DISPTIME ) ) {
             if (d->creature->in_room->zone->time_frame == TIME_TIMELESS) {
                 sprintf(prompt, "%s%s%s%s", prompt, CCYEL_BLD(d->creature, C_CMP),
@@ -890,9 +888,9 @@ send_prompt(descriptor_data *d)
                 } else { //night
                     sprintf(colorbuf, "%s%s", colorbuf, CCBLU_BLD(d->creature, C_CMP));
                 }
-                
+
                 sprintf(prompt, "%s%s%d%s%s%s%s ", prompt, colorbuf,
-                ((local_time.hours % 12 == 0) ? 12 : ((local_time.hours) % 12)), 
+                ((local_time.hours % 12 == 0) ? 12 : ((local_time.hours) % 12)),
                 CCNRM(d->creature, C_SPR), CCYEL_BLD(d->creature, C_CMP),
                 ((local_time.hours >= 12) ? "PM" : "AM"), CCNRM(d->creature, C_SPR));
             }
@@ -903,11 +901,11 @@ send_prompt(descriptor_data *d)
 			sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->creature, C_NRM),
 					diag_conditions(d->creature->findRandomCombat()),
 					CCNRM(d->creature, C_NRM));
-		
+
 		sprintf(prompt, "%s%s%s>%s ", prompt, CCWHT(d->creature, C_NRM),
 				CCBLD(d->creature, C_CMP), CCNRM(d->creature, C_NRM));
 		SEND_TO_Q(prompt,d);
-		d->output_broken = FALSE;
+		d->output_broken = false;
 		break;
 	case CXN_ACCOUNT_LOGIN:
 		send_to_desc(d, "Login with your account name, or 'new' for a new account: ");
@@ -1104,7 +1102,7 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "\r\n&c                                 CHARACTER CREATION\r\n*******************************************************************************&n\r\n");
 		send_to_desc(d, "\r\n    Now that you have created your account, you probably want to create a\r\ncharacter to play on the mud.  This character will be your persona on the\r\nmud, allowing you to interact with other people and things.  You may press\r\nreturn at any time to cancel the creation of your character.\r\n\r\n");
 		if (d->account->get_char_count())
-			send_to_desc(d, "You have %d character%s in your account, you may create up to %d more.\r\n\r\n", 
+			send_to_desc(d, "You have %d character%s in your account, you may create up to %d more.\r\n\r\n",
 				d->account->get_char_count(),
 				d->account->get_char_count()==1 ? "" : "s",
 				d->account->chars_available());
@@ -1160,7 +1158,7 @@ send_menu(descriptor_data *d)
             d->text_editor->SendStartupMessage();
             send_to_desc(d, "\r\n");
         }
-            
+
 		break;
 	case CXN_MENU:
 		// If we have a creature, save and offload
@@ -1175,20 +1173,20 @@ send_menu(descriptor_data *d)
 			"&c*&n&b-----------------------------------------------------------------------------&c*\r\n"
 			"&n&b|                                 &YT E M P U S&n                                 &b|\r\n"
 			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
-		
+
 		if (d->account->get_char_count() > 0) {
 			show_account_chars(d,
 				d->account,
 				false,
 				(d->account->get_char_count() > 5));
-			send_to_desc(d, "\r\nYou have %d character%s in your account, you may create up to %d more.\r\n", 
+			send_to_desc(d, "\r\nYou have %d character%s in your account, you may create up to %d more.\r\n",
 				d->account->get_char_count(),
 				d->account->get_char_count()==1 ? "" : "s",
 				d->account->chars_available());
 		}
         send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
 			d->account->get_past_bank(), d->account->get_future_bank());
-        
+
 		send_to_desc(d, "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
 	    send_to_desc(d, "    &b[&yC&b] &cCreate a new character");
         if (d->account->get_char_count() > 0) {
@@ -1207,7 +1205,7 @@ send_menu(descriptor_data *d)
 "      your account.  To create a character, type 'c' and press return.\r\n");
 
 		} else if (d->account->get_char_count() == 1) {
-			send_to_desc(d, 
+			send_to_desc(d,
 "\r\n      This menu is your account menu, where you can manage your account,\r\n"
 "      and enter the game.  Your characters are listed at the top.  To\r\n"
 "      enter the game, you may type the number of the character you wish to\r\n"
@@ -1344,7 +1342,7 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
             flush_q(&d->input);
         }
 	}
-    
+
     if (d->original)
         d->original->saveToXML();
     else if (d->creature)
@@ -1368,7 +1366,7 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 /*
  * Turn off echoing (specific to telnet client)
  */
-void 
+void
 echo_off(struct descriptor_data *d)
 {
     char off_string[] =
@@ -1382,11 +1380,10 @@ echo_off(struct descriptor_data *d)
     SEND_TO_Q(off_string, d);
 }
 
-
 /*
  * Turn on echoing (specific to telnet client)
  */
-void 
+void
 echo_on(struct descriptor_data *d)
 {
     char on_string[] =
@@ -1479,7 +1476,7 @@ char_to_game(descriptor_data *d)
 	if (GET_LEVEL(d->creature)) {
 		// Figure out the room the player is gonna start in
         load_room = NULL;
-        if ((GET_LEVEL(d->creature) < LVL_AMBASSADOR) && 
+        if ((GET_LEVEL(d->creature) < LVL_AMBASSADOR) &&
             (quest = quest_by_vnum(GET_QUEST(d->creature)))) {
             if (quest->loadroom > -1)
                 load_room = real_room(quest->loadroom);
@@ -1505,7 +1502,6 @@ char_to_game(descriptor_data *d)
 			load_room = NULL;
 		}
 
-		
 		if (PLR_FLAGGED(d->creature, PLR_INVSTART))
 			GET_INVIS_LVL(d->creature) = (GET_LEVEL(d->creature) > LVL_LUCIFER ?
 										   LVL_LUCIFER : GET_LEVEL(d->creature));
@@ -1563,13 +1559,13 @@ char_to_game(descriptor_data *d)
 		GET_IMMORT_QP(d->creature) = GET_QUEST_ALLOWANCE(d->creature);
 		notes = tmp_strcat(notes, "Your quest points have been restored!\r\n");
 	}
-    
+
     // if their rep is 0 and they are >= gen 5 they gain 5 rep
 	if (GET_REMORT_GEN(d->creature) >= 1 && d->creature->get_reputation() == 0) {
         d->creature->gain_reputation(5);
         notes = tmp_strcat(notes, "You are no longer innocent because you have reached your first generation.\r\n");
     }
-    
+
 	d->creature->player.time.logon = now;
 	d->creature->saveToXML();
 	send_to_char(d->creature, "%s%s%s%s",
@@ -1622,7 +1618,6 @@ char_to_game(descriptor_data *d)
 
 	look_at_room(d->creature, d->creature->in_room, 0);
 
-	
 	// Remove the quest prf flag (for who list) if they're
 	// not in an active quest.
 	if (GET_QUEST(d->creature)) {
@@ -1631,7 +1626,7 @@ char_to_game(descriptor_data *d)
 				quest == NULL ||
 				quest->getEnded() != 0 ||
 				!quest->isPlaying(GET_IDNUM(d->creature))) {
-			slog("%s removed from quest %d", 
+			slog("%s removed from quest %d",
 				  GET_NAME(d->creature), GET_QUEST(d->creature) );
 			GET_QUEST(d->creature) = 0;
 		}
@@ -1646,7 +1641,7 @@ char_to_game(descriptor_data *d)
 
 	if (has_mail(GET_IDNUM(d->creature)))
 		send_to_char(d->creature, "You have mail waiting.\r\n");
-	
+
 	if (GET_CLAN(d->creature) && !real_clan(GET_CLAN(d->creature))) {
 		send_to_char(d->creature, "Your clan has been disbanded.\r\n");
 		GET_CLAN(d->creature) = 0;
@@ -1656,7 +1651,7 @@ char_to_game(descriptor_data *d)
 
 	// check for dynamic text updates (news, inews, etc...)
 	check_dyntext_updates(d->creature, CHECKDYN_UNRENT);
-	
+
 	// Check for house reposessions
 	House *house = Housing.findHouseByOwner( d->creature->getAccountID() );
 	if( house != NULL && house->getRepoNoteCount() > 0 )
@@ -1671,7 +1666,7 @@ char_to_game(descriptor_data *d)
 			}
 		}
 	}
-    
+
     // Set thier languages here to make sure they speak their race language
     set_initial_tongue(d->creature);
 	if (shutdown_count > 0)
@@ -1682,7 +1677,7 @@ char_to_game(descriptor_data *d)
 	d->account->update_last_entry();
 }
 
-int 
+int
 _parse_name(char *arg, char *name)
 {
     int i;
@@ -1700,11 +1695,9 @@ _parse_name(char *arg, char *name)
     return 0;
 }
 
-
 /* *************************************************************************
 *  Stuff for controlling the non-playing sockets (get name, pwd etc)       *
 ************************************************************************* */
-
 
 const char *reserved[] =
 {
@@ -1719,7 +1712,7 @@ const char *reserved[] =
 
 int reserved_word(char *argument)
 {
-    return (search_block(argument, reserved, TRUE) >= 0);
+    return (search_block(argument, reserved, true) >= 0);
 }
 
 void
@@ -1795,7 +1788,7 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 	"&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status  Mail\r\n"
 	"&b -- -------------- --- --- --- -------- --------- ------------- --------- ----\r\n");
 
-	} 
+	}
 
 	idx = 1;
 	tmp_ch = new Creature(true);
@@ -1827,7 +1820,7 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 		}
 		sex_str = tmp_sprintf("%s%c&n",
 				sex_color, toupper(genders[(int)GET_SEX(tmp_ch)][0]) );
-				
+
 		name_str = tmp_strdup(GET_NAME(tmp_ch));
 		if (strlen(name_str) > ((brief) ? 8:13))
 			name_str[(brief) ? 8:13] = '\0';

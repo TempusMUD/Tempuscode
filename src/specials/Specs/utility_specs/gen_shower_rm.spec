@@ -16,7 +16,7 @@ SPECIAL(gen_shower_rm)
 	send_to_char(ch,
 		"You turn on the shower and step under the pouring water.\r\n");
 	act("$n turns on the shower and steps under the pouring water.",
-		FALSE, ch, 0, 0, TO_ROOM);
+		false, ch, 0, 0, TO_ROOM);
 
 	if (affected_by_spell(ch, SPELL_ACIDITY)) {
 		affect_from_char(ch, SPELL_ACIDITY);
@@ -50,7 +50,7 @@ SPECIAL(gen_shower_rm)
 	}
 	send_to_char(ch,
 		"The hot water runs over your naked body, refreshing you.\r\n");
-	act("The hot water runs over $n's naked body.", FALSE, ch, 0, 0, TO_ROOM);
+	act("The hot water runs over $n's naked body.", false, ch, 0, 0, TO_ROOM);
 	GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + 20 * GET_LEVEL(ch));
 	GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 20 * GET_LEVEL(ch));
 	WAIT_STATE(ch, 3 RL_SEC);

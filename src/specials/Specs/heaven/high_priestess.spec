@@ -26,35 +26,35 @@ SPECIAL(high_priestess)
 			return 0;
 
 		act("There is a blinding flash of light!!\r\n"
-			"$n disappears in a thunderclap!", FALSE, hpr, 0, 0, TO_ROOM);
+			"$n disappears in a thunderclap!", false, hpr, 0, 0, TO_ROOM);
         vict = hpr->findRandomCombat();
         hpr->removeAllCombat();
 
 		if ((archon = read_mobile(43014))) {
 			char_to_room(archon, hpr->in_room, false);
-			act("$n appears at the center of the room.", FALSE, archon, 0, 0,
+			act("$n appears at the center of the room.", false, archon, 0, 0,
 				TO_ROOM);
 		}
 		if ((archon = read_mobile(43015))) {
 			char_to_room(archon, hpr->in_room, false);
-			act("$n appears at the center of the room.", FALSE, archon, 0, 0,
+			act("$n appears at the center of the room.", false, archon, 0, 0,
 				TO_ROOM);
 			hit(archon, vict, TYPE_UNDEFINED);
 		}
 
 		char_from_room(hpr, false);
 		char_to_room(hpr, quarters, false);
-		act("$n appears at the center of the room.", TRUE, hpr, 0, 0, TO_ROOM);
+		act("$n appears at the center of the room.", true, hpr, 0, 0, TO_ROOM);
 		return 1;
 	}
 
 	if (!hpr->isFighting() && hpr->in_room == quarters &&
 		GET_HIT(hpr) == GET_MAX_HIT(hpr) &&
 		GET_MANA(hpr) > (GET_MAX_MANA(hpr) * 0.75)) {
-		act("$n steps onto a flaming golden chariot and disappears into the sky.", FALSE, hpr, 0, 0, TO_ROOM);
+		act("$n steps onto a flaming golden chariot and disappears into the sky.", false, hpr, 0, 0, TO_ROOM);
 		char_from_room(hpr, false);
 		char_to_room(hpr, focus, false);
-		act("A dazzling shaft of light appears from the heavens, bathing the throne.\r\n$n slowly appears, seated at the focus.", FALSE, hpr, 0, 0, TO_ROOM);
+		act("A dazzling shaft of light appears from the heavens, bathing the throne.\r\n$n slowly appears, seated at the focus.", false, hpr, 0, 0, TO_ROOM);
 		return 1;
 	}
 

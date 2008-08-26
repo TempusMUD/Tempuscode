@@ -20,7 +20,7 @@ SPECIAL(mob_helper)
         // mob to attack a dead creature
         if (!helpee->isFighting())
             continue;
-        
+
         vict = helpee->findRandomCombat();
 		if (vict->getPosition() > POS_DEAD
 				&& IS_MOB(helpee)
@@ -28,7 +28,7 @@ SPECIAL(mob_helper)
 				&& ((IS_GOOD(ch) && IS_GOOD(helpee)) ||
 						(IS_EVIL(ch) && IS_EVIL(helpee)))
 				&& !number(0, 2)) {
-			act("$n jumps to the aid of $N!", FALSE, ch, 0, helpee,
+			act("$n jumps to the aid of $N!", false, ch, 0, helpee,
 				TO_NOTVICT);
 			hit(ch, vict, TYPE_UNDEFINED);
 			return 1;

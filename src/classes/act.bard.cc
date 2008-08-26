@@ -112,7 +112,7 @@ sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songn
 	  continue;
 
 	Creature *tch = *it;
-       
+
 	if (ovict)
 	  vbuf = tmp_sprintf(" to %s", OBJS(ovict, tch));
 	else if (!vict)
@@ -136,7 +136,7 @@ sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songn
 	  if (tch == ch)
 		buf = tmp_sprintf("You begin to play %s%s.", song->lyrics, vbuf);
 	  else
-		buf = tmp_sprintf("%s begins playing %s%s.", 
+		buf = tmp_sprintf("%s begins playing %s%s.",
 						  PERS(ch, tch),
 						  song->lyrics,
 						  vbuf);
@@ -150,8 +150,8 @@ sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songn
 	  else
 		buf = tmp_sprintf("%s sings%s, %s\"%s\"%s",
 						  PERS(ch, tch),
-						  vbuf, 
-						  CCCYN(tch, C_NRM), 
+						  vbuf,
+						  CCCYN(tch, C_NRM),
 						  song->lyrics,
 						  CCNRM(tch, C_NRM));
 	  buf = pad_song(buf);
@@ -191,7 +191,6 @@ bool bard_can_charm_more(Creature *ch)
 
     return ((GET_CHA(ch) >> 2 - count) > 0);
 
-
 }
 
 bool check_instrument(Creature *ch, int songnum)
@@ -200,7 +199,7 @@ bool check_instrument(Creature *ch, int songnum)
     short req_type = songs[songnum].type;
     bool found = false;
     int x = 0;
-    
+
     objs[0] = GET_EQ(ch, WEAR_HOLD);
     objs[1] = GET_EQ(ch, WEAR_WIELD);
     objs[2] = GET_EQ(ch, WEAR_WIELD_2);
@@ -256,9 +255,9 @@ ASPELL(song_instant_audience)
             return;
         }
 
-        float mult = MAX(0.5 , 
+        float mult = MAX(0.5 ,
                          (float)((ch->getLevelBonus(SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
-        
+
         // tweak them out
         GET_HITROLL(member) = MIN((int)(GET_HITROLL(member) * mult), 60);
         GET_DAMROLL(member) = MIN((int)(GET_DAMROLL(member) * mult), 75);
@@ -270,7 +269,7 @@ ASPELL(song_instant_audience)
 
         if (member->master)
             stop_follower(member);
-        
+
         add_follower(member, ch);
 
         af.type = SPELL_CHARM;
@@ -324,7 +323,7 @@ ASPELL(song_exposure_overture)
 
         if (prob < percent)
             continue;
-        
+
         if (affected_by_spell(tch, SPELL_INVISIBLE)) {
             affect_from_char(tch, SPELL_INVISIBLE);
             to_char = "Your music causes $N to fade into view!";
@@ -384,7 +383,6 @@ ASPELL(song_lament_of_longing)
             ch, 0, victim, TO_VICT);
     }
 
-
     if (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {
         send_to_char(ch, "A portal tries to form but snaps suddenly out of existence.\r\n");
         act("A shimmering portal appears for a moment but "
@@ -424,7 +422,7 @@ ASPELL(song_lament_of_longing)
 
     if (GET_PLANE(ch->in_room) != GET_PLANE(victim->in_room)) {
         if (GET_PLANE(victim->in_room) != PLANE_ASTRAL) {
-            if (number(0, 120) > (CHECK_SKILL(ch, SONG_LAMENT_OF_LONGING) + 
+            if (number(0, 120) > (CHECK_SKILL(ch, SONG_LAMENT_OF_LONGING) +
                 (GET_CHA(ch) / 2))) {
                 if ((targ_room = real_room(number(41100, 41863))) == NULL)
                     targ_room = victim->in_room;
@@ -535,7 +533,7 @@ ASPELL(song_wall_of_sound)
 		affect_from_room(ch->in_room, rm_aff_ptr);
     }
 
-    dir_str = dir_adj[*dir]; 
+    dir_str = dir_adj[*dir];
     send_to_room(tmp_sprintf("A wall of sound appears, sealing the %s exit!\r\n",
 							 dir_str),
 				 ch->in_room);
@@ -555,7 +553,7 @@ ASPELL(song_wall_of_sound)
 
 ASPELL(song_hymn_of_peace)
 {
-    
+
     CreatureList::iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         (*it)->removeAllCombat();
@@ -563,7 +561,7 @@ ASPELL(song_hymn_of_peace)
     }
 
     send_to_char(ch, "Your song brings a feeling of peacefulness.\r\n");
-    act("A feeling of peacefulness is heralded by $n's song.", FALSE, ch, 0, 0, TO_ROOM);
+    act("A feeling of peacefulness is heralded by $n's song.", false, ch, 0, 0, TO_ROOM);
 
     gain_skill_prof(ch, SONG_HYMN_OF_PEACE);
 }
@@ -603,7 +601,7 @@ ACMD(do_ventriloquize)
 
     if (target_str) {
         target = get_char_room_vis(ch, target_str);
-        
+
         if (!target) {
             otarget = get_obj_in_list_vis(ch, target_str, ch->carrying);
 
@@ -639,13 +637,13 @@ ACMD(do_ventriloquize)
         }
         else
             target_str = NULL;
-        
+
         send_to_char(*ci, "%s%s says%s,%s%s \'%s\'%s\r\n",
-                     CCBLU_BLD(ch, C_NRM), 
+                     CCBLU_BLD(ch, C_NRM),
                      tmp_capitalize(obj->name),
-                     (target_str ? target_str : ""), 
-                     CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument, 
-                     CCNRM(ch, C_NRM)); 
+                     (target_str ? target_str : ""),
+                     CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument,
+                     CCNRM(ch, C_NRM));
     }
 
     gain_skill_prof(ch, SKILL_VENTRILOQUISM);

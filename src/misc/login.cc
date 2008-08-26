@@ -103,11 +103,11 @@ valid_class_race(Creature *ch, int char_class, bool remort)
 
 	if (char_class == GET_CLASS(ch))
 		return false;
-    
+
     // restrict any invalid classes
     if( char_class > NUM_CLASSES )
         return false;
-    
+
 	for (i = 0;i < NUM_PC_RACES;i++) {
 		if (race_restr[i][0] == GET_RACE(ch)) {
             return ( race_restr[i][char_class + 1] == 2 ) ||
@@ -199,7 +199,7 @@ parse_pc_race(struct descriptor_data *d, char *arg)
 			continue;
 		return race_restr[idx][0];
 	}
-	
+
 	return last_match;
 }
 
@@ -210,7 +210,7 @@ show_pc_race_help(descriptor_data *d, char *arg)
 
 	race_str = tmp_getword(&arg);	// throw away
 	race_str = tmp_getword(&arg);	// actual race
-	
+
 	if (!*race_str) {
 		send_to_desc(d,
 			"\r\n&gTry specifying the race you want information on.&n\r\n\r\n");
@@ -233,7 +233,7 @@ show_pc_class_help(descriptor_data *d, char *arg)
 
 	class_str = tmp_getword(&arg);	// throw away
 	class_str = tmp_getword(&arg);	// actual class
-	
+
 	if (!*class_str) {
 		send_to_desc(d,
 			"\r\n&gTry specifying the class you want information on.&n\r\n");

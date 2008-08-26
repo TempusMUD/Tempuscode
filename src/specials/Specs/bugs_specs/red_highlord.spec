@@ -26,12 +26,12 @@ SPECIAL(red_highlord)
 
 	if ((r_home_room = real_room(v_home_room)) != NULL && ch->in_room !=
 		r_home_room && !ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {
-		act("$n kneels and utters an obscene prayer to Takhisis.", FALSE, ch,
+		act("$n kneels and utters an obscene prayer to Takhisis.", false, ch,
 			0, 0, TO_ROOM);
-		act("$n disappears in a flash of light!", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n disappears in a flash of light!", false, ch, 0, 0, TO_ROOM);
 		char_from_room(ch, false);
 		char_to_room(ch, r_home_room, false);
-		act("$n appears in a flash of light!", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n appears in a flash of light!", false, ch, 0, 0, TO_ROOM);
 		return 1;
 	}
 
@@ -95,7 +95,6 @@ SPECIAL(red_highlord)
 		}
 	}
 
-
 	if (target_room != NULL &&
 		(target_room->zone == ch->in_room->zone ||
 			(!ZONE_FLAGGED(target_room->zone, ZONE_ISOLATED) &&
@@ -104,31 +103,31 @@ SPECIAL(red_highlord)
 			ROOM_GODROOM | ROOM_HOUSE)) {
 		if (target_room == blade->in_room ||
 			(container && target_room == container->in_room)) {
-			act("$n utters some arcane words and disappears in a flash of light.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n utters some arcane words and disappears in a flash of light.", false, ch, 0, 0, TO_ROOM);
 			was_in = ch->in_room;
 			char_from_room(ch, false);
 			char_to_room(ch, target_room, false);
 			act("$n appears with a flash of light at the center of the room.",
-				FALSE, ch, 0, 0, TO_ROOM);
+				false, ch, 0, 0, TO_ROOM);
 
 			if (blade->in_room == ch->in_room)
 				obj_from_room(blade);
 			else if (blade->in_obj && container
 				&& container->in_room == ch->in_room) {
-				act("$n grabs $p.", TRUE, ch, container, 0, TO_ROOM);
-				act("$n rummages around, and extracts $p.", TRUE, ch, blade, 0,
+				act("$n grabs $p.", true, ch, container, 0, TO_ROOM);
+				act("$n rummages around, and extracts $p.", true, ch, blade, 0,
 					TO_ROOM);
-				act("$n throws $p to the ground with disgust.", FALSE, ch,
+				act("$n throws $p to the ground with disgust.", false, ch,
 					container, 0, TO_ROOM);
 				obj_from_obj(blade);
 			}
 			obj_to_char(blade, ch);
 			act("$n grabs $p and disappears as suddenly as $e came!",
-				FALSE, ch, blade, 0, TO_ROOM);
+				false, ch, blade, 0, TO_ROOM);
 			char_from_room(ch, false);
 			char_to_room(ch, was_in, false);
 			act("$n reappears suddenly, with a big grin on $s face.",
-				FALSE, ch, 0, 0, TO_ROOM);
+				false, ch, 0, 0, TO_ROOM);
 			return 1;
 		}
 	} else if (vict && !number(0, 38)) {

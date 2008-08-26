@@ -24,9 +24,9 @@ SPECIAL(laby_altar)
 		if (GET_OBJ_VNUM(cur_obj) == KEY3_VNUM)
 			prev_keys[2] = true;
 	}
-	
+
 	do_put(ch, argument, cmd, 0, 0);
-	
+
 	for (cur_obj = self->contains;cur_obj;cur_obj = cur_obj->next_content) {
 		if (GET_OBJ_VNUM(cur_obj) == KEY1_VNUM)
 			cur_keys[0] = true;

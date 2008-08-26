@@ -150,7 +150,6 @@ write_obj_index(struct Creature *ch, struct zone_data *zone)
 	return (1);
 }
 
-
 bool
 save_objs(struct Creature *ch, struct zone_data *zone)
 {
@@ -281,7 +280,6 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 				obj->affected[aff_idx].modifier);
 		}
 
-
 		for (i = 0; i < 3; i++) {
 			if (obj->obj_flags.bitvector[i]) {
 				num2str(sbuf1, obj->obj_flags.bitvector[i]);
@@ -335,7 +333,6 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 	REMOVE_BIT(zone->flags, ZONE_OBJS_MODIFIED);
 	return true;
 }
-
 
 struct obj_data *
 do_create_obj(struct Creature *ch, int vnum)
@@ -418,7 +415,6 @@ do_create_obj(struct Creature *ch, int vnum)
 	return (new_obj);
 }
 
-
 int
 do_destroy_object(struct Creature *ch, int vnum)
 {
@@ -478,7 +474,6 @@ do_destroy_object(struct Creature *ch, int vnum)
 	if (obj->action_desc)
 		free(obj->action_desc);
 
-
 	while ((desc = obj->ex_description)) {
 		obj->ex_description = desc->next;
 		if (desc->keyword)
@@ -499,7 +494,6 @@ do_destroy_object(struct Creature *ch, int vnum)
 
 	return 0;
 }
-
 
 void
 perform_oset(struct Creature *ch, struct obj_data *obj_p,
@@ -540,7 +534,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 	half_chop(argument, arg1, arg2);
 	skip_spaces(&argument);
 
-	if ((oset_command = search_block(arg1, olc_oset_keys, FALSE)) < 0) {
+	if ((oset_command = search_block(arg1, olc_oset_keys, false)) < 0) {
 		send_to_char(ch, "Invalid oset command '%s'.\r\n", arg1);
 		return;
 	}
@@ -609,7 +603,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		if (subcmd == OLC_OSET)
 			UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
 		act("$n begins to write an object description.",
-			TRUE, ch, 0, 0, TO_ROOM);
+			true, ch, 0, 0, TO_ROOM);
 		break;
 
 	case 4:		/************* obj type ******************/
@@ -649,7 +643,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		cur_flags = obj_p->obj_flags.extra_flags;
 
 		while (*arg1) {
-			if ((flag = search_block(arg1, extra_names, FALSE)) == -1) {
+			if ((flag = search_block(arg1, extra_names, false)) == -1) {
 				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
@@ -693,7 +687,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		cur_flags = obj_p->obj_flags.extra2_flags;
 
 		while (*arg1) {
-			if ((flag = search_block(arg1, extra2_names, FALSE)) == -1) {
+			if ((flag = search_block(arg1, extra2_names, false)) == -1) {
 				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
@@ -737,7 +731,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		cur_flags = obj_p->obj_flags.wear_flags;
 
 		while (*arg1) {
-			if ((flag = search_block(arg1, wear_bits, FALSE)) == -1) {
+			if ((flag = search_block(arg1, wear_bits, false)) == -1) {
 				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
@@ -933,7 +927,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 
 		if (k >= MAX_OBJ_AFFECT) {
 			if (j)
-				send_to_char(ch, 
+				send_to_char(ch,
 					"All apply slots are filled.  Set an existing apply mod. to zero to remove.\r\n");
 			else
 				send_to_char(ch, "Unable to find an apply of that type.\r\n");
@@ -983,7 +977,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		else {
 
 			obj_p->shared->func = spec_list[i].func;
-			if( obj_p->shared->func_param != NULL ) 
+			if( obj_p->shared->func_param != NULL )
 				free(obj_p->shared->func_param);
 			obj_p->shared->func_param = NULL;
 			do_specassign_save(ch, SPEC_OBJ);
@@ -1058,7 +1052,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		cur_flags = obj_p->obj_flags.extra3_flags;
 
 		while (*arg1) {
-			if ((flag = search_block(arg1, extra3_names, FALSE)) == -1) {
+			if ((flag = search_block(arg1, extra3_names, false)) == -1) {
 				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
@@ -1112,7 +1106,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		// It's ok.  Let em set it.
 		start_editing_text(ch->desc, &obj_p->shared->func_param);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-		act("$n begins to write a object spec param.", TRUE, ch, 0, 0,
+		act("$n begins to write a object spec param.", true, ch, 0, 0,
 			TO_ROOM);
 		break;
 	case 25:

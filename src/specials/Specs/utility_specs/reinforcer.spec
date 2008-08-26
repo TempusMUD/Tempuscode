@@ -53,14 +53,14 @@ SPECIAL(reinforcer)
 
 	cost = GET_OBJ_COST(obj);
     cost += (cost*ch->getCostModifier(keeper))/100;
-    
+
 	sprintf(buf2, "It will cost you %d %s to have %s reinforced.",
 		cost, ch->in_room->zone->time_frame == TIME_ELECTRO ? "credits" :
 		"coins", obj->name);
 	perform_tell(keeper, ch, buf2);
 
 	if (cmd_type == REIN_OFF) {
-		act("$n gets an offer on reinforcement for $p.", FALSE, ch, obj, 0,
+		act("$n gets an offer on reinforcement for $p.", false, ch, obj, 0,
 			TO_ROOM);
 		return 1;
 	}
@@ -80,11 +80,11 @@ SPECIAL(reinforcer)
 	}
 
 	act("$n takes $p and disappears into the back room for a while.\r\n",
-		FALSE, keeper, obj, ch, TO_VICT);
+		false, keeper, obj, ch, TO_VICT);
 	act("$e returns shortly and presents you with the finished product",
-		FALSE, keeper, obj, ch, TO_VICT);
+		false, keeper, obj, ch, TO_VICT);
 	act("$n takes $p from $N and disappears into the back room for a while.",
-		FALSE, keeper, obj, ch, TO_NOTVICT);
+		false, keeper, obj, ch, TO_NOTVICT);
 
 	SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_REINFORCED);
 	GET_OBJ_MAX_DAM(obj) += (GET_OBJ_MAX_DAM(obj) >> 2);

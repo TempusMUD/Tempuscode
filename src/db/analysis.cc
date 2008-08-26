@@ -17,7 +17,6 @@
 // Copyright 2002 by John Rothe, all rights reserved.
 //
 
-
 #ifdef HAS_CONFIG_H
 #include "config.h"
 #endif
@@ -86,7 +85,7 @@ class ObjectMatcherTable {
 				for( unsigned int i = 0; i < table.size(); i++  ) {
 					if( table[i]->isKey(arg) ) {
                         used = true;
-						if( table[i]->init(ch, tokens) ) 
+						if( table[i]->init(ch, tokens) )
 							break;
 					}
 				}
@@ -104,7 +103,7 @@ class ObjectMatcherTable {
 			for( unsigned int i = 0; i < table.size(); i++  ) {
 				if( table[i]->isReady() && !table[i]->isMatch(obj) ) {
 					return false;
-				} 
+				}
 			}
 			return true;
 		}
@@ -138,13 +137,13 @@ class ObjectMatcherTable {
 		}
 };
 
-/** 
+/**
  * prints a delightfull description of the given object into the
  * given buffer of the given size, using ch for it's color and
  * showing or not showing spell names.
 **/
 char*
-sprintobj( Creature *ch, obj_data *obj, ObjectMatcherTable &table, int num ) 
+sprintobj( Creature *ch, obj_data *obj, ObjectMatcherTable &table, int num )
 {
 	const char *info = table.getAddedInfo( ch, obj );
 	return tmp_sprintf("%3d. %s[%s%5d%s] %35s%s %s%s\r\n", num,
@@ -170,11 +169,11 @@ do_show_objects( Creature *ch, char *value, char *arg ) {
 	if(! matcherTable.init(ch,tokens) || !matcherTable.isReady() ) {
 		return;
 	}
-	
+
 //	for (obj_data *obj = obj_proto; obj != NULL ; obj = obj->next) {
     ObjectMap::iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
-        obj = oi->second;    
+        obj = oi->second;
 		for( int i = 0; i < matcherTable.size(); i++  ) {
 			if( matcherTable.isMatch(obj) ) {
 				objects.push_back(obj);

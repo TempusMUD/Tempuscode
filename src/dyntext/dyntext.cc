@@ -344,7 +344,7 @@ set_dyntext(Creature *ch, dynamic_text_file * dyntext, char *argument)
 		lev = atoi(arg2);
 
 		if (lev > GET_LEVEL(ch)) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"Let's not set it above your own level, shall we?\r\n");
 			return;
 		}
@@ -427,8 +427,6 @@ show_dyntext(Creature *ch, dynamic_text_file * dyntext, char *argument)
 	strcpy(buf, "DYNTEXT LIST:\r\n");
 	for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next)
 		send_to_char(ch, "%s%s\r\n", buf, dyntext->filename);
-
-
 
 }
 
@@ -530,7 +528,7 @@ ACMD(do_dynedit)
 				send_to_char(ch, "User added.\r\n");
 
 				if (save_dyntext_control(dyntext))
-					send_to_char(ch, 
+					send_to_char(ch,
 						"An error occurred while saving the control file.\r\n");
 				else
 					send_to_char(ch, "Control file saved.\r\n");
@@ -570,7 +568,7 @@ ACMD(do_dynedit)
 			send_to_char(ch, "User removed from the permission list.\r\n");
 
 			if (save_dyntext_control(dyntext))
-				send_to_char(ch, 
+				send_to_char(ch,
 					"An error occurred while saving the control file.\r\n");
 			else
 				send_to_char(ch, "Control file saved.\r\n");
@@ -596,7 +594,7 @@ ACMD(do_dynedit)
 		}
 		dyntext->lock = GET_IDNUM(ch);
 
-		act("$n begins editing a dynamic text file.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n begins editing a dynamic text file.", true, ch, 0, 0, TO_ROOM);
 
 		// enter the text editor
 		start_editing_text(ch->desc, &dyntext->tmp_buffer,
@@ -679,7 +677,6 @@ ACMD(do_dynedit)
 		free(dyntext->buffer);
 		dyntext->buffer = newbuf;
 
-
 		// save the new file
 		if (save_dyntext_buffer(dyntext)) {
 
@@ -691,11 +688,9 @@ ACMD(do_dynedit)
 
 		}
 
-
 		if (push_update_to_history(ch, dyntext))
 
 			send_to_char(ch, "There was an error updating the history.\r\n");
-
 
 		if (save_dyntext_control(dyntext))
 			send_to_char(ch, "An error occurred while saving the control file.\r\n");
@@ -729,7 +724,7 @@ ACMD(do_dynedit)
 			else {
 				if (strlen(dyntext->buffer) + strlen(dyntext->tmp_buffer) >=
 					MAX_STRING_LENGTH) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Resulting string would exceed maximum string length, aborting.\r\n");
 					return;
 				}
@@ -737,7 +732,7 @@ ACMD(do_dynedit)
 						(char *)malloc(strlen(dyntext->buffer) +
 							strlen(dyntext->tmp_buffer) + 1))) {
 					errlog("unable to malloc buffer for prepend in do_dynedit.");
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Unable to allocate memory for the new buffer.\r\n");
 					return;
 				}
@@ -776,7 +771,7 @@ ACMD(do_dynedit)
 			else {
 				if (strlen(dyntext->buffer) + strlen(dyntext->tmp_buffer) >=
 					MAX_STRING_LENGTH) {
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Resulting string would exceed maximum string length, aborting.\r\n");
 					return;
 				}
@@ -784,7 +779,7 @@ ACMD(do_dynedit)
 						(char *)malloc(strlen(dyntext->buffer) +
 							strlen(dyntext->tmp_buffer) + 1))) {
 					errlog("unable to malloc buffer for append in do_dynedit.");
-					send_to_char(ch, 
+					send_to_char(ch,
 						"Unable to allocate memory for the new buffer.\r\n");
 					return;
 				}
@@ -890,8 +885,6 @@ ACMD(do_dyntext_show)
 
 	page_string(ch->desc, acc_get_string());
 }
-
-
 
 void
 check_dyntext_updates(Creature *ch, int mode)

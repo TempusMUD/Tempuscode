@@ -20,7 +20,7 @@ class Craftshop {
 		void buy(Creature *keeper, Creature *ch, char *args);
         int getID() { return id; }
     public:
-        
+
 		int room;
 		int keeper_vnum;
 		vector<CraftItem *> items;

@@ -19,13 +19,13 @@ SPECIAL(spinal)
 	if (!cmd && spinal->in_room != r_home_pad &&
 		r_home_pad != NULL && !ch->isFighting()) {
 		act("$n departs suddenly into the deeper ethereal.",
-			FALSE, spinal, 0, 0, TO_ROOM);
+			false, spinal, 0, 0, TO_ROOM);
 		char_from_room(spinal, false);
 		char_to_room(spinal, r_home_pad, false);
 		spinal->in_room->zone->idle_time = 0;
 
 		act("$n steps in from another plane of existence.",
-			FALSE, spinal, 0, 0, TO_ROOM);
+			false, spinal, 0, 0, TO_ROOM);
 		return 1;
 	} else if (cmd) {
 		return 0;
@@ -56,12 +56,12 @@ SPECIAL(spinal)
 			spinal->in_room->zone->idle_time = 0;
 
 			act("$n steps in from the ethereal plane.",
-				FALSE, spinal, 0, 0, TO_ROOM);
+				false, spinal, 0, 0, TO_ROOM);
 			act("$n grins at you and grabs $p.",
-				FALSE, spinal, spine, spine->carried_by, TO_VICT);
+				false, spinal, spine, spine->carried_by, TO_VICT);
 			act("$n grins at $N and grabs $p.",
-				FALSE, spinal, spine, spine->carried_by, TO_NOTVICT);
-			act("$n eats $p.", FALSE, spinal, spine, 0, TO_ROOM);
+				false, spinal, spine, spine->carried_by, TO_NOTVICT);
+			act("$n eats $p.", false, spinal, spine, 0, TO_ROOM);
 			extract_obj(spine);
 			return 1;
 		} else {
@@ -72,11 +72,11 @@ SPECIAL(spinal)
 		char_to_room(spinal, spine->in_room, false);
 		spinal->in_room->zone->idle_time = 0;
 
-		act("$n steps in from the ethereal plane.", FALSE, spinal, 0, 0,
+		act("$n steps in from the ethereal plane.", false, spinal, 0, 0,
 			TO_ROOM);
-		act("$n grins and grabs $p.", FALSE, spinal, spine, spine->carried_by,
+		act("$n grins and grabs $p.", false, spinal, spine, spine->carried_by,
 			TO_ROOM);
-		act("$n eats $p.", FALSE, spinal, spine, 0, TO_ROOM);
+		act("$n eats $p.", false, spinal, spine, 0, TO_ROOM);
 		extract_obj(spine);
 		return 1;
 	} else {

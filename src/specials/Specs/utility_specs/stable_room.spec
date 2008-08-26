@@ -25,7 +25,7 @@ SPECIAL(stable_room)
 			send_to_char(ch, "%8d - %s\r\n", 3 * GET_EXP((*it)),
 				GET_NAME((*it)));
 		}
-		return (TRUE);
+		return (true);
 	} else if (CMD_IS("buy")) {
 
 		argument = one_argument(argument, buf);
@@ -33,15 +33,15 @@ SPECIAL(stable_room)
 
 		if (!(pet = get_char_room(buf, pet_room))) {
 			send_to_char(ch, "There is no such mount!\r\n");
-			return (TRUE);
+			return (true);
 		}
 		if(! IS_NPC(pet) ) {
 			send_to_char(ch, "Funny.  Real funny.  Ha ha.\r\n");
-			return (TRUE);
+			return (true);
 		}
 		if(GET_GOLD(ch) < (GET_EXP(pet) * 3)) {
 			send_to_char(ch, "You don't have enough gold!\r\n");
-			return (TRUE);
+			return (true);
 		}
 		GET_GOLD(ch) -= GET_EXP(pet) * 3;
 
@@ -68,7 +68,7 @@ SPECIAL(stable_room)
 		IS_CARRYING_N(pet) = 100;
 
 		send_to_char(ch, "May this mount serve you well.\r\n");
-		act("$n buys $N as a mount.", FALSE, ch, 0, pet, TO_ROOM);
+		act("$n buys $N as a mount.", false, ch, 0, pet, TO_ROOM);
 
 		return 1;
 	}
@@ -87,7 +87,7 @@ SPECIAL(stable_room)
 			return 1;
 		}
 		if (!pet->master || pet->master != ch || !AFF_FLAGGED(pet, AFF_CHARM)) {
-			act("You don't have the authority to sell $N.", FALSE, ch, 0, pet,
+			act("You don't have the authority to sell $N.", false, ch, 0, pet,
 				TO_CHAR);
 			return 1;
 		}
@@ -98,7 +98,7 @@ SPECIAL(stable_room)
 		price = GET_LEVEL(pet) * 10 + GET_MOVE(pet) * 10 + GET_HIT(pet) * 10;
 
 		sprintf(buf, "I will pay you %d gold coins for $N.", price);
-		act(buf, FALSE, ch, 0, pet, TO_CHAR);
+		act(buf, false, ch, 0, pet, TO_CHAR);
 		if (CMD_IS("value"))
 			return 1;
 
@@ -109,8 +109,8 @@ SPECIAL(stable_room)
 		}
 		stop_follower(pet);
 
-		act("The stables now owns $N.", FALSE, ch, 0, pet, TO_CHAR);
-		act("$n sells $N to the stables.", FALSE, ch, 0, pet, TO_ROOM);
+		act("The stables now owns $N.", false, ch, 0, pet, TO_CHAR);
+		act("$n sells $N to the stables.", false, ch, 0, pet, TO_ROOM);
 
 		GET_GOLD(ch) += price;
 		GET_EXP(pet) = price >> 1;

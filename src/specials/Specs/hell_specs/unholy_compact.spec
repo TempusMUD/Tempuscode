@@ -25,7 +25,7 @@ SPECIAL(unholy_compact)
 	life_cost = 25;
 	gold = 10000 * GET_LEVEL(ch);
     gold += (gold*ch->getCostModifier(dude))/100;
-    
+
 	if (IS_KNIGHT(ch))
 		min_gen = 6;
 	if (IS_CLERIC(ch))
@@ -66,11 +66,11 @@ SPECIAL(unholy_compact)
 		sprintf(buf, "Your body cannot survive without it's soul. Yet.");
 		perform_tell(dude, ch, buf);
 	} else {
-		act("$n burns the mark of evil into $N's forehead.", TRUE, dude, 0, ch,
+		act("$n burns the mark of evil into $N's forehead.", true, dude, 0, ch,
 			TO_NOTVICT);
 		act("$n burns the mark of evil in your forehead.  All hope is lost...",
-			TRUE, dude, 0, ch, TO_VICT);
-		act("$N screams in agony as $S soul is ripped from $S body!", TRUE,
+			true, dude, 0, ch, TO_VICT);
+		act("$N screams in agony as $S soul is ripped from $S body!", true,
 			dude, 0, ch, TO_NOTVICT);
 		ch->setPosition(POS_SLEEPING);
 		GET_LIFE_POINTS(ch) -= life_cost;

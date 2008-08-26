@@ -11,14 +11,13 @@ SPECIAL(dwarven_hermit)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (CMD_IS("ask"))
-		act("$N ignores you!", TRUE, me2, 0, 0, TO_CHAR);
+		act("$N ignores you!", true, me2, 0, 0, TO_CHAR);
 
 	if (cmd)
 		return (0);
 
 	if (!(od = GET_EQ(me2, WEAR_HOLD)))
 		return (0);
-
 
 	if (me2->in_room->people.size() == 1) {
 		GET_OBJ_VAL(od, 0) = 0;

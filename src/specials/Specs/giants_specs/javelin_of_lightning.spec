@@ -33,9 +33,9 @@ SPECIAL(javelin_of_lightning)
 	else if (GET_LEVEL(vict) > LVL_IMMORT)
 		send_to_char(ch, "Ummm, thats probably not such a hot idea.\r\n");
 	else {
-		act("You hurl $p at $N!!", FALSE, ch, jav, vict, TO_CHAR);
-		act("$n hurls $p at you!!", FALSE, ch, jav, vict, TO_VICT);
-		act("$n hurls $p at $N!!", FALSE, ch, jav, vict, TO_NOTVICT);
+		act("You hurl $p at $N!!", false, ch, jav, vict, TO_CHAR);
+		act("$n hurls $p at you!!", false, ch, jav, vict, TO_VICT);
+		act("$n hurls $p at $N!!", false, ch, jav, vict, TO_NOTVICT);
 
 		if (!ch->isOkToAttack(vict, false))
 			return 1;

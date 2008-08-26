@@ -213,7 +213,6 @@ immort_windy_command(Creature *ch, windy_room_data * windy, char *argument)
 	int i, max, min;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
-
 	if (!CAN_EDIT_ZONE(ch, ch->in_room->zone)) {
 		send_to_char(ch, "You cannot edit this zone.\r\n"
 			"Goto an editable zone to list windy data.\r\n");
@@ -221,7 +220,6 @@ immort_windy_command(Creature *ch, windy_room_data * windy, char *argument)
 	}
 
 	two_arguments(argument, arg1, arg2);
-
 
 	if (!*arg1) {
 		send_to_char(ch, WINDY_USAGE);
@@ -288,7 +286,6 @@ immort_windy_command(Creature *ch, windy_room_data * windy, char *argument)
 	return 1;
 }
 
-
 SPECIAL(windy_room)
 {
 	struct room_data *room = (struct room_data *)me;
@@ -320,7 +317,6 @@ SPECIAL(windy_room)
 	if (GET_LEVEL(ch) > LVL_AMBASSADOR && CMD_IS("status"))
 		return (immort_windy_command(ch, windy, argument));
 
-
 	// character blowing commands
 	if (PRF_FLAGGED(ch, PRF_NOHASSLE))
 		return 0;
@@ -333,7 +329,6 @@ SPECIAL(windy_room)
 		prob += 10;
 
 	prob -= (GET_WEIGHT(ch) + IS_CARRYING_W(ch) + IS_WEARING_W(ch)) / 80;	// weight bonus
-
 
 	if (prob > GET_STR(ch)) {
 
@@ -361,7 +356,7 @@ SPECIAL(windy_room)
 		sprintf(buf,
 			"An icy gust of wind sends $n flying %sward through the air!",
 			dirs[dir]);
-		act(buf, FALSE, ch, 0, 0, TO_ROOM);
+		act(buf, false, ch, 0, 0, TO_ROOM);
 
 		char_from_room(ch);
 		char_to_room(ch, room);
@@ -372,7 +367,7 @@ SPECIAL(windy_room)
 		sprintf(buf,
 			"$n comes flying in on an icy blast of wind from %s!",
 			from_dirs[dir]);
-		act(buf, FALSE, ch, 0, 0, TO_ROOM);
+		act(buf, false, ch, 0, 0, TO_ROOM);
 
 		return 1;
 	}

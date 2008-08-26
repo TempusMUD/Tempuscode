@@ -23,7 +23,6 @@
   * the appropriate new special cases for your new char_class.
   */
 
-
 #ifdef HAS_CONFIG_H
 #include "config.h"
 #endif
@@ -49,7 +48,6 @@
 
 extern struct room_data *world;
 
-
 /*
  * These are definitions which control the guildmasters for each char_class.
  *
@@ -57,7 +55,7 @@ extern struct room_data *world;
  * a character of the char_class is allowed to attain in any skill.  (After
  * this level, attempts to practice will say "You are already learned in
  * this area."
- * 
+ *
  * The second line controls the maximum percent gain in learnedness a
  * character is allowed per practice -- in other words, if the random
  * die throw comes out higher than this number, the gain will only be
@@ -67,7 +65,7 @@ extern struct room_data *world;
  * character is allowed per practice -- in other words, if the random
  * die throw comes out below this number, the gain will be set up to
  * this number.
- * 
+ *
  * The fourth line simply sets whether the character knows 'spells'
  * or 'skills'.  This does not affect anything except the message given
  * to the character when trying to practice (i.e. "You know of the
@@ -146,7 +144,6 @@ gain_skill_prof(struct Creature *ch, int skl)
 	// NPCs don't learn
 	if (IS_NPC(ch))
 		return;
-	
 
 	// You can't gain in a skill that you don't really know
 	if (GET_LEVEL(ch) < SPELL_LEVEL(skl, GET_CLASS(ch))) {
@@ -166,7 +163,6 @@ gain_skill_prof(struct Creature *ch, int skl)
 			&& !number(0, GET_LEVEL(ch)))
 			GET_SKILL(ch, skl) += 1;
 }
-
 
 /* Names first */
 extern const char *char_class_abbrevs[] = {
@@ -414,7 +410,7 @@ get_char_class_color( Creature *ch, Creature *tch, int char_class ) {
     }
 }
 
-// Returns a const char* containing an appropriate '&c' color code for the given target 
+// Returns a const char* containing an appropriate '&c' color code for the given target
 // Creature (tch) suitable for use with send_to_desc.
 const char*
 get_char_class_color( Creature *tch, int char_class ) {
@@ -606,7 +602,6 @@ parse_char_class(char *arg)
 	return (-1);
 }
 
-
 /*
  * bitvectors (i.e., powers of two) for each char_class, mainly for use in
  * do_who and do_users.  Add new char_classes at the end so that all char_classes
@@ -664,7 +659,6 @@ find_char_class_bitvector(char arg)
 		break;
 	}
 }
-
 
 /*
  * Roll the 6 stats for a character... each stat is made of the sum of
@@ -1045,7 +1039,7 @@ do_start(struct Creature *ch, int mode)
     }
 
 	if (GET_EXP(ch) == 0 && !IS_REMORT(ch) && !IS_VAMPIRE(ch))
-		new_player = TRUE;
+		new_player = true;
 
 	GET_LEVEL(ch) = 1;
 	GET_EXP(ch) = 1;
@@ -1334,7 +1328,6 @@ advance_level(struct Creature *ch, byte keep_internal)
 		mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", msg);
 }
 
-
 /*
  * invalid_char_class is used by handler.c to determine if a piece of equipment is
  * usable by a particular char_class, based on the ITEM_ANTI_{char_class} bitvectors.
@@ -1346,8 +1339,8 @@ invalid_char_class(struct Creature *ch, struct obj_data *obj)
 	int invalid = 0;
 	int foundreq = 0;
 
-	if( IS_PC(ch) && 
-		obj->shared->owner_id != 0 && 
+	if( IS_PC(ch) &&
+		obj->shared->owner_id != 0 &&
 		obj->shared->owner_id != GET_IDNUM(ch) ) {
 		invalid = 1;
 	}
@@ -1632,9 +1625,8 @@ get_max_cha( Creature *ch ) {
                     (IS_DWARF(ch) ? -1 : 0) + (IS_TABAXI(ch) ? -2 : 0)));
 }
 
-
 void
-calculate_height_weight( Creature *ch ) 
+calculate_height_weight( Creature *ch )
 {
     /* make favors for sex ... and race */ // after keep
 	if (ch->player.sex == SEX_MALE) {

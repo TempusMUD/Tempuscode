@@ -20,20 +20,20 @@ SPECIAL(prac_manual)
 
 	if (GET_OBJ_VAL(manual, 0) != GET_CLASS(ch)) {
 		act("$p does not contain any information which is useful to you.",
-			FALSE, ch, manual, 0, TO_CHAR);
+			false, ch, manual, 0, TO_CHAR);
 		return 1;
 	}
 	if (GET_OBJ_VAL(manual, 1) > GET_LEVEL(ch)) {
-		act("The contents of $p are over your head.", FALSE, ch, manual, 0,
+		act("The contents of $p are over your head.", false, ch, manual, 0,
 			TO_CHAR);
 		return 1;
 	}
 	if (GET_OBJ_VAL(manual, 2) < GET_LEVEL(ch)) {
-		act("$p contains only old news to you.", FALSE, ch, manual, 0,
+		act("$p contains only old news to you.", false, ch, manual, 0,
 			TO_CHAR);
 		return 1;
 	}
-	act("You study $p, and gain new insight!", FALSE, ch, manual, 0, TO_CHAR);
+	act("You study $p, and gain new insight!", false, ch, manual, 0, TO_CHAR);
 	obj_from_char(manual);
 	extract_obj(manual);
 	return 1;

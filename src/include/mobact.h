@@ -1,7 +1,6 @@
 #ifndef _MOBACT_H_
 #define _MOBACT_H_
 
-
 //
 // File: mobact.h                      -- Part of TempusMUD
 //

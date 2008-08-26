@@ -37,7 +37,7 @@ SPECIAL(free_bricks)
 		return 0;
 
 	send_to_char(ch, "You get a broken brick from the pile of rubble.\r\n");
-	act("$n gets $p from the pile of rubble.", TRUE, ch, obj, 0, TO_ROOM);
+	act("$n gets $p from the pile of rubble.", true, ch, obj, 0, TO_ROOM);
 
 	obj_to_char(obj, ch);
 

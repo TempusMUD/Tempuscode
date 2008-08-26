@@ -1,6 +1,6 @@
 //
 // File: texteditor.cc                        -- part of TempusMUD
-// 
+//
 
 #ifdef HAS_CONFIG_H
 #include "config.h"
@@ -105,7 +105,7 @@ CFileEditor::CFileEditor(descriptor_data *desc, const char *filename)
                         "Please bug this.  You will not be able to save.");
         wrap = true;
     }
-	
+
 	if (target)
 		free(target);
 	if (fd)

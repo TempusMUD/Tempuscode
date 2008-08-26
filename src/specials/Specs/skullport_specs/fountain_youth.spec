@@ -31,8 +31,8 @@ SPECIAL(fountain_youth)
 		return 0;
 
 	if (affected_by_spell(ch, SPELL_YOUTH)) {
-		act("You drink from $p.", TRUE, ch, fountain, 0, TO_CHAR);
-		act("$n drinks from $p.", TRUE, ch, fountain, 0, TO_ROOM);
+		act("You drink from $p.", true, ch, fountain, 0, TO_CHAR);
+		act("$n drinks from $p.", true, ch, fountain, 0, TO_ROOM);
 		return 1;
 	}
 
@@ -43,7 +43,7 @@ SPECIAL(fountain_youth)
 	af.aff_index = 0;
 	af.bitvector = 0;
 	af.level = 1;
-	af.is_instant = FALSE;
+	af.is_instant = false;
     af.owner = ch->getIdNum();
 	affect_to_char(ch, &af);
 
@@ -54,7 +54,7 @@ SPECIAL(fountain_youth)
 	af1.aff_index = 0;
 	af1.bitvector = 0;
 	af1.level = 1;
-	af1.is_instant = FALSE;
+	af1.is_instant = false;
     af1.owner = ch->getIdNum();
 	affect_to_char(ch, &af1);
 
@@ -65,7 +65,7 @@ SPECIAL(fountain_youth)
 	af2.aff_index = 0;
 	af2.bitvector = 0;
 	af2.level = 1;
-	af2.is_instant = FALSE;
+	af2.is_instant = false;
     af2.owner = ch->getIdNum();
 	affect_to_char(ch, &af2);
 
@@ -76,7 +76,7 @@ SPECIAL(fountain_youth)
 	af3.aff_index = 0;
 	af3.bitvector = 0;
 	af3.level = 1;
-	af3.is_instant = FALSE;
+	af3.is_instant = false;
     af3.owner = ch->getIdNum();
 	affect_to_char(ch, &af3);
 

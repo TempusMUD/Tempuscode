@@ -36,8 +36,6 @@ using namespace std;
 #define HGROUP_QCONTROL  (1 << 24)
 #define HGROUP_MAX        25
 
-
-
 struct Creature;
 
 #define MAX_HELP_NAME_LENGTH 128
@@ -81,10 +79,10 @@ class HelpItem {
 	bool Save(void);			// Save the current entry to file.
 	bool IsInGroup(int thegroup);
 
-	// Show the entry. 
+	// Show the entry.
 	// 0 == One Line Listing.
 	// 1 == One Line Stat
-	// 2 == Entire Entry 
+	// 2 == Entire Entry
 	// 3 == Entire Entry Stat
 	void Show(Creature * ch, char *buffer, int mode = 0);
 

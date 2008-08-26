@@ -64,8 +64,6 @@ struct social_messg {
 	char *others_auto;
 } *soc_mess_list = NULL;
 
-
-
 int
 find_action(int cmd)
 {
@@ -97,7 +95,7 @@ ACMD(do_mood)
 	skip_spaces(&argument);
 	GET_MOOD(ch) = tmp_strcat(" ", cmd_info[cmd].command);
     if (!*argument) {
-        send_to_char(ch, "%s what?!?\r\n", 
+        send_to_char(ch, "%s what?!?\r\n",
                 tmp_capitalize(cmd_info[cmd].command));
         GET_MOOD(ch) = NULL;
         return;
@@ -164,7 +162,7 @@ ACMD(do_action)
 	} else {
 		if (vict->getPosition() < action->min_victim_position)
 			act("$N is not in a proper position for that.",
-				FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+				false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		else {
 			act(action->char_found, 0, ch, 0, vict, TO_CHAR | TO_SLEEP);
 			act(action->others_found, action->hide, ch, 0, vict, TO_NOTVICT);
@@ -183,35 +181,35 @@ ACMD(do_point)
 	if (!*argument) {
 		send_to_char(ch, "You point everywhere!\r\n");
 		act("$n points in all directions, seemingly confused.",
-			TRUE, ch, 0, 0, TO_ROOM);
+			true, ch, 0, 0, TO_ROOM);
 		return;
 	}
 
-	if ((dir = search_block(argument, dirs, FALSE)) >= 0) {
+	if ((dir = search_block(argument, dirs, false)) >= 0) {
 		sprintf(buf, "$n points %sward.", dirs[dir]);
-		act(buf, TRUE, ch, 0, 0, TO_ROOM);
+		act(buf, true, ch, 0, 0, TO_ROOM);
 		sprintf(buf, "You point %sward.", dirs[dir]);
-		act(buf, FALSE, ch, 0, 0, TO_CHAR);
+		act(buf, false, ch, 0, 0, TO_CHAR);
 		return;
 	}
 
 	if ((vict = get_char_room_vis(ch, argument))) {
 		if (vict == ch) {
 			send_to_char(ch, "You point at yourself.\r\n");
-			act("$n points at $mself.", TRUE, ch, 0, 0, TO_ROOM);
+			act("$n points at $mself.", true, ch, 0, 0, TO_ROOM);
 			return;
 		}
-		act("You point at $M.", FALSE, ch, 0, vict, TO_CHAR);
-		act("$n points at $N.", TRUE, ch, 0, vict, TO_NOTVICT);
-		act("$n points at you.", TRUE, ch, 0, vict, TO_VICT);
+		act("You point at $M.", false, ch, 0, vict, TO_CHAR);
+		act("$n points at $N.", true, ch, 0, vict, TO_NOTVICT);
+		act("$n points at you.", true, ch, 0, vict, TO_VICT);
 		return;
 	}
 
 	if ((obj = get_object_in_equip_vis(ch, argument, ch->equipment, &i)) ||
 		(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) ||
 		(obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
-		act("You point at $p.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n points at $p.", TRUE, ch, obj, 0, TO_ROOM);
+		act("You point at $p.", false, ch, obj, 0, TO_CHAR);
+		act("$n points at $p.", true, ch, obj, 0, TO_ROOM);
 		return;
 	}
 
@@ -249,7 +247,6 @@ ACMD(do_flip)
 	}
 }
 
-
 ACMD(do_insult)
 {
 	struct Creature *victim;
@@ -268,28 +265,28 @@ ACMD(do_insult)
 					if (GET_SEX(ch) == SEX_MALE) {
 						if (GET_SEX(victim) == SEX_MALE)
 							act("$n accuses you of fighting like a woman!",
-								FALSE, ch, 0, victim, TO_VICT);
+								false, ch, 0, victim, TO_VICT);
 						else
-							act("$n says that women can't fight.", FALSE, ch,
+							act("$n says that women can't fight.", false, ch,
 								0, victim, TO_VICT);
 					} else {	/* Ch == Woman */
 						if (GET_SEX(victim) == SEX_MALE)
-							act("$n accuses you of having the smallest... (brain?)", FALSE, ch, 0, victim, TO_VICT);
+							act("$n accuses you of having the smallest... (brain?)", false, ch, 0, victim, TO_VICT);
 						else
-							act("$n tells you that you'd lose a beauty contest against a troll.", FALSE, ch, 0, victim, TO_VICT);
+							act("$n tells you that you'd lose a beauty contest against a troll.", false, ch, 0, victim, TO_VICT);
 					}
 					break;
 				case 1:
-					act("$n calls your mother a bitch!", FALSE, ch, 0, victim,
+					act("$n calls your mother a bitch!", false, ch, 0, victim,
 						TO_VICT);
 					break;
 				default:
-					act("$n tells you to get lost!", FALSE, ch, 0, victim,
+					act("$n tells you to get lost!", false, ch, 0, victim,
 						TO_VICT);
 					break;
 				}				/* end switch */
 
-				act("$n insults $N.", TRUE, ch, 0, victim, TO_NOTVICT);
+				act("$n insults $N.", true, ch, 0, victim, TO_NOTVICT);
 			} else {			/* ch == victim */
 				send_to_char(ch, "You feel insulted.\r\n");
 			}
@@ -297,7 +294,6 @@ ACMD(do_insult)
 	} else
 		send_to_char(ch, "I'm sure you don't want to insult *everybody*...\r\n");
 }
-
 
 char *
 fread_action(FILE * fl, int nr)
@@ -318,7 +314,6 @@ fread_action(FILE * fl, int nr)
 		return (rslt);
 	}
 }
-
 
 #define MAX_SOCIALS 500
 
@@ -413,7 +408,6 @@ boot_social_messages(void)
 				cmd_info[nr].command);
 
 }
-
 
 void
 show_social_messages(struct Creature *ch, char *arg)

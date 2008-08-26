@@ -44,7 +44,7 @@ ACMD(do_mshield)
 	if (is_abbrev(arg1, "low")) {
 		i = atoi(arg2);
 		if (i < 0 || i > GET_MANA(ch)) {
-			send_to_char(ch, 
+			send_to_char(ch,
 				"The low must be between 0 and your current mana.\r\n");
 			return;
 		}
@@ -101,7 +101,7 @@ ACMD(do_empower)
 	af2.location = APPLY_HIT;
 	af2.modifier = -(val1);
     af2.owner = ch->getIdNum();
-    
+
 	af3.type = SKILL_EMPOWER;
 	af3.duration = (GET_INT(ch) >> 1);
 	af3.location = APPLY_MOVE;
@@ -134,7 +134,7 @@ ACMD(do_empower)
 			GET_WIMP_LEV(ch), GET_MAX_HIT(ch) >> 1);
 		GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) >> 1;
 	}
-	act("$n concentrates deeply.", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n concentrates deeply.", true, ch, 0, 0, TO_ROOM);
 	if (GET_LEVEL(ch) < LVL_GRGOD)
 		WAIT_STATE(ch, PULSE_VIOLENCE * (1 + ((val1 + val2) > 100)));
 }
@@ -227,7 +227,7 @@ ACMD(do_teach)
         send_to_char(ch, "You don't know of any such ability.\r\n");
         return;
     }
-    
+
     WAIT_STATE(ch, 2 RL_SEC);
 
     if (number(0, 100) > GET_WIS(ch) + GET_INT(ch) + GET_WIS(target) + GET_INT(target)) {

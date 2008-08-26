@@ -56,7 +56,6 @@
 #define SRCH_NO_LOOK            (1 << 29)
 #define SRCH_FAIL_TRIP          (1 << 30)
 
-
 #define NUM_SRCH_BITS           31
 
 struct special_search_data {

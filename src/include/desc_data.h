@@ -8,7 +8,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 #include "defs.h"
 #include "constants.h"
 #include <vector>
@@ -23,8 +22,8 @@ class CEditor;  // forward declaration from editor.h
 // make sure changes to this are synced with desc_modes[] in db/constants.cc
 enum cxn_state {
 	CXN_UNKNOWN = -1,
-	CXN_PLAYING,				// Playing - Nominal state  
-	CXN_DISCONNECT,				// Disconnecting        
+	CXN_PLAYING,				// Playing - Nominal state
+	CXN_DISCONNECT,				// Disconnecting
 	// Account states
 	CXN_ACCOUNT_LOGIN,			// Initial login to account
 	CXN_ACCOUNT_PW,				// Password to account
@@ -41,13 +40,13 @@ enum cxn_state {
 	CXN_NEWPW_VERIFY,			// Verify new password for pw change
 	// Character creation
 	CXN_NAME_PROMPT,			// Enter a name for new character
-	CXN_SEX_PROMPT,				// Sex?             
+	CXN_SEX_PROMPT,				// Sex?
 	CXN_CLASS_PROMPT,			// Class?
 	CXN_RACE_PROMPT,			// Race?
 	CXN_ALIGN_PROMPT,			// Align? (race/class may restrict)
 	CXN_STATISTICS_ROLL,		// Statistics rolling
 	// Other, miscellaneous states
-	CXN_MENU,					// Your choice: (main menu) 
+	CXN_MENU,					// Your choice: (main menu)
 	CXN_WAIT_MENU,				// Press return to go back to the main menu
 	CXN_CLASS_REMORT,			// Select your remort class
 	CXN_DELETE_PROMPT,			// What character to delete?
@@ -69,13 +68,11 @@ enum cxn_state {
 
 /* descriptor-related structures ******************************************/
 
-
 struct txt_block {
 	char *text;
 	int aliased;
 	struct txt_block *next;
 };
-
 
 struct txt_q {
 	struct txt_block *head;

@@ -16,7 +16,7 @@ SPECIAL(christmas_quest)
     ACMD(do_echo);
     ACMD(do_advance);
     static int grinch_timer = 0;
-    bool topZoneComparison(const struct zone_data* a, 
+    bool topZoneComparison(const struct zone_data* a,
             const struct zone_data* b);
 
     extern int top_of_zone_table;
@@ -55,7 +55,7 @@ SPECIAL(christmas_quest)
             ch->setPosition(POS_RESTING);
 
             if (GET_LEVEL(ch) < 49) {
-                do_advance(grinch, tmp_sprintf("%s 49", GET_NAME(ch)), 
+                do_advance(grinch, tmp_sprintf("%s 49", GET_NAME(ch)),
                         0, 0, NULL);
                 ch->saveToXML();
             }
@@ -70,7 +70,7 @@ SPECIAL(christmas_quest)
             else {
                 struct obj_data *cont = read_object(92039);
                 if (!cont) {
-                    mlog(Security::CODER, LVL_GRIMP, NRM, false, 
+                    mlog(Security::CODER, LVL_GRIMP, NRM, false,
                             "Couldn't load sack from vnum 92039!");
                     return 1;
                 }
@@ -149,31 +149,31 @@ SPECIAL(christmas_quest)
         zone = zone_table;
         for (int i = 0; i < top_of_zone_table; i++, zone = zone->next) {
             // Skip zones that aren't completely approved
-            if (IS_SET(zone->flags, ZONE_MOBS_APPROVED) || 
-                IS_SET(zone->flags, ZONE_OBJS_APPROVED) || 
+            if (IS_SET(zone->flags, ZONE_MOBS_APPROVED) ||
+                IS_SET(zone->flags, ZONE_OBJS_APPROVED) ||
                 IS_SET(zone->flags, ZONE_ROOMS_APPROVED) ||
-                IS_SET(zone->flags, ZONE_ZCMDS_APPROVED) || 
+                IS_SET(zone->flags, ZONE_ZCMDS_APPROVED) ||
                 IS_SET(zone->flags, ZONE_SEARCH_APPROVED))
                 continue;
 
             if (zone->number < 700)
                 zone_list.push_back(zone);
         }
-        
+
         sort(zone_list.begin(), zone_list.end(), topZoneComparison);
         num_zones = 50;
 
         // Which zone? (index)
-        zone_index = number(0, num_zones - 1); 
+        zone_index = number(0, num_zones - 1);
         if (!number(0, 20)) {
-            // One in 20 chance to hit a most used zone instead of 
+            // One in 20 chance to hit a most used zone instead of
             // least used zone;
-            dest_zone = zone_list[zone_index]; 
+            dest_zone = zone_list[zone_index];
         }
         else {
             dest_zone = zone_list[(zone_list.size() - 1) - zone_index];
         }
-        
+
         if (!(dest = real_room(dest_zone->number * 100))) {
             // We missed this time.  Try again...
             grinch_timer = 0;
@@ -207,7 +207,7 @@ int do_remort(struct Creature *ch)
     for (i = 1; i <= MAX_SKILLS; i++)
         SET_SKILL(ch, i, 0);
 
-    do_start(ch, FALSE);
+    do_start(ch, false);
 
     REMOVE_BIT(PRF_FLAGS(ch),
         PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT | PRF_NOHASSLE |

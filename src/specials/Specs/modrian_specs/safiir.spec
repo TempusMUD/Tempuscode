@@ -64,7 +64,7 @@ SPECIAL(safiir)
 		GET_GOLD(ch) -= cost;
 		GET_OBJ_VAL(wand, 2) = GET_OBJ_VAL(wand, 1);
 		GET_OBJ_VAL(wand, 1)--;
-		act("$n passes $s hand over $p...", FALSE, safiir, wand, 0, TO_ROOM);
+		act("$n passes $s hand over $p...", false, safiir, wand, 0, TO_ROOM);
 		send_to_room("A bright light fills the room!\r\n", ch->in_room);
 		return 1;
 	} else if (CMD_IS("offer")) {

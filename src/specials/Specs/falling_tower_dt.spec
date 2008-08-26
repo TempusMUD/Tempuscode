@@ -9,7 +9,7 @@ SPECIAL(falling_tower_dt)
 	struct room_data *under_room;
 
 	if (spec_mode != SPECIAL_CMD)
-		return FALSE;
+		return false;
 
 	if ((under_room = real_room(5241)) == NULL)
 		return 0;
@@ -23,7 +23,7 @@ SPECIAL(falling_tower_dt)
 		char_to_room(ch, under_room, false);
 		send_to_char(ch, "You hit the ground hard!!\r\n");
 		act("$n falls out of the tower above, and slams into the street hard!",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 		look_at_room(ch, ch->in_room, 0);
 		GET_HIT(ch) = MAX(-8, GET_HIT(ch) -
 			dice(10, 100 - GET_DEX(ch) - 40 * AFF_FLAGGED(ch, AFF_INFLIGHT)));

@@ -33,14 +33,14 @@ SPECIAL(killzone_room)
 
 			switch (number(0, 3)) {
 			case 0:			// lightning bolt
-				act("$n fires a bolt of lightning down through the murder holes!", FALSE, devil, 0, 0, TO_ROOM);
+				act("$n fires a bolt of lightning down through the murder holes!", false, devil, 0, 0, TO_ROOM);
 
 				if (is_miss) {
-					act("A bolt of lightning blasts down from above, barely missing you!", FALSE, vict, 0, 0, TO_ROOM);
-					act("A bolt of lightning blasts down from above, barely missing you!", FALSE, vict, 0, 0, TO_CHAR);
+					act("A bolt of lightning blasts down from above, barely missing you!", false, vict, 0, 0, TO_ROOM);
+					act("A bolt of lightning blasts down from above, barely missing you!", false, vict, 0, 0, TO_CHAR);
 				} else {
-					act("A bolt of lightning blasts down from above and hits you!", FALSE, vict, 0, 0, TO_CHAR);
-					act("A bolt of lightning blasts down from above and hits $n!", FALSE, vict, 0, 0, TO_ROOM);
+					act("A bolt of lightning blasts down from above and hits you!", false, vict, 0, 0, TO_CHAR);
+					act("A bolt of lightning blasts down from above and hits $n!", false, vict, 0, 0, TO_ROOM);
 					retval =
 						damage(NULL, vict, dice(20, 20), SPELL_LIGHTNING_BOLT,
 						WEAR_HEAD);
@@ -49,14 +49,14 @@ SPECIAL(killzone_room)
 				}
 				break;
 			case 1:			// fireball
-				act("$n sends a fireball hurtling downward through a murder hole!", FALSE, devil, 0, 0, TO_ROOM);
+				act("$n sends a fireball hurtling downward through a murder hole!", false, devil, 0, 0, TO_ROOM);
 
 				if (is_miss) {
-					act("A fireball comes hurtling in from above and explodes on the floor nearby!", FALSE, vict, 0, 0, TO_ROOM);
-					act("A fireball comes hurtling in from above and explodes on the floor nearby!", FALSE, vict, 0, 0, TO_CHAR);
+					act("A fireball comes hurtling in from above and explodes on the floor nearby!", false, vict, 0, 0, TO_ROOM);
+					act("A fireball comes hurtling in from above and explodes on the floor nearby!", false, vict, 0, 0, TO_CHAR);
 				} else {
-					act("A fireball comes hurtling in from above and slams into $n!", FALSE, vict, 0, 0, TO_ROOM);
-					act("A fireball comes hurtling in from above, explosively slamming into you!", FALSE, vict, 0, 0, TO_CHAR);
+					act("A fireball comes hurtling in from above and slams into $n!", false, vict, 0, 0, TO_ROOM);
+					act("A fireball comes hurtling in from above, explosively slamming into you!", false, vict, 0, 0, TO_CHAR);
 					retval =
 						damage(NULL, vict, dice(25, 20), SPELL_FIREBALL,
 						WEAR_HEAD);
@@ -65,14 +65,14 @@ SPECIAL(killzone_room)
 				}
 				break;
 			case 2:			// burning javelins
-				act("$n sends a rain of burning javelins downward through a murder hole!", FALSE, devil, 0, 0, TO_ROOM);
+				act("$n sends a rain of burning javelins downward through a murder hole!", false, devil, 0, 0, TO_ROOM);
 
 				if (is_miss) {
-					act("A rain of burning javelins flies in from above, barely missing you!", FALSE, vict, 0, 0, TO_ROOM);
-					act("A rain of burning javelins flies in from above, barely missing you!", FALSE, vict, 0, 0, TO_CHAR);
+					act("A rain of burning javelins flies in from above, barely missing you!", false, vict, 0, 0, TO_ROOM);
+					act("A rain of burning javelins flies in from above, barely missing you!", false, vict, 0, 0, TO_CHAR);
 				} else {
-					act("A rain of burning javelins flies in from above onto $n!", FALSE, vict, 0, 0, TO_ROOM);
-					act("A rain of burning javelins flies in from above, puncturing you mercilessly!", FALSE, vict, 0, 0, TO_CHAR);
+					act("A rain of burning javelins flies in from above onto $n!", false, vict, 0, 0, TO_ROOM);
+					act("A rain of burning javelins flies in from above, puncturing you mercilessly!", false, vict, 0, 0, TO_CHAR);
 					retval =
 						damage(NULL, vict, dice(25, 20), TYPE_PIERCE,
 						WEAR_HEAD);
@@ -82,15 +82,15 @@ SPECIAL(killzone_room)
 				break;
 
 			default:			// boiling pitch
-				act("$n tips a cauldron pours boiling pitch into the Killzone below!", FALSE, devil, 0, 0, TO_ROOM);
+				act("$n tips a cauldron pours boiling pitch into the Killzone below!", false, devil, 0, 0, TO_ROOM);
 
 				if (is_miss) {
-					act("A torrent of boiling pitch comes pouring in from above as you leap aside!", FALSE, vict, 0, 0, TO_ROOM);
-					act("A torrent of boiling pitch comes pouring in from above as you leap aside!", FALSE, vict, 0, 0, TO_CHAR);
+					act("A torrent of boiling pitch comes pouring in from above as you leap aside!", false, vict, 0, 0, TO_ROOM);
+					act("A torrent of boiling pitch comes pouring in from above as you leap aside!", false, vict, 0, 0, TO_CHAR);
 				} else {
 					act("A torrent of boiling pitch pours onto $n from above!",
-						FALSE, vict, 0, 0, TO_ROOM);
-					act("A torrent of boiling pitch pours onto you from above!!", FALSE, vict, 0, 0, TO_CHAR);
+						false, vict, 0, 0, TO_ROOM);
+					act("A torrent of boiling pitch pours onto you from above!!", false, vict, 0, 0, TO_CHAR);
 					retval =
 						damage(NULL, vict, dice(25, 20), TYPE_BOILING_PITCH,
 						WEAR_HEAD);

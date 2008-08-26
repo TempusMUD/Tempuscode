@@ -132,8 +132,7 @@ SPECIAL(do_auctions)
         raw_kill(dick, self, TYPE_SLASH);
     }
 
-
-	if (spec_mode == SPECIAL_TICK) { 
+	if (spec_mode == SPECIAL_TICK) {
         if (items.empty())
             return 0;
 
@@ -148,22 +147,22 @@ SPECIAL(do_auctions)
             mood_index = number(0, TOP_MOOD);
             if (ai->new_bid) {
                 auc_str = tmp_sprintf("%ld coins heard for item number %d, %s!!",
-                                      ai->current_bid, ai->item_no, 
+                                      ai->current_bid, ai->item_no,
                                       ai->item->name);
                 ai->new_bid = false;
                 ai->announce_count = 0;
             }
             else if (ai->new_item) {
                 auc_str = tmp_sprintf("We now have a new item up for bids!  "
-                                      "Item number %d, %s. We'll start the " 
+                                      "Item number %d, %s. We'll start the "
                                       "bidding at %ld coins!",
                                       ai->item_no, ai->item->name,
                                       ai->start_bid);
                 ai->new_item = false;
             }
-            else if (ai->last_bid_time && 
+            else if (ai->last_bid_time &&
                      (time(NULL) - ai->last_bid_time) > SOLD_TIME) {
-                auc_str = tmp_sprintf("Item number %d, %s, SOLD!", 
+                auc_str = tmp_sprintf("Item number %d, %s, SOLD!",
                                       ai->item_no, ai->item->name);
                 slog("AUCTION: %s (#%d) has been sold to %s (#%ld)",
                      ai->item->name, GET_OBJ_VNUM(ai->item),
@@ -178,18 +177,18 @@ SPECIAL(do_auctions)
                 items.erase(ti);
                 aucSaveToXML(self);
             }
-            else if (ai->last_bid_time && 
+            else if (ai->last_bid_time &&
                      (time(NULL) - ai->last_bid_time) > GOING_TWICE &&
                      ai->announce_count != GOING_TWICE) {
-                auc_str = tmp_sprintf("Item number %d, %s, Going TWICE!", 
+                auc_str = tmp_sprintf("Item number %d, %s, Going TWICE!",
                                       ai->item_no, ai->item->name);
                 ai->announce_count = GOING_TWICE;
             }
             else if (ai->last_bid_time &&
                      (time(NULL) - ai->last_bid_time) > GOING_ONCE &&
-                     ai->announce_count != GOING_ONCE && 
+                     ai->announce_count != GOING_ONCE &&
                      ai->announce_count != GOING_TWICE) {
-                auc_str = tmp_sprintf("Item number %d, %s, Going once!", 
+                auc_str = tmp_sprintf("Item number %d, %s, Going once!",
                                       ai->item_no, ai->item->name);
                 ai->announce_count = GOING_ONCE;
             }
@@ -209,11 +208,11 @@ SPECIAL(do_auctions)
                 items.erase(ti);
                 aucSaveToXML(self);
             }
-            else if ((!ai->last_bid_time) && 
-                     (time(NULL) - ai->start_time) > 
+            else if ((!ai->last_bid_time) &&
+                     (time(NULL) - ai->start_time) >
                      (NO_BID_THRESH * ai->announce_count)) {
                 auc_str = tmp_sprintf("No bids yet for Item number %d, %s! "
-                                      "Bidding starts at %ld coins!", 
+                                      "Bidding starts at %ld coins!",
                                       ai->item_no, ai->item->name,
                                       ai->start_bid);
                 ai->announce_count++;
@@ -233,7 +232,7 @@ SPECIAL(do_auctions)
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
-	
+
     if (IS_NPC(ch))
         return 0;
 
@@ -255,30 +254,30 @@ SPECIAL(do_auctions)
                 acc_sprintf("%sItem Number:%s   %d\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), ai->item_no);
                 acc_sprintf("%sOwner:%s         %s\r\n",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             playerIndex.getName(ai->owner_id));
                 acc_sprintf("%sHigh Bidder:%s   %s\r\n",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
-                            (ai->buyer_id) ? 
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                            (ai->buyer_id) ?
                             playerIndex.getName(ai->buyer_id) : "NULL");
                 acc_sprintf("%sItem:%s          %s\r\n",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             ai->item->name);
                 acc_sprintf("%sStart Time:%s    %s",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             ctime(&ai->start_time));
                 acc_sprintf("%sLast Bid:%s      %s",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
-                            (ai->last_bid_time ? 
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                            (ai->last_bid_time ?
                              ctime(&ai->last_bid_time) : "NULL\r\n"));
                 acc_sprintf("%sCurrent Bid:%s   %ld coins/cash\r\n",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             ai->current_bid);
                 acc_sprintf("%sStarting Bid:%s  %ld coins/cash\r\n",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             ai->start_bid);
                 acc_sprintf("%sAnnounced:%s     %d times\r\n",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             ai->announce_count);
                 acc_strcat("---------------------------------------\r\n", NULL);
             }
@@ -299,7 +298,7 @@ SPECIAL(do_auctions)
                 "bid_increment",
                 "\n"
             };
-            
+
             char *var = tmp_getword(&argument);
             char *val = tmp_getword(&argument);
             int aucset_command;
@@ -340,8 +339,8 @@ SPECIAL(do_auctions)
                 return 1;
             }
             // They knew what they were doing, set the var
-            if ((aucset_command = 
-                        search_block(var, aucset_commands, FALSE)) < 0) {
+            if ((aucset_command =
+                        search_block(var, aucset_commands, false)) < 0) {
                 send_to_char(ch, "Invalid aucset command.\r\n");
                 return 1;
             }
@@ -386,7 +385,7 @@ SPECIAL(do_auctions)
         }
     }
 
-    if (CMD_IS("stun") || CMD_IS("steal") || 
+    if (CMD_IS("stun") || CMD_IS("steal") ||
         CMD_IS("pinch") || CMD_IS("glance")) {
         do_stun(self, tmp_sprintf("%s", GET_NAME(ch)), 0, 0, NULL);
         return 1;
@@ -401,30 +400,30 @@ SPECIAL(do_auctions)
 
         if (!*item_name) {
             perform_say_to(self, ch, "I see you want to auction something, but WHAT?");
-            return 1; 
+            return 1;
         }
 
         if (!amount) {
             perform_say_to(self, ch, "And how much would you like to sell it for?");
-            return 1; 
+            return 1;
         }
 
         if (amount < 0) {
             perform_say_to(self, ch, "You want to pay someone to take it?!");
-            return 1; 
+            return 1;
         }
 
         if (amount > MAX_AUC_VALUE) {
             perform_say_to(self, ch, "I'm sorry, we have a maximum value "
                            "that can be placed on the items we sell.");
-            return 1; 
+            return 1;
         }
 
         obj_data *obj = get_obj_in_list_all(ch, item_name, ch->carrying);
         if (!obj) {
             perform_say_to(self, ch, "You don't even have that!  Stop "
                            "wasting my time!");
-            return 1; 
+            return 1;
         }
 
         short item_count = 0;
@@ -435,23 +434,23 @@ SPECIAL(do_auctions)
             if ((item_count >= MAX_AUC_ITEMS) && !IS_IMMORT(ch)) {
                 perform_say_to(self, ch, "You already have too many items "
                                "up for auction.");
-                return 1; 
+                return 1;
             }
         }
 
         if (BAD_AUCTION(obj) && !IS_IMMORT(ch)) {
             perform_say_to(self, ch, "I run a respectable establishment "
                            "here!  I don't deal in such trash!");
-            return 1; 
+            return 1;
         }
 
         int item_no = get_max_auction_item();
         if (item_no == -1) {
             perform_say_to(self, ch, "There are too many items up for "
                            "auction now.  Try again later.");
-            return 1; 
+            return 1;
         }
-        
+
         struct auction_data new_ai;
         new_ai.auctioneer_id = self->getIdNum();
         new_ai.owner_id = ch->getIdNum();
@@ -489,12 +488,12 @@ SPECIAL(do_auctions)
 
         if (!item_no || item_no > MAX_TOTAL_AUC) {
             perform_say_to(self, ch, "Which item do you want to withdraw?");
-            return 1; 
+            return 1;
         }
 
         list<auction_data>::iterator ai = items.begin();
         for (; ai != items.end(); ai++) {
-            if (ai->item_no == item_no && 
+            if (ai->item_no == item_no &&
                 ai->auctioneer_id == self->getIdNum())
                 break;
         }
@@ -526,7 +525,7 @@ SPECIAL(do_auctions)
         do_gen_comm(self,tmp_sprintf("Item number %d, %s, withdrawn.",
                     ai->item_no, obj->name), 0, SCMD_AUCTION, NULL);
         GET_MOOD(self) = NULL;
-        
+
         obj_from_char(obj);
         obj_to_char(obj, ch);
         items.erase(ai);
@@ -544,7 +543,7 @@ SPECIAL(do_auctions)
 	return 0;
 }
 
-int 
+int
 get_max_auction_item() {
     int i;
     list<auction_data>::iterator ai = items.begin();
@@ -552,7 +551,7 @@ get_max_auction_item() {
     items.sort();
     if (items.empty())
         return 1;
-    
+
     for (i = 1; i < MAX_TOTAL_AUC; i++) {
         if (ai->item_no != i)
             return i;
@@ -568,7 +567,7 @@ Creature *
 create_imp(room_data *inroom, auction_data &info) {
     imp_data *data;
     Creature *mob;
-    
+
     mob = read_mobile(IMP_VNUM);
     CREATE(data, imp_data, 1);
     mob->mob_specials.func_data = data;
@@ -619,7 +618,7 @@ ACMD(do_bid) {
         send_to_char(ch, "Which item do you want to bid on?\r\n");
         return;
     }
-    
+
     if (!amount) {
         send_to_char(ch, "How much do you want to bid?\r\n");
         return;
@@ -672,7 +671,7 @@ ACMD(do_bid) {
         return;
     }
 
-    ai->last_bid_time = time(NULL); 
+    ai->last_bid_time = time(NULL);
     ai->buyer_id = ch->getIdNum();
     ai->current_bid = amount;
     ai->new_bid = true;
@@ -692,19 +691,19 @@ ACMD(do_bidlist) {
         acc_sprintf("%sItem Number:%s   %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), ai->item_no);
         acc_sprintf("%sItem:%s          %s\r\n",
-                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     ai->item->name);
         acc_sprintf("%sCondition:%s     %s\r\n",
-                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     tmp_capitalize(obj_cond_color(ai->item, ch)));
         acc_sprintf("%sStarting Bid:%s  %ld coins/cash\r\n",
-                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     ai->start_bid);
         acc_sprintf("%sCurrent Bid:%s   %ld coins/cash\r\n",
-                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     ai->current_bid);
-        time_t time_left = 0; 
-        if (ai->last_bid_time) 
+        time_t time_left = 0;
+        if (ai->last_bid_time)
             time_left = (ai->last_bid_time + SOLD_TIME) - time(NULL);
         else
             time_left = (ai->start_time + AUCTION_THRESH) - time(NULL);
@@ -714,7 +713,7 @@ ACMD(do_bidlist) {
         int mins = time_left / 60;
         int secs = time_left % 60;
         acc_sprintf("%sTime Left:%s     %d Hour(s) %d Mins %d Secs\r\n",
-                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), 
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     hours, mins, secs);
         acc_strcat("---------------------------------------\r\n", NULL);
     }
@@ -730,7 +729,7 @@ bool bidder_can_afford(Creature *bidder, money_t amount) {
             amount += ai->current_bid;
     }
 
-    tamount = GET_GOLD(bidder) + GET_CASH(bidder) + 
+    tamount = GET_GOLD(bidder) + GET_CASH(bidder) +
               GET_PAST_BANK(bidder) + GET_FUTURE_BANK(bidder);
 
     return tamount > amount;
@@ -822,7 +821,7 @@ aucLoadFromXML(Creature *auc) {
             new_ai.owner_id = xmlGetIntProp(node, "owner_id");
             new_ai.start_bid = xmlGetIntProp(node, "start_bid");
 
-            for (xmlNodePtr cnode = node->xmlChildrenNode; 
+            for (xmlNodePtr cnode = node->xmlChildrenNode;
                  cnode; cnode = cnode->next) {
                 if (xmlMatches(cnode->name, "object")) {
                     struct obj_data *obj = create_obj();

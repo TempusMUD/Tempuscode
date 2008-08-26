@@ -14,11 +14,11 @@ SPECIAL(life_point_potion)
 		sprintf(buf, "Argument (%s), Name (%s)\r\n", argument, potion->aliases);
 		return 0;
 	}
-	//Format : <number of life points> 
+	//Format : <number of life points>
 	act("You hungrily consume $p, careful not to miss a single drop.",
-		FALSE, ch, potion, 0, TO_CHAR);
+		false, ch, potion, 0, TO_CHAR);
 	act("$n hungrily consumes $p, careful not to miss a single drop.",
-		FALSE, ch, potion, 0, TO_ROOM);
+		false, ch, potion, 0, TO_ROOM);
 	if ((IS_OBJ_STAT(potion, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
 		(IS_OBJ_STAT(potion, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
 		(IS_OBJ_STAT(potion, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))

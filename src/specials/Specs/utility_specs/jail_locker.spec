@@ -4,7 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-
 SPECIAL(jail_locker)
 {
 	void summon_cityguards(room_data *);
@@ -19,7 +18,7 @@ SPECIAL(jail_locker)
 		return 0;
 	if (!CMD_IS("receive") && !CMD_IS("offer"))
 		return 0;
-	
+
 	str = GET_MOB_PARAM(self);
 	if (str) {
 		for (line = tmp_getline(&str);line;line = tmp_getline(&str)) {
@@ -60,7 +59,7 @@ SPECIAL(jail_locker)
 			* (GET_REMORT_GEN(ch) + 1)
 			* 50);
     cost += (cost*ch->getCostModifier(self))/100;
-	
+
 	if (CMD_IS("offer")) {
 		perform_say(ch, "say", "How much will it cost to get my stuff back, sir?");
 		if (!locker) {
@@ -123,9 +122,9 @@ SPECIAL(jail_locker)
 
 	extract_obj(locker);
 
-	act("$n opens a locker and gives you all your things.", FALSE,
+	act("$n opens a locker and gives you all your things.", false,
 		self, 0, ch, TO_VICT);
-	act("$n opens a locker and gives $N all $S things.", FALSE, self,
+	act("$n opens a locker and gives $N all $S things.", false, self,
 		0, ch, TO_NOTVICT);
 
 	slog("%s received jail impound at %d.", GET_NAME(ch),

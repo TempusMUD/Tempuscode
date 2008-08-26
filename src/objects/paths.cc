@@ -540,7 +540,6 @@ load_paths(void)
 	PHead *path_head = NULL;
 	static int virgin = 1;
 
-
 	path_locked = 0;
 
 	if (!(pathfile = fopen(PATH_FILE, "r")))
@@ -570,7 +569,7 @@ load_paths(void)
             *tc = ' ';
 
 		fail = 0;
-		switch ((ret = add_path(buf, TRUE))) {
+		switch ((ret = add_path(buf, true))) {
 		case 0:
 			break;
 		case 1:
@@ -632,7 +631,6 @@ path_activity(void)
 	struct room_data *room;
 	struct Creature *ch;
 	struct obj_data *obj;
-
 
 	if (path_locked)
 		return;
@@ -782,7 +780,6 @@ add_path_to_mob(struct Creature *mob, int vnum)
 	PHead *phead;
 	Link *i;
 	PObject *o;
-
 
 	if (!vnum || !mob)
 		return 0;

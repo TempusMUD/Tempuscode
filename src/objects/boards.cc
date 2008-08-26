@@ -99,7 +99,7 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 
-        act("$n starts to write on the board.", TRUE, ch, 0, 0, TO_ROOM);
+        act("$n starts to write on the board.", true, ch, 0, 0, TO_ROOM);
 	SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 	start_editing_board(ch->desc, board->name, -1, argument, NULL);
 }
@@ -124,7 +124,7 @@ gen_board_edit(board_data *board, Creature *ch, char *argument)
 		send_to_char(ch, "%s\r\n", board->deny_edit);
 		return;
 	}
-	
+
 	idx = atoi(tmp_getword(&argument)) - 1;
     if (idx < 0) {
 		send_to_char(ch, "That is not a valid message.\r\n");
@@ -138,7 +138,7 @@ gen_board_edit(board_data *board, Creature *ch, char *argument)
 		return;
 	}
 
-    act("$n starts to write on the board.", TRUE, ch, 0, 0, TO_ROOM);
+    act("$n starts to write on the board.", true, ch, 0, 0, TO_ROOM);
     start_editing_board(ch->desc,
                         board->name,
                         atoi(PQgetvalue(res, 0, 0)),
@@ -170,7 +170,7 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 	// First we find the idnum of the thing we want to destroy
 	res = sql_query("select idnum, author from board_messages where board='%s' order by idnum limit 1 offset %d",
 		tmp_sqlescape(board->name), idx);
-	
+
 	if (PQntuples(res) != 1) {
 		send_to_char(ch, "That posting doesn't exist!\r\n");
 		return;
@@ -191,7 +191,7 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 	sql_exec("delete from board_messages where idnum=%s",
 		PQgetvalue(res, 0, 0));
 
-        act("$n rips a post off of the board.", TRUE, ch, 0, 0, TO_ROOM);
+        act("$n rips a post off of the board.", true, ch, 0, 0, TO_ROOM);
 	send_to_char(ch, "The posting was deleted.\r\n");
 }
 
@@ -217,7 +217,7 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 		send_to_char(ch, "%s\r\n", board->deny_read);
 		return;
 	}
-	
+
 	idx = atoi(argument) - 1;
 	if (idx < 0) {
 		send_to_char(ch, "That is not a valid message.\r\n");
@@ -365,11 +365,11 @@ SPECIAL(gen_board)
 	// We only handle commands
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
-	
+
 	// In fact, we only handle these commands
 	if (!(CMD_IS("write") || CMD_IS("read") || CMD_IS("remove") || CMD_IS("edit") || CMD_IS("look") || CMD_IS("examine")))
 		return 0;
-	
+
 	skip_spaces(&argument);
 
 	if (!*argument)
@@ -384,7 +384,7 @@ SPECIAL(gen_board)
 	// We only handle remove command if it's referring to a message
 	if (CMD_IS("remove") && !isnumber(argument))
 		return 0;
-	
+
     // We only handle edit command if it's referring to a message
     arg = argument;
     if (CMD_IS("edit") && !isnumber(tmp_getword(&arg)))
@@ -419,7 +419,7 @@ SPECIAL(gen_board)
 		}
 		board = (board_data *)GET_OBJ_DATA(self);
 	}
-	
+
 	if (CMD_IS("write"))
 		gen_board_write(board, ch, argument);
 	else if (CMD_IS("remove"))
@@ -430,6 +430,6 @@ SPECIAL(gen_board)
 		gen_board_read(board, ch, argument);
 	else
 		gen_board_list(board, ch);
-	
+
 	return 1;
 }

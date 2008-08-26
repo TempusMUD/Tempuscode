@@ -253,7 +253,7 @@ save_room(struct Creature *ch, struct room_data *room, FILE * file)
 
 	if (room->prog)
 	  fprintf(file, "R\n%s~\n", tmp_gsub(room->prog, "\r", ""));
-  
+
 	search = room->search;
 	while (search) {
 		fprintf(file, "Z\n");
@@ -376,7 +376,6 @@ save_wld(struct Creature *ch, struct zone_data *zone)
 
 	return true;
 }
-
 
 struct room_data *
 do_create_room(struct Creature *ch, int vnum)
@@ -512,7 +511,7 @@ do_destroy_room(struct Creature *ch, int vnum)
 	CreatureList::iterator it = rm->people.begin();
 	for (; it != rm->people.end(); ++it) {
 		vict = *it;
-		send_to_char(vict, 
+		send_to_char(vict,
 			"The room in which you exist is suddenly removed from reality!\r\n");
 		char_from_room(vict,false);
 		if (rm->next) {
@@ -525,7 +524,7 @@ do_destroy_room(struct Creature *ch, int vnum)
 			char_to_room(vict, r_mortal_start_room,false);
 
 		look_at_room(vict, vict->in_room, 0);
-		act("$n appears from a void in reality.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n appears from a void in reality.", true, ch, 0, 0, TO_ROOM);
 
 	}
 
@@ -597,7 +596,6 @@ do_destroy_room(struct Creature *ch, int vnum)
 	return 0;
 }
 
-
 void
 do_clear_room(struct Creature *ch)
 {
@@ -628,7 +626,6 @@ do_clear_room(struct Creature *ch)
 			free(room->dir_option[dir]->general_description);
 			room->dir_option[dir]->general_description = NULL;
 		}
-			
 
 	room->room_flags = 0;
 	room->sector_type = SECT_INSIDE;
@@ -775,7 +772,6 @@ static const char *olc_rset_keys[] = {
 	"\n"						/* many more to be added */
 };
 
-
 void
 do_olc_rset(struct Creature *ch, char *argument)
 {
@@ -793,7 +789,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 	half_chop(argument, arg1, arg2);
 	skip_spaces(&argument);
 
-	if ((rset_command = search_block(arg1, olc_rset_keys, FALSE)) < 0) {
+	if ((rset_command = search_block(arg1, olc_rset_keys, false)) < 0) {
 		send_to_char(ch, "Invalid rset command '%s'.\r\n", arg1);
 		return;
 	}
@@ -812,10 +808,10 @@ do_olc_rset(struct Creature *ch, char *argument)
 
 	case 1:					/* rdescription */
 		if (ch->in_room->description) {
-			act("$n begins to edit a room description.", TRUE, ch, 0, 0,
+			act("$n begins to edit a room description.", true, ch, 0, 0,
 				TO_ROOM);
 		} else {
-			act("$n begins to write a room description.", TRUE, ch, 0, 0,
+			act("$n begins to write a room description.", true, ch, 0, 0,
 				TO_ROOM);
 		}
 		start_editing_text(ch->desc, &ch->in_room->description);
@@ -858,7 +854,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 		cur_flags = ROOM_FLAGS(ch->in_room);
 
 		while (*arg1) {
-			if ((flag = search_block(arg1, roomflag_names, FALSE)) == -1) {
+			if ((flag = search_block(arg1, roomflag_names, false)) == -1) {
 				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_flags = tmp_flags | (1 << flag);
@@ -898,9 +894,9 @@ do_olc_rset(struct Creature *ch, char *argument)
 		}
 
 		if (ch->in_room->sounds == NULL) {
-			act("$n begins to create a sound.", TRUE, ch, 0, 0, TO_ROOM);
+			act("$n begins to create a sound.", true, ch, 0, 0, TO_ROOM);
 		} else {
-			act("$n begins to edit a sound.", TRUE, ch, 0, 0, TO_ROOM);
+			act("$n begins to edit a sound.", true, ch, 0, 0, TO_ROOM);
 		}
 		start_editing_text(ch->desc, &ch->in_room->sounds);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
@@ -928,19 +924,19 @@ do_olc_rset(struct Creature *ch, char *argument)
 				send_to_char(ch, "Flow removed from room.\r\n");
 				return;
 			} else
-				send_to_char(ch, 
+				send_to_char(ch,
 					"You must specify the flow speed as the second argument.\r\n");
 		} else if (!*arg1)
 			send_to_char(ch, "Usage: olc rset flow <dir> <speed> <type>\r\n");
 		else if (!is_number(arg2) || ((j = atoi(arg2)) < 0))
 			send_to_char(ch, "The second argument must be a positive number.\r\n");
-		else if ((edir = search_block(arg1, dirs, FALSE)) < 0)
+		else if ((edir = search_block(arg1, dirs, false)) < 0)
 			send_to_char(ch, "What direction to flow in??\r\n");
 		else {
 			if (*arg3) {
 				if (!is_number(arg3)) {
 					if ((i = search_block(arg3, flow_types, 0)) < 0) {
-						send_to_char(ch, 
+						send_to_char(ch,
 							"Invalid flow type... type olc h rflow.\r\n");
 						return;
 					}
@@ -998,7 +994,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 		} else {
 			start_editing_text(ch->desc, &ch->in_room->func_param);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-			act("$n begins to write a room spec param.", TRUE, ch, 0, 0,
+			act("$n begins to write a room spec param.", true, ch, 0, 0,
 				TO_ROOM);
 		}
 
@@ -1006,10 +1002,10 @@ do_olc_rset(struct Creature *ch, char *argument)
 	case 9:
         start_editing_prog(ch->desc, ch->in_room, PROG_TYPE_ROOM);
 	  SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-	  act("$n begins to write a room prog.", TRUE, ch, 0, 0, TO_ROOM);
+	  act("$n begins to write a room prog.", true, ch, 0, 0, TO_ROOM);
 	  break;
 	default:
-		send_to_char(ch, 
+		send_to_char(ch,
 			"Sorry, you have attempted to access an unimplemented command.\r\nUnfortunately, you will now be killed.\r\n");
 		return;
 	}
@@ -1032,7 +1028,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 
 	half_chop(argument, buf, argument);
 	if (!*argument)
-		send_to_char(ch, 
+		send_to_char(ch,
 			"Which extra description would you like to deal with?\r\n");
 	else if (!*buf)
 		send_to_char(ch, "Valid commands are: create, remove, edit, addkey.\r\n");
@@ -1071,17 +1067,17 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
                            &ch->in_room->ex_description->description);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
-		act("$n begins to write an extra description.", TRUE, ch, 0, 0,
+		act("$n begins to write an extra description.", true, ch, 0, 0,
 			TO_ROOM);
 		return;
 	} else if (is_abbrev(buf, "edit")) {
 		if ((desc = locate_exdesc(argument, ch->in_room->ex_description, 1))) {
 			start_editing_text(ch->desc, &desc->description);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-			act("$n begins to write an extra description.", TRUE, ch, 0, 0,
+			act("$n begins to write an extra description.", true, ch, 0, 0,
 				TO_ROOM);
 		} else
-			send_to_char(ch, 
+			send_to_char(ch,
 				"No such description.  Use 'create' to make a new one.\r\n");
 
 		return;
@@ -1089,7 +1085,7 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 		half_chop(argument, arg1, arg2);
 		if ((desc = locate_exdesc(arg1, ch->in_room->ex_description, 1))) {
 			if (!*arg2) {
-				send_to_char(ch, 
+				send_to_char(ch,
 					"What??  How about giving me some keywords to add...\r\n");
 				return;
 			} else {
@@ -1107,9 +1103,6 @@ do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
 		send_to_char(ch, OLC_EXDESC_USAGE);
 
 }
-
-
-
 
 #define HEDIT_USAGE   "HEDIT ( house edit ) usage:\r\n" \
 "hedit title <title>\r\n" \
@@ -1178,7 +1171,7 @@ ACMD(do_hedit)
 		sprintf(buf, "title %s", argument);
 		do_olc_rset(ch, buf);
 		break;
-	case 1:					// desc 
+	case 1:					// desc
 		sprintf(buf, "desc %s", argument);
 		do_olc_rset(ch, buf);
 		break;
@@ -1199,11 +1192,11 @@ ACMD(do_hedit)
 		WAIT_STATE(ch, 8 RL_SEC);
 		break;
 
-	case 5:	{ // show 
+	case 5:	{ // show
         int tot_cost = 0, tot_num = 0;
         bool local = false;
         bool brief = false;
-        
+
         acc_string_clear();
 
 		argument = one_argument(argument, arg);
@@ -1219,7 +1212,7 @@ ACMD(do_hedit)
 
 		if (brief) {
 			acc_strcat("-- House Room --------------------- Items ------- Cost\r\n", NULL);
-            for( unsigned int i = 0; i < house->getRoomCount(); i++ ) 
+            for( unsigned int i = 0; i < house->getRoomCount(); i++ )
             {
                 int cost = 0;
                 int num = 0;

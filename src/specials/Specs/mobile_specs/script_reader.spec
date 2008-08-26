@@ -26,7 +26,7 @@ script_perform(Creature *ch, obj_data *obj, int num)
 	desc = find_exdesc(num_str, obj->ex_description, 1);
 	if (!desc)
 		return false;
-	
+
 	desc = tmp_gsub(desc, "\r\n", " ");
 	if (*desc)
 		desc[strlen(desc) - 1] = '\0';

@@ -11,7 +11,7 @@ SPECIAL(paramedic)
 	Creature *pm = (Creature *) me;
     int cost = PARAMEDIC_COST;
     cost += (cost*ch->getCostModifier(pm))/100;
-    
+
 	if (!cmd)
 		return 0;
 
@@ -49,7 +49,6 @@ SPECIAL(paramedic)
 
 		skip_spaces(&argument);
 
-
 		// healing
 		if (is_abbrev(argument, "healing")) {
 
@@ -67,8 +66,8 @@ SPECIAL(paramedic)
 			GET_HIT(ch) = (MIN(GET_MAX_HIT(ch), GET_HIT(ch) + 100));
 			GET_CASH(ch) -= cost;
 
-			act("$n performs first aid on $N.", TRUE, pm, 0, ch, TO_NOTVICT);
-			act("$n performs first aid on you.", TRUE, pm, 0, ch, TO_VICT);
+			act("$n performs first aid on $N.", true, pm, 0, ch, TO_NOTVICT);
+			act("$n performs first aid on you.", true, pm, 0, ch, TO_VICT);
 
 			send_to_char(ch, "You feel better.\r\n");
 
@@ -92,9 +91,9 @@ SPECIAL(paramedic)
 			GET_MOVE(ch) = (MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 100));
 			GET_CASH(ch) -= cost;
 
-			act("$n administers a stim-pack to $N.", TRUE, pm, 0, ch,
+			act("$n administers a stim-pack to $N.", true, pm, 0, ch,
 				TO_NOTVICT);
-			act("$n administers a stim-pack to you.", TRUE, pm, 0, ch,
+			act("$n administers a stim-pack to you.", true, pm, 0, ch,
 				TO_VICT);
 
 			send_to_char(ch, "You feel stimulated.\r\n");
@@ -125,9 +124,9 @@ SPECIAL(paramedic)
 
 			GET_CASH(ch) -= cost;
 
-			act("$n performs a detoxification on $N.", TRUE, pm, 0, ch,
+			act("$n performs a detoxification on $N.", true, pm, 0, ch,
 				TO_NOTVICT);
-			act("$n performs a detoxification on you.", TRUE, pm, 0, ch,
+			act("$n performs a detoxification on you.", true, pm, 0, ch,
 				TO_VICT);
 
 			send_to_char(ch, "You feel less toxic.\r\n");

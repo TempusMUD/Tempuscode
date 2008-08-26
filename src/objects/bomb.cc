@@ -227,8 +227,8 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 			break;
 		}
 		if (!(room->people.empty())) {
-			act(buf, FALSE, *(room->people.begin()), 0, 0, TO_CHAR | TO_SLEEP);
-			act(buf, FALSE, *(room->people.begin()), 0, 0, TO_ROOM | TO_SLEEP);
+			act(buf, false, *(room->people.begin()), 0, 0, TO_CHAR | TO_SLEEP);
+			act(buf, false, *(room->people.begin()), 0, 0, TO_ROOM | TO_SLEEP);
 		}
 	} else {
 
@@ -302,7 +302,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 				dam = MAX(1, dam);
 				damage_type = TYPE_DROWNING;
 				break;
-			case BOMB_ARTIFACT:	
+			case BOMB_ARTIFACT:
 				strcpy(buf, "You are engulfed by a blinding bright blue light");
 				dam = (dam > 0) ? 30000:0;
 				damage_type = 0;
@@ -331,7 +331,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 
 	if (!dam)
 		return;
-	
+
     CreatureList::iterator it;
     //make sure we really do want to do damage in this room
     it = room->people.begin();
@@ -339,18 +339,18 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 		vict = (*it);
         if (damager && damager != vict && !damager->isOkToAttack(vict,false)) {
             //display the message to everyone in victs room except damager
-            act("A divine shield flashes into existence protecting you from $N's bomb.", 
+            act("A divine shield flashes into existence protecting you from $N's bomb.",
                 false, vict, NULL, damager, TO_NOTVICT);
-            act("A divine shield flashes into existence protecting you from $N's bomb.", 
+            act("A divine shield flashes into existence protecting you from $N's bomb.",
                 false, vict, NULL, damager, TO_CHAR);
             if (damager->in_room == vict->in_room)
                 send_to_char(damager, "A divine shield flashes into existence absorbing the blast.\r\n");
             return;
         }
     }
-        
+
     it = room->people.begin();
-	
+
     for (; it != room->people.end(); ++it) {
 		vict = (*it);
 
@@ -383,14 +383,14 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 			continue;
 
 		if (GET_STR(vict) < number(3, power)) {
-			send_to_char(vict, 
+			send_to_char(vict,
 				"You are blown to the ground by the explosive blast!\r\n");
 			vict->setPosition(POS_SITTING);
 		} else if (vict->getPosition() > POS_STUNNED &&
 			(bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
 			number(5, 5 + power) > GET_CON(vict)) {
 
-			if (ROOM_FLAGGED(room, ROOM_PEACEFUL) && 
+			if (ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
                 (dir >= 0 || (dir = number(0, NUM_DIRS - 1)) >= 0) &&
 				room->dir_option[rev_dir[dir]] &&
 				room->dir_option[rev_dir[dir]]->to_room &&
@@ -398,14 +398,14 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 				&& (power << 5) > number(0,
 					GET_WEIGHT(vict) + IS_CARRYING_W(vict) +
 					IS_WEARING_W(vict) + CAN_CARRY_W(vict))) {
-				send_to_char(vict, 
+				send_to_char(vict,
 					"You are blown out of the room by the blast!!\r\n");
 				char_from_room(vict,false);
 				char_to_room(vict, room->dir_option[rev_dir[dir]]->to_room,false);
 				look_at_room(vict, vict->in_room, 0);
 
 				sprintf(buf, "$n is blown in from %s!", from_dirs[dir]);
-				act(buf, FALSE, vict, 0, 0, TO_ROOM);
+				act(buf, false, vict, 0, 0, TO_ROOM);
 			} else if (vict->getPosition() > POS_SITTING && (power << 5) >
 				GET_WEIGHT(vict) + CAN_CARRY_W(vict)) {
 				send_to_char(vict, "You are blown to the ground by the blast!!\r\n");
@@ -426,7 +426,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 		if(!IS_BOMB(obj) // Do not damage lit bombs
 		||  obj->contains == NULL
 		|| !IS_FUSE(obj->contains)
-		||  FUSE_STATE(obj->contains) == 0 ) 
+		||  FUSE_STATE(obj->contains) == 0 )
 		{
 			damage_eq(NULL, obj, dam, damage_type);
 		}
@@ -501,7 +501,7 @@ detonate_bomb(struct obj_data *bomb)
             act(tmp_sprintf("$p fizzles and dies in $n's %s!",
                     (cont ? fname(cont->aliases) : "hands")),
                 false, ch, bomb, cont, TO_ROOM);
-            
+
             return NULL;
         }
 		act(tmp_sprintf("$p goes off in %s!!!", (internal ? "body!" :
@@ -582,7 +582,7 @@ engage_self_destruct(struct Creature *ch)
 	struct room_data *room = NULL;
 	struct bomb_radius_list *rad_elem = NULL, *next_elem = NULL;
 
-	send_to_char(ch, 
+	send_to_char(ch,
 		"Self-destruct point reached.  Stand by for termination...\r\n");
 
 	level = (GET_LEVEL(ch) >> 3) + GET_REMORT_GEN(ch) + (GET_HIT(ch) >> 8);
@@ -622,7 +622,7 @@ engage_self_destruct(struct Creature *ch)
 	mudlog(GET_INVIS_LVL(ch), BRF, true,
 		"%s self-destructed at room #%d, level %d.", GET_NAME(ch),
 		ch->in_room->number, level);
-	die(ch, ch, SKILL_SELF_DESTRUCT, FALSE);
+	die(ch, ch, SKILL_SELF_DESTRUCT, false);
 
 	// now kill everyone else
 
@@ -686,7 +686,6 @@ ACMD(do_bomb)
 	}
 	bomb_rooms = new_list;
 
-
 	strcpy(buf, "BOMB AFFECTS:\r\n");
 	for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 		next_elem = rad_elem->next;
@@ -722,11 +721,11 @@ ACMD(do_defuse)
 		!(bomb = get_obj_in_list_vis(ch, argument, ch->in_room->contents)))
 		send_to_char(ch, "Defuse what?\r\n");
 	else if (!IS_BOMB(bomb))
-		act("$p is not a bomb.", FALSE, ch, bomb, 0, TO_CHAR);
+		act("$p is not a bomb.", false, ch, bomb, 0, TO_CHAR);
 	else if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 20)
 		send_to_char(ch, "You have no idea how.\r\n");
 	else if (!(fuse = bomb->contains) || !IS_FUSE(fuse))
-		act("$p is not fused.", FALSE, ch, bomb, 0, TO_CHAR);
+		act("$p is not fused.", false, ch, bomb, 0, TO_CHAR);
 	else {
 		if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) <
 			number(0, 60 +
@@ -748,8 +747,8 @@ ACMD(do_defuse)
 			bomb->aux_obj = NULL;
 		}
 
-		act("$n defuses $p.", TRUE, ch, bomb, 0, TO_ROOM);
-		act("You remove $P from $p.", FALSE, ch, bomb, fuse, TO_CHAR);
+		act("$n defuses $p.", true, ch, bomb, 0, TO_ROOM);
+		act("You remove $P from $p.", false, ch, bomb, fuse, TO_CHAR);
 		gain_skill_prof(ch, SKILL_DEMOLITIONS);
 
 	}

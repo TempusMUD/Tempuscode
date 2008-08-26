@@ -60,14 +60,14 @@ SPECIAL(enhancer)
 
 	cost = GET_OBJ_COST(obj);
     cost += (cost*ch->getCostModifier(keeper))/100;
-    
+
 	sprintf(buf2, "It will cost you %d %s to have %s enhanced.",
 		cost, ch->in_room->zone->time_frame == TIME_ELECTRO ? "credits" :
 		"coins", obj->name);
 	perform_tell(keeper, ch, buf2);
 
 	if (cmd_type == ENHANCE_OFF) {
-		act("$n gets an offer on enhancement for $p.", FALSE, ch, obj, 0,
+		act("$n gets an offer on enhancement for $p.", false, ch, obj, 0,
 			TO_ROOM);
 		return 1;
 	}
@@ -87,11 +87,11 @@ SPECIAL(enhancer)
 	}
 
 	act("$n takes $p and disappears into the back room for a while.\r\n",
-		FALSE, keeper, obj, ch, TO_VICT);
+		false, keeper, obj, ch, TO_VICT);
 	act("$e returns shortly and presents you with the finished product",
-		FALSE, keeper, obj, ch, TO_VICT);
+		false, keeper, obj, ch, TO_VICT);
 	act("$n takes $p from $N and disappears into the back room for a while.",
-		FALSE, keeper, obj, ch, TO_NOTVICT);
+		false, keeper, obj, ch, TO_NOTVICT);
 
 	SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_ENHANCED);
 	if (((GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1)) >> 1) < 21) {
@@ -106,7 +106,7 @@ SPECIAL(enhancer)
 			GET_OBJ_VAL(obj, 1) += 1;
 	}
     if (IS_ENERGY_GUN(obj)) { //energy guns have their usage cost increased randomly
-        GET_OBJ_VAL(obj, 0) += number(0,GET_OBJ_VAL(obj, 0)); 
+        GET_OBJ_VAL(obj, 0) += number(0,GET_OBJ_VAL(obj, 0));
     }
 	WAIT_STATE(ch, 5 RL_SEC);
 	ch->saveToXML();

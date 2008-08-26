@@ -19,7 +19,7 @@ SPECIAL(hell_regulator)
 	if (GET_MANA(ch) < 100) {
 		if (!ZONE_IS_HELL(ch->in_room->zone)) {
 			act("$n vanishes into the mouth of an interplanar conduit.",
-				FALSE, ch, 0, 0, TO_ROOM);
+				false, ch, 0, 0, TO_ROOM);
 			ch->purge(true);
 			return 1;
 		}
@@ -44,10 +44,10 @@ SPECIAL(hell_regulator)
 
 			char_to_room(devil, ch->in_room, false);
 			act("$n gestures... A glowing conduit flashes into existence!",
-				FALSE, ch, 0, vict, TO_ROOM);
-			act("...$n leaps out and attacks $N!", FALSE, devil, 0, vict,
+				false, ch, 0, vict, TO_ROOM);
+			act("...$n leaps out and attacks $N!", false, devil, 0, vict,
 				TO_NOTVICT);
-			act("...$n leaps out and attacks you!", FALSE, devil, 0, vict,
+			act("...$n leaps out and attacks you!", false, devil, 0, vict,
 				TO_VICT);
 
             vict->removeCombat(ch);
@@ -58,19 +58,17 @@ SPECIAL(hell_regulator)
 			return 1;
 		}
 
-
 		if (IS_DEVIL(vict) && IS_NPC(vict) &&
 			GET_HIT(vict) < (GET_MAX_HIT(vict) - 500)) {
 
 			act("$n opens a conduit of streaming energy to $N!\r\n"
-				"...$N's wounds appear to regenerate!", FALSE, ch, 0, vict,
+				"...$N's wounds appear to regenerate!", false, ch, 0, vict,
 				TO_ROOM);
 
 			GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + 500);
 			GET_MANA(ch) -= 100;
 			return 1;
 		}
-
 
 	}
 

@@ -85,16 +85,16 @@ bool
 has_infravision(Creature *ch)
 {
 	return (AFF_FLAGGED(ch, AFF_INFRAVISION) ||
-		(GET_RACE(ch) == RACE_ELF) ||     
-		(GET_RACE(ch) == RACE_DROW) ||    
-		(GET_RACE(ch) == RACE_DWARF) ||    
-		(GET_RACE(ch) == RACE_HALF_ORC) || 
-		(GET_RACE(ch) == RACE_TABAXI) ||   
-		(GET_RACE(ch) == RACE_DRAGON) ||   
-		(GET_RACE(ch) == RACE_ORC) ||      
-		(GET_RACE(ch) == RACE_OGRE) ||      
-		(GET_RACE(ch) == RACE_GOBLIN) ||   
-		(GET_RACE(ch) == RACE_TROLL) ||    
+		(GET_RACE(ch) == RACE_ELF) ||
+		(GET_RACE(ch) == RACE_DROW) ||
+		(GET_RACE(ch) == RACE_DWARF) ||
+		(GET_RACE(ch) == RACE_HALF_ORC) ||
+		(GET_RACE(ch) == RACE_TABAXI) ||
+		(GET_RACE(ch) == RACE_DRAGON) ||
+		(GET_RACE(ch) == RACE_ORC) ||
+		(GET_RACE(ch) == RACE_OGRE) ||
+		(GET_RACE(ch) == RACE_GOBLIN) ||
+		(GET_RACE(ch) == RACE_TROLL) ||
 		(GET_RACE(ch) == RACE_BUGBEAR)  ||
         IS_UNDEAD(ch) ||
 		(GET_CLASS(ch) == CLASS_VAMPIRE && IS_EVIL(ch)));
@@ -133,7 +133,7 @@ check_sight_room(Creature *self, room_data *room)
 	if (ROOM_FLAGGED(room, ROOM_SMOKE_FILLED) &&
 			!AFF3_FLAGGED(self, AFF3_SONIC_IMAGERY))
 		return false;
-	
+
 	return true;
 }
 
@@ -155,7 +155,7 @@ check_sight_object(Creature *self, obj_data *obj)
 		return false;
 
 	if (AFF_FLAGGED(self, AFF_DETECT_INVIS) ||
-			AFF2_FLAGGED(self, AFF2_TRUE_SEEING))
+			AFF2_FLAGGED(self, AFF2_true_SEEING))
 		return true;
 
 	if (IS_OBJ_STAT(obj, ITEM_INVISIBLE))
@@ -199,7 +199,7 @@ check_sight_vict(Creature *self, Creature *vict)
 		return false;
 
 	// True seeing and detect invisibility counteract all magical invis
-	if (AFF2_FLAGGED(self, AFF2_TRUE_SEEING) ||
+	if (AFF2_FLAGGED(self, AFF2_true_SEEING) ||
 			AFF_FLAGGED(self, AFF_DETECT_INVIS))
 		return true;
 
@@ -224,12 +224,12 @@ can_see_creature(Creature *self, Creature *vict)
 	// Immortals players can always see non-immortal players
 	if (IS_IMMORT(self) && !IS_IMMORT(vict))
 		return true;
-    
+
     //only immortals can see utility mobs
     if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_UTILITY) && !IS_IMMORT(self)) {
         return false;
     }
-	
+
 	// Nothing at all gets through immort invis
 	if (IS_IMMORT(vict) && GET_LEVEL(self) < GET_INVIS_LVL(vict))
 		return false;
@@ -260,7 +260,7 @@ can_see_object(Creature *self, obj_data *obj)
 	// After the object itself, we only care about the outermost object
 	while (obj->in_obj)
 		obj = obj->in_obj;
-	
+
 	// If the object is being carried by someone, it also inherits visibility
 	if (obj->carried_by) {
 		if (obj->carried_by == self)

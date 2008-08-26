@@ -55,7 +55,6 @@ void do_auto_exits(struct Creature *ch, room_num room);
 void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
 int get_check_money(struct Creature *ch, struct obj_data **obj, int display);
 
-
 ACMD(do_echo);
 ACMD(do_gen_comm);
 ACMD(do_rescue);
@@ -267,7 +266,7 @@ SPECIAL(hell_hunter_brain)
 				}
 
 				char_to_room(mob, vict ? vict->in_room : obj->in_room, false);
-				act("$n steps suddenly out of an infernal conduit from the outer planes!", FALSE, mob, 0, 0, TO_ROOM);
+				act("$n steps suddenly out of an infernal conduit from the outer planes!", false, mob, 0, 0, TO_ROOM);
 
 			}
 		}
@@ -281,7 +280,7 @@ SPECIAL(hell_hunter_brain)
 				regulator = 1;
 				mob->startHunting(vict);
 				char_to_room(mob, vict->in_room, false);
-				act("$n materializes suddenly from a stream of hellish energy!", FALSE, mob, 0, 0, TO_ROOM);
+				act("$n materializes suddenly from a stream of hellish energy!", false, mob, 0, 0, TO_ROOM);
 			}
 		}
 
@@ -299,8 +298,8 @@ SPECIAL(hell_hunter_brain)
 			obj->name, vict ? "$N" : "Nobody",
 			obj->in_room ? obj->in_room->number :
 			(vict && vict->in_room) ? vict->in_room->number : -1);
-		act(buf, FALSE, ch, 0, vict, TO_ROOM);
-		act(buf, FALSE, ch, 0, vict, TO_CHAR);
+		act(buf, false, ch, 0, vict, TO_ROOM);
+		act(buf, false, ch, 0, vict, TO_CHAR);
 		return 1;
 	}
 
@@ -333,7 +332,7 @@ SPECIAL(hell_hunter)
 			for (t_obj = obj->contains; t_obj; t_obj = t_obj->next_content) {
 				for (i = 0; i < targets.size(); i++) {
 					if (targets[i].o_vnum == GET_OBJ_VNUM(t_obj)) {
-						act("$n takes $p from $P.", FALSE, ch, t_obj, obj,
+						act("$n takes $p from $P.", false, ch, t_obj, obj,
 							TO_ROOM);
 						mudlog(0, CMP, true,
 							"HELL: %s looted %s at %d.", GET_NAME(ch),
@@ -347,7 +346,7 @@ SPECIAL(hell_hunter)
 		}
 		for (i = 0; i < targets.size(); i++) {
 			if (targets[i].o_vnum == GET_OBJ_VNUM(obj)) {
-				act("$n takes $p.", FALSE, ch, obj, t_obj, TO_ROOM);
+				act("$n takes $p.", false, ch, obj, t_obj, TO_ROOM);
 				mudlog(0, CMP, true,
 					"HELL: %s retrieved %s at %d.", GET_NAME(ch),
 					obj->name, ch->in_room->number);
@@ -359,7 +358,7 @@ SPECIAL(hell_hunter)
 
 	if (!ch->isFighting() && !ch->isHunting() && !AFF_FLAGGED(ch, AFF_CHARM)) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
-			FALSE, ch, 0, 0, TO_ROOM);
+			false, ch, 0, 0, TO_ROOM);
 		ch->purge(true);
 		return 1;
 	}
@@ -368,7 +367,7 @@ SPECIAL(hell_hunter)
 
 		if (GET_MANA(ch) < 100) {
 			act("$n vanishes into the mouth of an interplanar conduit.",
-				FALSE, ch, 0, 0, TO_ROOM);
+				false, ch, 0, 0, TO_ROOM);
 			ch->purge(true);
 			return 1;
 		}
@@ -391,10 +390,10 @@ SPECIAL(hell_hunter)
 
 				char_to_room(devil, ch->in_room, false);
 				act("$n gestures... A glowing conduit flashes into existence!",
-					FALSE, ch, 0, vict, TO_ROOM);
-				act("...$n leaps out and attacks $N!", FALSE, devil, 0, vict,
+					false, ch, 0, vict, TO_ROOM);
+				act("...$n leaps out and attacks $N!", false, devil, 0, vict,
 					TO_NOTVICT);
-				act("...$n leaps out and attacks you!", FALSE, devil, 0, vict,
+				act("...$n leaps out and attacks you!", false, devil, 0, vict,
 					TO_VICT);
 
 				ch->removeAllCombat();
@@ -404,12 +403,11 @@ SPECIAL(hell_hunter)
 				return 1;
 			}
 
-
 			if (IS_DEVIL(vict) && IS_NPC(vict) &&
 				GET_HIT(vict) < (GET_MAX_HIT(vict) - 500)) {
 
 				act("$n opens a conduit of streaming energy to $N!\r\n"
-					"...$N's wounds appear to regenerate!", FALSE, ch, 0, vict,
+					"...$N's wounds appear to regenerate!", false, ch, 0, vict,
 					TO_ROOM);
 
 				GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + 500);
@@ -450,7 +448,7 @@ SPECIAL(arioch)
 						blade = blade->next_content) {
 						for (i = 0; i < targets.size(); i++) {
 							if (BLADE_VNUM == GET_OBJ_VNUM(blade)) {
-								act("$n takes $p from $P.", FALSE, ch, blade,
+								act("$n takes $p from $P.", false, ch, blade,
 									obj, TO_ROOM);
 								mudlog(0, CMP, true,
 									"HELL: %s looted %s at %d.",
@@ -467,7 +465,7 @@ SPECIAL(arioch)
 					}
 				}
 				if (BLADE_VNUM == GET_OBJ_VNUM(obj)) {
-					act("$n takes $p.", FALSE, ch, obj, obj, TO_ROOM);
+					act("$n takes $p.", false, ch, obj, obj, TO_ROOM);
 					mudlog(0, CMP, true,
 						"HELL: %s retrieved %s at %d.", GET_NAME(ch),
 						obj->name, ch->in_room->number);
@@ -479,17 +477,17 @@ SPECIAL(arioch)
 					return 1;
 				}
 			}
-			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
+			act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
 			char_from_room(ch, false);
 			char_to_room(ch, real_room(ARIOCH_LAIR), false);
-			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
+			act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
 			return 1;
 		}
 		if (GET_HIT(ch) < 800) {
-			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
+			act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
 			char_from_room(ch, false);
 			char_to_room(ch, real_room(ARIOCH_LAIR), false);
-			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
+			act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
 			return 1;
 		}
 		return 0;
@@ -510,10 +508,10 @@ SPECIAL(arioch)
 				ch->startHunting(vict);
 				rm = vict->in_room;
 			}
-			act(ARIOCH_LEAVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
+			act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
 			char_from_room(ch, false);
 			char_to_room(ch, rm, false);
-			act(ARIOCH_ARRIVE_MSG, FALSE, ch, 0, 0, TO_ROOM);
+			act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
 			mudlog(0, CMP, true,
 				"HELL: Arioch ported to %s@%d",
 				vict ? GET_NAME(vict) : "Nobody", rm->number);

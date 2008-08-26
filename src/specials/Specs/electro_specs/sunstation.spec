@@ -13,8 +13,8 @@ SPECIAL(sunstation)
 	if (spec_mode != SPECIAL_CMD || !ch->desc || !CMD_IS("login"))
 		return 0;
 
-	act("You log in on $p.", FALSE, ch, sun, 0, TO_CHAR);
-	act("$n logs in on $p.", FALSE, ch, sun, 0, TO_ROOM);
+	act("You log in on $p.", false, ch, sun, 0, TO_CHAR);
+	act("$n logs in on $p.", false, ch, sun, 0, TO_ROOM);
 	set_desc_state(CXN_NETWORK, ch->desc);
 	return 1;
 }

@@ -91,7 +91,7 @@ Tongue::load(xmlNodePtr node)
 
     _idnum = xmlGetIntProp(node, "idnum");
     _name = xmlGetProp(node, "name");
-    
+
     for (child = node->children;child;child = child->next)
         if (xmlMatches(child->name, "syllable"))
             _syllable_count++;
@@ -280,9 +280,9 @@ boot_tongues(void)
         }
         node = node->next;
     }
-    
+
     xmlFreeDoc(doc);
-    
+
     slog("%zd tongues loaded", tongues.size());
 }
 
@@ -431,7 +431,7 @@ ACMD(do_show_languages)
 			}
         }
     }
-    
+
 	page_string(ch->desc, acc_get_string());
 }
 
@@ -525,11 +525,11 @@ show_language_help(Creature *ch)
     acc_string_clear();
 
     acc_sprintf("LANGUAGES:\r\n");
-        
+
     map<int, Tongue>::iterator it = tongues.begin();
     for (;it != tongues.end();++it) {
         Tongue &tongue = it->second;
-        
+
         acc_sprintf("%2d         %s%-10s     [ %s",
                     tongue._idnum,
                     CCCYN(ch, C_NRM),

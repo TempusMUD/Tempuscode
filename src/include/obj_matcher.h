@@ -43,29 +43,29 @@ using namespace std;
 **/
 class ObjectMatcher {
 	public:
-		ObjectMatcher( const char *key ) { 
+		ObjectMatcher( const char *key ) {
 			this->_ready = false;
-			this->key = key; 
+			this->key = key;
 		}
 		virtual ~ObjectMatcher() { }
-		bool isKey( const char *key ) { 
+		bool isKey( const char *key ) {
 			return (strncmp( this->key.c_str(), key, strlen(key) ) == 0 );
 		}
-		virtual bool init( Creature *ch, Tokenizer &tokens ) { 
-			return false; 
-		}
-		virtual bool isMatch( obj_data *obj ) { 
+		virtual bool init( Creature *ch, Tokenizer &tokens ) {
 			return false;
 		}
-		bool isReady() { 
-			return _ready; 
+		virtual bool isMatch( obj_data *obj ) {
+			return false;
 		}
-		void setReady(bool ready) { 
-			_ready = ready; 
+		bool isReady() {
+			return _ready;
+		}
+		void setReady(bool ready) {
+			_ready = ready;
 		}
 		const char* getKey() { return key.c_str(); }
-		/* 
-		 * Returns additional info to show for the objects matched 
+		/*
+		 * Returns additional info to show for the objects matched
 		 * by this matcher in a char[] allocated by tmpstr.
 		 **/
 		virtual const char* getAddedInfo( Creature *ch, obj_data *obj ) {
@@ -77,14 +77,12 @@ class ObjectMatcher {
 		string key;
 };
 
-
-
 /**
  * Matches objects based on either a numerical or enumerated type (weapon, worn etc)
 **/
 class ObjectTypeMatcher : public ObjectMatcher {
 	public:
-		ObjectTypeMatcher() : ObjectMatcher::ObjectMatcher("type") { 
+		ObjectTypeMatcher() : ObjectMatcher::ObjectMatcher("type") {
 			type = -1;
 		}
 		virtual ~ObjectTypeMatcher() { }
@@ -99,7 +97,7 @@ class ObjectTypeMatcher : public ObjectMatcher {
 **/
 class ObjectMaterialMatcher : public ObjectMatcher {
 	public:
-		ObjectMaterialMatcher() : ObjectMatcher::ObjectMatcher("material") { 
+		ObjectMaterialMatcher() : ObjectMatcher::ObjectMatcher("material") {
 			material = -1;
 		}
 		virtual ~ObjectMaterialMatcher() { }
@@ -114,7 +112,7 @@ class ObjectMaterialMatcher : public ObjectMatcher {
 **/
 class ObjectApplyMatcher : public ObjectMatcher {
 	public:
-		ObjectApplyMatcher() : ObjectMatcher::ObjectMatcher("apply") { 
+		ObjectApplyMatcher() : ObjectMatcher::ObjectMatcher("apply") {
 			apply = -1;
 		}
 		virtual ~ObjectApplyMatcher() { }
@@ -130,7 +128,7 @@ class ObjectApplyMatcher : public ObjectMatcher {
 **/
 class ObjectSpecialMatcher : public ObjectMatcher {
 	public:
-		ObjectSpecialMatcher() : ObjectMatcher::ObjectMatcher("special") { 
+		ObjectSpecialMatcher() : ObjectMatcher::ObjectMatcher("special") {
 			spec = -1;
 		}
 		virtual ~ObjectSpecialMatcher() { }
@@ -145,7 +143,7 @@ class ObjectSpecialMatcher : public ObjectMatcher {
 **/
 class ObjectAffectMatcher : public ObjectMatcher {
 	public:
-		ObjectAffectMatcher() : ObjectMatcher::ObjectMatcher("affect") { 
+		ObjectAffectMatcher() : ObjectMatcher::ObjectMatcher("affect") {
 			index = -1;
 			affect = -1;
 		}
@@ -157,13 +155,12 @@ class ObjectAffectMatcher : public ObjectMatcher {
 		int affect;
 };
 
-
 /**
  * Matches objects based on its cost.
 **/
 class ObjectCostMatcher : public ObjectMatcher {
 	public:
-		ObjectCostMatcher() : ObjectMatcher::ObjectMatcher("cost") { 
+		ObjectCostMatcher() : ObjectMatcher::ObjectMatcher("cost") {
 			costAbove = INT_MIN;
 			costBelow = INT_MAX;
 		}
@@ -176,7 +173,6 @@ class ObjectCostMatcher : public ObjectMatcher {
 		int costAbove;
 };
 
-
 /**
  * Matches an object based on spells it can cast.
  *
@@ -184,7 +180,7 @@ class ObjectCostMatcher : public ObjectMatcher {
 **/
 class ObjectSpellMatcher : public ObjectMatcher {
 	public:
-		ObjectSpellMatcher() : ObjectMatcher::ObjectMatcher("spell") { 
+		ObjectSpellMatcher() : ObjectMatcher::ObjectMatcher("spell") {
 			spell = -1;
 		}
 		virtual ~ObjectSpellMatcher() { }
@@ -195,13 +191,12 @@ class ObjectSpellMatcher : public ObjectMatcher {
 		int spell;
 };
 
-
 /**
  * Matches objects based on where they're worn, either numerically or by name.
 **/
 class ObjectWornMatcher : public ObjectMatcher {
 	public:
-		ObjectWornMatcher() : ObjectMatcher::ObjectMatcher("worn") { 
+		ObjectWornMatcher() : ObjectMatcher::ObjectMatcher("worn") {
 			worn = INT_MAX;
 		}
 		virtual ~ObjectWornMatcher() { }
@@ -216,7 +211,7 @@ class ObjectWornMatcher : public ObjectMatcher {
 **/
 class ObjectExtraMatcher : public ObjectMatcher {
 	public:
-		ObjectExtraMatcher() : ObjectMatcher::ObjectMatcher("extra") { 
+		ObjectExtraMatcher() : ObjectMatcher::ObjectMatcher("extra") {
 			extra = extra2 = extra3 = 0;
             noextra = noextra2 = noextra3 = 0;
 		}
@@ -233,7 +228,6 @@ class ObjectExtraMatcher : public ObjectMatcher {
 		int noextra2;
 		int noextra3;
 };
-
 
 #endif
 #endif

@@ -10,7 +10,6 @@
 
 /* room-related defines *************************************************/
 
-
 /* The cardinal directions: used as index to room_data.dir_option[] */
 
 #include "defs.h"
@@ -34,7 +33,6 @@
 #define DOOR_CLOSED             (1 << 1)
 #define DOOR_LOCKED             (1 << 2)
 #define DOOR_HIDDEN             (1 << 3)
-
 
 /* Room flags: used in room_data.room_flags */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
@@ -72,7 +70,6 @@
 #define ROOM_VACUUM               (1 << 30)	// no breathable air
 #define NUM_ROOM_FLAGS          32
 
-
 /* Exit info: used in room_data.dir_option.exit_info */
 #define EX_ISDOOR               (1 << 0)	/* Exit is a door                */
 #define EX_CLOSED               (1 << 1)	/* The door is closed        */
@@ -101,7 +98,6 @@
 #define EX_REINFORCED           (1 << 24)
 #define EX_SECRET               (1 << 25)
 #define NUM_DOORFLAGS           26
-
 
 /* Sector types: used in room_data.sector_type */
 #define SECT_INSIDE          0	/* Indoors                        */
@@ -156,12 +152,9 @@
 #define SECT_DEEP_OCEAN            49
 #define NUM_SECT_TYPES      50
 
-
-
 #define NUM_OF_DIRS        NUM_DIRS
 
 /* room-related structures ************************************************/
-
 
 struct room_direction_data {
 	char *general_description;	// When look DIR.
@@ -223,7 +216,7 @@ class room_data : public thing {
 	struct room_direction_data *dir_option[NUM_OF_DIRS];	// Directions
 	struct special_search_data *search;	// Specials to be searched
 	struct room_affect_data *affects;	// temp. room affects
-	struct room_trail_data *trail;	// tracking data 
+	struct room_trail_data *trail;	// tracking data
 	int room_flags;				// DEATH,DARK ... etc
 	sh_int max_occupancy;		// Maximum Occupancy of Room
 
@@ -240,7 +233,7 @@ class room_data : public thing {
 
 	struct obj_data *contents;	// List of items in room
 	//private:
-	CreatureList people;		// List of NPC / PC in room        
+	CreatureList people;		// List of NPC / PC in room
 };
 //these structs used in do_return()
 extern struct room_data *r_immort_start_room;

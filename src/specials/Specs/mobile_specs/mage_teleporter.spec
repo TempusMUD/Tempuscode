@@ -56,7 +56,7 @@ SPECIAL(mage_teleporter)
 		perform_say(self, "say", "Hmmm.  That place doesn't seem to exist anymore.");
 		return 1;
 	}
-	
+
 	perform_say(self, "say", tmp_sprintf("Very well, %s.", GET_NAME(ch)));
 	act("You stares at $N and utters, 'horosafh'.", true, self, 0, ch, TO_CHAR);
 	act("$n stares at you and utters, 'horosafh'.", true, self, 0, ch, TO_VICT);

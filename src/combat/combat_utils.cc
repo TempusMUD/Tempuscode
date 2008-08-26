@@ -55,7 +55,6 @@ int calculate_weapon_probability(struct Creature *ch, int prob,
 	struct obj_data *weap);
 int calculate_attack_probability(struct Creature *ch);
 
-
 //checks for both vendors and utility mobs
 bool
 ok_damage_vendor(struct Creature *ch, struct Creature *victim)
@@ -67,7 +66,7 @@ ok_damage_vendor(struct Creature *ch, struct Creature *victim)
 		(IS_NPC(victim) ||
 		 !PLR_FLAGGED(victim, PLR_MORTALIZED)))
 		return false;
-	
+
 	if (IS_NPC(victim)
         && (MOB2_FLAGGED(victim, MOB2_SELLER)
             || victim->mob_specials.shared->func == vendor)) {
@@ -89,7 +88,7 @@ ok_damage_vendor(struct Creature *ch, struct Creature *victim)
         //utility mobs shouldn't be attacked either
         return false;
     }
-    
+
 	return true;
 }
 
@@ -103,7 +102,7 @@ calculate_weapon_probability(struct Creature *ch, int prob,
 	if (!ch || !weap)
 		return prob;
 
-	// Add in weapon specialization bonus.   
+	// Add in weapon specialization bonus.
 	if (GET_OBJ_VNUM(weap) > 0) {
 		for (i = 0; i < MAX_WEAPON_SPEC; i++) {
 			if (GET_WEAP_SPEC(ch, i).vnum == GET_OBJ_VNUM(weap)) {
@@ -162,7 +161,7 @@ update_pos(struct Creature *victim)
 #ifdef DEBUG_POSITION
 		if (victim->setPosition(POS_FIGHTING, 1))
 			act("$n moves to POS_FIGHTING.(from standing or flying)",
-				TRUE, victim, 0, 0, TO_ROOM);
+				true, victim, 0, 0, TO_ROOM);
 #endif
 		victim->setPosition(POS_FIGHTING, 1);
 	}
@@ -178,10 +177,10 @@ update_pos(struct Creature *victim)
 					number(1, 20) < GET_STR(victim)) {
 					if (victim->setPosition(POS_FIGHTING, 1)) {
 #ifdef DEBUG_POSITION
-						act("$n moves to POS_FIGHTING.(A)", TRUE, victim, 0, 0,
+						act("$n moves to POS_FIGHTING.(A)", true, victim, 0, 0,
 							TO_ROOM);
 #else
-						act("$n scrambles to $s feet!", TRUE, victim, 0, 0,
+						act("$n scrambles to $s feet!", true, victim, 0, 0,
 							TO_ROOM);
 #endif
 					}
@@ -205,10 +204,10 @@ update_pos(struct Creature *victim)
 				if (victim->isFighting()) {
 					if (victim->setPosition(POS_FIGHTING, 1)) {
 #ifdef DEBUG_POSITION
-						act("$n moves to POS_FIGHTING.(B1)", TRUE, victim, 0,
+						act("$n moves to POS_FIGHTING.(B1)", true, victim, 0,
 							0, TO_ROOM);
 #else
-						act("$n scrambles to $s feet!", TRUE, victim, 0, 0,
+						act("$n scrambles to $s feet!", true, victim, 0, 0,
 							TO_ROOM);
 #endif
 						WAIT_STATE(victim, PULSE_VIOLENCE);
@@ -216,10 +215,10 @@ update_pos(struct Creature *victim)
 				} else {
 					if (victim->setPosition(POS_STANDING, 1)) {
 #ifdef DEBUG_POSITION
-						act("$n moves to POS_STANDING.(B2)", TRUE, victim, 0,
+						act("$n moves to POS_STANDING.(B2)", true, victim, 0,
 							0, TO_ROOM);
 #else
-						act("$n stands up.", TRUE, victim, 0, 0, TO_ROOM);
+						act("$n stands up.", true, victim, 0, 0, TO_ROOM);
 #endif
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
@@ -229,10 +228,10 @@ update_pos(struct Creature *victim)
 				if (victim->isFighting()) {
 					if (victim->setPosition(POS_FIGHTING, 1)) {
 #ifdef DEBUG_POSITION
-						act("$n moves to POS_FIGHTING.(C1)", TRUE, victim, 0,
+						act("$n moves to POS_FIGHTING.(C1)", true, victim, 0,
 							0, TO_ROOM);
 #else
-						act("$n scrambles to $s feet!", TRUE, victim, 0, 0,
+						act("$n scrambles to $s feet!", true, victim, 0, 0,
 							TO_ROOM);
 #endif
 						WAIT_STATE(victim, PULSE_VIOLENCE);
@@ -240,10 +239,10 @@ update_pos(struct Creature *victim)
 				} else {
 					if (victim->setPosition(POS_STANDING, 1)) {
 #ifdef DEBUG_POSITION
-						act("$n moves to POS_STANDING.(C2)", TRUE, victim, 0,
+						act("$n moves to POS_STANDING.(C2)", true, victim, 0,
 							0, TO_ROOM);
 #else
-						act("$n stands up.", TRUE, victim, 0, 0, TO_ROOM);
+						act("$n stands up.", true, victim, 0, 0, TO_ROOM);
 #endif
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
@@ -252,7 +251,7 @@ update_pos(struct Creature *victim)
         } else if (victim->getPosition() == POS_STUNNED) {
             victim->setPosition(POS_RESTING, 1);
 #ifdef DEBUG_POSITION
-            act("$n moves to POS_RESTING.(From Stunned)", TRUE, victim, 0, 0,
+            act("$n moves to POS_RESTING.(From Stunned)", true, victim, 0, 0,
                 TO_ROOM);
 #endif
         }
@@ -333,7 +332,7 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
         calc_thaco -= dex_app[GET_DEX(ch)].tohit;
     else
         calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
-    
+
 	if (GET_HITROLL(ch) <= 5)
 		calc_thaco -= GET_HITROLL(ch);
 	else if (GET_HITROLL(ch) <= 50)
@@ -397,10 +396,10 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 
         if (IS_ENERGY_GUN(weap))
             calc_thaco += (LEARNED(ch) - GET_SKILL(ch, SKILL_ENERGY_WEAPONS)) / 8;
-        
+
         if (IS_ENERGY_GUN(weap) && GET_SKILL(ch, SKILL_SHOOT) < 80)
             calc_thaco += (100-GET_SKILL(ch, SKILL_SHOOT))/20;
-        
+
 		if (GET_EQ(ch, WEAR_WIELD_2)) {
 			// They don't know how to second wield and
 			// they dont have neural bridging
@@ -432,7 +431,7 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 		calc_thaco += 10;
 
 	if (AFF2_FLAGGED(ch, AFF2_DISPLACEMENT) &&
-		!AFF2_FLAGGED(victim, AFF2_TRUE_SEEING))
+		!AFF2_FLAGGED(victim, AFF2_true_SEEING))
 		calc_thaco -= 2;
 	if (AFF_FLAGGED(ch, AFF_BLUR))
 		calc_thaco -= 1;
@@ -446,7 +445,7 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 	if (IS_SICK(ch))
 		calc_thaco += 2;
 	if (AFF2_FLAGGED(victim, AFF2_DISPLACEMENT) &&
-		!AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
+		!AFF2_FLAGGED(ch, AFF2_true_SEEING))
 		calc_thaco += 2;
 	if (AFF2_FLAGGED(victim, AFF2_EVADE))
 		calc_thaco +=  victim->getLevelBonus(SKILL_EVASION) / 6;
@@ -465,7 +464,7 @@ void
 add_blood_to_room(struct room_data *rm, int amount)
 {
 	struct obj_data *blood;
-	int new_blood = FALSE;
+	int new_blood = false;
 
 	if (amount <= 0)
 		return;
@@ -474,7 +473,7 @@ add_blood_to_room(struct room_data *rm, int amount)
 		if (GET_OBJ_VNUM(blood) == BLOOD_VNUM)
 			break;
 
-	if (!blood && (new_blood = TRUE) && !(blood = read_object(BLOOD_VNUM))) {
+	if (!blood && (new_blood = true) && !(blood = read_object(BLOOD_VNUM))) {
 		errlog("Unable to load blood.");
 		return;
 	}
@@ -510,7 +509,7 @@ apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 				pos = idx;
 			cnt++;
 		}
-		
+
 		// A position will only be unchosen if there are no valid positions
 		// with which to soil.
 		if (!cnt)
@@ -536,7 +535,6 @@ apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 
 	return pos;
 }
-
 
 int
 choose_random_limb(Creature *victim)
@@ -593,7 +591,6 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	char adj[256];
 	char namestr[256];
 	char isare[16];
-
 
 	extern int max_npc_corpse_time, max_pc_corpse_time;
 
@@ -714,14 +711,14 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		corpse->line_desc = strdup(buf2);
 		strcpy(adj, "chopped up");
 		break;
-        
+
 	case SONG_WOUNDING_WHISPERS:
 		sprintf(buf2, "The perforated %s of %s %s lying here.",
 			typebuf, GET_NAME(ch), isare);
 		corpse->line_desc = strdup(buf2);
 		strcpy(adj, "perforated");
 		break;
-        
+
 	case SKILL_HAMSTRING:
 		sprintf(buf2, "The legless %s of %s %s lying here.",
 			typebuf, GET_NAME(ch), isare);
@@ -783,8 +780,6 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			}
 		}						// end if !arena room
 		break;
-
-
 
 	case SKILL_BITE:
 	case TYPE_BITE:
@@ -1303,7 +1298,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		break;
 
 	case TYPE_DROWNING:
-        if (room_is_watery(ch->in_room)) 
+        if (room_is_watery(ch->in_room))
 			sprintf(buf2, "The waterlogged %s of %s %s lying here.", typebuf,
 				GET_NAME(ch), ISARE(typebuf));
 		else
@@ -1346,7 +1341,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
 	corpse->setWeight(GET_WEIGHT(ch) + IS_CARRYING_W(ch));
 	corpse->contains = NULL;
-	
+
 	if (IS_NPC(ch)) {
 		GET_OBJ_TIMER(corpse) = max_npc_corpse_time;
 		CORPSE_IDNUM(corpse) = -ch->mob_specials.shared->vnum;
@@ -1370,11 +1365,11 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR;
 
     bool lose_implants = !(is_npk_combat(killer,ch) ||
-                           is_arena_combat(killer, ch) || 
+                           is_arena_combat(killer, ch) ||
                            (IS_MOB(ch) && GET_LEVEL(ch) > LVL_AMBASSADOR));
 
     bool lose_tattoos = lose_eq;
-    
+
 	obj_data *next_obj;
 
 	/* transfer character's inventory to the corpse */
@@ -1444,7 +1439,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
         if (CORPSE_IDNUM(corpse) > 0 && !is_arena_combat(killer, ch)) {
             FILE *corpse_file;
             char *fname;
-            
+
             fname = get_corpse_file_path(CORPSE_IDNUM(corpse));
             if ((corpse_file = fopen(fname, "w+")) != NULL) {
                 fprintf(corpse_file, "<corpse>");
@@ -1461,7 +1456,6 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
     return corpse;
 }
-
 
 int calculate_attack_probability(struct Creature *ch)
 {
@@ -1487,7 +1481,6 @@ int calculate_attack_probability(struct Creature *ch)
     if (GET_EQ(ch, WEAR_HANDS))
         prob = calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_HANDS));
 
-
     prob += (POS_FIGHTING - (ch->findRandomCombat()->getPosition()) << 1);
 
     if (CHECK_SKILL(ch, SKILL_DBL_ATTACK))
@@ -1503,9 +1496,9 @@ int calculate_attack_probability(struct Creature *ch)
     else if (affected_by_spell(ch, SKILL_DEFENSIVE_POS))
         prob -= (int)(CHECK_SKILL(ch, SKILL_DEFENSIVE_POS) * 0.05);
 
-    if (IS_MERC(ch) && ((((weap = GET_EQ(ch, WEAR_WIELD)) && IS_GUN(weap)) || 
+    if (IS_MERC(ch) && ((((weap = GET_EQ(ch, WEAR_WIELD)) && IS_GUN(weap)) ||
                         ((weap = GET_EQ(ch, WEAR_WIELD_2)) && IS_GUN(weap))) &&
-                        CHECK_SKILL(ch, SKILL_SHOOT) > 50)) 
+                        CHECK_SKILL(ch, SKILL_SHOOT) > 50))
         prob += (int)(CHECK_SKILL(ch, SKILL_SHOOT) * 0.18);
 
     if (AFF_FLAGGED(ch, AFF_ADRENALINE))

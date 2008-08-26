@@ -11,19 +11,18 @@ SPECIAL(malagard_lightning_room)
 	if (IS_NPC(ch) || number(0, 4))
 		return 0;
 
-
 	vict = ch->in_room->people;
 
 	if (vict == NULL || IS_NPC(vict))
 		vict = ch;
 
 	if (mag_savingthrow(vict, 50, SAVING_ROD)) {
-		act("A bolt of lightning strikes nearby!", FALSE, vict, 0, 0, TO_CHAR);
-		act("A bolt of lightning strikes nearby!", FALSE, vict, 0, 0, TO_ROOM);
+		act("A bolt of lightning strikes nearby!", false, vict, 0, 0, TO_CHAR);
+		act("A bolt of lightning strikes nearby!", false, vict, 0, 0, TO_ROOM);
 	} else {
-		act("A bolt of lightning blasts down from above and hits you!", FALSE,
+		act("A bolt of lightning blasts down from above and hits you!", false,
 			vict, 0, 0, TO_CHAR);
-		act("A bolt of lightning blasts down from above and hits $n!", FALSE,
+		act("A bolt of lightning blasts down from above and hits $n!", false,
 			vict, 0, 0, TO_ROOM);
 		retval =
 			damage(NULL, vict, dice(20, 20), SPELL_LIGHTNING_BOLT, WEAR_HEAD);

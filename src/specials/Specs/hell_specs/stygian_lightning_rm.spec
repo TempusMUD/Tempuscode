@@ -31,13 +31,13 @@ SPECIAL(stygian_lightning_rm)
 	if (mag_savingthrow(new_vict, 50, SAVING_ROD)) {
 		if (number(0, 1)) {
 			act("A bolt of lightning streaks from the sky and blasts into"
-				" the ground!", FALSE, ch, 0, 0, TO_ROOM);
+				" the ground!", false, ch, 0, 0, TO_ROOM);
 			act("A bolt of lightning streaks from the sky and blasts into"
-				" the ground!", FALSE, ch, 0, 0, TO_CHAR);
+				" the ground!", false, ch, 0, 0, TO_CHAR);
 		} else {
-			act("A bolt of lightning falls from the sky, narrowly missing you!", FALSE, ch, 0, 0, TO_CHAR);
+			act("A bolt of lightning falls from the sky, narrowly missing you!", false, ch, 0, 0, TO_CHAR);
 			act("A bolt of lightning falls from the sky, narrowly missing $n!",
-				FALSE, ch, 0, 0, TO_ROOM);
+				false, ch, 0, 0, TO_ROOM);
 		}
 	} else {
 		return damage(new_vict, new_vict, dice(12, 10), TYPE_STYGIAN_LIGHTNING,
