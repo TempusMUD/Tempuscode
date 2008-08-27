@@ -922,7 +922,7 @@ ACMD(do_activate)
 					CUR_ENERGY(obj) -= USE_RATE(obj);
 					ENGINE_STATE(obj) = 1;
                     apply_object_affects(ch, obj, true);
-                    affect_total(obj->worn_by);
+                    affect_total(ch);
 				}
 			}
 			break;
