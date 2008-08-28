@@ -208,7 +208,11 @@ apply_object_affects(Creature *ch, obj_data *obj, bool add)
     if (!obj)
         return;
 
-    if (obj->worn_by != ch)
+    if (obj->worn_by != ch
+        && (!obj->in_obj
+            || !(IS_INTERFACE(obj->in_obj)
+                 && INTERFACE_TYPE(obj->in_obj) == INTERFACE_CHIPS
+                 && IS_CHIP(obj))))
         return;
 
 	if (invalid_char_class(ch, obj))
@@ -241,7 +245,8 @@ apply_object_affects(Creature *ch, obj_data *obj, bool add)
     affect_modify(ch, 0, 0, obj->obj_flags.bitvector[2], 3, add);
 
     // Special skill chip affects
-    if (SKILLCHIP(obj)
+    if (IS_CHIP(obj)
+        && SKILLCHIP(obj)
         && CHIP_DATA(obj) > 0
         && CHIP_DATA(obj) < MAX_SKILLS)
         affect_modify(ch, -CHIP_DATA(obj), CHIP_MAX(obj), 0, 0, add);
