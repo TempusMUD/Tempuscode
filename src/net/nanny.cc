@@ -146,7 +146,9 @@ handle_input(struct descriptor_data *d)
 		if (strcasecmp(arg, "new")) {
 			d->account = Account::retrieve(arg);
 			if (d->account) {
-				if (d->account->has_password())
+                if (!production_mode) {
+                    d->account->login(d);
+                } else if (d->account->has_password())
 					set_desc_state(CXN_ACCOUNT_PW, d);
 				else
 					set_desc_state(CXN_PW_PROMPT, d);
