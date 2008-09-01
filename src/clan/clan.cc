@@ -375,7 +375,7 @@ ACMD(do_promote)
 
 	if (!clan)
 		send_to_char(ch, "You are not even in a clan.\r\n");
-    if (!*argument)
+    else if (!*argument)
 		send_to_char(ch, "You must specify the person to promote.\r\n");
 	else if (!(vict = get_char_room_vis(ch, argument)))
 		send_to_char(ch, "No-one around by that name.\r\n");
