@@ -1682,7 +1682,7 @@ mobile_experience(struct Creature *mob, FILE *outfile)
         factor += 0.1;
 
     // Thac0 modifiers
-	if (AFF2_FLAGGED(mob, AFF2_true_SEEING))
+	if (AFF2_FLAGGED(mob, AFF2_TRUE_SEEING))
 		factor += 0.1;
 
     // Regen modifiers
@@ -1790,7 +1790,7 @@ oldmobile_experience(struct Creature *mob)
 		exp = (int)(exp * 1.2);
 		++affs;
 	}
-	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_true_SEEING)) {
+	if (affs < MAXAFF && AFF2_FLAGGED(mob, AFF2_TRUE_SEEING)) {
 		exp = (int)(exp * 1.2);
 		++affs;
 	}

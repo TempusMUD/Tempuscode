@@ -1232,10 +1232,10 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 		return false;
 
 	if (affected_by_spell(vict, ZEN_AWARENESS) ||
-		AFF2_FLAGGED(vict, AFF2_true_SEEING))
+		AFF2_FLAGGED(vict, AFF2_TRUE_SEEING))
 		percent += 17;
 
-	if (AFF2_FLAGGED(ch, AFF2_true_SEEING))
+	if (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		prob += 17;
 
 	if (vict->getPosition() <= POS_FIGHTING)
@@ -1891,7 +1891,7 @@ mobile_activity(void)
 						// don't pick up sigil-ized objs if we know better
 						(!GET_OBJ_SIGIL_IDNUM(obj) ||
 							(!AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
-								&& !AFF2_FLAGGED(ch, AFF2_true_SEEING)))
+								&& !AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)))
 						&& CAN_GET_OBJ(ch, obj) && GET_OBJ_COST(obj) > max) {
 						best_obj = obj;
 						max = GET_OBJ_COST(obj);

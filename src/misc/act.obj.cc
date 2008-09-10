@@ -1745,7 +1745,7 @@ perform_plant(struct Creature *ch, struct Creature *vict,
 	act("You plant $p on $N.", false, ch, obj, vict, TO_CHAR);
 	if ((CHECK_SKILL(ch, SKILL_PLANT) + GET_DEX(ch)) <
 		(number(0, 83) + GET_WIS(vict)) ||
-		AFF2_FLAGGED(vict, AFF2_true_SEEING))
+		AFF2_FLAGGED(vict, AFF2_TRUE_SEEING))
 		act("$n puts $p in your pocket.", false, ch, obj, vict, TO_VICT);
 	else
 		gain_skill_prof(ch, SKILL_PLANT);

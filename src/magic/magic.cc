@@ -1682,9 +1682,9 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		accum_duration = true;
 		break;
 
-	case SPELL_true_SEEING:
+	case SPELL_TRUE_SEEING:
 		af.duration = 1 + (level >> 2);
-		af.bitvector = AFF2_true_SEEING;
+		af.bitvector = AFF2_TRUE_SEEING;
 		af.aff_index = 2;
 
 		accum_duration = true;

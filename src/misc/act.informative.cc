@@ -116,7 +116,7 @@ ACMD(do_stand);
 (GET_LEVEL(ch) + GET_INT(ch) +                    \
  (affected_by_spell(ch, SKILL_HYPERSCAN) ? 40 : 0)+\
  (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 30 : 0) +\
- (AFF2_FLAGGED(ch, AFF2_true_SEEING) ? 60 : 0) +  \
+ (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ? 60 : 0) +  \
  (PRF_FLAGGED(ch, PRF_HOLYLIGHT) ? 500 : 0) +     \
  (IS_OBJ_STAT(obj, ITEM_GLOW) ? -20 : 0) +        \
  (IS_OBJ_STAT(obj, ITEM_HUM) ? -20 : 0) +         \
@@ -224,7 +224,7 @@ show_obj_bits(obj_data *object, Creature *ch)
             || object->affectedBySpell(SPELL_ENVENOM)))
         acc_sprintf(" %s(poisoned)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN) ||
-        (IS_CLERIC(ch) && AFF2_FLAGGED(ch, AFF2_true_SEEING))) {
+        (IS_CLERIC(ch) && AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))) {
         if (IS_OBJ_STAT(object, ITEM_BLESS))
             acc_sprintf(" %s(holy aura)%s",
                         CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
@@ -233,12 +233,12 @@ show_obj_bits(obj_data *object, Creature *ch)
                         CCRED_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
      }
     if ((AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
-         || AFF2_FLAGGED(ch, AFF2_true_SEEING))
+         || AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
         && IS_OBJ_STAT(object, ITEM_MAGIC))
         acc_sprintf(" %s(yellow aura)%s",
                     CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
     if ((AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
-         || AFF2_FLAGGED(ch, AFF2_true_SEEING)
+         || AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)
          || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
         && GET_OBJ_SIGIL_IDNUM(object))
         acc_sprintf(" %s(%ssigil%s)%s",
@@ -600,7 +600,7 @@ desc_char_trailers(Creature *ch, Creature *i)
 	}
 
 	if (AFF2_FLAGGED(i, AFF2_DISPLACEMENT) &&
-			AFF2_FLAGGED(ch, AFF2_true_SEEING))
+			AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		acc_strcat("...the image of ", HSHR(i),
 			" body is strangely displaced.\r\n", NULL);
 
@@ -877,7 +877,7 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
                             GET_ALIGNMENT(i),
                             CCNRM(ch, C_CMP));
 	} else if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN) ||
-		(IS_CLERIC(ch) && AFF2_FLAGGED(ch, AFF2_true_SEEING))) {
+		(IS_CLERIC(ch) && AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))) {
 		if (IS_EVIL(i))
 			align = tmp_sprintf(" %s%s(Red Aura)%s",
                                 CCRED(ch, C_NRM),
@@ -2389,7 +2389,7 @@ acc_append_affects(struct Creature *ch, byte mode)
     if (AFF3_FLAGGED(ch, AFF3_DETECT_POISON))
         acc_strcat(str,
                    "You are sensitive to the presence of poisons.\r\n", NULL);
-	if (AFF2_FLAGGED(ch, AFF2_true_SEEING))
+	if (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		acc_strcat("You are seeing truly.\r\n", NULL);
 	if (AFF_FLAGGED(ch, AFF_SANCTUARY))
 		acc_strcat("You are protected by Sanctuary.\r\n", NULL);

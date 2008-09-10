@@ -134,7 +134,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	}
 
 	if (AFF2_FLAGGED(ch, AFF2_DISPLACEMENT) &&
-		!AFF2_FLAGGED(vict, AFF2_true_SEEING))
+		!AFF2_FLAGGED(vict, AFF2_TRUE_SEEING))
 		prob += 5;
 	if (AFF_FLAGGED(ch, AFF_BLUR))
 		prob += 5;
@@ -148,7 +148,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	if (IS_SICK(ch))
 		prob -= 5;
 	if (AFF2_FLAGGED(vict, AFF2_DISPLACEMENT) &&
-		!AFF2_FLAGGED(ch, AFF2_true_SEEING))
+		!AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		prob -= GET_LEVEL(vict) >> 1;
 	if (AFF2_FLAGGED(vict, AFF2_EVADE))
 		prob -= (GET_LEVEL(vict) >> 2) + 5;

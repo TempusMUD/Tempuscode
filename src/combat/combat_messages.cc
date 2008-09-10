@@ -67,7 +67,7 @@ appear(struct Creature *ch, struct Creature *vict)
 
 	// True seeing and detect invisibility counteract all magical invis
 	if (affected_by_spell(ch, SPELL_INVISIBLE) &&
-    (AFF2_FLAGGED(vict, AFF2_true_SEEING) ||
+    (AFF2_FLAGGED(vict, AFF2_TRUE_SEEING) ||
     AFF_FLAGGED(vict, AFF_DETECT_INVIS)))
     {
         affect_from_char(ch, SPELL_INVISIBLE);

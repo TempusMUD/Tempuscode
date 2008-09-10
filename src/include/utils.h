@@ -989,7 +989,7 @@ bool can_see_room(Creature *self, room_data *room);
 
 #define CAN_DETECT_DISGUISE(ch, vict, level) \
                           (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \
-                           AFF2_FLAGGED(ch, AFF2_true_SEEING) ||\
+                           AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
                            (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
 
 static inline room_direction_data*& EXIT( obj_data *ch, int dir ) {

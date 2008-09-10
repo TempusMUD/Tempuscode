@@ -99,7 +99,7 @@ perform_monk_meditate(struct Creature *ch)
 				af.bitvector = AFF_DETECT_INVIS;
 				af.aff_index = 1;
 			} else {
-				af.bitvector = AFF2_true_SEEING;
+				af.bitvector = AFF2_TRUE_SEEING;
 				af.aff_index = 2;
 			}
 			af.duration = af.level / 5;

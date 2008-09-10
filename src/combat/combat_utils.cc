@@ -431,7 +431,7 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 		calc_thaco += 10;
 
 	if (AFF2_FLAGGED(ch, AFF2_DISPLACEMENT) &&
-		!AFF2_FLAGGED(victim, AFF2_true_SEEING))
+		!AFF2_FLAGGED(victim, AFF2_TRUE_SEEING))
 		calc_thaco -= 2;
 	if (AFF_FLAGGED(ch, AFF_BLUR))
 		calc_thaco -= 1;
@@ -445,7 +445,7 @@ calculate_thaco(struct Creature *ch, struct Creature *victim,
 	if (IS_SICK(ch))
 		calc_thaco += 2;
 	if (AFF2_FLAGGED(victim, AFF2_DISPLACEMENT) &&
-		!AFF2_FLAGGED(ch, AFF2_true_SEEING))
+		!AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		calc_thaco += 2;
 	if (AFF2_FLAGGED(victim, AFF2_EVADE))
 		calc_thaco +=  victim->getLevelBonus(SKILL_EVASION) / 6;

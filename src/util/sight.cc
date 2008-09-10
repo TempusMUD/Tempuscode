@@ -155,7 +155,7 @@ check_sight_object(Creature *self, obj_data *obj)
 		return false;
 
 	if (AFF_FLAGGED(self, AFF_DETECT_INVIS) ||
-			AFF2_FLAGGED(self, AFF2_true_SEEING))
+			AFF2_FLAGGED(self, AFF2_TRUE_SEEING))
 		return true;
 
 	if (IS_OBJ_STAT(obj, ITEM_INVISIBLE))
@@ -199,7 +199,7 @@ check_sight_vict(Creature *self, Creature *vict)
 		return false;
 
 	// True seeing and detect invisibility counteract all magical invis
-	if (AFF2_FLAGGED(self, AFF2_true_SEEING) ||
+	if (AFF2_FLAGGED(self, AFF2_TRUE_SEEING) ||
 			AFF_FLAGGED(self, AFF_DETECT_INVIS))
 		return true;
 
