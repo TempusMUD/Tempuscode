@@ -466,7 +466,6 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 		APPLY_SKILL(ch, SKILL_TURN, mod);
 		break;
 	case APPLY_ALIGN:
-		GET_ALIGNMENT(ch) = MAX(-1000, MIN(1000, GET_ALIGNMENT(ch) + mod));
 		break;
 	case APPLY_SAVING_PHY:
 		GET_SAVE(ch, SAVING_PHY) += mod;
