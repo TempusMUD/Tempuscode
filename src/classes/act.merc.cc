@@ -648,7 +648,7 @@ ACMD(do_wrench)
 			vict, TO_NOTVICT);
 		act("You grab $N's neck, but $e is covered by $p!", false, ch, neck,
 			vict, TO_CHAR);
-		check_killer(ch, vict);
+        check_attack(ch, vict);
 		damage_eq(ch, neck, dam);
 		WAIT_STATE(ch, 1 RL_SEC);
 		return;

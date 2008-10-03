@@ -292,7 +292,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
             return 0;
 
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {
-			check_killer(caster, cvict);
+			check_attack(caster, cvict);
             //Try to make this a little more sane...
             if (cvict->distrusts(caster) &&
 				AFF3_FLAGGED(cvict, AFF3_PSISHIELD) &&

@@ -3348,7 +3348,7 @@ ACMD(do_de_energize)
 		return;
 
 	appear(ch, vict);
-	check_killer(ch, vict);
+    check_attack(ch, vict);
 
 	// missed attempt
 	if (AWAKE(vict) &&

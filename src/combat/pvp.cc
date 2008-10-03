@@ -80,6 +80,65 @@ ok_to_damage(struct Creature *ch, struct Creature *vict)
 	return true;
 }
 
+// Calculates the amount of reputation gained by the killer if they
+// were to pkill the victim
+int
+pk_reputation_gain(Creature *perp, Creature *victim)
+{
+	if (perp == victim
+        || IS_NPC(perp)
+        || IS_NPC(victim)
+        || !PRF2_FLAGGED(perp, PRF2_PKILLER)
+        || !(perp->initiatedCombat(victim)
+             && !perp->findCombat(victim)))
+        return 0;
+
+    // Start with 10 for causing hassle
+    int gain = 10;
+
+    // adjust for level/gen difference
+    gain += ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
+             - (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
+
+    // Additional adjustment for killing an innocent
+    if (GET_REPUTATION(victim) == 0)
+        gain *= 2;
+
+    // Additional adjustment for killing a lower gen
+    if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
+        gain += (GET_REMORT_GEN(perp) - GET_REMORT_GEN(victim)) * 9;
+
+    if (IS_CRIMINAL(victim))
+        gain /= 4;
+
+    gain = MAX(1, gain);
+
+    return gain;
+}
+
+void
+check_attack(Creature *attacker, Creature *victim)
+{
+	Creature *perp;
+
+	perp = attacker;
+	while (AFF_FLAGGED(perp, AFF_CHARM) && perp->master &&
+			perp->in_room == perp->master->in_room)
+		perp = perp->master;
+
+    int gain = pk_reputation_gain(perp, victim);
+
+    if (!gain)
+        return;
+
+    perp->gain_reputation(MIN(1, gain / 5));
+
+    mudlog(LVL_IMMORT, CMP, true,
+           "%s gained %d reputation for attacking %s", GET_NAME(perp),
+           gain, GET_NAME(victim));
+    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance::ATTACK));
+}
+
 void
 count_pkill(Creature *killer, Creature *victim)
 {
@@ -93,40 +152,48 @@ count_pkill(Creature *killer, Creature *victim)
 
 	GET_PKILLS(perp)++;
 
-	if (PRF2_FLAGGED(perp, PRF2_PKILLER) &&
-			!award_bounty(perp, victim) &&
-            (killer->initiatedCombat(victim) || !killer->findCombat(victim))) {
+    int gain = pk_reputation_gain(perp, victim);
 
-		// Basic level/gen adjustment
-        if (perp != victim) {
-            // Start with 10 for causing hassle
-            int gain = 10;
+    if (!gain)
+        return;
 
-            // adjust for level/gen difference
-            gain += ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
-                     - (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
+    perp->gain_reputation(gain);
 
-            // Additional adjustment for killing an innocent
-            if (GET_REPUTATION(victim) == 0)
-                gain *= 2;
+    mudlog(LVL_IMMORT, CMP, true,
+           "%s gained %d reputation for murdering %s", GET_NAME(perp),
+           gain, GET_NAME(victim));
+    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance::MURDER));
+}
 
-            // Additional adjustment for killing a lower gen
-            if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
-                gain += (GET_REMORT_GEN(perp) - GET_REMORT_GEN(victim)) * 9;
 
-            if (IS_CRIMINAL(victim))
-                gain /= 4;
+void
+check_thief(struct Creature *ch, struct Creature *victim,
+	const char *debug_msg)
+{
+	Creature *perp;
 
-            gain = MAX(1, gain);
+	// First we need to find the perp
+	perp = ch;
+	while (AFF_FLAGGED(perp, AFF_CHARM) && perp->master &&
+			perp->in_room == perp->master->in_room)
+		perp = perp->master;
 
-            perp->gain_reputation(gain);
+    int gain = pk_reputation_gain(perp, victim);
 
-            mudlog(LVL_IMMORT, CMP, true,
-                   "%s gained %d reputation for murdering %s", GET_NAME(killer),
-                   gain, GET_NAME(victim));
-            GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance::MURDER));
-        }
-	}
+    if (!gain)
+        return;
+
+    perp->gain_reputation(MIN(1, gain / 10));
+
+    mudlog(LVL_IMMORT, CMP, true,
+           "%s gained %d reputation for stealing from %s", GET_NAME(perp),
+           gain, GET_NAME(victim));
+    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance::THEFT));
+
+    if (is_arena_combat(ch, victim))
+    	mudlog(LVL_POWER, CMP, true,
+               "%s pstealing from %s in arena",
+		       GET_NAME(perp), GET_NAME(victim));
 }
 
 struct grievance_player_id : public unary_function<const Grievance, int> {
@@ -157,6 +224,10 @@ perform_pardon(Creature *ch, Creature *pardoned)
             if (grievance_it->_grievance == Grievance::MURDER) {
                 mudlog(LVL_IMMORT, CMP, true,
                        "%s recovered %d reputation for murdering %s", GET_NAME(pardoned),
+                       grievance_it->_rep, GET_NAME(ch));
+            } else if (grievance_it->_grievance == Grievance::ATTACK) {
+                mudlog(LVL_IMMORT, CMP, true,
+                       "%s recovered %d reputation for attacking %s", GET_NAME(pardoned),
                        grievance_it->_rep, GET_NAME(ch));
             } else {
                 mudlog(LVL_IMMORT, CMP, true,
@@ -260,68 +331,6 @@ ACMD(do_pardon)
     pardoned->saveToXML();
     if (loaded_pardoned)
         delete pardoned;
-}
-
-void
-check_killer(struct Creature *ch, struct Creature *vict,
-	const char *debug_msg)
-{
-	return;
-}
-
-void
-check_thief(struct Creature *ch, struct Creature *victim,
-	const char *debug_msg)
-{
-	Creature *perp;
-
-	// First we need to find the perp
-	perp = ch;
-	while (AFF_FLAGGED(perp, AFF_CHARM) && perp->master &&
-			perp->in_room == perp->master->in_room)
-		perp = perp->master;
-
-	if (perp == victim)
-		return;
-
-	// We don't care about NPCs
-	if (IS_NPC(perp) || IS_NPC(victim))
-		return;
-
-	// Criminals have NO protection vs psteal
-	if (IS_CRIMINAL(victim))
-		return;
-
-    // Start with 10 for causing hassle
-    int gain = 10;
-
-    // adjust for level/gen difference
-    gain += ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
-             - (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
-
-    // Additional adjustment for stealing from an innocent
-    if (GET_REPUTATION(victim) == 0)
-        gain *= 2;
-
-    // Additional adjustment for stealing from a lower gen
-    if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
-        gain += (GET_REMORT_GEN(perp) - GET_REMORT_GEN(victim)) * 9;
-
-    // Theft has a much lower penalty
-    gain /= 10;
-    gain = MAX(1, gain);
-
-    perp->gain_reputation(gain);
-    mudlog(LVL_IMMORT, CMP, true,
-           "%s gained %d reputation for stealing from %s", GET_NAME(ch),
-           gain, GET_NAME(victim));
-
-    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance::THEFT));
-
-    if (is_arena_combat(ch, victim))
-    	mudlog(LVL_POWER, CMP, true,
-               "%s pstealing from %s in arena",
-		       GET_NAME(perp), GET_NAME(victim));
 }
 
 void

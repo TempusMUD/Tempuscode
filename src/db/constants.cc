@@ -3510,6 +3510,6 @@ extern const int wear_bitvectors[] =
 	ITEM_WEAR_EAR, ITEM_WEAR_WIELD, ITEM_WEAR_ASS
 };
 
-const char *Grievance::kind_descs[] = { "murder", "theft", "\n" };
+const char *Grievance::kind_descs[] = { "murder", "theft", "attack", "\n" };
 
 #undef __constants_cc__

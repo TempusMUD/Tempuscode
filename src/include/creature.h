@@ -910,7 +910,7 @@ struct KillRecord {
 };
 
 struct Grievance {
-    enum kind { MURDER, THEFT };
+    enum kind { MURDER, THEFT, ATTACK };
     static const char *kind_descs[];
 
     Grievance(void) : _time(0), _player_id(0), _rep(0), _grievance(MURDER) {};

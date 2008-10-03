@@ -878,7 +878,7 @@ ACMD(do_pinch)
 	//
 
 	if (which_pinch != SKILL_PINCH_ZETA) {
-		check_killer(ch, vict);
+        check_attack(ch, vict);
 		if (IS_NPC(vict) && !vict->isFighting()
 			&& vict->getPosition() >= POS_FIGHTING) {
 			int retval = hit(vict, ch, TYPE_UNDEFINED);

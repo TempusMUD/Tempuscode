@@ -127,8 +127,7 @@ bool is_arena_combat(struct Creature *ch, struct Creature *vict);
 bool is_npk_combat(struct Creature *ch, struct Creature *vict);
 bool ok_to_damage(struct Creature *ch, struct Creature *vict);
 void count_pkill(struct Creature *killer, struct Creature *vict);
-void check_killer(struct Creature *ch, struct Creature *vict,
-	const char *debug_msg = 0);
+void check_attack(struct Creature *ch, struct Creature *vict);
 void check_thief(struct Creature *ch, struct Creature *vict,
 	const char *debug_msg = 0);
 void die(struct Creature *ch, struct Creature *killer, int attacktype,

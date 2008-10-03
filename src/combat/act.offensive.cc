@@ -1735,7 +1735,7 @@ ACMD(do_stun)
 	WAIT_STATE(vict, wait RL_SEC);
 	WAIT_STATE(ch, 4 RL_SEC);
 	gain_skill_prof(ch, SKILL_STUN);
-	check_killer(ch, vict);
+	check_attack(ch, vict);
 }
 
 ACMD(do_feign)
@@ -2273,7 +2273,7 @@ shoot_energy_gun(Creature *ch,
     //
 
     if (number(0, 121) > prob) {
-        check_killer(ch, vict);
+        check_attack(ch, vict);
         my_return_flags =
             damage(ch, vict, 0, GUN_TYPE(gun)+TYPE_EGUN_LASER, number(0,
                                                                       NUM_WEARS - 1));
@@ -2283,7 +2283,7 @@ shoot_energy_gun(Creature *ch,
     //
 
     else {
-        check_killer(ch, vict);
+        check_attack(ch, vict);
         my_return_flags =
             damage(ch, vict, dam, GUN_TYPE(gun)+TYPE_EGUN_LASER, number(0,
                                                                         NUM_WEARS - 1));
@@ -3009,7 +3009,7 @@ ACMD(do_beguile)
 		act("$N is too stupid to be beguiled.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	check_killer(ch, vict);
+	check_attack(ch, vict);
 	if (can_see_creature(vict, ch) &&
 		(CHECK_SKILL(ch, SKILL_BEGUILE) + GET_CHA(ch)) >
 		(number(0, 50) + GET_LEVEL(vict) + GET_INT(vict)))
@@ -3147,12 +3147,12 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
 
         cur_weap = gun;
         if (number(0, 121) > prob) { //miss
-            check_killer(ch, vict);
+            check_attack(ch, vict);
             my_return_flags = damage(ch, vict, 0, SKILL_ENERGY_WEAPONS,
                     number(0, NUM_WEARS - 1));
         }
         else { // hit
-            check_killer(ch, vict);
+            check_attack(ch, vict);
             my_return_flags = damage(ch, vict, dam, SKILL_ENERGY_WEAPONS,
                     number(0, NUM_WEARS - 1));
         }

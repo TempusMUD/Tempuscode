@@ -1779,7 +1779,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 		// check for killer flags right here
 		if (victim->findCombat(ch) && !IS_DEFENSE_ATTACK(attacktype)) {
-			check_killer(ch, victim, "secondary in damage()");
+			check_attack(ch, victim);
 		}
 	}
 	update_pos(victim);

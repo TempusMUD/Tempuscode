@@ -1646,9 +1646,9 @@ send_unknown_cmd(Creature *ch)
 	case 1:
 		send_to_char(ch, "What's that?\r\n"); break;
 	case 2:
-		send_to_char(ch, "%cQue?!?\r\n", 191); break;
+		send_to_char(ch, "Que?!?\r\n"); break;
 	case 3:
-		send_to_char(ch, "You must enter a proper command!\n"); break;
+		send_to_char(ch, "You must enter a proper command!\r\n"); break;
 	case 4:
 		send_to_char(ch, "I don't understand that.\r\n"); break;
 	case 5:
