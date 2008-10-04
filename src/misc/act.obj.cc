@@ -2271,8 +2271,9 @@ ACMD(do_eat)
 		extract_ok = false;		// sometimes a death extracts the char's objs too
 
 	if (IS_OBJ_TYPE(food, ITEM_FOOD)) {
-		if ((GET_OBJ_VAL(food, 1) != 0) && (GET_OBJ_VAL(food, 2) != 0) &&
-			(GET_OBJ_TYPE(food) == ITEM_FOOD) && subcmd == SCMD_EAT) {
+		if ((GET_OBJ_VAL(food, 1) != 0)
+            && (GET_OBJ_VAL(food, 2) != 0)
+			&& subcmd == SCMD_EAT) {
 			if (!mag_objectmagic(ch, food, buf, return_flags)) {
 				if (extract_ok)
 					extract_obj(food);
