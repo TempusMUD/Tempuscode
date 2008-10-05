@@ -714,11 +714,13 @@ Account::set_reputation(int amt)
 void
 Account::gain_reputation(int amt)
 {
-	if (_reputation + amt > 0) {
-		_reputation += amt;
-		sql_exec("update accounts set reputation=%d where idnum=%d",
-			_reputation, _id);
-	}
+    if (amt != 0) {
+        _reputation += amt;
+        if (_reputation < 0)
+            _reputation = 0;
+        sql_exec("update accounts set reputation=%d where idnum=%d",
+                 _reputation, _id);
+    }
 }
 
 void

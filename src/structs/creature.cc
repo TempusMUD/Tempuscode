@@ -1341,9 +1341,9 @@ Creature::gain_reputation(int amt)
 	if (acct && GET_LEVEL(this) < LVL_AMBASSADOR)
 		acct->gain_reputation(amt);
 
-	if (player_specials->saved.reputation + amt > 0)
-        player_specials->saved.reputation += amt;
-
+    player_specials->saved.reputation += amt;
+    if (player_specials->saved.reputation < 0)
+        player_specials->saved.reputation = 0;
 }
 
 void
