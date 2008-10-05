@@ -2268,7 +2268,9 @@ acc_append_affects(struct Creature *ch, byte mode)
     }
 	if (AFF_FLAGGED(ch, AFF_BLIND))
 		acc_strcat("You have been blinded!\r\n", NULL);
-	if (AFF_FLAGGED(ch, AFF_POISON))
+	if (AFF_FLAGGED(ch, AFF_POISON)
+        || AFF3_FLAGGED(ch, AFF3_POISON_2)
+        || AFF3_FLAGGED(ch, AFF3_POISON_3))
 		acc_strcat("You are poisoned!\r\n", NULL);
 	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
 		acc_strcat("You have been turned to stone.\r\n", NULL);
