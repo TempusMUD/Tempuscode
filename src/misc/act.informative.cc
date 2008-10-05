@@ -3193,14 +3193,8 @@ whoString(Creature *ch, Creature *target) {
     } else {
         out << CCNRM(ch, C_NRM);
     }
-	if (can_see_creature(ch, target)) {
-        out << ' ' << GET_NAME(target);
-    } else {
-        out << CCNRM(ch, C_NRM) << ' ' << "Someone";
-    }
 
-	//title
-	out << GET_TITLE(target);
+    out << ' ' << GET_NAME(target) << GET_TITLE(target);
 
 	return out.str();
 }
@@ -3231,16 +3225,6 @@ whoFlagsString(Creature *ch, Creature *target) {
 	if (GET_INVIS_LVL(target) && IS_IMMORT(ch)) {
 		out << ' ' << CCBLU(ch, C_NRM) << '(' << CCMAG(ch, C_NRM) << 'i' << GET_INVIS_LVL(target);
 		out << CCBLU(ch, C_NRM) << ')' << CCNRM(ch, C_NRM);
-	}
-
-	//invis
-	if (AFF_FLAGGED(target, AFF_INVISIBLE)) {
-		out << CCCYN(ch, C_NRM) << " (invis)" << CCNRM(ch, C_NRM);
-	}
-
-	//trans
-	if (AFF2_FLAGGED(target, AFF2_TRANSPARENT)) {
-		out << CCCYN(ch, C_NRM) << " (transp)" << CCNRM(ch, C_NRM);
 	}
 
 	//mailing
