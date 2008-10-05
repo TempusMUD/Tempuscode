@@ -2490,10 +2490,10 @@ ACMD(do_pour)
 	if (GET_OBJ_VAL(from_obj, 1) < 0) {	/* There was too little */
 		GET_OBJ_VAL(to_obj, 1) += GET_OBJ_VAL(from_obj, 1);
 		amount += GET_OBJ_VAL(from_obj, 1);
+		name_from_drinkcon(from_obj, GET_OBJ_VAL(from_obj, 2));
 		GET_OBJ_VAL(from_obj, 1) = 0;
 		GET_OBJ_VAL(from_obj, 2) = 0;
 		GET_OBJ_VAL(from_obj, 3) = 0;
-		name_from_drinkcon(from_obj, GET_OBJ_VAL(from_obj, 2));
 	}
 	/* Then the poison boogie */
 	GET_OBJ_VAL(to_obj, 3) =
