@@ -89,8 +89,7 @@ pk_reputation_gain(Creature *perp, Creature *victim)
         || IS_NPC(perp)
         || IS_NPC(victim)
         || !PRF2_FLAGGED(perp, PRF2_PKILLER)
-        || !(perp->initiatedCombat(victim)
-             && !perp->findCombat(victim)))
+        || perp->findCombat(victim))
         return 0;
 
     // Start with 10 for causing hassle
