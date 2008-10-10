@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <netinet/in.h>
+#include <getopt.h>
 
 #include "macros.h"
 #include "structs.h"
@@ -58,6 +59,7 @@
 #include "language.h"
 #include "ban.h"
 #include "char_class.h"
+#include "quest.h"
 
 /* externs */
 extern HelpCollection *Help;
@@ -157,7 +159,6 @@ int
 main(int argc, char **argv)
 {
 	int port;
-	int pos = 1;
 	char *dir;
 
 	port = DFLT_PORT;
@@ -166,21 +167,37 @@ main(int argc, char **argv)
 	tmp_string_init();
 	acc_string_init();
 
-	while ((pos < argc) && (*(argv[pos]) == '-')) {
-		switch (*(argv[pos] + 1)) {
+    int option_idx = 0;
+    struct option long_options[] = {
+        {"wizlock", no_argument, NULL, 'b'},
+        {"datadir", required_argument, NULL, 'd'},
+        {"minimud", no_argument, NULL, 'm'},
+        {"check", no_argument, NULL, 'c'},
+        {"quickboot", no_argument, NULL, 'q'},
+        {"restrict", no_argument, NULL, 'r'},
+        {"nospecials", no_argument, NULL, 's'},
+        {"noolc", no_argument, NULL, 'o'},
+        {"nozreset", no_argument, NULL, 'z'},
+        {"nonameserver", no_argument, NULL, 'n'},
+        {"logall", no_argument, NULL, 'l'},
+        {"production", no_argument, NULL, 'p'},
+        {"user", no_argument, NULL, 'u'},
+        {"group", no_argument, NULL, 'g'},
+        {0, 0, 0, 0}
+    };
+
+    char c;
+    opterr = 1;
+    while ((c = getopt_long(argc, argv, "bd:mcqrsoznlpu:g:",
+                            long_options,
+                            &option_idx)) != -1) {
+        switch (c) {
 		case 'b':
 			restrict = 50;
 			slog("Wizlock 50");
 			break;
 		case 'd':
-			if (*(argv[pos] + 2))
-				dir = argv[pos] + 2;
-			else if (++pos < argc)
-				dir = argv[pos];
-			else {
-				slog("Directory arg expected after option -d.");
-				safe_exit(1);
-			}
+            dir = optarg;
 			break;
 		case 'm':
 			mini_mud = 1;
@@ -223,39 +240,45 @@ main(int argc, char **argv)
 			production_mode = true;
 			slog("Running in production mode");
 			break;
-		default:
-			errlog("Unknown option -%c in argument string.",
-				*(argv[pos] + 1));
-			break;
-		}
-		pos++;
-	}
+        default:
+            exit(EXIT_FAILURE);
+        }
+    }
 
-	if (pos < argc) {
-		if (!isdigit(*argv[pos])) {
+	if (optind < argc) {
+		if (!isnumber(argv[optind])) {
 			fprintf(stderr,
 				"Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n",
 				argv[0]);
-			safe_exit(1);
-		} else if ((port = atoi(argv[pos])) <= 1024) {
+			safe_exit(EXIT_FAILURE);
+		} else if ((port = atoi(argv[optind])) <= 1024) {
 			fprintf(stderr, "Illegal port number.\n");
-			safe_exit(1);
+			safe_exit(EXIT_FAILURE);
 		}
 	}
 
+    dir = canonicalize_file_name(dir);
+
 	if (chdir(dir) < 0) {
 		perror("Fatal error changing to data directory");
-		safe_exit(1);
+		safe_exit(EXIT_FAILURE);
 	}
 
-	slog("Using %s as data directory.", dir);
+    struct passwd *pw = NULL;
+    struct group *gr = NULL;
+
+    gr = getgrgid(getegid());
+    pw = getpwuid(geteuid());
+
+    slog("Running as %s:%s in %s", pw->pw_name, gr->gr_name, dir);
+
 	verify_environment();
 
 	if (scheck) {
 		boot_world();
 		slog("Done.");
         clear_world();
-		safe_exit(0);
+		safe_exit(EXIT_SUCCESS);
 	} else {
 		slog("Running game on port %d.", port);
 		init_game(port);
@@ -263,7 +286,7 @@ main(int argc, char **argv)
 
     clear_world();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 /* Init sockets, run game, and cleanup sockets */
@@ -298,10 +321,11 @@ init_game(int port)
 	game_loop(mother_desc);
 
 	slog("Closing all sockets.");
+	close(mother_desc);
 	while (descriptor_list)
 		close_socket(descriptor_list);
 
-	close(mother_desc);
+    save_quests();
 	Security::shutdown();
 
 	if (circle_reboot) {
@@ -334,13 +358,13 @@ init_socket(int port)
 
 	if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("Create socket");
-		safe_exit(1);
+		safe_exit(EXIT_FAILURE);
 	}
 #if defined(SO_SNDBUF)
 	opt = LARGE_BUFSIZE + GARBAGE_SPACE;
 	if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, (char *)&opt, sizeof(opt)) < 0) {
 		perror("setsockopt SNDBUF");
-		safe_exit(1);
+		safe_exit(EXIT_FAILURE);
 	}
 #endif
 
@@ -348,7 +372,7 @@ init_socket(int port)
 	opt = 1;
 	if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0) {
 		perror("setsockopt REUSEADDR");
-		safe_exit(1);
+		safe_exit(EXIT_FAILURE);
 	}
 #endif
 
@@ -356,7 +380,7 @@ init_socket(int port)
 	opt = 1;
 	if (setsockopt(s, SOL_SOCKET, SO_REUSEPORT, (char *)&opt, sizeof(opt)) < 0) {
 		perror("setsockopt REUSEPORT");
-		safe_exit(1);
+		safe_exit(EXIT_FAILURE);
 	}
 #endif
 
@@ -368,7 +392,7 @@ init_socket(int port)
 		ld.l_linger = 0;
 		if (setsockopt(s, SOL_SOCKET, SO_LINGER, (char *)&ld, sizeof(ld)) < 0) {
 			perror("setsockopt LINGER");
-			safe_exit(1);
+			safe_exit(EXIT_FAILURE);
 		}
 	}
 #endif
@@ -381,7 +405,7 @@ init_socket(int port)
 	if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		perror("bind");
 		close(s);
-		safe_exit(1);
+		safe_exit(EXIT_FAILURE);
 	}
 	nonblock(s);
 	listen(s, 5);
@@ -427,7 +451,7 @@ get_avail_descs(void)
 			max_descs = MAX_PLAYERS + NUM_RESERVED_DESCS;
 		else {
 			perror("Error calling sysconf");
-			safe_exit(1);
+			safe_exit(EXIT_FAILURE);
 		}
 	}
 #endif
@@ -436,7 +460,7 @@ get_avail_descs(void)
 
 	if (max_descs <= 0) {
 		slog("Non-positive max player limit!");
-		safe_exit(1);
+		safe_exit(EXIT_FAILURE);
 	}
 	slog("Setting player limit to %d.", max_descs);
 	return max_descs;
@@ -519,11 +543,10 @@ game_loop(int mother_desc)
                      timespent.tv_usec);
 
 			/* sleep until the next 0.1 second mark */
-			if (select(0, (fd_set *) 0, (fd_set *) 0, (fd_set *) 0,
-					&timeout) < 0)
+            if (usleep(timeout.tv_sec * 1000000 + timeout.tv_usec) < 0)
 				if (errno != EINTR) {
 					perror("Select sleep");
-					safe_exit(1);
+					safe_exit(EXIT_FAILURE);
 				}
 		} while (errno);
 
@@ -1421,7 +1444,7 @@ nonblock(int s)
 	flags |= O_NONBLOCK;
 	if (fcntl(s, F_SETFL, flags) < 0) {
 		perror("Fatal error executing nonblock (comm.c)");
-		safe_exit(1);
+		safe_exit(EXIT_FAILURE);
 	}
 }
 

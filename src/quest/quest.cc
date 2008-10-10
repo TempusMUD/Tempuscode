@@ -163,7 +163,6 @@ public:
         top_vnum = 0;
     }
     ~QuestControl() {
-        save();
     }
     void loadQuests();
     void add( Quest &q ) { push_back(q); }
