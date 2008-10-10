@@ -607,6 +607,7 @@ load_paths(void)
 	}
 
 	virgin = 0;
+    fclose(pathfile);
 }
 
 void

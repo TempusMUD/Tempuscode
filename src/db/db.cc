@@ -723,6 +723,8 @@ index_boot(int mode)
 		fclose(db_file);
 		fscanf(index, "%s\n", buf1);
 	}
+
+    fclose(index);
 }
 
 void
