@@ -35,6 +35,8 @@
 #include <signal.h>
 #include <netinet/in.h>
 #include <getopt.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include "macros.h"
 #include "structs.h"
@@ -158,8 +160,9 @@ void save_all_players();
 int
 main(int argc, char **argv)
 {
-	int port;
-	char *dir;
+    int port;
+    char *dir;
+    const char *user = NULL, *group = NULL;
 
 	port = DFLT_PORT;
 	dir = DFLT_DIR;
@@ -240,6 +243,10 @@ main(int argc, char **argv)
 			production_mode = true;
 			slog("Running in production mode");
 			break;
+        case 'u':
+            user = optarg; break;
+        case 'g':
+            group = optarg; break;
         default:
             exit(EXIT_FAILURE);
         }
@@ -267,8 +274,38 @@ main(int argc, char **argv)
     struct passwd *pw = NULL;
     struct group *gr = NULL;
 
-    gr = getgrgid(getegid());
-    pw = getpwuid(geteuid());
+    if (group) {
+        gr = getgrnam(group);
+        if (!gr) {
+            perror("Couldn't find group");
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        gr = getgrgid(getegid());
+    }
+
+    if (user) {
+        pw = getpwnam(user);
+        if (!pw) {
+            perror("Couldn't find user");
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        pw = getpwuid(geteuid());
+    }
+
+    if (chroot(dir) < 0)
+        perror("Warning: can't chroot to data directory");
+
+    if (setgid(gr->gr_gid) < 0) {
+        perror("Couldn't change gid");
+        exit(EXIT_FAILURE);
+    }
+
+    if (setuid(pw->pw_uid) < 0) {
+        perror("Couldn't change uid");
+        exit(EXIT_FAILURE);
+    }
 
     slog("Running as %s:%s in %s", pw->pw_name, gr->gr_name, dir);
 
