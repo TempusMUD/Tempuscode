@@ -1778,7 +1778,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 							SKILL_FASTBOOT) >> 5)) RL_SEC);
 		}
 		// check for killer flags right here
-		if (victim->findCombat(ch) && !IS_DEFENSE_ATTACK(attacktype)) {
+		if (!victim->findCombat(ch) && !IS_DEFENSE_ATTACK(attacktype)) {
 			check_attack(ch, victim);
 		}
 	}

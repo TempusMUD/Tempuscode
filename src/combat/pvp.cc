@@ -115,15 +115,53 @@ pk_reputation_gain(Creature *perp, Creature *victim)
     return gain;
 }
 
+Creature *
+find_responsible_party(Creature *attacker, Creature *victim)
+{
+    Creature *perp = NULL;
+    Creature *ch;
+
+    // if the victim is charmed, their master is at fault for letting
+    // them die.  Charming can potentially be chained, so we find the
+    // "top" master who is a PC in the same room here.
+    for (ch = victim;
+         AFF_FLAGGED(ch, AFF_CHARM)
+             && ch->master
+             && ch->in_room == ch->master->in_room;
+         ch = ch->master)
+        if (IS_PC(ch))
+            perp = ch;
+    if (perp)
+        return perp;
+
+    // if the attacker is charmed, their master is responsible for
+    // their behavior.  We also handle chained charms here.
+    for (ch = attacker;
+         AFF_FLAGGED(ch, AFF_CHARM)
+             && ch->master
+             && ch->in_room == ch->master->in_room;
+         ch = ch->master)
+        if (IS_PC(ch))
+            perp = ch;
+    if (perp)
+        return perp;
+
+    // if neither was charmed, the attacker acted alone and is solely
+    // responsible
+
+    return attacker;
+}
+
 void
 check_attack(Creature *attacker, Creature *victim)
 {
 	Creature *perp;
 
-	perp = attacker;
-	while (AFF_FLAGGED(perp, AFF_CHARM) && perp->master &&
-			perp->in_room == perp->master->in_room)
-		perp = perp->master;
+    // No reputation for attacking in arena
+    if (is_arena_combat(attacker, victim))
+        return;
+
+	perp = find_responsible_party(attacker, victim);
 
     int gain = pk_reputation_gain(perp, victim);
 
@@ -144,10 +182,10 @@ count_pkill(Creature *killer, Creature *victim)
 	bool award_bounty(Creature *, Creature *);
 	Creature *perp;
 
-	perp = killer;
-	while (AFF_FLAGGED(perp, AFF_CHARM) && perp->master &&
-			perp->in_room == perp->master->in_room)
-		perp = perp->master;
+    if (is_arena_combat(killer, victim))
+        return;
+
+	perp = find_responsible_party(killer, victim);
 
 	GET_PKILLS(perp)++;
 
@@ -172,10 +210,7 @@ check_thief(struct Creature *ch, struct Creature *victim,
 	Creature *perp;
 
 	// First we need to find the perp
-	perp = ch;
-	while (AFF_FLAGGED(perp, AFF_CHARM) && perp->master &&
-			perp->in_room == perp->master->in_room)
-		perp = perp->master;
+	perp = find_responsible_party(ch, victim);
 
     int gain = pk_reputation_gain(perp, victim);
 
