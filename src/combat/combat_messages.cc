@@ -104,7 +104,7 @@ appear(struct Creature *ch, struct Creature *vict)
 			act("$n suddenly appears, seemingly from nowhere.",
 				true, ch, 0, 0, TO_ROOM);
 			if (to_char)
-				send_to_char(ch, to_char);
+				send_to_char(ch, "%s", to_char);
 			else
 				send_to_char(ch, "You fade into visibility.\r\n");
 		} else

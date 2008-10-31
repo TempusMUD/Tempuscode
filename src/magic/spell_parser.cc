@@ -1443,8 +1443,9 @@ ACMD(do_cast)
 		return;
 	}
 
-	if (GET_LEVEL(ch) < LVL_IMMORT && (!IS_EVIL(ch) && SPELL_IS_EVIL(spellnum))
-		|| (!IS_GOOD(ch) && SPELL_IS_GOOD(spellnum))) {
+	if (GET_LEVEL(ch) < LVL_IMMORT
+        && ((!IS_EVIL(ch) && SPELL_IS_EVIL(spellnum))
+            || (!IS_GOOD(ch) && SPELL_IS_GOOD(spellnum)))) {
 		send_to_char(ch, "You cannot cast that spell.\r\n");
 		return;
 	}
@@ -1623,7 +1624,7 @@ ACMD(do_cast)
 			else
 				send_to_char(ch, "You lost your concentration!\r\n");
 			if (!skill_message(0, ch, tch, spellnum)) {
-				send_to_char(ch, NOEFFECT);
+				send_to_char(ch, "%s", NOEFFECT);
 			}
 
 			if (((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent)) &&

@@ -87,7 +87,7 @@ ASPELL(spell_recall)
 	//Vstone No Affect Code
 	if (obj) {
 		if (!IS_OBJ_TYPE(obj, ITEM_VSTONE) || !GET_OBJ_VAL(obj, 2))
-			send_to_char(ch, NOEFFECT);
+			send_to_char(ch, "%s", NOEFFECT);
 		if (IS_OBJ_TYPE(obj, ITEM_VSTONE))
 			act("Your divine magic has no effect on $p.", false, ch, obj, 0,
 				TO_CHAR);
@@ -287,7 +287,7 @@ ASPELL(spell_teleport)
 		if (!IS_OBJ_TYPE(obj, ITEM_VSTONE) ||
 				(GET_OBJ_VAL(obj, 2) != -1
 					&& !GET_OBJ_VAL(obj, 2))) {
-			send_to_char(ch, NOEFFECT);
+			send_to_char(ch, "%s", NOEFFECT);
 			return;
 		}
 
@@ -1529,7 +1529,7 @@ ASPELL(spell_enchant_armor)
 				GET_NAME(ch));
 		}
 	} else
-		send_to_char(ch, NOEFFECT);
+		send_to_char(ch, "%s", NOEFFECT);
 }
 
 ASPELL(spell_greater_enchant)
@@ -3422,7 +3422,7 @@ ASPELL(spell_bless)
 
 		if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS)
 				|| IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC)) {
-			send_to_char(ch, NOEFFECT);
+			send_to_char(ch, "%s", NOEFFECT);
 			return;
 		}
 
@@ -3521,7 +3521,7 @@ ASPELL(spell_damn)
 
 		if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)
 				|| IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC)) {
-			send_to_char(ch, NOEFFECT);
+			send_to_char(ch, "%s", NOEFFECT);
 			return;
 		}
 
@@ -3654,7 +3654,7 @@ perform_call_familiar(Creature *ch, int level, int type)
 	// First check to make sure that they don't already have a familiar
 	for (cur_fol = ch->followers;cur_fol;cur_fol = cur_fol->next) {
 		if (MOB2_FLAGGED(cur_fol->follower, MOB2_FAMILIAR)) {
-			send_to_char(ch, NOEFFECT);
+			send_to_char(ch, "%s", NOEFFECT);
 			if (ch->in_room == cur_fol->follower->in_room) {
 				act("$N looks up at you mournfully.", true,
 					ch, 0, cur_fol->follower, TO_CHAR);
@@ -3669,7 +3669,7 @@ perform_call_familiar(Creature *ch, int level, int type)
 
 	pet = load_familiar(ch, ch->in_room->sector_type, type);
 	if (!pet) {
-		send_to_char(ch, NOEFFECT);
+		send_to_char(ch, "%s", NOEFFECT);
 		return false;
 	}
 

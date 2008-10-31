@@ -286,7 +286,7 @@ Creature::getDamReduction(Creature *attacker)
 	if (ch->affBySanc(attacker)) {
 		if (IS_VAMPIRE(ch))
 			dam_reduction += 0;
-		else if (IS_CLERIC(ch) || IS_KNIGHT(ch) && !IS_NEUTRAL(ch))
+		else if ((IS_CLERIC(ch) || IS_KNIGHT(ch)) && !IS_NEUTRAL(ch))
 			dam_reduction += 25;
 		else if (GET_CLASS(ch) == CLASS_CYBORG || GET_CLASS(ch) == CLASS_PHYSIC)
 			dam_reduction += 8;
@@ -1066,7 +1066,7 @@ Creature::quit(void)
 		// Drop all implanted items, breaking them
 		if (GET_IMPLANT(this, pos)) {
 			obj = unequip_char(this, pos, EQUIP_IMPLANT);
-			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) >> 3 - 1;
+			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) / 8 - 1;
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
 			obj_to_room(obj, in_room);
 			act("$p drops to the ground!", false, 0, obj, 0, TO_ROOM);

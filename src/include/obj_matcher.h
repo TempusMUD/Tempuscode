@@ -24,6 +24,7 @@
 #define _OBJ_MATCHER_H
 
 #include <string>
+#include <climits>
 using namespace std;
 
 #include "structs.h"

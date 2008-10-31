@@ -205,7 +205,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype,
 			GET_LEVEL(ch) < LVL_AMBASSADOR)
         punish_killer_death(ch);
 
-	if (!IS_NPC(ch) && (!ch->in_room) || !is_arena_combat(killer, ch)) {
+	if (!IS_NPC(ch) && ((!ch->in_room) || !is_arena_combat(killer, ch))) {
 		if (ch != killer)
 			REMOVE_BIT(PLR_FLAGS(ch), PLR_KILLER | PLR_THIEF);
 
@@ -406,7 +406,7 @@ gain_kill_exp(struct Creature *ch, struct Creature *victim)
 		&& !ch->isTester())
 		return;
 
-	if ((IS_NPC(ch) && IS_PET(ch)) || IS_NPC(victim) && IS_PET(victim))
+	if ((IS_NPC(ch) && IS_PET(ch)) || (IS_NPC(victim) && IS_PET(victim)))
 		return;
 
 	if (AFF_FLAGGED(ch, AFF_GROUP)) {

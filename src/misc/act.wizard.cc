@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <string.h>
 #include <execinfo.h>
+#include <climits>
 using namespace std;
 
 #include "structs.h"
@@ -259,7 +260,7 @@ ACMD(do_send)
         return;
     }
     if (!(vict = get_char_vis(ch, arg))) {
-        send_to_char(ch, NOPERSON);
+        send_to_char(ch, "%s", NOPERSON);
         return;
     }
     send_to_char(vict, "%s\r\n", buf);
@@ -550,7 +551,7 @@ ACMD(do_teleport)
     if (!*buf)
         send_to_char(ch, "Whom do you wish to teleport?\r\n");
     else if (!(victim = get_char_vis(ch, buf))) {
-        send_to_char(ch, NOPERSON);
+        send_to_char(ch, "%s", NOPERSON);
     } else if (victim == ch)
         send_to_char(ch, "Use 'goto' to teleport yourself.\r\n");
     else if (GET_LEVEL(victim) >= GET_LEVEL(ch))
@@ -558,7 +559,7 @@ ACMD(do_teleport)
     else if (!*buf2)
         send_to_char(ch, "Where do you wish to send this person?\r\n");
     else if ((target = find_target_room(ch, buf2)) != NULL) {
-        send_to_char(ch, OK);
+        send_to_char(ch, "%s", OK);
         act("$n disappears in a puff of smoke.", false, victim, 0, 0, TO_ROOM);
         char_from_room(victim,false);
         char_to_room(victim, target,false);
@@ -2395,7 +2396,7 @@ ACMD(do_snoop)
             send_to_char(ch, "You can't.\r\n");
             return;
         }
-        send_to_char(ch, OK);
+        send_to_char(ch, "%s", OK);
 
         if (ch->desc->snooping) {
             descriptor_data *tdesc = ch->desc->snooping;
@@ -2438,7 +2439,7 @@ ACMD(do_switch)
     else if (GET_LEVEL(ch) <= GET_LEVEL(victim) && GET_IDNUM(ch) != 1)
         send_to_char(ch, "Nope.\r\n");
     else {
-        send_to_char(ch, OK);
+        send_to_char(ch, "%s", OK);
 
         ch->desc->creature = victim;
         ch->desc->original = ch;
@@ -2483,7 +2484,7 @@ ACMD(do_rswitch)
     else if (GET_LEVEL(ch) < GET_LEVEL(orig))
         send_to_char(ch, "Maybe you should just ask them.\r\n");
     else {
-        send_to_char(ch, OK);
+        send_to_char(ch, "%s", OK);
         send_to_char(orig, "The world seems to lurch and shift.\r\n");
         orig->desc->creature = victim;
         orig->desc->original = orig;
@@ -2701,7 +2702,7 @@ ACMD(do_pload)
             temp = tmp_getword(&argument);
             if(*temp) {
                 if(!(vict = get_char_vis(ch, temp))) {
-                    send_to_char(ch, NOPERSON);
+                    send_to_char(ch, "%s", NOPERSON);
                     return;
                 }
             }
@@ -2712,7 +2713,7 @@ ACMD(do_pload)
             quantity = 1;
             //find vict.  If no visible corresponding char, return
             if(!(vict = get_char_vis(ch, temp2))) {
-                send_to_char(ch, NOPERSON);
+                send_to_char(ch, "%s", NOPERSON);
                 return;
             }
         }
@@ -2738,7 +2739,7 @@ ACMD(do_pload)
 
     /*//no visible characters corresponding to vict.
     if (!vict) {
-        send_to_char(ch, NOPERSON);
+        send_to_char(ch, "%s", NOPERSON);
         return;
     }
     */
@@ -2942,7 +2943,7 @@ ACMD(do_purge)
             return;
         }
 
-        send_to_char(ch, OK);
+        send_to_char(ch, "%s", OK);
     } else {                    /* no argument. clean out the room */
         act("$n gestures... You are surrounded by scorching flames!",
             false, ch, 0, 0, TO_ROOM);
@@ -3024,7 +3025,7 @@ ACMD(do_advance)
             "You feel slightly different.", false, ch, 0, victim, TO_VICT);
     }
 
-    send_to_char(ch, OK);
+    send_to_char(ch, "%s", OK);
 
     mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(victim)), NRM, true,
         "(GC) %s has advanced %s to level %d (from %d)",
@@ -3042,10 +3043,10 @@ ACMD(do_restore)
     if (!*buf)
         send_to_char(ch, "Whom do you wish to restore?\r\n");
     else if (!(vict = get_char_vis(ch, buf))) {
-        send_to_char(ch, NOPERSON);
+        send_to_char(ch, "%s", NOPERSON);
     } else {
 		vict->restore();
-        send_to_char(ch, OK);
+        send_to_char(ch, "%s", OK);
         act("You have been fully healed by $N!", false, vict, 0, ch, TO_CHAR);
         mudlog(GET_LEVEL(ch), CMP, true,
             "%s has been restored by %s.", GET_NAME(vict), GET_NAME(ch));
@@ -3255,7 +3256,7 @@ ACMD(do_poofset)
     else {
         *msg = strdup(argument);
     }
-    send_to_char(ch, OK);
+    send_to_char(ch, "%s", OK);
 }
 
 ACMD(do_dc)
@@ -3431,7 +3432,7 @@ ACMD(do_force)
         // Check for high-level special arguments
         if (!strcasecmp("all", arg) &&
             Security::isMember(ch, "Coder")) {
-            send_to_char(ch, OK);
+            send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true,
                    "(GC) %s forced all to %s", GET_NAME(ch), to_force);
             for (cit = characterList.begin();
@@ -3446,7 +3447,7 @@ ACMD(do_force)
         }
 
         if (!strcasecmp("players", arg)) {
-            send_to_char(ch, OK);
+            send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true,
                    "(GC) %s forced players to %s", GET_NAME(ch), to_force);
 
@@ -3463,7 +3464,7 @@ ACMD(do_force)
         }
 
         if (!strcasecmp("room", arg)) {
-            send_to_char(ch, OK);
+            send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
                    GET_NAME(ch), ch->in_room->number, to_force);
             CreatureList::iterator it = ch->in_room->people.begin();
@@ -3480,13 +3481,13 @@ ACMD(do_force)
 
     // Normal individual creature forcing
     if (!(vict = get_char_vis(ch, arg))) {
-        send_to_char(ch, NOPERSON);
+        send_to_char(ch, "%s", NOPERSON);
     } else if (GET_LEVEL(ch) <= GET_LEVEL(vict))
         send_to_char(ch, "No, no, no!\r\n");
     else if (!IS_NPC(vict) && !Security::isMember(ch, "WizardFull"))
         send_to_char(ch, "You cannot force players to do things.\r\n");
     else {
-        send_to_char(ch, OK);
+        send_to_char(ch, "%s", OK);
         act(buf1, true, ch, NULL, vict, TO_VICT);
         mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced %s to %s",
                GET_NAME(ch), GET_NAME(vict), to_force);
@@ -6211,9 +6212,7 @@ ACMD(do_set)
 		break;
     case 39:
         if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
-            send_to_char(ch, argument);
-            send_to_char(ch, "\r\n");
-            send_to_char(ch, "That is not a char_class.\r\n");
+            send_to_char(ch, "'%s' is not a char class.\r\n", argument);
             return;
         }
         GET_CLASS(vict) = i;
@@ -7474,8 +7473,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
             "Show mobiles:  utility to search the mobile prototype list.\r\n"
             "Usage: show mob <option> <argument>\r\n" "Options:\r\n");
         for (i = 0; i < NUM_SHOW_MOB; i++) {
-            send_to_char(ch, show_mob_keys[i]);
-            send_to_char(ch, "\r\n");
+            send_to_char(ch, "%s\r\n", show_mob_keys[i]);
         }
         return;
     }
@@ -8001,7 +7999,7 @@ ACMD(do_coderutil)
     char token[MAX_INPUT_LENGTH];
 
     if(!tokens.next(token)) {
-        send_to_char( ch, CODER_UTIL_USAGE );
+        send_to_char( ch, "%s", CODER_UTIL_USAGE );
         return;
     }
     if (strcmp(token, "tick") == 0) {
@@ -8319,7 +8317,7 @@ ACMD(do_coderutil)
 		for (zone_data *zone = zone_table;zone;zone = zone->next)
             save_zone(ch, zone);
     } else
-        send_to_char(ch, CODER_UTIL_USAGE);
+        send_to_char(ch, "%s", CODER_UTIL_USAGE);
 }
 
 static const char* ACCOUNT_USAGE =
@@ -8342,7 +8340,7 @@ ACMD(do_account)
 	Creature *vict;
 
     if(!tokens.next(token)) {
-        send_to_char( ch, ACCOUNT_USAGE );
+        send_to_char( ch, "%s", ACCOUNT_USAGE );
         return;
     }
 
@@ -8424,7 +8422,7 @@ ACMD(do_account)
 			send_to_char(ch, "Error: Account could not be reloaded\r\n");
 		return;
 	} else {
-		send_to_char(ch, ACCOUNT_USAGE);
+		send_to_char(ch, "%s", ACCOUNT_USAGE);
 	}
 }
 
@@ -8501,12 +8499,12 @@ ACMD(do_tester)
 
     if (!*arg1) {
         send_to_char(ch, "Test what?\r\n");
-        send_to_char(ch, TESTER_UTIL_USAGE);
+        send_to_char(ch, "%s", TESTER_UTIL_USAGE);
         return;
     }
 
     if ((tcmd = search_block(arg1, tester_cmds, false)) < 0) {
-        send_to_char(ch, TESTER_UTIL_USAGE);
+        send_to_char(ch, "%s", TESTER_UTIL_USAGE);
         return;
     }
 
@@ -8618,7 +8616,7 @@ ACMD(do_tester)
         break;
     default:
         sprintf(buf, "$p: Invalid command '%s'.", arg1);
-        send_to_char(ch, TESTER_UTIL_USAGE);
+        send_to_char(ch, "%s", TESTER_UTIL_USAGE);
         break;
     }
     return;

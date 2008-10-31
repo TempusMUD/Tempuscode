@@ -1591,7 +1591,7 @@ char_to_game(descriptor_data *d)
 		REMOVE_BIT(PRF2_FLAGS(d->creature), PRF2_NOWHO);
 
 	if (!GET_LEVEL(d->creature)) {
-		send_to_char(d->creature, START_MESSG);
+		send_to_char(d->creature, "%s", START_MESSG);
 		send_to_newbie_helpers(tmp_sprintf(
 				" ***> New adventurer %s has entered the realm. <***\r\n",
 				GET_NAME(d->creature)));

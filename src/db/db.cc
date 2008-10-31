@@ -277,7 +277,7 @@ ACMD(do_reboot)
         send_to_char(ch, "         trails timewarps xml      socials\r\n");
 		return;
 	}
-	send_to_char(ch, OK);
+	send_to_char(ch, "%s", OK);
 	mudlog(GET_INVIS_LVL(ch), NRM, true,
 		"%s has reloaded %s file", GET_NAME(ch), arg);
 }
@@ -435,9 +435,8 @@ boot_db(void)
 
 	if (!no_initial_zreset) {
 		for (zone = zone_table; zone; zone = zone->next) {
-			sprintf(buf2, "Resetting %s (rms %d-%d).",
-				zone->name, zone->number * 100, zone->top);
-			slog(buf2);
+			slog("Resetting %s (rms %d-%d).",
+                 zone->name, zone->number * 100, zone->top);
 			reset_zone(zone);
 		}
 	}

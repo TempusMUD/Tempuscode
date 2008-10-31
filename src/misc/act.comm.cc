@@ -297,7 +297,7 @@ ACMD(do_tell)
 	if (!*buf || !*buf2)
 		send_to_char(ch, "Who do you wish to tell what??\r\n");
 	else if (!(vict = get_player_vis(ch, buf, false))) {
-		send_to_char(ch, NOPERSON);
+		send_to_char(ch, "%s", NOPERSON);
 	} else if (ch == vict)
 		send_to_char(ch, "You try to tell yourself something.\r\n");
 	else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
@@ -440,7 +440,7 @@ ACMD(do_whisper)
 	if (!*vict_str || !*argument) {
 		send_to_char(ch, "To whom do you want to whisper.. and what??\r\n");
 	} else if (!(vict = get_char_room_vis(ch, vict_str))) {
-		send_to_char(ch, NOPERSON);
+		send_to_char(ch, "%s", NOPERSON);
 	} else if (vict == ch)
 		send_to_char(ch,
 			"You can't get your mouth close enough to your ear...\r\n");
@@ -700,7 +700,7 @@ ACMD(do_gen_comm)
 		return;
 	}
 	if (PLR_FLAGGED(ch, PLR_NOSHOUT)) {
-		send_to_char(ch, chan->msg_muted);
+		send_to_char(ch, "%s", chan->msg_muted);
 		return;
 	}
 

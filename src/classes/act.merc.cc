@@ -190,9 +190,8 @@ ACMD(do_crossface)
 			retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
 			if (prev_pos != POS_STUNNED && !IS_SET(retval, DAM_VICT_KILLED) &&
 				!IS_SET(retval, DAM_ATTACKER_KILLED)) {
-				if (!IS_NPC(vict) || (IS_NPC(vict) &&
-						!MOB2_FLAGGED(vict, MOB2_NOSTUN))
-					&& ch->isFighting()) {
+				if (ch->isFighting()
+                    && (!IS_NPC(vict) || !MOB2_FLAGGED(vict, MOB2_NOSTUN))) {
 					ch->removeCombat(vict);
 					vict->removeAllCombat();
 					vict->setPosition(POS_STUNNED);

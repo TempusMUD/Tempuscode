@@ -643,7 +643,7 @@ do_qcontrol_purge(Creature *ch, char *argument, int com)
 			vict->desc = NULL;
 		}
 		vict->purge(false);
-		send_to_char(ch, OK);
+		send_to_char(ch, "%s", OK);
 	} else {
 		send_to_char(ch, "Purge what?\r\n");
 		return;
@@ -2712,7 +2712,7 @@ do_qcontrol_restore(Creature *ch, char *argument, int com)
 			vict->restore();
 			if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
                 vict->desc) {
-				send_to_char(vict,
+				send_to_char(vict, "%s",
                              compose_qcomm_string(ch, vict, quest, QCOMM_ECHO,
                                                   "You have been restored!") );
 			}
@@ -2765,7 +2765,7 @@ send_to_quest(Creature *ch, const char *str, Quest * quest, int level, int mode)
 			if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
                 vict->desc && GET_LEVEL(vict) >= level)
 			{
-				send_to_char(vict, compose_qcomm_string(ch, vict, quest, mode, str) );
+				send_to_char(vict, "%s", compose_qcomm_string(ch, vict, quest, mode, str) );
 			}
 		}
 	}

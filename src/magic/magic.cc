@@ -150,92 +150,92 @@ mag_savingthrow(struct Creature *ch, int level, int type)
 
 	save = saving_throws[type][(int)GET_LEVEL(ch)];
 	save += GET_SAVE(ch, type);
-	save += (level >> 1);
+	save += (level / 2);
 
 	if (AFF2_FLAGGED(ch, AFF2_EVADE))
 		save -= (GET_LEVEL(ch) / 5);
 	if (ch->getPosition() < POS_FIGHTING)
-		save += ((10 - ch->getPosition()) << 2);
+		save += ((10 - ch->getPosition()) * 4);
 
 	if (ch->getSpeed())
-		save -= (ch->getSpeed() >> 3);
+		save -= (ch->getSpeed() / 8);
 
 	if (ch->getPosition() < POS_RESTING)
 		save += 10;
 
-	save -= (GET_REMORT_GEN(ch) << 1);
+	save -= (GET_REMORT_GEN(ch) * 2);
 
 	switch (type) {
 	case SAVING_PARA:
 		if ((IS_CLERIC(ch) || IS_KNIGHT(ch)) && !IS_NEUTRAL(ch))
-			save -= (5 + (GET_LEVEL(ch) >> 4));
+			save -= (5 + (GET_LEVEL(ch) / 16));
 		if (IS_RANGER(ch))
-			save -= (5 + (GET_LEVEL(ch) >> 4));
-		save -= (GET_CON(ch) >> 3);
+			save -= (5 + (GET_LEVEL(ch) / 16));
+		save -= (GET_CON(ch) / 8);
 		break;
 	case SAVING_ROD:
 		save -= (AFF_FLAGGED(ch, AFF_ADRENALINE)
 			|| AFF2_FLAGGED(ch, AFF2_HASTE)) ? (GET_LEVEL(ch) / 5) : 0;
 		if (IS_MAGE(ch))
-			save -= (4 + (GET_LEVEL(ch) >> 4));
+			save -= (4 + (GET_LEVEL(ch) / 16));
 		if (IS_DWARF(ch))
-			save -= (GET_CON(ch) >> 2) + GET_REMORT_GEN(ch);
+			save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
 		if (GET_CLASS(ch) == CLASS_BARB)
-			save -= (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) << 1);
+			save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
 		else if (IS_BARB(ch))
-			save -= (GET_LEVEL(ch) >> 4) + GET_REMORT_GEN(ch);
+			save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
 
 		break;
 	case SAVING_PETRI:
 		if (IS_MONK(ch) || IS_THIEF(ch) || GET_MOVE(ch) > number(100, 400))
-			save -= (5 + (GET_LEVEL(ch) >> 3));
+			save -= (5 + (GET_LEVEL(ch) / 8));
 		if (IS_DWARF(ch))
-			save -= (GET_CON(ch) >> 2) + GET_REMORT_GEN(ch);
+			save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
 		if (GET_CLASS(ch) == CLASS_BARB)
-			save -= (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) << 1);
+			save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
 		else if (IS_BARB(ch))
-			save -= (GET_LEVEL(ch) >> 4) + GET_REMORT_GEN(ch);
+			save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
 
 		break;
 	case SAVING_BREATH:
 		save -= (AFF_FLAGGED(ch, AFF_ADRENALINE)
 			|| AFF2_FLAGGED(ch, AFF2_HASTE)) ? (GET_LEVEL(ch) / 5) : 0;
-		save -= (GET_INT(ch) >> 4);
-		save -= (GET_WIS(ch) >> 4);
+		save -= (GET_INT(ch) / 16);
+		save -= (GET_WIS(ch) / 16);
 		if (IS_DWARF(ch))
-			save -= (GET_CON(ch) >> 2) + GET_REMORT_GEN(ch);
+			save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
 		if (GET_CLASS(ch) == CLASS_BARB)
-			save -= (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) << 1);
+			save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
 		else if (IS_BARB(ch))
-			save -= (GET_LEVEL(ch) >> 4) + GET_REMORT_GEN(ch);
+			save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
 
 		break;
 	case SAVING_SPELL:
 		save -= (AFF_FLAGGED(ch, AFF_ADRENALINE)
 			|| AFF2_FLAGGED(ch, AFF2_HASTE)) ? (GET_LEVEL(ch) / 5) : 0;
-		save -= (GET_WIS(ch) >> 2);
+		save -= (GET_WIS(ch) / 4);
 		if (IS_DWARF(ch))
-			save -= (GET_CON(ch) >> 2) + GET_REMORT_GEN(ch);
+			save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
 		if (GET_CLASS(ch) == CLASS_BARB)
-			save -= (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) << 1);
+			save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
 		else if (IS_BARB(ch))
-			save -= (GET_LEVEL(ch) >> 4) + GET_REMORT_GEN(ch);
+			save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
 		if (IS_CYBORG(ch))
-			save += 5 + (GET_LEVEL(ch) >> 1);
+			save += 5 + (GET_LEVEL(ch) / 2);
 		if (IS_DROW(ch))
-			save -= (GET_LEVEL(ch) >> 1);
+			save -= (GET_LEVEL(ch) / 2);
 		if (IS_NPC(ch) && GET_MOB_VNUM(ch) == 7100)	// morkoth magic resistance
 			save -= GET_LEVEL(ch);
 		break;
 	case SAVING_CHEM:
 		if (IS_CYBORG(ch))
-			save -= GET_LEVEL(ch) >> 1;
+			save -= GET_LEVEL(ch) / 2;
 		if (IS_DWARF(ch))
-			save -= (GET_CON(ch) >> 2) + GET_REMORT_GEN(ch);
+			save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
 		if (GET_CLASS(ch) == CLASS_BARB)
-			save -= (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) << 1);
+			save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
 		else if (IS_BARB(ch))
-			save -= (GET_LEVEL(ch) >> 4) + GET_REMORT_GEN(ch);
+			save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
 		break;
 	case SAVING_PSI:
 		save -= GET_INT(ch);
@@ -243,7 +243,7 @@ mag_savingthrow(struct Creature *ch, int level, int type)
 		break;
 	case SAVING_PHY:
 		if (IS_PHYSIC(ch))
-			save -= (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) << 1);
+			save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
 		break;
 	default:
 		errlog("unknown savetype in mag_savingthrow");
@@ -448,8 +448,8 @@ affect_update(void)
 							&& !PLR_FLAGGED(i, PLR_OLC)
                             && af->type != SPELL_ITEM_ATTRACTION_FIELD
                             && af->type != SPELL_ITEM_REPULSION_FIELD) {
-							send_to_char(i, spell_wear_off_msg[af->type]);
-							send_to_char(i, "\r\n");
+							send_to_char(i, "%s\r\n",
+                                         spell_wear_off_msg[af->type]);
 						}
 					}
 				}
@@ -596,13 +596,13 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_ESSENCE_OF_EVIL:
 		if (IS_GOOD(victim)) {
-			dam = 100 + (level << 2);
+			dam = 100 + (level * 4);
 		} else
 			return 0;
 		break;
 	case SPELL_ESSENCE_OF_GOOD:
 		if (IS_EVIL(victim)) {
-			dam = 100 + (level << 2);
+			dam = 100 + (level * 4);
 		} else
 			return 0;
 		break;
@@ -611,13 +611,13 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_MAGIC_MISSILE:
 		dam =
 			dice(1 + (level > 5) + (level > 10) + (level > 15),
-			8) + (level >> 2);
+			8) + (level / 4);
 		break;
 	case SPELL_CHILL_TOUCH:	// chill touch also has an affect
 		if (is_mage)
 			dam =
 				dice(1 + (level > 8) + (level > 16) + (level > 24),
-				8) + (level >> 1);
+				8) + (level / 2);
 		else
 			dam = dice(1, 6) + 1;
 		break;
@@ -630,13 +630,13 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_BURNING_HANDS:
 		if (is_mage)
-			dam = dice(level, 6) + (level >> 1);
+			dam = dice(level, 6) + (level / 2);
 		else
 			dam = dice(3, 6) + 3;
 		break;
 	case SPELL_SHOCKING_GRASP:
 		if (is_mage)
-			dam = dice(level, 4) + (level >> 1);
+			dam = dice(level, 4) + (level / 2);
 		else
 			dam = dice(5, 6) + 5;
 		break;
@@ -645,21 +645,21 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_LIGHTNING_BOLT:
 		audible = true;
 		if (is_mage)
-			dam = dice(level, 10) + (level >> 1);
+			dam = dice(level, 10) + (level / 2);
 		else
 			dam = dice(7, 6) + 7;
 		break;
 	case SPELL_COLOR_SPRAY:
 		audible = true;
 		if (is_mage)
-			dam = dice(level, 8) + (level >> 1);
+			dam = dice(level, 8) + (level / 2);
 		else
 			dam = dice(9, 6) + 9;
 		break;
 	case SPELL_FIREBALL:
 		audible = true;
 		if (is_mage)
-			dam = dice(level, 10) + (level >> 1);
+			dam = dice(level, 10) + (level / 2);
 		else
 			dam = dice(level, 7) + 11;
 
@@ -669,7 +669,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_CONE_COLD:
 		audible = true;
 		if (is_mage)
-			dam = dice(level, 12) + (level >> 1);
+			dam = dice(level, 12) + (level / 2);
 		else
 			dam = dice(level, 8) + 16;
 
@@ -678,13 +678,13 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_PRISMATIC_SPRAY:
 		audible = true;
 		if (is_mage)
-			dam = dice(level, 16) + (level >> 1);
+			dam = dice(level, 16) + (level / 2);
 		else
 			dam = dice(level, 10) + 20;
 		break;
 	case SPELL_METEOR_STORM:
 		if (is_mage)
-			dam = dice(level, 10) + (level >> 1);
+			dam = dice(level, 10) + (level / 2);
 		else
 			dam = dice(level, 8) + 20;
 		break;
@@ -694,52 +694,52 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_ACIDITY:
 		if (is_physic)
-			dam = dice(3, 4) + (level >> 2);
+			dam = dice(3, 4) + (level / 4);
 		else
 			dam = dice(2, 4) + 2;
 		break;
 	case SPELL_GAMMA_RAY:
 		if (GET_CLASS(ch) == CLASS_PHYSIC)
-			dam = dice(12, level >> 1);
+			dam = dice(12, level / 2);
 		else
-			dam = dice(12, level >> 2);
+			dam = dice(12, level / 4);
 		break;
 	case SPELL_MICROWAVE:
-		dam = dice(9, 8) + (level >> 1);
+		dam = dice(9, 8) + (level / 2);
 		break;
 	case SPELL_OXIDIZE:
-		dam = dice(level, 4) + (level << 1);
+		dam = dice(level, 4) + (level * 2);
 		break;
 	case SPELL_ENTROPY_FIELD:
 		dam = 10+dice(level / 5, 3);
 		if (!GET_CLASS(ch) == CLASS_PHYSIC)
-			dam = dam >> 1;
+			dam = dam / 2;
 		break;
 	case SPELL_GRAVITY_WELL:
 		dam = dice(level / 2, 5);
 		if (!GET_CLASS(ch) == CLASS_PHYSIC)
-			dam = dam >> 1;
+			dam = dam / 2;
 		if (AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL))
-			dam = dam >> 1;
+			dam = dam / 2;
 		break;
 
 	case SPELL_ELECTRIC_ARC:
-		dam = dice(ch->getLevelBonus(SPELL_ELECTRIC_ARC), 5) + (level << 3);
+		dam = dice(ch->getLevelBonus(SPELL_ELECTRIC_ARC), 5) + (level * 8);
 		break;
 
 	case SPELL_DISRUPTION:
-		dam = dice(level, 6) + (level << 1);
+		dam = dice(level, 6) + (level * 2);
 		break;
 
 	case SPELL_CALL_LIGHTNING:
 		audible = true;
-		dam = dice(level, 7) + (level >> 1);
+		dam = dice(level, 7) + (level / 2);
 		break;
 
 	case SPELL_HARM:
-		dam = dice(level, 6) + (level << 1);
+		dam = dice(level, 6) + (level * 2);
 		if (IS_GOOD(ch) && IS_GOOD(victim))
-			dam >>= 1;
+			dam /= 2;
 		break;
 
 	case SPELL_ENERGY_DRAIN:
@@ -767,7 +767,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 			else
 				dam = dice(level - GET_LEVEL(victim), 7) + level;
 			if (IS_EVIL(victim))
-				dam >>= 2;
+				dam /= 4;
 		}
 		break;
 	case SPELL_ICE_STORM:
@@ -775,7 +775,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_ICY_BLAST:
 		audible = true;
 		if (is_cleric || is_ranger || is_knight)
-			dam = dice(level, 11) + (level >> 2);
+			dam = dice(level, 11) + (level / 4);
 		else
 			dam = dice(level, 7) + 16;
 		ice_room(ch->in_room, level);
@@ -813,7 +813,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		/* psionic attacks */
 	case SPELL_PSYCHIC_SURGE:
 		if (!affected_by_spell(victim, SPELL_PSYCHIC_SURGE))
-			dam = dice(3, 7) + (level << 2);
+			dam = dice(3, 7) + (level * 4);
 		break;
 
 	case SPELL_EGO_WHIP:
@@ -821,7 +821,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_MOTOR_SPASM:
-		dam = dice(9, 5) + (level >> 1);
+		dam = dice(9, 5) + (level / 2);
 		break;
 
 	case SPELL_PSYCHIC_CRUSH:
@@ -830,7 +830,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 		/* Area spells */
 	case SPELL_EARTHQUAKE:
-		dam = dice((level >> 1), 14) + level << 1;
+		dam = dice((level /2), 14) + level * 2;
 		break;
 
 	case SPELL_FISSION_BLAST:
@@ -838,15 +838,15 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SONG_SONIC_DISRUPTION:
-		dam = dice((level >> 1), 7) + (3 * level);
+		dam = dice((level / 2), 7) + (3 * level);
 		break;
 
 	case SONG_DIRGE:
-		dam = dice((level >> 2), (level >> 2)) + (level << 2);
+		dam = dice((level / 4), (level / 4)) + (level * 4);
 		break;
 
     case SONG_LICHS_LYRICS:
-        dam = dice(level >> 1, 4);
+        dam = dice(level / 2, 4);
         break;
 
 	}							/* switch(spellnum) */
@@ -893,7 +893,7 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	}
 
 	if (mag_savingthrow(victim, level, savetype))
-		dam >>= 1;
+		dam /= 2;
 
 	if (audible)
 		sound_gunshots(ch->in_room, spellnum, dam, 1);
@@ -1005,14 +1005,14 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	if( IS_PC(ch) && GET_REMORT_GEN(ch) > 0 &&
 		GET_CLASS(ch) >= 0 && GET_CLASS(ch) < NUM_CLASSES ) {
-		level +=  spell_info[spellnum].gen[GET_CLASS(ch)] << 1;
+		level +=  spell_info[spellnum].gen[GET_CLASS(ch)] * 2;
 	}
 
 	if (spell_info[spellnum].violent
 		&& mag_savingthrow(victim, level, savetype)) {
-		send_to_char(ch, NOEFFECT);
+		send_to_char(ch, "%s", NOEFFECT);
 		if (ch != victim)
-			send_to_char(victim, NOEFFECT);
+			send_to_char(victim, "%s", NOEFFECT);
 		return;
 	}
 
@@ -1048,7 +1048,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			af.duration = 1;
 		else
 			af.duration = 4;
-		af.modifier = -((level >> 4) + 1);
+		af.modifier = -((level / 16) + 1);
 		accum_duration = true;
 		to_vict = "You feel your strength wither!";
 		break;
@@ -1060,7 +1060,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			af.duration = 1;
 		else
 			af.duration = 4;
-		af.modifier = -((level >> 4) + 1);
+		af.modifier = -((level / 16) + 1);
 		accum_duration = true;
 		to_vict = "You feel your strength withered by the cold!";
 		break;
@@ -1091,7 +1091,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_ARMOR:
 		af.location = APPLY_AC;
 		af.duration = 24;
-		af.modifier = -((level >> 2) + 20);
+		af.modifier = -((level / 4) + 20);
 		accum_duration = true;
 		to_vict = "You feel someone protecting you.";
 		break;
@@ -1100,13 +1100,13 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		if (affected_by_spell(victim, SPELL_STONESKIN)) {
 			affect_from_char(victim, SPELL_STONESKIN);
 			if (*spell_wear_off_msg[SPELL_STONESKIN]) {
-				send_to_char(victim, spell_wear_off_msg[SPELL_STONESKIN]);
-				send_to_char(victim, "\r\n");
+				send_to_char(victim, "%s\r\n",
+                             spell_wear_off_msg[SPELL_STONESKIN]);
 			}
 		}
 
 		af.location = APPLY_AC;
-		af.duration = dice(4, (level >> 3) + 1);
+		af.duration = dice(4, (level / 8) + 1);
 		af.modifier = -10;
 		af.level = ch->getLevelBonus(SPELL_BARKSKIN);
 		accum_duration = true;
@@ -1115,21 +1115,21 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
     case SPELL_THORN_SKIN:
         af.location = APPLY_AC;
-        af.duration = dice(3, (level >> 2) + 1);
+        af.duration = dice(3, (level / 4) + 1);
         af.modifier = -(ch->getLevelBonus(SPELL_THORN_SKIN) / 10 + 5);
         break;
 	case SPELL_STONESKIN:
 		if (affected_by_spell(victim, SPELL_BARKSKIN)) {
 			affect_from_char(victim, SPELL_BARKSKIN);
 			if (*spell_wear_off_msg[SPELL_BARKSKIN]) {
-				send_to_char(victim, spell_wear_off_msg[SPELL_BARKSKIN]);
-				send_to_char(victim, "\r\n");
+				send_to_char(victim, "%s\r\n",
+                             spell_wear_off_msg[SPELL_BARKSKIN]);
 			}
 		}
 		af.level = af2.level = ch->getLevelBonus(SPELL_STONESKIN);
 		af2.location = APPLY_DEX;
 		af.location = APPLY_AC;
-		af.duration = af2.duration = dice(4, (level >> 3) + 1);
+		af.duration = af2.duration = dice(4, (level / 8) + 1);
 		af.modifier = -20;
 		af2.modifier = -2;
 		accum_duration = true;
@@ -1138,10 +1138,10 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_PRAY:
 		af.location = APPLY_HITROLL;
-		af.modifier = 3 + (level >> 3);
-		af.duration = 4 + (level >> 4);
+		af.modifier = 3 + (level / 8);
+		af.duration = 4 + (level / 16);
 		af2.location = APPLY_SAVING_SPELL;
-		af2.modifier = -(3 + (level >> 4));
+		af2.modifier = -(3 + (level / 16));
 		af2.duration = af.duration;
 		accum_duration = true;
         if (IS_GOOD(ch))
@@ -1199,7 +1199,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_BLUR:
 		af.location = APPLY_AC;
-		af.duration = 2 + (level >> 2);
+		af.duration = 2 + (level / 4);
 		af.modifier = -10;
 		af.bitvector = AFF_BLUR;
 		accum_duration = true;
@@ -1208,11 +1208,11 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 	case SPELL_CURSE:
 		af.location = APPLY_HITROLL;
-		af.duration = 1 + (level >> 1);
+		af.duration = 1 + (level / 2);
 		af.modifier = -(1 + level / 8);
 		af.bitvector = AFF_CURSE;
 		af2.location = APPLY_DAMROLL;
-		af2.duration = 1 + (level >> 1);
+		af2.duration = 1 + (level / 2);
 		af2.modifier = -(1 + level / 10);
 		af2.bitvector = AFF_CURSE;
 		accum_duration = true;
@@ -1266,7 +1266,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "You can now endure the coldest of cold.";
 		break;
 	case SPELL_FIRE_SHIELD:
-		af.duration = 6 + (level >> 3);
+		af.duration = 6 + (level / 8);
 		af.bitvector = AFF2_FIRE_SHIELD;
 		af.aff_index = 2;
 		af.location = APPLY_AC;
@@ -1282,7 +1282,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 				TO_CHAR);
 			return;
 		}
-		af.duration = 2 + (level >> 3);
+		af.duration = 2 + (level / 8);
 		af.bitvector = AFF_INFLIGHT;
 		accum_duration = true;
 		to_vict = "Your feet lift lightly from the ground.";
@@ -1290,14 +1290,14 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		victim->setPosition(POS_FLYING);
 		break;
 	case SPELL_HASTE:
-		af.duration = (level >> 2);
+		af.duration = (level / 4);
 		af.bitvector = AFF2_HASTE;
 		af.aff_index = 2;
 		accum_duration = false;
 		to_vict = "You start moving FAST.";
 		break;
 	case SPELL_INFRAVISION:
-		af.duration = 12 + (level >> 2);
+		af.duration = 12 + (level / 4);
 		af.bitvector = AFF_INFRAVISION;
 		accum_duration = true;
 		to_vict = "Your eyes glow red.";
@@ -1329,7 +1329,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_INVISIBLE:
 		if (!victim)
 			victim = ch;
-		af.duration = 12 + (level >> 2);
+		af.duration = 12 + (level / 4);
 		af.modifier = -20;
 		af.location = APPLY_AC;
 		af.bitvector = AFF_INVISIBLE;
@@ -1338,7 +1338,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_room = "$n slowly fades out of existence.";
 		break;
 	case SPELL_GREATER_INVIS:
-		af.duration = 3 + (level >> 3);
+		af.duration = 3 + (level / 8);
 		if (!AFF_FLAGGED(victim, AFF_INVISIBLE)) {
 			af.modifier = -20;
 			af.location = APPLY_AC;
@@ -1352,21 +1352,21 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_room = "$n slowly fades out of existence.";
 		break;
 	case SPELL_INVIS_TO_UNDEAD:
-		af.duration = 12 + (level >> 2);
+		af.duration = 12 + (level / 4);
 		af.bitvector = AFF2_INVIS_TO_UNDEAD;
 		af.aff_index = 2;
 		accum_duration = true;
 		to_vict = "The undead can no longer see you.";
 		break;
 	case SPELL_ANIMAL_KIN:
-		af.duration = 12 + (level >> 2);
+		af.duration = 12 + (level / 4);
 		af.bitvector = AFF2_ANIMAL_KIN;
 		af.aff_index = 2;
 		accum_duration = true;
 		to_vict = "You feel a strong kinship with animals.";
 		break;
 	case SPELL_MAGICAL_PROT:
-		af.duration = 3 + (level >> 2);
+		af.duration = 3 + (level / 4);
 		af.location = APPLY_SAVING_SPELL;
 		af.modifier = -(level / 8) + 1;
 		accum_duration = false;
@@ -1450,7 +1450,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.type = SPELL_SICKNESS;
 		af2.type = SPELL_SICKNESS;
 		af.location = APPLY_HITROLL;
-		af.duration = dice(level, 8) - (GET_CON(victim) << 1);
+		af.duration = dice(level, 8) - (GET_CON(victim) * 2);
 		af.modifier = -(level / 5);
 		af.bitvector = AFF3_SICKNESS;
 		af.aff_index = 3;
@@ -1461,7 +1461,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_SHROUD_OBSCUREMENT:
-		af.duration = 10 + (level >> 1);
+		af.duration = 10 + (level / 2);
 		af.bitvector = AFF3_SHROUD_OBSCUREMENT;
 		af.aff_index = 3;
 		to_vict = "An obscuring shroud forms in the space around you.";
@@ -1470,18 +1470,18 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_SLOW:
 		if (mag_savingthrow(victim, level, SAVING_SPELL)) {
-			send_to_char(ch, NOEFFECT);
+			send_to_char(ch, "%s", NOEFFECT);
 			return;
 		}
 
         if (ch->checkReputations(victim))
             return;
 
-		af.duration = 1 + (level >> 2);
+		af.duration = 1 + (level / 4);
 		af.bitvector = AFF2_SLOW;
 		af.aff_index = 2;
 		af.location = APPLY_DEX;
-		af.modifier = -number(0, (level >> 4));
+		af.modifier = -number(0, (level / 16));
 		to_vict = "Your movements slow to a tortured crawl.";
 		break;
 
@@ -1496,27 +1496,27 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			switch (number(0, 5)) {
 			case 0:
 				af.location = APPLY_STR;
-				af.modifier = -(level >> 4);
+				af.modifier = -(level / 16);
 				break;
 			case 1:
 				af.location = APPLY_INT;
-				af.modifier = -(level >> 4);
+				af.modifier = -(level / 16);
 				break;
 			case 2:
 				af.location = APPLY_CHA;
-				af.modifier = -(level >> 4);
+				af.modifier = -(level / 16);
 				break;
 			case 3:
 				af.location = APPLY_CON;
-				af.modifier = -(level >> 3);
+				af.modifier = -(level / 8);
 				break;
 			case 4:
 				af.location = APPLY_HITROLL;
-				af.modifier = -(level >> 3);
+				af.modifier = -(level / 8);
 				break;
 			case 5:
 				af.location = APPLY_DAMROLL;
-				af.modifier = -(level >> 3);
+				af.modifier = -(level / 8);
 				break;
 			}
 		} else {
@@ -1537,27 +1537,27 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			switch (number(0, 5)) {
 			case 0:
 				af.location = APPLY_STR;
-				af.modifier = -(level >> 4);
+				af.modifier = -(level / 16);
 				break;
 			case 1:
 				af.location = APPLY_INT;
-				af.modifier = -(level >> 4);
+				af.modifier = -(level / 16);
 				break;
 			case 2:
 				af.location = APPLY_CHA;
-				af.modifier = -(level >> 4);
+				af.modifier = -(level / 16);
 				break;
 			case 3:
 				af.location = APPLY_CON;
-				af.modifier = -(level >> 3);
+				af.modifier = -(level / 8);
 				break;
 			case 4:
 				af.location = APPLY_HITROLL;
-				af.modifier = -(level >> 3);
+				af.modifier = -(level / 8);
 				break;
 			case 5:
 				af.location = APPLY_DAMROLL;
-				af.modifier = -(level >> 3);
+				af.modifier = -(level / 8);
 				break;
 			}
 		} else {
@@ -1568,14 +1568,14 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		accum_duration = true;
 		break;
 	case SPELL_PROTECT_FROM_DEVILS:
-		af.duration = 12 + (level >> 3);
+		af.duration = 12 + (level / 8);
 		af.bitvector = AFF2_PROT_DEVILS;
 		af.aff_index = 2;
 		accum_duration = false;
 		to_vict = "The devilish races will have difficulty harming you.";
 		break;
 	case SPELL_PROT_FROM_LIGHTNING:
-		af.duration = 12 + (level >> 2);
+		af.duration = 12 + (level / 4);
 		af.bitvector = AFF2_PROT_LIGHTNING;
 		af.aff_index = 2;
 		accum_duration = true;
@@ -1583,7 +1583,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_PROT_FROM_FIRE:
-		af.duration = 12 + (level >> 2);
+		af.duration = 12 + (level / 4);
 		af.bitvector = AFF2_PROT_FIRE;
 		af.aff_index = 2;
 		accum_duration = true;
@@ -1604,7 +1604,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "You will heal faster while sleeping.";
 		break;
 	case SPELL_UNDEAD_PROT:
-		af.duration = 12 + (level >> 3);
+		af.duration = 12 + (level / 8);
 		af.bitvector = AFF2_PROTECT_UNDEAD;
 		af.aff_index = 2;
 		accum_duration = false;
@@ -1646,15 +1646,15 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_STRENGTH:
 		af.location = APPLY_STR;
-		af.duration = (level >> 1) + 4;
-		af.modifier = 1 + (number(0, (level >> 3)));
+		af.duration = (level / 2) + 4;
+		af.modifier = 1 + (number(0, (level / 8)));
 		accum_duration = true;
 		accum_affect = false;
 		to_vict = "You feel stronger!";
 		break;
 	case SPELL_WORD_OF_INTELLECT:
 		af.location = APPLY_INT;
-		af.duration = (level >> 1) + 4;
+		af.duration = (level / 2) + 4;
 		af.modifier = 1 + (level > 18);
 		accum_duration = false;
 		accum_affect = false;
@@ -1676,14 +1676,14 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_TELEKINESIS:
 		to_vict = "You feel able to carry a greater load.";
-		af.duration = level >> 1;
+		af.duration = level / 2;
 		af.bitvector = AFF2_TELEKINESIS;
 		af.aff_index = 2;
 		accum_duration = true;
 		break;
 
 	case SPELL_TRUE_SEEING:
-		af.duration = 1 + (level >> 2);
+		af.duration = 1 + (level / 4);
 		af.bitvector = AFF2_TRUE_SEEING;
 		af.aff_index = 2;
 
@@ -1707,35 +1707,35 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	/** psionic skills here **/
 	case SPELL_POWER:
-		af.duration = (level >> 2) + 4;
-		af.modifier = 1 + dice(1, (level >> 4));
+		af.duration = (level / 4) + 4;
+		af.modifier = 1 + dice(1, (level / 16));
 		af.location = APPLY_STR;
 		to_vict = "A psychic finger on your brain makes you feel stronger!";
 		break;
 
 	case SPELL_WEAKNESS:
-		af.duration = (level >> 2) + 4;
-		af.modifier = -(1 + dice(1, (level >> 4)));
+		af.duration = (level / 4) + 4;
+		af.modifier = -(1 + dice(1, (level / 16)));
 		af.location = APPLY_STR;
 		to_vict = "A psychic finger on your brain makes you feel weaker!";
 		break;
 
 	case SPELL_CLUMSINESS:
-		af.duration = (level >> 2) + 4;
-		af.modifier = -(1 + dice(1, (level >> 3)));
+		af.duration = (level / 4) + 4;
+		af.modifier = -(1 + dice(1, (level / 8)));
 		af.location = APPLY_DEX;
 		to_vict = "A psychic finger on your brain makes you feel less agile!";
 		break;
 
 	case SPELL_INTELLECT:
-		af.duration = (level >> 2) + 4;
-		af.modifier = 1 + dice(1, (level >> 4));
+		af.duration = (level / 4) + 4;
+		af.modifier = 1 + dice(1, (level / 16));
 		af.location = APPLY_INT;
 		to_vict = "Your mental faculties improve!";
 		break;
 
 	case SPELL_CONFUSION:
-		af.duration = 1 + (level >> 2);
+		af.duration = 1 + (level / 4);
 		af.modifier = -(1 + (level / 7));
 		af.location = APPLY_HITROLL;
 		af.bitvector = AFF_CONFUSION;
@@ -1747,8 +1747,8 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_ENDURANCE:
-		af.duration = 1 + (level >> 2);
-		af.modifier = 10 + (level << 1);
+		af.duration = 1 + (level / 4);
+		af.modifier = 10 + (level * 2);
 		af.location = APPLY_MOVE;
 		to_vict = "You feel your energy capacity rise.";
 		accum_duration = 1;
@@ -1763,7 +1763,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 			send_to_char(ch, "You feel a wave of fear pass over you!\r\n");
 			return;
 		}
-		af.duration = 1 + (level >> 4);
+		af.duration = 1 + (level / 16);
 		accum_affect = 1;
 		accum_duration = 1;
 		to_vict = "You suddenly feel very afraid!";
@@ -1771,18 +1771,18 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
 	case SPELL_TELEPATHY:
-		af.duration = 1 + (level >> 4);
+		af.duration = 1 + (level / 16);
 		to_vict = "Your telepathic senses are greatly heightened.";
 		break;
 
 	case SPELL_CONFIDENCE:
-		af.modifier = dice(2, (level >> 3) + 1);
-		af.duration = 3 + (level >> 2);
+		af.modifier = dice(2, (level / 8) + 1);
+		af.duration = 3 + (level / 4);
 		af.location = APPLY_HITROLL;
 		af.bitvector = AFF_CONFIDENCE;
 
 		af2.location = APPLY_SAVING_SPELL;
-		af2.modifier = -dice(1, (level >> 3) + 1);
+		af2.modifier = -dice(1, (level / 8) + 1);
 		af2.duration = af.duration;
 		accum_duration = 1;
 		to_vict = "You suddenly feel very confident!";
@@ -1791,20 +1791,20 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_NOPAIN:
 		to_room = "$n ripples $s muscles and grins insanely!";
 		to_vict = "You feel like you can take anything!";
-		af.duration = 1 + dice(3, (level >> 4) + 1);
+		af.duration = 1 + dice(3, (level / 16) + 1);
 		af.bitvector = AFF_NOPAIN;
 		break;
 
 	case SPELL_RETINA:
-		af.duration = 12 + (level >> 1);
+		af.duration = 12 + (level / 2);
 		af.bitvector = AFF_RETINA;
 		to_vict = "The rods of your retina are stimulated!";
 		to_room = "$n's eyes shine brightly.";
 		break;
 
 	case SPELL_ADRENALINE:
-		af.modifier = dice(1, (level >> 3) + 1);
-		af.duration = 3 + (level >> 3);
+		af.modifier = dice(1, (level / 8) + 1);
+		af.duration = 3 + (level / 8);
 		af.location = APPLY_HITROLL;
 		af.bitvector = AFF_ADRENALINE;
 		accum_duration = false;
@@ -1815,7 +1815,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.level = ch->getLevelBonus(SPELL_DERMAL_HARDENING);
 		af.location = APPLY_AC;
 		af.modifier = -10;
-		af.duration = dice(4, (level >> 3) + 1);
+		af.duration = dice(4, (level / 8) + 1);
 		accum_duration = true;
 		to_vict = "You feel your skin tighten up and thicken.";
 		break;
@@ -1841,22 +1841,22 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.bitvector = AFF3_NOBREATHE;
 		af.aff_index = 3;
 		af.location = APPLY_MOVE;
-		af.modifier = -(50 - (level >> 1));
-		af.duration = (dice(1, 1 + (level >> 3)) * (level / 16));
+		af.modifier = -(50 - (level / 2));
+		af.duration = (dice(1, 1 + (level / 8)) * (level / 16));
 		to_vict = "Your breathing rate drops into a static state.";
 		break;
 
 	case SPELL_METABOLISM:
 		af.location = APPLY_SAVING_CHEM;
-		af.duration = dice(2, 2 + (level >> 3));
-		af.modifier = (level >> 2);
+		af.duration = dice(2, 2 + (level / 8));
+		af.modifier = (level / 4);
 		to_vict = "Your metabolism speeds up.";
 		break;
 
 	case SPELL_RELAXATION:
 		af.location = APPLY_MOVE;
-		af.duration = dice(2, 2 + (level >> 3));
-		af.modifier = -(35 - (level >> 1));
+		af.duration = dice(2, 2 + (level / 8));
+		af.modifier = -(35 - (level / 2));
 		af.aff_index = 3;
 		af.bitvector = AFF3_MANA_TAP;
 		af2.location = APPLY_STR;
@@ -1872,7 +1872,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 			af.location = APPLY_CON;
 			af.modifier = 1;
-			af.duration = dice(1, 1 + (level >> 3));
+			af.duration = dice(1, 1 + (level / 8));
 			to_vict = "Your cell regeneration rate increases.";
 
 			if (affected_by_spell(victim, SKILL_HAMSTRING)) {
@@ -1889,23 +1889,23 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_PSISHIELD:
 
 		af.bitvector = AFF3_PSISHIELD;
-		af.duration = dice(1, 1 + (level >> 3)) + 3;
+		af.duration = dice(1, 1 + (level / 8)) + 3;
 		af.aff_index = 3;
 		to_vict = "You feel a psionic shield form around your mind.";
 		break;
 
 	case SPELL_MOTOR_SPASM:
 		af.location = APPLY_DEX;
-		af.modifier = -(number(0, level >> 3));
-		af.duration = number(0, level >> 4) + 1;
+		af.modifier = -(number(0, level / 8));
+		af.duration = number(0, level / 16) + 1;
 		to_vict = "Your muscles begin spasming uncontrollably.";
 		break;
 
 	case SPELL_PSYCHIC_RESISTANCE:
 
 		af.location = APPLY_SAVING_PSI;
-		af.modifier = -(5 + (level >> 3));
-		af.duration = dice(1, 1 + (level >> 3)) + 3;
+		af.modifier = -(5 + (level / 8));
+		af.duration = dice(1, 1 + (level / 8)) + 3;
 		to_vict =
 			"The psychic conduits of your mind become resistant to external energies.";
 		accum_duration = 1;
@@ -1913,28 +1913,28 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_PSYCHIC_CRUSH:
 		af.location = APPLY_MANA;
-		af.modifier = -(5 + (level >> 3));
-		af.duration = dice(1, 1 + (level >> 4)) + 2;
+		af.modifier = -(5 + (level / 8));
+		af.duration = dice(1, 1 + (level / 16)) + 2;
 		af.aff_index = 3;
 		af.bitvector = AFF3_PSYCHIC_CRUSH;
 		break;
 
     case SPELL_PSYCHIC_FEEDBACK:
         af.aff_index = 0;
-        af.duration = (level >> 3) + dice(1, 1 + (level >> 3));
+        af.duration = (level / 8) + dice(1, 1 + (level / 8));
         to_vict = "You will now send psychic feedback to anyone who attacks you.";
         break;
 
 		/* physic skills */
 	case SPELL_GAMMA_RAY:
-		af.duration = (level >> 2);
+		af.duration = (level / 4);
 		af.location = APPLY_HIT;
 		af.modifier = -(level);
 		if (GET_CLASS(ch) == CLASS_PHYSIC)
 			af.modifier *= (GET_REMORT_GEN(ch) + 2) / 2;
         af.modifier = MAX(-(GET_MAX_HIT(victim) - 1), af.modifier);
 		af2.location = APPLY_MOVE;
-		af2.modifier = -(level >> 1);
+		af2.modifier = -(level / 2);
 		af2.duration = af.duration;
 		accum_affect = true;
 		to_room = "$n appears slightly irradiated.";
@@ -1944,7 +1944,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_GRAVITY_WELL:
         if (ch->checkReputations(victim))
             return;
-		af.duration = (level >> 3);
+		af.duration = (level / 8);
 		af.location = APPLY_STR;
 		af.bitvector = AFF3_GRAVITY_WELL;
 		af.aff_index = 3;
@@ -1960,8 +1960,8 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		break;
 
     case SPELL_CAPACITANCE_BOOST:
-		af.duration = 1 + (level >> 2);
-		af.modifier = 10 + (level << 1);
+		af.duration = 1 + (level / 4);
+		af.modifier = 10 + (level * 2);
 		af.location = APPLY_MOVE;
 		to_vict = "You feel your energy capacity rise.";
 		accum_duration = 1;
@@ -1972,12 +1972,12 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		af.bitvector = AFF3_NOBREATHE;
 		af.aff_index = 3;
 		af.duration =
-                     MAX(15, ch->getLevelBonus(SPELL_VACUUM_SHROUD) >> 2);
+                     MAX(15, ch->getLevelBonus(SPELL_VACUUM_SHROUD) / 4);
         af2.type = SPELL_VACUUM_SHROUD;
 		af2.bitvector = AFF2_PROT_FIRE;
 		af2.aff_index = 2;
 		af2.duration =
-                     MAX(15, ch->getLevelBonus(SPELL_VACUUM_SHROUD) >> 2);
+                     MAX(15, ch->getLevelBonus(SPELL_VACUUM_SHROUD) / 4);
 		to_vict = "A total vacuum springs into existence around your body.";
         accum_affect = true;
 		break;
@@ -1992,12 +1992,12 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
     case SPELL_GAUSS_SHIELD:
         af.type = SPELL_GAUSS_SHIELD;
-        af.duration = ch->getLevelBonus(SPELL_GAUSS_SHIELD) >> 1;
+        af.duration = ch->getLevelBonus(SPELL_GAUSS_SHIELD) / 2;
         to_vict = "You feel protected from metal.";
         break;
 
 	case SPELL_CHEMICAL_STABILITY:
-		af.duration = (level >> 2);
+		af.duration = (level / 4);
 		to_room = "$n begins looking more chemically inert.";
 		to_vict = "You feel more chemically inert.";
 		break;
@@ -2013,21 +2013,21 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 				act("$n's chemical stability prevents further acidification from occurring!", false, victim, 0, 0, TO_ROOM);
 				send_to_char(victim,
 					"You chemical stability prevents further acidification from occurring!\r\n");
-				af_ptr->duration -= (level >> 3);
+				af_ptr->duration -= (level / 8);
 
 				if (af_ptr->duration <= 0) {
 					if (af_ptr->type <= MAX_SPELLS &&
 						af_ptr->type > 0 &&
 						*spell_wear_off_msg[af_ptr->type]) {
-						send_to_char(victim, spell_wear_off_msg[af_ptr->type]);
-						send_to_char(victim, "\r\n");
+						send_to_char(victim, "%s\r\n",
+                                     spell_wear_off_msg[af_ptr->type]);
 					}
 					affect_remove(victim, af_ptr);
 				}
 				return;
 			}
 		}
-		af.duration = (level >> 3);
+		af.duration = (level / 8);
 		af.bitvector = AFF3_ACIDITY;
 		af.aff_index = 3;
 		accum_duration = true;
@@ -2036,28 +2036,28 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_HALFLIFE:
 		to_room = "$n becomes radioactive.";
 		to_vict = "You suddenly begin to feel radioactive.";
-		af.duration = (level >> 2);
+		af.duration = (level / 4);
 		af.bitvector = AFF3_RADIOACTIVE;
 		af.aff_index = 3;
 		af.location = APPLY_CON;
-		af.modifier = -number(1, 2 + (level >> 4));
+		af.modifier = -number(1, 2 + (level / 16));
 		break;
 
 	case SPELL_ELECTROSTATIC_FIELD:
 		to_room = "An electrostatic field crackles into being around $n.";
 		to_vict = "An electrostatic field crackles into being around you.";
-		af.duration = (level >> 2) + 2;
+		af.duration = (level / 4) + 2;
 		break;
 
 	case SPELL_RADIOIMMUNITY:
 		to_vict = "You feel more resistant to radiation.";
-		af.duration = (level >> 1);
+		af.duration = (level / 2);
 		af.bitvector = AFF2_PROT_RAD;
 		af.aff_index = 2;
 		break;
 
 	case SPELL_ATTRACTION_FIELD:
-		af.duration = 1 + (level >> 2);
+		af.duration = 1 + (level / 4);
 		af.modifier = 10 + (level);
 		af.location = APPLY_AC;
 		af.bitvector = AFF3_ATTRACTION_FIELD;
@@ -2069,7 +2069,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
    	case SPELL_REPULSION_FIELD:
 		af.location = APPLY_AC;
 		af.duration = MAX(12, ch->getLevelBonus(SPELL_REPULSION_FIELD) / 4);
-		af.modifier = -((ch->getLevelBonus(SPELL_REPULSION_FIELD) >> 2) + 20);
+		af.modifier = -((ch->getLevelBonus(SPELL_REPULSION_FIELD) / 4) + 20);
 		accum_duration = true;
 		to_vict = "The space around you begins repelling matter.";
 		break;
@@ -2092,10 +2092,10 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_TEMPORAL_DILATION:
 		if (mag_savingthrow(victim, level, SAVING_PHY)) {
-			send_to_char(ch, NOEFFECT);
+			send_to_char(ch, "%s", NOEFFECT);
 			return;
 		}
-		af.duration = 1 + (level >> 2);
+		af.duration = 1 + (level / 4);
 		af.bitvector = AFF2_SLOW;
 		af.aff_index = 2;
 		af.location = APPLY_DEX;
@@ -2159,7 +2159,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 		to_room = "$n's body slowly becomes completely transparent.";
 		to_vict = "You become transparent.";
 
-		af.duration = 8 + (level >> 2);
+		af.duration = 8 + (level / 4);
 		af.modifier = -16;
 		af.location = APPLY_AC;
 		af.bitvector = AFF2_TRANSPARENT;
@@ -2187,7 +2187,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 		// physic mag_affect items
 	case SPELL_DENSIFY:
-		af.duration = 1 + (level >> 1);
+		af.duration = 1 + (level / 2);
 		af.location = APPLY_CHAR_WEIGHT;
 		af.modifier = level + GET_INT(ch);
 
@@ -2210,14 +2210,14 @@ Fireball: like harder bones, skin, organ membranecs
 			send_to_char(ch, "There seems to be no affect.\r\n");
 			return;
 		} else {
-			af.duration = 1 + (level >> 1);
+			af.duration = 1 + (level / 2);
 			af.level = level;
 			accum_affect = false;
 			to_vict = "Your molecular bonds seem strengthened.";
 		}
 		break;
 	case SPELL_REFRACTION:
-		af.duration = 1 + (level >> 1);
+		af.duration = 1 + (level / 2);
 		af.location = APPLY_AC;
 		af.modifier = -GET_INT(ch);
 		af.bitvector = AFF2_DISPLACEMENT;
@@ -2232,7 +2232,7 @@ Fireball: like harder bones, skin, organ membranecs
 	case SPELL_SHIELD_OF_RIGHTEOUSNESS:
 		if (!IS_GOOD(victim))
 			return;
-		af.duration = level >> 2;
+		af.duration = level / 4;
 		af.location = APPLY_CASTER;
 		af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -MOB_IDNUM(ch);
 		af2.duration = af.duration;
@@ -2245,7 +2245,7 @@ Fireball: like harder bones, skin, organ membranecs
 			to_vict = "You feel enveloped in $N's shield of righteousness.";
 		break;
 	case SPELL_BLACKMANTLE:
-		af.duration = level >> 2;
+		af.duration = level / 4;
 		af.location = APPLY_HIT;
 		af.modifier = -level;
         af.modifier = MAX(-(GET_MAX_HIT(victim) - 1), af.modifier);
@@ -2253,9 +2253,9 @@ Fireball: like harder bones, skin, organ membranecs
 		to_vict = "An evil black mantle of magic surrounds you.";
 		break;
 	case SPELL_SANCTIFICATION:
-		af.duration = level >> 3;
+		af.duration = level / 8;
 		af.location = APPLY_MOVE;
-		af.modifier = level >> 1;
+		af.modifier = level / 2;
 		to_room = "An aura of sanctification glows about $n.";
 		to_vict = "You have been sanctified!";
 		break;
@@ -2268,7 +2268,7 @@ Fireball: like harder bones, skin, organ membranecs
 			send_to_char(ch, "Your stigmata fails.\r\n");
 			return;
 		}
-		af.duration = level >> 2;
+		af.duration = level / 4;
 		to_room = "A bloody stigmatic mark appears on $n's forehead.";
 		to_vict = "A bloody stigmatic mark appears on your forehead.";
 		break;
@@ -2293,13 +2293,13 @@ Fireball: like harder bones, skin, organ membranecs
 		if (ch->in_room->sector_type == SECT_CITY
 			|| ch->in_room->sector_type == SECT_CRACKED_ROAD) {
 			af.duration =
-				(level + (CHECK_SKILL(ch, SPELL_ENTANGLE) >> 2)) >> 2;
+				(level + (CHECK_SKILL(ch, SPELL_ENTANGLE) / 4)) / 4;
 			to_room =
 				"The grass and weeds growing through cracks in the pavement come alive, entangling $n where $e stands!";
 			to_vict =
 				"The grass and weeds growing through cracks in the pavement come alive, entangling you where you stands!";
-			af.modifier = -(level >> 2);
-			af2.modifier = -(level >> 4);
+			af.modifier = -(level / 4);
+			af2.modifier = -(level / 16);
 		} else {
 			to_room =
 				"The vines and vegetation surrounding $n come alive, entangling $n where $e stands!";
@@ -2307,14 +2307,14 @@ Fireball: like harder bones, skin, organ membranecs
 				"The vines and vegetation surrounding you come alive, entangling you where you stand!";
 			if (!OUTSIDE(ch) || ch->in_room->sector_type == SECT_ROAD) {
 				af.duration =
-					(level + (CHECK_SKILL(ch, SPELL_ENTANGLE) >> 1)) >> 2;
-				af.modifier = -(level >> 2);
-				af2.modifier = -(level >> 4);
+					(level + (CHECK_SKILL(ch, SPELL_ENTANGLE) / 2)) / 4;
+				af.modifier = -(level / 4);
+				af2.modifier = -(level / 16);
 			} else {
 				af.duration =
-					(level + (CHECK_SKILL(ch, SPELL_ENTANGLE) >> 1)) >> 1;
-				af.modifier = -(level >> 1);
-				af2.modifier = -(level >> 3);
+					(level + (CHECK_SKILL(ch, SPELL_ENTANGLE) / 2)) / 2;
+				af.modifier = -(level / 2);
+				af2.modifier = -(level / 8);
 			}
 		}
 		af2.duration = af.duration;
@@ -2322,7 +2322,7 @@ Fireball: like harder bones, skin, organ membranecs
 	case SPELL_AMNESIA:
 		af.duration = MAX(10, level - 20);
 		af.location = APPLY_INT;
-		af.modifier = -(level >> 3);
+		af.modifier = -(level / 8);
 		to_room = "A cloud of forgetfulness passes over $n's face.";
 		to_vict = "An wave of amnesia washes over your mind.";
 		break;
@@ -2420,7 +2420,7 @@ Fireball: like harder bones, skin, organ membranecs
     // Bard stuff
 
     case SONG_DRIFTERS_DITTY:
-		aff_array[0].duration = 1 + (level >> 1);
+		aff_array[0].duration = 1 + (level / 2);
 		aff_array[0].modifier = 15 + ch->getLevelBonus(SONG_DRIFTERS_DITTY);
 		aff_array[0].location = APPLY_MOVE;
 
@@ -2430,8 +2430,8 @@ Fireball: like harder bones, skin, organ membranecs
 
 	case SONG_ARIA_OF_ARMAMENT:
 		aff_array[0].location = APPLY_AC;
-		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_ARIA_OF_ARMAMENT) >> 2;
-		aff_array[0].modifier = -((ch->getLevelBonus(SONG_ARIA_OF_ARMAMENT) >> 2) + 20);
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_ARIA_OF_ARMAMENT) / 4;
+		aff_array[0].modifier = -((ch->getLevelBonus(SONG_ARIA_OF_ARMAMENT) / 4) + 20);
 
 		accum_duration = 1;
 		to_vict = "You feel the song form a protective shield around you.";
@@ -2439,8 +2439,8 @@ Fireball: like harder bones, skin, organ membranecs
 
 	case SONG_VERSE_OF_VULNERABILITY:
 		aff_array[0].location = APPLY_AC;
-		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) >> 3;
-		aff_array[0].modifier = (ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) >> 2) + number(5, 20);
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) / 8;
+		aff_array[0].modifier = (ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) / 4) + number(5, 20);
         aff_array[1].location = APPLY_DEX;
         aff_array[1].duration = aff_array[0].duration;
         aff_array[1].modifier = -(1 + ch->getLevelBonus(SONG_VERSE_OF_VULNERABILITY) / 25);
@@ -2451,8 +2451,8 @@ Fireball: like harder bones, skin, organ membranecs
 
     case SONG_MELODY_OF_METTLE:
         aff_array[0].location = APPLY_CON;
-        aff_array[0].duration = (ch->getLevelBonus(SONG_MELODY_OF_METTLE) >> 2) + 10;
-        aff_array[0].modifier = 1 + (ch->getLevelBonus(SONG_MELODY_OF_METTLE) >> 1) / 25;
+        aff_array[0].duration = (ch->getLevelBonus(SONG_MELODY_OF_METTLE) / 4) + 10;
+        aff_array[0].modifier = 1 + (ch->getLevelBonus(SONG_MELODY_OF_METTLE) / 2) / 25;
 
         aff_array[1].location = APPLY_HIT;
         aff_array[1].duration = aff_array[0].duration;
@@ -2462,7 +2462,7 @@ Fireball: like harder bones, skin, organ membranecs
 
     case SONG_REGALERS_RHAPSODY:
         aff_array[0].location = APPLY_NOHUNGER;
-        aff_array[0].duration = (ch->getLevelBonus(SONG_REGALERS_RHAPSODY) >> 2) + 10;
+        aff_array[0].duration = (ch->getLevelBonus(SONG_REGALERS_RHAPSODY) / 4) + 10;
         aff_array[0].modifier = 1;
 
         aff_array[1].location = APPLY_NOTHIRST;
@@ -2473,7 +2473,7 @@ Fireball: like harder bones, skin, organ membranecs
 
     case SONG_DEFENSE_DITTY:
         aff_array[0].location = APPLY_SAVING_PSI;
-        aff_array[0].duration = (ch->getLevelBonus(SONG_DEFENSE_DITTY) >> 3) + 20;
+        aff_array[0].duration = (ch->getLevelBonus(SONG_DEFENSE_DITTY) / 8) + 20;
         aff_array[0].modifier = -(1 + ch->getLevelBonus(SONG_DEFENSE_DITTY) / 10);
 
         if (number(0, 120) < ch->getLevelBonus(SONG_DEFENSE_DITTY)) {
@@ -2490,13 +2490,13 @@ Fireball: like harder bones, skin, organ membranecs
         break;
 
 	case SONG_ALRONS_ARIA:
-		aff_array[0].modifier = dice(2, (level >> 3) + 1);
-		aff_array[0].duration = 3 + (level >> 2);
+		aff_array[0].modifier = dice(2, (level / 8) + 1);
+		aff_array[0].duration = 3 + (level / 4);
 		aff_array[0].location = APPLY_HITROLL;
 		aff_array[0].bitvector = AFF_CONFIDENCE;
 
 		aff_array[1].location = APPLY_SAVING_SPELL;
-		aff_array[1].modifier = -dice(1, (level >> 3) + 1);
+		aff_array[1].modifier = -dice(1, (level / 8) + 1);
 		aff_array[1].duration = aff_array[0].duration;
 		accum_duration = 1;
 		to_vict = "Your confidence soars!";
@@ -2504,7 +2504,7 @@ Fireball: like harder bones, skin, organ membranecs
 
     case SONG_VERSE_OF_VALOR:
         aff_array[0].location = APPLY_HITROLL;
-        aff_array[0].duration = 6 + ch->getLevelBonus(SONG_VERSE_OF_VALOR) >> 3;
+        aff_array[0].duration = 6 + ch->getLevelBonus(SONG_VERSE_OF_VALOR) / 8;
         aff_array[0].modifier = 5 + ch->getLevelBonus(SONG_VERSE_OF_VALOR) / 25 + number(0, 6);
 
         to_vict = "The valor of heros gone comes crashing into your mind!";
@@ -2521,7 +2521,7 @@ Fireball: like harder bones, skin, organ membranecs
 		break;
 
 	case SONG_CHANT_OF_LIGHT:
-		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_CHANT_OF_LIGHT) >> 2;
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_CHANT_OF_LIGHT) / 4;
 		aff_array[0].bitvector = AFF_GLOWLIGHT;
 
 		aff_array[1].duration = aff_array[0].duration;
@@ -2554,7 +2554,7 @@ Fireball: like harder bones, skin, organ membranecs
 
 	case SONG_EAGLES_OVERTURE:
 		aff_array[0].location = APPLY_CHA;
-		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) >> 2;
+		aff_array[0].duration = 1 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) / 4;
 		aff_array[0].modifier = 5 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) / 20;
 
 		accum_duration = 1;
@@ -2570,8 +2570,8 @@ Fireball: like harder bones, skin, organ membranecs
 		break;
 
 	case SONG_GUIHARIAS_GLORY:
-		aff_array[0].modifier = dice(2, (ch->getLevelBonus(SONG_GUIHARIAS_GLORY) >> 4) + 1);
-		aff_array[0].duration = 3 + (ch->getLevelBonus(SONG_GUIHARIAS_GLORY) >> 3);
+		aff_array[0].modifier = dice(2, (ch->getLevelBonus(SONG_GUIHARIAS_GLORY) / 16) + 1);
+		aff_array[0].duration = 3 + (ch->getLevelBonus(SONG_GUIHARIAS_GLORY) / 8);
 		aff_array[0].location = APPLY_DAMROLL;
 
 		to_vict = "You feel the power of dieties flowing in your veins!";
@@ -2599,7 +2599,7 @@ Fireball: like harder bones, skin, organ membranecs
             return;
         }
 
-        aff_array[0].duration = 1 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) >> 2;
+        aff_array[0].duration = 1 + ch->getLevelBonus(SONG_EAGLES_OVERTURE) / 4;
         aff_array[0].modifier = 1 + ch->getLevelBonus(SONG_POWER_OVERTURE) / 30 + number(0, 2);
         aff_array[0].location = APPLY_STR;
 
@@ -2616,7 +2616,7 @@ Fireball: like harder bones, skin, organ membranecs
             send_to_char(victim, "Nothing seems to happen.\r\n");
             return;
         }
-        aff_array[0].duration = 5 + ch->getLevelBonus(SONG_WOUNDING_WHISPERS) >> 2;
+        aff_array[0].duration = 5 + ch->getLevelBonus(SONG_WOUNDING_WHISPERS) / 4;
         to_vict = "Whispers of your song begin whirling around you!";
         to_room = "Whispers of $N's song begin whirling around $M!";
         break;
@@ -2630,7 +2630,7 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[1].type = SKILL_BERSERK;
         aff_array[2].type = SKILL_BERSERK;
 
-        aff_array[0].duration = 1 + (ch->getLevelBonus(SONG_RHYTHM_OF_RAGE) >> 5);
+        aff_array[0].duration = 1 + (ch->getLevelBonus(SONG_RHYTHM_OF_RAGE) / 32);
 
         aff_array[1].duration = aff_array[0].duration;
         aff_array[2].duration = aff_array[0].duration;
@@ -2639,10 +2639,10 @@ Fireball: like harder bones, skin, organ membranecs
         aff_array[1].location = APPLY_WIS;
         aff_array[2].location = APPLY_DAMROLL;
 
-        aff_array[0].modifier = -(4 + (ch->getLevelBonus(SONG_RHYTHM_OF_RAGE) >> 5));
+        aff_array[0].modifier = -(4 + (ch->getLevelBonus(SONG_RHYTHM_OF_RAGE) / 32));
         aff_array[1].modifier = aff_array[0].modifier;
         aff_array[2].modifier = (1 + (ch->getLevelBonus(SONG_RHYTHM_OF_RAGE) / 12) +
-                                 (GET_LEVEL(ch) >> 4));
+                                 (GET_LEVEL(ch) / 16));
 
         aff_array[0].aff_index = 2;
         aff_array[0].bitvector = AFF2_BERSERK;
@@ -2675,7 +2675,7 @@ Fireball: like harder bones, skin, organ membranecs
     }
 
     case SONG_ARIA_OF_ASYLUM:
-        aff_array[0].duration = 5 + ch->getLevelBonus(SONG_ARIA_OF_ASYLUM) >> 3;
+        aff_array[0].duration = 5 + ch->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 8;
         aff_array[0].location = APPLY_CASTER;
         if (IS_NPC(ch))
             aff_array[0].modifier = -(ch->getIdNum());
@@ -2687,7 +2687,7 @@ Fireball: like harder bones, skin, organ membranecs
     break;
 
 	case SONG_FORTISSIMO:
-        aff_array[0].duration = 1 + GET_CHA(ch) + (ch->getLevelBonus(SONG_FORTISSIMO) >> 3);
+        aff_array[0].duration = 1 + GET_CHA(ch) + (ch->getLevelBonus(SONG_FORTISSIMO) / 8);
         aff_array[0].location = APPLY_CASTER;
 
 		if (IS_NPC(ch))
@@ -2699,8 +2699,8 @@ Fireball: like harder bones, skin, organ membranecs
     break;
 
     case SONG_LICHS_LYRICS:
-        aff_array[0].duration = 1 + (GET_CHA(ch) >> 3) +
-                                (ch->getLevelBonus(SONG_LICHS_LYRICS) >> 4);
+        aff_array[0].duration = 1 + (GET_CHA(ch) / 8) +
+                                (ch->getLevelBonus(SONG_LICHS_LYRICS) / 16);
         aff_array[0].location = APPLY_CASTER;
 
         if (IS_NPC(ch))
@@ -2713,8 +2713,8 @@ Fireball: like harder bones, skin, organ membranecs
         break;
 
     case SONG_MISDIRECTION_MELISMA:
-        aff_array[0].duration = 1 + (GET_CHA(ch) >> 2) +
-                                (ch->getLevelBonus(SONG_MISDIRECTION_MELISMA) >> 4);
+        aff_array[0].duration = 1 + (GET_CHA(ch) / 4) +
+                                (ch->getLevelBonus(SONG_MISDIRECTION_MELISMA) / 16);
         aff_array[0].location = APPLY_CASTER;
 
         if (IS_NPC(ch))
@@ -2726,10 +2726,10 @@ Fireball: like harder bones, skin, organ membranecs
         break;
 
     case SONG_MIRROR_IMAGE_MELODY:
-        aff_array[0].duration = 1 + (GET_CHA(ch) >> 2) +
-                               (ch->getLevelBonus(SONG_MIRROR_IMAGE_MELODY) >> 3);
+        aff_array[0].duration = 1 + (GET_CHA(ch) / 4) +
+                               (ch->getLevelBonus(SONG_MIRROR_IMAGE_MELODY) / 8);
         aff_array[0].location = APPLY_CASTER;
-        aff_array[0].modifier = 1 + (GET_CHA(ch) >> 3) +
+        aff_array[0].modifier = 1 + (GET_CHA(ch) / 8) +
                                 (ch->getLevelBonus(SONG_MIRROR_IMAGE_MELODY) / 33);
         to_vict = "Mirror images of yourself begin moving around you.";
         to_room = "Mirror images of $n begin moving around $m.";
@@ -2752,19 +2752,19 @@ Fireball: like harder bones, skin, organ membranecs
 			if (afp->aff_index == 0) {
 				if (AFF_FLAGGED(victim, afp->bitvector) &&
 					!affected_by_spell(victim, spellnum)) {
-					send_to_char(ch, NOEFFECT);
+					send_to_char(ch, "%s", NOEFFECT);
 					return;
 				}
 			} else if (afp->aff_index == 2) {
 				if (AFF2_FLAGGED(victim, afp->bitvector) &&
 					!affected_by_spell(victim, spellnum)) {
-					send_to_char(ch, NOEFFECT);
+					send_to_char(ch, "%s", NOEFFECT);
 					return;
 				}
 			} else if (afp->aff_index == 3) {
 				if (AFF3_FLAGGED(victim, afp->bitvector) &&
 					!affected_by_spell(victim, spellnum)) {
-					send_to_char(ch, NOEFFECT);
+					send_to_char(ch, "%s", NOEFFECT);
 					return;
 				}
 			}
@@ -3168,7 +3168,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
             if (IS_NPC(vict) && vict->mob_specials.shared->func == vendor) {
                 continue;
             }
-			if ((random_number_zero_low(3 + (level >> 2)) + 3) > GET_DEX(vict) &&
+			if ((random_number_zero_low(3 + (level / 4)) + 3) > GET_DEX(vict) &&
 				!is_arena_combat(ch, *it) && (obj = vict->carrying)) { //assignment to obj
 				while (obj) {
 					if (can_see_object(*it, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
@@ -3318,7 +3318,7 @@ mag_summons(int level, struct Creature *ch, struct obj_data *obj,
 		return;
 	}
 	if (number(0, 101) < pfail) {
-		send_to_char(ch, mag_summon_fail_msgs[fmsg]);
+		send_to_char(ch, "%s", mag_summon_fail_msgs[fmsg]);
 		return;
 	}
 	for (i = 0; i < num; i++) {
@@ -3366,12 +3366,12 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		skill = CHECK_SKILL(ch, spellnum);
 	switch (spellnum) {
 	case SPELL_CURE_LIGHT:
-		hit = dice(1, 8) + 1 + (level >> 2);
+		hit = dice(1, 8) + 1 + (level / 4);
         hit = (skill * hit) / 100;
 		to_vict = "You feel better.";
 		break;
 	case SPELL_CURE_CRITIC:
-		hit = dice(3, 8) + 3 + (level >> 2);
+		hit = dice(3, 8) + 3 + (level / 4);
         hit = (skill * hit) / 100;
 		to_vict = "You feel a lot better!";
 		break;
@@ -3386,7 +3386,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		to_vict = "A supreme warm feeling floods your body.";
 		break;
 	case SPELL_RESTORATION:
-		hit = MIN(GET_MAX_HIT(victim), (level << 5));
+		hit = MIN(GET_MAX_HIT(victim), (level * 32));
 		if (GET_COND(victim, FULL) >= 0)
 			GET_COND(victim, FULL) = 24;
 		if (GET_COND(victim, THIRST) >= 0)
@@ -3406,51 +3406,51 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 		/* psionic triggers */
 	case SPELL_PSYCHIC_CONDUIT:
 		mana = level + (CHECK_SKILL(ch, SPELL_PSYCHIC_CONDUIT) / 20) +
-			number(0, GET_WIS(ch)) + (GET_REMORT_GEN(ch) << 2);
+			number(0, GET_WIS(ch)) + (GET_REMORT_GEN(ch) * 4);
 		break;
 
 	case SPELL_SATIATION:
-		hunger = dice(3, MIN(3, (1 + (level >> 2))));
+		hunger = dice(3, MIN(3, (1 + (level / 4))));
 		to_vict = "You feel satiated.";
 		break;
 
 	case SPELL_QUENCH:
-		thirst = dice(3, MIN(3, (1 + (level >> 2))));
+		thirst = dice(3, MIN(3, (1 + (level / 4))));
 		to_vict = "Your thirst is quenched.";
 		break;
 
 	case SPELL_WOUND_CLOSURE:
-		hit = dice(3, 6 + (CHECK_SKILL(ch, SPELL_WOUND_CLOSURE) >> 5)) +
-			number(level >> 1, level);
-		hit += GET_REMORT_GEN(ch) << 2;
+		hit = dice(3, 6 + (CHECK_SKILL(ch, SPELL_WOUND_CLOSURE) / 32)) +
+			number(level / 2, level);
+		hit += GET_REMORT_GEN(ch) * 4;
 		hit +=
 			((CHECK_SKILL(ch, SPELL_WOUND_CLOSURE) - LEARNED(ch)) * hit) / 100;
 		to_vict = "Some of your wounds seal as you watch.";
 		break;
 
 	case SPELL_ENDURANCE:
-		move = level << 1;
+		move = level * 2;
 		break;
 
 	case SPELL_CELL_REGEN:
-		hit = dice(4, 6 + (CHECK_SKILL(ch, SPELL_CELL_REGEN) >> 4)) +
-			number(level >> 1, level << 1);
+		hit = dice(4, 6 + (CHECK_SKILL(ch, SPELL_CELL_REGEN) / 16)) +
+			number(level / 2, level * 2);
 		hit = (skill * hit) / 100;
 		break;
 
     /* physic stuff */
 	case SPELL_CAPACITANCE_BOOST:
-		move = level << 1;
+		move = level * 2;
 		break;
 
     // Bard stuff
     case SONG_DRIFTERS_DITTY:
-        move = level << 1;
+        move = level * 2;
         break;
 
     case SONG_RHAPSODY_OF_REMEDY:
-        hit = dice(10, 1 + ch->getLevelBonus(SONG_RHAPSODY_OF_REMEDY) >> 2);
-        hit += ((ch->getLevelBonus(SONG_RHAPSODY_OF_REMEDY) / 10) - (25 - GET_CHA(ch))) << 2;
+        hit = dice(10, 1 + ch->getLevelBonus(SONG_RHAPSODY_OF_REMEDY) / 4);
+        hit += ((ch->getLevelBonus(SONG_RHAPSODY_OF_REMEDY) / 10) - (25 - GET_CHA(ch))) * 4;
         to_vict = "Your wounds fade along with the last notes of the music.";
         break;
 
@@ -3458,13 +3458,13 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 	case SPELL_ESSENCE_OF_EVIL:
 		if (!IS_GOOD(victim)) {
 			to_vict = "You feel the essence of evil burning in your soul.";
-			align = -(level << 1);
+			align = -(level * 2);
 		}
 		break;
 	case SPELL_ESSENCE_OF_GOOD:
 		if (!IS_EVIL(victim)) {
 			to_vict = "You feel the essence of goodness bathe your soul.";
-			align = +(level << 1);
+			align = +(level * 2);
 		}
 		break;
 	default:
@@ -3479,7 +3479,7 @@ mag_points(int level, struct Creature *ch, struct Creature *victim,
 
 		hit += (hit * alignment) / 3000;
 		if (IS_EVIL(ch)) {
-			hit >>= 1;
+			hit /= 2;
 		}
 	}
 
@@ -3589,7 +3589,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 			for (aff = victim->affected; aff; aff = next_aff) {
 				next_aff = aff->next;
 				if (SPELL_IS_PSIONIC(aff->type)) {
-					if (aff->level < number(level >> 1, level << 1))
+					if (aff->level < number(level / 2, level * 2))
 						affect_remove(victim, aff);
 				}
 			}
@@ -3628,7 +3628,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 			for (aff = victim->affected; aff; aff = next_aff) {
 				next_aff = aff->next;
 				if (SPELL_IS_PHYSICS(aff->type)) {
-					if (aff->level < number(level >> 1, level << 1))
+					if (aff->level < number(level / 2, level * 2))
 						affect_remove(victim, aff);
 				}
 			}
@@ -3675,7 +3675,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 		(spell4 != 0 && !affected_by_spell(victim, spell4)) &&
 		(spell3 != 0 && !affected_by_spell(victim, spell3))) {
 		if (!(spell_info[spellnum].routines - MAG_UNAFFECTS))
-			send_to_char(ch, NOEFFECT);
+			send_to_char(ch, "%s", NOEFFECT);
 		return;
 	}
 	if (spell && affected_by_spell(victim, spell)) {
@@ -4146,7 +4146,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 
     }
 	if (to_char == NULL)
-		send_to_char(ch, NOEFFECT);
+		send_to_char(ch, "%s", NOEFFECT);
 	else
 		act(to_char, true, ch, obj, 0, TO_CHAR);
 
@@ -4244,7 +4244,7 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 				1 + (level > number(10, 40)) + (level > number(40, 60));
 			act("$p is now poisoned.", false, ch, obj, 0, TO_CHAR);
 		} else
-			send_to_char(ch, NOEFFECT);
+			send_to_char(ch, "%s", NOEFFECT);
 		break;
 	}
 }
@@ -4329,7 +4329,7 @@ mag_exits(int level, struct Creature *caster, struct room_data *room,
 
 	switch (spellnum) {
 	case SPELL_WALL_OF_THORNS:
-		rm_aff.duration = MAX(2, level >> 3);
+		rm_aff.duration = MAX(2, level / 8);
 		strcpy(buf, "   A wall of thorns blocks the way");
 		rm_aff.flags = EX_WALL_THORNS;
 

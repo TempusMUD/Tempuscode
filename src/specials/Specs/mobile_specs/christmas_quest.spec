@@ -238,7 +238,7 @@ int do_remort(struct Creature *ch)
     // Tell everyone that they remorted
     char *msg = tmp_sprintf( "%s completed gen %d with the help of the Grinch!",
     GET_NAME(ch), GET_REMORT_GEN(ch));
-    mudlog(LVL_IMMORT, BRF, false,msg);
+    mudlog(LVL_IMMORT, BRF, false, "%s", msg);
 
     return 1;
 }

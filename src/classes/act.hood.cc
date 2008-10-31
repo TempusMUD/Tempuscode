@@ -249,23 +249,21 @@ ACMD(do_drag_char)
 		return;
 	}
 
-	if (EXIT(ch, dir) && (target_room = EXIT(ch, dir)->to_room) != NULL) {
-		if (CAN_GO(ch, dir) && (ROOM_FLAGGED(target_room, ROOM_HOUSE) &&
-				!House_can_enter(ch, target_room->number)) ||
-			(ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
-				&& !clan_house_can_enter(ch, target_room))
-			|| (ROOM_FLAGGED(target_room, ROOM_DEATH))) {
-			act("You are unable to drag $M there.", false, ch, 0, vict,
-				TO_CHAR);
-			return;
-		}
-	}
-	if (!CAN_GO(ch, dir) ||
-		!can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0) ||
-		!CAN_GO(vict, dir)) {
+	if (!CAN_GO(ch, dir)
+        || !can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)
+        || !CAN_GO(vict, dir)) {
 		send_to_char(ch, "Sorry you can't go in that direction.\r\n");
 		return;
 	}
+    if ((ROOM_FLAGGED(target_room, ROOM_HOUSE)
+         && !House_can_enter(ch, target_room->number))
+        || (ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
+            && !clan_house_can_enter(ch, target_room))
+        || (ROOM_FLAGGED(target_room, ROOM_DEATH))) {
+        act("You are unable to drag $M there.", false, ch, 0, vict, TO_CHAR);
+        return;
+    }
+
 	percent = ((GET_LEVEL(vict)) + number(1, 101));
 	percent -= (GET_WEIGHT(ch) - GET_WEIGHT(vict)) / 5;
 

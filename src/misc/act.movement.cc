@@ -2287,7 +2287,7 @@ ACMD(do_wake)
 			send_to_char(ch,
 				"You can't wake people up if you're asleep yourself!\r\n");
 		else if ((vict = get_char_room_vis(ch, arg)) == NULL) {
-			send_to_char(ch, NOPERSON);
+			send_to_char(ch, "%s", NOPERSON);
 		} else if (vict == ch)
 			self = 1;
 		else if (vict->getPosition() > POS_SLEEPING) {
@@ -2357,7 +2357,7 @@ ACMD(do_makemount)
 
 	if (*buf) {
 		if (!(vict = get_char_room_vis(ch, buf))) {
-			send_to_char(ch, NOPERSON);
+			send_to_char(ch, "%s", NOPERSON);
 			return;
 		}
 	} else {
@@ -2377,7 +2377,7 @@ ACMD(do_mount)
 
 	if (*buf) {
 		if (!(vict = get_char_room_vis(ch, buf))) {
-			send_to_char(ch, NOPERSON);
+			send_to_char(ch, "%s", NOPERSON);
 			return;
 		}
 	} else {
@@ -2475,7 +2475,7 @@ ACMD(do_stalk)
 
 	if (*buf) {
 		if (!(vict = get_char_room_vis(ch, buf))) {
-			send_to_char(ch, NOPERSON);
+			send_to_char(ch, "%s", NOPERSON);
 			return;
 		}
 	} else {
@@ -2521,7 +2521,7 @@ ACMD(do_follow)
 
 	if (*buf) {
 		if (!(leader = get_char_room_vis(ch, buf))) {
-			send_to_char(ch, NOPERSON);
+			send_to_char(ch, "%s", NOPERSON);
 			return;
 		}
 	} else {
@@ -2566,7 +2566,7 @@ ACMD(do_defend)
 
 	if (*buf) {
 		if (!(targ = get_char_room_vis(ch, arg))) {
-			send_to_char(ch, NOPERSON);
+			send_to_char(ch, "%s", NOPERSON);
 			return;
 		}
 	} else {

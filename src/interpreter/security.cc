@@ -540,7 +540,7 @@ namespace Security {
             send_to_char(ch, "That player is not in any groups.\r\n");
             return false;
         }
-        send_to_char(ch, out_buf);
+        send_to_char(ch, "%s", out_buf);
         return true;
     }
 

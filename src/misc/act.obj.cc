@@ -1761,7 +1761,7 @@ give_find_vict(struct Creature *ch, char *arg)
 		send_to_char(ch, "To who?\r\n");
 		return NULL;
 	} else if (!(vict = get_char_room_vis(ch, arg))) {
-		send_to_char(ch, NOPERSON);
+		send_to_char(ch, "%s", NOPERSON);
 		return NULL;
 	} else if (vict == ch) {
 		send_to_char(ch, "What's the point of that?\r\n");
@@ -2664,7 +2664,7 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 	}
 
 	if (GET_EQ(ch, where)) {
-		send_to_char(ch, already_wearing[where]);
+		send_to_char(ch, "%s", already_wearing[where]);
 		return 0;
 	}
 	if ((where == WEAR_BELT) && (!GET_EQ(ch, WEAR_WAIST))) {

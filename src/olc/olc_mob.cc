@@ -1794,7 +1794,7 @@ oldmobile_experience(struct Creature *mob)
 		exp = (int)(exp * 1.2);
 		++affs;
 	}
-	if (affs < MAXAFF && AFF_FLAGGED(mob, AFF_REGEN) || IS_TROLL(mob)) {
+	if (affs < MAXAFF && (AFF_FLAGGED(mob, AFF_REGEN) || IS_TROLL(mob))) {
 		exp = (int)(exp * 1.2);
 		++affs;
 	}

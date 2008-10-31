@@ -154,11 +154,11 @@ xml_reload( Creature *ch = NULL )
 	else
 		msg = tmp_sprintf("No xml files reloaded");
 
-    slog(msg);
+    slog("%s", msg);
 
     if( ch != NULL ) {
         msg = tmp_strcat(msg,"\r\n");
-        send_to_char( ch, msg );
+        send_to_char(ch, "%s", msg );
     }
 }
 

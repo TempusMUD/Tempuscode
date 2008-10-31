@@ -257,8 +257,8 @@ show_trails_to_char(Creature *ch, char *str)
 		if (str && !isname(str, trail->aliases))
 			continue;
 
-		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER)
-				&& !IS_IMMORT(ch)) {
+		if ((!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER))
+            && !IS_IMMORT(ch)) {
 
 			prob = (10 - trail->track) * 10;
 			if (str)

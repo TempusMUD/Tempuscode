@@ -189,7 +189,7 @@ CMailEditor::ListRecipients(void)
 
     send_to_desc(desc, "     &yTo&b: &c");
 	for (mail_rcpt = mail_to; mail_rcpt;mail_rcpt = mail_rcpt->next) {
-        send_to_desc(desc, tmp_capitalize(playerIndex.getName(mail_rcpt->recpt_idnum)));
+        send_to_desc(desc, "%s", tmp_capitalize(playerIndex.getName(mail_rcpt->recpt_idnum)));
         if (mail_rcpt->next)
             send_to_desc(desc, ", ");
 	}
@@ -211,8 +211,7 @@ CMailEditor::ListAttachments(void)
         o = this->obj_list;
         while (o) {
             next_obj = o->next_content;
-            send_to_desc(desc, "       ");
-            send_to_desc(desc, o->name);
+            send_to_desc(desc, "       %s", o->name);
             o = next_obj;
             if (next_obj) {
                 send_to_desc(desc, ",\r\n");

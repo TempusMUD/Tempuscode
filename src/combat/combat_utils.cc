@@ -1481,7 +1481,7 @@ int calculate_attack_probability(struct Creature *ch)
     if (GET_EQ(ch, WEAR_HANDS))
         prob = calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_HANDS));
 
-    prob += (POS_FIGHTING - (ch->findRandomCombat()->getPosition()) << 1);
+    prob += ((POS_FIGHTING - (ch->findRandomCombat()->getPosition())) << 1);
 
     if (CHECK_SKILL(ch, SKILL_DBL_ATTACK))
         prob += (int)((CHECK_SKILL(ch, SKILL_DBL_ATTACK) * 0.15) +

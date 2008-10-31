@@ -1083,7 +1083,7 @@ ACMD(do_assist)
 	if (!*arg)
 		send_to_char(ch, "Whom do you wish to assist?\r\n");
 	else if (!(helpee = get_char_room_vis(ch, arg))) {
-		send_to_char(ch, NOPERSON);
+		send_to_char(ch, "%s", NOPERSON);
 		WAIT_STATE(ch, 4);
 	}
     else if (helpee == ch)
@@ -1250,7 +1250,7 @@ ACMD(do_order)
 
 			for (k = ch->followers; k; k = order_next_k) {
 				order_next_k = k->next;
-				if (org_room == k->follower->in_room)
+				if (org_room == k->follower->in_room) {
 					if ((AFF_FLAGGED(k->follower, AFF_CHARM) &&
 							GET_CHA(ch) > number(0, GET_INT(k->follower)))
 							|| GET_LEVEL(ch) >= LVL_CREATOR
@@ -1273,6 +1273,7 @@ ACMD(do_order)
 					} else
 						act("$n has an indifferent look.", true, k->follower,
 							0, 0, TO_CHAR);
+                }
 			}
 			order_next_k = NULL;
 

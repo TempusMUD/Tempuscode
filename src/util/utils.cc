@@ -245,7 +245,7 @@ slog(const char *fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	mlog(Security::NOONE, -1, CMP, true, tmp_vsprintf(fmt, args));
+	mlog(Security::NOONE, -1, CMP, true, "%s", tmp_vsprintf(fmt, args));
 	va_end(args);
 }
 
@@ -260,7 +260,7 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	mlog(Security::EVERYONE, level, type, file, tmp_vsprintf(fmt, args));
+	mlog(Security::EVERYONE, level, type, file, "%s", tmp_vsprintf(fmt, args));
 	va_end(args);
 }
 

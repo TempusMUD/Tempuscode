@@ -729,7 +729,7 @@ ACMD(do_pinch)
 			|| (AFF_FLAGGED(vict, AFF_ADRENALINE)
 				&& number(0, 60) < GET_LEVEL(vict))) {
 			send_to_char(ch, "You fail.\r\n");
-			send_to_char(vict, NOEFFECT);
+			send_to_char(vict, "%s", NOEFFECT);
 			return;
 		}
 		vict->setPosition(POS_STUNNED);
@@ -741,7 +741,7 @@ ACMD(do_pinch)
 	case SKILL_PINCH_GAMMA:
 		if (ch->isFighting() || vict->isFighting()) {
 			send_to_char(ch, "You fail.\r\n");
-			send_to_char(vict, NOEFFECT);
+			send_to_char(vict, "%s", NOEFFECT);
 			return;
 		}
 		af.bitvector = AFF_CONFUSION;
@@ -802,8 +802,8 @@ ACMD(do_pinch)
 	}
 
 	if (affected_by_spell(vict, which_pinch)) {
-		send_to_char(ch, NOEFFECT);
-		send_to_char(vict, NOEFFECT);
+		send_to_char(ch, "%s", NOEFFECT);
+		send_to_char(vict, "%s", NOEFFECT);
 		return;
 	}
 	if (af.type)

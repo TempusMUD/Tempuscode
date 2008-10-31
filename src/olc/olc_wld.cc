@@ -222,10 +222,8 @@ save_room(struct Creature *ch, struct room_data *room, FILE * file)
 					REMOVE_BIT(tmp, rm_aff->flags);
 
 			num2str(buf, tmp);
-			strcat(buf, " ");
-			fprintf(file, buf);
 
-			fprintf(file, "%d %d\n", room->dir_option[i]->key,
+			fprintf(file, "%s %d %d\n", buf, room->dir_option[i]->key,
 				room->dir_option[i]->to_room ? room->dir_option[i]->to_room->
 				number : (-1));
 		}

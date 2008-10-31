@@ -728,13 +728,13 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 						&& number(50, 100) > CHECK_SKILL(ch, SKILL_GLANCE))
 						continue;
 					send_to_char(ch, CCGRN(ch, C_NRM));
-					send_to_char(ch, where[(int)eq_pos_order[j]]);
+					send_to_char(ch, "%s", where[(int)eq_pos_order[j]]);
 					send_to_char(ch, CCNRM(ch, C_NRM));
 					show_obj_to_char(GET_EQ(i, (int)eq_pos_order[j]), ch,
                                      SHOW_OBJ_INV, 0);
 				} else if (GET_TATTOO(i, (int)eq_pos_order[j])){
 					send_to_char(ch, CCGRN(ch, C_NRM));
-					send_to_char(ch, tattoo_pos_descs[(int)eq_pos_order[j]]);
+					send_to_char(ch, "%s", tattoo_pos_descs[(int)eq_pos_order[j]]);
 					send_to_char(ch, CCNRM(ch, C_NRM));
 					show_obj_to_char(GET_TATTOO(i, (int)eq_pos_order[j]), ch,
                                      SHOW_OBJ_INV, 0);
@@ -1303,7 +1303,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
         if (house)
             send_to_char(ch, " [ House: %d ]", house->getID());
 	} else {
-		send_to_char(ch, room->name);
+		send_to_char(ch, "%s", room->name);
 	}
 
 	send_to_char(ch, "%s\r\n", CCNRM(ch, C_NRM));
@@ -1323,7 +1323,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 
 	for (aff = room->affects; aff; aff = aff->next)
 		if (aff->description)
-			send_to_char(ch, aff->description);
+			send_to_char(ch, "%s", aff->description);
 
    /* Zone PK type */
     switch (room->zone->getPKStyle()) {
@@ -1416,7 +1416,7 @@ look_in_direction(struct Creature *ch, int dir)
 	}
 	if (EXIT(ch, dir)) {
 		if (EXIT(ch, dir)->general_description) {
-			send_to_char(ch, EXIT(ch, dir)->general_description);
+			send_to_char(ch, "%s", EXIT(ch, dir)->general_description);
 		} else if (IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR | EX_CLOSED) &&
 			EXIT(ch, dir)->keyword) {
 			send_to_char(ch, "You see %s %s.\r\n", AN(fname(EXIT(ch,
@@ -1434,12 +1434,12 @@ look_in_direction(struct Creature *ch, int dir)
 					send_to_char(ch, "[%5d] %s [ %s] [ %s ]", EXNUMB->number,
 						EXNUMB->name, buf, sector_types[EXNUMB->sector_type]);
 				} else
-					send_to_char(ch, EXNUMB->name);
+					send_to_char(ch, "%s", EXNUMB->name);
 				send_to_char(ch, CCNRM(ch, C_NRM));
 				send_to_char(ch, "\r\n");
 				for (aff = ch->in_room->affects; aff; aff = aff->next)
 					if (aff->type == dir && aff->description)
-						send_to_char(ch, aff->description);
+						send_to_char(ch, "%s", aff->description);
 			} else
 				send_to_char(ch, "You see nothing special.\r\n");
 		}
@@ -1660,7 +1660,7 @@ look_in_obj(struct Creature *ch, char *arg)
 				!GET_OBJ_VAL(obj, 3) && GET_LEVEL(ch) < LVL_GOD)
 				send_to_char(ch, "It is closed.\r\n");
 			else {
-				send_to_char(ch, obj->name);
+				send_to_char(ch, "%s", obj->name);
 				switch (bits) {
 				case FIND_OBJ_INV:
 					send_to_char(ch, " (carried): \r\n");
@@ -1949,7 +1949,7 @@ ACMD(do_listen)
 	int i;
 
 	if (ch->in_room->sounds) {
-		send_to_char(ch, ch->in_room->sounds);
+		send_to_char(ch, "%s", ch->in_room->sounds);
 		return;
 	}
 	CreatureList::iterator it = ch->in_room->people.begin();
@@ -3577,10 +3577,10 @@ ACMD(do_gen_ps)
 		send_to_char(ch, "\033[H\033[J");
 		break;
 	case SCMD_VERSION:
-		send_to_char(ch, circlemud_version);
+		send_to_char(ch, "%s", circlemud_version);
 		break;
 	case SCMD_WHOAMI:
-		send_to_char(ch, strcat(strcpy(buf, GET_NAME(ch)), "\r\n"));
+		send_to_char(ch, "%s\r\n", GET_NAME(ch));
 		break;
 	default:
 		return;
@@ -4270,7 +4270,7 @@ ACMD(do_diagnose)
 
 	if (*buf) {
 		if (!(vict = get_char_room_vis(ch, buf))) {
-			send_to_char(ch, NOPERSON);
+			send_to_char(ch, "%s", NOPERSON);
 			return;
 		} else
 			diag_char_to_char(vict, ch);

@@ -767,12 +767,13 @@ burn_update(void)
 		/* Hunter Mobs */
 		if (ch->isHunting() && !AFF_FLAGGED(ch, AFF_BLIND) &&
 			ch->getPosition() > POS_SITTING && !GET_MOB_WAIT(ch)) {
-			if (MOB_FLAGGED(ch, MOB_WIMPY)
-				&& (GET_HIT(ch) < MIN(500, GET_MAX_HIT(ch)) * 0.80)
-				|| (100 - ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch))) >
-				GET_MORALE(ch) + number(-5, 10 + (GET_INT(ch) >> 2))) {
-				if (ch->in_room == ch->isHunting()->in_room)
-					do_flee(ch, tmp_strdup(""), 0, 0, 0);
+			if (MOB_FLAGGED(ch, MOB_WIMPY)) {
+                if ((GET_HIT(ch) < MIN(500, GET_MAX_HIT(ch)) * 0.80)
+                    || (100 - ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch))) >
+                    GET_MORALE(ch) + number(-5, 10 + (GET_INT(ch) >> 2))) {
+                    if (ch->in_room == ch->isHunting()->in_room)
+                        do_flee(ch, tmp_strdup(""), 0, 0, 0);
+                }
 			} else
 				hunt_victim(ch);
 			continue;
@@ -2200,8 +2201,8 @@ mobile_activity(void)
 
 		/* Aggressive Mobs */
 
-		if (MOB_FLAGGED(ch, MOB_AGGRESSIVE)
-		    || MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN) &&
+		if ((MOB_FLAGGED(ch, MOB_AGGRESSIVE)
+             || MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN)) &&
             !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 			found = false;
 			vict = NULL;

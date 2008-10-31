@@ -234,7 +234,7 @@ int do_fail_remort_test(Quiz *quiz, struct Creature *ch)
 		         "You are unable to remort at this time.\r\n", quiz->getScore());
 	char *msg = tmp_sprintf( "%s has failed remort test at gen %d.",
 							 GET_NAME(ch), GET_REMORT_GEN(ch));
-	mudlog(LVL_ELEMENT, NRM, false,msg);
+	mudlog(LVL_ELEMENT, NRM, false, "%s", msg);
 	quiz->log(msg);
 	quiz->logScore();
 	REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
@@ -292,7 +292,7 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 	// Tell everyone that they remorted
 	char *msg = tmp_sprintf( "%s completed gen %d remort test with score %d",
 			GET_NAME(ch), GET_REMORT_GEN(ch), quiz->getScore());
-	mudlog(LVL_IMMORT, BRF, false,msg);
+	mudlog(LVL_IMMORT, BRF, false, "%s", msg);
 	quiz->log(msg);
 	quiz->logScore();
 

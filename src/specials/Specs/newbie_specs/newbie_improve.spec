@@ -141,7 +141,7 @@ SPECIAL(newbie_improve)
 		return 1;
 	}
 	GET_LIFE_POINTS(ch) -= 1;
-	send_to_char(ch, mssg);
+	send_to_char(ch, "%s", mssg);
 	ch->saveToXML();
 	if (GET_LIFE_POINTS(ch)) {
 		sprintf(buf3, "You have %d life points left, %s.", GET_LIFE_POINTS(ch),

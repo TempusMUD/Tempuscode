@@ -370,7 +370,7 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 		return;
 	}
 	// implant repairs cost 1.5 the amount of insertion/extraction
-	cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) >> 1;
+	cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) / 2;
     cost += (cost*ch->getCostModifier(me))/100;
 
     if (!IS_CYBORG(ch))

@@ -800,7 +800,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 				affect_join(ch, &af[2], 0, false, 1, false);
 
 			if (to_char[1])
-				send_to_char(ch, to_char[1]);
+				send_to_char(ch, "%s", to_char[1]);
 			if (to_room[1])
 				act(to_room[1], false, ch, 0, 0, TO_ROOM);
 
@@ -820,7 +820,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 		} else {
 			affect_from_char(ch, mode);
 			if (to_char[0])
-				send_to_char(ch, to_char[0]);
+				send_to_char(ch, "%s", to_char[0]);
 			if (to_room[0])
 				act(to_room[0], false, ch, 0, 0, TO_ROOM);
 

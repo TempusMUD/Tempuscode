@@ -112,7 +112,7 @@ ACMD(do_skillset)
 
 	vict = get_char_vis(ch, vict_name);
 	if (!vict) {
-		send_to_char(ch, NOPERSON);
+		send_to_char(ch, "%s", NOPERSON);
 		return;
 	}
 

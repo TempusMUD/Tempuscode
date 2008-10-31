@@ -470,7 +470,7 @@ ACMD(do_group)
 	}
 
 	if (!(vict = get_char_room_vis(ch, buf))) {
-		send_to_char(ch, NOPERSON);
+		send_to_char(ch, "%s", NOPERSON);
 	} else if ((vict->master != ch) && (vict != ch))
 		act("$N must follow you to enter your group.", false, ch, 0, vict,
 			TO_CHAR);
@@ -897,7 +897,7 @@ ACMD(do_display)
 
 		}
 
-		else if (is_abbrev(arg1, "vt100"))
+		else if (is_abbrev(arg1, "vt100")) {
 
 			if (is_abbrev(arg2, "enable")) {
 				enable_vt100(ch);
@@ -913,6 +913,7 @@ ACMD(do_display)
 				send_to_char(ch, "Usage: display vt100 [on | off]\r\n");
 				return;
 			}
+        }
 	}
 
 	if ((!strcasecmp(arg1, "on")) || (!strcasecmp(arg1, "normal"))) {
@@ -956,7 +957,7 @@ ACMD(do_display)
 		}
 	}
 
-	send_to_char(ch, OK);
+	send_to_char(ch, "%s", OK);
 }
 
 ACMD(do_gen_write)
@@ -1267,14 +1268,14 @@ ACMD(do_gen_tog)
 		sprintf(buf, "%s has toggled logall %s", GET_NAME(ch),
 			ONOFF(log_cmds));
 		mudlog(MAX(LVL_LOGALL, GET_INVIS_LVL(ch)), BRF, true, "%s", buf);
-		send_to_char(ch, strcat(buf, "\r\n"));
+		send_to_char(ch, "%s\r\n", buf);
 		return;
 	case SCMD_JET_STREAM:
 		TOGGLE_BIT(jet_stream_state, 1);
 		sprintf(buf, "%s has toggled jet_stream_state %s", GET_NAME(ch),
 			ONOFF(jet_stream_state));
 		mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", buf);
-		send_to_char(ch, strcat(buf, "\r\n"));
+		send_to_char(ch, "%s\r\n", buf);
 		return;
 
 	case SCMD_WEATHER:
@@ -1339,9 +1340,9 @@ ACMD(do_gen_tog)
 	}
 
 	if (result)
-		send_to_char(ch, tog_messages[subcmd][TOG_ON]);
+		send_to_char(ch, "%s", tog_messages[subcmd][TOG_ON]);
 	else
-		send_to_char(ch, tog_messages[subcmd][TOG_OFF]);
+		send_to_char(ch, "%s", tog_messages[subcmd][TOG_OFF]);
 
 	return;
 }

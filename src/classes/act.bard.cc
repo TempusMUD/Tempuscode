@@ -189,7 +189,7 @@ bool bard_can_charm_more(Creature *ch)
         if (AFF_FLAGGED(cur->follower, AFF_CHARM))
             count++;
 
-    return ((GET_CHA(ch) >> 2 - count) > 0);
+    return ((GET_CHA(ch) >> (2 - count)) > 0);
 
 }
 
@@ -449,7 +449,7 @@ ASPELL(song_lament_of_longing)
         return;
     }
 
-    GET_OBJ_TIMER(rift1) = 1 + ch->getLevelBonus(SONG_LAMENT_OF_LONGING) >> 5;
+    GET_OBJ_TIMER(rift1) = (1 + ch->getLevelBonus(SONG_LAMENT_OF_LONGING)) >> 5;
     GET_OBJ_TIMER(rift2) = GET_OBJ_TIMER(rift1);
 
     rift1->line_desc = strdup("A beautiful, shimmering rift has been opened here.");

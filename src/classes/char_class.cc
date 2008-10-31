@@ -1323,7 +1323,7 @@ advance_level(struct Creature *ch, byte keep_internal)
 		GET_NAME(ch), GET_LEVEL(ch), rid,
 		ch->isTester() ? " <TESTER>" : "");
 	if (keep_internal)
-		slog(msg);
+		slog("%s", msg);
 	else
 		mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", msg);
 }
@@ -1336,15 +1336,18 @@ advance_level(struct Creature *ch, byte keep_internal)
 int
 invalid_char_class(struct Creature *ch, struct obj_data *obj)
 {
-	int invalid = 0;
-	int foundreq = 0;
-
+    // Protected object
 	if( IS_PC(ch) &&
 		obj->shared->owner_id != 0 &&
 		obj->shared->owner_id != GET_IDNUM(ch) ) {
-		invalid = 1;
+        return true;
 	}
 
+    // Unapproved object
+    if (!OBJ_APPROVED(obj) && !ch->isTester() && GET_LEVEL(ch) < LVL_IMMORT)
+        return true;
+
+    // Anti class restrictions
 	if ((IS_OBJ_STAT(obj, ITEM_ANTI_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_CLERIC) && IS_CLERIC(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_WARRIOR) && IS_WARRIOR(ch)) ||
@@ -1357,115 +1360,31 @@ invalid_char_class(struct Creature *ch, struct obj_data *obj)
 		(IS_OBJ_STAT(obj, ITEM_ANTI_RANGER) && IS_RANGER(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_BARD) && IS_BARD(ch)) ||
 		(IS_OBJ_STAT(obj, ITEM_ANTI_MONK) && IS_MONK(ch)) ||
-		(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC) && IS_MERC(ch)) ||
-		(!OBJ_APPROVED(obj) && !ch->isTester()
-			&& GET_LEVEL(ch) < LVL_IMMORT))
-		invalid = 1;
-	if (!invalid) {
-		if (IS_OBJ_STAT3(obj, ITEM3_REQ_MAGE))
-			if (IS_MAGE(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_CLERIC))
-			if (IS_CLERIC(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_THIEF))
-			if (IS_THIEF(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_WARRIOR))
-			if (IS_WARRIOR(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_BARB))
-			if (IS_BARB(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_PSIONIC))
-			if (IS_PSIONIC(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_PHYSIC))
-			if (IS_PHYSIC(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_CYBORG))
-			if (IS_CYBORG(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_KNIGHT))
-			if (IS_KNIGHT(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_RANGER))
-			if (IS_RANGER(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_BARD))
-			if (IS_BARD(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_MONK))
-			if (IS_MONK(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_VAMPIRE))
-			if (IS_VAMPIRE(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_MERCENARY))
-			if (IS_MERC(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE1))
-			if (IS_SPARE1(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE2))
-			if (IS_SPARE2(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-		if (!foundreq && IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE3))
-			if (IS_SPARE3(ch)) {
-				foundreq = 1;
-				invalid = 0;
-			} else
-				invalid = 1;
-	}
-	return invalid;
+		(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC) && IS_MERC(ch)))
+        return true;
+
+    // Required class restrictions
+    if ((!IS_OBJ_STAT3(obj, ITEM3_REQ_MAGE) || IS_MAGE(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_CLERIC) || IS_CLERIC(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_THIEF) || IS_THIEF(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_WARRIOR) || IS_WARRIOR(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_BARB) || IS_BARB(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_PSIONIC) || IS_PSIONIC(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_PHYSIC) || IS_PHYSIC(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_CYBORG) || IS_CYBORG(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_KNIGHT) || IS_KNIGHT(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_RANGER) || IS_RANGER(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_BARD) || IS_BARD(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_MONK) || IS_MONK(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_VAMPIRE) || IS_VAMPIRE(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_MERCENARY) || IS_MERC(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE1) || IS_SPARE1(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE2) || IS_SPARE2(ch))
+        && (!IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE3) || IS_SPARE3(ch)))
+        return true;
+
+    // Passes all tests
+	return false;
 }
 
 int

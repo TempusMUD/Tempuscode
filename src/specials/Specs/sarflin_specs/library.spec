@@ -69,8 +69,7 @@ SPECIAL(library)
 		sprintf(cat_name, "%scatalog-%d", dir_name, GET_OBJ_VAL(me2, 1));
 		book = fopen(cat_name, "rt");
 		if (book == NULL) {
-			sprintf(buf, "Tome catalog not found [%s]", cat_name);
-			slog(buf);
+			slog("Tome catalog not found [%s]", cat_name);
 			return 1;
 		}
 		text_string = fread_string(book, buf);
@@ -107,8 +106,7 @@ SPECIAL(library)
 			fclose(book);
 			return 1;
 		} else {
-			sprintf(buf, "could not open tome: [%s]", cat_name);
-			slog(buf);
+			slog("could not open tome: [%s]", cat_name);
 			return 1;
 		}
 	}
@@ -135,8 +133,7 @@ SPECIAL(library)
 			}
 			fclose(book);
 		} else {
-			sprintf(buf, "could not open tome: [%s]", cat_name);
-			slog(buf);
+			slog("could not open tome: [%s]", cat_name);
 		}
 		return 1;
 	}
