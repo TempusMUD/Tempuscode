@@ -255,6 +255,9 @@ ACMD(do_drag_char)
 		send_to_char(ch, "Sorry you can't go in that direction.\r\n");
 		return;
 	}
+
+    target_room = EXIT(ch, dir)->to_room;
+
     if ((ROOM_FLAGGED(target_room, ROOM_HOUSE)
          && !House_can_enter(ch, target_room->number))
         || (ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
