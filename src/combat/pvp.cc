@@ -168,7 +168,8 @@ check_attack(Creature *attacker, Creature *victim)
     if (!gain)
         return;
 
-    perp->gain_reputation(MIN(1, gain / 5));
+    gain = MAX(1, gain / 5);
+    perp->gain_reputation(gain);
 
     mudlog(LVL_IMMORT, CMP, true,
            "%s gained %d reputation for attacking %s", GET_NAME(perp),
@@ -217,7 +218,8 @@ check_thief(struct Creature *ch, struct Creature *victim,
     if (!gain)
         return;
 
-    perp->gain_reputation(MIN(1, gain / 10));
+    gain = MAX(1, gain / 10);
+    perp->gain_reputation(gain);
 
     mudlog(LVL_IMMORT, CMP, true,
            "%s gained %d reputation for stealing from %s", GET_NAME(perp),
