@@ -135,7 +135,33 @@ explode_sigil(Creature *ch, obj_data *obj)
 
 	dam_object = obj;
 
-	ret = damage(NULL, ch, dam, TOP_SPELL_DEFINE, WEAR_HANDS);
+    int obj_id = GET_OBJ_SIGIL_IDNUM(obj);
+	if (!obj_id)
+		return 0;
+
+	Creature *killer = get_char_in_world_by_idnum(obj_id);
+
+	// load the bastich from file.
+    Creature cbuf(true);
+	if (!killer) {
+		cbuf.clear();
+		if (cbuf.loadFromXML(obj_id)) {
+			killer = &cbuf;
+			cbuf.account = Account::retrieve(playerIndex.getAccountID(obj_id));
+		}
+	}
+
+	// the piece o shit has a bogus killer idnum on it!
+	if (!killer) {
+		errlog("bogus idnum %d on object %s damaging %s.",
+			obj_id, obj->name, GET_NAME(ch));
+		return 0;
+	}
+
+	ret = damage(killer, ch, dam, SPELL_WARDING_SIGIL, WEAR_HANDS);
+
+	// save the sonuvabitch to file
+	killer->saveToXML();
 
 	GET_OBJ_SIGIL_IDNUM(obj) = GET_OBJ_SIGIL_LEVEL(obj) = 0;
 
