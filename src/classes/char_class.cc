@@ -1363,24 +1363,44 @@ invalid_char_class(struct Creature *ch, struct obj_data *obj)
 		(IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC) && IS_MERC(ch)))
         return true;
 
-    // Required class restrictions
-    if ((IS_OBJ_STAT3(obj, ITEM3_REQ_MAGE) && !IS_MAGE(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_CLERIC) && !IS_CLERIC(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_THIEF) && !IS_THIEF(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_WARRIOR) && !IS_WARRIOR(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_BARB) && !IS_BARB(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_PSIONIC) && !IS_PSIONIC(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_PHYSIC) && !IS_PHYSIC(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_CYBORG) && !IS_CYBORG(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_KNIGHT) && !IS_KNIGHT(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_RANGER) && !IS_RANGER(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_BARD) && !IS_BARD(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_MONK) && !IS_MONK(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_VAMPIRE) && !IS_VAMPIRE(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_MERCENARY) && !IS_MERC(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE1) && !IS_SPARE1(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE2) && !IS_SPARE2(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE3) && !IS_SPARE3(ch)))
+    // Required class restrictions - any one of them must be met
+    if ((IS_OBJ_STAT3(obj, ITEM3_REQ_MAGE) && IS_MAGE(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_CLERIC) && IS_CLERIC(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_THIEF) && IS_THIEF(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_WARRIOR) && IS_WARRIOR(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_BARB) && IS_BARB(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_PSIONIC) && IS_PSIONIC(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_PHYSIC) && IS_PHYSIC(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_CYBORG) && IS_CYBORG(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_KNIGHT) && IS_KNIGHT(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_RANGER) && IS_RANGER(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_BARD) && IS_BARD(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_MONK) && IS_MONK(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_VAMPIRE) && IS_VAMPIRE(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_MERCENARY) && IS_MERC(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE1) && IS_SPARE1(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE2) && IS_SPARE2(ch))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE3) && IS_SPARE3(ch)))
+        return false;
+
+    // A required class existed and the creature didn't fulfill any
+    if (IS_OBJ_STAT3(obj, ITEM3_REQ_MAGE
+                     | ITEM3_REQ_CLERIC
+                     | ITEM3_REQ_THIEF
+                     | ITEM3_REQ_WARRIOR
+                     | ITEM3_REQ_BARB
+                     | ITEM3_REQ_PSIONIC
+                     | ITEM3_REQ_PHYSIC
+                     | ITEM3_REQ_CYBORG
+                     | ITEM3_REQ_KNIGHT
+                     | ITEM3_REQ_RANGER
+                     | ITEM3_REQ_BARD
+                     | ITEM3_REQ_MONK
+                     | ITEM3_REQ_VAMPIRE
+                     | ITEM3_REQ_MERCENARY
+                     | ITEM3_REQ_SPARE1
+                     | ITEM3_REQ_SPARE2
+                     | ITEM3_REQ_SPARE3))
         return true;
 
     // Passes all tests
