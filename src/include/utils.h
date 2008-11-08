@@ -195,16 +195,18 @@ const char *AN(const char *str);
  * a great application for C++ templates but, alas, this is not C++.  Maybe
  * CircleMUD 4.0 will be...
  */
-#define REMOVE_FROM_LIST(item, head, next)        \
-   if ((item) == (head))                \
-      head = (item)->next;                \
-   else {                                \
-      temp = head;                        \
-      while (temp && (temp->next != (item))) \
-         temp = temp->next;                \
-      if (temp)                                \
-         temp->next = (item)->next;        \
-   }                                        \
+#define REMOVE_FROM_LIST(item, head, next)          \
+    do {                                            \
+        if ((item) == (head))                       \
+            head = (item)->next;                    \
+        else {                                      \
+            temp = head;                            \
+            while (temp && (temp->next != (item)))  \
+                temp = temp->next;                  \
+            if (temp)                               \
+                temp->next = (item)->next;          \
+        }                                           \
+    } while (false)
 
 /* basic bitvector utils *************************************************/
 

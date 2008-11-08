@@ -2200,11 +2200,10 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
 	case SPELL_LATTICE_HARDENING:
 /*
-Fireball: for instance, carbon or silicon have really nice lattices
-Forget: so would it harden your entire structure, or just your shell?
-Fireball: probably most of your solid structure, a little bit
-Fireball: like harder bones, skin, organ membranecs
-
+  Fireball: for instance, carbon or silicon have really nice lattices
+  Forget: so would it harden your entire structure, or just your shell?
+  Fireball: probably most of your solid structure, a little bit
+  Fireball: like harder bones, skin, organ membranecs
 */
 		if (ch != victim) {
 			send_to_char(ch, "There seems to be no affect.\r\n");
