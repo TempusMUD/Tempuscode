@@ -1,13 +1,13 @@
-class hunter_data {
+class hunt_data {
 	public:
-		hunter_data(int hunt_id, int vict) : idnum(hunt_id), vict_id(vict) {}
+		hunt_data(int hunt_id, int vict) : idnum(hunt_id), vict_id(vict) {}
 		bool operator==(int id) { return idnum == id; }
 
 		int idnum;			// idnum of the hunter
 		int vict_id;			// idnum of the hunted
 };
 
-vector <hunter_data> hunter_list;
+vector <hunt_data> hunt_list;
 
 void
 load_bounty_data(void)
@@ -21,7 +21,7 @@ load_bounty_data(void)
 		return;
 
 	for (idx = 0;idx < count;idx++)
-		hunter_list.push_back(hunter_data(
+		hunt_list.push_back(hunt_data(
 			atoi(PQgetvalue(res, idx, 0)),
 			atoi(PQgetvalue(res, idx, 1))));
 }
@@ -29,14 +29,14 @@ load_bounty_data(void)
 void
 remove_bounties(int char_id)
 {
-	vector <hunter_data>::iterator hunter;
+	vector <hunt_data>::iterator hunt;
 	bool removed = true;
 
 	while (removed) {
 		removed = false;
-		for (hunter = hunter_list.begin();hunter != hunter_list.end();hunter++)
-			if (hunter->vict_id == char_id || hunter->idnum == char_id) {
-				hunter_list.erase(hunter);
+		for (hunt = hunt_list.begin();hunt != hunt_list.end();hunt++)
+			if (hunt->vict_id == char_id || hunt->idnum == char_id) {
+				hunt_list.erase(hunt);
 				removed = true;
 				break;
 			}
@@ -59,30 +59,45 @@ get_bounty_amount(int idnum)
 	return GET_REPUTATION(&vict) * 20000;
 }
 
+bool
+is_bountied(Creature *hunter, Creature *vict)
+{
+	vector <hunt_data>::iterator hunt;
+	hunt = find(hunt_list.begin(), hunt_list.end(), GET_IDNUM(hunter));
+	// no hunt record for this killer
+	if (hunt == hunt_list.end())
+		return false;
+	// wrong victim for this hunter
+	if (hunt->vict_id != GET_IDNUM(vict))
+		return false;
+
+    return true;
+}
+
 // Awards any bounties due to the killer - returns true if it was a
 // legitimate bounty kill
 bool
 award_bounty(Creature *killer, Creature *vict)
 {
-	vector <hunter_data>::iterator hunter;
+	vector <hunt_data>::iterator hunt;
 	struct follow_type *f;
 	int count, amt, amt_left;
 
 	if (IS_NPC(killer) || IS_NPC(vict))
 		return false;
 
-	// first find and remove the hunter record - if they aren't a registered
-	// hunter, they don't get the bounty..
-	hunter = find(hunter_list.begin(), hunter_list.end(), GET_IDNUM(killer));
-	// no hunter record for this killer
-	if (hunter == hunter_list.end())
+	// first find and remove the hunt record - if they aren't a registered
+	// hunt, they don't get the bounty..
+	hunt = find(hunt_list.begin(), hunt_list.end(), GET_IDNUM(killer));
+	// no hunt record for this killer
+	if (hunt == hunt_list.end())
 		return false;
-	// wrong victim for this hunter
-	if (hunter->vict_id != GET_IDNUM(vict))
+	// wrong victim for this hunt
+	if (hunt->vict_id != GET_IDNUM(vict))
 		return false;
 
-	// erase record for this hunter
-	hunter_list.erase(hunter);
+	// erase record for this hunt
+	hunt_list.erase(hunt);
 	sql_exec("delete from bounty_hunters where idnum=%ld", GET_IDNUM(killer));
 
 	// Now find out how much money they get for killing the bastard
@@ -171,23 +186,23 @@ award_bounty(Creature *killer, Creature *vict)
 int
 get_hunted_id(int hunter_id)
 {
-	vector <hunter_data>::iterator hunter;
+	vector <hunt_data>::iterator hunt;
 
 	if (!hunter_id)
 		return 0;
 
-	hunter = find(hunter_list.begin(), hunter_list.end(), hunter_id);
-	if (hunter == hunter_list.end())
+	hunt = find(hunt_list.begin(), hunt_list.end(), hunter_id);
+	if (hunt == hunt_list.end())
 		return 0;
 
-	return hunter->vict_id;
+	return hunt->vict_id;
 }
 
 int
 register_bounty(Creature *self, Creature *ch, char *argument)
 {
 	const char USAGE[] = "Usage: register bounty <player>";
-	vector <hunter_data>::iterator hunter;
+	vector <hunt_data>::iterator hunt;
 	char *str, *vict_name;
 	Creature vict(true);
 
@@ -229,13 +244,13 @@ register_bounty(Creature *self, Creature *ch, char *argument)
 
 	perform_say(self, "state", tmp_sprintf("Very well.  You are now registered as a bounty hunter for %s.", GET_NAME(&vict)));
 
-	hunter = find(hunter_list.begin(), hunter_list.end(), GET_IDNUM(ch));
-	if (hunter == hunter_list.end()) {
-		hunter_list.push_back(hunter_data(GET_IDNUM(ch), GET_IDNUM(&vict)));
+	hunt = find(hunt_list.begin(), hunt_list.end(), GET_IDNUM(ch));
+	if (hunt == hunt_list.end()) {
+		hunt_list.push_back(hunt_data(GET_IDNUM(ch), GET_IDNUM(&vict)));
 		sql_exec("insert into bounty_hunters (idnum, victim) values (%ld, %ld)",
 			GET_IDNUM(ch), GET_IDNUM(&vict));
 	} else {
-		hunter->vict_id = GET_IDNUM(&vict);
+		hunt->vict_id = GET_IDNUM(&vict);
 		sql_exec("update bounty_hunters set victim=%ld where idnum=%ld",
 			GET_IDNUM(&vict), GET_IDNUM(ch));
 	}

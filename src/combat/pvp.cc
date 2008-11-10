@@ -155,6 +155,7 @@ find_responsible_party(Creature *attacker, Creature *victim)
 void
 check_attack(Creature *attacker, Creature *victim)
 {
+    bool is_bountied(Creature *hunter, Creature *vict);
 	Creature *perp;
 
     // No reputation for attacking in arena
@@ -162,6 +163,10 @@ check_attack(Creature *attacker, Creature *victim)
         return;
 
 	perp = find_responsible_party(attacker, victim);
+
+    // no reputation for attacking a bountied person
+    if (is_bountied(perp, victim))
+        return;
 
     int gain = pk_reputation_gain(perp, victim);
 
@@ -189,6 +194,9 @@ count_pkill(Creature *killer, Creature *victim)
 	perp = find_responsible_party(killer, victim);
 
 	GET_PKILLS(perp)++;
+
+    if (award_bounty(perp, victim))
+        return;
 
     int gain = pk_reputation_gain(perp, victim);
 
