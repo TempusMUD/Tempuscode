@@ -1068,7 +1068,7 @@ do_stat_room(struct Creature *ch, char *roomstr)
                 continue;
             acc_sprintf("%s %s", found++ ? "," : "", j->name);
         }
-        acc_strcat(CCNRM(ch, C_NRM), NULL);
+        acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
     }
 
     if (rm->search) {
