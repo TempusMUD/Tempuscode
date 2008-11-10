@@ -4095,7 +4095,7 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
 				container->name);
 			act(buf, false, ch, obj, 0, TO_CHAR);
 		} else {
-			act("There's nothing in it!", false, ch, obj, 0, TO_CHAR);
+			act("$p couldn't hold anything.", false, ch, container, 0, TO_CHAR);
 			return 0;
 		}
 
