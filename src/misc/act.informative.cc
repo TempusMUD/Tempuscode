@@ -280,8 +280,11 @@ show_obj_bits(obj_data *object, Creature *ch)
                         CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
         }
         if( object->affectedBySpell(SPELL_ELEMENTAL_BRAND) != NULL ) {
-            acc_sprintf(" %s(branded)%s",
-                        CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
+            acc_sprintf(" %s(%sbranded%s)%s",
+                        CCRED(ch, C_SPR),
+                        CCGRN(ch, C_SPR),
+                        CCRED(ch, C_SPR),
+                        CCNRM(ch, C_SPR));
         }
     }
     if ((GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester()) &&
