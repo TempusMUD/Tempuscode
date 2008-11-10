@@ -847,6 +847,7 @@ struct command_info cmd_info[] = {
 	{"hcontrol", POS_DEAD, do_hcontrol, LVL_IMMORT, 0, 0, 0},
 	{"head", POS_RESTING, do_action, 0, 0, 0, 0},
     {"headache", POS_RESTING, do_action, 0, 0, 0, 0},
+    {"headbang", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"headbutt", POS_FIGHTING, do_offensive_skill, 0, SKILL_HEADBUTT, 0, 0},
 	{"headlights", POS_RESTING, do_not_here, 0, 0, 0, 0},
 	{"heineken", POS_RESTING, do_action, 0, 0, 0, 0},
