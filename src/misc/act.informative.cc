@@ -295,11 +295,9 @@ show_obj_bits(obj_data *object, Creature *ch)
     }
 }
 
-void
+static void
 show_room_obj(obj_data *object, Creature *ch, int count)
 {
-	acc_string_clear();
-
     if (object->line_desc)
         acc_strcat(object->line_desc, NULL);
     else if (IS_IMMORT(ch))
@@ -313,15 +311,12 @@ show_room_obj(obj_data *object, Creature *ch, int count)
     if (count > 1)
         acc_sprintf(" [%d]", count);
     acc_strcat("\r\n", NULL);
-
-    page_string(ch->desc, acc_get_string());
 }
 
-void
+static void
 show_obj_to_char(struct obj_data *object, struct Creature *ch,
 	int mode, int count)
 {
-	acc_string_clear();
     if (mode == SHOW_OBJ_ROOM) {
         show_room_obj(object, ch, count);
         return;
@@ -346,7 +341,6 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 				act("The door of $p is open.", true, ch, object, 0, TO_CHAR);
 		}
 	}
-    page_string(ch->desc, acc_get_string());
 }
 
 void
@@ -398,9 +392,8 @@ list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 		count = 0;
 		found = true;
 	}
-	if (!found && show)
-		send_to_char(ch, " Nothing.\r\n");
-
+    if (!found && show)
+		acc_sprintf(" Nothing.\r\n");
 }
 
 void
@@ -448,8 +441,9 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
 		show_obj_to_char(i, ch, mode, count);
 		found = true;
 	}
-	if (!found && show)
-		send_to_char(ch, "You can't see anything.\r\n");
+
+    if (!found && show)
+		acc_sprintf("You can't see anything.\r\n");
 }
 
 void
@@ -719,7 +713,8 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 				found = true;
 
 		if (found) {
-			act("\r\n$n is using:", false, i, 0, ch, TO_VICT);
+            acc_string_clear();
+			acc_sprintf("\r\n%s is using:", PERS(ch, i));
 			for (j = 0; j < NUM_WEARS; j++)
 				if (GET_EQ(i, (int)eq_pos_order[j]) &&
 					can_see_object(ch, GET_EQ(i, (int)eq_pos_order[j])) &&
@@ -730,15 +725,17 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 					if (CMD_IS("glance")
 						&& number(50, 100) > CHECK_SKILL(ch, SKILL_GLANCE))
 						continue;
-					send_to_char(ch, CCGRN(ch, C_NRM));
-					send_to_char(ch, "%s", where[(int)eq_pos_order[j]]);
-					send_to_char(ch, CCNRM(ch, C_NRM));
+					acc_sprintf("%s%s%s",
+                               CCGRN(ch, C_NRM),
+                               where[(int)eq_pos_order[j]],
+                               CCNRM(ch, C_NRM));
 					show_obj_to_char(GET_EQ(i, (int)eq_pos_order[j]), ch,
                                      SHOW_OBJ_INV, 0);
 				} else if (GET_TATTOO(i, (int)eq_pos_order[j])){
-					send_to_char(ch, CCGRN(ch, C_NRM));
-					send_to_char(ch, "%s", tattoo_pos_descs[(int)eq_pos_order[j]]);
-					send_to_char(ch, CCNRM(ch, C_NRM));
+					acc_sprintf("%s%s%s",
+                               CCGRN(ch, C_NRM),
+                               tattoo_pos_descs[(int)eq_pos_order[j]],
+                               CCNRM(ch, C_NRM));
 					show_obj_to_char(GET_TATTOO(i, (int)eq_pos_order[j]), ch,
                                      SHOW_OBJ_INV, 0);
 
@@ -746,11 +743,11 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 		}
 		if (ch != i && (IS_THIEF(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
 			found = false;
-			act("\r\nYou attempt to peek at $s inventory:", false, i, 0, ch,
-				TO_VICT);
+			acc_sprintf("\r\nYou attempt to peek at %s inventory:", HSHR(i));
 			list_obj_to_char_GLANCE(i->carrying, ch, i, SHOW_OBJ_INV, true,
 				(GET_LEVEL(ch) >= LVL_AMBASSADOR));
 		}
+        page_string(ch->desc, acc_get_string());
 	}
 }
 
@@ -1027,12 +1024,12 @@ void
 do_auto_exits(struct Creature *ch, struct room_data *room)
 {
 	int door;
-
-	buf[0] = '\0';
+    bool found = false;
 
 	if (room == NULL)
 		room = ch->in_room;
 
+    acc_sprintf("%s[ Exits: ", CCCYN(ch, C_NRM));
 	for (door = 0; door < NUM_OF_DIRS; door++) {
 		if (!room->dir_option[door] || !room->dir_option[door]->to_room)
 			continue;
@@ -1041,28 +1038,28 @@ do_auto_exits(struct Creature *ch, struct room_data *room)
 			continue;
 
 		if (IS_SET(room->dir_option[door]->exit_info, EX_CLOSED))
-			sprintf(buf, "%s|%c| ", buf, tolower(*dirs[door]));
+			acc_sprintf("|%c| ", tolower(*dirs[door]));
 		else
-			sprintf(buf, "%s%c ", buf, tolower(*dirs[door]));
+			acc_sprintf("%c ", tolower(*dirs[door]));
+        found = true;
 	}
 
-	send_to_char(ch, "%s[ Exits: %s]%s   ", CCCYN(ch, C_NRM),
-		*buf ? buf : "None obvious ", CCNRM(ch, C_NRM));
+	acc_sprintf("%s]%s   ", found ? "" : "None obvious ", CCNRM(ch, C_NRM));
 
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
 		*buf = '\0';
 
+        acc_sprintf("%s[ Hidden Doors: ", CCCYN(ch, C_NRM));
+        found = false;
 		for (door = 0; door < NUM_OF_DIRS; door++)
 			if (ABS_EXIT(room, door) && ABS_EXIT(room, door)->to_room != NULL
 				&& IS_SET(ABS_EXIT(room, door)->exit_info,
 					EX_SECRET | EX_HIDDEN))
-				sprintf(buf, "%s%c ", buf, tolower(*dirs[door]));
+				acc_sprintf("%c ", tolower(*dirs[door]));
 
-		send_to_char(ch, "%s[ Hidden Doors: %s]%s\r\n", CCCYN(ch, C_NRM),
-			*buf ? buf : "None ", CCNRM(ch, C_NRM));
-
+        acc_sprintf("%s]%s\r\n", found ? "" : "None ", CCNRM(ch, C_NRM));
 	} else
-		send_to_char(ch, "\r\n");
+		acc_sprintf("\r\n");
 }
 
 /* functions and macros for 'scan' command */
@@ -1291,25 +1288,26 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 		return;
 	}
 
- 	send_to_char(ch, CCCYN(ch, C_NRM));
+    acc_string_clear();
+ 	acc_sprintf(CCCYN(ch, C_NRM));
 	if (PRF_FLAGGED(ch, PRF_ROOMFLAGS) ||
 		(ch->desc->original
 			&& PRF_FLAGGED(ch->desc->original, PRF_ROOMFLAGS))) {
-		send_to_char(ch, "[%5d] %s [ %s ] [ %s ]", room->number,
+		acc_sprintf("[%5d] %s [ %s ] [ %s ]", room->number,
                      room->name,
                      ROOM_FLAGS(room) ? tmp_printbits(ROOM_FLAGS(room), room_bits) : "NONE",
                      strlist_aref(room->sector_type, sector_types));
         if (room->max_occupancy < 256)
-            send_to_char(ch, " [ Max: %d ]", room->max_occupancy);
+            acc_sprintf(" [ Max: %d ]", room->max_occupancy);
 
         House *house = Housing.findHouseByRoom(room->number);
         if (house)
-            send_to_char(ch, " [ House: %d ]", house->getID());
+            acc_sprintf(" [ House: %d ]", house->getID());
 	} else {
-		send_to_char(ch, "%s", room->name);
+		acc_sprintf("%s", room->name);
 	}
 
-	send_to_char(ch, "%s\r\n", CCNRM(ch, C_NRM));
+	acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
 
 	if ((!PRF_FLAGGED(ch, PRF_BRIEF) &&
 		(!ch->desc->original || !PRF_FLAGGED(ch->desc->original, PRF_BRIEF)))
@@ -1319,28 +1317,28 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 				!(PRF_FLAGGED(ch, PRF_HOLYLIGHT) ||
 				ROOM_FLAGGED(room, ROOM_DEATH)) &&
                 !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
-			send_to_char(ch, "The smoke swirls around you...\r\n");
+			acc_sprintf("The smoke swirls around you...\r\n");
 		else if (room->description)
-			send_to_char(ch, "%s", room->description);
+			acc_sprintf("%s", room->description);
 	}
 
 	for (aff = room->affects; aff; aff = aff->next)
 		if (aff->description)
-			send_to_char(ch, "%s", aff->description);
+			acc_sprintf("%s", aff->description);
 
    /* Zone PK type */
     switch (room->zone->getPKStyle()) {
     case ZONE_NO_PK:
-        send_to_char(ch, "%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
+        acc_sprintf("%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
                      CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
         break;
     case ZONE_NEUTRAL_PK:
-        send_to_char(ch, "%s[ %s%sNPK%s%s ] ", CCCYN(ch, C_NRM),
+        acc_sprintf("%s[ %s%sNPK%s%s ] ", CCCYN(ch, C_NRM),
                      CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                      CCCYN(ch, C_NRM));
         break;
     case ZONE_CHAOTIC_PK:
-        send_to_char(ch, "%s[ %s%sCPK%s%s ] ", CCCYN(ch, C_NRM),
+        acc_sprintf("%s[ %s%sCPK%s%s ] ", CCCYN(ch, C_NRM),
                      CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                      CCCYN(ch, C_NRM));
         break;
@@ -1354,7 +1352,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 		if (PRF_FLAGGED(ch, PRF_AUTOEXIT))
 			do_auto_exits(ch, room);
         else
-            send_to_char(ch, "\r\n");
+            acc_sprintf("\r\n");
 
 		/* now list characters & objects */
 		for (o = room->contents; o; o = o->next_content) {
@@ -1396,14 +1394,15 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 			}
 		}
 
-		send_to_char(ch, CCGRN(ch, C_NRM));
+		acc_sprintf(CCGRN(ch, C_NRM));
 		list_obj_to_char(room->contents, ch, SHOW_OBJ_ROOM, false);
-		send_to_char(ch, CCYEL(ch, C_NRM));
+		acc_sprintf(CCYEL(ch, C_NRM));
 		list_char_to_char(room->people, ch);
-		send_to_char(ch, CCNRM(ch, C_NRM));
+		acc_sprintf(CCNRM(ch, C_NRM));
 	} else {
-        send_to_char(ch, "\r\n");
+        acc_sprintf("\r\n");
     }
+    page_string(ch->desc, acc_get_string());
 }
 
 void
@@ -1418,33 +1417,34 @@ look_in_direction(struct Creature *ch, int dir)
 		return;
 	}
 	if (EXIT(ch, dir)) {
+        acc_string_clear();
 		if (EXIT(ch, dir)->general_description) {
-			send_to_char(ch, "%s", EXIT(ch, dir)->general_description);
+			acc_sprintf("%s", EXIT(ch, dir)->general_description);
 		} else if (IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR | EX_CLOSED) &&
 			EXIT(ch, dir)->keyword) {
-			send_to_char(ch, "You see %s %s.\r\n", AN(fname(EXIT(ch,
+			acc_sprintf("You see %s %s.\r\n", AN(fname(EXIT(ch,
 							dir)->keyword)), fname(EXIT(ch, dir)->keyword));
 		} else if (EXNUMB) {
 			if ((IS_SET(EXIT(ch, dir)->exit_info, EX_NOPASS) &&
 					GET_LEVEL(ch) < LVL_AMBASSADOR) ||
 				IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN))
-				send_to_char(ch, "You see nothing special.\r\n");
+				acc_sprintf("You see nothing special.\r\n");
 
 			else if (EXNUMB->name) {
-				send_to_char(ch, CCCYN(ch, C_NRM));
+				acc_sprintf(CCCYN(ch, C_NRM));
 				if (PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
 					sprintbit((long)ROOM_FLAGS(EXNUMB), room_bits, buf);
-					send_to_char(ch, "[%5d] %s [ %s] [ %s ]", EXNUMB->number,
+					acc_sprintf("[%5d] %s [ %s] [ %s ]", EXNUMB->number,
 						EXNUMB->name, buf, sector_types[EXNUMB->sector_type]);
 				} else
-					send_to_char(ch, "%s", EXNUMB->name);
-				send_to_char(ch, CCNRM(ch, C_NRM));
-				send_to_char(ch, "\r\n");
+					acc_sprintf("%s", EXNUMB->name);
+				acc_sprintf(CCNRM(ch, C_NRM));
+				acc_sprintf("\r\n");
 				for (aff = ch->in_room->affects; aff; aff = aff->next)
 					if (aff->type == dir && aff->description)
-						send_to_char(ch, "%s", aff->description);
+						acc_sprintf("%s", aff->description);
 			} else
-				send_to_char(ch, "You see nothing special.\r\n");
+				acc_sprintf("You see nothing special.\r\n");
 		}
 		if (EXNUMB && (!IS_SET(EXIT(ch, dir)->exit_info,
 					EX_ISDOOR | EX_CLOSED | EX_HIDDEN | EX_NOPASS) ||
@@ -1458,11 +1458,11 @@ look_in_direction(struct Creature *ch, int dir)
 			else {
 
 				/* now list characters & objects */
-				send_to_char(ch, CCGRN(ch, C_NRM));
+				acc_sprintf(CCGRN(ch, C_NRM));
 				list_obj_to_char(EXNUMB->contents, ch, SHOW_OBJ_ROOM, false);
-				send_to_char(ch, CCYEL(ch, C_NRM));
+				acc_sprintf(CCYEL(ch, C_NRM));
 				list_char_to_char(EXNUMB->people, ch);
-				send_to_char(ch, CCNRM(ch, C_NRM));
+				acc_sprintf(CCNRM(ch, C_NRM));
 			}
 		}
 		//      send_to_char("You see nothing special.\r\n", ch);
@@ -1470,12 +1470,12 @@ look_in_direction(struct Creature *ch, int dir)
 		if (!IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN | EX_NOPASS)) {
 			if (IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED)
 				&& EXIT(ch, dir)->keyword) {
-				send_to_char(ch, "The %s %s closed.\r\n", fname(EXIT(ch,
+				acc_sprintf("The %s %s closed.\r\n", fname(EXIT(ch,
 							dir)->keyword), ISARE(fname(EXIT(ch,
 								dir)->keyword)));
 			} else if (IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR) &&
 				EXIT(ch, dir)->keyword) {
-				send_to_char(ch, "The %s %s open.\r\n", fname(EXIT(ch,
+				acc_sprintf("The %s %s open.\r\n", fname(EXIT(ch,
 							dir)->keyword), ISARE(fname(EXIT(ch,
 								dir)->keyword)));
 				if (EXNUMB != NULL && room_is_dark(EXNUMB) &&
@@ -1483,11 +1483,11 @@ look_in_direction(struct Creature *ch, int dir)
 					sprintf(buf,
 						"It's too dark through the %s to see anything.\r\n",
 						fname(EXIT(ch, dir)->keyword));
-					send_to_char(ch, "%s", buf);
+					acc_sprintf("%s", buf);
 				}
 			}
 		}
-
+        page_string(ch->desc, acc_get_string());
 	} else {
 
 		if (ch->in_room->sector_type == SECT_PITCH_SUB) {
@@ -1646,34 +1646,35 @@ look_in_obj(struct Creature *ch, char *arg)
 	int amt, bits;
 	struct room_data *room_was_in = NULL;
 
+    acc_string_clear();
 	if (!*arg)
-		send_to_char(ch, "Look in what?\r\n");
+		acc_sprintf("Look in what?\r\n");
 	else if (!(bits = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM |
 				FIND_OBJ_EQUIP, ch, NULL, &obj))) {
-		send_to_char(ch, "There doesn't seem to be %s %s here.\r\n", AN(arg), arg);
+		acc_sprintf("There doesn't seem to be %s %s here.\r\n", AN(arg), arg);
 	} else if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON) &&
 		(GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN) &&
 		(GET_OBJ_TYPE(obj) != ITEM_CONTAINER) &&
 		(GET_OBJ_TYPE(obj) != ITEM_PIPE) &&
 		(GET_OBJ_TYPE(obj) != ITEM_VEHICLE))
-		send_to_char(ch, "There's nothing inside that!\r\n");
+		acc_sprintf("There's nothing inside that!\r\n");
 	else {
 		if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
 			if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED) &&
 				!GET_OBJ_VAL(obj, 3) && GET_LEVEL(ch) < LVL_GOD)
-				send_to_char(ch, "It is closed.\r\n");
+				acc_sprintf("It is closed.\r\n");
 			else {
-				send_to_char(ch, "%s", obj->name);
+				acc_sprintf("%s", obj->name);
 				switch (bits) {
 				case FIND_OBJ_INV:
-					send_to_char(ch, " (carried): \r\n");
+					acc_sprintf(" (carried): \r\n");
 					break;
 				case FIND_OBJ_ROOM:
-					send_to_char(ch, " (here): \r\n");
+					acc_sprintf(" (here): \r\n");
 					break;
 				case FIND_OBJ_EQUIP:
 				case FIND_OBJ_EQUIP_CONT:
-					send_to_char(ch, " (used): \r\n");
+					acc_sprintf(" (used): \r\n");
 					break;
 				}
 
@@ -1695,23 +1696,24 @@ look_in_obj(struct Creature *ch, char *arg)
 			}
 		} else if (GET_OBJ_TYPE(obj) == ITEM_PIPE) {
 			if (GET_OBJ_VAL(obj, 0))
-				send_to_char(ch, "There appears to be some tobacco in it.\r\n");
+				acc_sprintf("There appears to be some tobacco in it.\r\n");
 			else
-				send_to_char(ch, "There is nothing in it.\r\n");
+				acc_sprintf("There is nothing in it.\r\n");
 
 		} else {				/* item must be a fountain or drink container */
 			if (GET_OBJ_VAL(obj, 1) == 0)
-				send_to_char(ch, "It is empty.\r\n");
+				acc_sprintf("It is empty.\r\n");
 			else {
 				if (GET_OBJ_VAL(obj, 1) < 0)
 					amt = 3;
 				else
 					amt = ((GET_OBJ_VAL(obj, 1) * 3) / GET_OBJ_VAL(obj, 0));
-				send_to_char(ch, "It's %sfull of a %s liquid.\r\n", fullness[amt],
+				acc_sprintf("It's %sfull of a %s liquid.\r\n", fullness[amt],
 					color_liquid[GET_OBJ_VAL(obj, 2)]);
 			}
 		}
 	}
+    page_string(ch->desc, acc_get_string());
 }
 
 char *
@@ -2862,8 +2864,10 @@ ACMD(do_score)
 
 ACMD(do_inventory)
 {
-	send_to_char(ch, "You are carrying:\r\n");
+	acc_string_clear();
+    acc_sprintf("You are carrying:\r\n");
 	list_obj_to_char(ch->carrying, ch, SHOW_OBJ_INV, true);
+    page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_equipment)
@@ -2871,26 +2875,27 @@ ACMD(do_equipment)
 	int idx, pos;
 	bool found = false;
 	struct obj_data *obj = NULL;
-	char outbuf[MAX_STRING_LENGTH];
 	const char *str;
 	const char *active_buf[2] = { "(inactive)", "(active)" };
 	bool show_all = false;
 	skip_spaces(&argument);
 
+    acc_string_clear();
+
 	if (subcmd == SCMD_EQ) {
 		if (*argument && is_abbrev(argument, "status")) {
-			strcpy(outbuf, "Equipment status:\r\n");
+			acc_sprintf("Equipment status:\r\n");
 			for (idx = 0; idx < NUM_WEARS; idx++) {
 				pos = eq_pos_order[idx];
 
 				if (!(obj = GET_EQ(ch, pos)))
 					continue;
 				found = 1;
-				sprintf(outbuf, "%s-%s- is in %s condition.\r\n", outbuf,
+				acc_sprintf("-%s- is in %s condition.\r\n",
 					obj->name, obj_cond_color(obj, ch));
 			}
 			if (found)
-				page_string(ch->desc, outbuf);
+				page_string(ch->desc, acc_get_string());
 			else
 				send_to_char(ch, "You're totally naked!\r\n");
 			return;
@@ -2899,38 +2904,35 @@ ACMD(do_equipment)
 		}
 
 		if(show_all) {
-			send_to_char(ch, "You are using:\r\n");
+			acc_sprintf("You are using:\r\n");
 		}
 		for (idx = 0; idx < NUM_WEARS; idx++) {
 			pos = eq_pos_order[idx];
 			if (GET_EQ(ch, pos)) {
 				if (!found && !show_all) {
-					send_to_char(ch, "You are using:\r\n");
+					acc_sprintf("You are using:\r\n");
 					found = true;
 				}
 				if (can_see_object(ch, GET_EQ(ch, pos))) {
-					send_to_char(ch, "%s%s%s", CCGRN(ch, C_NRM),
+					acc_sprintf("%s%s%s", CCGRN(ch, C_NRM),
 						where[pos], CCNRM(ch, C_NRM));
 					show_obj_to_char(GET_EQ(ch, pos), ch, SHOW_OBJ_INV, 0);
 				} else {
-					send_to_char(ch, "%sSomething.\r\n", where[pos]);
+					acc_sprintf("%sSomething.\r\n", where[pos]);
 				}
 			} else if (show_all && pos != WEAR_ASS) {
-				send_to_char(ch, "%sNothing!\r\n", where[pos]);
+				acc_sprintf("%sNothing!\r\n", where[pos]);
 			}
 		}
 
 		if (!found && !show_all) {
-			send_to_char(ch, "You're totally naked!\r\n");
+			acc_sprintf("You're totally naked!\r\n");
 		}
-		return;
-	}
-
-	if (subcmd == SCMD_TATTOOS) {
+	} else if (subcmd == SCMD_TATTOOS) {
         show_all = (*argument && is_abbrev(argument, "all"));
 
 		if(show_all)
-			send_to_char(ch, "You have the following tattoos:\r\n");
+			acc_sprintf("You have the following tattoos:\r\n");
 		for (idx = 0; idx < NUM_WEARS; idx++) {
 			pos = tattoo_pos_order[idx];
 			if (ILLEGAL_TATTOOPOS(pos))
@@ -2938,37 +2940,34 @@ ACMD(do_equipment)
 
 			if (GET_TATTOO(ch, pos)) {
 				if (!found && !show_all) {
-					send_to_char(ch, "You have the following tattoos:\r\n");
+					acc_sprintf("You have the following tattoos:\r\n");
 					found = true;
 				}
-                send_to_char(ch, "%s%s%s", CCGRN(ch, C_NRM),
+                acc_sprintf("%s%s%s", CCGRN(ch, C_NRM),
                              tattoo_pos_descs[pos], CCNRM(ch, C_NRM));
                 show_obj_to_char(GET_TATTOO(ch, pos), ch, SHOW_OBJ_INV, 0);
 			} else if (show_all) {
-				send_to_char(ch, "%sNothing!\r\n", where[pos]);
+				acc_sprintf("%sNothing!\r\n", where[pos]);
 			}
 		}
 
 		if (!found && !show_all)
-			send_to_char(ch, "You're a tattoo virgin!\r\n");
-		return;
-	}
-
-	if (subcmd == SCMD_IMPLANTS) {
+			acc_sprintf("You're a tattoo virgin!\r\n");
+	} else if (subcmd == SCMD_IMPLANTS) {
 		if (*argument && is_abbrev(argument, "status")) {
-			strcpy(outbuf, "Implant status:\r\n");
+			acc_sprintf("Implant status:\r\n");
 			for (idx = 0; idx < NUM_WEARS; idx++) {
 				pos = implant_pos_order[idx];
 
 				if (!(obj = GET_IMPLANT(ch, pos)))
 					continue;
 				found = true;
-				sprintf(outbuf, "%s-%s- is in %s condition.\r\n",
-					outbuf, obj->name, obj_cond_color(obj,
+				acc_sprintf("-%s- is in %s condition.\r\n",
+					obj->name, obj_cond_color(obj,
 						ch));
 			}
 			if (found)
-				page_string(ch->desc, outbuf);
+				page_string(ch->desc, acc_get_string());
 			else
 				send_to_char(ch, "You don't have any implants.\r\n");
 			return;
@@ -2977,7 +2976,7 @@ ACMD(do_equipment)
 		}
 
 		if (show_all) {
-			send_to_char(ch, "You are implanted with:\r\n");
+			acc_sprintf("You are implanted with:\r\n");
 		}
 		for (idx = 0; idx < NUM_WEARS; idx++) {
 			pos = implant_pos_order[idx];
@@ -2986,7 +2985,7 @@ ACMD(do_equipment)
 
 			if (GET_IMPLANT(ch, pos)) {
 				if (!found && !show_all) {
-					send_to_char(ch, "You are implanted with:\r\n");
+					acc_sprintf("You are implanted with:\r\n");
 					found = 1;
 				}
 				if (can_see_object(ch, GET_IMPLANT(ch, pos))) {
@@ -3003,23 +3002,25 @@ ACMD(do_equipment)
 					else
 						str = "";
 
-					send_to_char(ch, "%s[%12s]%s - %-30s%s\r\n",
+					acc_sprintf("%s[%12s]%s - %-30s%s\r\n",
 						CCCYN(ch, C_NRM), wear_implantpos[pos],
 						CCNRM(ch, C_NRM), GET_IMPLANT(ch, pos)->name, str);
 				} else {
-					send_to_char(ch, "%s[%12s]%s - (UNKNOWN)\r\n", CCCYN(ch,
+					acc_sprintf("%s[%12s]%s - (UNKNOWN)\r\n", CCCYN(ch,
 							C_NRM), wear_implantpos[pos],
 						CCNRM(ch, C_NRM));
 				}
 			} else if (show_all && pos != WEAR_ASS && pos != WEAR_HOLD) {
-				send_to_char(ch, "[%12s] - Nothing!\r\n",
+				acc_sprintf("[%12s] - Nothing!\r\n",
 					wear_implantpos[pos]);
 			}
 		}
+        if (!found && !show_all) {
+            acc_sprintf("You don't have any implants.\r\n");
+        }
 	}
-	if (!found && !show_all) {
-		send_to_char(ch, "You don't have any implants.\r\n");
-	}
+
+    page_string(ch->desc, acc_get_string());
 }
 
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
