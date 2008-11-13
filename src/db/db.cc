@@ -954,7 +954,7 @@ parse_room(FILE * fl, int vnum_nr)
 			new_search->flags = t[4];
 			new_search->fail_chance = t[6];
 
-			/*** place the search at the top of the list ***/
+			/*** place the search at the end of the list ***/
 
 			new_search->next = NULL;
 
