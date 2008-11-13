@@ -636,6 +636,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 	int i, k, level;
 	struct Creature *tch = NULL;
 	struct obj_data *tobj = NULL;
+    room_data *was_in = NULL;
 	int my_return_flags = 0;
 	if (return_flags == NULL)
 		return_flags = &my_return_flags;
@@ -822,7 +823,6 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 		}
 
 		act("You study the writing in $p carefully.", true, ch, obj, 0, TO_CHAR);
-
 		level = GET_OBJ_VAL(obj, 0);
 		level = MIN(level, LVL_AMBASSADOR);
 
@@ -833,6 +833,8 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
             unequip_char(ch, obj->worn_on, EQUIP_WORN);
         else if (obj->carried_by)
             obj_from_char(obj);
+        // Save the room too
+        was_in = ch->in_room;
 
 		for (i = 1; i < 4; i++) {
 			call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, i),
@@ -844,8 +846,17 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 			}
 		}
 
-		act("$p bursts into flame and disappears!", true, ch, obj, 0, TO_CHAR);
-		act("$p bursts into flame and disappears!", true, ch, obj, 0, TO_ROOM);
+        // Stick it in the room
+        if (ch->in_room)
+            obj_to_room(obj, ch->in_room);
+        else
+            obj_to_room(obj, was_in);
+
+        if (!IS_SET(my_return_flags, DAM_ATTACKER_KILLED) &&
+            !IS_SET(my_return_flags, DAM_VICT_KILLED))
+            act("$p bursts into flame and disappears!", true, 0, obj, 0, TO_ROOM);
+        else
+            act("$p bursts into flame and disappears!", true, ch, obj, 0, TO_ROOM);
 		extract_obj(obj);
 		break;
 	case ITEM_FOOD:
