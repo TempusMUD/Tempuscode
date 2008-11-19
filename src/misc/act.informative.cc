@@ -522,11 +522,9 @@ diag_conditions(struct Creature *ch)
 	return (buf);
 }
 
-char *
+void
 desc_char_trailers(Creature *ch, Creature *i)
 {
-	acc_string_clear();
-
 	if (affected_by_spell(i, SPELL_QUAD_DAMAGE))
 		acc_strcat("...", HSSH(i),
 			" is glowing with a bright blue light!\r\n", NULL);
@@ -628,8 +626,6 @@ desc_char_trailers(Creature *ch, Creature *i)
 
     if (affected_by_spell(i, SPELL_DIMENSIONAL_SHIFT))
         acc_strcat("...", HSSH(i), " is shifted into a parallel dimension.\r\n", NULL);
-
-	return acc_get_string();
 }
 
 void
@@ -663,8 +659,11 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 
 	diag_char_to_char(i, ch);
 
-	if (CMD_IS("look"))
-		send_to_char(ch, "%s", desc_char_trailers(ch, i));
+	if (CMD_IS("look")) {
+        acc_string_clear();
+        desc_char_trailers(ch, i);
+		send_to_char(ch, "%s", acc_get_string());
+    }
 
 	if (!CMD_IS("glance") && !IS_NPC(i)) {
 
@@ -922,7 +921,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 {
 	struct Creature *i;
 	bool is_group = false;
-	const char *msg = "", *desc;
+	const char *desc;
 	int unseen = 0;
 	int hide_prob, hide_roll;
 
@@ -946,11 +945,11 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
             && AFF_FLAGGED(i, AFF_INFRAVISION)) {
 			switch (number(0, 2)) {
 			case 0:
-				msg = tmp_strcat(msg,
+                acc_sprintf(
 					"You see a pair of glowing red eyes looking your way.\r\n");
 				break;
 			case 1:
-				msg = tmp_strcat(msg,
+                acc_sprintf(
 					"A pair of eyes glow red in the darkness.\r\n");
 				break;
 			case 2:
@@ -996,9 +995,10 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 
 		desc = desc_one_char(ch, i, is_group);
 		if (*desc) {
-			msg = tmp_strcat(msg, desc);
-			if (!PRF2_FLAGGED(ch, PRF2_NOTRAILERS) && ch->in_room == i->in_room)
-				msg = tmp_strcat(msg, desc_char_trailers(ch, i));
+            acc_strcat(desc, NULL);
+            if (!PRF2_FLAGGED(ch, PRF2_NOTRAILERS)
+                && ch->in_room == i->in_room)
+                desc_char_trailers(ch, i);
 		}
 	}
 
@@ -1016,8 +1016,6 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 			acc_sprintf("You sense a crowd of unseen presences.\r\n");
 		acc_sprintf("%s", CCNRM(ch, C_NRM));
 	}
-
-	acc_sprintf("%s", msg);
 }
 
 void
@@ -1685,13 +1683,11 @@ look_in_obj(struct Creature *ch, char *arg)
 				act("The door of $p is closed, and you can't see in.",
 					false, ch, obj, 0, TO_CHAR);
 			else if (real_room(ROOM_NUMBER(obj)) != NULL) {
-				act("Inside $p you see:", false, ch, obj, 0, TO_CHAR);
+                acc_sprintf("Inside %s you see:\r\n", OBJS(obj, ch));
 				room_was_in = ch->in_room;
 				char_from_room(ch,false);
 				char_to_room(ch, real_room(ROOM_NUMBER(obj)),false);
-                acc_string_clear();
 				list_char_to_char(ch->in_room->people, ch);
-                send_to_char(ch, "%s", acc_get_string());
 				act("$n looks in from the outside.", false, ch, 0, 0, TO_ROOM);
 				char_from_room(ch,false);
 				char_to_room(ch, room_was_in,false);
