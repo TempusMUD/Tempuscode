@@ -1400,7 +1400,8 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 	} else {
         acc_sprintf("\r\n");
     }
-    page_string(ch->desc, acc_get_string());
+
+    send_to_char(ch, "%s", acc_get_string());
 }
 
 void
