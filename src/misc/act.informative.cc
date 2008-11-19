@@ -711,9 +711,9 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
                 || GET_TATTOO(i, j))
 				found = true;
 
+        acc_string_clear();
 		if (found) {
-            acc_string_clear();
-			acc_sprintf("\r\n%s is using:", PERS(ch, i));
+			acc_sprintf("\r\n%s is using:\r\n", tmp_capitalize(PERS(i, ch)));
 			for (j = 0; j < NUM_WEARS; j++)
 				if (GET_EQ(i, (int)eq_pos_order[j]) &&
 					can_see_object(ch, GET_EQ(i, (int)eq_pos_order[j])) &&
@@ -742,7 +742,7 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 		}
 		if (ch != i && (IS_THIEF(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
 			found = false;
-			acc_sprintf("\r\nYou attempt to peek at %s inventory:", HSHR(i));
+			acc_sprintf("\r\nYou attempt to peek at %s inventory:\r\n", HSHR(i));
 			list_obj_to_char_GLANCE(i->carrying, ch, i, SHOW_OBJ_INV, true,
 				(GET_LEVEL(ch) >= LVL_AMBASSADOR));
 		}
