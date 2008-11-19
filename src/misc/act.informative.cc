@@ -1005,19 +1005,19 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 	if( unseen &&
 		(AFF_FLAGGED(ch, AFF_SENSE_LIFE) || affected_by_spell(ch, SKILL_HYPERSCAN)) )
 	{
-		send_to_char(ch, "%s", CCMAG(ch, C_NRM));
+		acc_sprintf("%s", CCMAG(ch, C_NRM));
 		if (unseen == 1)
-			send_to_char(ch, "You sense an unseen presence.\r\n");
+			acc_sprintf("You sense an unseen presence.\r\n");
 		else if (unseen < 4)
-			send_to_char(ch, "You sense a few unseen presences.\r\n");
+			acc_sprintf("You sense a few unseen presences.\r\n");
 		else if (unseen < 7)
-			send_to_char(ch, "You sense many unseen presences.\r\n");
+			acc_sprintf("You sense many unseen presences.\r\n");
 		else
-			send_to_char(ch, "You sense a crowd of unseen presences.\r\n");
-		send_to_char(ch, "%s", CCNRM(ch, C_NRM));
+			acc_sprintf("You sense a crowd of unseen presences.\r\n");
+		acc_sprintf("%s", CCNRM(ch, C_NRM));
 	}
 
-	send_to_char(ch, "%s", msg);
+	acc_sprintf("%s", msg);
 }
 
 void
@@ -1689,7 +1689,9 @@ look_in_obj(struct Creature *ch, char *arg)
 				room_was_in = ch->in_room;
 				char_from_room(ch,false);
 				char_to_room(ch, real_room(ROOM_NUMBER(obj)),false);
+                acc_string_clear();
 				list_char_to_char(ch->in_room->people, ch);
+                send_to_char(ch, "%s", acc_get_string());
 				act("$n looks in from the outside.", false, ch, 0, 0, TO_ROOM);
 				char_from_room(ch,false);
 				char_to_room(ch, room_was_in,false);
@@ -2085,7 +2087,9 @@ ACMD(do_look)
 		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
 	else if (room_is_dark(ch->in_room) && !has_dark_sight(ch)) {
 		send_to_char(ch, "It is pitch black...\r\n");
+        acc_string_clear();
 		list_char_to_char(ch->in_room->people, ch);	// glowing red eyes
+        send_to_char(ch, "%s", acc_get_string());
 	} else {
 		half_chop(argument, arg, arg2);
 
@@ -2117,7 +2121,9 @@ ACMD(do_glance)
 		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
 	else if (room_is_dark(ch->in_room) && !has_dark_sight(ch)) {
 		send_to_char(ch, "It is pitch black...\r\n");
-		list_char_to_char(ch->in_room->people, ch);	/* glowing red eyes */
+        acc_string_clear();
+		list_char_to_char(ch->in_room->people, ch);	// glowing red eyes
+        send_to_char(ch, "%s", acc_get_string());
 	} else {
 		half_chop(argument, arg, arg2);
 
