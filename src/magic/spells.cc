@@ -1431,15 +1431,7 @@ ASPELL(spell_enchant_weapon)
 			60)
 			+ (GET_LEVEL(ch) >= 66);
 
-		if (IS_GOOD(ch)) {
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
-			act("$p glows blue.", false, ch, obj, 0, TO_CHAR);
-		} else if (IS_EVIL(ch)) {
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_GOOD);
-			act("$p glows red.", false, ch, obj, 0, TO_CHAR);
-		} else {
-			act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
-		}
+        act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
 		if (level > number(30, 50))
 			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
@@ -1504,15 +1496,7 @@ ASPELL(spell_enchant_armor)
 			obj->affected[3].modifier = saveMod;
 		}
 
-		if (IS_GOOD(ch)) {
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
-			act("$p glows blue.", false, ch, obj, 0, TO_CHAR);
-		} else if (IS_EVIL(ch)) {
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_GOOD);
-			act("$p glows red.", false, ch, obj, 0, TO_CHAR);
-		} else {
-			act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
-		}
+        act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
 		if (level > number(30, 50))
 			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
 		SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
@@ -1577,15 +1561,7 @@ ASPELL(spell_greater_enchant)
                                     (GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) +
                                     (GET_LEVEL(ch) >= 60) + (GET_LEVEL(ch) >= 67);
 
-		if (IS_GOOD(ch)) {
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
-			act("$p glows blue.", false, ch, obj, 0, TO_CHAR);
-		} else if (IS_EVIL(ch)) {
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_GOOD);
-			act("$p glows red.", false, ch, obj, 0, TO_CHAR);
-		} else {
-			act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
-		}
+        act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
 	}
 	if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR) &&
 		(!IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC)
@@ -1616,15 +1592,7 @@ ASPELL(spell_greater_enchant)
 		obj->affected[3].location = APPLY_SAVING_SPELL;
 		obj->affected[3].modifier = saveMod;
 
-		if (IS_GOOD(ch)) {
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
-			act("$p glows blue.", false, ch, obj, 0, TO_CHAR);
-		} else if (IS_EVIL(ch)) {
-			SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_GOOD);
-			act("$p glows red.", false, ch, obj, 0, TO_CHAR);
-		} else {
-			act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
-		}
+        act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
 	}
 	SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
 	if (level > number(35, 52))
