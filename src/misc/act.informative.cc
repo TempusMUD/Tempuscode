@@ -1846,10 +1846,15 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 					look_at_room(ch, car->in_room, 1);
 					found = 1;
 				}
-			} else if (!found)
+			} else if (!found) {
+				acc_string_clear();
 				show_obj_to_char(found_obj, ch, SHOW_OBJ_EXTRA, 0);	/* Show no-description */
-			else
+				page_string(ch->desc, acc_get_string());
+			} else {
+				acc_string_clear();
 				show_obj_to_char(found_obj, ch, SHOW_OBJ_BITS, 0);	/* Find hum, glow etc */
+				send_to_char(ch, "%s", acc_get_string());
+			}
 		}
 
 	} else if (!found)
