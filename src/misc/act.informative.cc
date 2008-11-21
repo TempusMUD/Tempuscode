@@ -1356,8 +1356,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 		for (o = room->contents; o; o = o->next_content) {
 			if (GET_OBJ_VNUM(o) == BLOOD_VNUM) {
 				if (!blood_shown) {
-					send_to_char(ch,
-						"%s%s.%s\r\n",
+					acc_sprintf("%s%s.%s\r\n",
 						CCRED(ch, C_NRM),
 						GET_OBJ_TIMER(o) < 10 ?
 						"Some spots of blood have been splattered around" :
@@ -1375,8 +1374,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 
 			if (GET_OBJ_VNUM(o) == ICE_VNUM) {
 				if (!ice_shown) {
-					send_to_char(ch,
-						"%s%s.%s\r\n",
+                    acc_sprintf("%s%s.%s\r\n",
 						CCCYN(ch, C_NRM),
 						GET_OBJ_TIMER(o) < 10 ?
 						"A few patches of ice are scattered around" :
