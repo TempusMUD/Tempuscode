@@ -157,7 +157,7 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
 //
 
 void
-bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_power,
+bomb_damage_room(Creature *damager, int damager_id, char *bomb_name, int bomb_type, int bomb_power,
 	struct room_data *room, int dir, int power,
 	struct Creature *precious_vict)
 {
@@ -375,7 +375,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 			af.modifier = 0;
 			af.aff_index = 1;
 			af.level = 30;
-            af.owner = vict->getIdNum();
+            af.owner = damager_id;
 			affect_to_char(vict, &af);
 		}
 
@@ -443,7 +443,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 		rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.flags = ROOM_FLAME_FILLED;
-        rm_aff.owner = damager->getIdNum();
+        rm_aff.owner = damager_id;
 		affect_to_room(room, &rm_aff);
 	} else if (bomb_type == BOMB_NUCLEAR &&
 		!ROOM_FLAGGED(room, ROOM_RADIOACTIVE)) {
@@ -453,7 +453,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
 		rm_aff.flags = ROOM_RADIOACTIVE;
-        rm_aff.owner = damager->getIdNum();
+        rm_aff.owner = damager_id;
 		affect_to_room(room, &rm_aff);
 	} else if (bomb_type == BOMB_SMOKE &&
 		!ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)) {
@@ -464,6 +464,7 @@ bomb_damage_room(Creature *damager, char *bomb_name, int bomb_type, int bomb_pow
 		rm_aff.type = RM_AFF_FLAGS;
 		rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
 		rm_aff.flags = ROOM_SMOKE_FILLED | ROOM_NOTRACK;
+        rm_aff.owner = damager_id;
 		affect_to_room(room, &rm_aff);
 	}
 }
@@ -550,7 +551,7 @@ detonate_bomb(struct obj_data *bomb)
 	for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 		next_elem = rad_elem->next;
 
-		bomb_damage_room(damager, bomb->name, BOMB_TYPE(bomb),
+		bomb_damage_room(damager, BOMB_IDNUM(bomb), bomb->name, BOMB_TYPE(bomb),
 			BOMB_POWER(bomb), rad_elem->room, find_first_step(rad_elem->room,
 				room, GOD_TRACK), rad_elem->power);
 		free(rad_elem);
@@ -633,7 +634,7 @@ engage_self_destruct(struct Creature *ch)
 	for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 		next_elem = rad_elem->next;
 
-		bomb_damage_room(NULL, GET_NAME(ch),
+		bomb_damage_room(NULL, ch->getIdNum(), GET_NAME(ch),
 			SKILL_SELF_DESTRUCT,
 			level,
 			rad_elem->room,
