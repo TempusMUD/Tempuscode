@@ -481,7 +481,7 @@ detonate_bomb(struct obj_data *bomb)
 	struct obj_data *cont = bomb->in_obj, *next_obj = NULL;
 	struct bomb_radius_list *rad_elem = NULL, *next_elem = NULL;
 	bool internal = false;
-    Creature *damager = get_char_in_world_by_idnum(GET_OBJ_VAL(bomb, 3));
+    Creature *damager = get_char_in_world_by_idnum(BOMB_IDNUM(bomb));
 
 	if (!ch) {
 		ch = bomb->worn_by;
@@ -537,11 +537,11 @@ detonate_bomb(struct obj_data *bomb)
 	}
 
 	if ((cont || internal) && BOMB_IS_FLASH(bomb))
-		add_bomb_room(room, -1, BOMB_POWER(bomb) >> 4);
+		add_bomb_room(room, -1, BOMB_POWER(bomb) / 16);
 	else if (internal)
-		add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb) >> 2));
+		add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb) / 4));
 	else if (!bomb->in_room)
-		add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb) >> 1));
+		add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb) / 2));
 	else
 		add_bomb_room(room, -1, MIN(500, BOMB_POWER(bomb)));
 

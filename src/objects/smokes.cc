@@ -413,7 +413,7 @@ ACMD(do_light)
 				act("You light $p.", true, ch, obj, 0, TO_CHAR);
 				act("$n lights $p.", true, ch, obj, 0, TO_ROOM);
 				FUSE_STATE(obj->contains) = 1;
-				BOMB_IDNUM(obj) = GET_IDNUM(ch);
+				BOMB_IDNUM(obj) = (IS_NPC(ch)) ? -MOB_IDNUM(ch):GET_IDNUM(ch);
 			}
 		} else if (GET_OBJ_VAL(obj, 3))
 			send_to_char(ch, "That's already lit.\r\n");
