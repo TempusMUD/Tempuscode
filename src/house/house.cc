@@ -769,26 +769,30 @@ HouseControl::load()
 void
 HouseControl::collectRent()
 {
-	lastCollection = time(0);
+    extern int production_mode;
 
-	for( unsigned int i = 0; i < getHouseCount(); i++) {
-		House *house = getHouse(i);
-		if( house->getType() == House::PUBLIC )
-			continue;
-		if( house->getType() == House::PRIVATE
-		 || house->getType() == House::RENTAL )
-		{
-			// If the player is online, do not charge rent.
-			Account *account = Account::retrieve( house->getOwnerID() );
-			if( account == NULL  || account->is_logged_in() )
-				continue;
-		}
+    if (production_mode) {
+        lastCollection = time(0);
 
-		// Cost per minute
-		int cost = (int) ( ( house->calcRentCost() / 24.0 ) / 60 );
-		house->collectRent(cost);
-		house->save();
-	}
+        for( unsigned int i = 0; i < getHouseCount(); i++) {
+            House *house = getHouse(i);
+            if( house->getType() == House::PUBLIC )
+                continue;
+            if( house->getType() == House::PRIVATE
+                || house->getType() == House::RENTAL )
+            {
+                // If the player is online, do not charge rent.
+                Account *account = Account::retrieve( house->getOwnerID() );
+                if( account == NULL  || account->is_logged_in() )
+                    continue;
+            }
+
+            // Cost per minute
+            int cost = (int) ( ( house->calcRentCost() / 24.0 ) / 60 );
+            house->collectRent(cost);
+            house->save();
+        }
+    }
 }
 
 int
