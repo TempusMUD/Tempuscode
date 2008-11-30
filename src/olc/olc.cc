@@ -980,7 +980,8 @@ ACMD(do_olc)
 		while (desc) {
 			CREATE(ndesc, struct extra_descr_data, 1);
 			ndesc->keyword = strdup(desc->keyword);
-			ndesc->description = strdup(desc->description);
+            if (ndesc->description)
+                ndesc->description = strdup(desc->description);
 			ndesc->next = obj_p->ex_description;
 			obj_p->ex_description = ndesc;
 			desc = desc->next;
