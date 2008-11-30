@@ -4,5 +4,12 @@ aclocal -I m4
 autoconf
 autoheader
 automake -a
-mkdir -p build lib/world/{wld,obj,mob,zon}/olc lib/log log/parsed lib/bak lib/etc
+mkdir -p build \
+    lib/world/wld/olc \
+    lib/world/obj/olc \
+    lib/world/mob/olc \
+    lib/world/zon/olc \
+    lib/log log/parsed \
+    lib/bak \
+    lib/etc
 cp /etc/localtime lib/etc/ # for chroot
