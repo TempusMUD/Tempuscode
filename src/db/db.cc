@@ -2633,16 +2633,20 @@ randomize_object(struct obj_data *obj)
 	case ITEM_ENGINE:
 	case ITEM_COMMUNICATOR:
 	case ITEM_TRANSPORTER:
-		GET_OBJ_VAL(obj, 0) = rand_value(
-			GET_OBJ_VAL(obj, 0),
-			GET_OBJ_VAL(obj, 0) / 4,
-			1,
-			-1);
-		GET_OBJ_VAL(obj, 1) = rand_value(
-			GET_OBJ_VAL(obj, 1),
-			GET_OBJ_VAL(obj, 1) / 4,
-			1,
-			GET_OBJ_VAL(obj, 0));
+        if (GET_OBJ_VAL(obj, 0) > 0) {
+            GET_OBJ_VAL(obj, 0) = rand_value(
+                GET_OBJ_VAL(obj, 0),
+                GET_OBJ_VAL(obj, 0) / 4,
+                1,
+                -1);
+        }
+        if (GET_OBJ_VAL(obj, 1) > 0) {
+            GET_OBJ_VAL(obj, 1) = rand_value(
+                GET_OBJ_VAL(obj, 1),
+                GET_OBJ_VAL(obj, 1) / 4,
+                1,
+                GET_OBJ_VAL(obj, 0));
+        }
 		break;
 	// Weapon damage dice
 	case ITEM_ENERGY_GUN:
