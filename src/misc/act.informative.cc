@@ -4422,7 +4422,8 @@ show_all_toggles(Creature *ch)
 		"  Music Channel: %-3s    "
 		"  Dream Channel: %-3s\r\n"
 		"  Guild Channel: %-3s    "
-		"   Clan Channel: %-3s\r\n"
+		"   Clan Channel: %-3s    "
+		" Haggle Channel: %-3s\r\n"
 		"\r\n"
 		"-- GAMEPLAY ------------------------------------------------------------------\r\n"
 		"      Autosplit: %-3s    "
@@ -4464,6 +4465,7 @@ show_all_toggles(Creature *ch)
 		ONOFF(!PRF_FLAGGED(ch, PRF_NODREAM)),
 		ONOFF(!PRF2_FLAGGED(ch, PRF2_NOGUILDSAY)),
 		ONOFF(!PRF_FLAGGED(ch, PRF_NOCLANSAY)),
+		ONOFF(!PRF_FLAGGED(ch, PRF_NOHAGGLE)),
 
 		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)),
 		ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOLOOT)),
