@@ -37,6 +37,7 @@
 #include "fight.h"
 #include "screen.h"
 #include "prog.h"
+#include "materials.h"
 #include "language.h"
 
 extern struct obj_data *object_list;
@@ -752,61 +753,48 @@ point_update(void)
 					act("$p disintegrates as you are wearing it.", false,
 						j->worn_by, j, 0, TO_CHAR);
 				else if ((j->in_room != NULL) && (j->in_room->people)) {
+                    const char *msg = "$p decays into nothing right before your eyes.";
+
 					if (ROOM_FLAGGED(j->in_room, ROOM_FLAME_FILLED) ||
 						SECT_TYPE(j->in_room) == SECT_FIRE_RIVER ||
 						GET_PLANE(j->in_room) == PLANE_HELL_4 ||
 						GET_PLANE(j->in_room) == PLANE_HELL_1
 						|| !number(0, 50)) {
-						act("$p spontaneously combusts and is devoured by flames.", true, j->in_room->people, j, 0, TO_ROOM);
-						act("$p spontaneously combusts and is devoured by flames.", true, j->in_room->people, j, 0, TO_CHAR);
+						msg = "$p spontaneously combusts and is devoured by flames.";
 					} else if (ROOM_FLAGGED(j->in_room, ROOM_ICE_COLD) ||
 						GET_PLANE(j->in_room) == PLANE_HELL_5
 						|| !number(0, 250)) {
-						act("$p freezes and shatters into dust.", true,
-							j->in_room->people, j, 0, TO_ROOM);
-						act("$p freezes and shatters into dust.", true,
-							j->in_room->people, j, 0, TO_CHAR);
+						msg = "$p freezes and shatters into dust.";
 					} else if (GET_PLANE(j->in_room) == PLANE_ASTRAL
 						|| !number(0, 250)) {
-						act("A sudden psychic wind rips through $p.", true,
-							j->in_room->people, j, 0, TO_ROOM);
-						act("A sudden psychic wind rips through $p.", true,
-							j->in_room->people, j, 0, TO_CHAR);
+						msg = "A sudden psychic wind rips through $p.";
 					} else if (GET_TIME_FRAME(j->in_room) == TIME_TIMELESS
 						|| !number(0, 250)) {
-						act("$p is pulled into a timeless void and nullified.",
-							true, j->in_room->people, j, 0, TO_ROOM);
-						act("$p is pulled into a timeless void and nullified.",
-							true, j->in_room->people, j, 0, TO_CHAR);
+						msg = "$p is pulled into a timeless void and nullified.";
 					} else if (SECT_TYPE(j->in_room) == SECT_WATER_SWIM
 						|| SECT_TYPE(j->in_room) == SECT_WATER_NOSWIM) {
-						act("$p sinks beneath the surface and is gone.", true,
-							j->in_room->people, j, 0, TO_ROOM);
-						act("$p sinks beneath the surface and is gone.", true,
-							j->in_room->people, j, 0, TO_CHAR);
-					} else if (room_is_underwater(j->in_room)) {
-						act("A school of small fish appears and devours $p.",
-							true, j->in_room->people, j, 0, TO_ROOM);
-						act("A school of small fish appears and devours $p.",
-							true, j->in_room->people, j, 0, TO_CHAR);
-					} else if (!ROOM_FLAGGED(j->in_room, ROOM_INDOORS)
-						&& !number(0, 2)) {
-						act("A flock of carrion birds hungrily devours $p.",
-							true, j->in_room->people, j, 0, TO_ROOM);
-						act("A flock of carrion birds hungrily devours $p.",
-							true, j->in_room->people, j, 0, TO_CHAR);
-					} else if (number(0, 3)) {
-						act("A quivering horde of maggots consumes $p.",
-							true, j->in_room->people, j, 0, TO_ROOM);
-						act("A quivering horde of maggots consumes $p.",
-							true, j->in_room->people, j, 0, TO_CHAR);
-					} else {
-						act("$p decays into nothing before your eyes.",
-							true, j->in_room->people, j, 0, TO_ROOM);
-						act("$p decays into nothing before your eyes.",
-							true, j->in_room->people, j, 0, TO_CHAR);
-					}
-				}
+						msg = "$p sinks beneath the surface and is gone.";
+					} else if (IS_METAL_TYPE(j)
+                               || IS_GLASS_TYPE(j)
+                               || IS_WOOD_TYPE(j)
+                               || IS_PLASTIC_TYPE(j)) {
+						msg = "$p disintegrates before your eyes.";
+					} else if (IS_STONE_TYPE(j) || GET_OBJ_MATERIAL(j) == MAT_BONE) {
+						msg = "$p disintegrates into dust and is blown away.";
+                    } else if (room_is_underwater(j->in_room)) {
+                        msg = "A school of small fish appears and devours $p.";
+                    } else if (!ROOM_FLAGGED(j->in_room, ROOM_INDOORS)
+                               && !number(0, 2)) {
+                        msg = "A flock of carrion birds hungrily devours $p.";
+                    } else if (number(0, 3)) {
+                        msg = "A quivering horde of maggots consumes $p.";
+                    } else {
+                        msg = "$p decays into nothing before your eyes.";
+                    }
+
+                    act(msg, true, j->in_room->people, j, 0, TO_ROOM);
+                    act(msg, true, j->in_room->people, j, 0, TO_CHAR);
+                }
 
 				for (jj = j->contains; jj; jj = next_thing2) {
 					next_thing2 = jj->next_content;	/* Next in inventory */
