@@ -19,8 +19,7 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
 	if (!vict->in_room)
 		return false;
 
-	if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA) ||
-			GET_ZONE(vict->in_room) == 400)
+	if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA))
 		return true;
 
     //mobs don't quest
@@ -37,8 +36,7 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
 	if (!ch || !ch->in_room)
 		return false;
 
-    if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) ||
-			GET_ZONE(ch->in_room) == 400)
+    if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
 		return true;
 
     //mobs don't quest
