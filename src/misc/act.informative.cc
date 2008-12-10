@@ -1049,11 +1049,14 @@ do_auto_exits(struct Creature *ch, struct room_data *room)
 
         acc_sprintf("%s[ Hidden Doors: ", CCCYN(ch, C_NRM));
         found = false;
-		for (door = 0; door < NUM_OF_DIRS; door++)
+		for (door = 0; door < NUM_OF_DIRS; door++) {
 			if (ABS_EXIT(room, door) && ABS_EXIT(room, door)->to_room != NULL
 				&& IS_SET(ABS_EXIT(room, door)->exit_info,
-					EX_SECRET | EX_HIDDEN))
+                          EX_SECRET | EX_HIDDEN)) {
 				acc_sprintf("%c ", tolower(*dirs[door]));
+                found = true;
+            }
+        }
 
         acc_sprintf("%s]%s\r\n", found ? "" : "None ", CCNRM(ch, C_NRM));
 	} else
