@@ -1907,6 +1907,28 @@ prog_unreference_object(obj_data *obj)
 	}
 }
 
+void
+report_prog_loop(thing *owner, prog_evt_type owner_type, Creature *ch, const char *where)
+{
+    const char *owner_desc = "<unknown>";
+	switch (owner_type) {
+	case PROG_TYPE_OBJECT:
+        owner_desc = tmp_sprintf("object %d", GET_OBJ_VNUM((obj_data *)owner));
+	case PROG_TYPE_MOBILE:
+		owner_desc = tmp_sprintf("mobile %d", GET_MOB_VNUM(owner->to_c()));
+	case PROG_TYPE_ROOM:
+		owner_desc = tmp_sprintf("room %d", ((room_data *)owner)->number);
+	default:
+		break;
+	}
+    mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop detected in %s of %s (triggered by %s %s[%ld])",
+           where,
+           owner_desc,
+           (IS_NPC(ch)) ? "MOB":"PC",
+           GET_NAME(ch),
+           (IS_NPC(ch)) ? GET_MOB_VNUM(ch):GET_IDNUM(ch));
+}
+
 bool
 trigger_prog_cmd(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 	char *argument)
@@ -1922,7 +1944,7 @@ trigger_prog_cmd(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 	// We don't want an infinite loop with triggered progs that
 	// trigger a prog, etc.
 	if (loop_fence >= 20) {
-		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+        report_prog_loop(owner, owner_type, ch, "command handler");
 		return false;
 	}
 
@@ -1980,7 +2002,7 @@ trigger_prog_spell(thing *owner, prog_evt_type owner_type, Creature * ch, int cm
 	// We don't want an infinite loop with triggered progs that
 	// trigger a prog, etc.
 	if (loop_fence >= 20) {
-		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+        report_prog_loop(owner, owner_type, ch, "spell handler");
 		return false;
 	}
 
@@ -2031,7 +2053,7 @@ trigger_prog_move(thing *owner, prog_evt_type owner_type, Creature * ch,
 	// We don't want an infinite loop with mobs triggering progs that
 	// trigger a prog, etc.
 	if (loop_fence >= 20) {
-		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+        report_prog_loop(owner, owner_type, ch, "move handler");
 		return false;
 	}
 
@@ -2101,7 +2123,7 @@ trigger_prog_dying(Creature *owner, Creature *killer)
 	// We don't want an infinite loop with triggered progs that
 	// trigger a prog, etc.
 	if (loop_fence >= 20) {
-		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+        report_prog_loop(owner, PROG_TYPE_MOBILE, killer, "dying handler");
 		return;
 	}
 
@@ -2132,7 +2154,7 @@ trigger_prog_death(thing *owner, prog_evt_type owner_type, Creature *doomed)
 	// We don't want an infinite loop with triggered progs that
 	// trigger a prog, etc.
 	if (loop_fence >= 20) {
-		mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop halted.");
+        report_prog_loop(owner, owner_type, doomed, "death handler");
 		return;
 	}
 
