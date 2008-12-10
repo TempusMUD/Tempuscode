@@ -58,7 +58,6 @@ extern int top_of_p_table;
 extern int restrict;
 extern int num_of_houses;
 extern int mini_mud;
-extern int mud_moved;
 extern int log_cmds;
 extern struct spell_info_type spell_info[];
 extern struct house_control_rec house_control[];

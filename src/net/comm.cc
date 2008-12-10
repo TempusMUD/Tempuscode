@@ -67,7 +67,6 @@
 extern HelpCollection *Help;
 extern int restrict;
 extern int mini_mud;
-extern int mud_moved;
 extern int olc_lock;
 extern int no_rent_check;
 extern int no_initial_zreset;
@@ -1010,7 +1009,6 @@ new_descriptor(int s)
 	struct sockaddr_in peer;
 	struct hostent *from;
 	extern char *GREETINGS;
-	extern char *MUD_MOVED_MSG;
 
 	/* accept the new connection */
 	i = sizeof(peer);
@@ -1101,14 +1099,12 @@ new_descriptor(int s)
 
 	/* prepend to list */
 	descriptor_list = newd;
-	if (mud_moved) {
-		SEND_TO_Q("\033[H\033[J", newd);
-		SEND_TO_Q(MUD_MOVED_MSG, newd);
-	} else if (!mini_mud) {
+    if (mini_mud) {
+		SEND_TO_Q("(testmud)", newd);
+	} else {
 		SEND_TO_Q("\033[H\033[J", newd);
 		SEND_TO_Q(GREETINGS, newd);
-	} else
-		SEND_TO_Q("(testmud)", newd);
+    }
 	return 0;
 }
 
