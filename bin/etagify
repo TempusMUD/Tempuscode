@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if ! [ -x bin/etagify ]; then
+   echo Please run this in the tempus root directory
+   exit 1
+fi
+
+rm -f src/TAGS
+files=$(find src -type f | egrep '\.(cc|h|spec)')
+etags -o src/TAGS\
+      -r '/ASPELL(\(.*\))$/\1/' \
+      -r '/ACMD(\(.*\))$/\1/' \
+      -r '/ACCMD(\(.*\))$/\1/' \
+      -r '/SPECIAL(\(.*\))$/\1/' \
+      $files
