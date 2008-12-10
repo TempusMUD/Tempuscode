@@ -374,6 +374,7 @@ handle_input(struct descriptor_data *d)
 						"%s has reconnected from linkless",
 						GET_NAME(d->creature));
 					send_to_desc(d, "\r\n\r\nYou take over your own body!\r\n");
+                    act("$n has regained $s link.", true, d->creature, 0, 0, TO_ROOM);
 				}
 
 				set_desc_state(CXN_PLAYING, d);
