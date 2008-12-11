@@ -1911,22 +1911,29 @@ void
 report_prog_loop(thing *owner, prog_evt_type owner_type, Creature *ch, const char *where)
 {
     const char *owner_desc = "<unknown>";
+    const char *ch_desc = "<unknown>";
+
 	switch (owner_type) {
 	case PROG_TYPE_OBJECT:
-        owner_desc = tmp_sprintf("object %d", GET_OBJ_VNUM((obj_data *)owner));
+        owner_desc = tmp_sprintf("object %d", GET_OBJ_VNUM((obj_data *)owner)); break;
 	case PROG_TYPE_MOBILE:
-		owner_desc = tmp_sprintf("mobile %d", GET_MOB_VNUM(owner->to_c()));
+		owner_desc = tmp_sprintf("mobile %d", GET_MOB_VNUM(owner->to_c())); break;
 	case PROG_TYPE_ROOM:
-		owner_desc = tmp_sprintf("room %d", ((room_data *)owner)->number);
+		owner_desc = tmp_sprintf("room %d", ((room_data *)owner)->number); break;
 	default:
 		break;
 	}
-    mudlog(LVL_IMMORT, NRM, true, "Infinite prog loop detected in %s of %s (triggered by %s %s[%ld])",
+
+    if (ch)
+        ch_desc = tmp_sprintf("%s %s[%ld]",
+                              (IS_NPC(ch)) ? "MOB":"PC",
+                              GET_NAME(ch),
+                              (IS_NPC(ch)) ? GET_MOB_VNUM(ch):GET_IDNUM(ch));
+
+    errlog("Infinite prog loop detected in %s of %s (triggered by %s)",
            where,
            owner_desc,
-           (IS_NPC(ch)) ? "MOB":"PC",
-           GET_NAME(ch),
-           (IS_NPC(ch)) ? GET_MOB_VNUM(ch):GET_IDNUM(ch));
+           ch_desc);
 }
 
 bool
@@ -1961,8 +1968,10 @@ trigger_prog_cmd(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 	prog_execute(env);
 
     // Check for death or destruction of the owner
-    if (env && !env->owner)
+    if (env && !env->owner) {
+        loop_fence -= 1;
         return true;
+    }
 
 	evt.phase = PROG_EVT_HANDLE;
 	strcpy(evt.args, argument);
@@ -1970,8 +1979,10 @@ trigger_prog_cmd(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 	prog_execute(handler_env);
 
     // Check for death or destruction of the owner
-    if (handler_env && !handler_env->owner)
+    if (handler_env && !handler_env->owner) {
+        loop_fence -= 1;
         return true;
+    }
 
 	evt.phase = PROG_EVT_AFTER;
 	strcpy(evt.args, argument);
@@ -2018,10 +2029,22 @@ trigger_prog_spell(thing *owner, prog_evt_type owner_type, Creature * ch, int cm
 	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
 
+    // Check for death or destruction of the owner
+    if (env && !env->owner) {
+        loop_fence -= 1;
+        return true;
+    }
+
 	evt.phase = PROG_EVT_HANDLE;
 	strcpy(evt.args, "");
 	handler_env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(handler_env);
+
+    // Check for death or destruction of the owner
+    if (env && !env->owner) {
+        loop_fence -= 1;
+        return true;
+    }
 
 	evt.phase = PROG_EVT_AFTER;
 	strcpy(evt.args, "");
@@ -2069,10 +2092,22 @@ trigger_prog_move(thing *owner, prog_evt_type owner_type, Creature * ch,
 	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
 
+    // Check for death or destruction of the owner
+    if (env && !env->owner) {
+        loop_fence -= 1;
+        return true;
+    }
+
 	evt.phase = PROG_EVT_HANDLE;
 	strcpy(evt.args, "");
 	handler_env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(handler_env);
+
+    // Check for death or destruction of the owner
+    if (env && !env->owner) {
+        loop_fence -= 1;
+        return true;
+    }
 
 	evt.phase = PROG_EVT_AFTER;
 	strcpy(evt.args, "");
@@ -2170,6 +2205,7 @@ trigger_prog_death(thing *owner, prog_evt_type owner_type, Creature *doomed)
 	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
 
+
 	evt.phase = PROG_EVT_AFTER;
 	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
@@ -2212,6 +2248,8 @@ trigger_prog_idle(thing *owner, prog_evt_type owner_type)
     if (!prog_get_obj(owner, owner_type))
         return;
 
+    loop_fence++;
+
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_IDLE;
 	evt.cmd = -1;
@@ -2223,6 +2261,8 @@ trigger_prog_idle(thing *owner, prog_evt_type owner_type)
 	// We start an idle mobprog here
 	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
+
+    loop_fence--;
 }
 
 //handles idle combat actions
@@ -2235,6 +2275,8 @@ trigger_prog_combat(thing *owner, prog_evt_type owner_type)
     if (!prog_get_obj(owner, owner_type))
         return;
 
+    loop_fence++;
+
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_COMBAT;
 	evt.cmd = -1;
@@ -2246,6 +2288,8 @@ trigger_prog_combat(thing *owner, prog_evt_type owner_type)
 	// We start a combat prog here
 	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
+
+    loop_fence--;
 }
 
 void
@@ -2279,6 +2323,8 @@ trigger_prog_tick(thing *owner, prog_evt_type owner_type)
     if (!prog_get_obj(owner, owner_type))
         return;
 
+    loop_fence++;
+
 	evt.phase = PROG_EVT_HANDLE;
 	evt.kind = PROG_EVT_TICK;
 	evt.cmd = -1;
@@ -2289,6 +2335,8 @@ trigger_prog_tick(thing *owner, prog_evt_type owner_type)
 
 	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
+
+    loop_fence--;
 }
 
 static void
