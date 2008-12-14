@@ -1030,7 +1030,6 @@ struct command_info cmd_info[] = {
 	{"noproject", POS_DEAD, do_gen_tog, 1, SCMD_NOPROJECT, 0, 0},
     {"nose", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"noshout", POS_SLEEPING, do_gen_tog, 1, SCMD_DEAF, 0, 0},
-	{"nomusic", POS_DEAD, do_gen_tog, 0, SCMD_NOMUSIC, 0, 0},
 	{"nospew", POS_DEAD, do_gen_tog, 1, SCMD_NOSPEW, 0, 0},
 	{"note", POS_RESTING, do_say, 0, 0, 0, 0},
 	{"notell", POS_DEAD, do_gen_tog, 1, SCMD_NOTELL, 0, 0},
