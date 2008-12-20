@@ -1433,7 +1433,7 @@ hcontrol_set_house( Creature *ch, char *arg)
 }
 
 void
-hcontrol_where_house( Creature *ch, char *arg)
+hcontrol_where_house(Creature *ch)
 {
 	House *h = Housing.findHouseByRoom(ch->in_room->number);
 
@@ -1784,7 +1784,7 @@ ACMD(do_hcontrol)
     } else if (is_abbrev(action_str, "find")) {
         hcontrol_find_houses(ch, argument);
     } else if (is_abbrev(action_str, "where")) {
-		hcontrol_where_house(ch, argument);
+		hcontrol_where_house(ch);
 	} else if (is_abbrev(action_str, "show") ) {
 		if( !*argument ) {
 			list<House*> houses;

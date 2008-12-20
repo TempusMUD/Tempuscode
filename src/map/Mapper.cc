@@ -321,10 +321,10 @@ Mapper::drawRoom(room_data * s, room_data * t, long row, long col)
 
 void
 Mapper::drawLink(room_data * s,	// Source Room
-	room_data * t,				// Target Room
-	int row,					// Target's row
-	int col,					// Target's col
-	bool justLink				//are we drawing only the link?
+                 room_data * t, // Target Room
+                 int row,       // Target's row
+                 int col,       // Target's col
+                 bool justLink __attribute__ ((unused)) //are we drawing only the link?
 	)
 {
 	// Check for doors (when doors exist) adding + instead of | or -

@@ -162,7 +162,7 @@ perform_net_load(descriptor_data *d,char *arg)
 }
 
 void
-perform_net_who(struct Creature *ch, const char *arg)
+perform_net_who(struct Creature *ch, const char *arg __attribute__ ((unused)))
 {
     struct descriptor_data *d = NULL;
     int count = 0;
@@ -207,7 +207,8 @@ void perform_net_finger(struct Creature *ch, const char *arg)
 }
 
 void
-perform_net_list(struct Creature * ch, int char_class) {
+perform_net_list(struct Creature *ch)
+{
     int i, sortpos;
 
     strcpy(buf2, "Directory listing for local programs.\r\n\r\n");
@@ -257,7 +258,7 @@ handle_network(descriptor_data *d,char *arg) {
 		SEND_TO_Q("Connection closed.\r\n",d);
 		act("$n disconnects from the network.", true, d->creature, 0, 0, TO_ROOM);
 	} else if ( IS_CYBORG(d->creature) && is_abbrev( arg1,"list" ) ) {
-		perform_net_list(d->creature, CLASS_CYBORG);
+		perform_net_list(d->creature);
 	} else if ( IS_CYBORG(d->creature) && ( is_abbrev( arg1,"load" ) || is_abbrev(arg,"download"))) {
 		perform_net_load(d, arg);
 	} else {

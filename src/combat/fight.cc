@@ -166,8 +166,7 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 extern bool LOG_DEATHS;
 
 void
-die(struct Creature *ch, struct Creature *killer, int attacktype,
-	int is_humil)
+die(struct Creature *ch, struct Creature *killer, int attacktype)
 {
 	if (IS_NPC(ch) && GET_MOB_SPEC(ch)) {
 		if (GET_MOB_SPEC(ch) (killer, ch, 0, NULL, SPECIAL_DEATH)) {
@@ -2302,7 +2301,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 			if (ch->isHunting() && ch->isHunting() == victim)
 				ch->stopHunting();
-			die(victim, ch, attacktype, is_humil);
+			die(victim, ch, attacktype);
 			DAM_RETURN(DAM_VICT_KILLED);
 
 		}
@@ -2317,7 +2316,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				attack_type[attacktype - TYPE_HIT] : "bunk",
 				victim->in_room->number, victim->in_room->name);
 		}
-		die(victim, NULL, attacktype, is_humil);
+		die(victim, NULL, attacktype);
 		DAM_RETURN(DAM_VICT_KILLED);
 	}
 	//

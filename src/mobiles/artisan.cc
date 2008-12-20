@@ -299,11 +299,15 @@ Craftshop::buy(Creature *keeper, Creature *ch, char *arguments)
 
 	item = NULL;
 	if (*arg == '#') {
-		unsigned int num;
+		int num;
 
 		arg++;
-		num = (unsigned int)atoi(arg) - 1;
-		if (num >= 0 && num < items.size())
+		num = atoi(arg) - 1;
+        if (num <= 0) {
+            perform_say_to(keeper, ch, "That's not a proper item!");
+            return;
+        }
+		if ((unsigned int)num < items.size())
 			item = items[num];
 	} else {
 		for (item_itr= items.begin();item_itr!= items.end();item_itr++) {

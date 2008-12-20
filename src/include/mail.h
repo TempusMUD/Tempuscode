@@ -51,11 +51,9 @@ extern const int MAIL_OBJ_VNUM;
 
 // Prototypes for postmaster specs
 void postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
-	int cmd, char *arg);
-void postmaster_check_mail(struct Creature *ch, struct Creature *mailman,
-	int cmd, char *arg);
-void postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
-	int cmd, char *arg);
+	char *arg);
+void postmaster_check_mail(struct Creature *ch, struct Creature *mailman);
+void postmaster_receive_mail(struct Creature *ch, struct Creature *mailman);
 // Redundant redeclarations for utility functions
 void string_add(struct descriptor_data *d, char *str);
 
@@ -63,7 +61,7 @@ void string_add(struct descriptor_data *d, char *str);
 int has_mail(long recipient);
 int has_mail(Creature * ch);
 int store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
-	time_t * cur_time = NULL, struct obj_data *obj_list = NULL);
+               struct obj_data *obj_list = NULL);
 int receive_mail(Creature * ch, list<obj_data *> &olist);
 int purge_mail(long idnum);
 

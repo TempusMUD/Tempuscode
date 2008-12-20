@@ -67,8 +67,6 @@ xml_boot(void)
 				load_xml_object(node);
 			else if (xmlMatches(node->name, "mobile"))
 				load_xml_mobile(node);
-			else if (xmlMatches(node->name, "zone"))
-				load_xml_zone(node);
 			else if (xmlMatches(node->name, "room"))
 				load_xml_room(node);
 			else
@@ -450,9 +448,4 @@ load_xml_room(xmlNodePtr node)
 		room->max_occupancy = 2;
 		REMOVE_BIT(room->room_flags, ROOM_TUNNEL);
 	}
-}
-
-void
-load_xml_zone(xmlNodePtr node)
-{
 }

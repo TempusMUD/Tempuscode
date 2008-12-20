@@ -124,7 +124,7 @@ mail_box_status(long id)
 // Returns 0 if mail not stored.
 int
 store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
-    time_t *cur_time, struct obj_data *obj_list)
+           struct obj_data *obj_list)
 {
     char *mail_file_path;
     FILE *ofile;
@@ -358,13 +358,13 @@ SPECIAL(postmaster)
         return 0;
 
     if (CMD_IS("mail")) {
-        postmaster_send_mail(ch, me->to_c(), cmd, argument);
+        postmaster_send_mail(ch, me->to_c(), argument);
         return 1;
     } else if (CMD_IS("check")) {
-        postmaster_check_mail(ch, me->to_c(), cmd, argument);
+        postmaster_check_mail(ch, me->to_c());
         return 1;
     } else if (CMD_IS("receive")) {
-        postmaster_receive_mail(ch, me->to_c(), cmd, argument);
+        postmaster_receive_mail(ch, me->to_c());
         return 1;
     } else
         return 0;
@@ -372,7 +372,7 @@ SPECIAL(postmaster)
 
 void
 postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
-    int cmd, char *arg)
+    char *arg)
 {
     long recipient;
     char buf[MAX_STRING_LENGTH];
@@ -508,8 +508,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
 }
 
 void
-postmaster_check_mail(struct Creature *ch, struct Creature *mailman,
-    int cmd, char *arg)
+postmaster_check_mail(struct Creature *ch, struct Creature *mailman)
 {
     char buf2[256];
 
@@ -521,8 +520,7 @@ postmaster_check_mail(struct Creature *ch, struct Creature *mailman,
 }
 
 void
-postmaster_receive_mail(struct Creature *ch, struct Creature *mailman,
-    int cmd, char *arg)
+postmaster_receive_mail(struct Creature *ch, struct Creature *mailman)
 {
     char *to_char = NULL, *to_room = NULL;
     int num_mails = 0;

@@ -151,39 +151,9 @@ class Quest {
 		ubyte type;
 };
 
-// qcontrol subfunctions
-void do_qcontrol_show(Creature * ch, char *argument);
-void do_qcontrol_options(Creature *ch);
-void do_qcontrol_create(Creature *ch, char *argument, int com);
-void do_qcontrol_end(Creature *ch, char *argument, int com);
-void do_qcontrol_add(Creature *ch, char *argument, int com);
-void do_qcontrol_kick(Creature *ch, char *argument, int com);
-void do_qcontrol_flags(Creature *ch, char *argument, int com);
-void do_qcontrol_comment(Creature *ch, char *argument, int com);
-void do_qcontrol_desc(Creature *ch, char *argument, int com);
-void do_qcontrol_update(Creature *ch, char *argument, int com);
-void do_qcontrol_ban(Creature *ch, char *argument, int com);
-void do_qcontrol_unban(Creature *ch, char *argument, int com);
-void do_qcontrol_level(Creature *ch, char *argument, int com);
-void do_qcontrol_minlev(Creature *ch, char *argument, int com);
-void do_qcontrol_maxlev(Creature *ch, char *argument, int com);
-void do_qcontrol_mingen(Creature *ch, char *argument, int com);
-void do_qcontrol_maxgen(Creature *ch, char *argument, int com);
-void do_qcontrol_mute(Creature *ch, char *argument, int com);
-void do_qcontrol_unmute(Creature *ch, char *argument, int com);
-void do_qcontrol_award(Creature *ch, char *argument, int com);
-void do_qcontrol_penalize(Creature *ch, char *argument, int com);
-void do_qcontrol_save(Creature *ch, char *argument, int com);
-void do_qcontrol_mload(Creature *ch, char *argument, int com);	//Load mobile.
-void do_qcontrol_purge(Creature *ch, char *argument, int com);	//Purge mobile.
-void do_qcontrol_trans(Creature *ch, char *argument, int com);	//trans whole quest
-void do_qcontrol_title(Creature *ch, char *argument, int com);
-
 // utility functions
-void do_qcontrol_usage(Creature *ch, int com);
 Quest *find_quest(Creature *ch, char *argument);
 const char *list_active_quests(Creature *ch);
-const char *list_inactive_quests(Creature *ch);
 Quest *quest_by_vnum(int vnum);
 void qp_reload(int sig = 0);
 
@@ -191,7 +161,6 @@ void qlog(Creature *ch, const char *str, int type, int level, int file);
 
 Creature *check_char_vis(Creature *ch, char *name);
 void list_quest_players(Creature *ch, Quest * quest, char *outbuf);
-void list_quest_bans(Creature *ch, Quest * quest, char *outbuf);
 int boot_quests(void);
 int check_editors(Creature *ch, char **buffer);
 void save_quests();
@@ -200,7 +169,7 @@ void save_quests();
 void do_quest_list(Creature *ch);
 void do_quest_join(Creature *ch, char *argument);
 void do_quest_info(Creature *ch, char *argument);
-void do_quest_status(Creature *ch, char *argument);
+void do_quest_status(Creature *ch);
 void do_quest_who(Creature *ch, char *argument);
 void do_quest_leave(Creature *ch, char *argument);
 void do_quest_current(Creature *ch, char *argument);

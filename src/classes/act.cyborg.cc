@@ -1768,8 +1768,7 @@ ACMD(do_status)
 
 	case ITEM_CLIP:
 
-		for (bul = obj->contains, i = 0; bul; i++, bul = bul->next_content);
-
+        i = obj->getNumContained();
 		send_to_char(ch, "%s contains %d/%d cartridge%s.\r\n",
 			obj->name, i, MAX_LOAD(obj), i == 1 ? "" : "s");
 		break;
@@ -2878,24 +2877,11 @@ ACMD(do_cyberscan)
 		gain_skill_prof(ch, SKILL_CYBERSCAN);
 }
 
-int
-CLIP_COUNT(struct obj_data *clip)
-{
-	struct obj_data *bul = NULL;
-	int count = 0;
-
-	for (bul = clip->contains, count = 0; bul;
-		count++, bul = bul->next_content);
-
-	return count;
-}
-
 ACMD(do_load)
 {
-	struct obj_data *obj1 = NULL, *obj2 = NULL, *bullet = NULL;
+	struct obj_data *obj1 = NULL, *obj2 = NULL;
 	char *arg1, *arg2;
 	int i = 0;
-	int count = 0;
 	bool internal = false;
 
 	arg1 = tmp_getword(&argument);
@@ -2978,9 +2964,7 @@ ACMD(do_load)
 				act("$p does not fit in $P", false, ch, obj1, obj2, TO_CHAR);
 				return;
 			}
-			for (bullet = obj2->contains, count = 0; bullet;
-				count++, bullet = bullet->next_content);
-			if (count >= MAX_LOAD(obj2)) {
+			if (obj2->getNumContained() >= MAX_LOAD(obj2)) {
 				act("$P is already loaded to capacity.", false, ch, obj1, obj2,
 					TO_CHAR);
 				return;
@@ -3004,9 +2988,7 @@ ACMD(do_load)
 						false, ch, obj1, obj2, TO_CHAR);
 					return;
 				}
-				for (bullet = obj2->contains, count = 0; bullet;
-					count++, bullet = bullet->next_content);
-				if (count >= MAX_LOAD(obj2)) {
+				if (obj2->getNumContained() >= MAX_LOAD(obj2)) {
 					act("$P is already fully loaded.", false, ch, obj1, obj2,
 						TO_CHAR);
 					return;

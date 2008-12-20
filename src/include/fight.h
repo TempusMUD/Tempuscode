@@ -128,10 +128,8 @@ bool is_npk_combat(struct Creature *ch, struct Creature *vict);
 bool ok_to_damage(struct Creature *ch, struct Creature *vict);
 void count_pkill(struct Creature *killer, struct Creature *vict);
 void check_attack(struct Creature *ch, struct Creature *vict);
-void check_thief(struct Creature *ch, struct Creature *vict,
-	const char *debug_msg = 0);
-void die(struct Creature *ch, struct Creature *killer, int attacktype,
-	int is_humil);
+void check_thief(struct Creature *ch, struct Creature *vict);
+void die(struct Creature *ch, struct Creature *killer, int attacktype);
 int calculate_thaco(struct Creature *ch, struct Creature *victim,
 	struct obj_data *obj);
 bool perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_flags);

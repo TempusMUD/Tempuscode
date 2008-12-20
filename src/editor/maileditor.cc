@@ -146,7 +146,7 @@ CMailEditor::Finalize(const char *text)
     for (si = cc_list.begin(); si != cc_list.end(); si++) {
         long id = playerIndex.getID(si->c_str());
         stored_mail = store_mail(id, GET_IDNUM(desc->creature),
-                text,  cc_list, NULL, this->obj_list);
+                text,  cc_list, this->obj_list);
         if (stored_mail == 1) {
             for (r_d = descriptor_list; r_d; r_d = r_d->next) {
                 if (IS_PLAYING(r_d) && r_d->creature &&
@@ -496,7 +496,8 @@ CMailEditor::AddAttachment(char *obj_name)
     else {
         // Put object at end of list
         o = this->obj_list;
-        for (o = this->obj_list; o->next_content; o = o->next_content);
+        while (o->next_content)
+            o = o->next_content;
         o->next_content = obj;
         obj->next_content = NULL;
 

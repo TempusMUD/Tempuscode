@@ -525,12 +525,9 @@ Creature::getLevelBonus(int skill)
  *
  *  @return success or failure
  *  @param new_position the enumerated int position to be set to.
- *  @param mode: 1 == from update_pos;
- *  			 2 == from perform violence;
- *  			 NOTE: Previously used for debugging. No longer used.
 **/
 bool
-Creature::setPosition(int new_pos, int mode)
+Creature::setPosition(int new_pos)
 {
 	if (new_pos == char_specials.getPosition())
 		return false;

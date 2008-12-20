@@ -1577,7 +1577,6 @@ ACMD(do_cast)
 
 			if ((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent) &&
 				!IS_SET(SINFO.routines, MAG_TOUCH) &&
-				ok_to_damage(ch, tch) &&
 				(prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
 				/* misdirect */
 
@@ -1586,8 +1585,7 @@ ACMD(do_cast)
 				for (; it != ch->in_room->people.end(); ++it) {
 					++nit;
 					if ((*it) != ch && (*it) != tch &&
-						GET_LEVEL((*it)) < LVL_AMBASSADOR &&
-						ok_to_damage(ch, (*it)) && (!number(0, 4)
+						GET_LEVEL((*it)) < LVL_AMBASSADOR && (!number(0, 4)
 							|| nit != ch->in_room->people.end())) {
 						if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch))
 							&& metal && SPELL_IS_MAGIC(spellnum)
@@ -1881,7 +1879,7 @@ ACMD(do_arm)
 	}*/
 }
 
-struct obj_data *find_item_kit(Creature *ch)
+struct obj_data *find_item_kit(Creature *ch __attribute__ ((unused)))
 {
 /*    struct obj_data *cur_obj;
 

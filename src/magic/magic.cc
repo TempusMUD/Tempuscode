@@ -985,8 +985,12 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 */
 
 void
-mag_affects(int level, struct Creature *ch, struct Creature *victim,
-	int *dir, int spellnum, int savetype)
+mag_affects(int level,
+            struct Creature *ch,
+            struct Creature *victim,
+            int *dir __attribute__ ((unused)),
+            int spellnum,
+            int savetype)
 {
 
 	struct affected_type af, af2, *afp;
@@ -2652,8 +2656,7 @@ mag_affects(int level, struct Creature *ch, struct Creature *victim,
 
         CreatureList::iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
-            if (ch == (*it) || !can_see_creature(ch, (*it)) ||
-                !ok_to_damage(ch, (*it)))
+            if (ch == (*it) || !can_see_creature(ch, (*it)))
                 continue;
 
             int percent = (number(1, 101) - GET_LEVEL(ch));
@@ -3277,8 +3280,11 @@ static const char *mag_summon_fail_msgs[] = {
 #define MOB_AERIALSERVANT    109
 
 void
-mag_summons(int level, struct Creature *ch, struct obj_data *obj,
-	int spellnum, int savetype)
+mag_summons(int level __attribute__ ((unused)),
+            struct Creature *ch,
+            struct obj_data *obj,
+            int spellnum,
+            int savetype __attribute__ ((unused)))
 {
 	struct Creature *mob = NULL;
 	struct obj_data *tobj, *next_obj;
@@ -3344,8 +3350,12 @@ mag_summons(int level, struct Creature *ch, struct obj_data *obj,
 }
 
 void
-mag_points(int level, struct Creature *ch, struct Creature *victim,
-	int *dir, int spellnum, int savetype)
+mag_points(int level,
+           struct Creature *ch,
+           struct Creature *victim,
+           int *dir __attribute__ ((unused)),
+           int spellnum,
+           int savetype)
 {
 	int hit = 0;
 	int move = 0;
@@ -3716,7 +3726,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 
 void
 mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
-	int spellnum, int savetype)
+	int spellnum, int savetype __attribute__ ((unused)))
 {
 	const char *to_char = NULL;
 	const char *to_room = NULL;

@@ -1118,7 +1118,7 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 			if (!clip)
 				return;
 
-			if ((count = CLIP_COUNT(clip)) >= MAX_LOAD(clip)) {	 /** a full clip **/
+			if ((count = clip->getNumContained()) >= MAX_LOAD(clip)) {	 /** a full clip **/
 				mob_load_unit_gun(ch, clip, gun, internal);
 				return;
 			}
@@ -1806,7 +1806,7 @@ mobile_activity(void)
 		if (CHECK_SKILL(ch, SKILL_SHOOT) + random_number_zero_low(10) > 40) {
 			for (obj = ch->carrying; obj; obj = obj->next_content) {
 				if ((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-					(IS_GUN(obj) && (CLIP_COUNT(obj) < MAX_LOAD(obj))) ||
+					(IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
 					(IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))) {
 					mob_reload_gun(ch, obj);
 					break;
@@ -1815,22 +1815,22 @@ mobile_activity(void)
 
 			if ((obj = GET_EQ(ch, WEAR_WIELD)) &&
 				((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-					(IS_GUN(obj) && (CLIP_COUNT(obj) < MAX_LOAD(obj))) ||
+					(IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
 					(IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))))
 				mob_reload_gun(ch, obj);
 			if ((obj = GET_EQ(ch, WEAR_WIELD_2)) &&
 				((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-					(IS_GUN(obj) && (CLIP_COUNT(obj) < MAX_LOAD(obj))) ||
+					(IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
 					(IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))))
 				mob_reload_gun(ch, obj);
 			if ((obj = GET_IMPLANT(ch, WEAR_WIELD)) &&
 				((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-					(IS_GUN(obj) && (CLIP_COUNT(obj) < MAX_LOAD(obj))) ||
+					(IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
 					(IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))))
 				mob_reload_gun(ch, obj);
 			if ((obj = GET_IMPLANT(ch, WEAR_WIELD_2)) &&
 				((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-					(IS_GUN(obj) && (CLIP_COUNT(obj) < MAX_LOAD(obj))) ||
+					(IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
 					(IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))))
 				mob_reload_gun(ch, obj);
 		}

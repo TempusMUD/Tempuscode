@@ -132,7 +132,8 @@ one_word(char *argument, char *first_arg)
 	found = begin = 0;
 
 	do {
-		for (; isspace(*(argument + begin)); begin++);
+		while (isspace(*(argument + begin)))
+            begin++;
 
 		if (*(argument + begin) == '\"') {	/* is it a quote */
 

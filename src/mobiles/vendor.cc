@@ -36,7 +36,7 @@ vendor_is_produced(obj_data *obj, ShopData *shop)
 }
 
 int
-vendor_inventory(Creature *self, obj_data *obj, obj_data *obj_list)
+vendor_inventory(obj_data *obj, obj_data *obj_list)
 {
 	obj_data *cur_obj;
 	int cnt = 0;
@@ -104,7 +104,7 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 		return true;
 	}
 
-	if (vendor_inventory(self, obj, self->carrying) >= MAX_ITEMS) {
+	if (vendor_inventory(obj, self->carrying) >= MAX_ITEMS) {
 		perform_say_to(self, ch, "No thanks.  I've got too many of those in stock already.");
 		return true;
 	}
@@ -307,11 +307,11 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 			perform_say_to(self, ch, "I can make these things all day!");
 			return;
 		}
-		num = vendor_inventory(self, obj, obj);
+		num = vendor_inventory(obj, obj);
 	}
 
 	if (num > 1) {
-		int obj_cnt = vendor_inventory(self, obj, self->carrying);
+		int obj_cnt = vendor_inventory(obj, self->carrying);
 		if (!vendor_is_produced(obj, shop) && num > obj_cnt) {
 			perform_say_to(self, ch,
 				tmp_sprintf("I only have %d to sell to you.", obj_cnt));
@@ -473,14 +473,14 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		return;
 
 	if (num == -1)
-		num = vendor_inventory(ch, obj, obj);
+		num = vendor_inventory(obj, obj);
 
 	// We only check inventory after the object selected.  This allows people
 	// to sell 5 3.shirt if they have 2 shirts ahead of the one they want to
 	// sell
-	if (vendor_inventory(ch, obj, obj) < num) {
+	if (vendor_inventory(obj, obj) < num) {
 		send_to_char(ch, "You only have %d of those!\r\n",
-			vendor_inventory(ch, obj, ch->carrying));
+			vendor_inventory(obj, ch->carrying));
 		return;
 	}
 
@@ -502,8 +502,8 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 			tmp_sprintf("I can only afford to buy %d.", num));
 	}
 
-	if (vendor_inventory(self, obj, self->carrying) + num > MAX_ITEMS) {
-		num = MAX_ITEMS - vendor_inventory(self, obj, self->carrying);
+	if (vendor_inventory(obj, self->carrying) + num > MAX_ITEMS) {
+		num = MAX_ITEMS - vendor_inventory(obj, self->carrying);
 		perform_say_to(self, ch,
 				tmp_sprintf("I only want to buy %d.", num));
 	}
@@ -688,7 +688,7 @@ vendor_revenue(Creature *self, ShopData *shop)
 }
 
 const char *
-vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line)
+vendor_parse_param(char *param, ShopData *shop, int *err_line)
 {
 	char *line, *param_key;
 	const char *err = NULL;
@@ -851,7 +851,7 @@ SPECIAL(vendor)
 	shop = (ShopData *)self->mob_specials.func_data;
 	if (!shop) {
 		CREATE(shop, ShopData, 1);
-		err = vendor_parse_param(self, config, shop, &err_line);
+		err = vendor_parse_param(config, shop, &err_line);
 		self->mob_specials.func_data = shop;
 	}
 

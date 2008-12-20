@@ -64,6 +64,6 @@ struct ShopData {
 };
 
 SPECIAL(vendor);
-const char *vendor_parse_param(Creature *self, char *param, ShopData *shop, int *err_line);
+const char *vendor_parse_param(char *param, ShopData *shop, int *err_line);
 
 #endif

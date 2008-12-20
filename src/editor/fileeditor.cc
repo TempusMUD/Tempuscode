@@ -137,11 +137,7 @@ CFileEditor::Finalize(const char *text)
 
     if (loaded) {
         if ((fd = fopen(fname.c_str(), "w"))) {
-            list<string>::iterator li = theText.begin();
-            for (; li != theText.end(); ++li) {
-                fwrite((*li).c_str(), (*li).length(), 1, fd);
-                fwrite("\n", 1, 1, fd);
-            }
+            fwrite(text, 1, strlen(text), fd);
         }
     }
 

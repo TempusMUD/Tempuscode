@@ -244,7 +244,7 @@ offer_rent(struct Creature *ch, struct Creature *receptionist,
 
 int
 gen_receptionist(struct Creature *ch, struct Creature *recep,
-	int cmd, char *arg, int mode)
+                 int cmd, char *arg __attribute__ ((unused)), int mode)
 {
 	int cost = 0;
 	extern int free_rent;

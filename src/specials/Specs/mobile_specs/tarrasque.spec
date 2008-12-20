@@ -119,7 +119,7 @@ tarrasque_swallow(Creature *tarr, Creature *vict)
 	char_to_room(vict, belly_rm, false);
 	act("The body of $n flies in from the mouth.", 1, vict, 0, 0, TO_ROOM);
 	GET_HIT(vict) = -15;
-	die(vict, tarr, TYPE_SWALLOW, false);
+	die(vict, tarr, TYPE_SWALLOW);
 }
 
 void

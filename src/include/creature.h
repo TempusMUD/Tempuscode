@@ -1267,7 +1267,7 @@ struct Creature : public thing {
 		return setBreathCount(getBreathCount() + mod_count);
 	}
 	// Set current position. returns success or failure
-	bool setPosition(int new_pos, int mode = 0);
+	bool setPosition(int new_pos);
 	// Get returns current pos (standing sitting etc.)
 	int getPosition(void) { return char_specials.getPosition(); }
 	// Makes sure that the creature is forced into positions when necessary
@@ -1387,7 +1387,7 @@ struct Creature : public thing {
     // world, sets its descriptor's input mode to the given state
 	void extract(cxn_state con_state);
 
-    Creature &operator=(const Creature &c) {
+    Creature &operator=(const Creature &c __attribute__ ((unused))) {
         // This is private because it should never be called.  But on
         // the off chance that it does, it should something appropriate.
         raise(SIGSEGV);

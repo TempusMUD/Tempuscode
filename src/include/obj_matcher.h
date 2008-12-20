@@ -52,12 +52,8 @@ class ObjectMatcher {
 		bool isKey( const char *key ) {
 			return (strncmp( this->key.c_str(), key, strlen(key) ) == 0 );
 		}
-		virtual bool init( Creature *ch, Tokenizer &tokens ) {
-			return false;
-		}
-		virtual bool isMatch( obj_data *obj ) {
-			return false;
-		}
+		virtual bool init( Creature *ch, Tokenizer &tokens ) = 0;
+		virtual bool isMatch( obj_data *obj ) = 0;
 		bool isReady() {
 			return _ready;
 		}
@@ -69,7 +65,8 @@ class ObjectMatcher {
 		 * Returns additional info to show for the objects matched
 		 * by this matcher in a char[] allocated by tmpstr.
 		 **/
-		virtual const char* getAddedInfo( Creature *ch, obj_data *obj ) {
+		virtual const char* getAddedInfo(Creature *ch __attribute__ ((unused)),
+                                         obj_data *obj __attribute__ ((unused))) {
 			return "";
 		}
 	private:

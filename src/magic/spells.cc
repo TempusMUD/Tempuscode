@@ -2366,13 +2366,6 @@ ASPELL(spell_id_insinuation)
 			continue;
 		if (PRF_FLAGGED(pulv, PRF_NOHASSLE))
 			continue;
-		// prevent all reputation adjustments as a result
-		// of id insinuation
-		if (!ok_to_damage(pulv, victim))
-			continue;
-
-		if (!ok_to_damage(ch, victim))
-			continue;
 
 		if (!number(0, total))
 			ulv = pulv;

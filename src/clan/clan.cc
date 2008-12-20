@@ -1586,8 +1586,13 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
 	} else {
 		acc_strcat("CLANS:\r\n", NULL);
 		for (clan = clan_list; clan; clan = clan->next) {
-			for (member = clan->member_list, num_members = 0; member;
-                 num_members++, member = member->next);
+
+            member = clan->member_list;
+            num_members = 0;
+			while (member) {
+                num_members++;
+                member = member->next;
+            }
 
 			acc_sprintf(" %3d - %s%20s%s  %s%20s%s  (%3d members)\r\n",
                         clan->number,

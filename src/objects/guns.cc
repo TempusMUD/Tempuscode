@@ -120,7 +120,6 @@ extern const int gun_damage[][2] = {
 void
 show_gun_status(struct Creature *ch, struct obj_data *gun)
 {
-	struct obj_data *bullet = NULL;
 	int count = 0;
 
 	if (IS_ENERGY_GUN(gun)) {
@@ -147,8 +146,7 @@ show_gun_status(struct Creature *ch, struct obj_data *gun)
 
 		if (MAX_LOAD(gun)) {
 			if (gun->contains) {
-				for (bullet = gun->contains, count = 0; bullet;
-					count++, bullet = bullet->next_content);
+                count = gun->getNumContained();
 				sprintf(buf, "$p is loaded with %s[%d/%d]%s cartridge%s",
 					QGRN, count, MAX_LOAD(gun), QNRM, count == 1 ? "" : "s");
 			} else
@@ -156,8 +154,7 @@ show_gun_status(struct Creature *ch, struct obj_data *gun)
 		} else if (!gun->contains)
 			strcpy(buf, "$p is not loaded.");
 		else {
-			for (bullet = gun->contains->contains, count = 0; bullet;
-				count++, bullet = bullet->next_content);
+            count = gun->contains->getNumContained();
 			sprintf(buf, "$p is loaded with $P,\r\n"
 				"which contains %s[%d/%d]%s cartridge%s",
 				QGRN, count, MAX_LOAD(gun->contains), QNRM,

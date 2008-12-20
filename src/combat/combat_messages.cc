@@ -138,8 +138,11 @@ load_messages(void)
 	while (*chk == 'M') {
 		fgets(chk, 128, fl);
 		sscanf(chk, " %d\n", &type);
-		for (i = 0; (i < MAX_MESSAGES) && (fight_messages[i].a_type != type) &&
-			(fight_messages[i].a_type); i++);
+        i = 0;
+		while (i < MAX_MESSAGES
+               && fight_messages[i].a_type
+               && fight_messages[i].a_type != type)
+            i++;
 		if (i >= MAX_MESSAGES) {
 			fprintf(stderr,
 				"Too many combat messages.  Increase MAX_MESSAGES and recompile.");
@@ -274,8 +277,10 @@ death_cry(struct Creature *ch)
 }
 
 void
-blood_spray(struct Creature *ch, struct Creature *victim,
-	int dam, int attacktype)
+blood_spray(struct Creature *ch,
+            struct Creature *victim,
+            int dam __attribute__ ((unused)),
+            int attacktype)
 {
 	const char *to_char, *to_vict, *to_notvict;
 	int pos, found = 0;

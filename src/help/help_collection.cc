@@ -281,7 +281,7 @@ HelpCollection::CreateItem(Creature * ch)
 	Push(n);
 	send_to_char(ch, "Item #%d created.\r\n", n->idnum);
 	n->Save();
-	SaveIndex(ch);
+	SaveIndex();
 	n->Edit(ch);
 	SET_BIT(n->flags, HFLAG_MODIFIED);
 	slog("%s has help topic # %d.", GET_NAME(ch), n->idnum);
@@ -297,7 +297,9 @@ HelpCollection::EditItem(Creature * ch, int idnum)
 	if(! Security::isMember( ch, "Help" ) ) {
 		send_to_char(ch, "You cannot edit help files.\r\n");
 	}
-	for (cur = items; cur && cur->idnum != idnum; cur = cur->Next());
+    cur = items;
+	while (cur && cur->idnum != idnum)
+        cur = cur->Next();
 	if( cur != NULL ) {
 		cur->Edit(ch);
 		return true;
@@ -373,7 +375,7 @@ bool
 HelpCollection::SaveAll(Creature * ch)
 {
 	HelpItem *cur;
-	SaveIndex(ch);
+	SaveIndex();
 	for (cur = items; cur; cur = cur->Next()) {
 		if (IS_SET(cur->flags, HFLAG_MODIFIED))
 			cur->Save();
@@ -385,7 +387,7 @@ HelpCollection::SaveAll(Creature * ch)
 
 // Save the index
 bool
-HelpCollection::SaveIndex(Creature * ch)
+HelpCollection::SaveIndex(void)
 {
 	char fname[256];
 	HelpItem *cur = NULL;
@@ -514,7 +516,9 @@ HelpCollection::ApproveItem(Creature * ch, char *argument)
 		send_to_char(ch, "Approve which item?\r\n");
 		return;
 	}
-	for (cur = items; cur && cur->idnum != idnum; cur = cur->Next());
+    cur = items;
+	while (cur && cur->idnum != idnum)
+        cur = cur->Next();
 	if (cur) {
 		REMOVE_BIT(cur->flags, HFLAG_UNAPPROVED);
 		SET_BIT(cur->flags, HFLAG_MODIFIED);
@@ -540,7 +544,9 @@ HelpCollection::UnApproveItem(Creature * ch, char *argument)
 		send_to_char(ch, "UnApprove which item?\r\n");
 		return;
 	}
-	for (cur = items; cur && cur->idnum != idnum; cur = cur->Next());
+    cur = items;
+	while (cur && cur->idnum != idnum)
+        cur = cur->Next();
 	if (cur) {
 		SET_BIT(cur->flags, HFLAG_MODIFIED);
 		SET_BIT(cur->flags, HFLAG_UNAPPROVED);
@@ -603,7 +609,9 @@ HelpItem *
 HelpCollection::find_item_by_id(int id)
 {
 	HelpItem *cur;
-	for (cur = items; cur && cur->idnum != id; cur = cur->Next());
+    cur = items;
+	while (cur && cur->idnum != id)
+        cur = cur->Next();
 	return cur;
 }
 
@@ -767,8 +775,9 @@ ACMD(do_help_collection_command)
 				send_to_char(ch, "There is no such item #.\r\n");
 				break;
 			}
-			for (cur = Help->items; cur && cur->idnum != id;
-				cur = cur->Next());
+            cur = Help->items;
+			while (cur && cur->idnum != id)
+                cur = cur->Next();
 			if (cur) {
 				cur->Show(ch, gHelpbuf, 3);
 				page_string(ch->desc, gHelpbuf);
@@ -829,8 +838,12 @@ ACMD(do_help_collection_command)
 				send_to_char(ch, "Please put the lower # first.\r\n");
 				break;
 			}
-			for (A = Help->items; A && A->idnum != idA; Ap = A, A = A->Next());
-			for (B = Help->items; B && B->idnum != idB; Bp = B, B = B->Next());
+            A = Help->items;
+			while (A && A->idnum != idA)
+                Ap = A, A = A->Next();
+            B = Help->items;
+			while (B && B->idnum != idB)
+                Bp = B, B = B->Next();
 			if (!A || !B || !Bp) {
 				send_to_char(ch, "Invalid item numbers.\r\n");
 				break;

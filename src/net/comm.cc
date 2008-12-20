@@ -1486,7 +1486,7 @@ nonblock(int s)
 ****************************************************************** */
 
 void
-checkpointing(int sig = 0)
+checkpointing(int sig __attribute__ ((unused)))
 {
 	if (!tics) {
 		errlog("CHECKPOINT shutdown: tics not updated");
@@ -1498,7 +1498,7 @@ checkpointing(int sig = 0)
 }
 
 void
-unrestrict_game(int sig = 0)
+unrestrict_game(int sig __attribute__ ((unused)))
 {
 	extern struct ban_list_element *ban_list;
 	extern int num_invalid;
@@ -1511,7 +1511,7 @@ unrestrict_game(int sig = 0)
 }
 
 void
-hupsig(int sig = 0)
+hupsig(int sig __attribute__ ((unused)))
 {
 	slog("Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
 
@@ -1970,7 +1970,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 	thing *vict_obj, struct Creature *to, int mode)
 {
 	register const char *i = 0;
-	register const char *s = orig;
+	const char *s = orig;
 	register char *buf;
 	static char lbuf[MAX_STRING_LENGTH];
 	char outbuf[MAX_STRING_LENGTH];
@@ -2317,7 +2317,11 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 }
 
 bool
-standard_act_predicate(struct Creature *ch, struct obj_data *obj, thing *vict_obj, struct Creature *to, int mode)
+standard_act_predicate(struct Creature *ch __attribute__ ((unused)),
+                       struct obj_data *obj __attribute__ ((unused)),
+                       thing *vict_obj __attribute__ ((unused)),
+                       struct Creature *to __attribute__ ((unused)),
+                       int mode __attribute__ ((unused)))
 {
 	return true;
 }

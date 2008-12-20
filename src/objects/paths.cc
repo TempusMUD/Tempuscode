@@ -226,7 +226,8 @@ print_path(PHead * phead, char *str)
 					fcmd = cmdl;
 				cmds++;
 
-				for (j = 1; j < cmdl; j++, cmd = cmd->next);
+				for (j = 1; j < cmdl; j++)
+                    cmd = cmd->next;
 				sprintf(buf, "C\"%s\" ", (char *)(cmd->object));
 			} else {
 				cmdl = phead->path[i].data - fcmd + 1;
@@ -481,7 +482,8 @@ add_path(char *spath, int save)
 					path_command_length++;
 				} else {
 					cmd = path_command_list;
-					for (j = 1; j < path_command_length; j++, cmd = cmd->next);
+					for (j = 1; j < path_command_length; j++)
+                        cmd = cmd->next;
 					path_command_length++;
 					cmd->next = ncmd;
 					ncmd->prev = cmd;
@@ -611,7 +613,7 @@ load_paths(void)
 }
 
 void
-path_do_echo(struct Creature *ch, struct obj_data *o, char *echo)
+path_do_echo(char *echo)
 {
 	char *tmp;
 	int vnum;
@@ -713,7 +715,8 @@ path_activity(void)
 				ch = (struct Creature *)o->object;
 				cmd = path_command_list;
 				j = o->phead->path[o->pos].data;
-				for (k = 1; k != j; k++, cmd = cmd->next);
+				for (k = 1; k != j; k++)
+                    cmd = cmd->next;
 				command_interpreter(ch, (char *)cmd->object);
 			}
 			if (o->phead->length != 1)
@@ -722,11 +725,9 @@ path_activity(void)
 		case PATH_ECHO:
 
 			if (o->type == PMOBILE) {
-				path_do_echo((struct Creature *)o->object, NULL,
-					o->phead->path[o->pos].str);
+				path_do_echo(o->phead->path[o->pos].str);
 			} else {
-				path_do_echo(NULL, (struct obj_data *)o->object,
-					o->phead->path[o->pos].str);
+				path_do_echo(o->phead->path[o->pos].str);
 			}
 			if (o->phead->length != 1)
 				PATH_MOVE(o);

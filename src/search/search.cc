@@ -49,7 +49,7 @@ bool process_load_param( Creature *ch );
 int
 search_trans_character(Creature * ch,
 	special_search_data * srch,
-	room_data * targ_room, obj_data * obj, Creature * mob)
+	room_data * targ_room)
 {
 	room_data *was_in;
 
@@ -353,7 +353,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 
 			int rc = 1;
 			room_data *src_room = ch->in_room;
-			rc = search_trans_character(ch, srch, targ_room, obj, mob);
+			rc = search_trans_character(ch, srch, targ_room);
 
 			CreatureList::iterator it = src_room->people.begin();
 			for (; it != src_room->people.end(); ++it) {
@@ -362,7 +362,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 					act(srch->to_room, false, ch, obj, mob, TO_VICT);
 				if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
 					continue;
-				int r = search_trans_character(mob, srch, targ_room, obj, mob);
+				int r = search_trans_character(mob, srch, targ_room);
 				if (rc != 2)
 					rc = r;
 			}

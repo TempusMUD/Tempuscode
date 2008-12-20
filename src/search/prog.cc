@@ -32,6 +32,11 @@ struct prog_env *prog_list = NULL;
 int loop_fence = 0;
 extern char locate_buf[256];
 
+#define DEFPROGHANDLER(cmd, env, evt, args) \
+    void prog_do_##cmd(prog_env *env __attribute__ ((unused)), \
+                       prog_evt *evt __attribute__ ((unused)), \
+                       char *args __attribute__ ((unused)))
+
 // Prog command prototypes
 void prog_do_before(prog_env * env, prog_evt * evt, char *args);
 void prog_do_handle(prog_env * env, prog_evt * evt, char *args);
@@ -193,18 +198,15 @@ prog_next_handler(prog_env * env, bool use_resume)
     // the prog gracefully
 }
 
-void
-prog_do_before(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(before, env, evt, args)
 {
 }
 
-void
-prog_do_handle(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(handle, env, evt, args)
 {
 }
 
-void
-prog_do_after(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(after, env, evt, args)
 {
 }
 
@@ -421,7 +423,8 @@ prog_get_alias_list(char *args)
 }
 
 bool
-prog_eval_alias(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_alias(prog_evt *evt, char *args)
+{
     char *alias_list = NULL;
     bool result = false;
     char *str, *arg;
@@ -444,7 +447,7 @@ prog_eval_alias(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_keyword(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_keyword(prog_evt *evt, char *args) {
     bool result = false;
     char *str, *arg;
 
@@ -464,7 +467,7 @@ prog_eval_keyword(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_abbrev(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_abbrev(prog_evt *evt, char *args) {
     bool result = false;
     char *str, *arg;
 
@@ -494,7 +497,7 @@ prog_eval_abbrev(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_holding(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_holding(prog_env *env, char *args) {
     bool result = false;
 	int vnum;
 	obj_data *obj = NULL;
@@ -523,7 +526,7 @@ prog_eval_holding(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_phase(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_phase(char *args) {
     bool result = false;
     char *str;
     int phase;
@@ -545,7 +548,7 @@ prog_eval_phase(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_class(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_class(prog_env *env, char *args) {
     bool result = false;
     // Required class
     char *rclass = tmp_tolower(args);
@@ -572,7 +575,7 @@ prog_eval_class(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_vnum(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_vnum(prog_env *env, char *args) {
     bool result = false;
     char *arg;
 
@@ -592,7 +595,7 @@ prog_eval_vnum(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_level(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_level(prog_env *env, char *args) {
     bool result = false;
     char *arg;
 
@@ -611,7 +614,7 @@ prog_eval_level(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_gen(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_gen(prog_env *env, char *args) {
     bool result = false;
     char *arg;
 
@@ -630,7 +633,7 @@ prog_eval_gen(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_tar_holding(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_tar_holding(prog_env *env, char *args) {
     bool result = false;
     obj_data *obj;
     int vnum;
@@ -651,7 +654,7 @@ prog_eval_tar_holding(prog_env *env, prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_wearing(prog_env *env, prog_evt *evt, char *args) {
+prog_eval_wearing(prog_env *env, char *args) {
     bool result = false;
     int vnum;
 
@@ -678,18 +681,6 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 	char *arg;
 	bool result = false, not_flag = false;
 
-    bool prog_eval_alias(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_keyword(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_abbrev(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_holding(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_phase(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_class(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_vnum(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_level(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_gen(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_tar_holding(prog_env *env, prog_evt *evt, char *args);
-    bool prog_eval_wearing(prog_env *env, prog_evt *evt, char *args);
-
 	arg = tmp_getword(&args);
 	if (!strcasecmp(arg, "not")) {
 		not_flag = true;
@@ -701,11 +692,11 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 		// Mobs using "alias"
 		// 1200 3062 90800
 	} else if (!strcmp(arg, "alias")) {
-        result = prog_eval_alias(env, evt, args);
+        result = prog_eval_alias(evt, args);
 	} else if (!strcmp(arg, "keyword")) {
-        result = prog_eval_keyword(env, evt, args);
+        result = prog_eval_keyword(evt, args);
 	} else if (!strcmp(arg, "abbrev")) {
-        result = prog_eval_abbrev(env, evt, args);
+        result = prog_eval_abbrev(evt, args);
 	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
 			&& ((Creature *) env->owner)->isFighting());
@@ -715,11 +706,11 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
         arg = tmp_getword(&args);
         result = prog_var_equal(env, arg, args);
 	} else if (!strcasecmp(arg, "holding")) {
-        result = prog_eval_holding(env, evt, args);
+        result = prog_eval_holding(env, args);
 	} else if (!strcasecmp(arg, "hour")) {
 		result = time_info.hours == atoi(tmp_getword(&args));
 	} else if (!strcasecmp(arg, "phase")) {
-        result = prog_eval_phase(env, evt, args);
+        result = prog_eval_phase(args);
     } else if (!strcasecmp(arg, "room")) {
         room_data *room = prog_get_owner_room(env);
 
@@ -729,25 +720,25 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
         // These are all subsets of the *require target <attribute> directive
 		arg = tmp_getword(&args);
 		if (!strcasecmp(arg, "class")) {
-            result = prog_eval_class(env, evt, args);
+            result = prog_eval_class(env, args);
 		}
         else if (!strcasecmp(arg, "player")) {
 			result = env->target && IS_PC(env->target);
 		}
         else if (!strcasecmp(arg, "vnum")) {
-            result = prog_eval_vnum(env, evt, args);
+            result = prog_eval_vnum(env, args);
 		}
         else if (!strcasecmp(arg, "level")) {
-            result = prog_eval_level(env, evt, args);
+            result = prog_eval_level(env, args);
 		}
         else if (!strcasecmp(arg, "gen")) {
-            result = prog_eval_gen(env, evt, args);
+            result = prog_eval_gen(env, args);
 		}
         else if (!strcasecmp(arg, "holding")) {
-            result = prog_eval_tar_holding(env, evt, args);
+            result = prog_eval_tar_holding(env, args);
 		}
         else if (!strcasecmp(arg, "wearing")) {
-            result = prog_eval_wearing(env, evt, args);
+            result = prog_eval_wearing(env, args);
 		}
         else if (!strcasecmp(arg, "self")) {
 			result = (env->owner == env->target);
@@ -763,22 +754,19 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 	return (not_flag) ? (!result) : result;
 }
 
-void
-prog_do_require(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(require, env, evt, args)
 {
 	if (!prog_eval_condition(env, evt, args))
 		prog_next_handler(env, true);
 }
 
-void
-prog_do_unless(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(unless, env, evt, args)
 {
 	if (prog_eval_condition(env, evt, args))
 		prog_next_handler(env, true);
 }
 
-void
-prog_do_randomly(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(randomly, env, evt, args)
 {
 	unsigned char *exec;
 	int cur_pt, last_pt, num_paths;
@@ -805,21 +793,18 @@ prog_do_randomly(prog_env * env, prog_evt * evt, char *args)
 	// within the current handler
 }
 
-void
-prog_do_or(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(or, env, evt, args)
 {
 	prog_next_handler(env, true);
 }
 
-void
-prog_do_do(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(do, env, evt, args)
 {
 	if (env->owner_type == PROG_TYPE_MOBILE)
 		command_interpreter((Creature *) env->owner, args);
 }
 
-void
-prog_do_silently(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(silently, env, evt, args)
 {
 	suppress_output = true;
 	if (env->owner_type == PROG_TYPE_MOBILE)
@@ -827,8 +812,7 @@ prog_do_silently(prog_env * env, prog_evt * evt, char *args)
 	suppress_output = false;
 }
 
-void
-prog_do_force(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(force, env, evt, args)
 {
 	if (!env->target)
 		return;
@@ -837,8 +821,7 @@ prog_do_force(prog_env * env, prog_evt * evt, char *args)
 		command_interpreter((Creature *) env->target, args);
 }
 
-void
-prog_do_target(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(target, env, evt, args)
 {
     room_data *room = prog_get_owner_room(env);
     Creature *new_target = NULL;
@@ -870,20 +853,17 @@ prog_do_target(prog_env * env, prog_evt * evt, char *args)
     prog_set_target(env, new_target);
 }
 
-void
-prog_do_trace(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(trace, env, evt, args)
 {
 	env->tracing = !strcasecmp(args, "on");
 }
 
-void
-prog_do_pause(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(pause, env, evt, args)
 {
 	env->wait = MAX(1, atoi(args));
 }
 
-void
-prog_do_walkto(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(walkto, env, evt, args)
 {
 	Creature *ch;
 	room_data *room;
@@ -914,8 +894,7 @@ prog_do_walkto(prog_env * env, prog_evt * evt, char *args)
 	}
 }
 
-void
-prog_do_driveto(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(driveto, env, evt, args)
 {
 	// move_car courtesy of vehicle.cc
 	int move_car(struct Creature *ch, struct obj_data *car, int dir);
@@ -984,14 +963,12 @@ prog_do_driveto(prog_env * env, prog_evt * evt, char *args)
 	}
 }
 
-void
-prog_do_halt(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(halt, env, evt, args)
 {
 	env->exec_pt = -1;
 }
 
-void
-prog_do_mobflag(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(mobflag, env, evt, args)
 {
 	bool op;
 	char *arg;
@@ -1023,8 +1000,7 @@ prog_do_mobflag(prog_env * env, prog_evt * evt, char *args)
 		MOB_FLAGS(((Creature *) env->owner)) &= ~flags;
 }
 
-void
-prog_do_ldesc(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(ldesc, env, evt, args)
 {
 	Creature *mob;
 	obj_data *obj;
@@ -1051,8 +1027,7 @@ prog_do_ldesc(prog_env * env, prog_evt * evt, char *args)
 	}
 }
 
-void
-prog_do_damage(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(damage, env, evt, args)
 {
 	room_data *room;
 	Creature *mob;
@@ -1127,8 +1102,7 @@ prog_do_damage(prog_env * env, prog_evt * evt, char *args)
 	search_nomessage = false;
 }
 
-void
-prog_do_spell(prog_env *env, prog_evt *evt, char *args)
+DEFPROGHANDLER(spell, env, evt, args)
 {
 	room_data *room;
 	Creature *caster = NULL;
@@ -1244,8 +1218,7 @@ prog_do_spell(prog_env *env, prog_evt *evt, char *args)
 	search_nomessage = false;
 }
 
-void
-prog_do_doorset(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(doorset, env, evt, args)
 {
 	// *doorset <room vnum> <direction> +/- <doorflags>
 	bool op;
@@ -1289,8 +1262,7 @@ prog_do_doorset(prog_env * env, prog_evt * evt, char *args)
 		ABS_EXIT(room, dir)->exit_info &= ~flags;
 }
 
-void
-prog_do_selfpurge(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(selfpurge, env, evt, args)
 {
 	if (env->owner_type == PROG_TYPE_MOBILE) {
 		prog_do_nuke(env, evt, args);
@@ -1302,30 +1274,26 @@ prog_do_selfpurge(prog_env * env, prog_evt * evt, char *args)
 	}
 }
 
-void
-prog_do_hunt(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(hunt, env, evt, args)
 {
 	if (env->owner_type == PROG_TYPE_MOBILE && env->target) {
 		((Creature *) env->owner)->startHunting(env->target);
 	}
 }
 
-void
-prog_do_clear_cond(prog_env *env, prog_evt *evt, char *args)
+DEFPROGHANDLER(clear_cond, env, evt, args)
 {
 	env->condition = 0;
 }
 
-void
-prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args)
+DEFPROGHANDLER(compare_cmd, env, evt, args)
 {
 	// FIXME: nasty hack
 	if (!env->condition)
 		env->condition = (evt->cmd == *((int *)args));
 }
 
-void
-prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args)
+DEFPROGHANDLER(compare_obj_vnum, env, evt, args)
 {
 	// FIXME: nasty hack
 	if (!env->condition)
@@ -1334,15 +1302,13 @@ prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args)
 						&& ((obj_data *)evt->object)->getVnum() == *((int *)args));
 }
 
-void
-prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args)
+DEFPROGHANDLER(cond_next_handler, env, evt, args)
 {
 	if (!env->condition)
 		prog_next_handler(env, false);
 }
 
-void
-prog_do_nuke(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(nuke, env, evt, args)
 {
 	struct prog_env *cur_prog;
 
@@ -1395,8 +1361,7 @@ prog_trans_creature(Creature * ch, room_data * targ_room)
 	}
 }
 
-void
-prog_do_trans(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(trans, env, evt, args)
 {
 	room_data *room, *targ_room;
 	obj_data *obj;
@@ -1469,8 +1434,7 @@ prog_do_trans(prog_env * env, prog_evt * evt, char *args)
 }
 
 // Set the value for an owner-scoped variable
-void
-prog_do_set(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(set, env, evt, args)
 {
 	// Now find the variable record.  If they don't have one
 	// with the right key, create one
@@ -1479,15 +1443,13 @@ prog_do_set(prog_env * env, prog_evt * evt, char *args)
 }
 
 // Set the value for a thread-scoped variable
-void
-prog_do_let(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(let, env, evt, args)
 {
 	char *key = tmp_getword(&args);
     prog_set_var(env, true, key, args);
 }
 
-void
-prog_do_oload(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(oload, env, evt, args)
 {
 	obj_data *obj;
 	room_data *room = NULL;
@@ -1567,8 +1529,7 @@ prog_do_oload(prog_env * env, prog_evt * evt, char *args)
 	}
 }
 
-void
-prog_do_mload(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(mload, env, evt, args)
 {
 	Creature *mob;
 	room_data *room = NULL;
@@ -1602,8 +1563,7 @@ prog_do_mload(prog_env * env, prog_evt * evt, char *args)
 	}
 }
 
-void
-prog_do_opurge(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(opurge, env, evt, args)
 {
 	obj_data *obj, *obj_list, *next_obj;
 	int vnum;
@@ -1662,8 +1622,7 @@ prog_do_opurge(prog_env * env, prog_evt * evt, char *args)
 	}
 }
 
-void
-prog_do_giveexp(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(giveexp, env, evt, args)
 {
     int amount = atoi(args);
     const char *owner_type = "";
@@ -1697,14 +1656,12 @@ prog_do_giveexp(prog_env * env, prog_evt * evt, char *args)
     gain_exp(env->target, amount);
 }
 
-void
-prog_do_resume(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(resume, env, evt, args)
 {
 	// literally does nothing
 }
 
-void
-prog_do_echo(prog_env * env, prog_evt * evt, char *args)
+DEFPROGHANDLER(echo, env, evt, args)
 {
 	char *arg;
 	Creature *ch = NULL, *target = NULL;

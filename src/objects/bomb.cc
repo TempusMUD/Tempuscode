@@ -337,7 +337,9 @@ bomb_damage_room(Creature *damager, int damager_id, char *bomb_name, int bomb_ty
     it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		vict = (*it);
-        if (damager && damager != vict && !damager->isOkToAttack(vict,false)) {
+        if (damager
+            && damager != vict
+            && !damager->isOkToAttack(vict,false)) {
             //display the message to everyone in victs room except damager
             act("A divine shield flashes into existence protecting you from $N's bomb.",
                 false, vict, NULL, damager, TO_NOTVICT);
@@ -353,6 +355,9 @@ bomb_damage_room(Creature *damager, int damager_id, char *bomb_name, int bomb_ty
 
     for (; it != room->people.end(); ++it) {
 		vict = (*it);
+
+        if (vict == precious_vict)
+            continue;
 
         if (damager->checkReputations(vict))
             continue;
@@ -623,7 +628,7 @@ engage_self_destruct(struct Creature *ch)
 	mudlog(GET_INVIS_LVL(ch), BRF, true,
 		"%s self-destructed at room #%d, level %d.", GET_NAME(ch),
 		ch->in_room->number, level);
-	die(ch, ch, SKILL_SELF_DESTRUCT, false);
+	die(ch, ch, SKILL_SELF_DESTRUCT);
 
 	// now kill everyone else
 

@@ -69,15 +69,6 @@ is_npk_combat(struct Creature *ch, struct Creature *vict) {
     return false;
 }
 
-// Called to select a safe target when the character doesn't get to select
-// the target
-bool
-ok_to_damage(struct Creature *ch, struct Creature *vict)
-{
-	// Boom.  no killers.
-	return true;
-}
-
 // Calculates the amount of reputation gained by the killer if they
 // were to pkill the victim
 int
@@ -211,8 +202,7 @@ count_pkill(Creature *killer, Creature *victim)
 
 
 void
-check_thief(struct Creature *ch, struct Creature *victim,
-	const char *debug_msg)
+check_thief(struct Creature *ch, struct Creature *victim)
 {
 	Creature *perp;
 

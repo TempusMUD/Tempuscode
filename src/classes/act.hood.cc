@@ -376,7 +376,7 @@ ACMD(do_snatch)
 		return;
 	}
 
-	check_thief(ch, vict, NULL);
+	check_thief(ch, vict);
 
 	// Figure out what we're gonna snatch from them.
 	// Possible targets are anything in hands or on belt,

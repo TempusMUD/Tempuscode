@@ -3000,8 +3000,7 @@ search_block_no_lower(char *arg, const char **list, bool exact)
 {
 	register int i, l;
 
-	/* Get length of string Only... do NOT lowercase */
-	for (l = 0; *(arg + l); l++);
+    l = strlen(arg);
 
 	if (exact) {
 		for (i = 0; **(list + i) != '\n'; i++)

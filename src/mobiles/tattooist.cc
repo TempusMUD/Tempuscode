@@ -274,7 +274,7 @@ SPECIAL(tattooist)
 	shop = (ShopData *)self->mob_specials.func_data;
 	if (!shop) {
 		CREATE(shop, ShopData, 1);
-		err = vendor_parse_param(self, config, shop, &err_line);
+		err = vendor_parse_param(config, shop, &err_line);
 		self->mob_specials.func_data = shop;
 	}
 

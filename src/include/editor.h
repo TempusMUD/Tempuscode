@@ -71,7 +71,7 @@ public:
     CTextEditor(descriptor_data *desc, char **target, int max);
     virtual ~CTextEditor(void);
 
-    virtual bool IsEditing(char *inStr)
+    virtual bool IsEditing(char *inStr __attribute__ ((unused)))
     {
 		return (inStr == *target);
 	}
@@ -93,7 +93,7 @@ public:
                 mail_recipient_data *recipients);
     virtual ~CMailEditor(void);
 
-    virtual bool IsEditing(char *inStr)
+    virtual bool IsEditing(char *inStr __attribute__ ((unused)))
     {
         return false;
     }
@@ -145,7 +145,7 @@ public:
     CBoardEditor(descriptor_data *desc, const char *b_name, int id, const char *subject, const char *body);
     virtual ~CBoardEditor(void);
 
-    virtual bool IsEditing(char *inStr)
+    virtual bool IsEditing(char *inStr __attribute__ ((unused)))
     {
         return false;
 	}
@@ -166,7 +166,7 @@ public:
     CPollEditor(descriptor_data *desc, const char *header);
     virtual ~CPollEditor(void);
 
-    virtual bool IsEditing(char *inStr)
+    virtual bool IsEditing(char *inStr __attribute__ ((unused)))
     {
         return false;
 	}
@@ -184,7 +184,7 @@ public:
     CFileEditor(descriptor_data *desc, const char *fname);
     virtual ~CFileEditor(void);
 
-    virtual bool IsEditing(char *inStr) {
+    virtual bool IsEditing(char *inStr __attribute__ ((unused))) {
         return false;
     }
 

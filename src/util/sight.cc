@@ -294,5 +294,5 @@ can_see_room(Creature *self, room_data *room)
 	if (!check_sight_self(self))
 		return false;
 
-	return check_sight_room(self, self->in_room);
+	return check_sight_room(self, room);
 }

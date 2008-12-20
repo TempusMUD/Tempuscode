@@ -129,7 +129,7 @@ class HelpCollection {
 	void UnApproveItem(Creature * ch, char *argument);	// Approve an item
 	bool ClearItem(Creature * ch);	// Clear an item
 	bool SaveItem(Creature * ch);	// Duh?
-	bool SaveIndex(Creature * ch);	// Save the entire index
+	bool SaveIndex(void);	// Save the entire index
 	bool SaveAll(Creature * ch);	// Save Everything. (cals saveitem and saveindex)
 	bool Set(Creature * ch, char *argument);
 	bool LoadIndex(void);		// Load help index (at startup)

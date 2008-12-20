@@ -2784,8 +2784,9 @@ zone_update(void)
 			if (update_u == reset_q.head)
 				reset_q.head = reset_q.head->next;
 			else {
-				for (temp = reset_q.head; temp->next != update_u;
-					temp = temp->next);
+                temp = reset_q.head;
+				while (temp->next != update_u)
+                    temp = temp->next;
 
 				if (!update_u->next)
 					reset_q.tail = temp;

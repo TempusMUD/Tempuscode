@@ -59,8 +59,6 @@ void set_desc_state(cxn_state state,struct descriptor_data *d );
 void look_at_target(struct Creature *ch, char *arg, int cmd);
 int find_door(struct Creature *ch, char *type, char *dir,
 	const char *cmdname);
-void enable_vt100(struct Creature *ch);
-void disable_vt100(struct Creature *ch);
 void weather_change(void);
 int drag_object(Creature *ch, struct obj_data *obj, char *argument);
 void ice_room(struct room_data *room, int amount);
@@ -103,7 +101,7 @@ ACMD(do_quit)
 		send_to_char(ch, "No way!  You're fighting for your life!\r\n");
 	else if (ch->getPosition() < POS_STUNNED) {
 		send_to_char(ch, "You die before your time...\r\n");
-		die(ch, 0, 0, 0);
+		die(ch, 0, 0);
 	} else {
 
 		/*
@@ -897,23 +895,6 @@ ACMD(do_display)
 
 		}
 
-		else if (is_abbrev(arg1, "vt100")) {
-
-			if (is_abbrev(arg2, "enable")) {
-				enable_vt100(ch);
-				return;
-			}
-
-			else if (is_abbrev(arg2, "disable")) {
-				disable_vt100(ch);
-				return;
-			}
-
-			else {
-				send_to_char(ch, "Usage: display vt100 [on | off]\r\n");
-				return;
-			}
-        }
 	}
 
 	if ((!strcasecmp(arg1, "on")) || (!strcasecmp(arg1, "normal"))) {

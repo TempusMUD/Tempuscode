@@ -2113,13 +2113,15 @@ is_number(const char *str)
 void
 skip_spaces(char **string)
 {
-	for (; **string && isspace(**string); (*string)++);
+	while (**string && isspace(**string))
+        (*string)++;
 }
 
 void
 skip_spaces(const char **string)
 {
-	for (; **string && isspace(**string); (*string)++);
+	while (**string && isspace(**string))
+        (*string)++;
 }
 
 int

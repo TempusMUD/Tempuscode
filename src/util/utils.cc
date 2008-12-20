@@ -102,57 +102,6 @@ GET_SKILL_COST(Creature *ch, int skill)
 	return cost;
 }
 
-void
-enable_vt100(struct Creature *ch)
-{
-	char level[4];
-	char seperator[161];
-	int rows = 25, cols = 80, i = 0;
-
-	if (GET_ROWS(ch) != -1)
-		rows = GET_ROWS(ch);
-	if (GET_COLS(ch) != -1)
-		cols = GET_COLS(ch);
-
-	sprintf(level, "%d", GET_LEVEL(ch));
-
-	for (i = 0; i <= GET_COLS(ch) - 1; i++)
-		seperator[i] = '-';
-
-	seperator[GET_COLS(ch)] = '\0';
-
-	strcpy(buf, VT_CLEAR);
-	strcat(buf, VT_GOPOS(0, 0));
-	strcat(buf, VT_SVPOS);
-	strcat(buf, VT_GOPOS(0, 0));
-	strcat(buf, seperator);
-	strcat(buf, VT_GOPOS(0, 5));
-	strcat(buf, "[Player: ");
-	strcat(buf, GET_NAME(ch));
-	strcat(buf, "   Level: ");
-	strcat(buf, level);
-	strcat(buf, "]");
-	strcat(buf, VT_RTPOS);
-	strcat(buf, VT_SVPOS);
-	strcat(buf, VT_GOPOS(rows - 1, 1));
-	strcat(buf, seperator);
-	strcat(buf, VT_RTPOS);
-	strcat(buf, VT_RPPOS(2, rows - 2));
-	strcat(buf, VT_GOPOS(3, 1));
-	strcat(buf, VT_SVPOS);
-
-/*
-    send_to_char(ch, "%s%s%s%s%s%s%s%s%s%s%s%s%s", VT_CLEAR, VT_GOPOS(0,0), VT_SVPOS, VT_GOPOS(2,1), seperator,
-    VT_RTPOS, VT_SVPOS, VT_GOPOS(rows-1,1), seperator,
-    VT_RTPOS, VT_RPPOS(3,rows-2), VT_GOPOS(3,1), VT_SVPOS);
-*/
-}
-
-void
-disable_vt100(struct Creature *ch)
-{
-}
-
 // removes all occurances of the specified character c from char * str,
 // replacing each occurance with a char c_to
 int
@@ -513,7 +462,9 @@ stop_follower(struct Creature *ch)
 		dmalloc_verify(0);
 #endif
 	} else {					/* locate follower who is not head of list */
-		for (k = ch->master->followers; k->next->follower != ch; k = k->next);
+        k = ch->master->followers;
+		while (k->next->follower != ch)
+            k = k->next;
 
 		j = k->next;
 		k->next = j->next;

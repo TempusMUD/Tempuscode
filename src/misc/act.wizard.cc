@@ -857,7 +857,11 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
     for (rm = zone->world, numr = 0, nums = 0; rm; numr++, rm = rm->next) {
         if (!rm->description)
             numur++;
-        for (srch = rm->search; srch; nums++, srch = srch->next);
+        srch = rm->search;
+        while (srch) {
+            nums++;
+            srch = srch->next;
+        }
     }
 
     send_to_char(ch, "\r\nZone Stats :-\r\n"
@@ -3270,7 +3274,9 @@ ACMD(do_dc)
             "Usage: DC <connection number> (type USERS for a list)\r\n");
         return;
     }
-    for (d = descriptor_list; d && d->desc_num != num_to_dc; d = d->next);
+    d = descriptor_list;
+    while (d && d->desc_num != num_to_dc)
+        d = d->next;
 
     if (!d) {
         send_to_char(ch, "No such connection.\r\n");
@@ -3933,8 +3939,16 @@ do_show_stats(struct Creature *ch)
             num_active_zones++;
 
         for (room = zone->world; room; room = room->next) {
-            for (trail = room->trail; trail; ++tr_count, trail = trail->next);
-            for (srch = room->search; srch; ++srch_count, srch = srch->next);
+            trail = room->trail;
+            while (trail) {
+                ++tr_count;
+                trail = trail->next;
+            }
+            srch = room->search;
+            while (srch) {
+                ++srch_count;
+                srch = srch->next;
+            }
         }
     }
 
@@ -4266,7 +4280,7 @@ show_topzones(Creature *ch, char *value)
 }
 
 static void
-show_mobkills(Creature *ch, char *value, char *arg)
+show_mobkills(Creature *ch, char *value, char *arg __attribute__ ((unused)))
 {
     Creature *mob = NULL;
     float ratio;
@@ -9005,7 +9019,11 @@ check_log(Creature *ch, const char *fmt, ...)
 }
 
 static bool
-check_ptr(Creature *ch, void *ptr, size_t expected_len, const char *str, int vnum)
+check_ptr(Creature *ch __attribute__ ((unused)),
+          void *ptr __attribute__ ((unused)),
+          size_t expected_len __attribute__ ((unused)),
+          const char *str __attribute__ ((unused)),
+          int vnum __attribute__ ((unused)))
 {
 #ifdef MEMTRACK
 	dbg_mem_blk *mem;

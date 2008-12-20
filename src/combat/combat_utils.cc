@@ -77,7 +77,7 @@ ok_damage_vendor(struct Creature *ch, struct Creature *victim)
 
         if (!shop) {
             CREATE(shop, ShopData, 1);
-            vendor_parse_param(victim, GET_MOB_PARAM(victim), shop, NULL);
+            vendor_parse_param(GET_MOB_PARAM(victim), shop, NULL);
             victim->mob_specials.func_data = shop;
         }
 
@@ -153,7 +153,7 @@ update_pos(struct Creature *victim)
 {
 	// Wake them up from thier nap.
 	if (GET_HIT(victim) > 0 && victim->getPosition() == POS_SLEEPING)
-		victim->setPosition(POS_RESTING, 1);
+		victim->setPosition(POS_RESTING);
 	// If everything is normal and they're fighting, set them fighting
 	else if (GET_HIT(victim) > 0 &&
 		(victim->getPosition() == POS_STANDING
@@ -163,7 +163,7 @@ update_pos(struct Creature *victim)
 			act("$n moves to POS_FIGHTING.(from standing or flying)",
 				true, victim, 0, 0, TO_ROOM);
 #endif
-		victim->setPosition(POS_FIGHTING, 1);
+		victim->setPosition(POS_FIGHTING);
 	}
 	// If they're alive, not stunned, in a fight, and not pos_fighting
 	// (Making mobs stand when they get popped.
@@ -175,7 +175,7 @@ update_pos(struct Creature *victim)
 			if (victim->getPosition() < POS_FIGHTING) {
 				if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) ||
 					number(1, 20) < GET_STR(victim)) {
-					if (victim->setPosition(POS_FIGHTING, 1)) {
+					if (victim->setPosition(POS_FIGHTING)) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(A)", true, victim, 0, 0,
 							TO_ROOM);
@@ -187,7 +187,7 @@ update_pos(struct Creature *victim)
 				}
 				WAIT_STATE(victim, PULSE_VIOLENCE);
 			} else {
-				victim->setPosition(POS_FIGHTING, 1);
+				victim->setPosition(POS_FIGHTING);
 			}
 		} else {				// PC or a mob with a wait state.
 			return;
@@ -198,11 +198,11 @@ update_pos(struct Creature *victim)
 			if (victim->in_room && victim->in_room->isOpenAir()
 				&& !AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
 				&& victim->getPosition() != POS_FLYING)
-				victim->setPosition(POS_FLYING, 1);
+				victim->setPosition(POS_FLYING);
 			else if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
 				&& victim->getPosition() < POS_FIGHTING) {
 				if (victim->isFighting()) {
-					if (victim->setPosition(POS_FIGHTING, 1)) {
+					if (victim->setPosition(POS_FIGHTING)) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(B1)", true, victim, 0,
 							0, TO_ROOM);
@@ -213,7 +213,7 @@ update_pos(struct Creature *victim)
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
 				} else {
-					if (victim->setPosition(POS_STANDING, 1)) {
+					if (victim->setPosition(POS_STANDING)) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_STANDING.(B2)", true, victim, 0,
 							0, TO_ROOM);
@@ -226,7 +226,7 @@ update_pos(struct Creature *victim)
 			} else if (number(1, 20) < GET_STR(victim)
 				&& victim->getPosition() < POS_FIGHTING) {
 				if (victim->isFighting()) {
-					if (victim->setPosition(POS_FIGHTING, 1)) {
+					if (victim->setPosition(POS_FIGHTING)) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(C1)", true, victim, 0,
 							0, TO_ROOM);
@@ -237,7 +237,7 @@ update_pos(struct Creature *victim)
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
 				} else {
-					if (victim->setPosition(POS_STANDING, 1)) {
+					if (victim->setPosition(POS_STANDING)) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_STANDING.(C2)", true, victim, 0,
 							0, TO_ROOM);
@@ -249,7 +249,7 @@ update_pos(struct Creature *victim)
 				}
             }
         } else if (victim->getPosition() == POS_STUNNED) {
-            victim->setPosition(POS_RESTING, 1);
+            victim->setPosition(POS_RESTING);
 #ifdef DEBUG_POSITION
             act("$n moves to POS_RESTING.(From Stunned)", true, victim, 0, 0,
                 TO_ROOM);
@@ -259,13 +259,13 @@ update_pos(struct Creature *victim)
 
 	// Various stages of unhappiness
 	else if (GET_HIT(victim) <= -11)
-		victim->setPosition(POS_DEAD, 1);
+		victim->setPosition(POS_DEAD);
 	else if (GET_HIT(victim) <= -6)
-		victim->setPosition(POS_MORTALLYW, 1);
+		victim->setPosition(POS_MORTALLYW);
 	else if (GET_HIT(victim) <= -3)
-		victim->setPosition(POS_INCAP, 1);
+		victim->setPosition(POS_INCAP);
 	else
-		victim->setPosition(POS_STUNNED, 1);
+		victim->setPosition(POS_STUNNED);
 	return;
 }
 
@@ -288,22 +288,27 @@ replace_string(const char *str,
 		if (*str == '#') {
 			switch (*(++str)) {
 			case 'W':
-				for (; *weapon_plural; *(cp++) = *(weapon_plural++));
+				while (*weapon_plural)
+                    *(cp++) = *(weapon_plural++);
 				break;
 			case 'w':
-				for (; *weapon_singular; *(cp++) = *(weapon_singular++));
+				while (*weapon_singular)
+                    *(cp++) = *(weapon_singular++);
 				break;
 			case 'p':
 				if (location)
-					for (; *location; *(cp++) = *(location++));
+					while (*location)
+                        *(cp++) = *(location++);
 				break;
             case 'S':
                 if (substance)
-                    for (; *substance; *(cp++) = *(substance++));
+                    while (*substance)
+                        *(cp++) = *(substance++);
                 break;
             case 's':
                 if (prefixed_substance)
-                    for (; *prefixed_substance; *(cp++) = *(prefixed_substance++));
+                    while (*prefixed_substance)
+                        *(cp++) = *(prefixed_substance++);
                 break;
 			default:
 				*(cp++) = '#';

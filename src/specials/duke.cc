@@ -210,7 +210,7 @@ do_npc_rescue(struct Creature *ch_hero, struct Creature *ch_victim)
 /* Used by Tim/Tom at Kings bedroom */
 int
 block_way(struct Creature *ch, struct Creature *guard, int cmd,
-	char *arg, int iIn_room, int iProhibited_direction)
+          int iIn_room, int iProhibited_direction)
 {
 
 	if (cmd != ++iProhibited_direction || (ch->player.short_descr &&
@@ -554,7 +554,7 @@ SPECIAL(tom)
 	if (!cmd && ch->getPosition() != POS_FIGHTING)
 		banzaii(ch);
 
-	return block_way(ch, tom, cmd, arg, CASTLE_ITEM(49), 1);
+	return block_way(ch, tom, cmd, CASTLE_ITEM(49), 1);
 }
 
 SPECIAL(tim)
@@ -584,7 +584,7 @@ SPECIAL(tim)
 	if (!cmd && ch->getPosition() != POS_FIGHTING)
 		banzaii(ch);
 
-	return block_way(ch, tim, cmd, arg, CASTLE_ITEM(49), 1);
+	return block_way(ch, tim, cmd, CASTLE_ITEM(49), 1);
 }
 
 /* Routine for James the Butler */
