@@ -568,7 +568,7 @@ tmp_printbits(int val, const char *bit_descs[])
 
 	// Figure out how much space we'll need
 	len = 0;
-	for (idx = 0;idx < sizeof(val) * 8;idx++)
+	for (idx = 0;idx < sizeof(val) * 8 && bit_descs[idx] && bit_descs[idx][0] != '\n';idx++)
 		if ((val >> idx) & 1)
 			len += strlen(bit_descs[idx]) + 1;
 	len += 1;
@@ -697,14 +697,11 @@ tmp_trim(const char *str)
 const char *
 tmp_string_test(void)
 {
-	const char *bit_descs[] = {
+	const char *bit_descs[32] = {
 		"BIT_00", "BIT_01", "BIT_02", "BIT_03", "BIT_04",
 		"BIT_05", "BIT_06", "BIT_07", "BIT_08", "BIT_09",
 		"BIT_10", "BIT_11", "BIT_12", "BIT_13", "BIT_14",
-		"BIT_15", "BIT_16", "BIT_17", "BIT_18", "BIT_19",
-		"BIT_20", "BIT_21", "BIT_22", "BIT_23", "BIT_24",
-		"BIT_25", "BIT_26", "BIT_27", "BIT_28", "BIT_29",
-		"BIT_30", "BIT_31", "BIT_32", "\n"
+		"BIT_15", "\n", 0
 	};
 
 	// Testing tmp_tolower
@@ -792,6 +789,8 @@ tmp_string_test(void)
 		return "tmp_printbits #6 failed";
 	if (strcmp(tmp_printbits(0x7, bit_descs), "BIT_00 BIT_01 BIT_02"))
 		return "tmp_printbits #7 failed";
+    if (strcmp(tmp_printbits(0x20000, bit_descs), ""))
+        return "tmp_printbits #8 failed";
 
 	// Testing tmp_substr
 	if (strcmp(tmp_substr("abcdef", 0, -1), "abcdef"))
