@@ -39,16 +39,6 @@ namespace Security {
         slog("<SECURITY> %s : %ld", msg, id );
     }
 
-    void updateSecurity(command_info *command) {
-
-        list<Group>::iterator it = groups.begin();
-        for( ; it != groups.end(); ++it ) {
-            if( (*it).member( command ) )
-                return;
-        }
-        command->security &= ~(GROUP);
-    }
-
     /* sets this group's description */
     void Group::setDescription(const char *desc) {
         if( _description != NULL )
@@ -119,7 +109,7 @@ namespace Security {
     bool Group::addCommand( command_info *command ) {
         if( member( command ) )
             return false;
-        command->security |= GROUP;
+        command->group_count += 1;
         commands.push_back(command);
         sort( commands.begin(), commands.end() );
         return true;
@@ -136,9 +126,7 @@ namespace Security {
         commands.erase(it);
 
         // Remove the group bit from the command
-        updateSecurity(command);
-
-        sort( commands.begin(), commands.end() );
+        command->group_count -= 1;
         return true;
     }
 
@@ -317,7 +305,7 @@ namespace Security {
     /*
      * Makes a complete copy of the Group
      */
-    Group::Group( const Group &g ) {
+    Group::Group( const Group &g ) : commands(), members() {
         _name = NULL;
         _description = NULL;
         _adminGroup = NULL;

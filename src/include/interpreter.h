@@ -74,7 +74,7 @@ struct command_info {
     ACMD(*command_pointer);
 	sh_int minimum_level;
 	int subcmd;
-	int security;
+	int group_count;
 	unsigned long usage;
 };
 

@@ -367,7 +367,7 @@ namespace Security {
      bool canAccess( Creature *ch, const command_info *command ) {
 	 	if (GET_LEVEL(ch) == LVL_GRIMP)
 			return true;
-        if(! command->security & GROUP ) {
+        if(! command->group_count ) {
             return (GET_LEVEL(ch) >= command->minimum_level || GET_IDNUM(ch) == 1);
         } else {
             if( GET_LEVEL(ch) < command->minimum_level ) {
