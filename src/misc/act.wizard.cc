@@ -3703,6 +3703,35 @@ ACMD(do_zreset)
         send_to_char(ch, "Invalid zone number.\r\n");
 }
 
+void
+perform_unaffect(Creature *ch, Creature *vict)
+{
+    if (vict->affected) {
+        send_to_char(vict, "There is a brief flash of light!\r\n"
+                     "You feel slightly different.\r\n");
+        send_to_char(ch, "All spells removed.\r\n");
+        while (vict->affected)
+            affect_remove(vict, vict->affected);
+    } else if (ch == vict)
+        send_to_char(ch, "You don't have any affections!\r\n");
+    else
+        send_to_char(ch, "Your victim does not have any affections!\r\n");
+}
+
+void
+perform_reroll(Creature *ch, Creature *vict)
+{
+    void roll_real_abils(struct Creature *ch);
+
+    roll_real_abils(vict);
+    send_to_char(vict, "Your stats have been rerolled.\r\n");
+    slog("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
+    send_to_char(ch,
+                 "New stats: Str %d/%d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
+                 GET_STR(vict), GET_ADD(vict), GET_INT(vict), GET_WIS(vict),
+                 GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
+}
+
 /*
  *  General fn for wizcommands of the sort: cmd <player>
  */
@@ -3712,7 +3741,6 @@ ACMD(do_wizutil)
     struct Creature *vict;
     long result;
     char *msg;
-    void roll_real_abils(struct Creature *ch);
     char *arg = tmp_getword(&argument);
     bool loaded = false;
 
@@ -3747,13 +3775,7 @@ ACMD(do_wizutil)
     else {
         switch (subcmd) {
         case SCMD_REROLL:
-            roll_real_abils(vict);
-            send_to_char(vict, "Your stats have been rerolled.\r\n");
-            slog("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
-            send_to_char(ch,
-                "New stats: Str %d/%d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
-                GET_STR(vict), GET_ADD(vict), GET_INT(vict), GET_WIS(vict),
-                GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
+            perform_reroll(ch, vict);
             break;
         case SCMD_NOTITLE: {
             result = PLR_TOG_CHK(vict, PLR_NOTITLE);
@@ -3814,16 +3836,7 @@ ACMD(do_wizutil)
                     vict, 0, 0, TO_ROOM);
             break;
         case SCMD_UNAFFECT:
-            if (vict->affected) {
-                send_to_char(vict, "There is a brief flash of light!\r\n"
-                    "You feel slightly different.\r\n");
-                send_to_char(ch, "All spells removed.\r\n");
-                while (vict->affected)
-                    affect_remove(vict, vict->affected);
-            } else {
-                send_to_char(ch, "Your victim does not have any affections!\r\n");
-                break;
-            }
+            perform_unaffect(ch, vict);
             break;
         default:
             errlog("Unknown subcmd passed to do_wizutil (act.wizard.c)");
@@ -8556,10 +8569,10 @@ ACMD(do_tester)
         }
         break;
     case 1:                    /* unaffect */
-        do_wizutil(ch, tmp_strdup("self"), 0, SCMD_UNAFFECT, 0);
+        perform_unaffect(ch, ch);
         break;
     case 2:                    /* reroll */
-        do_wizutil(ch, tmp_strdup("self"), 0, SCMD_REROLL, 0);
+        perform_reroll(ch, ch);
         break;
     case 3:                    /* stat */
         do_stat(ch, arg2, 0, 0, 0);
