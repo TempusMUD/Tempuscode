@@ -144,7 +144,7 @@ vendor_get_value(obj_data *obj, int percent, int costModifier)
 
     cost += (costModifier*(int)cost)/100;
 
-	return MAX(1, cost);
+	return MAX(12, cost);
 }
 
 obj_data *
