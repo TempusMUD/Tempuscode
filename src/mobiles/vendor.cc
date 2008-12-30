@@ -15,6 +15,7 @@
 #include "specs.h"
 
 const int MAX_ITEMS = 10;
+const unsigned int MIN_COST = 12;
 
 // From act.comm.cc
 void perform_analyze( Creature *ch, obj_data *obj, bool checklev );
@@ -122,7 +123,7 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
 // Gets the value of an object, checking for buyability.
 // costModifier of 0 does nothing.
 static unsigned long
-vendor_get_value(obj_data *obj, int percent, int costModifier)
+vendor_get_value(obj_data *obj, int percent, int costModifier, int currency)
 {
 	unsigned long cost;
 
@@ -144,7 +145,10 @@ vendor_get_value(obj_data *obj, int percent, int costModifier)
 
     cost += (costModifier*(int)cost)/100;
 
-	return MAX(12, cost);
+    if (currency == 2)
+        return MAX(1, cost);
+    else
+        return MAX(MIN_COST, cost);
 }
 
 obj_data *
@@ -319,7 +323,10 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		}
 	}
 
-	cost = vendor_get_value(obj, shop->markup, ch->getCostModifier(self));
+	cost = vendor_get_value(obj,
+                            shop->markup,
+                            ch->getCostModifier(self),
+                            shop->currency);
 	switch (shop->currency) {
 	case 0:
 		amt_carried = GET_GOLD(ch); break;
@@ -488,7 +495,10 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 		perform_say_to(self, ch, "I make these.  Why should I buy it back from you?");
 		return;
 	}
-	cost = vendor_get_value(obj, shop->markdown, self->getCostModifier(ch));
+	cost = vendor_get_value(obj,
+                            shop->markdown,
+                            self->getCostModifier(ch),
+                            shop->currency);
 	amt_carried = (shop->currency) ? GET_CASH(self):GET_GOLD(self);
 
 	if (amt_carried < cost) {
@@ -616,7 +626,10 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 				if (vendor_is_produced(last_obj, shop))
 					cnt = -1;
 				if (!*arg || namelist_match(arg, last_obj->aliases)) {
-					cost = vendor_get_value(last_obj, shop->markup, ch->getCostModifier(self));
+					cost = vendor_get_value(last_obj,
+                                            shop->markup,
+                                            ch->getCostModifier(self),
+                                            shop->currency);
                     msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx, cost));
                 }
 				cnt = 1;
@@ -630,7 +643,10 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 			cnt = -1;
 		if (!*arg || namelist_match(arg, last_obj->aliases))
 			msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
-				vendor_get_value(last_obj, shop->markup, ch->getCostModifier(self))));
+				vendor_get_value(last_obj,
+                                 shop->markup,
+                                 ch->getCostModifier(self),
+                                 shop->currency)));
 	}
 
 	act("$n peruses the shop's wares.", false, ch, 0, 0, TO_ROOM);
@@ -664,7 +680,10 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	if (vendor_invalid_buy(self, ch, shop, obj))
 		return;
 
-	cost = vendor_get_value(obj, shop->markdown, self->getCostModifier(ch));
+	cost = vendor_get_value(obj,
+                            shop->markdown,
+                            self->getCostModifier(ch),
+                            shop->currency);
 
 	perform_say_to(self, ch, tmp_sprintf("I'll give you %lu %s for it!", cost, shop->currency ? "creds":"gold"));
 }
