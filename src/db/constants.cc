@@ -3185,7 +3185,7 @@ extern const char *material_names[] = {
 	"pine",
 	"maple",
 	"birch",
-	"mahogony",
+	"mahogany",
 	"teak",
 	"rattan",
 	"ebony",
