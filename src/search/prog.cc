@@ -68,6 +68,7 @@ void prog_do_ldesc(prog_env * env, prog_evt * evt, char *args);
 void prog_do_damage(prog_env * env, prog_evt * evt, char *args);
 void prog_do_spell(prog_env *env, prog_evt *evt, char *args);
 void prog_do_doorset(prog_env * env, prog_evt * evt, char *args);
+void prog_do_doorexit(prog_env * env, prog_evt * evt, char *args);
 void prog_do_selfpurge(prog_env * env, prog_evt * evt, char *args);
 void prog_do_hunt(prog_env * env, prog_evt * evt, char *args);
 void prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args);
@@ -117,6 +118,7 @@ prog_command prog_cmds[] = {
 	{"damage", true, prog_do_damage},
 	{"spell", true, prog_do_spell},
 	{"doorset", true, prog_do_doorset},
+	{"doorexit", true, prog_do_doorexit},
 	{"selfpurge", true, prog_do_selfpurge},
 	{NULL, false, prog_do_halt}
 };
@@ -1260,6 +1262,42 @@ DEFPROGHANDLER(doorset, env, evt, args)
 		ABS_EXIT(room, dir)->exit_info |= flags;
 	else
 		ABS_EXIT(room, dir)->exit_info &= ~flags;
+}
+
+DEFPROGHANDLER(doorexit, env, evt, args)
+{
+	// *doorexit <room vnum> <direction> (<target room>|none)
+	char *arg;
+	room_data *room, *target_room;
+	int dir;
+
+	arg = tmp_getword(&args);
+	room = real_room(atoi(arg));
+	if (!room)
+		return;
+
+	arg = tmp_getword(&args);
+	dir = search_block(arg, dirs, false);
+	if (dir < 0)
+		return;
+
+    arg = tmp_getword(&args);
+    if (is_number(arg)) {
+        int target_roomnum = atoi(arg);
+        target_room = real_room(target_roomnum);
+        if (!target_room)
+            return;
+
+        if (!ABS_EXIT(room, dir))
+            CREATE(ABS_EXIT(room, dir), struct room_direction_data, 1);
+    } else if (!strcasecmp("none", arg)) {
+        target_room = NULL;
+    } else {
+        return;
+    }
+
+    if (ABS_EXIT(room, dir) || target_room)
+        ABS_EXIT(room, dir)->to_room = target_room;
 }
 
 DEFPROGHANDLER(selfpurge, env, evt, args)
