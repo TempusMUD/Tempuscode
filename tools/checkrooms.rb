@@ -14,11 +14,14 @@ def process_file(path)
         new_room.check if new_room.load(inf)
       end
     }
-    
+
   rescue RuntimeError => exc
     print exc, " at  ", path, ":", $linenum, "\n"
     print exc.backtrace.join("\n")
   end
 end
 
-ARGV.each { |path| process_file(path) }
+ARGV.each { |path|
+  STDERR.print "...checking room file #{path}\n" if ARGV.length > 1
+  process_file(path)
+}

@@ -383,6 +383,9 @@ EOF
     @description = check_desc(@description, "room #{@idnum} desc")
     @sound = check_desc(@sound, "room #{@idnum} sound") unless @sound.empty?
     @extradescs.each { |exd|
+      if match = /[^a-zA-Z ]/.match(exd.keywords)
+        print "room #{vnum} extradesc #{exd.keywords} contains invalid character '#{match[0]}'\n"
+      end
       # ASCII art detect
       if !exd.description.match(/(---|___)/)
         exd.description = check_desc(exd.description, "room #{@idnum} extradesc #{exd.keywords}")
@@ -395,6 +398,12 @@ EOF
       end
       if dir.exit_info.match(/b/) && !dir.exit_info.match(/a/)
         print "room #{@idnum} #{Roomexit::DIRECTIONS[dir.direction]} exit: exit is closed with no door\n"
+      end
+    }
+    @searches.each { |search|
+      # Check for repeatable searches with commands we don't want repeatable
+      if search.flags & 1 == 1 and [3,5,6].index(search.command)
+        print "room #{@idnum} has repeatable #{Roomsearch::COMMANDS[search.command]} search\n"
       end
     }
   end

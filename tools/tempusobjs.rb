@@ -21,7 +21,7 @@ class Apply
     @key = key
     @value = value
   end
-  
+
   def inspect
     "Apply: #{@value} to #{PLACES[@key]}"
   end
@@ -365,10 +365,13 @@ EOF
   end
 
   def check
-    print "Object ##{@vnum} has key in its alias, and is of #{TYPES[@type - 1]} type\n" if @aliases.match(/\bkey\b/) && @type != 18
-    
+    print "object #{@vnum} has key in its alias, and is of #{TYPES[@type - 1]} type\n" if @aliases.match(/\bkey\b/) && @type != 18
+
     if ! @extradescs.empty?
       @extradescs.each { |exd|
+        if match = /[^a-zA-Z ]/.match(exd.keywords)
+          print "object #{vnum} extradesc #{exd.keywords} contains invalid character '#{match[0]}'\n"
+        end
         check_desc(exd.description, "object #{@vnum} extradesc #{exd.keywords}")
       }
       @aliases.scan(/\S+/).each { |a|
@@ -382,7 +385,7 @@ end
 def read_objects(path)
   result = Array.new
   item = vnum = nil
-  
+
   File.open(path) { |inf|
     until !(line = inf.gets) || (match = line.match(/^\#(\d+)/))
     end

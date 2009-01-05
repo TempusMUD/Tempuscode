@@ -4,7 +4,6 @@ NOCAP_WORDS = [ "a","an","is","if","or","the","of","in","into","to",
                 "and","your","on","off","by","out","no","it","at",
                 "as","for" ]
 
-
 def check_desc(str, where)
   if str.match(/^\s*$/m)
     print "#{where}: no desc\n"
@@ -60,8 +59,8 @@ def capitalize(original)
       cap_next = word.match(/[.?!]/)
       word.capitalize!
     end
-    
-    word.gsub!(/^Mc(.)/) { |match| "Mc#{match[1].downcase}" }
+
+    word.gsub!(/^Mc(.)/) { |match| "Mc#{$1.upcase}" }
 
     result += word
   }
