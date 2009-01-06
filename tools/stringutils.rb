@@ -4,11 +4,8 @@ NOCAP_WORDS = [ "a","an","is","if","or","the","of","in","into","to",
                 "and","your","on","off","by","out","no","it","at",
                 "as","for" ]
 
-def check_desc(str, where)
-  if str.match(/^\s*$/m)
-    print "#{where}: no desc\n"
-    return
-  end
+def check_text(str, where)
+  return if str.match(/^\s*$/m)
 
   linenum = 0
   str.each { |line|
@@ -19,7 +16,6 @@ def check_desc(str, where)
     end
   }
 
-  print "#{where}: Orphaned word\n" if /^\S+\Z/m.match(str)
   print "#{where}: Two spaces missing after punctuation\n" if /[.?!;]+["']?[^ \n][^ ][A-Za-z]/.match(str)
   print "#{where}: Use of the word 'you'\n" if /\byou\b/.match(str) and !/^vict emit/.match(str)
   print "#{where}: Use of the word 'your'\n" if /\byour\b/.match(str) and !/^vict emit/.match(str)
@@ -42,6 +38,17 @@ def check_desc(str, where)
   end
 
   File.unlink('/tmp/desc.txt')
+end
+
+def check_desc(str, where)
+  if str.match(/^\s*$/m)
+    print "#{where}: no desc\n"
+    return
+  end
+
+  print "#{where}: Orphaned word\n" if /^\S+\Z/m.match(str)
+
+  check_text(str, where)
 end
 
 def capitalize(original)

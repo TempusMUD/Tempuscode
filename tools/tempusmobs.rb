@@ -127,6 +127,7 @@ class Mobile
     @cur_tongue = 0
     @damnodice = 0
     @damsizedice = 0
+    @damroll = 0
     @desc = ""
     @dex = 11
     @gen = 0
@@ -142,6 +143,7 @@ class Mobile
     @leader = -1
     @mob_flags = ""
     @mob2_flags = ""
+    @movebuf = ""
     @name = ""
     @race = 0
     @remort_class = -1
@@ -384,9 +386,14 @@ EOF
         when /KnownTongue: (\d+)/
           @tongues.push($1.to_i)
         when /CurLang: (\d+)/
-          @curlang = $1.to_i
+          @cur_tongue = $1.to_i - 1
         when /KnownLang: (\d+)/
-          @knownlang = $1.to_i
+          num = $1
+          0.upto(32) { |bit|
+            if ((num >> bit) & 1)
+              @tongues.push(bit)
+            end
+          }
         else
           raise "Unrecognized espec keyword in mobile #{@vnum}"
         end
@@ -415,5 +422,11 @@ EOF
   end
 
   def check
+    check_desc(@desc, "mobile #{@vnum} desc")
+    check_text(@movebuf, "mobile #{@vnum} move_buf")
+    check_desc(@ldesc, "mobile #{@vnum} ldesc")
+    if match = /[^a-zA-Z ]/.match(@aliases)
+      print "mobile #{vnum} alias contains invalid character '#{match[0]}'\n"
+    end
   end
 end
