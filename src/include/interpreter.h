@@ -207,6 +207,7 @@ struct set_struct {
 #define SCMD_NOPETITION 47
 #define SCMD_NASTY      48
 #define SCMD_NOHAGGLE   49
+#define SCMD_NOPLUG     50
 
 /* do_wizutil */
 #define SCMD_REROLL	0
@@ -237,6 +238,7 @@ struct set_struct {
 #define SCMD_CLANEMOTE	12
 #define SCMD_PETITION	13
 #define SCMD_HAGGLE 	14
+#define SCMD_PLUG       15
 
 /* do_shutdown */
 #define SCMD_SHUTDOW	0

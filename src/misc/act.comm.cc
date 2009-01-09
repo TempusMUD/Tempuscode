@@ -656,6 +656,10 @@ static const channel_info_t channels[] = {
       "&m", "&n",
       "You're not haggling with your peers.",
       "Your haggling has been muted." },
+	{ "plug", 1, PRF_NOPLUG, INTERPLANAR, NOT_EMOTE,
+      "&Y", "&C",
+      "You're not listening to the plugs.",
+      "Your plugs have been muted." },
 };
 
 const char *
@@ -719,7 +723,8 @@ ACMD(do_gen_comm)
 	}
 
 	// These are all restrictions, to which immortals and npcs are uncaring
-	if (!IS_NPC(ch) && !IS_IMMORT(ch)) {
+    // Charmed creatures, however, are always subject
+	if ((!IS_NPC(ch) && !IS_IMMORT(ch)) || AFF_FLAGGED(ch, AFF_CHARM)) {
 		/* level_can_shout defined in config.c */
 		if (GET_LEVEL(ch) < level_can_shout &&
             subcmd != SCMD_NEWBIE &&
@@ -740,7 +745,12 @@ ACMD(do_gen_comm)
 
         // Players can't auction anymore
         if (subcmd == SCMD_AUCTION) {
-            send_to_char(ch, "Only licenced auctioneers can use that channel!\r\n");
+            send_to_char(ch, "Only licensed auctioneers can use that channel!\r\n");
+            return;
+        }
+
+        if (subcmd == SCMD_PLUG) {
+            send_to_char(ch, "Only approved criers can use this channel!\r\n");
             return;
         }
 

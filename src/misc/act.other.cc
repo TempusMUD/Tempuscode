@@ -1112,6 +1112,8 @@ ACMD(do_gen_tog)
 			"You are now subjected to the nastiness of your peers.\r\n"},
         {"You can now hear the haggling of your peers.\r\n",
          "You are now deaf to the haggling of your peers.\r\n"},
+        {"You can now hear criers plug tempus.\r\n",
+         "You no longer hear criers plug tempus.\r\n"},
 		{"\n", "\n"}
 	};
 
@@ -1315,6 +1317,9 @@ ACMD(do_gen_tog)
     case SCMD_NOHAGGLE:
 		result = PRF_TOG_CHK(ch, PRF_NOHAGGLE);
         break;
+	case SCMD_NOPLUG:
+		result = PRF_TOG_CHK(ch, PRF_NOPLUG);
+		break;
 	default:
 		errlog("Unknown subcmd in do_gen_toggle");
 		return;

@@ -504,7 +504,7 @@ Account::create_char(const char *name)
 	ch->points.move = GET_MAX_MOVE(ch);
 	ch->points.armor = 100;
 
-	SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW);
+	SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW | PRF_NOPLUG);
 	SET_BIT(PRF2_FLAGS(ch), PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN | PRF2_NEWBIE_HELPER);
 
 	ch->char_specials.saved.affected_by = 0;
