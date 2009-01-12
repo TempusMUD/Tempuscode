@@ -162,8 +162,16 @@ handle_input(struct descriptor_data *d)
 				d->account->get_name(),
 				d->account->get_idnum(),
 				d->host);
-			send_to_desc(d, "Invalid password.\r\n");
-			set_desc_state(CXN_ACCOUNT_LOGIN, d);
+            d->wait = (2 + d->bad_pws) RL_SEC;
+            d->bad_pws += 1;
+            if (d->bad_pws > 10) {
+                send_to_desc(d, "Maximum password attempts reached.  Disconnecting.\r\n");
+                slog("PASSWORD: disconnecting due to too many login attempts");
+                set_desc_state(CXN_DISCONNECT, d);
+            } else {
+                send_to_desc(d, "Invalid password.\r\n");
+                set_desc_state(CXN_ACCOUNT_LOGIN, d);
+            }
         } else if (d->account->is_banned()) {
             slog("Autobanning IP address of account %s[%d]",
                  d->account->get_name(),
