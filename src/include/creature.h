@@ -670,7 +670,6 @@ typedef struct weapon_spec {
 /* general player-related info, usually PC's and NPC's */
 struct char_player_data {
     char_player_data &operator=(const char_player_data &c) {
-        memcpy(&this->passwd, &c.passwd, MAX_PWD_LENGTH +1);
         if (c.name)
             this->name = strdup(c.name);
         if (c.short_descr)
@@ -697,7 +696,6 @@ struct char_player_data {
         return *this;
     }
 
-	char passwd[MAX_PWD_LENGTH + 1];	/* character's password      */
 	char *name;					/* PC / NPC s name (kill ...  )         */
 	char *short_descr;			/* for NPC 'actions'                    */
 	char *long_descr;			/* for 'look'                   */
@@ -949,7 +947,6 @@ struct player_special_data_saved {
 	room_num home_room;
 	long pref;					/* preference flags for PC's.        */
 	long pref2;					/* 2nd pref flag                        */
-	ubyte bad_pws;				/* number of bad password attempts    */
 	sbyte conditions[3];		/* Drunk, full, thirsty            */
 
 	ubyte clan;

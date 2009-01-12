@@ -998,12 +998,7 @@ Creature::loadFromXML( const char *path )
                 GET_GRIEVANCES(this).push_back(grievance);
             }
             free(txt);
-		} else if( xmlMatches(node->name, "account") ) { // Legacy for old char database
-            char *pw = xmlGetProp( node, "password" );
-            strcpy( GET_PASSWD(this), pw );
-            if( pw != NULL )
-                free(pw);
-        }
+		}
     }
 
     xmlFreeDoc(doc);
