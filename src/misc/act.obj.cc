@@ -979,11 +979,13 @@ get_from_room(struct Creature *ch, char *arg)
 			return 0;
 		}
 
-        if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) != ch->getIdNum() &&
-            ch->getLevel() < LVL_AMBASSADOR &&
-            ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
-            IS_PC(ch) && CORPSE_IDNUM(obj) > 0) {
-            send_to_char(ch, "You can't take corpses in NPK zones!\r\n");
+        if (IS_CORPSE(obj)
+            && CORPSE_IDNUM(obj) != ch->getIdNum()
+            && ch->getLevel() < LVL_AMBASSADOR
+            && ch->in_room->zone->getPKStyle() != ZONE_CHAOTIC_PK
+            && IS_PC(ch)
+            && CORPSE_IDNUM(obj) > 0) {
+            send_to_char(ch, "You can only take PC corpses in CPK zones!\r\n");
             return 0;
         }
 
