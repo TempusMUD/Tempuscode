@@ -1149,7 +1149,7 @@ DEFPROGHANDLER(spell, env, evt, args)
         caster = env->owner->to_c();
         break;
     case PROG_TYPE_ROOM:
-        caster = *(((room_data *)env->owner)->people.begin());
+        caster = NULL;
         break;
     default:
         break;
@@ -1186,9 +1186,11 @@ DEFPROGHANDLER(spell, env, evt, args)
 		}
         if (env->target->getPosition() > POS_DEAD
             && !affected_by_spell(env->target, spell_num))
-                call_magic(caster, env->target, NULL, NULL,
-                           spell_num, spell_lvl, spell_type,
-                           NULL);
+            call_magic(caster ? caster:(env->target),
+                       env->target,
+                       NULL, NULL,
+                       spell_num, spell_lvl, spell_type,
+                       NULL);
 		search_nomessage = false;
 		return;
 	}
@@ -1214,7 +1216,7 @@ DEFPROGHANDLER(spell, env, evt, args)
             (!mobs || IS_NPC(*it)) &&
             (*it)->getPosition() > POS_DEAD &&
             !affected_by_spell(*it, spell_num))
-            call_magic(caster, *it, NULL, NULL,
+            call_magic(caster ? caster:(*it), *it, NULL, NULL,
                        spell_num, spell_lvl, spell_type,
                        NULL);
 	search_nomessage = false;
