@@ -142,7 +142,6 @@ void path_activity();
 void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);
 void show_string(struct descriptor_data *d, char *input);
-int isbanned(char *hostname, char *blocking_hostname);
 void verify_environment(void);
 void weather_and_time(int mode);
 void autosave_zones(int SAVE_TYPE);
@@ -1049,30 +1048,13 @@ new_descriptor(int s)
 	}
 
 	/* determine if the site is banned */
-	int bantype = isbanned(newd->host, buf2);
-	if (bantype == BAN_ALL) {
-        write_to_descriptor(desc, "**************************************************"
-                                  "*****************************\r\n");
-        write_to_descriptor(desc, "                               T E M P U S  M U D\r\n");
-        write_to_descriptor(desc, "**************************************************"
-                                  "*****************************\r\n");
-        write_to_descriptor(desc, "\t\tWe're sorry, we have been forced to ban your "
-                                  "IP address.\r\n\tIf you have never played here "
-                                  "before, or you feel we have made\r\n\ta mistake, or "
-                                  "perhaps you just got caught in the wake of\r\n\tsomeone "
-                                  "elses trouble making, please mail "
-                                  "unban@tempusmud.com.\r\n\tPlease include your account "
-                                  "name and your character name(s)\r\n\tso we can siteok "
-                                  "your IP.  We apologize for the inconvenience,\r\n\t and "
-                                  "we hope to see you soon!\r\n\r\n");
-		close(desc);
-		mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
-             "Connection attempt denied from [%s]%s",
-             newd->host,
-             (buf2[0]) ? tmp_sprintf(" (%s)", buf2):"");
+    if (check_ban_all(desc, newd->host)) {
+        close(desc);
 		free(newd);
 		return 0;
-	}
+    }
+
+    int bantype = isbanned(newd->host, buf2);
 
 	/* Log new connections - probably unnecessary, but you may want it */
 	mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,

@@ -35,6 +35,7 @@
 #include "db.h"
 #include "ban.h"
 #include "accstr.h"
+#include "security.h"
 
 std::list<ban_entry> ban_list;
 
@@ -65,6 +66,10 @@ load_banned_entry(xmlNodePtr node)
         } else if (xmlMatches(child->name, "reason")) {
             text = (char *)xmlNodeGetContent(child);
             strcpy(ban._reason, text);
+            free(text);
+        } else if (xmlMatches(child->name, "message")) {
+            text = (char *)xmlNodeGetContent(child);
+            strcpy(ban._message, text);
             free(text);
         } else if (xmlMatches(child->name, "type")) {
             text = (char *)xmlNodeGetContent(child);
@@ -135,6 +140,50 @@ isbanned(char *hostname, char *blocking_hostname)
 	return i;
 }
 
+bool
+check_ban_all(int desc, char *hostname)
+{
+    int write_to_descriptor(int desc, const char *txt);
+    std::list<ban_entry>::iterator node = ban_list.begin();
+
+	if (!hostname || !*(hostname))
+		return false;
+
+    hostname = tmp_tolower(hostname);
+
+    for (;node != ban_list.end();++node)
+        if (node->_type == BAN_ALL
+            && !strncmp(hostname, node->_site, strlen(node->_site)))
+            break;
+
+    if (node == ban_list.end())
+        return false;
+
+    write_to_descriptor(desc, "*******************************************************************************\r\n");
+    write_to_descriptor(desc, "                               T E M P U S  M U D\r\n");
+    write_to_descriptor(desc, "*******************************************************************************\r\n");
+    if (node->_message[0]) {
+        write_to_descriptor(desc, tmp_gsub(node->_message, "\n", "\r\n"));
+    } else {
+        write_to_descriptor(desc,
+                            "       We're sorry, we have been forced to ban your IP address.\r\n"
+                            "    If you have never played here before, or you feel we have made\r\n"
+                            "    a mistake, or perhaps you just got caught in the wake of\r\n"
+                            "    someone elses trouble making, please mail unban@tempusmud.com.\r\n"
+                            "    Please include your account name and your character name(s)\r\n"
+                            "    so we can siteok your IP.  We apologize for the inconvenience,\r\n"
+                            "    and we hope to see you soon!\r\n"
+                            "\r\n");
+    }
+
+    mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
+         "Connection attempt denied from [%s]%s",
+         hostname,
+         (node->_reason[0]) ? tmp_sprintf(" (%s)", node->_reason):"");
+
+    return true;
+}
+
 void
 write_ban_list(void)
 {
@@ -150,7 +199,10 @@ write_ban_list(void)
         fprintf(fl, "  <banned>\n");
         fprintf(fl, "    <site>%s</site>\n", node->_site);
         fprintf(fl, "    <name>%s</name>\n", node->_name);
-        fprintf(fl, "    <reason>%s</reason>\n", node->_reason);
+        if (node->_reason[0])
+            fprintf(fl, "    <reason>%s</reason>\n", node->_reason);
+        if (node->_message[0])
+            fprintf(fl, "    <message>%s</message>\n", node->_message);
         fprintf(fl, "    <date>%ld</date>\n", (long)node->_date);
         fprintf(fl, "    <type>%s</type>\n", ban_types[node->_type]);
         fprintf(fl, "  </banned>\n");
@@ -163,7 +215,7 @@ write_ban_list(void)
 void
 perform_ban(int flag, const char *site, const char *name, const char *reason)
 {
-    ban_list.push_back(ban_entry(site, flag, time(0), name, reason));
+    ban_list.push_back(ban_entry(site, flag, time(0), name, reason, ""));
 	write_ban_list();
 }
 

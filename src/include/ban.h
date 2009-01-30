@@ -17,13 +17,14 @@ typedef char namestring[MAX_NAME_LENGTH];
 class ban_entry {
  public:
     ban_entry(void) {
-        _site[0] = _name[0] = _reason[0] = '\0';
+        _site[0] = _name[0] = _reason[0] = _message[0] = '\0';
         _type = _date = 0;
     }
     ban_entry(const ban_entry &o) {
         strcpy(_site, o._site);
         strcpy(_name, o._name);
         strcpy(_reason, o._reason);
+        strcpy(_message, o._message);
         _type = o._type;
         _date = o._date;
     }
@@ -31,10 +32,12 @@ class ban_entry {
               int type,
               time_t date,
               const char *name,
-              const char *reason) {
+              const char *reason,
+              const char *message) {
         strcpy(_site, site);
         strcpy(_name, name);
         strcpy(_reason, reason);
+        strcpy(_message, message);
         _type = type;
         _date = date;
     }
@@ -44,12 +47,14 @@ class ban_entry {
 	time_t _date;
 	char _name[MAX_NAME_LENGTH + 1];
 	char _reason[BANNED_REASON_LENGTH + 1];
+	char _message[MAX_INPUT_LENGTH + 1];
 };
 
 extern namestring *nasty_list;
 extern int num_nasty;
 
 int isbanned(char *hostname, char *blocking_hostname);
+bool check_ban_all(int desc, char *hostname);
 void perform_ban(int flag,
                  const char *site,
                  const char *name,
