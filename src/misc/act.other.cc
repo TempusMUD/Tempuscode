@@ -898,7 +898,7 @@ ACMD(do_display)
 	}
 
 	if ((!strcasecmp(arg1, "on")) || (!strcasecmp(arg1, "normal"))) {
-		REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
+		REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
 		SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
 	}
 
