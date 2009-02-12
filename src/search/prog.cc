@@ -713,6 +713,24 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 		result = time_info.hours == atoi(tmp_getword(&args));
 	} else if (!strcasecmp(arg, "phase")) {
         result = prog_eval_phase(args);
+	} else if (!strcmp(arg, "position")) {
+        if (env->owner_type != PROG_TYPE_MOBILE) {
+            room_data *room = prog_get_owner_room(env);
+            zerrlog(room->zone, "Illegal position condition in %s prog",
+                    prog_get_desc(env));
+            result = false;
+        } else {
+            int pos = search_block(args, position_types, false);
+
+            if (pos < 0) {
+                room_data *room = prog_get_owner_room(env);
+                zerrlog(room->zone, "Invalid position '%s' in %s prog",
+                        args, prog_get_desc(env));
+                result = false;
+            } else {
+                result = (pos == env->owner->to_c()->getPosition());
+            }
+        }
     } else if (!strcasecmp(arg, "room")) {
         room_data *room = prog_get_owner_room(env);
 
@@ -724,6 +742,17 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 		if (!strcasecmp(arg, "class")) {
             result = prog_eval_class(env, args);
 		}
+        else if (!strcmp(arg, "position")) {
+            int pos = search_block(args, position_types, false);
+
+            if (pos < 0) {
+                room_data *room = prog_get_owner_room(env);
+                zerrlog(room->zone, "Invalid position '%s' in %s prog",
+                        args, prog_get_desc(env));
+                result = false;
+            }
+            result = (pos == env->target->getPosition());
+        }
         else if (!strcasecmp(arg, "player")) {
 			result = env->target && IS_PC(env->target);
 		}
