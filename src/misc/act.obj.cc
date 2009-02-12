@@ -379,7 +379,9 @@ perform_put(struct Creature *ch, struct obj_data *obj,
 		if (cont->getContainedWeight() + obj->getWeight() > GET_OBJ_VAL(cont,
 				0))
 			act("$p won't fit in $P.", false, ch, obj, cont, TO_CHAR);
-		else if (IS_OBJ_STAT(obj, ITEM_NODROP) && GET_LEVEL(ch) < LVL_TIMEGOD)
+		else if (IS_OBJ_STAT(obj, ITEM_NODROP)
+                 && GET_LEVEL(ch) < LVL_TIMEGOD
+                 && !MOB_FLAGGED(ch, MOB_UTILITY))
 			act("$p must be cursed!  You can't seem to let go of it...", false,
 				ch, obj, 0, TO_CHAR);
 		else {
@@ -1385,7 +1387,7 @@ perform_drop(struct Creature *ch, struct obj_data *obj,
 		return 0;
 
 	if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
-		if (GET_LEVEL(ch) < LVL_TIMEGOD) {
+		if (GET_LEVEL(ch) < LVL_TIMEGOD && !MOB_FLAGGED(ch, MOB_UTILITY)) {
 			sprintf(buf, "You can't %s $p, it must be CURSED!", sname);
 			act(buf, false, ch, obj, 0, TO_CHAR);
 			return 0;
