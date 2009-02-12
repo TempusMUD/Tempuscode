@@ -1960,6 +1960,7 @@ trigger_prog_cmd(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 	evt.subject = ch;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
+    skip_spaces(&argument);
 	strcpy(evt.args, argument);
 	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
