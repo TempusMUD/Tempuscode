@@ -57,8 +57,7 @@ struct extra_descr_data {
 /* This structure is purely intended to be an easy way to transfer */
 /* and return information about time (real or mudwise).            */
 struct time_info_data {
-	char hours, day, month;
-	short year;
+	int hours, month, day, year;
 };
 
 /* ====================================================================== */
