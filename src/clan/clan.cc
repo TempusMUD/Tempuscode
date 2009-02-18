@@ -126,7 +126,7 @@ char_can_enroll(Creature *ch, Creature *vict, clan_data *clan)
 		send_to_char(ch, "Players must be level 10 before being inducted into the clan.\r\n");
     else if (clan_member_count(clan) > MAX_CLAN_MEMBERS)
         send_to_char(ch, "The max number of members has been reached for this clan.\r\n");
-    else if (clan->owner == GET_CLAN(ch))
+    else if (clan->owner == GET_IDNUM(ch))
         return true;
     // Enrollment conditions that don't apply to clan owners
     else if (GET_CLAN(ch) != clan->number || !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
@@ -431,7 +431,7 @@ ACMD(do_demote)
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
 	else if (ch == vict) {
 		if (!member1->rank)
-			send_to_char(ch, "You already at the bottom of the totem pole.\r\n");
+			send_to_char(ch, "You are already at the bottom of the totem pole.\r\n");
 		else {
 			member1->rank--;
 			sql_exec("update clan_members set rank=%d where player=%ld",
