@@ -874,12 +874,21 @@ SPECIAL(vendor)
 		self->mob_specials.func_data = shop;
 	}
 
-	if (shop->func &&
-			shop->func != vendor &&
-			shop->func(ch, me, cmd, argument, spec_mode))
-		return 1;
+	if (spec_mode == SPECIAL_CMD &&
+        !(CMD_IS("buy")   || CMD_IS("sell")  || CMD_IS("list")  ||
+          CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal"))) {
+        // If we don't handle it, check to see if our sub-special will
+        if (shop->func &&
+            shop->func != vendor &&
+            shop->func(ch, me, cmd, argument, spec_mode))
+            return 1;
+
+        return 0;
+    }
 
 	if (spec_mode == SPECIAL_RESET) {
+        if (shop->func && shop->func != vendor)
+            shop->func(ch, me, cmd, argument, spec_mode);
 		vendor_revenue(self, shop);
 		return 0;
 	}
@@ -890,16 +899,16 @@ SPECIAL(vendor)
 			call_for_help(self, target);
 			return 1;
 		}
+        if (shop->func && shop->func != vendor)
+            return shop->func(ch, me, cmd, argument, spec_mode);
 		return 0;
 	}
 
-	if (spec_mode != SPECIAL_CMD)
-		return 0;
-
-	if (!(CMD_IS("buy")   || CMD_IS("sell")  || CMD_IS("list")  ||
-		  CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal"))) {
-		return 0;
-	}
+    if (spec_mode != SPECIAL_CMD) {
+        if (shop->func && shop->func != vendor)
+            shop->func(ch, me, cmd, argument, spec_mode);
+        return 0;
+    }
 
 	if (err) {
 		// Specparam error
