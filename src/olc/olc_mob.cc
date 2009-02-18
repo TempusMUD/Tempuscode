@@ -1556,9 +1556,11 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 
 	if (mob->player.name) {
 		free(mob->player.name);
+        mob->player.name = NULL;
 	}
 	if (mob->player.title) {
 		free(mob->player.title);
+        mob->player.title = NULL;
 	}
 	if (mob->player.short_descr) {
 		free(mob->player.short_descr);
