@@ -210,9 +210,10 @@ CEditor::Insert(unsigned int line, char *inStr)
 	string text;
 	list<string>::iterator s;
 
-	if (*inStr) {
+    if (line < 1)
+        line = 1;
+	if (*inStr)
 		inStr++;
-	}
 	text = inStr;
 	if (line > theText.size()) {
 		SendMessage("You can't insert before a line that doesn't exist.\r\n");
@@ -245,7 +246,7 @@ CEditor::ReplaceLine(unsigned int line, char *inStr)
 		inStr++;
 	text = inStr;
 
-	if (line > theText.size()) {
+	if (line < 1 || line > theText.size()) {
 		SendMessage("There's no line to replace there.\r\n");
 		return false;
 	}
@@ -273,6 +274,22 @@ CEditor::MoveLines(unsigned int start_line,
                    unsigned int dest_line)
 {
 	list<string>::iterator dest, begin, end;
+
+    if (start_line < 1 || start_line > theText.size()) {
+        if (start_line == end_line)
+            SendMessage("Line %d is an invalid line.\r\n");
+        else
+            SendMessage("Starting line %d is an invalid line.\r\n");
+        return false;
+    }
+    if (end_line < 1 || end_line > theText.size()) {
+        SendMessage("Ending line %d is an invalid line.\r\n");
+        return false;
+    }
+    if (dest_line < 1)
+        dest_line = 1;
+    if (dest_line >= theText.size())
+        dest_line = theText.size() + 1;
 
     begin = theText.begin();
     advance(begin, start_line - 1);
@@ -504,7 +521,11 @@ CEditor::Remove(unsigned int start_line, unsigned int finish_line)
 {
 	list <string>::iterator start, finish;
 
-	if (start_line > theText.size()) {
+	if (start_line < 1 || start_line > theText.size()) {
+		SendMessage("Someone already deleted that line boss.\r\n");
+		return false;
+	}
+	if (finish_line < 1 || finish_line > theText.size()) {
 		SendMessage("Someone already deleted that line boss.\r\n");
 		return false;
 	}
