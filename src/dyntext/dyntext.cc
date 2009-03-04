@@ -52,6 +52,7 @@ boot_dynamic_text(void)
 	DIR *dir;
 	struct dirent *dirp;
 	dynamic_text_file *newdyn = NULL;
+    dynamic_text_file_save savedyn;
 	FILE *fl;
 	char filename[1024];
 	char c;
@@ -84,7 +85,7 @@ boot_dynamic_text(void)
 				return;
 			}
 
-			if (!(fread(newdyn, sizeof(dynamic_text_file), 1, fl))) {
+			if (!(fread(&savedyn, sizeof(dynamic_text_file_save), 1, fl))) {
 				errlog("error reading information from '%s'.",
 					filename);
 				free(newdyn);
@@ -93,6 +94,16 @@ boot_dynamic_text(void)
 			}
 
 			fclose(fl);
+
+            strcpy(newdyn->filename, savedyn.filename);
+            for (i = 0;i < DYN_TEXT_HIST_SIZE;i++) {
+                newdyn->last_edit[i].idnum = savedyn.last_edit[i].idnum;
+                newdyn->last_edit[i].tEdit = savedyn.last_edit[i].tEdit;
+            }
+            for (i = 0;i < DYN_TEXT_PERM_SIZE;i++)
+                newdyn->perms[i] = savedyn.perms[i];
+            newdyn->level = savedyn.level;
+            newdyn->lock = 0;
 
 			slog("dyntext BOOTED %s.", dirp->d_name);
 
@@ -264,6 +275,8 @@ save_dyntext_control(dynamic_text_file * dyntext)
 {
 	FILE *fl = NULL;
 	char filename[1024];
+    dynamic_text_file_save savedyn;
+    int i;
 
 	sprintf(filename, "%s/%s.dyn", DYN_TEXT_CONTROL_DIR, dyntext->filename);
 
@@ -272,7 +285,16 @@ save_dyntext_control(dynamic_text_file * dyntext)
 		return 1;
 	}
 
-	if (!(fwrite(dyntext, sizeof(dynamic_text_file), 1, fl))) {
+    strcpy(savedyn.filename, dyntext->filename);
+    for (i = 0;i < DYN_TEXT_HIST_SIZE;i++) {
+        savedyn.last_edit[i].idnum = dyntext->last_edit[i].idnum;
+        savedyn.last_edit[i].tEdit = dyntext->last_edit[i].tEdit;
+    }
+    for (i = 0;i < DYN_TEXT_PERM_SIZE;i++)
+        savedyn.perms[i] = dyntext->perms[i];
+    savedyn.level = dyntext->level;
+
+	if (!(fwrite(&savedyn, sizeof(dynamic_text_file_save), 1, fl))) {
 		errlog("Unable to write data to '%s'.", filename);
 		fclose(fl);
 		return 1;
@@ -372,9 +394,9 @@ show_dyntext(Creature *ch, dynamic_text_file * dyntext, char *argument)
 		if (!*argument) {
 			send_to_char(ch,
 				"DYNTEXT: filename: '%s'\r\n"
-				"             last: %s (%ld) @ %s\r"
+				"             last: %s (%d) @ %s\r"
 				"            level: %d\r\n"
-				"             lock: %s (%ld)\r\n"
+				"             lock: %s (%d)\r\n"
 				"              old: %-3s (Len: %zd)\r\n"
 				"              new: %-3s (Len: %zd)\r\n",
 				dyntext->filename,
@@ -406,13 +428,13 @@ show_dyntext(Creature *ch, dynamic_text_file * dyntext, char *argument)
 		} else if (is_abbrev(argument, "perms")) {
 			send_to_char(ch, "Permissions defined:\r\n");
 			for (i = 0; i < DYN_TEXT_PERM_SIZE; i++) {
-				send_to_char(ch, "%3d.] (%5ld) %s\r\n",
+				send_to_char(ch, "%3d.] (%5d) %s\r\n",
 					i, dyntext->perms[i], playerIndex.getName(dyntext->perms[i]));
 			}
 		} else if (is_abbrev(argument, "last")) {
 			send_to_char(ch, "Last edits:\r\n");
 			for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
-				send_to_char(ch, "%3d.] (%5ld) %30s @ %s\r",
+				send_to_char(ch, "%3d.] (%5d) %30s @ %s\r",
 					i, dyntext->last_edit[i].idnum,
 					playerIndex.getName(dyntext->last_edit[i].idnum),
 					ctime(&(dyntext->last_edit[i].tEdit)));

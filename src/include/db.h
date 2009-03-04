@@ -19,6 +19,7 @@
 //
 
 #include <stdio.h>
+#include <stdint.h>
 #include "defs.h"
 #include "creature.h"
 #include "libpq-fe.h"
@@ -200,17 +201,32 @@ extern char *NOEFFECT;
 #define DYN_TEXT_BACKUP_DIR "text/dyn/text_backup"
 #define DYN_TEXT_CONTROL_DIR "text/dyn/control"
 
+typedef struct dynamic_edit_data_save {
+	int32_t idnum;
+	uint32_t tEdit;
+} dynamic_edit_data_save;
+
 typedef struct dynamic_edit_data {
-	long idnum;
+	int32_t idnum;
 	time_t tEdit;
 } dynamic_edit_data;
+
+typedef struct dynamic_text_file_save {
+	char filename[1024];		// name of the file to load/save
+	dynamic_edit_data_save last_edit[DYN_TEXT_HIST_SIZE];	// history of edits
+	int32_t perms[DYN_TEXT_PERM_SIZE];	// who has special access perms
+	int32_t level;					// edit access level
+    uint32_t unused_ptr1;
+    uint32_t unused_ptr2;
+    uint32_t unused_ptr3;
+} dynamic_text_file_save;
 
 typedef struct dynamic_text_file {
 	char filename[1024];		// name of the file to load/save
 	dynamic_edit_data last_edit[DYN_TEXT_HIST_SIZE];	// history of edits
-	long perms[DYN_TEXT_PERM_SIZE];	// who has special access perms
-	int level;					// edit access level
-	long lock;					// lock while editing (char's idnum)
+	int32_t perms[DYN_TEXT_PERM_SIZE];	// who has special access perms
+	int32_t level;					// edit access level
+	int32_t lock;					// lock while editing (char's idnum)
 	char *buffer;				// the buffer that people see
 	char *tmp_buffer;			// the buffer you edit
 	struct dynamic_text_file *next;
