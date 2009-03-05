@@ -705,8 +705,16 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {
-        arg = tmp_getword(&args);
+        arg = tmp_gettoken(&args);
         result = prog_var_equal(env, arg, args);
+        if (env->tracing) {
+            prog_var *var = prog_get_var(env, arg, true);
+            prog_send_debug(env,
+                            tmp_sprintf("('%s' %s '%s')",
+                                        (var) ? var->value:"(null)",
+                                        (result) ? "==":"!=",
+                                        args));
+        }
 	} else if (!strcasecmp(arg, "holding")) {
         result = prog_eval_holding(env, args);
 	} else if (!strcasecmp(arg, "hour")) {
