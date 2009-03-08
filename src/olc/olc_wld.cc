@@ -280,9 +280,13 @@ save_room(struct Creature *ch, struct room_data *room, FILE * file)
 		}
 		fprintf(file, "~\n");
 
-		fprintf(file, "%d %d %d %d %d %d\n", search->command,
-			search->arg[0], search->arg[1], search->arg[2], search->flags,
-			search->fail_chance);
+		fprintf(file, "%d %d %d %d %d %d\n",
+                search->command,
+                search->arg[0],
+                search->arg[1],
+                search->arg[2],
+                (search->flags & (~SRCH_TRIPPED)),
+                search->fail_chance);
 
 		search = search->next;
 		continue;
