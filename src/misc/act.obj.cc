@@ -2212,6 +2212,7 @@ ACMD(do_drink)
 		af.type = SPELL_POISON;
 		af.level = 30;
 		af.owner = 0;
+        af.is_instant = false;
 
 		if (GET_OBJ_VAL(temp, 3) == 2) {
 			if (HAS_POISON_3(ch))
@@ -2333,6 +2334,7 @@ ACMD(do_eat)
 		af.duration = amount * 3;
 		af.bitvector = 0;
 		af.type = SPELL_POISON;
+        af.is_instant = false;
 
 		if (GET_OBJ_VAL(food, 3) == 2) {
 			if (HAS_POISON_3(ch))
