@@ -46,6 +46,44 @@ char *dynedit_update_string(dynamic_text_file *);
  *
  ***/
 
+int
+load_dyntext_buffer(dynamic_text_file * dyntext)
+{
+	FILE *fl;
+	char filename[1024];
+	char c;
+	unsigned int i, j;
+
+	sprintf(filename, "text/%s", dyntext->filename);
+
+	if (!(fl = fopen(filename, "r"))) {
+		errlog("unable to open dynamic text file '%s'.",
+			filename);
+		perror("dyntext fopen:");
+	}
+
+	if (fl) {
+		*buf = '\0';
+		// insert \r\n in the place of \n
+		for (i = 0, j = 0; j < MAX_STRING_LENGTH - 1 && !feof(fl); i++) {
+			c = fgetc(fl);
+            if (!feof(fl)) {
+                if (c == '\n')
+                    buf[j++] = '\r';
+                buf[j++] = c;
+            }
+		}
+
+		buf[j] = '\0';
+		strcat(buf, "\r\n");
+        free(dyntext->buffer);
+		dyntext->buffer = strdup(buf);
+		fclose(fl);
+		return 0;
+	}
+	return -1;
+}
+
 void
 boot_dynamic_text(void)
 {
@@ -55,8 +93,7 @@ boot_dynamic_text(void)
     dynamic_text_file_save savedyn;
 	FILE *fl;
 	char filename[1024];
-	char c;
-	unsigned int i, j;
+	unsigned int i;
 
 	if (!(dir = opendir(DYN_TEXT_CONTROL_DIR))) {
 		errlog("Cannot open dynamic text control dir.");
@@ -102,43 +139,18 @@ boot_dynamic_text(void)
             }
             for (i = 0;i < DYN_TEXT_PERM_SIZE;i++)
                 newdyn->perms[i] = savedyn.perms[i];
+
             newdyn->level = savedyn.level;
             newdyn->lock = 0;
-
-			slog("dyntext BOOTED %s.", dirp->d_name);
-
 			newdyn->next = NULL;
 			newdyn->buffer = NULL;
 			newdyn->tmp_buffer = NULL;
 
-			sprintf(buf2, "text/%s", newdyn->filename);
-
-			if (!(fl = fopen(buf2, "r"))) {
-				errlog("unable to open dynamic text file '%s'.",
-					buf2);
-				perror("dyntext fopen:");
-			}
-
-			if (fl) {
-
-				*buf = '\0';
-
-				// insert \r\n in the place of \n
-				for (i = 0, j = 0; j < MAX_STRING_LENGTH - 1 && !feof(fl); i++) {
-					c = fgetc(fl);
-					if (c == '\n')
-						buf[j++] = '\r';
-					buf[j++] = c;
-				}
-
-				buf[j] = '\0';
-
-				strcat(buf, "\r\n");
-
-				newdyn->buffer = strdup(buf);
-
-				fclose(fl);
-			}
+            if (load_dyntext_buffer(newdyn) == 0) {
+                slog("dyntext BOOTED %s.", dirp->d_name);
+            } else {
+                errlog("dyntext FAILED TO BOOT %s.", dirp->d_name);
+            }
 
 			newdyn->next = dyntext_list;
 			dyntext_list = newdyn;
@@ -233,44 +245,6 @@ save_dyntext_buffer(dynamic_text_file * dyntext)
 }
 
 int
-reload_dyntext_buffer(dynamic_text_file * dyntext)
-{
-	FILE *fl;
-	char filename[1024];
-	char c;
-	unsigned int i, j;
-
-	sprintf(filename, "text/%s", dyntext->filename);
-
-	if (!(fl = fopen(filename, "r"))) {
-		errlog("unable to open dynamic text file '%s'.",
-			filename);
-		perror("dyntext fopen:");
-	}
-
-	if (fl) {
-		*buf = '\0';
-		// insert \r\n in the place of \n
-		for (i = 0, j = 0; j < MAX_STRING_LENGTH - 1 && !feof(fl); i++) {
-			c = fgetc(fl);
-			if (c == '\n')
-				buf[j++] = '\r';
-			buf[j++] = c;
-		}
-
-		buf[j] = '\0';
-		strcat(buf, "\r\n");
-		if (dyntext->buffer != NULL) {
-			free(dyntext->buffer);
-		}
-		dyntext->buffer = strdup(buf);
-		fclose(fl);
-		return 0;
-	}
-	return -1;
-}
-
-int
 save_dyntext_control(dynamic_text_file * dyntext)
 {
 	FILE *fl = NULL;
@@ -293,6 +267,9 @@ save_dyntext_control(dynamic_text_file * dyntext)
     for (i = 0;i < DYN_TEXT_PERM_SIZE;i++)
         savedyn.perms[i] = dyntext->perms[i];
     savedyn.level = dyntext->level;
+    savedyn.unused_ptr1 = 0;
+    savedyn.unused_ptr2 = 0;
+    savedyn.unused_ptr3 = 0;
 
 	if (!(fwrite(&savedyn, sizeof(dynamic_text_file_save), 1, fl))) {
 		errlog("Unable to write data to '%s'.", filename);
@@ -827,7 +804,7 @@ ACMD(do_dynedit)
 				send_to_char(ch, "You cannot edit this file.\r\n");
 				return;
 			}
-			int rc = reload_dyntext_buffer(dyntext);
+			int rc = load_dyntext_buffer(dyntext);
 			if (rc == 0) {
 				send_to_char(ch, "Buffer reloaded.\r\n");
 			} else {
