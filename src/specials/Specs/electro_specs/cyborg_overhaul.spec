@@ -105,7 +105,11 @@ SPECIAL(cyborg_overhaul)
 
 	}
 
-	send_to_char(ch, "You may 'buy overhaul', 'buy repairs',\r\n"
-		"'value overhaul', or 'value repairs'.\r\n");
-	return 0;
+    if (GET_MOB_SPEC(borg) == cyborg_overhaul) {
+        send_to_char(ch, "You may 'buy overhaul', 'buy repairs',\r\n"
+                     "'value overhaul', or 'value repairs'.\r\n");
+        return 1;
+    }
+
+    return 0;
 }

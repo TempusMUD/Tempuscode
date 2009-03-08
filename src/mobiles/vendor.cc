@@ -874,15 +874,15 @@ SPECIAL(vendor)
 		self->mob_specials.func_data = shop;
 	}
 
+    // If there's a subspecial, try that first
+    if (shop->func &&
+        shop->func != vendor &&
+        shop->func(ch, me, cmd, argument, spec_mode))
+        return 1;
+
 	if (spec_mode == SPECIAL_CMD &&
         !(CMD_IS("buy")   || CMD_IS("sell")  || CMD_IS("list")  ||
           CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal"))) {
-        // If we don't handle it, check to see if our sub-special will
-        if (shop->func &&
-            shop->func != vendor &&
-            shop->func(ch, me, cmd, argument, spec_mode))
-            return 1;
-
         return 0;
     }
 
