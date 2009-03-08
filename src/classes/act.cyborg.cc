@@ -2026,7 +2026,7 @@ ACMD(do_overhaul)
 			!(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
 		!IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBOREPAIR) {
 		send_to_char(ch, "You must be holding a cyber repair tool to do this.\r\n");
-	} else if (GET_TOT_DAM(vict) < (max_component_dam(vict) / 3)) {
+	} else if (GET_TOT_DAM(vict) <= (max_component_dam(vict) / 3)) {
 		act("You cannot make any significant improvements to $S systems.",
 			false, ch, 0, vict, TO_CHAR);
 	} else if (vict->getPosition() > POS_SITTING) {
