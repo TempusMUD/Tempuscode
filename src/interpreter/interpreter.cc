@@ -2411,9 +2411,11 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 			}
 		}
 		if (GET_MOB_PROGOBJ(mob) != NULL) {
-			if (spec_mode == SPECIAL_CMD &&
-                trigger_prog_cmd(mob, PROG_TYPE_MOBILE, ch, cmd, arg) &&
-                (!mob->master || (mob->master->in_room != mob->in_room)))
+			if (spec_mode == SPECIAL_CMD
+                && (!mob->master
+                    || IS_NPC(mob->master)
+                    || (mob->master->in_room != mob->in_room))
+                && trigger_prog_cmd(mob, PROG_TYPE_MOBILE, ch, cmd, arg))
 				return true;
 			if (spec_mode == SPECIAL_ENTER
 					&& trigger_prog_move(mob, PROG_TYPE_MOBILE, ch, SPECIAL_ENTER))
