@@ -2883,7 +2883,7 @@ int
 mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 {
 
-	struct Creature *vict = NULL;
+	struct Creature *vict = ch->findRandomCombat();
 	int prob = 0, dam = 0;
 	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
 	int return_flags = 0;
@@ -2910,7 +2910,6 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	if (!IS_ANIMAL(ch)) {
-        Creature *target = ch->findRandomCombat();
 		// Speaking mobiles
 		if (GET_HIT(ch) < GET_MAX_HIT(ch) >> 7 && random_fractional_20()) {
 			int pct = random_percentage_zero_low();
@@ -2919,9 +2918,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 				act("$n grits $s teeth as $e begins to weaken.", false,
 					ch, 0, 0, TO_ROOM);
 			} else {
-				if (target && can_see_creature(target, ch))
+				if (vict && can_see_creature(vict, ch))
 					perform_say(ch, "yell",
-                                tmp_sprintf("%s you bastard!", PERS(target, ch)));
+                                tmp_sprintf("%s you bastard!", PERS(vict, ch)));
 				else
 					perform_say(ch, "say", "You stinking bastard!");
 			}
@@ -2929,7 +2928,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			return 0;
 		}
 
-		if (target && GET_HIT(target) < GET_MAX_HIT(target) >> 7 &&
+		if (vict && GET_HIT(vict) < GET_MAX_HIT(vict) >> 7 &&
 			GET_HIT(ch) > GET_MAX_HIT(ch) >> 4 && random_fractional_20()) {
 
 			int pct = random_percentage_zero_low();
@@ -2942,7 +2941,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 				return 0;
 			} else if (pct < 60) {
 				perform_say(ch, "yell",
-                            tmp_sprintf("Kiss my ass, %s!", PERS(ch, target)));
+                            tmp_sprintf("Kiss my ass, %s!", PERS(ch, vict)));
 				return 0;
 			}
 		}
@@ -2980,13 +2979,12 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	if (GET_CLASS(ch) == CLASS_SNAKE) {
-        Creature *target = ch->findRandomCombat();
-		if (target && target->in_room == ch->in_room &&
+		if (vict && vict->in_room == ch->in_room &&
 			(random_number_zero_low(42 - GET_LEVEL(ch)) == 0)) {
-			act("$n bites $N!", 1, ch, 0, target, TO_NOTVICT);
-			act("$n bites you!", 1, ch, 0, target, TO_VICT);
+			act("$n bites $N!", 1, ch, 0, vict, TO_NOTVICT);
+			act("$n bites you!", 1, ch, 0, vict, TO_VICT);
 			if (random_fractional_10()) {
-				call_magic(ch, target, 0, NULL, SPELL_POISON, GET_LEVEL(ch),
+				call_magic(ch, vict, 0, NULL, SPELL_POISON, GET_LEVEL(ch),
 					CAST_CHEM, &return_flags);
 			}
 			return return_flags;
@@ -3058,9 +3056,8 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	if (IS_RACE(ch, RACE_UMBER_HULK)) {
-        Creature *target = ch->findRandomCombat();
-		if (target && random_fractional_3() && !AFF_FLAGGED(target, AFF_CONFUSION)) {
-			call_magic(ch, target, 0, NULL, SPELL_CONFUSION, GET_LEVEL(ch),
+		if (vict && random_fractional_3() && !AFF_FLAGGED(vict, AFF_CONFUSION)) {
+			call_magic(ch, vict, 0, NULL, SPELL_CONFUSION, GET_LEVEL(ch),
 				CAST_ROD, &return_flags);
 			return return_flags;
 		}
@@ -3068,8 +3065,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	if (IS_RACE(ch, RACE_DAEMON)) {
 		if (GET_CLASS(ch) == CLASS_DAEMON_PYRO) {
-            Creature *target = ch->findRandomCombat();
-			if (target && random_fractional_3()) {
+			if (vict && random_fractional_3()) {
 				WAIT_STATE(ch, 3 RL_SEC);
 				call_magic(ch, ch->findRandomCombat(), 0, NULL, SPELL_FIRE_BREATH,
 					GET_LEVEL(ch), CAST_BREATH, &return_flags);
@@ -3080,8 +3076,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	if (IS_RACE(ch, RACE_MEPHIT)) {
 		if (GET_CLASS(ch) == CLASS_MEPHIT_LAVA) {
-            Creature *target = ch->findRandomCombat();
-			if (target && random_binary()) {
+			if (vict && random_binary()) {
 				return damage(ch, ch->findRandomCombat(),
                               dice(20, 20), TYPE_LAVA_BREATH,
 					          WEAR_RANDOM);
@@ -3150,7 +3145,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	/* Slaad */
 	if (IS_SLAAD(ch)) {
-        mob_fight_slaad(ch, precious_vict);
+        return mob_fight_slaad(ch, precious_vict);
 	}
 
 	if (IS_TROG(ch)) {
@@ -3158,12 +3153,16 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			act("$n begins to secrete a disgustingly malodorous oil!",
 				false, ch, 0, 0, TO_ROOM);
 			CreatureList::iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it)
-				if (!IS_TROG((*it)) &&
-					!IS_UNDEAD(vict) && !IS_ELEMENTAL((*it))
-					&& !IS_DRAGON((*it)))
-					call_magic(ch, (*it), 0, NULL, SPELL_TROG_STENCH, GET_LEVEL(ch),
+			for (; it != ch->in_room->people.end(); ++it) {
+                Creature *tch = *it;
+				if (!IS_TROG(tch)
+                    && !IS_UNDEAD(tch)
+                    && !IS_ELEMENTAL(tch)
+					&& !IS_DRAGON(tch)) {
+					call_magic(ch, tch, 0, NULL, SPELL_TROG_STENCH, GET_LEVEL(ch),
 						CAST_POTION);
+                }
+            }
 			return 0;
 		}
 	}
