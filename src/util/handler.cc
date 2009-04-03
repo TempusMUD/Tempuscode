@@ -228,8 +228,6 @@ apply_object_affects(Creature *ch, obj_data *obj, bool add)
             && (GET_OBJ_TYPE(obj) == ITEM_WEAPON ||
                 GET_OBJ_TYPE(obj) == ITEM_PIPE))
             return;
-        if (IS_IMPLANT(obj))
-            return;
     }
 
 	if (IS_DEVICE(obj) && !ENGINE_STATE(obj))
@@ -1425,7 +1423,6 @@ unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
 					ch->in_room->light--;
 		}
 
-		GET_EQ(ch, pos) = NULL;
         break;
     case EQUIP_IMPLANT:
         if (!GET_IMPLANT(ch, pos)) {
@@ -1433,7 +1430,6 @@ unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
             return NULL;
         }
 		obj = GET_IMPLANT(ch, pos);
-		GET_IMPLANT(ch, pos) = NULL;
 
 		GET_WEIGHT(ch) -= obj->getWeight();
         break;
@@ -1443,7 +1439,6 @@ unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
             return NULL;
         }
         obj = GET_TATTOO(ch, pos);
-        GET_TATTOO(ch, pos) = NULL;
         break;
     }
 
@@ -1455,6 +1450,18 @@ unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
 #endif
 
     apply_object_affects(ch, obj, false);
+
+    switch (mode) {
+    case EQUIP_WORN:
+		GET_EQ(ch, pos) = NULL;
+        break;
+    case EQUIP_IMPLANT:
+		GET_IMPLANT(ch, pos) = NULL;
+        break;
+    case EQUIP_TATTOO:
+        GET_TATTOO(ch, pos) = NULL;
+        break;
+    }
 
 	obj->worn_by = NULL;
 	obj->worn_on = -1;
