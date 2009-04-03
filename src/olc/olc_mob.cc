@@ -1877,13 +1877,6 @@ do_clear_olc_mob(struct Creature *ch)
 	GET_ALIGNMENT(targ) = 0;
     GET_REMORT_GEN(targ) = 0;
 
-	targ->real_abils.str = 11;
-	targ->real_abils.intel = 11;
-	targ->real_abils.wis = 11;
-	targ->real_abils.dex = 11;
-	targ->real_abils.con = 11;
-	targ->real_abils.cha = 11;
-
 	GET_LEVEL(targ) = 1;
 	targ->points.hitroll = 0;
 	targ->points.armor = 0;
