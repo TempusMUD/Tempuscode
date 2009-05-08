@@ -4579,6 +4579,8 @@ ACMD(do_commands)
 			continue;
 		if (level < cmd_info[i].minimum_level)
 			continue;
+        if (!Security::canAccess(ch, &cmd_info[i]))
+            continue;
 		if (wizhelp && (cmd_info[i].minimum_level < LVL_AMBASSADOR))
 			continue;
 		if (!wizhelp && socials != cmd_sort_info[i].is_social)
