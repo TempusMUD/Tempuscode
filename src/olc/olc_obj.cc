@@ -856,7 +856,7 @@ perform_oset(struct Creature *ch, struct obj_data *obj_p,
 		} else {
 			i = atoi(arg2);
 			if (i < 0) {
-				send_to_char(ch, "Object weight out of range.\r\n");
+				send_to_char(ch, "Object cost out of range.\r\n");
 				return;
 			} else {
 				obj_p->shared->cost = i;

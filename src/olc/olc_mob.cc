@@ -830,7 +830,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 	case 20:{			   /** mana **/
 			i = atoi(arg2);
 			if (i < 0 || i > 32767)
-				send_to_char(ch, "Mana must be bewteen 1 and 32767.\r\n");
+				send_to_char(ch, "Mana must be between 1 and 32767.\r\n");
 			else {
 				GET_MAX_MANA(mob_p) = i;
 				send_to_char(ch, "Mobile mana set.\r\n");
