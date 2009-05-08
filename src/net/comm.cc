@@ -143,7 +143,7 @@ void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);
 void show_string(struct descriptor_data *d, char *input);
 void verify_environment(void);
-void weather_and_time(int mode);
+void weather_and_time(void);
 void autosave_zones(int SAVE_TYPE);
 void mem_cleanup(void);
 void retire_trails(void);
@@ -663,7 +663,7 @@ game_loop(int mother_desc)
 			prog_update();
 
 		if (!(pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
-			weather_and_time(1);
+			weather_and_time();
 			affect_update();
             obj_affect_update();
 			point_update();

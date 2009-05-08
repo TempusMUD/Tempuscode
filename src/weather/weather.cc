@@ -35,14 +35,14 @@ extern struct time_info_data time_info;
 extern int lunar_day;
 
 void weather_and_time(int mode);
-void another_hour(int mode);
+void another_hour();
 void weather_change(void);
 void zone_weather_change(struct zone_data *zone);
 void jet_stream(void);
 
 int jet_stream_state = true;
 void
-weather_and_time(int mode)
+weather_and_time(void)
 {
 	time_t now = time(0);
 
@@ -52,9 +52,8 @@ weather_and_time(int mode)
 		qp_reload();
 	}
 
-	another_hour(mode);
-	if (mode)
-		weather_change();
+	another_hour();
+    weather_change();
 }
 
 void
@@ -87,7 +86,7 @@ set_local_time(struct zone_data *zone, struct time_info_data *local_time)
 }
 
 void
-another_hour(int mode)
+another_hour(void)
 {
 	struct zone_data *zone = NULL;
 	struct time_info_data local_time;
@@ -136,9 +135,6 @@ another_hour(int mode)
 		time_info.month -= 16;
 		time_info.year++;
 	}
-
-	if (!mode)
-		return;
 
 	for (zone = zone_table; zone; zone = zone->next) {
 		if (!zone->world)
