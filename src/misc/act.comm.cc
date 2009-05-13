@@ -531,7 +531,6 @@ ACMD(do_write)
 
 ACMD(do_page)
 {
-	struct descriptor_data *d;
 	struct Creature *vict;
     char *target_str;
 
@@ -544,20 +543,6 @@ ACMD(do_page)
 	else {
         char *msg = tmp_sprintf("\007*%s* %s", GET_NAME(ch), argument);
 
-		if (!strcasecmp(target_str, "all")) {
-			if (GET_LEVEL(ch) > LVL_GOD) {
-				for (d = descriptor_list; d; d = d->next)
-					if (IS_PLAYING(d) && d->creature) {
-                        send_to_char(ch, "%s%s%s%s\r\n",
-                                     CCYEL(ch, C_SPR),
-                                     CCBLD(ch, C_NRM),
-                                     buf,
-                                     CCNRM(ch, C_SPR));
-                    }
-			} else
-				send_to_char(ch, "You will never be godly enough to do that!\r\n");
-			return;
-		}
 		if ((vict = get_char_vis(ch, target_str)) != NULL) {
             send_to_char(vict, "%s%s%s%s\r\n",
                          CCYEL(vict, C_SPR),
