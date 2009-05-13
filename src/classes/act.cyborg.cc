@@ -2710,7 +2710,7 @@ ACMD(do_extract)
 	if (!IS_WEAR_EXTREMITY(pos)) {
 		if (GET_LEVEL(ch) < LVL_IMMORT && vict == ch) {
 			send_to_char(ch,
-				"You can only perform surgery on your extrimities!\r\n");
+				"You can only perform surgery on your extremities!\r\n");
 			return;
 		}
 
