@@ -218,16 +218,21 @@ apply_object_affects(Creature *ch, obj_data *obj, bool add)
 	if (invalid_char_class(ch, obj))
 		return;
 
-    if ((IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch))
-        || (IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
-        || (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))
-        return;
-
 	if (obj == ch->equipment[obj->worn_on]) {
         if (obj->worn_on == WEAR_BELT
             && (GET_OBJ_TYPE(obj) == ITEM_WEAPON ||
                 GET_OBJ_TYPE(obj) == ITEM_PIPE))
             return;
+    } else {
+        // We only check for this when implanted or tattooed because
+        // check_eq_align() will pop the object off if the align is
+        // bad.  We're doing this to avoid apply asymmetry in the
+        // event where someone changes to a bad align from a good one.
+        if ((IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch))
+            || (IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch))
+            || (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))
+            return;
+
     }
 
 	if (IS_DEVICE(obj) && !ENGINE_STATE(obj))
