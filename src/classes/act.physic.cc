@@ -950,9 +950,15 @@ ACMD(do_econvert)
 void
 do_deactivate_device(obj_data * obj)
 {
-    apply_object_affects(obj->worn_by, obj, false);
-	ENGINE_STATE(obj) = 0;
-    affect_total(obj->worn_by);
+    if (obj->worn_by) {
+        // unapply object affects if the object is being worn
+        apply_object_affects(obj->worn_by, obj, false);
+        ENGINE_STATE(obj) = 0;
+        affect_total(obj->worn_by);
+    } else {
+        // no object affects, so just deactivate
+        ENGINE_STATE(obj) = 0;
+    }
 }
 
 void
