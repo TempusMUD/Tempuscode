@@ -152,7 +152,7 @@ char_can_dismiss(Creature *ch, Creature *vict, clan_data *clan)
     // Dismissal conditions that don't apply to clan administrators
     else if (!clan)
         send_to_char(ch, "Try joining a clan first.\r\n");
-    else if (GET_CLAN(vict) != GET_CLAN(ch))
+    else if (!vict_member || GET_CLAN(vict) != GET_CLAN(ch))
         send_to_char(ch, "Umm, why don't you check the clan list, okay?\r\n");
     else if (clan->owner == GET_CLAN(ch))
         return true;
@@ -320,11 +320,11 @@ ACMD(do_dismiss)
 		REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
 		sql_exec("delete from clan_members where player=%ld", GET_IDNUM(vict));
 
-		if (in_file) {
-			vict->saveToXML();
+        vict->saveToXML();
+        send_to_char(ch, "Player dismissed.\r\n");
+
+		if (in_file)
 			delete vict;
-			send_to_char(ch, "Player dismissed.\r\n");
-		}
 	}
 }
 
