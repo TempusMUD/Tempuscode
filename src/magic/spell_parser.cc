@@ -1384,6 +1384,7 @@ ACMD(do_cast)
 	if (IS_NPC(ch))
 		return;
 
+    skip_spaces(&argument);
     if (!*argument) {
         send_to_char(ch, "You were going to cast something?\r\n");
         return;
