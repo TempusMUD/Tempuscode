@@ -411,7 +411,7 @@ HelpCollection::SaveIndex(void)
 		errlog("No records saved to help file index.");
 		return false;
 	}
-	sprintf(buf, "Help: %d items saved to help file index\r\n", num_items);
+	slog("Help: %d items saved to help file index\r\n", num_items);
 	return true;
 }
 
@@ -421,6 +421,7 @@ HelpCollection::LoadIndex()
 {
 	HelpItem *n;
 	int num_items = 0;
+    char line[1024];
 
 	index_file.open(tmp_sprintf("%s/%s", Help_Directory, "index"), ios::in);
 	if (!index_file) {
@@ -433,12 +434,12 @@ HelpCollection::LoadIndex()
 		index_file >> n->idnum >> n->groups
 			>> n->counter >> n->flags >> n->owner;
 
-		index_file.getline(buf, 250, '\n');
-		index_file.getline(buf, 250, '\n');
-		n->SetName(buf);
+		index_file.getline(line, 250, '\n');
+		index_file.getline(line, 250, '\n');
+		n->SetName(line);
 
-		index_file.getline(buf, 250, '\n');
-		n->SetKeyWords(buf);
+		index_file.getline(line, 250, '\n');
+		n->SetKeyWords(line);
 		REMOVE_BIT(n->flags, HFLAG_MODIFIED);
 		Push(n);
 		num_items++;
@@ -647,10 +648,8 @@ ACMD(do_hcollect_help)
 	} else if (subcmd == SCMD_MODRIAN) {
 		cur = Help->find_item_by_id(196);
 	} else if (subcmd == SCMD_SKILLS) {
-		sprintf(buf,
-			"Type 'Help %s' to see the skills available to your char_class.\r\n",
-			class_names[(int)GET_CLASS(ch)]);
-		send_to_char(ch, "%s", buf);
+		send_to_char(ch, "Type 'Help %s' to see the skills available to your char_class.\r\n",
+                     class_names[(int)GET_CLASS(ch)]);
 	} else if (subcmd == SCMD_POLICIES) {
 		cur = Help->find_item_by_id(667);
 	} else if (subcmd == SCMD_HANDBOOK) {

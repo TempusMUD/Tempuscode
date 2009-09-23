@@ -638,10 +638,11 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 	struct obj_data *tobj = NULL;
     room_data *was_in = NULL;
 	int my_return_flags = 0;
+
 	if (return_flags == NULL)
 		return_flags = &my_return_flags;
 
-	one_argument(argument, arg);
+	char *arg = tmp_getword(&argument);
 
 	k = generic_find(arg, FIND_CHAR_ROOM | FIND_OBJ_INV | FIND_OBJ_ROOM |
 		FIND_OBJ_EQUIP, ch, &tch, &tobj);
@@ -1218,7 +1219,7 @@ find_spell_targets(struct Creature *ch, char *argument,
 	int cmd)
 {
 	char *s, *targets = NULL, *ptr;
-	char t3[MAX_INPUT_LENGTH], t2[MAX_INPUT_LENGTH];
+	char *t2, *t3;
 	int i, spellnum;
 
     *tch = NULL;
@@ -1260,8 +1261,8 @@ find_spell_targets(struct Creature *ch, char *argument,
 	*spellnm = spellnum;
 
 	if ((spellnum < 1) || (spellnum > MAX_SPELLS)) {
-		sprintf(buf, "%s what?!?", cmd_info[cmd].command);
-		act(buf, false, ch, 0, 0, TO_CHAR | TO_SLEEP);
+		act(tmp_sprintf("%s what?!?", cmd_info[cmd].command),
+            false, ch, 0, 0, TO_CHAR | TO_SLEEP);
 		return 0;
 	}
 
@@ -1291,7 +1292,6 @@ find_spell_targets(struct Creature *ch, char *argument,
 		// DL - moved this here so we can handle multiple locate arguments
 		strncpy(locate_buf, targets, 255);
 		locate_buf[255] = '\0';
-		one_argument(strcpy(arg, targets), targets);
 		skip_spaces(&targets);
 	}
 	if (IS_SET(SINFO.targets, TAR_IGNORE)) {
@@ -1331,7 +1331,8 @@ find_spell_targets(struct Creature *ch, char *argument,
 				*target = true;
 
 		if (!*target && IS_SET(SINFO.targets, TAR_DOOR)) {
-			half_chop(arg, t2, t3);
+            t2 = tmp_getword(&targets);
+            t3 = tmp_getword(&targets);
 			if ((i = find_door(ch, t2, t3,
 						spellnum == SPELL_KNOCK ? "knock" : "cast")) >= 0) {
 				knock_door = ch->in_room->dir_option[i];

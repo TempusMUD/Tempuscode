@@ -93,7 +93,7 @@ Creature::payRent(time_t last_time, int code, int currency)
 		factor = 3;
 	else
 		factor = 1;
-	cost = (int)(calc_daily_rent(this, factor, NULL, NULL) * day_count);
+	cost = (int)(calc_daily_rent(this, factor, NULL, false) * day_count);
 	slog("Charging %ld for %.2f days of rent", cost, day_count);
 
 	// First we get as much as we can out of their hand

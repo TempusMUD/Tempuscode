@@ -3951,11 +3951,9 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
         SET_BIT(obj->obj_flags.extra3_flags, ITEM3_LATTICE_HARDENED);
         to_char = "$p's molecular lattice strengthens.";
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
-            sprintf(buf, " imm %shardening", GET_NAME(ch));
-            strcpy(buf2, obj->aliases);
-            strcat(buf2, buf);
+            char *new_aliases = strdup(tmp_sprintf("%s imm %shardening", obj->aliases, GET_NAME(ch)));
             free(obj->aliases);
-            obj->aliases = strdup(buf2);
+            obj->aliases = new_aliases;
             mudlog(GET_LEVEL(ch), CMP, true,
                 "ENCHANT: %s lattice hardened by %s.",
                 obj->name, GET_NAME(ch));
@@ -4236,11 +4234,9 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 		} else
 			return;
 		if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-			sprintf(buf, " imm %senchant blessed", GET_NAME(ch));
-			strcpy(buf2, obj->aliases);
-			strcat(buf2, buf);
+			char *new_aliases = strdup(tmp_sprintf("%s imm %senchant blessed", obj->aliases, GET_NAME(ch)));
             free(obj->aliases);
-			obj->aliases = strdup(buf2);
+            obj->aliases = new_aliases;
 			mudlog(GET_INVIS_LVL(ch), CMP, true,
 				"ENCHANT: Bless. %s by %s.", obj->name,
 				GET_NAME(ch));
@@ -4336,10 +4332,12 @@ mag_exits(int level, struct Creature *caster, struct room_data *room,
 	} else
 		o_room = NULL;
 
+    const char *aff_desc = NULL;
+
 	switch (spellnum) {
 	case SPELL_WALL_OF_THORNS:
 		rm_aff.duration = MAX(2, level / 8);
-		strcpy(buf, "   A wall of thorns blocks the way");
+		aff_desc = "   A wall of thorns blocks the way";
 		rm_aff.flags = EX_WALL_THORNS;
 
 		break;
@@ -4348,12 +4346,10 @@ mag_exits(int level, struct Creature *caster, struct room_data *room,
 		break;
 	}
 
-	sprintf(buf2, "%s %s.\r\n", buf, to_dirs[dir]);
-	rm_aff.description = strdup(buf2);
+	rm_aff.description = strdup(tmp_sprintf("%s %s.\r\n", aff_desc, to_dirs[dir]));
 
 	if (o_room) {
-		sprintf(buf2, "%s %s.\r\n", buf, to_dirs[(int)o_rm_aff.type]);
-		o_rm_aff.description = strdup(buf2);
+		o_rm_aff.description = strdup(tmp_sprintf("%s %s.\r\n", aff_desc, to_dirs[(int)o_rm_aff.type]));
 		o_rm_aff.duration = rm_aff.duration;
 		o_rm_aff.flags = EX_WALL_THORNS;
 		affect_to_room(o_room, &o_rm_aff);

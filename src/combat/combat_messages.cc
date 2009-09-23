@@ -121,8 +121,7 @@ load_messages(void)
 	char chk[128];
 
 	if (!(fl = fopen(MESS_FILE, "r"))) {
-		sprintf(buf2, "Error reading combat message file %s", MESS_FILE);
-		perror(buf2);
+		perror(tmp_sprintf("Error reading combat message file %s", MESS_FILE));
 		safe_exit(1);
 	}
 	for (i = 0; i < MAX_MESSAGES; i++) {
@@ -236,10 +235,9 @@ death_cry(struct Creature *ch)
 	for (door = 0; door < NUM_OF_DIRS && !found; door++) {
 		if (CAN_GO(ch, door) && ch->in_room != EXIT(ch, door)->to_room) {
 			ch->in_room = was_in->dir_option[door]->to_room;
-			sprintf(buf,
-				"Your blood freezes as you hear someone's death cry from %s.",
-				from_dirs[door]);
-			act(buf, false, ch, 0, 0, TO_ROOM);
+			act(tmp_sprintf("Your blood freezes as you hear someone's death cry from %s.",
+                            from_dirs[door]),
+                false, ch, 0, 0, TO_ROOM);
 			adjoin_room = ch->in_room;
 			ch->in_room = was_in;
 			if (adjoin_room->dir_option[rev_dir[door]] &&
@@ -343,20 +341,19 @@ blood_spray(struct Creature *ch,
 		break;
 	}
 
-	sprintf(buf,
-		to_char,
-		attacktype >= TYPE_HIT ?
-		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
 	send_to_char(ch, CCRED(ch, C_NRM));
-	act(buf, false, ch, 0, victim, TO_CHAR);
+	act(tmp_sprintf(to_char,
+                            attacktype >= TYPE_HIT ?
+                            attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype)),
+        false, ch, 0, victim, TO_CHAR);
 	send_to_char(ch, CCNRM(ch, C_NRM));
 
-	sprintf(buf,
-		to_vict,
-		attacktype >= TYPE_HIT ?
-		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
+	;
 	send_to_char(victim, CCRED(victim, C_NRM));
-	act(buf, false, ch, 0, victim, TO_VICT);
+	act(tmp_sprintf(to_vict,
+                    attacktype >= TYPE_HIT ?
+                    attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype)),
+        false, ch, 0, victim, TO_VICT);
 	send_to_char(victim, CCNRM(victim, C_NRM));
 
 	CreatureList::iterator it = ch->in_room->people.begin();
@@ -365,12 +362,10 @@ blood_spray(struct Creature *ch,
 			continue;
 	}
 
-	sprintf(buf,
-		to_notvict,
-		attacktype >= TYPE_HIT ?
-		attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype));
-
-	act(buf, false, ch, 0, victim, TO_NOTVICT);
+	act(tmp_sprintf(to_notvict,
+                attacktype >= TYPE_HIT ?
+                attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype)),
+        false, ch, 0, victim, TO_NOTVICT);
 	it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || (*it) == victim || !(*it)->desc || !AWAKE((*it)))
@@ -395,14 +390,16 @@ blood_spray(struct Creature *ch,
 		if (number(5, 30) > GET_DEX(nvict) && (nvict != ch || !number(0, 2))) {
 			pos = apply_soil_to_char(nvict, NULL, SOIL_BLOOD, WEAR_RANDOM);
 			if (pos) {
+                char *msg = NULL;
+
 				if (GET_EQ(nvict, pos))
-					sprintf(buf, "$N's blood splatters all over %s!",
+					msg = tmp_sprintf("$N's blood splatters all over %s!",
 						GET_EQ(nvict, pos)->name);
 				else
-					sprintf(buf, "$N's blood splatters all over your %s!",
+					msg = tmp_sprintf("$N's blood splatters all over your %s!",
 						wear_description[pos]);
 
-				act(buf, false, nvict, 0, victim, TO_CHAR);
+				act(msg, false, nvict, 0, victim, TO_CHAR);
 				found = 1;
 
 				if (nvict == ch && IS_CLERIC(ch) && IS_EVIL(ch)) {

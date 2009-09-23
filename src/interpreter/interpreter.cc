@@ -42,6 +42,7 @@ using namespace std;
 #include "bomb.h"
 #include "security.h"
 #include "prog.h"
+#include "accstr.h"
 
 const char *fill_words[] = {
 	"in",
@@ -1684,6 +1685,7 @@ command_interpreter(struct Creature *ch, char *argument)
 	int cmd, length;
 	extern int no_specials;
     char *line;
+    char arg[16];
 
 	REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
 	if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
@@ -1879,14 +1881,15 @@ ACMD(do_alias)
 	repl = argument;
 
 	if (!*arg || !*repl) {				/* no argument specified -- list currently defined aliases */
-		strcpy(buf, "Currently defined aliases:\r\n");
+        acc_string_clear();
+		acc_strcat("Currently defined aliases:\r\n", NULL);
 		cur_alias = GET_ALIASES(ch);
 		if (!cur_alias) {
-			strcat(buf, " None.\r\n");
+			acc_strcat(" None.\r\n", NULL);
 		} else {
 			while (cur_alias != NULL) {
 				if (!*arg || is_abbrev(arg, cur_alias->alias)) {
-					sprintf(buf, "%s%s%-15s%s %s\r\n", buf, CCCYN(ch, C_NRM),
+					acc_sprintf("%s%-15s%s %s\r\n", CCCYN(ch, C_NRM),
 						cur_alias->alias, CCNRM(ch, C_NRM),
 						cur_alias->replacement);
 					alias_cnt++;
@@ -1894,9 +1897,9 @@ ACMD(do_alias)
 				cur_alias = cur_alias->next;
 			}
 			if (!alias_cnt)
-				strcat(buf, " None matching.\r\n");
+				acc_strcat(" None matching.\r\n", NULL);
 		}
-		page_string(ch->desc, buf);
+		page_string(ch->desc, acc_get_string());
 	} else {					/* otherwise, add or display aliases */
 		if (!strcasecmp(arg, "alias")) {
 			send_to_char(ch, "You can't alias 'alias'.\r\n");
@@ -1937,7 +1940,7 @@ ACMD(do_unalias)
 	if (IS_NPC(ch))
 		return;
 
-	repl = any_one_arg(argument, arg);	/* vintage */
+    repl = tmp_getword(&argument);
 
 	if (!*arg) {				/* no argument specified -- what a dumbass */
 		send_to_char(ch, "You must specify something to unalias.\r\n");

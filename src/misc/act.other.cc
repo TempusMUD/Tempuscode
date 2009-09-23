@@ -150,7 +150,7 @@ ACMD(do_quit)
 				return;
 			}
 			if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
-				cost = calc_daily_rent(ch, 1, NULL, NULL);
+				cost = calc_daily_rent(ch, 1, NULL, false);
 
 				if(ch->displayUnrentables())
 					return;

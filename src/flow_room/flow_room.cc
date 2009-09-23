@@ -283,22 +283,18 @@ flow_room(int pulse)
 						continue;
 
 					CHAR_CUR_PULSE(vict) = pulse;
-					sprintf(buf,
-						char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1],
-						to_dirs[dir]);
-					act(buf, true, vict, 0, 0, TO_ROOM);
-					sprintf(buf,
-						char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TOCHAR],
-						to_dirs[dir]);
-					act(buf, false, vict, 0, 0, TO_CHAR);
+
+					act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]),
+                        true, vict, 0, 0, TO_ROOM);
+
+					act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TOCHAR], to_dirs[dir]),
+                        false, vict, 0, 0, TO_CHAR);
 
 					char_from_room(vict);
 					char_to_room(vict, ABS_EXIT(rnum, dir)->to_room);
 					look_at_room(vict, vict->in_room, 0);
-					sprintf(buf,
-						char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2],
-						from_dirs[dir]);
-					act(buf, true, vict, 0, 0, TO_ROOM);
+					act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]),
+                        true, vict, 0, 0, TO_ROOM);
 
 					if (ROOM_FLAGGED(vict->in_room, ROOM_DEATH)
 						&& GET_LEVEL(vict) < LVL_AMBASSADOR) {
@@ -339,16 +335,12 @@ flow_room(int pulse)
 
 					OBJ_CUR_PULSE(obj) = pulse;
 
-					sprintf(buf,
-						obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1],
-						to_dirs[dir]);
-					act(buf, true, 0, obj, 0, TO_ROOM);
+					act(tmp_sprintf(obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]),
+                        true, 0, obj, 0, TO_ROOM);
 					obj_from_room(obj);
 					obj_to_room(obj, ABS_EXIT(rnum, dir)->to_room);
-					sprintf(buf,
-						obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2],
-						from_dirs[dir]);
-					act(buf, true, 0, obj, 0, TO_ROOM);
+					act(tmp_sprintf(obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]),
+                        true, 0, obj, 0, TO_ROOM);
 				}
 			}
 		}

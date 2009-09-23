@@ -479,7 +479,6 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 		msg = "$p dissolves into a pile of rust!!";
 		new_obj->aliases = strdup("pile rust");
 		new_obj->name = strdup("a pile of rust");
-		strcat(CAP(buf), " is lying here.");
 		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
 		GET_OBJ_MATERIAL(new_obj) = MAT_RUST;
 	} else if (type == SPELL_OXIDIZE && IS_BURNABLE_TYPE(obj)) {
@@ -623,22 +622,24 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 		return destroy_object(ch, obj, type);
 	}
 
+    const char *damage_msg = NULL;
+
 	if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 3))
 			&& (GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 3)) {
 		/* object has reached broken state */
 		SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
-		strcpy(buf2, "$p has been severely damaged!!");
+		damage_msg = "$p has been severely damaged!!";
 	} else if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 2))
 			&& ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 2))) {
 		/* object looking rough ( 25% ) */
-		sprintf(buf2, "$p is starting to look pretty %s.",
-			IS_METAL_TYPE(obj) ? "mangled" :
-			(IS_LEATHER_TYPE(obj) || IS_CLOTH_TYPE(obj)) ? "ripped up" :
-			"bad");
+		damage_msg = tmp_sprintf("$p is starting to look pretty %s.",
+                                 IS_METAL_TYPE(obj) ? "mangled" :
+                                 (IS_LEATHER_TYPE(obj) || IS_CLOTH_TYPE(obj)) ? "ripped up" :
+                                 "bad");
 	} else if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 1)) &&
 		((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 1))) {
 		/* object starting to wear ( 50% ) */
-		strcpy(buf2, "$p is starting to show signs of wear.");
+		damage_msg = "$p is starting to show signs of wear.";
 	} else {
 		/* just tally the damage and end */
 		GET_OBJ_DAM(obj) -= eq_dam;
@@ -647,10 +648,10 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 
 	/* send out messages and unequip if needed */
 	if (obj->in_room && (vict = obj->in_room->people)) {
-		act(buf2, false, vict, obj, 0, TO_CHAR);
-		act(buf2, false, vict, obj, 0, TO_ROOM);
+		act(damage_msg, false, vict, obj, 0, TO_CHAR);
+		act(damage_msg, false, vict, obj, 0, TO_ROOM);
 	} else if ((vict = obj->worn_by)) {
-		act(buf2, false, vict, obj, 0, TO_CHAR);
+		act(damage_msg, false, vict, obj, 0, TO_CHAR);
 		if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
 			if (obj == GET_EQ(vict, obj->worn_on))
 				obj_to_char(unequip_char(vict, obj->worn_on, EQUIP_WORN), vict);
@@ -660,7 +661,7 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 			}
 		}
 	} else
-		act(buf2, false, ch, obj, 0, TO_CHAR);
+		act(damage_msg, false, ch, obj, 0, TO_CHAR);
 
 	GET_OBJ_DAM(obj) -= eq_dam;
 	return NULL;
@@ -1696,8 +1697,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	if ((af = affected_by_spell(victim, SPELL_VAMPIRIC_REGENERATION))) {
 		// pc caster
 		if (ch && !IS_NPC(ch) && GET_IDNUM(ch) == af->modifier) {
-			sprintf(buf, "You drain %d hitpoints from $N!", dam);
-			act(buf, false, ch, 0, victim, TO_CHAR);
+			act(tmp_sprintf("You drain %d hitpoints from $N!", dam), false, ch, 0, victim, TO_CHAR);
 			GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + dam);
 			af->duration--;
 			if (af->duration <= 0) {
@@ -1712,8 +1712,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			if (victim && (GET_MANA(victim) > 0)) {
 				int manadrain = MIN((int)(dam * 0.90), GET_MANA(victim));
 				if (GET_MOVE(ch) > 0) {
-				    sprintf(buf, "You drain %d mana from $N!", manadrain);
-				    act(buf, false, ch, 0, victim, TO_CHAR);
+				    act(tmp_sprintf("You drain %d mana from $N!", manadrain), false, ch, 0, victim, TO_CHAR);
 				    GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - (int)(dam * 0.10));
 					GET_MANA(ch) = MIN(GET_MAX_MANA(ch),
                                        GET_MANA(ch) + manadrain);
@@ -1966,11 +1965,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 			if (GET_HIT(victim) < (GET_MAX_HIT(victim) >> 2) &&
 				GET_HIT(victim) < 200) {
-				sprintf(buf2,
-					"%sYou wish that your wounds would stop %sBLEEDING%s%s so much!%s\r\n",
-					CCRED(victim, C_SPR), CCBLD(victim, C_SPR), CCNRM(victim,
-						C_SPR), CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
-				send_to_char(victim, "%s", buf2);
+				send_to_char(victim,
+                             "%sYou wish that your wounds would stop %sBLEEDING%s%s so much!%s\r\n",
+                             CCRED(victim, C_SPR), CCBLD(victim, C_SPR),
+                             CCNRM(victim, C_SPR), CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
 			}
 			//
 			// NPCs fleeing due to MORALE
@@ -2178,7 +2176,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 			if (!IS_NPC(victim)) {
 				// Log the death
-                char *buf3 = NULL;
+                char *logmsg = NULL;
 
 				if (victim != ch) {
 					const char *room_str;
@@ -2189,12 +2187,12 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					else
 						room_str = "in NULL room!";
 					if (IS_NPC(ch)) {
-						sprintf(buf2, "%s killed by %s %s%s",
+						logmsg = tmp_sprintf("%s killed by %s %s%s",
 							GET_NAME(victim), GET_NAME(ch),
 							affected_by_spell(ch, SPELL_QUAD_DAMAGE) ? "(quad)":"",
 							room_str);
 					} else {
-						sprintf(buf2, "%s(%d:%d) pkilled by %s(%d:%d) %s",
+						logmsg = tmp_sprintf("%s(%d:%d) pkilled by %s(%d:%d) %s",
 							GET_NAME(victim), GET_LEVEL(victim),
 							GET_REMORT_GEN(victim),
 							GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch),
@@ -2210,8 +2208,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                                 int now = time(NULL);
                                 int last_logon = tmp_ch->player.time.logon;
                                 if ((now - last_logon) <= 3600) {
-                                    buf3 = tmp_sprintf("CHEAT:  %s(%d) logged within an hour!",
-                                                       tmp_ch->player.name, tmp_ch->getLevel());
+                                    mudlog(GET_INVIS_LVL(victim), BRF, true,
+                                           "CHEAT:  %s(%d) logged within an hour!",
+                                           tmp_ch->player.name, tmp_ch->getLevel());
                                 }
                             }
                             delete tmp_ch;
@@ -2263,11 +2262,11 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 						}
 					}
 					if (attack_desc)
-						sprintf(buf2, "%s died by %s in room #%d (%s}",
+						logmsg = tmp_sprintf("%s died by %s in room #%d (%s}",
 							GET_NAME(ch), attack_desc, ch->in_room->number,
 							ch->in_room->name);
 					else
-						sprintf(buf2, "%s died in room #%d (%s}",
+						logmsg = tmp_sprintf("%s died in room #%d (%s}",
 							GET_NAME(ch), ch->in_room->number,
 							ch->in_room->name);
 				}
@@ -2275,12 +2274,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				// If it's arena, log it for complete only
 				// and tag it
 				if (arena) {
-					strcat(buf2, " [ARENA]");
-					qlog(NULL, buf2, QLOG_COMP, GET_INVIS_LVL(victim), true);
+					strcat(logmsg, " [ARENA]");
+					qlog(NULL, logmsg, QLOG_COMP, GET_INVIS_LVL(victim), true);
 				} else {
-					mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", buf2);
-                    if (buf3)
-                        mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", buf3);
+					mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", logmsg);
 				}
 				if (MOB_FLAGGED(ch, MOB_MEMORY))
 					forget(ch, victim);
@@ -2808,19 +2805,22 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 	if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_INT(ch) -
 			(CHECK_SKILL(ch, GET_OBJ_VAL(weap, 0)) >> 3))))
 		return 0;
+
+    const char *action_msg = NULL;
 	if (weap->action_desc)
-		strcpy(buf, weap->action_desc);
+		action_msg = weap->action_desc;
 	else
-		sprintf(buf, "$p begins to hum and shake%s!",
-			weap->worn_on == WEAR_WIELD ||
-			weap->worn_on == WEAR_WIELD_2 ? " in your hand" : "");
-	sprintf(buf2, "$p begins to hum and shake%s!",
-		weap->worn_on == WEAR_WIELD ||
-		weap->worn_on == WEAR_WIELD_2 ? " in $n's hand" : "");
+		action_msg = tmp_sprintf("$p begins to hum and shake%s!",
+                                 weap->worn_on == WEAR_WIELD ||
+                                 weap->worn_on == WEAR_WIELD_2 ? " in your hand" : "");
 	send_to_char(ch, CCCYN(ch, C_NRM));
-	act(buf, false, ch, weap, 0, TO_CHAR);
+	act(action_msg, false, ch, weap, 0, TO_CHAR);
 	send_to_char(ch, CCNRM(ch, C_NRM));
-	act(buf2, true, ch, weap, 0, TO_ROOM);
+
+	act(tmp_sprintf("$p begins to hum and shake%s!",
+                    weap->worn_on == WEAR_WIELD ||
+                    weap->worn_on == WEAR_WIELD_2 ? " in $n's hand" : ""),
+        true, ch, weap, 0, TO_ROOM);
 	if ((((!IS_DWARF(ch) && !IS_CYBORG(ch)) ||
 				!IS_OBJ_STAT(weap, ITEM_MAGIC) ||
 				!SPELL_IS_MAGIC(GET_OBJ_VAL(weap, 0))) &&

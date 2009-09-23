@@ -108,7 +108,7 @@ int zone_number(int nr);
 struct room_data *where_obj(struct obj_data *obj);
 struct Creature *obj_owner(struct obj_data *obj);
 
-long calc_daily_rent(Creature *ch, int factor, char *currency_str, char *display);
+long calc_daily_rent(Creature *ch, int factor, char *currency_str, bool display);
 
 #define REAL 0
 #define VIRTUAL 1

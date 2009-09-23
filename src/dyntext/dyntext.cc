@@ -51,8 +51,6 @@ load_dyntext_buffer(dynamic_text_file * dyntext)
 {
 	FILE *fl;
 	char filename[1024];
-	char c;
-	unsigned int i, j;
 
 	sprintf(filename, "text/%s", dyntext->filename);
 
@@ -63,21 +61,15 @@ load_dyntext_buffer(dynamic_text_file * dyntext)
 	}
 
 	if (fl) {
-		*buf = '\0';
-		// insert \r\n in the place of \n
-		for (i = 0, j = 0; j < MAX_STRING_LENGTH - 1 && !feof(fl); i++) {
-			c = fgetc(fl);
-            if (!feof(fl)) {
-                if (c == '\n')
-                    buf[j++] = '\r';
-                buf[j++] = c;
-            }
-		}
+        char line[1024];
 
-		buf[j] = '\0';
-		strcat(buf, "\r\n");
+        acc_string_clear();
+        while (fgets(line, 1024, fl) > 0) {
+            acc_strcat(line, NULL);
+        }
+        acc_strcat("\n", NULL);
         free(dyntext->buffer);
-		dyntext->buffer = strdup(buf);
+        dyntext->buffer = strdup(tmp_gsub("\n", "\r\n", acc_get_string()));
 		fclose(fl);
 		return 0;
 	}
@@ -423,9 +415,9 @@ show_dyntext(Creature *ch, dynamic_text_file * dyntext, char *argument)
 		}
 		return;
 	}
-	strcpy(buf, "DYNTEXT LIST:\r\n");
+	send_to_char(ch, "DYNTEXT LIST:\r\n");
 	for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next)
-		send_to_char(ch, "%s%s\r\n", buf, dyntext->filename);
+		send_to_char(ch, "%s\r\n", dyntext->filename);
 
 }
 
@@ -919,7 +911,6 @@ dynedit_update_string(dynamic_text_file * d)
 	struct tm tmTime;
 	time_t t;
 	static char buffer[1024];
-	int len;
 
 	if (!strncmp(d->filename, "fate", 4)
 		|| !strncmp(d->filename, "arenalist", 9))
@@ -928,15 +919,9 @@ dynedit_update_string(dynamic_text_file * d)
 	t = time(0);
 	tmTime = *(localtime(&t));
 
-	sprintf(buf, "%s", d->filename);
-	len = strlen(buf);
-
-	for (--len; len >= 0; len--)
-		buf[len] = toupper(buf[len]);
-
 	sprintf(buffer,
 		"\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\n",
-		buf, tmTime.tm_mon + 1, tmTime.tm_mday);
+            tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
 
 	return buffer;
 

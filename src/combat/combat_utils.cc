@@ -592,17 +592,12 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		*spine = NULL, *o = NULL, *next_o = NULL, *leg = NULL;
 	struct obj_data *money = NULL;
 	int i;
-	char typebuf[256];
-	char adj[256];
-	char namestr[256];
-	char isare[16];
+	char typebuf[256] = "";
+	char adj[256] = "";
+	char namestr[256] = "";
+	char isare[16] = "";
 
 	extern int max_npc_corpse_time, max_pc_corpse_time;
-
-	adj[0] = '\0';
-	typebuf[0] = '\0';
-	namestr[0] = '\0';
-	isare[0] = '\0';
 
 	// The Fate's corpses are portals to the remorter.
 	if (GET_MOB_SPEC(ch) == fate) {	// GetMobSpec checks IS_NPC
@@ -688,46 +683,40 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case TYPE_HIT:
 	case SKILL_BASH:
 	case SKILL_PISTOLWHIP:
-		sprintf(buf2, "The bruised up %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The bruised up %s of %s %s lying here.",
+                                               typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "bruised");
 		break;
 
 	case TYPE_STING:
-		sprintf(buf2, "The bloody, swollen %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The bloody, swollen %s of %s %s lying here.",
+                                               typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "stung");
 		break;
 
 	case TYPE_WHIP:
-		sprintf(buf2, "The scarred %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The scarred %s of %s %s lying here.",
+                                               typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "scarred");
 		break;
 
 	case TYPE_SLASH:
 	case TYPE_CHOP:
 	case SPELL_BLADE_BARRIER:
-		sprintf(buf2, "The chopped up %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The chopped up %s of %s %s lying here.",
+                                               typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "chopped up");
 		break;
 
 	case SONG_WOUNDING_WHISPERS:
-		sprintf(buf2, "The perforated %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The perforated %s of %s %s lying here.",
+                                               typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "perforated");
 		break;
 
 	case SKILL_HAMSTRING:
-		sprintf(buf2, "The legless %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The legless %s of %s %s lying here.",
+                                               typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "legless");
 
 		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_MOB(ch))
@@ -741,13 +730,11 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		else
 			leg->aliases = strdup("leg severed");
 
-		sprintf(buf2, "The severed %sleg of %s %s lying here.",
+		leg->line_desc = strdup(tmp_sprintf("The severed %sleg of %s %s lying here.",
 			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
-			isare);
-		leg->line_desc = strdup(buf2);
-		sprintf(buf2, "the severed %sleg of %s",
-			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch));
-		leg->name = strdup(buf2);
+			isare));
+		leg->name = strdup(tmp_sprintf("the severed %sleg of %s",
+			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch)));
 		GET_OBJ_TYPE(leg) = ITEM_WEAPON;
 		GET_OBJ_WEAR(leg) = ITEM_WEAR_TAKE + ITEM_WEAR_WIELD;
 		GET_OBJ_EXTRA(leg) = ITEM_NODONATE + ITEM_NOSELL;
@@ -788,97 +775,84 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 	case SKILL_BITE:
 	case TYPE_BITE:
-		sprintf(buf2, "The chewed up looking %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The chewed up looking %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "chewed up");
 		break;
 
 	case SKILL_SNIPE:
-		sprintf(buf2, "The sniped %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The sniped %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "sniped");
 		break;
 
 	case TYPE_BLUDGEON:
 	case TYPE_POUND:
 	case TYPE_PUNCH:
-		sprintf(buf2, "The battered %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The battered %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "battered");
 		break;
 
 	case TYPE_CRUSH:
 	case SPELL_PSYCHIC_CRUSH:
-		sprintf(buf2, "The crushed %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The crushed %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "crushed");
 		break;
 
 	case TYPE_CLAW:
-		sprintf(buf2, "The shredded %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The shredded %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "shredded");
 		break;
 
 	case TYPE_MAUL:
-		sprintf(buf2, "The mauled %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The mauled %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "mauled");
 		break;
 
 	case TYPE_THRASH:
-		sprintf(buf2, "The %s of %s %s lying here, badly thrashed.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The %s of %s %s lying here, badly thrashed.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "thrashed");
 		break;
 
 	case SKILL_BACKSTAB:
-		sprintf(buf2, "The backstabbed %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The backstabbed %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "backstabbed");
 		break;
 
 	case TYPE_PIERCE:
 	case TYPE_STAB:
     case TYPE_EGUN_PARTICLE:
-		sprintf(buf2, "The bloody %s of %s %s lying here, full of holes.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The bloody %s of %s %s lying here, full of holes.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "stabbed");
 		break;
 
 	case TYPE_GORE_HORNS:
-		sprintf(buf2, "The gored %s of %s %s lying here in a pool of blood.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The gored %s of %s %s lying here in a pool of blood.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "gored");
 		break;
 
 	case TYPE_TRAMPLING:
-		sprintf(buf2, "The trampled %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The trampled %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "trampled");
 		break;
 
 	case TYPE_TAIL_LASH:
-		sprintf(buf2, "The lashed %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The lashed %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "lashed");
 		break;
 
 	case TYPE_SWALLOW:
-		strcpy(buf2, "A bloody pile of bones is lying here.");
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup("A bloody pile of bones is lying here.");
 		strcpy(adj, "bloody pile bones");
 		break;
 
@@ -890,23 +864,20 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case SPELL_PRISMATIC_SPRAY:
 	case SKILL_DISCHARGE:
     case TYPE_EGUN_LASER:
-        sprintf(buf2, "The blasted %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The blasted %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "blasted");
 		break;
 
 	case SKILL_PROJ_WEAPONS:
-		sprintf(buf2, "The shot up %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The shot up %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "shot up");
 		break;
 
 	case SKILL_ARCHERY:
-		sprintf(buf2, "The pierced %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The pierced %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "pierced");
 		break;
 
@@ -926,40 +897,35 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case TYPE_FLAMETHROWER:
     case SPELL_ELECTRIC_ARC:
     case TYPE_EGUN_PLASMA:
-		sprintf(buf2, "The charred %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The charred %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "charred");
 		break;
 
 	case SKILL_ENERGY_FIELD:
 	case SKILL_SELF_DESTRUCT:
     case TYPE_EGUN_ION:
-		sprintf(buf2, "The smoking %s of %s %s lying here,",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The smoking %s of %s %s lying here,",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "smoking");
 		break;
 
 	case TYPE_BOILING_PITCH:
-		sprintf(buf2, "The scorched %s of %s %s here.", typebuf, GET_NAME(ch),
-			isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The scorched %s of %s %s here.", typebuf, GET_NAME(ch),
+			isare));
 		strcpy(adj, "scorched");
 		break;
 
 	case SPELL_STEAM_BREATH:
-		sprintf(buf2, "The scalded %s of %s %s here.", typebuf, GET_NAME(ch),
-			isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The scalded %s of %s %s here.", typebuf, GET_NAME(ch),
+			isare));
 		strcpy(adj, "scalded");
 		break;
 
 	case JAVELIN_OF_LIGHTNING:
     case EGUN_LIGHTNING:
-		sprintf(buf2, "The %s of %s %s lying here, blasted and smoking.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The %s of %s %s lying here, blasted and smoking.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "blasted");
 		break;
 
@@ -968,77 +934,67 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case TYPE_FREEZING:
 	case SPELL_HELL_FROST:
 	case SPELL_FROST_BREATH:
-		sprintf(buf2, "The frozen %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The frozen %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "frozen");
 		break;
 
 	case SPELL_SPIRIT_HAMMER:
 	case SPELL_EARTH_ELEMENTAL:
-		sprintf(buf2, "The smashed %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The smashed %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "smashed");
 		break;
 
 	case SPELL_AIR_ELEMENTAL:
 	case TYPE_RIP:
-		sprintf(buf2, "The ripped apart %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The ripped apart %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "ripped apart");
 		break;
 
 	case SPELL_WATER_ELEMENTAL:
-		sprintf(buf2, "The drenched %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The drenched %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "drenched");
 		break;
 
 	case SPELL_GAMMA_RAY:
 	case SPELL_HALFLIFE:
     case TYPE_EGUN_GAMMA:
-		sprintf(buf2, "The radioactive %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The radioactive %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "radioactive");
 		break;
 
 	case SPELL_ACIDITY:
-		sprintf(buf2, "The sizzling %s of %s %s lying here, dripping acid.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The sizzling %s of %s %s lying here, dripping acid.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "sizzling");
 		break;
 
 	case SPELL_GAS_BREATH:
-		sprintf(buf2, "The %s of %s lie%s here, stinking of chlorine gas.",
-			typebuf, GET_NAME(ch), ISARE(typebuf));
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The %s of %s lie%s here, stinking of chlorine gas.",
+			typebuf, GET_NAME(ch), ISARE(typebuf)));
 		strcpy(adj, "chlorinated");
 		break;
 
 	case SKILL_TURN:
-		sprintf(buf2, "The burned up %s of %s %s lying here, finally still.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The burned up %s of %s %s lying here, finally still.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "burned");
 		break;
 
 	case TYPE_FALLING:
-		sprintf(buf2, "The splattered %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The splattered %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "splattered");
 		break;
 
 		// attack that tears the victim's spine out
 	case SKILL_PILEDRIVE:
-		sprintf(buf2, "The shattered, twisted %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The shattered, twisted %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "shattered");
 		if (GET_MOB_VNUM(ch) == 1511) {
 			if ((spine = read_object(1541)))
@@ -1049,17 +1005,13 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 			spine->in_room = NULL;
 			if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
 				spine->aliases = strdup("spine spinal column stone");
-				strcpy(buf2, "A stone spinal column is lying here.");
-				spine->line_desc = strdup(buf2);
-				strcpy(buf2, "a stone spinal column");
-				spine->name = strdup(buf2);
+				spine->line_desc = strdup("A stone spinal column is lying here.");
+				spine->name = strdup("a stone spinal column");
 				GET_OBJ_VAL(spine, 1) = 4;
 			} else {
 				spine->aliases = strdup("spine spinal column bloody");
-				strcpy(buf2, "A bloody spinal column is lying here.");
-				spine->line_desc = strdup(buf2);
-				strcpy(buf2, "a bloody spinal column");
-				spine->name = strdup(buf2);
+				spine->line_desc = strdup("A bloody spinal column is lying here.");
+				spine->name = strdup("a bloody spinal column");
 				GET_OBJ_VAL(spine, 1) = 2;
 			}
 
@@ -1083,16 +1035,14 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case TYPE_TAINT_BURN:
 		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_MOB(ch)) {
 			// attack that rips the victim's head off
-			sprintf(buf2, "The smoking %s of %s %s lying here.",
-				typebuf, GET_NAME(ch), isare);
-			corpse->line_desc = strdup(buf2);
+			corpse->line_desc = strdup(tmp_sprintf("The smoking %s of %s %s lying here.",
+				typebuf, GET_NAME(ch), isare));
 			sprintf(adj, "smoking");
 			break;
 		} else {
 			// attack that rips the victim's head off
-			sprintf(buf2, "The headless smoking %s of %s %s lying here.",
-				typebuf, GET_NAME(ch), isare);
-			corpse->line_desc = strdup(buf2);
+			corpse->line_desc = strdup(tmp_sprintf("The headless smoking %s of %s %s lying here.",
+				typebuf, GET_NAME(ch), isare));
 			sprintf(adj, "headless smoking");
 		}
 
@@ -1144,9 +1094,8 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 	case SKILL_BEHEAD:
 	case SKILL_PELE_KICK:
 	case SKILL_CLOTHESLINE:
-		sprintf(buf2, "The headless %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The headless %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		sprintf(adj, "headless");
 
 		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_MOB(ch))
@@ -1160,13 +1109,11 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		else
 			head->aliases = strdup("blood head skull");
 
-		sprintf(buf2, "The severed %shead of %s %s lying here.",
+		head->line_desc = strdup(tmp_sprintf("The severed %shead of %s %s lying here.",
 			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
-			isare);
-		head->line_desc = strdup(buf2);
-		sprintf(buf2, "the severed %shead of %s",
-			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch));
-		head->name = strdup(buf2);
+			isare));
+		head->name = strdup(tmp_sprintf("the severed %shead of %s",
+			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch)));
 		GET_OBJ_TYPE(head) = ITEM_DRINKCON;
 		GET_OBJ_WEAR(head) = ITEM_WEAR_TAKE;
 		GET_OBJ_EXTRA(head) = ITEM_NODONATE | ITEM_NOSELL;
@@ -1234,9 +1181,8 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 
 		// attack that rips the victim's heart out
 	case SKILL_LUNGE_PUNCH:
-		sprintf(buf2, "The maimed %s of %s %s lying here.", typebuf,
-			GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The maimed %s of %s %s lying here.", typebuf,
+			GET_NAME(ch), isare));
 		strcpy(adj, "maimed");
 
 		heart = create_obj();
@@ -1245,19 +1191,16 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
 			GET_OBJ_TYPE(heart) = ITEM_OTHER;
 			heart->aliases = strdup("heart stone");
-			sprintf(buf2, "the stone heart of %s", GET_NAME(ch));
-			heart->name = strdup(buf2);
+			heart->name = strdup(tmp_sprintf("the stone heart of %s", GET_NAME(ch)));
 		} else {
 			GET_OBJ_TYPE(heart) = ITEM_FOOD;
 			heart->aliases = strdup("heart bloody");
-			sprintf(buf2, "the bloody heart of %s", GET_NAME(ch));
-			heart->name = strdup(buf2);
+			heart->name = strdup(tmp_sprintf("the bloody heart of %s", GET_NAME(ch)));
 		}
 
-		sprintf(buf2, "The %sheart of %s %s lying here.",
+		heart->line_desc = strdup(tmp_sprintf("The %sheart of %s %s lying here.",
 			AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
-			isare);
-		heart->line_desc = strdup(buf2);
+			isare));
 
 		GET_OBJ_WEAR(heart) = ITEM_WEAR_TAKE + ITEM_WEAR_HOLD;
 		GET_OBJ_EXTRA(heart) = ITEM_NODONATE | ITEM_NOSELL;
@@ -1296,39 +1239,34 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		break;
 
 	case SKILL_IMPALE:
-		sprintf(buf2, "The run through %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The run through %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "impaled");
 		break;
 
 	case TYPE_DROWNING:
         if (room_is_watery(ch->in_room))
-			sprintf(buf2, "The waterlogged %s of %s %s lying here.", typebuf,
-				GET_NAME(ch), ISARE(typebuf));
+		corpse->line_desc = strdup(tmp_sprintf("The waterlogged %s of %s %s lying here.", typebuf,
+				GET_NAME(ch), ISARE(typebuf)));
 		else
-			sprintf(buf2, "The %s of %s %s lying here.", typebuf,
-				GET_NAME(ch), ISARE(typebuf));
-
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The %s of %s %s lying here.", typebuf,
+				GET_NAME(ch), ISARE(typebuf)));
 		strcpy(adj, "drowned");
 		break;
 
 	default:
-		sprintf(buf2, "The %s of %s %s lying here.",
-			typebuf, GET_NAME(ch), isare);
-		corpse->line_desc = strdup(buf2);
+		corpse->line_desc = strdup(tmp_sprintf("The %s of %s %s lying here.",
+			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "");
 		break;
 	}
 
 	//  make the short name
 	if (attacktype != TYPE_SWALLOW)
-		sprintf(buf2, "the %s%s%s of %s", adj, *adj ? " " : "", typebuf,
-			GET_NAME(ch));
+        corpse->name = strdup(tmp_sprintf("the %s%s%s of %s", adj, *adj ? " " : "", typebuf,
+                                          GET_NAME(ch)));
 	else
-		strcpy(buf2, "a bloody pile of bones");
-	corpse->name = strdup(buf2);
+        corpse->name = strdup("a bloody pile of bones");
 
 	// make the alias list
 	strcat(strcat(strcat(strcat(namestr, " "), adj), " "), ch->player.name);

@@ -212,6 +212,7 @@ extern int scheck;
 
 ACMD(do_reboot)
 {
+    char arg[1024];
 	one_argument(argument, arg);
 
 	if (!strcasecmp(arg, "all") || *arg == '*') {
@@ -581,6 +582,7 @@ index_boot(int mode)
     const char *prefix = NULL;
 	FILE *index, *db_file;
 	int rec_count = 0, index_count = 0, number = 9, i;
+    const char *path;
 
 	switch (mode) {
 	case DB_BOOT_WLD:
@@ -606,35 +608,32 @@ index_boot(int mode)
 	else
 		index_filename = INDEX_FILE;
 
-	sprintf(buf2, "%s/%s", prefix, index_filename);
+	path = tmp_sprintf("%s/%s", prefix, index_filename);
 
-	if (!(index = fopen(buf2, "r"))) {
-		if (!(index = fopen(buf2, "a+"))) {
-			sprintf(buf1, "Error opening index file '%s'", buf2);
-			perror(buf1);
+	if (!(index = fopen(path, "r"))) {
+		if (!(index = fopen(path, "a+"))) {
+			perror(tmp_sprintf("Error opening index file '%s'", path));
 			safe_exit(1);
 		}
 	}
 
 	/* first, count the number of records in the file so we can malloc */
-	fscanf(index, "%s\n", buf1);
-	while (*buf1 != '$') {
-		sprintf(buf2, "%s/%s", prefix, buf1);
-		if (!(db_file = fopen(buf2, "r"))) {
-			fprintf(stderr, "Unable to open: %s\r\n", buf2);
-			index_count++;
-			fscanf(index, "%s\n", buf1);
-			continue;
-		} else {
-			if (mode == DB_BOOT_ZON)
-				rec_count++;
-			else
-				rec_count += count_hash_records(db_file);
-		}
-
-		fclose(db_file);
-		index_count++;
-		fscanf(index, "%s\n", buf1);
+	char line[1024];
+    fscanf(index, "%s\n", line);
+	while (*line != '$') {
+		path = tmp_sprintf("%s/%s", prefix, line);
+        db_file = fopen(path, "r");
+        if (!db_file) {
+            perror(tmp_sprintf("Unable to open: %s", path));
+            safe_exit(1);
+        }
+        if (mode == DB_BOOT_ZON)
+            rec_count++;
+        else
+            rec_count += count_hash_records(db_file);
+        index_count++;
+        fclose(db_file);
+        fscanf(index, "%s\n", line);
 	}
 
 	if (!rec_count) {
@@ -700,13 +699,14 @@ index_boot(int mode)
 
 	rewind(index);
 
-	fscanf(index, "%s\n", buf1);
-	while (*buf1 != '$') {
-		sprintf(buf2, "%s/%s", prefix, buf1);
-		if (!(db_file = fopen(buf2, "r"))) {
-			perror(buf2);
-			safe_exit(1);
-		}
+    fscanf(index, "%s\n", line);
+    while (*line != '$') {
+		path = tmp_sprintf("%s/%s", prefix, line);
+        db_file = fopen(path, "r");
+        if (!db_file) {
+            perror(tmp_sprintf("Unable to open: %s", path));
+            safe_exit(1);
+        }
 		switch (mode) {
 		case DB_BOOT_WLD:
 		case DB_BOOT_OBJ:
@@ -717,9 +717,8 @@ index_boot(int mode)
 			load_zones(db_file, buf2);
 			break;
 		}
-
-		fclose(db_file);
-		fscanf(index, "%s\n", buf1);
+        fclose(db_file);
+        fscanf(index, "%s\n", line);
 	}
 
     fclose(index);

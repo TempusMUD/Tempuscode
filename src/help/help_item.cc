@@ -63,21 +63,18 @@ HelpItem::SetFlags(char *argument)
 	}
 	REMOVE_BIT(tmp_flags, HFLAG_UNAPPROVED);
 	if (state == 1) {
-		cur_flags = cur_flags | tmp_flags;
+		flags |= tmp_flags;
 	} else {
-		tmp_flags = cur_flags & tmp_flags;
-		cur_flags = cur_flags ^ tmp_flags;
+        flags &= ~tmp_flags;
 	}
 
-	flags = cur_flags;
-	tmp_flags = old_flags ^ cur_flags;
-	sprintbit(tmp_flags, help_bits, buf2);
+	tmp_flags = old_flags ^ flags;
 
 	if (tmp_flags == 0) {
 		send_to_char(editor, "Flags for help item %d not altered.\r\n", idnum);
 	} else {
 		SET_BIT(flags, HFLAG_MODIFIED);
-		send_to_char(editor, "[%s] flags %s for help item %d.\r\n", buf2,
+		send_to_char(editor, "[%s] flags %s for help item %d.\r\n", tmp_printbits(tmp_flags, help_bits),
 			state == 1 ? "added" : "removed", idnum);
 	}
 }
@@ -129,19 +126,18 @@ HelpItem::SetGroups(char *argument)
 		argument = one_argument(argument, arg1);
 	}
 	if (state == 1) {
-		cur_groups = cur_groups | tmp_groups;
+		groups = cur_groups | tmp_groups;
 	} else {
-		tmp_groups = cur_groups & tmp_groups;
-		cur_groups = cur_groups ^ tmp_groups;
+        groups = cur_groups & ~tmp_groups;
 	}
-	groups = cur_groups;
 	tmp_groups = old_groups ^ cur_groups;
-	sprintbit(tmp_groups, help_group_bits, buf2);
+
 	if (tmp_groups == 0) {
 		send_to_char(editor, "Groups for help item %d not altered.\r\n", idnum);
 	} else {
-		send_to_char(editor, "[%s] groups %s for help item %d.\r\n", buf2,
-			state == 1 ? "added" : "removed", idnum);
+		send_to_char(editor, "[%s] groups %s for help item %d.\r\n",
+                     tmp_printbits(tmp_groups, help_group_bits),
+                     state == 1 ? "added" : "removed", idnum);
 	}
 	REMOVE_BIT(groups, HGROUP_HELP_EDIT);
 	SET_BIT(flags, HFLAG_MODIFIED);
