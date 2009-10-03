@@ -195,7 +195,8 @@ die(struct Creature *ch, struct Creature *killer, int attacktype)
 	if( IS_PC(ch) && !is_arena_combat(killer, ch) && killer != NULL &&
 			!PLR_FLAGGED(killer, PLR_KILLER) && !ch->isNewbie() ) {
 		// exp loss capped at the beginning of the level.
-		int loss = GET_EXP(ch) >> 3;
+		int loss = GET_EXP(ch) / 8;
+
 		loss = MIN( loss, GET_EXP(ch) - exp_scale[(int)GET_LEVEL(ch)] );
 		gain_exp(ch, -loss);
 	}
@@ -226,7 +227,7 @@ die(struct Creature *ch, struct Creature *killer, int attacktype)
 
 			} else if (GET_LIFE_POINTS(ch) > 0) {
 				GET_LIFE_POINTS(ch) =
-					MAX(0, GET_LIFE_POINTS(ch) - number(1, (GET_LEVEL(ch) >> 3)));
+					MAX(0, GET_LIFE_POINTS(ch) - number(1, (GET_LEVEL(ch) / 8)));
 			} else if (!number(0, 3)) {
 				GET_CON(ch) = MAX(3, GET_CON(ch) - 1);
 			} else if (GET_LEVEL(ch) > number(20, 50)) {
@@ -275,7 +276,7 @@ group_gain(struct Creature *ch, struct Creature *victim)
 		{
 			total_levs += GET_LEVEL((*it));
 			if( IS_PC(*it) ) {
-				total_levs += GET_REMORT_GEN((*it)) << 3;
+				total_levs += GET_REMORT_GEN((*it)) * 8;
 				total_pc_mems++;
 			}
 		}
@@ -288,7 +289,7 @@ group_gain(struct Creature *ch, struct Creature *victim)
 		{
 			mult = (float)GET_LEVEL((*it));
 			if( IS_PC( (*it) ) )
-				mult += GET_REMORT_GEN((*it)) << 3;
+				mult += GET_REMORT_GEN((*it)) * 8;
 			mult /= (float)total_levs;
 
 			if (total_pc_mems) {
@@ -310,32 +311,32 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
     int explore_bonus = 0;
 	int exp = 0;
 
-	if (!IS_NPC(victim))
-		exp = (int)MIN(max_exp_gain, (GET_EXP(victim) * multiplier) / 8);
-	else
+	if (IS_NPC(victim))
 		exp = (int)MIN(max_exp_gain, (GET_EXP(victim) * multiplier) / 3);
+	else
+		exp = (int)MIN(max_exp_gain, (GET_EXP(victim) * multiplier) / 8);
 
 	/* Calculate level-difference bonus */
 	if (IS_NPC(ch))
-		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) >> 3);
+		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
 	else
-		exp += MAX(0, (exp * MIN(8, (GET_LEVEL(victim) - GET_LEVEL(ch)))) >> 3);
+		exp += MAX(0, (exp * MIN(8, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
 
 	exp = MAX(exp, 1);
 	exp = MIN(max_exp_gain, exp);
 
 	if (!IS_NPC(ch)) {
 		exp = MIN(((exp_scale[(int)(GET_LEVEL(ch) + 1)] -
-					exp_scale[(int)GET_LEVEL(ch)]) >> 3), exp);
+					exp_scale[(int)GET_LEVEL(ch)]) / 8), exp);
 		/* exp is limited to 12.5% of needed from level to ( level + 1 ) */
 
 		if ((exp + GET_EXP(ch)) > exp_scale[GET_LEVEL(ch) + 2])
 			exp =
 				(((exp_scale[GET_LEVEL(ch) + 2] - exp_scale[GET_LEVEL(ch) + 1])
-					>> 1) + exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch);
+					/ 2) + exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch);
 
         if (!IS_NPC(victim)) {
-			exp >>= 8;
+			exp /= 256;
 		}
 
         if (is_arena_combat(ch, victim) ||
@@ -541,14 +542,9 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 			GET_OBJ_VAL(new_obj, 2) = GET_OBJ_VAL(obj, 2);
 			GET_OBJ_VAL(new_obj, 3) = GET_OBJ_VAL(obj, 3);
 			GET_OBJ_TIMER(new_obj) = GET_OBJ_TIMER(obj);
-			/* TODO: Make this work
-			   if ( GET_OBJ_VAL( obj, 3 ) && CORPSE_IDNUM( obj ) > 0 &&
-			   CORPSE_IDNUM( obj ) <= top_of_p_table ){
-			   sprintf(buf, "%s destroyed by %s.",
-			   obj->name, GET_NAME( ch ));
-			   mudlog(buf, CMP, LVL_DEMI, true);
-			   }
-			 */
+            if (CORPSE_IDNUM( obj ) > 0) {
+                mudlog(LVL_DEMI, CMP, true, "%s destroyed by %s", obj->name, GET_NAME(ch));
+            }
 		}
 	}
 
@@ -611,12 +607,12 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 		return NULL;
 
 	/** damage has destroyed object */
-	if ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 5)) {
+	if ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) / 32)) {
 		/* damage interior items */
 		for (inobj = obj->contains; inobj; inobj = next_obj) {
 			next_obj = inobj->next_content;
 
-			damage_eq(NULL, inobj, (eq_dam >> 1), type);
+			damage_eq(NULL, inobj, (eq_dam / 2), type);
 		}
 
 		return destroy_object(ch, obj, type);
@@ -624,20 +620,20 @@ damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
 
     const char *damage_msg = NULL;
 
-	if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 3))
-			&& (GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 3)) {
+	if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) / 8))
+			&& (GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) / 8)) {
 		/* object has reached broken state */
 		SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
 		damage_msg = "$p has been severely damaged!!";
-	} else if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 2))
-			&& ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 2))) {
+	} else if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) / 4))
+			&& ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) / 4))) {
 		/* object looking rough ( 25% ) */
 		damage_msg = tmp_sprintf("$p is starting to look pretty %s.",
                                  IS_METAL_TYPE(obj) ? "mangled" :
                                  (IS_LEATHER_TYPE(obj) || IS_CLOTH_TYPE(obj)) ? "ripped up" :
                                  "bad");
-	} else if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) >> 1)) &&
-		((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) >> 1))) {
+	} else if ((GET_OBJ_DAM(obj) > (GET_OBJ_MAX_DAM(obj) / 2)) &&
+		((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) / 2))) {
 		/* object starting to wear ( 50% ) */
 		damage_msg = "$p is starting to show signs of wear.";
 	} else {
@@ -751,9 +747,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	if (ch) {
 		if( ( IS_NPC(ch) || IS_NPC(victim) ) &&
 			  affected_by_spell(ch, SPELL_QUAD_DAMAGE) ) {
-			dam <<= 2;
+			dam /= 4;
 		} else if (AFF3_FLAGGED(ch, AFF3_DOUBLE_DAMAGE)) {
-			dam <<= 1;
+			dam *= 2;
 		}
 		if (AFF3_FLAGGED(ch, AFF3_INST_AFF)) {	// In combat instant affects
 			// Charging into combat gives a damage bonus
@@ -842,10 +838,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	if (attacktype < MAX_SPELLS) {
 		if (SPELL_IS_PSIONIC(attacktype) &&
 			affected_by_spell(victim, SPELL_PSYCHIC_RESISTANCE))
-			dam >>= 1;
+			dam /= 2;
 		if ((SPELL_IS_MAGIC(attacktype) || SPELL_IS_DIVINE(attacktype)) &&
 			affected_by_spell(victim, SPELL_MAGICAL_PROT))
-			dam -= dam >> 2;
+			dam -= dam / 4;
 	}
 
 	if (attacktype == SPELL_PSYCHIC_CRUSH)
@@ -854,9 +850,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	if (attacktype == TYPE_ACID_BURN && location == -1) {
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_EQ(victim, i))
-				damage_eq(ch, GET_EQ(victim, i), (dam >> 1), attacktype);
+				damage_eq(ch, GET_EQ(victim, i), (dam / 2), attacktype);
 			if (GET_IMPLANT(victim, i))
-				damage_eq(ch, GET_IMPLANT(victim, i), (dam >> 1), attacktype);
+				damage_eq(ch, GET_IMPLANT(victim, i), (dam / 2), attacktype);
 		}
 	}
 
@@ -1057,7 +1053,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			if (obj && OBJ_TYPE(obj, ITEM_ARMOR)) {
 				eq_dam = (GET_OBJ_VAL(obj, 0) * dam) / 100;
 				if (location == WEAR_SHIELD)
-					eq_dam <<= 1;
+					eq_dam *= 2;
 			}
 			if (impl && OBJ_TYPE(impl, ITEM_ARMOR))
 				impl_dam = (GET_OBJ_VAL(impl, 0) * dam) / 100;
@@ -1065,10 +1061,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			weap_dam = eq_dam + impl_dam;
 
 			if (obj && !eq_dam)
-				eq_dam = (dam >> 4);
+				eq_dam = (dam / 16);
 
 			if ((!obj || !OBJ_TYPE(obj, ITEM_ARMOR)) && impl && !impl_dam)
-				impl_dam = (dam >> 5);
+				impl_dam = (dam / 32);
 
 			/* here are the damage absorbing characteristics */
 			if ((attacktype == TYPE_BLUDGEON || attacktype == TYPE_HIT ||
@@ -1111,7 +1107,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 			if (obj) {
 				if (IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL))
-					eq_dam >>= 1;
+					eq_dam /= 2;
 				if (IS_OBJ_STAT(obj,
 						ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED))
 					eq_dam = (int)(eq_dam * 0.8);
@@ -1120,7 +1116,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			}
 			if (impl) {
 				if (IS_OBJ_STAT(impl, ITEM_MAGIC_NODISPEL))
-					impl_dam >>= 1;
+					impl_dam /= 2;
 				if (IS_OBJ_STAT(impl,
 						ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED))
 					impl_dam = (int)(impl_dam * 0.8);
@@ -1142,7 +1138,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					weap_dam = (int)(weap_dam * 1.3);
 				}
 			} else if (attacktype == SPELL_PSYCHIC_CRUSH)
-				eq_dam <<= 7;
+				eq_dam *= 127;
 			// OXIDIZE Damaging equipment
 			else if (attacktype == SPELL_OXIDIZE) {
 				// Chemical stability stops oxidize dam on eq.
@@ -1151,24 +1147,24 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				} else if ((obj && IS_FERROUS(obj))) {
 					apply_soil_to_char(victim, GET_EQ(victim, location),
 						SOIL_RUST, location);
-					eq_dam <<= 5;
+					eq_dam *= 32;
 				} else if (impl && IS_FERROUS(impl)) {
 					apply_soil_to_char(victim, GET_IMPLANT(victim, location),
 						SOIL_RUST, location);
-					eq_dam <<= 5;
+					eq_dam *= 32;
 				} else if ((obj && IS_BURNABLE_TYPE(obj))) {
 					apply_soil_to_char(victim, GET_EQ(victim, location),
 						SOIL_CHAR, location);
-					eq_dam <<= 3;
+					eq_dam *= 8;
 				} else if (impl && IS_BURNABLE_TYPE(impl)) {
 					apply_soil_to_char(victim, GET_IMPLANT(victim, location),
 						SOIL_CHAR, location);
-					eq_dam <<= 3;
+					eq_dam *= 8;
 				}
 			}
 			if (weap) {
 				if (IS_OBJ_STAT(weap, ITEM_MAGIC_NODISPEL))
-					weap_dam >>= 1;
+					weap_dam /= 2;
 				if (IS_OBJ_STAT(weap,
 						ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED))
 					weap_dam = (int)(weap_dam * 0.8);
@@ -1189,7 +1185,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		if (weap && (attacktype != SKILL_PROJ_WEAPONS) &&
             attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
 			attacktype != SKILL_ENERGY_WEAPONS)
-			damage_eq(ch, weap, MAX(weap_dam, dam >> 6), attacktype);
+			damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
 		DAM_RETURN(0);
 	}
 
@@ -1247,7 +1243,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				act("$n is deflected by your prismatic sphere!",
 					false, ch, 0, victim, TO_VICT);
 				int retval =
-					damage_attacker(victim, ch, dice(30, 3) + (dam >> 2),
+					damage_attacker(victim, ch, dice(30, 3) + (dam / 4),
 					SPELL_PRISMATIC_SPHERE, -1);
 
 				if (!IS_SET(retval, DAM_VICT_KILLED)) {
@@ -1354,7 +1350,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 					retval =
 						damage_attacker(victim, ch, dice(30,
-							3) + (IS_MAGE(victim) ? (dam >> 2) : 0),
+							3) + (IS_MAGE(victim) ? (dam / 4) : 0),
 						SPELL_PRISMATIC_SPHERE, -1);
 
 					if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
@@ -1368,7 +1364,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 				else if (AFF2_FLAGGED(victim, AFF2_BLADE_BARRIER)) {
 					retval = damage_attacker(victim, ch,
-						GET_LEVEL(victim) + (dam >> 4),
+						GET_LEVEL(victim) + (dam / 16),
 						SPELL_BLADE_BARRIER, -1);
 
 				}
@@ -1390,7 +1386,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 					!CHAR_WITHSTANDS_FIRE(ch)) {
 
 					retval = damage_attacker(victim, ch, dice(8, 8) +
-						(IS_MAGE(victim) ? (dam >> 3) : 0),
+						(IS_MAGE(victim) ? (dam / 8) : 0),
 						SPELL_FIRE_SHIELD, -1);
 
 					if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
@@ -1486,7 +1482,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	/*********************** End N's coding spree ***********************/
 
 	if (IS_PUDDING(victim) || IS_SLIME(victim) || IS_TROLL(victim))
-		dam >>= 2;
+		dam /= 4;
 
 	switch (attacktype) {
 	case TYPE_OVERLOAD:
@@ -1499,19 +1495,19 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	case SPELL_STIGMATA:
 	case TYPE_HOLYOCEAN:
 		if (IS_UNDEAD(victim) || IS_EVIL(victim))	// is_evil added for stigmata
-			dam <<= 1;
+			dam *= 2;
 		if (AFF_FLAGGED(victim, AFF_PROTECT_GOOD))
-			dam >>= 1;
+			dam /= 2;
 		break;
 	case SPELL_OXIDIZE:
 		if (IS_CYBORG(victim))
-			dam <<= 1;
+			dam *= 2;
 		else if (affected_by_spell(victim, SPELL_CHEMICAL_STABILITY))
-			dam >>= 2;
+			dam /= 4;
 		break;
 	case SPELL_DISRUPTION:
 		if (IS_UNDEAD(victim) || IS_CYBORG(victim) || IS_ROBOT(victim))
-			dam <<= 1;
+			dam *= 2;
 		break;
 	case SPELL_CALL_LIGHTNING:
 	case SPELL_LIGHTNING_BOLT:
@@ -1522,19 +1518,19 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
     case SPELL_ELECTRIC_ARC:
     case TYPE_EGUN_LIGHTNING:
 		if (IS_VAMPIRE(victim))
-			dam >>= 1;
+			dam /= 2;
 		if (OUTSIDE(victim)
 			&& victim->in_room->zone->weather->sky == SKY_LIGHTNING)
-			dam <<= 1;
+			dam *= 2;
 		if (AFF2_FLAGGED(victim, AFF2_PROT_LIGHTNING))
-			dam >>= 1;
+			dam /= 2;
 		if (IS_CYBORG(victim))
-			dam <<= 1;
+			dam *= 2;
 		break;
 	case SPELL_HAILSTORM:
 		if (OUTSIDE(victim)
 			&& victim->in_room->zone->weather->sky >= SKY_RAINING)
-			dam <<= 1;
+			dam *= 2;
 		break;
 	case SPELL_HELL_FIRE:
 	case SPELL_TAINT:
@@ -1550,7 +1546,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		if (IS_VAMPIRE(victim) && OUTSIDE(victim) &&
 			victim->in_room->zone->weather->sunlight == SUN_LIGHT &&
 			GET_PLANE(victim->in_room) < PLANE_ASTRAL)
-			dam <<= 2;
+			dam *= 4;
 
 		if ((victim->in_room->sector_type == SECT_PITCH_PIT ||
 				ROOM_FLAGGED(victim->in_room, ROOM_EXPLOSIVE_GAS)) &&
@@ -1575,9 +1571,9 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 
 		if (CHAR_WITHSTANDS_FIRE(victim))
-			dam >>= 1;
+			dam /= 2;
 		if (IS_TROLL(victim) || IS_PUDDING(victim) || IS_SLIME(victim))
-			dam <<= 2;
+			dam *= 4;
 		break;
 	case SPELL_CONE_COLD:
 	case SPELL_CHILL_TOUCH:
@@ -1585,7 +1581,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	case SPELL_FROST_BREATH:
 	case TYPE_FREEZING:
 		if (CHAR_WITHSTANDS_COLD(victim))
-			dam >>= 1;
+			dam /= 2;
 		break;
 	case TYPE_BLEED:
 		if (!CHAR_HAS_BLOOD(victim))
@@ -1594,12 +1590,12 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	case SPELL_STEAM_BREATH:
 	case TYPE_BOILING_PITCH:
 		if (AFF3_FLAGGED(victim, AFF3_PROT_HEAT))
-			dam >>= 1;
+			dam /= 2;
 	case TYPE_ACID_BURN:
 	case SPELL_ACIDITY:
 	case SPELL_ACID_BREATH:
 		if (affected_by_spell(victim, SPELL_CHEMICAL_STABILITY))
-			dam >>= 1;
+			dam /= 2;
 		break;
 	}
 
@@ -1773,7 +1769,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 			send_to_char(victim, "Emergency restart of system processes...\r\n");
 			REMOVE_BIT(AFF3_FLAGS(victim), AFF3_STASIS);
 			WAIT_STATE(victim, (5 - (CHECK_SKILL(victim,
-							SKILL_FASTBOOT) >> 5)) RL_SEC);
+							SKILL_FASTBOOT) / 32)) RL_SEC);
 		}
 		// check for killer flags right here
 		if (!victim->findCombat(ch) && !IS_DEFENSE_ATTACK(attacktype)) {
@@ -1800,7 +1796,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 		// some "non-weapon" attacks involve a weapon, e.g. backstab
 		if (weap)
-			damage_eq(ch, weap, MAX(weap_dam, dam >> 6), attacktype);
+			damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
 
 		if (obj)
 			damage_eq(ch, obj, eq_dam, attacktype);
@@ -1858,7 +1854,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		if (weap && (attacktype != SKILL_PROJ_WEAPONS) &&
             attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
 			attacktype != SKILL_ENERGY_WEAPONS)
-			damage_eq(ch, weap, MAX(weap_dam, dam >> 6), attacktype);
+			damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
 
 		//
 		// aliens spray blood all over the room
@@ -1960,10 +1956,10 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		// pos >= Sleeping ( Fighting, Standing, Flying, Mounted... )
 	default:
 		{
-			if (dam > (GET_MAX_HIT(victim) >> 2))
+			if (dam > (GET_MAX_HIT(victim) / 4))
 				act("That really did HURT!", false, victim, 0, 0, TO_CHAR);
 
-			if (GET_HIT(victim) < (GET_MAX_HIT(victim) >> 2) &&
+			if (GET_HIT(victim) < (GET_MAX_HIT(victim) / 4) &&
 				GET_HIT(victim) < 200) {
 				send_to_char(victim,
                              "%sYou wish that your wounds would stop %sBLEEDING%s%s so much!%s\r\n",
@@ -1982,7 +1978,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				&& GET_CLASS(victim) != CLASS_DEMON_PRINCE
 				&& GET_MOB_WAIT(ch) <= 0 && !MOB_FLAGGED(ch, MOB_SENTINEL)
 				&& (100 - ((GET_HIT(victim) * 100) / GET_MAX_HIT(victim))) >
-				GET_MORALE(victim) + number(-5, 10 + (GET_INT(victim) >> 2))) {
+				GET_MORALE(victim) + number(-5, 10 + (GET_INT(victim) / 4))) {
 
 				if (GET_HIT(victim) > 0) {
 					int retval = 0;
@@ -2061,7 +2057,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				//
 
 				else if (affected_by_spell(victim, SPELL_FEAR) &&
-					!number(0, (GET_LEVEL(victim) >> 3) + 1)
+					!number(0, (GET_LEVEL(victim) / 8) + 1)
 					&& GET_HIT(victim) > 0) {
 					if (KNOCKDOWN_SKILL(attacktype) && dam)
 						victim->setPosition(POS_SITTING);
@@ -2540,7 +2536,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	weap = cur_weap;
 	calc_thaco = calculate_thaco(ch, victim, weap);
 
-	victim_ac = MAX(GET_AC(victim), -(GET_LEVEL(ch) << 2)) / 15;
+	victim_ac = MAX(GET_AC(victim), -(GET_LEVEL(ch) * 4)) / 15;
 
 	diceroll = number(1, 20);
 
@@ -2611,7 +2607,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		if (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap)) {
 			dam += dice(GET_OBJ_VAL(cur_weap, 1), GET_OBJ_VAL(cur_weap, 2));
 			if (invalid_char_class(ch, cur_weap))
-				dam >>= 1;
+				dam /= 2;
 			if (IS_NPC(ch)) {
 				tmp_dam += dice(ch->mob_specials.shared->damnodice,
 					ch->mob_specials.shared->damsizedice);
@@ -2647,9 +2643,9 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	} else {
 		dam += number(0, 3);	/* Max. 3 dam with bare hands */
 		if (IS_MONK(ch) || IS_VAMPIRE(ch))
-			dam += number((GET_LEVEL(ch) >> 2), GET_LEVEL(ch));
+			dam += number((GET_LEVEL(ch) / 4), GET_LEVEL(ch));
 		else if (IS_BARB(ch))
-			dam += number(0, (GET_LEVEL(ch) >> 1));
+			dam += number(0, (GET_LEVEL(ch) / 2));
 	}
 
      //bludgeoning with our gun
@@ -2659,7 +2655,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
     }
 
 	dam = MAX(1, dam);			/* at least 1 hp damage min per hit */
-	dam = MIN(dam, 30 + (GET_LEVEL(ch) << 3));	/* level limit */
+	dam = MIN(dam, 30 + (GET_LEVEL(ch) * 8));	/* level limit */
 
 	if( type == SKILL_CLEAVE ) {
 		if (GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50)
@@ -2675,7 +2671,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 			dam *= BACKSTAB_MULT(ch);
 			dam +=
 				number(0, (CHECK_SKILL(ch,
-						SKILL_BACKSTAB) - LEARNED(ch)) >> 1);
+						SKILL_BACKSTAB) - LEARNED(ch)) / 2);
 		}
 
 		retval = damage(ch, victim, dam, SKILL_BACKSTAB, WEAR_BACK);
@@ -2685,9 +2681,9 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 		}
 	} else if (type == SKILL_CIRCLE) {
 		if (IS_THIEF(ch)) {
-			dam *= MAX(2, (BACKSTAB_MULT(ch) >> 1));
+			dam *= MAX(2, (BACKSTAB_MULT(ch) / 2));
 			dam +=
-				number(0, (CHECK_SKILL(ch, SKILL_CIRCLE) - LEARNED(ch)) >> 1);
+				number(0, (CHECK_SKILL(ch, SKILL_CIRCLE) - LEARNED(ch)) / 2);
 		}
 		gain_skill_prof(ch, type);
 
@@ -2803,7 +2799,7 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 			ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS))
 		return 0;
 	if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_INT(ch) -
-			(CHECK_SKILL(ch, GET_OBJ_VAL(weap, 0)) >> 3))))
+			(CHECK_SKILL(ch, GET_OBJ_VAL(weap, 0)) / 8))))
 		return 0;
 
     const char *action_msg = NULL;
@@ -2897,7 +2893,7 @@ do_gun_special(Creature *ch, obj_data *obj)
     } else if (GET_OBJ_VAL(obj, 3) == EGUN_LIGHTNING) {
         //basic chance to chain
         bool chain = !number(0, MAX(5, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
-                    (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)));
+                    (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) / 8)));
         //in water we get a second chance
         if (room_is_watery(ch->in_room) && !number(0,3))
             chain = true;
@@ -2905,7 +2901,7 @@ do_gun_special(Creature *ch, obj_data *obj)
     } else if (GET_OBJ_VAL(obj, 3) == EGUN_PLASMA) {
         return number(0, MAX(0,ch->getLevelBonus(SKILL_ENERGY_WEAPONS))/20);//almost always ignite if applicable
     } else if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
-                (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 3)))) {
+                (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) / 8)))) {
         return false;
     }
 
@@ -2999,7 +2995,7 @@ perform_violence(void)
 			bool stop = false;
 
 			for (i = 0; i < 4; i++) {
-				if (!ch->isFighting() || GET_LEVEL(ch) < (i << 3))
+				if (!ch->isFighting() || GET_LEVEL(ch) < (i * 8))
 					break;
 				if (ch->getPosition() < POS_FIGHTING) {
 					if (CHECK_WAIT(ch) < 10)
@@ -3007,7 +3003,7 @@ perform_violence(void)
 					break;
 				}
 
-				if (prob >= number((i << 4) + (i << 3), (i << 5) + (i << 3))) {
+				if (prob >= number((i * 16) + (i * 8), (i * 32) + (i * 8))) {
                     int retval = hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED);
                     if (IS_SET(retval, DAM_ATTACKER_KILLED) ||
                         IS_SET(retval, DAM_VICT_KILLED)) {
