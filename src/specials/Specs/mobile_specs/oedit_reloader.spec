@@ -104,7 +104,9 @@ retrieve_oedits( Creature *ch, list<obj_data*> &found )
 					continue;
 				}
 			}
-			// todo: check house
+
+            room_data *prev_obj_room = where_obj(obj);
+
 			if (obj->worn_by && obj == GET_EQ(obj->worn_by, obj->worn_on)) {
 				act("$p disappears off of your body!",
 					false, obj->worn_by, obj, 0, TO_CHAR);
@@ -130,6 +132,13 @@ retrieve_oedits( Creature *ch, list<obj_data*> &found )
 			} else if( obj->in_obj != NULL ) {
 				obj_from_obj( obj );
 			}
+
+            if (prev_obj_room && ROOM_FLAGGED(prev_obj_room, ROOM_HOUSE)) {
+                House *h = Housing.findHouseByRoom(prev_obj_room->number);
+                if (h)
+                    h->save();
+            }
+
 			++count;
 			obj_to_char( obj, ch, false );
 			act("$p appears in your hands!", false, ch, obj, 0, TO_CHAR);
