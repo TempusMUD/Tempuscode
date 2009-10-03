@@ -31,6 +31,7 @@ protected:
     virtual void Finalize(const char *text) = 0;
     virtual void Cancel(void);
     virtual void DisplayBuffer(unsigned int start_line = 1, int line_count = -1);
+    virtual void SendModalHelp(void); // send mode-specific command help
 
 	void ImportText(const char *text);	// Run from contructor, imports *d->str
 	void SendMessage(const char *message);	// Wrapper for sendtochar
@@ -105,6 +106,7 @@ protected:
     virtual bool PerformCommand(char cmd, char *args);
     virtual void Finalize(const char *text);
     virtual void Cancel(void);
+    virtual void SendModalHelp(void);
 
 	void ListRecipients(void);
 	void ListAttachments(void);

@@ -408,8 +408,7 @@ CEditor::Substitute(char *args)
                && *args != '<')
             args++;
         if (!*args) {
-            // TODO: Make this more comprehensible
-            SendMessage("If the search pattern is a balanced delimiter, you must use a balanced\r\ndelimiter for the replacement.\r\n");
+            SendMessage("If the search pattern uses a balanced delimiter, the replacement must use a balanced\r\ndelimiter as well.\r\n");
             return false;
         }
 
@@ -656,10 +655,17 @@ CEditor::UpdateSize(void)
 			GET_NAME(desc->creature), curSize, maxSize);
 	}
 }
+
+void
+CEditor::SendModalHelp(void)
+{
+    // default offers the clear buffer and undo changes options
+    send_to_desc(desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
+}
+
 void
 CEditor::ProcessHelp(char *inStr)
 {
-	struct Creature *ch = desc->creature;
 	char command[MAX_INPUT_LENGTH];
 
     acc_string_clear();
@@ -672,15 +678,7 @@ CEditor::ProcessHelp(char *inStr)
                      "            &YL - &nReplace Line         &YD - &nDelete Line  \r\n"
                      "            &YI - &nInsert Line          &YM - &nMove Line(s)\r\n"
                      "            &YF - &nFind                 &YS - &nSubstitute\r\n");
-        if (PLR_FLAGGED(ch, PLR_MAILING)) {
-            // TODO: this should use virtual dispatch for extensibility.
-            send_to_desc(desc,
-                         "            &YC - &nClear Buffer         &YA - &nAdd Recipient\r\n"
-                         "            &YT - &nList Recipients      &YE - &nRemove Recipient\r\n"
-                         "            &YP - &nAttach Package\r\n");
-        } else {
-            send_to_desc(desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
-        }
+        this->SendModalHelp();
         send_to_desc(desc,
                      "     &C*&B-------------------------------------------------------&C*&n\r\n");
 	} else {

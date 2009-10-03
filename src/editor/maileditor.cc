@@ -177,6 +177,15 @@ CMailEditor::Finalize(const char *text)
 }
 
 void
+CMailEditor::SendModalHelp(void)
+{
+    send_to_desc(desc,
+                 "            &YC - &nClear Buffer         &YA - &nAdd Recipient\r\n"
+                 "            &YT - &nList Recipients      &YE - &nRemove Recipient\r\n"
+                 "            &YP - &nAttach Package\r\n");
+}
+
+void
 CMailEditor::Cancel(void)
 {
     ReturnAttachments();
