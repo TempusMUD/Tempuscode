@@ -227,7 +227,6 @@ AM_LDFLAGS = @XML_LIBS@
                  specials/Specs/mobile_specs/mob_helper.spec \
                  specials/Specs/mobile_specs/oedit_reloader.spec \
                  specials/Specs/mobile_specs/underwater_predator.spec \
-                 specials/Specs/mobile_specs/script_reader.spec \
                  specials/Specs/mobile_specs/spinal.spec \
                  specials/Specs/mobile_specs/tarrasque.spec \
                  specials/Specs/mobile_specs/town_crier.spec \

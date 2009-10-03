@@ -1089,7 +1089,6 @@ struct player_special_data {
 
 struct mob_shared_data {
 	int vnum;
-	int svnum;
 	int number;
 	int attack_type;			/* The Attack Type integer for NPC's     */
 	int lair;					/* room the mob always returns to */

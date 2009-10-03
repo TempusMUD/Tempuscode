@@ -1686,21 +1686,6 @@ mobile_activity(void)
 						false, ch, obj->aux_obj, 0, TO_CHAR);
 			}
 		}
-		//
-		// TODO: fix this so it doesn't potentially cause a crash
-		// mob_read_script() can potentially cause the mob to kill the character
-		// which happens to be pointed to by next_ch, which will be disastrous
-		// at the top of the loop
-		//
-
-		if (IS_NPC(ch)
-				&& MOB2_FLAGGED(ch, MOB2_SCRIPT)
-				&& GET_IMPLANT(ch, WEAR_HOLD)
-				&& OBJ_TYPE(GET_IMPLANT(ch, WEAR_HOLD), ITEM_SCRIPT)) {
-
-			if (mob_read_script(ch, NULL, 0, NULL, SPECIAL_TICK))
-				continue;
-		}
 
 		//
 		// nothing below this conditional affects FIGHTING characters

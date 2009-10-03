@@ -1673,7 +1673,6 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/astral_deva.spec"
 #include "Specs/mobile_specs/junker.spec"
 #include "Specs/mobile_specs/duke_nukem.spec"
-#include "Specs/mobile_specs/script_reader.spec"
 #include "Specs/mobile_specs/tarrasque.spec"
 #include "Specs/mobile_specs/weaponsmaster.spec"
 #include "Specs/mobile_specs/unholy_stalker.spec"
