@@ -149,11 +149,21 @@ SPECIAL(hell_hunter_brain)
 			for (i = 0; i < targets.size(); i++) {
 				if (!(obj = real_object_proto(targets[i].o_vnum)))
 					continue;
-				send_to_char(ch, "%3d. [%5d] %30s %3d/%3d\r\n",
-					i, targets[i].o_vnum, obj->name,
-					obj->shared->number, obj->shared->house_count);
+				send_to_char(ch, "%3d. [%5d] %s%30s%s %3d/%3d\r\n",
+                             i, targets[i].o_vnum, CCGRN(ch, NRM), obj->name, CCNRM(ch, NRM),
+                             obj->shared->number, obj->shared->house_count);
 			}
-			//TODO: Add blind spots to status
+            send_to_char(ch, "Hunter blind spots:\r\n");
+            int idx = 0;
+            for (vector<int>::iterator it = blindSpots.begin();
+                 it != blindSpots.end(); ++it, ++idx) {
+                zone_data *zone = real_zone(*it);
+                send_to_char(ch, "%3d. [%3d] %s%s%s\r\n", idx, *it,
+                             CCCYN(ch, NRM),
+                             (zone) ? zone->name:"<no such zone>",
+                             CCNRM(ch, NRM));
+            }
+
 			return 1;
 		} else if (CMD_IS("activate")) {
 			skip_spaces(&argument);
