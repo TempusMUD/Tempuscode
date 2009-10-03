@@ -1,5 +1,4 @@
 /* ************************************************************************
-            dam = dice(level, 15) + level;
 *   File: magic.c                                       Part of CircleMUD *
 *  Usage: low-level functions for magic; spell template code              *
 *                                                                         *
