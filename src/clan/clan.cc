@@ -60,7 +60,7 @@ REMOVE_MEMBER_FROM_CLAN(struct clanmember_data *member, struct clan_data *clan)
 	REMOVE_FROM_LIST(member, clan->member_list, next);
 }
 
-int
+static int
 clan_member_count(clan_data *clan)
 {
     clanmember_data *member = NULL;
@@ -71,7 +71,7 @@ clan_member_count(clan_data *clan)
     return result;
 }
 
-const char *
+static const char *
 clan_rankname(clan_data *clan, int rank)
 {
     if (clan->ranknames[rank])
@@ -81,7 +81,7 @@ clan_rankname(clan_data *clan, int rank)
     return "the member";
 }
 
-bool
+static bool
 char_can_enroll(Creature *ch, Creature *vict, clan_data *clan)
 {
     // Ensure data integrity between clan structures
@@ -137,7 +137,7 @@ char_can_enroll(Creature *ch, Creature *vict, clan_data *clan)
     return false;
 }
 
-bool
+static bool
 char_can_dismiss(Creature *ch, Creature *vict, clan_data *clan)
 {
     clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
@@ -169,7 +169,7 @@ char_can_dismiss(Creature *ch, Creature *vict, clan_data *clan)
     return false;
 }
 
-bool
+static bool
 char_can_promote(Creature *ch, Creature *vict, clan_data *clan)
 {
     clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
@@ -502,7 +502,7 @@ ACMD(do_clanmail)
     }
 }
 
-void
+static void
 acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev)
 {
 	struct Creature *i;
@@ -775,7 +775,7 @@ clan_by_owner( int idnum )
 	return NULL;
 }
 
-struct clan_data *
+clan_data *
 clan_by_name(char *arg)
 {
 	struct clan_data *clan = NULL;

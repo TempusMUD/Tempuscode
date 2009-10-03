@@ -38,44 +38,43 @@ extern char locate_buf[256];
                        char *args __attribute__ ((unused)))
 
 // Prog command prototypes
-void prog_do_before(prog_env * env, prog_evt * evt, char *args);
-void prog_do_handle(prog_env * env, prog_evt * evt, char *args);
-void prog_do_after(prog_env * env, prog_evt * evt, char *args);
-void prog_do_require(prog_env * env, prog_evt * evt, char *args);
-void prog_do_unless(prog_env * env, prog_evt * evt, char *args);
-void prog_do_do(prog_env * env, prog_evt * evt, char *args);
-void prog_do_silently(prog_env * env, prog_evt * evt, char *args);
-void prog_do_force(prog_env * env, prog_evt * evt, char *args);
-void prog_do_pause(prog_env * env, prog_evt * evt, char *args);
-void prog_do_walkto(prog_env * env, prog_evt * evt, char *args);
-void prog_do_driveto(prog_env * env, prog_evt * evt, char *args);
-void prog_do_halt(prog_env * env, prog_evt * evt, char *args);
-void prog_do_target(prog_env * env, prog_evt * evt, char *args);
-void prog_do_nuke(prog_env * env, prog_evt * evt, char *args);
-void prog_do_trans(prog_env * env, prog_evt * evt, char *args);
-void prog_do_set(prog_env * env, prog_evt * evt, char *args);
-void prog_do_let(prog_env * env, prog_evt * evt, char *args);
-void prog_do_oload(prog_env * env, prog_evt * evt, char *args);
-void prog_do_mload(prog_env * env, prog_evt * evt, char *args);
-void prog_do_opurge(prog_env * env, prog_evt * evt, char *args);
-void prog_do_giveexp(prog_env *env, prog_evt *evt, char *args);
-void prog_do_randomly(prog_env * env, prog_evt * evt, char *args);
-void prog_do_or(prog_env * env, prog_evt * evt, char *args);
-void prog_do_resume(prog_env * env, prog_evt * evt, char *args);
-void prog_do_echo(prog_env * env, prog_evt * evt, char *args);
-void prog_do_mobflag(prog_env * env, prog_evt * evt, char *args);
-void prog_do_ldesc(prog_env * env, prog_evt * evt, char *args);
-void prog_do_damage(prog_env * env, prog_evt * evt, char *args);
-void prog_do_spell(prog_env *env, prog_evt *evt, char *args);
-void prog_do_doorset(prog_env * env, prog_evt * evt, char *args);
-void prog_do_doorexit(prog_env * env, prog_evt * evt, char *args);
-void prog_do_selfpurge(prog_env * env, prog_evt * evt, char *args);
-void prog_do_hunt(prog_env * env, prog_evt * evt, char *args);
-void prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args);
-void prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args);
-void prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args);
-void prog_do_clear_cond(prog_env *env, prog_evt *evt, char *args);
-void prog_do_trace(prog_env *env, prog_evt *evt, char *args);
+static void prog_do_before(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_handle(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_after(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_require(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_unless(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_do(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_silently(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_force(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_pause(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_walkto(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_driveto(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_halt(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_target(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_nuke(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_trans(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_set(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_let(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_oload(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_mload(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_opurge(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_giveexp(prog_env *env, prog_evt *evt, char *args);
+static void prog_do_randomly(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_or(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_resume(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_echo(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_mobflag(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_ldesc(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_damage(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_spell(prog_env *env, prog_evt *evt, char *args);
+static void prog_do_doorset(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_doorexit(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_selfpurge(prog_env * env, prog_evt * evt, char *args);
+static void prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args);
+static void prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args);
+static void prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args);
+static void prog_do_clear_cond(prog_env *env, prog_evt *evt, char *args);
+static void prog_do_trace(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
 struct Creature *real_mobile_proto(int vnum);
@@ -175,7 +174,7 @@ prog_event_handler(thing *owner, prog_evt_type owner_type,
     return *((short *)obj + phase * PROG_EVT_COUNT + kind);
 }
 
-void
+static void
 prog_next_handler(prog_env * env, bool use_resume)
 {
     unsigned char *prog;
@@ -229,7 +228,7 @@ prog_get_owner_room(prog_env *env)
     return NULL;
 }
 
-void
+static void
 prog_send_debug(prog_env *env, const char *msg)
 {
     room_data *room = prog_get_owner_room(env);
@@ -272,7 +271,7 @@ prog_get_var(prog_env *env, const char *key, bool exact)
     return NULL;
 }
 
-void
+static void
 prog_set_var(prog_env *env, bool local, const char *key, const char *arg)
 {
 	prog_state_data *state;
@@ -315,7 +314,7 @@ prog_set_var(prog_env *env, bool local, const char *key, const char *arg)
 	strcpy(var->value, arg);
 }
 
-void
+static void
 prog_set_target(prog_env *env, Creature *target)
 {
     if (env->tracing) {
@@ -1394,7 +1393,7 @@ DEFPROGHANDLER(nuke, env, evt, args)
 			cur_prog->exec_pt = -1;
 }
 
-void
+static void
 prog_trans_creature(Creature * ch, room_data * targ_room)
 {
 	room_data *was_in;
@@ -1787,13 +1786,13 @@ DEFPROGHANDLER(echo, env, evt, args)
 	}
 }
 
-void
+static void
 prog_emit_trace(prog_env *env, int cmd, const char *arg)
 {
     prog_send_debug(env, tmp_sprintf("%s %s", prog_cmds[cmd].str, arg));
 }
 
-void
+static void
 prog_execute(prog_env *env)
 {
 	unsigned char *exec;
@@ -1889,7 +1888,7 @@ prog_start(prog_evt_type owner_type, thing *owner, Creature * target, prog_evt *
 	return new_prog;
 }
 
-void
+static void
 prog_free(struct prog_env *prog)
 {
 	struct prog_env *prev_prog;
@@ -1941,7 +1940,7 @@ prog_unreference_object(obj_data *obj)
 	}
 }
 
-void
+static void
 report_prog_loop(thing *owner, prog_evt_type owner_type, Creature *ch, const char *where)
 {
     const char *owner_desc = "<unknown>";
