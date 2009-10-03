@@ -76,11 +76,7 @@ Creature::Creature(const Creature &c)
 
     this->in_room = c.in_room;
 	this->player_specials = &dummy_mob;
-    //todo: duplicate affects
-
     this->account = c.account;
-
-    //todo: duplicate equipment?
 
     this->fighting = new CombatDataList(*(c.fighting));
     this->fighting->clear();

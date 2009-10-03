@@ -824,7 +824,6 @@ House::calcRentCost() const
 int
 House::calcRentCost( room_data *room ) const
 {
-	//TODO: Keep track of rent charged?
 	if( room == NULL )
 		return 0;
 	int room_count = calcObjectCount( room );
@@ -1506,8 +1505,6 @@ HouseControl::reload( House *house )
             obj = next_o;
         }
     }
-
-    //todo check for existance
 
     Housing.destroyHouse( house );
     house = new House();

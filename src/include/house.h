@@ -112,9 +112,9 @@ class House
 		// Removes the given guest id from this houses guest list
 		bool removeGuest( long guest );
 		// returns true if the given creature is a guest of this house.
-		bool isGuest( Creature *c ) const; // todo use sorted/binary search
+		bool isGuest( Creature *c ) const;
 		// returns true if the given player id is a guest of this house.
-		bool isGuest( long idnum ) const;// todo use sorted/binary search
+		bool isGuest( long idnum ) const;
 
 		// retrieves the number of rooms saved as part of this house
 		unsigned int getRoomCount() const { return rooms.size(); }

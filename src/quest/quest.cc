@@ -856,7 +856,6 @@ do_qcontrol_end(Creature *ch, char *argument, int com)
 	qlog(ch, "Purging players from quest...", QLOG_COMP, 0, true);
 
 	while (quest->getNumPlayers()) {
-		// TODO: Go back when you get time and make this set in the player file.
 		if (!quest->removePlayer(quest->getPlayer((int)0).idnum)) {
 			send_to_char(ch, "Error removing char from quest.\r\n");
 			break;

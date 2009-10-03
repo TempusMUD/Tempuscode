@@ -225,17 +225,8 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 		num2str(sbuf3, obj->obj_flags.wear_flags);
 		num2str(sbuf4, obj->obj_flags.extra3_flags);
 
-		//
-		// TODO: decide how to handle this
-		//
-
 		fprintf(file, "%d %s %s %s %s\n", obj->obj_flags.type_flag,
-			sbuf1, sbuf2, sbuf3, sbuf4);
-
-		/*
-		   fprintf(file,"%d %s %s %s %s\n", obj->obj_flags.type_flag,
-		   sbuf1, sbuf2, sbuf3, sbuf4);
-		 */
+                sbuf1, sbuf2, sbuf3, sbuf4);
 
 		for (i = 0; i < 4; i++) {
 			fprintf(file, "%d", obj->obj_flags.value[i]);
