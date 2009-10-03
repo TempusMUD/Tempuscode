@@ -1204,7 +1204,7 @@ Creature::arena_die(void)
 			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)), NRM, true,
 				"%s has died in arena (%d/day, %lld %s)", GET_NAME(this),
 				player_specials->rent_per_day, CASH_MONEY(this) + BANK_MONEY(this),
-				(player_specials->rent_currency == TIME_ELECTRO) ? "gold":"creds");
+				(player_specials->rent_currency == TIME_ELECTRO) ? "creds":"gold");
 	}
 
 	// But extract them to afterlife
