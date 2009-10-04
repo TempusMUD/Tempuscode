@@ -19,10 +19,10 @@ int mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict);
 int mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict);
 int mob_fight_demon(struct Creature *ch, struct Creature *precious_vict);
 void knight_activity(Creature * ch);
-int knight_battle_activity(Creature * ch, Creature * precious_vict);
+bool knight_battle_activity(Creature * ch, Creature * precious_vict);
 void ranger_activity(Creature *ch);
-int ranger_battle_activity(Creature * ch, Creature *precious_vict);
+bool ranger_battle_activity(Creature * ch, Creature *precious_vict);
 void barbarian_activity(Creature *ch);
-int barbarian_battle_activity(Creature * ch, Creature *precious_vict);
+bool barbarian_battle_activity(Creature * ch, Creature *precious_vict);
 
 #endif
