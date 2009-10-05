@@ -607,7 +607,7 @@ CEditor::SendMessage(const char *message)
         temp = new char[LARGE_BUFSIZE];
 		strncpy(temp, message, LARGE_BUFSIZE - 2);
 		send_to_char(desc->creature, "%s", temp);
-        delete temp;
+        delete [] temp;
 	} else {
         // If the original message is small enough, just let it through.
 		send_to_char(desc->creature, "%s", message);
