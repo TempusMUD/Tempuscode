@@ -3389,7 +3389,7 @@ ACMD(do_de_energize)
 ACMD(do_assimilate)
 {
 	struct obj_data *obj = NULL;
-	struct affected_type *aff = NULL, *oldaffs = NULL, *newaffs = NULL;
+	struct affected_type *aff = NULL, *affs = NULL;
 	int manacost;
 	int num_affs = 0;
 	int i, j;
@@ -3462,18 +3462,18 @@ ACMD(do_assimilate)
 			if (aff->type == SKILL_ASSIMILATE)
 				num_affs++;
 
-		// allocate oldaffs if needed
+		// allocate affs if needed
 		if (num_affs
-			&& !(oldaffs =
+			&& !(affs =
 				(struct affected_type *)malloc(sizeof(struct affected_type) *
 					num_affs))) {
-			errlog("unable to allocate oldaffs in do_assimilate.");
+			errlog("unable to allocate affs in do_assimilate.");
 			return;
 		}
 		// make a copy of the old assimilate affs
 		for (i = 0, aff = ch->affected; aff; aff = aff->next)
 			if (aff->type == SKILL_ASSIMILATE)
-				oldaffs[i++] = *aff;
+				affs[i++] = *aff;
 
 		// remove all the old affs
 		affect_from_char(ch, SKILL_ASSIMILATE);
@@ -3490,35 +3490,35 @@ ACMD(do_assimilate)
 			for (j = 0; j < num_affs && !found; j++) {
 
 				// see if the affs match
-				if (oldaffs[j].location == obj->affected[i].location) {
+				if (affs[j].location == obj->affected[i].location) {
 
 					// opposite signs, combine
-					if ((oldaffs[j].modifier > 0
+					if ((affs[j].modifier > 0
 							&& obj->affected[i].modifier < 0)
-						|| (oldaffs[j].modifier < 0
+						|| (affs[j].modifier < 0
 							&& obj->affected[i].modifier > 0)) {
 
-						oldaffs[j].modifier += obj->affected[i].modifier;
+						affs[j].modifier += obj->affected[i].modifier;
 
 					}
 					// same signs, choose extreme value
-					else if (oldaffs[j].modifier > 0)
-						oldaffs[j].modifier =
-							MAX(oldaffs[j].modifier,
+					else if (affs[j].modifier > 0)
+						affs[j].modifier =
+							MAX(affs[j].modifier,
 							obj->affected[i].modifier);
 					else
-						oldaffs[j].modifier =
-							MIN(oldaffs[j].modifier,
+						affs[j].modifier =
+							MIN(affs[j].modifier,
 							obj->affected[i].modifier);
 
 					// reset level and duration
-					oldaffs[j].level =
+					affs[j].level =
 						GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2);
 
-					oldaffs[j].duration =
+					affs[j].duration =
 						((CHECK_SKILL(ch,
 								SKILL_ASSIMILATE) / 10) +
-						(oldaffs[j].level >> 4));
+						(affs[j].level >> 4));
 
 					found = 1;
 					break;
@@ -3532,26 +3532,24 @@ ACMD(do_assimilate)
 			num_newaffs++;
 
 			// create a new aff
-			if (!(newaffs =
-					(struct affected_type *)realloc(oldaffs,
+			if (!(affs =
+					(struct affected_type *)realloc(affs,
 						sizeof(struct affected_type) * (++num_affs)))) {
-				errlog("error reallocating newaffs in do_assimilate.");
+				errlog("error reallocating affs in do_assimilate.");
 				return;
 			}
 
-			newaffs[num_affs - 1].type = SKILL_ASSIMILATE;
-			newaffs[num_affs - 1].level =
+			affs[num_affs - 1].type = SKILL_ASSIMILATE;
+			affs[num_affs - 1].level =
 				GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2);
-			newaffs[num_affs - 1].duration =
+			affs[num_affs - 1].duration =
 				(CHECK_SKILL(ch,
-					SKILL_ASSIMILATE) / 10) + (newaffs[num_affs -
+					SKILL_ASSIMILATE) / 10) + (affs[num_affs -
 					1].level >> 4);
-			newaffs[num_affs - 1].modifier = obj->affected[i].modifier;
-			newaffs[num_affs - 1].location = obj->affected[i].location;
-			newaffs[num_affs - 1].bitvector = 0;
-			newaffs[num_affs - 1].aff_index = 0;
-
-			oldaffs = newaffs;
+			affs[num_affs - 1].modifier = obj->affected[i].modifier;
+			affs[num_affs - 1].location = obj->affected[i].location;
+			affs[num_affs - 1].bitvector = 0;
+			affs[num_affs - 1].aff_index = 0;
 		}
 
 	}
@@ -3561,16 +3559,16 @@ ACMD(do_assimilate)
 
 	// stick the affs on the char
 	for (i = 0; i < num_affs; i++) {
-		if (oldaffs[i].modifier)
-			affect_to_char(ch, oldaffs + i);
+		if (affs[i].modifier)
+			affect_to_char(ch, affs + i);
 	}
 
 	if (num_newaffs) {
 		send_to_char(ch, "You feel... different.\r\n");
 		gain_skill_prof(ch, SKILL_ASSIMILATE);
-		free(oldaffs);
 	}
 
+    free(affs);
 	extract_obj(obj);
 }
 
