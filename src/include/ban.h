@@ -60,6 +60,6 @@ void perform_ban(int flag,
                  const char *name,
                  const char *reason);
 
-int Valid_Name(char *newname);
+bool is_valid_name(char *newname);
 
 #endif

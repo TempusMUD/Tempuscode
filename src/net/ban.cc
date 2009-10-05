@@ -26,6 +26,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <sys/types.h>
+#include <regex.h>
 
 #include "structs.h"
 #include "utils.h"
@@ -330,13 +331,13 @@ ACMD(do_unban)
  *  Written by Sharon P. Goza                                                  *
  **************************************************************************/
 
-namestring *invalid_list = NULL;
+regex_t *invalid_list = NULL;
 namestring *nasty_list = NULL;
 int num_invalid = 0;
 int num_nasty = 0;
 
-int
-Valid_Name(char *newname)
+bool
+is_valid_name(char *newname)
 {
 	int alpha_hist[256];
 	int i, len;
@@ -363,8 +364,8 @@ Valid_Name(char *newname)
 
 	/* Does the desired name contain a string in the invalid list? */
 	for (i = 0; i < num_invalid; i++)
-		if (strstr(tempname, invalid_list[i]))
-			return 0;
+        if (regexec(&invalid_list[i], tempname, 0, 0, 0) == 0)
+            return false;
 
 	// Build histogram of characters used
 	for (i = 0;i < 256;i++)
@@ -420,23 +421,32 @@ Read_Invalid_List(void)
 {
 	FILE *fp;
 	int i = 0;
-	char string[128];
+    namestring buf;
 
 	if (!(fp = fopen(XNAME_FILE, "r"))) {
 		perror("Unable to open invalid name file");
 		return;
 	}
 	/* count how many records */
-	while (fgets(string, 80, fp) != NULL && strlen(string) > 1)
+	while (fgets(buf, sizeof(buf), fp) != NULL && strlen(buf) > 1)
 		num_invalid++;
 
 	rewind(fp);
 
-	CREATE(invalid_list, namestring, num_invalid);
+	CREATE(invalid_list, regex_t, num_invalid);
 
 	for (i = 0; i < num_invalid; i++) {
-		fgets(invalid_list[i], MAX_NAME_LENGTH, fp);	/* read word */
-		invalid_list[i][strlen(invalid_list[i]) - 1] = '\0';	/* cleave off \n */
+        int err;
+
+		fgets(buf, MAX_NAME_LENGTH, fp);
+        buf[strlen(buf) - 1] = '\0';
+        err = regcomp(&invalid_list[i], buf, REG_EXTENDED | REG_NOSUB);
+        if (err) {
+            char errbuf[1024];
+            regerror(err, &invalid_list[i], errbuf, sizeof(errbuf));
+            slog("Invalid bad name %s: %s", buf, errbuf);
+            safe_exit(1);
+        }
 	}
 	fclose(fp);
 }

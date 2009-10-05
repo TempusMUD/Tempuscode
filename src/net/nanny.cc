@@ -76,7 +76,6 @@ void show_character_detail(descriptor_data *d);
 void push_command_onto_list(Creature *ch, char *comm);
 void flush_q(struct txt_q *queue);
 int _parse_name(char *arg, char *name);
-int reserved_word(char *argument);
 char *diag_conditions(struct Creature *ch);
 int perform_alias(struct descriptor_data *d, char *orig);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
@@ -184,7 +183,7 @@ handle_input(struct descriptor_data *d)
 		}
 		break;
 	case CXN_ACCOUNT_PROMPT:
-		if (Valid_Name(arg)) {
+		if (is_valid_name(arg)) {
 			d->account = Account::retrieve(arg);
 
 			if (!d->account) {
@@ -460,7 +459,7 @@ handle_input(struct descriptor_data *d)
 			return;
 		}
 
-		if (!Valid_Name(arg)) {
+		if (!is_valid_name(arg)) {
             send_to_desc(d, "\r\nThat character name is invalid.\r\n\r\n");
 			return;
 		}
@@ -1687,44 +1686,9 @@ char_to_game(descriptor_data *d)
 	d->account->update_last_entry();
 }
 
-int
-_parse_name(char *arg, char *name)
-{
-    int i;
-
-    /* skip whitespaces */
-    while (isspace(*arg))
-        arg++;
-
-    for (i = 0; (*name = *arg); arg++, i++, name++)
-        if (!isalpha(*arg))
-            return 1;
-
-    if (!i)
-        return 1;
-
-    return 0;
-}
-
 /* *************************************************************************
 *  Stuff for controlling the non-playing sockets (get name, pwd etc)       *
 ************************************************************************* */
-
-const char *reserved[] =
-{
-    "self",
-    "me",
-    "all",
-    "room",
-    "someone",
-    "something",
-    "\n"
-};
-
-int reserved_word(char *argument)
-{
-    return (search_block(argument, reserved, true) >= 0);
-}
 
 void
 show_character_detail(descriptor_data *d)
