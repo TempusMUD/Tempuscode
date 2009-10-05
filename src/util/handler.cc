@@ -2017,6 +2017,46 @@ get_player_vis(struct Creature *ch, const char *name, int inroom)
 }
 
 struct Creature *
+get_mobile_vis(struct Creature *ch, const char *name, int inroom)
+{
+	struct Creature *i, *match;
+	CreatureList::iterator cit;
+	char *tmpname, *write_pt;
+
+	// remove leading spaces
+	while (*name && (isspace(*name) || '.' == *name))
+		name++;
+
+	write_pt = tmpname = tmp_strdup(name);
+	while (*name && !isspace(*name))
+		*write_pt++ = *name++;
+
+	*write_pt = '\0';
+
+	match = NULL;
+	cit = characterList.begin();
+	for (; cit != characterList.end(); ++cit) {
+		i = *cit;
+		if (IS_NPC(i)
+            && (!inroom || i->in_room == ch->in_room)
+            && can_see_creature(ch, i)) {
+			switch (is_abbrev(tmpname, i->player.name)) {
+				case 1:		// abbreviated match
+					if (!match)
+						match = i;
+					break;
+				case 2:		// exact match
+					return i;
+				default:
+					break;
+			}
+		}
+	}
+
+	return match;
+}
+
+struct Creature *
 get_char_room_vis(struct Creature *ch, const char *name)
 {
 	int j = 0, number;

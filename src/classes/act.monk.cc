@@ -242,13 +242,11 @@ ACMD(do_whirlwind)
 	struct Creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent = 0, prob = 0, i;
-	bool all = false;
     char *arg;
 
     arg = tmp_getword(&argument);
 
 	if (!*arg) {
-		all = true;
 		vict = ch->findRandomCombat();
 	} else {
 		vict = get_char_room_vis(ch, arg);

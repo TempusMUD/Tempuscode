@@ -83,6 +83,7 @@ struct Creature *get_player_random_vis(struct Creature *ch, room_data *room);
 struct Creature *get_char_in_remote_room_vis(struct Creature *ch, const char *name,
 	struct room_data *inroom);
 struct Creature *get_player_vis(struct Creature *ch, const char *name, int inroom);
+struct Creature *get_mobile_vis(struct Creature *ch, const char *name, int inroom);
 struct Creature *get_char_vis(struct Creature *ch, const char *name);
 struct obj_data *get_obj_in_list_vis(struct Creature *ch, const char *name,
 	struct obj_data *list);

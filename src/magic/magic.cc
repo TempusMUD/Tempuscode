@@ -1869,24 +1869,21 @@ mag_affects(int level,
 		break;
 
 	case SPELL_CELL_REGEN:
-		{
-			if (level + GET_CON(victim) > number(34, 70))
-				af.bitvector = AFF_REGEN;
+        if (level + GET_CON(victim) > number(34, 70))
+            af.bitvector = AFF_REGEN;
 
-			af.location = APPLY_CON;
-			af.modifier = 1;
-			af.duration = dice(1, 1 + (level / 8));
-			to_vict = "Your cell regeneration rate increases.";
+        af.location = APPLY_CON;
+        af.modifier = 1;
+        af.duration = dice(1, 1 + (level / 8));
+        to_vict = "Your cell regeneration rate increases.";
 
-			if (affected_by_spell(victim, SKILL_HAMSTRING)) {
-				affect_from_char(victim, SKILL_HAMSTRING);
-				act("The wound on your leg closes!", false, victim, 0, ch,
-					TO_CHAR);
-				act("The gaping wound on $n's leg closes.", true, victim, 0,
-					ch, TO_ROOM);
-			}
-
-		}
+        if (affected_by_spell(victim, SKILL_HAMSTRING)) {
+            affect_from_char(victim, SKILL_HAMSTRING);
+            act("The wound on your leg closes!", false, victim, 0, ch,
+                TO_CHAR);
+            act("The gaping wound on $n's leg closes.", true, victim, 0,
+                ch, TO_ROOM);
+        }
 		break;
 
 	case SPELL_PSISHIELD:
@@ -3288,7 +3285,7 @@ mag_summons(int level __attribute__ ((unused)),
 	struct Creature *mob = NULL;
 	struct obj_data *tobj, *next_obj;
 	int pfail = 0;
-	int msg = 0, fmsg = 0;
+	int fmsg = 0;
 	int num = 1;
 	int a, i;
 	int mob_num = 0;
@@ -3305,7 +3302,6 @@ mag_summons(int level __attribute__ ((unused)),
 			return;
 		}
 		handle_corpse = 1;
-		msg = 12;
 		mob_num = MOB_ZOMBIE;
 		a = number(0, 5);
 		if (a)
@@ -3675,7 +3671,6 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 		errlog("unknown spellnum %d passed to mag_unaffects",
 			spellnum);
 		return;
-		break;
 	}
 
 	if ((spell != 0 && !affected_by_spell(victim, spell)) &&
@@ -4281,7 +4276,6 @@ mag_creations(int level, struct Creature *ch, int spellnum)
 	default:
 		send_to_char(ch, "Spell unimplemented, it would seem.\r\n");
 		return;
-		break;
 	}
 
 	if (!(tobj = read_object(z))) {

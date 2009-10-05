@@ -338,7 +338,6 @@ void
 prog_compile_statement(prog_compiler_state *compiler)
 {
     prog_command *cmd;
-	int instr;
 
     switch (compiler->cur_token->kind) {
     case PROG_TOKEN_EOL:
@@ -356,9 +355,6 @@ prog_compile_statement(prog_compiler_state *compiler)
                                     compiler->cur_token->sym);
             return;
         }
-
-        // Emit prog command code
-		instr = cmd - prog_cmds;
 
         // Advance to the next token
         compiler->cur_token = compiler->cur_token->next;

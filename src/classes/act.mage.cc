@@ -71,7 +71,7 @@ ACMD(do_mshield)
 ACMD(do_empower)
 {
 	struct affected_type af, af2, af3;
-	int val1, val2, old_mana, old_maxmana;
+	int val1, val2, old_mana;
 
 	if (!IS_MAGE(ch) || CHECK_SKILL(ch, SKILL_EMPOWER) < number(50, 101)) {
 		send_to_char(ch, "You fail to empower yourself.\r\n");
@@ -81,7 +81,6 @@ ACMD(do_empower)
 		send_to_char(ch, "You are unable to call upon any resources of power!\r\n");
 		return;
 	}
-	old_maxmana = GET_MAX_MANA(ch);
 	old_mana = GET_MANA(ch);
 	val1 = MIN(GET_LEVEL(ch), (GET_HIT(ch) >> 2));
 	val2 = MIN(GET_LEVEL(ch), (GET_MOVE(ch) >> 2));

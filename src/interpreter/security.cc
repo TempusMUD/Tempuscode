@@ -371,7 +371,7 @@ namespace Security {
             return (GET_LEVEL(ch) >= command->minimum_level || GET_IDNUM(ch) == 1);
         } else {
             if( GET_LEVEL(ch) < command->minimum_level ) {
-                trace("canAcess failed: level < min_level");
+                trace("canAccess failed: level < min_level");
                 return false;
             }
         }
@@ -381,8 +381,8 @@ namespace Security {
             if( (*it).givesAccess(ch, command) )
                 return true;
         }
+        trace("canAccess failed: no group gives access");
         return false;
-        trace("canAcess failed: no group gives access");
     }
     /**
      * Returns true if the character is the proper level AND is in

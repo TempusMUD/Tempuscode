@@ -198,7 +198,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 	struct room_data *locker_room, *cell_room;
 	struct obj_data *locker = NULL, *torch = NULL, *obj = NULL, *next_obj =
 		NULL;
-	int i, count = 0, found = false;
+	int i, count = 0;
 
 	while (count < 12) {
 		count++;
@@ -220,7 +220,6 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 
 		for (i = 0; i < NUM_WEARS; i++) {
 			if (GET_EQ(vict, i) && can_see_object(ch, GET_EQ(vict, i))) {
-				found = 1;
 				if (GET_OBJ_TYPE(GET_EQ(vict, i)) == ITEM_KEY &&
 					!GET_OBJ_VAL(GET_EQ(vict, i), 1))
 					extract_obj(GET_EQ(vict, i));
@@ -234,7 +233,6 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 		for (obj = vict->carrying; obj; obj = next_obj) {
 			next_obj = obj->next_content;
 			if (!IS_OBJ_STAT(obj, ITEM_NODROP) && can_see_object(ch, obj)) {
-				found = 1;
 				if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1))
 					extract_obj(obj);
 				else if (IS_NPC(vict))

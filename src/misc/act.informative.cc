@@ -1865,7 +1865,6 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 void
 glance_at_target(struct Creature *ch, char *arg, int cmd)
 {
-	int bits;
 	struct Creature *found_char = NULL;
 	struct obj_data *found_obj = NULL;
 
@@ -1873,7 +1872,7 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 		send_to_char(ch, "Look at what?\r\n");
 		return;
 	}
-	bits = generic_find(arg, FIND_CHAR_ROOM, ch, &found_char, &found_obj);
+	(void)generic_find(arg, FIND_CHAR_ROOM, ch, &found_char, &found_obj);
 
 	/* Is the target a character? */
 	if (found_char != NULL) {
@@ -2141,7 +2140,6 @@ ACMD(do_glance)
 
 ACMD(do_examine)
 {
-	int bits;
 	struct Creature *tmp_char;
 	struct obj_data *tmp_object;
 
@@ -2168,8 +2166,8 @@ ACMD(do_examine)
 	}
 	look_at_target(ch, arg, cmd);
 
-	bits = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_CHAR_ROOM |
-		FIND_OBJ_EQUIP, ch, &tmp_char, &tmp_object);
+	(void)generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_CHAR_ROOM |
+                       FIND_OBJ_EQUIP, ch, &tmp_char, &tmp_object);
 
 	if (tmp_object) {
 		if (OBJ_REINFORCED(tmp_object))

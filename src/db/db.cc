@@ -2801,7 +2801,7 @@ zone_update(void)
 void
 reset_zone(struct zone_data *zone)
 {
-	int cmd_no, last_cmd = 0, prob_override = 0;
+	int cmd_no = 0, last_cmd = 0, prob_override = 0;
 	struct Creature *mob = NULL, *tmob = NULL;
 	struct obj_data *obj = NULL, *obj_to = NULL, *tobj = NULL;
 	struct reset_com *zonecmd;

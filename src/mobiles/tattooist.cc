@@ -219,7 +219,7 @@ static void
 tattooist_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 {
 	obj_data *cur_obj;
-	int idx, cnt;
+	int idx;
 	const char *msg;
     unsigned long cost;
 
@@ -246,7 +246,7 @@ tattooist_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 "-------------------------------------------------------------------------\r\n"
 		, CCNRM(ch, C_NRM), NULL);
 
-	cnt = idx = 1;
+	idx = 1;
 	for (cur_obj = self->carrying;cur_obj;cur_obj = cur_obj->next_content) {
         if (!*arg || namelist_match(arg, cur_obj->aliases)) {
             cost = tattooist_get_value(cur_obj, shop->markup, ch->getCostModifier(self));

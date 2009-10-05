@@ -5922,6 +5922,11 @@ ACMD(do_set)
                 send_to_char(ch, "There is no such player.\r\n");
                 return;
             }
+        } else if (is_mob) {
+            if (!(vict = get_mobile_vis(ch, name, 0))) {
+                send_to_char(ch, "There is no such mobile.\r\n");
+                return;
+            }
         } else {
             if (!(vict = get_char_vis(ch, name))) {
                 send_to_char(ch, "There is no such creature.\r\n");
@@ -6205,7 +6210,7 @@ ACMD(do_set)
     case 38:
 		if (IS_PC(vict)) {
             if (!(Security::isMember(ch, "AdminFull")
-                  && Valid_Name(argument))) {
+                  && is_valid_name(argument))) {
                 send_to_char(ch, "That character name is invalid.\r\n");
                 return;
             }
@@ -6227,9 +6232,6 @@ ACMD(do_set)
 		GET_NAME(vict) = strdup(argument);
 		// Set name
 		if (IS_PC(vict)) {
-			long acct_id;
-
-			acct_id = playerIndex.getAccountID(GET_IDNUM(vict));
 			sql_exec("update players set name='%s' where idnum=%ld",
 				tmp_sqlescape(argument), GET_IDNUM(vict));
 			vict->saveToXML();
@@ -8557,7 +8559,6 @@ ACMD(do_users)
 			default:
 				send_to_char(ch, USERS_USAGE);
 				return;
-				break;
 			}					/* end of switch */
 
 		} else {				/* endif */

@@ -2048,8 +2048,6 @@ single_mobile_activity(Creature *ch)
 
     /* Helper Mobs */
     if (MOB_FLAGGED(ch, MOB_HELPER) && random_binary()) {
-        int fvict_retval = 0;
-        int vict_retval = 0;
         vict = NULL;
 
         if (AFF_FLAGGED(ch, AFF_CHARM))
@@ -2099,7 +2097,7 @@ single_mobile_activity(Creature *ch)
                     // store a pointer past next_ch if next_ch _happens_ to be vict
                     //
 
-                    vict_retval = helper_assist(ch, vict, vict->findRandomCombat());
+                    (void)helper_assist(ch, vict, vict->findRandomCombat());
                     return;
                 }
                 //
@@ -2112,8 +2110,7 @@ single_mobile_activity(Creature *ch)
                     // store a pointer past next_ch if next_ch _happens_ to be fvict
                     //
 
-                    fvict_retval = helper_assist(ch, vict->findRandomCombat(),
-                                                 vict);
+                    (void)helper_assist(ch, vict->findRandomCombat(), vict);
                     return;
                 }
 
@@ -2608,9 +2605,6 @@ single_mobile_activity(Creature *ch)
     //
 
     if (GET_RACE(ch) == RACE_ELEMENTAL) {
-        int sect;
-        sect = ch->in_room->sector_type;
-
         if (((GET_MOB_VNUM(ch) >= 1280 && GET_MOB_VNUM(ch) <= 1283) ||
              GET_MOB_VNUM(ch) == 5318) &&
             (!ch->master || ch->master->in_room->zone != ch->in_room->zone))

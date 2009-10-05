@@ -163,14 +163,13 @@ sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songn
 
 char *pad_song(char *lyrics)
 {
-    int counter = 0, pad;
+    int counter = 0;
     char *ptr = lyrics;
 
     while (*ptr != '"') {
         counter++;
         ptr++;
     }
-    pad = counter;
 
     // Subtract some for color codes
     char *sub = tmp_sprintf("\n%s", tmp_pad(' ', counter - 4));

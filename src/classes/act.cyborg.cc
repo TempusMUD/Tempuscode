@@ -757,7 +757,6 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 		default:
 			send_to_char(ch, "ERROR: Unknown mode occurred in switch.\r\n");
 			return;
-			break;
 		}
 
 		if (subcmd && affected_by_spell(ch, mode)) {
@@ -1433,7 +1432,6 @@ ACMD(do_tune)
 	struct room_data *to_room = NULL;
 	sh_int count = 0;
 	int i;
-	bool internal = false;
 
 	skip_spaces(&argument);
 
@@ -1446,7 +1444,6 @@ ACMD(do_tune)
 	arg2 = tmp_getword(&argument);
 
 	if (!strncmp(arg1, "internal", 8)) {
-		internal = true;
 		strcpy(arg1, arg2);
 		if (!(obj = get_object_in_equip_vis(ch, arg1, ch->implants, &i))) {
 			send_to_char(ch, "You are not implanted with '%s'.\r\n", arg1);

@@ -540,12 +540,6 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 		search_nomessage = 0;
 
 		return 2;
-		/*
-		   if ( !IS_SET( srch->flags, SRCH_IGNORE ) )
-		   return 1;
-		   else
-		   return 0;
-		 */
 
 		break;
 

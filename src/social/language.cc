@@ -290,12 +290,9 @@ int
 find_tongue_idx_by_name(const char *tongue_name)
 {
     map<int, Tongue>::iterator it = tongues.begin();
-    for (;it != tongues.end();++it) {
-        if (is_abbrev(tongue_name, it->second._name)) {
+    for (;it != tongues.end();++it)
+        if (is_abbrev(tongue_name, it->second._name))
             return it->first;
-            break;
-        }
-    }
 
 	return TONGUE_NONE;
 }

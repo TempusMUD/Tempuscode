@@ -2313,7 +2313,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	struct obj_data *i;
 	struct special_search_data *srch = NULL;
 	char tmp_arg[MAX_INPUT_LENGTH];
-	int j, tmp_cmd = 0;
+	int j;
 	int found = 0, result = 0;
 	long specAddress = 0;
 
@@ -2338,15 +2338,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 
 	/* search special in room */
 	strcpy(tmp_arg, arg);		/* don't mess up the arg, in case of special */
-	tmp_cmd = cmd;
 
-	/* translate cmd for jumping, etc... */
-	if (cmd_info[cmd].command_pointer == do_move &&
-		subcmd > SCMD_MOVE && *tmp_arg) {
-		if ((j = search_block(tmp_arg, dirs, false)) >= 0) {
-			tmp_cmd = j + 1;
-		}
-	}
 	for (srch = ch->in_room->search; srch; srch = srch->next) {
 		if (triggers_search(ch, cmd, tmp_arg, srch)) {
 			if ((result = general_search(ch, srch, found)) == 2)

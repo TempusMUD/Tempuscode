@@ -103,9 +103,9 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 	struct affected_type *af, int *return_flags)
 {
 
-	int prob = 0, eq_wt = 0, i;
+	int prob = 0;
 	bool bad_sect = 0, need_hand = 0;
-	struct obj_data *neck = NULL, *ovict = NULL;
+	struct obj_data *neck = NULL;
 	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
 
 	prob = CHECK_SKILL(ch, skillnum);
@@ -157,12 +157,6 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 		if (GET_EQ(ch, WEAR_WIELD))
 			prob +=
 				(LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) >> 2;
-
-		for (i = 0; i < NUM_WEARS; i++)
-			if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
-				(IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) ||
-					IS_WOOD_TYPE(ovict)))
-				eq_wt += ovict->getWeight();
 	}
 
     if (room_is_watery(ch->in_room) ||

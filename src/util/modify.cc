@@ -127,9 +127,9 @@ ACMD(do_skillset)
 char *
 one_word(char *argument, char *first_arg)
 {
-	int found, begin, look_at;
+	int begin, look_at;
 
-	found = begin = 0;
+	begin = 0;
 
 	do {
 		while (isspace(*(argument + begin)))

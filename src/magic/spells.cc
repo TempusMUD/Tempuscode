@@ -1765,8 +1765,6 @@ ASPELL(spell_conjure_elemental)
 {
 	struct affected_type af;
 	struct Creature *elemental = NULL;
-	int sect_type;
-	sect_type = ch->in_room->sector_type;
 
 	if (GET_LEVEL(ch) >= 35
         && number(0, GET_INT(ch)) > 3

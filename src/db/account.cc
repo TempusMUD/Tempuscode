@@ -93,16 +93,11 @@ Account::Account(void)
 
 Account::~Account(void)
 {
-	if (_name)
-		free(_name);
-	if (_password)
-		free(_password);
-	if (_email)
-		free(_email);
-	if (_creation_addr)
-		free(_creation_addr);
-	if (_login_addr)
-		free(_login_addr);
+    free(_name);
+    free(_password);
+    free(_email);
+    free(_creation_addr);
+    free(_login_addr);
 
 	Account::remove(this);
 }
@@ -439,10 +434,10 @@ Account::create_char(const char *name)
 	Creature *ch;
 	int i;
 
-	ch = new Creature(true);
-
     if (chars_available() <= 0)
         return NULL;
+
+	ch = new Creature(true);
 
     GET_NAME(ch) = strdup(tmp_capitalize(tmp_tolower(name)));
     ch->char_specials.saved.idnum = playerIndex.getTopIDNum() + 1;

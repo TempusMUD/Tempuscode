@@ -1241,12 +1241,12 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 
     if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		vict = new Creature(true);
 		pid = playerIndex.getID(arg1);
 		if (pid > 0) {
+            vict = new Creature(true);
 			vict->loadFromXML(pid);
             level = GET_LEVEL(vict);
-            del_vict=true;
+            del_vict = true;
             account = Account::retrieve(accountID);
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
@@ -1357,8 +1357,8 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 
     if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		vict = new Creature(true);
 		if (idnum > 0) {
+            vict = new Creature(true);
             vict->loadFromXML(idnum);
             level = GET_LEVEL(vict);
             del_vict=true;
@@ -2926,6 +2926,7 @@ bool Quest::removePlayer( long id ) {
 		} else {
 			errlog("Error loading player id %ld from file for removal from quest %d.\r\n",
                    id, vnum );
+			delete vict;
 			return false;
 		}
 	} else {

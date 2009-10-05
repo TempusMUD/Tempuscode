@@ -106,8 +106,7 @@ CFileEditor::CFileEditor(descriptor_data *desc, const char *filename)
         wrap = true;
     }
 
-	if (target)
-		free(target);
+    free(target);
 	if (fd)
 		fclose(fd);
 }

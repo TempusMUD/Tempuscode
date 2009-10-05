@@ -883,8 +883,7 @@ Creature::loadFromXML( const char *path )
 
 			txt = (char*)xmlNodeGetContent( node );
 			set_title(this, txt);
-			if (txt)
-				free(txt);
+            free(txt);
         } else if ( xmlMatches(node->name, "affect") ) {
 			affected_type af;
             memset(&af, 0x0, sizeof(affected_type));
