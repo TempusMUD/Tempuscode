@@ -817,6 +817,7 @@ handle_input(struct descriptor_data *d)
 void
 send_prompt(descriptor_data *d)
 {
+    extern bool production_mode;
 	char prompt[MAX_INPUT_LENGTH];
     char colorbuf[100];
 
@@ -839,6 +840,10 @@ send_prompt(descriptor_data *d)
 	case CXN_PLAYING:			// Playing - Nominal state
 		*prompt = '\0';
 
+        if (!production_mode)
+            sprintf(prompt,"%s%s(debug)%s ", prompt,
+                    CCBLU(d->creature, C_NRM),
+                    CCNRM(d->creature, C_NRM));
 		if (GET_INVIS_LVL(d->creature))
 			sprintf(prompt,"%s%s(%si%d%s)%s ",prompt,CCMAG(d->creature, C_NRM),
 				CCRED(d->creature, C_NRM), GET_INVIS_LVL(d->creature),
