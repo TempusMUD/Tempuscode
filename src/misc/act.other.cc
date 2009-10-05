@@ -654,7 +654,6 @@ ACMD(do_split)
 ACMD(do_use)
 {
 	struct obj_data *mag_item;
-	int equipped = 1;
 	char arg1[256];
 	Creature *vict = NULL;
 
@@ -670,7 +669,6 @@ ACMD(do_use)
 		case SCMD_RECITE:
 		case SCMD_QUAFF:
 		case SCMD_SWALLOW:
-			equipped = 0;
 			if (!(mag_item = get_obj_in_list_all(ch, arg, ch->carrying))) {
 				send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg),
 					arg);
@@ -683,7 +681,6 @@ ACMD(do_use)
 			}
 			break;
 		case SCMD_READ:
-			equipped = 0;
 			if (!(mag_item = get_obj_in_list_all(ch, arg, ch->carrying)) ||
 				  GET_OBJ_TYPE(mag_item) != ITEM_BOOK) {
 				look_at_target(ch, arg, SCMD_LOOK);
