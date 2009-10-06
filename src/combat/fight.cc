@@ -747,7 +747,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	if (ch) {
 		if( ( IS_NPC(ch) || IS_NPC(victim) ) &&
 			  affected_by_spell(ch, SPELL_QUAD_DAMAGE) ) {
-			dam /= 4;
+			dam *= 4;
 		} else if (AFF3_FLAGGED(ch, AFF3_DOUBLE_DAMAGE)) {
 			dam *= 2;
 		}
