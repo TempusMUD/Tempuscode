@@ -878,11 +878,7 @@ static inline int SPELL_GEN( int spell, int char_class ) {
 	    return spell_info[spell].gen[char_class];
 }
 
-#define ABLE_TO_LEARN(ch, spl) \
-((GET_REMORT_GEN(ch) >= SPELL_GEN(spl, GET_CLASS(ch)) && \
-  GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_CLASS(ch))) || \
- (IS_REMORT(ch) && GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_REMORT_CLASS(ch)) && \
-  !SPELL_GEN(spl, GET_REMORT_CLASS(ch))))
+bool is_able_to_learn(struct Creature *ch, int spl);
 
 ASPELL(spell_astral_spell);
 ASPELL(spell_recall);
@@ -943,6 +939,8 @@ ASPELL(song_hymn_of_peace);
 /* basic magic calling functions */
 
 int find_skill_num(char *name);
+
+bool can_cast_spell(Creature *ch, int spellnum);
 
 int mag_damage(int level, struct Creature *ch, struct Creature *victim,
 	int spellnum, int savetype);

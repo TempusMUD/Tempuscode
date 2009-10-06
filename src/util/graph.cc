@@ -598,7 +598,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 // has a return value like damage()
 //
 
-int
+void
 hunt_victim(struct Creature *ch)
 {
 
@@ -608,11 +608,11 @@ hunt_victim(struct Creature *ch)
 	byte found;
 
 	if (!ch || !ch->isHunting())
-		return 0;
+		return;
 
 	if (!ch->isHunting()->in_room) {
 		errlog(" hunting ! ch->isHunting()->in_room !!");
-		return 0;
+		return;
 	}
 
 	/* make sure the char still exists */
@@ -629,25 +629,24 @@ hunt_victim(struct Creature *ch)
                     perform_say(ch, "say", "Damn!  My prey is gone!!");
 			ch->stopHunting();
 		}
-		return 0;
+		return;
 	}
 	if (GET_LEVEL(ch->isHunting()) >= LVL_AMBASSADOR) {
         ch->stopHunting();
-		return 0;
+		return;
 	}
 	if (ch->findCombat(ch->isHunting()))
-		return 0;
+		return;
 
 	if (ch->in_room == ch->isHunting()->in_room &&
 		!ch->isFighting() && can_see_creature(ch, ch->isHunting()) &&
 		!PLR_FLAGGED(ch->isHunting(), PLR_WRITING | PLR_OLC) &&
 		(!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE)) ||
 			CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))) {
-		if (ch->isOkToAttack(ch->isHunting(), false)
-			&& !check_infiltrate(ch->isHunting(), ch)) {
-			return best_attack(ch, ch->isHunting());
+		if (ch->isOkToAttack(ch->isHunting(), false) && !check_infiltrate(ch->isHunting(), ch)) {
+			best_initial_attack(ch, ch->isHunting());
 		}
-		return 0;
+		return;
 	}
 	if (IS_CLERIC(ch) || IS_MAGE(ch)) {
 		if (ch->isHunting()->in_room && can_see_creature(ch, ch->isHunting()) &&
@@ -655,7 +654,8 @@ hunt_victim(struct Creature *ch)
 			if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) ||
 				(IS_MAGE(ch) && GET_LEVEL(ch) > 27)) {
 				if (GET_MANA(ch) < mag_manacost(ch, SPELL_SUMMON)) {
-					return cast_spell(ch, ch->isHunting(), 0, NULL, SPELL_SUMMON);
+					cast_spell(ch, ch->isHunting(), 0, NULL, SPELL_SUMMON);
+                    return;
 				}
 			}
 		}
@@ -691,11 +691,11 @@ hunt_victim(struct Creature *ch)
 			find_distance(ch->in_room, ch->isHunting()->in_room) > GET_INT(ch)) {
 		act("$n says, 'Damn! Lost $M!'", false, ch, 0, ch->isHunting(), TO_ROOM);
 		ch->stopHunting();
-		return 0;
+		return;
 	} else {
 		if (smart_mobile_move(ch, dir) < 0) {
 			ch->stopHunting();
-			return 0;
+			return;
 		}
 
 		if ((ch->in_room == ch->isHunting()->in_room) && can_see_creature(ch, ch->isHunting())
@@ -729,14 +729,15 @@ hunt_victim(struct Creature *ch)
                             perform_say_to(ch, ch->isHunting(), "Now I have you!");
 						}
 					}
-					return best_attack(ch, ch->isHunting());
+					best_initial_attack(ch, ch->isHunting());
+                    return;
 				}
 			}
 		} else if (ch->in_room == ch->isHunting()->in_room) {
 			if (!number(0, 10))
 				act("$n says, 'I know that jerk $N is around here somewhere!",
 					false, ch, 0, ch->isHunting(), TO_ROOM);
-			return 0;
+			return;
 		} else {
 			if (!number(0, 64))
 				act("$n sniffs the ground.", false, ch, 0, 0, TO_ROOM);
@@ -753,7 +754,7 @@ hunt_victim(struct Creature *ch)
 					sprintf(buf2, "I'm gonna find you, %s!",
 						GET_NAME(ch->isHunting()));
 					perform_tell(ch, ch->isHunting(), buf2);
-					return 0;
+					return;
 				case 2:
 					sprintf(buf2,
 						"You can run, but you can't hide, %s you sissy!",
@@ -769,7 +770,7 @@ hunt_victim(struct Creature *ch)
 						"You're gonna learn better than to mess with me, %s!",
 						GET_NAME(ch->isHunting()));
 					perform_tell(ch, ch->isHunting(), buf2);
-					return 0;
+					return;
 				case 5:
 					strcpy(buf2,
 						"One of these days, I'm gonna get a little respect!");
@@ -795,27 +796,27 @@ hunt_victim(struct Creature *ch)
 					sprintf(buf2, "Don't worry %s... I'll find you!",
 						GET_NAME(ch->isHunting()));
 					perform_tell(ch, ch->isHunting(), buf2);
-					return 0;
+					return;
 				case 11:
 					sprintf(buf2, "I'm practically on you, %s!",
 						GET_NAME(ch->isHunting()));
 					do_gen_comm(ch, buf2, 0, SCMD_SHOUT, 0);
-					return 0;
+					return;
 				case 12:
 					sprintf(buf2, "Hey you momma's %s!  I'm coming for you.",
 						IS_FEMALE(ch->isHunting()) ? "girl" : "boy");
 					perform_tell(ch, ch->isHunting(), buf2);
-					return 0;
+					return;
 				case 13:
 					sprintf(buf2,
 						"Looks like I'm gonna have to hunt you down, %s!",
 						GET_NAME(ch->isHunting()));
 					if (number(0, 2)) {
 						perform_tell(ch, ch->isHunting(), buf2);
-						return 0;
+						return;
 					}
 				default:
-					return 0;
+					return;
 				}
 
                 do_gen_comm(ch, buf2, 0, SCMD_SHOUT, 0);
@@ -825,5 +826,4 @@ hunt_victim(struct Creature *ch)
 				perform_say(ch, "say", "One of these days..");
 		}
 	}
-	return 0;
 }

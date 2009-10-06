@@ -219,7 +219,7 @@ perform_net_list(struct Creature *ch)
             strcat(buf2, "**OVERFLOW**\r\n");
             return;
         }
-        if ((CHECK_SKILL(ch, i) || ABLE_TO_LEARN(ch, i)) &&
+        if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
             SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
             sprintf(buf, "%-30s [%3d] percent installed.\r\n",
                     spell_to_str(i), GET_SKILL(ch, i));

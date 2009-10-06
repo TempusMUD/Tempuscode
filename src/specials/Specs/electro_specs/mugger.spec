@@ -199,7 +199,7 @@ SPECIAL(mugger)
 	case 5:
         perform_say_to(ch, vict, "You asked for it!");
 		mug->timer = 3;
-		best_attack(self, vict);
+		best_initial_attack(self, vict);
 		break;
 
 		mug->timer++;

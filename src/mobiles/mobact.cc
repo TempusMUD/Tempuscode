@@ -50,7 +50,7 @@
 
 /* external structs */
 void npc_steal(struct Creature *ch, struct Creature *victim);
-int hunt_victim(struct Creature *ch);
+void hunt_victim(struct Creature *ch);
 void perform_tell(struct Creature *ch, struct Creature *vict, char *messg);
 int CLIP_COUNT(struct obj_data *clip);
 int tarrasque_fight(struct Creature *tarr);
@@ -1257,8 +1257,22 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 	return prob > percent;
 }
 
-int
-best_attack(struct Creature *ch, struct Creature *vict)
+bool
+nullpsi_is_advisable(Creature *vict)
+{
+    // Return true if psion buffs are found
+    for (affected_type *af = vict->affected;af;af = af->next) {
+        if (SPELL_IS_PSIONIC(af->type)
+            && !SPELL_FLAGGED(af->type, MAG_DAMAGE)
+            && !spell_info[af->type].violent
+            && !spell_info[af->type].targets & TAR_UNPLEASANT)
+            return true;
+    }
+    return false;
+}
+
+void
+best_initial_attack(struct Creature *ch, struct Creature *vict)
 {
 
 	struct obj_data *gun = GET_EQ(ch, WEAR_WIELD);
@@ -1266,25 +1280,23 @@ best_attack(struct Creature *ch, struct Creature *vict)
 
 	int return_flags = 0;
 
+    // Standing should take just as long for mobs
 	if (ch->getPosition() < POS_STANDING) {
-		if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
-			|| number(1, 20) < GET_STR(ch)) {
+		if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL) || number(1, 20) < GET_STR(ch)) {
 			act("$n jumps to $s feet!", true, ch, 0, 0, TO_ROOM);
 			ch->setPosition(POS_STANDING);
 		}
 		GET_MOB_WAIT(ch) += PULSE_VIOLENCE;
+        return;
 	}
+
+    // Act like the remort class 1/3rd of the time
 	if (GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_fractional_3())
 		cur_class = GET_REMORT_CLASS(ch);
 	else
 		cur_class = GET_CLASS(ch);
 
-	//
-	//
-	//
-
 	if (CHECK_SKILL(ch, SKILL_SHOOT) + random_number_zero_low(10) > 40) {
-
 		if (((gun = GET_EQ(ch, WEAR_WIELD)) &&
              ((IS_GUN(gun) && GUN_LOADED(gun)) ||
               (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
@@ -1301,7 +1313,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 			sprintf(buf, "%s ", fname(gun->aliases));
 			strcat(buf, fname(vict->player.name));
 			do_shoot(ch, buf, 0, 0, &return_flags);
-			return return_flags;
+			return;
 		}
 	}
 	//
@@ -1331,47 +1343,121 @@ best_attack(struct Creature *ch, struct Creature *vict)
 				return_flags = hit(ch, vict, TYPE_UNDEFINED);
 			}
 		}
-		return return_flags;
+		return;
 	}
+
 	//
 	// psionic mobs
 	//
+    // aggression is the average of the percent health of self and the
+    // percent damage of the other
+    int aggression = (GET_HIT(ch) * 100 / GET_MAX_HIT(ch) + (100 - GET_HIT(vict) * 100 / GET_MAX_HIT(vict))) / 2;
 
-	if (cur_class == CLASS_PSIONIC && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
-		if (GET_LEVEL(ch) >= 33 &&
-			AFF3_FLAGGED(vict, AFF3_PSISHIELD) &&
-			GET_MANA(ch) > mag_manacost(ch, SPELL_PSIONIC_SHATTER)) {
+	if (cur_class == CLASS_PSIONIC) {
+        // Psions can't really do anything when there's a psishield in place
+		if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) && can_cast_spell(ch, SPELL_PSIONIC_SHATTER)) {
 			cast_spell(ch, vict, NULL, NULL, SPELL_PSIONIC_SHATTER, &return_flags);
-			return return_flags;
+			return;
 		}
+        if (aggression > 75) {
+            // extremely aggressive - just attack hard
+            if (!affected_by_spell(vict, SPELL_PSYCHIC_SURGE) && can_cast_spell(ch, SPELL_PSYCHIC_SURGE)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_SURGE, &return_flags);
+				return;
+            } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
+                perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
+                return;
+            } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
+                return;
+            }
 
-		else if (vict->getPosition() > POS_SLEEPING) {
-			if (GET_LEVEL(ch) >= 40 &&
-				GET_MANA(ch) > mag_manacost(ch, SPELL_PSYCHIC_SURGE)) {
-				cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_SURGE, &return_flags);
-				return return_flags;
-			} else if (GET_LEVEL(ch) >= 18 &&
-                       GET_MANA(ch) > mag_manacost(ch, SPELL_MELATONIC_FLOOD)) {
-				cast_spell(ch, vict, NULL, NULL, SPELL_MELATONIC_FLOOD,
-                           &return_flags);
-				return return_flags;
-			}
-		}
-
-		if (GET_LEVEL(ch) >= 36 &&
-			(IS_MAGE(vict) || IS_PSIONIC(vict) || IS_CLERIC(vict) ||
-             IS_KNIGHT(vict) || IS_PHYSIC(vict)) &&
-			!IS_CONFUSED(vict) &&
-			GET_MANA(ch) > mag_manacost(ch, SPELL_CONFUSION)) {
-			cast_spell(ch, vict, NULL, NULL, SPELL_CONFUSION, &return_flags);
-			return return_flags;
-		} else if (GET_LEVEL(ch) >= 31 &&
-                   !AFF2_FLAGGED(ch, AFF2_VERTIGO) &&
-                   GET_MANA(ch) > mag_manacost(ch, SPELL_VERTIGO)) {
-			cast_spell(ch, vict, NULL, NULL, SPELL_VERTIGO, &return_flags);
-			return return_flags;
-		}
-
+        }
+        if (aggression > 50) {
+            // somewhat aggressive - balance attacking with crippling
+            if (!affected_by_spell(vict, SPELL_PSYCHIC_CRUSH) && can_cast_spell(ch, SPELL_PSYCHIC_CRUSH)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_CRUSH, &return_flags);
+				return;
+            } else if (!affected_by_spell(vict, SPELL_MOTOR_SPASM) && can_cast_spell(ch, SPELL_MOTOR_SPASM)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_MOTOR_SPASM, &return_flags);
+				return;
+            } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
+                return;
+            } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
+                perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
+                return;
+            }
+        }
+        if (aggression > 25) {
+            // not very aggressive - play more defensively
+            if (!IS_CONFUSED(vict)
+                && can_cast_spell(ch, SPELL_CONFUSION)
+                && (IS_MAGE(vict) || IS_PSIONIC(vict) || IS_CLERIC(vict) ||
+                    IS_KNIGHT(vict) || IS_PHYSIC(vict))) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_CONFUSION, &return_flags);
+                return;
+            } else if (!AFF2_FLAGGED(ch, AFF2_VERTIGO) && can_cast_spell(ch, SPELL_VERTIGO)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_VERTIGO, &return_flags);
+                return;
+            } else if (!affected_by_spell(vict, SPELL_PSYCHIC_FEEDBACK) && can_cast_spell(ch, SPELL_PSYCHIC_FEEDBACK)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_FEEDBACK, &return_flags);
+                return;
+            } else if (nullpsi_is_advisable(vict) && can_cast_spell(ch, SPELL_NULLPSI)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_NULLPSI, &return_flags);
+                return;
+            } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
+                perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
+                return;
+            }
+        }
+        if (aggression > 5) {
+            // attempt to neutralize or get away
+            if (vict->getPosition() > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_MELATONIC_FLOOD, &return_flags);
+                return;
+            } else if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL, &return_flags);
+                return;
+            } else if (can_cast_spell(ch, SPELL_AMNESIA)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_AMNESIA, &return_flags);
+                return;
+            } else if (can_cast_spell(ch, SPELL_FEAR)) {
+                cast_spell(ch, vict, NULL, NULL, SPELL_FEAR, &return_flags);
+                return;
+            }
+        }
+        // desperation - just attack full force, as hard as possible
+        if (!affected_by_spell(vict, SPELL_PSYCHIC_SURGE) && can_cast_spell(ch, SPELL_PSYCHIC_SURGE)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_SURGE, &return_flags);
+            return;
+        } else if (!affected_by_spell(vict, SPELL_PSYCHIC_CRUSH) && can_cast_spell(ch, SPELL_PSYCHIC_CRUSH)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_CRUSH, &return_flags);
+            return;
+        } else if (!affected_by_spell(vict, SPELL_MOTOR_SPASM) && can_cast_spell(ch, SPELL_MOTOR_SPASM)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_MOTOR_SPASM, &return_flags);
+            return;
+        } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
+            perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
+            return;
+        } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
+            return;
+        } else if (vict->getPosition() > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_MELATONIC_FLOOD, &return_flags);
+            return;
+        } else if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL, &return_flags);
+            return;
+        } else if (can_cast_spell(ch, SPELL_AMNESIA)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_AMNESIA, &return_flags);
+            return;
+        } else if (can_cast_spell(ch, SPELL_FEAR)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_FEAR, &return_flags);
+            return;
+        } else {
+            hit(ch, vict, TYPE_UNDEFINED);
+        }
 	}
 	//
 	// mage mobs
@@ -1400,7 +1486,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 		else {
 			return_flags = hit(ch, vict, TYPE_UNDEFINED);
 		}
-		return return_flags;
+		return;
 	}
 	//
 	// barb and warrior mobs
@@ -1411,7 +1497,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 			perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
 		else
 			return_flags = hit(ch, vict, TYPE_UNDEFINED);
-		return return_flags;
+		return;
 	}
 	//
 	// monk mobs
@@ -1421,7 +1507,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 		if (GET_LEVEL(ch) >= 39 && vict->getPosition() > POS_STUNNED) {
 			do_pinch(ch, tmp_sprintf("omega %s", fname(vict->player.name)),
                      0, 0, &return_flags);
-			return return_flags;
+			return;
 		}
 		// Screw them up.
 		if (vict->getPosition() <= POS_STUNNED) {
@@ -1453,7 +1539,7 @@ best_attack(struct Creature *ch, struct Creature *vict)
 				return_flags = hit(ch, vict, TYPE_UNDEFINED);
 			}
 		}
-		return return_flags;
+		return;
 	}
 	//
 	// dragon mobs
@@ -1498,15 +1584,10 @@ best_attack(struct Creature *ch, struct Creature *vict)
 				WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 			}
 			break;
-		default:
-			return hit(ch, vict, TYPE_UNDEFINED);
-			break;
 		}
-		return return_flags;
 	}
 
-	return hit(ch, vict, TYPE_UNDEFINED);
-
+	hit(ch, vict, TYPE_UNDEFINED);
 }
 
 inline bool
@@ -2147,7 +2228,7 @@ single_mobile_activity(Creature *ch)
                 continue;
             else if (RACIAL_ATTACK(ch, vict) &&
                      (!IS_NPC(vict) || MOB2_FLAGGED(ch, MOB2_ATK_MOBS))) {
-                best_attack(ch, vict);
+                best_initial_attack(ch, vict);
                 return;
             }
         }
@@ -2203,7 +2284,7 @@ single_mobile_activity(Creature *ch)
             if (IS_ANIMAL(ch) && affected_by_spell(vict, SPELL_ANIMAL_KIN))
                 continue;
 
-            best_attack(ch, vict);
+            best_initial_attack(ch, vict);
             return;
         }
 
@@ -2322,7 +2403,7 @@ single_mobile_activity(Creature *ch)
                         break;
                     case 5:	// look for help
                         break;
-                    case 6:
+                    default:
                         if (AWAKE(vict) && !IS_UNDEAD(ch) && !IS_DRAGON(ch) &&
                             !IS_DEVIL(ch) && GET_HIT(ch) > GET_HIT(vict) &&
                             ((GET_LEVEL(vict) + ((50 * GET_HIT(vict)) /
@@ -2354,7 +2435,7 @@ single_mobile_activity(Creature *ch)
                             else
                                 act("'Hey!  You're the punk I've been looking for!!!', exclaims $n.", false, ch, 0, 0, TO_ROOM);
                         }
-                        best_attack(ch, vict);
+                        best_initial_attack(ch, vict);
                         return;
                     }
                 }
@@ -2548,41 +2629,36 @@ single_mobile_activity(Creature *ch)
 
     else if (cur_class == CLASS_PSIONIC && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
              && random_binary()) {
-        if (room_is_dark(ch->in_room) && !has_dark_sight(ch)
-            && GET_LEVEL(ch) >= 6)
-            cast_spell(ch, ch, 0, NULL, SPELL_INFRAVISION);
-        else if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80
-                 && GET_LEVEL(ch) >= 10) {
-            if (GET_LEVEL(ch) >= 34)
+        if (room_is_dark(ch->in_room)
+            && !has_dark_sight(ch)
+            && can_cast_spell(ch, SPELL_RETINA))
+            cast_spell(ch, ch, 0, NULL, SPELL_RETINA);
+        else if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
+            if (can_cast_spell(ch, SPELL_CELL_REGEN))
                 cast_spell(ch, ch, 0, NULL, SPELL_CELL_REGEN);
-            else
+            else if (can_cast_spell(ch, SPELL_WOUND_CLOSURE))
                 cast_spell(ch, ch, 0, NULL, SPELL_WOUND_CLOSURE);
-        } else if (GET_LEVEL(ch) >= 42 && !AFF_FLAGGED(ch, AFF_NOPAIN) &&
-                   !AFF_FLAGGED(ch, AFF_SANCTUARY))
+        } else if (!AFF_FLAGGED(ch, AFF_NOPAIN)
+                   && !AFF_FLAGGED(ch, AFF_SANCTUARY)
+                   && can_cast_spell(ch, SPELL_NOPAIN))
             cast_spell(ch, ch, 0, NULL, SPELL_NOPAIN);
-        else if (GET_LEVEL(ch) >= 21 &&
-                 !room_has_air(ch->in_room) &&
+        else if (!room_has_air(ch->in_room) &&
                  !can_travel_sector(ch, ch->in_room->sector_type, 0) &&
+                 can_cast_spell(ch, SPELL_BREATHING_STASIS) &&
                  !AFF3_FLAGGED(ch, AFF3_NOBREATHE))
             cast_spell(ch, ch, 0, NULL, SPELL_BREATHING_STASIS);
-        else if (GET_LEVEL(ch) >= 42 &&
+        else if (can_cast_spell(ch, SPELL_DERMAL_HARDENING) &&
                  !affected_by_spell(ch, SPELL_DERMAL_HARDENING))
             cast_spell(ch, ch, 0, NULL, SPELL_DERMAL_HARDENING);
-        else if (GET_LEVEL(ch) >= 30 &&
-                 !AFF3_FLAGGED(ch, AFF3_PSISHIELD) &&
-                 GET_MANA(ch) > mag_manacost(ch, SPELL_PSISHIELD))
+        else if (can_cast_spell(ch, SPELL_PSISHIELD) &&
+                 !AFF3_FLAGGED(ch, AFF3_PSISHIELD))
             cast_spell(ch, ch, 0, NULL, SPELL_PSISHIELD);
-        else if (GET_LEVEL(ch) >= 20 &&
-                 GET_MANA(ch) > mag_manacost(ch, SPELL_PSYCHIC_RESISTANCE) &&
+        else if (can_cast_spell(ch, SPELL_PSYCHIC_RESISTANCE) &&
                  !affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
             cast_spell(ch, ch, 0, NULL, SPELL_PSYCHIC_RESISTANCE);
-        else if (GET_LEVEL(ch) >= 15 &&
-                 GET_MANA(ch) > mag_manacost(ch, SPELL_POWER) &&
-                 !affected_by_spell(ch, SPELL_POWER))
+        else if (can_cast_spell(ch, SPELL_POWER) && !affected_by_spell(ch, SPELL_POWER))
             cast_spell(ch, ch, 0, NULL, SPELL_POWER);
-        else if (GET_LEVEL(ch) >= 15 &&
-                 GET_MANA(ch) > mag_manacost(ch, SPELL_CONFIDENCE) &&
-                 !AFF_FLAGGED(ch, AFF_CONFIDENCE))
+        else if (can_cast_spell(ch, SPELL_CONFIDENCE) && !AFF_FLAGGED(ch, AFF_CONFIDENCE))
             cast_spell(ch, ch, 0, NULL, SPELL_CONFIDENCE);
     }
     //

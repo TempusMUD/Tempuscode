@@ -212,7 +212,7 @@ ACMD(do_teach)
     } else if ((num = find_skill_num(skill_str)) != -1) {
         is_skill = true;
         skill_name = spell_to_str(num);
-        if (!ABLE_TO_LEARN(target, num)) {
+        if (!is_able_to_learn(target, num)) {
             act(tmp_sprintf("$E isn't ready to learn '%s'.", skill_name),
                 false, ch, 0, target, TO_CHAR);
             return;

@@ -78,6 +78,34 @@ mag_manacost(struct Creature *ch, int spellnum)
 	return mana;
 }
 
+bool
+is_able_to_learn(struct Creature *ch, int spl)
+{
+    // Return true if the creature ch is able to learn the spell spl
+    return ((GET_REMORT_GEN(ch) >= SPELL_GEN(spl, GET_CLASS(ch))
+             && GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_CLASS(ch)))
+            || (IS_REMORT(ch)
+                && GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_REMORT_CLASS(ch))
+                && !SPELL_GEN(spl, GET_REMORT_CLASS(ch))));
+}
+
+// Returns true if there's a reasonable chance that casting the spell
+// will work.  Used for NPC AI
+bool
+can_cast_spell(Creature *ch, int spellnum)
+{
+    room_data *room = ch->in_room;
+
+    return (is_able_to_learn(ch, spellnum)
+            && (ch->getPosition() >= SINFO.min_position)
+            && GET_MANA(ch) >= mag_manacost(ch, spellnum)
+            && !(SPELL_IS_PSIONIC(spellnum) && ROOM_FLAGGED(room, ROOM_NOPSIONICS))
+            && !(SPELL_IS_MAGIC(spellnum) && ROOM_FLAGGED(room, ROOM_NOMAGIC))
+            && !(SPELL_IS_PHYSICS(spellnum) && ROOM_FLAGGED(room, ROOM_NOSCIENCE))
+            && !(SPELL_USES_GRAVITY(spellnum) && NOGRAV_ZONE(room->zone))
+            && !(SPELL_FLAGGED(spellnum, MAG_NOWATER) && room_is_underwater(room)));
+}
+
 void
 say_spell(struct Creature *ch,
           int spellnum,

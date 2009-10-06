@@ -59,7 +59,7 @@ SPECIAL(duke_nukem)
 				continue;
 			if (GET_LEVEL(vict) > 40 && !vict->isFighting() &&
 				!PRF_FLAGGED(vict, PRF_NOHASSLE)) {
-				best_attack(duke, vict);
+				best_initial_attack(duke, vict);
 				return 1;
 			} else if (!number(0, 10)) {
                 perform_say_to(duke, vict, "Damn.  You're ugly.");

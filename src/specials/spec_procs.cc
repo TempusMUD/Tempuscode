@@ -186,7 +186,7 @@ list_skills(struct Creature *ch, int mode, int type)
 
 		for (sortpos = 1; sortpos < MAX_SPELLS; sortpos++) {
 			i = spell_sort_info[sortpos];
-			if ((CHECK_SKILL(ch, i) || ABLE_TO_LEARN(ch, i)) &&
+			if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
 				SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
 				if (!mode && !CHECK_SKILL(ch, i))	// !mode => list only learned
 					continue;
@@ -224,7 +224,7 @@ list_skills(struct Creature *ch, int mode, int type)
 
 	for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
 		i = skill_sort_info[sortpos];
-		if ((CHECK_SKILL(ch, i) || ABLE_TO_LEARN(ch, i)) &&
+		if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
 			SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
 			if (!mode && !CHECK_SKILL(ch, i))	// !mode => list only learned
 				continue;
@@ -300,7 +300,7 @@ SPECIAL(guild)
 			tmp_sprintf("You do not know of that %s!", SPLSKL(ch)));
 		return 1;
 	}
-	if (!ABLE_TO_LEARN(ch, skill_num)) {
+	if (!is_able_to_learn(ch, skill_num)) {
 		if (CHECK_SKILL(ch, skill_num))
 			perform_tell(master, ch,
 				tmp_sprintf("I cannot teach you %s yet.", spell_to_str(skill_num)));

@@ -471,7 +471,7 @@ punish_killer_death(Creature *ch)
 
     // Remove all the skills that they shouldn't have
     for (int i = 1;i < MAX_SPELLS;i++)
-        if (!ABLE_TO_LEARN(ch, i))
+        if (!is_able_to_learn(ch, i))
             SET_SKILL(ch, i, 0);
 
     // They're now that level, but without experience, and with extra
