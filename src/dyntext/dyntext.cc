@@ -55,25 +55,22 @@ load_dyntext_buffer(dynamic_text_file * dyntext)
 	sprintf(filename, "text/%s", dyntext->filename);
 
 	if (!(fl = fopen(filename, "r"))) {
-		errlog("unable to open dynamic text file '%s'.",
-			filename);
+	    errlog("unable to open dynamic text file '%s'.", filename);
 		perror("dyntext fopen:");
+        return -1;
 	}
 
-	if (fl) {
-        char line[1024];
+    char line[1024];
 
-        acc_string_clear();
-        while (fgets(line, 1024, fl) > 0) {
-            acc_strcat(line, NULL);
-        }
-        acc_strcat("\n", NULL);
-        free(dyntext->buffer);
-        dyntext->buffer = strdup(tmp_gsub("\n", "\r\n", acc_get_string()));
-		fclose(fl);
-		return 0;
-	}
-	return -1;
+    acc_string_clear();
+    while (fgets(line, 1024, fl) > 0) {
+        acc_strcat(line, NULL);
+    }
+    acc_strcat("\n", NULL);
+    free(dyntext->buffer);
+    dyntext->buffer = strdup(tmp_gsub(acc_get_string(), "\n", "\r\n"));
+    fclose(fl);
+    return 0;
 }
 
 void
