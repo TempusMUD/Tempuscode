@@ -1935,13 +1935,13 @@ ACMD(do_alias)
 /* The interface to the outside world: do_unalias */
 ACMD(do_unalias)
 {
-	char *repl;
+	char *arg;
 	struct alias_data *a, *temp;
 
 	if (IS_NPC(ch))
 		return;
 
-    repl = tmp_getword(&argument);
+    arg = tmp_getword(&argument);
 
 	if (!*arg) {				/* no argument specified -- what a dumbass */
 		send_to_char(ch, "You must specify something to unalias.\r\n");
