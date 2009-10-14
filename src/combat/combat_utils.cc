@@ -652,7 +652,9 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
 		strcpy(isare, "are");
 		strcpy(typebuf, "remains");
 		strcpy(namestr, typebuf);
-	} else if (attacktype == TYPE_SWALLOW) {
+	} else if (attacktype == TYPE_SWALLOW
+               || GET_CLASS(ch) == CLASS_SKELETON
+               || GET_REMORT_CLASS(ch) == CLASS_SKELETON) {
 		strcpy(typebuf, "bones");
 		strcpy(namestr, typebuf);
 	} else {
