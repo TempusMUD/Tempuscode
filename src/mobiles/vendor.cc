@@ -24,6 +24,24 @@ void perform_appraise( Creature *ch, obj_data *obj, int skill_lvl);
 // From cityguard.cc
 void call_for_help(Creature *ch, Creature *attacker);
 
+static void
+vendor_log(const char *fmt, ...)
+{
+    static FILE *vendor_log_file = NULL;
+	va_list args;
+
+	if (!vendor_log_file) {
+        vendor_log_file = fopen("log/vendor.log", "a");
+    }
+    if (vendor_log_file) {
+        va_start(args, fmt);
+        fprintf(vendor_log_file, "%s :: %s\n",
+                tmp_ctime(time(NULL)),
+                tmp_vsprintf(fmt, args));
+        va_end(args);
+    }
+}
+
 static bool
 vendor_is_produced(obj_data *obj, ShopData *shop)
 {
@@ -416,6 +434,15 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 	act(msg, false, self, obj, ch, TO_VICT);
 	act("$n sells $p to $N.", false, self, obj, ch, TO_NOTVICT);
 
+    vendor_log("%s[%d] sold %s[%d] (x%d) to %s %s[%d] for %lu %s",
+               GET_NAME(self), GET_MOB_VNUM(self),
+               obj->name, GET_OBJ_VNUM(obj),
+               num,
+               IS_NPC(ch) ? "NPC":"PC",
+               GET_NAME(ch), IS_NPC(ch) ? GET_MOB_VNUM(ch):GET_IDNUM(ch),
+               cost * num,
+               currency_str);
+
 	if (vendor_is_produced(obj, shop)) {
 		// Load all-new identical items
 		while (num--) {
@@ -522,6 +549,14 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 	transfer_money(self, ch, cost * num, shop->currency, false);
 
+    vendor_log("%s[%d] bought %s[%d] (x%d) from %s %s[%d] for %lu %s",
+               GET_NAME(self), GET_MOB_VNUM(self),
+               obj->name, GET_OBJ_VNUM(obj),
+               num,
+               IS_NPC(ch) ? "NPC":"PC",
+               GET_NAME(ch), IS_NPC(ch) ? GET_MOB_VNUM(ch):GET_IDNUM(ch),
+               cost * num,
+               shop->currency ? "creds":"gold");
 	// We've already verified that they have enough of the item via a
 	// call to vendor_inventory(), so we can just blindly transfer objects
 	while (num-- && obj) {
