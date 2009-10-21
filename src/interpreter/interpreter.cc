@@ -1685,8 +1685,8 @@ command_interpreter(struct Creature *ch, char *argument)
 	descriptor_data *d;
 	int cmd, length;
 	extern int no_specials;
-    char *line;
-    char arg[16];
+    const char *cmdstr;
+    char *cmdargs;
 
 	REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
 	if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
@@ -1715,15 +1715,16 @@ command_interpreter(struct Creature *ch, char *argument)
 	 * Patch sent by Eric Green and Stefan Wasilewski.
 	 */
 	if (!isalpha(*argument)) {
-		arg[0] = argument[0];
-		arg[1] = '\0';
-		line = argument + 1;
-	} else
-		line = any_one_arg(argument, arg);
+        cmdstr = tmp_substr(argument, 0, 0);
+        cmdargs = argument + 1;
+    } else {
+        cmdstr = tmp_getword(&argument);
+        cmdargs = argument;
+    }
 
 	/* otherwise, find the command */
-	for (length = strlen(arg), cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
-		if (!strncmp(cmd_info[cmd].command, arg, length)) {
+	for (length = strlen(cmdstr), cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
+		if (!strncmp(cmd_info[cmd].command, cmdstr, length)) {
 			if (Security::canAccess(ch, &cmd_info[cmd])) {
 				break;
 			}
@@ -1737,11 +1738,11 @@ command_interpreter(struct Creature *ch, char *argument)
 	d = ch->desc;
 	if (d) {
 		if (cmd == d->last_cmd &&
-			!strcasecmp(line, d->last_argument))
+			!strcasecmp(cmdargs, d->last_argument))
 			d->repeat_cmd_count++;
 		else
 			d->repeat_cmd_count = 0;
-		strcpy(d->last_argument, line);
+		strcpy(d->last_argument, cmdargs);
 		d->last_cmd = cmd;
 
         // Log commands
@@ -1751,7 +1752,7 @@ command_interpreter(struct Creature *ch, char *argument)
             if (cmd_info[cmd].command_pointer != do_move) {
 				cmdlog(tmp_sprintf("CMD: [%s] %s ::%s '%s'",
 					(ch->in_room) ? tmp_sprintf("%5d", ch->in_room->number):"NULL",
-					GET_NAME(ch), cmd_info[cmd].command, line));
+					GET_NAME(ch), cmd_info[cmd].command, cmdargs));
 			}
 		}
 
@@ -1759,7 +1760,7 @@ command_interpreter(struct Creature *ch, char *argument)
         if (GET_LEVEL(ch) < 10
             && GET_REMORT_GEN(ch) == 0
             && cmd_info[cmd].command_pointer != do_move) {
-            newbielog(ch, cmd_info[cmd].command, line);
+            newbielog(ch, cmd_info[cmd].command, cmdargs);
         }
 
 		// Now we gather statistics on which commands are being used
@@ -1811,8 +1812,8 @@ command_interpreter(struct Creature *ch, char *argument)
 			send_to_char(ch, "No way!  You're fighting for your life!\r\n");
 			break;
 	} else if (no_specials ||
-			!special(ch, cmd, cmd_info[cmd].subcmd, line, SPECIAL_CMD)) {
-		cmd_info[cmd].command_pointer(ch, line, cmd, cmd_info[cmd].subcmd, 0);
+			!special(ch, cmd, cmd_info[cmd].subcmd, cmdargs, SPECIAL_CMD)) {
+		cmd_info[cmd].command_pointer(ch, cmdargs, cmd, cmd_info[cmd].subcmd, 0);
 	}
 }
 
