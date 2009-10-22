@@ -19,6 +19,10 @@ udate() {
 PORT=2020
 FLAGS='-p'
 
+if [ "x$1" != "x" ]; then
+    cd "$1"
+fi
+
 rm -f .killscript
 
 while [ ! -e .killscript ]; do
@@ -114,8 +118,8 @@ while [ ! -e .killscript ]; do
     else
         # Peaceful process death - a reboot is desired
         echo "Reboot requested." | mail -s "TempusMUD Reboot Notification" coders
-    fi    
-        
+    fi
+
     sleep 5
 
     while [ -r pause ]; do
