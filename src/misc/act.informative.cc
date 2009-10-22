@@ -3334,17 +3334,11 @@ ACMD(do_who)
 	bool classes=false, clan=false;
 	bool mage=false, thief=false, ranger=false, knight=false, cleric=false, barbarian=false;
 	bool bard=false, monk=false, physic=false, cyborg=false, psionic=false, mercenary=false;
-	int low=-1, high=-1;
-	clan_data *realClan = NULL;
+    clan_data *realClan = NULL;
 
 	string args = argument;
 
-    string::size_type dashPos = string::npos;
-	if ((dashPos = args.find("-")) != string::npos) {
-		string levelRange = args.substr(args.rfind(' ', dashPos), args.find(' ', dashPos));
-		sscanf(levelRange.c_str(), "%d-%d", &low, &high);
-	}
-	if (args.find("zone") != string::npos) {
+    if (args.find("zone") != string::npos) {
 		zone = true;
 	}
 	if (args.find("plane") != string::npos) {
@@ -3462,15 +3456,6 @@ ACMD(do_who)
 						 (psionic && GET_CLASS(curr) == CLASS_PSIONIC) ||
 					 	 (mercenary && GET_CLASS(curr) == CLASS_MERCENARY))) {
 			continue;
-		}
-		//levels
-		if (low >=0 && high >=0) { //perform a level check
-			//character is outside of level range
-			if (GET_LEVEL(curr) > high || GET_LEVEL(curr) < low ||
-			//character's level is hidden
-			(PRF2_FLAGGED(curr, PRF2_ANONYMOUS) && !Security::isMember(ch, Security::ADMINBASIC))) {
-				continue;
-			}
 		}
 		//clans
 		if (clan && (realClan != NULL)) {
