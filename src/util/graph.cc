@@ -717,12 +717,13 @@ hunt_victim(struct Creature *ch)
 						perform_say(ch, "intone", "Time to die.");
 					} else {
 						if (!number(0, 3))
-							act("$n screams, 'Gotcha, punk ass $N!!'.",
-								false, ch, 0, ch->isHunting(), TO_ROOM);
+                            perform_say(ch, "scream",
+                                        tmp_sprintf("Gotcha, punk ass %s!!",
+                                                    GET_NAME(ch->isHunting())));
 						else if (!number(0, 2)) {
-							sprintf(buf2, "Well, well well... if it isn't %s!",
-								GET_NAME(ch->isHunting()));
-							perform_say(ch, "say", buf2);
+							perform_say(ch, "say",
+                                        tmp_sprintf("Well, well well... if it isn't %s!",
+                                                    GET_NAME(ch->isHunting())));
 						} else if (!number(0, 1)) {
                             perform_say_to(ch, ch->isHunting(), "You can run but you can't hide!");
 						} else {
