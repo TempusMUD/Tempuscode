@@ -99,11 +99,16 @@ can_cast_spell(Creature *ch, int spellnum)
     return (is_able_to_learn(ch, spellnum)
             && (ch->getPosition() >= SINFO.min_position)
             && GET_MANA(ch) >= mag_manacost(ch, spellnum)
+            && !(SPELL_IS_EVIL(spellnum) && !IS_EVIL(ch))
+            && !(SPELL_IS_GOOD(spellnum) && !IS_GOOD(ch))
+
+            && !(SPELL_FLAGGED(spellnum, MAG_NOSUN) && !room_is_sunny(ch->in_room))
+            && !(SPELL_FLAGGED(spellnum, MAG_NOWATER) && room_is_underwater(room))
+            && !(SPELL_FLAGGED(spellnum, MAG_OUTDOORS) && ROOM_FLAGGED(ch->in_room, ROOM_INDOORS))
             && !(SPELL_IS_PSIONIC(spellnum) && ROOM_FLAGGED(room, ROOM_NOPSIONICS))
             && !(SPELL_IS_MAGIC(spellnum) && ROOM_FLAGGED(room, ROOM_NOMAGIC))
             && !(SPELL_IS_PHYSICS(spellnum) && ROOM_FLAGGED(room, ROOM_NOSCIENCE))
-            && !(SPELL_USES_GRAVITY(spellnum) && NOGRAV_ZONE(room->zone))
-            && !(SPELL_FLAGGED(spellnum, MAG_NOWATER) && room_is_underwater(room)));
+            && !(SPELL_USES_GRAVITY(spellnum) && NOGRAV_ZONE(room->zone)));
 }
 
 void
