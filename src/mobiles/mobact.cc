@@ -1257,20 +1257,6 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 	return prob > percent;
 }
 
-bool
-nullpsi_is_advisable(Creature *vict)
-{
-    // Return true if psion buffs are found
-    for (affected_type *af = vict->affected;af;af = af->next) {
-        if (SPELL_IS_PSIONIC(af->type)
-            && !SPELL_FLAGGED(af->type, MAG_DAMAGE)
-            && !spell_info[af->type].violent
-            && !spell_info[af->type].targets & TAR_UNPLEASANT)
-            return true;
-    }
-    return false;
-}
-
 void
 best_initial_attack(struct Creature *ch, struct Creature *vict)
 {
@@ -1349,116 +1335,8 @@ best_initial_attack(struct Creature *ch, struct Creature *vict)
 	//
 	// psionic mobs
 	//
-    // aggression is the average of the percent health of self and the
-    // percent damage of the other
-    int aggression = (GET_HIT(ch) * 100 / GET_MAX_HIT(ch) + (100 - GET_HIT(vict) * 100 / GET_MAX_HIT(vict))) / 2;
-
-	if (cur_class == CLASS_PSIONIC) {
-        // Psions can't really do anything when there's a psishield in place
-		if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) && can_cast_spell(ch, SPELL_PSIONIC_SHATTER)) {
-			cast_spell(ch, vict, NULL, NULL, SPELL_PSIONIC_SHATTER, &return_flags);
-			return;
-		}
-        if (aggression > 75) {
-            // extremely aggressive - just attack hard
-            if (!affected_by_spell(vict, SPELL_PSYCHIC_SURGE) && can_cast_spell(ch, SPELL_PSYCHIC_SURGE)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_SURGE, &return_flags);
-				return;
-            } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
-                perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
-                return;
-            } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
-                return;
-            }
-
-        }
-        if (aggression > 50) {
-            // somewhat aggressive - balance attacking with crippling
-            if (!affected_by_spell(vict, SPELL_PSYCHIC_CRUSH) && can_cast_spell(ch, SPELL_PSYCHIC_CRUSH)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_CRUSH, &return_flags);
-				return;
-            } else if (!affected_by_spell(vict, SPELL_MOTOR_SPASM) && can_cast_spell(ch, SPELL_MOTOR_SPASM)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_MOTOR_SPASM, &return_flags);
-				return;
-            } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
-                return;
-            } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
-                perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
-                return;
-            }
-        }
-        if (aggression > 25) {
-            // not very aggressive - play more defensively
-            if (!IS_CONFUSED(vict)
-                && can_cast_spell(ch, SPELL_CONFUSION)
-                && (IS_MAGE(vict) || IS_PSIONIC(vict) || IS_CLERIC(vict) ||
-                    IS_KNIGHT(vict) || IS_PHYSIC(vict))) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_CONFUSION, &return_flags);
-                return;
-            } else if (!AFF2_FLAGGED(ch, AFF2_VERTIGO) && can_cast_spell(ch, SPELL_VERTIGO)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_VERTIGO, &return_flags);
-                return;
-            } else if (!affected_by_spell(vict, SPELL_PSYCHIC_FEEDBACK) && can_cast_spell(ch, SPELL_PSYCHIC_FEEDBACK)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_FEEDBACK, &return_flags);
-                return;
-            } else if (nullpsi_is_advisable(vict) && can_cast_spell(ch, SPELL_NULLPSI)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_NULLPSI, &return_flags);
-                return;
-            } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
-                perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
-                return;
-            }
-        }
-        if (aggression > 5) {
-            // attempt to neutralize or get away
-            if (vict->getPosition() > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_MELATONIC_FLOOD, &return_flags);
-                return;
-            } else if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL, &return_flags);
-                return;
-            } else if (can_cast_spell(ch, SPELL_AMNESIA)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_AMNESIA, &return_flags);
-                return;
-            } else if (can_cast_spell(ch, SPELL_FEAR)) {
-                cast_spell(ch, vict, NULL, NULL, SPELL_FEAR, &return_flags);
-                return;
-            }
-        }
-        // desperation - just attack full force, as hard as possible
-        if (!affected_by_spell(vict, SPELL_PSYCHIC_SURGE) && can_cast_spell(ch, SPELL_PSYCHIC_SURGE)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_SURGE, &return_flags);
-            return;
-        } else if (!affected_by_spell(vict, SPELL_PSYCHIC_CRUSH) && can_cast_spell(ch, SPELL_PSYCHIC_CRUSH)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_CRUSH, &return_flags);
-            return;
-        } else if (!affected_by_spell(vict, SPELL_MOTOR_SPASM) && can_cast_spell(ch, SPELL_MOTOR_SPASM)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_MOTOR_SPASM, &return_flags);
-            return;
-        } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
-            perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
-            return;
-        } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
-            return;
-        } else if (vict->getPosition() > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_MELATONIC_FLOOD, &return_flags);
-            return;
-        } else if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL, &return_flags);
-            return;
-        } else if (can_cast_spell(ch, SPELL_AMNESIA)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_AMNESIA, &return_flags);
-            return;
-        } else if (can_cast_spell(ch, SPELL_FEAR)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_FEAR, &return_flags);
-            return;
-        } else {
-            hit(ch, vict, TYPE_UNDEFINED);
-        }
-	}
+    if (cur_class == CLASS_PSIONIC)
+        psionic_best_attack(ch, vict);
 	//
 	// mage mobs
 	//
@@ -1764,7 +1642,6 @@ single_mobile_activity(Creature *ch)
     //
     // nothing below this conditional affects FIGHTING characters
     //
-
     if (ch->getPosition() == POS_FIGHTING || ch->isFighting()) {
         return;
     }
@@ -2627,39 +2504,10 @@ single_mobile_activity(Creature *ch)
     // psionic spell up
     //
 
-    else if (cur_class == CLASS_PSIONIC && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
+    else if (cur_class == CLASS_PSIONIC
+             && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)
              && random_binary()) {
-        if (room_is_dark(ch->in_room)
-            && !has_dark_sight(ch)
-            && can_cast_spell(ch, SPELL_RETINA))
-            cast_spell(ch, ch, 0, NULL, SPELL_RETINA);
-        else if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
-            if (can_cast_spell(ch, SPELL_CELL_REGEN))
-                cast_spell(ch, ch, 0, NULL, SPELL_CELL_REGEN);
-            else if (can_cast_spell(ch, SPELL_WOUND_CLOSURE))
-                cast_spell(ch, ch, 0, NULL, SPELL_WOUND_CLOSURE);
-        } else if (!AFF_FLAGGED(ch, AFF_NOPAIN)
-                   && !AFF_FLAGGED(ch, AFF_SANCTUARY)
-                   && can_cast_spell(ch, SPELL_NOPAIN))
-            cast_spell(ch, ch, 0, NULL, SPELL_NOPAIN);
-        else if (!room_has_air(ch->in_room) &&
-                 !can_travel_sector(ch, ch->in_room->sector_type, 0) &&
-                 can_cast_spell(ch, SPELL_BREATHING_STASIS) &&
-                 !AFF3_FLAGGED(ch, AFF3_NOBREATHE))
-            cast_spell(ch, ch, 0, NULL, SPELL_BREATHING_STASIS);
-        else if (can_cast_spell(ch, SPELL_DERMAL_HARDENING) &&
-                 !affected_by_spell(ch, SPELL_DERMAL_HARDENING))
-            cast_spell(ch, ch, 0, NULL, SPELL_DERMAL_HARDENING);
-        else if (can_cast_spell(ch, SPELL_PSISHIELD) &&
-                 !AFF3_FLAGGED(ch, AFF3_PSISHIELD))
-            cast_spell(ch, ch, 0, NULL, SPELL_PSISHIELD);
-        else if (can_cast_spell(ch, SPELL_PSYCHIC_RESISTANCE) &&
-                 !affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
-            cast_spell(ch, ch, 0, NULL, SPELL_PSYCHIC_RESISTANCE);
-        else if (can_cast_spell(ch, SPELL_POWER) && !affected_by_spell(ch, SPELL_POWER))
-            cast_spell(ch, ch, 0, NULL, SPELL_POWER);
-        else if (can_cast_spell(ch, SPELL_CONFIDENCE) && !AFF_FLAGGED(ch, AFF_CONFIDENCE))
-            cast_spell(ch, ch, 0, NULL, SPELL_CONFIDENCE);
+        psionic_activity(ch);
     }
     //
     // barbs acting barbaric
@@ -3312,7 +3160,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		cur_class = GET_CLASS(ch);
 	if (cur_class == CLASS_PSIONIC
 		&& !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)) {
-		if (mob_fight_psionic(ch, precious_vict))
+		if (psionic_mob_fight(ch, precious_vict))
 			return 0;
 	}
 

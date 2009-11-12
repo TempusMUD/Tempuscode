@@ -25,4 +25,8 @@ bool ranger_battle_activity(Creature * ch, Creature *precious_vict);
 void barbarian_activity(Creature *ch);
 bool barbarian_battle_activity(Creature * ch, Creature *precious_vict);
 
+void psionic_activity(struct Creature *ch);
+void psionic_best_attack(struct Creature *ch, struct Creature *vict);
+int psionic_mob_fight(struct Creature *ch, struct Creature *precious_vict);
+
 #endif
