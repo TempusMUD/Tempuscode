@@ -375,18 +375,22 @@ psionic_activity(struct Creature *ch)
              can_cast_spell(ch, SPELL_BREATHING_STASIS) &&
              !AFF3_FLAGGED(ch, AFF3_NOBREATHE))
         cast_spell(ch, ch, 0, NULL, SPELL_BREATHING_STASIS);
-    else if (can_cast_spell(ch, SPELL_DERMAL_HARDENING) &&
-             !affected_by_spell(ch, SPELL_DERMAL_HARDENING))
+    else if (!AFF2_FLAGGED(ch, AFF2_TELEKINESIS)
+             && can_cast_spell(ch, SPELL_TELEKINESIS))
+        cast_spell(ch, ch, 0, NULL, SPELL_TELEKINESIS);
+    else if (!affected_by_spell(ch, SPELL_DERMAL_HARDENING)
+             && can_cast_spell(ch, SPELL_DERMAL_HARDENING))
         cast_spell(ch, ch, 0, NULL, SPELL_DERMAL_HARDENING);
-    else if (can_cast_spell(ch, SPELL_PSISHIELD) &&
-             !AFF3_FLAGGED(ch, AFF3_PSISHIELD))
+    else if (!AFF3_FLAGGED(ch, AFF3_PSISHIELD)
+             && can_cast_spell(ch, SPELL_PSISHIELD))
         cast_spell(ch, ch, 0, NULL, SPELL_PSISHIELD);
     else if (can_cast_spell(ch, SPELL_PSYCHIC_RESISTANCE) &&
              !affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
         cast_spell(ch, ch, 0, NULL, SPELL_PSYCHIC_RESISTANCE);
     else if (can_cast_spell(ch, SPELL_POWER) && !affected_by_spell(ch, SPELL_POWER))
         cast_spell(ch, ch, 0, NULL, SPELL_POWER);
-    else if (can_cast_spell(ch, SPELL_CONFIDENCE) && !AFF_FLAGGED(ch, AFF_CONFIDENCE))
+    else if (!AFF_FLAGGED(ch, AFF_CONFIDENCE)
+             && can_cast_spell(ch, SPELL_CONFIDENCE))
         cast_spell(ch, ch, 0, NULL, SPELL_CONFIDENCE);
 }
 
