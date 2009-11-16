@@ -2469,10 +2469,6 @@ single_mobile_activity(Creature *ch)
         } else if (GET_LEVEL(ch) > 12 && !AFF_FLAGGED(ch, AFF_BLUR) &&
                    GET_MANA(ch) > mag_manacost(ch, SPELL_BLUR)) {
             cast_spell(ch, ch, 0, NULL, SPELL_BLUR);
-        } else if (GET_LEVEL(ch) > 27
-                   && !AFF2_FLAGGED(ch, AFF2_TELEKINESIS)
-                   && GET_MANA(ch) > mag_manacost(ch, SPELL_TELEKINESIS)) {
-            cast_spell(ch, ch, 0, NULL, SPELL_TELEKINESIS);
         } else if (GET_LEVEL(ch) > 43 && !AFF2_FLAGGED(ch, AFF2_HASTE) &&
                    GET_MANA(ch) > mag_manacost(ch, SPELL_HASTE)) {
             cast_spell(ch, ch, 0, NULL, SPELL_HASTE);
