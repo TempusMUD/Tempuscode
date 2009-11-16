@@ -4169,29 +4169,34 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 	case SPELL_CREATE_WATER:
 		if (!obj) {
 			send_to_char(ch, "What do you wish to fill?\r\n");
-			break;
-		}
-		if (GET_OBJ_TYPE(obj) != ITEM_DRINKCON) {
-			act("You can't create water into $p!", false, ch, obj, 0, TO_CHAR);
-			break;
-		}
-		if (GET_OBJ_VAL(obj, 1) != 0) {
-			send_to_char(ch, "There is already another liquid in it!\r\n");
-			break;
-		}
-		if (number(0, 101) > GET_SKILL(ch, SPELL_CREATE_WATER)) {
-			send_to_char(ch, "Oops!  I wouldn't drink that if I were you...\r\n");
-			GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj, 0);
-			GET_OBJ_VAL(obj, 2) = LIQ_SLIME;
-			break;
+		} else if (GET_OBJ_TYPE(obj) != ITEM_DRINKCON) {
+			act("Your deity deems $p to be unsuitable for water.",
+                false, ch, obj, 0, TO_CHAR);
 		} else {
-			send_to_char(ch, "Your deity fills it with crystal clear water.\r\n");
+            int dry_weight = obj->getWeight() - GET_OBJ_VAL(obj, 1) / 10;
+            // Fill with clear water by default
+            int resulting_liquid = LIQ_CLEARWATER;
+
+
+            if (number(0, 101) > GET_SKILL(ch, SPELL_CREATE_WATER)) {
+                send_to_char(ch, "Oops!  I wouldn't drink that if I were you...\r\n");
+                resulting_liquid = LIQ_SLIME;
+            } else if (GET_OBJ_VAL(obj, 1) != 0) {
+                act(tmp_sprintf("The %s in $p clears.",
+                                drinknames[GET_OBJ_VAL(obj, 2)]),
+                    false, ch, obj, 0, TO_CHAR);
+            } else {
+                act("Your deity fills $p with crystal clear water.",
+                    false,ch, obj, 0, TO_CHAR);
+            }
+            // Fill it to the top
 			GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(obj, 0);
-			GET_OBJ_VAL(obj, 2) = LIQ_CLEARWATER;
-            int weight = real_object_proto(GET_OBJ_VNUM(obj))->getWeight();
-            weight += GET_OBJ_VAL(obj, 1) / 10;
-            obj->obj_flags.setWeight(weight);
-			break;
+            // Set the liquid type
+			GET_OBJ_VAL(obj, 2) = resulting_liquid;
+            // Purify it of poison
+            GET_OBJ_VAL(obj, 3) = 0;
+            // Update the container's weight
+            obj->obj_flags.setWeight(dry_weight + GET_OBJ_VAL(obj, 1) / 10);
 		}
 		break;
 	case SPELL_BLESS:
