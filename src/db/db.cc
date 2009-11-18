@@ -56,6 +56,7 @@ using namespace std;
 #include "account.h"
 #include "specs.h"
 #include "language.h"
+#include "voice.h"
 #include "prog.h"
 #include "mobile_map.h"
 #include "object_map.h"
@@ -169,6 +170,7 @@ void assign_rooms(void);
 void assign_artisans(void);
 void boot_dynamic_text(void);
 void boot_tongues(void);
+void boot_voices(void);
 
 /*int is_empty(struct zone_data *zone); */
 void reset_zone(struct zone_data *zone);
@@ -370,6 +372,8 @@ boot_db(void)
 
     slog("Loading tongues.");
     boot_tongues();
+    slog("Loading NPC voices.");
+    boot_voices();
 
 	boot_dynamic_text();
 	boot_world();
@@ -1724,6 +1728,9 @@ interpret_espec(char *keyword, const char *value, struct Creature *mobile, int n
     }
     CASE("KnownTongue") {
         SET_TONGUE(mobile, num_arg, 100);
+    }
+    CASE("Voice") {
+        GET_VOICE(mobile) = num_arg;
     }
 	if (!matched) {
 		fprintf(stderr, "Warning: unrecognized espec keyword %s in mob #%d\n",

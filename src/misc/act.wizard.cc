@@ -69,6 +69,7 @@ using namespace std;
 #include "object_map.h"
 #include "house.h"
 #include "editor.h"
+#include "voice.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -1830,7 +1831,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
     }
 
     acc_sprintf(
-        "AC: [%s%d/10%s], Hitroll: [%s%2d%s], Damroll: [%s%2d%s], Speed: [%s%2d%s], Damage Reduction: [%s%2d%s]\r\n",
+        "AC: [%s%d/10%s], Hitroll: [%s%2d%s], Damroll: [%s%2d%s], Speed: [%s%2d%s], DR: [%s%2d%s]\r\n",
         CCYEL(ch, C_NRM), GET_AC(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         k->points.hitroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         k->points.damroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), k->getSpeed(),
@@ -1870,7 +1871,6 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                 k->isHunting() ? PERS(k->isHunting(), ch) : "N",
                 k->char_specials.timer);
-		acc_strcat("\r\n", NULL);
     } else if (k->in_room) {
         acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
             position_types[k->getPosition()],
@@ -1926,10 +1926,12 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
 
     if (IS_MOB(k)) {
         acc_sprintf(
-            "Mob Spec: %s, NPC Dam: %dd%d, Morale: %d, Lair: %d, Ldr: %d\r\n",
+            "Mob Spec: %s%s%s, NPC Dam: %dd%d, Morale: %d, Lair: %d, Ldr: %d\r\n",
+            CCYEL(ch, C_NRM),
             (k->mob_specials.shared->func ? ((i =
                         find_spec_index_ptr(k->mob_specials.shared->func)) <
                     0 ? "Exists" : spec_list[i].tag) : "None"),
+            CCNRM(ch, C_NRM),
             k->mob_specials.shared->damnodice,
             k->mob_specials.shared->damsizedice,
             k->mob_specials.shared->morale, k->mob_specials.shared->lair,
@@ -2036,6 +2038,13 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
 		for (cur_var = k->prog_state->var_list;cur_var;cur_var = cur_var->next)
 			acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
 	}
+
+    if (IS_NPC(k)) {
+        acc_sprintf("NPC Voice: %s%s%s, ",
+                    CCYEL(ch, C_NRM),
+                    voice_name(GET_VOICE(k)),
+                    CCNRM(ch, C_NRM));
+    }
     acc_sprintf("Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),
                 tongue_name(GET_TONGUE(k)), CCNRM(ch, C_NRM));
 
@@ -5062,6 +5071,7 @@ struct show_struct fields[] = {
     {"mobkills", LVL_IMMORT, "WizardBasic"},
     {"wizcommands", LVL_IMMORT, ""},
     {"timewarps", LVL_IMMORT, ""},    // 43
+    {"voices", LVL_IMMORT, ""},
     {"\n", 0, ""}
 };
 
@@ -5744,6 +5754,9 @@ ACMD(do_show)
 
     case 43:                    // timewarps
         show_timewarps(ch);
+        break;
+    case 44:                    // voices
+        show_voices(ch);
         break;
     default:
         send_to_char(ch, "Sorry, I don't understand that.\r\n");

@@ -29,6 +29,7 @@
 #include "specs.h"
 #include "language.h"
 #include "mobile_map.h"
+#include "voice.h"
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
@@ -110,6 +111,7 @@ const char *olc_mset_keys[] = {
     "knownlanguage",	/** 50 **/
     "curlanguage",
 	"prog",
+    "voice",
 	"\n"
 };
 
@@ -1192,6 +1194,14 @@ do_mob_mset(struct Creature *ch, char *argument)
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a mobile prog.", true, ch, 0, 0, TO_ROOM);
 		break;
+    case 53:
+        i = find_voice_idx_by_name(arg2);
+        if (i == VOICE_NONE) {
+            send_to_char(ch, "That voice doesn't exist.");
+        } else {
+            GET_VOICE(mob_p) = i;
+            send_to_char(ch, "Mobile voice set.\r\n");
+        }
 	default:{
 			break;
 		}
@@ -1429,7 +1439,8 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
             for (;it != tongues.end();++it)
                 if (CHECK_TONGUE(mob, it->first))
                     fprintf(file, "KnownTongue: %d\n", it->first);
-
+			if (GET_VOICE(mob) != 0)
+				fprintf(file, "Voice: %d\n", GET_VOICE(mob));
 			if (GET_CASH(mob) != 0)
 				fprintf(file, "Cash: %lld\n", GET_CASH(mob));
 			if (GET_MORALE(mob) != 100)

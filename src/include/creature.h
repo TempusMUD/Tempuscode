@@ -1095,6 +1095,7 @@ struct mob_shared_data {
 	int leader;					// mob vnum the mob always helps and follows
 	int kills;
 	int loaded;
+    int voice;
 	byte default_pos;			/* Default position for NPC              */
 	byte damnodice;				/* The number of damage dice's           */
 	byte damsizedice;			/* The size of the damage dice's         */

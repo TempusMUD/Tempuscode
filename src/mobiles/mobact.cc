@@ -47,6 +47,7 @@
 #include "tmpstr.h"
 #include "prog.h"
 #include "specs.h"
+#include "voice.h"
 
 /* external structs */
 void npc_steal(struct Creature *ch, struct Creature *victim);
@@ -2248,72 +2249,23 @@ single_mobile_activity(Creature *ch)
                 continue;
             if (char_in_memory(vict, ch)) {
                 if (ch->getPosition() != POS_FIGHTING) {
-                    switch (random_number_zero_low(20)) {
-                    case 0:
-                        if ((!IS_ANIMAL(ch) && !IS_DEVIL(ch)
-                             && !IS_DEMON(ch) && !IS_UNDEAD(ch)
-                             && !IS_DRAGON(ch))
-                            || random_fractional_4())
-                            act("'You wimp $N!  Your ass is grass.', exclaims $n.", false, ch, 0, vict, TO_ROOM);
-                        else {
-                            act("$n growls at you menacingly.",
-                                true, ch, 0, vict, TO_VICT);
-                            act("$n growls menacingly at $N.",
-                                true, ch, 0, vict, TO_NOTVICT);
-                        }
-                        break;
-                    case 1:
-                        act("$n sighs loudly.", false, ch, 0, 0, TO_ROOM);
-                        break;
-                    case 2:
-                        act("$n gazes at you coldly.", true, ch, 0, vict,
-                            TO_VICT);
-                        act("$n gazes coldly at $N.", true, ch, 0, vict,
-                            TO_NOTVICT);
-                        break;
-                    case 3:
-                        act("$n prepares for battle.", true, ch, 0, 0,
-                            TO_ROOM);
-                        break;
-                    case 4:
-                        perform_tell(ch, vict, "Let's rumble.");
-                        break;
-                    case 5:	// look for help
-                        break;
-                    default:
-                        if (AWAKE(vict) && !IS_UNDEAD(ch) && !IS_DRAGON(ch) &&
-                            !IS_DEVIL(ch) && GET_HIT(ch) > GET_HIT(vict) &&
-                            ((GET_LEVEL(vict) + ((50 * GET_HIT(vict)) /
-                                                 MAX(1, GET_MAX_HIT(vict)))) >
-                             GET_LEVEL(ch) + (GET_MORALE(ch) >> 1) +
-                             random_percentage())) {
-                            if (!IS_ANIMAL(ch) && !IS_SLIME(ch)
-                                && !IS_PUDDING(ch)) {
-                                if (random_fractional_4())
-                                    perform_say(ch, "say", "Oh, shit!");
-                                else if (random_fractional_3())
-                                    act("$n screams in terror!", false, ch, 0,
-                                        0, TO_ROOM);
-                                else if (random_binary())
-                                    do_gen_comm(ch, tmp_strdup("Run away!  Run away!"), 0,
-                                                SCMD_SHOUT, 0);
-                            }
-                            do_flee(ch, tmp_strdup(""), 0, 0, 0);
-                            break;
-                        }
-                        if (IS_ANIMAL(ch)) {
-                            act("$n snarls and attacks $N!!", false, ch, 0,
-                                vict, TO_NOTVICT);
-                            act("$n snarls and attacks you!!", false, ch, 0,
-                                vict, TO_VICT);
-                        } else {
-                            if (random_binary())
-                                act("'Hey!  You're the fiend that attacked me!!!', exclaims $n.", false, ch, 0, 0, TO_ROOM);
-                            else
-                                act("'Hey!  You're the punk I've been looking for!!!', exclaims $n.", false, ch, 0, 0, TO_ROOM);
-                        }
+                    if (!random_number_zero_low(4)) {
+                        emit_voice(ch, vict, VOICE_TAUNTING);
+                    } else if (AWAKE(vict)
+                               && !IS_UNDEAD(ch)
+                               && !IS_DRAGON(ch)
+                               && !IS_DEVIL(ch)
+                               && GET_HIT(ch) > GET_HIT(vict)
+                               && ((GET_LEVEL(vict)
+                                    + ((50 * GET_HIT(vict))
+                                       / MAX(1, GET_MAX_HIT(vict)))) >
+                                   GET_LEVEL(ch) + (GET_MORALE(ch) >> 1)
+                                   + random_percentage())) {
+                        emit_voice(ch, vict, VOICE_PANICKING);
+                        do_flee(ch, tmp_strdup(""), 0, 0, 0);
+                    } else {
+                        emit_voice(ch, vict, VOICE_ATTACKING);
                         best_initial_attack(ch, vict);
-                        return;
                     }
                 }
             }
@@ -2766,39 +2718,13 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 	if (!IS_ANIMAL(ch)) {
 		// Speaking mobiles
-		if (GET_HIT(ch) < GET_MAX_HIT(ch) >> 7 && random_fractional_20()) {
-			int pct = random_percentage_zero_low();
-
-			if (pct < 20) {
-				act("$n grits $s teeth as $e begins to weaken.", false,
-					ch, 0, 0, TO_ROOM);
-			} else {
-				if (vict && can_see_creature(vict, ch))
-					perform_say(ch, "yell",
-                                tmp_sprintf("%s you bastard!", PERS(vict, ch)));
-				else
-					perform_say(ch, "say", "You stinking bastard!");
-			}
-
-			return 0;
-		}
-
-		if (vict && GET_HIT(vict) < GET_MAX_HIT(vict) >> 7 &&
-			GET_HIT(ch) > GET_MAX_HIT(ch) >> 4 && random_fractional_20()) {
-
-			int pct = random_percentage_zero_low();
-
-			if (pct < 20) {
-				perform_say(ch, "sneer", "Let this be a lesson to you!");
-				return 0;
-			} else if (pct < 50) {
-				perform_say(ch, "smirk", "So you thought you were tough, eh?");
-				return 0;
-			} else if (pct < 60) {
-				perform_say(ch, "yell",
-                            tmp_sprintf("Kiss my ass, %s!", PERS(ch, vict)));
-				return 0;
-			}
+		if (GET_HIT(ch) < GET_MAX_HIT(ch) / 128 && random_fractional_20()) {
+            emit_voice(ch, vict, VOICE_FIGHT_LOSING);
+		} else if (vict
+                   && GET_HIT(vict) < GET_MAX_HIT(vict) / 128
+                   && GET_HIT(ch) > GET_MAX_HIT(ch) / 16
+                   && random_fractional_20()) {
+            emit_voice(ch, vict, VOICE_FIGHT_WINNING);
 		}
 	}
 

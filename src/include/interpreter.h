@@ -32,7 +32,7 @@
    __attribute__ ((unused)) int subcmd, \
    __attribute__ ((unused)) int *return_flags)
 
-void command_interpreter(struct Creature *ch, char *argument);
+void command_interpreter(struct Creature *ch, const char *argument);
 int search_block(const char *arg, const char **list, bool exact);
 char lower(char c);
 char *one_argument(char *argument, char *first_arg);

@@ -101,6 +101,7 @@ AM_LDFLAGS = @XML_LIBS@
                  include/utils.h \
                  include/vehicle.h \
                  include/vendor.h \
+                 include/voice.h \
                  include/weather.h \
                  include/xml_utils.h \
                  include/zone_data.h \
@@ -127,6 +128,7 @@ AM_LDFLAGS = @XML_LIBS@
                  mobiles/mobact.cc \
                  mobiles/tattooist.cc \
                  mobiles/vendor.cc \
+                 mobiles/voice.cc \
                  net/gnetsys.cc \
                  net/ban.cc \
                  net/comm.cc \

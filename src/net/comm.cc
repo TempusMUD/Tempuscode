@@ -1948,24 +1948,16 @@ act_translate(Creature *ch, Creature *to, const char **s)
 }
 
 void
-perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
-	thing *vict_obj, struct Creature *to, int mode)
+make_act_str(const char *orig,
+             char *buf,
+             struct Creature *ch,
+             struct obj_data *obj,
+             struct thing *vict_obj,
+             struct Creature *to)
 {
-	register const char *i = 0;
-	const char *s = orig;
-	register char *buf;
-	static char lbuf[MAX_STRING_LENGTH];
-	char outbuf[MAX_STRING_LENGTH];
+    const char *s = orig;
+    const char *i = 0;
 	char *first_printed_char = 0;
-
-	if (!to || !to->desc || PLR_FLAGGED((to), PLR_WRITING | PLR_OLC))
-		return;
-
-	if (!to->in_room) {
-		errlog("to->in_room NULL in perform_act.");
-		return;
-	}
-	buf = lbuf;
 
 	for (;;) {
         if (*s == '$') {
@@ -2124,6 +2116,24 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 	*(--buf) = '\r';
 	*(++buf) = '\n';
 	*(++buf) = '\0';
+}
+
+void
+perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
+	thing *vict_obj, struct Creature *to, int mode)
+{
+	static char lbuf[MAX_STRING_LENGTH];
+	char outbuf[MAX_STRING_LENGTH];
+
+	if (!to || !to->desc || PLR_FLAGGED((to), PLR_WRITING | PLR_OLC))
+		return;
+
+	if (!to->in_room) {
+		errlog("to->in_room NULL in perform_act.");
+		return;
+	}
+
+    make_act_str(orig, lbuf, ch, obj, vict_obj, to);
 
 	if (mode == 1) {
 		sprintf(outbuf, "(outside) %s", lbuf);

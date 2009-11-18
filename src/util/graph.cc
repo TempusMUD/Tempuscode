@@ -42,6 +42,7 @@
 #include "fight.h"
 #include "char_class.h"
 #include "accstr.h"
+#include "voice.h"
 
 /* Externals */
 extern struct room_data *world;
@@ -566,10 +567,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 			else if (IS_PHYSIC(ch))
 				cast_spell(ch, ch, 0, NULL, SPELL_TIDAL_SPACEWARP);
 			else if (!number(0, 10)) {
-                if (IS_ANIMAL(ch))
-                    act("$n growls and sniffs the wind.", true, ch, 0, 0, TO_ROOM);
-                else
-                    perform_say(ch, "yell", "Well, SHIT!  I need to be able to fly!");
+                emit_voice(ch, NULL, VOICE_HUNT_OPENAIR);
 				return 0;
 			}
 		} else if (SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM &&
@@ -580,7 +578,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 32)
 				cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK);
 			else if (!number(0, 10)) {
-				perform_say(ch, "say", "Damn this water!  Can anybody help me cross?");
+				emit_voice(ch, NULL, VOICE_HUNT_WATER);
 				return 0;
 			}
 		} else if (perform_move(ch, dir, MOVE_NORM, 1) == 2) {
@@ -601,8 +599,6 @@ smart_mobile_move(struct Creature *ch, int dir)
 void
 hunt_victim(struct Creature *ch)
 {
-
-	char buf2[MAX_STRING_LENGTH];
 	struct affected_type *af_ptr = NULL;
 	int dir;
 	byte found;
@@ -623,10 +619,7 @@ hunt_victim(struct Creature *ch)
 	}
 	if (!found) {
 		if (!ch->isFighting()) {
-                if (IS_ANIMAL(ch))
-                    act("$n whines and looks confused.", true, ch, 0, 0, TO_ROOM);
-                else
-                    perform_say(ch, "say", "Damn!  My prey is gone!!");
+            emit_voice(ch, NULL, VOICE_HUNT_GONE);
 			ch->stopHunting();
 		}
 		return;
@@ -687,144 +680,37 @@ hunt_victim(struct Creature *ch)
     } else {
 		dir = -1;
     }
-	if (dir < 0 ||
-			find_distance(ch->in_room, ch->isHunting()->in_room) > GET_INT(ch)) {
-		act("$n says, 'Damn! Lost $M!'", false, ch, 0, ch->isHunting(), TO_ROOM);
+	if (dir < 0
+        || find_distance(ch->in_room, ch->isHunting()->in_room) > GET_INT(ch)) {
+        emit_voice(ch, ch->isHunting(), VOICE_HUNT_LOST);
 		ch->stopHunting();
 		return;
-	} else {
-		if (smart_mobile_move(ch, dir) < 0) {
-			ch->stopHunting();
-			return;
-		}
-
-		if ((ch->in_room == ch->isHunting()->in_room) && can_see_creature(ch, ch->isHunting())
-			&& (!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE))
-				|| CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))
-			&& !check_infiltrate(ch->isHunting(), ch)) {
-			if (ch->isOkToAttack(ch->isHunting(), false)
-				&& !PLR_FLAGGED(ch->isHunting(), PLR_OLC | PLR_WRITING)) {
-				if (ch->getPosition() >= POS_STANDING && !ch->isFighting()) {
-					if (IS_ANIMAL(ch)) {
-						act("$n snarls and attacks $N!!!",
-							false, ch, 0, ch->isHunting(), TO_NOTVICT);
-						act("$n snarls and attacks you!!!",
-							false, ch, 0, ch->isHunting(), TO_VICT);
-					} else if (IS_RACE(ch, RACE_ARCHON)) {
-						act("$n shouts, '$N you vile profaner of goodness!",
-							false, ch, 0, ch->isHunting(), TO_ROOM);
-					} else if (GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
-						perform_say(ch, "intone", "Time to die.");
-					} else {
-						if (!number(0, 3))
-                            perform_say(ch, "scream",
-                                        tmp_sprintf("Gotcha, punk ass %s!!",
-                                                    GET_NAME(ch->isHunting())));
-						else if (!number(0, 2)) {
-							perform_say(ch, "say",
-                                        tmp_sprintf("Well, well well... if it isn't %s!",
-                                                    GET_NAME(ch->isHunting())));
-						} else if (!number(0, 1)) {
-                            perform_say_to(ch, ch->isHunting(), "You can run but you can't hide!");
-						} else {
-                            perform_say_to(ch, ch->isHunting(), "Now I have you!");
-						}
-					}
-					best_initial_attack(ch, ch->isHunting());
-                    return;
-				}
-			}
-		} else if (ch->in_room == ch->isHunting()->in_room) {
-			if (!number(0, 10))
-				act("$n says, 'I know that jerk $N is around here somewhere!",
-					false, ch, 0, ch->isHunting(), TO_ROOM);
-			return;
-		} else {
-			if (!number(0, 64))
-				act("$n sniffs the ground.", false, ch, 0, 0, TO_ROOM);
-			else if (!number(0, 64))
-				act("$n says 'Im gonna get that freak $N!'", false, ch, 0,
-					ch->isHunting(), TO_ROOM);
-			else if (!IS_ANIMAL(ch) && !MOB2_FLAGGED(ch, MOB2_SILENT_HUNTER) &&
-				(GET_LEVEL(ch) + number(1, 12)) > GET_LEVEL(ch->isHunting())) {
-				switch (number(0, 2048)) {
-				case 0:
-					sprintf(buf2, "You're toast, %s!", GET_NAME(ch->isHunting()));
-					break;
-				case 1:
-					sprintf(buf2, "I'm gonna find you, %s!",
-						GET_NAME(ch->isHunting()));
-					perform_tell(ch, ch->isHunting(), buf2);
-					return;
-				case 2:
-					sprintf(buf2,
-						"You can run, but you can't hide, %s you sissy!",
-						GET_NAME(ch->isHunting()));
-					break;
-				case 3:
-					sprintf(buf2,
-						"You better run for the inn, cause I'm coming for you %s!",
-						GET_NAME(ch->isHunting()));
-					break;
-				case 4:
-					sprintf(buf2,
-						"You're gonna learn better than to mess with me, %s!",
-						GET_NAME(ch->isHunting()));
-					perform_tell(ch, ch->isHunting(), buf2);
-					return;
-				case 5:
-					strcpy(buf2,
-						"One of these days, I'm gonna get a little respect!");
-					break;
-				case 6:
-					sprintf(buf2,
-						"Well, looks like I'm gonna hafta teach %s a lesson!",
-						GET_NAME(ch->isHunting()));
-					break;
-				case 7:
-					sprintf(buf2, "Anybody know where that punk %s is?!",
-						GET_NAME(ch->isHunting()));
-					break;
-				case 8:
-					sprintf(buf2, "Now you've pissed me off, %s!",
-						GET_NAME(ch->isHunting()));
-					break;
-				case 9:
-					sprintf(buf2, "I've had it up to HERE with punks like %s!",
-						GET_NAME(ch->isHunting()));
-					break;
-				case 10:
-					sprintf(buf2, "Don't worry %s... I'll find you!",
-						GET_NAME(ch->isHunting()));
-					perform_tell(ch, ch->isHunting(), buf2);
-					return;
-				case 11:
-					sprintf(buf2, "I'm practically on you, %s!",
-						GET_NAME(ch->isHunting()));
-					do_gen_comm(ch, buf2, 0, SCMD_SHOUT, 0);
-					return;
-				case 12:
-					sprintf(buf2, "Hey you momma's %s!  I'm coming for you.",
-						IS_FEMALE(ch->isHunting()) ? "girl" : "boy");
-					perform_tell(ch, ch->isHunting(), buf2);
-					return;
-				case 13:
-					sprintf(buf2,
-						"Looks like I'm gonna have to hunt you down, %s!",
-						GET_NAME(ch->isHunting()));
-					if (number(0, 2)) {
-						perform_tell(ch, ch->isHunting(), buf2);
-						return;
-					}
-				default:
-					return;
-				}
-
-                do_gen_comm(ch, buf2, 0, SCMD_SHOUT, 0);
-			}
-
-			if (!number(0, 32))
-				perform_say(ch, "say", "One of these days..");
-		}
 	}
+    if (smart_mobile_move(ch, dir) < 0) {
+        ch->stopHunting();
+        return;
+    }
+
+    if ((ch->in_room == ch->isHunting()->in_room) && can_see_creature(ch, ch->isHunting())
+        && (!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE))
+            || CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))
+        && !check_infiltrate(ch->isHunting(), ch)) {
+        if (ch->isOkToAttack(ch->isHunting(), false)
+            && !PLR_FLAGGED(ch->isHunting(), PLR_OLC | PLR_WRITING)) {
+            if (ch->getPosition() >= POS_STANDING && !ch->isFighting()) {
+                emit_voice(ch, ch->isHunting(), VOICE_HUNT_FOUND);
+                best_initial_attack(ch, ch->isHunting());
+                return;
+            }
+        }
+    } else if (ch->in_room == ch->isHunting()->in_room) {
+        if (!number(0, 10))
+            emit_voice(ch, ch->isHunting(), VOICE_HUNT_UNSEEN);
+        return;
+    } else {
+        if (!MOB2_FLAGGED(ch, MOB2_SILENT_HUNTER) &&
+            (GET_LEVEL(ch) + number(1, 12)) > GET_LEVEL(ch->isHunting())) {
+            emit_voice(ch, ch->isHunting(), VOICE_HUNT_TAUNT);
+        }
+    }
 }

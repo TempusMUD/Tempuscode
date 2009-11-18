@@ -1680,7 +1680,7 @@ send_unknown_cmd(Creature *ch)
  * then calls the appropriate function.
  */
 void
-command_interpreter(struct Creature *ch, char *argument)
+command_interpreter(struct Creature *ch, const char *argument)
 {
 	descriptor_data *d;
 	int cmd, length;
@@ -1716,10 +1716,10 @@ command_interpreter(struct Creature *ch, char *argument)
 	 */
 	if (!isalpha(*argument)) {
         cmdstr = tmp_substr(argument, 0, 0);
-        cmdargs = argument + 1;
+        cmdargs = tmp_substr(argument, 1, -1);
     } else {
         cmdstr = tmp_getword(&argument);
-        cmdargs = argument;
+        cmdargs = tmp_strdup(argument);
     }
 
 	/* otherwise, find the command */

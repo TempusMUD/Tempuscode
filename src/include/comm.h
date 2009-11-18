@@ -39,6 +39,8 @@ void close_socket(struct descriptor_data *d);
 // Act system
 typedef bool (*act_if_predicate)(struct Creature *ch, struct obj_data *obj, struct thing *vict_obj, struct Creature *to, int mode);
 char *act_escape(const char *str);
+void make_act_str(const char *orig, char *buf, struct Creature *ch,
+	struct obj_data *obj, thing *vict_obj, struct Creature *to);
 void perform_act(const char *orig, struct Creature *ch,
 	struct obj_data *obj, thing *vict_obj, struct Creature *to, int mode);
 void act_if(const char *str, int hide_invisible, struct Creature *ch,
