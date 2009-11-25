@@ -1324,35 +1324,16 @@ best_initial_attack(struct Creature *ch, struct Creature *vict)
 	//
 	// psionic mobs
 	//
-    if (cur_class == CLASS_PSIONIC)
+    if (cur_class == CLASS_PSIONIC) {
         psionic_best_attack(ch, vict);
+        return;
+    }
 	//
 	// mage mobs
 	//
 
-	if (cur_class == CLASS_MAGE && GET_MANA(ch) > 100 &&
-		!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
-		if (GET_LEVEL(ch) >= 37 && vict->getPosition() > POS_SLEEPING)
-			cast_spell(ch, vict, NULL, NULL, SPELL_WORD_STUN, &return_flags);
-		else if (GET_LEVEL(ch) < 5)
-			cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE, &return_flags);
-		else if (GET_LEVEL(ch) < 9 && !CHAR_WITHSTANDS_COLD(vict))
-			cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH, &return_flags);
-		else if (GET_LEVEL(ch) < 11)
-			cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP, &return_flags);
-		else if (GET_LEVEL(ch) < 15 && !CHAR_WITHSTANDS_FIRE(vict))
-			cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS, &return_flags);
-		else if (GET_LEVEL(ch) < 18 || IS_CYBORG(vict))
-			cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, &return_flags);
-		else if (GET_LEVEL(ch) < 31)
-			cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY, &return_flags);
-		else if (GET_LEVEL(ch) < 36)
-			cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL, &return_flags);
-		else if (GET_LEVEL(ch) < 42)
-			cast_spell(ch, vict, NULL, NULL, SPELL_PRISMATIC_SPRAY, &return_flags);
-		else {
-			return_flags = hit(ch, vict, TYPE_UNDEFINED);
-		}
+	if (cur_class == CLASS_MAGE && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+        mage_best_attack(ch, vict);
 		return;
 	}
 	//

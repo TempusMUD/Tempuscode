@@ -21,6 +21,7 @@
 #include "house.h"
 #include "char_class.h"
 #include "language.h"
+#include "fight.h"
 
 #define MSHIELD_USAGE "usage: mshield <low|percent> <value>\r\n"
 ACMD(do_mshield)
@@ -259,4 +260,164 @@ ACMD(do_teach)
     act("$n gives a lesson to $N.", false, ch, 0, target, TO_NOTVICT);
 }
 
-#undef __act_mage_c__
+bool
+area_attack_advisable(Creature *ch)
+{
+    // Area attacks are advisable when there are more than one PC and
+    // no other non-fighting NPCs
+    int pc_count = 0;
+    for (CreatureList::iterator cit = ch->in_room->people.begin();
+         cit != ch->in_room->people.end();
+         ++cit) {
+        if (!can_see_creature(ch, *cit))
+            continue;
+        if (IS_NPC(*cit)) {
+            if (!(*cit)->isFighting())
+                return false;
+        } else {
+            pc_count++;
+        }
+    }
+
+    return (pc_count > 1);
+}
+
+bool
+group_attack_advisable(Creature *ch)
+{
+    // Group attacks are advisable when more than one creature is
+    // attacking
+    int attacker_count = 0;
+    for (CreatureList::iterator cit = ch->in_room->people.begin();
+         cit != ch->in_room->people.end();
+         ++cit) {
+        if ((*cit)->findCombat(ch)) {
+            if (attacker_count)
+                return true;
+            attacker_count++;
+        }
+    }
+    return false;
+}
+
+// mob ai...
+// fear - how much the mob thinks it is going to die
+// hate - how much the mob wants to kill
+//
+
+// return true if the attack was made, otherwise return false
+bool
+mage_damaging_attack(Creature *ch, Creature *vict)
+{
+    int return_flags;
+
+    if (area_attack_advisable(ch)
+        && can_cast_spell(ch, SPELL_METEOR_STORM))
+        cast_spell(ch, NULL, NULL, NULL, SPELL_METEOR_STORM, &return_flags);
+    else if (group_attack_advisable(ch)
+             && can_cast_spell(ch, SPELL_CHAIN_LIGHTNING))
+        cast_spell(ch, NULL, NULL, NULL, SPELL_CHAIN_LIGHTNING, &return_flags);
+    else if (can_cast_spell(ch, SPELL_LIGHTNING_BOLT) && IS_CYBORG(vict))
+        cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, &return_flags);
+    else if (can_cast_spell(ch, SPELL_PRISMATIC_SPRAY))
+        cast_spell(ch, vict, NULL, NULL, SPELL_PRISMATIC_SPRAY, &return_flags);
+    else if (can_cast_spell(ch, SPELL_CONE_COLD))
+        cast_spell(ch, vict, NULL, NULL, SPELL_CONE_COLD, &return_flags);
+    else if (can_cast_spell(ch, SPELL_FIREBALL))
+        cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL, &return_flags);
+    else if (can_cast_spell(ch, SPELL_ENERGY_DRAIN))
+        cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN, &return_flags);
+    else if (can_cast_spell(ch, SPELL_COLOR_SPRAY))
+        cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY, &return_flags);
+    else if (can_cast_spell(ch, SPELL_LIGHTNING_BOLT))
+        cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, &return_flags);
+    else if (can_cast_spell(ch, SPELL_BURNING_HANDS) && !CHAR_WITHSTANDS_FIRE(vict))
+        cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS, &return_flags);
+    else if (can_cast_spell(ch, SPELL_SHOCKING_GRASP))
+        cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP, &return_flags);
+    else if (can_cast_spell(ch, SPELL_CHILL_TOUCH))
+        cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH, &return_flags);
+    else if (can_cast_spell(ch, SPELL_MAGIC_MISSILE))
+        cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE, &return_flags);
+    else
+        return false;
+    return true;
+}
+
+bool
+dispel_is_advisable(Creature *vict)
+{
+    // Return true if magical buffs are found
+    for (affected_type *af = vict->affected;af;af = af->next) {
+        if ((SPELL_IS_MAGIC(af->type) || SPELL_IS_DIVINE(af->type))
+            && !SPELL_FLAGGED(af->type, MAG_DAMAGE)
+            && !spell_info[af->type].violent
+            && !spell_info[af->type].targets & TAR_UNPLEASANT)
+            return true;
+    }
+    return false;
+}
+
+void
+mage_best_attack(Creature *ch, Creature *vict)
+{
+    int calculate_mob_aggression(Creature *, Creature *);
+
+    int return_flags;
+    int aggression = calculate_mob_aggression(ch, vict);
+
+    if (aggression > 75) {
+        // extremely aggressive - just attack hard
+        if (mage_damaging_attack(ch, vict))
+            return;
+    }
+    if (aggression > 50) {
+        // somewhat aggressive - balance attacking with crippling
+        if (vict->getPosition() > POS_SLEEPING
+            && can_cast_spell(ch, SPELL_WORD_STUN)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_WORD_STUN, &return_flags);
+            return;
+        } else if (vict->getPosition() >  POS_SLEEPING
+                   && can_cast_spell(ch, SPELL_SLEEP)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP, &return_flags);
+            return;
+        } else if (!AFF_FLAGGED(vict, AFF_BLIND)
+                   && can_cast_spell(ch, SPELL_BLINDNESS)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_BLINDNESS, &return_flags);
+            return;
+        } else if (!AFF_FLAGGED(vict, AFF_CURSE)
+                   && can_cast_spell(ch, SPELL_CURSE)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_CURSE, &return_flags);
+            return;
+        }
+    }
+    if (aggression > 25) {
+        // not very aggressive - play more defensively
+        if (can_cast_spell(ch, SPELL_DISPEL_MAGIC) && dispel_is_advisable(vict))
+            cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_MAGIC, &return_flags);
+        else if (!AFF2_FLAGGED(vict, AFF2_SLOW)
+                 && can_cast_spell(ch, SPELL_SLOW))
+            cast_spell(ch, vict, NULL, NULL, SPELL_SLOW, &return_flags);
+        else if (mage_damaging_attack(ch, vict))
+            return;
+    }
+    if (aggression > 5) {
+        if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL, &return_flags);
+            return;
+        } else if (can_cast_spell(ch, SPELL_TELEPORT)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_TELEPORT, &return_flags);
+            return;
+        } else if (can_cast_spell(ch, SPELL_LOCAL_TELEPORT)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_LOCAL_TELEPORT, &return_flags);
+            return;
+        }
+    }
+    // desperation - just attack full force, as hard as possible
+    if (mage_damaging_attack(ch, vict))
+        return;
+    else if (can_cast_spell(ch, SKILL_PUNCH))
+        perform_offensive_skill(ch, vict, SKILL_PUNCH, &return_flags);
+    else
+        hit(ch, vict, TYPE_UNDEFINED);
+}
