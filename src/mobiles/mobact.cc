@@ -597,10 +597,7 @@ burn_update_creature(Creature *ch)
                        ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice(8,
                                                                            7) : dice(5, 5), TYPE_ABLAZE, -1))
                 return;
-            if (IS_MOB(ch) && ch->getPosition() >= POS_RESTING &&
-                !GET_MOB_WAIT(ch) && !CHAR_WITHSTANDS_FIRE(ch))
-                do_extinguish(ch, tmp_strdup(""), 0, 0, 0);
-        }
+            }
     }
     // burning rooms
     else if ((ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) &&
@@ -621,21 +618,12 @@ burn_update_creature(Creature *ch)
              && !CHAR_WITHSTANDS_COLD(ch)) {
         if (damage(NULL, ch, dice(4, 5), TYPE_FREEZING, -1))
             return;
-        if (IS_MOB(ch) &&
-            (IS_CLERIC(ch) || IS_RANGER(ch)) &&
-            GET_LEVEL(ch) > 15 &&
-            ch->getPosition() != POS_FIGHTING)
-            cast_spell(ch, ch, 0, NULL, SPELL_ENDURE_COLD);
-
     }
     // holywater ocean
     else if (ROOM_FLAGGED(ch->in_room, ROOM_HOLYOCEAN) && IS_EVIL(ch)
              && ch->getPosition() < POS_FLYING) {
         if (damage(ch, ch, dice(4, 5), TYPE_HOLYOCEAN, WEAR_RANDOM))
             return;
-        if (IS_MOB(ch) && !ch->isFighting()) {
-            do_flee(ch, tmp_strdup(""), 0, 0, 0);
-        }
     }
     // boiling pitch
     else if ((ch->in_room->sector_type == SECT_PITCH_PIT
@@ -1731,6 +1719,28 @@ single_mobile_activity(Creature *ch)
         return;
 
     /** implicit awake && !fighting **/
+
+    // Attempt to flee from oceans of holy water
+    if (ROOM_FLAGGED(ch->in_room, ROOM_HOLYOCEAN)
+        && IS_EVIL(ch)
+        && ch->getPosition() < POS_FLYING) {
+        if (!ch->isFighting()) {
+            do_flee(ch, tmp_strdup(""), 0, 0, 0);
+        }
+    }
+
+    // Attempt to keep from freezing
+    if (ROOM_FLAGGED(ch->in_room, ROOM_ICE_COLD)
+        && !CHAR_WITHSTANDS_COLD(ch)
+        && can_cast_spell(ch, SPELL_ENDURE_COLD)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_ENDURE_COLD);
+    }
+
+    // If on fire, try to extinguish the flames
+    if (ch->getPosition() >= POS_RESTING && !CHAR_WITHSTANDS_FIRE(ch)) {
+        do_extinguish(ch, tmp_strdup(""), 0, 0, 0);
+    }
+
 
     /** mobiles re-hiding **/
     if (!AFF_FLAGGED(ch, AFF_HIDE) && AFF_FLAGGED(MOB_SHARED(ch)->proto, AFF_HIDE))
