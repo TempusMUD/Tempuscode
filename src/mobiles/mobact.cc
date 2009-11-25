@@ -3116,34 +3116,38 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			if (ch->findCombat(vict) &&
 				GET_HIT(ch) < (GET_MAX_HIT(ch) >> 2) &&
 				GET_HIT(vict) > (GET_MAX_HIT(vict) >> 1)) {
-				if (GET_LEVEL(ch) >= 33 && random_fractional_3() &&
-					GET_MANA(ch) > mag_manacost(ch, SPELL_TELEPORT)) {
+				if (can_cast_spell(ch, SPELL_TELEPORT)
+                    && random_fractional_3()) {
 					cast_spell(ch, vict, NULL, NULL, SPELL_TELEPORT);
 					return 0;
-				} else if (GET_LEVEL(ch) >= 18 &&
-                           GET_MANA(ch) > mag_manacost(ch, SPELL_LOCAL_TELEPORT)) {
+				} else if (can_cast_spell(ch, SPELL_TELEPORT)) {
 					cast_spell(ch, vict, NULL, NULL, SPELL_LOCAL_TELEPORT);
 					return 0;
 				}
 			}
 
-			if ((GET_LEVEL(ch) > 18) && random_fractional_5() &&
-				!AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
+			if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
+                && random_fractional_5()
+                && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
 				cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
 				return 0;
-			} else if ((GET_LEVEL(ch) > 14) && random_fractional_5() &&
-                       !AFF_FLAGGED(ch, AFF_BLUR)) {
+			} else if (can_cast_spell(ch, SPELL_BLUR)
+                       && random_fractional_5()
+                       && !AFF_FLAGGED(ch, AFF_BLUR)) {
 				cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
 				return 0;
-			} else if ((GET_LEVEL(ch) > 5) && random_fractional_5() &&
-                       !affected_by_spell(ch, SPELL_ARMOR)) {
+			} else if (can_cast_spell(ch, SPELL_ARMOR)
+                       && random_fractional_5()
+                       && !affected_by_spell(ch, SPELL_ARMOR)) {
 				cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
 				return 0;
-			} else if ((GET_LEVEL(ch) >= 38) && !AFF2_FLAGGED(vict, AFF2_SLOW)
+			} else if (can_cast_spell(ch, SPELL_SLOW)
+                       && !AFF2_FLAGGED(vict, AFF2_SLOW)
                        && random_binary()) {
 				cast_spell(ch, vict, NULL, NULL, SPELL_SLOW);
 				return 0;
-			} else if ((GET_LEVEL(ch) > 12) && random_fractional_10()) {
+			} else if (can_cast_spell(ch, SPELL_ENERGY_DRAIN)
+                       && random_fractional_10()) {
 				if (IS_EVIL(ch)) {
 					cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN);
 					return 0;
@@ -3155,24 +3159,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 				command_interpreter(ch, tmp_strdup("cackle"));
 
 				if (random_fractional_5()) {
+                    bool mage_damaging_attack(Creature *, Creature *);
 
-					if (GET_LEVEL(ch) < 6) {
-						cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE);
-					} else if (GET_LEVEL(ch) < 8) {
-						cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH);
-					} else if (GET_LEVEL(ch) < 12) {
-						cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP);
-					} else if (GET_LEVEL(ch) < 15) {
-						cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS);
-					} else if (GET_LEVEL(ch) < 20) {
-						cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
-					} else if (GET_LEVEL(ch) < 33) {
-						cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY);
-					} else if (GET_LEVEL(ch) < 43) {
-						cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
-					} else {
-						cast_spell(ch, vict, NULL, NULL, SPELL_PRISMATIC_SPRAY);
-					}
+                    mage_damaging_attack(ch, vict);
 					return 0;
 				}
 			}
@@ -3190,39 +3179,40 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 				return 0;
 			} else if ((GET_HIT(ch) / MAX(1,
                                           GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) >> 2)) {
-				if ((GET_LEVEL(ch) < 12) && random_fractional_10()) {
+				if (can_cast_spell(ch, SPELL_CURE_LIGHT)
+                    && random_fractional_10()) {
 					cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
 					return 0;
-				} else if ((GET_LEVEL(ch) < 24) && random_fractional_10()) {
+				} else if (can_cast_spell(ch, SPELL_CURE_CRITIC)
+                           && random_fractional_10()) {
 					cast_spell(ch, ch, NULL, NULL, SPELL_CURE_CRITIC);
 					return 0;
-				} else if ((GET_LEVEL(ch) <= 34) && random_fractional_10()) {
+				} else if (can_cast_spell(ch, SPELL_HEAL)
+                           && random_fractional_10()) {
 					cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
 					return 0;
-				} else if ((GET_LEVEL(ch) > 34) && random_fractional_10()) {
+				} else if (can_cast_spell(ch, SPELL_GREATER_HEAL)
+                           && random_fractional_10()) {
 					cast_spell(ch, ch, NULL, NULL, SPELL_GREATER_HEAL);
 					return 0;
 				}
 			}
-			if ((GET_LEVEL(ch) > 12) && random_fractional_10()) {
-				if (IS_EVIL(ch) && IS_GOOD(vict))
+			if (random_fractional_10()) {
+				if (can_cast_spell(ch, SPELL_DISPEL_GOOD) && IS_GOOD(vict))
 					cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_GOOD);
-				else if (IS_GOOD(ch) && IS_EVIL(vict))
+				else if (can_cast_spell(ch, SPELL_DISPEL_EVIL) && IS_EVIL(vict))
 					cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL);
 				return 0;
 			}
 
 			if (random_fractional_5()) {
-
-				if (GET_LEVEL(ch) < 10)
-					return 0;
-				if (GET_LEVEL(ch) < 26) {
+				if (can_cast_spell(ch, SPELL_SPIRIT_HAMMER)) {
 					cast_spell(ch, vict, NULL, NULL, SPELL_SPIRIT_HAMMER);
-				} else if (GET_LEVEL(ch) < 31) {
+				} else if (can_cast_spell(ch, SPELL_CALL_LIGHTNING)) {
 					cast_spell(ch, vict, NULL, NULL, SPELL_CALL_LIGHTNING);
-				} else if (GET_LEVEL(ch) < 36) {
+				} else if (can_cast_spell(ch, SPELL_HARM)) {
 					cast_spell(ch, vict, NULL, NULL, SPELL_HARM);
-				} else {
+				} else if (can_cast_spell(ch, SPELL_FLAME_STRIKE)) {
 					cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
 				}
 				return 0;
@@ -4367,46 +4357,40 @@ knight_activity(struct Creature *ch)
 	if (AFF3_FLAGGED(ch, AFF3_TAINTED))
 		return;
     if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
-        if (GET_LEVEL(ch) > 27 && random_binary() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
+        if (can_cast_spell(ch, SPELL_HEAL) && random_binary())
             cast_spell(ch, ch, 0, NULL, SPELL_HEAL);
-        else if (GET_LEVEL(ch) > 13 && random_binary() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
+        else if (can_cast_spell(ch, SPELL_CURE_CRITIC) && random_binary())
             cast_spell(ch, ch, 0, NULL, SPELL_CURE_CRITIC);
-        else if (random_binary() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
+        else if (can_cast_spell(ch, SPELL_CURE_LIGHT) && random_binary())
             cast_spell(ch, ch, 0, NULL, SPELL_CURE_LIGHT);
         else if (IS_GOOD(ch)) {
             do_holytouch(ch, tmp_strdup("self"), 0, 0, 0);
         }
-    } else if (room_is_dark(ch->in_room) &&
-               !has_dark_sight(ch) && GET_LEVEL(ch) > 6 &&
-               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    } else if (room_is_dark(ch->in_room)
+               && !has_dark_sight(ch)
+               && can_cast_spell(ch, SPELL_DIVINE_ILLUMINATION)) {
         cast_spell(ch, ch, 0, NULL, SPELL_DIVINE_ILLUMINATION);
-    } else if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-               GET_LEVEL(ch) > 20 &&
-               (affected_by_spell(ch, SPELL_BLINDNESS) ||
-                affected_by_spell(ch, SKILL_GOUGE))) {
+    } else if (can_cast_spell(ch, SPELL_CURE_BLIND)
+               && (affected_by_spell(ch, SPELL_BLINDNESS) ||
+                   affected_by_spell(ch, SKILL_GOUGE))) {
         cast_spell(ch, ch, 0, NULL, SPELL_CURE_BLIND);
-    } else if (AFF_FLAGGED(ch, AFF_POISON) && GET_LEVEL(ch) > 18 &&
-               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    } else if (AFF_FLAGGED(ch, AFF_POISON)
+               && can_cast_spell(ch, SPELL_REMOVE_POISON)) {
         cast_spell(ch, ch, 0, NULL, SPELL_REMOVE_POISON);
-    } else if (AFF_FLAGGED(ch, AFF_CURSE) && GET_LEVEL(ch) > 30 &&
-               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    } else if (AFF_FLAGGED(ch, AFF_CURSE)
+               && can_cast_spell(ch, SPELL_REMOVE_CURSE)) {
         cast_spell(ch, ch, 0, NULL, SPELL_REMOVE_CURSE);
-    } else if (IS_GOOD(ch) && GET_LEVEL(ch) > 32 &&
-               GET_REMORT_CLASS(ch) != CLASS_UNDEFINED &&
-               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-               !affected_by_spell(ch, SPELL_SANCTIFICATION)) {
+    } else if (can_cast_spell(ch, SPELL_SANCTIFICATION)
+               && !affected_by_spell(ch, SPELL_SANCTIFICATION)) {
         cast_spell(ch, ch, 0, NULL, SPELL_SANCTIFICATION);
-    } else if (GET_LEVEL(ch) > 4 &&
-               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-               !affected_by_spell(ch, SPELL_ARMOR)) {
+    } else if (can_cast_spell(ch, SPELL_ARMOR)
+               && !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, 0, NULL, SPELL_ARMOR);
-    } else if (IS_GOOD(ch) && GET_LEVEL(ch) > 9 &&
-               !affected_by_spell(ch, SPELL_BLESS) &&
-               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    } else if (can_cast_spell(ch, SPELL_BLESS)
+               && !affected_by_spell(ch, SPELL_BLESS)) {
         cast_spell(ch, ch, 0, NULL, SPELL_BLESS);
-    } else if (GET_LEVEL(ch) > 30 &&
-               !affected_by_spell(ch, SPELL_PRAY) &&
-               !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    } else if (can_cast_spell(ch, SPELL_PRAY)
+               && !affected_by_spell(ch, SPELL_PRAY)) {
         cast_spell(ch, ch, 0, NULL, SPELL_PRAY);
     }
 }
@@ -4436,23 +4420,23 @@ knight_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		return true;
     }
 
-    if (GET_LEVEL(ch) > 4 && random_fractional_5() &&
-        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-        !affected_by_spell(ch, SPELL_ARMOR)) {
+    if (can_cast_spell(ch, SPELL_ARMOR)
+        && random_fractional_5()
+        && !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
         return true;
     } else if ((GET_HIT(ch) / MAX(1,
                                   GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) >> 2)) {
-        if ((GET_LEVEL(ch) < 14) && (number(0, 10) == 0) &&
-            !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+        if (can_cast_spell(ch, SPELL_CURE_LIGHT)
+            && random_fractional_10()) {
             cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
             return true;
-        } else if ((GET_LEVEL(ch) < 28) && random_fractional_10() &&
-                   !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+        } else if (can_cast_spell(ch, SPELL_CURE_CRITIC)
+                   && random_fractional_10()) {
             cast_spell(ch, ch, NULL, NULL, SPELL_CURE_CRITIC);
             return true;
-        } else if (random_fractional_5() &&
-                   !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+        } else if (can_cast_spell(ch, SPELL_HEAL)
+                   && random_fractional_5()) {
             cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
             return true;
         }
