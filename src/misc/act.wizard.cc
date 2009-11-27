@@ -7987,7 +7987,11 @@ ACMD(do_coderutil)
 		for (;cit != characterList.end();++cit) {
 			int ret_flags;
 			Creature *attacked;
+            int old_mob2_flags = MOB2_FLAGS(*cit);
+
+            MOB2_FLAGS(*cit) |= MOB2_ATK_MOBS;
 			perform_barb_berserk(*cit, &attacked, &ret_flags);
+            MOB2_FLAGS(*cit) = old_mob2_flags;
 		}
 		send_to_char(ch, "The entire world goes mad...\r\n");
 		slog("%s has doomed the world to chaos.", GET_NAME(ch));
