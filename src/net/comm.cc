@@ -161,9 +161,9 @@ main(int argc, char **argv)
     int port;
     char *dir;
     const char *user = NULL, *group = NULL;
+    const char *DATADIR_ENV_VAR = "CIRCLE_DATADIR";
 
 	port = DFLT_PORT;
-	dir = DFLT_DIR;
 
 	tmp_string_init();
 	acc_string_init();
@@ -171,7 +171,6 @@ main(int argc, char **argv)
     int option_idx = 0;
     struct option long_options[] = {
         {"wizlock", no_argument, NULL, 'b'},
-        {"datadir", required_argument, NULL, 'd'},
         {"minimud", no_argument, NULL, 'm'},
         {"check", no_argument, NULL, 'c'},
         {"quickboot", no_argument, NULL, 'q'},
@@ -181,24 +180,22 @@ main(int argc, char **argv)
         {"nozreset", no_argument, NULL, 'z'},
         {"nonameserver", no_argument, NULL, 'n'},
         {"logall", no_argument, NULL, 'l'},
-        {"production", no_argument, NULL, 'p'},
-        {"user", no_argument, NULL, 'u'},
-        {"group", no_argument, NULL, 'g'},
+        {"production", no_argument, NULL, 'P'},
+        {"user", required_argument, NULL, 'u'},
+        {"group", required_argument, NULL, 'g'},
+        {"port", required_argument, NULL, 'p'},
         {0, 0, 0, 0}
     };
 
     char c;
     opterr = 1;
-    while ((c = getopt_long(argc, argv, "bd:mcqrsoznlpu:g:",
+    while ((c = getopt_long(argc, argv, "bmcqrsoznlPp:u:g:",
                             long_options,
                             &option_idx)) != -1) {
         switch (c) {
 		case 'b':
 			restrict = 50;
 			slog("Wizlock 50");
-			break;
-		case 'd':
-            dir = optarg;
 			break;
 		case 'm':
 			mini_mud = 1;
@@ -237,7 +234,7 @@ main(int argc, char **argv)
 			log_cmds = true;
 			slog("Enabling log_cmds.");
 			break;
-		case 'p':
+		case 'P':
 			production_mode = true;
 			slog("Running in production mode");
 			break;
@@ -245,22 +242,31 @@ main(int argc, char **argv)
             user = optarg; break;
         case 'g':
             group = optarg; break;
+        case 'p':
+            if (!isnumber(optarg)) {
+                fprintf(stderr, "%s: port must be numeric\n", argv[0]);
+                safe_exit(EXIT_FAILURE);
+            }
+            port = atoi(optarg);
+            if (port < 1 || port > 65535) {
+                fprintf(stderr, "%s: port %d out of range\n", argv[0], port);
+                safe_exit(EXIT_FAILURE);
+            }
+            break;
         default:
-            exit(EXIT_FAILURE);
+            safe_exit(EXIT_FAILURE);
         }
     }
 
-	if (optind < argc) {
-		if (!isnumber(argv[optind])) {
-			fprintf(stderr,
-				"Usage: %s [-c] [-m] [-q] [-r] [-s] [-d pathname] [port #]\n",
-				argv[0]);
-			safe_exit(EXIT_FAILURE);
-		} else if ((port = atoi(argv[optind])) <= 1024) {
-			fprintf(stderr, "Illegal port number.\n");
-			safe_exit(EXIT_FAILURE);
-		}
-	}
+	if (optind == argc) {
+        dir = getenv(DATADIR_ENV_VAR);
+        if (!dir) {
+            fprintf(stderr, "%s: data directory must be specified by %s environment variable or on command line\n", argv[0], DATADIR_ENV_VAR);
+            safe_exit(EXIT_FAILURE);
+        }
+	} else {
+        dir = argv[optind];
+    }
 
     dir = canonicalize_file_name(dir);
 

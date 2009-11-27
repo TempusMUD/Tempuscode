@@ -224,10 +224,7 @@ int guild_donation_info[][4] = {
 /* GAME OPERATION OPTIONS */
 
 /* default port the game should run on if no port given on command-line */
-int DFLT_PORT = 8888;
-
-/* default directory to use as data directory */
-const char *DFLT_DIR = "lib";
+int DFLT_PORT = 4040;
 
 /* maximum number of players allowed before game starts to turn people away */
 unsigned int MAX_PLAYERS = 300;

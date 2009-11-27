@@ -16,8 +16,7 @@ udate() {
     date -u +"%Y-%m-%dT%H%M%SZ"
 }
 
-PORT=2020
-FLAGS='-p'
+FLAGS='-P -p 2020'
 
 if [ "x$1" != "x" ]; then
     cd "$1"
@@ -33,7 +32,7 @@ while [ ! -e .killscript ]; do
 
     echo "autoscript starting game $DATE" >> syslog
 
-    bin/circle $FLAGS $PORT > syslog 2>&1 &
+    bin/circle $FLAGS /opt/tempus/lib > syslog 2>&1 &
     PID=$!
     echo $PID >/var/run/tempus.pid
 
