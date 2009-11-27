@@ -2,6 +2,7 @@ bin_PROGRAMS = @top_srcdir@/bin/circle
 INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@ @XML_CPPFLAGS@
 AM_CXXFLAGS = -Wall -Wcast-qual
 AM_LDFLAGS = @XML_LIBS@
+ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^DEFPROGHANDLER(\\([a-zA-Z0-9_]+\\),[^)]+)$/prog_do_\\1/' -r '/^SPECIAL(\\([a-zA-Z0-9_]+\\))$/\\1/'
 @top_srcdir@_bin_circle_SOURCES = \
 				 clan/clan.cc \
 				 classes/act.barb.cc \
@@ -60,10 +61,8 @@ AM_LDFLAGS = @XML_LIBS@
                  include/creature_list.h \
                  include/hell_hunter_spec.h \
                  include/desc_data.h \
-                 include/dmalloc.h \
                  include/editor.h \
                  include/fight.h \
-                 include/flags.h \
                  include/flow_room.h \
                  include/guns.h \
                  include/handler.h \
@@ -87,7 +86,6 @@ AM_LDFLAGS = @XML_LIBS@
                  include/prog.h \
                  include/quest.h \
                  include/room_data.h \
-                 include/rpl_resp.h \
                  include/safe_list.h \
                  include/screen.h \
                  include/search.h \
@@ -314,7 +312,6 @@ AM_LDFLAGS = @XML_LIBS@
                  specials/Specs/utility_specs/jail_locker.spec \
                  specials/Specs/utility_specs/killer_hunter.spec \
                  specials/Specs/utility_specs/nohunger_dude.spec \
-                 specials/Specs/utility_specs/magic_books.spec \
                  specials/Specs/utility_specs/newspaper.spec \
                  specials/Specs/utility_specs/quantum_rift.spec \
                  specials/Specs/utility_specs/old_reimb.spec \
