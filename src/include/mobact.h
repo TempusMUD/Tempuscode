@@ -30,4 +30,6 @@ void psionic_best_attack(struct Creature *ch, struct Creature *vict);
 int psionic_mob_fight(struct Creature *ch, struct Creature *precious_vict);
 
 void mage_best_attack(struct Creature *ch, struct Creature *vict);
+void mage_activity(struct Creature *ch);
+bool mage_mob_fight(struct Creature *ch, struct Creature *precious_vict);
 #endif

@@ -397,7 +397,6 @@ psionic_activity(struct Creature *ch)
 int
 psionic_mob_fight(struct Creature *ch, struct Creature *precious_vict)
 {
-
 	Creature *vict = 0;
     int return_flags;
 

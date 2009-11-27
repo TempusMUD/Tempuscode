@@ -421,3 +421,113 @@ mage_best_attack(Creature *ch, Creature *vict)
     else
         hit(ch, vict, TYPE_UNDEFINED);
 }
+
+void
+mage_activity(Creature *ch)
+{
+    if (room_is_dark(ch->in_room) &&
+               can_cast_spell(ch, SPELL_INFRAVISION) &&
+               !has_dark_sight(ch)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_INFRAVISION);
+    } else if (room_is_dark(ch->in_room) &&
+               can_cast_spell(ch, SPELL_GLOWLIGHT) &&
+               !has_dark_sight(ch)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_GLOWLIGHT);
+    } else if (can_cast_spell(ch, SPELL_PRISMATIC_SPHERE)
+               && !AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_PRISMATIC_SPHERE);
+    } else if (can_cast_spell(ch, SPELL_ANTI_MAGIC_SHELL)
+               && !affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_ANTI_MAGIC_SHELL);
+    } else if (can_cast_spell(ch, SPELL_HASTE)
+               && !AFF2_FLAGGED(ch, AFF2_HASTE)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_HASTE);
+    } else if (can_cast_spell(ch, SPELL_DISPLACEMENT)
+               && !AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_DISPLACEMENT);
+    } else if (can_cast_spell(ch, SPELL_TRUE_SEEING)
+               && !AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_TRUE_SEEING);
+    } else if (can_cast_spell(ch, SPELL_REGENERATE)
+               && !AFF_FLAGGED(ch, AFF_REGEN)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_REGENERATE);
+    } else if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
+               && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_FIRE_SHIELD);
+    } else if (can_cast_spell(ch, SPELL_STRENGTH)
+               && !affected_by_spell(ch, SPELL_STRENGTH)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_STRENGTH);
+    } else if (can_cast_spell(ch, SPELL_BLUR) && !AFF_FLAGGED(ch, AFF_BLUR)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_BLUR);
+    } else if (can_cast_spell(ch, SPELL_ARMOR) && !affected_by_spell(ch, SPELL_ARMOR)) {
+        cast_spell(ch, ch, 0, NULL, SPELL_ARMOR);
+    }
+}
+
+bool
+mage_mob_fight(Creature *ch, Creature *precious_vict)
+{
+	int calculate_mob_aggression(Creature *ch, Creature *vict);
+
+    Creature *vict = 0;
+    int return_flags;
+
+	if (!ch->isFighting())
+		return false;
+
+	// pick an enemy
+	if (!(vict = choose_opponent(ch, precious_vict)))
+		return false;
+
+    int aggression = calculate_mob_aggression(ch, vict);
+
+    if (aggression > 75) {
+        // extremely aggressive - just attack hard
+        if (mage_damaging_attack(ch, vict))
+            return true;
+    }
+    if (aggression > 50) {
+        // somewhat aggressive - balance attacking with crippling
+        if (!AFF2_FLAGGED(vict, AFF2_SLOW)
+            && can_cast_spell(ch, SPELL_SLOW)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_SLOW, &return_flags);
+            return true;
+        }
+    }
+    if (aggression > 25) {
+        // not very aggressive - play more defensively
+        if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
+            && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
+            cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
+            return true;
+        }
+        if (can_cast_spell(ch, SPELL_BLUR) && !AFF_FLAGGED(ch, AFF_BLUR)) {
+            cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
+            return true;
+        }
+        if (can_cast_spell(ch, SPELL_ARMOR)
+            && !affected_by_spell(ch, SPELL_ARMOR)) {
+            cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
+            return true;
+        }
+        if (mage_damaging_attack(ch, vict))
+            return true;
+    }
+    if (aggression > 5) {
+        // attempt to neutralize or get away
+        if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL, &return_flags);
+            return true;
+        } else if (can_cast_spell(ch, SPELL_TELEPORT)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_TELEPORT, &return_flags);
+            return true;
+        } else if (can_cast_spell(ch, SPELL_LOCAL_TELEPORT)) {
+            cast_spell(ch, vict, NULL, NULL, SPELL_LOCAL_TELEPORT, &return_flags);
+            return true;
+        }
+    }
+
+    if (mage_damaging_attack(ch, vict))
+        return true;
+    return false;
+}

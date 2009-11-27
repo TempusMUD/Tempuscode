@@ -2401,43 +2401,10 @@ single_mobile_activity(Creature *ch)
     // mage spell up
     //
 
-    else if (cur_class == CLASS_MAGE && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
+    else if (cur_class == CLASS_MAGE
+             && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
              && random_binary()) {
-        if (GET_LEVEL(ch) > 3 && !affected_by_spell(ch, SPELL_ARMOR)) {
-            cast_spell(ch, ch, 0, NULL, SPELL_ARMOR);
-        } else if (room_is_dark(ch->in_room) &&
-                   GET_MANA(ch) > mag_manacost(ch, SPELL_ARMOR) &&
-                   !has_dark_sight(ch) && GET_LEVEL(ch) > 5) {
-            cast_spell(ch, ch, 0, NULL, SPELL_INFRAVISION);
-        } else if (GET_LEVEL(ch) > 12 && !AFF_FLAGGED(ch, AFF_BLUR) &&
-                   GET_MANA(ch) > mag_manacost(ch, SPELL_BLUR)) {
-            cast_spell(ch, ch, 0, NULL, SPELL_BLUR);
-        } else if (GET_LEVEL(ch) > 43 && !AFF2_FLAGGED(ch, AFF2_HASTE) &&
-                   GET_MANA(ch) > mag_manacost(ch, SPELL_HASTE)) {
-            cast_spell(ch, ch, 0, NULL, SPELL_HASTE);
-        } else if (GET_LEVEL(ch) > 45
-                   && !AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)
-                   && GET_MANA(ch) > mag_manacost(ch, SPELL_DISPLACEMENT)) {
-            cast_spell(ch, ch, 0, NULL, SPELL_DISPLACEMENT);
-        } else if (GET_LEVEL(ch) > 16
-                   && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)
-                   && GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD)
-                   && !room_is_watery(ch->in_room)) {
-            cast_spell(ch, ch, 0, NULL, SPELL_FIRE_SHIELD);
-        } else if (GET_LEVEL(ch) > 48
-                   && !AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)
-                   && GET_MANA(ch) > mag_manacost(ch, SPELL_FIRE_SHIELD)) {
-            cast_spell(ch, ch, 0, NULL, SPELL_PRISMATIC_SPHERE);
-        } else if (IS_REMORT(ch)) {
-            if (GET_LEVEL(ch) > 20
-                && !affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL)
-                && GET_MANA(ch) > mag_manacost(ch,
-                                               SPELL_ANTI_MAGIC_SHELL)) {
-                cast_spell(ch, ch, 0, NULL, SPELL_ANTI_MAGIC_SHELL);
-
-            }
-        }
-
+        mage_activity(ch);
     }
     //
     // psionic spell up
@@ -3106,66 +3073,12 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
     if (!ch->in_room)
         return 0;
 
+	if ((cur_class == CLASS_MAGE || IS_LICH(ch))
+		&& !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+		if (mage_mob_fight(ch, precious_vict))
+			return 0;
+	}
 	if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
-
-		if ((cur_class == CLASS_MAGE || IS_LICH(ch))) {
-
-			if (!(vict = choose_opponent(ch, precious_vict)))
-				return 0;
-
-			if (ch->findCombat(vict) &&
-				GET_HIT(ch) < (GET_MAX_HIT(ch) >> 2) &&
-				GET_HIT(vict) > (GET_MAX_HIT(vict) >> 1)) {
-				if (can_cast_spell(ch, SPELL_TELEPORT)
-                    && random_fractional_3()) {
-					cast_spell(ch, vict, NULL, NULL, SPELL_TELEPORT);
-					return 0;
-				} else if (can_cast_spell(ch, SPELL_TELEPORT)) {
-					cast_spell(ch, vict, NULL, NULL, SPELL_LOCAL_TELEPORT);
-					return 0;
-				}
-			}
-
-			if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
-                && random_fractional_5()
-                && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
-				cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
-				return 0;
-			} else if (can_cast_spell(ch, SPELL_BLUR)
-                       && random_fractional_5()
-                       && !AFF_FLAGGED(ch, AFF_BLUR)) {
-				cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
-				return 0;
-			} else if (can_cast_spell(ch, SPELL_ARMOR)
-                       && random_fractional_5()
-                       && !affected_by_spell(ch, SPELL_ARMOR)) {
-				cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
-				return 0;
-			} else if (can_cast_spell(ch, SPELL_SLOW)
-                       && !AFF2_FLAGGED(vict, AFF2_SLOW)
-                       && random_binary()) {
-				cast_spell(ch, vict, NULL, NULL, SPELL_SLOW);
-				return 0;
-			} else if (can_cast_spell(ch, SPELL_ENERGY_DRAIN)
-                       && random_fractional_10()) {
-				if (IS_EVIL(ch)) {
-					cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN);
-					return 0;
-				} else if (IS_GOOD(ch) && IS_EVIL(vict)) {
-					cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL);
-					return 0;
-				}
-			} else if (random_fractional_4()) {
-				command_interpreter(ch, tmp_strdup("cackle"));
-
-				if (random_fractional_5()) {
-                    bool mage_damaging_attack(Creature *, Creature *);
-
-                    mage_damaging_attack(ch, vict);
-					return 0;
-				}
-			}
-		}
 
 		if (cur_class == CLASS_CLERIC &&
 			!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
