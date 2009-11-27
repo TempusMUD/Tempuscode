@@ -2783,7 +2783,7 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 {
 	obj_data *weap2;
 
-	if (GET_OBJ_VAL(weap, 0) < 0 || GET_OBJ_VAL(weap, 0) > MAX_SPELLS) {
+	if (GET_OBJ_VAL(weap, 0) < 0 || GET_OBJ_VAL(weap, 0) > TOP_SPELL_DEFINE) {
 		slog("Invalid spell number detected on weapon %d", GET_OBJ_VNUM(weap));
 		return 0;
 	}
