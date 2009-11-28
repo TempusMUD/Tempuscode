@@ -2318,11 +2318,11 @@ fire_projectile_round(Creature *ch,
                       Creature *vict,
                       obj_data *gun,
                       obj_data *bullet,
+                      int bullet_num,
                       int prob,
                       int *return_flags)
 {
 	sh_int dam;
-	int i;
     int my_return_flags = 0;
     const char *arrow_name;
 
@@ -2332,14 +2332,14 @@ fire_projectile_round(Creature *ch,
         cur_weap = NULL;
 
         if (IS_ARROW(gun) && IS_ELF(ch))
-            WAIT_STATE(ch, (((i << 1) + 6) >> 2) RL_SEC);
+            WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 2) RL_SEC);
         else
-            WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
+            WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 1) RL_SEC);
 
         return;
     }
 
-    prob -= (i * 4);
+    prob -= (bullet_num * 4);
 
     dam = bullet_damage(gun, bullet);
     if (IS_ARROW(gun)) {
@@ -2348,7 +2348,7 @@ fire_projectile_round(Creature *ch,
         arrow_name = tmp_strdup(bullet->name);
         damage_eq(NULL, bullet, dam >> 2);
     } else {
-        if (!i && !IS_FLAMETHROWER(gun))
+        if (!bullet_num && !IS_FLAMETHROWER(gun))
             sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
                            /*GUN_TYPE(gun), */ dam, CUR_R_O_F(gun));
         arrow_name = "";
@@ -2441,7 +2441,7 @@ shoot_projectile_gun(Creature *ch,
 	struct obj_data *bullet = NULL;
 	sh_int prob, dam;
 	int my_return_flags = 0;
-	int i, dum_ptr = 0, dum_move = 0;
+	int bullet_num = 0, dum_ptr = 0, dum_move = 0;
 	struct affected_type *af = NULL;
 
 	if (GUN_TYPE(gun) < 0 || GUN_TYPE(gun) >= NUM_GUN_TYPES) {
@@ -2531,12 +2531,13 @@ shoot_projectile_gun(Creature *ch,
 
 	// loop through ROF of the gun for burst fire
 
-	for (i = 0; i < CUR_R_O_F(gun); i++) {
+	for (bullet_num = 0; bullet_num < CUR_R_O_F(gun); bullet_num++) {
         if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
             // if victim was killed, fire at their corpse
             projectile_blast_corpse(ch, gun, bullet);
         } else {
-            fire_projectile_round(ch, vict, gun, bullet, prob, return_flags);
+            fire_projectile_round(ch, vict, gun, bullet,
+                                  bullet_num, prob, return_flags);
         }
         // if the attacker was somehow killed, return immediately
         if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
@@ -2547,9 +2548,9 @@ shoot_projectile_gun(Creature *ch,
     }
 
 	if (IS_ARROW(gun) && IS_ELF(ch))
-		WAIT_STATE(ch, (((i << 1) + 6) >> 2) RL_SEC);
+		WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 2) RL_SEC);
 	else
-		WAIT_STATE(ch, (((i << 1) + 6) >> 1) RL_SEC);
+		WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 1) RL_SEC);
 
     ACMD_set_return_flags(my_return_flags);
 }
