@@ -1406,14 +1406,13 @@ perform_drop(struct Creature *ch, struct obj_data *obj,
 		act(buf, true, ch, obj, 0, TO_ROOM);
 	}
 
-	obj_from_char(obj);
-
 	if ((mode == SCMD_DONATE) && (IS_OBJ_STAT(obj, ITEM_NODONATE) ||
 			!OBJ_APPROVED(obj)))
 		mode = SCMD_JUNK;
 
 	switch (mode) {
 	case SCMD_DROP:
+        obj_from_char(obj);
 		obj_to_room(obj, ch->in_room);
 		if (ch->in_room->isOpenAir() &&
 			EXIT(ch, DOWN) &&
@@ -1431,6 +1430,7 @@ perform_drop(struct Creature *ch, struct obj_data *obj,
 		return 1;
 		break;
 	case SCMD_DONATE:
+        obj_from_char(obj);
 		obj_to_room(obj, RDR);
 		act("$p suddenly appears in a puff a smoke!", false, 0, obj, 0,
 			TO_ROOM);
@@ -1441,7 +1441,8 @@ perform_drop(struct Creature *ch, struct obj_data *obj,
 		break;
 	case SCMD_JUNK:
 		value = MAX(1, MIN(200, GET_OBJ_COST(obj) >> 4));
-		extract_obj(obj);
+        // Don't actually extract the object here, since we may need it for
+        // display purposes
 		return value;
 		break;
 	default:
@@ -1470,7 +1471,6 @@ ACCMD(do_drop)
 	byte mode = SCMD_DROP;
 	int dotmode, amount = 0, counter = 0, found;
 	const char *sname = NULL;
-    char *short_desc = NULL;
 	char *arg1, *arg2;
 	char *to_char, *to_room;
 
@@ -1623,7 +1623,6 @@ ACCMD(do_drop)
 		if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains))
 			mode = SCMD_DROP;
 
-		short_desc = tmp_strdup(obj->name);
 		found = perform_drop(ch, obj, mode, sname, RDR, false);
 		mode = oldmode;
 
@@ -1641,25 +1640,28 @@ ACCMD(do_drop)
 			}
 		}
 
-		if (!next_obj
-			|| strcmp(next_obj->name, short_desc)) {
+		if (!next_obj || strcmp(next_obj->name, obj->name)) {
 			if (counter > 0) {
 				if (counter == 1) {
-					to_char = tmp_sprintf("You %s %s.%s", sname,
-						SAFETY(short_desc), VANISH(mode));
-					to_room = tmp_sprintf("$n %ss %s.%s", sname,
-						SAFETY(short_desc), VANISH(mode));
+					to_char = tmp_sprintf("You %s $p.%s", sname, VANISH(mode));
+					to_room = tmp_sprintf("$n %ss $p.%s", sname, VANISH(mode));
 				} else {
-					to_char = tmp_sprintf("You %s %s.%s (x%d)", sname,
-						SAFETY(short_desc), VANISH(mode), counter);
-					to_room = tmp_sprintf("$n %ss %s.%s (x%d)", sname,
-						SAFETY(short_desc), VANISH(mode), counter);
+					to_char = tmp_sprintf("You %s $p.%s (x%d)", sname,
+                                          VANISH(mode), counter);
+					to_room = tmp_sprintf("$n %ss $p.%s (x%d)", sname,
+                                          VANISH(mode), counter);
 				}
 				act(to_char, false, ch, obj, 0, TO_CHAR);
 				act(to_room, true, ch, obj, 0, TO_ROOM);
 			}
 			counter = 0;
 		}
+
+        // We needed the object until we had displayed the message.
+        // Now that the message has been displayed, it's no longer
+        // necessary
+        if (subcmd == SCMD_JUNK)
+            extract_obj(obj);
 
 		obj = next_obj;
 	}
