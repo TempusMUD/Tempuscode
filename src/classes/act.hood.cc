@@ -207,7 +207,6 @@ ACMD(do_drag_char)
 	struct room_data *location = NULL;
 
 	int percent, prob;
-	int found = 0;
     char *arg, *arg2;
 
 	int dir = -1;
@@ -237,14 +236,9 @@ ACMD(do_drag_char)
 	if (!ch->isOkToAttack(vict, true)) {
 		return;
 	}
-// Find out which direction the player wants to drag in
-	for (dir = 0; dir < NUM_DIRS && !found; dir++) {
-		if (is_abbrev(arg2, dirs[dir])) {
-			found = 1;
-			break;
-		}
-	}
-	if (!found) {
+    // Find out which direction the player wants to drag in
+    dir = search_block(arg2, dirs, false);
+	if (dir < 0) {
 		send_to_char(ch, "Sorry, that's not a valid direction.\r\n");
 		return;
 	}
@@ -262,7 +256,8 @@ ACMD(do_drag_char)
          && !House_can_enter(ch, target_room->number))
         || (ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
             && !clan_house_can_enter(ch, target_room))
-        || (ROOM_FLAGGED(target_room, ROOM_DEATH))) {
+        || (ROOM_FLAGGED(target_room, ROOM_DEATH))
+        || is_npk_combat(ch, vict)) {
         act("You are unable to drag $M there.", false, ch, 0, vict, TO_CHAR);
         return;
     }

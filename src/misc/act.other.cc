@@ -2232,9 +2232,8 @@ ACMD(do_drag)
 
 	int bits;
 
-	bits =
-		generic_find(argument, FIND_OBJ_ROOM | FIND_CHAR_ROOM, ch, &found_char,
-		&found_obj);
+	bits = generic_find(argument, FIND_OBJ_ROOM | FIND_CHAR_ROOM, ch,
+                        &found_char, &found_obj);
 
 	//Target is a character
 	if (!bits) {
