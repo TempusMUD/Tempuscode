@@ -1608,16 +1608,7 @@ char_to_game(descriptor_data *d)
 				" ***> New adventurer %s has entered the realm. <***\r\n",
 				GET_NAME(d->creature)));
 		do_start(d->creature, 0);
-
-		// New characters shouldn't get old mail.
-		if(has_mail(GET_IDNUM(d->creature))) {
-		   if(purge_mail(GET_IDNUM(d->creature))>0) {
-			   errlog("Purging pre-existing mailfile for new character.(%s)",
-					GET_NAME(d->creature));
-		   }
-		}
-
-	} else {
+    } else {
 		mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature), NRM, true,
 			"%s has entered the game in room #%d%s",
              GET_NAME(d->creature),

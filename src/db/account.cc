@@ -19,6 +19,7 @@
 #include "quest.h"
 #include "handler.h"
 #include "db.h"
+#include "mail.h"
 
 const char *ansi_levels[] = {
 	"none",
@@ -444,6 +445,14 @@ Account::create_char(const char *name)
 	_chars.push_back(GET_IDNUM(ch));
 	sql_exec("insert into players (idnum, name, account) values (%ld, '%s', %d)",
 		GET_IDNUM(ch), tmp_sqlescape(name), _id);
+
+    // New characters shouldn't get old mail.
+    if(has_mail(GET_IDNUM(ch))) {
+        if(purge_mail(GET_IDNUM(ch))>0) {
+            errlog("Purging pre-existing mailfile for new character.(%s)",
+                   GET_NAME(ch));
+        }
+    }
 
     // *** if this is our first player --- he be God ***
 	if( GET_IDNUM(ch) == 1) {
