@@ -1564,8 +1564,10 @@ signal_setup(void)
 	interval.tv_usec = 0;
 	itime.it_interval = interval;
 	itime.it_value = interval;
-	setitimer(ITIMER_VIRTUAL, &itime, NULL);
-	my_signal(SIGVTALRM, checkpointing);
+    if (production_mode) {
+        setitimer(ITIMER_VIRTUAL, &itime, NULL);
+        my_signal(SIGVTALRM, checkpointing);
+    }
 
 	/* just to be on the safe side: */
 	my_signal(SIGHUP, hupsig);
