@@ -603,9 +603,7 @@ burn_update_creature(Creature *ch)
     else if ((ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) &&
               (!CHAR_WITHSTANDS_FIRE(ch) ||
                ROOM_FLAGGED(ch->in_room, ROOM_GODROOM))) ||
-             (IS_VAMPIRE(ch) && OUTSIDE(ch) &&
-              ch->in_room->zone->weather->sunlight == SUN_LIGHT &&
-              GET_PLANE(ch->in_room) < PLANE_ASTRAL)) {
+             (IS_VAMPIRE(ch) && room_is_sunny(ch->in_room))) {
         send_to_char(ch, "Your body suddenly bursts into flames!\r\n");
         act("$n suddenly bursts into flames!", false, ch, 0, 0, TO_ROOM);
         GET_MANA(ch) = 0;
@@ -672,17 +670,12 @@ burn_update_creature(Creature *ch)
         !ROOM_FLAGGED(ch->in_room, ROOM_DOCK) &&
         GET_LEVEL(ch) < LVL_AMBASSADOR) {
 
-        int drown_factor = ch->getBreathCount() - ch->getBreathThreshold();
         int type = 0;
-
-        drown_factor = MAX(0, drown_factor);
 
         if (SECT_TYPE(ch->in_room) == SECT_FREESPACE ||
             SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_EARTH) {
             type = TYPE_SUFFOCATING;
-        }
-
-        else {
+        } else {
             type = TYPE_DROWNING;
         }
         if (damage(ch, ch, dice(4, 5), type, -1))
@@ -3258,15 +3251,13 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
         }
 	}
 
-    ///Knights act offesive, through a function! (bwahahaha)
-    //defined below
+    ///Knights act offensive, through a function! (bwahahaha)
 	if (cur_class == CLASS_KNIGHT) {
         if (knight_battle_activity(ch, precious_vict)) {
             return 0;
         }
     }
 
-	/* add new mobile fight routines here. */
 	if (cur_class == CLASS_MONK) {
 		if (GET_LEVEL(ch) >= 23 &&
 			GET_MOVE(ch) < (GET_MAX_MOVE(ch) >> 1) && GET_MANA(ch) > 100
@@ -3274,7 +3265,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 			do_battlecry(ch, tmp_strdup(""), 1, SCMD_KIA, 0);
 			return 0;
 		}
-		// Monks are way to nasty. Make them twiddle thier thumbs a tad bit.
+		// Monks are way too nasty. Make them twiddle thier thumbs a tad bit.
 		if (random_fractional_5())
 			return 0;
 
