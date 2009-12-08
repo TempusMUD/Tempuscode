@@ -17,7 +17,7 @@ room_is_sunny(room_data *room)
 
     // Explicitly dark
     if (ROOM_FLAGGED(room, ROOM_DARK))
-        return true;
+        return false;
     // Only the prime material plane has a sun
     if (!PRIME_MATERIAL_ROOM(room))
         return false;
