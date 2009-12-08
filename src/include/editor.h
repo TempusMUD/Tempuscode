@@ -22,6 +22,7 @@ public:
     void SendPrompt(void);
 
 	virtual bool IsEditing(char *inStr) =0;
+    void Finish(bool save);
 
 protected:
     CEditor() { }
@@ -48,7 +49,6 @@ protected:
     bool wrap;
 
 private:
-    void Finish(bool save);
 	void ProcessHelp(char *inStr);
 	void Help(char *inStr);		// Open refrigerator?
 	void UpdateSize(void);

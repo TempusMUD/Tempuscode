@@ -1384,7 +1384,7 @@ close_socket(struct descriptor_data *d)
 	struct descriptor_data *temp;
 	vector<descriptor_data *>::iterator vi;
 
-	close(d->descriptor);
+    close(d->descriptor);
 	flush_queues(d);
 
 	// Forget those this descriptor is snooping
@@ -1406,6 +1406,10 @@ close_socket(struct descriptor_data *d)
 		d->original = NULL;
 		d->creature->desc = d;
 	}
+
+	// Cancel any text editing
+	if (d->text_editor)
+        d->text_editor->Finish(false);
 
 	if (d->creature && d->creature->in_room) {
 	  // Lost link in-game
@@ -1437,10 +1441,6 @@ close_socket(struct descriptor_data *d)
 
 	if (d->showstr_head)
 		free(d->showstr_head);
-
-	// Free text editor object.
-	if (d->text_editor)
-		delete d->text_editor;
 
 	free(d);
 }
