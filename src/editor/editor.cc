@@ -700,7 +700,7 @@ CEditor::ProcessHelp(char *inStr)
 bool
 parse_optional_range(const char *arg, int &start, int &finish)
 {
-    char *dash = strchr(arg, '-');
+    const char *dash = strchr(arg, '-');
 
     if (dash) {
         char *str;

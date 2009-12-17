@@ -63,8 +63,7 @@ const int MAX_OBJ_AFFECT =    		16;
 
 const int CRIMINAL_REP =            300;	// minimum rep to be a criminal
 
-#ifndef __constants_cc__
-
+extern const char circlemud_version[];
 extern const struct str_app_type str_app[];
 extern const struct dex_skill_type dex_app_skill[];
 extern const struct dex_app_type dex_app[26];
@@ -162,7 +161,7 @@ extern const char *trail_flags[];
 extern const char *spell_bits[];
 extern const char *spell_bit_keywords[];
 
+extern const struct weap_spec_info weap_spec_char_class[];
 extern const int wear_bitvectors[];
 extern const char *desc_modes[];
-#endif							// __extern constants_cc__
 #endif

@@ -33,7 +33,6 @@
 
 #include "defs.h"
 #include "macros.h"
-#include "constants.h"
 #include "obj_data.h"
 #include "creature_list.h"
 #include "creature.h"
@@ -90,5 +89,7 @@ struct weap_spec_info {
 };
 
 extern struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
+
+#include "constants.h"
 
 #endif

@@ -3548,9 +3548,7 @@ ACMD(do_who)
 /* Generic page_string function for displaying text */
 ACMD(do_gen_ps)
 {
-	extern char circlemud_version[];
-
-	switch (subcmd) {
+    switch (subcmd) {
 	case SCMD_CREDITS:
 		page_string(ch->desc, credits);
 		break;

@@ -19,12 +19,10 @@
 #include "config.h"
 #endif
 
-#define __constants_cc__
-
 #include "structs.h"
 #include "spells.h"
 
-extern const char circlemud_version[] = {
+const char circlemud_version[] = {
 	"CircleMUD, version 3.00 beta patchlevel 8\r\n"
 };
 
@@ -32,7 +30,7 @@ extern const char circlemud_version[] = {
 
 /* (Note: strings for char_class definitions in char_class.c instead of here) */
 
-extern const char *operator_str[] = {
+const char *operator_str[] = {
 	"[({",
 	"])}",
 	"|+",
@@ -40,14 +38,14 @@ extern const char *operator_str[] = {
 	"^'"
 };
 
-extern const char *instrument_types[] = {
+const char *instrument_types[] = {
     "Percussion",
     "String",
     "Wind"
 };
 
 /* Extern Constant list for printing out who we sell to */
-extern const char *trade_letters[] = {
+const char *trade_letters[] = {
 	"Good",						/* First, the alignment based ones */
 	"Evil",
 	"Neutral",
@@ -117,7 +115,7 @@ const char *desc_modes[] = {
 	"\n"
 };
 
-extern const char *temper_str[] = {
+const char *temper_str[] = {
 	"puke",
 	"joint",
 	"spit",
@@ -127,14 +125,14 @@ extern const char *temper_str[] = {
 	"\n"
 };
 
-extern const char *shop_bits[] = {
+const char *shop_bits[] = {
 	"WILL_FIGHT",
 	"USES_BANK",
 	"WANDERS",
 	"\n"
 };
 
-extern const char *search_bits[] = {
+const char *search_bits[] = {
 	"REPEATABLE",
 	"TRIPPED",
 	"IGNORE",
@@ -169,7 +167,7 @@ extern const char *search_bits[] = {
 	"\n"
 };
 
-extern const char *searchflag_help[] = {
+const char *searchflag_help[] = {
 	"search can be repeated an indefinite number of times.",
 	"(RESERVED) search has been tripped.  internal use.",
 	"process tripping command after search.",
@@ -204,7 +202,7 @@ extern const char *searchflag_help[] = {
 	"\n"
 };
 
-extern const char *wear_eqpos[] = {
+const char *wear_eqpos[] = {
 	"light",
 	"finger_right",
 	"finger_left",
@@ -235,7 +233,7 @@ extern const char *wear_eqpos[] = {
 	"\n"
 };
 
-extern const char *wear_implantpos[] = {
+const char *wear_implantpos[] = {
 	"light",
 	"finger_right",
 	"finger_left",
@@ -266,7 +264,7 @@ extern const char *wear_implantpos[] = {
 	"\n"
 };
 
-extern const char *wear_tattoopos[] = {
+const char *wear_tattoopos[] = {
 	"-",
 	"-",
 	"-",
@@ -298,7 +296,7 @@ extern const char *wear_tattoopos[] = {
 };
 
 /* Attack types */
-extern const char *attack_type[] = {
+const char *attack_type[] = {
 	"hit",						/* 0 */
 	"sting",
 	"whip",
@@ -322,21 +320,21 @@ extern const char *attack_type[] = {
 };
 
 /* Reset__mode text */
-extern const char *reset_mode[] = {
+const char *reset_mode[] = {
 	"NEVER",
 	"EMPTY",
 	"ALWAYS",
 	"\r\n"
 };
 
-extern const char *zone_pk_flags[] = {
+const char *zone_pk_flags[] = {
     "!PK",
     "NPK",
     "CPK",
     "\n"
 };
 
-extern const char *zone_pk_names[] = {
+const char *zone_pk_names[] = {
     "no_pk",
     "neutral_pk",
     "chaotic_pk",
@@ -344,7 +342,7 @@ extern const char *zone_pk_names[] = {
 };
 
 /* Zone flags */
-extern const char *zone_flag_names[] = {
+const char *zone_flag_names[] = {
 	"autosave",
 	"resetsave",
 	"notifyowner",
@@ -377,7 +375,7 @@ extern const char *zone_flag_names[] = {
 	"\n"
 };
 /* Zone flags */
-extern const char *zone_flags[] = {
+const char *zone_flags[] = {
 	"AUTOSAVE",
 	"RESETSAVE",
 	"NOTIFYOWNER",
@@ -411,7 +409,7 @@ extern const char *zone_flags[] = {
 };
 
 /* cardinal directions */
-extern const char *dirs[] = {
+const char *dirs[] = {
 	"north",
 	"east",
 	"south",
@@ -423,7 +421,7 @@ extern const char *dirs[] = {
 	"\n"
 };
 
-extern const char *to_dirs[] = {
+const char *to_dirs[] = {
 	"north",
 	"east",
 	"south",
@@ -434,7 +432,7 @@ extern const char *to_dirs[] = {
 	"into the past",
 	"\n"
 };
-extern const char *from_dirs[] = {
+const char *from_dirs[] = {
 	"the south",
 	"the west",
 	"the north",
@@ -446,7 +444,7 @@ extern const char *from_dirs[] = {
 	"\n"
 };
 
-extern const char *search_commands[] = {
+const char *search_commands[] = {
 	"None",
 	"Door",
 	"Mobile",
@@ -462,7 +460,7 @@ extern const char *search_commands[] = {
 	"\n"
 };
 
-extern const char *search_cmd_short[] = {
+const char *search_cmd_short[] = {
 	"NONE",
 	"DOOR",
 	"MOBILE",
@@ -478,7 +476,7 @@ extern const char *search_cmd_short[] = {
 	"\n"
 };
 
-extern const char *home_town_abbrevs[] = {
+const char *home_town_abbrevs[] = {
 	"Modrian",
 	"New Thalos",
 	"Electro C.",
@@ -502,7 +500,7 @@ extern const char *home_town_abbrevs[] = {
 	"Newbie S",
 	"\n"
 };
-extern const char *home_towns[] = {
+const char *home_towns[] = {
 	"Modrian",
 	"New Thalos",
 	"Electro Centralis",
@@ -530,7 +528,7 @@ extern const char *home_towns[] = {
 };
 
 /* Imm levels */
-extern const char *level_abbrevs[] = {
+const char *level_abbrevs[] = {
 	"  AMB  ",
 	" IMMORT",
 	"BUILDER",
@@ -556,7 +554,7 @@ extern const char *level_abbrevs[] = {
 	"SUPREMO"
 };
 
-extern const char *diety_names[] = {
+const char *diety_names[] = {
 	"NONE",
 	"GUIHARIA",
 	"PAN",
@@ -566,7 +564,7 @@ extern const char *diety_names[] = {
 	"\n"
 };
 
-extern const char *alignments[] = {
+const char *alignments[] = {
 	"Good",
 	"Neutral",
 	"Evil",
@@ -574,7 +572,7 @@ extern const char *alignments[] = {
 };
 
 /* ROOM_x */
-extern const char *room_bits[] = {
+const char *room_bits[] = {
 	"DRK",
 	"DTH",
 	"!MOB",
@@ -609,7 +607,7 @@ extern const char *room_bits[] = {
 	"\n"
 };
 
-extern const char *roomflag_names[] = {
+const char *roomflag_names[] = {
 	"dark",
 	"deathtrap",
 	"nomob",
@@ -645,7 +643,7 @@ extern const char *roomflag_names[] = {
 };
 
 /* EX_x */
-extern const char *exit_bits[] = {
+const char *exit_bits[] = {
 	"DOOR",
 	"CLOSED",
 	"LOCKED",
@@ -676,7 +674,7 @@ extern const char *exit_bits[] = {
 };
 
 /* SECT_ */
-extern const char *sector_types[] = {
+const char *sector_types[] = {
 	"Inside",
 	"City",
 	"Field",
@@ -730,7 +728,7 @@ extern const char *sector_types[] = {
 	"\n"
 };
 
-extern const char *planes[] = {
+const char *planes[] = {
 	"Prime One",
 	"Prime Two",
 	"Neverwhere",
@@ -812,7 +810,7 @@ extern const char *planes[] = {
 	"\n"
 };
 
-extern const char *time_frames[] = {
+const char *time_frames[] = {
 	"Timeless",
 	"Modrian Era",
 	"Electro Era",
@@ -820,7 +818,7 @@ extern const char *time_frames[] = {
 };
 
 /* SEX_x */
-extern const char *genders[] = {
+const char *genders[] = {
 	"Neuter",
 	"Male",
 	"Female",
@@ -828,7 +826,7 @@ extern const char *genders[] = {
 };
 
 /* POS_x */
-extern const char *position_types[] = {
+const char *position_types[] = {
 	"Dead",
 	"Mortally wounded",
 	"Incapacitated",
@@ -845,14 +843,14 @@ extern const char *position_types[] = {
 };
 
 // PLR2_x
-extern const char *player2_bits[] = {
+const char *player2_bits[] = {
 	"SOULLESS",
 	"BURIED",
 	"IN_COMBAT",
 	"\n"
 };
 /* PLR_x */
-extern const char *player_bits[] = {
+const char *player_bits[] = {
 	"KILLER",
 	"THIEF",
 	"FROZEN",
@@ -889,7 +887,7 @@ extern const char *player_bits[] = {
 };
 
 /* MOB_x */
-extern const char *action_bits[] = {
+const char *action_bits[] = {
 	"SPEC",
 	"SENTINEL",
 	"SCAVENGER",
@@ -917,7 +915,7 @@ extern const char *action_bits[] = {
 	"\n"
 };
 
-extern const char *action_bits_desc[] = {
+const char *action_bits_desc[] = {
 	"Special",
 	"Sentinel",
 	"Scavenger",
@@ -945,7 +943,7 @@ extern const char *action_bits_desc[] = {
 	"\n"
 };
 
-extern const char *action2_bits[] = {
+const char *action2_bits[] = {
 	"SCRIPT",
 	"MOUNT",
 	"STAY_SECT",
@@ -965,7 +963,7 @@ extern const char *action2_bits[] = {
 	"\n"
 };
 
-extern const char *action2_bits_desc[] = {
+const char *action2_bits_desc[] = {
 	"script",
 	"Mount",
 	"Stay_Sector",
@@ -986,7 +984,7 @@ extern const char *action2_bits_desc[] = {
 };
 
 /* PRF_x */
-extern const char *preference_bits[] = {
+const char *preference_bits[] = {
 	"BRieF",
 	"CMPCT",
 	"DEAF",
@@ -1022,7 +1020,7 @@ extern const char *preference_bits[] = {
 	"\n"
 };
 
-extern const char *preference2_bits[] = {
+const char *preference2_bits[] = {
 	"DEBUG",
 	"Newbie-HLPR",
 	"DIAG",
@@ -1049,7 +1047,7 @@ extern const char *preference2_bits[] = {
 };
 
 /* AFF_x */
-extern const char *affected_bits[] = {
+const char *affected_bits[] = {
 	"BLiND",
 	"INViS",
 	"DT-ALN",
@@ -1085,7 +1083,7 @@ extern const char *affected_bits[] = {
 	"\n"
 };
 
-extern const char *affected_bits_desc[] = {
+const char *affected_bits_desc[] = {
 	"Blind",
 	"Invisible",
 	"Det_Alignment",
@@ -1120,7 +1118,7 @@ extern const char *affected_bits_desc[] = {
 	"\n"
 };
 
-extern const char *affected2_bits[] = {
+const char *affected2_bits[] = {
 	"FLUOR",
 	"TRANSP",
 	"SLOW",
@@ -1155,7 +1153,7 @@ extern const char *affected2_bits[] = {
 	"\n"
 };
 
-extern const char *affected2_bits_desc[] = {
+const char *affected2_bits_desc[] = {
 	"Fluorescent",
 	"Transparent",
 	"Slow",
@@ -1190,7 +1188,7 @@ extern const char *affected2_bits_desc[] = {
 	"\n"
 };
 
-extern const char *affected3_bits[] = {
+const char *affected3_bits[] = {
 	"ATTR-FIELD",
 	"ENERGY_LEAK",
 	"POISON-2",
@@ -1225,7 +1223,7 @@ extern const char *affected3_bits[] = {
 	"\n"
 };
 
-extern const char *affected3_bits_desc[] = {
+const char *affected3_bits_desc[] = {
 	"attraction_field",
     "Energy_Leak",
 	"Poison_2",
@@ -1261,7 +1259,7 @@ extern const char *affected3_bits_desc[] = {
 };
 
 /* AFF_x */
-extern const char *affected_bits_ident[] = {
+const char *affected_bits_ident[] = {
 	"This item will blind you.\r\n",
 	"This item will make you invisible.\r\n",
 	"This item will let you see auras of good and evil.\r\n",
@@ -1297,7 +1295,7 @@ extern const char *affected_bits_ident[] = {
 	"\n"
 };
 
-extern const char *affected2_bits_ident[] = {
+const char *affected2_bits_ident[] = {
 	"FLUOR",
 	"TRANSP",
 	"SLOW",
@@ -1333,7 +1331,7 @@ extern const char *affected2_bits_ident[] = {
 };
 
 /* WEAR_x - for eq list */
-extern const char *where[] = {
+const char *where[] = {
 	"<as light>       ",
 	"<on finger>      ",
 	"<on finger>      ",
@@ -1364,7 +1362,7 @@ extern const char *where[] = {
 	"\n"
 };
 
-extern const char *tattoo_pos_descs[] = {
+const char *tattoo_pos_descs[] = {
 	"<INVALID>        ",
 	"<INVALID>        ",
 	"<INVALID>        ",
@@ -1395,7 +1393,7 @@ extern const char *tattoo_pos_descs[] = {
 	"\n"
 };
 /* ITEM_x (ordinal object types) */
-extern const char *item_types[] = {
+const char *item_types[] = {
 	"UNDEFINED",
 	"LIGHT",
 	"SCROLL",
@@ -1464,7 +1462,7 @@ extern const char *item_types[] = {
 };
 
 /* ITEM_x (ordinal object types) */
-extern const char *item_type_descs[] = {
+const char *item_type_descs[] = {
 	"an undefined... something...",
 	"a light source",
 	"a magical scroll",
@@ -1531,7 +1529,7 @@ extern const char *item_type_descs[] = {
 	"a book",
 	"\n"
 };
-extern const char *item_value_types[][4] = {
+const char *item_value_types[][4] = {
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"},
 	{"Color", "Type", "Hours", "UNDEFINED"},	/* Light      */
 	{"Level", "Spell1", "Spell2", "Spell3"},	/* Scroll     */
@@ -1599,7 +1597,7 @@ extern const char *item_value_types[][4] = {
 	{"UNDEFINED", "UNDEFINED", "UNDEFINED", "UNDEFINED"}
 };
 
-extern const char *smoke_types[] = {
+const char *smoke_types[] = {
 	"none",
 	"dirtweed",
 	"desertweed",
@@ -1614,7 +1612,7 @@ extern const char *smoke_types[] = {
 };
 
 /* ITEM_WEAR_ (wear bitvector) */
-extern const char *wear_bits[] = {
+const char *wear_bits[] = {
 	"TAKE",
 	"FINGER",
 	"NECK",
@@ -1640,7 +1638,7 @@ extern const char *wear_bits[] = {
 	"\n"
 };
 
-extern const char *wear_keywords[] = {
+const char *wear_keywords[] = {
 	"!RESERVED! (light)",
 	"finger",
 	"!RESERVED! (finger)",
@@ -1671,7 +1669,7 @@ extern const char *wear_keywords[] = {
 	"\n"
 };
 
-extern const char *wear_description[] = {
+const char *wear_description[] = {
 	"!light!",
 	"right finger",
 	"left finger",
@@ -1703,7 +1701,7 @@ extern const char *wear_description[] = {
 };
 
 /* ITEM_x (extra bits) */
-extern const char *extra_bits[] = {
+const char *extra_bits[] = {
 	"GLOW",
 	"HUM",
 	"!RENT",
@@ -1737,7 +1735,7 @@ extern const char *extra_bits[] = {
 	"DAMNED",
 	"\n"
 };
-extern const char *extra_names[] = {
+const char *extra_names[] = {
 	"glow",
 	"hum",
 	"norent",
@@ -1772,7 +1770,7 @@ extern const char *extra_names[] = {
 	"\n"
 };
 
-extern const char *extra2_bits[] = {
+const char *extra2_bits[] = {
 	"RADACT",
 	"!MERC",
 	"!SPR1",
@@ -1807,7 +1805,7 @@ extern const char *extra2_bits[] = {
 	"\n"
 };
 
-extern const char *extra2_names[] = {
+const char *extra2_names[] = {
 	"radioactive",
 	"nomerc",
 	"nospare1",
@@ -1842,7 +1840,7 @@ extern const char *extra2_names[] = {
 	"\n"
 };
 
-extern const char *extra3_bits[] = {
+const char *extra3_bits[] = {
 	"MAGE",
 	"CLE",
 	"THI",
@@ -1867,7 +1865,7 @@ extern const char *extra3_bits[] = {
     "!SCI",
 	"\n"
 };
-extern const char *extra3_names[] = {
+const char *extra3_names[] = {
 	"mage",
 	"cleric",
 	"thief",
@@ -1893,7 +1891,7 @@ extern const char *extra3_names[] = {
 	"\n"
 };
 /* APPLY_x */
-extern const char *apply_types[] = {
+const char *apply_types[] = {
 	"NONE",
 	"STR",
 	"DEX",
@@ -1949,7 +1947,7 @@ extern const char *apply_types[] = {
 };
 
 /* CONT_x */
-extern const char *container_bits[] = {
+const char *container_bits[] = {
 	"CLOSEABLE",
 	"PICKPROOF",
 	"CLOSED",
@@ -1958,7 +1956,7 @@ extern const char *container_bits[] = {
 };
 
 /* LIQ_x */
-extern const char *drinks[] = {
+const char *drinks[] = {
 	"water",
 	"beer",
 	"wine",
@@ -2005,7 +2003,7 @@ extern const char *drinks[] = {
 /* other extern constants for liquids ******************************************/
 
 /* one-word alias for each drink */
-extern const char *drinknames[] = {
+const char *drinknames[] = {
 	"water",
 	"beer",
 	"wine",
@@ -2051,7 +2049,7 @@ extern const char *drinknames[] = {
 
 /* effect of drinks on hunger, thirst, and drunkenness -- see values.doc */
 /* (DRUNK, HUNGER, THIRST)*/
-extern const char drink_aff[][3] = {
+const char drink_aff[][3] = {
 	{0, 1, 10},					/*water */
 	{3, 2, 5},					/* beer */
 	{5, 2, 5},					/* wine */
@@ -2094,7 +2092,7 @@ extern const char drink_aff[][3] = {
 };
 
 /* color of the various drinks */
-extern const char *color_liquid[] = {
+const char *color_liquid[] = {
 	"clear",
 	"brown",
 	"deep red",
@@ -2137,7 +2135,7 @@ extern const char *color_liquid[] = {
 };
 
 /* level of fullness for drink containers */
-extern const char *fullness[] = {
+const char *fullness[] = {
 	"less than half ",
 	"about half ",
 	"more than half ",
@@ -2147,7 +2145,7 @@ extern const char *fullness[] = {
 /* str, int, wis, dex, con applies **************************************/
 
 /* [ch] strength apply (all) */
-extern const struct str_app_type str_app[] = {
+const struct str_app_type str_app[] = {
 	{-5, -4, 0, 0},
 	{-5, -4, 3, 1},
 	{-3, -2, 3, 2},
@@ -2189,7 +2187,7 @@ extern const struct str_app_type str_app[] = {
 
 /* [dex] skill apply (thieves only) */
 /* p_pocket, p_locks, traps, sneak, hide */
-extern const struct dex_skill_type dex_app_skill[26] = {
+const struct dex_skill_type dex_app_skill[26] = {
 	{-99, -99, -90, -99, -60},
 	{-90, -90, -60, -90, -50},
 	{-80, -80, -40, -80, -45},
@@ -2220,7 +2218,7 @@ extern const struct dex_skill_type dex_app_skill[26] = {
 
 /* [dex] apply (all) */
 /* reaction, miss_att, defensive, tohit, todam */
-extern const struct dex_app_type dex_app[26] = {
+const struct dex_app_type dex_app[26] = {
 	{-7, -7, 6, -5, -4},
 	{-6, -6, 5, -5, -4},
 	{-4, -4, 5, -3, -2},
@@ -2251,7 +2249,7 @@ extern const struct dex_app_type dex_app[26] = {
 
 /* [con] apply (all) */
 /* hitp, shock */
-extern const struct con_app_type con_app[26] = {
+const struct con_app_type con_app[26] = {
 	{-4, 20},
 	{-3, 25},
 	{-2, 30},
@@ -2280,13 +2278,13 @@ extern const struct con_app_type con_app[26] = {
 	{14, 100}					/* 25 */
 };
 
-extern const int mana_bonus[26] = {
+const int mana_bonus[26] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 10
 	1, 1, 1, 2, 2, 3, 4, 5, 6, 7, 8,	// 21
 	9, 10, 11, 12
 };
 
-extern const char *reputation_msg[] = {
+const char *reputation_msg[] = {
 	"Innocent",				// 0 reputation
 	"Mostly Harmless",		// 1-99
 	"Unfriendly",			// 100-199
@@ -2301,7 +2299,7 @@ extern const char *reputation_msg[] = {
 	"True Killer"			// 1000 reputation
 };
 
-extern const char *spell_wear_off_msg[] = {
+const char *spell_wear_off_msg[] = {
 	"RESERVED DB.C",			/* 0 */
 	"You feel less protected.",	/* 1 */
 	"!Teleport!",
@@ -2727,7 +2725,7 @@ extern const char *spell_wear_off_msg[] = {
 	"\n"
 };
 
-extern const char *item_wear_off_msg[] = {
+const char *item_wear_off_msg[] = {
     "!RESERVED!",                                               /* 0 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 5 */
 	"!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!", "!UNUSED!",	/* 10 */
@@ -2890,7 +2888,7 @@ extern const char *item_wear_off_msg[] = {
     "\n"
 };
 
-extern const int rev_dir[] = {
+const int rev_dir[] = {
 	2,
 	3,
 	0,
@@ -2901,7 +2899,7 @@ extern const int rev_dir[] = {
 	6
 };
 
-extern const char movement_loss[] = {
+const char movement_loss[] = {
 	1,							// Inside
 	1,							// City
 	2,							// Field
@@ -2953,7 +2951,7 @@ extern const char movement_loss[] = {
 	6,							// deep ocean
 };
 
-extern const char *weekdays[7] = {
+const char *weekdays[7] = {
 	"the Day of the Moon",
 	"the Day of the Bull",
 	"the Day of the Deception",
@@ -2963,7 +2961,7 @@ extern const char *weekdays[7] = {
 	"the Day of the Sun"
 };
 
-extern const char *month_name[16] = {
+const char *month_name[16] = {
 	"Month of Winter",			/* 0 */
 	"Month of the Dire Wolf",
 	"Month of the Frost Giant",
@@ -2982,7 +2980,7 @@ extern const char *month_name[16] = {
 	"Month of the Great Evil"
 };
 
-extern const int daylight_mod[16] = {
+const int daylight_mod[16] = {
 	-1, -1,
 	0, 0, 0, 0,
 	1, 1, 1, 1,
@@ -2990,15 +2988,15 @@ extern const int daylight_mod[16] = {
 	-1, -1
 };
 
-extern const char *sun_types[] = {
+const char *sun_types[] = {
 	"dark", "rise", "light", "set"
 };
 
-extern const char *sky_types[] = {
+const char *sky_types[] = {
 	"clear", "cloudy", "rain", "storm"
 };
 
-extern const char *lunar_phases[] = {
+const char *lunar_phases[] = {
 	"new",
 	"waxing crescent",
 	"first quarter",
@@ -3010,7 +3008,7 @@ extern const char *lunar_phases[] = {
 	"\n"
 };
 
-extern const char *moon_sky_types[] = {
+const char *moon_sky_types[] = {
 	"not visible",
 	"rising",
 	"in the east",
@@ -3020,7 +3018,7 @@ extern const char *moon_sky_types[] = {
 	"\n"
 };
 
-extern const char eq_pos_order[] = {
+const char eq_pos_order[] = {
 	WEAR_HEAD,
 	WEAR_FACE,
 	WEAR_EYES,
@@ -3051,7 +3049,7 @@ extern const char eq_pos_order[] = {
 	0, 0, 0, 0, 0, 0
 };
 
-extern const char implant_pos_order[] = {
+const char implant_pos_order[] = {
 	WEAR_HEAD,
 	WEAR_FACE,
 	WEAR_EYES,
@@ -3078,7 +3076,7 @@ extern const char implant_pos_order[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-extern const char tattoo_pos_order[] = {
+const char tattoo_pos_order[] = {
 	WEAR_HEAD,
 	WEAR_FACE,
 	WEAR_EAR_L,
@@ -3099,7 +3097,7 @@ extern const char tattoo_pos_order[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-extern const char *material_names[] = {
+const char *material_names[] = {
 	"indeterminate",
 	"water",
 	"fire",
@@ -3346,7 +3344,7 @@ extern const char *material_names[] = {
     "\n"
 };
 
-extern const int weapon_proficiencies[] = {
+const int weapon_proficiencies[] = {
 	0,							/* TYPE_HIT */
 	SKILL_PROF_WHIP,
 	SKILL_PROF_WHIP,
@@ -3368,7 +3366,7 @@ extern const int weapon_proficiencies[] = {
 	0, 0, 0
 };
 
-extern const char *soilage_bits[] = {
+const char *soilage_bits[] = {
 	"wet",
 	"bloody",
 	"muddy",
@@ -3389,13 +3387,13 @@ extern const char *soilage_bits[] = {
 	"\n"
 };
 
-extern const char *trail_flags[] = {
+const char *trail_flags[] = {
 	"BLOODPRINTS",
 	"BLOOD_DROPS",
 	"\n"
 };
 
-extern const char *spell_bits[] = {
+const char *spell_bits[] = {
 	"DAM",
 	"AFF",
 	"UNAFF",
@@ -3428,7 +3426,7 @@ extern const char *spell_bits[] = {
 	"\n"
 };
 
-extern const char *spell_bit_keywords[] = {
+const char *spell_bit_keywords[] = {
 	"damage",
 	"affects",
 	"unaffects",
@@ -3461,7 +3459,7 @@ extern const char *spell_bit_keywords[] = {
 	"\n"
 };
 
-extern const weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
+const weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
 	{
 	3.5, 3},					// mage
 	{
@@ -3498,7 +3496,7 @@ extern const weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
 	1.5, 6}						// spare3
 };
 
-extern const int wear_bitvectors[] =
+const int wear_bitvectors[] =
 	{ ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_FINGER,
 	ITEM_WEAR_NECK, ITEM_WEAR_NECK, ITEM_WEAR_BODY,
 	ITEM_WEAR_HEAD, ITEM_WEAR_LEGS, ITEM_WEAR_FEET,

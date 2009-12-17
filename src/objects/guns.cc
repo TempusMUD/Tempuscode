@@ -21,7 +21,7 @@
 #include "char_class.h"
 #include "guns.h"
 
-extern const char *gun_types[] = {
+const char *gun_types[] = {
 	"none",
 	".22 cal",
 	".223 cal",
@@ -70,7 +70,7 @@ extern const char *egun_types[] = {
 	"\n"
 };*/
 
-extern const char *egun_types[] = {
+const char *egun_types[] = {
     "laser",
     "plasma",
     "ion",

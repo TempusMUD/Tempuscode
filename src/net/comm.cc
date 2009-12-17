@@ -2170,7 +2170,6 @@ void
 act_if(const char *str, int hide_invisible, struct Creature *ch,
 	struct obj_data *obj, thing *vict_obj, int type, act_if_predicate pred)
 {
-	struct Creature *to;
 	struct obj_data *o, *o2 = NULL;
 	static int sleep;
 	struct room_data *room = NULL;
@@ -2229,9 +2228,7 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
     }
 	else if (obj && obj->in_room != NULL) {
 		room = obj->in_room;
-	} else if (!room && to && (to = vict_obj->to_c()) && to->in_room != NULL) { //needed for bombs
-        room = to->in_room;
-    }
+	}
 
     if (!room) {
 		errlog("no valid target to act()!");

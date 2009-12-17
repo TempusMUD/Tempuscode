@@ -165,7 +165,7 @@ gain_skill_prof(struct Creature *ch, int skl)
 }
 
 /* Names first */
-extern const char *char_class_abbrevs[] = {
+const char *char_class_abbrevs[] = {
 	"Mage",						/* 0 */
 	"Cler",
 	"Thie",
@@ -266,7 +266,7 @@ extern const char *char_class_abbrevs[] = {
 	"\n"
 };
 
-extern const char *class_names[] = {
+const char *class_names[] = {
 	"Mage",
 	"Cleric",
 	"Thief",
@@ -488,7 +488,7 @@ parse_player_class(char *arg)
 	return CLASS_UNDEFINED;
 }
 
-extern const char *player_race[] = {
+const char *player_race[] = {
 	"Human",
 	"Elf",
 	"Dwarf",
