@@ -2250,6 +2250,7 @@ single_mobile_activity(Creature *ch)
                     } else {
                         emit_voice(ch, vict, VOICE_ATTACKING);
                         best_initial_attack(ch, vict);
+                        return;
                     }
                 }
             }
