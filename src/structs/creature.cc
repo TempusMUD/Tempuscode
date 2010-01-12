@@ -599,6 +599,7 @@ Creature::extract(cxn_state con_state)
 			}
 		}
         mountedList.remove(*cit);
+        break;
     }
 
 	for (cit = huntingList.begin(); cit != huntingList.end(); ++cit) {
