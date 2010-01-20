@@ -32,9 +32,9 @@ struct prog_token {
 
 struct prog_code_block {
     prog_code_block *next;
-    unsigned short code_seg[8196];
+    unsigned short code_seg[MAX_STRING_LENGTH];
     unsigned short *code_pt;
-    char data_seg[8196];
+    char data_seg[MAX_STRING_LENGTH];
     char *data_pt;
 };
 
