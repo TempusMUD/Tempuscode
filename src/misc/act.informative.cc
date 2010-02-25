@@ -1399,7 +1399,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 		list_char_to_char(room->people, ch);
 		acc_sprintf(CCNRM(ch, C_NRM));
 	} else {
-        acc_sprintf("\r\n");
+        acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
     }
 
     send_to_char(ch, "%s", acc_get_string());
