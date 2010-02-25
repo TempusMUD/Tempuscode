@@ -23,6 +23,8 @@
 #include <string>
 #include <cstdlib>
 #include <iostream>
+#include <queue>
+#include <cassert>
 
 #include "structs.h"
 #include "utils.h"
@@ -1322,6 +1324,19 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 			return (do_simple_move(ch, dir, mode, need_specials_check));
 
 		was_in = ch->in_room;
+
+        // This insanity is because we want followers to follow the
+        // leader after the leader goes, but we want to know if they
+        // saw the leader leave before he actually leaves.  We're just
+        // iterating twice over the list, storing the visibility into
+        // a FIFO of booleans.  It may seem like overkill, but this
+        // caused some player confusion.
+        std::queue<bool> visibility;
+
+        for (k = ch->followers; k; k = k->next) {
+            visibility.push(can_see_creature(k->follower, ch));
+        }
+
 		int retval = 0;
 		if ((retval = do_simple_move(ch, dir, mode, need_specials_check)) != 0)
 			return retval;
@@ -1331,11 +1346,24 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
 			if ((was_in == k->follower->in_room) &&
 				!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING)
 				&& (k->follower->getPosition() >= POS_STANDING)
-				&& can_see_creature(k->follower, ch)) {
-				act("You follow $N.\r\n", false, k->follower, 0, ch, TO_CHAR);
-				perform_move(k->follower, dir, MOVE_NORM, 1);
+				&& visibility.front()) {
+                const char *msg = "You follow $N.\r\n";
+                // These conditions match those in check_sight_room() in sight.cc
+                if (room_is_dark(ch->in_room) && !has_dark_sight(k->follower))
+                    msg = tmp_sprintf("You follow %s into darkness.\r\n",
+                                      GET_DISGUISED_NAME(k->follower, ch));
+                else if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED)
+                         && !AFF3_FLAGGED(k->follower, AFF3_SONIC_IMAGERY))
+                    msg = tmp_sprintf("You follow %s into dense smoke.\r\n",
+                                      GET_DISGUISED_NAME(k->follower, ch));
+
+                act(msg, false, k->follower, 0, ch, TO_CHAR);
+                perform_move(k->follower, dir, MOVE_NORM, 1);
 			}
+            visibility.pop();
 		}
+        // We should have used up all the visibility items
+        assert(visibility.empty());
 		return 0;
 	}
 
