@@ -23,7 +23,6 @@ SPECIAL(gen_locker)
 	if (ch->in_room->number == 2346) {	/* Newbie tower     */
 		locker_room = real_room(2347);
 		locker_vnum = 2311;
-		/*    cost_factor = 50; */
 	} else if (ch->in_room->number == 30113) {	/* Camshaft Fitness */
 		locker_room = real_room(30198);
 		locker_vnum = 30076;

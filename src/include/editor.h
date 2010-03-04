@@ -70,7 +70,6 @@ private:
 class CTextEditor : public CEditor {
 public:
     CTextEditor(descriptor_data *desc, char **target, int max);
-    virtual ~CTextEditor(void);
 
     virtual bool IsEditing(char *inStr __attribute__ ((unused)))
     {
@@ -124,7 +123,6 @@ protected:
 class CProgEditor : public CEditor {
 public:
     CProgEditor(descriptor_data *desc, thing *o, prog_evt_type t);
-    virtual ~CProgEditor(void);
 
     virtual bool IsEditing(char *inStr)
     {

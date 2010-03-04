@@ -5,7 +5,7 @@
 #include <map>
 #include "safe_list.h"
 
-class Creature;
+struct Creature;
 
 class CreatureList:public SafeList <Creature *> {
   public:

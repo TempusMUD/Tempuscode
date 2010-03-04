@@ -56,20 +56,6 @@ const char *gun_types[] = {
 	"\n"
 };
 
-/*
-extern const char *egun_types[] = {
-	"none",
-	"lightning",
-	"plasma",
-	"ion",
-	"laser",
-	"disruption",
-	"phaser",
-	"microwave",
-	"gamma",
-	"\n"
-};*/
-
 const char *egun_types[] = {
     "laser",
     "plasma",
@@ -82,7 +68,7 @@ const char *egun_types[] = {
     "unknown"
 };
 
-extern const int gun_damage[][2] = {
+const int gun_damage[][2] = {
 	{0, 0},						/* none  */
 	{14, 7},					/* .22   */
 	{24, 11},					/* .223  */

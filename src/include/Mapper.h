@@ -1,8 +1,6 @@
 #ifndef _MAPPER_H_
 #define _MAPPER_H_
 
-using namespace std;
-// Tempus Includes
 #include "screen.h"
 #include "desc_data.h"
 #include "comm.h"

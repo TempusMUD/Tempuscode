@@ -9,10 +9,6 @@ MobileMap::MobileMap() : map<int, Creature *>()
 {
 }
 
-MobileMap::~MobileMap()
-{
-}
-
 bool MobileMap::add(Creature *ch)
 {
     int vnum = 0;

@@ -20,9 +20,6 @@
 // Copyright 2002 by John Rothe, all rights reserved.
 //
 
-#ifndef _OBJ_MATCHER_H
-#define _OBJ_MATCHER_H
-
 #include <string>
 #include <climits>
 using namespace std;
@@ -227,5 +224,4 @@ class ObjectExtraMatcher : public ObjectMatcher {
 		int noextra3;
 };
 
-#endif
 #endif

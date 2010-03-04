@@ -385,7 +385,6 @@ do_create_room(struct Creature *ch, int vnum)
 
 	struct room_data *rm = NULL, *new_rm = NULL;
 	struct zone_data *zone = NULL;
-	//int i;
 
 	if ((rm = real_room(vnum))) {
 		send_to_char(ch, "ERROR: Room already exists.\r\n");
@@ -420,33 +419,9 @@ do_create_room(struct Creature *ch, int vnum)
 				break;
 		}
 	}
-	//CREATE( new_rm, struct room_data, 1 );
 	new_rm = new room_data(vnum, zone);
 	new_rm->name = strdup("A Freshly Made Room");
 
-	/*
-	   new_rm->zone = zone;
-	   new_rm->number = vnum;
-	   new_rm->description = NULL;
-	   new_rm->sounds = NULL;
-	   new_rm->room_flags = 0;
-	   new_rm->sector_type = 0;
-	   new_rm->func = NULL;
-	   new_rm->contents = NULL;
-	   new_rm->people = NULL;
-	   new_rm->light = 0;
-	   new_rm->max_occupancy = 256;
-	   new_rm->find_first_step_index = 0;
-
-	   for ( i = 0; i < NUM_OF_DIRS; i++ )
-	   new_rm->dir_option[i] = NULL;
-
-	   new_rm->ex_description = NULL;
-	   new_rm->search = NULL;
-	   new_rm->flow_dir = 0;
-	   new_rm->flow_speed = 0;
-	   new_rm->flow_type = 0;
-	 */
 	if (rm) {
 		new_rm->next = rm->next;
 		rm->next = new_rm;
@@ -593,7 +568,6 @@ do_destroy_room(struct Creature *ch, int vnum)
 					t_rm->dir_option[i]->to_room = NULL;
 
 	top_of_world--;
-	//free( rm );
 	delete rm;
 	return 0;
 }

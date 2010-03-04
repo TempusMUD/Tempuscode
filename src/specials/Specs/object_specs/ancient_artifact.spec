@@ -15,9 +15,9 @@ SPECIAL(ancient_artifact)
 		// mega-blast makes mob lose 10% of current hp
 		strcpy(buf,
 			"A bright blue beam erupts from $p with a screaming roar!");
-		send_to_char(ch, CCCYN(ch, C_NRM));
+		send_to_char(ch, "%s", CCCYN(ch, C_NRM));
 		act(buf, false, ch, obj, 0, TO_CHAR);
-		send_to_char(ch, CCNRM(ch, C_NRM));
+		send_to_char(ch, "%s", CCNRM(ch, C_NRM));
 		act(buf, true, ch, obj, 0, TO_ROOM);
 		strcpy(buf, "$N screams silently as $E briefly fades from existence!");
 		act(buf, false, ch, obj, ch->findRandomCombat(), TO_CHAR);
@@ -26,9 +26,9 @@ SPECIAL(ancient_artifact)
 		GET_HIT(target) -= GET_HIT(target) / 10;
 	} else if (number(0, 99)) {
 		strcpy(buf, "$p rumbles disquietingly in your hands.");
-		send_to_char(ch, CCCYN(ch, C_NRM));
+		send_to_char(ch, "%s", CCCYN(ch, C_NRM));
 		act(buf, false, ch, obj, 0, TO_CHAR);
-		send_to_char(ch, CCNRM(ch, C_NRM));
+		send_to_char(ch, "%s", CCNRM(ch, C_NRM));
 		strcpy(buf, "$p rumbles disquietingly in $n's hands.");
 		act(buf, true, ch, obj, 0, TO_ROOM);
 	} else {

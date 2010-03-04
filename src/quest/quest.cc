@@ -158,8 +158,6 @@ public:
     }
     void loadQuests();
     void add( Quest &q ) { push_back(q); }
-    vector<Quest>::size;
-    vector<Quest>::operator[];
     void save();
     int getNextVnum() {
         return ++top_vnum;
@@ -169,6 +167,8 @@ public:
             top_vnum = vnum;
         }
     }
+    using vector<Quest>::size;
+    using vector<Quest>::operator[];
 private:
     int top_vnum;
     const char *filename;
@@ -255,7 +255,7 @@ void							//Load mobile.
 do_qcontrol_mload(Creature *ch, char *argument, int com)
 {
 	struct Creature *mob;
-	struct Quest *quest = NULL;
+	class Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	int number;
 
@@ -300,7 +300,7 @@ do_qcontrol_mload(Creature *ch, char *argument, int com)
 void // Set loadroom for quest participants
 do_qcontrol_loadroom(Creature *ch, char *argument, int com)
 {
-	struct Quest *quest = NULL;
+	class Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	int number;
 
@@ -370,7 +370,7 @@ static void
 do_qcontrol_oload(Creature *ch, char *argument, int com)
 {
 	struct obj_data *obj;
-	struct Quest *quest = NULL;
+	class Quest *quest = NULL;
 	int number;
 	char arg2[MAX_INPUT_LENGTH];
 
@@ -507,7 +507,7 @@ do_qcontrol_purge(Creature *ch, char *argument)
 {
 
 	struct Creature *vict;
-	struct Quest *quest = NULL;
+	class Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 
 	argument = two_arguments(argument, arg1, buf);
@@ -1660,7 +1660,7 @@ do_qcontrol_unmute(Creature *ch, char *argument, int com)
 static void
 do_qcontrol_switch(Creature *ch, char *argument)
 {
-	struct Quest *quest = NULL;
+	class Quest *quest = NULL;
 
 	if ((!(quest = quest_by_vnum(GET_QUEST(ch))) ||
          !quest->isPlaying(GET_IDNUM(ch))  )

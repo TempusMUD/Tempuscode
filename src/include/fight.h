@@ -136,42 +136,9 @@ bool perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *retur
 void perform_cleave(Creature *ch, Creature *vict, int *return_flags);
 void punish_killer_death(Creature *ch);
 
-#ifdef __combat_code__
-#ifdef __combat_utils__
-static int limb_probs[] = {
-	0,							//#define WEAR_LIGHT      0
-	3,							//#define WEAR_FINGER_R   1
-	3,							//#define WEAR_FINGER_L   2
-	4,							//#define WEAR_NECK_1     3
-	4,							//#define WEAR_NECK_2     4
-	35,							//#define WEAR_BODY       5
-	12,							//#define WEAR_HEAD       6
-	20,							//#define WEAR_LEGS       7
-	5,							//#define WEAR_FEET       8
-	10,							//#define WEAR_HANDS      9
-	25,							//#define WEAR_ARMS      10
-	50,							//#define WEAR_SHIELD    11
-	0,							//#define WEAR_ABOUT     12
-	10,							//#define WEAR_WAIST     13
-	5,							//#define WEAR_WRIST_R   14
-	5,							//#define WEAR_WRIST_L   15
-	0,							//#define WEAR_WIELD     16
-	0,							//#define WEAR_HOLD      17
-	15,							//#define WEAR_CROTCH    18
-	5,							//#define WEAR_EYES      19
-	5,							//#define WEAR_BACK      20
-	0,							//#define WEAR_BELT      21
-	10,							//#define WEAR_FACE      22
-	4,							//#define WEAR_EAR_L     23
-	4,							//#define WEAR_EAR_R     24
-	0,							//#define WEAR_WIELD_2   25
-	0,							//#define WEAR_ASS       26
-};
 //#define NUM_WEARS      27 /* This must be the # of eq positions!! */
-#endif
 
-#ifdef __combat_messages__
-static int wear_translator[] = {
+const int wear_translator[] = {
 	WEAR_LIGHT, WEAR_FINGER_R, WEAR_FINGER_R, WEAR_NECK_1, WEAR_NECK_1,
 	WEAR_BODY, WEAR_HEAD, WEAR_LEGS, WEAR_FEET, WEAR_HANDS, WEAR_ARMS,
 	WEAR_SHIELD, WEAR_BACK, WEAR_WAIST, WEAR_WRIST_R, WEAR_WRIST_R,
@@ -180,7 +147,7 @@ static int wear_translator[] = {
 };
 
 /* Weapon attack texts */
-extern const struct attack_hit_type attack_hit_text[] = {
+const struct attack_hit_type attack_hit_text[] = {
 	{"hit", "hits"},			/* 0 */
 	{"sting", "stings"},
 	{"whip", "whips"},
@@ -203,7 +170,7 @@ extern const struct attack_hit_type attack_hit_text[] = {
 };
 
 /* Energy weapon attack texts */
-extern const struct gun_hit_type gun_hit_text[] = {
+const struct gun_hit_type gun_hit_text[] = {
     {"fire", "fires", "laser beam"},
     {"ignite", "ignites", "plasma eruption"},
     {"discharge", "discharges", "ionic pulse"},
@@ -215,7 +182,6 @@ extern const struct gun_hit_type gun_hit_text[] = {
     {"shoot", "shoots", "unknown force"} //leave this as the top type if adding new types
 };
 
-#endif							// __combat_messages__
 /* External structures */
 extern struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 
@@ -235,7 +201,6 @@ int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 
 int choose_random_limb(Creature *victim);
 
-#endif
 #ifdef __fight_c__
 /* Structures */
 struct Creature *combat_list = NULL;	/* head of list of fighting chars */

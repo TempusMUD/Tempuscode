@@ -589,7 +589,7 @@ acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev
 								: i->in_room->zone->name,
 							CCNRM(ch, C_NRM));
 
-					++found;
+					found = true;
 				}
 			}
 		}

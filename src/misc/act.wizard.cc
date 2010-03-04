@@ -1122,7 +1122,6 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
 {
     int i, found;
     struct extra_descr_data *desc;
-    extern struct attack_hit_type attack_hit_text[];
     extern const char *egun_types[];
     struct room_data *rm = NULL;
 
@@ -1546,7 +1545,7 @@ do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
         return;
 
     for (tmp_obj_affect *aff = obj->tmp_affects;aff; aff = aff->next) {
-        stat_prefix = tmp_sprintf("AFF: (%3dhr) [%3hhd] %s%-20s%s",
+        stat_prefix = tmp_sprintf("AFF: (%3dhr) [%3d] %s%-20s%s",
                                   aff->duration, aff->level, CCCYN(ch, C_NRM),
                                   spell_to_str(aff->type), CCNRM(ch, C_NRM));
 
@@ -1666,7 +1665,6 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
 	const char *line_buf;
     struct follow_type *fol;
     struct affected_type *aff;
-    extern struct attack_hit_type attack_hit_text[];
 
 	if (IS_PC(k)
         && !(ch->isTester() && ch == k)
@@ -3656,16 +3654,16 @@ ACMD(do_wiznet)
 				PLR_WRITING | PLR_MAILING | PLR_OLC))) {
 
             if (subcmd == SCMD_IMMCHAT) {
-                send_to_char(d->creature, CCYEL(d->creature, C_SPR));
+                send_to_char(d->creature, "%s", CCYEL(d->creature, C_SPR));
             } else {
-                send_to_char(d->creature, CCCYN(d->creature, C_SPR));
+                send_to_char(d->creature, "%s", CCCYN(d->creature, C_SPR));
             }
             if (can_see_creature(d->creature, ch))
                 send_to_char(d->creature, "%s", buf1);
             else
                 send_to_char(d->creature, "%s", buf2);
 
-            send_to_char(d->creature, CCNRM(d->creature, C_SPR));
+            send_to_char(d->creature, "%s", CCNRM(d->creature, C_SPR));
         }
     }
 }
@@ -3861,7 +3859,6 @@ ACMD(do_wizutil)
 static void
 list_skills_to_char(struct Creature *ch, struct Creature *vict)
 {
-    extern struct spell_info_type spell_info[];
     char buf3[MAX_STRING_LENGTH];
     int i, sortpos;
 

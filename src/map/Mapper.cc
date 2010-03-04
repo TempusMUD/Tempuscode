@@ -2,7 +2,6 @@
 #include "config.h"
 #endif
 
-using namespace std;
 #include "Mapper.h"
 #include "tokenizer.h"
 #include <signal.h>

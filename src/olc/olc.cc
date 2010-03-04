@@ -49,6 +49,7 @@
 #include "mobile_map.h"
 #include "object_map.h"
 #include "mobile_map.h"
+#include "fight.h"
 
 extern const char *language_names[];
 extern const char *race_language[][2];
@@ -159,7 +160,6 @@ OLCIMP(Creature * ch)
 "  (default !toroom only)\n"
 
 extern struct room_data *world;
-//extern struct obj_data *obj_proto;
 extern struct Creature *mob_proto;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
@@ -224,7 +224,6 @@ void do_clear_olc_mob(struct Creature *ch);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
 	0);
-extern struct attack_hit_type attack_hit_text[];
 
 const char *olc_commands[] = {
 	"rsave",					/* save wld file */

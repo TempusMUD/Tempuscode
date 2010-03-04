@@ -1426,7 +1426,6 @@ reset_char(struct Creature *ch)
 
 	ch->followers = NULL;
 	ch->master = NULL;
-	/* ch->in_room = NOWHERE; Used for start in room */
 	ch->carrying = NULL;
 	ch->removeAllCombat();
 	ch->char_specials.position = POS_STANDING;

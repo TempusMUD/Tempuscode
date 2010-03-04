@@ -196,7 +196,7 @@ struct room_trail_data {
 };
 
 /* ================== Memory Structure for room ======================= */
-class room_data : public thing {
+struct room_data : public thing {
   public:						// methods
 	room_data(room_num n = -1, struct zone_data *z = NULL);
 	bool isOpenAir(void);

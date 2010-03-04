@@ -165,7 +165,7 @@ gain_skill_prof(struct Creature *ch, int skl)
 }
 
 /* Names first */
-const char *char_class_abbrevs[] = {
+extern const char *char_class_abbrevs[] = {
 	"Mage",						/* 0 */
 	"Cler",
 	"Thie",
@@ -266,7 +266,7 @@ const char *char_class_abbrevs[] = {
 	"\n"
 };
 
-const char *class_names[] = {
+extern const char *class_names[] = {
 	"Mage",
 	"Cleric",
 	"Thief",

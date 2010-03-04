@@ -6,7 +6,7 @@
 
 class ExecutableObject;
 class CreatureRace;
-class Creature;
+struct Creature;
 
 using namespace std;
 

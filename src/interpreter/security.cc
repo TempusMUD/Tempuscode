@@ -438,13 +438,16 @@ namespace Security {
             return false;
 
         Tokenizer tokens(group_name,',');
-        char token[strlen(group_name) + 1];
+        char *token = new char[strlen(group_name) + 1];
 
         while( tokens.next(token) ) {
             list<Group>::iterator it = findGroup(token);
-            if( it != groups.end() && (*it).member(ch) )
+            if( it != groups.end() && (*it).member(ch) ) {
+                delete [] token;
                 return true;
+            }
         }
+        delete [] token;
         return false;
     }
 

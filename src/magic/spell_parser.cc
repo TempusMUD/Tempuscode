@@ -1044,7 +1044,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 		else {
 			GET_MANA(ch) -= mag_manacost(ch, spellnum);
 			if (!ch->desc) {
-				WAIT_STATE( ch, (3 RL_SEC) ); //PULSE_VIOLENCE);
+				WAIT_STATE( ch, (3 RL_SEC) );
 			}
 		}
 	}

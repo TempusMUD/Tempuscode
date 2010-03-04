@@ -66,8 +66,6 @@ check_mob_reaction(struct Creature *ch, struct Creature *vict)
 		return 0;
 }
 
-// #define RAW_EQ_DAM(ch, pos, var)
-
 inline int
 RAW_EQ_DAM(struct Creature *ch, int pos, int *var)
 {
@@ -1177,14 +1175,14 @@ ACMD(do_order)
 {
 	bool detect_opponent_master(Creature *ch, Creature *opp);
 
-	char name[MAX_INPUT_LENGTH], message[MAX_INPUT_LENGTH];
-	char buf[MAX_INPUT_LENGTH + 56];
+    const char *name, *message;
 	bool found = false;
 	struct room_data *org_room;
 	struct Creature *vict;
 	struct follow_type *k = NULL;
 
-	half_chop(argument, name, message);
+    name = tmp_getword(&argument);
+    message = argument;
 
 	if (!*name || !*message)
 		send_to_char(ch, "Order who to do what?\r\n");
@@ -1200,16 +1198,19 @@ ACMD(do_order)
 			return;
 		}
 		if (vict) {
-			send_to_char(vict, CCBLD(vict, C_SPR));
-			send_to_char(vict, CCRED(vict, C_NRM));
-			sprintf(buf, "$N orders you to '%s'", message);
-			act(buf, false, vict, 0, ch, TO_CHAR);
-			send_to_char(vict, CCNRM(vict, C_SPR));
+			act(tmp_sprintf("%s%s$N orders you to '%s'.%s",
+                            CCBLD(vict, C_SPR),
+                            CCRED(vict, C_NRM),
+                            message,
+                            CCNRM(vict, C_SPR)),
+                false, vict, 0, ch, TO_CHAR);
 			act("$n gives $N an order.", false, ch, 0, vict, TO_NOTVICT);
-			send_to_char(ch, CCBLD(ch, C_SPR));
-			send_to_char(ch, CCRED(ch, C_NRM));
-			send_to_char(ch, "You order %s to '%s'.\r\n", PERS(vict, ch), message);
-			send_to_char(ch, CCNRM(ch, C_SPR));
+			send_to_char(ch, "%s%sYou order %s to '%s'.%s\r\n",
+                         CCBLD(vict, C_SPR),
+                         CCRED(vict, C_NRM),
+                         PERS(vict, ch),
+                         message,
+                         CCNRM(ch, C_SPR));
 
 			if (((vict->master != ch) || !AFF_FLAGGED(vict, AFF_CHARM) ||
 					GET_CHA(ch) < number(0, GET_INT(vict))) &&
@@ -1232,13 +1233,14 @@ ACMD(do_order)
 
 			}
 		} else {				/* This is order "followers" */
-			sprintf(buf, "$n issues the order '%s'.", message);
-			act(buf, false, ch, 0, vict, TO_ROOM);
+			act(tmp_sprintf("$n issues the order '%s'.", message),
+                false, ch, 0, vict, TO_ROOM);
 
-			send_to_char(ch, CCBLD(ch, C_SPR));
-			send_to_char(ch, CCRED(ch, C_NRM));
-			send_to_char(ch, "You order your followers to '%s'.\r\n", message);
-			send_to_char(ch, CCNRM(ch, C_SPR));
+			send_to_char(ch, "%s%sYou order your followers to '%s'.%s\r\n",
+                         CCBLD(vict, C_SPR),
+                         CCRED(vict, C_NRM),
+                         message,
+                         CCNRM(ch, C_SPR));
 
 			org_room = ch->in_room;
 
@@ -3089,7 +3091,7 @@ do_combat_fire(struct Creature *ch, struct Creature *vict)
     else
         return -1;
 
-	//if our victim is NULL we simply return;
+	//if our victim is NULL we simply return
 	if (vict == NULL) {
 		errlog("NULL vict in %s().", __FUNCTION__);
 		return 0;

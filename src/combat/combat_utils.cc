@@ -541,6 +541,36 @@ apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
 	return pos;
 }
 
+int limb_probs[] = {
+	0,							//#define WEAR_LIGHT      0
+	3,							//#define WEAR_FINGER_R   1
+	3,							//#define WEAR_FINGER_L   2
+	4,							//#define WEAR_NECK_1     3
+	4,							//#define WEAR_NECK_2     4
+	35,							//#define WEAR_BODY       5
+	12,							//#define WEAR_HEAD       6
+	20,							//#define WEAR_LEGS       7
+	5,							//#define WEAR_FEET       8
+	10,							//#define WEAR_HANDS      9
+	25,							//#define WEAR_ARMS      10
+	50,							//#define WEAR_SHIELD    11
+	0,							//#define WEAR_ABOUT     12
+	10,							//#define WEAR_WAIST     13
+	5,							//#define WEAR_WRIST_R   14
+	5,							//#define WEAR_WRIST_L   15
+	0,							//#define WEAR_WIELD     16
+	0,							//#define WEAR_HOLD      17
+	15,							//#define WEAR_CROTCH    18
+	5,							//#define WEAR_EYES      19
+	5,							//#define WEAR_BACK      20
+	0,							//#define WEAR_BELT      21
+	10,							//#define WEAR_FACE      22
+	4,							//#define WEAR_EAR_L     23
+	4,							//#define WEAR_EAR_R     24
+	0,							//#define WEAR_WIELD_2   25
+	0,							//#define WEAR_ASS       26
+};
+
 int
 choose_random_limb(Creature *victim)
 {

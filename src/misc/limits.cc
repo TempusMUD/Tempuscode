@@ -471,7 +471,7 @@ gain_condition(struct Creature *ch, int condition, int value)
 int
 check_idling(struct Creature *ch)
 {
-	void set_desc_state(int state, struct descriptor_data *d);
+	void set_desc_state(cxn_state state, struct descriptor_data *d);
 
 	if (++(ch->char_specials.timer) > 1 && ch->desc)
 		ch->desc->repeat_cmd_count = 0;

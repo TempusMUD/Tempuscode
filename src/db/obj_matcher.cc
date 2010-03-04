@@ -121,7 +121,7 @@ bool ObjectApplyMatcher::isMatch( obj_data *obj ) {
     return false;
 }
 const char*
-ObjectApplyMatcher::getAddedInfo(Creature *ch __attribute__ ((unused)),
+ObjectApplyMatcher::getAddedInfo(Creature *ch __attribute__((unused)),
                                  obj_data *obj) {
 	int modifier = 0;
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {

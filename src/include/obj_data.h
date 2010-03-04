@@ -30,7 +30,7 @@
 
 /* object-related defines ********************************************/
 struct Creature;
-class room_data;
+struct room_data;
 
 /* Item types: used by obj_data.obj_flags.type_flag */
 static const int ITEM_LIGHT = 1;	/* Item is a light source   */

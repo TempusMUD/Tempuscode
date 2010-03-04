@@ -288,7 +288,7 @@ namespace Security {
         }
         if( pos != 1 )
             send_to_char(ch, "\r\n");
-        send_to_char(ch, CCNRM(ch,C_NRM));
+        send_to_char(ch, "%s", CCNRM(ch,C_NRM));
         return true;
     }
 

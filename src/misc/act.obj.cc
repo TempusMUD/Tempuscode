@@ -49,7 +49,6 @@
 /* extern variables */
 extern struct room_data *world;
 extern struct obj_data *object_list;
-//extern struct obj_data *obj_proto;
 int total_coins = 0;
 int total_credits = 0;
 extern struct obj_data *dam_object;

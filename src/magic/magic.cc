@@ -1672,7 +1672,7 @@ mag_affects(int level,
 
 	case SPELL_SENSE_LIFE:
 		to_vict = "You feel your awareness improve.";
-		af.duration = 1;		//level;
+		af.duration = 1;		//level
 		af.bitvector = AFF_SENSE_LIFE;
 		accum_duration = true;
 		break;
@@ -2987,7 +2987,6 @@ mag_masses(byte level, struct Creature *ch, int spellnum, int savetype)
 int
 mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 {
-	//struct Creature *tch, *next_tch;
 	const char *to_char = NULL;
 	const char *to_room = NULL;
 	const char *to_next_room = NULL;

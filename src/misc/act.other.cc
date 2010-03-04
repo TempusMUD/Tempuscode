@@ -1857,7 +1857,7 @@ ACMD(do_throw)
 		}
 		obj_from_char(obj);
 		obj_to_room(obj, ch->in_room);
-	}							// else if (obj) {
+	}
 	else if (vict) {
 		send_to_char(ch, "You cannot throw people.\r\n");
 	}

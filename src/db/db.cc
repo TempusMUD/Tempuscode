@@ -148,7 +148,6 @@ char *olc_guide = NULL;			/* creation tips                 */
 char *quest_guide = NULL;		/* quest guidelines             */
 
 struct time_info_data time_info;	/* the infomation about the time    */
-/*struct weather_data weather_info;        the infomation about the weather */
 extern struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 extern bool production_mode;
 struct reset_q_type reset_q;	/* queue of zones to be reset         */
@@ -172,7 +171,6 @@ void boot_dynamic_text(void);
 void boot_tongues(void);
 void boot_voices(void);
 
-/*int is_empty(struct zone_data *zone); */
 void reset_zone(struct zone_data *zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
@@ -2783,7 +2781,6 @@ zone_update(void)
 	for (update_u = reset_q.head; update_u; update_u = update_u->next)
 		if (update_u->zone_to_reset->reset_mode == 2 ||
 			!update_u->zone_to_reset->num_players) {
-			/*        is_empty(update_u->zone_to_reset)) { */
 			reset_zone(update_u->zone_to_reset);
 			slog("Auto zone reset: %s", update_u->zone_to_reset->name);
 			/* dequeue */
@@ -3401,20 +3398,6 @@ real_zone(int number)
 struct Creature *
 real_mobile_proto(int vnum)
 {
-/*	struct Creature *mobile = NULL;
-
-	CreatureList::iterator mit = mobilePrototypes.begin();
-	for (; mit != mobilePrototypes.end(); ++mit) {
-		mobile = *mit;
-		if (mobile->mob_specials.shared->vnum >= vnum) {
-			if (mobile->mob_specials.shared->vnum == vnum)
-				return (mobile);
-			else
-				return NULL;
-		}
-	}
-	return (NULL); */
-
     return mobilePrototypes.find(vnum);
 }
 

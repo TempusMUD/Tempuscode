@@ -1290,7 +1290,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 	}
 
     acc_string_clear();
- 	acc_sprintf(CCCYN(ch, C_NRM));
+ 	acc_sprintf("%s", CCCYN(ch, C_NRM));
 	if (PRF_FLAGGED(ch, PRF_ROOMFLAGS) ||
 		(ch->desc->original
 			&& PRF_FLAGGED(ch->desc->original, PRF_ROOMFLAGS))) {
@@ -1393,11 +1393,11 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 			}
 		}
 
-		acc_sprintf(CCGRN(ch, C_NRM));
+		acc_sprintf("%s", CCGRN(ch, C_NRM));
 		list_obj_to_char(room->contents, ch, SHOW_OBJ_ROOM, false);
-		acc_sprintf(CCYEL(ch, C_NRM));
+		acc_sprintf("%s", CCYEL(ch, C_NRM));
 		list_char_to_char(room->people, ch);
-		acc_sprintf(CCNRM(ch, C_NRM));
+		acc_sprintf("%s", CCNRM(ch, C_NRM));
 	} else {
         acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
     }
@@ -1431,14 +1431,14 @@ look_in_direction(struct Creature *ch, int dir)
 				acc_sprintf("You see nothing special.\r\n");
 
 			else if (EXNUMB->name) {
-				acc_sprintf(CCCYN(ch, C_NRM));
+				acc_sprintf("%s", CCCYN(ch, C_NRM));
 				if (PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
 					sprintbit((long)ROOM_FLAGS(EXNUMB), room_bits, buf);
 					acc_sprintf("[%5d] %s [ %s] [ %s ]", EXNUMB->number,
 						EXNUMB->name, buf, sector_types[EXNUMB->sector_type]);
 				} else
 					acc_sprintf("%s", EXNUMB->name);
-				acc_sprintf(CCNRM(ch, C_NRM));
+				acc_sprintf("%s", CCNRM(ch, C_NRM));
 				acc_sprintf("\r\n");
 				for (aff = ch->in_room->affects; aff; aff = aff->next)
 					if (aff->type == dir && aff->description)
@@ -1458,14 +1458,13 @@ look_in_direction(struct Creature *ch, int dir)
 			else {
 
 				/* now list characters & objects */
-				acc_sprintf(CCGRN(ch, C_NRM));
+				acc_sprintf("%s", CCGRN(ch, C_NRM));
 				list_obj_to_char(EXNUMB->contents, ch, SHOW_OBJ_ROOM, false);
-				acc_sprintf(CCYEL(ch, C_NRM));
+				acc_sprintf("%s", CCYEL(ch, C_NRM));
 				list_char_to_char(EXNUMB->people, ch);
-				acc_sprintf(CCNRM(ch, C_NRM));
+				acc_sprintf("%s", CCNRM(ch, C_NRM));
 			}
 		}
-		//      send_to_char("You see nothing special.\r\n", ch);
 
 		if (!IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN | EX_NOPASS)) {
 			if (IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED)

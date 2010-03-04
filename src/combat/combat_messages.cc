@@ -341,20 +341,18 @@ blood_spray(struct Creature *ch,
 		break;
 	}
 
-	send_to_char(ch, CCRED(ch, C_NRM));
+	send_to_char(ch, "%s", CCRED(ch, C_NRM));
 	act(tmp_sprintf(to_char,
                             attacktype >= TYPE_HIT ?
                             attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype)),
         false, ch, 0, victim, TO_CHAR);
-	send_to_char(ch, CCNRM(ch, C_NRM));
-
-	;
-	send_to_char(victim, CCRED(victim, C_NRM));
+	send_to_char(ch, "%s", CCNRM(ch, C_NRM));
+	send_to_char(victim, "%s", CCRED(victim, C_NRM));
 	act(tmp_sprintf(to_vict,
                     attacktype >= TYPE_HIT ?
                     attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype)),
         false, ch, 0, victim, TO_VICT);
-	send_to_char(victim, CCNRM(victim, C_NRM));
+	send_to_char(victim, "%s", CCNRM(victim, C_NRM));
 
 	CreatureList::iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
@@ -1251,11 +1249,11 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
         if (location == WEAR_MSHIELD)
-            send_to_char(ch, CCMAG(ch, C_NRM));
+            send_to_char(ch, "%s", CCMAG(ch, C_NRM));
         else
-		    send_to_char(ch, CCYEL(ch, C_NRM));
+		    send_to_char(ch, "%s", CCYEL(ch, C_NRM));
 		act(buf, false, ch, weap, victim, TO_CHAR | TO_SLEEP);
-		send_to_char(ch, CCNRM(ch, C_NRM));
+		send_to_char(ch, "%s", CCNRM(ch, C_NRM));
 	}
 	/* damage message to damagee */
 	if ((msgnum || !PRF_FLAGGED(victim, PRF_GAGMISS)) && victim->desc) {
@@ -1298,11 +1296,11 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural, NULL);
         if (location == WEAR_MSHIELD)
-            send_to_char(victim, CCCYN(victim, C_NRM));
+            send_to_char(victim, "%s", CCCYN(victim, C_NRM));
         else
-		    send_to_char(victim, CCRED(victim, C_NRM));
+		    send_to_char(victim, "%s", CCRED(victim, C_NRM));
 		act(buf, false, ch, weap, victim, TO_VICT | TO_SLEEP);
-		send_to_char(victim, CCNRM(victim, C_NRM));
+		send_to_char(victim, "%s", CCNRM(victim, C_NRM));
 	}
 
 	if (BLOODLET(victim, dam, w_type + TYPE_HIT))
@@ -1356,44 +1354,44 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 							TO_NOTVICT | TO_VICT_RM);
 						if (ch != vict &&
                             find_distance(ch->in_room, vict->in_room) < 3) {
-							send_to_char(ch, CCYEL(ch, C_NRM));
+							send_to_char(ch, "%s", CCYEL(ch, C_NRM));
 							act(msg->die_msg.attacker_msg, false, ch, weap,
 								vict, TO_CHAR);
-							send_to_char(ch, CCNRM(ch, C_NRM));
+							send_to_char(ch, "%s", CCNRM(ch, C_NRM));
 						}
 
 					}
 
-					send_to_char(vict, CCRED(vict, C_NRM));
+					send_to_char(vict, "%s", CCRED(vict, C_NRM));
 					act(msg->die_msg.victim_msg, false, ch, weap, vict,
 						TO_VICT | TO_SLEEP);
-					send_to_char(vict, CCNRM(vict, C_NRM));
+					send_to_char(vict, "%s", CCNRM(vict, C_NRM));
 
 				} else {
 					if (ch) {
 						act(msg->hit_msg.room_msg, false, ch, weap, vict,
 							TO_NOTVICT | TO_VICT_RM);
 						if (ch != vict && ch->in_room == vict->in_room) {
-							send_to_char(ch, CCYEL(ch, C_NRM));
+							send_to_char(ch, "%s", CCYEL(ch, C_NRM));
 							act(msg->hit_msg.attacker_msg, false, ch, weap,
 								vict, TO_CHAR);
-							send_to_char(ch, CCNRM(ch, C_NRM));
+							send_to_char(ch, "%s", CCNRM(ch, C_NRM));
 						}
 					}
 
-					send_to_char(vict, CCRED(vict, C_NRM));
+					send_to_char(vict, "%s", CCRED(vict, C_NRM));
 					act(msg->hit_msg.victim_msg, false, ch, weap, vict,
 						TO_VICT | TO_SLEEP);
-					send_to_char(vict, CCNRM(vict, C_NRM));
+					send_to_char(vict, "%s", CCNRM(vict, C_NRM));
 
 				}
 			} else if (ch != vict) {	/* Dam == 0 */
 				if (ch && (!IS_WEAPON(attacktype) || !PRF_FLAGGED(ch, PRF_GAGMISS))) {
                     if (ch->in_room == vict->in_room) {
-					    send_to_char(ch, CCYEL(ch, C_NRM));
+					    send_to_char(ch, "%s", CCYEL(ch, C_NRM));
 					    act(msg->miss_msg.attacker_msg, false, ch, weap, vict,
 						    TO_CHAR);
-					    send_to_char(ch, CCNRM(ch, C_NRM));
+					    send_to_char(ch, "%s", CCNRM(ch, C_NRM));
                     }
 
 					act(msg->miss_msg.room_msg, false, ch, weap, vict,
@@ -1402,10 +1400,10 @@ skill_message(int dam, struct Creature *ch, struct Creature *vict,
 
 				if (!IS_WEAPON(attacktype)
                     || !PRF_FLAGGED(vict, PRF_GAGMISS)) {
-                    send_to_char(vict, CCRED(vict, C_NRM));
+                    send_to_char(vict, "%s", CCRED(vict, C_NRM));
                     act(msg->miss_msg.victim_msg, false, ch, weap, vict,
                         TO_VICT | TO_SLEEP);
-                    send_to_char(vict, CCNRM(vict, C_NRM));
+                    send_to_char(vict, "%s", CCNRM(vict, C_NRM));
                 }
 			}
 			if (BLOODLET(vict, dam, attacktype))

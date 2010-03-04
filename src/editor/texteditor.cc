@@ -70,10 +70,6 @@ CTextEditor::CTextEditor(descriptor_data *desc,
     DisplayBuffer();
 }
 
-CTextEditor::~CTextEditor(void)
-{
-}
-
 bool
 CTextEditor::PerformCommand(char cmd, char *args)
 {

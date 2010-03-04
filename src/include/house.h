@@ -10,9 +10,9 @@
 
 using namespace std;
 
-class Creature;
-class obj_data;
-class room_data;
+struct Creature;
+struct obj_data;
+struct room_data;
 
 static inline char*
 get_house_file_path( int id )

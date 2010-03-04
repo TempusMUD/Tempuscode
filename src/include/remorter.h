@@ -347,7 +347,7 @@ Quiz::sendQuestion(Creature * ch)
 	for (int i = 0; i < q->getChoiceCount(); i++) {
 		send_to_char(ch, "%s\r\n", q->getChoice(i));
 	}
-	send_to_char(ch, CCNRM(ch, C_NRM));
+	send_to_char(ch, "%s", CCNRM(ch, C_NRM));
 	/*
 	   for( unsigned int i = 0;i < hints.size(); i++ ) {
 	   sprintf(buf,"Hint: %s\r\n",q->getHint(i));

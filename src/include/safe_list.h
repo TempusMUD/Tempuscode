@@ -144,8 +144,8 @@ template <class T> class SafeList:protected list <T> {
 		}
   }
 	// Upgrades from list<T>
-	list <T>::size;
-	list <T>::insert;
+	using list <T>::size;
+	using list <T>::insert;
 	// list<T>'s begin and end don't work quite right
 	iterator begin() {
 		return iterator(this);
@@ -158,9 +158,9 @@ template <class T> class SafeList:protected list <T> {
     **/
 	void add(T c) {
 		if (_prepend)
-			push_front(c);
+			this->push_front(c);
 		else
-			push_back(c);
+			this->push_back(c);
 	}
 
 	/**

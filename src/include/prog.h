@@ -3,7 +3,7 @@
 
 #include "constants.h"
 
-class Creature;
+struct Creature;
 
 enum prog_evt_type {
 	PROG_TYPE_NONE,

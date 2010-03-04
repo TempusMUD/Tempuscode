@@ -43,7 +43,6 @@ enum {
 };
 
 class Voice {
-    static const
     struct  {
         char situation;
         char *command;

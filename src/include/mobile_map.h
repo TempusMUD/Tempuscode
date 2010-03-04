@@ -10,7 +10,6 @@ class MobileMap : public map<int, Creature *>
 {
     public:
         MobileMap();
-        ~MobileMap();
 
         bool add(Creature *ch);
         bool remove(Creature *ch);

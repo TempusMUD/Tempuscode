@@ -1123,7 +1123,6 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				if (IS_OBJ_STAT2(impl, ITEM2_GODEQ | ITEM2_CURSED_PERM))
 					impl_dam = (int)(impl_dam * 0.7);
 			}
-			//    struct obj_data *the_obj = impl ? impl : obj;
 
 			/* here are the object oriented damage specifics */
 			if ((attacktype == TYPE_SLASH || attacktype == TYPE_PIERCE ||
@@ -2809,9 +2808,9 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 		action_msg = tmp_sprintf("$p begins to hum and shake%s!",
                                  weap->worn_on == WEAR_WIELD ||
                                  weap->worn_on == WEAR_WIELD_2 ? " in your hand" : "");
-	send_to_char(ch, CCCYN(ch, C_NRM));
+	send_to_char(ch, "%s", CCCYN(ch, C_NRM));
 	act(action_msg, false, ch, weap, 0, TO_CHAR);
-	send_to_char(ch, CCNRM(ch, C_NRM));
+	send_to_char(ch, "%s", CCNRM(ch, C_NRM));
 
 	act(tmp_sprintf("$p begins to hum and shake%s!",
                     weap->worn_on == WEAR_WIELD ||

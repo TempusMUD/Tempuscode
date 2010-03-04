@@ -3,10 +3,10 @@
 
 #include <signal.h>
 
-class Creature;
-class obj_data;
-class room_data;
-class zone_data;
+struct Creature;
+struct obj_data;
+struct room_data;
+struct zone_data;
 struct prog_state_data;
 
 enum thing_kind {
@@ -16,7 +16,7 @@ enum thing_kind {
     ZONE
 };
 
-class thing {
+struct thing {
 public:
     thing(thing_kind kind) : prog_state(0), prog_marker(0), _kind(kind) {}
     thing(const thing &o) : prog_state(0), prog_marker(o.prog_marker), _kind(o._kind) {}

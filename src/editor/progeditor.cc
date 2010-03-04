@@ -56,10 +56,6 @@ CProgEditor::CProgEditor(descriptor_data *desc,
     DisplayBuffer();
 }
 
-CProgEditor::~CProgEditor(void)
-{
-}
-
 bool
 CProgEditor::PerformCommand(char cmd, char *args)
 {
