@@ -581,10 +581,11 @@ void
 index_boot(int mode)
 {
 	const char *index_filename;
+    const char *index_path;
     const char *prefix = NULL;
+    const char *file_path;
 	FILE *index, *db_file;
 	int rec_count = 0, index_count = 0, number = 9, i;
-    const char *path;
 
 	switch (mode) {
 	case DB_BOOT_WLD:
@@ -610,23 +611,26 @@ index_boot(int mode)
 	else
 		index_filename = INDEX_FILE;
 
-	path = tmp_sprintf("%s/%s", prefix, index_filename);
+	index_path = tmp_sprintf("%s/%s", prefix, index_filename);
 
-	if (!(index = fopen(path, "r"))) {
-		if (!(index = fopen(path, "a+"))) {
-			perror(tmp_sprintf("Error opening index file '%s'", path));
+	if (!(index = fopen(index_path, "r"))) {
+		if (!(index = fopen(index_path, "a+"))) {
+			perror(tmp_sprintf("Error opening index file '%s'", index_path));
 			safe_exit(1);
 		}
 	}
 
 	/* first, count the number of records in the file so we can malloc */
 	char line[1024];
-    fscanf(index, "%s\n", line);
+    if (fscanf(index, "%s\n", line) != 1) {
+        errlog("Format error reading %s, line 1", index_path);
+        safe_exit(1);
+    }
 	while (*line != '$') {
-		path = tmp_sprintf("%s/%s", prefix, line);
-        db_file = fopen(path, "r");
+		file_path = tmp_sprintf("%s/%s", prefix, line);
+        db_file = fopen(file_path, "r");
         if (!db_file) {
-            perror(tmp_sprintf("Unable to open: %s", path));
+            perror(tmp_sprintf("Unable to open: %s", file_path));
             safe_exit(1);
         }
         if (mode == DB_BOOT_ZON)
@@ -635,7 +639,10 @@ index_boot(int mode)
             rec_count += count_hash_records(db_file);
         index_count++;
         fclose(db_file);
-        fscanf(index, "%s\n", line);
+        if (fscanf(index, "%s\n", line) != 1) {
+            errlog("Format error reading %s, line %d", index_path, index_count + 1);
+            safe_exit(1);
+        }
 	}
 
 	if (!rec_count) {
@@ -680,13 +687,22 @@ index_boot(int mode)
 
 		for (i = 0; i < index_count; i++) {
 			if (mode == DB_BOOT_OBJ) {
-				fscanf(index, "%d.obj\n", &number);
+				if (fscanf(index, "%d.obj\n", &number) != 1) {
+                    errlog("Format error reading %s", index_path);
+                    safe_exit(1);
+                }
 				obj_index[i] = number;
 			} else if (mode == DB_BOOT_MOB) {
-				fscanf(index, "%d.mob\n", &number);
+				if (fscanf(index, "%d.mob\n", &number) != 1) {
+                    errlog("Format error reading %s", index_path);
+                    safe_exit(1);
+                }
 				mob_index[i] = number;
 			} else if (mode == DB_BOOT_WLD) {
-				fscanf(index, "%d.wld\n", &number);
+				if (fscanf(index, "%d.wld\n", &number) != 1) {
+                    errlog("Format error reading %s", index_path);
+                    safe_exit(1);
+                }
 				wld_index[i] = number;
 			}
 		}
@@ -701,12 +717,15 @@ index_boot(int mode)
 
 	rewind(index);
 
-    fscanf(index, "%s\n", line);
+    if (fscanf(index, "%s\n", line) != 1) {
+        errlog("Format error reading %s", index_path);
+        safe_exit(1);
+    }
     while (*line != '$') {
-		path = tmp_sprintf("%s/%s", prefix, line);
-        db_file = fopen(path, "r");
+		file_path = tmp_sprintf("%s/%s", prefix, line);
+        db_file = fopen(file_path, "r");
         if (!db_file) {
-            perror(tmp_sprintf("Unable to open: %s", path));
+            perror(tmp_sprintf("Unable to open: %s", file_path));
             safe_exit(1);
         }
 		switch (mode) {
@@ -720,7 +739,10 @@ index_boot(int mode)
 			break;
 		}
         fclose(db_file);
-        fscanf(index, "%s\n", line);
+        if (fscanf(index, "%s\n", line) != 1) {
+            errlog("Format error reading %s", index_path);
+            safe_exit(1);
+        }
 	}
 
     fclose(index);
@@ -3341,31 +3363,42 @@ int
 file_to_string(const char *name, char *buf)
 {
 	FILE *fl;
-	char tmp[129];
+	char tmp[READ_SIZE+2];
+    size_t buflen = 0;
 
 	*buf = '\0';
 
 	if (!(fl = fopen(name, "r"))) {
-		sprintf(tmp, "Error reading %s", name);
-		perror(tmp);
+		perror(tmp_sprintf("Error reading %s", name));
 		return (-1);
 	}
-	do {
-		fgets(tmp, READ_SIZE, fl);
-		tmp[strlen(tmp) - 1] = '\0';	/* remove trailing \n */
-		strcat(tmp, "\r\n");
+    while (fgets(tmp, READ_SIZE, fl)) {
+        /* replace trailing newline with crlf */
+        char *c = strchr(tmp, '\n');
+        if (c) {
+            *c++ = '\r';
+            *c++ = '\n';
+            *c = '\0';
+        }
 
-		if (!feof(fl)) {
-			if (strlen(buf) + strlen(tmp) + 1 > MAX_STRING_LENGTH) {
-				errlog("fl->strng: string too big (db.c, file_to_string)");
-				*buf = '\0';
-				return (-1);
-			}
-			strcat(buf, tmp);
-		}
-	} while (!feof(fl));
+        size_t len = strlen(tmp);
+        if (buflen + len + 1 > MAX_STRING_LENGTH) {
+            errlog("fl->strng: string too big (db.c, file_to_string)");
+            *buf = '\0';
+            return (-1);
+        }
 
-	fclose(fl);
+        strcpy(buf, tmp);
+        buflen += len;
+        buf += len;
+	}
+
+	if (!feof(fl)) {
+        perror(tmp_sprintf("Error reading %s", name));
+        return (-1);
+    }
+
+    fclose(fl);
 
 	return (0);
 }

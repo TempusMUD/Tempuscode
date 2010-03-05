@@ -561,137 +561,45 @@ add_stalker(struct Creature *ch, struct Creature *leader)
  * The newline character is removed from the input.  Lines which begin
  * with '*' are considered to be comments.
  *
- * Returns the number of lines advanced in the file.
+ * Returns the number of lines advanced in the file or 0 if EOF.
  */
 int
-get_line(FILE * fl, char *buf)
+get_line(FILE *fl, char *buf)
 {
-	char temp[512];
+	char temp[256] = "";
 	int lines = 0;
 
-	temp[0] = '\0';
-	do {
-		lines++;
-		fgets(temp, 256, fl);
-		temp[511] = '\0';
-		if (*temp)
-			temp[strlen(temp) - 1] = '\0';
-	} while (!feof(fl) && (*temp == '*' || !*temp));
+    while (fgets(temp, 255, fl)) {
+        lines++;
+        if (temp[0] && temp[0] != '*')
+            break;
+    }
+    if (feof(fl))
+        return 0;
 
-	if (feof(fl))
-		return 0;
-	else {
-		strcpy(buf, temp);
-		return lines;
-	}
+    char *c = strchr(temp, '\n');
+    if (c)
+        *c = '\0';
+
+    strcpy(buf, temp);
+    return lines;
 }
 
 void
 num2str(char *str, int num)
 {
-	str[0] = 0;
-
 	if (num == 0) {
-		str[0] = '0';
-		str[1] = '\0';
+        strcpy(str, "0");
 		return;
 	}
 
-	if (num & (1 << 0))
-		strncat(str, "a", 1);
+    const char *encoding = "abcdefghijklmnopqrstuvwxyzABCDEF";
+    const char *c = encoding;
+    for (int i = 0;i < 32;i++, c++)
+        if (num & (1 << i))
+            *str++ = *c;
 
-	if (num & (1 << 1))
-		strncat(str, "b", 1);
-
-	if (num & (1 << 2))
-		strncat(str, "c", 1);
-
-	if (num & (1 << 3))
-		strncat(str, "d", 1);
-
-	if (num & (1 << 4))
-		strncat(str, "e", 1);
-
-	if (num & (1 << 5))
-		strncat(str, "f", 1);
-
-	if (num & (1 << 6))
-		strncat(str, "g", 1);
-
-	if (num & (1 << 7))
-		strncat(str, "h", 1);
-
-	if (num & (1 << 8))
-		strncat(str, "i", 1);
-
-	if (num & (1 << 9))
-		strncat(str, "j", 1);
-
-	if (num & (1 << 10))
-		strncat(str, "k", 1);
-
-	if (num & (1 << 11))
-		strncat(str, "l", 1);
-
-	if (num & (1 << 12))
-		strncat(str, "m", 1);
-
-	if (num & (1 << 13))
-		strncat(str, "n", 1);
-
-	if (num & (1 << 14))
-		strncat(str, "o", 1);
-
-	if (num & (1 << 15))
-		strncat(str, "p", 1);
-
-	if (num & (1 << 16))
-		strncat(str, "q", 1);
-
-	if (num & (1 << 17))
-		strncat(str, "r", 1);
-
-	if (num & (1 << 18))
-		strncat(str, "s", 1);
-
-	if (num & (1 << 19))
-		strncat(str, "t", 1);
-
-	if (num & (1 << 20))
-		strncat(str, "u", 1);
-
-	if (num & (1 << 21))
-		strncat(str, "v", 1);
-
-	if (num & (1 << 22))
-		strncat(str, "w", 1);
-
-	if (num & (1 << 23))
-		strncat(str, "x", 1);
-
-	if (num & (1 << 24))
-		strncat(str, "y", 1);
-
-	if (num & (1 << 25))
-		strncat(str, "z", 1);
-
-	if (num & (1 << 26))
-		strncat(str, "A", 1);
-
-	if (num & (1 << 27))
-		strncat(str, "B", 1);
-
-	if (num & (1 << 28))
-		strncat(str, "C", 1);
-
-	if (num & (1 << 29))
-		strncat(str, "D", 1);
-
-	if (num & (1 << 30))
-		strncat(str, "E", 1);
-
-	if (num & (1 << 31))
-		strncat(str, "F", 1);
+    *str++ = '\0';
 }
 
 char *

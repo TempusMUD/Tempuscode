@@ -300,7 +300,10 @@ fread_action(FILE * fl, int nr)
 {
 	char buf[MAX_STRING_LENGTH], *rslt;
 
-	fgets(buf, MAX_STRING_LENGTH, fl);
+	if (!fgets(buf, MAX_STRING_LENGTH, fl)) {
+        perror(tmp_sprintf("fread_action - unexpected EOF near action #%d", nr));
+		safe_exit(1);
+    }
 	if (feof(fl)) {
 		fprintf(stderr, "fread_action - unexpected EOF near action #%d", nr);
 		safe_exit(1);
@@ -321,7 +324,7 @@ void
 boot_social_messages(void)
 {
 	FILE *fl;
-	int nr, i, hide, min_pos, idx;
+	int nr = 0, i, hide, min_pos, idx;
 	int social_count = 0;
 	char next_soc[100];
 
@@ -339,7 +342,10 @@ boot_social_messages(void)
 
 	/* now read 'em */
 	for (;;) {
-		fscanf(fl, " %s ", next_soc);
+		if (fscanf(fl, " %s ", next_soc) != 1) {
+            perror(tmp_sprintf("error near action #%d", nr));
+            safe_exit(1);
+        }
 		if (*next_soc == '$')
 			break;
 		if ((nr = find_command(next_soc)) < 0) {

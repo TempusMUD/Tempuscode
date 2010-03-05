@@ -18,16 +18,23 @@ void
 read_page(FILE * fh, int page, struct Creature *ch)
 {
 	long *list;
-	int count;
+	size_t count;
 	char *text_string;
 
 	fseek(fh, 0 - sizeof(count), 2);
-	fread(&count, sizeof(count), 1, fh);
-	if (page <= count - 1) {
+	if (fread(&count, sizeof(count), 1, fh) != 1) {
+        send_to_char(ch, "You can't read the page, try as you might.\r\n");
+        errlog("Can't read page data from library book");
+        return;
+    }
+	if (page <= (int)(count - 1)) {
 		list = (long *)malloc(sizeof(long) * 200);
 		fseek(fh, 0 - ((count * sizeof(long)) + sizeof(count)), 2);
-		fread(list, sizeof(long), count, fh);
-
+		if (fread(list, sizeof(long), count, fh) != count) {
+            send_to_char(ch, "You can't read the page, try as you might.\r\n");
+            errlog("Can't read page data from library book");
+            return;
+        }
 		fseek(fh, list[page], 0);
 		text_string = fread_string(fh, buf);
 		text_string++;

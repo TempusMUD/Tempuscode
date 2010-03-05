@@ -24,7 +24,10 @@ read_quest(FILE * f_point)
 {
 	char ts[100];
 
-	fgets(ts, 100, f_point);
+	if (!fgets(ts, 100, f_point)) {
+        slog("Invalid darom quest file");
+        return 1;
+    }
 	if (ts[0] == '#') {
 		strtok(ts, " ");		/* get the # from the start of the line */
 		quest_rec.number = atoi(strtok(NULL, " "));
@@ -85,7 +88,8 @@ SPECIAL(darom)
 		fseek(file_handle, 0, 0);
 		num_quest = atoi(fgets(buf, 100, file_handle));
 		for (i = 0; i < num_quest; i++) {
-			read_quest(file_handle);
+			if (read_quest(file_handle))
+                return 0;
 			if ((quest_rec.max >= GET_LEVEL(ch))
 				&& (quest_rec.min <= GET_LEVEL(ch))) {
 				act("Darom tells $n something.", true, ch, 0, 0, TO_ROOM);
@@ -108,7 +112,8 @@ SPECIAL(darom)
 			fseek(file_handle, 0, 0);
 			num_quest = atoi(fgets(buf, 100, file_handle));
 			for (i = 0; i < num_quest; i++) {
-				read_quest(file_handle);
+				if (read_quest(file_handle))
+                    return 0;
 				if (!strncasecmp(quest_rec.key_wrd, buf2, strlen(buf2))) {
 					act("Darom tells $n something.", true, ch, 0, 0, TO_ROOM);
 					act(quest_rec.first_clue, true, ch, 0, 0, TO_CHAR);

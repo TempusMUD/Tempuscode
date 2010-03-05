@@ -36,6 +36,7 @@
 #include "db.h"
 #include "ban.h"
 #include "accstr.h"
+#include "tmpstr.h"
 #include "security.h"
 
 std::list<ban_entry> ban_list;
@@ -438,7 +439,10 @@ Read_Invalid_List(void)
 	for (i = 0; i < num_invalid; i++) {
         int err;
 
-		fgets(buf, MAX_NAME_LENGTH, fp);
+		if (!fgets(buf, MAX_NAME_LENGTH, fp)) {
+            perror(tmp_sprintf("Couldn't read %s", XNAME_FILE));
+            safe_exit(1);
+        }
         buf[strlen(buf) - 1] = '\0';
         err = regcomp(&invalid_list[i], buf, REG_EXTENDED | REG_NOSUB);
         if (err) {
@@ -471,7 +475,10 @@ Read_Nasty_List(void)
 	CREATE(nasty_list, namestring, num_nasty);
 
 	for (i = 0; i < num_nasty; i++) {
-		fgets(nasty_list[i], MAX_NAME_LENGTH, fp);	/* read word */
+		if (!fgets(nasty_list[i], MAX_NAME_LENGTH, fp)) {	/* read word */
+            perror(tmp_sprintf("Couldn't read %s", NASTY_FILE));
+            safe_exit(1);
+        }
 		nasty_list[i][strlen(nasty_list[i]) - 1] = '\0';	/* cleave off \n */
 	}
 	fclose(fp);

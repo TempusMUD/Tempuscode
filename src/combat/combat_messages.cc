@@ -121,7 +121,7 @@ load_messages(void)
 	char chk[128];
 
 	if (!(fl = fopen(MESS_FILE, "r"))) {
-		perror(tmp_sprintf("Error reading combat message file %s", MESS_FILE));
+		perror(tmp_sprintf("Error opening combat message file %s", MESS_FILE));
 		safe_exit(1);
 	}
 	for (i = 0; i < MAX_MESSAGES; i++) {
@@ -130,12 +130,21 @@ load_messages(void)
 		fight_messages[i].msg = 0;
 	}
 
-	fgets(chk, 128, fl);
+	if (!fgets(chk, 128, fl)) {
+        perror(tmp_sprintf("Error reading first line from combat message file %s", MESS_FILE));
+        safe_exit(1);
+    }
 	while (!feof(fl) && (*chk == '\n' || *chk == '*'))
-		fgets(chk, 128, fl);
+		if (!fgets(chk, 128, fl)) {
+            perror(tmp_sprintf("Error reading header of combat message file %s", MESS_FILE));
+            safe_exit(1);
+        }
 
 	while (*chk == 'M') {
-		fgets(chk, 128, fl);
+        if (!fgets(chk, 128, fl)) {
+            perror(tmp_sprintf("Error reading combat message file %s", MESS_FILE));
+            safe_exit(1);
+        }
 		sscanf(chk, " %d\n", &type);
         i = 0;
 		while (i < MAX_MESSAGES
@@ -165,9 +174,15 @@ load_messages(void)
 		messages->god_msg.attacker_msg = fread_action(fl, i);
 		messages->god_msg.victim_msg = fread_action(fl, i);
 		messages->god_msg.room_msg = fread_action(fl, i);
-		fgets(chk, 128, fl);
+		if (!fgets(chk, 128, fl)) {
+            perror(tmp_sprintf("Error reading separator from combat message file %s", MESS_FILE));
+            safe_exit(1);
+        }
 		while (!feof(fl) && (*chk == '\n' || *chk == '*'))
-			fgets(chk, 128, fl);
+            if (!fgets(chk, 128, fl)) {
+                perror(tmp_sprintf("Error reading next message from combat message file %s", MESS_FILE));
+                safe_exit(1);
+            }
 	}
 
 	slog("Top message number loaded: %d.", type);
