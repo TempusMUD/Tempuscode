@@ -531,22 +531,6 @@ game_loop(int mother_desc)
 
 	/* The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The.. */
 	while (!circle_shutdown) {
-
-		/* Sleep if we don't have any connections */
-		if (descriptor_list == NULL) {
-			slog("No connections.  Going to sleep.");
-			FD_ZERO(&input_set);
-			FD_SET(mother_desc, &input_set);
-			if (select(mother_desc + 1, &input_set, (fd_set *) 0, (fd_set *) 0,
-					NULL) < 0) {
-				if (errno == EINTR)
-					slog("Waking up to process signal.");
-				else
-					perror("Select coma");
-			} else
-				slog("New connection.  Waking up.");
-			gettimeofday(&last_time, (struct timezone *)0);
-		}
 		/* Set up the input, output, and exception sets for select(). */
 		FD_ZERO(&input_set);
 		FD_ZERO(&output_set);
