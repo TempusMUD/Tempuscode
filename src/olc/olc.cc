@@ -958,7 +958,7 @@ ACMD(do_olc)
 			SET_BIT(obj_p->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
 		}
 
-		for (k = 0; k < 4; k++)
+		for (k = 0; k < 3; k++)
 			obj_p->obj_flags.bitvector[k] = tmp_obj->obj_flags.bitvector[k];
 
 		for (k = 0; k < MAX_OBJ_AFFECT; k++) {
