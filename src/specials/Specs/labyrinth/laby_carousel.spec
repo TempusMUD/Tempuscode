@@ -17,7 +17,7 @@ labyrinth_spin_carousels(zone_data *zone)
 			continue;
 
 		// Spin the room!  Wheee!
-		memcpy(dir_save, cur_room->dir_option, sizeof(room_direction_data) * NUM_DIRS);
+		memcpy(dir_save, cur_room->dir_option, sizeof(dir_save));
 		cur_room->dir_option[NORTH] = dir_save[WEST];
 		cur_room->dir_option[EAST] = dir_save[NORTH];
 		cur_room->dir_option[SOUTH] = dir_save[EAST];
