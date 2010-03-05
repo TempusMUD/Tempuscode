@@ -250,8 +250,8 @@ bool ObjectSpellMatcher::init( Creature *ch, Tokenizer &tokens ) {
         if( arg[0] == '&' )
             break;
         if( spellName[0] != '\0' )
-            strncat( spellName, " ", 256 );
-        strncat( spellName, arg, 256 );
+            strncat( spellName, " ", 255 );
+        strncat( spellName, arg, 255 );
     }
     if (is_number(spellName)) {
         spell = atoi(spellName);
