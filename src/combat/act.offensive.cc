@@ -1206,8 +1206,8 @@ ACMD(do_order)
                 false, vict, 0, ch, TO_CHAR);
 			act("$n gives $N an order.", false, ch, 0, vict, TO_NOTVICT);
 			send_to_char(ch, "%s%sYou order %s to '%s'.%s\r\n",
-                         CCBLD(vict, C_SPR),
-                         CCRED(vict, C_NRM),
+                         CCBLD(ch, C_SPR),
+                         CCRED(ch, C_NRM),
                          PERS(vict, ch),
                          message,
                          CCNRM(ch, C_SPR));
@@ -1237,8 +1237,8 @@ ACMD(do_order)
                 false, ch, 0, vict, TO_ROOM);
 
 			send_to_char(ch, "%s%sYou order your followers to '%s'.%s\r\n",
-                         CCBLD(vict, C_SPR),
-                         CCRED(vict, C_NRM),
+                         CCBLD(ch, C_SPR),
+                         CCRED(ch, C_NRM),
                          message,
                          CCNRM(ch, C_SPR));
 
