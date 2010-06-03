@@ -89,7 +89,7 @@ SPECIAL(remorter)
 	if (GET_EXP(ch) < exp_scale[LVL_AMBASSADOR] ||
 		GET_LEVEL(ch) < (LVL_AMBASSADOR - 1)) {
 		send_to_char(ch, "Piss off.  Come back when you are bigger.\r\n");
-		room_data *room = ch->getLoadroom();
+		struct room_data *room = ch->getLoadroom();
         if( room == NULL )
             room = real_room(3061);// modrian dump
 		act("$n disappears in a mushroom cloud.", false, ch, 0, 0,TO_ROOM);
@@ -120,7 +120,7 @@ SPECIAL(remorter)
 		return 1;
 	}
 	if (!quiz.inProgress() && isname_exact(arg1, "goodbye")) {
-		room_data *room = ch->getLoadroom();
+		struct room_data *room = ch->getLoadroom();
         if( room == NULL )
             room = real_room(3061);// modrian dump
 
@@ -217,7 +217,7 @@ SPECIAL(remorter)
     else {
         // *******    TEST COMPLETE.  YAY.
 		// Save the char and its implants but not its eq
-		ch->saveToXML();
+		save_player_to_xml(ch);
 
 		if (!quiz.isPassing())
             return do_fail_remort_test(&quiz, ch);
@@ -240,13 +240,13 @@ int do_fail_remort_test(Quiz *quiz, struct creature *ch)
 	REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 	quiz->reset();
 
-    room_data *load_room = ch->getLoadroom();
+    struct room_data *load_room = ch->getLoadroom();
     if( load_room == NULL )
         load_room = real_room(3061);//modrian dumps
 
     send_to_char(ch, "You have been banished from the chamber!\r\n");
     act("$n is banished from the chamber!", false, ch, 0, 0, TO_ROOM);
-    ch->setPosition(POS_RESTING);
+    GET_POSITION(ch) = POS_RESTING;
     char_from_room(ch,false);
     char_to_room(ch, load_room,false);
     act("$n appears with a bright flash of light!", false, ch, 0, 0, TO_ROOM);

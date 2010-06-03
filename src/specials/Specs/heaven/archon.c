@@ -13,7 +13,7 @@ SPECIAL(archon)
 		return 0;
 	if (cmd)
 		return 0;
-	if (!ch->isFighting() && ch->in_room->zone->plane != PLANE_HEAVEN) {
+	if (!ch->fighting && ch->in_room->zone->plane != PLANE_HEAVEN) {
 		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it)
 			if ((*it) != ch && IS_ARCHON((*it)) && (*it)->isFighting()) {

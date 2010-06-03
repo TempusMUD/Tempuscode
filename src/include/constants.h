@@ -39,31 +39,31 @@ enum special_mode {
 #define FIRE_TICK       (3 RL_SEC)
 #define PULSE_FLOWS     (1 RL_SEC)
 
-const size_t MAX_POOF_LENGTH =   	256;
-const size_t MAX_NAME_LENGTH =   	20;
-const size_t MAX_PWD_LENGTH =    	10;
-const size_t MAX_TITLE_LENGTH =  	60;
-const size_t MAX_BADGE_LENGTH =		 7;
-const size_t MAX_AFK_LENGTH =       20;
-const size_t HOST_LENGTH =       	63;
-
-const size_t SMALL_BUFSIZE =     	4096;
-const size_t LARGE_BUFSIZE =     	65536;
-const size_t GARBAGE_SPACE =     	64;
-const size_t MAX_STRING_LENGTH =    65536;
-const size_t MAX_INPUT_LENGTH =  	2048;
-const size_t MAX_RAW_INPUT_LENGTH =	32767;
-const size_t EXDSCR_LENGTH =     	240;
-const int MAX_MESSAGES =      		200;
-const int MAX_CHAR_DESC =     		1023;
-const int MAX_TONGUES =        		50;
-const int MAX_SKILLS =        		700;
-const int MAX_AFFECT =        		96;
 enum {
-    MAX_OBJ_AFFECT =    		16
-};
+    MAX_POOF_LENGTH =   	256,
+    MAX_NAME_LENGTH =   	20,
+    MAX_PWD_LENGTH =    	10,
+    MAX_TITLE_LENGTH =  	60,
+    MAX_BADGE_LENGTH =		 7,
+    MAX_AFK_LENGTH =       20,
+    HOST_LENGTH =       	63,
 
-const int CRIMINAL_REP =            300;	// minimum rep to be a criminal
+    SMALL_BUFSIZE =     	4096,
+    LARGE_BUFSIZE =     	65536,
+    GARBAGE_SPACE =     	64,
+    MAX_STRING_LENGTH =    65536,
+    MAX_INPUT_LENGTH =  	2048,
+    MAX_RAW_INPUT_LENGTH =	32767,
+    EXDSCR_LENGTH =     	240,
+    MAX_MESSAGES =      		200,
+    MAX_CHAR_DESC =     		1023,
+    MAX_TONGUES =        		50,
+    MAX_SKILLS =        		700,
+    MAX_AFFECT =        		96,
+    MAX_OBJ_AFFECT =    		16,
+
+    CRIMINAL_REP =            300,	// minimum rep to be a criminal
+};
 
 struct dex_skill_type {
 	sh_int p_pocket;

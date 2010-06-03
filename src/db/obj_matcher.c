@@ -1,6 +1,6 @@
 /* ************************************************************************
 *   File: obj_matcher.cc                            NOT Part of CircleMUD *
-*  Usage: Matcher objects intended to be used to match obj_data           *
+*  Usage: Matcher objects intended to be used to match struct obj_data           *
 *         structures in the virtual object list                           *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
@@ -54,7 +54,7 @@ bool ObjectTypeMatcher_init(struct creature *ch, Tokenizer &tokens ) {
 	setReady(true);
 	return true;
 }
-bool ObjectTypeMatcher_isMatch( obj_data *obj ) {
+bool ObjectTypeMatcher_isMatch( struct obj_data *obj ) {
     return ( isReady() && GET_OBJ_TYPE(obj) == type );
 }
 
@@ -84,7 +84,7 @@ bool ObjectMaterialMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     return true;
 }
 
-bool ObjectMaterialMatcher_isMatch( obj_data *obj ) {
+bool ObjectMaterialMatcher_isMatch( struct obj_data *obj ) {
     return isReady() && GET_OBJ_MATERIAL(obj) == material;
 }
 
@@ -113,7 +113,7 @@ bool ObjectApplyMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     setReady(true);
     return true;
 }
-bool ObjectApplyMatcher_isMatch( obj_data *obj ) {
+bool ObjectApplyMatcher_isMatch( struct obj_data *obj ) {
     for (int k = 0; k < MAX_OBJ_AFFECT; k++) {
         if (obj->affected[k].location == apply)
             return isReady();
@@ -122,7 +122,7 @@ bool ObjectApplyMatcher_isMatch( obj_data *obj ) {
 }
 const char*
 ObjectApplyMatcher_getAddedInfo(struct creature *ch __attribute__((unused)),
-                                 obj_data *obj) {
+                                 struct obj_data *obj) {
 	int modifier = 0;
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
 		if( obj->affected[i].location == apply ) {
@@ -155,7 +155,7 @@ bool ObjectSpecialMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     return true;
 }
 
-bool ObjectSpecialMatcher_isMatch( obj_data *obj ) {
+bool ObjectSpecialMatcher_isMatch( struct obj_data *obj ) {
     return isReady() &&
            ( obj->shared->func && obj->shared->func == spec_list[spec].func );
 }
@@ -184,7 +184,7 @@ bool ObjectAffectMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     return true;
 }
 
-bool ObjectAffectMatcher_isMatch( obj_data *obj ) {
+bool ObjectAffectMatcher_isMatch( struct obj_data *obj ) {
     return isReady() &&
            IS_SET(obj->obj_flags.bitvector[index - 1], (1 << affect));
 }
@@ -221,14 +221,14 @@ bool ObjectCostMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     return true;
 }
 
-bool ObjectCostMatcher_isMatch( obj_data *obj ) {
+bool ObjectCostMatcher_isMatch( struct obj_data *obj ) {
     return isReady() &&
            ( GET_OBJ_COST(obj) > costAbove &&
              GET_OBJ_COST(obj) < costBelow );
 }
 
 const char*
-ObjectCostMatcher_getAddedInfo( struct creature *ch, obj_data *obj ) {
+ObjectCostMatcher_getAddedInfo( struct creature *ch, struct obj_data *obj ) {
 	return tmp_sprintf("%s[%s%11d%s]%s",
 		CCYEL(ch,C_NRM), CCGRN(ch, C_NRM),
 		obj->shared->cost,
@@ -270,7 +270,7 @@ bool ObjectSpellMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     return true;
 }
 
-bool ObjectSpellMatcher_isMatch( obj_data *obj ) {
+bool ObjectSpellMatcher_isMatch( struct obj_data *obj ) {
     switch (GET_OBJ_TYPE(obj)) {
         case ITEM_WAND:	// val 3
         case ITEM_STAFF:	// val 3
@@ -299,7 +299,7 @@ bool ObjectSpellMatcher_isMatch( obj_data *obj ) {
 }
 
 const char*
-ObjectSpellMatcher_getAddedInfo( struct creature *ch, obj_data *obj ) {
+ObjectSpellMatcher_getAddedInfo( struct creature *ch, struct obj_data *obj ) {
 	const char *spell1 = "0";
 	const char *spell2 = "0";
 	const char *spell3 = "0";
@@ -355,7 +355,7 @@ bool ObjectWornMatcher_init( struct creature *ch, Tokenizer &tokens ) {
 	return true;
 }
 
-bool ObjectWornMatcher_isMatch( obj_data *obj ) {
+bool ObjectWornMatcher_isMatch( struct obj_data *obj ) {
     return ( isReady() && CAN_WEAR(obj, 1 << worn) );
 }
 
@@ -433,7 +433,7 @@ bool ObjectExtraMatcher_addNoExtra( struct creature *ch, char *arg ) {
     return false;
 }
 
-bool ObjectExtraMatcher_isMatch( obj_data *obj ) {
+bool ObjectExtraMatcher_isMatch( struct obj_data *obj ) {
 	if( extra != 0 && (GET_OBJ_EXTRA(obj) & extra) != extra ) {
 		return false;
 	}

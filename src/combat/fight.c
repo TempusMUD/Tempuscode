@@ -25,7 +25,6 @@
 #include <signal.h>
 
 #include "structs.h"
-#include "creature_list.h"
 #include "utils.h"
 #include "comm.h"
 #include "handler.h"
@@ -46,9 +45,7 @@
 #include "quest.h"
 #include "utils.h"
 #include "prog.h"
-
-#include <iostream>
-#include <algorithm>
+#include "weather.h"
 
 #define BAD_ATTACK_TYPE(attacktype) (attacktype == TYPE_BLEED || \
                                      attacktype == SPELL_POISON || \
@@ -69,14 +66,14 @@
 int corpse_state = 0;
 
 /* The Fight related routines */
-obj_data *get_random_uncovered_implant(struct creature * ch, int type = -1);
+struct obj_data *get_random_uncovered_implant(struct creature * ch, int type);
 int calculate_weapon_probability(struct creature *ch, int prob,
 	struct obj_data *weap);
 int do_combat_fire(struct creature *ch, struct creature *vict);
-int do_casting_weapon(struct creature *ch, obj_data *weap);
+int do_casting_weapon(struct creature *ch, struct obj_data *weap);
 int calculate_attack_probability(struct creature *ch);
 void do_emp_pulse_char(struct creature *ch, struct creature *vict);
-void perform_autoloot(struct creature *ch, obj_data *corpse);
+void perform_autoloot(struct creature *ch, struct obj_data *corpse);
 
 /*
    corrects position and removes combat related bits.
@@ -85,18 +82,18 @@ void perform_autoloot(struct creature *ch, obj_data *corpse);
 void
 remove_fighting_affects(struct creature *ch)
 {
-	if (ch->in_room && ch->in_room->isOpenAir()) {
-		ch->setPosition(POS_FLYING);
+	if (ch->in_room && room_is_open_air(ch->in_room)) {
+		GET_POSITION(ch) = POS_FLYING;
 	} else if (!IS_NPC(ch)) {
-		if (ch->getPosition() >= POS_FIGHTING)
-			ch->setPosition(POS_STANDING);
-		else if (ch->getPosition() >= POS_RESTING)
-			ch->setPosition(POS_SITTING);
+		if (GET_POSITION(ch) >= POS_FIGHTING)
+			GET_POSITION(ch) = POS_STANDING;
+		else if (GET_POSITION(ch) >= POS_RESTING)
+			GET_POSITION(ch) = POS_SITTING;
 	} else {
 		if (AFF_FLAGGED(ch, AFF_CHARM) && IS_UNDEAD(ch))
-			ch->setPosition(POS_STANDING);
-		else if (ch->getPosition() > POS_SITTING)
-			ch->setPosition(POS_STANDING);
+			GET_POSITION(ch) = POS_STANDING;
+		else if (GET_POSITION(ch) > POS_SITTING)
+			GET_POSITION(ch) = POS_STANDING;
 	}
 
 	update_pos(ch);
@@ -116,7 +113,7 @@ change_alignment(struct creature *ch, struct creature *victim)
 void
 raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 {
-    obj_data *corpse;
+    struct obj_data *corpse;
 
 	if (attacktype != SKILL_GAROTTE)
 		death_cry(ch);
@@ -127,17 +124,18 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
     if (GET_ROOM_PROG(ch->in_room) != NULL)
 	    trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
 
-    struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it)
-		if (GET_MOB_PROGOBJ((*it)) != NULL && *it != ch)
-            trigger_prog_death(*it, PROG_TYPE_MOBILE, ch);
+    struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+		if (GET_MOB_PROGOBJ(tch) != NULL && tch != ch)
+            trigger_prog_death(tch, PROG_TYPE_MOBILE, ch);
+    }
 
     // Create the corpse itself
 	corpse = make_corpse(ch, killer, attacktype);
 
 	struct affected_type *af = ch->affected;
     while (af) {
-        if (af->clearAtDeath()) {
+        if (clearAtDeath(af)) {
             affect_remove(ch, af);
             af = ch->affected;
         } else {
@@ -153,11 +151,11 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 	// Equipment dealt with in make_corpse.
 	// Do not save it here.
 	if (is_arena_combat(killer, ch))
-		ch->arena_die();
+		arena_die(ch);
     else if (is_npk_combat(killer, ch) && !ROOM_FLAGGED(ch->in_room, ROOM_DEATH))
-        ch->npk_die();
+        npk_die(ch);
 	else
-		ch->die();
+		creature_die(ch);
 
     if (killer && killer != ch && PRF2_FLAGGED(killer, PRF2_AUTOLOOT))
         perform_autoloot(killer, corpse);
@@ -193,7 +191,7 @@ die(struct creature *ch, struct creature *killer, int attacktype)
 	}
 
 	if( IS_PC(ch) && !is_arena_combat(killer, ch) && killer != NULL &&
-			!PLR_FLAGGED(killer, PLR_KILLER) && !ch->isNewbie() ) {
+			!PLR_FLAGGED(killer, PLR_KILLER) && !isNewbie(ch) ) {
 		// exp loss capped at the beginning of the level.
 		int loss = GET_EXP(ch) / 8;
 
@@ -242,11 +240,11 @@ die(struct creature *ch, struct creature *killer, int attacktype)
 
         // Tally kills for quest purposes
         if (GET_QUEST(ch)) {
-            Quest *quest;
+            struct quest *quest;
 
             quest = quest_by_vnum(GET_QUEST(ch));
             if (quest)
-                quest->tallyDeath(GET_IDNUM(ch));
+                tallyDeath(quest, GET_IDNUM(ch));
         }
 	}
 
@@ -256,7 +254,7 @@ die(struct creature *ch, struct creature *killer, int attacktype)
 }
 
 void perform_gain_kill_exp(struct creature *ch, struct creature *victim,
-	float multiplier);
+                           float multiplier);
 
 void
 group_gain(struct creature *ch, struct creature *victim)
@@ -269,44 +267,45 @@ group_gain(struct creature *ch, struct creature *victim)
 
 	if (!(leader = ch->master))
 		leader = ch;
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (AFF_FLAGGED((*it), AFF_GROUP) && ((*it) == leader
-		|| leader == (*it)->master))
+    struct creature *tch;
+	for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+		if (AFF_FLAGGED(tch, AFF_GROUP) && (tch == leader
+		|| leader == tch->master))
 		{
-			total_levs += GET_LEVEL((*it));
-			if( IS_PC(*it) ) {
-				total_levs += GET_REMORT_GEN((*it)) * 8;
+			total_levs += GET_LEVEL(tch);
+			if( IS_PC(tch) ) {
+				total_levs += GET_REMORT_GEN(tch) * 8;
 				total_pc_mems++;
 			}
 		}
 	}
-	it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (AFF_FLAGGED((*it), AFF_GROUP) &&
-            ((*it) != victim) &&
-            ((*it) == leader || leader == (*it)->master))
+	for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+		if (AFF_FLAGGED(tch, AFF_GROUP) &&
+            (tch != victim) &&
+            (tch == leader || leader == tch->master))
 		{
-			mult = (float)GET_LEVEL((*it));
-			if( IS_PC( (*it) ) )
-				mult += GET_REMORT_GEN((*it)) * 8;
+			mult = (float)GET_LEVEL(tch);
+			if( IS_PC( tch ) )
+				mult += GET_REMORT_GEN(tch) * 8;
 			mult /= (float)total_levs;
 
 			if (total_pc_mems) {
 				mult_mod = 1 - mult;
 				mult_mod *= mult;
-				send_to_char(*it, "Your group gain is %d%% + bonus %d%%.\n",
+				send_to_char(tch, "Your group gain is %d%% + bonus %d%%.\n",
 					(int)((float)mult * 100), (int)((float)mult_mod * 100));
 			}
 
-			perform_gain_kill_exp((*it), victim, mult+mult_mod);
+			perform_gain_kill_exp(tch, victim, mult+mult_mod);
 		}
 	}
 }
 
+struct kill_record *tally_kill_record(struct creature *ch, struct creature *victim);
+
 void
 perform_gain_kill_exp(struct creature *ch, struct creature *victim,
-	float multiplier)
+                      float multiplier)
 {
     int explore_bonus = 0;
 	int exp = 0;
@@ -348,29 +347,12 @@ perform_gain_kill_exp(struct creature *ch, struct creature *victim,
 
 	}
 
-	exp = ch->getPenalizedExperience( exp, victim );
+	exp = getPenalizedExperience(ch, exp, victim );
 
     if (IS_PC(ch) && IS_NPC(victim)) {
-        std_list<KillRecord>::iterator kill_it;
-        KillRecord kill;
+        struct kill_record *kill = tally_kill_record(ch, victim);
 
-        kill_it = std_find(GET_RECENT_KILLS(ch).begin(),
-                       GET_RECENT_KILLS(ch).end(),
-                       GET_MOB_VNUM(victim));
-        if (kill_it == GET_RECENT_KILLS(ch).end()) {
-            // Not found
-            kill.set(GET_MOB_VNUM(victim), 1);
-            if (GET_RECENT_KILLS(ch).size() == MAX_RECENT_KILLS)
-                GET_RECENT_KILLS(ch).pop_front();
-            GET_RECENT_KILLS(ch).push_back(kill);
-        } else {
-            kill = *kill_it;
-            GET_RECENT_KILLS(ch).erase(kill_it);
-            kill.mark_kill();
-            GET_RECENT_KILLS(ch).push_back(kill);
-        }
-        explore_bonus = exp * kill.explore_bonus() / 100;
-        exp += explore_bonus;
+        exp += calc_explore_bonus(kill, exp);
     }
 
 	if (IS_NPC(victim) && !IS_NPC(ch)
@@ -403,7 +385,7 @@ gain_kill_exp(struct creature *ch, struct creature *victim)
 		return;
 
 	if (IS_NPC(victim) && MOB2_FLAGGED(victim, MOB2_UNAPPROVED)
-		&& !ch->isTester())
+		&& !isTester(ch))
 		return;
 
 	if ((IS_NPC(ch) && IS_PET(ch)) || (IS_NPC(victim) && IS_PET(victim)))
@@ -469,7 +451,7 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
 	new_obj = create_obj();
 	new_obj->shared = null_obj_shared;
 	GET_OBJ_MATERIAL(new_obj) = GET_OBJ_MATERIAL(obj);
-	new_obj->setWeight(obj->getWeight());
+	GET_OBJ_WEIGHT(new_obj) = GET_OBJ_WEIGHT(obj);
 	GET_OBJ_TYPE(new_obj) = ITEM_TRASH;
 	GET_OBJ_WEAR(new_obj) = ITEM_WEAR_TAKE;
 	GET_OBJ_EXTRA(new_obj) = ITEM_NODONATE + ITEM_NOSELL;
@@ -709,7 +691,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 	original_ch = ch;
 
     memset(&rm_aff, 0x0, sizeof(struct room_affect_data));
-	if (victim->getPosition() <= POS_DEAD) {
+	if (GET_POSITION(victim) <= POS_DEAD) {
 		errlog("Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
 			ch ? GET_NAME(ch) : "NULL", GET_NAME(victim), attacktype);
 		DAM_RETURN(DAM_VICT_KILLED);
@@ -738,8 +720,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"%s has attacked %s while writing at %d.", GET_NAME(ch),
 			GET_NAME(victim), ch->in_room->number);
-		ch->removeCombat(victim);
-		victim->removeAllCombat();
+		removeCombat(ch, victim);
+		removeAllCombat(victim);
 		send_to_char(ch, "NO!  Do you want to be ANNIHILATED by the gods?!\r\n");
 		DAM_RETURN(DAM_ATTACK_FAILED);
 	}
@@ -789,11 +771,11 @@ damage(struct creature *ch, struct creature *victim, int dam,
 				DAM_RETURN(DAM_ATTACK_FAILED);
 			}
 
-            if (ch->checkReputations(victim))
+            if (checkReputations(ch, victim))
                 DAM_RETURN(DAM_ATTACK_FAILED);
 		}
 
-		if (victim->isNewbie() &&
+		if (isNewbie(victim) &&
 			!is_arena_combat(ch, victim) &&
 			GET_LEVEL(ch) < LVL_IMMORT) {
 			act("$N is currently under new character protection.",
@@ -802,12 +784,12 @@ damage(struct creature *ch, struct creature *victim, int dam,
 				false, ch, 0, victim, TO_VICT);
 			slog("%s protected against %s ( damage ) at %d\n",
 				GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
-            victim->removeCombat(ch);
-            ch->removeCombat(victim);
+            removeCombat(victim, ch);
+            removeCombat(ch, victim);
 			DAM_RETURN(DAM_ATTACK_FAILED);
 		}
 
-		if (ch->isNewbie() &&
+		if (isNewbie(ch) &&
 			!is_arena_combat(ch, victim)) {
 			send_to_char(ch,
 				"You are currently under new player protection, which expires at level 41.\r\n"
@@ -816,14 +798,14 @@ damage(struct creature *ch, struct creature *victim, int dam,
 		}
 	}
 
-	if (victim->getPosition() < POS_FIGHTING)
-		dam += (dam * (POS_FIGHTING - victim->getPosition())) / 3;
+	if (GET_POSITION(victim) < POS_FIGHTING)
+		dam += (dam * (POS_FIGHTING - GET_POSITION(victim))) / 3;
 
 	if (ch) {
-		if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED) && !victim->isTester())
+		if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED) && !isTester(victim))
 			dam = 0;
 
-		if (ch->isTester() && !IS_MOB(victim) && !victim->isTester())
+		if (isTester(ch) && !IS_MOB(victim) && !isTester(victim))
 			dam = 0;
 
 		if (IS_MOB(victim) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
@@ -860,8 +842,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
 			&& IS_WEAPON(attacktype)
 			&& GET_EQ(victim, WEAR_SHIELD)
 			&& CHECK_SKILL(victim, SKILL_SHIELD_MASTERY) > 20
-			&& victim->getLevelBonus(SKILL_SHIELD_MASTERY) > number(0, 600)
-            && victim->getPosition() >= POS_FIGHTING) {
+			&& getSkillBonus(victim, SKILL_SHIELD_MASTERY) > number(0, 600)
+            && GET_POSITION(victim) >= POS_FIGHTING) {
 		act("$N deflects your attack with $S shield!", true,
 			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_CHAR);
 		act("You deflect $n's attack with $p!", true,
@@ -877,8 +859,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
         	&& !SPELL_IS_PSIONIC(attacktype)
             && !SPELL_IS_BARD(attacktype)
 			&& CHECK_SKILL(victim, SKILL_UNCANNY_DODGE) > 20
-			&& victim->getLevelBonus(SKILL_UNCANNY_DODGE) > number(0, 350)
-			&& victim->getPosition() >= POS_FIGHTING) {
+			&& getSkillBonus(victim, SKILL_UNCANNY_DODGE) > number(0, 350)
+			&& GET_POSITION(victim) >= POS_FIGHTING) {
 		act("$N smirks as $E easily sidesteps your attack!", true,
 			ch, NULL, victim, TO_CHAR);
 		act("You smirk as you easily sidestep $n's attack!", true,
@@ -894,8 +876,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
         	&& !SPELL_IS_PSIONIC(attacktype)
             && !SPELL_IS_BARD(attacktype)
 			&& CHECK_SKILL(victim, SKILL_TUMBLING) > 20
-			&& victim->getLevelBonus(SKILL_TUMBLING) > number(0, 425)
-			&& victim->getPosition() >= POS_FIGHTING) {
+			&& getSkillBonus(victim, SKILL_TUMBLING) > number(0, 425)
+			&& GET_POSITION(victim) >= POS_FIGHTING) {
 		act("$N dexterously rolls away from your attack!", true,
 			ch, NULL, victim, TO_CHAR);
 		act("You dexterously roll away from $n's attack!", true,
@@ -911,7 +893,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         !BAD_ATTACK_TYPE(attacktype) && !SPELL_IS_PSIONIC(attacktype)) {
         struct affected_type *paf;
         if ((paf = affected_by_spell(victim, SONG_MIRROR_IMAGE_MELODY))) {
-            if ((number(0, 375) < paf->modifier*10 + victim->getLevelBonus(SONG_MIRROR_IMAGE_MELODY)) &&
+            if ((number(0, 375) < paf->modifier*10 + getSkillBonus(victim, SONG_MIRROR_IMAGE_MELODY)) &&
                 (GET_CLASS(victim) == CLASS_BARD) && paf->modifier > 0) {
                 char *buf = tmp_sprintf("%sYour attack passes right through "
                                         "a mirror image of $N!%s", CCGRN_BLD(ch, C_NRM),
@@ -929,9 +911,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 if (paf->modifier == 0) {
                     paf->duration = 0;
                 }
-                if (victim->isOkToAttack(ch)) {
-                    ch->addCombat(victim, true);
-                    victim->addCombat(ch, false);
+                if (isOkToAttack(victim, ch)) {
+                    addCombat(ch, victim, true);
+                    addCombat(victim, ch, false);
                 }
 
                 DAM_RETURN(DAM_ATTACK_FAILED);
@@ -973,13 +955,13 @@ damage(struct creature *ch, struct creature *victim, int dam,
             shiftAf.location = APPLY_NONE;
             shiftAf.modifier = 0;
             shiftAf.aff_index = 0;
-            shiftAf.owner = victim->getIdNum();
+            shiftAf.owner = GET_IDNUM(victim);
             shiftAf.duration = 0;
-            shiftAf.level = victim->getLevelBonus(SPELL_DIMENSIONAL_SHIFT);
+            shiftAf.level = getSkillBonus(victim, SPELL_DIMENSIONAL_SHIFT);
             shiftAf.type = SPELL_DIMENSIONAL_VOID;
             bool applyAffect = false;
 
-            if (victim->isOkToAttack(ch)) {
+            if (isOkToAttack(victim, ch)) {
                 switch (number(0,14)) {
                     case 0:
                     case 1:
@@ -988,7 +970,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     act("You become disoriented!", false, ch, NULL, victim, TO_CHAR);
                     act("$n becomes disoriented!", false, ch, NULL, victim, TO_ROOM);
                     shiftAf.location = APPLY_DEX;
-                    shiftAf.modifier = -(1+victim->getLevelBonus(SPELL_DIMENSIONAL_SHIFT)/40);
+                    shiftAf.modifier = -(1+getSkillBonus(victim, SPELL_DIMENSIONAL_SHIFT)/40);
                     shiftAf.duration = number(1,-shiftAf.modifier);
                     applyAffect = true;
                     break;
@@ -997,14 +979,14 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     case 6:
                     act("You lose your footing and fall down!", false, ch, NULL, victim, TO_CHAR);
                     act("$n stumbles and falls down!", false, ch, NULL, victim, TO_ROOM);
-                    ch->setPosition(POS_SITTING);
+                    GET_POSITION(ch) = POS_SITTING;
                     break;
                     case 7:
                     case 8:
                     act("The interdimensional vastness is too much for your mind to handle!", false, ch, NULL, victim, TO_CHAR);
                     act("$n looks dazed and confused.", false, ch, NULL, victim, TO_ROOM);
                     shiftAf.bitvector = AFF_CONFUSION;
-                    shiftAf.duration = 1+victim->getLevelBonus(SPELL_DIMENSIONAL_SHIFT)/40;
+                    shiftAf.duration = 1+getSkillBonus(victim, SPELL_DIMENSIONAL_SHIFT)/40;
                     shiftAf.aff_index = 1;
                     applyAffect = true;
                     break;
@@ -1015,8 +997,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     affect_join(ch, &shiftAf, true, false, true, false);
                 }
 
-                ch->addCombat(victim, true);
-                victim->addCombat(ch, false);
+                addCombat(ch, victim, true);
+                addCombat(victim, ch, false);
             }
 
             DAM_RETURN(DAM_ATTACK_FAILED);
@@ -1195,7 +1177,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 	if (ch) {
         //particle stream special
         if (attacktype == TYPE_EGUN_PARTICLE && dam && ch) {
-            obj_data *tmp = NULL;
+            struct obj_data *tmp = NULL;
             if (impl) tmp=impl;
             if (obj) tmp=obj;
             eq_dam = (int)(eq_dam * 1.3);
@@ -1295,12 +1277,12 @@ damage(struct creature *ch, struct creature *victim, int dam,
                         if (!mag_savingthrow(ch, af->level, SAVING_BREATH) &&
                             !IS_POISONED(ch) && random_fractional_4()) {
                             struct affected_type af;
-                            int level_bonus = ch->getLevelBonus(SPELL_THORN_SKIN);
+                            int level_bonus = get_skill_bonus(ch, SPELL_THORN_SKIN);
                             af.type = SPELL_POISON;
                             af.location = APPLY_STR;
                             af.duration = MAX(1, level_bonus / 10);
                             af.modifier = -(number(1, level_bonus / 20));
-                            af.owner = ch->getIdNum();
+                            af.owner = GET_IDNUM(ch);
 
                             if (level_bonus > (85 + number(0, 30))) {
                                 af.bitvector = AFF3_POISON_3;
@@ -1371,7 +1353,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 else if (affected_by_spell(victim, SONG_WOUNDING_WHISPERS) &&
                          attacktype != SKILL_PSIBLAST) {
 					retval = damage_attacker(victim, ch,
-						(victim->getLevelBonus(SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
+						(getSkillBonus(victim, SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
 						SONG_WOUNDING_WHISPERS, -1);
                 }
 				//
@@ -1389,7 +1371,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 						SPELL_FIRE_SHIELD, -1);
 
 					if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
-                        ch->ignite(ch);
+                        ignite(ch, ch);
 					}
 
 				}
@@ -1407,7 +1389,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 							SKILL_ENERGY_FIELD, -1);
 
 						if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
-							ch->setPosition(POS_SITTING);
+							GET_POSITION(ch) = POS_SITTING;
 							WAIT_STATE(ch, 2 RL_SEC);
 						}
 					}
@@ -1432,7 +1414,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 		mana_loss = MIN(GET_MANA(victim) - GET_MSHIELD_LOW(victim), mana_loss);
 		mana_loss = MAX(mana_loss, 0);
 		dam = MAX(0, dam - mana_loss);
-	    mana_loss -= (int)(mana_loss * MIN(victim->getDamReduction(), 0.50));
+	    mana_loss -= (int)(mana_loss * MIN(getDamReduction(victim), 0.50));
 		GET_MANA(victim) -= mana_loss;
 
 		if (GET_MANA(victim) <= GET_MSHIELD_LOW(victim)) {
@@ -1474,7 +1456,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 	}
 	// ALL previous damage reduction code that was based off of character
 	// attributes has been moved to the function below.  See structs/struct creature.cc
-	dam_reduction = victim->getDamReduction(ch);
+	dam_reduction = getDamReduction(victim, ch);
 
 	dam -= (int)(dam * dam_reduction);
 
@@ -1563,7 +1545,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 			rm_aff.duration = number(3, 8);
 			rm_aff.type = RM_AFF_FLAGS;
 			rm_aff.flags = ROOM_FLAME_FILLED;
-            rm_aff.owner = (ch) ? ch->getIdNum() : 0;
+            rm_aff.owner = (ch) ? GET_IDNUM(ch) : 0;
             rm_aff.spell_type = TYPE_ABLAZE;
 			affect_to_room(victim->in_room, &rm_aff);
 			sound_gunshots(victim->in_room, SPELL_FIREBALL, 8, 1);
@@ -1601,7 +1583,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 	// rangers' critical hit
 	if (ch && IS_RANGER(ch) && dam > 10 &&
 		IS_WEAPON(attacktype) &&
-        number(0, 650) <= ch->getLevelBonus(GET_CLASS(ch) == CLASS_RANGER)) {
+        number(0, 650) <= get_skill_bonus(ch, GET_CLASS(ch) == CLASS_RANGER)) {
 		send_to_char(ch, "CRITICAL HIT!\r\n");
 		act("$n has scored a CRITICAL HIT!", false, ch, 0, victim,
 			TO_VICT);
@@ -1620,11 +1602,11 @@ damage(struct creature *ch, struct creature *victim, int dam,
         //lightning gun special
         if (attacktype == TYPE_EGUN_LIGHTNING && dam) {
             if (do_gun_special(ch, weap)) {
-                struct creatureList_iterator it = ch->in_room->people.begin();
-                for (; it != ch->in_room->people.end(); ++it) {
-                    if ((*it) == ch || !(*it)->findCombat(ch))
+                struct creature *tch;
+                for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+                    if (tch == ch || !findCombat(tch, ch))
                         continue;
-                    damage(ch, (*it), dam/2, TYPE_EGUN_SPEC_LIGHTNING, WEAR_RANDOM);
+                    damage(ch, tch, dam/2, TYPE_EGUN_SPEC_LIGHTNING, WEAR_RANDOM);
                 }
             }
         }
@@ -1632,7 +1614,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         //photon special
         if (attacktype == TYPE_EGUN_PHOTON && dam) {
             if (do_gun_special(ch, weap)) {
-                mag_affects(ch->getLevelBonus(SKILL_ENERGY_WEAPONS), ch, victim, NULL, SPELL_BLINDNESS, SAVING_ROD);
+                mag_affects(get_skill_bonus(ch, SKILL_ENERGY_WEAPONS), ch, victim, NULL, SPELL_BLINDNESS, SAVING_ROD);
             }
         }
         //plasma special
@@ -1643,7 +1625,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 					false, victim, 0, 0, TO_ROOM);
 				act("Your body suddenly ignites into flame!",
 					false, victim, 0, 0, TO_CHAR);
-                victim->ignite(ch);
+                ignite(victim, ch);
             }
         }
         //ion special
@@ -1675,9 +1657,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 sonicAf.location = APPLY_DEX;
                 sonicAf.modifier = -1;
                 sonicAf.aff_index = 0;
-                sonicAf.owner = ch->getIdNum();
+                sonicAf.owner = GET_IDNUM(ch);
                 sonicAf.duration = 1;
-                sonicAf.level = ch->getLevelBonus(SKILL_ENERGY_WEAPONS);
+                sonicAf.level = get_skill_bonus(ch, SKILL_ENERGY_WEAPONS);
                 sonicAf.type = TYPE_EGUN_SPEC_SONIC;
                 act("You become disoriented!", false, ch, NULL, victim, TO_VICT);
                 act("$N becomes disoriented!", false, ch, NULL, victim, TO_NOTVICT);
@@ -1730,7 +1712,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
     if (weap && affected_by_spell(victim, SPELL_GAUSS_SHIELD) && dam > 0) {
         if (IS_METAL_TYPE(weap))
-            dam -= (dam * (MAX(20, victim->getLevelBonus(SPELL_GAUSS_SHIELD) / 3)) / 100);
+            dam -= (dam * (MAX(20, getSkillBonus(victim, SPELL_GAUSS_SHIELD) / 3)) / 100);
     }
 
 	GET_HIT(victim) -= dam;
@@ -1739,11 +1721,11 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
 	if (ch && ch != victim
 		&& !(MOB2_FLAGGED(victim, MOB2_UNAPPROVED) ||
-			ch->isTester() || IS_PET(ch) || IS_PET(victim))) {
+			isTester(ch) || IS_PET(ch) || IS_PET(victim))) {
 		// Gaining XP for damage dealt.
 		int exp = MIN(GET_LEVEL(ch) * GET_LEVEL(ch) * GET_LEVEL(ch), GET_LEVEL(victim) * dam);
 
-		exp = ch->getPenalizedExperience( exp, victim );
+		exp = getPenalizedExperience(ch,  exp, victim );
 
         // We shall not give exp for damage delt unless they're in
         // the same room
@@ -1771,7 +1753,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 							SKILL_FASTBOOT) / 32)) RL_SEC);
 		}
 		// check for killer flags right here
-		if (!victim->findCombat(ch) && !IS_DEFENSE_ATTACK(attacktype)) {
+		if (!findCombat(victim, ch) && !IS_DEFENSE_ATTACK(attacktype)) {
 			check_attack(ch, victim);
 		}
 	}
@@ -1818,7 +1800,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 					false, victim, 0, 0, TO_ROOM);
 				act("Your body suddenly ignites into flame!",
 					false, victim, 0, 0, TO_CHAR);
-                victim->ignite(ch);
+                ignite(victim, ch);
 			}
 		}
 		// transfer sickness if applicable
@@ -1830,7 +1812,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 					|| (ch->in_room->zone->number == 163 && !IS_NPC(victim)))
 				&& !IS_SICK(victim) && !IS_UNDEAD(victim)) {
 				call_magic(ch, victim, 0, NULL, SPELL_SICKNESS, GET_LEVEL(ch),
-					CAST_PARA);
+                           CAST_PARA, NULL);
 			}
 		}
 	} else if (ch) {
@@ -1838,7 +1820,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 			errlog("DEBUG: Output suppressed during damage");
 		}
 		// it is a weapon attack
-		if (victim->getPosition() == POS_DEAD || dam == 0) {
+		if (GET_POSITION(victim) == POS_DEAD || dam == 0) {
 			if (!mshield_hit && !skill_message(dam, ch, victim, attacktype))
 				dam_message(dam, ch, victim, attacktype, location);
 		} else if (!mshield_hit) {
@@ -1867,15 +1849,15 @@ damage(struct creature *ch, struct creature *victim, int dam,
 				attacktype == TYPE_STAB ||
 				attacktype == TYPE_CHOP ||
 				attacktype == SPELL_BLADE_BARRIER)) {
-			struct creatureList_iterator it = victim->in_room->people.begin();
-			for (; it != victim->in_room->people.end(); ++it) {
-				if (*it == victim || number(0, 8))
+			struct creature *tch;
+            for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+				if (tch == victim || number(0, 8))
 					continue;
 				bool is_char = false;
-				if (*it == ch)
+				if (tch == ch)
 					is_char = true;
 				int retval =
-					damage(victim, *it, dice(4, GET_LEVEL(victim)),
+					damage(victim, tch, dice(4, GET_LEVEL(victim)),
 					TYPE_ALIEN_BLOOD, -1);
 
 				if (is_char && IS_SET(retval, DAM_VICT_KILLED)) {
@@ -1896,7 +1878,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
       !mag_savingthrow(ch, GET_LEVEL(victim), SAVING_PSI) &&
       !ROOM_FLAGGED(victim->in_room, ROOM_NOPSIONICS) && !NULL_PSI(ch) &&
       !BAD_ATTACK_TYPE(attacktype) && attacktype != SPELL_PSYCHIC_FEEDBACK) {
-        feedback_dam = (dam*victim->getLevelBonus(SPELL_PSYCHIC_FEEDBACK))/400;
+        feedback_dam = (dam*getSkillBonus(victim, SPELL_PSYCHIC_FEEDBACK))/400;
         feedback_mana = feedback_dam/15;
         if (af->duration > 1 && feedback_dam > random_number_zero_low(400)) {
 			af->duration--;
@@ -1920,7 +1902,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
     }
 
 	// Use send_to_char -- act(  ) doesn't send message if you are DEAD.
-	switch (victim->getPosition()) {
+	switch (GET_POSITION(victim)) {
 
 		// Mortally wounded
 	case POS_MORTALLYW:
@@ -1971,7 +1953,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
 			if (ch && IS_NPC(victim) && ch != victim &&
 				!KNOCKDOWN_SKILL(attacktype) &&
-				victim->getPosition() > POS_SITTING
+				GET_POSITION(victim) > POS_SITTING
 				&& !MOB_FLAGGED(victim, MOB_SENTINEL) && !IS_DRAGON(victim)
 				&& !IS_UNDEAD(victim) && GET_CLASS(victim) != CLASS_ARCH
 				&& GET_CLASS(victim) != CLASS_DEMON_PRINCE
@@ -1989,7 +1971,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 				} else {
 					mudlog(LVL_DEMI, BRF, true,
 						"ERROR: %s was at position %d with %d hit points and tried to flee.",
-						GET_NAME(victim), victim->getPosition(),
+						GET_NAME(victim), GET_POSITION(victim),
 						GET_HIT(victim));
 				}
 			}
@@ -2041,7 +2023,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 					&& GET_HIT(victim) > 0) {
 					send_to_char(victim, "You wimp out, and attempt to flee!\r\n");
 					if (KNOCKDOWN_SKILL(attacktype) && dam)
-						victim->setPosition(POS_SITTING);
+						setPosition(victim, POS_SITTING);
 
 					int retval = 0;
 					do_flee(victim, tmp_strdup(""), 0, 0, &retval);
@@ -2059,7 +2041,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 					!number(0, (GET_LEVEL(victim) / 8) + 1)
 					&& GET_HIT(victim) > 0) {
 					if (KNOCKDOWN_SKILL(attacktype) && dam)
-						victim->setPosition(POS_SITTING);
+						setPosition(victim, POS_SITTING);
 
 					int retval = 0;
 					do_flee(victim, tmp_strdup(""), 0, 0, &retval);
@@ -2078,7 +2060,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 					// ch is initiating an attack ?  only if ch is not
 					// "attacking" with a fireshield/energy
 					// shield/etc...
-					if (!ch->isFighting()) {
+					if (!ch->fighting) {
 
                         if (IS_NPC(victim)) {
                             // mages casting spells and shooters
@@ -2090,11 +2072,11 @@ damage(struct creature *ch, struct creature *victim, int dam,
                                 ch->in_room == victim->in_room &&
                                 (!IS_MAGE(ch) || attacktype > MAX_SPELLS ||
                                     !SPELL_IS_MAGIC(attacktype))) {
-                                ch->addCombat(victim, true);
+                                addCombat(ch, victim, true);
                             }
                         }
                         else
-                            ch->addCombat(victim, true);
+                            addCombat(ch, victim, true);
 
 					}
 					// add ch to victim's shitlist( s )
@@ -2102,24 +2084,24 @@ damage(struct creature *ch, struct creature *victim, int dam,
 						if (MOB_FLAGGED(victim, MOB_MEMORY))
 							remember(victim, ch);
 						if (MOB2_FLAGGED(victim, MOB2_HUNT))
-							victim->startHunting(ch);
+							startHunting(victim, ch);
 					}
 					// make the victim retailiate against the attacker
-					if (ch->findCombat(victim)) {
-						if (!victim->findCombat(ch)) {
-                            victim->addCombat(ch, false);
+					if (findCombat(ch, victim)) {
+						if (!findCombat(victim, ch)) {
+                            addCombat(victim, ch, false);
                         }
 					} else {
-						if (!victim->isFighting() &&
+						if (!isFighting(victim) &&
                             ch->in_room == victim->in_room) {
-                            victim->addCombat(ch, false);
+                            addCombat(victim, ch, false);
                         }
 					}
 				}
 			}
 			break;
 		}
-	}							/* end switch ( victim->getPosition() ) */
+	}							/* end switch ( GET_POSITION(victim) ) */
 
 	// Victim is Linkdead
 	// Send him to the void
@@ -2130,11 +2112,11 @@ damage(struct creature *ch, struct creature *victim, int dam,
 		act("$n is rescued by divine forces.", false, victim, 0, 0, TO_ROOM);
 		GET_WAS_IN(victim) = victim->in_room;
 		if (ch) {
-			victim->removeAllCombat();
-			ch->removeCombat(victim);
+			removeAllCombat(victim);
+			removeCombat(ch, victim);
 		}
-		char_from_room(victim,false);
-		char_to_room(victim, zone_table->world,false);
+		char_from_room(victim);
+		char_to_room(victim, zone_table->world);
 		act("$n is carried in by divine forces.", false, victim, 0, 0,
 			TO_ROOM);
 	}
@@ -2146,7 +2128,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 			CCCYN(ch, C_NRM), GET_NAME(victim), dam,
 			IS_NPC(victim) ? GET_MOB_WAIT(victim) :
 				victim->desc ? victim->desc->wait : 0,
-			victim->getPosition(), dam_reduction, CCNRM(ch, C_NRM));
+			GET_POSITION(victim), dam_reduction, CCNRM(ch, C_NRM));
 
 	if (victim && ch != victim && PRF2_FLAGGED(victim, PRF2_DEBUG))
 		send_to_char(victim,
@@ -2154,14 +2136,14 @@ damage(struct creature *ch, struct creature *victim, int dam,
 			CCCYN(victim, C_NRM), GET_NAME(victim), dam,
 			IS_NPC(victim) ? GET_MOB_WAIT(victim) :
 				victim->desc ? victim->desc->wait : 0,
-			victim->getPosition(), dam_reduction, CCNRM(victim, C_NRM));
+			GET_POSITION(victim), dam_reduction, CCNRM(victim, C_NRM));
 
 	//
 	// Victim has been slain, handle all the implications
 	// Exp, Kill counter, etc...
 	//
 
-	if (victim->getPosition() == POS_DEAD) {
+	if (GET_POSITION(victim) == POS_DEAD) {
 		bool arena = is_arena_combat(ch, victim);
 
 		if (ch) {
@@ -2195,30 +2177,31 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
                         // If this account has had an imm logged on in the
                         // last hour log it as such
-                        int imm_idx = ch->account->hasCharLevel(LVL_AMBASSADOR);
+                        int imm_idx = hasCharLevel(ch->account, LVL_AMBASSADOR);
                         if (imm_idx) {
-                            struct creature *tmp_ch = new struct creature(true);
-                            tmp_ch->loadFromXML(ch->account->get_char_by_index(imm_idx));
-                            if (tmp_ch->getLevel() < 70) {
+                            struct creature *tmp_ch;
+                            CREATE(tmp_ch, struct creature, 1);
+                            loadFromXML(tmp_ch, get_char_by_index(ch->account, imm_idx));
+                            if (tmp_GET_LEVEL(ch) < 70) {
                                 int now = time(NULL);
                                 int last_logon = tmp_ch->player.time.logon;
                                 if ((now - last_logon) <= 3600) {
                                     mudlog(GET_INVIS_LVL(victim), BRF, true,
                                            "CHEAT:  %s(%d) logged within an hour!",
-                                           tmp_ch->player.name, tmp_ch->getLevel());
+                                           tmp_ch->player.name, tmp_GET_LEVEL(ch));
                                 }
                             }
-                            delete tmp_ch;
+                            free_creature(tmp_ch);
                         }
 					}
 
                     // Tally kills for quest purposes
                     if (GET_QUEST(ch)) {
-                        Quest *quest;
+                        struct quest *quest;
 
                         quest = quest_by_vnum(GET_QUEST(ch));
                         if (quest)
-                            quest->tallyPlayerKill(GET_IDNUM(ch));
+                            tallyPlayerKill(quest, GET_IDNUM(ch));
                     }
 
 					// If it's not arena, give em a pkill and adjust reputation
@@ -2282,17 +2265,17 @@ damage(struct creature *ch, struct creature *victim, int dam,
 				GET_MOBKILLS(ch) += 1;
                 // Tally kills for quest purposes
                 if (GET_QUEST(ch)) {
-                    Quest *quest;
+                    struct quest *quest;
 
                     quest = quest_by_vnum(GET_QUEST(ch));
                     if (quest)
-                        quest->tallyMobKill(GET_IDNUM(ch));
+                        tallyMobKill(quest, GET_IDNUM(ch));
                 }
 
 			}
 
-			if (ch->isHunting() && ch->isHunting() == victim)
-				ch->stopHunting();
+			if (ch->char_specials.hunting && ch->char_specials.hunting == victim)
+				stopHunting(ch);
 			die(victim, ch, attacktype);
 			DAM_RETURN(DAM_VICT_KILLED);
 
@@ -2312,7 +2295,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 		DAM_RETURN(DAM_VICT_KILLED);
 	}
 	//
-	// end if victim->getPosition() == POS_DEAD
+	// end if GET_POSITION(victim) == POS_DEAD
 	//
 
 	DAM_RETURN(0);
@@ -2321,15 +2304,15 @@ damage(struct creature *ch, struct creature *victim, int dam,
 #undef DAM_RETURN
 
 // Pick the next weapon that the creature will strike with
-obj_data *
+struct obj_data *
 get_next_weap(struct creature *ch)
 {
-	obj_data *cur_weap;
+	struct obj_data *cur_weap;
 	int dual_prob = 0;
 
 	if (GET_EQ(ch, WEAR_WIELD_2) && GET_EQ(ch, WEAR_WIELD)) {
-		dual_prob = (GET_EQ(ch, WEAR_WIELD)->getWeight() -
-			GET_EQ(ch, WEAR_WIELD_2)->getWeight()) * 2;
+		dual_prob = (total_obj_weight(GET_EQ(ch, WEAR_WIELD)) -
+                     total_obj_weight(GET_EQ(ch, WEAR_WIELD_2))) * 2;
 	}
 
 	// Check dual wield
@@ -2388,8 +2371,8 @@ get_next_weap(struct creature *ch)
 // 7x max for levels.
 // 6x max more for gens based on getLevelBonus.
 static inline int BACKSTAB_MULT( struct creature *ch  ) {
-	int mult = 2 + ( ch->getLevel() + 1 )/10;
-	int bonus = MAX(0,ch->getLevelBonus(SKILL_BACKSTAB) - 50);
+	int mult = 2 + ( GET_LEVEL(ch) + 1 )/10;
+	int bonus = MAX(0,get_skill_bonus(ch, SKILL_BACKSTAB) - 50);
 	mult += ( 6 * bonus ) / 50;
 	return mult;
 }
@@ -2414,12 +2397,12 @@ hit(struct creature *ch, struct creature *victim, int type)
 	int retval;
 
 	if (ch->in_room != victim->in_room) {
-        ch->removeCombat(victim);
-        victim->removeCombat(ch);
+        removeCombat(ch, victim);
+        removeCombat(victim, ch);
 		return DAM_ATTACK_FAILED;
 	}
 
-    if (ch && victim && !ch->isOkToAttack(victim, true)) {
+    if (ch && victim && !ok_to_attack(ch, victim, true)) {
         return DAM_ATTACK_FAILED;
     }
 
@@ -2441,7 +2424,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 		return DAM_ATTACK_FAILED;
 	}
 
-	if (victim->isNewbie() && !IS_NPC(ch) && !IS_NPC(victim) &&
+	if (isNewbie(victim) && !IS_NPC(ch) && !IS_NPC(victim) &&
 		!is_arena_combat(ch, victim) &&
 		GET_LEVEL(ch) < LVL_IMMORT) {
 		act("$N is currently under new character protection.",
@@ -2451,40 +2434,40 @@ hit(struct creature *ch, struct creature *victim, int type)
 		slog("%s protected against %s ( hit ) at %d\n",
 			GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
 
-		ch->removeCombat(victim);
-		victim->removeCombat(ch);
+		removeCombat(ch, victim);
+		removeCombat(victim, ch);
 		return DAM_ATTACK_FAILED;
 	}
 
-    if (ch->checkReputations(victim)) {
-        ch->removeCombat(victim);
-        victim->removeCombat(ch);
+    if (checkReputations(ch, victim)) {
+        removeCombat(ch, victim);
+        removeCombat(victim, ch);
         return DAM_ATTACK_FAILED;
     }
 
-	if (ch->isMounted()) {
-		if (ch->isMounted()->in_room != ch->in_room) {
-			REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
-			ch->dismount();
+	if (MOUNTED_BY(ch)) {
+		if (MOUNTED_BY(ch)->in_room != ch->in_room) {
+			REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
+			dismount(ch);
 		} else
 			send_to_char(ch, "You had better dismount first.\r\n");
 		return DAM_ATTACK_FAILED;
 	}
-	if (victim->isMounted()) {
-		REMOVE_BIT(AFF2_FLAGS(victim->isMounted()), AFF2_MOUNTED);
-		victim->dismount();
+	if (isMounted(victim)) {
+		REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(victim)), AFF2_MOUNTED);
+		dismount(victim);
 		act("You are knocked from your mount by $N's attack!",
 			false, victim, 0, ch, TO_CHAR);
 	}
 	if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if ((*it)->isMounted() && (*it)->isMounted() == victim) {
+        struct creature *tch;
+        for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+			if (MOUNTED_BY(tch) && MOUNTED_BY(tch) == victim) {
 				act("You are knocked from your mount by $N's attack!",
-					false, (*it), 0, ch, TO_CHAR);
-				(*it)->dismount();
-				(*it)->setPosition(POS_STANDING);
+					false, tch, 0, ch, TO_CHAR);
+				dismount(tch);
+				setPosition(tch, POS_STANDING);
 			}
 		}
 	}
@@ -2494,7 +2477,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 			GET_OBJ_TYPE(ch->equipment[i]) == ITEM_ARMOR &&
 			(IS_METAL_TYPE(ch->equipment[i]) ||
 				IS_STONE_TYPE(ch->equipment[i])))
-			metal_wt += ch->equipment[i]->getWeight();
+			metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);
 
 	if ((type != SKILL_BACKSTAB && type != SKILL_CIRCLE &&
 			type != SKILL_BEHEAD && type != SKILL_CLEAVE) || !cur_weap) {
@@ -2545,7 +2528,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 			CCNRM(ch, C_NRM));
 
     if ((diceroll == 1)
-			&& victim->getPosition() >= POS_FIGHTING
+			&& GET_POSITION(victim) >= POS_FIGHTING
 			&& CHECK_SKILL(victim, SKILL_COUNTER_ATTACK) > 70) {
         act("You launch a counter attack!", false, victim, NULL, ch, TO_CHAR);
         return hit(victim, ch, TYPE_UNDEFINED);
@@ -2623,10 +2606,10 @@ hit(struct creature *ch, struct creature *victim, int type)
                 cur_weap->worn_on == WEAR_WIELD)
             {
 				int dam_add;
-				dam_add = cur_weap->getWeight() / 4;
+				dam_add = getWeight(cur_weap) / 4;
 				if (CHECK_SKILL(ch, SKILL_DISCIPLINE_OF_STEEL) > 60) {
-					int bonus = ch->getLevelBonus( SKILL_DISCIPLINE_OF_STEEL );
-					int weight = cur_weap->getWeight();
+					int bonus = get_skill_bonus(ch,  SKILL_DISCIPLINE_OF_STEEL );
+					int weight = getWeight(cur_weap);
 					dam_add += ( bonus * weight ) / 100;
 				}
 				dam += dam_add;
@@ -2634,7 +2617,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 		} else if (IS_OBJ_TYPE(cur_weap, ITEM_ARMOR)) {
 			dam += (GET_OBJ_VAL(cur_weap, 0) / 3);
 		} else
-			dam += dice(1, 4) + number(0, cur_weap->getWeight());
+			dam += dice(1, 4) + number(0, getWeight(cur_weap));
 	} else if (IS_NPC(ch)) {
 		tmp_dam += dice(ch->mob_specials.shared->damnodice,
 			ch->mob_specials.shared->damsizedice);
@@ -2703,7 +2686,7 @@ hit(struct creature *ch, struct creature *victim, int type)
                     gain_skill_prof(ch, skill);
             }
             if( IS_OBJ_STAT2(cur_weap, ITEM2_ABLAZE) ) {
-                tmp_obj_affect *af = cur_weap->affectedBySpell(SPELL_FLAME_OF_FAITH);
+                struct tmp_obj_affect *af = affectedBySpell(cur_weap, SPELL_FLAME_OF_FAITH);
                 if( af != NULL ) {
                     dam += number(1,10);
                     ablaze_level = af->level;
@@ -2730,7 +2713,7 @@ hit(struct creature *ch, struct creature *victim, int type)
                     false, victim, 0, 0, TO_ROOM);
                 act("Your body suddenly ignites into flame!",
                     false, victim, 0, 0, TO_CHAR);
-                victim->ignite(ch);
+                ignite(victim, ch);
             }
         }
 
@@ -2778,9 +2761,9 @@ hit(struct creature *ch, struct creature *victim, int type)
 }
 
 int
-do_casting_weapon(struct creature *ch, obj_data *weap)
+do_casting_weapon(struct creature *ch, struct obj_data *weap)
 {
-	obj_data *weap2;
+	struct obj_data *weap2;
 
 	if (GET_OBJ_VAL(weap, 0) < 0 || GET_OBJ_VAL(weap, 0) > TOP_SPELL_DEFINE) {
 		slog("Invalid spell number detected on weapon %d", GET_OBJ_VNUM(weap));
@@ -2824,15 +2807,15 @@ do_casting_weapon(struct creature *ch, obj_data *weap)
 				spell_info[GET_OBJ_VAL(weap, 0)].violent ||
 				IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].targets,
 					TAR_UNPLEASANT)) {
-            if (ch->isFighting()) {
-                struct creature *vict = ch->findRandomCombat();
+            if (ch->fighting) {
+                struct creature *vict = random_opponent(ch);
 			    call_magic(ch, vict, 0, NULL, GET_OBJ_VAL(weap, 0),
-				           GET_LEVEL(ch), CAST_WAND);
+				           GET_LEVEL(ch), CAST_WAND, NULL);
             }
         }
 		else if (!affected_by_spell(ch, GET_OBJ_VAL(weap, 0)))
 			call_magic(ch, ch, 0, NULL, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
-				CAST_WAND);
+                       CAST_WAND, NULL);
 	} else {
 		// drop the weapon
 		if ((weap->worn_on == WEAR_WIELD ||
@@ -2876,7 +2859,7 @@ do_casting_weapon(struct creature *ch, obj_data *weap)
 //actual performance code is in damage because the different special types
 //require access to different damage variables at different times
 bool
-do_gun_special(struct creature *ch, obj_data *obj)
+do_gun_special(struct creature *ch, struct obj_data *obj)
 {
     if (!IS_ENERGY_GUN(obj) || !EGUN_CUR_ENERGY(obj)) {
         return false;
@@ -2898,7 +2881,7 @@ do_gun_special(struct creature *ch, obj_data *obj)
             chain = true;
         return chain;
     } else if (GET_OBJ_VAL(obj, 3) == EGUN_PLASMA) {
-        return number(0, MAX(0,ch->getLevelBonus(SKILL_ENERGY_WEAPONS))/20);//almost always ignite if applicable
+        return number(0, MAX(0,get_skill_bonus(ch, SKILL_ENERGY_WEAPONS))/20);//almost always ignite if applicable
     } else if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
                 (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) / 8)))) {
         return false;
@@ -2915,34 +2898,21 @@ perform_violence(void)
 	struct creature *ch;
 	int prob, i, die_roll;
 
-	struct creatureList_iterator cit = combatList.begin();
-	for (; cit != combatList.end(); ++cit) {
-		ch = *cit;
-		if (!ch->in_room || !ch->isFighting())
+    for (ch = creatures;ch;ch = ch->next) {
+		if (!ch->in_room || !ch->fighting)
 			continue;
-		if (ch == ch->findCombat(ch)) {	// intentional crash here.
-			errlog("ch == ch->findCombat(ch) in perform_violence.");
+		if (ch == findCombat(ch, ch)) {	// intentional crash here.
+			errlog("ch == findCombat(ch, ch) in perform_violence.");
 			raise(SIGSEGV);
 		}
 
 		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) ||
 			(IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)) {
-            ch->removeAllCombat();
+            remove_all_combat(ch);
 			continue;
 		}
 
-        CombatDataList_iterator li = ch->getCombatList()->begin();
-        for (; li != ch->getCombatList()->end(); ++li) {
-			struct creature *opp;
-
-			opp = li->getOpponent();
-            if (ch->in_room != opp->in_room) {
-                opp->removeCombat(ch);
-                ch->removeCombat(opp);
-            }
-        }
-
-		if (!ch->isFighting())
+        if (!ch->fighting)
 			continue;
 
 		if (IS_NPC(ch)) {
@@ -2951,13 +2921,13 @@ perform_violence(void)
 			} else if (GET_MOB_WAIT(ch) == 0) {
 				update_pos(ch);
 			}
-			if (ch->getPosition() <= POS_SITTING)
+			if (GET_POSITION(ch) <= POS_SITTING)
 				continue;
 		}
 		// Make sure they're fighting before they fight.
-		if (ch->getPosition() == POS_STANDING
-			|| ch->getPosition() == POS_FLYING) {
-			ch->setPosition(POS_FIGHTING);
+		if (GET_POSITION(ch) == POS_STANDING
+			|| GET_POSITION(ch) == POS_FLYING) {
+			GET_POSITION(ch) = POS_FIGHTING;
 			continue;
 		}
 
@@ -2975,17 +2945,6 @@ perform_violence(void)
 					wait : 0),
 				CCNRM(ch, C_NRM));
 		}
-        li = ch->getCombatList()->begin();
-        for (; li != ch->getCombatList()->end(); li++) {
-            if (PRF2_FLAGGED(li->getOpponent(), PRF2_DEBUG)) {
-                send_to_char(li->getOpponent(),
-                    "%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
-                    CCCYN(li->getOpponent(), C_NRM), GET_NAME(ch), prob, die_roll,
-                    IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->
-                        wait : 0),
-                    CCNRM(li->getOpponent(), C_NRM));
-            }
-        }
 		//
 		// it's an attack!
 		//
@@ -2994,16 +2953,16 @@ perform_violence(void)
 			bool stop = false;
 
 			for (i = 0; i < 4; i++) {
-				if (!ch->isFighting() || GET_LEVEL(ch) < (i * 8))
+				if (!ch->fighting || GET_LEVEL(ch) < (i * 8))
 					break;
-				if (ch->getPosition() < POS_FIGHTING) {
+				if (GET_POSITION(ch) < POS_FIGHTING) {
 					if (CHECK_WAIT(ch) < 10)
 						send_to_char(ch, "You can't fight while sitting!!\r\n");
 					break;
 				}
 
 				if (prob >= number((i * 16) + (i * 8), (i * 32) + (i * 8))) {
-                    int retval = hit(ch, ch->findRandomCombat(), TYPE_UNDEFINED);
+                    int retval = hit(ch, random_opponent(ch), TYPE_UNDEFINED);
                     if (IS_SET(retval, DAM_ATTACKER_KILLED) ||
                         IS_SET(retval, DAM_VICT_KILLED)) {
                         stop = true;
@@ -3018,10 +2977,10 @@ perform_violence(void)
 			if (IS_CYBORG(ch)) {
 				int implant_prob;
 
-				if (!ch->isFighting())
+				if (!ch->fighting)
 					continue;
 
-				if (ch->getPosition() < POS_FIGHTING) {
+				if (GET_POSITION(ch) < POS_FIGHTING) {
 					if (CHECK_WAIT(ch) < 10)
 						send_to_char(ch, "You can't fight while sitting!!\r\n");
 					continue;
@@ -3039,13 +2998,13 @@ perform_violence(void)
 
 					if (number(0, 100) < implant_prob) {
 						int retval =
-							hit(ch, ch->findRandomCombat(), SKILL_ADV_IMPLANT_W);
+							hit(ch, random_opponent(ch), SKILL_ADV_IMPLANT_W);
 						if (retval)
 							continue;
 					}
 				}
 
-				if (!ch->isFighting())
+				if (!ch->fighting)
 					continue;
 
 				if (IS_NPC(ch) && (GET_REMORT_CLASS(ch) == CLASS_UNDEFINED
@@ -3063,7 +3022,7 @@ perform_violence(void)
 					}
 
 					if (number(0, 100) < implant_prob) {
-						int retval = hit(ch, ch->findRandomCombat(), SKILL_IMPLANT_W);
+						int retval = hit(ch, random_opponent(ch), SKILL_IMPLANT_W);
 						if (retval)
 							continue;
 					}
@@ -3074,7 +3033,7 @@ perform_violence(void)
 		}
 
 		else if (IS_NPC(ch) && ch->in_room &&
-			ch->getPosition() == POS_FIGHTING &&
+			GET_POSITION(ch) == POS_FIGHTING &&
 			GET_MOB_WAIT(ch) <= 0 && (MIN(100, prob) >= number(0, 300))) {
 
 			if (MOB_FLAGGED(ch, MOB_SPEC) && ch->in_room &&
@@ -3085,7 +3044,7 @@ perform_violence(void)
 				continue;
 			}
 
-			if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && ch->isFighting()) {
+			if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && ch->fighting) {
 
 				mobile_battle_activity(ch, NULL);
 

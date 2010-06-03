@@ -7,7 +7,7 @@ SPECIAL(newbie_fodder)
 {
 	struct creature *self = (struct creature *)me;
 	struct creature *new_mob = NULL;
-	room_data *new_loc = NULL;
+	struct room_data *new_loc = NULL;
 	int idx, count;
 
 	if (spec_mode != SPECIAL_DEATH)
@@ -20,7 +20,7 @@ SPECIAL(newbie_fodder)
 
 	// Mobs have a 75% chance of carrying a random piece of newbie eq
 	if (number(0, 3)) {
-		obj_data *item;
+		struct obj_data *item;
 
 		item = read_object(number(NEWBIE_EQ_MIN, NEWBIE_EQ_MAX));
 		if (item)
@@ -30,7 +30,7 @@ SPECIAL(newbie_fodder)
 	// Now place a mob in a random room in which there are no players
 	count = 0;
 	for (idx = NEWBIE_ROOM_MIN;idx < NEWBIE_ROOM_MAX;idx++) {
-		room_data *room;
+		struct room_data *room;
 		struct creatureList_iterator it;
 
 		room = real_room(idx);

@@ -6,12 +6,12 @@
 
 SPECIAL(jail_locker)
 {
-	void summon_cityguards(room_data *);
+	void summon_cityguards(struct room_data *);
 
 	struct creature *self = (struct creature *)me;
 	char *str, *line, *param_key;
 	struct obj_data *locker, *item, *tmp_item;
-	room_data *jail_room;
+	struct room_data *jail_room;
 	int cost, jail_num = 0;
 
 	if (spec_mode != SPECIAL_CMD)
@@ -133,6 +133,6 @@ SPECIAL(jail_locker)
 	House* house = Housing.findHouseByRoom( jail_room->number );
 	if( house != NULL )
 		house->save();
-	ch->saveToXML();
+	save_player_to_xml(ch);
 	return 1;
 }

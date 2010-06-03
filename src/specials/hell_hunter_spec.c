@@ -109,7 +109,7 @@ load_hunter_data()
 }
 
 bool
-isBlindSpot(zone_data * zone)
+isBlindSpot(struct zone_data * zone)
 {
 	return find(blindSpots.begin(),
 		blindSpots.end(), zone->number) != blindSpots.end();
@@ -157,7 +157,7 @@ SPECIAL(hell_hunter_brain)
             int idx = 0;
             for (vector<int>_iterator it = blindSpots.begin();
                  it != blindSpots.end(); ++it, ++idx) {
-                zone_data *zone = real_zone(*it);
+                struct zone_data *zone = real_zone(*it);
                 send_to_char(ch, "%3d. [%3d] %s%s%s\r\n", idx, *it,
                              CCCYN(ch, NRM),
                              (zone) ? zone->name:"<no such zone>",
@@ -366,7 +366,7 @@ SPECIAL(hell_hunter)
 		}
 	}
 
-	if (!ch->isFighting() && !ch->isHunting() && !AFF_FLAGGED(ch, AFF_CHARM)) {
+	if (!ch->fighting && !ch->isHunting() && !AFF_FLAGGED(ch, AFF_CHARM)) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			false, ch, 0, 0, TO_ROOM);
 		ch->purge(true);
@@ -406,7 +406,7 @@ SPECIAL(hell_hunter)
 				act("...$n leaps out and attacks you!", false, devil, 0, vict,
 					TO_VICT);
 
-				ch->removeAllCombat();
+				remove_all_combat(ch);
 				hit(devil, vict, TYPE_UNDEFINED);
 				WAIT_STATE(vict, 1 RL_SEC);
 
@@ -450,7 +450,7 @@ SPECIAL(arioch)
 
 	if (ch->in_room->zone->number != 162) {
 
-		if (!ch->isHunting() && !ch->isFighting()) {
+		if (!ch->isHunting() && !ch->fighting) {
 
 			for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
 				if (IS_CORPSE(obj)) {

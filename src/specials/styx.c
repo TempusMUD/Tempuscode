@@ -54,7 +54,7 @@ SPECIAL(underworld_goddess)
 			styx = (*it);
 	}
 	/* First and foremost, if I am fighting, beat the shit out of them. */
-	if (!cmd && (ch->getPosition() == POS_FIGHTING)) {
+	if (!cmd && (GET_POSITION(ch) == POS_FIGHTING)) {
 		vict = NULL;
 		it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
@@ -66,7 +66,7 @@ SPECIAL(underworld_goddess)
 
 		/* if I didn't pick any of those, then just slam the guy I'm fighting */
 		if (vict == NULL)
-			vict = ch->findRandomCombat();
+			vict = random_opponent(ch);
 
 		/* if I'm fighting styx, try to teleport him away.  */
 		if (vict == styx) {

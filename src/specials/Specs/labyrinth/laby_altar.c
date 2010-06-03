@@ -6,8 +6,8 @@ ACMD(do_put);
 
 SPECIAL(laby_altar)
 {
-	obj_data *self = (obj_data *)me;
-	obj_data *cur_obj;
+	struct obj_data *self = (struct obj_data *)me;
+	struct obj_data *cur_obj;
 	bool prev_keys[3], cur_keys[3];
 
 	if (spec_mode != SPECIAL_CMD && !CMD_IS("put"))

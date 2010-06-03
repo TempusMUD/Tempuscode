@@ -264,7 +264,7 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
 			|| GET_OBJ_TYPE(battery) == ITEM_DEVICE)) {
 		send_to_char(ch, "%sERROR: %s damaged during transfer!\r\n", QRED,
 			battery->name);
-		damage_eq(ch, battery, amount);
+		damage_eq(ch, battery, amount, -1);
 	}
 }
 
@@ -544,7 +544,7 @@ perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
 		af[0].modifier = 0;
 		af[0].aff_index = 1;
 		af[0].level = GET_LEVEL(ch);
-        af[0].owner = ch->getIdNum();
+        af[0].owner = GET_IDNUM(ch);
 
 		af[1].type = 0;
 		af[1].is_instant = 0;
@@ -554,7 +554,7 @@ perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
 		af[1].modifier = 0;
 		af[1].aff_index = 1;
 		af[1].level = GET_LEVEL(ch);
-        af[1].owner = ch->getIdNum();
+        af[1].owner = GET_IDNUM(ch);
 
 		af[2].type = 0;
 		af[2].is_instant = 0;
@@ -564,7 +564,7 @@ perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
 		af[2].modifier = 0;
 		af[2].aff_index = 1;
 		af[2].level = GET_LEVEL(ch);
-        af[2].owner = ch->getIdNum();
+        af[2].owner = GET_IDNUM(ch);
 
 		switch (mode) {
 		case SKILL_ADRENAL_MAXIMIZER:
@@ -667,11 +667,11 @@ perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
 			break;
 		case SKILL_STASIS:
 			if (subcmd) {			/************ activate ****************/
-				if (ch->getPosition() >= POS_FLYING)
+				if (GET_POSITION(ch) >= POS_FLYING)
 					send_to_char(ch, "Go into stasis while flying?!?!?\r\n");
 				else {
 					TOGGLE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
-					ch->setPosition(POS_SLEEPING);
+					GET_POSITION(ch) = POS_SLEEPING;
 					WAIT_STATE(ch, PULSE_VIOLENCE * 5);
 					send_to_char(ch,
 						"Entering static state.  Halting system processes.\r\n");
@@ -804,10 +804,10 @@ perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
 				act(to_room[1], false, ch, 0, 0, TO_ROOM);
 
 			if (mode == SKILL_ENERGY_FIELD && room_is_watery(ch->in_room)) {
-				struct creatureList_iterator it = ch->in_room->people.begin();
-				for (; it != ch->in_room->people.end(); ++it) {
-					if (*it != ch) {
-						damage(ch, *it, dice(4, GET_LEVEL(ch)),
+                struct creature *tch;
+                for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+					if (tch != ch) {
+						damage(ch, tch, dice(4, GET_LEVEL(ch)),
 							SKILL_ENERGY_FIELD, -1);
                         WAIT_STATE(ch, 1 RL_SEC);
                     }
@@ -1161,10 +1161,10 @@ ACMD(do_cyborg_reboot)
 	act("$n begins a reboot sequence and shuts down.", false, ch, 0, 0,
 		TO_ROOM);
 
-	if (ch->isFighting())
-		ch->removeAllCombat();
+	if (ch->fighting)
+		remove_all_combat(ch);
 
-	ch->setPosition(POS_SLEEPING);
+	GET_POSITION(ch) = POS_SLEEPING;
 
 	if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 110) {
 		WAIT_STATE(ch, PULSE_VIOLENCE * 2);
@@ -1255,12 +1255,12 @@ ACMD(do_bioscan)
 		send_to_char(ch, "You are not equipped with bio-scanners.\r\n");
 		return;
 	}
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((((can_see_creature(ch, (*it)) || GET_INVIS_LVL((*it)) < GET_LEVEL(ch)) &&
+	struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+		if ((((can_see_creature(ch, tch) || GET_INVIS_LVL(tch) < GET_LEVEL(ch)) &&
 					(CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100) ||
 						affected_by_spell(ch, SKILL_HYPERSCAN)))
-				|| ch == (*it)) && LIFE_FORM((*it)))
+				|| ch == tch) && LIFE_FORM(tch))
 			count++;
 	}
 
@@ -1312,8 +1312,8 @@ ACMD(do_discharge)
 
 	if (!(vict = get_char_room_vis(ch, arg2)) &&
 		!(ovict = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else {
 			send_to_char(ch, "Discharge into who?\r\n");
 			return;
@@ -1350,7 +1350,7 @@ ACMD(do_discharge)
 	level = GET_LEVEL(ch);
 	level += GET_REMORT_GEN(ch);
 	// Tolerance is the amount they can safely discharge.
-	tolerance = 5 + (ch->getLevelBonus(SKILL_DISCHARGE) / 4);
+	tolerance = 5 + (get_skill_bonus(ch, SKILL_DISCHARGE) / 4);
 
 	if (amount > tolerance) {
 		if (amount > (tolerance * 2)) {
@@ -1401,18 +1401,18 @@ ACMD(do_discharge)
 			false, ch, ovict, 0, TO_CHAR);
 
 		dam = amount * (level + dice(GET_INT(ch), 4));
-		damage_eq(ch, ovict, dam);
+		damage_eq(ch, ovict, dam, -1);
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict))
+	if (!ok_to_attack(ch, vict))
 		return;
 
 	percent = ((10 - (GET_AC(vict) / 10)) >> 1) + number(1, 91);
 
 	prob = CHECK_SKILL(ch, SKILL_DISCHARGE);
 
-    dam = dice(amount * 3, 16 + (ch->getLevelBonus(SKILL_DISCHARGE) / 10));
+    dam = dice(amount * 3, 16 + (get_skill_bonus(ch, SKILL_DISCHARGE) / 10));
 
 	wait = (1 + amount / 5) RL_SEC;
 	WAIT_STATE(ch, wait);
@@ -1765,7 +1765,7 @@ ACMD(do_status)
 
 	case ITEM_CLIP:
 
-        i = obj->getNumContained();
+        i = count_contained_objs(obj);
 		send_to_char(ch, "%s contains %d/%d cartridge%s.\r\n",
 			obj->name, i, MAX_LOAD(obj), i == 1 ? "" : "s");
 		break;
@@ -1899,7 +1899,7 @@ ACMD(do_repair)
 			else if (!IS_CYBORG(vict))
 				act("You cannot repair $M.  You can only repair other borgs.",
 					false, ch, 0, vict, TO_CHAR);
-			else if (ch->isFighting())
+			else if (ch->fighting)
 				send_to_char(ch,
 					"You cannot perform repairs on fighting patients.\r\n");
 			else if (GET_HIT(vict) == GET_MAX_HIT(vict))
@@ -2026,7 +2026,7 @@ ACMD(do_overhaul)
 	} else if (GET_TOT_DAM(vict) <= (max_component_dam(vict) / 3)) {
 		act("You cannot make any significant improvements to $S systems.",
 			false, ch, 0, vict, TO_CHAR);
-	} else if (vict->getPosition() > POS_SITTING) {
+	} else if (GET_POSITION(vict) > POS_SITTING) {
 		send_to_char(ch, "Your subject must be sitting, at least.\r\n");
 	} else if (CHECK_SKILL(ch, SKILL_OVERHAUL) < 10) {
 		send_to_char(ch, "You have no idea how to perform an overhaul.\r\n");
@@ -2144,7 +2144,7 @@ obj_cond_color(struct obj_data *obj, struct creature *ch)
 #define ALEV(n)    (CHECK_SKILL(ch, SKILL_ANALYZE) > number(50, 50+(n*10)))
 
 void
-perform_analyze( struct creature *ch, obj_data *obj, bool checklev=true )
+perform_analyze( struct creature *ch, struct obj_data *obj, bool checklev)
 {
 	extern const char *egun_types[];
     acc_string_clear();
@@ -2171,7 +2171,7 @@ perform_analyze( struct creature *ch, obj_data *obj, bool checklev=true )
 	acc_sprintf("Commerce Value:       %s%d coins%s\r\n",
 		CCCYN(ch, C_NRM), GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
 	acc_sprintf("Total Mass:           %s%d pounds%s\r\n",
-		CCCYN(ch, C_NRM), obj->getWeight(), CCNRM(ch, C_NRM));
+                CCCYN(ch, C_NRM), GET_OBJ_WEIGHT(obj), CCNRM(ch, C_NRM));
 
 	acc_sprintf("Intrinsic Properties: %s", CCCYN(ch, C_NRM));
     if( GET_OBJ_EXTRA(obj) == 0 && GET_OBJ_EXTRA2(obj) == 0 ) {
@@ -2195,7 +2195,8 @@ perform_analyze( struct creature *ch, obj_data *obj, bool checklev=true )
 
 	// check for affections
 	bool found = false;
-	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+    int i;
+	for (i = 0; i < MAX_OBJ_AFFECT; i++) {
 		if (obj->affected[i].modifier) {
 			if (found)
 				acc_strcat("\r\n                      ", NULL);
@@ -2333,7 +2334,7 @@ ACMD(do_analyze)
 	}
 
 	if (obj) {
-		perform_analyze(ch, obj);
+		perform_analyze(ch, obj, true);
 		GET_MOVE(ch) -= 10;
 		return;
 	}
@@ -2406,7 +2407,7 @@ ACMD(do_insert)
 			return;
 		}
 
-        if (ch->isOkToAttack(vict, false)) {
+        if (ok_to_attack(ch, vict, false)) {
             send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
             return;
         }
@@ -2451,7 +2452,7 @@ ACMD(do_insert)
 		act("$p cannot be implanted there.", false, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	if (obj->getWeight() > GET_STR(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
+	if (GET_OBJ_WEIGHT(obj) > GET_STR(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
 		if (ch != vict)
 			act("ERROR: $p is to heavy to implant in $N.",
 				false, ch, obj, vict, TO_CHAR);
@@ -2507,7 +2508,7 @@ ACMD(do_insert)
 			false, ch, 0, vict, TO_NOTVICT);
 		act("$N wakes up with a scream as $n cuts into you!",
 			false, ch, 0, vict, TO_VICT | TO_SLEEP);
-		vict->setPosition(POS_RESTING);
+		GET_POSITION(vict) = POS_RESTING;
 		//    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
 		return;
 	}
@@ -2532,8 +2533,8 @@ ACMD(do_insert)
 
 		// Immortals shouldn't have to deal with messiness
 		if (!IS_IMMORT(ch)) {
-			if (vict->getPosition() > POS_SITTING)
-				ch->setPosition(POS_SITTING);
+			if (GET_POSITION(vict) > POS_SITTING)
+				GET_POSITION(ch) = POS_SITTING;
 			GET_HIT(vict) = GET_HIT(vict) / 4;
 			GET_MOVE(vict) = GET_MOVE(vict) / 4;
 			if (GET_HIT(vict) < 1)
@@ -2555,8 +2556,8 @@ ACMD(do_insert)
 
 		// Immortals shouldn't have to deal with messiness
 		if (!IS_IMMORT(ch)) {
-			if (vict->getPosition() > POS_RESTING)
-				vict->setPosition(POS_RESTING);
+			if (GET_POSITION(vict) > POS_RESTING)
+				GET_POSITION(vict) = POS_RESTING;
 			GET_HIT(vict) = 1;
 			GET_MOVE(vict) = 1;
 			WAIT_STATE(vict, 10 RL_SEC);
@@ -2568,9 +2569,9 @@ ACMD(do_insert)
 	}
 
     if (!IS_NPC(ch))
-        ch->saveToXML();
+        save_player_to_xml(ch);
     if (!IS_NPC(vict))
-        vict->saveToXML();
+        save_player_to_xml(vict);
 }
 
 ACMD(do_extract)
@@ -2652,7 +2653,7 @@ ACMD(do_extract)
             fname = get_corpse_file_path(CORPSE_IDNUM(corpse));
             if ((corpse_file = fopen(fname, "w+")) != NULL) {
                 fprintf(corpse_file, "<corpse>");
-                corpse->saveToXML(corpse_file);
+                save_object_to_xml(corpse, corpse_file);
                 fprintf(corpse_file, "</corpse>");
                 fclose(corpse_file);
             }
@@ -2669,23 +2670,27 @@ ACMD(do_extract)
 			number(50, 100)) {
 			act("You damage $p during the extraction!", false, ch, obj, 0,
 				TO_CHAR);
-			damage_eq(ch, obj, MAX((GET_OBJ_DAM(obj) >> 2), (dice(10,
-							10) - CHECK_SKILL(ch,
-							SKILL_CYBO_SURGERY) - (GET_DEX(ch) << 2))));
+			damage_eq(ch,
+                      obj,
+                      MAX((GET_OBJ_DAM(obj) >> 2),
+                          (dice(10, 10) -
+                           CHECK_SKILL(ch, SKILL_CYBO_SURGERY) -
+                           (GET_DEX(ch) << 2))),
+                      -1);
 		} else
 			gain_skill_prof(ch, SKILL_CYBO_SURGERY);
 
 		return;
 	}
 
-    if (ch->isOkToAttack(vict, false) && !IS_IMMORT(ch)) {
+    if (ok_to_attack(ch, vict, false) && !IS_IMMORT(ch)) {
         send_to_char(ch, "You can only perform surgery in a safe room.\r\n");
         return;
     }
 
     // Creators and higher should be able to extract everything with
     // one command
-    if (!strcasecmp(obj_str, "all") && ch->getLevel() > LVL_CREATOR) {
+    if (!strcasecmp(obj_str, "all") && GET_LEVEL(ch) > LVL_CREATOR) {
         perform_extract_all(ch, vict);
         return;
     }
@@ -2726,7 +2731,7 @@ ACMD(do_extract)
 			false, ch, 0, vict, TO_NOTVICT);
 		act("$N wakes up with a scream as $n cuts into you!",
 			false, ch, 0, vict, TO_VICT | TO_SLEEP);
-		vict->setPosition(POS_RESTING);
+		GET_POSITION(vict) = POS_RESTING;
 		return;
 	}
 
@@ -2752,8 +2757,8 @@ ACMD(do_extract)
 			false, ch, obj, vict, TO_NOTVICT);
 
 		if (!IS_IMMORT(ch)) {
-			if (vict->getPosition() > POS_SITTING)
-				vict->setPosition(POS_SITTING);
+			if (GET_POSITION(vict) > POS_SITTING)
+				GET_POSITION(vict) = POS_SITTING;
 			GET_HIT(vict) = GET_HIT(vict) / 4;
 			GET_MOVE(vict) = GET_MOVE(vict) / 4;
 			if (GET_HIT(vict) < 1)
@@ -2771,8 +2776,8 @@ ACMD(do_extract)
 			false, ch, obj, vict, TO_NOTVICT);
 
 		if (!IS_IMMORT(ch)) {
-			if (vict->getPosition() > POS_RESTING)
-				vict->setPosition(POS_RESTING);
+			if (GET_POSITION(vict) > POS_RESTING)
+				GET_POSITION(vict) = POS_RESTING;
 			GET_HIT(vict) = 1;
 			GET_MOVE(vict) = 1;
 			WAIT_STATE(vict, 10 RL_SEC);
@@ -2785,7 +2790,7 @@ ACMD(do_extract)
 			TO_CHAR);
 		damage_eq(ch, obj, MAX((GET_OBJ_DAM(obj) >> 2), (dice(10,
 						10) - CHECK_SKILL(ch,
-						SKILL_CYBO_SURGERY) - (GET_DEX(ch) << 2))));
+                                          SKILL_CYBO_SURGERY) - (GET_DEX(ch) << 2))), -1);
 	} else
 		gain_skill_prof(ch, SKILL_CYBO_SURGERY);
 }
@@ -2794,7 +2799,8 @@ void perform_extract_all(struct creature *ch, struct creature *vict)
 {
     struct obj_data *obj;
 
-	for (int i = 0; i < NUM_WEARS; i++) {
+    int i;
+	for (i = 0; i < NUM_WEARS; i++) {
 		if ((obj = GET_IMPLANT(vict, i)) && !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
             obj_to_char((obj = unequip_char(vict, i, EQUIP_IMPLANT)), ch);
             SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
@@ -2961,7 +2967,7 @@ ACMD(do_load)
 				act("$p does not fit in $P", false, ch, obj1, obj2, TO_CHAR);
 				return;
 			}
-			if (obj2->getNumContained() >= MAX_LOAD(obj2)) {
+			if (count_contained_objs(obj2) >= MAX_LOAD(obj2)) {
 				act("$P is already loaded to capacity.", false, ch, obj1, obj2,
 					TO_CHAR);
 				return;
@@ -2985,7 +2991,7 @@ ACMD(do_load)
 						false, ch, obj1, obj2, TO_CHAR);
 					return;
 				}
-				if (obj2->getNumContained() >= MAX_LOAD(obj2)) {
+				if (count_contained_objs(obj2) >= MAX_LOAD(obj2)) {
 					act("$P is already fully loaded.", false, ch, obj1, obj2,
 						TO_CHAR);
 					return;
@@ -2998,7 +3004,7 @@ ACMD(do_load)
 			}
 		} else if (IS_CHIP(obj1) && IS_INTERFACE(obj2) &&
 				INTERFACE_TYPE(obj2) == INTERFACE_CHIPS) {
-			if (obj2->getNumContained() >= INTERFACE_MAX(obj2)) {
+			if (count_contained_objs(obj2) >= INTERFACE_MAX(obj2)) {
 				act("$P is already loaded with microchips.",
 					false, ch, obj1, obj2, TO_CHAR);
 				return;
@@ -3007,7 +3013,7 @@ ACMD(do_load)
 				send_to_char(ch, "Attachment of that chip is redundant.\r\n");
 				return;
 			}
-			if (obj1->getWeight() > 5) {
+			if (GET_OBJ_WEIGHT(obj1) > 5) {
 				act("You can't fit something that big into $P!",
 					false, ch, obj1, obj2, TO_CHAR);
 				return;
@@ -3161,9 +3167,9 @@ ACMD(do_refill)
 				TO_CHAR);
 			extract_obj(vial);
 		} else {
-			vial->modifyWeight(-1);
+			SET_OBJ_WEIGHT(vial, GET_OBJ_WEIGHT(vial) - 1);
 
-			if (vial->getWeight() <= 0) {
+			if (GET_OBJ_WEIGHT(vial) <= 0) {
 				act("$P has been exhausted.", false, ch, syr, vial, TO_CHAR);
 				extract_obj(vial);
 			}
@@ -3297,7 +3303,7 @@ ACMD(do_overdrain)
 		return;
 	}
 	gain_skill_prof(ch, SKILL_OVERDRAIN);
-	amount = number(0, ch->getLevelBonus(SKILL_OVERDRAIN));
+	amount = number(0, get_skill_bonus(ch, SKILL_OVERDRAIN));
 	perform_recharge(ch, source, ch, 0, amount);
 	return;
 }
@@ -3310,8 +3316,8 @@ ACMD(do_de_energize)
 	skip_spaces(&argument);
 
 	if (!(vict = get_char_room_vis(ch, argument))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else {
 			send_to_char(ch, "De-energize who??\r\n");
 			return;
@@ -3323,7 +3329,7 @@ ACMD(do_de_energize)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict))
+	if (!ok_to_attack(ch, vict))
 		return;
 
 	appear(ch, vict);
@@ -3420,7 +3426,7 @@ ACMD(do_assimilate)
 		return;
 	}
 
-	manacost = MIN(10, obj->getWeight());
+	manacost = MIN(10, GET_OBJ_WEIGHT(obj));
 
 	if (GET_MANA(ch) < manacost) {
 		send_to_char(ch, "You lack the mana required to assimilate this.\r\n");

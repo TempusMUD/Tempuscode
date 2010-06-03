@@ -80,7 +80,7 @@ SPECIAL(puppet)
 		af.modifier = 0;
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
 		affect_to_char(me2, &af);
 
 	} else {

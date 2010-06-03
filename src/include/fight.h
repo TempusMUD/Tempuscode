@@ -58,7 +58,7 @@
 #define IS_DEFENSE_ATTACK(attacktype)   (attacktype == SPELL_FIRE_SHIELD || attacktype == SPELL_BLADE_BARRIER  || attacktype == SPELL_PRISMATIC_SPHERE || attacktype == SKILL_ENERGY_FIELD || attacktype == SPELL_THORN_SKIN || attacktype == SONG_WOUNDING_WHISPERS)
 
 static inline bool
-CANNOT_DAMAGE(struct creature *ch, struct creature *vict, obj_data *weap, int attacktype) {
+CANNOT_DAMAGE(struct creature *ch, struct creature *vict, struct obj_data *weap, int attacktype) {
 
 	if (IS_PC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
 			!PLR_FLAGGED(vict, PLR_MORTALIZED))
@@ -77,7 +77,7 @@ CANNOT_DAMAGE(struct creature *ch, struct creature *vict, obj_data *weap, int at
 
 			// bare-handed attacks with kata can hit magical stuff
 			if (IS_WEAPON(attacktype) && !weap &&
-					ch->getLevelBonus(SKILL_KATA) >= 50 &&
+                getSkillBonus(ch, SKILL_KATA) >= 50 &&
 						affected_by_spell(ch, SKILL_KATA))
 				return false;
 		}
@@ -110,16 +110,16 @@ struct CallerDiedException {
 bool ok_damage_vendor(struct creature *ch, struct creature *victim);
 void update_pos(struct creature *victim);
 struct obj_data *destroy_object(struct creature *ch, struct obj_data *obj, int type);
-struct obj_data *damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type = -1);
+struct obj_data *damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type);
 
 void dam_message(int dam, struct creature *ch, struct creature *victim,
 	int w_type, int location);
 
-bool do_gun_special(struct creature *ch, obj_data *obj);
+bool do_gun_special(struct creature *ch, struct obj_data *obj);
 
 void death_cry(struct creature *ch);
 void appear(struct creature *ch, struct creature *vict);
-obj_data *make_corpse(struct creature *ch, struct creature *killer,
+struct obj_data *make_corpse(struct creature *ch, struct creature *killer,
                      int attacktype);
 void check_object_killer(struct obj_data *obj, struct creature *vict);
 void raw_kill(struct creature *ch, struct creature *killer, int attacktype);	// prototype

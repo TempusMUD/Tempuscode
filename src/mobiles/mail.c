@@ -54,7 +54,7 @@ using namespace std;
 // The vnum of the "letter" object
 const int MAIL_OBJ_VNUM  = 1204;
 
-list<obj_data *> load_mail(char *path);
+list<struct obj_data *> load_mail(char *path);
 
 // returns 0 for no mail. 1 for mail.
 int
@@ -132,7 +132,7 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
     struct obj_data *obj, *temp_o;
     struct stat stat_buf;
     time_t now = time(NULL);
-    list<obj_data*> mailBag;
+    list<struct obj_data*> mailBag;
 
     // NO zero length mail!
     // This should never happen.
@@ -199,7 +199,7 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
         return 0;
     }
     else {
-        list<obj_data*>_iterator oi;
+        list<struct obj_data*>_iterator oi;
 
         fprintf(ofile, "<objects>");
         for (oi = mailBag.begin(); oi != mailBag.end(); oi++) {
@@ -245,16 +245,16 @@ receive_mail(struct creature * ch, list<struct obj_data *> &olist)
     int counter = 0;
     char *path = get_mail_file_path( GET_IDNUM(ch) );
     bool container = false;
-    list<obj_data *> mailBag;
+    list<struct obj_data *> mailBag;
 
     mailBag = load_mail(path);
 
     if (mailBag.size() > MAIL_BAG_THRESH )
         container = true;
 
-    list<obj_data *>_iterator oi;
+    list<struct obj_data *>_iterator oi;
 
-    obj_data *obj = NULL;
+    struct obj_data *obj = NULL;
     if (container)
         obj = read_object(MAIL_BAG_OBJ_VNUM);
 
@@ -287,10 +287,10 @@ receive_mail(struct creature * ch, list<struct obj_data *> &olist)
    return num_letters;
 }
 
-list<obj_data *> load_mail(char *path)
+list<struct obj_data *> load_mail(char *path)
 {
 	int axs = access(path, W_OK);
-    list<obj_data *> mailBag;
+    list<struct obj_data *> mailBag;
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
@@ -316,7 +316,7 @@ list<obj_data *> load_mail(char *path)
 
 	for ( xmlNodePtr node = root->xmlChildrenNode; node; node = node->next ) {
         if ( xmlMatches(node->name, "object") ) {
-			obj_data *obj = create_obj();
+			struct obj_data *obj = create_obj();
 			if(! obj->loadFromXML(NULL, NULL, NULL, node) ) {
 				extract_obj(obj);
 			}
@@ -581,5 +581,5 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
     act(to_char, false, mailman, 0, ch, TO_VICT);
     act(to_room, false, mailman, 0, ch, TO_NOTVICT);
 
-    ch->saveToXML();
+    save_player_to_xml(ch);
 }

@@ -1695,7 +1695,7 @@ command_interpreter(struct creature *ch, const char *argument)
 		REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
 	}
 	REMOVE_BIT(AFF2_FLAGS(ch), AFF2_EVADE);
-	if (ch->getPosition() > POS_SLEEPING)
+	if (GET_POSITION(ch) > POS_SLEEPING)
 		REMOVE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
 
 	if (ch->isMounted() && ch->in_room != ch->isMounted()->in_room) {
@@ -1784,9 +1784,9 @@ command_interpreter(struct creature *ch, const char *argument)
 		send_to_char(ch, "Sorry, that command hasn't been implemented yet.\r\n");
 	else if (IS_NPC(ch) && cmd_info[cmd].minimum_level >= LVL_IMMORT)
 		send_to_char(ch, "You can't use immortal commands while switched.\r\n");
-	else if (ch->getPosition() < cmd_info[cmd].minimum_position
+	else if (GET_POSITION(ch) < cmd_info[cmd].minimum_position
 		&& GET_LEVEL(ch) < LVL_AMBASSADOR)
-		switch (ch->getPosition()) {
+		switch (GET_POSITION(ch)) {
 		case POS_DEAD:
 			send_to_char(ch, "Lie still; you are DEAD!!! :-(\r\n");
 			break;
@@ -2397,7 +2397,7 @@ special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 	}
 
 	/* special in mobile present? */
-	room_data *theRoom = ch->in_room;
+	struct room_data *theRoom = ch->in_room;
 	struct creatureList_iterator it = theRoom->people.begin();
 	for (; it != theRoom->people.end(); ++it) {
         struct creature *mob = *it;

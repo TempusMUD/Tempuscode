@@ -22,7 +22,7 @@
 
 void add_alias(struct creature *ch, struct alias_data *a);
 void affect_to_char(struct creature *ch, struct affected_type *af);
-void extract_object_list(obj_data * head);
+void extract_object_list(struct obj_data * head);
 
 // Saves the given characters equipment to a file. Intended for use while
 // the character is still in the game.
@@ -41,10 +41,10 @@ struct creature_crashSave()
     return true;
 }
 
-obj_data *
+struct obj_data *
 struct creature_findCostliestObj(void)
 {
- 	obj_data *cur_obj, *result;
+ 	struct obj_data *cur_obj, *result;
 
 	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
 		return false;
@@ -146,7 +146,7 @@ struct creature_payRent(time_t last_time, int code, int currency)
 
 	// If they still don't have enough, start selling stuff
 	if (cost > 0) {
-		obj_data *doomed_obj, *tmp_obj;
+		struct obj_data *doomed_obj, *tmp_obj;
 
 		while (cost > 0) {
 			doomed_obj = findCostliestObj();
@@ -191,11 +191,11 @@ struct creature_payRent(time_t last_time, int code, int currency)
 }
 
 bool
-reportUnrentables(struct creature *ch, obj_data *obj_list, const char *pos)
+reportUnrentables(struct creature *ch, struct obj_data *obj_list, const char *pos)
 {
 	bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
 
- 	obj_data *cur_obj, *last_obj;
+ 	struct obj_data *cur_obj, *last_obj;
 	bool result = false;
 
 	last_obj = NULL;
@@ -226,7 +226,7 @@ reportUnrentables(struct creature *ch, obj_data *obj_list, const char *pos)
 bool
 struct creature_displayUnrentables(void)
 {
-	obj_data *cur_obj;
+	struct obj_data *cur_obj;
 	int pos;
 	bool result = false;
 
@@ -265,7 +265,7 @@ struct creature_saveObjects(void)
 	}
 	fprintf( ouf, "<objects>\n" );
 	// Save the inventory
-	for( obj_data *obj = carrying; obj != NULL; obj = obj->next_content ) {
+	for( struct obj_data *obj = carrying; obj != NULL; obj = obj->next_content ) {
 		obj->saveToXML(ouf);
 	}
 	// Save the equipment
@@ -313,7 +313,7 @@ struct creature_loadObjects()
 
     char *path = get_equipment_file_path( GET_IDNUM(this) );
 	int axs = access(path, W_OK);
-	obj_data *obj;
+	struct obj_data *obj;
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
@@ -385,7 +385,7 @@ struct creature_loadCorpse()
 
     char *path = get_corpse_file_path( GET_IDNUM(this) );
 	int axs = access(path, W_OK);
-    obj_data *corpse_obj;
+    struct obj_data *corpse_obj;
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
@@ -446,9 +446,9 @@ struct creature_saveToXML()
 {
     void expire_old_grievances(struct creature *);
 	// Save vital statistics
-	obj_data *saved_eq[NUM_WEARS];
-	obj_data *saved_impl[NUM_WEARS];
-	obj_data *saved_tattoo[NUM_WEARS];
+	struct obj_data *saved_eq[NUM_WEARS];
+	struct obj_data *saved_impl[NUM_WEARS];
+	struct obj_data *saved_tattoo[NUM_WEARS];
 	affected_type *saved_affs, *cur_aff;
 	FILE *ouf;
 	char *path, *tmp_path;

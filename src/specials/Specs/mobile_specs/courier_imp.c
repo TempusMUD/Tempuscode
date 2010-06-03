@@ -74,7 +74,7 @@ SPECIAL(courier_imp)
             else if (data->mode == IMP_BUYER_BROKE ||
                      data->mode == IMP_RETURN_ITEM ||
                      data->mode == IMP_NO_BUYER) {
-                  obj_data *doomed_obj;
+                  struct obj_data *doomed_obj;
 
                   slog("IMP: Loading player %ld's objects", data->buyer_id);
 
@@ -110,7 +110,7 @@ SPECIAL(courier_imp)
     }
 
     if (seeking->in_room->zone != self->in_room->zone) {
-        room_data *room;
+        struct room_data *room;
         if (data->fail_count < 10) {
             int tries = 0, nm = 0;
             room = NULL;

@@ -49,9 +49,9 @@ bool process_load_param( struct creature *ch );
 int
 search_trans_character(struct creature * ch,
 	special_search_data * srch,
-	room_data * targ_room)
+	struct room_data * targ_room)
 {
-	room_data *was_in;
+	struct room_data *was_in;
 
 	if (!House_can_enter(ch, targ_room->number) ||
 		!clan_house_can_enter(ch, targ_room) ||
@@ -352,7 +352,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 			}
 
 			int rc = 1;
-			room_data *src_room = ch->in_room;
+			struct room_data *src_room = ch->in_room;
 			rc = search_trans_character(ch, srch, targ_room);
 
 			struct creatureList_iterator it = src_room->people.begin();

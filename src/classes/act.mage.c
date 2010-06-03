@@ -94,19 +94,19 @@ ACMD(do_empower)
 	af.duration = (GET_INT(ch) >> 1);
 	af.location = APPLY_MANA;
 	af.modifier = (val1 + val2 - 5);
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 
 	af2.type = SKILL_EMPOWER;
 	af2.duration = (GET_INT(ch) >> 1);
 	af2.location = APPLY_HIT;
 	af2.modifier = -(val1);
-    af2.owner = ch->getIdNum();
+    af2.owner = GET_IDNUM(ch);
 
 	af3.type = SKILL_EMPOWER;
 	af3.duration = (GET_INT(ch) >> 1);
 	af3.location = APPLY_MOVE;
 	af3.modifier = -(val2);
-    af3.owner = ch->getIdNum();
+    af3.owner = GET_IDNUM(ch);
 
 	struct affected_type *cur_aff;
 	int aff_power;
@@ -163,7 +163,7 @@ ACMD(do_teach)
                     "in the symbols: '\n");
             return;
         } else {
-            skill_str = tmp_getquoted(&argument);
+            skill_str = tmp_getquoted((const char **)&argument);
         }
     } else {
         s = strrchr(argument, ' ');
@@ -266,13 +266,12 @@ area_attack_advisable(struct creature *ch)
     // Area attacks are advisable when there are more than one PC and
     // no other non-fighting NPCs
     int pc_count = 0;
-    for (struct creatureList_iterator cit = ch->in_room->people.begin();
-         cit != ch->in_room->people.end();
-         ++cit) {
-        if (!can_see_creature(ch, *cit))
+    struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+        if (!can_see_creature(ch, tch))
             continue;
-        if (IS_NPC(*cit)) {
-            if (!(*cit)->isFighting())
+        if (IS_NPC(tch)) {
+            if (!isFighting(tch))
                 return false;
         } else {
             pc_count++;
@@ -288,10 +287,9 @@ group_attack_advisable(struct creature *ch)
     // Group attacks are advisable when more than one creature is
     // attacking
     int attacker_count = 0;
-    for (struct creatureList_iterator cit = ch->in_room->people.begin();
-         cit != ch->in_room->people.end();
-         ++cit) {
-        if ((*cit)->findCombat(ch)) {
+    struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+        if (findCombat(tch, ch)) {
             if (attacker_count)
                 return true;
             attacker_count++;
@@ -348,7 +346,8 @@ bool
 dispel_is_advisable(struct creature *vict)
 {
     // Return true if magical buffs are found
-    for (affected_type *af = vict->affected;af;af = af->next) {
+    struct affected_type *af;
+    for (af = vict->affected;af;af = af->next) {
         if ((SPELL_IS_MAGIC(af->type) || SPELL_IS_DIVINE(af->type))
             && !SPELL_FLAGGED(af->type, MAG_DAMAGE)
             && !spell_info[af->type].violent
@@ -373,11 +372,11 @@ mage_best_attack(struct creature *ch, struct creature *vict)
     }
     if (aggression > 50) {
         // somewhat aggressive - balance attacking with crippling
-        if (vict->getPosition() > POS_SLEEPING
+        if (GET_POSITION(vict) > POS_SLEEPING
             && can_cast_spell(ch, SPELL_WORD_STUN)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_WORD_STUN, &return_flags);
             return;
-        } else if (vict->getPosition() >  POS_SLEEPING
+        } else if (GET_POSITION(vict) >  POS_SLEEPING
                    && can_cast_spell(ch, SPELL_SLEEP)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP, &return_flags);
             return;
@@ -428,39 +427,39 @@ mage_activity(struct creature *ch)
     if (room_is_dark(ch->in_room) &&
                can_cast_spell(ch, SPELL_INFRAVISION) &&
                !has_dark_sight(ch)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_INFRAVISION);
+        cast_spell(ch, ch, 0, NULL, SPELL_INFRAVISION, NULL);
     } else if (room_is_dark(ch->in_room) &&
                can_cast_spell(ch, SPELL_GLOWLIGHT) &&
                !has_dark_sight(ch)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_GLOWLIGHT);
+        cast_spell(ch, ch, 0, NULL, SPELL_GLOWLIGHT, NULL);
     } else if (can_cast_spell(ch, SPELL_PRISMATIC_SPHERE)
                && !AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_PRISMATIC_SPHERE);
+        cast_spell(ch, ch, 0, NULL, SPELL_PRISMATIC_SPHERE, NULL);
     } else if (can_cast_spell(ch, SPELL_ANTI_MAGIC_SHELL)
                && !affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_ANTI_MAGIC_SHELL);
+        cast_spell(ch, ch, 0, NULL, SPELL_ANTI_MAGIC_SHELL, NULL);
     } else if (can_cast_spell(ch, SPELL_HASTE)
                && !AFF2_FLAGGED(ch, AFF2_HASTE)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_HASTE);
+        cast_spell(ch, ch, 0, NULL, SPELL_HASTE, NULL);
     } else if (can_cast_spell(ch, SPELL_DISPLACEMENT)
                && !AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_DISPLACEMENT);
+        cast_spell(ch, ch, 0, NULL, SPELL_DISPLACEMENT, NULL);
     } else if (can_cast_spell(ch, SPELL_TRUE_SEEING)
                && !AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_TRUE_SEEING);
+        cast_spell(ch, ch, 0, NULL, SPELL_TRUE_SEEING, NULL);
     } else if (can_cast_spell(ch, SPELL_REGENERATE)
                && !AFF_FLAGGED(ch, AFF_REGEN)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_REGENERATE);
+        cast_spell(ch, ch, 0, NULL, SPELL_REGENERATE, NULL);
     } else if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
                && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_FIRE_SHIELD);
+        cast_spell(ch, ch, 0, NULL, SPELL_FIRE_SHIELD, NULL);
     } else if (can_cast_spell(ch, SPELL_STRENGTH)
                && !affected_by_spell(ch, SPELL_STRENGTH)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_STRENGTH);
+        cast_spell(ch, ch, 0, NULL, SPELL_STRENGTH, NULL);
     } else if (can_cast_spell(ch, SPELL_BLUR) && !AFF_FLAGGED(ch, AFF_BLUR)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_BLUR);
+        cast_spell(ch, ch, 0, NULL, SPELL_BLUR, NULL);
     } else if (can_cast_spell(ch, SPELL_ARMOR) && !affected_by_spell(ch, SPELL_ARMOR)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_ARMOR);
+        cast_spell(ch, ch, 0, NULL, SPELL_ARMOR, NULL);
     }
 }
 
@@ -472,7 +471,7 @@ mage_mob_fight(struct creature *ch, struct creature *precious_vict)
     struct creature *vict = 0;
     int return_flags;
 
-	if (!ch->isFighting())
+	if (!ch->fighting)
 		return false;
 
 	// pick an enemy
@@ -498,16 +497,16 @@ mage_mob_fight(struct creature *ch, struct creature *precious_vict)
         // not very aggressive - play more defensively
         if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
             && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
-            cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
+            cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD, NULL);
             return true;
         }
         if (can_cast_spell(ch, SPELL_BLUR) && !AFF_FLAGGED(ch, AFF_BLUR)) {
-            cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
+            cast_spell(ch, ch, NULL, NULL, SPELL_BLUR, NULL);
             return true;
         }
         if (can_cast_spell(ch, SPELL_ARMOR)
             && !affected_by_spell(ch, SPELL_ARMOR)) {
-            cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
+            cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR, NULL);
             return true;
         }
         if (mage_damaging_attack(ch, vict))

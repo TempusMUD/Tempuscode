@@ -109,7 +109,7 @@ SPECIAL(enhancer)
         GET_OBJ_VAL(obj, 0) += number(0,GET_OBJ_VAL(obj, 0));
     }
 	WAIT_STATE(ch, 5 RL_SEC);
-	ch->saveToXML();
+	save_player_to_xml(ch);
 
 	return 1;
 }

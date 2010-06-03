@@ -43,7 +43,7 @@ struct CraftItem {
         required.clear();
     }
     char *next_requirement(struct creature *keeper);
-    obj_data *create(struct creature *keeper, struct creature *recipient);
+    struct obj_data *create(struct creature *keeper, struct creature *recipient);
 
     int vnum;	// object to be offered when all components are held
     long cost; // -1 means to use default cost
@@ -177,7 +177,7 @@ Craftshop_find(struct creature *keeper)
 char *
 CraftItem_next_requirement(struct creature *keeper)
 {
-	obj_data *obj;
+	struct obj_data *obj;
 	vector<CraftComponent *>_iterator compon;
 
 	for (compon = required.begin();compon != required.end();compon++ ) {
@@ -196,10 +196,10 @@ CraftItem_next_requirement(struct creature *keeper)
 	return NULL;
 }
 
-obj_data *
+struct obj_data *
 CraftItem_create(struct creature *keeper, struct creature *recipient)
 {
-	obj_data *obj;
+	struct obj_data *obj;
 	vector<CraftComponent *>_iterator compon;
 
 	for (compon = required.begin();compon != required.end();compon++ ) {
@@ -229,7 +229,7 @@ CraftItem_create(struct creature *keeper, struct creature *recipient)
 char *
 list_commission_item(struct creature *ch, struct creature *keeper, int idx, CraftItem *item, char *msg)
 {
-	obj_data *obj;
+	struct obj_data *obj;
 	char *needed;
 	char *item_prefix;
 
@@ -292,7 +292,7 @@ Craftshop_buy(struct creature *keeper, struct creature *ch, char *arguments)
 {
 	vector<CraftItem *>_iterator item_itr;
 	CraftItem *item;
-	obj_data *obj;
+	struct obj_data *obj;
 	char *arg, *msg, *needed_str;
     arg = tmp_getword(&arguments);
 

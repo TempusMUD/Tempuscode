@@ -17,20 +17,20 @@
 const int MAX_ITEMS = 10;
 
 // From act.comm.cc
-void perform_analyze( struct creature *ch, obj_data *obj, bool checklev );
-void perform_appraise( struct creature *ch, obj_data *obj, int skill_lvl);
+void perform_analyze( struct creature *ch, struct obj_data *obj, bool checklev );
+void perform_appraise( struct creature *ch, struct obj_data *obj, int skill_lvl);
 
 // From cityguard.cc
 void call_for_help(struct creature *ch, struct creature *attacker);
 
 // From vendor.cc
-bool same_obj(obj_data *obj1, obj_data *obj2);
-obj_data *vendor_resolve_hash(struct creature *self, char *obj_str);
-obj_data *vendor_resolve_name(struct creature *self, char *obj_str);
-void vendor_appraise(struct creature *ch, obj_data *obj, struct creature *self, ShopData *shop);
+bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
+struct obj_data *vendor_resolve_hash(struct creature *self, char *obj_str);
+struct obj_data *vendor_resolve_name(struct creature *self, char *obj_str);
+void vendor_appraise(struct creature *ch, struct obj_data *obj, struct creature *self, ShopData *shop);
 
 static void
-tattooist_show_pos(struct creature * me, struct creature * ch, obj_data * obj)
+tattooist_show_pos(struct creature * me, struct creature * ch, struct obj_data * obj)
 {
 	int pos;
 	bool not_first = false;
@@ -50,7 +50,7 @@ tattooist_show_pos(struct creature * me, struct creature * ch, obj_data * obj)
 }
 
 static unsigned long
-tattooist_get_value(obj_data *obj, int percent, int costModifier)
+tattooist_get_value(struct obj_data *obj, int percent, int costModifier)
 {
 	unsigned long cost;
 
@@ -63,7 +63,7 @@ tattooist_get_value(obj_data *obj, int percent, int costModifier)
 static void
 tattooist_sell(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
-	obj_data *obj;
+	struct obj_data *obj;
 	char *obj_str;
     const char *currency_str, *msg;
 	unsigned long cost, amt_carried;
@@ -198,7 +198,7 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self, ShopData *
 }
 
 char *
-tattooist_list_obj(struct creature *ch, obj_data *obj, int idx, int cost)
+tattooist_list_obj(struct creature *ch, struct obj_data *obj, int idx, int cost)
 {
 	char *obj_desc;
 
@@ -218,7 +218,7 @@ tattooist_list_obj(struct creature *ch, obj_data *obj, int idx, int cost)
 static void
 tattooist_list(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
-	obj_data *cur_obj;
+	struct obj_data *cur_obj;
 	int idx;
 	const char *msg;
     unsigned long cost;

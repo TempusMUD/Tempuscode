@@ -66,14 +66,14 @@ ACMD(do_split);
 
 const long MONEY_LOG_LIMIT = 50000000;
 
-obj_data *
+struct obj_data *
 get_random_uncovered_implant(struct creature * ch, int type = -1)
 {
 	int possibles = 0;
 	int implant = 0;
 	int pos_imp = 0;
 	int i;
-	obj_data *o = NULL;
+	struct obj_data *o = NULL;
 
 	if (!ch)
 		return NULL;
@@ -113,7 +113,7 @@ get_random_uncovered_implant(struct creature * ch, int type = -1)
 //
 
 int
-explode_sigil(struct creature *ch, obj_data *obj)
+explode_sigil(struct creature *ch, struct obj_data *obj)
 {
 
 	int ret = 0;
@@ -676,7 +676,7 @@ perform_get_from_container(struct creature * ch,
 }
 
 void
-perform_autoloot(struct creature *ch, obj_data *corpse)
+perform_autoloot(struct creature *ch, struct obj_data *corpse)
 {
     struct obj_data *obj, *next_obj = NULL;
     bool found = false, display;
@@ -688,7 +688,7 @@ perform_autoloot(struct creature *ch, obj_data *corpse)
 
     // Can't loot player corpses in NPK zones
     if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
-        !IS_NPC(ch) && ch->getLevel() < LVL_AMBASSADOR &&
+        !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
         IS_CORPSE(corpse) &&
         CORPSE_IDNUM(corpse) != GET_IDNUM(ch) &&
         CORPSE_IDNUM(corpse) > 0)
@@ -772,9 +772,9 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
 			}
 		}
 
-        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) != ch->getIdNum() &&
+        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) != GET_IDNUM(ch) &&
             ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
-            !IS_NPC(ch) && ch->getLevel() < LVL_AMBASSADOR &&
+            !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
             CORPSE_IDNUM(cont) > 0) {
             send_to_char(ch, "You may not loot corpses in NPK zones.\r\n");
             return 0;
@@ -800,14 +800,14 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
 
 	else {
         if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
-            !IS_NPC(ch) && ch->getLevel() < LVL_AMBASSADOR &&
+            !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
             IS_CORPSE(cont) &&
             CORPSE_IDNUM(cont) != GET_IDNUM(ch) &&
             CORPSE_IDNUM(cont) > 0) {
             send_to_char(ch, "You may not loot corpses in NPK zones.\r\n");
             return 0;
         }
-        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0 && CORPSE_IDNUM(cont) != GET_IDNUM(ch) && ch->getLevel() < LVL_AMBASSADOR) {
+        if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0 && CORPSE_IDNUM(cont) != GET_IDNUM(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
             sprintf(buf, "You may only take things one at a time from $P.");
             act(buf, false, ch, 0, cont, TO_CHAR);
             return 0;
@@ -981,8 +981,8 @@ get_from_room(struct creature *ch, char *arg)
 		}
 
         if (IS_CORPSE(obj)
-            && CORPSE_IDNUM(obj) != ch->getIdNum()
-            && ch->getLevel() < LVL_AMBASSADOR
+            && CORPSE_IDNUM(obj) != GET_IDNUM(ch)
+            && GET_LEVEL(ch) < LVL_AMBASSADOR
             && ch->in_room->zone->getPKStyle() != ZONE_CHAOTIC_PK
             && IS_PC(ch)
             && CORPSE_IDNUM(obj) > 0) {
@@ -1019,8 +1019,8 @@ get_from_room(struct creature *ch, char *arg)
 		for (obj = ch->in_room->contents; obj; obj = next_obj) {
 			next_obj = obj->next_content;
 
-            if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) != ch->getIdNum() &&
-                ch->getLevel() < LVL_AMBASSADOR &&
+            if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) != GET_IDNUM(ch) &&
+                GET_LEVEL(ch) < LVL_AMBASSADOR &&
                 ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
                 IS_PC(ch) && CORPSE_IDNUM(obj) > 0) {
                 send_to_char(ch, "You can't take corpses in NPK zones!\r\n");
@@ -1686,7 +1686,7 @@ perform_give(struct creature *ch, struct creature *vict,
 		} else
 			act("You peel $p off your hand...", false, ch, obj, 0, TO_CHAR);
 	}
-	if (GET_LEVEL(ch) < LVL_IMMORT && vict->getPosition() <= POS_SLEEPING) {
+	if (GET_LEVEL(ch) < LVL_IMMORT && GET_POSITION(vict) <= POS_SLEEPING) {
 		act("$E is currently unconscious.", false, ch, 0, vict, TO_CHAR);
 		return 0;
 	}
@@ -1728,7 +1728,7 @@ perform_give(struct creature *ch, struct creature *vict,
 					else
 						do_activate(vict, fname(obj->aliases), 0, 1, 0);
 				else {
-					if (vict->getPosition() < POS_FIGHTING)
+					if (GET_POSITION(vict) < POS_FIGHTING)
 						do_stand(vict, 0, 0, 0, 0);
 					for (i = 0; i < NUM_DIRS; i++) {
 						if (ch->in_room->dir_option[i] &&
@@ -3074,7 +3074,7 @@ perform_remove(struct creature *ch, int pos)
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 		act("$p: you can't carry that many items!", false, ch, obj, 0,
 			TO_CHAR);
-	else if ((ch->getPosition() == POS_FLYING)
+	else if ((GET_POSITION(ch) == POS_FLYING)
 		&& (GET_OBJ_TYPE(ch->equipment[pos]) == ITEM_WINGS)
 		&& (!AFF_FLAGGED(ch, AFF_INFLIGHT))) {
 		act("$p: you probably shouldn't remove those while flying!", false, ch,
@@ -3905,7 +3905,7 @@ ACMD(do_conceal)
 
 ACMD(do_sacrifice)
 {
-	struct creature *load_corpse_owner(obj_data *obj);
+	struct creature *load_corpse_owner(struct obj_data *obj);
 
 	struct creature *orig_char;
 	struct obj_data *obj;

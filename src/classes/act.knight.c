@@ -81,9 +81,9 @@ holytouch_after_effect(long owner, struct creature * vict, int level)
 	int dam = level * 2;
 
 	send_to_char(vict, "Visions of pure evil sear through your mind!\r\n");
-	if (vict->getPosition() > POS_SITTING) {
+	if (GET_POSITION(vict) > POS_SITTING) {
 		act("$n falls to $s knees screaming!", true, vict, 0, 0, TO_ROOM);
-		vict->setPosition(POS_SITTING);
+		GET_POSITION(vict) = POS_SITTING;
 	} else {
 		act("$n begins to scream!", true, vict, 0, 0, TO_ROOM);
 	}
@@ -96,7 +96,7 @@ holytouch_after_effect(long owner, struct creature * vict, int level)
 	if (damage(vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH, WEAR_EYES))
 		return 1;
 	if (!IS_NPC(vict) || !MOB_FLAGGED(vict, MOB_NOBLIND)) {
-        affected_type af;
+        struct affected_type af;
 
         af.next = NULL;
 		af.type = TYPE_MALOVENT_HOLYTOUCH;
@@ -139,7 +139,7 @@ malovent_holy_touch(struct creature * ch, struct creature * vict)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict))
+	if (!ok_to_attack(ch, vict))
 		return;
 
 	chance = GET_ALIGNMENT(vict) / 10;
@@ -174,11 +174,11 @@ malovent_holy_touch(struct creature * ch, struct creature * vict)
 
 	af.type = SKILL_HOLY_TOUCH;
 	af.is_instant = 1;
-	af.level = ch->getLevelBonus(SKILL_HOLY_TOUCH);
+	af.level = get_skill_bonus(ch, SKILL_HOLY_TOUCH);
 	af.duration = number(1, 3);
 	af.aff_index = 3;
 	af.bitvector = AFF3_INST_AFF;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 
 	if (IS_SOULLESS(ch))
 		af.level += 20;
@@ -189,7 +189,7 @@ malovent_holy_touch(struct creature * ch, struct creature * vict)
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 
 	gain_skill_prof(ch, SKILL_HOLY_TOUCH);
-	if (damage(ch, vict, ch->getLevelBonus(SKILL_HOLY_TOUCH) * 2,
+	if (damage(ch, vict, get_skill_bonus(ch, SKILL_HOLY_TOUCH) * 2,
 			SKILL_HOLY_TOUCH, WEAR_EYES))
 		return;
 

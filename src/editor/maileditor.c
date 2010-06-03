@@ -496,7 +496,7 @@ CMailEditor_AddAttachment(char *obj_name)
     obj_from_char(obj);
 	// The REMOVE_FROM_LIST macro requires a variable named temp.  We should
 	// really convert it to use a c++ template...
-	obj_data *temp = NULL;
+	struct obj_data *temp = NULL;
 	REMOVE_FROM_LIST(obj, object_list, next);
 
     if (!this->obj_list) {

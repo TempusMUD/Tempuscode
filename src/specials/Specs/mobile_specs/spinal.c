@@ -17,7 +17,7 @@ SPECIAL(spinal)
 		return 0;
 
 	if (!cmd && spinal->in_room != r_home_pad &&
-		r_home_pad != NULL && !ch->isFighting()) {
+		r_home_pad != NULL && !ch->fighting) {
 		act("$n departs suddenly into the deeper ethereal.",
 			false, spinal, 0, 0, TO_ROOM);
 		char_from_room(spinal, false);

@@ -94,10 +94,10 @@ is_able_to_learn(struct creature *ch, int spl)
 bool
 can_cast_spell(struct creature *ch, int spellnum)
 {
-    room_data *room = ch->in_room;
+    struct room_data *room = ch->in_room;
 
     return (is_able_to_learn(ch, spellnum)
-            && (ch->getPosition() >= SINFO.min_position)
+            && (GET_POSITION(ch) >= SINFO.min_position)
             && GET_MANA(ch) >= mag_manacost(ch, spellnum)
             && !(SPELL_IS_EVIL(spellnum) && !IS_EVIL(ch))
             && !(SPELL_IS_GOOD(spellnum) && !IS_GOOD(ch))
@@ -669,7 +669,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
 	int i, k, level;
 	struct creature *tch = NULL;
 	struct obj_data *tobj = NULL;
-    room_data *was_in = NULL;
+    struct room_data *was_in = NULL;
 	int my_return_flags = 0;
 
 	if (return_flags == NULL)
@@ -712,7 +712,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
 				(GET_OBJ_VAL(obj, 0) * CHECK_SKILL(ch, SKILL_USE_WANDS)) / 100;
 			level = MIN(level, LVL_AMBASSADOR);
 
-			room_data *room = ch->in_room;
+			struct room_data *room = ch->in_room;
 			struct creatureList_iterator it = room->people.begin();
 			for (; it != room->people.end(); ++it) {
 				if (ch == *it && spell_info[GET_OBJ_VAL(obj, 3)].violent)
@@ -1052,8 +1052,8 @@ cast_spell(struct creature *ch, struct creature *tch,
 	// verify correct position
 	//
 
-	if (ch->getPosition() < SINFO.min_position) {
-		switch (ch->getPosition()) {
+	if (GET_POSITION(ch) < SINFO.min_position) {
+		switch (GET_POSITION(ch)) {
 		case POS_SLEEPING:
 			if (SPELL_IS_PHYSICS(spellnum))
 				send_to_char(ch, "You dream about great physical powers.\r\n");
@@ -1181,7 +1181,7 @@ cast_spell(struct creature *ch, struct creature *tch,
 
 	if (tch && ch != tch && IS_NPC(tch) &&
 		ch->in_room == tch->in_room &&
-		SINFO.violent && !tch->isFighting() && tch->getPosition() > POS_SLEEPING &&
+		SINFO.violent && !tch->fighting && tGET_POSITION(ch) > POS_SLEEPING &&
 		(!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master)) {
 		int my_return_flags = hit(tch, ch, TYPE_UNDEFINED);
 
@@ -1377,13 +1377,13 @@ find_spell_targets(struct creature *ch, char *argument,
 
 	} else {					/* if target string is empty */
 		if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_SELF))
-			if (ch->isFighting()) {
+			if (ch->fighting) {
 				*tch = ch;
 				*target = true;
 			}
 		if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_VICT))
-			if (ch->isFighting()) {
-				*tch = ch->findRandomCombat();
+			if (ch->fighting) {
+				*tch = random_opponent(ch);
 				*target = true;
 			}
 		/* if no target specified,
@@ -1410,7 +1410,7 @@ ACMD(do_cast)
 {
 	struct creature *tch = NULL;
     int tdir;
-	obj_data *tobj = NULL, *holy_symbol = NULL, *metal = NULL;
+	struct obj_data *tobj = NULL, *holy_symbol = NULL, *metal = NULL;
 
 	int mana, spellnum, i, target = 0, prob = 0, metal_wt = 0, num_eq =
 		0, temp = 0;
@@ -1595,7 +1595,7 @@ ACMD(do_cast)
 
 	prob -= (NUM_WEARS - num_eq);
 
-	if (tch && tch->getPosition() == POS_FIGHTING)
+	if (tch && tGET_POSITION(ch) == POS_FIGHTING)
 		prob += (GET_LEVEL(tch) >> 3);
 
 	/**** casting probability ends here *****/
@@ -1793,7 +1793,7 @@ ACMD(do_trigger)
 
 	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
-	if (tch && tch->getPosition() == POS_FIGHTING)
+	if (tch && tGET_POSITION(ch) == POS_FIGHTING)
 		prob -= (GET_LEVEL(tch) >> 3);
 
 	/**** casting probability ends here *****/
@@ -1857,13 +1857,13 @@ ACMD(do_arm)
 	rpoints = mag_manacost(ch, spellnum);
     resource = find_item_kit(ch);
 
-    if (!resource && ch->getLevel() < LVL_AMBASSADOR) {
+    if (!resource && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char(ch, "But you don't have a resource kit!\r\n");
         return;
     }
 
 	if ((rpoints > 0) && (GET_RPOINTS(resource) < rpoints)
-		&& (ch->getLevel() < LVL_AMBASSADOR)) {
+		&& (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
 		send_to_char(ch, "You haven't the resources!\r\n");
 		return;
 	}
@@ -1922,17 +1922,17 @@ struct obj_data *find_item_kit(struct creature *ch __attribute__ ((unused)))
         cur_obj = ch->equipment[i];
         if (cur_obj) {
             if ((GET_OBJ_TYPE(cur_obj == ITEM_KIT)) &&
-                (ch->getLevel() > GET_OBJ_VAL(cur_obj, 0)) &&
-                (ch->getLevel() < GET_OBJ_VAL(cur_obj, 1))) {
+                (GET_LEVEL(ch) > GET_OBJ_VAL(cur_obj, 0)) &&
+                (GET_LEVEL(ch) < GET_OBJ_VAL(cur_obj, 1))) {
                 return cur_obj;
             }
         }
     }
 
-    for (obj_data = ch->carrying; obj_data; obj_data = obj_data->next) {
+    for (struct obj_data = ch->carrying; struct obj_data; struct obj_data = struct obj_data->next) {
         if ((GET_OBJ_TYPE(cur_obj == ITEM_KIT)) &&
-            (ch->getLevel() > GET_OBJ_VAL(cur_obj, 0)) &&
-            (ch->getLevel() < GET_OBJ_VAL(cur_obj, 1))) {
+            (GET_LEVEL(ch) > GET_OBJ_VAL(cur_obj, 0)) &&
+            (GET_LEVEL(ch) < GET_OBJ_VAL(cur_obj, 1))) {
             return cur_obj;
         }
     } */

@@ -18,8 +18,8 @@ const int MAX_ITEMS = 10;
 const unsigned int MIN_COST = 12;
 
 // From act.comm.cc
-void perform_analyze( struct creature *ch, obj_data *obj, bool checklev );
-void perform_appraise( struct creature *ch, obj_data *obj, int skill_lvl);
+void perform_analyze( struct creature *ch, struct obj_data *obj, bool checklev );
+void perform_appraise( struct creature *ch, struct obj_data *obj, int skill_lvl);
 
 // From cityguard.cc
 void call_for_help(struct creature *ch, struct creature *attacker);
@@ -43,7 +43,7 @@ vendor_log(const char *fmt, ...)
 }
 
 static bool
-vendor_is_produced(obj_data *obj, ShopData *shop)
+vendor_is_produced(struct obj_data *obj, ShopData *shop)
 {
 	vector<int>_iterator it;
 
@@ -55,9 +55,9 @@ vendor_is_produced(obj_data *obj, ShopData *shop)
 }
 
 int
-vendor_inventory(obj_data *obj, obj_data *obj_list)
+vendor_inventory(struct obj_data *obj, struct obj_data *obj_list)
 {
-	obj_data *cur_obj;
+	struct obj_data *cur_obj;
 	int cnt = 0;
 
 	cur_obj = obj_list;
@@ -77,7 +77,7 @@ vendor_inventory(obj_data *obj, obj_data *obj_list)
 }
 
 static bool
-vendor_invalid_buy(struct creature *self, struct creature *ch, ShopData *shop, obj_data *obj)
+vendor_invalid_buy(struct creature *self, struct creature *ch, ShopData *shop, struct obj_data *obj)
 {
 	if (IS_OBJ_STAT(obj, ITEM_NOSELL) ||
 			!OBJ_APPROVED(obj)|| obj->shared->owner_id != 0 ) {
@@ -141,7 +141,7 @@ vendor_invalid_buy(struct creature *self, struct creature *ch, ShopData *shop, o
 // Gets the value of an object, checking for buyability.
 // costModifier of 0 does nothing.
 static unsigned long
-vendor_get_value(obj_data *obj, int percent, int costModifier, int currency)
+vendor_get_value(struct obj_data *obj, int percent, int costModifier, int currency)
 {
 	unsigned long cost;
 
@@ -169,10 +169,10 @@ vendor_get_value(obj_data *obj, int percent, int costModifier, int currency)
         return MAX(MIN_COST, cost);
 }
 
-obj_data *
+struct obj_data *
 vendor_resolve_hash(struct creature *self, char *obj_str)
 {
-	obj_data *last_obj = NULL, *cur_obj;
+	struct obj_data *last_obj = NULL, *cur_obj;
 	int num;
 
 	if (*obj_str != '#') {
@@ -194,10 +194,10 @@ vendor_resolve_hash(struct creature *self, char *obj_str)
 	return cur_obj;
 }
 
-obj_data *
+struct obj_data *
 vendor_resolve_name(struct creature *self, char *obj_str)
 {
-	obj_data *cur_obj;
+	struct obj_data *cur_obj;
 
 	for (cur_obj = self->carrying;cur_obj;cur_obj = cur_obj->next_content)
 		if (namelist_match(obj_str, cur_obj->aliases))
@@ -207,7 +207,7 @@ vendor_resolve_name(struct creature *self, char *obj_str)
 }
 
 void
-vendor_appraise(struct creature *ch, obj_data *obj, struct creature *self, ShopData *shop)
+vendor_appraise(struct creature *ch, struct obj_data *obj, struct creature *self, ShopData *shop)
 {
 	const char *currency_str;
 	const unsigned long cost = 2000;
@@ -269,7 +269,7 @@ vendor_appraise(struct creature *ch, obj_data *obj, struct creature *self, ShopD
 static void
 vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
-	obj_data *obj, *next_obj;
+	struct obj_data *obj, *next_obj;
 	char *obj_str, *msg;
     const char *currency_str;
 	int num;
@@ -464,7 +464,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 static void
 vendor_buy(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
-	obj_data *obj, *next_obj;
+	struct obj_data *obj, *next_obj;
 	char *obj_str;
 	int num = 1;
 	unsigned long cost, amt_carried;
@@ -572,12 +572,12 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self, ShopData *shop
 		obj = next_obj;
 		}
     if (GET_IDNUM(ch) > 0) {
-	    ch->saveToXML();
+	    save_player_to_xml(ch);
     }
 }
 
 char *
-vendor_list_obj(struct creature *ch, obj_data *obj, int cnt, int idx, int cost)
+vendor_list_obj(struct creature *ch, struct obj_data *obj, int cnt, int idx, int cost)
 {
 	char *obj_desc;
 
@@ -623,7 +623,7 @@ vendor_list_obj(struct creature *ch, obj_data *obj, int cnt, int idx, int cost)
 static void
 vendor_list(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
-	obj_data *cur_obj, *last_obj;
+	struct obj_data *cur_obj, *last_obj;
 	int idx, cnt;
 	const char *msg;
     unsigned long cost;
@@ -691,7 +691,7 @@ vendor_list(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 static void
 vendor_value(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
-	obj_data *obj;
+	struct obj_data *obj;
 	char *obj_str;
 	unsigned long cost;
 

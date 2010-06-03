@@ -1427,7 +1427,7 @@ reset_char(struct creature *ch)
 	ch->followers = NULL;
 	ch->master = NULL;
 	ch->carrying = NULL;
-	ch->removeAllCombat();
+	remove_all_combat(ch);
 	ch->char_specials.position = POS_STANDING;
 	if (ch->mob_specials.shared)
 		ch->mob_specials.shared->default_pos = POS_STANDING;

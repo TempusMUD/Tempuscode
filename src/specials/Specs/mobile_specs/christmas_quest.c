@@ -52,19 +52,19 @@ SPECIAL(christmas_quest)
                            "wildest dreams!");
             do_echo(grinch, tmp_strdup("grins and a blinding flash of light engulfs the room."),
                     0, SCMD_EMOTE, NULL);
-            ch->setPosition(POS_RESTING);
+            GET_POSITION(ch) = POS_RESTING;
 
             if (GET_LEVEL(ch) < 49) {
                 do_advance(grinch, tmp_sprintf("%s 49", GET_NAME(ch)),
                         0, 0, NULL);
-                ch->saveToXML();
+                save_player_to_xml(ch);
             }
             else if (GET_REMORT_GEN(ch) == 10) {
                 GET_MAX_HIT(ch) += 100;
                 GET_MAX_MOVE(ch) += 100;
                 GET_MAX_MANA(ch) += 100;
 
-                ch->saveToXML();
+                save_player_to_xml(ch);
                 send_to_char(ch, "You feel slightly stronger...\r\n");
             }
             else {
@@ -101,7 +101,7 @@ SPECIAL(christmas_quest)
 
                 obj_to_char(cont, ch);
                 send_to_char(ch, "You feel very strange...\r\n");
-                ch->saveToXML();
+                save_player_to_xml(ch);
 
                 ch->remort();
             }
@@ -124,7 +124,7 @@ SPECIAL(christmas_quest)
         if (grinch->in_room)
             grinch->in_room->zone->idle_time = 0;
 
-        if (grinch->isFighting()) {
+        if (grinch->fighting) {
             grinch_timer = 0;
             GET_HIT(grinch) = GET_MAX_HIT(grinch);
             return 0;

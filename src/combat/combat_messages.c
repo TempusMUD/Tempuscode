@@ -39,13 +39,12 @@
 #include "guns.h"
 #include "specs.h"
 
-#include <iostream>
 extern int corpse_state;
 char *replace_string(const char *str,
                      const char *weapon_singular,
                      const char *weapon_plural,
                      const char *location,
-                     const char* substance=NULL);
+                     const char *substance);
 
 void
 appear(struct creature *ch, struct creature *vict)
@@ -192,6 +191,7 @@ load_messages(void)
 void
 death_cry(struct creature *ch)
 {
+    struct creature *tch;
 	struct room_data *adjoin_room = NULL;
 	int door;
 	struct room_data *was_in = NULL;
@@ -219,29 +219,27 @@ death_cry(struct creature *ch)
 		act("Your skin crawls as you hear $n's final shriek.",
 			false, ch, 0, 0, TO_ROOM);
 	else {
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if (*it == ch)
+		for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+			if (tch == ch)
 				continue;
 			found = 0;
 
-			if (!found && IS_BARB((*it)) && !number(0, 1)) {
+			if (!found && IS_BARB(tch) && !number(0, 1)) {
 				found = 1;
 				act("You feel a rising bloodlust as you hear $n's death cry.",
-					false, ch, 0, (*it), TO_VICT);
+					false, ch, 0, tch, TO_VICT);
 			}
 
 			if (!found)
 				act("Your blood freezes as you hear $n's death cry.",
-					false, ch, 0, (*it), TO_VICT);
+					false, ch, 0, tch, TO_VICT);
 		}
 	}
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (ch != *it && (*it)->getPosition() == POS_SLEEPING &&
-			!PLR_FLAGGED((*it), PLR_OLC | PLR_WRITING) &&
-			!AFF_FLAGGED((*it), AFF_SLEEP)) {
-			(*it)->setPosition(POS_RESTING);
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+		if (ch != tch && GET_POSITION(tch) == POS_SLEEPING &&
+			!PLR_FLAGGED(tch, PLR_OLC | PLR_WRITING) &&
+			!AFF_FLAGGED(tch, AFF_SLEEP)) {
+			GET_POSITION(tch) = POS_RESTING;
 		}
 	}
 
@@ -257,21 +255,20 @@ death_cry(struct creature *ch)
 			ch->in_room = was_in;
 			if (adjoin_room->dir_option[rev_dir[door]] &&
 				adjoin_room->dir_option[rev_dir[door]]->to_room == was_in) {
-				struct creatureList_iterator it = adjoin_room->people.begin();
-				for (; it != adjoin_room->people.end(); ++it) {
-					if (IS_MOB((*it)) && !MOB_FLAGGED((*it), MOB_SENTINEL) &&
-						!(*it)->isFighting() && AWAKE((*it)) &&
-						(MOB_FLAGGED((*it), MOB_HELPER) ||
-							(*it)->mob_specials.shared->func ==
-							cityguard) && number(0, 40) < GET_LEVEL((*it))) {
+				for (tch = adjoin_room->people;tch;tch = tch->room_next) {
+					if (IS_MOB(tch) && !MOB_FLAGGED(tch, MOB_SENTINEL) &&
+						!tch->fighting && AWAKE(tch) &&
+						(MOB_FLAGGED(tch, MOB_HELPER) ||
+							tch->mob_specials.shared->func ==
+							cityguard) && number(0, 40) < GET_LEVEL(tch)) {
 						if ((!ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ||
-								CHAR_WITHSTANDS_FIRE((*it))) &&
+								CHAR_WITHSTANDS_FIRE(tch)) &&
 							(!ROOM_FLAGGED(ch->in_room, ROOM_ICE_COLD) ||
-								CHAR_WITHSTANDS_COLD((*it))) &&
-							(can_see_room((*it), ch->in_room))) {
+								CHAR_WITHSTANDS_COLD(tch)) &&
+							(can_see_room(tch, ch->in_room))) {
 
 							int move_result =
-								do_simple_move((*it), rev_dir[door], MOVE_RUSH,
+								do_simple_move(tch, rev_dir[door], MOVE_RUSH,
 								1);
 
 							if (move_result == 0) {
@@ -369,9 +366,9 @@ blood_spray(struct creature *ch,
         false, ch, 0, victim, TO_VICT);
 	send_to_char(victim, "%s", CCNRM(victim, C_NRM));
 
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) == ch || (*it) == victim || !(*it)->desc || !AWAKE((*it)))
+    struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+			if (tch == ch || tch == victim || !tch->desc || !AWAKE(tch))
 			continue;
 	}
 
@@ -379,9 +376,8 @@ blood_spray(struct creature *ch,
                 attacktype >= TYPE_HIT ?
                 attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype)),
         false, ch, 0, victim, TO_NOTVICT);
-	it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) == ch || (*it) == victim || !(*it)->desc || !AWAKE((*it)))
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+		if (tch == ch || tch == victim || !tch->desc || !AWAKE(tch))
 			continue;
 	}
 
@@ -394,28 +390,27 @@ blood_spray(struct creature *ch,
 		GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + 20);
 		GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 20);
 	}
-	it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		nvict = *it;
-		if (nvict == victim || IS_NPC(nvict))
+
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+		if (tch == victim || IS_NPC(tch))
 			continue;
 
-		if (number(5, 30) > GET_DEX(nvict) && (nvict != ch || !number(0, 2))) {
-			pos = apply_soil_to_char(nvict, NULL, SOIL_BLOOD, WEAR_RANDOM);
+		if (number(5, 30) > GET_DEX(tch) && (tch != ch || !number(0, 2))) {
+			pos = apply_soil_to_char(tch, NULL, SOIL_BLOOD, WEAR_RANDOM);
 			if (pos) {
                 char *msg = NULL;
 
-				if (GET_EQ(nvict, pos))
+				if (GET_EQ(tch, pos))
 					msg = tmp_sprintf("$N's blood splatters all over %s!",
-						GET_EQ(nvict, pos)->name);
+						GET_EQ(tch, pos)->name);
 				else
 					msg = tmp_sprintf("$N's blood splatters all over your %s!",
 						wear_description[pos]);
 
-				act(msg, false, nvict, 0, victim, TO_CHAR);
+				act(msg, false, tch, 0, victim, TO_CHAR);
 				found = 1;
 
-				if (nvict == ch && IS_CLERIC(ch) && IS_EVIL(ch)) {
+				if (tch == ch && IS_CLERIC(ch) && IS_EVIL(ch)) {
 					GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + 20);
 					GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + 20);
 					GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 20);
@@ -1187,7 +1182,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
     if (location == WEAR_MSHIELD) // Mana shield hit
         buf = replace_string(dam_mana_shield[msgnum].to_room,
                              attack_hit_text[w_type].singular,
-                             attack_hit_text[w_type].plural, NULL);
+                             attack_hit_text[w_type].plural, NULL, NULL);
     else if (weap && IS_ENERGY_GUN(weap) && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
 		int guntype = GET_OBJ_VAL(weap,3);
         if (guntype > EGUN_TOP)
@@ -1208,27 +1203,27 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
     else if (weap && IS_GUN(weap) && w_type == (TYPE_BLAST - TYPE_HIT))
         buf = replace_string(dam_guns[msgnum].to_room,
 			attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
-			NULL);
+                             NULL, NULL);
 	else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2) &&
 			(!weap || weap->worn_on == WEAR_WIELD))
 		buf = replace_string(dam_weapons_location[msgnum].to_room,
 			attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
-			wear_keywords[wear_translator[location]]);
+                             wear_keywords[wear_translator[location]], NULL);
 	else if (weap && (number(0, 2) || weap->worn_on != WEAR_WIELD))
 		buf = replace_string(dam_weapons_2[msgnum].to_room,
-			attack_hit_text[w_type].singular,
-			attack_hit_text[w_type].plural, NULL);
+                             attack_hit_text[w_type].singular,
+                             attack_hit_text[w_type].plural, NULL, NULL);
 	else
 		buf = replace_string(dam_weapons[msgnum].to_room,
 			attack_hit_text[w_type].singular,
-			attack_hit_text[w_type].plural, NULL);
+                             attack_hit_text[w_type].plural, NULL, NULL);
 	act(buf, false, ch, weap, victim, TO_NOTVICT);
 	/* damage message to damager */
 	if ((msgnum || !PRF_FLAGGED(ch, PRF_GAGMISS)) && ch->desc) {
         if (location == WEAR_MSHIELD) // Mana shield hit
             buf = replace_string(dam_mana_shield[msgnum].to_char,
                                  attack_hit_text[w_type].singular,
-                                 attack_hit_text[w_type].plural, NULL);
+                                 attack_hit_text[w_type].plural, NULL, NULL);
         else if (weap && IS_ENERGY_GUN(weap) && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
             int guntype = GET_OBJ_VAL(weap,3);
             if (guntype > EGUN_TOP)
@@ -1249,20 +1244,20 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         else if (weap && IS_GUN(weap) && w_type == (TYPE_BLAST - TYPE_HIT))
             buf = replace_string(dam_guns[msgnum].to_char,
                 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
-                NULL);
+                                 NULL, NULL);
         else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
 			buf = replace_string(dam_weapons_location[msgnum].to_char,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural,
-				wear_keywords[wear_translator[location]]);
+                                 wear_keywords[wear_translator[location]], NULL);
 		} else if (weap && (number(0, 4) || weap->worn_on != WEAR_WIELD))
 			buf = replace_string(dam_weapons_2[msgnum].to_char,
 				attack_hit_text[w_type].singular,
-				attack_hit_text[w_type].plural, NULL);
+                                 attack_hit_text[w_type].plural, NULL, NULL);
 		else
 			buf = replace_string(dam_weapons[msgnum].to_char,
 				attack_hit_text[w_type].singular,
-				attack_hit_text[w_type].plural, NULL);
+                                 attack_hit_text[w_type].plural, NULL, NULL);
         if (location == WEAR_MSHIELD)
             send_to_char(ch, "%s", CCMAG(ch, C_NRM));
         else
@@ -1275,7 +1270,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         if (location == WEAR_MSHIELD) // Mana shield hit
             buf = replace_string(dam_mana_shield[msgnum].to_victim,
                                  attack_hit_text[w_type].singular,
-                                 attack_hit_text[w_type].plural, NULL);
+                                 attack_hit_text[w_type].plural, NULL, NULL);
         else if (weap && IS_ENERGY_GUN(weap) && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
             int guntype = GET_OBJ_VAL(weap,3);
             if (guntype > EGUN_TOP)
@@ -1296,20 +1291,20 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         else if (weap && IS_GUN(weap) && w_type == (TYPE_BLAST - TYPE_HIT))
             buf = replace_string(dam_guns[msgnum].to_char,
                 attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
-                NULL);
+                                 NULL, NULL);
         else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
 			buf = replace_string(dam_weapons_location[msgnum].to_victim,
 				attack_hit_text[w_type].singular,
 				attack_hit_text[w_type].plural,
-				wear_keywords[wear_translator[location]]);
+                                 wear_keywords[wear_translator[location]], NULL);
 		} else if (weap && (number(0, 3) || weap->worn_on != WEAR_WIELD))
 			buf = replace_string(dam_weapons_2[msgnum].to_victim,
 				attack_hit_text[w_type].singular,
-				attack_hit_text[w_type].plural, NULL);
+                                 attack_hit_text[w_type].plural, NULL, NULL);
 		else
 			buf = replace_string(dam_weapons[msgnum].to_victim,
 				attack_hit_text[w_type].singular,
-				attack_hit_text[w_type].plural, NULL);
+                                 attack_hit_text[w_type].plural, NULL, NULL);
         if (location == WEAR_MSHIELD)
             send_to_char(victim, "%s", CCCYN(victim, C_NRM));
         else
@@ -1363,7 +1358,7 @@ skill_message(int dam, struct creature *ch, struct creature *vict,
 				act(msg->god_msg.victim_msg, false, ch, weap, vict, TO_VICT);
 				act(msg->god_msg.room_msg, false, ch, weap, vict, TO_NOTVICT);
 			} else if (dam != 0) {
-				if (vict->getPosition() == POS_DEAD) {
+				if (GET_POSITION(vict) == POS_DEAD) {
 					if (ch) {
 						act(msg->die_msg.room_msg, false, ch, weap, vict,
 							TO_NOTVICT | TO_VICT_RM);

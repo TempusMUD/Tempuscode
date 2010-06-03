@@ -42,7 +42,7 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (!*argument && !(vict = ch->findRandomCombat())) {
+	if (!*argument && !(vict = random_opponent(ch))) {
 		send_to_char(ch, "Psidrain who?\r\n");
 		return;
 	}
@@ -76,7 +76,7 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (ch->isFighting() && vict->in_room != ch->in_room) {
+	if (ch->fighting && vict->in_room != ch->in_room) {
 		send_to_char(ch, "You cannot focus outside the room during battle!\r\n");
 		return;
 	}
@@ -94,7 +94,7 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict))
+	if (!ok_to_attack(ch, vict))
 		return;
 
 	if (GET_MOVE(ch) < 20) {
@@ -114,11 +114,11 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) && vict->distrusts(ch)) {
+	if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) && distrusts(vict, ch)) {
         prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch);
-        prob += ch->getLevelBonus(SKILL_PSIDRAIN);
+        prob += get_skill_bonus(ch, SKILL_PSIDRAIN);
 
-        percent = vict->getLevelBonus(SPELL_PSISHIELD);
+        percent = getLevelBonus(vict, SPELL_PSISHIELD);
         percent += number(1, 120);
 
         if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI))
@@ -157,7 +157,7 @@ ACMD(do_psidrain)
 	prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch) +
 		(AFF3_FLAGGED(vict, AFF3_PSISHIELD) ? -20 : 0);
 
-	if (vict->isFighting())
+	if (isFighting(vict))
 		prob += 15;
 
 	if (dist > 0)
@@ -173,16 +173,16 @@ ACMD(do_psidrain)
 		send_to_char(ch, "You are unable to create the drainage link!\r\n");
 		WAIT_STATE(ch, 2 RL_SEC);
 
-		if (IS_NPC(vict) && !vict->isFighting()) {
+		if (IS_NPC(vict) && !isFighting(vict)) {
 
 			if (ch->in_room == vict->in_room) {
-				vict->addCombat(ch, false);
-                ch->addCombat(vict, true);
+				addCombat(vict, ch, false);
+                addCombat(ch, vict, true);
             }
 			else {
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
-					vict->startHunting(ch);
+					startHunting(vict, ch);
 			}
 		}
 	}
@@ -208,13 +208,13 @@ ACMD(do_psidrain)
 		WAIT_STATE(ch, 5 RL_SEC);
 		gain_skill_prof(ch, SKILL_PSIDRAIN);
 
-		if (IS_NPC(vict) && !(vict->isFighting())) {
+		if (IS_NPC(vict) && !(isFighting(vict))) {
 			if (ch->in_room == vict->in_room) {
 				remember(vict, ch);
 				if (MOB2_FLAGGED(vict, MOB2_HUNT))
-					vict->startHunting(ch);
-				vict->addCombat(ch, false);
-                ch->addCombat(vict, true);
+					startHunting(vict, ch);
+				addCombat(vict, ch, false);
+                addCombat(ch, vict, true);
 			}
 		}
 	}
@@ -233,7 +233,8 @@ bool
 nullpsi_is_advisable(struct creature *vict)
 {
     // Return true if psion buffs are found
-    for (affected_type *af = vict->affected;af;af = af->next) {
+    struct affected_type *af;
+    for (af = vict->affected;af;af = af->next) {
         if (SPELL_IS_PSIONIC(af->type)
             && !SPELL_FLAGGED(af->type, MAG_DAMAGE)
             && !spell_info[af->type].violent
@@ -262,7 +263,7 @@ psionic_best_attack(struct creature *ch, struct creature *vict)
         } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
             perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
             return;
-        } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
+        } else if (GET_POSITION(vict) > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
             return;
         }
@@ -275,7 +276,7 @@ psionic_best_attack(struct creature *ch, struct creature *vict)
         } else if (!affected_by_spell(vict, SPELL_MOTOR_SPASM) && can_cast_spell(ch, SPELL_MOTOR_SPASM)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_MOTOR_SPASM, &return_flags);
             return;
-        } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
+        } else if (GET_POSITION(vict) > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
             return;
         } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
@@ -307,7 +308,7 @@ psionic_best_attack(struct creature *ch, struct creature *vict)
     }
     if (aggression > 5) {
         // attempt to neutralize or get away
-        if (vict->getPosition() > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
+        if (GET_POSITION(vict) > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_MELATONIC_FLOOD, &return_flags);
             return;
         } else if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
@@ -334,10 +335,10 @@ psionic_best_attack(struct creature *ch, struct creature *vict)
     } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
         perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
         return;
-    } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
+    } else if (GET_POSITION(vict) > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
         return;
-    } else if (vict->getPosition() > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
+    } else if (GET_POSITION(vict) > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_MELATONIC_FLOOD, &return_flags);
         return;
     } else if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
@@ -360,38 +361,38 @@ psionic_activity(struct creature *ch)
     if (room_is_dark(ch->in_room)
         && !has_dark_sight(ch)
         && can_cast_spell(ch, SPELL_RETINA))
-        cast_spell(ch, ch, 0, NULL, SPELL_RETINA);
+        cast_spell(ch, ch, 0, NULL, SPELL_RETINA, NULL);
     else if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
         if (can_cast_spell(ch, SPELL_CELL_REGEN))
-            cast_spell(ch, ch, 0, NULL, SPELL_CELL_REGEN);
+            cast_spell(ch, ch, 0, NULL, SPELL_CELL_REGEN, NULL);
         else if (can_cast_spell(ch, SPELL_WOUND_CLOSURE))
-            cast_spell(ch, ch, 0, NULL, SPELL_WOUND_CLOSURE);
+            cast_spell(ch, ch, 0, NULL, SPELL_WOUND_CLOSURE, NULL);
     } else if (!AFF_FLAGGED(ch, AFF_NOPAIN)
                && !AFF_FLAGGED(ch, AFF_SANCTUARY)
                && can_cast_spell(ch, SPELL_NOPAIN))
-        cast_spell(ch, ch, 0, NULL, SPELL_NOPAIN);
+        cast_spell(ch, ch, 0, NULL, SPELL_NOPAIN, NULL);
     else if (!room_has_air(ch->in_room) &&
              !can_travel_sector(ch, ch->in_room->sector_type, 0) &&
              can_cast_spell(ch, SPELL_BREATHING_STASIS) &&
              !AFF3_FLAGGED(ch, AFF3_NOBREATHE))
-        cast_spell(ch, ch, 0, NULL, SPELL_BREATHING_STASIS);
+        cast_spell(ch, ch, 0, NULL, SPELL_BREATHING_STASIS, NULL);
     else if (!AFF2_FLAGGED(ch, AFF2_TELEKINESIS)
              && can_cast_spell(ch, SPELL_TELEKINESIS))
-        cast_spell(ch, ch, 0, NULL, SPELL_TELEKINESIS);
+        cast_spell(ch, ch, 0, NULL, SPELL_TELEKINESIS, NULL);
     else if (!affected_by_spell(ch, SPELL_DERMAL_HARDENING)
              && can_cast_spell(ch, SPELL_DERMAL_HARDENING))
-        cast_spell(ch, ch, 0, NULL, SPELL_DERMAL_HARDENING);
+        cast_spell(ch, ch, 0, NULL, SPELL_DERMAL_HARDENING, NULL);
     else if (!AFF3_FLAGGED(ch, AFF3_PSISHIELD)
              && can_cast_spell(ch, SPELL_PSISHIELD))
-        cast_spell(ch, ch, 0, NULL, SPELL_PSISHIELD);
+        cast_spell(ch, ch, 0, NULL, SPELL_PSISHIELD, NULL);
     else if (can_cast_spell(ch, SPELL_PSYCHIC_RESISTANCE) &&
              !affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
-        cast_spell(ch, ch, 0, NULL, SPELL_PSYCHIC_RESISTANCE);
+        cast_spell(ch, ch, 0, NULL, SPELL_PSYCHIC_RESISTANCE, NULL);
     else if (can_cast_spell(ch, SPELL_POWER) && !affected_by_spell(ch, SPELL_POWER))
-        cast_spell(ch, ch, 0, NULL, SPELL_POWER);
+        cast_spell(ch, ch, 0, NULL, SPELL_POWER, NULL);
     else if (!AFF_FLAGGED(ch, AFF_CONFIDENCE)
              && can_cast_spell(ch, SPELL_CONFIDENCE))
-        cast_spell(ch, ch, 0, NULL, SPELL_CONFIDENCE);
+        cast_spell(ch, ch, 0, NULL, SPELL_CONFIDENCE, NULL);
 }
 
 int
@@ -400,7 +401,7 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
 	struct creature *vict = 0;
     int return_flags;
 
-	if (!ch->isFighting())
+	if (!ch->fighting)
 		return 0;
 
 	// pick an enemy
@@ -418,7 +419,7 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
     // Prioritize healing with aggression
     if (GET_HIT(ch) < (GET_MAX_HIT(ch) * MIN(20, MAX(80, aggression)) / 100)
         && can_cast_spell(ch, SPELL_WOUND_CLOSURE)) {
-		cast_spell(ch, ch, NULL, NULL, SPELL_WOUND_CLOSURE);
+		cast_spell(ch, ch, NULL, NULL, SPELL_WOUND_CLOSURE, NULL);
         return 1;
     }
 
@@ -427,7 +428,7 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
         if (can_cast_spell(ch, SKILL_PSIBLAST)) {
             perform_offensive_skill(ch, vict, SKILL_PSIBLAST, &return_flags);
             return 1;
-        } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
+        } else if (GET_POSITION(vict) > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
             return 1;
         }
@@ -448,7 +449,7 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
             return 1;
         } else if (!affected_by_spell(ch, SPELL_ADRENALINE) && can_cast_spell(ch, SPELL_ADRENALINE)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_ADRENALINE, &return_flags);
-        } else if (vict->getPosition() > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
+        } else if (GET_POSITION(vict) > POS_SITTING && can_cast_spell(ch, SPELL_EGO_WHIP)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP, &return_flags);
             return 1;
         } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
@@ -493,7 +494,7 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
     }
     if (aggression > 5) {
         // attempt to neutralize or get away
-        if (vict->getPosition() > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
+        if (GET_POSITION(vict) > POS_SLEEPING && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_MELATONIC_FLOOD,
                        &return_flags);
             return 1;

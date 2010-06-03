@@ -20,7 +20,7 @@ SPECIAL(fountain_youth)
 	if (spec_mode != SPECIAL_CMD || !CMD_IS("drink"))
 		return 0;
 
-	if (ch->getPosition() == POS_SLEEPING) {
+	if (GET_POSITION(ch) == POS_SLEEPING) {
 		send_to_char(ch, "You'll have to wake up first!\r\n");
 		return 1;
 	}
@@ -44,7 +44,7 @@ SPECIAL(fountain_youth)
 	af.bitvector = 0;
 	af.level = 1;
 	af.is_instant = false;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af);
 
 	af1.type = SPELL_YOUTH;
@@ -55,7 +55,7 @@ SPECIAL(fountain_youth)
 	af1.bitvector = 0;
 	af1.level = 1;
 	af1.is_instant = false;
-    af1.owner = ch->getIdNum();
+    af1.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af1);
 
 	af2.type = SPELL_YOUTH;
@@ -66,7 +66,7 @@ SPECIAL(fountain_youth)
 	af2.bitvector = 0;
 	af2.level = 1;
 	af2.is_instant = false;
-    af2.owner = ch->getIdNum();
+    af2.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af2);
 
 	af3.type = SPELL_YOUTH;
@@ -77,7 +77,7 @@ SPECIAL(fountain_youth)
 	af3.bitvector = 0;
 	af3.level = 1;
 	af3.is_instant = false;
-    af3.owner = ch->getIdNum();
+    af3.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af3);
 
 	act("As you drink from the pool, your reflection becomes visibly younger!",

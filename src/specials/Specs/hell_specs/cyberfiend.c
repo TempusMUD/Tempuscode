@@ -21,7 +21,7 @@ SPECIAL(cyberfiend)
 		act("$n levels $N with a terrible blow to the head!!",
 			false, fiend, 0, ch, TO_NOTVICT);
 
-		ch->setPosition(POS_SITTING);
+		GET_POSITION(ch) = POS_SITTING;
 		WAIT_STATE(ch, 4 RL_SEC);
 		return 1;
 	}

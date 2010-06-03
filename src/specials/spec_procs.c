@@ -446,7 +446,7 @@ npc_steal(struct creature *ch, struct creature *victim)
 {
 	struct obj_data *obj = NULL;
 
-	if (ch->getPosition() < POS_STANDING)
+	if (GET_POSITION(ch) < POS_STANDING)
 		return;
 
 	if (GET_LEVEL(victim) >= LVL_AMBASSADOR)
@@ -486,7 +486,7 @@ SPECIAL(venom_attack)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (ch->getPosition() != POS_FIGHTING)
+	if (GET_POSITION(ch) != POS_FIGHTING)
 		return false;
 
 	if (GET_MOB_PARAM(ch)) {
@@ -517,7 +517,7 @@ SPECIAL(venom_attack)
 	else
 		return false;
 
-    struct creature *target = ch->findRandomCombat();
+    struct creature *target = random_opponent(ch);
 	if (target && (target->in_room == ch->in_room) &&
 		number(0, 75) < perc_damaged) {
 		act(act_tovict, 1, ch, 0, target, TO_VICT);
@@ -536,7 +536,7 @@ SPECIAL(thief)
 	if (cmd)
 		return false;
 
-	if (ch->getPosition() != POS_STANDING)
+	if (GET_POSITION(ch) != POS_STANDING)
 		return false;
 
 	struct creatureList_iterator it = ch->in_room->people.begin();
@@ -557,11 +557,11 @@ SPECIAL(magic_user)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || ch->getPosition() != POS_FIGHTING)
+	if (cmd || GET_POSITION(ch) != POS_FIGHTING)
 		return false;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
-    vict = ch->findRandomCombat();
+    vict = random_opponent(ch);
 
 	if (vict == NULL)
         return 0;
@@ -656,13 +656,13 @@ SPECIAL(battle_cleric)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || ch->getPosition() != POS_FIGHTING)
+	if (cmd || GET_POSITION(ch) != POS_FIGHTING)
 		return false;
 
 	struct creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
-    vict = ch->findRandomCombat();
+    vict = random_opponent(ch);
 
 	if (vict == NULL)
         return 0;
@@ -745,13 +745,13 @@ SPECIAL(barbarian)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || ch->getPosition() != POS_FIGHTING)
+	if (cmd || GET_POSITION(ch) != POS_FIGHTING)
 		return false;
 
 	struct creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
-    vict = ch->findRandomCombat();
+    vict = random_opponent(ch);
 
 	/* if I didn't pick any of those, then just slam the guy I'm fighting */
 	if (vict == NULL)
@@ -851,7 +851,7 @@ SPECIAL(fido)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || ch->isFighting())
+	if (cmd || !AWAKE(ch) || ch->fighting)
 		return (false);
 
 	vict = get_char_random_vis(ch, ch->in_room);
@@ -909,7 +909,7 @@ SPECIAL(buzzard)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || ch->findRandomCombat())
+	if (cmd || !AWAKE(ch) || random_opponent(ch))
 		return (false);
 
 	for (i = ch->in_room->contents; i; i = i->next_content) {
@@ -929,7 +929,7 @@ SPECIAL(buzzard)
 			return true;
 		}
 	}
-	vict = ch->findRandomCombat();
+	vict = random_opponent(ch);
 
 	if (!vict || vict == ch)
 		return 0;
@@ -1460,7 +1460,7 @@ SPECIAL(bank)
 		}
 	}
 
-	ch->saveToXML();
+	save_player_to_xml(ch);
 	if (clan) {
 		if (clan->bank_account > 0)
 			send_to_char(ch, "The current clan balance is %lld %s%s.\r\n",
@@ -1486,11 +1486,11 @@ SPECIAL(cave_bear)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !ch->isFighting())
+	if (cmd || !ch->fighting)
 		return false;
 
 	if (!number(0, 12)) {
-		damage(ch, ch->findRandomCombat(),
+		damage(ch, random_opponent(ch),
                number(0, 1 + GET_LEVEL(ch)), SKILL_BEARHUG,
 			WEAR_BODY);
 		return true;

@@ -25,7 +25,7 @@
 #include "house.h"
 
 int check_mob_reaction(struct creature *ch, struct creature *vict);
-int apply_soil_to_char(struct creature *ch, obj_data *obj, int type, int pos);
+int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type, int pos);
 int clan_house_can_enter(struct creature *ch, struct room_data *room);
 
 ACMD(do_taunt)
@@ -33,10 +33,10 @@ ACMD(do_taunt)
 	send_to_char(ch, "You taunt them mercilessly!\r\n");
 }
 
-obj_data*
+struct obj_data*
 find_hamstring_weapon( struct creature *ch )
 {
-	obj_data* weap = NULL;
+	struct obj_data* weap = NULL;
 	if( (weap = GET_EQ(ch, WEAR_WIELD)) && SLASHING(weap)) {
 		return weap;
 	} else if( (weap = GET_EQ(ch, WEAR_WIELD_2)) && SLASHING(weap)) {
@@ -81,8 +81,8 @@ ACMD(do_hamstring)
 	// If there's noone in the room that matches your alias
 	// Then it must be an object.
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else {
 			if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 				act("You open a deep gash in $p's hamstring!", false, ch,
@@ -110,14 +110,14 @@ ACMD(do_hamstring)
 			"Cutting off your own leg just doesn't sound like fun.\r\n");
 		return;
 	}
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
-	if (vict->getPosition() == POS_SITTING) {
+	if (GET_POSITION(vict) == POS_SITTING) {
 		send_to_char(ch, "How can you cut it when they're sitting on it!\r\n");
 		return;
 	}
-	if (vict->getPosition() == POS_RESTING) {
+	if (GET_POSITION(vict) == POS_RESTING) {
 		send_to_char(ch, "How can you cut it when they're laying on it!\r\n");
 		return;
 	}
@@ -183,14 +183,14 @@ ACMD(do_hamstring)
 			af.location = APPLY_DEX;
 			af.modifier = 0 - (level / 2 + dice(7, 7) + dice(gen, 5))
 				* (CHECK_SKILL(ch, SKILL_HAMSTRING)) / 1000;
-            af.owner = ch->getIdNum();
+            af.owner = GET_IDNUM(ch);
 			affect_to_char(vict, &af);
 			WAIT_STATE(vict, 3 RL_SEC);
-			vict->setPosition(POS_RESTING);
+			GET_POSITION(vict) = POS_RESTING;
 			retval = damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
 		} else {
 			WAIT_STATE(vict, 2 RL_SEC);
-			vict->setPosition(POS_SITTING);
+			GET_POSITION(vict) = POS_SITTING;
 			retval = damage(ch, vict, dam / 2, SKILL_HAMSTRING, WEAR_LEGS);
 		}
 		if( !IS_SET(retval, DAM_ATTACKER_KILLED) ) {
@@ -233,7 +233,7 @@ ACMD(do_drag_char)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict, true)) {
+	if (!ok_to_attack(ch, vict, true)) {
 		return;
 	}
     // Find out which direction the player wants to drag in
@@ -354,11 +354,11 @@ ACMD(do_snatch)
 		return;
 	}
 
-	if (vict->isNewbie() && GET_LEVEL(ch) < LVL_IMMORT) {
+	if (isNewbie(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
 		send_to_char(ch, "You cannot snatch from newbies!\r\n");
 		return;
 	}
-	if (!IS_MOB(vict) && ch->isNewbie()) {
+	if (!IS_MOB(vict) && isNewbie(ch)) {
 		send_to_char(ch, "You can't snatch from players. You're a newbie!\r\n");
 		return;
 	}
@@ -417,15 +417,15 @@ ACMD(do_snatch)
 	// Roll the dice...
 	percent = number(1, 100);
 
-	if (vict->getPosition() < POS_SLEEPING)
+	if (GET_POSITION(vict) < POS_SLEEPING)
 		percent = -150;			// ALWAYS SUCCESS
 
-	if (ch->isFighting())
+	if (ch->fighting)
 		percent += 30;
 
-	if (vict->getPosition() < POS_FIGHTING)
+	if (GET_POSITION(vict) < POS_FIGHTING)
 		percent -= 30;
-	if (vict->getPosition() <= POS_SLEEPING)
+	if (GET_POSITION(vict) <= POS_SLEEPING)
 		percent = -150;			// ALWAYS SUCCESS
 
 	// NO NO With Imp's and Shopkeepers!
@@ -459,9 +459,9 @@ ACMD(do_snatch)
 			false, ch, 0, vict, TO_CHAR);
 
 		// Monks are cool. They stand up when someone tries to snatch from em.
-		if (vict->getPosition() == POS_SITTING
+		if (GET_POSITION(vict) == POS_SITTING
 			&& AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
-			vict->setPosition(POS_STANDING);
+			GET_POSITION(vict) = POS_STANDING;
 			act("You jump to your feet, glaring at $s!", false, ch, 0, vict,
 				TO_VICT);
 			act("$N jumps to $S feet, glaring at You!", false, ch, 0, vict,
@@ -512,7 +512,7 @@ ACMD(do_snatch)
 				if (obj->worn_on == WEAR_WIELD && GET_EQ(vict, WEAR_WIELD_2)) {
 					sec_weap = unequip_char(vict, WEAR_WIELD_2, EQUIP_WORN);
 					obj_to_room(unequip_char(vict, eq_pos, EQUIP_WORN),
-						vict->in_room);
+                                vict->in_room);
 					equip_char(vict, sec_weap, WEAR_WIELD, EQUIP_WORN);
 					act("You shift $p to your primary hand.",
 						false, ch, obj, vict, TO_VICT);
@@ -520,7 +520,7 @@ ACMD(do_snatch)
 					// Otherwise, just drop it.
 				} else {
 					obj_to_room(unequip_char(vict, eq_pos, EQUIP_WORN),
-						vict->in_room);
+                                vict->in_room);
 				}
 
 				// It wasnt close. He deffinately failed.
@@ -537,8 +537,8 @@ ACMD(do_snatch)
 		} else {
 
 			// If he ends up with the shit, advertize.
-			if (vict->getPosition() == POS_SLEEPING) {	// He's sleepin, wake his ass up.
-				vict->setPosition(POS_RESTING);
+			if (GET_POSITION(vict) == POS_SLEEPING) {	// He's sleepin, wake his ass up.
+				GET_POSITION(vict) = POS_RESTING;
 				if (eq_pos == WEAR_BELT) {
 					act("$n wakes you up snatching something off your belt!",
 						false, ch, obj, vict, TO_VICT);
@@ -554,9 +554,9 @@ ACMD(do_snatch)
 					act("$n wakes $N up snatching $p out of $S hand!",
 						false, ch, obj, vict, TO_NOTVICT);
 				}
-			} else if (vict->getPosition() == POS_SITTING &&
+			} else if (GET_POSITION(vict) == POS_SITTING &&
 				AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
-				vict->setPosition(POS_STANDING);
+				GET_POSITION(vict) = POS_STANDING;
 				if (eq_pos == WEAR_BELT) {
 					act("$n breaks your trance snatching $p off your belt!",
 						false, ch, obj, vict, TO_VICT);
@@ -607,7 +607,7 @@ ACMD(do_snatch)
 			dam =
 				dice(str_app[GET_STR(ch)].todam, str_app[GET_STR(vict)].todam);
 			if (!is_arena_combat(ch, vict))
-				damage_eq(NULL, obj, dam);
+				damage_eq(NULL, obj, dam, TYPE_HIT);
 			GET_EXP(ch) += MIN(1000, GET_OBJ_COST(obj));
 			gain_skill_prof(ch, SKILL_SNATCH);
 			WAIT_STATE(vict, 2 RL_SEC);

@@ -62,7 +62,7 @@ ACMD(do_charge)
 	af.modifier = GET_REMORT_GEN(ch);
 	af.aff_index = 3;
 	af.bitvector = AFF3_INST_AFF;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af);
 	WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 	// Whap the bastard
@@ -82,14 +82,16 @@ perform_barb_berserk(struct creature *ch, struct creature **who_was_attacked,
 	//struct creature *precious_ch,
 	int *return_flags)
 {
-	static struct creature *vict = NULL;
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		vict = *it;
-		if (vict == ch || ch->isFighting() ||
-			PRF_FLAGGED(vict, PRF_NOHASSLE) ||
-			(IS_NPC(ch) && IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS)) ||
-			!can_see_creature(ch, vict) || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
+	struct creature *vict = NULL;
+    for (vict = ch->in_room->people;vict;vict = vict->room_next) {
+		if (vict == ch
+            || ch->fighting
+            || PRF_FLAGGED(vict, PRF_NOHASSLE)
+            || (IS_NPC(ch)
+                && IS_NPC(vict)
+                && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
+            || !can_see_creature(ch, vict)
+            || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
 			continue;
 
 		act("You go berserk and attack $N!", false, ch, 0, vict, TO_CHAR);
@@ -157,29 +159,29 @@ ACMD(do_berserk)
 		af.bitvector = AFF2_BERSERK;
 		af2.bitvector = 0;
 		af3.bitvector = 0;
-        af.owner = ch->getIdNum();
-        af2.owner = ch->getIdNum();
-        af3.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
+        af2.owner = GET_IDNUM(ch);
+        af3.owner = GET_IDNUM(ch);
 		affect_to_char(ch, &af);
 		affect_to_char(ch, &af2);
 		affect_to_char(ch, &af3);
 
 		send_to_char(ch, "You go BERSERK!\r\n");
 		act("$n goes BERSERK! Run for cover!", true, ch, 0, ch, TO_ROOM);
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if (ch == (*it) || !can_see_creature(ch, (*it)))
+        struct creature *vict = NULL;
+        for (vict = ch->in_room->people;vict;vict = vict->room_next) {
+			if (ch == vict || !can_see_creature(ch, vict))
 				continue;
 			if (percent < CHECK_SKILL(ch, SKILL_BERSERK))
 				continue;
 			else {
 				act("You attack $N in your berserk rage!!!",
-					false, ch, 0, (*it), TO_CHAR);
+					false, ch, 0, vict, TO_CHAR);
 				act("$n attacks you in a berserk rage!!!",
-					false, ch, 0, (*it), TO_VICT);
+					false, ch, 0, vict, TO_VICT);
 				act("$n attacks $N in a berserk rage!!!",
-					true, ch, 0, (*it), TO_NOTVICT);
-				hit(ch, (*it), TYPE_UNDEFINED);
+					true, ch, 0, vict, TO_NOTVICT);
+				hit(ch, vict, TYPE_UNDEFINED);
 				break;
 			}
 		}
@@ -269,7 +271,7 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
     int percent = 0;
     int skill = MAX( GET_SKILL(ch, SKILL_CLEAVE), GET_SKILL(ch, SKILL_GREAT_CLEAVE) );
     bool great = ( GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50 );
-	obj_data *weap = GET_EQ(ch, WEAR_WIELD);
+	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
 
 	if( weap == NULL || !IS_TWO_HAND(weap) ) {
 		send_to_char(ch, "You need to be wielding a two handed weapon to cleave!\r\n");
@@ -282,7 +284,8 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
         maxWhack = 2;
     }
 
-    for( int i = 0; i < maxWhack && vict != NULL; i++ )
+    int i;
+    for(i = 0; i < maxWhack && vict != NULL; i++ )
     {
         percent = number(1, 101) + GET_DEX(vict);
         cur_weap = weap;
@@ -310,15 +313,12 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
             }
             vict = NULL;
             // find a new victim
-            struct creatureList_iterator it = ch->in_room->people.begin();
-			for( ; it != ch->in_room->people.end(); ++it ) {
-				if((*it) == ch || !(*it)->findCombat(ch) ||
-                   !can_see_creature(ch, (*it)))
-                    continue;
-                vict = *it;
-                break;
-            }
-
+            struct creature *vict = NULL;
+            for (vict = ch->in_room->people;vict;vict = vict->room_next)
+                if(!(vict == ch
+                     || !vict->fighting
+                     || !can_see_creature(ch, vict)))
+                    break;
         }
     }
 }
@@ -333,7 +333,7 @@ ACMD(do_cleave)
 	arg = tmp_getword(&argument);
 
     if( !*arg ) {
-        vict = ch->findRandomCombat();
+        vict = ch->fighting;
     } else {
         vict = get_char_room_vis(ch, arg);
     }
@@ -349,7 +349,7 @@ ACMD(do_cleave)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict, true))
+	if (!OkToAttack(ch))
 		return;
 
 	perform_cleave(ch, vict, return_flags);

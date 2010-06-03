@@ -15,7 +15,7 @@ extern void set_local_time(struct zone_data *zone,
 // moves all characters from "from" to "to"
 // Does not deal with nulls in either place.
 void
-move_chars(room_data * from, room_data * to)
+move_chars(struct room_data * from, struct room_data * to)
 {
 	struct creature *ch = NULL;
 	struct creatureList_iterator it = from->people.begin();
@@ -31,8 +31,8 @@ move_chars(room_data * from, room_data * to)
 void
 connect_rooms(int link_room, int dest_room, int dir)
 {
-	room_data *link = real_room(link_room);
-	room_data *dest = real_room(dest_room);
+	struct room_data *link = real_room(link_room);
+	struct room_data *dest = real_room(dest_room);
 	if (link == NULL) {
 		errlog("shade_spec cannot find link room [%d]",
 			link_room);

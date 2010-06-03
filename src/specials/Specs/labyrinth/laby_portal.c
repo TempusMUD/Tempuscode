@@ -1,8 +1,8 @@
 // Don't allow player into labyrinth with equipment or items
 SPECIAL(labyrinth_portal)
 {
-	obj_data *portal = (obj_data *)me;
-	room_data *room;
+	struct obj_data *portal = (struct obj_data *)me;
+	struct room_data *room;
 	int idx;
 
 	if (spec_mode != SPECIAL_CMD)

@@ -7,7 +7,7 @@
 #include "creature.h"
 
 inline static bool
-BAD_AUCTION(obj_data *obj)
+BAD_AUCTION(struct obj_data *obj)
 {
     return (obj->obj_flags.type_flag == ITEM_FOOD ||
             obj->obj_flags.type_flag == ITEM_TRASH ||
@@ -47,7 +47,7 @@ struct imp_data {
     struct creature *imp;
     long owner_id;
     long buyer_id;
-    obj_data *item;
+    struct obj_data *item;
     long owed;
     int mode;
     short fail_count;
@@ -65,7 +65,7 @@ struct auction_data {
     long owner_id;
     long buyer_id;
     int item_no;
-    obj_data *item;
+    struct obj_data *item;
     long start_bid;
     long start_time;
     long last_bid_time;
@@ -91,7 +91,7 @@ const char *moods[] = {
 
 int number(int from, int to);
 int get_max_auction_item();
-struct creature *create_imp(room_data *inroom, auction_data &);
+struct creature *create_imp(struct room_data *inroom, auction_data &);
 bool bidder_can_afford(struct creature *bidder, money_t amount);
 void aucSaveToXML(struct creature *auc);
 bool aucLoadFromXML(struct creature *auc);
@@ -285,7 +285,7 @@ SPECIAL(do_auctions)
             return 1;
         }
 
-        if (CMD_IS("aucset") && ch->getLevel() > LVL_ENERGY) {
+        if (CMD_IS("aucset") && GET_LEVEL(ch) > LVL_ENERGY) {
             const char *aucset_commands[] = {
                 "going_once",
                 "going_twice",
@@ -419,7 +419,7 @@ SPECIAL(do_auctions)
             return 1;
         }
 
-        obj_data *obj = get_obj_in_list_all(ch, item_name, ch->carrying);
+        struct obj_data *obj = get_obj_in_list_all(ch, item_name, ch->carrying);
         if (!obj) {
             perform_say_to(self, ch, "You don't even have that!  Stop "
                            "wasting my time!");
@@ -428,7 +428,7 @@ SPECIAL(do_auctions)
 
         short item_count = 0;
         for (ai = items.begin(); ai != items.end(); ++ai) {
-            if (ai->owner_id == ch->getIdNum())
+            if (ai->owner_id == GET_IDNUM(ch))
                 item_count++;
 
             if ((item_count >= MAX_AUC_ITEMS) && !IS_IMMORT(ch)) {
@@ -453,7 +453,7 @@ SPECIAL(do_auctions)
 
         struct auction_data new_ai;
         new_ai.auctioneer_id = self->getIdNum();
-        new_ai.owner_id = ch->getIdNum();
+        new_ai.owner_id = GET_IDNUM(ch);
         new_ai.buyer_id = 0;
         new_ai.item_no = item_no;
         new_ai.item = obj;
@@ -467,7 +467,7 @@ SPECIAL(do_auctions)
 
         obj_from_char(obj);
         obj_to_char(obj, self);
-        ch->saveToXML();
+        save_player_to_xml(ch);
         items.push_back(new_ai);
         items.sort();
         aucSaveToXML(self);
@@ -504,7 +504,7 @@ SPECIAL(do_auctions)
             return 1;
         }
 
-        if (ch->getIdNum() != ai->owner_id && !IS_IMMORT(ch)) {
+        if (GET_IDNUM(ch) != ai->owner_id && !IS_IMMORT(ch)) {
             send_to_char(ch, "You can only withdraw your own item!\r\n");
             return 1;
         }
@@ -520,7 +520,7 @@ SPECIAL(do_auctions)
             return 1;
         }
 
-        obj_data *obj = ai->item;
+        struct obj_data *obj = ai->item;
         GET_MOOD(self) = " sadly";
         do_gen_comm(self,tmp_sprintf("Item number %d, %s, withdrawn.",
                     ai->item_no, obj->name), 0, SCMD_AUCTION, NULL);
@@ -529,7 +529,7 @@ SPECIAL(do_auctions)
         obj_from_char(obj);
         obj_to_char(obj, ch);
         items.erase(ai);
-        ch->saveToXML();
+        save_player_to_xml(ch);
         aucSaveToXML(self);
 
         send_to_char(ch, "Your item has been withdrawn from auction.\r\n");
@@ -564,7 +564,7 @@ get_max_auction_item() {
 }
 
 struct creature *
-create_imp(room_data *inroom, auction_data &info) {
+create_imp(struct room_data *inroom, auction_data &info) {
     imp_data *data;
     struct creature *mob;
 
@@ -602,7 +602,7 @@ ACMD(do_bidstat) {
         return;
     }
 
-    if (ch->getIdNum() == ai->owner_id) {
+    if (GET_IDNUM(ch) == ai->owner_id) {
         send_to_char(ch, "You can't get stats on your own item!\r\n");
         return;
     }
@@ -640,12 +640,12 @@ ACMD(do_bid) {
         return;
     }
 
-    if (ch->getIdNum() == ai->owner_id) {
+    if (GET_IDNUM(ch) == ai->owner_id) {
         send_to_char(ch, "You can't bid on your own item!\r\n");
         return;
     }
 
-    if (ch->getIdNum() == ai->buyer_id) {
+    if (GET_IDNUM(ch) == ai->buyer_id) {
         send_to_char(ch, "You are already the high bidder on that item!\r\n");
         return;
     }
@@ -672,7 +672,7 @@ ACMD(do_bid) {
     }
 
     ai->last_bid_time = time(NULL);
-    ai->buyer_id = ch->getIdNum();
+    ai->buyer_id = GET_IDNUM(ch);
     ai->current_bid = amount;
     ai->new_bid = true;
 

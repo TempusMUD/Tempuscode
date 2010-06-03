@@ -269,7 +269,7 @@ flow_room(int pulse)
 							&& !vict->desc)
 						|| (ROOM_FLAGGED(ABS_EXIT(rnum, dir)->to_room,
 								ROOM_GODROOM) && GET_LEVEL(vict) < LVL_GRGOD)
-						|| (vict->getPosition() == POS_FLYING
+						|| (GET_POSITION(vict) == POS_FLYING
 							&& (FLOW_TYPE(rnum) == F_TYPE_RIVER_SURFACE
 								|| FLOW_TYPE(rnum) == F_TYPE_LAVA_FLOW
 								|| FLOW_TYPE(rnum) == F_TYPE_RIVER_FIRE

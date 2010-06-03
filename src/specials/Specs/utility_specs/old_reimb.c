@@ -125,7 +125,7 @@ SPECIAL(old_reimb)
 					gain_exp_regardless(ch,
 						titles[(int)GET_CLASS(ch)][data[i].level].exp -
 						GET_EXP(ch));
-				ch->saveToXML();
+				save_player_to_xml(ch);
 				GET_GOLD(ch) = 10000000;
 				GET_HIT(ch) = GET_MAX_HIT(ch);
 				GET_MANA(ch) = GET_MAX_MANA(ch);

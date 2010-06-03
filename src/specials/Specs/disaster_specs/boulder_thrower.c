@@ -28,7 +28,7 @@ SPECIAL(boulder_thrower)
 	if (cmd || !AWAKE(ch))
 		return 0;
 
-    struct creature *vict = ch->findRandomCombat();
+    struct creature *vict = random_opponent(ch);
 	if (vict && can_see_creature(ch, vict)) {
 		// are we wielding a throwable weapon?
 		if ((obj = GET_EQ(ch, WEAR_WIELD)) && THROW_OK(obj)) {

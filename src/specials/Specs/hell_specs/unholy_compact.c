@@ -72,12 +72,12 @@ SPECIAL(unholy_compact)
 			true, dude, 0, ch, TO_VICT);
 		act("$N screams in agony as $S soul is ripped from $S body!", true,
 			dude, 0, ch, TO_NOTVICT);
-		ch->setPosition(POS_SLEEPING);
+		GET_POSITION(ch) = POS_SLEEPING;
 		GET_LIFE_POINTS(ch) -= life_cost;
 		GET_GOLD(ch) -= gold;
 		SET_BIT(PLR2_FLAGS(ch), PLR2_SOULLESS);
 		ch->real_abils.con -= con_cost;
-		ch->saveToXML();
+		save_player_to_xml(ch);
 		send_to_char(ch, "The torturous cries of hell haunt your dreams.\r\n");
 		slog("%s sign's the unholy compact, joining the soulless masses.",
 			GET_NAME(ch));

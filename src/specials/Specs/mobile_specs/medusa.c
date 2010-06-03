@@ -8,10 +8,10 @@ SPECIAL(medusa)
 {
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (ch->getPosition() != POS_FIGHTING)
+	if (GET_POSITION(ch) != POS_FIGHTING)
 		return false;
 
-    struct creature *vict = ch->findRandomCombat();
+    struct creature *vict = random_opponent(ch);
 	if (isname("medusa", ch->player.name) &&
 		vict && (vict->in_room == ch->in_room) &&
 		(number(0, 57 - GET_LEVEL(ch)) == 0)) {
@@ -29,7 +29,7 @@ SPECIAL(medusa)
 		call_magic(ch, vict, 0, NULL, SPELL_PETRIFY, GET_LEVEL(ch),
 			CAST_PETRI);
 		if (AFF2_FLAGGED(vict, AFF2_PETRIFIED))
-            ch->removeAllCombat();
+            remove_all_combat(ch);
 		return 1;
 	}
 	return false;

@@ -16,7 +16,7 @@ SPECIAL(underworld_goddess)
 			styx = vict;
 
 	/* First and foremost, if I am fighting, beat the shit out of them. */
-	if (!cmd && (ch->getPosition() == POS_FIGHTING)) {
+	if (!cmd && (GET_POSITION(ch) == POS_FIGHTING)) {
 
 		/* pseudo-randomly choose someone in the room who is fighting me */
 		for (vict = ch->in_room->people; vict; vict = vict->next_in_room)

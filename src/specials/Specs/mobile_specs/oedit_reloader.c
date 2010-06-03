@@ -10,8 +10,8 @@
 #include "utils.h"
 #include "object_map.h"
 
-int retrieve_oedits( struct creature *ch, list<obj_data*> &found );
-int load_oedits( struct creature *ch, list<obj_data*> &found );
+int retrieve_oedits( struct creature *ch, list<struct obj_data*> &found );
+int load_oedits( struct creature *ch, list<struct obj_data*> &found );
 
 SPECIAL(oedit_reloader)
 {
@@ -27,7 +27,7 @@ SPECIAL(oedit_reloader)
 	if( CMD_IS("help") && !*argument ) {
 		perform_say(self, "say", "If you want me to retrieve your property, just type 'retrieve'.");
 	} else if (CMD_IS("retrieve")) {
-		list<obj_data*> found;
+		list<struct obj_data*> found;
 		act("$n closes $s eyes in deep concentration.", true, self, 0, false, TO_ROOM);
 		int retrieved = retrieve_oedits( ch, found );
 		int existing = load_oedits( ch, found );
@@ -46,8 +46,8 @@ SPECIAL(oedit_reloader)
 	return true;
 }
 
-obj_data*
-get_top_container( obj_data* obj )
+struct obj_data*
+get_top_container( struct obj_data* obj )
 {
 	while( obj->in_obj ) {
 		obj = obj->in_obj;
@@ -56,9 +56,9 @@ get_top_container( obj_data* obj )
 }
 
 bool
-contains( list<obj_data*> &objects, int vnum )
+contains( list<struct obj_data*> &objects, int vnum )
 {
-	list<obj_data*>_iterator it;
+	list<struct obj_data*>_iterator it;
 	for( it = objects.begin(); it != objects.end(); ++it ) {
 		if( (*it)->shared->vnum == vnum )
 			return true;
@@ -67,17 +67,17 @@ contains( list<obj_data*> &objects, int vnum )
 }
 
 int
-load_oedits( struct creature *ch, list<obj_data*> &found )
+load_oedits( struct creature *ch, list<struct obj_data*> &found )
 {
 	int count = 0;
-    obj_data *obj = NULL;
+    struct obj_data *obj = NULL;
     ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
 		if( obj->shared->owner_id == GET_IDNUM(ch)  ) {
 			++count;
 			if( !contains( found, obj->shared->vnum ) ) {
-				obj_data* o = read_object( obj->shared->vnum );
+				struct obj_data* o = read_object( obj->shared->vnum );
 				obj_to_char( o, ch, false );
 				act("$p appears in your hands!", false, ch, o, 0, TO_CHAR);
 			}
@@ -87,10 +87,10 @@ load_oedits( struct creature *ch, list<obj_data*> &found )
 }
 
 int
-retrieve_oedits( struct creature *ch, list<obj_data*> &found )
+retrieve_oedits( struct creature *ch, list<struct obj_data*> &found )
 {
 	int count = 0;
-	for( obj_data* obj = object_list; obj; obj = obj->next) {
+	for( struct obj_data* obj = object_list; obj; obj = obj->next) {
 		if( obj->shared->owner_id == GET_IDNUM(ch) ) {
 			found.push_back(obj);
 			// They already have it
@@ -98,14 +98,14 @@ retrieve_oedits( struct creature *ch, list<obj_data*> &found )
 				continue;
 			}
 			if( obj->in_obj ) {
-				obj_data* tmp = get_top_container(obj);
+				struct obj_data* tmp = get_top_container(obj);
 				// They already have it
 				if( tmp->carried_by == ch || tmp->worn_by == ch ){
 					continue;
 				}
 			}
 
-            room_data *prev_obj_room = where_obj(obj);
+            struct room_data *prev_obj_room = where_obj(obj);
 
 			if (obj->worn_by && obj == GET_EQ(obj->worn_by, obj->worn_on)) {
 				act("$p disappears off of your body!",

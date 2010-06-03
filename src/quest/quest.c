@@ -350,7 +350,7 @@ static void
 do_qcontrol_oload_list(struct creature * ch)
 {
 	int i = 0;
-	obj_data *obj;
+	struct obj_data *obj;
 
 	send_to_char(ch, "Valid Quest Objects:\r\n");
 	for (i = MIN_QUEST_OBJ_VNUM; i <= MAX_QUEST_OBJ_VNUM; i++) {
@@ -444,7 +444,7 @@ do_qcontrol_trans(struct creature *ch, char *argument)
 
 	struct creature *vict;
 	Quest *quest = NULL;
-	room_data *room = NULL;
+	struct room_data *room = NULL;
 
 	argument = two_arguments(argument, arg1, arg2);
 	if (!*arg1) {
@@ -788,7 +788,7 @@ do_qcontrol_create(struct creature *ch, char *argument, int com)
 		return;
 	}
 	GET_QUEST(ch) = quest.getVnum();
-	ch->saveToXML();
+	save_player_to_xml(ch);
 	save_quests();
 }
 
@@ -2920,7 +2920,7 @@ bool Quest_removePlayer( long id ) {
 		if (vict->loadFromXML(id)) {
 			//HERE
 			GET_QUEST(vict) = 0;
-			vict->saveToXML();
+			save_player_to_xml(vict);
 			delete vict;
 		} else {
 			errlog("Error loading player id %ld from file for removal from quest %d.\r\n",

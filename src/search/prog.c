@@ -137,7 +137,7 @@ prog_get_obj(void *owner, prog_evt_type owner_type)
 			return NULL;
 		}
 	case PROG_TYPE_ROOM:
-		return ((room_data *)owner)->progobj;
+		return ((struct room_data *)owner)->progobj;
     default:
         break;
 	}
@@ -150,11 +150,11 @@ prog_get_desc(prog_env *env)
 {
 	switch (env->owner_type) {
 	case PROG_TYPE_OBJECT:
-		return tmp_sprintf("object %d", GET_OBJ_VNUM((obj_data *)env->owner));
+		return tmp_sprintf("object %d", GET_OBJ_VNUM((struct obj_data *)env->owner));
 	case PROG_TYPE_MOBILE:
 		return tmp_sprintf("mobile %d", GET_MOB_VNUM(env->owner->to_c()));
 	case PROG_TYPE_ROOM:
-		return tmp_sprintf("room %d", ((room_data *)env->owner)->number);
+		return tmp_sprintf("room %d", ((struct room_data *)env->owner)->number);
 	default:
 		break;
 	}
@@ -211,16 +211,16 @@ DEFPROGHANDLER(after, env, evt, args)
 {
 }
 
-room_data *
+struct room_data *
 prog_get_owner_room(prog_env *env)
 {
     switch (env->owner_type) {
     case PROG_TYPE_MOBILE:
         return (env->owner->to_c())->in_room;
     case PROG_TYPE_ROOM:
-        return ((room_data *)env->owner);
+        return ((struct room_data *)env->owner);
     case PROG_TYPE_OBJECT:
-        return ((obj_data *)env->owner)->find_room();
+        return ((struct obj_data *)env->owner)->find_room();
     default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
     }
@@ -231,7 +231,7 @@ prog_get_owner_room(prog_env *env)
 static void
 prog_send_debug(prog_env *env, const char *msg)
 {
-    room_data *room = prog_get_owner_room(env);
+    struct room_data *room = prog_get_owner_room(env);
 
     for (struct creatureList_iterator cit = room->people.begin();
          cit != room->people.end();
@@ -363,7 +363,7 @@ prog_expand_vars(prog_env *env, char *args)
             args++;
             search_pt = strchr(args, '}');
             if (!search_pt) {
-                room_data *room = prog_get_owner_room(env);
+                struct room_data *room = prog_get_owner_room(env);
                 zerrlog(room->zone, "Invalid variable reference: no } found");
                 result = tmp_strcat(result, "<TYPO ME>", NULL);
                 break;
@@ -372,7 +372,7 @@ prog_expand_vars(prog_env *env, char *args)
             if (var) {
                 result = tmp_strcat(result, var->value, NULL);
             } else {
-                room_data *room = prog_get_owner_room(env);
+                struct room_data *room = prog_get_owner_room(env);
                 zerrlog(room->zone, "Invalid variable reference: %s not a variable",
                         tmp_substr(args, 0, search_pt - args - 1));
                 result = tmp_strcat(result, "<TYPO ME>", NULL);
@@ -501,7 +501,7 @@ bool
 prog_eval_holding(prog_env *env, char *args) {
     bool result = false;
 	int vnum;
-	obj_data *obj = NULL;
+	struct obj_data *obj = NULL;
 
     vnum = atoi(tmp_getword(&args));
     switch (env->owner_type) {
@@ -509,10 +509,10 @@ prog_eval_holding(prog_env *env, char *args) {
             obj = ((struct creature *) env->owner)->carrying;
             break;
         case PROG_TYPE_OBJECT:
-            obj = ((obj_data *) env->owner)->contains;
+            obj = ((struct obj_data *) env->owner)->contains;
             break;
         case PROG_TYPE_ROOM:
-            obj = ((room_data *) env->owner)->contents;
+            obj = ((struct room_data *) env->owner)->contents;
             break;
         default:
             obj = NULL;
@@ -636,7 +636,7 @@ prog_eval_gen(prog_env *env, char *args) {
 bool
 prog_eval_tar_holding(prog_env *env, char *args) {
     bool result = false;
-    obj_data *obj;
+    struct obj_data *obj;
     int vnum;
 
     vnum = atoi(tmp_getword(&args));
@@ -722,7 +722,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
         result = prog_eval_phase(args);
 	} else if (!strcmp(arg, "position")) {
         if (env->owner_type != PROG_TYPE_MOBILE) {
-            room_data *room = prog_get_owner_room(env);
+            struct room_data *room = prog_get_owner_room(env);
             zerrlog(room->zone, "Illegal position condition in %s prog",
                     prog_get_desc(env));
             result = false;
@@ -730,7 +730,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
             int pos = search_block(args, position_types, false);
 
             if (pos < 0) {
-                room_data *room = prog_get_owner_room(env);
+                struct room_data *room = prog_get_owner_room(env);
                 zerrlog(room->zone, "Invalid position '%s' in %s prog",
                         args, prog_get_desc(env));
                 result = false;
@@ -739,7 +739,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
             }
         }
     } else if (!strcasecmp(arg, "room")) {
-        room_data *room = prog_get_owner_room(env);
+        struct room_data *room = prog_get_owner_room(env);
 
         arg = tmp_getword(&args);
         result = (*arg && room) ? (room->number == atoi(arg)):false;
@@ -753,7 +753,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
             int pos = search_block(args, position_types, false);
 
             if (pos < 0) {
-                room_data *room = prog_get_owner_room(env);
+                struct room_data *room = prog_get_owner_room(env);
                 zerrlog(room->zone, "Invalid position '%s' in %s prog",
                         args, prog_get_desc(env));
                 result = false;
@@ -861,7 +861,7 @@ DEFPROGHANDLER(force, env, evt, args)
 
 DEFPROGHANDLER(target, env, evt, args)
 {
-    room_data *room = prog_get_owner_room(env);
+    struct room_data *room = prog_get_owner_room(env);
     struct creature *new_target = NULL;
 	char *arg;
 
@@ -904,7 +904,7 @@ DEFPROGHANDLER(pause, env, evt, args)
 DEFPROGHANDLER(walkto, env, evt, args)
 {
 	struct creature *ch;
-	room_data *room;
+	struct room_data *room;
 	int dir, pause;
 
 	if (env->owner_type != PROG_TYPE_MOBILE)
@@ -913,7 +913,7 @@ DEFPROGHANDLER(walkto, env, evt, args)
 	ch = (struct creature *) env->owner;
 
     // Make sure the creature can walk
-    if (ch->getPosition() < POS_STANDING)
+    if (GET_POSITION(ch) < POS_STANDING)
         return;
 
 	room = real_room(atoi(tmp_getword(&args)));
@@ -937,9 +937,9 @@ DEFPROGHANDLER(driveto, env, evt, args)
 	// move_car courtesy of vehicle.cc
 	int move_car(struct creature *ch, struct obj_data *car, int dir);
 
-	obj_data *console, *vehicle, *engine;
+	struct obj_data *console, *vehicle, *engine;
 	struct creature *ch;
-	room_data *target_room;
+	struct room_data *target_room;
 	room_direction_data *exit;
 	int dir, pause;
 
@@ -949,7 +949,7 @@ DEFPROGHANDLER(driveto, env, evt, args)
 	ch = (struct creature *) env->owner;
 
     // Make sure the creature can drive
-    if (ch->getPosition() < POS_SITTING)
+    if (GET_POSITION(ch) < POS_SITTING)
         return;
 
     // Get the target room, bailing if it doesn't actually exist
@@ -1041,7 +1041,7 @@ DEFPROGHANDLER(mobflag, env, evt, args)
 DEFPROGHANDLER(ldesc, env, evt, args)
 {
 	struct creature *mob;
-	obj_data *obj;
+	struct obj_data *obj;
 
 	switch (env->owner_type) {
 	case PROG_TYPE_MOBILE:
@@ -1054,7 +1054,7 @@ DEFPROGHANDLER(ldesc, env, evt, args)
 		mob->player.long_descr = strdup(args);
 		break;
 	case PROG_TYPE_OBJECT:
-		obj = (obj_data *) env->owner;
+		obj = (struct obj_data *) env->owner;
 		if (obj->line_desc && obj->line_desc != obj->shared->proto->line_desc)
 			free(obj->line_desc);
 		obj->line_desc = strdup(args);
@@ -1067,9 +1067,9 @@ DEFPROGHANDLER(ldesc, env, evt, args)
 
 DEFPROGHANDLER(damage, env, evt, args)
 {
-	room_data *room;
+	struct room_data *room;
 	struct creature *mob;
-	obj_data *obj;
+	struct obj_data *obj;
 	int damage_amt;
 	char *target_arg;
 	int damage_type;
@@ -1088,7 +1088,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 		// Trans the owner of the prog
 		switch (env->owner_type) {
 		case PROG_TYPE_OBJECT:
-			obj = (obj_data *) env->owner;
+			obj = (struct obj_data *) env->owner;
 			damage_eq((obj->worn_by) ? obj->worn_by : obj->carried_by,
 				obj, damage_amt, damage_type);
 			break;
@@ -1142,9 +1142,9 @@ DEFPROGHANDLER(damage, env, evt, args)
 
 DEFPROGHANDLER(spell, env, evt, args)
 {
-	room_data *room;
+	struct room_data *room;
 	struct creature *caster = NULL;
-	obj_data *obj;
+	struct obj_data *obj;
 	int spell_num, spell_lvl, spell_type;
 	char *target_arg;
 
@@ -1178,7 +1178,7 @@ DEFPROGHANDLER(spell, env, evt, args)
     // Determine the caster of the spell, so to speak
     switch (env->owner_type) {
     case PROG_TYPE_OBJECT:
-        obj = (obj_data *) env->owner;
+        obj = (struct obj_data *) env->owner;
         caster = (obj->worn_by) ? obj->worn_by : obj->carried_by;
         break;
     case PROG_TYPE_MOBILE:
@@ -1196,7 +1196,7 @@ DEFPROGHANDLER(spell, env, evt, args)
 		// Cast a spell on the owner of the prog
 		switch (env->owner_type) {
 		case PROG_TYPE_OBJECT:
-			obj = (obj_data *) env->owner;
+			obj = (struct obj_data *) env->owner;
 			call_magic(caster, caster, obj, NULL,
                        spell_num, spell_lvl, spell_type, NULL);
 			break;
@@ -1263,7 +1263,7 @@ DEFPROGHANDLER(doorset, env, evt, args)
 	// *doorset <room vnum> <direction> +/- <doorflags>
 	bool op;
 	char *arg;
-	room_data *room;
+	struct room_data *room;
 	int dir, flag_idx = 0, flags = 0;
 
 	arg = tmp_getword(&args);
@@ -1306,7 +1306,7 @@ DEFPROGHANDLER(doorexit, env, evt, args)
 {
 	// *doorexit <room vnum> <direction> (<target room>|none)
 	char *arg;
-	room_data *room, *target_room;
+	struct room_data *room, *target_room;
 	int dir;
 
 	arg = tmp_getword(&args);
@@ -1375,7 +1375,7 @@ DEFPROGHANDLER(compare_obj_vnum, env, evt, args)
 	if (!env->condition)
 		env->condition = (evt->object_type == PROG_TYPE_OBJECT
 						&& evt->object
-						&& ((obj_data *)evt->object)->getVnum() == *((int *)args));
+						&& ((struct obj_data *)evt->object)->getVnum() == *((int *)args));
 }
 
 DEFPROGHANDLER(cond_next_handler, env, evt, args)
@@ -1394,9 +1394,9 @@ DEFPROGHANDLER(nuke, env, evt, args)
 }
 
 static void
-prog_trans_creature(struct creature * ch, room_data * targ_room)
+prog_trans_creature(struct creature * ch, struct room_data * targ_room)
 {
-	room_data *was_in;
+	struct room_data *was_in;
 
 	if (!House_can_enter(ch, targ_room->number)
 		|| !clan_house_can_enter(ch, targ_room)
@@ -1439,8 +1439,8 @@ prog_trans_creature(struct creature * ch, room_data * targ_room)
 
 DEFPROGHANDLER(trans, env, evt, args)
 {
-	room_data *room, *targ_room;
-	obj_data *obj;
+	struct room_data *room, *targ_room;
+	struct obj_data *obj;
 	int targ_num;
 	char *target_arg;
 
@@ -1457,7 +1457,7 @@ DEFPROGHANDLER(trans, env, evt, args)
 		// Trans the owner of the prog
 		switch (env->owner_type) {
 		case PROG_TYPE_OBJECT:
-			obj = (obj_data *) env->owner;
+			obj = (struct obj_data *) env->owner;
 			if (obj->carried_by)
 				obj_from_char(obj);
 			else if (obj->in_room)
@@ -1527,8 +1527,8 @@ DEFPROGHANDLER(let, env, evt, args)
 
 DEFPROGHANDLER(oload, env, evt, args)
 {
-	obj_data *obj;
-	room_data *room = NULL;
+	struct obj_data *obj;
+	struct room_data *room = NULL;
 	int vnum, max_load = -1, target_num = -1;
 	char *target_str, *arg;
 
@@ -1558,9 +1558,9 @@ DEFPROGHANDLER(oload, env, evt, args)
 	obj->creation_method = CREATED_PROG;
 	switch (env->owner_type) {
 	case PROG_TYPE_OBJECT:
-		obj->creator = GET_OBJ_VNUM((obj_data *)env->owner); break;
+		obj->creator = GET_OBJ_VNUM((struct obj_data *)env->owner); break;
 	case PROG_TYPE_ROOM:
-		obj->creator = ((room_data *)env->owner)->number; break;
+		obj->creator = ((struct room_data *)env->owner)->number; break;
 	case PROG_TYPE_MOBILE:
 		obj->creator = GET_MOB_VNUM(env->owner->to_c()); break;
 	default:
@@ -1591,10 +1591,10 @@ DEFPROGHANDLER(oload, env, evt, args)
 			obj_to_char(obj, (struct creature *) env->owner);
 			break;
 		case PROG_TYPE_OBJECT:
-			obj_to_obj(obj, (obj_data *) env->owner);
+			obj_to_obj(obj, (struct obj_data *) env->owner);
 			break;
 		case PROG_TYPE_ROOM:
-			obj_to_room(obj, (room_data *) env->owner);
+			obj_to_room(obj, (struct room_data *) env->owner);
 			break;
 		default:
 			errlog("Can't happen at %s:%d", __FILE__, __LINE__);
@@ -1608,7 +1608,7 @@ DEFPROGHANDLER(oload, env, evt, args)
 DEFPROGHANDLER(mload, env, evt, args)
 {
 	struct creature *mob;
-	room_data *room = NULL;
+	struct room_data *room = NULL;
 	int vnum, max_load = -1;
 	char *arg;
 
@@ -1641,7 +1641,7 @@ DEFPROGHANDLER(mload, env, evt, args)
 
 DEFPROGHANDLER(opurge, env, evt, args)
 {
-	obj_data *obj, *obj_list, *next_obj;
+	struct obj_data *obj, *obj_list, *next_obj;
 	int vnum;
 
 	vnum = atoi(tmp_getword(&args));
@@ -1653,10 +1653,10 @@ DEFPROGHANDLER(opurge, env, evt, args)
 		obj_list = ((struct creature *) env->owner)->carrying;
 		break;
 	case PROG_TYPE_OBJECT:
-		obj_list = ((obj_data *) env->owner)->contains;
+		obj_list = ((struct obj_data *) env->owner)->contains;
 		break;
 	case PROG_TYPE_ROOM:
-		obj_list = ((room_data *) env->owner)->contents;
+		obj_list = ((struct room_data *) env->owner)->contents;
 		break;
 	default:
 		obj_list = NULL;
@@ -1688,10 +1688,10 @@ DEFPROGHANDLER(opurge, env, evt, args)
 		((struct creature *) env->owner)->carrying = obj_list;
 		break;
 	case PROG_TYPE_OBJECT:
-		((obj_data *) env->owner)->contains = obj_list;
+		((struct obj_data *) env->owner)->contains = obj_list;
 		break;
 	case PROG_TYPE_ROOM:
-		((room_data *) env->owner)->contents = obj_list;
+		((struct room_data *) env->owner)->contents = obj_list;
 		break;
     default:
         break;
@@ -1716,11 +1716,11 @@ DEFPROGHANDLER(giveexp, env, evt, args)
             break;
         case PROG_TYPE_OBJECT:
             owner_type = "object";
-            num = GET_OBJ_VNUM((obj_data *)env->owner);
+            num = GET_OBJ_VNUM((struct obj_data *)env->owner);
             break;
         case PROG_TYPE_ROOM:
             owner_type = "room";
-            num = ((room_data *)env->owner)->number;
+            num = ((struct room_data *)env->owner)->number;
             break;
         default:
             owner_type = "invalid";
@@ -1741,8 +1741,8 @@ DEFPROGHANDLER(echo, env, evt, args)
 {
 	char *arg;
 	struct creature *ch = NULL, *target = NULL;
-	obj_data *obj = NULL;
-	room_data *room = NULL;
+	struct obj_data *obj = NULL;
+	struct room_data *room = NULL;
 
 	arg = tmp_getword(&args);
     room = prog_get_owner_room(env);
@@ -1750,14 +1750,14 @@ DEFPROGHANDLER(echo, env, evt, args)
     case PROG_TYPE_MOBILE:
         ch = (env->owner->to_c()); break;
     case PROG_TYPE_OBJECT:
-        obj = ((obj_data *)env->owner); break;
+        obj = ((struct obj_data *)env->owner); break;
     case PROG_TYPE_ROOM:
 		// if there's noone in the room and it's not a zecho,
         // no point in echoing
 		if (room->people.empty() && strcasecmp(arg, "zone"))
 			return;
 		// we just pick the top guy off the people list for rooms.
-		ch = *(((room_data *) env->owner)->people.begin());
+		ch = *(((struct room_data *) env->owner)->people.begin());
         break;
     default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__); break;
@@ -1927,7 +1927,7 @@ destroy_attached_progs(void *owner)
 }
 
 void
-prog_unreference_object(obj_data *obj)
+prog_unreference_object(struct obj_data *obj)
 {
 	struct prog_env *cur_prog;
 
@@ -1948,11 +1948,11 @@ report_prog_loop(void *owner, prog_evt_type owner_type, struct creature *ch, con
 
 	switch (owner_type) {
 	case PROG_TYPE_OBJECT:
-        owner_desc = tmp_sprintf("object %d", GET_OBJ_VNUM((obj_data *)owner)); break;
+        owner_desc = tmp_sprintf("object %d", GET_OBJ_VNUM((struct obj_data *)owner)); break;
 	case PROG_TYPE_MOBILE:
 		owner_desc = tmp_sprintf("mobile %d", GET_MOB_VNUM(owner->to_c())); break;
 	case PROG_TYPE_ROOM:
-		owner_desc = tmp_sprintf("room %d", ((room_data *)owner)->number); break;
+		owner_desc = tmp_sprintf("room %d", ((struct room_data *)owner)->number); break;
 	default:
 		break;
 	}
@@ -2387,8 +2387,8 @@ prog_unmark_mobiles(void)
 static void
 prog_unmark_rooms(void)
 {
-	zone_data *zone;
-	room_data *room;
+	struct zone_data *zone;
+	struct room_data *room;
 
 	for (zone = zone_table; zone; zone = zone->next)  {
 		if (ZONE_FLAGGED(zone, ZONE_FROZEN)
@@ -2443,7 +2443,7 @@ prog_trigger_idle_mobs(void)
         struct creature *ch = *cit;
 		if (ch->prog_marker || !GET_MOB_PROGOBJ(ch))
 			continue;
-		else if (ch->isFighting())
+		else if (ch->fighting)
 			trigger_prog_combat(ch, PROG_TYPE_MOBILE);
 		else
 			trigger_prog_idle(ch, PROG_TYPE_MOBILE);
@@ -2453,8 +2453,8 @@ prog_trigger_idle_mobs(void)
 static void
 prog_trigger_idle_rooms(void)
 {
-	zone_data *zone;
-	room_data *room;
+	struct zone_data *zone;
+	struct room_data *room;
 
 	for (zone = zone_table; zone; zone = zone->next)  {
 		if (ZONE_FLAGGED(zone, ZONE_FROZEN)

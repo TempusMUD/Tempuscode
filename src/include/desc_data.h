@@ -84,7 +84,7 @@ struct mail_recipient_data {
 struct descriptor_data {
 	int descriptor;				/* file descriptor for socket       */
 	char host[HOST_LENGTH + 1];	/* hostname             */
-	cxn_state input_mode;					/* mode of 'connectedness'      */
+	enum cxn_state input_mode;  /* mode of 'connectedness'      */
 	char *mode_data;			// pointer for misc data needed for input_mode
 	int wait;					/* wait for how many loops      */
 	int desc_num;				/* unique num assigned to desc      */
@@ -95,7 +95,7 @@ struct descriptor_data {
 	byte need_prompt;			/* control of prompt-printing       */
 	int max_str;				/*      -           */
 	int repeat_cmd_count;		/* how many times has this command been */
-	CEditor *text_editor;	/*  Pointer to text editor object. */
+	struct editor *text_editor;	/*  Pointer to text editor object. */
 	char inbuf[MAX_RAW_INPUT_LENGTH];	/* buffer for raw input       */
 	char last_input[MAX_INPUT_LENGTH];	/* the last input         */
 	struct txt_q input;			/* q of unprocessed input       */
@@ -114,11 +114,11 @@ struct descriptor_data {
 	struct creature *creature;	/* linked to char           */
 	struct creature *original;	/* original char if switched        */
 	struct descriptor_data *snooping;	/* Who is this char snooping   */
-    vector<descriptor_data *>snoop_by;
+    struct creature *snoop_by;
 	struct descriptor_data *next;	/* link to next descriptor     */
 };
 
-void set_desc_state(cxn_state state, descriptor_data *d);
+void set_desc_state(enum cxn_state state, struct descriptor_data *d);
 
 extern struct descriptor_data *descriptor_list;
 

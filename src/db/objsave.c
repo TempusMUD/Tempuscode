@@ -97,7 +97,7 @@ rent_deadline(struct creature *ch, struct creature *recep, long cost)
 }
 
 void
-append_obj_rent(const char *currency_str, int count, obj_data *obj)
+append_obj_rent(const char *currency_str, int count, struct obj_data *obj)
 {
 	if (count == 1)
 		acc_sprintf("%10d %s for %s\r\n", GET_OBJ_RENT(obj), currency_str, obj->name);
@@ -110,9 +110,9 @@ append_obj_rent(const char *currency_str, int count, obj_data *obj)
 }
 
 long
-tally_obj_rent(obj_data *obj, const char *currency_str, bool display)
+tally_obj_rent(struct obj_data *obj, const char *currency_str, bool display)
 {
-	obj_data *last_obj, *cur_obj;
+	struct obj_data *last_obj, *cur_obj;
 	long total_cost = 0;
 	int count = 0;
 
@@ -147,7 +147,7 @@ long
 calc_daily_rent(struct creature *ch, int factor, char *currency_str, bool display)
 {
 	extern int min_rent_cost;
-	obj_data *cur_obj;
+	struct obj_data *cur_obj;
 	int pos;
 	long total_cost = 0;
     float f_factor = factor;

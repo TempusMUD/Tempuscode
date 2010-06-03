@@ -49,7 +49,7 @@ ACMD(do_map)
 	}
 	WAIT_STATE(ch, 1 RL_SEC);
 }
-MapToken_MapToken(int d, int r, int c, room_data * s, room_data * t)
+MapToken_MapToken(int d, int r, int c, struct room_data * s, struct room_data * t)
 {
 	direction = d;
 	row = r;
@@ -287,7 +287,7 @@ Mapper_display(int bRows, int bCols)
 }
 
 bool
-Mapper_drawRoom(room_data * s, room_data * t, long row, long col)
+Mapper_drawRoom(struct room_data * s, struct room_data * t, long row, long col)
 {
 	int position = (row * columns) + col;
 	short exits = 0;
@@ -319,8 +319,8 @@ Mapper_drawRoom(room_data * s, room_data * t, long row, long col)
 }
 
 void
-Mapper_drawLink(room_data * s,	// Source Room
-                 room_data * t, // Target Room
+Mapper_drawLink(struct room_data * s,	// Source Room
+                 struct room_data * t, // Target Room
                  int row,       // Target's row
                  int col,       // Target's col
                  bool justLink __attribute__ ((unused)) //are we drawing only the link?
@@ -432,12 +432,12 @@ Mapper_drawLink(room_data * s,	// Source Room
 static const int mapBits[] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
 
 static inline bool
-MAPPED(room_data * mappedRoom, int mappedDirection)
+MAPPED(struct room_data * mappedRoom, int mappedDirection)
 {
 	return (mappedRoom->find_first_step_index & mapBits[mappedDirection]);
 }
 static inline bool
-MAP(room_data * mappedRoom, int mappedDirection)
+MAP(struct room_data * mappedRoom, int mappedDirection)
 {
 	return (mappedRoom->find_first_step_index |= mapBits[mappedDirection]);
 }
@@ -447,7 +447,7 @@ Mapper_build(bool stayzone)
 {
 	int i;
 	long row, col;
-	room_data *curRoom;
+	struct room_data *curRoom;
 	MapToken *token = NULL;
 	MapToken *curToken;
 
@@ -471,12 +471,12 @@ Mapper_build(bool stayzone)
 	row = rows / 2;				//kRTerm / 2;
 	col = columns / 2;			//kCTerm / 2;
 
-	for (zone_data * zone = zone_table; zone; zone = zone->next)
+	for (struct zone_data * zone = zone_table; zone; zone = zone->next)
 		for (curRoom = zone->world; curRoom; curRoom = curRoom->next)
 			curRoom->find_first_step_index = 0;
 
 	// Queue up the first room
-	//         MapToken( int d, int r, int c, room_data *s, room_data *t );
+	//         MapToken( int d, int r, int c, struct room_data *s, struct room_data *t );
 
 	token = new MapToken(Up, row, col, ch->in_room, ch->in_room);
 	push(token);

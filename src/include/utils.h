@@ -18,16 +18,13 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include <iostream>
 #include <stdio.h>
 #include "structs.h"
-
+#include "spells.h"
 /* external declarations and prototypes **********************************/
 
 /* public functions in utils.c */
 int touch(const char *path);
-void create_object_vector(vector<struct ovect_struct> &ov);
-void delete_duplicate_objects();
 
 enum log_type
 {
@@ -37,7 +34,7 @@ enum log_type
 	CMP = 3
 };
 // mudlog() and slog() are shorter interfaces to mlog()
-void mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
+void mudlog(sbyte level, enum log_type type, bool file, const char *fmt, ...)
 	__attribute__ ((format (printf, 4, 5)));
 void slog(const char *str, ...)
 	__attribute__ ((format (printf, 1, 2)));
@@ -48,7 +45,7 @@ void zerrlog(struct zone_data *zone, const char *str, ...)
 
 void mlog(const char *group,
 		sbyte level,
-		log_type type,
+		enum log_type type,
 		bool file,
 		const char *fmt, ...)
 	__attribute__ ((format (printf, 5, 6)));
@@ -62,8 +59,9 @@ void sprintbit(long vektor, const char *names[], char *result);
 const char *strlist_aref(int idx, const char *names[]);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
-int remove_from_cstring(char *str, char c = '~', char c_to = '.');
+int remove_from_cstring(char *str, char c, char c_to);
 void perform_skillset(struct creature *ch, struct creature *vict, char *skill_str, int value);
+int total_obj_weight(struct obj_data *obj);
 
 enum track_mode
 {
@@ -71,8 +69,8 @@ enum track_mode
 	GOD_TRACK = 1,
 	PSI_TRACK = 2
 };
-int find_first_step(room_data *start, room_data *dest, track_mode mode);
-int find_distance(room_data *start, room_data *dest);
+int find_first_step(struct room_data *start, struct room_data *dest, enum track_mode mode);
+int find_distance(struct room_data *start, struct room_data *dest);
 
 struct time_info_data age(struct creature *ch);
 struct time_info_data mud_time_passed(time_t t2, time_t t1);
@@ -87,15 +85,6 @@ enum decision_t {
 	UNDECIDED,
 	ALLOW,
 	DENY,
-};
-struct Reaction {
-		Reaction(void) : _reaction(0) {}
-		~Reaction(void) { if (_reaction) free(_reaction); }
-
-		decision_t react(struct creature *ch);
-		bool add_reaction(decision_t action, char *condition);
-		bool add_reaction(char *config);
-		char *_reaction;
 };
 
 /* undefine MAX and MIN so that our functions are used instead */
@@ -135,9 +124,9 @@ void point_update(void);
 char *GET_DISGUISED_NAME(struct creature *ch, struct creature *tch);
 int CHECK_SKILL(struct creature *ch, int i);
 int CHECK_TONGUE(struct creature *ch, int i);
-const char *OBJS(obj_data * obj, struct creature * vict);
-const char *OBJN(obj_data * obj, struct creature * vict);
-const char *PERS(struct creature * ch, struct creature * sub);
+const char *OBJS(struct obj_data *obj, struct creature *vict);
+const char *OBJN(struct obj_data *obj, struct creature *vict);
+const char *PERS(struct creature *ch, struct creature *sub);
 
 void WAIT_STATE(struct creature *ch, int cycle);
 /* various constants *****************************************************/
@@ -177,11 +166,11 @@ const char *AN(const char *str);
 /* memory utils **********************************************************/
 
 #define CREATE(result, type, number)  do {\
-        if (!((result) = reinterpret_cast<type *>(calloc ((number), sizeof(type))))) \
-                { perror("malloc failure"); abort(); } } while(0)
+        if (!((result) = (type *)(calloc ((number), sizeof(type)))))    \
+        { perror("malloc failure"); abort(); } } while(0)
 
 #define RECREATE(result,type,number) do {\
-        if (!((result) = reinterpret_cast<type *>(realloc ((result), sizeof(type) * (number))))) \
+        if (!((result) = (type *)(realloc ((result), sizeof(type) * (number))))) \
                 { perror("realloc failure"); abort(); } } while(0)
 
 /*
@@ -236,7 +225,7 @@ const char *AN(const char *str);
    ((!IS_EVIL(ch) || !SRCH_FLAGGED(srch, SRCH_NOEVIL)) && \
     (!IS_NEUTRAL(ch) || !SRCH_FLAGGED(srch, SRCH_NONEUTRAL)) && \
     (!IS_GOOD(ch) || !SRCH_FLAGGED(srch, SRCH_NOGOOD)) && \
-    (ch->getPosition() < POS_FLYING || !SRCH_FLAGGED(srch, SRCH_NOTRIG_FLY)) && \
+    (GET_POSITION(ch) < POS_FLYING || !SRCH_FLAGGED(srch, SRCH_NOTRIG_FLY)) && \
     (!IS_NPC(ch) || !SRCH_FLAGGED(srch, SRCH_NOMOB)) &&        \
     ( IS_NPC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPLAYER)) &&        \
 	(!AFF_FLAGGED(ch, AFF_CHARM) || !SRCH_FLAGGED(srch, SRCH_NOPLAYER)) &&	  \
@@ -276,6 +265,8 @@ const char *AN(const char *str);
                             || zone->plane == PLANE_PELEM_OOZE )
 
 /*  character utils ******************************************************/
+#define MOB_HUNTING(ch) ((ch)->char_specials.hunting)
+#define MOUNTED_BY(ch) ((ch)->char_specials.mounted)
 #define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define MOB2_FLAGS(ch) ((ch)->char_specials.saved.act2)
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
@@ -396,7 +387,7 @@ PRF2_FLAGGED( struct creature *ch, int flag )
                                    IS_VAMPIRE(ch) || \
                                   AFF2_FLAGGED(ch, AFF2_ENDURE_COLD) || \
                                   AFF2_FLAGGED(ch, AFF2_ABLAZE)      || \
-                                   (ch->getPosition() == POS_SLEEPING &&       \
+                                   (GET_POSITION(ch) == POS_SLEEPING &&       \
                                     AFF3_FLAGGED(ch, AFF3_STASIS))    || \
                       (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_WHITE) || \
                         IS_UNDEAD(ch) || GET_CLASS(ch) == CLASS_FROST || \
@@ -406,7 +397,7 @@ PRF2_FLAGGED( struct creature *ch, int flag )
 
 #define CHAR_WITHSTANDS_HEAT(ch)  (GET_LEVEL(ch) >= LVL_IMMORT        || \
                                    AFF3_FLAGGED(ch, AFF3_PROT_HEAT)   || \
-                                   (ch->getPosition() == POS_SLEEPING &&       \
+                                   (GET_POSITION(ch) == POS_SLEEPING &&       \
                                     AFF3_FLAGGED(ch, AFF3_STASIS))    || \
                         (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_RED) || \
                          IS_UNDEAD(ch) || GET_CLASS(ch) == CLASS_FIRE || \
@@ -433,7 +424,7 @@ PRF2_FLAGGED( struct creature *ch, int flag )
 	  /* room utils *********************************************************** */
 
 static inline int
-SECT(room_data * room)
+SECT(struct room_data * room)
 {
 	return room->sector_type;
 }
@@ -518,6 +509,7 @@ const char *CURRENCY(struct creature * ch);
 #define IS_WEARING_W(ch)  ((ch)->char_specials.worn_weight)
 #define TOTAL_ENCUM(ch)   (IS_CARRYING_W(ch) + IS_WEARING_W(ch))
 #define GET_WEAPON_PROF(ch)  ((ch)->char_specials.weapon_proficiency)
+#define GET_POSITION(ch)        ((ch)->char_specials.position)
 #define CHECK_WEAPON_PROF(ch)  ((ch)->char_specials.weapon_proficiency)
 #define MEDITATE_TIMER(ch)  (ch->char_specials.meditate_timer)
 #define CHAR_CUR_PULSE(ch)  (ch->char_specials.cur_flow_pulse)
@@ -538,7 +530,7 @@ const char *CURRENCY(struct creature * ch);
 #define GET_PKILLS(ch)          ((ch)->player_specials->saved.pkills)
 #define GET_ARENAKILLS(ch)		((ch)->player_specials->saved.akills)
 #define GET_PC_DEATHS(ch)       ((ch)->player_specials->saved.deaths)
-#define GET_REPUTATION(ch)      ((ch)->get_reputation())
+#define GET_REPUTATION(ch)      creature_get_reputation(ch)
 #define GET_SEVERITY(ch)		((ch)->player_specials->saved.killer_severity)
 
 inline bool
@@ -659,7 +651,7 @@ STRENGTH_APPLY_INDEX(struct creature *ch)
                          (AFF2_FLAGGED(ch, AFF2_TELEKINESIS) ? \
                           (GET_LEVEL(ch) >> 2) : 0))
 
-#define AWAKE(ch) ((ch)->getPosition() > POS_SLEEPING && !AFF2_FLAGGED(ch, AFF2_MEDITATE))
+#define AWAKE(ch) (GET_POSITION(ch) > POS_SLEEPING && !AFF2_FLAGGED(ch, AFF2_MEDITATE))
 
 #define IS_GOOD(ch)    (GET_ALIGNMENT(ch) >= 350)
 #define IS_EVIL(ch)    (GET_ALIGNMENT(ch) <= -350)
@@ -697,6 +689,7 @@ STRENGTH_APPLY_INDEX(struct creature *ch)
 #define GET_OBJ_EXTRA(obj)        ((obj)->obj_flags.extra_flags)
 #define GET_OBJ_EXTRA2(obj)        ((obj)->obj_flags.extra2_flags)
 #define GET_OBJ_EXTRA3(obj)        ((obj)->obj_flags.extra3_flags)
+#define GET_OBJ_WEIGHT(obj)        ((obj)->obj_flags.weight)
 #define GET_OBJ_WEAR(obj)        ((obj)->obj_flags.wear_flags)
 #define GET_OBJ_VAL(obj, val)        ((obj)->obj_flags.value[(val)])
 #define GET_OBJ_TIMER(obj)        ((obj)->obj_flags.timer)
@@ -930,7 +923,7 @@ long GET_SKILL_COST(struct creature *ch, int skill);
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
 inline bool
-room_is_watery(room_data *room)
+room_is_watery(struct room_data *room)
 {
     int sect = SECT_TYPE(room);
     return (sect == SECT_WATER_NOSWIM ||
@@ -941,7 +934,7 @@ room_is_watery(room_data *room)
 }
 
 inline bool
-room_is_underwater(room_data *room)
+room_is_underwater(struct room_data *room)
 {
     int sect = SECT_TYPE(room);
     return (sect == SECT_UNDERWATER ||
@@ -950,7 +943,7 @@ room_is_underwater(room_data *room)
 }
 
 inline bool
-room_has_air(room_data *room)
+room_has_air(struct room_data *room)
 {
     if (room_is_underwater(room))
         return false;
@@ -965,19 +958,19 @@ room_has_air(room_data *room)
     return true;
 }
 
-bool room_is_sunny(room_data *room);
-bool room_is_dark(room_data *room);
-bool room_is_light(room_data *room);
+bool room_is_sunny(struct room_data *room);
+bool room_is_dark(struct room_data *room);
+bool room_is_light(struct room_data *room);
 bool has_infravision(struct creature *self);
 bool has_dark_sight(struct creature *self);
 bool check_sight_self(struct creature *self);
-bool check_sight_room(struct creature *self, room_data *room);
-bool check_sight_object(struct creature *self, obj_data *obj);
+bool check_sight_room(struct creature *self, struct room_data *room);
+bool check_sight_object(struct creature *self, struct obj_data *obj);
 bool check_sight_vict(struct creature *self, struct creature *vict);
 
 bool can_see_creature(struct creature *self, struct creature *vict);
-bool can_see_object(struct creature *self, obj_data *obj);
-bool can_see_room(struct creature *self, room_data *room);
+bool can_see_object(struct creature *self, struct obj_data *obj);
+bool can_see_room(struct creature *self, struct room_data *room);
 
 #define CAN_CARRY_OBJ(ch,obj)  \
    (((IS_CARRYING_W(ch) + obj->getWeight()) <= CAN_CARRY_W(ch)) &&   \
@@ -992,28 +985,28 @@ bool can_see_room(struct creature *self, room_data *room);
                            AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
                            (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
 
-static inline room_direction_data*& EXIT( obj_data *ch, int dir ) {
+static inline struct room_direction_data *OEXIT( struct obj_data *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-static inline room_direction_data*& EXIT( struct creature *ch, int dir ) {
+static inline struct room_direction_data* EXIT( struct creature *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-static inline room_direction_data*& _2ND_EXIT( struct creature *ch, int dir ) {
+static inline struct room_direction_data* _2ND_EXIT( struct creature *ch, int dir ) {
 	return EXIT(ch,dir)->to_room->dir_option[dir];
 }
-static inline room_direction_data*& _3RD_EXIT( struct creature *ch, int dir ) {
+static inline struct room_direction_data* _3RD_EXIT( struct creature *ch, int dir ) {
 	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
 }
-static inline room_direction_data*& ABS_EXIT( room_data *room, int dir ) {
+static inline struct room_direction_data* ABS_EXIT( struct room_data *room, int dir ) {
 	return room->dir_option[dir];
 }
 
 bool CAN_GO(struct creature * ch, int door);
-bool CAN_GO(obj_data * obj, int door);
+bool OCAN_GO(struct obj_data * obj, int door);
 
 struct extra_descr_data *exdesc_list_dup(struct extra_descr_data *list);
 int smart_mobile_move(struct creature *ch, int dir);
-int drag_char_to_jail(struct creature *ch, struct creature *vict, room_data *jail_room);
+int drag_char_to_jail(struct creature *ch, struct creature *vict, struct room_data *jail_room);
 
 inline bool
 CAN_SEND_TELL(struct creature *ch, struct creature *tch)

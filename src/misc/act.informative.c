@@ -125,7 +125,7 @@ ACMD(do_stand);
    AFF_FLAGGED(ch, AFF_DETECT_MAGIC)) ? 20 : 0))
 
 void
-show_obj_extra(obj_data *object, struct creature *ch)
+show_obj_extra(struct obj_data *object, struct creature *ch)
 {
     if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
         if (object->action_desc)
@@ -179,7 +179,7 @@ show_obj_extra(obj_data *object, struct creature *ch)
 }
 
 void
-show_obj_bits(obj_data *object, struct creature *ch)
+show_obj_bits(struct obj_data *object, struct creature *ch)
 {
     if (IS_OBJ_STAT2(object, ITEM2_BROKEN))
         acc_sprintf(" %s<broken>", CCNRM(ch, C_NRM));
@@ -296,7 +296,7 @@ show_obj_bits(obj_data *object, struct creature *ch)
 }
 
 static void
-show_room_obj(obj_data *object, struct creature *ch, int count)
+show_room_obj(struct obj_data *object, struct creature *ch, int count)
 {
     if (object->line_desc)
         acc_strcat(object->line_desc, NULL);
@@ -847,7 +847,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 			SECT_TYPE(i->in_room) == SECT_WATER_SWIM ||
 			SECT_TYPE(i->in_room) == SECT_FIRE_RIVER) &&
 		(!AFF_FLAGGED(i, AFF_WATERWALK)
-			|| ch->getPosition() < POS_STANDING))
+			|| GET_POSITION(ch) < POS_STANDING))
 		desc = tmp_strcat(desc, " is swimming here.");
 	else if (room_is_underwater(i->in_room) && i->getPosition() > POS_RESTING)
 		desc = tmp_strcat(desc, " is swimming here.");
@@ -974,9 +974,9 @@ list_char_to_char(struct creature *list, struct creature *ch)
             && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)
             && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
 			hide_prob = number(0, i->getLevelBonus(SKILL_HIDE));
-			hide_roll = number(0, ch->getLevelBonus(true));
+			hide_roll = number(0, get_skill_bonus(ch, true));
 			if (affected_by_spell(ch, ZEN_AWARENESS))
-				hide_roll += ch->getLevelBonus(ZEN_AWARENESS) / 4;
+				hide_roll += get_skill_bonus(ch, ZEN_AWARENESS) / 4;
 
 			if (hide_prob > hide_roll) {
 				unseen++;
@@ -2082,7 +2082,7 @@ ACMD(do_look)
 	if (!ch->desc)
 		return;
 
-	if (ch->getPosition() < POS_SLEEPING)
+	if (GET_POSITION(ch) < POS_SLEEPING)
 		send_to_char(ch, "You can't see anything but stars!\r\n");
 	else if (!check_sight_self(ch))
 		send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
@@ -2115,7 +2115,7 @@ ACMD(do_glance)
 	if (!ch->desc)
 		return;
 
-	if (ch->getPosition() < POS_SLEEPING)
+	if (GET_POSITION(ch) < POS_SLEEPING)
 		send_to_char(ch, "You can't see anything but stars!\r\n");
 	else if (AFF_FLAGGED(ch, AFF_BLIND)
 		&& !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
@@ -2142,7 +2142,7 @@ ACMD(do_examine)
 	struct creature *tmp_char;
 	struct obj_data *tmp_object;
 
-	if (ch->getPosition() < POS_SLEEPING) {
+	if (GET_POSITION(ch) < POS_SLEEPING) {
 		send_to_char(ch, "You can't see anything but stars!\r\n");
 		return;
 	}
@@ -2779,7 +2779,7 @@ ACMD(do_score)
 		CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,
 			C_NRM), GET_CASH(ch), CCNRM(ch, C_NRM));
 
-	switch (ch->getPosition()) {
+	switch (GET_POSITION(ch)) {
 	case POS_DEAD:
 		acc_strcat(CCRED(ch, C_NRM), "You are DEAD!", CCNRM(ch, C_NRM),
 			"\r\n", NULL);
@@ -2818,9 +2818,9 @@ ACMD(do_score)
 				CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_FIGHTING:
-		if ((ch->isFighting()))
+		if ((ch->fighting))
 			acc_strcat(CCYEL(ch, C_NRM),
-				"You are fighting ", PERS(ch->findRandomCombat(), ch), ".",
+				"You are fighting ", PERS(random_opponent(ch), ch), ".",
 				CCNRM(ch, C_NRM), "\r\n", NULL);
 		else
 			acc_strcat(CCYEL(ch, C_NRM),
@@ -3639,13 +3639,13 @@ print_object_location(int num, struct obj_data *obj,
  * Checks to see that the given object matches the search criteria
  * @param req The list of required search parameters
  * @param exc The list of excluded search parameters
- * @param thing The obj_data of the object to be reviewed
+ * @param thing The struct obj_data of the object to be reviewed
  *
  * @return a boolean value representing if the object passed the search criteria
  *
 **/
 
-bool isWhereMatch( const list<char *> &req, const list<char *> &exc, obj_data *thing) {
+bool isWhereMatch( const list<char *> &req, const list<char *> &exc, struct obj_data *thing) {
     list<char *>_const_iterator reqit, excit;
 
 	if (!thing->aliases)
@@ -3697,7 +3697,7 @@ isWhereMatch( const list<char *> &req, const list<char *> &exc, struct creature 
 **/
 
 bool
-isInHouse( obj_data *obj) {
+isInHouse( struct obj_data *obj) {
     //if in_obj isn't null, it's still inside a container.
     if(obj->in_obj == NULL) {
         //container is being carried, not in house
@@ -4147,7 +4147,7 @@ ACMD(do_consider)
 	if (!IS_NPC(victim)) {
 		send_to_char(ch, "Well, if you really want to kill another player...\r\n");
 	}
-	diff = victim->getLevelBonus(true) - ch->getLevelBonus(true);
+	diff = victim->getLevelBonus(true) - get_skill_bonus(ch, true);
 
 	if (diff <= -30)
 		send_to_char(ch, "It's not even worth the effort...\r\n");
@@ -4267,8 +4267,8 @@ ACMD(do_diagnose)
 		} else
 			diag_char_to_char(vict, ch);
 	} else {
-		if (ch->isFighting())
-			diag_char_to_char(ch->findRandomCombat(), ch);
+		if (ch->fighting)
+			diag_char_to_char(random_opponent(ch), ch);
 		else
 			send_to_char(ch, "Diagnose who?\r\n");
 	}
@@ -4773,7 +4773,7 @@ ACMD(do_wizlist)
 
 ACMD(do_areas)
 {
-    zone_data *zone;
+    struct zone_data *zone;
     bool found_one = false;
 
 	acc_string_clear();

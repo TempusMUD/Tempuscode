@@ -11,10 +11,10 @@ SPECIAL(fire_breather)
 		return false;
 	if (spec_mode != SPECIAL_TICK)
 		return false;
-	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
+	if (GET_POSITION(ch) != POS_FIGHTING || !ch->fighting)
 		return false;
 
-    struct creature *vict = ch->findRandomCombat();
+    struct creature *vict = random_opponent(ch);
 	if (vict && (vict->in_room == ch->in_room) &&
 		!number(0, 4)) {
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))

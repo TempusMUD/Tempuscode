@@ -25,7 +25,7 @@ SPECIAL(life_point_potion)
 		|| GET_LEVEL(ch) < 10) {
 		send_to_char(ch,
 			"\r\nYou feel you have just done something very, very wrong.\r\n");
-		ch->setPosition(POS_STUNNED);
+		GET_POSITION(ch) = POS_STUNNED;
 	} else {
 		send_to_char(ch,
 			"\r\nThe essence of the gods courses through your veins.\r\n");

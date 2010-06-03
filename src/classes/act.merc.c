@@ -23,7 +23,6 @@
 #include "bomb.h"
 #include "tmpstr.h"
 #include "smokes.h"
-#include "player_table.h"
 #include "accstr.h"
 
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))
@@ -42,8 +41,8 @@ ACMD(do_pistolwhip)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You pistolwhip $p!", false, ch, ovict, 0, TO_CHAR);
@@ -69,7 +68,7 @@ ACMD(do_pistolwhip)
 		act("$n beats $mself senseless with $p!", true, ch, weap, 0, TO_ROOM);
 		return;
 	}
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	percent = ((10 - (GET_AC(vict) / 10)) << 1) + number(1, 101);
@@ -83,7 +82,7 @@ ACMD(do_pistolwhip)
 		damage(ch, vict, 0, SKILL_PISTOLWHIP, WEAR_BODY);
 	} else {
 		dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
-			dice(4, weap->getWeight());
+			dice(4, getWeight(weap));
 		dam /= 4;
 		damage(ch, vict, dam, SKILL_PISTOLWHIP, WEAR_HEAD);
 		gain_skill_prof(ch, SKILL_PISTOLWHIP);
@@ -107,8 +106,8 @@ ACMD(do_crossface)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You fiercely crossface $p!", false, ch, ovict, 0, TO_CHAR);
@@ -135,7 +134,7 @@ ACMD(do_crossface)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict))
+	if (!ok_to_attack(ch, vict))
 		return;
 
 	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
@@ -153,7 +152,7 @@ ACMD(do_crossface)
 	dex_mod = 3;
 	// This beastly function brought to you by Cat, the letter F, and Nothing more
 	prob =
-		((GET_LEVEL(ch) + ch->getLevelBonus(prime_merc)) -
+		((GET_LEVEL(ch) + get_skill_bonus(ch, prime_merc)) -
 		(GET_LEVEL(vict) * 2))
 		+ (CHECK_SKILL(ch, SKILL_CROSSFACE) >> 2)
 		+ (dex_mod * (GET_DEX(ch) - GET_DEX(vict)))
@@ -176,7 +175,7 @@ ACMD(do_crossface)
 	} else {
 
 		dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
-			dice(9, weap->getWeight());
+			dice(9, getWeight(weap));
 
         wear_num = WEAR_FACE;
         if (!GET_EQ(vict, WEAR_FACE))
@@ -186,15 +185,15 @@ ACMD(do_crossface)
 
 		// Wow!  vict really took one hell of a shot.  Stun that bastard!
 		if (diff >= 70 && !GET_EQ(vict, wear_num)) {
-			prev_pos = vict->getPosition();
+			prev_pos = GET_POSITION(vict);
 			retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
 			if (prev_pos != POS_STUNNED && !IS_SET(retval, DAM_VICT_KILLED) &&
 				!IS_SET(retval, DAM_ATTACKER_KILLED)) {
-				if (ch->isFighting()
+				if (ch->fighting
                     && (!IS_NPC(vict) || !MOB2_FLAGGED(vict, MOB2_NOSTUN))) {
-					ch->removeCombat(vict);
-					vict->removeAllCombat();
-					vict->setPosition(POS_STUNNED);
+					removeCombat(ch, vict);
+					removeAllCombat(vict);
+					GET_POSITION(vict) = POS_STUNNED;
 					act("Your crossface has knocked $N senseless!",
 						true, ch, NULL, vict, TO_CHAR);
 					act("$n stuns $N with a vicious crossface!",
@@ -206,12 +205,12 @@ ACMD(do_crossface)
 		// vict just took a pretty good shot, knock him down...
 		else if (diff >= 55) {
 			dam = (int)(dam * 0.75);
-			prev_pos = vict->getPosition();
+			prev_pos = GET_POSITION(vict);
 			retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
 			if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
 				&& !IS_SET(retval, DAM_VICT_KILLED) &&
-				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->isFighting()) {
-				vict->setPosition(POS_RESTING);
+				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->fighting) {
+				GET_POSITION(vict) = POS_RESTING;
 				act("Your crossface has knocked $N on his ass!",
 					true, ch, NULL, vict, TO_CHAR);
 				act("$n's nasty crossface just knocked $N on his ass!",
@@ -223,12 +222,12 @@ ACMD(do_crossface)
 		}
 		// vict pretty much caught a grazing blow, knock off some eq
 		else if (diff >= 20) {
-            obj_data *wear, *scraps;
+            struct obj_data *wear, *scraps;
 
 			retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
             wear = GET_EQ(vict, wear_num);
 			if (wear  && !IS_SET(retval, DAM_VICT_KILLED) &&
-				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->isFighting()) {
+				!IS_SET(retval, DAM_ATTACKER_KILLED) && ch->fighting) {
 				act("Your crossface has knocked $N's $p from his head!",
 					true, ch, wear, vict, TO_CHAR);
 				act("$n's nasty crossface just knocked $p from $N's head!",
@@ -237,7 +236,7 @@ ACMD(do_crossface)
 					"Your $p flies from your head and lands a short distance\n"
 					"away.", true, ch, wear, vict, TO_VICT);
 
-                scraps = damage_eq(vict, wear, dam >> 4);
+                scraps = damage_eq(vict, wear, dam >> 4, TYPE_HIT);
 				if (scraps) {
                     // Object is destroyed
                     obj_from_char(scraps);
@@ -389,8 +388,8 @@ ACMD(do_snipe)
 	}
 	// if vict is fighting someone you have a 50% chance of hitting the person
 	// vict is fighting
-	if ((vict->isFighting()) && (number(0, 1))) {
-		vict = (vict->findRandomCombat());
+	if (isFighting(vict) && number(0, 1)) {
+		vict = findRandomCombat(vict);
 	}
 	// Has vict been sniped once and is vict a sentinel mob?
 	if ((MOB_FLAGGED(vict, MOB_SENTINEL)) &&
@@ -402,7 +401,7 @@ ACMD(do_snipe)
 		return;
 
 	// is ch in a peaceful room?
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	//Ok, last check...is some asshole trying to damage a shop keeper
@@ -424,7 +423,7 @@ ACMD(do_snipe)
 		percent += 25;
 	}
 
-	if (vict->getPosition() < POS_FIGHTING) {
+	if (GET_POSITION(vict) < POS_FIGHTING) {
 		percent += 15;
 	}
 
@@ -476,8 +475,8 @@ ACMD(do_snipe)
 		}
 		// ch and vict really shouldn't be fighting if they aren't in
 		// the same room...
-		ch->removeCombat(vict);
-		vict->removeCombat(ch);
+		removeCombat(ch, vict);
+		removeCombat(vict, ch);
 		send_to_char(ch, "Damn!  You missed!\r\n");
 		act("$n fires $p to the %s, and a look of irritation crosses $s face.",
 			true, ch, gun, vict, TO_ROOM);
@@ -498,7 +497,7 @@ ACMD(do_snipe)
 		// seems to crash the mud if you call damage_eq() on a location
 		// that doesn't have any eq...hmmm
 		if (GET_EQ(vict, damage_loc)) {
-			damage_eq(vict, GET_EQ(vict, damage_loc), dam >> 1);
+			damage_eq(vict, GET_EQ(vict, damage_loc), dam >> 1, TYPE_HIT);
 		}
 		if ((armor = GET_EQ(vict, damage_loc))
 			&& OBJ_TYPE(armor, ITEM_ARMOR)) {
@@ -516,7 +515,7 @@ ACMD(do_snipe)
 			af.type = SKILL_SNIPE;
 			af.level = GET_LEVEL(ch);
 			af.duration = 3;
-            af.owner = ch->getIdNum();
+            af.owner = GET_IDNUM(ch);
 			affect_to_char(vict, &af);
 		}
 
@@ -580,8 +579,8 @@ ACMD(do_wrench)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = (ch->findRandomCombat());
+		if (ch->fighting) {
+			vict = (random_opponent(ch));
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You fiercely wrench $p!", false, ch, ovict, 0, TO_CHAR);
@@ -604,7 +603,7 @@ ACMD(do_wrench)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 	//
 	// give a bonus if both hands are free
@@ -629,14 +628,14 @@ ACMD(do_wrench)
 		dam += dam / 2;
 	}
 
-	if (!(ch->isFighting()) && !(vict->isFighting())) {
+	if (!(ch->fighting) && !(isFighting(vict))) {
 		dam += dam / 3;
 	}
 
 	if (((neck = GET_IMPLANT(vict, WEAR_NECK_1)) && NOBEHEAD_EQ(neck)) ||
 		((neck = GET_IMPLANT(vict, WEAR_NECK_2)) && NOBEHEAD_EQ(neck))) {
 		dam >>= 1;
-		damage_eq(ch, neck, dam);
+		damage_eq(ch, neck, dam, TYPE_HIT);
 	}
 
 	if (((neck = GET_EQ(vict, WEAR_NECK_1)) && NOBEHEAD_EQ(neck)) ||
@@ -648,7 +647,7 @@ ACMD(do_wrench)
 		act("You grab $N's neck, but $e is covered by $p!", false, ch, neck,
 			vict, TO_CHAR);
         check_attack(ch, vict);
-		damage_eq(ch, neck, dam);
+		damage_eq(ch, neck, dam, TYPE_HIT);
 		WAIT_STATE(ch, 1 RL_SEC);
 		return;
 	}
@@ -690,8 +689,8 @@ ACMD(do_infiltrate)
 	af.location = APPLY_NONE;
 	af.bitvector = AFF_SNEAK;
 	af.aff_index = 0;
-	af.level = GET_LEVEL(ch) + ch->getLevelBonus(SKILL_INFILTRATE);
-    af.owner = ch->getIdNum();
+	af.level = GET_LEVEL(ch) + get_skill_bonus(ch, SKILL_INFILTRATE);
+    af.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af);
 
 	af.type = SKILL_INFILTRATE;
@@ -701,13 +700,13 @@ ACMD(do_infiltrate)
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.bitvector = AFF3_INFILTRATE;
-	af.level = GET_LEVEL(ch) + ch->getLevelBonus(SKILL_INFILTRATE);
-    af.owner = ch->getIdNum();
+	af.level = GET_LEVEL(ch) + get_skill_bonus(ch, SKILL_INFILTRATE);
+    af.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af);
 }
 
 void
-perform_appraise(struct creature *ch, obj_data *obj, int skill_lvl)
+perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
 {
 	int i;
 	long cost;
@@ -750,7 +749,7 @@ perform_appraise(struct creature *ch, obj_data *obj, int skill_lvl)
 	}
 
 	acc_sprintf("Item weighs around %d lbs, and is made of %s.\n",
-		obj->getWeight(), material_names[GET_OBJ_MATERIAL(obj)]);
+		getWeight(obj), material_names[GET_OBJ_MATERIAL(obj)]);
 
 	if (skill_lvl > 100)
 		cost = 0;
@@ -864,7 +863,7 @@ ACMD(do_appraise)
 
 ACMD(do_combine)
 {
-    obj_data *potion1, *potion2;
+    struct obj_data *potion1, *potion2;
     char *arg;
     int bits;
 
@@ -908,7 +907,8 @@ ACMD(do_combine)
 
     int spell_count = 0;
     int level_count = 0;
-    for (int idx = 1;idx < 4;idx++) {
+    int idx;
+    for (idx = 1;idx < 4;idx++) {
         if (GET_OBJ_VAL(potion1, idx) > 0)
             spell_count++;
         if (GET_OBJ_VAL(potion2, idx) > 0)
@@ -916,7 +916,7 @@ ACMD(do_combine)
     }
     level_count = GET_OBJ_VAL(potion1, 0) + GET_OBJ_VAL(potion2, 0);
     // Create the combined potion
-    obj_data *new_potion = read_object(MIXED_POTION_VNUM);
+    struct obj_data *new_potion = read_object(MIXED_POTION_VNUM);
 
     new_potion->creation_method = CREATED_PLAYER;
     new_potion->creator = GET_IDNUM(ch);
@@ -950,9 +950,10 @@ ACMD(do_combine)
 
     if (number(0, 120) < CHECK_SKILL(ch, SKILL_CHEMISTRY)) {
         // Didn't explode - set up the level and spells
-        GET_OBJ_VAL(new_potion, 0) = level_count * 100 / (2 * ch->getLevelBonus(SKILL_CHEMISTRY));
+        GET_OBJ_VAL(new_potion, 0) = level_count * 100 / (2 * get_skill_bonus(ch, SKILL_CHEMISTRY));
         spell_count = 1;
-        for (int idx = 1;idx < 4;idx++) {
+        int idx;
+        for (idx = 1;idx < 4;idx++) {
             if (GET_OBJ_VAL(potion1, idx) > 0)
                 GET_OBJ_VAL(new_potion, spell_count++) = GET_OBJ_VAL(potion1, idx);
             if (GET_OBJ_VAL(potion2, idx) > 0)

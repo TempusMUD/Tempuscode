@@ -12,7 +12,7 @@ SPECIAL(geryon)
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !ch->isFighting())
+	if (cmd || !ch->fighting)
 		return 0;
 
 	if ((!ch->followers || !ch->followers->next)
@@ -33,7 +33,7 @@ SPECIAL(geryon)
 	}
 
 	if (!vict || !number(0, 3) || vict == ch)
-		vict = ch->findRandomCombat();
+		vict = random_opponent(ch);
 
 	act("$n stings you with a mighty lash of $s deadly tail!", false, ch, 0,
 		vict, TO_VICT);

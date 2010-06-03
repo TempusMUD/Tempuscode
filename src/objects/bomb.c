@@ -390,8 +390,8 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
 		if (GET_STR(vict) < number(3, power)) {
 			send_to_char(vict,
 				"You are blown to the ground by the explosive blast!\r\n");
-			vict->setPosition(POS_SITTING);
-		} else if (vict->getPosition() > POS_STUNNED &&
+			GET_POSITION(vict) = POS_SITTING;
+		} else if (GET_POSITION(vict) > POS_STUNNED &&
 			(bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
 			number(5, 5 + power) > GET_CON(vict)) {
 
@@ -411,20 +411,20 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
 
 				sprintf(buf, "$n is blown in from %s!", from_dirs[dir]);
 				act(buf, false, vict, 0, 0, TO_ROOM);
-			} else if (vict->getPosition() > POS_SITTING && (power << 5) >
+			} else if (GET_POSITION(vict) > POS_SITTING && (power << 5) >
 				GET_WEIGHT(vict) + CAN_CARRY_W(vict)) {
 				send_to_char(vict, "You are blown to the ground by the blast!!\r\n");
-				vict->setPosition(POS_RESTING);
+				GET_POSITION(vict) = POS_RESTING;
 			}
 
 			if (ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
                 !mag_savingthrow(vict, 40, SAVING_ROD))
-				vict->setPosition(POS_STUNNED);
+				GET_POSITION(vict) = POS_STUNNED;
 		}
 	}
 
 	// Objects in an explosion should also be damaged
-	obj_data *obj, *next_obj;
+	struct obj_data *obj, *next_obj;
 	for (obj = room->contents;obj; obj = next_obj) {
 		next_obj = obj->next_content;
 
@@ -639,7 +639,7 @@ engage_self_destruct(struct creature *ch)
 	for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 		next_elem = rad_elem->next;
 
-		bomb_damage_room(NULL, ch->getIdNum(), GET_NAME(ch),
+		bomb_damage_room(NULL, GET_IDNUM(ch), GET_NAME(ch),
 			SKILL_SELF_DESTRUCT,
 			level,
 			rad_elem->room,

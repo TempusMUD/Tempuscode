@@ -28,7 +28,7 @@ void perform_give_credits(struct creature *ch, struct creature *vict, int amount
 void perform_tell(struct creature *ch, struct creature *vict, const char *arg);
 void perform_say(struct creature *ch, const char *saystr, const char *message);
 void perform_say_to(struct creature *ch, struct creature *target, const char *message);
-void perform_say_to_obj(struct creature *ch, obj_data *obj, const char *message);
+void perform_say_to_obj(struct creature *ch, struct obj_data *obj, const char *message);
 
 // Sneaking
 const int SNEAK_OK = 0;
@@ -120,6 +120,6 @@ typedef struct timewarp_data {
 } timewarp_data;
 
 int mob_fight_psionic(struct creature *ch, struct creature *precious_vict);
-void perform_goto(struct creature *ch, room_data *room, bool allow_follow);
+void perform_goto(struct creature *ch, struct room_data *room, bool allow_follow);
 
 #endif

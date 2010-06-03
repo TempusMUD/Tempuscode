@@ -51,8 +51,8 @@ enum prog_cmd_kind {
 };
 
 struct prog_evt {
-	prog_evt_phase phase;
-	prog_evt_kind kind;
+	enum prog_evt_phase phase;
+	enum prog_evt_type kind;
 	int cmd;
 	char args[MAX_INPUT_LENGTH];
 
@@ -78,10 +78,10 @@ struct prog_env {
     int speed;					// default wait between commands
     int wait;					// the number of seconds to wait
 	int condition;				// T/F depending on last compare
-    prog_evt_type owner_type;	// type of the owner
+    enum prog_evt_type owner_type;	// type of the owner
 	void *owner;				// pointer to the actual owner
 	struct creature *target;			// target of prog
-	prog_evt evt;				// copy of event that caused prog to trigger
+	struct prog_evt evt;				// copy of event that caused prog to trigger
     bool tracing;               // prog is being traced
 	struct prog_state_data *state; // thread-local state
 };
@@ -89,31 +89,31 @@ struct prog_env {
 struct prog_command {
 	const char *str;
 	bool count;
-	void (*func) (prog_env *, prog_evt *, char *);
+	void (*func) (struct prog_env *, struct prog_evt *, char *);
 };
 
-extern prog_command prog_cmds[];
+extern struct prog_command prog_cmds[];
 
 void destroy_attached_progs(void *self);
-bool trigger_prog_cmd(void *owner, prog_evt_type owner_type, struct creature *ch, int cmd, char *argument);
-bool trigger_prog_spell(void *owner, prog_evt_type owner_type, struct creature *ch, int cmd);
-bool trigger_prog_move(void *owner, prog_evt_type owner_type, struct creature *ch, special_mode mode);
-void trigger_prog_idle(void *owner, prog_evt_type owner_type);
-void trigger_prog_combat(void *owner, prog_evt_type owner_type);
-void trigger_prog_tick(void *owner, prog_evt_type owner_type);
+bool trigger_prog_cmd(void *owner, enum prog_evt_type owner_type, struct creature *ch, int cmd, char *argument);
+bool trigger_prog_spell(void *owner, enum prog_evt_type owner_type, struct creature *ch, int cmd);
+bool trigger_prog_move(void *owner, enum prog_evt_type owner_type, struct creature *ch, enum special_mode mode);
+void trigger_prog_idle(void *owner, enum prog_evt_type owner_type);
+void trigger_prog_combat(void *owner, enum prog_evt_type owner_type);
+void trigger_prog_tick(void *owner, enum prog_evt_type owner_type);
 void trigger_prog_load(struct creature *self);
 void trigger_prog_fight(struct creature *ch, struct creature *self);
 void trigger_prog_give(struct creature *ch, struct creature *self, struct obj_data *obj);
 void trigger_prog_dying(struct creature *owner, struct creature *killer);
-void trigger_prog_death(void *owner, prog_evt_type owner_type, struct creature *doomed);
-prog_env *prog_start(prog_evt_type owner_type, void *owner, struct creature *target, prog_evt *evt);
+void trigger_prog_death(void *owner, enum prog_evt_type owner_type, struct creature *doomed);
+struct prog_env *prog_start(enum prog_evt_type owner_type, void *owner, struct creature *target, struct prog_evt *evt);
 void prog_update(void);
 void prog_update_pending(void);
 int prog_count(bool total);
 int free_prog_count(void);
-void prog_state_free(prog_state_data *state);
-void prog_compile(struct creature *ch, void *owner, prog_evt_type owner_type);
-char *prog_get_text(void *owner, prog_evt_type owner_type);
-void prog_unreference_object(obj_data *obj);
+void prog_state_free(struct prog_state_data *state);
+void prog_compile(struct creature *ch, void *owner, enum prog_evt_type owner_type);
+char *prog_get_text(void *owner, enum prog_evt_type owner_type);
+void prog_unreference_object(struct obj_data *obj);
 
 #endif

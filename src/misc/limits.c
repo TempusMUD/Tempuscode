@@ -113,7 +113,7 @@ mana_gain(struct creature *ch)
 		gain -= (gain * GET_ALIGNMENT(ch)) / 10000;
 
 	/* Position calculations    */
-	switch (ch->getPosition()) {
+	switch (GET_POSITION(ch)) {
 	case POS_SLEEPING:
 		gain <<= 1;
 		break;
@@ -194,7 +194,7 @@ hit_gain(struct creature *ch)
 	}
 
 	/* Position calculations    */
-	switch (ch->getPosition()) {
+	switch (GET_POSITION(ch)) {
 	case POS_SLEEPING:
 		if (AFF_FLAGGED(ch, AFF_REJUV))
 			gain += (gain >> 0);	/*  gain + gain  */
@@ -263,7 +263,7 @@ move_gain(struct creature *ch)
 	gain += (GET_CON(ch) >> 2);
 
 	/* Position calculations    */
-	switch (ch->getPosition()) {
+	switch (GET_POSITION(ch)) {
 	case POS_SLEEPING:
 		if (AFF_FLAGGED(ch, AFF_REJUV))
 			gain += (gain >> 0);	/* divide by 1 */
@@ -382,7 +382,7 @@ gain_exp(struct creature *ch, int gain)
 			} else {
 				send_to_char(ch, "You rise %d levels!\r\n", num_levels);
 			}
-			ch->saveToXML();
+			save_player_to_xml(ch);
 		}
 	} else if (gain < 0) {
 		gain = MAX(-max_exp_loss, gain);	/* Cap max exp lost per death */
@@ -542,7 +542,7 @@ point_update(void)
 			// all the rooms which link the zone to the rest of the world.
 		}
 		/* rooms */
-		for (room_data *room = zone->world;room;room = room->next)
+		for (struct room_data *room = zone->world;room;room = room->next)
 		  if (GET_ROOM_PROGOBJ(room))
 			trigger_prog_tick(room, PROG_TYPE_ROOM);
 	}

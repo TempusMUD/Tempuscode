@@ -359,7 +359,7 @@ ACMD(do_pardon)
         perform_pardon(ch, pardoned);
     }
 
-    ch->saveToXML();
+    save_player_to_xml(ch);
     pardoned->saveToXML();
     if (loaded_pardoned)
         delete pardoned;

@@ -7,7 +7,7 @@ SPECIAL(finger_of_death)
 {
     if( spec_mode != SPECIAL_CMD )
         return 0;
-	obj_data *finger = (struct obj_data *)me;
+	struct obj_data *finger = (struct obj_data *)me;
 
 	if (!CMD_IS("activate"))
 		return 0;

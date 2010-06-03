@@ -19,7 +19,7 @@ char *tmp_pad(int c, size_t n);
 char *tmp_gettoken(const char **src);
 
 // like tmp_gettoken, except it downcases the result
-char *tmp_getword(const char **src);
+char *tmp_getword(char * const * const src);
 
 // like tmp_getword, except it pulls out an entire string, if delimited by
 // quotation marks.  Otherwise, acts just like tmp_getword.

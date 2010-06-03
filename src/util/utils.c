@@ -57,7 +57,7 @@ struct ovect_struct {
         return unique_id < r.unique_id;
     }
     long unique_id;
-    obj_data *obj;
+    struct obj_data *obj;
 };
 
 void
@@ -692,7 +692,7 @@ WAIT_STATE(struct creature *ch, int cycle)
 }
 
 const char *
-OBJN(obj_data * obj, struct creature * vict)
+OBJN(struct obj_data * obj, struct creature * vict)
 {
 	if (can_see_object(vict, obj))
 		return fname((obj)->aliases);
@@ -701,7 +701,7 @@ OBJN(obj_data * obj, struct creature * vict)
 }
 
 const char *
-OBJS(obj_data * obj, struct creature * vict)
+OBJS(struct obj_data * obj, struct creature * vict)
 {
 	if (can_see_object((vict), (obj)))
 		return obj->name;
@@ -765,7 +765,7 @@ CAN_GO(struct creature * ch, int door)
 }
 
 bool
-CAN_GO(obj_data * obj, int door)
+CAN_GO(struct obj_data * obj, int door)
 {
 	room_direction_data *exit = EXIT(obj, door);
 	return (exit != NULL &&
@@ -832,7 +832,7 @@ void
 create_object_vector(vector<struct ovect_struct> &ov) {
     struct ovect_struct tempo;
 
-    for (obj_data *k = object_list; k; k = k->next) {
+    for (struct obj_data *k = object_list; k; k = k->next) {
         if (!k->unique_id)
             continue;
         tempo.unique_id = k->unique_id;

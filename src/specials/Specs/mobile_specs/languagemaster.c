@@ -66,7 +66,7 @@ SPECIAL(languagemaster)
 
     WAIT_STATE(ch, 2 RL_SEC);
 
-	ch->saveToXML();
+	save_player_to_xml(ch);
 	return 1;
 }
 

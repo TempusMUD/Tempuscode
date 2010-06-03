@@ -1,44 +1,28 @@
 #ifndef _VENDOR_H_
 #define _VENDOR_H_
 
-struct CraftItem;
+struct craftitem;
+struct reaction;
 
-struct Craftshop {
-		Craftshop(xmlNodePtr node);
-        ~Craftshop(void);
-		static Craftshop *find(struct creature *keeper);
-        //Loads the Craftshop described by the given xml node.
-		void load(xmlNodePtr node);
-        // sends a simple status message to the given struct creature.
-        void sendStatus( struct creature *ch );
-        //Loads the Craftitem described by the given xml node.
-		void parse_item(xmlNodePtr node);
-        // Lists the items for sale.
-		void list(struct creature *keeper, struct creature *ch);
-        // Attempts to purchase an item from keeper for ch.
-		void buy(struct creature *keeper, struct creature *ch, char *args);
-        int getID() { return id; }
-
+struct craftshop {
 		int room;
 		int keeper_vnum;
-		vector<CraftItem *> items;
+		struct craftitem *items;
         int id;
 };
 
 /** Loads and/or creates the Craftshop described by the given node. **/
 void load_craft_shop(xmlNodePtr node);
 
-struct ShopTime {
+struct shoptime {
 	int start, end;
 };
 
-struct ShopData {
-	ShopData(void) : item_list(), item_types() {};
-
+struct shopdata {
 	long room;				// Room of self
-	vector<int> item_list;	// list of produced items
-	vector<int> item_types;	// list of types of items self deals in
-	vector<ShopTime> closed_hours;
+	struct int_list *item_list;	// list of produced items
+	struct int_list *item_types;	// list of types of items self deals in
+	struct shoptime *closed_hours;
 	const char *msg_denied;		// Message sent to those of wrong race, creed, etc
 	const char *msg_badobj;		// Attempt to sell invalid obj to self
 	const char *msg_sell_noobj;	// Attempt to sell missing obj to player
@@ -57,10 +41,10 @@ struct ShopData {
 	bool attack_ok;
 	bool call_for_help;
 	SPECIAL(*func);
-	Reaction reaction;
+	struct reaction *reaction;
 };
 
 SPECIAL(vendor);
-const char *vendor_parse_param(char *param, ShopData *shop, int *err_line);
+const char *vendor_parse_param(char *param, struct shopdata *shop, int *err_line);
 
 #endif

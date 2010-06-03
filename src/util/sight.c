@@ -11,7 +11,7 @@
 
 // Returns true if the room is outside and sunny, otherwise returns false
 bool
-room_is_sunny(room_data *room)
+room_is_sunny(struct room_data *room)
 {
     int sunlight;
 
@@ -36,7 +36,7 @@ room_is_sunny(room_data *room)
 // Returns true if the room is too dark to see, false if the room has enough
 // light to see
 bool
-room_is_dark(room_data *room)
+room_is_dark(struct room_data *room)
 {
     if (!room) {
 		errlog("room_is_dark() called with NULL room [%d]", room->number);
@@ -75,7 +75,7 @@ room_is_dark(room_data *room)
 
 // Opposite of room_is_dark()
 bool
-room_is_light(room_data *room)
+room_is_light(struct room_data *room)
 {
 	return !room_is_dark(room);
 }
@@ -120,7 +120,7 @@ has_dark_sight(struct creature *self)
 
 // Returns true if the player can see in the room
 bool
-check_sight_room(struct creature *self, room_data *room)
+check_sight_room(struct creature *self, struct room_data *room)
 {
 	if (!room) {
 		errlog("check_sight_room() called with NULL room");
@@ -139,7 +139,7 @@ check_sight_room(struct creature *self, room_data *room)
 
 // Returns true if a creature can see an object
 bool
-check_sight_object(struct creature *self, obj_data *obj)
+check_sight_object(struct creature *self, struct obj_data *obj)
 {
 	if (PRF_FLAGGED(self, PRF_HOLYLIGHT))
 		return true;
@@ -250,7 +250,7 @@ can_see_creature(struct creature *self, struct creature *vict)
 }
 
 bool
-can_see_object(struct creature *self, obj_data *obj)
+can_see_object(struct creature *self, struct obj_data *obj)
 {
 	// If they can't see the object itself, none of the rest of it is going
 	// to matter much
@@ -289,7 +289,7 @@ can_see_object(struct creature *self, obj_data *obj)
 }
 
 bool
-can_see_room(struct creature *self, room_data *room)
+can_see_room(struct creature *self, struct room_data *room)
 {
 	if (!check_sight_self(self))
 		return false;

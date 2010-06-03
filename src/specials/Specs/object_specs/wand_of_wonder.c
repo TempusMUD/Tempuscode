@@ -7,7 +7,7 @@ SPECIAL(wand_of_wonder)
 {
     if (spec_mode != SPECIAL_CMD || !CMD_IS("use"))
         return 0;
-	obj_data *self = (struct obj_data *)me;
+	struct obj_data *self = (struct obj_data *)me;
 
     // make sure it's held by the creature
     if (!self->worn_by || GET_EQ(self->worn_by, WEAR_HOLD) != self)

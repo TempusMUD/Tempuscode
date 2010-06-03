@@ -56,7 +56,7 @@ struct MapPixel {
             _dontDraw = false;
         };
 
-        MapPixel(int x, int y, room_data *r) {
+        MapPixel(int x, int y, struct room_data *r) {
             _doorPen = "#";
             _upExitPen = "\\";
             _downExitPen = "/";
@@ -90,12 +90,12 @@ struct MapPixel {
 
         int getXCoord() { return _xCoord; };
         int getYCoord() { return _yCoord; };
-        room_data *getRoomPointer() { return _r; };
+        struct room_data *getRoomPointer() { return _r; };
         bool dontDraw() { return _dontDraw; };
 
         void setXCoord(int s) { _xCoord = s; };
         void setYCoord(int s) { _yCoord = s; };
-        void setRoomPointer(room_data *r) { _r = r; };
+        void setRoomPointer(struct room_data *r) { _r = r; };
         void setDontDraw(bool b) { _dontDraw = b; };
 
         bool draw(vector<string> &_map);
@@ -105,9 +105,9 @@ struct MapPixel {
         void drawTerrain(int d, vector<string> &_map);
         void drawOneCorner(int d, vector<string> &_map);
 
-        room_data *validEdge(int d, room_data *room = NULL) {
-            room_data *dest = NULL;
-            room_data *org = NULL;
+        struct room_data *validEdge(int d, struct room_data *room = NULL) {
+            struct room_data *dest = NULL;
+            struct room_data *org = NULL;
 
             if (!room)
                 org = _r;
@@ -143,7 +143,7 @@ struct MapPixel {
         string _doorPen;
         string _upExitPen;
         string _downExitPen;
-        room_data *_r;
+        struct room_data *_r;
         bool _isNorthEdge;
         bool _isSouthEdge;
         bool _isEastEdge;

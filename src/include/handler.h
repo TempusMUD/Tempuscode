@@ -19,7 +19,7 @@
 //
 
 /* handling the affected-structures */
-void apply_object_affects(struct creature *ch, obj_data *obj, bool add);
+void apply_object_affects(struct creature *ch, struct obj_data *obj, bool add);
 void affect_total(struct creature *ch);
 void affect_modify(struct creature *ch, sh_int loc, sh_int mod, long bitv,
 	int index, bool add);
@@ -47,20 +47,21 @@ int get_number(char **name);
 /* ******** objects *********** */
 
 int equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode);
-struct obj_data *unequip_char(struct creature *ch, int pos, int mode, bool disable_checks = false);
+struct obj_data *unequip_char(struct creature *ch, int pos, int mode);
+struct obj_data *raw_unequip_char(struct creature *ch, int pos, int mode);
 int check_eq_align(struct creature *ch);
-bool same_obj(obj_data *obj1, obj_data *obj2);
+bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
 
 struct obj_data *get_obj_in_list(char *name, struct obj_data *list);
 struct obj_data *get_obj_in_list_num(int num, struct obj_data *list);
 struct obj_data *get_obj(char *name);
 struct obj_data *get_obj_num(int nr);
 
-void obj_to_char(struct obj_data *object, struct creature *ch, bool sorted = true);
+void obj_to_char(struct obj_data *object, struct creature *ch);
 void obj_from_char(struct obj_data *object);
-void obj_to_room(struct obj_data *object, struct room_data *room, bool sorted = true);
+void obj_to_room(struct obj_data *object, struct room_data *room);
 void obj_from_room(struct obj_data *object);
-void obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted = true);
+void obj_to_obj(struct obj_data *obj, struct obj_data *obj_to);
 void obj_from_obj(struct obj_data *obj);
 
 void extract_obj(struct obj_data *obj);
@@ -71,15 +72,16 @@ struct creature *get_char_room(char *name, struct room_data *room);
 struct creature *get_char(char *name);
 struct creature *get_char_in_world_by_idnum(int nr);
 
-bool char_from_room( struct creature *ch, bool check_specials = true );
-bool char_to_room( struct creature *ch, room_data *room, bool check_specials = true );
+bool char_from_room(struct creature *ch);
+bool char_to_room(struct creature *ch, struct room_data *room);
+bool char_to_room_nospec(struct creature *ch, struct room_data *room);
 
 /* find if character can see */
 struct creature *get_char_room_vis(struct creature *ch, const char *name);
-struct creature *get_char_random(room_data *room);
-struct creature *get_char_random_vis(struct creature *ch, room_data *room);
-struct creature *get_player_random(room_data *room);
-struct creature *get_player_random_vis(struct creature *ch, room_data *room);
+struct creature *get_char_random(struct room_data *room);
+struct creature *get_char_random_vis(struct creature *ch, struct room_data *room);
+struct creature *get_player_random(struct room_data *room);
+struct creature *get_player_random_vis(struct creature *ch, struct room_data *room);
 struct creature *get_char_in_remote_room_vis(struct creature *ch, const char *name,
 	struct room_data *inroom);
 struct creature *get_player_vis(struct creature *ch, const char *name, int inroom);

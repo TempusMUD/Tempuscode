@@ -6,7 +6,7 @@
 
 SPECIAL(wagon_obj)
 {
-	obj_data *self = (obj_data *)me;
+	struct obj_data *self = (struct obj_data *)me;
 	struct room_data *wagon_room;
 
 	if (spec_mode == SPECIAL_TICK) {

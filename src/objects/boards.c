@@ -277,7 +277,7 @@ gen_board_list(board_data *board, struct creature *ch)
 }
 
 const char *
-gen_board_load(obj_data *self, char *param, int *err_line)
+gen_board_load(struct obj_data *self, char *param, int *err_line)
 {
 	char *line, *param_key;
 	const char *err = NULL;
@@ -356,7 +356,7 @@ gen_board_load(obj_data *self, char *param, int *err_line)
 
 SPECIAL(gen_board)
 {
-	obj_data *self = (obj_data *)me;
+	struct obj_data *self = (struct obj_data *)me;
 	board_data *board;
 	const char *err;
     char *arg;

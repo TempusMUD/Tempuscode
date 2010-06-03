@@ -30,9 +30,9 @@
 #include "house.h"
 #include "clan.h"
 #include "char_class.h"
+#include "players.h"
 #include "tmpstr.h"
 #include "accstr.h"
-#include "player_table.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -40,7 +40,7 @@ extern struct descriptor_data *descriptor_list;
 extern struct room_data *world;
 extern struct spell_info_type spell_info[];
 int check_mob_reaction(struct creature *ch, struct creature *vict);
-char *save_wld(struct creature *ch, zone_data *zone);
+char *save_wld(struct creature *ch, struct zone_data *zone);
 
 struct clan_data *clan_list;
 extern FILE *player_fl;
@@ -61,9 +61,9 @@ REMOVE_MEMBER_FROM_CLAN(struct clanmember_data *member, struct clan_data *clan)
 }
 
 static int
-clan_member_count(clan_data *clan)
+clan_member_count(struct clan_data *clan)
 {
-    clanmember_data *member = NULL;
+    struct clanmember_data *member = NULL;
     int result = 0;
 
     for (member = clan->member_list;member;member = member->next)
@@ -72,7 +72,7 @@ clan_member_count(clan_data *clan)
 }
 
 static const char *
-clan_rankname(clan_data *clan, int rank)
+clan_rankname(struct clan_data *clan, int rank)
 {
     if (clan->ranknames[rank])
         return clan->ranknames[rank];
@@ -82,7 +82,7 @@ clan_rankname(clan_data *clan, int rank)
 }
 
 static bool
-char_can_enroll(struct creature *ch, struct creature *vict, clan_data *clan)
+char_can_enroll(struct creature *ch, struct creature *vict, struct clan_data *clan)
 {
     // Ensure data integrity between clan structures
     if (GET_CLAN(vict) && real_clan(GET_CLAN(vict))) {
@@ -97,7 +97,7 @@ char_can_enroll(struct creature *ch, struct creature *vict, clan_data *clan)
             return false;
         }
     } else {
-        clanmember_data *member;
+        struct clanmember_data *member;
 
         member = real_clanmember(GET_IDNUM(vict), clan);
         if (member) {
@@ -138,10 +138,10 @@ char_can_enroll(struct creature *ch, struct creature *vict, clan_data *clan)
 }
 
 static bool
-char_can_dismiss(struct creature *ch, struct creature *vict, clan_data *clan)
+char_can_dismiss(struct creature *ch, struct creature *vict, struct clan_data *clan)
 {
-    clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
-    clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
+    struct clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
+    struct clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
 
     if (vict == ch)
         send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
@@ -170,10 +170,10 @@ char_can_dismiss(struct creature *ch, struct creature *vict, clan_data *clan)
 }
 
 static bool
-char_can_promote(struct creature *ch, struct creature *vict, clan_data *clan)
+char_can_promote(struct creature *ch, struct creature *vict, struct clan_data *clan)
 {
-    clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
-    clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
+    struct clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
+    struct clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
 
     if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
@@ -276,18 +276,17 @@ ACMD(do_dismiss)
 		return;
 	}
 	/* Find the player. */
-	if ((idnum = playerIndex.getID(arg)) == 0) {
+	if ((idnum = player_idnum_by_name(arg)) == 0) {
 		send_to_char(ch, "There is no character named '%s'\r\n", arg);
 		return;
 	}
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		vict = new struct creature(true);
 		in_file = true;
 
-		if (!vict->loadFromXML(idnum)) {
-			delete vict;
+		vict = load_player_from_xml(idnum);
+		if (!vict) {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
 		}
@@ -297,7 +296,7 @@ ACMD(do_dismiss)
 	if (!vict) {
 		send_to_char(ch, "That person isn't in your clan.\r\n");
 		if (in_file)
-			delete vict;
+			extract_creature(vict);
 		return;
 	}
 
@@ -320,11 +319,11 @@ ACMD(do_dismiss)
 		REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
 		sql_exec("delete from clan_members where player=%ld", GET_IDNUM(vict));
 
-        vict->saveToXML();
+        save_player_to_xml(vict);
         send_to_char(ch, "Player dismissed.\r\n");
 
 		if (in_file)
-			delete vict;
+			extract_creature(vict);
 	}
 }
 
@@ -380,7 +379,7 @@ ACMD(do_promote)
 	else if (!(vict = get_char_room_vis(ch, argument)))
 		send_to_char(ch, "No-one around by that name.\r\n");
     else if (char_can_promote(ch, vict, clan)) {
-        clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
+        struct clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
 
         if (vict_member->rank >= clan->top_rank) {
             // Promotion to clan leader
@@ -391,7 +390,7 @@ ACMD(do_promote)
             slog("%s", msg);
             msg = tmp_strcat(msg, "\r\n",NULL);
             send_to_clan(msg, clan->number);
-            vict->saveToXML();
+            save_player_to_xml(vict);
         } else {
             // Normal rank promotion
 			vict_member->rank++;
@@ -503,7 +502,7 @@ ACMD(do_clanmail)
 }
 
 static void
-acc_print_clan_members(struct creature *ch, clan_data *clan, bool complete, int min_lev)
+acc_print_clan_members(struct creature *ch, struct clan_data *clan, bool complete, int min_lev)
 {
 	struct creature *i;
 	struct clanmember_data *member = NULL;
@@ -594,8 +593,8 @@ acc_print_clan_members(struct creature *ch, clan_data *clan, bool complete, int 
 			}
 		}
 		if (complete && !found) {
-			i = new struct creature(true);
-			if (i->loadFromXML(member->idnum)) {
+			i = load_player_from_xml(member->idnum);
+			if (i) {
 				name = tmp_strcat(GET_NAME(i), " ",
                                   clan_rankname(clan, member->rank), NULL);
 
@@ -613,7 +612,7 @@ acc_print_clan_members(struct creature *ch, clan_data *clan, bool complete, int 
 								PLR_CLAN_LEADER) ? CCCYN(ch, C_NRM) : ""),
 						name, CCNRM(ch, C_NRM));
 			}
-			delete i;
+			extract_creature(i);
 		}
 	}
 }
@@ -769,13 +768,15 @@ real_clan(int vnum)
 struct clan_data*
 clan_by_owner( int idnum )
 {
-	for (clan_data *clan = clan_list; clan; clan = clan->next)
+    struct clan_data *clan;
+
+	for (clan = clan_list; clan; clan = clan->next)
 		if( clan->owner == idnum )
 			return clan;
 	return NULL;
 }
 
-clan_data *
+struct clan_data *
 clan_by_name(char *arg)
 {
 	struct clan_data *clan = NULL;
@@ -1087,7 +1088,7 @@ ACMD(do_cedit)
 			}
             i = atoi(argument);
 
-			if (i == 0 && (i = playerIndex.getID(argument)) == 0) {
+			if (i == 0 && (i = player_idnum_from_name(argument)) == 0) {
 				send_to_char(ch, "No such person.\r\n");
 				return;
 			}
@@ -1110,7 +1111,7 @@ ACMD(do_cedit)
 			arg1 = tmp_getword(&argument);
 
 			if (!is_number(arg3)) {
-				if ((i = playerIndex.getID(arg3)) == 0) {
+				if ((i = player_idnum_from_name(arg3)) == 0) {
 					send_to_char(ch, "There is no such player in existence...\r\n");
 					return;
 				}
@@ -1204,7 +1205,7 @@ ACMD(do_cedit)
 		// cedit add member
 		else if (is_abbrev(arg2, "member")) {
 			if (!is_number(arg3)) {
-				if ((i = playerIndex.getID(arg3)) == 0) {
+				if ((i = player_idnum_from_name(arg3)) == 0) {
 					send_to_char(ch, "There exists no player with that name.\r\n");
 					return;
 				}
@@ -1287,7 +1288,7 @@ ACMD(do_cedit)
 		// cedit remove member
 		else if (is_abbrev(arg2, "member")) {
 			if (!is_number(arg3)) {
-				if ((i = playerIndex.getID(arg3)) == 0) {
+				if ((i = player_idnum_from_name(arg3)) == 0) {
 					send_to_char(ch, "There exists no player with that name.\r\n");
 					return;
 				}
@@ -1341,10 +1342,10 @@ ACMD(do_cedit)
 bool
 boot_clans(void)
 {
-	clan_data *clan, *tmp_clan;
-	clanmember_data *member;
-	room_list_elem *rm_list;
-	room_data *room;
+	struct clan_data *clan, *tmp_clan;
+	struct clanmember_data *member;
+	struct room_list_elem *rm_list;
+	struct room_data *room;
 	PGresult *res;
 	int idx, count, num;
 
@@ -1512,11 +1513,12 @@ delete_clan(struct clan_data *clan)
 	sql_exec("delete from clan_ranks where clan=%d", clan->number);
 	sql_exec("delete from clans where idnum=%d", clan->number);
 
-	struct creatureList_iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		if (IS_PC(*cit) && GET_CLAN(*cit) == clan->number) {
-			GET_CLAN(*cit) = 0;
-			send_to_char(*cit, "Your clan has been disbanded!\r\n");
+    struct creature *tch;
+
+    for (tch = creatures;tch;tch = tch->next) {
+		if (IS_PC(tch) && GET_CLAN(tch) == clan->number) {
+			GET_CLAN(tch) = 0;
+			send_to_char(tch, "Your clan has been disbanded!\r\n");
 		}
 	}
 
@@ -1541,7 +1543,7 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
 
         acc_sprintf("Bank: %-20lld Owner: %s[%ld]\r\n",
                     clan->bank_account,
-                    playerIndex.getName(clan->owner),
+                    player_name_from_idnum(clan->owner),
                     clan->owner);
 
 		for (i = clan->top_rank; i >= 0; i--) {
@@ -1568,16 +1570,16 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
             acc_sprintf("%d MEMBERS:\r\n", clan_member_count(clan));
 
             for (member = clan->member_list;member;member = member->next) {
-                int acct_id = playerIndex.getstruct accountID(member->idnum);
+                int acct_id = player_account_by_idnum(member->idnum);
                 acc_sprintf("%-50s %s[%d]\r\n",
                             tmp_sprintf("%5ld %s%s%s %s(%d)",
                                         member->idnum,
                                         CCYEL(ch, C_NRM),
-                                        playerIndex.getName(member->idnum),
+                                        player_name_by_idnum(member->idnum),
                                         CCNRM(ch, C_NRM),
                                         clan_rankname(clan, member->rank),
                                         member->rank),
-                            struct account_retrieve(acct_id)->get_name(),
+                            account_by_id(acct_id)->name,
                             acct_id);
             }
         } else {

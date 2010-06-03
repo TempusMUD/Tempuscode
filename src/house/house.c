@@ -57,10 +57,10 @@ using namespace std;
   "Usage: hcontrol where\r\n" \
   "Usage: hcontrol reload [house#] (Use with caution!)\r\n")
 
-extern room_data *world;
+extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern int no_plrtext;
-void extract_norents(obj_data *obj);
+void extract_norents(struct obj_data *obj);
 
 HouseControl Housing;
 
@@ -96,7 +96,7 @@ recurs_obj_cost(struct obj_data *obj, bool mode, struct obj_data *top_o)
 }
 
 int
-recurs_obj_contents(obj_data *obj, obj_data *top_o)
+recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o)
 {
 	if (!obj)
 		return 0;
@@ -270,7 +270,7 @@ House_isGuest(long idnum) const
 	}
 }
 
-bool House_hasRoom(room_data *room) const
+bool House_hasRoom(struct room_data *room) const
 {
 	return hasRoom(room->number);
 }
@@ -318,7 +318,7 @@ bool
 HouseControl_createHouse(int owner, room_num firstRoom, room_num lastRoom)
 {
 	int id = topId +1;
-	room_data *room = real_room(firstRoom);
+	struct room_data *room = real_room(firstRoom);
 
 	if (room == NULL)
 		return false;
@@ -327,7 +327,7 @@ HouseControl_createHouse(int owner, room_num firstRoom, room_num lastRoom)
 
 	SET_BIT(ROOM_FLAGS((room)), ROOM_HOUSE);
 	for (int i = firstRoom + 1; i <= lastRoom; i++) {
-		room_data *room = real_room(i);
+		struct room_data *room = real_room(i);
 		if (room != NULL) {
 			house->addRoom(room->number);
 			SET_BIT(ROOM_FLAGS((room)), ROOM_HOUSE);
@@ -422,7 +422,7 @@ HouseControl_canEnter(struct creature *ch, room_num room_vnum)
 }
 
 bool
-HouseControl_canEdit(struct creature *c, room_data *room)
+HouseControl_canEdit(struct creature *c, struct room_data *room)
 {
 	return canEdit(c, findHouseByRoom(room->number));
 }
@@ -445,7 +445,7 @@ HouseControl_destroyHouse(House *house)
 	}
 
 	for (unsigned int i = 0; i < house->getRoomCount(); i++) {
-		room_data *room = real_room(house->getRoom(i));
+		struct room_data *room = real_room(house->getRoom(i));
 		if (room == NULL) {
 			errlog("House had invalid room number in destroy: %d", house->getRoom(i));
 		} else {
@@ -463,7 +463,7 @@ void
 House_notifyReposession(struct creature *ch)
 {
 	extern int MAIL_OBJ_VNUM;
-	obj_data *note;
+	struct obj_data *note;
 
 	if (getRepoNoteCount() == 0)
 		return;
@@ -490,7 +490,7 @@ House_notifyReposession(struct creature *ch)
 }
 
 void
-count_objects(obj_data *obj)
+count_objects(struct obj_data *obj)
 {
 	if (!obj)
 		return;
@@ -505,7 +505,7 @@ count_objects(obj_data *obj)
 void
 HouseControl_countObjects()
 {
-	obj_data *obj = NULL;
+	struct obj_data *obj = NULL;
     ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
@@ -515,7 +515,7 @@ HouseControl_countObjects()
 	for (unsigned int i = 0; i < getHouseCount(); i++) {
 		House *house = getHouse(i);
 		for (unsigned int j = 0; j < house->getRoomCount(); j++) {
-			room_data *room = real_room(house->getRoom(j));
+			struct room_data *room = real_room(house->getRoom(j));
 			if (room != NULL ) {
 				count_objects(room->contents);
 			}
@@ -528,7 +528,7 @@ House_calcObjectCount() const
 {
     int count = 0;
     for (unsigned int j = 0; j < getRoomCount(); j++) {
-        room_data *room = real_room(getRoom(j));
+        struct room_data *room = real_room(getRoom(j));
         if (room != NULL) {
             count += calcObjectCount(room);
         }
@@ -537,10 +537,10 @@ House_calcObjectCount() const
 }
 
 int
-House_calcObjectCount(room_data* room) const
+House_calcObjectCount(struct room_data* room) const
 {
     int count = 0;
-    for (obj_data* obj = room->contents; obj; obj = obj->next_content) {
+    for (struct obj_data* obj = room->contents; obj; obj = obj->next_content) {
         count += recurs_obj_contents(obj, NULL);
     }
     return count;
@@ -562,11 +562,11 @@ House_save()
 	fprintf(ouf, " landlord=\"%ld\" rate=\"%d\" overflow=\"%ld\" >\n",
 			      getLandlord(), getRentalRate(), rentOverflow);
 	for (unsigned int i = 0; i < getRoomCount(); i++) {
-		room_data *room = real_room(getRoom(i));
+		struct room_data *room = real_room(getRoom(i));
 		if (room == NULL)
 			continue;
 		fprintf(ouf, "    <room number=\"%d\">\n", getRoom(i));
-		for (obj_data *obj = room->contents; obj != NULL; obj = obj->next_content) {
+		for (struct obj_data *obj = room->contents; obj != NULL; obj = obj->next_content) {
 			obj->saveToXML(ouf);
 		}
 		fprintf(ouf, "    </room>\n");
@@ -663,7 +663,7 @@ bool
 House_loadRoom(xmlNodePtr roomNode)
 {
 	room_num number = xmlGetIntProp(roomNode, "number", -1);
-	room_data *room = real_room(number);
+	struct room_data *room = real_room(number);
 	if (room == NULL) {
         errlog("House %d has invalid room: %d", getID(), number);
 		return false;
@@ -674,7 +674,7 @@ House_loadRoom(xmlNodePtr roomNode)
 	for (xmlNodePtr node = roomNode->xmlChildrenNode; node; node = node->next)
 	{
         if (xmlMatches(node->name, "object")) {
-			obj_data *obj = create_obj();
+			struct obj_data *obj = create_obj();
 			if (! obj->loadFromXML(NULL, NULL, room, node)) {
 				extract_obj(obj);
 			}
@@ -804,7 +804,7 @@ House_calcRentCost() const
 	int sum = 0;
 	for (unsigned int i = 0; i < getRoomCount(); i++)
     {
-		room_data *room = real_room(getRoom(i));
+		struct room_data *room = real_room(getRoom(i));
         bool pc_in_room;
 
         struct creatureList_iterator it = room->people.begin();
@@ -825,14 +825,14 @@ House_calcRentCost() const
 }
 
 int
-House_calcRentCost(room_data *room) const
+House_calcRentCost(struct room_data *room) const
 {
 	if (room == NULL)
 		return 0;
 	int room_count = calcObjectCount(room);
 	int room_sum = 0;
 
-	for (obj_data* obj = room->contents; obj; obj = obj->next_content) {
+	for (struct obj_data* obj = room->contents; obj; obj = obj->next_content) {
 		room_sum += recurs_obj_cost(obj, false, NULL);
 	}
 	if (room_count > House_MAX_ITEMS) {
@@ -889,13 +889,13 @@ House_display(struct creature *ch)
 }
 
 char*
-print_room_contents(struct creature *ch, room_data *real_house_room, bool showContents)
+print_room_contents(struct creature *ch, struct room_data *real_house_room, bool showContents)
 {
 	int count;
 	char* buf = NULL;
 	const char* buf2 = "";
 
-	obj_data *obj, *cont;
+	struct obj_data *obj, *cont;
 	if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
 		buf2 = tmp_sprintf(" %s[%s%5d%s]%s", CCGRN(ch, C_NRM),
 							CCNRM(ch, C_NRM), real_house_room->number,
@@ -935,7 +935,7 @@ House_listRooms(struct creature *ch, bool showContents)
 {
 	const char *buf = "";
 	for (unsigned int i = 0; i < getRoomCount(); ++i) {
-		room_data* room = real_room(getRoom(i));
+		struct room_data* room = real_room(getRoom(i));
 		if (room != NULL) {
 			char *line = print_room_contents(ch, room,showContents);
 			buf = tmp_strcat(buf,line);
@@ -1050,7 +1050,7 @@ House_collectRent(int cost)
 
 	// If they still don't have enough, start selling stuff
 	if (cost > 0) {
-		obj_data *doomed_obj, *tmp_obj;
+		struct obj_data *doomed_obj, *tmp_obj;
 
 		while (cost > 0) {
 			doomed_obj = findCostliestObj();
@@ -1073,8 +1073,8 @@ House_collectRent(int cost)
 			// Credit player with value of object
 			cost -= GET_OBJ_COST(doomed_obj);
 
-			obj_data *destObj = doomed_obj->in_obj;
-			room_data *destRoom = doomed_obj->in_room;
+			struct obj_data *destObj = doomed_obj->in_obj;
+			struct room_data *destRoom = doomed_obj->in_room;
 			// Remove objects within doomed object, if any
 			while (doomed_obj->contains) {
 				tmp_obj = doomed_obj->contains;
@@ -1103,15 +1103,15 @@ House_collectRent(int cost)
 	return false;
 }
 
-obj_data *
+struct obj_data *
 House_findCostliestObj(void)
 {
- 	obj_data *result = NULL;
+ 	struct obj_data *result = NULL;
 
 	for (unsigned int i = 0; i < getRoomCount(); ++i) {
-		room_data *room = real_room(getRoom(i));
+		struct room_data *room = real_room(getRoom(i));
 		if (room != NULL) {
-			obj_data *o = findCostliestObj(room);
+			struct obj_data *o = findCostliestObj(room);
 			if (o == NULL)
 				continue;
 			if (result == NULL || GET_OBJ_COST(o) > GET_OBJ_COST(result)) {
@@ -1122,11 +1122,11 @@ House_findCostliestObj(void)
 	return result;
 }
 
-obj_data*
-House_findCostliestObj(room_data* room)
+struct obj_data*
+House_findCostliestObj(struct room_data* room)
 {
-	obj_data *result = NULL;
-	obj_data *cur_obj = room->contents;
+	struct obj_data *result = NULL;
+	struct obj_data *cur_obj = room->contents;
 	while (cur_obj) {
 		if (cur_obj && (!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
 			result = cur_obj;
@@ -1147,7 +1147,7 @@ hcontrol_build_house(struct creature *ch, char *arg)
 {
 	char *str;
 	room_num virt_top_room, virt_atrium;
-	room_data *real_atrium;
+	struct room_data *real_atrium;
 	int owner;
 
 	// FIRST arg: player's name
@@ -1501,9 +1501,9 @@ HouseControl_reload(House *house)
 
     for (unsigned int i = 1; i < house->getRoomCount(); i++) {
         int room_num = house->getRoom(i);
-        room_data* room = real_room(room_num);
-        for (obj_data* obj = room->contents; obj;) {
-            obj_data* next_o = obj->next_content;
+        struct room_data* room = real_room(room_num);
+        for (struct obj_data* obj = room->contents; obj;) {
+            struct obj_data* next_o = obj->next_content;
             extract_obj(obj);
             obj = next_o;
         }
@@ -1558,7 +1558,7 @@ hcontrol_add_to_house(struct creature *ch, char *arg)
 
 	if (is_abbrev(str, "room")) {
 		int roomID = atoi(arg);
-		room_data *room = real_room(roomID);
+		struct room_data *room = real_room(roomID);
 		if (room == NULL) {
 			send_to_char(ch, "No such room exists.\r\n");
 			return;
@@ -1615,7 +1615,7 @@ hcontrol_delete_from_house(struct creature *ch, char *arg)
 	if (is_abbrev(str, "room")) {
 
 		int roomID = atoi(arg);
-		room_data *room = real_room(roomID);
+		struct room_data *room = real_room(roomID);
 		if (room == NULL) {
 			send_to_char(ch, "No such room exists.\r\n");
 			return;

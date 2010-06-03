@@ -10,13 +10,14 @@
 
 /* room-related defines *************************************************/
 
-/* The cardinal directions: used as index to room_data.dir_option[] */
+/* The cardinal directions: used as index to struct room_data.dir_option[] */
 
 #include "defs.h"
-#include "thing.h"
 #include "macros.h"
 #include "constants.h"
-#include "creature_list.h"
+
+struct creature;
+struct obj_list;
 
 #define NORTH          0
 #define EAST           1
@@ -34,7 +35,7 @@
 #define DOOR_LOCKED             (1 << 2)
 #define DOOR_HIDDEN             (1 << 3)
 
-/* Room flags: used in room_data.room_flags */
+/* Room flags: used in struct room_data.room_flags */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
 #define ROOM_DARK                 (1 << 0)	/* Dark                        */
 #define ROOM_DEATH                (1 << 1)	/* Death trap                */
@@ -70,7 +71,7 @@
 #define ROOM_VACUUM               (1 << 30)	// no breathable air
 #define NUM_ROOM_FLAGS          32
 
-/* Exit info: used in room_data.dir_option.exit_info */
+/* Exit info: used in struct room_data.dir_option.exit_info */
 #define EX_ISDOOR               (1 << 0)	/* Exit is a door                */
 #define EX_CLOSED               (1 << 1)	/* The door is closed        */
 #define EX_LOCKED               (1 << 2)	/* The door is locked        */
@@ -99,7 +100,7 @@
 #define EX_SECRET               (1 << 25)
 #define NUM_DOORFLAGS           26
 
-/* Sector types: used in room_data.sector_type */
+/* Sector types: used in struct room_data.sector_type */
 #define SECT_INSIDE          0	/* Indoors                        */
 #define SECT_CITY            1	/* In a city                        */
 #define SECT_FIELD           2	/* In a field                */

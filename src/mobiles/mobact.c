@@ -125,7 +125,7 @@ burn_update_creature(struct creature *ch)
 	int idx = 0;
 	struct affected_type *af;
 
-    if (ch->in_room == NULL || ch->getPosition() == POS_DEAD) {
+    if (ch->in_room == NULL || GET_POSITION(ch) == POS_DEAD) {
         errlog("Updating a corpse in burn_update.(%s)",
                GET_NAME(ch) == NULL ? "NULL" : GET_NAME(ch));
         return;
@@ -136,7 +136,7 @@ burn_update_creature(struct creature *ch)
             return;
     }
 
-    if (!ch->isFighting() && GET_MOB_WAIT(ch))
+    if (!ch->fighting && GET_MOB_WAIT(ch))
         GET_MOB_WAIT(ch) = MAX(0, GET_MOB_WAIT(ch) - FIRE_TICK);
 
     if ((IS_NPC(ch) && ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN)) ||
@@ -144,7 +144,7 @@ burn_update_creature(struct creature *ch)
         return;
 
     if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
-        && ch->getPosition() == POS_FLYING
+        && GET_POSITION(ch) == POS_FLYING
         && (!ch->in_room->dir_option[DOWN]
             || !ch->in_room->isOpenAir()
             || IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED))
@@ -152,7 +152,7 @@ burn_update_creature(struct creature *ch)
         send_to_char(ch,
                      "You are slammed to the ground by the inexorable force of gravity!\r\n");
         act("$n is slammed to the ground by the inexorable force of gravity!\r\n", true, ch, 0, 0, TO_ROOM);
-        ch->setPosition(POS_RESTING);
+        GET_POSITION(ch) = POS_RESTING;
         WAIT_STATE(ch, 1);
         damager = NULL;
         if ((af = affected_by_spell(ch, SPELL_GRAVITY_WELL)))
@@ -164,16 +164,16 @@ burn_update_creature(struct creature *ch)
     }
 
     // char is flying but unable to return
-    if (ch->getPosition() == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT)
+    if (GET_POSITION(ch) == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT)
         && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char(ch, "You can no longer fly!\r\n");
-        ch->setPosition(POS_STANDING);
+        GET_POSITION(ch) = POS_STANDING;
     }
     // character is in open air
     if (ch->in_room->dir_option[DOWN] &&
-        ch->getPosition() < POS_FLYING &&
+        GET_POSITION(ch) < POS_FLYING &&
         !IS_SET(ch->in_room->dir_option[DOWN]->exit_info, EX_CLOSED) &&
-        (!ch->isFighting() || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
+        (!ch->fighting || !AFF_FLAGGED(ch, AFF_INFLIGHT)) &&
         ch->in_room->isOpenAir() &&
         !NOGRAV_ZONE(ch->in_room->zone) &&
         (!ch->isMounted() || !AFF_FLAGGED(ch->isMounted(), AFF_INFLIGHT)) &&
@@ -184,7 +184,7 @@ burn_update_creature(struct creature *ch)
             && !AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)) {
             send_to_char(ch,
                          "You realize you are about to fall and resume your flight!\r\n");
-            ch->setPosition(POS_FLYING);
+            GET_POSITION(ch) = POS_FLYING;
         } else {
 
             act("$n falls downward through the air!", true, ch, 0, 0,
@@ -243,7 +243,7 @@ burn_update_creature(struct creature *ch)
                 if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
                     dam = 0;
 
-                ch->setPosition(POS_RESTING);
+                GET_POSITION(ch) = POS_RESTING;
 
                 if (dam
                     && damage(NULL, ch, dam, TYPE_FALLING, WEAR_RANDOM))
@@ -308,7 +308,7 @@ burn_update_creature(struct creature *ch)
                     && GET_OBJ_DAM(obj) < GET_OBJ_MAX_DAM(obj)) {
                     repaired = true;
                     float amount =
-                        (ch->getLevelBonus(SKILL_NANITE_RECONSTRUCTION) /
+                        (get_skill_bonus(ch, SKILL_NANITE_RECONSTRUCTION) /
                          number(33, 50));
 
                     GET_OBJ_DAM(obj) += (int)(ceilf(amount));
@@ -365,20 +365,20 @@ burn_update_creature(struct creature *ch)
 
     // Signed the Unholy Compact - Soulless
     if (PLR2_FLAGGED(ch, PLR2_SOULLESS) &&
-        ch->getPosition() == POS_SLEEPING && !random_fractional_5()) {
+        GET_POSITION(ch) == POS_SLEEPING && !random_fractional_5()) {
         send_to_char(ch,
                      "The tortured cries of hell wake you from your dreams.\r\n");
         act("$n bolts upright, screaming in agony!", true, ch, 0, 0,
             TO_ROOM);
-        ch->setPosition(POS_SITTING);
+        GET_POSITION(ch) = POS_SITTING;
     }
     // affected by sleep spell
-    if (AFF_FLAGGED(ch, AFF_SLEEP) && ch->getPosition() > POS_SLEEPING
+    if (AFF_FLAGGED(ch, AFF_SLEEP) && GET_POSITION(ch) > POS_SLEEPING
         && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char(ch, "You suddenly fall into a deep sleep.\r\n");
         act("$n suddenly falls asleep where $e stands.", true, ch, 0, 0,
             TO_ROOM);
-        ch->setPosition(POS_SLEEPING);
+        GET_POSITION(ch) = POS_SLEEPING;
     }
     // self destruct
     if (AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT)) {
@@ -476,7 +476,7 @@ burn_update_creature(struct creature *ch)
     }
     // motor spasm
     if ((af = affected_by_spell(ch, SPELL_MOTOR_SPASM))
-        && !MOB_FLAGGED(ch, MOB_NOBASH) && ch->getPosition() < POS_FLYING
+        && !MOB_FLAGGED(ch, MOB_NOBASH) && GET_POSITION(ch) < POS_FLYING
         && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         if ((random_number_zero_low(3 + (af->level >> 2)) + 3) >
             GET_DEX(ch) && (obj = ch->carrying)) {
@@ -494,11 +494,11 @@ burn_update_creature(struct creature *ch)
         }
         if (!obj
             && random_number_zero_low(12 + (af->level >> 2)) > GET_DEX(ch)
-            && ch->getPosition() > POS_SITTING) {
+            && GET_POSITION(ch) > POS_SITTING) {
             send_to_char(ch, "Your muscles are seized in an uncontrollable spasm!\r\n"
                          "You fall to the ground in agony!\r\n");
             act("$n begins spasming uncontrollably and falls to the ground.", true, ch, 0, 0, TO_ROOM);
-            ch->setPosition(POS_RESTING);
+            GET_POSITION(ch) = POS_RESTING;
         }
         WAIT_STATE(ch, 4);
     }
@@ -531,7 +531,7 @@ burn_update_creature(struct creature *ch)
             send_to_char(ch, "A large chunk of your decaying flesh rots off and falls to the ground!\r\n");
             act("A large chunk of $n's decaying flesh rots off and falls to the ground!", false, ch, 0, 0, TO_ROOM);
             //lets make rotted flesh!!!
-            obj_data *flesh = create_obj();
+            struct obj_data *flesh = create_obj();
             char desc[MAX_INPUT_LENGTH];
 
             flesh->shared = null_obj_shared;
@@ -619,7 +619,7 @@ burn_update_creature(struct creature *ch)
     }
     // holywater ocean
     else if (ROOM_FLAGGED(ch->in_room, ROOM_HOLYOCEAN) && IS_EVIL(ch)
-             && ch->getPosition() < POS_FLYING) {
+             && GET_POSITION(ch) < POS_FLYING) {
         if (damage(ch, ch, dice(4, 5), TYPE_HOLYOCEAN, WEAR_RANDOM))
             return;
     }
@@ -682,13 +682,13 @@ burn_update_creature(struct creature *ch)
             return;
 
         if (AFF_FLAGGED(ch, AFF_INFLIGHT) &&
-            ch->getPosition() < POS_FLYING &&
+            GET_POSITION(ch) < POS_FLYING &&
             SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM)
             do_fly(ch, tmp_strdup(""), 0, 0, 0);
     }
     // sleeping gas
     if (ROOM_FLAGGED(ch->in_room, ROOM_SLEEP_GAS) &&
-        ch->getPosition() > POS_SLEEPING
+        GET_POSITION(ch) > POS_SLEEPING
         && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
         send_to_char(ch, "You feel very sleepy...\r\n");
         if (!AFF_FLAGGED(ch, AFF_ADRENALINE)) {
@@ -696,7 +696,7 @@ burn_update_creature(struct creature *ch)
                 send_to_char(ch, "You suddenly feel very sleepy and collapse where you stood.\r\n");
                 act("$n suddenly falls asleep and collapses!", true, ch, 0,
                     0, TO_ROOM);
-                ch->setPosition(POS_SLEEPING);
+                GET_POSITION(ch) = POS_SLEEPING;
                 WAIT_STATE(ch, 4 RL_SEC);
                 return;
             } else
@@ -740,7 +740,7 @@ burn_update_creature(struct creature *ch)
 
     /* Hunter Mobs */
     if (ch->isHunting() && !AFF_FLAGGED(ch, AFF_BLIND) &&
-        ch->getPosition() > POS_SITTING && !GET_MOB_WAIT(ch)) {
+        GET_POSITION(ch) > POS_SITTING && !GET_MOB_WAIT(ch)) {
         if (MOB_FLAGGED(ch, MOB_WIMPY)) {
             if ((GET_HIT(ch) < MIN(500, GET_MAX_HIT(ch)) * 0.80)
                 || (100 - ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch))) >
@@ -1200,7 +1200,7 @@ check_infiltrate(struct creature *ch, struct creature *vict)
 		return false;
 	}
 
-	int prob = ch->getLevelBonus(SKILL_INFILTRATE);
+	int prob = get_skill_bonus(ch, SKILL_INFILTRATE);
 	int percent = number(1, 115);
 
     if (PLR_FLAGGED(ch, PLR_KILLER)) {
@@ -1221,7 +1221,7 @@ check_infiltrate(struct creature *ch, struct creature *vict)
 	if (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		prob += 17;
 
-	if (vict->getPosition() <= POS_FIGHTING)
+	if (GET_POSITION(vict) <= POS_FIGHTING)
 		prob += 10;
 
 	if (AFF2_FLAGGED(ch, AFF2_HASTE))
@@ -1249,10 +1249,10 @@ best_initial_attack(struct creature *ch, struct creature *vict)
 	int return_flags = 0;
 
     // Standing should take just as long for mobs
-	if (ch->getPosition() < POS_STANDING) {
+	if (GET_POSITION(ch) < POS_STANDING) {
 		if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL) || number(1, 20) < GET_STR(ch)) {
 			act("$n jumps to $s feet!", true, ch, 0, 0, TO_ROOM);
-			ch->setPosition(POS_STANDING);
+			GET_POSITION(ch) = POS_STANDING;
 		}
 		GET_MOB_WAIT(ch) += PULSE_VIOLENCE;
         return;
@@ -1288,7 +1288,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
 	// thief mobs
 	//
 	if (cur_class == CLASS_THIEF) {
-		if (GET_LEVEL(ch) >= 35 && vict->getPosition() > POS_STUNNED)
+		if (GET_LEVEL(ch) >= 35 && GET_POSITION(vict) > POS_STUNNED)
 			do_stun(ch, fname(vict->player.name), 0, 0, 0);
 
 		else if (((gun = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(gun)) ||
@@ -1334,7 +1334,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
 	//
 
 	if (cur_class == CLASS_BARB || cur_class == CLASS_WARRIOR) {
-		if (GET_LEVEL(ch) >= 25 && vict->getPosition() > POS_SITTING)
+		if (GET_LEVEL(ch) >= 25 && GET_POSITION(vict) > POS_SITTING)
 			perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
 		else
 			return_flags = hit(ch, vict, TYPE_UNDEFINED);
@@ -1345,13 +1345,13 @@ best_initial_attack(struct creature *ch, struct creature *vict)
 	//
 
 	if (cur_class == CLASS_MONK) {
-		if (GET_LEVEL(ch) >= 39 && vict->getPosition() > POS_STUNNED) {
+		if (GET_LEVEL(ch) >= 39 && GET_POSITION(vict) > POS_STUNNED) {
 			do_pinch(ch, tmp_sprintf("omega %s", fname(vict->player.name)),
                      0, 0, &return_flags);
 			return;
 		}
 		// Screw them up.
-		if (vict->getPosition() <= POS_STUNNED) {
+		if (GET_POSITION(vict) <= POS_STUNNED) {
 			if (!affected_by_spell(vict, SKILL_PINCH_GAMMA)
 				&& (GET_LEVEL(ch) > 35)) {
                 do_pinch(ch, tmp_sprintf("gamma %s", fname(vict->player.name)),
@@ -1605,7 +1605,7 @@ single_mobile_activity(struct creature *ch)
     //
     // nothing below this conditional affects FIGHTING characters
     //
-    if (ch->getPosition() == POS_FIGHTING || ch->isFighting()) {
+    if (GET_POSITION(ch) == POS_FIGHTING || ch->fighting) {
         return;
     }
 
@@ -1614,7 +1614,7 @@ single_mobile_activity(struct creature *ch)
     //
 
     if (IS_NEUTRAL(ch)
-        && ch->getPosition() == POS_SITTING
+        && GET_POSITION(ch) == POS_SITTING
         && AFF2_FLAGGED(ch, AFF2_MEDITATE))
         perform_monk_meditate(ch);
 
@@ -1626,24 +1626,24 @@ single_mobile_activity(struct creature *ch)
         !AFF_FLAGGED(ch, AFF_SLEEP) &&
         GET_MOB_WAIT(ch) < 30 &&
         !AFF_FLAGGED(ch, AFF_SLEEP) &&
-        ch->getPosition() >= POS_SLEEPING &&
+        GET_POSITION(ch) >= POS_SLEEPING &&
         (GET_DEFAULT_POS(ch) <= POS_STANDING ||
-         ch->getPosition() < POS_STANDING) &&
-        (ch->getPosition() < GET_DEFAULT_POS(ch))
+         GET_POSITION(ch) < POS_STANDING) &&
+        (GET_POSITION(ch) < GET_DEFAULT_POS(ch))
         && random_fractional_3()) {
-        if (ch->getPosition() == POS_SLEEPING)
+        if (GET_POSITION(ch) == POS_SLEEPING)
             act("$n wakes up.", true, ch, 0, 0, TO_ROOM);
 
         switch (GET_DEFAULT_POS(ch)) {
         case POS_SITTING:
             act("$n sits up.", true, ch, 0, 0, TO_ROOM);
-            ch->setPosition(POS_SITTING);
+            GET_POSITION(ch) = POS_SITTING;
             break;
         default:
             if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
                 || number(1, 20) < GET_STR(ch)) {
                 act("$n stands up.", true, ch, 0, 0, TO_ROOM);
-                ch->setPosition(POS_STANDING);
+                GET_POSITION(ch) = POS_STANDING;
             }
             break;
         }
@@ -1697,8 +1697,8 @@ single_mobile_activity(struct creature *ch)
     // Attempt to flee from oceans of holy water
     if (ROOM_FLAGGED(ch->in_room, ROOM_HOLYOCEAN)
         && IS_EVIL(ch)
-        && ch->getPosition() < POS_FLYING) {
-        if (!ch->isFighting()) {
+        && GET_POSITION(ch) < POS_FLYING) {
+        if (!ch->fighting) {
             do_flee(ch, tmp_strdup(""), 0, 0, 0);
         }
     }
@@ -1711,7 +1711,7 @@ single_mobile_activity(struct creature *ch)
     }
 
     // If on fire, try to extinguish the flames
-    if (ch->getPosition() >= POS_RESTING && !CHAR_WITHSTANDS_FIRE(ch)) {
+    if (GET_POSITION(ch) >= POS_RESTING && !CHAR_WITHSTANDS_FIRE(ch)) {
         do_extinguish(ch, tmp_strdup(""), 0, 0, 0);
     }
 
@@ -1724,7 +1724,7 @@ single_mobile_activity(struct creature *ch)
     if (CHECK_SKILL(ch, SKILL_SHOOT) + random_number_zero_low(10) > 40) {
         for (obj = ch->carrying; obj; obj = obj->next_content) {
             if ((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-                (IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
+                (IS_GUN(obj) && (count_contained_objs(obj) < MAX_LOAD(obj))) ||
                 (IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))) {
                 mob_reload_gun(ch, obj);
                 break;
@@ -1733,22 +1733,22 @@ single_mobile_activity(struct creature *ch)
 
         if ((obj = GET_EQ(ch, WEAR_WIELD)) &&
             ((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-             (IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
+             (IS_GUN(obj) && (count_contained_objs(obj) < MAX_LOAD(obj))) ||
              (IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))))
             mob_reload_gun(ch, obj);
         if ((obj = GET_EQ(ch, WEAR_WIELD_2)) &&
             ((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-             (IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
+             (IS_GUN(obj) && (count_contained_objs(obj) < MAX_LOAD(obj))) ||
              (IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))))
             mob_reload_gun(ch, obj);
         if ((obj = GET_IMPLANT(ch, WEAR_WIELD)) &&
             ((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-             (IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
+             (IS_GUN(obj) && (count_contained_objs(obj) < MAX_LOAD(obj))) ||
              (IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))))
             mob_reload_gun(ch, obj);
         if ((obj = GET_IMPLANT(ch, WEAR_WIELD_2)) &&
             ((IS_GUN(obj) && !GUN_LOADED(obj)) ||
-             (IS_GUN(obj) && (obj->getNumContained() < MAX_LOAD(obj))) ||
+             (IS_GUN(obj) && (count_contained_objs(obj) < MAX_LOAD(obj))) ||
              (IS_ENERGY_GUN(obj) && !EGUN_CUR_ENERGY(obj))))
             mob_reload_gun(ch, obj);
     }
@@ -1850,7 +1850,7 @@ single_mobile_activity(struct creature *ch)
                     return;
                 } else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER &&
                            GET_OBJ_VAL(obj, 3)) {
-                    room_data *stuff_rm;
+                    struct room_data *stuff_rm;
 
                     act("$n devours $p, growling and drooling all over.",
                         false, ch, obj, 0, TO_ROOM);
@@ -1881,7 +1881,7 @@ single_mobile_activity(struct creature *ch)
 
     /* Wearing Objects */
     if (!MOB2_FLAGGED(ch, MOB2_WONT_WEAR) && !IS_ANIMAL(ch) &&
-        !ch->isFighting() && !IS_DRAGON(ch) && !IS_ELEMENTAL(ch)) {
+        !ch->fighting && !IS_DRAGON(ch) && !IS_ELEMENTAL(ch)) {
         if (ch->carrying && random_fractional_4()) {
             for (obj = ch->carrying; obj; obj = best_obj) {
                 best_obj = obj->next_content;
@@ -2068,7 +2068,7 @@ single_mobile_activity(struct creature *ch)
         !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) &&
         random_fractional_4()) {
         vict = NULL;
-        room_data *room = ch->in_room;
+        struct room_data *room = ch->in_room;
         it = room->people.begin();
         for (; it != room->people.end(); ++it) {
             vict = *it;
@@ -2153,14 +2153,14 @@ single_mobile_activity(struct creature *ch)
         // end for vict
 
         /** scan surrounding rooms **/
-        if (!ch->isHunting() && ch->getPosition() > POS_FIGHTING &&
+        if (!ch->isHunting() && GET_POSITION(ch) > POS_FIGHTING &&
             !MOB_FLAGGED(ch, MOB_SENTINEL) &&
             (GET_LEVEL(ch) + GET_MORALE(ch) > (random_number_zero_low(120) + 50)
              || IS_TARRASQUE(ch))) {
             for (dir = 0; dir < NUM_DIRS; dir++) {
                 if (!CAN_GO(ch, dir))
                     continue;
-                room_data *tmp_room = EXIT(ch, dir)->to_room;
+                struct room_data *tmp_room = EXIT(ch, dir)->to_room;
                 if (!ROOM_FLAGGED(tmp_room, ROOM_DEATH | ROOM_NOMOB | ROOM_PEACEFUL)
                     && tmp_room != ch->in_room
                     && CHAR_LIKES_ROOM(ch, tmp_room)
@@ -2174,7 +2174,7 @@ single_mobile_activity(struct creature *ch)
 
             if (dir < NUM_DIRS) {
                 vict = NULL;
-                room_data *tmp_room = EXIT(ch, dir)->to_room;
+                struct room_data *tmp_room = EXIT(ch, dir)->to_room;
                 bool found = false;
                 it = tmp_room->people.begin();
                 for (; it != tmp_room->people.end() && !found; ++it) {
@@ -2219,7 +2219,7 @@ single_mobile_activity(struct creature *ch)
 
     if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch) &&
         !AFF_FLAGGED(ch, AFF_CHARM)) {
-        room_data *room = ch->in_room;
+        struct room_data *room = ch->in_room;
         it = room->people.begin();
         for (; it != room->people.end(); ++it) {
             vict = *it;
@@ -2232,7 +2232,7 @@ single_mobile_activity(struct creature *ch)
                  !CAN_DETECT_DISGUISE(ch, vict, af_ptr->duration)))
                 continue;
             if (char_in_memory(vict, ch)) {
-                if (ch->getPosition() != POS_FIGHTING) {
+                if (GET_POSITION(ch) != POS_FIGHTING) {
                     if (!random_number_zero_low(4)) {
                         emit_voice(ch, vict, VOICE_TAUNTING);
                     } else if (AWAKE(vict)
@@ -2281,7 +2281,7 @@ single_mobile_activity(struct creature *ch)
     if (!MOB_FLAGGED(ch, MOB_SENTINEL)
         && !((MOB_FLAGGED(ch, MOB_PET) || MOB2_FLAGGED(ch, MOB2_FAMILIAR))
              && ch->master)
-        && ch->getPosition() >= POS_STANDING
+        && GET_POSITION(ch) >= POS_STANDING
         && !AFF2_FLAGGED(ch, AFF2_MOUNTED)) {
 
         int door;
@@ -2506,14 +2506,14 @@ single_mobile_activity(struct creature *ch)
         !ch->in_room->isOpenAir() && random_fractional_3()) {
         if (GET_CLASS(ch) == CLASS_BIRD && AFF_FLAGGED(ch, AFF_INFLIGHT) &&
             !ch->in_room->isOpenAir()) {
-            if (ch->getPosition() == POS_FLYING && random_fractional_5()) {
+            if (GET_POSITION(ch) == POS_FLYING && random_fractional_5()) {
                 act("$n flutters to the ground.", true, ch, 0, 0, TO_ROOM);
-                ch->setPosition(POS_STANDING);
-            } else if (ch->getPosition() == POS_STANDING
+                GET_POSITION(ch) = POS_STANDING;
+            } else if (GET_POSITION(ch) == POS_STANDING
                        && !AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)) {
                 act("$n flaps $s wings and takes flight.", true, ch, 0, 0,
                     TO_ROOM);
-                ch->setPosition(POS_FLYING);
+                GET_POSITION(ch) = POS_FLYING;
             }
             return;
         }
@@ -2524,21 +2524,21 @@ single_mobile_activity(struct creature *ch)
 
     if (AFF_FLAGGED(ch, AFF_INFLIGHT) && random_fractional_10()) {
         if (!ch->in_room->isOpenAir()) {
-            if (ch->getPosition() == POS_FLYING && random_fractional_10()) {
-                ch->setPosition(POS_STANDING);
+            if (GET_POSITION(ch) == POS_FLYING && random_fractional_10()) {
+                GET_POSITION(ch) = POS_STANDING;
                 if (!can_travel_sector(ch, ch->in_room->sector_type, 1)) {
-                    ch->setPosition(POS_FLYING);
+                    GET_POSITION(ch) = POS_FLYING;
                     return;
                 } else if (FLOW_TYPE(ch->in_room) != F_TYPE_SINKING_SWAMP)
                     act("$n settles to the ground.", true, ch, 0, 0,
                         TO_ROOM);
 
-            } else if (ch->getPosition() == POS_STANDING
+            } else if (GET_POSITION(ch) == POS_STANDING
                        && random_fractional_4()) {
 
                 act("$n begins to hover in midair.", true, ch, 0, 0,
                     TO_ROOM);
-                ch->setPosition(POS_FLYING);
+                GET_POSITION(ch) = POS_FLYING;
             }
             return;
         }
@@ -2597,7 +2597,7 @@ choose_opponent(struct creature *ch, struct creature *ignore_vict)
 
 	// default to fighting opponent
 	if (!best_vict)
-		best_vict = ch->findRandomCombat();
+		best_vict = random_opponent(ch);
 
 	return (best_vict);
 }
@@ -2642,7 +2642,7 @@ int
 mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 {
 
-	struct creature *vict = ch->findRandomCombat();
+	struct creature *vict = random_opponent(ch);
 	int prob = 0, dam = 0;
 	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
 	int return_flags = 0;
@@ -2650,7 +2650,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 	ACCMD(do_disarm);
 	ACMD(do_feign);
 
-	if (!ch->isFighting()) {
+	if (!ch->fighting) {
 		errlog("mobile_battle_activity called on non-fighting ch.");
 		raise(SIGSEGV);
 	}
@@ -2703,9 +2703,9 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
              ((IS_GUN(gun) && GUN_LOADED(gun)) ||
               (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun))))) {
 
-            if (ch->isFighting())
+            if (ch->fighting)
 			    do_shoot(ch, tmp_sprintf("%s %s",
-                                         fname(gun->aliases), ch->findRandomCombat()->player.name),
+                                         fname(gun->aliases), random_opponent(ch)->player.name),
 				         0, 0, &return_flags);
 			return return_flags;
 		}
@@ -2743,9 +2743,9 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 						CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room)
 						&& random_binary()) {
 
-						struct creature *was_fighting = ch->findRandomCombat();
+						struct creature *was_fighting = random_opponent(ch);
 
-                        ch->removeAllCombat();
+                        remove_all_combat(ch);
                         struct creatureList_iterator ci = ch->in_room->people.begin();
                         for (; ci != ch->in_room->people.end(); ++ci) {
                             if ((*ci)->findCombat(ch)) {
@@ -2800,7 +2800,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 		if (GET_CLASS(ch) == CLASS_DAEMON_PYRO) {
 			if (vict && random_fractional_3()) {
 				WAIT_STATE(ch, 3 RL_SEC);
-				call_magic(ch, ch->findRandomCombat(), 0, NULL, SPELL_FIRE_BREATH,
+				call_magic(ch, random_opponent(ch), 0, NULL, SPELL_FIRE_BREATH,
                            GET_LEVEL(ch), CAST_BREATH, &return_flags);
 				return return_flags;
 			}
@@ -2810,7 +2810,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 	if (IS_RACE(ch, RACE_MEPHIT)) {
 		if (GET_CLASS(ch) == CLASS_MEPHIT_LAVA) {
 			if (vict && random_binary()) {
-				return damage(ch, ch->findRandomCombat(),
+				return damage(ch, random_opponent(ch),
                               dice(20, 20), TYPE_LAVA_BREATH,
 					          WEAR_RANDOM);
 			}
@@ -3140,12 +3140,12 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 
 		if (can_see_creature(ch, vict) &&
 			(IS_MAGE(vict) || IS_CLERIC(vict))
-			&& vict->getPosition() > POS_SITTING) {
+			&& GET_POSITION(vict) > POS_SITTING) {
 			perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
 			return return_flags;
 		}
 
-		if ((GET_LEVEL(ch) > 37) && vict->getPosition() > POS_SITTING &&
+		if ((GET_LEVEL(ch) > 37) && GET_POSITION(vict) > POS_SITTING &&
 			random_fractional_5()) {
 			perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
 			return return_flags;
@@ -3193,7 +3193,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 		if (!(vict = choose_opponent(ch, precious_vict)))
 			return 0;
 
-		if (GET_LEVEL(ch) > 18 && vict->getPosition() >= POS_FIGHTING
+		if (GET_LEVEL(ch) > 18 && GET_POSITION(vict) >= POS_FIGHTING
 			&& random_fractional_4()) {
 			perform_offensive_skill(ch, vict, SKILL_TRIP, &return_flags);
 			return return_flags;
@@ -3282,7 +3282,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 			return return_flags;
 		}
 		if ((GET_LEVEL(ch) >= 49) && (random_fractional_5() ||
-                                      vict->getPosition() < POS_FIGHTING)) {
+                                      GET_POSITION(vict) < POS_FIGHTING)) {
 			perform_offensive_skill(ch, vict, SKILL_DEATH_TOUCH, &return_flags);
 			return return_flags;
 		} else if ((GET_LEVEL(ch) > 33) && random_fractional_5()) {
@@ -3470,7 +3470,7 @@ mob_fight_slaad(struct creature *ch, struct creature *precious_vict)
             false, ch, 0, 0, TO_ROOM);
         act("$n steps out of the portal with a crack of lightning!",
             false, new_mob, 0, 0, TO_ROOM);
-        struct creature *target = ch->findRandomCombat();
+        struct creature *target = random_opponent(ch);
         if (target && IS_MOB(target))
             hit(new_mob, target, TYPE_UNDEFINED);
         return 0;
@@ -3496,7 +3496,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
 	int return_flags = 0;
 
 	if (IS_PET(ch)) {			// pets should only fight who they're told to
-		vict = ch->findRandomCombat();
+		vict = random_opponent(ch);
 	} else {					// find a suitable victim
 		vict = choose_opponent(ch, precious_vict);
 	}
@@ -3519,7 +3519,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-    num = ch->isFighting();
+    num = ch->fighting;
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -3648,7 +3648,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
 		    act("$n steps out of the portal with a crack of lightning!",
 			    false, new_mob, 0, 0, TO_ROOM);
         }
-        struct creature *target = ch->findRandomCombat();
+        struct creature *target = random_opponent(ch);
 		if (target && IS_MOB(target))
 			return (hit(new_mob, target,
                         TYPE_UNDEFINED) & DAM_VICT_KILLED);
@@ -3675,7 +3675,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
 	int return_flags = 0;
 
 	if (IS_PET(ch)) {			// pets should only fight who they're told to
-		vict = ch->findRandomCombat();
+		vict = random_opponent(ch);
 	} else {					// find a suitable victim
 		vict = choose_opponent(ch, precious_vict);
 	}
@@ -3696,7 +3696,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	num = ch->isFighting();
+	num = ch->fighting;
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -3784,7 +3784,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
 			false, ch, 0, 0, TO_ROOM);
 		act("$n steps out of the portal with a flash of white light!",
 			false, new_mob, 0, 0, TO_ROOM);
-        struct creature *target = ch->findRandomCombat();
+        struct creature *target = random_opponent(ch);
 		if (target && IS_MOB(target))
 			return (hit(new_mob, target,
                         TYPE_UNDEFINED) & DAM_VICT_KILLED);
@@ -3814,7 +3814,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
 	int return_flags = 0;
 
 	if (IS_PET(ch)) {			// pets should only fight who they're told to
-		vict = ch->findRandomCombat();
+		vict = random_opponent(ch);
 	} else {					// find a suitable victim
 		vict = choose_opponent(ch, precious_vict);
 	}
@@ -3835,7 +3835,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	num = ch->isFighting();
+	num = ch->fighting;
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -3923,7 +3923,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
 			false, ch, 0, 0, TO_ROOM);
 		act("$n steps out of the portal with a flash of blue light!",
 			false, new_mob, 0, 0, TO_ROOM);
-        struct creature *target = ch->findRandomCombat();
+        struct creature *target = random_opponent(ch);
 		if (target && IS_MOB(target))
 			return (hit(new_mob, target,
                         TYPE_UNDEFINED) & DAM_VICT_KILLED);
@@ -3962,7 +3962,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
 	int return_flags = 0;
 
 	if (IS_PET(ch)) {			// pets should only fight who they're told to
-		vict = ch->findRandomCombat();
+		vict = random_opponent(ch);
 	} else {					// find a suitable victim
 		vict = choose_opponent(ch, precious_vict);
 	}
@@ -3983,7 +3983,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-    num = ch->isFighting();
+    num = ch->fighting;
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -4153,7 +4153,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
 		    act("$n steps out of the portal with a clap of thunder!",
 			    false, new_mob, 0, 0, TO_ROOM);
         }
-        struct creature *target = ch->findRandomCombat();
+        struct creature *target = random_opponent(ch);
 		if (target && IS_MOB(target))
 			return (hit(new_mob, target,
                         TYPE_UNDEFINED) & DAM_VICT_KILLED);
@@ -4176,7 +4176,7 @@ ACMD(do_breathe)
 	skip_spaces(&argument);
 	struct creature *vict = get_char_room_vis(ch, argument);
 	if (vict == NULL)
-		vict = ch->findRandomCombat();
+		vict = random_opponent(ch);
 	if (vict == NULL) {
 		act("Breathe on whom?", false, ch, 0, 0, TO_CHAR);
 		return;
@@ -4320,7 +4320,7 @@ knight_battle_activity(struct creature *ch, struct creature *precious_vict)
 
     if (can_see_creature(ch, vict) &&
         (IS_MAGE(vict) || IS_CLERIC(vict))
-        && vict->getPosition() > POS_SITTING) {
+        && GET_POSITION(vict) > POS_SITTING) {
 		perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
 		return true;
     }
@@ -4345,13 +4345,13 @@ knight_battle_activity(struct creature *ch, struct creature *precious_vict)
             cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
             return true;
         }
-    } else if (IS_GOOD(ch) && IS_EVIL(ch->findRandomCombat()) &&
+    } else if (IS_GOOD(ch) && IS_EVIL(random_opponent(ch)) &&
                random_fractional_3()  &&
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
                !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_EVIL);
         return true;
-    } else if (IS_EVIL(ch) && IS_GOOD(ch->findRandomCombat()) &&
+    } else if (IS_EVIL(ch) && IS_GOOD(random_opponent(ch)) &&
                random_fractional_3() &&
                !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
                && !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
@@ -4464,7 +4464,7 @@ ranger_battle_activity(struct creature *ch, struct creature *precious_vict)
     } else if ((GET_LEVEL(ch) > 21) &&
                random_fractional_5() &&
                IS_UNDEAD(vict) &&
-               !ch->isFighting() &&
+               !ch->fighting &&
                !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_INVIS_TO_UNDEAD);
         WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -4529,7 +4529,7 @@ barbarian_activity(struct creature *ch)
         do_berserk(ch, tmp_strdup(""), 0, 0, 0);
         return;
     }
-    if (ch->getPosition() != POS_FIGHTING && random_fractional_20()) {
+    if (GET_POSITION(ch) != POS_FIGHTING && random_fractional_20()) {
         if (random_fractional_50())
             act("$n grunts and scratches $s ear.", false, ch, 0, 0,
                 TO_ROOM);
@@ -4594,7 +4594,7 @@ barbarian_battle_activity(struct creature *ch, struct creature *precious_vict)
         return true;
     }
     if ((GET_LEVEL(ch) > 27) && random_fractional_5()
-        && vict->getPosition() > POS_RESTING) {
+        && GET_POSITION(vict) > POS_RESTING) {
         perform_offensive_skill(ch, vict, SKILL_BASH, &return_flags);
         return true;
     }

@@ -10,10 +10,10 @@ SPECIAL(juju_zombie)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
+	if (GET_POSITION(ch) != POS_FIGHTING || !ch->fighting)
 		return 0;
 
-    struct creature *vict = ch->findRandomCombat();
+    struct creature *vict = random_opponent(ch);
 	if (!number(0, 1)) {
 		prob = MAX(GET_LEVEL(ch) - GET_LEVEL(vict), 10) +
 			number(20,

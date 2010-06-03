@@ -8,7 +8,7 @@
 */
 
 static void
-quest_weapon_enchant(struct creature *ch, obj_data *obj, int lvl)
+quest_weapon_enchant(struct creature *ch, struct obj_data *obj, int lvl)
 {
 	int i;
 	for (i = MAX_OBJ_AFFECT - 1; i >= 0; i--) {
@@ -44,7 +44,7 @@ quest_weapon_enchant(struct creature *ch, obj_data *obj, int lvl)
 }
 
 static void
-quest_armor_enchant(struct creature *ch, obj_data *obj, int lvl)
+quest_armor_enchant(struct creature *ch, struct obj_data *obj, int lvl)
 {
 	int i;
 
@@ -95,8 +95,8 @@ quest_sphere_carrier_bad(struct creature *carrier)
 
 SPECIAL(quest_sphere)
 {
-	obj_data *self = (obj_data *)me;
-	obj_data *targ_obj = NULL;
+	struct obj_data *self = (struct obj_data *)me;
+	struct obj_data *targ_obj = NULL;
 	char *line, *key, *param, *targ_str;
 	bool quad = false, nobreak = false, need_targ = false;
 	int enchant_lvl = 0, lp = 0;

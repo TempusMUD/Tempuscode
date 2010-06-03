@@ -5,7 +5,7 @@
 #include "room_data.h"
 
 bool
-room_data_isOpenAir(void)
+struct room_data_isOpenAir(void)
 {
 
 	//
@@ -23,7 +23,7 @@ room_data_isOpenAir(void)
 	return false;
 }
 
-room_data_room_data(room_num n, zone_data *z)
+struct room_data_struct room_data(room_num n, struct zone_data *z)
     : thing(ROOM), people(true)
 {
 
@@ -58,7 +58,7 @@ room_data_room_data(room_num n, zone_data *z)
 }
 
 int
-room_data_countExits(void)
+struct room_data_countExits(void)
 {
 	int idx, result = 0;
 
@@ -71,4 +71,4 @@ room_data_countExits(void)
 	return result;
 }
 
-#undef __room_data_cc__
+#undef __struct room_data_cc__

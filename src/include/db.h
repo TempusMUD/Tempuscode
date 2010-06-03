@@ -245,7 +245,7 @@ void check_dyntext_updates(struct creature *ch, int mode);
 #endif							// _NEWDYNCONTROL_
 
 struct sql_query_data {
-	sql_query_data *next;
+	struct sql_query_data *next;
 	PGresult *res;
 };
 

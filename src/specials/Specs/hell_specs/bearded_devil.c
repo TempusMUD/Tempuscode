@@ -8,11 +8,11 @@ SPECIAL(bearded_devil)
 {
 	if (spec_mode != SPECIAL_TICK)
 		return false;
-	if (!ch->isFighting() || !AWAKE(ch) || GET_MOB_WAIT(ch) > 0)
+	if (!ch->fighting || !AWAKE(ch) || GET_MOB_WAIT(ch) > 0)
 		return false;
 
 	if (!number(0, 3)) {
-        struct creature *vict = ch->findRandomCombat();
+        struct creature *vict = random_opponent(ch);
 		act("$n thrusts $s wirelike beard at you!",
 			false, ch, 0, vict, TO_VICT);
 		act("$n thrusts $s wirelike beard at $N!",

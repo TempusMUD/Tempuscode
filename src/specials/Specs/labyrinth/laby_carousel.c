@@ -6,9 +6,9 @@ SPECIAL(labyrinth_carousel)
 }
 
 void
-labyrinth_spin_carousels(zone_data *zone)
+labyrinth_spin_carousels(struct zone_data *zone)
 {
-	room_data *cur_room;
+	struct room_data *cur_room;
 	struct creatureList_iterator it;
 	room_direction_data *dir_save[NUM_DIRS];
 

@@ -15,7 +15,7 @@ SPECIAL(rust_monster)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (!ch->isFighting()) {
+	if (!ch->fighting) {
 
 		for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
 
@@ -56,7 +56,7 @@ SPECIAL(rust_monster)
 		i = number(2, NUM_WEARS - 2);
 		count++;
 
-        struct creature *vict = ch->findRandomCombat();
+        struct creature *vict = random_opponent(ch);
 		if ((!(obj = GET_EQ(vict, i)) &&
 				!(obj = GET_EQ(vict, i - 1)) &&
 				!(obj = GET_EQ(vict, i + 1)) &&

@@ -8,10 +8,10 @@ SPECIAL(astral_deva)
 {
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!ch->isFighting() || cmd)
+	if (!ch->fighting || cmd)
 		return 0;
 
-    struct creature *vict = ch->findRandomCombat();
+    struct creature *vict = random_opponent(ch);
 	if (affected_by_spell(vict, SPELL_GREATER_INVIS) &&
 		!GET_MOB_WAIT(ch) && GET_MANA(ch) > 50) {
 		act("$n stares at $N and utters a strange incantation.", false, ch, 0,

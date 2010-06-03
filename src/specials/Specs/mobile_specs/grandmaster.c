@@ -12,7 +12,7 @@ SPECIAL(grandmaster)
 		return 0;
 	}
 
-	if (!ch->isFighting()) {
+	if (!ch->fighting) {
 		switch (number(0, 25)) {
 		case 0:
 			act("$n performs a spinning jump kick.", true, ch, 0, 0, TO_ROOM);
@@ -42,7 +42,7 @@ SPECIAL(grandmaster)
 		return 1;
 	}
 
-    struct creature *vict = ch->findRandomCombat();
+    struct creature *vict = random_opponent(ch);
 	switch (number(0, 12)) {
 	case 0:
 		act("$N whacks you with a spinning backfist!", false, vict, 0,

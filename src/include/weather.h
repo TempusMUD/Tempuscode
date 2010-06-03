@@ -8,6 +8,8 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#include "structs.h"
+
 /* Sun state for weather_data */
 #define SUN_DARK	0
 #define SUN_RISE	1

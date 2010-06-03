@@ -35,7 +35,7 @@ SPECIAL(chest_mimic)
 		return 0;
 	}
 
-	if (ch->getPosition() == POS_FIGHTING)
+	if (GET_POSITION(ch) == POS_FIGHTING)
 		return 0;
 	if (CMD_IS("open") || CMD_IS("pick") || CMD_IS("unlock")) {
 		if (strncasecmp(argument, "chest", 5) &&

@@ -72,9 +72,9 @@ tarrasque_lash(struct creature *tarr, struct creature *vict)
 				(dice(20, 20) + 100) : 0,
 				TYPE_TAIL_LASH, WEAR_LEGS);
 	if (!is_dead && vict &&
-	vict->getPosition() >= POS_STANDING &&
+	GET_POSITION(vict) >= POS_STANDING &&
 	GET_DEX(vict) < number(10, 24)) {
-		vict->setPosition(POS_RESTING);
+		GET_POSITION(vict) = POS_RESTING;
 	}
 
 	return is_dead;
@@ -95,7 +95,7 @@ bool
 tarrasque_trample(struct creature *tarr, struct creature *vict)
 {
 	if (vict && GET_DEX(vict) < number(5, 25)) {
-		vict->setPosition(POS_SITTING);
+		GET_POSITION(vict) = POS_SITTING;
 		return damage(tarr, vict,
 			dice(20, 40) + 300, TYPE_TRAMPLING, WEAR_BODY);
 	}
@@ -123,7 +123,7 @@ tarrasque_swallow(struct creature *tarr, struct creature *vict)
 }
 
 void
-tarrasque_poop(struct creature *tarr, obj_data *obj)
+tarrasque_poop(struct creature *tarr, struct obj_data *obj)
 {
 	// The tarr doesn't poop while fighting, sleeping, or in its lair
 	if (tarr->getPosition() == POS_FIGHTING ||
@@ -153,7 +153,7 @@ tarrasque_poop(struct creature *tarr, obj_data *obj)
 void
 tarrasque_digest(struct creature *tarr)
 {
-	obj_data *obj, *next_obj;
+	struct obj_data *obj, *next_obj;
 	bool pooped = false;
 
 	if (!belly_rm) {
@@ -183,7 +183,7 @@ tarrasque_digest(struct creature *tarr)
 int
 tarrasque_die(struct creature *tarr, struct creature *killer)
 {
-	obj_data *obj, *next_obj;
+	struct obj_data *obj, *next_obj;
 
 	// Log death so we can get some stats
 	slog("DEATH: %s killed by %s",

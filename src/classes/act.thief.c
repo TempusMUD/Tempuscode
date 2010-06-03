@@ -54,20 +54,20 @@ ACMD(do_steal)
 		return;
 	}
 
-    if (!ch->isOkToAttack(vict, false)) {
+    if (!ok_to_attack(ch, vict, false)) {
         send_to_char(ch, "You can't do that here!\r\n");
         send_to_char(vict, "%s has just tried to steal from you!\r\n",
                      GET_NAME(ch));
         return;
     }
 
-    if (vict->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
+    if (vict->in_room->zone->pk_style == ZONE_NEUTRAL_PK &&
         IS_PC(ch) && IS_PC(vict)) {
 		send_to_char(ch, "You cannot steal in NPK zones!\r\n");
 		return;
     }
 
-    if (ch->checkReputations(vict))
+    if (checkReputations(ch, vict))
         return;
 
 	if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
@@ -77,7 +77,7 @@ ACMD(do_steal)
 			GET_NAME(vict));
 		return;
 	}
-	if (!IS_MOB(vict) && ch->isNewbie()) {
+	if (!IS_MOB(vict) && isNewbie(ch)) {
 		send_to_char(ch, "You can't steal from players. You're a newbie!\r\n");
 		return;
 	}
@@ -94,7 +94,7 @@ ACMD(do_steal)
         percent = (int)(percent * 0.65);
     }
 
-	if (vict->getPosition() < POS_SLEEPING)
+	if (GET_POSITION(vict) < POS_SLEEPING)
 		percent = -15;			/* ALWAYS SUCCESS */
 
 	if (AFF3_FLAGGED(vict, AFF3_ATTRACTION_FIELD))
@@ -120,9 +120,9 @@ ACMD(do_steal)
 				act("$E hasn't got that item.", false, ch, 0, vict, TO_CHAR);
 				return;
 			} else {			/* It is equipment */
-				percent += obj->getWeight();	/* Make heavy harder */
+				percent += getWeight(obj);	/* Make heavy harder */
 
-				if (vict->getPosition() > POS_SLEEPING) {
+				if (GET_POSITION(vict) > POS_SLEEPING) {
 					send_to_char(ch, "Steal the equipment now?  Impossible!\r\n");
 					return;
 				} else {
@@ -150,14 +150,14 @@ ACMD(do_steal)
 								GET_NAME(vict));
 						}
 					} else {
-						if (vict->getPosition() == POS_SLEEPING) {
+						if (GET_POSITION(vict) == POS_SLEEPING) {
 							act("You wake $N up trying to steal it!",
 								false, ch, 0, vict, TO_CHAR);
 							send_to_char(vict,
 								"You are awakened as someone tries to steal your equipment!\r\n");
-							vict->setPosition(POS_RESTING);
+							GET_POSITION(vict) = POS_RESTING;
 							ohoh = true;
-						} else if (vict->getPosition() == POS_SITTING &&
+						} else if (GET_POSITION(vict) == POS_SITTING &&
 							AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
 
 							act("You disturb $M in your clumsy attempt.",
@@ -172,7 +172,7 @@ ACMD(do_steal)
 			}
 		} else {				/* obj found in inventory */
 
-			percent += obj->getWeight();	/* Make heavy harder */
+			percent += getWeight(obj);	/* Make heavy harder */
 			if (IS_OBJ_STAT(obj, ITEM_NODROP))
 				percent += 30;
 			if (IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM))
@@ -189,7 +189,7 @@ ACMD(do_steal)
 					true, ch, 0, vict, TO_NOTVICT);
 			} else {			/* Steal the item */
 				if ((IS_CARRYING_N(ch) + 1 < CAN_CARRY_N(ch))) {
-					if ((IS_CARRYING_W(ch) + obj->getWeight()) <
+					if ((IS_CARRYING_W(ch) + getWeight(obj)) <
 						CAN_CARRY_W(ch)) {
 						obj_from_char(obj);
 						obj_to_char(obj, ch);
@@ -301,7 +301,7 @@ ACMD(do_backstab)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict))
+	if (!ok_to_attack(ch, vict))
 		return;
 
 	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(weap)) ||
@@ -310,7 +310,7 @@ ACMD(do_backstab)
 		send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
 		return;
 	}
-	if (vict->isFighting()) {
+	if (isFighting(vict)) {
 		send_to_char(ch, "Backstab a fighting person? -- they're too alert!\r\n");
 		return;
 	}
@@ -350,7 +350,7 @@ ACMD(do_circle)
     if (*target_str)
         vict = get_char_room_vis(ch, target_str);
     else
-        vict = ch->findRandomCombat();
+        vict = random_opponent(ch);
 
     if (!vict) {
 		send_to_char(ch, "Circle around who?\r\n");
@@ -361,7 +361,7 @@ ACMD(do_circle)
 		send_to_char(ch, "How can you sneak up on yourself?\r\n");
 		return;
 	}
-	if (!ch->isOkToAttack(vict))
+	if (!ok_to_attack(ch, vict))
 		return;
 
 	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(weap)) ||
@@ -370,7 +370,7 @@ ACMD(do_circle)
 		send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
 		return;
 	}
-	if (vict->findCombat(ch)) {
+	if (findCombat(vict, ch)) {
 		send_to_char(ch,
 			"You can't circle someone who is actively fighting you!\r\n");
 		return;
@@ -379,7 +379,7 @@ ACMD(do_circle)
 	percent = number(1, 101) + GET_INT(vict);	/* 101% is a complete failure */
 	prob = CHECK_SKILL(ch, SKILL_CIRCLE) +
 		number(0, 20) * (AFF_FLAGGED(ch, AFF_SNEAK));
-	if (ch->isFighting())
+	if (ch->fighting)
 		prob -= number(20, 30);
 	prob += 20 * can_see_creature(vict, ch);
 
@@ -403,8 +403,8 @@ ACMD(do_circle)
 
 		if ((number(1, 40) + GET_LEVEL(vict)) > CHECK_SKILL(ch, SKILL_CIRCLE)) {
 			//set_fighting(vict, ch, false);
-            vict->addCombat(ch, false);
-            ch->addCombat(vict, true);
+            addCombat(vict, ch, false);
+            addCombat(ch, vict, true);
 		}
 	}
 }
@@ -432,7 +432,7 @@ ACMD(do_sneak)
 	af.bitvector = AFF_SNEAK;
 	af.aff_index = 0;
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af);
 
 }
@@ -536,7 +536,7 @@ ACMD(do_disguise)
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
 	af.bitvector = 0;
 	af.aff_index = 0;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 
 	act("$n disguises $mself as $N.", true, ch, 0, vict, TO_ROOM);
 	affect_to_char(ch, &af);

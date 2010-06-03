@@ -11,10 +11,10 @@ SPECIAL(maladomini_jailer)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (cmd || !ch->isFighting())
+	if (cmd || !ch->fighting)
 		return 0;
 
-    vict = ch->findRandomCombat();
+    vict = random_opponent(ch);
 	if (!to_room) {
 		if (!(to_room = real_room(16989))) {
 			errlog("error loading to_room for maladomini_jailer.");
@@ -45,7 +45,7 @@ SPECIAL(maladomini_jailer)
 			act("$n lifts $N and hurls $M into the chasm to the west!", false,
 				ch, 0, vict, TO_NOTVICT);
 			WAIT_STATE(ch, 2 RL_SEC);
-            ch->removeAllCombat();
+            remove_all_combat(ch);
 			char_from_room(vict, false);
 			char_to_room(vict, to_room, false);
 			act("$n is hurled in from the east!", false, vict, 0, 0, TO_ROOM);

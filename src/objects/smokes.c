@@ -125,7 +125,7 @@ perform_smoke(struct creature *ch, int type)
 	af.duration = 0;
 	af.location = APPLY_NONE;
 	af.level = 30;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 
 	switch (type) {
 	case SMOKE_DIRTWEED:

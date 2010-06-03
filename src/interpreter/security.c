@@ -432,7 +432,7 @@ namespace Security {
      bool isMember( struct creature *ch, const char* group_name, bool substitute) {
 	 	if (group_name == Security_EVERYONE)
 			return true;
-        if( substitute && ch->getLevel() == LVL_GRIMP )
+        if( substitute && GET_LEVEL(ch) == LVL_GRIMP )
             return true;
         if( group_name == NULL || *group_name == '\0' )
             return false;

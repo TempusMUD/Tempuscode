@@ -10,7 +10,7 @@
 #include <signal.h>
 
 struct MapToken {
-	MapToken(int d, int r, int c, room_data * s, room_data * t);
+	MapToken(int d, int r, int c, struct room_data * s, struct room_data * t);
 	void clear() {
 		source = target = NULL;
 		next = NULL;
@@ -18,10 +18,10 @@ struct MapToken {
 		row = -7777777;
 		column = -7777777;
 		direction = -7777777;
-	} room_data *getSource() {
+	} struct room_data *getSource() {
 		return source;
 	}
-	room_data *getTarget() {
+	struct room_data *getTarget() {
 		return target;
 	}
 	MapToken *next;
@@ -57,10 +57,10 @@ struct Mapper {
 	int rows, columns;			// size of the desired map
 	MapPixel *mapDisplay;
 	MapToken *mapStack;
-	zone_data *curZone;
-	void drawLink(room_data * s, room_data * t, int row, int col,
+	struct zone_data *curZone;
+	void drawLink(struct room_data * s, struct room_data * t, int row, int col,
 		bool justLink = false);
-	bool drawRoom(room_data * s, room_data * t, long row, long col);
+	bool drawRoom(struct room_data * s, struct room_data * t, long row, long col);
 	int getOppDir(int dir) {
 		switch (dir) {
 		case 0:

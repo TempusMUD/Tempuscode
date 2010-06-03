@@ -33,6 +33,7 @@
 #include "fight.h"
 #include "guns.h"
 #include "bomb.h"
+#include "weather.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -72,14 +73,14 @@ RAW_EQ_DAM(struct creature *ch, int pos, int *var)
 
 	if (ch->equipment[pos]) {
 		if (IS_OBJ_TYPE(ch->equipment[pos], ITEM_ARMOR))
-			*var += (ch->equipment[pos]->getWeight() +
+			*var += (getWeight(ch->equipment[pos]) +
 				GET_OBJ_VAL(ch->equipment[pos], 0)) >> 2;
 		else if (IS_OBJ_TYPE(ch->equipment[pos], ITEM_WEAPON))
 			*var += dice(GET_OBJ_VAL(ch->equipment[pos], 1),
 				GET_OBJ_VAL(ch->equipment[pos], 2));
 	} else if (ch->implants[pos]) {
 		if (IS_OBJ_TYPE(ch->implants[pos], ITEM_ARMOR))
-			*var += (ch->implants[pos]->getWeight() +
+			*var += (getWeight(ch->implants[pos]) +
 				GET_OBJ_VAL(ch->implants[pos], 0)) >> 2;
 		else if (IS_OBJ_TYPE(ch->implants[pos], ITEM_WEAPON))
 			*var += dice(GET_OBJ_VAL(ch->implants[pos], 1),
@@ -116,8 +117,8 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
 	prob += (MAX(-200, GET_AC(vict)) / 10);
 
-	if (vict->getPosition() < POS_FIGHTING) {
-		prob += (POS_FIGHTING - vict->getPosition()) * 6;
+	if (GET_POSITION(vict) < POS_FIGHTING) {
+		prob += (POS_FIGHTING - GET_POSITION(vict)) * 6;
 		prob -= (GET_DEX(vict) >> 1);
 	}
 
@@ -159,7 +160,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
     if (room_is_watery(ch->in_room) ||
 		ch->in_room->sector_type == SECT_ASTRAL ||
-        ch->in_room->isOpenAir())
+        room_is_openair(ch->in_room))
 		bad_sect = true;
 
 	if (bad_sect)
@@ -173,15 +174,15 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 		prob -= (GET_WEIGHT(vict) - GET_WEIGHT(ch)) >> 4;
 
 		if (ch->equipment[WEAR_WIELD])
-			prob += ch->equipment[WEAR_WIELD]->getWeight();
+			prob += getWeight(ch->equipment[WEAR_WIELD]);
 		if (ch->equipment[WEAR_SHIELD])
-			prob += ch->equipment[WEAR_SHIELD]->getWeight();
+			prob += getWeight(ch->equipment[WEAR_SHIELD]);
 
 		if (bad_sect)
 			prob = (int)(prob * 0.90);
 
 		if ((MOB_FLAGGED(vict, MOB_NOBASH) ||
-				vict->getPosition() < POS_FIGHTING)
+				GET_POSITION(vict) < POS_FIGHTING)
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR)
 			prob = 0;
 
@@ -199,11 +200,11 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 		if (IS_BARB(ch)) {
 			// reduced wait state for barbs
 			int w = 5;
-			w *= ch->getLevelBonus(SKILL_BASH);
+			w *= get_skill_bonus(ch, SKILL_BASH);
 			w /= 100;
 			*wait -= w;
 			// Improved damage for barbs
-			*dam += dice(2, ch->getLevelBonus(SKILL_BASH));
+			*dam += dice(2, get_skill_bonus(ch, SKILL_BASH));
 		}
 
 		break;
@@ -238,7 +239,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 		// Barb headbutt should be nastier
 		if (IS_BARB(ch) && 0) {
 			// Improved damage for barbs
-			*dam += ch->getLevelBonus(SKILL_HEADBUTT);
+			*dam += get_skill_bonus(ch, SKILL_HEADBUTT);
 			// Knock them down?
 			int attack = GET_STR(ch) + GET_DEX(ch);
 			int defence = GET_CON(vict) + GET_DEX(vict);
@@ -273,7 +274,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 			af->duration = 1 + (GET_LEVEL(ch) > 40);
 			af->modifier = -10;
 			af->location = APPLY_HITROLL;
-            af->owner = ch->getIdNum();
+            af->owner = GET_IDNUM(ch);
 			af->aff_index = 1;
 			af->bitvector = AFF_BLIND;
 		}
@@ -285,8 +286,8 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 		if (GET_HEIGHT(vict) > (GET_HEIGHT(ch) << 1))
 			prob -= (100 - GET_LEVEL(ch));
 
-		if (vict->getPosition() < POS_STANDING)
-			prob += (10 * (POS_STANDING - vict->getPosition()));
+		if (GET_POSITION(vict) < POS_STANDING)
+			prob += (10 * (POS_STANDING - GET_POSITION(vict)));
 
 		if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))) ||
@@ -386,7 +387,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
 	case SKILL_SIDEKICK:
 		if ((MOB_FLAGGED(vict, MOB_NOBASH) ||
-				vict->getPosition() < POS_FIGHTING)
+				GET_POSITION(vict) < POS_FIGHTING)
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR)
 			prob = 0;
 
@@ -471,7 +472,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 			prob = (int)(prob * 0.90);
 
 		if ((MOB_FLAGGED(vict, MOB_NOBASH) ||
-				vict->getPosition() < POS_FIGHTING)
+				GET_POSITION(vict) < POS_FIGHTING)
 			&& GET_LEVEL(ch) < LVL_AMBASSADOR)
 			prob = 0;
 
@@ -618,7 +619,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 		}
 
 		if ((GET_HEIGHT(ch) < GET_HEIGHT(vict) >> 1) &&
-			vict->getPosition() > POS_SITTING) {
+			GET_POSITION(vict) > POS_SITTING) {
 			if (AFF_FLAGGED(ch, AFF_INFLIGHT))
 				*dam >>= 2;
 			else {
@@ -647,7 +648,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 			if( neck != NULL ) {
 				// half the damage only if the eq survives.
 				// ( damage_eq returns the mangled object, not the original )
-				if( damage_eq(ch, neck, *dam) != NULL )
+				if (damage_eq(ch, neck, *dam, TYPE_HIT) != NULL )
 					*dam >>= 1;
 			}
 		}
@@ -794,10 +795,10 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
 		if (NULL_PSI(vict))
 			prob = 0;
-        if (ch->getLevel() < 51 && !IS_PSIONIC(ch))
+        if (GET_LEVEL(ch) < 51 && !IS_PSIONIC(ch))
             prob = 0;
 
-		*dam = dice(ch->getLevelBonus(SKILL_PSIBLAST) / 2, GET_INT(ch) + 1);
+		*dam = dice(get_skill_bonus(ch, SKILL_PSIBLAST) / 2, GET_INT(ch) + 1);
 
 		*dam += CHECK_SKILL(ch, SKILL_PSIBLAST);
 
@@ -812,17 +813,17 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 	case SKILL_SCREAM:
         if (IS_UNDEAD(vict))
             prob = 0;
-        if (ch->getLevel() < 51 && !IS_BARD(ch))
+        if (GET_LEVEL(ch) < 51 && !IS_BARD(ch))
             prob = 0;
 
-        *dam = GET_CON(ch) * ((10 + (ch->getLevelBonus(SKILL_SCREAM)) / 4));
+        *dam = GET_CON(ch) * ((10 + (get_skill_bonus(ch, SKILL_SCREAM)) / 4));
 		*dam += dice(15, (CHECK_SKILL(ch, SKILL_SCREAM) / 4));
 
 		//fortissimo makes scream more powerful
-		affected_type *fortissimoAff;
+		struct affected_type *fortissimoAff;
 		if ((fortissimoAff = affected_by_spell(ch, SONG_FORTISSIMO))) {
             // This should be +175 damage at gen 10/49
-			*dam += ch->getLevelBonus(SONG_FORTISSIMO) + fortissimoAff->level;
+			*dam += get_skill_bonus(ch, SONG_FORTISSIMO) + fortissimoAff->level;
 		}
 
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))
@@ -913,7 +914,7 @@ perform_offensive_skill(struct creature *ch, struct creature *vict, int skill, i
 	ACMD_set_return_flags(0);
 	memset(&af, 0, sizeof(struct affected_type));
 
-	if (!ch->isOkToAttack(vict, false)) {
+	if (!ok_to_attack(ch, vict, false)) {
         send_to_char(ch, "You seem to be unable to attack %s.\r\n",
                      GET_NAME(vict));
         act("$n shakes with rage as $e tries to attack $N!",
@@ -929,13 +930,13 @@ perform_offensive_skill(struct creature *ch, struct creature *vict, int skill, i
 		return false;
 	}
 	if ((skill == SKILL_SWEEPKICK || skill == SKILL_TRIP) &&
-		vict->getPosition() <= POS_SITTING) {
+		GET_POSITION(vict) <= POS_SITTING) {
 		act("$N is already on the ground.", false, ch, 0, vict, TO_CHAR);
 		return false;
 	}
 
 	af.type = 0;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	//
 	// calc_skill_prob returns -1 if you cannot perform that skill,
 	// or if somethine exceptional happened and we need to return
@@ -964,7 +965,7 @@ perform_offensive_skill(struct creature *ch, struct creature *vict, int skill, i
 		if (damage(ch, vict, 0, skill, loc))
 			return false;
 		if (fail_pos) {
-			ch->setPosition(fail_pos);
+			GET_POSITION(ch) = fail_pos;
 			if (prob < 50) {
 				// 0.1 sec for every point below 50, up to 7 sec
 				int tmp_wait = 50 - prob;
@@ -1009,7 +1010,7 @@ perform_offensive_skill(struct creature *ch, struct creature *vict, int skill, i
 	if ((!IS_SET(my_return_flags, DAM_ATTACK_FAILED))
 		&& (!IS_SET(my_return_flags, DAM_VICT_KILLED))) {
 		if (vict_pos)
-			vict->setPosition(vict_pos);
+			GET_POSITION(vict) = vict_pos;
 		if (vict_wait)
 			WAIT_STATE(vict, vict_wait);
 
@@ -1035,8 +1036,8 @@ ACCMD(do_offensive_skill)
 	af.is_instant = 0;
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act(tmp_sprintf("You fiercely %s $p!", CMD_NAME),
@@ -1065,7 +1066,7 @@ ACMD(do_assist)
 	struct creature *helpee;
     char *arg;
 
-    if (ch->isFighting() > 0) {
+    if (ch->fighting > 0) {
 		send_to_char(ch,
 			"You're already fighting!  How can you assist someone else?\r\n");
 		return;
@@ -1080,10 +1081,10 @@ ACMD(do_assist)
 	}
     else if (helpee == ch)
 		send_to_char(ch, "You can't help yourself any more than this!\r\n");
-    else if (!helpee->isFighting())
+    else if (!isFighting(helpee))
 	    act("But nobody is fighting $M!", false, ch, 0, helpee, TO_CHAR);
 	else {
-        struct creature *opponent = helpee->findRandomCombat();
+        struct creature *opponent = findRandomCombat(helpee);
 		if (!can_see_creature(ch, (opponent))) {
 			act("You can't see who is fighting $M!", false, ch, 0, helpee,
 				TO_CHAR);
@@ -1117,16 +1118,16 @@ ACMD(do_hit)
 	} else if (vict == ch) {
 		send_to_char(ch, "You hit yourself...OUCH!.\r\n");
 		act("$n hits $mself, and says OUCH!", false, ch, 0, vict, TO_ROOM);
-    } else if (ch->findCombat(vict)) {
+    } else if (findCombat(ch, vict)) {
 		act("Ok, you will now concentrate your attacks on $N!",
             0, ch, 0, vict, TO_CHAR);
-        ch->addCombat(vict, true);
+        addCombat(ch, vict, true);
     }
 	else if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master == vict))
 		act("$N is just such a good friend, you simply can't hit $M.", false,
 			ch, 0, vict, TO_CHAR);
 	else {
-		if (!ch->isOkToAttack(vict, true))
+		if (!ok_to_attack(ch, vict, true))
 			return;
 
 		GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 5);
@@ -1222,12 +1223,8 @@ ACMD(do_order)
 				if (!CHECK_WAIT(vict) && !GET_MOB_WAIT(vict)) {
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
 						perform_say(vict, "intone", "As you command, master.");
-					if (vict->isFighting()) {
-                        CombatDataList_iterator li;
-                        li = vict->getCombatList()->begin();
-                        for (; li != vict->getCombatList()->end(); ++li)
-						    detect_opponent_master(li->getOpponent(), vict);
-                    }
+					if (isFighting(vict))
+                        detect_opponent_master(vict->fighting, vict);
 					command_interpreter(vict, message);
 				}
 
@@ -1258,12 +1255,9 @@ ACMD(do_order)
 								&& GET_MOB_VNUM(k->follower) == 5318)
 								perform_say(vict, "intone",
                                             "As you command, master.");
-							if (k->follower->isFighting()) {
-                                CombatDataList_iterator li;
-                                li = k->follower->getCombatList()->begin();
-                                for (; li != k->follower->getCombatList()->end(); ++li)
-                                    detect_opponent_master(li->getOpponent(), k->follower);
-                            }
+							if (isFighting(k->follower))
+                                detect_opponent_master(k->follower->fighting,
+                                                       k->follower);
 							command_interpreter(k->follower, message);
 						}
 					} else
@@ -1287,7 +1281,7 @@ ACMD(do_order)
 ACMD(do_flee)
 {
 	int i, attempt, loss = 0;
-	struct creature *fighting = ch->findRandomCombat();
+	struct creature *fighting = random_opponent(ch);
 
 	ACMD_set_return_flags(0);
 
@@ -1295,17 +1289,17 @@ ACMD(do_flee)
 		send_to_char(ch, "You are solid stone!\r\n");
 		return;
 	}
-	if (AFF2_FLAGGED(ch, AFF2_BERSERK) && ch->isFighting() &&
+	if (AFF2_FLAGGED(ch, AFF2_BERSERK) && ch->fighting &&
 		!number(0, 1 + (GET_INT(ch) >> 2))) {
 		send_to_char(ch, "You are too enraged to flee!\r\n");
 		return;
 	}
-	if (ch->getPosition() < POS_FIGHTING) {
+	if (GET_POSITION(ch) < POS_FIGHTING) {
 		send_to_char(ch, "You can't flee until you get on your feet!\r\n");
 		return;
 	}
 	if (!IS_NPC(ch) && fighting) {
-		loss = GET_LEVEL(ch->findRandomCombat()) << 5;
+		loss = GET_LEVEL(random_opponent(ch)) << 5;
 		loss += (loss * GET_LEVEL(ch)) / (LVL_GRIMP + 1 - GET_LEVEL(ch));
 		loss >>= 5;
 
@@ -1322,19 +1316,18 @@ ACMD(do_flee)
 			!IS_SET(ROOM_FLAGS(EXIT(ch, attempt)->to_room),
 				ROOM_DEATH | ROOM_GODROOM)) {
 			act("$n panics, and attempts to flee!", true, ch, 0, 0, TO_ROOM);
-			if (ch->in_room->isOpenAir()
-				|| EXIT(ch, attempt)->to_room->isOpenAir()) {
+			if (room_is_openair(ch->in_room)
+				|| room_is_openair(EXIT(ch, attempt)->to_room)) {
 				if (AFF_FLAGGED(ch, AFF_INFLIGHT))
-					ch->setPosition(POS_FLYING);
+					GET_POSITION(ch) = POS_FLYING;
 				else
 					continue;
 			}
 
-            struct creatureList_iterator ci;
-            ci = ch->in_room->people.begin();
-            for (; ci != ch->in_room->people.end(); ++ci) {
-                if ((*ci)->findCombat(ch))
-                    (*ci)->removeCombat(ch);
+            struct creature *tch;
+            for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+                if (findCombat(tch, ch))
+                    removeCombat(tch, ch);
             }
 			int move_result = do_simple_move(ch, attempt, MOVE_FLEE, true);
 
@@ -1351,11 +1344,11 @@ ACMD(do_flee)
 					gain_exp(ch, -loss);
 					gain_exp(fighting, (loss >> 5));
 				}
-				if (ch->isFighting()) {
-                    ch->removeAllCombat();
+				if (ch->fighting) {
+                    remove_all_combat(ch);
 				}
-				if (ch->in_room->isOpenAir())
-					ch->setPosition(POS_FLYING);
+				if (room_is_openair(ch->in_room))
+					GET_POSITION(ch) = POS_FLYING;
 			} else if (move_result == 1) {
 				act("$n tries to flee, but can't!", true, ch, 0, 0, TO_ROOM);
 			}
@@ -1403,20 +1396,19 @@ ACMD(do_retreat)
 		return;
 	}
 
-	if (ch->isFighting()) {
+	if (ch->fighting) {
 		fighting = 1;
 		if (CHECK_SKILL(ch, SKILL_RETREAT) + GET_LEVEL(ch) <
-			number(60, 70 + GET_LEVEL(ch->findRandomCombat()))) {
+			number(60, 70 + GET_LEVEL(random_opponent(ch)))) {
 			send_to_char(ch, "You panic!\r\n");
 			do_flee(ch, tmp_strdup(""), 0, 0, 0);
 			return;
 		}
 	}
-	room_data *room = ch->in_room;
-	struct creatureList_iterator it = room->people.begin();
-	for (; it != room->people.end(); ++it) {
-		struct creature *vict = *it;
-		if (vict != ch && ch->findCombat(vict) &&
+	struct room_data *room = ch->in_room;
+    struct creature *vict;
+    for (vict = room->people;vict;vict = vict->room_next) {
+		if (vict != ch && findCombat(ch, vict) &&
 			can_see_creature(vict, ch) &&
 			((IS_NPC(vict) && GET_MOB_WAIT(vict) < 10) ||
 				(vict->desc && vict->desc->wait < 10)) &&
@@ -1430,8 +1422,8 @@ ACMD(do_retreat)
 			} else if (retval & DAM_ATTACKER_KILLED) {
 				continue;
 			}
-			if (vict->findCombat(ch))
-				vict->removeCombat(ch);
+			if (findCombat(vict, ch))
+				removeCombat(vict, ch);
 		}
 	}
 
@@ -1441,10 +1433,10 @@ ACMD(do_retreat)
 
 		if (fighting && !found)
 			gain_skill_prof(ch, SKILL_RETREAT);
-		if (ch->isFighting())
-			ch->removeAllCombat();
-		if (ch->in_room->isOpenAir())
-			ch->setPosition(POS_FLYING);
+		if (ch->fighting)
+			remove_all_combat(ch);
+		if (room_is_openair(ch->in_room))
+			GET_POSITION(ch) = POS_FLYING;
 		GET_MOVE(ch) = (MAX(0, GET_MOVE(ch) - 10));
 		return;
 	} else if (retval == 1) {
@@ -1475,7 +1467,7 @@ ACMD(do_bash)
 	if (*arg1)
 		vict = get_char_room_vis(ch, arg1);
 	else
-		vict = ch->findRandomCombat();
+		vict = random_opponent(ch);
 
 	// If we found our victim, it's a combat move
 	if (vict) {
@@ -1592,7 +1584,7 @@ ACMD(do_bash)
 				TO_ROOM);
 			act("You stagger and fall down.", true, ch, 0, 0,
 				TO_CHAR);
-			ch->setPosition(POS_SITTING);
+			GET_POSITION(ch) = POS_SITTING;
 		}
 
 		if (GET_HIT(ch) < -10) {
@@ -1608,7 +1600,7 @@ ACMD(do_bash)
 			gain_skill_prof(ch, SKILL_BREAK_DOOR);
 		}
 
-        room_direction_data *other_side = EXIT(ch, door)->to_room->dir_option[rev_dir[door]];
+        struct room_direction_data *other_side = EXIT(ch, door)->to_room->dir_option[rev_dir[door]];
 		if (other_side && other_side->to_room == ch->in_room) {
 			REMOVE_BIT(other_side->exit_info, EX_CLOSED);
 			REMOVE_BIT(other_side->exit_info, EX_LOCKED);
@@ -1641,7 +1633,7 @@ ACMD(do_stun)
 		send_to_char(ch, "Aren't we stunningly funny today...\r\n");
 		return;
 	}
-	if (ch->isFighting()) {
+	if (ch->fighting) {
 		send_to_char(ch, "You're pretty busy right now!\r\n");
 		return;
 	}
@@ -1651,11 +1643,11 @@ ACMD(do_stun)
 		send_to_char(ch, "You need at least one hand free to do that!\r\n");
 		return;
 	}
-	if (vict->isFighting()) {
+	if (isFighting(vict)) {
 		send_to_char(ch, "You aren't able to get the right grip!\r\n");
 		return;
 	}
-	if (!ch->isOkToAttack(vict, false)) {
+	if (!ok_to_attack(ch, vict, false)) {
         send_to_char(ch, "You seem to be unable to attack %s.\r\n",
                      GET_NAME(vict));
         act("$n shakes with rage as $e tries to attack $N!",
@@ -1665,7 +1657,7 @@ ACMD(do_stun)
 		return;
     }
 
-    if (ch->checkReputations(vict))
+    if (checkReputations(ch, vict))
         return;
 
 	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
@@ -1674,7 +1666,7 @@ ACMD(do_stun)
 		act("$N stuns $n with a swift blow to the neck!",
 			false, ch, 0, vict, TO_NOTVICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE * 3);
-		ch->setPosition(POS_STUNNED);
+		GET_POSITION(ch) = POS_STUNNED;
 		return;
 	}
 
@@ -1707,8 +1699,8 @@ ACMD(do_stun)
 		act("Uh-oh!  You fumbled while trying to stun $N!", false, ch, 0, vict, TO_CHAR);
 		act("$n pokes your neck trying to stun you!  Ow!", false, ch, 0, vict, TO_VICT);
 		act("$n pokes at $N's neck, but nothing happens!", false, ch, 0, vict, TO_NOTVICT);
-        ch->addCombat(vict, true);
-        vict->addCombat(ch, false);
+        addCombat(ch, vict, true);
+        addCombat(vict, ch, false);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		return;
 	}
@@ -1717,18 +1709,18 @@ ACMD(do_stun)
 	act("$n strikes a nerve center in your neck!  You are stunned!",
 		false, ch, 0, vict, TO_VICT);
 	act("$n stuns $N with a swift blow!", false, ch, 0, vict, TO_NOTVICT);
-	if (vict->isFighting()) {
-		vict->removeAllCombat();
-		ch->removeAllCombat();
+	if (isFighting(vict)) {
+		removeAllCombat(vict);
+		remove_all_combat(ch);
 	}
 	if (IS_MOB(vict)) {
 		SET_BIT(MOB_FLAGS(vict), MOB_MEMORY);
 		remember(vict, ch);
 		if (IS_SET(MOB2_FLAGS(vict), MOB2_HUNT))
-		    vict->startHunting(ch);
+		    startHunting(vict, ch);
 	}
 	wait = 1 + (number(0, GET_LEVEL(ch)) / 5);
-	vict->setPosition(POS_STUNNED);
+	GET_POSITION(vict) = POS_STUNNED;
 	WAIT_STATE(vict, wait RL_SEC);
 	WAIT_STATE(ch, 4 RL_SEC);
 	gain_skill_prof(ch, SKILL_STUN);
@@ -1747,15 +1739,15 @@ ACMD(do_feign)
 		send_to_char(ch, "You fall over dead!\r\n");
 		act("$n staggers and falls to the ground!", true, ch, 0, 0, TO_ROOM);
 	} else {
-		if ((foe = ch->findRandomCombat())) {
+		if ((foe = random_opponent(ch))) {
 			act("You have killed $N!", false, foe, 0, ch, TO_CHAR);
-			ch->removeAllCombat();
+			remove_all_combat(ch);
 			gain_skill_prof(ch, SKILL_FEIGN);
 		}
 		send_to_char(ch, "You fall over dead!\r\n");
         death_cry(ch);
 	}
-	ch->setPosition(POS_RESTING);
+	GET_POSITION(ch) = POS_RESTING;
 
 	WAIT_STATE(ch, SEG_VIOLENCE * 2);
 }
@@ -1772,7 +1764,7 @@ ACMD(do_tag)
 		send_to_char(ch, "Who do you want to tag in?\r\n");
 		return;
 	}
-	if (!ch->isFighting()) {
+	if (!ch->fighting) {
 		send_to_char(ch, "There is no need.  You aren't fighting!\r\n");
 		return;
 	}
@@ -1780,12 +1772,12 @@ ACMD(do_tag)
 		send_to_char(ch, "Okay! You tag yourself in!...dummy.\r\n");
 		return;
 	}
-	if (ch->findCombat(vict)) {
+	if (findCombat(ch, vict)) {
 		send_to_char(ch, "They snatch their hand back, refusing the tag!\r\n");
 		return;
 	}
 
-    tmp_ch = ch->findRandomCombat();
+    tmp_ch = random_opponent(ch);
 
 	if (!tmp_ch) {
 		act("But nobody is fighting you!", false, ch, 0, vict, TO_CHAR);
@@ -1821,11 +1813,11 @@ ACMD(do_tag)
 			act("$N tags you into the fight!", false, vict, 0, ch, TO_CHAR);
 			act("$n tags $N into the fight!", false, ch, 0, vict, TO_NOTVICT);
 
-            ch->removeCombat(tmp_ch);
-            tmp_ch->removeCombat(ch);
+            removeCombat(ch, tmp_ch);
+            removeCombat(tmp_ch, ch);
 
-            vict->addCombat(tmp_ch, true);
-            tmp_ch->addCombat(vict, false);
+            addCombat(vict, tmp_ch, true);
+            addCombat(tmp_ch, vict, false);
 			gain_skill_prof(ch, SKILL_TAG);
 		}
 	}
@@ -1847,11 +1839,11 @@ ACMD(do_rescue)
 		send_to_char(ch, "What about fleeing instead?\r\n");
 		return;
 	}
-	if (ch->findCombat(vict)) {
+	if (findCombat(ch, vict)) {
 		send_to_char(ch, "How can you rescue someone you are trying to kill?\r\n");
 		return;
 	}
-	tmp_ch = vict->findRandomCombat();
+	tmp_ch = findRandomCombat(vict);
 
 	if (!tmp_ch) {
 		act("But nobody is fighting $M!", false, ch, 0, vict, TO_CHAR);
@@ -1883,11 +1875,11 @@ ACMD(do_rescue)
 			TO_CHAR);
 		act("$n heroically rescues $N!", false, ch, 0, vict, TO_NOTVICT);
 
-        tmp_ch->removeCombat(vict);
-        vict->removeCombat(tmp_ch);
+        removeCombat(tmp_ch, vict);
+        removeCombat(vict, tmp_ch);
 
-        ch->addCombat(tmp_ch, true);
-        tmp_ch->addCombat(ch, false);
+        addCombat(ch, tmp_ch, true);
+        addCombat(tmp_ch, ch, false);
 		WAIT_STATE(vict, 2 * PULSE_VIOLENCE);
 		gain_skill_prof(ch, SKILL_RESCUE);
 	}
@@ -1904,8 +1896,8 @@ ACMD(do_tornado_kick)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You spin into the air, kicking $p!", false, ch, ovict, 0,
@@ -1924,7 +1916,7 @@ ACMD(do_tornado_kick)
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 	if (GET_MOVE(ch) < 30) {
 		send_to_char(ch, "You are too exhausted!\r\n");
@@ -1935,7 +1927,7 @@ ACMD(do_tornado_kick)
 	prob =
 		CHECK_SKILL(ch,
 		SKILL_TORNADO_KICK) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
-	if (vict->getPosition() < POS_RESTING)
+	if (GET_POSITION(vict) < POS_RESTING)
 		prob += 30;
 	prob -= GET_DEX(vict);
 
@@ -1993,8 +1985,8 @@ ACMD(do_sleeper)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You try to put the sleeper on $p!", false, ch, ovict, 0,
@@ -2022,15 +2014,15 @@ ACMD(do_sleeper)
 			true, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	if (vict->getPosition() <= POS_SLEEPING) {
+	if (GET_POSITION(vict) <= POS_SLEEPING) {
 		send_to_char(ch, "Yeah.  Right.\r\n");
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
-    if (ch->checkReputations(vict))
+    if (checkReputations(ch, vict))
         return;
 
 	percent = ((10 + GET_LEVEL(vict)) >> 1) + number(1, 101);
@@ -2072,10 +2064,10 @@ ACMD(do_sleeper)
 		if (!IS_SET(retval, DAM_VICT_KILLED)) {
 			struct affected_type af;
 
-			vict->removeAllCombat();
+			removeAllCombat(vict);
 
 			WAIT_STATE(vict, 4 RL_SEC);
-			vict->setPosition(POS_SLEEPING);
+			GET_POSITION(vict) = POS_SLEEPING;
 
 			af.is_instant = false;
 			af.duration = 2;
@@ -2085,13 +2077,13 @@ ACMD(do_sleeper)
 			af.aff_index = 1;
 			af.location = APPLY_NONE;
 			af.level = GET_LEVEL(ch);
-            af.owner = ch->getIdNum();
+            af.owner = GET_IDNUM(ch);
 			affect_join(vict, &af, false, false, false, false);
 
 			if (IS_SET(retval, DAM_ATTACKER_KILLED))
 				return;
 
-			ch->removeCombat(vict);
+			removeCombat(ch, vict);
 			remember(vict, ch);
 		}
 	}
@@ -2115,8 +2107,8 @@ ACMD(do_turn)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You turn $p!", false, ch, ovict, 0, TO_CHAR);
@@ -2141,7 +2133,7 @@ ACMD(do_turn)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 	percent = ((GET_LEVEL(vict)) + number(1, 101));	/* 101% is a complete
 													 * failure */
@@ -2184,8 +2176,8 @@ ACMD(do_turn)
 void
 shoot_energy_gun(struct creature *ch,
                  struct creature *vict,
-                 obj_data *target,
-                 obj_data *gun,
+                 struct obj_data *target,
+                 struct obj_data *gun,
                  int *return_flags)
 {
 	sh_int prob, dam, cost;
@@ -2214,7 +2206,7 @@ shoot_energy_gun(struct creature *ch,
         act(tmp_sprintf("$n blasts %s with $p!", target->name),
             false, ch, gun, 0, TO_ROOM);
         act("You blast $p!", false, ch, target, 0, TO_CHAR);
-        damage_eq(ch, target, dam);
+        damage_eq(ch, target, dam, TYPE_BLAST);
         return;
     }
 
@@ -2229,36 +2221,37 @@ shoot_energy_gun(struct creature *ch,
     }
 
     prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
-    struct creatureList_iterator it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it)
-        if (*it != ch && (*it)->findCombat(ch))
-            prob -= (GET_LEVEL(*it) >> 3);
 
-    if (vict->isFighting() && !vict->findCombat(ch) && number(1, 121) > prob)
-        vict = vict->findRandomCombat();
-    else if (vict->isFighting() && number(1, 101) > prob) {
-        it = ch->in_room->people.begin();
-        for (; it != ch->in_room->people.end(); ++it) {
-            if ((*it) != ch && (*it) != vict && (*it)->findCombat(vict) &&
-                !number(0, 2)) {
-                vict = (*it);
+    struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next)
+        if (tch != ch && tch->fighting == ch)
+            prob -= GET_LEVEL(tch) / 8;
+
+    if (isFighting(vict) && !findCombat(vict, ch) && number(1, 121) > prob)
+        vict = findRandomCombat(vict);
+    else if (isFighting(vict) && number(1, 101) > prob) {
+        for (tch = ch->in_room->people;tch;tch = tch->room_next)
+            if (tch != ch
+                && tch != vict
+                && tch->fighting == vict
+                && !number(0, 2)) {
+                vict = tch;
                 break;
             }
-        }
     } else if (number(1, 81) > prob) {
-        struct creatureList_iterator it = ch->in_room->people.begin();
-        for (; it != ch->in_room->people.end(); ++it) {
-            if ((*it) != ch && (*it) != vict && !number(0, 2)) {
-                vict = (*it);
+        for (tch = ch->in_room->people;tch;tch = tch->room_next)
+            if (tch != ch
+                && tch != vict
+                && !number(0, 2)) {
+                vict = tch;
                 break;
             }
-        }
     }
 
     cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
 
     dam = dice(GET_OBJ_VAL(gun,1), GET_OBJ_VAL(gun,2));
-    dam += dam*ch->getLevelBonus(SKILL_SHOOT)/100; //damage bonus for taking the time to aim and shoot
+    dam += dam*get_skill_bonus(ch, SKILL_SHOOT)/100; //damage bonus for taking the time to aim and shoot
     dam += GET_HITROLL(ch);
 
     CUR_ENERGY(gun->contains) -= cost;
@@ -2306,7 +2299,7 @@ shoot_energy_gun(struct creature *ch,
 }
 
 int
-bullet_damage(obj_data *gun, obj_data *bullet)
+bullet_damage(struct obj_data *gun, struct obj_data *bullet)
 {
     sh_int dam;
 
@@ -2318,8 +2311,8 @@ bullet_damage(obj_data *gun, obj_data *bullet)
 void
 fire_projectile_round(struct creature *ch,
                       struct creature *vict,
-                      obj_data *gun,
-                      obj_data *bullet,
+                      struct obj_data *gun,
+                      struct obj_data *bullet,
                       int bullet_num,
                       int prob,
                       int *return_flags)
@@ -2348,7 +2341,7 @@ fire_projectile_round(struct creature *ch,
         obj_from_obj(bullet);
         obj_to_room(bullet, ch->in_room);
         arrow_name = tmp_strdup(bullet->name);
-        damage_eq(NULL, bullet, dam >> 2);
+        damage_eq(NULL, bullet, dam >> 2, TYPE_HIT);
     } else {
         if (!bullet_num && !IS_FLAMETHROWER(gun))
             sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
@@ -2401,7 +2394,7 @@ fire_projectile_round(struct creature *ch,
 }
 
 void
-projectile_blast_corpse(struct creature *ch, obj_data *gun, obj_data *bullet)
+projectile_blast_corpse(struct creature *ch, struct obj_data *gun, struct obj_data *bullet)
 {
     //
     // vict is dead, blast the corpse
@@ -2422,7 +2415,7 @@ projectile_blast_corpse(struct creature *ch, obj_data *gun, obj_data *bullet)
             act("$n blasts $p with $P!!",
                 false, ch, ch->in_room->contents, gun, TO_ROOM);
         }
-        if (damage_eq(ch, ch->in_room->contents, dam))
+        if (damage_eq(ch, ch->in_room->contents, dam, TYPE_BLAST))
             return;
     } else {
         act("You fire off a round from $P.",
@@ -2435,8 +2428,8 @@ projectile_blast_corpse(struct creature *ch, obj_data *gun, obj_data *bullet)
 void
 shoot_projectile_gun(struct creature *ch,
                      struct creature *vict,
-                     obj_data *target,
-                     obj_data *gun,
+                     struct obj_data *target,
+                     struct obj_data *gun,
                      int *return_flags)
 {
 	struct creature *tmp_vict = NULL;
@@ -2472,14 +2465,14 @@ shoot_projectile_gun(struct creature *ch,
 			act("You fire $P into $p!", false, ch, target, bullet, TO_CHAR);
 			obj_from_obj(bullet);
 			obj_to_room(bullet, ch->in_room);
-			damage_eq(NULL, bullet, dam >> 2);
+			damage_eq(NULL, bullet, dam >> 2, TYPE_HIT);
 		} else {
 			act(tmp_sprintf("$n blasts %s with $p!", target->name),
                 false, ch, gun, 0, TO_ROOM);
 			act("You blast $p!", false, ch, target, 0, TO_CHAR);
 			extract_obj(bullet);
 		}
-        damage_eq(ch, target, dam);
+        damage_eq(ch, target, dam, TYPE_BLAST);
         return;
 	}
 
@@ -2497,35 +2490,33 @@ shoot_projectile_gun(struct creature *ch,
         prob += number(GET_LEVEL(ch) >> 2,
                        GET_LEVEL(ch) >> 1) + (GET_REMORT_GEN(ch) << 2);
 
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) != ch && (*it)->findCombat(ch))
-			prob -= (GET_LEVEL((*it)) >> 3);
-	}
+    struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next)
+        if (tch != ch && tch->fighting == tch)
+            prob -= GET_LEVEL(tch) / 8;
 
-	if (ch->isFighting())
+	if (ch->fighting)
 	    prob -= 10;
 
-	if (vict->isFighting() && !vict->findCombat(ch) && number(1, 121) > prob)
-		vict = vict->findRandomCombat();
-	else if (vict->isFighting() && number(1, 101) > prob) {
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
-				!number(0, 2)) {
-				vict = *it;
-				break;
-			}
-		}
+	if (isFighting(vict) && !findCombat(vict, ch) && number(1, 121) > prob)
+		vict = findRandomCombat(vict);
+	else if (isFighting(vict) && number(1, 101) > prob) {
+        for (tch = ch->in_room->people;tch;tch = tch->room_next)
+            if (tch != ch
+                && tch != vict
+                && tch->fighting == vict
+                && !number(0, 2)) {
+                vict = tch;
+                break;
+            }
 	} else if (number(1, 81) > prob) {
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
-				!number(0, 2)) {
-				vict = *it;
-				break;
-			}
-		}
+		for (tch = ch->in_room->people;tch;tch = tch->room_next)
+            if (tch != ch
+                && tch != vict
+                && !number(0, 2)) {
+                vict = tch;
+                break;
+            }
 	}
 
 	if (CUR_R_O_F(gun) <= 0)
@@ -2599,8 +2590,8 @@ ACMD(do_shoot)
 		return;
 	}
 
-	if (ch->isFighting() && ch->findRandomCombat()->findCombat(ch)
-        && !number(0, 3) && (!ch->getLevelBonus(SKILL_ENERGY_WEAPONS > 60))
+	if (ch->fighting && random_opponent(ch)->fighting == ch
+        && !number(0, 3) && (!get_skill_bonus(ch, SKILL_ENERGY_WEAPONS > 60))
         && (GET_LEVEL(ch) < LVL_GRGOD)) {
 		send_to_char(ch, "You are in too close to get off a shot!\r\n");
 		return;
@@ -2610,7 +2601,7 @@ ACMD(do_shoot)
 
 	if (!*argument) {
 
-		if (!(vict = ch->findRandomCombat())) {
+		if (!(vict = random_opponent(ch))) {
 			if (IS_GUN(gun) && !IS_ARROW(gun) && GUN_TYPE(gun) >= 0
 				&& GUN_TYPE(gun) < NUM_GUN_TYPES) {
 
@@ -2644,7 +2635,7 @@ ACMD(do_shoot)
 			send_to_char(ch, "Aren't we funny today...\r\n");
 			return;
 		}
-		if (!ch->isOkToAttack(vict, true))
+		if (!ok_to_attack(ch, vict, true))
 			return;
 
 	}
@@ -2659,22 +2650,20 @@ ACMD(do_ceasefire)
 {
     struct creature *f = NULL;
 
-    if (!ch->isFighting()) {
+    if (!ch->fighting) {
 		send_to_char(ch, "But you aren't fighting anyone.\r\n");
         return;
     }
 
-    struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-        // Nasty hack because SafeList won't let me use front()...
-        CombatDataList *combatList = (*it)->getCombatList();
-		if (combatList->begin()->getOpponent() == ch) {
-			f = *it;
-			break;
-		}
-	}
+    struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+        if (tch != ch && tch->fighting == ch) {
+            f = tch;
+            break;
+        }
+    }
 
-    if (ch->findCombat(f))
+    if (f)
         send_to_char(ch, "You can't ceasefire while your enemy is actively "
                          "attacking you!\r\n");
     else {
@@ -2682,22 +2671,9 @@ ACMD(do_ceasefire)
             0, NULL, TO_CHAR);
 		act("$n stops attacking $s opponents.", false, ch, 0,
             NULL, TO_NOTVICT);
-        it = ch->in_room->people.begin();
-        for (; it != ch->in_room->people.end(); ++ it) {
-            if (ch->findCombat((*it))) {
-                (*it)->removeCombat(ch);
-                ch->removeCombat((*it));
-		        act("$n stops attacking you.", false, ch, 0,
-                    ch->findCombat((*it)), TO_VICT);
-            }
-        }
+        act("$n stops attacking you.", false, ch, 0, f, TO_VICT);
+        ch->fighting = NULL;
 		WAIT_STATE(ch, 2 RL_SEC);
-        if (f) {
-            act("You start defending yourself against $N", false, ch, 0, f,
-                TO_CHAR);
-            ch->addCombat(f, false);
-            f->addCombat(ch, false);
-        }
     }
 }
 
@@ -2713,8 +2689,8 @@ ACCMD(do_disarm)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else {
 			send_to_char(ch, "Who do you want to disarm?\r\n");
 			WAIT_STATE(ch, 4);
@@ -2726,10 +2702,10 @@ ACCMD(do_disarm)
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
-    if (ch->checkReputations(vict))
+    if (checkReputations(ch, vict))
         return;
 
 	if (!(weap = GET_EQ(vict, WEAR_WIELD))) {
@@ -2740,7 +2716,7 @@ ACCMD(do_disarm)
 	percent = ((GET_LEVEL(vict)) + number(1, 101));	/* 101% is a complete
 													 * failure */
 	prob = MAX(0, GET_LEVEL(ch) +
-		CHECK_SKILL(ch, SKILL_DISARM) - weap->getWeight());
+		CHECK_SKILL(ch, SKILL_DISARM) - getWeight(weap));
 
 	prob += GET_DEX(ch) - GET_DEX(vict);
 	if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED))
@@ -2774,19 +2750,19 @@ ACCMD(do_disarm)
 				do_get(vict, fname(weap->aliases), 0, 0, 0);
 		}
 
-		GET_EXP(ch) += MIN(100, weap->getWeight());
+		GET_EXP(ch) += MIN(100, getWeight(weap));
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (IS_NPC(vict) && !vict->isFighting() && can_see_creature(vict, ch)) {
-            ch->addCombat(vict, true);
-            vict->addCombat(ch, false);
+		if (IS_NPC(vict) && !isFighting(vict) && can_see_creature(vict, ch)) {
+            addCombat(ch, vict, true);
+            addCombat(vict, ch, false);
         }
 	} else {
 		send_to_char(ch, "You fail the disarm!\r\n");
 		act("$n tries to disarm you!", false, ch, 0, vict, TO_VICT);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (IS_NPC(vict) && !vict->isFighting()) {
-            ch->addCombat(vict, true);
-            vict->addCombat(ch, false);
+		if (IS_NPC(vict) && !isFighting(vict)) {
+            addCombat(ch, vict, true);
+            addCombat(vict, ch, false);
         }
 	}
 }
@@ -2803,8 +2779,8 @@ ACMD(do_impale)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You try to impale $p!", false, ch, ovict, 0, TO_CHAR);
@@ -2849,7 +2825,7 @@ ACMD(do_impale)
 		}
 
 	}
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	percent = ((10 - (GET_AC(vict) / 10)) << 1) + number(1, 101);
@@ -2860,8 +2836,8 @@ ACMD(do_impale)
 
 	cur_weap = weap;
 	dam = dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2)) * 2 +
-          weap->getWeight() * 4 + GET_DAMROLL(ch);
-    dam += dam * ch->getLevelBonus(SKILL_IMPALE) / 200;
+          getWeight(weap) * 4 + GET_DAMROLL(ch);
+    dam += dam * get_skill_bonus(ch, SKILL_IMPALE) / 200;
 
 	if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED) && weap->worn_on == WEAR_WIELD)
 		dam <<= 1;
@@ -2890,8 +2866,8 @@ ACMD(do_intimidate)
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict =
                     get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
             act("You attempt to intimidate $p!", false, ch, ovict, 0,
@@ -2906,7 +2882,7 @@ ACMD(do_intimidate)
 		}
 	}
 
-    if (ch->checkReputations(vict))
+    if (checkReputations(ch, vict))
         return;
 
 	if (!can_see_creature(vict, ch)) {
@@ -2926,11 +2902,11 @@ ACMD(do_intimidate)
 		af.modifier = -5;
 		af.location = APPLY_HITROLL;
 		af.bitvector = 0;
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
 		affect_to_char(vict, &af);
 		return;
 	}
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	prob = GET_LEVEL(vict) + number(1, 51) +
@@ -2958,7 +2934,7 @@ ACMD(do_intimidate)
         af.modifier = -5;
         af.location = APPLY_HITROLL;
         af.bitvector = 0;
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
         affect_to_char(vict, &af);
 
     } else {
@@ -2987,7 +2963,7 @@ ACMD(do_beguile)
 		send_to_char(ch, "You find yourself amazingly beguiling.\r\n");
 		return;
 	}
-    if (ch->checkReputations(vict))
+    if (checkReputations(ch, vict))
         return;
 
 	act("$n looks deeply into your eyes with an enigmatic look.",
@@ -3000,7 +2976,7 @@ ACMD(do_beguile)
 	if (!can_see_creature(vict, ch))
 		return;
 
-    if (!ch->isOkToAttack(vict))
+    if (!ok_to_attack(ch, vict))
         return;
 
 	if (GET_INT(vict) < 4) {
@@ -3021,39 +2997,38 @@ ACMD(do_beguile)
 //This function assumes that ch is a merc.  It provides for  mercs
 //shooting wielded guns in combat instead of bludgeoning with them
 
-struct creature *randomize_target(struct creature *ch, struct creature *vict, short prob)
+struct creature *
+randomize_target(struct creature *ch, struct creature *vict, short prob)
 {
-    struct creatureList_iterator it;
-
-    it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it) {
-        if (*it != ch && (*it)->findCombat(ch))
-            prob -= (GET_LEVEL((*it)) >> 3);
-    }
-
-    it = ch->in_room->people.begin();
-
-    if (vict->isFighting() && !vict->findCombat(ch)) {
-        if (number(1, 121) > prob)
-            vict = vict->findRandomCombat();
-    }
-    else if (vict->isFighting() && (number(1, 101) > prob)) {
-        for (; it != ch->in_room->people.end(); ++it) {
-            if ((*it != ch) && (*it)->findCombat(vict)) {
-                if (!number(0, 2)) {
-                    vict = *it;
-                    break;
-                }
-            }
+    struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+        if (tch != ch && tch->fighting == ch) {
+            prob -= GET_LEVEL(tch) / 8;
         }
     }
-    else if (number(1, 81) > prob) {
-        for (; it != ch->in_room->people.end(); ++it) {
-            if (*it != ch && (*it)->findCombat(vict)) {
-                if (!number(0, 2)) {
-                    vict = *it;
-                    break;
-                }
+
+    if (vict->fighting != ch) {
+        if (number(1, 121) > prob)
+            vict = findRandomCombat(vict);
+    }
+    else if (isFighting(vict) && (number(1, 101) > prob)) {
+        for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+            if (tch != ch
+                && tch != vict
+                && tch->fighting == vict
+                && !number(0, 2)) {
+                vict = tch;
+                break;
+            }
+        }
+    } else if (number(1, 81) > prob) {
+        for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+            if (tch != ch
+                && tch != vict
+                && tch->fighting == vict
+                && !number(0, 2)) {
+                vict = tch;
+                break;
             }
         }
     }
@@ -3103,12 +3078,12 @@ do_combat_fire(struct creature *ch, struct creature *vict)
 		return 0;
 	}
 
-	if (ch->getPosition() < POS_FIGHTING) {
+	if (GET_POSITION(ch) < POS_FIGHTING) {
 		send_to_char(ch, "You can't fight while sitting!\r\n");
 		return 0;
 	}
 	// And since ch and vict should already be fighting this should never happen either
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return 0;
 
 	//
@@ -3210,7 +3185,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
     if (IS_ARROW(gun)) {
         obj_from_obj(bullet);
         obj_to_room(bullet, ch->in_room);
-        damage_eq(NULL, bullet, dam >> 2);
+        damage_eq(NULL, bullet, dam >> 2, TYPE_HIT);
     } else {
         if (!IS_FLAMETHROWER(gun))
             sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,

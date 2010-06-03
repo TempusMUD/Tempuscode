@@ -6,9 +6,6 @@
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-#include <vector>
-using namespace std;
-#include <fstream>
 #include "xml_utils.h"
 
 #define QUEST_DIR "quest"
@@ -54,24 +51,6 @@ using namespace std;
  * An entry representing a player in a quest and the flags set on him/her.
 **/
 struct qplayer_data {
-		qplayer_data( long id ) {
-            idnum = id;
-            flags = deaths = mobkills = pkills = 0;
-        }
-		qplayer_data( const qplayer_data &q) { *this = q; }
-		qplayer_data& operator=( const qplayer_data &q );
-		bool operator==( const qplayer_data &q ) const { return idnum == q.idnum; }
-		bool operator!=( const qplayer_data &q ) const { return idnum != q.idnum; }
-		bool operator<( const qplayer_data &q ) const { return idnum < q.idnum; }
-		bool operator>( const qplayer_data &q ) const { return idnum > q.idnum; }
-		operator long() { return idnum; }
-		operator int() { return (int)idnum; }
-		bool isFlagged( int flag );
-		void setFlag( int flag );
-		void removeFlag( int flag );
-		void toggleFlag( int flag );
-		int getFlags() { return flags; }
-
 		long idnum;
 		int flags;
         int deaths;
@@ -79,47 +58,9 @@ struct qplayer_data {
         int pkills;
 };
 
-struct Quest {
-		Quest( struct creature *ch, int type, const char* name );
-		Quest( const Quest &q );
-		Quest(xmlNodePtr n, xmlDocPtr doc);
-		~Quest();
-		bool operator==( const Quest &q ) const { return vnum == q.vnum; }
-		bool operator!=( const Quest &q ) const { return vnum != q.vnum; }
-		bool operator<( const Quest &q ) const { return vnum < q.vnum; }
-		bool operator>( const Quest &q ) const { return vnum > q.vnum; }
-		Quest& operator=( const Quest &q );
-		bool canEdit( struct creature *ch );
-		bool addPlayer( long id );
-		bool removePlayer( long id );
-		bool addBan( long id );
-		bool removeBan( long id );
-		bool isBanned( long id );
-		bool isPlaying( long id );
-		bool canLeave( struct creature *ch );
-		bool canJoin( struct creature *ch );
-		qplayer_data &getPlayer( long id );
-		qplayer_data &getPlayer( int index ) { return players[index]; }
-		qplayer_data &getBan( long id );
-		void save( ostream &out );
-		void addPenalized( int penalty ) { penalized += penalty; }
-		void addAwarded( int award ) { awarded += award; }
-		int getNumPlayers() { return (int)players.size(); }
-		int getNumBans() { return (int)bans.size(); }
-		int getAwarded() { return awarded; }
-		int getPenalized() { return penalized; }
-		int getMaxPlayers() { return max_players; }
-		void setMaxPlayers( int max ) { max_players = max; }
-		int getVnum() { return vnum; }
-		time_t getEnded() { return ended; }
-		void setEnded( time_t end ) { ended = end; }
-		time_t getStarted() { return started; }
-		long getOwner() { return owner_id; }
-        void tallyDeath(int player);
-        void tallyMobKill(int player);
-        void tallyPlayerKill(int player);
-		void clearDescs();
-		bool levelOK( struct creature *ch );
+int top_quest_vnum;
+
+struct quest {
 		int max_players; // max number of players
 		int awarded; // qps awarded
 		int penalized; // qps taken
@@ -127,9 +68,8 @@ struct Quest {
 		long owner_id;
 		time_t started;
 		time_t ended;
-		vector<qplayer_data> players;
-		vector<qplayer_data> bans;
-		static int top_vnum;
+		struct qplayer_data *players;
+		struct qplayer_data *bans;
 		int flags;
 		char *name;
 		char *description;
@@ -144,15 +84,15 @@ struct Quest {
 };
 
 // utility functions
-Quest *find_quest(struct creature *ch, char *argument);
+struct quest *find_quest(struct creature *ch, char *argument);
 const char *list_active_quests(struct creature *ch);
-Quest *quest_by_vnum(int vnum);
-void qp_reload(int sig = 0);
+struct quest *quest_by_vnum(int vnum);
+void qp_reload(int sig);
 
 void qlog(struct creature *ch, const char *str, int type, int level, int file);
 
 struct creature *check_char_vis(struct creature *ch, char *name);
-void list_quest_players(struct creature *ch, Quest * quest, char *outbuf);
+void list_quest_players(struct creature *ch, struct quest *quest, char *outbuf);
 int boot_quests(void);
 int check_editors(struct creature *ch, char **buffer);
 void save_quests();

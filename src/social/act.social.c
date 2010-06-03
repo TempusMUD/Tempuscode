@@ -160,7 +160,7 @@ ACMD(do_action)
 		act(action->char_auto, false, ch, 0, 0, TO_CHAR);
 		act(action->others_auto, action->hide, ch, 0, 0, TO_ROOM);
 	} else {
-		if (vict->getPosition() < action->min_victim_position)
+		if (GET_POSITION(vict) < action->min_victim_position)
 			act("$N is not in a proper position for that.",
 				false, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		else {
@@ -220,7 +220,7 @@ ACMD(do_point)
 ACMD(do_flip)
 {
 	if (is_abbrev(tmp_getword(&argument), "coin")) {
-		obj_data *obj;
+		struct obj_data *obj;
 
 		for (obj = ch->carrying;obj;obj = obj->next_content)
 			if (isname("coin", obj->aliases))

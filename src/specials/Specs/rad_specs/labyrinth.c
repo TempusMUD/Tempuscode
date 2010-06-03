@@ -163,7 +163,7 @@ SPECIAL(drink_me_bottle)
 	if (!CMD_IS("drink"))
 		return 0;
 
-	if (ch->getPosition() == POS_SLEEPING) {
+	if (GET_POSITION(ch) == POS_SLEEPING) {
 		send_to_char(ch, "You'll have to wake up first!\r\n");
 		return 1;
 	}
@@ -191,7 +191,7 @@ SPECIAL(drink_me_bottle)
 	af.modifier = -(GET_HEIGHT(ch) - 10);
 	af.aff_index = 0;
 	af.bitvector = 0;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 
 	affect_to_char(ch, &af);
 
@@ -379,11 +379,11 @@ SPECIAL(pendulum_timer_mob)
 					("The pendulum swings north, clearing the floor only by a foot or two.\r\n",
 					in_room);
 
-				room_data *theRoom = in_room;
+				struct room_data *theRoom = in_room;
 				struct creatureList_iterator it = theRoom->people.begin();
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
-					if (vict->getPosition() > POS_SITTING) {
+					if (GET_POSITION(vict) > POS_SITTING) {
 						send_to_char(vict,
 							"You are carried north by the pendulum.\r\n");
 						act("$n is pushed from the room by the pendulum.",
@@ -427,11 +427,11 @@ SPECIAL(pendulum_timer_mob)
 					("The pendulum swings south, clearing the floor only by a foot or two.\r\n",
 					in_room);
 
-				room_data *theRoom = in_room;
+				struct room_data *theRoom = in_room;
 				struct creatureList_iterator it = theRoom->people.begin();
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
-					if (vict->getPosition() > POS_SITTING) {
+					if (GET_POSITION(vict) > POS_SITTING) {
 						send_to_char(vict,
 							"You are carried south by the pendulum.\r\n");
 						act("$n is pushed from the room by the pendulum.",

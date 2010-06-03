@@ -97,9 +97,9 @@ ACMD(do_quit)
 
 	if (subcmd != SCMD_QUIT && GET_LEVEL(ch) < LVL_AMBASSADOR)
 		send_to_char(ch, "You have to type quit - no less, to quit!\r\n");
-	else if (ch->getPosition() == POS_FIGHTING)
+	else if (GET_POSITION(ch) == POS_FIGHTING)
 		send_to_char(ch, "No way!  You're fighting for your life!\r\n");
-	else if (ch->getPosition() < POS_STUNNED) {
+	else if (GET_POSITION(ch) < POS_STUNNED) {
 		send_to_char(ch, "You die before your time...\r\n");
 		die(ch, 0, 0);
 	} else {
@@ -196,7 +196,7 @@ ACMD(do_save)
 	if (cmd) {
 		send_to_char(ch, "Saving %s.\r\n", GET_NAME(ch));
 	}
-	ch->saveToXML();
+	save_player_to_xml(ch);
 	ch->crashSave();
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 		House* house = Housing.findHouseByRoom( ch->in_room->number );
@@ -446,7 +446,7 @@ ACMD(do_group)
 		return;
 	}
 
-	if (ch->getPosition() < POS_RESTING) {
+	if (GET_POSITION(ch) < POS_RESTING) {
 		send_to_char(ch, "You need to be awake to do that.\r\n");
 		return;
 	}
@@ -720,15 +720,15 @@ ACMD(do_use)
 		break;
 
 	case SCMD_READ:
-		if (ch->isFighting()) {
-			act("What, while fighting $N?!", false, ch, 0, ch->findRandomCombat(),
+		if (ch->fighting) {
+			act("What, while fighting $N?!", false, ch, 0, random_opponent(ch),
 				TO_CHAR);
 			return;
 		}
 		break;
 	case SCMD_RECITE:
-		if (ch->isFighting()) {
-			act("What, while fighting $N?!", false, ch, 0, ch->findRandomCombat(),
+		if (ch->fighting) {
+			act("What, while fighting $N?!", false, ch, 0, random_opponent(ch),
 				TO_CHAR);
 			return;
 		} else if (GET_OBJ_TYPE(mag_item) != ITEM_SCROLL) {
@@ -861,7 +861,7 @@ ACMD(do_display)
 	if (!*arg1) {
 		send_to_char(ch,
 			"Usage: prompt { H | M | V | A | T | all | normal | none %s}\r\n",
-            ch->getLevel() > LVL_IMMORT ? "| vnums" : "");
+            GET_LEVEL(ch) > LVL_IMMORT ? "| vnums" : "");
 		return;
 	}
 
@@ -1191,7 +1191,7 @@ ACMD(do_gen_tog)
 		result = PLR_TOG_CHK(ch, PLR_HALT);
 		break;
 	case SCMD_MORTALIZE:
-		if (ch->isFighting()) {
+		if (ch->fighting) {
 			send_to_char(ch, "You can't do this while fighting.\r\n");
 			return;
 		}
@@ -1276,7 +1276,7 @@ ACMD(do_gen_tog)
 			send_to_char(ch, "Nothing happens.\r\n");
 			return;
 		}
-		if (ch->isFighting()) {
+		if (ch->fighting) {
 			send_to_char(ch, "You can't change your mind about playerkilling while you're fighting!\r\n");
 			return;
 		}
@@ -1792,7 +1792,7 @@ ACMD(do_throw)
                     obj_to_room(obj, ch->in_room);
                 }
             } else if (GET_OBJ_TYPE(obj) == ITEM_WEAPON
-                       && ch->isOkToAttack(target_vict)) {
+                       && ok_to_attack(ch, target_vict)) {
                 // Hit throw with a weapon
                 damage(ch, target_vict,
                        dice(GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)) +
@@ -1953,9 +1953,9 @@ ACMD(do_knock)
 			TO_VICT | TO_SLEEP);
 		act("$n knocks on $N's skull.  Anybody home?", false, ch, 0, vict,
 			TO_NOTVICT);
-		if (vict->getPosition() == POS_SLEEPING
+		if (GET_POSITION(vict) == POS_SLEEPING
 			&& !AFF_FLAGGED(vict, AFF_SLEEP))
-			vict->setPosition(POS_RESTING);
+			GET_POSITION(vict) = POS_RESTING;
 		return;
 	}
 	// Ok, not someone's head.  Maybe an object?

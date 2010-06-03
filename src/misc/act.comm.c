@@ -50,7 +50,7 @@ extern int quest_status;
 extern const char *language_names[];
 
 int parse_player_class(char *arg);
-void summon_cityguards(room_data *room);
+void summon_cityguards(struct room_data *room);
 
 void
 perform_say(struct creature *ch, const char *saystr, const char *message)
@@ -73,7 +73,7 @@ perform_say_to(struct creature *ch, struct creature *target, const char *message
 }
 
 void
-perform_say_to_obj(struct creature *ch, obj_data *obj, const char *message)
+perform_say_to_obj(struct creature *ch, struct obj_data *obj, const char *message)
 {
     message = act_escape(message);
 	act(tmp_sprintf("&BYou$a say to $p$l, &c'$[%s]'", message),
@@ -740,7 +740,7 @@ ACMD(do_gen_comm)
         }
 
 		if ((subcmd == SCMD_DREAM &&
-				(ch->getPosition() != POS_SLEEPING)) &&
+				(GET_POSITION(ch) != POS_SLEEPING)) &&
 				!ZONE_IS_ASLEEP(ch->in_room->zone)) {
 			send_to_char(ch,
 				"You attempt to dream, but realize you need to sleep first.\r\n");

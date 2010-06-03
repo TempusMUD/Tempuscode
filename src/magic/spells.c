@@ -808,7 +808,7 @@ ASPELL(spell_locate_object)
 	if (ch) {
 		int extracost;
 
-		if (term_count > MAX(1, (ch->getLevelBonus(SPELL_LOCATE_OBJECT) / 25))) {
+		if (term_count > MAX(1, (get_skill_bonus(ch, SPELL_LOCATE_OBJECT) / 25))) {
 			send_to_char(ch, "You are not powerful enough to be so precise.\r\n");
 			return;
 		}
@@ -931,7 +931,7 @@ ASPELL(spell_charm)
 		return;
 	}
 
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	if (victim == ch)
 		send_to_char(ch, "You like yourself even better!\r\n");
 	else if (!IS_NPC(victim) && !(victim->desc))
@@ -1044,7 +1044,7 @@ ASPELL(spell_charm_animal)
 	if (victim == NULL || ch == NULL)
 		return;
 
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	if (victim == ch)
 		send_to_char(ch, "You like yourself even better!\r\n");
 	else if (AFF_FLAGGED(victim, AFF_SANCTUARY))
@@ -1791,7 +1791,7 @@ ASPELL(spell_conjure_elemental)
 		return;
 	}
     float mult = MAX(0.5,
-                     (float)((ch->getLevelBonus(SPELL_CONJURE_ELEMENTAL)) * 1.5) / 100);
+                     (float)((get_skill_bonus(ch, SPELL_CONJURE_ELEMENTAL)) * 1.5) / 100);
 
     // tweak them out
     GET_HITROLL(elemental) = MIN((int)(GET_HITROLL(elemental) * mult), 60);
@@ -1835,7 +1835,7 @@ ASPELL(spell_conjure_elemental)
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
 		af.level = level;
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
 		af.aff_index = 0;
 		affect_to_char(elemental, &af);
 
@@ -1869,9 +1869,9 @@ ASPELL(spell_death_knell)
 	af3.level = GET_LEVEL(ch);
 
 	// Set the duration
-	af.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
-	af2.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
-	af3.duration = 4 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 6);
+	af.duration = 4 + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 6);
+	af2.duration = 4 + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 6);
+	af3.duration = 4 + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 6);
 
 	// Affect locations
 	af.location = APPLY_STR;
@@ -1879,15 +1879,15 @@ ASPELL(spell_death_knell)
 	af3.location = APPLY_DAMROLL;
 
     // Affect owner
-    af.owner = ch->getIdNum();
-    af2.owner = ch->getIdNum();
-    af3.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
+    af2.owner = GET_IDNUM(ch);
+    af3.owner = GET_IDNUM(ch);
 
 	// Modifiers
 	af.modifier = 2;
 	af2.modifier =
-		(GET_LEVEL(victim) + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 2));
-	af3.modifier = 5 + (ch->getLevelBonus(SPELL_DEATH_KNELL) / 15);
+		(GET_LEVEL(victim) + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 2));
+	af3.modifier = 5 + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 15);
 
 	// Affect the character
 	if (!affected_by_spell(ch, SPELL_DEATH_KNELL)) {
@@ -2047,7 +2047,7 @@ ASPELL(spell_sword)
 	af.location = 0;
 	af.bitvector = AFF_CHARM;
 	af.level = level;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	af.aff_index = 0;
 
 	affect_to_char(sword, &af);
@@ -2458,10 +2458,10 @@ ASPELL(spell_summon_legion)
 	}
 
 	// devil modification based on power level of leige
-	mult = ch->getLevelBonus(SPELL_SUMMON_LEGION) * 1.5 / 100;
+	mult = get_skill_bonus(ch, SPELL_SUMMON_LEGION) * 1.5 / 100;
 
 	// choose the appropriate minion
-	i = (ch->getLevelBonus(SPELL_SUMMON_LEGION) * 2 / 3) + number(1, 30);
+	i = (get_skill_bonus(ch, SPELL_SUMMON_LEGION) * 2 / 3) + number(1, 30);
 	i = i / 20;					// divide based on number of devils avaliable
 	i = MAX(i, 0);
 	i = MIN(i, 4);
@@ -2491,7 +2491,7 @@ ASPELL(spell_summon_legion)
 		false, devil, 0, 0, TO_ROOM);
 
 	if (number(0, 50 + GET_LEVEL(devil)) >
-			ch->getLevelBonus(SPELL_SUMMON_LEGION) ||
+			get_skill_bonus(ch, SPELL_SUMMON_LEGION) ||
 			!can_charm_more(ch)) {
 		act("Uh, oh.  $N doesn't look happy at you!",
 			false, ch, 0, devil, TO_CHAR);
@@ -2529,7 +2529,7 @@ ASPELL(spell_summon_legion)
 	af.location = 0;
 	af.bitvector = AFF_CHARM;
 	af.level = level;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	af.aff_index = 0;
 	affect_to_char(devil, &af);
 
@@ -2771,7 +2771,7 @@ ASPELL(spell_animate_dead)
 	af.location = 0;
 	af.bitvector = AFF_CHARM;
 	af.level = level;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	af.aff_index = 0;
 	affect_to_char(zombie, &af);
 
@@ -2792,7 +2792,7 @@ ASPELL(spell_unholy_stalker)
 			false, ch, 0, victim, TO_VICT);
 		return;
 	}
-    if (!ch->isOkToAttack(victim)) {
+    if (!ok_to_attack(ch, victim)) {
         return;
     }
 	if (victim->in_room != ch->in_room) {
@@ -2995,7 +2995,7 @@ ASPELL(spell_control_undead)
 		af.location = 0;
 		af.bitvector = AFF_CHARM;
 		af.level = level;
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
 		af.aff_index = 0;
 		affect_to_char(victim, &af);
 
@@ -3034,7 +3034,7 @@ ASPELL(spell_sun_ray)
                     false, ch, 0, *it, TO_CHAR );
 				return;
 			}
-            if (IS_UNDEAD(*it) && !ch->isOkToAttack(*it))
+            if (IS_UNDEAD(*it) && !ok_to_attack(ch, *it))
 				return;
 		}
 	}
@@ -3043,7 +3043,7 @@ ASPELL(spell_sun_ray)
 		if (ch == (*it)
             || PRF_FLAGGED((*it), PRF_NOHASSLE)
             || !IS_UNDEAD(*it)
-            || !ch->isOkToAttack(*it))
+            || !ok_to_attack(ch, *it))
             continue;
 
         dam = dice(level, 18) + level;
@@ -3062,12 +3062,12 @@ ASPELL(spell_sun_ray)
                 af.duration = 2;
                 af.bitvector = AFF_BLIND;
                 af.level = af2.level = level;
-                af.owner = ch->getIdNum();
+                af.owner = GET_IDNUM(ch);
                 af2.location = APPLY_AC;
                 af2.modifier = 40;
                 af2.duration = 2;
                 af2.bitvector = AFF_BLIND;
-                af2.owner = ch->getIdNum();
+                af2.owner = GET_IDNUM(ch);
                 affect_join(*it, &af, false, false, false, false);
                 if (af2.bitvector || af2.location)
                     affect_join((*it), &af2, false, false, false, false);
@@ -3110,7 +3110,7 @@ ASPELL(spell_inferno)
                     false, ch, 0, vict, TO_CHAR);
 				return;
 			}
-            if (!ch->isOkToAttack(*it))
+            if (!ok_to_attack(ch, *it))
 				return;
 		}
 	}
@@ -3172,7 +3172,7 @@ ASPELL(spell_banishment)
 }
 
 bool
-remove_random_obj_affect(struct creature *ch, obj_data *obj, int level)
+remove_random_obj_affect(struct creature *ch, struct obj_data *obj, int level)
 {
 	// aff_type : apply:      0 - (MAX_OBJ_AFFECT - 1)
 	//            bitfield:   MAX_OBJ_AFFECT + field
@@ -3314,7 +3314,7 @@ ASPELL(spell_dispel_magic)
     }
 
     // removes up to ten affects
-    aff_to_remove = 10 - ch->getLevelBonus(IS_MAGE(ch)) / 10;
+    aff_to_remove = 10 - get_skill_bonus(ch, IS_MAGE(ch)) / 10;
     if (!aff_to_remove)
         aff_to_remove = 1;
     aff_to_remove += number(0, 1);
@@ -3426,11 +3426,11 @@ ASPELL(spell_bless)
 		af.location = APPLY_HITROLL;
 		af.modifier = 2 + (level >> 4);
 		af.duration = 6;
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
 		af2.type = SPELL_BLESS;
 		af2.location = APPLY_SAVING_SPELL;
 		af2.modifier = -(1 + (level >> 5));
-        af2.owner = ch->getIdNum();
+        af2.owner = GET_IDNUM(ch);
 		af2.duration = 6;
 		affect_join(victim, &af, true, false, false, false);
 		affect_join(victim, &af2, true, false, false, false);
@@ -3526,11 +3526,11 @@ ASPELL(spell_damn)
 		af.location = APPLY_HITROLL;
 		af.modifier = -(2 + (level >> 4));
 		af.duration = 6;
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
 		af2.type = SPELL_DAMN;
 		af2.location = APPLY_SAVING_SPELL;
 		af2.modifier = +(1 + (level >> 5));
-        af2.owner = ch->getIdNum();
+        af2.owner = GET_IDNUM(ch);
 		af2.duration = 6;
 		affect_join(victim, &af, true, false, false, false);
 		affect_join(victim, &af2, true, false, false, false);
@@ -3636,7 +3636,7 @@ perform_call_familiar(struct creature *ch, int level, int type)
 	SET_BIT(MOB2_FLAGS(pet), MOB2_FAMILIAR);
 
 	// Scale the pet to the caster's level
-	percent = 50 + ch->getLevelBonus(true) / 2;
+	percent = 50 + get_skill_bonus(ch, true) / 2;
 	GET_LEVEL(pet) = GET_LEVEL(pet) * percent / 100;
 	GET_EXP(pet) = 0;
 	GET_MAX_HIT(pet) = GET_MAX_HIT(pet) * percent / 100;
@@ -3660,7 +3660,7 @@ perform_call_familiar(struct creature *ch, int level, int type)
 	af.location = 0;
 	af.bitvector = AFF_CHARM;
 	af.level = level;
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 	af.aff_index = 0;
 	affect_to_char(pet, &af);
 

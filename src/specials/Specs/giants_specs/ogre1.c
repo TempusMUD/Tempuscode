@@ -6,7 +6,7 @@
 
 SPECIAL(ogre1)
 {
-	if (cmd || ch->isFighting())
+	if (cmd || ch->fighting)
 		return 0;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;

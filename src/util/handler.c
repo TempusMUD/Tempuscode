@@ -203,7 +203,7 @@ namelist_match(const char *sub_list, const char *super_list)
 }
 
 void
-apply_object_affects(struct creature *ch, obj_data *obj, bool add)
+apply_object_affects(struct creature *ch, struct obj_data *obj, bool add)
 {
     if (!obj)
         return;
@@ -258,7 +258,7 @@ apply_object_affects(struct creature *ch, obj_data *obj, bool add)
     if (IS_INTERFACE(obj)
         && INTERFACE_TYPE(obj) == INTERFACE_CHIPS
         && obj->contains) {
-        for (obj_data *chip = obj->contains; chip; chip = chip->next_content)
+        for (struct obj_data *chip = obj->contains; chip; chip = chip->next_content)
             apply_object_affects(ch, chip, add);
     }
 }
@@ -915,7 +915,7 @@ update_trail(struct creature *ch, struct room_data *room, int dir, int mode)
 	} else if (dir >= 0 || trail->to_dir < 0)
 		trail->to_dir = dir;
 
-	if (ch->getPosition() == POS_FLYING)
+	if (GET_POSITION(ch) == POS_FLYING)
 		trail->track = 0;
 	else if (AFF_FLAGGED(ch, AFF_NOTRACK)
 			|| affected_by_spell(ch, SKILL_ELUSION))
@@ -986,7 +986,7 @@ char_from_room( struct creature *ch, bool check_specials)
 		exit(1);
 	}
 
-    ch->removeAllCombat();
+    remove_all_combat(ch);
 
 	if (GET_RACE(ch) == RACE_ELEMENTAL && IS_CLASS(ch, CLASS_FIRE))
 		ch->in_room->light--;
@@ -1009,7 +1009,7 @@ char_from_room( struct creature *ch, bool check_specials)
 
     // Some specials improperly deal with SPECIAL_LEAVE mode
     // by returning a true value.  This should take care of that.
-    room_data *tmp_room = ch->in_room;
+    struct room_data *tmp_room = ch->in_room;
 	long spec_rc = 0;
     if( check_specials ) {
 		spec_rc = special(ch, 0, 0, tmp_strdup(""), SPECIAL_LEAVE);
@@ -1046,7 +1046,7 @@ char_from_room( struct creature *ch, bool check_specials)
  * @return true on success, false if the struct creature may have died.
  */
 bool
-char_to_room(struct creature *ch, room_data *room, bool check_specials)
+char_to_room(struct creature *ch, struct room_data *room, bool check_specials)
 {
 	struct affected_type *aff = NULL, *next_aff = NULL;
 
@@ -1399,7 +1399,24 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
 }
 
 struct obj_data *
-unequip_char(struct creature *ch, int pos, int mode, bool disable_checks)
+unequip_char(struct creature *ch, int pos, int mode)
+{
+    struct obj_data *obj = raw_unequip_char(ch, pos, mode);
+
+	if (mode == EQUIP_WORN) {
+		if (pos == WEAR_WAIST && GET_EQ(ch, WEAR_BELT))
+			obj_to_char(unequip_char(ch, WEAR_BELT, EQUIP_WORN), ch);
+		if (pos == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2)) {
+			equip_char(ch, unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN),
+				WEAR_WIELD, EQUIP_WORN);
+		}
+	}
+
+    return obj;
+}
+
+struct obj_data *
+raw_unequip_char(struct creature *ch, int pos, int mode)
 {
 	struct obj_data *obj = NULL;
 	int invalid_char_class(struct creature *ch, struct obj_data *obj);
@@ -1472,15 +1489,6 @@ unequip_char(struct creature *ch, int pos, int mode, bool disable_checks)
 	obj->worn_on = -1;
 
 	affect_total(ch);
-
-	if (!disable_checks && mode == EQUIP_WORN) {
-		if (pos == WEAR_WAIST && GET_EQ(ch, WEAR_BELT))
-			obj_to_char(unequip_char(ch, WEAR_BELT, false), ch);
-		if (pos == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2)) {
-			equip_char(ch, unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN),
-				WEAR_WIELD, EQUIP_WORN);
-		}
-	}
 
 	return (obj);
 }
@@ -1629,7 +1637,7 @@ get_char_in_world_by_idnum(int nr)
 }
 
 bool
-same_obj(obj_data *obj1, obj_data *obj2)
+same_obj(struct obj_data *obj1, struct obj_data *obj2)
 {
 	int index;
 
@@ -2097,7 +2105,7 @@ get_char_room_vis(struct creature *ch, const char *name)
 }
 
 struct creature *
-get_char_random(room_data *room)
+get_char_random(struct room_data *room)
 {
 	struct creature *result = NULL;
 	int total = 0;
@@ -2116,7 +2124,7 @@ get_char_random(room_data *room)
 }
 
 struct creature *
-get_char_random_vis(struct creature *ch, room_data *room)
+get_char_random_vis(struct creature *ch, struct room_data *room)
 {
 	struct creature *result = NULL;
 	int total = 0;
@@ -2137,7 +2145,7 @@ get_char_random_vis(struct creature *ch, room_data *room)
 }
 
 struct creature *
-get_player_random(room_data *room)
+get_player_random(struct room_data *room)
 {
 	struct creature *result = NULL;
 	int total = 0;
@@ -2158,7 +2166,7 @@ get_player_random(room_data *room)
 }
 
 struct creature *
-get_player_random_vis(struct creature *ch, room_data *room)
+get_player_random_vis(struct creature *ch, struct room_data *room)
 {
 	struct creature *result = NULL;
 	int total = 0;

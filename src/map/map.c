@@ -397,8 +397,8 @@ Map_build()
     if (!find_first_step_index) {
         ++find_first_step_index;
 
-        room_data *curr_room;
-        zone_data *zone;
+        struct room_data *curr_room;
+        struct zone_data *zone;
         for (zone = zone_table; zone; zone = zone->next)
             for (curr_room = zone->world; curr_room; curr_room = curr_room->next)
                 UNMARK(curr_room);

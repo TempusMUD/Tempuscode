@@ -358,7 +358,7 @@ set_char_xedit(struct creature *ch, char *argument)
 
 void
 acc_format_search_data(struct creature *ch,
-                       room_data *room,
+                       struct room_data *room,
                        special_search_data *cur_search)
 {
 	struct obj_data *obj = NULL;

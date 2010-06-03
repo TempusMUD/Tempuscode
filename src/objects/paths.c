@@ -655,7 +655,7 @@ path_activity(void)
 		}
 
 		if (o->type == PMOBILE && (ch = (struct creature *) o->object) &&
-			((ch->isFighting() || GET_MOB_WAIT(ch) > 0)))
+			((ch->fighting || GET_MOB_WAIT(ch) > 0)))
 			continue;
 
 		o->time = 0;
@@ -670,8 +670,8 @@ path_activity(void)
 					PATH_MOVE(o);
 					break;
 				}
-				if (ch->getPosition() < POS_STANDING)
-					ch->setPosition(POS_STANDING);
+				if (GET_POSITION(ch) < POS_STANDING)
+					GET_POSITION(ch) = POS_STANDING;
 
 				o->phead->find_first_step_calls++;
 
@@ -696,8 +696,8 @@ path_activity(void)
 			if (o->type == PMOBILE) {
 				ch = (struct creature *)o->object;
 
-				if (ch->getPosition() < POS_STANDING)
-					ch->setPosition(POS_STANDING);
+				if (GET_POSITION(ch) < POS_STANDING)
+					GET_POSITION(ch) = POS_STANDING;
 
 				perform_move(ch, dir, MOVE_NORM, 1);
 				if (o->phead->length != 1)

@@ -2,10 +2,10 @@ SPECIAL(cremator)
 {
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !ch->isFighting())
+	if (cmd || !ch->fighting)
 		return 0;
 
-    struct creature *vict = ch->findRandomCombat();
+    struct creature *vict = random_opponent(ch);
 	switch (number(0, 5)) {
 	case 0:
 		act("$n attempts to throw you into the furnace!", false, ch, 0,

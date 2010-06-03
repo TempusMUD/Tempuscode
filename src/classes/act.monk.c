@@ -70,7 +70,7 @@ perform_monk_meditate(struct creature *ch)
 			af.aff_index = 2;
 			af.duration = af.level / 5;
 			af.modifier = 0;
-            af.owner = ch->getIdNum();
+            af.owner = GET_IDNUM(ch);
 			affect_to_char(ch, &af);
 			if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 				WAIT_STATE(ch, PULSE_VIOLENCE * 3);
@@ -104,7 +104,7 @@ perform_monk_meditate(struct creature *ch)
 			}
 			af.duration = af.level / 5;
 			af.modifier = 0;
-            af.owner = ch->getIdNum();
+            af.owner = GET_IDNUM(ch);
 			affect_to_char(ch, &af);
 			if (GET_LEVEL(ch) < LVL_AMBASSADOR)
 				WAIT_STATE(ch, PULSE_VIOLENCE * 2);
@@ -132,10 +132,10 @@ perform_monk_meditate(struct creature *ch)
 			af.aff_index = 0;
 			af.duration = af.level / 4;
 			af.modifier = 0;
-            af.owner = ch->getIdNum();
+            af.owner = GET_IDNUM(ch);
 			// make them able to fly at high power
 			if (GET_CLASS(ch) == CLASS_MONK
-					&& ch->getLevelBonus(ZEN_MOTION) >= 50) {
+					&& get_skill_bonus(ch, ZEN_MOTION) >= 50) {
 				af.bitvector = AFF_INFLIGHT;
 				af.aff_index = 1;
 			}
@@ -169,7 +169,7 @@ perform_monk_meditate(struct creature *ch)
 			af.aff_index = 0;
 			af.duration = af.level / 4;
 			af.modifier = 0;
-            af.owner = ch->getIdNum();
+            af.owner = GET_IDNUM(ch);
 			affect_to_char(ch, &af);
 			WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 			gain_skill_prof(ch, ZEN_TRANSLOCATION);
@@ -198,7 +198,7 @@ perform_monk_meditate(struct creature *ch)
 			af.duration = af.level / 5;
 			af.location = APPLY_SPEED;
 			af.modifier = af.level / 4;
-            af.owner = ch->getIdNum();
+            af.owner = GET_IDNUM(ch);
 			affect_to_char(ch, &af);
 			WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 			gain_skill_prof(ch, ZEN_CELERITY);
@@ -224,7 +224,7 @@ perform_monk_meditate(struct creature *ch)
 			af.bitvector = 0;
 			af.aff_index = 0;
 			af.duration = af.level / 5;
-            af.owner = ch->getIdNum();
+            af.owner = GET_IDNUM(ch);
 			affect_to_char(ch, &af);
 			WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 			gain_skill_prof(ch, ZEN_DISPASSION);
@@ -247,7 +247,7 @@ ACMD(do_whirlwind)
     arg = tmp_getword(&argument);
 
 	if (!*arg) {
-		vict = ch->findRandomCombat();
+		vict = random_opponent(ch);
 	} else {
 		vict = get_char_room_vis(ch, arg);
 		ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents);
@@ -274,7 +274,7 @@ ACMD(do_whirlwind)
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 	if (GET_MOVE(ch) < 28) {
 		send_to_char(ch, "You are too exhausted!\r\n");
@@ -286,12 +286,12 @@ ACMD(do_whirlwind)
 
 	//adjust for equipment
 	for (i = 0; i < NUM_WEARS; i++) {
-        obj_data* obj = GET_EQ(ch, i);
+        struct obj_data* obj = GET_EQ(ch, i);
         if( obj == NULL )
             continue;
 		if( GET_OBJ_TYPE(obj) == ITEM_ARMOR ) {
             if(IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
-                percent += obj->getWeight();
+                percent += getWeight(obj);
             }
         }
     }
@@ -304,7 +304,7 @@ ACMD(do_whirlwind)
 	prob = CHECK_SKILL(ch, SKILL_WHIRLWIND) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
 
 	//adjust prob based on victims position
-	if (vict->getPosition() < POS_STANDING)
+	if (GET_POSITION(vict) < POS_STANDING)
 		prob += 30;
 	else
 		prob -= GET_DEX(vict);
@@ -326,7 +326,7 @@ ACMD(do_whirlwind)
 		if (GET_LEVEL(ch) + GET_DEX(ch) < number(0, 77)) {
 			send_to_char(ch, "You fall on your ass!\r\n");
 			act("$n falls smack on $s ass!\r\n", true, ch, 0, 0, TO_ROOM);
-			ch->setPosition(POS_SITTING);
+			GET_POSITION(ch) = POS_SITTING;
 		}
 		GET_MOVE(ch) -= 5;
 	} else {
@@ -356,36 +356,30 @@ ACMD(do_whirlwind)
 		GET_MOVE(ch) -= 3;
 
 		//attack up to hits-1 more victims at random
-		CombatDataList *combatList = ch->getCombatList();
-		CombatDataList_iterator combatIter;
 		int i=1;
-        for (combatIter=combatList->begin();
-                (i < hits) && (combatIter != combatList->end());
-                ++combatIter) {
-			int my_return_flags = 0;
-            struct creature *newVict = combatIter->getOpponent();
-            if (random_percentage() <= 75) {
-				if (newVict && newVict->in_room == ch->in_room) {
-					dam = 0;
-					if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80)+GET_DEX(vict)) {
-						dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
-					}
-					my_return_flags = damage(ch, newVict, dam, SKILL_WHIRLWIND, -1);
-                    i++;
-					GET_MOVE(ch) -= 3;
-				}
-			}
-            if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-                return;
-            } else if (IS_SET(my_return_flags, DAM_VICT_KILLED) &&
-                vict == newVict) {
-                    killedFirst = true;
+        struct creature *tch;
+        bool killed_first = false;
+
+        for (tch = characters;tch;tch = tch->next) {
+            if (tch->fighting == ch
+                && random_percentage() <= 75
+                && tch->in_room == ch->in_room) {
+                dam = 0;
+                if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80) + GET_DEX(tch))
+                    dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
+                my_return_flags = damage(ch, tch, dam, SKILL_WHIRLWIND, -1);
+                i++;
+                GET_MOVE(ch) -= 3;
             }
-		}
+            if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
+                return;
+            if (IS_SET(my_return_flags, DAM_VICT_KILLED) && tch == vict)
+                killed_first = true;
+        }
 
 		//if we still haven't attacked hits times send the rest of them too
 		//our initially chosen victim as long as he's alive
-		if (!killedFirst) {
+		if (!killed_first) {
 			for ( ; i < hits; i++) {
 				if (vict && vict->in_room == ch->in_room) {
 					dam = 0;
@@ -446,8 +440,8 @@ ACMD(do_combo)
     arg = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, arg))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict =
 				get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
 			act("You perform a devastating combo to the $p!", false, ch, ovict,
@@ -465,7 +459,7 @@ ACMD(do_combo)
 		send_to_char(ch, "Aren't we funny today...\r\n");
 		return;
 	}
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	if (GET_MOVE(ch) < 48) {
@@ -476,12 +470,12 @@ ACMD(do_combo)
 	percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 86);	/* 101% is a complete
 																	 * failure */
 	for (i = 0; i < NUM_WEARS; i++) {
-        obj_data* obj = GET_EQ(ch, i);
+        struct obj_data* obj = GET_EQ(ch, i);
         if( obj == NULL )
             continue;
 		if( GET_OBJ_TYPE(obj) == ITEM_ARMOR ) {
             if(IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
-                percent += obj->getWeight();
+                percent += getWeight(obj);
             }
         }
     }
@@ -491,7 +485,7 @@ ACMD(do_combo)
 
 	prob = CHECK_SKILL(ch, SKILL_COMBO) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
 
-	if (vict->getPosition() < POS_STANDING)
+	if (GET_POSITION(vict) < POS_STANDING)
 		prob += 30;
 	else
 		prob -= GET_DEX(vict);
@@ -585,8 +579,8 @@ ACMD(do_pinch)
 	vict_str = tmp_getword(&argument);
 
 	if (!(vict = get_char_room_vis(ch, vict_str))) {
-		if (ch->isFighting()) {
-			vict = ch->findRandomCombat();
+		if (ch->fighting) {
+			vict = random_opponent(ch);
 		} else if ((ovict = get_obj_in_list_vis(ch, vict_str,
 					ch->in_room->contents))) {
 			act("You can't pinch that.", false, ch, ovict, 0, TO_CHAR);
@@ -632,10 +626,10 @@ ACMD(do_pinch)
 		return;
 	}
 
-	if (which_pinch != SKILL_PINCH_ZETA && !ch->isOkToAttack(vict, true))
+	if (which_pinch != SKILL_PINCH_ZETA && !ok_to_attack(ch, vict, true))
 		return;
 
-    if (which_pinch != SKILL_PINCH_ZETA && ch->checkReputations(vict))
+    if (which_pinch != SKILL_PINCH_ZETA && checkReputations(ch, vict))
         return;
 
 	if (!CHECK_SKILL(ch, which_pinch)) {
@@ -654,7 +648,7 @@ ACMD(do_pinch)
 		if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
 			(IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) ||
 				IS_WOOD_TYPE(ovict)))
-			percent += ovict->getWeight();
+			percent += getWeight(ovict);
 
 	if (IS_PUDDING(vict) || IS_SLIME(vict))
 		prob = 0;
@@ -681,7 +675,7 @@ ACMD(do_pinch)
 	af.duration = 0;
 	af.bitvector = 0;
 	af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
-    af.owner = ch->getIdNum();
+    af.owner = GET_IDNUM(ch);
 
 	switch (which_pinch) {
 	case SKILL_PINCH_ALPHA:
@@ -719,10 +713,10 @@ ACMD(do_pinch)
 			act("$N stuns $n with a swift blow to the neck!", false, ch, 0,
 				vict, TO_ROOM);
 			WAIT_STATE(ch, PULSE_VIOLENCE * 3);
-			ch->setPosition(POS_STUNNED);
+			GET_POSITION(ch) = POS_STUNNED;
 			return;
 		}
-		if (ch->isFighting() || vict->isFighting()
+		if (ch->fighting || isFighting(vict)
 			|| MOB2_FLAGGED(vict, MOB2_NOSTUN)
 			|| (AFF_FLAGGED(vict, AFF_ADRENALINE)
 				&& number(0, 60) < GET_LEVEL(vict))) {
@@ -730,14 +724,14 @@ ACMD(do_pinch)
 			send_to_char(vict, "%s", NOEFFECT);
 			return;
 		}
-		vict->setPosition(POS_STUNNED);
+		GET_POSITION(vict) = POS_STUNNED;
 		WAIT_STATE(vict, PULSE_VIOLENCE * 3);
 		to_vict = "You feel completely stunned!";
 		to_room = "$n gets a stunned look on $s face and falls over.";
 		af.type = 0;
 		break;
 	case SKILL_PINCH_GAMMA:
-		if (ch->isFighting() || vict->isFighting()) {
+		if (ch->fighting || isFighting(vict)) {
 			send_to_char(ch, "You fail.\r\n");
 			send_to_char(vict, "%s", NOEFFECT);
 			return;
@@ -772,12 +766,12 @@ ACMD(do_pinch)
 			to_room = "$n looks noticably more relaxed.";
 		}
 
-		if (vict->getPosition() == POS_STUNNED
-			|| vict->getPosition() == POS_SLEEPING) {
+		if (GET_POSITION(vict) == POS_STUNNED
+			|| GET_POSITION(vict) == POS_SLEEPING) {
 			// Revive from sleeping
 			REMOVE_BIT(AFF_FLAGS(vict), AFF_SLEEP);
 			// Wake them up
-			vict->setPosition(POS_RESTING);
+			GET_POSITION(vict) = POS_RESTING;
 			// stun also has a wait-state which must be removed
 			if (ch->desc)
 				ch->desc->wait = 0;
@@ -842,7 +836,7 @@ ACMD(do_pinch)
 			if (retval)
 				return;
 
-            ch->ignite(vict);
+            ignite(ch, vict);
 		}
 		//
 		// victim is simply on fire
@@ -856,7 +850,7 @@ ACMD(do_pinch)
 			act("$n bursts into flames on contact with you!",
 				false, ch, 0, vict, TO_VICT);
 
-            ch->ignite(vict);
+            ignite(ch, vict);
 		}
 	}
 	//
@@ -877,8 +871,8 @@ ACMD(do_pinch)
 
 	if (which_pinch != SKILL_PINCH_ZETA) {
         check_attack(ch, vict);
-		if (IS_NPC(vict) && !vict->isFighting()
-			&& vict->getPosition() >= POS_FIGHTING) {
+		if (IS_NPC(vict) && !isFighting(vict)
+			&& GET_POSITION(vict) >= POS_FIGHTING) {
 			int retval = hit(vict, ch, TYPE_UNDEFINED);
 			retval = SWAP_DAM_RETVAL(retval);
 			ACMD_set_return_flags(retval);
@@ -896,9 +890,9 @@ ACMD(do_meditate)
 		send_to_char(ch, "You cease to meditate.\r\n");
 		act("$n comes out of a trance.", true, ch, 0, 0, TO_ROOM);
 		MEDITATE_TIMER(ch) = 0;
-	} else if (ch->isFighting())
+	} else if (ch->fighting)
 		send_to_char(ch, "You cannot meditate while in battle.\r\n");
-	else if (ch->getPosition() != POS_SITTING || !AWAKE(ch))
+	else if (GET_POSITION(ch) != POS_SITTING || !AWAKE(ch))
 		send_to_char(ch, "You are not in the proper position to meditate.\r\n");
 	else if (AFF_FLAGGED(ch, AFF_POISON))
 		send_to_char(ch, "You cannot meditate while you are poisoned!\r\n");
@@ -963,7 +957,7 @@ ACMD(do_kata)
 		af.bitvector = 0;
 		af.duration = 1 + (GET_LEVEL(ch) / 12);
 		af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
 
 		af.location = APPLY_HITROLL;
 		af.modifier = 1 + (GET_LEVEL(ch) / 6) + (GET_REMORT_GEN(ch) * 2) / 4;
@@ -986,11 +980,11 @@ ACMD(do_evade)
 	prob = CHECK_SKILL(ch, SKILL_EVASION);
 
 	if ((obj = GET_EQ(ch, WEAR_BODY)) && GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
-		prob -= obj->getWeight() / 2;
+		prob -= getWeight(obj) / 2;
 		prob -= GET_OBJ_VAL(obj, 0) * 3;
 	}
 	if ((obj = GET_EQ(ch, WEAR_LEGS)) && GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
-		prob -= obj->getWeight();
+		prob -= getWeight(obj);
 		prob -= GET_OBJ_VAL(obj, 0) * 2;
 	}
 	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.6))

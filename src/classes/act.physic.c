@@ -238,7 +238,7 @@ ACMD(do_lecture)
 		return;
 	}
 
-    if (ch->checkReputations(vict))
+    if (checkReputations(ch, vict))
         return;
 
 	if (!AWAKE(vict)) {
@@ -249,16 +249,16 @@ ACMD(do_lecture)
 		act("$n explains the finer points of gravity, by tossing $mself to the ground!", false, ch, 0, 0, TO_ROOM);
 		act("Your flying leap seems to have convinced $N.", false, ch, 0, vict,
 			TO_CHAR);
-		ch->setPosition(POS_RESTING);
+		GET_POSITION(ch) = POS_RESTING;
 		return;
 	}
 
-	if (vict->isFighting()) {
+	if (isFighting(vict)) {
 		act("$E is busy fighting right now!", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
-	if (!ch->isOkToAttack(vict, true))
+	if (!ok_to_attack(ch, vict, true))
 		return;
     if (!ok_damage_vendor(ch, vict)) {
 		act("$E is interested in your wallet, not your words.", false, ch, 0, vict, TO_CHAR);
@@ -268,7 +268,7 @@ ACMD(do_lecture)
 	appear(ch, vict);
     check_attack(ch, vict);
 
-	prob = ch->getLevelBonus(SKILL_LECTURE) + (GET_INT(ch) << 1);
+	prob = get_skill_bonus(ch, SKILL_LECTURE) + (GET_INT(ch) << 1);
 	if(AFF_FLAGGED(ch, AFF_CONFUSION))
 		prob -= 60;
 
@@ -305,7 +305,7 @@ ACMD(do_lecture)
 	else if (percent < prob) {
 		act("$n immediately dozes off to sleep.", true, vict, 0, 0, TO_ROOM);
 		send_to_char(vict, "You start to feel very sleepy...\r\n");
-		vict->setPosition(POS_SLEEPING);
+		GET_POSITION(vict) = POS_SLEEPING;
 		wait = 2 RL_SEC + ((prob - percent) >> 1);
 		WAIT_STATE(vict, wait);
 		gain_skill_prof(ch, SKILL_LECTURE);
@@ -470,8 +470,8 @@ ASPELL(spell_quantum_rift)
 {
 	int rnum;
 	struct room_data *room = NULL;
-	obj_data *rift = NULL;
-	obj_data *o = NULL;
+	struct obj_data *rift = NULL;
+	struct obj_data *o = NULL;
 	rnum = pop_imprint(ch);
 
 	if (rnum < 0) {
@@ -492,12 +492,12 @@ ASPELL(spell_quantum_rift)
 		send_to_char(ch, "You are unable to open the rift into that place.\r\n");
 		return;
 	}
-    obj_data *next_o;
+    struct obj_data *next_o;
 	for (o = object_list; o; o = next_o) {
         next_o = o->next;
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM
 			&& GET_OBJ_VAL(o, 2) == GET_IDNUM(ch)
-			&& !o->in_room->people.empty()) {
+			&& !o->in_room->people) {
 			struct creature *occupant = o->in_room->people;
 			act("$p collapses in on itself.", true, occupant, o, 0, TO_CHAR);
 			act("$p collapses in on itself.", true, occupant, o, 0, TO_ROOM);
@@ -609,10 +609,10 @@ show_timewarps(struct creature *ch)
 {
     acc_string_clear();
     acc_strcat("Timewarp data:\r\n", NULL);
-
-	for (int i = 0; i < num_timewarp_data; i++) {
-        zone_data *to_zn = real_zone(timewarp_list[i].from);
-        zone_data *from_zn = real_zone(timewarp_list[i].to);
+    int i;
+	for (i = 0; i < num_timewarp_data; i++) {
+        struct zone_data *to_zn = real_zone(timewarp_list[i].from);
+        struct zone_data *from_zn = real_zone(timewarp_list[i].to);
 
 		acc_sprintf("  %3d.]  %s%25s%s [%s%3d%s] --> [%s%3d%s] %s%s%s\r\n",
                     i,
@@ -799,7 +799,7 @@ recurs_econvert_points(struct obj_data *obj, bool top)
 	if (!obj)
 		return 0;
 
-	int num_points = obj->getWeight();
+	int num_points = getWeight(obj);
 
 	switch (GET_OBJ_TYPE(obj)) {
 		// double points for money
@@ -856,7 +856,7 @@ ACMD(do_econvert)
 	}
 
 	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-		!Security_isMember(ch, Security::WIZARDFULL)) {
+		!Security_isMember(ch, SECURITY_WIZARDFULL)) {
 		send_to_char(ch, "You can't econvert a player's corpse while it still has objects in it.");
 		return;
 	}
@@ -948,7 +948,7 @@ ACMD(do_econvert)
 }
 
 void
-do_deactivate_device(obj_data * obj)
+do_deactivate_device(struct obj_data * obj)
 {
     if (obj->worn_by) {
         // unapply object affects if the object is being worn
@@ -962,10 +962,9 @@ do_deactivate_device(obj_data * obj)
 }
 
 void
-do_emp_pulse_olist(obj_data * list, struct creature * ch = NULL, struct creature * vict =
-	NULL)
+do_emp_pulse_olist(struct obj_data *list, struct creature *ch, struct creature *vict)
 {
-	obj_data *o;
+	struct obj_data *o;
 	for (o = list; o; o = o->next_content) {
 		if ((IS_DEVICE(o) || IS_COMMUNICATOR(o))
 			&& !random_fractional_3()) {
@@ -981,10 +980,10 @@ do_emp_pulse_olist(obj_data * list, struct creature * ch = NULL, struct creature
 	}
 }
 void
-do_emp_pulse_eq(obj_data * list[], struct creature * ch = NULL, struct creature * vict =
-	NULL, int internal = 0)
+do_emp_pulse_eq(struct obj_data * list[], struct creature *ch, struct creature * vict, int internal)
 {
-	for (int i = 0; i < NUM_WEAR_FLAGS; i++) {
+    int i;
+	for (i = 0; i < NUM_WEAR_FLAGS; i++) {
 		if (list[i] && (IS_DEVICE(list[i]) || IS_COMMUNICATOR(list[i]))
 			&& !random_fractional_3()) {
 			if (GET_OBJ_VAL(list[i], 2) == 1) {
@@ -999,7 +998,7 @@ do_emp_pulse_eq(obj_data * list[], struct creature * ch = NULL, struct creature 
 void
 do_emp_pulse_char(struct creature * ch, struct creature * vict)
 {
-	affected_type *af = NULL;
+	struct affected_type *af = NULL;
 	int removed = 0;
 
 	if (AFF3_FLAGGED(vict, AFF3_EMP_SHIELD) && !random_fractional_5()) {
@@ -1023,7 +1022,7 @@ do_emp_pulse_char(struct creature * ch, struct creature * vict)
 				TO_NOTVICT);
 		}
 	}
-	do_emp_pulse_eq(vict->equipment, ch, vict);
+	do_emp_pulse_eq(vict->equipment, ch, vict, 0);
 	if (!IS_CYBORG(vict) || !mag_savingthrow(vict, GET_LEVEL(ch), SAVING_CHEM))
 		do_emp_pulse_eq(vict->implants, ch, vict, 1);
 	do_emp_pulse_olist(vict->carrying, ch, vict);
@@ -1043,24 +1042,21 @@ ASPELL(spell_emp_pulse)
 		return;
 	}
 	// Make sure non-pkillers don't get killer flags.
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) != ch) {
-			if (!ch->isOkToAttack((*it), true))
+    struct creature *tch;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+		if (tch != ch) {
+			if (!ok_to_attack(ch, tch, true))
 				return;
 		}
 	}
 
 	send_to_room("An electromagnetic pulse jolts the room!\r\n", ch->in_room);
-	it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) != ch && GET_LEVEL((*it)) < LVL_IMMORT) {
-			do_emp_pulse_char(ch, (*it));
-		}
-	}
-	if (ch->in_room->contents) {
-		do_emp_pulse_olist(ch->in_room->contents);
-	}
+	for (tch = ch->in_room->people;tch;tch = tch->room_next)
+		if (tch != ch && GET_LEVEL(tch) < LVL_IMMORT)
+			do_emp_pulse_char(ch, tch);
+
+	if (ch->in_room->contents)
+		do_emp_pulse_olist(ch->in_room->contents, ch, NULL);
 	return;
 }
 
@@ -1082,15 +1078,15 @@ ASPELL(spell_area_stasis)
 	for (o = ch->in_room->contents; o; o = o->next) {
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM) {
 			act("$p collapses in on itself.",
-				true, (*o->in_room->people.begin()), o, 0, TO_NOTVICT);
+				true, o->in_room->people, o, 0, TO_NOTVICT);
 			extract_obj(o);
 		}
 	}
 
 	rm_aff.description = strdup("    The room seems to be physically stable.\r\n");
-	rm_aff.level = ch->getLevelBonus(SPELL_AREA_STASIS);
+	rm_aff.level = get_skill_bonus(ch, SPELL_AREA_STASIS);
 	rm_aff.type = RM_AFF_FLAGS;
 	rm_aff.flags = ROOM_NOPHYSIC;
-	rm_aff.duration = ch->getLevelBonus(SPELL_AREA_STASIS);
+	rm_aff.duration = get_skill_bonus(ch, SPELL_AREA_STASIS);
 	affect_to_room(ch->in_room, &rm_aff);
 }

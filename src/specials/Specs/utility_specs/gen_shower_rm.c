@@ -7,7 +7,7 @@
 SPECIAL(gen_shower_rm)
 {
 	bool acid_cleaned = false;
-	obj_data *cur_obj;
+	struct obj_data *cur_obj;
 	int idx;
 
 	if (spec_mode != SPECIAL_CMD || !CMD_IS("shower"))

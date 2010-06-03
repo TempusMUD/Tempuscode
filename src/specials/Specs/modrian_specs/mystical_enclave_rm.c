@@ -8,7 +8,7 @@ SPECIAL(mystical_enclave)
 {
 	struct room_data *stair_rnum = NULL;
 
-	if (!CMD_IS("up") || !IS_PSYCHIC(ch) || ch->getPosition() < POS_STANDING ||
+	if (!CMD_IS("up") || !IS_PSYCHIC(ch) || GET_POSITION(ch) < POS_STANDING ||
 		ch->isMounted())
 		return 0;
 

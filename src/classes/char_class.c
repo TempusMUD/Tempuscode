@@ -44,7 +44,6 @@
 #include "security.h"
 #include "tmpstr.h"
 #include "clan.h"
-#include "player_table.h"
 
 extern struct room_data *world;
 
@@ -85,7 +84,7 @@ extern struct room_data *world;
 /* #define MIN_PER_PRAC                2  min percent gain in skill per practice */
 /* #define PRAC_TYPE                3  should it say 'spell' or 'skill'?        */
 
-extern const int prac_params[4][NUM_CLASSES] = {
+const int prac_params[4][NUM_CLASSES] = {
   /* MG  CL  TH  WR  BR  PS  PH  CY  KN  RN  BD  MN  VP  MR  S1  S2  S3*/
 	{75, 75, 70, 70, 65, 75, 75, 80, 75, 75, 80, 75, 75, 70, 70, 70, 70},
 	{25, 20, 20, 20, 20, 25, 20, 30, 20, 25, 30, 20, 15, 25, 25, 25, 25},
@@ -97,7 +96,7 @@ extern const int prac_params[4][NUM_CLASSES] = {
 // 0 - class/race combination not allowed
 // 1 - class/race combination allowed only for secondary class
 // 2 - class/race combination allowed for primary class
-extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
+const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
 	//                 MG CL TH WR BR PS PH CY KN RN BD MN VP MR S1 S2 S3
 	{ RACE_HUMAN,		2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0 },
 	{ RACE_ELF,			2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0 },
@@ -112,7 +111,7 @@ extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
 
 /* THAC0 for char_classes and levels.  (To Hit Armor Class 0) */
 
-extern const float thaco_factor[NUM_CLASSES] = {
+const float thaco_factor[NUM_CLASSES] = {
 	0.15,						/* mage    */
 	0.20,						/* cleric  */
 	0.25,						/* thief   */
@@ -165,7 +164,7 @@ gain_skill_prof(struct creature *ch, int skl)
 }
 
 /* Names first */
-extern const char *char_class_abbrevs[] = {
+const char *char_class_abbrevs[] = {
 	"Mage",						/* 0 */
 	"Cler",
 	"Thie",
@@ -266,7 +265,7 @@ extern const char *char_class_abbrevs[] = {
 	"\n"
 };
 
-extern const char *class_names[] = {
+const char *class_names[] = {
 	"Mage",
 	"Cleric",
 	"Thief",
@@ -367,7 +366,7 @@ extern const char *class_names[] = {
 // color code for the given target struct creature (tch) with the given
 // recipient struct creature(ch)'s color settings in mind.
 const char*
-get_char_class_color( struct creature *ch, struct creature *tch, int char_class ) {
+get_char_class_color_code(struct creature*ch, struct creature *tch, int char_class ) {
     switch( char_class ) {
         case CLASS_MAGIC_USER:
             return CCMAG(ch, C_NRM);
@@ -554,7 +553,7 @@ const char *player_race[] = {
 	"\n"
 };
 
-extern const int race_lifespan[] = {
+const int race_lifespan[] = {
 	80,							/* human */
 	400,						/* elf */
 	160,						/* dwarf */
@@ -1023,17 +1022,17 @@ do_start(struct creature *ch, int mode)
 	void advance_level(struct creature *ch, byte keep_internal);
 	byte new_player = 0;
 	int i;
-	obj_data *implant_save[NUM_WEARS];
-	obj_data *tattoo_save[NUM_WEARS];
+	struct obj_data *implant_save[NUM_WEARS];
+	struct obj_data *tattoo_save[NUM_WEARS];
 
 	// remove implant affects
 	for (i = 0; i < NUM_WEARS; i++) {
 		if (GET_IMPLANT(ch, i))
-			implant_save[i] = unequip_char(ch, i, EQUIP_IMPLANT, true);
+			implant_save[i] = raw_unequip_char(ch, i, EQUIP_IMPLANT);
 		else
 			implant_save[i] = NULL;
 		if (GET_TATTOO(ch, i))
-			tattoo_save[i] = unequip_char(ch, i, EQUIP_TATTOO, true);
+			tattoo_save[i] = raw_unequip_char(ch, i, EQUIP_TATTOO);
 		else
 			tattoo_save[i] = NULL;
     }
@@ -1116,13 +1115,13 @@ do_start(struct creature *ch, int mode)
 
 	if (new_player) {
 		if (PAST_CLASS(GET_CLASS(ch))) {
-			ch->desc->account->deposit_past_bank(
-				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
+			deposit_past_bank(ch->desc->account,
+                              8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
 			ch->points.gold =
 				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
 		} else if (FUTURE_CLASS(GET_CLASS(ch))) {
-			ch->desc->account->deposit_future_bank(
-				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
+			deposit_future_bank(ch->desc->account,
+                              8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
 			ch->points.cash =
 				8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
 		}
@@ -1315,13 +1314,13 @@ advance_level(struct creature *ch, byte keep_internal)
 			MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) +
 			MIN(10, number(1, GET_INT(ch) >> 1)));
 
-	ch->saveToXML();
+	save_player_to_xml(ch);
     int rid = -1;
     if( ch->in_room != NULL )
         rid = ch->in_room->number;
 	msg = tmp_sprintf("%s advanced to level %d in room %d%s",
 		GET_NAME(ch), GET_LEVEL(ch), rid,
-		ch->isTester() ? " <TESTER>" : "");
+		isTester(ch) ? " <TESTER>" : "");
 	if (keep_internal)
 		slog("%s", msg);
 	else
@@ -1344,7 +1343,7 @@ invalid_char_class(struct creature *ch, struct obj_data *obj)
 	}
 
     // Unapproved object
-    if (!OBJ_APPROVED(obj) && !ch->isTester() && GET_LEVEL(ch) < LVL_IMMORT)
+    if (!OBJ_APPROVED(obj) && !isTester(ch) && GET_LEVEL(ch) < LVL_IMMORT)
         return true;
 
     // Anti class restrictions
@@ -1415,7 +1414,8 @@ char_class_race_hit_bonus(struct creature *ch, struct creature *vict)
 	bonus += (IS_DWARF(ch) && (IS_OGRE(vict) || IS_TROLL(vict) ||
 			IS_GIANT(vict) || (GET_HEIGHT(vict) > 2 * GET_HEIGHT(ch))));
     // Dwarven dislike of water or heights
-	bonus -= (IS_DWARF(ch) && (room_is_watery(ch->in_room) || ch->in_room->isOpenAir()));
+	bonus -= (IS_DWARF(ch) && (room_is_watery(ch->in_room)
+                               || room_is_openair(ch->in_room)));
     // Thieves operating in the dark
 	bonus += (IS_THIEF(ch) && room_is_dark(ch->in_room));
     // Rangers like being outside
@@ -1428,7 +1428,7 @@ char_class_race_hit_bonus(struct creature *ch, struct creature *vict)
 	return (bonus);
 }
 
-extern const int exp_scale[LVL_GRIMP + 2] = {
+const int exp_scale[LVL_GRIMP + 2] = {
 	0,
 	1,
 	2500,

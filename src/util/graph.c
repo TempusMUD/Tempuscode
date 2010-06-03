@@ -70,8 +70,8 @@ unsigned char find_first_step_index = 0;
 #define UNMARK(room) ( room->find_first_step_index = 0 )
 #define IS_MARKED(room) ( room->find_first_step_index == find_first_step_index )
 
-inline room_data *
-to_room(room_data *room, int dir)
+inline struct room_data *
+to_room(struct room_data *room, int dir)
 {
 	if (room->dir_option[dir])
 		return room->dir_option[dir]->to_room;
@@ -79,9 +79,9 @@ to_room(room_data *room, int dir)
 }
 
 inline bool
-valid_edge(room_data *room, int dir, track_mode mode)
+valid_edge(struct room_data *room, int dir, track_mode mode)
 {
-	room_data *dest = to_room(room, dir);
+	struct room_data *dest = to_room(room, dir);
 
 	if (!dest)
 		return false;
@@ -337,7 +337,7 @@ ACMD(do_track)
     }
 
     bool good_track = false;
-    if (number(30, 200) < ch->getLevelBonus(SKILL_TRACK))
+    if (number(30, 200) < get_skill_bonus(ch, SKILL_TRACK))
         good_track = true;
 
 	if (!GET_SKILL(ch, SKILL_TRACK) && !spirit) {
@@ -557,7 +557,7 @@ smart_mobile_move(struct creature *ch, int dir)
             do_gen_door(ch, doorbuf, 0, SCMD_OPEN, 0);
 
 		} else if (EXIT(ch, dir)->to_room->isOpenAir() &&
-        ch->getPosition() != POS_FLYING) {
+        GET_POSITION(ch) != POS_FLYING) {
 			if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
 				do_fly(ch, tmp_strdup(""), 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 33)
@@ -571,7 +571,7 @@ smart_mobile_move(struct creature *ch, int dir)
 				return 0;
 			}
 		} else if (SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM &&
-        ch->getPosition() != POS_FLYING &&
+        GET_POSITION(ch) != POS_FLYING &&
         can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
 			if (AFF_FLAGGED(ch, AFF_INFLIGHT))
 				do_fly(ch, tmp_strdup(""), 0, 0, 0);
@@ -618,7 +618,7 @@ hunt_victim(struct creature *ch)
 			found = 1;
 	}
 	if (!found) {
-		if (!ch->isFighting()) {
+		if (!ch->fighting) {
             emit_voice(ch, NULL, VOICE_HUNT_GONE);
 			ch->stopHunting();
 		}
@@ -632,18 +632,18 @@ hunt_victim(struct creature *ch)
 		return;
 
 	if (ch->in_room == ch->isHunting()->in_room &&
-		!ch->isFighting() && can_see_creature(ch, ch->isHunting()) &&
+		!ch->fighting && can_see_creature(ch, ch->isHunting()) &&
 		!PLR_FLAGGED(ch->isHunting(), PLR_WRITING | PLR_OLC) &&
 		(!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE)) ||
 			CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))) {
-		if (ch->isOkToAttack(ch->isHunting(), false) && !check_infiltrate(ch->isHunting(), ch)) {
+		if (ok_to_attack(ch, ch->isHunting(), false) && !check_infiltrate(ch->isHunting(), ch)) {
 			best_initial_attack(ch, ch->isHunting());
 		}
 		return;
 	}
 	if (IS_CLERIC(ch) || IS_MAGE(ch)) {
 		if (ch->isHunting()->in_room && can_see_creature(ch, ch->isHunting()) &&
-			ch->isOkToAttack(ch->isHunting(), false)) {
+			ok_to_attack(ch, ch->isHunting(), false)) {
 			if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) ||
 				(IS_MAGE(ch) && GET_LEVEL(ch) > 27)) {
 				if (GET_MANA(ch) < mag_manacost(ch, SPELL_SUMMON)) {
@@ -695,9 +695,9 @@ hunt_victim(struct creature *ch)
         && (!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE))
             || CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))
         && !check_infiltrate(ch->isHunting(), ch)) {
-        if (ch->isOkToAttack(ch->isHunting(), false)
+        if (ok_to_attack(ch, ch->isHunting(), false)
             && !PLR_FLAGGED(ch->isHunting(), PLR_OLC | PLR_WRITING)) {
-            if (ch->getPosition() >= POS_STANDING && !ch->isFighting()) {
+            if (GET_POSITION(ch) >= POS_STANDING && !ch->fighting) {
                 emit_voice(ch, ch->isHunting(), VOICE_HUNT_FOUND);
                 best_initial_attack(ch, ch->isHunting());
                 return;

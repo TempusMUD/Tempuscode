@@ -16,7 +16,6 @@ extern const char *char_class_abbrevs[];
 extern const int prac_params[4][NUM_CLASSES];
 extern const float thaco_factor[NUM_CLASSES];
 extern const int exp_scale[LVL_GRIMP + 2];
-extern const struct title_type titles[NUM_CLASSES][LVL_GRIMP + 1];
 extern const char *evil_knight_titles[LVL_GRIMP + 1];
 extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1];
 
@@ -25,10 +24,10 @@ extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1];
 // Returns a tmpstr allocated char* containing an appropriate ANSI
 // color code for the given target struct creature (tch) with the given
 // recipient struct creature(ch)'s color settings in mind.
-const char* get_char_class_color( struct creature *ch, struct creature *tch, int char_class );
+const char* get_char_class_color_code( struct creature *ch, struct creature *tch, int char_class );
 // Returns a const char* containing an appropriate '&c' color code for the given
 // target struct creature (tch) suitable for use with send_to_desc.
-const char* get_char_class_color( struct creature *tch, int char_class );
+const char* get_char_class_color( struct creature *tch, int char_class);
 
 int invalid_char_class(struct creature *ch, struct obj_data *obj);
 void gain_skill_prof(struct creature *ch, int skl);

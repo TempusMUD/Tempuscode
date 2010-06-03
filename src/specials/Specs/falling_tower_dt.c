@@ -13,7 +13,7 @@ SPECIAL(falling_tower_dt)
 
 	if ((under_room = real_room(5241)) == NULL)
 		return 0;
-	if (ch->getPosition() == POS_FLYING)
+	if (GET_POSITION(ch) == POS_FLYING)
 		return 0;
 	if (CMD_IS("down")) {
 		send_to_char(ch,
@@ -28,13 +28,13 @@ SPECIAL(falling_tower_dt)
 		GET_HIT(ch) = MAX(-8, GET_HIT(ch) -
 			dice(10, 100 - GET_DEX(ch) - 40 * AFF_FLAGGED(ch, AFF_INFLIGHT)));
 		if (GET_HIT(ch) > 0)
-			ch->setPosition(POS_SITTING);
+			GET_POSITION(ch) = POS_SITTING;
 		else if (GET_HIT(ch) < -6)
-			ch->setPosition(POS_MORTALLYW);
+			GET_POSITION(ch) = POS_MORTALLYW;
 		else if (GET_HIT(ch) < -3)
-			ch->setPosition(POS_INCAP);
+			GET_POSITION(ch) = POS_INCAP;
 		else
-			ch->setPosition(POS_STUNNED);
+			GET_POSITION(ch) = POS_STUNNED;
 		return 1;
 	}
 	return 0;

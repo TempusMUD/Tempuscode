@@ -5,7 +5,7 @@
 #include "object_map.h"
 #include "utils.h"
 
-ObjectMap_ObjectMap() : map<int, obj_data *>()
+ObjectMap_ObjectMap() : map<int, struct obj_data *>()
 {
 }
 
@@ -13,7 +13,7 @@ ObjectMap_~ObjectMap()
 {
 }
 
-bool ObjectMap_add(obj_data *obj)
+bool ObjectMap_add(struct obj_data *obj)
 {
     int vnum = 0;
 
@@ -37,7 +37,7 @@ bool ObjectMap_add(obj_data *obj)
     return true;
 }
 
-bool ObjectMap_remove(obj_data *obj)
+bool ObjectMap_remove(struct obj_data *obj)
 {
     int vnum = 0;
 
@@ -59,7 +59,7 @@ bool ObjectMap_remove(int vnum)
     return erase(vnum);
 }
 
-obj_data *ObjectMap_find(int vnum)
+struct obj_data *ObjectMap_find(int vnum)
 {
     if (count(vnum) <= 0)
         return NULL;

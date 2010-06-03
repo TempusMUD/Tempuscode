@@ -275,7 +275,7 @@ struct account_load_players(void)
         // the characters that have QUIT and are less than level 25
          for (int x = 0; x < get_char_count(); x++) {
             tmp_ch->loadFromXML(_chars[x]);
-            if (tmp_ch->getLevel() <= 25 &&
+            if (tmp_GET_LEVEL(ch) <= 25 &&
                 tmp_ch->player_specials->rentcode == RENT_QUIT)
                 delete_char(tmp_ch);
 			if (chars_available() >= 0)
@@ -1028,7 +1028,7 @@ int struct account_hasCharLevel(int level)
         if (!tmp_ch->loadFromXML(this->get_char_by_index(idx)))
             return 0;
 
-        if (tmp_ch->getLevel() >= level) {
+        if (tmp_GET_LEVEL(ch) >= level) {
             delete tmp_ch;
             return idx;
         }

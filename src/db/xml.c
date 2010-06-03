@@ -344,8 +344,8 @@ void
 load_xml_room(xmlNodePtr node)
 {
 	int vnum;
-	room_data *room;
-	zone_data *zone;
+	struct room_data *room;
+	struct zone_data *zone;
 
 	vnum = xmlGetIntProp(node, "vnum");
 	for (zone = zone_table; vnum > zone->top; zone = zone->next)
@@ -354,7 +354,7 @@ load_xml_room(xmlNodePtr node)
 			safe_exit(1);
 		}
 
-	room = new room_data(vnum, zone);
+	room = new struct room_data(vnum, zone);
 	room->name = xmlGetProp(node, "name");
 //	room->sector = xmlGetEnumProp(node, "sector", sector_enum);
 	room->max_occupancy = xmlGetIntProp(node, "size");

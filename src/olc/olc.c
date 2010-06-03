@@ -1590,7 +1590,7 @@ ACMD(do_olc)
         } else if (is_abbrev(arg1, "object")) {
             send_to_char(ch, "This feature has not been implemented yet.\r\n");
         } else if (is_abbrev(arg1, "room")) {
-            room_data* room = real_room(number);
+            struct room_data* room = real_room(number);
             if (!room) {
                 send_to_char(ch, "There is no room with that number.\r\n");
             } else if (!GET_ROOM_PROG(room)) {

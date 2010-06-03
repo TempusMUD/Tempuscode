@@ -12,7 +12,7 @@ SPECIAL(aziz_canon)
 		return 0;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!ch->isFighting() && ch->getPosition() != POS_FIGHTING) {
+	if (!ch->fighting && GET_POSITION(ch) != POS_FIGHTING) {
 		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			vict = *it;
@@ -55,8 +55,8 @@ SPECIAL(aziz_canon)
 		}
 		return 1;
 	}
-	if (ch->isFighting()) {
-        vict = ch->findRandomCombat();
+	if (ch->fighting) {
+        vict = random_opponent(ch);
 		if (!number(0, 3)) {
 			act("$n gets in a three point stance and plows his shoulder into you!", false, ch, 0, vict, TO_VICT);
 			act("$n gets in a three point stance and plows his shoulder into $N!", false, ch, 0, vict, TO_NOTVICT);

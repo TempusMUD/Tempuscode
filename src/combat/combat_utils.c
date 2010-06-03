@@ -43,14 +43,13 @@
 #include "security.h"
 #include "house.h"
 #include "quest.h"
-#include "player_table.h"
 #include "vendor.h"
-
-#include <iostream>
+#include "zone_data.h"
+#include "weather.h"
 
 extern int corpse_state;
 /* The Fight related routines */
-obj_data *get_random_uncovered_implant(struct creature * ch, int type = -1);
+struct obj_data *get_random_uncovered_implant(struct creature *ch, int type);
 int calculate_weapon_probability(struct creature *ch, int prob,
 	struct obj_data *weap);
 int calculate_attack_probability(struct creature *ch);
@@ -70,13 +69,13 @@ ok_damage_vendor(struct creature *ch, struct creature *victim)
 	if (IS_NPC(victim)
         && (MOB2_FLAGGED(victim, MOB2_SELLER)
             || victim->mob_specials.shared->func == vendor)) {
-        ShopData *shop = (ShopData *)victim->mob_specials.func_data;
+        struct shopdata *shop = (struct shopdata *)victim->mob_specials.func_data;
 
 		if (!GET_MOB_PARAM(victim))
 			return false;
 
         if (!shop) {
-            CREATE(shop, ShopData, 1);
+            CREATE(shop, struct shopdata, 1);
             vendor_parse_param(GET_MOB_PARAM(victim), shop, NULL);
             victim->mob_specials.func_data = shop;
         }
@@ -123,8 +122,8 @@ calculate_weapon_probability(struct creature *ch, int prob,
 		}
 	}
 	// 1/4 actual weapon weight or effective weapon weight, whichever is higher.
-	weap_weight += weap->getWeight();
-	weap_weight = MAX((weap->getWeight() >> 2), weap_weight);
+	weap_weight += GET_OBJ_WEIGHT(weap);
+	weap_weight = MAX((GET_OBJ_WEIGHT(weap) >> 2), weap_weight);
 
 	if (weap->worn_on == WEAR_WIELD_2) {
 		prob -=
@@ -152,30 +151,30 @@ void
 update_pos(struct creature *victim)
 {
 	// Wake them up from thier nap.
-	if (GET_HIT(victim) > 0 && victim->getPosition() == POS_SLEEPING)
-		victim->setPosition(POS_RESTING);
+	if (GET_HIT(victim) > 0 && GET_POSITION(victim) == POS_SLEEPING)
+		GET_POSITION(victim) = POS_RESTING;
 	// If everything is normal and they're fighting, set them fighting
 	else if (GET_HIT(victim) > 0 &&
-		(victim->getPosition() == POS_STANDING
-			|| victim->getPosition() == POS_FLYING) && victim->isFighting()) {
+		(GET_POSITION(victim) == POS_STANDING
+			|| GET_POSITION(victim) == POS_FLYING) && victim->fighting) {
 #ifdef DEBUG_POSITION
-		if (victim->setPosition(POS_FIGHTING, 1))
+		if (GET_POSITION(victim) = POS_FIGHTING, 1)
 			act("$n moves to POS_FIGHTING.(from standing or flying)",
 				true, victim, 0, 0, TO_ROOM);
 #endif
-		victim->setPosition(POS_FIGHTING);
+		GET_POSITION(victim) = POS_FIGHTING;
 	}
 	// If they're alive, not stunned, in a fight, and not pos_fighting
 	// (Making mobs stand when they get popped.
 	else if ((GET_HIT(victim) > 0)
-		&& (victim->getPosition() > POS_STUNNED)
-		&& victim->getPosition() < POS_FIGHTING && victim->isFighting()) {
+		&& (GET_POSITION(victim) > POS_STUNNED)
+		&& GET_POSITION(victim) < POS_FIGHTING && victim->fighting) {
 		// If they're an npc, and their wait is 0.
 		if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
-			if (victim->getPosition() < POS_FIGHTING) {
+			if (GET_POSITION(victim) < POS_FIGHTING) {
 				if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) ||
 					number(1, 20) < GET_STR(victim)) {
-					if (victim->setPosition(POS_FIGHTING)) {
+					if (GET_POSITION(victim) = POS_FIGHTING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(A)", true, victim, 0, 0,
 							TO_ROOM);
@@ -187,7 +186,7 @@ update_pos(struct creature *victim)
 				}
 				WAIT_STATE(victim, PULSE_VIOLENCE);
 			} else {
-				victim->setPosition(POS_FIGHTING);
+				GET_POSITION(victim) = POS_FIGHTING;
 			}
 		} else {				// PC or a mob with a wait state.
 			return;
@@ -195,14 +194,14 @@ update_pos(struct creature *victim)
 	} else if (GET_HIT(victim) > 0) {
 		if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
 			// Flying?
-			if (victim->in_room && victim->in_room->isOpenAir()
+			if (victim->in_room && room_is_open_air(victim->in_room)
 				&& !AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
-				&& victim->getPosition() != POS_FLYING)
-				victim->setPosition(POS_FLYING);
+				&& GET_POSITION(victim) != POS_FLYING)
+				GET_POSITION(victim) = POS_FLYING;
 			else if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
-				&& victim->getPosition() < POS_FIGHTING) {
-				if (victim->isFighting()) {
-					if (victim->setPosition(POS_FIGHTING)) {
+				&& GET_POSITION(victim) < POS_FIGHTING) {
+				if (victim->fighting) {
+					if (GET_POSITION(victim) = POS_FIGHTING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(B1)", true, victim, 0,
 							0, TO_ROOM);
@@ -213,7 +212,7 @@ update_pos(struct creature *victim)
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
 				} else {
-					if (victim->setPosition(POS_STANDING)) {
+					if (GET_POSITION(victim) = POS_STANDING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_STANDING.(B2)", true, victim, 0,
 							0, TO_ROOM);
@@ -224,9 +223,9 @@ update_pos(struct creature *victim)
 					}
 				}
 			} else if (number(1, 20) < GET_STR(victim)
-				&& victim->getPosition() < POS_FIGHTING) {
-				if (victim->isFighting()) {
-					if (victim->setPosition(POS_FIGHTING)) {
+				&& GET_POSITION(victim) < POS_FIGHTING) {
+				if (victim->fighting) {
+					if (GET_POSITION(victim) = POS_FIGHTING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(C1)", true, victim, 0,
 							0, TO_ROOM);
@@ -237,7 +236,7 @@ update_pos(struct creature *victim)
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
 				} else {
-					if (victim->setPosition(POS_STANDING)) {
+					if (GET_POSITION(victim) = POS_STANDING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_STANDING.(C2)", true, victim, 0,
 							0, TO_ROOM);
@@ -248,8 +247,8 @@ update_pos(struct creature *victim)
 					}
 				}
             }
-        } else if (victim->getPosition() == POS_STUNNED) {
-            victim->setPosition(POS_RESTING);
+        } else if (GET_POSITION(victim) == POS_STUNNED) {
+            GET_POSITION(victim) = POS_RESTING;
 #ifdef DEBUG_POSITION
             act("$n moves to POS_RESTING.(From Stunned)", true, victim, 0, 0,
                 TO_ROOM);
@@ -259,13 +258,13 @@ update_pos(struct creature *victim)
 
 	// Various stages of unhappiness
 	else if (GET_HIT(victim) <= -11)
-		victim->setPosition(POS_DEAD);
+		GET_POSITION(victim) = POS_DEAD;
 	else if (GET_HIT(victim) <= -6)
-		victim->setPosition(POS_MORTALLYW);
+		GET_POSITION(victim) = POS_MORTALLYW;
 	else if (GET_HIT(victim) <= -3)
-		victim->setPosition(POS_INCAP);
+		GET_POSITION(victim) = POS_INCAP;
 	else
-		victim->setPosition(POS_STUNNED);
+		GET_POSITION(victim) = POS_STUNNED;
 	return;
 }
 
@@ -384,7 +383,7 @@ calculate_thaco(struct creature *ch, struct creature *victim,
         if (IS_GOOD(victim) && IS_OBJ_STAT(cur_weap, ITEM_DAMNED))
             calc_thaco -= 1;
 
-		wpn_wgt = weap->getWeight();
+		wpn_wgt = GET_OBJ_WEIGHT(weap);
 		if (wpn_wgt > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
 			calc_thaco += 2;
 		if (IS_MAGE(ch) &&
@@ -453,12 +452,12 @@ calculate_thaco(struct creature *ch, struct creature *victim,
 		!AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
 		calc_thaco += 2;
 	if (AFF2_FLAGGED(victim, AFF2_EVADE))
-		calc_thaco +=  victim->getLevelBonus(SKILL_EVASION) / 6;
+		calc_thaco +=  skill_bonus(victim,SKILL_EVASION) / 6;
 
     if (room_is_watery(ch->in_room) && !IS_MOB(ch))
 		calc_thaco += 4;
 
-	calc_thaco -= MIN(5, MAX(0, (POS_FIGHTING - victim->getPosition())));
+	calc_thaco -= MIN(5, MAX(0, (POS_FIGHTING - GET_POSITION(victim))));
 
 	calc_thaco -= char_class_race_hit_bonus(ch, victim);
 
@@ -615,7 +614,7 @@ choose_random_limb(struct creature *victim)
 	return i;
 }
 
-obj_data *
+struct obj_data *
 make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 {
 	struct obj_data *corpse = NULL, *head = NULL, *heart = NULL,
@@ -775,7 +774,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 		GET_OBJ_VAL(leg, 1) = 2;
 		GET_OBJ_VAL(leg, 2) = 9;
 		GET_OBJ_VAL(leg, 3) = 7;
-		leg->setWeight(7);
+		GET_OBJ_WEIGHT(leg) = 7;
 		leg->worn_on = -1;
 		if (IS_NPC(ch))
 			GET_OBJ_TIMER(leg) = max_npc_corpse_time;
@@ -955,7 +954,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 		break;
 
 	case JAVELIN_OF_LIGHTNING:
-    case EGUN_LIGHTNING:
+    case TYPE_EGUN_LIGHTNING:
 		corpse->line_desc = strdup(tmp_sprintf("The %s of %s %s lying here, blasted and smoking.",
 			typebuf, GET_NAME(ch), isare));
 		strcpy(adj, "blasted");
@@ -1056,7 +1055,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 			GET_OBJ_VAL(spine, 0) = 0;
 			GET_OBJ_VAL(spine, 2) = 6;
 			GET_OBJ_VAL(spine, 3) = 5;
-			spine->setWeight(5);
+			GET_OBJ_WEIGHT(spine) = 5;
 			GET_OBJ_MATERIAL(spine) = MAT_BONE;
 			spine->worn_on = -1;
 			obj_to_room(spine, ch->in_room);
@@ -1081,7 +1080,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 		if (!is_arena_combat(killer, ch) &&
             !is_npk_combat(killer, ch) &&
 			GET_LEVEL(ch) <= LVL_AMBASSADOR) {
-			obj_data *o;
+			struct obj_data *o;
 			/* transfer character's head EQ to room, if applicable */
 			if (GET_EQ(ch, WEAR_HEAD))
 				obj_to_room(unequip_char(ch, WEAR_HEAD, EQUIP_WORN), ch->in_room);
@@ -1158,10 +1157,10 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 
 		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
 			GET_OBJ_MATERIAL(head) = MAT_STONE;
-			head->setWeight(25);
+			GET_OBJ_WEIGHT(head) = 25;
 		} else {
 			GET_OBJ_MATERIAL(head) = MAT_FLESH;
-			head->setWeight(10);
+			GET_OBJ_WEIGHT(head) = 10;
 		}
 
 		if (IS_NPC(ch))
@@ -1173,7 +1172,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 		if (!is_arena_combat(killer, ch) &&
             !is_npk_combat(killer, ch) &&
 			GET_LEVEL(ch) <= LVL_AMBASSADOR) {
-			obj_data *o;
+			struct obj_data *o;
 			/* transfer character's head EQ to room, if applicable */
 			if (GET_EQ(ch, WEAR_HEAD))
 				obj_to_room(unequip_char(ch, WEAR_HEAD, EQUIP_WORN), ch->in_room);
@@ -1259,7 +1258,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 			GET_OBJ_VAL(heart, 2) = 0;
 		}
 
-		heart->setWeight(0);
+		GET_OBJ_WEIGHT(heart) = 0;
 		heart->worn_on = -1;
 
 		if (IS_NPC(ch))
@@ -1310,11 +1309,11 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
 	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
 	GET_OBJ_EXTRA(corpse) = ITEM_NODONATE;
-	if (ch->isTester())
+	if (isTester(ch))
 		SET_BIT(GET_OBJ_EXTRA2(corpse), ITEM2_UNAPPROVED);
 	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */
-	corpse->setWeight(GET_WEIGHT(ch) + IS_CARRYING_W(ch));
+	GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch + IS_CARRYING_W(ch));
 	corpse->contains = NULL;
 
 	if (IS_NPC(ch)) {
@@ -1345,12 +1344,12 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 
     bool lose_tattoos = lose_eq;
 
-	obj_data *next_obj;
+	struct obj_data *next_obj;
 
 	/* transfer character's inventory to the corpse */
 	for (o = ch->carrying;o != NULL;o = next_obj) {
 		next_obj = o->next_content;
-		if (lose_eq || o->isUnrentable()) {
+		if (lose_eq || isUnrentable(o)) {
 			obj_from_char(o);
 			obj_to_obj(o, corpse);
 		}
@@ -1358,15 +1357,15 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 
 	/* transfer character's equipment to the corpse */
 	for (i = 0; i < NUM_WEARS; i++) {
-		if (GET_EQ(ch, i) && (lose_eq || GET_EQ(ch, i)->isUnrentable()))
-			obj_to_obj(unequip_char(ch, i, EQUIP_WORN, true), corpse);
-		if (GET_IMPLANT(ch, i) && (lose_implants || GET_IMPLANT(ch, i)->isUnrentable())) {
+		if (GET_EQ(ch, i) && (lose_eq || isUnrentable(GET_EQ(ch, i))))
+			obj_to_obj(raw_unequip_char(ch, i, EQUIP_WORN), corpse);
+		if (GET_IMPLANT(ch, i) && (lose_implants || isUnrentable(GET_IMPLANT(ch, i)))) {
 			REMOVE_BIT(GET_OBJ_WEAR(GET_IMPLANT(ch, i)), ITEM_WEAR_TAKE);
-			obj_to_obj(unequip_char(ch, i, EQUIP_IMPLANT, true), corpse);
+			obj_to_obj(raw_unequip_char(ch, i, EQUIP_IMPLANT), corpse);
 		}
         // Tattoos get discarded
         if (GET_TATTOO(ch, i) && lose_tattoos)
-            extract_obj(unequip_char(ch, i, EQUIP_TATTOO, true));
+            extract_obj(raw_unequip_char(ch, i, EQUIP_TATTOO));
 	}
 
 	/* transfer gold */
@@ -1418,7 +1417,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
             fname = get_corpse_file_path(CORPSE_IDNUM(corpse));
             if ((corpse_file = fopen(fname, "w+")) != NULL) {
                 fprintf(corpse_file, "<corpse>");
-                corpse->saveToXML(corpse_file);
+                saveObjToXML(corpse_file, corpse);
                 fprintf(corpse_file, "</corpse>");
                 fclose(corpse_file);
             }
@@ -1437,7 +1436,7 @@ int calculate_attack_probability(struct creature *ch)
     int prob;
     struct obj_data *weap = NULL;
 
-    if (!ch->isFighting())
+    if (!ch->fighting)
         return 0;
 
     prob = 1 + (GET_LEVEL(ch) / 7) + (GET_DEX(ch) << 1);
@@ -1456,7 +1455,7 @@ int calculate_attack_probability(struct creature *ch)
     if (GET_EQ(ch, WEAR_HANDS))
         prob = calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_HANDS));
 
-    prob += ((POS_FIGHTING - (ch->findRandomCombat()->getPosition())) << 1);
+    prob += ((POS_FIGHTING - (GET_POSITION(random_opponent(ch)))) << 1);
 
     if (CHECK_SKILL(ch, SKILL_DBL_ATTACK))
         prob += (int)((CHECK_SKILL(ch, SKILL_DBL_ATTACK) * 0.15) +
@@ -1482,8 +1481,8 @@ int calculate_attack_probability(struct creature *ch)
     if (AFF2_FLAGGED(ch, AFF2_HASTE))
         prob = (int)(prob * 1.30);
 
-    if (ch->getSpeed())
-        prob += (prob * ch->getSpeed()) / 100;
+    if (getSpeed(ch))
+        prob += (prob * getSpeed(ch)) / 100;
 
     if (AFF2_FLAGGED(ch, AFF2_SLOW))
         prob = (int)(prob * 0.70);
@@ -1498,7 +1497,7 @@ int calculate_attack_probability(struct creature *ch)
         prob += GET_LEVEL(ch) >> 2;
 
     if (AFF3_FLAGGED(ch, AFF3_DIVINE_POWER))
-        prob += (ch->getLevelBonus(SPELL_DIVINE_POWER) / 3);
+        prob += (get_skill_bonus(ch, SPELL_DIVINE_POWER) / 3);
 
     if (ch->desc)
         prob -= ((MAX(0, ch->desc->wait >> 1)) * prob) / 100;

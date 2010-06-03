@@ -14,33 +14,22 @@
 //
 
 #include <stdio.h>
-#include <map>
 #include "creature.h"
 
-struct Tongue {
-    struct trans_pair {
-        char _pattern[10];
-        char _replacement[10];
-    };
-    Tongue();
-    Tongue(const Tongue &o);
-    ~Tongue(void);
-    Tongue &operator=(const Tongue &o);
-
-    void clear(void);
-    bool load(xmlNodePtr node);
-    char *translate(const char *str, int amount);
-
-    int _idnum;
-    char *_name;
-    trans_pair *_syllables;
-    int _syllable_count;
-    char _letters[256];
-    char *_nospeak_msg;
-    char *translate_word(char *word);
+struct trans_pair {
+    char pattern[10];
+    char replacement[10];
+};
+struct tongue {
+    int idnum;
+    char *name;
+    struct trans_pair *syllables;
+    int syllable_count;
+    char letters[256];
+    char *nospeak_msg;
 };
 
-extern std_map<int,Tongue> tongues;
+extern struct tongue *tongues;
 
 #define GET_LANG_HEARD(ch) ((ch)->language_data->languages_heard)
 #define GET_TONGUE(ch) ((ch)->language_data->current_language)
@@ -55,8 +44,10 @@ const char *fluency_desc(struct creature *ch, int tongue_idx);
 void show_language_help(struct creature *ch);
 int find_tongue_idx_by_name(const char *tongue_name);
 
-static const int TONGUE_NONE =                          -1;
-static const int TONGUE_COMMON =                        0;
-static const int TONGUE_ARCANUM =                        1;
+enum {
+    TONGUE_NONE = -1,
+    TONGUE_COMMON = 0,
+    TONGUE_ARCANUM = 1
+};
 
 #endif

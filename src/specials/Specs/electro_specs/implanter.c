@@ -13,7 +13,7 @@ void implanter_redeem(struct creature *me, struct creature *ch, char *args);
 bool implanter_in_session(struct creature *ch);
 void implanter_end_sess(struct creature *ch);
 void implanter_show_args(struct creature *me, struct creature *ch);
-void implanter_show_pos(struct creature *me, struct creature *ch, obj_data *obj);
+void implanter_show_pos(struct creature *me, struct creature *ch, struct obj_data *obj);
 
 const long TICKET_VNUM = 92277;
 
@@ -299,13 +299,13 @@ implanter_extract(struct creature * me, struct creature * ch, char *args)
 		GET_HIT(ch) = 1;
 		GET_MOVE(ch) = 1;
 		WAIT_STATE(ch, 10 RL_SEC);
-		ch->saveToXML();
+		save_player_to_xml(ch);
 	} else {
 		act("$n extracts $p from $P.", false, me, implant, obj, TO_ROOM);
 		obj_from_obj(implant);
 		SET_BIT(GET_OBJ_WEAR(implant), ITEM_WEAR_TAKE);
 		obj_to_char(implant, ch);
-		ch->saveToXML();
+		save_player_to_xml(ch);
 	}
 
 	return;
@@ -400,7 +400,7 @@ implanter_repair(struct creature * me, struct creature * ch, char *args)
 	GET_HIT(ch) = 1;
 	GET_MOVE(ch) = 1;
 	WAIT_STATE(ch, 10 RL_SEC);
-	ch->saveToXML();
+	save_player_to_xml(ch);
 
 	return;
 }
@@ -415,7 +415,7 @@ implanter_redeem(struct creature * me, struct creature * ch, char *args)
 	}
 
 	if (!strcasecmp(args, "ticket")) {
-		obj_data *obj;
+		struct obj_data *obj;
 
 		obj = ch->carrying;
 		while (obj && GET_OBJ_VNUM(obj) != TICKET_VNUM)
@@ -482,7 +482,7 @@ implanter_show_args(struct creature * me, struct creature * ch)
 }
 
 void
-implanter_show_pos(struct creature * me, struct creature * ch, obj_data * obj)
+implanter_show_pos(struct creature * me, struct creature * ch, struct obj_data * obj)
 {
 	int pos;
 	bool not_first = false;

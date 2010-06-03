@@ -82,9 +82,9 @@ CProgEditor_Finalize(const char *text)
         ((struct creature *)owner)->mob_specials.shared->prog = new_prog;
         break;
     case PROG_TYPE_ROOM:
-        if (GET_ROOM_PROG((room_data *)owner))
-            free(((room_data *)owner)->prog);
-        ((room_data *)owner)->prog = new_prog;
+        if (GET_ROOM_PROG((struct room_data *)owner))
+            free(((struct room_data *)owner)->prog);
+        ((struct room_data *)owner)->prog = new_prog;
         break;
     default:
         errlog("Can't happen");

@@ -77,7 +77,7 @@ struct obj_data *object_list = NULL;	/* global linked list of objs         */
 struct obj_data *obj_proto;		/* prototypes for objs                 */
 struct obj_shared_data *null_obj_shared;
 struct mob_shared_data *null_mob_shared;
-map<int,room_data*> rooms;
+map<int,struct room_data*> rooms;
 
 struct zone_data *zone_table;	/* zone table                         */
 int top_of_zone_table = 0;		/* top element of zone tab         */
@@ -480,7 +480,7 @@ clear_world(void)
 
 	ObjectMap_iterator oit = objectPrototypes.begin();
 	for (; oit != objectPrototypes.end(); ++oit) {
-		obj_data *object = oit->second;
+		struct obj_data *object = oit->second;
         free(object->shared->func_param);
         free(object->shared);
         object->shared = NULL;
@@ -846,7 +846,7 @@ parse_room(FILE * fl, int vnum_nr)
 		}
 	}
 
-	room = new room_data(vnum_nr, zone);
+	room = new struct room_data(vnum_nr, zone);
 	room->name = fread_string(fl, buf2);
 	room->description = fread_string(fl, buf2);
 	room->sounds = NULL;
@@ -1226,15 +1226,15 @@ void
 renum_world(void)
 {
     // store the rooms in a map temoporarily for use in lookups
-	for( zone_data* zone = zone_table; zone; zone = zone->next) {
-		for( room_data* room = zone->world; room; room = room->next) {
+	for( struct zone_data* zone = zone_table; zone; zone = zone->next) {
+		for( struct room_data* room = zone->world; room; room = room->next) {
             rooms[room->number] = room;
         }
     }
 	slog("%zd rooms loaded.", rooms.size());
     // lookup each room's doors and reconnect the to_room pointers
-    for( zone_data* zone = zone_table; zone; zone = zone->next) {
-		for( room_data* room = zone->world; room; room = room->next) {
+    for( struct zone_data* zone = zone_table; zone; zone = zone->next) {
+		for( struct room_data* room = zone->world; room; room = room->next) {
 			for (int door = 0; door < NUM_OF_DIRS; ++door) {
 				if (room->dir_option[door]) {
                     // the to_room pointer has the room # stored in it during bootup
@@ -1324,8 +1324,8 @@ void
 compile_all_progs(void)
 {
 	// Compile all room progs
-    for (zone_data *zone = zone_table; zone; zone = zone->next)
-		for (room_data *room = zone->world; room; room = room->next)
+    for (struct zone_data *zone = zone_table; zone; zone = zone->next)
+		for (struct room_data *room = zone->world; room; room = room->next)
           if (room->prog)
             prog_compile(NULL, room, PROG_TYPE_ROOM);
 
@@ -2473,7 +2473,7 @@ process_load_param( struct creature *ch )
 int
 on_load_equip( struct creature *ch, int vnum, char* position, int maxload, int percent )
 {
-    obj_data *obj = real_object_proto(vnum);
+    struct obj_data *obj = real_object_proto(vnum);
     if( obj == NULL ) {
         errlog("Mob num %d: equip object %d nonexistent.",
 			ch->mob_specials.shared->vnum, vnum );

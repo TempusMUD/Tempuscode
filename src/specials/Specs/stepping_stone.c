@@ -13,7 +13,7 @@ SPECIAL(stepping_stone)
 		return false;
 
 	if (CMD_IS("south")) {
-		if (ch->getPosition() >= POS_STANDING) {
+		if (GET_POSITION(ch) >= POS_STANDING) {
 			if (GET_LOADROOM(ch) != arena_start_room) {
 				act("$p flares up suddenly with a bright light!",
 					false, ch, ruby, 0, TO_ROOM);
@@ -138,7 +138,7 @@ SPECIAL(arena_locker)
 			House *house = Housing.findHouseByRoom( r_locker_room->number );
 			if( house != NULL )
 				house->save();
-			ch->saveToXML();
+			save_player_to_xml(ch);
 
 			return true;
 		}

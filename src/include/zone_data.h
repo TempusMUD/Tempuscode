@@ -93,14 +93,7 @@ static const int ZONE_NEUTRAL_PK  = 1;
 static const int ZONE_CHAOTIC_PK  = 2;
 
 /* zone definition structure. for the 'zone-table'   */
-struct zone_data : public thing {
-    zone_data(void) : thing(ZONE) {}
-    inline int getPKStyle() {
-        return pk_style;
-    }
-    inline void setPKStyle(int style) {
-        pk_style = style;
-    }
+struct zone_data {
 	char *name;					/* name of this zone                  */
 	int lifespan;				/* how long between resets (minutes)  */
 	int age;					/* current age of this zone (minutes) */
@@ -144,7 +137,7 @@ struct zone_data : public thing {
 
 /* for queueing zones for update   */
 struct reset_q_element {
-	struct zone_data *zone_to_reset;	/* ref to zone_data */
+	struct zone_data *zone_to_reset;	/* ref to struct zone_data */
 	struct reset_q_element *next;
 };
 

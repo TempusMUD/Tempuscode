@@ -15,7 +15,7 @@ struct extra_descr_data *locate_exdesc(char *word,
 /**
  * Stores this object and it's contents into the given file.
  */
-void obj_data_clear()
+void struct obj_data_clear()
 {
 	memset((char *)this, 0, sizeof(struct obj_data));
 	in_room = NULL;
@@ -23,7 +23,7 @@ void obj_data_clear()
 }
 
 const char*
-get_worn_type( obj_data *obj )
+get_worn_type( struct obj_data *obj )
 {
     if (obj->worn_on == -1 || !obj->worn_by)
         return "none";
@@ -38,7 +38,7 @@ get_worn_type( obj_data *obj )
 }
 
 void
-obj_data_saveToXML(FILE *ouf)
+struct obj_data_saveToXML(FILE *ouf)
 {
     struct tmp_obj_affect *af = NULL;
     struct tmp_obj_affect *af_head = NULL;
@@ -47,7 +47,7 @@ obj_data_saveToXML(FILE *ouf)
 			indent.c_str(), shared->vnum );
 	indent += "\t";
 
-    obj_data *proto = shared->proto;
+    struct obj_data *proto = shared->proto;
 
     char *s = name;
     if( s != NULL &&
@@ -144,7 +144,7 @@ obj_data_saveToXML(FILE *ouf)
     }
 	// Contained objects
 	indent += "\t";
-	for( obj_data *obj = contains; obj != NULL; obj = obj->next_content ) {
+	for( struct obj_data *obj = contains; obj != NULL; obj = obj->next_content ) {
 		obj->saveToXML(ouf);
 	}
 	indent.erase(indent.size() - 1);
@@ -164,7 +164,7 @@ obj_data_saveToXML(FILE *ouf)
 }
 
 bool
-obj_data_loadFromXML(obj_data *container, struct creature *victim, room_data* room, xmlNodePtr node)
+struct obj_data_loadFromXML(struct obj_data *container, struct creature *victim, struct room_data* room, xmlNodePtr node)
 {
 	int vnum = xmlGetIntProp(node, "vnum");
 	bool placed;
@@ -178,7 +178,7 @@ obj_data_loadFromXML(obj_data *container, struct creature *victim, room_data* ro
 	// NOTE: This is bad, but since the object is already allocated, we have
 	// to do it this way.  Functionality is copied from read_object(int)
     if (vnum > -1) {
-	    obj_data* prototype = real_object_proto(vnum);
+	    struct obj_data* prototype = real_object_proto(vnum);
 	    if(!prototype) {
 		    slog("Object #%d being removed from %s's rent",
 			    vnum, victim ? GET_NAME(victim):"(null)");
@@ -312,7 +312,7 @@ obj_data_loadFromXML(obj_data *container, struct creature *victim, room_data* ro
 				}
 			}
 		} else if( xmlMatches( cur->name, "object" ) ) {
-			obj_data *obj;
+			struct obj_data *obj;
 			obj = create_obj();
 			if(! obj->loadFromXML(this,victim,room,cur) ) {
 				extract_obj(obj);
@@ -369,7 +369,7 @@ obj_data_loadFromXML(obj_data *container, struct creature *victim, room_data* ro
 }
 
 int
-obj_data_modifyWeight(int mod_weight)
+struct obj_data_modifyWeight(int mod_weight)
 {
 
 	// if object is inside another object, recursively
@@ -393,7 +393,7 @@ obj_data_modifyWeight(int mod_weight)
 }
 
 bool
-obj_data_isUnrentable()
+struct obj_data_isUnrentable()
 {
 
 	if (IS_OBJ_STAT(this, ITEM_NORENT)
@@ -409,7 +409,7 @@ obj_data_isUnrentable()
 }
 
 int
-obj_data_setWeight(int new_weight)
+struct obj_data_setWeight(int new_weight)
 {
 
 	return (modifyWeight(new_weight - getWeight()));
@@ -421,8 +421,8 @@ obj_flag_data_setWeight(int new_weight)
 	return ((weight = new_weight));
 }
 
-room_data *
-obj_data_find_room(void)
+struct room_data *
+struct obj_data_find_room(void)
 {
 	if (worn_by)
 		return worn_by->in_room;
@@ -438,7 +438,7 @@ obj_data_find_room(void)
 }
 
 void
-obj_data_addAffect(struct tmp_obj_affect *af)
+struct obj_data_addAffect(struct tmp_obj_affect *af)
 {
     struct tmp_obj_affect *new_aff;
 
@@ -452,7 +452,7 @@ obj_data_addAffect(struct tmp_obj_affect *af)
 }
 
 void
-obj_data_removeAffect(struct tmp_obj_affect *af)
+struct obj_data_removeAffect(struct tmp_obj_affect *af)
 {
     struct tmp_obj_affect *curr_aff;
     struct tmp_obj_affect *prev_aff = NULL;
@@ -489,7 +489,7 @@ obj_data_removeAffect(struct tmp_obj_affect *af)
 // or affectJoin() instead.
 // add == true adds the affect, add == false deletes the affect
 void
-obj_data_affectModify(struct tmp_obj_affect *af, bool add)
+struct obj_data_affectModify(struct tmp_obj_affect *af, bool add)
 {
     // Set or restore damage
     if (af->dam_mod && this->obj_flags.max_dam > 0) {
@@ -547,7 +547,7 @@ obj_data_affectModify(struct tmp_obj_affect *af, bool add)
             oextra = &this->obj_flags.extra3_flags;
         }
         else {
-			errlog("Invalid extra index (%d) in obj_data_affectModify().",
+			errlog("Invalid extra index (%d) in struct obj_data_affectModify().",
 				af->extra_index);
             return;
         }
@@ -616,7 +616,7 @@ obj_data_affectModify(struct tmp_obj_affect *af, bool add)
 }
 
 void
-obj_data_affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
+struct obj_data_affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
                      int aff_mode)
 {
     struct tmp_obj_affect *cur_aff = this->tmp_affects;
@@ -708,7 +708,7 @@ obj_data_affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
 }
 
 void
-obj_data_normalizeApplies(void)
+struct obj_data_normalizeApplies(void)
 {
     int i,j;
 
@@ -728,7 +728,7 @@ obj_data_normalizeApplies(void)
 }
 
 struct tmp_obj_affect *
-obj_data_affectedBySpell(int spellnum)
+struct obj_data_affectedBySpell(int spellnum)
 {
     struct tmp_obj_affect *cur_aff = this->tmp_affects;
 
@@ -741,7 +741,7 @@ obj_data_affectedBySpell(int spellnum)
 }
 
 int
-obj_data_getEquipPos(void)
+struct obj_data_getEquipPos(void)
 {
 	int result;
 
@@ -756,7 +756,7 @@ obj_data_getEquipPos(void)
 }
 
 int
-obj_data_getImplantPos(void)
+struct obj_data_getImplantPos(void)
 {
 	int result;
 
@@ -769,4 +769,4 @@ obj_data_getImplantPos(void)
 
 	return -1;
 }
-#undef __obj_data_cc__
+#undef __struct obj_data_cc__

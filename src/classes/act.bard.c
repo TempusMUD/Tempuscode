@@ -31,7 +31,6 @@
 extern const char *instrument_types[];
 
 char *pad_song(char *lyrics);
-void sing_song(struct creature *ch, struct creature *vict, int songnum);
 bool check_instrument(struct creature *ch, int songnum);
 char *get_instrument_type(int songnum);
 
@@ -97,68 +96,66 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict, in
 {
     char *buf;
     const char *vbuf;
-  struct bard_song *song = &songs[songnum];
+    struct bard_song *song = &songs[songnum];
 
-  if (!SPELL_FLAGGED(songnum, MAG_BARD)) {
-	mlog(Security_ADMINBASIC, LVL_AMBASSADOR, NRM, true,
-			"(%d) Not a bard song in sing_song()", songnum);
-	return;
-  }
-
-  struct creatureList_iterator it = ch->in_room->people.begin();
-  for (; it != ch->in_room->people.end(); ++it) {
-	if (!(*it)->desc || !AWAKE((*it)) ||
-		PLR_FLAGGED((*it), PLR_WRITING | PLR_OLC))
-	  continue;
-
-	struct creature *tch = *it;
-
-	if (ovict)
-	  vbuf = tmp_sprintf(" to %s", OBJS(ovict, tch));
-	else if (!vict)
-	  vbuf = "";
-	else if (vict == tch && tch != ch)
-	  vbuf = " to you";
-	else if (vict != ch)
-	  vbuf = tmp_sprintf(" to %s", PERS(vict, tch));
-    else if (ch == vict && tch != ch) {
-        if (ch->player.sex == 1)
-            vbuf = " to himself";
-        else if (ch->player.sex == 2)
-            vbuf = " to herself";
-        else
-            vbuf = " to itself";
+    if (!SPELL_FLAGGED(songnum, MAG_BARD)) {
+        mlog(SECURITY_ADMINBASIC, LVL_AMBASSADOR, NRM, true,
+             "(%d) Not a bard song in sing_song()", songnum);
+        return;
     }
-	else
-	  vbuf = " to yourself";
 
-	if (song->instrumental) {
-	  if (tch == ch)
-		buf = tmp_sprintf("You begin to play %s%s.", song->lyrics, vbuf);
-	  else
-		buf = tmp_sprintf("%s begins playing %s%s.",
-						  PERS(ch, tch),
-						  song->lyrics,
-						  vbuf);
-	} else {
-	  if (tch == ch)
-		buf = tmp_sprintf("You sing%s, %s\"%s\"%s",
-						  vbuf,
-						  CCCYN(tch, C_NRM),
-						  song->lyrics,
-						  CCNRM(tch, C_NRM));
-	  else
-		buf = tmp_sprintf("%s sings%s, %s\"%s\"%s",
-						  PERS(ch, tch),
-						  vbuf,
-						  CCCYN(tch, C_NRM),
-						  song->lyrics,
-						  CCNRM(tch, C_NRM));
-	  buf = pad_song(buf);
-	}
+    struct creature *tch = NULL;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+        if (!tch->desc || !AWAKE(tch) ||
+            PLR_FLAGGED(tch, PLR_WRITING | PLR_OLC))
+            continue;
 
-	perform_act(buf, ch, NULL, NULL, tch, 0);
-  }
+        if (ovict)
+            vbuf = tmp_sprintf(" to %s", OBJS(ovict, tch));
+        else if (!vict)
+            vbuf = "";
+        else if (vict == tch && tch != ch)
+            vbuf = " to you";
+        else if (vict != ch)
+            vbuf = tmp_sprintf(" to %s", PERS(vict, tch));
+        else if (ch == vict && tch != ch) {
+            if (ch->player.sex == 1)
+                vbuf = " to himself";
+            else if (ch->player.sex == 2)
+                vbuf = " to herself";
+            else
+                vbuf = " to itself";
+        }
+        else
+            vbuf = " to yourself";
+
+        if (song->instrumental) {
+            if (tch == ch)
+                buf = tmp_sprintf("You begin to play %s%s.", song->lyrics, vbuf);
+            else
+                buf = tmp_sprintf("%s begins playing %s%s.",
+                                  PERS(ch, tch),
+                                  song->lyrics,
+                                  vbuf);
+        } else {
+            if (tch == ch)
+                buf = tmp_sprintf("You sing%s, %s\"%s\"%s",
+                                  vbuf,
+                                  CCCYN(tch, C_NRM),
+                                  song->lyrics,
+                                  CCNRM(tch, C_NRM));
+            else
+                buf = tmp_sprintf("%s sings%s, %s\"%s\"%s",
+                                  PERS(ch, tch),
+                                  vbuf,
+                                  CCCYN(tch, C_NRM),
+                                  song->lyrics,
+                                  CCNRM(tch, C_NRM));
+            buf = pad_song(buf);
+        }
+
+        perform_act(buf, ch, NULL, NULL, tch, 0);
+    }
 }
 
 char *pad_song(char *lyrics)
@@ -178,7 +175,7 @@ char *pad_song(char *lyrics)
 
 bool bard_can_charm_more(struct creature *ch)
 {
-    follow_type *cur;
+    struct follow_type *cur;
     int count = 0;
 
     if (!ch->followers)
@@ -204,7 +201,7 @@ bool check_instrument(struct creature *ch, int songnum)
     objs[2] = GET_EQ(ch, WEAR_WIELD_2);
     objs[3] = NULL;
 
-    if (ch->getLevel() > LVL_AMBASSADOR)
+    if (GET_LEVEL(ch) > LVL_AMBASSADOR)
         return true;
 
     while (objs[x] != NULL) {
@@ -227,18 +224,19 @@ char *get_instrument_type(int songnum)
 ASPELL(song_instant_audience)
 {
     // 1205 - 1209
-    int limit = MAX(1, (ch->getLevelBonus(SONG_INSTANT_AUDIENCE) / 33));
+    int limit = MAX(1, (getSkillBonus(ch, SONG_INSTANT_AUDIENCE) / 33));
     struct affected_type af;
     bool success = false;
 
     extern void add_follower(struct creature *ch, struct creature *leader);
 
-    if (ch->in_room->isOpenAir()) {
+    if (isOpenAir(ch->in_room)) {
         send_to_char(ch, "Oh come now!  There's no one up here to hear you!\r\n");
         return;
     }
 
-    for (int i = 0; i <= limit; i++) {
+    int i;
+    for (i = 0; i <= limit; i++) {
         struct creature *member = NULL;
 
         if (!bard_can_charm_more(ch))
@@ -255,7 +253,7 @@ ASPELL(song_instant_audience)
         }
 
         float mult = MAX(0.5 ,
-                         (float)((ch->getLevelBonus(SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
+                         (float)((getSkillBonus(ch, SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
 
         // tweak them out
         GET_HITROLL(member) = MIN((int)(GET_HITROLL(member) * mult), 60);
@@ -263,7 +261,7 @@ ASPELL(song_instant_audience)
         GET_MAX_HIT(member) = MIN((int)(GET_MAX_HIT(member) * mult), 30000);
         GET_HIT(member) = GET_MAX_HIT(member);
 
-        char_to_room(member, ch->in_room);
+        char_to_room_nospec(member, ch->in_room);
         SET_BIT(MOB_FLAGS(member), MOB_PET);
 
         if (member->master)
@@ -273,7 +271,7 @@ ASPELL(song_instant_audience)
 
         af.type = SPELL_CHARM;
         af.is_instant = 0;
-        af.duration = 5 + (ch->getLevelBonus(SONG_INSTANT_AUDIENCE) >> 2);
+        af.duration = 5 + (getSkillBonus(ch, SONG_INSTANT_AUDIENCE) >> 2);
 
         if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(0, 120))
             af.duration = (int)(af.duration * 1.5);
@@ -282,7 +280,7 @@ ASPELL(song_instant_audience)
         af.location = 0;
         af.bitvector = AFF_CHARM;
         af.level = level;
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
         affect_to_char(member, &af);
     }
 
@@ -306,18 +304,16 @@ ASPELL(song_exposure_overture)
     if (!ch)
         return;
 
-    struct creatureList_iterator ci = ch->in_room->people.begin();
-
-    for (; ci != ch->in_room->people.end(); ++ci) {
+    struct creature *tch = NULL;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
         const char *to_char = NULL;
         const char *to_vict = NULL;
         const char *to_room = NULL;
-        struct creature *tch = *ci;
 
         if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
             continue;
 
-        prob = ((ch->getLevelBonus(SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_CHA(ch));
+        prob = ((getSkillBonus(ch, SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_CHA(ch));
         percent = GET_LEVEL(tch) + (GET_CHA(tch) / 2) + number(1, 60);
 
         if (prob < percent)
@@ -395,7 +391,7 @@ ASPELL(song_lament_of_longing)
         return;
     }
 
-    if (victim->in_room->people.size() >= (unsigned)ch->in_room->max_occupancy) {
+    if (creatures_in_room(victim->in_room) >= (unsigned)ch->in_room->max_occupancy) {
         send_to_char(ch, "But there is no room for you there!\r\n");
         return;
     }
@@ -429,7 +425,7 @@ ASPELL(song_lament_of_longing)
         }
     }
 
-    if (number(0, 225) > (ch->getLevelBonus(SONG_LAMENT_OF_LONGING) +
+    if (number(0, 225) > (getSkillBonus(ch, SONG_LAMENT_OF_LONGING) +
         CHECK_SKILL(ch, SONG_LAMENT_OF_LONGING))) {
         send_to_char(ch, "A shimmering portal begins to appear but it "
                          "fades along with your music..\r\n");
@@ -448,7 +444,7 @@ ASPELL(song_lament_of_longing)
         return;
     }
 
-    GET_OBJ_TIMER(rift1) = (1 + ch->getLevelBonus(SONG_LAMENT_OF_LONGING)) >> 5;
+    GET_OBJ_TIMER(rift1) = (1 + getSkillBonus(ch, SONG_LAMENT_OF_LONGING)) >> 5;
     GET_OBJ_TIMER(rift2) = GET_OBJ_TIMER(rift1);
 
     rift1->line_desc = strdup("A beautiful, shimmering rift has been opened here.");
@@ -471,10 +467,10 @@ ASPELL(song_lament_of_longing)
              true, victim, NULL, NULL, TO_CHAR);
     }
 
-    struct creatureList_iterator ci = ch->in_room->people.begin();
-    for (; ci != ch->in_room->people.end(); ++ci) {
-        if (!IS_NPC((*ci))) {
-            WAIT_STATE(ch, 5 RL_SEC);
+    struct creature *tch = NULL;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+        if (!IS_NPC(tch)) {
+            WAIT_STATE(tch, 5 RL_SEC);
         }
     }
 
@@ -490,7 +486,7 @@ ASPELL(song_rhythm_of_alarm)
     rm_aff.type = RM_AFF_OTHER;
 
     if ((rm_aff_ptr = room_affected_by(ch->in_room, SONG_RHYTHM_OF_ALARM)) &&
-         rm_aff_ptr->owner == ch->getIdNum()) {
+        rm_aff_ptr->owner == GET_IDNUM(ch)) {
         send_to_char(ch, "Your song fades leaving no affect.\r\n");
         return;
     }
@@ -500,8 +496,8 @@ ASPELL(song_rhythm_of_alarm)
 
     rm_aff.level = level;
     rm_aff.spell_type = SONG_RHYTHM_OF_ALARM;
-    rm_aff.duration = number(1, 100) + (ch->getLevelBonus(SONG_RHYTHM_OF_ALARM) * 2);
-    rm_aff.owner = ch->getIdNum();
+    rm_aff.duration = number(1, 100) + (getSkillBonus(ch, SONG_RHYTHM_OF_ALARM) * 2);
+    rm_aff.owner = GET_IDNUM(ch);
     affect_to_room(ch->in_room, &rm_aff);
 
     gain_skill_prof(ch, SONG_RHYTHM_OF_ALARM);
@@ -540,9 +536,9 @@ ASPELL(song_wall_of_sound)
     rm_aff.level = level;
     rm_aff.spell_type = SONG_WALL_OF_SOUND;
     rm_aff.type = *dir;
-    rm_aff.duration = number(1, 50) + (ch->getLevelBonus(SONG_WALL_OF_SOUND));
+    rm_aff.duration = number(1, 50) + (getSkillBonus(ch, SONG_WALL_OF_SOUND));
     rm_aff.flags = EX_NOPASS;
-    rm_aff.owner = ch->getIdNum();
+    rm_aff.owner = GET_IDNUM(ch);
 	rm_aff.description = strdup(tmp_sprintf("A shimmering wall seals the %s exit.\r\n",
 											 dir_str));
     affect_to_room(ch->in_room, &rm_aff);
@@ -553,10 +549,10 @@ ASPELL(song_wall_of_sound)
 ASPELL(song_hymn_of_peace)
 {
 
-    struct creatureList_iterator it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it) {
-        (*it)->removeAllCombat();
-        mag_unaffects(level, ch, *it, SONG_HYMN_OF_PEACE, 0);
+    struct creature *tch = NULL;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+        removeAllCombat(tch);
+        mag_unaffects(level, ch, tch, SONG_HYMN_OF_PEACE, 0);
     }
 
     send_to_char(ch, "Your song brings a feeling of peacefulness.\r\n");
@@ -620,10 +616,10 @@ ACMD(do_ventriloquize)
         return;
     }
 
-    struct creatureList_iterator ci = ch->in_room->people.begin();
-    for (; ci != ch->in_room->people.end(); ++ci) {
+    struct creature *tch = NULL;
+    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
         if (target) {
-            if (target == *ci)
+            if (target == tch)
                 target_str = tmp_strdup(" to you");
             else
                 target_str = tmp_sprintf(" to %s", GET_NAME(target));
@@ -637,7 +633,7 @@ ACMD(do_ventriloquize)
         else
             target_str = NULL;
 
-        send_to_char(*ci, "%s%s says%s,%s%s \'%s\'%s\r\n",
+        send_to_char(tch, "%s%s says%s,%s%s \'%s\'%s\r\n",
                      CCBLU_BLD(ch, C_NRM),
                      tmp_capitalize(obj->name),
                      (target_str ? target_str : ""),

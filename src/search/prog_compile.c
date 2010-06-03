@@ -84,7 +84,7 @@ prog_get_text(void *owner, prog_evt_type owner_type)
 			return NULL;
 		}
 	case PROG_TYPE_ROOM:
-		return ((room_data *)owner)->prog;
+		return ((struct room_data *)owner)->prog;
     default:
         errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
@@ -116,7 +116,7 @@ prog_compile_message(prog_compiler_state *compiler,
         break;
     case PROG_TYPE_ROOM:
         place = tmp_sprintf("room %d%s",
-                            ((room_data *)compiler->owner)->number,
+                            ((struct room_data *)compiler->owner)->number,
                             linestr);
         break;
     default:
@@ -772,8 +772,8 @@ prog_compile(struct creature *ch, void *owner, prog_evt_type owner_type)
         owner->to_c()->mob_specials.shared->progobj = obj;
         break;
     case PROG_TYPE_ROOM:
-        delete [] ((room_data *)owner)->progobj;
-        ((room_data *)owner)->progobj = obj;
+        delete [] ((struct room_data *)owner)->progobj;
+        ((struct room_data *)owner)->progobj = obj;
         break;
     case PROG_TYPE_OBJECT:
         break;

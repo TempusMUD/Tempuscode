@@ -294,7 +294,7 @@ struct creature_getDamReduction(struct creature *attacker)
 	// damage reduction ranges up to about 35%
 	if (AFF2_FLAGGED(ch, AFF2_OBLIVITY) && IS_NEUTRAL(ch)) {
 		dam_reduction += (((GET_LEVEL(ch) +
-					ch->getLevelBonus(ZEN_OBLIVITY)) * 10) +
+					get_skill_bonus(ch, ZEN_OBLIVITY)) * 10) +
 			(1000 - abs(GET_ALIGNMENT(ch))) +
 			(CHECK_SKILL(ch, ZEN_OBLIVITY) * 10)) / 100;
 	}
@@ -307,14 +307,14 @@ struct creature_getDamReduction(struct creature *attacker)
 	//******************************************************************
 	if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
 		if (IS_BARB(ch))
-			dam_reduction += (ch->getLevelBonus(SKILL_BERSERK)) / 6;
+			dam_reduction += (get_skill_bonus(ch, SKILL_BERSERK)) / 6;
 		else
 			dam_reduction += 7;
 	}
 	//************************** Damage Control ************************
 	//******************************************************************
 	if (AFF3_FLAGGED(ch, AFF3_DAMAGE_CONTROL)) {
-		dam_reduction += (ch->getLevelBonus(SKILL_DAMAGE_CONTROL)) / 5;
+		dam_reduction += (get_skill_bonus(ch, SKILL_DAMAGE_CONTROL)) / 5;
 	}
 	//**************************** ALCOHOLICS!!! ***********************
 	//******************************************************************
@@ -336,7 +336,7 @@ struct creature_getDamReduction(struct creature *attacker)
         // We found the shield of righteousness caster
         if (af && af->modifier == GET_IDNUM(ch)) {
             dam_reduction +=
-                (ch->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
+                (get_skill_bonus(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                 + (GET_ALIGNMENT(ch) / 100);
         } else if (af && ch->in_room) {
 
@@ -376,7 +376,7 @@ struct creature_getDamReduction(struct creature *attacker)
         // We found the aria of asylum singer
         if (af && af->modifier == GET_IDNUM(ch)) {
             dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT(ch))) / 100) +
-                                  (ch->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
+                                  (get_skill_bonus(ch, SONG_ARIA_OF_ASYLUM) / 10));
         } else if (af && ch->in_room) {
 
             struct creatureList_iterator it = ch->in_room->people.begin();
@@ -397,7 +397,7 @@ struct creature_getDamReduction(struct creature *attacker)
 	//*********************** Lattice Hardening *************************
 	//*******************************************************************
 	if (affected_by_spell(ch, SPELL_LATTICE_HARDENING))
-		dam_reduction += (ch->getLevelBonus(SPELL_LATTICE_HARDENING)) / 6;
+		dam_reduction += (get_skill_bonus(ch, SPELL_LATTICE_HARDENING)) / 6;
 
 	//************** Stoneskin Barkskin Dermal Hardening ****************
 	//*******************************************************************
@@ -712,8 +712,8 @@ struct creature_clearMemory()
 }
 
 // Retrieves the characters appropriate loadroom.
-room_data *struct creature_getLoadroom() {
-    room_data *load_room = NULL;
+struct room_data *struct creature_getLoadroom() {
+    struct room_data *load_room = NULL;
 
 	if (PLR_FLAGGED(this, PLR_FROZEN)) {
 		load_room = r_frozen_start_room;
@@ -1034,7 +1034,7 @@ struct creature_cryo(void)
 bool
 struct creature_quit(void)
 {
-	obj_data *obj, *next_obj, *next_contained_obj;
+	struct obj_data *obj, *next_obj, *next_contained_obj;
 	int pos;
 
 	if (IS_NPC(this))
@@ -1121,7 +1121,7 @@ struct creature_idle(void)
 bool
 struct creature_die(void)
 {
-	obj_data *obj, *next_obj;
+	struct obj_data *obj, *next_obj;
 	int pos;
 
     removeAllCombat();
@@ -1216,7 +1216,7 @@ struct creature_arena_die(void)
 bool
 struct creature_purge(bool destroy_obj)
 {
-	obj_data *obj, *next_obj;
+	struct obj_data *obj, *next_obj;
 
 	if (!destroy_obj) {
 		int pos;
@@ -1740,7 +1740,7 @@ struct creature_ignite(struct creature *ch)
     af.aff_index = 2;
 
     if (ch)
-        af.owner = ch->getIdNum();
+        af.owner = GET_IDNUM(ch);
 
     affect_to_char(this, &af);
 }

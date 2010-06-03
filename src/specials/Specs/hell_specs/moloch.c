@@ -9,7 +9,7 @@ SPECIAL(moloch)
 
 	struct creature *moloch = (struct creature *)me;
     struct creature *vict = NULL;
-	room_data *targ_room = NULL;
+	struct room_data *targ_room = NULL;
 	int throne_rooms[4] = { 16645, 16692, 16692, 16623 }, index;
 
 	if (cmd)
@@ -17,8 +17,8 @@ SPECIAL(moloch)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (moloch->isFighting() && GET_MOB_WAIT(moloch) <= 0) {
-        vict = moloch->findRandomCombat();
+	if (moloch->fighting && GET_MOB_WAIT(moloch) <= 0) {
+        vict = molorandom_opponent(ch);
 		if (!number(0, 10)) {
 			call_magic(moloch, vict, 0, NULL, SPELL_FLAME_STRIKE, 50,
 				CAST_BREATH);
@@ -40,7 +40,7 @@ SPECIAL(moloch)
 		return 0;
 	}
 
-	if (moloch->isFighting() || number(0, 20))
+	if (moloch->fighting || number(0, 20))
 		return 0;
 
 	if (ch->in_room->number == throne_rooms[(index = number(0, 3))])

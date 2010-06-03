@@ -467,7 +467,7 @@ SPECIAL(vehicle_door)
 		char_to_room(ch, vehicle->in_room);
 		look_at_room(ch, ch->in_room, 0);
 		act("$n has climbed out of $p.", true, ch, vehicle, 0, TO_ROOM);
-		ch->setPosition(POS_STANDING);
+		GET_POSITION(ch) = POS_STANDING;
 		return 1;
 	}
 

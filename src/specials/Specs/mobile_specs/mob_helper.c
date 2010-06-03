@@ -11,7 +11,7 @@ SPECIAL(mob_helper)
 
 	if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || ch->isFighting())
+	if (cmd || ch->fighting)
 		return 0;
 	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
@@ -22,7 +22,7 @@ SPECIAL(mob_helper)
             continue;
 
         vict = helpee->findRandomCombat();
-		if (vict->getPosition() > POS_DEAD
+		if (GET_POSITION(vict) > POS_DEAD
 				&& IS_MOB(helpee)
 				&& IS_MOB(vict)
 				&& ((IS_GOOD(ch) && IS_GOOD(helpee)) ||

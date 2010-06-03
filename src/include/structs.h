@@ -38,7 +38,6 @@
 #include "desc_data.h"
 #include "room_data.h"
 #include "search.h"
-#include "weather.h"
 #include "zone_data.h"
 
 /***********************************************************************

@@ -9,7 +9,7 @@ SPECIAL(cyber_cock)
 	if (cmd)
 		return 0;
 
-	if (!ch->isFighting()) {
+	if (!ch->fighting) {
 		switch (number(0, 40)) {
 		case 0:
 			act("$n scratches the ground with $s metal claw.", true, ch, 0, 0,
@@ -28,7 +28,7 @@ SPECIAL(cyber_cock)
 			return 0;
 		}
 	}
-    struct creature *vict = ch->findRandomCombat();
+    struct creature *vict = random_opponent(ch);
 	switch (number(0, 16)) {
 	case 0:
 		act("$n leaps into the air, stubby chrome wings flapping!", true, ch,

@@ -15,10 +15,10 @@ SPECIAL(energy_drainer)
 	if (spec_mode != SPECIAL_TICK)
 		return false;
 
-	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
+	if (GET_POSITION(ch) != POS_FIGHTING || !ch->fighting)
 		return false;
 
-    vict = ch->findRandomCombat();
+    vict = random_opponent(ch);
 	if (vict && (vict->in_room == ch->in_room) &&
 		!number(0, 6)) {
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PARA))

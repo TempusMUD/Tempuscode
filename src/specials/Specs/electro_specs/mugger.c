@@ -22,7 +22,7 @@ SPECIAL(mugger)
 	mob_mugger_data *mug;
 	int idx;
 	struct creature *vict, *found_vict;
-	obj_data *obj;
+	struct obj_data *obj;
 	struct creatureList_iterator it;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)

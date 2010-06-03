@@ -62,7 +62,7 @@ int has_mail(long recipient);
 int has_mail(struct creature * ch);
 int store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
                struct obj_data *obj_list = NULL);
-int receive_mail(struct creature * ch, list<obj_data *> &olist);
+int receive_mail(struct creature * ch, list<struct obj_data *> &olist);
 int purge_mail(long idnum);
 
 // The actual mail file entry struct.

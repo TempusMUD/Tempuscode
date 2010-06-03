@@ -1,10 +1,10 @@
 SPECIAL(mage_teleporter)
 {
 	struct creature *self = (struct creature *)me;
-	obj_data *vstone;
+	struct obj_data *vstone;
 	char *arg;
 	int cost;
-	room_data *dest_room;
+	struct room_data *dest_room;
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;

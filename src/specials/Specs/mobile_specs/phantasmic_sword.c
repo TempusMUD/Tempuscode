@@ -12,7 +12,7 @@ SPECIAL(phantasmic_sword)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (ch->isFighting()) {
+	if (ch->fighting) {
 		if (!number(0, 8)) {
 			act("$n starts to emit a piercing whine!", false, ch, 0, 0,
 				TO_ROOM);
@@ -37,7 +37,7 @@ SPECIAL(phantasmic_sword)
 	} else {
 
 		if ((!(mast = ch->master) || !AFF_FLAGGED(ch, AFF_CHARM))
-			&& !ch->isFighting()) {
+			&& !ch->fighting) {
 			if (ch->in_room == NULL)
 				return 0;
 			if (!number(0, 4)) {

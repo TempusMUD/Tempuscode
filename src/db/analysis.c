@@ -98,7 +98,7 @@ struct ObjectMatcherTable {
 			return true;
 		}
 		/** returns true if the object is matched by all matchers. **/
-		bool isMatch( obj_data *obj ) {
+		bool isMatch( struct obj_data *obj ) {
 			for( unsigned int i = 0; i < table.size(); i++  ) {
 				if( table[i]->isReady() && !table[i]->isMatch(obj) ) {
 					return false;
@@ -123,7 +123,7 @@ struct ObjectMatcherTable {
 			}
 			return false;
 		}
-		const char* getAddedInfo( struct creature *ch, obj_data *obj ) {
+		const char* getAddedInfo( struct creature *ch, struct obj_data *obj ) {
 			const char* info = "";
 			for( unsigned int i = 0; i < table.size(); i++  ) {
 				if(! table[i]->isReady() )
@@ -142,7 +142,7 @@ struct ObjectMatcherTable {
  * showing or not showing spell names.
 **/
 char*
-sprintobj( struct creature *ch, obj_data *obj, ObjectMatcherTable &table, int num )
+sprintobj( struct creature *ch, struct obj_data *obj, ObjectMatcherTable &table, int num )
 {
 	const char *info = table.getAddedInfo( ch, obj );
 	return tmp_sprintf("%3d. %s[%s%5d%s] %35s%s %s%s\r\n", num,
@@ -154,9 +154,9 @@ sprintobj( struct creature *ch, obj_data *obj, ObjectMatcherTable &table, int nu
 void
 do_show_objects( struct creature *ch, char *value, char *arg ) {
 	ObjectMatcherTable matcherTable;
-	list<obj_data*> objects;
+	list<struct obj_data*> objects;
 	Tokenizer tokens(value);
-    obj_data *obj = NULL;
+    struct obj_data *obj = NULL;
 
 	tokens.append(arg);
 	if(! tokens.hasNext() ) {
@@ -169,7 +169,7 @@ do_show_objects( struct creature *ch, char *value, char *arg ) {
 		return;
 	}
 
-//	for (obj_data *obj = obj_proto; obj != NULL ; obj = obj->next) {
+//	for (struct obj_data *obj = obj_proto; obj != NULL ; obj = obj->next) {
     ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
@@ -189,7 +189,7 @@ do_show_objects( struct creature *ch, char *value, char *arg ) {
 	char *msg = tmp_sprintf("Matched %zd objects with: '%s%s'\r\n",
                              objects.size(),value,arg);
 
-	list<obj_data*>_iterator it = objects.begin();
+	list<struct obj_data*>_iterator it = objects.begin();
 	for( ; it != objects.end() && objNum <= 300; ++it ) {
         char *line = sprintobj( ch, *it, matcherTable, objNum++);
 		msg = tmp_strcat( msg, line, NULL);

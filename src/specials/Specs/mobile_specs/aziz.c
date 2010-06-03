@@ -12,7 +12,7 @@ SPECIAL(Aziz)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!ch->isFighting())
+	if (!ch->fighting)
 		return 0;
 
 	/* pseudo-randomly choose a mage in the room who is fighting me */
@@ -26,7 +26,7 @@ SPECIAL(Aziz)
 
 	/* if I didn't pick any of those, then just slam the guy I'm fighting */
 	if (vict == NULL)
-		vict = ch->findRandomCombat();
+		vict = random_opponent(ch);
 
 	do_bash(ch, tmp_strdup(""), 0, 0, 0);
 

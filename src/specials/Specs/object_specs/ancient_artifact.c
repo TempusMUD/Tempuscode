@@ -2,9 +2,9 @@
 
 SPECIAL(ancient_artifact)
 {
-	obj_data *obj = (obj_data *) me;
+	struct obj_data *obj = (struct obj_data *) me;
 
-	if (spec_mode != SPECIAL_COMBAT || !ch->isFighting())
+	if (spec_mode != SPECIAL_COMBAT || !ch->fighting)
 		return 0;
 
 	// Same algorithm as do_casting_objon uses
@@ -20,9 +20,9 @@ SPECIAL(ancient_artifact)
 		send_to_char(ch, "%s", CCNRM(ch, C_NRM));
 		act(buf, true, ch, obj, 0, TO_ROOM);
 		strcpy(buf, "$N screams silently as $E briefly fades from existence!");
-		act(buf, false, ch, obj, ch->findRandomCombat(), TO_CHAR);
-		act(buf, true, ch, obj, ch->findRandomCombat(), TO_ROOM);
-        struct creature *target = ch->findRandomCombat();
+		act(buf, false, ch, obj, random_opponent(ch), TO_CHAR);
+		act(buf, true, ch, obj, random_opponent(ch), TO_ROOM);
+        struct creature *target = random_opponent(ch);
 		GET_HIT(target) -= GET_HIT(target) / 10;
 	} else if (number(0, 99)) {
 		strcpy(buf, "$p rumbles disquietingly in your hands.");
@@ -34,7 +34,7 @@ SPECIAL(ancient_artifact)
 	} else {
 		// self-destruct
 		bomb_radius_list *rad_elem, *next_elem;
-		room_data *room = ch->in_room;
+		struct room_data *room = ch->in_room;
 
 		add_bomb_room(room, -1, 35);
 		sort_rooms();

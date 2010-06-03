@@ -504,7 +504,7 @@ assign_angel(struct creature *angel, struct creature *ch)
 	CREATE(data, angel_data, 1);
     angel->mob_specials.func_data = data;
     data->angel = angel;
-    data->charge_id = ch->getIdNum();
+    data->charge_id = GET_IDNUM(ch);
     data->counter = -1;
     data->action = strdup("none");
 

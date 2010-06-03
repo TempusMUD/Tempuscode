@@ -36,7 +36,7 @@ SPECIAL(guard);
 //   to the death point
 
 void
-summon_cityguards(room_data *room)
+summon_cityguards(struct room_data *room)
 {
 	struct creatureList_iterator it;
 	cityguard_data *data;
@@ -270,7 +270,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 	affect_from_char(vict, SPELL_SLEEP);
 	affect_from_char(vict, SPELL_MELATONIC_FLOOD);
 	affect_from_char(vict, SKILL_SLEEPER);
-	vict->setPosition(POS_RESTING);
+	GET_POSITION(vict) = POS_RESTING;
 	act("You wake up in jail, your head pounding.", false, vict, 0, 0, TO_CHAR);
 
 	if (ch->isHunting() && ch->isHunting() == vict)
@@ -286,12 +286,12 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 	if (IS_NPC(vict))
 		vict->purge(true);
 	else
-		vict->saveToXML();
+		save_player_to_xml(vict);
 	return 1;
 }
 
 int
-drag_char_to_jail(struct creature *ch, struct creature *vict, room_data *jail_room)
+drag_char_to_jail(struct creature *ch, struct creature *vict, struct room_data *jail_room)
 {
 	struct creatureList_iterator it;
 	cityguard_data *data;
@@ -371,7 +371,7 @@ SPECIAL(cityguard)
 	char *str, *line, *param_key;
 	int action, dir;
 	int jail_num = 0, hq_num = 0;
-	room_data *room;
+	struct room_data *room;
 	bool lawful;
 	struct creatureList_iterator it;
 
@@ -490,7 +490,7 @@ SPECIAL(cityguard)
 						|| char_is_arrested(tch))
 				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
-				&& tch->getPosition() > POS_SLEEPING
+				&& tGET_POSITION(ch) > POS_SLEEPING
                 && self->isOkToAttack(tch, false)
 				) {
 			action = 4;
@@ -499,7 +499,7 @@ SPECIAL(cityguard)
 		if (action < 3
 				&& ((lawful && IS_CRIMINAL(tch))
 						|| char_is_arrested(tch))
-				&& tch->getPosition() <= POS_SLEEPING
+				&& tGET_POSITION(ch) <= POS_SLEEPING
 				&& (GET_LEVEL(tch) >= 20 || GET_REMORT_GEN(tch) > 0)) {
 			action = 3;
 			target = tch;
@@ -507,7 +507,7 @@ SPECIAL(cityguard)
 		if (action < 2
 				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
-				&& tch->isFighting()) {
+				&& tch->fighting) {
 			action = 2;
 			target = tch;
 		}

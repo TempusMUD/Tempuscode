@@ -162,7 +162,7 @@ banzaii(struct creature *ch)
 
 	struct creature *chOpponent = NULL;
 
-	if (!AWAKE(ch) || ch->getPosition() == POS_FIGHTING)
+	if (!AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING)
 		return false;
 
 	if ((chOpponent = get_victim(ch))) {
@@ -344,11 +344,11 @@ SPECIAL(duke_araken)
 			index = 0;
 		}
 	}
-	if (cmd || (ch->getPosition() < POS_SLEEPING) ||
-		(ch->getPosition() == POS_SLEEPING && !move))
+	if (cmd || (GET_POSITION(ch) < POS_SLEEPING) ||
+		(GET_POSITION(ch) == POS_SLEEPING && !move))
 		return false;
 
-	if (ch->getPosition() == POS_FIGHTING) {
+	if (GET_POSITION(ch) == POS_FIGHTING) {
 		fry_victim(ch);
 		return false;
 	} else if (banzaii(ch))
@@ -375,23 +375,23 @@ SPECIAL(duke_araken)
 	case 'P':
 		break;
 	case 'W':
-		ch->setPosition(POS_STANDING);
+		GET_POSITION(ch) = POS_STANDING;
 		act("$n awakens and stands up.", false, ch, 0, 0, TO_ROOM);
 		break;
 
 	case 'S':
-		ch->setPosition(POS_SLEEPING);
+		GET_POSITION(ch) = POS_SLEEPING;
 		act("$n lies down on $s beautiful bed and instantly falls asleep.",
 			false, ch, 0, 0, TO_ROOM);
 		break;
 
 	case 'r':
-		ch->setPosition(POS_SITTING);
+		GET_POSITION(ch) = POS_SITTING;
 		act("$n sits down on his great throne.", false, ch, 0, 0, TO_ROOM);
 		break;
 
 	case 's':
-		ch->setPosition(POS_STANDING);
+		GET_POSITION(ch) = POS_STANDING;
 		act("$n stands up.", false, ch, 0, 0, TO_ROOM);
 		break;
 
@@ -436,7 +436,7 @@ SPECIAL(training_master)
 	if (spec_mode == SPECIAL_TICK)
 		return 0;
 
-	if (!AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
+	if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
 		return false;
 
 	if (cmd)
@@ -551,7 +551,7 @@ SPECIAL(tom)
 			if (tim->isFighting() && 2 * GET_HIT(tim) < GET_HIT(ch))
 				do_npc_rescue(ch, tim);
 
-	if (!cmd && ch->getPosition() != POS_FIGHTING)
+	if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
 		banzaii(ch);
 
 	return block_way(ch, tom, cmd, CASTLE_ITEM(49), 1);
@@ -581,7 +581,7 @@ SPECIAL(tim)
 			if (tom->isFighting() && 2 * GET_HIT(tom) < GET_HIT(ch))
 				do_npc_rescue(ch, tom);
 
-	if (!cmd && ch->getPosition() != POS_FIGHTING)
+	if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
 		banzaii(ch);
 
 	return block_way(ch, tim, cmd, CASTLE_ITEM(49), 1);
@@ -596,7 +596,7 @@ SPECIAL(James)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
+	if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
 		return (false);
 
 	for (i = ch->in_room->contents; i; i = i->next_content)
@@ -644,7 +644,7 @@ SPECIAL(CastleGuard)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
+	if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
 		return false;
 
 	return (banzaii(ch));
@@ -654,7 +654,7 @@ SPECIAL(sleeping_soldier)
 {
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || (ch->getPosition() == POS_FIGHTING))
+	if (cmd || (GET_POSITION(ch) == POS_FIGHTING))
 		return false;
 	if (!AWAKE(ch))
 		switch (number(0, 60)) {
@@ -685,7 +685,7 @@ SPECIAL(lounge_soldier)
 {
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
+	if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
 		return false;
 
 	switch (number(0, 60)) {
@@ -759,7 +759,7 @@ SPECIAL(peter)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || !AWAKE(ch) || ch->getPosition() == POS_FIGHTING)
+	if (cmd || !AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING)
 		return (false);
 
 	if (banzaii(ch))
@@ -826,7 +826,7 @@ SPECIAL(jerry)
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
-	if (!AWAKE(ch) || (ch->getPosition() == POS_FIGHTING))
+	if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
 		return false;
 
 	if (cmd)

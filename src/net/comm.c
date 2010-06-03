@@ -1723,7 +1723,7 @@ send_to_comm_channel(struct creature *ch, char *buf, int chan, int mode,
 {
 	SPECIAL(master_communicator);
 	struct creature *receiver;
-	obj_data *obj = NULL;
+	struct obj_data *obj = NULL;
 
 	for (obj = object_list; obj; obj = obj->next) {
 		if (obj->in_obj || !IS_COMMUNICATOR(obj))
@@ -1791,7 +1791,7 @@ void
 send_to_room(const char *messg, struct room_data *room)
 {
 	struct creature *i;
-	room_data *to_room;
+	struct room_data *to_room;
 	struct obj_data *o, *obj = NULL;
 	char *str;
 	int j;
@@ -2132,7 +2132,7 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
     } else if (mode == 2) {
 		sprintf(outbuf, "(remote) %s", lbuf);
     } else if (mode == 3) {
-        room_data *toroom = NULL;
+        struct room_data *toroom = NULL;
         if( ch != NULL && ch->in_room != NULL ) {
             toroom = ch->in_room;
         } else if( obj != NULL && obj->in_room != NULL ) {

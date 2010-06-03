@@ -7,10 +7,10 @@ SPECIAL(pit_keeper)
 	if (cmd)
 		return 0;
 
-	if (!(ch->isFighting()))
+	if (!(ch->fighting))
 		return 0;
 
-    vict = ch->findRandomCombat();
+    vict = random_opponent(ch);
 	if (ch->in_room->number != 17027 &&
 		ch->in_room->number != 17021 &&
 		ch->in_room->number != 17022 &&

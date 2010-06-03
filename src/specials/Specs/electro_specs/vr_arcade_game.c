@@ -85,7 +85,7 @@ SPECIAL(vr_arcade_game)
 	House* house = Housing.findHouseByRoom( lckr->in_room->number );
 	if( house != NULL )
 		house->save();
-	ch->saveToXML();
+	save_player_to_xml(ch);
 
 	send_to_char(ch, "You insert %d coins in %s.\r\n", GET_OBJ_VAL(game, 1),
 		game->name);

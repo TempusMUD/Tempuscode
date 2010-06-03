@@ -398,9 +398,9 @@ ACMD(do_distance)
 }
 
 void
-perform_goto(struct creature *ch, room_data *room, bool allow_follow)
+perform_goto(struct creature *ch, struct room_data *room, bool allow_follow)
 {
-    room_data *was_in = NULL;
+    struct room_data *was_in = NULL;
     const char *msg;
 
     if (!Housing.canEnter(ch, room->number) ||
@@ -427,7 +427,7 @@ perform_goto(struct creature *ch, room_data *room, bool allow_follow)
     char_from_room(ch,false);
     char_to_room(ch, room,false);
     if (room->isOpenAir())
-        ch->setPosition(POS_FLYING);
+        GET_POSITION(ch) = POS_FLYING;
 
     if (POOFIN(ch)) {
         if (strstr(POOFIN(ch), "$$n")) {
@@ -2563,7 +2563,7 @@ ACMD(do_return)
         }
     } else if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
         // Return to newbie start room
-        if (ch->isFighting()) {
+        if (ch->fighting) {
             send_to_char(ch, "No way!  You're fighting for your life!\r\n");
         } else if (GET_LEVEL(ch) <= LVL_CAN_RETURN) {
             act("A whirling globe of multi-colored light appears and whisks you away!", false, ch, NULL, NULL, TO_CHAR);
@@ -3847,7 +3847,7 @@ ACMD(do_wizutil)
             errlog("Unknown subcmd passed to do_wizutil (act.wizard.c)");
             break;
         }
-        vict->saveToXML();
+        save_player_to_xml(vict);
     }
 
     if (loaded)
@@ -4223,7 +4223,7 @@ show_topzones(struct creature *ch, char *value)
 {
     int i, num_zones = 0;
     struct zone_data *zone;
-    vector<zone_data*> zone_list;
+    vector<struct zone_data*> zone_list;
 
     char *temp = NULL;
     char *lower = tmp_tolower(value);
@@ -4365,7 +4365,7 @@ const char *show_room_modes[] = {
 };
 
 static void
-show_room_append(struct creature *ch, room_data *room, int mode, const char *extra)
+show_room_append(struct creature *ch, struct room_data *room, int mode, const char *extra)
 {
 	if (!extra)
 		extra = "";
@@ -4386,14 +4386,14 @@ show_room_append(struct creature *ch, room_data *room, int mode, const char *ext
 
 // returns 0 if none found, 1 if found, -1 if error
 static int
-show_rooms_in_zone(struct creature *ch, zone_data *zone, int pos, int mode, char *args)
+show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos, int mode, char *args)
 {
 	special_search_data *srch = NULL;
 	list<string> str_list;
 	list<string>_iterator str_it;
 	list<string> mob_names;
 	struct creatureList_iterator cit;
-	room_data *room;
+	struct room_data *room;
 	bool match, gt = false, lt = false;
 	int found = 0, num, flags = 0, tmp_flag = 0;
 	char *arg;
@@ -4731,7 +4731,7 @@ show_rooms(struct creature *ch, char *value, char *args)
 				return;
 			break;
 		case 1:
-            for (zone_data *zone = zone_table; zone; zone = zone->next)
+            for (struct zone_data *zone = zone_table; zone; zone = zone->next)
 				if (ch->in_room->zone->time_frame == zone->time_frame) {
 					found |= show_rooms_in_zone(ch, zone, pos, show_mode, args);
 					if (found < 0)
@@ -4739,7 +4739,7 @@ show_rooms(struct creature *ch, char *value, char *args)
 				}
 			break;
 		case 2:
-            for (zone_data *zone = zone_table; zone; zone = zone->next)
+            for (struct zone_data *zone = zone_table; zone; zone = zone->next)
 				if (ch->in_room->zone->plane == zone->plane) {
 					found |= show_rooms_in_zone(ch, zone, pos, show_mode, args);
 					if (found < 0)
@@ -4747,7 +4747,7 @@ show_rooms(struct creature *ch, char *value, char *args)
 				}
 			break;
 		case 3:
-            for (zone_data *zone = zone_table; zone; zone = zone->next) {
+            for (struct zone_data *zone = zone_table; zone; zone = zone->next) {
 				found |= show_rooms_in_zone(ch, zone, pos, show_mode, args);
 				if (found < 0)
 					return;
@@ -4912,7 +4912,7 @@ static void
 show_zones(struct creature *ch, char *arg, char *value)
 {
     Tokenizer tokens(arg);
-    zone_data *zone;
+    struct zone_data *zone;
 
     acc_string_clear();
 
@@ -6244,7 +6244,7 @@ ACMD(do_set)
 		if (IS_PC(vict)) {
 			sql_exec("update players set name='%s' where idnum=%ld",
 				tmp_sqlescape(argument), GET_IDNUM(vict));
-			vict->saveToXML();
+			save_player_to_xml(vict);
 		}
 		break;
     case 39:
@@ -6633,7 +6633,7 @@ ACMD(do_set)
         send_to_char(ch, "%s\r\n", buf);
 
     if (!IS_NPC(vict))
-        vict->saveToXML();
+        save_player_to_xml(vict);
 
     if (is_file) {
         delete cbuf;
@@ -7103,7 +7103,7 @@ ACMD(do_rename)
         sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
             GET_NAME(vict), new_desc);
         vict->player.short_descr = strdup(new_desc);
-        if (vict->getPosition() == POS_FLYING)
+        if (GET_POSITION(vict) == POS_FLYING)
             sprintf(buf, "%s is hovering here.", new_desc);
         else
             sprintf(buf, "%s is standing here.", new_desc);
@@ -7478,7 +7478,7 @@ ACMD(do_oset)
         if (equip_char(vict, obj, where_worn, equip_mode))
             return;
         if (!IS_NPC(vict))
-            vict->saveToXML();
+            save_player_to_xml(vict);
     }
 
 }
@@ -7888,7 +7888,7 @@ load_single_zone(int zone_num)
 	void renum_zone_table(void);
 
 	FILE *db_file;
-	zone_data *zone;
+	struct zone_data *zone;
 
 	db_file = fopen(tmp_sprintf("world/zon/%d.zon", zone_num), "r");
 	if (db_file) {
@@ -7994,7 +7994,7 @@ ACMD(do_coderutil)
 		slog("%s has doomed the world to chaos.", GET_NAME(ch));
     } else if (strcmp(token, "loadzone") == 0) {
         int zone_num;
-        zone_data *zone;
+        struct zone_data *zone;
 
         tokens.next(token);
         if (!is_number(token)) {
@@ -8053,7 +8053,7 @@ ACMD(do_coderutil)
         }
         page_string(ch->desc, acc_get_string());
     } else if (strcmp(token, "inplayify") == 0) {
-        void save_zone(struct creature *ch, zone_data *zone);
+        void save_zone(struct creature *ch, struct zone_data *zone);
 
         std_list<int> zones_todo;
         std_list<const char *> reasons;
@@ -8065,7 +8065,7 @@ ACMD(do_coderutil)
         zones_todo.push_back(300); reasons.push_back("preloaded");
 
         // Set all zones to be not in-game
-		for (zone_data *zone = zone_table;zone;zone = zone->next)
+		for (struct zone_data *zone = zone_table;zone;zone = zone->next)
             REMOVE_BIT(zone->flags, ZONE_INPLAY);
 
         // Iterate through known in-game zones
@@ -8074,7 +8074,7 @@ ACMD(do_coderutil)
             const char *reason = reasons.front();
             zones_todo.pop_front();
             reasons.pop_front();
-            zone_data *zone = real_zone(zone_num);
+            struct zone_data *zone = real_zone(zone_num);
 
             SET_BIT(zone->flags, ZONE_INPLAY);
             send_to_char(ch, "%3d %s %s\r\n",
@@ -8083,7 +8083,7 @@ ACMD(do_coderutil)
                          zone->name);
             zone_count++;
             // Iterate through rooms of each zone
-            for (room_data *room = zone->world, j = 0; room; room = room->next) {
+            for (struct room_data *room = zone->world, j = 0; room; room = room->next) {
                 // Check exits for different zone
                 for (int i = 0; i < NUM_DIRS; i++) {
                     if (room->dir_option[i]
@@ -8099,7 +8099,7 @@ ACMD(do_coderutil)
                 // Check searches for different zone
                 for (special_search_data *srch = room->search; srch; srch = srch->next) {
                     if (srch->command == SEARCH_COM_TRANSPORT) {
-                        room_data *targ_room = real_room(srch->arg[0]);
+                        struct room_data *targ_room = real_room(srch->arg[0]);
                         if (targ_room
                             && targ_room->zone != zone
                             && !ZONE_FLAGGED(targ_room->zone, ZONE_INPLAY)) {
@@ -8115,11 +8115,11 @@ ACMD(do_coderutil)
             // Iterate through loaded portals of each zone
             for (reset_com *cmd = zone->cmd; cmd; cmd = cmd->next) {
                 if (cmd->command == 'O') {
-                    obj_data *obj = real_object_proto(cmd->arg1);
+                    struct obj_data *obj = real_object_proto(cmd->arg1);
                     if (obj
                         && IS_OBJ_TYPE(obj, ITEM_PORTAL)
                         && GET_OBJ_VAL(obj, 0)) {
-                        room_data *room = real_room(GET_OBJ_VAL(obj, 0));
+                        struct room_data *room = real_room(GET_OBJ_VAL(obj, 0));
                         if (room
                             && room->zone != zone
                             && !ZONE_FLAGGED(room->zone, ZONE_INPLAY)) {
@@ -8134,7 +8134,7 @@ ACMD(do_coderutil)
 
         send_to_char(ch, "Found %d zones in game.\r\n", zone_count);
         // Save changes to the zone, object, and mobile files
-		for (zone_data *zone = zone_table;zone;zone = zone->next)
+		for (struct zone_data *zone = zone_table;zone;zone = zone->next)
             save_zone(ch, zone);
     } else
         send_to_char(ch, "%s", CODER_UTIL_USAGE);
@@ -8358,7 +8358,7 @@ ACMD(do_tester)
             GET_HIT(ch) = GET_MAX_HIT(ch);
             GET_MANA(ch) = GET_MAX_MANA(ch);
             GET_MOVE(ch) = GET_MAX_MOVE(ch);
-            ch->saveToXML();
+            save_player_to_xml(ch);
         }
         break;
     case 1:                    /* unaffect */
@@ -8860,9 +8860,9 @@ verify_tempus_integrity(struct creature *ch)
 	MobileMap_iterator mit;
     struct creatureList_iterator cit;
 	struct creature *vict;
-	obj_data *obj, *contained;
-	room_data *room;
-	zone_data *zone;
+	struct obj_data *obj, *contained;
+	struct room_data *room;
+	struct zone_data *zone;
 	extra_descr_data *cur_exdesc;
 	memory_rec_struct *cur_mem;
 	const char *err;
@@ -8917,7 +8917,7 @@ verify_tempus_integrity(struct creature *ch)
     ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
-		check_ptr(ch, obj, sizeof(obj_data),
+		check_ptr(ch, obj, sizeof(struct obj_data),
 			"object proto", -1);
 		check_ptr(ch, obj->name, 0,
 			"name of object proto", GET_OBJ_VNUM(obj));
@@ -8968,7 +8968,7 @@ verify_tempus_integrity(struct creature *ch)
 					"description of north exit of room", room->number);
 				check_ptr(ch, ABS_EXIT(room, NORTH)->keyword, 0,
 					"keywords of north exit of room", room->number);
-				check_ptr(ch, ABS_EXIT(room, NORTH)->to_room, sizeof(room_data),
+				check_ptr(ch, ABS_EXIT(room, NORTH)->to_room, sizeof(struct room_data),
 					"destination of north exit of room", room->number);
 			}
 			if (ABS_EXIT(room, SOUTH)
@@ -8979,7 +8979,7 @@ verify_tempus_integrity(struct creature *ch)
 					"description of south exit of room", room->number);
 				check_ptr(ch, ABS_EXIT(room, SOUTH)->keyword, 0,
 					"keywords of south exit of room", room->number);
-				check_ptr(ch, ABS_EXIT(room, SOUTH)->to_room, sizeof(room_data),
+				check_ptr(ch, ABS_EXIT(room, SOUTH)->to_room, sizeof(struct room_data),
 					"destination of south exit of room", room->number);
 			}
 			if (ABS_EXIT(room, EAST)
@@ -8990,7 +8990,7 @@ verify_tempus_integrity(struct creature *ch)
 					"description of east exit of room", room->number);
 				check_ptr(ch, ABS_EXIT(room, EAST)->keyword, 0,
 					"keywords of east exit of room", room->number);
-				check_ptr(ch, ABS_EXIT(room, EAST)->to_room, sizeof(room_data),
+				check_ptr(ch, ABS_EXIT(room, EAST)->to_room, sizeof(struct room_data),
 					"destination of east exit of room", room->number);
 			}
 			if (ABS_EXIT(room, WEST)
@@ -9001,7 +9001,7 @@ verify_tempus_integrity(struct creature *ch)
 					"description of west exit of room", room->number);
 				check_ptr(ch, ABS_EXIT(room, WEST)->keyword, 0,
 					"keywords of west exit of room", room->number);
-				check_ptr(ch, ABS_EXIT(room, WEST)->to_room, sizeof(room_data),
+				check_ptr(ch, ABS_EXIT(room, WEST)->to_room, sizeof(struct room_data),
 					"destination of west exit of room", room->number);
 			}
 			if (ABS_EXIT(room, UP)
@@ -9012,7 +9012,7 @@ verify_tempus_integrity(struct creature *ch)
 					"description of up exit of room", room->number);
 				check_ptr(ch, ABS_EXIT(room, UP)->keyword, 0,
 					"keywords of up exit of room", room->number);
-				check_ptr(ch, ABS_EXIT(room, UP)->to_room, sizeof(room_data),
+				check_ptr(ch, ABS_EXIT(room, UP)->to_room, sizeof(struct room_data),
 					"destination of up exit of room", room->number);
 			}
 			if (ABS_EXIT(room, DOWN)
@@ -9023,7 +9023,7 @@ verify_tempus_integrity(struct creature *ch)
 					"description of down exit of room", room->number);
 				check_ptr(ch, ABS_EXIT(room, DOWN)->keyword, 0,
 					"keywords of down exit of room", room->number);
-				check_ptr(ch, ABS_EXIT(room, DOWN)->to_room, sizeof(room_data),
+				check_ptr(ch, ABS_EXIT(room, DOWN)->to_room, sizeof(struct room_data),
 					"destination of down exit of room", room->number);
 			}
 			if (ABS_EXIT(room, PAST)
@@ -9034,7 +9034,7 @@ verify_tempus_integrity(struct creature *ch)
 					"description of past exit of room", room->number);
 				check_ptr(ch, ABS_EXIT(room, PAST)->keyword, 0,
 					"keywords of past exit of room", room->number);
-				check_ptr(ch, ABS_EXIT(room, PAST)->to_room, sizeof(room_data),
+				check_ptr(ch, ABS_EXIT(room, PAST)->to_room, sizeof(struct room_data),
 					"destination of past exit of room", room->number);
 			}
 			if (ABS_EXIT(room, FUTURE)
@@ -9045,13 +9045,13 @@ verify_tempus_integrity(struct creature *ch)
 					"description of future exit of room", room->number);
 				check_ptr(ch, ABS_EXIT(room, FUTURE)->keyword, 0,
 					"keywords of future exit of room", room->number);
-				check_ptr(ch, ABS_EXIT(room, FUTURE)->to_room, sizeof(room_data),
+				check_ptr(ch, ABS_EXIT(room, FUTURE)->to_room, sizeof(struct room_data),
 					"destination of future exit of room", room->number);
 			}
             for (contained = room->contents;
                  contained;
                  contained = contained->next_content) {
-                if (!check_ptr(ch, contained, sizeof(obj_data),
+                if (!check_ptr(ch, contained, sizeof(struct obj_data),
                                "object in room", room->number))
                     break;
                 if (contained->in_room != room) {
@@ -9082,21 +9082,21 @@ verify_tempus_integrity(struct creature *ch)
                              "mobile", GET_MOB_VNUM(vict));
         for (idx = 0;idx < NUM_WEARS;idx++) {
             if (GET_EQ(vict, idx)
-                && check_ptr(ch, GET_EQ(vict, idx), sizeof(obj_data),
+                && check_ptr(ch, GET_EQ(vict, idx), sizeof(struct obj_data),
                              "object worn by mobile", GET_MOB_VNUM(vict))) {
                 if (GET_EQ(vict, idx)->worn_by != vict)
                     check_log(ch, "expected object wearer wrong!");
 
             }
             if (GET_IMPLANT(vict, idx)
-                && check_ptr(ch, GET_IMPLANT(vict, idx), sizeof(obj_data),
+                && check_ptr(ch, GET_IMPLANT(vict, idx), sizeof(struct obj_data),
                              "object implanted in mobile", GET_MOB_VNUM(vict))) {
                 if (GET_IMPLANT(vict, idx)->worn_by != vict)
                     check_log(ch, "expected object implanted wrong!");
 
             }
             if (GET_TATTOO(vict, idx)
-                && check_ptr(ch, GET_TATTOO(vict, idx), sizeof(obj_data),
+                && check_ptr(ch, GET_TATTOO(vict, idx), sizeof(struct obj_data),
                              "object tattooed in mobile", GET_MOB_VNUM(vict))) {
                 if (GET_TATTOO(vict, idx)->worn_by != vict)
                     check_log(ch, "expected object tattooed wrong!");
@@ -9106,7 +9106,7 @@ verify_tempus_integrity(struct creature *ch)
         for (contained = vict->carrying;
              contained;
              contained = contained->next_content) {
-            if (!check_ptr(ch, contained, sizeof(obj_data),
+            if (!check_ptr(ch, contained, sizeof(struct obj_data),
                                       "object carried by mobile vnum %d", GET_MOB_VNUM(vict)))
                 break;
             if (contained->carried_by != vict) {
@@ -9122,7 +9122,7 @@ verify_tempus_integrity(struct creature *ch)
 
 	// Check objects in game
     for (obj = object_list; obj; obj = obj->next) {
-        check_ptr(ch, obj, sizeof(obj_data),
+        check_ptr(ch, obj, sizeof(struct obj_data),
                              "object", obj->unique_id);
         check_ptr(ch, obj->name, 0,
                              "name of object", obj->unique_id);
@@ -9144,9 +9144,9 @@ verify_tempus_integrity(struct creature *ch)
 
         check_ptr(ch, obj->shared, sizeof(obj_shared_data),
                              "shared data of object", obj->unique_id);
-        check_ptr(ch, obj->in_room, sizeof(room_data),
+        check_ptr(ch, obj->in_room, sizeof(struct room_data),
                              "room location of object", obj->unique_id);
-        check_ptr(ch, obj->in_obj, sizeof(obj_data),
+        check_ptr(ch, obj->in_obj, sizeof(struct obj_data),
                              "object location of object", obj->unique_id);
         check_ptr(ch, obj->carried_by, sizeof(struct creature),
                              "carried_by location of object", obj->unique_id);
@@ -9165,7 +9165,7 @@ verify_tempus_integrity(struct creature *ch)
         for (contained = obj->contains;
              contained;
              contained = contained->next_content) {
-            if (!check_ptr(ch, contained, sizeof(obj_data),
+            if (!check_ptr(ch, contained, sizeof(struct obj_data),
                                       "object contained by object", obj->unique_id))
                 break;
             if (contained->in_obj != obj) {

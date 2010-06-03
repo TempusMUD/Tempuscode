@@ -33,7 +33,7 @@
 #include "prog.h"
 #include "accstr.h"
 
-extern std_map<int,room_data*> rooms;
+extern std_map<int,struct room_data*> rooms;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern int top_of_world;
@@ -419,7 +419,7 @@ do_create_room(struct creature *ch, int vnum)
 				break;
 		}
 	}
-	new_rm = new room_data(vnum, zone);
+	new_rm = new struct room_data(vnum, zone);
 	new_rm->name = strdup("A Freshly Made Room");
 
 	if (rm) {
@@ -1194,13 +1194,13 @@ ACMD(do_hedit)
                 int num = 0;
 				if (local && house->getRoom(i) != ch->in_room->number)
 					continue;
-                room_data* room = real_room( house->getRoom(i) );
+                struct room_data* room = real_room( house->getRoom(i) );
 				if( room == NULL ) {
 					errlog(" house room does not exist!");
 					continue;
 				}
 
-				for( obj_data *o = room->contents; o; o = o->next_content)
+				for( struct obj_data *o = room->contents; o; o = o->next_content)
 					num += recurs_obj_contents(o, NULL);
 
                 num = house->calcObjectCount(room);

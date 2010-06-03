@@ -26,7 +26,7 @@ SPECIAL(javelin_of_lightning)
 		return 0;
 	else if (jav != GET_EQ(ch, WEAR_WIELD))
 		send_to_char(ch, "You need to wield it first.\r\n");
-	else if (!(*arg2) && !(vict = ch->findRandomCombat()))
+	else if (!(*arg2) && !(vict = random_opponent(ch)))
 		send_to_char(ch, "Who would you like to throw it at?\r\n");
 	else if (!vict && !(vict = get_char_room_vis(ch, arg2)))
 		send_to_char(ch, "Throw it at who?\r\n");
@@ -37,7 +37,7 @@ SPECIAL(javelin_of_lightning)
 		act("$n hurls $p at you!!", false, ch, jav, vict, TO_VICT);
 		act("$n hurls $p at $N!!", false, ch, jav, vict, TO_NOTVICT);
 
-		if (!ch->isOkToAttack(vict, false))
+		if (!ok_to_attack(ch, vict, false))
 			return 1;
 
 		cur_weap = jav;
