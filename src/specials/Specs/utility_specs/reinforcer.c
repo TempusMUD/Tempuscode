@@ -10,7 +10,7 @@
 SPECIAL(reinforcer)
 {
 
-	struct Creature *keeper = (struct Creature *)me;
+	struct creature *keeper = (struct creature *)me;
 	struct obj_data *obj = NULL;
 	char *args = NULL, arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int cmd_type = 0, cost = 0;

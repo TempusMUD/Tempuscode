@@ -6,20 +6,20 @@
 
 list < long >implanter_sessions;	// ids of players with implant sessions
 
-void implanter_implant(Creature *me, Creature *ch, char *args);
-void implanter_extract(Creature *me, Creature *ch, char *args);
-void implanter_repair(Creature *me, Creature *ch, char *args);
-void implanter_redeem(Creature *me, Creature *ch, char *args);
-bool implanter_in_session(Creature *ch);
-void implanter_end_sess(Creature *ch);
-void implanter_show_args(Creature *me, Creature *ch);
-void implanter_show_pos(Creature *me, Creature *ch, obj_data *obj);
+void implanter_implant(struct creature *me, struct creature *ch, char *args);
+void implanter_extract(struct creature *me, struct creature *ch, char *args);
+void implanter_repair(struct creature *me, struct creature *ch, char *args);
+void implanter_redeem(struct creature *me, struct creature *ch, char *args);
+bool implanter_in_session(struct creature *ch);
+void implanter_end_sess(struct creature *ch);
+void implanter_show_args(struct creature *me, struct creature *ch);
+void implanter_show_pos(struct creature *me, struct creature *ch, obj_data *obj);
 
 const long TICKET_VNUM = 92277;
 
 SPECIAL(implanter)
 {
-	struct Creature *self = (struct Creature *)me;
+	struct creature *self = (struct creature *)me;
 
 	if (spec_mode != SPECIAL_LEAVE && spec_mode != SPECIAL_CMD)
 		return 0;
@@ -58,7 +58,7 @@ SPECIAL(implanter)
 }
 
 void
-implanter_implant(Creature * me, Creature * ch, char *args)
+implanter_implant(struct creature * me, struct creature * ch, char *args)
 {
 	extern const int wear_bitvectors[];
 	struct obj_data *implant = NULL;
@@ -202,7 +202,7 @@ implanter_implant(Creature * me, Creature * ch, char *args)
 }
 
 void
-implanter_extract(Creature * me, Creature * ch, char *args)
+implanter_extract(struct creature * me, struct creature * ch, char *args)
 {
 	struct obj_data *implant = NULL, *obj = NULL;
 	char *targ_str, *obj_str, *pos_str, *msg;
@@ -312,7 +312,7 @@ implanter_extract(Creature * me, Creature * ch, char *args)
 }
 
 void
-implanter_repair(Creature * me, Creature * ch, char *args)
+implanter_repair(struct creature * me, struct creature * ch, char *args)
 {
 	struct obj_data *implant = NULL, *proto_implant = NULL;
 	char *obj_str, *pos_str, *msg;
@@ -406,7 +406,7 @@ implanter_repair(Creature * me, Creature * ch, char *args)
 }
 
 void
-implanter_redeem(Creature * me, Creature * ch, char *args)
+implanter_redeem(struct creature * me, struct creature * ch, char *args)
 {
 	if (implanter_in_session(ch)) {
 		perform_tell(me, ch,
@@ -449,7 +449,7 @@ implanter_redeem(Creature * me, Creature * ch, char *args)
 }
 
 bool
-implanter_in_session(Creature * ch)
+implanter_in_session(struct creature * ch)
 {
 	if (implanter_sessions.empty())
 		return false;
@@ -466,13 +466,13 @@ implanter_in_session(Creature * ch)
 }
 
 void
-implanter_end_sess(Creature * ch)
+implanter_end_sess(struct creature * ch)
 {
 	implanter_sessions.remove(GET_IDNUM(ch));
 }
 
 void
-implanter_show_args(Creature * me, Creature * ch)
+implanter_show_args(struct creature * me, struct creature * ch)
 {
 	perform_tell(me, ch, "buy implant <implant> <position> or");
 	perform_tell(me, ch, "buy extract <'me' | object> <implant> [pos] or");
@@ -482,7 +482,7 @@ implanter_show_args(Creature * me, Creature * ch)
 }
 
 void
-implanter_show_pos(Creature * me, Creature * ch, obj_data * obj)
+implanter_show_pos(struct creature * me, struct creature * ch, obj_data * obj)
 {
 	int pos;
 	bool not_first = false;

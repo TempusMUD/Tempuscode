@@ -63,7 +63,7 @@ void
 perform_net_write(descriptor_data *d,char *arg) {
 	char targ[MAX_INPUT_LENGTH];
 	char msg[MAX_INPUT_LENGTH];
-	Creature *vict;
+	struct creature *vict;
 
 	half_chop(arg,targ,msg);
 
@@ -138,7 +138,7 @@ perform_net_load(descriptor_data *d,char *arg)
 	}
 
 	cost = GET_SKILL_COST(d->creature, skill_num);
-	send_to_desc(d, "Program cost: %10ld  Account balance; %lld\r\n",
+	send_to_desc(d, "Program cost: %10ld  struct account balance; %lld\r\n",
 		cost, d->account->get_future_bank());
 
 	if (d->account->get_future_bank() < cost) {
@@ -162,7 +162,7 @@ perform_net_load(descriptor_data *d,char *arg)
 }
 
 void
-perform_net_who(struct Creature *ch, const char *arg __attribute__ ((unused)))
+perform_net_who(struct creature *ch, const char *arg __attribute__ ((unused)))
 {
     struct descriptor_data *d = NULL;
     int count = 0;
@@ -182,9 +182,9 @@ perform_net_who(struct Creature *ch, const char *arg __attribute__ ((unused)))
     page_string(ch->desc, buf);
 }
 
-void perform_net_finger(struct Creature *ch, const char *arg)
+void perform_net_finger(struct creature *ch, const char *arg)
 {
-    struct Creature *vict = NULL;
+    struct creature *vict = NULL;
 
 	skip_spaces(&arg);
     if (!*arg) {
@@ -207,7 +207,7 @@ void perform_net_finger(struct Creature *ch, const char *arg)
 }
 
 void
-perform_net_list(struct Creature *ch)
+perform_net_list(struct creature *ch)
 {
     int i, sortpos;
 

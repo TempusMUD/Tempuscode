@@ -7,7 +7,7 @@
 SPECIAL(blue_pulsar)
 {
 
-	struct Creature *bartender = (struct Creature *)me;
+	struct creature *bartender = (struct creature *)me;
 	struct obj_data *beer = NULL;
 	int beer_vnum = (number(0, 1) ? 50300 : 50301);
 

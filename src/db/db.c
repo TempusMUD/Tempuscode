@@ -181,7 +181,7 @@ void compile_all_progs(void);
 void reset_time(void);
 void reset_zone_weather(void);
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
-void purge_trails(struct Creature *ch);
+void purge_trails(struct creature *ch);
 void build_old_player_index();
 void randomize_object(struct obj_data *obj);
 
@@ -198,10 +198,10 @@ void sort_skills(void);
 void load_banned(void);
 void Read_Invalid_List(void);
 void Read_Nasty_List(void);
-void add_alias(struct Creature *ch, struct alias_data *a);
+void add_alias(struct creature *ch, struct alias_data *a);
 void boot_clans(void);
-void add_follower(struct Creature *ch, struct Creature *leader);
-void xml_reload( Creature *ch );
+void add_follower(struct creature *ch, struct creature *leader);
+void xml_reload( struct creature *ch );
 void load_bounty_data(void);
 extern int no_specials;
 extern int scheck;
@@ -349,7 +349,7 @@ boot_db(void)
 	top_unique_id = atol(PQgetvalue(res, 0, 0));
 	slog("Top unique object id = %ld", top_unique_id);
 
-	Account_boot();
+	struct account_boot();
 	load_bounty_data();
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
@@ -467,7 +467,7 @@ clear_world(void)
 {
 	MobileMap_iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
-		Creature *mobile = mit->second;
+		struct creature *mobile = mit->second;
         free(MOB_SHARED(mobile)->func_param);
         free(MOB_SHARED(mobile)->load_param);
         free(MOB_SHARED(mobile)->prog);
@@ -1331,7 +1331,7 @@ compile_all_progs(void)
 
 	// Compile all mob progs
 	MobileMap_iterator mit = mobilePrototypes.begin();
-	Creature *mobile;
+	struct creature *mobile;
 
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		mobile = mit->second;
@@ -1341,7 +1341,7 @@ compile_all_progs(void)
 }
 
 void
-set_physical_attribs(struct Creature *ch)
+set_physical_attribs(struct creature *ch)
 {
 	GET_MAX_MANA(ch) = MAX(100, (GET_LEVEL(ch) << 3));
 	GET_MAX_MOVE(ch) = MAX(100, (GET_LEVEL(ch) << 4));
@@ -1506,7 +1506,7 @@ set_physical_attribs(struct Creature *ch)
 	ch->aff_abils = ch->real_abils;
 }
 
-void recalculate_based_on_level( Creature *mob_p )
+void recalculate_based_on_level( struct creature *mob_p )
 {
     int level = GET_LEVEL(mob_p);
     int doubleLevel = level + (level * GET_REMORT_GEN(mob_p))/10;
@@ -1528,7 +1528,7 @@ void recalculate_based_on_level( Creature *mob_p )
 }
 
 void
-parse_simple_mob(FILE * mob_f, struct Creature *mobile, int nr)
+parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
 {
 	int j, t[10];
 	char line[256];
@@ -1625,7 +1625,7 @@ parse_simple_mob(FILE * mob_f, struct Creature *mobile, int nr)
 #define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
 
 void
-interpret_espec(char *keyword, const char *value, struct Creature *mobile, int nr)
+interpret_espec(char *keyword, const char *value, struct creature *mobile, int nr)
 {
 	money_t num_arg;
     bool matched = false;
@@ -1762,7 +1762,7 @@ interpret_espec(char *keyword, const char *value, struct Creature *mobile, int n
 #undef RANGE
 
 void
-parse_espec(char *buf, struct Creature *mobile, int nr)
+parse_espec(char *buf, struct creature *mobile, int nr)
 {
 	char *ptr;
 
@@ -1776,7 +1776,7 @@ parse_espec(char *buf, struct Creature *mobile, int nr)
 }
 
 void
-parse_enhanced_mob(FILE * mob_f, struct Creature *mobile, int nr)
+parse_enhanced_mob(FILE * mob_f, struct creature *mobile, int nr)
 {
 	char line[256];
 
@@ -1809,9 +1809,9 @@ parse_mobile(FILE * mob_f, int nr)
 	int j, t[10];
 	char line[256], *tmpptr, letter;
 	char f1[128], f2[128], f3[128], f4[128], f5[128];
-	struct Creature *mobile = NULL, *tmp_mob = NULL;
+	struct creature *mobile = NULL, *tmp_mob = NULL;
 
-	mobile = new Creature(false);
+	mobile = new struct creature(false);
 
 	tmp_mob = real_mobile_proto(nr);
 
@@ -2310,9 +2310,9 @@ load_zones(FILE * fl, char *zonename)
 *********************************************************************** */
 
 int
-vnum_mobile(char *searchname, struct Creature *ch)
+vnum_mobile(char *searchname, struct creature *ch)
 {
-	struct Creature *mobile;
+	struct creature *mobile;
 	int found = 0;
 
 	strcpy(buf, "");
@@ -2338,7 +2338,7 @@ vnum_mobile(char *searchname, struct Creature *ch)
 }
 
 int
-vnum_object(char *searchname, struct Creature *ch)
+vnum_object(char *searchname, struct creature *ch)
 {
 	struct obj_data *obj = NULL;
 	int found = 0;
@@ -2365,16 +2365,16 @@ vnum_object(char *searchname, struct Creature *ch)
 }
 
 /* create a new mobile from a prototype */
-struct Creature *
+struct creature *
 read_mobile(int vnum)
 {
-	struct Creature *mob = NULL, *tmp_mob;
+	struct creature *mob = NULL, *tmp_mob;
 
 	if (!(tmp_mob = real_mobile_proto(vnum))) {
 		sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
 		return (NULL);
 	}
-    mob = new Creature(*tmp_mob);
+    mob = new struct creature(*tmp_mob);
     tmp_mob->mob_specials.shared->number++;
     tmp_mob->mob_specials.shared->loaded++;
 
@@ -2413,12 +2413,12 @@ read_mobile(int vnum)
 	return mob;
 }
 
-int on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent );
+int on_load_equip( struct creature *ch, int vnum, char* position, int maxload, int percent );
 
 // Processes the given mobile's load_parameter, executing the commands in it.
 // returns true if the creature dies
 bool
-process_load_param( Creature *ch )
+process_load_param( struct creature *ch )
 {
 	char* str = GET_LOAD_PARAM(ch);
 	int mob_id = ch->mob_specials.shared->vnum;
@@ -2469,9 +2469,9 @@ process_load_param( Creature *ch )
 // 4, Invalid position
 // 5, read_obj failed
 // 6, Not loaded, maxload failure
-// 100, Creature died in equip process
+// 100, struct creature died in equip process
 int
-on_load_equip( Creature *ch, int vnum, char* position, int maxload, int percent )
+on_load_equip( struct creature *ch, int vnum, char* position, int maxload, int percent )
 {
     obj_data *obj = real_object_proto(vnum);
     if( obj == NULL ) {
@@ -2828,14 +2828,14 @@ void
 reset_zone(struct zone_data *zone)
 {
 	int cmd_no = 0, last_cmd = 0, prob_override = 0;
-	struct Creature *mob = NULL, *tmob = NULL;
+	struct creature *mob = NULL, *tmob = NULL;
 	struct obj_data *obj = NULL, *obj_to = NULL, *tobj = NULL;
 	struct reset_com *zonecmd;
 	struct room_data *room;
 	struct special_search_data *srch = NULL;
 
 	// Send SPECIAL_RESET notification to all mobiles with specials
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		// Wrong zone
 		if ((*cit)->in_room->zone != zone)
@@ -2891,7 +2891,7 @@ reset_zone(struct zone_data *zone)
 					if (mob) {
 						char_to_room(mob, room,false);
 						if (GET_MOB_LEADER(mob) > 0) {
-							CreatureList_iterator it =
+							struct creatureList_iterator it =
 								mob->in_room->people.begin();
 							for (; it != mob->in_room->people.end(); ++it) {
 								if ((*it) != mob && IS_NPC((*it))
@@ -3428,7 +3428,7 @@ real_zone(int number)
 	return (NULL);
 }
 
-struct Creature *
+struct creature *
 real_mobile_proto(int vnum)
 {
     return mobilePrototypes.find(vnum);
@@ -3441,7 +3441,7 @@ real_object_proto(int vnum)
 }
 
 void
-purge_trails(struct Creature *ch)
+purge_trails(struct creature *ch)
 {
 	struct room_trail_data *trl;
 	struct room_data *rm;
@@ -3495,7 +3495,7 @@ where_obj(struct obj_data *obj)
 	return NULL;
 }
 
-struct Creature *
+struct creature *
 obj_owner(struct obj_data *obj)
 {
 	if (obj->carried_by)

@@ -12,11 +12,11 @@
 ACMD(do_follow);
 ACMD(do_rescue);
 bool affected_by_spell( struct char_data *ch, byte skill );
-int cast_spell(struct Creature *ch, struct Creature *tch,
+int cast_spell(struct creature *ch, struct creature *tch,
                struct obj_data *tobj, int *tdir, int spellnum, int *return_flags);
 
 struct angel_data {
-	Creature *angel;
+	struct creature *angel;
 	long charge_id;	// the player ID of the angel's charge
 	char *charge_name;
 	int counter;	// a counter before angel does action
@@ -245,7 +245,7 @@ angel_chat_match(const char *key, const char *ref)
 }
 
 void
-angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_data *data)
+angel_find_path_to_room(struct creature *angel, struct room_data *dest, struct angel_data *data)
 {
     int dir = -1, steps = 0;
     struct room_data *cur_room = angel->in_room;
@@ -274,7 +274,7 @@ angel_find_path_to_room(Creature *angel, struct room_data *dest, struct angel_da
 }
 
 void
-guardian_angel_action(Creature *angel, const char *action)
+guardian_angel_action(struct creature *angel, const char *action)
 {
 	angel_data *data = (angel_data *)angel->mob_specials.func_data;
 	free(data->action);
@@ -283,9 +283,9 @@ guardian_angel_action(Creature *angel, const char *action)
 }
 
 void
-angel_do_respond(Creature *self, angel_data *data, const char *message)
+angel_do_respond(struct creature *self, angel_data *data, const char *message)
 {
-	Creature *target = get_char_in_world_by_idnum(data->respond_to);
+	struct creature *target = get_char_in_world_by_idnum(data->respond_to);
 
 	if (target) {
 		if (self->in_room == target->in_room && data->public_response)
@@ -296,7 +296,7 @@ angel_do_respond(Creature *self, angel_data *data, const char *message)
 }
 
 int
-angel_do_action(Creature *self, Creature *charge, angel_data *data)
+angel_do_action(struct creature *self, struct creature *charge, angel_data *data)
 {
 	char *cmd, *action;
     int return_flags = 0;
@@ -322,7 +322,7 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
     }
     else if (!strcmp(cmd, "answer")) {
         char *question = tmp_getword(&action);
-        Creature *ch = get_char_in_world_by_idnum(data->respond_to);
+        struct creature *ch = get_char_in_world_by_idnum(data->respond_to);
         if (!strcmp(question, "whoami"))
             angel_do_respond(self, data,
                              tmp_sprintf("You are %s, %s %s",
@@ -380,7 +380,7 @@ angel_do_action(Creature *self, Creature *charge, angel_data *data)
 }
 
 int
-angel_check_charge(Creature *self, Creature *charge, angel_data *data)
+angel_check_charge(struct creature *self, struct creature *charge, angel_data *data)
 {
     int return_flags = 0;
 
@@ -497,7 +497,7 @@ angel_check_charge(Creature *self, Creature *charge, angel_data *data)
 }
 
 void
-assign_angel(Creature *angel, Creature *ch)
+assign_angel(struct creature *angel, struct creature *ch)
 {
     angel_data *data;
 
@@ -523,10 +523,10 @@ assign_angel(Creature *angel, Creature *ch)
 SPECIAL(guardian_angel)
 {
 	ACMD(do_whisper);
-	Creature *self = (Creature *)me;
+	struct creature *self = (struct creature *)me;
 	angel_data *data = (angel_data *)self->mob_specials.func_data;
 	angel_chat_data *cur_chat;
-	Creature *charge;
+	struct creature *charge;
 	char *arg;
 
 	if (spec_mode == SPECIAL_CMD && IS_IMMORT(ch)) {

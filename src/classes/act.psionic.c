@@ -29,7 +29,7 @@
 ACMD(do_psidrain)
 {
 
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int dist, drain, prob, percent;
 	int find_distance(struct room_data *tmp, struct room_data *location);
 
@@ -221,7 +221,7 @@ ACMD(do_psidrain)
 }
 
 int
-calculate_mob_aggression(Creature *ch, Creature *vict)
+calculate_mob_aggression(struct creature *ch, struct creature *vict)
 {
     // aggression is the average of the percent health of self and the
     // percent damage of the other
@@ -230,7 +230,7 @@ calculate_mob_aggression(Creature *ch, Creature *vict)
 }
 
 bool
-nullpsi_is_advisable(Creature *vict)
+nullpsi_is_advisable(struct creature *vict)
 {
     // Return true if psion buffs are found
     for (affected_type *af = vict->affected;af;af = af->next) {
@@ -244,7 +244,7 @@ nullpsi_is_advisable(Creature *vict)
 }
 
 void
-psionic_best_attack(struct Creature *ch, struct Creature *vict)
+psionic_best_attack(struct creature *ch, struct creature *vict)
 {
     int return_flags;
     int aggression = calculate_mob_aggression(ch, vict);
@@ -355,7 +355,7 @@ psionic_best_attack(struct Creature *ch, struct Creature *vict)
 }
 
 void
-psionic_activity(struct Creature *ch)
+psionic_activity(struct creature *ch)
 {
     if (room_is_dark(ch->in_room)
         && !has_dark_sight(ch)
@@ -395,9 +395,9 @@ psionic_activity(struct Creature *ch)
 }
 
 int
-psionic_mob_fight(struct Creature *ch, struct Creature *precious_vict)
+psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
 {
-	Creature *vict = 0;
+	struct creature *vict = 0;
     int return_flags;
 
 	if (!ch->isFighting())

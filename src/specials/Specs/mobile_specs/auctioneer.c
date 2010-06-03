@@ -44,7 +44,7 @@ ACMD(do_bid);
 ACMD(do_stun);
 
 struct imp_data {
-    Creature *imp;
+    struct creature *imp;
     long owner_id;
     long buyer_id;
     obj_data *item;
@@ -91,17 +91,17 @@ const char *moods[] = {
 
 int number(int from, int to);
 int get_max_auction_item();
-Creature *create_imp(room_data *inroom, auction_data &);
-bool bidder_can_afford(Creature *bidder, money_t amount);
-void aucSaveToXML(Creature *auc);
-bool aucLoadFromXML(Creature *auc);
+struct creature *create_imp(room_data *inroom, auction_data &);
+bool bidder_can_afford(struct creature *bidder, money_t amount);
+void aucSaveToXML(struct creature *auc);
+bool aucLoadFromXML(struct creature *auc);
 
 using namespace std;
 
 SPECIAL(do_auctions)
 {
-	Creature *self = (Creature *)me;
-    Creature *imp;
+	struct creature *self = (struct creature *)me;
+    struct creature *imp;
     list<auction_data>_iterator ai = items.begin();
     short mood_index = 0;
 
@@ -120,7 +120,7 @@ SPECIAL(do_auctions)
         data->_loaded = false;
     }
 
-    Creature *dick;
+    struct creature *dick;
     while (self->isFighting()) {
         dick = self->findRandomCombat();
         act ("A ball of light streaks from $N's hand and hits you "
@@ -563,10 +563,10 @@ get_max_auction_item() {
     return -1;
 }
 
-Creature *
+struct creature *
 create_imp(room_data *inroom, auction_data &info) {
     imp_data *data;
-    Creature *mob;
+    struct creature *mob;
 
     mob = read_mobile(IMP_VNUM);
     CREATE(data, imp_data, 1);
@@ -680,7 +680,7 @@ ACMD(do_bid) {
 }
 
 ACMD(do_bidlist) {
-    const char * obj_cond_color(struct obj_data *obj, struct Creature *ch);
+    const char * obj_cond_color(struct obj_data *obj, struct creature *ch);
 
     if (items.empty())
         send_to_char(ch, "There are no items for auction.\r\n");
@@ -720,7 +720,7 @@ ACMD(do_bidlist) {
     page_string(ch->desc, acc_get_string());
 }
 
-bool bidder_can_afford(Creature *bidder, money_t amount) {
+bool bidder_can_afford(struct creature *bidder, money_t amount) {
     money_t tamount = amount;
 
     list<auction_data>_iterator ai = items.begin();
@@ -736,7 +736,7 @@ bool bidder_can_afford(Creature *bidder, money_t amount) {
 }
 
 void
-aucSaveToXML(Creature *auc) {
+aucSaveToXML(struct creature *auc) {
     FILE *ouf;
     char *fname = tmp_sprintf(AUC_FILE_NAME, auc->in_room->number);
 
@@ -771,7 +771,7 @@ aucSaveToXML(Creature *auc) {
 }
 
 bool
-aucLoadFromXML(Creature *auc) {
+aucLoadFromXML(struct creature *auc) {
     char *fname = tmp_sprintf(AUC_FILE_NAME, auc->in_room->number);
 
     if (access(fname, W_OK)) {

@@ -77,7 +77,7 @@ struct ObjectMatcherTable {
 			return (int) table.size();
 		}
 		/** returns true if all matchers initialized properly. **/
-		bool init(Creature *ch, Tokenizer &tokens) {
+		bool init(struct creature *ch, Tokenizer &tokens) {
 			char arg[256];
 			while( tokens.next(arg) ) {
                 bool used = false;
@@ -123,7 +123,7 @@ struct ObjectMatcherTable {
 			}
 			return false;
 		}
-		const char* getAddedInfo( Creature *ch, obj_data *obj ) {
+		const char* getAddedInfo( struct creature *ch, obj_data *obj ) {
 			const char* info = "";
 			for( unsigned int i = 0; i < table.size(); i++  ) {
 				if(! table[i]->isReady() )
@@ -142,7 +142,7 @@ struct ObjectMatcherTable {
  * showing or not showing spell names.
 **/
 char*
-sprintobj( Creature *ch, obj_data *obj, ObjectMatcherTable &table, int num )
+sprintobj( struct creature *ch, obj_data *obj, ObjectMatcherTable &table, int num )
 {
 	const char *info = table.getAddedInfo( ch, obj );
 	return tmp_sprintf("%3d. %s[%s%5d%s] %35s%s %s%s\r\n", num,
@@ -152,7 +152,7 @@ sprintobj( Creature *ch, obj_data *obj, ObjectMatcherTable &table, int num )
 }
 
 void
-do_show_objects( Creature *ch, char *value, char *arg ) {
+do_show_objects( struct creature *ch, char *value, char *arg ) {
 	ObjectMatcherTable matcherTable;
 	list<obj_data*> objects;
 	Tokenizer tokens(value);

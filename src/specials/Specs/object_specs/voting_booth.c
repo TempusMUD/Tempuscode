@@ -119,7 +119,7 @@ voting_booth_load(void)
 }
 
 void
-voting_booth_read(Creature * ch, char *argument)
+voting_booth_read(struct creature * ch, char *argument)
 {
 	struct voting_poll *poll;
 	struct voting_option *opt;
@@ -177,7 +177,7 @@ voting_booth_read(Creature * ch, char *argument)
 }
 
 void
-voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
+voting_booth_vote(struct creature * ch, struct obj_data *obj, char *argument)
 {
 	struct voting_poll *poll;
 	struct voting_option *opt;
@@ -263,7 +263,7 @@ voting_booth_vote(Creature * ch, struct obj_data *obj, char *argument)
 }
 
 void
-voting_booth_list(Creature * ch)
+voting_booth_list(struct creature * ch)
 {
 	struct voting_poll *poll;
 	struct memory_rec_struct *memory;
@@ -314,7 +314,7 @@ voting_booth_list(Creature * ch)
 }
 
 void
-voting_booth_change_view(Creature * ch, char *argument, bool secret)
+voting_booth_change_view(struct creature * ch, char *argument, bool secret)
 {
 	struct voting_poll *cur_poll;
 	int poll_num;
@@ -338,7 +338,7 @@ voting_booth_change_view(Creature * ch, char *argument, bool secret)
 }
 
 void
-voting_booth_remove(Creature * ch, char *argument)
+voting_booth_remove(struct creature * ch, char *argument)
 {
 	struct voting_poll *poll, *prev_poll;
 	struct voting_option *opt, *next_opt;
@@ -401,7 +401,7 @@ voting_booth_remove(Creature * ch, char *argument)
 }
 
 void
-voting_booth_write(Creature * ch, char *argument)
+voting_booth_write(struct creature * ch, char *argument)
 {
 	skip_spaces(&argument);
 	if (!*arg) {

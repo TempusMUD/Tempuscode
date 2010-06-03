@@ -133,7 +133,7 @@ extern const float thaco_factor[NUM_CLASSES] = {
 };
 
 void
-gain_skill_prof(struct Creature *ch, int skl)
+gain_skill_prof(struct creature *ch, int skl)
 {
 	int learned;
 	if (skl == SKILL_READ_SCROLLS || skl == SKILL_USE_WANDS)
@@ -364,10 +364,10 @@ extern const char *class_names[] = {
 };
 
 // Returns a tmpstr allocated char* containing an appropriate ANSI
-// color code for the given target Creature (tch) with the given
-// recipient Creature(ch)'s color settings in mind.
+// color code for the given target struct creature (tch) with the given
+// recipient struct creature(ch)'s color settings in mind.
 const char*
-get_char_class_color( Creature *ch, Creature *tch, int char_class ) {
+get_char_class_color( struct creature *ch, struct creature *tch, int char_class ) {
     switch( char_class ) {
         case CLASS_MAGIC_USER:
             return CCMAG(ch, C_NRM);
@@ -411,9 +411,9 @@ get_char_class_color( Creature *ch, Creature *tch, int char_class ) {
 }
 
 // Returns a const char* containing an appropriate '&c' color code for the given target
-// Creature (tch) suitable for use with send_to_desc.
+// struct creature (tch) suitable for use with send_to_desc.
 const char*
-get_char_class_color( Creature *tch, int char_class ) {
+get_char_class_color( struct creature *tch, int char_class ) {
     switch( char_class ) {
         case CLASS_MAGIC_USER:
             return "&m";
@@ -666,7 +666,7 @@ find_char_class_bitvector(char arg)
  * which priority will be given for the best to worst stats.
  */
 void
-roll_real_abils(struct Creature *ch)
+roll_real_abils(struct creature *ch)
 {
 	int i, j, k, str_add;
 	ubyte table[6];
@@ -1018,9 +1018,9 @@ roll_real_abils(struct Creature *ch)
    is being set to that level.
  */
 void
-do_start(struct Creature *ch, int mode)
+do_start(struct creature *ch, int mode)
 {
-	void advance_level(struct Creature *ch, byte keep_internal);
+	void advance_level(struct creature *ch, byte keep_internal);
 	byte new_player = 0;
 	int i;
 	obj_data *implant_save[NUM_WEARS];
@@ -1160,7 +1160,7 @@ do_start(struct Creature *ch, int mode)
  * each char_class every time they gain a level.
  */
 void
-advance_level(struct Creature *ch, byte keep_internal)
+advance_level(struct creature *ch, byte keep_internal)
 {
 	int add_hp[2], add_mana[2], add_move[2], i, char_class;
 	char *msg;
@@ -1334,7 +1334,7 @@ advance_level(struct Creature *ch, byte keep_internal)
  */
 
 int
-invalid_char_class(struct Creature *ch, struct obj_data *obj)
+invalid_char_class(struct creature *ch, struct obj_data *obj)
 {
     // Protected object
 	if( IS_PC(ch) &&
@@ -1408,7 +1408,7 @@ invalid_char_class(struct Creature *ch, struct obj_data *obj)
 }
 
 int
-char_class_race_hit_bonus(struct Creature *ch, struct Creature *vict)
+char_class_race_hit_bonus(struct creature *ch, struct creature *vict)
 {
 	int bonus = 0;
     // Height modifiers
@@ -1506,7 +1506,7 @@ extern const int exp_scale[LVL_GRIMP + 2] = {
 };
 
 int
-get_max_str( Creature *ch ) {
+get_max_str( struct creature *ch ) {
     return MIN(GET_REMORT_GEN(ch) + 18 +
                 ((IS_NPC(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
                 (IS_MINOTAUR(ch) ? 2 : 0) +
@@ -1515,7 +1515,7 @@ get_max_str( Creature *ch ) {
 }
 
 int
-get_max_int( Creature *ch ) {
+get_max_int( struct creature *ch ) {
     return (IS_NPC(ch) ? 25 :
                 MIN(25,
                     18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
@@ -1526,7 +1526,7 @@ get_max_int( Creature *ch ) {
 }
 
 int
-get_max_wis( Creature *ch ) {
+get_max_wis( struct creature *ch ) {
     return (IS_NPC(ch) ? 25 :
                 MIN(25, (18 + GET_REMORT_GEN(ch)) +
                     (IS_MINOTAUR(ch) ? -2 : 0) + (IS_HALF_ORC(ch) ? -2 : 0) +
@@ -1534,7 +1534,7 @@ get_max_wis( Creature *ch ) {
 }
 
 int
-get_max_dex( Creature *ch ) {
+get_max_dex( struct creature *ch ) {
     return (IS_NPC(ch) ? 25 :
                 MIN(25,
                     18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
@@ -1543,7 +1543,7 @@ get_max_dex( Creature *ch ) {
 }
 
 int
-get_max_con( Creature *ch ) {
+get_max_con( struct creature *ch ) {
     return (IS_NPC(ch) ? 25 :
                 MIN(25,
                     18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
@@ -1555,7 +1555,7 @@ get_max_con( Creature *ch ) {
 }
 
 int
-get_max_cha( Creature *ch ) {
+get_max_cha( struct creature *ch ) {
     return (IS_NPC(ch) ? 25 :
                 MIN(25,
                     18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
@@ -1565,7 +1565,7 @@ get_max_cha( Creature *ch ) {
 }
 
 void
-calculate_height_weight( Creature *ch )
+calculate_height_weight( struct creature *ch )
 {
     /* make favors for sex ... and race */ // after keep
 	if (ch->player.sex == SEX_MALE) {

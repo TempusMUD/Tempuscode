@@ -7,8 +7,8 @@
 SPECIAL(phantasmic_sword)
 {
 	struct affected_type af;
-	struct Creature *mast = NULL;
-    Creature *self = (Creature *)me;
+	struct creature *mast = NULL;
+    struct creature *self = (struct creature *)me;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -50,7 +50,7 @@ SPECIAL(phantasmic_sword)
 		}
 
 		if (AWAKE(ch)) {
-			CreatureList_iterator it = ch->in_room->people.begin();
+			struct creatureList_iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if (*it != ch && IS_NPC((*it)) &&
 					GET_MOB_VNUM(ch) == GET_MOB_VNUM((*it)) &&

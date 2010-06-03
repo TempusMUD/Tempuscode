@@ -10,12 +10,12 @@
 #include "utils.h"
 #include "object_map.h"
 
-int retrieve_oedits( Creature *ch, list<obj_data*> &found );
-int load_oedits( Creature *ch, list<obj_data*> &found );
+int retrieve_oedits( struct creature *ch, list<obj_data*> &found );
+int load_oedits( struct creature *ch, list<obj_data*> &found );
 
 SPECIAL(oedit_reloader)
 {
-	Creature *self = (Creature *)me;
+	struct creature *self = (struct creature *)me;
 	if(!cmd || ( !CMD_IS("help") && !CMD_IS("retrieve") ) ) {
 		return false;
 	}
@@ -67,7 +67,7 @@ contains( list<obj_data*> &objects, int vnum )
 }
 
 int
-load_oedits( Creature *ch, list<obj_data*> &found )
+load_oedits( struct creature *ch, list<obj_data*> &found )
 {
 	int count = 0;
     obj_data *obj = NULL;
@@ -87,7 +87,7 @@ load_oedits( Creature *ch, list<obj_data*> &found )
 }
 
 int
-retrieve_oedits( Creature *ch, list<obj_data*> &found )
+retrieve_oedits( struct creature *ch, list<obj_data*> &found )
 {
 	int count = 0;
 	for( obj_data* obj = object_list; obj; obj = obj->next) {

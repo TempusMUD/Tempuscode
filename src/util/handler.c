@@ -48,11 +48,11 @@
 extern struct descriptor_data *descriptor_list;
 
 /* external functions */
-long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+long special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 void path_remove_object(void *object);
 void free_paths();
 void free_socials();
-void print_attributes_to_buf(struct Creature *ch, char *buff);
+void print_attributes_to_buf(struct creature *ch, char *buff);
 extern struct clan_data *clan_list;
 
 char *
@@ -203,7 +203,7 @@ namelist_match(const char *sub_list, const char *super_list)
 }
 
 void
-apply_object_affects(Creature *ch, obj_data *obj, bool add)
+apply_object_affects(struct creature *ch, obj_data *obj, bool add)
 {
     if (!obj)
         return;
@@ -268,7 +268,7 @@ GET_SKILL(ch, skill) = \
 MIN(GET_SKILL(ch, skill) + mod, 125)
 
 void
-affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
+affect_modify(struct creature *ch, sh_int loc, sh_int mod, long bitv,
 	int index, bool add)
 {
 	if (bitv) {
@@ -522,7 +522,7 @@ affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
 /* This updates a character by subtracting everything he is affected by */
 /* restoring original abilities, and then affecting all again           */
 void
-affect_total(struct Creature *ch)
+affect_total(struct creature *ch)
 {
 	struct affected_type *af;
 	int i;
@@ -655,10 +655,10 @@ affect_total(struct Creature *ch)
 
 }
 
-/* Insert an affect_type in a Creature structure
+/* Insert an affect_type in a struct creature structure
    Automatically sets apropriate bits and apply's */
 void
-affect_to_char(struct Creature *ch, struct affected_type *af)
+affect_to_char(struct creature *ch, struct affected_type *af)
 {
 	struct affected_type *affected_alloc;
 	struct affected_type *prev_quad = affected_by_spell(ch, SPELL_QUAD_DAMAGE);
@@ -688,12 +688,12 @@ affect_to_char(struct Creature *ch, struct affected_type *af)
  * reaches zero). Pointer *af must never be NIL!  Frees mem and calls
  * affect_location_apply
  */
-int holytouch_after_effect(long owner, Creature * vict, int level);
-int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
+int holytouch_after_effect(long owner, struct creature * vict, int level);
+int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
 	int pos);
 
 int
-affect_remove(struct Creature *ch, struct affected_type *af)
+affect_remove(struct creature *ch, struct affected_type *af)
 {
 	struct affected_type *temp;
 	int type = -1;
@@ -743,7 +743,7 @@ affect_remove(struct Creature *ch, struct affected_type *af)
 
 /* Call affect_remove with every spell of spelltype "skill" */
 int
-affect_from_char(struct Creature *ch, sh_int type)
+affect_from_char(struct creature *ch, sh_int type)
 {
 	struct affected_type *hjp = NULL, *next_hjp = NULL;
 	int found = 0;
@@ -763,7 +763,7 @@ affect_from_char(struct Creature *ch, sh_int type)
  * not affected
  */
 struct affected_type *
-affected_by_spell(struct Creature *ch, sh_int type)
+affected_by_spell(struct creature *ch, sh_int type)
 {
 	struct affected_type *hjp = NULL;
 
@@ -775,7 +775,7 @@ affected_by_spell(struct Creature *ch, sh_int type)
 }
 
 int
-count_affect(struct Creature *ch, sh_int type)
+count_affect(struct creature *ch, sh_int type)
 {
     struct affected_type *curr = NULL;
     int count = 0;
@@ -792,7 +792,7 @@ count_affect(struct Creature *ch, sh_int type)
 //
 
 void
-affect_join(struct Creature *ch, struct affected_type *af,
+affect_join(struct creature *ch, struct affected_type *af,
 	bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
 {
 	struct affected_type *hjp;
@@ -872,7 +872,7 @@ retire_trails(void)
 	}
 }
 void
-update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
+update_trail(struct creature *ch, struct room_data *room, int dir, int mode)
 {
 
 	struct room_trail_data *trail, *next_trail;
@@ -967,14 +967,14 @@ update_trail(struct Creature *ch, struct room_data *room, int dir, int mode)
  * move a creature out of a room;
  *
  *
- * @param ch the Creature to remove from the room
+ * @param ch the struct creature to remove from the room
  * @param check_specials if true, special procedures will be
  * 		searched for and run.
  *
- * @return true on success, false if the Creature may have died.
+ * @return true on success, false if the struct creature may have died.
  */
 bool
-char_from_room( Creature *ch, bool check_specials)
+char_from_room( struct creature *ch, bool check_specials)
 {
 
 	if (ch == NULL || ch->in_room == NULL) {
@@ -1016,14 +1016,14 @@ char_from_room( Creature *ch, bool check_specials)
 	}
 
 	if( spec_rc != 0 ) {
-		CreatureList_iterator it =
+		struct creatureList_iterator it =
 			find(tmp_room->people.begin(),tmp_room->people.end(), ch);
 		if( it == tmp_room->people.end() ) {
 			if( spec_rc == 1 ) {
-				slog("Creature died leaving search room(0x%lx)[%d]",
+				slog("struct creature died leaving search room(0x%lx)[%d]",
 					 (long)tmp_room, tmp_room->number);
 			} else {
-				slog("Creature died leaving spec(0x%lx) room(0x%lx)[%d]",
+				slog("struct creature died leaving spec(0x%lx) room(0x%lx)[%d]",
 						spec_rc,(long)tmp_room, tmp_room->number);
 			}
 			return false;
@@ -1038,15 +1038,15 @@ char_from_room( Creature *ch, bool check_specials)
 /*
  * place a character in a room
  *
- * @param ch the Creature to move to the room
- * @param room the room to move the Creature into
+ * @param ch the struct creature to move to the room
+ * @param room the room to move the struct creature into
  * @param check_specials if true, special procedures will be
  * 		searched for and run.
  *
- * @return true on success, false if the Creature may have died.
+ * @return true on success, false if the struct creature may have died.
  */
 bool
-char_to_room(Creature *ch, room_data *room, bool check_specials)
+char_to_room(struct creature *ch, room_data *room, bool check_specials)
 {
 	struct affected_type *aff = NULL, *next_aff = NULL;
 
@@ -1108,7 +1108,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 	}
 
     struct room_affect_data *raff;
-	Creature *raff_owner;
+	struct creature *raff_owner;
 
 	raff = room_affected_by(ch->in_room, SONG_RHYTHM_OF_ALARM);
     if (raff && GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_NPC(ch)) {
@@ -1131,14 +1131,14 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 		spec_rc = special(ch, 0, 0, tmp_strdup(""), SPECIAL_ENTER);
 
 	if( spec_rc != 0 ) {
-		CreatureList_iterator it =
+		struct creatureList_iterator it =
 			find(room->people.begin(),room->people.end(), ch);
 		if( it == room->people.end() ) {
 			if( spec_rc == 1 ) {
-				slog("Creature died entering search room (0x%lx)[%d]",
+				slog("struct creature died entering search room (0x%lx)[%d]",
 					 (long)room, room->number);
 			} else {
-				slog("Creature died entering spec(0x%lx) room(0x%lx)[%d]",
+				slog("struct creature died entering spec(0x%lx) room(0x%lx)[%d]",
 						spec_rc,(long)room, room->number);
 			}
 
@@ -1150,7 +1150,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 
 /* give an object to a char   */
 void
-obj_to_char(struct obj_data *object, struct Creature *ch, bool sorted)
+obj_to_char(struct obj_data *object, struct creature *ch, bool sorted)
 {
 	struct obj_data *o = NULL;
 	int found;
@@ -1266,7 +1266,7 @@ obj_from_char(struct obj_data *object)
 
 /* Return the effect of a piece of armor in position eq_pos */
 int
-apply_ac(struct Creature *ch, int eq_pos)
+apply_ac(struct creature *ch, int eq_pos)
 {
 	int factor;
 
@@ -1309,7 +1309,7 @@ apply_ac(struct Creature *ch, int eq_pos)
 }
 
 int
-weapon_prof(struct Creature *ch, struct obj_data *obj)
+weapon_prof(struct creature *ch, struct obj_data *obj)
 {
 
 	int skill = 0;
@@ -1331,9 +1331,9 @@ weapon_prof(struct Creature *ch, struct obj_data *obj)
 
 /* equip_char returns true if victim is killed by equipment :> */
 int
-equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode)
+equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
 {
-	int invalid_char_class(struct Creature *ch, struct obj_data *obj);
+	int invalid_char_class(struct creature *ch, struct obj_data *obj);
 
 	if (pos < 0 || pos >= NUM_WEARS) {
 		errlog("Illegal pos in equip_char.");
@@ -1399,10 +1399,10 @@ equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode)
 }
 
 struct obj_data *
-unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
+unequip_char(struct creature *ch, int pos, int mode, bool disable_checks)
 {
 	struct obj_data *obj = NULL;
-	int invalid_char_class(struct Creature *ch, struct obj_data *obj);
+	int invalid_char_class(struct creature *ch, struct obj_data *obj);
 
 	if (pos < 0 || pos >= NUM_WEARS) {
 		errlog("Illegal pos in unequip_char.");
@@ -1486,7 +1486,7 @@ unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks)
 }
 
 int
-check_eq_align(Creature *ch)
+check_eq_align(struct creature *ch)
 {
 	struct obj_data *obj, *implant;
 	int pos;
@@ -1604,7 +1604,7 @@ get_obj_num(int nr)
 }
 
 /* search a room for a char, and return a pointer if found..  */
-struct Creature *
+struct creature *
 get_char_room(char *name, struct room_data *room)
 {
 	int j = 0, number;
@@ -1613,7 +1613,7 @@ get_char_room(char *name, struct room_data *room)
 	if (!(number = get_number(&tmp)))
 		return NULL;
 
-	CreatureList_iterator it = room->people.begin();
+	struct creatureList_iterator it = room->people.begin();
 	for (; it != room->people.end() && (j <= number); ++it) {
 		if (isname(tmp, (*it)->player.name))
 			if (++j == number)
@@ -1622,7 +1622,7 @@ get_char_room(char *name, struct room_data *room)
 	return NULL;
 }
 
-struct Creature *
+struct creature *
 get_char_in_world_by_idnum(int nr)
 {
 	return (characterMap.count(nr)) ? characterMap[nr]:NULL;
@@ -1780,7 +1780,7 @@ void
 obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted)
 {
 	struct obj_data *o = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int found;
 
 	if (!obj || !obj_to || obj == obj_to) {
@@ -1836,7 +1836,7 @@ void
 obj_from_obj(struct obj_data *obj)
 {
 	struct obj_data *obj_from = 0, *temp = 0;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	if (obj->in_obj == NULL) {
 		errlog("(handler.c): trying to illegally extract obj from obj");
@@ -1938,7 +1938,7 @@ update_object(struct obj_data *obj, int use)
 }
 
 void
-update_char_objects(struct Creature *ch)
+update_char_objects(struct creature *ch)
 {
 	int i;
 
@@ -1976,11 +1976,11 @@ update_char_objects(struct Creature *ch)
    which incorporate the actual player-data.
    *********************************************************************** */
 
-struct Creature *
-get_player_vis(struct Creature *ch, const char *name, int inroom)
+struct creature *
+get_player_vis(struct creature *ch, const char *name, int inroom)
 {
-	struct Creature *i, *match;
-	CreatureList_iterator cit;
+	struct creature *i, *match;
+	struct creatureList_iterator cit;
 	char *tmpname, *write_pt;
 
 	// remove leading spaces
@@ -2016,11 +2016,11 @@ get_player_vis(struct Creature *ch, const char *name, int inroom)
 	return match;
 }
 
-struct Creature *
-get_mobile_vis(struct Creature *ch, const char *name, int inroom)
+struct creature *
+get_mobile_vis(struct creature *ch, const char *name, int inroom)
 {
-	struct Creature *i, *match;
-	CreatureList_iterator cit;
+	struct creature *i, *match;
+	struct creatureList_iterator cit;
 	char *tmpname, *write_pt;
 
 	// remove leading spaces
@@ -2056,8 +2056,8 @@ get_mobile_vis(struct Creature *ch, const char *name, int inroom)
 	return match;
 }
 
-struct Creature *
-get_char_room_vis(struct Creature *ch, const char *name)
+struct creature *
+get_char_room_vis(struct creature *ch, const char *name)
 {
 	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
@@ -2074,9 +2074,9 @@ get_char_room_vis(struct Creature *ch, const char *name)
 	if( strcasecmp(name, "self") == 0 )
 		return ch;
 
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end() && j <= number; ++it) {
-		Creature *mob = NULL;
+		struct creature *mob = NULL;
 		af = affected_by_spell( (*it), SKILL_DISGUISE );
 		if( af != NULL ) {
 			mob = real_mobile_proto(af->modifier);
@@ -2096,16 +2096,16 @@ get_char_room_vis(struct Creature *ch, const char *name)
 	return NULL;
 }
 
-struct Creature *
+struct creature *
 get_char_random(room_data *room)
 {
-	Creature *result = NULL;
+	struct creature *result = NULL;
 	int total = 0;
 
 	if (room->people.empty())
 		return NULL;
 
-	CreatureList_iterator cit = room->people.begin();
+	struct creatureList_iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
 		if (!number(0, total))
 			result = *cit;
@@ -2115,16 +2115,16 @@ get_char_random(room_data *room)
 	return result;
 }
 
-struct Creature *
-get_char_random_vis(struct Creature *ch, room_data *room)
+struct creature *
+get_char_random_vis(struct creature *ch, room_data *room)
 {
-	Creature *result = NULL;
+	struct creature *result = NULL;
 	int total = 0;
 
 	if (room->people.empty())
 		return NULL;
 
-	CreatureList_iterator cit = room->people.begin();
+	struct creatureList_iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
 		if (*cit != ch && can_see_creature(ch, *cit)) {
             if (!number(0, total))
@@ -2136,16 +2136,16 @@ get_char_random_vis(struct Creature *ch, room_data *room)
 	return result;
 }
 
-struct Creature *
+struct creature *
 get_player_random(room_data *room)
 {
-	Creature *result = NULL;
+	struct creature *result = NULL;
 	int total = 0;
 
 	if (room->people.empty())
 		return NULL;
 
-	CreatureList_iterator cit = room->people.begin();
+	struct creatureList_iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
 		if (IS_PC(*cit)) {
             if (!number(0, total))
@@ -2157,16 +2157,16 @@ get_player_random(room_data *room)
 	return result;
 }
 
-struct Creature *
-get_player_random_vis(struct Creature *ch, room_data *room)
+struct creature *
+get_player_random_vis(struct creature *ch, room_data *room)
 {
-	Creature *result = NULL;
+	struct creature *result = NULL;
 	int total = 0;
 
 	if (room->people.empty())
 		return NULL;
 
-	CreatureList_iterator cit = room->people.begin();
+	struct creatureList_iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
 		if (*cit != ch && IS_PC(*cit) && can_see_creature(ch, *cit)) {
             if (!number(0, total))
@@ -2178,12 +2178,12 @@ get_player_random_vis(struct Creature *ch, room_data *room)
 	return result;
 }
 
-struct Creature *
-get_char_in_remote_room_vis(struct Creature *ch, const char *name,
+struct creature *
+get_char_in_remote_room_vis(struct creature *ch, const char *name,
 	struct room_data *inroom)
 {
 	struct room_data *was_in = ch->in_room;
-	struct Creature *i = NULL;
+	struct creature *i = NULL;
 
 	ch->in_room = inroom;
 	i = get_char_room_vis(ch, name);
@@ -2191,10 +2191,10 @@ get_char_in_remote_room_vis(struct Creature *ch, const char *name,
 	return (i);
 }
 
-struct Creature *
-get_char_vis(struct Creature *ch, const char *name)
+struct creature *
+get_char_vis(struct creature *ch, const char *name)
 {
-	struct Creature *i;
+	struct creature *i;
 	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
@@ -2208,7 +2208,7 @@ get_char_vis(struct Creature *ch, const char *name)
 	if (!(number = get_number(&tmp)))
 		return get_player_vis(ch, tmp, 0);
 
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end() && (j <= number); ++cit) {
 		i = *cit;
 		if (isname(tmp, i->player.name) && can_see_creature(ch, i))
@@ -2219,7 +2219,7 @@ get_char_vis(struct Creature *ch, const char *name)
 }
 
 struct obj_data *
-get_obj_in_list_vis(struct Creature *ch, const char *name, struct obj_data *list)
+get_obj_in_list_vis(struct creature *ch, const char *name, struct obj_data *list)
 {
 	struct obj_data *i;
 	int j = 0, number;
@@ -2240,7 +2240,7 @@ get_obj_in_list_vis(struct Creature *ch, const char *name, struct obj_data *list
 }
 
 struct obj_data *
-get_obj_in_list_all(struct Creature *ch, const char *name, struct obj_data *list)
+get_obj_in_list_all(struct creature *ch, const char *name, struct obj_data *list)
 {
 	struct obj_data *i;
 	int j = 0, number;
@@ -2262,7 +2262,7 @@ get_obj_in_list_all(struct Creature *ch, const char *name, struct obj_data *list
 
 /* search the entire world for an object, and return a pointer  */
 struct obj_data *
-get_obj_vis(struct Creature *ch, const char *name)
+get_obj_vis(struct creature *ch, const char *name)
 {
 	struct obj_data *i;
 	int j = 0, number;
@@ -2301,7 +2301,7 @@ get_obj_vis(struct Creature *ch, const char *name)
 }
 
 struct obj_data *
-get_object_in_equip_pos(struct Creature *ch, const char *arg, int pos)
+get_object_in_equip_pos(struct creature *ch, const char *arg, int pos)
 {
 	if (GET_EQ(ch, pos) && isname(arg, GET_EQ(ch, pos)->aliases) &&
 		can_see_object(ch, GET_EQ(ch, pos)))
@@ -2311,7 +2311,7 @@ get_object_in_equip_pos(struct Creature *ch, const char *arg, int pos)
 }
 
 struct obj_data *
-get_object_in_equip_vis(struct Creature *ch,
+get_object_in_equip_vis(struct creature *ch,
                         const char *arg,
                         struct obj_data *equipment[],
                         int *j)
@@ -2336,7 +2336,7 @@ get_object_in_equip_vis(struct Creature *ch,
 }
 
 struct obj_data *
-get_object_in_equip_all(struct Creature *ch,
+get_object_in_equip_all(struct creature *ch,
                         const char *arg,
                         struct obj_data *equipment[],
                         int *j)
@@ -2534,7 +2534,7 @@ create_money(int amount, int mode)
 
 // is_weird helps to ignore 'special' items that shouldnt be there
 int
-is_weird(Creature *ch, struct obj_data *obj, Creature *vict)
+is_weird(struct creature *ch, struct obj_data *obj, struct creature *vict)
 {
 	if (PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 		return 0;
@@ -2555,8 +2555,8 @@ is_weird(Creature *ch, struct obj_data *obj, Creature *vict)
 }
 
 int
-generic_find(char *arg, int bitvector, struct Creature *ch,
-	struct Creature **tar_ch, struct obj_data **tar_obj)
+generic_find(char *arg, int bitvector, struct creature *ch,
+	struct creature **tar_ch, struct obj_data **tar_obj)
 {
 	int i, found;
 	char *name;
@@ -2757,7 +2757,7 @@ Reaction_add_reaction(char *config)
 }
 
 decision_t
-Reaction_react(Creature *ch)
+Reaction_react(struct creature *ch)
 {
 	char *read_pt;
 	bool match, wantmatch;

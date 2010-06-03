@@ -43,7 +43,7 @@ struct MapPixel {
 };
 
 struct Mapper {
-	Mapper(Creature * ch, int rows, int columns);
+	Mapper(struct creature * ch, int rows, int columns);
 	~Mapper();
 	bool build(bool stayzone);
 	void display(int bRows, int bCols);
@@ -53,7 +53,7 @@ struct Mapper {
 	int maxSize;
 	int last;
 	bool full;
-	 Creature * ch;			// character doing the mapping
+	 struct creature * ch;			// character doing the mapping
 	int rows, columns;			// size of the desired map
 	MapPixel *mapDisplay;
 	MapToken *mapStack;

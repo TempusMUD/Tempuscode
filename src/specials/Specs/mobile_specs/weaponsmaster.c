@@ -8,7 +8,7 @@
 
 SPECIAL(weaponsmaster)
 {
-	struct Creature *master = (struct Creature *)me;
+	struct creature *master = (struct creature *)me;
 	struct obj_data *weap = NULL;
 	int pos, cost, i, char_class, check_only = 0;
 

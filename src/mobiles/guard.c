@@ -12,11 +12,11 @@
 #include "screen.h"
 #include "utils.h"
 
-void call_for_help(Creature *, Creature *);
+void call_for_help(struct creature *, struct creature *);
 
 SPECIAL(guard)
 {
-	struct Creature *self = (struct Creature *)me;
+	struct creature *self = (struct creature *)me;
 	int cmd_idx, lineno, dir = -1;
 	Reaction reaction;
 	const char *to_vict = "You are blocked by $n.";

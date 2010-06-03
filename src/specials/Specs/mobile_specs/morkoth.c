@@ -9,7 +9,7 @@
 SPECIAL(morkoth)
 {
 
-	Creature *morkoth = (Creature *) me;
+	struct creature *morkoth = (struct creature *) me;
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;

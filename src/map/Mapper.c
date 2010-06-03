@@ -6,7 +6,7 @@
 #include "tokenizer.h"
 #include <signal.h>
 
-bool CAN_EDIT_ZONE(Creature* ch, struct zone_data *zone);
+bool CAN_EDIT_ZONE(struct creature* ch, struct zone_data *zone);
 //FOO
 ACMD(do_map)
 {
@@ -59,7 +59,7 @@ MapToken_MapToken(int d, int r, int c, room_data * s, room_data * t)
 	targetID = t->number;
 	next = NULL;
 }
-Mapper_Mapper(Creature * ch, int rows, int columns)
+Mapper_Mapper(struct creature * ch, int rows, int columns)
 {
 	mapDisplay = new MapPixel[rows * columns];
 	mapStack = NULL;

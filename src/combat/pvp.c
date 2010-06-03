@@ -14,7 +14,7 @@
 #include "security.h"
 
 bool
-is_arena_combat(struct Creature *ch, struct Creature *vict)
+is_arena_combat(struct creature *ch, struct creature *vict)
 {
 	if (!vict->in_room)
 		return false;
@@ -54,7 +54,7 @@ is_arena_combat(struct Creature *ch, struct Creature *vict)
 }
 
 bool
-is_npk_combat(struct Creature *ch, struct Creature *vict) {
+is_npk_combat(struct creature *ch, struct creature *vict) {
     if (!ch || !vict) {
         return false;
     }
@@ -72,7 +72,7 @@ is_npk_combat(struct Creature *ch, struct Creature *vict) {
 // Calculates the amount of reputation gained by the killer if they
 // were to pkill the victim
 int
-pk_reputation_gain(Creature *perp, Creature *victim)
+pk_reputation_gain(struct creature *perp, struct creature *victim)
 {
 	if (perp == victim
         || IS_NPC(perp)
@@ -104,11 +104,11 @@ pk_reputation_gain(Creature *perp, Creature *victim)
     return gain;
 }
 
-Creature *
-find_responsible_party(Creature *attacker, Creature *victim)
+struct creature *
+find_responsible_party(struct creature *attacker, struct creature *victim)
 {
-    Creature *perp = NULL;
-    Creature *ch;
+    struct creature *perp = NULL;
+    struct creature *ch;
 
     // if the victim is charmed, their master is at fault for letting
     // them die.  Charming can potentially be chained, so we find the
@@ -142,10 +142,10 @@ find_responsible_party(Creature *attacker, Creature *victim)
 }
 
 void
-check_attack(Creature *attacker, Creature *victim)
+check_attack(struct creature *attacker, struct creature *victim)
 {
-    bool is_bountied(Creature *hunter, Creature *vict);
-	Creature *perp;
+    bool is_bountied(struct creature *hunter, struct creature *vict);
+	struct creature *perp;
 
     // No reputation for attacking in arena
     if (is_arena_combat(attacker, victim))
@@ -172,10 +172,10 @@ check_attack(Creature *attacker, Creature *victim)
 }
 
 void
-count_pkill(Creature *killer, Creature *victim)
+count_pkill(struct creature *killer, struct creature *victim)
 {
-	bool award_bounty(Creature *, Creature *);
-	Creature *perp;
+	bool award_bounty(struct creature *, struct creature *);
+	struct creature *perp;
 
     if (is_arena_combat(killer, victim))
         return;
@@ -202,9 +202,9 @@ count_pkill(Creature *killer, Creature *victim)
 
 
 void
-check_thief(struct Creature *ch, struct Creature *victim)
+check_thief(struct creature *ch, struct creature *victim)
 {
-	Creature *perp;
+	struct creature *perp;
 
 	// First we need to find the perp
 	perp = find_responsible_party(ch, victim);
@@ -243,7 +243,7 @@ struct grievance_time : public unary_function<const Grievance, int> {
 };
 
 void
-perform_pardon(Creature *ch, Creature *pardoned)
+perform_pardon(struct creature *ch, struct creature *pardoned)
 {
     std_list<Grievance>::iterator grievance_it;
 
@@ -282,7 +282,7 @@ perform_pardon(Creature *ch, Creature *pardoned)
 
 // Expire old grievances after 24 hours.
 void
-expire_old_grievances(Creature *ch)
+expire_old_grievances(struct creature *ch)
 {
     time_t min_time = time(NULL) - 86400;
     std_list<Grievance>::iterator last_it =
@@ -315,11 +315,11 @@ ACMD(do_pardon)
     }
 
     // Get the pardoned character
-    Creature *pardoned = get_char_in_world_by_idnum(playerIndex[pardoned_name]);
+    struct creature *pardoned = get_char_in_world_by_idnum(playerIndex[pardoned_name]);
     bool loaded_pardoned = false;
     if (!pardoned) {
         loaded_pardoned = true;
-        pardoned = new Creature(true);
+        pardoned = new struct creature(true);
         playerIndex.loadPlayer(pardoned_name, pardoned);
     }
 
@@ -366,10 +366,10 @@ ACMD(do_pardon)
 }
 
 void
-check_object_killer(struct obj_data *obj, struct Creature *vict)
+check_object_killer(struct obj_data *obj, struct creature *vict)
 {
-	Creature cbuf(true);
-	struct Creature *killer = NULL;
+	struct creature cbuf(true);
+	struct creature *killer = NULL;
 	int obj_id;
 
     if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
@@ -400,7 +400,7 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 		cbuf.clear();
 		if (cbuf.loadFromXML(obj_id)) {
 			killer = &cbuf;
-			cbuf.account = Account_retrieve(playerIndex.getAccountID(obj_id));
+			cbuf.account = struct account_retrieve(playerIndex.getstruct accountID(obj_id));
 		}
 	}
 
@@ -418,7 +418,7 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 }
 
 void
-punish_killer_death(Creature *ch)
+punish_killer_death(struct creature *ch)
 {
     int loss = MAX(1, GET_SEVERITY(ch) / 2); // lose 1 level per 2, min 1
     int old_hit, old_mana, old_move;

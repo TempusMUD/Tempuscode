@@ -45,14 +45,14 @@ extern std_map<int,Tongue> tongues;
 #define GET_LANG_HEARD(ch) ((ch)->language_data->languages_heard)
 #define GET_TONGUE(ch) ((ch)->language_data->current_language)
 
-char *translate_tongue(Creature *speaker, Creature *listener, const char *message);
-char *make_tongue_str(Creature *ch, Creature *to);
-void set_initial_tongue(Creature * ch);
-void write_tongue_xml(Creature *ch, FILE *ouf);
+char *translate_tongue(struct creature *speaker, struct creature *listener, const char *message);
+char *make_tongue_str(struct creature *ch, struct creature *to);
+void set_initial_tongue(struct creature * ch);
+void write_tongue_xml(struct creature *ch, FILE *ouf);
 int racial_tongue(int race_idx);
 const char *tongue_name(int tongue_idx);
-const char *fluency_desc(Creature *ch, int tongue_idx);
-void show_language_help(Creature *ch);
+const char *fluency_desc(struct creature *ch, int tongue_idx);
+void show_language_help(struct creature *ch);
 int find_tongue_idx_by_name(const char *tongue_name);
 
 static const int TONGUE_NONE =                          -1;

@@ -9,7 +9,7 @@
 SPECIAL(corpse_griller)
 {
 	struct obj_data *corpse = NULL, *steak = NULL;
-    struct Creature *griller = (struct Creature*)me;
+    struct creature *griller = (struct creature*)me;
 	char arg[MAX_INPUT_LENGTH];
     int cost = GRILL_COST;
     cost += (cost*ch->getCostModifier(griller))/100;

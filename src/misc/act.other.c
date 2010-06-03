@@ -54,13 +54,13 @@ extern struct obj_shared_data *null_obj_shared;
 extern int log_cmds;
 extern int jet_stream_state;
 
-int check_mob_reaction(struct Creature *ch, struct Creature *vict);
+int check_mob_reaction(struct creature *ch, struct creature *vict);
 void set_desc_state(cxn_state state,struct descriptor_data *d );
-void look_at_target(struct Creature *ch, char *arg, int cmd);
-int find_door(struct Creature *ch, char *type, char *dir,
+void look_at_target(struct creature *ch, char *arg, int cmd);
+int find_door(struct creature *ch, char *type, char *dir,
 	const char *cmdname);
 void weather_change(void);
-int drag_object(Creature *ch, struct obj_data *obj, char *argument);
+int drag_object(struct creature *ch, struct obj_data *obj, char *argument);
 void ice_room(struct room_data *room, int amount);
 ACMD(do_drag_char);
 
@@ -239,7 +239,7 @@ ACMD(do_elude)
 
 ACMD(do_practice)
 {
-	void list_skills(struct Creature *ch, int mode, int type);
+	void list_skills(struct creature *ch, int mode, int type);
 
 	one_argument(argument, arg);
 
@@ -353,7 +353,7 @@ ACMD(do_title)
 }
 
 int
-perform_group(struct Creature *ch, struct Creature *vict)
+perform_group(struct creature *ch, struct creature *vict)
 {
 	if (AFF_FLAGGED(vict, AFF_GROUP) || !can_see_creature(ch, vict))
 		return 0;
@@ -367,7 +367,7 @@ perform_group(struct Creature *ch, struct Creature *vict)
 }
 
 const char *
-desc_exp_tnl(Creature *ch)
+desc_exp_tnl(struct creature *ch)
 {
 	long tnl;
 
@@ -386,9 +386,9 @@ desc_exp_tnl(Creature *ch)
 }
 
 void
-print_group(struct Creature *ch)
+print_group(struct creature *ch)
 {
-	struct Creature *k;
+	struct creature *k;
 	struct follow_type *f;
 
 	if (!AFF_FLAGGED(ch, AFF_GROUP))
@@ -435,7 +435,7 @@ print_group(struct Creature *ch)
 
 ACMD(do_group)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	struct follow_type *f;
 	int found;
 
@@ -491,8 +491,8 @@ ACMD(do_group)
 ACMD(do_ungroup)
 {
 	struct follow_type *f, *next_fol;
-	struct Creature *tch;
-	void stop_follower(struct Creature *ch);
+	struct creature *tch;
+	void stop_follower(struct creature *ch);
 
 	one_argument(argument, buf);
 
@@ -543,7 +543,7 @@ ACMD(do_ungroup)
 
 ACMD(do_report)
 {
-	struct Creature *k;
+	struct creature *k;
 	struct follow_type *f;
 
 	if (!AFF_FLAGGED(ch, AFF_GROUP)) {
@@ -572,7 +572,7 @@ ACMD(do_report)
 ACMD(do_split)
 {
 	int amount, num, share, mode = 0;
-	struct Creature *k;
+	struct creature *k;
 	struct follow_type *f;
 
 	if (IS_NPC(ch))
@@ -655,7 +655,7 @@ ACMD(do_use)
 {
 	struct obj_data *mag_item;
 	char arg1[256];
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	half_chop(argument, arg, buf);
 	if (!*arg) {
@@ -1612,7 +1612,7 @@ ACMD(do_screen)
 ACMD(do_throw)
 {
 	struct obj_data *obj = NULL, *target_obj = NULL;
-	struct Creature *vict = NULL, *target_vict = NULL;
+	struct creature *vict = NULL, *target_vict = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	char buf[MAX_STRING_LENGTH];
 	int dir = 0, victim_ac, diceroll, calc_thaco;
@@ -1865,7 +1865,7 @@ ACMD(do_throw)
 
 ACMD(do_feed)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *food = NULL;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
@@ -1931,7 +1931,7 @@ ACMD(do_knock)
 	int dir;
 	char dname[128], arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	struct room_data *other_room = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	// Do some basic parsing
 	skip_spaces(&argument);
@@ -2052,7 +2052,7 @@ ACMD(do_loadroom)
 
 ACMD(do_gasify)
 {
-	struct Creature *gas = NULL;
+	struct creature *gas = NULL;
 	struct room_data *tank = real_room(13);
 
 	if (!ch->desc)
@@ -2089,7 +2089,7 @@ ACMD(do_gasify)
 ACMD(do_clean)
 {
 	struct obj_data *obj = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int i, j, k, found, pos;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
@@ -2227,7 +2227,7 @@ ACMD(do_clean)
 
 ACMD(do_drag)
 {
-	struct Creature *found_char;
+	struct creature *found_char;
 	struct obj_data *found_obj;
 
 	int bits;
@@ -2314,7 +2314,7 @@ ACMD(do_trust)
 		return;
 	}
 
-	if (ch->account->get_idnum() == playerIndex.getAccountID(idnum)) {
+	if (ch->account->get_idnum() == playerIndex.getstruct accountID(idnum)) {
 		send_to_char(ch, "You automatically trust characters in your own account.\r\n");
 		return;
 	}
@@ -2357,7 +2357,7 @@ ACMD(do_distrust)
 		return;
 	}
 
-	if (ch->account->get_idnum() == playerIndex.getAccountID(idnum)) {
+	if (ch->account->get_idnum() == playerIndex.getstruct accountID(idnum)) {
 		send_to_char(ch, "You can't distrust characters in your own account.\r\n");
 		return;
 	}

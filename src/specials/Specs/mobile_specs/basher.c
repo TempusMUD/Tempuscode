@@ -6,7 +6,7 @@
 
 SPECIAL(basher)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	ACMD(do_bash);
 	if (spec_mode != SPECIAL_TICK)
 		return false;

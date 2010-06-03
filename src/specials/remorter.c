@@ -43,9 +43,9 @@ using namespace std;
 #include "xml_utils.h"
 #include "remorter.h"
 
-int do_fail_remort_test(Quiz *quiz, struct Creature *ch);
-int do_pass_remort_test(Quiz *quiz, struct Creature *ch);
-int do_pre_test(struct Creature *ch);
+int do_fail_remort_test(Quiz *quiz, struct creature *ch);
+int do_pass_remort_test(Quiz *quiz, struct creature *ch);
+int do_pre_test(struct creature *ch);
 
 SPECIAL(remorter)
 {
@@ -70,7 +70,7 @@ SPECIAL(remorter)
 	}
 	if (CMD_IS("reload") && GET_LEVEL(ch) >= LVL_IMMORT) {
 		act("$n conjures a new remort test from thin air!", true,
-			(Creature *) me, 0, 0, TO_ROOM);
+			(struct creature *) me, 0, 0, TO_ROOM);
 		quiz.reset();
 		send_to_char(ch, "Remort test reset.\r\n");
 		return 1;
@@ -96,7 +96,7 @@ SPECIAL(remorter)
 		char_from_room(ch,false);
 		char_to_room(ch, room,false);
 		act("$n arrives from a puff of smoke.", false, ch, 0, 0, TO_ROOM);
-		act("$n has transferred you!", false, (Creature *) me, 0, ch, TO_VICT);
+		act("$n has transferred you!", false, (struct creature *) me, 0, ch, TO_VICT);
 		look_at_room(ch, room, 0);
 		return 1;
 	}
@@ -133,7 +133,7 @@ SPECIAL(remorter)
 			char_from_room(ch,false);
 			char_to_room(ch, room,false);
 			act("$n arrives from a puff of smoke.", false, ch, 0, 0, TO_ROOM);
-			act("$n has transferred you!", false, (Creature *) me, 0, ch, TO_VICT);
+			act("$n has transferred you!", false, (struct creature *) me, 0, ch, TO_VICT);
 			look_at_room(ch, room, 0);
 			return 1;
 		}
@@ -226,7 +226,7 @@ SPECIAL(remorter)
 	}
 }
 
-int do_fail_remort_test(Quiz *quiz, struct Creature *ch)
+int do_fail_remort_test(Quiz *quiz, struct creature *ch)
 {
 	send_to_char(ch, "The test is over.\r\n");
 	send_to_char(ch, "Your answers were only %d percent correct.\r\n"
@@ -254,7 +254,7 @@ int do_fail_remort_test(Quiz *quiz, struct Creature *ch)
 	return 1;
 }
 
-int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
+int do_pass_remort_test(Quiz *quiz, struct creature *ch)
 {
 	int i;
 
@@ -305,7 +305,7 @@ int do_pass_remort_test(Quiz *quiz, struct Creature *ch)
 	return 1;
 }
 
-int do_pre_test(Creature *ch)
+int do_pre_test(struct creature *ch)
 {
     int i;
 

@@ -9,7 +9,7 @@
 
 SPECIAL(lawyer)
 {
-	struct Creature *lawy = (struct Creature *)me;
+	struct creature *lawy = (struct creature *)me;
 	int mode, cost = 0;
 	char arg1[MAX_INPUT_LENGTH];
 

@@ -52,9 +52,9 @@ extern struct time_info_data time_info;
 extern struct spell_info_type spell_info[];
 
 /* extern functions */
-void add_follower(struct Creature *ch, struct Creature *leader);
-void do_auto_exits(struct Creature *ch, room_num room);
-int get_check_money(struct Creature *ch, struct obj_data **obj, int display);
+void add_follower(struct creature *ch, struct creature *leader);
+void do_auto_exits(struct creature *ch, room_num room);
+int get_check_money(struct creature *ch, struct obj_data **obj, int display);
 
 ACMD(do_echo);
 ACMD(do_gen_comm);
@@ -68,7 +68,7 @@ ACCMD(do_get);
 // skill_gain: mode==true means to return a skill gain value
 //             mode==false means to return an average value
 int
-skill_gain(struct Creature *ch, int mode)
+skill_gain(struct creature *ch, int mode)
 {
 	if (mode)
 		return (number(MINGAIN(ch), MAXGAIN(ch)));
@@ -168,7 +168,7 @@ const char *prac_types[] = {
 /* actual prac_params are in char_class.c */
 
 void
-list_skills(struct Creature *ch, int mode, int type)
+list_skills(struct creature *ch, int mode, int type)
 {
 	int i, sortpos;
 
@@ -250,7 +250,7 @@ list_skills(struct Creature *ch, int mode, int type)
 SPECIAL(guild)
 {
 	int skill_num, percent;
-	struct Creature *master = (struct Creature *)me;
+	struct creature *master = (struct creature *)me;
 	long int cost;
 
 	if (spec_mode != SPECIAL_CMD )
@@ -442,7 +442,7 @@ SPECIAL(dump)
 ******************************************************************** */
 
 void
-npc_steal(struct Creature *ch, struct Creature *victim)
+npc_steal(struct creature *ch, struct creature *victim)
 {
 	struct obj_data *obj = NULL;
 
@@ -517,7 +517,7 @@ SPECIAL(venom_attack)
 	else
 		return false;
 
-    Creature *target = ch->findRandomCombat();
+    struct creature *target = ch->findRandomCombat();
 	if (target && (target->in_room == ch->in_room) &&
 		number(0, 75) < perc_damaged) {
 		act(act_tovict, 1, ch, 0, target, TO_VICT);
@@ -539,7 +539,7 @@ SPECIAL(thief)
 	if (ch->getPosition() != POS_STANDING)
 		return false;
 
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((GET_LEVEL((*it)) < LVL_AMBASSADOR) && !number(0, 3) &&
 			(GET_LEVEL(ch) + 10 + AWAKE((*it)) ? 0 : 20 - GET_LEVEL(ch)) >
@@ -553,7 +553,7 @@ SPECIAL(thief)
 
 SPECIAL(magic_user)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -659,7 +659,7 @@ SPECIAL(battle_cleric)
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return false;
 
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
     vict = ch->findRandomCombat();
@@ -748,7 +748,7 @@ SPECIAL(barbarian)
 	if (cmd || ch->getPosition() != POS_FIGHTING)
 		return false;
 
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	/* pseudo-randomly choose someone in the room who is fighting me */
     vict = ch->findRandomCombat();
@@ -847,7 +847,7 @@ int parse_player_class(char *arg, int timeframe);
 
 SPECIAL(fido)
 {
-	struct Creature *vict;
+	struct creature *vict;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -905,7 +905,7 @@ SPECIAL(fido)
 SPECIAL(buzzard)
 {
 	struct obj_data *i, *temp, *next_obj;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -1052,7 +1052,7 @@ SPECIAL(janitor)
 		do_get(ch, fname(i->aliases), 0, 0, 0);
 
 		if (ahole && IS_MALE(ch)) {
-			CreatureList_iterator it = ch->in_room->people.begin();
+			struct creatureList_iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if ((*it) != ch && IS_FEMALE((*it)) && can_see_creature(ch, (*it))) {
                     perform_say_to(ch, *it, "Excuse me, ma'am.");
@@ -1131,7 +1131,7 @@ SPECIAL(gelatinous_blob)
 
 SPECIAL(pet_shops)
 {
-	struct Creature *pet;
+	struct creature *pet;
 	struct room_data *pet_room;
 	char *pet_name, *pet_kind;
 	int cost;
@@ -1143,7 +1143,7 @@ SPECIAL(pet_shops)
 
 	if (CMD_IS("list")) {
 		send_to_char(ch, "Available pets are:\r\n");
-		CreatureList_iterator it = pet_room->people.begin();
+		struct creatureList_iterator it = pet_room->people.begin();
 		for (; it != pet_room->people.end(); ++it) {
 			cost = (IS_NPC((*it)) ? GET_EXP((*it)) * 3 : (GET_EXP(ch) >> 2));
 			send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME((*it)));
@@ -1245,7 +1245,7 @@ SPECIAL(bank)
 	struct clan_data *clan = NULL;
 	struct clanmember_data *member = NULL;
 	const char *vict_name;
-	Account *acct;
+	struct account *acct;
 	char *arg;
 	int amount = 0;
 
@@ -1406,7 +1406,7 @@ SPECIAL(bank)
 		}
 
 		vict_name = playerIndex.getName(playerIndex.getID(arg));
-		acct = Account_retrieve(playerIndex.getAccountID(arg));
+		acct = struct account_retrieve(playerIndex.getstruct accountID(arg));
 
 		if (!clan && acct == ch->account) {
 			send_to_char(ch, "Transferring money to your own account?  Odd...\r\n");

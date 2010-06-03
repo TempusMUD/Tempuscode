@@ -6,14 +6,14 @@
 
 SPECIAL(mob_helper)
 {
-    struct Creature *helpee = NULL;
-	struct Creature *vict = NULL;
+    struct creature *helpee = NULL;
+	struct creature *vict = NULL;
 
 	if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || ch->isFighting())
 		return 0;
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		helpee = *it;
         // Being drawn into combat via a death cry will cause this

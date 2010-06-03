@@ -6,7 +6,7 @@
 
 SPECIAL(chest_mimic)
 {
-	struct Creature *mimic = (struct Creature *)me;
+	struct creature *mimic = (struct creature *)me;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;

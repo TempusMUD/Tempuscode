@@ -3,7 +3,7 @@
 
 #include "player_table.h"
 
-void do_start(struct Creature *ch, int mode);
+void do_start(struct creature *ch, int mode);
 
 // Argument storage for the remorter
 static char arg1[MAX_INPUT_LENGTH];
@@ -199,17 +199,17 @@ struct Quiz:private vector < Question * > {
 	// Returns the current Question
 	Question *getQuestion();
 	// Sets up the quiz for this character.
-	void reset(Creature * ch);
+	void reset(struct creature * ch);
 	void reset();
 	bool inProgress() {
 		return studentID != 0;
 	}
 	// Returns true if this character is currently taking this test.
-	bool isStudent(Creature * ch) {
+	bool isStudent(struct creature * ch) {
 		return GET_IDNUM(ch) == studentID;
 	}
 	// Returns true if the given guess is an answer to the current Question
-	bool makeGuess(Creature * ch, const char *guess);
+	bool makeGuess(struct creature * ch, const char *guess);
 	// Returns true if the quiz is finished or there are no more questions
 	bool isComplete() {
 		return studentID > 0 &&
@@ -222,8 +222,8 @@ struct Quiz:private vector < Question * > {
 		return (size() == 0 && studentID == 0);
 	}
 	// Send test statistics to ch
-	void sendStatus(Creature * ch);
-	void sendQuestion(Creature * ch);
+	void sendStatus(struct creature * ch);
+	void sendQuestion(struct creature * ch);
 	bool isPassing() {
 		return earnedPoints >= neededPoints;
 	}
@@ -237,11 +237,11 @@ struct Quiz:private vector < Question * > {
 	}
 	// Returns the average value of the current questions
 	float getAverage(int gen = -1);
-	void sendGenDistribution(Creature * ch);
+	void sendGenDistribution(struct creature * ch);
 	void log(const char *message);
 	void logScore();
 	// selects all appropriate body of questions from remortQuestions
-	void selectQuestions(Creature * ch);
+	void selectQuestions(struct creature * ch);
 	// Character taking the quiz
 	int studentID;
 	// Current Question index
@@ -303,7 +303,7 @@ Quiz_getAverage(int gen)
 }
 
 void
-Quiz_sendGenDistribution(Creature * ch)
+Quiz_sendGenDistribution(struct creature * ch)
 {
 	if (remortQuestions.size() == 0)
 		return;
@@ -328,7 +328,7 @@ Quiz_sendGenDistribution(Creature * ch)
 
 	// Print the current question to the character
 void
-Quiz_sendQuestion(Creature * ch)
+Quiz_sendQuestion(struct creature * ch)
 {
 	Question *q = getQuestion();
 	if (q == NULL) {
@@ -355,7 +355,7 @@ Quiz_sendQuestion(Creature * ch)
   // Returns true if the given guess is an answer to the current Question
   // Updates lostPoints and earnedPoints.
 bool
-Quiz_makeGuess(Creature * ch, const char *guess)
+Quiz_makeGuess(struct creature * ch, const char *guess)
 {
 	Question *q = getQuestion();
 	if (q->isAnswer(guess)) {
@@ -375,7 +375,7 @@ Quiz_makeGuess(Creature * ch, const char *guess)
 
 	// Sends the current status of this quiz to the given char.
 void
-Quiz_sendStatus(Creature * ch)
+Quiz_sendStatus(struct creature * ch)
 {
 	send_to_char(ch, "Quiz Subject: %s (%d)\r\n",
 		studentID > 0 ? playerIndex.getName(studentID) : "NONE", studentID);
@@ -392,7 +392,7 @@ Quiz_sendStatus(Creature * ch)
 
 	// Sets up the quiz for this character.
 void
-Quiz_reset(Creature * ch)
+Quiz_reset(struct creature * ch)
 {
 	remortStatistics << "# Test reset for " << GET_NAME(ch) << endl;
 	remortStatistics.flush();
@@ -431,7 +431,7 @@ Quiz_reset()
 	// Determines if this is a valid question for the given
 	// character.  i.e. within ch's gen tolerance etc.
 static inline bool
-validQuestion(Creature * ch, Question & q)
+validQuestion(struct creature * ch, Question & q)
 {
 	if (GET_REMORT_GEN(ch) < q.getGen())
 		return false;
@@ -439,7 +439,7 @@ validQuestion(Creature * ch, Question & q)
 }
 
 void
-Quiz_selectQuestions(Creature * ch)
+Quiz_selectQuestions(struct creature * ch)
 {
 	erase(begin(), end());
 	for (unsigned int i = 0; i < remortQuestions.size(); i++) {

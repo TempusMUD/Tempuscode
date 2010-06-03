@@ -22,7 +22,7 @@
 
 /* comm.c */
 void send_to_all(const char *messg);
-void send_to_char(struct Creature *ch, const char *str, ...)
+void send_to_char(struct creature *ch, const char *str, ...)
 	__attribute__ ((format (printf, 2, 3)));
 void send_to_desc(struct descriptor_data *d, const char *str, ...)
 	__attribute__ ((format (printf, 2, 3)));
@@ -31,21 +31,21 @@ void send_to_clerics(int align, const char *messg);
 void send_to_outdoor(const char *messg, int isecho = 0);
 void send_to_clan(const char *messg, int clan);
 void send_to_zone(const char *messg, struct zone_data *zone, int outdoor);
-void send_to_comm_channel(struct Creature *ch, char *buff, int chan, int mode,
+void send_to_comm_channel(struct creature *ch, char *buff, int chan, int mode,
 	int hide_invis);
 void send_to_newbie_helpers(const char *messg);
 void close_socket(struct descriptor_data *d);
 
 // Act system
-typedef bool (*act_if_predicate)(struct Creature *ch, struct obj_data *obj, struct void *vict_obj, struct Creature *to, int mode);
+typedef bool (*act_if_predicate)(struct creature *ch, struct obj_data *obj, struct void *vict_obj, struct creature *to, int mode);
 char *act_escape(const char *str);
-void make_act_str(const char *orig, char *buf, struct Creature *ch,
-	struct obj_data *obj, void *vict_obj, struct Creature *to);
-void perform_act(const char *orig, struct Creature *ch,
-	struct obj_data *obj, void *vict_obj, struct Creature *to, int mode);
-void act_if(const char *str, int hide_invisible, struct Creature *ch,
+void make_act_str(const char *orig, char *buf, struct creature *ch,
+	struct obj_data *obj, void *vict_obj, struct creature *to);
+void perform_act(const char *orig, struct creature *ch,
+	struct obj_data *obj, void *vict_obj, struct creature *to, int mode);
+void act_if(const char *str, int hide_invisible, struct creature *ch,
 	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred);
-void act(const char *str, int hide_invisible, struct Creature *ch,
+void act(const char *str, int hide_invisible, struct creature *ch,
 	struct obj_data *obj, void *vict_obj, int type);
 
 #define TO_ROOM		1
@@ -61,13 +61,13 @@ void act(const char *str, int hide_invisible, struct Creature *ch,
 #define SHUTDOWN_PAUSE  2
 #define SHUTDOWN_REBOOT 3
 
-struct Account;
+struct account;
 
 void write_to_q(char *txt, struct txt_q *queue, int aliased);
 void write_to_output(const char *txt, struct descriptor_data *d);
 void page_string(struct descriptor_data *d, const char *str);
-void show_file(struct Creature *ch, const char *fname, int lines);
-void show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief);
+void show_file(struct creature *ch, const char *fname, int lines);
+void show_account_chars(descriptor_data *d, struct account *acct, bool immort, bool brief);
 
 extern bool suppress_output;
 

@@ -6,13 +6,13 @@
 
 SPECIAL(taunting_frenchman)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd || !AWAKE(ch) || ch->isFighting() || number(0, 10))
 		return (false);
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		if (vict != ch && can_see_creature(ch, vict) &&

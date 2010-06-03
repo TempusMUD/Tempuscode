@@ -20,14 +20,14 @@
 #include "handler.h"
 #include "language.h"
 
-void add_alias(struct Creature *ch, struct alias_data *a);
-void affect_to_char(struct Creature *ch, struct affected_type *af);
+void add_alias(struct creature *ch, struct alias_data *a);
+void affect_to_char(struct creature *ch, struct affected_type *af);
 void extract_object_list(obj_data * head);
 
 // Saves the given characters equipment to a file. Intended for use while
 // the character is still in the game.
 bool
-Creature_crashSave()
+struct creature_crashSave()
 {
     player_specials->rentcode = RENT_CRASH;
 	player_specials->rent_currency = in_room->zone->time_frame;
@@ -42,7 +42,7 @@ Creature_crashSave()
 }
 
 obj_data *
-Creature_findCostliestObj(void)
+struct creature_findCostliestObj(void)
 {
  	obj_data *cur_obj, *result;
 
@@ -68,10 +68,10 @@ Creature_findCostliestObj(void)
 	return result;
 }
 
-// Creature_payRent will pay the player's rent, selling off items to meet the
+// struct creature_payRent will pay the player's rent, selling off items to meet the
 // bill, if necessary.
 int
-Creature_payRent(time_t last_time, int code, int currency)
+struct creature_payRent(time_t last_time, int code, int currency)
 {
 	float day_count;
 	int factor;
@@ -191,7 +191,7 @@ Creature_payRent(time_t last_time, int code, int currency)
 }
 
 bool
-reportUnrentables(Creature *ch, obj_data *obj_list, const char *pos)
+reportUnrentables(struct creature *ch, obj_data *obj_list, const char *pos)
 {
 	bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
 
@@ -224,7 +224,7 @@ reportUnrentables(Creature *ch, obj_data *obj_list, const char *pos)
 
 // Displays all unrentable items and returns true if any are found
 bool
-Creature_displayUnrentables(void)
+struct creature_displayUnrentables(void)
 {
 	obj_data *cur_obj;
 	int pos;
@@ -248,7 +248,7 @@ Creature_displayUnrentables(void)
 }
 
 bool
-Creature_saveObjects(void)
+struct creature_saveObjects(void)
 {
 	FILE *ouf;
 	char *path, *tmp_path;
@@ -294,7 +294,7 @@ Creature_saveObjects(void)
  *  2 - rented equipment lost ( no $ )
 **/
 int
-Creature_unrent(void)
+struct creature_unrent(void)
 {
   int err;
 
@@ -308,7 +308,7 @@ Creature_unrent(void)
 }
 
 int
-Creature_loadObjects()
+struct creature_loadObjects()
 {
 
     char *path = get_equipment_file_path( GET_IDNUM(this) );
@@ -353,7 +353,7 @@ Creature_loadObjects()
 }
 
 bool
-Creature_checkLoadCorpse()
+struct creature_checkLoadCorpse()
 {
     char *path = get_corpse_file_path(GET_IDNUM(this));
     int axs = access(path, W_OK);
@@ -380,7 +380,7 @@ Creature_checkLoadCorpse()
 }
 
 int
-Creature_loadCorpse()
+struct creature_loadCorpse()
 {
 
     char *path = get_corpse_file_path( GET_IDNUM(this) );
@@ -442,9 +442,9 @@ Creature_loadCorpse()
 }
 
 void
-Creature_saveToXML()
+struct creature_saveToXML()
 {
-    void expire_old_grievances(Creature *);
+    void expire_old_grievances(struct creature *);
 	// Save vital statistics
 	obj_data *saved_eq[NUM_WEARS];
 	obj_data *saved_impl[NUM_WEARS];
@@ -455,7 +455,7 @@ Creature_saveToXML()
 	struct alias_data *cur_alias;
 	int idx, pos;
 	int hit = GET_HIT(this), mana = GET_MANA(this), move = GET_MOVE(this);
-    Creature *ch = this;
+    struct creature *ch = this;
 
 	if (GET_IDNUM(ch) == 0) {
 		slog("Attempt to save creature with idnum==0");
@@ -691,13 +691,13 @@ Creature_saveToXML()
 }
 
 bool
-Creature_loadFromXML( long id )
+struct creature_loadFromXML( long id )
 {
     return loadFromXML(get_player_file_path(id));
 }
-/* copy data from the file structure to a Creature */
+/* copy data from the file structure to a struct creature */
 bool
-Creature_loadFromXML( const char *path )
+struct creature_loadFromXML( const char *path )
 {
 	char *txt;
 	int idx;
@@ -1038,7 +1038,7 @@ Creature_loadFromXML( const char *path )
 }
 
 void
-Creature_set(const char *key, const char *val)
+struct creature_set(const char *key, const char *val)
 {
 	if (!strcmp(key, "race"))
 		GET_RACE(this) = atoi(val);

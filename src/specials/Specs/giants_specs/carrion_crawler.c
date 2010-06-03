@@ -11,7 +11,7 @@ SPECIAL(carrion_crawler)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-    Creature *vict = ch->findRandomCombat();
+    struct creature *vict = ch->findRandomCombat();
 	if (!number(0, 3)) {
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PARA)) {
 			if (number(0, 1)) {

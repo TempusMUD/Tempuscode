@@ -92,10 +92,10 @@ char *fread_string(FILE * fl, char *error);
 int pread_string(FILE * fl, char *str, const char *error);
 int count_hash_records(FILE *fl);
 
-struct Creature *read_mobile(int vnum);
+struct creature *read_mobile(int vnum);
 int real_mobile(int vnum);
-struct Creature *real_mobile_proto(int vnum);
-int vnum_mobile(char *searchname, struct Creature *ch);
+struct creature *real_mobile_proto(int vnum);
+int vnum_mobile(char *searchname, struct creature *ch);
 
 struct obj_data *create_obj(void);
 void clear_object(struct obj_data *obj);
@@ -103,12 +103,12 @@ void free_obj(struct obj_data *obj);
 int real_object(int vnum);
 struct obj_data *real_object_proto(int vnum);
 struct obj_data *read_object(int vnum);
-int vnum_object(char *searchname, struct Creature *ch);
+int vnum_object(char *searchname, struct creature *ch);
 int zone_number(int nr);
 struct room_data *where_obj(struct obj_data *obj);
-struct Creature *obj_owner(struct obj_data *obj);
+struct creature *obj_owner(struct obj_data *obj);
 
-long calc_daily_rent(Creature *ch, int factor, char *currency_str, bool display);
+long calc_daily_rent(struct creature *ch, int factor, char *currency_str, bool display);
 
 #define REAL 0
 #define VIRTUAL 1
@@ -238,7 +238,7 @@ typedef struct dynamic_text_file {
 extern dynamic_text_file *dyntext_list;
 #endif
 
-void check_dyntext_updates(Creature *ch, int mode);
+void check_dyntext_updates(struct creature *ch, int mode);
 #define CHECKDYN_UNRENT    0
 #define CHECKDYN_RECONNECT 1
 

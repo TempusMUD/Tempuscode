@@ -77,7 +77,7 @@ static void prog_do_clear_cond(prog_env *env, prog_evt *evt, char *args);
 static void prog_do_trace(prog_env *env, prog_evt *evt, char *args);
 
 //external prototypes
-struct Creature *real_mobile_proto(int vnum);
+struct creature *real_mobile_proto(int vnum);
 struct obj_data *real_object_proto(int vnum);
 
 prog_command prog_cmds[] = {
@@ -233,10 +233,10 @@ prog_send_debug(prog_env *env, const char *msg)
 {
     room_data *room = prog_get_owner_room(env);
 
-    for (CreatureList_iterator cit = room->people.begin();
+    for (struct creatureList_iterator cit = room->people.begin();
          cit != room->people.end();
          ++cit) {
-        Creature *ch = *cit;
+        struct creature *ch = *cit;
 
         if (PRF2_FLAGGED(ch, PRF2_DEBUG))
             send_to_char(ch, "%sprog x%p_ %s%s\r\n",
@@ -315,7 +315,7 @@ prog_set_var(prog_env *env, bool local, const char *key, const char *arg)
 }
 
 static void
-prog_set_target(prog_env *env, Creature *target)
+prog_set_target(prog_env *env, struct creature *target)
 {
     if (env->tracing) {
         if (target)
@@ -399,7 +399,7 @@ prog_get_alias_list(char *args)
 {
 	char *type, *vnum_str;
 	int vnum = 0;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 	struct obj_data *obj = NULL;
 
 	type = tmp_getword(&args);
@@ -506,7 +506,7 @@ prog_eval_holding(prog_env *env, char *args) {
     vnum = atoi(tmp_getword(&args));
     switch (env->owner_type) {
         case PROG_TYPE_MOBILE:
-            obj = ((Creature *) env->owner)->carrying;
+            obj = ((struct creature *) env->owner)->carrying;
             break;
         case PROG_TYPE_OBJECT:
             obj = ((obj_data *) env->owner)->contains;
@@ -700,7 +700,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
         result = prog_eval_abbrev(evt, args);
 	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
-			&& ((Creature *) env->owner)->isFighting());
+			&& ((struct creature *) env->owner)->isFighting());
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {
@@ -839,14 +839,14 @@ DEFPROGHANDLER(or, env, evt, args)
 DEFPROGHANDLER(do, env, evt, args)
 {
 	if (env->owner_type == PROG_TYPE_MOBILE)
-		command_interpreter((Creature *) env->owner, args);
+		command_interpreter((struct creature *) env->owner, args);
 }
 
 DEFPROGHANDLER(silently, env, evt, args)
 {
 	suppress_output = true;
 	if (env->owner_type == PROG_TYPE_MOBILE)
-		command_interpreter((Creature *) env->owner, args);
+		command_interpreter((struct creature *) env->owner, args);
 	suppress_output = false;
 }
 
@@ -856,13 +856,13 @@ DEFPROGHANDLER(force, env, evt, args)
 		return;
 
 	if (env->owner_type == PROG_TYPE_MOBILE)
-		command_interpreter((Creature *) env->target, args);
+		command_interpreter((struct creature *) env->target, args);
 }
 
 DEFPROGHANDLER(target, env, evt, args)
 {
     room_data *room = prog_get_owner_room(env);
-    Creature *new_target = NULL;
+    struct creature *new_target = NULL;
 	char *arg;
 
 	arg = tmp_getword(&args);
@@ -878,7 +878,7 @@ DEFPROGHANDLER(target, env, evt, args)
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
 		case PROG_TYPE_MOBILE:
-			new_target = ((Creature *) env->owner)->findRandomCombat();
+			new_target = ((struct creature *) env->owner)->findRandomCombat();
 			break;
 		default:
 			new_target = NULL;
@@ -903,14 +903,14 @@ DEFPROGHANDLER(pause, env, evt, args)
 
 DEFPROGHANDLER(walkto, env, evt, args)
 {
-	Creature *ch;
+	struct creature *ch;
 	room_data *room;
 	int dir, pause;
 
 	if (env->owner_type != PROG_TYPE_MOBILE)
 		return;
 
-	ch = (Creature *) env->owner;
+	ch = (struct creature *) env->owner;
 
     // Make sure the creature can walk
     if (ch->getPosition() < POS_STANDING)
@@ -935,10 +935,10 @@ DEFPROGHANDLER(walkto, env, evt, args)
 DEFPROGHANDLER(driveto, env, evt, args)
 {
 	// move_car courtesy of vehicle.cc
-	int move_car(struct Creature *ch, struct obj_data *car, int dir);
+	int move_car(struct creature *ch, struct obj_data *car, int dir);
 
 	obj_data *console, *vehicle, *engine;
-	Creature *ch;
+	struct creature *ch;
 	room_data *target_room;
 	room_direction_data *exit;
 	int dir, pause;
@@ -946,7 +946,7 @@ DEFPROGHANDLER(driveto, env, evt, args)
 	if (env->owner_type != PROG_TYPE_MOBILE)
 		return;
 
-	ch = (Creature *) env->owner;
+	ch = (struct creature *) env->owner;
 
     // Make sure the creature can drive
     if (ch->getPosition() < POS_SITTING)
@@ -1033,19 +1033,19 @@ DEFPROGHANDLER(mobflag, env, evt, args)
 	flags &= ~(MOB_SPEC | MOB_ISNPC | MOB_PET);
 
 	if (op)
-		MOB_FLAGS(((Creature *) env->owner)) |= flags;
+		MOB_FLAGS(((struct creature *) env->owner)) |= flags;
 	else
-		MOB_FLAGS(((Creature *) env->owner)) &= ~flags;
+		MOB_FLAGS(((struct creature *) env->owner)) &= ~flags;
 }
 
 DEFPROGHANDLER(ldesc, env, evt, args)
 {
-	Creature *mob;
+	struct creature *mob;
 	obj_data *obj;
 
 	switch (env->owner_type) {
 	case PROG_TYPE_MOBILE:
-		mob = (Creature *) env->owner;
+		mob = (struct creature *) env->owner;
 		if (mob->player.long_descr) {
 			if (mob->player.long_descr !=
 				mob->mob_specials.shared->proto->player.long_descr)
@@ -1068,7 +1068,7 @@ DEFPROGHANDLER(ldesc, env, evt, args)
 DEFPROGHANDLER(damage, env, evt, args)
 {
 	room_data *room;
-	Creature *mob;
+	struct creature *mob;
 	obj_data *obj;
 	int damage_amt;
 	char *target_arg;
@@ -1093,7 +1093,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 				obj, damage_amt, damage_type);
 			break;
 		case PROG_TYPE_MOBILE:
-			mob = (Creature *) env->owner;
+			mob = (struct creature *) env->owner;
             if (mob->getPosition() > POS_DEAD)
                 damage(NULL, mob, damage_amt, damage_type, WEAR_RANDOM);
 			break;
@@ -1131,7 +1131,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 		zerrlog(room->zone, "Bad *damage argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (CreatureList_iterator it = room->people.begin();
+	for (struct creatureList_iterator it = room->people.begin();
 		it != room->people.end(); ++it)
 		if ((!players || IS_PC(*it)) &&
             (!mobs || IS_NPC(*it)) &&
@@ -1143,7 +1143,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 DEFPROGHANDLER(spell, env, evt, args)
 {
 	room_data *room;
-	Creature *caster = NULL;
+	struct creature *caster = NULL;
 	obj_data *obj;
 	int spell_num, spell_lvl, spell_type;
 	char *target_arg;
@@ -1246,7 +1246,7 @@ DEFPROGHANDLER(spell, env, evt, args)
 		zerrlog(room->zone, "Bad *spell argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (CreatureList_iterator it = room->people.begin();
+	for (struct creatureList_iterator it = room->people.begin();
 		it != room->people.end(); ++it)
 		if ((!players || IS_PC(*it)) &&
             (!mobs || IS_NPC(*it)) &&
@@ -1345,7 +1345,7 @@ DEFPROGHANDLER(selfpurge, env, evt, args)
 		env->exec_pt = -1;
 
         if (evt->kind != PROG_EVT_DYING)
-            ((Creature *) env->owner)->purge(true);
+            ((struct creature *) env->owner)->purge(true);
 		env->owner = NULL;
 	}
 }
@@ -1353,7 +1353,7 @@ DEFPROGHANDLER(selfpurge, env, evt, args)
 DEFPROGHANDLER(hunt, env, evt, args)
 {
 	if (env->owner_type == PROG_TYPE_MOBILE && env->target) {
-		((Creature *) env->owner)->startHunting(env->target);
+		((struct creature *) env->owner)->startHunting(env->target);
 	}
 }
 
@@ -1394,7 +1394,7 @@ DEFPROGHANDLER(nuke, env, evt, args)
 }
 
 static void
-prog_trans_creature(Creature * ch, room_data * targ_room)
+prog_trans_creature(struct creature * ch, room_data * targ_room)
 {
 	room_data *was_in;
 
@@ -1472,7 +1472,7 @@ DEFPROGHANDLER(trans, env, evt, args)
 			obj_to_room(obj, targ_room);
 			break;
 		case PROG_TYPE_MOBILE:
-			prog_trans_creature((Creature *) env->owner, targ_room);
+			prog_trans_creature((struct creature *) env->owner, targ_room);
 			break;
 		case PROG_TYPE_ROOM:
 			break;
@@ -1484,7 +1484,7 @@ DEFPROGHANDLER(trans, env, evt, args)
 		// Transport the target, which is always a creature
 		if (!env->target)
 			return;
-		prog_trans_creature((Creature *) env->target, targ_room);
+		prog_trans_creature((struct creature *) env->target, targ_room);
 		return;
 	}
 	// The rest of the options deal with multiple creatures
@@ -1503,7 +1503,7 @@ DEFPROGHANDLER(trans, env, evt, args)
 		zerrlog(room->zone, "Bad *trans argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (CreatureList_iterator it = room->people.begin();
+	for (struct creatureList_iterator it = room->people.begin();
 		it != room->people.end(); ++it)
 		if ((!players || IS_PC(*it)) && (!mobs || IS_NPC(*it)))
 			prog_trans_creature(*it, targ_room);
@@ -1588,7 +1588,7 @@ DEFPROGHANDLER(oload, env, evt, args)
 	} else if (!strcasecmp(target_str, "self")) {
 		switch (env->owner_type) {
 		case PROG_TYPE_MOBILE:
-			obj_to_char(obj, (Creature *) env->owner);
+			obj_to_char(obj, (struct creature *) env->owner);
 			break;
 		case PROG_TYPE_OBJECT:
 			obj_to_obj(obj, (obj_data *) env->owner);
@@ -1607,7 +1607,7 @@ DEFPROGHANDLER(oload, env, evt, args)
 
 DEFPROGHANDLER(mload, env, evt, args)
 {
-	Creature *mob;
+	struct creature *mob;
 	room_data *room = NULL;
 	int vnum, max_load = -1;
 	char *arg;
@@ -1650,7 +1650,7 @@ DEFPROGHANDLER(opurge, env, evt, args)
 
 	switch (env->owner_type) {
 	case PROG_TYPE_MOBILE:
-		obj_list = ((Creature *) env->owner)->carrying;
+		obj_list = ((struct creature *) env->owner)->carrying;
 		break;
 	case PROG_TYPE_OBJECT:
 		obj_list = ((obj_data *) env->owner)->contains;
@@ -1685,7 +1685,7 @@ DEFPROGHANDLER(opurge, env, evt, args)
 
 	switch (env->owner_type) {
 	case PROG_TYPE_MOBILE:
-		((Creature *) env->owner)->carrying = obj_list;
+		((struct creature *) env->owner)->carrying = obj_list;
 		break;
 	case PROG_TYPE_OBJECT:
 		((obj_data *) env->owner)->contains = obj_list;
@@ -1740,7 +1740,7 @@ DEFPROGHANDLER(resume, env, evt, args)
 DEFPROGHANDLER(echo, env, evt, args)
 {
 	char *arg;
-	Creature *ch = NULL, *target = NULL;
+	struct creature *ch = NULL, *target = NULL;
 	obj_data *obj = NULL;
 	room_data *room = NULL;
 
@@ -1853,7 +1853,7 @@ prog_execute(prog_env *env)
 }
 
 prog_env *
-prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * evt)
+prog_start(prog_evt_type owner_type, void *owner, struct creature * target, prog_evt * evt)
 {
 	prog_env *new_prog;
     int initial_exec_pt;
@@ -1941,7 +1941,7 @@ prog_unreference_object(obj_data *obj)
 }
 
 static void
-report_prog_loop(void *owner, prog_evt_type owner_type, Creature *ch, const char *where)
+report_prog_loop(void *owner, prog_evt_type owner_type, struct creature *ch, const char *where)
 {
     const char *owner_desc = "<unknown>";
     const char *ch_desc = "<unknown>";
@@ -1970,7 +1970,7 @@ report_prog_loop(void *owner, prog_evt_type owner_type, Creature *ch, const char
 }
 
 bool
-trigger_prog_cmd(void *owner, prog_evt_type owner_type, Creature * ch, int cmd,
+trigger_prog_cmd(void *owner, prog_evt_type owner_type, struct creature * ch, int cmd,
 	char *argument)
 {
 	prog_env *env, *handler_env;
@@ -2032,7 +2032,7 @@ trigger_prog_cmd(void *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 }
 
 bool
-trigger_prog_spell(void *owner, prog_evt_type owner_type, Creature * ch, int cmd)
+trigger_prog_spell(void *owner, prog_evt_type owner_type, struct creature * ch, int cmd)
 {
 	prog_env *env, *handler_env;
 	prog_evt evt;
@@ -2094,7 +2094,7 @@ trigger_prog_spell(void *owner, prog_evt_type owner_type, Creature * ch, int cmd
 }
 
 bool
-trigger_prog_move(void *owner, prog_evt_type owner_type, Creature * ch,
+trigger_prog_move(void *owner, prog_evt_type owner_type, struct creature * ch,
 	special_mode mode)
 {
 	prog_env *env, *handler_env;
@@ -2159,7 +2159,7 @@ trigger_prog_move(void *owner, prog_evt_type owner_type, Creature * ch,
 }
 
 void
-trigger_prog_fight(Creature * ch, Creature * self)
+trigger_prog_fight(struct creature * ch, struct creature * self)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2181,7 +2181,7 @@ trigger_prog_fight(Creature * ch, Creature * self)
 }
 
 void
-trigger_prog_dying(Creature *owner, Creature *killer)
+trigger_prog_dying(struct creature *owner, struct creature *killer)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2212,7 +2212,7 @@ trigger_prog_dying(Creature *owner, Creature *killer)
 }
 
 void
-trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *doomed)
+trigger_prog_death(void *owner, prog_evt_type owner_type, struct creature *doomed)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2248,7 +2248,7 @@ trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *doomed)
 }
 
 void
-trigger_prog_give(Creature * ch, Creature * self, struct obj_data *obj)
+trigger_prog_give(struct creature * ch, struct creature * self, struct obj_data *obj)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2327,7 +2327,7 @@ trigger_prog_combat(void *owner, prog_evt_type owner_type)
 }
 
 void
-trigger_prog_load(Creature * owner)
+trigger_prog_load(struct creature * owner)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2376,7 +2376,7 @@ trigger_prog_tick(void *owner, prog_evt_type owner_type)
 static void
 prog_unmark_mobiles(void)
 {
-	CreatureList_iterator cit, end;
+	struct creatureList_iterator cit, end;
 
 	// Unmark mobiles
     end = characterList.end();
@@ -2436,11 +2436,11 @@ prog_free_terminated(void)
 static void
 prog_trigger_idle_mobs(void)
 {
-	CreatureList_iterator cit, end;
+	struct creatureList_iterator cit, end;
 
     end = characterList.end();
 	for (cit = characterList.begin();cit != end;++cit) {
-        Creature *ch = *cit;
+        struct creature *ch = *cit;
 		if (ch->prog_marker || !GET_MOB_PROGOBJ(ch))
 			continue;
 		else if (ch->isFighting())

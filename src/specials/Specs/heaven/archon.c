@@ -14,7 +14,7 @@ SPECIAL(archon)
 	if (cmd)
 		return 0;
 	if (!ch->isFighting() && ch->in_room->zone->plane != PLANE_HEAVEN) {
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it)
 			if ((*it) != ch && IS_ARCHON((*it)) && (*it)->isFighting()) {
 				do_rescue(ch, fname((*it)->player.name), 0, 0, 0);

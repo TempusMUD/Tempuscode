@@ -8,7 +8,7 @@
 
 SPECIAL(hell_regulator)
 {
-	struct Creature *vict = NULL, *devil = NULL;
+	struct creature *vict = NULL, *devil = NULL;
     int dam_retval = 0;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -26,7 +26,7 @@ SPECIAL(hell_regulator)
 		return 0;
 	}
 
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		if (vict == ch)

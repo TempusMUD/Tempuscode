@@ -45,7 +45,7 @@ remove_bounties(int char_id)
 int
 get_bounty_amount(int idnum)
 {
-	Creature vict(true);
+	struct creature vict(true);
 
 	if (!vict.loadFromXML(idnum)) {
 		errlog("Could not load victim in place_bounty");
@@ -59,7 +59,7 @@ get_bounty_amount(int idnum)
 }
 
 bool
-is_bountied(Creature *hunter, Creature *vict)
+is_bountied(struct creature *hunter, struct creature *vict)
 {
 	vector <hunt_data>_iterator hunt;
 	hunt = find(hunt_list.begin(), hunt_list.end(), GET_IDNUM(hunter));
@@ -76,7 +76,7 @@ is_bountied(Creature *hunter, Creature *vict)
 // Awards any bounties due to the killer - returns true if it was a
 // legitimate bounty kill
 bool
-award_bounty(Creature *killer, Creature *vict)
+award_bounty(struct creature *killer, struct creature *vict)
 {
 	vector <hunt_data>_iterator hunt;
 	struct follow_type *f;
@@ -198,12 +198,12 @@ get_hunted_id(int hunter_id)
 }
 
 int
-register_bounty(Creature *self, Creature *ch, char *argument)
+register_bounty(struct creature *self, struct creature *ch, char *argument)
 {
 	const char USAGE[] = "Usage: register bounty <player>";
 	vector <hunt_data>_iterator hunt;
 	char *str, *vict_name;
-	Creature vict(true);
+	struct creature vict(true);
 
 	str = tmp_getword(&argument);
 	vict_name = tmp_getword(&argument);
@@ -263,7 +263,7 @@ SPECIAL(bounty_clerk)
 		return 0;
 
 	if (CMD_IS("register"))
-		return register_bounty((Creature *)me, ch, argument);
+		return register_bounty((struct creature *)me, ch, argument);
 
 	return 0;
 }

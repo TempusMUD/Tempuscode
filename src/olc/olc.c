@@ -54,7 +54,7 @@
 extern const char *language_names[];
 extern const char *race_language[][2];
 bool
-OLCIMP(Creature * ch)
+OLCIMP(struct creature * ch)
 {
 	if (Security_isMember(ch, "OLCWorldWrite"))
 		return true;
@@ -160,7 +160,7 @@ OLCIMP(Creature * ch)
 "  (default !toroom only)\n"
 
 extern struct room_data *world;
-extern struct Creature *mob_proto;
+extern struct creature *mob_proto;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern struct obj_data *object_list;
@@ -173,54 +173,54 @@ extern const char *obj_flow_msg[NUM_FLOW_TYPES + 1][2];
 long asciiflag_conv(char *buf);
 
 void num2str(char *str, int num);
-void do_stat_object(struct Creature *ch, struct obj_data *obj);
+void do_stat_object(struct creature *ch, struct obj_data *obj);
 
 ACMD(do_zonepurge);
 ACMD(do_zreset);
 
 int prototype_obj_value(struct obj_data *obj);
-bool save_objs(struct Creature *ch, struct zone_data *zone);
-bool save_wld(struct Creature *ch, struct zone_data *zone);
-bool save_mobs(struct Creature *ch, struct zone_data *zone);
-bool save_zone(struct Creature *ch, struct zone_data *zone);
+bool save_objs(struct creature *ch, struct zone_data *zone);
+bool save_wld(struct creature *ch, struct zone_data *zone);
+bool save_mobs(struct creature *ch, struct zone_data *zone);
+bool save_zone(struct creature *ch, struct zone_data *zone);
 
-struct room_data *do_create_room(struct Creature *ch, int vnum);
-struct obj_data *do_create_obj(struct Creature *ch, int vnum);
-struct Creature *do_create_mob(struct Creature *ch, int vnum);
+struct room_data *do_create_room(struct creature *ch, int vnum);
+struct obj_data *do_create_obj(struct creature *ch, int vnum);
+struct creature *do_create_mob(struct creature *ch, int vnum);
 
-int do_destroy_room(struct Creature *ch, int vnum);
-int do_destroy_object(struct Creature *ch, int vnum);
-int do_destroy_mobile(struct Creature *ch, int vnum);
-int do_create_zone(struct Creature *ch, int num);
-int olc_mimic_mob(struct Creature *ch, struct Creature *orig,
-	struct Creature *targ, int mode);
-void olc_mimic_room(struct Creature *ch, struct room_data *targ, char *arg);
-void do_olc_rexdesc(struct Creature *ch, char *a, bool is_hedit);
-void perform_oset(struct Creature *ch, struct obj_data *obj_p,
+int do_destroy_room(struct creature *ch, int vnum);
+int do_destroy_object(struct creature *ch, int vnum);
+int do_destroy_mobile(struct creature *ch, int vnum);
+int do_create_zone(struct creature *ch, int num);
+int olc_mimic_mob(struct creature *ch, struct creature *orig,
+	struct creature *targ, int mode);
+void olc_mimic_room(struct creature *ch, struct room_data *targ, char *arg);
+void do_olc_rexdesc(struct creature *ch, char *a, bool is_hedit);
+void perform_oset(struct creature *ch, struct obj_data *obj_p,
 	char *argument, byte subcmd);
-void do_zset_command(struct Creature *ch, char *argument);
-void do_zcmd(struct Creature *ch, char *argument);
-void do_zone_cmdlist(struct Creature *ch, struct zone_data *zone);
-void do_zmob_cmd(struct Creature *ch, char *argument);
-void do_zobj_cmd(struct Creature *ch, char *argument);
-void do_zdoor_cmd(struct Creature *ch, char *argument);
-void do_zgive_cmd(struct Creature *ch, char *argument);
-void do_zput_cmd(struct Creature *ch, char *argument);
-void do_zequip_cmd(struct Creature *ch, char *argument);
-void do_zimplant_cmd(struct Creature *ch, char *argument);
-void do_zpath_cmd(struct Creature *ch, char *argument);
-void do_mob_medit(struct Creature *ch, char *argument);
-void do_mob_mstat(struct Creature *ch, char *argument);
-void do_mob_mset(struct Creature *ch, char *argument);
-void do_olc_xset(struct Creature *ch, char *argument);
-void do_olc_rset(struct Creature *ch, char *argument);
-void do_olc_xstat(struct Creature *ch);
-struct special_search_data *do_create_search(struct Creature *ch, char *arg);
-int do_destroy_search(struct Creature *ch, char *arg);
-int set_char_xedit(struct Creature *ch, char *argument);
-void do_clear_room(struct Creature *ch);
-void do_clear_olc_object(struct Creature *ch);
-void do_clear_olc_mob(struct Creature *ch);
+void do_zset_command(struct creature *ch, char *argument);
+void do_zcmd(struct creature *ch, char *argument);
+void do_zone_cmdlist(struct creature *ch, struct zone_data *zone);
+void do_zmob_cmd(struct creature *ch, char *argument);
+void do_zobj_cmd(struct creature *ch, char *argument);
+void do_zdoor_cmd(struct creature *ch, char *argument);
+void do_zgive_cmd(struct creature *ch, char *argument);
+void do_zput_cmd(struct creature *ch, char *argument);
+void do_zequip_cmd(struct creature *ch, char *argument);
+void do_zimplant_cmd(struct creature *ch, char *argument);
+void do_zpath_cmd(struct creature *ch, char *argument);
+void do_mob_medit(struct creature *ch, char *argument);
+void do_mob_mstat(struct creature *ch, char *argument);
+void do_mob_mset(struct creature *ch, char *argument);
+void do_olc_xset(struct creature *ch, char *argument);
+void do_olc_rset(struct creature *ch, char *argument);
+void do_olc_xstat(struct creature *ch);
+struct special_search_data *do_create_search(struct creature *ch, char *arg);
+int do_destroy_search(struct creature *ch, char *arg);
+int set_char_xedit(struct creature *ch, char *argument);
+void do_clear_room(struct creature *ch);
+void do_clear_olc_object(struct creature *ch);
+void do_clear_olc_mob(struct creature *ch);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
 	0);
@@ -319,8 +319,8 @@ ACMD(do_olc)
 	struct obj_data *tmp_obj = NULL, *obj = NULL;
 	struct descriptor_data *d = NULL;
 	struct zone_data *zone = NULL;
-	struct Creature *mob = NULL;
-	struct Creature *tmp_mob = NULL;
+	struct creature *mob = NULL;
+	struct creature *tmp_mob = NULL;
 	struct special_search_data *tmp_search;
 
 	if (olc_lock || (IS_SET(ch->in_room->zone->flags, ZONE_LOCKED))) {
@@ -1512,7 +1512,7 @@ ACMD(do_olc)
 		break;
 
     case 49: { // recalculate
-        struct Creature *mob;
+        struct creature *mob;
         struct obj_data *obj;
         int number;
         char* buf1 = tmp_getword(&argument);
@@ -1574,7 +1574,7 @@ ACMD(do_olc)
         }
 
         if (is_abbrev(arg1, "mobile")) {
-            Creature *mob = real_mobile_proto(number);
+            struct creature *mob = real_mobile_proto(number);
             if (!mob) {
                 send_to_char(ch, "There is no monster with that number.\r\n");
             } else if (!GET_OLC_MOB(ch)) {
@@ -1611,11 +1611,11 @@ ACMD(do_olc)
 	}
 }
 void
-recalc_all_mobs(Creature *ch, const char *argument)
+recalc_all_mobs(struct creature *ch, const char *argument)
 {
-	int oldmobile_experience(struct Creature *mob);
+	int oldmobile_experience(struct creature *mob);
 
-	struct Creature *mob;
+	struct creature *mob;
 	struct zone_data *zone;
 	MobileMap_iterator mit = mobilePrototypes.begin();
 	int count = 0;
@@ -1739,7 +1739,7 @@ const char *olc_help_keys[] = {
 #define NUM_SHOP_TEMPER 6
 
 void
-show_olc_help(struct Creature *ch, char *arg)
+show_olc_help(struct creature *ch, char *arg)
 {
 
 	int i = 0, which_help, j = 0;
@@ -2248,7 +2248,7 @@ ACMD(do_unapprove)
 	byte o_m = 0, zn = 0;
 	struct obj_data *obj = NULL;
 	struct zone_data *zone = NULL;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 
     arg1 = tmp_getword(&argument);
     arg2 = tmp_getword(&argument);
@@ -2418,7 +2418,7 @@ ACMD(do_approve)
 	byte o_m = 0, zn = 0;
 	struct obj_data *obj = NULL;
 	struct zone_data *zone = NULL;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 
     arg1 = tmp_getword(&argument);
     arg2 = tmp_getword(&argument);
@@ -2582,7 +2582,7 @@ ACMD(do_approve)
 
 /** Could this person edit this zone if it were unapproved. **/
 bool
-CAN_EDIT_ZONE(Creature *ch, struct zone_data * zone)
+CAN_EDIT_ZONE(struct creature *ch, struct zone_data * zone)
 {
 	if (Security_isMember(ch, "OLCWorldWrite")
 		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
@@ -2602,7 +2602,7 @@ CAN_EDIT_ZONE(Creature *ch, struct zone_data * zone)
 
 /** Can this person edit this zone given these bits set on it. **/
 bool
-OLC_EDIT_OK(Creature *ch, struct zone_data * zone, int bits)
+OLC_EDIT_OK(struct creature *ch, struct zone_data * zone, int bits)
 {
 
 	if (Security_isMember(ch, "OLCWorldWrite")

@@ -48,7 +48,7 @@ char *replace_string(const char *str,
                      const char* substance=NULL);
 
 void
-appear(struct Creature *ch, struct Creature *vict)
+appear(struct creature *ch, struct creature *vict)
 {
 	char *to_char = NULL;
 	int found = 0;
@@ -190,7 +190,7 @@ load_messages(void)
 }
 
 void
-death_cry(struct Creature *ch)
+death_cry(struct creature *ch)
 {
 	struct room_data *adjoin_room = NULL;
 	int door;
@@ -219,7 +219,7 @@ death_cry(struct Creature *ch)
 		act("Your skin crawls as you hear $n's final shriek.",
 			false, ch, 0, 0, TO_ROOM);
 	else {
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (*it == ch)
 				continue;
@@ -236,7 +236,7 @@ death_cry(struct Creature *ch)
 					false, ch, 0, (*it), TO_VICT);
 		}
 	}
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (ch != *it && (*it)->getPosition() == POS_SLEEPING &&
 			!PLR_FLAGGED((*it), PLR_OLC | PLR_WRITING) &&
@@ -257,7 +257,7 @@ death_cry(struct Creature *ch)
 			ch->in_room = was_in;
 			if (adjoin_room->dir_option[rev_dir[door]] &&
 				adjoin_room->dir_option[rev_dir[door]]->to_room == was_in) {
-				CreatureList_iterator it = adjoin_room->people.begin();
+				struct creatureList_iterator it = adjoin_room->people.begin();
 				for (; it != adjoin_room->people.end(); ++it) {
 					if (IS_MOB((*it)) && !MOB_FLAGGED((*it), MOB_SENTINEL) &&
 						!(*it)->isFighting() && AWAKE((*it)) &&
@@ -290,14 +290,14 @@ death_cry(struct Creature *ch)
 }
 
 void
-blood_spray(struct Creature *ch,
-            struct Creature *victim,
+blood_spray(struct creature *ch,
+            struct creature *victim,
             int dam __attribute__ ((unused)),
             int attacktype)
 {
 	const char *to_char, *to_vict, *to_notvict;
 	int pos, found = 0;
-	struct Creature *nvict;
+	struct creature *nvict;
 
 	// some creatures don't have blood
 	if (!CHAR_HAS_BLOOD(victim))
@@ -369,7 +369,7 @@ blood_spray(struct Creature *ch,
         false, ch, 0, victim, TO_VICT);
 	send_to_char(victim, "%s", CCNRM(victim, C_NRM));
 
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || (*it) == victim || !(*it)->desc || !AWAKE((*it)))
 			continue;
@@ -438,7 +438,7 @@ blood_spray(struct Creature *ch,
 
 /* message for doing damage with a weapon */
 void
-dam_message(int dam, struct Creature *ch, struct Creature *victim,
+dam_message(int dam, struct creature *ch, struct creature *victim,
 	int w_type, int location)
 {
 	char *buf;
@@ -1327,7 +1327,7 @@ dam_message(int dam, struct Creature *ch, struct Creature *victim,
  *  C3.0: Also used for weapon damage on miss and death blows
  */
 int
-skill_message(int dam, struct Creature *ch, struct Creature *vict,
+skill_message(int dam, struct creature *ch, struct creature *vict,
 	int attacktype)
 {
 	int i, j, nr;

@@ -43,12 +43,12 @@ extern struct obj_data *cur_weap;
 struct follow_type *order_next_k;
 
 /* extern functions */
-int find_door(struct Creature *ch, char *type, char *dir,
+int find_door(struct creature *ch, char *type, char *dir,
 	const char *cmdname);
-int do_combat_fire(struct Creature *ch, struct Creature *vict);
+int do_combat_fire(struct creature *ch, struct creature *vict);
 
 int
-check_mob_reaction(struct Creature *ch, struct Creature *vict)
+check_mob_reaction(struct creature *ch, struct creature *vict)
 {
 	int num = 0;
 
@@ -67,7 +67,7 @@ check_mob_reaction(struct Creature *ch, struct Creature *vict)
 }
 
 inline int
-RAW_EQ_DAM(struct Creature *ch, int pos, int *var)
+RAW_EQ_DAM(struct creature *ch, int pos, int *var)
 {
 
 	if (ch->equipment[pos]) {
@@ -95,7 +95,7 @@ RAW_EQ_DAM(struct Creature *ch, int pos, int *var)
 IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
 
 int
-calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
+calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 	int *wait, int *vict_wait, int *move, int *mana, int *dam,
 	int *fail_pos, int *vict_pos, int *loc,
 	struct affected_type *af, int *return_flags)
@@ -903,7 +903,7 @@ calc_skill_prob(struct Creature *ch, struct Creature *vict, int skillnum,
 }
 
 bool
-perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_flags)
+perform_offensive_skill(struct creature *ch, struct creature *vict, int skill, int *return_flags)
 {
 	struct affected_type af;
 	int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
@@ -1024,7 +1024,7 @@ perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_fla
 
 ACCMD(do_offensive_skill)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	struct affected_type af;
     char *arg;
@@ -1062,7 +1062,7 @@ ACCMD(do_offensive_skill)
 
 ACMD(do_assist)
 {
-	struct Creature *helpee;
+	struct creature *helpee;
     char *arg;
 
     if (ch->isFighting() > 0) {
@@ -1083,7 +1083,7 @@ ACMD(do_assist)
     else if (!helpee->isFighting())
 	    act("But nobody is fighting $M!", false, ch, 0, helpee, TO_CHAR);
 	else {
-        Creature *opponent = helpee->findRandomCombat();
+        struct creature *opponent = helpee->findRandomCombat();
 		if (!can_see_creature(ch, (opponent))) {
 			act("You can't see who is fighting $M!", false, ch, 0, helpee,
 				TO_CHAR);
@@ -1104,7 +1104,7 @@ ACMD(do_assist)
 
 ACMD(do_hit)
 {
-	struct Creature *vict;
+	struct creature *vict;
     char *arg;
 
     arg = tmp_getword(&argument);
@@ -1137,7 +1137,7 @@ ACMD(do_hit)
 
 ACMD(do_kill)
 {
-	struct Creature *vict;
+	struct creature *vict;
     char *arg;
 
 	if ((GET_LEVEL(ch) < LVL_CREATOR) || subcmd != SCMD_SLAY || IS_NPC(ch)) {
@@ -1173,12 +1173,12 @@ ACMD(do_kill)
 
 ACMD(do_order)
 {
-	bool detect_opponent_master(Creature *ch, Creature *opp);
+	bool detect_opponent_master(struct creature *ch, struct creature *opp);
 
     const char *name, *message;
 	bool found = false;
 	struct room_data *org_room;
-	struct Creature *vict;
+	struct creature *vict;
 	struct follow_type *k = NULL;
 
     name = tmp_getword(&argument);
@@ -1287,7 +1287,7 @@ ACMD(do_order)
 ACMD(do_flee)
 {
 	int i, attempt, loss = 0;
-	struct Creature *fighting = ch->findRandomCombat();
+	struct creature *fighting = ch->findRandomCombat();
 
 	ACMD_set_return_flags(0);
 
@@ -1330,7 +1330,7 @@ ACMD(do_flee)
 					continue;
 			}
 
-            CreatureList_iterator ci;
+            struct creatureList_iterator ci;
             ci = ch->in_room->people.begin();
             for (; ci != ch->in_room->people.end(); ++ci) {
                 if ((*ci)->findCombat(ch))
@@ -1366,7 +1366,7 @@ ACMD(do_flee)
 }
 
 static inline int
-FLEE_SPEED(Creature * ch)
+FLEE_SPEED(struct creature * ch)
 {
 	int speed = GET_DEX(ch);
 	if (AFF2_FLAGGED(ch, AFF2_HASTE))
@@ -1413,9 +1413,9 @@ ACMD(do_retreat)
 		}
 	}
 	room_data *room = ch->in_room;
-	CreatureList_iterator it = room->people.begin();
+	struct creatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
-		Creature *vict = *it;
+		struct creature *vict = *it;
 		if (vict != ch && ch->findCombat(vict) &&
 			can_see_creature(vict, ch) &&
 			((IS_NPC(vict) && GET_MOB_WAIT(vict) < 10) ||
@@ -1462,7 +1462,7 @@ ACMD(do_retreat)
 
 ACMD(do_bash)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict;
 	int percent, prob, door;
 	struct room_data *room = NULL;
@@ -1622,7 +1622,7 @@ ACMD(do_bash)
 
 ACMD(do_stun)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int percent, prob, wait;
     char *arg;
 
@@ -1738,7 +1738,7 @@ ACMD(do_stun)
 ACMD(do_feign)
 {
 	int percent, prob;
-	struct Creature *foe = NULL;
+	struct creature *foe = NULL;
 
 	percent = number(1, 101);	/* 101% is a complete failure */
 	prob = CHECK_SKILL(ch, SKILL_FEIGN);
@@ -1762,7 +1762,7 @@ ACMD(do_feign)
 
 ACMD(do_tag)
 {
-	struct Creature *vict = NULL, *tmp_ch = NULL;
+	struct creature *vict = NULL, *tmp_ch = NULL;
 	int percent, prob;
     char *arg;
 
@@ -1833,7 +1833,7 @@ ACMD(do_tag)
 
 ACMD(do_rescue)
 {
-	struct Creature *vict = NULL, *tmp_ch;
+	struct creature *vict = NULL, *tmp_ch;
 	int percent, prob;
     char *arg;
 
@@ -1895,7 +1895,7 @@ ACMD(do_rescue)
 
 ACMD(do_tornado_kick)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob, dam;
 	bool dead = 0;
@@ -1983,7 +1983,7 @@ ACMD(do_tornado_kick)
 
 ACMD(do_sleeper)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob;
     char *arg;
@@ -2099,7 +2099,7 @@ ACMD(do_sleeper)
 
 ACMD(do_turn)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob;
     char *arg;
@@ -2182,8 +2182,8 @@ ACMD(do_turn)
 }
 
 void
-shoot_energy_gun(Creature *ch,
-                 Creature *vict,
+shoot_energy_gun(struct creature *ch,
+                 struct creature *vict,
                  obj_data *target,
                  obj_data *gun,
                  int *return_flags)
@@ -2229,7 +2229,7 @@ shoot_energy_gun(Creature *ch,
     }
 
     prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
-    CreatureList_iterator it = ch->in_room->people.begin();
+    struct creatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it)
         if (*it != ch && (*it)->findCombat(ch))
             prob -= (GET_LEVEL(*it) >> 3);
@@ -2246,7 +2246,7 @@ shoot_energy_gun(Creature *ch,
             }
         }
     } else if (number(1, 81) > prob) {
-        CreatureList_iterator it = ch->in_room->people.begin();
+        struct creatureList_iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if ((*it) != ch && (*it) != vict && !number(0, 2)) {
                 vict = (*it);
@@ -2316,8 +2316,8 @@ bullet_damage(obj_data *gun, obj_data *bullet)
 }
 
 void
-fire_projectile_round(Creature *ch,
-                      Creature *vict,
+fire_projectile_round(struct creature *ch,
+                      struct creature *vict,
                       obj_data *gun,
                       obj_data *bullet,
                       int bullet_num,
@@ -2401,7 +2401,7 @@ fire_projectile_round(Creature *ch,
 }
 
 void
-projectile_blast_corpse(Creature *ch, obj_data *gun, obj_data *bullet)
+projectile_blast_corpse(struct creature *ch, obj_data *gun, obj_data *bullet)
 {
     //
     // vict is dead, blast the corpse
@@ -2433,13 +2433,13 @@ projectile_blast_corpse(Creature *ch, obj_data *gun, obj_data *bullet)
 }
 
 void
-shoot_projectile_gun(Creature *ch,
-                     Creature *vict,
+shoot_projectile_gun(struct creature *ch,
+                     struct creature *vict,
                      obj_data *target,
                      obj_data *gun,
                      int *return_flags)
 {
-	struct Creature *tmp_vict = NULL;
+	struct creature *tmp_vict = NULL;
 	struct obj_data *bullet = NULL;
 	sh_int prob, dam;
 	int my_return_flags = 0;
@@ -2497,7 +2497,7 @@ shoot_projectile_gun(Creature *ch,
         prob += number(GET_LEVEL(ch) >> 2,
                        GET_LEVEL(ch) >> 1) + (GET_REMORT_GEN(ch) << 2);
 
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch && (*it)->findCombat(ch))
 			prob -= (GET_LEVEL((*it)) >> 3);
@@ -2509,7 +2509,7 @@ shoot_projectile_gun(Creature *ch,
 	if (vict->isFighting() && !vict->findCombat(ch) && number(1, 121) > prob)
 		vict = vict->findRandomCombat();
 	else if (vict->isFighting() && number(1, 101) > prob) {
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
 				!number(0, 2)) {
@@ -2518,7 +2518,7 @@ shoot_projectile_gun(Creature *ch,
 			}
 		}
 	} else if (number(1, 81) > prob) {
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
 				!number(0, 2)) {
@@ -2559,7 +2559,7 @@ shoot_projectile_gun(Creature *ch,
 
 ACMD(do_shoot)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *gun = NULL, *target = NULL, *bullet = NULL;
 	int i;
     char *arg;
@@ -2657,14 +2657,14 @@ ACMD(do_shoot)
 
 ACMD(do_ceasefire)
 {
-    Creature *f = NULL;
+    struct creature *f = NULL;
 
     if (!ch->isFighting()) {
 		send_to_char(ch, "But you aren't fighting anyone.\r\n");
         return;
     }
 
-    CreatureList_iterator it = ch->in_room->people.begin();
+    struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
         // Nasty hack because SafeList won't let me use front()...
         CombatDataList *combatList = (*it)->getCombatList();
@@ -2703,7 +2703,7 @@ ACMD(do_ceasefire)
 
 ACCMD(do_disarm)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *weap = NULL, *weap2 = NULL;
 	int percent, prob;
     char *arg;
@@ -2795,7 +2795,7 @@ ACCMD(do_disarm)
 
 ACMD(do_impale)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL;
 	int percent, prob, dam;
     char *arg;
@@ -2880,7 +2880,7 @@ ACMD(do_impale)
 
 ACMD(do_intimidate)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	struct affected_type af;
 	int prob = 0;
@@ -2975,7 +2975,7 @@ ACMD(do_intimidate)
 ACMD(do_beguile)
 {
 
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	skip_spaces(&argument);
 
 	if (!(vict = get_char_room_vis(ch, argument))) {
@@ -3021,9 +3021,9 @@ ACMD(do_beguile)
 //This function assumes that ch is a merc.  It provides for  mercs
 //shooting wielded guns in combat instead of bludgeoning with them
 
-struct Creature *randomize_target(struct Creature *ch, struct Creature *vict, short prob)
+struct creature *randomize_target(struct creature *ch, struct creature *vict, short prob)
 {
-    CreatureList_iterator it;
+    struct creatureList_iterator it;
 
     it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
@@ -3062,7 +3062,7 @@ struct Creature *randomize_target(struct Creature *ch, struct Creature *vict, sh
 }
 
 int
-do_combat_fire(struct Creature *ch, struct Creature *vict)
+do_combat_fire(struct creature *ch, struct creature *vict)
 {
 	struct obj_data *bullet = NULL, *gun = NULL;
 	sh_int prob, dam, cost;

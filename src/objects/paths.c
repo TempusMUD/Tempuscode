@@ -83,7 +83,7 @@ Link *path_command_list = NULL;
 int path_command_length = 0;
 int path_locked = 1;
 
-int move_car(struct Creature *ch, struct obj_data *car, int dir);
+int move_car(struct creature *ch, struct obj_data *car, int dir);
 
 inline void
 PATH_MOVE(PObject *o)
@@ -160,7 +160,7 @@ path_name_by_vnum(int vnum)
 }
 
 void
-show_pathobjs(struct Creature *ch)
+show_pathobjs(struct creature *ch)
 {
 
 	Link *lnk = NULL;
@@ -173,8 +173,8 @@ show_pathobjs(struct Creature *ch)
 		if (p_obj->type == PMOBILE && p_obj->object)
 			sprintf(buf, "%s%3d. MOB <%5d> %25s - %12s (%2d) %s\r\n", buf,
 				count,
-				((struct Creature *)p_obj->object)->mob_specials.shared->vnum,
-				((struct Creature *)p_obj->object)->player.short_descr,
+				((struct creature *)p_obj->object)->mob_specials.shared->vnum,
+				((struct creature *)p_obj->object)->player.short_descr,
 				p_obj->phead->name, p_obj->pos,
 				IS_SET(p_obj->flags, POBJECT_STALLED) ? "stalled" : "");
 		else if (p_obj->type == PVEHICLE && p_obj->object)
@@ -251,7 +251,7 @@ print_path(PHead * phead, char *str)
 }
 
 void
-show_path(struct Creature *ch, char *arg)
+show_path(struct creature *ch, char *arg)
 {
 	PHead *path_head = NULL;
 	int i = 0;
@@ -632,7 +632,7 @@ path_activity(void)
 	Link *i, *cmd, *next_i;
 	int length, dir, j, k;
 	struct room_data *room;
-	struct Creature *ch;
+	struct creature *ch;
 	struct obj_data *obj;
 
 	if (path_locked)
@@ -654,7 +654,7 @@ path_activity(void)
 			continue;
 		}
 
-		if (o->type == PMOBILE && (ch = (Creature *) o->object) &&
+		if (o->type == PMOBILE && (ch = (struct creature *) o->object) &&
 			((ch->isFighting() || GET_MOB_WAIT(ch) > 0)))
 			continue;
 
@@ -665,7 +665,7 @@ path_activity(void)
 
 			room = real_room(o->phead->path[o->pos].data);
 			if ((o->type == PMOBILE) && room) {
-				ch = (Creature *) o->object;
+				ch = (struct creature *) o->object;
 				if ((room == ch->in_room) && (o->phead->length != 1)) {
 					PATH_MOVE(o);
 					break;
@@ -694,7 +694,7 @@ path_activity(void)
 
 			dir = o->phead->path[o->pos].data;
 			if (o->type == PMOBILE) {
-				ch = (struct Creature *)o->object;
+				ch = (struct creature *)o->object;
 
 				if (ch->getPosition() < POS_STANDING)
 					ch->setPosition(POS_STANDING);
@@ -712,7 +712,7 @@ path_activity(void)
 		case PATH_CMD:
 
 			if (o->type == PMOBILE) {
-				ch = (struct Creature *)o->object;
+				ch = (struct creature *)o->object;
 				cmd = path_command_list;
 				j = o->phead->path[o->pos].data;
 				for (k = 1; k != j; k++)
@@ -777,7 +777,7 @@ path_remove_object(void *object)
 }
 
 int
-add_path_to_mob(struct Creature *mob, int vnum)
+add_path_to_mob(struct creature *mob, int vnum)
 {
 	PHead *phead;
 	Link *i;

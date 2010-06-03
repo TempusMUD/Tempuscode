@@ -66,17 +66,17 @@ extern const char *language_names[];
 
 // external functions
 ACMD(do_hcollect_help);
-void do_start(struct Creature * ch, int mode);
-void show_mud_date_to_char(struct Creature *ch);
+void do_start(struct creature * ch, int mode);
+void show_mud_date_to_char(struct creature *ch);
 void handle_network(struct descriptor_data *d,char *arg);
-int general_search(struct Creature *ch, struct special_search_data *srch, int mode);
-void roll_real_abils(struct Creature * ch);
-void print_attributes_to_buf(struct Creature *ch, char *buff);
+int general_search(struct creature *ch, struct special_search_data *srch, int mode);
+void roll_real_abils(struct creature * ch);
+void print_attributes_to_buf(struct creature *ch, char *buff);
 void show_character_detail(descriptor_data *d);
-void push_command_onto_list(Creature *ch, char *comm);
+void push_command_onto_list(struct creature *ch, char *comm);
 void flush_q(struct txt_q *queue);
 int _parse_name(char *arg, char *name);
-char *diag_conditions(struct Creature *ch);
+char *diag_conditions(struct creature *ch);
 int perform_alias(struct descriptor_data *d, char *orig);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
 int parse_player_class(char *arg);
@@ -88,7 +88,7 @@ void echo_on(struct descriptor_data * d);
 void echo_off(struct descriptor_data * d);
 void char_to_game(descriptor_data *d);
 
-void notify_cleric_moon(struct Creature *ch);
+void notify_cleric_moon(struct creature *ch);
 void send_menu(descriptor_data *d);
 
 int check_newbie_ban(struct descriptor_data *desc);
@@ -142,7 +142,7 @@ handle_input(struct descriptor_data *d)
 			break;
 		}
 		if (strcasecmp(arg, "new")) {
-			d->account = Account_retrieve(arg);
+			d->account = struct account_retrieve(arg);
 			if (d->account) {
                 if (!production_mode) {
                     d->account->login(d);
@@ -184,7 +184,7 @@ handle_input(struct descriptor_data *d)
 		break;
 	case CXN_ACCOUNT_PROMPT:
 		if (is_valid_name(arg)) {
-			d->account = Account_retrieve(arg);
+			d->account = struct account_retrieve(arg);
 
 			if (!d->account) {
 				set_desc_state(CXN_ACCOUNT_VERIFY, d);
@@ -200,7 +200,7 @@ handle_input(struct descriptor_data *d)
 	case CXN_ACCOUNT_VERIFY:
 		switch (tolower(arg[0])) {
 		case 'y':
-    		d->account = Account_create(d->mode_data, d);
+    		d->account = struct account_create(d->mode_data, d);
 			set_desc_state(CXN_ANSI_PROMPT, d);
 			break;
 		case 'n':
@@ -282,7 +282,7 @@ handle_input(struct descriptor_data *d)
 				set_desc_state(CXN_DELETE_PROMPT, d);
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
-				d->creature = new Creature(true);
+				d->creature = new struct creature(true);
 				d->creature->desc = d;
 				if (d->creature->loadFromXML(char_id)) {
 					set_desc_state(CXN_DELETE_PW, d);
@@ -300,7 +300,7 @@ handle_input(struct descriptor_data *d)
 				set_desc_state(CXN_EDIT_PROMPT, d);
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
-				d->creature = new Creature(true);
+				d->creature = new struct creature(true);
 				d->creature->desc = d;
 				if (d->creature->loadFromXML(char_id)) {
 					set_desc_state(CXN_EDIT_DESC, d);
@@ -318,7 +318,7 @@ handle_input(struct descriptor_data *d)
 				set_desc_state(CXN_DETAILS_PROMPT, d);
 			} else if (!d->account->invalid_char_index(1)) {
 				char_id = d->account->get_char_by_index(1);
-				d->creature = new Creature(true);
+				d->creature = new struct creature(true);
 				d->creature->desc = d;
 				if (d->creature->loadFromXML(char_id)) {
 					d->creature->desc = d;
@@ -388,7 +388,7 @@ handle_input(struct descriptor_data *d)
 				return;
 			}
 
-			d->creature = new Creature(true);
+			d->creature = new struct creature(true);
 			d->creature->desc = d;
 			d->creature->account = d->account;
 
@@ -418,7 +418,7 @@ handle_input(struct descriptor_data *d)
 			}
 
             if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR && GET_LEVEL(d->creature) < LVL_POWER) {
-                Creature *tmp_ch = new Creature(true);
+                struct creature *tmp_ch = new struct creature(true);
                 for (int idx=1; !d->account->invalid_char_index(idx); idx++) {
                     tmp_ch->clear();
                     tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
@@ -653,7 +653,7 @@ handle_input(struct descriptor_data *d)
 		char_id = d->account->get_char_by_index(atoi(arg));
 		d->creature = get_char_in_world_by_idnum(char_id);
 		if (!d->creature) {
-			d->creature = new Creature(true);
+			d->creature = new struct creature(true);
 			if (!d->creature->loadFromXML(char_id)) {
 				send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
 				set_desc_state(CXN_WAIT_MENU, d);
@@ -671,7 +671,7 @@ handle_input(struct descriptor_data *d)
 		}
 
 		char_id = d->account->get_char_by_index(atoi(arg));
-		d->creature = new Creature(true);
+		d->creature = new struct creature(true);
 		d->creature->desc = d;
 		if (!d->creature->loadFromXML(char_id)) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
@@ -779,7 +779,7 @@ handle_input(struct descriptor_data *d)
 		}
 
 		char_id = d->account->get_char_by_index(atoi(arg));
-		d->creature = new Creature(true);
+		d->creature = new struct creature(true);
 		d->creature->desc = d;
 		if (!d->creature->loadFromXML(char_id)) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
@@ -1020,7 +1020,7 @@ send_menu(descriptor_data *d)
 {
     extern HelpCollection *Help;
     HelpItem *policy;
-	Creature *tmp_ch;
+	struct creature *tmp_ch;
 	int idx;
 
 	switch (d->input_mode) {
@@ -1232,7 +1232,7 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&r\r\n                                DELETE CHARACTER\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
-		tmp_ch = new Creature(true);
+		tmp_ch = new struct creature(true);
 		while (!d->account->invalid_char_index(idx)) {
 			tmp_ch->clear();
 			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
@@ -1252,7 +1252,7 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&c\r\n                         EDIT CHARACTER DESCRIPTION\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
-		tmp_ch = new Creature(true);
+		tmp_ch = new struct creature(true);
 		while (!d->account->invalid_char_index(idx)) {
 			tmp_ch->clear();
 			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
@@ -1272,7 +1272,7 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
-		tmp_ch = new Creature(true);
+		tmp_ch = new struct creature(true);
 		while (!d->account->invalid_char_index(idx)) {
 			tmp_ch->clear();
 			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
@@ -1415,7 +1415,7 @@ echo_on(struct descriptor_data *d)
 
 /* clear some of the the working variables of a char */
 void
-reset_char(struct Creature *ch)
+reset_char(struct creature *ch)
 {
 	int i;
 
@@ -1657,7 +1657,7 @@ char_to_game(descriptor_data *d)
 	check_dyntext_updates(d->creature, CHECKDYN_UNRENT);
 
 	// Check for house reposessions
-	House *house = Housing.findHouseByOwner( d->creature->getAccountID() );
+	House *house = Housing.findHouseByOwner( d->creature->getstruct accountID() );
 	if( house != NULL && house->getRepoNoteCount() > 0 )
 		house->notifyReposession( d->creature );
 
@@ -1688,7 +1688,7 @@ char_to_game(descriptor_data *d)
 void
 show_character_detail(descriptor_data *d)
 {
-	Creature *ch = d->creature;
+	struct creature *ch = d->creature;
 	struct time_info_data playing_time;
 	struct time_info_data real_time_passed(time_t t2, time_t t1);
 	char *str;
@@ -1739,12 +1739,12 @@ show_character_detail(descriptor_data *d)
 }
 
 void
-show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
+show_account_chars(descriptor_data *d, struct account *acct, bool immort, bool brief)
 {
 	const char *class_str, *status_str, *mail_str;
 	const char *sex_color = "";
 	char *sex_str, *name_str;
-	Creature *tmp_ch, *real_ch;
+	struct creature *tmp_ch, *real_ch;
 	char laston_str[40];
 	int idx;
 
@@ -1761,7 +1761,7 @@ show_account_chars(descriptor_data *d, Account *acct, bool immort, bool brief)
 	}
 
 	idx = 1;
-	tmp_ch = new Creature(true);
+	tmp_ch = new struct creature(true);
 	while (!acct->invalid_char_index(idx)) {
 
 		tmp_ch->clear();
@@ -1917,7 +1917,7 @@ int check_newbie_ban(struct descriptor_data *desc)
                            "your IP.  We apologize for the inconvenience,\r\n\tand "
                            "we hope to see you soon!");
         mlog(Security_ADMINBASIC, LVL_GOD, CMP, true,
-             "Account creation denied from [%s]", desc->host);
+             "struct account creation denied from [%s]", desc->host);
         return BAN_NEW;
     }
 

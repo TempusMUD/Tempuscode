@@ -9,12 +9,12 @@ const int IMP_BUYER_BROKE  = (1 << 2);
 const int IMP_DELIVER_ITEM = (1 << 3);
 const int IMP_DELIVER_CASH = (1 << 4);
 
-bool imp_take_payment(Creature *seeking, imp_data *data);
+bool imp_take_payment(struct creature *seeking, imp_data *data);
 
 SPECIAL(courier_imp)
 {
-    Creature *self = (Creature *)me;
-    Creature *seeking;
+    struct creature *self = (struct creature *)me;
+    struct creature *seeking;
     imp_data *data = (imp_data *)self->mob_specials.func_data;
 
 	if (spec_mode != SPECIAL_TICK)
@@ -40,7 +40,7 @@ SPECIAL(courier_imp)
 
         act("$n looks around frantically and frowns.", false,
             self, 0, 0, TO_NOTVICT);
-        seeking = new Creature(true);
+        seeking = new struct creature(true);
         if (!seeking->loadFromXML(data->buyer_id)) {
             // WTF?
             slog("IMP:  Failed to load character [%ld] from file.",
@@ -50,7 +50,7 @@ SPECIAL(courier_imp)
             return 1;
         }
 
-        seeking->account = Account_retrieve(seeking);
+        seeking->account = struct account_retrieve(seeking);
         if (!seeking->account) {
             // WTF?
             slog("IMP:  Failed to load character account [%ld] from file.",
@@ -249,7 +249,7 @@ SPECIAL(courier_imp)
     return 1;
 }
 
-bool imp_take_payment(Creature *seeking,  imp_data *data)
+bool imp_take_payment(struct creature *seeking,  imp_data *data)
 {
     if (GET_GOLD(seeking) >= data->owed) {
         GET_GOLD(data->imp) = data->owed;

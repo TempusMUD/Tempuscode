@@ -23,12 +23,12 @@ ASPELL(spell_time_warp);
 ASPELL(spell_area_stasis);
 
 // giving money
-void transfer_money(Creature *from, Creature *to, money_t amt, int currency, bool plant);
-void perform_give_credits(Creature *ch, Creature *vict, int amount);
-void perform_tell(struct Creature *ch, struct Creature *vict, const char *arg);
-void perform_say(Creature *ch, const char *saystr, const char *message);
-void perform_say_to(Creature *ch, Creature *target, const char *message);
-void perform_say_to_obj(Creature *ch, obj_data *obj, const char *message);
+void transfer_money(struct creature *from, struct creature *to, money_t amt, int currency, bool plant);
+void perform_give_credits(struct creature *ch, struct creature *vict, int amount);
+void perform_tell(struct creature *ch, struct creature *vict, const char *arg);
+void perform_say(struct creature *ch, const char *saystr, const char *message);
+void perform_say_to(struct creature *ch, struct creature *target, const char *message);
+void perform_say_to_obj(struct creature *ch, obj_data *obj, const char *message);
 
 // Sneaking
 const int SNEAK_OK = 0;
@@ -36,18 +36,18 @@ const int SNEAK_SENSED = 1;
 const int SNEAK_HEARD = 2;
 const int SNEAK_FAILED = 3;
 
-int check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs);
+int check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msgs);
 
 #define TIMEWARP_FILE "etc/timewarps"
 
-int perform_barb_berserk(struct Creature *ch,
-	struct Creature **who_was_attacked,
+int perform_barb_berserk(struct creature *ch,
+	struct creature **who_was_attacked,
 	int *return_flags);
 
-int max_component_dam(struct Creature *ch);
-int room_count(struct Creature *ch, struct room_data *room);
+int max_component_dam(struct creature *ch);
+int room_count(struct creature *ch, struct room_data *room);
 int redundant_skillchip(struct obj_data *chip, struct obj_data *slot);
-void engage_self_destruct(struct Creature *ch);
+void engage_self_destruct(struct creature *ch);
 
 #define NUM_COMPS               9	/* Number of borg components */
 
@@ -108,18 +108,18 @@ extern const char *interface_types[];
 extern const char *borg_subchar_class_names[];
 extern const char *component_names[][3];
 
-void perform_monk_meditate(struct Creature *ch);
+void perform_monk_meditate(struct creature *ch);
 
-void add_rad_sickness(Creature *ch, int level);
+void add_rad_sickness(struct creature *ch, int level);
 int boot_timewarp_data(void);
-void show_timewarps(Creature *ch);
+void show_timewarps(struct creature *ch);
 
 typedef struct timewarp_data {
 	int from;
 	int to;
 } timewarp_data;
 
-int mob_fight_psionic(struct Creature *ch, struct Creature *precious_vict);
-void perform_goto(Creature *ch, room_data *room, bool allow_follow);
+int mob_fight_psionic(struct creature *ch, struct creature *precious_vict);
+void perform_goto(struct creature *ch, room_data *room, bool allow_follow);
 
 #endif

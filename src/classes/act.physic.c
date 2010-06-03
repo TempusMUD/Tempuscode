@@ -182,10 +182,10 @@
 static timewarp_data *timewarp_list = NULL;
 static int num_timewarp_data = 0;
 
-Creature *
-check_char_room_vis(Creature *ch, char *argument)
+struct creature *
+check_char_room_vis(struct creature *ch, char *argument)
 {
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	if (!(vict = get_char_room_vis(ch, argument))) {
 		send_to_char(ch, "There's no one named '%s' here.\r\n", argument);
@@ -220,7 +220,7 @@ const char *lecture_topics[NUM_TOPICS] = {
 
 ACMD(do_lecture)
 {
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int prob, index, wait, percent;
 
 	skip_spaces(&argument);
@@ -323,7 +323,7 @@ ACMD(do_lecture)
 
 ACMD(do_evaluate)
 {
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int delta, cost;
 
 	if (CHECK_SKILL(ch, SKILL_EVALUATE) < 30) {
@@ -362,7 +362,7 @@ ACMD(do_evaluate)
 }
 
 void
-add_rad_sickness(Creature *ch, int level)
+add_rad_sickness(struct creature *ch, int level)
 {
 
 	struct affected_type *af = NULL, newaff;
@@ -413,7 +413,7 @@ ASPELL(spell_nuclear_wasteland)
 }
 
 void
-push_imprint(Creature *ch, int max)
+push_imprint(struct creature *ch, int max)
 {
 
 	int tmp[MAX_IMPRINT_ROOMS];
@@ -432,7 +432,7 @@ push_imprint(Creature *ch, int max)
 }
 
 int
-pop_imprint(Creature *ch)
+pop_imprint(struct creature *ch)
 {
 	int i = 0;
 	int ret = -1;
@@ -498,7 +498,7 @@ ASPELL(spell_quantum_rift)
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM
 			&& GET_OBJ_VAL(o, 2) == GET_IDNUM(ch)
 			&& !o->in_room->people.empty()) {
-			Creature *occupant = o->in_room->people;
+			struct creature *occupant = o->in_room->people;
 			act("$p collapses in on itself.", true, occupant, o, 0, TO_CHAR);
 			act("$p collapses in on itself.", true, occupant, o, 0, TO_ROOM);
 			extract_obj(o);
@@ -605,7 +605,7 @@ boot_timewarp_data(void)
 }
 
 void
-show_timewarps(Creature *ch)
+show_timewarps(struct creature *ch)
 {
     acc_string_clear();
     acc_strcat("Timewarp data:\r\n", NULL);
@@ -647,7 +647,7 @@ timewarp_target(struct zone_data *zSrc)
 }
 
 int
-room_tele_ok(Creature *ch, struct room_data *room)
+room_tele_ok(struct creature *ch, struct room_data *room)
 {
 
 	if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL))
@@ -669,7 +669,7 @@ room_tele_ok(Creature *ch, struct room_data *room)
 }
 
 struct room_data *
-random_room(Creature *ch, struct zone_data *zone)
+random_room(struct creature *ch, struct zone_data *zone)
 {
 
 	struct room_data *room;
@@ -692,7 +692,7 @@ random_room(Creature *ch, struct zone_data *zone)
 
 // tmode == true, choose other time frame
 int
-zone_tele_ok(Creature *ch, struct zone_data *zone, int tmode)
+zone_tele_ok(struct creature *ch, struct zone_data *zone, int tmode)
 {
 
 	if (!IS_APPR(ch->in_room->zone) || !IS_APPR(zone))
@@ -717,7 +717,7 @@ zone_tele_ok(Creature *ch, struct zone_data *zone, int tmode)
 
 // choose a random teleportable zone.  mode == true means only choose other times (timewarp)
 struct zone_data *
-random_zone(Creature *ch, int mode)
+random_zone(struct creature *ch, int mode)
 {
 	struct zone_data *zone = NULL;
 	int num_zones = 0;
@@ -962,7 +962,7 @@ do_deactivate_device(obj_data * obj)
 }
 
 void
-do_emp_pulse_olist(obj_data * list, Creature * ch = NULL, Creature * vict =
+do_emp_pulse_olist(obj_data * list, struct creature * ch = NULL, struct creature * vict =
 	NULL)
 {
 	obj_data *o;
@@ -981,7 +981,7 @@ do_emp_pulse_olist(obj_data * list, Creature * ch = NULL, Creature * vict =
 	}
 }
 void
-do_emp_pulse_eq(obj_data * list[], Creature * ch = NULL, Creature * vict =
+do_emp_pulse_eq(obj_data * list[], struct creature * ch = NULL, struct creature * vict =
 	NULL, int internal = 0)
 {
 	for (int i = 0; i < NUM_WEAR_FLAGS; i++) {
@@ -997,7 +997,7 @@ do_emp_pulse_eq(obj_data * list[], Creature * ch = NULL, Creature * vict =
 	}
 }
 void
-do_emp_pulse_char(Creature * ch, Creature * vict)
+do_emp_pulse_char(struct creature * ch, struct creature * vict)
 {
 	affected_type *af = NULL;
 	int removed = 0;
@@ -1043,7 +1043,7 @@ ASPELL(spell_emp_pulse)
 		return;
 	}
 	// Make sure non-pkillers don't get killer flags.
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch) {
 			if (!ch->isOkToAttack((*it), true))

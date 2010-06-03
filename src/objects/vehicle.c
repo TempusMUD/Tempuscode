@@ -36,8 +36,8 @@ extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern struct time_info_data time_info;
 extern struct obj_data *object_list;
-extern int *has_key(struct Creature *ch, int key);
-void show_obj_to_char(struct obj_data *obj, struct Creature *ch, int mode);
+extern int *has_key(struct creature *ch, int key);
+void show_obj_to_char(struct obj_data *obj, struct creature *ch, int mode);
 
 struct obj_data *cur_car = NULL;
 
@@ -68,7 +68,7 @@ const char *car_flags[] = {
 ACMD(do_exits);
 
 int
-has_car_key(struct Creature *ch, room_num car_room)
+has_car_key(struct creature *ch, room_num car_room)
 {
 	struct obj_data *key = NULL;
 
@@ -87,8 +87,8 @@ has_car_key(struct Creature *ch, room_num car_room)
 }
 
 void
-display_status(struct Creature *ch, struct obj_data *car,
-	struct Creature *driver, struct obj_data *engine)
+display_status(struct creature *ch, struct obj_data *car,
+	struct creature *driver, struct obj_data *engine)
 {
 	if (!ch || !engine || !car)
 		return;
@@ -135,7 +135,7 @@ display_status(struct Creature *ch, struct obj_data *car,
 }
 
 void
-start_engine(struct Creature *ch, struct obj_data *car,
+start_engine(struct creature *ch, struct obj_data *car,
 	struct obj_data *engine, struct obj_data *console)
 {
 
@@ -190,7 +190,7 @@ start_engine(struct Creature *ch, struct obj_data *car,
 }
 
 int
-move_car(struct Creature *ch, struct obj_data *car, int dir)
+move_car(struct creature *ch, struct obj_data *car, int dir)
 {
 	int energy_cost = 0;
 	struct room_data *dest = NULL, *other_rm = NULL;
@@ -278,7 +278,7 @@ move_car(struct Creature *ch, struct obj_data *car, int dir)
 		else
 			send_to_room("You see as you drive up: \r\n", ch->in_room);
 
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it)
 			if (AWAKE((*it)))
 				look_at_room((*it), car->in_room, 0);
@@ -562,7 +562,7 @@ SPECIAL(vehicle_console)
 
 	struct obj_data *console = (struct obj_data *)me;
 	struct obj_data *vehicle = NULL, *engine = NULL;
-	struct Creature *driver = NULL;
+	struct creature *driver = NULL;
 	int dir;
 
 	if (!CMD_IS("drive") && !CMD_IS("fly") && !CMD_IS("status") &&
@@ -591,7 +591,7 @@ SPECIAL(vehicle_console)
 				"You have to put the console IN the vehicle to use it.\r\n");
 			return 1;
 		}
-		CreatureList_iterator it = console->in_room->people.begin();
+		struct creatureList_iterator it = console->in_room->people.begin();
 		for (; it != console->in_room->people.end(); ++it) {
 			driver = *it;
 			if ((V_CONSOLE_IDNUM(console) > 0 &&

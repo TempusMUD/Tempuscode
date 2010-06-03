@@ -47,7 +47,7 @@
 /* Externals */
 extern struct room_data *world;
 
-int has_key(struct Creature *ch, obj_num key);
+int has_key(struct creature *ch, obj_num key);
 
 ACMD(do_gen_comm);
 ACMD(do_gen_door);
@@ -234,7 +234,7 @@ find_distance(struct room_data *start, struct room_data *dest)
 *  Functions and Commands which use the above fns		        *
 ************************************************************************/
 void
-show_trails_to_char(Creature *ch, char *str)
+show_trails_to_char(struct creature *ch, char *str)
 {
 	room_trail_data *trail;
 	bool found = false;
@@ -327,7 +327,7 @@ show_trails_to_char(Creature *ch, char *str)
 
 ACMD(do_track)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	int dir;
 	bool spirit = affected_by_spell(ch, SPELL_SPIRIT_TRACK);
 
@@ -412,7 +412,7 @@ ACMD(do_track)
 ACMD(do_psilocate)
 {
 
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int dist, dir;
 	byte error;
 
@@ -523,7 +523,7 @@ ACMD(do_psilocate)
 //
 
 int
-smart_mobile_move(struct Creature *ch, int dir)
+smart_mobile_move(struct creature *ch, int dir)
 {
 
 	char doorbuf[128];
@@ -597,7 +597,7 @@ smart_mobile_move(struct Creature *ch, int dir)
 //
 
 void
-hunt_victim(struct Creature *ch)
+hunt_victim(struct creature *ch)
 {
 	struct affected_type *af_ptr = NULL;
 	int dir;
@@ -612,7 +612,7 @@ hunt_victim(struct Creature *ch)
 	}
 
 	/* make sure the char still exists */
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (found = 0; cit != characterList.end() && !found; ++cit) {
 		if (ch->isHunting() == (*cit))
 			found = 1;

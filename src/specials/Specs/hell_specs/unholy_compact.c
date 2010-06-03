@@ -7,7 +7,7 @@
 #define LVL_CAN_SELL_SOUL 20	/* <-----Set desired level here */
 SPECIAL(unholy_compact)
 {
-	struct Creature *dude = (struct Creature *)me;
+	struct creature *dude = (struct creature *)me;
 	int gold, life_cost;
 	int con_cost = 5;
 	char buf[MAX_STRING_LENGTH];

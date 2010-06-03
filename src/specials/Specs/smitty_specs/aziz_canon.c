@@ -6,14 +6,14 @@
 
 SPECIAL(aziz_canon)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	if (cmd)
 		return 0;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!ch->isFighting() && ch->getPosition() != POS_FIGHTING) {
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			vict = *it;
 			if (!number(0, 2))

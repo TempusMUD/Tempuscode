@@ -7,7 +7,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-void show_gun_status(struct Creature *ch, struct obj_data *gun);
+void show_gun_status(struct creature *ch, struct obj_data *gun);
 
 	 /*** energy gun utils ***/
 #define IS_ENERGY_GUN(obj)      (GET_OBJ_TYPE(obj) == ITEM_ENERGY_GUN)

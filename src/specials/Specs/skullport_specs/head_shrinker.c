@@ -11,7 +11,7 @@
 SPECIAL(head_shrinker)
 {
 	struct obj_data *corpse = NULL, *head = NULL;
-    struct Creature *shrinker = (struct Creature*)me;
+    struct creature *shrinker = (struct creature*)me;
 	char *s = NULL;
 	char arg[MAX_INPUT_LENGTH];
     int cost = SHRINKER_COST;

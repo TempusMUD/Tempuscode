@@ -59,9 +59,9 @@ extern int log_cmds;
 struct sort_struct *cmd_sort_info = NULL;
 int num_of_cmds = 0;
 
-int general_search(struct Creature *ch, struct special_search_data *srch,
+int general_search(struct creature *ch, struct special_search_data *srch,
 	int mode);
-long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+long special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
 
 /* writes a string to the command log */
 void
@@ -81,7 +81,7 @@ cmdlog(char *str)
 }
 
 void
-newbielog(Creature *ch, const char *cmd, const char *args)
+newbielog(struct creature *ch, const char *cmd, const char *args)
 {
 	static char *log;
 	static ofstream newbieLog("log/newbie.log", ios_app);
@@ -1645,7 +1645,7 @@ struct command_info cmd_info[] = {
 };								/* this must be last */
 
 void
-send_unknown_cmd(Creature *ch)
+send_unknown_cmd(struct creature *ch)
 {
 	switch (number(0, 11)) {
 	case 0:
@@ -1681,7 +1681,7 @@ send_unknown_cmd(Creature *ch)
  * then calls the appropriate function.
  */
 void
-command_interpreter(struct Creature *ch, const char *argument)
+command_interpreter(struct creature *ch, const char *argument)
 {
 	descriptor_data *d;
 	int cmd, length;
@@ -1847,7 +1847,7 @@ free_alias(struct alias_data *a)
 }
 
 void
-add_alias(struct Creature *ch, struct alias_data *a)
+add_alias(struct creature *ch, struct alias_data *a)
 {
 	struct alias_data *this_alias = GET_ALIASES(ch);
 
@@ -2310,7 +2310,7 @@ find_command(const char *command, bool abbrev)
 }
 
 long
-special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode)
+special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode)
 {
 	struct obj_data *i;
 	struct special_search_data *srch = NULL;
@@ -2398,9 +2398,9 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 
 	/* special in mobile present? */
 	room_data *theRoom = ch->in_room;
-	CreatureList_iterator it = theRoom->people.begin();
+	struct creatureList_iterator it = theRoom->people.begin();
 	for (; it != theRoom->people.end(); ++it) {
-        Creature *mob = *it;
+        struct creature *mob = *it;
 
 		if (GET_MOB_SPEC(mob) != NULL) {
 			specAddress = (long)GET_MOB_SPEC(mob);

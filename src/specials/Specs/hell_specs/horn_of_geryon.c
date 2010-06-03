@@ -7,7 +7,7 @@
 SPECIAL(horn_of_geryon)
 {
 	struct obj_data *horn = (struct obj_data *)me;
-	struct Creature *minotaur = NULL;
+	struct creature *minotaur = NULL;
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;

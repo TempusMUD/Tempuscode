@@ -21,7 +21,7 @@ enum cxn_state {
 	CXN_UNKNOWN = -1,
 	CXN_PLAYING,				// Playing - Nominal state
 	CXN_DISCONNECT,				// Disconnecting
-	// Account states
+	// struct account states
 	CXN_ACCOUNT_LOGIN,			// Initial login to account
 	CXN_ACCOUNT_PW,				// Password to account
 	CXN_ACCOUNT_PROMPT,			// Query for new account name
@@ -110,9 +110,9 @@ struct descriptor_data {
 	int idle;					// how long idle for
     int ban_dc_counter;         // countdown to disconnection due to ban
 	pthread_t resolver_thread;	// thread to resolve hostname
-	Account *account;
-	struct Creature *creature;	/* linked to char           */
-	struct Creature *original;	/* original char if switched        */
+	struct account *account;
+	struct creature *creature;	/* linked to char           */
+	struct creature *original;	/* original char if switched        */
 	struct descriptor_data *snooping;	/* Who is this char snooping   */
     vector<descriptor_data *>snoop_by;
 	struct descriptor_data *next;	/* link to next descriptor     */

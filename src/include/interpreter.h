@@ -19,20 +19,20 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 #define ACMD(name)  \
-   void (name)(__attribute__ ((unused)) struct Creature *ch, \
+   void (name)(__attribute__ ((unused)) struct creature *ch, \
    	__attribute__ ((unused)) char *argument, \
 	__attribute__ ((unused)) int cmd, \
 	__attribute__ ((unused)) int subcmd, \
 	__attribute__ ((unused)) int *return_flags)
 
 #define ACCMD(name)  \
-   void (name)(__attribute__ ((unused)) struct Creature *ch, \
+   void (name)(__attribute__ ((unused)) struct creature *ch, \
    __attribute__ ((unused)) char *argument, \
    __attribute__ ((unused)) int cmd, \
    __attribute__ ((unused)) int subcmd, \
    __attribute__ ((unused)) int *return_flags)
 
-void command_interpreter(struct Creature *ch, const char *argument);
+void command_interpreter(struct creature *ch, const char *argument);
 int search_block(const char *arg, const char **list, bool exact);
 char lower(char c);
 char *one_argument(char *argument, char *first_arg);
@@ -48,10 +48,10 @@ bool is_number(const char *str);
 int find_command(const char *command, bool abbrev = false);
 void skip_spaces(char **string);
 void skip_spaces(const char **string);
-void send_unknown_cmd(Creature *ch);
+void send_unknown_cmd(struct creature *ch);
 
 // from search.c
-int triggers_search(struct Creature *ch, int cmd, char *arg,
+int triggers_search(struct creature *ch, int cmd, char *arg,
 	struct special_search_data *srch);
 
 //

@@ -59,7 +59,7 @@ SPECIAL(portal_out)
 
 SPECIAL(arena_locker)
 {
-	struct Creature *atten = (struct Creature *)me;
+	struct creature *atten = (struct creature *)me;
 	struct obj_data *locker, *item, *tmp_item;
 	struct room_data *r_locker_room;
 

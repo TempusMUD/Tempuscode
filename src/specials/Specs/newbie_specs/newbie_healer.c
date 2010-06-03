@@ -7,7 +7,7 @@
 SPECIAL(newbie_healer)
 {
 	ACCMD(do_drop);
-	struct Creature *i;
+	struct creature *i;
 	struct obj_data *p;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
@@ -15,7 +15,7 @@ SPECIAL(newbie_healer)
 	if (cmd)
 		return 0;
 
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		i = *it;
 		if (i == ch)

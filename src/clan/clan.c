@@ -39,8 +39,8 @@ extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern struct room_data *world;
 extern struct spell_info_type spell_info[];
-int check_mob_reaction(struct Creature *ch, struct Creature *vict);
-char *save_wld(struct Creature *ch, zone_data *zone);
+int check_mob_reaction(struct creature *ch, struct creature *vict);
+char *save_wld(struct creature *ch, zone_data *zone);
 
 struct clan_data *clan_list;
 extern FILE *player_fl;
@@ -82,7 +82,7 @@ clan_rankname(clan_data *clan, int rank)
 }
 
 static bool
-char_can_enroll(Creature *ch, Creature *vict, clan_data *clan)
+char_can_enroll(struct creature *ch, struct creature *vict, clan_data *clan)
 {
     // Ensure data integrity between clan structures
     if (GET_CLAN(vict) && real_clan(GET_CLAN(vict))) {
@@ -138,7 +138,7 @@ char_can_enroll(Creature *ch, Creature *vict, clan_data *clan)
 }
 
 static bool
-char_can_dismiss(Creature *ch, Creature *vict, clan_data *clan)
+char_can_dismiss(struct creature *ch, struct creature *vict, clan_data *clan)
 {
     clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
     clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
@@ -170,7 +170,7 @@ char_can_dismiss(Creature *ch, Creature *vict, clan_data *clan)
 }
 
 static bool
-char_can_promote(Creature *ch, Creature *vict, clan_data *clan)
+char_can_promote(struct creature *ch, struct creature *vict, clan_data *clan)
 {
     clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
     clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
@@ -207,7 +207,7 @@ char_can_promote(Creature *ch, Creature *vict, clan_data *clan)
 
 ACMD(do_enroll)
 {
-	struct Creature *vict = 0;
+	struct creature *vict = 0;
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL;
 	char *msg, *member_str;
@@ -258,7 +258,7 @@ ACMD(do_enroll)
 
 ACMD(do_dismiss)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member = NULL;
 	bool in_file = false;
@@ -283,7 +283,7 @@ ACMD(do_dismiss)
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		vict = new Creature(true);
+		vict = new struct creature(true);
 		in_file = true;
 
 		if (!vict->loadFromXML(idnum)) {
@@ -368,7 +368,7 @@ ACMD(do_resign)
 ACMD(do_promote)
 {
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char *msg;
 
 	skip_spaces(&argument);
@@ -414,7 +414,7 @@ ACMD(do_demote)
 {
 	struct clan_data *clan = real_clan(GET_CLAN(ch));
 	struct clanmember_data *member1, *member2;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char *msg;
 
 	skip_spaces(&argument);
@@ -503,9 +503,9 @@ ACMD(do_clanmail)
 }
 
 static void
-acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev)
+acc_print_clan_members(struct creature *ch, clan_data *clan, bool complete, int min_lev)
 {
-	struct Creature *i;
+	struct creature *i;
 	struct clanmember_data *member = NULL;
 	struct descriptor_data *d;
 	char *name;
@@ -594,7 +594,7 @@ acc_print_clan_members(Creature *ch, clan_data *clan, bool complete, int min_lev
 			}
 		}
 		if (complete && !found) {
-			i = new Creature(true);
+			i = new struct creature(true);
 			if (i->loadFromXML(member->idnum)) {
 				name = tmp_strcat(GET_NAME(i), " ",
                                   clan_rankname(clan, member->rank), NULL);
@@ -1512,7 +1512,7 @@ delete_clan(struct clan_data *clan)
 	sql_exec("delete from clan_ranks where clan=%d", clan->number);
 	sql_exec("delete from clans where idnum=%d", clan->number);
 
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (IS_PC(*cit) && GET_CLAN(*cit) == clan->number) {
 			GET_CLAN(*cit) = 0;
@@ -1526,7 +1526,7 @@ delete_clan(struct clan_data *clan)
 }
 
 void
-do_show_clan(struct Creature *ch, struct clan_data *clan)
+do_show_clan(struct creature *ch, struct clan_data *clan)
 {
 	struct clanmember_data *member = NULL;
 	struct room_list_elem *rm_list = NULL;
@@ -1568,7 +1568,7 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
             acc_sprintf("%d MEMBERS:\r\n", clan_member_count(clan));
 
             for (member = clan->member_list;member;member = member->next) {
-                int acct_id = playerIndex.getAccountID(member->idnum);
+                int acct_id = playerIndex.getstruct accountID(member->idnum);
                 acc_sprintf("%-50s %s[%d]\r\n",
                             tmp_sprintf("%5ld %s%s%s %s(%d)",
                                         member->idnum,
@@ -1577,7 +1577,7 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
                                         CCNRM(ch, C_NRM),
                                         clan_rankname(clan, member->rank),
                                         member->rank),
-                            Account_retrieve(acct_id)->get_name(),
+                            struct account_retrieve(acct_id)->get_name(),
                             acct_id);
             }
         } else {
@@ -1604,7 +1604,7 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
 }
 
 int
-clan_house_can_enter(struct Creature *ch, struct room_data *room)
+clan_house_can_enter(struct creature *ch, struct room_data *room)
 {
 	struct clan_data *clan = NULL, *ch_clan = NULL;
 	struct room_list_elem *rm_list = NULL;

@@ -241,7 +241,7 @@ House_removeRoom(room_num room)
 }
 
 bool
-House_isGuest(Creature *c) const
+House_isGuest(struct creature *c) const
 {
 	return isGuest(GET_IDNUM(c));
 }
@@ -281,13 +281,13 @@ bool House_hasRoom(room_num room) const
 }
 
 bool
-House_isOwner(Creature *ch)const
+House_isOwner(struct creature *ch)const
 {
 	switch(getType()) {
 		case PRIVATE:
 		case PUBLIC:
 		case RENTAL:
-			return ownerID == playerIndex.getAccountID(GET_IDNUM(ch));
+			return ownerID == playerIndex.getstruct accountID(GET_IDNUM(ch));
 		case CLAN: {
 			clan_data *clan = real_clan(getOwnerID());
 			if (clan == NULL)
@@ -360,15 +360,15 @@ HouseControl_findHouseById(int id)
 }
 
 House*
-HouseControl_findHouseByOwner(int id, bool isAccount)
+HouseControl_findHouseByOwner(int id, bool isstruct account)
 {
 	for (unsigned int i = 0; i < getHouseCount(); i++) {
 		House *house = getHouse(i);
 		if (house->getType() == House_PUBLIC)
 			continue;
-		if (isAccount && house->getType() == House_CLAN)
+		if (isstruct account && house->getType() == House_CLAN)
 			continue;
-		if (!isAccount && house->getType() != House_CLAN)
+		if (!isstruct account && house->getType() != House_CLAN)
 			continue;
 		if (house->getOwnerID() == id)
 			return getHouse(i);
@@ -378,7 +378,7 @@ HouseControl_findHouseByOwner(int id, bool isAccount)
 
 /* note: arg passed must be house vnum, so there. */
 bool
-HouseControl_canEnter(Creature *ch, room_num room_vnum)
+HouseControl_canEnter(struct creature *ch, room_num room_vnum)
 {
 	House *house = findHouseByRoom(room_vnum);
 	if (house == NULL)
@@ -402,7 +402,7 @@ HouseControl_canEnter(Creature *ch, room_num room_vnum)
 			return true;
 		case House_RENTAL:
 		case House_PRIVATE:
-			if (ch->getAccountID() == house->getOwnerID())
+			if (ch->getstruct accountID() == house->getOwnerID())
 				return true;
 			return house->isGuest(ch);
 		case House_CLAN: {
@@ -422,13 +422,13 @@ HouseControl_canEnter(Creature *ch, room_num room_vnum)
 }
 
 bool
-HouseControl_canEdit(Creature *c, room_data *room)
+HouseControl_canEdit(struct creature *c, room_data *room)
 {
 	return canEdit(c, findHouseByRoom(room->number));
 }
 
 bool
-HouseControl_canEdit(Creature *c, House *house)
+HouseControl_canEdit(struct creature *c, House *house)
 {
 	if (house == NULL)
 		return false;
@@ -460,7 +460,7 @@ HouseControl_destroyHouse(House *house)
 }
 
 void
-House_notifyReposession(Creature *ch)
+House_notifyReposession(struct creature *ch)
 {
 	extern int MAIL_OBJ_VNUM;
 	obj_data *note;
@@ -765,7 +765,7 @@ HouseControl_load()
         acc_strcat(")", NULL);
 
         slog("Preloading accounts with houses...");
-        Account_preload(acc_get_string());
+        struct account_preload(acc_get_string());
     }
 }
 
@@ -785,7 +785,7 @@ HouseControl_collectRent()
                 || house->getType() == House_RENTAL)
             {
                 // If the player is online, do not charge rent.
-                Account *account = Account_retrieve(house->getOwnerID());
+                struct account *account = struct account_retrieve(house->getOwnerID());
                 if (account == NULL  || account->is_logged_in())
                     continue;
             }
@@ -807,7 +807,7 @@ House_calcRentCost() const
 		room_data *room = real_room(getRoom(i));
         bool pc_in_room;
 
-        CreatureList_iterator it = room->people.begin();
+        struct creatureList_iterator it = room->people.begin();
 
         pc_in_room = false;
         for (; it != room->people.end(); ++it)
@@ -842,7 +842,7 @@ House_calcRentCost(room_data *room) const
 }
 
 void
-House_display(Creature *ch)
+House_display(struct creature *ch)
 {
 
 	const char* landlord = "NONE";
@@ -855,7 +855,7 @@ House_display(Creature *ch)
 				  getID(), getTypeName(), landlord);
 
 	if (getType() == PRIVATE || getType() == RENTAL || getType() == PUBLIC) {
-		Account *account = Account_retrieve(ownerID);
+		struct account *account = struct account_retrieve(ownerID);
 		if (account != NULL) {
 			const char* email = "";
 			if (account->get_email_addr() && *account->get_email_addr()) {
@@ -889,7 +889,7 @@ House_display(Creature *ch)
 }
 
 char*
-print_room_contents(Creature *ch, room_data *real_house_room, bool showContents)
+print_room_contents(struct creature *ch, room_data *real_house_room, bool showContents)
 {
 	int count;
 	char* buf = NULL;
@@ -931,7 +931,7 @@ print_room_contents(Creature *ch, room_data *real_house_room, bool showContents)
 	return buf;
 }
 void
-House_listRooms(Creature *ch, bool showContents)
+House_listRooms(struct creature *ch, bool showContents)
 {
 	const char *buf = "";
 	for (unsigned int i = 0; i < getRoomCount(); ++i) {
@@ -949,7 +949,7 @@ House_listRooms(Creature *ch, bool showContents)
 }
 
 void
-House_listGuests(Creature *ch)
+House_listGuests(struct creature *ch)
 {
 	if (getGuestCount() == 0) {
 		send_to_char(ch, "No guests defined.\r\n");
@@ -1004,7 +1004,7 @@ House_reconcileClanCollection(int cost)
 int
 House_reconcilePrivateCollection(int cost)
 {
-	Account *account = Account_retrieve(ownerID);
+	struct account *account = struct account_retrieve(ownerID);
 	if (account == NULL) {
 		return false;
 	}
@@ -1143,7 +1143,7 @@ House_findCostliestObj(room_data* room)
 }
 
 void
-hcontrol_build_house(Creature *ch, char *arg)
+hcontrol_build_house(struct creature *ch, char *arg)
 {
 	char *str;
 	room_num virt_top_room, virt_atrium;
@@ -1160,7 +1160,7 @@ hcontrol_build_house(Creature *ch, char *arg)
 		int id = atoi(str);
 		if (id == 0) {
 			send_to_char(ch, "Warning, creating house with no owner.\r\n");
-		} else if (!Account_exists(id)) {
+		} else if (!struct account_exists(id)) {
 			send_to_char(ch, "Invalid account id '%d'.\r\n", id);
 			return;
 		}
@@ -1170,7 +1170,7 @@ hcontrol_build_house(Creature *ch, char *arg)
 			send_to_char(ch, "Unknown player '%s'.\r\n", str);
 			return;
 		}
-		owner = playerIndex.getAccountID(str);
+		owner = playerIndex.getstruct accountID(str);
 	}
 
 	// SECOND arg: the first room of the house
@@ -1215,7 +1215,7 @@ hcontrol_build_house(Creature *ch, char *arg)
 	}
 	House *h = Housing.findHouseByOwner(owner);
 	if (h != NULL) {
-		send_to_char(ch, "Account %d already owns house %d.\r\n", owner, h->getID());
+		send_to_char(ch, "struct account %d already owns house %d.\r\n", owner, h->getID());
 	} else if (Housing.createHouse(owner, virt_atrium, virt_top_room)) {
 		send_to_char(ch, "House built.  Mazel tov!\r\n");
 		House *house = Housing.getHouse(Housing.getHouseCount() - 1);
@@ -1229,7 +1229,7 @@ hcontrol_build_house(Creature *ch, char *arg)
 }
 
 void
-hcontrol_destroy_house(Creature *ch, char *arg)
+hcontrol_destroy_house(struct creature *ch, char *arg)
 {
 	if (!*arg) {
 		send_to_char(ch, HCONTROL_FORMAT);
@@ -1255,7 +1255,7 @@ hcontrol_destroy_house(Creature *ch, char *arg)
 }
 
 void
-set_house_clan_owner(Creature *ch, House *house, char *arg)
+set_house_clan_owner(struct creature *ch, House *house, char *arg)
 {
 	int clanID = 0;
 	if (is_number(arg)) { // to clan id
@@ -1285,19 +1285,19 @@ set_house_clan_owner(Creature *ch, House *house, char *arg)
 }
 
 void
-set_house_account_owner(Creature *ch, House *house, char *arg)
+set_house_account_owner(struct creature *ch, House *house, char *arg)
 {
 	int accountID = 0;
 	if (isdigit(*arg)) { // to an account id
-		if (Account_exists(atoi(arg))) {
+		if (struct account_exists(atoi(arg))) {
 			accountID = atoi(arg);
 		} else {
-			send_to_char(ch, "Account %d doesn't exist.\r\n", atoi(arg));
+			send_to_char(ch, "struct account %d doesn't exist.\r\n", atoi(arg));
 			return;
 		}
 	} else { // to a player name
 		if (playerIndex.exists(arg)) {
-			accountID = playerIndex.getAccountID(arg);
+			accountID = playerIndex.getstruct accountID(arg);
 		} else {
 			send_to_char(ch, "There is no such player, '%s'\r\n", arg);
 			return;
@@ -1306,7 +1306,7 @@ set_house_account_owner(Creature *ch, House *house, char *arg)
 	// An account may only own one house
 	House *h = Housing.findHouseByOwner(accountID);
 	if (h != NULL) {
-		send_to_char(ch, "Account %d already owns house %d.\r\n",
+		send_to_char(ch, "struct account %d already owns house %d.\r\n",
 					 accountID, h->getID());
 		return;
 	}
@@ -1319,7 +1319,7 @@ set_house_account_owner(Creature *ch, House *house, char *arg)
 }
 
 void
-hcontrol_set_house(Creature *ch, char *arg)
+hcontrol_set_house(struct creature *ch, char *arg)
 {
 	char *arg1 = tmp_getword(&arg);
 	char *arg2 = tmp_getword(&arg);
@@ -1435,7 +1435,7 @@ hcontrol_set_house(Creature *ch, char *arg)
 }
 
 void
-hcontrol_where_house(Creature *ch)
+hcontrol_where_house(struct creature *ch)
 {
 	House *h = Housing.findHouseByRoom(ch->in_room->number);
 
@@ -1453,7 +1453,7 @@ hcontrol_where_house(Creature *ch)
 }
 
 void
-hcontrol_reload_house(Creature *ch, char *arg)
+hcontrol_reload_house(struct creature *ch, char *arg)
 {
     const char *arg1 = tmp_getword(&arg);
     House *h = NULL;
@@ -1528,7 +1528,7 @@ HouseControl_reload(House *house)
 /* Misc. administrative functions */
 
 void
-hcontrol_add_to_house(Creature *ch, char *arg)
+hcontrol_add_to_house(struct creature *ch, char *arg)
 {
 	// first arg is the atrium vnum
 	char *str = tmp_getword(&arg);
@@ -1582,7 +1582,7 @@ hcontrol_add_to_house(Creature *ch, char *arg)
 }
 
 void
-hcontrol_delete_from_house(Creature *ch, char *arg)
+hcontrol_delete_from_house(struct creature *ch, char *arg)
 {
 
 	// first arg is the atrium vnum
@@ -1672,7 +1672,7 @@ match_houses(list<House*> &houses, int mode, const char *arg)
 				if (isdigit(*arg)) {
 					id = atoi(arg);
 				} else {
-					id = playerIndex.getAccountID(arg);
+					id = playerIndex.getstruct accountID(arg);
 				}
                 if ((*cur)->getOwnerID() != id) {
                     cur = remove_house(houses, cur);
@@ -1708,7 +1708,7 @@ match_houses(list<House*> &houses, int mode, const char *arg)
 }
 
 void
-hcontrol_find_houses(Creature *ch, char *arg)
+hcontrol_find_houses(struct creature *ch, char *arg)
 {
     char token[256];
 
@@ -1874,7 +1874,7 @@ ACMD(do_house)
 		return;
 	}
 
-    int accountID = playerIndex.getAccountID(playerID);
+    int accountID = playerIndex.getstruct accountID(playerID);
     if (house->getOwnerID() == accountID) {
         send_to_char(ch, "They already own the house.\r\n");
 		return;
@@ -1907,7 +1907,7 @@ ACMD(do_house)
 }
 
 void
-HouseControl_displayHouses(list<House*> houses, Creature *ch)
+HouseControl_displayHouses(list<House*> houses, struct creature *ch)
 {
     string output;
     send_to_char(ch,"ID   Size Owner  Landlord   Type Rooms\r\n");

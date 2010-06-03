@@ -36,7 +36,7 @@ using namespace std;
 #define HGROUP_QCONTROL  (1 << 24)
 #define HGROUP_MAX        25
 
-struct Creature;
+struct creature;
 
 #define MAX_HELP_NAME_LENGTH 128
 #define MAX_HELP_TEXT_LENGTH 16384
@@ -66,7 +66,7 @@ struct HelpItem {
 	inline void SetNextShow(HelpItem * n) {
 		next_show = n;
 	}
-	bool Edit(Creature * ch);	// Begin editing an item
+	bool Edit(struct creature * ch);	// Begin editing an item
 	bool Clear();				// Clear the item out.
 	void SetName(char *argument);
 	void SetKeyWords(char *argument);
@@ -83,7 +83,7 @@ struct HelpItem {
 	// 1 == One Line Stat
 	// 2 == Entire Entry
 	// 3 == Entire Entry Stat
-	void Show(Creature * ch, char *buffer, int mode = 0);
+	void Show(struct creature * ch, char *buffer, int mode = 0);
 
 	// Data
 	int idnum;					// Unique Identifier
@@ -95,7 +95,7 @@ struct HelpItem {
 	char *keys;					// Key Words
 	char *name;					// The listed name of the help topic
 	char *text;					// The body of the help topic
-	Creature *editor;
+	struct creature *editor;
 	fstream help_file;
 	HelpItem *next;
 	HelpItem *next_show;
@@ -109,7 +109,7 @@ struct HelpCollection {
 	 HelpCollection();
 	~HelpCollection();
 	// Calls FindItems then Show
-	void GetTopic(Creature * ch,	// The character that wants the topic
+	void GetTopic(struct creature * ch,	// The character that wants the topic
 		char *args,				// the search arguments. (pattern)
 		int mode = 2,			// How to show the item. (see HelpItem_Show())
 		bool show_no_app = false,	// Show Unapproved items?
@@ -117,20 +117,20 @@ struct HelpCollection {
 		bool searchmode = false);	// Should we search by keyword but still
 	// return a list?
 
-	void List(Creature * ch, char *args);	// Show all the items
+	void List(struct creature * ch, char *args);	// Show all the items
 	// Create an item. (calls EditItem && SaveIndex)
-	bool CreateItem(Creature * ch);
-	bool EditItem(Creature * ch, int idnum);	// Begin editing an item
-	void ApproveItem(Creature * ch, char *argument);	// Approve an item
-	void UnApproveItem(Creature * ch, char *argument);	// Approve an item
-	bool ClearItem(Creature * ch);	// Clear an item
-	bool SaveItem(Creature * ch);	// Duh?
+	bool CreateItem(struct creature * ch);
+	bool EditItem(struct creature * ch, int idnum);	// Begin editing an item
+	void ApproveItem(struct creature * ch, char *argument);	// Approve an item
+	void UnApproveItem(struct creature * ch, char *argument);	// Approve an item
+	bool ClearItem(struct creature * ch);	// Clear an item
+	bool SaveItem(struct creature * ch);	// Duh?
 	bool SaveIndex(void);	// Save the entire index
-	bool SaveAll(Creature * ch);	// Save Everything. (cals saveitem and saveindex)
-	bool Set(Creature * ch, char *argument);
+	bool SaveAll(struct creature * ch);	// Save Everything. (cals saveitem and saveindex)
+	bool Set(struct creature * ch, char *argument);
 	bool LoadIndex(void);		// Load help index (at startup)
 	void Sync(void);			// Delete unneeded item->text from memory.
-	void Show(Creature * ch);	// Show collection statistics
+	void Show(struct creature * ch);	// Show collection statistics
 	inline int GetTop(void) {
 		return top_id;
 	} void Push(HelpItem * n);	//Add topic to help_collection

@@ -10,7 +10,7 @@ SPECIAL(hell_ressurector)
 {
 
 	struct obj_data *corpse = NULL, *obj = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 

@@ -6,7 +6,7 @@
 
 SPECIAL(life_bldg_guard)
 {
-	struct Creature *guard = (struct Creature *)me;
+	struct creature *guard = (struct creature *)me;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd != EAST + 1 || GET_LEVEL(ch) > 25)

@@ -9,7 +9,7 @@ SPECIAL(maze_cleaner)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	struct obj_data *od = NULL, *od2 = NULL;
-	struct Creature *me2 = (struct Creature *)me;
+	struct creature *me2 = (struct creature *)me;
 	struct room_data *rm_number;
 
 	if (GET_EQ(me2, 0) != NULL) {

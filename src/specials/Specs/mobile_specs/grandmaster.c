@@ -42,7 +42,7 @@ SPECIAL(grandmaster)
 		return 1;
 	}
 
-    Creature *vict = ch->findRandomCombat();
+    struct creature *vict = ch->findRandomCombat();
 	switch (number(0, 12)) {
 	case 0:
 		act("$N whacks you with a spinning backfist!", false, vict, 0,

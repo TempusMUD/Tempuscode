@@ -18,7 +18,7 @@ SPECIAL(hell_domed_chamber)
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		last_time = cur_time;
 
-	struct Creature *cloned_char = read_mobile(17199);
+	struct creature *cloned_char = read_mobile(17199);
 
 	if (!cloned_char) {
 		errlog("hell_domed_chamber failed to load cloned_char mobile");

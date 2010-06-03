@@ -8,7 +8,7 @@ SPECIAL(stable_room)
 {
 	char buf[MAX_STRING_LENGTH], pet_name[256];
 	struct room_data *pet_room;
-	struct Creature *pet = NULL;
+	struct creature *pet = NULL;
 	int price;
 
 	if (!(pet_room = ch->in_room->next)) {
@@ -18,7 +18,7 @@ SPECIAL(stable_room)
 
 	if (CMD_IS("list")) {
 		send_to_char(ch, "Available mounts are:\r\n");
-		CreatureList_iterator it = pet_room->people.begin();
+		struct creatureList_iterator it = pet_room->people.begin();
 		for (; it != pet_room->people.end(); ++it) {
 			if(! IS_NPC((*it)) )
 				continue;
@@ -115,7 +115,7 @@ SPECIAL(stable_room)
 
 		char_from_room(pet, false);
 		char_to_room(pet, pet_room, false);
-		CreatureList_iterator it = pet_room->people.begin();
+		struct creatureList_iterator it = pet_room->people.begin();
 		for (; it != pet_room->people.end(); ++it) {
 			if ((*it) != pet && IS_NPC((*it))
 				&& GET_MOB_VNUM((*it)) == GET_MOB_VNUM(pet)) {

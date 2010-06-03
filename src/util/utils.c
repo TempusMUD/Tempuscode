@@ -84,7 +84,7 @@ VT_RPPOS(int x, int y)
 	return (ANSI);
 }
 long
-GET_SKILL_COST(Creature *ch, int skill)
+GET_SKILL_COST(struct creature *ch, int skill)
 {
 	// Mort costs per prac: Level 1: 100, Level 49: 240k
 	long skill_lvl, cost;
@@ -115,7 +115,7 @@ remove_from_cstring(char *str, char c, char c_to)
 
 /* log a death trap hit */
 void
-log_death_trap(struct Creature *ch)
+log_death_trap(struct creature *ch)
 {
 	mudlog(LVL_AMBASSADOR, BRF, true,
 		"%s hit death trap #%d (%s)", GET_NAME(ch),
@@ -371,7 +371,7 @@ mud_time_passed(time_t t2, time_t t1)
 }
 
 struct time_info_data
-age(struct Creature *ch)
+age(struct creature *ch)
 {
 	struct time_info_data player_age;
 
@@ -399,9 +399,9 @@ age(struct Creature *ch)
 /* Check if making CH follow VICTIM will create an illegal */
 /* Follow "Loop/circle"                                    */
 bool
-circle_follow(struct Creature * ch, struct Creature * victim)
+circle_follow(struct creature * ch, struct creature * victim)
 {
-	struct Creature *k;
+	struct creature *k;
 
 	for (k = victim; k; k = k->master) {
 		if (k == ch)
@@ -412,7 +412,7 @@ circle_follow(struct Creature * ch, struct Creature * victim)
 }
 
 bool
-can_charm_more(Creature *ch)
+can_charm_more(struct creature *ch)
 {
 	follow_type *cur;
 	int count = 0;
@@ -431,7 +431,7 @@ can_charm_more(Creature *ch)
 /* Called when stop following persons, or stopping charm */
 /* This will NOT do if a character quits/dies!!          */
 void
-stop_follower(struct Creature *ch)
+stop_follower(struct creature *ch)
 {
 	struct follow_type *j, *k;
 
@@ -480,7 +480,7 @@ stop_follower(struct Creature *ch)
 
 /* Called when a character that follows/is followed dies */
 void
-die_follower(struct Creature *ch)
+die_follower(struct creature *ch)
 {
 	struct follow_type *j, *k;
 
@@ -498,7 +498,7 @@ die_follower(struct Creature *ch)
 int
 player_in_room(struct room_data *room)
 {
-	CreatureList_iterator it = room->people.begin();
+	struct creatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (!IS_NPC((*it)) && GET_LEVEL((*it)) < LVL_AMBASSADOR)
 			return 1;
@@ -509,7 +509,7 @@ player_in_room(struct room_data *room)
 /* Do NOT call this before having checked if a circle of followers */
 /* will arise. CH will follow leader                               */
 void
-add_follower(struct Creature *ch, struct Creature *leader)
+add_follower(struct creature *ch, struct creature *leader)
 {
 	struct follow_type *k;
 
@@ -531,7 +531,7 @@ add_follower(struct Creature *ch, struct Creature *leader)
 }
 
 void
-add_stalker(struct Creature *ch, struct Creature *leader)
+add_stalker(struct creature *ch, struct creature *leader)
 {
 	struct follow_type *k;
 
@@ -603,10 +603,10 @@ num2str(char *str, int num)
 }
 
 char *
-GET_DISGUISED_NAME(struct Creature *ch, struct Creature *tch)
+GET_DISGUISED_NAME(struct creature *ch, struct creature *tch)
 {
 	struct affected_type *af = NULL;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 	static char buf[1024];
 
 	if (IS_NPC(tch))
@@ -627,7 +627,7 @@ GET_DISGUISED_NAME(struct Creature *ch, struct Creature *tch)
 }
 
 int
-CHECK_SKILL(struct Creature *ch, int i)
+CHECK_SKILL(struct creature *ch, int i)
 {
 	int level = 0;
 	struct affected_type *af_ptr = NULL;
@@ -660,13 +660,13 @@ CHECK_SKILL(struct Creature *ch, int i)
 }
 
 int
-CHECK_TONGUE(struct Creature *ch, int i)
+CHECK_TONGUE(struct creature *ch, int i)
 {
     return ch->language_data->tongues[i];
 }
 
 void
-WAIT_STATE(struct Creature *ch, int cycle)
+WAIT_STATE(struct creature *ch, int cycle)
 {
 	int wait;
 
@@ -692,7 +692,7 @@ WAIT_STATE(struct Creature *ch, int cycle)
 }
 
 const char *
-OBJN(obj_data * obj, Creature * vict)
+OBJN(obj_data * obj, struct creature * vict)
 {
 	if (can_see_object(vict, obj))
 		return fname((obj)->aliases);
@@ -701,7 +701,7 @@ OBJN(obj_data * obj, Creature * vict)
 }
 
 const char *
-OBJS(obj_data * obj, Creature * vict)
+OBJS(obj_data * obj, struct creature * vict)
 {
 	if (can_see_object((vict), (obj)))
 		return obj->name;
@@ -710,7 +710,7 @@ OBJS(obj_data * obj, Creature * vict)
 }
 
 const char *
-PERS(Creature * ch, Creature * sub)
+PERS(struct creature * ch, struct creature * sub)
 {
 	if (can_see_creature(sub, ch))
 		return GET_DISGUISED_NAME(sub, ch);
@@ -748,7 +748,7 @@ ONOFF(bool a)
 }
 
 const char *
-CURRENCY(Creature * ch)
+CURRENCY(struct creature * ch)
 {
 	if (ch->in_room->zone->time_frame == TIME_ELECTRO)
 		return "credit";
@@ -756,7 +756,7 @@ CURRENCY(Creature * ch)
 }
 
 bool
-CAN_GO(Creature * ch, int door)
+CAN_GO(struct creature * ch, int door)
 {
 	room_direction_data *exit = EXIT(ch, door);
 	return (exit != NULL &&

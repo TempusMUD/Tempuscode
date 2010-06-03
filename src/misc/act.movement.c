@@ -51,16 +51,16 @@ extern const char *from_dirs[];
 extern const char *to_dirs[];
 extern const byte movement_loss[];
 extern struct obj_data *object_list;
-extern CreatureList mountedList;
+extern struct creatureList mountedList;
 
 /* external functs */
-long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
-int find_eq_pos(struct Creature *ch, struct obj_data *obj, char *arg);
-int clan_house_can_enter(struct Creature *ch, struct room_data *room);
-int general_search(struct Creature *ch, struct special_search_data *srch,
+long special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+int find_eq_pos(struct creature *ch, struct obj_data *obj, char *arg);
+int clan_house_can_enter(struct creature *ch, struct room_data *room);
+int general_search(struct creature *ch, struct special_search_data *srch,
 	int mode);
-void update_trail(struct Creature *ch, struct room_data *rm, int dir, int j);
-int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
+void update_trail(struct creature *ch, struct room_data *rm, int dir, int j);
+int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
 	int pos);
 
 #define DOOR_IS_OPENABLE(ch, obj, door)        \
@@ -99,7 +99,7 @@ int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
                                         DOOR_FLAGGED(ch, door, EX_SPECIAL))
 
 bool
-can_travel_sector(struct Creature *ch, int sector_type, bool active)
+can_travel_sector(struct creature *ch, int sector_type, bool active)
 {
 	struct obj_data *obj;
 	int i;
@@ -191,10 +191,10 @@ can_travel_sector(struct Creature *ch, int sector_type, bool active)
 
 /* count the people in the room */
 int
-room_count(struct Creature *ch, struct room_data *room)
+room_count(struct creature *ch, struct room_data *room)
 {
 	int i = 0;
-	CreatureList_iterator it = room->people.begin();
+	struct creatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (IS_NPC((*it)) || (GET_INVIS_LVL((*it)) <= GET_LEVEL(ch))) {
 			if (GET_HEIGHT((*it)) > 1000)
@@ -209,7 +209,7 @@ room_count(struct Creature *ch, struct room_data *room)
 }
 
 void
-get_giveaway(struct Creature *ch, struct Creature *vict)
+get_giveaway(struct creature *ch, struct creature *vict)
 {
 
 	if (IS_NPC(ch) && GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
@@ -283,7 +283,7 @@ get_giveaway(struct Creature *ch, struct Creature *vict)
 }
 
 int
-check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
+check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msgs)
 {
 	int sneak_prob, sneak_roll;
 	int idx;
@@ -398,14 +398,14 @@ check_sneak(Creature *ch, Creature *vict, bool departing, bool msgs)
  */
 
 int
-do_simple_move(struct Creature *ch, int dir, int mode,
+do_simple_move(struct creature *ch, int dir, int mode,
 	int need_specials_check)
 {
 
 	int need_movement, i, has_boat = 0, wait_state = 0;
 	struct room_data *was_in;
 	struct obj_data *obj = NULL, *next_obj = NULL, *car = NULL, *c_obj = NULL;
-	struct Creature *tch, *mount = ch->isMounted();
+	struct creature *tch, *mount = ch->isMounted();
 	int found = 0;
 	struct special_search_data *srch = NULL;
 	struct affected_type *af_ptr = NULL;
@@ -616,7 +616,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
     // At this point we're definately going to move.  Let's iterate though
     // the people in the room and make sure that no one is fighting us.
-    CreatureList_iterator it;
+    struct creatureList_iterator it;
     it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         if ((*it)->findCombat(ch))
@@ -1037,7 +1037,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	if (ch->desc)
 		look_at_room(ch, ch->in_room, 0);
 
-	Creature *damager = NULL;
+	struct creature *damager = NULL;
     struct affected_type *af = affected_by_spell(ch, SKILL_HAMSTRING);
     if (af && ch->getPosition() == POS_STANDING) {
         damager = get_char_in_world_by_idnum(af->owner);
@@ -1210,7 +1210,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
  * same as do_simple_move
  */
 int
-perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
+perform_move(struct creature *ch, int dir, int mode, int need_specials_check)
 {
 	struct room_data *was_in;
 	struct follow_type *k, *next;
@@ -1405,7 +1405,7 @@ ACMD(do_move)
 }
 
 int
-find_door(struct Creature *ch, char *type, char *dir, const char *cmdname)
+find_door(struct creature *ch, char *type, char *dir, const char *cmdname)
 {
 	int door;
 
@@ -1451,7 +1451,7 @@ find_door(struct Creature *ch, char *type, char *dir, const char *cmdname)
 }
 
 int
-has_key(struct Creature *ch, int key)
+has_key(struct creature *ch, int key)
 {
 	struct obj_data *o;
 
@@ -1513,7 +1513,7 @@ LOCK_DOOR(room_data * room, obj_data * obj, int direction)
 }
 
 void
-do_doorcmd(struct Creature *ch, struct obj_data *obj, int door, int scmd)
+do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
 {
 	struct room_data *other_room = NULL;
 	struct room_direction_data *back = 0;
@@ -1631,7 +1631,7 @@ do_doorcmd(struct Creature *ch, struct obj_data *obj, int door, int scmd)
 }
 
 int
-ok_pick(struct Creature *ch, int keynum, int pickproof, int tech, int scmd)
+ok_pick(struct creature *ch, int keynum, int pickproof, int tech, int scmd)
 {
 	int percent, mod;
 	struct obj_data *tool = NULL;
@@ -1690,7 +1690,7 @@ ACMD(do_gen_door)
     char *type, *dir;
 	char dname[128];
 	struct obj_data *obj = NULL;
-	struct Creature *victim = NULL;
+	struct creature *victim = NULL;
 
 	skip_spaces(&argument);
 	if (!*argument) {
@@ -2115,7 +2115,7 @@ ACMD(do_stand)
 }
 
 bool
-creature_can_fly(Creature *ch)
+creature_can_fly(struct creature *ch)
 {
 	int i;
 
@@ -2306,7 +2306,7 @@ ACMD(do_sleep)
 
 ACMD(do_wake)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	int self = 0;
 
 	one_argument(argument, arg);
@@ -2380,7 +2380,7 @@ ACMD(do_wake)
 
 ACMD(do_makemount)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	one_argument(argument, buf);
 
 	if (*buf) {
@@ -2400,7 +2400,7 @@ ACMD(do_makemount)
 
 ACMD(do_mount)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	one_argument(argument, buf);
 
 	if (*buf) {
@@ -2430,7 +2430,7 @@ ACMD(do_mount)
 		return;
 	}
 	if (AFF2_FLAGGED(vict, AFF2_MOUNTED)) {
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if ((*it)->isMounted() == vict) {
 				send_to_char(ch, "But %s is already mounted on %s!\r\n",
@@ -2496,8 +2496,8 @@ ACMD(do_dismount)
 
 ACMD(do_stalk)
 {
-	struct Creature *vict;
-	void add_stalker(struct Creature *ch, struct Creature *vict);
+	struct creature *vict;
+	void add_stalker(struct creature *ch, struct creature *vict);
 
 	one_argument(argument, buf);
 
@@ -2540,10 +2540,10 @@ ACMD(do_stalk)
 
 ACMD(do_follow)
 {
-	struct Creature *leader;
+	struct creature *leader;
 
-	void stop_follower(struct Creature *ch);
-	void add_follower(struct Creature *ch, struct Creature *leader);
+	void stop_follower(struct creature *ch);
+	void add_follower(struct creature *ch, struct creature *leader);
 
 	one_argument(argument, buf);
 
@@ -2587,7 +2587,7 @@ ACMD(do_follow)
 
 ACMD(do_defend)
 {
-	struct Creature *targ;
+	struct creature *targ;
 	char *arg;
 
 	arg = tmp_getword(&argument);
@@ -2774,7 +2774,7 @@ ACMD(do_translocate)
 #undef TL_APPEAR
 
 int
-drag_object(Creature *ch, struct obj_data *obj, char *argument)
+drag_object(struct creature *ch, struct obj_data *obj, char *argument)
 {
 
 	int max_drag = 0;

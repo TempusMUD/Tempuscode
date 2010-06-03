@@ -256,7 +256,7 @@ static const int POS_MOUNTED = 10;
 static const int POS_SWIMMING = 11;
 static const int TOP_POS = 11;
 
-/* Player flags: used by Creature.char_specials.act */
+/* Player flags: used by struct creature.char_specials.act */
 static const int PLR_KILLER = (1 << 0);	/* Player is a player-killer        */
 static const int PLR_THIEF = (1 << 1);	/* Player is a player-thief        */
 static const int PLR_FROZEN = (1 << 2);	/* Player is frozen            */
@@ -294,7 +294,7 @@ static const int PLR2_SOULLESS = (1 << 0);	// Signing the Unholy Compact.
 static const int PLR2_BURIED = (1 << 1);	// Player has died way too many times.
 static const int PLR2_IN_COMBAT = (1 << 2);
 
-/* Mobile flags: used by Creature.char_specials.act */
+/* Mobile flags: used by struct creature.char_specials.act */
 static const int MOB_SPEC = (1 << 0);	/* Mob has a callable spec-proc    */
 static const int MOB_SENTINEL = (1 << 1);	/* Mob should not move        */
 static const int MOB_SCAVENGER = (1 << 2);	/* Mob picks up stuff on the ground    */
@@ -339,7 +339,7 @@ static const int MOB2_RENAMED = (1 << 13);	/* Mobile renamed */
 static const int MOB2_NOAGGRO_RACE = (1 << 14);	/* wont attack members of own race */
 #define NUM_MOB2_FLAGS            15
 
-/* Preference flags: used by Creature.player_specials.pref */
+/* Preference flags: used by struct creature.player_specials.pref */
 static const int PRF_BRIEF = (1 << 0);	/* Room descs won't normally be shown    */
 static const int PRF_NOHAGGLE = (1 << 1);
 static const int PRF_DEAF = (1 << 2);	/* Can't hear shouts            */
@@ -400,7 +400,7 @@ static const int PRF2_NOGUILDSAY = (1 << 22);
 static const int PRF2_DISPTIME = (1 << 23); //show localtime in the prompt
 static const int PRF2_DISP_VNUMS = (1 << 24); //show vnums after items ldesc
 
-/* Affect bits: used in Creature.char_specials.saved.affected_by */
+/* Affect bits: used in struct creature.char_specials.saved.affected_by */
 /* WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") */
 static const int AFF_BLIND = (1 << 0);	/* (R) Char is blind        */
 static const int AFF_INVISIBLE = (1 << 1);	/* Char is invisible        */
@@ -504,7 +504,7 @@ static const int ARRAY_AFF_1 = 1;
 static const int ARRAY_AFF_2 = 2;
 static const int ARRAY_AFF_3 = 3;
 
-/* Character equipment positions: used as index for Creature.equipment[] */
+/* Character equipment positions: used as index for struct creature.equipment[] */
 /* NOTE: Don't confuse these constants with the ITEM_ bitvectors
    which control the valid places you can wear a piece of equipment */
 static const int WEAR_LIGHT = 0;
@@ -858,9 +858,9 @@ struct char_special_data {
 
         return *this;
     }
-	struct Creature *defending;	/* Char defended by this char */
-	struct Creature *hunting;	/* Char hunted by this char        */
-	struct Creature *mounted;	/* creatures mounted ON this char        */
+	struct creature *defending;	/* Char defended by this char */
+	struct creature *hunting;	/* Char hunted by this char        */
+	struct creature *mounted;	/* creatures mounted ON this char        */
 
 	int carry_weight;			/* Carried weight                     */
 	int worn_weight;			/* Total weight equipped                */
@@ -1070,7 +1070,7 @@ struct player_special_data {
     std_list<Grievance> grievances;
 	unsigned int soilage[NUM_WEARS];
 	struct obj_data *olc_obj;	/* which obj being edited               */
-	struct Creature *olc_mob;	/* which mob being edited               */
+	struct creature *olc_mob;	/* which mob being edited               */
 	struct shop_data *olc_shop;	/* which shop being edited              */
 	struct olc_help_r *olc_help;	/* which help record being edited       */
 	struct special_search_data *olc_srch;	/* which srch being edited */
@@ -1098,7 +1098,7 @@ struct mob_shared_data {
 	byte damsizedice;			/* The size of the damage dice's         */
 	byte morale;
 	char *move_buf;				/* custom move buf */
-	struct Creature *proto;	/* pointer to prototype */
+	struct creature *proto;	/* pointer to prototype */
 	SPECIAL(*func);
 	char *func_param;			/* mobile's special parameter str */
 	char *load_param;			/* mobile's on_load script */
@@ -1152,14 +1152,14 @@ struct affected_type {
 	ubyte is_instant;
 	long bitvector;				/* Tells which bits to set (AFF_XXX)       */
 	int aff_index;
-    long owner;             /* Who placed this affect on this Creature */
+    long owner;             /* Who placed this affect on this struct creature */
 	struct affected_type *next;
     bool clearAtDeath(void);
 };
 
 /* Structure used for chars following other chars */
 struct follow_type {
-	struct Creature *follower;
+	struct creature *follower;
 	struct follow_type *next;
 };
 
@@ -1185,12 +1185,12 @@ struct char_language_data {
 };
 
 /* ================== Structure for player/non-player ===================== */
-struct Creature : public thing {
+struct creature : public thing {
 
-  	Creature(bool pc);	// constructor
-	~Creature(void);
+  	struct creature(bool pc);	// constructor
+	~struct creature(void);
 
-    Creature(const Creature &c); // Copy constructor
+    struct creature(const struct creature &c); // Copy constructor
 
     // Initialize creature to initial state
     void initialize();
@@ -1237,10 +1237,10 @@ struct Creature : public thing {
 	 *  level/gen and class.
 	 * If victim != NULL, assume that this char is fighting victim to gain experience.
 	 **/
-	int getPenalizedExperience( int experience, Creature *victim = NULL );
+	int getPenalizedExperience( int experience, struct creature *victim = NULL );
 
     //Positive or negative percent modifier based on buyer vs seller charisma.
-    int getCostModifier(Creature* seller);
+    int getCostModifier(struct creature* seller);
 
 	short modifyWeight(short mod_weight) {
 		return player.modifyWeight(mod_weight);
@@ -1274,8 +1274,8 @@ struct Creature : public thing {
 	int getLevelBonus(bool primary);
 
 	// Various combat utility functions
-	bool affBySanc(Creature * attacker = NULL);
-	float getDamReduction(Creature * attacker = NULL);
+	bool affBySanc(struct creature * attacker = NULL);
+	float getDamReduction(struct creature * attacker = NULL);
 	void clearMemory();
 	void restore();
     bool loadFromXML( long id );
@@ -1292,36 +1292,36 @@ struct Creature : public thing {
     bool checkLoadCorpse();
 
     // Combat related fucntions
-    void addCombat(Creature *ch, bool initiated);
-    void removeCombat(Creature *ch);
+    void addCombat(struct creature *ch, bool initiated);
+    void removeCombat(struct creature *ch);
     void removeAllCombat();
-    bool initiatedCombat(Creature *ch);
-    bool isOkToAttack(Creature *vict, bool mssg = true);
+    bool initiatedCombat(struct creature *ch);
+    bool isOkToAttack(struct creature *vict, bool mssg = true);
 
-    Creature *isDefending() {
+    struct creature *isDefending() {
         return char_specials.defending;
     }
 
-    void startDefending(Creature *vict);
+    void startDefending(struct creature *vict);
     void stopDefending();
     bool isFighting();
     int numCombatants();
 
-    Creature *isMounted() {
+    struct creature *isMounted() {
         return char_specials.mounted;
     }
 
-    void mount(Creature *vict);
+    void mount(struct creature *vict);
     void dismount();
 
-    Creature *isHunting() {
+    struct creature *isHunting() {
         return char_specials.hunting;
     }
-    void startHunting(Creature *vict);
+    void startHunting(struct creature *vict);
     void stopHunting();
 
-    Creature *findCombat(Creature *ch);
-    Creature *findRandomCombat();
+    struct creature *findCombat(struct creature *ch);
+    struct creature *findRandomCombat();
     CombatDataList *getCombatList() { return fighting; }
 
     room_data *getLoadroom(); // Retrieves the characters appropriate loadroom.
@@ -1359,27 +1359,27 @@ struct Creature : public thing {
     bool curseSave();
     bool cryoSave(int cost);
     // Returns this creature's account id.
-    long getAccountID() const;
+    long getstruct accountID() const;
 
 	bool trusts(long idnum);
-	bool trusts(Creature *ch);
+	bool trusts(struct creature *ch);
 	bool distrusts(long idnum);
-	bool distrusts(Creature *ch);
+	bool distrusts(struct creature *ch);
 
 	void gain_reputation(int amt);
 	void set_reputation(int amt);
 	int get_reputation(void);
 
-    void ignite(Creature *ch);
+    void ignite(struct creature *ch);
     void extinguish();
 
-    bool checkReputations(Creature *victim);
+    bool checkReputations(struct creature *victim);
 
 	// Extracts the creature from the game.  If creature is a player in the
     // world, sets its descriptor's input mode to the given state
 	void extract(cxn_state con_state);
 
-    Creature &operator=(const Creature &c __attribute__ ((unused))) {
+    struct creature &operator=(const struct creature &c __attribute__ ((unused))) {
         // This is private because it should never be called.  But on
         // the off chance that it does, it should something appropriate.
         raise(SIGSEGV);
@@ -1404,10 +1404,10 @@ struct Creature : public thing {
 
 	struct obj_data *carrying;	/* Head of list                  */
 	struct descriptor_data *desc;	/* NULL for mobiles              */
-	Account *account;
+	struct account *account;
 
 	struct follow_type *followers;	/* List of chars followers       */
-	struct Creature *master;	/* Who is char following?        */
+	struct creature *master;	/* Who is char following?        */
 };
 
 /* ====================================================================== */

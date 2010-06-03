@@ -80,7 +80,7 @@ struct qplayer_data {
 };
 
 struct Quest {
-		Quest( Creature *ch, int type, const char* name );
+		Quest( struct creature *ch, int type, const char* name );
 		Quest( const Quest &q );
 		Quest(xmlNodePtr n, xmlDocPtr doc);
 		~Quest();
@@ -89,15 +89,15 @@ struct Quest {
 		bool operator<( const Quest &q ) const { return vnum < q.vnum; }
 		bool operator>( const Quest &q ) const { return vnum > q.vnum; }
 		Quest& operator=( const Quest &q );
-		bool canEdit( Creature *ch );
+		bool canEdit( struct creature *ch );
 		bool addPlayer( long id );
 		bool removePlayer( long id );
 		bool addBan( long id );
 		bool removeBan( long id );
 		bool isBanned( long id );
 		bool isPlaying( long id );
-		bool canLeave( Creature *ch );
-		bool canJoin( Creature *ch );
+		bool canLeave( struct creature *ch );
+		bool canJoin( struct creature *ch );
 		qplayer_data &getPlayer( long id );
 		qplayer_data &getPlayer( int index ) { return players[index]; }
 		qplayer_data &getBan( long id );
@@ -119,7 +119,7 @@ struct Quest {
         void tallyMobKill(int player);
         void tallyPlayerKill(int player);
 		void clearDescs();
-		bool levelOK( Creature *ch );
+		bool levelOK( struct creature *ch );
 		int max_players; // max number of players
 		int awarded; // qps awarded
 		int penalized; // qps taken
@@ -144,27 +144,27 @@ struct Quest {
 };
 
 // utility functions
-Quest *find_quest(Creature *ch, char *argument);
-const char *list_active_quests(Creature *ch);
+Quest *find_quest(struct creature *ch, char *argument);
+const char *list_active_quests(struct creature *ch);
 Quest *quest_by_vnum(int vnum);
 void qp_reload(int sig = 0);
 
-void qlog(Creature *ch, const char *str, int type, int level, int file);
+void qlog(struct creature *ch, const char *str, int type, int level, int file);
 
-Creature *check_char_vis(Creature *ch, char *name);
-void list_quest_players(Creature *ch, Quest * quest, char *outbuf);
+struct creature *check_char_vis(struct creature *ch, char *name);
+void list_quest_players(struct creature *ch, Quest * quest, char *outbuf);
 int boot_quests(void);
-int check_editors(Creature *ch, char **buffer);
+int check_editors(struct creature *ch, char **buffer);
 void save_quests();
 
 // quest subfunctions and utils
-void do_quest_list(Creature *ch);
-void do_quest_join(Creature *ch, char *argument);
-void do_quest_info(Creature *ch, char *argument);
-void do_quest_status(Creature *ch);
-void do_quest_who(Creature *ch, char *argument);
-void do_quest_leave(Creature *ch, char *argument);
-void do_quest_current(Creature *ch, char *argument);
-void do_quest_ignore(Creature *ch, char *argument);
+void do_quest_list(struct creature *ch);
+void do_quest_join(struct creature *ch, char *argument);
+void do_quest_info(struct creature *ch, char *argument);
+void do_quest_status(struct creature *ch);
+void do_quest_who(struct creature *ch, char *argument);
+void do_quest_leave(struct creature *ch, char *argument);
+void do_quest_current(struct creature *ch, char *argument);
+void do_quest_ignore(struct creature *ch, char *argument);
 
 #endif

@@ -6,8 +6,8 @@
 
 SPECIAL(underworld_goddess)
 {
-	struct Creature *vict;
-	struct Creature *styx = NULL;
+	struct creature *vict;
+	struct creature *styx = NULL;
 	struct room_data *room;
 	int DUNGEON_SE = 126 int STYX_PRIESTESS = 103
 		/* See if Styx is in the room */

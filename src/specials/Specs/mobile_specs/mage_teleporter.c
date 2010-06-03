@@ -1,6 +1,6 @@
 SPECIAL(mage_teleporter)
 {
-	Creature *self = (Creature *)me;
+	struct creature *self = (struct creature *)me;
 	obj_data *vstone;
 	char *arg;
 	int cost;

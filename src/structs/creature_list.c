@@ -5,21 +5,21 @@
 #include "creature_list.h"
 
 /**
- *  Global CreatureList objects stored here.
+ *  Global struct creatureList objects stored here.
 **/
 
 /** The list of in-game characters. (i.e. players & mobs) **/
-CreatureList characterList(false);
-std_map<int, Creature *> characterMap;
+struct creatureList characterList(false);
+std_map<int, struct creature *> characterMap;
 
 /** The list of characters currently involved in combat **/
-CreatureList combatList(false);
+struct creatureList combatList(false);
 
 /** The list of characters currently defending another character **/
-CreatureList defendingList(false);
+struct creatureList defendingList(false);
 
 /** The list of characters currently hunting another character **/
-CreatureList huntingList(false);
+struct creatureList huntingList(false);
 
 /** The list of characters currently mounted on another character **/
-CreatureList mountedList(false);
+struct creatureList mountedList(false);

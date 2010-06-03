@@ -18,11 +18,11 @@ const int MAX_ITEMS = 10;
 const unsigned int MIN_COST = 12;
 
 // From act.comm.cc
-void perform_analyze( Creature *ch, obj_data *obj, bool checklev );
-void perform_appraise( Creature *ch, obj_data *obj, int skill_lvl);
+void perform_analyze( struct creature *ch, obj_data *obj, bool checklev );
+void perform_appraise( struct creature *ch, obj_data *obj, int skill_lvl);
 
 // From cityguard.cc
-void call_for_help(Creature *ch, Creature *attacker);
+void call_for_help(struct creature *ch, struct creature *attacker);
 
 static void
 vendor_log(const char *fmt, ...)
@@ -77,7 +77,7 @@ vendor_inventory(obj_data *obj, obj_data *obj_list)
 }
 
 static bool
-vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
+vendor_invalid_buy(struct creature *self, struct creature *ch, ShopData *shop, obj_data *obj)
 {
 	if (IS_OBJ_STAT(obj, ITEM_NOSELL) ||
 			!OBJ_APPROVED(obj)|| obj->shared->owner_id != 0 ) {
@@ -170,7 +170,7 @@ vendor_get_value(obj_data *obj, int percent, int costModifier, int currency)
 }
 
 obj_data *
-vendor_resolve_hash(Creature *self, char *obj_str)
+vendor_resolve_hash(struct creature *self, char *obj_str)
 {
 	obj_data *last_obj = NULL, *cur_obj;
 	int num;
@@ -195,7 +195,7 @@ vendor_resolve_hash(Creature *self, char *obj_str)
 }
 
 obj_data *
-vendor_resolve_name(Creature *self, char *obj_str)
+vendor_resolve_name(struct creature *self, char *obj_str)
 {
 	obj_data *cur_obj;
 
@@ -207,7 +207,7 @@ vendor_resolve_name(Creature *self, char *obj_str)
 }
 
 void
-vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
+vendor_appraise(struct creature *ch, obj_data *obj, struct creature *self, ShopData *shop)
 {
 	const char *currency_str;
 	const unsigned long cost = 2000;
@@ -267,7 +267,7 @@ vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop)
 }
 
 static void
-vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
+vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
 	obj_data *obj, *next_obj;
 	char *obj_str, *msg;
@@ -462,7 +462,7 @@ vendor_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 }
 
 static void
-vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
+vendor_buy(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
 	obj_data *obj, *next_obj;
 	char *obj_str;
@@ -577,7 +577,7 @@ vendor_buy(Creature *ch, char *arg, Creature *self, ShopData *shop)
 }
 
 char *
-vendor_list_obj(Creature *ch, obj_data *obj, int cnt, int idx, int cost)
+vendor_list_obj(struct creature *ch, obj_data *obj, int cnt, int idx, int cost)
 {
 	char *obj_desc;
 
@@ -621,7 +621,7 @@ vendor_list_obj(Creature *ch, obj_data *obj, int cnt, int idx, int cost)
 }
 
 static void
-vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
+vendor_list(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
 	obj_data *cur_obj, *last_obj;
 	int idx, cnt;
@@ -689,7 +689,7 @@ vendor_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 }
 
 static void
-vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
+vendor_value(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
 	obj_data *obj;
 	char *obj_str;
@@ -724,9 +724,9 @@ vendor_value(Creature *ch, char *arg, Creature *self, ShopData *shop)
 }
 
 static void
-vendor_revenue(Creature *self, ShopData *shop)
+vendor_revenue(struct creature *self, ShopData *shop)
 {
-	Creature *vkeeper;
+	struct creature *vkeeper;
 	long cur_money, max_money;
 
 	vkeeper = real_mobile_proto(GET_MOB_VNUM(self));
@@ -892,7 +892,7 @@ vendor_parse_param(char *param, ShopData *shop, int *err_line)
 
 SPECIAL(vendor)
 {
-	Creature *self = (Creature *)me;
+	struct creature *self = (struct creature *)me;
 	char *config;
     const char *err = NULL;
 	int err_line;
@@ -929,7 +929,7 @@ SPECIAL(vendor)
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
-        Creature *target = self->findRandomCombat();
+        struct creature *target = self->findRandomCombat();
 		if (target && shop->call_for_help && !number(0, 4)) {
 			call_for_help(self, target);
 			return 1;

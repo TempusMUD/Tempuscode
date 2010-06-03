@@ -17,8 +17,8 @@ extern void set_local_time(struct zone_data *zone,
 void
 move_chars(room_data * from, room_data * to)
 {
-	Creature *ch = NULL;
-	CreatureList_iterator it = from->people.begin();
+	struct creature *ch = NULL;
+	struct creatureList_iterator it = from->people.begin();
 	for (; it != from->people.end(); ++it) {
 		ch = *it;
 		char_from_room(ch, false);

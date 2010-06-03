@@ -143,7 +143,7 @@ ACMD(do_empower)
 // better spot
 ACMD(do_teach)
 {
-    Creature *target;
+    struct creature *target;
     char *s;
     char *skill_str, *target_str;
     const char *skill_name;
@@ -261,12 +261,12 @@ ACMD(do_teach)
 }
 
 bool
-area_attack_advisable(Creature *ch)
+area_attack_advisable(struct creature *ch)
 {
     // Area attacks are advisable when there are more than one PC and
     // no other non-fighting NPCs
     int pc_count = 0;
-    for (CreatureList_iterator cit = ch->in_room->people.begin();
+    for (struct creatureList_iterator cit = ch->in_room->people.begin();
          cit != ch->in_room->people.end();
          ++cit) {
         if (!can_see_creature(ch, *cit))
@@ -283,12 +283,12 @@ area_attack_advisable(Creature *ch)
 }
 
 bool
-group_attack_advisable(Creature *ch)
+group_attack_advisable(struct creature *ch)
 {
     // Group attacks are advisable when more than one creature is
     // attacking
     int attacker_count = 0;
-    for (CreatureList_iterator cit = ch->in_room->people.begin();
+    for (struct creatureList_iterator cit = ch->in_room->people.begin();
          cit != ch->in_room->people.end();
          ++cit) {
         if ((*cit)->findCombat(ch)) {
@@ -307,7 +307,7 @@ group_attack_advisable(Creature *ch)
 
 // return true if the attack was made, otherwise return false
 bool
-mage_damaging_attack(Creature *ch, Creature *vict)
+mage_damaging_attack(struct creature *ch, struct creature *vict)
 {
     int return_flags;
 
@@ -345,7 +345,7 @@ mage_damaging_attack(Creature *ch, Creature *vict)
 }
 
 bool
-dispel_is_advisable(Creature *vict)
+dispel_is_advisable(struct creature *vict)
 {
     // Return true if magical buffs are found
     for (affected_type *af = vict->affected;af;af = af->next) {
@@ -359,9 +359,9 @@ dispel_is_advisable(Creature *vict)
 }
 
 void
-mage_best_attack(Creature *ch, Creature *vict)
+mage_best_attack(struct creature *ch, struct creature *vict)
 {
-    int calculate_mob_aggression(Creature *, Creature *);
+    int calculate_mob_aggression(struct creature *, struct creature *);
 
     int return_flags;
     int aggression = calculate_mob_aggression(ch, vict);
@@ -423,7 +423,7 @@ mage_best_attack(Creature *ch, Creature *vict)
 }
 
 void
-mage_activity(Creature *ch)
+mage_activity(struct creature *ch)
 {
     if (room_is_dark(ch->in_room) &&
                can_cast_spell(ch, SPELL_INFRAVISION) &&
@@ -465,11 +465,11 @@ mage_activity(Creature *ch)
 }
 
 bool
-mage_mob_fight(Creature *ch, Creature *precious_vict)
+mage_mob_fight(struct creature *ch, struct creature *precious_vict)
 {
-	int calculate_mob_aggression(Creature *ch, Creature *vict);
+	int calculate_mob_aggression(struct creature *ch, struct creature *vict);
 
-    Creature *vict = 0;
+    struct creature *vict = 0;
     int return_flags;
 
 	if (!ch->isFighting())

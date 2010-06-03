@@ -27,7 +27,7 @@
 #include "fight.h"
 
 void
-perform_monk_meditate(struct Creature *ch)
+perform_monk_meditate(struct creature *ch)
 {
 	struct affected_type af;
 
@@ -239,7 +239,7 @@ perform_monk_meditate(struct Creature *ch)
 
 ACMD(do_whirlwind)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent = 0, prob = 0, i;
     char *arg;
@@ -363,7 +363,7 @@ ACMD(do_whirlwind)
                 (i < hits) && (combatIter != combatList->end());
                 ++combatIter) {
 			int my_return_flags = 0;
-            struct Creature *newVict = combatIter->getOpponent();
+            struct creature *newVict = combatIter->getOpponent();
             if (random_percentage() <= 75) {
 				if (newVict && newVict->in_room == ch->in_room) {
 					dam = 0;
@@ -414,7 +414,7 @@ ACMD(do_whirlwind)
 #define HOW_MANY    19
 ACMD(do_combo)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent = 0, prob = 0, count = 0, i, dam = 0;
 	int dead = 0;
@@ -573,7 +573,7 @@ ACMD(do_pinch)
 {
 	struct affected_type af;
 	struct obj_data *ovict = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int prob, percent, which_pinch, i;
 	char *pinch_str, *vict_str;
 	const char *to_vict = NULL, *to_room = NULL;

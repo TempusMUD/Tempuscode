@@ -29,12 +29,12 @@
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))
 #define LARGE_GUN(gun) ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && IS_TWO_HAND(gun))
 
-int apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
+int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
 	int pos);
 
 ACMD(do_pistolwhip)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL;
 	int percent, prob, dam;
     char *arg;
@@ -93,7 +93,7 @@ ACMD(do_pistolwhip)
 
 ACMD(do_crossface)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL;
 	int str_mod, dex_mod, percent = 0, prob = 0, dam = 0;
 	int retval = 0, diff = 0, wear_num;
@@ -275,9 +275,9 @@ IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
 // --Nothing
 ACMD(do_snipe)
 {
-	int choose_random_limb(Creature *victim); // from combat/combat_utils.cc
+	int choose_random_limb(struct creature *victim); // from combat/combat_utils.cc
 
-	struct Creature *vict;
+	struct creature *vict;
 	struct obj_data *gun, *bullet, *armor;
 	struct room_data *cur_room, *nvz_room = NULL;
 	struct affected_type af;
@@ -570,7 +570,7 @@ ACMD(do_snipe)
 
 ACMD(do_wrench)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	struct obj_data *neck = NULL;
 	int two_handed = 0;
@@ -707,13 +707,13 @@ ACMD(do_infiltrate)
 }
 
 void
-perform_appraise(Creature *ch, obj_data *obj, int skill_lvl)
+perform_appraise(struct creature *ch, obj_data *obj, int skill_lvl)
 {
 	int i;
 	long cost;
 	unsigned long eq_req_flags;
 
-	struct time_info_data age(struct Creature *ch);
+	struct time_info_data age(struct creature *ch);
 
 	acc_string_clear();
 

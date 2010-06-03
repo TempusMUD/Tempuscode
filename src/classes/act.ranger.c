@@ -30,7 +30,7 @@
 
 ACMD(do_bandage)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	int mod, cost;
 	char vict_name[MAX_INPUT_LENGTH];
 	one_argument(argument, vict_name);
@@ -91,7 +91,7 @@ ACMD(do_bandage)
 
 ACMD(do_firstaid)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	int mod, cost;
 	char vict_name[MAX_INPUT_LENGTH];
 	one_argument(argument, vict_name);
@@ -154,7 +154,7 @@ ACMD(do_firstaid)
 
 ACMD(do_medic)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	int mod = (GET_LEVEL(ch)/2 + CHECK_SKILL(ch, SKILL_MEDIC) + GET_REMORT_GEN(ch)*3);
 
 	char vict_name[MAX_INPUT_LENGTH];
@@ -207,7 +207,7 @@ ACMD(do_medic)
 
 ACMD(do_autopsy)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *corpse = NULL;
 	const char *name = NULL;
 
@@ -262,7 +262,7 @@ ACMD(do_autopsy)
 ACMD(do_ambush)
 {
 	char *vict_name;
-	Creature *vict;
+	struct creature *vict;
 
 	vict_name = tmp_getword(&argument);
 	vict = get_char_room_vis(ch, vict_name);

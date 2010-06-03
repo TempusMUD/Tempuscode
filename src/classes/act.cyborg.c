@@ -32,11 +32,11 @@ extern struct room_data *world;
 extern struct spell_info_type spell_info[];
 extern struct obj_data *object_list;
 
-int check_mob_reaction(struct Creature *ch, struct Creature *vict);
-void look_at_target(struct Creature *ch, char *arg);
-void perform_extract_all(struct Creature *ch, struct Creature *vict);
+int check_mob_reaction(struct creature *ch, struct creature *vict);
+void look_at_target(struct creature *ch, char *arg);
+void perform_extract_all(struct creature *ch, struct creature *vict);
 const char *obj_cond(struct obj_data *obj);
-const char *obj_cond_color(struct obj_data *obj, struct Creature *ch);
+const char *obj_cond_color(struct obj_data *obj, struct creature *ch);
 
 ACMD(do_not_here);
 ACMD(do_examine);
@@ -114,7 +114,7 @@ get_component_name(int comp, int sub_class)
 }
 
 int
-max_component_dam(struct Creature *ch)
+max_component_dam(struct creature *ch)
 {
 
 	int max;
@@ -128,8 +128,8 @@ max_component_dam(struct Creature *ch)
 }
 
 void
-perform_recharge(struct Creature *ch, struct obj_data *battery,
-	struct Creature *vict, struct obj_data *engine, int amount)
+perform_recharge(struct creature *ch, struct obj_data *battery,
+	struct creature *vict, struct obj_data *engine, int amount)
 {
 	int wait = 0;
 	if (battery) {
@@ -278,7 +278,7 @@ ACMD(do_recharge)
 {
 	char *arg1, *arg2, *arg3, *arg4;
 	struct obj_data *target = NULL, *battery = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int i;
 
 	arg1 = tmp_getword(&argument);
@@ -519,7 +519,7 @@ ACMD(do_recharge)
 //
 
 void
-perform_cyborg_activate(Creature *ch, int mode, int subcmd)
+perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
 {
 	struct affected_type af[3];
 	const char *to_room[2], *to_char[2];
@@ -804,7 +804,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 				act(to_room[1], false, ch, 0, 0, TO_ROOM);
 
 			if (mode == SKILL_ENERGY_FIELD && room_is_watery(ch->in_room)) {
-				CreatureList_iterator it = ch->in_room->people.begin();
+				struct creatureList_iterator it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					if (*it != ch) {
 						damage(ch, *it, dice(4, GET_LEVEL(ch)),
@@ -1255,7 +1255,7 @@ ACMD(do_bioscan)
 		send_to_char(ch, "You are not equipped with bio-scanners.\r\n");
 		return;
 	}
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((((can_see_creature(ch, (*it)) || GET_INVIS_LVL((*it)) < GET_LEVEL(ch)) &&
 					(CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100) ||
@@ -1276,7 +1276,7 @@ ACMD(do_bioscan)
 ACMD(do_discharge)
 {
 
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL;
 	int percent, prob, amount, dam;
 	int feedback = 0;
@@ -1824,7 +1824,7 @@ ACMD(do_status)
 
 ACMD(do_repair)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *obj = NULL, *tool = NULL;
 	int dam, cost, skill = 0;
 
@@ -2011,7 +2011,7 @@ ACMD(do_repair)
 
 ACMD(do_overhaul)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *tool = NULL;
 	skip_spaces(&argument);
 
@@ -2106,7 +2106,7 @@ obj_cond(struct obj_data *obj)
 }
 
 const char *
-obj_cond_color(struct obj_data *obj, struct Creature *ch)
+obj_cond_color(struct obj_data *obj, struct creature *ch)
 {
 	int num;
 
@@ -2144,7 +2144,7 @@ obj_cond_color(struct obj_data *obj, struct Creature *ch)
 #define ALEV(n)    (CHECK_SKILL(ch, SKILL_ANALYZE) > number(50, 50+(n*10)))
 
 void
-perform_analyze( Creature *ch, obj_data *obj, bool checklev=true )
+perform_analyze( struct creature *ch, obj_data *obj, bool checklev=true )
 {
 	extern const char *egun_types[];
     acc_string_clear();
@@ -2305,7 +2305,7 @@ ACMD(do_analyze)
 {
 
 	struct obj_data *obj = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	skip_spaces(&argument);
 
 	if (!*argument ||
@@ -2378,7 +2378,7 @@ ACMD(do_analyze)
 ACMD(do_insert)
 {
 	struct obj_data *obj = NULL, *tool = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char *obj_str, *vict_str, *pos_str;
 	int pos, i;
 
@@ -2577,7 +2577,7 @@ ACMD(do_extract)
 {
 
 	struct obj_data *obj = NULL, *corpse = NULL, *tool = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char *obj_str, *vict_str, *pos_str;
 	int pos;
 
@@ -2790,7 +2790,7 @@ ACMD(do_extract)
 		gain_skill_prof(ch, SKILL_CYBO_SURGERY);
 }
 
-void perform_extract_all(struct Creature *ch, struct Creature *vict)
+void perform_extract_all(struct creature *ch, struct creature *vict)
 {
     struct obj_data *obj;
 
@@ -2822,7 +2822,7 @@ void perform_extract_all(struct Creature *ch, struct Creature *vict)
 ACMD(do_cyberscan)
 {
 	struct obj_data *obj = NULL, *impl = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int i;
 	int found = 0;
 
@@ -3304,7 +3304,7 @@ ACMD(do_overdrain)
 
 ACMD(do_de_energize)
 {
-	Creature *vict;
+	struct creature *vict;
 	int move = 0;
 
 	skip_spaces(&argument);

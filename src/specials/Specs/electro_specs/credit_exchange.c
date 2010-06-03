@@ -6,7 +6,7 @@
 
 SPECIAL(credit_exchange)
 {
-	struct Creature *teller = (struct Creature *)me;
+	struct creature *teller = (struct creature *)me;
 	int amount;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
@@ -50,7 +50,7 @@ SPECIAL(credit_exchange)
 
 SPECIAL(gold_exchange)
 {
-	struct Creature *teller = (struct Creature *)me;
+	struct creature *teller = (struct creature *)me;
 
 	int amount;
 

@@ -32,7 +32,7 @@
 //
 // TYPE
 //
-bool ObjectTypeMatcher_init(Creature *ch, Tokenizer &tokens ) {
+bool ObjectTypeMatcher_init(struct creature *ch, Tokenizer &tokens ) {
 	char arg[256];
 	if (! tokens.hasNext() ) {
 		send_to_char(ch, "Show objects of what type?\r\n");
@@ -61,7 +61,7 @@ bool ObjectTypeMatcher_isMatch( obj_data *obj ) {
 //
 // MATERIAL
 //
-bool ObjectMaterialMatcher_init( Creature *ch, Tokenizer &tokens ) {
+bool ObjectMaterialMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Show objects of what material?\r\n");
@@ -91,7 +91,7 @@ bool ObjectMaterialMatcher_isMatch( obj_data *obj ) {
 //
 // APPLY
 //
-bool ObjectApplyMatcher_init( Creature *ch, Tokenizer &tokens ) {
+bool ObjectApplyMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Show objects with what apply?\r\n");
@@ -121,7 +121,7 @@ bool ObjectApplyMatcher_isMatch( obj_data *obj ) {
     return false;
 }
 const char*
-ObjectApplyMatcher_getAddedInfo(Creature *ch __attribute__((unused)),
+ObjectApplyMatcher_getAddedInfo(struct creature *ch __attribute__((unused)),
                                  obj_data *obj) {
 	int modifier = 0;
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
@@ -136,7 +136,7 @@ ObjectApplyMatcher_getAddedInfo(Creature *ch __attribute__((unused)),
 //
 // SPECIAL
 //
-bool ObjectSpecialMatcher_init( Creature *ch, Tokenizer &tokens ) {
+bool ObjectSpecialMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Show objects with what special?\r\n");
@@ -163,7 +163,7 @@ bool ObjectSpecialMatcher_isMatch( obj_data *obj ) {
 //
 // AFFECT
 //
-bool ObjectAffectMatcher_init( Creature *ch, Tokenizer &tokens ) {
+bool ObjectAffectMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Show objects with what affect?\r\n");
@@ -192,7 +192,7 @@ bool ObjectAffectMatcher_isMatch( obj_data *obj ) {
 //
 // COST
 //
-bool ObjectCostMatcher_init( Creature *ch, Tokenizer &tokens ) {
+bool ObjectCostMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     char arg[256];
     if (! tokens.hasNext() ) {
         send_to_char(ch, "Usage: 'show objects cost < amount'\r\n");
@@ -228,7 +228,7 @@ bool ObjectCostMatcher_isMatch( obj_data *obj ) {
 }
 
 const char*
-ObjectCostMatcher_getAddedInfo( Creature *ch, obj_data *obj ) {
+ObjectCostMatcher_getAddedInfo( struct creature *ch, obj_data *obj ) {
 	return tmp_sprintf("%s[%s%11d%s]%s",
 		CCYEL(ch,C_NRM), CCGRN(ch, C_NRM),
 		obj->shared->cost,
@@ -238,7 +238,7 @@ ObjectCostMatcher_getAddedInfo( Creature *ch, obj_data *obj ) {
 //
 // SPELL
 //
-bool ObjectSpellMatcher_init( Creature *ch, Tokenizer &tokens ) {
+bool ObjectSpellMatcher_init( struct creature *ch, Tokenizer &tokens ) {
     char arg[256];
     char spellName[256];
     spellName[0] = '\0';
@@ -299,7 +299,7 @@ bool ObjectSpellMatcher_isMatch( obj_data *obj ) {
 }
 
 const char*
-ObjectSpellMatcher_getAddedInfo( Creature *ch, obj_data *obj ) {
+ObjectSpellMatcher_getAddedInfo( struct creature *ch, obj_data *obj ) {
 	const char *spell1 = "0";
 	const char *spell2 = "0";
 	const char *spell3 = "0";
@@ -332,7 +332,7 @@ ObjectSpellMatcher_getAddedInfo( Creature *ch, obj_data *obj ) {
 //
 // WORN
 //
-bool ObjectWornMatcher_init( Creature *ch, Tokenizer &tokens ) {
+bool ObjectWornMatcher_init( struct creature *ch, Tokenizer &tokens ) {
 	char arg[256];
 	if (! tokens.hasNext() ) {
 		send_to_char(ch, "Show objects worn in what position?\r\n");
@@ -362,7 +362,7 @@ bool ObjectWornMatcher_isMatch( obj_data *obj ) {
 //
 // EXTRA
 //
-bool ObjectExtraMatcher_init( Creature *ch, Tokenizer &tokens ) {
+bool ObjectExtraMatcher_init( struct creature *ch, Tokenizer &tokens ) {
 	char arg[256];
 	if (! tokens.hasNext() ) {
 		send_to_char(ch, "Usage: 'show objects extra < [!] flag> ...'\r\n");
@@ -391,7 +391,7 @@ bool ObjectExtraMatcher_init( Creature *ch, Tokenizer &tokens ) {
 	return true;
 }
 
-bool ObjectExtraMatcher_addExtra( Creature *ch, char *arg ) {
+bool ObjectExtraMatcher_addExtra( struct creature *ch, char *arg ) {
     int i =  search_block(arg, extra_names, 0);
     if( i > 0 )  {
         extra |= (1 << i);
@@ -412,7 +412,7 @@ bool ObjectExtraMatcher_addExtra( Creature *ch, char *arg ) {
     return false;
 }
 
-bool ObjectExtraMatcher_addNoExtra( Creature *ch, char *arg ) {
+bool ObjectExtraMatcher_addNoExtra( struct creature *ch, char *arg ) {
     int i =  search_block(arg, extra_names, 0);
     if( i > 0 )  {
         noextra |= (1 << i);

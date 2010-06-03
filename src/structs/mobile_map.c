@@ -5,11 +5,11 @@
 #include "mobile_map.h"
 #include "utils.h"
 
-MobileMap_MobileMap() : map<int, Creature *>()
+MobileMap_MobileMap() : map<int, struct creature *>()
 {
 }
 
-bool MobileMap_add(Creature *ch)
+bool MobileMap_add(struct creature *ch)
 {
     int vnum = 0;
 
@@ -34,7 +34,7 @@ bool MobileMap_add(Creature *ch)
     return true;
 }
 
-bool MobileMap_remove(Creature *ch)
+bool MobileMap_remove(struct creature *ch)
 {
     int vnum = 0;
 
@@ -56,7 +56,7 @@ bool MobileMap_remove(int vnum)
     return erase(vnum);
 }
 
-Creature *MobileMap_find(int vnum)
+struct creature *MobileMap_find(int vnum)
 {
     if (count(vnum) <= 0)
         return NULL;

@@ -8,7 +8,7 @@ ACMD(do_bash);
 
 SPECIAL(Aziz)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;

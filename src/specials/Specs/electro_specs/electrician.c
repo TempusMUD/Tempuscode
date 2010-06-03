@@ -16,7 +16,7 @@ SPECIAL(electrician)
 		return 0;
 	}
 
-	Creature *mob = (Creature *) me;
+	struct creature *mob = (struct creature *) me;
 	int num;
 	if( spec_mode == SPECIAL_ENTER || spec_mode == SPECIAL_LEAVE) {
 		num = number(0,4);

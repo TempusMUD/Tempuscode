@@ -48,15 +48,15 @@ char locate_buf[256];
 extern int mini_mud;
 
 extern struct room_data *world;
-int find_door(struct Creature *ch, char *type, char *dir,
+int find_door(struct creature *ch, char *type, char *dir,
 	const char *cmdname);
 void name_from_drinkcon(struct obj_data *obj);
-struct obj_data *find_item_kit(Creature *ch);
-int perform_taint_burn(Creature *ch, int spellnum);
+struct obj_data *find_item_kit(struct creature *ch);
+int perform_taint_burn(struct creature *ch, int spellnum);
 int max_spell_num = 0;
 
 int
-mag_manacost(struct Creature *ch, int spellnum)
+mag_manacost(struct creature *ch, int spellnum)
 {
 	int mana, mana2;
 
@@ -79,7 +79,7 @@ mag_manacost(struct Creature *ch, int spellnum)
 }
 
 bool
-is_able_to_learn(struct Creature *ch, int spl)
+is_able_to_learn(struct creature *ch, int spl)
 {
     // Return true if the creature ch is able to learn the spell spl
     return ((GET_REMORT_GEN(ch) >= SPELL_GEN(spl, GET_CLASS(ch))
@@ -92,7 +92,7 @@ is_able_to_learn(struct Creature *ch, int spl)
 // Returns true if there's a reasonable chance that casting the spell
 // will work.  Used for NPC AI
 bool
-can_cast_spell(Creature *ch, int spellnum)
+can_cast_spell(struct creature *ch, int spellnum)
 {
     room_data *room = ch->in_room;
 
@@ -112,9 +112,9 @@ can_cast_spell(Creature *ch, int spellnum)
 }
 
 void
-say_spell(struct Creature *ch,
+say_spell(struct creature *ch,
           int spellnum,
-          struct Creature *tch,
+          struct creature *tch,
           struct obj_data *tobj)
 {
     const char *to_char = NULL, *to_vict = NULL, *to_room = NULL;
@@ -228,7 +228,7 @@ find_skill_num(char *name)
  *
  */
 int
-call_magic(struct Creature *caster, struct Creature *cvict,
+call_magic(struct creature *caster, struct creature *cvict,
 	struct obj_data *ovict, int *dvict, int spellnum, int level, int casttype,
 	int *return_flags)
 {
@@ -249,7 +249,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
         }
     }
 
-    CreatureList_iterator it = caster->in_room->people.begin();
+    struct creatureList_iterator it = caster->in_room->people.begin();
 	for (; it != caster->in_room->people.end(); ++it) {
 		if (GET_MOB_PROGOBJ((*it)) != NULL) {
 			if (trigger_prog_spell(*it, PROG_TYPE_MOBILE, caster, spellnum)) {
@@ -663,11 +663,11 @@ call_magic(struct Creature *caster, struct Creature *cvict,
  */
 
 int
-mag_objectmagic(struct Creature *ch, struct obj_data *obj,
+mag_objectmagic(struct creature *ch, struct obj_data *obj,
 	char *argument, int *return_flags)
 {
 	int i, k, level;
-	struct Creature *tch = NULL;
+	struct creature *tch = NULL;
 	struct obj_data *tobj = NULL;
     room_data *was_in = NULL;
 	int my_return_flags = 0;
@@ -713,7 +713,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 			level = MIN(level, LVL_AMBASSADOR);
 
 			room_data *room = ch->in_room;
-			CreatureList_iterator it = room->people.begin();
+			struct creatureList_iterator it = room->people.begin();
 			for (; it != room->people.end(); ++it) {
 				if (ch == *it && spell_info[GET_OBJ_VAL(obj, 3)].violent)
 					continue;
@@ -1023,11 +1023,11 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
  */
 
 int
-cast_spell(struct Creature *ch, struct Creature *tch,
+cast_spell(struct creature *ch, struct creature *tch,
 	struct obj_data *tobj, int *tdir, int spellnum, int *return_flags)
 {
 
-    void sing_song(struct Creature *ch, Creature *vict,
+    void sing_song(struct creature *ch, struct creature *vict,
                    struct obj_data *ovict, int spellnum);
 
 	if (return_flags)
@@ -1199,7 +1199,7 @@ cast_spell(struct Creature *ch, struct Creature *tch,
 	return (retval);
 }
 
-int perform_taint_burn(Creature *ch, int spellnum)
+int perform_taint_burn(struct creature *ch, int spellnum)
 {
     struct affected_type *af;
     int mana = mag_manacost(ch, spellnum);
@@ -1247,8 +1247,8 @@ int perform_taint_burn(Creature *ch, int spellnum)
 }
 
 int
-find_spell_targets(struct Creature *ch, char *argument,
-	struct Creature **tch, struct obj_data **tobj, int *tdir, int *target, int *spellnm,
+find_spell_targets(struct creature *ch, char *argument,
+	struct creature **tch, struct obj_data **tobj, int *tdir, int *target, int *spellnm,
 	int cmd)
 {
 	char *s, *targets = NULL, *ptr;
@@ -1408,7 +1408,7 @@ find_spell_targets(struct Creature *ch, char *argument,
 
 ACMD(do_cast)
 {
-	Creature *tch = NULL;
+	struct creature *tch = NULL;
     int tdir;
 	obj_data *tobj = NULL, *holy_symbol = NULL, *metal = NULL;
 
@@ -1615,8 +1615,8 @@ ACMD(do_cast)
 				(prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
 				/* misdirect */
 
-				CreatureList_iterator it = ch->in_room->people.begin();
-				CreatureList_iterator nit = ch->in_room->people.begin();
+				struct creatureList_iterator it = ch->in_room->people.begin();
+				struct creatureList_iterator nit = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					++nit;
 					if ((*it) != ch && (*it) != tch &&
@@ -1703,7 +1703,7 @@ ACMD(do_cast)
 
 ACMD(do_trigger)
 {
-	struct Creature *tch = NULL;
+	struct creature *tch = NULL;
 	struct obj_data *tobj = NULL;
     int tdir;
 	int mana, spellnum, target = 0, prob = 0, temp = 0;
@@ -1822,7 +1822,7 @@ ACMD(do_trigger)
 
 ACMD(do_arm)
 {
-/*	struct Creature *tch = NULL;
+/*	struct creature *tch = NULL;
 	struct obj_data *tobj = NULL, *resource = NULL;
 	int rpints, spellnum, target = 0, prob = 0;
 
@@ -1914,7 +1914,7 @@ ACMD(do_arm)
 	}*/
 }
 
-struct obj_data *find_item_kit(Creature *ch __attribute__ ((unused)))
+struct obj_data *find_item_kit(struct creature *ch __attribute__ ((unused)))
 {
 /*    struct obj_data *cur_obj;
 
@@ -1942,7 +1942,7 @@ struct obj_data *find_item_kit(Creature *ch __attribute__ ((unused)))
 
 ACMD(do_alter)
 {
-	struct Creature *tch = NULL;
+	struct creature *tch = NULL;
 	struct obj_data *tobj = NULL;
     int tdir;
 	int mana, spellnum, target = 0, temp = 0;
@@ -2059,12 +2059,12 @@ ACMD(do_alter)
 
 ACMD(do_perform)
 {
-	struct Creature *tch = NULL;
+	struct creature *tch = NULL;
 	struct obj_data *tobj = NULL;
     int tdir;
 	int mana, spellnum, target = 0, temp = 0;
 
-    extern bool check_instrument(Creature *ch, int songnum);
+    extern bool check_instrument(struct creature *ch, int songnum);
     extern char *get_instrument_type(int songnum);
 
 	if (IS_NPC(ch))

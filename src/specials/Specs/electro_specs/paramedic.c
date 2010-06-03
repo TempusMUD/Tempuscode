@@ -8,7 +8,7 @@
 SPECIAL(paramedic)
 {
 
-	Creature *pm = (Creature *) me;
+	struct creature *pm = (struct creature *) me;
     int cost = PARAMEDIC_COST;
     cost += (cost*ch->getCostModifier(pm))/100;
 

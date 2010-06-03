@@ -28,7 +28,7 @@
 #include "macros.h"
 
 /* object-related defines ********************************************/
-struct Creature;
+struct creature;
 struct room_data;
 
 /* Item types: used by obj_data.obj_flags.type_flag */
@@ -362,8 +362,8 @@ struct obj_data {
 	char *action_desc;	/* What to write when used          */
 	unsigned int plrtext_len;	/* If contains savable plrtext      */
 	struct extra_descr_data *ex_description;	/* extra descriptions     */
-	struct Creature *carried_by;	/* Carried by :NULL in room/conta   */
-	struct Creature *worn_by;	/* Worn by?                 */
+	struct creature *carried_by;	/* Carried by :NULL in room/conta   */
+	struct creature *worn_by;	/* Worn by?                 */
 	struct obj_shared_data *shared;
 	sh_int worn_on;				/* Worn where?              */
 	unsigned int soilage;

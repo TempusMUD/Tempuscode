@@ -36,7 +36,7 @@
 extern int mini_mud;
 //extern struct obj_data *obj_proto;
 extern struct zone_data *zone_table;
-extern struct Creature *mob_proto;
+extern struct creature *mob_proto;
 extern struct shop_data *shop_index;
 
 // weapon_lister is a transient
@@ -327,13 +327,13 @@ find_spec_index_arg(char *arg)
 //
 
 int
-do_specassign_save(struct Creature *ch, int mode)
+do_specassign_save(struct creature *ch, int mode)
 {
 
 	FILE *file;
 	int index;
 	struct obj_data *obj = NULL;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 	struct room_data *room = NULL;
 	struct zone_data *zone = NULL;
 
@@ -403,7 +403,7 @@ do_specassign_save(struct Creature *ch, int mode)
 //
 
 void
-do_show_specials(struct Creature *ch, char *arg)
+do_show_specials(struct creature *ch, char *arg)
 {
 
 	int mode_all = 0, mode_mob = 0, mode_obj = 0, mode_room = 0;
@@ -504,7 +504,7 @@ assign_mobiles(void)
 	FILE *file;
 	int vnum, index;
 	char *ptr_name, *str;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 
 	file = fopen(SPEC_FILE_MOB, "r");
 	if (!file) {

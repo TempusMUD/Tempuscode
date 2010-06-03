@@ -54,7 +54,7 @@ struct Voice {
 
     void clear(void);
     bool load(xmlNodePtr node);
-    void perform(Creature *ch, void *vict, voice_situation situation);
+    void perform(struct creature *ch, void *vict, voice_situation situation);
 
     int _idnum;
     std_string _name;
@@ -67,7 +67,7 @@ extern std_map<int,Voice> voices;
 
 const char *voice_name(int voice_idx);
 int find_voice_idx_by_name(const char *voice_name);
-void emit_voice(Creature *ch, void *vict, voice_situation situation);
-void show_voices(Creature *ch);
+void emit_voice(struct creature *ch, void *vict, voice_situation situation);
+void show_voices(struct creature *ch);
 
 #endif

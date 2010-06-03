@@ -528,7 +528,7 @@ CMailEditor_ReturnAttachments(void)
 {
     struct obj_data *o, *next_obj;
 
-    extern void obj_to_char(struct obj_data *object, struct Creature *ch,
+    extern void obj_to_char(struct obj_data *object, struct creature *ch,
             bool sorted);
 
     if (this->obj_list) {

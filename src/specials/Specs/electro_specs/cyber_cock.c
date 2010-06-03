@@ -28,7 +28,7 @@ SPECIAL(cyber_cock)
 			return 0;
 		}
 	}
-    Creature *vict = ch->findRandomCombat();
+    struct creature *vict = ch->findRandomCombat();
 	switch (number(0, 16)) {
 	case 0:
 		act("$n leaps into the air, stubby chrome wings flapping!", true, ch,

@@ -47,7 +47,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include "accstr.h"
 
 // From cityguard.cc
-void call_for_help(Creature *ch, Creature *attacker);
+void call_for_help(struct creature *ch, struct creature *attacker);
 
 using namespace std;
 
@@ -100,10 +100,10 @@ mail_box_status(long id)
     // 3 is deleted
     // 4 is failure
 
-    struct Creature *victim;
+    struct creature *victim;
     int flag = 0;
 
-    victim = new Creature(true);
+    victim = new struct creature(true);
     if (!victim->loadFromXML(id)) {
         delete victim;
         return 4;
@@ -239,7 +239,7 @@ purge_mail(long idnum)
 //     telling him.  We'll let the spec say what it wants.
 // Returns the number of mails received.
 int
-receive_mail(Creature * ch, list<struct obj_data *> &olist)
+receive_mail(struct creature * ch, list<struct obj_data *> &olist)
 {
     int num_letters = 0;
     int counter = 0;
@@ -371,7 +371,7 @@ SPECIAL(postmaster)
 }
 
 void
-postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
+postmaster_send_mail(struct creature *ch, struct creature *mailman,
     char *arg)
 {
     long recipient;
@@ -508,7 +508,7 @@ postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
 }
 
 void
-postmaster_check_mail(struct Creature *ch, struct Creature *mailman)
+postmaster_check_mail(struct creature *ch, struct creature *mailman)
 {
     char buf2[256];
 
@@ -520,7 +520,7 @@ postmaster_check_mail(struct Creature *ch, struct Creature *mailman)
 }
 
 void
-postmaster_receive_mail(struct Creature *ch, struct Creature *mailman)
+postmaster_receive_mail(struct creature *ch, struct creature *mailman)
 {
     char *to_char = NULL, *to_room = NULL;
     int num_mails = 0;

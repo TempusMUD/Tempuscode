@@ -6,7 +6,7 @@
 
 SPECIAL(oracle)
 {
-	struct Creature *me2 = (struct Creature *)me;
+	struct creature *me2 = (struct creature *)me;
 	struct obj_data *od = NULL;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;

@@ -14,7 +14,7 @@ town_crier_reset_timer(town_crier_data *data)
 }
 
 void
-town_crier_shout(Creature *self, town_crier_data *data)
+town_crier_shout(struct creature *self, town_crier_data *data)
 {
 	char *str;
 
@@ -57,7 +57,7 @@ town_crier_select(town_crier_data *data)
 
 SPECIAL(town_crier)
 {
-	Creature *self = (Creature *)me;
+	struct creature *self = (struct creature *)me;
 	town_crier_data *data;
 	char *str;
 

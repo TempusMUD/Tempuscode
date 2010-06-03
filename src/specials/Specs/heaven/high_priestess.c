@@ -7,7 +7,7 @@
 SPECIAL(high_priestess)
 {
 
-	struct Creature *hpr = (struct Creature *)me, *archon = NULL, *vict = NULL;
+	struct creature *hpr = (struct creature *)me, *archon = NULL, *vict = NULL;
 	struct room_data *focus = real_room(11173), *quarters = real_room(43252);
 
 	if (cmd)

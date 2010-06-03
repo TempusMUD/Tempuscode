@@ -18,12 +18,12 @@ SPECIAL(mugger)
 	};
 	const int MUG_MAX = 17;
 
-	Creature *self = (Creature *)me;
+	struct creature *self = (struct creature *)me;
 	mob_mugger_data *mug;
 	int idx;
-	Creature *vict, *found_vict;
+	struct creature *vict, *found_vict;
 	obj_data *obj;
-	CreatureList_iterator it;
+	struct creatureList_iterator it;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
 		return 0;

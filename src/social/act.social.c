@@ -108,7 +108,7 @@ ACMD(do_action)
 {
 	int act_nr;
 	struct social_messg *action;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *obj = NULL;
 
 	if ((act_nr = find_action(cmd)) < 0) {
@@ -173,7 +173,7 @@ ACMD(do_action)
 
 ACMD(do_point)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *obj = NULL;
 	int dir, i;
 
@@ -249,7 +249,7 @@ ACMD(do_flip)
 
 ACMD(do_insult)
 {
-	struct Creature *victim;
+	struct creature *victim;
 
 	one_argument(argument, arg);
 
@@ -416,7 +416,7 @@ boot_social_messages(void)
 }
 
 void
-show_social_messages(struct Creature *ch, char *arg)
+show_social_messages(struct creature *ch, char *arg)
 {
 	int i, j, l;
 	struct social_messg *action;

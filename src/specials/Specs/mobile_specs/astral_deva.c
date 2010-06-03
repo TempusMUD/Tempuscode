@@ -11,7 +11,7 @@ SPECIAL(astral_deva)
 	if (!ch->isFighting() || cmd)
 		return 0;
 
-    Creature *vict = ch->findRandomCombat();
+    struct creature *vict = ch->findRandomCombat();
 	if (affected_by_spell(vict, SPELL_GREATER_INVIS) &&
 		!GET_MOB_WAIT(ch) && GET_MANA(ch) > 50) {
 		act("$n stares at $N and utters a strange incantation.", false, ch, 0,

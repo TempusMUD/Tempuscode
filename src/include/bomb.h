@@ -74,8 +74,8 @@ extern bomb_radius_list *bomb_rooms;
 
 void add_bomb_room(struct room_data *room, int fromdir, int p_factor);
 void sort_rooms();
-void bomb_damage_room(Creature *damager, int damager_id, char *bomb_name, int bomb_type, int bomb_power,
+void bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int bomb_type, int bomb_power,
     struct room_data *room, int dir, int power,
-	struct Creature *precious_vict = 0);
+	struct creature *precious_vict = 0);
 
 #endif

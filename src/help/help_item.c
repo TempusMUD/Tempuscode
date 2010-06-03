@@ -292,7 +292,7 @@ HelpItem_Clear(void)
 // much like olc oedit.
 // Sets yer currently editable item to this one.
 bool
-HelpItem_Edit(Creature * ch)
+HelpItem_Edit(struct creature * ch)
 {
 	if (editor) {
 		if (editor != ch) {
@@ -390,7 +390,7 @@ HelpItem_LoadText()
 // Show the entry.
 // buffer is output buffer.
 void
-HelpItem_Show(Creature * ch, char *buffer, int mode)
+HelpItem_Show(struct creature * ch, char *buffer, int mode)
 {
 	char bitbuf[256];
 	char groupbuf[256];

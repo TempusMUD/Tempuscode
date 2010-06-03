@@ -30,17 +30,17 @@ PlayerTable_getTopIDNum()
     return result;
 }
 
-/** loads the named victim into the provided Creature **/
+/** loads the named victim into the provided struct creature **/
 bool
-PlayerTable_loadPlayer(const char* name, Creature *victim) const
+PlayerTable_loadPlayer(const char* name, struct creature *victim) const
 {
 	long id = getID(name);
 	return loadPlayer(id, victim);
 }
 
-/** loads the victim with the given id into the provided Creature **/
+/** loads the victim with the given id into the provided struct creature **/
 bool
-PlayerTable_loadPlayer(const long id, Creature *victim) const
+PlayerTable_loadPlayer(const long id, struct creature *victim) const
 {
 	if(id <= 0) {
 		return false;
@@ -128,7 +128,7 @@ PlayerTable_getID(const char *name) const
 }
 
 long
-PlayerTable_getAccountID(const char *name) const
+PlayerTable_getstruct accountID(const char *name) const
 {
 	PGresult *res;
 	long result;
@@ -146,7 +146,7 @@ PlayerTable_getAccountID(const char *name) const
 }
 
 long
-PlayerTable_getAccountID(long id) const
+PlayerTable_getstruct accountID(long id) const
 {
 	PGresult *res;
 	long result;

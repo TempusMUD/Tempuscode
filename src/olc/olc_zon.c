@@ -69,14 +69,14 @@ char *one_argument_no_lower(char *argument, char *first_arg);
 int search_block_no_lower(char *arg, const char **list, bool exact);
 int fill_word_no_lower(char *argument);
 void num2str(char *str, int num);
-void do_stat_object(struct Creature *ch, struct obj_data *obj);
-void do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg);
-void do_zone_cmdrem(struct Creature *ch, struct zone_data *zone, int num);
-void do_zone_cmdmove(struct Creature *ch, struct zone_data *zone,
+void do_stat_object(struct creature *ch, struct obj_data *obj);
+void do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg);
+void do_zone_cmdrem(struct creature *ch, struct zone_data *zone, int num);
+void do_zone_cmdmove(struct creature *ch, struct zone_data *zone,
 	char *argument);
 
 void
-do_zcmd(struct Creature *ch, char *argument)
+do_zcmd(struct creature *ch, char *argument)
 {
 	struct zone_data *zone = NULL, *tmp_zone;
 	struct reset_com *zonecmd, *tmp_zonecmd, *zcmd = NULL;
@@ -979,7 +979,7 @@ do_zcmd(struct Creature *ch, char *argument)
 }
 
 void
-do_zone_cmdmove(struct Creature *ch, struct zone_data *zone, char *argument)
+do_zone_cmdmove(struct creature *ch, struct zone_data *zone, char *argument)
 {
 	struct reset_com *first = NULL, *tmp_zonecmd = NULL, *savecmd1 = NULL,
 		*savecmd2 = NULL;
@@ -1069,11 +1069,11 @@ do_zone_cmdmove(struct Creature *ch, struct zone_data *zone, char *argument)
 #define ZMOB_USAGE "Usage: olc zmob <mob vnum> <max existing>\n"
 
 void
-do_zmob_cmd(struct Creature *ch, char *argument)
+do_zmob_cmd(struct creature *ch, char *argument)
 {
 	struct zone_data *zone;
 	struct reset_com *zonecmd, *tmp_zonecmd;
-	struct Creature *mob;
+	struct creature *mob;
 	int int_arg1, int_arg2, line, prob = 100;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -1147,7 +1147,7 @@ do_zmob_cmd(struct Creature *ch, char *argument)
 #define ZPUT_USAGE "Usage: olc zput <obj name> <obj vnum> <max loaded> [prob]\r\n"
 
 void
-do_zput_cmd(struct Creature *ch, char *argument)
+do_zput_cmd(struct creature *ch, char *argument)
 {
 	struct zone_data *zone = NULL;
 	struct reset_com *zonecmd, *tmp_zonecmd;
@@ -1267,12 +1267,12 @@ do_zput_cmd(struct Creature *ch, char *argument)
 #define ZGIVE_USAGE "Usage: olc zgive <mob name> <obj vnum> <max loaded> [prob]\r\n"
 
 void
-do_zgive_cmd(struct Creature *ch, char *argument)
+do_zgive_cmd(struct creature *ch, char *argument)
 {
 	struct zone_data *zone;
 	struct reset_com *zonecmd, *tmp_zonecmd;
 	int int_arg1, int_arg2, int_arg3, line, found = 0, prob = 100;
-	struct Creature *mob;
+	struct creature *mob;
 	struct obj_data *obj = NULL;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -1394,12 +1394,12 @@ do_zgive_cmd(struct Creature *ch, char *argument)
 #define ZIMPLANT_USAGE "Usage: olc zimplant <mob name> <obj vnum> <max loaded> <implant pos> [prob]\r\n"
 
 void
-do_zimplant_cmd(struct Creature *ch, char *argument)
+do_zimplant_cmd(struct creature *ch, char *argument)
 {
 	struct zone_data *zone;
 	struct reset_com *zonecmd, *tmp_zonecmd;
 	int int_arg1, int_arg2, int_arg3, line, found = 0, prob = 100;
-	struct Creature *mob;
+	struct creature *mob;
 	struct obj_data *obj;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -1524,12 +1524,12 @@ do_zimplant_cmd(struct Creature *ch, char *argument)
 " <wear pos> [prob]\r\n"
 
 void
-do_zequip_cmd(struct Creature *ch, char *argument)
+do_zequip_cmd(struct creature *ch, char *argument)
 {
 	struct zone_data *zone;
 	struct reset_com *zonecmd, *tmp_zonecmd;
 	int int_arg1, int_arg2, int_arg3, line, found = 0, prob = 100;
-	struct Creature *mob;
+	struct creature *mob;
 	struct obj_data *obj;
 
 	argument = two_arguments(argument, arg1, arg2);
@@ -1647,7 +1647,7 @@ do_zequip_cmd(struct Creature *ch, char *argument)
 #define ZOBJ_USAGE "Usage: olc zobj <obj vnum> <max loaded> [prob]\r\n"
 
 void
-do_zobj_cmd(struct Creature *ch, char *argument)
+do_zobj_cmd(struct creature *ch, char *argument)
 {
 	struct zone_data *zone;
 	struct obj_data *obj;
@@ -1739,7 +1739,7 @@ do_zobj_cmd(struct Creature *ch, char *argument)
 }
 
 void
-do_zdoor_cmd(struct Creature *ch, char *argument)
+do_zdoor_cmd(struct creature *ch, char *argument)
 {
 	struct zone_data *zone;
 	struct reset_com *zonecmd, *tmp_zonecmd, *zcmd = NULL;
@@ -1881,13 +1881,13 @@ do_zdoor_cmd(struct Creature *ch, char *argument)
 #define ZSET_COMMAND_USAGE  "Usage: olc zset [zone] command <cmd num> [if|max|prob] <value>\r\n"
 extern const char *zone_flag_names[];
 void
-do_zset_command(struct Creature *ch, char *argument)
+do_zset_command(struct creature *ch, char *argument)
 {
 	struct zone_data *zone = NULL, *tmp_zone;
 	struct reset_com *tmp_zonecmd;
 	int cmd, i, j, k, found, timeframe, plane, zset_command, state;
 	int tmp_zone_flags, cur_zone_flags, tmp_flag;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int num;
 
 	argument = one_argument(argument, arg1);
@@ -2378,7 +2378,7 @@ do_zset_command(struct Creature *ch, char *argument)
 /* Add zone <num> to index file */
 
 int
-do_create_zone(struct Creature *ch, int num)
+do_create_zone(struct creature *ch, int num)
 {
 	struct zone_data *zone = NULL, *new_zone = NULL;
 	struct weather_data *weather = NULL;
@@ -2502,12 +2502,12 @@ do_create_zone(struct Creature *ch, int num)
 }
 
 bool
-save_zone(struct Creature *ch, struct zone_data *zone)
+save_zone(struct creature *ch, struct zone_data *zone)
 {
 	char fname[64], comment[MAX_TITLE_LENGTH];
 	unsigned int tmp;
 	struct obj_data *obj;
-	struct Creature *mob;
+	struct creature *mob;
 	struct reset_com *zcmd = NULL;
 	FILE *zone_file, *realfile;
 
@@ -2683,7 +2683,7 @@ autosave_zones(int SAVE_TYPE)
 }
 
 void
-do_zone_cmdrem(struct Creature *ch, struct zone_data *zone, int num)
+do_zone_cmdrem(struct creature *ch, struct zone_data *zone, int num)
 {
 	struct reset_com *zcmd, *next_zcmd;
 	int i, found = 0;
@@ -2721,13 +2721,13 @@ do_zone_cmdrem(struct Creature *ch, struct zone_data *zone, int num)
 }
 
 void
-do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg)
+do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
 {
 
 	char out_buf[MAX_STRING_LENGTH];
 	char door_flg[150];
 	struct obj_data *tmp_obj;
-	struct Creature *tmp_mob;
+	struct creature *tmp_mob;
 	struct room_data *tmp_rom;
 	struct reset_com *zcmd;
 	char arg1[MAX_INPUT_LENGTH];
@@ -3027,10 +3027,10 @@ fill_word_no_lower(char *argument)
 #define ZPATH_USAGE "Usage: olc zpath <'mob'|'obj'> <name> <path name>\r\n"
 
 void
-do_zpath_cmd(struct Creature *ch, char *argument)
+do_zpath_cmd(struct creature *ch, char *argument)
 {
 	struct obj_data *obj = NULL;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 	struct zone_data *zone = ch->in_room->zone;
 	struct reset_com *zonecmd, *tmp_zonecmd;
 	bool obj_mode = 0, mob_mode = 0, found = 0;

@@ -336,7 +336,7 @@ init_game(int port)
 {
 	int mother_desc;
 	void my_srand(unsigned long initial_seed);
-    void verify_tempus_integrity(Creature *ch);
+    void verify_tempus_integrity(struct creature *ch);
 
 	my_srand(time(0));
 	boot_db();
@@ -1567,7 +1567,7 @@ signal_setup(void)
 *******************************************************************/
 
 void
-send_to_char(struct Creature *ch, const char *str, ...)
+send_to_char(struct creature *ch, const char *str, ...)
 {
 	char *msg_str;
 	va_list args;
@@ -1718,11 +1718,11 @@ send_to_newbie_helpers(const char *messg)
 
 /* mode == true -> hide from sender.  false -> show to all */
 void
-send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
+send_to_comm_channel(struct creature *ch, char *buf, int chan, int mode,
 	int hide_invis)
 {
 	SPECIAL(master_communicator);
-	Creature *receiver;
+	struct creature *receiver;
 	obj_data *obj = NULL;
 
 	for (obj = object_list; obj; obj = obj->next) {
@@ -1790,7 +1790,7 @@ send_to_zone(const char *messg, struct zone_data *zn, int outdoor)
 void
 send_to_room(const char *messg, struct room_data *room)
 {
-	struct Creature *i;
+	struct creature *i;
 	room_data *to_room;
 	struct obj_data *o, *obj = NULL;
 	char *str;
@@ -1798,7 +1798,7 @@ send_to_room(const char *messg, struct room_data *room)
 
 	if (!room || !messg)
 		return;
-	CreatureList_iterator it = room->people.begin();
+	struct creatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		i = *it;
 		if (i->desc && !PLR_FLAGGED(i, PLR_OLC | PLR_WRITING | PLR_MAILING))
@@ -1889,7 +1889,7 @@ act_escape(const char *str)
 }
 
 char *
-act_translate(Creature *ch, Creature *to, const char **s)
+act_translate(struct creature *ch, struct creature *to, const char **s)
 {
     bool Nasty_Words(const char *words);
     const char *random_curses(void);
@@ -1942,10 +1942,10 @@ act_translate(Creature *ch, Creature *to, const char **s)
 void
 make_act_str(const char *orig,
              char *buf,
-             struct Creature *ch,
+             struct creature *ch,
              struct obj_data *obj,
              struct void *vict_obj,
-             struct Creature *to)
+             struct creature *to)
 {
     const char *s = orig;
     const char *i = 0;
@@ -2111,8 +2111,8 @@ make_act_str(const char *orig,
 }
 
 void
-perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
-	void *vict_obj, struct Creature *to, int mode)
+perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
+	void *vict_obj, struct creature *to, int mode)
 {
 	static char lbuf[MAX_STRING_LENGTH];
 	char outbuf[MAX_STRING_LENGTH];
@@ -2151,7 +2151,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 #define SENDOK(ch) (AWAKE(ch) || sleep)
 
 void
-act_if(const char *str, int hide_invisible, struct Creature *ch,
+act_if(const char *str, int hide_invisible, struct creature *ch,
 	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred)
 {
 	struct obj_data *o, *o2 = NULL;
@@ -2219,7 +2219,7 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 		raise(SIGSEGV);
 		return;
 	}
-	CreatureList_iterator it = room->people.begin();
+	struct creatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (!pred(ch, obj, vict_obj, (*it), 0))
 			continue;
@@ -2298,17 +2298,17 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 }
 
 bool
-standard_act_predicate(struct Creature *ch __attribute__ ((unused)),
+standard_act_predicate(struct creature *ch __attribute__ ((unused)),
                        struct obj_data *obj __attribute__ ((unused)),
                        void *vict_obj __attribute__ ((unused)),
-                       struct Creature *to __attribute__ ((unused)),
+                       struct creature *to __attribute__ ((unused)),
                        int mode __attribute__ ((unused)))
 {
 	return true;
 }
 
 void
-act(const char *str, int hide_invisible, struct Creature *ch,
+act(const char *str, int hide_invisible, struct creature *ch,
 	struct obj_data *obj, void *vict_obj, int type)
 {
 	act_if(str, hide_invisible, ch, obj, vict_obj, type, standard_act_predicate);
@@ -2380,7 +2380,7 @@ bamf_quad_damage(void)
 }
 
 void
-push_command_onto_list(Creature *ch, char *string)
+push_command_onto_list(struct creature *ch, char *string)
 {
 
 	int i;

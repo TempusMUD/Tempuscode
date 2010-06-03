@@ -50,14 +50,14 @@
 
 extern int corpse_state;
 /* The Fight related routines */
-obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
-int calculate_weapon_probability(struct Creature *ch, int prob,
+obj_data *get_random_uncovered_implant(struct creature * ch, int type = -1);
+int calculate_weapon_probability(struct creature *ch, int prob,
 	struct obj_data *weap);
-int calculate_attack_probability(struct Creature *ch);
+int calculate_attack_probability(struct creature *ch);
 
 //checks for both vendors and utility mobs
 bool
-ok_damage_vendor(struct Creature *ch, struct Creature *victim)
+ok_damage_vendor(struct creature *ch, struct creature *victim)
 {
 	if (ch && GET_LEVEL(ch) > LVL_CREATOR)
 		return true;
@@ -93,7 +93,7 @@ ok_damage_vendor(struct Creature *ch, struct Creature *victim)
 }
 
 int
-calculate_weapon_probability(struct Creature *ch, int prob,
+calculate_weapon_probability(struct creature *ch, int prob,
 	struct obj_data *weap)
 {
 	int i, weap_weight;
@@ -149,7 +149,7 @@ calculate_weapon_probability(struct Creature *ch, int prob,
 }
 
 void
-update_pos(struct Creature *victim)
+update_pos(struct creature *victim)
 {
 	// Wake them up from thier nap.
 	if (GET_HIT(victim) > 0 && victim->getPosition() == POS_SLEEPING)
@@ -325,7 +325,7 @@ replace_string(const char *str,
 
 /* Calculate the raw armor including magic armor.  Lower AC is better. */
 int
-calculate_thaco(struct Creature *ch, struct Creature *victim,
+calculate_thaco(struct creature *ch, struct creature *victim,
 	struct obj_data *weap)
 {
 	int calc_thaco, wpn_wgt, i;
@@ -494,7 +494,7 @@ add_blood_to_room(struct room_data *rm, int amount)
 }
 
 int
-apply_soil_to_char(struct Creature *ch, struct obj_data *obj, int type,
+apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
 	int pos)
 {
 
@@ -572,7 +572,7 @@ int limb_probs[] = {
 };
 
 int
-choose_random_limb(Creature *victim)
+choose_random_limb(struct creature *victim)
 {
 	int prob;
 	int i;
@@ -616,7 +616,7 @@ choose_random_limb(Creature *victim)
 }
 
 obj_data *
-make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
+make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 {
 	struct obj_data *corpse = NULL, *head = NULL, *heart = NULL,
 		*spine = NULL, *o = NULL, *next_o = NULL, *leg = NULL;
@@ -1432,7 +1432,7 @@ make_corpse(struct Creature *ch, struct Creature *killer, int attacktype)
     return corpse;
 }
 
-int calculate_attack_probability(struct Creature *ch)
+int calculate_attack_probability(struct creature *ch)
 {
     int prob;
     struct obj_data *weap = NULL;

@@ -9,7 +9,7 @@ SPECIAL(cyberfiend)
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
-	struct Creature *fiend = (struct Creature *)me;
+	struct creature *fiend = (struct creature *)me;
 
 	if (!cmd || !AWAKE(fiend))
 		return 0;

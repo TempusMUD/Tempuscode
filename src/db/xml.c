@@ -21,7 +21,7 @@ void load_xml_room(xmlNodePtr node);
 
 // Needed from db.cc
 extern player_special_data dummy_mob;
-void set_physical_attribs(struct Creature *ch);
+void set_physical_attribs(struct creature *ch);
 
 void
 xml_boot(void)
@@ -86,7 +86,7 @@ xml_boot(void)
 }
 
 void
-xml_reload( Creature *ch = NULL )
+xml_reload( struct creature *ch = NULL )
 {
 	DIR *dir;
 	dirent *file;
@@ -235,10 +235,10 @@ load_xml_object(xmlNodePtr node)
 void
 load_xml_mobile(xmlNodePtr node)
 {
-	struct Creature *mob;
+	struct creature *mob;
 
 	// Initialize structures
-	mob = new Creature(false);
+	mob = new struct creature(false);
 	CREATE(mob->mob_specials.shared, struct mob_shared_data, 1);
 
 	// Read in initial properties

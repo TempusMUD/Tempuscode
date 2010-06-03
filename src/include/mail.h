@@ -50,19 +50,19 @@ extern const int MAIL_OBJ_VNUM;
 #define MAX_MAILFILE_SIZE 150000
 
 // Prototypes for postmaster specs
-void postmaster_send_mail(struct Creature *ch, struct Creature *mailman,
+void postmaster_send_mail(struct creature *ch, struct creature *mailman,
 	char *arg);
-void postmaster_check_mail(struct Creature *ch, struct Creature *mailman);
-void postmaster_receive_mail(struct Creature *ch, struct Creature *mailman);
+void postmaster_check_mail(struct creature *ch, struct creature *mailman);
+void postmaster_receive_mail(struct creature *ch, struct creature *mailman);
 // Redundant redeclarations for utility functions
 void string_add(struct descriptor_data *d, char *str);
 
 // Mail system internal functions.
 int has_mail(long recipient);
-int has_mail(Creature * ch);
+int has_mail(struct creature * ch);
 int store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
                struct obj_data *obj_list = NULL);
-int receive_mail(Creature * ch, list<obj_data *> &olist);
+int receive_mail(struct creature * ch, list<obj_data *> &olist);
 int purge_mail(long idnum);
 
 // The actual mail file entry struct.

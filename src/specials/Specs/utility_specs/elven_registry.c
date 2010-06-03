@@ -7,7 +7,7 @@
 SPECIAL(elven_registry)
 {
 	ACMD(do_gen_comm);
-	struct Creature *reg = (struct Creature *)me;
+	struct creature *reg = (struct creature *)me;
 	struct obj_data *cert;
 	char buf3[MAX_STRING_LENGTH];
 	int cost;

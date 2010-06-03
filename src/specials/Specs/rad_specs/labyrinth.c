@@ -96,7 +96,7 @@ SPECIAL(cuckoo)
 	   pulsed... only called when a command is entered in
 	   thier vicinity. */
 
-	struct Creature *bird = (struct Creature *)me;
+	struct creature *bird = (struct creature *)me;
 	struct room_data *r_clock_room = NULL, *to_room = NULL;
 	static int room_status = 0;
 
@@ -250,7 +250,7 @@ SPECIAL(gollum)
 	/* im making this into a mob special */
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	struct Creature *gollum = (struct Creature *)me;
+	struct creature *gollum = (struct creature *)me;
 	struct room_data *to_room = NULL;
 
 	/* check if gollum is in room and not fighting */
@@ -340,9 +340,9 @@ SPECIAL(pendulum_timer_mob)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	struct Creature *pendulum_timer_mob = (struct Creature *)me;
+	struct creature *pendulum_timer_mob = (struct creature *)me;
 	struct obj_data *test_obj = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct room_data *in_room = real_room(66136),
 		*to_room = NULL, *from_room = NULL;
 	static int pendulum_time = 0;
@@ -380,7 +380,7 @@ SPECIAL(pendulum_timer_mob)
 					in_room);
 
 				room_data *theRoom = in_room;
-				CreatureList_iterator it = theRoom->people.begin();
+				struct creatureList_iterator it = theRoom->people.begin();
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
 					if (vict->getPosition() > POS_SITTING) {
@@ -428,7 +428,7 @@ SPECIAL(pendulum_timer_mob)
 					in_room);
 
 				room_data *theRoom = in_room;
-				CreatureList_iterator it = theRoom->people.begin();
+				struct creatureList_iterator it = theRoom->people.begin();
 				for (; it != theRoom->people.end(); ++it) {
 					vict = *it;
 					if (vict->getPosition() > POS_SITTING) {
@@ -500,8 +500,8 @@ SPECIAL(pendulum_room)
 SPECIAL(parrot)
 {
 
-	struct Creature *parrot = (struct Creature *)me;
-	struct Creature *master = parrot->master;
+	struct creature *parrot = (struct creature *)me;
+	struct creature *master = parrot->master;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
@@ -542,7 +542,7 @@ SPECIAL(astrolabe)
 {
 
 	struct obj_data *astrolabe = (struct obj_data *)me;
-	struct Creature *wearer = astrolabe->worn_by;
+	struct creature *wearer = astrolabe->worn_by;
 	struct room_data *to_room = NULL;
 
 	if (ch != wearer || !IS_OBJ_TYPE(astrolabe, ITEM_OTHER))

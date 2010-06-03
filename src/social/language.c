@@ -371,7 +371,7 @@ ACMD(do_speak_tongue)
 }
 
 const char *
-fluency_desc(Creature *ch, int tongue_idx)
+fluency_desc(struct creature *ch, int tongue_idx)
 {
     int fluency = CHECK_TONGUE(ch, tongue_idx);
 
@@ -433,7 +433,7 @@ ACMD(do_show_languages)
 }
 
 void
-set_initial_tongue(Creature * ch)
+set_initial_tongue(struct creature * ch)
 {
     // Only set initial tongues if this is the first time their
     // language is being set.  If they change race, they shouldn't
@@ -461,7 +461,7 @@ tongue_name(int tongue_idx)
 }
 
 char *
-make_tongue_str(Creature *ch, Creature *to)
+make_tongue_str(struct creature *ch, struct creature *to)
 {
     int lang = GET_TONGUE(ch);
 
@@ -473,7 +473,7 @@ make_tongue_str(Creature *ch, Creature *to)
 }
 
 char *
-translate_tongue(Creature *speaker, Creature *listener, const char *message)
+translate_tongue(struct creature *speaker, struct creature *listener, const char *message)
 {
     int lang = GET_TONGUE(speaker);
 
@@ -506,7 +506,7 @@ translate_tongue(Creature *speaker, Creature *listener, const char *message)
 }
 
 void
-write_tongue_xml(Creature *ch, FILE *ouf)
+write_tongue_xml(struct creature *ch, FILE *ouf)
 {
     map<int, Tongue>_iterator it = tongues.begin();
     for (;it != tongues.end();++it) {
@@ -517,7 +517,7 @@ write_tongue_xml(Creature *ch, FILE *ouf)
 }
 
 void
-show_language_help(Creature *ch)
+show_language_help(struct creature *ch)
 {
     acc_string_clear();
 

@@ -84,12 +84,12 @@ typedef struct ladder_player {
 	struct ladder_player *next;
 } ladder_player;
 
-void list_combat_players(Creature *ch, combat_data * combat, char *outbuf);
-void comlog(Creature *ch, char *str, int file, int to_char);
-combat_data *create_combat(Creature *ch, int type, char *name);
+void list_combat_players(struct creature *ch, combat_data * combat, char *outbuf);
+void comlog(struct creature *ch, char *str, int file, int to_char);
+combat_data *create_combat(struct creature *ch, int type, char *name);
 struct combat_data *combat_by_vnum(int num);
 cplayer_data *idnum_in_combat(int idnum, combat_data * quest);
-struct room_data *random_arena_room(struct combat_data *combat, Creature *ch);
+struct room_data *random_arena_room(struct combat_data *combat, struct creature *ch);
 struct carena_data *create_arena(long the_zone, long the_room);
 struct carena_data *arena_by_num(int num);
 
@@ -101,49 +101,49 @@ int check_battles(combat_data * combat);
 int check_teams(combat_data * combat);
 int end_battle(combat_data * combat);
 int trans_combatants(struct combat_data *combat);
-int char_in_combat_vnum(Creature *ch);
+int char_in_combat_vnum(struct creature *ch);
 int build_arena_list(void);
 
-void say_to_combat(char *argument, Creature *ch, combat_data * combat);
+void say_to_combat(char *argument, struct creature *ch, combat_data * combat);
 void send_to_combat(char *argument, combat_data * combat);
 void remove_combat(struct combat_data *combat);
 void remove_players(struct combat_data *combat);
-void remove_player(Creature *ch);
+void remove_player(struct creature *ch);
 void add_arena(struct carena_data *arena);
-void return_sacrifice(Creature *ch);
+void return_sacrifice(struct creature *ch);
 void return_sacrifices(struct combat_data *combat);
-void show_arenas(Creature *ch);
-void combat_loop(Creature *ch, Creature *killer);
-void random_arena(Creature *ch, combat_data * combat);
-void combat_reimburse(Creature *ch, combat_data * combat);
+void show_arenas(struct creature *ch);
+void combat_loop(struct creature *ch, struct creature *killer);
+void random_arena(struct creature *ch, combat_data * combat);
+void combat_reimburse(struct creature *ch, combat_data * combat);
 void clear_booty_rooms(void);
 void remove_player_from_list(combat_data * combat, long idnum);
 
-void do_ccontrol_create(Creature *ch, char *argument, int com);
-void do_ccontrol_usage(Creature *ch, int com);
-void do_ccontrol_options(Creature *ch);
-void do_ccontrol_show(Creature *ch, char *argument);
-void do_ccontrol_join(Creature *ch, char *argument);
-void do_ccontrol_open(Creature *ch);
-void do_ccontrol_close(Creature *ch);
-void do_ccontrol_start(Creature *ch);
-void do_ccontrol_sacrifice(Creature *ch, char *argument);
-void do_ccontrol_arena(Creature *ch, char *argument);
-void do_ccontrol_say(Creature *ch, char *argument);
-void do_ccontrol_describe(Creature *ch);
-void do_ccontrol_end(Creature *ch);
-void do_ccontrol_leave(Creature *ch);
-void do_ccontrol_approve(Creature *ch);
-void do_ccontrol_fee(Creature *ch, char *arg);
-void do_ccontrol_reimburse(Creature *ch);
+void do_ccontrol_create(struct creature *ch, char *argument, int com);
+void do_ccontrol_usage(struct creature *ch, int com);
+void do_ccontrol_options(struct creature *ch);
+void do_ccontrol_show(struct creature *ch, char *argument);
+void do_ccontrol_join(struct creature *ch, char *argument);
+void do_ccontrol_open(struct creature *ch);
+void do_ccontrol_close(struct creature *ch);
+void do_ccontrol_start(struct creature *ch);
+void do_ccontrol_sacrifice(struct creature *ch, char *argument);
+void do_ccontrol_arena(struct creature *ch, char *argument);
+void do_ccontrol_say(struct creature *ch, char *argument);
+void do_ccontrol_describe(struct creature *ch);
+void do_ccontrol_end(struct creature *ch);
+void do_ccontrol_leave(struct creature *ch);
+void do_ccontrol_approve(struct creature *ch);
+void do_ccontrol_fee(struct creature *ch, char *arg);
+void do_ccontrol_reimburse(struct creature *ch);
 
 //Wiz combat options
-void do_ccontrol_wizoptions(Creature *ch, char *argument);
-void do_ccontrol_destroy(Creature *ch, char *argument);
-void do_ccontrol_lock(Creature *ch);
-void do_ccontrol_stats(Creature *ch);
+void do_ccontrol_wizoptions(struct creature *ch, char *argument);
+void do_ccontrol_destroy(struct creature *ch, char *argument);
+void do_ccontrol_lock(struct creature *ch);
+void do_ccontrol_stats(struct creature *ch);
 
 // Ladder functions
 void show_ladder(ladder_data * the_ladder);
-void move_player(Creature *ch, ladder_data * the_ladder);	// ch should be the winner of the combat
+void move_player(struct creature *ch, ladder_data * the_ladder);	// ch should be the winner of the combat
 #endif

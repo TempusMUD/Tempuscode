@@ -33,7 +33,7 @@ room_num inner_tunnel[] = { 24914, 24915, 24916, 24917 };
 room_num outer_tunnel[] = { 24903, 24902, 24901, 24900, 24878 };
 
 void
-tarrasque_jump(struct Creature *tarr, int jump_mode)
+tarrasque_jump(struct creature *tarr, int jump_mode)
 {
 
 	struct room_data *up_room = NULL;
@@ -61,7 +61,7 @@ tarrasque_jump(struct Creature *tarr, int jump_mode)
 }
 
 bool
-tarrasque_lash(Creature *tarr, Creature *vict)
+tarrasque_lash(struct creature *tarr, struct creature *vict)
 {
 	bool is_dead;
 
@@ -81,7 +81,7 @@ tarrasque_lash(Creature *tarr, Creature *vict)
 }
 
 bool
-tarrasque_gore(Creature *tarr, Creature *vict)
+tarrasque_gore(struct creature *tarr, struct creature *vict)
 {
 	WAIT_STATE(tarr, 2 RL_SEC);
 
@@ -92,7 +92,7 @@ tarrasque_gore(Creature *tarr, Creature *vict)
 }
 
 bool
-tarrasque_trample(Creature *tarr, Creature *vict)
+tarrasque_trample(struct creature *tarr, struct creature *vict)
 {
 	if (vict && GET_DEX(vict) < number(5, 25)) {
 		vict->setPosition(POS_SITTING);
@@ -104,7 +104,7 @@ tarrasque_trample(Creature *tarr, Creature *vict)
 }
 
 void
-tarrasque_swallow(Creature *tarr, Creature *vict)
+tarrasque_swallow(struct creature *tarr, struct creature *vict)
 {
 	act("You suddenly pounce and devour $N whole!", 0, tarr, 0, vict, TO_CHAR);
 	act("$n suddenly pounces and devours $N whole!", 0, tarr, 0, vict, TO_NOTVICT);
@@ -123,7 +123,7 @@ tarrasque_swallow(Creature *tarr, Creature *vict)
 }
 
 void
-tarrasque_poop(Creature *tarr, obj_data *obj)
+tarrasque_poop(struct creature *tarr, obj_data *obj)
 {
 	// The tarr doesn't poop while fighting, sleeping, or in its lair
 	if (tarr->getPosition() == POS_FIGHTING ||
@@ -151,7 +151,7 @@ tarrasque_poop(Creature *tarr, obj_data *obj)
 }
 
 void
-tarrasque_digest(Creature *tarr)
+tarrasque_digest(struct creature *tarr)
 {
 	obj_data *obj, *next_obj;
 	bool pooped = false;
@@ -181,7 +181,7 @@ tarrasque_digest(Creature *tarr)
 }
 
 int
-tarrasque_die(Creature *tarr, Creature *killer)
+tarrasque_die(struct creature *tarr, struct creature *killer)
 {
 	obj_data *obj, *next_obj;
 
@@ -203,10 +203,10 @@ tarrasque_die(Creature *tarr, Creature *killer)
 }
 
 int
-tarrasque_fight(struct Creature *tarr)
+tarrasque_fight(struct creature *tarr)
 {
-	struct Creature *vict = NULL, *vict2 = NULL;
-	CreatureList_iterator it;
+	struct creature *vict = NULL, *vict2 = NULL;
+	struct creatureList_iterator it;
 
 	if (!tarr->isFighting()) {
 		errlog("FIGHTING(tarr) == NULL in tarrasque_fight!!");
@@ -286,9 +286,9 @@ tarrasque_fight(struct Creature *tarr)
 }
 
 int
-tarrasque_follow(Creature *tarr)
+tarrasque_follow(struct creature *tarr)
 {
-	Creature *ch, *vict, *vict2;
+	struct creature *ch, *vict, *vict2;
 	int dir;
 
 	pursuit = false;
@@ -321,7 +321,7 @@ SPECIAL(tarrasque)
 {
 
 	static int mode = T_ACTIVE, checked = false;
-	struct Creature *tarr = (struct Creature *)me;
+	struct creature *tarr = (struct creature *)me;
 	struct room_data *rm = NULL;
 
 	if (!IS_TARRASQUE(tarr)) {
@@ -369,7 +369,7 @@ SPECIAL(tarrasque)
 		if ((tarr == ch) &&
 				(CMD_IS("swallow") || CMD_IS("lash") || CMD_IS("gore") ||
 				CMD_IS("trample"))) {
-			Creature *vict;
+			struct creature *vict;
 
 			skip_spaces(&argument);
 			if (*argument) {
@@ -482,7 +482,7 @@ SPECIAL(tarrasque)
 		}
 
 		if (tarr->in_room->people.size() >= 1) {
-			CreatureList_iterator it = tarr->in_room->people.begin();
+			struct creatureList_iterator it = tarr->in_room->people.begin();
 			for (; it != tarr->in_room->people.end(); ++it) {
 				if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
 					if ((*it)->getPosition() < POS_STANDING)
@@ -512,7 +512,7 @@ SPECIAL(tarrasque)
 				return 1;
 			}
 			if (tarr->in_room->people.size() >= 1) {
-				CreatureList_iterator it = tarr->in_room->people.begin();
+				struct creatureList_iterator it = tarr->in_room->people.begin();
 				for (; it != tarr->in_room->people.end(); ++it) {
 					if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
 						if ((*it)->getPosition() < POS_STANDING)

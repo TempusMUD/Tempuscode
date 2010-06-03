@@ -104,7 +104,7 @@ const int gun_damage[][2] = {
 };
 
 void
-show_gun_status(struct Creature *ch, struct obj_data *gun)
+show_gun_status(struct creature *ch, struct obj_data *gun)
 {
 	int count = 0;
 

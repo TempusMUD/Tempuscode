@@ -4,19 +4,19 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-void call_for_help(Creature *ch, Creature *attacker);
+void call_for_help(struct creature *ch, struct creature *attacker);
 
 SPECIAL(corpse_retrieval)
 {
 	const char *currency;
 	struct obj_data *corpse;
-	struct Creature *retriever = (struct Creature *)me;
+	struct creature *retriever = (struct creature *)me;
 	char buf2[MAX_STRING_LENGTH];
 	int price;
 	int amt_carried;
 
 	if (spec_mode == SPECIAL_TICK) {
-		if (((Creature *)me)->isFighting() && !number(0, 4)) {
+		if (((struct creature *)me)->isFighting() && !number(0, 4)) {
 			call_for_help(retriever, retriever->findRandomCombat());
 			return 1;
 		}

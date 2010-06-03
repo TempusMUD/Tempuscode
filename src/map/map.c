@@ -8,7 +8,7 @@ int MapPixel_centerY;
 int MapPixel_hSize;
 int MapPixel_vSize;
 
-Creature * Map__ch;
+struct creature * Map__ch;
 
 struct _sectToPen Map_sectToPen[NUM_SECT_TYPES] = {
     { SECT_INSIDE, "", "", "", ".", "#", "#", "#" },
@@ -149,7 +149,7 @@ ACMD(do_map)
             "[ small | medium | large ] ]\r\n");
 }
 
-Map_Map(Creature *ch, int hsize, int vsize) {
+Map_Map(struct creature *ch, int hsize, int vsize) {
     _hsize = hsize;
     _vsize = vsize;
 

@@ -8,7 +8,7 @@
 */
 
 static void
-quest_weapon_enchant(Creature *ch, obj_data *obj, int lvl)
+quest_weapon_enchant(struct creature *ch, obj_data *obj, int lvl)
 {
 	int i;
 	for (i = MAX_OBJ_AFFECT - 1; i >= 0; i--) {
@@ -44,7 +44,7 @@ quest_weapon_enchant(Creature *ch, obj_data *obj, int lvl)
 }
 
 static void
-quest_armor_enchant(Creature *ch, obj_data *obj, int lvl)
+quest_armor_enchant(struct creature *ch, obj_data *obj, int lvl)
 {
 	int i;
 
@@ -84,7 +84,7 @@ quest_armor_enchant(Creature *ch, obj_data *obj, int lvl)
 }
 
 bool
-quest_sphere_carrier_bad(Creature *carrier)
+quest_sphere_carrier_bad(struct creature *carrier)
 {
 	if (GET_LEVEL(carrier) > LVL_IMMORT)
 		return false;

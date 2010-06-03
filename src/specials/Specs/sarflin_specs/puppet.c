@@ -8,7 +8,7 @@ SPECIAL(puppet)
 {
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	struct Creature *me2 = (struct Creature *)me;
+	struct creature *me2 = (struct creature *)me;
 	struct affected_type af;
 	if (!cmd && !me2->isFighting() && !number(0, 3)) {
 		switch (number(0, 10)) {

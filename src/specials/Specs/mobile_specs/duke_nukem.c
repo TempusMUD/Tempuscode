@@ -7,7 +7,7 @@
 SPECIAL(duke_nukem)
 {
 
-	struct Creature *duke = (struct Creature *)me, *vict = NULL;
+	struct creature *duke = (struct creature *)me, *vict = NULL;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
@@ -52,7 +52,7 @@ SPECIAL(duke_nukem)
 	}
 
 	if (!number(0, 5)) {
-		CreatureList_iterator it = duke->in_room->people.begin();
+		struct creatureList_iterator it = duke->in_room->people.begin();
 		for (; it != duke->in_room->people.end(); ++it) {
 			vict = *it;
 			if (vict == duke || !can_see_creature(duke, vict))

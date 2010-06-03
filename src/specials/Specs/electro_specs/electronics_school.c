@@ -6,7 +6,7 @@
 
 // Random Act Of Electronics
 static void
-electronics_raoe(Creature *self)
+electronics_raoe(struct creature *self)
 {
 	switch (number(0, 7)) {
 	case 0:
@@ -45,7 +45,7 @@ electronics_raoe(Creature *self)
 
 SPECIAL(electronics_school)
 {
-	Creature *self = (Creature *)me;
+	struct creature *self = (struct creature *)me;
 	int cred_cost = 0;
 
 	if (spec_mode == SPECIAL_TICK) {

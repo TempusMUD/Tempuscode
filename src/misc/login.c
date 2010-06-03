@@ -93,7 +93,7 @@ show_pc_race_menu(struct descriptor_data *d)
 }
 
 bool
-valid_class_race(Creature *ch, int char_class, bool remort)
+valid_class_race(struct creature *ch, int char_class, bool remort)
 {
 	int i;
 
@@ -121,7 +121,7 @@ valid_class_race(Creature *ch, int char_class, bool remort)
 void
 show_char_class_menu(struct descriptor_data *d, bool remort)
 {
-	Creature *ch = d->creature;
+	struct creature *ch = d->creature;
 	char *left_col, *right_col;
 	char *left_line, *right_line;
 

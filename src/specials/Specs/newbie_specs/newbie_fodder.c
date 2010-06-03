@@ -5,8 +5,8 @@
 
 SPECIAL(newbie_fodder)
 {
-	Creature *self = (Creature *)me;
-	Creature *new_mob = NULL;
+	struct creature *self = (struct creature *)me;
+	struct creature *new_mob = NULL;
 	room_data *new_loc = NULL;
 	int idx, count;
 
@@ -31,7 +31,7 @@ SPECIAL(newbie_fodder)
 	count = 0;
 	for (idx = NEWBIE_ROOM_MIN;idx < NEWBIE_ROOM_MAX;idx++) {
 		room_data *room;
-		CreatureList_iterator it;
+		struct creatureList_iterator it;
 
 		room = real_room(idx);
 		if (!room)

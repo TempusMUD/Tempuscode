@@ -96,7 +96,7 @@ const char *Security_WORLDADMIN = "WorldAdmin";
 /**
  *  Sends usage info to the given character
  */
-void send_access_options( Creature *ch ) {
+void send_access_options( struct creature *ch ) {
     int i = 0;
     strcpy(out_buf, "access usage :\r\n");
     while (1) {
@@ -364,7 +364,7 @@ namespace Security {
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
      */
-     bool canAccess( Creature *ch, const command_info *command ) {
+     bool canAccess( struct creature *ch, const command_info *command ) {
 	 	if (GET_LEVEL(ch) == LVL_GRIMP)
 			return true;
         if(! command->group_count ) {
@@ -388,7 +388,7 @@ namespace Security {
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
      **/
-     bool canAccess( Creature *ch, const show_struct &command ) {
+     bool canAccess( struct creature *ch, const show_struct &command ) {
         if(command.level > GET_LEVEL(ch) )
             return false;
         if( *(command.group) =='\0')
@@ -402,7 +402,7 @@ namespace Security {
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
      **/
-     bool canAccess( Creature *ch, const set_struct &command ) {
+     bool canAccess( struct creature *ch, const set_struct &command ) {
         if(command.level > GET_LEVEL(ch) )
             return false;
         if( *(command.group) =='\0')
@@ -429,7 +429,7 @@ namespace Security {
      * Check membership in a particular group by name.
      * Comma delimited names are also accepted.
      */
-     bool isMember( Creature *ch, const char* group_name, bool substitute) {
+     bool isMember( struct creature *ch, const char* group_name, bool substitute) {
 	 	if (group_name == Security_EVERYONE)
 			return true;
         if( substitute && ch->getLevel() == LVL_GRIMP )
@@ -454,7 +454,7 @@ namespace Security {
     /*
      * send a list of the current groups to a character
      */
-     void sendGroupList( Creature *ch ) {
+     void sendGroupList( struct creature *ch ) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
@@ -511,7 +511,7 @@ namespace Security {
         return true;
     }
 
-     bool sendMemberList( Creature *ch, char *group_name ) {
+     bool sendMemberList( struct creature *ch, char *group_name ) {
         list<Group>_iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("sendMemberList : group not found");
@@ -520,7 +520,7 @@ namespace Security {
         return (*it).sendMemberList(ch);
     }
 
-     bool sendCommandList( Creature *ch, char *group_name ) {
+     bool sendCommandList( struct creature *ch, char *group_name ) {
         list<Group>_iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("sendCommandList : group not found");
@@ -529,7 +529,7 @@ namespace Security {
         return (*it).sendCommandList(ch);
     }
     /** sends a list of the groups that the id is a member if. **/
-    bool sendMembership( Creature *ch, long id ) {
+    bool sendMembership( struct creature *ch, long id ) {
         int n = 0;
         out_buf[0] = '\0';
         list<Group>_iterator it = groups.begin();
@@ -550,7 +550,7 @@ namespace Security {
     /* sends a list of the commands a char has access to and the
      * groups that contain them.
     **/
-    bool sendAvailableCommands( Creature *ch, long id ) {
+    bool sendAvailableCommands( struct creature *ch, long id ) {
         int n = 0;
         out_buf[0] = '\0';
         list<Group>_iterator it = groups.begin();
@@ -699,7 +699,7 @@ namespace Security {
         return true;
     }
 
-    bool canAdminGroup( Creature *ch, const char* groupName ) {
+    bool canAdminGroup( struct creature *ch, const char* groupName ) {
         // The name of the administrative group
         const char* admin = NULL;
 

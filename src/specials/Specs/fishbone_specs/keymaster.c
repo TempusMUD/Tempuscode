@@ -6,7 +6,7 @@
 
 SPECIAL(keymaster)
 {
-	struct Creature *keymaster = (struct Creature *)me;
+	struct creature *keymaster = (struct creature *)me;
 	struct obj_data *key = NULL;
 	room_num v_home_pad = 1595, r_home_pad = NOWHERE;
 	if (FIGHTING(keymaster))

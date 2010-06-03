@@ -43,12 +43,12 @@ extern struct time_info_data time_info;
 
 SPECIAL(underworld_goddess)
 {
-	struct Creature *vict = NULL;
-	struct Creature *styx = NULL;
+	struct creature *vict = NULL;
+	struct creature *styx = NULL;
 	struct room_data *room;
 
 	/* See if Styx is in the room */
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (!strcmp((char *)GET_NAME(vict), "Styx"))
 			styx = (*it);

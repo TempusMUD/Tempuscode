@@ -9,7 +9,7 @@ SPECIAL(unholy_stalker)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	Creature *mob = (Creature *) me;
+	struct creature *mob = (struct creature *) me;
 
 	if (!mob->isHunting() && !mob->isFighting()) {
 		act("$n dematerializes, returning to the negative planes.", true, mob,
@@ -24,7 +24,7 @@ SPECIAL(unholy_stalker)
 				GET_LEVEL(mob) + 10, CAST_SPELL);
 		}
 
-        Creature *vict = mob->findRandomCombat();
+        struct creature *vict = mob->findRandomCombat();
 		if (GET_HIT(mob) < 100 && GET_HIT(vict) > GET_HIT(mob) &&
 			!ROOM_FLAGGED(mob->in_room, ROOM_NOMAGIC | ROOM_NORECALL) &&
 			GET_LEVEL(mob) > number(20, 35)) {

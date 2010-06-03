@@ -49,7 +49,7 @@ extern int *max_ac_applys;
 extern struct apply_mod_defaults *apmd;
 
 void weight_change_object(struct obj_data *obj, int weight);
-void add_follower(struct Creature *ch, struct Creature *leader);
+void add_follower(struct creature *ch, struct creature *leader);
 extern struct spell_info_type spell_info[];
 ACMD(do_flee);
 ACCMD(do_drop);
@@ -131,7 +131,7 @@ const byte saving_throws[8][LVL_GRIMP + 1] = {
 };
 
 int
-mag_savingthrow(struct Creature *ch, int level, int type)
+mag_savingthrow(struct creature *ch, int level, int type)
 {
 	int save;
 
@@ -257,7 +257,7 @@ mag_savingthrow(struct Creature *ch, int level, int type)
 }
 
 int
-update_iaffects(Creature * ch)
+update_iaffects(struct creature * ch)
 {
 	static struct affected_type *af, *next;
 	for (af = ch->affected; af; af = next) {
@@ -277,7 +277,7 @@ update_iaffects(Creature * ch)
 void
 obj_affect_update(void)
 {
-    Creature *ch = NULL;
+    struct creature *ch = NULL;
     extern struct obj_data *object_list;
     struct obj_data *obj;
     struct tmp_obj_affect *af, *next_af;
@@ -351,14 +351,14 @@ void
 affect_update(void)
 {
 	static struct affected_type *af, *next;
-	static struct Creature *i;
+	static struct creature *i;
 	int found = 0;
 	char assimilate_found = 0, berserk_found = 0,
 		kata_found = 0, hamstring_found = 0;
 	int METABOLISM = 0;
 	ACMD(do_stand);
 
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 
@@ -492,7 +492,7 @@ affect_update(void)
  * heal spell which requires a rare herb or some such.)
  */
 int
-mag_materials(struct Creature *ch, int item0, int item1, int item2,
+mag_materials(struct creature *ch, int item0, int item1, int item2,
 	int extract, int verbose)
 {
 	struct obj_data *tobj;
@@ -557,7 +557,7 @@ mag_materials(struct Creature *ch, int item0, int item1, int item2,
  */
 
 int
-mag_damage(int level, struct Creature *ch, struct Creature *victim,
+mag_damage(int level, struct creature *ch, struct creature *victim,
 	int spellnum, int savetype)
 {
 	int is_mage = 0, is_cleric = 0, is_psychic = 0, is_physic = 0,
@@ -985,8 +985,8 @@ mag_damage(int level, struct Creature *ch, struct Creature *victim,
 
 void
 mag_affects(int level,
-            struct Creature *ch,
-            struct Creature *victim,
+            struct creature *ch,
+            struct creature *victim,
             int *dir __attribute__ ((unused)),
             int spellnum,
             int savetype)
@@ -2650,7 +2650,7 @@ mag_affects(int level,
         act("$n looks murderous.  You might want to get out of here!", false,
             ch, 0, 0, TO_ROOM);
 
-        CreatureList_iterator it = ch->in_room->people.begin();
+        struct creatureList_iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if (ch == (*it) || !can_see_creature(ch, (*it)))
                 continue;
@@ -2831,8 +2831,8 @@ mag_affects(int level,
   */
 
 void
-perform_mag_groups(int level, struct Creature *ch,
-	struct Creature *tch, int *tdir, int spellnum, int savetype)
+perform_mag_groups(int level, struct creature *ch,
+	struct creature *tch, int *tdir, int spellnum, int savetype)
 {
 	switch (spellnum) {
 	case SPELL_GROUP_HEAL:
@@ -2917,9 +2917,9 @@ perform_mag_groups(int level, struct Creature *ch,
  */
 
 void
-mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
+mag_groups(int level, struct creature *ch, int spellnum, int savetype)
 {
-	struct Creature *tch, *k;
+	struct creature *tch, *k;
     int tdir = -1;
 	struct follow_type *f, *f_next;
 
@@ -2960,10 +2960,10 @@ mag_groups(int level, struct Creature *ch, int spellnum, int savetype)
  */
 
 void
-mag_masses(byte level, struct Creature *ch, int spellnum, int savetype)
+mag_masses(byte level, struct creature *ch, int spellnum, int savetype)
 {
 	int found = 0;
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || !(*it)->findCombat(ch))
 			continue;
@@ -2985,7 +2985,7 @@ mag_masses(byte level, struct Creature *ch, int spellnum, int savetype)
 */
 
 int
-mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
+mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
 {
 	const char *to_char = NULL;
 	const char *to_room = NULL;
@@ -2998,7 +2998,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		return 0;
 
 	if (spellnum == SPELL_MASS_HYSTERIA) {
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (count = 0; it != ch->in_room->people.end(); ++it)
 			if ((*it) != ch && can_see_creature(ch, (*it)))
 				count++;
@@ -3068,9 +3068,9 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		return 0;
 
 	// check for players if caster is not a pkiller
-    CreatureList_iterator it = ch->in_room->people.begin();
+    struct creatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
-        Creature *vict = *it;
+        struct creature *vict = *it;
 		if (vict == ch)
 			continue;
 		if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
@@ -3123,7 +3123,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 
     it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
-        Creature *vict = *it;
+        struct creature *vict = *it;
 		// skips:
 		//          caster
 		//          nohassle-flagged players (imms)
@@ -3205,9 +3205,9 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 				adjoin_room = ch->in_room;
 				ch->in_room = was_in;
 
-				CreatureList_iterator it = adjoin_room->people.begin();
+				struct creatureList_iterator it = adjoin_room->people.begin();
 				for (; it != adjoin_room->people.end(); ++it) {
-                    Creature *vict = *it;
+                    struct creature *vict = *it;
 					if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR)
 						continue;
 					if (!IS_NPC(ch) && IS_NPC(vict)
@@ -3276,12 +3276,12 @@ static const char *mag_summon_fail_msgs[] = {
 
 void
 mag_summons(int level __attribute__ ((unused)),
-            struct Creature *ch,
+            struct creature *ch,
             struct obj_data *obj,
             int spellnum,
             int savetype __attribute__ ((unused)))
 {
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 	struct obj_data *tobj, *next_obj;
 	int pfail = 0;
 	int fmsg = 0;
@@ -3345,8 +3345,8 @@ mag_summons(int level __attribute__ ((unused)),
 
 void
 mag_points(int level,
-           struct Creature *ch,
-           struct Creature *victim,
+           struct creature *ch,
+           struct creature *victim,
            int *dir __attribute__ ((unused)),
            int spellnum,
            int savetype)
@@ -3508,7 +3508,7 @@ mag_points(int level,
 }
 
 void
-mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
+mag_unaffects(int level, struct creature *ch, struct creature *victim,
 	int spellnum, int type)
 {
 	int spell = 0, spell2 = 0, spell3 = 0, spell4 = 0, spell5 = 0;
@@ -3718,7 +3718,7 @@ mag_unaffects(int level, struct Creature *ch, struct Creature *victim,
 }
 
 void
-mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
+mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
 	int spellnum, int savetype __attribute__ ((unused)))
 {
 	const char *to_char = NULL;
@@ -4159,7 +4159,7 @@ mag_alter_objs(int level, struct Creature *ch, struct obj_data *obj,
 }
 
 void
-mag_objects(int level, struct Creature *ch, struct obj_data *obj,
+mag_objects(int level, struct creature *ch, struct obj_data *obj,
 	int spellnum)
 {
 	int i;
@@ -4253,7 +4253,7 @@ mag_objects(int level, struct Creature *ch, struct obj_data *obj,
 }
 
 void
-mag_creations(int level, struct Creature *ch, int spellnum)
+mag_creations(int level, struct creature *ch, int spellnum)
 {
 	struct obj_data *tobj;
 	int z;
@@ -4296,7 +4296,7 @@ mag_creations(int level, struct Creature *ch, int spellnum)
 }
 
 int
-mag_exits(int level, struct Creature *caster, struct room_data *room,
+mag_exits(int level, struct creature *caster, struct room_data *room,
 	int spellnum)
 {
 
@@ -4357,7 +4357,7 @@ mag_exits(int level, struct Creature *caster, struct room_data *room,
 }
 
 void
-notify_cleric_moon(struct Creature *ch)
+notify_cleric_moon(struct creature *ch)
 {
 	if (!IS_CLERIC(ch) || !ch->in_room || !PRIME_MATERIAL_ROOM(ch->in_room))
 		return;

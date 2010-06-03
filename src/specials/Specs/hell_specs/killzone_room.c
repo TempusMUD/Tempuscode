@@ -3,7 +3,7 @@
 SPECIAL(killzone_room)
 {
 	struct room_data *uproom = 0;
-	struct Creature *devil = 0, *vict = 0;
+	struct creature *devil = 0, *vict = 0;
 	int retval = 0;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
@@ -22,7 +22,7 @@ SPECIAL(killzone_room)
 
 	// mix up the victims a bit so it doesnt feel like commands are triggering it as much
 	vict = ch->in_room->people;
-	CreatureList_iterator it = uproom->people.begin();
+	struct creatureList_iterator it = uproom->people.begin();
 	for (; it != uproom->people.end(); ++it) {
 		devil = *it;
 

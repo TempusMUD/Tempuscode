@@ -38,16 +38,16 @@ extern struct obj_data *object_list;
 
 int search_nomessage = 0;
 
-void print_search_data_to_buf(struct Creature *ch,
+void print_search_data_to_buf(struct creature *ch,
 	struct room_data *room, struct special_search_data *cur_search, char *buf);
-int general_search(struct Creature *ch, struct special_search_data *srch,
+int general_search(struct creature *ch, struct special_search_data *srch,
 	int mode);
-int clan_house_can_enter(struct Creature *ch, struct room_data *room);
-int room_tele_ok(Creature *ch, struct room_data *room);
-bool process_load_param( Creature *ch );
+int clan_house_can_enter(struct creature *ch, struct room_data *room);
+int room_tele_ok(struct creature *ch, struct room_data *room);
+bool process_load_param( struct creature *ch );
 
 int
-search_trans_character(Creature * ch,
+search_trans_character(struct creature * ch,
 	special_search_data * srch,
 	room_data * targ_room)
 {
@@ -106,7 +106,7 @@ search_trans_character(Creature * ch,
 }
 
 inline void
-SRCH_LOG(Creature *ch, special_search_data *srch)
+SRCH_LOG(struct creature *ch, special_search_data *srch)
 {
 	if (!ZONE_FLAGGED( ch->in_room->zone, ZONE_SEARCH_APPROVED)
 			&& GET_LEVEL( ch ) < LVL_GOD )
@@ -124,11 +124,11 @@ SRCH_LOG(Creature *ch, special_search_data *srch)
 //
 
 int
-general_search(struct Creature *ch, struct special_search_data *srch,
+general_search(struct creature *ch, struct special_search_data *srch,
 	int mode)
 {
 	struct obj_data *obj = NULL;
-	static struct Creature *mob = NULL;
+	static struct creature *mob = NULL;
 	struct room_data *rm = ch->in_room, *other_rm = NULL;
 	struct room_data *targ_room = NULL;
 	int add = 0, killed = 0, found = 0;
@@ -355,7 +355,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			room_data *src_room = ch->in_room;
 			rc = search_trans_character(ch, srch, targ_room);
 
-			CreatureList_iterator it = src_room->people.begin();
+			struct creatureList_iterator it = src_room->people.begin();
 			for (; it != src_room->people.end(); ++it) {
 				mob = *it;
 				if (srch->to_room)
@@ -503,7 +503,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
-			CreatureList_iterator it = targ_room->people.begin();
+			struct creatureList_iterator it = targ_room->people.begin();
 			for (; it != targ_room->people.end(); ++it) {
 				mob = *it;
 
@@ -584,7 +584,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
-			CreatureList_iterator it = targ_room->people.begin();
+			struct creatureList_iterator it = targ_room->people.begin();
 			for (mob = NULL; it != targ_room->people.end(); ++it) {
 				mob = *it;
 
@@ -641,7 +641,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 				SET_BIT(srch->flags, SRCH_TRIPPED);
 
-			CreatureList_iterator it = other_rm->people.begin();
+			struct creatureList_iterator it = other_rm->people.begin();
 			for (; it != other_rm->people.end(); ++it) {
 				mob = *it;
 				if (!IS_NPC(mob))
@@ -715,7 +715,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 }
 
 void
-show_searches(struct Creature *ch, char *value, char *argument)
+show_searches(struct creature *ch, char *value, char *argument)
 {
 
 	struct special_search_data *srch = NULL;
@@ -795,7 +795,7 @@ show_searches(struct Creature *ch, char *value, char *argument)
 }
 
 int
-triggers_search(struct Creature *ch, int cmd, char *arg,
+triggers_search(struct creature *ch, int cmd, char *arg,
 	struct special_search_data *srch)
 {
 

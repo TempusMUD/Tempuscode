@@ -77,9 +77,9 @@ CProgEditor_Finalize(const char *text)
 
     switch (owner_type) {
     case PROG_TYPE_MOBILE:
-        if (GET_MOB_PROG((Creature *)owner))
-            free(GET_MOB_PROG((Creature *)owner));
-        ((Creature *)owner)->mob_specials.shared->prog = new_prog;
+        if (GET_MOB_PROG((struct creature *)owner))
+            free(GET_MOB_PROG((struct creature *)owner));
+        ((struct creature *)owner)->mob_specials.shared->prog = new_prog;
         break;
     case PROG_TYPE_ROOM:
         if (GET_ROOM_PROG((room_data *)owner))

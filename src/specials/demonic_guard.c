@@ -54,15 +54,15 @@ struct criminal_rec {
 criminal_rec *criminal_list = NULL;
 /*   external vars  */
 bool
-perform_get_from_room(struct Creature * ch,
+perform_get_from_room(struct creature * ch,
     struct obj_data * obj, bool display, int counter);
 
 extern struct descriptor_data *descriptor_list;
 
 bool
-summon_criminal_demons(Creature *vict)
+summon_criminal_demons(struct creature *vict)
 {
-	Creature *mob;
+	struct creature *mob;
 	int vnum_base = (IS_EVIL(vict)) ? ARCHONIC_BASE:DEMONIC_BASE;;
 	int demon_num = GET_REMORT_GEN(vict) / 2 + 1;
 	int idx;
@@ -99,7 +99,7 @@ summon_criminal_demons(Creature *vict)
 // Devils can form hunting parties - demons are gonna just go after them
 SPECIAL(demonic_overmind)
 {
-	Creature *vict;
+	struct creature *vict;
 	criminal_rec *cur_rec;
 	descriptor_data *cur_desc;
 	bool summoned = false;
@@ -211,7 +211,7 @@ SPECIAL(demonic_overmind)
 
 SPECIAL(demonic_guard)
 {
-	Creature *self = (Creature *)me;
+	struct creature *self = (struct creature *)me;
 	int vict_id;
 
 	if (spec_mode != SPECIAL_TICK)

@@ -5,7 +5,7 @@
 #define _MACROS_
 
 #define SPECIAL(name) \
-int (name)(__attribute__ ((unused)) struct Creature *ch, \
+int (name)(__attribute__ ((unused)) struct creature *ch, \
 	__attribute__ ((unused)) void *me, \
 	__attribute__ ((unused)) int cmd, \
 	__attribute__ ((unused)) char *argument, \

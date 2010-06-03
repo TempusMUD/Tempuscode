@@ -7,8 +7,8 @@
 SPECIAL(underwater_predator)
 {
 
-	struct Creature *pred = (struct Creature *)me;
-	struct Creature *vict = NULL;
+	struct creature *pred = (struct creature *)me;
+	struct creature *vict = NULL;
 	struct room_data *troom = NULL;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -53,7 +53,7 @@ SPECIAL(underwater_predator)
 		((troom = EXIT(pred, UP)->to_room) != NULL) &&
 		!ROOM_FLAGGED(troom, ROOM_NOMOB | ROOM_PEACEFUL |
                       ROOM_DEATH | ROOM_GODROOM)) {
-		CreatureList_iterator it = troom->people.begin();
+		struct creatureList_iterator it = troom->people.begin();
 		for (; it != troom->people.end(); ++it) {
 			vict = *it;
 			if ((IS_MOB(vict) && !MOB2_FLAGGED(pred, MOB2_ATK_MOBS)) ||

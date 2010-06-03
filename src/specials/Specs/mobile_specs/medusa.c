@@ -11,7 +11,7 @@ SPECIAL(medusa)
 	if (ch->getPosition() != POS_FIGHTING)
 		return false;
 
-    Creature *vict = ch->findRandomCombat();
+    struct creature *vict = ch->findRandomCombat();
 	if (isname("medusa", ch->player.name) &&
 		vict && (vict->in_room == ch->in_room) &&
 		(number(0, 57 - GET_LEVEL(ch)) == 0)) {

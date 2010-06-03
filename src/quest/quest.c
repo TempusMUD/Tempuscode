@@ -43,7 +43,7 @@
 
 // external funcs here
 ACMD(do_switch);
-void do_qcontrol_help(Creature *, char *);
+void do_qcontrol_help(struct creature *, char *);
 
 // external vars here
 extern struct descriptor_data *descriptor_list;
@@ -224,7 +224,7 @@ char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 FILE *qlogfile = NULL;
 
 static void
-do_qcontrol_options(Creature *ch)
+do_qcontrol_options(struct creature *ch)
 {
 	int i = 0;
 
@@ -240,7 +240,7 @@ do_qcontrol_options(Creature *ch)
 }
 
 static void
-do_qcontrol_usage(Creature *ch, int com)
+do_qcontrol_usage(struct creature *ch, int com)
 {
 	if (com < 0)
 		do_qcontrol_options(ch);
@@ -251,9 +251,9 @@ do_qcontrol_usage(Creature *ch, int com)
 }
 
 void							//Load mobile.
-do_qcontrol_mload(Creature *ch, char *argument, int com)
+do_qcontrol_mload(struct creature *ch, char *argument, int com)
 {
-	struct Creature *mob;
+	struct creature *mob;
 	class Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	int number;
@@ -297,7 +297,7 @@ do_qcontrol_mload(Creature *ch, char *argument, int com)
 }
 
 void // Set loadroom for quest participants
-do_qcontrol_loadroom(Creature *ch, char *argument, int com)
+do_qcontrol_loadroom(struct creature *ch, char *argument, int com)
 {
 	class Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
@@ -347,7 +347,7 @@ do_qcontrol_loadroom(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_oload_list(Creature * ch)
+do_qcontrol_oload_list(struct creature * ch)
 {
 	int i = 0;
 	obj_data *obj;
@@ -366,7 +366,7 @@ do_qcontrol_oload_list(Creature * ch)
 
 // Load Quest Object
 static void
-do_qcontrol_oload(Creature *ch, char *argument, int com)
+do_qcontrol_oload(struct creature *ch, char *argument, int com)
 {
 	struct obj_data *obj;
 	class Quest *quest = NULL;
@@ -439,10 +439,10 @@ do_qcontrol_oload(Creature *ch, char *argument, int com)
 }
 
 void							//Purge mobile.
-do_qcontrol_trans(Creature *ch, char *argument)
+do_qcontrol_trans(struct creature *ch, char *argument)
 {
 
-	Creature *vict;
+	struct creature *vict;
 	Quest *quest = NULL;
 	room_data *room = NULL;
 
@@ -502,10 +502,10 @@ do_qcontrol_trans(Creature *ch, char *argument)
 }
 
 void							//Purge mobile.
-do_qcontrol_purge(Creature *ch, char *argument)
+do_qcontrol_purge(struct creature *ch, char *argument)
 {
 
-	struct Creature *vict;
+	struct creature *vict;
 	class Quest *quest = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 
@@ -582,7 +582,7 @@ list_inactive_quests(void)
 }
 
 void
-list_quest_bans(Creature *ch, Quest * quest)
+list_quest_bans(struct creature *ch, Quest * quest)
 {
     const char *name;
 	int i, num;
@@ -606,7 +606,7 @@ list_quest_bans(Creature *ch, Quest * quest)
 }
 
 static void
-do_qcontrol_show(Creature *ch, char *argument)
+do_qcontrol_show(struct creature *ch, char *argument)
 {
 
 	int timediff;
@@ -737,7 +737,7 @@ find_quest_type(char *argument)
 }
 
 void
-qcontrol_show_valid_types( Creature *ch ) {
+qcontrol_show_valid_types( struct creature *ch ) {
 	char *msg = tmp_sprintf("  Valid Types:\r\n");
 	int i = 0;
 	while (1) {
@@ -752,7 +752,7 @@ qcontrol_show_valid_types( Creature *ch ) {
 }
 
 static void
-do_qcontrol_create(Creature *ch, char *argument, int com)
+do_qcontrol_create(struct creature *ch, char *argument, int com)
 {
 	int type;
 	argument = one_argument(argument, arg1);
@@ -793,7 +793,7 @@ do_qcontrol_create(Creature *ch, char *argument, int com)
 }
 
 char *
-compose_qcomm_string(Creature *ch, Creature *vict, Quest * quest, int mode, const char *str)
+compose_qcomm_string(struct creature *ch, struct creature *vict, Quest * quest, int mode, const char *str)
 {
 	if (mode == QCOMM_SAY && ch) {
 		if (ch == vict) {
@@ -813,9 +813,9 @@ compose_qcomm_string(Creature *ch, Creature *vict, Quest * quest, int mode, cons
 }
 
 void
-send_to_quest(Creature *ch, const char *str, Quest * quest, int level, int mode)
+send_to_quest(struct creature *ch, const char *str, Quest * quest, int level, int mode)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	int i;
 
 	for (i = 0; i < quest->getNumPlayers(); i++) {
@@ -833,7 +833,7 @@ send_to_quest(Creature *ch, const char *str, Quest * quest, int level, int mode)
 }
 
 static void
-do_qcontrol_end(Creature *ch, char *argument, int com)
+do_qcontrol_end(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 
@@ -870,10 +870,10 @@ do_qcontrol_end(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_add(Creature *ch, char *argument, int com)
+do_qcontrol_add(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	argument = two_arguments(argument, arg1, arg2);
 
@@ -932,11 +932,11 @@ do_qcontrol_add(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_kick(Creature *ch, char *argument, int com)
+do_qcontrol_kick(struct creature *ch, char *argument, int com)
 {
 
 	Quest *quest = NULL;
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
     int idnum;
     const char *vict_name;
 	int pid;
@@ -975,7 +975,7 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 
 	if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
-		vict = new Creature(true);
+		vict = new struct creature(true);
 		pid = playerIndex.getID(arg1);
 		if (pid > 0) {
 			vict->loadFromXML(pid);
@@ -1032,7 +1032,7 @@ do_qcontrol_kick(Creature *ch, char *argument, int com)
 }
 
 void
-qcontrol_show_valid_flags( Creature *ch ) {
+qcontrol_show_valid_flags( struct creature *ch ) {
 
 	char *msg = tmp_sprintf("  Valid Quest Flags:\r\n");
 	int i = 0;
@@ -1050,7 +1050,7 @@ qcontrol_show_valid_flags( Creature *ch ) {
 	return;
 }
 static void
-do_qcontrol_flags(Creature *ch, char *argument, int com)
+do_qcontrol_flags(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 	int state, cur_flags = 0, tmp_flags = 0, flag = 0, old_flags = 0;
@@ -1119,7 +1119,7 @@ do_qcontrol_flags(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_comment(Creature *ch, char *argument, int com)
+do_qcontrol_comment(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 
@@ -1146,7 +1146,7 @@ do_qcontrol_comment(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_desc(Creature *ch, char *argument, int com)
+do_qcontrol_desc(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 
@@ -1179,7 +1179,7 @@ do_qcontrol_desc(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_update(Creature *ch, char *argument, int com)
+do_qcontrol_update(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 
@@ -1213,12 +1213,12 @@ do_qcontrol_update(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_ban(Creature *ch, char *argument, int com)
+do_qcontrol_ban(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 	unsigned int idnum, accountID;
-    Account* account = NULL;
+    struct account* account = NULL;
 	int pid;
 	int level = 0;
     bool del_vict=false;
@@ -1235,18 +1235,18 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 		return;
 	} else {
         idnum = playerIndex.getID(arg1);
-        accountID = playerIndex.getAccountID(arg1);
+        accountID = playerIndex.getstruct accountID(arg1);
     }
 
     if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
 		pid = playerIndex.getID(arg1);
 		if (pid > 0) {
-            vict = new Creature(true);
+            vict = new struct creature(true);
 			vict->loadFromXML(pid);
             level = GET_LEVEL(vict);
             del_vict = true;
-            account = Account_retrieve(accountID);
+            account = struct account_retrieve(accountID);
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
@@ -1329,15 +1329,15 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_unban(Creature *ch, char *argument, int com)
+do_qcontrol_unban(struct creature *ch, char *argument, int com)
 {
 
 	Quest *quest = NULL;
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 	unsigned int idnum, accountID;
 	int level = 0;
     bool del_vict = false;
-    Account* account;
+    struct account* account;
 
 	argument = two_arguments(argument, arg1, arg2);
 
@@ -1351,17 +1351,17 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 		return;
 	} else {
         idnum = playerIndex.getID(arg1);
-        accountID = playerIndex.getAccountID(arg1);
+        accountID = playerIndex.getstruct accountID(arg1);
     }
 
     if (!(vict = get_char_in_world_by_idnum(idnum))) {
 		// load the char from file
 		if (idnum > 0) {
-            vict = new Creature(true);
+            vict = new struct creature(true);
             vict->loadFromXML(idnum);
             level = GET_LEVEL(vict);
             del_vict=true;
-            account = Account_retrieve(accountID);
+            account = struct account_retrieve(accountID);
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
@@ -1430,7 +1430,7 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_level(Creature *ch, char *argument, int com)
+do_qcontrol_level(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 
@@ -1457,7 +1457,7 @@ do_qcontrol_level(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_minlev(Creature *ch, char *argument, int com)
+do_qcontrol_minlev(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 
@@ -1484,7 +1484,7 @@ do_qcontrol_minlev(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_maxlev(Creature *ch, char *argument, int com)
+do_qcontrol_maxlev(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 
@@ -1509,7 +1509,7 @@ do_qcontrol_maxlev(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_mingen(Creature *ch, char *argument, int com)
+do_qcontrol_mingen(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 
@@ -1534,7 +1534,7 @@ do_qcontrol_mingen(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_maxgen(Creature *ch, char *argument, int com)
+do_qcontrol_maxgen(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
 
@@ -1559,7 +1559,7 @@ do_qcontrol_maxgen(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_mute(Creature *ch, char *argument, int com)
+do_qcontrol_mute(struct creature *ch, char *argument, int com)
 {
 
 	Quest *quest = NULL;
@@ -1608,7 +1608,7 @@ do_qcontrol_mute(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_unmute(Creature *ch, char *argument, int com)
+do_qcontrol_unmute(struct creature *ch, char *argument, int com)
 {
 
 	Quest *quest = NULL;
@@ -1657,7 +1657,7 @@ do_qcontrol_unmute(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_switch(Creature *ch, char *argument)
+do_qcontrol_switch(struct creature *ch, char *argument)
 {
 	class Quest *quest = NULL;
 
@@ -1671,7 +1671,7 @@ do_qcontrol_switch(Creature *ch, char *argument)
 }
 
 static void
-do_qcontrol_title(Creature *ch, char *argument)
+do_qcontrol_title(struct creature *ch, char *argument)
 {
 	Quest *quest;
 	char *quest_str;
@@ -1718,7 +1718,7 @@ do_qcontrol_title(Creature *ch, char *argument)
  * argument is the vnum of the quest as a string                         *
  *************************************************************************/
 Quest *
-find_quest(Creature *ch, char *argument)
+find_quest(struct creature *ch, char *argument)
 {
 	int vnum;
 	Quest *quest = NULL;
@@ -1754,7 +1754,7 @@ quest_by_vnum(int vnum)
  *************************************************************************/
 
 const char *
-list_active_quests(Creature *ch)
+list_active_quests(struct creature *ch)
 {
 	int timediff;
 	int questCount = 0;
@@ -1791,11 +1791,11 @@ list_active_quests(Creature *ch)
 }
 
 void
-list_quest_players(Creature *ch, Quest * quest, char *outbuf)
+list_quest_players(struct creature *ch, Quest * quest, char *outbuf)
 {
 	char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
 	int i, num_online, num_offline;
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char bitbuf[1024];
 
 	strcpy(buf, "  -Online Players------------------------------------\r\n");
@@ -1861,7 +1861,7 @@ list_quest_players(Creature *ch, Quest * quest, char *outbuf)
 }
 
 void
-qlog(Creature *ch, const char *str, int type, int min_level, int file)
+qlog(struct creature *ch, const char *str, int type, int min_level, int file)
 {
 	// Mortals don't need to be seeing logs
 	if (min_level < LVL_IMMORT)
@@ -1896,10 +1896,10 @@ qlog(Creature *ch, const char *str, int type, int min_level, int file)
 	}
 }
 
-Creature *
-check_char_vis(Creature *ch, char *name)
+struct creature *
+check_char_vis(struct creature *ch, char *name)
 {
-	Creature *vict;
+	struct creature *vict;
 
 	if (!(vict = get_char_vis(ch, name))) {
 		send_to_char(ch, "No-one by the name of '%s' around.\r\n", name);
@@ -1919,7 +1919,7 @@ boot_quests(void)
 }
 
 int
-check_editors(Creature *ch, char **buffer)
+check_editors(struct creature *ch, char **buffer)
 {
 	struct descriptor_data *d = NULL;
 
@@ -2048,13 +2048,13 @@ ACMD(do_quest)
 }
 
 void
-do_quest_list(Creature *ch)
+do_quest_list(struct creature *ch)
 {
 	send_to_char(ch, "%s", list_active_quests(ch));
 }
 
 void
-do_quest_join(Creature *ch, char *argument)
+do_quest_join(struct creature *ch, char *argument)
 {
 	Quest *quest = NULL;
 
@@ -2101,7 +2101,7 @@ do_quest_join(Creature *ch, char *argument)
 }
 
 void
-do_quest_leave(Creature *ch, char *argument)
+do_quest_leave(struct creature *ch, char *argument)
 {
 	Quest *quest = NULL;
 
@@ -2147,7 +2147,7 @@ do_quest_leave(Creature *ch, char *argument)
 }
 
 void
-do_quest_info(Creature *ch, char *argument)
+do_quest_info(struct creature *ch, char *argument)
 {
 	Quest *quest = NULL;
 	int timediff;
@@ -2204,7 +2204,7 @@ do_quest_info(Creature *ch, char *argument)
 }
 
 void
-do_quest_status(Creature *ch)
+do_quest_status(struct creature *ch)
 {
 	char timestr_a[128];
 	int timediff;
@@ -2236,7 +2236,7 @@ do_quest_status(Creature *ch)
 }
 
 void
-do_quest_who(Creature *ch, char *argument)
+do_quest_who(struct creature *ch, char *argument)
 {
 	Quest *quest = NULL;
 	skip_spaces(&argument);
@@ -2273,7 +2273,7 @@ do_quest_who(Creature *ch, char *argument)
 }
 
 void
-do_quest_current(Creature *ch, char *argument)
+do_quest_current(struct creature *ch, char *argument)
 {
 	Quest *quest = NULL;
 
@@ -2311,7 +2311,7 @@ do_quest_current(Creature *ch, char *argument)
 }
 
 void
-do_quest_ignore(Creature *ch, char *argument)
+do_quest_ignore(struct creature *ch, char *argument)
 {
 	Quest *quest = NULL;
 
@@ -2409,13 +2409,13 @@ ACMD(do_qecho)
 void
 qp_reload(int sig __attribute__ ((unused)))
 {
-	struct Creature *immortal;
+	struct creature *immortal;
 	int online = 0;
 
 	//
 	// Check if the imm is logged on
 	//
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		immortal = *cit;
 		if (GET_LEVEL(immortal) >= LVL_AMBASSADOR && (!IS_NPC(immortal)
@@ -2435,10 +2435,10 @@ qp_reload(int sig __attribute__ ((unused)))
 }
 
 static void
-do_qcontrol_award(Creature *ch, char *argument, int com)
+do_qcontrol_award(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char arg3[MAX_INPUT_LENGTH];	// Awarded points
 	int award;
 	int idnum;
@@ -2515,10 +2515,10 @@ do_qcontrol_award(Creature *ch, char *argument, int com)
 
 }
 static void
-do_qcontrol_penalize(Creature *ch, char *argument, int com)
+do_qcontrol_penalize(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char arg3[MAX_INPUT_LENGTH];	// Penalized points
 	int penalty;
 	int idnum;
@@ -2595,10 +2595,10 @@ do_qcontrol_penalize(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_restore(Creature *ch, char *argument, int com)
+do_qcontrol_restore(struct creature *ch, char *argument, int com)
 {
 	Quest *quest = NULL;
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char *str;
 	int i;
 
@@ -2629,7 +2629,7 @@ do_qcontrol_restore(Creature *ch, char *argument, int com)
 }
 
 static void
-do_qcontrol_save(Creature *ch)
+do_qcontrol_save(struct creature *ch)
 {
 	quests.save();
 	send_to_char(ch,"Quests saved.\r\n");
@@ -2762,7 +2762,7 @@ save_quests() {
 	quests.save();
 }
 
-Quest_Quest( Creature *ch, int type, const char* name )
+Quest_Quest( struct creature *ch, int type, const char* name )
 	: players(), bans()
 {
 	this->vnum = quests.getNextVnum();
@@ -2907,7 +2907,7 @@ Quest& Quest_operator=( const Quest &q )
 }
 
 bool Quest_removePlayer( long id ) {
-	Creature *vict = NULL;
+	struct creature *vict = NULL;
 	vector<qplayer_data>_iterator it;
 
 	it = find(players.begin(),players.end(),qplayer_data(id) );
@@ -2916,7 +2916,7 @@ bool Quest_removePlayer( long id ) {
 
 	if (!(vict = get_char_in_world_by_idnum(id))) {
 		// load the char from file
-		vict = new Creature(true);
+		vict = new struct creature(true);
 		if (vict->loadFromXML(id)) {
 			//HERE
 			GET_QUEST(vict) = 0;
@@ -3010,7 +3010,7 @@ qplayer_data& qplayer_data_operator=( const qplayer_data &q )
 	return *this;
 }
 
-bool Quest_canEdit(Creature *ch)
+bool Quest_canEdit(struct creature *ch)
 {
 	if( Security_isMember(ch, "QuestorAdmin") )
 		return true;
@@ -3023,7 +3023,7 @@ bool Quest_canEdit(Creature *ch)
 	return true;
 }
 bool
-Quest_canJoin(Creature *ch)
+Quest_canJoin(struct creature *ch)
 {
 	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
 		send_to_char(ch, "Join when you're no longer a killer or thief.\r\n");
@@ -3053,7 +3053,7 @@ Quest_canJoin(Creature *ch)
 }
 
 bool
-Quest_canLeave(Creature *ch)
+Quest_canLeave(struct creature *ch)
 {
 	if (QUEST_FLAGGED(this, QUEST_NOLEAVE)) {
 		send_to_char(ch, "Sorry, you cannot leave the quest right now.\r\n");
@@ -3063,7 +3063,7 @@ Quest_canLeave(Creature *ch)
 }
 
 bool
-Quest_levelOK(Creature *ch)
+Quest_levelOK(struct creature *ch)
 {
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return true;

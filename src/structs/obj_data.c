@@ -164,7 +164,7 @@ obj_data_saveToXML(FILE *ouf)
 }
 
 bool
-obj_data_loadFromXML(obj_data *container, Creature *victim, room_data* room, xmlNodePtr node)
+obj_data_loadFromXML(obj_data *container, struct creature *victim, room_data* room, xmlNodePtr node)
 {
 	int vnum = xmlGetIntProp(node, "vnum");
 	bool placed;

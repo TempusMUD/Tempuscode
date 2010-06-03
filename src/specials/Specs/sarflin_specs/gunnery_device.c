@@ -9,8 +9,8 @@ SPECIAL(gunnery_device)
 	int hit = 0;
 	struct room_data *dest;
 	struct obj_data *ob = NULL;
-	struct Creature *me2 = (struct Creature *)me;
-	struct Creature *vict = NULL;
+	struct creature *me2 = (struct creature *)me;
+	struct creature *vict = NULL;
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
 
@@ -54,7 +54,7 @@ SPECIAL(gunnery_device)
 				dest);
 			vict = NULL;
 			hit = 0;
-			CreatureList_iterator it = dest->people.begin();
+			struct creatureList_iterator it = dest->people.begin();
 			for (; it != dest->people.end(); ++it) {
 				vict = *it;
 				if (!number(0, 5)) {
@@ -81,7 +81,7 @@ SPECIAL(gunnery_device)
 				dest);
 			vict = NULL;
 			hit = 0;
-			CreatureList_iterator it = dest->people.begin();
+			struct creatureList_iterator it = dest->people.begin();
 			for (; it != dest->people.end(); ++it) {
 				vict = *it;
 				if (!number(0, 5)) {
@@ -108,7 +108,7 @@ SPECIAL(gunnery_device)
 					("From above in the tower you hear the creak of a pot tiping\r\n",
 					dest);
 				vict = NULL;
-				CreatureList_iterator it = dest->people.begin();
+				struct creatureList_iterator it = dest->people.begin();
 				for (; it != dest->people.end(); ++it) {
 					damage(ch, *it, 15, TYPE_BOILING_OIL, -1);
 				}
@@ -122,7 +122,7 @@ SPECIAL(gunnery_device)
 					("From above in the tower you hear the creak of a pot tiping\r\n",
 					dest);
 				vict = NULL;
-				CreatureList_iterator it = dest->people.begin();
+				struct creatureList_iterator it = dest->people.begin();
 				for (; it != dest->people.end(); ++it) {
 					damage(ch, vict, 15, TYPE_BOILING_OIL, -1);
 				}

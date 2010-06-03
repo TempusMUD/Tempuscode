@@ -6,7 +6,7 @@
 
 SPECIAL(registry)
 {
-	struct Creature *reg = (struct Creature *)me;
+	struct creature *reg = (struct creature *)me;
 	struct obj_data *cert = NULL;
 	char buf3[MAX_STRING_LENGTH];
 	int cost, home, vcert = -1;

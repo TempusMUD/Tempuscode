@@ -7,7 +7,7 @@
 SPECIAL(wagon_driver)
 {
 	struct obj_data *i;
-	struct Creature *driver = (struct Creature *)me;
+	struct creature *driver = (struct creature *)me;
 	struct room_data *destination = NULL;
 	int wagon_obj_rnum = 10, dir, num;
 

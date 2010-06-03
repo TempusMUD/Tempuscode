@@ -66,7 +66,7 @@ extern struct descriptor_data *descriptor_list;
 *  Modification of character skills                                     *
 ********************************************************************** */
 void
-perform_skillset(Creature *ch, Creature *vict, char *skill_str, int value)
+perform_skillset(struct creature *ch, struct creature *vict, char *skill_str, int value)
 {
 	int skill;
 
@@ -99,7 +99,7 @@ perform_skillset(Creature *ch, Creature *vict, char *skill_str, int value)
 
 ACMD(do_skillset)
 {
-	Creature *vict;
+	struct creature *vict;
 	char *vict_name, *skill, *val_str;
 
 	vict_name = tmp_getword(&argument);
@@ -161,7 +161,7 @@ one_word(char *argument, char *first_arg)
 }
 
 void
-show_file(struct Creature *ch, const char *fname, int lines)
+show_file(struct creature *ch, const char *fname, int lines)
 {
 	fstream file;
 

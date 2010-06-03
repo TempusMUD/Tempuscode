@@ -55,15 +55,15 @@ extern struct apply_mod_defaults *apmd;
 extern const char *instrument_types[];
 
 void weight_change_object(struct obj_data *obj, int weight);
-void add_follower(struct Creature *ch, struct Creature *leader);
+void add_follower(struct creature *ch, struct creature *leader);
 void zone_weather_change(struct zone_data *zone);
-int clan_house_can_enter(struct Creature *ch, struct room_data *room);
+int clan_house_can_enter(struct creature *ch, struct room_data *room);
 
 /*
  * Special spells appear below.
  */
 bool
-teleport_not_ok(Creature *ch, Creature *vict, int level)
+teleport_not_ok(struct creature *ch, struct creature *vict, int level)
 {
 	// Immortals may not be ported or summoned by mortals
 	if (!IS_IMMORT(ch) && IS_IMMORT(vict))
@@ -745,7 +745,7 @@ ASPELL(spell_summon)
 
 		}
 	}
-	CreatureList_iterator it = victim->in_room->people.begin();
+	struct creatureList_iterator it = victim->in_room->people.begin();
 	for (; it != victim->in_room->people.end(); ++it)
 		if (AFF3_FLAGGED((*it), AFF3_SHROUD_OBSCUREMENT))
 			prob +=
@@ -1103,7 +1103,7 @@ ASPELL(spell_identify)
 	int i;
 	int found;
 
-	struct time_info_data age(struct Creature *ch);
+	struct time_info_data age(struct creature *ch);
 
 	if (obj) {
 		send_to_char(ch, "You feel informed:\r\n");
@@ -1275,7 +1275,7 @@ ASPELL(spell_minor_identify)
 	int i;
 	int found;
 
-	struct time_info_data age(struct Creature *ch);
+	struct time_info_data age(struct creature *ch);
 
 	if (obj) {
 		send_to_char(ch, "You feel a bit informed:\r\n");
@@ -1728,7 +1728,7 @@ ASPELL(spell_clairvoyance)
 			false, ch, 0, victim, TO_CHAR);
 		return;
 	}
-	CreatureList_iterator it = victim->in_room->people.begin();
+	struct creatureList_iterator it = victim->in_room->people.begin();
 	for (; it != victim->in_room->people.end(); ++it)
 		if (AFF3_FLAGGED((*it), AFF3_SHROUD_OBSCUREMENT))
 			prob += ((*it) == (*it) ? (GET_LEVEL((*it)) << 1) :
@@ -1764,7 +1764,7 @@ ASPELL(spell_clairvoyance)
 ASPELL(spell_conjure_elemental)
 {
 	struct affected_type af;
-	struct Creature *elemental = NULL;
+	struct creature *elemental = NULL;
 
 	if (GET_LEVEL(ch) >= 35
         && number(0, GET_INT(ch)) > 3
@@ -2009,7 +2009,7 @@ ASPELL(spell_knock)
 ASPELL(spell_sword)
 {
 	struct affected_type af;
-	struct Creature *sword = NULL;
+	struct creature *sword = NULL;
 
 	if ((GET_LEVEL(ch) + GET_INT(ch) + number(0, 10)) < 50 + number(0, 13)) {
 		send_to_char(ch, "You fail.\r\n");
@@ -2334,7 +2334,7 @@ ASPELL(spell_vestigial_rune)
 ASPELL(spell_id_insinuation)
 {
 
-	struct Creature *pulv, *ulv = NULL;	/* un-lucky-vict */
+	struct creature *pulv, *ulv = NULL;	/* un-lucky-vict */
 	int total = 0;
 
 	if (!victim)
@@ -2357,7 +2357,7 @@ ASPELL(spell_id_insinuation)
 	}
 
 	ulv = NULL;
-	CreatureList_iterator it = victim->in_room->people.begin();
+	struct creatureList_iterator it = victim->in_room->people.begin();
 	for (; it != victim->in_room->people.end(); ++it) {
 		pulv = *it;
 		if (pulv == victim || pulv == ch)
@@ -2391,7 +2391,7 @@ ASPELL(spell_id_insinuation)
 ASPELL(spell_shadow_breath)
 {
 	struct room_affect_data rm_aff;
-	struct Creature *vch = NULL;
+	struct creature *vch = NULL;
 	int i;
 
 	if (!victim)
@@ -2405,7 +2405,7 @@ ASPELL(spell_shadow_breath)
 		rm_aff.flags = ROOM_DARK;
 		affect_to_room(victim->in_room, &rm_aff);
 	}
-	CreatureList_iterator it = victim->in_room->people.begin();
+	struct creatureList_iterator it = victim->in_room->people.begin();
 	for (; it != victim->in_room->people.end(); ++it) {
 		vch = *it;
 		if (PRF_FLAGGED(vch, PRF_NOHASSLE))
@@ -2437,7 +2437,7 @@ ASPELL(spell_summon_legion)
 {
 	int i, count;
 	float mult;
-	struct Creature *devil = NULL;
+	struct creature *devil = NULL;
 	struct affected_type af;
 	struct follow_type *k = NULL;
 	/*
@@ -2540,10 +2540,10 @@ ASPELL(spell_summon_legion)
 // Evil cleric stuff
 //
 
-struct Creature *
+struct creature *
 load_corpse_owner(struct obj_data *obj)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	//
 	// mobile
@@ -2556,7 +2556,7 @@ load_corpse_owner(struct obj_data *obj)
 	// pc, load from file
 	//
 
-	vict = new Creature(true);
+	vict = new struct creature(true);
 
 	if (vict->loadFromXML(CORPSE_IDNUM(obj)))
 		return (vict);
@@ -2569,8 +2569,8 @@ load_corpse_owner(struct obj_data *obj)
 ASPELL(spell_animate_dead)
 {
 	struct affected_type af;
-	struct Creature *orig_char = NULL;
-	struct Creature *zombie = NULL;
+	struct creature *orig_char = NULL;
+	struct creature *zombie = NULL;
 	struct obj_data *i = NULL;
 	float mult = (float)level / 70;
 
@@ -2782,7 +2782,7 @@ ASPELL(spell_unholy_stalker)
 {
 
 	int distance = 0;
-	struct Creature *stalker = NULL;
+	struct creature *stalker = NULL;
 	float mult = (float)level / 70;
 
 	if (GET_LEVEL(victim) >= LVL_AMBASSADOR &&
@@ -3021,7 +3021,7 @@ ASPELL(spell_sun_ray)
     }
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch)) {
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == *it)
 				continue;
@@ -3038,7 +3038,7 @@ ASPELL(spell_sun_ray)
 				return;
 		}
 	}
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (ch == (*it)
             || PRF_FLAGGED((*it), PRF_NOHASSLE)
@@ -3089,7 +3089,7 @@ ASPELL(spell_sun_ray)
 ASPELL(spell_inferno)
 {
 	struct room_affect_data rm_aff;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	send_to_room("A raging firestorm fills the room with a hellish inferno!\r\n",
                     ch->in_room);
@@ -3099,7 +3099,7 @@ ASPELL(spell_inferno)
     }
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == *it)
 				continue;
@@ -3124,7 +3124,7 @@ ASPELL(spell_inferno)
 		affect_to_room(ch->in_room, &rm_aff);
 
 	}
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (ch == *it)
 			continue;
@@ -3172,7 +3172,7 @@ ASPELL(spell_banishment)
 }
 
 bool
-remove_random_obj_affect(Creature *ch, obj_data *obj, int level)
+remove_random_obj_affect(struct creature *ch, obj_data *obj, int level)
 {
 	// aff_type : apply:      0 - (MAX_OBJ_AFFECT - 1)
 	//            bitfield:   MAX_OBJ_AFFECT + field
@@ -3553,10 +3553,10 @@ ASPELL(spell_damn)
 #define TYPE_BEAST 		3
 #define TYPE_PREDATOR	4
 
-Creature *
-load_familiar(Creature *ch, int sect_type, int type)
+struct creature *
+load_familiar(struct creature *ch, int sect_type, int type)
 {
-	Creature *result;
+	struct creature *result;
 	const char *to_char = NULL, *to_room = NULL;
 
 	switch (sect_type) {
@@ -3603,10 +3603,10 @@ load_familiar(Creature *ch, int sect_type, int type)
 }
 
 bool
-perform_call_familiar(Creature *ch, int level, int type)
+perform_call_familiar(struct creature *ch, int level, int type)
 {
 	struct affected_type af;
-	struct Creature *pet = NULL;
+	struct creature *pet = NULL;
 	struct follow_type *cur_fol;
 	int percent;
 

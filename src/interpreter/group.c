@@ -50,13 +50,13 @@ namespace Security {
     bool Group_member( long player ) {
         return binary_search(members.begin(), members.end(), player);
     }
-    bool Group_member(  Creature *ch ) {
+    bool Group_member(  struct creature *ch ) {
         return member(GET_IDNUM(ch));
     }
     bool Group_member( const command_info *command ) {
         return binary_search( commands.begin(), commands.end(), command );
     }
-    bool Group_givesAccess(  Creature *ch, const command_info *command ) {
+    bool Group_givesAccess(  struct creature *ch, const command_info *command ) {
         return ( member(ch) && member(command) );
     }
 
@@ -68,7 +68,7 @@ namespace Security {
     }
 
     /* sprintf's a one line desc of this group into out */
-    void Group_sendString(Creature *ch) {
+    void Group_sendString(struct creature *ch) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
@@ -82,7 +82,7 @@ namespace Security {
     }
 
     /* sends a multi-line status of this group to ch */
-    void Group_sendStatus( Creature *ch ) {
+    void Group_sendStatus( struct creature *ch ) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
@@ -169,7 +169,7 @@ namespace Security {
         return true;
     }
 
-	bool Group_sendPublicMember( Creature *ch, char* prefix ) {
+	bool Group_sendPublicMember( struct creature *ch, char* prefix ) {
 		if( members.size() == 0 )
 			return false;
 		const char* name = playerIndex.getName(members[0]);
@@ -180,7 +180,7 @@ namespace Security {
 	}
 
     /* Sends a list of this group's members to the given character. */
-    bool Group_sendPublicMemberList( Creature *ch, const char *title, const char *adminGroup ) {
+    bool Group_sendPublicMemberList( struct creature *ch, const char *title, const char *adminGroup ) {
         vector<long>_iterator it;
         int pos = 0;
 		const char *name;
@@ -241,7 +241,7 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group_sendMemberList( Creature *ch ) {
+    bool Group_sendMemberList( struct creature *ch ) {
         int pos = 1;
         vector<long>_iterator it = members.begin();
         send_to_char(ch, "Members:\r\n");
@@ -267,7 +267,7 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group_sendCommandList( Creature *ch, bool prefix) {
+    bool Group_sendCommandList( struct creature *ch, bool prefix) {
         int pos = 1;
         vector<command_info*>_iterator it = commands.begin();
         if( prefix )

@@ -198,7 +198,7 @@ add_windy_data(int vnum, int min, int max)
 }
 
 void
-show_windy(windy_room_data * windy, Creature *ch)
+show_windy(windy_room_data * windy, struct creature *ch)
 {
 	send_to_char(ch, "Room [%5d]: min-max range: (%d-%d)\r\n", windy->vnum,
 		windy->min, windy->max);
@@ -207,7 +207,7 @@ show_windy(windy_room_data * windy, Creature *ch)
 #define WINDY_USAGE "Usage: status [show|list|min|max|load|save|reset|help]\r\n"
 
 int
-immort_windy_command(Creature *ch, windy_room_data * windy, char *argument)
+immort_windy_command(struct creature *ch, windy_room_data * windy, char *argument)
 {
 
 	int i, max, min;

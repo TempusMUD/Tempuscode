@@ -13,7 +13,7 @@ SPECIAL(juju_zombie)
 	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
 		return 0;
 
-    Creature *vict = ch->findRandomCombat();
+    struct creature *vict = ch->findRandomCombat();
 	if (!number(0, 1)) {
 		prob = MAX(GET_LEVEL(ch) - GET_LEVEL(vict), 10) +
 			number(20,

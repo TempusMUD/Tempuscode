@@ -22,7 +22,7 @@ SPECIAL(ancient_artifact)
 		strcpy(buf, "$N screams silently as $E briefly fades from existence!");
 		act(buf, false, ch, obj, ch->findRandomCombat(), TO_CHAR);
 		act(buf, true, ch, obj, ch->findRandomCombat(), TO_ROOM);
-        Creature *target = ch->findRandomCombat();
+        struct creature *target = ch->findRandomCombat();
 		GET_HIT(target) -= GET_HIT(target) / 10;
 	} else if (number(0, 99)) {
 		strcpy(buf, "$p rumbles disquietingly in your hands.");

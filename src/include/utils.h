@@ -53,7 +53,7 @@ void mlog(const char *group,
 		const char *fmt, ...)
 	__attribute__ ((format (printf, 5, 6)));
 
-void log_death_trap(struct Creature *ch);
+void log_death_trap(struct creature *ch);
 void show_string(struct descriptor_data *desc);
 int number(int from, int to);
 double float_number(double from, double to);
@@ -63,7 +63,7 @@ const char *strlist_aref(int idx, const char *names[]);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int remove_from_cstring(char *str, char c = '~', char c_to = '.');
-void perform_skillset(Creature *ch, Creature *vict, char *skill_str, int value);
+void perform_skillset(struct creature *ch, struct creature *vict, char *skill_str, int value);
 
 enum track_mode
 {
@@ -74,10 +74,10 @@ enum track_mode
 int find_first_step(room_data *start, room_data *dest, track_mode mode);
 int find_distance(room_data *start, room_data *dest);
 
-struct time_info_data age(struct Creature *ch);
+struct time_info_data age(struct creature *ch);
 struct time_info_data mud_time_passed(time_t t2, time_t t1);
 extern struct zone_data *zone_table;
-extern struct Creature *mob_proto;
+extern struct creature *mob_proto;
 extern struct spell_info_type spell_info[];
 void safe_exit(int mode);
 int player_in_room(struct room_data *room);
@@ -92,7 +92,7 @@ struct Reaction {
 		Reaction(void) : _reaction(0) {}
 		~Reaction(void) { if (_reaction) free(_reaction); }
 
-		decision_t react(Creature *ch);
+		decision_t react(struct creature *ch);
 		bool add_reaction(decision_t action, char *condition);
 		bool add_reaction(char *config);
 		char *_reaction;
@@ -111,35 +111,35 @@ struct Reaction {
 #define MIN(a, b) (a > b ? b : a)
 
 /* in magic.c */
-bool circle_follow(struct Creature *ch, struct Creature *victim);
-bool can_charm_more(Creature *ch);
+bool circle_follow(struct creature *ch, struct creature *victim);
+bool can_charm_more(struct creature *ch);
 
 /* in act.informative.c */
-void look_at_room(struct Creature *ch, struct room_data *room, int mode);
+void look_at_room(struct creature *ch, struct room_data *room, int mode);
 
 /* in act.movmement.c */
-int do_simple_move(struct Creature *ch, int dir, int mode, int following);
-int perform_move(struct Creature *ch, int dir, int mode, int following);
+int do_simple_move(struct creature *ch, int dir, int mode, int following);
+int perform_move(struct creature *ch, int dir, int mode, int following);
 
 /* in limits.c */
-int mana_gain(struct Creature *ch);
-int hit_gain(struct Creature *ch);
-int move_gain(struct Creature *ch);
-void advance_level(struct Creature *ch, byte keep_internal);
-void set_title(struct Creature *ch, const char *title);
-void gain_exp(struct Creature *ch, int gain);
-void gain_exp_regardless(struct Creature *ch, int gain);
-void gain_condition(struct Creature *ch, int condition, int value);
-int check_idling(struct Creature *ch);
+int mana_gain(struct creature *ch);
+int hit_gain(struct creature *ch);
+int move_gain(struct creature *ch);
+void advance_level(struct creature *ch, byte keep_internal);
+void set_title(struct creature *ch, const char *title);
+void gain_exp(struct creature *ch, int gain);
+void gain_exp_regardless(struct creature *ch, int gain);
+void gain_condition(struct creature *ch, int condition, int value);
+int check_idling(struct creature *ch);
 void point_update(void);
-char *GET_DISGUISED_NAME(struct Creature *ch, struct Creature *tch);
-int CHECK_SKILL(struct Creature *ch, int i);
-int CHECK_TONGUE(struct Creature *ch, int i);
-const char *OBJS(obj_data * obj, Creature * vict);
-const char *OBJN(obj_data * obj, Creature * vict);
-const char *PERS(Creature * ch, Creature * sub);
+char *GET_DISGUISED_NAME(struct creature *ch, struct creature *tch);
+int CHECK_SKILL(struct creature *ch, int i);
+int CHECK_TONGUE(struct creature *ch, int i);
+const char *OBJS(obj_data * obj, struct creature * vict);
+const char *OBJN(obj_data * obj, struct creature * vict);
+const char *PERS(struct creature * ch, struct creature * sub);
 
-void WAIT_STATE(struct Creature *ch, int cycle);
+void WAIT_STATE(struct creature *ch, int cycle);
 /* various constants *****************************************************/
 
 /* breadth-first searching */
@@ -339,7 +339,7 @@ const char *AN(const char *str);
 #define AFF3_FLAGGED(ch, flag)  (IS_SET(AFF3_FLAGS(ch), (flag)))
 
 static inline bool
-PRF_FLAGGED( Creature *ch, int flag )
+PRF_FLAGGED( struct creature *ch, int flag )
 {
     if( IS_NPC(ch) ) {
         if(ch->desc && ch->desc->original) {
@@ -352,7 +352,7 @@ PRF_FLAGGED( Creature *ch, int flag )
     }
 }
 static inline bool
-PRF2_FLAGGED( Creature *ch, int flag )
+PRF2_FLAGGED( struct creature *ch, int flag )
 {
     if( IS_NPC(ch) ) {
         if(ch->desc && ch->desc->original) {
@@ -501,7 +501,7 @@ SECT(room_data * room)
                         GET_FUTURE_BANK(ch) : GET_PAST_BANK(ch))
 #define CASH_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
                     GET_CASH(ch) : GET_GOLD(ch))
-const char *CURRENCY(Creature * ch);
+const char *CURRENCY(struct creature * ch);
 
 #define GET_HITROLL(ch)          ((ch)->points.hitroll)
 #define GET_DAMROLL(ch)   ((ch)->points.damroll)
@@ -542,13 +542,13 @@ const char *CURRENCY(Creature * ch);
 #define GET_SEVERITY(ch)		((ch)->player_specials->saved.killer_severity)
 
 inline bool
-IS_CRIMINAL(Creature *ch)
+IS_CRIMINAL(struct creature *ch)
 {
 	return IS_PC(ch) && GET_REPUTATION(ch) >= 300;
 }
 
 inline int
-GET_REPUTATION_RANK(Creature *ch)
+GET_REPUTATION_RANK(struct creature *ch)
 {
 	if (GET_REPUTATION(ch) == 0)
 		return 0;
@@ -570,7 +570,7 @@ GET_REPUTATION_RANK(Creature *ch)
 #define GET_CLAN(ch)                ((ch)->player_specials->saved.clan)
 #define GET_REMORT_GEN(ch) ((ch)->char_specials.saved.remort_generation)
 
-static inline bool IS_REMORT( const Creature *ch )
+static inline bool IS_REMORT( const struct creature *ch )
 {
 	if( ch == NULL )
 		return false;
@@ -633,7 +633,7 @@ static inline bool IS_REMORT( const Creature *ch )
 #define MOB_IDNUM(ch)           ((ch)->mob_specials.mob_idnum)
 
 inline int
-STRENGTH_APPLY_INDEX(Creature *ch)
+STRENGTH_APPLY_INDEX(struct creature *ch)
 {
 	if (GET_STR(ch) < 0 || GET_STR(ch) > 25)
 		return 11;
@@ -786,7 +786,7 @@ STRENGTH_APPLY_INDEX(Creature *ch)
 #define IT_THEM(buf)           (PLUR(buf) ? "them" : "it")
 
 #define GET_SKILL(ch, i)        ((ch)->player_specials->saved.skills[i])
-long GET_SKILL_COST(Creature *ch, int skill);
+long GET_SKILL_COST(struct creature *ch, int skill);
 #define KNOCKDOWN_SKILL(i) \
           (i == SPELL_EARTHQUAKE  || i == SPELL_PSYCHIC_SURGE || \
            i == SPELL_EGO_WHIP    || i == SKILL_BASH ||          \
@@ -968,16 +968,16 @@ room_has_air(room_data *room)
 bool room_is_sunny(room_data *room);
 bool room_is_dark(room_data *room);
 bool room_is_light(room_data *room);
-bool has_infravision(Creature *self);
-bool has_dark_sight(Creature *self);
-bool check_sight_self(Creature *self);
-bool check_sight_room(Creature *self, room_data *room);
-bool check_sight_object(Creature *self, obj_data *obj);
-bool check_sight_vict(Creature *self, Creature *vict);
+bool has_infravision(struct creature *self);
+bool has_dark_sight(struct creature *self);
+bool check_sight_self(struct creature *self);
+bool check_sight_room(struct creature *self, room_data *room);
+bool check_sight_object(struct creature *self, obj_data *obj);
+bool check_sight_vict(struct creature *self, struct creature *vict);
 
-bool can_see_creature(Creature *self, Creature *vict);
-bool can_see_object(Creature *self, obj_data *obj);
-bool can_see_room(Creature *self, room_data *room);
+bool can_see_creature(struct creature *self, struct creature *vict);
+bool can_see_object(struct creature *self, obj_data *obj);
+bool can_see_room(struct creature *self, room_data *room);
 
 #define CAN_CARRY_OBJ(ch,obj)  \
    (((IS_CARRYING_W(ch) + obj->getWeight()) <= CAN_CARRY_W(ch)) &&   \
@@ -995,28 +995,28 @@ bool can_see_room(Creature *self, room_data *room);
 static inline room_direction_data*& EXIT( obj_data *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-static inline room_direction_data*& EXIT( Creature *ch, int dir ) {
+static inline room_direction_data*& EXIT( struct creature *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-static inline room_direction_data*& _2ND_EXIT( Creature *ch, int dir ) {
+static inline room_direction_data*& _2ND_EXIT( struct creature *ch, int dir ) {
 	return EXIT(ch,dir)->to_room->dir_option[dir];
 }
-static inline room_direction_data*& _3RD_EXIT( Creature *ch, int dir ) {
+static inline room_direction_data*& _3RD_EXIT( struct creature *ch, int dir ) {
 	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
 }
 static inline room_direction_data*& ABS_EXIT( room_data *room, int dir ) {
 	return room->dir_option[dir];
 }
 
-bool CAN_GO(Creature * ch, int door);
+bool CAN_GO(struct creature * ch, int door);
 bool CAN_GO(obj_data * obj, int door);
 
 struct extra_descr_data *exdesc_list_dup(struct extra_descr_data *list);
-int smart_mobile_move(struct Creature *ch, int dir);
-int drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room);
+int smart_mobile_move(struct creature *ch, int dir);
+int drag_char_to_jail(struct creature *ch, struct creature *vict, room_data *jail_room);
 
 inline bool
-CAN_SEND_TELL(Creature *ch, Creature *tch)
+CAN_SEND_TELL(struct creature *ch, struct creature *tch)
 {
 	// Immortals are hearable everywhere
 	if (ch->player.level >= LVL_IMMORT)
@@ -1058,7 +1058,7 @@ CAN_SEND_TELL(Creature *ch, Creature *tch)
 }
 
 inline bool
-CAN_CHANNEL_COMM(Creature *ch, Creature *tch)
+CAN_CHANNEL_COMM(struct creature *ch, struct creature *tch)
 {
 	// Immortals are hearable everywhere
 	if (ch->player.level >= LVL_IMMORT)
@@ -1135,7 +1135,7 @@ CAN_CHANNEL_COMM(Creature *ch, Creature *tch)
 #endif
 
 inline bool
-MOB_CAN_GO(struct Creature * ch, int door)
+MOB_CAN_GO(struct creature * ch, int door)
 {
 	if (EXIT(ch, door) &&
 		EXIT(ch, door)->to_room &&

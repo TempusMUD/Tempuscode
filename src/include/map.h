@@ -154,7 +154,7 @@ struct MapPixel {
 struct Map : vector<MapPixel> {
         friend class MapPixel;
 
-        Map(Creature *ch, int hsize, int vsize);
+        Map(struct creature *ch, int hsize, int vsize);
         ~Map() {};
 
         bool draw();
@@ -169,6 +169,6 @@ struct Map : vector<MapPixel> {
         int _hsize, _vsize;
         queue<MapPixel> _roomQueue;
         vector<string> _map;
-        static Creature * _ch;
+        static struct creature * _ch;
 };
 #endif

@@ -173,7 +173,7 @@ HelpCollection_Push(HelpItem * n)
 // Mode is how to show the item.
 // Type: 0==normal help, 1==immhelp, 2==olchelp
 void
-HelpCollection_GetTopic(Creature * ch,
+HelpCollection_GetTopic(struct creature * ch,
 	char *args,
 	int mode,
 	bool show_no_app,
@@ -233,7 +233,7 @@ HelpCollection_GetTopic(Creature * ch,
 
 // Show all the items
 void
-HelpCollection_List(Creature * ch, char *args)
+HelpCollection_List(struct creature * ch, char *args)
 {
 	HelpItem *cur;
 	int start = 0, end = top_id;
@@ -271,7 +271,7 @@ HelpCollection_List(Creature * ch, char *args)
 
 // Create an item. (calls Edit)
 bool
-HelpCollection_CreateItem(Creature * ch)
+HelpCollection_CreateItem(struct creature * ch)
 {
 	HelpItem *n;
 
@@ -289,7 +289,7 @@ HelpCollection_CreateItem(Creature * ch)
 
 // Begin editing an item
 bool
-HelpCollection_EditItem(Creature * ch, int idnum)
+HelpCollection_EditItem(struct creature * ch, int idnum)
 {
 	// See if you can edit it before you do....
 	HelpItem *cur;
@@ -309,7 +309,7 @@ HelpCollection_EditItem(Creature * ch, int idnum)
 
 // Clear an item
 bool
-HelpCollection_ClearItem(Creature * ch)
+HelpCollection_ClearItem(struct creature * ch)
 {
 	if (!GET_OLC_HELP(ch)) {
 		send_to_char(ch, "You must be editing an item to clear it.\r\n");
@@ -321,7 +321,7 @@ HelpCollection_ClearItem(Creature * ch)
 
 // Save and Item
 bool
-HelpCollection_SaveItem(Creature * ch)
+HelpCollection_SaveItem(struct creature * ch)
 {
 	if (!GET_OLC_HELP(ch)) {
 		send_to_char(ch, "You must be editing an item to save it.\r\n");
@@ -371,7 +371,7 @@ HelpCollection_FindItems(char *args, bool find_no_approve, int thegroup, bool se
 
 // Save everything.
 bool
-HelpCollection_SaveAll(Creature * ch)
+HelpCollection_SaveAll(struct creature * ch)
 {
 	HelpItem *cur;
 	SaveIndex();
@@ -455,7 +455,7 @@ HelpCollection_LoadIndex()
 // Funnels outside commands into HelpItem functions
 // (that should be protected or something... shrug.)
 bool
-HelpCollection_Set(Creature * ch, char *argument)
+HelpCollection_Set(struct creature * ch, char *argument)
 {
 	char arg1[256];
 	if (!GET_OLC_HELP(ch)) {
@@ -503,7 +503,7 @@ HelpCollection_Sync(void)
 
 // Approve an item
 void
-HelpCollection_ApproveItem(Creature * ch, char *argument)
+HelpCollection_ApproveItem(struct creature * ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
@@ -531,7 +531,7 @@ HelpCollection_ApproveItem(Creature * ch, char *argument)
 
 // Unapprove an item
 void
-HelpCollection_UnApproveItem(Creature * ch, char *argument)
+HelpCollection_UnApproveItem(struct creature * ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
@@ -559,7 +559,7 @@ HelpCollection_UnApproveItem(Creature * ch, char *argument)
 
 // Give some stat info on the Help System
 void
-HelpCollection_Show(Creature * ch)
+HelpCollection_Show(struct creature * ch)
 {
 	int num_items = 0;
 	int num_modified = 0;
@@ -593,7 +593,7 @@ HelpCollection_Show(Creature * ch)
 
 // Blah blah print out the hcollect commands.
 void
-do_hcollect_cmds(Creature *ch)
+do_hcollect_cmds(struct creature *ch)
 {
 	strcpy(gHelpbuf, "hcollect commands:\r\n");
 	for (int i = 0; hc_cmds[i].keyword; i++) {
@@ -668,7 +668,7 @@ ACMD(do_hcollect_help)
 
 // 'qcontrol help'
 void
-do_qcontrol_help( Creature *ch, char *argument )
+do_qcontrol_help( struct creature *ch, char *argument )
 {
 	HelpItem *cur = NULL;
 	skip_spaces(&argument);

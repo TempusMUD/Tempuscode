@@ -14,7 +14,7 @@ SPECIAL(fire_breather)
 	if (ch->getPosition() != POS_FIGHTING || !ch->isFighting())
 		return false;
 
-    Creature *vict = ch->findRandomCombat();
+    struct creature *vict = ch->findRandomCombat();
 	if (vict && (vict->in_room == ch->in_room) &&
 		!number(0, 4)) {
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))

@@ -27,11 +27,11 @@
 #include "fight.h"
 #include "constants.h"
 
-int check_mob_reaction(struct Creature *ch, struct Creature *vict);
+int check_mob_reaction(struct creature *ch, struct creature *vict);
 
 ACMD(do_steal)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *obj;
 	char vict_name[MAX_INPUT_LENGTH];
 	char obj_name[MAX_INPUT_LENGTH];
@@ -278,7 +278,7 @@ ACMD(do_steal)
 
 ACMD(do_backstab)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	int percent, prob;
 	struct obj_data *weap = NULL;
     char *target_str;
@@ -338,7 +338,7 @@ ACMD(do_backstab)
 
 ACMD(do_circle)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	int percent, prob;
 	struct obj_data *weap = NULL;
     char *target_str;
@@ -474,7 +474,7 @@ ACMD(do_hide)
 
 ACMD(do_disguise)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct affected_type af;
 
 	if (CHECK_SKILL(ch, SKILL_DISGUISE) < 20) {

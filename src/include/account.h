@@ -30,7 +30,7 @@ struct account {
 		time_t login_time;			// last time account was logged into
 		char *login_addr;
 		time_t entry_time;			// last time char entered game
-		// Account-wide references
+		// struct account-wide references
 		unsigned char ansi_level;
 		unsigned char compact_level;
 		unsigned int term_height;

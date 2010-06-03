@@ -67,7 +67,7 @@ ACMD(do_roll)
 	struct obj_data *roll_joint(struct obj_data *tobac,
 		struct obj_data *paper);
 	struct obj_data *tobac, *paper, *joint;
-	struct Creature *vict;
+	struct creature *vict;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	two_arguments(argument, arg1, arg2);
 
@@ -111,7 +111,7 @@ ACMD(do_roll)
 }
 
 void
-perform_smoke(struct Creature *ch, int type)
+perform_smoke(struct creature *ch, int type)
 {
 
 	const char *to_vict = NULL;
@@ -234,7 +234,7 @@ ACMD(do_smoke)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	struct obj_data *joint = NULL;
-	struct Creature *vict;
+	struct creature *vict;
 	int type;
 	one_argument(argument, arg1);
 
@@ -431,7 +431,7 @@ ACMD(do_light)
 ACMD(do_extinguish)
 {
 	struct obj_data *ovict = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char arg1[MAX_INPUT_LENGTH];
 	one_argument(argument, arg1);
 
@@ -510,7 +510,7 @@ ACMD(do_extinguish)
 
 ACMD(do_ignite)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	char arg1[MAX_INPUT_LENGTH];
 	ACMD(do_light);
 	one_argument(argument, arg1);

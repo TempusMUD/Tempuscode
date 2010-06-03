@@ -37,9 +37,9 @@
 /* external structs */
 extern struct obj_data *object_list;
 extern struct zone_data *zone_table;
-void npc_steal(struct Creature *ch, struct Creature *victim);
-void hunt_victim(struct Creature *ch);
-int general_search(struct Creature *ch, struct special_search_data *srch,
+void npc_steal(struct creature *ch, struct creature *victim);
+void hunt_victim(struct creature *ch);
+int general_search(struct creature *ch, struct special_search_data *srch,
 	int mode);
 
 const char *flow_types[] = {
@@ -168,8 +168,8 @@ void
 flow_room(int pulse)
 {
 
-	CreatureList_iterator it;
-	struct Creature *vict = NULL;
+	struct creatureList_iterator it;
+	struct creature *vict = NULL;
 	struct obj_data *obj = NULL, *next_obj = NULL;
 	register struct zone_data *zone = NULL;
 	register struct room_data *rnum = NULL, *was_in = NULL;
@@ -352,7 +352,7 @@ dynamic_object_pulse()
 {
 
 	register struct obj_data *obj = NULL, *next_obj = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct room_data *fall_to = NULL;
 	static int counter = 0;
 	int tenpulse = 0, fallpulse = 0;

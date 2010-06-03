@@ -24,9 +24,9 @@
 #include "utils.h"
 #include "house.h"
 
-int check_mob_reaction(Creature *ch, Creature *vict);
-int apply_soil_to_char(Creature *ch, obj_data *obj, int type, int pos);
-int clan_house_can_enter(Creature *ch, struct room_data *room);
+int check_mob_reaction(struct creature *ch, struct creature *vict);
+int apply_soil_to_char(struct creature *ch, obj_data *obj, int type, int pos);
+int clan_house_can_enter(struct creature *ch, struct room_data *room);
 
 ACMD(do_taunt)
 {
@@ -34,7 +34,7 @@ ACMD(do_taunt)
 }
 
 obj_data*
-find_hamstring_weapon( Creature *ch )
+find_hamstring_weapon( struct creature *ch )
 {
 	obj_data* weap = NULL;
 	if( (weap = GET_EQ(ch, WEAR_WIELD)) && SLASHING(weap)) {
@@ -61,7 +61,7 @@ find_hamstring_weapon( Creature *ch )
 
 ACMD(do_hamstring)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *ovict = NULL, *weap = NULL;
 	int percent, prob, dam;
 	struct affected_type af;
@@ -202,7 +202,7 @@ ACMD(do_hamstring)
 
 ACMD(do_drag_char)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct room_data *target_room = NULL;
 	struct room_data *location = NULL;
 
@@ -330,7 +330,7 @@ ACMD(do_snatch)
 	//
 	//  Check to make sure they have a free hand!
 	//
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *obj, *sec_weap;
 	char vict_name[MAX_INPUT_LENGTH];
 	int percent = -1, eq_pos = -1;

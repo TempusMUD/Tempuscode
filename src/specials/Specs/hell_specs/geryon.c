@@ -6,7 +6,7 @@
 
 SPECIAL(geryon)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *horn = NULL;
 	ACMD(do_order);
 
@@ -23,7 +23,7 @@ SPECIAL(geryon)
 		return 1;
 	} else if (number(0, 2))
 		return 0;
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end() && *it != ch; ++it) {
 		if ((*it)->findCombat(ch) &&
 			!number(0, 4) && !affected_by_spell((*it), SPELL_POISON)) {

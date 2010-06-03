@@ -12,7 +12,7 @@ SPECIAL(bearded_devil)
 		return false;
 
 	if (!number(0, 3)) {
-        Creature *vict = ch->findRandomCombat();
+        struct creature *vict = ch->findRandomCombat();
 		act("$n thrusts $s wirelike beard at you!",
 			false, ch, 0, vict, TO_VICT);
 		act("$n thrusts $s wirelike beard at $N!",

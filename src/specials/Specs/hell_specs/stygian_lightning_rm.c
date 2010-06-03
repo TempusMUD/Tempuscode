@@ -6,7 +6,7 @@
 
 SPECIAL(stygian_lightning_rm)
 {
-	struct Creature *new_vict = NULL;
+	struct creature *new_vict = NULL;
 
 	if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
 		return 0;
@@ -18,7 +18,7 @@ SPECIAL(stygian_lightning_rm)
 		return 0;
 
 	new_vict = ch;
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (!IS_NPC((*it)) && (*it)->getPosition() > POS_SITTING
 			&& !IS_DEVIL((*it)) && GET_LEVEL((*it)) > GET_LEVEL(new_vict)

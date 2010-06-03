@@ -157,12 +157,12 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
 //
 
 void
-bomb_damage_room(Creature *damager, int damager_id, char *bomb_name, int bomb_type, int bomb_power,
+bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int bomb_type, int bomb_power,
 	struct room_data *room, int dir, int power,
-	struct Creature *precious_vict)
+	struct creature *precious_vict)
 {
 
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct room_affect_data rm_aff;
 	struct affected_type af;
 	int dam, damage_type = 0;
@@ -332,7 +332,7 @@ bomb_damage_room(Creature *damager, int damager_id, char *bomb_name, int bomb_ty
 	if (!dam)
 		return;
 
-    CreatureList_iterator it;
+    struct creatureList_iterator it;
     //make sure we really do want to do damage in this room
     it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
@@ -483,11 +483,11 @@ detonate_bomb(struct obj_data *bomb)
 {
 
 	struct room_data *room = bomb->find_room();
-	struct Creature *ch = bomb->carried_by;
+	struct creature *ch = bomb->carried_by;
 	struct obj_data *cont = bomb->in_obj, *next_obj = NULL;
 	struct bomb_radius_list *rad_elem = NULL, *next_elem = NULL;
 	bool internal = false;
-    Creature *damager = get_char_in_world_by_idnum(BOMB_IDNUM(bomb));
+    struct creature *damager = get_char_in_world_by_idnum(BOMB_IDNUM(bomb));
 
 	if (!ch) {
 		ch = bomb->worn_by;
@@ -580,7 +580,7 @@ detonate_bomb(struct obj_data *bomb)
 //
 
 void
-engage_self_destruct(struct Creature *ch)
+engage_self_destruct(struct creature *ch)
 {
 
 	int level, i;

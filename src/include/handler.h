@@ -19,21 +19,21 @@
 //
 
 /* handling the affected-structures */
-void apply_object_affects(Creature *ch, obj_data *obj, bool add);
-void affect_total(struct Creature *ch);
-void affect_modify(struct Creature *ch, sh_int loc, sh_int mod, long bitv,
+void apply_object_affects(struct creature *ch, obj_data *obj, bool add);
+void affect_total(struct creature *ch);
+void affect_modify(struct creature *ch, sh_int loc, sh_int mod, long bitv,
 	int index, bool add);
-void affect_to_char(struct Creature *ch, struct affected_type *af);
-int affect_remove(struct Creature *ch, struct affected_type *af);
-int affect_from_char(struct Creature *ch, sh_int type);
-struct affected_type *affected_by_spell(struct Creature *ch, sh_int type);
-int count_affect(struct Creature *ch, sh_int type);
-void affect_join(struct Creature *ch, struct affected_type *af,
+void affect_to_char(struct creature *ch, struct affected_type *af);
+int affect_remove(struct creature *ch, struct affected_type *af);
+int affect_from_char(struct creature *ch, sh_int type);
+struct affected_type *affected_by_spell(struct creature *ch, sh_int type);
+int count_affect(struct creature *ch, sh_int type);
+void affect_join(struct creature *ch, struct affected_type *af,
 	bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
-void check_interface(struct Creature *ch, struct obj_data *obj, int mode);
+void check_interface(struct creature *ch, struct obj_data *obj, int mode);
 
-void check_flying(struct Creature *ch);
-bool can_travel_sector(struct Creature *ch, int sect_type, bool active);
+void check_flying(struct creature *ch);
+bool can_travel_sector(struct creature *ch, int sect_type, bool active);
 
 /* utility */
 char *money_desc(int amount, int mode);
@@ -46,9 +46,9 @@ int get_number(char **name);
 
 /* ******** objects *********** */
 
-int equip_char(struct Creature *ch, struct obj_data *obj, int pos, int mode);
-struct obj_data *unequip_char(struct Creature *ch, int pos, int mode, bool disable_checks = false);
-int check_eq_align(struct Creature *ch);
+int equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode);
+struct obj_data *unequip_char(struct creature *ch, int pos, int mode, bool disable_checks = false);
+int check_eq_align(struct creature *ch);
 bool same_obj(obj_data *obj1, obj_data *obj2);
 
 struct obj_data *get_obj_in_list(char *name, struct obj_data *list);
@@ -56,7 +56,7 @@ struct obj_data *get_obj_in_list_num(int num, struct obj_data *list);
 struct obj_data *get_obj(char *name);
 struct obj_data *get_obj_num(int nr);
 
-void obj_to_char(struct obj_data *object, struct Creature *ch, bool sorted = true);
+void obj_to_char(struct obj_data *object, struct creature *ch, bool sorted = true);
 void obj_from_char(struct obj_data *object);
 void obj_to_room(struct obj_data *object, struct room_data *room, bool sorted = true);
 void obj_from_room(struct obj_data *object);
@@ -67,37 +67,37 @@ void extract_obj(struct obj_data *obj);
 
 /* ******* characters ********* */
 
-struct Creature *get_char_room(char *name, struct room_data *room);
-struct Creature *get_char(char *name);
-struct Creature *get_char_in_world_by_idnum(int nr);
+struct creature *get_char_room(char *name, struct room_data *room);
+struct creature *get_char(char *name);
+struct creature *get_char_in_world_by_idnum(int nr);
 
-bool char_from_room( Creature *ch, bool check_specials = true );
-bool char_to_room( Creature *ch, room_data *room, bool check_specials = true );
+bool char_from_room( struct creature *ch, bool check_specials = true );
+bool char_to_room( struct creature *ch, room_data *room, bool check_specials = true );
 
 /* find if character can see */
-struct Creature *get_char_room_vis(struct Creature *ch, const char *name);
-struct Creature *get_char_random(room_data *room);
-struct Creature *get_char_random_vis(struct Creature *ch, room_data *room);
-struct Creature *get_player_random(room_data *room);
-struct Creature *get_player_random_vis(struct Creature *ch, room_data *room);
-struct Creature *get_char_in_remote_room_vis(struct Creature *ch, const char *name,
+struct creature *get_char_room_vis(struct creature *ch, const char *name);
+struct creature *get_char_random(room_data *room);
+struct creature *get_char_random_vis(struct creature *ch, room_data *room);
+struct creature *get_player_random(room_data *room);
+struct creature *get_player_random_vis(struct creature *ch, room_data *room);
+struct creature *get_char_in_remote_room_vis(struct creature *ch, const char *name,
 	struct room_data *inroom);
-struct Creature *get_player_vis(struct Creature *ch, const char *name, int inroom);
-struct Creature *get_mobile_vis(struct Creature *ch, const char *name, int inroom);
-struct Creature *get_char_vis(struct Creature *ch, const char *name);
-struct obj_data *get_obj_in_list_vis(struct Creature *ch, const char *name,
+struct creature *get_player_vis(struct creature *ch, const char *name, int inroom);
+struct creature *get_mobile_vis(struct creature *ch, const char *name, int inroom);
+struct creature *get_char_vis(struct creature *ch, const char *name);
+struct obj_data *get_obj_in_list_vis(struct creature *ch, const char *name,
 	struct obj_data *list);
-struct obj_data *get_obj_in_list_all(struct Creature *ch, const char *name,
+struct obj_data *get_obj_in_list_all(struct creature *ch, const char *name,
 	struct obj_data *list);
-struct obj_data *get_obj_vis(struct Creature *ch, const char *name);
-struct obj_data *get_object_in_equip_vis(struct Creature *ch,
+struct obj_data *get_obj_vis(struct creature *ch, const char *name);
+struct obj_data *get_object_in_equip_vis(struct creature *ch,
 	const char *arg, struct obj_data *equipment[], int *j);
-struct obj_data *get_object_in_equip_pos(struct Creature *ch, const char *arg,
+struct obj_data *get_object_in_equip_pos(struct creature *ch, const char *arg,
 	int pos);
-struct obj_data *get_object_in_equip_all(struct Creature *ch, const char *arg,
+struct obj_data *get_object_in_equip_all(struct creature *ch, const char *arg,
 	struct obj_data *equipment[], int *j);
 
-int weapon_prof(struct Creature *ch, struct obj_data *obj);
+int weapon_prof(struct creature *ch, struct obj_data *obj);
 
 /* find all dots */
 
@@ -109,8 +109,8 @@ int find_all_dots(char *arg);
 
 /* Generic Find */
 
-int generic_find(char *arg, int bitvector, struct Creature *ch,
-	struct Creature **tar_ch, struct obj_data **tar_obj);
+int generic_find(char *arg, int bitvector, struct creature *ch,
+	struct creature **tar_ch, struct obj_data **tar_obj);
 
 #define FIND_CHAR_ROOM      (1 << 0)
 #define FIND_CHAR_WORLD     (1 << 1)

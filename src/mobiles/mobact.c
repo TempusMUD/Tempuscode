@@ -50,15 +50,15 @@
 #include "voice.h"
 
 /* external structs */
-void npc_steal(struct Creature *ch, struct Creature *victim);
-void hunt_victim(struct Creature *ch);
-void perform_tell(struct Creature *ch, struct Creature *vict, char *messg);
+void npc_steal(struct creature *ch, struct creature *victim);
+void hunt_victim(struct creature *ch);
+void perform_tell(struct creature *ch, struct creature *vict, char *messg);
 int CLIP_COUNT(struct obj_data *clip);
-int tarrasque_fight(struct Creature *tarr);
-int general_search(struct Creature *ch, struct special_search_data *srch,
+int tarrasque_fight(struct creature *tarr);
+int general_search(struct creature *ch, struct special_search_data *srch,
                    int mode);
-int smart_mobile_move(struct Creature *ch, int dir);
-bool perform_offensive_skill(Creature *ch, Creature *vict, int skill, int *return_flags);
+int smart_mobile_move(struct creature *ch, int dir);
+bool perform_offensive_skill(struct creature *ch, struct creature *vict, int skill, int *return_flags);
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 
@@ -111,12 +111,12 @@ SPECIAL(mob_read_script);
      (GET_RACE(ch) == RACE_ALIEN_1 && GET_RACE(vict) == RACE_HUMAN) ||  \
      (GET_RACE(ch) == RACE_ORC && GET_RACE(vict) == RACE_DWARF))
 
-int update_iaffects(Creature * ch);
+int update_iaffects(struct creature * ch);
 
 void
-burn_update_creature(Creature *ch)
+burn_update_creature(struct creature *ch)
 {
-	struct Creature *damager = NULL;
+	struct creature *damager = NULL;
 	struct obj_data *obj = NULL;
 	struct room_data *fall_to = NULL;
 	struct special_search_data *srch = NULL;
@@ -758,7 +758,7 @@ void
 burn_update(void)
 {
 
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit)
         burn_update_creature(*cit);
 }
@@ -769,7 +769,7 @@ burn_update(void)
 //
 
 inline int
-helper_help_probability(struct Creature *ch, struct Creature *vict)
+helper_help_probability(struct creature *ch, struct creature *vict)
 {
 
 	int prob = GET_MORALE(ch);
@@ -862,7 +862,7 @@ helper_help_probability(struct Creature *ch, struct Creature *vict)
 //
 
 inline int
-helper_attack_probability(struct Creature *ch, struct Creature *vict)
+helper_attack_probability(struct creature *ch, struct creature *vict)
 {
 
 	int prob = GET_MORALE(ch);
@@ -986,8 +986,8 @@ helper_attack_probability(struct Creature *ch, struct Creature *vict)
 //
 
 int
-helper_assist(struct Creature *ch, struct Creature *vict,
-              struct Creature *fvict)
+helper_assist(struct creature *ch, struct creature *vict,
+              struct creature *fvict)
 {
 
 	int my_return_flags = 0;
@@ -1046,7 +1046,7 @@ helper_assist(struct Creature *ch, struct Creature *vict,
 }
 
 void
-mob_load_unit_gun(struct Creature *ch, struct obj_data *clip,
+mob_load_unit_gun(struct creature *ch, struct obj_data *clip,
                   struct obj_data *gun, bool internal)
 {
 	char loadbuf[1024];
@@ -1059,7 +1059,7 @@ mob_load_unit_gun(struct Creature *ch, struct obj_data *clip,
 }
 
 struct obj_data *
-find_bullet(struct Creature *ch, int gun_type, struct obj_data *list)
+find_bullet(struct creature *ch, int gun_type, struct obj_data *list)
 {
 	struct obj_data *bul = NULL;
 
@@ -1072,7 +1072,7 @@ find_bullet(struct Creature *ch, int gun_type, struct obj_data *list)
 }
 
 void
-mob_reload_gun(struct Creature *ch, struct obj_data *gun)
+mob_reload_gun(struct creature *ch, struct obj_data *gun)
 {
 	bool internal = false;
 	int count = 0, i;
@@ -1193,7 +1193,7 @@ mob_reload_gun(struct Creature *ch, struct obj_data *gun)
 //
 
 bool
-check_infiltrate(struct Creature *ch, struct Creature *vict)
+check_infiltrate(struct creature *ch, struct creature *vict)
 {
 	if (!ch || !vict) {
 		errlog("NULL char in check_infiltrate()!");
@@ -1240,7 +1240,7 @@ check_infiltrate(struct Creature *ch, struct Creature *vict)
 }
 
 void
-best_initial_attack(struct Creature *ch, struct Creature *vict)
+best_initial_attack(struct creature *ch, struct creature *vict)
 {
 
 	struct obj_data *gun = GET_EQ(ch, WEAR_WIELD);
@@ -1432,7 +1432,7 @@ best_initial_attack(struct Creature *ch, struct Creature *vict)
 }
 
 inline bool
-CHAR_LIKES_ROOM(struct Creature * ch, struct room_data * room)
+CHAR_LIKES_ROOM(struct creature * ch, struct room_data * room)
 {
     if (IS_ELEMENTAL(ch)) {
         // Keep water elementals in the water
@@ -1471,8 +1471,8 @@ CHAR_LIKES_ROOM(struct Creature * ch, struct room_data * room)
 void
 mobile_spec(void)
 {
-	struct Creature *ch;
-	CreatureList_iterator cit, it;
+	struct creature *ch;
+	struct creatureList_iterator cit, it;
     int count = 0;
 
 	extern int no_specials;
@@ -1519,12 +1519,12 @@ mobile_spec(void)
 }
 
 void
-single_mobile_activity(Creature *ch)
+single_mobile_activity(struct creature *ch)
 {
-    struct Creature *vict = NULL, *damager = NULL;
+    struct creature *vict = NULL, *damager = NULL;
 	struct obj_data *obj, *best_obj, *i;
 	struct affected_type *af_ptr = NULL;
-	CreatureList_iterator cit, it;
+	struct creatureList_iterator cit, it;
 	int dir, max, k;
 	struct room_data *room = NULL;
     int cur_class = 0;
@@ -2103,7 +2103,7 @@ single_mobile_activity(Creature *ch)
         !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
         vict = NULL;
         it = ch->in_room->people.begin();
-        CreatureList_iterator nit = ch->in_room->people.begin();
+        struct creatureList_iterator nit = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             ++nit;
             vict = *it;
@@ -2550,22 +2550,22 @@ single_mobile_activity(Creature *ch)
 void
 mobile_activity(void)
 {
-    CreatureList_iterator cit = characterList.begin();
+    struct creatureList_iterator cit = characterList.begin();
 	for (;cit != characterList.end(); ++cit)
         single_mobile_activity(*cit);
 }
 
 #define SAME_ALIGN(a, b) ((IS_GOOD(a) && IS_GOOD(b)) || (IS_EVIL(a) && IS_EVIL(b)))
 
-struct Creature *
-choose_opponent(struct Creature *ch, struct Creature *ignore_vict)
+struct creature *
+choose_opponent(struct creature *ch, struct creature *ignore_vict)
 {
 
-	struct Creature *vict = NULL;
-	struct Creature *best_vict = NULL;
+	struct creature *vict = NULL;
+	struct creature *best_vict = NULL;
 
 	// first look for someone who is fighting us
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		// ignore bystanders
@@ -2603,7 +2603,7 @@ choose_opponent(struct Creature *ch, struct Creature *ignore_vict)
 }
 
 bool
-detect_opponent_master(Creature *ch, Creature *opp)
+detect_opponent_master(struct creature *ch, struct creature *opp)
 {
 	if (!opp->findCombat(ch))
 		return false;
@@ -2639,10 +2639,10 @@ detect_opponent_master(Creature *ch, Creature *opp)
 //
 
 int
-mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
+mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 {
 
-	struct Creature *vict = ch->findRandomCombat();
+	struct creature *vict = ch->findRandomCombat();
 	int prob = 0, dam = 0;
 	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
 	int return_flags = 0;
@@ -2743,10 +2743,10 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 						CHAR_LIKES_ROOM(ch, EXIT(ch, dir)->to_room)
 						&& random_binary()) {
 
-						Creature *was_fighting = ch->findRandomCombat();
+						struct creature *was_fighting = ch->findRandomCombat();
 
                         ch->removeAllCombat();
-                        CreatureList_iterator ci = ch->in_room->people.begin();
+                        struct creatureList_iterator ci = ch->in_room->people.begin();
                         for (; ci != ch->in_room->people.end(); ++ci) {
                             if ((*ci)->findCombat(ch)) {
                                 (*ci)->removeCombat(ch);
@@ -2885,9 +2885,9 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		if (random_fractional_5()) {
 			act("$n begins to secrete a disgustingly malodorous oil!",
 				false, ch, 0, 0, TO_ROOM);
-			CreatureList_iterator it = ch->in_room->people.begin();
+			struct creatureList_iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
-                Creature *tch = *it;
+                struct creature *tch = *it;
 				if (!IS_TROG(tch)
                     && !IS_UNDEAD(tch)
                     && !IS_ELEMENTAL(tch)
@@ -3332,7 +3332,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 /* make ch remember victim */
 void
-remember(struct Creature *ch, struct Creature *victim)
+remember(struct creature *ch, struct creature *victim)
 {
 	memory_rec *tmp;
 	int present = false;
@@ -3354,7 +3354,7 @@ remember(struct Creature *ch, struct Creature *victim)
 
 /* make ch forget victim */
 void
-forget(struct Creature *ch, struct Creature *victim)
+forget(struct creature *ch, struct creature *victim)
 {
 	memory_rec *curr, *prev = NULL;
 
@@ -3377,7 +3377,7 @@ forget(struct Creature *ch, struct Creature *victim)
 }
 
 int
-char_in_memory(struct Creature *victim, struct Creature *rememberer)
+char_in_memory(struct creature *victim, struct creature *rememberer)
 {
 	memory_rec *names;
 
@@ -3389,10 +3389,10 @@ char_in_memory(struct Creature *victim, struct Creature *rememberer)
 }
 
 int
-mob_fight_slaad(Creature *ch, Creature *precious_vict)
+mob_fight_slaad(struct creature *ch, struct creature *precious_vict)
 {
-	Creature *new_mob = NULL;
-	Creature *vict = NULL;
+	struct creature *new_mob = NULL;
+	struct creature *vict = NULL;
 	int num = 0;
 	int return_flags = 0;
 
@@ -3401,7 +3401,7 @@ mob_fight_slaad(Creature *ch, Creature *precious_vict)
 
     if (!(vict = choose_opponent(ch, precious_vict)))
         return 0;
-    CreatureList_iterator it = ch->in_room->people.begin();
+    struct creatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it)
         if (IS_SLAAD((*it)))
             num++;
@@ -3470,7 +3470,7 @@ mob_fight_slaad(Creature *ch, Creature *precious_vict)
             false, ch, 0, 0, TO_ROOM);
         act("$n steps out of the portal with a crack of lightning!",
             false, new_mob, 0, 0, TO_ROOM);
-        Creature *target = ch->findRandomCombat();
+        struct creature *target = ch->findRandomCombat();
         if (target && IS_MOB(target))
             hit(new_mob, target, TYPE_UNDEFINED);
         return 0;
@@ -3486,12 +3486,12 @@ mob_fight_slaad(Creature *ch, Creature *precious_vict)
 //
 
 int
-mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
+mob_fight_devil(struct creature *ch, struct creature *precious_vict)
 {
 
 	int prob = 0;
-	Creature *new_mob = NULL;
-	Creature *vict = NULL;
+	struct creature *new_mob = NULL;
+	struct creature *vict = NULL;
 	int num = 0;
 	int return_flags = 0;
 
@@ -3544,7 +3544,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		return 0;
 
 	// see how many devils are already in the room
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (num = 12; it != ch->in_room->people.end(); ++it)
 		if (IS_DEVIL((*it)))
 			num++;
@@ -3606,7 +3606,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 	case CLASS_ARCH:
 		if (random_number_zero_low(GET_LEVEL(ch)) > 30) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", false, ch, 0, 0, TO_ROOM);
-			CreatureList_iterator it = ch->in_room->people.begin();
+			struct creatureList_iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && *it != ch; ++it) {
 				vict = *it;
 				if (vict->findCombat(ch) &&
@@ -3648,7 +3648,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		    act("$n steps out of the portal with a crack of lightning!",
 			    false, new_mob, 0, 0, TO_ROOM);
         }
-        Creature *target = ch->findRandomCombat();
+        struct creature *target = ch->findRandomCombat();
 		if (target && IS_MOB(target))
 			return (hit(new_mob, target,
                         TYPE_UNDEFINED) & DAM_VICT_KILLED);
@@ -3659,7 +3659,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 }
 
 int
-mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
+mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
 {
 
     const int LANTERN_ARCHON = 43000;
@@ -3669,8 +3669,8 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
     const int TOME_ARCHON = 43004;
 
 	int prob = 0;
-	Creature *new_mob = NULL;
-	Creature *vict = NULL;
+	struct creature *new_mob = NULL;
+	struct creature *vict = NULL;
 	int num = 0;
 	int return_flags = 0;
 
@@ -3716,7 +3716,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	// see how many celestials are already in the room
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (GET_RACE(*it) == RACE_CELESTIAL || GET_RACE(*it) == RACE_ARCHON)
 			num++;
@@ -3784,7 +3784,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 			false, ch, 0, 0, TO_ROOM);
 		act("$n steps out of the portal with a flash of white light!",
 			false, new_mob, 0, 0, TO_ROOM);
-        Creature *target = ch->findRandomCombat();
+        struct creature *target = ch->findRandomCombat();
 		if (target && IS_MOB(target))
 			return (hit(new_mob, target,
                         TYPE_UNDEFINED) & DAM_VICT_KILLED);
@@ -3799,7 +3799,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
  */
 
 int
-mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
+mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
 {
 
     const int AVORIAL_GUARDINAL = 48160;
@@ -3808,8 +3808,8 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
     const int LEONAL_GUARDINAL = 48163;
 
 	int prob = 0;
-	Creature *new_mob = NULL;
-	Creature *vict = NULL;
+	struct creature *new_mob = NULL;
+	struct creature *vict = NULL;
 	int num = 0;
 	int return_flags = 0;
 
@@ -3855,7 +3855,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	// see how many guardinal are already in the room
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (GET_RACE(*it) == RACE_GUARDINAL)
 			num++;
@@ -3923,7 +3923,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 			false, ch, 0, 0, TO_ROOM);
 		act("$n steps out of the portal with a flash of blue light!",
 			false, new_mob, 0, 0, TO_ROOM);
-        Creature *target = ch->findRandomCombat();
+        struct creature *target = ch->findRandomCombat();
 		if (target && IS_MOB(target))
 			return (hit(new_mob, target,
                         TYPE_UNDEFINED) & DAM_VICT_KILLED);
@@ -3938,7 +3938,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
  */
 
 int
-mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
+mob_fight_demon(struct creature *ch, struct creature *precious_vict)
 {
 
     //Uncoment when world updated
@@ -3956,8 +3956,8 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 
 	int prob = 0;
     //Uncomment when world updated
-	Creature *new_mob = NULL;
-	Creature *vict = NULL;
+	struct creature *new_mob = NULL;
+	struct creature *vict = NULL;
 	int num = 0;
 	int return_flags = 0;
 
@@ -4007,7 +4007,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	// see how many demon are already in the room
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (GET_RACE(*it) == RACE_DEMON)
 			num++;
@@ -4153,7 +4153,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 		    act("$n steps out of the portal with a clap of thunder!",
 			    false, new_mob, 0, 0, TO_ROOM);
         }
-        Creature *target = ch->findRandomCombat();
+        struct creature *target = ch->findRandomCombat();
 		if (target && IS_MOB(target))
 			return (hit(new_mob, target,
                         TYPE_UNDEFINED) & DAM_VICT_KILLED);
@@ -4174,7 +4174,7 @@ ACMD(do_breathe)
 	}
     // Find the victim
 	skip_spaces(&argument);
-	Creature *vict = get_char_room_vis(ch, argument);
+	struct creature *vict = get_char_room_vis(ch, argument);
 	if (vict == NULL)
 		vict = ch->findRandomCombat();
 	if (vict == NULL) {
@@ -4256,7 +4256,7 @@ ACMD(do_breathe)
  *******************************************************************************/
 
 void
-knight_activity(struct Creature *ch)
+knight_activity(struct creature *ch)
 {
 	// Don't cast any spells if tainted
 	if (AFF3_FLAGGED(ch, AFF3_TAINTED))
@@ -4309,10 +4309,10 @@ knight_activity(struct Creature *ch)
  *******************************************************************************/
 
 bool
-knight_battle_activity(struct Creature *ch, struct Creature *precious_vict)
+knight_battle_activity(struct creature *ch, struct creature *precious_vict)
 {
     ACCMD(do_disarm);
-    struct Creature * vict;
+    struct creature * vict;
 	int return_flags = 0;
 
     if (!(vict = choose_opponent(ch, precious_vict)))
@@ -4414,7 +4414,7 @@ knight_battle_activity(struct Creature *ch, struct Creature *precious_vict)
  *******************************************************************************/
 
 void
-ranger_activity(struct Creature *ch)
+ranger_activity(struct creature *ch)
 {
 
     if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
@@ -4445,11 +4445,11 @@ ranger_activity(struct Creature *ch)
  *******************************************************************************/
 
 bool
-ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict)
+ranger_battle_activity(struct creature *ch, struct creature *precious_vict)
 {
     ACCMD(do_disarm);
 
-    struct Creature * vict;
+    struct creature * vict;
 	int return_flags;
 
     if (!(vict = choose_opponent(ch, precious_vict)))
@@ -4523,7 +4523,7 @@ ranger_battle_activity(struct Creature *ch, struct Creature *precious_vict)
  *******************************************************************************/
 
 void
-barbarian_activity(struct Creature *ch)
+barbarian_activity(struct creature *ch)
 {
     if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
         do_berserk(ch, tmp_strdup(""), 0, 0, 0);
@@ -4571,11 +4571,11 @@ barbarian_activity(struct Creature *ch)
  *******************************************************************************/
 
 bool
-barbarian_battle_activity(struct Creature *ch, struct Creature *precious_vict)
+barbarian_battle_activity(struct creature *ch, struct creature *precious_vict)
 {
     ACCMD(do_disarm);
 
-    struct Creature * vict;
+    struct creature * vict;
 	int return_flags = 0;
 
     if (!(vict = choose_opponent(ch, precious_vict)))

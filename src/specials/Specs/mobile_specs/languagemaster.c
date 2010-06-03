@@ -11,7 +11,7 @@
 
 SPECIAL(languagemaster)
 {
-    struct Creature *master = (struct Creature *)me;
+    struct creature *master = (struct creature *)me;
 	int check_only = 0, tongue_idx = TONGUE_NONE;
     int cost = TONGUE_COST;
 

@@ -45,7 +45,7 @@ extern struct clan_data *clan_list;
 long asciiflag_conv(char *buf);
 
 void num2str(char *str, int num);
-void do_stat_object(struct Creature *ch, struct obj_data *obj);
+void do_stat_object(struct creature *ch, struct obj_data *obj);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
 	0);
@@ -53,7 +53,7 @@ extern struct extra_descr_data *locate_exdesc(char *word,
 	struct extra_descr_data *list, int exact);
 
 int
-write_wld_index(struct Creature *ch, struct zone_data *zone)
+write_wld_index(struct creature *ch, struct zone_data *zone)
 {
 	int done = 0, i, j, found = 0, count = 0, *new_index;
 	char fname[64];
@@ -157,7 +157,7 @@ check_room_cstrings(struct room_data *room)
 //
 
 int
-save_room(struct Creature *ch, struct room_data *room, FILE * file)
+save_room(struct creature *ch, struct room_data *room, FILE * file)
 {
 	unsigned int i, j;
 	unsigned int tmp;
@@ -334,7 +334,7 @@ save_room(struct Creature *ch, struct room_data *room, FILE * file)
 }
 
 bool
-save_wld(struct Creature *ch, struct zone_data *zone)
+save_wld(struct creature *ch, struct zone_data *zone)
 {
 	FILE *file = 0;
 	char *tmp_fname, *real_fname;
@@ -380,7 +380,7 @@ save_wld(struct Creature *ch, struct zone_data *zone)
 }
 
 struct room_data *
-do_create_room(struct Creature *ch, int vnum)
+do_create_room(struct creature *ch, int vnum)
 {
 
 	struct room_data *rm = NULL, *new_rm = NULL;
@@ -437,12 +437,12 @@ do_create_room(struct Creature *ch, int vnum)
 }
 
 int
-do_destroy_room(struct Creature *ch, int vnum)
+do_destroy_room(struct creature *ch, int vnum)
 {
 
 	struct room_data *rm = NULL, *t_rm = NULL;
 	struct zone_data *zone = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *obj = NULL, *next_obj = NULL;
 	struct special_search_data *srch = NULL;
 	struct extra_descr_data *desc = NULL;
@@ -485,7 +485,7 @@ do_destroy_room(struct Creature *ch, int vnum)
 			}
 		}
 	}
-	CreatureList_iterator it = rm->people.begin();
+	struct creatureList_iterator it = rm->people.begin();
 	for (; it != rm->people.end(); ++it) {
 		vict = *it;
 		send_to_char(vict,
@@ -573,7 +573,7 @@ do_destroy_room(struct Creature *ch, int vnum)
 }
 
 void
-do_clear_room(struct Creature *ch)
+do_clear_room(struct creature *ch)
 {
 	struct room_data *room;
 	struct extra_descr_data *desc = NULL;
@@ -648,7 +648,7 @@ do_clear_room(struct Creature *ch)
 }
 
 void
-olc_mimic_room(struct Creature *ch, struct room_data *rnum, char *argument)
+olc_mimic_room(struct creature *ch, struct room_data *rnum, char *argument)
 {
 
 	char arg1[MAX_INPUT_LENGTH];
@@ -749,7 +749,7 @@ static const char *olc_rset_keys[] = {
 };
 
 void
-do_olc_rset(struct Creature *ch, char *argument)
+do_olc_rset(struct creature *ch, char *argument)
 {
 
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
@@ -988,7 +988,7 @@ do_olc_rset(struct Creature *ch, char *argument)
 }
 
 void
-do_olc_rexdesc(struct Creature *ch, char *argument, bool is_hedit)
+do_olc_rexdesc(struct creature *ch, char *argument, bool is_hedit)
 {
 
 	struct extra_descr_data *desc = NULL, *ndesc = NULL, *temp = NULL;

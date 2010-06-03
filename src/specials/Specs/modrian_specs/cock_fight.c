@@ -28,7 +28,7 @@ SPECIAL(cock_fight)
 			return 0;
 		}
 	}
-    Creature *target = ch->findRandomCombat();
+    struct creature *target = ch->findRandomCombat();
 	switch (number(0, 16)) {
 	case 0:
 		act("$n leaps into the air, feathers flying!", true, ch, 0, 0,

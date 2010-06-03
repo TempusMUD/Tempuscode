@@ -5,7 +5,7 @@ SPECIAL(cremator)
 	if (cmd || !ch->isFighting())
 		return 0;
 
-    Creature *vict = ch->findRandomCombat();
+    struct creature *vict = ch->findRandomCombat();
 	switch (number(0, 5)) {
 	case 0:
 		act("$n attempts to throw you into the furnace!", false, ch, 0,

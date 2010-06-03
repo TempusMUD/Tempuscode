@@ -222,7 +222,7 @@ perform_ban(int flag, const char *site, const char *name, const char *reason)
 }
 
 void
-show_bans(Creature *ch)
+show_bans(struct creature *ch)
 {
     if (ban_list.empty()) {
         send_to_char(ch, "No sites are banned.\r\n");

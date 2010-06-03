@@ -40,17 +40,17 @@ struct olc_help_r {
 #define MOB_D1(lev)    (lev + 1)
 #define MOB_D2(lev)    (6 + (lev >> 1))
 #define MOB_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
-void set_physical_attribs(struct Creature *ch);
+void set_physical_attribs(struct creature *ch);
 //recalculates the given mob prototype's statistics based on it's current level.
-void recalculate_based_on_level(Creature *mob_p);
-void recalc_all_mobs(Creature *ch, const char *argument);
+void recalculate_based_on_level(struct creature *mob_p);
+void recalc_all_mobs(struct creature *ch, const char *argument);
 
-bool CAN_EDIT_ZONE(Creature *ch, struct zone_data *zone);
-bool OLC_EDIT_OK(Creature *ch, struct zone_data *zone, int bits);
+bool CAN_EDIT_ZONE(struct creature *ch, struct zone_data *zone);
+bool OLC_EDIT_OK(struct creature *ch, struct zone_data *zone, int bits);
 
 #define OLCGOD(ch) ( PLR_FLAGGED(ch, PLR_OLCGOD) )
 
-bool OLCIMP(Creature * ch);
+bool OLCIMP(struct creature * ch);
 
 #define UPDATE_OBJLIST_NAMES(obj_p, tmp_obj, _item)                         \
      for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)   \
@@ -78,7 +78,7 @@ bool OLCIMP(Creature * ch);
     }
 
 #define UPDATE_MOBLIST_NAMES(mob_p, tmp_mob, _item)                              \
-    CreatureList_iterator cit = characterList.begin();                         \
+    struct creatureList_iterator cit = characterList.begin();                         \
     for( ; cit != characterList.end(); ++cit ) {                                 \
         tmp_mob = *cit;                                                          \
       if (IS_NPC(tmp_mob) && (tmp_mob->mob_specials.shared->vnum ==              \
@@ -87,7 +87,7 @@ bool OLCIMP(Creature * ch);
     }
 
 #define UPDATE_MOBLIST(mob_p, tmp_mob, _item)                            \
-    CreatureList_iterator cit = characterList.begin();                 \
+    struct creatureList_iterator cit = characterList.begin();                 \
     for( ; cit != characterList.end(); ++cit ) {                         \
         tmp_mob = *cit;                                                  \
        if (IS_NPC(tmp_mob) && (tmp_mob->mob_specials.shared->vnum ==     \
@@ -108,15 +108,15 @@ bool OLCIMP(Creature * ch);
 #define OLC_EXDESC_USAGE "olc <r|o>exdesc <create | remove | edit | addkey>" \
 		   "<keywords> [new keywords]\r\n"
 
-void acc_format_search_data(Creature *ch,
+void acc_format_search_data(struct creature *ch,
                             room_data *room,
                             special_search_data *cur_search);
-void print_search_data_to_buf(struct Creature *ch,
+void print_search_data_to_buf(struct creature *ch,
                               struct room_data *room,
                               struct special_search_data *cur_search,
                               char *buf);
 
-void show_olc_help(struct Creature *ch, char *arg);
-int mobile_experience(struct Creature *mob, FILE *outfile = NULL);
+void show_olc_help(struct creature *ch, char *arg);
+int mobile_experience(struct creature *mob, FILE *outfile = NULL);
 
 #endif							// __OLC_H__

@@ -20,13 +20,13 @@
 SPECIAL(multi_healer)
 {
 
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (cmd)
 		return false;
 
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		if (ch == vict || IS_NPC(vict) || !number(0, 2) || !can_see_creature(ch, vict))

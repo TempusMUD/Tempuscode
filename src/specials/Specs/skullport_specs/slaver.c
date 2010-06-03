@@ -10,8 +10,8 @@
 SPECIAL(slaver)
 {
 
-	struct Creature *slaver = (struct Creature *)me;
-	struct Creature *vict = NULL;
+	struct creature *slaver = (struct creature *)me;
+	struct creature *vict = NULL;
 	struct room_data *r_pit_lip = real_room(PIT_LIP),
 		*r_slave_pit = real_room(SLAVE_PIT);
 
@@ -24,7 +24,7 @@ SPECIAL(slaver)
 
 	if (!slaver->isFighting() && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
 
-		CreatureList_iterator it = slaver->in_room->people.begin();
+		struct creatureList_iterator it = slaver->in_room->people.begin();
 		for (; it != slaver->in_room->people.end(); ++it) {
 			vict = *it;
 			if (ch != vict && !IS_NPC(vict) && can_see_creature(slaver, vict) &&

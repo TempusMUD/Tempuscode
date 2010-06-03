@@ -32,7 +32,7 @@ SPECIAL(finger_of_death)
         return 1;
     }
 
-    Creature *target = get_char_room_vis(ch, token);
+    struct creature *target = get_char_room_vis(ch, token);
     if( target == NULL ) {
         send_to_char(ch, "There doesn't seem to be a '%s' here.\r\n", token);
     } else if( IS_PC(target) ) {

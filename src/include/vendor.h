@@ -6,17 +6,17 @@ struct CraftItem;
 struct Craftshop {
 		Craftshop(xmlNodePtr node);
         ~Craftshop(void);
-		static Craftshop *find(Creature *keeper);
+		static Craftshop *find(struct creature *keeper);
         //Loads the Craftshop described by the given xml node.
 		void load(xmlNodePtr node);
-        // sends a simple status message to the given Creature.
-        void sendStatus( Creature *ch );
+        // sends a simple status message to the given struct creature.
+        void sendStatus( struct creature *ch );
         //Loads the Craftitem described by the given xml node.
 		void parse_item(xmlNodePtr node);
         // Lists the items for sale.
-		void list(Creature *keeper, Creature *ch);
+		void list(struct creature *keeper, struct creature *ch);
         // Attempts to purchase an item from keeper for ch.
-		void buy(Creature *keeper, Creature *ch, char *args);
+		void buy(struct creature *keeper, struct creature *ch, char *args);
         int getID() { return id; }
 
 		int room;

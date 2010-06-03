@@ -39,7 +39,7 @@ struct prog_code_block {
 };
 
 struct prog_compiler_state {
-    Creature *ch;               // Player doing the compiling
+    struct creature *ch;               // Player doing the compiling
     char *prog_text;            // Text to be compiled
     void *owner;                // Owner of the prog
     prog_evt_type owner_type;   // Owner type of the prog
@@ -581,7 +581,7 @@ err:
 }
 
 void
-prog_display_obj(Creature *ch, unsigned char *exec)
+prog_display_obj(struct creature *ch, unsigned char *exec)
 {
     int cmd, arg_addr, read_pt;
     int cmd_count;
@@ -698,7 +698,7 @@ prog_map_to_block(prog_compiler_state *compiler)
 }
 
 unsigned char *
-prog_compile_prog(Creature *ch,
+prog_compile_prog(struct creature *ch,
                   char *prog_text,
                   void *owner,
                   prog_evt_type owner_type)
@@ -754,7 +754,7 @@ error:
 }
 
 void
-prog_compile(Creature *ch, void *owner, prog_evt_type owner_type)
+prog_compile(struct creature *ch, void *owner, prog_evt_type owner_type)
 {
     char *prog;
     unsigned char *obj;

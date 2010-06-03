@@ -59,7 +59,7 @@ void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 /* Used to see if a character is a member of the castle staff */
 /* Used mainly by BANZAI:ng NPC:s */
 int
-member_of_staff(struct Creature *chChar)
+member_of_staff(struct creature *chChar)
 {
 	int ch_num;
 
@@ -77,7 +77,7 @@ member_of_staff(struct Creature *chChar)
 /* Returns true if the character is a guard on duty, otherwise false */
 /* Used by Peter the captain of the royal guard */
 int
-member_of_royal_guard(struct Creature *chChar)
+member_of_royal_guard(struct creature *chChar)
 {
 	int ch_num;
 
@@ -94,10 +94,10 @@ member_of_royal_guard(struct Creature *chChar)
 /* Function find_npc_by_name */
 /* Returns a pointer to an npc by the given name */
 /* Used by Tim and Tom */
-struct Creature *
-find_npc_by_name(struct Creature *chAtChar, const char *pszName, int iLen)
+struct creature *
+find_npc_by_name(struct creature *chAtChar, const char *pszName, int iLen)
 {
-	CreatureList_iterator it = chAtChar->in_room->people.begin();
+	struct creatureList_iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
 		if (IS_NPC((*it)))
 			if (!strncmp(pszName, (*it)->player.short_descr, iLen))
@@ -109,11 +109,11 @@ find_npc_by_name(struct Creature *chAtChar, const char *pszName, int iLen)
 /* Function find_guard */
 /* Returns the pointer to a guard on duty. */
 /* Used by Peter the Captain of the Royal Guard */
-struct Creature *
-find_guard(struct Creature *chAtChar)
+struct creature *
+find_guard(struct creature *chAtChar)
 {
 
-	CreatureList_iterator it = chAtChar->in_room->people.begin();
+	struct creatureList_iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
 		if (!(*it)->isFighting() && member_of_royal_guard((*it)))
 			return (*it);
@@ -125,12 +125,12 @@ find_guard(struct Creature *chAtChar)
 /* Returns a pointer to a randomly chosen character in the same room, */
 /* fighting someone in the castle staff... */
 /* Used by BANZAII-ing characters and King Welmar... */
-struct Creature *
-get_victim(struct Creature *chAtChar)
+struct creature *
+get_victim(struct creature *chAtChar)
 {
 
 	int iNum_bad_guys = 0, iVictim;
-	CreatureList_iterator it = chAtChar->in_room->people.begin();
+	struct creatureList_iterator it = chAtChar->in_room->people.begin();
 	for (; it != chAtChar->in_room->people.end(); ++it) {
 		if ((*it)->isFighting() && member_of_staff((*it)->findRandomCombat()))
 			iNum_bad_guys++;
@@ -157,10 +157,10 @@ get_victim(struct Creature *chAtChar)
 /* Makes a character banzaii on attackers of the castle staff */
 /* Used by Guards, Tim, Tom, Peter, Master, King and Guards */
 int
-banzaii(struct Creature *ch)
+banzaii(struct creature *ch)
 {
 
-	struct Creature *chOpponent = NULL;
+	struct creature *chOpponent = NULL;
 
 	if (!AWAKE(ch) || ch->getPosition() == POS_FIGHTING)
 		return false;
@@ -177,11 +177,11 @@ banzaii(struct Creature *ch)
 /* Makes ch_hero rescue ch_victim */
 /* Used by Tim and Tom */
 int
-do_npc_rescue(struct Creature *ch_hero, struct Creature *ch_victim)
+do_npc_rescue(struct creature *ch_hero, struct creature *ch_victim)
 {
 
-	struct Creature *ch_bad_guy = NULL;
-	CreatureList_iterator it = ch_hero->in_room->people.begin();
+	struct creature *ch_bad_guy = NULL;
+	struct creatureList_iterator it = ch_hero->in_room->people.begin();
 	for (; it != ch_hero->in_room->people.end(); ++it) {
 		if ((*it)->findCombat(ch_victim))
 			ch_bad_guy = *it;
@@ -209,7 +209,7 @@ do_npc_rescue(struct Creature *ch_hero, struct Creature *ch_victim)
 /* Procedure to block a person trying to enter a room. */
 /* Used by Tim/Tom at Kings bedroom */
 int
-block_way(struct Creature *ch, struct Creature *guard, int cmd,
+block_way(struct creature *ch, struct creature *guard, int cmd,
           int iIn_room, int iProhibited_direction)
 {
 
@@ -253,10 +253,10 @@ is_trash(struct obj_data *i)
 /* Finds a suitabe victim, and cast some _NASTY_ spell on him */
 /* Used by King Welmar */
 void
-fry_victim(struct Creature *ch)
+fry_victim(struct creature *ch)
 {
 
-	struct Creature *tch;
+	struct creature *tch;
 
 	if (ch->points.mana < 10)
 		return;
@@ -431,7 +431,7 @@ SPECIAL(duke_araken)
 SPECIAL(training_master)
 {
 
-	struct Creature *pupil1, *pupil2, *tch;
+	struct creature *pupil1, *pupil2, *tch;
 
 	if (spec_mode == SPECIAL_TICK)
 		return 0;
@@ -530,8 +530,8 @@ SPECIAL(training_master)
 SPECIAL(tom)
 {
 
-	struct Creature *tom = (struct Creature *)me;
-	struct Creature *king, *tim;
+	struct creature *tom = (struct creature *)me;
+	struct creature *king, *tim;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -560,8 +560,8 @@ SPECIAL(tom)
 SPECIAL(tim)
 {
 
-	struct Creature *tim = (struct Creature *)me;
-	struct Creature *king, *tom;
+	struct creature *tim = (struct creature *)me;
+	struct creature *king, *tom;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -734,7 +734,7 @@ SPECIAL(lounge_soldier)
 SPECIAL(armory_person)
 {
 
-	struct Creature *guard = (struct Creature *)me;
+	struct creature *guard = (struct creature *)me;
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!cmd || IS_NPC(ch))
@@ -755,7 +755,7 @@ SPECIAL(armory_person)
 SPECIAL(peter)
 {
 
-	struct Creature *ch_guard;
+	struct creature *ch_guard;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
@@ -822,7 +822,7 @@ SPECIAL(peter)
 
 SPECIAL(jerry)
 {
-	struct Creature *gambler1, *gambler2, *tch;
+	struct creature *gambler1, *gambler2, *tch;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;

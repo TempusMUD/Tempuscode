@@ -50,10 +50,10 @@ extern struct time_info_data time_info;
 extern struct spell_info_type spell_info[];
 
 /* extern functions */
-void add_follower(struct Creature *ch, struct Creature *leader);
-void do_auto_exits(struct Creature *ch, room_num room);
-void perform_tell(struct Creature *ch, struct Creature *vict, char *buf);
-int get_check_money(struct Creature *ch, struct obj_data **obj, int display);
+void add_follower(struct creature *ch, struct creature *leader);
+void do_auto_exits(struct creature *ch, room_num room);
+void perform_tell(struct creature *ch, struct creature *vict, char *buf);
+int get_check_money(struct creature *ch, struct obj_data **obj, int display);
 
 ACMD(do_echo);
 ACMD(do_gen_comm);
@@ -120,7 +120,7 @@ SPECIAL(hell_hunter_brain)
 	static bool data_loaded = false;
 	static int counter = 1;
 	struct obj_data *obj = NULL, *weap = NULL;
-	struct Creature *mob = NULL, *vict = NULL;
+	struct creature *mob = NULL, *vict = NULL;
 	unsigned int i, j;
 	int num_devils = 0, regulator = 0;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
@@ -331,7 +331,7 @@ SPECIAL(hell_hunter)
 		return 0;
 	struct obj_data *obj = NULL, *t_obj = NULL;
 	unsigned int i;
-	struct Creature *vict = NULL, *devil = NULL;
+	struct creature *vict = NULL, *devil = NULL;
 
 	if (cmd)
 		return 0;
@@ -382,7 +382,7 @@ SPECIAL(hell_hunter)
 			return 1;
 		}
 
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			vict = *it;
 			if (vict == ch)
@@ -442,7 +442,7 @@ SPECIAL(arioch)
 {
 	struct obj_data *blade = NULL, *obj = NULL;
 	struct room_data *rm = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	unsigned int i;
 
 	if (spec_mode != SPECIAL_TICK)

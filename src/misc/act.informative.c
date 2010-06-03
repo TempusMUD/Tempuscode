@@ -59,7 +59,7 @@ using namespace std;
 extern int mini_mud;
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
-extern CreatureList characterList;
+extern struct creatureList characterList;
 
 extern struct obj_data *object_list;
 //extern const struct command_info cmd_info[];
@@ -108,7 +108,7 @@ extern const weap_spec_info weap_spec_char_class[];
 
 int isbanned(char *hostname, char *blocking_hostname);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
-char *obj_cond_color(struct obj_data *obj, struct Creature *ch);  /**writes to buf2 **/
+char *obj_cond_color(struct obj_data *obj, struct creature *ch);  /**writes to buf2 **/
 
 ACMD(do_stand);
 
@@ -125,7 +125,7 @@ ACMD(do_stand);
    AFF_FLAGGED(ch, AFF_DETECT_MAGIC)) ? 20 : 0))
 
 void
-show_obj_extra(obj_data *object, Creature *ch)
+show_obj_extra(obj_data *object, struct creature *ch)
 {
     if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
         if (object->action_desc)
@@ -179,7 +179,7 @@ show_obj_extra(obj_data *object, Creature *ch)
 }
 
 void
-show_obj_bits(obj_data *object, Creature *ch)
+show_obj_bits(obj_data *object, struct creature *ch)
 {
     if (IS_OBJ_STAT2(object, ITEM2_BROKEN))
         acc_sprintf(" %s<broken>", CCNRM(ch, C_NRM));
@@ -296,7 +296,7 @@ show_obj_bits(obj_data *object, Creature *ch)
 }
 
 static void
-show_room_obj(obj_data *object, Creature *ch, int count)
+show_room_obj(obj_data *object, struct creature *ch, int count)
 {
     if (object->line_desc)
         acc_strcat(object->line_desc, NULL);
@@ -314,7 +314,7 @@ show_room_obj(obj_data *object, Creature *ch, int count)
 }
 
 static void
-show_obj_to_char(struct obj_data *object, struct Creature *ch,
+show_obj_to_char(struct obj_data *object, struct creature *ch,
 	int mode, int count)
 {
     if (mode == SHOW_OBJ_ROOM) {
@@ -344,7 +344,7 @@ show_obj_to_char(struct obj_data *object, struct Creature *ch,
 }
 
 void
-list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
+list_obj_to_char(struct obj_data *list, struct creature *ch, int mode,
 	bool show)
 {
 	struct obj_data *i = NULL, *o = NULL;
@@ -397,8 +397,8 @@ list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
 }
 
 void
-list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
-	struct Creature *vict, int mode, bool show, int glance)
+list_obj_to_char_GLANCE(struct obj_data *list, struct creature *ch,
+	struct creature *vict, int mode, bool show, int glance)
 {
 	struct obj_data *i = NULL, *o = NULL;
 	bool found = false;
@@ -447,7 +447,7 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct Creature *ch,
 }
 
 void
-diag_char_to_char(struct Creature *i, struct Creature *ch)
+diag_char_to_char(struct creature *i, struct creature *ch)
 {
 	int percent;
 
@@ -488,7 +488,7 @@ diag_char_to_char(struct Creature *i, struct Creature *ch)
 }
 
 char *
-diag_conditions(struct Creature *ch)
+diag_conditions(struct creature *ch)
 {
 
     if (!ch) {
@@ -523,7 +523,7 @@ diag_conditions(struct Creature *ch)
 }
 
 void
-desc_char_trailers(Creature *ch, Creature *i)
+desc_char_trailers(struct creature *ch, struct creature *i)
 {
 	if (affected_by_spell(i, SPELL_QUAD_DAMAGE))
 		acc_strcat("...", HSSH(i),
@@ -629,12 +629,12 @@ desc_char_trailers(Creature *ch, Creature *i)
 }
 
 void
-look_at_char(struct Creature *i, struct Creature *ch, int cmd)
+look_at_char(struct creature *i, struct creature *ch, int cmd)
 {
 	int j, found = 0, app_height, app_weight, h, k, pos;
 	char *description = NULL;
 	struct affected_type *af = NULL;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 
 	if ((af = affected_by_spell(i, SKILL_DISGUISE))) {
 		if ((mob = real_mobile_proto(af->modifier)))
@@ -751,7 +751,7 @@ look_at_char(struct Creature *i, struct Creature *ch, int cmd)
 }
 
 const char *
-desc_one_char(Creature *ch, Creature *i, bool is_group)
+desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 {
 	const char *positions[] = {
 		" is lying here, dead.",
@@ -917,9 +917,9 @@ desc_one_char(Creature *ch, Creature *i, bool is_group)
 }
 
 void
-list_char_to_char(struct Creature *list, struct Creature *ch)
+list_char_to_char(struct creature *list, struct creature *ch)
 {
-	struct Creature *i;
+	struct creature *i;
 	bool is_group = false;
 	const char *desc;
 	int unseen = 0;
@@ -928,7 +928,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 	if (list == NULL)
 		return;
 
-	CreatureList_iterator it = list->in_room->people.begin();
+	struct creatureList_iterator it = list->in_room->people.begin();
 	for (; it != list->in_room->people.end(); ++it) {
 		i = *it;
 		is_group = false;
@@ -1019,7 +1019,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 }
 
 void
-do_auto_exits(struct Creature *ch, struct room_data *room)
+do_auto_exits(struct creature *ch, struct room_data *room)
 {
 	int door;
     bool found = false;
@@ -1065,7 +1065,7 @@ do_auto_exits(struct Creature *ch, struct room_data *room)
 
 /* functions and macros for 'scan' command */
 void
-list_scanned_chars(Creature *list, Creature *ch, int distance, int door)
+list_scanned_chars(struct creature *list, struct creature *ch, int distance, int door)
 {
 	const char *how_far[] = {
 		"close by",
@@ -1080,7 +1080,7 @@ list_scanned_chars(Creature *list, Creature *ch, int distance, int door)
 
 	/* this loop is a quick, easy way to help make a grammatical sentence
 	   (i.e., "You see x, x, y, and z." with commas, "and", etc.) */
-	CreatureList_iterator it = list->in_room->people.begin();
+	struct creatureList_iterator it = list->in_room->people.begin();
 	for (; it != list->in_room->people.end(); ++it) {
 
 		/* put any other conditions for scanning someone in this if statement -
@@ -1269,7 +1269,7 @@ ACMD(do_exits)
 }
 
 void
-look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
+look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
 {
 
 	struct room_affect_data *aff = NULL;
@@ -1406,7 +1406,7 @@ look_at_room(struct Creature *ch, struct room_data *room, int ignore_brief)
 }
 
 void
-look_in_direction(struct Creature *ch, int dir)
+look_in_direction(struct creature *ch, int dir)
 {
 #define EXNUMB EXIT(ch, dir)->to_room
 	struct room_affect_data *aff;
@@ -1639,7 +1639,7 @@ look_in_direction(struct Creature *ch, int dir)
 }
 
 void
-look_in_obj(struct Creature *ch, char *arg)
+look_in_obj(struct creature *ch, char *arg)
 {
 	struct obj_data *obj = NULL;
 	int amt, bits;
@@ -1739,10 +1739,10 @@ find_exdesc(char *word, struct extra_descr_data *list, int find_exact = 0)
  * with the name.  Then check local objs for exdescs.
  */
 void
-look_at_target(struct Creature *ch, char *arg, int cmd)
+look_at_target(struct creature *ch, char *arg, int cmd)
 {
 	int bits, found = 0, j;
-	struct Creature *found_char = NULL;
+	struct creature *found_char = NULL;
 	struct obj_data *obj = NULL, *found_obj = NULL, *car;
 	char *desc;
 
@@ -1862,9 +1862,9 @@ look_at_target(struct Creature *ch, char *arg, int cmd)
 }
 
 void
-glance_at_target(struct Creature *ch, char *arg, int cmd)
+glance_at_target(struct creature *ch, char *arg, int cmd)
 {
-	struct Creature *found_char = NULL;
+	struct creature *found_char = NULL;
 	struct obj_data *found_obj = NULL;
 
 	if (!*arg) {
@@ -1952,7 +1952,7 @@ glance_at_target(struct Creature *ch, char *arg, int cmd)
 
 ACMD(do_listen)
 {
-	struct Creature *fighting_vict = NULL;
+	struct creature *fighting_vict = NULL;
 	struct obj_data *noisy_obj = NULL;
 	int i;
 
@@ -1960,7 +1960,7 @@ ACMD(do_listen)
 		send_to_char(ch, "%s", ch->in_room->sounds);
 		return;
 	}
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it)->isFighting()) {
 			fighting_vict = *it;
@@ -2053,9 +2053,9 @@ ACMD(do_listen)
 					!IS_SET(ch->in_room->dir_option[i]->exit_info,
 						EX_CLOSED)) {
 
-					CreatureList_iterator end =
+					struct creatureList_iterator end =
 						ch->in_room->dir_option[i]->to_room->people.end();
-					CreatureList_iterator it =
+					struct creatureList_iterator it =
 						ch->in_room->dir_option[i]->to_room->people.begin();
 					for (; it != end; ++it) {
 						fighting_vict = *it;
@@ -2139,7 +2139,7 @@ ACMD(do_glance)
 
 ACMD(do_examine)
 {
-	struct Creature *tmp_char;
+	struct creature *tmp_char;
 	struct obj_data *tmp_object;
 
 	if (ch->getPosition() < POS_SLEEPING) {
@@ -2264,11 +2264,11 @@ ACMD(do_encumbrance)
 //it may interest you to know that mode=1 means we should only show bad things
 //IMPORTANT: Add negative messages ABOVE the mode check, positive messages BELOW
 void
-acc_append_affects(struct Creature *ch, byte mode)
+acc_append_affects(struct creature *ch, byte mode)
 {
 
 	struct affected_type *af = NULL;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 	const char *name = NULL;
 	const char *str = "";
 
@@ -3086,7 +3086,7 @@ ACMD(do_time)
 }
 
 void
-show_mud_date_to_char(struct Creature *ch)
+show_mud_date_to_char(struct creature *ch)
 {
 	const char *suf;
 	struct time_info_data local_time;
@@ -3154,7 +3154,7 @@ ACMD(do_weather)
 
 //generates a formatted string representation of a player for the who list
 string
-whoString(Creature *ch, Creature *target) {
+whoString(struct creature *ch, struct creature *target) {
 	ostringstream out;
 	int len = strlen(BADGE(target));
 
@@ -3213,7 +3213,7 @@ whoString(Creature *ch, Creature *target) {
 
 //generates a formatted string representation of a player for the who list
 string
-whoFlagsString(Creature *ch, Creature *target) {
+whoFlagsString(struct creature *ch, struct creature *target) {
 	ostringstream out;
 
 	//nowho
@@ -3285,7 +3285,7 @@ whoFlagsString(Creature *ch, Creature *target) {
 }
 
 string
-whoKillsString(Creature *ch, Creature *target) {
+whoKillsString(struct creature *ch, struct creature *target) {
 	ostringstream out;
 
 	out << CCRED_BLD(ch, C_NRM) << " *" << GET_PKILLS(target) << " KILLS* -";
@@ -3295,7 +3295,7 @@ whoKillsString(Creature *ch, Creature *target) {
 }
 
 struct WhoListComparator {
-		bool operator()(Creature *a, Creature *b)
+		bool operator()(struct creature *a, struct creature *b)
 		{
 			time_t now, time_a, time_b;
 
@@ -3323,9 +3323,9 @@ ACMD(do_who)
 
 	struct descriptor_data *d;
 	ostringstream out;
-	std_vector<Creature *> immortals, testers, players;
-	std_vector<Creature *>::iterator cit;
-	Creature *curr;
+	std_vector<struct creature *> immortals, testers, players;
+	std_vector<struct creature *>::iterator cit;
+	struct creature *curr;
 	int playerTotal=0, immTotal=0;
 	const char *tester_s="s";
 	bool zone=false, plane=false, time=false, kills=false, noflags=false;
@@ -3582,7 +3582,7 @@ ACMD(do_gen_ps)
 
 void
 print_object_location(int num, struct obj_data *obj,
-	struct Creature *ch, int recur, char *to_buf)
+	struct creature *ch, int recur, char *to_buf)
 {
 	if ((obj->carried_by && GET_INVIS_LVL(obj->carried_by) > GET_LEVEL(ch)) ||
 		(obj->in_obj && obj->in_obj->carried_by &&
@@ -3666,13 +3666,13 @@ bool isWhereMatch( const list<char *> &req, const list<char *> &exc, obj_data *t
  * Checks to see that the given object matches the search criteria
  * @param req The list of required search parameters
  * @param exc The list of excluded search parameters
- * @param mob The Creature struct of the mobile to be reviewed
+ * @param mob The struct creature struct of the mobile to be reviewed
  *
  * @return a boolean value representing if the object passed the search criteria
  *
 **/
 bool
-isWhereMatch( const list<char *> &req, const list<char *> &exc, Creature *mob) {
+isWhereMatch( const list<char *> &req, const list<char *> &exc, struct creature *mob) {
     list<char *>_const_iterator reqit, excit;
 
     for(reqit = req.begin(); reqit != req.end(); reqit++) {
@@ -3719,9 +3719,9 @@ isInHouse( obj_data *obj) {
 }
 
 void
-perform_immort_where(struct Creature *ch, char *arg, bool show_morts)
+perform_immort_where(struct creature *ch, char *arg, bool show_morts)
 {
-	register struct Creature *i = NULL;
+	register struct creature *i = NULL;
 	register struct obj_data *k;
 	struct descriptor_data *d;
 	int num = 0, found = 0;
@@ -3795,7 +3795,7 @@ perform_immort_where(struct Creature *ch, char *arg, bool show_morts)
 		list <string> outList;
 
 		if(!no_mob) {
-            CreatureList_iterator cit = characterList.begin();
+            struct creatureList_iterator cit = characterList.begin();
             for (; cit != characterList.end(); ++cit) {
                 i = *cit;
                 if (can_see_creature(ch, i) && i->in_room && isWhereMatch(required, excluded, i) &&
@@ -3882,7 +3882,7 @@ ACMD(do_where)
 }
 
 void
-print_attributes_to_buf(struct Creature *ch, char *buff)
+print_attributes_to_buf(struct creature *ch, char *buff)
 {
 
 	sbyte str, stradd, intel, wis, dex, con, cha;
@@ -4131,7 +4131,7 @@ ACMD(do_attributes)
 
 ACMD(do_consider)
 {
-	struct Creature *victim;
+	struct creature *victim;
 	int diff, ac;
 
 	one_argument(argument, buf);
@@ -4256,7 +4256,7 @@ ACMD(do_consider)
 
 ACMD(do_diagnose)
 {
-	struct Creature *vict;
+	struct creature *vict;
 
 	one_argument(argument, buf);
 
@@ -4360,7 +4360,7 @@ ACMD(do_color)
 }
 
 void
-show_all_toggles(Creature *ch)
+show_all_toggles(struct creature *ch)
 {
     bool gets_clanmail = false;
 
@@ -4510,7 +4510,7 @@ ACMD(do_commands)
 {
 	int no, i, cmd_num;
 	int wizhelp = 0, socials = 0, moods = 0, level = 0;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 
 	one_argument(argument, arg);
 
@@ -4644,9 +4644,9 @@ ACMD(do_skills)
 {
 	int parse_player_class(char *arg);
 	int parse_char_class(char *arg);
-	void show_char_class_skills(struct Creature *ch, int con, int immort,
+	void show_char_class_skills(struct creature *ch, int con, int immort,
 		int bits);
-	void list_skills(struct Creature *ch, int mode, int type);
+	void list_skills(struct creature *ch, int mode, int type);
 	int char_class = 0;
 	char *arg;
 

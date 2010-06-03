@@ -10,7 +10,7 @@ SPECIAL(abandoned_cavern)
 {
 
 	struct room_data *cavern = (struct room_data *)me;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *obj = NULL, *rubble = NULL;
 	static int hell_VI_count = 0, darth_count = 0;
 	int count, i;
@@ -34,7 +34,7 @@ SPECIAL(abandoned_cavern)
 		act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, 0, 0, TO_ROOM);
 		act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, 0, 0, TO_CHAR | TO_SLEEP);
 
-		CreatureList_iterator it = cavern->people.begin();
+		struct creatureList_iterator it = cavern->people.begin();
 		for (; it != cavern->people.end(); ++it) {
 			vict = *it;
 			if (number(5, 30) > GET_DEX(vict) && GET_LEVEL(vict) < LVL_IMMORT) {

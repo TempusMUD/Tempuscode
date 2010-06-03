@@ -1,6 +1,6 @@
 SPECIAL(pit_keeper)
 {
-	Creature *vict = 0;
+	struct creature *vict = 0;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;

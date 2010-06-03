@@ -6,7 +6,7 @@
 
 SPECIAL(safiir)
 {
-	struct Creature *safiir = (struct Creature *)me;
+	struct creature *safiir = (struct creature *)me;
 	struct obj_data *wand;
 	char buf3[MAX_STRING_LENGTH];
 	int cost;

@@ -7,8 +7,8 @@
 SPECIAL(moloch)
 {
 
-	struct Creature *moloch = (struct Creature *)me;
-    struct Creature *vict = NULL;
+	struct creature *moloch = (struct creature *)me;
+    struct creature *vict = NULL;
 	room_data *targ_room = NULL;
 	int throne_rooms[4] = { 16645, 16692, 16692, 16623 }, index;
 
@@ -55,7 +55,7 @@ SPECIAL(moloch)
 	char_from_room(moloch, false);
 	char_to_room(moloch, targ_room, false);
 	act("$n slowly appears from another place.", true, moloch, 0, 0, TO_ROOM);
-	CreatureList_iterator it = moloch->in_room->people.begin();
+	struct creatureList_iterator it = moloch->in_room->people.begin();
 	for (index = 0; it != moloch->in_room->people.end(); ++it) {
 		if (*it != moloch) {
 			if (!IS_DEVIL((*it))) {

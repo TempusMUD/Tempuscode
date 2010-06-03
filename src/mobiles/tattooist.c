@@ -17,20 +17,20 @@
 const int MAX_ITEMS = 10;
 
 // From act.comm.cc
-void perform_analyze( Creature *ch, obj_data *obj, bool checklev );
-void perform_appraise( Creature *ch, obj_data *obj, int skill_lvl);
+void perform_analyze( struct creature *ch, obj_data *obj, bool checklev );
+void perform_appraise( struct creature *ch, obj_data *obj, int skill_lvl);
 
 // From cityguard.cc
-void call_for_help(Creature *ch, Creature *attacker);
+void call_for_help(struct creature *ch, struct creature *attacker);
 
 // From vendor.cc
 bool same_obj(obj_data *obj1, obj_data *obj2);
-obj_data *vendor_resolve_hash(Creature *self, char *obj_str);
-obj_data *vendor_resolve_name(Creature *self, char *obj_str);
-void vendor_appraise(Creature *ch, obj_data *obj, Creature *self, ShopData *shop);
+obj_data *vendor_resolve_hash(struct creature *self, char *obj_str);
+obj_data *vendor_resolve_name(struct creature *self, char *obj_str);
+void vendor_appraise(struct creature *ch, obj_data *obj, struct creature *self, ShopData *shop);
 
 static void
-tattooist_show_pos(Creature * me, Creature * ch, obj_data * obj)
+tattooist_show_pos(struct creature * me, struct creature * ch, obj_data * obj)
 {
 	int pos;
 	bool not_first = false;
@@ -61,7 +61,7 @@ tattooist_get_value(obj_data *obj, int percent, int costModifier)
 }
 
 static void
-tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
+tattooist_sell(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
 	obj_data *obj;
 	char *obj_str;
@@ -198,7 +198,7 @@ tattooist_sell(Creature *ch, char *arg, Creature *self, ShopData *shop)
 }
 
 char *
-tattooist_list_obj(Creature *ch, obj_data *obj, int idx, int cost)
+tattooist_list_obj(struct creature *ch, obj_data *obj, int idx, int cost)
 {
 	char *obj_desc;
 
@@ -216,7 +216,7 @@ tattooist_list_obj(Creature *ch, obj_data *obj, int idx, int cost)
 }
 
 static void
-tattooist_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
+tattooist_list(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
 {
 	obj_data *cur_obj;
 	int idx;
@@ -261,7 +261,7 @@ tattooist_list(Creature *ch, char *arg, Creature *self, ShopData *shop)
 
 SPECIAL(tattooist)
 {
-	Creature *self = (Creature *)me;
+	struct creature *self = (struct creature *)me;
 	char *config;
     const char *err = NULL;
 	int err_line;
@@ -284,7 +284,7 @@ SPECIAL(tattooist)
 		return 1;
 
 	if (spec_mode == SPECIAL_TICK) {
-        Creature *target = self->findRandomCombat();
+        struct creature *target = self->findRandomCombat();
 		if (target && shop->call_for_help && !number(0, 4)) {
 			call_for_help(self, target);
 			return 1;

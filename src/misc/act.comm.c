@@ -53,7 +53,7 @@ int parse_player_class(char *arg);
 void summon_cityguards(room_data *room);
 
 void
-perform_say(Creature *ch, const char *saystr, const char *message)
+perform_say(struct creature *ch, const char *saystr, const char *message)
 {
     message = act_escape(message);
 	act(tmp_sprintf("&BYou %s$a$l, &c'$[%s]'", saystr, message),
@@ -63,7 +63,7 @@ perform_say(Creature *ch, const char *saystr, const char *message)
 }
 
 void
-perform_say_to(Creature *ch, Creature *target, const char *message)
+perform_say_to(struct creature *ch, struct creature *target, const char *message)
 {
     message = act_escape(message);
 	act(tmp_sprintf("&BYou$a say to $T$l, &c'$[%s]'", message),
@@ -73,7 +73,7 @@ perform_say_to(Creature *ch, Creature *target, const char *message)
 }
 
 void
-perform_say_to_obj(Creature *ch, obj_data *obj, const char *message)
+perform_say_to_obj(struct creature *ch, obj_data *obj, const char *message)
 {
     message = act_escape(message);
 	act(tmp_sprintf("&BYou$a say to $p$l, &c'$[%s]'", message),
@@ -84,7 +84,7 @@ perform_say_to_obj(Creature *ch, obj_data *obj, const char *message)
 
 ACMD(do_sayto)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *o = NULL;
     char *name;
     int ignore;
@@ -131,7 +131,7 @@ ACMD(do_sayto)
 }
 
 const char *
-select_say_cmd(Creature *ch, const char *message)
+select_say_cmd(struct creature *ch, const char *message)
 {
     int len = strlen(message);
     const char *end = message + len - 1;
@@ -214,7 +214,7 @@ ACMD(do_say)
 
 ACMD(do_gsay)
 {
-	struct Creature *k;
+	struct creature *k;
 	struct follow_type *f;
 
 	skip_spaces(&argument);
@@ -253,7 +253,7 @@ ACMD(do_gsay)
 }
 
 void
-perform_tell(struct Creature *ch, struct Creature *vict, const char *arg)
+perform_tell(struct creature *ch, struct creature *vict, const char *arg)
 {
 	char *act_str = tmp_sprintf("&r$t$a tell$%% $T,&n '%s'",
                                 act_escape(arg));
@@ -289,7 +289,7 @@ perform_tell(struct Creature *ch, struct Creature *vict, const char *arg)
  */
 ACMD(do_tell)
 {
-	struct Creature *vict;
+	struct creature *vict;
 
 	char buf2[MAX_INPUT_LENGTH];
 	half_chop(argument, buf, buf2);
@@ -336,7 +336,7 @@ ACMD(do_tell)
 
 ACMD(do_reply)
 {
-	CreatureList_iterator tch = characterList.begin();
+	struct creatureList_iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
 	if (GET_LAST_TELL_FROM(ch) == NOBODY) {
@@ -388,7 +388,7 @@ ACMD(do_reply)
 
 ACMD(do_retell)
 {
-	CreatureList_iterator tch = characterList.begin();
+	struct creatureList_iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
 	if (GET_LAST_TELL_TO(ch) == NOBODY) {
@@ -434,7 +434,7 @@ ACMD(do_retell)
 
 ACMD(do_whisper)
 {
-	struct Creature *vict;
+	struct creature *vict;
     char *vict_str = tmp_getword(&argument);
 
 	if (!*vict_str || !*argument) {
@@ -531,7 +531,7 @@ ACMD(do_write)
 
 ACMD(do_page)
 {
-	struct Creature *vict;
+	struct creature *vict;
     char *target_str;
 
     target_str = tmp_getword(&argument);

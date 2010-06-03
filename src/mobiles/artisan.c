@@ -42,8 +42,8 @@ struct CraftItem {
         }
         required.clear();
     }
-    char *next_requirement(Creature *keeper);
-    obj_data *create(Creature *keeper, Creature *recipient);
+    char *next_requirement(struct creature *keeper);
+    obj_data *create(struct creature *keeper, struct creature *recipient);
 
     int vnum;	// object to be offered when all components are held
     long cost; // -1 means to use default cost
@@ -162,7 +162,7 @@ Craftshop_load( xmlNodePtr node )
 }
 
 Craftshop *
-Craftshop_find(Creature *keeper)
+Craftshop_find(struct creature *keeper)
 {
 	vector<Craftshop *>_iterator shop;
 
@@ -175,7 +175,7 @@ Craftshop_find(Creature *keeper)
 }
 
 char *
-CraftItem_next_requirement(Creature *keeper)
+CraftItem_next_requirement(struct creature *keeper)
 {
 	obj_data *obj;
 	vector<CraftComponent *>_iterator compon;
@@ -197,7 +197,7 @@ CraftItem_next_requirement(Creature *keeper)
 }
 
 obj_data *
-CraftItem_create(Creature *keeper, Creature *recipient)
+CraftItem_create(struct creature *keeper, struct creature *recipient)
 {
 	obj_data *obj;
 	vector<CraftComponent *>_iterator compon;
@@ -227,7 +227,7 @@ CraftItem_create(Creature *keeper, Creature *recipient)
 }
 
 char *
-list_commission_item(Creature *ch, Creature *keeper, int idx, CraftItem *item, char *msg)
+list_commission_item(struct creature *ch, struct creature *keeper, int idx, CraftItem *item, char *msg)
 {
 	obj_data *obj;
 	char *needed;
@@ -250,11 +250,11 @@ list_commission_item(Creature *ch, Creature *keeper, int idx, CraftItem *item, c
 
 }
 
-// sends a simple status message to the given Creature.
+// sends a simple status message to the given struct creature.
 void
-Craftshop_sendStatus( Creature *ch ) {
+Craftshop_sendStatus( struct creature *ch ) {
     const char *name = "<not loaded>";
-    Creature *keeper = real_mobile_proto(keeper_vnum);
+    struct creature *keeper = real_mobile_proto(keeper_vnum);
     if( keeper != NULL )
         name = GET_NAME(keeper);
     send_to_char(ch, "[%6d] %15s [%6d] ( %zd items )\r\n",
@@ -263,7 +263,7 @@ Craftshop_sendStatus( Creature *ch ) {
 
 // Lists the items for sale.
 void
-Craftshop_list(Creature *keeper, Creature *ch)
+Craftshop_list(struct creature *keeper, struct creature *ch)
 {
 	vector<CraftItem *>_iterator item;
 	int idx = 0;
@@ -288,7 +288,7 @@ Craftshop_list(Creature *keeper, Creature *ch)
 
 // Attempts to purchase an item from keeper for ch.
 void
-Craftshop_buy(Creature *keeper, Creature *ch, char *arguments)
+Craftshop_buy(struct creature *keeper, struct creature *ch, char *arguments)
 {
 	vector<CraftItem *>_iterator item_itr;
 	CraftItem *item;
@@ -391,7 +391,7 @@ void
 assign_artisans(void)
 {
 	vector<Craftshop *>_iterator shop;
-	Creature *mob;
+	struct creature *mob;
 
 	for (shop = shop_list.begin(); shop != shop_list.end(); shop++) {
 		mob = real_mobile_proto((*shop)->keeper_vnum);
@@ -408,7 +408,7 @@ assign_artisans(void)
 
 SPECIAL(artisan)
 {
-	struct Creature *keeper = (Creature *)me;
+	struct creature *keeper = (struct creature *)me;
 	char *msg;
 	Craftshop *shop;
 

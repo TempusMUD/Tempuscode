@@ -5,16 +5,16 @@
 #include <map>
 
 struct ExecutableObject;
-struct CreatureRace;
-struct Creature;
+struct creatureRace;
+struct creature;
 
 using namespace std;
 
-typedef map<int, CreatureRace *> RaceMap;
+typedef map<int, struct creatureRace *> RaceMap;
 
-struct CreatureRace {
-        CreatureRace();
-        virtual ~CreatureRace() {};
+struct creatureRace {
+        struct creatureRace();
+        virtual ~struct creatureRace() {};
 
         char getMaxStr();
         char getMaxInt();
@@ -26,13 +26,13 @@ struct CreatureRace {
         void applyRacialSkills();
 
         virtual void modifyEO(ExecutableObject *eo) = 0;
-        virtual CreatureRace* createNewInstance() = 0;
+        virtual struct creatureRace* createNewInstance() = 0;
 
-        static CreatureRace *constructRace(int raceNum);
-        static void insertRace(CreatureRace *race);
+        static struct creatureRace *constructRace(int raceNum);
+        static void insertRace(struct creatureRace *race);
 
         // Accessors
-        Creature *getOwner() { return _owner; };
+        struct creature *getOwner() { return _owner; };
         char getStrMod() { return _strMod; };
         char getIntMod() { return _intMod; };
         char getWisMod() { return _wisMod; };
@@ -41,7 +41,7 @@ struct CreatureRace {
         char getChaMod() { return _chaMod; };
 
         // Manipulators
-        void setOwner(Creature *owner) { _owner = owner; applyRacialSkills(); };
+        void setOwner(struct creature *owner) { _owner = owner; applyRacialSkills(); };
 
     protected:
         char _strMod;
@@ -52,7 +52,7 @@ struct CreatureRace {
         char _chaMod;
         int _raceNum;
 
-        Creature *_owner;
+        struct creature *_owner;
         vector<int> _racialSkills;
 
         static RaceMap* _getRaceMap() {

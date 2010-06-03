@@ -91,7 +91,7 @@ graf(int age, int race, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 
 /* manapoint gain pr. game hour */
 int
-mana_gain(struct Creature *ch)
+mana_gain(struct creature *ch)
 {
 	int gain;
 
@@ -161,7 +161,7 @@ mana_gain(struct Creature *ch)
 }
 
 int
-hit_gain(struct Creature *ch)
+hit_gain(struct creature *ch)
 /* Hitpoint gain pr. game hour */
 {
 	int gain;
@@ -242,7 +242,7 @@ hit_gain(struct Creature *ch)
 }
 
 int
-move_gain(struct Creature *ch)
+move_gain(struct creature *ch)
 /* move gain pr. game hour */
 {
 	int gain;
@@ -305,7 +305,7 @@ move_gain(struct Creature *ch)
 }
 
 void
-set_title(struct Creature *ch, const char *title)
+set_title(struct creature *ch, const char *title)
 {
     if( title == NULL ) {
         title = strdup( "" );
@@ -332,7 +332,7 @@ set_title(struct Creature *ch, const char *title)
 }
 
 void
-gain_exp(struct Creature *ch, int gain)
+gain_exp(struct creature *ch, int gain)
 {
 	int is_altered = false;
 	int num_levels = 0;
@@ -393,7 +393,7 @@ gain_exp(struct Creature *ch, int gain)
 }
 
 void
-gain_exp_regardless(struct Creature *ch, int gain)
+gain_exp_regardless(struct creature *ch, int gain)
 {
 	int is_altered = false;
 	int num_levels = 0;
@@ -422,7 +422,7 @@ gain_exp_regardless(struct Creature *ch, int gain)
 }
 
 void
-gain_condition(struct Creature *ch, int condition, int value)
+gain_condition(struct creature *ch, int condition, int value)
 {
 	int intoxicated = 0;
 
@@ -469,7 +469,7 @@ gain_condition(struct Creature *ch, int condition, int value)
 }
 
 int
-check_idling(struct Creature *ch)
+check_idling(struct creature *ch)
 {
 	void set_desc_state(cxn_state state, struct descriptor_data *d);
 
@@ -509,9 +509,9 @@ check_idling(struct Creature *ch)
 void
 save_all_players(void)
 {
-	Creature *i;
+	struct creature *i;
 
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 		if (!IS_NPC(i))
@@ -523,9 +523,9 @@ save_all_players(void)
 void
 point_update(void)
 {
-	void update_char_objects(struct Creature *ch);	/* handler.c */
+	void update_char_objects(struct creature *ch);	/* handler.c */
 	void extract_obj(struct obj_data *obj);	/* handler.c */
-	register struct Creature *i;
+	register struct creature *i;
 	register struct obj_data *j, *next_thing, *jj, *next_thing2;
 	struct room_data *rm;
 	struct zone_data *zone;
@@ -548,7 +548,7 @@ point_update(void)
 	}
 
 	/* characters */
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 
@@ -649,7 +649,7 @@ point_update(void)
 					i->setPosition(POS_MORTALLYW);
 				}
 			}
-            // No longer shall Creatures die of blood loss.
+            // No longer shall struct creatures die of blood loss.
             // We will now heal them slowly instead.
             if (i->getPosition() == POS_INCAP)
                 GET_HIT(i) += 2;

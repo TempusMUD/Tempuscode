@@ -53,9 +53,9 @@ int total_coins = 0;
 int total_credits = 0;
 extern struct obj_data *dam_object;
 
-int char_hands_free(Creature *ch);
+int char_hands_free(struct creature *ch);
 int empty_to_obj(struct obj_data *obj, struct obj_data *container,
-	struct Creature *ch);
+	struct creature *ch);
 bool junkable(struct obj_data *obj);
 ACMD(do_stand);
 ACMD(do_throw);
@@ -67,7 +67,7 @@ ACMD(do_split);
 const long MONEY_LOG_LIMIT = 50000000;
 
 obj_data *
-get_random_uncovered_implant(Creature * ch, int type = -1)
+get_random_uncovered_implant(struct creature * ch, int type = -1)
 {
 	int possibles = 0;
 	int implant = 0;
@@ -113,7 +113,7 @@ get_random_uncovered_implant(Creature * ch, int type = -1)
 //
 
 int
-explode_sigil(Creature *ch, obj_data *obj)
+explode_sigil(struct creature *ch, obj_data *obj)
 {
 
 	int ret = 0;
@@ -138,15 +138,15 @@ explode_sigil(Creature *ch, obj_data *obj)
 	if (!obj_id)
 		return 0;
 
-	Creature *killer = get_char_in_world_by_idnum(obj_id);
+	struct creature *killer = get_char_in_world_by_idnum(obj_id);
 
 	// load the bastich from file.
-    Creature cbuf(true);
+    struct creature cbuf(true);
 	if (!killer) {
 		cbuf.clear();
 		if (cbuf.loadFromXML(obj_id)) {
 			killer = &cbuf;
-			cbuf.account = Account_retrieve(playerIndex.getAccountID(obj_id));
+			cbuf.account = struct account_retrieve(playerIndex.getstruct accountID(obj_id));
 		}
 	}
 
@@ -173,7 +173,7 @@ explode_sigil(Creature *ch, obj_data *obj)
 // return value is same as damage()
 //
 int
-explode_all_sigils(struct Creature *ch)
+explode_all_sigils(struct creature *ch)
 {
 	struct obj_data *obj, *next_obj;
 
@@ -196,7 +196,7 @@ explode_all_sigils(struct Creature *ch)
 //
 
 void
-consolidate_char_money(struct Creature *ch)
+consolidate_char_money(struct creature *ch)
 {
 	struct obj_data *obj = 0, *next_obj = 0;
 	money_t num_gold = 0;
@@ -252,7 +252,7 @@ consolidate_char_money(struct Creature *ch)
 //
 
 bool
-activate_char_quad(struct Creature *ch)
+activate_char_quad(struct creature *ch)
 {
 
 	struct obj_data *obj = 0, *next_obj = 0;
@@ -310,7 +310,7 @@ activate_char_quad(struct Creature *ch)
 }
 
 bool
-perform_put(struct Creature *ch, struct obj_data *obj,
+perform_put(struct creature *ch, struct obj_data *obj,
 	struct obj_data *cont, int display)
 {
 	int capacity = 0;
@@ -532,7 +532,7 @@ ACMD(do_put)
 }
 
 bool
-can_take_obj(struct Creature *ch, struct obj_data *obj, bool check_weight,
+can_take_obj(struct creature *ch, struct obj_data *obj, bool check_weight,
 	bool print)
 {
 
@@ -560,7 +560,7 @@ can_take_obj(struct Creature *ch, struct obj_data *obj, bool check_weight,
 // returns 1 if item is extracted, 0 otherwise
 
 int
-get_check_money(struct Creature *ch, struct obj_data **obj_p, int display)
+get_check_money(struct creature *ch, struct obj_data **obj_p, int display)
 {
 	struct obj_data *obj = *obj_p;
 
@@ -604,7 +604,7 @@ get_check_money(struct Creature *ch, struct obj_data **obj_p, int display)
 //
 
 bool
-perform_get_from_container(struct Creature * ch,
+perform_get_from_container(struct creature * ch,
 	struct obj_data * obj,
 	struct obj_data * cont, bool already_has, bool display, int counter)
 {
@@ -634,7 +634,7 @@ perform_get_from_container(struct Creature * ch,
             && playerIndex.exists(CORPSE_IDNUM(cont))
             && CORPSE_IDNUM(cont) != GET_IDNUM(ch)
             && (!ch->account ||
-                playerIndex.getAccountID(CORPSE_IDNUM(cont)) != ch->account->get_idnum())) {
+                playerIndex.getstruct accountID(CORPSE_IDNUM(cont)) != ch->account->get_idnum())) {
 			mudlog(LVL_DEMI, CMP, true,
 				"%s looted %s from %s.", GET_NAME(ch),
 				obj->name, cont->name);
@@ -676,7 +676,7 @@ perform_get_from_container(struct Creature * ch,
 }
 
 void
-perform_autoloot(Creature *ch, obj_data *corpse)
+perform_autoloot(struct creature *ch, obj_data *corpse)
 {
     struct obj_data *obj, *next_obj = NULL;
     bool found = false, display;
@@ -725,7 +725,7 @@ perform_autoloot(Creature *ch, obj_data *corpse)
 //
 
 int
-get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
+get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
 {
 
 	struct obj_data *obj, *next_obj;
@@ -912,7 +912,7 @@ get_from_container(struct Creature *ch, struct obj_data *cont, char *arg)
 //
 
 bool
-perform_get_from_room(struct Creature * ch,
+perform_get_from_room(struct creature * ch,
 	struct obj_data * obj, bool display, int counter)
 {
 
@@ -954,7 +954,7 @@ perform_get_from_room(struct Creature * ch,
 //
 
 int
-get_from_room(struct Creature *ch, char *arg)
+get_from_room(struct creature *ch, char *arg)
 {
 
 	struct obj_data *obj, *next_obj;
@@ -1247,7 +1247,7 @@ ACCMD(do_get)
 }
 
 void
-perform_drop_gold(struct Creature *ch, int amount,
+perform_drop_gold(struct creature *ch, int amount,
 	byte mode, struct room_data *RDR)
 {
 	struct obj_data *obj;
@@ -1301,7 +1301,7 @@ perform_drop_gold(struct Creature *ch, int amount,
 	}
 }
 void
-perform_drop_credits(struct Creature *ch, int amount,
+perform_drop_credits(struct creature *ch, int amount,
 	byte mode, struct room_data *RDR)
 {
 	struct obj_data *obj;
@@ -1347,7 +1347,7 @@ perform_drop_credits(struct Creature *ch, int amount,
 #define PROTO_SDESC(vnum) (real_object_proto(vnum)->name)
 
 bool
-is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool display)
+is_undisposable(struct creature *ch, const char *cmdstr, struct obj_data *obj, bool display)
 {
 	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
 		!Security_isMember(ch, Security::WIZARDFULL)) {
@@ -1376,7 +1376,7 @@ is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool dis
 }
 
 int
-perform_drop(struct Creature *ch, struct obj_data *obj,
+perform_drop(struct creature *ch, struct obj_data *obj,
 	byte mode, const char *sname, struct room_data *RDR, int display)
 {
 	int value;
@@ -1673,7 +1673,7 @@ ACCMD(do_drop)
 }
 
 int
-perform_give(struct Creature *ch, struct Creature *vict,
+perform_give(struct creature *ch, struct creature *vict,
 	struct obj_data *obj, int display)
 {
 	int i;
@@ -1756,7 +1756,7 @@ perform_give(struct Creature *ch, struct Creature *vict,
 	return 1;
 }
 void
-perform_plant(struct Creature *ch, struct Creature *vict,
+perform_plant(struct creature *ch, struct creature *vict,
 	struct obj_data *obj)
 {
 	if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
@@ -1783,10 +1783,10 @@ perform_plant(struct Creature *ch, struct Creature *vict,
 }
 
 /* utility function for give */
-struct Creature *
-give_find_vict(struct Creature *ch, char *arg)
+struct creature *
+give_find_vict(struct creature *ch, char *arg)
 {
-	struct Creature *vict;
+	struct creature *vict;
 
 	if (!*arg) {
 		send_to_char(ch, "To who?\r\n");
@@ -1802,7 +1802,7 @@ give_find_vict(struct Creature *ch, char *arg)
 }
 
 void
-transfer_money(Creature *from, Creature *to, money_t amt, int currency, bool plant)
+transfer_money(struct creature *from, struct creature *to, money_t amt, int currency, bool plant)
 {
 	const char *currency_str, *cmd_str;
 	money_t on_hand;
@@ -1871,7 +1871,7 @@ transfer_money(Creature *from, Creature *to, money_t amt, int currency, bool pla
 
 ACMD(do_give)
 {
-	struct Creature *vict;
+	struct creature *vict;
 	struct obj_data *obj, *next_obj = NULL;
 	int dotmode, amount = 0, counter = 0, found;
 	char *arg1, *arg2, *arg3;
@@ -1993,7 +1993,7 @@ ACMD(do_give)
 ACMD(do_plant)
 {
 	int amount, dotmode;
-	struct Creature *vict;
+	struct creature *vict;
 	struct obj_data *obj, *next_obj;
 
 	argument = one_argument(argument, arg);
@@ -2547,7 +2547,7 @@ ACMD(do_pour)
 }
 
 void
-wear_message(struct Creature *ch, struct obj_data *obj, int where)
+wear_message(struct creature *ch, struct obj_data *obj, int where)
 {
 	const char *wear_messages[][2] = {
 		{"$n lights $p and holds it.",
@@ -2639,7 +2639,7 @@ wear_message(struct Creature *ch, struct obj_data *obj, int where)
 
 /* returns same as equip_char(), true = killed da ho */
 int
-perform_wear(struct Creature *ch, struct obj_data *obj, int where)
+perform_wear(struct creature *ch, struct obj_data *obj, int where)
 {
 	int i;
 	const char *already_wearing[] = {
@@ -2834,7 +2834,7 @@ perform_wear(struct Creature *ch, struct obj_data *obj, int where)
 }
 
 int
-find_eq_pos(struct Creature *ch, struct obj_data *obj, char *arg)
+find_eq_pos(struct creature *ch, struct obj_data *obj, char *arg)
 {
 	int where = -1;
 
@@ -3063,7 +3063,7 @@ ACMD(do_grab)
 }
 
 void
-perform_remove(struct Creature *ch, int pos)
+perform_remove(struct creature *ch, int pos)
 {
 	struct obj_data *obj;
 
@@ -3101,7 +3101,7 @@ perform_remove(struct Creature *ch, int pos)
 }
 
 int
-char_hands_free(Creature *ch)
+char_hands_free(struct creature *ch)
 {
 	struct obj_data *obj;
 	int hands_free;
@@ -3905,9 +3905,9 @@ ACMD(do_conceal)
 
 ACMD(do_sacrifice)
 {
-	Creature *load_corpse_owner(obj_data *obj);
+	struct creature *load_corpse_owner(obj_data *obj);
 
-	Creature *orig_char;
+	struct creature *orig_char;
 	struct obj_data *obj;
 	int mana;
 	string sbuf;
@@ -4042,7 +4042,7 @@ ACMD(do_empty)
 
 int
 empty_to_obj(struct obj_data *obj, struct obj_data *container,
-	struct Creature *ch)
+	struct creature *ch)
 {
 
 	//

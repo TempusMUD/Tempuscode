@@ -6,7 +6,7 @@
 
 SPECIAL(rat_mama)
 {
-	struct Creature *rat;
+	struct creature *rat;
 	int i;
 	int rat_rooms[] = {
 		2940,
@@ -20,7 +20,7 @@ SPECIAL(rat_mama)
 	if (cmd || ch->isFighting() || ch->getPosition() == POS_FIGHTING)
 		return (0);
 
-	CreatureList_iterator it;
+	struct creatureList_iterator it;
 	for (i = 0; i != -1; i++) {
 		it = (real_room(rat_rooms[i]))->people.begin();
 		for (; it != (real_room(rat_rooms[i]))->people.end(); ++it) {

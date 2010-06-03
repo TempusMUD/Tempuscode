@@ -30,7 +30,7 @@
 ACMD(do_charge)
 {
 	struct affected_type af;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	char *arg;
 
 	arg = tmp_getword(&argument);
@@ -78,12 +78,12 @@ ACMD(do_charge)
 //
 
 int
-perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
-	//struct Creature *precious_ch,
+perform_barb_berserk(struct creature *ch, struct creature **who_was_attacked,
+	//struct creature *precious_ch,
 	int *return_flags)
 {
-	static struct Creature *vict = NULL;
-	CreatureList_iterator it = ch->in_room->people.begin();
+	static struct creature *vict = NULL;
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		if (vict == ch || ch->isFighting() ||
@@ -166,7 +166,7 @@ ACMD(do_berserk)
 
 		send_to_char(ch, "You go BERSERK!\r\n");
 		act("$n goes BERSERK! Run for cover!", true, ch, 0, ch, TO_ROOM);
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == (*it) || !can_see_creature(ch, (*it)))
 				continue;
@@ -263,7 +263,7 @@ ACMD(do_battlecry)
 }
 
 void
-perform_cleave(Creature *ch, Creature *vict, int *return_flags)
+perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
 {
     int maxWhack;
     int percent = 0;
@@ -310,7 +310,7 @@ perform_cleave(Creature *ch, Creature *vict, int *return_flags)
             }
             vict = NULL;
             // find a new victim
-            CreatureList_iterator it = ch->in_room->people.begin();
+            struct creatureList_iterator it = ch->in_room->people.begin();
 			for( ; it != ch->in_room->people.end(); ++it ) {
 				if((*it) == ch || !(*it)->findCombat(ch) ||
                    !can_see_creature(ch, (*it)))
@@ -325,7 +325,7 @@ perform_cleave(Creature *ch, Creature *vict, int *return_flags)
 
 ACMD(do_cleave)
 {
-    Creature *vict = NULL;
+    struct creature *vict = NULL;
 	char *arg;
 
 	ACMD_set_return_flags(0);

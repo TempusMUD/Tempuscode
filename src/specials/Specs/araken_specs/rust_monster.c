@@ -56,7 +56,7 @@ SPECIAL(rust_monster)
 		i = number(2, NUM_WEARS - 2);
 		count++;
 
-        Creature *vict = ch->findRandomCombat();
+        struct creature *vict = ch->findRandomCombat();
 		if ((!(obj = GET_EQ(vict, i)) &&
 				!(obj = GET_EQ(vict, i - 1)) &&
 				!(obj = GET_EQ(vict, i + 1)) &&

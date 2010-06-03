@@ -91,12 +91,12 @@ namespace Security {
             /* membership check for players by player id */
             bool member( long player );
             /* membership check for a given player */
-            bool member( Creature *ch );
+            bool member( struct creature *ch );
             /* membership check for a given command */
             bool member( const command_info *command );
 
             /* membership check for players by player id */
-            bool givesAccess( Creature *ch, const command_info *command );
+            bool givesAccess( struct creature *ch, const command_info *command );
 
             /* Retrieves this group's description */
             const char *getDescription() { return _description; }
@@ -147,20 +147,20 @@ namespace Security {
 			 * @param adminGroup the name of the administrative group for this
 			 * 		  wizlist group. Members will be shown in yellow.
 			 */
-			bool sendPublicMemberList( Creature *ch, const char *title, const char *adminGroup = NULL);
-			bool sendPublicMember(Creature *ch, char* prefix);
+			bool sendPublicMemberList( struct creature *ch, const char *title, const char *adminGroup = NULL);
+			bool sendPublicMember(struct creature *ch, char* prefix);
             /* Sends a list of this group's members to the given character. */
-            bool sendMemberList( Creature *ch );
+            bool sendMemberList( struct creature *ch );
             /* Sends a list of this group's members to the given character. */
-            bool sendCommandList( Creature *ch, bool prefix = true );
+            bool sendCommandList( struct creature *ch, bool prefix = true );
 
             /* Create the required xmlnodes to recreate this group; */
             bool save( xmlNodePtr parent );
 
             /* sends a multi-line status of this group to ch */
-            void sendStatus( Creature *ch );
+            void sendStatus( struct creature *ch );
             /* sprintf's a one line desc of this group into out */
-            void sendString(Creature *ch );
+            void sendString(struct creature *ch );
 
             /* Clear out this group's data for shutdown. */
             void clear();
@@ -190,25 +190,25 @@ namespace Security {
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
     **/
-    bool canAccess( Creature *ch, const command_info *command );
+    bool canAccess( struct creature *ch, const command_info *command );
     /**
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
     **/
-    bool canAccess( Creature *ch, const show_struct &command );
+    bool canAccess( struct creature *ch, const show_struct &command );
     /**
      * Returns true if the character is the proper level AND is in
      * one of the required groups (if any)
     **/
-    bool canAccess( Creature *ch, const set_struct &command );
+    bool canAccess( struct creature *ch, const set_struct &command );
     /* Check membership in a particular group by name.**/
-	bool isMember( Creature *ch, const char* group_name, bool substitute=true );
+	bool isMember( struct creature *ch, const char* group_name, bool substitute=true );
 
     /* can this character add/remove characters from this group. **/
-    bool canAdminGroup( Creature *ch, const char* groupName );
+    bool canAdminGroup( struct creature *ch, const char* groupName );
 
     /* send a list of the current groups to a character */
-    void sendGroupList( Creature *ch );
+    void sendGroupList( struct creature *ch );
     /**
      * creates a new group with the given name.
      * returns false if the name is taken.
@@ -225,16 +225,16 @@ namespace Security {
     /** retrieves the named group. **/
     Group& getGroup( const char* name);
     /** sends the member list of the named group to the given character. **/
-    bool sendMemberList( Creature *ch, char *group_name );
+    bool sendMemberList( struct creature *ch, char *group_name );
     /** sends the command list of the named group to the given character. **/
-    bool sendCommandList( Creature *ch, char *group_name );
+    bool sendCommandList( struct creature *ch, char *group_name );
     /** sends a list of the groups that the id is a member if. **/
-    bool sendMembership( Creature *ch, long id );
+    bool sendMembership( struct creature *ch, long id );
     /*
      * sends a list of the commands a char has access to and the
      * groups that contain them.
      **/
-    bool sendAvailableCommands( Creature *ch, long id );
+    bool sendAvailableCommands( struct creature *ch, long id );
     /**
      * adds the named command to the named group.
      * returns false if either doesn't exist.

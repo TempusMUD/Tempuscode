@@ -6,7 +6,7 @@
 
 SPECIAL(spinal)
 {
-	struct Creature *spinal = (struct Creature *)me;
+	struct creature *spinal = (struct creature *)me;
 	struct obj_data *spine = NULL;
 	struct room_data *r_home_pad = real_room(1595);
 

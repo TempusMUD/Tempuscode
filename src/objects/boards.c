@@ -32,13 +32,13 @@ struct board_data {
     Reaction *edit_perms;
 	Reaction *remove_perms;
 };
-void gen_board_write(board_data *board, Creature *ch, char *argument);
-void gen_board_delete(board_data *board, Creature *ch, char *argument);
-void gen_board_read(board_data *board, Creature *ch, char *argument);
-void gen_board_list(board_data *board, Creature *ch);
+void gen_board_write(board_data *board, struct creature *ch, char *argument);
+void gen_board_delete(board_data *board, struct creature *ch, char *argument);
+void gen_board_read(board_data *board, struct creature *ch, char *argument);
+void gen_board_list(board_data *board, struct creature *ch);
 
 void
-gen_board_save(Creature *ch, const char *board, int idnum, const char *subject, const char *body)
+gen_board_save(struct creature *ch, const char *board, int idnum, const char *subject, const char *body)
 {
     if (idnum < 0)
         sql_exec("insert into board_messages (board, post_time, author, name, subject, body) values ('%s', now(), %ld, '%s', '%s', '%s')",
@@ -55,7 +55,7 @@ gen_board_save(Creature *ch, const char *board, int idnum, const char *subject, 
 }
 
 void
-gen_board_show(Creature *ch)
+gen_board_show(struct creature *ch)
 {
 	PGresult *res;
 	int idx, count;
@@ -76,9 +76,9 @@ gen_board_show(Creature *ch)
 }
 
 void
-gen_board_write(board_data *board, Creature *ch, char *argument)
+gen_board_write(board_data *board, struct creature *ch, char *argument)
 {
-	Creature *player;
+	struct creature *player;
 
 	if (IS_PC(ch))
 		player = ch;
@@ -105,9 +105,9 @@ gen_board_write(board_data *board, Creature *ch, char *argument)
 }
 
 void
-gen_board_edit(board_data *board, Creature *ch, char *argument)
+gen_board_edit(board_data *board, struct creature *ch, char *argument)
 {
-    Creature *player;
+    struct creature *player;
     PGresult *res;
     int idx;
 
@@ -147,9 +147,9 @@ gen_board_edit(board_data *board, Creature *ch, char *argument)
 }
 
 void
-gen_board_remove(board_data *board, Creature *ch, char *argument)
+gen_board_remove(board_data *board, struct creature *ch, char *argument)
 {
-	Creature *player;
+	struct creature *player;
 	PGresult *res;
 	int idx;
 
@@ -196,9 +196,9 @@ gen_board_remove(board_data *board, Creature *ch, char *argument)
 }
 
 void
-gen_board_read(board_data *board, Creature *ch, char *argument)
+gen_board_read(board_data *board, struct creature *ch, char *argument)
 {
-	Creature *player;
+	struct creature *player;
 	PGresult *res;
 	time_t post_time;
 	char time_buf[30];
@@ -245,7 +245,7 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 }
 
 void
-gen_board_list(board_data *board, Creature *ch)
+gen_board_list(board_data *board, struct creature *ch)
 {
 	PGresult *res;
 	char time_buf[30];

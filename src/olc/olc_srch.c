@@ -25,7 +25,7 @@
 #include "accstr.h"
 #include "tmpstr.h"
 
-int clan_house_can_enter(struct Creature *ch, struct room_data *room);
+int clan_house_can_enter(struct creature *ch, struct room_data *room);
 const char *olc_xset_keys[] = {
 	"triggers",
 	"keywords",
@@ -42,7 +42,7 @@ const char *olc_xset_keys[] = {
 
 #define srch_p GET_OLC_SRCH(ch)
 void
-do_olc_xset(struct Creature *ch, char *argument)
+do_olc_xset(struct creature *ch, char *argument)
 {
 
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
@@ -223,7 +223,7 @@ do_olc_xset(struct Creature *ch, char *argument)
 #endif
 }
 struct special_search_data *
-do_create_search(struct Creature *ch, char *arg)
+do_create_search(struct creature *ch, char *arg)
 {
 
 	struct special_search_data *srch = NULL;
@@ -275,7 +275,7 @@ do_create_search(struct Creature *ch, char *arg)
 }
 
 int
-do_destroy_search(struct Creature *ch, char *arg)
+do_destroy_search(struct creature *ch, char *arg)
 {
 	struct special_search_data *srch = NULL, *temp = NULL;
 	char triggers[MAX_INPUT_LENGTH], keywords[MAX_INPUT_LENGTH];
@@ -303,7 +303,7 @@ do_destroy_search(struct Creature *ch, char *arg)
 		send_to_char(ch, "World olc is not approved for this zone.\r\n");
 		return 0;
 	}
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (GET_OLC_SRCH((*cit)) == srch)
 			GET_OLC_SRCH((*cit)) = NULL;
@@ -323,7 +323,7 @@ do_destroy_search(struct Creature *ch, char *arg)
 }
 
 int
-set_char_xedit(struct Creature *ch, char *argument)
+set_char_xedit(struct creature *ch, char *argument)
 {
 
 	struct special_search_data *srch = NULL;
@@ -357,12 +357,12 @@ set_char_xedit(struct Creature *ch, char *argument)
 }
 
 void
-acc_format_search_data(Creature *ch,
+acc_format_search_data(struct creature *ch,
                        room_data *room,
                        special_search_data *cur_search)
 {
 	struct obj_data *obj = NULL;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 
 	acc_sprintf("%sCommand triggers:%s %s, %skeywords:%s %s\r\n",
 		CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -463,12 +463,12 @@ acc_format_search_data(Creature *ch,
 }
 
 void
-print_search_data_to_buf(struct Creature *ch, struct room_data *room,
+print_search_data_to_buf(struct creature *ch, struct room_data *room,
 	struct special_search_data *cur_search, char *buf)
 {
 
 	struct obj_data *obj = NULL;
-	struct Creature *mob = NULL;
+	struct creature *mob = NULL;
 
 	sprintf(buf, "%sCommand triggers:%s %s, %skeywords:%s %s\r\n",
 		CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -571,7 +571,7 @@ print_search_data_to_buf(struct Creature *ch, struct room_data *room,
 }
 
 void
-do_olc_xstat(struct Creature *ch)
+do_olc_xstat(struct creature *ch)
 {
 	if (!GET_OLC_SRCH(ch)) {
 		send_to_char(ch, "You are not currently editing a search.\r\n");

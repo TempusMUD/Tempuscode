@@ -7,7 +7,7 @@
 SPECIAL(djinn_lamp)
 {
 	struct obj_data *lamp = (struct obj_data *)me;
-	struct Creature *djinn = NULL;
+	struct creature *djinn = NULL;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 

@@ -96,7 +96,7 @@ Voice_load(xmlNodePtr node)
 }
 
 void
-Voice_perform(Creature *ch, void *vict, voice_situation situation)
+Voice_perform(struct creature *ch, void *vict, voice_situation situation)
 {
     if (_emits[situation].empty())
         return;
@@ -111,7 +111,7 @@ Voice_perform(Creature *ch, void *vict, voice_situation situation)
 }
 
 void
-emit_voice(Creature *ch, void *vict, voice_situation situation)
+emit_voice(struct creature *ch, void *vict, voice_situation situation)
 {
     if (!IS_NPC(ch))
         return;
@@ -200,7 +200,7 @@ voice_name(int voice_idx)
 }
 
 void
-show_voices(Creature *ch)
+show_voices(struct creature *ch)
 {
     acc_string_clear();
 

@@ -8,7 +8,7 @@ SPECIAL(jail_locker)
 {
 	void summon_cityguards(room_data *);
 
-	struct Creature *self = (struct Creature *)me;
+	struct creature *self = (struct creature *)me;
 	char *str, *line, *param_key;
 	struct obj_data *locker, *item, *tmp_item;
 	room_data *jail_room;

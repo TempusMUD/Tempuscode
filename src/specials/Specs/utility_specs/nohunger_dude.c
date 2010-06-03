@@ -8,7 +8,7 @@
 
 SPECIAL(nohunger_dude)
 {
-	struct Creature *dude = (struct Creature *)me;
+	struct creature *dude = (struct creature *)me;
 	int gold, life_cost, mode;
 	char buf[MAX_STRING_LENGTH];
 

@@ -69,21 +69,21 @@
 int corpse_state = 0;
 
 /* The Fight related routines */
-obj_data *get_random_uncovered_implant(Creature * ch, int type = -1);
-int calculate_weapon_probability(struct Creature *ch, int prob,
+obj_data *get_random_uncovered_implant(struct creature * ch, int type = -1);
+int calculate_weapon_probability(struct creature *ch, int prob,
 	struct obj_data *weap);
-int do_combat_fire(struct Creature *ch, struct Creature *vict);
-int do_casting_weapon(Creature *ch, obj_data *weap);
-int calculate_attack_probability(struct Creature *ch);
-void do_emp_pulse_char(Creature *ch, Creature *vict);
-void perform_autoloot(Creature *ch, obj_data *corpse);
+int do_combat_fire(struct creature *ch, struct creature *vict);
+int do_casting_weapon(struct creature *ch, obj_data *weap);
+int calculate_attack_probability(struct creature *ch);
+void do_emp_pulse_char(struct creature *ch, struct creature *vict);
+void perform_autoloot(struct creature *ch, obj_data *corpse);
 
 /*
    corrects position and removes combat related bits.
    Call ONLY from removeCombat()/removeAllCombat()
 */
 void
-remove_fighting_affects(struct Creature *ch)
+remove_fighting_affects(struct creature *ch)
 {
 	if (ch->in_room && ch->in_room->isOpenAir()) {
 		ch->setPosition(POS_FLYING);
@@ -105,7 +105,7 @@ remove_fighting_affects(struct Creature *ch)
 
 /* When ch kills victim */
 void
-change_alignment(struct Creature *ch, struct Creature *victim)
+change_alignment(struct creature *ch, struct creature *victim)
 {
 	GET_ALIGNMENT(ch) += -(GET_ALIGNMENT(victim) / 100);
 	GET_ALIGNMENT(ch) = MAX(-1000, GET_ALIGNMENT(ch));
@@ -114,7 +114,7 @@ change_alignment(struct Creature *ch, struct Creature *victim)
 }
 
 void
-raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
+raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 {
     obj_data *corpse;
 
@@ -127,7 +127,7 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
     if (GET_ROOM_PROG(ch->in_room) != NULL)
 	    trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
 
-    CreatureList_iterator it = ch->in_room->people.begin();
+    struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it)
 		if (GET_MOB_PROGOBJ((*it)) != NULL && *it != ch)
             trigger_prog_death(*it, PROG_TYPE_MOBILE, ch);
@@ -166,7 +166,7 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
 extern bool LOG_DEATHS;
 
 void
-die(struct Creature *ch, struct Creature *killer, int attacktype)
+die(struct creature *ch, struct creature *killer, int attacktype)
 {
 	if (IS_NPC(ch) && GET_MOB_SPEC(ch)) {
 		if (GET_MOB_SPEC(ch) (killer, ch, 0, NULL, SPECIAL_DEATH)) {
@@ -255,13 +255,13 @@ die(struct Creature *ch, struct Creature *killer, int attacktype)
 	raw_kill(ch, killer, attacktype);	// die
 }
 
-void perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
+void perform_gain_kill_exp(struct creature *ch, struct creature *victim,
 	float multiplier);
 
 void
-group_gain(struct Creature *ch, struct Creature *victim)
+group_gain(struct creature *ch, struct creature *victim)
 {
-	struct Creature *leader;
+	struct creature *leader;
 	int total_levs = 0;
 	int total_pc_mems = 0;
 	float mult = 0;
@@ -269,7 +269,7 @@ group_gain(struct Creature *ch, struct Creature *victim)
 
 	if (!(leader = ch->master))
 		leader = ch;
-	CreatureList_iterator it = ch->in_room->people.begin();
+	struct creatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (AFF_FLAGGED((*it), AFF_GROUP) && ((*it) == leader
 		|| leader == (*it)->master))
@@ -305,7 +305,7 @@ group_gain(struct Creature *ch, struct Creature *victim)
 }
 
 void
-perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
+perform_gain_kill_exp(struct creature *ch, struct creature *victim,
 	float multiplier)
 {
     int explore_bonus = 0;
@@ -396,7 +396,7 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 }
 
 void
-gain_kill_exp(struct Creature *ch, struct Creature *victim)
+gain_kill_exp(struct creature *ch, struct creature *victim)
 {
 
 	if (ch == victim)
@@ -452,11 +452,11 @@ eqdam_extract_obj(struct obj_data *obj)
 }
 
 struct obj_data *
-destroy_object(Creature *ch, struct obj_data *obj, int type)
+destroy_object(struct creature *ch, struct obj_data *obj, int type)
 {
 	struct obj_data *new_obj = NULL, *inobj = NULL;
 	struct room_data *room = NULL;
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	const char *mat_name;
 	const char *msg = NULL;
 	int tmp;
@@ -589,9 +589,9 @@ destroy_object(Creature *ch, struct obj_data *obj, int type)
 }
 
 struct obj_data *
-damage_eq(struct Creature *ch, struct obj_data *obj, int eq_dam, int type)
+damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
 {
-	struct Creature *vict = NULL;
+	struct creature *vict = NULL;
 	struct obj_data *inobj = NULL, *next_obj = NULL;
 
     /* test to see if item should take damage */
@@ -675,7 +675,7 @@ SWAP_DAM_RETVAL(int val)
 //
 
 inline int
-damage_attacker(struct Creature *ch, struct Creature *victim, int dam,
+damage_attacker(struct creature *ch, struct creature *victim, int dam,
 	int attacktype, int location)
 {
 	int retval = damage(ch, victim, dam, attacktype, location);
@@ -694,7 +694,7 @@ damage_attacker(struct Creature *ch, struct Creature *victim, int dam,
 // or DAM_ATTACK_FAILED
 
 int
-damage(struct Creature *ch, struct Creature *victim, int dam,
+damage(struct creature *ch, struct creature *victim, int dam,
 	int attacktype, int location)
 {
 	int hard_damcap, is_humil = 0, eq_dam = 0, weap_dam = 0, i, impl_dam =
@@ -704,7 +704,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 	struct affected_type *af = NULL;
 	bool deflected = false;
     bool mshield_hit = false;
-	Creature *original_ch;
+	struct creature *original_ch;
 
 	original_ch = ch;
 
@@ -1473,7 +1473,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 		}
 	}
 	// ALL previous damage reduction code that was based off of character
-	// attributes has been moved to the function below.  See structs/Creature.cc
+	// attributes has been moved to the function below.  See structs/struct creature.cc
 	dam_reduction = victim->getDamReduction(ch);
 
 	dam -= (int)(dam * dam_reduction);
@@ -1620,7 +1620,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
         //lightning gun special
         if (attacktype == TYPE_EGUN_LIGHTNING && dam) {
             if (do_gun_special(ch, weap)) {
-                CreatureList_iterator it = ch->in_room->people.begin();
+                struct creatureList_iterator it = ch->in_room->people.begin();
                 for (; it != ch->in_room->people.end(); ++it) {
                     if ((*it) == ch || !(*it)->findCombat(ch))
                         continue;
@@ -1867,7 +1867,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				attacktype == TYPE_STAB ||
 				attacktype == TYPE_CHOP ||
 				attacktype == SPELL_BLADE_BARRIER)) {
-			CreatureList_iterator it = victim->in_room->people.begin();
+			struct creatureList_iterator it = victim->in_room->people.begin();
 			for (; it != victim->in_room->people.end(); ++it) {
 				if (*it == victim || number(0, 8))
 					continue;
@@ -2197,7 +2197,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
                         // last hour log it as such
                         int imm_idx = ch->account->hasCharLevel(LVL_AMBASSADOR);
                         if (imm_idx) {
-                            Creature *tmp_ch = new Creature(true);
+                            struct creature *tmp_ch = new struct creature(true);
                             tmp_ch->loadFromXML(ch->account->get_char_by_index(imm_idx));
                             if (tmp_ch->getLevel() < 70) {
                                 int now = time(NULL);
@@ -2322,7 +2322,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 
 // Pick the next weapon that the creature will strike with
 obj_data *
-get_next_weap(struct Creature *ch)
+get_next_weap(struct creature *ch)
 {
 	obj_data *cur_weap;
 	int dual_prob = 0;
@@ -2387,7 +2387,7 @@ get_next_weap(struct Creature *ch)
 // Damage multiplier for the backstab skill.
 // 7x max for levels.
 // 6x max more for gens based on getLevelBonus.
-static inline int BACKSTAB_MULT( Creature *ch  ) {
+static inline int BACKSTAB_MULT( struct creature *ch  ) {
 	int mult = 2 + ( ch->getLevel() + 1 )/10;
 	int bonus = MAX(0,ch->getLevelBonus(SKILL_BACKSTAB) - 50);
 	mult += ( 6 * bonus ) / 50;
@@ -2404,7 +2404,7 @@ static inline int BACKSTAB_MULT( Creature *ch  ) {
 // return the result of damage, or DAM_ATTACK_FAILED.
 
 int
-hit(struct Creature *ch, struct Creature *victim, int type)
+hit(struct creature *ch, struct creature *victim, int type)
 {
 
 	int w_type = 0, victim_ac, calc_thaco, dam, tmp_dam, diceroll, skill = 0;
@@ -2478,7 +2478,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	}
 	if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
-		CreatureList_iterator it = ch->in_room->people.begin();
+		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if ((*it)->isMounted() && (*it)->isMounted() == victim) {
 				act("You are knocked from your mount by $N's attack!",
@@ -2778,7 +2778,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 }
 
 int
-do_casting_weapon(Creature *ch, obj_data *weap)
+do_casting_weapon(struct creature *ch, obj_data *weap)
 {
 	obj_data *weap2;
 
@@ -2825,7 +2825,7 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 				IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].targets,
 					TAR_UNPLEASANT)) {
             if (ch->isFighting()) {
-                Creature *vict = ch->findRandomCombat();
+                struct creature *vict = ch->findRandomCombat();
 			    call_magic(ch, vict, 0, NULL, GET_OBJ_VAL(weap, 0),
 				           GET_LEVEL(ch), CAST_WAND);
             }
@@ -2876,7 +2876,7 @@ do_casting_weapon(Creature *ch, obj_data *weap)
 //actual performance code is in damage because the different special types
 //require access to different damage variables at different times
 bool
-do_gun_special(Creature *ch, obj_data *obj)
+do_gun_special(struct creature *ch, obj_data *obj)
 {
     if (!IS_ENERGY_GUN(obj) || !EGUN_CUR_ENERGY(obj)) {
         return false;
@@ -2912,10 +2912,10 @@ void
 perform_violence(void)
 {
 
-	Creature *ch;
+	struct creature *ch;
 	int prob, i, die_roll;
 
-	CreatureList_iterator cit = combatList.begin();
+	struct creatureList_iterator cit = combatList.begin();
 	for (; cit != combatList.end(); ++cit) {
 		ch = *cit;
 		if (!ch->in_room || !ch->isFighting())
@@ -2933,7 +2933,7 @@ perform_violence(void)
 
         CombatDataList_iterator li = ch->getCombatList()->begin();
         for (; li != ch->getCombatList()->end(); ++li) {
-			Creature *opp;
+			struct creature *opp;
 
 			opp = li->getOpponent();
             if (ch->in_room != opp->in_room) {

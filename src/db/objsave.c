@@ -75,7 +75,7 @@ extract_norents(struct obj_data *obj)
 ************************************************************************* */
 
 void
-rent_deadline(struct Creature *ch, struct Creature *recep, long cost)
+rent_deadline(struct creature *ch, struct creature *recep, long cost)
 {
 	long rent_deadline;
 
@@ -144,7 +144,7 @@ tally_obj_rent(obj_data *obj, const char *currency_str, bool display)
 }
 
 long
-calc_daily_rent(Creature *ch, int factor, char *currency_str, bool display)
+calc_daily_rent(struct creature *ch, int factor, char *currency_str, bool display)
 {
 	extern int min_rent_cost;
 	obj_data *cur_obj;
@@ -159,7 +159,7 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, bool display)
             room = ch->in_room;
         else
             room = real_room(GET_LOADROOM(ch));
-        CreatureList_iterator cit = room->people.begin();
+        struct creatureList_iterator cit = room->people.begin();
         for ( ; cit != room->people.end(); ++cit) {
             if (GET_MOB_SPEC((*cit)) == cryogenicist ||
             GET_MOB_SPEC((*cit)) == receptionist) {
@@ -199,7 +199,7 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, bool display)
 }
 
 int
-offer_rent(struct Creature *ch, struct Creature *receptionist,
+offer_rent(struct creature *ch, struct creature *receptionist,
 	int factor, bool display)
 {
 	long total_money;
@@ -239,7 +239,7 @@ offer_rent(struct Creature *ch, struct Creature *receptionist,
 }
 
 int
-gen_receptionist(struct Creature *ch, struct Creature *recep,
+gen_receptionist(struct creature *ch, struct creature *recep,
                  int cmd, char *arg __attribute__ ((unused)), int mode)
 {
 	int cost = 0;
@@ -337,7 +337,7 @@ SPECIAL(receptionist)
 {
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	return (gen_receptionist(ch, (struct Creature *)me, cmd, argument,
+	return (gen_receptionist(ch, (struct creature *)me, cmd, argument,
 			RENT_FACTOR));
 }
 
@@ -345,6 +345,6 @@ SPECIAL(cryogenicist)
 {
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	return (gen_receptionist(ch, (struct Creature *)me, cmd, argument,
+	return (gen_receptionist(ch, (struct creature *)me, cmd, argument,
 			CRYO_FACTOR));
 }

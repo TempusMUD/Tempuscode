@@ -9,7 +9,7 @@
 
 using namespace std;
 
-int do_remort(struct Creature *ch);
+int do_remort(struct creature *ch);
 
 SPECIAL(christmas_quest)
 {
@@ -21,7 +21,7 @@ SPECIAL(christmas_quest)
 
     extern int top_of_zone_table;
 
-	Creature *grinch = (Creature *)me;
+	struct creature *grinch = (struct creature *)me;
 
 	if (spec_mode == SPECIAL_CMD) {
         if (!cmd)
@@ -198,11 +198,11 @@ SPECIAL(christmas_quest)
     return 0;
 }
 
-int do_remort(struct Creature *ch)
+int do_remort(struct creature *ch)
 {
     int i;
 
-    void do_start(struct Creature *ch, int mode);
+    void do_start(struct creature *ch, int mode);
     // Wipe thier skills
     for (i = 1; i <= MAX_SKILLS; i++)
         SET_SKILL(ch, i, 0);

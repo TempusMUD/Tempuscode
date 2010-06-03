@@ -8,7 +8,7 @@ SPECIAL(fate_cauldron)
 {
 	struct obj_data *pot = (struct obj_data *)me;
 	char arg1[MAX_INPUT_LENGTH];
-	register struct Creature *fate = NULL;
+	register struct creature *fate = NULL;
 	int fateid = 0;
 
 	if (spec_mode != SPECIAL_CMD)
@@ -34,7 +34,7 @@ SPECIAL(fate_cauldron)
 	} else {
 		fateid = FATE_VNUM_HIGH;
 	}
-	CreatureList_iterator cit = characterList.begin();
+	struct creatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (GET_MOB_VNUM((*cit)) == fateid) {
 			fate = *cit;

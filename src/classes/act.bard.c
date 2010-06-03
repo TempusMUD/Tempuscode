@@ -31,8 +31,8 @@
 extern const char *instrument_types[];
 
 char *pad_song(char *lyrics);
-void sing_song(Creature *ch, Creature *vict, int songnum);
-bool check_instrument(Creature *ch, int songnum);
+void sing_song(struct creature *ch, struct creature *vict, int songnum);
+bool check_instrument(struct creature *ch, int songnum);
 char *get_instrument_type(int songnum);
 
 // incomplete
@@ -93,7 +93,7 @@ char *get_instrument_type(int songnum);
     static const int SKILL_LINGERING_SONG = 676; // increases duration of song affects
 */
 void
-sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songnum)
+sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict, int songnum)
 {
     char *buf;
     const char *vbuf;
@@ -105,13 +105,13 @@ sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songn
 	return;
   }
 
-  CreatureList_iterator it = ch->in_room->people.begin();
+  struct creatureList_iterator it = ch->in_room->people.begin();
   for (; it != ch->in_room->people.end(); ++it) {
 	if (!(*it)->desc || !AWAKE((*it)) ||
 		PLR_FLAGGED((*it), PLR_WRITING | PLR_OLC))
 	  continue;
 
-	Creature *tch = *it;
+	struct creature *tch = *it;
 
 	if (ovict)
 	  vbuf = tmp_sprintf(" to %s", OBJS(ovict, tch));
@@ -176,7 +176,7 @@ char *pad_song(char *lyrics)
     return tmp_gsub(lyrics, "\n", sub);
 };
 
-bool bard_can_charm_more(Creature *ch)
+bool bard_can_charm_more(struct creature *ch)
 {
     follow_type *cur;
     int count = 0;
@@ -192,7 +192,7 @@ bool bard_can_charm_more(Creature *ch)
 
 }
 
-bool check_instrument(Creature *ch, int songnum)
+bool check_instrument(struct creature *ch, int songnum)
 {
     struct obj_data *objs[4];
     short req_type = songs[songnum].type;
@@ -231,7 +231,7 @@ ASPELL(song_instant_audience)
     struct affected_type af;
     bool success = false;
 
-    extern void add_follower(struct Creature *ch, struct Creature *leader);
+    extern void add_follower(struct creature *ch, struct creature *leader);
 
     if (ch->in_room->isOpenAir()) {
         send_to_char(ch, "Oh come now!  There's no one up here to hear you!\r\n");
@@ -239,7 +239,7 @@ ASPELL(song_instant_audience)
     }
 
     for (int i = 0; i <= limit; i++) {
-        Creature *member = NULL;
+        struct creature *member = NULL;
 
         if (!bard_can_charm_more(ch))
             break;
@@ -306,13 +306,13 @@ ASPELL(song_exposure_overture)
     if (!ch)
         return;
 
-    CreatureList_iterator ci = ch->in_room->people.begin();
+    struct creatureList_iterator ci = ch->in_room->people.begin();
 
     for (; ci != ch->in_room->people.end(); ++ci) {
         const char *to_char = NULL;
         const char *to_vict = NULL;
         const char *to_room = NULL;
-        Creature *tch = *ci;
+        struct creature *tch = *ci;
 
         if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
             continue;
@@ -471,7 +471,7 @@ ASPELL(song_lament_of_longing)
              true, victim, NULL, NULL, TO_CHAR);
     }
 
-    CreatureList_iterator ci = ch->in_room->people.begin();
+    struct creatureList_iterator ci = ch->in_room->people.begin();
     for (; ci != ch->in_room->people.end(); ++ci) {
         if (!IS_NPC((*ci))) {
             WAIT_STATE(ch, 5 RL_SEC);
@@ -553,7 +553,7 @@ ASPELL(song_wall_of_sound)
 ASPELL(song_hymn_of_peace)
 {
 
-    CreatureList_iterator it = ch->in_room->people.begin();
+    struct creatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         (*it)->removeAllCombat();
         mag_unaffects(level, ch, *it, SONG_HYMN_OF_PEACE, 0);
@@ -570,7 +570,7 @@ ACMD(do_ventriloquize)
     char *obj_str = NULL;
     char *target_str = NULL;
     struct obj_data *obj = NULL;
-    Creature *target = NULL;
+    struct creature *target = NULL;
     struct obj_data *otarget = NULL;
 
     if (CHECK_SKILL(ch, SKILL_VENTRILOQUISM) < 60) {
@@ -620,7 +620,7 @@ ACMD(do_ventriloquize)
         return;
     }
 
-    CreatureList_iterator ci = ch->in_room->people.begin();
+    struct creatureList_iterator ci = ch->in_room->people.begin();
     for (; ci != ch->in_room->people.end(); ++ci) {
         if (target) {
             if (target == *ci)

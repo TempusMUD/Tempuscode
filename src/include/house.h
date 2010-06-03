@@ -10,7 +10,7 @@
 
 using namespace std;
 
-struct Creature;
+struct creature;
 struct obj_data;
 struct room_data;
 
@@ -86,7 +86,7 @@ struct House
 		// retrieves the unique id of the account that owns this house
 		int getOwnerID() const { return ownerID; }
 		// returns true if the given creature belongs to the owner account
-		bool isOwner( Creature *ch ) const ;
+		bool isOwner( struct creature *ch ) const ;
 		// sets the owner account id to the given id
 		void setOwnerID( int id ) { ownerID = id; }
 		// retrieves the player id of the builder and maintainer of this house
@@ -109,7 +109,7 @@ struct House
 		// Removes the given guest id from this houses guest list
 		bool removeGuest( long guest );
 		// returns true if the given creature is a guest of this house.
-		bool isGuest( Creature *c ) const;
+		bool isGuest( struct creature *c ) const;
 		// returns true if the given player id is a guest of this house.
 		bool isGuest( long idnum ) const;
 
@@ -132,7 +132,7 @@ struct House
 		string getRepoNote( int index ) const { return repoNotes[index]; }
 		// removes all repo notes
 		void clearRepoNotes() { repoNotes.erase( repoNotes.begin(), repoNotes.end() ); }
-		void notifyReposession( Creature *ch );
+		void notifyReposession( struct creature *ch );
 
 		// retrieves the rent charged per day on this house
 		int getRentalRate() const { return rentalRate; }
@@ -148,9 +148,9 @@ struct House
         // counts the objects contained in the given room
         int calcObjectCount( room_data* room ) const;
 
-		void listRooms( Creature *ch, bool showContents = false );
-		void listGuests( Creature *ch );
-		void display( Creature *ch );
+		void listRooms( struct creature *ch, bool showContents = false );
+		void listGuests( struct creature *ch );
+		void display( struct creature *ch );
 
 		House& operator=( const House &h );
 		// Comparators for sorting
@@ -183,18 +183,18 @@ struct HouseControl : private std_vector<House*>
 		// Updates the prototype object's "number in houses" counts
 		void countObjects();
 		// returns true if the given creature can enter the given house room
-		bool canEnter( Creature *c, room_num room );
+		bool canEnter( struct creature *c, room_num room );
 		// returns true if the given creature can edit the house
 		// that contains the given room
-		bool canEdit( Creature *c, room_data *room );
+		bool canEdit( struct creature *c, room_data *room );
 		// returns true if the given creature can edit the given house
-		bool canEdit( Creature *c, House *house );
+		bool canEdit( struct creature *c, House *house );
 		// retrieves the house that contains the given room
 		House* findHouseByRoom( room_num room );
 		// retrieves the house with the given unique id
 		House* findHouseById( int id );
 		// retrieves the house with the given owner (account id)
-		House* findHouseByOwner( int id, bool isAccount=true);
+		House* findHouseByOwner( int id, bool isstruct account=true);
 		// returns the number of houses in this house control
 		unsigned int getHouseCount() const ;
 		// returns the house at the given index
@@ -206,21 +206,21 @@ struct HouseControl : private std_vector<House*>
 		// destroys the given house
 		bool destroyHouse( House *house );
 
-		void displayHouses( list<House*> houses, Creature *ch );
+		void displayHouses( list<House*> houses, struct creature *ch );
 };
 // The global housing project.
 extern HouseControl Housing;
 
 // a kludge hold over
 static inline bool
-House_can_enter( Creature *ch, room_num room )
+House_can_enter( struct creature *ch, room_num room )
 {
 	return Housing.canEnter( ch, room );
 }
 
 #define TOROOM(room, dir) (world[room].dir_option[dir] ? \
 			    world[room].dir_option[dir]->to_room : NOWHERE)
-char* print_room_contents(Creature *ch, room_data *real_house_room, bool showContents = false);
+char* print_room_contents(struct creature *ch, room_data *real_house_room, bool showContents = false);
 int recurs_obj_cost(struct obj_data *obj, bool mode, struct obj_data *top_o);
 int recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o);
 #endif

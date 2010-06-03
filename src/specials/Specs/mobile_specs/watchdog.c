@@ -9,10 +9,10 @@
 
 SPECIAL(watchdog)
 {
-	struct Creature *dog = (struct Creature *)me;
-	struct Creature *vict = NULL;
+	struct creature *dog = (struct creature *)me;
+	struct creature *vict = NULL;
 	static byte indignation = 0;
-	CreatureList_iterator it;
+	struct creatureList_iterator it;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;

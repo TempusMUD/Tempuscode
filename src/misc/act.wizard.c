@@ -74,7 +74,7 @@ using namespace std;
 /*   external vars  */
 extern struct obj_data *object_list;
 extern struct descriptor_data *descriptor_list;
-extern struct Creature *mob_proto;
+extern struct creature *mob_proto;
 //extern struct obj_data *obj_proto;
 extern struct zone_data *zone_table;
 extern int top_of_zone_table;
@@ -84,7 +84,7 @@ extern int log_cmds;
 extern int olc_lock;
 extern int lunar_day;
 extern int quest_status;
-extern struct Creature *combat_list;    /* head of list of fighting chars */
+extern struct creature *combat_list;    /* head of list of fighting chars */
 extern int shutdown_count;
 extern int shutdown_mode;
 extern int mini_mud;
@@ -105,28 +105,28 @@ int set_maxdamage(struct obj_data *obj);
 
 long asciiflag_conv(char *buf);
 void build_player_table(void);
-void show_social_messages(struct Creature *ch, char *arg);
+void show_social_messages(struct creature *ch, char *arg);
 void autosave_zones(int SAVE_TYPE);
-void perform_oset(struct Creature *ch, struct obj_data *obj_p,
+void perform_oset(struct creature *ch, struct obj_data *obj_p,
     char *argument, byte subcmd);
-void do_show_objects(struct Creature *ch, char *value, char *arg);
-static void do_show_mobiles(struct Creature *ch, char *value, char *arg);
-void show_searches(struct Creature *ch, char *value, char *arg);
-static void show_rooms(struct Creature *ch, char *value, char *arg);
-void do_zone_cmdlist(struct Creature *ch, struct zone_data *zone, char *arg);
+void do_show_objects(struct creature *ch, char *value, char *arg);
+static void do_show_mobiles(struct creature *ch, char *value, char *arg);
+void show_searches(struct creature *ch, char *value, char *arg);
+static void show_rooms(struct creature *ch, char *value, char *arg);
+void do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg);
 const char *stristr(const char *haystack, const char *needle);
 
 int parse_char_class(char *arg);
 void retire_trails(void);
-float prac_gain(struct Creature *ch, int mode);
-int skill_gain(struct Creature *ch, int mode);
-void list_obj_to_char(struct obj_data *list, struct Creature *ch, int mode,
+float prac_gain(struct creature *ch, int mode);
+int skill_gain(struct creature *ch, int mode);
+void list_obj_to_char(struct obj_data *list, struct creature *ch, int mode,
     bool show);
 void save_quests(); // quests.cc - saves quest data
 void save_all_players();
-static int do_freeze_char(char *argument, Creature *vict, Creature *ch);
-void verify_tempus_integrity(Creature *ch);
-static void do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj);
+static int do_freeze_char(char *argument, struct creature *vict, struct creature *ch);
+void verify_tempus_integrity(struct creature *ch);
+static void do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj);
 
 ACMD(do_equipment);
 
@@ -135,7 +135,7 @@ static const char *logtypes[] = {
 };
 
 void
-show_char_class_skills(struct Creature *ch, int con, int immort, int bits)
+show_char_class_skills(struct creature *ch, int con, int immort, int bits)
 {
     int lvl, skl;
     bool found;
@@ -240,7 +240,7 @@ ACMD(do_echo)
         mort_see = tmp_strdup(argument);
         imm_see = tmp_sprintf("[$n] %s", argument);
 
-        CreatureList_iterator it = ch->in_room->people.begin();
+        struct creatureList_iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if (GET_LEVEL((*it)) > GET_LEVEL(ch))
                 act(imm_see, false, ch, 0, (*it), TO_VICT);
@@ -252,7 +252,7 @@ ACMD(do_echo)
 
 ACMD(do_send)
 {
-    struct Creature *vict;
+    struct creature *vict;
 
     half_chop(argument, arg, buf);
 
@@ -271,11 +271,11 @@ ACMD(do_send)
 
 /* take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93 */
 static struct room_data *
-find_target_room(struct Creature *ch, char *rawroomstr)
+find_target_room(struct creature *ch, char *rawroomstr)
 {
     int tmp;
     struct room_data *location;
-    struct Creature *target_mob;
+    struct creature *target_mob;
     struct obj_data *target_obj;
     char roomstr[MAX_INPUT_LENGTH];
 
@@ -398,7 +398,7 @@ ACMD(do_distance)
 }
 
 void
-perform_goto(Creature *ch, room_data *room, bool allow_follow)
+perform_goto(struct creature *ch, room_data *room, bool allow_follow)
 {
     room_data *was_in = NULL;
     const char *msg;
@@ -479,7 +479,7 @@ ACMD(do_goto)
 ACMD(do_transport)
 {
     struct room_data *was_in;
-    struct Creature *victim;
+    struct creature *victim;
 	char *name_str;
 
 	if (GET_LEVEL(ch) < LVL_IMMORT
@@ -544,7 +544,7 @@ ACMD(do_transport)
 
 ACMD(do_teleport)
 {
-    struct Creature *victim;
+    struct creature *victim;
     struct room_data *target;
 
     two_arguments(argument, buf, buf2);
@@ -594,7 +594,7 @@ ACMD(do_vnum)
 
 #define CHARADD(sum,var) if (var) {sum += strlen(var) +1;}
 static void
-do_stat_memory(struct Creature *ch)
+do_stat_memory(struct creature *ch)
 {
     int sum = 0, total = 0;
     int i = 0, j = 0;
@@ -604,7 +604,7 @@ do_stat_memory(struct Creature *ch)
     struct affected_type *af;
     struct descriptor_data *desc = NULL;
     struct follow_type *fol;
-    struct Creature *chars, *mob;
+    struct creature *chars, *mob;
     struct zone_data *zone;
     struct room_data *rm;
 
@@ -644,7 +644,7 @@ do_stat_memory(struct Creature *ch)
     total = sum;
     send_to_char(ch, "%s  world structs: %9d  (%d)\r\n", buf, sum, i);
 
-    sum = mobilePrototypes.size() * (sizeof(struct Creature));
+    sum = mobilePrototypes.size() * (sizeof(struct creature));
 
     MobileMap_iterator mit = mobilePrototypes.begin();
     for (; mit != mobilePrototypes.end(); ++mit) {
@@ -686,13 +686,13 @@ do_stat_memory(struct Creature *ch)
 
     sum = 0;
     i = 0;
-    CreatureList_iterator cit = characterList.begin();
+    struct creatureList_iterator cit = characterList.begin();
     for (; cit != characterList.end(); ++cit) {
         chars = *cit;
         if (!IS_NPC(chars))
             continue;
         i++;
-        sum += sizeof(struct Creature);
+        sum += sizeof(struct creature);
 
         af = chars->affected;
         while (af) {
@@ -719,7 +719,7 @@ do_stat_memory(struct Creature *ch)
         if (IS_NPC(chars))
             continue;
         i++;
-        sum += sizeof(struct Creature);
+        sum += sizeof(struct creature);
 
         CHARADD(sum, chars->player.name);
         CHARADD(sum, chars->player.short_descr);
@@ -763,7 +763,7 @@ do_stat_memory(struct Creature *ch)
 #undef CHARADD
 
 static void
-do_stat_zone(struct Creature *ch, struct zone_data *zone)
+do_stat_zone(struct creature *ch, struct zone_data *zone)
 {
     struct obj_data *obj;
     struct descriptor_data *plr;
@@ -784,7 +784,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
     send_to_char(ch, "TimeFrame: [%s]  Plane: [%s]   ",
         time_frames[zone->time_frame], planes[zone->plane]);
 
-    CreatureList_iterator cit = characterList.begin();
+    struct creatureList_iterator cit = characterList.begin();
     for (; cit != characterList.end(); ++cit)
         if (IS_NPC((*cit)) && (*cit)->in_room && (*cit)->in_room->zone == zone) {
             numm++;
@@ -794,7 +794,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
     if (numm)
         av_lev /= numm;
     MobileMap_iterator mit = mobilePrototypes.begin();
-    Creature *mob;
+    struct creature *mob;
     for (; mit != mobilePrototypes.end(); ++mit) {
         mob = mit->second;
         if (GET_MOB_VNUM(mob) >= zone->number * 100 &&
@@ -877,7 +877,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
 }
 
 static void
-do_stat_trails(struct Creature *ch)
+do_stat_trails(struct creature *ch)
 {
 
     struct room_trail_data *trail = NULL;
@@ -909,7 +909,7 @@ do_stat_trails(struct Creature *ch)
 }
 
 static void
-acc_format_prog(Creature *ch, char *prog)
+acc_format_prog(struct creature *ch, char *prog)
 {
     const char *line_color = NULL;
 
@@ -966,7 +966,7 @@ acc_format_prog(Creature *ch, char *prog)
 }
 
 static void
-do_stat_room(struct Creature *ch, char *roomstr)
+do_stat_room(struct creature *ch, char *roomstr)
 {
     int tmp;
     struct extra_descr_data *desc;
@@ -975,7 +975,7 @@ do_stat_room(struct Creature *ch, char *roomstr)
     struct special_search_data *cur_search = NULL;
     int i, found = 0;
     struct obj_data *j = 0;
-    struct Creature *k = 0;
+    struct creature *k = 0;
 
     if (roomstr && *roomstr) {
         if (isdigit(*roomstr) && !strchr(roomstr, '.')) {
@@ -1054,8 +1054,8 @@ do_stat_room(struct Creature *ch, char *roomstr)
 
     acc_sprintf("Chars present:%s", CCYEL(ch, C_NRM));
 
-    CreatureList_iterator it = rm->people.begin();
-    CreatureList_iterator nit = it;
+    struct creatureList_iterator it = rm->people.begin();
+    struct creatureList_iterator nit = it;
     for (found = 0; it != rm->people.end(); ++it) {
         ++nit;
         k = *it;
@@ -1118,7 +1118,7 @@ do_stat_room(struct Creature *ch, char *roomstr)
 }
 
 void
-do_stat_object(struct Creature *ch, struct obj_data *j)
+do_stat_object(struct creature *ch, struct obj_data *j)
 {
     int i, found;
     struct extra_descr_data *desc;
@@ -1537,7 +1537,7 @@ do_stat_object(struct Creature *ch, struct obj_data *j)
 }
 
 static void
-do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
+do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj)
 {
     char *stat_prefix;
 
@@ -1594,7 +1594,7 @@ do_stat_obj_tmp_affs(struct Creature *ch, struct obj_data *obj)
 }
 
 static void
-do_stat_character_kills(Creature *ch, Creature *k)
+do_stat_character_kills(struct creature *ch, struct creature *k)
 {
     if (!IS_PC(k)) {
         send_to_char(ch, "Recent kills by a mob are not recorded.\r\n");
@@ -1605,7 +1605,7 @@ do_stat_character_kills(Creature *ch, Creature *k)
         acc_sprintf("Recently killed by %s:\r\n", GET_NAME(k));
         std_list<KillRecord>::iterator kill = GET_RECENT_KILLS(k).begin();
         for (;kill != GET_RECENT_KILLS(k).end();++kill) {
-            Creature *killed = real_mobile_proto(kill->_vnum);
+            struct creature *killed = real_mobile_proto(kill->_vnum);
             acc_sprintf("%s%3d. %-30s %17d%s\r\n",
                         CCGRN(ch, C_NRM),
                         kill->_vnum,
@@ -1618,7 +1618,7 @@ do_stat_character_kills(Creature *ch, Creature *k)
 }
 
 static void
-do_stat_character_prog(Creature *ch, Creature *k)
+do_stat_character_prog(struct creature *ch, struct creature *k)
 {
     if (IS_PC(k)) {
         send_to_char(ch, "Players don't have progs!\r\n");
@@ -1633,9 +1633,9 @@ do_stat_character_prog(Creature *ch, Creature *k)
 }
 
 static void
-do_stat_character_progobj(Creature *ch, Creature *k)
+do_stat_character_progobj(struct creature *ch, struct creature *k)
 {
-    void prog_display_obj(Creature *ch, unsigned char *exec);
+    void prog_display_obj(struct creature *ch, unsigned char *exec);
 
     if (IS_PC(k)) {
         send_to_char(ch, "Players don't have progs!\r\n");
@@ -1648,7 +1648,7 @@ do_stat_character_progobj(Creature *ch, Creature *k)
 }
 
 static void
-do_stat_character_description(Creature *ch, Creature *k)
+do_stat_character_description(struct creature *ch, struct creature *k)
 {
     if (k->player.description) {
         page_string(ch->desc, k->player.description);
@@ -1659,7 +1659,7 @@ do_stat_character_description(Creature *ch, Creature *k)
 }
 
 void
-do_stat_character(Creature *ch, Creature *k, const char *options)
+do_stat_character(struct creature *ch, struct creature *k, const char *options)
 {
     int i, num, num2, found = 0, rexp;
 	const char *line_buf;
@@ -1707,11 +1707,11 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
         acc_strcat("ILLEGAL-SEX!!", NULL); break;
     }
 
-    acc_sprintf(" %s '%s%s%s'  IDNum: [%5ld], AccountNum: [%5ld], In room %s[%s%5d%s]%s\n",
+    acc_sprintf(" %s '%s%s%s'  IDNum: [%5ld], struct accountNum: [%5ld], In room %s[%s%5d%s]%s\n",
         (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
         CCYEL(ch, C_NRM), GET_NAME(k), CCNRM(ch, C_NRM),
         IS_NPC(k) ? MOB_IDNUM(k) : GET_IDNUM(k),
-        IS_NPC(k) ? -1 : k->getAccountID(),
+        IS_NPC(k) ? -1 : k->getstruct accountID(),
         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), k->in_room ?
         k->in_room->number : -1, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
@@ -2125,7 +2125,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
 
 ACMD(do_stat)
 {
-    struct Creature *victim = 0;
+    struct creature *victim = 0;
     struct obj_data *object = 0;
     struct zone_data *zone = NULL;
     int tmp, found;
@@ -2184,7 +2184,7 @@ ACMD(do_stat)
         if (!*arg2) {
             send_to_char(ch, "Stats on which player?\r\n");
         } else {
-			victim = new Creature(true);
+			victim = new struct creature(true);
 			if (!playerIndex.exists(arg2)) {
                 send_to_char(ch, "There is no such player.\r\n");
             } else {
@@ -2346,7 +2346,7 @@ ACMD(do_shutdown)
 }
 
 static void
-stop_snooping(struct Creature *ch)
+stop_snooping(struct creature *ch)
 {
     if (!ch->desc->snooping)
         send_to_char(ch, "You aren't snooping anyone.\r\n");
@@ -2365,7 +2365,7 @@ stop_snooping(struct Creature *ch)
 
 ACMD(do_snoop)
 {
-    struct Creature *victim, *tch;
+    struct creature *victim, *tch;
 
     if (!ch->desc)
         return;
@@ -2428,7 +2428,7 @@ ACMD(do_snoop)
 
 ACMD(do_switch)
 {
-    struct Creature *victim;
+    struct creature *victim;
 
     one_argument(argument, arg);
 
@@ -2465,7 +2465,7 @@ ACMD(do_switch)
 
 ACMD(do_rswitch)
 {
-    struct Creature *orig, *victim;
+    struct creature *orig, *victim;
     char arg2[MAX_INPUT_LENGTH];
 
     two_arguments(argument, arg, arg2);
@@ -2528,7 +2528,7 @@ ACMD(do_rswitch)
                             r_mortal_start_room)
 ACMD(do_return)
 {
-    struct Creature *orig = NULL;
+    struct creature *orig = NULL;
     bool cloud_found = false;
 
     if (ch->desc && (orig = ch->desc->original)) {
@@ -2583,7 +2583,7 @@ ACMD(do_return)
 
 ACMD(do_mload)
 {
-    struct Creature *mob;
+    struct creature *mob;
     int number;
 
     one_argument(argument, buf);
@@ -2684,7 +2684,7 @@ ACMD(do_oload)
 
 ACMD(do_pload)
 {
-    struct Creature *vict = NULL;
+    struct creature *vict = NULL;
     struct obj_data *obj = NULL;
     int number, quantity;
     char *temp, *temp2;
@@ -2813,7 +2813,7 @@ ACMD(do_pload)
 
 ACMD(do_vstat)
 {
-    struct Creature *mob = NULL;
+    struct creature *mob = NULL;
     struct obj_data *obj = NULL;
     bool mob_stat = false;
     char *str;
@@ -2877,7 +2877,7 @@ ACMD(do_vstat)
 
 ACMD(do_rstat)
 {
-    struct Creature *mob;
+    struct creature *mob;
     int number;
 
     two_arguments(argument, buf, buf2);
@@ -2904,7 +2904,7 @@ ACMD(do_rstat)
 /* clean a room of all mobiles and objects */
 ACMD(do_purge)
 {
-    struct Creature *vict;
+    struct creature *vict;
     struct obj_data *obj, *next_o;
     struct room_trail_data *trail;
     int i = 0;
@@ -2958,7 +2958,7 @@ ACMD(do_purge)
             false, ch, 0, 0, TO_ROOM);
         send_to_room("The world seems a little cleaner.\r\n", ch->in_room);
 
-        CreatureList_iterator it = ch->in_room->people.begin();
+        struct creatureList_iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if (IS_NPC((*it))) {
                 (*it)->purge(true);
@@ -2980,10 +2980,10 @@ ACMD(do_purge)
 
 ACMD(do_advance)
 {
-    struct Creature *victim;
+    struct creature *victim;
     char *name = arg, *level = buf2;
     int newlevel;
-    void do_start(struct Creature *ch, int mode);
+    void do_start(struct creature *ch, int mode);
 
     two_arguments(argument, name, level);
 
@@ -3046,7 +3046,7 @@ ACMD(do_advance)
 
 ACMD(do_restore)
 {
-    struct Creature *vict;
+    struct creature *vict;
 
     one_argument(argument, buf);
     if (!*buf)
@@ -3063,7 +3063,7 @@ ACMD(do_restore)
 }
 
 static void
-perform_vis(struct Creature *ch)
+perform_vis(struct creature *ch)
 {
 
     int level = GET_INVIS_LVL(ch);
@@ -3074,7 +3074,7 @@ perform_vis(struct Creature *ch)
     }
 
     GET_INVIS_LVL(ch) = 0;
-    CreatureList_iterator it = ch->in_room->people.begin();
+    struct creatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         if ((*it) == ch || !can_see_creature((*it), ch))
             continue;
@@ -3087,7 +3087,7 @@ perform_vis(struct Creature *ch)
 }
 
 static void
-perform_invis(struct Creature *ch, int level)
+perform_invis(struct creature *ch, int level)
 {
     int old_level;
 
@@ -3102,7 +3102,7 @@ perform_invis(struct Creature *ch, int level)
     old_level = GET_INVIS_LVL(ch);
     GET_INVIS_LVL(ch) = 0;
 
-    CreatureList_iterator it = ch->in_room->people.begin();
+    struct creatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         if ((*it) == ch || !can_see_creature((*it), ch))
             continue;
@@ -3389,7 +3389,7 @@ ACMD(do_date)
 ACMD(do_last)
 {
 	int pid;
-	Creature *vict;
+	struct creature *vict;
 
     one_argument(argument, arg);
     if (!*arg) {
@@ -3401,7 +3401,7 @@ ACMD(do_last)
         send_to_char(ch, "There is no such player.\r\n");
         return;
     }
-	vict = new Creature(true);
+	vict = new struct creature(true);
 	if (!vict->loadFromXML(pid)) {
 		send_to_char(ch, "There was an error.\r\n");
 		slog("Unable to load character for 'LAST'.");
@@ -3426,8 +3426,8 @@ ACMD(do_last)
 ACMD(do_force)
 {
     struct descriptor_data *i, *next_desc;
-    struct Creature *vict;
-    CreatureList_iterator cit;
+    struct creature *vict;
+    struct creatureList_iterator cit;
     char to_force[MAX_INPUT_LENGTH + 2];
 
     half_chop(argument, arg, to_force);
@@ -3478,7 +3478,7 @@ ACMD(do_force)
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
                    GET_NAME(ch), ch->in_room->number, to_force);
-            CreatureList_iterator it = ch->in_room->people.begin();
+            struct creatureList_iterator it = ch->in_room->people.begin();
             for (; it != ch->in_room->people.end(); ++it) {
                 if (GET_LEVEL((*it)) >= GET_LEVEL(ch) ||
                     (!IS_NPC((*it)) && GET_LEVEL(ch) < LVL_GRGOD))
@@ -3709,7 +3709,7 @@ ACMD(do_zreset)
 }
 
 void
-perform_unaffect(Creature *ch, Creature *vict)
+perform_unaffect(struct creature *ch, struct creature *vict)
 {
     if (vict->affected) {
         send_to_char(vict, "There is a brief flash of light!\r\n"
@@ -3724,9 +3724,9 @@ perform_unaffect(Creature *ch, Creature *vict)
 }
 
 void
-perform_reroll(Creature *ch, Creature *vict)
+perform_reroll(struct creature *ch, struct creature *vict)
 {
-    void roll_real_abils(struct Creature *ch);
+    void roll_real_abils(struct creature *ch);
 
     roll_real_abils(vict);
     send_to_char(vict, "Your stats have been rerolled.\r\n");
@@ -3743,7 +3743,7 @@ perform_reroll(Creature *ch, Creature *vict)
 
 ACMD(do_wizutil)
 {
-    struct Creature *vict;
+    struct creature *vict;
     long result;
     char *msg;
     char *arg = tmp_getword(&argument);
@@ -3764,7 +3764,7 @@ ACMD(do_wizutil)
     // Get the player or load it from file
     vict = get_char_vis(ch, arg);
     if (!vict) {
-        vict = new Creature(true);
+        vict = new struct creature(true);
         if (!vict->loadFromXML(playerIndex.getID(arg))) {
             send_to_char(ch, "That player could not be loaded.\r\n");
             delete vict;
@@ -3857,7 +3857,7 @@ ACMD(do_wizutil)
 #define PRAC_TYPE        3        /* should it say 'spell' or 'skill'? */
 
 static void
-list_skills_to_char(struct Creature *ch, struct Creature *vict)
+list_skills_to_char(struct creature *ch, struct creature *vict)
 {
     char buf3[MAX_STRING_LENGTH];
     int i, sortpos;
@@ -3925,18 +3925,18 @@ list_skills_to_char(struct Creature *ch, struct Creature *vict)
 }
 
 static void
-do_show_stats(struct Creature *ch)
+do_show_stats(struct creature *ch)
 {
     int i = 0, j = 0, k = 0, con = 0, tr_count = 0, srch_count = 0;
     short int num_active_zones = 0;
-    struct Creature *vict;
+    struct creature *vict;
     struct obj_data *obj;
     struct room_data *room;
     struct room_trail_data *trail;
     struct special_search_data *srch;
     struct zone_data *zone;
     extern int buf_switches, buf_largecount, buf_overflows;
-    CreatureList_iterator cit = characterList.begin();
+    struct creatureList_iterator cit = characterList.begin();
 
     for (; cit != characterList.end(); ++cit) {
         vict = *cit;
@@ -3972,7 +3972,7 @@ do_show_stats(struct Creature *ch)
     send_to_char(ch, "Current statistics of Tempus:\r\n");
     send_to_char(ch, "  %5d players in game  %5d connected\r\n", i, con);
     send_to_char(ch, "  %5zd accounts cached  %5zd characters\r\n",
-                 Account_cache_size(), playerIndex.size());
+                 struct account_cache_size(), playerIndex.size());
     send_to_char(ch, "  %5d mobiles          %5zd prototypes (%d id'd)\r\n",
                  j, mobilePrototypes.size(), current_mob_idnum);
     send_to_char(ch, "  %5d objects          %5zd prototypes\r\n",
@@ -4013,7 +4013,7 @@ do_show_stats(struct Creature *ch)
 }
 
 static void
-show_wizcommands(Creature *ch)
+show_wizcommands(struct creature *ch)
 {
     if (IS_PC(ch))
         Security_sendAvailableCommands(ch, GET_IDNUM(ch));
@@ -4022,12 +4022,12 @@ show_wizcommands(Creature *ch)
 }
 
 static void
-show_account(Creature *ch, char *value)
+show_account(struct creature *ch, char *value)
 {
     char created_buf[30];
     char last_buf[30];
     int idnum = 0;
-    Account *account = NULL;
+    struct account *account = NULL;
 	time_t last, creation;
 
     if (!*value) {
@@ -4043,22 +4043,22 @@ show_account(Creature *ch, char *value)
 				send_to_char(ch, "There is no such player: %s\r\n", value);
 				return;
 			}
-			idnum = playerIndex.getAccountID(atoi(value));
+			idnum = playerIndex.getstruct accountID(atoi(value));
 		} else {
 			if (!playerIndex.exists(value)) {
 				send_to_char(ch, "There is no such player: %s\r\n", value);
 				return;
 			}
-			idnum = playerIndex.getAccountID(value);
+			idnum = playerIndex.getstruct accountID(value);
 		}
 
-		account = Account_retrieve(idnum);
+		account = struct account_retrieve(idnum);
 	} else {
 		if (is_number(value)) {
 			idnum = atoi(value);
-			account = Account_retrieve(idnum);
+			account = struct account_retrieve(idnum);
 		} else {
-			account = Account_retrieve(value);
+			account = struct account_retrieve(value);
 		}
 	}
 
@@ -4067,7 +4067,7 @@ show_account(Creature *ch, char *value)
         return;
     }
 
-    send_to_desc(ch->desc, "&y  Account: &n%s [%d]", account->get_name(),
+    send_to_desc(ch->desc, "&y  struct account: &n%s [%d]", account->get_name(),
 		  account->get_idnum());
 	if (account->get_email_addr() && *account->get_email_addr())
 		send_to_desc(ch->desc, " &c<%s>&n",
@@ -4109,9 +4109,9 @@ show_account(Creature *ch, char *value)
 }
 
 static void
-show_player(Creature *ch, char *value)
+show_player(struct creature *ch, char *value)
 {
-    Creature *vict;
+    struct creature *vict;
     char birth[80];
     char last_login[80];
     char remort_desc[80];
@@ -4132,9 +4132,9 @@ show_player(Creature *ch, char *value)
     }
 
     idnum = playerIndex.getID(value);
-	vict = new Creature(true);
+	vict = new struct creature(true);
 	vict->loadFromXML(idnum);
-    vict->account = Account_retrieve(playerIndex.getAccountID(idnum));
+    vict->account = struct account_retrieve(playerIndex.getstruct accountID(idnum));
 
     if (GET_REMORT_GEN(vict) <= 0) {
         strcpy(remort_desc, "");
@@ -4144,7 +4144,7 @@ show_player(Creature *ch, char *value)
     }
     sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d",
             GET_IDNUM(vict), GET_NAME(vict),
-            playerIndex.getAccountID(GET_IDNUM(vict)),
+            playerIndex.getstruct accountID(GET_IDNUM(vict)),
             genders[(int)GET_SEX(vict)], GET_LEVEL(vict),
             player_race[(int)GET_RACE(vict)], char_class_abbrevs[GET_CLASS(vict)],
             remort_desc, GET_REMORT_GEN(vict));
@@ -4185,7 +4185,7 @@ show_player(Creature *ch, char *value)
 }
 
 static void
-show_zoneusage(Creature *ch, char *value)
+show_zoneusage(struct creature *ch, char *value)
 {
     int i;
     struct zone_data *zone;
@@ -4219,7 +4219,7 @@ topZoneComparison(const struct zone_data* a, const struct zone_data* b)
 }
 
 static void
-show_topzones(Creature *ch, char *value)
+show_topzones(struct creature *ch, char *value)
 {
     int i, num_zones = 0;
     struct zone_data *zone;
@@ -4297,9 +4297,9 @@ show_topzones(Creature *ch, char *value)
 }
 
 static void
-show_mobkills(Creature *ch, char *value, char *arg __attribute__ ((unused)))
+show_mobkills(struct creature *ch, char *value, char *arg __attribute__ ((unused)))
 {
-    Creature *mob = NULL;
+    struct creature *mob = NULL;
     float ratio;
     float thresh;
     int i = 0;
@@ -4365,7 +4365,7 @@ const char *show_room_modes[] = {
 };
 
 static void
-show_room_append(Creature *ch, room_data *room, int mode, const char *extra)
+show_room_append(struct creature *ch, room_data *room, int mode, const char *extra)
 {
 	if (!extra)
 		extra = "";
@@ -4386,13 +4386,13 @@ show_room_append(Creature *ch, room_data *room, int mode, const char *extra)
 
 // returns 0 if none found, 1 if found, -1 if error
 static int
-show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
+show_rooms_in_zone(struct creature *ch, zone_data *zone, int pos, int mode, char *args)
 {
 	special_search_data *srch = NULL;
 	list<string> str_list;
 	list<string>_iterator str_it;
 	list<string> mob_names;
-	CreatureList_iterator cit;
+	struct creatureList_iterator cit;
 	room_data *room;
 	bool match, gt = false, lt = false;
 	int found = 0, num, flags = 0, tmp_flag = 0;
@@ -4706,7 +4706,7 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 }
 
 static void
-show_rooms(Creature *ch, char *value, char *args)
+show_rooms(struct creature *ch, char *value, char *args)
 {
     const char *usage = "Usage: show rooms <zone | time | plane | world> <flag> [options]";
     int show_mode;
@@ -4778,7 +4778,7 @@ show_rooms(Creature *ch, char *value, char *args)
 #define MLEVELS_USAGE "Usage: show mlevels <real | proto> [remort] [expand]\r\n"
 
 static void
-show_mlevels(Creature *ch, char *value, char *arg)
+show_mlevels(struct creature *ch, char *value, char *arg)
 {
 
     int remort = 0;
@@ -4787,7 +4787,7 @@ show_mlevels(Creature *ch, char *value, char *arg)
     int i, j;
     int max = 0;
     int to = 0;
-    Creature *mob = NULL;
+    struct creature *mob = NULL;
     char arg1[MAX_INPUT_LENGTH];
     if (!*value) {
         send_to_char(ch, MLEVELS_USAGE);
@@ -4896,7 +4896,7 @@ show_mlevels(Creature *ch, char *value, char *arg)
 }
 
 static void
-acc_print_zone(struct Creature *ch, struct zone_data *zone)
+acc_print_zone(struct creature *ch, struct zone_data *zone)
 {
     acc_sprintf("%s%s%3d%s %s%-50.50s%s Top: %s%5d%s Owner:%s%5d%s%s%s\r\n",
                 CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), zone->number,
@@ -4909,7 +4909,7 @@ acc_print_zone(struct Creature *ch, struct zone_data *zone)
 }
 
 static void
-show_zones(Creature *ch, char *arg, char *value)
+show_zones(struct creature *ch, char *arg, char *value)
 {
     Tokenizer tokens(arg);
     zone_data *zone;
@@ -5077,18 +5077,18 @@ ACMD(do_show)
     int i = 0, j = 0, k = 0, l = 0, con = 0, percent, num_rms = 0, tot_rms = 0;
     int found = 0;
     int sfc_mode = 0;
-    struct Creature *vict;
+    struct creature *vict;
     struct obj_data *obj;
     struct alias_data *a;
     struct zone_data *zone = NULL;
     struct room_data *room = NULL, *tmp_room = NULL;
     char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH];
-    struct Creature *mob = NULL;
-    CreatureList_iterator cit;
+    struct creature *mob = NULL;
+    struct creatureList_iterator cit;
     MobileMap_iterator mit;
     ObjectMap_iterator oi;
 
-    void show_shops(struct Creature *ch, char *value);
+    void show_shops(struct creature *ch, char *value);
 
     skip_spaces(&argument);
     if (!*argument) {
@@ -5224,7 +5224,7 @@ ACMD(do_show)
                 send_to_char(ch,
                     "Getting that data from file requires basic administrative rights.\r\n");
             } else {
-                vict = new Creature(true);
+                vict = new struct creature(true);
 				if (!playerIndex.exists(value))
                     send_to_char(ch, "There is no such player.\r\n");
                 else if (!vict->loadFromXML(playerIndex.getID(value)))
@@ -5779,8 +5779,8 @@ ACMD(do_set)
 {
     int i, l, tp;
     struct room_data *room;
-    struct Creature *vict = NULL, *vict2 = NULL;
-    struct Creature *cbuf = NULL;
+    struct creature *vict = NULL, *vict2 = NULL;
+    struct creature *cbuf = NULL;
     char *field, *name;
     char *arg1, *arg2;
     int on = 0, off = 0, value = 0;
@@ -5944,7 +5944,7 @@ ACMD(do_set)
             }
         }
     } else if (is_file) {
-        cbuf = new Creature(true);
+        cbuf = new struct creature(true);
 		vict = NULL;
 		if (!playerIndex.exists(name))
             send_to_char(ch, "There is no such player.\r\n");
@@ -6655,7 +6655,7 @@ ACMD(do_aset)
         {"\n", 0, BOTH, MISC, ""} };
 	char *name, *field;
 	int i, l, value = 0;
-	Account *account;
+	struct account *account;
 	bool on = false, off = false;
 
     name = tmp_getword(&argument);
@@ -6682,11 +6682,11 @@ ACMD(do_aset)
     }
 
 	if (*name == '.')
-		account = Account_retrieve(playerIndex.getAccountID(name + 1));
+		account = struct account_retrieve(playerIndex.getstruct accountID(name + 1));
 	else if (is_number(name))
-		account = Account_retrieve(atoi(name));
+		account = struct account_retrieve(atoi(name));
 	else
-		account = Account_retrieve(name);
+		account = struct account_retrieve(name);
 
 	if (!account) {
 		send_to_char(ch, "There is no such account.\r\n");
@@ -6983,7 +6983,7 @@ ACMD(do_mlist)
 
 	acc_string_clear();
     MobileMap_iterator mit = mobilePrototypes.begin();
-    Creature *mob;
+    struct creature *mob;
     for (;
         mit != mobilePrototypes.end()
         && ((mit->second)->mob_specials.shared->vnum <= last); ++mit) {
@@ -7061,7 +7061,7 @@ ACMD(do_olist)
 ACMD(do_rename)
 {
     struct obj_data *obj;
-    struct Creature *vict = NULL;
+    struct creature *vict = NULL;
     char new_desc[MAX_INPUT_LENGTH], logbuf[MAX_STRING_LENGTH];
 
     half_chop(argument, arg, new_desc);
@@ -7118,7 +7118,7 @@ ACMD(do_rename)
 ACMD(do_addname)
 {
     struct obj_data *obj;
-    struct Creature *vict = NULL;
+    struct creature *vict = NULL;
     char new_name[MAX_INPUT_LENGTH];
     Tokenizer args(argument);
 
@@ -7270,7 +7270,7 @@ ACMD(do_nolocate)
 ACMD(do_mudwipe)
 {
     struct obj_data *obj, *obj_tmp;
-    struct Creature *mob;
+    struct creature *mob;
     struct zone_data *zone = NULL;
     struct room_data *room = NULL;
     int mode, i;
@@ -7303,7 +7303,7 @@ ACMD(do_mudwipe)
         send_to_char(ch, "Done.  trails retired\r\n");
     }
     if (mode == 3) {
-        CreatureList_iterator cit = characterList.begin();
+        struct creatureList_iterator cit = characterList.begin();
         for (; cit != characterList.end(); ++cit) {
             mob = *cit;
             if (!IS_NPC(mob))
@@ -7319,7 +7319,7 @@ ACMD(do_mudwipe)
         send_to_char(ch, "DONE.  Mobiles cleared of objects.\r\n");
     }
     if (mode == 3 || mode == 2 || mode == 0) {
-        CreatureList_iterator mit = characterList.begin();
+        struct creatureList_iterator mit = characterList.begin();
         for (; mit != characterList.end(); ++mit) {
             if (IS_NPC(*mit)) {
                 (*mit)->purge(true);
@@ -7371,7 +7371,7 @@ ACMD(do_zonepurge)
             if (ROOM_FLAGGED(rm, ROOM_GODROOM) || ROOM_FLAGGED(rm, ROOM_HOUSE))
                 continue;
 
-            CreatureList_iterator it = rm->people.begin();
+            struct creatureList_iterator it = rm->people.begin();
             for (; it != rm->people.end(); ++it) {
                 if (IS_MOB((*it))) {
                     (*it)->purge(true);
@@ -7411,10 +7411,10 @@ ACMD(do_zonepurge)
 
 ACMD(do_searchfor)
 {
-    struct Creature *mob = NULL;
+    struct creature *mob = NULL;
     struct obj_data *obj = NULL;
     byte mob_found = false, obj_found = false;
-    CreatureList_iterator cit = characterList.begin();
+    struct creatureList_iterator cit = characterList.begin();
     for (; cit != characterList.end(); ++cit) {
         mob = *cit;
         if (!mob->in_room) {
@@ -7447,7 +7447,7 @@ ACMD(do_searchfor)
 ACMD(do_oset)
 {
     struct obj_data *obj = NULL;
-    struct Creature *vict = NULL;
+    struct creature *vict = NULL;
     int where_worn = 0;
     char arg1[MAX_INPUT_LENGTH];
     int equip_mode = EQUIP_WORN;
@@ -7498,11 +7498,11 @@ static const char *show_mob_keys[] = {
 #define NUM_SHOW_MOB 8
 
 static void
-do_show_mobiles(struct Creature *ch, char *value, char *arg)
+do_show_mobiles(struct creature *ch, char *value, char *arg)
 {
 
     int i, j, k, l, command;
-    struct Creature *mob = NULL;
+    struct creature *mob = NULL;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     MobileMap_iterator mit;
     if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
@@ -7774,7 +7774,7 @@ ACMD(do_xlag)
 {
 
     int raw = 0;
-    struct Creature *vict = NULL;
+    struct creature *vict = NULL;
 
     argument = two_arguments(argument, buf, buf2);
 
@@ -7809,7 +7809,7 @@ ACMD(do_peace)
 {
     bool found = 0;
 
-    CreatureList_iterator it = ch->in_room->people.begin();
+    struct creatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         found = 1;
         (*it)->removeAllCombat();
@@ -7826,7 +7826,7 @@ ACMD(do_peace)
 
 ACMD(do_severtell)
 {
-    struct Creature *vict = NULL;
+    struct creature *vict = NULL;
 
     skip_spaces(&argument);
 
@@ -7979,11 +7979,11 @@ ACMD(do_coderutil)
 	} else if (strcmp(token, "verify") == 0) {
 		verify_tempus_integrity(ch);
 	} else if (strcmp(token, "chaos") == 0) {
-		CreatureList_iterator cit = characterList.begin();
+		struct creatureList_iterator cit = characterList.begin();
 
 		for (;cit != characterList.end();++cit) {
 			int ret_flags;
-			Creature *attacked;
+			struct creature *attacked;
             int old_mob2_flags = MOB2_FLAGS(*cit);
 
             MOB2_FLAGS(*cit) |= MOB2_ATK_MOBS;
@@ -8053,7 +8053,7 @@ ACMD(do_coderutil)
         }
         page_string(ch->desc, acc_get_string());
     } else if (strcmp(token, "inplayify") == 0) {
-        void save_zone(Creature *ch, zone_data *zone);
+        void save_zone(struct creature *ch, zone_data *zone);
 
         std_list<int> zones_todo;
         std_list<const char *> reasons;
@@ -8156,8 +8156,8 @@ ACMD(do_account)
     char token[MAX_INPUT_LENGTH];
 	int account_id = 0;
 	long vict_id = 0;
-	Account *account = NULL;
-	Creature *vict;
+	struct account *account = NULL;
+	struct creature *vict;
 
     if(!tokens.next(token)) {
         send_to_char( ch, "%s", ACCOUNT_USAGE );
@@ -8169,7 +8169,7 @@ ACMD(do_account)
 	} else if (strcmp(token, "enable") == 0) {
 		send_to_char(ch, "Not Implemented.\r\n");
 	} else if (strcmp(token, "movechar") == 0) {
-		Account *dst_account;
+		struct account *dst_account;
 
 		if (!tokens.next(token)) {
 			send_to_char(ch, "Specify a character id.\r\n");
@@ -8185,15 +8185,15 @@ ACMD(do_account)
 			return;
 		}
 
-		account_id = playerIndex.getAccountID(vict_id);
-		account = Account_retrieve(account_id);
+		account_id = playerIndex.getstruct accountID(vict_id);
+		account = struct account_retrieve(account_id);
 
         account_id = atoi(token);
-		if (!Account_exists(account_id)) {
+		if (!struct account_exists(account_id)) {
             send_to_char(ch, "That account does not exist.\r\n");
             return;
         }
-        dst_account = Account_retrieve(account_id);
+        dst_account = struct account_retrieve(account_id);
 		account->move_char(vict_id, dst_account);
 
 		// Update descriptor
@@ -8217,7 +8217,7 @@ ACMD(do_account)
 			return;
 		}
 		vict_id = atol(token);
-		account = Account_retrieve(account_id);
+		account = struct account_retrieve(account_id);
 		if( account == NULL ) {
 			send_to_char(ch, "No such account: %d\r\n",account_id);
 			return;
@@ -8230,16 +8230,16 @@ ACMD(do_account)
 		}
 
 		account_id = atoi(token);
-		account = Account_retrieve(account_id);
+		account = struct account_retrieve(account_id);
 		if (!account) {
 			send_to_char(ch, "No such account: %s\r\n", token);
 			return;
 		}
 
 		if (account->reload())
-			send_to_char(ch, "Account successfully reloaded from db\r\n");
+			send_to_char(ch, "struct account successfully reloaded from db\r\n");
 		else
-			send_to_char(ch, "Error: Account could not be reloaded\r\n");
+			send_to_char(ch, "Error: struct account could not be reloaded\r\n");
 		return;
 	} else {
 		send_to_char(ch, "%s", ACCOUNT_USAGE);
@@ -8249,7 +8249,7 @@ ACMD(do_account)
 ACMD(do_tester)
 {
     ACMD(do_gen_tog);
-    void do_start(struct Creature *ch, int mode);
+    void do_start(struct creature *ch, int mode);
 
     static const char* TESTER_UTIL_USAGE =
         "Options are:\r\n"        \
@@ -8442,7 +8442,7 @@ ACMD(do_tester)
     return;
 }
 
-static int do_freeze_char(char *argument, Creature *vict, Creature *ch)
+static int do_freeze_char(char *argument, struct creature *vict, struct creature *ch)
 {
     static const int ONE_MINUTE = 60;
     static const int ONE_HOUR   = 3600;
@@ -8530,7 +8530,7 @@ ACMD(do_users)
 
 	char *name_search = NULL, *host_search = NULL;
     const char *char_name, *account_name, *state;
-	struct Creature *tch;
+	struct creature *tch;
 	struct descriptor_data *d;
 	int low = 0, high = LVL_GRIMP, i, num_can_see = 0;
 	int showchar_class = 0, outlaws = 0, playing = 0, deadweight = 0;
@@ -8583,7 +8583,7 @@ ACMD(do_users)
 
     acc_string_clear();
     acc_strcat(
-		" Num Account      Character     State          Idl Login@   Site\r\n",
+		" Num struct account      Character     State          Idl Login@   Site\r\n",
 		" --- ------------ ------------- --------------- -- -------- ---------------\r\n",
         NULL);
 
@@ -8709,8 +8709,8 @@ ACMD(do_edit)
 ACMD(do_delete)
 {
 	char *name;
-	Creature *vict;
-	Account *acct;
+	struct creature *vict;
+	struct account *acct;
 	int vict_id, acct_id;
 	bool from_file;
 	char *tmp_name;
@@ -8734,8 +8734,8 @@ ACMD(do_delete)
 		return;
 	}
 
-	acct_id = playerIndex.getAccountID(name);
-	acct = Account_retrieve(acct_id);
+	acct_id = playerIndex.getstruct accountID(name);
+	acct = struct account_retrieve(acct_id);
 	if (!acct) {
 		errlog("Victim found without account");
 		send_to_char(ch, "The command mysteriously failed (XYZZY)\r\n");
@@ -8746,7 +8746,7 @@ ACMD(do_delete)
 	vict = get_char_in_world_by_idnum(vict_id);
 	from_file = !vict;
 	if (from_file) {
-		vict = new Creature(true);
+		vict = new struct creature(true);
 		if (!vict->loadFromXML(vict_id)) {
 			delete vict;
 			send_to_char(ch, "Error loading char from file.\r\n");
@@ -8793,7 +8793,7 @@ ACMD(do_badge)
 }
 
 static void
-check_log(Creature *ch, const char *fmt, ...)
+check_log(struct creature *ch, const char *fmt, ...)
 {
     const int MAX_FRAMES = 10;
 	va_list args;
@@ -8824,7 +8824,7 @@ check_log(Creature *ch, const char *fmt, ...)
 }
 
 static bool
-check_ptr(Creature *ch __attribute__ ((unused)),
+check_ptr(struct creature *ch __attribute__ ((unused)),
           void *ptr __attribute__ ((unused)),
           size_t expected_len __attribute__ ((unused)),
           const char *str __attribute__ ((unused)),
@@ -8855,11 +8855,11 @@ check_ptr(Creature *ch __attribute__ ((unused)),
 }
 
 void
-verify_tempus_integrity(Creature *ch)
+verify_tempus_integrity(struct creature *ch)
 {
 	MobileMap_iterator mit;
-    CreatureList_iterator cit;
-	Creature *vict;
+    struct creatureList_iterator cit;
+	struct creature *vict;
 	obj_data *obj, *contained;
 	room_data *room;
 	zone_data *zone;
@@ -9078,7 +9078,7 @@ verify_tempus_integrity(Creature *ch)
          ++cit) {
         vict = *cit;
 
-        check_ptr(ch, vict, sizeof(Creature),
+        check_ptr(ch, vict, sizeof(struct creature),
                              "mobile", GET_MOB_VNUM(vict));
         for (idx = 0;idx < NUM_WEARS;idx++) {
             if (GET_EQ(vict, idx)
@@ -9148,9 +9148,9 @@ verify_tempus_integrity(Creature *ch)
                              "room location of object", obj->unique_id);
         check_ptr(ch, obj->in_obj, sizeof(obj_data),
                              "object location of object", obj->unique_id);
-        check_ptr(ch, obj->carried_by, sizeof(Creature),
+        check_ptr(ch, obj->carried_by, sizeof(struct creature),
                              "carried_by location of object", obj->unique_id);
-        check_ptr(ch, obj->worn_by, sizeof(Creature),
+        check_ptr(ch, obj->worn_by, sizeof(struct creature),
                              "worn_by location of object", obj->unique_id);
         check_ptr(ch, obj->func_data, 0,
                              "special data of object", obj->unique_id);

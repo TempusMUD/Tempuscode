@@ -82,7 +82,7 @@ room_is_light(room_data *room)
 
 // Returns true if the creature possesses infravision
 bool
-has_infravision(Creature *ch)
+has_infravision(struct creature *ch)
 {
 	return (AFF_FLAGGED(ch, AFF_INFRAVISION) ||
 		(GET_RACE(ch) == RACE_ELF) ||
@@ -102,14 +102,14 @@ has_infravision(Creature *ch)
 
 // Returns true if the player can see at all, regardless of other influences
 bool
-check_sight_self(Creature *self)
+check_sight_self(struct creature *self)
 {
 	return !AFF_FLAGGED(self, AFF_BLIND) ||
 			AFF3_FLAGGED(self, AFF3_SONIC_IMAGERY);
 }
 
 bool
-has_dark_sight(Creature *self)
+has_dark_sight(struct creature *self)
 {
 	return (has_infravision(self) ||
 			PRF_FLAGGED(self, PRF_HOLYLIGHT) ||
@@ -120,7 +120,7 @@ has_dark_sight(Creature *self)
 
 // Returns true if the player can see in the room
 bool
-check_sight_room(Creature *self, room_data *room)
+check_sight_room(struct creature *self, room_data *room)
 {
 	if (!room) {
 		errlog("check_sight_room() called with NULL room");
@@ -139,7 +139,7 @@ check_sight_room(Creature *self, room_data *room)
 
 // Returns true if a creature can see an object
 bool
-check_sight_object(Creature *self, obj_data *obj)
+check_sight_object(struct creature *self, obj_data *obj)
 {
 	if (PRF_FLAGGED(self, PRF_HOLYLIGHT))
 		return true;
@@ -166,7 +166,7 @@ check_sight_object(Creature *self, obj_data *obj)
 
 // Returns true if a creature can see another creature
 bool
-check_sight_vict(Creature *self, Creature *vict)
+check_sight_vict(struct creature *self, struct creature *vict)
 {
 	// Immortals players can always see non-immortal players
 	if (IS_IMMORT(self) && !IS_IMMORT(vict))
@@ -215,7 +215,7 @@ check_sight_vict(Creature *self, Creature *vict)
 }
 
 bool
-can_see_creature(Creature *self, Creature *vict)
+can_see_creature(struct creature *self, struct creature *vict)
 {
 	// Can always see self
 	if (self == vict)
@@ -250,7 +250,7 @@ can_see_creature(Creature *self, Creature *vict)
 }
 
 bool
-can_see_object(Creature *self, obj_data *obj)
+can_see_object(struct creature *self, obj_data *obj)
 {
 	// If they can't see the object itself, none of the rest of it is going
 	// to matter much
@@ -289,7 +289,7 @@ can_see_object(Creature *self, obj_data *obj)
 }
 
 bool
-can_see_room(Creature *self, room_data *room)
+can_see_room(struct creature *self, room_data *room)
 {
 	if (!check_sight_self(self))
 		return false;

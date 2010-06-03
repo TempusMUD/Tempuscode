@@ -8,7 +8,7 @@ SPECIAL(killer_hunter)
 {
 	ACMD(do_gen_comm);
 	char buf2[MAX_STRING_LENGTH];
-	struct Creature *hunter = (struct Creature *)me;
+	struct creature *hunter = (struct creature *)me;
 	struct descriptor_data *d = NULL;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)

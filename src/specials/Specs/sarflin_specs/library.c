@@ -15,7 +15,7 @@
 
 #include <unistd.h>
 void
-read_page(FILE * fh, int page, struct Creature *ch)
+read_page(FILE * fh, int page, struct creature *ch)
 {
 	long *list;
 	size_t count;

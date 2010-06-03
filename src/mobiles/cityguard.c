@@ -38,7 +38,7 @@ SPECIAL(guard);
 void
 summon_cityguards(room_data *room)
 {
-	CreatureList_iterator it;
+	struct creatureList_iterator it;
 	cityguard_data *data;
 	int distance;
 
@@ -63,7 +63,7 @@ summon_cityguards(room_data *room)
 }
 
 bool
-char_is_arrested(Creature *ch)
+char_is_arrested(struct creature *ch)
 {
 	memory_rec_struct *cur_mem;
 
@@ -78,7 +78,7 @@ char_is_arrested(Creature *ch)
 }
 
 void
-char_under_arrest(Creature *ch)
+char_under_arrest(struct creature *ch)
 {
 	memory_rec_struct *new_mem;
 
@@ -95,7 +95,7 @@ char_under_arrest(Creature *ch)
 }
 
 void
-char_arrest_pardoned(Creature *ch)
+char_arrest_pardoned(struct creature *ch)
 {
 	memory_rec_struct *cur_mem, *next_mem;
 
@@ -119,7 +119,7 @@ char_arrest_pardoned(Creature *ch)
 }
 
 void
-call_for_help(Creature *ch, Creature *attacker)
+call_for_help(struct creature *ch, struct creature *attacker)
 {
 	const char *msg;
 
@@ -161,10 +161,10 @@ call_for_help(Creature *ch, Creature *attacker)
 }
 
 void
-breakup_fight(Creature *ch, Creature *vict1, Creature *vict2)
+breakup_fight(struct creature *ch, struct creature *vict1, struct creature *vict2)
 {
-	CreatureList_iterator it;
-	Creature *tch;
+	struct creatureList_iterator it;
+	struct creature *tch;
 
 	for (it = ch->in_room->people.begin();it != ch->in_room->people.end();it++) {
 		tch = *it;
@@ -192,7 +192,7 @@ breakup_fight(Creature *ch, Creature *vict1, Creature *vict2)
 }
 
 int
-throw_char_in_jail(struct Creature *ch, struct Creature *vict)
+throw_char_in_jail(struct creature *ch, struct creature *vict)
 {
 	room_num jail_cells[6] = { 10908, 10910, 10911, 10921, 10920, 10919 };
 	struct room_data *locker_room, *cell_room;
@@ -291,9 +291,9 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 }
 
 int
-drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
+drag_char_to_jail(struct creature *ch, struct creature *vict, room_data *jail_room)
 {
-	CreatureList_iterator it;
+	struct creatureList_iterator it;
 	cityguard_data *data;
 	int dir;
 
@@ -347,7 +347,7 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 }
 
 bool
-is_fighting_cityguard(Creature *ch)
+is_fighting_cityguard(struct creature *ch)
 {
     CombatDataList_iterator li;
 
@@ -365,15 +365,15 @@ is_fighting_cityguard(Creature *ch)
 
 SPECIAL(cityguard)
 {
-	Creature *self = (struct Creature *)me;
-	Creature *tch, *target = NULL, *new_guard;
+	struct creature *self = (struct creature *)me;
+	struct creature *tch, *target = NULL, *new_guard;
 	cityguard_data *data;
 	char *str, *line, *param_key;
 	int action, dir;
 	int jail_num = 0, hq_num = 0;
 	room_data *room;
 	bool lawful;
-	CreatureList_iterator it;
+	struct creatureList_iterator it;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_DEATH)
 		return 0;
@@ -607,7 +607,7 @@ SPECIAL(cityguard)
 			perform_say(self, "declare", "Here now!");
             break;
 		}
-        Creature *vict = target->findRandomCombat();
+        struct creature *vict = target->findRandomCombat();
         if (vict)
 		    breakup_fight(self, target, vict);
 		return true;
