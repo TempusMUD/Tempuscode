@@ -33,7 +33,7 @@
 #include "prog.h"
 #include "accstr.h"
 
-extern std::map<int,room_data*> rooms;
+extern std_map<int,room_data*> rooms;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern int top_of_world;
@@ -485,7 +485,7 @@ do_destroy_room(struct Creature *ch, int vnum)
 			}
 		}
 	}
-	CreatureList::iterator it = rm->people.begin();
+	CreatureList_iterator it = rm->people.begin();
 	for (; it != rm->people.end(); ++it) {
 		vict = *it;
 		send_to_char(vict,
@@ -1124,12 +1124,12 @@ ACMD(do_hedit)
 		return;
 	}
 
-	if( !house->isOwner(ch) && !Security::isMember(ch, "House") ) {
+	if( !house->isOwner(ch) && !Security_isMember(ch, "House") ) {
 		send_to_char(ch, "Only the owner can edit the house.\r\n");
 		return;
 	}
 
-	if( house->getType() == House::RENTAL ) {
+	if( house->getType() == House_RENTAL ) {
 		send_to_char(ch, "You cannot edit rental houses.\r\n");
 		return;
 	}
@@ -1209,7 +1209,7 @@ ACMD(do_hedit)
 				tot_num += num;
 				acc_sprintf("%s%-30s%s      %s%5d%s   %10d\r\n",
 					CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM),
-					(num > House::MAX_ITEMS) ? CCRED(ch, C_NRM) : "",
+					(num > House_MAX_ITEMS) ? CCRED(ch, C_NRM) : "",
 					num, CCNRM(ch, C_NRM), cost);
 			}
 			if (!local)

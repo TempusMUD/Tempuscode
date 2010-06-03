@@ -117,7 +117,7 @@ char_can_enroll(Creature *ch, Creature *vict, clan_data *clan)
         return false;
     }
 
-    if (Security::isMember(ch, "Clan"))
+    if (Security_isMember(ch, "Clan"))
         return true;
     // Enrollment conditions that don't apply to clan administrators
     else if (PLR_FLAGGED(vict, PLR_FROZEN))
@@ -147,7 +147,7 @@ char_can_dismiss(Creature *ch, Creature *vict, clan_data *clan)
         send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
     else if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-    else if (Security::isMember(ch, "Clan"))
+    else if (Security_isMember(ch, "Clan"))
         return true;
     // Dismissal conditions that don't apply to clan administrators
     else if (!clan)
@@ -182,7 +182,7 @@ char_can_promote(Creature *ch, Creature *vict, clan_data *clan)
     else if (vict_member->rank >= clan->top_rank
              && PLR_FLAGGED(vict, PLR_CLAN_LEADER))
 		send_to_char(ch, "That person is already at the top rank.\r\n");
-    else if (Security::isMember(ch, "Clan"))
+    else if (Security_isMember(ch, "Clan"))
         return true;
     // Promotion conditions that don't apply to clan administrators
     else if (!clan)
@@ -214,7 +214,7 @@ ACMD(do_enroll)
 
 	member_str = tmp_getword(&argument);
 
-	if (Security::isMember(ch, "Clan")) {
+	if (Security_isMember(ch, "Clan")) {
 		char *clan_str = tmp_getword(&argument);
 
 		if (!*clan_str) {
@@ -268,7 +268,7 @@ ACMD(do_dismiss)
 	arg = tmp_getword(&argument);
 	skip_spaces(&argument);
 
-	if (!clan && !Security::isMember(ch, "Clan")) {
+	if (!clan && !Security_isMember(ch, "Clan")) {
 		send_to_char(ch, "Try joining a clan first.\r\n");
 		return;
 	} else if (!*arg) {
@@ -451,7 +451,7 @@ ACMD(do_demote)
 		act("$N is not properly installed in the clan.\r\n",
 			false, ch, 0, vict, TO_CHAR);
 	} else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
-		&& !Security::isMember(ch, "Clan")) {
+		&& !Security_isMember(ch, "Clan")) {
 		send_to_char(ch, "You are unable to demote.\r\n");
 	} else if (member2->rank >= member1->rank
 		|| PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
@@ -847,12 +847,12 @@ ACMD(do_cedit)
 		return;
 	}
 
-	if (!Security::isMember(ch, "Clan")) {
+	if (!Security_isMember(ch, "Clan")) {
 		send_to_char(ch, "Sorry, you can't use the cedit command.\r\n");
 	}
 
 	if (cedit_keys[cedit_command].level == 1
-		&& !Security::isMember(ch, "WizardFull")) {
+		&& !Security_isMember(ch, "WizardFull")) {
 		send_to_char(ch, "Sorry, you can't use that cedit command.\r\n");
 		return;
 	}
@@ -1512,7 +1512,7 @@ delete_clan(struct clan_data *clan)
 	sql_exec("delete from clan_ranks where clan=%d", clan->number);
 	sql_exec("delete from clans where idnum=%d", clan->number);
 
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (IS_PC(*cit) && GET_CLAN(*cit) == clan->number) {
 			GET_CLAN(*cit) = 0;
@@ -1577,7 +1577,7 @@ do_show_clan(struct Creature *ch, struct clan_data *clan)
                                         CCNRM(ch, C_NRM),
                                         clan_rankname(clan, member->rank),
                                         member->rank),
-                            Account::retrieve(acct_id)->get_name(),
+                            Account_retrieve(acct_id)->get_name(),
                             acct_id);
             }
         } else {
@@ -1613,7 +1613,7 @@ clan_house_can_enter(struct Creature *ch, struct room_data *room)
 		return 1;
 	if (GET_LEVEL(ch) >= LVL_DEMI)
 		return 1;
-	if (Security::isMember(ch, "Clan"))
+	if (Security_isMember(ch, "Clan"))
 		return 1;
 	if (!(ch_clan = real_clan(GET_CLAN(ch))))
 		return 0;

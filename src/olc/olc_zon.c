@@ -1952,7 +1952,7 @@ do_zset_command(struct Creature *ch, char *argument)
 		return;
 		break;
 	case 2:					/*  top   */
-		if(! Security::isMember(ch, "OLCWorldWrite") ) {
+		if(! Security_isMember(ch, "OLCWorldWrite") ) {
 			send_to_char(ch, "You cannot alter zones in this way.\r\n");
 			return;
 		}
@@ -2162,7 +2162,7 @@ do_zset_command(struct Creature *ch, char *argument)
 			else {
 				j = zone->number * 100;
 				k = zone->top;
-				MobileMap::iterator mit = mobilePrototypes.begin();
+				MobileMap_iterator mit = mobilePrototypes.begin();
 				for (; mit != mobilePrototypes.end(); ++mit) {
 					vict = mit->second;
 					if (GET_MOB_VNUM(vict) > k)

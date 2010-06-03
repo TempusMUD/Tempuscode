@@ -56,7 +56,7 @@ extern const char *race_language[][2];
 bool
 OLCIMP(Creature * ch)
 {
-	if (Security::isMember(ch, "OLCWorldWrite"))
+	if (Security_isMember(ch, "OLCWorldWrite"))
 		return true;
 	return false;
 }
@@ -1617,7 +1617,7 @@ recalc_all_mobs(Creature *ch, const char *argument)
 
 	struct Creature *mob;
 	struct zone_data *zone;
-	MobileMap::iterator mit = mobilePrototypes.begin();
+	MobileMap_iterator mit = mobilePrototypes.begin();
 	int count = 0;
 	FILE *outfile = NULL;
 	bool exptest = false;
@@ -2301,7 +2301,7 @@ ACMD(do_unapprove)
         last = ch->in_room->zone->top;
 
         if (*arg3 && (is_abbrev(arg3, "mob") || is_abbrev(arg3, "all"))) {
-            MobileMap::iterator mit = mobilePrototypes.begin();
+            MobileMap_iterator mit = mobilePrototypes.begin();
             for (mit = mobilePrototypes.lower_bound(first);
                  mit != mobilePrototypes.upper_bound(last); ++mit) {
                 mob = mit->second;
@@ -2313,7 +2313,7 @@ ACMD(do_unapprove)
 			    zone->number, zone->name);
         }
         if (*arg3 && (is_abbrev(arg3, "object") || is_abbrev(arg3, "all"))) {
-            ObjectMap::iterator oi;
+            ObjectMap_iterator oi;
             for (oi = objectPrototypes.lower_bound(first);
                  oi != objectPrototypes.upper_bound(last); ++oi) {
                 obj = oi->second;
@@ -2348,7 +2348,7 @@ ACMD(do_unapprove)
 		}
 
 		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !Security::isMember(ch, "OLCApproval")) {
+			&& !Security_isMember(ch, "OLCApproval")) {
 			send_to_char(ch, "You can't unapprove this, BEANHEAD!\r\n");
 			return;
 		}
@@ -2387,7 +2387,7 @@ ACMD(do_unapprove)
 		}
 
 		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !Security::isMember(ch, "OLCApproval")) {
+			&& !Security_isMember(ch, "OLCApproval")) {
 			send_to_char(ch, "You can't unapprove this, BEANHEAD!\r\n");
 			return;
 		}
@@ -2472,7 +2472,7 @@ ACMD(do_approve)
         last = ch->in_room->zone->top;
 
         if (*arg3 && (is_abbrev(arg3, "mob") || is_abbrev(arg3, "all"))) {
-            MobileMap::iterator mit = mobilePrototypes.begin();
+            MobileMap_iterator mit = mobilePrototypes.begin();
             for (mit = mobilePrototypes.lower_bound(first);
                  mit != mobilePrototypes.upper_bound(last); ++mit) {
                 mob = mit->second;
@@ -2484,7 +2484,7 @@ ACMD(do_approve)
                 zone->name);
         }
         if (*arg3 && (is_abbrev(arg3, "object") || is_abbrev(arg3, "all"))) {
-            ObjectMap::iterator oi;
+            ObjectMap_iterator oi;
             struct obj_data *obj;
             for (oi = objectPrototypes.lower_bound(first);
                  oi != objectPrototypes.upper_bound(last); ++oi) {
@@ -2520,7 +2520,7 @@ ACMD(do_approve)
 		}
 
 		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !Security::isMember(ch, "OLCApproval")) {
+			&& !Security_isMember(ch, "OLCApproval")) {
 			send_to_char(ch, "You can't approve your own objects, silly.\r\n");
 			return;
 		}
@@ -2559,7 +2559,7 @@ ACMD(do_approve)
 		}
 
 		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !Security::isMember(ch, "OLCApproval")) {
+			&& !Security_isMember(ch, "OLCApproval")) {
 			send_to_char(ch, "You can't approve your own mobiles, silly.\r\n");
 			return;
 		}
@@ -2584,11 +2584,11 @@ ACMD(do_approve)
 bool
 CAN_EDIT_ZONE(Creature *ch, struct zone_data * zone)
 {
-	if (Security::isMember(ch, "OLCWorldWrite")
+	if (Security_isMember(ch, "OLCWorldWrite")
 		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
 		return true;
 
-	if (Security::isMember(ch, "OLCProofer") && !IS_APPR(zone))
+	if (Security_isMember(ch, "OLCProofer") && !IS_APPR(zone))
 		return true;
 
 	if (zone->owner_idnum == GET_IDNUM(ch))
@@ -2605,7 +2605,7 @@ bool
 OLC_EDIT_OK(Creature *ch, struct zone_data * zone, int bits)
 {
 
-	if (Security::isMember(ch, "OLCWorldWrite")
+	if (Security_isMember(ch, "OLCWorldWrite")
 		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
 		return true;
 

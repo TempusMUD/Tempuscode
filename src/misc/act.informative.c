@@ -928,7 +928,7 @@ list_char_to_char(struct Creature *list, struct Creature *ch)
 	if (list == NULL)
 		return;
 
-	CreatureList::iterator it = list->in_room->people.begin();
+	CreatureList_iterator it = list->in_room->people.begin();
 	for (; it != list->in_room->people.end(); ++it) {
 		i = *it;
 		is_group = false;
@@ -1080,7 +1080,7 @@ list_scanned_chars(Creature *list, Creature *ch, int distance, int door)
 
 	/* this loop is a quick, easy way to help make a grammatical sentence
 	   (i.e., "You see x, x, y, and z." with commas, "and", etc.) */
-	CreatureList::iterator it = list->in_room->people.begin();
+	CreatureList_iterator it = list->in_room->people.begin();
 	for (; it != list->in_room->people.end(); ++it) {
 
 		/* put any other conditions for scanning someone in this if statement -
@@ -1960,7 +1960,7 @@ ACMD(do_listen)
 		send_to_char(ch, "%s", ch->in_room->sounds);
 		return;
 	}
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it)->isFighting()) {
 			fighting_vict = *it;
@@ -2053,9 +2053,9 @@ ACMD(do_listen)
 					!IS_SET(ch->in_room->dir_option[i]->exit_info,
 						EX_CLOSED)) {
 
-					CreatureList::iterator end =
+					CreatureList_iterator end =
 						ch->in_room->dir_option[i]->to_room->people.end();
-					CreatureList::iterator it =
+					CreatureList_iterator it =
 						ch->in_room->dir_option[i]->to_room->people.begin();
 					for (; it != end; ++it) {
 						fighting_vict = *it;
@@ -3171,9 +3171,9 @@ whoString(Creature *ch, Creature *target) {
         out << CCNRM(ch, C_NRM) << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << ']';
 	} else { //show level/class
 		out << CCGRN(ch, C_NRM) << '[';
-        if (PRF2_FLAGGED(target, PRF2_ANONYMOUS) && !Security::isMember(ch, Security::ADMINBASIC)) {
+        if (PRF2_FLAGGED(target, PRF2_ANONYMOUS) && !Security_isMember(ch, Security::ADMINBASIC)) {
 			out << CCCYN(ch, C_NRM) << "--";
-		} else if (Security::isMember(ch, Security::ADMINBASIC)) {
+		} else if (Security_isMember(ch, Security::ADMINBASIC)) {
 			if (PRF2_FLAGGED(target, PRF2_ANONYMOUS)) {
 				out << CCRED(ch, C_NRM);
 			} else {
@@ -3224,7 +3224,7 @@ whoFlagsString(Creature *ch, Creature *target) {
 	//clan badge
 	if (real_clan(GET_CLAN(target))) {
 		if (PRF2_FLAGGED(target, PRF2_CLAN_HIDE)) {
-			if (Security::isMember(ch, Security::ADMINBASIC)) {
+			if (Security_isMember(ch, Security::ADMINBASIC)) {
 				out << CCCYN(ch, C_NRM) << " )" << real_clan(GET_CLAN(target))->name;
 				out << '(' << CCNRM(ch, C_NRM);
 			}
@@ -3294,8 +3294,7 @@ whoKillsString(Creature *ch, Creature *target) {
 	return out.str();
 }
 
-class WhoListComparator {
-	public:
+struct WhoListComparator {
 		bool operator()(Creature *a, Creature *b)
 		{
 			time_t now, time_a, time_b;
@@ -3324,8 +3323,8 @@ ACMD(do_who)
 
 	struct descriptor_data *d;
 	ostringstream out;
-	std::vector<Creature *> immortals, testers, players;
-	std::vector<Creature *>::iterator cit;
+	std_vector<Creature *> immortals, testers, players;
+	std_vector<Creature *>::iterator cit;
 	Creature *curr;
 	int playerTotal=0, immTotal=0;
 	const char *tester_s="s";
@@ -3337,65 +3336,65 @@ ACMD(do_who)
 
 	string args = argument;
 
-    if (args.find("zone") != string::npos) {
+    if (args.find("zone") != string_npos) {
 		zone = true;
 	}
-	if (args.find("plane") != string::npos) {
+	if (args.find("plane") != string_npos) {
 		plane = true;
 	}
-	if (args.find("time") != string::npos) {
+	if (args.find("time") != string_npos) {
 		time = true;
 	}
-	if (args.find("kills") != string::npos) {
+	if (args.find("kills") != string_npos) {
 		kills = true;
 	}
-	if (args.find("noflags") != string::npos) {
+	if (args.find("noflags") != string_npos) {
 		noflags = true;
 	}
-	if (args.find("class") != string::npos) {
+	if (args.find("class") != string_npos) {
 		classes = true;
-		if (args.find("mag") != string::npos) {
+		if (args.find("mag") != string_npos) {
 			mage = true;
 		}
-		if (args.find("thi") != string::npos) {
+		if (args.find("thi") != string_npos) {
 			thief = true;
 		}
-		if (args.find("ran") != string::npos) {
+		if (args.find("ran") != string_npos) {
 			ranger = true;
 		}
-		if (args.find("kni") != string::npos) {
+		if (args.find("kni") != string_npos) {
 			knight = true;
 		}
-		if (args.find("cle") != string::npos) {
+		if (args.find("cle") != string_npos) {
 			cleric = true;
 		}
-		if (args.find("barb") != string::npos) {
+		if (args.find("barb") != string_npos) {
 			barbarian = true;
 		}
-		if (args.find("bard") != string::npos) {
+		if (args.find("bard") != string_npos) {
 			bard = true;
 		}
-		if (args.find("mon") != string::npos) {
+		if (args.find("mon") != string_npos) {
 			monk = true;
 		}
-		if (args.find("phy") != string::npos) {
+		if (args.find("phy") != string_npos) {
 			physic = true;
 		}
-		if (args.find("cyb") != string::npos || args.find("borg") != string::npos) {
+		if (args.find("cyb") != string_npos || args.find("borg") != string::npos) {
 			cyborg = true;
 		}
-		if (args.find("psi") != string::npos) {
+		if (args.find("psi") != string_npos) {
 			psionic = true;
 		}
-		if (args.find("mer") != string::npos) {
+		if (args.find("mer") != string_npos) {
 			mercenary = true;
 		}
 	}
-	if (args.find("clan") != string::npos) {
+	if (args.find("clan") != string_npos) {
 		clan = true;
-        string::size_type start = args.find(' ', args.find("clan"));
-        string::size_type end = args.find(' ', start+1);
-        if (start == string::npos || start == end) {
+        string_size_type start = args.find(' ', args.find("clan"));
+        string_size_type end = args.find(' ', start+1);
+        if (start == string_npos || start == end) {
             realClan = NULL;
         } else {
             char *clanName = tmp_strdup(args.substr(start, end).c_str());
@@ -3461,7 +3460,7 @@ ACMD(do_who)
 			//not in clan
 			if (realClan->number != GET_CLAN(curr) ||
 			//not able to see the clan
-			(PRF2_FLAGGED(curr, PRF2_CLAN_HIDE) && !Security::isMember(ch, Security::ADMINBASIC))) {
+			(PRF2_FLAGGED(curr, PRF2_CLAN_HIDE) && !Security_isMember(ch, Security::ADMINBASIC))) {
 				continue;
 			}
 		}
@@ -3487,9 +3486,9 @@ ACMD(do_who)
 			players.push_back(curr);
 	}
 
-	std::sort(immortals.begin(), immortals.end(), WhoListComparator());
-	std::sort(testers.begin(), testers.end(), WhoListComparator());
-	std::sort(players.begin(), players.end(), WhoListComparator());
+	std_sort(immortals.begin(), immortals.end(), WhoListComparator());
+	std_sort(testers.begin(), testers.end(), WhoListComparator());
+	std_sort(players.begin(), players.end(), WhoListComparator());
 
 	out << CCNRM(ch, C_SPR) << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
 	out << "Visible Players of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
@@ -3647,7 +3646,7 @@ print_object_location(int num, struct obj_data *obj,
 **/
 
 bool isWhereMatch( const list<char *> &req, const list<char *> &exc, obj_data *thing) {
-    list<char *>::const_iterator reqit, excit;
+    list<char *>_const_iterator reqit, excit;
 
 	if (!thing->aliases)
 		return false;
@@ -3674,7 +3673,7 @@ bool isWhereMatch( const list<char *> &req, const list<char *> &exc, obj_data *t
 **/
 bool
 isWhereMatch( const list<char *> &req, const list<char *> &exc, Creature *mob) {
-    list<char *>::const_iterator reqit, excit;
+    list<char *>_const_iterator reqit, excit;
 
     for(reqit = req.begin(); reqit != req.end(); reqit++) {
         if(!isname(*reqit, mob->player.name)) {
@@ -3796,7 +3795,7 @@ perform_immort_where(struct Creature *ch, char *arg, bool show_morts)
 		list <string> outList;
 
 		if(!no_mob) {
-            CreatureList::iterator cit = characterList.begin();
+            CreatureList_iterator cit = characterList.begin();
             for (; cit != characterList.end(); ++cit) {
                 i = *cit;
                 if (can_see_creature(ch, i) && i->in_room && isWhereMatch(required, excluded, i) &&
@@ -3832,7 +3831,7 @@ perform_immort_where(struct Creature *ch, char *arg, bool show_morts)
 
 		if (found) {
 			main_buf[0] = '\0';
-			list <string>::iterator it = outList.begin();
+			list <string>_iterator it = outList.begin();
 			int space = MAX_STRING_LENGTH - 128;
 			for (; it != outList.end(); it++) {
 				space -= (*it).length();
@@ -3854,9 +3853,9 @@ ACMD(do_where)
 {
 	skip_spaces(&argument);
 
-	if (Security::isMember(ch, "Questor,AdminBasic,WizardBasic") ||
+	if (Security_isMember(ch, "Questor,AdminBasic,WizardBasic") ||
 		(IS_MOB(ch) && ch->desc && ch->desc->original &&
-			Security::isMember(ch->desc->original, "Questor,AdminBasic,WizardBasic")))
+			Security_isMember(ch->desc->original, "Questor,AdminBasic,WizardBasic")))
 	  perform_immort_where(ch, argument, true);
 	else if (IS_IMMORT(ch)) {
 	  perform_immort_where(ch, argument, false);
@@ -4559,7 +4558,7 @@ ACMD(do_commands)
 			continue;
 		if (level < cmd_info[i].minimum_level)
 			continue;
-        if (!Security::canAccess(ch, &cmd_info[i]))
+        if (!Security_canAccess(ch, &cmd_info[i]))
             continue;
 		if (wizhelp && (cmd_info[i].minimum_level < LVL_AMBASSADOR))
 			continue;

@@ -1,5 +1,4 @@
-class hunt_data {
-	public:
+struct hunt_data {
 		hunt_data(int hunt_id, int vict) : idnum(hunt_id), vict_id(vict) {}
 		bool operator==(int id) { return idnum == id; }
 
@@ -29,7 +28,7 @@ load_bounty_data(void)
 void
 remove_bounties(int char_id)
 {
-	vector <hunt_data>::iterator hunt;
+	vector <hunt_data>_iterator hunt;
 	bool removed = true;
 
 	while (removed) {
@@ -62,7 +61,7 @@ get_bounty_amount(int idnum)
 bool
 is_bountied(Creature *hunter, Creature *vict)
 {
-	vector <hunt_data>::iterator hunt;
+	vector <hunt_data>_iterator hunt;
 	hunt = find(hunt_list.begin(), hunt_list.end(), GET_IDNUM(hunter));
 	// no hunt record for this killer
 	if (hunt == hunt_list.end())
@@ -79,7 +78,7 @@ is_bountied(Creature *hunter, Creature *vict)
 bool
 award_bounty(Creature *killer, Creature *vict)
 {
-	vector <hunt_data>::iterator hunt;
+	vector <hunt_data>_iterator hunt;
 	struct follow_type *f;
 	int count, amt, amt_left;
 
@@ -186,7 +185,7 @@ award_bounty(Creature *killer, Creature *vict)
 int
 get_hunted_id(int hunter_id)
 {
-	vector <hunt_data>::iterator hunt;
+	vector <hunt_data>_iterator hunt;
 
 	if (!hunter_id)
 		return 0;
@@ -202,7 +201,7 @@ int
 register_bounty(Creature *self, Creature *ch, char *argument)
 {
 	const char USAGE[] = "Usage: register bounty <player>";
-	vector <hunt_data>::iterator hunt;
+	vector <hunt_data>_iterator hunt;
 	char *str, *vict_name;
 	Creature vict(true);
 

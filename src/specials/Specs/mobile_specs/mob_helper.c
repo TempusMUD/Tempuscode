@@ -13,7 +13,7 @@ SPECIAL(mob_helper)
 		return 0;
 	if (cmd || ch->isFighting())
 		return 0;
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		helpee = *it;
         // Being drawn into combat via a death cry will cause this

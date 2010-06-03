@@ -168,7 +168,7 @@ check_attack(Creature *attacker, Creature *victim)
     mudlog(LVL_IMMORT, CMP, true,
            "%s gained %d reputation for attacking %s", GET_NAME(perp),
            gain, GET_NAME(victim));
-    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance::ATTACK));
+    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance_ATTACK));
 }
 
 void
@@ -197,7 +197,7 @@ count_pkill(Creature *killer, Creature *victim)
     mudlog(LVL_IMMORT, CMP, true,
            "%s gained %d reputation for murdering %s", GET_NAME(perp),
            gain, GET_NAME(victim));
-    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance::MURDER));
+    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance_MURDER));
 }
 
 
@@ -220,7 +220,7 @@ check_thief(struct Creature *ch, struct Creature *victim)
     mudlog(LVL_IMMORT, CMP, true,
            "%s gained %d reputation for stealing from %s", GET_NAME(perp),
            gain, GET_NAME(victim));
-    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance::THEFT));
+    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance_THEFT));
 
     if (is_arena_combat(ch, victim))
     	mudlog(LVL_POWER, CMP, true,
@@ -245,7 +245,7 @@ struct grievance_time : public unary_function<const Grievance, int> {
 void
 perform_pardon(Creature *ch, Creature *pardoned)
 {
-    std::list<Grievance>::iterator grievance_it;
+    std_list<Grievance>::iterator grievance_it;
 
     // If there's a grievance, enact the reputation increase for each one
     for (grievance_it = GET_GRIEVANCES(ch).begin();
@@ -253,11 +253,11 @@ perform_pardon(Creature *ch, Creature *pardoned)
          ++grievance_it) {
         if (grievance_it->_player_id == GET_IDNUM(pardoned)) {
 
-            if (grievance_it->_grievance == Grievance::MURDER) {
+            if (grievance_it->_grievance == Grievance_MURDER) {
                 mudlog(LVL_IMMORT, CMP, true,
                        "%s recovered %d reputation for murdering %s", GET_NAME(pardoned),
                        grievance_it->_rep, GET_NAME(ch));
-            } else if (grievance_it->_grievance == Grievance::ATTACK) {
+            } else if (grievance_it->_grievance == Grievance_ATTACK) {
                 mudlog(LVL_IMMORT, CMP, true,
                        "%s recovered %d reputation for attacking %s", GET_NAME(pardoned),
                        grievance_it->_rep, GET_NAME(ch));
@@ -271,10 +271,10 @@ perform_pardon(Creature *ch, Creature *pardoned)
         }
     }
 
-    std::list<Grievance>::iterator last_it =
-        std::remove_if(GET_GRIEVANCES(ch).begin(),
+    std_list<Grievance>::iterator last_it =
+        std_remove_if(GET_GRIEVANCES(ch).begin(),
                        GET_GRIEVANCES(ch).end(),
-                       __gnu_cxx::compose1(std::bind2nd(std::equal_to<int>(),
+                       __gnu_cxx_compose1(std::bind2nd(std::equal_to<int>(),
                                                         GET_IDNUM(pardoned)),
                                            grievance_player_id()));
     GET_GRIEVANCES(ch).erase(last_it, GET_GRIEVANCES(ch).end());
@@ -285,11 +285,11 @@ void
 expire_old_grievances(Creature *ch)
 {
     time_t min_time = time(NULL) - 86400;
-    std::list<Grievance>::iterator last_it =
-        std::remove_if(GET_GRIEVANCES(ch).begin(),
+    std_list<Grievance>::iterator last_it =
+        std_remove_if(GET_GRIEVANCES(ch).begin(),
                        GET_GRIEVANCES(ch).end(),
-                       __gnu_cxx::compose1(
-                           std::bind2nd(std::less<time_t>(), min_time),
+                       __gnu_cxx_compose1(
+                           std_bind2nd(std::less<time_t>(), min_time),
                            grievance_time()));
     GET_GRIEVANCES(ch).erase(last_it, GET_GRIEVANCES(ch).end());
 
@@ -324,7 +324,7 @@ ACMD(do_pardon)
     }
 
     // Do the imm pardon
-    if (IS_IMMORT(ch) && Security::isMember(ch, "AdminFull")) {
+    if (IS_IMMORT(ch) && Security_isMember(ch, "AdminFull")) {
         if (!PLR_FLAGGED(pardoned, PLR_THIEF | PLR_KILLER)) {
             send_to_char(ch, "Your victim is not flagged.\r\n");
             return;
@@ -339,10 +339,10 @@ ACMD(do_pardon)
     } else {
 
         // Find out if the player has a valid grievance against the pardoned
-        std::list<Grievance>::iterator grievance_it;
+        std_list<Grievance>::iterator grievance_it;
 
         expire_old_grievances(ch);
-        grievance_it = std::find(GET_GRIEVANCES(ch).begin(),
+        grievance_it = std_find(GET_GRIEVANCES(ch).begin(),
                                  GET_GRIEVANCES(ch).end(),
                                  GET_IDNUM(pardoned));
 
@@ -400,7 +400,7 @@ check_object_killer(struct obj_data *obj, struct Creature *vict)
 		cbuf.clear();
 		if (cbuf.loadFromXML(obj_id)) {
 			killer = &cbuf;
-			cbuf.account = Account::retrieve(playerIndex.getAccountID(obj_id));
+			cbuf.account = Account_retrieve(playerIndex.getAccountID(obj_id));
 		}
 	}
 

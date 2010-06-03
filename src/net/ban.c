@@ -39,7 +39,7 @@
 #include "tmpstr.h"
 #include "security.h"
 
-std::list<ban_entry> ban_list;
+std_list<ban_entry> ban_list;
 
 const char *ban_types[] = {
 	"no",
@@ -124,7 +124,7 @@ load_banned(void)
 int
 isbanned(char *hostname, char *blocking_hostname)
 {
-    std::list<ban_entry>::iterator node = ban_list.begin();
+    std_list<ban_entry>::iterator node = ban_list.begin();
 	int i = BAN_NOT;
 
 	if (!hostname || !*hostname)
@@ -146,7 +146,7 @@ bool
 check_ban_all(int desc, char *hostname)
 {
     int write_to_descriptor(int desc, const char *txt);
-    std::list<ban_entry>::iterator node = ban_list.begin();
+    std_list<ban_entry>::iterator node = ban_list.begin();
 
 	if (!hostname || !*(hostname))
 		return false;
@@ -178,7 +178,7 @@ check_ban_all(int desc, char *hostname)
                             "\r\n");
     }
 
-    mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
+    mlog(Security_ADMINBASIC, LVL_GOD, CMP, true,
          "Connection attempt denied from [%s]%s",
          hostname,
          (node->_reason[0]) ? tmp_sprintf(" (%s)", node->_reason):"");
@@ -196,7 +196,7 @@ write_ban_list(void)
 		return;
 	}
     fprintf(fl, "<banlist>\n");
-    std::list<ban_entry>::iterator node = ban_list.begin();
+    std_list<ban_entry>::iterator node = ban_list.begin();
     for (;node != ban_list.end();++node) {
         fprintf(fl, "  <banned>\n");
         fprintf(fl, "    <site>%s</site>\n", node->_site);
@@ -234,7 +234,7 @@ show_bans(Creature *ch)
     acc_strcat("* Site             Date            Banned by   Reason\r\n",
                "- ---------------  --------------  ----------  -------------------------------\r\n", NULL);
 
-    std::list<ban_entry>::iterator node = ban_list.begin();
+    std_list<ban_entry>::iterator node = ban_list.begin();
     for (;node != ban_list.end();++node) {
         char timestr[30];
 
@@ -273,7 +273,7 @@ ACMD(do_ban)
 		return;
 	}
 
-    std::list<ban_entry>::iterator node = ban_list.begin();
+    std_list<ban_entry>::iterator node = ban_list.begin();
     for (;node != ban_list.end();++node) {
 		if (!strcasecmp(node->_site, site)) {
 			send_to_char(ch,
@@ -308,7 +308,7 @@ ACMD(do_unban)
 		send_to_char(ch, "A site to unban might help.\r\n");
 		return;
 	}
-    std::list<ban_entry>::iterator node = ban_list.begin();
+    std_list<ban_entry>::iterator node = ban_list.begin();
     for (;node != ban_list.end();++node)
 		if (!strcasecmp(node->_site, site))
             break;

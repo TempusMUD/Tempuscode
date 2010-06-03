@@ -17,12 +17,11 @@
 #include <map>
 #include "creature.h"
 
-class Tongue {
+struct Tongue {
     struct trans_pair {
         char _pattern[10];
         char _replacement[10];
     };
-public:
     Tongue();
     Tongue(const Tongue &o);
     ~Tongue(void);
@@ -38,11 +37,10 @@ public:
     int _syllable_count;
     char _letters[256];
     char *_nospeak_msg;
-private:
     char *translate_word(char *word);
 };
 
-extern std::map<int,Tongue> tongues;
+extern std_map<int,Tongue> tongues;
 
 #define GET_LANG_HEARD(ch) ((ch)->language_data->languages_heard)
 #define GET_TONGUE(ch) ((ch)->language_data->current_language)

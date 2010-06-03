@@ -83,7 +83,7 @@ perform_barb_berserk(struct Creature *ch, struct Creature **who_was_attacked,
 	int *return_flags)
 {
 	static struct Creature *vict = NULL;
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		if (vict == ch || ch->isFighting() ||
@@ -166,7 +166,7 @@ ACMD(do_berserk)
 
 		send_to_char(ch, "You go BERSERK!\r\n");
 		act("$n goes BERSERK! Run for cover!", true, ch, 0, ch, TO_ROOM);
-		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == (*it) || !can_see_creature(ch, (*it)))
 				continue;
@@ -310,7 +310,7 @@ perform_cleave(Creature *ch, Creature *vict, int *return_flags)
             }
             vict = NULL;
             // find a new victim
-            CreatureList::iterator it = ch->in_room->people.begin();
+            CreatureList_iterator it = ch->in_room->people.begin();
 			for( ; it != ch->in_room->people.end(); ++it ) {
 				if((*it) == ch || !(*it)->findCombat(ch) ||
                    !can_see_creature(ch, (*it)))

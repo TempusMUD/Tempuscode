@@ -159,7 +159,7 @@ calc_daily_rent(Creature *ch, int factor, char *currency_str, bool display)
             room = ch->in_room;
         else
             room = real_room(GET_LOADROOM(ch));
-        CreatureList::iterator cit = room->people.begin();
+        CreatureList_iterator cit = room->people.begin();
         for ( ; cit != room->people.end(); ++cit) {
             if (GET_MOB_SPEC((*cit)) == cryogenicist ||
             GET_MOB_SPEC((*cit)) == receptionist) {

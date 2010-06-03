@@ -745,7 +745,7 @@ ASPELL(spell_summon)
 
 		}
 	}
-	CreatureList::iterator it = victim->in_room->people.begin();
+	CreatureList_iterator it = victim->in_room->people.begin();
 	for (; it != victim->in_room->people.end(); ++it)
 		if (AFF3_FLAGGED((*it), AFF3_SHROUD_OBSCUREMENT))
 			prob +=
@@ -1728,7 +1728,7 @@ ASPELL(spell_clairvoyance)
 			false, ch, 0, victim, TO_CHAR);
 		return;
 	}
-	CreatureList::iterator it = victim->in_room->people.begin();
+	CreatureList_iterator it = victim->in_room->people.begin();
 	for (; it != victim->in_room->people.end(); ++it)
 		if (AFF3_FLAGGED((*it), AFF3_SHROUD_OBSCUREMENT))
 			prob += ((*it) == (*it) ? (GET_LEVEL((*it)) << 1) :
@@ -2357,7 +2357,7 @@ ASPELL(spell_id_insinuation)
 	}
 
 	ulv = NULL;
-	CreatureList::iterator it = victim->in_room->people.begin();
+	CreatureList_iterator it = victim->in_room->people.begin();
 	for (; it != victim->in_room->people.end(); ++it) {
 		pulv = *it;
 		if (pulv == victim || pulv == ch)
@@ -2405,7 +2405,7 @@ ASPELL(spell_shadow_breath)
 		rm_aff.flags = ROOM_DARK;
 		affect_to_room(victim->in_room, &rm_aff);
 	}
-	CreatureList::iterator it = victim->in_room->people.begin();
+	CreatureList_iterator it = victim->in_room->people.begin();
 	for (; it != victim->in_room->people.end(); ++it) {
 		vch = *it;
 		if (PRF_FLAGGED(vch, PRF_NOHASSLE))
@@ -3021,7 +3021,7 @@ ASPELL(spell_sun_ray)
     }
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch)) {
-		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == *it)
 				continue;
@@ -3038,7 +3038,7 @@ ASPELL(spell_sun_ray)
 				return;
 		}
 	}
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (ch == (*it)
             || PRF_FLAGGED((*it), PRF_NOHASSLE)
@@ -3099,7 +3099,7 @@ ASPELL(spell_inferno)
     }
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (ch == *it)
 				continue;
@@ -3124,7 +3124,7 @@ ASPELL(spell_inferno)
 		affect_to_room(ch->in_room, &rm_aff);
 
 	}
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (ch == *it)
 			continue;

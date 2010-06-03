@@ -5,11 +5,11 @@
 #include "mobile_map.h"
 #include "utils.h"
 
-MobileMap::MobileMap() : map<int, Creature *>()
+MobileMap_MobileMap() : map<int, Creature *>()
 {
 }
 
-bool MobileMap::add(Creature *ch)
+bool MobileMap_add(Creature *ch)
 {
     int vnum = 0;
 
@@ -24,7 +24,7 @@ bool MobileMap::add(Creature *ch)
     }
 
     if (count(vnum) > 0) {
-        mudlog(LVL_GRGOD, NRM, true, "WARNING:  MobileMap::add() tried to insert "
+        mudlog(LVL_GRGOD, NRM, true, "WARNING:  MobileMap_add() tried to insert "
                "existing vnum [%d].", vnum);
         return false;
     }
@@ -34,7 +34,7 @@ bool MobileMap::add(Creature *ch)
     return true;
 }
 
-bool MobileMap::remove(Creature *ch)
+bool MobileMap_remove(Creature *ch)
 {
     int vnum = 0;
 
@@ -51,12 +51,12 @@ bool MobileMap::remove(Creature *ch)
 
 }
 
-bool MobileMap::remove(int vnum)
+bool MobileMap_remove(int vnum)
 {
     return erase(vnum);
 }
 
-Creature *MobileMap::find(int vnum)
+Creature *MobileMap_find(int vnum)
 {
     if (count(vnum) <= 0)
         return NULL;

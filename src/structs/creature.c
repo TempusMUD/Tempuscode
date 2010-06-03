@@ -31,7 +31,7 @@ void remove_fighting_affects(struct Creature *ch);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 
-Creature::Creature(bool pc)
+Creature_Creature(bool pc)
     : thing(CREATURE)
 {
     initialize();
@@ -50,7 +50,7 @@ Creature::Creature(bool pc)
 	clear();
 }
 
-Creature::~Creature(void)
+Creature_~Creature(void)
 {
 	clear();
 
@@ -63,13 +63,13 @@ Creature::~Creature(void)
     delete this->language_data;
 }
 
-Creature::Creature(const Creature &c)
+Creature_Creature(const Creature &c)
     : thing(c)
 {
     // Far as I'm concerned there is NEVER a good reason to copy a player
     // this way
     if (!IS_NPC(&c)) {
-		slog("Creature::Creature(const Creature &c) called on a player!");
+		slog("Creature_Creature(const Creature &c) called on a player!");
         raise(SIGSEGV);
     }
     initialize();
@@ -91,7 +91,7 @@ Creature::Creature(const Creature &c)
 }
 
 void
-Creature::checkPosition(void)
+Creature_checkPosition(void)
 {
 	if (GET_HIT(this) > 0) {
 		if (getPosition() < POS_STUNNED)
@@ -110,14 +110,14 @@ Creature::checkPosition(void)
 /**
  * Returns true if this character is in the Testers access group.
 **/
-bool Creature::isTester(){
+bool Creature_isTester(){
 	if( IS_NPC(this) )
 		return false;
-	return Security::isMember( this, "Testers", false );
+	return Security_isMember( this, "Testers", false );
 }
 
 // Returns this creature's account id.
-long Creature::getAccountID() const {
+long Creature_getAccountID() const {
     if( account == NULL )
         return 0;
     return account->get_idnum();
@@ -130,7 +130,7 @@ long Creature::getAccountID() const {
  *  experience.
  *
 **/
-int Creature::getPenalizedExperience( int experience, Creature *victim)
+int Creature_getPenalizedExperience( int experience, Creature *victim)
 {
 
 	// Mobs are easily trained
@@ -182,31 +182,31 @@ int Creature::getPenalizedExperience( int experience, Creature *victim)
 
 //Positive or negative percent modifier based on buyer vs seller charisma.
 int
-Creature::getCostModifier(Creature* seller) {
+Creature_getCostModifier(Creature* seller) {
     int cost_modifier = (GET_CHA(seller)-GET_CHA(this))*2;
     return cost_modifier;
 }
 
 int
-Creature::modifyCarriedWeight(int mod_weight)
+Creature_modifyCarriedWeight(int mod_weight)
 {
 	return (setCarriedWeight(getCarriedWeight() + mod_weight));
 }
 
 int
-Creature::modifyWornWeight(int mod_weight)
+Creature_modifyWornWeight(int mod_weight)
 {
 	return (setWornWeight(getWornWeight() + mod_weight));
 }
 
 short
-char_player_data::modifyWeight(short mod_weight)
+char_player_data_modifyWeight(short mod_weight)
 {
 	return setWeight(getWeight() + mod_weight);
 }
 
 int
-Creature::getSpeed(void)
+Creature_getSpeed(void)
 {
 	// if(IS_NPC(this))
 	if (char_specials.saved.act & MOB_ISNPC)
@@ -215,7 +215,7 @@ Creature::getSpeed(void)
 }
 
 void
-Creature::setSpeed(int speed)
+Creature_setSpeed(int speed)
 {
 	// if(IS_NPC(this))
 	if (char_specials.saved.act & MOB_ISNPC)
@@ -226,7 +226,7 @@ Creature::setSpeed(int speed)
 }
 
 bool
-Creature::isNewbie()
+Creature_isNewbie()
 {
 	if (char_specials.saved.act & MOB_ISNPC)
 		return false;
@@ -241,7 +241,7 @@ Creature::isNewbie()
 // Utility function to determine if a char should be affected by sanctuary
 // on a hit by hit level... --N
 bool
-Creature::affBySanc(Creature *attacker)
+Creature_affBySanc(Creature *attacker)
 {
 
 	Creature *ch = this;
@@ -263,7 +263,7 @@ Creature::affBySanc(Creature *attacker)
 // Pass in the attacker for conditional reduction such as PROT_GOOD and
 // PROT_EVIL.  Or leave it blank for the characters base reduction --N
 float
-Creature::getDamReduction(Creature *attacker)
+Creature_getDamReduction(Creature *attacker)
 {
 	struct Creature *ch = this;
 	struct affected_type *af = NULL;
@@ -340,7 +340,7 @@ Creature::getDamReduction(Creature *attacker)
                 + (GET_ALIGNMENT(ch) / 100);
         } else if (af && ch->in_room) {
 
-            CreatureList::iterator it = ch->in_room->people.begin();
+            CreatureList_iterator it = ch->in_room->people.begin();
             for (; it != ch->in_room->people.end(); ++it) {
                 if (IS_NPC((*it))
                     && af->modifier == (short int)-MOB_IDNUM((*it))) {
@@ -379,7 +379,7 @@ Creature::getDamReduction(Creature *attacker)
                                   (ch->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
         } else if (af && ch->in_room) {
 
-            CreatureList::iterator it = ch->in_room->people.begin();
+            CreatureList_iterator it = ch->in_room->people.begin();
             for (; it != ch->in_room->people.end(); ++it) {
                 if (IS_NPC((*it))
                     && af->modifier == (short int)-MOB_IDNUM((*it))) {
@@ -442,7 +442,7 @@ Creature::getDamReduction(Creature *attacker)
 //   return: a number from 1-100 based on level and primary/secondary)
 
 int
-Creature::getLevelBonus(bool primary)
+Creature_getLevelBonus(bool primary)
 {
 	int bonus = MIN(50, player.level + 1);
 	short gen = char_specials.saved.remort_generation;
@@ -475,7 +475,7 @@ Creature::getLevelBonus(bool primary)
 // return: a number from 1-100 based on level/gen/can learn skill.
 
 int
-Creature::getLevelBonus(int skill)
+Creature_getLevelBonus(int skill)
 {
 	// Immorts get full bonus.
 	if( player.level >= 50 )
@@ -523,7 +523,7 @@ Creature::getLevelBonus(int skill)
  *  @param new_position the enumerated int position to be set to.
 **/
 bool
-Creature::setPosition(int new_pos)
+Creature_setPosition(int new_pos)
 {
 	if (new_pos == char_specials.getPosition())
 		return false;
@@ -552,7 +552,7 @@ Creature::setPosition(int new_pos)
  * @param con_state the connection state to change the descriptor to, if one exists
 **/
 void
-Creature::extract(cxn_state con_state)
+Creature_extract(cxn_state con_state)
 {
 	ACMD(do_return);
 	void die_follower(struct Creature *ch);
@@ -561,7 +561,7 @@ Creature::extract(cxn_state con_state)
 	struct obj_data* obj;
 	struct descriptor_data* t_desc;
 	int idx;
-	CreatureList::iterator cit;
+	CreatureList_iterator cit;
 
 	if (!IS_NPC(this) && !desc) {
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
@@ -623,7 +623,7 @@ Creature::extract(cxn_state con_state)
 	// Forget snooping, if applicable
 	if (desc) {
 		if (desc->snooping) {
-            vector<descriptor_data *>::iterator vi = desc->snooping->snoop_by.begin();
+            vector<descriptor_data *>_iterator vi = desc->snooping->snoop_by.begin();
             for (; vi != desc->snooping->snoop_by.end(); ++vi) {
                 if ((*vi) == desc) {
                     desc->snooping->snoop_by.erase(vi);
@@ -696,7 +696,7 @@ Creature::extract(cxn_state con_state)
 
 // erase ch's memory
 void
-Creature::clearMemory()
+Creature_clearMemory()
 {
 	memory_rec *curr, *next;
 
@@ -712,7 +712,7 @@ Creature::clearMemory()
 }
 
 // Retrieves the characters appropriate loadroom.
-room_data *Creature::getLoadroom() {
+room_data *Creature_getLoadroom() {
     room_data *load_room = NULL;
 
 	if (PLR_FLAGGED(this, PLR_FROZEN)) {
@@ -803,7 +803,7 @@ room_data *Creature::getLoadroom() {
 
 // Called by constructors to initialize
 void
-Creature::initialize(void)
+Creature_initialize(void)
 {
     in_room = NULL;
     carrying = NULL;
@@ -826,7 +826,7 @@ Creature::initialize(void)
 
 // Free all structures and return to a virginal state
 void
-Creature::clear(void)
+Creature_clear(void)
 {
 	struct Creature *tmp_mob;
 	struct alias_data *a;
@@ -956,7 +956,7 @@ Creature::clear(void)
 }
 
 void
-Creature::restore(void)
+Creature_restore(void)
 {
 	int i;
 
@@ -989,7 +989,7 @@ Creature::restore(void)
 }
 
 bool
-Creature::rent(void)
+Creature_rent(void)
 {
     removeAllCombat();
 	player_specials->rentcode = RENT_RENTED;
@@ -1002,7 +1002,7 @@ Creature::rent(void)
 	saveObjects();
 	saveToXML();
 	if (GET_LEVEL(this) < 50)
-		mlog(Security::ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)),
+		mlog(Security_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)),
 			NRM, true,
 			"%s has rented (%d/day, %lld %s)", GET_NAME(this),
 			player_specials->rent_per_day, CASH_MONEY(this) + BANK_MONEY(this),
@@ -1013,7 +1013,7 @@ Creature::rent(void)
 }
 
 bool
-Creature::cryo(void)
+Creature_cryo(void)
 {
 	player_specials->rentcode = RENT_CRYO;
 	player_specials->rent_per_day = 0;
@@ -1024,7 +1024,7 @@ Creature::cryo(void)
 	saveObjects();
 	saveToXML();
 
-	mlog(Security::ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)),
+	mlog(Security_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)),
 		NRM, true,
 		"%s has cryo-rented", GET_NAME(this));
 	extract(CXN_MENU);
@@ -1032,7 +1032,7 @@ Creature::cryo(void)
 }
 
 bool
-Creature::quit(void)
+Creature_quit(void)
 {
 	obj_data *obj, *next_obj, *next_contained_obj;
 	int pos;
@@ -1097,7 +1097,7 @@ Creature::quit(void)
 }
 
 bool
-Creature::idle(void)
+Creature_idle(void)
 {
 	if (IS_NPC(this))
 		return false;
@@ -1110,7 +1110,7 @@ Creature::idle(void)
 	saveObjects();
 	saveToXML();
 
-	mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
+	mlog(Security_ADMINBASIC, LVL_GOD, CMP, true,
 		"%s force-rented and extracted (idle).",
 		GET_NAME(this));
 
@@ -1119,7 +1119,7 @@ Creature::idle(void)
 }
 
 bool
-Creature::die(void)
+Creature_die(void)
 {
 	obj_data *obj, *next_obj;
 	int pos;
@@ -1164,7 +1164,7 @@ Creature::die(void)
 }
 
 bool
-Creature::npk_die(void)
+Creature_npk_die(void)
 {
     removeAllCombat();
 
@@ -1184,7 +1184,7 @@ Creature::npk_die(void)
 }
 
 bool
-Creature::arena_die(void)
+Creature_arena_die(void)
 {
     // Remove any combat this character might have been involved in
     // And make sure all defending creatures stop defending
@@ -1214,7 +1214,7 @@ Creature::arena_die(void)
 }
 
 bool
-Creature::purge(bool destroy_obj)
+Creature_purge(bool destroy_obj)
 {
 	obj_data *obj, *next_obj;
 
@@ -1255,7 +1255,7 @@ Creature::purge(bool destroy_obj)
 }
 
 bool
-Creature::remort(void)
+Creature_remort(void)
 {
 	if (IS_NPC(this))
 		return false;
@@ -1272,7 +1272,7 @@ Creature::remort(void)
 }
 
 bool
-Creature::trusts(long idnum)
+Creature_trusts(long idnum)
 {
 	if (IS_NPC(this))
 		return false;
@@ -1281,13 +1281,13 @@ Creature::trusts(long idnum)
 }
 
 bool
-Creature::distrusts(long idnum)
+Creature_distrusts(long idnum)
 {
 	return !trusts(idnum);
 }
 
 bool
-Creature::trusts(Creature *ch)
+Creature_trusts(Creature *ch)
 {
 	if (IS_NPC(this))
 		return false;
@@ -1299,13 +1299,13 @@ Creature::trusts(Creature *ch)
 }
 
 bool
-Creature::distrusts(Creature *ch)
+Creature_distrusts(Creature *ch)
 {
 	return !trusts(ch);
 }
 
 int
-Creature::get_reputation(void)
+Creature_get_reputation(void)
 {
 	Account *acct;
 
@@ -1314,7 +1314,7 @@ Creature::get_reputation(void)
 
 	acct = account;
 	if (!acct)
-		acct = Account::retrieve(playerIndex.getAccountID(GET_IDNUM(this)));
+		acct = Account_retrieve(playerIndex.getAccountID(GET_IDNUM(this)));
 	if (acct && GET_LEVEL(this) < LVL_AMBASSADOR)
 		return MAX(0, MIN(1000, (player_specials->saved.reputation * 95 / 100)
 			+ (acct->get_reputation() * 5 / 100)));
@@ -1322,7 +1322,7 @@ Creature::get_reputation(void)
 }
 
 void
-Creature::gain_reputation(int amt)
+Creature_gain_reputation(int amt)
 {
 	 Account *acct;
 
@@ -1331,7 +1331,7 @@ Creature::gain_reputation(int amt)
 
 	acct = account;
 	if (!acct)
-		acct = Account::retrieve(playerIndex.getAccountID(GET_IDNUM(this)));
+		acct = Account_retrieve(playerIndex.getAccountID(GET_IDNUM(this)));
 	if (acct && GET_LEVEL(this) < LVL_AMBASSADOR)
 		acct->gain_reputation(amt);
 
@@ -1341,13 +1341,13 @@ Creature::gain_reputation(int amt)
 }
 
 void
-Creature::set_reputation(int amt)
+Creature_set_reputation(int amt)
 {
 	player_specials->saved.reputation = MIN(1000, MAX(0, amt));
 }
 
 void
-Creature::addCombat(Creature *ch, bool initiated)
+Creature_addCombat(Creature *ch, bool initiated)
 {
     Creature *defender;
     bool previously_fighting;
@@ -1363,7 +1363,7 @@ Creature::addCombat(Creature *ch, bool initiated)
 
 	previously_fighting = (getCombatList()->size() != 0);
 
-	CreatureList::iterator cit;
+	CreatureList_iterator cit;
     cit = ch->in_room->people.begin();
     for (; cit != ch->in_room->people.end(); ++cit) {
         defender = NULL;
@@ -1389,7 +1389,7 @@ Creature::addCombat(Creature *ch, bool initiated)
 
 			// If we're already in combat with the victim, move him
 			// to the front of the list
-			CombatDataList::iterator li = getCombatList()->begin();
+			CombatDataList_iterator li = getCombatList()->begin();
 			for (; li != getCombatList()->end(); ++li) {
 				if (li->getOpponent() == ch) {
 					bool ini = li->getInitiated();
@@ -1418,7 +1418,7 @@ Creature::addCombat(Creature *ch, bool initiated)
 
     // If we're already in combat with the victim, move him
     // to the front of the list
-    CombatDataList::iterator li = getCombatList()->begin();
+    CombatDataList_iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() == ch) {
             bool ini = li->getInitiated();
@@ -1434,7 +1434,7 @@ Creature::addCombat(Creature *ch, bool initiated)
     trigger_prog_fight(this, ch);
 
     if (!previously_fighting && isFighting() > 0) {
-        CreatureList::iterator li;
+        CreatureList_iterator li;
         bool found = false;
         for (li = combatList.begin(); li != combatList.end(); ++li) {
             if (*li == this) {
@@ -1450,7 +1450,7 @@ Creature::addCombat(Creature *ch, bool initiated)
 }
 
 void
-Creature::removeCombat(Creature *ch)
+Creature_removeCombat(Creature *ch)
 {
     if (!ch)
         return;
@@ -1458,7 +1458,7 @@ Creature::removeCombat(Creature *ch)
     if (getCombatList()->empty())
         return;
 
-    CombatDataList::iterator li = getCombatList()->begin();
+    CombatDataList_iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() == ch) {
             getCombatList()->remove(li);
@@ -1473,7 +1473,7 @@ Creature::removeCombat(Creature *ch)
 }
 
 void
-Creature::removeAllCombat()
+Creature_removeAllCombat()
 {
     if (!getCombatList()) {
         slog("getCombatList() returned NULL in removeAllCombat()!");
@@ -1485,7 +1485,7 @@ Creature::removeAllCombat()
         remove_fighting_affects(this);
     }
 
-    CreatureList::iterator cit = combatList.begin();
+    CreatureList_iterator cit = combatList.begin();
     for (;cit != combatList.end(); ++cit)
         (*cit)->removeCombat(this);
 
@@ -1493,12 +1493,12 @@ Creature::removeAllCombat()
 }
 
 Creature *
-Creature::findCombat(Creature *ch)
+Creature_findCombat(Creature *ch)
 {
     if (!ch || !getCombatList())
         return NULL;
 
-    CombatDataList::iterator li = getCombatList()->begin();
+    CombatDataList_iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); li++) {
         if (li->getOpponent() == ch)
             return (li->getOpponent());
@@ -1509,13 +1509,13 @@ Creature::findCombat(Creature *ch)
 
 // This function checks to see if (this) initiated combat with ch
 bool
-Creature::initiatedCombat(Creature *ch)
+Creature_initiatedCombat(Creature *ch)
 {
 
     if (ch == NULL || !getCombatList())
         return false;
 
-    CombatDataList::iterator li = getCombatList()->begin();
+    CombatDataList_iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
         if (li->getOpponent() == ch)
             return (li->getInitiated());
@@ -1525,13 +1525,13 @@ Creature::initiatedCombat(Creature *ch)
 }
 
 bool
-Creature::isFighting()
+Creature_isFighting()
 {
     return !getCombatList()->empty();
 }
 
 int
-Creature::numCombatants()
+Creature_numCombatants()
 {
     if (!this || !getCombatList())
         return 0;
@@ -1540,7 +1540,7 @@ Creature::numCombatants()
 }
 
 Creature *
-Creature::findRandomCombat()
+Creature_findRandomCombat()
 {
 
     if (!isFighting())
@@ -1551,7 +1551,7 @@ Creature::findRandomCombat()
     if (numCombatants() == 1)
         return getCombatList()->begin()->getOpponent();
 
-    CombatDataList::iterator li = getCombatList()->begin();
+    CombatDataList_iterator li = getCombatList()->begin();
     for (; li != getCombatList()->end(); ++li) {
        if (!random_fractional_10())
            return (li->getOpponent());
@@ -1561,7 +1561,7 @@ Creature::findRandomCombat()
 }
 
 bool
-Creature::isOkToAttack(Creature *vict, bool mssg)
+Creature_isOkToAttack(Creature *vict, bool mssg)
 {
     extern int get_hunted_id(int hunter_id);
 
@@ -1675,7 +1675,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
                 false, this, NULL, vict, TO_CHAR);
             act("You are protected by the gods against $n's attack!",
                 false, this, NULL, vict, TO_VICT);
-            slog("%s protected against %s (Creature::isOkToAttack()) at %d",
+            slog("%s protected against %s (Creature_isOkToAttack()) at %d",
                  GET_NAME(vict), GET_NAME(this), vict->in_room->number);
         }
 
@@ -1729,7 +1729,7 @@ Creature::isOkToAttack(Creature *vict, bool mssg)
 }
 
 void
-Creature::ignite(Creature *ch)
+Creature_ignite(Creature *ch)
 {
     affected_type af;
 
@@ -1746,13 +1746,13 @@ Creature::ignite(Creature *ch)
 }
 
 void
-Creature::extinguish()
+Creature_extinguish()
 {
     affect_from_char(this, SPELL_ABLAZE);
 }
 
 void
-Creature::stopDefending()
+Creature_stopDefending()
 {
     if (!this->isDefending())
         return;
@@ -1772,7 +1772,7 @@ Creature::stopDefending()
 }
 
 void
-Creature::startDefending(Creature *vict)
+Creature_startDefending(Creature *vict)
 {
     if (this->isDefending())
         this->stopDefending();
@@ -1790,7 +1790,7 @@ Creature::startDefending(Creature *vict)
 }
 
 void
-Creature::dismount()
+Creature_dismount()
 {
     if (!this->isMounted())
         return;
@@ -1801,7 +1801,7 @@ Creature::dismount()
 }
 
 void
-Creature::mount(Creature *vict)
+Creature_mount(Creature *vict)
 {
     if (this->isMounted())
         return;
@@ -1812,7 +1812,7 @@ Creature::mount(Creature *vict)
 }
 
 void
-Creature::startHunting(Creature *vict)
+Creature_startHunting(Creature *vict)
 {
 	if (!char_specials.hunting)
 		huntingList.add(this);
@@ -1821,7 +1821,7 @@ Creature::startHunting(Creature *vict)
 }
 
 void
-Creature::stopHunting()
+Creature_stopHunting()
 {
     char_specials.hunting = NULL;
 
@@ -1829,7 +1829,7 @@ Creature::stopHunting()
 }
 
 bool
-Creature::checkReputations(Creature *vict)
+Creature_checkReputations(Creature *vict)
 {
     bool ch_msg = false, vict_msg = false;
 
@@ -1882,7 +1882,7 @@ Creature::checkReputations(Creature *vict)
 
 //not inlined because we need access to spells.h
 bool
-affected_type::clearAtDeath(void) {
+affected_type_clearAtDeath(void) {
     return (type != SPELL_ITEM_REPULSION_FIELD &&
     type != SPELL_ITEM_ATTRACTION_FIELD);
 }

@@ -804,7 +804,7 @@ perform_cyborg_activate(Creature *ch, int mode, int subcmd)
 				act(to_room[1], false, ch, 0, 0, TO_ROOM);
 
 			if (mode == SKILL_ENERGY_FIELD && room_is_watery(ch->in_room)) {
-				CreatureList::iterator it = ch->in_room->people.begin();
+				CreatureList_iterator it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					if (*it != ch) {
 						damage(ch, *it, dice(4, GET_LEVEL(ch)),
@@ -1255,7 +1255,7 @@ ACMD(do_bioscan)
 		send_to_char(ch, "You are not equipped with bio-scanners.\r\n");
 		return;
 	}
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((((can_see_creature(ch, (*it)) || GET_INVIS_LVL((*it)) < GET_LEVEL(ch)) &&
 					(CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100) ||

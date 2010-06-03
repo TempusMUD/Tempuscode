@@ -5,6 +5,7 @@
 #include <libxml/tree.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "tmpstr.h"
 
 void xml_boot(void);
@@ -13,13 +14,13 @@ void xml_boot(void);
  * Parses an integer from a named property in the given node
  **/
 static inline long
-xmlGetLongProp(xmlNodePtr n, const char *name, long defValue = 0 )
+xmlGetLongProp(xmlNodePtr n, const char *name, long defValue)
 {
 	long prop = 0;
-	xmlChar *c = xmlGetProp(n, reinterpret_cast<const xmlChar *>(name));
+	xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
 	if (c == NULL)
 		return defValue;
-	prop = atol(reinterpret_cast<const char *>(c));
+	prop = atol((const char *)(c));
 	free(c);
 	return prop;
 }
@@ -28,13 +29,13 @@ xmlGetLongProp(xmlNodePtr n, const char *name, long defValue = 0 )
  * Parses an integer from a named property in the given node
  **/
 static inline int
-xmlGetIntProp(xmlNodePtr n, const char *name, int defValue = 0)
+xmlGetIntProp(xmlNodePtr n, const char *name, int defValue)
 {
 	int prop = 0;
-	xmlChar *c = xmlGetProp(n, reinterpret_cast<const xmlChar *>(name));
+	xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
 	if (c == NULL)
 		return defValue;
-	prop = atoi(reinterpret_cast<const char *>(c));
+	prop = atoi((const char *)(c));
 	free(c);
 	return prop;
 }
@@ -46,7 +47,7 @@ static inline char
 xmlGetCharProp(xmlNodePtr n, const char *name)
 {
 	char prop = 0;
-	xmlChar *c = xmlGetProp(n, reinterpret_cast<const xmlChar *>(name));
+	xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
 	if (c == NULL)
 		return 0;
 	prop = *c;
@@ -54,33 +55,10 @@ xmlGetCharProp(xmlNodePtr n, const char *name)
 	return prop;
 }
 
-static inline char *
-xmlGetProp(xmlNodePtr node, const char *name)
-{
-	return reinterpret_cast<char *>(xmlGetProp(node, reinterpret_cast<const xmlChar *>(name)));
-}
-
-static inline xmlAttrPtr
-xmlSetProp(xmlNodePtr node, const char *name, const char *value)
-{
-	return xmlSetProp(node,
-                      reinterpret_cast<const xmlChar *>(name),
-                      reinterpret_cast<const xmlChar *>(value));
-}
-
-static inline xmlAttrPtr
-xmlSetProp(xmlNodePtr node, const char *name, const int value)
-{
-	char xmlSetPropBuf[80];
-	sprintf(xmlSetPropBuf, "%d", value);
-	return xmlSetProp(node, reinterpret_cast<const xmlChar *>(name),
-		reinterpret_cast<const xmlChar *>(xmlSetPropBuf));
-}
-
 static inline bool
 xmlMatches(const xmlChar *str_a, const char *str_b)
 {
-	return !strcmp(reinterpret_cast<const char *>(str_a), str_b);
+	return !strcmp((const char *)(str_a), str_b);
 }
 
 /**
@@ -91,7 +69,7 @@ xmlMatches(const xmlChar *str_a, const char *str_b)
 static inline char*
 xmlEncodeTmp( char* text )
 {
-	char *encoded = reinterpret_cast<char *>(xmlEncodeEntitiesReentrant(NULL, reinterpret_cast<xmlChar *>(text)));
+	char *encoded = (char *)(xmlEncodeEntitiesReentrant(NULL, (xmlChar *)(text)));
 	char *tmp_encoded = tmp_strdup(encoded);
 	free(encoded);
 	return tmp_encoded;
@@ -109,23 +87,11 @@ xmlEncodeTmp( char* text )
 static inline char*
 xmlEncodeSpecialTmp( const char* text )
 {
-	char *encoded = reinterpret_cast<char *>(xmlEncodeSpecialChars(NULL,
-                                                                   reinterpret_cast<const xmlChar *>(text)));
+	char *encoded = (char *)(xmlEncodeSpecialChars(NULL,
+                                                                   (const xmlChar *)(text)));
 	char *tmp_encoded = tmp_gsub(encoded, "\"", "&quot;");
 	free(encoded);
 	return tmp_encoded;
-}
-
-/**
- * Do a global encoding of a string, replacing the predefined entities and
- * non ASCII values with their entities and CharRef counterparts.
- * Contrary to xmlEncodeEntities, this routine is reentrant, and result
- * must be deallocated.
-**/
-static inline char* xmlEncodeEntities( char* text )
-{
-	return reinterpret_cast<char *>(xmlEncodeEntitiesReentrant(NULL,
-                                                              reinterpret_cast<xmlChar *>(text)));
 }
 
 #endif							// __TEMPUS_XML_UTILS_H

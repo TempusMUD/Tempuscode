@@ -53,8 +53,7 @@ using namespace std;
 /**
  * An entry representing a player in a quest and the flags set on him/her.
 **/
-class qplayer_data {
-	public:
+struct qplayer_data {
 		qplayer_data( long id ) {
             idnum = id;
             flags = deaths = mobkills = pkills = 0;
@@ -80,19 +79,16 @@ class qplayer_data {
         int pkills;
 };
 
-class Quest {
-	public:
+struct Quest {
 		Quest( Creature *ch, int type, const char* name );
 		Quest( const Quest &q );
 		Quest(xmlNodePtr n, xmlDocPtr doc);
 		~Quest();
-	public: // operators
 		bool operator==( const Quest &q ) const { return vnum == q.vnum; }
 		bool operator!=( const Quest &q ) const { return vnum != q.vnum; }
 		bool operator<( const Quest &q ) const { return vnum < q.vnum; }
 		bool operator>( const Quest &q ) const { return vnum > q.vnum; }
 		Quest& operator=( const Quest &q );
-	public: // utils
 		bool canEdit( Creature *ch );
 		bool addPlayer( long id );
 		bool removePlayer( long id );
@@ -106,7 +102,6 @@ class Quest {
 		qplayer_data &getPlayer( int index ) { return players[index]; }
 		qplayer_data &getBan( long id );
 		void save( ostream &out );
-	public: // accessors
 		void addPenalized( int penalty ) { penalized += penalty; }
 		void addAwarded( int award ) { awarded += award; }
 		int getNumPlayers() { return (int)players.size(); }
@@ -123,10 +118,8 @@ class Quest {
         void tallyDeath(int player);
         void tallyMobKill(int player);
         void tallyPlayerKill(int player);
-	private: // utils
 		void clearDescs();
 		bool levelOK( Creature *ch );
-	private: // data
 		int max_players; // max number of players
 		int awarded; // qps awarded
 		int penalized; // qps taken
@@ -137,7 +130,6 @@ class Quest {
 		vector<qplayer_data> players;
 		vector<qplayer_data> bans;
 		static int top_vnum;
-	public: // data
 		int flags;
 		char *name;
 		char *description;

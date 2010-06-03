@@ -38,7 +38,7 @@ extern HelpCollection *Help;
 // Constructor
 // Params: Users descriptor, The final destination of the text,
 //      the max size of the text.
-CEditor::CEditor(struct descriptor_data *d, int max)
+CEditor_CEditor(struct descriptor_data *d, int max)
     :theText()
 {
 	desc = d;
@@ -48,7 +48,7 @@ CEditor::CEditor(struct descriptor_data *d, int max)
 }
 
 void
-CEditor::SendStartupMessage(void)
+CEditor_SendStartupMessage(void)
 {
     send_to_desc(desc, "&C     * &YTEDII &b]&n Save and exit with @ on a new line. &&H for help             &C*\r\n");
     send_to_desc(desc, "     ");
@@ -58,17 +58,17 @@ CEditor::SendStartupMessage(void)
 }
 
 void
-CEditor::SendPrompt(void)
+CEditor_SendPrompt(void)
 {
     send_to_desc(desc, "%3zd&b]&n ", theText.size() + 1);
 }
 
 void
-CEditor::Finish(bool save)
+CEditor_Finish(bool save)
 {
 
     if (save) {
-        list <string>::iterator itr;
+        list <string>_iterator itr;
         int length;
         char *text;
 
@@ -101,13 +101,13 @@ CEditor::Finish(bool save)
 }
 
 void
-CEditor::Cancel(void)
+CEditor_Cancel(void)
 {
     // Do nothing
 }
 
 void
-CEditor::Process(char *inStr)
+CEditor_Process(char *inStr)
 {
 	// 2 special chars, @ and &
 	char inbuf[MAX_INPUT_LENGTH + 1];
@@ -133,9 +133,9 @@ CEditor::Process(char *inStr)
 }
 
 void
-CEditor::DisplayBuffer(unsigned int start_line, int line_count)
+CEditor_DisplayBuffer(unsigned int start_line, int line_count)
 {
-	list <string>::iterator itr;
+	list <string>_iterator itr;
 	unsigned int linenum, end_line;
 
     acc_string_clear();
@@ -170,7 +170,7 @@ CEditor::DisplayBuffer(unsigned int start_line, int line_count)
 }
 
 bool
-CEditor::Full(char *inStr)
+CEditor_Full(char *inStr)
 {
 	if ((strlen(inStr) + curSize) + ((theText.size() + 1) * 2) > maxSize) {
 		return true;
@@ -179,7 +179,7 @@ CEditor::Full(char *inStr)
 }
 
 void
-CEditor::Append(char *inStr)
+CEditor_Append(char *inStr)
 {
 
 	if (Full(inStr)) {
@@ -205,10 +205,10 @@ CEditor::Append(char *inStr)
 }
 
 bool
-CEditor::Insert(unsigned int line, char *inStr)
+CEditor_Insert(unsigned int line, char *inStr)
 {
 	string text;
-	list<string>::iterator s;
+	list<string>_iterator s;
 
     if (line < 1)
         line = 1;
@@ -237,10 +237,10 @@ CEditor::Insert(unsigned int line, char *inStr)
 }
 
 bool
-CEditor::ReplaceLine(unsigned int line, char *inStr)
+CEditor_ReplaceLine(unsigned int line, char *inStr)
 {
 	string text;
-	list <string>::iterator s;
+	list <string>_iterator s;
 
 	if (*inStr && *inStr == ' ')
 		inStr++;
@@ -269,11 +269,11 @@ CEditor::ReplaceLine(unsigned int line, char *inStr)
 }
 
 bool
-CEditor::MoveLines(unsigned int start_line,
+CEditor_MoveLines(unsigned int start_line,
                    unsigned int end_line,
                    unsigned int dest_line)
 {
-	list<string>::iterator dest, begin, end;
+	list<string>_iterator dest, begin, end;
 
     if (start_line < 1 || start_line > theText.size()) {
         if (start_line == end_line)
@@ -311,9 +311,9 @@ CEditor::MoveLines(unsigned int start_line,
 }
 
 bool
-CEditor::Find(char *args)
+CEditor_Find(char *args)
 {
-	list <string>::iterator itr;
+	list <string>_iterator itr;
     string pattern(args);
 	unsigned int i;
 
@@ -343,11 +343,11 @@ CEditor::Find(char *args)
 }
 
 bool
-CEditor::Substitute(char *args)
+CEditor_Substitute(char *args)
 {
     const char *usage = "There are two formats for substitute:\r\n  &s [search pattern] [replacement]\r\n  &s /search pattern/replacement/\r\nIn the first form, you can use (), [], <>, or {}.\r\n";
 	// Iterator to the current line in theText
-	list <string>::iterator line;
+	list <string>_iterator line;
 	// The string containing the search pattern
 	string pattern;
 	// String containing the replace pattern
@@ -477,10 +477,10 @@ CEditor::Substitute(char *args)
 }
 
 bool
-CEditor::Wrap(void)
+CEditor_Wrap(void)
 {
-	list <string>::iterator line;
-	string::iterator s;
+	list <string>_iterator line;
+	string_iterator s;
 	string tempstr;
 	int linebreak;
 
@@ -516,9 +516,9 @@ CEditor::Wrap(void)
 }
 
 bool
-CEditor::Remove(unsigned int start_line, unsigned int finish_line)
+CEditor_Remove(unsigned int start_line, unsigned int finish_line)
 {
-	list <string>::iterator start, finish;
+	list <string>_iterator start, finish;
 
 	if (start_line < 1 || start_line > theText.size()) {
 		SendMessage("Someone already deleted that line boss.\r\n");
@@ -549,7 +549,7 @@ CEditor::Remove(unsigned int start_line, unsigned int finish_line)
 }
 
 bool
-CEditor::Clear(void)
+CEditor_Clear(void)
 {
 
 	theText.erase(theText.begin(), theText.end());
@@ -559,7 +559,7 @@ CEditor::Clear(void)
 }
 
 void
-CEditor::ImportText(const char *str)
+CEditor_ImportText(const char *str)
 {
     char *line;
 
@@ -577,7 +577,7 @@ CEditor::ImportText(const char *str)
 }
 
 void
-CEditor::UndoChanges(void)
+CEditor_UndoChanges(void)
 {
 	if (origText.size()) {
         Clear();
@@ -590,7 +590,7 @@ CEditor::UndoChanges(void)
 }
 
 void
-CEditor::SendMessage(const char *message)
+CEditor_SendMessage(const char *message)
 {
 	if (!desc || !desc->creature) {
 		errlog("TEDII Attempting to SendMessage with null desc or desc->creature\r\n");
@@ -618,7 +618,7 @@ static inline int
 text_length(list <string> &theText)
 {
 	int length = 0;
-	list <string>::iterator s;
+	list <string>_iterator s;
 	for (s = theText.begin(); s != theText.end(); s++) {
 		length += s->length();
 	}
@@ -626,7 +626,7 @@ text_length(list <string> &theText)
 }
 
 void
-CEditor::UpdateSize(void)
+CEditor_UpdateSize(void)
 {
 	int linesRemoved = 0;
 
@@ -657,14 +657,14 @@ CEditor::UpdateSize(void)
 }
 
 void
-CEditor::SendModalHelp(void)
+CEditor_SendModalHelp(void)
 {
     // default offers the clear buffer and undo changes options
     send_to_desc(desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
 }
 
 void
-CEditor::ProcessHelp(char *inStr)
+CEditor_ProcessHelp(char *inStr)
 {
 	char command[MAX_INPUT_LENGTH];
 
@@ -686,7 +686,7 @@ CEditor::ProcessHelp(char *inStr)
 
 		inStr = one_argument(inStr, command);
 		*command = tolower(*command);
-        help_item = ::Help->FindItems(tmp_sprintf("tedii-%c", *command), false, 0, false);
+        help_item = _Help->FindItems(tmp_sprintf("tedii-%c", *command), false, 0, false);
         if (help_item) {
             help_item->LoadText();
             send_to_desc(desc, "&cTEDII Command '%c'&n\r\n", *command);
@@ -732,7 +732,7 @@ parse_optional_range(const char *arg, int &start, int &finish)
 }
 
 bool
-CEditor::PerformCommand(char cmd, char *args)
+CEditor_PerformCommand(char cmd, char *args)
 {
 	int line, start_line, end_line, dest_line;
 	char command[MAX_INPUT_LENGTH];

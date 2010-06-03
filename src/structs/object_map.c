@@ -5,15 +5,15 @@
 #include "object_map.h"
 #include "utils.h"
 
-ObjectMap::ObjectMap() : map<int, obj_data *>()
+ObjectMap_ObjectMap() : map<int, obj_data *>()
 {
 }
 
-ObjectMap::~ObjectMap()
+ObjectMap_~ObjectMap()
 {
 }
 
-bool ObjectMap::add(obj_data *obj)
+bool ObjectMap_add(obj_data *obj)
 {
     int vnum = 0;
 
@@ -27,7 +27,7 @@ bool ObjectMap::add(obj_data *obj)
         return false;
     }
     if (count(vnum) > 0) {
-        mudlog(LVL_GRGOD, NRM, true, "WARNING:  ObjectMap::add() tried to insert "
+        mudlog(LVL_GRGOD, NRM, true, "WARNING:  ObjectMap_add() tried to insert "
                "existing vnum [%d].", vnum);
         return false;
     }
@@ -37,7 +37,7 @@ bool ObjectMap::add(obj_data *obj)
     return true;
 }
 
-bool ObjectMap::remove(obj_data *obj)
+bool ObjectMap_remove(obj_data *obj)
 {
     int vnum = 0;
 
@@ -54,12 +54,12 @@ bool ObjectMap::remove(obj_data *obj)
 
 }
 
-bool ObjectMap::remove(int vnum)
+bool ObjectMap_remove(int vnum)
 {
     return erase(vnum);
 }
 
-obj_data *ObjectMap::find(int vnum)
+obj_data *ObjectMap_find(int vnum)
 {
     if (count(vnum) <= 0)
         return NULL;

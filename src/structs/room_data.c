@@ -5,7 +5,7 @@
 #include "room_data.h"
 
 bool
-room_data::isOpenAir(void)
+room_data_isOpenAir(void)
 {
 
 	//
@@ -23,7 +23,7 @@ room_data::isOpenAir(void)
 	return false;
 }
 
-room_data::room_data(room_num n, zone_data *z)
+room_data_room_data(room_num n, zone_data *z)
     : thing(ROOM), people(true)
 {
 
@@ -58,7 +58,7 @@ room_data::room_data(room_num n, zone_data *z)
 }
 
 int
-room_data::countExits(void)
+room_data_countExits(void)
 {
 	int idx, result = 0;
 

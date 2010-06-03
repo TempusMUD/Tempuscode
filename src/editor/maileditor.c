@@ -45,7 +45,7 @@ start_editing_mail(descriptor_data *d, mail_recipient_data *recipients)
 	d->text_editor = new CMailEditor(d, recipients);
 }
 
-CMailEditor::CMailEditor(descriptor_data *desc,
+CMailEditor_CMailEditor(descriptor_data *desc,
                          mail_recipient_data *recipients)
     :CEditor(desc, MAX_MAIL_SIZE)
 {
@@ -58,7 +58,7 @@ CMailEditor::CMailEditor(descriptor_data *desc,
     DisplayBuffer();
 }
 
-CMailEditor::~CMailEditor(void)
+CMailEditor_~CMailEditor(void)
 {
     void extract_obj(struct obj_data *obj);
 
@@ -72,18 +72,18 @@ CMailEditor::~CMailEditor(void)
 }
 
 void
-CMailEditor::DisplayBuffer(unsigned int start_line, int line_count)
+CMailEditor_DisplayBuffer(unsigned int start_line, int line_count)
 {
     if (start_line == 1) {
         ListRecipients();
         ListAttachments();
         send_to_desc(desc, "\r\n");
     }
-    CEditor::DisplayBuffer(start_line, line_count);
+    CEditor_DisplayBuffer(start_line, line_count);
 }
 
 bool
-CMailEditor::PerformCommand(char cmd, char *args)
+CMailEditor_PerformCommand(char cmd, char *args)
 {
     switch (cmd) {
 	case 't':
@@ -108,14 +108,14 @@ CMailEditor::PerformCommand(char cmd, char *args)
 			break;
 		}
     default:
-        return CEditor::PerformCommand(cmd, args);
+        return CEditor_PerformCommand(cmd, args);
     }
 
     return true;
 }
 
 void
-CMailEditor::Finalize(const char *text)
+CMailEditor_Finalize(const char *text)
 {
 	int stored_mail = 0;
 	struct descriptor_data *r_d;
@@ -142,7 +142,7 @@ CMailEditor::Finalize(const char *text)
 		mail_rcpt = mail_to;
 	}
 
-    list<string>::iterator si;
+    list<string>_iterator si;
     for (si = cc_list.begin(); si != cc_list.end(); si++) {
         long id = playerIndex.getID(si->c_str());
         stored_mail = store_mail(id, GET_IDNUM(desc->creature),
@@ -177,7 +177,7 @@ CMailEditor::Finalize(const char *text)
 }
 
 void
-CMailEditor::SendModalHelp(void)
+CMailEditor_SendModalHelp(void)
 {
     send_to_desc(desc,
                  "            &YC - &nClear Buffer         &YA - &nAdd Recipient\r\n"
@@ -186,13 +186,13 @@ CMailEditor::SendModalHelp(void)
 }
 
 void
-CMailEditor::Cancel(void)
+CMailEditor_Cancel(void)
 {
     ReturnAttachments();
 }
 
 void
-CMailEditor::ListRecipients(void)
+CMailEditor_ListRecipients(void)
 {
 	struct mail_recipient_data *mail_rcpt = NULL;
 
@@ -206,7 +206,7 @@ CMailEditor::ListRecipients(void)
 }
 
 void
-CMailEditor::ListAttachments(void)
+CMailEditor_ListAttachments(void)
 {
     struct obj_data *o, *next_obj;
 
@@ -231,7 +231,7 @@ CMailEditor::ListAttachments(void)
 }
 
 void
-CMailEditor::AddRecipient(char *name)
+CMailEditor_AddRecipient(char *name)
 {
 	long new_id_num = 0;
 	struct mail_recipient_data *cur = NULL;
@@ -307,7 +307,7 @@ CMailEditor::AddRecipient(char *name)
 }
 
 void
-CMailEditor::RemRecipient(char *name)
+CMailEditor_RemRecipient(char *name)
 {
 	int removed_idnum = -1;
 	struct mail_recipient_data *cur = NULL;
@@ -426,7 +426,7 @@ CMailEditor::RemRecipient(char *name)
 }
 
 void
-CMailEditor::AddAttachment(char *obj_name)
+CMailEditor_AddAttachment(char *obj_name)
 {
     struct obj_data *obj = NULL, *o = NULL;
     char *msg;
@@ -524,7 +524,7 @@ CMailEditor::AddAttachment(char *obj_name)
 }
 
 void
-CMailEditor::ReturnAttachments(void)
+CMailEditor_ReturnAttachments(void)
 {
     struct obj_data *o, *next_obj;
 

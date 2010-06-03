@@ -49,7 +49,7 @@ ACMD(do_map)
 	}
 	WAIT_STATE(ch, 1 RL_SEC);
 }
-MapToken::MapToken(int d, int r, int c, room_data * s, room_data * t)
+MapToken_MapToken(int d, int r, int c, room_data * s, room_data * t)
 {
 	direction = d;
 	row = r;
@@ -59,7 +59,7 @@ MapToken::MapToken(int d, int r, int c, room_data * s, room_data * t)
 	targetID = t->number;
 	next = NULL;
 }
-Mapper::Mapper(Creature * ch, int rows, int columns)
+Mapper_Mapper(Creature * ch, int rows, int columns)
 {
 	mapDisplay = new MapPixel[rows * columns];
 	mapStack = NULL;
@@ -72,7 +72,7 @@ Mapper::Mapper(Creature * ch, int rows, int columns)
 	full = false;
 }
 
-Mapper::~Mapper()
+Mapper_~Mapper()
 {
 	if (mapDisplay != NULL) {
 		delete[]mapDisplay;
@@ -80,7 +80,7 @@ Mapper::~Mapper()
 	}
 }
 void
-Mapper::display(int bRows, int bCols)
+Mapper_display(int bRows, int bCols)
 {
 	string line;
 	char pen;
@@ -287,7 +287,7 @@ Mapper::display(int bRows, int bCols)
 }
 
 bool
-Mapper::drawRoom(room_data * s, room_data * t, long row, long col)
+Mapper_drawRoom(room_data * s, room_data * t, long row, long col)
 {
 	int position = (row * columns) + col;
 	short exits = 0;
@@ -319,7 +319,7 @@ Mapper::drawRoom(room_data * s, room_data * t, long row, long col)
 }
 
 void
-Mapper::drawLink(room_data * s,	// Source Room
+Mapper_drawLink(room_data * s,	// Source Room
                  room_data * t, // Target Room
                  int row,       // Target's row
                  int col,       // Target's col
@@ -443,7 +443,7 @@ MAP(room_data * mappedRoom, int mappedDirection)
 }
 
 bool
-Mapper::build(bool stayzone)
+Mapper_build(bool stayzone)
 {
 	int i;
 	long row, col;

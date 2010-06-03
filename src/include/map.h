@@ -41,8 +41,7 @@ struct _sectToPen {
     string hNorthNoExitPen;
 };
 
-class MapPixel {
-    public:
+struct MapPixel {
         MapPixel() {
             _doorPen = "#";
             _upExitPen = "\\";
@@ -139,7 +138,6 @@ class MapPixel {
         static int hSize;
         static int vSize;
 
-    private:
         int _xCoord;
         int _yCoord;
         string _doorPen;
@@ -153,8 +151,7 @@ class MapPixel {
         bool _dontDraw;
 };
 
-class Map : vector<MapPixel> {
-    public:
+struct Map : vector<MapPixel> {
         friend class MapPixel;
 
         Map(Creature *ch, int hsize, int vsize);
@@ -162,14 +159,13 @@ class Map : vector<MapPixel> {
 
         bool draw();
 
-        Map::iterator find(int x, int y);
+        Map_iterator find(int x, int y);
 
         bool build();
         void display();
 
         static struct _sectToPen sectToPen[NUM_SECT_TYPES];
 
-    private:
         int _hsize, _vsize;
         queue<MapPixel> _roomQueue;
         vector<string> _map;

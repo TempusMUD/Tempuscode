@@ -206,7 +206,7 @@ int
 tarrasque_fight(struct Creature *tarr)
 {
 	struct Creature *vict = NULL, *vict2 = NULL;
-	CreatureList::iterator it;
+	CreatureList_iterator it;
 
 	if (!tarr->isFighting()) {
 		errlog("FIGHTING(tarr) == NULL in tarrasque_fight!!");
@@ -482,7 +482,7 @@ SPECIAL(tarrasque)
 		}
 
 		if (tarr->in_room->people.size() >= 1) {
-			CreatureList::iterator it = tarr->in_room->people.begin();
+			CreatureList_iterator it = tarr->in_room->people.begin();
 			for (; it != tarr->in_room->people.end(); ++it) {
 				if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
 					if ((*it)->getPosition() < POS_STANDING)
@@ -512,7 +512,7 @@ SPECIAL(tarrasque)
 				return 1;
 			}
 			if (tarr->in_room->people.size() >= 1) {
-				CreatureList::iterator it = tarr->in_room->people.begin();
+				CreatureList_iterator it = tarr->in_room->people.begin();
 				for (; it != tarr->in_room->people.end(); ++it) {
 					if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
 						if ((*it)->getPosition() < POS_STANDING)

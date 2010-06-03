@@ -349,7 +349,7 @@ boot_db(void)
 	top_unique_id = atol(PQgetvalue(res, 0, 0));
 	slog("Top unique object id = %ld", top_unique_id);
 
-	Account::boot();
+	Account_boot();
 	load_bounty_data();
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
@@ -411,7 +411,7 @@ boot_db(void)
 	sort_commands();
 	sort_spells();
 	sort_skills();
-	Security::loadGroups();
+	Security_loadGroups();
 
 	slog("Compiling progs.");
 	compile_all_progs();
@@ -465,7 +465,7 @@ boot_db(void)
 void
 clear_world(void)
 {
-	MobileMap::iterator mit = mobilePrototypes.begin();
+	MobileMap_iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		Creature *mobile = mit->second;
         free(MOB_SHARED(mobile)->func_param);
@@ -478,7 +478,7 @@ clear_world(void)
         delete mobile;
     }
 
-	ObjectMap::iterator oit = objectPrototypes.begin();
+	ObjectMap_iterator oit = objectPrototypes.begin();
 	for (; oit != objectPrototypes.end(); ++oit) {
 		obj_data *object = oit->second;
         free(object->shared->func_param);
@@ -487,8 +487,8 @@ clear_world(void)
         free_obj(object);
     }
 
-    extern std::vector<Craftshop *> shop_list;
-    std::vector<Craftshop *>::iterator sit = shop_list.begin();
+    extern std_vector<Craftshop *> shop_list;
+    std_vector<Craftshop *>::iterator sit = shop_list.begin();
     for (; sit != shop_list.end(); ++sit)
         delete *sit;
 }
@@ -1330,7 +1330,7 @@ compile_all_progs(void)
             prog_compile(NULL, room, PROG_TYPE_ROOM);
 
 	// Compile all mob progs
-	MobileMap::iterator mit = mobilePrototypes.begin();
+	MobileMap_iterator mit = mobilePrototypes.begin();
 	Creature *mobile;
 
 	for (; mit != mobilePrototypes.end(); ++mit) {
@@ -2317,7 +2317,7 @@ vnum_mobile(char *searchname, struct Creature *ch)
 
 	strcpy(buf, "");
 
-	MobileMap::iterator mit = mobilePrototypes.begin();
+	MobileMap_iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		mobile = mit->second;
 		if (namelist_match(searchname, mobile->player.name)) {
@@ -2344,7 +2344,7 @@ vnum_object(char *searchname, struct Creature *ch)
 	int found = 0;
 
 	strcpy(buf, "");
-    ObjectMap::iterator oi = objectPrototypes.begin();
+    ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
 		if (namelist_match(searchname, obj->aliases)) {
@@ -2835,7 +2835,7 @@ reset_zone(struct zone_data *zone)
 	struct special_search_data *srch = NULL;
 
 	// Send SPECIAL_RESET notification to all mobiles with specials
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		// Wrong zone
 		if ((*cit)->in_room->zone != zone)
@@ -2891,7 +2891,7 @@ reset_zone(struct zone_data *zone)
 					if (mob) {
 						char_to_room(mob, room,false);
 						if (GET_MOB_LEADER(mob) > 0) {
-							CreatureList::iterator it =
+							CreatureList_iterator it =
 								mob->in_room->people.begin();
 							for (; it != mob->in_room->people.end(); ++it) {
 								if ((*it) != mob && IS_NPC((*it))

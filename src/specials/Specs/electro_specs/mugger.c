@@ -23,7 +23,7 @@ SPECIAL(mugger)
 	int idx;
 	Creature *vict, *found_vict;
 	obj_data *obj;
-	CreatureList::iterator it;
+	CreatureList_iterator it;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
 		return 0;

@@ -34,7 +34,6 @@
 #include "defs.h"
 #include "macros.h"
 #include "obj_data.h"
-#include "creature_list.h"
 #include "creature.h"
 #include "desc_data.h"
 #include "room_data.h"
@@ -81,11 +80,6 @@ struct message_list {
 	int a_type;					/* Attack type                                */
 	int number_of_attacks;		/* How many attack messages to chose from. */
 	struct message_type *msg;	/* List of messages.                        */
-};
-
-struct weap_spec_info {
-	double multiplier;
-	int max;
 };
 
 extern struct player_special_data dummy_mob;	/* dummy spec area for mobs         */

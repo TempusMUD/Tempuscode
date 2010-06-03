@@ -39,11 +39,11 @@ const char *compact_levels[] = {
 
 char *get_account_file_path(long id);
 
-long Account::_top_id = 0;
-vector <Account *> Account::_cache;
+long Account__top_id = 0;
+vector <Account *> Account__cache;
 
 void
-Account::boot(void)
+Account_boot(void)
 {
 	PGresult *res;
 
@@ -60,12 +60,12 @@ Account::boot(void)
 }
 
 size_t
-Account::cache_size(void)
+Account_cache_size(void)
 {
 	return _cache.size();
 }
 
-Account::Account(void)
+Account_Account(void)
 	: _chars(), _trusted()
 {
 	time_t now;
@@ -92,7 +92,7 @@ Account::Account(void)
 	_term_width = DEFAULT_TERM_WIDTH;
 }
 
-Account::~Account(void)
+Account_~Account(void)
 {
     free(_name);
     free(_password);
@@ -100,11 +100,11 @@ Account::~Account(void)
     free(_creation_addr);
     free(_login_addr);
 
-	Account::remove(this);
+	Account_remove(this);
 }
 
 void
-Account::preload(const char *conditions)
+Account_preload(const char *conditions)
 {
 	long acct_count, field_count, field_idx;
 	const char **fields;
@@ -125,9 +125,9 @@ Account::preload(const char *conditions)
     for (int acct_idx = 0;acct_idx < acct_count;acct_idx++) {
         // Make sure we don't reload one that's already in the cache
         long idnum = atol(PQgetvalue(res, acct_idx, 0));
-        vector<Account *>::iterator it;
+        vector<Account *>_iterator it;
 
-        it = lower_bound(_cache.begin(), _cache.end(), idnum, Account::cmp());
+        it = lower_bound(_cache.begin(), _cache.end(), idnum, Account_cmp());
         if (it != _cache.end() && (*it)->get_idnum() == idnum)
             continue;
 
@@ -141,14 +141,14 @@ Account::preload(const char *conditions)
         new_acct->load_trusted();
 
         _cache.push_back(new_acct);
-        std::sort(_cache.begin(),_cache.end(), Account::cmp());
+        std_sort(_cache.begin(),_cache.end(), Account::cmp());
         slog("Account %ld preloaded from database", idnum);
     }
 	delete [] fields;
 }
 
 bool
-Account::load(long idnum)
+Account_load(long idnum)
 {
 	long acct_count, field_count, field_idx;
 	const char **fields;
@@ -181,18 +181,18 @@ Account::load(long idnum)
 
 	slog("Account %d loaded from database", _id);
 	_cache.push_back(this);
-	std::sort(_cache.begin(),_cache.end(), Account::cmp());
+	std_sort(_cache.begin(),_cache.end(), Account::cmp());
 	return true;
 }
 
 bool
-Account::reload(void)
+Account_reload(void)
 {
-	vector<Account *>::iterator it;
+	vector<Account *>_iterator it;
 
 	_trusted.clear();
 	_chars.clear();
-	it = lower_bound(_cache.begin(), _cache.end(), _id, Account::cmp());
+	it = lower_bound(_cache.begin(), _cache.end(), _id, Account_cmp());
 	if (it != _cache.end() && (*it)->get_idnum() == _id)
 		_cache.erase(it);
 
@@ -200,7 +200,7 @@ Account::reload(void)
 }
 
 void
-Account::set(const char *key, const char *val)
+Account_set(const char *key, const char *val)
 {
 	if (!strcmp(key, "idnum"))
 		_id = atol(val);
@@ -245,7 +245,7 @@ Account::set(const char *key, const char *val)
 }
 
 void
-Account::load_players(void)
+Account_load_players(void)
 {
 	long count, idx;
 	PGresult *res;
@@ -287,7 +287,7 @@ Account::load_players(void)
 	// account still has more than the maximum, make sure they only
 	// have access to the max.
     if (chars_available() < 0) {
-        vector<long>::iterator vi = _chars.begin();
+        vector<long>_iterator vi = _chars.begin();
         vi += _chars.size() + chars_available();
         _chars.erase(vi, _chars.end());
     }
@@ -296,7 +296,7 @@ Account::load_players(void)
 }
 
 void
-Account::load_trusted(void)
+Account_load_trusted(void)
 {
     PGresult *res;
 
@@ -307,19 +307,19 @@ Account::load_trusted(void)
 }
 
 void
-Account::add_trusted(long idnum)
+Account_add_trusted(long idnum)
 {
 	_trusted.push_back(idnum);
 }
 
 Account*
-Account::retrieve(int id)
+Account_retrieve(int id)
 {
-	vector <Account *>::iterator it;
+	vector <Account *>_iterator it;
 	Account *acct;
 
 	// First check to see if we already have it in memory
-	it = lower_bound( _cache.begin(), _cache.end(), id, Account::cmp() );
+	it = lower_bound( _cache.begin(), _cache.end(), id, Account_cmp() );
 	if( it != _cache.end() && (*it)->get_idnum() == id )
 		return *it;
 
@@ -332,7 +332,7 @@ Account::retrieve(int id)
 }
 
 bool
-Account::exists( int accountID )
+Account_exists( int accountID )
 {
 	PGresult *res;
 	bool result;
@@ -344,9 +344,9 @@ Account::exists( int accountID )
 }
 
 Account*
-Account::retrieve(const char *name)
+Account_retrieve(const char *name)
 {
-	vector <Account *>::iterator it;
+	vector <Account *>_iterator it;
 	Account *acct;
 	PGresult *res;
 	int acct_id;
@@ -375,7 +375,7 @@ Account::retrieve(const char *name)
 }
 
 Account*
-Account::retrieve(Creature *ch)
+Account_retrieve(Creature *ch)
 {
 	int acct_id;
 
@@ -392,11 +392,11 @@ Account::retrieve(Creature *ch)
     if (!acct_id)
         return NULL;
 
-    return Account::retrieve(acct_id);
+    return Account_retrieve(acct_id);
 }
 
 Account *
-Account::create(const char *name, descriptor_data *d)
+Account_create(const char *name, descriptor_data *d)
 {
 	Account *result;
 
@@ -404,14 +404,14 @@ Account::create(const char *name, descriptor_data *d)
 	result = new Account;
 	result->initialize(name, d, _top_id);
 	_cache.push_back(result);
-	std::sort(_cache.begin(),_cache.end(), Account::cmp());
+	std_sort(_cache.begin(),_cache.end(), Account::cmp());
 	return result;
 }
 
 bool
-Account::remove(Account *acct)
+Account_remove(Account *acct)
 {
-	vector <Account *>::iterator it;
+	vector <Account *>_iterator it;
 
 	for (it = _cache.begin();it != _cache.end();it++)
 		if (*it == acct) {
@@ -423,14 +423,14 @@ Account::remove(Account *acct)
 }
 
 int
-Account::chars_available()
+Account_chars_available()
 {
 	return countGens() / 10 + 10 - get_char_count();
 }
 
 // Create a brand new character
 Creature *
-Account::create_char(const char *name)
+Account_create_char(const char *name)
 {
 	Creature *ch;
 	int i;
@@ -528,10 +528,10 @@ Account::create_char(const char *name)
 }
 
 void
-Account::delete_char(Creature *ch)
+Account_delete_char(Creature *ch)
 {
 	void remove_bounties(int);
-	vector<long>::iterator it;
+	vector<long>_iterator it;
 	clan_data *clan;
 	int idx, count;
 	PGresult *res;
@@ -558,9 +558,9 @@ Account::delete_char(Creature *ch)
 	sql_exec("delete from clan_members where player=%ld", GET_IDNUM(ch));
 
 	// Remove character from any access groups
-	list<Security::Group>::iterator group;
+	list<Security_Group>::iterator group;
 
-	for (group = Security::groups.begin();group != Security::groups.end();group++)
+	for (group = Security_groups.begin();group != Security::groups.end();group++)
 		group->removeMember(GET_IDNUM(ch));
 	sql_exec("delete from sgroup_members where player=%ld", GET_IDNUM(ch));
 
@@ -580,7 +580,7 @@ Account::delete_char(Creature *ch)
 	res = sql_query("select account from trusted where player=%ld", GET_IDNUM(ch));
 	count = PQntuples(res);
 	for (idx = 0;idx < count;idx++) {
-		acct = Account::retrieve(atoi(PQgetvalue(res, idx, 0)));
+		acct = Account_retrieve(atoi(PQgetvalue(res, idx, 0)));
 		if (acct)
 			acct->distrust(GET_IDNUM(ch));
 	}
@@ -608,7 +608,7 @@ Account::delete_char(Creature *ch)
 }
 
 bool
-Account::authenticate(const char *pw)
+Account_authenticate(const char *pw)
 {
 	if(_password == NULL || *_password == '\0') {
 		errlog("Account %s[%d] has NULL password. Setting to guess.", _name, _id );
@@ -618,14 +618,14 @@ Account::authenticate(const char *pw)
 }
 
 void
-Account::login(descriptor_data *d)
+Account_login(descriptor_data *d)
 {
 	slog("login: %s[%d] from %s", _name, get_idnum(), d->host);
 	set_desc_state(CXN_MENU, d);
 }
 
 void
-Account::logout(descriptor_data *d, bool forced)
+Account_logout(descriptor_data *d, bool forced)
 {
 	if (_password) {
 		_login_time = time(NULL);
@@ -647,7 +647,7 @@ Account::logout(descriptor_data *d, bool forced)
 }
 
 void
-Account::initialize(const char *name, descriptor_data *d, int idnum)
+Account_initialize(const char *name, descriptor_data *d, int idnum)
 {
 	_id = idnum;
 	_name = strdup(name);
@@ -675,7 +675,7 @@ Account::initialize(const char *name, descriptor_data *d, int idnum)
 }
 
 void
-Account::set_password(const char *pw)
+Account_set_password(const char *pw)
 {
 	char salt[13] = "$1$........$";
 	int idx;
@@ -699,7 +699,7 @@ Account::set_password(const char *pw)
 }
 
 void
-Account::set_banned(bool banned)
+Account_set_banned(bool banned)
 {
 	_banned = banned;
 	sql_exec("update accounts set banned='%s' where idnum=%d",
@@ -707,7 +707,7 @@ Account::set_banned(bool banned)
 }
 
 void
-Account::set_reputation(int amt)
+Account_set_reputation(int amt)
 {
 	if (amt >= 0) {
 		_reputation = amt;
@@ -717,7 +717,7 @@ Account::set_reputation(int amt)
 }
 
 void
-Account::gain_reputation(int amt)
+Account_gain_reputation(int amt)
 {
     if (amt != 0) {
         _reputation += amt;
@@ -729,21 +729,21 @@ Account::gain_reputation(int amt)
 }
 
 void
-Account::deposit_past_bank(money_t amt)
+Account_deposit_past_bank(money_t amt)
 {
 	if (amt > 0)
 		set_past_bank(_bank_past + amt);
 }
 
 void
-Account::deposit_future_bank(money_t amt)
+Account_deposit_future_bank(money_t amt)
 {
 	if (amt > 0)
 		set_future_bank(_bank_future + amt);
 }
 
 void
-Account::withdraw_past_bank(money_t amt)
+Account_withdraw_past_bank(money_t amt)
 {
 	if (amt <= 0)
 		return;
@@ -753,7 +753,7 @@ Account::withdraw_past_bank(money_t amt)
 }
 
 void
-Account::withdraw_future_bank(money_t amt)
+Account_withdraw_future_bank(money_t amt)
 {
 	if (amt <= 0)
 		return;
@@ -763,7 +763,7 @@ Account::withdraw_future_bank(money_t amt)
 }
 
 void
-Account::set_email_addr(const char *addr)
+Account_set_email_addr(const char *addr)
 {
 	_email = strdup(addr);
 	if (strlen(_email) > 60)
@@ -773,21 +773,21 @@ Account::set_email_addr(const char *addr)
 }
 
 long
-Account::get_char_by_index(int idx)
+Account_get_char_by_index(int idx)
 {
 	return _chars[idx - 1];
 }
 
 bool
-Account::invalid_char_index(int idx)
+Account_invalid_char_index(int idx)
 {
 	return (idx < 1 || idx > (int)_chars.size());
 }
 
 void
-Account::move_char(long id, Account *dest)
+Account_move_char(long id, Account *dest)
 {
-	vector<long>::iterator it;
+	vector<long>_iterator it;
 
 	// Remove character from account
 	it = lower_bound(_chars.begin(), _chars.end(), id);
@@ -802,7 +802,7 @@ Account::move_char(long id, Account *dest)
 }
 
 void
-Account::exhume_char( Creature *exhumer, long id )
+Account_exhume_char( Creature *exhumer, long id )
 {
 	if( playerIndex.exists(id) ) {
 		send_to_char(exhumer, "That character has already been exhumed.\r\n");
@@ -826,29 +826,29 @@ Account::exhume_char( Creature *exhumer, long id )
 }
 
 bool
-Account::deny_char_entry(Creature *ch)
+Account_deny_char_entry(Creature *ch)
 {
 	Creature *tch;
 
     // Admins and full wizards can multi-play all they want
-    if (Security::isMember(ch, "WizardFull"))
+    if (Security_isMember(ch, "WizardFull"))
         return false;
-    if (Security::isMember(ch, "AdminFull"))
+    if (Security_isMember(ch, "AdminFull"))
         return false;
 
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (;cit != characterList.end(); ++cit) {
 		tch = *cit;
 		if (tch->account == this) {
             // Admins and full wizards can multi-play all they want
-			if (Security::isMember(tch, "WizardFull"))
+			if (Security_isMember(tch, "WizardFull"))
 				return false;
-            if (Security::isMember(tch, "AdminFull"))
+            if (Security_isMember(tch, "AdminFull"))
 				return false;
             // builder can have on a tester and vice versa.
-            if (Security::isMember(tch, "OLC") && ch->isTester())
+            if (Security_isMember(tch, "OLC") && ch->isTester())
 				return false;
-            if (ch->isTester() && Security::isMember(tch, "OLC"))
+            if (ch->isTester() && Security_isMember(tch, "OLC"))
 				return false;
 			// We have a non-immortal already in the game, so they don't
 			// get to come in
@@ -860,7 +860,7 @@ Account::deny_char_entry(Creature *ch)
 }
 
 bool
-Account::is_logged_in() const
+Account_is_logged_in() const
 {
     list<descriptor_data*> connections;
 	for( descriptor_data *d = descriptor_list; d != NULL; d = d->next ) {
@@ -872,16 +872,16 @@ Account::is_logged_in() const
 }
 
 void
-Account::update_last_entry(void)
+Account_update_last_entry(void)
 {
 	_entry_time = time(0);
 	sql_exec("update accounts set entry_time=now() where idnum=%d", _id);
 }
 
 bool
-Account::isTrusted(long idnum)
+Account_isTrusted(long idnum)
 {
-	vector<long>::iterator it;
+	vector<long>_iterator it;
 
 	for (it = _chars.begin();it != _chars.end();it++)
 		if (*it == idnum)
@@ -895,9 +895,9 @@ Account::isTrusted(long idnum)
 }
 
 void
-Account::trust(long idnum)
+Account_trust(long idnum)
 {
-	vector<long>::iterator it;
+	vector<long>_iterator it;
 
 	for (it = _trusted.begin();it != _trusted.end();it++)
 		if (*it == idnum)
@@ -909,9 +909,9 @@ Account::trust(long idnum)
 }
 
 void
-Account::distrust(long idnum)
+Account_distrust(long idnum)
 {
-	vector<long>::iterator it;
+	vector<long>_iterator it;
 
 	for (it = _trusted.begin();it != _trusted.end();it++) {
 		if (*it == idnum) {
@@ -924,9 +924,9 @@ Account::distrust(long idnum)
 }
 
 void
-Account::displayTrusted(Creature *ch)
+Account_displayTrusted(Creature *ch)
 {
-	vector<long>::iterator it;
+	vector<long>_iterator it;
 	int col = 0;
 
 	for (it = _trusted.begin();it != _trusted.end();it++) {
@@ -944,7 +944,7 @@ Account::displayTrusted(Creature *ch)
 }
 
 void
-Account::set_ansi_level(int level)
+Account_set_ansi_level(int level)
 {
 	_ansi_level = level;
 	sql_exec("update accounts set ansi_level=%d where idnum=%d",
@@ -952,7 +952,7 @@ Account::set_ansi_level(int level)
 }
 
 void
-Account::set_compact_level(int level)
+Account_set_compact_level(int level)
 {
 	_compact_level = level;
 	sql_exec("update accounts set compact_level=%d where idnum=%d",
@@ -960,7 +960,7 @@ Account::set_compact_level(int level)
 }
 
 void
-Account::set_past_bank(money_t amt)
+Account_set_past_bank(money_t amt)
 {
 	_bank_past = amt;
 	sql_exec("update accounts set bank_past=%lld where idnum=%d",
@@ -968,7 +968,7 @@ Account::set_past_bank(money_t amt)
 }
 
 void
-Account::set_future_bank(money_t amt)
+Account_set_future_bank(money_t amt)
 {
 	_bank_future = amt;
 	sql_exec("update accounts set bank_future=%lld where idnum=%d",
@@ -976,7 +976,7 @@ Account::set_future_bank(money_t amt)
 }
 
 void
-Account::set_term_height(int height)
+Account_set_term_height(int height)
 {
 	if (height < 0)
 		height = 0;
@@ -988,7 +988,7 @@ Account::set_term_height(int height)
 }
 
 void
-Account::set_term_width(int width)
+Account_set_term_width(int width)
 {
 	if (width < 0)
 		width = 0;
@@ -1000,7 +1000,7 @@ Account::set_term_width(int width)
 }
 
 void
-Account::set_quest_points(int qp)
+Account_set_quest_points(int qp)
 {
 	if (qp < 0)
 		qp = 0;
@@ -1010,14 +1010,14 @@ Account::set_quest_points(int qp)
 }
 
 void
-Account::set_quest_banned(bool banned)
+Account_set_quest_banned(bool banned)
 {
 	_quest_banned = banned;
 	sql_exec("update accounts set quest_banned='%s' where idnum=%d",
 		_quest_banned ? "T":"F", _id);
 }
 
-int Account::hasCharLevel(int level)
+int Account_hasCharLevel(int level)
 {
     int idx = 1;
     Creature *tmp_ch = new Creature(true);
@@ -1042,7 +1042,7 @@ int Account::hasCharLevel(int level)
 }
 
 int
-Account::hasCharGen(int gen)
+Account_hasCharGen(int gen)
 {
     Creature *tmp_ch = new Creature(true);
 	struct stat st;
@@ -1071,7 +1071,7 @@ Account::hasCharGen(int gen)
 }
 
 int
-Account::countGens()
+Account_countGens()
 {
     Creature *tmp_ch = new Creature(true);
 	struct stat st;

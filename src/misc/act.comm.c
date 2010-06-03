@@ -262,7 +262,7 @@ perform_tell(struct Creature *ch, struct Creature *vict, const char *arg)
 	act(act_str, false, ch, 0, vict, TO_VICT | TO_SLEEP);
 
     if (PLR_FLAGGED(vict, PLR_AFK)
-        && std::find(AFK_NOTIFIES(vict).begin(),
+        && std_find(AFK_NOTIFIES(vict).begin(),
                      AFK_NOTIFIES(vict).end(),
                      GET_IDNUM(ch)) == AFK_NOTIFIES(vict).end()) {
         AFK_NOTIFIES(vict).push_back(GET_IDNUM(ch));
@@ -336,7 +336,7 @@ ACMD(do_tell)
 
 ACMD(do_reply)
 {
-	CreatureList::iterator tch = characterList.begin();
+	CreatureList_iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
 	if (GET_LAST_TELL_FROM(ch) == NOBODY) {
@@ -388,7 +388,7 @@ ACMD(do_reply)
 
 ACMD(do_retell)
 {
-	CreatureList::iterator tch = characterList.begin();
+	CreatureList_iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
 	if (GET_LAST_TELL_TO(ch) == NOBODY) {
@@ -800,7 +800,7 @@ ACMD(do_gen_comm)
 	eff_class = GET_CLASS(ch);
 	eff_clan = GET_CLAN(ch);
 
-	if (subcmd == SCMD_GUILDSAY && Security::isMember(ch, "AdminBasic") && *argument == '>') {
+	if (subcmd == SCMD_GUILDSAY && Security_isMember(ch, "AdminBasic") && *argument == '>') {
 		char *class_str, *tmp_arg;
 
 		tmp_arg = argument + 1;
@@ -842,7 +842,7 @@ ACMD(do_gen_comm)
 	}
 
 	if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
-		if (Security::isMember(ch, "AdminBasic") && *argument == '>') {
+		if (Security_isMember(ch, "AdminBasic") && *argument == '>') {
 			char *tmp_arg;
 
 			tmp_arg = argument + 1;
@@ -939,20 +939,20 @@ ACMD(do_gen_comm)
 		// Must be in same clan or an admin to hear clansay
 		if ((subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) &&
 				GET_CLAN(i->creature) != eff_clan &&
-				!Security::isMember(i->creature, "AdminBasic"))
+				!Security_isMember(i->creature, "AdminBasic"))
 			continue;
 
 		// Must be in same guild or an admin to hear guildsay
 		if (subcmd == SCMD_GUILDSAY &&
 				GET_CLASS(i->creature) != eff_class &&
-				!Security::isMember(i->creature, "AdminBasic"))
+				!Security_isMember(i->creature, "AdminBasic"))
 			continue;
 
 		// Evil and good clerics and knights have different guilds
 		if (subcmd == SCMD_GUILDSAY &&
 				(GET_CLASS(i->creature) == CLASS_CLERIC ||
 				GET_CLASS(i->creature) == CLASS_KNIGHT) &&
-				!Security::isMember(i->creature, "AdminBasic")) {
+				!Security_isMember(i->creature, "AdminBasic")) {
 			if (eff_is_neutral)
 				continue;
 			if (eff_is_evil && !IS_EVIL(i->creature))
@@ -965,7 +965,7 @@ ACMD(do_gen_comm)
 		if (subcmd == SCMD_GUILDSAY &&
 				GET_CLASS(i->creature) == CLASS_MONK &&
 				!IS_NEUTRAL(i->creature) &&
-				!Security::isMember(i->creature, "AdminBasic"))
+				!Security_isMember(i->creature, "AdminBasic"))
 			continue;
 
 		if (IS_NPC(ch) || !IS_IMMORT(i->creature)) {

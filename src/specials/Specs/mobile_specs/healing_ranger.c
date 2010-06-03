@@ -34,8 +34,8 @@ SPECIAL(healing_ranger)
 	case 12:
 	case 13:{
 			found = false;
-			CreatureList::iterator it = ch->in_room->people.begin();
-			CreatureList::iterator nit = ch->in_room->people.begin();
+			CreatureList_iterator it = ch->in_room->people.begin();
+			CreatureList_iterator nit = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				++nit;
 				vict = *it;
@@ -63,7 +63,7 @@ SPECIAL(healing_ranger)
 	case 15:
 	case 16:{
 			found = false;
-			CreatureList::iterator it = ch->in_room->people.begin();
+			CreatureList_iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it) {
 				if (AFF_FLAGGED((*it), AFF_POISON)) {
 					if (GET_MANA(ch) > 50) {
@@ -78,7 +78,7 @@ SPECIAL(healing_ranger)
 	case 18:{
 			found = false;
 			found = false;
-			CreatureList::iterator it = ch->in_room->people.begin();
+			CreatureList_iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && !found; ++it)
 				vict = *it;
 			if (!IS_NPC(vict) && (affected_by_spell(vict, SPELL_BLINDNESS) ||
@@ -96,7 +96,7 @@ SPECIAL(healing_ranger)
 			found = false;
 			if (ch->in_room->zone->weather->sky == SKY_LIGHTNING) {
 				found = false;
-				CreatureList::iterator it = ch->in_room->people.begin();
+				CreatureList_iterator it = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end() && !found; ++it) {
 					vict = *it;
 					if (!affected_by_spell(vict, SPELL_PROT_FROM_LIGHTNING) &&

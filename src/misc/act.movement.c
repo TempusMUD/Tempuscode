@@ -194,7 +194,7 @@ int
 room_count(struct Creature *ch, struct room_data *room)
 {
 	int i = 0;
-	CreatureList::iterator it = room->people.begin();
+	CreatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (IS_NPC((*it)) || (GET_INVIS_LVL((*it)) <= GET_LEVEL(ch))) {
 			if (GET_HEIGHT((*it)) > 1000)
@@ -481,7 +481,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 	}
 
 	if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_GODROOM)
-		&& !Security::isMember(ch, "WizardFull")) {
+		&& !Security_isMember(ch, "WizardFull")) {
 		send_to_char(ch, "You cannot set foot in that Ultracosmic place.\r\n");
 		return 1;
 	}
@@ -616,7 +616,7 @@ do_simple_move(struct Creature *ch, int dir, int mode,
 
     // At this point we're definately going to move.  Let's iterate though
     // the people in the room and make sure that no one is fighting us.
-    CreatureList::iterator it;
+    CreatureList_iterator it;
     it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         if ((*it)->findCombat(ch))
@@ -1331,7 +1331,7 @@ perform_move(struct Creature *ch, int dir, int mode, int need_specials_check)
         // iterating twice over the list, storing the visibility into
         // a FIFO of booleans.  It may seem like overkill, but this
         // caused some player confusion.
-        std::queue<bool> visibility;
+        std_queue<bool> visibility;
 
         for (k = ch->followers; k; k = k->next) {
             visibility.push(can_see_creature(k->follower, ch));
@@ -1877,7 +1877,7 @@ ACMD(do_enter)
 	}
 
 	if ((ROOM_FLAGGED(room, ROOM_GODROOM)
-			&& !Security::isMember(ch, "WizardFull"))
+			&& !Security_isMember(ch, "WizardFull"))
 		|| (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)
 			&& (!car->in_room
 				|| CAN_WEAR(car, ITEM_WEAR_TAKE)))
@@ -2430,7 +2430,7 @@ ACMD(do_mount)
 		return;
 	}
 	if (AFF2_FLAGGED(vict, AFF2_MOUNTED)) {
-		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if ((*it)->isMounted() == vict) {
 				send_to_char(ch, "But %s is already mounted on %s!\r\n",

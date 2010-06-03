@@ -12,12 +12,12 @@ PlayerTable playerIndex;
 /**
  *  Creates a blank PlayerTable
 **/
-PlayerTable::PlayerTable()
+PlayerTable_PlayerTable()
 {
 }
 
 long
-PlayerTable::getTopIDNum()
+PlayerTable_getTopIDNum()
 {
 	PGresult *res;
 	long result;
@@ -32,7 +32,7 @@ PlayerTable::getTopIDNum()
 
 /** loads the named victim into the provided Creature **/
 bool
-PlayerTable::loadPlayer(const char* name, Creature *victim) const
+PlayerTable_loadPlayer(const char* name, Creature *victim) const
 {
 	long id = getID(name);
 	return loadPlayer(id, victim);
@@ -40,7 +40,7 @@ PlayerTable::loadPlayer(const char* name, Creature *victim) const
 
 /** loads the victim with the given id into the provided Creature **/
 bool
-PlayerTable::loadPlayer(const long id, Creature *victim) const
+PlayerTable_loadPlayer(const long id, Creature *victim) const
 {
 	if(id <= 0) {
 		return false;
@@ -52,7 +52,7 @@ PlayerTable::loadPlayer(const long id, Creature *victim) const
  * Returns true if and only if the given id is present in the player table.
 **/
 bool
-PlayerTable::exists(long id)
+PlayerTable_exists(long id)
 {
 	PGresult *res;
 	bool result;
@@ -68,7 +68,7 @@ PlayerTable::exists(long id)
 /**
  * Returns true if and only if the given name is present in the player table.
 **/
-bool PlayerTable::exists(const char* name)
+bool PlayerTable_exists(const char* name)
 {
 	PGresult *res;
 	int result;
@@ -89,7 +89,7 @@ bool PlayerTable::exists(const char* name)
  * returns the char's name or NULL if not found.
 **/
 const char *
-PlayerTable::getName(long id)
+PlayerTable_getName(long id)
 {
 	PGresult *res;
 	char *result;
@@ -110,7 +110,7 @@ PlayerTable::getName(long id)
  *
 **/
 long
-PlayerTable::getID(const char *name) const
+PlayerTable_getID(const char *name) const
 {
 	PGresult *res;
 	long result;
@@ -128,7 +128,7 @@ PlayerTable::getID(const char *name) const
 }
 
 long
-PlayerTable::getAccountID(const char *name) const
+PlayerTable_getAccountID(const char *name) const
 {
 	PGresult *res;
 	long result;
@@ -146,7 +146,7 @@ PlayerTable::getAccountID(const char *name) const
 }
 
 long
-PlayerTable::getAccountID(long id) const
+PlayerTable_getAccountID(long id) const
 {
 	PGresult *res;
 	long result;
@@ -163,7 +163,7 @@ PlayerTable::getAccountID(long id) const
 }
 
 size_t
-PlayerTable::size(void) const
+PlayerTable_size(void) const
 {
 	PGresult *res;
 	long result;

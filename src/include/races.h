@@ -4,16 +4,15 @@
 #include <vector>
 #include <map>
 
-class ExecutableObject;
-class CreatureRace;
+struct ExecutableObject;
+struct CreatureRace;
 struct Creature;
 
 using namespace std;
 
 typedef map<int, CreatureRace *> RaceMap;
 
-class CreatureRace {
-    public:
+struct CreatureRace {
         CreatureRace();
         virtual ~CreatureRace() {};
 

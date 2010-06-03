@@ -358,7 +358,7 @@ affect_update(void)
 	int METABOLISM = 0;
 	ACMD(do_stand);
 
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 
@@ -2650,7 +2650,7 @@ mag_affects(int level,
         act("$n looks murderous.  You might want to get out of here!", false,
             ch, 0, 0, TO_ROOM);
 
-        CreatureList::iterator it = ch->in_room->people.begin();
+        CreatureList_iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if (ch == (*it) || !can_see_creature(ch, (*it)))
                 continue;
@@ -2963,7 +2963,7 @@ void
 mag_masses(byte level, struct Creature *ch, int spellnum, int savetype)
 {
 	int found = 0;
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) == ch || !(*it)->findCombat(ch))
 			continue;
@@ -2998,7 +2998,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		return 0;
 
 	if (spellnum == SPELL_MASS_HYSTERIA) {
-		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList_iterator it = ch->in_room->people.begin();
 		for (count = 0; it != ch->in_room->people.end(); ++it)
 			if ((*it) != ch && can_see_creature(ch, (*it)))
 				count++;
@@ -3068,7 +3068,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 		return 0;
 
 	// check for players if caster is not a pkiller
-    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         Creature *vict = *it;
 		if (vict == ch)
@@ -3205,7 +3205,7 @@ mag_areas(byte level, struct Creature *ch, int spellnum, int savetype)
 				adjoin_room = ch->in_room;
 				ch->in_room = was_in;
 
-				CreatureList::iterator it = adjoin_room->people.begin();
+				CreatureList_iterator it = adjoin_room->people.begin();
 				for (; it != adjoin_room->people.end(); ++it) {
                     Creature *vict = *it;
 					if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR)

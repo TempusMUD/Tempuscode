@@ -18,22 +18,22 @@
 #include "voice.h"
 #include "accstr.h"
 
-Voice::Voice(void)
+Voice_Voice(void)
     :_idnum(0), _name(""), _emits()
 {
 }
 
-Voice::Voice(const Voice &o)
+Voice_Voice(const Voice &o)
 {
     *this = o;
 }
 
-Voice::~Voice(void)
+Voice_~Voice(void)
 {
 }
 
 Voice &
-Voice::operator=(const Voice &o)
+Voice_operator=(const Voice &o)
 {
     _idnum = o._idnum;
     _name = o._name;
@@ -43,7 +43,7 @@ Voice::operator=(const Voice &o)
 }
 
 void
-Voice::clear(void)
+Voice_clear(void)
 {
     _idnum = 0;
     _name = "";
@@ -71,7 +71,7 @@ static const char *voice_emit_categories[] = {
 };
 
 bool
-Voice::load(xmlNodePtr node)
+Voice_load(xmlNodePtr node)
 {
     xmlNodePtr child;
 
@@ -89,14 +89,14 @@ Voice::load(xmlNodePtr node)
             return false;
         }
         char *str = (char *)xmlNodeGetContent(child);
-        _emits[emit_idx].push_back(std::string(tmp_trim(str)));
+        _emits[emit_idx].push_back(std_string(tmp_trim(str)));
         free(str);
     }
     return true;
 }
 
 void
-Voice::perform(Creature *ch, thing *vict, voice_situation situation)
+Voice_perform(Creature *ch, void *vict, voice_situation situation)
 {
     if (_emits[situation].empty())
         return;
@@ -111,7 +111,7 @@ Voice::perform(Creature *ch, thing *vict, voice_situation situation)
 }
 
 void
-emit_voice(Creature *ch, thing *vict, voice_situation situation)
+emit_voice(Creature *ch, void *vict, voice_situation situation)
 {
     if (!IS_NPC(ch))
         return;
@@ -126,7 +126,7 @@ emit_voice(Creature *ch, thing *vict, voice_situation situation)
     }
 }
 
-std::map<int,Voice> voices;
+std_map<int,Voice> voices;
 
 void
 boot_voices(void)
@@ -181,7 +181,7 @@ find_voice_idx_by_name(const char *voice_name)
             return result;
         return VOICE_NONE;
     }
-    map<int, Voice>::iterator it = voices.begin();
+    map<int, Voice>_iterator it = voices.begin();
     for (;it != voices.end();++it)
         if (is_abbrev(voice_name, it->second._name.c_str()))
             return it->first;
@@ -206,7 +206,7 @@ show_voices(Creature *ch)
 
     acc_sprintf("VOICES:\r\n");
 
-    map<int, Voice>::iterator it = voices.begin();
+    map<int, Voice>_iterator it = voices.begin();
     for (;it != voices.end();++it) {
         Voice &voice = it->second;
 

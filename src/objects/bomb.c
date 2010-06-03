@@ -332,7 +332,7 @@ bomb_damage_room(Creature *damager, int damager_id, char *bomb_name, int bomb_ty
 	if (!dam)
 		return;
 
-    CreatureList::iterator it;
+    CreatureList_iterator it;
     //make sure we really do want to do damage in this room
     it = room->people.begin();
 	for (; it != room->people.end(); ++it) {

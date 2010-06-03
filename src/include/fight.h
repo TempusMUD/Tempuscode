@@ -101,7 +101,7 @@ CANNOT_DAMAGE(Creature *ch, Creature *vict, obj_data *weap, int attacktype) {
 	return false;
 }
 
-class CallerDiedException {
+struct CallerDiedException {
 };
 
 //

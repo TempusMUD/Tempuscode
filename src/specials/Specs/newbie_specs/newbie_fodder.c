@@ -31,7 +31,7 @@ SPECIAL(newbie_fodder)
 	count = 0;
 	for (idx = NEWBIE_ROOM_MIN;idx < NEWBIE_ROOM_MAX;idx++) {
 		room_data *room;
-		CreatureList::iterator it;
+		CreatureList_iterator it;
 
 		room = real_room(idx);
 		if (!room)

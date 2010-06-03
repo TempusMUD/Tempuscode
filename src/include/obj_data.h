@@ -23,7 +23,6 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include "defs.h"
-#include "thing.h"
 #include "constants.h"
 #include "xml_utils.h"
 #include "macros.h"
@@ -295,19 +294,13 @@ liquid_to_str(int liquid)
 
 /* object flags; used in obj_data */
 struct obj_flag_data {
-	int setWeight(int new_weight);
-	inline int getWeight(void) {
-		return weight;
-	}
 	int value[4];				/* Values of the item (see list)    */
 	byte type_flag;				/* Type of item             */
 	int wear_flags;				/* Where you can wear it        */
 	int extra_flags;			/* If it hums, glows, etc.      */
 	int extra2_flags;			/* More of the same...              */
 	int extra3_flags;			// More, same, different
-  private:
 	int weight;					/* Weight what else                 */
-  public:
 	int timer;					/* Timer for object                 */
 	long bitvector[3];			/* To set chars bits                */
 	int material;				/* material object is made of */
@@ -356,65 +349,8 @@ struct obj_shared_data {
 };
 
 /* ================== Memory Structure for Objects ================== */
-struct obj_data : public thing {
-    obj_data(void) : thing(OBJECT) {}
-
-	bool isUnrentable();
-	int save(FILE * fl);
-	int modifyWeight(int mod_weight);
-	int setWeight(int new_weight);
-	inline int getWeight(void) {
-		return obj_flags.getWeight();
-	}
-	inline int getContainedWeight(void) {
-		obj_data *cur_obj;
-		int result = 0;
-
-		if (!contains)
-			return 0;
-		for (cur_obj = contains; cur_obj; cur_obj = cur_obj->next_content)
-			result += cur_obj->getWeight();
-		return result;
-	}
-	inline int getObjWeight(void) {
-		return getWeight() - getContainedWeight();
-	}
-	inline int getNumContained(void) {
-		obj_data *cur_obj;
-		int result= 0;
-
-		if (!contains)
-			return 0;
-		for (cur_obj = contains; cur_obj; cur_obj = cur_obj->next_content)
-			result++;
-		return result;
-	}
-
-	int getEquipPos(void);
-	int getImplantPos(void);
-
-	void clear();
-
-	bool loadFromXML( obj_data *container,
-				 	  Creature *victim,
-					  room_data *room,
-					  xmlNodePtr node);
-
-    void addAffect(struct tmp_obj_affect *af);
-    void removeAffect(struct tmp_obj_affect *af);
-    /* add == true adds the affect, add == false removes it */
-    void affectModify(struct tmp_obj_affect *af, bool add);
-    void affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
-                    int aff_mode);
-    void normalizeApplies(void);
-    struct tmp_obj_affect *affectedBySpell(int spellnum);
-	void saveToXML( FILE* ouf );
-	room_data *find_room();
-
-    int getVnum() {
-        return shared->vnum;
-    }
-	room_data *in_room;	/* In what room -1 when conta/carr    */
+struct obj_data {
+	struct room_data *in_room;	/* In what room -1 when conta/carr    */
 	int cur_flow_pulse;			/* Keep track of flowing pulse        */
 
 	struct obj_flag_data obj_flags;	/* Object information               */

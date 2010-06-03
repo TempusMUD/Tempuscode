@@ -165,18 +165,18 @@ show_file(struct Creature *ch, const char *fname, int lines)
 {
 	fstream file;
 
-	file.open(fname, ios::in);
+	file.open(fname, ios_in);
 	if (!file) {
 		send_to_char(ch, "It seems to be empty.\r\n");
 		return;
 	}
 
-	file.seekg(0, ios::end);
+	file.seekg(0, ios_end);
 	if (!file.tellg()) {
 		send_to_char(ch, "It seems to be empty.\r\n");
 		return;
 	}
-	file.seekg(0, ios::beg);
+	file.seekg(0, ios_beg);
 
     if (lines > 100) {
         send_to_char(ch,
@@ -196,7 +196,7 @@ show_file(struct Creature *ch, const char *fname, int lines)
        lines = oLines.size() -1;
 
     acc_string_clear();
-    vector<string>::reverse_iterator ri = oLines.rbegin();
+    vector<string>_reverse_iterator ri = oLines.rbegin();
     for (int x = 0; x <= lines; ++x, ++ri) {
         if (*ri != "")
             acc_strcat(ri->c_str(), "\r\n", NULL);

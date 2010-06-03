@@ -56,7 +56,7 @@ search_trans_character(Creature * ch,
 	if (!House_can_enter(ch, targ_room->number) ||
 		!clan_house_can_enter(ch, targ_room) ||
 		(ROOM_FLAGGED(targ_room, ROOM_GODROOM) &&
-			!Security::isMember(ch, "WizardFull")))
+			!Security_isMember(ch, "WizardFull")))
 		return 0;
 
 	was_in = ch->in_room;
@@ -277,7 +277,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			if (!House_can_enter(ch, targ_room->number)
 				|| !clan_house_can_enter(ch, targ_room)
 				|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
-					&& !Security::isMember(ch, "WizardFull"))) {
+					&& !Security_isMember(ch, "WizardFull"))) {
 				return 0;
 			}
 
@@ -355,7 +355,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 			room_data *src_room = ch->in_room;
 			rc = search_trans_character(ch, srch, targ_room);
 
-			CreatureList::iterator it = src_room->people.begin();
+			CreatureList_iterator it = src_room->people.begin();
 			for (; it != src_room->people.end(); ++it) {
 				mob = *it;
 				if (srch->to_room)
@@ -503,7 +503,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
-			CreatureList::iterator it = targ_room->people.begin();
+			CreatureList_iterator it = targ_room->people.begin();
 			for (; it != targ_room->people.end(); ++it) {
 				mob = *it;
 
@@ -584,7 +584,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				act(srch->to_remote, false, targ_room->people, obj, mob,
 					TO_CHAR);
 			}
-			CreatureList::iterator it = targ_room->people.begin();
+			CreatureList_iterator it = targ_room->people.begin();
 			for (mob = NULL; it != targ_room->people.end(); ++it) {
 				mob = *it;
 
@@ -641,7 +641,7 @@ general_search(struct Creature *ch, struct special_search_data *srch,
 				&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 				SET_BIT(srch->flags, SRCH_TRIPPED);
 
-			CreatureList::iterator it = other_rm->people.begin();
+			CreatureList_iterator it = other_rm->people.begin();
 			for (; it != other_rm->people.end(); ++it) {
 				mob = *it;
 				if (!IS_NPC(mob))

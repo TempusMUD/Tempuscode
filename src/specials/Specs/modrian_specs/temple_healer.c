@@ -62,7 +62,7 @@ SPECIAL(temple_healer)
 		case 12:
 		case 13:{
 				found = false;
-				CreatureList::iterator it = self->in_room->people.begin();
+				CreatureList_iterator it = self->in_room->people.begin();
 				for (; it != self->in_room->people.end() && !found; ++it) {
 					vict = *it;
 					if (self == vict || !can_see_creature(self, vict) || !number(0, 2))
@@ -105,7 +105,7 @@ SPECIAL(temple_healer)
 		case 15:
 		case 16:{
 
-				CreatureList::iterator it = self->in_room->people.begin();
+				CreatureList_iterator it = self->in_room->people.begin();
 				for (; it != self->in_room->people.end() && !found; ++it) {
 					vict = *it;
 					if (self == vict || IS_NPC(vict) || !can_see_creature(self, vict)
@@ -133,7 +133,7 @@ SPECIAL(temple_healer)
 		case 17:
 		case 18:{
 				found = false;
-				CreatureList::iterator it = self->in_room->people.begin();
+				CreatureList_iterator it = self->in_room->people.begin();
 				for (; it != self->in_room->people.end() && !found; ++it) {
 					vict = *it;
 

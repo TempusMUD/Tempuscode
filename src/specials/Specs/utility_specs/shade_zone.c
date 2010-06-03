@@ -18,7 +18,7 @@ void
 move_chars(room_data * from, room_data * to)
 {
 	Creature *ch = NULL;
-	CreatureList::iterator it = from->people.begin();
+	CreatureList_iterator it = from->people.begin();
 	for (; it != from->people.end(); ++it) {
 		ch = *it;
 		char_from_room(ch, false);

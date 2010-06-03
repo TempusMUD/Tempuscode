@@ -40,13 +40,12 @@ struct Creature;
 
 #define MAX_HELP_NAME_LENGTH 128
 #define MAX_HELP_TEXT_LENGTH 16384
-class HelpItem {
+struct HelpItem {
 	// Swap two items where they sit in the items list.
 	friend void SwapItems(HelpItem * A, HelpItem * Ap, HelpItem * B,
 		HelpItem * Bp);
 
 	// Most of this should be protected with help_collection as a friend class
-  public:
 	// Member Funcs
 	 HelpItem();
 	~HelpItem();
@@ -97,25 +96,22 @@ class HelpItem {
 	char *name;					// The listed name of the help topic
 	char *text;					// The body of the help topic
 	Creature *editor;
-
-  private:
 	fstream help_file;
 	HelpItem *next;
 	HelpItem *next_show;
 };
-class HelpCollection {
+struct HelpCollection {
 
 	friend void SwapItems(HelpItem * A, HelpItem * Ap, HelpItem * B,
 		HelpItem * Bp);
 	// Christ, most of this should probably be private...
-  public:
 	// Member Funcs
 	 HelpCollection();
 	~HelpCollection();
 	// Calls FindItems then Show
 	void GetTopic(Creature * ch,	// The character that wants the topic
 		char *args,				// the search arguments. (pattern)
-		int mode = 2,			// How to show the item. (see HelpItem::Show())
+		int mode = 2,			// How to show the item. (see HelpItem_Show())
 		bool show_no_app = false,	// Show Unapproved items?
 		int thegroup = HGROUP_PLAYER,	// Which help groups to search through
 		bool searchmode = false);	// Should we search by keyword but still
@@ -147,7 +143,6 @@ class HelpCollection {
 	// Returns a show list of items it found
 	HelpItem * FindItems(char *args, bool find_no_approve =
 		false, int thegroup = HGROUP_PLAYER, bool searchmode = false);
-  private:
 	int top_id;					// The highest id in use..
 	bool need_save;				// Weather something has been changed or not.
 };

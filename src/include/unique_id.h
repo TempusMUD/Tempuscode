@@ -8,8 +8,7 @@
 *  functions are just for database interaction.
 ******************************************************************/
 
-class UniqueID {
-    public:
+struct UniqueID {
         //return the next ID and then update it so next call gets a new one
         static long getNextID();
         //return the next ID but don't update, next call will get the SAME ID
@@ -17,7 +16,6 @@ class UniqueID {
         static void setTopID(long topID);
         static bool modified();
         static void saved();
-    private:
         static long _topID;
         static bool _modified;
 };

@@ -9,8 +9,7 @@
 #include "interpreter.h"
 #include <signal.h>
 
-class MapToken {
-  public:
+struct MapToken {
 	MapToken(int d, int r, int c, room_data * s, room_data * t);
 	void clear() {
 		source = target = NULL;
@@ -30,12 +29,10 @@ class MapToken {
 	int row;
 	int column;
 	long targetID;
-  private:
 	struct room_data *target;
 	struct room_data *source;
 };
-class MapPixel {
-  public:
+struct MapPixel {
 	MapPixel() {
 		terrain = -1;
 		exits = 0;
@@ -45,8 +42,7 @@ class MapPixel {
 	bool mapped;
 };
 
-class Mapper {
-  public:
+struct Mapper {
 	Mapper(Creature * ch, int rows, int columns);
 	~Mapper();
 	bool build(bool stayzone);
@@ -57,7 +53,6 @@ class Mapper {
 	int maxSize;
 	int last;
 	bool full;
-  private:
 	 Creature * ch;			// character doing the mapping
 	int rows, columns;			// size of the desired map
 	MapPixel *mapDisplay;

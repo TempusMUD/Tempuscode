@@ -58,7 +58,7 @@ get_top_container( obj_data* obj )
 bool
 contains( list<obj_data*> &objects, int vnum )
 {
-	list<obj_data*>::iterator it;
+	list<obj_data*>_iterator it;
 	for( it = objects.begin(); it != objects.end(); ++it ) {
 		if( (*it)->shared->vnum == vnum )
 			return true;
@@ -71,7 +71,7 @@ load_oedits( Creature *ch, list<obj_data*> &found )
 {
 	int count = 0;
     obj_data *obj = NULL;
-    ObjectMap::iterator oi = objectPrototypes.begin();
+    ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
 		if( obj->shared->owner_id == GET_IDNUM(ch)  ) {

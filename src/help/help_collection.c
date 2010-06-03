@@ -138,7 +138,7 @@ const char *help_bits[] = {
 };
 
 // Help Collection
-HelpCollection::HelpCollection()
+HelpCollection_HelpCollection()
 {
 	need_save = false;
 	items = NULL;
@@ -146,7 +146,7 @@ HelpCollection::HelpCollection()
 	top_id = 0;
 }
 
-HelpCollection::~HelpCollection()
+HelpCollection_~HelpCollection()
 {
 	HelpItem *i;
 	while (items) {
@@ -158,7 +158,7 @@ HelpCollection::~HelpCollection()
 }
 
 void
-HelpCollection::Push(HelpItem * n)
+HelpCollection_Push(HelpItem * n)
 {
 	if (bottom) {
 		bottom->SetNext(n);
@@ -173,7 +173,7 @@ HelpCollection::Push(HelpItem * n)
 // Mode is how to show the item.
 // Type: 0==normal help, 1==immhelp, 2==olchelp
 void
-HelpCollection::GetTopic(Creature * ch,
+HelpCollection_GetTopic(Creature * ch,
 	char *args,
 	int mode,
 	bool show_no_app,
@@ -193,7 +193,7 @@ HelpCollection::GetTopic(Creature * ch,
 	if (!cur) {
 		fstream help_log;
 
-		help_log.open("log/help.log", ios::out | ios::app);
+		help_log.open("log/help.log", ios_out | ios::app);
 		if (help_log.good()) {
 			time_t ct;
 			char *tmstr;
@@ -233,7 +233,7 @@ HelpCollection::GetTopic(Creature * ch,
 
 // Show all the items
 void
-HelpCollection::List(Creature * ch, char *args)
+HelpCollection_List(Creature * ch, char *args)
 {
 	HelpItem *cur;
 	int start = 0, end = top_id;
@@ -271,7 +271,7 @@ HelpCollection::List(Creature * ch, char *args)
 
 // Create an item. (calls Edit)
 bool
-HelpCollection::CreateItem(Creature * ch)
+HelpCollection_CreateItem(Creature * ch)
 {
 	HelpItem *n;
 
@@ -289,11 +289,11 @@ HelpCollection::CreateItem(Creature * ch)
 
 // Begin editing an item
 bool
-HelpCollection::EditItem(Creature * ch, int idnum)
+HelpCollection_EditItem(Creature * ch, int idnum)
 {
 	// See if you can edit it before you do....
 	HelpItem *cur;
-	if(! Security::isMember( ch, "Help" ) ) {
+	if(! Security_isMember( ch, "Help" ) ) {
 		send_to_char(ch, "You cannot edit help files.\r\n");
 	}
     cur = items;
@@ -309,7 +309,7 @@ HelpCollection::EditItem(Creature * ch, int idnum)
 
 // Clear an item
 bool
-HelpCollection::ClearItem(Creature * ch)
+HelpCollection_ClearItem(Creature * ch)
 {
 	if (!GET_OLC_HELP(ch)) {
 		send_to_char(ch, "You must be editing an item to clear it.\r\n");
@@ -321,7 +321,7 @@ HelpCollection::ClearItem(Creature * ch)
 
 // Save and Item
 bool
-HelpCollection::SaveItem(Creature * ch)
+HelpCollection_SaveItem(Creature * ch)
 {
 	if (!GET_OLC_HELP(ch)) {
 		send_to_char(ch, "You must be editing an item to save it.\r\n");
@@ -335,7 +335,7 @@ HelpCollection::SaveItem(Creature * ch)
 // This should take an optional "mode" argument to specify groups the
 //  returned topic can be part of. e.g. (FindItems(argument,FIND_MODE_OLC))
 HelpItem *
-HelpCollection::FindItems(char *args, bool find_no_approve, int thegroup, bool searchmode)
+HelpCollection_FindItems(char *args, bool find_no_approve, int thegroup, bool searchmode)
 {
 	HelpItem *cur = NULL;
 	HelpItem *list = NULL;
@@ -371,7 +371,7 @@ HelpCollection::FindItems(char *args, bool find_no_approve, int thegroup, bool s
 
 // Save everything.
 bool
-HelpCollection::SaveAll(Creature * ch)
+HelpCollection_SaveAll(Creature * ch)
 {
 	HelpItem *cur;
 	SaveIndex();
@@ -386,14 +386,14 @@ HelpCollection::SaveAll(Creature * ch)
 
 // Save the index
 bool
-HelpCollection::SaveIndex(void)
+HelpCollection_SaveIndex(void)
 {
 	char fname[256];
 	HelpItem *cur = NULL;
 	int num_items = 0;
 	sprintf(fname, "%s/%s", Help_Directory, "index");
 
-	index_file.open(fname, ios::out | ios::trunc);
+	index_file.open(fname, ios_out | ios::trunc);
 	if (!index_file) {
 		errlog("Cannot open help index.");
 		return false;
@@ -416,13 +416,13 @@ HelpCollection::SaveIndex(void)
 
 // Load the items from the index file
 bool
-HelpCollection::LoadIndex()
+HelpCollection_LoadIndex()
 {
 	HelpItem *n;
 	int num_items = 0;
     char line[1024];
 
-	index_file.open(tmp_sprintf("%s/%s", Help_Directory, "index"), ios::in);
+	index_file.open(tmp_sprintf("%s/%s", Help_Directory, "index"), ios_in);
 	if (!index_file) {
 		errlog("Cannot open help index.");
 		return false;
@@ -455,7 +455,7 @@ HelpCollection::LoadIndex()
 // Funnels outside commands into HelpItem functions
 // (that should be protected or something... shrug.)
 bool
-HelpCollection::Set(Creature * ch, char *argument)
+HelpCollection_Set(Creature * ch, char *argument)
 {
 	char arg1[256];
 	if (!GET_OLC_HELP(ch)) {
@@ -490,7 +490,7 @@ HelpCollection::Set(Creature * ch, char *argument)
 // Trims off the text of all the help items that people have looked at.
 // (each text is approx 65k. We only want the ones in ram that we need.)
 void
-HelpCollection::Sync(void)
+HelpCollection_Sync(void)
 {
 	HelpItem *n;
 	for (n = items; n; n = n->Next()) {
@@ -503,7 +503,7 @@ HelpCollection::Sync(void)
 
 // Approve an item
 void
-HelpCollection::ApproveItem(Creature * ch, char *argument)
+HelpCollection_ApproveItem(Creature * ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
@@ -531,7 +531,7 @@ HelpCollection::ApproveItem(Creature * ch, char *argument)
 
 // Unapprove an item
 void
-HelpCollection::UnApproveItem(Creature * ch, char *argument)
+HelpCollection_UnApproveItem(Creature * ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
@@ -559,7 +559,7 @@ HelpCollection::UnApproveItem(Creature * ch, char *argument)
 
 // Give some stat info on the Help System
 void
-HelpCollection::Show(Creature * ch)
+HelpCollection_Show(Creature * ch)
 {
 	int num_items = 0;
 	int num_modified = 0;
@@ -606,7 +606,7 @@ do_hcollect_cmds(Creature *ch)
 }
 
 HelpItem *
-HelpCollection::find_item_by_id(int id)
+HelpCollection_find_item_by_id(int id)
 {
 	HelpItem *cur;
     cur = items;

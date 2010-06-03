@@ -58,7 +58,7 @@ start_editing_text(struct descriptor_data *d, char **dest, int max)
 	d->text_editor = new CTextEditor(d, dest, max);
 }
 
-CTextEditor::CTextEditor(descriptor_data *desc,
+CTextEditor_CTextEditor(descriptor_data *desc,
                          char **target_ptr,
                          int max)
     : CEditor(desc, max)
@@ -71,21 +71,21 @@ CTextEditor::CTextEditor(descriptor_data *desc,
 }
 
 bool
-CTextEditor::PerformCommand(char cmd, char *args)
+CTextEditor_PerformCommand(char cmd, char *args)
 {
     switch (cmd) {
     case 'u':
         UndoChanges();
         break;
     default:
-        return CEditor::PerformCommand(cmd, args);
+        return CEditor_PerformCommand(cmd, args);
     }
 
     return true;
 }
 
 void
-CTextEditor::Cancel(void)
+CTextEditor_Cancel(void)
 {
 	// If editing their description.
 	if (STATE(desc) == CXN_EDIT_DESC) {
@@ -96,7 +96,7 @@ CTextEditor::Cancel(void)
 }
 
 void
-CTextEditor::Finalize(const char *text)
+CTextEditor_Finalize(const char *text)
 {
 	// If we were editing rather than creating, wax what was there.
 	if (target) {

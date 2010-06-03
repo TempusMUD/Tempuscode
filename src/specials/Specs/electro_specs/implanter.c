@@ -454,7 +454,7 @@ implanter_in_session(Creature * ch)
 	if (implanter_sessions.empty())
 		return false;
 
-	list < long >::iterator it;
+	list < long >_iterator it;
 
 	it = implanter_sessions.begin();
 	while (it != implanter_sessions.end())

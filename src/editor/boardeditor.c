@@ -47,7 +47,7 @@ start_editing_board(descriptor_data *d,
 	d->text_editor = new CBoardEditor(d, b_name, idnum, subject, body);
 }
 
-CBoardEditor::CBoardEditor(descriptor_data *desc,
+CBoardEditor_CBoardEditor(descriptor_data *desc,
                            const char *b_name,
                            int id,
                            const char *s,
@@ -65,28 +65,28 @@ CBoardEditor::CBoardEditor(descriptor_data *desc,
     DisplayBuffer();
 }
 
-CBoardEditor::~CBoardEditor(void)
+CBoardEditor_~CBoardEditor(void)
 {
     free(board_name);
     free(subject);
 }
 
 bool
-CBoardEditor::PerformCommand(char cmd, char *args)
+CBoardEditor_PerformCommand(char cmd, char *args)
 {
     switch (cmd) {
     case 'u':
         UndoChanges();
         break;
     default:
-        return CEditor::PerformCommand(cmd, args);
+        return CEditor_PerformCommand(cmd, args);
     }
 
     return true;
 }
 
 void
-CBoardEditor::Finalize(const char *text)
+CBoardEditor_Finalize(const char *text)
 {
     gen_board_save(desc->creature, board_name, idnum, subject, text);
 

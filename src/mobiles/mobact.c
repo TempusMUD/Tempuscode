@@ -758,7 +758,7 @@ void
 burn_update(void)
 {
 
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit)
         burn_update_creature(*cit);
 }
@@ -1472,7 +1472,7 @@ void
 mobile_spec(void)
 {
 	struct Creature *ch;
-	CreatureList::iterator cit, it;
+	CreatureList_iterator cit, it;
     int count = 0;
 
 	extern int no_specials;
@@ -1524,7 +1524,7 @@ single_mobile_activity(Creature *ch)
     struct Creature *vict = NULL, *damager = NULL;
 	struct obj_data *obj, *best_obj, *i;
 	struct affected_type *af_ptr = NULL;
-	CreatureList::iterator cit, it;
+	CreatureList_iterator cit, it;
 	int dir, max, k;
 	struct room_data *room = NULL;
     int cur_class = 0;
@@ -2103,7 +2103,7 @@ single_mobile_activity(Creature *ch)
         !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
         vict = NULL;
         it = ch->in_room->people.begin();
-        CreatureList::iterator nit = ch->in_room->people.begin();
+        CreatureList_iterator nit = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             ++nit;
             vict = *it;
@@ -2550,7 +2550,7 @@ single_mobile_activity(Creature *ch)
 void
 mobile_activity(void)
 {
-    CreatureList::iterator cit = characterList.begin();
+    CreatureList_iterator cit = characterList.begin();
 	for (;cit != characterList.end(); ++cit)
         single_mobile_activity(*cit);
 }
@@ -2565,7 +2565,7 @@ choose_opponent(struct Creature *ch, struct Creature *ignore_vict)
 	struct Creature *best_vict = NULL;
 
 	// first look for someone who is fighting us
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		vict = *it;
 		// ignore bystanders
@@ -2680,7 +2680,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		}
 	}
 
-    list <CharCombat>::iterator li;
+    list <CharCombat>_iterator li;
     li = ch->getCombatList()->begin();
     for (; li != ch->getCombatList()->end(); ++li)
 	    if (detect_opponent_master(ch, li->getOpponent()))
@@ -2746,7 +2746,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 						Creature *was_fighting = ch->findRandomCombat();
 
                         ch->removeAllCombat();
-                        CreatureList::iterator ci = ch->in_room->people.begin();
+                        CreatureList_iterator ci = ch->in_room->people.begin();
                         for (; ci != ch->in_room->people.end(); ++ci) {
                             if ((*ci)->findCombat(ch)) {
                                 (*ci)->removeCombat(ch);
@@ -2779,7 +2779,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 
 		else if (random_binary()) {
 			act("$n releases a deafening scream!!", false, ch, 0, 0, TO_ROOM);
-            CombatDataList::iterator li = ch->getCombatList()->begin();
+            CombatDataList_iterator li = ch->getCombatList()->begin();
             for (; li != ch->getCombatList()->end(); ++li) {
 			    call_magic(ch, li->getOpponent(), 0, NULL, SPELL_FEAR, GET_LEVEL(ch),
                            CAST_BREATH, &return_flags);
@@ -2885,7 +2885,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 		if (random_fractional_5()) {
 			act("$n begins to secrete a disgustingly malodorous oil!",
 				false, ch, 0, 0, TO_ROOM);
-			CreatureList::iterator it = ch->in_room->people.begin();
+			CreatureList_iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
                 Creature *tch = *it;
 				if (!IS_TROG(tch)
@@ -2913,7 +2913,7 @@ mobile_battle_activity(struct Creature *ch, struct Creature *precious_vict)
 	if (IS_DRAGON(ch)) {
 		if (random_number_zero_low(GET_LEVEL(ch)) > 10) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", false, ch, 0, 0, TO_ROOM);
-            CombatDataList::iterator it = ch->getCombatList()->begin();
+            CombatDataList_iterator it = ch->getCombatList()->begin();
             for (; it != ch->getCombatList()->end(); it++) {
                 vict = it->getOpponent();
                 if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
@@ -3401,7 +3401,7 @@ mob_fight_slaad(Creature *ch, Creature *precious_vict)
 
     if (!(vict = choose_opponent(ch, precious_vict)))
         return 0;
-    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it)
         if (IS_SLAAD((*it)))
             num++;
@@ -3544,7 +3544,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 		return 0;
 
 	// see how many devils are already in the room
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (num = 12; it != ch->in_room->people.end(); ++it)
 		if (IS_DEVIL((*it)))
 			num++;
@@ -3606,7 +3606,7 @@ mob_fight_devil(struct Creature *ch, struct Creature *precious_vict)
 	case CLASS_ARCH:
 		if (random_number_zero_low(GET_LEVEL(ch)) > 30) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", false, ch, 0, 0, TO_ROOM);
-			CreatureList::iterator it = ch->in_room->people.begin();
+			CreatureList_iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end() && *it != ch; ++it) {
 				vict = *it;
 				if (vict->findCombat(ch) &&
@@ -3716,7 +3716,7 @@ mob_fight_celestial(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	// see how many celestials are already in the room
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (GET_RACE(*it) == RACE_CELESTIAL || GET_RACE(*it) == RACE_ARCHON)
 			num++;
@@ -3855,7 +3855,7 @@ mob_fight_guardinal(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	// see how many guardinal are already in the room
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (GET_RACE(*it) == RACE_GUARDINAL)
 			num++;
@@ -4007,7 +4007,7 @@ mob_fight_demon(struct Creature *ch, struct Creature *precious_vict)
 	}
 
 	// see how many demon are already in the room
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (num = 0; it != ch->in_room->people.end(); ++it)
 		if (GET_RACE(*it) == RACE_DEMON)
 			num++;

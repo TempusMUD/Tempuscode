@@ -38,7 +38,7 @@ SPECIAL(guard);
 void
 summon_cityguards(room_data *room)
 {
-	CreatureList::iterator it;
+	CreatureList_iterator it;
 	cityguard_data *data;
 	int distance;
 
@@ -163,7 +163,7 @@ call_for_help(Creature *ch, Creature *attacker)
 void
 breakup_fight(Creature *ch, Creature *vict1, Creature *vict2)
 {
-	CreatureList::iterator it;
+	CreatureList_iterator it;
 	Creature *tch;
 
 	for (it = ch->in_room->people.begin();it != ch->in_room->people.end();it++) {
@@ -293,7 +293,7 @@ throw_char_in_jail(struct Creature *ch, struct Creature *vict)
 int
 drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 {
-	CreatureList::iterator it;
+	CreatureList_iterator it;
 	cityguard_data *data;
 	int dir;
 
@@ -349,7 +349,7 @@ drag_char_to_jail(Creature *ch, Creature *vict, room_data *jail_room)
 bool
 is_fighting_cityguard(Creature *ch)
 {
-    CombatDataList::iterator li;
+    CombatDataList_iterator li;
 
     if (ch == NULL)
         return false;
@@ -373,7 +373,7 @@ SPECIAL(cityguard)
 	int jail_num = 0, hq_num = 0;
 	room_data *room;
 	bool lawful;
-	CreatureList::iterator it;
+	CreatureList_iterator it;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_DEATH)
 		return 0;

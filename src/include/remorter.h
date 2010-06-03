@@ -11,8 +11,7 @@ static char arg1[MAX_INPUT_LENGTH];
 /**
  * This class represents a remort quiz question.
  **/
-class Question {
-  public:
+struct Question {
 	// Builds a new question
 	Question();
 	// Builds a question from the given node
@@ -60,7 +59,7 @@ class Question {
 	} bool operator == (const Question & q)const { return (gen == q.gen);
 	} bool operator != (const Question & q)const {
 		return (gen != q.gen);
-  } private:
+    }
 	int id;
 	// The point value of this question
 	int value;
@@ -81,7 +80,7 @@ class Question {
 /**
  * Builds a new question
 **/
-Question::Question()
+Question_Question()
 {
 	value = 4;
 	gen = 0;
@@ -90,7 +89,7 @@ Question::Question()
 /**
  * Builds a question from the given node
 **/
-Question::Question(xmlNodePtr n, xmlDocPtr doc)
+Question_Question(xmlNodePtr n, xmlDocPtr doc)
 {
 	xmlChar *s;
 	gen = xmlGetIntProp(n, "Generation");
@@ -130,7 +129,7 @@ Question::Question(xmlNodePtr n, xmlDocPtr doc)
 
   // Returns true if guess is a correct answer
 bool
-Question::isAnswer(const char *guess)
+Question_isAnswer(const char *guess)
 {
 	for (unsigned int i = 0; i < answers.size(); i++) {
 		if (strcasecmp(answers[i].c_str(), guess) == 0) {
@@ -184,15 +183,14 @@ load_remort_questions()
 	return true;
 }
 
-class Quiz:private vector < Question * > {
-  public:
+struct Quiz:private vector < Question * > {
 	Quiz()
 	:vector < Question * >(remortQuestions.size()) {
 		reset();
-		remortLog.open("log/remorter.log", ios::app | ios::ate);
+		remortLog.open("log/remorter.log", ios_app | ios::ate);
 		if (!remortLog)
 			fprintf(stderr, "Unable to open remorter log file.\n");
-		remortStatistics.open("log/remorter_stats.log", ios::app | ios::ate);
+		remortStatistics.open("log/remorter_stats.log", ios_app | ios::ate);
 		if (!remortStatistics)
 			fprintf(stderr, "Unable to open remorter statistics file.\n");
 	}
@@ -242,7 +240,6 @@ class Quiz:private vector < Question * > {
 	void sendGenDistribution(Creature * ch);
 	void log(const char *message);
 	void logScore();
-  private:
 	// selects all appropriate body of questions from remortQuestions
 	void selectQuestions(Creature * ch);
 	// Character taking the quiz
@@ -270,10 +267,10 @@ class Quiz:private vector < Question * > {
 			/***   BEGIN QUIZ MEMBER FUNCTIONS   ***/
 	// selects another and returns it;
 Question *
-Quiz::nextQuestion()
+Quiz_nextQuestion()
 {
 	if (earnedPoints + lostPoints > 0 && passes == 0) {
-		Quiz::iterator it = begin();
+		Quiz_iterator it = begin();
 		advance(it, current);
 		erase(it);
 	}
@@ -283,17 +280,17 @@ Quiz::nextQuestion()
 
 	// Returns the current Question
 Question *
-Quiz::getQuestion()
+Quiz_getQuestion()
 {
 	return (*this)[current];
 }
 
 float
-Quiz::getAverage(int gen)
+Quiz_getAverage(int gen)
 {
 	if (remortQuestions.size() == 0)
 		return 0;
-	vector <Question>::iterator it = remortQuestions.begin();
+	vector <Question>_iterator it = remortQuestions.begin();
 	float average = 0;
 	int count = 0;
 	for (; it != remortQuestions.end(); ++it) {
@@ -306,11 +303,11 @@ Quiz::getAverage(int gen)
 }
 
 void
-Quiz::sendGenDistribution(Creature * ch)
+Quiz_sendGenDistribution(Creature * ch)
 {
 	if (remortQuestions.size() == 0)
 		return;
-	vector <Question>::iterator it = remortQuestions.begin();
+	vector <Question>_iterator it = remortQuestions.begin();
 	int gen = (*it).getGen();
 	int count = 0;
 	for (; it != remortQuestions.end(); ++it) {
@@ -331,7 +328,7 @@ Quiz::sendGenDistribution(Creature * ch)
 
 	// Print the current question to the character
 void
-Quiz::sendQuestion(Creature * ch)
+Quiz_sendQuestion(Creature * ch)
 {
 	Question *q = getQuestion();
 	if (q == NULL) {
@@ -358,7 +355,7 @@ Quiz::sendQuestion(Creature * ch)
   // Returns true if the given guess is an answer to the current Question
   // Updates lostPoints and earnedPoints.
 bool
-Quiz::makeGuess(Creature * ch, const char *guess)
+Quiz_makeGuess(Creature * ch, const char *guess)
 {
 	Question *q = getQuestion();
 	if (q->isAnswer(guess)) {
@@ -378,7 +375,7 @@ Quiz::makeGuess(Creature * ch, const char *guess)
 
 	// Sends the current status of this quiz to the given char.
 void
-Quiz::sendStatus(Creature * ch)
+Quiz_sendStatus(Creature * ch)
 {
 	send_to_char(ch, "Quiz Subject: %s (%d)\r\n",
 		studentID > 0 ? playerIndex.getName(studentID) : "NONE", studentID);
@@ -395,7 +392,7 @@ Quiz::sendStatus(Creature * ch)
 
 	// Sets up the quiz for this character.
 void
-Quiz::reset(Creature * ch)
+Quiz_reset(Creature * ch)
 {
 	remortStatistics << "# Test reset for " << GET_NAME(ch) << endl;
 	remortStatistics.flush();
@@ -413,7 +410,7 @@ Quiz::reset(Creature * ch)
 	// Clears and resets the quiz.
 	// Reloads quiz data from file
 void
-Quiz::reset()
+Quiz_reset()
 {
 	if (remortQuestions.size() > 0) {
 		remortQuestions.erase(remortQuestions.begin(), remortQuestions.end());
@@ -442,7 +439,7 @@ validQuestion(Creature * ch, Question & q)
 }
 
 void
-Quiz::selectQuestions(Creature * ch)
+Quiz_selectQuestions(Creature * ch)
 {
 	erase(begin(), end());
 	for (unsigned int i = 0; i < remortQuestions.size(); i++) {
@@ -453,20 +450,20 @@ Quiz::selectQuestions(Creature * ch)
 }
 static char logbuf[MAX_STRING_LENGTH];
 void
-Quiz::log(const char *message)
+Quiz_log(const char *message)
 {
 	time_t ct;
 	char *tmstr;
 	ct = time(0);
 	tmstr = asctime(localtime(&ct));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
-	sprintf(logbuf, "%-19.19s :: %s\n", tmstr, message);
+	sprintf(logbuf, "%-19.19s _ %s\n", tmstr, message);
 	remortLog << logbuf;
 	remortLog.flush();;
 }
 
 void
-Quiz::logScore()
+Quiz_logScore()
 {
 	sprintf(buf, "Earned[%d] Missed[%d] Needed[%d] Limit[%d] Score(%%%d)\r\n",
 		earnedPoints, lostPoints, neededPoints, maximumPoints, getScore());

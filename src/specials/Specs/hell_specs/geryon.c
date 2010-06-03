@@ -23,7 +23,7 @@ SPECIAL(geryon)
 		return 1;
 	} else if (number(0, 2))
 		return 0;
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end() && *it != ch; ++it) {
 		if ((*it)->findCombat(ch) &&
 			!number(0, 4) && !affected_by_spell((*it), SPELL_POISON)) {

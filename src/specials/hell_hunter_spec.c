@@ -155,7 +155,7 @@ SPECIAL(hell_hunter_brain)
 			}
             send_to_char(ch, "Hunter blind spots:\r\n");
             int idx = 0;
-            for (vector<int>::iterator it = blindSpots.begin();
+            for (vector<int>_iterator it = blindSpots.begin();
                  it != blindSpots.end(); ++it, ++idx) {
                 zone_data *zone = real_zone(*it);
                 send_to_char(ch, "%3d. [%3d] %s%s%s\r\n", idx, *it,
@@ -382,7 +382,7 @@ SPECIAL(hell_hunter)
 			return 1;
 		}
 
-		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			vict = *it;
 			if (vict == ch)

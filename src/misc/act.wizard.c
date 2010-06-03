@@ -240,7 +240,7 @@ ACMD(do_echo)
         mort_see = tmp_strdup(argument);
         imm_see = tmp_sprintf("[$n] %s", argument);
 
-        CreatureList::iterator it = ch->in_room->people.begin();
+        CreatureList_iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if (GET_LEVEL((*it)) > GET_LEVEL(ch))
                 act(imm_see, false, ch, 0, (*it), TO_VICT);
@@ -329,7 +329,7 @@ find_target_room(struct Creature *ch, char *rawroomstr)
     }
 
     /* a location has been found -- if you're < GRGOD, check restrictions. */
-    if (!Security::isMember(ch, "WizardFull")) {
+    if (!Security_isMember(ch, "WizardFull")) {
         if (location->zone->number == 12 && GET_LEVEL(ch) < LVL_AMBASSADOR) {
             send_to_char(ch, "You can't go there.\r\n");
             return NULL;
@@ -483,9 +483,9 @@ ACMD(do_transport)
 	char *name_str;
 
 	if (GET_LEVEL(ch) < LVL_IMMORT
-			|| !(Security::isMember(ch, "WizardBasic")
-				|| Security::isMember(ch, "Questor")
-                || Security::isMember(ch, "AdminBasic"))) {
+			|| !(Security_isMember(ch, "WizardBasic")
+				|| Security_isMember(ch, "Questor")
+                || Security_isMember(ch, "AdminBasic"))) {
 		send_to_char(ch, "Sorry, but you can't do that here!\r\n");
 		return;
 	}
@@ -646,7 +646,7 @@ do_stat_memory(struct Creature *ch)
 
     sum = mobilePrototypes.size() * (sizeof(struct Creature));
 
-    MobileMap::iterator mit = mobilePrototypes.begin();
+    MobileMap_iterator mit = mobilePrototypes.begin();
     for (; mit != mobilePrototypes.end(); ++mit) {
         mob = mit->second;
         CHARADD(sum, mob->player.name);
@@ -686,7 +686,7 @@ do_stat_memory(struct Creature *ch)
 
     sum = 0;
     i = 0;
-    CreatureList::iterator cit = characterList.begin();
+    CreatureList_iterator cit = characterList.begin();
     for (; cit != characterList.end(); ++cit) {
         chars = *cit;
         if (!IS_NPC(chars))
@@ -784,7 +784,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
     send_to_char(ch, "TimeFrame: [%s]  Plane: [%s]   ",
         time_frames[zone->time_frame], planes[zone->plane]);
 
-    CreatureList::iterator cit = characterList.begin();
+    CreatureList_iterator cit = characterList.begin();
     for (; cit != characterList.end(); ++cit)
         if (IS_NPC((*cit)) && (*cit)->in_room && (*cit)->in_room->zone == zone) {
             numm++;
@@ -793,7 +793,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
 
     if (numm)
         av_lev /= numm;
-    MobileMap::iterator mit = mobilePrototypes.begin();
+    MobileMap_iterator mit = mobilePrototypes.begin();
     Creature *mob;
     for (; mit != mobilePrototypes.end(); ++mit) {
         mob = mit->second;
@@ -842,7 +842,7 @@ do_stat_zone(struct Creature *ch, struct zone_data *zone)
         if (obj->in_room && obj->in_room->zone == zone)
             numo++;
 
-    ObjectMap::iterator oi = objectPrototypes.begin();
+    ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
         if (GET_OBJ_VNUM(obj) >= zone->number * 100 &&
@@ -1054,8 +1054,8 @@ do_stat_room(struct Creature *ch, char *roomstr)
 
     acc_sprintf("Chars present:%s", CCYEL(ch, C_NRM));
 
-    CreatureList::iterator it = rm->people.begin();
-    CreatureList::iterator nit = it;
+    CreatureList_iterator it = rm->people.begin();
+    CreatureList_iterator nit = it;
     for (found = 0; it != rm->people.end(); ++it) {
         ++nit;
         k = *it;
@@ -1603,7 +1603,7 @@ do_stat_character_kills(Creature *ch, Creature *k)
     } else {
         acc_string_clear();
         acc_sprintf("Recently killed by %s:\r\n", GET_NAME(k));
-        std::list<KillRecord>::iterator kill = GET_RECENT_KILLS(k).begin();
+        std_list<KillRecord>::iterator kill = GET_RECENT_KILLS(k).begin();
         for (;kill != GET_RECENT_KILLS(k).end();++kill) {
             Creature *killed = real_mobile_proto(kill->_vnum);
             acc_sprintf("%s%3d. %-30s %17d%s\r\n",
@@ -1668,13 +1668,13 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
 
 	if (IS_PC(k)
         && !(ch->isTester() && ch == k)
-        && !Security::isMember(ch, Security::ADMINBASIC)) {
+        && !Security_isMember(ch, Security::ADMINBASIC)) {
         send_to_char(ch, "You can't stat this player.\r\n");
         return;
 	}
 
 	if (GET_MOB_SPEC(k) == fate
-			&& !Security::isMember(ch, Security::WIZARDBASIC)) {
+			&& !Security_isMember(ch, Security::WIZARDBASIC)) {
         send_to_char(ch, "You can't stat this mob.\r\n");
         return;
 	}
@@ -2048,7 +2048,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
 
     if (GET_LANG_HEARD(k).size()) {
         acc_sprintf("Recently heard: %s", CCCYN(ch, C_NRM));
-        std::list<int>::iterator lang = GET_LANG_HEARD(k).begin();
+        std_list<int>::iterator lang = GET_LANG_HEARD(k).begin();
         bool first = true;
         for (;lang != GET_LANG_HEARD(k).end();++lang) {
             if (first)
@@ -2061,7 +2061,7 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
         acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
     }
     acc_sprintf("Known Languages:\r\n");
-    map<int, Tongue>::iterator it = tongues.begin();
+    map<int, Tongue>_iterator it = tongues.begin();
     for (;it != tongues.end();++it) {
         if (CHECK_TONGUE(k, it->first)) {
             acc_sprintf("%s%3d. %-30s %s%-17s%s%s\r\n",
@@ -2080,14 +2080,14 @@ do_stat_character(Creature *ch, Creature *k, const char *options)
     if (IS_PC(k)) {
         if (!GET_GRIEVANCES(k).empty()) {
             acc_sprintf("Grievances:\r\n");
-            std::list<Grievance>::iterator grievance = GET_GRIEVANCES(k).begin();
+            std_list<Grievance>::iterator grievance = GET_GRIEVANCES(k).begin();
             for (;grievance != GET_GRIEVANCES(k).end();++grievance) {
                 acc_sprintf("%s%3d. %s got %d rep for %s at %s%s\r\n",
                             CCGRN(ch, C_NRM),
                             grievance->_player_id,
                             playerIndex.getName(grievance->_player_id),
                             grievance->_rep,
-                            Grievance::kind_descs[grievance->_grievance],
+                            Grievance_kind_descs[grievance->_grievance],
                             tmp_ctime(grievance->_time),
                             CCNRM(ch, C_NRM));
             }
@@ -2176,8 +2176,8 @@ ACMD(do_stat)
                 send_to_char(ch, "No such player around.\r\n");
         }
     } else if (is_abbrev(arg1, "file")) {
-        if (GET_LEVEL(ch) < LVL_TIMEGOD && !Security::isMember(ch, "AdminFull")
-            && !Security::isMember(ch, "WizardFull")) {
+        if (GET_LEVEL(ch) < LVL_TIMEGOD && !Security_isMember(ch, "AdminFull")
+            && !Security_isMember(ch, "WizardFull")) {
             send_to_char(ch, "You cannot peer into the playerfile.\r\n");
             return;
         }
@@ -2275,7 +2275,7 @@ ACMD(do_shutdown)
             shutdown_idnum = -1;
             shutdown_mode = SHUTDOWN_NONE;
             slog("(GC) Shutdown ABORT called by %s.", GET_NAME(ch));
-            send_to_all(":: Tempus REBOOT sequence aborted ::\r\n");
+            send_to_all("_ Tempus REBOOT sequence aborted ::\r\n");
         }
         return;
 
@@ -2300,7 +2300,7 @@ ACMD(do_shutdown)
         } else {
             slog("(GC) Reboot in [%d] seconds by %s.", count,
                 GET_NAME(ch));
-            sprintf(buf, "\007\007:: Tempus REBOOT in %d seconds ::\r\n",
+            sprintf(buf, "\007\007_ Tempus REBOOT in %d seconds ::\r\n",
                 count);
             send_to_all(buf);
             shutdown_idnum = GET_IDNUM(ch);
@@ -2352,7 +2352,7 @@ stop_snooping(struct Creature *ch)
         send_to_char(ch, "You aren't snooping anyone.\r\n");
     else {
         send_to_char(ch, "You stop snooping.\r\n");
-        vector<descriptor_data *>::iterator vi = ch->desc->snooping->snoop_by.begin();
+        vector<descriptor_data *>_iterator vi = ch->desc->snooping->snoop_by.begin();
         for (; vi != ch->desc->snooping->snoop_by.end(); ++vi) {
             if (*vi == ch->desc) {
                 ch->desc->snooping->snoop_by.erase(vi);
@@ -2385,7 +2385,7 @@ ACMD(do_snoop)
     else if (victim->desc->snooping == ch->desc)
         send_to_char(ch, "Don't be stupid.\r\n");
     else if (ROOM_FLAGGED(victim->in_room, ROOM_GODROOM)
-        && !Security::isMember(ch, "WizardFull")) {
+        && !Security_isMember(ch, "WizardFull")) {
         send_to_char(ch, "You cannot snoop into that place.\r\n");
     } else {
         if (victim->desc->snoop_by.size()) {
@@ -2409,7 +2409,7 @@ ACMD(do_snoop)
 
         if (ch->desc->snooping) {
             descriptor_data *tdesc = ch->desc->snooping;
-            vector<descriptor_data *>::iterator vi = tdesc->snoop_by.begin();
+            vector<descriptor_data *>_iterator vi = tdesc->snoop_by.begin();
             for (; vi != tdesc->snoop_by.end(); ++vi) {
                 if (*vi == ch->desc) {
                     tdesc->snoop_by.erase(vi);
@@ -2958,7 +2958,7 @@ ACMD(do_purge)
             false, ch, 0, 0, TO_ROOM);
         send_to_room("The world seems a little cleaner.\r\n", ch->in_room);
 
-        CreatureList::iterator it = ch->in_room->people.begin();
+        CreatureList_iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if (IS_NPC((*it))) {
                 (*it)->purge(true);
@@ -3074,7 +3074,7 @@ perform_vis(struct Creature *ch)
     }
 
     GET_INVIS_LVL(ch) = 0;
-    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         if ((*it) == ch || !can_see_creature((*it), ch))
             continue;
@@ -3102,7 +3102,7 @@ perform_invis(struct Creature *ch, int level)
     old_level = GET_INVIS_LVL(ch);
     GET_INVIS_LVL(ch) = 0;
 
-    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         if ((*it) == ch || !can_see_creature((*it), ch))
             continue;
@@ -3195,7 +3195,7 @@ ACMD(do_zecho)
     struct descriptor_data *pt;
     struct zone_data *here;
     // charmed mobs and players < LVL_GOD cant use this
-    if ((!IS_NPC(ch) && !Security::isMember(ch, "WizardBasic"))
+    if ((!IS_NPC(ch) && !Security_isMember(ch, "WizardBasic"))
         || (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))) {
         send_to_char(ch, "You probably shouldn't be using this.\r\n");
     }
@@ -3427,7 +3427,7 @@ ACMD(do_force)
 {
     struct descriptor_data *i, *next_desc;
     struct Creature *vict;
-    CreatureList::iterator cit;
+    CreatureList_iterator cit;
     char to_force[MAX_INPUT_LENGTH + 2];
 
     half_chop(argument, arg, to_force);
@@ -3442,7 +3442,7 @@ ACMD(do_force)
     if (GET_LEVEL(ch) >= LVL_GRGOD) {
         // Check for high-level special arguments
         if (!strcasecmp("all", arg) &&
-            Security::isMember(ch, "Coder")) {
+            Security_isMember(ch, "Coder")) {
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true,
                    "(GC) %s forced all to %s", GET_NAME(ch), to_force);
@@ -3478,7 +3478,7 @@ ACMD(do_force)
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
                    GET_NAME(ch), ch->in_room->number, to_force);
-            CreatureList::iterator it = ch->in_room->people.begin();
+            CreatureList_iterator it = ch->in_room->people.begin();
             for (; it != ch->in_room->people.end(); ++it) {
                 if (GET_LEVEL((*it)) >= GET_LEVEL(ch) ||
                     (!IS_NPC((*it)) && GET_LEVEL(ch) < LVL_GRGOD))
@@ -3495,7 +3495,7 @@ ACMD(do_force)
         send_to_char(ch, "%s", NOPERSON);
     } else if (GET_LEVEL(ch) <= GET_LEVEL(vict))
         send_to_char(ch, "No, no, no!\r\n");
-    else if (!IS_NPC(vict) && !Security::isMember(ch, "WizardFull"))
+    else if (!IS_NPC(vict) && !Security_isMember(ch, "WizardFull"))
         send_to_char(ch, "You cannot force players to do things.\r\n");
     else {
         send_to_char(ch, "%s", OK);
@@ -3555,7 +3555,7 @@ ACMD(do_wiznet)
                 ((subcmd == SCMD_IMMCHAT &&
                         !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT)) ||
                     (subcmd == SCMD_WIZNET &&
-                        Security::isMember(d->creature, "WizardBasic") &&
+                        Security_isMember(d->creature, "WizardBasic") &&
 						!PRF_FLAGGED(d->creature, PRF_NOWIZ))) &&
                 (can_see_creature(ch, d->creature) || GET_LEVEL(ch) == LVL_GRIMP)) {
                 if (!any) {
@@ -3585,7 +3585,7 @@ ACMD(do_wiznet)
                 && ((subcmd == SCMD_IMMCHAT
                         && PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
                     || (subcmd == SCMD_WIZNET
-                        && Security::isMember(d->creature, "WizardBasic")
+                        && Security_isMember(d->creature, "WizardBasic")
                         && PRF_FLAGGED(d->creature, PRF_NOWIZ)))
                 && can_see_creature(ch, d->creature)) {
                 if (!any) {
@@ -3646,7 +3646,7 @@ ACMD(do_wiznet)
     for (d = descriptor_list; d; d = d->next) {
         if ((STATE(d) == CXN_PLAYING) && (GET_LEVEL(d->creature) >= level) &&
             (subcmd != SCMD_WIZNET
-                || Security::isMember(d->creature, "WizardBasic"))
+                || Security_isMember(d->creature, "WizardBasic"))
             && (subcmd != SCMD_WIZNET || !PRF_FLAGGED(d->creature, PRF_NOWIZ))
             && (subcmd != SCMD_IMMCHAT
                 || !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
@@ -3936,7 +3936,7 @@ do_show_stats(struct Creature *ch)
     struct special_search_data *srch;
     struct zone_data *zone;
     extern int buf_switches, buf_largecount, buf_overflows;
-    CreatureList::iterator cit = characterList.begin();
+    CreatureList_iterator cit = characterList.begin();
 
     for (; cit != characterList.end(); ++cit) {
         vict = *cit;
@@ -3972,7 +3972,7 @@ do_show_stats(struct Creature *ch)
     send_to_char(ch, "Current statistics of Tempus:\r\n");
     send_to_char(ch, "  %5d players in game  %5d connected\r\n", i, con);
     send_to_char(ch, "  %5zd accounts cached  %5zd characters\r\n",
-                 Account::cache_size(), playerIndex.size());
+                 Account_cache_size(), playerIndex.size());
     send_to_char(ch, "  %5d mobiles          %5zd prototypes (%d id'd)\r\n",
                  j, mobilePrototypes.size(), current_mob_idnum);
     send_to_char(ch, "  %5d objects          %5zd prototypes\r\n",
@@ -4000,7 +4000,7 @@ do_show_stats(struct Creature *ch)
 		get_lunar_phase(lunar_day));
 
     if (GET_LEVEL(ch) >= LVL_LOGALL && log_cmds) {
-        send_to_char(ch, "  Logging all commands :: file is %s.\r\n",
+        send_to_char(ch, "  Logging all commands _ file is %s.\r\n",
             1 ? "OPEN" : "NULL");
     }
     if (shutdown_count >= 0) {
@@ -4016,7 +4016,7 @@ static void
 show_wizcommands(Creature *ch)
 {
     if (IS_PC(ch))
-        Security::sendAvailableCommands(ch, GET_IDNUM(ch));
+        Security_sendAvailableCommands(ch, GET_IDNUM(ch));
     else
         send_to_char(ch, "You are a mobile. Deal with it.\r\n");
 }
@@ -4052,13 +4052,13 @@ show_account(Creature *ch, char *value)
 			idnum = playerIndex.getAccountID(value);
 		}
 
-		account = Account::retrieve(idnum);
+		account = Account_retrieve(idnum);
 	} else {
 		if (is_number(value)) {
 			idnum = atoi(value);
-			account = Account::retrieve(idnum);
+			account = Account_retrieve(idnum);
 		} else {
-			account = Account::retrieve(value);
+			account = Account_retrieve(value);
 		}
 	}
 
@@ -4089,7 +4089,7 @@ show_account(Creature *ch, char *value)
     strftime(last_buf, 29, "%a %b %d, %Y %H:%M:%S",
 		localtime(&last));
     send_to_desc(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n", created_buf, last_buf);
-	if( Security::isMember(ch, "AdminFull") ) {
+	if( Security_isMember(ch, "AdminFull") ) {
 		send_to_desc(ch->desc, "&y  Created: &n%-15s   &yLast: &n%-15s       &yReputation: &n%d\r\n",
 					 account->get_creation_addr(),
 					 account->get_login_addr(),
@@ -4097,7 +4097,7 @@ show_account(Creature *ch, char *value)
 	}
 	send_to_desc(ch->desc, "&y  Past bank: &n%-12lld    &yFuture Bank: &n%-12lld",
 		account->get_past_bank(), account->get_future_bank());
-	if (Security::isMember(ch, "Questor")) {
+	if (Security_isMember(ch, "Questor")) {
 		send_to_desc(ch->desc, "   &yQuest Points: &n%d\r\n",
 			account->get_quest_points());
 	} else {
@@ -4134,7 +4134,7 @@ show_player(Creature *ch, char *value)
     idnum = playerIndex.getID(value);
 	vict = new Creature(true);
 	vict->loadFromXML(idnum);
-    vict->account = Account::retrieve(playerIndex.getAccountID(idnum));
+    vict->account = Account_retrieve(playerIndex.getAccountID(idnum));
 
     if (GET_REMORT_GEN(vict) <= 0) {
         strcpy(remort_desc, "");
@@ -4315,7 +4315,7 @@ show_mobkills(Creature *ch, char *value, char *arg __attribute__ ((unused)))
     sprintf(buf, "Mobiles with mobkills ratio >= %f:\r\n", thresh);
     strcat(buf,
         " ---- -Vnum-- -Name------------------------- -Kills- -Loaded- -Ratio-\r\n");
-    MobileMap::iterator mit = mobilePrototypes.begin();
+    MobileMap_iterator mit = mobilePrototypes.begin();
     for (; mit != mobilePrototypes.end(); ++mit) {
         mob = mit->second;
         if (!mob->mob_specials.shared->loaded)
@@ -4390,9 +4390,9 @@ show_rooms_in_zone(Creature *ch, zone_data *zone, int pos, int mode, char *args)
 {
 	special_search_data *srch = NULL;
 	list<string> str_list;
-	list<string>::iterator str_it;
+	list<string>_iterator str_it;
 	list<string> mob_names;
-	CreatureList::iterator cit;
+	CreatureList_iterator cit;
 	room_data *room;
 	bool match, gt = false, lt = false;
 	int found = 0, num, flags = 0, tmp_flag = 0;
@@ -4818,7 +4818,7 @@ show_mlevels(Creature *ch, char *value, char *arg)
     // scan the existing mobs
     if (!strcmp(value, "real")) {
         strcat(buf, "real mobiles:\r\n");
-        MobileMap::iterator mit = mobilePrototypes.begin();
+        MobileMap_iterator mit = mobilePrototypes.begin();
         for (; mit != mobilePrototypes.end(); ++mit) {
             mob = mit->second;
             if (IS_NPC(mob) && GET_LEVEL(mob) < 50 &&
@@ -4831,7 +4831,7 @@ show_mlevels(Creature *ch, char *value, char *arg)
         }
     } else if (!strcmp(value, "proto")) {
         strcat(buf, "mobile protos:\r\n");
-        MobileMap::iterator mit = mobilePrototypes.begin();
+        MobileMap_iterator mit = mobilePrototypes.begin();
         for (; mit != mobilePrototypes.end(); ++mit) {
             mob = mit->second;
             if (GET_LEVEL(mob) < 50 &&
@@ -5084,9 +5084,9 @@ ACMD(do_show)
     struct room_data *room = NULL, *tmp_room = NULL;
     char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH];
     struct Creature *mob = NULL;
-    CreatureList::iterator cit;
-    MobileMap::iterator mit;
-    ObjectMap::iterator oi;
+    CreatureList_iterator cit;
+    MobileMap_iterator mit;
+    ObjectMap_iterator oi;
 
     void show_shops(struct Creature *ch, char *value);
 
@@ -5095,7 +5095,7 @@ ACMD(do_show)
         vector <string> cmdlist;
         send_to_char(ch, "Show options:\r\n");
         for (j = 0, i = 1; fields[i].level; i++) {
-            if (Security::canAccess(ch, fields[i])) {
+            if (Security_canAccess(ch, fields[i])) {
                 cmdlist.push_back(fields[i].cmd);
             }
         }
@@ -5115,7 +5115,7 @@ ACMD(do_show)
         if (!strncmp(field, fields[l].cmd, strlen(field)))
             break;
 
-    if (!Security::canAccess(ch, fields[l])) {
+    if (!Security_canAccess(ch, fields[l])) {
         send_to_char(ch, "You do not have that power.\r\n");
         return;
     }
@@ -5220,7 +5220,7 @@ ACMD(do_show)
         if (!*value) {
             send_to_char(ch, "View who's skills?\r\n");
         } else if (!(vict = get_player_vis(ch, value, 0))) {
-            if (!Security::isMember(ch, "AdminBasic")) {
+            if (!Security_isMember(ch, "AdminBasic")) {
                 send_to_char(ch,
                     "Getting that data from file requires basic administrative rights.\r\n");
             } else {
@@ -5526,7 +5526,7 @@ ACMD(do_show)
     case 32: {                   /* fighting */
         strcpy(buf, "Fighting characters:\r\n");
 
-        CombatDataList::iterator it;
+        CombatDataList_iterator it;
         cit = combatList.begin();
         for (; cit != combatList.end(); ++cit) {
             vict = *cit;
@@ -5911,7 +5911,7 @@ ACMD(do_set)
         send_to_char(ch, "Usage: set <victim> <field> <value>\r\n");
         vector <string> cmdlist;
         for (i = 0; fields[i].level != 0; i++) {
-            if (!Security::canAccess(ch, fields[i]))
+            if (!Security_canAccess(ch, fields[i]))
                 continue;
             cmdlist.push_back(fields[i].cmd);
         }
@@ -5977,7 +5977,7 @@ ACMD(do_set)
         return;
     }
 
-    if (!Security::canAccess(ch, fields[l]) && subcmd != SCMD_TESTER_SET) {
+    if (!Security_canAccess(ch, fields[l]) && subcmd != SCMD_TESTER_SET) {
         send_to_char(ch, "You do not have that power.\r\n");
         return;
     }
@@ -6193,7 +6193,7 @@ ACMD(do_set)
 
         RANGE(0, LVL_GRIMP);
 
-        if (value >= 50 && !Security::isMember(ch, "AdminFull")) {
+        if (value >= 50 && !Security_isMember(ch, "AdminFull")) {
             send_to_char(ch, "That should be done with advance.\r\n");
             return;
         }
@@ -6219,7 +6219,7 @@ ACMD(do_set)
         break;
     case 38:
 		if (IS_PC(vict)) {
-            if (!(Security::isMember(ch, "AdminFull")
+            if (!(Security_isMember(ch, "AdminFull")
                   && is_valid_name(argument))) {
                 send_to_char(ch, "That character name is invalid.\r\n");
                 return;
@@ -6278,7 +6278,7 @@ ACMD(do_set)
             send_to_char(ch, "You must set password of player in file.\r\n");
             return;
         }
-        if (GET_LEVEL(ch) < LVL_LUCIFER || !Security::isMember(ch,"Coder") ) {
+        if (GET_LEVEL(ch) < LVL_LUCIFER || !Security_isMember(ch,"Coder") ) {
             send_to_char(ch, "Please don't use this command, yet.\r\n");
             return;
         }
@@ -6665,7 +6665,7 @@ ACMD(do_aset)
         send_to_char(ch, "Usage: aset <victim> <field> <value>\r\n");
         vector <string> cmdlist;
         for (i = 0; fields[i].level != 0; i++) {
-            if (!Security::canAccess(ch, fields[i]))
+            if (!Security_canAccess(ch, fields[i]))
                 continue;
             cmdlist.push_back(fields[i].cmd);
         }
@@ -6682,11 +6682,11 @@ ACMD(do_aset)
     }
 
 	if (*name == '.')
-		account = Account::retrieve(playerIndex.getAccountID(name + 1));
+		account = Account_retrieve(playerIndex.getAccountID(name + 1));
 	else if (is_number(name))
-		account = Account::retrieve(atoi(name));
+		account = Account_retrieve(atoi(name));
 	else
-		account = Account::retrieve(name);
+		account = Account_retrieve(name);
 
 	if (!account) {
 		send_to_char(ch, "There is no such account.\r\n");
@@ -6703,7 +6703,7 @@ ACMD(do_aset)
         return;
     }
 
-    if (!Security::canAccess(ch, fields[l]) && subcmd != SCMD_TESTER_SET) {
+    if (!Security_canAccess(ch, fields[l]) && subcmd != SCMD_TESTER_SET) {
         send_to_char(ch, "You do not have that power.\r\n");
         return;
     }
@@ -6982,7 +6982,7 @@ ACMD(do_mlist)
     }
 
 	acc_string_clear();
-    MobileMap::iterator mit = mobilePrototypes.begin();
+    MobileMap_iterator mit = mobilePrototypes.begin();
     Creature *mob;
     for (;
         mit != mobilePrototypes.end()
@@ -7040,7 +7040,7 @@ ACMD(do_olist)
 
 	acc_string_clear();
 
-    ObjectMap::iterator oi;
+    ObjectMap_iterator oi;
     for (oi = objectPrototypes.lower_bound(first);
          oi != objectPrototypes.upper_bound(last); ++oi) {
         obj = oi->second;
@@ -7303,7 +7303,7 @@ ACMD(do_mudwipe)
         send_to_char(ch, "Done.  trails retired\r\n");
     }
     if (mode == 3) {
-        CreatureList::iterator cit = characterList.begin();
+        CreatureList_iterator cit = characterList.begin();
         for (; cit != characterList.end(); ++cit) {
             mob = *cit;
             if (!IS_NPC(mob))
@@ -7319,7 +7319,7 @@ ACMD(do_mudwipe)
         send_to_char(ch, "DONE.  Mobiles cleared of objects.\r\n");
     }
     if (mode == 3 || mode == 2 || mode == 0) {
-        CreatureList::iterator mit = characterList.begin();
+        CreatureList_iterator mit = characterList.begin();
         for (; mit != characterList.end(); ++mit) {
             if (IS_NPC(*mit)) {
                 (*mit)->purge(true);
@@ -7371,7 +7371,7 @@ ACMD(do_zonepurge)
             if (ROOM_FLAGGED(rm, ROOM_GODROOM) || ROOM_FLAGGED(rm, ROOM_HOUSE))
                 continue;
 
-            CreatureList::iterator it = rm->people.begin();
+            CreatureList_iterator it = rm->people.begin();
             for (; it != rm->people.end(); ++it) {
                 if (IS_MOB((*it))) {
                     (*it)->purge(true);
@@ -7414,7 +7414,7 @@ ACMD(do_searchfor)
     struct Creature *mob = NULL;
     struct obj_data *obj = NULL;
     byte mob_found = false, obj_found = false;
-    CreatureList::iterator cit = characterList.begin();
+    CreatureList_iterator cit = characterList.begin();
     for (; cit != characterList.end(); ++cit) {
         mob = *cit;
         if (!mob->in_room) {
@@ -7504,7 +7504,7 @@ do_show_mobiles(struct Creature *ch, char *value, char *arg)
     int i, j, k, l, command;
     struct Creature *mob = NULL;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-    MobileMap::iterator mit;
+    MobileMap_iterator mit;
     if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
         send_to_char(ch,
             "Show mobiles:  utility to search the mobile prototype list.\r\n"
@@ -7809,7 +7809,7 @@ ACMD(do_peace)
 {
     bool found = 0;
 
-    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         found = 1;
         (*it)->removeAllCombat();
@@ -7979,7 +7979,7 @@ ACMD(do_coderutil)
 	} else if (strcmp(token, "verify") == 0) {
 		verify_tempus_integrity(ch);
 	} else if (strcmp(token, "chaos") == 0) {
-		CreatureList::iterator cit = characterList.begin();
+		CreatureList_iterator cit = characterList.begin();
 
 		for (;cit != characterList.end();++cit) {
 			int ret_flags;
@@ -8018,7 +8018,7 @@ ACMD(do_coderutil)
     } else if (strcmp(token, "progstat") == 0) {
         void *owner;
         extern prog_env *prog_list;
-        unsigned char *prog_get_obj(thing *owner, prog_evt_type owner_type);
+        unsigned char *prog_get_obj(void *owner, prog_evt_type owner_type);
 
         tokens.next(token);
         if (!strcmp(token, "room")) {
@@ -8055,8 +8055,8 @@ ACMD(do_coderutil)
     } else if (strcmp(token, "inplayify") == 0) {
         void save_zone(Creature *ch, zone_data *zone);
 
-        std::list<int> zones_todo;
-        std::list<const char *> reasons;
+        std_list<int> zones_todo;
+        std_list<const char *> reasons;
         int zone_count = 0;
         int zone_num;
 
@@ -8186,14 +8186,14 @@ ACMD(do_account)
 		}
 
 		account_id = playerIndex.getAccountID(vict_id);
-		account = Account::retrieve(account_id);
+		account = Account_retrieve(account_id);
 
         account_id = atoi(token);
-		if (!Account::exists(account_id)) {
+		if (!Account_exists(account_id)) {
             send_to_char(ch, "That account does not exist.\r\n");
             return;
         }
-        dst_account = Account::retrieve(account_id);
+        dst_account = Account_retrieve(account_id);
 		account->move_char(vict_id, dst_account);
 
 		// Update descriptor
@@ -8217,7 +8217,7 @@ ACMD(do_account)
 			return;
 		}
 		vict_id = atol(token);
-		account = Account::retrieve(account_id);
+		account = Account_retrieve(account_id);
 		if( account == NULL ) {
 			send_to_char(ch, "No such account: %d\r\n",account_id);
 			return;
@@ -8230,7 +8230,7 @@ ACMD(do_account)
 		}
 
 		account_id = atoi(token);
-		account = Account::retrieve(account_id);
+		account = Account_retrieve(account_id);
 		if (!account) {
 			send_to_char(ch, "No such account: %s\r\n", token);
 			return;
@@ -8716,8 +8716,8 @@ ACMD(do_delete)
 	char *tmp_name;
 
 	name = tmp_getword(&argument);
-	if (!Security::isMember(ch, "AdminFull") &&
-			!Security::isMember(ch, "WizardFull")) {
+	if (!Security_isMember(ch, "AdminFull") &&
+			!Security_isMember(ch, "WizardFull")) {
 		send_to_char(ch, "No way!  You're not authorized!\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true, "%s denied deletion of '%s'",
 			GET_NAME(ch), name);
@@ -8735,7 +8735,7 @@ ACMD(do_delete)
 	}
 
 	acct_id = playerIndex.getAccountID(name);
-	acct = Account::retrieve(acct_id);
+	acct = Account_retrieve(acct_id);
 	if (!acct) {
 		errlog("Victim found without account");
 		send_to_char(ch, "The command mysteriously failed (XYZZY)\r\n");
@@ -8818,8 +8818,8 @@ check_log(Creature *ch, const char *fmt, ...)
         x++;
     }
 
-	mlog(Security::NOONE, LVL_AMBASSADOR, NRM, true, "CHECK: %s", msg);
-	mlog(Security::NOONE, LVL_AMBASSADOR, NRM, true,
+	mlog(Security_NOONE, LVL_AMBASSADOR, NRM, true, "CHECK: %s", msg);
+	mlog(Security_NOONE, LVL_AMBASSADOR, NRM, true,
 		"TRACE: %s", backtrace_str);
 }
 
@@ -8857,8 +8857,8 @@ check_ptr(Creature *ch __attribute__ ((unused)),
 void
 verify_tempus_integrity(Creature *ch)
 {
-	MobileMap::iterator mit;
-    CreatureList::iterator cit;
+	MobileMap_iterator mit;
+    CreatureList_iterator cit;
 	Creature *vict;
 	obj_data *obj, *contained;
 	room_data *room;
@@ -8914,7 +8914,7 @@ verify_tempus_integrity(Creature *ch)
 	}
 
 	// Check prototype objects
-    ObjectMap::iterator oi = objectPrototypes.begin();
+    ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
 		check_ptr(ch, obj, sizeof(obj_data),

@@ -64,7 +64,7 @@ has_mail(long id)
 
     if(! playerIndex.exists(id) )
         return 0;
-    mail_file.open(get_mail_file_path(id), ios::in);
+    mail_file.open(get_mail_file_path(id), ios_in);
 
     if (!mail_file.is_open())
         return 0;
@@ -78,11 +78,11 @@ can_receive_mail(long id)
     fstream mail_file;
     if(! playerIndex.exists(id) )
         return 0;
-    mail_file.open(get_mail_file_path(id), ios::in);
+    mail_file.open(get_mail_file_path(id), ios_in);
 
     if (!mail_file.is_open())
         return 1;
-    mail_file.seekg(0, ios::end);
+    mail_file.seekg(0, ios_end);
     length = mail_file.tellg();
     mail_file.close();
     if (length >= MAX_MAILFILE_SIZE) {
@@ -171,7 +171,7 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
 		time_str, playerIndex.getName(to_id), playerIndex.getName(from_id));
 
     if (!cc_list.empty()) {
-		list<string>::iterator si;
+		list<string>_iterator si;
 
 		for (si = cc_list.begin(); si != cc_list.end(); si++)
 			acc_strcat((si == cc_list.begin()) ? "\r\n  CC: ":", ",
@@ -199,7 +199,7 @@ store_mail(long to_id, long from_id, const char *txt, list<string> cc_list,
         return 0;
     }
     else {
-        list<obj_data*>::iterator oi;
+        list<obj_data*>_iterator oi;
 
         fprintf(ofile, "<objects>");
         for (oi = mailBag.begin(); oi != mailBag.end(); oi++) {
@@ -225,7 +225,7 @@ int
 purge_mail(long idnum)
 {
     fstream mail_file;
-    mail_file.open(get_mail_file_path(idnum), ios::in);
+    mail_file.open(get_mail_file_path(idnum), ios_in);
     if (!mail_file.is_open()) {
         return 0;
     }
@@ -252,7 +252,7 @@ receive_mail(Creature * ch, list<struct obj_data *> &olist)
     if (mailBag.size() > MAIL_BAG_THRESH )
         container = true;
 
-    list<obj_data *>::iterator oi;
+    list<obj_data *>_iterator oi;
 
     obj_data *obj = NULL;
     if (container)
@@ -561,7 +561,7 @@ postmaster_receive_mail(struct Creature *ch, struct Creature *mailman)
             to_room = tmp_strcat(to_room, " and a package.", NULL);
         }
 
-        list<struct obj_data *>::iterator li = olist.begin();
+        list<struct obj_data *>_iterator li = olist.begin();
         unsigned counter = 0;
         for (; li != olist.end(); ++li) {
             counter++;

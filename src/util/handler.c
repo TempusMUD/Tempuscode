@@ -49,7 +49,7 @@ extern struct descriptor_data *descriptor_list;
 
 /* external functions */
 long special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
-void path_remove_object(thing *object);
+void path_remove_object(void *object);
 void free_paths();
 void free_socials();
 void print_attributes_to_buf(struct Creature *ch, char *buff);
@@ -1016,7 +1016,7 @@ char_from_room( Creature *ch, bool check_specials)
 	}
 
 	if( spec_rc != 0 ) {
-		CreatureList::iterator it =
+		CreatureList_iterator it =
 			find(tmp_room->people.begin(),tmp_room->people.end(), ch);
 		if( it == tmp_room->people.end() ) {
 			if( spec_rc == 1 ) {
@@ -1131,7 +1131,7 @@ char_to_room(Creature *ch, room_data *room, bool check_specials)
 		spec_rc = special(ch, 0, 0, tmp_strdup(""), SPECIAL_ENTER);
 
 	if( spec_rc != 0 ) {
-		CreatureList::iterator it =
+		CreatureList_iterator it =
 			find(room->people.begin(),room->people.end(), ch);
 		if( it == room->people.end() ) {
 			if( spec_rc == 1 ) {
@@ -1613,7 +1613,7 @@ get_char_room(char *name, struct room_data *room)
 	if (!(number = get_number(&tmp)))
 		return NULL;
 
-	CreatureList::iterator it = room->people.begin();
+	CreatureList_iterator it = room->people.begin();
 	for (; it != room->people.end() && (j <= number); ++it) {
 		if (isname(tmp, (*it)->player.name))
 			if (++j == number)
@@ -1980,7 +1980,7 @@ struct Creature *
 get_player_vis(struct Creature *ch, const char *name, int inroom)
 {
 	struct Creature *i, *match;
-	CreatureList::iterator cit;
+	CreatureList_iterator cit;
 	char *tmpname, *write_pt;
 
 	// remove leading spaces
@@ -2020,7 +2020,7 @@ struct Creature *
 get_mobile_vis(struct Creature *ch, const char *name, int inroom)
 {
 	struct Creature *i, *match;
-	CreatureList::iterator cit;
+	CreatureList_iterator cit;
 	char *tmpname, *write_pt;
 
 	// remove leading spaces
@@ -2074,7 +2074,7 @@ get_char_room_vis(struct Creature *ch, const char *name)
 	if( strcasecmp(name, "self") == 0 )
 		return ch;
 
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end() && j <= number; ++it) {
 		Creature *mob = NULL;
 		af = affected_by_spell( (*it), SKILL_DISGUISE );
@@ -2105,7 +2105,7 @@ get_char_random(room_data *room)
 	if (room->people.empty())
 		return NULL;
 
-	CreatureList::iterator cit = room->people.begin();
+	CreatureList_iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
 		if (!number(0, total))
 			result = *cit;
@@ -2124,7 +2124,7 @@ get_char_random_vis(struct Creature *ch, room_data *room)
 	if (room->people.empty())
 		return NULL;
 
-	CreatureList::iterator cit = room->people.begin();
+	CreatureList_iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
 		if (*cit != ch && can_see_creature(ch, *cit)) {
             if (!number(0, total))
@@ -2145,7 +2145,7 @@ get_player_random(room_data *room)
 	if (room->people.empty())
 		return NULL;
 
-	CreatureList::iterator cit = room->people.begin();
+	CreatureList_iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
 		if (IS_PC(*cit)) {
             if (!number(0, total))
@@ -2166,7 +2166,7 @@ get_player_random_vis(struct Creature *ch, room_data *room)
 	if (room->people.empty())
 		return NULL;
 
-	CreatureList::iterator cit = room->people.begin();
+	CreatureList_iterator cit = room->people.begin();
 	for (; cit != room->people.end(); ++cit) {
 		if (*cit != ch && IS_PC(*cit) && can_see_creature(ch, *cit)) {
             if (!number(0, total))
@@ -2208,7 +2208,7 @@ get_char_vis(struct Creature *ch, const char *name)
 	if (!(number = get_number(&tmp)))
 		return get_player_vis(ch, tmp, 0);
 
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end() && (j <= number); ++cit) {
 		i = *cit;
 		if (isname(tmp, i->player.name) && can_see_creature(ch, i))
@@ -2269,7 +2269,7 @@ get_obj_vis(struct Creature *ch, const char *name)
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
-	if (is_number(name) && Security::isMember(ch, "Coder")) {
+	if (is_number(name) && Security_isMember(ch, "Coder")) {
 		// Scan the object list for the unique ID given by the number
 		number = atoi(name);
 		for (i = object_list; i; i = i->next)
@@ -2674,7 +2674,7 @@ int parse_char_class(char *);
 int parse_race(char *);
 
 bool
-Reaction::add_reaction(decision_t action, char *arg)
+Reaction_add_reaction(decision_t action, char *arg)
 {
 	char *tmp;
 	clan_data *clan;
@@ -2740,7 +2740,7 @@ Reaction::add_reaction(decision_t action, char *arg)
 }
 
 bool
-Reaction::add_reaction(char *config)
+Reaction_add_reaction(char *config)
 {
 	char *action_str;
 	decision_t action;
@@ -2757,7 +2757,7 @@ Reaction::add_reaction(char *config)
 }
 
 decision_t
-Reaction::react(Creature *ch)
+Reaction_react(Creature *ch)
 {
 	char *read_pt;
 	bool match, wantmatch;

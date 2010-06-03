@@ -192,7 +192,7 @@ SPECIAL(demonic_overmind)
 	if (CMD_IS("spank")) {
 		char *name;
 
-		if (!Security::isMember(ch, "AdminFull"))
+		if (!Security_isMember(ch, "AdminFull"))
 			return false;
 
 		name = tmp_getword(&argument);

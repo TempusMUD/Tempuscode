@@ -266,7 +266,7 @@ area_attack_advisable(Creature *ch)
     // Area attacks are advisable when there are more than one PC and
     // no other non-fighting NPCs
     int pc_count = 0;
-    for (CreatureList::iterator cit = ch->in_room->people.begin();
+    for (CreatureList_iterator cit = ch->in_room->people.begin();
          cit != ch->in_room->people.end();
          ++cit) {
         if (!can_see_creature(ch, *cit))
@@ -288,7 +288,7 @@ group_attack_advisable(Creature *ch)
     // Group attacks are advisable when more than one creature is
     // attacking
     int attacker_count = 0;
-    for (CreatureList::iterator cit = ch->in_room->people.begin();
+    for (CreatureList_iterator cit = ch->in_room->people.begin();
          cit != ch->in_room->people.end();
          ++cit) {
         if ((*cit)->findCombat(ch)) {

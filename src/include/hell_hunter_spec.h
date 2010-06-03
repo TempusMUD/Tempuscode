@@ -16,8 +16,7 @@ static const int H_REGULATOR = 16907;
 static const int H_SPINED = 16900;
 static int freq = 80;
 
-class Devil {
-  public:
+struct Devil {
 	Devil(xmlChar * name, int vnum) {
 		this->name = (const char *)name;
 		this->vnum = vnum;
@@ -42,8 +41,7 @@ class Devil {
 	} string name;
 	int vnum;
 };
-class Target {
-  public:
+struct Target {
 	Target(int vnum, int level) {
 		this->o_vnum = vnum;
 		this->level = level;
@@ -60,8 +58,7 @@ class Target {
 	} bool operator == (const Target & t)const { return o_vnum == t.o_vnum;
 }};
 
-class Hunter {
-  public:
+struct Hunter {
 	Hunter(int m_vnum, int weapon, char prob) {
 		this->m_vnum = m_vnum;
 		this->weapon = weapon;
@@ -73,7 +70,7 @@ class Hunter {
 
 		xmlChar *c = xmlGetProp(n, (const xmlChar *)"Name");
 		if (c != NULL) {
-			vector < Devil >::iterator it =
+			vector < Devil >_iterator it =
 				find(devils.begin(), devils.end(), c);
 			if (it != devils.end())
 				m_vnum = (*it).vnum;
@@ -84,12 +81,11 @@ class Hunter {
 	int weapon;
 	char prob;
 };
-class HuntGroup:public
-	std::vector <
+struct HuntGroup:public
+	std_vector <
 	Hunter > {
-  public:
 	HuntGroup(xmlNodePtr n, vector < Devil > &devils):
-		std::vector <
+		std_vector <
 	Hunter > () {
 		level = xmlGetIntProp(n, "Level");
 		n =
@@ -142,7 +138,7 @@ ostream & operator << (ostream & out, HuntGroup & t) {
 	int
 		x =
 		0;
-	for (HuntGroup::iterator it = t.begin(); it != t.end(); ++it) {
+	for (HuntGroup_iterator it = t.begin(); it != t.end(); ++it) {
 		out << *it;
 		if (x++ % 5 == 0)
 			out << endl;
@@ -153,7 +149,7 @@ ostream & operator << (ostream & out, HuntGroup & t) {
 
 ostream & operator << (ostream & out, vector < HuntGroup > &t) {
 	out << "{ ";
-	for (vector < HuntGroup >::iterator it = t.begin(); it != t.end(); ++it) {
+	for (vector < HuntGroup >_iterator it = t.begin(); it != t.end(); ++it) {
 		out << *it << endl;
 	}
 	out << " }";
@@ -170,7 +166,7 @@ ostream & operator << (ostream & out, vector < Devil > v) {
 	int
 		x =
 		0;
-	vector < Devil >::iterator it = v.begin();
+	vector < Devil >_iterator it = v.begin();
 	for (; it != v.end(); ++it) {
 		out << *it;
 		if (x++ % 5 == 0)
@@ -190,7 +186,7 @@ ostream & operator << (ostream & out, vector < Target > &t) {
 	int
 		x =
 		0;
-	for (vector < Target >::iterator it = t.begin(); it != t.end(); ++it) {
+	for (vector < Target >_iterator it = t.begin(); it != t.end(); ++it) {
 		out << *it;
 		if (x++ % 5 == 0)
 			out << endl;

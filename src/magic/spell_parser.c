@@ -249,7 +249,7 @@ call_magic(struct Creature *caster, struct Creature *cvict,
         }
     }
 
-    CreatureList::iterator it = caster->in_room->people.begin();
+    CreatureList_iterator it = caster->in_room->people.begin();
 	for (; it != caster->in_room->people.end(); ++it) {
 		if (GET_MOB_PROGOBJ((*it)) != NULL) {
 			if (trigger_prog_spell(*it, PROG_TYPE_MOBILE, caster, spellnum)) {
@@ -713,7 +713,7 @@ mag_objectmagic(struct Creature *ch, struct obj_data *obj,
 			level = MIN(level, LVL_AMBASSADOR);
 
 			room_data *room = ch->in_room;
-			CreatureList::iterator it = room->people.begin();
+			CreatureList_iterator it = room->people.begin();
 			for (; it != room->people.end(); ++it) {
 				if (ch == *it && spell_info[GET_OBJ_VAL(obj, 3)].violent)
 					continue;
@@ -1615,8 +1615,8 @@ ACMD(do_cast)
 				(prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
 				/* misdirect */
 
-				CreatureList::iterator it = ch->in_room->people.begin();
-				CreatureList::iterator nit = ch->in_room->people.begin();
+				CreatureList_iterator it = ch->in_room->people.begin();
+				CreatureList_iterator nit = ch->in_room->people.begin();
 				for (; it != ch->in_room->people.end(); ++it) {
 					++nit;
 					if ((*it) != ch && (*it) != tch &&

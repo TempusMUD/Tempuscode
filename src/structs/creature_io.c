@@ -27,7 +27,7 @@ void extract_object_list(obj_data * head);
 // Saves the given characters equipment to a file. Intended for use while
 // the character is still in the game.
 bool
-Creature::crashSave()
+Creature_crashSave()
 {
     player_specials->rentcode = RENT_CRASH;
 	player_specials->rent_currency = in_room->zone->time_frame;
@@ -42,7 +42,7 @@ Creature::crashSave()
 }
 
 obj_data *
-Creature::findCostliestObj(void)
+Creature_findCostliestObj(void)
 {
  	obj_data *cur_obj, *result;
 
@@ -68,10 +68,10 @@ Creature::findCostliestObj(void)
 	return result;
 }
 
-// Creature::payRent will pay the player's rent, selling off items to meet the
+// Creature_payRent will pay the player's rent, selling off items to meet the
 // bill, if necessary.
 int
-Creature::payRent(time_t last_time, int code, int currency)
+Creature_payRent(time_t last_time, int code, int currency)
 {
 	float day_count;
 	int factor;
@@ -224,7 +224,7 @@ reportUnrentables(Creature *ch, obj_data *obj_list, const char *pos)
 
 // Displays all unrentable items and returns true if any are found
 bool
-Creature::displayUnrentables(void)
+Creature_displayUnrentables(void)
 {
 	obj_data *cur_obj;
 	int pos;
@@ -248,7 +248,7 @@ Creature::displayUnrentables(void)
 }
 
 bool
-Creature::saveObjects(void)
+Creature_saveObjects(void)
 {
 	FILE *ouf;
 	char *path, *tmp_path;
@@ -294,7 +294,7 @@ Creature::saveObjects(void)
  *  2 - rented equipment lost ( no $ )
 **/
 int
-Creature::unrent(void)
+Creature_unrent(void)
 {
   int err;
 
@@ -308,7 +308,7 @@ Creature::unrent(void)
 }
 
 int
-Creature::loadObjects()
+Creature_loadObjects()
 {
 
     char *path = get_equipment_file_path( GET_IDNUM(this) );
@@ -353,7 +353,7 @@ Creature::loadObjects()
 }
 
 bool
-Creature::checkLoadCorpse()
+Creature_checkLoadCorpse()
 {
     char *path = get_corpse_file_path(GET_IDNUM(this));
     int axs = access(path, W_OK);
@@ -380,7 +380,7 @@ Creature::checkLoadCorpse()
 }
 
 int
-Creature::loadCorpse()
+Creature_loadCorpse()
 {
 
     char *path = get_corpse_file_path( GET_IDNUM(this) );
@@ -442,7 +442,7 @@ Creature::loadCorpse()
 }
 
 void
-Creature::saveToXML()
+Creature_saveToXML()
 {
     void expire_old_grievances(Creature *);
 	// Save vital statistics
@@ -642,7 +642,7 @@ Creature::saveToXML()
 					spell_to_str(idx), GET_SKILL(ch, idx));
         write_tongue_xml(ch, ouf);
         if (!GET_RECENT_KILLS(ch).empty()) {
-            std::list<KillRecord>::iterator it;
+            std_list<KillRecord>::iterator it;
 
             for (it = GET_RECENT_KILLS(ch).begin();
                  it != GET_RECENT_KILLS(ch).end();++it)
@@ -651,7 +651,7 @@ Creature::saveToXML()
                         it->_times);
         }
         if (!GET_GRIEVANCES(ch).empty()) {
-            std::list<Grievance>::iterator it;
+            std_list<Grievance>::iterator it;
 
             for (it = GET_GRIEVANCES(ch).begin();
                  it != GET_GRIEVANCES(ch).end();++it)
@@ -659,7 +659,7 @@ Creature::saveToXML()
                         (long unsigned)it->_time,
                         it->_player_id,
                         it->_rep,
-                        Grievance::kind_descs[it->_grievance]);
+                        Grievance_kind_descs[it->_grievance]);
         }
 	}
 
@@ -691,13 +691,13 @@ Creature::saveToXML()
 }
 
 bool
-Creature::loadFromXML( long id )
+Creature_loadFromXML( long id )
 {
     return loadFromXML(get_player_file_path(id));
 }
 /* copy data from the file structure to a Creature */
 bool
-Creature::loadFromXML( const char *path )
+Creature_loadFromXML( const char *path )
 {
 	char *txt;
 	int idx;
@@ -993,7 +993,7 @@ Creature::loadFromXML( const char *path )
                 grievance.set(xmlGetIntProp(node, "time"),
                               xmlGetIntProp(node, "player"),
                               xmlGetIntProp(node, "reputation"),
-                              (Grievance::kind)search_block(txt, Grievance::kind_descs, false));
+                              (Grievance_kind)search_block(txt, Grievance::kind_descs, false));
                 GET_GRIEVANCES(this).push_back(grievance);
             }
             free(txt);
@@ -1038,7 +1038,7 @@ Creature::loadFromXML( const char *path )
 }
 
 void
-Creature::set(const char *key, const char *val)
+Creature_set(const char *key, const char *val)
 {
 	if (!strcmp(key, "race"))
 		GET_RACE(this) = atoi(val);

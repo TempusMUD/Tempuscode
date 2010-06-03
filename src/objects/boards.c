@@ -232,7 +232,7 @@ gen_board_read(board_data *board, Creature *ch, char *argument)
 	acc_string_clear();
 	post_time = atol(PQgetvalue(res, 0, 0));
 	strftime(time_buf, 30, "%a %b %e", localtime(&post_time));
-	acc_sprintf("%sMessage %s : %s %-12s :: %s%s\r\n\r\n%s\r\n",
+	acc_sprintf("%sMessage %s : %s %-12s _ %s%s\r\n\r\n%s\r\n",
 		CCBLD(ch, C_CMP),
 		argument,
 		time_buf,
@@ -267,7 +267,7 @@ gen_board_list(board_data *board, Creature *ch)
 	for (idx = 0;idx < count;idx++) {
 		post_time = atol(PQgetvalue(res, idx, 0));
 		strftime(time_buf, 30, "%a %b %e", localtime(&post_time));
-		acc_sprintf("%s%-2d %s:%s %s %-12s :: %s\r\n",
+		acc_sprintf("%s%-2d %s:%s %s %-12s _ %s\r\n",
 			CCGRN(ch, C_NRM), count - idx, CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
 			time_buf, tmp_sprintf("(%s)", PQgetvalue(res, idx, 1)),
 			PQgetvalue(res, idx, 2));

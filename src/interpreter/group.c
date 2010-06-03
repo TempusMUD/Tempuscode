@@ -40,35 +40,35 @@ namespace Security {
     }
 
     /* sets this group's description */
-    void Group::setDescription(const char *desc) {
+    void Group_setDescription(const char *desc) {
         if( _description != NULL )
             free(_description);
         _description = strdup(desc);
     }
 
     // These membership checks should be binary searches.
-    bool Group::member( long player ) {
+    bool Group_member( long player ) {
         return binary_search(members.begin(), members.end(), player);
     }
-    bool Group::member(  Creature *ch ) {
+    bool Group_member(  Creature *ch ) {
         return member(GET_IDNUM(ch));
     }
-    bool Group::member( const command_info *command ) {
+    bool Group_member( const command_info *command ) {
         return binary_search( commands.begin(), commands.end(), command );
     }
-    bool Group::givesAccess(  Creature *ch, const command_info *command ) {
+    bool Group_givesAccess(  Creature *ch, const command_info *command ) {
         return ( member(ch) && member(command) );
     }
 
     /* sets the name of the group that can admin this group. */
-    void Group::setAdminGroup(const char *group) {
+    void Group_setAdminGroup(const char *group) {
 		if (_adminGroup != NULL)
 			free(_adminGroup);
         _adminGroup = strdup(group);
     }
 
     /* sprintf's a one line desc of this group into out */
-    void Group::sendString(Creature *ch) {
+    void Group_sendString(Creature *ch) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
@@ -82,7 +82,7 @@ namespace Security {
     }
 
     /* sends a multi-line status of this group to ch */
-    void Group::sendStatus( Creature *ch ) {
+    void Group_sendStatus( Creature *ch ) {
         const char *nrm = CCNRM(ch,C_NRM);
         const char *cyn = CCCYN(ch,C_NRM);
         const char *grn = CCGRN(ch,C_NRM);
@@ -106,7 +106,7 @@ namespace Security {
     }
 
     /* Adds a command to this group. Fails if already added. */
-    bool Group::addCommand( command_info *command ) {
+    bool Group_addCommand( command_info *command ) {
         if( member( command ) )
             return false;
         command->group_count += 1;
@@ -116,8 +116,8 @@ namespace Security {
     }
 
     /* Removes a command from this group. Fails if not a member. */
-    bool Group::removeCommand( command_info *command ) {
-        vector<command_info *>::iterator it;
+    bool Group_removeCommand( command_info *command ) {
+        vector<command_info *>_iterator it;
         it = find(commands.begin(), commands.end(), command);
         if( it == commands.end() )
             return false;
@@ -131,7 +131,7 @@ namespace Security {
     }
 
     /* Removes a member from this group by player name. Fails if not a member. */
-    bool Group::removeMember( const char *name ) {
+    bool Group_removeMember( const char *name ) {
         long id = playerIndex.getID(name);
         if( id < 0 )
             return false;
@@ -139,8 +139,8 @@ namespace Security {
     }
 
     /* Removes a member from this group by player id. Fails if not a member. */
-    bool Group::removeMember( long player ) {
-        vector<long>::iterator it;
+    bool Group_removeMember( long player ) {
+        vector<long>_iterator it;
         it = find( members.begin(), members.end(), player );
         if( it == members.end() )
             return false;
@@ -151,7 +151,7 @@ namespace Security {
     }
 
     /* Adds a member to this group by name. Fails if already added. */
-    bool Group::addMember( const char *name ) {
+    bool Group_addMember( const char *name ) {
         long id = playerIndex.getID(name);
         if( id < 0 )
             return false;
@@ -160,7 +160,7 @@ namespace Security {
     }
 
     /* Adds a member to this group by player id. Fails if already added. */
-    bool Group::addMember( long player ) {
+    bool Group_addMember( long player ) {
         if( member(player) )
             return true;
         members.push_back(player);
@@ -169,7 +169,7 @@ namespace Security {
         return true;
     }
 
-	bool Group::sendPublicMember( Creature *ch, char* prefix ) {
+	bool Group_sendPublicMember( Creature *ch, char* prefix ) {
 		if( members.size() == 0 )
 			return false;
 		const char* name = playerIndex.getName(members[0]);
@@ -180,8 +180,8 @@ namespace Security {
 	}
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendPublicMemberList( Creature *ch, const char *title, const char *adminGroup ) {
-        vector<long>::iterator it;
+    bool Group_sendPublicMemberList( Creature *ch, const char *title, const char *adminGroup ) {
+        vector<long>_iterator it;
         int pos = 0;
 		const char *name;
 		Group* group = NULL;
@@ -190,8 +190,8 @@ namespace Security {
 		if (members.empty())
 			return false;
 
-		if( Security::isGroup(adminGroup) )
-			group = &( Security::getGroup(adminGroup) );
+		if( Security_isGroup(adminGroup) )
+			group = &( Security_getGroup(adminGroup) );
 
 		acc_sprintf("\r\n\r\n        %s%s%s\r\n",
 				CCYEL(ch,C_NRM), title, CCNRM(ch,C_NRM) );
@@ -241,9 +241,9 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendMemberList( Creature *ch ) {
+    bool Group_sendMemberList( Creature *ch ) {
         int pos = 1;
-        vector<long>::iterator it = members.begin();
+        vector<long>_iterator it = members.begin();
         send_to_char(ch, "Members:\r\n");
         for( ; it != members.end(); ++it ) {
             send_to_char(ch,
@@ -267,9 +267,9 @@ namespace Security {
     }
 
     /* Sends a list of this group's members to the given character. */
-    bool Group::sendCommandList( Creature *ch, bool prefix) {
+    bool Group_sendCommandList( Creature *ch, bool prefix) {
         int pos = 1;
-        vector<command_info*>::iterator it = commands.begin();
+        vector<command_info*>_iterator it = commands.begin();
         if( prefix )
             send_to_char(ch, "Commands:\r\n");
         for( int i=1 ; it != commands.end(); ++it, ++i ) {
@@ -295,7 +295,7 @@ namespace Security {
     /*
      * Makes a copy of name
      */
-    Group::Group( const char *name ) : commands(), members() {
+    Group_Group( const char *name ) : commands(), members() {
         _name = strdup(name);
 
         _description = strdup("No description");
@@ -305,7 +305,7 @@ namespace Security {
     /*
      * Makes a complete copy of the Group
      */
-    Group::Group( const Group &g ) : commands(), members() {
+    Group_Group( const Group &g ) : commands(), members() {
         _name = NULL;
         _description = NULL;
         _adminGroup = NULL;
@@ -315,7 +315,7 @@ namespace Security {
     /*
      * does not make a copy of name or desc.
      */
-    Group::Group( char *name, char *description ) : commands(), members() {
+    Group_Group( char *name, char *description ) : commands(), members() {
         _name = name;
         _description = description;
         _adminGroup = NULL;
@@ -325,7 +325,7 @@ namespace Security {
      *  Loads a group from the given xmlnode;
      *  Intended for reading from a file
      */
-    Group::Group( xmlNodePtr node ) {
+    Group_Group( xmlNodePtr node ) {
         // properties
         _name = xmlGetProp(node, "Name");
         _description = xmlGetProp(node, "Description");
@@ -360,7 +360,7 @@ namespace Security {
     /*
      * Assignment operator
      */
-    Group &Group::operator=( const Group &g ) {
+    Group &Group_operator=( const Group &g ) {
         // Clean out old data
         if( _name != NULL )
             free(_name);
@@ -382,7 +382,7 @@ namespace Security {
     /*
      * Create the required xmlnodes to recreate this group
      */
-    bool Group::save( xmlNodePtr parent ) {
+    bool Group_save( xmlNodePtr parent ) {
         xmlNodePtr node = NULL;
 
         parent = xmlNewChild( parent, NULL, (const xmlChar *)"Group", NULL );
@@ -390,12 +390,12 @@ namespace Security {
         xmlSetProp( parent , "Description", _description );
         xmlSetProp( parent , "Admin", _adminGroup );
 
-        vector<command_info*>::iterator cit = commands.begin();
+        vector<command_info*>_iterator cit = commands.begin();
         for( ; cit != commands.end(); ++cit ) {
             node = xmlNewChild( parent, NULL, (const xmlChar *)"Command", NULL );
             xmlSetProp( node, "Name", (*cit)->command );
         }
-        vector<long>::iterator mit = members.begin();
+        vector<long>_iterator mit = members.begin();
         for( ; mit != members.end(); ++mit ) {
             node = xmlNewChild( parent, NULL, (const xmlChar *)"Member", NULL );
             const char* name = playerIndex.getName(*mit);
@@ -412,7 +412,7 @@ namespace Security {
     /**
      * Clear out this group's data for shutdown.
      */
-    void Group::clear() {
+    void Group_clear() {
         commands.erase(commands.begin(),commands.end());
         members.erase( members.begin(), members.end() );
     }
@@ -420,7 +420,7 @@ namespace Security {
     /*
      *
      */
-    Group::~Group() {
+    Group_~Group() {
         while( commands.begin() != commands.end() ) {
             removeCommand( *( commands.begin() ) );
         }

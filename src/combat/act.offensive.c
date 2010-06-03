@@ -1223,7 +1223,7 @@ ACMD(do_order)
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
 						perform_say(vict, "intone", "As you command, master.");
 					if (vict->isFighting()) {
-                        CombatDataList::iterator li;
+                        CombatDataList_iterator li;
                         li = vict->getCombatList()->begin();
                         for (; li != vict->getCombatList()->end(); ++li)
 						    detect_opponent_master(li->getOpponent(), vict);
@@ -1259,7 +1259,7 @@ ACMD(do_order)
 								perform_say(vict, "intone",
                                             "As you command, master.");
 							if (k->follower->isFighting()) {
-                                CombatDataList::iterator li;
+                                CombatDataList_iterator li;
                                 li = k->follower->getCombatList()->begin();
                                 for (; li != k->follower->getCombatList()->end(); ++li)
                                     detect_opponent_master(li->getOpponent(), k->follower);
@@ -1330,7 +1330,7 @@ ACMD(do_flee)
 					continue;
 			}
 
-            CreatureList::iterator ci;
+            CreatureList_iterator ci;
             ci = ch->in_room->people.begin();
             for (; ci != ch->in_room->people.end(); ++ci) {
                 if ((*ci)->findCombat(ch))
@@ -1413,7 +1413,7 @@ ACMD(do_retreat)
 		}
 	}
 	room_data *room = ch->in_room;
-	CreatureList::iterator it = room->people.begin();
+	CreatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		Creature *vict = *it;
 		if (vict != ch && ch->findCombat(vict) &&
@@ -2229,7 +2229,7 @@ shoot_energy_gun(Creature *ch,
     }
 
     prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
-    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it)
         if (*it != ch && (*it)->findCombat(ch))
             prob -= (GET_LEVEL(*it) >> 3);
@@ -2246,7 +2246,7 @@ shoot_energy_gun(Creature *ch,
             }
         }
     } else if (number(1, 81) > prob) {
-        CreatureList::iterator it = ch->in_room->people.begin();
+        CreatureList_iterator it = ch->in_room->people.begin();
         for (; it != ch->in_room->people.end(); ++it) {
             if ((*it) != ch && (*it) != vict && !number(0, 2)) {
                 vict = (*it);
@@ -2497,7 +2497,7 @@ shoot_projectile_gun(Creature *ch,
         prob += number(GET_LEVEL(ch) >> 2,
                        GET_LEVEL(ch) >> 1) + (GET_REMORT_GEN(ch) << 2);
 
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch && (*it)->findCombat(ch))
 			prob -= (GET_LEVEL((*it)) >> 3);
@@ -2509,7 +2509,7 @@ shoot_projectile_gun(Creature *ch,
 	if (vict->isFighting() && !vict->findCombat(ch) && number(1, 121) > prob)
 		vict = vict->findRandomCombat();
 	else if (vict->isFighting() && number(1, 101) > prob) {
-		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
 				!number(0, 2)) {
@@ -2518,7 +2518,7 @@ shoot_projectile_gun(Creature *ch,
 			}
 		}
 	} else if (number(1, 81) > prob) {
-		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if (*it != ch && tmp_vict != vict && (*it)->findCombat(vict) &&
 				!number(0, 2)) {
@@ -2664,7 +2664,7 @@ ACMD(do_ceasefire)
         return;
     }
 
-    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
         // Nasty hack because SafeList won't let me use front()...
         CombatDataList *combatList = (*it)->getCombatList();
@@ -3023,7 +3023,7 @@ ACMD(do_beguile)
 
 struct Creature *randomize_target(struct Creature *ch, struct Creature *vict, short prob)
 {
-    CreatureList::iterator it;
+    CreatureList_iterator it;
 
     it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {

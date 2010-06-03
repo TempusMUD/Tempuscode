@@ -612,7 +612,7 @@ hunt_victim(struct Creature *ch)
 	}
 
 	/* make sure the char still exists */
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (found = 0; cit != characterList.end() && !found; ++cit) {
 		if (ch->isHunting() == (*cit))
 			found = 1;

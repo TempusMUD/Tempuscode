@@ -1,157 +1,119 @@
 #ifndef _ACCOUNT_H_
 #define _ACCOUNT_H_
 
-#include <vector>
+#include <stdbool.h>
 
-using namespace std;
-
-struct Creature;
+struct creature;
 struct descriptor_data;
+struct id_list;
 
-const int DEFAULT_TERM_HEIGHT = 22;
-const int DEFAULT_TERM_WIDTH = 80;
+enum {
+    DEFAULT_TERM_HEIGHT = 22,
+    DEFAULT_TERM_WIDTH = 80,
+};
 
 extern const char *ansi_levels[];
 extern const char *compact_levels[];
+extern int long account_top_id;
+extern struct account *_cache;
 
-class Account {
-	public:
-		static void boot(void);
-		static Account *create(const char *name, descriptor_data *d);
-		static Account *retrieve(const char *name);
-		static Account *retrieve(int id);
-		static Account *retrieve(Creature *ch);
-        static void preload(const char *conditions);
-        static bool exists(int accountID);
-		static bool remove(Account *acct);
-		static size_t cache_size(void);
 
-		Account(void);
-		~Account(void);
-
-		inline bool has_password(void) const { return _password != NULL; }
-		bool authenticate(const char *password);
-		void login(descriptor_data *d);
-		void logout(descriptor_data *d, bool forced);
-        bool is_logged_in() const;
-		void initialize(const char *name, descriptor_data *d, int idnum);
-		bool load(long idnum);
-		bool reload(void);
-
-		inline const char *get_name(void) const { return _name; }
-		inline int get_idnum(void) const { return _id; }
-
-		inline int get_ansi_level(void) { return _ansi_level; }
-		void set_ansi_level(int level);
-		inline int get_compact_level(void) { return _compact_level; }
-		void set_compact_level(int level);
-		inline int get_term_height(void) { return _term_height; }
-		void set_term_height(int height);
-		inline int get_term_width(void) { return _term_width; }
-		void set_term_width(int width);
-
-        inline const char *get_email_addr(void) const { return _email; }
-		void set_email_addr(const char *addr);
-
-		Creature *create_char(const char *name);
-		void delete_char(Creature *ch);
-		long get_char_by_index(int idx);
-		Creature *get_creature_by_index(int idx);
-		bool invalid_char_index(int idx);
-        int get_char_count(void) { return _chars.size(); }
-		int chars_available(void);
-        long get_char( int index ) { return _chars[index]; }
-		bool deny_char_entry(Creature *ch);
-		void move_char(long id, Account *dest);
-		// Attempts to add the given orphaned character to this account
-		void exhume_char( Creature *exhumer, long id );
-
-        inline bool is_banned(void) { return _banned; }
-        void set_banned(bool bannination);
-
-		inline int get_reputation(void) { return _reputation; }
-		void set_reputation(int amt);
-		void gain_reputation(int amt);
-
-		inline int get_quest_points(void) { return _quest_points; }
-		void set_quest_points(int amt);
-		inline int is_quest_banned(void) { return _quest_banned; }
-		void set_quest_banned(bool bannination);
-
-		inline money_t get_past_bank(void) { return _bank_past; }
-		inline money_t get_future_bank(void) { return _bank_future; }
-		void set_past_bank(money_t amt);
-		void set_future_bank(money_t amt);
-		void deposit_past_bank(money_t amt);
-		void deposit_future_bank(money_t amt);
-		void withdraw_past_bank(money_t amt);
-		void withdraw_future_bank(money_t amt);
-
-		void set_password(const char *password);
-
-		inline const char* get_login_addr() { return _login_addr; }
-		inline const char* get_creation_addr() { return _creation_addr; }
-
-        inline time_t get_login_time() { return _login_time; }
-        inline time_t get_creation_time() { return _creation_time; }
-		inline time_t get_entry_time() { return _entry_time; }
-		void update_last_entry(void);
-
-		bool isTrusted(long idnum);
-		void trust(long idnum);
-		void distrust(long idnum);
-		inline bool trustsNobody(void) { return _trusted.empty(); }
-		void displayTrusted(Creature *ch);
-
-        int hasCharLevel(int level);
-        int hasCharGen(int level);
-
-        int countGens();
-
-		class cmp {
-			public:
-				bool operator()(const Account *s1, const Account *s2) const
-					{ return s1->get_idnum() < s2->get_idnum(); }
-				bool operator()(const Account *s1, int id) const
-					{ return s1->get_idnum() < id; }
-				bool operator()(int id, const Account *s1) const
-					{ return id < s1->get_idnum(); }
-		};
-
-	private:
-		static int long _top_id;
-		static vector <Account *> _cache;
-
-		void load_players(void);
-		void load_trusted(void);
-		void set(const char *key, const char *val);
-		void add_trusted(long idnum);
-
+struct account {
 		// Internal
-		int _id;
-		char *_name;
-		char *_password;
+		int id;
+		char *name;
+		char *password;
 		// Administration
-		char *_email;
-		time_t _creation_time;		// time account was created
-		char *_creation_addr;
-		time_t _login_time;			// last time account was logged into
-		char *_login_addr;
-		time_t _entry_time;			// last time char entered game
+		char *email;
+		time_t creation_time;		// time account was created
+		char *creation_addr;
+		time_t login_time;			// last time account was logged into
+		char *login_addr;
+		time_t entry_time;			// last time char entered game
 		// Account-wide references
-		unsigned char _ansi_level;
-		unsigned char _compact_level;
-		unsigned int _term_height;
-		unsigned int _term_width;
+		unsigned char ansi_level;
+		unsigned char compact_level;
+		unsigned int term_height;
+		unsigned int term_width;
 		// Game data
-		vector<long> _chars;
-		vector<long> _trusted;
-        bool _banned;
-		int _reputation;
-		int _quest_points;
-		bool _quest_banned;
-		money_t _bank_past;
-		money_t _bank_future;
+		struct id_list *chars;
+		struct id_list *trusted;
+        bool banned;
+		int reputation;
+		int quest_points;
+		bool quest_banned;
+		money_t bank_past;
+		money_t bank_future;
 };
+void account_boot(void);
+struct account *account_create(const char *name, struct descriptor_data *d);
+struct account *account_by_name(const char *name);
+struct account *account_by_id(int id);
+struct account *account_by_creature(struct creature *ch);
+void account_preload(const char *conditions);
+bool account_exists(int accountID);
+bool account_remove(struct account *acct);
+size_t account_cache_size(void);
+
+bool account_has_password(struct account *account);
+bool account_authenticate(struct account *account, const char *password);
+void account_login(struct account *account, struct descriptor_data *d);
+void account_logout(struct account *account,
+                    struct descriptor_data *d,
+                    bool forced);
+bool account_is_logged_in(struct account *account);
+void account_initialize(struct account *account,
+                        const char *name,
+                        struct descriptor_data *d,
+                        int idnum);
+bool account_load(struct account *account, long idnum);
+bool account_reload(struct account *account);
+
+struct creature *account_create_char(struct account *account, const char *name);
+void account_delete_char(struct account *account, struct creature *ch);
+long account_get_char_by_index(struct account *account, int idx);
+struct creature *account_get_creature_by_index(struct account *account, int idx);
+bool account_invalid_char_index(struct account *account, int idx);
+int account_get_char_count(struct account *account);
+int account_chars_available(struct account *account);
+long account_get_char(struct account *account,  int index );
+bool account_deny_char_entry(struct account *account, struct creature *ch);
+void account_move_char(struct account *account, long id, struct account *dest);
+// Attempts to add the given orphaned character to this account
+void account_exhume_char(struct account *account,  struct creature *exhumer, long id );
+
+void set_past_bank(struct account *account, money_t amt);
+void set_future_bank(struct account *account, money_t amt);
+void deposit_past_bank(struct account *account, money_t amt);
+void deposit_future_bank(struct account *account, money_t amt);
+void withdraw_past_bank(struct account *account, money_t amt);
+void withdraw_future_bank(struct account *account, money_t amt);
+
+void set_password(struct account *account, const char *password);
+
+inline const char* get_login_addr(struct account *account);
+inline const char* get_creation_addr(struct account *account);
+
+inline time_t get_login_time(struct account *account);
+inline time_t get_creation_time(struct account *account);
+inline time_t get_entry_time(struct account *account);
+void update_last_entry(struct account *account);
+
+bool isTrusted(struct account *account, long idnum);
+void trust(struct account *account, long idnum);
+void distrust(struct account *account, long idnum);
+bool trustsNobody(struct account *account);
+void displayTrusted(struct account *account, struct creature *ch);
+
+int hasCharLevel(struct account *account, int level);
+int hasCharGen(struct account *account, int level);
+
+int countGens(struct account *account);
+
+void load_players(struct account *account);
+void load_trusted(struct account *account);
+void set(struct account *account, const char *key, const char *val);
+void add_trusted(struct account *account, long idnum);
+
 
 #endif

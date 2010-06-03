@@ -70,7 +70,7 @@ SPECIAL(christmas_quest)
             else {
                 struct obj_data *cont = read_object(92039);
                 if (!cont) {
-                    mlog(Security::CODER, LVL_GRIMP, NRM, false,
+                    mlog(Security_CODER, LVL_GRIMP, NRM, false,
                             "Couldn't load sack from vnum 92039!");
                     return 1;
                 }
@@ -180,7 +180,7 @@ SPECIAL(christmas_quest)
             return 0;
         }
 
-        mlog(Security::CODER, LVL_GRIMP, NRM, false, "GRINCH: Moving to %d. "
+        mlog(Security_CODER, LVL_GRIMP, NRM, false, "GRINCH: Moving to %d. "
                 "Timer reset to %d", dest->number, grinch_timer);
 
         act("$n disappears up a nearby chimney!", false, grinch, 0, 0, TO_ROOM);

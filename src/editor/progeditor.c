@@ -29,7 +29,7 @@ using namespace std;
 #include "player_table.h"
 
 void
-start_editing_prog(descriptor_data *d, thing *owner, prog_evt_type owner_type)
+start_editing_prog(descriptor_data *d, void *owner, prog_evt_type owner_type)
 {
 	if (d->text_editor) {
 		errlog("Text editor object not null in start_editing_mail");
@@ -43,8 +43,8 @@ start_editing_prog(descriptor_data *d, thing *owner, prog_evt_type owner_type)
 	d->text_editor = new CProgEditor(d, owner, owner_type);
 }
 
-CProgEditor::CProgEditor(descriptor_data *desc,
-                         thing *o,
+CProgEditor_CProgEditor(descriptor_data *desc,
+                         void *o,
                          prog_evt_type t)
     : CEditor(desc, MAX_STRING_LENGTH)
 {
@@ -57,21 +57,21 @@ CProgEditor::CProgEditor(descriptor_data *desc,
 }
 
 bool
-CProgEditor::PerformCommand(char cmd, char *args)
+CProgEditor_PerformCommand(char cmd, char *args)
 {
     switch (cmd) {
     case 'u':
         UndoChanges();
         break;
     default:
-        return CEditor::PerformCommand(cmd, args);
+        return CEditor_PerformCommand(cmd, args);
     }
 
     return true;
 }
 
 void
-CProgEditor::Finalize(const char *text)
+CProgEditor_Finalize(const char *text)
 {
     char *new_prog = (*text) ? strdup(text):NULL;
 

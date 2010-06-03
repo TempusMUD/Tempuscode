@@ -73,7 +73,7 @@ struct PObject {
 	int pos;
 	int flags;
 	int step;
-	thing *object;
+	void *object;
 	PHead *phead;
 };
 
@@ -751,7 +751,7 @@ path_activity(void)
 	}
 }
 void
-path_remove_object(thing *object)
+path_remove_object(void *object)
 {
 	Link *i;
 

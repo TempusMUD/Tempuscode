@@ -357,7 +357,7 @@ ACMD(do_whirlwind)
 
 		//attack up to hits-1 more victims at random
 		CombatDataList *combatList = ch->getCombatList();
-		CombatDataList::iterator combatIter;
+		CombatDataList_iterator combatIter;
 		int i=1;
         for (combatIter=combatList->begin();
                 (i < hits) && (combatIter != combatList->end());

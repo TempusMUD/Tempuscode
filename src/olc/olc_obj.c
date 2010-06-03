@@ -188,7 +188,7 @@ save_objs(struct Creature *ch, struct zone_data *zone)
 	low = zone->number * 100;
 	high = zone->top;
 
-    ObjectMap::iterator oi;
+    ObjectMap_iterator oi;
     for (oi = objectPrototypes.lower_bound(low);
          oi != objectPrototypes.upper_bound(high); oi++) {
         obj = oi->second;

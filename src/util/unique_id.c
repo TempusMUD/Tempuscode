@@ -1,11 +1,11 @@
 #include "unique_id.h"
 #include <limits.h>
 
-long UniqueID::_topID = 0;
-bool UniqueID::_modified = false;
+long UniqueID__topID = 0;
+bool UniqueID__modified = false;
 
 long
-UniqueID::getNextID() {
+UniqueID_getNextID() {
     _modified = true;
     if (_topID < LONG_MAX) {
         return _topID++;
@@ -16,21 +16,21 @@ UniqueID::getNextID() {
 }
 
 long
-UniqueID::peekNextID() {
+UniqueID_peekNextID() {
     return _topID;
 }
 
 void
-UniqueID::setTopID(long topID) {
+UniqueID_setTopID(long topID) {
     _topID = topID;
 }
 
 bool
-UniqueID::modified() {
+UniqueID_modified() {
     return _modified;
 }
 
 void
-UniqueID::saved() {
+UniqueID_saved() {
     _modified = false;
 }

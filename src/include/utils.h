@@ -88,15 +88,13 @@ enum decision_t {
 	ALLOW,
 	DENY,
 };
-class Reaction {
-	public:
+struct Reaction {
 		Reaction(void) : _reaction(0) {}
 		~Reaction(void) { if (_reaction) free(_reaction); }
 
 		decision_t react(Creature *ch);
 		bool add_reaction(decision_t action, char *condition);
 		bool add_reaction(char *config);
-	private:
 		char *_reaction;
 };
 

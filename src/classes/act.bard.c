@@ -100,12 +100,12 @@ sing_song(struct Creature *ch, Creature *vict, struct obj_data *ovict, int songn
   struct bard_song *song = &songs[songnum];
 
   if (!SPELL_FLAGGED(songnum, MAG_BARD)) {
-	mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, true,
+	mlog(Security_ADMINBASIC, LVL_AMBASSADOR, NRM, true,
 			"(%d) Not a bard song in sing_song()", songnum);
 	return;
   }
 
-  CreatureList::iterator it = ch->in_room->people.begin();
+  CreatureList_iterator it = ch->in_room->people.begin();
   for (; it != ch->in_room->people.end(); ++it) {
 	if (!(*it)->desc || !AWAKE((*it)) ||
 		PLR_FLAGGED((*it), PLR_WRITING | PLR_OLC))
@@ -306,7 +306,7 @@ ASPELL(song_exposure_overture)
     if (!ch)
         return;
 
-    CreatureList::iterator ci = ch->in_room->people.begin();
+    CreatureList_iterator ci = ch->in_room->people.begin();
 
     for (; ci != ch->in_room->people.end(); ++ci) {
         const char *to_char = NULL;
@@ -471,7 +471,7 @@ ASPELL(song_lament_of_longing)
              true, victim, NULL, NULL, TO_CHAR);
     }
 
-    CreatureList::iterator ci = ch->in_room->people.begin();
+    CreatureList_iterator ci = ch->in_room->people.begin();
     for (; ci != ch->in_room->people.end(); ++ci) {
         if (!IS_NPC((*ci))) {
             WAIT_STATE(ch, 5 RL_SEC);
@@ -553,7 +553,7 @@ ASPELL(song_wall_of_sound)
 ASPELL(song_hymn_of_peace)
 {
 
-    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList_iterator it = ch->in_room->people.begin();
     for (; it != ch->in_room->people.end(); ++it) {
         (*it)->removeAllCombat();
         mag_unaffects(level, ch, *it, SONG_HYMN_OF_PEACE, 0);
@@ -620,7 +620,7 @@ ACMD(do_ventriloquize)
         return;
     }
 
-    CreatureList::iterator ci = ch->in_room->people.begin();
+    CreatureList_iterator ci = ch->in_room->people.begin();
     for (; ci != ch->in_room->people.end(); ++ci) {
         if (target) {
             if (target == *ci)

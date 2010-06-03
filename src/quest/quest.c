@@ -148,8 +148,7 @@ const char *qp_bits[] = {
 	"\n"
 };
 
-class QuestControl : protected vector<Quest> {
-public:
+struct QuestControl : protected vector<Quest> {
     QuestControl() : vector<Quest>() {
         filename = "etc/quest.xml";
         top_vnum = 0;
@@ -167,15 +166,15 @@ public:
             top_vnum = vnum;
         }
     }
-    using vector<Quest>::size;
-    using vector<Quest>::operator[];
+    using vector<Quest>_size;
+    using vector<Quest>_operator[];
 private:
     int top_vnum;
     const char *filename;
 } quests;
 
 void
-QuestControl::loadQuests()
+QuestControl_loadQuests()
 {
 	erase(begin(),end());
 	xmlDocPtr doc = xmlParseFile(filename);
@@ -204,9 +203,9 @@ QuestControl::loadQuests()
 }
 
 void
-QuestControl::save()
+QuestControl_save()
 {
-	std::ofstream out(filename);
+	std_ofstream out(filename);
 
 	if(!out) {
 		errlog("Cannot open quest file: %s",filename);
@@ -1247,7 +1246,7 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 			vict->loadFromXML(pid);
             level = GET_LEVEL(vict);
             del_vict = true;
-            account = Account::retrieve(accountID);
+            account = Account_retrieve(accountID);
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
@@ -1263,7 +1262,7 @@ do_qcontrol_ban(Creature *ch, char *argument, int com)
 	}
 
 	if (!strcmp("all", arg2)) { //ban from all quests
-        if (!Security::isMember(ch, "QuestorAdmin")) {
+        if (!Security_isMember(ch, "QuestorAdmin")) {
             send_to_char(ch, "You do not have this ability.\r\n");
         } else if (account->is_quest_banned()) {
             send_to_char(ch,
@@ -1362,7 +1361,7 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
             vict->loadFromXML(idnum);
             level = GET_LEVEL(vict);
             del_vict=true;
-            account = Account::retrieve(accountID);
+            account = Account_retrieve(accountID);
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
@@ -1378,7 +1377,7 @@ do_qcontrol_unban(Creature *ch, char *argument, int com)
 	}
 
 	if (!strcmp("all", arg2)) { //unban from all quests
-        if (!Security::isMember(ch, "QuestorAdmin")) {
+        if (!Security_isMember(ch, "QuestorAdmin")) {
             send_to_char(ch, "You do not have this ability.\r\n");
         } else if (!account->is_quest_banned()) {
             send_to_char(ch,
@@ -1889,7 +1888,7 @@ qlog(Creature *ch, const char *str, int type, int min_level, int file)
 	}
 
 	if (file) {
-		fprintf(qlogfile, "%-19.19s :: %s %s\n",
+		fprintf(qlogfile, "%-19.19s _ %s %s\n",
                 tmp_ctime(time(NULL)),
                 ch ? GET_NAME(ch) : "",
                 str);
@@ -2416,7 +2415,7 @@ qp_reload(int sig __attribute__ ((unused)))
 	//
 	// Check if the imm is logged on
 	//
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		immortal = *cit;
 		if (GET_LEVEL(immortal) >= LVL_AMBASSADOR && (!IS_NPC(immortal)
@@ -2763,7 +2762,7 @@ save_quests() {
 	quests.save();
 }
 
-Quest::Quest( Creature *ch, int type, const char* name )
+Quest_Quest( Creature *ch, int type, const char* name )
 	: players(), bans()
 {
 	this->vnum = quests.getNextVnum();
@@ -2794,11 +2793,11 @@ Quest::Quest( Creature *ch, int type, const char* name )
     loadroom = -1;
 }
 
-Quest::~Quest()
+Quest_~Quest()
 {
 	clearDescs();
 }
-void Quest::clearDescs() {
+void Quest_clearDescs() {
 	if( name != NULL ) {
 		free(name);
 		name = NULL;
@@ -2813,13 +2812,13 @@ void Quest::clearDescs() {
 	}
 }
 
-Quest::Quest( const Quest &q ) : players(), bans()
+Quest_Quest( const Quest &q ) : players(), bans()
 {
 	name = description = updates = NULL;
 	*this = q;
 }
 
-Quest::Quest( xmlNodePtr n, xmlDocPtr doc )
+Quest_Quest( xmlNodePtr n, xmlDocPtr doc )
 {
 	xmlChar *s;
 	vnum = xmlGetIntProp(n, "VNUM");
@@ -2877,7 +2876,7 @@ Quest::Quest( xmlNodePtr n, xmlDocPtr doc )
 	}
 }
 
-Quest& Quest::operator=( const Quest &q )
+Quest& Quest_operator=( const Quest &q )
 {
 	clearDescs();
 
@@ -2907,9 +2906,9 @@ Quest& Quest::operator=( const Quest &q )
 	return *this;
 }
 
-bool Quest::removePlayer( long id ) {
+bool Quest_removePlayer( long id ) {
 	Creature *vict = NULL;
-	vector<qplayer_data>::iterator it;
+	vector<qplayer_data>_iterator it;
 
 	it = find(players.begin(),players.end(),qplayer_data(id) );
 	if( it == players.end() )
@@ -2938,8 +2937,8 @@ bool Quest::removePlayer( long id ) {
 	return true;
 }
 
-bool Quest::removeBan( long id ) {
-	vector<qplayer_data>::iterator it;
+bool Quest_removeBan( long id ) {
+	vector<qplayer_data>_iterator it;
 
 	it = find(bans.begin(),bans.end(),qplayer_data(id) );
 	if( it == bans.end() )
@@ -2949,7 +2948,7 @@ bool Quest::removeBan( long id ) {
 	return true;
 }
 
-bool Quest::addBan( long id ) {
+bool Quest_addBan( long id ) {
 	if( find(bans.begin(),bans.end(),qplayer_data(id) ) == bans.end() ){
 		bans.push_back(qplayer_data(id));
 		return true;
@@ -2957,27 +2956,27 @@ bool Quest::addBan( long id ) {
 	return false;
 }
 
-bool Quest::isBanned( long id ) {
+bool Quest_isBanned( long id ) {
 	return find(bans.begin(),bans.end(),qplayer_data(id) ) != bans.end();
 }
 
-bool Quest::isPlaying( long id ) {
+bool Quest_isPlaying( long id ) {
 	return find(players.begin(),players.end(),qplayer_data(id) ) != players.end();
 }
 
-qplayer_data &Quest::getPlayer( long id ) {
-	vector<qplayer_data>::iterator it;
+qplayer_data &Quest_getPlayer( long id ) {
+	vector<qplayer_data>_iterator it;
 	it = find(players.begin(),players.end(),qplayer_data(id) );
 	return *it;
 }
 
-qplayer_data &Quest::getBan( long id ) {
-	vector<qplayer_data>::iterator it;
+qplayer_data &Quest_getBan( long id ) {
+	vector<qplayer_data>_iterator it;
 	it = find(bans.begin(),bans.end(),qplayer_data(id) );
 	return *it;
 }
 
-bool Quest::addPlayer( long id ) {
+bool Quest_addPlayer( long id ) {
 	if( find(players.begin(),players.end(),qplayer_data(id) ) == players.end() ){
 		players.push_back(qplayer_data(id));
 		return true;
@@ -2985,23 +2984,23 @@ bool Quest::addPlayer( long id ) {
 	return false;
 }
 
-void qplayer_data::removeFlag( int flag ) {
+void qplayer_data_removeFlag( int flag ) {
 	REMOVE_BIT(flags,flag);
 }
 
-void qplayer_data::toggleFlag( int flag ) {
+void qplayer_data_toggleFlag( int flag ) {
 	TOGGLE_BIT(flags,flag);
 }
 
-void qplayer_data::setFlag( int flag ) {
+void qplayer_data_setFlag( int flag ) {
 	SET_BIT(flags,flag);
 }
 
-bool qplayer_data::isFlagged( int flag ) {
+bool qplayer_data_isFlagged( int flag ) {
 	return IS_SET(flags, flag);
 }
 
-qplayer_data& qplayer_data::operator=( const qplayer_data &q )
+qplayer_data& qplayer_data_operator=( const qplayer_data &q )
 {
 	idnum = q.idnum;
 	flags = q.flags;
@@ -3011,9 +3010,9 @@ qplayer_data& qplayer_data::operator=( const qplayer_data &q )
 	return *this;
 }
 
-bool Quest::canEdit(Creature *ch)
+bool Quest_canEdit(Creature *ch)
 {
-	if( Security::isMember(ch, "QuestorAdmin") )
+	if( Security_isMember(ch, "QuestorAdmin") )
 		return true;
 
 	if (GET_LEVEL(ch) <= owner_level &&
@@ -3024,7 +3023,7 @@ bool Quest::canEdit(Creature *ch)
 	return true;
 }
 bool
-Quest::canJoin(Creature *ch)
+Quest_canJoin(Creature *ch)
 {
 	if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
 		send_to_char(ch, "Join when you're no longer a killer or thief.\r\n");
@@ -3054,7 +3053,7 @@ Quest::canJoin(Creature *ch)
 }
 
 bool
-Quest::canLeave(Creature *ch)
+Quest_canLeave(Creature *ch)
 {
 	if (QUEST_FLAGGED(this, QUEST_NOLEAVE)) {
 		send_to_char(ch, "Sorry, you cannot leave the quest right now.\r\n");
@@ -3064,7 +3063,7 @@ Quest::canLeave(Creature *ch)
 }
 
 bool
-Quest::levelOK(Creature *ch)
+Quest_levelOK(Creature *ch)
 {
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return true;
@@ -3092,7 +3091,7 @@ Quest::levelOK(Creature *ch)
 }
 
 void
-Quest::save(std::ostream &out)
+Quest_save(std::ostream &out)
 {
 	const char *indent = "    ";
 
@@ -3137,18 +3136,18 @@ Quest::save(std::ostream &out)
 }
 
 void
-Quest::tallyDeath(int player)
+Quest_tallyDeath(int player)
 {
     getPlayer((long)player).deaths += 1;
     quests.save();
 }
 void
-Quest::tallyMobKill(int player) {
+Quest_tallyMobKill(int player) {
     getPlayer((long)player).mobkills += 1;
     quests.save();
 }
 void
-Quest::tallyPlayerKill(int player) {
+Quest_tallyPlayerKill(int player) {
     getPlayer((long)player).pkills += 1;
     quests.save();
 }

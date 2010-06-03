@@ -367,7 +367,7 @@ init_game(int port)
 		close_socket(descriptor_list);
 
     save_quests();
-	Security::shutdown();
+	Security_shutdown();
 
 	if (circle_reboot) {
 		slog("Rebooting.");
@@ -691,11 +691,11 @@ game_loop(int mother_desc)
 			shutdown_count--;	/* units of seconds */
 
 			if (shutdown_count == 10)
-				send_to_all(":: Tempus REBOOT in 10 seconds ::\r\n");
+				send_to_all("_ Tempus REBOOT in 10 seconds ::\r\n");
 			else if (shutdown_count == 30)
-				send_to_all(":: Tempus REBOOT in 30 seconds ::\r\n");
+				send_to_all("_ Tempus REBOOT in 30 seconds ::\r\n");
 			else if (shutdown_count && !(shutdown_count % 60)) {
-				sprintf(buf, ":: Tempus REBOOT in %d minute%s ::\r\n",
+				sprintf(buf, "_ Tempus REBOOT in %d minute%s ::\r\n",
 					shutdown_count / 60, shutdown_count == 60 ? "" : "s");
 				send_to_all(buf);
 			} else if (shutdown_count <= 0) {
@@ -705,7 +705,7 @@ game_loop(int mother_desc)
 				xmlCleanupParser();
 
 				autosave_zones(ZONE_RESETSAVE);
-				send_to_all(":: Tempus REBOOTING ::\r\n\r\n"
+				send_to_all("_ Tempus REBOOTING ::\r\n\r\n"
 					"You feel your reality fading, as the universe spins away\r\n"
 					"before your eyes and the icy cold of nothingness settles\r\n"
 					"into your flesh.  With a jolt, you feel the thread snap,\r\n"
@@ -1047,7 +1047,7 @@ new_descriptor(int s)
     int bantype = isbanned(newd->host, buf2);
 
 	/* Log new connections - probably unnecessary, but you may want it */
-	mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
+	mlog(Security_ADMINBASIC, LVL_GOD, CMP, true,
 		"New connection from [%s]%s%s",
 		newd->host,
 		(bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
@@ -1366,7 +1366,7 @@ void
 close_socket(struct descriptor_data *d)
 {
 	struct descriptor_data *temp;
-	vector<descriptor_data *>::iterator vi;
+	vector<descriptor_data *>_iterator vi;
 
     close(d->descriptor);
 	flush_queues(d);
@@ -1400,7 +1400,7 @@ close_socket(struct descriptor_data *d)
 		d->creature->player.time.logon = time(0);
 		d->creature->saveToXML();
 		act("$n has lost $s link.", true, d->creature, 0, 0, TO_ROOM);
-		mlog(Security::ADMINBASIC,
+		mlog(Security_ADMINBASIC,
 			 MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)),
 			 NRM, false, "Closing link to: %s [%s] ", GET_NAME(d->creature),
 			d->host);
@@ -1413,7 +1413,7 @@ close_socket(struct descriptor_data *d)
 			delete d->creature;
 			d->creature = NULL;
 		}
-		mlog(Security::ADMINBASIC, LVL_AMBASSADOR, NRM, false,
+		mlog(Security_ADMINBASIC, LVL_AMBASSADOR, NRM, false,
                 "%s[%d] logging off from %s",
                 d->account->get_name(), d->account->get_idnum(), d->host);
 		d->account->logout(d, false);
@@ -1490,7 +1490,7 @@ hupsig(int sig __attribute__ ((unused)))
 	mudlog(LVL_AMBASSADOR, BRF, true,
 		"Received external signal - shutting down for reboot in 60 sec..");
 
-	send_to_all("\007\007:: Tempus REBOOT in 60 seconds ::\r\n");
+	send_to_all("\007\007_ Tempus REBOOT in 60 seconds ::\r\n");
 	shutdown_idnum = -1;
 	shutdown_count = 60;
 	shutdown_mode = SHUTDOWN_REBOOT;
@@ -1760,10 +1760,10 @@ send_to_comm_channel(struct Creature *ch, char *buf, int chan, int mode,
 			continue;
 
 		if (GET_OBJ_SPEC(obj) == master_communicator)
-			send_to_char(receiver, "%s::%s [%d]::%s ", CCYEL(receiver, C_NRM),
+			send_to_char(receiver, "%s_%s [%d]::%s ", CCYEL(receiver, C_NRM),
 				OBJS(obj, receiver), chan, CCNRM(receiver, C_NRM));
 		else
-			send_to_char(receiver, "%s::%s::%s ", CCYEL(receiver, C_NRM),
+			send_to_char(receiver, "%s_%s::%s ", CCYEL(receiver, C_NRM),
 				OBJS(obj, receiver), CCNRM(receiver, C_NRM));
 		act(buf, true, ch, obj, receiver, TO_VICT);
 	}
@@ -1798,7 +1798,7 @@ send_to_room(const char *messg, struct room_data *room)
 
 	if (!room || !messg)
 		return;
-	CreatureList::iterator it = room->people.begin();
+	CreatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		i = *it;
 		if (i->desc && !PLR_FLAGGED(i, PLR_OLC | PLR_WRITING | PLR_MAILING))
@@ -1944,7 +1944,7 @@ make_act_str(const char *orig,
              char *buf,
              struct Creature *ch,
              struct obj_data *obj,
-             struct thing *vict_obj,
+             struct void *vict_obj,
              struct Creature *to)
 {
     const char *s = orig;
@@ -2112,7 +2112,7 @@ make_act_str(const char *orig,
 
 void
 perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
-	thing *vict_obj, struct Creature *to, int mode)
+	void *vict_obj, struct Creature *to, int mode)
 {
 	static char lbuf[MAX_STRING_LENGTH];
 	char outbuf[MAX_STRING_LENGTH];
@@ -2152,7 +2152,7 @@ perform_act(const char *orig, struct Creature *ch, struct obj_data *obj,
 
 void
 act_if(const char *str, int hide_invisible, struct Creature *ch,
-	struct obj_data *obj, thing *vict_obj, int type, act_if_predicate pred)
+	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred)
 {
 	struct obj_data *o, *o2 = NULL;
 	static int sleep;
@@ -2219,7 +2219,7 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 		raise(SIGSEGV);
 		return;
 	}
-	CreatureList::iterator it = room->people.begin();
+	CreatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (!pred(ch, obj, vict_obj, (*it), 0))
 			continue;
@@ -2300,7 +2300,7 @@ act_if(const char *str, int hide_invisible, struct Creature *ch,
 bool
 standard_act_predicate(struct Creature *ch __attribute__ ((unused)),
                        struct obj_data *obj __attribute__ ((unused)),
-                       thing *vict_obj __attribute__ ((unused)),
+                       void *vict_obj __attribute__ ((unused)),
                        struct Creature *to __attribute__ ((unused)),
                        int mode __attribute__ ((unused)))
 {
@@ -2309,7 +2309,7 @@ standard_act_predicate(struct Creature *ch __attribute__ ((unused)),
 
 void
 act(const char *str, int hide_invisible, struct Creature *ch,
-	struct obj_data *obj, thing *vict_obj, int type)
+	struct obj_data *obj, void *vict_obj, int type)
 {
 	act_if(str, hide_invisible, ch, obj, vict_obj, type, standard_act_predicate);
 }
@@ -2417,7 +2417,7 @@ descriptor_update(void)
 
 		if (d->idle >= 10 && STATE(d) != CXN_PLAYING
 			&& STATE(d) != CXN_NETWORK) {
-			mlog(Security::ADMINBASIC, LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
+			mlog(Security_ADMINBASIC, LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
 			SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
 			set_desc_state(CXN_DISCONNECT, d);
 		}

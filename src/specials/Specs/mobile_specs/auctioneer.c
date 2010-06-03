@@ -102,7 +102,7 @@ SPECIAL(do_auctions)
 {
 	Creature *self = (Creature *)me;
     Creature *imp;
-    list<auction_data>::iterator ai = items.begin();
+    list<auction_data>_iterator ai = items.begin();
     short mood_index = 0;
 
     if (!self->mob_specials.func_data) {
@@ -172,7 +172,7 @@ SPECIAL(do_auctions)
                 ((imp_data *)imp->mob_specials.func_data)->mode = IMP_DELIVER_ITEM;
                 obj_from_char(ai->item);
                 obj_to_char(ai->item, imp);
-                list<auction_data>::iterator ti = ai;
+                list<auction_data>_iterator ti = ai;
                 ai++;
                 items.erase(ti);
                 aucSaveToXML(self);
@@ -203,7 +203,7 @@ SPECIAL(do_auctions)
                 ((imp_data *)imp->mob_specials.func_data)->mode = IMP_RETURN_ITEM;
                 obj_from_char(ai->item);
                 obj_to_char(ai->item, imp);
-                list<auction_data>::iterator ti = ai;
+                list<auction_data>_iterator ti = ai;
                 ai++;
                 items.erase(ti);
                 aucSaveToXML(self);
@@ -491,7 +491,7 @@ SPECIAL(do_auctions)
             return 1;
         }
 
-        list<auction_data>::iterator ai = items.begin();
+        list<auction_data>_iterator ai = items.begin();
         for (; ai != items.end(); ai++) {
             if (ai->item_no == item_no &&
                 ai->auctioneer_id == self->getIdNum())
@@ -546,7 +546,7 @@ SPECIAL(do_auctions)
 int
 get_max_auction_item() {
     int i;
-    list<auction_data>::iterator ai = items.begin();
+    list<auction_data>_iterator ai = items.begin();
 
     items.sort();
     if (items.empty())
@@ -591,7 +591,7 @@ ACMD(do_bidstat) {
         return;
     }
 
-    list<auction_data>::iterator ai = items.begin();
+    list<auction_data>_iterator ai = items.begin();
     for (; ai != items.end(); ai++) {
         if (ai->item_no == item_no)
             break;
@@ -629,7 +629,7 @@ ACMD(do_bid) {
         return;
     }
 
-    list<auction_data>::iterator ai = items.begin();
+    list<auction_data>_iterator ai = items.begin();
     for (; ai != items.end(); ai++) {
         if (ai->item_no == item_no)
             break;
@@ -686,7 +686,7 @@ ACMD(do_bidlist) {
         send_to_char(ch, "There are no items for auction.\r\n");
 
     acc_string_clear();
-    list<auction_data>::iterator ai = items.begin();
+    list<auction_data>_iterator ai = items.begin();
     for (ai = items.begin(); ai != items.end(); ++ai) {
         acc_sprintf("%sItem Number:%s   %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), ai->item_no);
@@ -723,7 +723,7 @@ ACMD(do_bidlist) {
 bool bidder_can_afford(Creature *bidder, money_t amount) {
     money_t tamount = amount;
 
-    list<auction_data>::iterator ai = items.begin();
+    list<auction_data>_iterator ai = items.begin();
     for (; ai != items.end(); ai++) {
         if (ai->buyer_id == bidder->getIdNum())
             amount += ai->current_bid;
@@ -756,7 +756,7 @@ aucSaveToXML(Creature *auc) {
                  GOING_TWICE, SOLD_TIME, NO_BID_THRESH, AUCTION_THRESH,
                  MAX_AUC_VALUE, MAX_AUC_ITEMS, MAX_TOTAL_AUC, BID_INCREMENT);
 
-    list<auction_data>::iterator ai = items.begin();
+    list<auction_data>_iterator ai = items.begin();
     for (; ai != items.end(); ai++) {
         if (ai->auctioneer_id != auc->getIdNum())
             continue;

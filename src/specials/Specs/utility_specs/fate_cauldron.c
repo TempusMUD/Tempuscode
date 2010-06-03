@@ -34,7 +34,7 @@ SPECIAL(fate_cauldron)
 	} else {
 		fateid = FATE_VNUM_HIGH;
 	}
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (GET_MOB_VNUM((*cit)) == fateid) {
 			fate = *cit;

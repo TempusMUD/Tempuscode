@@ -196,14 +196,8 @@ struct room_trail_data {
 };
 
 /* ================== Memory Structure for room ======================= */
-struct room_data : public thing {
-  public:						// methods
-	room_data(room_num n = -1, struct zone_data *z = NULL);
-	bool isOpenAir(void);
-
-	int countExits(void);
-  public:						// members
-	 room_num number;			// Rooms number (vnum)
+struct room_data {
+    room_num number;			// Rooms number (vnum)
 	int sector_type;			// sector type (move/hide)
 
 	char *name;					// You are...
@@ -230,10 +224,8 @@ struct room_data : public thing {
 	char *func_param;
 	struct zone_data *zone;		// zone the room is in
 	struct room_data *next;
-
 	struct obj_data *contents;	// List of items in room
-	//private:
-	CreatureList people;		// List of NPC / PC in room
+	struct creature *people;		// List of NPC / PC in room
 };
 //these structs used in do_return()
 extern struct room_data *r_immort_start_room;

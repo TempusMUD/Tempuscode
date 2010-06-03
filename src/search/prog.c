@@ -123,7 +123,7 @@ prog_command prog_cmds[] = {
 };
 
 unsigned char *
-prog_get_obj(thing *owner, prog_evt_type owner_type)
+prog_get_obj(void *owner, prog_evt_type owner_type)
 {
 	switch (owner_type) {
 	case PROG_TYPE_OBJECT:
@@ -163,7 +163,7 @@ prog_get_desc(prog_env *env)
 }
 
 int
-prog_event_handler(thing *owner, prog_evt_type owner_type,
+prog_event_handler(void *owner, prog_evt_type owner_type,
                    prog_evt_phase phase,
                    prog_evt_kind kind)
 {
@@ -233,13 +233,13 @@ prog_send_debug(prog_env *env, const char *msg)
 {
     room_data *room = prog_get_owner_room(env);
 
-    for (CreatureList::iterator cit = room->people.begin();
+    for (CreatureList_iterator cit = room->people.begin();
          cit != room->people.end();
          ++cit) {
         Creature *ch = *cit;
 
         if (PRF2_FLAGGED(ch, PRF2_DEBUG))
-            send_to_char(ch, "%sprog x%p:: %s%s\r\n",
+            send_to_char(ch, "%sprog x%p_ %s%s\r\n",
                          CCCYN(ch, C_NRM), env, msg, CCNRM(ch, C_NRM));
     }
 }
@@ -1131,7 +1131,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 		zerrlog(room->zone, "Bad *damage argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (CreatureList::iterator it = room->people.begin();
+	for (CreatureList_iterator it = room->people.begin();
 		it != room->people.end(); ++it)
 		if ((!players || IS_PC(*it)) &&
             (!mobs || IS_NPC(*it)) &&
@@ -1246,7 +1246,7 @@ DEFPROGHANDLER(spell, env, evt, args)
 		zerrlog(room->zone, "Bad *spell argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (CreatureList::iterator it = room->people.begin();
+	for (CreatureList_iterator it = room->people.begin();
 		it != room->people.end(); ++it)
 		if ((!players || IS_PC(*it)) &&
             (!mobs || IS_NPC(*it)) &&
@@ -1401,7 +1401,7 @@ prog_trans_creature(Creature * ch, room_data * targ_room)
 	if (!House_can_enter(ch, targ_room->number)
 		|| !clan_house_can_enter(ch, targ_room)
 		|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
-			&& !Security::isMember(ch, "WizardFull"))) {
+			&& !Security_isMember(ch, "WizardFull"))) {
 		return;
 	}
 
@@ -1503,7 +1503,7 @@ DEFPROGHANDLER(trans, env, evt, args)
 		zerrlog(room->zone, "Bad *trans argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (CreatureList::iterator it = room->people.begin();
+	for (CreatureList_iterator it = room->people.begin();
 		it != room->people.end(); ++it)
 		if ((!players || IS_PC(*it)) && (!mobs || IS_NPC(*it)))
 			prog_trans_creature(*it, targ_room);
@@ -1853,7 +1853,7 @@ prog_execute(prog_env *env)
 }
 
 prog_env *
-prog_start(prog_evt_type owner_type, thing *owner, Creature * target, prog_evt * evt)
+prog_start(prog_evt_type owner_type, void *owner, Creature * target, prog_evt * evt)
 {
 	prog_env *new_prog;
     int initial_exec_pt;
@@ -1913,7 +1913,7 @@ prog_free(struct prog_env *prog)
 }
 
 void
-destroy_attached_progs(thing *owner)
+destroy_attached_progs(void *owner)
 {
 	struct prog_env *cur_prog;
 
@@ -1941,7 +1941,7 @@ prog_unreference_object(obj_data *obj)
 }
 
 static void
-report_prog_loop(thing *owner, prog_evt_type owner_type, Creature *ch, const char *where)
+report_prog_loop(void *owner, prog_evt_type owner_type, Creature *ch, const char *where)
 {
     const char *owner_desc = "<unknown>";
     const char *ch_desc = "<unknown>";
@@ -1970,7 +1970,7 @@ report_prog_loop(thing *owner, prog_evt_type owner_type, Creature *ch, const cha
 }
 
 bool
-trigger_prog_cmd(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd,
+trigger_prog_cmd(void *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 	char *argument)
 {
 	prog_env *env, *handler_env;
@@ -2032,7 +2032,7 @@ trigger_prog_cmd(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd,
 }
 
 bool
-trigger_prog_spell(thing *owner, prog_evt_type owner_type, Creature * ch, int cmd)
+trigger_prog_spell(void *owner, prog_evt_type owner_type, Creature * ch, int cmd)
 {
 	prog_env *env, *handler_env;
 	prog_evt evt;
@@ -2094,7 +2094,7 @@ trigger_prog_spell(thing *owner, prog_evt_type owner_type, Creature * ch, int cm
 }
 
 bool
-trigger_prog_move(thing *owner, prog_evt_type owner_type, Creature * ch,
+trigger_prog_move(void *owner, prog_evt_type owner_type, Creature * ch,
 	special_mode mode)
 {
 	prog_env *env, *handler_env;
@@ -2212,7 +2212,7 @@ trigger_prog_dying(Creature *owner, Creature *killer)
 }
 
 void
-trigger_prog_death(thing *owner, prog_evt_type owner_type, Creature *doomed)
+trigger_prog_death(void *owner, prog_evt_type owner_type, Creature *doomed)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2274,7 +2274,7 @@ trigger_prog_give(Creature * ch, Creature * self, struct obj_data *obj)
 }
 
 void
-trigger_prog_idle(thing *owner, prog_evt_type owner_type)
+trigger_prog_idle(void *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2301,7 +2301,7 @@ trigger_prog_idle(thing *owner, prog_evt_type owner_type)
 
 //handles idle combat actions
 void
-trigger_prog_combat(thing *owner, prog_evt_type owner_type)
+trigger_prog_combat(void *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2349,7 +2349,7 @@ trigger_prog_load(Creature * owner)
 }
 
 void
-trigger_prog_tick(thing *owner, prog_evt_type owner_type)
+trigger_prog_tick(void *owner, prog_evt_type owner_type)
 {
 	prog_env *env;
 	prog_evt evt;
@@ -2376,7 +2376,7 @@ trigger_prog_tick(thing *owner, prog_evt_type owner_type)
 static void
 prog_unmark_mobiles(void)
 {
-	CreatureList::iterator cit, end;
+	CreatureList_iterator cit, end;
 
 	// Unmark mobiles
     end = characterList.end();
@@ -2436,7 +2436,7 @@ prog_free_terminated(void)
 static void
 prog_trigger_idle_mobs(void)
 {
-	CreatureList::iterator cit, end;
+	CreatureList_iterator cit, end;
 
     end = characterList.end();
 	for (cit = characterList.begin();cit != end;++cit) {

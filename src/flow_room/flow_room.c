@@ -168,7 +168,7 @@ void
 flow_room(int pulse)
 {
 
-	CreatureList::iterator it;
+	CreatureList_iterator it;
 	struct Creature *vict = NULL;
 	struct obj_data *obj = NULL, *next_obj = NULL;
 	register struct zone_data *zone = NULL;

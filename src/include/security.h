@@ -63,8 +63,7 @@ namespace Security {
     /**  Constant Command Flags **/
     const int GROUP = (1 << 0);
 
-    class Group {
-        public:
+    struct Group {
             /* does not make a copy of name or desc.  */
             Group( char *name, char *description );
             /* Makes a copy of name */
@@ -167,7 +166,6 @@ namespace Security {
             void clear();
 
             ~Group();
-        private:
             /* A one line description of this group */
             char *_description;
             /* The one word name for this group */

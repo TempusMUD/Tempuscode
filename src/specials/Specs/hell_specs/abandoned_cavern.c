@@ -34,7 +34,7 @@ SPECIAL(abandoned_cavern)
 		act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, 0, 0, TO_ROOM);
 		act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, 0, 0, TO_CHAR | TO_SLEEP);
 
-		CreatureList::iterator it = cavern->people.begin();
+		CreatureList_iterator it = cavern->people.begin();
 		for (; it != cavern->people.end(); ++it) {
 			vict = *it;
 			if (number(5, 30) > GET_DEX(vict) && GET_LEVEL(vict) < LVL_IMMORT) {

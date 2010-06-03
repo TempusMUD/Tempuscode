@@ -30,19 +30,19 @@
 #include "language.h"
 #include "accstr.h"
 
-Tongue::Tongue(void)
+Tongue_Tongue(void)
     :_idnum(0), _name(NULL), _syllables(NULL), _syllable_count(0), _nospeak_msg(NULL)
 {
     for (int c = 0;c < 256;c++)
         _letters[c] = c;
 }
 
-Tongue::Tongue(const Tongue &o)
+Tongue_Tongue(const Tongue &o)
 {
     *this = o;
 }
 
-Tongue::~Tongue(void)
+Tongue_~Tongue(void)
 {
     free(_name);
     free(_nospeak_msg);
@@ -50,7 +50,7 @@ Tongue::~Tongue(void)
 }
 
 Tongue &
-Tongue::operator=(const Tongue &o)
+Tongue_operator=(const Tongue &o)
 {
     _idnum = o._idnum;
     _syllable_count = o._syllable_count;
@@ -68,7 +68,7 @@ Tongue::operator=(const Tongue &o)
 }
 
 void
-Tongue::clear(void)
+Tongue_clear(void)
 {
     _idnum = 0;
     free(_name);
@@ -83,7 +83,7 @@ Tongue::clear(void)
 }
 
 bool
-Tongue::load(xmlNodePtr node)
+Tongue_load(xmlNodePtr node)
 {
     xmlNodePtr child;
 
@@ -125,7 +125,7 @@ Tongue::load(xmlNodePtr node)
 }
 
 char *
-Tongue::translate(const char *phrase, int amount)
+Tongue_translate(const char *phrase, int amount)
 {
 	char *arg = NULL, *outbuf = NULL;
 
@@ -148,7 +148,7 @@ Tongue::translate(const char *phrase, int amount)
 }
 
 char *
-Tongue::translate_word(char *word)
+Tongue_translate_word(char *word)
 {
 	char *arg;
 	bool found = false;
@@ -174,7 +174,7 @@ Tongue::translate_word(char *word)
 	return arg;
 }
 
-std::map<int,Tongue> tongues;
+std_map<int,Tongue> tongues;
 
 extern const char *player_race[];
 
@@ -289,7 +289,7 @@ boot_tongues(void)
 int
 find_tongue_idx_by_name(const char *tongue_name)
 {
-    map<int, Tongue>::iterator it = tongues.begin();
+    map<int, Tongue>_iterator it = tongues.begin();
     for (;it != tongues.end();++it)
         if (is_abbrev(tongue_name, it->second._name))
             return it->first;
@@ -336,7 +336,7 @@ ACMD(do_speak_tongue)
 
     // Find the tongue they want
     tongue_idx = -1;
-    map<int, Tongue>::iterator it = tongues.begin();
+    map<int, Tongue>_iterator it = tongues.begin();
     for (;it != tongues.end();++it) {
         if (is_abbrev(tongue, it->second._name)) {
             tongue_idx = it->first;
@@ -407,7 +407,7 @@ ACMD(do_show_languages)
     acc_sprintf("%s%sYou know of the following languages:%s\r\n",
                 CCYEL(ch, C_CMP), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR));
 
-    map<int, Tongue>::iterator it = tongues.begin();
+    map<int, Tongue>_iterator it = tongues.begin();
     for (;it != tongues.end();++it) {
         if (CHECK_TONGUE(ch, it->first)) {
 			if (IS_IMMORT(ch)) {
@@ -491,9 +491,9 @@ translate_tongue(Creature *speaker, Creature *listener, const char *message)
     if (CHECK_TONGUE(speaker, lang) > 75 &&
         CHECK_TONGUE(listener, lang) < 100 &&
         speaker != listener) {
-        std::list<int>::iterator result;
+        std_list<int>::iterator result;
 
-        result = std::find(GET_LANG_HEARD(listener).begin(),
+        result = std_find(GET_LANG_HEARD(listener).begin(),
                            GET_LANG_HEARD(listener).end(),
                            lang);
         if (result == GET_LANG_HEARD(listener).end())
@@ -508,7 +508,7 @@ translate_tongue(Creature *speaker, Creature *listener, const char *message)
 void
 write_tongue_xml(Creature *ch, FILE *ouf)
 {
-    map<int, Tongue>::iterator it = tongues.begin();
+    map<int, Tongue>_iterator it = tongues.begin();
     for (;it != tongues.end();++it) {
         if (CHECK_TONGUE(ch, it->first))
             fprintf(ouf, "<tongue name=\"%s\" level=\"%d\"/>\n",
@@ -523,7 +523,7 @@ show_language_help(Creature *ch)
 
     acc_sprintf("LANGUAGES:\r\n");
 
-    map<int, Tongue>::iterator it = tongues.begin();
+    map<int, Tongue>_iterator it = tongues.begin();
     for (;it != tongues.end();++it) {
         Tongue &tongue = it->second;
 

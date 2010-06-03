@@ -48,7 +48,7 @@ SPECIAL(underworld_goddess)
 	struct room_data *room;
 
 	/* See if Styx is in the room */
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (!strcmp((char *)GET_NAME(vict), "Styx"))
 			styx = (*it);

@@ -78,7 +78,7 @@ bool OLCIMP(Creature * ch);
     }
 
 #define UPDATE_MOBLIST_NAMES(mob_p, tmp_mob, _item)                              \
-    CreatureList::iterator cit = characterList.begin();                         \
+    CreatureList_iterator cit = characterList.begin();                         \
     for( ; cit != characterList.end(); ++cit ) {                                 \
         tmp_mob = *cit;                                                          \
       if (IS_NPC(tmp_mob) && (tmp_mob->mob_specials.shared->vnum ==              \
@@ -87,7 +87,7 @@ bool OLCIMP(Creature * ch);
     }
 
 #define UPDATE_MOBLIST(mob_p, tmp_mob, _item)                            \
-    CreatureList::iterator cit = characterList.begin();                 \
+    CreatureList_iterator cit = characterList.begin();                 \
     for( ; cit != characterList.end(); ++cit ) {                         \
         tmp_mob = *cit;                                                  \
        if (IS_NPC(tmp_mob) && (tmp_mob->mob_specials.shared->vnum ==     \

@@ -63,7 +63,7 @@ struct ovect_struct {
 void
 safe_exit(int mode)
 {
-	Security::shutdown();
+	Security_shutdown();
 
 	touch("../pause");
 	slog("Exiting with status %d from safe_exit().", mode);
@@ -160,9 +160,9 @@ mlog(const char *group, sbyte level, log_type type, bool file, const char *fmt, 
 	ctm = localtime(&ct);
 
 	if (file)
-		fprintf(stderr, "%-19.19s :: %s\n", asctime(ctm), msg);
+		fprintf(stderr, "%-19.19s _ %s\n", asctime(ctm), msg);
 
-	if (group == Security::NOONE)
+	if (group == Security_NOONE)
 		return;
 	if (level < 0)
 		return;
@@ -177,7 +177,7 @@ mlog(const char *group, sbyte level, log_type type, bool file, const char *fmt, 
 			tp = ((PRF_FLAGGED(i->creature, PRF_LOG1) ? 1 : 0) +
 				(PRF_FLAGGED(i->creature, PRF_LOG2) ? 2 : 0));
 
-			if (Security::isMember(i->creature, group)
+			if (Security_isMember(i->creature, group)
 					&& (GET_LEVEL(i->creature) >= level)
 					&& (tp >= type))
 				send_to_char(i->creature, "%s[ %s%s ]%s\r\n",
@@ -194,7 +194,7 @@ slog(const char *fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	mlog(Security::NOONE, -1, CMP, true, "%s", tmp_vsprintf(fmt, args));
+	mlog(Security_NOONE, -1, CMP, true, "%s", tmp_vsprintf(fmt, args));
 	va_end(args);
 }
 
@@ -209,7 +209,7 @@ mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	mlog(Security::EVERYONE, level, type, file, "%s", tmp_vsprintf(fmt, args));
+	mlog(Security_EVERYONE, level, type, file, "%s", tmp_vsprintf(fmt, args));
 	va_end(args);
 }
 
@@ -232,11 +232,11 @@ errlog(const char *fmt, ...)
     }
 
 	va_start(args, fmt);
-	mlog(Security::CODER, LVL_AMBASSADOR, NRM, true,
+	mlog(Security_CODER, LVL_AMBASSADOR, NRM, true,
 		"SYSERR: %s", tmp_vsprintf(fmt, args));
 	va_end(args);
 
-	mlog(Security::NOONE, LVL_AMBASSADOR, NRM, true,
+	mlog(Security_NOONE, LVL_AMBASSADOR, NRM, true,
 		"TRACE: %s", backtrace_str);
 }
 
@@ -498,7 +498,7 @@ die_follower(struct Creature *ch)
 int
 player_in_room(struct room_data *room)
 {
-	CreatureList::iterator it = room->people.begin();
+	CreatureList_iterator it = room->people.begin();
 	for (; it != room->people.end(); ++it) {
 		if (!IS_NPC((*it)) && GET_LEVEL((*it)) < LVL_AMBASSADOR)
 			return 1;

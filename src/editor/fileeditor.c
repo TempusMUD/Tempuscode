@@ -71,7 +71,7 @@ start_editing_file(struct descriptor_data *d, const char *fname)
     SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
 }
 
-CFileEditor::CFileEditor(descriptor_data *desc, const char *filename)
+CFileEditor_CFileEditor(descriptor_data *desc, const char *filename)
     : CEditor(desc, MAX_EDIT_FILESIZE), fname(filename)
 {
     FILE *fd = NULL;
@@ -111,26 +111,26 @@ CFileEditor::CFileEditor(descriptor_data *desc, const char *filename)
 		fclose(fd);
 }
 
-CFileEditor::~CFileEditor(void)
+CFileEditor_~CFileEditor(void)
 {
 }
 
 bool
-CFileEditor::PerformCommand(char cmd, char *args)
+CFileEditor_PerformCommand(char cmd, char *args)
 {
     switch (cmd) {
     case 'u':
         UndoChanges();
         break;
     default:
-        return CEditor::PerformCommand(cmd, args);
+        return CEditor_PerformCommand(cmd, args);
     }
 
     return true;
 }
 
 void
-CFileEditor::Finalize(const char *text)
+CFileEditor_Finalize(const char *text)
 {
     FILE *fd = NULL;
 

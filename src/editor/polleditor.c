@@ -45,7 +45,7 @@ start_editing_poll(descriptor_data *d, const char *header)
 	d->text_editor = new CPollEditor(d, header);
 }
 
-CPollEditor::CPollEditor(descriptor_data *desc, const char *h)
+CPollEditor_CPollEditor(descriptor_data *desc, const char *h)
     : CEditor(desc, MAX_STRING_LENGTH)
 {
     header = strdup(h);
@@ -54,13 +54,13 @@ CPollEditor::CPollEditor(descriptor_data *desc, const char *h)
     DisplayBuffer();
 }
 
-CPollEditor::~CPollEditor(void)
+CPollEditor_~CPollEditor(void)
 {
     free(header);
 }
 
 void
-CPollEditor::Finalize(const char *text)
+CPollEditor_Finalize(const char *text)
 {
     voting_add_poll(header, text);
 

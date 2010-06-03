@@ -59,15 +59,51 @@ const int MAX_CHAR_DESC =     		1023;
 const int MAX_TONGUES =        		50;
 const int MAX_SKILLS =        		700;
 const int MAX_AFFECT =        		96;
-const int MAX_OBJ_AFFECT =    		16;
+enum {
+    MAX_OBJ_AFFECT =    		16
+};
 
 const int CRIMINAL_REP =            300;	// minimum rep to be a criminal
 
-extern const char circlemud_version[];
+struct dex_skill_type {
+	sh_int p_pocket;
+	sh_int p_locks;
+	sh_int traps;
+	sh_int sneak;
+	sh_int hide;
+};
+
+struct dex_app_type {
+	sh_int reaction;
+	sh_int miss_att;
+	sh_int defensive;
+    sh_int tohit;
+    sh_int todam;
+};
+
+struct str_app_type {
+	sh_int tohit;				/* To Hit (THAC0) Bonus/Penalty        */
+	sh_int todam;				/* Damage Bonus/Penalty                */
+	sh_int carry_w;				/* Maximum weight that can be carrried */
+	sh_int wield_w;				/* Maximum weight that can be wielded  */
+};
+
+struct con_app_type {
+	sh_int hitp;
+	sh_int shock;
+};
+
+struct weap_spec_info {
+	double multiplier;
+	int max;
+};
+
 extern const struct str_app_type str_app[];
 extern const struct dex_skill_type dex_app_skill[];
 extern const struct dex_app_type dex_app[26];
 extern const struct con_app_type con_app[26];
+
+extern const char circlemud_version[];
 extern const char *reputation_msg[];
 extern const char *operator_str[];
 extern const char *trade_letters[];

@@ -142,7 +142,7 @@ handle_input(struct descriptor_data *d)
 			break;
 		}
 		if (strcasecmp(arg, "new")) {
-			d->account = Account::retrieve(arg);
+			d->account = Account_retrieve(arg);
 			if (d->account) {
                 if (!production_mode) {
                     d->account->login(d);
@@ -184,7 +184,7 @@ handle_input(struct descriptor_data *d)
 		break;
 	case CXN_ACCOUNT_PROMPT:
 		if (is_valid_name(arg)) {
-			d->account = Account::retrieve(arg);
+			d->account = Account_retrieve(arg);
 
 			if (!d->account) {
 				set_desc_state(CXN_ACCOUNT_VERIFY, d);
@@ -200,7 +200,7 @@ handle_input(struct descriptor_data *d)
 	case CXN_ACCOUNT_VERIFY:
 		switch (tolower(arg[0])) {
 		case 'y':
-    		d->account = Account::create(d->mode_data, d);
+    		d->account = Account_create(d->mode_data, d);
 			set_desc_state(CXN_ANSI_PROMPT, d);
 			break;
 		case 'n':
@@ -371,12 +371,12 @@ handle_input(struct descriptor_data *d)
 					set_desc_state(CXN_DISCONNECT, other_desc);
 					other_desc->creature = NULL;
 					send_to_desc(d, "\r\n\r\nYou take over your own body, already in use!\r\n");
-					mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature),
+					mlog(Security_ADMINBASIC, GET_INVIS_LVL(d->creature),
 						NRM, true,
 						"%s has reconnected", GET_NAME(d->creature));
 				} else {
 					d->creature->desc = d;
-					mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature),
+					mlog(Security_ADMINBASIC, GET_INVIS_LVL(d->creature),
 						NRM, true,
 						"%s has reconnected from linkless",
 						GET_NAME(d->creature));
@@ -393,7 +393,7 @@ handle_input(struct descriptor_data *d)
 			d->creature->account = d->account;
 
 			if (!d->creature->loadFromXML(char_id)) {
-				mlog(Security::ADMINBASIC, LVL_IMMORT, CMP, true,
+				mlog(Security_ADMINBASIC, LVL_IMMORT, CMP, true,
 					"Character %d didn't load from account '%s'",
 					char_id, d->account->get_name());
 
@@ -631,7 +631,7 @@ handle_input(struct descriptor_data *d)
 			break;
 		} else if (is_abbrev(arg, "keep")) {
 			set_desc_state( CXN_EDIT_DESC,d );
-			mlog(Security::ADMINBASIC, LVL_IMMORT, NRM, true,
+			mlog(Security_ADMINBASIC, LVL_IMMORT, NRM, true,
 				"%s[%d] has created new character %s[%ld]",
 					d->account->get_name(), d->account->get_idnum(),
                     GET_NAME(d->creature), GET_IDNUM(d->creature) );
@@ -1608,7 +1608,7 @@ char_to_game(descriptor_data *d)
 				GET_NAME(d->creature)));
 		do_start(d->creature, 0);
     } else {
-		mlog(Security::ADMINBASIC, GET_INVIS_LVL(d->creature), NRM, true,
+		mlog(Security_ADMINBASIC, GET_INVIS_LVL(d->creature), NRM, true,
 			"%s has entered the game in room #%d%s",
              GET_NAME(d->creature),
              d->creature->in_room->number,
@@ -1675,7 +1675,7 @@ char_to_game(descriptor_data *d)
     set_initial_tongue(d->creature);
 	if (shutdown_count > 0)
 		SEND_TO_Q(tmp_sprintf(
-				"\r\n\007\007:: NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
+				"\r\n\007\007_ NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
 				shutdown_count, shutdown_count == 1 ? "" : "s"), d);
 
 	d->account->update_last_entry();
@@ -1916,7 +1916,7 @@ int check_newbie_ban(struct descriptor_data *desc)
                            "name and your character name(s)\r\n\tso we can siteok "
                            "your IP.  We apologize for the inconvenience,\r\n\tand "
                            "we hope to see you soon!");
-        mlog(Security::ADMINBASIC, LVL_GOD, CMP, true,
+        mlog(Security_ADMINBASIC, LVL_GOD, CMP, true,
              "Account creation denied from [%s]", desc->host);
         return BAN_NEW;
     }

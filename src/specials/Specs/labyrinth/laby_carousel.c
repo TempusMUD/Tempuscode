@@ -9,7 +9,7 @@ void
 labyrinth_spin_carousels(zone_data *zone)
 {
 	room_data *cur_room;
-	CreatureList::iterator it;
+	CreatureList_iterator it;
 	room_direction_data *dir_save[NUM_DIRS];
 
 	for (cur_room = zone->world;cur_room && cur_room->number < zone->top;cur_room = cur_room->next) {

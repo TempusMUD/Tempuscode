@@ -1,10 +1,9 @@
 #ifndef _VENDOR_H_
 #define _VENDOR_H_
 
-class CraftItem;
+struct CraftItem;
 
-class Craftshop {
-	public:
+struct Craftshop {
 		Craftshop(xmlNodePtr node);
         ~Craftshop(void);
 		static Craftshop *find(Creature *keeper);
@@ -19,12 +18,10 @@ class Craftshop {
         // Attempts to purchase an item from keeper for ch.
 		void buy(Creature *keeper, Creature *ch, char *args);
         int getID() { return id; }
-    public:
 
 		int room;
 		int keeper_vnum;
 		vector<CraftItem *> items;
-    private:
         int id;
 };
 

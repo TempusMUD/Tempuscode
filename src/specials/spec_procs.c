@@ -539,7 +539,7 @@ SPECIAL(thief)
 	if (ch->getPosition() != POS_STANDING)
 		return false;
 
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((GET_LEVEL((*it)) < LVL_AMBASSADOR) && !number(0, 3) &&
 			(GET_LEVEL(ch) + 10 + AWAKE((*it)) ? 0 : 20 - GET_LEVEL(ch)) >
@@ -1052,7 +1052,7 @@ SPECIAL(janitor)
 		do_get(ch, fname(i->aliases), 0, 0, 0);
 
 		if (ahole && IS_MALE(ch)) {
-			CreatureList::iterator it = ch->in_room->people.begin();
+			CreatureList_iterator it = ch->in_room->people.begin();
 			for (; it != ch->in_room->people.end(); ++it) {
 				if ((*it) != ch && IS_FEMALE((*it)) && can_see_creature(ch, (*it))) {
                     perform_say_to(ch, *it, "Excuse me, ma'am.");
@@ -1143,7 +1143,7 @@ SPECIAL(pet_shops)
 
 	if (CMD_IS("list")) {
 		send_to_char(ch, "Available pets are:\r\n");
-		CreatureList::iterator it = pet_room->people.begin();
+		CreatureList_iterator it = pet_room->people.begin();
 		for (; it != pet_room->people.end(); ++it) {
 			cost = (IS_NPC((*it)) ? GET_EXP((*it)) * 3 : (GET_EXP(ch) >> 2));
 			send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME((*it)));
@@ -1406,7 +1406,7 @@ SPECIAL(bank)
 		}
 
 		vict_name = playerIndex.getName(playerIndex.getID(arg));
-		acct = Account::retrieve(playerIndex.getAccountID(arg));
+		acct = Account_retrieve(playerIndex.getAccountID(arg));
 
 		if (!clan && acct == ch->account) {
 			send_to_char(ch, "Transferring money to your own account?  Odd...\r\n");
@@ -1729,7 +1729,7 @@ SPECIAL(weapon_lister)
 		avg_dam[i] = 0;
 
 	strcpy(buf3, "");
-    ObjectMap::iterator oi = objectPrototypes.begin();
+    ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); oi++) {
         obj = oi->second;
 		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)

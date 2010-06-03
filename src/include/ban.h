@@ -14,8 +14,7 @@
 
 typedef char namestring[MAX_NAME_LENGTH];
 
-class ban_entry {
- public:
+struct ban_entry {
     ban_entry(void) {
         _site[0] = _name[0] = _reason[0] = _message[0] = '\0';
         _type = _date = 0;

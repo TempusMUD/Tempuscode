@@ -342,7 +342,7 @@ do_specassign_save(struct Creature *ch, int mode)
 			errlog("Error opening mob spec file for write.");
 			return 1;
 		}
-		MobileMap::iterator mit = mobilePrototypes.begin();
+		MobileMap_iterator mit = mobilePrototypes.begin();
 		for (; mit != mobilePrototypes.end(); ++mit) {
 			mob = mit->second;
 			if (mob->mob_specials.shared->func) {
@@ -362,7 +362,7 @@ do_specassign_save(struct Creature *ch, int mode)
 			errlog("Error opening obj spec file for write.");
 			return 1;
 		}
-    ObjectMap::iterator oi = objectPrototypes.begin();
+    ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
 			if (obj->shared->func) {
@@ -430,7 +430,7 @@ do_show_specials(struct Creature *ch, char *arg)
 		}
 	}
 
-	strcpy(outbuf, "SPECIAL PROCEDURES::                FLAGS::\r\n");
+	strcpy(outbuf, "SPECIAL PROCEDURES_                FLAGS::\r\n");
 	for (i = 0; spec_list[i].tag && i < 300; i++) {
 		if (!mode_all &&
 			(!mode_mob || !IS_SET(spec_list[i].flags, SPEC_MOB)) &&

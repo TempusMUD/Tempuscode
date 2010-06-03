@@ -23,9 +23,8 @@ get_house_file_path( int id )
 // Modes used for match_houses
 enum HC_SearchModes { INVALID=0, HC_OWNER, HC_LANDLORD, HC_GUEST };
 
-class House
+struct House
 {
-	public:
 		static const unsigned int MAX_GUESTS = 50;
 		static const int MAX_ITEMS = 50;
 
@@ -35,7 +34,6 @@ class House
 		const char* getTypeShortName();
 		Type getTypeFromName( const char* name );
 
-	private:
 		// unique identifier of this house
 		int id;
 		// date this house was built
@@ -53,11 +51,11 @@ class House
 		long rentOverflow;
 
 		// idnums of house's guests
-		typedef std::vector<long> GuestList;
+		typedef std_vector<long> GuestList;
 		// The list of id's of characters allowed to enter this house
 		GuestList guests;
 		// vnum house rooms
-		typedef std::vector<room_num> RoomList;
+		typedef std_vector<room_num> RoomList;
 		// The list of room numbers that make up this house
 		RoomList rooms;
 
@@ -74,7 +72,6 @@ class House
 		// the reposession notices created when objects are sold
 		// to cover rent cost.
 		vector<string> repoNotes;
-	public:
 
 		House( int idnum, int owner, room_num first );
 		House( const House &h );
@@ -163,20 +160,17 @@ class House
 		bool operator> ( const House &h ) const { return id >  h.id; }
 };
 
-class HouseControl : private std::vector<House*>
+struct HouseControl : private std_vector<House*>
 {
-	private:
 		// the last time rent was paid.
 		time_t lastCollection;
 		int topId;
-		class HouseComparator {
-			public:
+		HouseComparator {
 				bool operator()( House *a, House *b ) {
 					return a->getID() < b->getID();
 				}
 		};
 
-	public:
 		HouseControl() : lastCollection(0), topId(0) { }
 		// saves the house control file and all house contents
 		void save();

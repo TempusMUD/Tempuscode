@@ -55,7 +55,7 @@ SPECIAL(moloch)
 	char_from_room(moloch, false);
 	char_to_room(moloch, targ_room, false);
 	act("$n slowly appears from another place.", true, moloch, 0, 0, TO_ROOM);
-	CreatureList::iterator it = moloch->in_room->people.begin();
+	CreatureList_iterator it = moloch->in_room->people.begin();
 	for (index = 0; it != moloch->in_room->people.end(); ++it) {
 		if (*it != moloch) {
 			if (!IS_DEVIL((*it))) {

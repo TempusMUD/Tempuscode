@@ -30,7 +30,7 @@ extern const char *help_bits[];
 // Sets the flags bitvector for things like !approved and
 // IMM+ and changed and um... other flaggy stuff.
 void
-HelpItem::SetFlags(char *argument)
+HelpItem_SetFlags(char *argument)
 {
 	int state, cur_flags = 0, tmp_flags = 0, flag = 0, old_flags = 0;
 	char arg1[MAX_INPUT_LENGTH];
@@ -80,7 +80,7 @@ HelpItem::SetFlags(char *argument)
 
 // Crank up the text editor and lets hit it.
 void
-HelpItem::EditText(void)
+HelpItem_EditText(void)
 {
 
 	LoadText();
@@ -94,7 +94,7 @@ HelpItem::EditText(void)
 // Sets the groups bitvector much like the
 // flags in quests.
 void
-HelpItem::SetGroups(char *argument)
+HelpItem_SetGroups(char *argument)
 {
 	int state, cur_groups = 0, tmp_groups = 0, flag = 0, old_groups = 0;
 	char arg1[MAX_INPUT_LENGTH];
@@ -143,7 +143,7 @@ HelpItem::SetGroups(char *argument)
 }
 
 bool
-HelpItem::IsInGroup(int thegroup)
+HelpItem_IsInGroup(int thegroup)
 {
 	if (IS_SET(groups, thegroup))
 		return true;
@@ -152,7 +152,7 @@ HelpItem::IsInGroup(int thegroup)
 
 // Don't call me Roger.
 void
-HelpItem::SetName(char *argument)
+HelpItem_SetName(char *argument)
 {
 	skip_spaces(&argument);
 	if (name)
@@ -166,7 +166,7 @@ HelpItem::SetName(char *argument)
 
 // Set the...um. keywords and stuff.
 void
-HelpItem::SetKeyWords(char *argument)
+HelpItem_SetKeyWords(char *argument)
 {
 	skip_spaces(&argument);
 	if (keys)
@@ -179,7 +179,7 @@ HelpItem::SetKeyWords(char *argument)
 }
 
 // Help Item
-HelpItem::HelpItem()
+HelpItem_HelpItem()
 {
 	idnum = 0;
 	next = NULL;
@@ -191,7 +191,7 @@ HelpItem::HelpItem()
 	Clear();
 }
 
-HelpItem::~HelpItem()
+HelpItem_~HelpItem()
 {
 	delete[]text;
 	delete[]keys;
@@ -263,7 +263,7 @@ SwapItems(HelpItem * A, HelpItem * Ap, HelpItem * B, HelpItem * Bp)
 
 // Clear out the item.
 bool
-HelpItem::Clear(void)
+HelpItem_Clear(void)
 {
 	counter = 0;
 	flags = (HFLAG_UNAPPROVED | HFLAG_MODIFIED);
@@ -292,7 +292,7 @@ HelpItem::Clear(void)
 // much like olc oedit.
 // Sets yer currently editable item to this one.
 bool
-HelpItem::Edit(Creature * ch)
+HelpItem_Edit(Creature * ch)
 {
 	if (editor) {
 		if (editor != ch) {
@@ -317,7 +317,7 @@ HelpItem::Edit(Creature * ch)
 // You have to save that too.
 // (SaveAll does everything)
 bool
-HelpItem::Save()
+HelpItem_Save()
 {
 	char fname[256];
 	ofstream file;
@@ -326,7 +326,7 @@ HelpItem::Save()
 	if (!text)
 		LoadText();
 	remove(fname);
-	file.open(fname, ios::out | ios::trunc);
+	file.open(fname, ios_out | ios::trunc);
 	if (!file && editor) {
 		send_to_char(editor, "Error, could not open help file for write.\r\n");
 		return false;
@@ -347,7 +347,7 @@ HelpItem::Save()
 
 // Loads in the text for a particular help entry.
 bool
-HelpItem::LoadText()
+HelpItem_LoadText()
 {
 	char fname[256];
 	int di;
@@ -368,7 +368,7 @@ HelpItem::LoadText()
 		return false;
 	}
 
-	help_file.open(fname, ios::in);
+	help_file.open(fname, ios_in);
 	if (!help_file) {
 		errlog("Unable to open help file to load text (%s).", fname);
 		return false;
@@ -390,7 +390,7 @@ HelpItem::LoadText()
 // Show the entry.
 // buffer is output buffer.
 void
-HelpItem::Show(Creature * ch, char *buffer, int mode)
+HelpItem_Show(Creature * ch, char *buffer, int mode)
 {
 	char bitbuf[256];
 	char groupbuf[256];

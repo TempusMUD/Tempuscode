@@ -35,7 +35,7 @@ vendor_log(const char *fmt, ...)
     }
     if (vendor_log_file) {
         va_start(args, fmt);
-        fprintf(vendor_log_file, "%s :: %s\n",
+        fprintf(vendor_log_file, "%s _ %s\n",
                 tmp_ctime(time(NULL)),
                 tmp_vsprintf(fmt, args));
         va_end(args);
@@ -45,7 +45,7 @@ vendor_log(const char *fmt, ...)
 static bool
 vendor_is_produced(obj_data *obj, ShopData *shop)
 {
-	vector<int>::iterator it;
+	vector<int>_iterator it;
 
 	for (it = shop->item_list.begin();it != shop->item_list.end();it++)
 		if (GET_OBJ_VNUM(obj) == *it)
@@ -91,7 +91,7 @@ vendor_invalid_buy(Creature *self, Creature *ch, ShopData *shop, obj_data *obj)
     }
 
 	if (shop->item_types.size() > 0) {
-		vector<int>::iterator it;
+		vector<int>_iterator it;
 		bool accepted = false;
 		for (it = shop->item_types.begin();it != shop->item_types.end();it++) {
 			if ((*it & 0xFF) == GET_OBJ_TYPE(obj) || (*it & 0xFF) == 0) {
@@ -982,7 +982,7 @@ SPECIAL(vendor)
 	}
 
 	if (!shop->closed_hours.empty()) {
-		vector<ShopTime>::iterator shop_time;
+		vector<ShopTime>_iterator shop_time;
 		struct time_info_data local_time;
 
 		set_local_time(self->in_room->zone, &local_time);

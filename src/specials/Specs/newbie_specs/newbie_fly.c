@@ -10,7 +10,7 @@ SPECIAL(newbie_fly)
 		return 0;
 	if (cmd || ch->isFighting())
 		return 0;
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (AFF_FLAGGED((*it), AFF_INFLIGHT) || !can_see_creature(ch, (*it)))
 			continue;

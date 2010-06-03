@@ -68,14 +68,14 @@ void
 cmdlog(char *str)
 {
 	static char *log;
-	static ofstream commandLog("log/command.log", ios::app);
+	static ofstream commandLog("log/command.log", ios_app);
 	time_t ct;
 	char *tmstr;
 
 	ct = time(0);
 	tmstr = asctime(localtime(&ct));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
-	log = tmp_sprintf("%-19.19s :: %s", tmstr, str);
+	log = tmp_sprintf("%-19.19s _ %s", tmstr, str);
 	commandLog << log << endl;
 	commandLog.flush();
 }
@@ -84,14 +84,14 @@ void
 newbielog(Creature *ch, const char *cmd, const char *args)
 {
 	static char *log;
-	static ofstream newbieLog("log/newbie.log", ios::app);
+	static ofstream newbieLog("log/newbie.log", ios_app);
 	time_t ct;
 	char *tmstr;
 
 	ct = time(0);
 	tmstr = asctime(localtime(&ct));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
-	log = tmp_sprintf("%-19.19s :: [%05d] %s :: %s %s",
+	log = tmp_sprintf("%-19.19s _ [%05d] %s :: %s %s",
                       tmstr,
                       ch->in_room->number,
                       GET_NAME(ch),
@@ -1726,7 +1726,7 @@ command_interpreter(struct Creature *ch, const char *argument)
 	/* otherwise, find the command */
 	for (length = strlen(cmdstr), cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 		if (!strncmp(cmd_info[cmd].command, cmdstr, length)) {
-			if (Security::canAccess(ch, &cmd_info[cmd])) {
+			if (Security_canAccess(ch, &cmd_info[cmd])) {
 				break;
 			}
 		}
@@ -1751,7 +1751,7 @@ command_interpreter(struct Creature *ch, const char *argument)
               (GET_LEVEL(ch) >= 50 && GET_LEVEL(ch) < 65)) {
 			// Don't log movement, that's just silly.
             if (cmd_info[cmd].command_pointer != do_move) {
-				cmdlog(tmp_sprintf("CMD: [%s] %s ::%s '%s'",
+				cmdlog(tmp_sprintf("CMD: [%s] %s _%s '%s'",
 					(ch->in_room) ? tmp_sprintf("%5d", ch->in_room->number):"NULL",
 					GET_NAME(ch), cmd_info[cmd].command, cmdargs));
 			}
@@ -2398,7 +2398,7 @@ special(struct Creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 
 	/* special in mobile present? */
 	room_data *theRoom = ch->in_room;
-	CreatureList::iterator it = theRoom->people.begin();
+	CreatureList_iterator it = theRoom->people.begin();
 	for (; it != theRoom->people.end(); ++it) {
         Creature *mob = *it;
 

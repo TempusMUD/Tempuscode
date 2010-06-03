@@ -11,8 +11,7 @@ using namespace std;
 const int MAX_MAIL_ATTACHMENTS = 5;
 const int MAIL_COST_MULTIPLIER = 30;
 
-class CEditor {
-public:
+struct CEditor {
 	CEditor(struct descriptor_data *d, int max);
     virtual ~CEditor(void) { }
 
@@ -48,7 +47,6 @@ protected:
 	unsigned int maxSize;
     bool wrap;
 
-private:
 	void ProcessHelp(char *inStr);
 	void Help(char *inStr);		// Open refrigerator?
 	void UpdateSize(void);
@@ -67,8 +65,7 @@ private:
 	bool Clear(void);			// Wipe the text and start over.
 };
 
-class CTextEditor : public CEditor {
-public:
+struct CTextEditor : public CEditor {
     CTextEditor(descriptor_data *desc, char **target, int max);
 
     virtual bool IsEditing(char *inStr __attribute__ ((unused)))
@@ -87,8 +84,7 @@ protected:
     virtual void Finalize(const char *text);
 };
 
-class CMailEditor : public CEditor {
-public:
+struct CMailEditor : public CEditor {
     CMailEditor(descriptor_data *desc,
                 mail_recipient_data *recipients);
     virtual ~CMailEditor(void);
@@ -120,9 +116,8 @@ protected:
 
 };
 
-class CProgEditor : public CEditor {
-public:
-    CProgEditor(descriptor_data *desc, thing *o, prog_evt_type t);
+struct CProgEditor : public CEditor {
+    CProgEditor(descriptor_data *desc, void *o, prog_evt_type t);
 
     virtual bool IsEditing(char *inStr)
     {
@@ -133,15 +128,14 @@ protected:
     CProgEditor(void);
 
 	// The destination char **
-	thing *owner;
+	void *owner;
     prog_evt_type owner_type;
 
     virtual bool PerformCommand(char cmd, char *args);
     virtual void Finalize(const char *text);
 };
 
-class CBoardEditor : public CEditor {
-public:
+struct CBoardEditor : public CEditor {
     CBoardEditor(descriptor_data *desc, const char *b_name, int id, const char *subject, const char *body);
     virtual ~CBoardEditor(void);
 
@@ -161,8 +155,7 @@ protected:
     virtual void Finalize(const char *text);
 };
 
-class CPollEditor : public CEditor {
-public:
+struct CPollEditor : public CEditor {
     CPollEditor(descriptor_data *desc, const char *header);
     virtual ~CPollEditor(void);
 
@@ -179,8 +172,7 @@ protected:
     virtual void Finalize(const char *text);
 };
 
-class CFileEditor : public CEditor {
-public:
+struct CFileEditor : public CEditor {
     CFileEditor(descriptor_data *desc, const char *fname);
     virtual ~CFileEditor(void);
 
@@ -207,7 +199,7 @@ void start_editing_mail(struct descriptor_data *d,
                         mail_recipient_data *recipients);
 
 void start_editing_prog(struct descriptor_data *d,
-                        thing *owner,
+                        void *owner,
                         prog_evt_type owner_type);
 void start_editing_board(struct descriptor_data *d,
                          const char *board,

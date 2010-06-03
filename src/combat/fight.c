@@ -127,7 +127,7 @@ raw_kill(struct Creature *ch, struct Creature *killer, int attacktype)
     if (GET_ROOM_PROG(ch->in_room) != NULL)
 	    trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
 
-    CreatureList::iterator it = ch->in_room->people.begin();
+    CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it)
 		if (GET_MOB_PROGOBJ((*it)) != NULL && *it != ch)
             trigger_prog_death(*it, PROG_TYPE_MOBILE, ch);
@@ -269,7 +269,7 @@ group_gain(struct Creature *ch, struct Creature *victim)
 
 	if (!(leader = ch->master))
 		leader = ch;
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if (AFF_FLAGGED((*it), AFF_GROUP) && ((*it) == leader
 		|| leader == (*it)->master))
@@ -351,10 +351,10 @@ perform_gain_kill_exp(struct Creature *ch, struct Creature *victim,
 	exp = ch->getPenalizedExperience( exp, victim );
 
     if (IS_PC(ch) && IS_NPC(victim)) {
-        std::list<KillRecord>::iterator kill_it;
+        std_list<KillRecord>::iterator kill_it;
         KillRecord kill;
 
-        kill_it = std::find(GET_RECENT_KILLS(ch).begin(),
+        kill_it = std_find(GET_RECENT_KILLS(ch).begin(),
                        GET_RECENT_KILLS(ch).end(),
                        GET_MOB_VNUM(victim));
         if (kill_it == GET_RECENT_KILLS(ch).end()) {
@@ -1620,7 +1620,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
         //lightning gun special
         if (attacktype == TYPE_EGUN_LIGHTNING && dam) {
             if (do_gun_special(ch, weap)) {
-                CreatureList::iterator it = ch->in_room->people.begin();
+                CreatureList_iterator it = ch->in_room->people.begin();
                 for (; it != ch->in_room->people.end(); ++it) {
                     if ((*it) == ch || !(*it)->findCombat(ch))
                         continue;
@@ -1867,7 +1867,7 @@ damage(struct Creature *ch, struct Creature *victim, int dam,
 				attacktype == TYPE_STAB ||
 				attacktype == TYPE_CHOP ||
 				attacktype == SPELL_BLADE_BARRIER)) {
-			CreatureList::iterator it = victim->in_room->people.begin();
+			CreatureList_iterator it = victim->in_room->people.begin();
 			for (; it != victim->in_room->people.end(); ++it) {
 				if (*it == victim || number(0, 8))
 					continue;
@@ -2478,7 +2478,7 @@ hit(struct Creature *ch, struct Creature *victim, int type)
 	}
 	if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
-		CreatureList::iterator it = ch->in_room->people.begin();
+		CreatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
 			if ((*it)->isMounted() && (*it)->isMounted() == victim) {
 				act("You are knocked from your mount by $N's attack!",
@@ -2915,7 +2915,7 @@ perform_violence(void)
 	Creature *ch;
 	int prob, i, die_roll;
 
-	CreatureList::iterator cit = combatList.begin();
+	CreatureList_iterator cit = combatList.begin();
 	for (; cit != combatList.end(); ++cit) {
 		ch = *cit;
 		if (!ch->in_room || !ch->isFighting())
@@ -2931,7 +2931,7 @@ perform_violence(void)
 			continue;
 		}
 
-        CombatDataList::iterator li = ch->getCombatList()->begin();
+        CombatDataList_iterator li = ch->getCombatList()->begin();
         for (; li != ch->getCombatList()->end(); ++li) {
 			Creature *opp;
 

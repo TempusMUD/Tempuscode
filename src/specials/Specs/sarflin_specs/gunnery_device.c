@@ -54,7 +54,7 @@ SPECIAL(gunnery_device)
 				dest);
 			vict = NULL;
 			hit = 0;
-			CreatureList::iterator it = dest->people.begin();
+			CreatureList_iterator it = dest->people.begin();
 			for (; it != dest->people.end(); ++it) {
 				vict = *it;
 				if (!number(0, 5)) {
@@ -81,7 +81,7 @@ SPECIAL(gunnery_device)
 				dest);
 			vict = NULL;
 			hit = 0;
-			CreatureList::iterator it = dest->people.begin();
+			CreatureList_iterator it = dest->people.begin();
 			for (; it != dest->people.end(); ++it) {
 				vict = *it;
 				if (!number(0, 5)) {
@@ -108,7 +108,7 @@ SPECIAL(gunnery_device)
 					("From above in the tower you hear the creak of a pot tiping\r\n",
 					dest);
 				vict = NULL;
-				CreatureList::iterator it = dest->people.begin();
+				CreatureList_iterator it = dest->people.begin();
 				for (; it != dest->people.end(); ++it) {
 					damage(ch, *it, 15, TYPE_BOILING_OIL, -1);
 				}
@@ -122,7 +122,7 @@ SPECIAL(gunnery_device)
 					("From above in the tower you hear the creak of a pot tiping\r\n",
 					dest);
 				vict = NULL;
-				CreatureList::iterator it = dest->people.begin();
+				CreatureList_iterator it = dest->people.begin();
 				for (; it != dest->people.end(); ++it) {
 					damage(ch, vict, 15, TYPE_BOILING_OIL, -1);
 				}

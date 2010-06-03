@@ -12,7 +12,7 @@ SPECIAL(watchdog)
 	struct Creature *dog = (struct Creature *)me;
 	struct Creature *vict = NULL;
 	static byte indignation = 0;
-	CreatureList::iterator it;
+	CreatureList_iterator it;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;

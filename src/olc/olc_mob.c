@@ -148,8 +148,8 @@ do_create_mob(struct Creature *ch, int vnum)
 		send_to_char(ch, "Mobile OLC is not approved for this zone.\r\n");
 		return NULL;
 	}
-	MobileMap::iterator mit = mobilePrototypes.begin();
-	MobileMap::iterator nit;
+	MobileMap_iterator mit = mobilePrototypes.begin();
+	MobileMap_iterator nit;
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		mob = mit->second;
 		nit = mit;
@@ -427,7 +427,7 @@ do_mob_mset(struct Creature *ch, char *argument)
 			}
 			start_editing_text(ch->desc, &mob_p->player.description);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-			CreatureList::iterator cit = characterList.begin();
+			CreatureList_iterator cit = characterList.begin();
 			for (; cit != characterList.end(); ++cit) {
 				if (GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(mob_p)) {
 					(*cit)->player.description = NULL;
@@ -1323,7 +1323,7 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 	low = zone->number * 100;
 	high = zone->top;
 
-	MobileMap::iterator mit = mobilePrototypes.begin();
+	MobileMap_iterator mit = mobilePrototypes.begin();
 	for (; mit != mobilePrototypes.end(); ++mit) {
 		mob = mit->second;
 		if (mob->mob_specials.shared->vnum < low)
@@ -1435,7 +1435,7 @@ save_mobs(struct Creature *ch, struct zone_data *zone)
 				fprintf(file, "Height: %d\n", GET_HEIGHT(mob));
             if (GET_TONGUE(mob) != 0)
                 fprintf(file, "CurTongue: %d\n", GET_TONGUE(mob));
-            map<int, Tongue>::iterator it = tongues.begin();
+            map<int, Tongue>_iterator it = tongues.begin();
             for (;it != tongues.end();++it)
                 if (CHECK_TONGUE(mob, it->first))
                     fprintf(file, "KnownTongue: %d\n", it->first);
@@ -1550,7 +1550,7 @@ do_destroy_mobile(struct Creature *ch, int vnum)
 			GET_NAME(ch), GET_MOB_VNUM(mob));
 		return 1;
 	}
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		if (GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(mob))
 			(*cit)->purge(false);
@@ -1951,7 +1951,7 @@ olc_mimic_mob(struct Creature *ch,
 {
 
 	if (mode) {					/* (mode) => mimicing prototype... else real mob */
-		CreatureList::iterator cit = characterList.begin();
+		CreatureList_iterator cit = characterList.begin();
 		for (; cit != characterList.end(); ++cit) {
 			if (IS_NPC((*cit)) && GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(targ))
 				(*cit)->purge(false);

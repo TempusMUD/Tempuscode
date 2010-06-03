@@ -50,7 +50,7 @@ SPECIAL(courier_imp)
             return 1;
         }
 
-        seeking->account = Account::retrieve(seeking);
+        seeking->account = Account_retrieve(seeking);
         if (!seeking->account) {
             // WTF?
             slog("IMP:  Failed to load character account [%ld] from file.",

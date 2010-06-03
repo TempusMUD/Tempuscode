@@ -10,7 +10,7 @@
 void show_path(struct Creature *ch, char *arg);
 void show_pathobjs(struct Creature *ch);
 int add_path_to_vehicle(struct obj_data *obj, int vnum);
-void path_remove_object(thing *object);
+void path_remove_object(void *object);
 int add_path_to_mob(struct Creature *mob, int vnum);
 int add_path(char *spath, int save);
 bool path_vnum_exists(int vnum);

@@ -9,9 +9,6 @@
 //
 #include <signal.h>
 
-#include <list>
-#include "thing.h"
-#include "combat_data_list.h"
 #include "structs.h"
 #include "constants.h"
 #include "macros.h"
@@ -1063,14 +1060,14 @@ struct player_special_data {
 	char *poofin;				/* Description on arrival of a god.     */
 	char *poofout;				/* Description upon a god's exit.       */
     char *afk_reason;           /* Reason the player is AFK */
-    std::list<int> afk_notifies; /* People who have sent tells while
+    std_list<int> afk_notifies; /* People who have sent tells while
                                   * player is AFK */
 	struct alias_data *aliases;	/* Character's aliases            */
 	long last_tell_from;			/* idnum of last tell from        */
 	long last_tell_to;				/* idnum of last tell to */
 	int imprint_rooms[MAX_IMPRINT_ROOMS];
-    std::list<KillRecord> recently_killed;
-    std::list<Grievance> grievances;
+    std_list<KillRecord> recently_killed;
+    std_list<Grievance> grievances;
 	unsigned int soilage[NUM_WEARS];
 	struct obj_data *olc_obj;	/* which obj being edited               */
 	struct Creature *olc_mob;	/* which mob being edited               */
@@ -1173,7 +1170,7 @@ struct char_language_data {
     }
     char_language_data(const char_language_data &o) { *this = o; }
     char_language_data &operator=(const char_language_data &c) {
-        std::copy(c.languages_heard.begin(),
+        std_copy(c.languages_heard.begin(),
                   c.languages_heard.end(),
                   languages_heard.begin());
         memcpy(this->tongues, c.tongues, sizeof(c.tongues));
@@ -1182,7 +1179,7 @@ struct char_language_data {
         return *this;
     }
 
-    std::list<int> languages_heard;
+    std_list<int> languages_heard;
     byte tongues[MAX_TONGUES];
     char current_language;
 };
@@ -1190,7 +1187,6 @@ struct char_language_data {
 /* ================== Structure for player/non-player ===================== */
 struct Creature : public thing {
 
-  public:						// *******   METHODS ******
   	Creature(bool pc);	// constructor
 	~Creature(void);
 
@@ -1379,7 +1375,6 @@ struct Creature : public thing {
 
     bool checkReputations(Creature *victim);
 
-  private:
 	// Extracts the creature from the game.  If creature is a player in the
     // world, sets its descriptor's input mode to the given state
 	void extract(cxn_state con_state);
@@ -1391,7 +1386,6 @@ struct Creature : public thing {
         return *this;
     }
 
-  public:						// ******  Data ****
 	struct room_data *in_room;	/* Location (real room number)      */
 
     CombatDataList *fighting; /* list of combats for this char */
@@ -1417,33 +1411,5 @@ struct Creature : public thing {
 };
 
 /* ====================================================================== */
-
-struct dex_skill_type {
-	sh_int p_pocket;
-	sh_int p_locks;
-	sh_int traps;
-	sh_int sneak;
-	sh_int hide;
-};
-
-struct dex_app_type {
-	sh_int reaction;
-	sh_int miss_att;
-	sh_int defensive;
-    sh_int tohit;
-    sh_int todam;
-};
-
-struct str_app_type {
-	sh_int tohit;				/* To Hit (THAC0) Bonus/Penalty        */
-	sh_int todam;				/* Damage Bonus/Penalty                */
-	sh_int carry_w;				/* Maximum weight that can be carrried */
-	sh_int wield_w;				/* Maximum weight that can be wielded  */
-};
-
-struct con_app_type {
-	sh_int hitp;
-	sh_int shock;
-};
 
 #endif

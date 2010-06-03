@@ -146,7 +146,7 @@ explode_sigil(Creature *ch, obj_data *obj)
 		cbuf.clear();
 		if (cbuf.loadFromXML(obj_id)) {
 			killer = &cbuf;
-			cbuf.account = Account::retrieve(playerIndex.getAccountID(obj_id));
+			cbuf.account = Account_retrieve(playerIndex.getAccountID(obj_id));
 		}
 	}
 
@@ -206,7 +206,7 @@ consolidate_char_money(struct Creature *ch)
 		next_obj = obj->next_content;
 
 		if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
-            if (OBJ_APPROVED(obj) || Security::isMember(ch, "WizardFull")) {
+            if (OBJ_APPROVED(obj) || Security_isMember(ch, "WizardFull")) {
                 if (GET_OBJ_VAL(obj, 1) == 1)
                     num_credits += GET_OBJ_VAL(obj, 0);
                 else
@@ -1350,7 +1350,7 @@ bool
 is_undisposable(Creature *ch, const char *cmdstr, struct obj_data *obj, bool display)
 {
 	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-		!Security::isMember(ch, Security::WIZARDFULL)) {
+		!Security_isMember(ch, Security::WIZARDFULL)) {
 		send_to_char(ch, "You can't %s a player's corpse while it still has objects in it.\r\n", cmdstr);
 		return true;
 	}
@@ -2277,7 +2277,7 @@ ACMD(do_eat)
 		return;
 	}
 	if (GET_OBJ_TYPE(food) != ITEM_FOOD &&
-		!Security::isMember(ch, "WizardFull"))
+		!Security_isMember(ch, "WizardFull"))
 	{
 		send_to_char(ch, "You can't eat THAT!\r\n");
 		return;
@@ -3922,7 +3922,7 @@ ACMD(do_sacrifice)
 		send_to_char(ch, "You can't find any '%s' in the room.\r\n", argument);
 		return;
 	}
-	if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && !Security::isMember(ch, Security::WIZARDFULL)) {
+	if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && !Security_isMember(ch, Security::WIZARDFULL)) {
 		send_to_char(ch, "You can't sacrifice that.\r\n");
 		return;
 	}
@@ -3997,7 +3997,7 @@ ACMD(do_empty)
 	}
 
     if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && CORPSE_IDNUM(obj) != GET_IDNUM(ch) &&
-		!Security::isMember(ch, Security::WIZARDFULL)) {
+		!Security_isMember(ch, Security::WIZARDFULL)) {
 		send_to_char(ch, "You can't empty a player's corpse.");
 		return;
 	}

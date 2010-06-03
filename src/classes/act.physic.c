@@ -856,7 +856,7 @@ ACMD(do_econvert)
 	}
 
 	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-		!Security::isMember(ch, Security::WIZARDFULL)) {
+		!Security_isMember(ch, Security::WIZARDFULL)) {
 		send_to_char(ch, "You can't econvert a player's corpse while it still has objects in it.");
 		return;
 	}
@@ -1043,7 +1043,7 @@ ASPELL(spell_emp_pulse)
 		return;
 	}
 	// Make sure non-pkillers don't get killer flags.
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		if ((*it) != ch) {
 			if (!ch->isOkToAttack((*it), true))

@@ -67,31 +67,31 @@ const struct {
 
 static char out_buf[MAX_STRING_LENGTH + 2];
 
-const char *Security::EVERYONE = "<ALL>";
-const char *Security::NOONE = "<NONE>";
+const char *Security_EVERYONE = "<ALL>";
+const char *Security_NOONE = "<NONE>";
 
-const char *Security::ADMINBASIC = "AdminBasic";
-const char *Security::ADMINFULL = "AdminFull";
-const char *Security::CLAN = "Clan";
-const char *Security::CLANADMIN = "ClanAdmin";
-const char *Security::CODER = "Coder";
-const char *Security::CODERADMIN = "CoderAdmin";
-const char *Security::DYNEDIT = "Dynedit";
-const char *Security::GROUPSADMIN = "GroupsAdmin";
-const char *Security::HELP = "Help";
-const char *Security::HOUSE = "House";
-const char *Security::OLC = "OLC";
-const char *Security::OLCADMIN = "OLCAdmin";
-const char *Security::OLCAPPROVAL = "OLCApproval";
-const char *Security::OLCPROOFER = "OLCProofer";
-const char *Security::OLCWORLDWRITE = "OLCWorldWrite";
-const char *Security::QUESTOR = "Questor";
-const char *Security::QUESTORADMIN = "QuestorAdmin";
-const char *Security::TESTERS = "Testers";
-const char *Security::WIZARDADMIN = "WizardAdmin";
-const char *Security::WIZARDBASIC = "WizardBasic";
-const char *Security::WIZARDFULL = "WizardFull";
-const char *Security::WORLDADMIN = "WorldAdmin";
+const char *Security_ADMINBASIC = "AdminBasic";
+const char *Security_ADMINFULL = "AdminFull";
+const char *Security_CLAN = "Clan";
+const char *Security_CLANADMIN = "ClanAdmin";
+const char *Security_CODER = "Coder";
+const char *Security_CODERADMIN = "CoderAdmin";
+const char *Security_DYNEDIT = "Dynedit";
+const char *Security_GROUPSADMIN = "GroupsAdmin";
+const char *Security_HELP = "Help";
+const char *Security_HOUSE = "House";
+const char *Security_OLC = "OLC";
+const char *Security_OLCADMIN = "OLCAdmin";
+const char *Security_OLCAPPROVAL = "OLCApproval";
+const char *Security_OLCPROOFER = "OLCProofer";
+const char *Security_OLCWORLDWRITE = "OLCWorldWrite";
+const char *Security_QUESTOR = "Questor";
+const char *Security_QUESTORADMIN = "QuestorAdmin";
+const char *Security_TESTERS = "Testers";
+const char *Security_WIZARDADMIN = "WizardAdmin";
+const char *Security_WIZARDBASIC = "WizardBasic";
+const char *Security_WIZARDFULL = "WizardFull";
+const char *Security_WORLDADMIN = "WorldAdmin";
 
 /**
  *  Sends usage info to the given character
@@ -219,7 +219,7 @@ ACCMD(do_access) {
                 return;
             }
             if( tokens.next(token1) ) {
-                if( Security::createGroup( token1 ) ) {
+                if( Security_createGroup( token1 ) ) {
                     send_to_char(ch,  "Group created.\r\n");
 					slog("Security:  Group '%s' created by %s.",
 						  token1, GET_NAME(ch) );
@@ -258,10 +258,10 @@ ACCMD(do_access) {
                     return;
                 }
                 send_to_char(ch, "%s is a member of the following groups:\r\n",token1);
-                Security::sendMembership(ch, id);
+                Security_sendMembership(ch, id);
             } else {
                 send_to_char(ch, "You are a member of the following groups:\r\n");
-                Security::sendMembership(ch, GET_IDNUM(ch) );
+                Security_sendMembership(ch, GET_IDNUM(ch) );
             }
             break;
         case 7: // list
@@ -376,7 +376,7 @@ namespace Security {
             }
         }
 
-        list<Group>::iterator it = groups.begin();
+        list<Group>_iterator it = groups.begin();
         for( ; it != groups.end(); ++it ) {
             if( (*it).givesAccess(ch, command) )
                 return true;
@@ -416,8 +416,8 @@ namespace Security {
      * Returns an iterator pointing to the named group
      * in the groups list or groups.end() if not found.
     **/
-    list<Group>::iterator findGroup( const char* name ) {
-        list<Group>::iterator it = groups.begin();
+    list<Group>_iterator findGroup( const char* name ) {
+        list<Group>_iterator it = groups.begin();
         for( ; it != groups.end(); ++it ) {
             if( (*it) == name )
                 break;
@@ -430,7 +430,7 @@ namespace Security {
      * Comma delimited names are also accepted.
      */
      bool isMember( Creature *ch, const char* group_name, bool substitute) {
-	 	if (group_name == Security::EVERYONE)
+	 	if (group_name == Security_EVERYONE)
 			return true;
         if( substitute && ch->getLevel() == LVL_GRIMP )
             return true;
@@ -441,7 +441,7 @@ namespace Security {
         char *token = new char[strlen(group_name) + 1];
 
         while( tokens.next(token) ) {
-            list<Group>::iterator it = findGroup(token);
+            list<Group>_iterator it = findGroup(token);
             if( it != groups.end() && (*it).member(ch) ) {
                 delete [] token;
                 return true;
@@ -470,14 +470,14 @@ namespace Security {
                 cyn,
                 nrm);
 
-        list<Group>::iterator it = groups.begin();
+        list<Group>_iterator it = groups.begin();
         for( ; it != groups.end(); ++it ) {
             (*it).sendString(ch);
         }
     }
 
      bool createGroup( char *name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), name );
 		PGresult *res;
 		int group_id;
 
@@ -498,7 +498,7 @@ namespace Security {
     }
 
      bool removeGroup( char *name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), name );
         if( it == groups.end() ) {
             return false;
         }
@@ -512,7 +512,7 @@ namespace Security {
     }
 
      bool sendMemberList( Creature *ch, char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("sendMemberList : group not found");
             return false;
@@ -521,7 +521,7 @@ namespace Security {
     }
 
      bool sendCommandList( Creature *ch, char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("sendCommandList : group not found");
             return false;
@@ -532,7 +532,7 @@ namespace Security {
     bool sendMembership( Creature *ch, long id ) {
         int n = 0;
         out_buf[0] = '\0';
-        list<Group>::iterator it = groups.begin();
+        list<Group>_iterator it = groups.begin();
         for( ; it != groups.end(); ++it ) {
             if( (*it).member(id) ) {
                 (*it).sendString(ch);
@@ -553,7 +553,7 @@ namespace Security {
     bool sendAvailableCommands( Creature *ch, long id ) {
         int n = 0;
         out_buf[0] = '\0';
-        list<Group>::iterator it = groups.begin();
+        list<Group>_iterator it = groups.begin();
         for( ; it != groups.end(); ++it ) {
             if( (*it).member(id) && (*it).getCommandCount() > 0 ) {
                 ++n;
@@ -570,7 +570,7 @@ namespace Security {
     }
 
     bool addCommand( char *command, char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("addCommand: group not found");
             return false;
@@ -588,7 +588,7 @@ namespace Security {
     }
 
     bool addMember( const char *member, const char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), group_name );
 		long player_id;
 
         if( it == groups.end() ) {
@@ -614,7 +614,7 @@ namespace Security {
     }
 
     bool removeCommand( char *command, char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), group_name );
         if( it == groups.end() ) {
             trace("removeCommand: group not found");
             return false;
@@ -630,7 +630,7 @@ namespace Security {
     }
 
     bool removeMember( const char *member, const char *group_name ) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), group_name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), group_name );
 		long player_id;
 
         if( it == groups.end() ) {
@@ -652,13 +652,13 @@ namespace Security {
     bool isGroup( const char* name ) {
 		if( name == NULL )
 			return false;
-        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), name );
         return( it != groups.end() );
     }
 
     /** retrieves the named group. **/
     Group& getGroup( const char* name) {
-        list<Group>::iterator it = find( groups.begin(), groups.end(), name );
+        list<Group>_iterator it = find( groups.begin(), groups.end(), name );
         return *it;
     }
 
@@ -716,7 +716,7 @@ namespace Security {
       * clears security related memory and shuts the system down.
       */
     void shutdown() {
-        list<Group>::iterator it = groups.begin();
+        list<Group>_iterator it = groups.begin();
         for(; it != groups.end(); it++) {
             (*it).clear();
         }

@@ -335,7 +335,7 @@ SPECIAL(tattooist)
 	}
 
 	if (!shop->closed_hours.empty()) {
-		vector<ShopTime>::iterator shop_time;
+		vector<ShopTime>_iterator shop_time;
 		struct time_info_data local_time;
 
 		set_local_time(self->in_room->zone, &local_time);

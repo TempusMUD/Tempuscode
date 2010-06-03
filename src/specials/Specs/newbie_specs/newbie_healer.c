@@ -15,7 +15,7 @@ SPECIAL(newbie_healer)
 	if (cmd)
 		return 0;
 
-	CreatureList::iterator it = ch->in_room->people.begin();
+	CreatureList_iterator it = ch->in_room->people.begin();
 	for (; it != ch->in_room->people.end(); ++it) {
 		i = *it;
 		if (i == ch)

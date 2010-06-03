@@ -511,7 +511,7 @@ save_all_players(void)
 {
 	Creature *i;
 
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 		if (!IS_NPC(i))
@@ -548,7 +548,7 @@ point_update(void)
 	}
 
 	/* characters */
-	CreatureList::iterator cit = characterList.begin();
+	CreatureList_iterator cit = characterList.begin();
 	for (; cit != characterList.end(); ++cit) {
 		i = *cit;
 

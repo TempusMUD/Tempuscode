@@ -41,11 +41,10 @@ using namespace std;
  * A table of ObjectMatcher objects used to do matching searches
  * of virtual objects.
 **/
-class ObjectMatcherTable {
+struct ObjectMatcherTable {
 	private:
 		vector<ObjectMatcher*> table;
 		bool _ready;
-	public:
 		ObjectMatcherTable() : table() {
 			table.push_back(new ObjectTypeMatcher());
 			table.push_back(new ObjectApplyMatcher());
@@ -171,7 +170,7 @@ do_show_objects( Creature *ch, char *value, char *arg ) {
 	}
 
 //	for (obj_data *obj = obj_proto; obj != NULL ; obj = obj->next) {
-    ObjectMap::iterator oi = objectPrototypes.begin();
+    ObjectMap_iterator oi = objectPrototypes.begin();
     for (; oi != objectPrototypes.end(); ++oi) {
         obj = oi->second;
 		for( int i = 0; i < matcherTable.size(); i++  ) {
@@ -190,7 +189,7 @@ do_show_objects( Creature *ch, char *value, char *arg ) {
 	char *msg = tmp_sprintf("Matched %zd objects with: '%s%s'\r\n",
                              objects.size(),value,arg);
 
-	list<obj_data*>::iterator it = objects.begin();
+	list<obj_data*>_iterator it = objects.begin();
 	for( ; it != objects.end() && objNum <= 300; ++it ) {
         char *line = sprintobj( ch, *it, matcherTable, objNum++);
 		msg = tmp_strcat( msg, line, NULL);
