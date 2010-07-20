@@ -2687,15 +2687,16 @@ ASPELL(spell_animate_dead)
     //
     // points, hit mana move
     //
-    GET_MAX_HIT(zombie) = (short)MIN(10000,
-        ((GET_HIT(orig_char) * (GET_MANA(orig_char) + 1) / 2) +
-            GET_MOVE(orig_char)) * mult);
-    GET_HIT(zombie) = (short)GET_MAX_HIT(zombie);
-
+    if (IS_NPC(orig_char)) {
+        GET_MAX_HIT(zombie) = (short)MIN(10000, ((GET_HIT(orig_char) * (GET_MANA(orig_char) + 1) / 2) + GET_MOVE(orig_char)) * mult);
+    } else {
+        GET_MAX_HIT(zombie) = (short)MIN(10000, GET_MAX_HIT(orig_char) * mult);
+    }
     GET_MAX_MANA(zombie) = (short)MIN(10000, GET_MAX_MANA(orig_char) * mult);
-    GET_MANA(zombie) = (short)GET_MAX_MANA(zombie);
-
     GET_MAX_MOVE(zombie) = (short)MIN(10000, GET_MAX_MOVE(orig_char) * mult);
+
+    GET_HIT(zombie) = (short)GET_MAX_HIT(zombie);
+    GET_MANA(zombie) = (short)GET_MAX_MANA(zombie);
     GET_MOVE(zombie) = (short)GET_MAX_MOVE(zombie);
 
     //
