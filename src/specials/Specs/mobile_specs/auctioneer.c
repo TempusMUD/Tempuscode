@@ -502,7 +502,7 @@ SPECIAL(do_auctions)
     
     if (CMD_IS("stun") || CMD_IS("steal") ||
         CMD_IS("pinch") || CMD_IS("glance")) {
-        do_stun(self, tmp_sprintf("%s", GET_NAME(ch)), 0, 0, NULL);
+        perform_stun(self, ch);
         return 1;
     }
 

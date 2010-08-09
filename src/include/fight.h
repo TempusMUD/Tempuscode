@@ -235,5 +235,6 @@ void best_initial_attack(struct creature *ch, struct creature *vict);
 bool check_infiltrate(struct creature *ch, struct creature *vict);
 void add_blood_to_room(struct room_data *rm, int amount);
 bool ok_to_attack(struct creature *ch, struct creature *vict, bool emit);
+void perform_stun(struct creature *ch, struct creature *vict);
 
 #endif							// __fight_h__

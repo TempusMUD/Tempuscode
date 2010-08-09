@@ -1594,48 +1594,19 @@ ACMD(do_bash)
     GET_MOVE(ch) -= 20;
 }
 
-ACMD(do_stun)
+void
+perform_stun(struct creature *ch, struct creature *vict)
 {
-    struct creature *vict = NULL;
     int percent, prob, wait;
-    char *arg;
 
-    arg = tmp_getword(&argument);
-
-    if (CHECK_SKILL(ch, SKILL_STUN) < 20) {
-        send_to_char(ch, "You are not particularly stunning.\r\n");
-        return;
-    }
-    if (!(vict = get_char_room_vis(ch, arg))) {
-        send_to_char(ch, "Who would you like to stun?\r\n");
-        WAIT_STATE(ch, 4);
-        return;
-    }
     if (vict == ch) {
         send_to_char(ch, "Aren't we stunningly funny today...\r\n");
-        return;
-    }
-    if (ch->fighting) {
-        send_to_char(ch, "You're pretty busy right now!\r\n");
         return;
     }
     if ((GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_HOLD) ||
                 GET_EQ(ch, WEAR_WIELD_2))) ||
         (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD)))) {
         send_to_char(ch, "You need at least one hand free to do that!\r\n");
-        return;
-    }
-    if (vict->fighting) {
-        send_to_char(ch, "You aren't able to get the right grip!\r\n");
-        return;
-    }
-    if (!ok_to_attack(ch, vict, false)) {
-        send_to_char(ch, "You seem to be unable to attack %s.\r\n",
-            GET_NAME(vict));
-        act("$n shakes with rage as $e tries to attack $N!",
-            false, ch, NULL, vict, TO_NOTVICT);
-        act("$n shakes with rage as $e tries to attack you!",
-            false, ch, NULL, vict, TO_VICT);
         return;
     }
 
@@ -1707,6 +1678,43 @@ ACMD(do_stun)
     WAIT_STATE(ch, 4 RL_SEC);
     gain_skill_prof(ch, SKILL_STUN);
     check_attack(ch, vict);
+}
+
+ACMD(do_stun)
+{
+    struct creature *vict = NULL;
+    char *arg;
+
+    arg = tmp_getword(&argument);
+
+    if (CHECK_SKILL(ch, SKILL_STUN) < 20) {
+        send_to_char(ch, "You are not particularly stunning.\r\n");
+        return;
+    }
+    if (!(vict = get_char_room_vis(ch, arg))) {
+        send_to_char(ch, "Who would you like to stun?\r\n");
+        WAIT_STATE(ch, 4);
+        return;
+    }
+    if (ch->fighting) {
+        send_to_char(ch, "You're pretty busy right now!\r\n");
+        return;
+    }
+    if (vict->fighting) {
+        send_to_char(ch, "You aren't able to get the right grip!\r\n");
+        return;
+    }
+    if (!ok_to_attack(ch, vict, false)) {
+        send_to_char(ch, "You seem to be unable to attack %s.\r\n",
+            GET_NAME(vict));
+        act("$n shakes with rage as $e tries to attack $N!",
+            false, ch, NULL, vict, TO_NOTVICT);
+        act("$n shakes with rage as $e tries to attack you!",
+            false, ch, NULL, vict, TO_VICT);
+        return;
+    }
+
+    perform_stun(ch, vict);
 }
 
 ACMD(do_feign)
