@@ -499,6 +499,12 @@ SPECIAL(do_auctions)
 
     if (spec_mode != SPECIAL_CMD)
         return 0;
+    
+    if (CMD_IS("stun") || CMD_IS("steal") ||
+        CMD_IS("pinch") || CMD_IS("glance")) {
+        do_stun(self, tmp_sprintf("%s", GET_NAME(ch)), 0, 0, NULL);
+        return 1;
+    }
 
     if (IS_NPC(ch))
         return 0;
@@ -648,12 +654,6 @@ SPECIAL(do_auctions)
             aucSaveToXML(self);
             return 1;
         }
-    }
-
-    if (CMD_IS("stun") || CMD_IS("steal") ||
-        CMD_IS("pinch") || CMD_IS("glance")) {
-        do_stun(self, tmp_sprintf("%s", GET_NAME(ch)), 0, 0, NULL);
-        return 1;
     }
 
     if (CMD_IS("auction") && ch != self) {
