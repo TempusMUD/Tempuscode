@@ -4561,15 +4561,12 @@ barbarian_battle_activity(struct creature * ch,
     //
     // barbs go BERSERK (berserk)
     //
-
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF2_FLAGGED(ch, AFF2_BERSERK) &&
-        !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR
+        && !AFF2_FLAGGED(ch, AFF2_BERSERK)
+        && !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
         do_berserk(ch, tmp_strdup(""), 0, 0, 0);
-
-        if (!perform_barb_berserk(ch, 0, &return_flags)) {
-            return true;
-        }
-    }
+        return true;
+	}
     if (random_fractional_4()) {
         if (GET_LEVEL(ch) >= 30 && GET_EQ(ch, WEAR_WIELD)
             && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
