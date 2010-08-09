@@ -713,6 +713,15 @@ SPECIAL(do_auctions)
             return 1;
         }
 
+        if (obj->shared->owner_id) {
+
+            perform_say_to(self, ch,
+                           tmp_sprintf("That item is bonded to %s.  I can't auction that!",
+                                       (obj->shared->owner_id == GET_IDNUM(ch)) ?
+                                       "you":"someone"));
+            return 1;
+        }
+
         int item_no = get_max_auction_item();
         if (item_no == -1) {
             perform_say_to(self, ch, "There are too many items up for "
