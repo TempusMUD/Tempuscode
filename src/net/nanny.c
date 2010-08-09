@@ -376,9 +376,9 @@ handle_input(struct descriptor_data *d)
 
                     send_to_desc(other_desc,
                         "You have logged on from another location!\r\n");
-                    // This descriptor should be closed immediately to prevent
-                    // a race condition
                     d->creature->desc = d;
+                    if (other_desc->text_editor)
+                        editor_finish(other_desc->text_editor, false);
                     set_desc_state(CXN_DISCONNECT, other_desc);
                     other_desc->creature = NULL;
                     send_to_desc(d,
