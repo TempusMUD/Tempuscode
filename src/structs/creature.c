@@ -691,6 +691,7 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
 
     if (ch->desc && ch->desc->original) {
         do_return(ch->desc->creature, tmp_strdup(""), 0, SCMD_FORCED, 0);
+        return;
     }
 
     if (ch->in_room == NULL) {
