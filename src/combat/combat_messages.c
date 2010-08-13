@@ -219,9 +219,9 @@ death_cry(struct creature *ch)
 		act("Your skin crawls as you hear $n's final shriek.",
 			false, ch, 0, 0, TO_ROOM);
 	else {
-		for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+        void emit_death_cry(struct creature *tch, gpointer ignore) {
 			if (tch == ch)
-				continue;
+				return;
 			found = 0;
 
 			if (!found && IS_BARB(tch) && !number(0, 1)) {
@@ -234,14 +234,17 @@ death_cry(struct creature *ch)
 				act("Your blood freezes as you hear $n's death cry.",
 					false, ch, 0, tch, TO_VICT);
 		}
+        g_list_foreach(ch->in_room->people, emit_death_cry, 0);
 	}
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+
+    void wake_up(struct creature *tch, gpointer ignore) {
 		if (ch != tch && GET_POSITION(tch) == POS_SLEEPING &&
 			!PLR_FLAGGED(tch, PLR_OLC | PLR_WRITING) &&
 			!AFF_FLAGGED(tch, AFF_SLEEP)) {
 			GET_POSITION(tch) = POS_RESTING;
 		}
 	}
+    g_list_foreach(ch->in_room->people, wake_up, 0);
 
 	was_in = ch->in_room;
 
@@ -255,7 +258,9 @@ death_cry(struct creature *ch)
 			ch->in_room = was_in;
 			if (adjoin_room->dir_option[rev_dir[door]] &&
 				adjoin_room->dir_option[rev_dir[door]]->to_room == was_in) {
-				for (tch = adjoin_room->people;tch;tch = tch->room_next) {
+                void maybe_follow_deathcry(struct creature *tch, gpointer ignore) {
+                    if (found)
+                        return;
 					if (IS_MOB(tch) && !MOB_FLAGGED(tch, MOB_SENTINEL) &&
 						!tch->fighting && AWAKE(tch) &&
 						(MOB_FLAGGED(tch, MOB_HELPER) ||
@@ -273,14 +278,15 @@ death_cry(struct creature *ch)
 
 							if (move_result == 0) {
 								found = number(0, 1);
-								break;
+								return;
 							} else if (move_result == 2) {
 								found = 1;
-								break;
+								return;
 							}
 						}
 					}
 				}
+                g_list_foreach(adjoin_room->people, maybe_follow_deathcry, 0);
 			}
 		}
 	}
@@ -294,7 +300,6 @@ blood_spray(struct creature *ch,
 {
 	const char *to_char, *to_vict, *to_notvict;
 	int pos, found = 0;
-	struct creature *nvict;
 
 	// some creatures don't have blood
 	if (!CHAR_HAS_BLOOD(victim))
@@ -366,20 +371,10 @@ blood_spray(struct creature *ch,
         false, ch, 0, victim, TO_VICT);
 	send_to_char(victim, "%s", CCNRM(victim, C_NRM));
 
-    struct creature *tch;
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
-			if (tch == ch || tch == victim || !tch->desc || !AWAKE(tch))
-			continue;
-	}
-
-	act(tmp_sprintf(to_notvict,
+    act(tmp_sprintf(to_notvict,
                 attacktype >= TYPE_HIT ?
                 attack_hit_text[attacktype - TYPE_HIT].singular : spell_to_str(attacktype)),
         false, ch, 0, victim, TO_NOTVICT);
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
-		if (tch == ch || tch == victim || !tch->desc || !AWAKE(tch))
-			continue;
-	}
 
 	//
 	// evil clerics get a bonus for sending blood flying!
@@ -391,35 +386,38 @@ blood_spray(struct creature *ch,
 		GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 20);
 	}
 
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
-		if (tch == victim || IS_NPC(tch))
-			continue;
+    int pick_soilage_target(struct creature *tch, gpointer ignore) {
+        return (tch != victim
+                && !IS_NPC(tch)
+                && tch != ch
+                && !number(0, 2)
+                && number(5, 30) > GET_DEX(tch))
+            ? 0:-1;
+    }
+    struct creature *tch = g_list_find_custom(ch->in_room->people, 0, pick_soilage_target);
+    if (tch) {
+        pos = apply_soil_to_char(tch, NULL, SOIL_BLOOD, WEAR_RANDOM);
+        if (pos) {
+            char *msg = NULL;
 
-		if (number(5, 30) > GET_DEX(tch) && (tch != ch || !number(0, 2))) {
-			pos = apply_soil_to_char(tch, NULL, SOIL_BLOOD, WEAR_RANDOM);
-			if (pos) {
-                char *msg = NULL;
+            if (GET_EQ(tch, pos))
+                msg = tmp_sprintf("$N's blood splatters all over %s!",
+                                  GET_EQ(tch, pos)->name);
+            else
+                msg = tmp_sprintf("$N's blood splatters all over your %s!",
+                                  wear_description[pos]);
 
-				if (GET_EQ(tch, pos))
-					msg = tmp_sprintf("$N's blood splatters all over %s!",
-						GET_EQ(tch, pos)->name);
-				else
-					msg = tmp_sprintf("$N's blood splatters all over your %s!",
-						wear_description[pos]);
+            act(msg, false, tch, 0, victim, TO_CHAR);
+            found = 1;
 
-				act(msg, false, tch, 0, victim, TO_CHAR);
-				found = 1;
-
-				if (tch == ch && IS_CLERIC(ch) && IS_EVIL(ch)) {
-					GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + 20);
-					GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + 20);
-					GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 20);
-				}
-
-				break;
-			}
-		}
+            if (tch == ch && IS_CLERIC(ch) && IS_EVIL(ch)) {
+                GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + 20);
+                GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + 20);
+                GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 20);
+            }
+        }
 	}
+
 
 	if (!found)
 		add_blood_to_room(ch->in_room, 1);

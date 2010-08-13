@@ -1513,14 +1513,14 @@ delete_clan(struct clan_data *clan)
 	sql_exec("delete from clan_ranks where clan=%d", clan->number);
 	sql_exec("delete from clans where idnum=%d", clan->number);
 
-    struct creature *tch;
-
-    for (tch = creatures;tch;tch = tch->next) {
+    void notify_disbanding(struct creature *tch, gpointer ignore) {
 		if (IS_PC(tch) && GET_CLAN(tch) == clan->number) {
 			GET_CLAN(tch) = 0;
 			send_to_char(tch, "Your clan has been disbanded!\r\n");
 		}
-	}
+    }
+
+    g_list_foreach(creatures, (GFunc)notify_disbanding, 0);
 
 	free(clan);
 

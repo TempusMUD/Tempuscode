@@ -1,13 +1,9 @@
-#include <functional>
-#include <ext/functional>
-
 #include "room_data.h"
 #include "creature.h"
 #include "utils.h"
 #include "quest.h"
 #include "bomb.h"
 #include "handler.h"
-#include "player_table.h"
 #include "spells.h"
 #include "char_class.h"
 #include "comm.h"
@@ -25,7 +21,7 @@ is_arena_combat(struct creature *ch, struct creature *vict)
     //mobs don't quest
     if (!IS_NPC(vict)) {
         if (GET_QUEST(vict)) {
-            Quest *quest;
+            struct quest *quest;
 
             quest = quest_by_vnum(GET_QUEST(vict));
             if (QUEST_FLAGGED(quest, QUEST_ARENA))
@@ -42,7 +38,7 @@ is_arena_combat(struct creature *ch, struct creature *vict)
     //mobs don't quest
     if (!IS_NPC(ch)) {
         if (GET_QUEST(ch)) {
-            Quest *quest;
+            struct quest *quest;
 
             quest = quest_by_vnum(GET_QUEST(ch));
             if (QUEST_FLAGGED(quest, QUEST_ARENA))
@@ -62,7 +58,7 @@ is_npk_combat(struct creature *ch, struct creature *vict) {
     if (IS_NPC(ch) || IS_NPC(vict))
         return false;
 
-    if (vict->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK) {
+    if (vict->in_room->zone->pk_style == ZONE_NEUTRAL_PK) {
         return true;
     }
 
@@ -78,7 +74,7 @@ pk_reputation_gain(struct creature *perp, struct creature *victim)
         || IS_NPC(perp)
         || IS_NPC(victim)
         || !PRF2_FLAGGED(perp, PRF2_PKILLER)
-        || perp->findCombat(victim))
+        || perp->fighting != victim)
         return 0;
 
     // Start with 10 for causing hassle
@@ -142,6 +138,22 @@ find_responsible_party(struct creature *attacker, struct creature *victim)
 }
 
 void
+create_grievance(struct creature *ch,
+                 struct creature *perp,
+                 int gain,
+                 enum grievance_kind kind)
+{
+    struct grievance *grievance;
+
+    CREATE(grievance, struct grievance, 1);
+    grievance->time = time(NULL);
+    grievance->player_id = GET_IDNUM(perp);
+    grievance->rep = gain;
+    grievance->grievance = kind;
+    g_list_prepend(GET_GRIEVANCES(ch), grievance);
+}
+
+void
 check_attack(struct creature *attacker, struct creature *victim)
 {
     bool is_bountied(struct creature *hunter, struct creature *vict);
@@ -163,12 +175,12 @@ check_attack(struct creature *attacker, struct creature *victim)
         return;
 
     gain = MAX(1, gain / 5);
-    perp->gain_reputation(gain);
+    gain_reputation(perp, gain);
 
     mudlog(LVL_IMMORT, CMP, true,
            "%s gained %d reputation for attacking %s", GET_NAME(perp),
            gain, GET_NAME(victim));
-    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance_ATTACK));
+    create_grievance(victim, perp, gain, ATTACK);
 }
 
 void
@@ -192,12 +204,12 @@ count_pkill(struct creature *killer, struct creature *victim)
     if (!gain)
         return;
 
-    perp->gain_reputation(gain);
+    gain_reputation(perp, gain);
 
     mudlog(LVL_IMMORT, CMP, true,
            "%s gained %d reputation for murdering %s", GET_NAME(perp),
            gain, GET_NAME(victim));
-    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance_MURDER));
+    create_grievance(victim, perp, gain, MURDER);
 }
 
 
@@ -215,12 +227,12 @@ check_thief(struct creature *ch, struct creature *victim)
         return;
 
     gain = MAX(1, gain / 10);
-    perp->gain_reputation(gain);
+    gain_reputation(perp, gain);
 
     mudlog(LVL_IMMORT, CMP, true,
            "%s gained %d reputation for stealing from %s", GET_NAME(perp),
            gain, GET_NAME(victim));
-    GET_GRIEVANCES(victim).push_back(Grievance(time(NULL), GET_IDNUM(perp), gain, Grievance_THEFT));
+    create_grievance(victim, perp, gain, THEFT);
 
     if (is_arena_combat(ch, victim))
     	mudlog(LVL_POWER, CMP, true,
@@ -228,56 +240,54 @@ check_thief(struct creature *ch, struct creature *victim)
 		       GET_NAME(perp), GET_NAME(victim));
 }
 
-struct grievance_player_id : public unary_function<const Grievance, int> {
-    int operator()(const Grievance &grievance) const
-        {
-            return grievance._player_id;
-        }
-};
+GList *
+g_list_remove_if(GList *list, GCompareFunc func, gpointer user_data)
+{
+    GList *cur = list;
+    GList *next;
 
-struct grievance_time : public unary_function<const Grievance, int> {
-    int operator()(const Grievance &grievance) const
-        {
-            return grievance._time;
-        }
-};
+    while (cur) {
+        next = g_list_next(cur);
+        if (func(cur->data, user_data))
+            list = g_list_delete_link(list, cur);
+        cur = next;
+    }
+    return list;
+}
+
+int matches_player(struct creature *tch, gpointer idnum_ptr) {
+    return (GET_IDNUM(tch) == GPOINTER_TO_INT(idnum_ptr)) ? 0:-1;
+}
 
 void
 perform_pardon(struct creature *ch, struct creature *pardoned)
 {
-    std_list<Grievance>::iterator grievance_it;
+    void pardon_one(struct grievance *grievance, gpointer ignore) {
+        if (grievance->player_id == GET_IDNUM(pardoned)) {
 
-    // If there's a grievance, enact the reputation increase for each one
-    for (grievance_it = GET_GRIEVANCES(ch).begin();
-         grievance_it != GET_GRIEVANCES(ch).end();
-         ++grievance_it) {
-        if (grievance_it->_player_id == GET_IDNUM(pardoned)) {
-
-            if (grievance_it->_grievance == Grievance_MURDER) {
+            if (grievance->grievance == MURDER) {
                 mudlog(LVL_IMMORT, CMP, true,
                        "%s recovered %d reputation for murdering %s", GET_NAME(pardoned),
-                       grievance_it->_rep, GET_NAME(ch));
-            } else if (grievance_it->_grievance == Grievance_ATTACK) {
+                       grievance->rep, GET_NAME(ch));
+            } else if (grievance->grievance == ATTACK) {
                 mudlog(LVL_IMMORT, CMP, true,
                        "%s recovered %d reputation for attacking %s", GET_NAME(pardoned),
-                       grievance_it->_rep, GET_NAME(ch));
+                       grievance->rep, GET_NAME(ch));
             } else {
                 mudlog(LVL_IMMORT, CMP, true,
                        "%s recovered %d reputation for stealing from %s", GET_NAME(pardoned),
-                       grievance_it->_rep, GET_NAME(ch));
+                       grievance->rep, GET_NAME(ch));
             }
 
-            pardoned->gain_reputation(-(grievance_it->_rep));
+            gain_reputation(pardoned, -(grievance->rep));
         }
     }
 
-    std_list<Grievance>::iterator last_it =
-        std_remove_if(GET_GRIEVANCES(ch).begin(),
-                       GET_GRIEVANCES(ch).end(),
-                       __gnu_cxx_compose1(std::bind2nd(std::equal_to<int>(),
-                                                        GET_IDNUM(pardoned)),
-                                           grievance_player_id()));
-    GET_GRIEVANCES(ch).erase(last_it, GET_GRIEVANCES(ch).end());
+    g_list_foreach(GET_GRIEVANCES(ch), pardon_one, 0);
+
+    GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
+                                          matches_player,
+                                          GINT_TO_POINTER(GET_IDNUM(pardoned)));
 }
 
 // Expire old grievances after 24 hours.
@@ -285,14 +295,12 @@ void
 expire_old_grievances(struct creature *ch)
 {
     time_t min_time = time(NULL) - 86400;
-    std_list<Grievance>::iterator last_it =
-        std_remove_if(GET_GRIEVANCES(ch).begin(),
-                       GET_GRIEVANCES(ch).end(),
-                       __gnu_cxx_compose1(
-                           std_bind2nd(std::less<time_t>(), min_time),
-                           grievance_time()));
-    GET_GRIEVANCES(ch).erase(last_it, GET_GRIEVANCES(ch).end());
-
+    void grievance_expired(struct grievance *g, gpointer ignore) {
+        return (g->time < min_time) ? 0:-1;
+    }
+    GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
+                                          grievance_expired,
+                                          0);
 }
 
 ACMD(do_pardon)
@@ -309,18 +317,18 @@ ACMD(do_pardon)
 
     // Find who they're accusing
     char *pardoned_name = tmp_getword(&argument);
-    if (!playerIndex.exists(pardoned_name)) {
+    if (!PlayerTable_name_exists(pardoned_name)) {
         send_to_char(ch, "There's no one of that name to pardon.\r\n");
         return;
     }
 
     // Get the pardoned character
-    struct creature *pardoned = get_char_in_world_by_idnum(playerIndex[pardoned_name]);
+    struct creature *pardoned = get_char_in_world_by_idnum(PlayerTable_getID(pardoned_name));
     bool loaded_pardoned = false;
     if (!pardoned) {
         loaded_pardoned = true;
-        pardoned = new struct creature(true);
-        playerIndex.loadPlayer(pardoned_name, pardoned);
+        CREATE(pardoned, struct creature, 1);
+        PlayerTable_loadPlayer(pardoned_name, pardoned);
     }
 
     // Do the imm pardon
@@ -339,14 +347,10 @@ ACMD(do_pardon)
     } else {
 
         // Find out if the player has a valid grievance against the pardoned
-        std_list<Grievance>::iterator grievance_it;
-
         expire_old_grievances(ch);
-        grievance_it = std_find(GET_GRIEVANCES(ch).begin(),
-                                 GET_GRIEVANCES(ch).end(),
-                                 GET_IDNUM(pardoned));
-
-        if (grievance_it == GET_GRIEVANCES(ch).end()) {
+        if (g_list_find_custom(GET_GRIEVANCES(ch),
+                               GINT_TO_POINTER(GET_IDNUM(pardoned)),
+                               matches_player)) {
             // If no grievance, increase the reputation of the pardoner
             send_to_char(ch, "%s has done nothing for you to pardon.\r\n",
                          GET_NAME(pardoned));
@@ -360,15 +364,15 @@ ACMD(do_pardon)
     }
 
     save_player_to_xml(ch);
-    pardoned->saveToXML();
+    save_player_to_xml(pardoned);
     if (loaded_pardoned)
-        delete pardoned;
+        free_creature(pardoned);
 }
 
 void
 check_object_killer(struct obj_data *obj, struct creature *vict)
 {
-	struct creature cbuf(true);
+	struct creature cbuf;
 	struct creature *killer = NULL;
 	int obj_id;
 
@@ -397,10 +401,10 @@ check_object_killer(struct obj_data *obj, struct creature *vict)
 
 	// load the bastich from file.
 	if (!killer) {
-		cbuf.clear();
-		if (cbuf.loadFromXML(obj_id)) {
+		clear_creature(&cbuf);
+		if (load_player_from_xml(&cbuf, obj_id)) {
 			killer = &cbuf;
-			cbuf.account = struct account_retrieve(playerIndex.getstruct accountID(obj_id));
+			cbuf.account = account_retrieve(PlayerTable_getAccountID(obj_id));
 		}
 	}
 
@@ -414,7 +418,7 @@ check_object_killer(struct obj_data *obj, struct creature *vict)
 	count_pkill(killer, vict);
 
 	// save the sonuvabitch to file
-	killer->saveToXML();
+	save_player_to_xml(killer);
 }
 
 void
@@ -429,7 +433,7 @@ punish_killer_death(struct creature *ch)
     //
     struct affected_type *af = ch->affected;
     while (af) {
-        if (af->clearAtDeath()) {
+        if (clearAtDeath(af)) {
             affect_remove(ch, af);
             af = ch->affected;
         } else {
@@ -470,7 +474,8 @@ punish_killer_death(struct creature *ch)
     GET_MOVE(ch) = MIN(old_move, GET_MAX_MOVE(ch));
 
     // Remove all the skills that they shouldn't have
-    for (int i = 1;i < MAX_SPELLS;i++)
+    int i;
+    for (i = 1;i < MAX_SPELLS;i++)
         if (!is_able_to_learn(ch, i))
             SET_SKILL(ch, i, 0);
 

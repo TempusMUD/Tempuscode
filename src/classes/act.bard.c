@@ -104,11 +104,10 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict, in
         return;
     }
 
-    struct creature *tch = NULL;
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+    void describe_singing(struct creature *tch, int ignore) {
         if (!tch->desc || !AWAKE(tch) ||
             PLR_FLAGGED(tch, PLR_WRITING | PLR_OLC))
-            continue;
+            return;
 
         if (ovict)
             vbuf = tmp_sprintf(" to %s", OBJS(ovict, tch));
@@ -156,6 +155,8 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict, in
 
         perform_act(buf, ch, NULL, NULL, tch, 0);
     }
+
+    g_list_foreach(ch->in_room->people, describe_singing, 0);
 }
 
 char *pad_song(char *lyrics)
@@ -304,20 +305,19 @@ ASPELL(song_exposure_overture)
     if (!ch)
         return;
 
-    struct creature *tch = NULL;
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+    void expose_char(struct creature *tch, gpointer ignore) {
         const char *to_char = NULL;
         const char *to_vict = NULL;
         const char *to_room = NULL;
 
         if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
-            continue;
+            return;
 
         prob = ((getSkillBonus(ch, SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_CHA(ch));
         percent = GET_LEVEL(tch) + (GET_CHA(tch) / 2) + number(1, 60);
 
         if (prob < percent)
-            continue;
+            return;
 
         if (affected_by_spell(tch, SPELL_INVISIBLE)) {
             affect_from_char(tch, SPELL_INVISIBLE);
@@ -354,6 +354,8 @@ ASPELL(song_exposure_overture)
 		if (to_vict)
             act(to_vict, false, ch, NULL, tch, TO_VICT);
     }
+
+    g_list_foreach(ch->in_room->people, expose_char, 0);
 
     gain_skill_prof(ch, SONG_EXPOSURE_OVERTURE);
 }
@@ -467,12 +469,12 @@ ASPELL(song_lament_of_longing)
              true, victim, NULL, NULL, TO_CHAR);
     }
 
-    struct creature *tch = NULL;
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
-        if (!IS_NPC(tch)) {
+    void add_wait_state(struct creature *tch, gpointer ignore) {
+        if (!IS_NPC(tch))
             WAIT_STATE(tch, 5 RL_SEC);
-        }
     }
+
+    g_list_foreach(ch->in_room->people, add_wait_state, 0);
 
     gain_skill_prof(ch, SONG_LAMENT_OF_LONGING);
 }
@@ -549,11 +551,11 @@ ASPELL(song_wall_of_sound)
 ASPELL(song_hymn_of_peace)
 {
 
-    struct creature *tch = NULL;
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+    void pacify_char(struct creature *tch, gpointer ignore) {
         removeAllCombat(tch);
         mag_unaffects(level, ch, tch, SONG_HYMN_OF_PEACE, 0);
     }
+    g_list_foreach(ch->in_room->people, pacify_char, 0);
 
     send_to_char(ch, "Your song brings a feeling of peacefulness.\r\n");
     act("A feeling of peacefulness is heralded by $n's song.", false, ch, 0, 0, TO_ROOM);
@@ -616,8 +618,7 @@ ACMD(do_ventriloquize)
         return;
     }
 
-    struct creature *tch = NULL;
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+    void send_ventriloqation(struct creature *tch, gpointer ignore) {
         if (target) {
             if (target == tch)
                 target_str = tmp_strdup(" to you");
@@ -640,6 +641,7 @@ ACMD(do_ventriloquize)
                      CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument,
                      CCNRM(ch, C_NRM));
     }
+    g_list_foreach(ch->in_room->people, send_ventriloqation, 0);
 
     gain_skill_prof(ch, SKILL_VENTRILOQUISM);
 }

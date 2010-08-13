@@ -1043,17 +1043,21 @@ ASPELL(spell_emp_pulse)
 	}
 	// Make sure non-pkillers don't get killer flags.
     struct creature *tch;
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
-		if (tch != ch) {
-			if (!ok_to_attack(ch, tch, true))
-				return;
-		}
+    void invalid_target(struct creature *tch, gpointer ignore) {
+		if (tch != ch && !ok_to_attack(ch, tch, true))
+            return 0;
+        return -1;
 	}
+    if (g_list_find_custom(ch->in_room->people, 0, invalid_target))
+        return;
 
 	send_to_room("An electromagnetic pulse jolts the room!\r\n", ch->in_room);
-	for (tch = ch->in_room->people;tch;tch = tch->room_next)
+
+    void do_jolt(struct creature *tch, gpointer ignore) {
 		if (tch != ch && GET_LEVEL(tch) < LVL_IMMORT)
 			do_emp_pulse_char(ch, tch);
+    }
+    g_list_foreach(ch->in_room->people, do_jolt, 0);
 
 	if (ch->in_room->contents)
 		do_emp_pulse_olist(ch->in_room->contents, ch, NULL);

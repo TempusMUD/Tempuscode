@@ -5,12 +5,9 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <algorithm>
-#include <utility>
 #include "utils.h"
 #include "desc_data.h"
 #include "interpreter.h"
-#include "player_table.h"
 #include "tmpstr.h"
 #include "account.h"
 #include "comm.h"
@@ -39,18 +36,18 @@ const char *compact_levels[] = {
 
 char *get_account_file_path(long id);
 
-long struct account__top_id = 0;
-vector <struct account *> struct account__cache;
+long account_top_id = 0;
+GList account_cache;
 
 void
-struct account_boot(void)
+account_boot(void)
 {
 	PGresult *res;
 
 	slog("Getting max account idnum");
 
 	res = sql_query("select MAX(idnum) from accounts");
-	_top_id = atol(PQgetvalue(res, 0, 0));
+	account_top_id = atol(PQgetvalue(res, 0, 0));
 
 	slog("Getting character count");
 	if (playerIndex.size())
@@ -400,9 +397,9 @@ struct account_create(const char *name, descriptor_data *d)
 {
 	struct account *result;
 
-	_top_id++;
+	account_top_id++;
 	result = new struct account;
-	result->initialize(name, d, _top_id);
+	result->initialize(name, d, account_top_id);
 	_cache.push_back(result);
 	std_sort(_cache.begin(),_cache.end(), struct account::cmp());
 	return result;

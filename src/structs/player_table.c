@@ -52,7 +52,7 @@ PlayerTable_loadPlayer(const long id, struct creature *victim) const
  * Returns true if and only if the given id is present in the player table.
 **/
 bool
-PlayerTable_exists(long id)
+PlayerTable_id_exists(long id)
 {
 	PGresult *res;
 	bool result;
@@ -68,7 +68,7 @@ PlayerTable_exists(long id)
 /**
  * Returns true if and only if the given name is present in the player table.
 **/
-bool PlayerTable_exists(const char* name)
+bool PlayerTable_name_exists(const char* name)
 {
 	PGresult *res;
 	int result;

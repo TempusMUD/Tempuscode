@@ -7,7 +7,7 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-#include <signal.h>
+#include <glib.h>
 
 #include "structs.h"
 #include "constants.h"
@@ -790,11 +790,11 @@ struct KillRecord {
 
 enum grievance_kind { MURDER, THEFT, ATTACK };
 
-struct Grievance {
-    time_t _time;
-    int _player_id;
-    int _rep;
-    enum grievance_kind _grievance;
+struct grievance {
+    time_t time;
+    int player_id;
+    int rep;
+    enum grievance_kind grievance;
 };
 
 struct player_special_data_saved {
@@ -839,20 +839,20 @@ struct player_special_data_saved {
  * Specials needed only by PCs, not NPCs.
  */
 enum {MAX_IMPRINT_ROOMS = 6};
-struct int_list;
+
 struct player_special_data {
     struct player_special_data_saved saved;
 	char *poofin;				/* Description on arrival of a god.     */
 	char *poofout;				/* Description upon a god's exit.       */
     char *afk_reason;           /* Reason the player is AFK */
-    struct int_list *afk_notifies; /* People who have sent tells while
+    GList *afk_notifies; /* People who have sent tells while
                                   * player is AFK */
 	struct alias_data *aliases;	/* Character's aliases            */
 	long last_tell_from;			/* idnum of last tell from        */
 	long last_tell_to;				/* idnum of last tell to */
 	int imprint_rooms[MAX_IMPRINT_ROOMS];
     struct kill_record *recently_killed;
-    struct grievance *grievances;
+    GList *grievances;
 	unsigned int soilage[NUM_WEARS];
 	struct obj_data *olc_obj;	/* which obj being edited               */
 	struct creature *olc_mob;	/* which mob being edited               */
@@ -923,7 +923,7 @@ struct follow_type {
 };
 
 struct char_language_data {
-    struct int_list *languages_heard;
+    GList *languages_heard;
     byte tongues[MAX_TONGUES];
     char current_language;
 };
@@ -946,9 +946,6 @@ struct creature {
 	struct obj_data *implants[NUM_WEARS];
     struct obj_data *tattoos[NUM_WEARS];
 
-    struct creature *next;
-    struct creature *room_next;
-
 	struct obj_data *carrying;	/* Head of list                  */
 	struct descriptor_data *desc;	/* NULL for mobiles              */
 	struct account *account;
@@ -959,7 +956,7 @@ struct creature {
 
 /* ====================================================================== */
 
-struct creature *creatures;
+GList *creatures;
 
 struct creature *random_opponent(struct creature *ch);
 

@@ -360,10 +360,14 @@ ACMD(do_whirlwind)
         struct creature *tch;
         bool killed_first = false;
 
-        for (tch = characters;tch;tch = tch->next) {
-            if (tch->fighting == ch
-                && random_percentage() <= 75
-                && tch->in_room == ch->in_room) {
+        void smack_creature(struct creature *tch, gpointer ignore) {
+            if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
+                return;
+            if (IS_SET(my_return_flags, DAM_VICT_KILLED) && tch == vict) {
+                killed_first = true;
+                return;
+            }
+            if (tch->fighting == ch && random_percentage() <= 75) {
                 dam = 0;
                 if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80) + GET_DEX(tch))
                     dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
@@ -371,11 +375,11 @@ ACMD(do_whirlwind)
                 i++;
                 GET_MOVE(ch) -= 3;
             }
-            if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
-                return;
-            if (IS_SET(my_return_flags, DAM_VICT_KILLED) && tch == vict)
-                killed_first = true;
         }
+        g_list_foreach(ch->in_room->people, smack_creature, 0);
+
+        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
+            return;
 
 		//if we still haven't attacked hits times send the rest of them too
 		//our initially chosen victim as long as he's alive

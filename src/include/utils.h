@@ -148,7 +148,6 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define SECS_PER_REAL_DAY        (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR        (365*SECS_PER_REAL_DAY)
 
-#define ABS(a)  MAX(a, -a)
 /* string utils **********************************************************/
 
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
@@ -530,24 +529,25 @@ const char *CURRENCY(struct creature * ch);
 #define GET_PKILLS(ch)          ((ch)->player_specials->saved.pkills)
 #define GET_ARENAKILLS(ch)		((ch)->player_specials->saved.akills)
 #define GET_PC_DEATHS(ch)       ((ch)->player_specials->saved.deaths)
-#define GET_REPUTATION(ch)      creature_get_reputation(ch)
 #define GET_SEVERITY(ch)		((ch)->player_specials->saved.killer_severity)
+
+int get_reputation(struct creature *ch);
 
 inline bool
 IS_CRIMINAL(struct creature *ch)
 {
-	return IS_PC(ch) && GET_REPUTATION(ch) >= 300;
+	return IS_PC(ch) && get_reputation(ch) >= 300;
 }
 
 inline int
 GET_REPUTATION_RANK(struct creature *ch)
 {
-	if (GET_REPUTATION(ch) == 0)
+	if (get_reputation(ch) == 0)
 		return 0;
-	else if (GET_REPUTATION(ch) >= 1000)
+	else if (get_reputation(ch) >= 1000)
 		return 11;
 
-	return (GET_REPUTATION(ch) / 100) + 1;
+	return (get_reputation(ch) / 100) + 1;
 }
 
 #define GET_PAGE_LENGTH(ch)     ((ch->desc) ? ch->desc->account->get_term_height():0)

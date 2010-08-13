@@ -12,6 +12,7 @@
 
 /* The cardinal directions: used as index to struct room_data.dir_option[] */
 
+#include <glib.h>
 #include "defs.h"
 #include "macros.h"
 #include "constants.h"
@@ -226,7 +227,7 @@ struct room_data {
 	struct zone_data *zone;		// zone the room is in
 	struct room_data *next;
 	struct obj_data *contents;	// List of items in room
-	struct creature *people;		// List of NPC / PC in room
+	GList *people;		// List of NPC / PC in room
 };
 //these structs used in do_return()
 extern struct room_data *r_immort_start_room;

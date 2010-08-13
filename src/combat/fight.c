@@ -124,11 +124,11 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
     if (GET_ROOM_PROG(ch->in_room) != NULL)
 	    trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
 
-    struct creature *tch;
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+    void trigger_mobile_prog(struct creature *tch, gpointer ignore) {
 		if (GET_MOB_PROGOBJ(tch) != NULL && tch != ch)
             trigger_prog_death(tch, PROG_TYPE_MOBILE, ch);
     }
+    g_list_foreach(ch->in_room->people, trigger_mobile_prog, 0);
 
     // Create the corpse itself
 	corpse = make_corpse(ch, killer, attacktype);
@@ -267,8 +267,7 @@ group_gain(struct creature *ch, struct creature *victim)
 
 	if (!(leader = ch->master))
 		leader = ch;
-    struct creature *tch;
-	for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+    void count_pc_members(struct creature *tch, gpointer ignore) {
 		if (AFF_FLAGGED(tch, AFF_GROUP) && (tch == leader
 		|| leader == tch->master))
 		{
@@ -279,11 +278,12 @@ group_gain(struct creature *ch, struct creature *victim)
 			}
 		}
 	}
-	for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+    g_list_foreach(ch->in_room->people, count_pc_members, 0);
+
+    void dole_out_exp(struct creature *tch, gpointer ignore) {
 		if (AFF_FLAGGED(tch, AFF_GROUP) &&
             (tch != victim) &&
-            (tch == leader || leader == tch->master))
-		{
+            (tch == leader || leader == tch->master)) {
 			mult = (float)GET_LEVEL(tch);
 			if( IS_PC( tch ) )
 				mult += GET_REMORT_GEN(tch) * 8;
@@ -299,6 +299,7 @@ group_gain(struct creature *ch, struct creature *victim)
 			perform_gain_kill_exp(tch, victim, mult+mult_mod);
 		}
 	}
+    g_list_foreach(ch->in_room->people, dole_out_exp, 0);
 }
 
 struct kill_record *tally_kill_record(struct creature *ch, struct creature *victim);
@@ -1602,12 +1603,12 @@ damage(struct creature *ch, struct creature *victim, int dam,
         //lightning gun special
         if (attacktype == TYPE_EGUN_LIGHTNING && dam) {
             if (do_gun_special(ch, weap)) {
-                struct creature *tch;
-                for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+                void lightning_zap(struct creature *tch, gpointer ignore) {
                     if (tch == ch || !findCombat(tch, ch))
-                        continue;
+                        return;
                     damage(ch, tch, dam/2, TYPE_EGUN_SPEC_LIGHTNING, WEAR_RANDOM);
                 }
+                g_list_foreach(ch->in_room->people, lightning_zap, 0);
             }
         }
 
@@ -1849,10 +1850,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
 				attacktype == TYPE_STAB ||
 				attacktype == TYPE_CHOP ||
 				attacktype == SPELL_BLADE_BARRIER)) {
-			struct creature *tch;
-            for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+            void spray_with_acidic_blood(struct creature *tch, gpointer ignore) {
 				if (tch == victim || number(0, 8))
-					continue;
+                    return;
 				bool is_char = false;
 				if (tch == ch)
 					is_char = true;
@@ -1864,6 +1864,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 					DAM_RETURN(DAM_ATTACKER_KILLED);
 				}
 			}
+            g_list_foreach(ch->in_room->people, spray_with_acidic_blood, 0);
 		}
 	} else if (original_ch != ch) {
 		slog("ch was changed in the middle of damage()! original=%p (%s), ch=%p (%s)",
@@ -2182,7 +2183,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                             struct creature *tmp_ch;
                             CREATE(tmp_ch, struct creature, 1);
                             loadFromXML(tmp_ch, get_char_by_index(ch->account, imm_idx));
-                            if (tmp_GET_LEVEL(ch) < 70) {
+                            if (GET_LEVEL(ch) < 70) {
                                 int now = time(NULL);
                                 int last_logon = tmp_ch->player.time.logon;
                                 if ((now - last_logon) <= 3600) {
@@ -2461,8 +2462,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 	}
 	if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
 		REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
-        struct creature *tch;
-        for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+        void check_mount(struct creature *tch, gpointer ignore) {
 			if (MOUNTED_BY(tch) && MOUNTED_BY(tch) == victim) {
 				act("You are knocked from your mount by $N's attack!",
 					false, tch, 0, ch, TO_CHAR);
@@ -2470,6 +2470,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 				setPosition(tch, POS_STANDING);
 			}
 		}
+        g_list_foreach(victim->in_room->people, check_mount, 0);
 	}
 
 	for (i = 0, metal_wt = 0; i < NUM_WEARS; i++)
@@ -2890,167 +2891,159 @@ do_gun_special(struct creature *ch, struct obj_data *obj)
     return true;
 }
 
+void
+perform_violence1(struct creature *ch, gpointer ignore)
+{
+	int prob, i, die_roll;
+
+    if (!ch->in_room || !ch->fighting)
+        return;
+    if (ch == findCombat(ch, ch)) {	// intentional crash here.
+        errlog("ch == findCombat(ch, ch) in perform_violence.");
+        raise(SIGSEGV);
+    }
+
+    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) ||
+        (IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)) {
+        remove_all_combat(ch);
+        return;
+    }
+
+    if (!ch->fighting)
+        return;
+
+    if (IS_NPC(ch)) {
+        if (GET_MOB_WAIT(ch) > 0) {
+            GET_MOB_WAIT(ch) = MAX(GET_MOB_WAIT(ch) - SEG_VIOLENCE, 0);
+        } else if (GET_MOB_WAIT(ch) == 0) {
+            update_pos(ch);
+        }
+        if (GET_POSITION(ch) <= POS_SITTING)
+            return;
+    }
+    // Make sure they're fighting before they fight.
+    if (GET_POSITION(ch) == POS_STANDING
+        || GET_POSITION(ch) == POS_FLYING) {
+        GET_POSITION(ch) = POS_FIGHTING;
+        return;
+    }
+
+    // Moved all attack prob stuff to this function.
+    // STOP THE INSANITY! --N
+    prob = calculate_attack_probability(ch);
+
+    die_roll = number(0, 300);
+
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+        send_to_char(ch,
+                     "%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
+                     CCCYN(ch, C_NRM), GET_NAME(ch), prob, die_roll,
+                     IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->
+                                                      wait : 0),
+                     CCNRM(ch, C_NRM));
+    }
+    //
+    // it's an attack!
+    //
+    if (MIN(100, prob + 15) >= die_roll) {
+
+        bool stop = false;
+
+        for (i = 0; i < 4; i++) {
+            if (!ch->fighting || GET_LEVEL(ch) < (i * 8))
+                break;
+            if (GET_POSITION(ch) < POS_FIGHTING) {
+                if (CHECK_WAIT(ch) < 10)
+                    send_to_char(ch, "You can't fight while sitting!!\r\n");
+                break;
+            }
+
+            if (prob >= number((i * 16) + (i * 8), (i * 32) + (i * 8))) {
+                int retval = hit(ch, random_opponent(ch), TYPE_UNDEFINED);
+                if (IS_SET(retval, DAM_ATTACKER_KILLED) ||
+                    IS_SET(retval, DAM_VICT_KILLED)) {
+                    stop = true;
+                    break;
+                }
+            }
+        }
+
+        if (stop)
+            return;
+
+        if (IS_CYBORG(ch)) {
+            int implant_prob;
+
+            if (!ch->fighting)
+                return;
+
+            if (GET_POSITION(ch) < POS_FIGHTING) {
+                if (CHECK_WAIT(ch) < 10)
+                    send_to_char(ch, "You can't fight while sitting!!\r\n");
+                return;
+            }
+
+            if (number(1, 100) < CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W)) {
+
+                implant_prob = 25;
+
+                if (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) > 100) {
+                    implant_prob +=
+                        GET_REMORT_GEN(ch) + (CHECK_SKILL(ch,
+                                                          SKILL_ADV_IMPLANT_W) - 100) / 2;
+                }
+
+                if (number(0, 100) < implant_prob) {
+                    int retval =
+                        hit(ch, random_opponent(ch), SKILL_ADV_IMPLANT_W);
+                    if (retval)
+                        return;
+                }
+            }
+
+            if (!ch->fighting)
+                return;
+
+            if (IS_NPC(ch) && (GET_REMORT_CLASS(ch) == CLASS_UNDEFINED
+                               || GET_CLASS(ch) != CLASS_CYBORG))
+                return;
+
+            if (number(1, 100) < CHECK_SKILL(ch, SKILL_IMPLANT_W)) {
+                implant_prob = 25;
+
+                if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100) {
+                    implant_prob +=
+                        GET_REMORT_GEN(ch) + (CHECK_SKILL(ch,
+                                                          SKILL_IMPLANT_W) - 100) / 2;
+                }
+
+                if (number(0, 100) < implant_prob) {
+                    int retval = hit(ch, random_opponent(ch), SKILL_IMPLANT_W);
+                    if (retval)
+                        return;
+                }
+            }
+        }
+    } else if (IS_NPC(ch) && ch->in_room &&
+             GET_POSITION(ch) == POS_FIGHTING &&
+             GET_MOB_WAIT(ch) <= 0 && (MIN(100, prob) >= number(0, 300))) {
+
+        if (MOB_FLAGGED(ch, MOB_SPEC) && ch->in_room &&
+            ch->mob_specials.shared->func && !number(0, 2)) {
+
+            (ch->mob_specials.shared->func) (ch, ch, 0, tmp_strdup(""), SPECIAL_TICK);
+        } else if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && ch->fighting) {
+            mobile_battle_activity(ch, NULL);
+        }
+    }
+}
+
 /* control the fights.  Called every 0.SEG_VIOLENCE sec from comm.c. */
 void
 perform_violence(void)
 {
-
-	struct creature *ch;
-	int prob, i, die_roll;
-
-    for (ch = creatures;ch;ch = ch->next) {
-		if (!ch->in_room || !ch->fighting)
-			continue;
-		if (ch == findCombat(ch, ch)) {	// intentional crash here.
-			errlog("ch == findCombat(ch, ch) in perform_violence.");
-			raise(SIGSEGV);
-		}
-
-		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) ||
-			(IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)) {
-            remove_all_combat(ch);
-			continue;
-		}
-
-        if (!ch->fighting)
-			continue;
-
-		if (IS_NPC(ch)) {
-			if (GET_MOB_WAIT(ch) > 0) {
-				GET_MOB_WAIT(ch) = MAX(GET_MOB_WAIT(ch) - SEG_VIOLENCE, 0);
-			} else if (GET_MOB_WAIT(ch) == 0) {
-				update_pos(ch);
-			}
-			if (GET_POSITION(ch) <= POS_SITTING)
-				continue;
-		}
-		// Make sure they're fighting before they fight.
-		if (GET_POSITION(ch) == POS_STANDING
-			|| GET_POSITION(ch) == POS_FLYING) {
-			GET_POSITION(ch) = POS_FIGHTING;
-			continue;
-		}
-
-        // Moved all attack prob stuff to this function.
-        // STOP THE INSANITY! --N
-        prob = calculate_attack_probability(ch);
-
-		die_roll = number(0, 300);
-
-		if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
-			send_to_char(ch,
-				"%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
-				CCCYN(ch, C_NRM), GET_NAME(ch), prob, die_roll,
-				IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->desc->
-					wait : 0),
-				CCNRM(ch, C_NRM));
-		}
-		//
-		// it's an attack!
-		//
-		if (MIN(100, prob + 15) >= die_roll) {
-
-			bool stop = false;
-
-			for (i = 0; i < 4; i++) {
-				if (!ch->fighting || GET_LEVEL(ch) < (i * 8))
-					break;
-				if (GET_POSITION(ch) < POS_FIGHTING) {
-					if (CHECK_WAIT(ch) < 10)
-						send_to_char(ch, "You can't fight while sitting!!\r\n");
-					break;
-				}
-
-				if (prob >= number((i * 16) + (i * 8), (i * 32) + (i * 8))) {
-                    int retval = hit(ch, random_opponent(ch), TYPE_UNDEFINED);
-                    if (IS_SET(retval, DAM_ATTACKER_KILLED) ||
-                        IS_SET(retval, DAM_VICT_KILLED)) {
-                        stop = true;
-                        break;
-                    }
-				}
-			}
-
-			if (stop)
-				continue;
-
-			if (IS_CYBORG(ch)) {
-				int implant_prob;
-
-				if (!ch->fighting)
-					continue;
-
-				if (GET_POSITION(ch) < POS_FIGHTING) {
-					if (CHECK_WAIT(ch) < 10)
-						send_to_char(ch, "You can't fight while sitting!!\r\n");
-					continue;
-				}
-
-				if (number(1, 100) < CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W)) {
-
-					implant_prob = 25;
-
-					if (CHECK_SKILL(ch, SKILL_ADV_IMPLANT_W) > 100) {
-						implant_prob +=
-							GET_REMORT_GEN(ch) + (CHECK_SKILL(ch,
-								SKILL_ADV_IMPLANT_W) - 100) / 2;
-					}
-
-					if (number(0, 100) < implant_prob) {
-						int retval =
-							hit(ch, random_opponent(ch), SKILL_ADV_IMPLANT_W);
-						if (retval)
-							continue;
-					}
-				}
-
-				if (!ch->fighting)
-					continue;
-
-				if (IS_NPC(ch) && (GET_REMORT_CLASS(ch) == CLASS_UNDEFINED
-						|| GET_CLASS(ch) != CLASS_CYBORG))
-					continue;
-
-				if (number(1, 100) < CHECK_SKILL(ch, SKILL_IMPLANT_W)) {
-
-					implant_prob = 25;
-
-					if (CHECK_SKILL(ch, SKILL_IMPLANT_W) > 100) {
-						implant_prob +=
-							GET_REMORT_GEN(ch) + (CHECK_SKILL(ch,
-								SKILL_IMPLANT_W) - 100) / 2;
-					}
-
-					if (number(0, 100) < implant_prob) {
-						int retval = hit(ch, random_opponent(ch), SKILL_IMPLANT_W);
-						if (retval)
-							continue;
-					}
-				}
-			}
-
-			continue;
-		}
-
-		else if (IS_NPC(ch) && ch->in_room &&
-			GET_POSITION(ch) == POS_FIGHTING &&
-			GET_MOB_WAIT(ch) <= 0 && (MIN(100, prob) >= number(0, 300))) {
-
-			if (MOB_FLAGGED(ch, MOB_SPEC) && ch->in_room &&
-				ch->mob_specials.shared->func && !number(0, 2)) {
-
-				(ch->mob_specials.shared->func) (ch, ch, 0, tmp_strdup(""), SPECIAL_TICK);
-
-				continue;
-			}
-
-			if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && ch->fighting) {
-
-				mobile_battle_activity(ch, NULL);
-
-			}
-		}
-	}
+    g_list_foreach(creatures, perform_violence1, 0);
 }
+
 
 #undef __combat_code__

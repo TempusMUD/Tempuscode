@@ -804,14 +804,15 @@ perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
 				act(to_room[1], false, ch, 0, 0, TO_ROOM);
 
 			if (mode == SKILL_ENERGY_FIELD && room_is_watery(ch->in_room)) {
-                struct creature *tch;
-                for (tch = ch->in_room->people;tch;tch = tch->room_next) {
+                void electrocute_creatures(struct creature *tch, gpointer ignore) {
 					if (tch != ch) {
 						damage(ch, tch, dice(4, GET_LEVEL(ch)),
 							SKILL_ENERGY_FIELD, -1);
                         WAIT_STATE(ch, 1 RL_SEC);
                     }
 				}
+                g_list_foreach(ch->in_room->people, electrocute_creatures, 0);
+
 				send_to_char(ch,
 					"DANGER: Hazardous short detected!!  Energy fields shutting down.\r\n");
 				affect_from_char(ch, mode);
@@ -1255,14 +1256,18 @@ ACMD(do_bioscan)
 		send_to_char(ch, "You are not equipped with bio-scanners.\r\n");
 		return;
 	}
-	struct creature *tch;
-    for (tch = ch->in_room->people;tch;tch = tch->room_next) {
-		if ((((can_see_creature(ch, tch) || GET_INVIS_LVL(tch) < GET_LEVEL(ch)) &&
-					(CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100) ||
-						affected_by_spell(ch, SKILL_HYPERSCAN)))
-				|| ch == tch) && LIFE_FORM(tch))
+
+    void count_lifeform(struct creature *tch, gpointer ignore) {
+        if ((((can_see_creature(ch, tch)
+               || GET_INVIS_LVL(tch) < GET_LEVEL(ch))
+              && (CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100)
+                  || affected_by_spell(ch, SKILL_HYPERSCAN)))
+             || ch == tch)
+            && LIFE_FORM(tch))
 			count++;
 	}
+
+    g_list_foreach(ch->in_room->people, count_lifeform, 0);
 
 	send_to_char(ch, "%sBIOSCAN:%s %d life form%s detected in room.\r\n",
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), count, count > 1 ? "s" : "");

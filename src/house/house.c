@@ -18,7 +18,6 @@ using namespace std;
 #include "db.h"
 #include "interpreter.h"
 #include "security.h"
-#include "player_table.h"
 #include "account.h"
 #include "utils.h"
 #include "house.h"

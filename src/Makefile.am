@@ -1,7 +1,7 @@
 bin_PROGRAMS = @top_srcdir@/bin/circle
-INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@ @XML_CPPFLAGS@
-AM_CXXFLAGS = -Wall -Wcast-qual
-AM_LDFLAGS = @XML_LIBS@
+INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@
+AM_CFLAGS = -Wall -Wcast-qual @XML_CFLAGS@ @GLIB_CFLAGS@
+AM_LDFLAGS = @XML_LIBS@ @GLIB_LIBS@
 ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^DEFPROGHANDLER(\\([a-zA-Z0-9_]+\\),[^)]+)$/prog_do_\\1/' -r '/^SPECIAL(\\([a-zA-Z0-9_]+\\))$/\\1/'
 @top_srcdir@_bin_circle_SOURCES = \
 				 clan/clan.c \

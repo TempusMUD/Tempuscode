@@ -69,6 +69,12 @@ ACMD(do_charge)
 	hit(ch, vict, TYPE_UNDEFINED);
 }
 
+ACMD(do_corner)
+{
+	send_to_char(ch, "You back into the corner.\r\n");
+	return;
+}
+
 //
 // perform_barb_berserk randomly selects and attacks somebody in the room
 // who_was attacked is used to return a pointer to the person attacked
@@ -78,43 +84,40 @@ ACMD(do_charge)
 //
 
 int
-perform_barb_berserk(struct creature *ch, struct creature **who_was_attacked,
-	//struct creature *precious_ch,
-	int *return_flags)
+perform_barb_berserk(struct creature *ch,
+                     struct creature **who_was_attacked,
+                     int *return_flags)
 {
-	struct creature *vict = NULL;
-    for (vict = ch->in_room->people;vict;vict = vict->room_next) {
-		if (vict == ch
-            || ch->fighting
-            || PRF_FLAGGED(vict, PRF_NOHASSLE)
+    gint select_victim(struct creature *tch, struct creature *ignore) {
+        if (tch == ch
+            || tch->fighting != ch
+            || PRF_FLAGGED(tch, PRF_NOHASSLE)
             || (IS_NPC(ch)
-                && IS_NPC(vict)
+                && IS_NPC(tch)
                 && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
-            || !can_see_creature(ch, vict)
+            || !can_see_creature(ch, tch)
             || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
-			continue;
+            return 0;
 
-		act("You go berserk and attack $N!", false, ch, 0, vict, TO_CHAR);
-		act("$n attacks you in a BERSERK rage!!", false, ch, 0, vict, TO_VICT);
-		act("$n attacks $N in a BERSERK rage!!", false, ch, 0, vict,
-			TO_NOTVICT);
-        if (return_flags) {
-            *return_flags = hit(ch, vict, TYPE_UNDEFINED);
+        return -1;
+    }
+    struct creature *vict;
+    vict = g_list_find_custom(ch->in_room->people, NULL, select_victim);
+    if (!vict)
+        return 0;
 
-            if (!IS_SET(*return_flags, DAM_VICT_KILLED) && who_was_attacked)
-                *who_was_attacked = vict;
-        }
+    act("You go berserk and attack $N!", false, ch, 0, vict, TO_CHAR);
+    act("$n attacks you in a BERSERK rage!!", false, ch, 0, vict, TO_VICT);
+    act("$n attacks $N in a BERSERK rage!!", false, ch, 0, vict,
+        TO_NOTVICT);
+    if (return_flags) {
+        *return_flags = hit(ch, vict, TYPE_UNDEFINED);
 
-		return 1;
-	}
+        if (!IS_SET(*return_flags, DAM_VICT_KILLED) && who_was_attacked)
+            *who_was_attacked = vict;
+    }
 
-	return 0;
-}
-
-ACMD(do_corner)
-{
-	send_to_char(ch, "You back into the corner.\r\n");
-	return;
+    return 1;
 }
 
 ACMD(do_berserk)
@@ -168,23 +171,8 @@ ACMD(do_berserk)
 
 		send_to_char(ch, "You go BERSERK!\r\n");
 		act("$n goes BERSERK! Run for cover!", true, ch, 0, ch, TO_ROOM);
-        struct creature *vict = NULL;
-        for (vict = ch->in_room->people;vict;vict = vict->room_next) {
-			if (ch == vict || !can_see_creature(ch, vict))
-				continue;
-			if (percent < CHECK_SKILL(ch, SKILL_BERSERK))
-				continue;
-			else {
-				act("You attack $N in your berserk rage!!!",
-					false, ch, 0, vict, TO_CHAR);
-				act("$n attacks you in a berserk rage!!!",
-					false, ch, 0, vict, TO_VICT);
-				act("$n attacks $N in a berserk rage!!!",
-					true, ch, 0, vict, TO_NOTVICT);
-				hit(ch, vict, TYPE_UNDEFINED);
-				break;
-			}
-		}
+
+        perform_barb_berserk(ch, NULL, NULL);
 	} else
 		send_to_char(ch, "You cannot work up the gumption to do so.\r\n");
 }
@@ -313,12 +301,20 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
             }
             vict = NULL;
             // find a new victim
-            struct creature *vict = NULL;
-            for (vict = ch->in_room->people;vict;vict = vict->room_next)
-                if(!(vict == ch
-                     || !vict->fighting
-                     || !can_see_creature(ch, vict)))
-                    break;
+            gint select_victim(struct creature *tch, struct creature *ignore) {
+                if (tch == ch
+                    || tch->fighting != ch
+                    || PRF_FLAGGED(tch, PRF_NOHASSLE)
+                    || (IS_NPC(ch)
+                        && IS_NPC(tch)
+                        && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
+                    || !can_see_creature(ch, tch))
+                    return -1;
+
+                return 0;
+            }
+            struct creature *vict;
+            vict = g_list_find_custom(ch->in_room->people, NULL, select_victim);
         }
     }
 }
