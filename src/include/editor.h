@@ -1,12 +1,8 @@
 #ifndef _EDITOR_H_
 #define _EDITOR_H_
 
-#include <string>
-#include <list>
 #include "constants.h"
 #include "prog.h"
-
-using namespace std;
 
 const int MAX_MAIL_ATTACHMENTS = 5;
 const int MAIL_COST_MULTIPLIER = 30;

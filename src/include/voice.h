@@ -14,9 +14,6 @@
 //
 
 #include <stdio.h>
-#include <map>
-#include <string>
-#include <list>
 #include "creature.h"
 
 enum voice_situation {

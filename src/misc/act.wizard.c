@@ -19,15 +19,8 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <fstream>
-#include <list>
-#include <vector>
-#include <algorithm>
 #include <string.h>
 #include <execinfo.h>
-#include <climits>
-using namespace std;
 
 #include "structs.h"
 #include "utils.h"

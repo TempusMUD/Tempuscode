@@ -7,7 +7,6 @@
 #include <tmpstr.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <map>
 #include "interpreter.h"
 #include "constants.h"
 #include "utils.h"

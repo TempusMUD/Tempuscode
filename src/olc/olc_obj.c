@@ -12,8 +12,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <iostream>
-#include <iomanip>
 
 #include "structs.h"
 #include "utils.h"

@@ -4,11 +4,6 @@
 // Copyright 2005 by Lenon Kitchens, all rights reserved.
 //
 
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
 int do_remort(struct creature *ch);
 
 SPECIAL(christmas_quest)

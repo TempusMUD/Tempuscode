@@ -21,10 +21,6 @@
 #include "config.h"
 #endif
 
-#include <list>
-#include <vector>
-using namespace std;
-
 #include <string.h>
 
 #include "structs.h"

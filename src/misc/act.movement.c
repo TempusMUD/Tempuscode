@@ -19,13 +19,6 @@
 #include "config.h"
 #endif
 
-#include <cstdio>
-#include <string>
-#include <cstdlib>
-#include <iostream>
-#include <queue>
-#include <cassert>
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

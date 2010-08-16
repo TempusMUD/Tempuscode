@@ -19,7 +19,6 @@
 #include "config.h"
 #endif
 
-#include <vector>
 #include <signal.h>
 
 #include "structs.h"

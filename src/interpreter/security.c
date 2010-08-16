@@ -2,8 +2,6 @@
 #include "config.h"
 #endif
 
-#include <algorithm>
-using namespace std;
 #include <string.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -21,8 +19,6 @@ using namespace std;
 #include "security.h"
 #include "boards.h"
 #include "player_table.h"
-
-using namespace Security;
 
  /**
   *

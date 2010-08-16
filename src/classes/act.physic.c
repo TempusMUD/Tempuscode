@@ -498,7 +498,7 @@ ASPELL(spell_quantum_rift)
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM
 			&& GET_OBJ_VAL(o, 2) == GET_IDNUM(ch)
 			&& !o->in_room->people) {
-			struct creature *occupant = o->in_room->people;
+			struct creature *occupant = g_list_first(o->in_room->people);
 			act("$p collapses in on itself.", true, occupant, o, 0, TO_CHAR);
 			act("$p collapses in on itself.", true, occupant, o, 0, TO_ROOM);
 			extract_obj(o);
@@ -1081,8 +1081,10 @@ ASPELL(spell_area_stasis)
 	// Destroy all quantum rifts.
 	for (o = ch->in_room->contents; o; o = o->next) {
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM) {
-			act("$p collapses in on itself.",
-				true, o->in_room->people, o, 0, TO_NOTVICT);
+            if (o->in_room->people) {
+                act("$p collapses in on itself.",
+                    true, g_list_first(o->in_room->people), o, 0, TO_NOTVICT);
+            }
 			extract_obj(o);
 		}
 	}

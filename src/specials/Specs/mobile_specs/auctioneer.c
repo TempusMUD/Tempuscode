@@ -1,5 +1,3 @@
-#include <list>
-#include <functional>
 #include <time.h>
 #include <math.h>
 #include "obj_data.h"
@@ -95,8 +93,6 @@ struct creature *create_imp(struct room_data *inroom, auction_data &);
 bool bidder_can_afford(struct creature *bidder, money_t amount);
 void aucSaveToXML(struct creature *auc);
 bool aucLoadFromXML(struct creature *auc);
-
-using namespace std;
 
 SPECIAL(do_auctions)
 {

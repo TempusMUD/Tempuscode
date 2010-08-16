@@ -29,9 +29,6 @@
 #include <errno.h>
 #include <signal.h>
 #include <dirent.h>
-#include <fstream>
-using namespace std;
-
 #include "structs.h"
 #include "constants.h"
 #include "utils.h"
@@ -2891,19 +2888,18 @@ reset_zone(struct zone_data *zone)
 					if (mob) {
 						char_to_room(mob, room,false);
 						if (GET_MOB_LEADER(mob) > 0) {
-							struct creatureList_iterator it =
-								mob->in_room->people.begin();
-							for (; it != mob->in_room->people.end(); ++it) {
-								if ((*it) != mob && IS_NPC((*it))
-									&& GET_MOB_VNUM((*it)) ==
+                            void do_follow(struct creature *tch, gpointer ignore) {
+								if (tch != mob && IS_NPC(tch)
+									&& GET_MOB_VNUM(tch) ==
 									GET_MOB_LEADER(mob)) {
-									if (!circle_follow(mob, (*it))) {
-										add_follower(mob, (*it));
+									if (!circle_follow(mob, tch)) {
+										add_follower(mob, tch);
 										break;
 									}
-								}
-							}
-						}
+                                }
+                            }
+                            g_list_foreach(mob->in_room->people, add_follower, 0);
+                        }
 						if( process_load_param( mob ) ) { // true on death
 							last_cmd = 0;
 						} else {

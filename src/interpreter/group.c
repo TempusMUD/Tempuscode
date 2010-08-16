@@ -2,8 +2,6 @@
 #include "config.h"
 #endif
 
-#include <algorithm>
-using namespace std;
 #include <string.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>

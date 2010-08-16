@@ -27,8 +27,6 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include <ctype.h>
 #include <string.h>
 #include <time.h>
-#include <fstream>
-#include <stack>
 #include <errno.h>
 
 #include "actions.h"
@@ -48,8 +46,6 @@ Rewritten by John Rothe (forget@tempusmud.com)
 
 // From cityguard.cc
 void call_for_help(struct creature *ch, struct creature *attacker);
-
-using namespace std;
 
 // The vnum of the "letter" object
 const int MAIL_OBJ_VNUM  = 1204;

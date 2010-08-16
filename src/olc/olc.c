@@ -18,9 +18,6 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <iomanip>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

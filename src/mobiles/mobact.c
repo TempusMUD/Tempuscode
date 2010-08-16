@@ -20,10 +20,6 @@
 #include "config.h"
 #endif
 
-#include <cstdio>
-#include <cstdlib>
-#include <string>
-#include <iostream>
 #include <signal.h>
 #include <math.h>
 

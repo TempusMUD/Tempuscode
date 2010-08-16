@@ -1,10 +1,6 @@
 #ifndef _HELP_H_
 #define _HELP_H_
 
-#include <vector>
-#include <fstream>
-using namespace std;
-
 #define HFLAG_UNAPPROVED (1 << 0)	// Help topic cannot be found by searching
 #define HFLAG_IMMHELP    (1 << 1)	// Help topic can only be found by gods
 #define HFLAG_MODIFIED   (1 << 2)	// Help topic has been changed or is being

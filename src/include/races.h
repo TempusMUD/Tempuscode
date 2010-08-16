@@ -1,14 +1,9 @@
 #ifndef _RACES_H_
 #define _RACES_H_
 
-#include <vector>
-#include <map>
-
 struct ExecutableObject;
 struct creatureRace;
 struct creature;
-
-using namespace std;
 
 typedef map<int, struct creatureRace *> RaceMap;
 

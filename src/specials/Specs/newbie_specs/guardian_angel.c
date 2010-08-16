@@ -1,4 +1,3 @@
-#include <list>
 #include "accstr.h"
 
 #define ANGEL_DUAL_WIELD		(1 << 0)

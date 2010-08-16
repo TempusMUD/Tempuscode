@@ -45,10 +45,6 @@
 #include "spells.h"
 #include "language.h"
 
-#include <vector>
-
-using namespace std;
-
 extern struct follow_type *order_next_k;
 char ANSI[20];
 

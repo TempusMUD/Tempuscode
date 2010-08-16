@@ -7,10 +7,7 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
-#include <string>
 #include <dirent.h>
-#include <list>
-using namespace std;
 
 #include "structs.h"
 #include "comm.h"

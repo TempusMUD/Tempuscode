@@ -27,11 +27,6 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include <list>
-#include <string>
-#include <sstream>
-using namespace std;
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"
@@ -4749,8 +4744,6 @@ ACMD(do_alignment)
 
 ACMD(do_wizlist)
 {
-    using namespace Security;
-
     acc_string_clear();
 
     acc_sprintf("\r\n                   %sThe Immortals of TempusMUD\r\n"

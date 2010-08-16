@@ -25,7 +25,6 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <iostream>
 
 #include "structs.h"
 #include "actions.h"
@@ -159,14 +158,15 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str, bool displa
             room = ch->in_room;
         else
             room = real_room(GET_LOADROOM(ch));
-        struct creatureList_iterator cit = room->people.begin();
-        for ( ; cit != room->people.end(); ++cit) {
+
+        void calc_cost_modifier(struct creature *tch, gpointer ignore) {
             if (GET_MOB_SPEC((*cit)) == cryogenicist ||
-            GET_MOB_SPEC((*cit)) == receptionist) {
+                GET_MOB_SPEC((*cit)) == receptionist) {
                 f_factor += (f_factor*ch->getCostModifier((*cit)))/100;
                 break;
             }
         }
+        g_list_foreach(ch->in_room->people, calc_cost_modifier, 0);
     }
 
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)

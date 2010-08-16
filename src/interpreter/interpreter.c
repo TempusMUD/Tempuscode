@@ -20,10 +20,6 @@
 #endif
 
 #define __interpreter_c__
-#include <iostream>
-#include <fstream>
-using namespace std;
-
 #include "structs.h"
 #include "comm.h"
 #include "interpreter.h"

@@ -21,7 +21,6 @@
 #include <string.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-#include <fstream>
 #include "xml_utils.h"
 
 #include "structs.h"

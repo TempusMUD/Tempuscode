@@ -1,8 +1,6 @@
 #include "map.h"
 #include <math.h>
 
-using namespace std;
-
 int MapPixel_centerX;
 int MapPixel_centerY;
 int MapPixel_hSize;

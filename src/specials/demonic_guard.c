@@ -9,13 +9,6 @@
 #include "config.h"
 #endif
 
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <string>
-#include <algorithm>
-
-using namespace std;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 // Undefine CHAR to avoid collisions

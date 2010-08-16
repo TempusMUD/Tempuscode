@@ -204,26 +204,25 @@ flow_room(int pulse)
 			// Alignment ambience
 			if (!(pulse % (4 RL_SEC))) {
 				if (zone->flags & ZONE_EVIL_AMBIENCE) {
-					it = rnum->people.begin();
-					while (it != rnum->people.end()) {
-						if (!IS_NPC(*it) && GET_ALIGNMENT(*it) > -1000 &&
-							!affected_by_spell(*it, SPELL_SHIELD_OF_RIGHTEOUSNESS)) {
-							GET_ALIGNMENT(*it) -= 1;
-							check_eq_align(*it);
+                    void apply_evil(struct creature *tch, gpointer ignore) {
+						if (!IS_NPC(tch) && GET_ALIGNMENT(tch) > -1000 &&
+							!affected_by_spell(tch, SPELL_SHIELD_OF_RIGHTEOUSNESS)) {
+							GET_ALIGNMENT(tch) -= 1;
+							check_eq_align(tch);
 						}
-						it++;
 					}
+                    g_list_foreach(rnum->people, apply_evil, 0);
 				}
 				if (zone->flags & ZONE_GOOD_AMBIENCE) {
-					it = rnum->people.begin();
-					while (it != rnum->people.end()) {
-						if (!IS_NPC(*it) && GET_ALIGNMENT(*it) < 1000 &&
-						!affected_by_spell(*it, SPELL_SPHERE_OF_DESECRATION)) {
-							GET_ALIGNMENT(*it) += 1;
-							check_eq_align(*it);
+					void apply_good(struct creature *tch, gpointer ignore) {
+						if (!IS_NPC(tch) && GET_ALIGNMENT(tch) < 1000 &&
+						!affected_by_spell(tch, SPELL_SPHERE_OF_DESECRATION)) {
+							GET_ALIGNMENT(tch) += 1;
+							check_eq_align(tch);
 						}
 						it++;
 					}
+                    g_list_foreach(rnum->people, apply_evil, 0);
 				}
 			}
 

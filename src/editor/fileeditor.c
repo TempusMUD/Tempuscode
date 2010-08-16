@@ -6,9 +6,6 @@
 #include "config.h"
 #endif
 
-#include <string>
-#include <list>
-using namespace std;
 #include <ctype.h>
 #include <fcntl.h>
 #include <errno.h>

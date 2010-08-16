@@ -27,7 +27,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <fstream>
 
 #include "structs.h"
 #include "utils.h"
@@ -42,10 +41,6 @@
 #include "screen.h"
 #include "accstr.h"
 
-#include <vector>
-#include <string>
-
-using namespace std;
 /* External Variables */
 
 extern char *news;

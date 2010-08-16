@@ -19,10 +19,6 @@
 #include "config.h"
 #endif
 
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-
 #include "structs.h"
 #include "utils.h"
 #include "comm.h"

@@ -1,10 +1,6 @@
 #ifndef _MAP_H_
 #define _MAP_H_
 
-#include <vector>
-#include <queue>
-#include <string>
-
 // Tempus Includes
 #include "screen.h"
 #include "desc_data.h"
@@ -14,8 +10,6 @@
 #include "interpreter.h"
 #include "room_data.h"
 #include <signal.h>
-
-using namespace std;
 
 enum Directions {
     North,
