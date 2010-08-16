@@ -463,13 +463,13 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
 		msg = "$p dissolves into a pile of rust!!";
 		new_obj->aliases = strdup("pile rust");
 		new_obj->name = strdup("a pile of rust");
-		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
+		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.", NULL)));
 		GET_OBJ_MATERIAL(new_obj) = MAT_RUST;
 	} else if (type == SPELL_OXIDIZE && IS_BURNABLE_TYPE(obj)) {
 		msg = "$p is incinerated!!";
 		new_obj->aliases = strdup("pile ash");
 		new_obj->name = strdup("a pile of ash");
-		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
+		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.", NULL)));
 		GET_OBJ_MATERIAL(new_obj) = MAT_ASH;
 
 	} else if (type == SPELL_BLESS) {
@@ -478,25 +478,25 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
 		new_obj->name = strdup(tmp_strcat(
-			"shattered fragments of ", mat_name));
+			"shattered fragments of ", mat_name, NULL));
 		new_obj->line_desc = strdup(tmp_capitalize(
-			tmp_strcat(new_obj->name, " are lying here.")));
+			tmp_strcat(new_obj->name, " are lying here.", NULL)));
 	} else if (type == SPELL_DAMN) {
 		msg = "$p glows bright red and shatters to pieces!!";
 		new_obj->aliases = strdup(tmp_sprintf("%s %s shattered fragments",
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
 		new_obj->name = strdup(tmp_strcat(
-			"shattered pieces of ", mat_name));
+                                   "shattered pieces of ", mat_name, NULL));
 		new_obj->line_desc = strdup(tmp_capitalize(
-			tmp_strcat(new_obj->name, " are lying here.")));
+                                        tmp_strcat(new_obj->name, " are lying here.", NULL)));
 	} else if (IS_METAL_TYPE(obj)) {
 		msg = "$p is reduced to a mangled pile of scrap!!";
 		new_obj->aliases = strdup(tmp_sprintf("%s %s mangled heap",
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
-		new_obj->name = strdup(tmp_strcat("a mangled heap of ", mat_name));
-		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.")));
+		new_obj->name = strdup(tmp_strcat("a mangled heap of ", mat_name, NULL));
+		new_obj->line_desc = strdup(tmp_capitalize(tmp_strcat(new_obj->name, " is lying here.", NULL)));
 
 	} else if (IS_STONE_TYPE(obj) || IS_GLASS_TYPE(obj)) {
 		msg = "$p shatters into a thousand fragments!!";
@@ -504,9 +504,9 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
 		new_obj->name = strdup(tmp_strcat(
-			"shattered fragments of ", mat_name));
+                                   "shattered fragments of ", mat_name, NULL));
 		new_obj->line_desc = strdup(tmp_capitalize(
-			tmp_strcat(new_obj->name, " are lying here.")));
+                                        tmp_strcat(new_obj->name, " are lying here.", NULL)));
 
 	} else {
 		msg =  "$p has been destroyed!";
@@ -514,9 +514,9 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
 			material_names[GET_OBJ_MATERIAL(obj)],
 			obj->aliases));
 		new_obj->name = strdup(tmp_strcat(
-			"a mutilated heap of ", mat_name));
+                                   "a mutilated heap of ", mat_name, NULL));
 		new_obj->line_desc = strdup(tmp_capitalize(
-			tmp_strcat(new_obj->name, " is lying here.")));
+                                        tmp_strcat(new_obj->name, " is lying here.", NULL)));
 
 		if (IS_CORPSE(obj)) {
 			GET_OBJ_TYPE(new_obj) = ITEM_CONTAINER;

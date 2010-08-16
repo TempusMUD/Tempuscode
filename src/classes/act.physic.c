@@ -1043,7 +1043,7 @@ ASPELL(spell_emp_pulse)
 	}
 	// Make sure non-pkillers don't get killer flags.
     struct creature *tch;
-    void invalid_target(struct creature *tch, gpointer ignore) {
+    int invalid_target(struct creature *tch, gpointer ignore) {
 		if (tch != ch && !ok_to_attack(ch, tch, true))
             return 0;
         return -1;
@@ -1083,7 +1083,8 @@ ASPELL(spell_area_stasis)
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM) {
             if (o->in_room->people) {
                 act("$p collapses in on itself.",
-                    true, g_list_first(o->in_room->people), o, 0, TO_NOTVICT);
+                    true, g_list_nth_data(o->in_room->people, 0),
+                    o, 0, TO_NOTVICT);
             }
 			extract_obj(o);
 		}

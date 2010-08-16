@@ -13,7 +13,7 @@ AC_PROG_CC
 
 # Checks for libraries.
 AC_CHECK_POSTGRES
-PKG_CHECK_MODULES([GLIB], [glib])
+PKG_CHECK_MODULES([GLIB], [glib-2.0])
 PKG_CHECK_MODULES([XML], [libxml-2.0])
 
 # Checks for header files.

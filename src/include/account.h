@@ -15,7 +15,7 @@ enum {
 extern const char *ansi_levels[];
 extern const char *compact_levels[];
 extern int long account_top_id;
-extern struct account *_cache;
+extern GHashTable *account_cache;
 
 
 struct account {
@@ -36,8 +36,8 @@ struct account {
 		unsigned int term_height;
 		unsigned int term_width;
 		// Game data
-		struct id_list *chars;
-		struct id_list *trusted;
+		GList *chars;
+		GList *trusted;
         bool banned;
 		int reputation;
 		int quest_points;
@@ -68,6 +68,7 @@ void account_initialize(struct account *account,
                         int idnum);
 bool account_load(struct account *account, long idnum);
 bool account_reload(struct account *account);
+void account_set(struct account *account, const char *key, const char *val);
 
 struct creature *account_create_char(struct account *account, const char *name);
 void account_delete_char(struct account *account, struct creature *ch);
