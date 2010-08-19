@@ -484,8 +484,8 @@ SECT(struct room_data * room)
 #define GET_MAX_MANA(ch)  ((ch)->points.max_mana)
 #define GET_GOLD(ch)          ((ch)->points.gold)
 #define GET_CASH(ch)      ((ch)->points.cash)
-#define GET_PAST_BANK(ch) (((ch)->account) ? (ch)->account->get_past_bank():0)
-#define GET_FUTURE_BANK(ch) (((ch)->account) ? (ch)->account->get_future_bank():0)
+#define GET_PAST_BANK(ch) (((ch)->account) ? (ch)->account->bank_past:0)
+#define GET_FUTURE_BANK(ch) (((ch)->account) ? (ch)->account->bank_future:0)
 
 #define BANK_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
                         GET_FUTURE_BANK(ch) : GET_PAST_BANK(ch))

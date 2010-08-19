@@ -62,7 +62,7 @@ extract_norents(struct obj_data *obj)
 	if (obj) {
 		extract_norents(obj->contains);
 		extract_norents(obj->next_content);
-		if (obj->isUnrentable() &&
+		if (isUnrentable(obj) &&
 			(!obj->worn_by || !IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)) &&
 			!IS_OBJ_STAT(obj, ITEM_NODROP))
 			extract_obj(obj);
@@ -117,7 +117,7 @@ tally_obj_rent(struct obj_data *obj, const char *currency_str, bool display)
 
 	last_obj = cur_obj = obj;
 	while (cur_obj) {
-		if (!cur_obj->isUnrentable()) {
+		if (!isUnrentable(cur_obj)) {
 			total_cost += GET_OBJ_RENT(cur_obj);
 			if (last_obj->shared != cur_obj->shared && display) {
                 if (display)
@@ -160,10 +160,9 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str, bool displa
             room = real_room(GET_LOADROOM(ch));
 
         void calc_cost_modifier(struct creature *tch, gpointer ignore) {
-            if (GET_MOB_SPEC((*cit)) == cryogenicist ||
-                GET_MOB_SPEC((*cit)) == receptionist) {
-                f_factor += (f_factor*ch->getCostModifier((*cit)))/100;
-                break;
+            if (GET_MOB_SPEC(tch) == cryogenicist ||
+                GET_MOB_SPEC(tch) == receptionist) {
+                f_factor += (f_factor*getCostModifier(ch, tch))/100;
             }
         }
         g_list_foreach(ch->in_room->people, calc_cost_modifier, 0);
@@ -214,7 +213,7 @@ offer_rent(struct creature *ch, struct creature *receptionist,
 		total_money = GET_GOLD(ch) + GET_PAST_BANK(ch);
 	}
 
-	if (ch->displayUnrentables())
+	if (displayUnrentables(ch))
 		return 0;
 
 	if (display) {
@@ -316,14 +315,14 @@ gen_receptionist(struct creature *ch, struct creature *recep,
 
 		if (mode == RENT_FACTOR) {
 			act("$n stores your belongings and helps you into your private chamber.", false, recep, 0, ch, TO_VICT);
-			ch->rent();
+			rent(ch);
 		} else {				/* cryo */
 			act("$n stores your belongings and helps you into your private chamber.\r\nA white mist appears in the room, chilling you to the bone...\r\nYou begin to lose consciousness...", false, recep, 0, ch, TO_VICT);
 			if (recep->in_room->zone->time_frame == TIME_ELECTRO)
 				GET_CASH(ch) -= cost;
 			else
 				GET_GOLD(ch) -= cost;
-			ch->cryo();
+			cryo(ch);
 		}
 
 	} else {

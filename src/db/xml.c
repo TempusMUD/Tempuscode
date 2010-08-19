@@ -11,8 +11,6 @@
 #include "vendor.h"
 #include "tmpstr.h"
 #include "comm.h"
-#include "mobile_map.h"
-#include "object_map.h"
 
 void load_xml_object(xmlNodePtr node);
 void load_xml_mobile(xmlNodePtr node);

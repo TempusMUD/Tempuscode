@@ -9,6 +9,7 @@
 //
 
 #include <sys/types.h>
+#include "defs.h"
 
 #define NOWHERE    -1			/* nil reference for room-database        */
 #define NOTHING           -1	/* nil reference for objects                */
