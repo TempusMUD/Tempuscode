@@ -27,7 +27,6 @@
 #include "editor.h"
 #include "screen.h"
 #include "interpreter.h"
-#include "player_table.h"
 #include "accstr.h"
 
 // external variables
@@ -194,7 +193,8 @@ create_dyntext_backup(dynamic_text_file * dyntext)
 	}
 
 	if (dyntext->buffer) {
-		for (char *ptr = dyntext->buffer; *ptr; ptr++) {
+        char *ptr;
+		for (ptr = dyntext->buffer; *ptr; ptr++) {
 			if (*ptr == '\r')
 				continue;
 			fputc(*ptr, fl);
@@ -366,11 +366,11 @@ show_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
 				"              old: %-3s (Len: %zd)\r\n"
 				"              new: %-3s (Len: %zd)\r\n",
 				dyntext->filename,
-				playerIndex.getName(dyntext->last_edit[0].idnum),
+				PlayerTable_getName(dyntext->last_edit[0].idnum),
 				dyntext->last_edit[0].idnum,
 				ctime(&(dyntext->last_edit[0].tEdit)),
 				dyntext->level,
-				playerIndex.getName(dyntext->lock),
+				PlayerTable_getName(dyntext->lock),
 				dyntext->lock,
 				YESNO(dyntext->buffer),
 				dyntext->buffer ? strlen(dyntext->buffer) : 0,
@@ -395,14 +395,14 @@ show_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
 			send_to_char(ch, "Permissions defined:\r\n");
 			for (i = 0; i < DYN_TEXT_PERM_SIZE; i++) {
 				send_to_char(ch, "%3d.] (%5d) %s\r\n",
-					i, dyntext->perms[i], playerIndex.getName(dyntext->perms[i]));
+					i, dyntext->perms[i], PlayerIndex_getName(dyntext->perms[i]));
 			}
 		} else if (is_abbrev(argument, "last")) {
 			send_to_char(ch, "Last edits:\r\n");
 			for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
 				send_to_char(ch, "%3d.] (%5d) %30s @ %s\r",
 					i, dyntext->last_edit[i].idnum,
-					playerIndex.getName(dyntext->last_edit[i].idnum),
+					PlayerTable_getName(dyntext->last_edit[i].idnum),
 					ctime(&(dyntext->last_edit[i].tEdit)));
 			}
 
@@ -505,7 +505,7 @@ ACMD(do_dynedit)
 			send_to_char(ch, "Add who to the permission list?\r\n");
 			return;
 		}
-		if ((idnum = playerIndex.getID(argument)) < 0) {
+		if ((idnum = PlayerTable_getID(argument)) < 0) {
 			send_to_char(ch, "There is no such person.\r\n");
 			return;
 		}
@@ -536,7 +536,7 @@ ACMD(do_dynedit)
 			send_to_char(ch, "Remove who from the permission list?\r\n");
 			return;
 		}
-		if ((idnum = playerIndex.getID(argument)) < 0) {
+		if ((idnum = PlayerTable_getID(argument)) < 0) {
 			send_to_char(ch, "There is no such person.\r\n");
 			return;
 		}
@@ -573,7 +573,7 @@ ACMD(do_dynedit)
 
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
 			send_to_char(ch, "That file is already locked by %s.\r\n",
-				playerIndex.getName(dyntext->lock));
+				PlayerTable_getName(dyntext->lock));
 			return;
 		}
 		if (!dyntext_edit_ok(ch, dyntext)) {
@@ -597,7 +597,7 @@ ACMD(do_dynedit)
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)
 			&& GET_LEVEL(ch) < LVL_CREATOR) {
 			send_to_char(ch, "That file is already locked by %s.\r\n",
-				playerIndex.getName(dyntext->lock));
+				PlayerTable_getName(dyntext->lock));
 			return;
 		}
 		if (!dyntext_edit_ok(ch, dyntext)) {
@@ -620,7 +620,7 @@ ACMD(do_dynedit)
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)
 			&& GET_LEVEL(ch) < LVL_CREATOR) {
 			send_to_char(ch, "That file is already locked by %s.\r\n",
-				playerIndex.getName(dyntext->lock));
+				PlayerTable_getName(dyntext->lock));
 			return;
 		}
 
@@ -693,7 +693,7 @@ ACMD(do_dynedit)
 
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
 			send_to_char(ch, "That file is already locked by %s.\r\n",
-				playerIndex.getName(dyntext->lock));
+				PlayerTable_getName(dyntext->lock));
 			return;
 		}
 		if (!dyntext_edit_ok(ch, dyntext)) {
@@ -740,7 +740,7 @@ ACMD(do_dynedit)
 
 		if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
 			send_to_char(ch, "That file is already locked by %s.\r\n",
-				playerIndex.getName(dyntext->lock));
+				PlayerTable_getName(dyntext->lock));
 			return;
 		}
 		if (!dyntext_edit_ok(ch, dyntext)) {
@@ -786,7 +786,7 @@ ACMD(do_dynedit)
 
 			if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
 				send_to_char(ch, "That file is already locked by %s.\r\n",
-					playerIndex.getName(dyntext->lock));
+					PlayerTable_getName(dyntext->lock));
 				return;
 			}
 			if (!dyntext_edit_ok(ch, dyntext)) {
@@ -880,7 +880,7 @@ check_dyntext_updates(struct creature *ch, int mode)
 	dynamic_text_file *dyntext = NULL;
 
 	for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
-		if (dyntext->last_edit[0].tEdit > ch->account->get_entry_time()) {
+		if (dyntext->last_edit[0].tEdit > ch->account->entry_time) {
 			if (!strcmp(dyntext->filename, "inews")
 				&& GET_LEVEL(ch) < LVL_AMBASSADOR)
 				continue;

@@ -20,6 +20,13 @@
 
 #define NUM_RESERVED_DESCS	8
 
+#include <stdbool.h>
+
+struct creature;
+struct room_data;
+struct zone_data;
+struct obj_data;
+
 /* comm.c */
 void send_to_all(const char *messg);
 void send_to_char(struct creature *ch, const char *str, ...)

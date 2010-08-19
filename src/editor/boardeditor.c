@@ -23,10 +23,53 @@
 #include "accstr.h"
 #include "help.h"
 #include "comm.h"
-#include "player_table.h"
+
+struct board_data {
+    int idnum;
+    char *board;
+    char *subject;
+};
+
+bool
+board_command(struct editor *editor, char cmd, char *args)
+{
+    if (cmd == 'u') {
+        undo_changes(editor);
+        return true;
+    }
+    return false;
+}
 
 void
-start_editing_board(descriptor_data *d,
+board_finalize(struct editor *editor, const char *text)
+{
+    struct board_data *data = (struct board_data *)editor->mode_data;
+    gen_board_save(editor->desc->creature,
+                   data->board,
+                   data->idnum,
+                   data->subject,
+                   text);
+
+    if (IS_PLAYING(editor->desc))
+        act("$n nods with satisfaction as $e saves $s work.", true,
+            editor->desc->creature, 0, 0, TO_NOTVICT);
+    free(((struct board_data *)editor->mode_data)->board);
+    free(((struct board_data *)editor->mode_data)->subject);
+    free(editor->mode_data);
+}
+
+void
+board_cancel(struct editor *editor)
+{
+    if (IS_PLAYING(editor->desc))
+        act("$n's awareness returns to $s surroundings.", true,
+            editor->desc->creature, 0, 0, TO_NOTVICT);
+    free(((struct board_data *)editor->mode_data)->board);
+    free(((struct board_data *)editor->mode_data)->subject);
+    free(editor->mode_data);
+}
+void
+start_editing_board(struct descriptor_data *d,
                     const char *b_name,
                     int idnum,
                     const char *subject,
@@ -41,52 +84,18 @@ start_editing_board(descriptor_data *d,
 
     SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
 
-	d->text_editor = new CBoardEditor(d, b_name, idnum, subject, body);
-}
+    struct board_data *data;
 
-CBoardEditor_CBoardEditor(descriptor_data *desc,
-                           const char *b_name,
-                           int id,
-                           const char *s,
-                           const char *b)
-    : CEditor(desc, MAX_STRING_LENGTH)
-{
-    board_name = strdup(b_name);
-    subject = strdup(s);
+    CREATE(data, struct board_data, 1);
+    data->idnum = idnum;
+    data->board = strdup(b_name);
+    data->subject = strdup(subject);
 
-    idnum = id;
-    if (b)
-        ImportText(b);
+	d->text_editor = make_editor(d, MAX_STRING_LENGTH, body);
+    d->text_editor->do_command = board_command;
+    d->text_editor->finalize = board_finalize;
+    d->text_editor->cancel = board_cancel;
 
-    SendStartupMessage();
-    DisplayBuffer();
-}
-
-CBoardEditor_~CBoardEditor(void)
-{
-    free(board_name);
-    free(subject);
-}
-
-bool
-CBoardEditor_PerformCommand(char cmd, char *args)
-{
-    switch (cmd) {
-    case 'u':
-        UndoChanges();
-        break;
-    default:
-        return CEditor_PerformCommand(cmd, args);
-    }
-
-    return true;
-}
-
-void
-CBoardEditor_Finalize(const char *text)
-{
-    gen_board_save(desc->creature, board_name, idnum, subject, text);
-
-    if (IS_PLAYING(desc))
-        act("$n nods with satisfaction as $e saves $s work.", true, desc->creature, 0, 0, TO_NOTVICT);
+    emit_editor_startup(d->text_editor);
+    display_buffer(d->text_editor);
 }

@@ -1,7 +1,7 @@
 #ifdef HAS_CONFIG_H
 #include "config.h"
 #endif
-
+/*
 #include <dirent.h>
 #include <string.h>
 #include "constants.h"
@@ -175,10 +175,10 @@ load_xml_object(xmlNodePtr node)
 	obj->shared->cost = xmlGetIntProp(node, "cost");
 	obj->shared->cost_per_day = xmlGetIntProp(node, "rent");
 
-/*	obj->obj_flags.type_flag = xmlGetEnumProp(node, "type", item_types);
+	obj->obj_flags.type_flag = xmlGetEnumProp(node, "type", item_types);
 
 	obj->obj_flags.material = xmlGetEnumProp(node, "material", materials);
-*/	obj->obj_flags.max_dam = xmlGetIntProp(node, "maxdamage");
+	obj->obj_flags.max_dam = xmlGetIntProp(node, "maxdamage");
 	obj->obj_flags.damage = xmlGetIntProp(node, "damage");
 
 	obj->setWeight(xmlGetIntProp(node, "weight"));
@@ -186,7 +186,6 @@ load_xml_object(xmlNodePtr node)
 
 	obj->name = xmlGetProp(node, "name");
 
-/*
 	for (cur_node = node->xmlChildrenNode; cur_node; cur_node = cur_node->next) {
 		if (!xmlStrcmp(cur_node->name, (const xmlChar *)"aliases"))
 			obj->name = xmlNodeListGetString(doc, cur_node, 1);
@@ -216,17 +215,16 @@ load_xml_object(xmlNodePtr node)
 			errlog("Invalid xml node in <object>");
 		}
 	}
-*/
 
 	obj->next = NULL;
-/*	if (obj_proto) {
+	if (obj_proto) {
 		tmp_obj = obj_proto;
 		while (tmp_obj->next)
 			tmp_obj = tmp_obj->next;
 		tmp_obj->next = obj;
 	} else {
 		obj_proto = obj;
-	}*/
+	}
     objectPrototypes.add(obj);
 }
 
@@ -247,7 +245,6 @@ load_xml_mobile(xmlNodePtr node)
 
 	mob->player_specials = &dummy_mob;
 
-/*
 	// Read in the subnodes
 	for (cur_node = node->xmlChildrenNode; cur_node; cur_node = cur_node->next) {
 		if (!xmlStrcmp(cur_node->name, (const xmlChar *)"aliases"))
@@ -319,8 +316,6 @@ load_xml_mobile(xmlNodePtr node)
 		}
 	}
 
-*/
-
 	// Now set constant and data-dependent variables
 	MOB_SHARED(mob)->proto = mob;
 
@@ -357,7 +352,6 @@ load_xml_room(xmlNodePtr node)
 //	room->sector = xmlGetEnumProp(node, "sector", sector_enum);
 	room->max_occupancy = xmlGetIntProp(node, "size");
 
-/*
 	for (cur_node = node->xmlChildrenNode; cur_node; cur_node = cur_node->next) {
 		if (!xmlStrcmp(cur_node->name, "description")) {
 			room->description = xmlNodeListGetString(doc, cur_node, 1);
@@ -441,9 +435,9 @@ load_xml_room(xmlNodePtr node)
 		}
 	}
 
-*/
 	if (IS_SET(room->room_flags, ROOM_TUNNEL) && room->max_occupancy > 5) {
 		room->max_occupancy = 2;
 		REMOVE_BIT(room->room_flags, ROOM_TUNNEL);
 	}
 }
+*/
