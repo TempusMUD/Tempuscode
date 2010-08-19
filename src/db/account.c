@@ -694,14 +694,14 @@ void
 account_deposit_past_bank(struct account *account, money_t amt)
 {
     if (amt > 0)
-        set_past_bank(account->bank_past + amt);
+        set_past_bank(account, account->bank_past + amt);
 }
 
 void
 account_deposit_future_bank(struct account *account, money_t amt)
 {
     if (amt > 0)
-        set_future_bank(account->bank_future + amt);
+        set_future_bank(account, account->bank_future + amt);
 }
 
 void
@@ -711,7 +711,7 @@ account_withdraw_past_bank(struct account *account, money_t amt)
         return;
     if (amt > account->bank_past)
         amt = account->bank_past;
-    set_past_bank(account->bank_past - amt);
+    set_past_bank(account, account->bank_past - amt);
 }
 
 void
@@ -721,7 +721,7 @@ account_withdraw_future_bank(struct account *account, money_t amt)
         return;
     if (amt > account->bank_future)
         amt = account->bank_future;
-    set_future_bank(account->bank_future - amt);
+    set_future_bank(account, account->bank_future - amt);
 }
 
 void
@@ -737,30 +737,25 @@ account_set_email_addr(struct account *account, const char *addr)
 long
 account_get_char_by_index(struct account *account, int idx)
 {
-    return account->chars[idx - 1];
+    return GPOINTER_TO_INT(g_list_nth_data(account->chars, idx - 1));
 }
 
 bool
 account_invalid_char_index(struct account *account, int idx)
 {
-    return (idx < 1 || idx > (int)account->chars.size());
+    return (idx < 1 || idx > g_list_length(account->chars));
 }
 
 void
 account_move_char(struct account *account, long id, struct account *dest)
 {
-    vector<long>account->iterator it;
-
     // Remove character from account
-    it = lower_bound(_chars.begin(), _chars.end(), id);
-    if (it != _chars.end())
-        _chars.erase(it);
+    account->chars = g_list_remove(account->chars, GPOINTER_TO_INT(id));
 
     // Get the player's name before we delete from player table
-    dest->_chars.push_back(id);
-    sort(dest->_chars.begin(), dest->_chars.end());
+    dest->chars = g_list_prepend(dest->chars, GINT_TO_POINTER(id));
     sql_exec("update players set account=%d where idnum=%ld",
-        dest->_id, id);
+        dest->id, id);
 }
 
 void
@@ -768,25 +763,26 @@ account_exhume_char(struct account *account,
                     struct creature *exhumer,
                     long id )
 {
-    if( playerIndex.exists(id) ) {
+    if( PlayerTable_exists(id) ) {
         send_to_char(exhumer, "That character has already been exhumed.\r\n");
         return;
     }
 
     // load char from file
-    struct creature* victim = new struct creature(true);
-    if( victim->loadFromXML(id) ) {
+    struct creature *victim;
+    CREATE(victim, struct creature, 1);
+    if (loadFromXML(victim, id)) {
         sql_exec("insert into players (idnum, account, name) values (%ld, %d, '%s')",
             GET_IDNUM(victim), account->id, tmp_sqlescape(GET_NAME(victim)));
-        this->load_players();
+        load_players(account);
         send_to_char(exhumer, "%s exhumed.\r\n",
-                    tmp_capitalize( GET_NAME(victim) ) );
+                    tmp_capitalize(GET_NAME(victim)));
         slog("%s[%ld] exhumed into account %s[%d]", GET_NAME(victim),
             GET_IDNUM(victim), account->name, account->id);
     } else {
         send_to_char(exhumer, "Unable to load character %ld.\r\n", id );
     }
-    delete victim;
+    free_creature(victim);
 }
 
 bool
@@ -800,35 +796,39 @@ account_deny_char_entry(struct account *account, struct creature *ch)
     if (Security_isMember(ch, "AdminFull"))
         return false;
 
-    struct creatureList_iterator cit = characterList.begin();
-    for (;cit != characterList.end(); ++cit) {
-        tch = *cit;
-        if (tch->account == this) {
+    bool override = false;
+    bool found = false;
+
+    void check_existing_char(struct creature *tch, gpointer ignore) {
+        if (tch->account == account) {
             // Admins and full wizards can multi-play all they want
             if (Security_isMember(tch, "WizardFull"))
-                return false;
+                override = true;
             if (Security_isMember(tch, "AdminFull"))
-                return false;
+                override = true;
             // builder can have on a tester and vice versa.
-            if (Security_isMember(tch, "OLC") && ch->isTester())
-                return false;
-            if (ch->isTester() && Security_isMember(tch, "OLC"))
-                return false;
+            if (Security_isMember(ch, "OLC") && isTester(tch))
+                override = true;
+            if (isTester(ch) && Security_isMember(tch, "OLC"))
+                override = true;
             // We have a non-immortal already in the game, so they don't
             // get to come in
-            return true;
+            found = true;
         }
     }
+    g_list_foreach(creatures, check_existing_char, 0);
+    if (override)
+        return false;
 
-    return false;
+    return found;
 }
 
 bool
 account_is_logged_in(struct account *account)
 {
-    list<descriptor_data*> connections;
-    for( descriptor_data *d = descriptor_list; d != NULL; d = d->next ) {
-        if( d->account == this ) {
+    struct descriptor_data *d;
+    for (d = descriptor_list; d != NULL; d = d->next) {
+        if (d->account == account) {
             return true;
         }
     }
@@ -845,15 +845,11 @@ account_update_last_entry(struct account *account)
 bool
 account_isTrusted(struct account *account, long idnum)
 {
-    vector<long>_iterator it;
+    if (g_list_find(account->chars, GINT_TO_POINTER(idnum)))
+        return true;
 
-    for (it = account->chars.begin();it != _chars.end();it++)
-        if (*it == idnum)
-            return true;
-
-    for (it = _trusted.begin();it != _trusted.end();it++)
-        if (*it == idnum)
-            return true;
+    if (g_list_find(account->trusted, GINT_TO_POINTER(idnum)))
+        return true;
 
     return false;
 }
@@ -861,41 +857,29 @@ account_isTrusted(struct account *account, long idnum)
 void
 account_trust(struct account *account, long idnum)
 {
-    vector<long>_iterator it;
-
-    for (it = _trusted.begin();it != _trusted.end();it++)
-        if (*it == idnum)
-            return;
-
-    _trusted.push_back(idnum);
+    if (g_list_find(account->trusted, GINT_TO_POINTER(idnum)))
+        return;
+    account->trusted = g_list_prepend(account->trusted, GINT_TO_POINTER(idnum));
     sql_exec("insert into trusted (account, player) values (%d, %ld)",
-        _id, idnum);
+        account->id, idnum);
 }
 
 void
 account_distrust(struct account *account, long idnum)
 {
-    vector<long>_iterator it;
-
-    for (it = _trusted.begin();it != _trusted.end();it++) {
-        if (*it == idnum) {
-            _trusted.erase(it);
-            sql_exec("delete from trusted where account=%d and player=%ld",
-                _id, idnum);
-            return;
-        }
-    }
+    account->trusted = g_list_remove(account->trusted, GINT_TO_POINTER(idnum));
+    sql_exec("delete from trusted where account=%d and player=%ld",
+             account->id, idnum);
 }
 
 void
 account_displayTrusted(struct account *account, struct creature *ch)
 {
-    vector<long>_iterator it;
     int col = 0;
 
-    for (it = _trusted.begin();it != _trusted.end();it++) {
-        if (playerIndex.exists(*it)) {
-            send_to_char(ch, "%20s   ", playerIndex.getName(*it));
+    void display_trusted_char(gint idnum, gpointer ignore) {
+        if (PlayerIndex_exists(idnum)) {
+            send_to_char(ch, "%20s   ", PlayerTable_getName(idnum));
             col += 1;
             if (col > 2) {
                 send_to_char(ch, "\r\n");
@@ -903,6 +887,7 @@ account_displayTrusted(struct account *account, struct creature *ch)
             }
         }
     }
+    g_list_foreach(account->trusted, display_trusted_char, 0);
     if (col)
         send_to_char(ch, "\r\n");
 }
@@ -985,23 +970,25 @@ int
 hasCharLevel(struct account *account, int level)
 {
     int idx = 1;
-    struct creature *tmp_ch = new struct creature(true);
+    struct creature *tmp_ch;
 
-    while (!this->invalid_char_index(idx)) {
-        tmp_ch->clear();
+    CREATE(tmp_ch, struct creature, 1);
 
-        if (!tmp_ch->loadFromXML(this->get_char_by_index(idx)))
+    while (!invalid_char_index(account, idx)) {
+        clear_creature(tmp_ch);
+
+        if (!loadFromXML(tmp_ch, get_char_by_index(account, idx)))
             return 0;
 
-        if (tmp_GET_LEVEL(ch) >= level) {
-            delete tmp_ch;
+        if (GET_LEVEL(tmp_ch) >= level) {
+            free_creature(tmp_ch);
             return idx;
         }
 
         idx++;
     }
 
-    delete tmp_ch;
+    free_creature(tmp_ch);
 
     return 0;
 }
@@ -1009,28 +996,30 @@ hasCharLevel(struct account *account, int level)
 int
 hasCharGen(struct account *account, int gen)
 {
-    struct creature *tmp_ch = new struct creature(true);
+    struct creature *tmp_ch;
     struct stat st;
     char *path;
     int idx;
 
-    for (idx = 1;!this->invalid_char_index(idx);idx++) {
-        tmp_ch->clear();
+    CREATE(tmp_ch, struct creature, 1);
+
+    for (idx = 1;!invalid_char_index(account, idx);idx++) {
+        clear_creature(tmp_ch);
 
         // test for file existence
-        path = get_player_file_path(this->get_char_by_index(idx));
+        path = get_player_file_path(get_char_by_index(account, idx));
         if (stat(path, &st) < 0)
             continue;
-        if (!tmp_ch->loadFromXML(path))
+        if (!loadFromXML(tmp_ch, path))
             continue;
 
         if (GET_REMORT_GEN(tmp_ch) >= gen) {
-            delete tmp_ch;
+            free_creature(tmp_ch);
             return idx;
         }
     }
 
-    delete tmp_ch;
+    free_creature(tmp_ch);
 
     return 0;
 }
@@ -1038,26 +1027,28 @@ hasCharGen(struct account *account, int gen)
 int
 account_countGens(struct account *account)
 {
-    struct creature *tmp_ch = new struct creature(true);
+    struct creature *tmp_ch;
     struct stat st;
     char *path;
     int idx;
     int genCount = 0;
 
-    for (idx = 1;!this->invalid_char_index(idx);idx++) {
-        tmp_ch->clear();
+    CREATE(tmp_ch, struct creature, 1);
+
+    for (idx = 1;!invalid_char_index(account, idx);idx++) {
+        clear_creature(tmp_ch);
 
         // test for file existence
-        path = get_player_file_path(this->get_char_by_index(idx));
+        path = get_player_file_path(get_char_by_index(account, idx));
         if (stat(path, &st) < 0)
             continue;
-        if (!tmp_ch->loadFromXML(path))
+        if (!loadFromXML(tmp_ch, path))
             continue;
 
         genCount += GET_REMORT_GEN(tmp_ch);
     }
 
-    delete tmp_ch;
+    free_creature(tmp_ch);
 
     return genCount;
 }
