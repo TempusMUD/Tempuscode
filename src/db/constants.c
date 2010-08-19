@@ -3459,7 +3459,7 @@ const char *spell_bit_keywords[] = {
 	"\n"
 };
 
-const weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
+const struct weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
 	{
 	3.5, 3},					// mage
 	{

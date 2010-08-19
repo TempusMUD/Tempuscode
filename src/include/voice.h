@@ -39,32 +39,26 @@ enum {
     VOICE_ANIMAL = 2
 };
 
-struct Voice {
-    struct  {
-        char situation;
-        char *command;
-    };
-    Voice();
-    Voice(const Voice &o);
-    ~Voice(void);
-    Voice &operator=(const Voice &o);
-
-    void clear(void);
-    bool load(xmlNodePtr node);
-    void perform(struct creature *ch, void *vict, voice_situation situation);
-
-    int _idnum;
-    std_string _name;
-    std_map<int, std::vector< std::string > > _emits;
+struct voice_responses {
+    enum voice_situation situation;
+    char *command;
 };
 
-extern std_map<int,Voice> voices;
+struct voice {
+    int _idnum;
+    char * _name;
+    GHashTable *emits;
+};
+
+GHashTable *voices;
 
 #define GET_VOICE(ch) ((ch)->mob_specials.shared->voice)
 
 const char *voice_name(int voice_idx);
 int find_voice_idx_by_name(const char *voice_name);
-void emit_voice(struct creature *ch, void *vict, voice_situation situation);
+void emit_voice(struct creature *ch,
+                void *vict,
+                enum voice_situation situation);
 void show_voices(struct creature *ch);
 
 #endif

@@ -24,11 +24,10 @@
 #include "specs.h"
 #include "comm.h"
 #include "materials.h"
-#include "obj_matcher.h"
 #include "interpreter.h"
 #include "screen.h"
 #include "tmpstr.h"
-
+/*
 //
 // TYPE
 //
@@ -456,3 +455,4 @@ bool ObjectExtraMatcher_isMatch( struct obj_data *obj ) {
 	return isReady();
 }
 
+*/

@@ -29,6 +29,8 @@
 #include <errno.h>
 #include <signal.h>
 #include <dirent.h>
+#include <glib.h>
+
 #include "structs.h"
 #include "constants.h"
 #include "utils.h"
@@ -49,15 +51,13 @@
 #include "olc.h"
 #include "help.h"
 #include "tmpstr.h"
-#include "player_table.h"
 #include "account.h"
 #include "specs.h"
 #include "language.h"
 #include "voice.h"
 #include "prog.h"
-#include "mobile_map.h"
-#include "object_map.h"
 #include "vendor.h"
+#include "weather.h"
 
 #define ZONE_ERROR(message) \
 { zerrlog(zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); last_cmd = 0; }
@@ -74,12 +74,14 @@ struct obj_data *object_list = NULL;	/* global linked list of objs         */
 struct obj_data *obj_proto;		/* prototypes for objs                 */
 struct obj_shared_data *null_obj_shared;
 struct mob_shared_data *null_mob_shared;
-map<int,struct room_data*> rooms;
+GHashTable *rooms;
+GHashTable *mob_prototypes;
+GHashTable *obj_prototypes;
 
 struct zone_data *zone_table;	/* zone table                         */
 int top_of_zone_table = 0;		/* top element of zone tab         */
 struct message_list fight_messages[MAX_MESSAGES];	/* fighting messages  */
-extern HelpCollection *Help;
+extern struct help_collection *Help;
 
 int no_plrtext = 0;				/* player text disabled?         */
 
@@ -282,6 +284,9 @@ ACMD(do_reboot)
 void
 boot_world(void)
 {
+    rooms = g_hash_table_new(g_int_hash, g_int_equal);
+    mob_prototypes = g_hash_table_new(g_int_hash, g_int_equal);
+    obj_prototypes = g_hash_table_new(g_int_hash, g_int_equal);
 	slog("Loading zone table.");
 	index_boot(DB_BOOT_ZON);
 
@@ -346,7 +351,7 @@ boot_db(void)
 	top_unique_id = atol(PQgetvalue(res, 0, 0));
 	slog("Top unique object id = %ld", top_unique_id);
 
-	struct account_boot();
+	account_boot();
 	load_bounty_data();
 	slog("Reading credits, bground, info & motds.");
 	file_to_string_alloc(CREDITS_FILE, &credits);
@@ -428,8 +433,8 @@ boot_db(void)
         slog("HOUSE: Mini-mud detected. Houses not loading.");
 	} else {
 		slog("HOUSE: Booting houses.");
-		Housing.load();
-		Housing.countObjects();
+		Housing_load();
+		Housing_countObjects();
 	}
 
 	if (!no_initial_zreset) {
@@ -441,8 +446,8 @@ boot_db(void)
 	}
 
 	slog("Booting help system.");
-	Help = new HelpCollection;
-	if (Help->LoadIndex())
+    CREATE(Help, struct help_collection, 1);
+	if (LoadIndex(Help))
 		slog("Help system boot succeeded.");
 	else
 		errlog("Help System Boot FAILED.");
@@ -462,32 +467,6 @@ boot_db(void)
 void
 clear_world(void)
 {
-	MobileMap_iterator mit = mobilePrototypes.begin();
-	for (; mit != mobilePrototypes.end(); ++mit) {
-		struct creature *mobile = mit->second;
-        free(MOB_SHARED(mobile)->func_param);
-        free(MOB_SHARED(mobile)->load_param);
-        free(MOB_SHARED(mobile)->prog);
-        delete [] MOB_SHARED(mobile)->progobj;
-        free(MOB_SHARED(mobile)->move_buf);
-        free(mobile->mob_specials.shared);
-        mobile->mob_specials.shared = NULL;
-        delete mobile;
-    }
-
-	ObjectMap_iterator oit = objectPrototypes.begin();
-	for (; oit != objectPrototypes.end(); ++oit) {
-		struct obj_data *object = oit->second;
-        free(object->shared->func_param);
-        free(object->shared);
-        object->shared = NULL;
-        free_obj(object);
-    }
-
-    extern std_vector<Craftshop *> shop_list;
-    std_vector<Craftshop *>::iterator sit = shop_list.begin();
-    for (; sit != shop_list.end(); ++sit)
-        delete *sit;
 }
 
 /* reset the time in the game from file */
@@ -843,7 +822,9 @@ parse_room(FILE * fl, int vnum_nr)
 		}
 	}
 
-	room = new struct room_data(vnum_nr, zone);
+    CREATE(room, struct room_data, 1);
+    room->number = vnum_nr;
+    room->zone = zone;
 	room->name = fread_string(fl, buf2);
 	room->description = fread_string(fl, buf2);
 	room->sounds = NULL;
@@ -1223,23 +1204,27 @@ void
 renum_world(void)
 {
     // store the rooms in a map temoporarily for use in lookups
-	for( struct zone_data* zone = zone_table; zone; zone = zone->next) {
-		for( struct room_data* room = zone->world; room; room = room->next) {
-            rooms[room->number] = room;
+    struct zone_data *zone;
+    struct room_data* room;
+    int door;
+
+	for(zone = zone_table; zone; zone = zone->next) {
+		for (room = zone->world; room; room = room->next) {
+            g_hash_table_insert(rooms, GINT_TO_POINTER(room->number), room);
         }
     }
-	slog("%zd rooms loaded.", rooms.size());
+	slog("%u rooms loaded.", g_hash_table_size(rooms));
     // lookup each room's doors and reconnect the to_room pointers
-    for( struct zone_data* zone = zone_table; zone; zone = zone->next) {
-		for( struct room_data* room = zone->world; room; room = room->next) {
-			for (int door = 0; door < NUM_OF_DIRS; ++door) {
+    for (zone = zone_table; zone; zone = zone->next) {
+		for (room = zone->world; room; room = room->next) {
+			for (door = 0; door < NUM_OF_DIRS; ++door) {
 				if (room->dir_option[door]) {
                     // the to_room pointer has the room # stored in it during bootup
                     int vnum = (long int)room->dir_option[door]->to_room;
                     room->dir_option[door]->to_room = NULL;
                     // if it points somewhere and is in the map
-					if( vnum != NOWHERE && rooms.count(vnum) > 0 ) {
-                        room->dir_option[door]->to_room = rooms[vnum];
+					if( vnum != NOWHERE && g_hash_table_lookup(rooms, GINT_TO_POINTER(vnum)) > 0 ) {
+                        room->dir_option[door]->to_room = g_hash_table_lookup(rooms, GINT_TO_POINTER(vnum));
                     }
                 }
             }
@@ -1321,20 +1306,21 @@ void
 compile_all_progs(void)
 {
 	// Compile all room progs
-    for (struct zone_data *zone = zone_table; zone; zone = zone->next)
-		for (struct room_data *room = zone->world; room; room = room->next)
+    struct zone_data *zone;
+    struct room_data *room;
+    for (zone = zone_table; zone; zone = zone->next)
+		for (room = zone->world; room; room = room->next)
           if (room->prog)
             prog_compile(NULL, room, PROG_TYPE_ROOM);
 
 	// Compile all mob progs
-	MobileMap_iterator mit = mobilePrototypes.begin();
-	struct creature *mobile;
-
-	for (; mit != mobilePrototypes.end(); ++mit) {
-		mobile = mit->second;
-		if (MOB_SHARED(mobile)->prog)
-		  prog_compile(NULL, mobile, PROG_TYPE_MOBILE);
-	}
+    void maybe_compile_prog(gpointer key,
+                            struct creature *mob,
+                            gpointer ignore) {
+        if (MOB_SHARED(mob)->prog)
+            prog_compile(NULL, mob, PROG_TYPE_MOBILE);
+    }
+    g_hash_table_foreach(mob_prototypes, maybe_compile_prog, 0);
 }
 
 void
@@ -1732,7 +1718,8 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile, int n
     }
     CASE("KnownLang") {
         // deprecated conversion
-        for (int i = 0;i < 32;i++)
+        int i;
+        for (i = 0;i < 32;i++)
             if ((1 << i) & num_arg)
                 SET_TONGUE(mobile, i + 1, 100);
     }
@@ -1808,7 +1795,7 @@ parse_mobile(FILE * mob_f, int nr)
 	char f1[128], f2[128], f3[128], f4[128], f5[128];
 	struct creature *mobile = NULL, *tmp_mob = NULL;
 
-	mobile = new struct creature(false);
+    CREATE(mobile, struct creature, 1);
 
 	tmp_mob = real_mobile_proto(nr);
 
@@ -1892,16 +1879,9 @@ parse_mobile(FILE * mob_f, int nr)
 	mobile->desc = NULL;
     set_initial_tongue(mobile);
 
-	if (!mobilePrototypes.add(mobile)) {
-        free(MOB_SHARED(mobile)->func_param);
-        free(MOB_SHARED(mobile)->load_param);
-        free(MOB_SHARED(mobile)->prog);
-        free(MOB_SHARED(mobile)->progobj);
-        free(MOB_SHARED(mobile)->move_buf);
-        free(mobile->mob_specials.shared);
-        mobile->mob_specials.shared = NULL;
-        delete mobile;
-    }
+    g_hash_table_insert(mob_prototypes,
+                        GINT_TO_POINTER(GET_MOB_VNUM(mobile)),
+                        mobile);
 }
 
 /* read all objects from obj file; generate index and prototypes */
@@ -1918,7 +1898,7 @@ parse_object(FILE * obj_f, int nr)
 
 	CREATE(obj, struct obj_data, 1);
 
-	obj->clear();
+	clear_object(obj);
 
 	CREATE(obj->shared, struct obj_shared_data, 1);
 
@@ -2010,7 +1990,7 @@ parse_object(FILE * obj_f, int nr)
 			retval, buf2);
 		safe_exit(1);
 	}
-	obj->setWeight(t[0]);
+	obj->obj_flags.weight = t[0];
 	obj->shared->cost = t[1];
 	obj->shared->cost_per_day = t[2];
     if (t[3] < 0)
@@ -2020,8 +2000,8 @@ parse_object(FILE * obj_f, int nr)
 	/* check to make sure that weight of containers exceeds curr. quantity */
 	if (obj->obj_flags.type_flag == ITEM_DRINKCON ||
 		obj->obj_flags.type_flag == ITEM_FOUNTAIN) {
-		if (obj->getWeight() < obj->obj_flags.value[1])
-			obj->setWeight(obj->obj_flags.value[1] + 5);
+		if (obj->obj_flags.weight < obj->obj_flags.value[1])
+			obj->obj_flags.weight = obj->obj_flags.value[1] + 5;
 	}
 
 	/* *** extra descriptions and affect fields *** */
@@ -2077,12 +2057,9 @@ parse_object(FILE * obj_f, int nr)
 		case '$':
 		case '#':
 			obj->next = NULL;
-            if (!objectPrototypes.add(obj)) {
-                free(obj->shared->func_param);
-                free(obj->shared);
-                obj->shared = NULL;
-                free_obj(obj);
-            }
+        g_hash_table_insert(obj_prototypes,
+                            GINT_TO_POINTER(GET_OBJ_VNUM(obj)),
+                            obj);
 			return line;
 			break;
 		default:
@@ -2312,25 +2289,19 @@ vnum_mobile(char *searchname, struct creature *ch)
 	struct creature *mobile;
 	int found = 0;
 
-	strcpy(buf, "");
+	acc_string_clear();
 
-	MobileMap_iterator mit = mobilePrototypes.begin();
-	for (; mit != mobilePrototypes.end(); ++mit) {
-		mobile = mit->second;
-		if (namelist_match(searchname, mobile->player.name)) {
-			sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
+    int mobile_matches(gpointer vnum, struct creature *mob, gpointer ignore) {
+		if (namelist_match(searchname, mob->player.name))
+            acc_sprintf("%s%3d. %s[%s%5d%s]%s %s%s\r\n", ++found,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 				mobile->mob_specials.shared->vnum,
 				CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
 				mobile->player.short_descr, CCNRM(ch, C_NRM));
-			if (strlen(buf) + 128 > MAX_STRING_LENGTH) {
-				strcat(buf, "**OVERFLOW**\r\n");
-				break;
-			}
-		}
-	}
+    }
+    g_hash_table_foreach(mob_prototypes, mobile_matches, 0);
 	if (found)
-		page_string(ch->desc, buf);
+		page_string(ch->desc, acc_get_string());
 	return (found);
 }
 
@@ -2340,24 +2311,19 @@ vnum_object(char *searchname, struct creature *ch)
 	struct obj_data *obj = NULL;
 	int found = 0;
 
-	strcpy(buf, "");
-    ObjectMap_iterator oi = objectPrototypes.begin();
-    for (; oi != objectPrototypes.end(); ++oi) {
-        obj = oi->second;
+	acc_string_clear();
+
+    int object_matches(gpointer vnum, struct obj_data *obj, gpointer ignore) {
 		if (namelist_match(searchname, obj->aliases)) {
 			sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
 				CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
 				obj->name, CCNRM(ch, C_NRM));
-			if (strlen(buf) + 128 > MAX_STRING_LENGTH) {
-				strcat(buf, "**OVERFLOW**\r\n");
-				break;
-			}
 		}
-	}
+    }
+    g_hash_table_foreach(obj_prototypes, object_matches, 0);
 	if (found)
-		page_string(ch->desc, buf);
-
+		page_string(ch->desc, acc_get_string());
 	return (found);
 }
 
@@ -2371,7 +2337,10 @@ read_mobile(int vnum)
 		sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
 		return (NULL);
 	}
-    mob = new struct creature(*tmp_mob);
+    CREATE(mob, struct creature, 1);
+
+    *mob = *tmp_mob;
+
     tmp_mob->mob_specials.shared->number++;
     tmp_mob->mob_specials.shared->loaded++;
 
@@ -2404,8 +2373,8 @@ read_mobile(int vnum)
                                        (int)(GET_CASH(mob) * 0.15), -1, -1);
     }
 
-    characterList.add(mob);
-    characterMap[-MOB_IDNUM(mob)] = mob;
+    g_list_prepend(creatures, mob);
+    g_hash_table_insert(creature_map, GINT_TO_POINTER(-MOB_IDNUM(mob)), mob);
 
 	return mob;
 }
@@ -2417,14 +2386,15 @@ int on_load_equip( struct creature *ch, int vnum, char* position, int maxload, i
 bool
 process_load_param( struct creature *ch )
 {
-	char* str = GET_LOAD_PARAM(ch);
+	char *str = GET_LOAD_PARAM(ch);
+    char *line;
 	int mob_id = ch->mob_specials.shared->vnum;
 	int lineno = 0;
 	int last_cmd = 0;
 	if( str == NULL )
 		return false;
 
-	for( char* line = tmp_getline(&str); line; line = tmp_getline(&str) ) {
+	for(line = tmp_getline(&str); line; line = tmp_getline(&str) ) {
 		++lineno;
 		char *param_key = tmp_getword(&line);
 		if( strcasecmp(param_key, "LOAD") == 0 ) {
@@ -2523,7 +2493,7 @@ on_load_equip( struct creature *ch, int vnum, char* position, int maxload, int p
 	    SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 	}
 	if( pos == ITEM_WEAR_TAKE ) {
-		obj_to_char( obj, ch, true );
+		obj_to_char(obj, ch);
 	} else {
 		int mode = EQUIP_WORN;
 		if( IS_OBJ_STAT2(obj, ITEM2_IMPLANT) ) {
@@ -2554,7 +2524,7 @@ create_obj(void)
 
 	CREATE(obj, struct obj_data, 1);
 
-	obj->clear();
+	clear_object(obj);
 
 	obj->next = object_list;
 	object_list = obj;
@@ -2586,7 +2556,7 @@ randomize_object(struct obj_data *obj)
 			else
 				total_affs++;
 		}
-	obj->normalizeApplies();
+	normalizeApplies(obj);
 
 	// Affects
 	for (idx = 0;idx < 32;idx++) {
@@ -2712,7 +2682,7 @@ read_object(int vnum)
 {
 	struct obj_data *obj = NULL, *tmp_obj = NULL;
 
-	if (!(tmp_obj = objectPrototypes.find(vnum))) {
+	if (!(tmp_obj = g_hash_table_lookup(obj_prototypes, GINT_TO_POINTER(vnum)))) {
 		slog("Object (V) %d does not exist in database.", vnum);
 		return NULL;
 	}
@@ -2832,20 +2802,14 @@ reset_zone(struct zone_data *zone)
 	struct special_search_data *srch = NULL;
 
 	// Send SPECIAL_RESET notification to all mobiles with specials
-	struct creatureList_iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		// Wrong zone
-		if ((*cit)->in_room->zone != zone)
-			continue;
-		// No special
-		if (!MOB_FLAGGED((*cit), MOB_SPEC))
-			continue;
-		// Mobile with special gets a reset notice
-		if (GET_MOB_SPEC((*cit))) {
-			GET_MOB_SPEC((*cit))((*cit), (*cit), 0, tmp_strdup(""), SPECIAL_RESET);
-			continue;
+    void send_special_reset(struct creature *tch, gpointer ignore) {
+		if (tch->in_room->zone == zone
+            && MOB_FLAGGED(tch, MOB_SPEC)
+            && GET_MOB_SPEC(tch)) {
+			GET_MOB_SPEC(tch)(tch, tch, 0, tmp_strdup(""), SPECIAL_RESET);
 		}
 	}
+    g_list_foreach(creatures, send_special_reset, 0);
 
 	for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S';
 		zonecmd = zonecmd->next, cmd_no++) {
@@ -2886,16 +2850,14 @@ reset_zone(struct zone_data *zone)
 						break;
 					}
 					if (mob) {
-						char_to_room(mob, room,false);
+						char_to_room(mob, room);
 						if (GET_MOB_LEADER(mob) > 0) {
                             void do_follow(struct creature *tch, gpointer ignore) {
-								if (tch != mob && IS_NPC(tch)
-									&& GET_MOB_VNUM(tch) ==
-									GET_MOB_LEADER(mob)) {
-									if (!circle_follow(mob, tch)) {
+								if (tch != mob
+                                    && IS_NPC(tch)
+									&& GET_MOB_VNUM(tch) == GET_MOB_LEADER(mob)) {
+									if (!circle_follow(mob, tch))
 										add_follower(mob, tch);
-										break;
-									}
                                 }
                             }
                             g_list_foreach(mob->in_room->people, add_follower, 0);
@@ -3325,13 +3287,13 @@ free_obj(struct obj_data *obj)
 			obj->ex_description = NULL;
 		}
         while (obj->tmp_affects) {
-            tmp_obj_affect *aff;
+            struct tmp_obj_affect *aff;
 
             aff = obj->tmp_affects;
-            obj->removeAffect(aff);
+            removeAffect(obj, aff);
         }
 	}
-	free(obj);
+	free_object(obj);
 }
 
 /* read contets of a text file, alloc space, point buf to it */
@@ -3403,9 +3365,7 @@ file_to_string(const char *name, char *buf)
 struct room_data *
 real_room(int vnum)
 {
-	if (rooms.count(vnum) < 1)
-        return NULL;
-    return rooms[vnum];
+	return g_hash_table_lookup(rooms, vnum);
 }
 
 struct zone_data *
@@ -3427,13 +3387,13 @@ real_zone(int number)
 struct creature *
 real_mobile_proto(int vnum)
 {
-    return mobilePrototypes.find(vnum);
+    return g_hash_table_lookup(mob_prototypes, vnum);
 }
 
 struct obj_data *
 real_object_proto(int vnum)
 {
-    return objectPrototypes.find(vnum);
+    return g_hash_table_lookup(obj_prototypes, vnum);
 }
 
 void
@@ -3591,7 +3551,8 @@ sql_query(const char *str, ...)
 		slog("FROM SQL: %s", query);
 	}
 
-	sql_query_data *rec = new sql_query_data;
+	struct sql_query_data *rec;
+    CREATE(rec, struct sql_query_data, 1);
 	rec->next = sql_query_list;
 	rec->res = res;
 	sql_query_list = rec;
@@ -3602,12 +3563,12 @@ sql_query(const char *str, ...)
 void
 sql_gc_queries(void)
 {
-	sql_query_data *cur_query, *next_query;
+	struct sql_query_data *cur_query, *next_query;
 
 	for (cur_query = sql_query_list;cur_query;cur_query = next_query) {
 		next_query = cur_query->next;
 		PQclear(cur_query->res);
-		delete cur_query;
+		free(cur_query);
 	}
 
 	sql_query_list = NULL;

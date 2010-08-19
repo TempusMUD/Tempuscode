@@ -20,7 +20,7 @@
 #ifdef HAS_CONFIG_H
 #include "config.h"
 #endif
-
+/*
 #include <string.h>
 
 #include "structs.h"
@@ -33,10 +33,10 @@
 #include "tmpstr.h"
 #include "object_map.h"
 
-/**
- * A table of ObjectMatcher objects used to do matching searches
- * of virtual objects.
-**/
+//
+// A table of ObjectMatcher objects used to do matching searches
+// of virtual objects.
+
 struct ObjectMatcherTable {
 	private:
 		vector<ObjectMatcher*> table;
@@ -68,11 +68,11 @@ struct ObjectMatcherTable {
 			}
             return msg;
 		}
-		/** returns the number of matchers in the table. **/
+		// * returns the number of matchers in the table. *
 		int size() {
 			return (int) table.size();
 		}
-		/** returns true if all matchers initialized properly. **/
+		// * returns true if all matchers initialized properly. *
 		bool init(struct creature *ch, Tokenizer &tokens) {
 			char arg[256];
 			while( tokens.next(arg) ) {
@@ -93,7 +93,7 @@ struct ObjectMatcherTable {
 			_ready = true;
 			return true;
 		}
-		/** returns true if the object is matched by all matchers. **/
+		// * returns true if the object is matched by all matchers. *
 		bool isMatch( struct obj_data *obj ) {
 			for( unsigned int i = 0; i < table.size(); i++  ) {
 				if( table[i]->isReady() && !table[i]->isMatch(obj) ) {
@@ -102,7 +102,7 @@ struct ObjectMatcherTable {
 			}
 			return true;
 		}
-		/** returns true if the given matcher is being used. **/
+		// * returns true if the given matcher is being used. *
 		bool isUsed( const char* matcherKey ) {
 			for( unsigned int i = 0; i < table.size(); i++  ) {
 				if( table[i]->isKey(matcherKey) )
@@ -132,11 +132,11 @@ struct ObjectMatcherTable {
 		}
 };
 
-/**
- * prints a delightfull description of the given object into the
- * given buffer of the given size, using ch for it's color and
- * showing or not showing spell names.
-**/
+//
+// prints a delightfull description of the given object into the
+// given buffer of the given size, using ch for it's color and
+// showing or not showing spell names.
+
 char*
 sprintobj( struct creature *ch, struct obj_data *obj, ObjectMatcherTable &table, int num )
 {
@@ -195,3 +195,4 @@ do_show_objects( struct creature *ch, char *value, char *arg ) {
 
 	page_string(ch->desc, msg);
 }
+*/

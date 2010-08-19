@@ -110,13 +110,13 @@ bool OLCIMP(struct creature * ch);
 
 void acc_format_search_data(struct creature *ch,
                             struct room_data *room,
-                            special_search_data *cur_search);
+                            struct special_search_data *cur_search);
 void print_search_data_to_buf(struct creature *ch,
                               struct room_data *room,
                               struct special_search_data *cur_search,
                               char *buf);
 
 void show_olc_help(struct creature *ch, char *arg);
-int mobile_experience(struct creature *mob, FILE *outfile = NULL);
+int mobile_experience(struct creature *mob, FILE *outfile);
 
 #endif							// __OLC_H__

@@ -956,7 +956,8 @@ struct creature {
 
 /* ====================================================================== */
 
-GList *creatures;
+GList *creatures = NULL;
+GHashTable *creature_map = NULL;
 
 struct creature *random_opponent(struct creature *ch);
 

@@ -36,51 +36,7 @@ struct creature;
 
 #define MAX_HELP_NAME_LENGTH 128
 #define MAX_HELP_TEXT_LENGTH 16384
-struct HelpItem {
-	// Swap two items where they sit in the items list.
-	friend void SwapItems(HelpItem * A, HelpItem * Ap, HelpItem * B,
-		HelpItem * Bp);
-
-	// Most of this should be protected with help_collection as a friend class
-	// Member Funcs
-	 HelpItem();
-	~HelpItem();
-
-	// Returns the next HelpItem
-	inline HelpItem *Next(void) {
-		return next;
-	}
-	// Sets the next helpitem
-	inline void SetNext(HelpItem * n) {
-		next = n;
-	}
-	// Returns the next HelpItem in the list to be shown
-	inline HelpItem *NextShow(void) {
-		return next_show;
-	}
-	// Set next item in the list to be shown
-	inline void SetNextShow(HelpItem * n) {
-		next_show = n;
-	}
-	bool Edit(struct creature * ch);	// Begin editing an item
-	bool Clear();				// Clear the item out.
-	void SetName(char *argument);
-	void SetKeyWords(char *argument);
-	void SetGroups(char *argument);
-	void SetDesc(char *argument);	// Actually sets "text" (body of the message)
-	void SetFlags(char *argument);
-	void EditText(void);
-	bool LoadText(void);
-	bool Save(void);			// Save the current entry to file.
-	bool IsInGroup(int thegroup);
-
-	// Show the entry.
-	// 0 == One Line Listing.
-	// 1 == One Line Stat
-	// 2 == Entire Entry
-	// 3 == Entire Entry Stat
-	void Show(struct creature * ch, char *buffer, int mode = 0);
-
+struct help_item {
 	// Data
 	int idnum;					// Unique Identifier
 	int counter;				// How many times has it been looked at
@@ -92,53 +48,17 @@ struct HelpItem {
 	char *name;					// The listed name of the help topic
 	char *text;					// The body of the help topic
 	struct creature *editor;
-	fstream help_file;
-	HelpItem *next;
-	HelpItem *next_show;
+	FILE *help_file;
+	struct help_item *next;
+	struct help_item *next_show;
 };
-struct HelpCollection {
 
-	friend void SwapItems(HelpItem * A, HelpItem * Ap, HelpItem * B,
-		HelpItem * Bp);
-	// Christ, most of this should probably be private...
-	// Member Funcs
-	 HelpCollection();
-	~HelpCollection();
-	// Calls FindItems then Show
-	void GetTopic(struct creature * ch,	// The character that wants the topic
-		char *args,				// the search arguments. (pattern)
-		int mode = 2,			// How to show the item. (see HelpItem_Show())
-		bool show_no_app = false,	// Show Unapproved items?
-		int thegroup = HGROUP_PLAYER,	// Which help groups to search through
-		bool searchmode = false);	// Should we search by keyword but still
-	// return a list?
-
-	void List(struct creature * ch, char *args);	// Show all the items
-	// Create an item. (calls EditItem && SaveIndex)
-	bool CreateItem(struct creature * ch);
-	bool EditItem(struct creature * ch, int idnum);	// Begin editing an item
-	void ApproveItem(struct creature * ch, char *argument);	// Approve an item
-	void UnApproveItem(struct creature * ch, char *argument);	// Approve an item
-	bool ClearItem(struct creature * ch);	// Clear an item
-	bool SaveItem(struct creature * ch);	// Duh?
-	bool SaveIndex(void);	// Save the entire index
-	bool SaveAll(struct creature * ch);	// Save Everything. (cals saveitem and saveindex)
-	bool Set(struct creature * ch, char *argument);
-	bool LoadIndex(void);		// Load help index (at startup)
-	void Sync(void);			// Delete unneeded item->text from memory.
-	void Show(struct creature * ch);	// Show collection statistics
-	inline int GetTop(void) {
-		return top_id;
-	} void Push(HelpItem * n);	//Add topic to help_collection
-	HelpItem *find_item_by_id(int id);	// Linear search of the help items
-
+struct help_collection {
 	// Data
-	HelpItem *items;			// The top of the list of help topics
-	HelpItem *bottom;			// The bottom of the list of help topics
+	struct help_item *items;			// The top of the list of help topics
+	struct help_item *bottom;			// The bottom of the list of help topics
 
 	// Returns a show list of items it found
-	HelpItem * FindItems(char *args, bool find_no_approve =
-		false, int thegroup = HGROUP_PLAYER, bool searchmode = false);
 	int top_id;					// The highest id in use..
 	bool need_save;				// Weather something has been changed or not.
 };
