@@ -27,62 +27,108 @@
 #include "accstr.h"
 #include "help.h"
 #include "comm.h"
-#include "player_table.h"
 
 extern struct descriptor_data *descriptor_list;
 extern HelpCollection *Help;
 
-// Constructor
-// Params: Users descriptor, The final destination of the text,
-//      the max size of the text.
-CEditor_CEditor(struct descriptor_data *d, int max)
-    :theText()
+struct editor *
+make_editor(struct descriptor_data *d, int max)
 {
-	desc = d;
-    curSize = 0;
-	maxSize = max;
-    wrap = true;
+    struct editor *editor;
+
+    CREATE(editor, struct editor, 1);
+    editor->desc = d;
+    editor->max_size = max;
+    editor->do_command = editor_do_command;
+    editor->finalize = editor_finalize;
+    editor->cancel = editor_cancel;
+    editor->displaybuffer = editor_display;
+    editor->sendmodalhelp = editor_sendmodalhelp;
+
+    return editor;
 }
 
 void
-CEditor_SendStartupMessage(void)
+editor_import(struct editor *editor, char *text)
 {
-    send_to_desc(desc, "&C     * &YTEDII &b]&n Save and exit with @ on a new line. &&H for help             &C*\r\n");
-    send_to_desc(desc, "     ");
+    gchar **strv, **strp;
+
+    g_list_free(editor->original);
+    g_list_free(editor->lines);
+
+    strv = g_strsplit(text, "\n", 0);
+    for (strp = strv;*strp;strp++) {
+        editor->original = g_list_prepend(editor->original, g_strdup(*strp));
+        editor->lines = g_list_prepend(editor->lines, g_strdup(*strp));
+    }
+    g_freestrv(strv);
+
+    g_list_reverse(editor->original);
+    g_list_reverse(editor->lines);
+}
+
+void
+editor_emit(struct editor *editor, char *text)
+{
+    send_to_desc(editor->desc, "%s", text);
+}
+
+void
+emit_editor_startup(struct editor *editor)
+{
+    send_to_desc(editor->desc,
+                 "&C     * &YTEDII &b]&n Save and exit with @ on a new line. "
+                 "&&H for help             &C*\r\n");
+    send_to_desc(editor->desc, "     ");
 	for (int i = 0; i < 7; i++)
-        send_to_desc(desc, "&C%d&B---------", i);
-    send_to_desc(desc, "&C7&n\r\n");
+        send_to_desc(editor->desc, "&C%d&B---------", i);
+    send_to_desc(editor->desc, "&C7&n\r\n");
 }
 
 void
-CEditor_SendPrompt(void)
+editor_send_prompt(struct editor *editor)
 {
-    send_to_desc(desc, "%3zd&b]&n ", theText.size() + 1);
+    send_to_desc(desc, "%3zd&b]&n ", g_list_size(editor->lines) + 1);
+}
+
+int
+editor_buffer_size(struct editor *editor)
+{
+    int len;
+
+    void count_string_len(char *str, gpointer ignore) {
+        len += strlen(str) + 1;
+    }
+    g_list_foreach(editor->lines, count_string_len, 0);
+
+    return len;
 }
 
 void
-CEditor_Finish(bool save)
+editor_finish(struct editor *editor, bool save)
 {
+    struct descriptor_data *desc = editor->desc;
 
     if (save) {
-        list <string>_iterator itr;
         int length;
-        char *text;
+        char *text, *write_pt;
 
-        length = curSize + (theText.size() * 2);
-        text = (char *)malloc(sizeof(char) * length + 3);
+        length = editor_buffer_size(editor);
+        text = (char *)malloc(length);
         strcpy(text, "");
-        for (itr = theText.begin(); itr != theText.end(); itr++) {
-            strcat(text, itr->c_str());
-            strcat(text, "\r\n");
+        write_pt = text;
+        void concat_line(char *line, gpointer ignore) {
+            strcpy(write_pt, line);
+            write_pt += strlen(line);
         }
+        g_list_foreach(editor->lines, concat_line, 0);
 
         // Call the finalizer
-        this->Finalize(text);
+        editor->finalize(text);
 
         free(text);
     } else {
-        this->Cancel();
+        editor->cancel(text);
     }
 
 	if (IS_PLAYING(desc) && desc->creature && !IS_NPC(desc->creature)) {
@@ -94,23 +140,33 @@ CEditor_Finish(bool save)
 
     // Free the editor
 	desc->text_editor = NULL;
-	delete this;
+    g_list_foreach(editor->original, free, 0);
+    g_list_free(editor->original);
+    g_list_foreach(editor->lines, free, 0);
+    g_list_free(editor->lines);
+	free(editor);
 }
 
 void
-CEditor_Cancel(void)
+editor_finalize(struct editor *editor, char *text)
 {
     // Do nothing
 }
 
 void
-CEditor_Process(char *inStr)
+editor_cancel(struct editor *editor)
+{
+    // Do nothing
+}
+
+void
+editor_handle_input(struct editor *editor, char *input)
 {
 	// 2 special chars, @ and &
 	char inbuf[MAX_INPUT_LENGTH + 1];
     char *args;
 
-	strncpy(inbuf, inStr, MAX_INPUT_LENGTH);
+	strncpy(inbuf, input, MAX_INPUT_LENGTH);
 
 	if (*inbuf == '&') {		// Commands
         if (!inbuf[1]) {
@@ -120,41 +176,39 @@ CEditor_Process(char *inStr)
         args = inbuf + 2;
         while (*args && isspace(*args))
             args++;
-        if (!this->PerformCommand(inbuf[1], args))
-            SendMessage("Invalid Command. Type &h for help.\r\n");
+        if (!editor->do_command(inbuf[1], args))
+            editor_emit(editor, "Invalid Command. Type &h for help.\r\n");
 	} else if (*inbuf == '@') {	// Finish up
-        Finish(true);
+        editor_finish(true);
 	} else {					// Dump the text in
-		Append(inbuf);
+		editor_append(inbuf);
 	}
 }
 
 void
-CEditor_DisplayBuffer(unsigned int start_line, int line_count)
+editor_display(struct editor *editor, int start_line, int line_count)
 {
-	list <string>_iterator itr;
-	unsigned int linenum, end_line;
+    unsigned int linenum, end_line;
+    GList *itr;
 
     acc_string_clear();
 
     // Calculate last line number we're going to show
-    end_line = theText.size() + 1;
+    end_line = g_list_size(editor->lines) + 1;
     if (line_count >= 0 && start_line + line_count < end_line)
         end_line = start_line + line_count;
 
     // Set the iterator to the beginning line
-	itr = theText.begin();
-    for (linenum = 1;linenum < start_line && itr != theText.end();linenum++)
-         itr++;
+    itr = g_list_nth(start_line - 1);
 
     // Display the lines from the beginning line to the end, making
     // sure we don't overflow the LARGE_BUF desc buffer
-	for (linenum = start_line;linenum < end_line;linenum++, itr++) {
+	for (linenum = start_line;linenum < end_line;linenum++, itr = g_list_next(itr)) {
 		acc_sprintf("%3d%s%s]%s %s\r\n", linenum,
                     CCBLD(desc->creature, C_CMP),
                     CCBLU(desc->creature, C_NRM),
                     CCNRM(desc->creature, C_NRM),
-                    itr->c_str());
+                    itr->data);
 		if (acc_get_length() > (LARGE_BUFSIZE - 1024))
 			break;
 	}
@@ -163,72 +217,49 @@ CEditor_DisplayBuffer(unsigned int start_line, int line_count)
 	if (acc_get_length() > (LARGE_BUFSIZE - 1024))
         acc_strcat("Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n", NULL);
 
-	SendMessage(acc_get_string());
+	editor_emit(acc_get_string());
 }
 
 bool
-CEditor_Full(char *inStr)
+editor_is_full(struct editor *editor, char *line)
 {
-	if ((strlen(inStr) + curSize) + ((theText.size() + 1) * 2) > maxSize) {
-		return true;
-	}
-	return false;
+    return (strlen(line) + editor_buffer_size(editor) > editor->max_size)
 }
 
 void
-CEditor_Append(char *inStr)
+editor_append(struct editor *editor, char *line)
 {
-
-	if (Full(inStr)) {
-		SendMessage("Error: The buffer is full.\r\n");
-		return;
-	}
-	// All tildes must die
-	if (PLR_FLAGGED(desc->creature, PLR_OLC)) {
-		char *readPt, *writePt;
-
-		readPt = writePt = inStr;
-		while (*readPt) {
-			if (*readPt != '~')
-				*writePt++ = *readPt;
-			readPt++;
-		}
-		*writePt = '\0';
-	}
-	theText.push_back(inStr);
-    if (wrap)
-	    Wrap();
-	UpdateSize();
+    if (editor_is_full(editor, line)) {
+        editor_emit("Error: The buffer is full.\r\n");
+        return;
+    }
+    if (PLR_FLAGGED(desc->creature, PLR_OLC))
+        g_strdelimit(line, "~", '?');
+    g_list_append(editor->lines, line);
 }
 
 bool
-CEditor_Insert(unsigned int line, char *inStr)
+editor_insert(struct editor *editor, int lineno, char *line)
 {
-	string text;
-	list<string>_iterator s;
+	GList *s;
 
     if (line < 1)
         line = 1;
-	if (*inStr)
-		inStr++;
+	if (*line)
+		line++;
 	text = inStr;
-	if (line > theText.size()) {
-		SendMessage("You can't insert before a line that doesn't exist.\r\n");
+	if (line > g_list_size(editor->lines)) {
+		editor_emit("You can't insert before a line that doesn't exist.\r\n");
 		return false;
 	}
-	if ((text.length() + curSize) + ((theText.size() + 1) * 2) > maxSize) {
-		SendMessage("Error: The buffer is full.\r\n");
+	if (editor_is_full(editor, line)) {
+		editor_emit(editor, "Error: The buffer is full.\r\n");
 		return false;
 	}
 
-    s = theText.begin();
-    advance(s, line - 1);
 
-	// Insert the new text
-	theText.insert(s, text);
-    if (wrap)
-	    Wrap();
-	UpdateSize();
+    s = g_list_nth(editor->lines, lineno - 1);
+    g_list_insert_before(s, text);
 
 	return true;
 }
@@ -244,7 +275,7 @@ CEditor_ReplaceLine(unsigned int line, char *inStr)
 	text = inStr;
 
 	if (line < 1 || line > theText.size()) {
-		SendMessage("There's no line to replace there.\r\n");
+		editor_emit(editor, "There's no line to replace there.\r\n");
 		return false;
 	}
 	// Find the line
@@ -254,7 +285,7 @@ CEditor_ReplaceLine(unsigned int line, char *inStr)
 	// Make sure we can fit the new stuff in
 	if ((text.length() + curSize - s->length()) +
 		((theText.size() + 1) * 2) > maxSize) {
-		SendMessage("Error: The buffer is full.\r\n");
+		editor_emit(editor, "Error: The buffer is full.\r\n");
 		return false;
 	}
     *s = text;
@@ -274,13 +305,13 @@ CEditor_MoveLines(unsigned int start_line,
 
     if (start_line < 1 || start_line > theText.size()) {
         if (start_line == end_line)
-            SendMessage("Line %d is an invalid line.\r\n");
+            editor_emit(editor, "Line %d is an invalid line.\r\n");
         else
-            SendMessage("Starting line %d is an invalid line.\r\n");
+            editor_emit(editor, "Starting line %d is an invalid line.\r\n");
         return false;
     }
     if (end_line < 1 || end_line > theText.size()) {
-        SendMessage("Ending line %d is an invalid line.\r\n");
+        editor_emit(editor, "Ending line %d is an invalid line.\r\n");
         return false;
     }
     if (dest_line < 1)
@@ -298,10 +329,10 @@ CEditor_MoveLines(unsigned int start_line,
     theText.splice(dest, theText, begin, end);
 
     if (start_line == end_line) {
-        SendMessage(tmp_sprintf("Moved line %d above line %d.\r\n",
+        editor_emit(editor, tmp_sprintf("Moved line %d above line %d.\r\n",
                                 start_line, dest_line));
     } else {
-        SendMessage(tmp_sprintf("Moved lines %d-%d to the line above line %d.\r\n",
+        editor_emit(editor, tmp_sprintf("Moved lines %d-%d to the line above line %d.\r\n",
                                 start_line, end_line, dest_line));
     }
 	return true;
@@ -334,7 +365,7 @@ CEditor_Find(char *args)
 	if (acc_get_length() > 10240)
 		acc_strcat("Search result limit reached.\r\n", NULL);
     acc_strcat("\r\n", NULL);
-	SendMessage(acc_get_string());
+	editor_emit(editor, acc_get_string());
 
     return true;
 }
@@ -360,7 +391,7 @@ CEditor_Substitute(char *args)
         args++;
 
 	if (!*args) {
-		SendMessage(usage);
+		editor_emit(editor, usage);
 		return false;
 	}
 
@@ -388,7 +419,7 @@ CEditor_Substitute(char *args)
     while (*args && *args != end_char)
         args++;
     if (!*args) {
-        SendMessage(usage);
+        editor_emit(editor, usage);
         return false;
     }
 
@@ -405,7 +436,7 @@ CEditor_Substitute(char *args)
                && *args != '<')
             args++;
         if (!*args) {
-            SendMessage("If the search pattern uses a balanced delimiter, the replacement must use a balanced\r\ndelimiter as well.\r\n");
+            editor_emit(editor, "If the search pattern uses a balanced delimiter, the replacement must use a balanced\r\ndelimiter as well.\r\n");
             return false;
         }
 
@@ -453,18 +484,18 @@ CEditor_Substitute(char *args)
 		}
 	}
     if (curSize + size_delta > maxSize)
-        SendMessage("Error: The buffer is full.\r\n");
+        editor_emit(editor, "Error: The buffer is full.\r\n");
     if (replaced >= 100)
-        SendMessage("Replacement limit of 100 reached.\r\n");
+        editor_emit(editor, "Replacement limit of 100 reached.\r\n");
     if (replaced > 0) {
-        SendMessage(tmp_sprintf(
+        editor_emit(editor, tmp_sprintf(
                         "Replaced %d occurrence%s of '%s' with '%s'.\r\n",
                         replaced,
                         (replaced == 1) ? "":"s",
                         pattern.c_str(),
                         replacement.c_str()));
     } else {
-        SendMessage("Search string not found.\r\n");
+        editor_emit(editor, "Search string not found.\r\n");
     }
 
     if (wrap)
@@ -518,11 +549,11 @@ CEditor_Remove(unsigned int start_line, unsigned int finish_line)
 	list <string>_iterator start, finish;
 
 	if (start_line < 1 || start_line > theText.size()) {
-		SendMessage("Someone already deleted that line boss.\r\n");
+		editor_emit(editor, "Someone already deleted that line boss.\r\n");
 		return false;
 	}
 	if (finish_line < 1 || finish_line > theText.size()) {
-		SendMessage("Someone already deleted that line boss.\r\n");
+		editor_emit(editor, "Someone already deleted that line boss.\r\n");
 		return false;
 	}
 
@@ -533,9 +564,9 @@ CEditor_Remove(unsigned int start_line, unsigned int finish_line)
 	theText.erase(start, finish);
 
     if (start_line == finish_line)
-        SendMessage(tmp_sprintf("Line %d deleted.\r\n", start_line));
+        editor_emit(editor, tmp_sprintf("Line %d deleted.\r\n", start_line));
     else
-        SendMessage(tmp_sprintf("Lines %d-%d deleted.\r\n",
+        editor_emit(editor, tmp_sprintf("Lines %d-%d deleted.\r\n",
                                 start_line,
                                 finish_line));
 
@@ -580,14 +611,14 @@ CEditor_UndoChanges(void)
         Clear();
         theText = origText;
         UpdateSize();
-        SendMessage("Original buffer restored.\r\n");
+        editor_emit(editor, "Original buffer restored.\r\n");
 	} else {
-		SendMessage("There's no original to undo to.\r\n");
+		editor_emit(editor, "There's no original to undo to.\r\n");
     }
 }
 
 void
-CEditor_SendMessage(const char *message)
+CEditor_editor_emit(editor, const char *message)
 {
 	if (!desc || !desc->creature) {
 		errlog("TEDII Attempting to SendMessage with null desc or desc->creature\r\n");
@@ -640,7 +671,7 @@ CEditor_UpdateSize(void)
 
 	// Warn the player if the buffer was truncated.
 	if (linesRemoved > 0) {
-		SendMessage(tmp_sprintf("Error: Buffer limit exceeded.  %d %s removed.\r\n",
+		editor_emit(editor, tmp_sprintf("Error: Buffer limit exceeded.  %d %s removed.\r\n",
                                 linesRemoved,
                                 linesRemoved == 1 ? "line" : "lines"));
 		slog("TEDINF: UpdateSize removed %d lines from buffer. Name(%s) Size(%d) Max(%d)",
@@ -752,17 +783,17 @@ CEditor_PerformCommand(char cmd, char *args)
         break;
 	case 'c':					// Clear Buffer
 		Clear();
-		SendMessage("Cleared.\r\n");
+		editor_emit(editor, "Cleared.\r\n");
 		break;
 	case 'l':					// Replace Line
 		args = one_argument(args, command);
 		if (!isdigit(*command)) {
-			SendMessage("Format for Replace Line is: &l <line #> <text>\r\n");
+			editor_emit(editor, "Format for Replace Line is: &l <line #> <text>\r\n");
 			break;
 		}
 		line = atoi(command);
 		if (line < 1) {
-			SendMessage("Format for Replace Line is: &l <line #> <text>\r\n");
+			editor_emit(editor, "Format for Replace Line is: &l <line #> <text>\r\n");
 			break;
 		}
         ReplaceLine(line, args);
@@ -776,7 +807,7 @@ CEditor_PerformCommand(char cmd, char *args)
 		}
 		line = atoi(command);
 		if (line < 1) {
-			SendMessage("Format for insert command is: &i <line #><text>\r\n");
+			editor_emit(editor, "Format for insert command is: &i <line #><text>\r\n");
 			break;
 		}
         Insert(line, args);
@@ -784,7 +815,7 @@ CEditor_PerformCommand(char cmd, char *args)
 	case 'd':					// Delete Line
 		args = one_argument(args, command);
         if (!parse_optional_range(command, start_line, end_line)) {
-			SendMessage("Format for delete command is: &d <line #>\r\n");
+			editor_emit(editor, "Format for delete command is: &d <line #>\r\n");
 			break;
 		}
         Remove(start_line, end_line);
@@ -794,24 +825,24 @@ CEditor_PerformCommand(char cmd, char *args)
 
         arg = tmp_getword(&args);
         if (!*arg) {
-            SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+            editor_emit(editor, "Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
             break;
         }
 
         if (!parse_optional_range(arg, start_line, end_line)) {
-            SendMessage("Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+            editor_emit(editor, "Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
             break;
         }
 
         arg = tmp_getword(&args);
         if (!*arg || !isnumber(arg)) {
-            SendMessage("Format for move command is: &m (<start line>-<end line>|<line #>) <destination>\r\n");
+            editor_emit(editor, "Format for move command is: &m (<start line>-<end line>|<line #>) <destination>\r\n");
             break;
         }
         dest_line = atoi(arg);
 
         if (dest_line >= start_line && dest_line <= end_line + 1) {
-            SendMessage("The line range you specified is already at the destination.\r\n");
+            editor_emit(editor, "The line range you specified is already at the destination.\r\n");
             break;
         }
 
@@ -820,13 +851,13 @@ CEditor_PerformCommand(char cmd, char *args)
     }
 	case 'r':					// Refresh Screen
         if (!*args) {
-            DisplayBuffer();
+            editor_display(editor, 0, -1);
         } else if (isnumber(args) && (line = atoi(args)) > 0) {
             int line_count = desc->account->get_term_height();
 
-            DisplayBuffer(MAX(1, line - line_count / 2), line_count);
+            editor_display(editor, MAX(1, line - line_count / 2), line_count);
 		} else {
-            SendMessage("Format for refresh command is: &r [<line #>]\r\nOmit line number to display the whole buffer.\r\n");
+            editor_emit(editor, "Format for refresh command is: &r [<line #>]\r\nOmit line number to display the whole buffer.\r\n");
         }
 		break;
 	default:
