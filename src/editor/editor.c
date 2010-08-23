@@ -88,7 +88,7 @@ emit_editor_startup(struct editor *editor)
 void
 editor_send_prompt(struct editor *editor)
 {
-    send_to_desc(desc, "%3zd&b]&n ", g_list_size(editor->lines) + 1);
+    send_to_desc(desc, "%3zd&b]&n ", editor_line_count(editor) + 1);
 }
 
 int
@@ -194,7 +194,7 @@ editor_display(struct editor *editor, int start_line, int line_count)
     acc_string_clear();
 
     // Calculate last line number we're going to show
-    end_line = g_list_size(editor->lines) + 1;
+    end_line = editor_line_count(editor) + 1;
     if (line_count >= 0 && start_line + line_count < end_line)
         end_line = start_line + line_count;
 
@@ -226,6 +226,12 @@ editor_is_full(struct editor *editor, char *line)
     return (strlen(line) + editor_buffer_size(editor) > editor->max_size)
 }
 
+gint
+editor_line_count(struct editor *editor)
+{
+    return editor_line_count(editor);
+}
+
 void
 editor_append(struct editor *editor, char *line)
 {
@@ -243,12 +249,12 @@ editor_insert(struct editor *editor, int lineno, char *line)
 {
 	GList *s;
 
-    if (line < 1)
-        line = 1;
+    if (lineno < 1)
+        lineno = 1;
 	if (*line)
 		line++;
-	text = inStr;
-	if (line > g_list_size(editor->lines)) {
+
+	if (line > editor_line_count(editor)) {
 		editor_emit("You can't insert before a line that doesn't exist.\r\n");
 		return false;
 	}
@@ -259,74 +265,76 @@ editor_insert(struct editor *editor, int lineno, char *line)
 
 
     s = g_list_nth(editor->lines, lineno - 1);
-    g_list_insert_before(s, text);
+    g_list_insert_before(s, line);
 
 	return true;
 }
 
 bool
-CEditor_ReplaceLine(unsigned int line, char *inStr)
+editor_replace_line(struct editor *editor, unsigned int lineno, char *line)
 {
-	string text;
-	list <string>_iterator s;
+    GList *s;
 
-	if (*inStr && *inStr == ' ')
-		inStr++;
-	text = inStr;
+	if (*line && *line == ' ')
+		line++;
 
-	if (line < 1 || line > theText.size()) {
+	if (line < 1 || line > editor_line_count(editor)) {
 		editor_emit(editor, "There's no line to replace there.\r\n");
 		return false;
 	}
 	// Find the line
-    s = theText.begin();
+    s = g_list_nth(editor->lines, lineno - 1);
     advance(s, line - 1);
 
 	// Make sure we can fit the new stuff in
-	if ((text.length() + curSize - s->length()) +
-		((theText.size() + 1) * 2) > maxSize) {
+    if (editor_is_full(line)) {
 		editor_emit(editor, "Error: The buffer is full.\r\n");
 		return false;
 	}
-    *s = text;
+    free(s->data);
+    s->data = line
 
-    if (wrap)
-	    Wrap();
-	UpdateSize();
 	return true;
 }
 
 bool
-CEditor_MoveLines(unsigned int start_line,
-                   unsigned int end_line,
-                   unsigned int dest_line)
+editor_movelines(unsigned int start_line,
+                 unsigned int end_line,
+                 unsigned int dest_line)
 {
-	list<string>_iterator dest, begin, end;
+    GList *dest, *begin, *end, *next;
 
-    if (start_line < 1 || start_line > theText.size()) {
+
+    if (start_line < 1 || start_line > editor_line_count(editor)) {
         if (start_line == end_line)
             editor_emit(editor, "Line %d is an invalid line.\r\n");
         else
             editor_emit(editor, "Starting line %d is an invalid line.\r\n");
         return false;
     }
-    if (end_line < 1 || end_line > theText.size()) {
+    if (end_line < 1 || end_line > editor_line_count(editor)) {
         editor_emit(editor, "Ending line %d is an invalid line.\r\n");
         return false;
     }
+
+    // Nothing needs to be done if destination is inside the block
+    if (dest_line >= start_line && dest_line <= end_line)
+        return true;
+
     if (dest_line < 1)
         dest_line = 1;
-    if (dest_line >= theText.size())
-        dest_line = theText.size() + 1;
+    if (dest_line >= editor_line_count(editor))
+        dest_line = editor_line_count(editor) + 1;
 
-    begin = theText.begin();
-    advance(begin, start_line - 1);
-    end = theText.begin();
-    advance(end, end_line);
-    dest = theText.begin();
-    advance(dest, dest_line - 1);
+    begin = g_list_nth(editor->lines, start_line);
+    end = g_list_nth(editor->lines, end_line + 1);
+    dest = g_list_nth(editor->lines, dest_line);
 
-    theText.splice(dest, theText, begin, end);
+    for (GList *cur = begin;cur != end;cur = next;) {
+        next = cur->next;
+        editor->lines = g_list_insert_before(editor->lines, dest, cur->data);
+        editor->lines = g_list_delete_link(editor->lines, cur);
+    }
 
     if (start_line == end_line) {
         editor_emit(editor, tmp_sprintf("Moved line %d above line %d.\r\n",
@@ -335,39 +343,178 @@ CEditor_MoveLines(unsigned int start_line,
         editor_emit(editor, tmp_sprintf("Moved lines %d-%d to the line above line %d.\r\n",
                                 start_line, end_line, dest_line));
     }
-	return true;
+
+    return true;
 }
 
 bool
-CEditor_Find(char *args)
+editor_find(struct editor *editor, char *args)
 {
-	list <string>_iterator itr;
-    string pattern(args);
-	unsigned int i;
-
-    acc_string_clear();
-
-	itr = theText.begin();
-
-	for (i = 1; itr != theText.end(); i++, itr++) {
-        if (itr->find(pattern, 0) >= itr->length())
-            continue;
-		acc_sprintf("%3d%s%s]%s %s\r\n", i,
+    void print_if_match(char *str, gpointer ignore) {
+        if (strcasestr(str, args))
+            acc_sprintf("%3d%s%s]%s %s\r\n", i,
                     CCBLD(desc->creature, C_CMP),
                     CCBLU(desc->creature, C_NRM),
                     CCNRM(desc->creature, C_NRM),
-                    itr->c_str());
-		// Overflowing the LARGE_BUF desc buffer.
-		if (acc_get_length() > 10240)
-			break;
-	}
+                    str);
+    }
 
-	if (acc_get_length() > 10240)
-		acc_strcat("Search result limit reached.\r\n", NULL);
+    acc_string_clear();
+    g_list_foreach(editor->lines, print_if_match, 0);
     acc_strcat("\r\n", NULL);
-	editor_emit(editor, acc_get_string());
+    editor_emit(editor, acc_get_string());
 
     return true;
+}
+
+bool
+editor_substitute(struct editor *editor, char *args)
+{
+    const char *usage = "There are two formats for substitute:\r\n  &s [search pattern] [replacement]\r\n  &s /search pattern/replacement/\r\nIn the first form, you can use (), [], <>, or {}.\r\n";
+	// Iterator to the current line in theText
+	GList *line;
+	// The string containing the search pattern
+	char *pattern;
+    int pattern_len;
+	// String containing the replace pattern
+	char *replacement;
+    int replacement_len;
+	// Number of replacements made
+	int replaced = 0;
+	// read pointer and write pointer.
+	char *temp, end_char;
+    bool balanced;
+    int size_delta;
+
+    while (isspace(*args))
+        args++;
+
+	if (!*args) {
+		editor_emit(editor, usage);
+		return false;
+	}
+
+    // First non-space character is the search delimiter.  If the
+    // delimiter is something used with some kind of brace, it
+    // terminates in the opposite brace
+    balanced = true;
+    switch (*args) {
+    case '(':
+        end_char = ')'; break;
+    case '[':
+        end_char = ']'; break;
+    case '{':
+        end_char = '}'; break;
+    case '<':
+        end_char = '>'; break;
+    default:
+        end_char = *args;
+        balanced = false;
+        break;
+    }
+    args++;
+
+    pattern = args;
+    while (*args && *args != end_char)
+        args++;
+    if (!*args) {
+        editor_emit(editor, usage);
+        return false;
+    }
+
+    pattern_len = args - temp;
+
+    // If the pattern was specified with a balanced delimiter, then
+    // the replacement must be, too
+    if (balanced) {
+        while (*args
+               && *args != '('
+               && *args != '['
+               && *args != '{'
+               && *args != '<')
+            args++;
+        if (!*args) {
+            editor_emit(editor, "If the search pattern uses a balanced delimiter, the replacement must use a balanced\r\ndelimiter as well.\r\n");
+            return false;
+        }
+
+        switch (*args) {
+        case '(':
+            end_char = ')'; break;
+        case '[':
+            end_char = ']'; break;
+        case '{':
+            end_char = '}'; break;
+        case '<':
+            end_char = '>'; break;
+            break;
+        default:
+            end_char = *args; break;
+        }
+        args++;
+    }
+
+    replacement = temp;
+
+    while (*args && *args != end_char)
+        args++;
+
+    replacement_len = args - temp;
+
+    size_delta = strlen(replacement) - strlen(pattern);
+
+	// Find pattern in theText a line at a time and replace each instance.
+	unsigned int pos;			// Current position in the line
+	bool overflow = false;		// Have we overflowed the buffer?
+
+    for (line = editor->lines;line;line = line->next) {
+        pos = strstr(line->data, pattern);
+        while (pos) {
+            if (pattern_len < replacement_len) {
+                // increase in string length
+                memmove();
+            } else if (pattern_len > replacement_len) {
+                // reduction of string length
+            } else {
+                // simple copy if equal
+                strcpy(pos, replacement);
+            }
+            replaced++;
+            pos = strstr(pos + replacement_len, pattern);
+        }
+	for (line = theText.begin(); !overflow && line != theText.end(); line++) {
+        pos = line->find(pattern, 0);
+		while (pos < line->length()) {
+            // Handle both buffer size and replacement overflows
+            if (curSize + size_delta > maxSize || replaced >= 100) {
+                overflow = true;
+                break;
+            }
+            *line = line->replace(pos, pattern.length(), replacement);
+            replaced++;
+            curSize += size_delta;
+            pos = line->find(pattern, pos + replacement.length());
+		}
+	}
+    if (curSize + size_delta > maxSize)
+        editor_emit(editor, "Error: The buffer is full.\r\n");
+    if (replaced >= 100)
+        editor_emit(editor, "Replacement limit of 100 reached.\r\n");
+    if (replaced > 0) {
+        editor_emit(editor, tmp_sprintf(
+                        "Replaced %d occurrence%s of '%s' with '%s'.\r\n",
+                        replaced,
+                        (replaced == 1) ? "":"s",
+                        pattern.c_str(),
+                        replacement.c_str()));
+    } else {
+        editor_emit(editor, "Search string not found.\r\n");
+    }
+
+    if (wrap)
+	    Wrap();
+	UpdateSize();
+	return true;
 }
 
 bool
@@ -548,11 +695,11 @@ CEditor_Remove(unsigned int start_line, unsigned int finish_line)
 {
 	list <string>_iterator start, finish;
 
-	if (start_line < 1 || start_line > theText.size()) {
+	if (start_line < 1 || start_line > editor_line_count(editor)) {
 		editor_emit(editor, "Someone already deleted that line boss.\r\n");
 		return false;
 	}
-	if (finish_line < 1 || finish_line > theText.size()) {
+	if (finish_line < 1 || finish_line > editor_line_count(editor)) {
 		editor_emit(editor, "Someone already deleted that line boss.\r\n");
 		return false;
 	}
