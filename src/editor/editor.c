@@ -58,8 +58,10 @@ editor_import(struct editor *editor, char *text)
 
     strv = g_strsplit(text, "\n", 0);
     for (strp = strv;*strp;strp++) {
-        editor->original = g_list_prepend(editor->original, g_strdup(*strp));
-        editor->lines = g_list_prepend(editor->lines, g_strdup(*strp));
+        editor->original = g_list_prepend(editor->original,
+                                          g_string_new(*strp));
+        editor->lines = g_list_prepend(editor->lines,
+                                       g_string_new(*strp));
     }
     g_freestrv(strv);
 
@@ -96,8 +98,8 @@ editor_buffer_size(struct editor *editor)
 {
     int len;
 
-    void count_string_len(char *str, gpointer ignore) {
-        len += strlen(str) + 1;
+    void count_string_len(GString *str, gpointer ignore) {
+        len += str->len + 1;
     }
     g_list_foreach(editor->lines, count_string_len, 0);
 
@@ -117,9 +119,9 @@ editor_finish(struct editor *editor, bool save)
         text = (char *)malloc(length);
         strcpy(text, "");
         write_pt = text;
-        void concat_line(char *line, gpointer ignore) {
-            strcpy(write_pt, line);
-            write_pt += strlen(line);
+        void concat_line(GString *line, gpointer ignore) {
+            strcpy(write_pt, line->str);
+            write_pt += line->len;
         }
         g_list_foreach(editor->lines, concat_line, 0);
 
@@ -140,9 +142,9 @@ editor_finish(struct editor *editor, bool save)
 
     // Free the editor
 	desc->text_editor = NULL;
-    g_list_foreach(editor->original, free, 0);
+    g_list_foreach(editor->original, g_string_free, true);
     g_list_free(editor->original);
-    g_list_foreach(editor->lines, free, 0);
+    g_list_foreach(editor->lines, g_string_free, true);
     g_list_free(editor->lines);
 	free(editor);
 }
@@ -208,7 +210,7 @@ editor_display(struct editor *editor, int start_line, int line_count)
                     CCBLD(desc->creature, C_CMP),
                     CCBLU(desc->creature, C_NRM),
                     CCNRM(desc->creature, C_NRM),
-                    itr->data);
+                    ((GString *)itr->data)->str);
 		if (acc_get_length() > (LARGE_BUFSIZE - 1024))
 			break;
 	}
@@ -241,7 +243,7 @@ editor_append(struct editor *editor, char *line)
     }
     if (PLR_FLAGGED(desc->creature, PLR_OLC))
         g_strdelimit(line, "~", '?');
-    g_list_append(editor->lines, line);
+    g_list_append(editor->lines, g_string_new(line));
 }
 
 bool
@@ -265,7 +267,7 @@ editor_insert(struct editor *editor, int lineno, char *line)
 
 
     s = g_list_nth(editor->lines, lineno - 1);
-    g_list_insert_before(s, line);
+    g_list_insert_before(s, g_string_new(line));
 
 	return true;
 }
@@ -291,8 +293,7 @@ editor_replace_line(struct editor *editor, unsigned int lineno, char *line)
 		editor_emit(editor, "Error: The buffer is full.\r\n");
 		return false;
 	}
-    free(s->data);
-    s->data = line
+    g_string_assign(s->data, line);
 
 	return true;
 }
@@ -350,13 +351,13 @@ editor_movelines(unsigned int start_line,
 bool
 editor_find(struct editor *editor, char *args)
 {
-    void print_if_match(char *str, gpointer ignore) {
+    void print_if_match(GString *str, gpointer ignore) {
         if (strcasestr(str, args))
             acc_sprintf("%3d%s%s]%s %s\r\n", i,
                     CCBLD(desc->creature, C_CMP),
                     CCBLU(desc->creature, C_NRM),
                     CCNRM(desc->creature, C_NRM),
-                    str);
+                    str->str);
     }
 
     acc_string_clear();
@@ -384,7 +385,7 @@ editor_substitute(struct editor *editor, char *args)
 	// read pointer and write pointer.
 	char *temp, end_char;
     bool balanced;
-    int size_delta;
+    int size_delta, buffer_size;;
 
     while (isspace(*args))
         args++;
@@ -462,44 +463,31 @@ editor_substitute(struct editor *editor, char *args)
     replacement_len = args - temp;
 
     size_delta = strlen(replacement) - strlen(pattern);
+    buffer_size = editor_buffer_size(editor);
 
 	// Find pattern in theText a line at a time and replace each instance.
 	unsigned int pos;			// Current position in the line
 	bool overflow = false;		// Have we overflowed the buffer?
 
-    for (line = editor->lines;line;line = line->next) {
-        pos = strstr(line->data, pattern);
-        while (pos) {
-            if (pattern_len < replacement_len) {
-                // increase in string length
-                memmove();
-            } else if (pattern_len > replacement_len) {
-                // reduction of string length
-            } else {
-                // simple copy if equal
-                strcpy(pos, replacement);
-            }
+    for (line = editor->lines;
+         line && buffer_size + size_delta < editor->max_size;
+         line = line->next) {
+        pos = strstr(((GString *)line->data)->str, pattern);
+        while (pos && buffer_size + size_delta < editor->max_size) {
+            g_string_erase((GString *)line->data,
+                           pos - (GString *)line->data->str,
+                           pattern_len);
+            g_string_insert_len((GString *)line->data,
+                                pos - (GString *)line->data->str,
+                                replacement,
+                                replacement_len);
             replaced++;
+            buffer_len += size_delta;
             pos = strstr(pos + replacement_len, pattern);
         }
-	for (line = theText.begin(); !overflow && line != theText.end(); line++) {
-        pos = line->find(pattern, 0);
-		while (pos < line->length()) {
-            // Handle both buffer size and replacement overflows
-            if (curSize + size_delta > maxSize || replaced >= 100) {
-                overflow = true;
-                break;
-            }
-            *line = line->replace(pos, pattern.length(), replacement);
-            replaced++;
-            curSize += size_delta;
-            pos = line->find(pattern, pos + replacement.length());
-		}
-	}
-    if (curSize + size_delta > maxSize)
+    }
+	if (buffer_len + size_delta > editor->max_size)
         editor_emit(editor, "Error: The buffer is full.\r\n");
-    if (replaced >= 100)
-        editor_emit(editor, "Replacement limit of 100 reached.\r\n");
     if (replaced > 0) {
         editor_emit(editor, tmp_sprintf(
                         "Replaced %d occurrence%s of '%s' with '%s'.\r\n",
@@ -511,189 +499,55 @@ editor_substitute(struct editor *editor, char *args)
         editor_emit(editor, "Search string not found.\r\n");
     }
 
-    if (wrap)
-	    Wrap();
-	UpdateSize();
 	return true;
 }
 
 bool
-CEditor_Substitute(char *args)
+editor_wrap(struct editor *editor)
 {
-    const char *usage = "There are two formats for substitute:\r\n  &s [search pattern] [replacement]\r\n  &s /search pattern/replacement/\r\nIn the first form, you can use (), [], <>, or {}.\r\n";
-	// Iterator to the current line in theText
-	list <string>_iterator line;
-	// The string containing the search pattern
-	string pattern;
-	// String containing the replace pattern
-	string replacement;
-	// Number of replacements made
-	int replaced = 0;
-	// read pointer and write pointer.
-	char *temp, end_char;
-    bool balanced;
-    int size_delta;
-
-    while (isspace(*args))
-        args++;
-
-	if (!*args) {
-		editor_emit(editor, usage);
-		return false;
-	}
-
-    // First non-space character is the search delimiter.  If the
-    // delimiter is something used with some kind of brace, it
-    // terminates in the opposite brace
-    balanced = true;
-    switch (*args) {
-    case '(':
-        end_char = ')'; break;
-    case '[':
-        end_char = ']'; break;
-    case '{':
-        end_char = '}'; break;
-    case '<':
-        end_char = '>'; break;
-    default:
-        end_char = *args;
-        balanced = false;
-        break;
-    }
-    args++;
-
-    temp = args;
-    while (*args && *args != end_char)
-        args++;
-    if (!*args) {
-        editor_emit(editor, usage);
-        return false;
-    }
-
-    *args++ = '\0';
-    pattern = temp;
-
-    // If the pattern was specified with a balanced delimiter, then
-    // the replacement must be, too
-    if (balanced) {
-        while (*args
-               && *args != '('
-               && *args != '['
-               && *args != '{'
-               && *args != '<')
-            args++;
-        if (!*args) {
-            editor_emit(editor, "If the search pattern uses a balanced delimiter, the replacement must use a balanced\r\ndelimiter as well.\r\n");
-            return false;
-        }
-
-        switch (*args) {
-        case '(':
-            end_char = ')'; break;
-        case '[':
-            end_char = ']'; break;
-        case '{':
-            end_char = '}'; break;
-        case '<':
-            end_char = '>'; break;
-            break;
-        default:
-            end_char = *args; break;
-        }
-        args++;
-    }
-
-    temp = args;
-    while (*args && *args != end_char)
-        args++;
-
-    *args = '\0';
-    replacement = temp;
-
-    size_delta = replacement.length() - pattern.length();
-
-	// Find pattern in theText a line at a time and replace each instance.
-	unsigned int pos;			// Current position in the line
-	bool overflow = false;		// Have we overflowed the buffer?
-
-	for (line = theText.begin(); !overflow && line != theText.end(); line++) {
-        pos = line->find(pattern, 0);
-		while (pos < line->length()) {
-            // Handle both buffer size and replacement overflows
-            if (curSize + size_delta > maxSize || replaced >= 100) {
-                overflow = true;
-                break;
-            }
-            *line = line->replace(pos, pattern.length(), replacement);
-            replaced++;
-            curSize += size_delta;
-            pos = line->find(pattern, pos + replacement.length());
-		}
-	}
-    if (curSize + size_delta > maxSize)
-        editor_emit(editor, "Error: The buffer is full.\r\n");
-    if (replaced >= 100)
-        editor_emit(editor, "Replacement limit of 100 reached.\r\n");
-    if (replaced > 0) {
-        editor_emit(editor, tmp_sprintf(
-                        "Replaced %d occurrence%s of '%s' with '%s'.\r\n",
-                        replaced,
-                        (replaced == 1) ? "":"s",
-                        pattern.c_str(),
-                        replacement.c_str()));
-    } else {
-        editor_emit(editor, "Search string not found.\r\n");
-    }
-
-    if (wrap)
-	    Wrap();
-	UpdateSize();
-	return true;
-}
-
-bool
-CEditor_Wrap(void)
-{
-	list <string>_iterator line;
-	string_iterator s;
-	string tempstr;
+    GString *tempstr;
+    GList *line;
+    char *s;
 	int linebreak;
 
-	if (PRF2_FLAGGED(desc->creature, PRF2_NOWRAP)) {
-		return false;
-	}
-	for (line = theText.begin(); line != theText.end(); line++) {
+	for (line = editor->lines; line; line = line->next) {
 		linebreak = 76;
-		tempstr = "";
-		// If its less than 77 chars, it don't need ta be wrapped.
-		if (line->length() <= 76)
+
+        // If its less than 77 chars, it don't need ta be wrapped.
+		if (((GString *)line->data)->len <= linebreak)
 			continue;
 
-		s = line->begin();
+		s = ((GString *)line->data)->str;
 
 		// Find the first space <= 76th char.
-		for (s += 75; s != line->begin() && *s != ' '; s--)
+		for (s += linebreak - 1;
+             s != ((GString *)line->data)->str && !isspace(*s);
+             s--)
 			linebreak--;
 
 		if (linebreak == 1) {	// Linebreak is at 76
-			s = line->begin();
+            s = ((GString *)line->data)->str;
 			s += 75;
 		}
-		tempstr.append(s, line->end());
-		if (linebreak > 1)		// If its a pos other than 1, its a space.
-			tempstr.erase(tempstr.begin());
-		line->erase(s, line->end());
-		line++;
-		theText.insert(line, 1, tempstr);
-		line = theText.begin();
+
+        new_line = g_string_new((linebreak > 1) ? s + 1:s)
+		g_string_truncate(((GString *)line->data),
+                          s - ((GString *)line->data)->str);
+		line = line->next;
+        editor->lines = g_list_insert_before(editor->lines,
+                                             line,
+                                             new_line);
+		line = editor->lines;
 	}
 	return true;
 }
 
 bool
-CEditor_Remove(unsigned int start_line, unsigned int finish_line)
+editor_remove(struct editor *editor,
+              unsigned int start_line,
+              unsigned int finish_line)
 {
-	list <string>_iterator start, finish;
+	GList *start, *finish, *next;
 
 	if (start_line < 1 || start_line > editor_line_count(editor)) {
 		editor_emit(editor, "Someone already deleted that line boss.\r\n");
@@ -704,11 +558,14 @@ CEditor_Remove(unsigned int start_line, unsigned int finish_line)
 		return false;
 	}
 
-    start = theText.begin();
-    advance(start, start_line - 1);
-    finish = theText.begin();
-    advance(finish, finish_line);
-	theText.erase(start, finish);
+    start = g_list_nth(editor->lines, start_line -  1);
+    finish = g_list_nth(editor->lines, finish_line -  1);
+    while (start != finish) {
+        next = start->next;
+        g_string_free((GString *)start->data);
+        editor->lines = g_list_delete_link(editor->lines, start);
+        start = next;
+    }
 
     if (start_line == finish_line)
         editor_emit(editor, tmp_sprintf("Line %d deleted.\r\n", start_line));
@@ -717,47 +574,34 @@ CEditor_Remove(unsigned int start_line, unsigned int finish_line)
                                 start_line,
                                 finish_line));
 
-    if (wrap)
-	    Wrap();
-	UpdateSize();
 	return true;
 }
 
 bool
-CEditor_Clear(void)
+editor_clear(struct editor *editor)
 {
+    g_list_foreach(editor->lines, g_string_free, true);
+    g_list_free(editor->lines);
+    editor->lines = NULL;
 
-	theText.erase(theText.begin(), theText.end());
-
-	UpdateSize();
 	return true;
 }
 
 void
-CEditor_ImportText(const char *str)
+editor_undo(struct editor *editor)
 {
-    char *line;
+	if (editor->original) {
+        editor_clear();
+        GList *line;
 
-    origText.clear();
-    if (str) {
-        while ((line = tmp_getline(&str)) != NULL)
-            origText.push_back(string(line));
-    }
+        for (line = editor->original;line;line = line->next) {
+            GString *new_line = g_string_new_len(((GString *)line->data)->str,
+                                                 ((GString *)line->data)->len);
+            editor->lines = g_list_prepend(editor->lines, new_line);
+        }
 
-    theText = origText;
+        g_list_reverse(editor->lines);
 
-    UpdateSize();
-    if (wrap)
-	    Wrap();
-}
-
-void
-CEditor_UndoChanges(void)
-{
-	if (origText.size()) {
-        Clear();
-        theText = origText;
-        UpdateSize();
         editor_emit(editor, "Original buffer restored.\r\n");
 	} else {
 		editor_emit(editor, "There's no original to undo to.\r\n");
@@ -765,81 +609,14 @@ CEditor_UndoChanges(void)
 }
 
 void
-CEditor_editor_emit(editor, const char *message)
-{
-	if (!desc || !desc->creature) {
-		errlog("TEDII Attempting to SendMessage with null desc or desc->creature\r\n");
-		return;
-	}
-
-	// If the original message is too long, make a new one thats small
-	if (strlen(message) >= LARGE_BUFSIZE) {
-        char *temp = NULL;
-
-		slog("SendMessage Truncating message. NAME(%s) Length(%zd)",
-             GET_NAME(desc->creature),
-             strlen(message));
-        temp = new char[LARGE_BUFSIZE];
-		strncpy(temp, message, LARGE_BUFSIZE - 2);
-		send_to_char(desc->creature, "%s", temp);
-        delete [] temp;
-	} else {
-        // If the original message is small enough, just let it through.
-		send_to_char(desc->creature, "%s", message);
-	}
-}
-
-static inline int
-text_length(list <string> &theText)
-{
-	int length = 0;
-	list <string>_iterator s;
-	for (s = theText.begin(); s != theText.end(); s++) {
-		length += s->length();
-	}
-	return length;
-}
-
-void
-CEditor_UpdateSize(void)
-{
-	int linesRemoved = 0;
-
-	// update the current size
-	curSize = text_length(theText);
-
-	// Buffer overflow state.
-	// This is probably happening in response to word wrap
-	while (curSize > maxSize) {
-		theText.pop_back();
-		curSize = text_length(theText);
-		linesRemoved++;
-	}
-
-	// Warn the player if the buffer was truncated.
-	if (linesRemoved > 0) {
-		editor_emit(editor, tmp_sprintf("Error: Buffer limit exceeded.  %d %s removed.\r\n",
-                                linesRemoved,
-                                linesRemoved == 1 ? "line" : "lines"));
-		slog("TEDINF: UpdateSize removed %d lines from buffer. Name(%s) Size(%d) Max(%d)",
-             linesRemoved, GET_NAME(desc->creature), curSize, maxSize);
-	}
-	// Obvious buffer flow state. This should never happen, but if it does, say something.
-	if (curSize > maxSize) {
-		slog("TEDERR: UpdateSize updated to > maxSize. Name(%s) Size(%d) Max(%d)",
-			GET_NAME(desc->creature), curSize, maxSize);
-	}
-}
-
-void
-CEditor_SendModalHelp(void)
+editor_sendmodalhelp(struct editor *editor)
 {
     // default offers the clear buffer and undo changes options
     send_to_desc(desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
 }
 
 void
-CEditor_ProcessHelp(char *inStr)
+editor_help(struct editor *editor, char *inStr)
 {
 	char command[MAX_INPUT_LENGTH];
 
@@ -857,7 +634,7 @@ CEditor_ProcessHelp(char *inStr)
         send_to_desc(desc,
                      "     &C*&B-------------------------------------------------------&C*&n\r\n");
 	} else {
-        HelpItem *help_item;
+        struct help_item *help_item;
 
 		inStr = one_argument(inStr, command);
 		*command = tolower(*command);
@@ -907,7 +684,7 @@ parse_optional_range(const char *arg, int &start, int &finish)
 }
 
 bool
-CEditor_PerformCommand(char cmd, char *args)
+editor_performcommand(struct editor *editor, char cmd, char *args)
 {
 	int line, start_line, end_line, dest_line;
 	char command[MAX_INPUT_LENGTH];
