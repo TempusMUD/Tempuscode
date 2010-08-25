@@ -23,96 +23,74 @@
 #include "accstr.h"
 #include "help.h"
 #include "comm.h"
-#include "player_table.h"
 #include "bomb.h"
 #include "handler.h"
 
+struct maileditor_data {
+    struct mail_recipient_data *mail_to;
+    struct obj_data *obj_list;
+};
+
 void
-start_editing_mail(descriptor_data *d, mail_recipient_data *recipients)
+free_maileditor(struct editor *editor)
 {
-	if (d->text_editor) {
-		errlog("Text editor object not null in start_editing_mail");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
+    struct maileditor_data *mail_data = (struct maileditor_data *)editor->mode_data;
+    struct mail_recipient_data *next_rcpt;
 
-    SET_BIT(PLR_FLAGS(d->creature), PLR_MAILING | PLR_WRITING);
-
-	d->text_editor = new CMailEditor(d, recipients);
-}
-
-CMailEditor_CMailEditor(descriptor_data *desc,
-                         mail_recipient_data *recipients)
-    :CEditor(desc, MAX_MAIL_SIZE)
-{
-    mail_to = recipients;
-
-    obj_list = NULL;
-    num_attachments = 0;
-
-    SendStartupMessage();
-    DisplayBuffer();
-}
-
-CMailEditor_~CMailEditor(void)
-{
-    void extract_obj(struct obj_data *obj);
-
-    mail_recipient_data *next_rcpt;
-
-    while (mail_to) {
-        next_rcpt = mail_to->next;
-        delete mail_to;
-        mail_to = next_rcpt;
+    while (mail_data->mail_to) {
+        next_rcpt = mail_data->mail_to->next;
+        free(mail_data->mail_to);
+        mail_data->mail_to = next_rcpt;
     }
 }
 
 void
-CMailEditor_DisplayBuffer(unsigned int start_line, int line_count)
+maileditor_displaybuffer(struct editor *editor,
+                         unsigned int start_line,
+                         int line_count)
 {
     if (start_line == 1) {
-        ListRecipients();
-        ListAttachments();
-        send_to_desc(desc, "\r\n");
+        maileditor_listrecipients(editor);
+        maileditor_listattachments(editor);
+        send_to_desc(editor->desc, "\r\n");
     }
-    CEditor_DisplayBuffer(start_line, line_count);
+    editor_displaybuffer(start_line, line_count);
 }
 
 bool
-CMailEditor_PerformCommand(char cmd, char *args)
+maileditor_do_command(struct editor *editor, char cmd, char *args)
 {
     switch (cmd) {
 	case 't':
-		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			ListRecipients();
-            ListAttachments();
+		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
+			maileditor_listrecipients(editor);
+            maileditor_listattachments(editor);
 			break;
 		}
 	case 'a':
-		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			AddRecipient(args);
+		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
+			maileditor_addrecipient(editor, args);
 			break;
 		}
 	case 'e':
-		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			RemRecipient(args);
+		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
+			maileditor_remrecipient(editor, args);
 			break;
 		}
 	case 'p':
-		if (PLR_FLAGGED(desc->creature, PLR_MAILING)) {
-			AddAttachment(args);
+		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
+			maileditor_addattachment(editor, args);
 			break;
 		}
     default:
-        return CEditor_PerformCommand(cmd, args);
+        return editor_do_command(editor, cmd, args);
     }
 
     return true;
 }
 
 void
-CMailEditor_Finalize(const char *text)
+maileditor_finalize(struct editor *editor, const char *text)
 {
 	int stored_mail = 0;
 	struct descriptor_data *r_d;
@@ -142,12 +120,12 @@ CMailEditor_Finalize(const char *text)
     list<string>_iterator si;
     for (si = cc_list.begin(); si != cc_list.end(); si++) {
         long id = playerIndex.getID(si->c_str());
-        stored_mail = store_mail(id, GET_IDNUM(desc->creature),
+        stored_mail = store_mail(id, GET_IDNUM(editor->desc->creature),
                 text,  cc_list, this->obj_list);
         if (stored_mail == 1) {
             for (r_d = descriptor_list; r_d; r_d = r_d->next) {
                 if (IS_PLAYING(r_d) && r_d->creature &&
-                    (r_d->creature != desc->creature) &&
+                    (r_d->creature != editor->desc->creature) &&
                     (GET_IDNUM(r_d->creature) == id) &&
                     (!PLR_FLAGGED(r_d->creature, PLR_WRITING | PLR_MAILING | PLR_OLC))) {
                     send_to_char(r_d->creature, "A strange voice in your head says, "
@@ -165,45 +143,45 @@ CMailEditor_Finalize(const char *text)
                     "Please try again later!\r\n");
         errlog("store_mail() has returned <= 0");
     }
-    if (GET_LEVEL(desc->creature) >= LVL_AMBASSADOR) {
+    if (GET_LEVEL(editor->desc->creature) >= LVL_AMBASSADOR) {
         // Presumably, this message is only displayed for imms for
         // pk avoidance reasons.
-        act("$n postmarks and dispatches $s mail.", true, desc->creature, 0, 0, TO_NOTVICT);
+        act("$n postmarks and dispatches $s mail.", true, editor->desc->creature, 0, 0, TO_NOTVICT);
     }
 
 }
 
 void
-CMailEditor_SendModalHelp(void)
+maileditor_sendmodalhelp(struct editor *editor)
 {
-    send_to_desc(desc,
+    send_to_desc(editor->desc,
                  "            &YC - &nClear Buffer         &YA - &nAdd Recipient\r\n"
                  "            &YT - &nList Recipients      &YE - &nRemove Recipient\r\n"
                  "            &YP - &nAttach Package\r\n");
 }
 
 void
-CMailEditor_Cancel(void)
+maileditor_cancel(struct editor *editor)
 {
-    ReturnAttachments();
+    maileditor_returnattachments();
 }
 
 void
-CMailEditor_ListRecipients(void)
+maileditor_listrecipients(struct editor *editor)
 {
 	struct mail_recipient_data *mail_rcpt = NULL;
 
-    send_to_desc(desc, "     &yTo&b: &c");
+    send_to_desc(editor->desc, "     &yTo&b: &c");
 	for (mail_rcpt = mail_to; mail_rcpt;mail_rcpt = mail_rcpt->next) {
-        send_to_desc(desc, "%s", tmp_capitalize(playerIndex.getName(mail_rcpt->recpt_idnum)));
+        send_to_desc(editor->desc, "%s", tmp_capitalize(playerIndex.getName(mail_rcpt->recpt_idnum)));
         if (mail_rcpt->next)
-            send_to_desc(desc, ", ");
+            send_to_desc(editor->desc, ", ");
 	}
-    send_to_desc(desc, "&n\r\n");
+    send_to_desc(editor->desc, "&n\r\n");
 }
 
 void
-CMailEditor_ListAttachments(void)
+maileditor_listattachments(struct editor *editor)
 {
     struct obj_data *o, *next_obj;
 
@@ -211,24 +189,24 @@ CMailEditor_ListAttachments(void)
         return;
     }
 
-    send_to_desc(desc, "\r\n     &yPackages attached to this mail&b: &c\r\n");
+    send_to_desc(editor->desc, "\r\n     &yPackages attached to this mail&b: &c\r\n");
 
     if (this->obj_list) {
         o = this->obj_list;
         while (o) {
             next_obj = o->next_content;
-            send_to_desc(desc, "       %s", o->name);
+            send_to_desc(editor->desc, "       %s", o->name);
             o = next_obj;
             if (next_obj) {
-                send_to_desc(desc, ",\r\n");
+                send_to_desc(editor->desc, ",\r\n");
             }
         }
     }
-    send_to_desc(desc, "&n\r\n");
+    send_to_desc(editor->desc, "&n\r\n");
 }
 
 void
-CMailEditor_AddRecipient(char *name)
+maileditor_addrecipient(struct editor *editor, char *name)
 {
 	long new_id_num = 0;
 	struct mail_recipient_data *cur = NULL;
@@ -265,14 +243,14 @@ CMailEditor_AddRecipient(char *name)
 		return;
 	}
 
-	if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+	if (GET_LEVEL(editor->desc->creature) < LVL_AMBASSADOR) {
 		//mailing the grimp, charge em out the ass
-		if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
+		if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
 			money_desc = "creds";
-			money = GET_CASH(desc->creature);
+			money = GET_CASH(editor->desc->creature);
 		} else {
 			money_desc = "gold";
-			money = GET_GOLD(desc->creature);
+			money = GET_GOLD(editor->desc->creature);
 		}
 
 		if (new_id_num == 1)
@@ -290,10 +268,10 @@ CMailEditor_AddRecipient(char *name)
 			SendMessage(tmp_sprintf("%s added to recipient list.  You have been charged %d %s.\r\n",
                                     tmp_capitalize(playerIndex.getName(new_id_num)), cost,
                                     money_desc));
-			if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
-				GET_CASH(desc->creature) -= cost;
+			if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
+				GET_CASH(editor->desc->creature) -= cost;
 			else
-				GET_GOLD(desc->creature) -= cost;
+				GET_GOLD(editor->desc->creature) -= cost;
 		}
 	} else {
         SendMessage(tmp_sprintf("%s added to recipient list.\r\n",
@@ -304,7 +282,7 @@ CMailEditor_AddRecipient(char *name)
 }
 
 void
-CMailEditor_RemRecipient(char *name)
+maileditor_remrecipient(struct editor *editor, char *name)
 {
 	int removed_idnum = -1;
 	struct mail_recipient_data *cur = NULL;
@@ -327,36 +305,36 @@ CMailEditor_RemRecipient(char *name)
 		cur = mail_to;
 		mail_to = mail_to->next;
 		delete cur;
-		if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
-			if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+		if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
+			if (GET_LEVEL(editor->desc->creature) < LVL_AMBASSADOR) {
 
 				if (removed_idnum == 1) {	//fireball :P
                     msg = tmp_sprintf(
 						"%s removed from recipient list.  %d credits have been refunded.\r\n",
 						tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-					GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient
+					GET_CASH(editor->desc->creature) += 1000000;	//credit mailer for removed recipient
 				} else {
                     msg = tmp_sprintf(
 						"%s removed from recipient list.  %d credits have been refunded.\r\n",
 						tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-					GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
+					GET_CASH(editor->desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
 				}
 			} else {
                 msg = tmp_sprintf("%s removed from recipient list.\r\n",
 					tmp_capitalize(playerIndex.getName(removed_idnum)));
 			}
 		} else {				//not in the future, refund gold
-			if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+			if (GET_LEVEL(editor->desc->creature) < LVL_AMBASSADOR) {
 				if (removed_idnum == 1) {	//fireball :P
                     msg = tmp_sprintf(
 						"%s removed from recipient list.  %d gold has been refunded.\r\n",
 						tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-					GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient
+					GET_GOLD(editor->desc->creature) += 1000000;	//credit mailer for removed recipient
 				} else {
 					msg = tmp_sprintf(
 						"%s removed from recipient list.  %d gold has been refunded.\r\n",
 						tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-					GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
+					GET_GOLD(editor->desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
 				}
 			} else {
                 msg = tmp_sprintf("%s removed from recipient list.\r\n",
@@ -382,35 +360,35 @@ CMailEditor_RemRecipient(char *name)
 	// Link around the recipient to be removed.
 	prev->next = cur->next;
 	delete cur;
-	if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
-		if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+	if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
+		if (GET_LEVEL(editor->desc->creature) < LVL_AMBASSADOR) {
 			if (removed_idnum == 1) {	//fireball :P
 				msg = tmp_sprintf(
 					"%s removed from recipient list.  %d credits have been refunded.\r\n",
 					tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-				GET_CASH(desc->creature) += 1000000;	//credit mailer for removed recipient
+				GET_CASH(editor->desc->creature) += 1000000;	//credit mailer for removed recipient
 			} else {
 				msg = tmp_sprintf(
 					"%s removed from recipient list.  %d credits have been refunded.\r\n",
 					tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-				GET_CASH(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
+				GET_CASH(editor->desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
 			}
 		} else {
 			msg = tmp_sprintf("%s removed from recipient list.\r\n",
 				tmp_capitalize(playerIndex.getName(removed_idnum)));
 		}
 	} else {					//not in future, refund gold
-		if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
+		if (GET_LEVEL(editor->desc->creature) < LVL_AMBASSADOR) {
 			if (removed_idnum == 1) {	//fireball :P
                 msg = tmp_sprintf(
 					"%s removed from recipient list.  %d gold has been refunded.\r\n",
 					tmp_capitalize(playerIndex.getName(removed_idnum)), 1000000);
-				GET_GOLD(desc->creature) += 1000000;	//credit mailer for removed recipient
+				GET_GOLD(editor->desc->creature) += 1000000;	//credit mailer for removed recipient
 			} else {
                 msg = tmp_sprintf(
 					"%s removed from recipient list.  %d gold has been refunded.\r\n",
 					tmp_capitalize(playerIndex.getName(removed_idnum)), STAMP_PRICE);
-				GET_GOLD(desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
+				GET_GOLD(editor->desc->creature) += STAMP_PRICE;	//credit mailer for removed recipient
 			}
 		} else {
 			msg = tmp_sprintf("%s removed from recipient list.\r\n",
@@ -423,15 +401,15 @@ CMailEditor_RemRecipient(char *name)
 }
 
 void
-CMailEditor_AddAttachment(char *obj_name)
+maileditor_addattachment(struct editor *editor, char *obj_name)
 {
     struct obj_data *obj = NULL, *o = NULL;
     char *msg;
 	const char *money_desc;
     unsigned money, cost;
 
-    obj = get_obj_in_list_all(this->desc->creature, obj_name,
-            this->desc->creature->carrying);
+    obj = get_obj_in_list_all(this->editor->desc->creature, obj_name,
+            this->editor->desc->creature->carrying);
 
     if (!obj) {
         msg = tmp_sprintf("You don't seem to have %s %s.\r\n",
@@ -464,13 +442,13 @@ CMailEditor_AddAttachment(char *obj_name)
         return;
     }
 
-	if (GET_LEVEL(desc->creature) < LVL_AMBASSADOR) {
-		if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
+	if (GET_LEVEL(editor->desc->creature) < LVL_AMBASSADOR) {
+		if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO) {
 			money_desc = "creds";
-			money = GET_CASH(desc->creature);
+			money = GET_CASH(editor->desc->creature);
 		} else {
 			money_desc = "gold";
-			money = GET_GOLD(desc->creature);
+			money = GET_GOLD(editor->desc->creature);
 		}
 
 		cost = obj->getWeight() * MAIL_COST_MULTIPLIER;
@@ -483,10 +461,10 @@ CMailEditor_AddAttachment(char *obj_name)
         else {
             SendMessage(tmp_sprintf("You have been charged an additional %d "
                         "%s for postage.\r\n", cost, money_desc));
-			if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
-				GET_CASH(desc->creature) -= cost;
+			if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
+				GET_CASH(editor->desc->creature) -= cost;
 			else
-				GET_GOLD(desc->creature) -= cost;
+				GET_GOLD(editor->desc->creature) -= cost;
 		}
 	}
 
@@ -511,7 +489,7 @@ CMailEditor_AddAttachment(char *obj_name)
 
     this->num_attachments++;
 
-    desc->creature->saveToXML();
+    editor->desc->creature->saveToXML();
     obj->next_content = NULL;
 
     msg = tmp_sprintf("The postmaster wraps up %s and throws it in a bin.\r\n",
@@ -521,7 +499,7 @@ CMailEditor_AddAttachment(char *obj_name)
 }
 
 void
-CMailEditor_ReturnAttachments(void)
+maileditor_returnattachments(struct editor *editor)
 {
     struct obj_data *o, *next_obj;
 
@@ -532,17 +510,41 @@ CMailEditor_ReturnAttachments(void)
         o = this->obj_list;
         while (o) {
             next_obj = o->next_content;
-            obj_to_char(o, desc->creature, false);
-			if (desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
-				GET_CASH(desc->creature) +=
+            obj_to_char(o, editor->desc->creature, false);
+			if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
+				GET_CASH(editor->desc->creature) +=
                     o->getWeight() * MAIL_COST_MULTIPLIER;
 			else
-				GET_GOLD(desc->creature) +=
+				GET_GOLD(editor->desc->creature) +=
                     o->getWeight() * MAIL_COST_MULTIPLIER;
             o = next_obj;
         }
     }
 
-    desc->creature->saveToXML();
+    editor->desc->creature->saveToXML();
     this->obj_list = NULL;
+}
+
+void
+start_editing_mail(struct descriptor_data *d,
+                   struct mail_recipient_data *recipients)
+{
+	if (d->text_editor) {
+		errlog("Text editor object not null in start_editing_mail");
+		REMOVE_BIT(PLR_FLAGS(d->creature),
+                   PLR_WRITING | PLR_OLC | PLR_MAILING);
+		return;
+	}
+
+    SET_BIT(PLR_FLAGS(d->creature), PLR_MAILING | PLR_WRITING);
+
+	d->text_editor = make_editor(d, MAX_MAIL_SIZE);
+    CREATE(mail_info, struct maileditor_data, 1);
+    d->mode_data = mail_info;
+
+    mail_info->mail_to = recipients;
+    mail_info->obj_list = NULL;
+
+    emit_editor_startup(d->text_editor);
+    display_buffer(d->text_editor);
 }
