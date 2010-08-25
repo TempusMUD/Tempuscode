@@ -29,27 +29,10 @@
 #include "comm.h"
 
 extern struct descriptor_data *descriptor_list;
-extern HelpCollection *Help;
-
-struct editor *
-make_editor(struct descriptor_data *d, int max)
-{
-    struct editor *editor;
-
-    CREATE(editor, struct editor, 1);
-    editor->desc = d;
-    editor->max_size = max;
-    editor->do_command = editor_do_command;
-    editor->finalize = editor_finalize;
-    editor->cancel = editor_cancel;
-    editor->displaybuffer = editor_display;
-    editor->sendmodalhelp = editor_sendmodalhelp;
-
-    return editor;
-}
+extern struct help_collection *Help;
 
 void
-editor_import(struct editor *editor, char *text)
+editor_import(struct editor *editor, const char *text)
 {
     gchar **strv, **strp;
 
@@ -78,11 +61,13 @@ editor_emit(struct editor *editor, char *text)
 void
 emit_editor_startup(struct editor *editor)
 {
+    int i;
+
     send_to_desc(editor->desc,
                  "&C     * &YTEDII &b]&n Save and exit with @ on a new line. "
                  "&&H for help             &C*\r\n");
     send_to_desc(editor->desc, "     ");
-	for (int i = 0; i < 7; i++)
+	for (i = 0; i < 7; i++)
         send_to_desc(editor->desc, "&C%d&B---------", i);
     send_to_desc(editor->desc, "&C7&n\r\n");
 }
@@ -90,7 +75,7 @@ emit_editor_startup(struct editor *editor)
 void
 editor_send_prompt(struct editor *editor)
 {
-    send_to_desc(desc, "%3zd&b]&n ", editor_line_count(editor) + 1);
+    send_to_desc(editor->desc, "%3zd&b]&n ", editor_line_count(editor) + 1);
 }
 
 int
@@ -126,11 +111,11 @@ editor_finish(struct editor *editor, bool save)
         g_list_foreach(editor->lines, concat_line, 0);
 
         // Call the finalizer
-        editor->finalize(text);
+        editor->finalize(editor, text);
 
         free(text);
     } else {
-        editor->cancel(text);
+        editor->cancel(editor);
     }
 
 	if (IS_PLAYING(desc) && desc->creature && !IS_NPC(desc->creature)) {
@@ -178,12 +163,12 @@ editor_handle_input(struct editor *editor, char *input)
         args = inbuf + 2;
         while (*args && isspace(*args))
             args++;
-        if (!editor->do_command(inbuf[1], args))
+        if (!editor->do_command(editor, inbuf[1], args))
             editor_emit(editor, "Invalid Command. Type &h for help.\r\n");
 	} else if (*inbuf == '@') {	// Finish up
-        editor_finish(true);
+        editor_finish(editor, true);
 	} else {					// Dump the text in
-		editor_append(inbuf);
+		editor_append(editor, inbuf);
 	}
 }
 
@@ -201,15 +186,15 @@ editor_display(struct editor *editor, int start_line, int line_count)
         end_line = start_line + line_count;
 
     // Set the iterator to the beginning line
-    itr = g_list_nth(start_line - 1);
+    itr = g_list_nth(editor->lines, start_line - 1);
 
     // Display the lines from the beginning line to the end, making
     // sure we don't overflow the LARGE_BUF desc buffer
 	for (linenum = start_line;linenum < end_line;linenum++, itr = g_list_next(itr)) {
 		acc_sprintf("%3d%s%s]%s %s\r\n", linenum,
-                    CCBLD(desc->creature, C_CMP),
-                    CCBLU(desc->creature, C_NRM),
-                    CCNRM(desc->creature, C_NRM),
+                    CCBLD(editor->desc->creature, C_CMP),
+                    CCBLU(editor->desc->creature, C_NRM),
+                    CCNRM(editor->desc->creature, C_NRM),
                     ((GString *)itr->data)->str);
 		if (acc_get_length() > (LARGE_BUFSIZE - 1024))
 			break;
@@ -219,13 +204,13 @@ editor_display(struct editor *editor, int start_line, int line_count)
 	if (acc_get_length() > (LARGE_BUFSIZE - 1024))
         acc_strcat("Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n", NULL);
 
-	editor_emit(acc_get_string());
+	editor_emit(editor, acc_get_string());
 }
 
 bool
 editor_is_full(struct editor *editor, char *line)
 {
-    return (strlen(line) + editor_buffer_size(editor) > editor->max_size)
+    return (strlen(line) + editor_buffer_size(editor) > editor->max_size);
 }
 
 gint
@@ -238,10 +223,10 @@ void
 editor_append(struct editor *editor, char *line)
 {
     if (editor_is_full(editor, line)) {
-        editor_emit("Error: The buffer is full.\r\n");
+        editor_emit(editor, "Error: The buffer is full.\r\n");
         return;
     }
-    if (PLR_FLAGGED(desc->creature, PLR_OLC))
+    if (PLR_FLAGGED(editor->desc->creature, PLR_OLC))
         g_strdelimit(line, "~", '?');
     g_list_append(editor->lines, g_string_new(line));
 }
@@ -257,7 +242,8 @@ editor_insert(struct editor *editor, int lineno, char *line)
 		line++;
 
 	if (line > editor_line_count(editor)) {
-		editor_emit("You can't insert before a line that doesn't exist.\r\n");
+		editor_emit(editor,
+                    "You can't insert before a line that doesn't exist.\r\n");
 		return false;
 	}
 	if (editor_is_full(editor, line)) {
@@ -267,7 +253,7 @@ editor_insert(struct editor *editor, int lineno, char *line)
 
 
     s = g_list_nth(editor->lines, lineno - 1);
-    g_list_insert_before(s, g_string_new(line));
+    editor->lines = g_list_insert_before(editor->lines, s, g_string_new(line));
 
 	return true;
 }
@@ -289,7 +275,7 @@ editor_replace_line(struct editor *editor, unsigned int lineno, char *line)
     advance(s, line - 1);
 
 	// Make sure we can fit the new stuff in
-    if (editor_is_full(line)) {
+    if (editor_is_full(editor, line)) {
 		editor_emit(editor, "Error: The buffer is full.\r\n");
 		return false;
 	}
@@ -299,12 +285,13 @@ editor_replace_line(struct editor *editor, unsigned int lineno, char *line)
 }
 
 bool
-editor_movelines(unsigned int start_line,
+editor_movelines(struct editor *editor,
+                 unsigned int start_line,
                  unsigned int end_line,
                  unsigned int dest_line)
 {
     GList *dest, *begin, *end, *next;
-
+    GList *cur;
 
     if (start_line < 1 || start_line > editor_line_count(editor)) {
         if (start_line == end_line)
@@ -331,7 +318,7 @@ editor_movelines(unsigned int start_line,
     end = g_list_nth(editor->lines, end_line + 1);
     dest = g_list_nth(editor->lines, dest_line);
 
-    for (GList *cur = begin;cur != end;cur = next;) {
+    for (cur = begin;cur != end;cur = next) {
         next = cur->next;
         editor->lines = g_list_insert_before(editor->lines, dest, cur->data);
         editor->lines = g_list_delete_link(editor->lines, cur);
@@ -351,12 +338,15 @@ editor_movelines(unsigned int start_line,
 bool
 editor_find(struct editor *editor, char *args)
 {
+    int i = 0;
+
     void print_if_match(GString *str, gpointer ignore) {
+        i++;
         if (strcasestr(str, args))
             acc_sprintf("%3d%s%s]%s %s\r\n", i,
-                    CCBLD(desc->creature, C_CMP),
-                    CCBLU(desc->creature, C_NRM),
-                    CCNRM(desc->creature, C_NRM),
+                    CCBLD(editor->desc->creature, C_CMP),
+                    CCBLU(editor->desc->creature, C_NRM),
+                    CCNRM(editor->desc->creature, C_NRM),
                     str->str);
     }
 
@@ -415,6 +405,7 @@ editor_substitute(struct editor *editor, char *args)
     }
     args++;
 
+    temp = args;
     pattern = args;
     while (*args && *args != end_char)
         args++;
@@ -455,6 +446,7 @@ editor_substitute(struct editor *editor, char *args)
         args++;
     }
 
+    temp = args;
     replacement = temp;
 
     while (*args && *args != end_char)
@@ -466,7 +458,7 @@ editor_substitute(struct editor *editor, char *args)
     buffer_size = editor_buffer_size(editor);
 
 	// Find pattern in theText a line at a time and replace each instance.
-	unsigned int pos;			// Current position in the line
+	char *pos;			// Current position in the line
 	bool overflow = false;		// Have we overflowed the buffer?
 
     for (line = editor->lines;
@@ -475,26 +467,26 @@ editor_substitute(struct editor *editor, char *args)
         pos = strstr(((GString *)line->data)->str, pattern);
         while (pos && buffer_size + size_delta < editor->max_size) {
             g_string_erase((GString *)line->data,
-                           pos - (GString *)line->data->str,
+                           pos - ((GString *)line->data)->str,
                            pattern_len);
             g_string_insert_len((GString *)line->data,
-                                pos - (GString *)line->data->str,
+                                pos - ((GString *)line->data)->str,
                                 replacement,
                                 replacement_len);
             replaced++;
-            buffer_len += size_delta;
+            buffer_size += size_delta;
             pos = strstr(pos + replacement_len, pattern);
         }
     }
-	if (buffer_len + size_delta > editor->max_size)
+	if (buffer_size + size_delta > editor->max_size)
         editor_emit(editor, "Error: The buffer is full.\r\n");
     if (replaced > 0) {
         editor_emit(editor, tmp_sprintf(
                         "Replaced %d occurrence%s of '%s' with '%s'.\r\n",
                         replaced,
                         (replaced == 1) ? "":"s",
-                        pattern.c_str(),
-                        replacement.c_str()));
+                        pattern,
+                        replacement));
     } else {
         editor_emit(editor, "Search string not found.\r\n");
     }
@@ -506,7 +498,7 @@ bool
 editor_wrap(struct editor *editor)
 {
     GString *tempstr;
-    GList *line;
+    GList *line, *new_line;
     char *s;
 	int linebreak;
 
@@ -530,7 +522,7 @@ editor_wrap(struct editor *editor)
 			s += 75;
 		}
 
-        new_line = g_string_new((linebreak > 1) ? s + 1:s)
+        new_line = g_string_new((linebreak > 1) ? s + 1:s);
 		g_string_truncate(((GString *)line->data),
                           s - ((GString *)line->data)->str);
 		line = line->next;
@@ -562,7 +554,7 @@ editor_remove(struct editor *editor,
     finish = g_list_nth(editor->lines, finish_line -  1);
     while (start != finish) {
         next = start->next;
-        g_string_free((GString *)start->data);
+        g_string_free((GString *)start->data, true);
         editor->lines = g_list_delete_link(editor->lines, start);
         start = next;
     }
@@ -591,7 +583,7 @@ void
 editor_undo(struct editor *editor)
 {
 	if (editor->original) {
-        editor_clear();
+        editor_clear(editor);
         GList *line;
 
         for (line = editor->original;line;line = line->next) {
@@ -612,45 +604,46 @@ void
 editor_sendmodalhelp(struct editor *editor)
 {
     // default offers the clear buffer and undo changes options
-    send_to_desc(desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
+    send_to_desc(editor->desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
 }
 
 void
-editor_help(struct editor *editor, char *inStr)
+editor_help(struct editor *editor, char *line)
 {
 	char command[MAX_INPUT_LENGTH];
 
     acc_string_clear();
 
-	if (!*inStr) {
-        send_to_desc(desc,
+	if (!*line) {
+        send_to_desc(editor->desc,
                      "     &C*&B-----------------------&Y H E L P &B-----------------------&C*\r\n"
                      "            &YR - &nRefresh Screen       &YH - &nHelp         \r\n"
                      "            &YE - &nSave and Exit        &YQ - &nQuit (Cancel)\r\n"
                      "            &YL - &nReplace Line         &YD - &nDelete Line  \r\n"
                      "            &YI - &nInsert Line          &YM - &nMove Line(s)\r\n"
                      "            &YF - &nFind                 &YS - &nSubstitute\r\n");
-        this->SendModalHelp();
-        send_to_desc(desc,
+        editor->sendmodalhelp(editor);
+        send_to_desc(editor->desc,
                      "     &C*&B-------------------------------------------------------&C*&n\r\n");
 	} else {
         struct help_item *help_item;
 
-		inStr = one_argument(inStr, command);
+		line = one_argument(line, command);
 		*command = tolower(*command);
-        help_item = _Help->FindItems(tmp_sprintf("tedii-%c", *command), false, 0, false);
+        help_item = help_finditems(tmp_sprintf("tedii-%c", *command),
+                                   false, 0, false);
         if (help_item) {
-            help_item->LoadText();
-            send_to_desc(desc, "&cTEDII Command '%c'&n\r\n", *command);
-            SEND_TO_Q(help_item->text, desc);
+            help_item_load_text(help_item);
+            send_to_desc(editor->desc, "&cTEDII Command '%c'&n\r\n", *command);
+            send_to_desc(editor->desc, help_item->text);
         } else {
-            send_to_desc(desc, "Sorry.  There is no help on that.\r\n");
+            send_to_desc(editor->desc, "Sorry.  There is no help on that.\r\n");
         }
     }
 }
 
 bool
-parse_optional_range(const char *arg, int &start, int &finish)
+parse_optional_range(const char *arg, int *start, int *finish)
 {
     const char *dash = strchr(arg, '-');
 
@@ -661,15 +654,19 @@ parse_optional_range(const char *arg, int &start, int &finish)
         str = tmp_substr(arg, 0, dash - arg - 1);
         if (!isnumber(str))
             return false;
-        start = atoi(str);
+        *start = atoi(str);
 
-        str = tmp_substr(arg, dash - arg + 1);
+        str = tmp_substr(arg, dash - arg + 1, -1);
         if (!isnumber(str))
             return false;
-        finish = atoi(str);
+        *finish = atoi(str);
 
-        if (start > finish)
-            swap(start, finish);
+        if (start > finish) {
+            int tmp = *finish;
+
+            *finish = *start;
+            *start = tmp;
+        }
 
         return true;
     }
@@ -679,34 +676,34 @@ parse_optional_range(const char *arg, int &start, int &finish)
         return false;
 
     // Single number
-    start = finish = atoi(arg);
+    *start = *finish = atoi(arg);
     return true;
 }
 
 bool
-editor_performcommand(struct editor *editor, char cmd, char *args)
+editor_do_command(struct editor *editor, char cmd, char *args)
 {
 	int line, start_line, end_line, dest_line;
 	char command[MAX_INPUT_LENGTH];
 
 	switch (tolower(cmd)) {
 	case 'h':					// Help
-		ProcessHelp(args);
+		editor_help(editor, args);
         break;
 	case 'e':					// Save and Exit
-        Finish(true);
+        editor_finish(editor, true);
 		break;
 	case 'q':					// Quit without saving
-        Finish(false);
+        editor_finish(editor, false);
 		break;
 	case 's':					// Substitute
-        Substitute(args);
+        editor_substitute(editor, args);
 		break;
     case 'f':                   // Find
-        Find(args);
+        editor_find(editor, args);
         break;
 	case 'c':					// Clear Buffer
-		Clear();
+		editor_clear(editor);
 		editor_emit(editor, "Cleared.\r\n");
 		break;
 	case 'l':					// Replace Line
@@ -720,7 +717,7 @@ editor_performcommand(struct editor *editor, char cmd, char *args)
 			editor_emit(editor, "Format for Replace Line is: &l <line #> <text>\r\n");
 			break;
 		}
-        ReplaceLine(line, args);
+        editor_replaceline(line, args);
 		break;
 	case 'i':					// Insert Line
 		args = one_argument(args, command);
@@ -734,15 +731,15 @@ editor_performcommand(struct editor *editor, char cmd, char *args)
 			editor_emit(editor, "Format for insert command is: &i <line #><text>\r\n");
 			break;
 		}
-        Insert(line, args);
+        editor_insert(editor, line, args);
 		break;
 	case 'd':					// Delete Line
 		args = one_argument(args, command);
-        if (!parse_optional_range(command, start_line, end_line)) {
+        if (!parse_optional_range(command, &start_line, &end_line)) {
 			editor_emit(editor, "Format for delete command is: &d <line #>\r\n");
 			break;
 		}
-        Remove(start_line, end_line);
+        editor_remove(editor, start_line, end_line);
 		break;
     case 'm': {
         char *arg;
@@ -753,7 +750,7 @@ editor_performcommand(struct editor *editor, char cmd, char *args)
             break;
         }
 
-        if (!parse_optional_range(arg, start_line, end_line)) {
+        if (!parse_optional_range(arg, &start_line, &end_line)) {
             editor_emit(editor, "Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
             break;
         }
@@ -770,14 +767,14 @@ editor_performcommand(struct editor *editor, char cmd, char *args)
             break;
         }
 
-        MoveLines(start_line, end_line, dest_line);
+        editor_movelines(editor, start_line, end_line, dest_line);
         break;
     }
 	case 'r':					// Refresh Screen
         if (!*args) {
             editor_display(editor, 0, -1);
         } else if (isnumber(args) && (line = atoi(args)) > 0) {
-            int line_count = desc->account->get_term_height();
+            int line_count = editor->desc->account->term_height;
 
             editor_display(editor, MAX(1, line - line_count / 2), line_count);
 		} else {
@@ -789,4 +786,21 @@ editor_performcommand(struct editor *editor, char cmd, char *args)
 	}
 
 	return true;
+}
+
+struct editor *
+make_editor(struct descriptor_data *d, int max)
+{
+    struct editor *editor;
+
+    CREATE(editor, struct editor, 1);
+    editor->desc = d;
+    editor->max_size = max;
+    editor->do_command = editor_do_command;
+    editor->finalize = editor_finalize;
+    editor->cancel = editor_cancel;
+    editor->displaybuffer = editor_display;
+    editor->sendmodalhelp = editor_sendmodalhelp;
+
+    return editor;
 }

@@ -25,13 +25,33 @@
 #include "accstr.h"
 #include "help.h"
 #include "comm.h"
-#include "player_table.h"
 
-extern int max_filesize;
-const int MAX_EDIT_FILESIZE = max_filesize + 128;
+extern const int max_filesize;
+#define MAX_EDIT_FILESIZE (max_filesize + 128)
+
+void
+fileeditor_finalize(struct editor *editor, const char *text)
+{
+    FILE *fd = NULL;
+
+    if ((fd = fopen((char *)editor->mode_data, "w"))) {
+        fwrite(text, 1, strlen(text), fd);
+        fclose(fd);
+    } else {
+        send_to_char(editor->desc->creature, "Your file was not saved.  Please bug this.\r\n");
+    }
+
+    REMOVE_BIT(PLR_FLAGS(editor->desc->creature), PLR_WRITING);
+
+    if (IS_PLAYING(editor->desc))
+        act("$n finishes editing.", true, editor->desc->creature, 0, 0, TO_NOTVICT);
+}
+
 void
 start_editing_file(struct descriptor_data *d, const char *fname)
 {
+    FILE *inf = NULL;
+    char *target;
     struct stat sbuf;
 
     if (!d) {
@@ -64,86 +84,33 @@ start_editing_file(struct descriptor_data *d, const char *fname)
         return;
     }
 
-	d->text_editor = new CFileEditor(d, fname);
-    SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
-}
-
-CFileEditor_CFileEditor(descriptor_data *desc, const char *filename)
-    : CEditor(desc, MAX_EDIT_FILESIZE), fname(filename)
-{
-    FILE *fd = NULL;
-    struct stat sbuf;
-    char *target;
-
-    loaded = true;
-    wrap = false;
-
-    if (stat(filename, &sbuf) < 0) {
-		errlog("Couldn't open %s for editing: %s", filename, strerror(errno));
-		loaded = false;
-		return;
-	}
-	CREATE(target, char, sbuf.st_size + 1);
-	if (!target) {
-		errlog("Couldn't allocate memory to edit %s", filename);
-        loaded = false;
-		return;
-	}
-
-	fd = fopen(filename, "r");
-    if (fd && fread(target, sizeof(char), sbuf.st_size, fd) == (size_t)sbuf.st_size) {
-		if (*target)
-			ImportText(target);
-
-		SendStartupMessage();
-		DisplayBuffer();
-	} else {
-        sprintf(target, "An unknown error occured while reading the file. "
-                        "Please bug this.  You will not be able to save.");
-        wrap = true;
-    }
-
-    free(target);
-	if (fd)
-		fclose(fd);
-}
-
-CFileEditor_~CFileEditor(void)
-{
-}
-
-bool
-CFileEditor_PerformCommand(char cmd, char *args)
-{
-    switch (cmd) {
-    case 'u':
-        UndoChanges();
-        break;
-    default:
-        return CEditor_PerformCommand(cmd, args);
-    }
-
-    return true;
-}
-
-void
-CFileEditor_Finalize(const char *text)
-{
-    FILE *fd = NULL;
-
-    if (loaded) {
-        if ((fd = fopen(fname.c_str(), "w"))) {
-            fwrite(text, 1, strlen(text), fd);
+	inf = fopen(fname, "r");
+    if (inf) {
+        CREATE(target, char, sbuf.st_size + 1);
+        if (!target) {
+            errlog("Couldn't allocate memory to edit %s", fname);
+            send_to_desc(d, "Internal error #09384\r\n");
+            return;
         }
+
+        if (fread(target, sizeof(char), sbuf.st_size, inf) != (size_t)sbuf.st_size) {
+            send_to_desc(d, "Internal error #42372\r\n");
+            free(target);
+            fclose(inf);
+            return;
+        }
+
+        d->text_editor = make_editor(d, MAX_EDIT_FILESIZE);
+        editor_import(d->text_editor, target);
+
+        SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
+
+        d->text_editor->finalize = fileeditor_finalize;
+        d->text_editor->mode_data = strdup(fname);
+        free(target);
+        fclose(inf);
+
+        emit_editor_startup(d->text_editor);
+        display_buffer(d->text_editor);
     }
-
-    REMOVE_BIT(PLR_FLAGS(desc->creature), PLR_WRITING);
-
-    if (IS_PLAYING(desc))
-        act("$n finishes editing.", true, desc->creature, 0, 0, TO_NOTVICT);
-
-    if (!fd)
-        send_to_char(desc->creature, "Your file was not saved.  Please bug this.\r\n");
-    else
-        fclose(fd);
 }

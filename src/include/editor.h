@@ -27,9 +27,8 @@ struct editor {
     void (*sendmodalhelp)(struct editor *editor); // send mode-specific command help
 };
 
-struct editor *make_editor(struct descriptor_data *d,
-                           int max,
-                           char *target);
+struct editor *make_editor(struct descriptor_data *d, int max);
+void editor_import(struct editor *editor, const char *text);
 
 void emit_editor_startup(struct editor *editor);
 void display_buffer(struct editor *editor);

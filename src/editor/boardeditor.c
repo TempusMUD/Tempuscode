@@ -91,11 +91,12 @@ start_editing_board(struct descriptor_data *d,
     data->board = strdup(b_name);
     data->subject = strdup(subject);
 
-	d->text_editor = make_editor(d, MAX_STRING_LENGTH, body);
+	d->text_editor = make_editor(d, MAX_STRING_LENGTH);
     d->text_editor->do_command = board_command;
     d->text_editor->finalize = board_finalize;
     d->text_editor->cancel = board_cancel;
 
+    editor_import(d->text_editor, body);
     emit_editor_startup(d->text_editor);
     display_buffer(d->text_editor);
 }
