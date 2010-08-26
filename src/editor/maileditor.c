@@ -46,7 +46,7 @@ free_maileditor(struct editor *editor)
 }
 
 void
-maileditor_displaybuffer(struct editor *editor,
+maileditor_display(struct editor *editor,
                          unsigned int start_line,
                          int line_count)
 {
@@ -141,6 +141,8 @@ maileditor_finalize(struct editor *editor, const char *text)
         // pk avoidance reasons.
         act("$n postmarks and dispatches $s mail.", true, editor->desc->creature, 0, 0, TO_NOTVICT);
     }
+
+    free_maileditor(editor);
 }
 
 void
@@ -156,6 +158,7 @@ void
 maileditor_cancel(struct editor *editor)
 {
     maileditor_returnattachments();
+    free_maileditor(editor);
 }
 
 void
@@ -536,7 +539,13 @@ start_editing_mail(struct descriptor_data *d,
 
 	d->text_editor = make_editor(d, MAX_MAIL_SIZE);
     CREATE(mail_data, struct maileditor_data, 1);
-    d->mode_data = mail_data;
+    d->text_editor->do_command = maileditor_do_command;
+    d->text_editor->finalize = maileditor_finalize;
+    d->text_editor->cancel = maileditor_cancel;
+    d->text_editor->displaybuffer = maileditor_display;
+    d->text_editor->sendmodalhelp = maileditor_sendmodalhelp;
+
+    d->text_editor->mode_data = mail_data;
 
     mail_data->mail_to = recipients;
     mail_data->obj_list = NULL;
