@@ -33,6 +33,7 @@
 #include "house.h"
 #include "fight.h"
 #include "prog.h"
+#include "weather.h"
 
 /* external structs */
 extern struct obj_data *object_list;
@@ -165,17 +166,86 @@ const char *obj_flow_msg[NUM_FLOW_TYPES + 1][2] = {
 };
 
 void
+flow_one_creature(struct creature *ch, struct room_data *rnum, int pulse, int dir)
+{
+    struct room_data *was_in;
+    struct obj_data *obj, *next_obj;
+    struct special_search_data *srch;
+
+    if (!ch)
+        return;
+
+    if (CHAR_CUR_PULSE(ch) == pulse ||
+        (IS_MOB(ch) &&
+         (MOB2_FLAGGED(ch, MOB2_NO_FLOW) ||
+          IS_SET(ABS_EXIT(rnum, dir)->exit_info,
+                 EX_NOMOB)
+          || IS_SET(ROOM_FLAGS(ABS_EXIT(rnum,
+                                        dir)->to_room), ROOM_NOMOB)))
+        || PLR_FLAGGED(ch, PLR_HALT) || (!IS_NPC(ch)
+                                           && !ch->desc)
+        || (ROOM_FLAGGED(ABS_EXIT(rnum, dir)->to_room,
+                         ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD)
+        || (GET_POSITION(ch) == POS_FLYING
+            && (FLOW_TYPE(rnum) == F_TYPE_RIVER_SURFACE
+                || FLOW_TYPE(rnum) == F_TYPE_LAVA_FLOW
+                || FLOW_TYPE(rnum) == F_TYPE_RIVER_FIRE
+                || FLOW_TYPE(rnum) == F_TYPE_FALLING
+                || FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP
+                || IS_DRAGON(ch)))
+        || (AFF_FLAGGED(ch, AFF_WATERWALK)
+            && FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP))
+        return;
+    if (!House_can_enter(ch, rnum->number))
+        return;
+
+    CHAR_CUR_PULSE(ch) = pulse;
+
+    act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]),
+        true, ch, 0, 0, TO_ROOM);
+
+    act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TOCHAR], to_dirs[dir]),
+        false, ch, 0, 0, TO_CHAR);
+
+    char_from_room(ch);
+    char_to_room(ch, ABS_EXIT(rnum, dir)->to_room);
+    look_at_room(ch, ch->in_room, 0);
+    act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]),
+        true, ch, 0, 0, TO_ROOM);
+
+    if (ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
+        && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+
+        was_in = ch->in_room;
+        log_death_trap(ch);
+        death_cry(ch);
+        die(ch, NULL, -1);
+
+        if (was_in->number == 34004) {
+            for (obj = was_in->contents; obj; obj = next_obj) {
+                next_obj = obj->next_content;
+                damage_eq(NULL, obj, dice(10, 100), -1);
+            }
+        }
+    } else {
+        for (srch = ch->in_room->search; srch; srch = srch->next) {
+            if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER)
+                && SRCH_OK(ch, srch))
+                if (general_search(ch, srch, 0) == 2)
+                    break;
+        }
+    }
+}
+
+void
 flow_room(int pulse)
 {
 
-	struct creatureList_iterator it;
-	struct creature *vict = NULL;
 	struct obj_data *obj = NULL, *next_obj = NULL;
 	register struct zone_data *zone = NULL;
-	register struct room_data *rnum = NULL, *was_in = NULL;
+	register struct room_data *rnum = NULL;
 	int dir;
 	struct room_affect_data *aff, *next_aff;
-	struct special_search_data *srch = NULL;
 	struct room_trail_data *trail = NULL;
 
 	for (zone = zone_table; zone; zone = zone->next) {
@@ -220,9 +290,8 @@ flow_room(int pulse)
 							GET_ALIGNMENT(tch) += 1;
 							check_eq_align(tch);
 						}
-						it++;
 					}
-                    g_list_foreach(rnum->people, apply_evil, 0);
+                    g_list_foreach(rnum->people, apply_good, 0);
 				}
 			}
 
@@ -251,75 +320,12 @@ flow_room(int pulse)
 				}
 			}
 
-			if ((vict = rnum->people)) {
-				it = rnum->people.begin();
-				for (; it != rnum->people.end(); ++it) {
-					vict = *it;
-                    if (!vict)
-                        continue;
-					if (CHAR_CUR_PULSE(vict) == pulse ||
-						(IS_MOB(vict) &&
-							(MOB2_FLAGGED(vict, MOB2_NO_FLOW) ||
-								IS_SET(ABS_EXIT(rnum, dir)->exit_info,
-									EX_NOMOB)
-								|| IS_SET(ROOM_FLAGS(ABS_EXIT(rnum,
-											dir)->to_room), ROOM_NOMOB)))
-						|| PLR_FLAGGED(vict, PLR_HALT) || (!IS_NPC(vict)
-							&& !vict->desc)
-						|| (ROOM_FLAGGED(ABS_EXIT(rnum, dir)->to_room,
-								ROOM_GODROOM) && GET_LEVEL(vict) < LVL_GRGOD)
-						|| (GET_POSITION(vict) == POS_FLYING
-							&& (FLOW_TYPE(rnum) == F_TYPE_RIVER_SURFACE
-								|| FLOW_TYPE(rnum) == F_TYPE_LAVA_FLOW
-								|| FLOW_TYPE(rnum) == F_TYPE_RIVER_FIRE
-								|| FLOW_TYPE(rnum) == F_TYPE_FALLING
-								|| FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP
-								|| IS_DRAGON(vict)))
-						|| (AFF_FLAGGED(vict, AFF_WATERWALK)
-							&& FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP))
-						continue;
-					if (!House_can_enter(vict, rnum->number))
-						continue;
+            void flow_one(gpointer it, gpointer ignore) {
+                flow_one_creature((struct creature *)it, rnum, pulse, dir);
+            }
 
-					CHAR_CUR_PULSE(vict) = pulse;
+            g_list_foreach(rnum->people, flow_one, 0);
 
-					act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]),
-                        true, vict, 0, 0, TO_ROOM);
-
-					act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TOCHAR], to_dirs[dir]),
-                        false, vict, 0, 0, TO_CHAR);
-
-					char_from_room(vict);
-					char_to_room(vict, ABS_EXIT(rnum, dir)->to_room);
-					look_at_room(vict, vict->in_room, 0);
-					act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]),
-                        true, vict, 0, 0, TO_ROOM);
-
-					if (ROOM_FLAGGED(vict->in_room, ROOM_DEATH)
-						&& GET_LEVEL(vict) < LVL_AMBASSADOR) {
-
-						was_in = vict->in_room;
-						log_death_trap(vict);
-						death_cry(vict);
-						vict->die();
-
-						if (was_in->number == 34004) {
-							for (obj = was_in->contents; obj; obj = next_obj) {
-								next_obj = obj->next_content;
-								damage_eq(NULL, obj, dice(10, 100));
-							}
-						}
-					} else {
-						for (srch = vict->in_room->search; srch;
-							srch = srch->next) {
-							if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER)
-								&& SRCH_OK(vict, srch))
-								if (general_search(vict, srch, 0) == 2)
-									break;
-						}
-					}
-				}
-			}
 			if ((obj = rnum->contents)) {
 				for (; obj; obj = next_obj) {
 					next_obj = obj->next_content;
@@ -328,7 +334,7 @@ flow_room(int pulse)
 						(!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
 							GET_OBJ_VNUM(obj) != BLOOD_VNUM &&
 							GET_OBJ_VNUM(obj) != ICE_VNUM) ||
-						(obj->getWeight() > number(5, FLOW_SPEED(rnum) * 10) &&
+						(get_weight(obj) > number(5, FLOW_SPEED(rnum) * 10) &&
 							!number(0, FLOW_SPEED(rnum))))
 						continue;
 
@@ -369,7 +375,7 @@ dynamic_object_pulse()
 			continue;
 
 		if (fallpulse &&
-			obj->in_room && obj->in_room->isOpenAir() &&
+			obj->in_room && room_is_open_air(obj->in_room) &&
 			(CAN_WEAR(obj, ITEM_WEAR_TAKE) || OBJ_IS_SOILAGE(obj)) &&
 			obj->in_room->dir_option[DOWN] &&
 			(fall_to = obj->in_room->dir_option[DOWN]->to_room) &&
@@ -524,7 +530,7 @@ affect_to_room(struct room_data *room, struct room_affect_data *aff)
 	tmp_aff->type = aff->type;
     tmp_aff->owner = aff->owner;
     tmp_aff->spell_type = aff->spell_type;
-    for (int i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         tmp_aff->val[i] = aff->val[i];
 	room->affects = tmp_aff;
 
@@ -563,7 +569,7 @@ affect_from_room(struct room_data *room, struct room_affect_data *aff)
 	free(aff);
 }
 
-room_affect_data *
+struct room_affect_data *
 room_affected_by(struct room_data *room, int type)
 {
     struct room_affect_data *aff;
