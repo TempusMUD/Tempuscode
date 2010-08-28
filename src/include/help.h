@@ -49,7 +49,6 @@ struct help_item {
 	char *name;					// The listed name of the help topic
 	char *text;					// The body of the help topic
 	struct creature *editor;
-	FILE *help_file;
 	struct help_item *next;
 	struct help_item *next_show;
 };
@@ -63,5 +62,12 @@ struct help_collection {
 	int top_id;					// The highest id in use..
 	bool need_save;				// Weather something has been changed or not.
 };
+
+struct help_item *make_helpitem(void);
+void free_helpitem(struct help_item *item);
+void helpitem_show(struct help_item *item,
+                   struct creature *ch,
+                   char *buffer,
+                   int mode);
 
 #endif

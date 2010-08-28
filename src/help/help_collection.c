@@ -18,15 +18,14 @@
 #include "handler.h"
 #include "tmpstr.h"
 #include "security.h"
+#include "accstr.h"
 
 // The global HelpCollection object.
 // Allocated in comm.cc
-HelpCollection *Help = NULL;
-// Since one_word isnt in the header file...
+struct help_collection *help = NULL;
+
 static char gHelpbuf[MAX_STRING_LENGTH];
 static char linebuf[MAX_STRING_LENGTH];
-static fstream help_file;
-static fstream index_file;
 extern const char *class_names[];
 
 char *one_word(char *argument, char *first_arg);
@@ -50,9 +49,9 @@ static const struct hcollect_command {
 	"immhelp", "<keyword>", LVL_IMMORT}, {
 	"olchelp", "<keyword>", LVL_IMMORT}, {
 	"qchelp", "<keyword>", LVL_IMMORT}, {
-	"swap", "<topic #> <topic #>", LVL_DEMI}, {
 	NULL, NULL, 0}				// list terminator
 };
+
 static const struct group_command {
 	const char *keyword;
     const char *usage;
@@ -66,6 +65,7 @@ static const struct group_command {
 	"remuser", "<username> <groupnames>", LVL_GOD}, {
 	NULL, NULL, 0}				// list terminator
 };
+
 const char *help_group_names[] = {
 	"olc",
 	"misc",
@@ -94,6 +94,7 @@ const char *help_group_names[] = {
 	"qcontrol",
 	"\n"
 };
+
 const char *help_group_bits[] = {
 	"OLC",
 	"MISC",
@@ -122,12 +123,14 @@ const char *help_group_bits[] = {
 	"QCTR",
 	"\n"
 };
+
 const char *help_bit_descs[] = {
 	"!APP",
 	"IMM+",
 	"MOD",
 	"\n"
 };
+
 const char *help_bits[] = {
 	"unapproved",
 	"immortal",
@@ -135,107 +138,41 @@ const char *help_bits[] = {
 	"\n"
 };
 
-// Help Collection
-HelpCollection_HelpCollection()
+struct help_collection *
+make_help_collection(void)
 {
-	need_save = false;
-	items = NULL;
-	bottom = NULL;
-	top_id = 0;
-}
+    struct help_collection *col;
 
-HelpCollection_~HelpCollection()
-{
-	HelpItem *i;
-	while (items) {
-		i = items;
-		items = items->Next();
-		delete i;
-	}
-	slog("Help system ended.");
+    CREATE(col, struct help_collection, 1);
+
+    return col;
 }
 
 void
-HelpCollection_Push(HelpItem * n)
+free_help_collection(struct help_collection *col)
 {
-	if (bottom) {
-		bottom->SetNext(n);
-		bottom = n;
-	} else {
-		bottom = n;
-		items = n;
-	}
+    g_list_foreach(col->items, free_helpitem, 0);
+    g_list_free(col->items);
+
+    slog("Help system ended.");
 }
 
-// Calls FindItems
-// Mode is how to show the item.
-// Type: 0==normal help, 1==immhelp, 2==olchelp
 void
-HelpCollection_GetTopic(struct creature * ch,
-	char *args,
-	int mode,
-	bool show_no_app,
-	int thegroup, bool searchmode)
+help_collection_push(struct help_collection *col, struct help_item *n)
 {
-
-	HelpItem *cur = NULL;
-	HelpItem *prev = NULL;
-	gHelpbuf[0] = '\0';
-	linebuf[0] = '\0';
-	int space_left = sizeof(gHelpbuf) - 480;
-	if (!args || !*args) {
-		send_to_char(ch, "You must enter search criteria.\r\n");
-		return;
-	}
-	cur = FindItems(args, show_no_app, thegroup, searchmode);
-	if (!cur) {
-		fstream help_log;
-
-		help_log.open("log/help.log", ios_out | ios::app);
-		if (help_log.good()) {
-			time_t ct;
-			char *tmstr;
-
-			ct = time(0);
-			tmstr = asctime(localtime(&ct));
-			*(tmstr + strlen(tmstr) - 1) = '\0';
-			help_log << tmp_sprintf("%-8s (%6.6s) [%5d] %s", GET_NAME(ch),
-				tmstr + 4, (ch->in_room) ? ch->in_room->number:0, args) << endl;
-			help_log.close();
-		}
-
-		send_to_char(ch, "No items were found matching your search criteria.\r\n");
-		return;
-	}
-	// Normal plain old help. One item at a time.
-	if (searchmode == false) {
-		cur->Show(ch, gHelpbuf, mode);
-	} else {					// Searching for multiple items.
-		space_left -= strlen(gHelpbuf);
-		for (; cur; cur = cur->NextShow(), prev->SetNextShow(NULL)) {
-			prev = cur;
-			cur->Show(ch, linebuf, 1);
-			strcat(gHelpbuf, linebuf);
-			space_left -= strlen(linebuf);
-			if (space_left <= 0) {
-				sprintf(linebuf, "Maximum buffer size reached at item # %d.",
-					cur->idnum);
-				strcat(gHelpbuf, linebuf);
-				break;
-			}
-		}
-	}
-	page_string(ch->desc, gHelpbuf);
-	return;
+    col->items = g_list_append(col->items, n);
 }
 
 // Show all the items
 void
-HelpCollection_List(struct creature * ch, char *args)
+help_collection_list(struct help_collection *col,
+                     struct creature *ch,
+                     char *args)
 {
-	HelpItem *cur;
-	int start = 0, end = top_id;
+	struct help_item *cur;
+	int start = 0, end = col->top_id;
 	int space_left = sizeof(gHelpbuf) - 480;
+
 	skip_spaces(&args);
 	args = one_argument(args, linebuf);
 	if (linebuf[0] && !strncmp("range", linebuf, strlen(linebuf))) {
@@ -248,12 +185,12 @@ HelpCollection_List(struct creature * ch, char *args)
 	}
 	sprintf(gHelpbuf, "Help Topics (%d,%d):\r\n", start, end);
 	space_left -= strlen(gHelpbuf);
-	for (cur = items; cur; cur = cur->Next()) {
+	for (cur = col->items; cur; cur = cur->next) {
 		if (cur->idnum > end)
 			break;
 		if (cur->idnum < start)
 			continue;
-		cur->Show(ch, linebuf, 1);
+		helpitem_show(cur, ch, linebuf, 1);
 		strcat(gHelpbuf, linebuf);
 		space_left -= strlen(linebuf);
 		if (space_left <= 0) {
@@ -269,17 +206,17 @@ HelpCollection_List(struct creature * ch, char *args)
 
 // Create an item. (calls Edit)
 bool
-HelpCollection_CreateItem(struct creature * ch)
+help_collection_create_item(struct help_collection *col, struct creature *ch)
 {
-	HelpItem *n;
+	struct help_item *n;
 
-	n = new HelpItem;
-	n->idnum = ++top_id;
-	Push(n);
+    n = make_helpitem();
+	n->idnum = ++col->top_id;
+	help_collection_push(col, n);
 	send_to_char(ch, "Item #%d created.\r\n", n->idnum);
-	n->Save();
-	SaveIndex();
-	n->Edit(ch);
+	helpitem_save(n);
+	help_collection_save_index();
+    helpitem_edit(n, ch);
 	SET_BIT(n->flags, HFLAG_MODIFIED);
 	slog("%s has help topic # %d.", GET_NAME(ch), n->idnum);
 	return true;
@@ -287,18 +224,19 @@ HelpCollection_CreateItem(struct creature * ch)
 
 // Begin editing an item
 bool
-HelpCollection_EditItem(struct creature * ch, int idnum)
+help_collection_edit_item(struct help_collection *col, struct creature *ch, int idnum)
 {
 	// See if you can edit it before you do....
-	HelpItem *cur;
+	struct help_item *cur;
+
 	if(! Security_isMember( ch, "Help" ) ) {
 		send_to_char(ch, "You cannot edit help files.\r\n");
 	}
-    cur = items;
+    cur = col->items;
 	while (cur && cur->idnum != idnum)
-        cur = cur->Next();
+        cur = cur->next;
 	if( cur != NULL ) {
-		cur->Edit(ch);
+		helpitem_edit(cur, ch);
 		return true;
 	}
 	send_to_char(ch, "No such item.\r\n");
@@ -307,36 +245,40 @@ HelpCollection_EditItem(struct creature * ch, int idnum)
 
 // Clear an item
 bool
-HelpCollection_ClearItem(struct creature * ch)
+help_collection_clear_item(struct help_collection *col, struct creature *ch)
 {
 	if (!GET_OLC_HELP(ch)) {
 		send_to_char(ch, "You must be editing an item to clear it.\r\n");
 		return false;
 	}
-	GET_OLC_HELP(ch)->Clear();
+	helpitem_clear(GET_OLC_HELP(ch));
 	return true;
 }
 
 // Save and Item
 bool
-HelpCollection_SaveItem(struct creature * ch)
+help_collection_save_item(struct help_collection *col, struct creature *ch)
 {
 	if (!GET_OLC_HELP(ch)) {
 		send_to_char(ch, "You must be editing an item to save it.\r\n");
 		return false;
 	}
-	GET_OLC_HELP(ch)->Save();
+	helpitem_save(GET_OLC_HELP(ch));
 	return true;
 }
 
 // Find an Item in the index
 // This should take an optional "mode" argument to specify groups the
 //  returned topic can be part of. e.g. (FindItems(argument,FIND_MODE_OLC))
-HelpItem *
-HelpCollection_FindItems(char *args, bool find_no_approve, int thegroup, bool searchmode)
+struct help_item *
+help_collection_find_items(struct help_collection *col,
+                           char *args,
+                           bool find_no_approve,
+                           int thegroup,
+                           bool searchmode)
 {
-	HelpItem *cur = NULL;
-	HelpItem *list = NULL;
+	struct help_item *cur = NULL;
+	struct help_item *list = NULL;
 	char stack[256];
 	char *b;					// beginning of stack
 	char bit[256];				// the current bit of the stack we're lookin through
@@ -344,10 +286,10 @@ HelpCollection_FindItems(char *args, bool find_no_approve, int thegroup, bool se
 	for (b = args; *b; b++)
 		*b = tolower(*b);
 	length = strlen(args);
-	for (cur = items; cur; cur = cur->Next()) {
+	for (cur = col->items; cur; cur = cur->next) {
 		if (IS_SET(cur->flags, HFLAG_UNAPPROVED) && !find_no_approve)
 			continue;
-		if (thegroup && !cur->IsInGroup(thegroup))
+		if (thegroup && !helpitem_is_in_group(cur, thegroup))
 			continue;
 		strcpy(stack, cur->keys);
 		b = stack;
@@ -355,7 +297,7 @@ HelpCollection_FindItems(char *args, bool find_no_approve, int thegroup, bool se
 			b = one_word(b, bit);
 			if (!strncmp(bit, args, length)) {
 				if (searchmode) {
-					cur->SetNextShow(list);
+					cur->next_show = list;
 					list = cur;
 					break;
 				} else {
@@ -367,15 +309,75 @@ HelpCollection_FindItems(char *args, bool find_no_approve, int thegroup, bool se
 	return list;
 }
 
+// Calls FindItems
+// Mode is how to show the item.
+// Type: 0==normal help, 1==immhelp, 2==olchelp
+void
+help_collection_get_topic(struct help_collection *col,
+                          struct creature *ch,
+                          char *args,
+                          int mode,
+                          bool show_no_app,
+                          int thegroup,
+                          bool searchmode)
+{
+
+	struct help_item *cur = NULL;
+
+	gHelpbuf[0] = '\0';
+	linebuf[0] = '\0';
+	int space_left = sizeof(gHelpbuf) - 480;
+	if (!args || !*args) {
+		send_to_char(ch, "You must enter search criteria.\r\n");
+		return;
+	}
+	cur = help_collection_find_items(col, args, show_no_app, thegroup, searchmode);
+	if (cur) {
+        FILE *outf;
+
+        outf = fopen("log/help.log", "a");
+        if (outf)  {
+            fprintf(outf, "%s :: %s [%5d] %s\n",
+                    tmp_ctime(time(NULL)),
+                    GET_NAME(ch),
+                    (ch->in_room) ? ch->in_room->number:0,
+                    args);
+            fclose(outf);
+        }
+
+		send_to_char(ch, "No items were found matching your search criteria.\r\n");
+		return;
+	}
+	// Normal plain old help. One item at a time.
+	if (searchmode == false) {
+		helpitem_show(cur, ch, gHelpbuf, mode);
+	} else {					// Searching for multiple items.
+		space_left -= strlen(gHelpbuf);
+		for (; cur; cur = cur->next_show) {
+			helpitem_show(cur, ch, linebuf, 1);
+			strcat(gHelpbuf, linebuf);
+			space_left -= strlen(linebuf);
+			if (space_left <= 0) {
+				sprintf(linebuf, "Maximum buffer size reached at item # %d.",
+					cur->idnum);
+				strcat(gHelpbuf, linebuf);
+				break;
+			}
+		}
+	}
+	page_string(ch->desc, gHelpbuf);
+	return;
+}
+
 // Save everything.
 bool
-HelpCollection_SaveAll(struct creature * ch)
+help_collection_SaveAll(struct help_collection *col, struct creature *ch)
 {
-	HelpItem *cur;
+	struct help_item *cur;
 	SaveIndex();
-	for (cur = items; cur; cur = cur->Next()) {
+	for (cur = col->items; cur; cur = cur->next) {
 		if (IS_SET(cur->flags, HFLAG_MODIFIED))
-			cur->Save();
+			helpitem_save(cur);
 	}
 	send_to_char(ch, "Saved.\r\n");
 	slog("%s has saved the help system.", GET_NAME(ch));
@@ -384,26 +386,35 @@ HelpCollection_SaveAll(struct creature * ch)
 
 // Save the index
 bool
-HelpCollection_SaveIndex(void)
+help_collection_SaveIndex(struct help_collection *col)
 {
-	char fname[256];
-	HelpItem *cur = NULL;
+	FILE *outf;
+    char *fname;
+	struct help_item *cur = NULL;
 	int num_items = 0;
-	sprintf(fname, "%s/%s", Help_Directory, "index");
 
-	index_file.open(fname, ios_out | ios::trunc);
-	if (!index_file) {
-		errlog("Cannot open help index.");
+	fname = tmp_sprintf("%s/%s", HELP_DIRECTORY, "index");
+
+    outf = fopen(fname, "w");
+    if (outf) {
+        fprintf(outf, "%d\n", col->top_id);
+        for (cur = col->items; cur; cur = cur->next) {
+            fprintf(outf, "%d %u %d %u %ld\n%s\n%s\n",
+                    cur->idnum,
+                    cur->groups,
+                    cur->counter,
+                    cur->flags,
+                    cur->owner,
+                    cur->name,
+                    cur->keys);
+            num_items++;
+        }
+        fclose(outf);
+    } else {
+        errlog("Cannot open help index.");
 		return false;
-	}
-	index_file << top_id << endl;
-	for (cur = items; cur; cur = cur->Next()) {
-		index_file << cur->idnum << " " << cur->groups << " "
-			<< cur->counter << " " << cur->flags << " " << cur->owner << endl;
-		index_file << cur->name << endl << cur->keys << endl;
-		num_items++;
-	}
-	index_file.close();
+    }
+
 	if (num_items == 0) {
 		errlog("No records saved to help file index.");
 		return false;
@@ -414,48 +425,54 @@ HelpCollection_SaveIndex(void)
 
 // Load the items from the index file
 bool
-HelpCollection_LoadIndex()
+help_collection_load_index(struct help_collection *col)
 {
-	HelpItem *n;
+    FILE *inf;
+	struct help_item *n;
 	int num_items = 0;
     char line[1024];
+    int i;
 
-	index_file.open(tmp_sprintf("%s/%s", Help_Directory, "index"), ios_in);
-	if (!index_file) {
-		errlog("Cannot open help index.");
-		return false;
-	}
-	index_file >> top_id;
-	for (int i = 1; i <= top_id; i++) {
-		n = new HelpItem;
-		index_file >> n->idnum >> n->groups
-			>> n->counter >> n->flags >> n->owner;
+    inf = fopen(tmp_sprintf("%s/%s", HELP_DIRECTORY, "index"), "r");
+    if (!inf) {
+        errlog("Cannot open help index.");
+        return false;
+    }
 
-		index_file.getline(line, 250, '\n');
-		index_file.getline(line, 250, '\n');
-		n->SetName(line);
+    fscanf(inf, "%d\n", &col->top_id);
+    for (i = 0; i < col->top_id; i++) {
+        CREATE(n, struct help_item, 1);
+        fscanf(inf, "%d %d %d %d %ld\n",
+               &n->idnum,
+               &n->groups,
+               &n->counter,
+               &n->flags,
+               &n->owner);
+        fgets(line, sizeof(line), inf);
+        n->name = strdup(line);
+        fgets(line, sizeof(line), inf);
+        n->keys = strdup(line);
+        REMOVE_BIT(n->flags, HFLAG_MODIFIED);
+        help_collection_push(col, n);
+        num_items++;
+    }
+    fclose(inf);
+    if (num_items == 0) {
+        slog("WARNING: No records read from help file index.");
+        return false;
+    }
 
-		index_file.getline(line, 250, '\n');
-		n->SetKeyWords(line);
-		REMOVE_BIT(n->flags, HFLAG_MODIFIED);
-		Push(n);
-		num_items++;
-	}
-	index_file.close();
-	if (num_items == 0) {
-		slog("WARNING: No records read from help file index.");
-		return false;
-	}
-	slog("%d items read from help file index", num_items);
-	return true;
+    slog("%d items read from help file index", num_items);
+    return true;
 }
 
-// Funnels outside commands into HelpItem functions
+// Funnels outside commands into struct help_item functions
 // (that should be protected or something... shrug.)
 bool
-HelpCollection_Set(struct creature * ch, char *argument)
+help_collection_set(struct help_collection *col, struct creature *ch, char *argument)
 {
 	char arg1[256];
+
 	if (!GET_OLC_HELP(ch)) {
 		send_to_char(ch, "You have to be editing an item to set it.\r\n");
 		return false;
@@ -467,19 +484,21 @@ HelpCollection_Set(struct creature * ch, char *argument)
 	}
 	argument = one_argument(argument, arg1);
 	if (!strncmp(arg1, "groups", strlen(arg1))) {
-		GET_OLC_HELP(ch)->SetGroups(argument);
+		helpitem_setgroups(GET_OLC_HELP(ch), argument);
 		return true;
 	} else if (!strncmp(arg1, "flags", strlen(arg1))) {
-		GET_OLC_HELP(ch)->SetFlags(argument);
+        helpitem_setflags(GET_OLC_HELP(ch), argument);
 		return true;
 	} else if (!strncmp(arg1, "name", strlen(arg1))) {
-		GET_OLC_HELP(ch)->SetName(argument);
+        free(GET_OLC_HELP(ch)->name);
+		GET_OLC_HELP(ch)->name = strdup(argument);
 		return true;
 	} else if (!strncmp(arg1, "keywords", strlen(arg1))) {
-		GET_OLC_HELP(ch)->SetKeyWords(argument);
+        free(GET_OLC_HELP(ch)->keys);
+		GET_OLC_HELP(ch)->keys = strdup(argument);
 		return true;
 	} else if (!strncmp(arg1, "description", strlen(arg1))) {
-		GET_OLC_HELP(ch)->EditText();
+        helpitem_edittext(GET_OLC_HELP(ch));
 		return true;
 	}
 	return false;
@@ -488,12 +507,13 @@ HelpCollection_Set(struct creature * ch, char *argument)
 // Trims off the text of all the help items that people have looked at.
 // (each text is approx 65k. We only want the ones in ram that we need.)
 void
-HelpCollection_Sync(void)
+help_collection_sync(struct help_collection *col)
 {
-	HelpItem *n;
-	for (n = items; n; n = n->Next()) {
+	struct help_item *n;
+
+	for (n = col->items; n; n = n->next) {
 		if (n->text && !IS_SET(n->flags, HFLAG_MODIFIED) && !n->editor) {
-			delete [] n->text;
+			free(n->text);
 			n->text = NULL;
 		}
 	}
@@ -501,22 +521,22 @@ HelpCollection_Sync(void)
 
 // Approve an item
 void
-HelpCollection_ApproveItem(struct creature * ch, char *argument)
+help_collection_ApproveItem(struct help_collection *col, struct creature *ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
-	HelpItem *cur;
+	struct help_item *cur;
 	skip_spaces(&argument);
 	argument = one_argument(argument, arg1);
 	if (isdigit(arg1[0]))
 		idnum = atoi(arg1);
-	if (idnum > top_id || idnum < 1) {
+	if (idnum > col->top_id || idnum < 1) {
 		send_to_char(ch, "Approve which item?\r\n");
 		return;
 	}
-    cur = items;
+    cur = col->items;
 	while (cur && cur->idnum != idnum)
-        cur = cur->Next();
+        cur = cur->next;
 	if (cur) {
 		REMOVE_BIT(cur->flags, HFLAG_UNAPPROVED);
 		SET_BIT(cur->flags, HFLAG_MODIFIED);
@@ -529,22 +549,22 @@ HelpCollection_ApproveItem(struct creature * ch, char *argument)
 
 // Unapprove an item
 void
-HelpCollection_UnApproveItem(struct creature * ch, char *argument)
+help_collection_UnApproveItem(struct help_collection *col, struct creature *ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
-	HelpItem *cur;
+	struct help_item *cur;
 	skip_spaces(&argument);
 	argument = one_argument(argument, arg1);
 	if (isdigit(arg1[0]))
 		idnum = atoi(arg1);
-	if (idnum > top_id || idnum < 1) {
+	if (idnum > col->top_id || idnum < 1) {
 		send_to_char(ch, "UnApprove which item?\r\n");
 		return;
 	}
-    cur = items;
+    cur = col->items;
 	while (cur && cur->idnum != idnum)
-        cur = cur->Next();
+        cur = cur->next;
 	if (cur) {
 		SET_BIT(cur->flags, HFLAG_MODIFIED);
 		SET_BIT(cur->flags, HFLAG_UNAPPROVED);
@@ -557,16 +577,16 @@ HelpCollection_UnApproveItem(struct creature * ch, char *argument)
 
 // Give some stat info on the Help System
 void
-HelpCollection_Show(struct creature * ch)
+help_collection_Show(struct help_collection *col, struct creature *ch)
 {
 	int num_items = 0;
 	int num_modified = 0;
 	int num_unapproved = 0;
 	int num_editing = 0;
 	int num_no_group = 0;
-	HelpItem *cur;
+	struct help_item *cur;
 
-	for (cur = items; cur; cur = cur->Next()) {
+	for (cur = col->items; cur; cur = cur->next) {
 		num_items++;
 		if (cur->flags != 0) {
 			if (IS_SET(cur->flags, HFLAG_UNAPPROVED))
@@ -593,8 +613,10 @@ HelpCollection_Show(struct creature * ch)
 void
 do_hcollect_cmds(struct creature *ch)
 {
+    int i;
+
 	strcpy(gHelpbuf, "hcollect commands:\r\n");
-	for (int i = 0; hc_cmds[i].keyword; i++) {
+	for (i = 0; hc_cmds[i].keyword; i++) {
 		if (GET_LEVEL(ch) < hc_cmds[i].level)
 			continue;
 		sprintf(gHelpbuf, "%s  %-15s %s\r\n", gHelpbuf,
@@ -603,64 +625,64 @@ do_hcollect_cmds(struct creature *ch)
 	page_string(ch->desc, gHelpbuf);
 }
 
-HelpItem *
-HelpCollection_find_item_by_id(int id)
+struct help_item *
+help_collection_find_item_by_id(struct help_collection *col, int id)
 {
-	HelpItem *cur;
-    cur = items;
+	struct help_item *cur;
+    cur = col->items;
 	while (cur && cur->idnum != id)
-        cur = cur->Next();
+        cur = cur->next;
 	return cur;
 }
 
 // The "immhelp" command
 ACMD(do_immhelp)
 {
-	HelpItem *cur = NULL;
+	struct help_item *cur = NULL;
 	skip_spaces(&argument);
 
 	// Take care of all the special cases.
 	// Default help file
 	if (!argument || !*argument) {
-		cur = Help->find_item_by_id(699);
+		cur = help_collection_find_item_by_id(help, 699);
 	}
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
-		cur->Show(ch, gHelpbuf, 2);
+		helpitem_show(cur, ch, gHelpbuf, 2);
 		page_string(ch->desc, gHelpbuf);
 	} else {
-		Help->GetTopic(ch, argument, 2, false, HGROUP_IMMHELP);
+		help_collection_get_topic(help, ch, argument, 2, false, HGROUP_IMMHELP, false);
 	}
 }
 
 // The standard "help" command
 ACMD(do_hcollect_help)
 {
-	HelpItem *cur = NULL;
+	struct help_item *cur = NULL;
 	skip_spaces(&argument);
 
 	// Take care of all the special cases.
 	if (subcmd == SCMD_CITIES) {
-		cur = Help->find_item_by_id(62);
+		cur = help_collection_find_item_by_id(help, 62);
 	} else if (subcmd == SCMD_MODRIAN) {
-		cur = Help->find_item_by_id(196);
+        cur = help_collection_find_item_by_id(help, 196);
 	} else if (subcmd == SCMD_SKILLS) {
 		send_to_char(ch, "Type 'Help %s' to see the skills available to your char_class.\r\n",
                      class_names[(int)GET_CLASS(ch)]);
 	} else if (subcmd == SCMD_POLICIES) {
-		cur = Help->find_item_by_id(667);
+        cur = help_collection_find_item_by_id(help, 667);
 	} else if (subcmd == SCMD_HANDBOOK) {
-		cur = Help->find_item_by_id(999);
+        cur = help_collection_find_item_by_id(help, 999);
 		// Default help file
 	} else if (!argument || !*argument) {
-		cur = Help->find_item_by_id(666);
+        cur = help_collection_find_item_by_id(help, 666);
 	}
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
-		cur->Show(ch, gHelpbuf, 2);
+		helpitem_show(cur, ch, gHelpbuf, 2);
 		page_string(ch->desc, gHelpbuf);
 	} else {
-		Help->GetTopic(ch, argument, 2, false);
+        help_collection_get_topic(help, ch, argument, 2, false, 0, false);
 	}
 }
 
@@ -668,38 +690,38 @@ ACMD(do_hcollect_help)
 void
 do_qcontrol_help( struct creature *ch, char *argument )
 {
-	HelpItem *cur = NULL;
+	struct help_item *cur = NULL;
 	skip_spaces(&argument);
 
 	// Take care of all the special cases.
 	if (!argument || !*argument) {
-		cur = Help->find_item_by_id(900);
+		cur = help_collection_find_item_by_id(help, 900);
 	}
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
-		cur->Show(ch, gHelpbuf, 2);
+		helpitem_show(cur, ch, gHelpbuf, 2);
 		page_string(ch->desc, gHelpbuf);
 	} else {
-		Help->GetTopic(ch, argument, 2, false, HGROUP_QCONTROL);
+        help_collection_get_topic(help, ch, argument, 2, false, HGROUP_QCONTROL, false);
 	}
 }
 
 // The "olchelp" command
 ACMD(do_olchelp)
 {
-	HelpItem *cur = NULL;
+	struct help_item *cur = NULL;
 	skip_spaces(&argument);
 
 	// Take care of all the special cases.
 	if (!argument || !*argument) {
-		cur = Help->find_item_by_id(700);
+        cur = help_collection_find_item_by_id(help, 700);
 	}
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
-		cur->Show(ch, gHelpbuf, 2);
+        helpitem_show(cur, ch, gHelpbuf, 2);
 		page_string(ch->desc, gHelpbuf);
 	} else {
-		Help->GetTopic(ch, argument, 2, false, HGROUP_OLC);
+        help_collection_get_topic(help, ch, argument, 2, false, HGROUP_OLC, false);
 	}
 }
 
@@ -708,7 +730,7 @@ ACMD(do_help_collection_command)
 {
 	int com;
 	int id;
-	HelpItem *cur;
+	struct help_item *cur;
 	argument = one_argument(argument, linebuf);
 	skip_spaces(&argument);
 	if (!*linebuf) {
@@ -729,16 +751,16 @@ ACMD(do_help_collection_command)
 	}
 	switch (com) {
 	case 0:					// Approve
-		Help->ApproveItem(ch, argument);
+		help_collection_approveitem(help, ch, argument);
 		break;
 	case 1:					// Create
-		Help->CreateItem(ch);
+		help_collection_createitem(help, ch);
 		break;
 	case 2:					// Edit
 		argument = one_argument(argument, linebuf);
 		if (isdigit(*linebuf)) {
 			id = atoi(linebuf);
-			Help->EditItem(ch, id);
+			help_collection_edit_item(help, ch, id);
 		} else if (!strncmp("exit", linebuf, strlen(linebuf))) {
 			if (!GET_OLC_HELP(ch)) {
 				send_to_char(ch, "You're not editing a help topic.\r\n");
@@ -752,30 +774,30 @@ ACMD(do_help_collection_command)
 		}
 		break;
 	case 3:					// Info
-		Help->Show(ch);
+		help_collection_show(help, ch);
 		break;
 	case 4:					// List
-		Help->List(ch, argument);
+        help_collection_list(help, ch, argument);
 		break;
 	case 5:					// Save
-		Help->SaveAll(ch);
+        help_collection_saveall(help, ch);
 		break;
 	case 6:					// Set
-		Help->Set(ch, argument);
+        help_collection_set(help, ch, argument);
 		break;
 	case 7:					// Stat
 		argument = one_argument(argument, linebuf);
 		if (*linebuf && isdigit(linebuf[0])) {
 			id = atoi(linebuf);
-			if (id < 0 || id > Help->GetTop()) {
+			if (id < 0 || id > help->top_id) {
 				send_to_char(ch, "There is no such item #.\r\n");
 				break;
 			}
-            cur = Help->items;
+            cur = help->items;
 			while (cur && cur->idnum != id)
-                cur = cur->Next();
+                cur = cur->next;
 			if (cur) {
-				cur->Show(ch, gHelpbuf, 3);
+                helpitem_show(cur, ch, gHelpbuf, 3);
 				page_string(ch->desc, gHelpbuf);
 				break;
 			} else {
@@ -784,74 +806,33 @@ ACMD(do_help_collection_command)
 			}
 		}
 		if (GET_OLC_HELP(ch)) {
-			GET_OLC_HELP(ch)->Show(ch, gHelpbuf, 3);
+            helpitem_show(GET_OLC_HELP(ch), ch, gHelpbuf, 3);
 			page_string(ch->desc, gHelpbuf);
 		} else {
 			send_to_char(ch, "Stat what item?\r\n");
 		}
 		break;
 	case 8:					// Sync
-		Help->Sync();
+        help_collection_sync(help);
 		send_to_char(ch, "Okay.\r\n");
 		break;
-	case 9:					// Search (mode==3 is "stat" rather than "show") show_no_app "true"
+	case 9:
+        // Search (mode==3 is "stat" rather than "show") show_no_app "true"
 		// searchmode=true is find all items matching.
-		Help->GetTopic(ch, argument, 3, true, -1, true);
+        help_collection_get_topic(help, ch, argument, 3, true, -1, true);
 		break;
 	case 10:					// UnApprove
-		Help->UnApproveItem(ch, argument);
+        help_collection_unapprove_item(help, ch, argument);
 		break;
 	case 11:					// Immhelp
-		Help->GetTopic(ch, argument, 2, false, HGROUP_IMMHELP);
+        help_collection_get_topic(help, ch, argument, 2, false, HGROUP_IMMHELP, false);
 		break;
 	case 12:					// olchelp
-		Help->GetTopic(ch, argument, 2, false, HGROUP_OLC);
+        help_collection_get_topic(help, ch, argument, 2, false, HGROUP_OLC, false);
 		break;
 	case 13: 				   // QControl Help
-		Help->GetTopic(ch, argument, 2, false, HGROUP_QCONTROL);
+        help_collection_get_topic(help, ch, argument, 2, false, HGROUP_QCONTROL, false);
 		break;
-	case 14:{					// Swap 2 topics
-			HelpItem *A = NULL;
-			HelpItem *Ap = NULL;
-			HelpItem *B = NULL;
-			HelpItem *Bp = NULL;
-			int idA, idB;
-			idA = idB = -1;
-			argument = one_argument(argument, linebuf);
-			if (*linebuf && isdigit(linebuf[0]))
-				idA = atoi(linebuf);
-
-			argument = one_argument(argument, linebuf);
-			if (*linebuf && isdigit(linebuf[0]))
-				idB = atoi(linebuf);
-
-			if (idA == idB || idA < 0 || idA > Help->GetTop() || idB < 0
-				|| idB > Help->GetTop()) {
-				send_to_char(ch, "Invalid item numbers.\r\n");
-				break;
-			}
-			if (idB < idA) {
-				send_to_char(ch, "Please put the lower # first.\r\n");
-				break;
-			}
-            A = Help->items;
-			while (A && A->idnum != idA)
-                Ap = A, A = A->Next();
-            B = Help->items;
-			while (B && B->idnum != idB)
-                Bp = B, B = B->Next();
-			if (!A || !B || !Bp) {
-				send_to_char(ch, "Invalid item numbers.\r\n");
-				break;
-			}
-			if( !A->Edit(ch) || !B->Edit(ch) ) {
-				send_to_char(ch, "Unable to edit topics.\r\n");
-				break;
-			}
-			SwapItems(A, Ap, B, Bp);
-			send_to_char(ch, "Help items %d and %d swapped.\r\n", idA, idB);
-			break;
-		}						// case 14
 	default:
 		do_hcollect_cmds(ch);
 		break;
