@@ -7,6 +7,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <errno.h>
 #include "structs.h"
 #include "creature.h"
 #include "utils.h"
@@ -18,8 +19,7 @@
 #include "screen.h"
 #include "handler.h"
 
-extern const char *Help_Directory;
-extern HelpCollection *Help;
+extern struct help_collection *Help;
 extern char gHelpbuf[];
 char *one_word(char *argument, char *first_arg);
 extern const char *help_group_names[];
@@ -30,14 +30,14 @@ extern const char *help_bits[];
 // Sets the flags bitvector for things like !approved and
 // IMM+ and changed and um... other flaggy stuff.
 void
-HelpItem_SetFlags(char *argument)
+helpitem_setflags(struct help_item *item, char *argument)
 {
 	int state, cur_flags = 0, tmp_flags = 0, flag = 0, old_flags = 0;
 	char arg1[MAX_INPUT_LENGTH];
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char(editor, "Invalid flags. \r\n");
+		send_to_char(item->editor, "Invalid flags. \r\n");
 		return;
 	}
 
@@ -46,15 +46,15 @@ HelpItem_SetFlags(char *argument)
 	} else if (*arg1 == '-') {
 		state = 2;
 	} else {
-		send_to_char(editor, "Invalid flags.\r\n");
+		send_to_char(item->editor, "Invalid flags.\r\n");
 		return;
 	}
 
 	argument = one_argument(argument, arg1);
-	old_flags = cur_flags = flags;
+	old_flags = cur_flags = item->flags;
 	while (*arg1) {
 		if ((flag = search_block(arg1, help_bits, false)) == -1) {
-			send_to_char(editor, "Invalid flag %s, skipping...\r\n", arg1);
+			send_to_char(item->editor, "Invalid flag %s, skipping...\r\n", arg1);
 		} else {
 			tmp_flags = tmp_flags | (1 << flag);
 		}
@@ -62,46 +62,83 @@ HelpItem_SetFlags(char *argument)
 	}
 	REMOVE_BIT(tmp_flags, HFLAG_UNAPPROVED);
 	if (state == 1) {
-		flags |= tmp_flags;
+		item->flags |= tmp_flags;
 	} else {
-        flags &= ~tmp_flags;
+        item->flags &= ~tmp_flags;
 	}
 
-	tmp_flags = old_flags ^ flags;
+	tmp_flags = old_flags ^ item->flags;
 
 	if (tmp_flags == 0) {
-		send_to_char(editor, "Flags for help item %d not altered.\r\n", idnum);
+		send_to_char(item->editor, "Flags for help item %d not altered.\r\n",
+                     item->idnum);
 	} else {
-		SET_BIT(flags, HFLAG_MODIFIED);
-		send_to_char(editor, "[%s] flags %s for help item %d.\r\n", tmp_printbits(tmp_flags, help_bits),
-			state == 1 ? "added" : "removed", idnum);
+		SET_BIT(item->flags, HFLAG_MODIFIED);
+		send_to_char(item->editor, "[%s] flags %s for help item %d.\r\n", tmp_printbits(tmp_flags, help_bits),
+			state == 1 ? "added" : "removed", item->idnum);
 	}
 }
 
-// Crank up the text editor and lets hit it.
+// Loads in the text for a particular help entry.
+bool
+helpitem_loadtext(struct help_item *item)
+{
+    FILE *inf;
+	char *fname;
+	int idnum, textlen;
+    char buf[512];
+
+	if (item->text)
+		return true;
+
+	fname = tmp_sprintf("%s/%04d.topic", HELP_DIRECTORY, item->idnum);
+
+	if (access(fname, F_OK) < 0)  {
+        // no file found. Likely just a new entry
+		return true;
+	}
+
+    inf = fopen(fname, "r");
+    if (inf) {
+        fscanf(inf, "%d %d\n", &idnum, &textlen);
+        if (textlen > MAX_HELP_TEXT_LENGTH - 1)
+            textlen = MAX_HELP_TEXT_LENGTH - 1;
+	    fgets(buf, sizeof(buf), inf);
+        CREATE(item->text, char, textlen + 1);
+        fread(item->text, 1, textlen, inf);
+
+        return true;
+    }
+
+    errlog("Unable to open help file to load text (%s): %s",
+           fname, strerror(errno));
+    return false;
+}
+
+// Crank up the text item->editor and lets hit it.
 void
-HelpItem_EditText(void)
+helpitem_edittext(struct help_item *item)
 {
 
-	LoadText();
-	SET_BIT(flags, HFLAG_MODIFIED);
-	start_editing_text(editor->desc, &text, MAX_HELP_TEXT_LENGTH);
-	SET_BIT(PLR_FLAGS(editor), PLR_OLC);
+	helpitem_loadtext(item);
+	SET_BIT(item->flags, HFLAG_MODIFIED);
+	start_editing_text(item->editor->desc, &item->text, MAX_HELP_TEXT_LENGTH);
+	SET_BIT(PLR_FLAGS(item->editor), PLR_OLC);
 
-	act("$n begins to edit a help file.\r\n", true, editor, 0, 0, TO_ROOM);
+	act("$n begins to edit a help file.\r\n", true, item->editor, 0, 0, TO_ROOM);
 }
 
 // Sets the groups bitvector much like the
 // flags in quests.
 void
-HelpItem_SetGroups(char *argument)
+helpitem_setgroups(struct help_item *item, char *argument)
 {
 	int state, cur_groups = 0, tmp_groups = 0, flag = 0, old_groups = 0;
 	char arg1[MAX_INPUT_LENGTH];
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);
 	if (!*argument) {
-		send_to_char(editor, "Invalid group. \r\n");
+		send_to_char(item->editor, "Invalid group. \r\n");
 		return;
 	}
 
@@ -110,194 +147,122 @@ HelpItem_SetGroups(char *argument)
 	} else if (*arg1 == '-') {
 		state = 2;
 	} else {
-		send_to_char(editor, "Invalid Groups.\r\n");
+		send_to_char(item->editor, "Invalid Groups.\r\n");
 		return;
 	}
 
 	argument = one_argument(argument, arg1);
-	old_groups = cur_groups = groups;
+	old_groups = cur_groups = item->groups;
 	while (*arg1) {
 		if ((flag = search_block(arg1, help_group_names, false)) == -1) {
-			send_to_char(editor, "Invalid group: %s, skipping...\r\n", arg1);
+			send_to_char(item->editor, "Invalid group: %s, skipping...\r\n", arg1);
 		} else {
 			tmp_groups = tmp_groups | (1 << flag);
 		}
 		argument = one_argument(argument, arg1);
 	}
 	if (state == 1) {
-		groups = cur_groups | tmp_groups;
+		item->groups = cur_groups | tmp_groups;
 	} else {
-        groups = cur_groups & ~tmp_groups;
+        item->groups = cur_groups & ~tmp_groups;
 	}
 	tmp_groups = old_groups ^ cur_groups;
 
 	if (tmp_groups == 0) {
-		send_to_char(editor, "Groups for help item %d not altered.\r\n", idnum);
+		send_to_char(item->editor, "Groups for help item %d not altered.\r\n",
+                     item->idnum);
 	} else {
-		send_to_char(editor, "[%s] groups %s for help item %d.\r\n",
+		send_to_char(item->editor, "[%s] groups %s for help item %d.\r\n",
                      tmp_printbits(tmp_groups, help_group_bits),
-                     state == 1 ? "added" : "removed", idnum);
+                     state == 1 ? "added" : "removed", item->idnum);
 	}
-	REMOVE_BIT(groups, HGROUP_HELP_EDIT);
-	SET_BIT(flags, HFLAG_MODIFIED);
+	REMOVE_BIT(item->groups, HGROUP_HELP_EDIT);
+	SET_BIT(item->flags, HFLAG_MODIFIED);
 }
 
 bool
-HelpItem_IsInGroup(int thegroup)
+helpitem_isingroup(struct help_item *item, int thegroup)
 {
-	if (IS_SET(groups, thegroup))
+	if (IS_SET(item->groups, thegroup))
 		return true;
 	return false;
 }
 
 // Don't call me Roger.
 void
-HelpItem_SetName(char *argument)
+helpitem_setname(struct help_item *item, char *argument)
 {
 	skip_spaces(&argument);
-	if (name)
-		delete[]name;
-	name = new char[strlen(argument) + 1];
-	strcpy(name, argument);
-	SET_BIT(flags, HFLAG_MODIFIED);
-	if (editor)
-		send_to_char(editor, "Name set!\r\n");
+	if (item->name && strlen(argument) > strlen(item->name)) {
+		free(item->name);
+        item->name = (char *)malloc(strlen(argument) + 1);
+    }
+	strcpy(item->name, argument);
+	SET_BIT(item->flags, HFLAG_MODIFIED);
+	if (item->editor)
+		send_to_char(item->editor, "Name set!\r\n");
 }
 
 // Set the...um. keywords and stuff.
 void
-HelpItem_SetKeyWords(char *argument)
+helpitem_setkeywords(struct help_item *item, char *argument)
 {
 	skip_spaces(&argument);
-	if (keys)
-		delete[]keys;
-	keys = new char[strlen(argument) + 1];
-	strcpy(keys, argument);
-	SET_BIT(flags, HFLAG_MODIFIED);
-	if (editor)
-		send_to_char(editor, "Keywords set!\r\n");
-}
-
-// Help Item
-HelpItem_HelpItem()
-{
-	idnum = 0;
-	next = NULL;
-	next_show = NULL;
-	editor = NULL;
-	text = NULL;
-	name = NULL;
-	keys = NULL;
-	Clear();
-}
-
-HelpItem_~HelpItem()
-{
-	delete[]text;
-	delete[]keys;
-	delete[]name;
+	if (item->keys && strlen(argument) > strlen(item->keys)) {
+		free(item->keys);
+        item->keys = (char *)malloc(strlen(argument) + 1);
+    }
+	strcpy(item->keys, argument);
+	SET_BIT(item->flags, HFLAG_MODIFIED);
+	if (item->editor)
+		send_to_char(item->editor, "Keywords set!\r\n");
 }
 
 void
-SwapItems(HelpItem * A, HelpItem * Ap, HelpItem * B, HelpItem * Bp)
+helpitem_clear(struct help_item *item)
 {
-	// Anext and Bnext.
-	HelpItem *An = NULL, *Bn = NULL;
-	int id;
+	item->counter = 0;
+	item->flags = (HFLAG_UNAPPROVED | HFLAG_MODIFIED);
+	item->groups = 0;
 
-	A->LoadText();
-	B->LoadText();
-	A->editor = B->editor = NULL;
+    free(item->name);
+    free(item->keys);
+    free(item->text);
 
-	// Grab next pointers
-	An = A->Next();
-	Bn = B->Next();
-	// Swap the idnums
-	id = A->idnum;
-	A->idnum = B->idnum;
-	B->idnum = id;
+	item->name = strdup("A New Help Entry");
+	item->keys = strdup("new help entry");
+    item->text = NULL;
+}
 
-	// First case: Topics right next to each other.
-	if (A->Next() == B) {
-		if (Ap == NULL) {		// Right next to each other and A is the first
-			Help->items = B;
-			A->SetNext(Bn);
-			B->SetNext(A);
-		} else {				// A is not first
-			A->SetNext(B->Next());
-			Ap->SetNext(B);
-			B->SetNext(A);
-		}
-		// If B was the last element
-		// Reset the bottom pointer.
-		if (Bn == NULL) {
-			Help->bottom = A;
-		}
-		return;
-	}
-	// Second Case:
-	// Topics aren't side by side.
-	// Move A
-	if (Ap == NULL) {			// A is first
-		Help->items = B;
-		A->SetNext(B->Next());
-		Bp->SetNext(A);
-	} else {					// A is not first
-		Ap->SetNext(A->Next());
-		A->SetNext(B->Next());
-		Bp->SetNext(A);
-	}
-	//  Now move B
-	if (Ap != NULL) {
-		B->SetNext(Ap->Next());
-		Ap->SetNext(B);
-	} else {
-		B->SetNext(An);
-	}
-	// If B was the last element
-	// Reset the bottom pointer.
-	if (Bn == NULL) {
-		Help->bottom = A;
-	}
+struct help_item *
+make_helpitem(void)
+{
+    struct help_item *item;
+
+    CREATE(item, struct help_item, 1);
+	helpitem_clear(item);
+
+    return item;
+}
+
+void
+free_helpitem(struct help_item *item)
+{
+    free(item->name);
+    free(item->keys);
+    free(item->text);
 }
 
 // Clear out the item.
-bool
-HelpItem_Clear(void)
-{
-	counter = 0;
-	flags = (HFLAG_UNAPPROVED | HFLAG_MODIFIED);
-	groups = 0;
-
-	if (text) {
-		delete[]text;
-		text = NULL;
-	}
-	if (name) {
-		delete[]name;
-		name = NULL;
-	}
-	if (keys) {
-		delete[]keys;
-		keys = NULL;
-	}
-	name = new char[32];
-	strcpy(name, "A New Help Entry");
-	keys = new char[32];
-	strcpy(keys, "new help entry");
-	return true;
-}
-
-// Begin editing an item
-// much like olc oedit.
+// Begin editing an item much like olc oedit.
 // Sets yer currently editable item to this one.
 bool
-HelpItem_Edit(struct creature * ch)
+helpitem_edit(struct help_item *item, struct creature *ch)
 {
-	if (editor) {
-		if (editor != ch) {
+	if (item->editor) {
+		if (item->editor != ch) {
 			send_to_char(ch, "%s is already editing that item. Tough!\r\n",
-				GET_NAME(editor));
+				GET_NAME(item->editor));
 		} else {
 			send_to_char(ch,
 				"I don't see how editing it _again_ will help any.\r\n");
@@ -306,10 +271,10 @@ HelpItem_Edit(struct creature * ch)
 	}
 	if (GET_OLC_HELP(ch))
 		GET_OLC_HELP(ch)->editor = NULL;
-	GET_OLC_HELP(ch) = this;
-	editor = ch;
-	send_to_char(ch, "You are now editing help item #%d.\r\n", idnum);
-	SET_BIT(flags, HFLAG_MODIFIED);
+	GET_OLC_HELP(ch) = item;
+	item->editor = ch;
+	send_to_char(ch, "You are now editing help item #%d.\r\n", item->idnum);
+	SET_BIT(item->flags, HFLAG_MODIFIED);
 	return true;
 }
 
@@ -317,119 +282,78 @@ HelpItem_Edit(struct creature * ch)
 // You have to save that too.
 // (SaveAll does everything)
 bool
-HelpItem_Save()
+helpitem_save(struct help_item *item)
 {
-	char fname[256];
-	ofstream file;
-	sprintf(fname, "%s/%04d.topic", Help_Directory, idnum);
+	char *fname;
+    FILE *outf;
+
+	fname = tmp_sprintf("%s/%04d.topic", HELP_DIRECTORY, item->idnum);
 	// If we don't have the text to edit, get from the file.
-	if (!text)
-		LoadText();
-	remove(fname);
-	file.open(fname, ios_out | ios::trunc);
-	if (!file && editor) {
-		send_to_char(editor, "Error, could not open help file for write.\r\n");
-		return false;
-	}
-	file << idnum << " " << (text ? strlen(text) : 0)
-		<< endl << name << endl;
-	if (text && strlen(text) > 0) {
-		file.write(text, strlen(text));
-		if( editor != NULL ) {
-			delete[]text;
-			text = NULL;
-		}
-	}
-	file.close();
-	REMOVE_BIT(flags, HFLAG_MODIFIED);
-	return true;
+	if (!item->text)
+		helpitem_loadtext(item);
+
+    outf = fopen(fname, "w");
+    if (outf) {
+        fprintf(outf, "%d %zd\n%s\n%s",
+                item->idnum,
+                (item->text) ? strlen(item->text):0,
+                item->name,
+                (item->text && *item->text) ? item->text:"");
+        fclose(outf);
+        REMOVE_BIT(item->flags, HFLAG_MODIFIED);
+        return true;
+    }
+
+    if (item->editor)
+		send_to_char(item->editor, "Error, could not open help file for write.\r\n");
+
+    return false;
 }
 
-// Loads in the text for a particular help entry.
-bool
-HelpItem_LoadText()
-{
-	char fname[256];
-	int di;
-	if (text)
-		return true;
-
-	text = new char[MAX_HELP_TEXT_LENGTH];
-	strcpy(text, "");
-
-	sprintf(fname, "%s/%04d.topic", Help_Directory, idnum);
-
-	if( access(fname, F_OK) < 0 ) { // no file found. Likely just a new entry
-		return true;
-	}
-
-	if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
-		errlog("Help file (%s) is read-only.", fname);
-		return false;
-	}
-
-	help_file.open(fname, ios_in);
-	if (!help_file) {
-		errlog("Unable to open help file to load text (%s).", fname);
-		return false;
-	}
-
-	help_file >> di >> di;
-	help_file.getline(fname, 256, '\n');	// eat the \r\n at the end of the #s
-	help_file.getline(fname, 256, '\n');	// then burn up the name since we don't really need it.
-	if (di > MAX_HELP_TEXT_LENGTH - 1)
-		di = MAX_HELP_TEXT_LENGTH - 1;
-	if (di > 0) {
-		help_file.read(text, di);
-		text[di] = '\0';
-	}
-	help_file.close();
-	return true;
-}
 
 // Show the entry.
 // buffer is output buffer.
 void
-HelpItem_Show(struct creature * ch, char *buffer, int mode)
+helpitem_show(struct help_item *item, struct creature *ch, char *buffer, int mode)
 {
 	char bitbuf[256];
 	char groupbuf[256];
 	switch (mode) {
 	case 0:					// 0 == One Line Listing.
-		sprintf(buffer, "Name: %s\r\n    (%s)\r\n", name, keys);
+		sprintf(buffer, "Name: %s\r\n    (%s)\r\n", item->name, item->keys);
 		strcpy(buffer, "");
 		break;
 	case 1:					// 1 == One Line Stat
-		sprintbit(flags, help_bit_descs, bitbuf);
-		sprintbit(groups, help_group_bits, groupbuf);
+		sprintbit(item->flags, help_bit_descs, bitbuf);
+		sprintbit(item->groups, help_group_bits, groupbuf);
 		strcpy(buffer, "");
 		sprintf(buffer, "%s%3d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s\r\n",
-                CCCYN(ch, C_NRM), idnum, CCYEL(ch, C_NRM),
-                name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), item->idnum, CCYEL(ch, C_NRM),
+                item->name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                 groupbuf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), bitbuf);
 		break;
 	case 2:					// 2 == Entire Entry
-		if (!text)
-			LoadText();
+		if (!item->text)
+			helpitem_loadtext(item);
 		strcpy(buffer, "");
 		sprintf(buffer, "\r\n%s%s%s\r\n%s\r\n",
-			CCCYN(ch, C_NRM), name, CCNRM(ch, C_NRM), text);
-		counter++;
+			CCCYN(ch, C_NRM), item->name, CCNRM(ch, C_NRM), item->text);
+		item->counter++;
 		break;
 	case 3:					// 3 == Entire Entry Stat
-		if (!text)
-			LoadText();
-		sprintbit(flags, help_bit_descs, bitbuf);
-		sprintbit(groups, help_group_bits, groupbuf);
+		if (!item->text)
+			helpitem_loadtext(item);
+		sprintbit(item->flags, help_bit_descs, bitbuf);
+		sprintbit(item->groups, help_group_bits, groupbuf);
 		strcpy(buffer, "");
 		sprintf(buffer,
 			"\r\n%s%d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s \r\n        %s"
 			"Keywords: [ %s%s%s ]\r\n%s%s\r\n",
-			CCCYN(ch, C_NRM), idnum, CCYEL(ch, C_NRM),
-			name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+			CCCYN(ch, C_NRM), item->idnum, CCYEL(ch, C_NRM),
+			item->name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
 			groupbuf, CCCYN(ch, C_NRM),
 			CCNRM(ch, C_NRM), bitbuf, CCCYN(ch, C_NRM),
-			CCNRM(ch, C_NRM), keys, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), text);
+			CCNRM(ch, C_NRM), item->keys, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), item->text);
 		break;
 	default:
 		break;

@@ -32,12 +32,13 @@
 #define HGROUP_QCONTROL  (1 << 24)
 #define HGROUP_MAX        25
 
-struct creature;
-
+#define HELP_DIRECTORY "text/help_data/"
 #define MAX_HELP_NAME_LENGTH 128
 #define MAX_HELP_TEXT_LENGTH 16384
+
+struct creature;
+
 struct help_item {
-	// Data
 	int idnum;					// Unique Identifier
 	int counter;				// How many times has it been looked at
 	// Groups and flags are both bitvectors.

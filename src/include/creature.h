@@ -857,10 +857,9 @@ struct player_special_data {
 	struct obj_data *olc_obj;	/* which obj being edited               */
 	struct creature *olc_mob;	/* which mob being edited               */
 	struct shop_data *olc_shop;	/* which shop being edited              */
-	struct olc_help_r *olc_help;	/* which help record being edited       */
 	struct special_search_data *olc_srch;	/* which srch being edited */
 	struct room_data *was_in_room;	/* location for linkdead people         */
-	struct HelpItem *olc_help_item;
+	struct help_item *olc_help_item;
     int thaw_time;
     int freezer_id;
 	int rentcode;

@@ -19,8 +19,6 @@
 #include "tmpstr.h"
 #include "security.h"
 
-// Where under lib do we toss our data?
-const char *Help_Directory = "text/help_data/";
 // The global HelpCollection object.
 // Allocated in comm.cc
 HelpCollection *Help = NULL;

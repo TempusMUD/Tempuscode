@@ -31,12 +31,6 @@
 #define OLC_OSET    0
 #define NORMAL_OSET 1
 
-struct olc_help_r {
-	char *keyword;
-	long pos;
-	char *text;
-};
-
 #define MOB_D1(lev)    (lev + 1)
 #define MOB_D2(lev)    (6 + (lev >> 1))
 #define MOB_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
