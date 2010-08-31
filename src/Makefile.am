@@ -43,73 +43,12 @@ ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]
                  help/help_item.c \
                  help/help_collection.c \
                  house/house.c \
-                 include/account.h \
-                 include/Mapper.h \
-                 include/actions.h \
-                 include/accstr.h \
-                 include/char_class.h \
-                 include/ban.h \
-                 include/boards.h \
-                 include/bomb.h \
-                 include/constants.h \
-                 include/clan.h \
-                 include/comm.h \
-                 include/creature.h \
-                 include/combat_data_list.h \
-                 include/defs.h \
-                 include/db.h \
-                 include/creature_list.h \
-                 include/hell_hunter_spec.h \
-                 include/desc_data.h \
-                 include/editor.h \
-                 include/fight.h \
-                 include/flow_room.h \
-                 include/guns.h \
-                 include/handler.h \
-                 include/interpreter.h \
-                 include/help.h \
-                 include/house.h \
-                 include/obj_matcher.h \
-                 include/language.h \
-                 include/login.h \
-                 include/macros.h \
-                 include/mail.h \
-                 include/materials.h \
-                 include/mobact.h \
-                 include/mobile_map.h \
-                 include/obj_data.h \
-                 include/player_table.h \
-                 include/object_map.h \
-                 include/olc.h \
-                 include/paths.h \
-                 include/remorter.h \
-                 include/prog.h \
-                 include/quest.h \
-                 include/room_data.h \
-                 include/safe_list.h \
-                 include/screen.h \
-                 include/search.h \
-                 include/security.h \
-                 include/smokes.h \
-                 include/specs.h \
-                 include/spells.h \
-                 include/structs.h \
-                 include/tmpstr.h \
-                 include/tokenizer.h \
-                 include/utils.h \
-                 include/vehicle.h \
-                 include/vendor.h \
-                 include/voice.h \
-                 include/weather.h \
-                 include/xml_utils.h \
-                 include/zone_data.h \
                  interpreter/interpreter.c \
                  interpreter/group.c \
                  interpreter/security.c \
                  magic/magic.c \
                  magic/spell_parser.c \
                  magic/spells.c \
-                 map/Mapper.c \
                  misc/act.comm.c \
                  misc/act.informative.c \
                  misc/act.movement.c \
@@ -353,4 +292,64 @@ ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]
                  util/sight.c \
                  util/tmpstr.c \
                  util/utils.c \
-                 weather/weather.c
+                 weather/weather.c \
+                 include/account.h \
+                 include/Mapper.h \
+                 include/actions.h \
+                 include/accstr.h \
+                 include/char_class.h \
+                 include/ban.h \
+                 include/boards.h \
+                 include/bomb.h \
+                 include/constants.h \
+                 include/clan.h \
+                 include/comm.h \
+                 include/creature.h \
+                 include/combat_data_list.h \
+                 include/defs.h \
+                 include/db.h \
+                 include/creature_list.h \
+                 include/hell_hunter_spec.h \
+                 include/desc_data.h \
+                 include/editor.h \
+                 include/fight.h \
+                 include/flow_room.h \
+                 include/guns.h \
+                 include/handler.h \
+                 include/interpreter.h \
+                 include/help.h \
+                 include/house.h \
+                 include/obj_matcher.h \
+                 include/language.h \
+                 include/login.h \
+                 include/macros.h \
+                 include/mail.h \
+                 include/materials.h \
+                 include/mobact.h \
+                 include/mobile_map.h \
+                 include/obj_data.h \
+                 include/player_table.h \
+                 include/object_map.h \
+                 include/olc.h \
+                 include/paths.h \
+                 include/remorter.h \
+                 include/prog.h \
+                 include/quest.h \
+                 include/room_data.h \
+                 include/safe_list.h \
+                 include/screen.h \
+                 include/search.h \
+                 include/security.h \
+                 include/smokes.h \
+                 include/specs.h \
+                 include/spells.h \
+                 include/structs.h \
+                 include/tmpstr.h \
+                 include/tokenizer.h \
+                 include/utils.h \
+                 include/vehicle.h \
+                 include/vendor.h \
+                 include/voice.h \
+                 include/weather.h \
+                 include/xml_utils.h \
+                 include/zone_data.h
