@@ -44,7 +44,7 @@ ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]
                  help/help_collection.c \
                  house/house.c \
                  interpreter/interpreter.c \
-                 interpreter/group.c \
+                 interpreter/role.c \
                  interpreter/security.c \
                  magic/magic.c \
                  magic/spell_parser.c \
