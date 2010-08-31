@@ -82,7 +82,7 @@ ACMD(do_pistolwhip)
 		damage(ch, vict, 0, SKILL_PISTOLWHIP, WEAR_BODY);
 	} else {
 		dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
-			dice(4, getWeight(weap));
+			dice(4, GET_OBJ_WEIGHT(weap));
 		dam /= 4;
 		damage(ch, vict, dam, SKILL_PISTOLWHIP, WEAR_HEAD);
 		gain_skill_prof(ch, SKILL_PISTOLWHIP);
@@ -134,7 +134,7 @@ ACMD(do_crossface)
 		return;
 	}
 
-	if (!ok_to_attack(ch, vict))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {

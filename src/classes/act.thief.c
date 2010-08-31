@@ -301,7 +301,7 @@ ACMD(do_backstab)
 		return;
 	}
 
-	if (!ok_to_attack(ch, vict))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(weap)) ||
@@ -361,7 +361,7 @@ ACMD(do_circle)
 		send_to_char(ch, "How can you sneak up on yourself?\r\n");
 		return;
 	}
-	if (!ok_to_attack(ch, vict))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(weap)) ||

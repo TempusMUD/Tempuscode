@@ -156,7 +156,7 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict, in
         perform_act(buf, ch, NULL, NULL, tch, 0);
     }
 
-    g_list_foreach(ch->in_room->people, describe_singing, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)describe_singing, NULL);
 }
 
 char *pad_song(char *lyrics)
@@ -231,7 +231,7 @@ ASPELL(song_instant_audience)
 
     extern void add_follower(struct creature *ch, struct creature *leader);
 
-    if (isOpenAir(ch->in_room)) {
+    if (room_is_open_air(ch->in_room)) {
         send_to_char(ch, "Oh come now!  There's no one up here to hear you!\r\n");
         return;
     }
@@ -355,7 +355,7 @@ ASPELL(song_exposure_overture)
             act(to_vict, false, ch, NULL, tch, TO_VICT);
     }
 
-    g_list_foreach(ch->in_room->people, expose_char, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)expose_char, NULL);
 
     gain_skill_prof(ch, SONG_EXPOSURE_OVERTURE);
 }
@@ -474,7 +474,7 @@ ASPELL(song_lament_of_longing)
             WAIT_STATE(tch, 5 RL_SEC);
     }
 
-    g_list_foreach(ch->in_room->people, add_wait_state, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)add_wait_state, NULL);
 
     gain_skill_prof(ch, SONG_LAMENT_OF_LONGING);
 }
@@ -552,10 +552,10 @@ ASPELL(song_hymn_of_peace)
 {
 
     void pacify_char(struct creature *tch, gpointer ignore) {
-        removeAllCombat(tch);
+        remove_all_combat(tch);
         mag_unaffects(level, ch, tch, SONG_HYMN_OF_PEACE, 0);
     }
-    g_list_foreach(ch->in_room->people, pacify_char, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)pacify_char, NULL);
 
     send_to_char(ch, "Your song brings a feeling of peacefulness.\r\n");
     act("A feeling of peacefulness is heralded by $n's song.", false, ch, 0, 0, TO_ROOM);
@@ -641,7 +641,7 @@ ACMD(do_ventriloquize)
                      CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument,
                      CCNRM(ch, C_NRM));
     }
-    g_list_foreach(ch->in_room->people, send_ventriloqation, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)send_ventriloqation, 0);
 
     gain_skill_prof(ch, SKILL_VENTRILOQUISM);
 }

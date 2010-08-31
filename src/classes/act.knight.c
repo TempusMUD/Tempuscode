@@ -139,7 +139,7 @@ malovent_holy_touch(struct creature * ch, struct creature * vict)
 		return;
 	}
 
-	if (!ok_to_attack(ch, vict))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	chance = GET_ALIGNMENT(vict) / 10;

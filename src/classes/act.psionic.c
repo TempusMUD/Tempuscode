@@ -94,7 +94,7 @@ ACMD(do_psidrain)
 		return;
 	}
 
-	if (!ok_to_attack(ch, vict))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	if (GET_MOVE(ch) < 20) {

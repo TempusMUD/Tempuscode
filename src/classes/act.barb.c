@@ -102,7 +102,7 @@ perform_barb_berserk(struct creature *ch,
         return -1;
     }
     struct creature *vict;
-    vict = g_list_find_custom(ch->in_room->people, NULL, select_victim);
+    vict = (struct creature *)g_list_find_custom(ch->in_room->people, NULL, (GCompareFunc)select_victim);
     if (!vict)
         return 0;
 
@@ -314,7 +314,8 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
                 return 0;
             }
             struct creature *vict;
-            vict = g_list_find_custom(ch->in_room->people, NULL, select_victim);
+            vict = (struct creature *)g_list_find_custom(ch->in_room->people, NULL,
+                                                         (GCompareFunc)select_victim);
         }
     }
 }
@@ -345,7 +346,7 @@ ACMD(do_cleave)
 		return;
 	}
 
-	if (!OkToAttack(ch))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	perform_cleave(ch, vict, return_flags);

@@ -77,8 +77,8 @@ CANNOT_DAMAGE(struct creature *ch, struct creature *vict, struct obj_data *weap,
 
 			// bare-handed attacks with kata can hit magical stuff
 			if (IS_WEAPON(attacktype) && !weap &&
-                getSkillBonus(ch, SKILL_KATA) >= 50 &&
-						affected_by_spell(ch, SKILL_KATA))
+                skill_bonus(ch, SKILL_KATA) >= 50 &&
+                affected_by_spell(ch, SKILL_KATA))
 				return false;
 		}
 
@@ -232,5 +232,6 @@ int skill_message(int dam, struct creature *ch, struct creature *vict,
 void best_initial_attack(struct creature *ch, struct creature *vict);
 bool check_infiltrate(struct creature *ch, struct creature *vict);
 void add_blood_to_room(struct room_data *rm, int amount);
+bool ok_to_attack(struct creature *ch, struct creature *vict, bool emit);
 
 #endif							// __fight_h__

@@ -2974,7 +2974,7 @@ ACMD(do_beguile)
 	if (!can_see_creature(vict, ch))
 		return;
 
-    if (!ok_to_attack(ch, vict))
+    if (!ok_to_attack(ch, vict, true))
         return;
 
 	if (GET_INT(vict) < 4) {

@@ -811,7 +811,7 @@ perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
                         WAIT_STATE(ch, 1 RL_SEC);
                     }
 				}
-                g_list_foreach(ch->in_room->people, electrocute_creatures, 0);
+                g_list_foreach(ch->in_room->people, (GFunc)electrocute_creatures, 0);
 
 				send_to_char(ch,
 					"DANGER: Hazardous short detected!!  Energy fields shutting down.\r\n");
@@ -1267,7 +1267,7 @@ ACMD(do_bioscan)
 			count++;
 	}
 
-    g_list_foreach(ch->in_room->people, count_lifeform, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)count_lifeform, 0);
 
 	send_to_char(ch, "%sBIOSCAN:%s %d life form%s detected in room.\r\n",
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), count, count > 1 ? "s" : "");
@@ -1410,7 +1410,7 @@ ACMD(do_discharge)
 		return;
 	}
 
-	if (!ok_to_attack(ch, vict))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	percent = ((10 - (GET_AC(vict) / 10)) >> 1) + number(1, 91);
@@ -1493,7 +1493,7 @@ ACMD(do_tune)
 							ROOM_FLAGGED(to_room, ROOM_GODROOM | ROOM_NOMAGIC |
 								ROOM_NOTEL | ROOM_NORECALL | ROOM_DEATH) ||
 							(ROOM_FLAGGED(to_room, ROOM_HOUSE) &&
-								!House_can_enter(ch, to_room->number))));
+								!can_enter_house(ch, to_room->number))));
 				}
 				if (to_room == NULL)
 					TRANS_TO_ROOM(obj) = ch->in_room->number;
@@ -3334,7 +3334,7 @@ ACMD(do_de_energize)
 		return;
 	}
 
-	if (!ok_to_attack(ch, vict))
+	if (!ok_to_attack(ch, vict, true))
 		return;
 
 	appear(ch, vict);

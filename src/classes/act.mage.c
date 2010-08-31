@@ -277,7 +277,7 @@ area_attack_advisable(struct creature *ch)
         }
     }
 
-    g_list_foreach(ch->in_room, count_pc, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)count_pc, 0);
 
     return (pc_count > 1);
 }
@@ -300,7 +300,7 @@ group_attack_advisable(struct creature *ch)
 
     return (g_list_find_custom(ch->in_room->people,
                                0,
-                               find_two_attackers) != NULL);
+                               (GCompareFunc)find_two_attackers) != NULL);
 }
 
 // mob ai...
@@ -356,7 +356,7 @@ dispel_is_advisable(struct creature *vict)
         if ((SPELL_IS_MAGIC(af->type) || SPELL_IS_DIVINE(af->type))
             && !SPELL_FLAGGED(af->type, MAG_DAMAGE)
             && !spell_info[af->type].violent
-            && !spell_info[af->type].targets & TAR_UNPLEASANT)
+            && !(spell_info[af->type].targets & TAR_UNPLEASANT))
             return true;
     }
     return false;

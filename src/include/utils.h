@@ -923,6 +923,17 @@ long GET_SKILL_COST(struct creature *ch, int skill);
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
 inline bool
+room_is_open_air(struct room_data *room)
+{
+    int sect = SECT_TYPE(room);
+    return (sect == SECT_FLYING ||
+            sect == SECT_ELEMENTAL_AIR ||
+            sect == SECT_ELEMENTAL_RADIANCE ||
+            sect == SECT_ELEMENTAL_LIGHTNING ||
+            sect == SECT_ELEMENTAL_VACUUM);
+}
+
+inline bool
 room_is_watery(struct room_data *room)
 {
     int sect = SECT_TYPE(room);
