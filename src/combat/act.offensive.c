@@ -200,11 +200,11 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 		if (IS_BARB(ch)) {
 			// reduced wait state for barbs
 			int w = 5;
-			w *= get_skill_bonus(ch, SKILL_BASH);
+			w *= skill_bonus(ch, SKILL_BASH);
 			w /= 100;
 			*wait -= w;
 			// Improved damage for barbs
-			*dam += dice(2, get_skill_bonus(ch, SKILL_BASH));
+			*dam += dice(2, skill_bonus(ch, SKILL_BASH));
 		}
 
 		break;
@@ -239,7 +239,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 		// Barb headbutt should be nastier
 		if (IS_BARB(ch) && 0) {
 			// Improved damage for barbs
-			*dam += get_skill_bonus(ch, SKILL_HEADBUTT);
+			*dam += skill_bonus(ch, SKILL_HEADBUTT);
 			// Knock them down?
 			int attack = GET_STR(ch) + GET_DEX(ch);
 			int defence = GET_CON(vict) + GET_DEX(vict);
@@ -798,7 +798,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if (GET_LEVEL(ch) < 51 && !IS_PSIONIC(ch))
             prob = 0;
 
-		*dam = dice(get_skill_bonus(ch, SKILL_PSIBLAST) / 2, GET_INT(ch) + 1);
+		*dam = dice(skill_bonus(ch, SKILL_PSIBLAST) / 2, GET_INT(ch) + 1);
 
 		*dam += CHECK_SKILL(ch, SKILL_PSIBLAST);
 
@@ -816,14 +816,14 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if (GET_LEVEL(ch) < 51 && !IS_BARD(ch))
             prob = 0;
 
-        *dam = GET_CON(ch) * ((10 + (get_skill_bonus(ch, SKILL_SCREAM)) / 4));
+        *dam = GET_CON(ch) * ((10 + (skill_bonus(ch, SKILL_SCREAM)) / 4));
 		*dam += dice(15, (CHECK_SKILL(ch, SKILL_SCREAM) / 4));
 
 		//fortissimo makes scream more powerful
 		struct affected_type *fortissimoAff;
 		if ((fortissimoAff = affected_by_spell(ch, SONG_FORTISSIMO))) {
             // This should be +175 damage at gen 10/49
-			*dam += get_skill_bonus(ch, SONG_FORTISSIMO) + fortissimoAff->level;
+			*dam += skill_bonus(ch, SONG_FORTISSIMO) + fortissimoAff->level;
 		}
 
 		if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))
@@ -2253,7 +2253,7 @@ shoot_energy_gun(struct creature *ch,
     cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
 
     dam = dice(GET_OBJ_VAL(gun,1), GET_OBJ_VAL(gun,2));
-    dam += dam*get_skill_bonus(ch, SKILL_SHOOT)/100; //damage bonus for taking the time to aim and shoot
+    dam += dam*skill_bonus(ch, SKILL_SHOOT)/100; //damage bonus for taking the time to aim and shoot
     dam += GET_HITROLL(ch);
 
     CUR_ENERGY(gun->contains) -= cost;
@@ -2592,7 +2592,7 @@ ACMD(do_shoot)
 	}
 
 	if (ch->fighting && random_opponent(ch)->fighting == ch
-        && !number(0, 3) && (!get_skill_bonus(ch, SKILL_ENERGY_WEAPONS > 60))
+        && !number(0, 3) && (!skill_bonus(ch, SKILL_ENERGY_WEAPONS > 60))
         && (GET_LEVEL(ch) < LVL_GRGOD)) {
 		send_to_char(ch, "You are in too close to get off a shot!\r\n");
 		return;
@@ -2835,7 +2835,7 @@ ACMD(do_impale)
 	cur_weap = weap;
 	dam = dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2)) * 2 +
           getWeight(weap) * 4 + GET_DAMROLL(ch);
-    dam += dam * get_skill_bonus(ch, SKILL_IMPALE) / 200;
+    dam += dam * skill_bonus(ch, SKILL_IMPALE) / 200;
 
 	if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED) && weap->worn_on == WEAR_WIELD)
 		dam <<= 1;

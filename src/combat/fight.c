@@ -1278,7 +1278,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                         if (!mag_savingthrow(ch, af->level, SAVING_BREATH) &&
                             !IS_POISONED(ch) && random_fractional_4()) {
                             struct affected_type af;
-                            int level_bonus = get_skill_bonus(ch, SPELL_THORN_SKIN);
+                            int level_bonus = skill_bonus(ch, SPELL_THORN_SKIN);
                             af.type = SPELL_POISON;
                             af.location = APPLY_STR;
                             af.duration = MAX(1, level_bonus / 10);
@@ -1584,7 +1584,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 	// rangers' critical hit
 	if (ch && IS_RANGER(ch) && dam > 10 &&
 		IS_WEAPON(attacktype) &&
-        number(0, 650) <= get_skill_bonus(ch, GET_CLASS(ch) == CLASS_RANGER)) {
+        number(0, 650) <= skill_bonus(ch, GET_CLASS(ch) == CLASS_RANGER)) {
 		send_to_char(ch, "CRITICAL HIT!\r\n");
 		act("$n has scored a CRITICAL HIT!", false, ch, 0, victim,
 			TO_VICT);
@@ -1615,7 +1615,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         //photon special
         if (attacktype == TYPE_EGUN_PHOTON && dam) {
             if (do_gun_special(ch, weap)) {
-                mag_affects(get_skill_bonus(ch, SKILL_ENERGY_WEAPONS), ch, victim, NULL, SPELL_BLINDNESS, SAVING_ROD);
+                mag_affects(skill_bonus(ch, SKILL_ENERGY_WEAPONS), ch, victim, NULL, SPELL_BLINDNESS, SAVING_ROD);
             }
         }
         //plasma special
@@ -1660,7 +1660,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 sonicAf.aff_index = 0;
                 sonicAf.owner = GET_IDNUM(ch);
                 sonicAf.duration = 1;
-                sonicAf.level = get_skill_bonus(ch, SKILL_ENERGY_WEAPONS);
+                sonicAf.level = skill_bonus(ch, SKILL_ENERGY_WEAPONS);
                 sonicAf.type = TYPE_EGUN_SPEC_SONIC;
                 act("You become disoriented!", false, ch, NULL, victim, TO_VICT);
                 act("$N becomes disoriented!", false, ch, NULL, victim, TO_NOTVICT);
@@ -2373,7 +2373,7 @@ get_next_weap(struct creature *ch)
 // 6x max more for gens based on level_bonus.
 static inline int BACKSTAB_MULT( struct creature *ch  ) {
 	int mult = 2 + ( GET_LEVEL(ch) + 1 )/10;
-	int bonus = MAX(0,get_skill_bonus(ch, SKILL_BACKSTAB) - 50);
+	int bonus = MAX(0,skill_bonus(ch, SKILL_BACKSTAB) - 50);
 	mult += ( 6 * bonus ) / 50;
 	return mult;
 }
@@ -2609,7 +2609,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 				int dam_add;
 				dam_add = getWeight(cur_weap) / 4;
 				if (CHECK_SKILL(ch, SKILL_DISCIPLINE_OF_STEEL) > 60) {
-					int bonus = get_skill_bonus(ch,  SKILL_DISCIPLINE_OF_STEEL );
+					int bonus = skill_bonus(ch,  SKILL_DISCIPLINE_OF_STEEL );
 					int weight = getWeight(cur_weap);
 					dam_add += ( bonus * weight ) / 100;
 				}
@@ -2882,7 +2882,7 @@ do_gun_special(struct creature *ch, struct obj_data *obj)
             chain = true;
         return chain;
     } else if (GET_OBJ_VAL(obj, 3) == EGUN_PLASMA) {
-        return number(0, MAX(0,get_skill_bonus(ch, SKILL_ENERGY_WEAPONS))/20);//almost always ignite if applicable
+        return number(0, MAX(0,skill_bonus(ch, SKILL_ENERGY_WEAPONS))/20);//almost always ignite if applicable
     } else if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
                 (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) / 8)))) {
         return false;

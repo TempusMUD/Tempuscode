@@ -1497,7 +1497,7 @@ int calculate_attack_probability(struct creature *ch)
         prob += GET_LEVEL(ch) >> 2;
 
     if (AFF3_FLAGGED(ch, AFF3_DIVINE_POWER))
-        prob += (get_skill_bonus(ch, SPELL_DIVINE_POWER) / 3);
+        prob += (skill_bonus(ch, SPELL_DIVINE_POWER) / 3);
 
     if (ch->desc)
         prob -= ((MAX(0, ch->desc->wait >> 1)) * prob) / 100;

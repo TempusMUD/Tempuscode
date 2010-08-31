@@ -969,9 +969,9 @@ list_char_to_char(struct creature *list, struct creature *ch)
             && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)
             && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
 			hide_prob = number(0, i->level_bonus(SKILL_HIDE));
-			hide_roll = number(0, get_skill_bonus(ch, true));
+			hide_roll = number(0, skill_bonus(ch, true));
 			if (affected_by_spell(ch, ZEN_AWARENESS))
-				hide_roll += get_skill_bonus(ch, ZEN_AWARENESS) / 4;
+				hide_roll += skill_bonus(ch, ZEN_AWARENESS) / 4;
 
 			if (hide_prob > hide_roll) {
 				unseen++;
@@ -4142,7 +4142,7 @@ ACMD(do_consider)
 	if (!IS_NPC(victim)) {
 		send_to_char(ch, "Well, if you really want to kill another player...\r\n");
 	}
-	diff = victim->level_bonus(true) - get_skill_bonus(ch, true);
+	diff = victim->level_bonus(true) - skill_bonus(ch, true);
 
 	if (diff <= -30)
 		send_to_char(ch, "It's not even worth the effort...\r\n");

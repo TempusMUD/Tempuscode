@@ -152,7 +152,7 @@ ACMD(do_crossface)
 	dex_mod = 3;
 	// This beastly function brought to you by Cat, the letter F, and Nothing more
 	prob =
-		((GET_LEVEL(ch) + get_skill_bonus(ch, prime_merc)) -
+		((GET_LEVEL(ch) + skill_bonus(ch, prime_merc)) -
 		(GET_LEVEL(vict) * 2))
 		+ (CHECK_SKILL(ch, SKILL_CROSSFACE) >> 2)
 		+ (dex_mod * (GET_DEX(ch) - GET_DEX(vict)))
@@ -689,7 +689,7 @@ ACMD(do_infiltrate)
 	af.location = APPLY_NONE;
 	af.bitvector = AFF_SNEAK;
 	af.aff_index = 0;
-	af.level = GET_LEVEL(ch) + get_skill_bonus(ch, SKILL_INFILTRATE);
+	af.level = GET_LEVEL(ch) + skill_bonus(ch, SKILL_INFILTRATE);
     af.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af);
 
@@ -700,7 +700,7 @@ ACMD(do_infiltrate)
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.bitvector = AFF3_INFILTRATE;
-	af.level = GET_LEVEL(ch) + get_skill_bonus(ch, SKILL_INFILTRATE);
+	af.level = GET_LEVEL(ch) + skill_bonus(ch, SKILL_INFILTRATE);
     af.owner = GET_IDNUM(ch);
 	affect_to_char(ch, &af);
 }
@@ -950,7 +950,7 @@ ACMD(do_combine)
 
     if (number(0, 120) < CHECK_SKILL(ch, SKILL_CHEMISTRY)) {
         // Didn't explode - set up the level and spells
-        GET_OBJ_VAL(new_potion, 0) = level_count * 100 / (2 * get_skill_bonus(ch, SKILL_CHEMISTRY));
+        GET_OBJ_VAL(new_potion, 0) = level_count * 100 / (2 * skill_bonus(ch, SKILL_CHEMISTRY));
         spell_count = 1;
         int idx;
         for (idx = 1;idx < 4;idx++) {

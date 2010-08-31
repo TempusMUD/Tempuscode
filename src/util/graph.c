@@ -337,7 +337,7 @@ ACMD(do_track)
     }
 
     bool good_track = false;
-    if (number(30, 200) < get_skill_bonus(ch, SKILL_TRACK))
+    if (number(30, 200) < skill_bonus(ch, SKILL_TRACK))
         good_track = true;
 
 	if (!GET_SKILL(ch, SKILL_TRACK) && !spirit) {

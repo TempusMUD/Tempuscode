@@ -116,9 +116,9 @@ ACMD(do_psidrain)
 
 	if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) && distrusts(vict, ch)) {
         prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch);
-        prob += get_skill_bonus(ch, SKILL_PSIDRAIN);
+        prob += skill_bonus(ch, SKILL_PSIDRAIN);
 
-        percent = level_bonus(vict, SPELL_PSISHIELD);
+        percent = skill_bonus(vict, SPELL_PSISHIELD);
         percent += number(1, 120);
 
         if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI))

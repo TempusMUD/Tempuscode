@@ -174,7 +174,7 @@ malovent_holy_touch(struct creature * ch, struct creature * vict)
 
 	af.type = SKILL_HOLY_TOUCH;
 	af.is_instant = 1;
-	af.level = get_skill_bonus(ch, SKILL_HOLY_TOUCH);
+	af.level = skill_bonus(ch, SKILL_HOLY_TOUCH);
 	af.duration = number(1, 3);
 	af.aff_index = 3;
 	af.bitvector = AFF3_INST_AFF;
@@ -189,7 +189,7 @@ malovent_holy_touch(struct creature * ch, struct creature * vict)
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 
 	gain_skill_prof(ch, SKILL_HOLY_TOUCH);
-	if (damage(ch, vict, get_skill_bonus(ch, SKILL_HOLY_TOUCH) * 2,
+	if (damage(ch, vict, skill_bonus(ch, SKILL_HOLY_TOUCH) * 2,
 			SKILL_HOLY_TOUCH, WEAR_EYES))
 		return;
 

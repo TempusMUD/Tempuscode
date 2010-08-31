@@ -808,7 +808,7 @@ ASPELL(spell_locate_object)
 	if (ch) {
 		int extracost;
 
-		if (term_count > MAX(1, (get_skill_bonus(ch, SPELL_LOCATE_OBJECT) / 25))) {
+		if (term_count > MAX(1, (skill_bonus(ch, SPELL_LOCATE_OBJECT) / 25))) {
 			send_to_char(ch, "You are not powerful enough to be so precise.\r\n");
 			return;
 		}
@@ -1791,7 +1791,7 @@ ASPELL(spell_conjure_elemental)
 		return;
 	}
     float mult = MAX(0.5,
-                     (float)((get_skill_bonus(ch, SPELL_CONJURE_ELEMENTAL)) * 1.5) / 100);
+                     (float)((skill_bonus(ch, SPELL_CONJURE_ELEMENTAL)) * 1.5) / 100);
 
     // tweak them out
     GET_HITROLL(elemental) = MIN((int)(GET_HITROLL(elemental) * mult), 60);
@@ -1869,9 +1869,9 @@ ASPELL(spell_death_knell)
 	af3.level = GET_LEVEL(ch);
 
 	// Set the duration
-	af.duration = 4 + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 6);
-	af2.duration = 4 + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 6);
-	af3.duration = 4 + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 6);
+	af.duration = 4 + (skill_bonus(ch, SPELL_DEATH_KNELL) / 6);
+	af2.duration = 4 + (skill_bonus(ch, SPELL_DEATH_KNELL) / 6);
+	af3.duration = 4 + (skill_bonus(ch, SPELL_DEATH_KNELL) / 6);
 
 	// Affect locations
 	af.location = APPLY_STR;
@@ -1886,8 +1886,8 @@ ASPELL(spell_death_knell)
 	// Modifiers
 	af.modifier = 2;
 	af2.modifier =
-		(GET_LEVEL(victim) + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 2));
-	af3.modifier = 5 + (get_skill_bonus(ch, SPELL_DEATH_KNELL) / 15);
+		(GET_LEVEL(victim) + (skill_bonus(ch, SPELL_DEATH_KNELL) / 2));
+	af3.modifier = 5 + (skill_bonus(ch, SPELL_DEATH_KNELL) / 15);
 
 	// Affect the character
 	if (!affected_by_spell(ch, SPELL_DEATH_KNELL)) {
@@ -2458,10 +2458,10 @@ ASPELL(spell_summon_legion)
 	}
 
 	// devil modification based on power level of leige
-	mult = get_skill_bonus(ch, SPELL_SUMMON_LEGION) * 1.5 / 100;
+	mult = skill_bonus(ch, SPELL_SUMMON_LEGION) * 1.5 / 100;
 
 	// choose the appropriate minion
-	i = (get_skill_bonus(ch, SPELL_SUMMON_LEGION) * 2 / 3) + number(1, 30);
+	i = (skill_bonus(ch, SPELL_SUMMON_LEGION) * 2 / 3) + number(1, 30);
 	i = i / 20;					// divide based on number of devils avaliable
 	i = MAX(i, 0);
 	i = MIN(i, 4);
@@ -2491,7 +2491,7 @@ ASPELL(spell_summon_legion)
 		false, devil, 0, 0, TO_ROOM);
 
 	if (number(0, 50 + GET_LEVEL(devil)) >
-			get_skill_bonus(ch, SPELL_SUMMON_LEGION) ||
+			skill_bonus(ch, SPELL_SUMMON_LEGION) ||
 			!can_charm_more(ch)) {
 		act("Uh, oh.  $N doesn't look happy at you!",
 			false, ch, 0, devil, TO_CHAR);
@@ -3314,7 +3314,7 @@ ASPELL(spell_dispel_magic)
     }
 
     // removes up to ten affects
-    aff_to_remove = 10 - get_skill_bonus(ch, IS_MAGE(ch)) / 10;
+    aff_to_remove = 10 - skill_bonus(ch, IS_MAGE(ch)) / 10;
     if (!aff_to_remove)
         aff_to_remove = 1;
     aff_to_remove += number(0, 1);
@@ -3636,7 +3636,7 @@ perform_call_familiar(struct creature *ch, int level, int type)
 	SET_BIT(MOB2_FLAGS(pet), MOB2_FAMILIAR);
 
 	// Scale the pet to the caster's level
-	percent = 50 + get_skill_bonus(ch, true) / 2;
+	percent = 50 + skill_bonus(ch, true) / 2;
 	GET_LEVEL(pet) = GET_LEVEL(pet) * percent / 100;
 	GET_EXP(pet) = 0;
 	GET_MAX_HIT(pet) = GET_MAX_HIT(pet) * percent / 100;

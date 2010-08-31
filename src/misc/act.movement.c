@@ -311,7 +311,7 @@ check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msg
 		return SNEAK_FAILED;
 	}
 
-	sneak_prob = get_skill_bonus(ch, SKILL_SNEAK) +
+	sneak_prob = skill_bonus(ch, SKILL_SNEAK) +
 		dex_app_skill[GET_DEX(ch)].sneak;
 
 	if (GET_CLASS(ch) == CLASS_RANGER &&

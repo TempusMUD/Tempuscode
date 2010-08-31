@@ -1355,7 +1355,7 @@ ACMD(do_discharge)
 	level = GET_LEVEL(ch);
 	level += GET_REMORT_GEN(ch);
 	// Tolerance is the amount they can safely discharge.
-	tolerance = 5 + (get_skill_bonus(ch, SKILL_DISCHARGE) / 4);
+	tolerance = 5 + (skill_bonus(ch, SKILL_DISCHARGE) / 4);
 
 	if (amount > tolerance) {
 		if (amount > (tolerance * 2)) {
@@ -1417,7 +1417,7 @@ ACMD(do_discharge)
 
 	prob = CHECK_SKILL(ch, SKILL_DISCHARGE);
 
-    dam = dice(amount * 3, 16 + (get_skill_bonus(ch, SKILL_DISCHARGE) / 10));
+    dam = dice(amount * 3, 16 + (skill_bonus(ch, SKILL_DISCHARGE) / 10));
 
 	wait = (1 + amount / 5) RL_SEC;
 	WAIT_STATE(ch, wait);
@@ -3308,7 +3308,7 @@ ACMD(do_overdrain)
 		return;
 	}
 	gain_skill_prof(ch, SKILL_OVERDRAIN);
-	amount = number(0, get_skill_bonus(ch, SKILL_OVERDRAIN));
+	amount = number(0, skill_bonus(ch, SKILL_OVERDRAIN));
 	perform_recharge(ch, source, ch, 0, amount);
 	return;
 }

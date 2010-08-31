@@ -268,7 +268,7 @@ ACMD(do_lecture)
 	appear(ch, vict);
     check_attack(ch, vict);
 
-	prob = get_skill_bonus(ch, SKILL_LECTURE) + (GET_INT(ch) << 1);
+	prob = skill_bonus(ch, SKILL_LECTURE) + (GET_INT(ch) << 1);
 	if(AFF_FLAGGED(ch, AFF_CONFUSION))
 		prob -= 60;
 
@@ -1091,9 +1091,9 @@ ASPELL(spell_area_stasis)
 	}
 
 	rm_aff.description = strdup("    The room seems to be physically stable.\r\n");
-	rm_aff.level = get_skill_bonus(ch, SPELL_AREA_STASIS);
+	rm_aff.level = skill_bonus(ch, SPELL_AREA_STASIS);
 	rm_aff.type = RM_AFF_FLAGS;
 	rm_aff.flags = ROOM_NOPHYSIC;
-	rm_aff.duration = get_skill_bonus(ch, SPELL_AREA_STASIS);
+	rm_aff.duration = skill_bonus(ch, SPELL_AREA_STASIS);
 	affect_to_room(ch->in_room, &rm_aff);
 }

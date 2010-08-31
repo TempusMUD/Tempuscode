@@ -304,7 +304,7 @@ burn_update_creature(struct creature *ch)
                     && GET_OBJ_DAM(obj) < GET_OBJ_MAX_DAM(obj)) {
                     repaired = true;
                     float amount =
-                        (get_skill_bonus(ch, SKILL_NANITE_RECONSTRUCTION) /
+                        (skill_bonus(ch, SKILL_NANITE_RECONSTRUCTION) /
                          number(33, 50));
 
                     GET_OBJ_DAM(obj) += (int)(ceilf(amount));
@@ -1196,7 +1196,7 @@ check_infiltrate(struct creature *ch, struct creature *vict)
 		return false;
 	}
 
-	int prob = get_skill_bonus(ch, SKILL_INFILTRATE);
+	int prob = skill_bonus(ch, SKILL_INFILTRATE);
 	int percent = number(1, 115);
 
     if (PLR_FLAGGED(ch, PLR_KILLER)) {

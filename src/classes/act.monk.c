@@ -135,7 +135,7 @@ perform_monk_meditate(struct creature *ch)
             af.owner = GET_IDNUM(ch);
 			// make them able to fly at high power
 			if (GET_CLASS(ch) == CLASS_MONK
-					&& get_skill_bonus(ch, ZEN_MOTION) >= 50) {
+					&& skill_bonus(ch, ZEN_MOTION) >= 50) {
 				af.bitvector = AFF_INFLIGHT;
 				af.aff_index = 1;
 			}
