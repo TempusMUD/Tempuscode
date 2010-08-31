@@ -8,6 +8,7 @@
 #include "char_class.h"
 #include "comm.h"
 #include "security.h"
+#include "players.h"
 
 bool
 is_arena_combat(struct creature *ch, struct creature *vict)
@@ -150,7 +151,7 @@ create_grievance(struct creature *ch,
     grievance->player_id = GET_IDNUM(perp);
     grievance->rep = gain;
     grievance->grievance = kind;
-    g_list_prepend(GET_GRIEVANCES(ch), grievance);
+    GET_GRIEVANCES(ch) = g_list_prepend(GET_GRIEVANCES(ch), grievance);
 }
 
 void
@@ -248,7 +249,7 @@ g_list_remove_if(GList *list, GCompareFunc func, gpointer user_data)
 
     while (cur) {
         next = g_list_next(cur);
-        if (func(cur->data, user_data))
+        if (!func(cur->data, user_data))
             list = g_list_delete_link(list, cur);
         cur = next;
     }
@@ -295,7 +296,7 @@ void
 expire_old_grievances(struct creature *ch)
 {
     time_t min_time = time(NULL) - 86400;
-    void grievance_expired(struct grievance *g, gpointer ignore) {
+    gint grievance_expired(struct grievance *g, gpointer ignore) {
         return (g->time < min_time) ? 0:-1;
     }
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
@@ -317,18 +318,19 @@ ACMD(do_pardon)
 
     // Find who they're accusing
     char *pardoned_name = tmp_getword(&argument);
-    if (!PlayerTable_name_exists(pardoned_name)) {
+    if (!player_name_exists(pardoned_name)) {
         send_to_char(ch, "There's no one of that name to pardon.\r\n");
         return;
     }
 
     // Get the pardoned character
-    struct creature *pardoned = get_char_in_world_by_idnum(PlayerTable_getID(pardoned_name));
+    int pardoned_idnum = player_idnum_by_name(pardoned_name);
+    struct creature *pardoned = get_char_in_world_by_idnum(pardoned_idnum);
     bool loaded_pardoned = false;
     if (!pardoned) {
         loaded_pardoned = true;
         CREATE(pardoned, struct creature, 1);
-        PlayerTable_loadPlayer(pardoned_name, pardoned);
+        pardoned = load_player_from_xml(pardoned_idnum);
     }
 
     // Do the imm pardon
@@ -372,8 +374,8 @@ ACMD(do_pardon)
 void
 check_object_killer(struct obj_data *obj, struct creature *vict)
 {
-	struct creature cbuf;
 	struct creature *killer = NULL;
+    bool loaded_killer = false;
 	int obj_id;
 
     if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
@@ -401,11 +403,11 @@ check_object_killer(struct obj_data *obj, struct creature *vict)
 
 	// load the bastich from file.
 	if (!killer) {
-		clear_creature(&cbuf);
-		if (load_player_from_xml(&cbuf, obj_id)) {
-			killer = &cbuf;
-			cbuf.account = account_retrieve(PlayerTable_getAccountID(obj_id));
-		}
+        killer = load_player_from_xml(obj_id);
+		if (killer) {
+			killer->account = account_by_id(player_account_by_idnum(obj_id));
+            loaded_killer = true;
+        }
 	}
 
 	// the piece o shit has a bogus killer idnum on it!
@@ -419,6 +421,9 @@ check_object_killer(struct obj_data *obj, struct creature *vict)
 
 	// save the sonuvabitch to file
 	save_player_to_xml(killer);
+
+    if (loaded_killer)
+        free_creature(killer);
 }
 
 void

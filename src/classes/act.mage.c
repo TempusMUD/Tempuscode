@@ -267,14 +267,9 @@ area_attack_advisable(struct creature *ch)
     // no other non-fighting NPCs
     int pc_count = 0;
     void count_pc(struct creature *tch, gpointer ignore) {
-        if (!can_see_creature(ch, tch))
-            return false;
-        if (IS_NPC(tch)) {
-            if (!isFighting(tch))
-                return false;
-        } else {
+        if (can_see_creature(ch, tch)
+            && !(IS_NPC(tch) && tch->fighting))
             pc_count++;
-        }
     }
 
     g_list_foreach(ch->in_room->people, (GFunc)count_pc, 0);

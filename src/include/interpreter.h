@@ -46,7 +46,7 @@ int is_abbrevn(const char *arg1, const char *arg2, int count);
 bool is_number(const char *str);
 int find_command(const char *command);
 int find_command_noabbrev(const char *command);
-void skip_spaces(char * const * const string);
+void skip_spaces(char **string);
 void send_unknown_cmd(struct creature *ch);
 
 // from search.c

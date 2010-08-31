@@ -57,14 +57,14 @@ int num_of_cmds = 0;
 
 int general_search(struct creature *ch, struct special_search_data *srch,
 	int mode);
-long special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+long special(struct creature *ch, int cmd, int subcmd, char *arg, enum special_mode spec_mode);
 
 /* writes a string to the command log */
 void
 cmdlog(char *str)
 {
-	static char *log;
-	static ofstream commandLog("log/command.log", ios_app);
+	static FILE *commandLog = NULL;
+	static char *log = NULL;
 	time_t ct;
 	char *tmstr;
 
@@ -72,15 +72,16 @@ cmdlog(char *str)
 	tmstr = asctime(localtime(&ct));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
 	log = tmp_sprintf("%-19.19s _ %s", tmstr, str);
-	commandLog << log << endl;
-	commandLog.flush();
+    if (!commandLog)
+        commandLog = fopen("log/command.log", "a");
+	fputs(log, commandLog);
 }
 
 void
 newbielog(struct creature *ch, const char *cmd, const char *args)
 {
+	static FILE *newbieLog = NULL;
 	static char *log;
-	static ofstream newbieLog("log/newbie.log", ios_app);
 	time_t ct;
 	char *tmstr;
 
@@ -93,8 +94,9 @@ newbielog(struct creature *ch, const char *cmd, const char *args)
                       GET_NAME(ch),
                       cmd,
                       args);
-	newbieLog << log << endl;
-	newbieLog.flush();
+    if (!newbieLog)
+        newbieLog = fopen("log/newbie.log", "a");
+	fputs(log, newbieLog);
 }
 
 ACMD(do_objupdate);
@@ -1679,7 +1681,7 @@ send_unknown_cmd(struct creature *ch)
 void
 command_interpreter(struct creature *ch, const char *argument)
 {
-	descriptor_data *d;
+	struct descriptor_data *d;
 	int cmd, length;
 	extern int no_specials;
     const char *cmdstr;
@@ -1694,9 +1696,9 @@ command_interpreter(struct creature *ch, const char *argument)
 	if (GET_POSITION(ch) > POS_SLEEPING)
 		REMOVE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
 
-	if (ch->isMounted() && ch->in_room != ch->isMounted()->in_room) {
-		REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
-        ch->dismount();
+	if (MOUNTED_BY(ch) && ch->in_room != MOUNTED_BY(ch)->in_room) {
+		REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
+        dismount(ch);
 	}
 
     // Skip any initial spaces, slashes or backslashes
@@ -2122,13 +2124,6 @@ skip_spaces(char **string)
         (*string)++;
 }
 
-void
-skip_spaces(const char **string)
-{
-	while (**string && isspace(**string))
-        (*string)++;
-}
-
 int
 fill_word(char *argument)
 {
@@ -2159,27 +2154,6 @@ one_argument(char *argument, char *first_arg)
 	return argument;
 }
 
-// A non-destructive version of the previous that returns nothing.
-// DO NOT set this equal to anything, you'll get nada.
-void
-one_argument(const char *argument, char *first_arg)
-{
-	char *begin = first_arg;
-	const char *s = argument;
-	do {
-		while (isspace(*s))
-			s++;
-
-		first_arg = begin;
-		while (*s && !isspace(*s)) {
-			*(first_arg++) = tolower(*s);
-			s++;
-		}
-
-		*first_arg = '\0';
-	} while (fill_word(begin));
-}
-
 /* same as one_argument except that it doesn't ignore fill words */
 char *
 any_one_arg(char *argument, char *first_arg)
@@ -2203,39 +2177,21 @@ any_one_arg(char *argument, char *first_arg)
 char *
 two_arguments(char *argument, char *first_arg, char *second_arg)
 {
-	return one_argument(one_argument(argument, first_arg), second_arg);
-	/* :-) */
-}
+    char *s;
 
-void
-two_arguments(const char *argument, char *first_arg, char *second_arg)
-{
-	char *begin = first_arg;
-	const char *s = argument;
-	do {
-		while (isspace(*s))
-			s++;
-		// Yank out the first arg
-		first_arg = begin;
-		while (*s && !isspace(*s)) {
-			*(first_arg++) = tolower(*s);
-			s++;
-		}
-		*first_arg = '\0';
-	} while (fill_word(begin));
+    do {
+        s = tmp_getword(&argument);
+    } while (fill_word(s));
 
-	// Now the second arg
-	begin = second_arg;
-	do {
-		while (isspace(*s))
-			s++;
-		second_arg = begin;
-		while (*s && !isspace(*s)) {
-			*(second_arg++) = tolower(*s);
-			s++;
-		}
-		*second_arg = '\0';
-	} while (fill_word(begin));
+    strcpy(first_arg, s);
+
+    do {
+        s = tmp_getword(&argument);
+    } while (fill_word(s));
+
+    strcpy(second_arg, s);
+
+    return argument;
 }
 
 /*
@@ -2252,7 +2208,7 @@ two_arguments(const char *argument, char *first_arg, char *second_arg)
  * LK -- 2/22/2004
  */
 int
-is_abbrev(const char *needle, const char *haystack, int count)
+is_abbrevn(const char *needle, const char *haystack, int count)
 {
     int matched = 0;
 
@@ -2286,27 +2242,33 @@ half_chop(char *string, char *arg1, char *arg2)
 
 /* Used in specprocs, mostly.  (Exactly) matches "command" to cmd number */
 int
-find_command(const char *command, bool abbrev)
+find_command(const char *command)
+{
+	int cmd;
+    int len = strlen(command);
+
+    for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
+        if (!strncmp(cmd_info[cmd].command, command, len))
+            return cmd;
+
+	return -1;
+}
+
+int
+find_command_noabbrev(const char *command)
 {
 	int cmd;
 
-	if (abbrev) {
-		int len = strlen(command);
+    for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
+        if (!strcmp(cmd_info[cmd].command, command))
+            return cmd;
 
-		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
-			if (!strncmp(cmd_info[cmd].command, command, len))
-				return cmd;
-	} else {
-		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
-			if (!strcmp(cmd_info[cmd].command, command))
-				return cmd;
-	}
 
 	return -1;
 }
 
 long
-special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode)
+special(struct creature *ch, int cmd, int subcmd, char *arg, enum special_mode spec_mode)
 {
 	struct obj_data *i;
 	struct special_search_data *srch = NULL;
@@ -2394,9 +2356,8 @@ special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_m
 
 	/* special in mobile present? */
 	struct room_data *theRoom = ch->in_room;
-	struct creatureList_iterator it = theRoom->people.begin();
-	for (; it != theRoom->people.end(); ++it) {
-        struct creature *mob = *it;
+	for (GList *it = theRoom->people; it; it = it->next) {
+        struct creature *mob = (struct creature *)it->data;
 
 		if (GET_MOB_SPEC(mob) != NULL) {
 			specAddress = (long)GET_MOB_SPEC(mob);
