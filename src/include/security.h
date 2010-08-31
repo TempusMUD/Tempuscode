@@ -95,7 +95,7 @@ bool group_canAccessShow(struct group *group, struct creature *ch, const struct 
  **/
 bool group_canAccessSet(struct group *group, struct creature *ch, const struct set_struct *command );
 /* Check membership in a particular group by name.**/
-bool group_isMember(struct group *group, struct creature *ch, const char* group_name, bool substitute );
+bool is_group_member(struct creature *ch, const char *group_name);
 
 /* can this character add/remove characters from this group. **/
 bool group_canAdminGroup(struct group *group, struct creature *ch, const char* groupName );

@@ -117,7 +117,7 @@ char_can_enroll(struct creature *ch, struct creature *vict, struct clan_data *cl
         return false;
     }
 
-    if (Security_isMember(ch, "Clan"))
+    if (is_group_member(ch, "Clan"))
         return true;
     // Enrollment conditions that don't apply to clan administrators
     else if (PLR_FLAGGED(vict, PLR_FROZEN))
@@ -147,7 +147,7 @@ char_can_dismiss(struct creature *ch, struct creature *vict, struct clan_data *c
         send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
     else if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-    else if (Security_isMember(ch, "Clan"))
+    else if (is_group_member(ch, "Clan"))
         return true;
     // Dismissal conditions that don't apply to clan administrators
     else if (!clan)
@@ -182,7 +182,7 @@ char_can_promote(struct creature *ch, struct creature *vict, struct clan_data *c
     else if (vict_member->rank >= clan->top_rank
              && PLR_FLAGGED(vict, PLR_CLAN_LEADER))
 		send_to_char(ch, "That person is already at the top rank.\r\n");
-    else if (Security_isMember(ch, "Clan"))
+    else if (is_group_member(ch, "Clan"))
         return true;
     // Promotion conditions that don't apply to clan administrators
     else if (!clan)
@@ -214,7 +214,7 @@ ACMD(do_enroll)
 
 	member_str = tmp_getword(&argument);
 
-	if (Security_isMember(ch, "Clan")) {
+	if (is_group_member(ch, "Clan")) {
 		char *clan_str = tmp_getword(&argument);
 
 		if (!*clan_str) {
@@ -268,7 +268,7 @@ ACMD(do_dismiss)
 	arg = tmp_getword(&argument);
 	skip_spaces(&argument);
 
-	if (!clan && !Security_isMember(ch, "Clan")) {
+	if (!clan && !is_group_member(ch, "Clan")) {
 		send_to_char(ch, "Try joining a clan first.\r\n");
 		return;
 	} else if (!*arg) {
@@ -450,7 +450,7 @@ ACMD(do_demote)
 		act("$N is not properly installed in the clan.\r\n",
 			false, ch, 0, vict, TO_CHAR);
 	} else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
-		&& !Security_isMember(ch, "Clan")) {
+		&& !is_group_member(ch, "Clan")) {
 		send_to_char(ch, "You are unable to demote.\r\n");
 	} else if (member2->rank >= member1->rank
 		|| PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
@@ -848,12 +848,12 @@ ACMD(do_cedit)
 		return;
 	}
 
-	if (!Security_isMember(ch, "Clan")) {
+	if (!is_group_member(ch, "Clan")) {
 		send_to_char(ch, "Sorry, you can't use the cedit command.\r\n");
 	}
 
 	if (cedit_keys[cedit_command].level == 1
-		&& !Security_isMember(ch, "WizardFull")) {
+		&& !is_group_member(ch, "WizardFull")) {
 		send_to_char(ch, "Sorry, you can't use that cedit command.\r\n");
 		return;
 	}
@@ -1088,7 +1088,7 @@ ACMD(do_cedit)
 			}
             i = atoi(argument);
 
-			if (i == 0 && (i = player_idnum_from_name(argument)) == 0) {
+			if (i == 0 && (i = player_idnum_by_name(argument)) == 0) {
 				send_to_char(ch, "No such person.\r\n");
 				return;
 			}
@@ -1111,7 +1111,7 @@ ACMD(do_cedit)
 			arg1 = tmp_getword(&argument);
 
 			if (!is_number(arg3)) {
-				if ((i = player_idnum_from_name(arg3)) == 0) {
+				if ((i = player_idnum_by_name(arg3)) == 0) {
 					send_to_char(ch, "There is no such player in existence...\r\n");
 					return;
 				}
@@ -1205,7 +1205,7 @@ ACMD(do_cedit)
 		// cedit add member
 		else if (is_abbrev(arg2, "member")) {
 			if (!is_number(arg3)) {
-				if ((i = player_idnum_from_name(arg3)) == 0) {
+				if ((i = player_idnum_by_name(arg3)) == 0) {
 					send_to_char(ch, "There exists no player with that name.\r\n");
 					return;
 				}
@@ -1288,7 +1288,7 @@ ACMD(do_cedit)
 		// cedit remove member
 		else if (is_abbrev(arg2, "member")) {
 			if (!is_number(arg3)) {
-				if ((i = player_idnum_from_name(arg3)) == 0) {
+				if ((i = player_idnum_by_name(arg3)) == 0) {
 					send_to_char(ch, "There exists no player with that name.\r\n");
 					return;
 				}
@@ -1543,7 +1543,7 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
 
         acc_sprintf("Bank: %-20lld Owner: %s[%ld]\r\n",
                     clan->bank_account,
-                    player_name_from_idnum(clan->owner),
+                    player_name_by_idnum(clan->owner),
                     clan->owner);
 
 		for (i = clan->top_rank; i >= 0; i--) {
@@ -1615,7 +1615,7 @@ clan_house_can_enter(struct creature *ch, struct room_data *room)
 		return 1;
 	if (GET_LEVEL(ch) >= LVL_DEMI)
 		return 1;
-	if (Security_isMember(ch, "Clan"))
+	if (is_group_member(ch, "Clan"))
 		return 1;
 	if (!(ch_clan = real_clan(GET_CLAN(ch))))
 		return 0;
