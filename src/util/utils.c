@@ -173,7 +173,7 @@ mlog(const char *group, sbyte level, log_type type, bool file, const char *fmt, 
 			tp = ((PRF_FLAGGED(i->creature, PRF_LOG1) ? 1 : 0) +
 				(PRF_FLAGGED(i->creature, PRF_LOG2) ? 2 : 0));
 
-			if (Security_isMember(i->creature, group)
+			if (is_group_member(i->creature, group)
 					&& (GET_LEVEL(i->creature) >= level)
 					&& (tp >= type))
 				send_to_char(i->creature, "%s[ %s%s ]%s\r\n",

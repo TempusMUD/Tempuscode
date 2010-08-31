@@ -1952,7 +1952,7 @@ do_zset_command(struct creature *ch, char *argument)
 		return;
 		break;
 	case 2:					/*  top   */
-		if(! Security_isMember(ch, "OLCWorldWrite") ) {
+		if(! is_group_member(ch, "OLCWorldWrite") ) {
 			send_to_char(ch, "You cannot alter zones in this way.\r\n");
 			return;
 		}

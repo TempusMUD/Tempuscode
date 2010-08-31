@@ -1290,7 +1290,7 @@ ACMD(do_gen_tog)
 		result = PRF2_TOG_CHK(ch, PRF2_NOWRAP);
 		break;
 	case SCMD_WORLDWRITE:
-        if (!Security_isMember(ch, "OLCWorldWrite")) {
+        if (!is_group_member(ch, "OLCWorldWrite")) {
             send_to_char(ch, "You do not have the worldwrite power!\n");
             return;
         }

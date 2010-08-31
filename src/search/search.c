@@ -56,7 +56,7 @@ search_trans_character(struct creature * ch,
 	if (!House_can_enter(ch, targ_room->number) ||
 		!clan_house_can_enter(ch, targ_room) ||
 		(ROOM_FLAGGED(targ_room, ROOM_GODROOM) &&
-			!Security_isMember(ch, "WizardFull")))
+			!is_group_member(ch, "WizardFull")))
 		return 0;
 
 	was_in = ch->in_room;
@@ -277,7 +277,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 			if (!House_can_enter(ch, targ_room->number)
 				|| !clan_house_can_enter(ch, targ_room)
 				|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
-					&& !Security_isMember(ch, "WizardFull"))) {
+					&& !is_group_member(ch, "WizardFull"))) {
 				return 0;
 			}
 

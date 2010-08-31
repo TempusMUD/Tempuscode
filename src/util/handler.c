@@ -2276,7 +2276,7 @@ get_obj_vis(struct creature *ch, const char *name)
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
-	if (is_number(name) && Security_isMember(ch, "Coder")) {
+	if (is_number(name) && is_group_member(ch, "Coder")) {
 		// Scan the object list for the unique ID given by the number
 		number = atoi(name);
 		for (i = object_list; i; i = i->next)

@@ -3166,9 +3166,9 @@ whoString(struct creature *ch, struct creature *target) {
         out << CCNRM(ch, C_NRM) << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << ']';
 	} else { //show level/class
 		out << CCGRN(ch, C_NRM) << '[';
-        if (PRF2_FLAGGED(target, PRF2_ANONYMOUS) && !Security_isMember(ch, Security::ADMINBASIC)) {
+        if (PRF2_FLAGGED(target, PRF2_ANONYMOUS) && !is_group_member(ch, Security::ADMINBASIC)) {
 			out << CCCYN(ch, C_NRM) << "--";
-		} else if (Security_isMember(ch, Security::ADMINBASIC)) {
+		} else if (is_group_member(ch, Security::ADMINBASIC)) {
 			if (PRF2_FLAGGED(target, PRF2_ANONYMOUS)) {
 				out << CCRED(ch, C_NRM);
 			} else {
@@ -3219,7 +3219,7 @@ whoFlagsString(struct creature *ch, struct creature *target) {
 	//clan badge
 	if (real_clan(GET_CLAN(target))) {
 		if (PRF2_FLAGGED(target, PRF2_CLAN_HIDE)) {
-			if (Security_isMember(ch, Security::ADMINBASIC)) {
+			if (is_group_member(ch, Security::ADMINBASIC)) {
 				out << CCCYN(ch, C_NRM) << " )" << real_clan(GET_CLAN(target))->name;
 				out << '(' << CCNRM(ch, C_NRM);
 			}
@@ -3455,7 +3455,7 @@ ACMD(do_who)
 			//not in clan
 			if (realClan->number != GET_CLAN(curr) ||
 			//not able to see the clan
-			(PRF2_FLAGGED(curr, PRF2_CLAN_HIDE) && !Security_isMember(ch, Security::ADMINBASIC))) {
+			(PRF2_FLAGGED(curr, PRF2_CLAN_HIDE) && !is_group_member(ch, Security::ADMINBASIC))) {
 				continue;
 			}
 		}
@@ -3848,9 +3848,9 @@ ACMD(do_where)
 {
 	skip_spaces(&argument);
 
-	if (Security_isMember(ch, "Questor,AdminBasic,WizardBasic") ||
+	if (is_group_member(ch, "Questor,AdminBasic,WizardBasic") ||
 		(IS_MOB(ch) && ch->desc && ch->desc->original &&
-			Security_isMember(ch->desc->original, "Questor,AdminBasic,WizardBasic")))
+			is_group_member(ch->desc->original, "Questor,AdminBasic,WizardBasic")))
 	  perform_immort_where(ch, argument, true);
 	else if (IS_IMMORT(ch)) {
 	  perform_immort_where(ch, argument, false);

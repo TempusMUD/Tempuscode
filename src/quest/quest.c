@@ -1261,7 +1261,7 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
 	}
 
 	if (!strcmp("all", arg2)) { //ban from all quests
-        if (!Security_isMember(ch, "QuestorAdmin")) {
+        if (!is_group_member(ch, "QuestorAdmin")) {
             send_to_char(ch, "You do not have this ability.\r\n");
         } else if (account->is_quest_banned()) {
             send_to_char(ch,
@@ -1376,7 +1376,7 @@ do_qcontrol_unban(struct creature *ch, char *argument, int com)
 	}
 
 	if (!strcmp("all", arg2)) { //unban from all quests
-        if (!Security_isMember(ch, "QuestorAdmin")) {
+        if (!is_group_member(ch, "QuestorAdmin")) {
             send_to_char(ch, "You do not have this ability.\r\n");
         } else if (!account->is_quest_banned()) {
             send_to_char(ch,
@@ -3011,7 +3011,7 @@ qplayer_data& qplayer_data_operator=( const qplayer_data &q )
 
 bool Quest_canEdit(struct creature *ch)
 {
-	if( Security_isMember(ch, "QuestorAdmin") )
+	if( is_group_member(ch, "QuestorAdmin") )
 		return true;
 
 	if (GET_LEVEL(ch) <= owner_level &&

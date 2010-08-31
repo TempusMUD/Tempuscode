@@ -474,7 +474,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 	}
 
 	if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_GODROOM)
-		&& !Security_isMember(ch, "WizardFull")) {
+		&& !is_group_member(ch, "WizardFull")) {
 		send_to_char(ch, "You cannot set foot in that Ultracosmic place.\r\n");
 		return 1;
 	}
@@ -1870,7 +1870,7 @@ ACMD(do_enter)
 	}
 
 	if ((ROOM_FLAGGED(room, ROOM_GODROOM)
-			&& !Security_isMember(ch, "WizardFull"))
+			&& !is_group_member(ch, "WizardFull"))
 		|| (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)
 			&& (!car->in_room
 				|| CAN_WEAR(car, ITEM_WEAR_TAKE)))

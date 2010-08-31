@@ -53,7 +53,7 @@ extern const char *race_language[][2];
 bool
 OLCIMP(struct creature * ch)
 {
-	if (Security_isMember(ch, "OLCWorldWrite"))
+	if (is_group_member(ch, "OLCWorldWrite"))
 		return true;
 	return false;
 }
@@ -2345,7 +2345,7 @@ ACMD(do_unapprove)
 		}
 
 		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !Security_isMember(ch, "OLCApproval")) {
+			&& !is_group_member(ch, "OLCApproval")) {
 			send_to_char(ch, "You can't unapprove this, BEANHEAD!\r\n");
 			return;
 		}
@@ -2384,7 +2384,7 @@ ACMD(do_unapprove)
 		}
 
 		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !Security_isMember(ch, "OLCApproval")) {
+			&& !is_group_member(ch, "OLCApproval")) {
 			send_to_char(ch, "You can't unapprove this, BEANHEAD!\r\n");
 			return;
 		}
@@ -2517,7 +2517,7 @@ ACMD(do_approve)
 		}
 
 		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !Security_isMember(ch, "OLCApproval")) {
+			&& !is_group_member(ch, "OLCApproval")) {
 			send_to_char(ch, "You can't approve your own objects, silly.\r\n");
 			return;
 		}
@@ -2556,7 +2556,7 @@ ACMD(do_approve)
 		}
 
 		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !Security_isMember(ch, "OLCApproval")) {
+			&& !is_group_member(ch, "OLCApproval")) {
 			send_to_char(ch, "You can't approve your own mobiles, silly.\r\n");
 			return;
 		}
@@ -2581,11 +2581,11 @@ ACMD(do_approve)
 bool
 CAN_EDIT_ZONE(struct creature *ch, struct zone_data * zone)
 {
-	if (Security_isMember(ch, "OLCWorldWrite")
+	if (is_group_member(ch, "OLCWorldWrite")
 		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
 		return true;
 
-	if (Security_isMember(ch, "OLCProofer") && !IS_APPR(zone))
+	if (is_group_member(ch, "OLCProofer") && !IS_APPR(zone))
 		return true;
 
 	if (zone->owner_idnum == GET_IDNUM(ch))
@@ -2602,7 +2602,7 @@ bool
 OLC_EDIT_OK(struct creature *ch, struct zone_data * zone, int bits)
 {
 
-	if (Security_isMember(ch, "OLCWorldWrite")
+	if (is_group_member(ch, "OLCWorldWrite")
 		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
 		return true;
 

@@ -113,7 +113,7 @@ struct creature_checkPosition(void)
 bool struct creature_isTester(){
 	if( IS_NPC(this) )
 		return false;
-	return Security_isMember( this, "Testers", false );
+	return is_group_member( this, "Testers", false );
 }
 
 // Returns this creature's account id.

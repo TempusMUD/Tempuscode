@@ -25,7 +25,7 @@ SPECIAL(fate)
 	int which_fate;
 
 	if( spec_mode == SPECIAL_CMD ) {
-		if(! Security_isMember(ch,"Coder") ) {
+		if(! is_group_member(ch,"Coder") ) {
 			return 0;
 		} else if( CMD_IS("status") ) {
 			send_to_char(ch, "Fate timers: %d, %d, %d\r\n",

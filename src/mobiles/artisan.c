@@ -454,7 +454,7 @@ SPECIAL(artisan)
 	} else if (CMD_IS("sell")) {
 		msg = tmp_sprintf("I don't buy things, I make them.");
 		perform_say_to(keeper, ch, msg);
-    } else if( CMD_IS("status") && Security_isMember(ch,"Coder") ) {
+    } else if( CMD_IS("status") && is_group_member(ch,"Coder") ) {
         vector<Craftshop *>_iterator shop;
         for (shop = shop_list.begin(); shop != shop_list.end(); shop++) {
             (*shop)->sendStatus(ch);

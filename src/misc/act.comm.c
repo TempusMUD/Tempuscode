@@ -800,7 +800,7 @@ ACMD(do_gen_comm)
 	eff_class = GET_CLASS(ch);
 	eff_clan = GET_CLAN(ch);
 
-	if (subcmd == SCMD_GUILDSAY && Security_isMember(ch, "AdminBasic") && *argument == '>') {
+	if (subcmd == SCMD_GUILDSAY && is_group_member(ch, "AdminBasic") && *argument == '>') {
 		char *class_str, *tmp_arg;
 
 		tmp_arg = argument + 1;
@@ -842,7 +842,7 @@ ACMD(do_gen_comm)
 	}
 
 	if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
-		if (Security_isMember(ch, "AdminBasic") && *argument == '>') {
+		if (is_group_member(ch, "AdminBasic") && *argument == '>') {
 			char *tmp_arg;
 
 			tmp_arg = argument + 1;
@@ -939,20 +939,20 @@ ACMD(do_gen_comm)
 		// Must be in same clan or an admin to hear clansay
 		if ((subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) &&
 				GET_CLAN(i->creature) != eff_clan &&
-				!Security_isMember(i->creature, "AdminBasic"))
+				!is_group_member(i->creature, "AdminBasic"))
 			continue;
 
 		// Must be in same guild or an admin to hear guildsay
 		if (subcmd == SCMD_GUILDSAY &&
 				GET_CLASS(i->creature) != eff_class &&
-				!Security_isMember(i->creature, "AdminBasic"))
+				!is_group_member(i->creature, "AdminBasic"))
 			continue;
 
 		// Evil and good clerics and knights have different guilds
 		if (subcmd == SCMD_GUILDSAY &&
 				(GET_CLASS(i->creature) == CLASS_CLERIC ||
 				GET_CLASS(i->creature) == CLASS_KNIGHT) &&
-				!Security_isMember(i->creature, "AdminBasic")) {
+				!is_group_member(i->creature, "AdminBasic")) {
 			if (eff_is_neutral)
 				continue;
 			if (eff_is_evil && !IS_EVIL(i->creature))
@@ -965,7 +965,7 @@ ACMD(do_gen_comm)
 		if (subcmd == SCMD_GUILDSAY &&
 				GET_CLASS(i->creature) == CLASS_MONK &&
 				!IS_NEUTRAL(i->creature) &&
-				!Security_isMember(i->creature, "AdminBasic"))
+				!is_group_member(i->creature, "AdminBasic"))
 			continue;
 
 		if (IS_NPC(ch) || !IS_IMMORT(i->creature)) {

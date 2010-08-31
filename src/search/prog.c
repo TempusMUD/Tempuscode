@@ -1401,7 +1401,7 @@ prog_trans_creature(struct creature * ch, struct room_data * targ_room)
 	if (!House_can_enter(ch, targ_room->number)
 		|| !clan_house_can_enter(ch, targ_room)
 		|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
-			&& !Security_isMember(ch, "WizardFull"))) {
+			&& !is_group_member(ch, "WizardFull"))) {
 		return;
 	}
 

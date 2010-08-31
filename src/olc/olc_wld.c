@@ -1123,7 +1123,7 @@ ACMD(do_hedit)
 		return;
 	}
 
-	if( !house->isOwner(ch) && !Security_isMember(ch, "House") ) {
+	if( !house->isOwner(ch) && !is_group_member(ch, "House") ) {
 		send_to_char(ch, "Only the owner can edit the house.\r\n");
 		return;
 	}

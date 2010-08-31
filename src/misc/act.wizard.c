@@ -322,7 +322,7 @@ find_target_room(struct creature *ch, char *rawroomstr)
     }
 
     /* a location has been found -- if you're < GRGOD, check restrictions. */
-    if (!Security_isMember(ch, "WizardFull")) {
+    if (!is_group_member(ch, "WizardFull")) {
         if (location->zone->number == 12 && GET_LEVEL(ch) < LVL_AMBASSADOR) {
             send_to_char(ch, "You can't go there.\r\n");
             return NULL;
@@ -476,9 +476,9 @@ ACMD(do_transport)
 	char *name_str;
 
 	if (GET_LEVEL(ch) < LVL_IMMORT
-			|| !(Security_isMember(ch, "WizardBasic")
-				|| Security_isMember(ch, "Questor")
-                || Security_isMember(ch, "AdminBasic"))) {
+			|| !(is_group_member(ch, "WizardBasic")
+				|| is_group_member(ch, "Questor")
+                || is_group_member(ch, "AdminBasic"))) {
 		send_to_char(ch, "Sorry, but you can't do that here!\r\n");
 		return;
 	}
@@ -1661,13 +1661,13 @@ do_stat_character(struct creature *ch, struct creature *k, const char *options)
 
 	if (IS_PC(k)
         && !(ch->isTester() && ch == k)
-        && !Security_isMember(ch, Security::ADMINBASIC)) {
+        && !is_group_member(ch, Security::ADMINBASIC)) {
         send_to_char(ch, "You can't stat this player.\r\n");
         return;
 	}
 
 	if (GET_MOB_SPEC(k) == fate
-			&& !Security_isMember(ch, Security::WIZARDBASIC)) {
+			&& !is_group_member(ch, Security::WIZARDBASIC)) {
         send_to_char(ch, "You can't stat this mob.\r\n");
         return;
 	}
@@ -2169,8 +2169,8 @@ ACMD(do_stat)
                 send_to_char(ch, "No such player around.\r\n");
         }
     } else if (is_abbrev(arg1, "file")) {
-        if (GET_LEVEL(ch) < LVL_TIMEGOD && !Security_isMember(ch, "AdminFull")
-            && !Security_isMember(ch, "WizardFull")) {
+        if (GET_LEVEL(ch) < LVL_TIMEGOD && !is_group_member(ch, "AdminFull")
+            && !is_group_member(ch, "WizardFull")) {
             send_to_char(ch, "You cannot peer into the playerfile.\r\n");
             return;
         }
@@ -2378,7 +2378,7 @@ ACMD(do_snoop)
     else if (victim->desc->snooping == ch->desc)
         send_to_char(ch, "Don't be stupid.\r\n");
     else if (ROOM_FLAGGED(victim->in_room, ROOM_GODROOM)
-        && !Security_isMember(ch, "WizardFull")) {
+        && !is_group_member(ch, "WizardFull")) {
         send_to_char(ch, "You cannot snoop into that place.\r\n");
     } else {
         if (victim->desc->snoop_by.size()) {
@@ -3188,7 +3188,7 @@ ACMD(do_zecho)
     struct descriptor_data *pt;
     struct zone_data *here;
     // charmed mobs and players < LVL_GOD cant use this
-    if ((!IS_NPC(ch) && !Security_isMember(ch, "WizardBasic"))
+    if ((!IS_NPC(ch) && !is_group_member(ch, "WizardBasic"))
         || (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))) {
         send_to_char(ch, "You probably shouldn't be using this.\r\n");
     }
@@ -3435,7 +3435,7 @@ ACMD(do_force)
     if (GET_LEVEL(ch) >= LVL_GRGOD) {
         // Check for high-level special arguments
         if (!strcasecmp("all", arg) &&
-            Security_isMember(ch, "Coder")) {
+            is_group_member(ch, "Coder")) {
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true,
                    "(GC) %s forced all to %s", GET_NAME(ch), to_force);
@@ -3488,7 +3488,7 @@ ACMD(do_force)
         send_to_char(ch, "%s", NOPERSON);
     } else if (GET_LEVEL(ch) <= GET_LEVEL(vict))
         send_to_char(ch, "No, no, no!\r\n");
-    else if (!IS_NPC(vict) && !Security_isMember(ch, "WizardFull"))
+    else if (!IS_NPC(vict) && !is_group_member(ch, "WizardFull"))
         send_to_char(ch, "You cannot force players to do things.\r\n");
     else {
         send_to_char(ch, "%s", OK);
@@ -3548,7 +3548,7 @@ ACMD(do_wiznet)
                 ((subcmd == SCMD_IMMCHAT &&
                         !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT)) ||
                     (subcmd == SCMD_WIZNET &&
-                        Security_isMember(d->creature, "WizardBasic") &&
+                        is_group_member(d->creature, "WizardBasic") &&
 						!PRF_FLAGGED(d->creature, PRF_NOWIZ))) &&
                 (can_see_creature(ch, d->creature) || GET_LEVEL(ch) == LVL_GRIMP)) {
                 if (!any) {
@@ -3578,7 +3578,7 @@ ACMD(do_wiznet)
                 && ((subcmd == SCMD_IMMCHAT
                         && PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
                     || (subcmd == SCMD_WIZNET
-                        && Security_isMember(d->creature, "WizardBasic")
+                        && is_group_member(d->creature, "WizardBasic")
                         && PRF_FLAGGED(d->creature, PRF_NOWIZ)))
                 && can_see_creature(ch, d->creature)) {
                 if (!any) {
@@ -3639,7 +3639,7 @@ ACMD(do_wiznet)
     for (d = descriptor_list; d; d = d->next) {
         if ((STATE(d) == CXN_PLAYING) && (GET_LEVEL(d->creature) >= level) &&
             (subcmd != SCMD_WIZNET
-                || Security_isMember(d->creature, "WizardBasic"))
+                || is_group_member(d->creature, "WizardBasic"))
             && (subcmd != SCMD_WIZNET || !PRF_FLAGGED(d->creature, PRF_NOWIZ))
             && (subcmd != SCMD_IMMCHAT
                 || !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
@@ -4082,7 +4082,7 @@ show_account(struct creature *ch, char *value)
     strftime(last_buf, 29, "%a %b %d, %Y %H:%M:%S",
 		localtime(&last));
     send_to_desc(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n", created_buf, last_buf);
-	if( Security_isMember(ch, "AdminFull") ) {
+	if( is_group_member(ch, "AdminFull") ) {
 		send_to_desc(ch->desc, "&y  Created: &n%-15s   &yLast: &n%-15s       &yReputation: &n%d\r\n",
 					 account->get_creation_addr(),
 					 account->get_login_addr(),
@@ -4090,7 +4090,7 @@ show_account(struct creature *ch, char *value)
 	}
 	send_to_desc(ch->desc, "&y  Past bank: &n%-12lld    &yFuture Bank: &n%-12lld",
 		account->get_past_bank(), account->get_future_bank());
-	if (Security_isMember(ch, "Questor")) {
+	if (is_group_member(ch, "Questor")) {
 		send_to_desc(ch->desc, "   &yQuest Points: &n%d\r\n",
 			account->get_quest_points());
 	} else {
@@ -5213,7 +5213,7 @@ ACMD(do_show)
         if (!*value) {
             send_to_char(ch, "View who's skills?\r\n");
         } else if (!(vict = get_player_vis(ch, value, 0))) {
-            if (!Security_isMember(ch, "AdminBasic")) {
+            if (!is_group_member(ch, "AdminBasic")) {
                 send_to_char(ch,
                     "Getting that data from file requires basic administrative rights.\r\n");
             } else {
@@ -6186,7 +6186,7 @@ ACMD(do_set)
 
         RANGE(0, LVL_GRIMP);
 
-        if (value >= 50 && !Security_isMember(ch, "AdminFull")) {
+        if (value >= 50 && !is_group_member(ch, "AdminFull")) {
             send_to_char(ch, "That should be done with advance.\r\n");
             return;
         }
@@ -6212,7 +6212,7 @@ ACMD(do_set)
         break;
     case 38:
 		if (IS_PC(vict)) {
-            if (!(Security_isMember(ch, "AdminFull")
+            if (!(is_group_member(ch, "AdminFull")
                   && is_valid_name(argument))) {
                 send_to_char(ch, "That character name is invalid.\r\n");
                 return;
@@ -6271,7 +6271,7 @@ ACMD(do_set)
             send_to_char(ch, "You must set password of player in file.\r\n");
             return;
         }
-        if (GET_LEVEL(ch) < LVL_LUCIFER || !Security_isMember(ch,"Coder") ) {
+        if (GET_LEVEL(ch) < LVL_LUCIFER || !is_group_member(ch,"Coder") ) {
             send_to_char(ch, "Please don't use this command, yet.\r\n");
             return;
         }
@@ -8709,8 +8709,8 @@ ACMD(do_delete)
 	char *tmp_name;
 
 	name = tmp_getword(&argument);
-	if (!Security_isMember(ch, "AdminFull") &&
-			!Security_isMember(ch, "WizardFull")) {
+	if (!is_group_member(ch, "AdminFull") &&
+			!is_group_member(ch, "WizardFull")) {
 		send_to_char(ch, "No way!  You're not authorized!\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true, "%s denied deletion of '%s'",
 			GET_NAME(ch), name);

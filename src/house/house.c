@@ -380,9 +380,9 @@ HouseControl_canEnter(struct creature *ch, room_num room_vnum)
 	if (house == NULL)
 		return true;
 
-	if (   Security_isMember(ch, "House")
-		|| Security_isMember(ch, "AdminBasic")
-		|| Security_isMember(ch, "WizardFull")) {
+	if (   is_group_member(ch, "House")
+		|| is_group_member(ch, "AdminBasic")
+		|| is_group_member(ch, "WizardFull")) {
 		return true;
 	}
 
@@ -1748,7 +1748,7 @@ ACMD(do_hcontrol)
 {
 	char *action_str;
 
-	if (!Security_isMember(ch, "House")) {
+	if (!is_group_member(ch, "House")) {
 		send_to_char(ch, "You aren't able to edit houses!\r\n");
 		return;
 	}
@@ -1760,7 +1760,7 @@ ACMD(do_hcontrol)
 		send_to_char(ch, "Saved.\r\n");
 		slog("HOUSE: Saved by %s.", GET_NAME(ch));
 	} else if (is_abbrev(action_str, "recount")) {
-		if (Security_isMember(ch, "Coder")) {
+		if (is_group_member(ch, "Coder")) {
 			Housing.countObjects();
 			slog("HOUSE: Re-Counted by %s.", GET_NAME(ch));
 			send_to_char(ch, "Objs recounted.\r\n");
@@ -1804,7 +1804,7 @@ ACMD(do_hcontrol)
 	}
     else if (is_abbrev(action_str, "reload")) {
 
-        if (!Security_isMember(ch, "Coder")) {
+        if (!is_group_member(ch, "Coder")) {
             send_to_char(ch, "What are you thinking? You don't even _LOOK_ like a coder.\r\n");
             return;
         }
@@ -1834,7 +1834,7 @@ ACMD(do_house)
 		return;
 	}
 
-	if (!house->isOwner(ch) && !Security_isMember(ch, "House")) {
+	if (!house->isOwner(ch) && !is_group_member(ch, "House")) {
 		send_to_char(ch, "Only the owner can set guests.\r\n");
 		return;
 	}

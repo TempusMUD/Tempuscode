@@ -332,7 +332,7 @@ ACMD(do_pardon)
     }
 
     // Do the imm pardon
-    if (IS_IMMORT(ch) && Security_isMember(ch, "AdminFull")) {
+    if (IS_IMMORT(ch) && is_group_member(ch, "AdminFull")) {
         if (!PLR_FLAGGED(pardoned, PLR_THIEF | PLR_KILLER)) {
             send_to_char(ch, "Your victim is not flagged.\r\n");
             return;
