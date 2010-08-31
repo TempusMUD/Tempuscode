@@ -19,4 +19,10 @@ typedef long long money_t;
 typedef int room_num;
 typedef int obj_num;
 
+struct txt_block {
+	char *text;
+	int aliased;
+	struct txt_block *next;
+};
+
 #endif

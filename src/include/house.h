@@ -49,7 +49,7 @@ struct house
 
     // the repossession notices created when objects are sold
     // to cover rent cost.
-    struct txt_block_t *repoNotes;
+    struct txt_block *repo_notes;
 
 };
 

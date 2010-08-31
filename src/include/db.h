@@ -274,6 +274,7 @@ extern struct shop_data *shop_index;
 //extern struct obj_data *obj_proto;
 extern struct room_data *world;
 extern struct obj_data *object_list;
+extern GHashTable *obj_prototypes;
 #endif							// __db_c__
 
 #endif
