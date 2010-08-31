@@ -410,13 +410,13 @@ clear_repo_notes(struct house *house)
 }
 
 void
-count_objects(struct obj_data *obj)
+update_object_counts(struct obj_data *obj)
 {
 	if (!obj)
 		return;
 
-	count_objects(obj->contains);
-	count_objects(obj->next_content);
+	update_object_counts(obj->contains);
+	update_object_counts(obj->next_content);
 
 	// don't count NORENT items as being in house
 	if (obj->shared->proto && !IS_OBJ_STAT(obj, ITEM_NORENT))
@@ -424,54 +424,56 @@ count_objects(struct obj_data *obj)
 }
 
 void
-count_objects_in_house(struct house *house, gpointer ignore)
+update_objects_in_house(struct house *house, gpointer ignore)
 {
-    void count_objects_in_room(room_num room_idnum, gpointer ignore) {
+    void update_objects_in_room(room_num room_idnum, gpointer ignore) {
         struct room_data *room = real_room(room_idnum);
         if (room)
-            count_objects(room->contents);
+            update_object_counts(room->contents);
     }
-    g_list_foreach(house->rooms, (GFunc)count_objects, 0);
+    g_list_foreach(house->rooms, (GFunc)update_object_counts, 0);
 }
 
 void
-count_housed_objects(void)
+update_objects_housed_count(void)
 {
     void zero_housed_objects(gpointer vnum, struct obj_data *obj, gpointer ignore) {
         obj->shared->house_count = 0;
     }
     g_hash_table_foreach(obj_prototypes, (GHFunc)zero_housed_objects, 0);
 
-    g_list_foreach(houses, (GFunc)count_objects_in_house, 0);
+    g_list_foreach(houses, (GFunc)update_objects_in_house, 0);
 }
 
 int
-house_calcObjectCount()
+count_objects_in_room(struct room_data *room)
 {
     int count = 0;
-    for (unsigned int j = 0; j < getRoomCount(); j++) {
-        struct room_data *room = real_room(getRoom(j));
-        if (room != NULL) {
-            count += calcObjectCount(room);
-        }
-    }
-    return count;
-}
-
-int
-house_calcObjectCount(struct room_data* room)
-{
-    int count = 0;
-    for (struct obj_data* obj = room->contents; obj; obj = obj->next_content) {
+    for (struct obj_data *obj = room->contents; obj; obj = obj->next_content) {
         count += recurs_obj_contents(obj, NULL);
     }
     return count;
 }
 
-bool
-save_house()
+int
+count_housed_objects(struct house *house, gpointer ignore)
 {
-	char* path = get_house_file_path(getID());
+    int count = 0;
+
+    void count_objects(room_num room_idnum, gpointer ignore) {
+        struct room_data *room = real_room(room_idnum);
+        if (room)
+            count += count_objects_in_room(room);
+    }
+    g_list_foreach(house->rooms, (GFunc)count_objects, 0);
+
+    return count;
+}
+
+bool
+save_house(struct house *house)
+{
+	char* path = get_house_file_path(house->id);
 	FILE* ouf = fopen(path, "w");
 
 	if (!ouf) {
