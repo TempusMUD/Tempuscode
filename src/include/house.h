@@ -63,5 +63,7 @@ char* print_room_contents(struct creature *ch, struct room_data *real_house_room
 int recurs_obj_cost(struct obj_data *obj, bool mode, struct obj_data *top_o);
 int recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o);
 bool can_enter_house(struct creature *ch, room_num room_idnum);
+void load_houses(void);
+void update_objects_housed_count(void);
 
 #endif

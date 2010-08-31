@@ -435,7 +435,7 @@ boot_db(void)
 	} else {
 		slog("HOUSE: Booting houses.");
 		load_houses();
-		count_housed_objects();
+		update_objects_housed_count();
 	}
 
 	if (!no_initial_zreset) {

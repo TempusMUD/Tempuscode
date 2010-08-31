@@ -1208,7 +1208,7 @@ ACMD(do_hedit)
 				tot_num += num;
 				acc_sprintf("%s%-30s%s      %s%5d%s   %10d\r\n",
 					CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM),
-					(num > House_MAX_ITEMS) ? CCRED(ch, C_NRM) : "",
+					(num > MAX_HOUSE_ITEMS) ? CCRED(ch, C_NRM) : "",
 					num, CCNRM(ch, C_NRM), cost);
 			}
 			if (!local)
