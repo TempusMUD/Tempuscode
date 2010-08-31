@@ -402,4 +402,8 @@ struct obj_data {
 	struct obj_data *next;		/* For the object list              */
 };
 /* ======================================================================= */
+
+void save_object_to_xml(struct obj_data *obj, FILE *outf);
+struct obj_data *load_object_from_xml(struct obj_data *container, struct creature *victim, struct room_data* room, xmlNodePtr node);
+
 #endif

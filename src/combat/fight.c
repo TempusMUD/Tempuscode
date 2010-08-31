@@ -2182,7 +2182,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                         if (imm_idx) {
                             struct creature *tmp_ch;
                             CREATE(tmp_ch, struct creature, 1);
-                            loadFromXML(tmp_ch, get_char_by_index(ch->account, imm_idx));
+                            load_player_from_xml(tmp_ch, get_char_by_index(ch->account, imm_idx));
                             if (GET_LEVEL(ch) < 70) {
                                 int now = time(NULL);
                                 int last_logon = tmp_ch->player.time.logon;
