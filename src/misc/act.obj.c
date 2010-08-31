@@ -3934,7 +3934,7 @@ ACMD(do_sacrifice)
 	if (IS_CORPSE(obj)) {
 		orig_char = load_corpse_owner(obj);
 		if (orig_char) {
-			mana = number(1, orig_char->getLevelBonus(true));
+			mana = number(1, orig_char->level_bonus(true));
 			if (IS_PC(orig_char))
 				delete orig_char;
 		} else

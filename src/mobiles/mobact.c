@@ -1226,7 +1226,7 @@ check_infiltrate(struct creature *ch, struct creature *vict)
 	if (AFF2_FLAGGED(vict, AFF2_HASTE))
 		percent += 15;
 
-	percent += (vict->getLevelBonus(SKILL_INFILTRATE) / 2);
+	percent += (vict->level_bonus(SKILL_INFILTRATE) / 2);
 
 	if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG))
 		send_to_char(ch, "%s[INFILTRATE] chance:%d   roll:%d%s\r\n",

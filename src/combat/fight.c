@@ -843,7 +843,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 			&& IS_WEAPON(attacktype)
 			&& GET_EQ(victim, WEAR_SHIELD)
 			&& CHECK_SKILL(victim, SKILL_SHIELD_MASTERY) > 20
-			&& getSkillBonus(victim, SKILL_SHIELD_MASTERY) > number(0, 600)
+			&& skill_bonus(victim, SKILL_SHIELD_MASTERY) > number(0, 600)
             && GET_POSITION(victim) >= POS_FIGHTING) {
 		act("$N deflects your attack with $S shield!", true,
 			ch, GET_EQ(victim, WEAR_SHIELD), victim, TO_CHAR);
@@ -860,7 +860,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         	&& !SPELL_IS_PSIONIC(attacktype)
             && !SPELL_IS_BARD(attacktype)
 			&& CHECK_SKILL(victim, SKILL_UNCANNY_DODGE) > 20
-			&& getSkillBonus(victim, SKILL_UNCANNY_DODGE) > number(0, 350)
+			&& skill_bonus(victim, SKILL_UNCANNY_DODGE) > number(0, 350)
 			&& GET_POSITION(victim) >= POS_FIGHTING) {
 		act("$N smirks as $E easily sidesteps your attack!", true,
 			ch, NULL, victim, TO_CHAR);
@@ -877,7 +877,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         	&& !SPELL_IS_PSIONIC(attacktype)
             && !SPELL_IS_BARD(attacktype)
 			&& CHECK_SKILL(victim, SKILL_TUMBLING) > 20
-			&& getSkillBonus(victim, SKILL_TUMBLING) > number(0, 425)
+			&& skill_bonus(victim, SKILL_TUMBLING) > number(0, 425)
 			&& GET_POSITION(victim) >= POS_FIGHTING) {
 		act("$N dexterously rolls away from your attack!", true,
 			ch, NULL, victim, TO_CHAR);
@@ -894,7 +894,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         !BAD_ATTACK_TYPE(attacktype) && !SPELL_IS_PSIONIC(attacktype)) {
         struct affected_type *paf;
         if ((paf = affected_by_spell(victim, SONG_MIRROR_IMAGE_MELODY))) {
-            if ((number(0, 375) < paf->modifier*10 + getSkillBonus(victim, SONG_MIRROR_IMAGE_MELODY)) &&
+            if ((number(0, 375) < paf->modifier*10 + skill_bonus(victim, SONG_MIRROR_IMAGE_MELODY)) &&
                 (GET_CLASS(victim) == CLASS_BARD) && paf->modifier > 0) {
                 char *buf = tmp_sprintf("%sYour attack passes right through "
                                         "a mirror image of $N!%s", CCGRN_BLD(ch, C_NRM),
@@ -958,7 +958,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
             shiftAf.aff_index = 0;
             shiftAf.owner = GET_IDNUM(victim);
             shiftAf.duration = 0;
-            shiftAf.level = getSkillBonus(victim, SPELL_DIMENSIONAL_SHIFT);
+            shiftAf.level = skill_bonus(victim, SPELL_DIMENSIONAL_SHIFT);
             shiftAf.type = SPELL_DIMENSIONAL_VOID;
             bool applyAffect = false;
 
@@ -971,7 +971,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     act("You become disoriented!", false, ch, NULL, victim, TO_CHAR);
                     act("$n becomes disoriented!", false, ch, NULL, victim, TO_ROOM);
                     shiftAf.location = APPLY_DEX;
-                    shiftAf.modifier = -(1+getSkillBonus(victim, SPELL_DIMENSIONAL_SHIFT)/40);
+                    shiftAf.modifier = -(1+skill_bonus(victim, SPELL_DIMENSIONAL_SHIFT)/40);
                     shiftAf.duration = number(1,-shiftAf.modifier);
                     applyAffect = true;
                     break;
@@ -987,7 +987,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     act("The interdimensional vastness is too much for your mind to handle!", false, ch, NULL, victim, TO_CHAR);
                     act("$n looks dazed and confused.", false, ch, NULL, victim, TO_ROOM);
                     shiftAf.bitvector = AFF_CONFUSION;
-                    shiftAf.duration = 1+getSkillBonus(victim, SPELL_DIMENSIONAL_SHIFT)/40;
+                    shiftAf.duration = 1+skill_bonus(victim, SPELL_DIMENSIONAL_SHIFT)/40;
                     shiftAf.aff_index = 1;
                     applyAffect = true;
                     break;
@@ -1354,7 +1354,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 else if (affected_by_spell(victim, SONG_WOUNDING_WHISPERS) &&
                          attacktype != SKILL_PSIBLAST) {
 					retval = damage_attacker(victim, ch,
-						(getSkillBonus(victim, SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
+						(skill_bonus(victim, SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
 						SONG_WOUNDING_WHISPERS, -1);
                 }
 				//
@@ -1713,7 +1713,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
     if (weap && affected_by_spell(victim, SPELL_GAUSS_SHIELD) && dam > 0) {
         if (IS_METAL_TYPE(weap))
-            dam -= (dam * (MAX(20, getSkillBonus(victim, SPELL_GAUSS_SHIELD) / 3)) / 100);
+            dam -= (dam * (MAX(20, skill_bonus(victim, SPELL_GAUSS_SHIELD) / 3)) / 100);
     }
 
 	GET_HIT(victim) -= dam;
@@ -1879,7 +1879,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
       !mag_savingthrow(ch, GET_LEVEL(victim), SAVING_PSI) &&
       !ROOM_FLAGGED(victim->in_room, ROOM_NOPSIONICS) && !NULL_PSI(ch) &&
       !BAD_ATTACK_TYPE(attacktype) && attacktype != SPELL_PSYCHIC_FEEDBACK) {
-        feedback_dam = (dam*getSkillBonus(victim, SPELL_PSYCHIC_FEEDBACK))/400;
+        feedback_dam = (dam*skill_bonus(victim, SPELL_PSYCHIC_FEEDBACK))/400;
         feedback_mana = feedback_dam/15;
         if (af->duration > 1 && feedback_dam > random_number_zero_low(400)) {
 			af->duration--;
@@ -2370,7 +2370,7 @@ get_next_weap(struct creature *ch)
 
 // Damage multiplier for the backstab skill.
 // 7x max for levels.
-// 6x max more for gens based on getLevelBonus.
+// 6x max more for gens based on level_bonus.
 static inline int BACKSTAB_MULT( struct creature *ch  ) {
 	int mult = 2 + ( GET_LEVEL(ch) + 1 )/10;
 	int bonus = MAX(0,get_skill_bonus(ch, SKILL_BACKSTAB) - 50);

@@ -49,12 +49,12 @@ ASPELL(spell_dispel_evil)
             }
         }
         if (IS_EVIL(victim)) {
-            dam = dice(10, 15) + getSkillBonus(ch, SPELL_DISPEL_EVIL);
+            dam = dice(10, 15) + skill_bonus(ch, SPELL_DISPEL_EVIL);
             retval = damage(ch, victim, dam, SPELL_DISPEL_EVIL, WEAR_RANDOM);
         }
 
         GET_ALIGNMENT(victim) += MAX(10,
-                                     getSkillBonus(ch, SPELL_DISPEL_EVIL) >> 2);
+                                     skill_bonus(ch, SPELL_DISPEL_EVIL) >> 2);
 
         if (!IS_SET(retval, DAM_ATTACKER_KILLED))
             WAIT_STATE(ch, 2 RL_SEC);
@@ -71,7 +71,7 @@ ASPELL(spell_dispel_evil)
             return;
         }
 
-        if (dice(30, (getSkillBonus(ch, SPELL_DISPEL_EVIL) / 5)) < 50) {
+        if (dice(30, (skill_bonus(ch, SPELL_DISPEL_EVIL) / 5)) < 50) {
             act("$p crumbles to dust as you attempt to cleanse it.", false,
                 ch, obj, NULL, TO_CHAR);
             act("$p crumbles to dust as $n tries to cleanse it.", false,
@@ -118,12 +118,12 @@ ASPELL(spell_dispel_good)
         }
 
         if (IS_GOOD(victim)) {
-            dam = dice(15, 20) + getSkillBonus(ch, SPELL_DISPEL_GOOD);
+            dam = dice(15, 20) + skill_bonus(ch, SPELL_DISPEL_GOOD);
             retval = damage(ch, victim, dam, SPELL_DISPEL_GOOD, WEAR_RANDOM);
         }
 
         GET_ALIGNMENT(victim) -= MAX(5,
-                                     getSkillBonus(ch, SPELL_DISPEL_GOOD) / 5);
+                                     skill_bonus(ch, SPELL_DISPEL_GOOD) / 5);
 
         if (!IS_SET(retval, DAM_ATTACKER_KILLED))
             WAIT_STATE(ch, 2 RL_SEC);
@@ -140,7 +140,7 @@ ASPELL(spell_dispel_good)
             return;
         }
 
-        if (dice(30, (getSkillBonus(ch, SPELL_DISPEL_GOOD) / 5)) < 50) {
+        if (dice(30, (skill_bonus(ch, SPELL_DISPEL_GOOD) / 5)) < 50) {
             act("$p crumbles to dust as you attempt to defile it.", false,
                 ch, obj, NULL, TO_CHAR);
             act("$p crumbles to dust as $n tries to defile it.", false,

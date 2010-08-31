@@ -225,7 +225,7 @@ char *get_instrument_type(int songnum)
 ASPELL(song_instant_audience)
 {
     // 1205 - 1209
-    int limit = MAX(1, (getSkillBonus(ch, SONG_INSTANT_AUDIENCE) / 33));
+    int limit = MAX(1, (skill_bonus(ch, SONG_INSTANT_AUDIENCE) / 33));
     struct affected_type af;
     bool success = false;
 
@@ -254,7 +254,7 @@ ASPELL(song_instant_audience)
         }
 
         float mult = MAX(0.5 ,
-                         (float)((getSkillBonus(ch, SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
+                         (float)((skill_bonus(ch, SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
 
         // tweak them out
         GET_HITROLL(member) = MIN((int)(GET_HITROLL(member) * mult), 60);
@@ -272,7 +272,7 @@ ASPELL(song_instant_audience)
 
         af.type = SPELL_CHARM;
         af.is_instant = 0;
-        af.duration = 5 + (getSkillBonus(ch, SONG_INSTANT_AUDIENCE) >> 2);
+        af.duration = 5 + (skill_bonus(ch, SONG_INSTANT_AUDIENCE) >> 2);
 
         if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(0, 120))
             af.duration = (int)(af.duration * 1.5);
@@ -313,7 +313,7 @@ ASPELL(song_exposure_overture)
         if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
             return;
 
-        prob = ((getSkillBonus(ch, SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_CHA(ch));
+        prob = ((skill_bonus(ch, SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_CHA(ch));
         percent = GET_LEVEL(tch) + (GET_CHA(tch) / 2) + number(1, 60);
 
         if (prob < percent)
@@ -427,7 +427,7 @@ ASPELL(song_lament_of_longing)
         }
     }
 
-    if (number(0, 225) > (getSkillBonus(ch, SONG_LAMENT_OF_LONGING) +
+    if (number(0, 225) > (skill_bonus(ch, SONG_LAMENT_OF_LONGING) +
         CHECK_SKILL(ch, SONG_LAMENT_OF_LONGING))) {
         send_to_char(ch, "A shimmering portal begins to appear but it "
                          "fades along with your music..\r\n");
@@ -446,7 +446,7 @@ ASPELL(song_lament_of_longing)
         return;
     }
 
-    GET_OBJ_TIMER(rift1) = (1 + getSkillBonus(ch, SONG_LAMENT_OF_LONGING)) >> 5;
+    GET_OBJ_TIMER(rift1) = (1 + skill_bonus(ch, SONG_LAMENT_OF_LONGING)) >> 5;
     GET_OBJ_TIMER(rift2) = GET_OBJ_TIMER(rift1);
 
     rift1->line_desc = strdup("A beautiful, shimmering rift has been opened here.");
@@ -498,7 +498,7 @@ ASPELL(song_rhythm_of_alarm)
 
     rm_aff.level = level;
     rm_aff.spell_type = SONG_RHYTHM_OF_ALARM;
-    rm_aff.duration = number(1, 100) + (getSkillBonus(ch, SONG_RHYTHM_OF_ALARM) * 2);
+    rm_aff.duration = number(1, 100) + (skill_bonus(ch, SONG_RHYTHM_OF_ALARM) * 2);
     rm_aff.owner = GET_IDNUM(ch);
     affect_to_room(ch->in_room, &rm_aff);
 
@@ -538,7 +538,7 @@ ASPELL(song_wall_of_sound)
     rm_aff.level = level;
     rm_aff.spell_type = SONG_WALL_OF_SOUND;
     rm_aff.type = *dir;
-    rm_aff.duration = number(1, 50) + (getSkillBonus(ch, SONG_WALL_OF_SOUND));
+    rm_aff.duration = number(1, 50) + (skill_bonus(ch, SONG_WALL_OF_SOUND));
     rm_aff.flags = EX_NOPASS;
     rm_aff.owner = GET_IDNUM(ch);
 	rm_aff.description = strdup(tmp_sprintf("A shimmering wall seals the %s exit.\r\n",

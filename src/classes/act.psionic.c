@@ -118,7 +118,7 @@ ACMD(do_psidrain)
         prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch);
         prob += get_skill_bonus(ch, SKILL_PSIDRAIN);
 
-        percent = getLevelBonus(vict, SPELL_PSISHIELD);
+        percent = level_bonus(vict, SPELL_PSISHIELD);
         percent += number(1, 120);
 
         if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI))

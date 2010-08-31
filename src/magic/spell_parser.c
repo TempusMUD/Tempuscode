@@ -338,9 +338,9 @@ call_magic(struct creature *caster, struct creature *cvict,
                     failed = true;
 
                 prob = CHECK_SKILL(caster, spellnum) + GET_INT(caster);
-                prob += caster->getLevelBonus(spellnum);
+                prob += caster->level_bonus(spellnum);
 
-                percent = cvict->getLevelBonus(SPELL_PSISHIELD);
+                percent = cvict->level_bonus(SPELL_PSISHIELD);
                 percent += number(1, 120);
 
                 if (mag_savingthrow(cvict, GET_LEVEL(caster), SAVING_PSI))
@@ -1209,7 +1209,7 @@ int perform_taint_burn(struct creature *ch, int spellnum)
     // Grab the affect for affect level
     af = affected_by_spell(ch, SPELL_TAINT);
 
-    // Max dam based on level and gen of caster. (getLevelBonus(taint))
+    // Max dam based on level and gen of caster. (level_bonus(taint))
     if (af != NULL)
         dam = dam * af->level / 100;
 

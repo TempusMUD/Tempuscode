@@ -960,5 +960,7 @@ GHashTable *creature_map = NULL;
 
 struct creature *random_opponent(struct creature *ch);
 void extract_creature(struct creature *ch);
+int level_bonus(struct creature *ch);
+int skill_bonus(struct creature *ch, int skillnum);
 
 #endif

@@ -1116,7 +1116,7 @@ char_to_room(struct creature *ch, struct room_data *room, bool check_specials)
 	  if (raff_owner &&
 		  raff_owner->in_room != ch->in_room &&
 		  (GET_LEVEL(ch) + number(1, 70)) <
-		  raff_owner->getLevelBonus(SONG_RHYTHM_OF_ALARM)) {
+		  raff_owner->level_bonus(SONG_RHYTHM_OF_ALARM)) {
 
             raff->duration--;
             send_to_char(raff_owner, "%s has just entered %s.\r\n",

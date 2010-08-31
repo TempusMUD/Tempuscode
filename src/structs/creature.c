@@ -345,13 +345,13 @@ struct creature_getDamReduction(struct creature *attacker)
                 if (IS_NPC((*it))
                     && af->modifier == (short int)-MOB_IDNUM((*it))) {
                     dam_reduction +=
-                        ((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
+                        ((*it)->level_bonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
                         20)
                         + (GET_ALIGNMENT(ch) / 100);
                     break;
                 } else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
                     dam_reduction +=
-                        ((*it)->getLevelBonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
+                        ((*it)->level_bonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
                         20)
                         + (GET_ALIGNMENT(ch) / 100);
                     break;
@@ -384,11 +384,11 @@ struct creature_getDamReduction(struct creature *attacker)
                 if (IS_NPC((*it))
                     && af->modifier == (short int)-MOB_IDNUM((*it))) {
                     dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) +
-                                         ((*it)->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
+                                         ((*it)->level_bonus(SONG_ARIA_OF_ASYLUM) / 10));
                     break;
                 } else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
                     dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) +
-                                         ((*it)->getLevelBonus(SONG_ARIA_OF_ASYLUM) / 10));
+                                         ((*it)->level_bonus(SONG_ARIA_OF_ASYLUM) / 10));
                     break;
                 }
             }
@@ -442,7 +442,7 @@ struct creature_getDamReduction(struct creature *attacker)
 //   return: a number from 1-100 based on level and primary/secondary)
 
 int
-struct creature_getLevelBonus(bool primary)
+struct creature_level_bonus(bool primary)
 {
 	int bonus = MIN(50, player.level + 1);
 	short gen = char_specials.saved.remort_generation;
@@ -475,7 +475,7 @@ struct creature_getLevelBonus(bool primary)
 // return: a number from 1-100 based on level/gen/can learn skill.
 
 int
-struct creature_getLevelBonus(int skill)
+struct creature_level_bonus(int skill)
 {
 	// Immorts get full bonus.
 	if( player.level >= 50 )
@@ -491,7 +491,7 @@ struct creature_getLevelBonus(int skill)
 		if (!skill_lvl)
 			return 1;
 		// Average the basic level bonus and the skill level
-		return MIN(100, (getLevelBonus(true) + skill_lvl) / 2);
+		return MIN(100, (level_bonus(true) + skill_lvl) / 2);
 	} else {
 		int pclass = GET_CLASS(this);
 		int sclass = GET_REMORT_CLASS(this);
@@ -505,10 +505,10 @@ struct creature_getLevelBonus(int skill)
 			sclass = CLASS_WARRIOR;
 
 		if( spell_lvl <= player.level && spell_gen <= GET_REMORT_GEN(this) ) {
-			return getLevelBonus(true);
+			return level_bonus(true);
 		}
         else if( sclass >= 0 && (SPELL_LEVEL(skill, sclass) <= player.level)) {
-			return getLevelBonus(false);
+			return level_bonus(false);
 		}
         else {
 			return player.level/2;

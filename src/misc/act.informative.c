@@ -603,7 +603,7 @@ desc_char_trailers(struct creature *ch, struct creature *i)
 			" body is completely transparent.\r\n", NULL);
 
 	if (affected_by_spell(i, SKILL_KATA) &&
-			i->getLevelBonus(SKILL_KATA) >= 50)
+			i->level_bonus(SKILL_KATA) >= 50)
 		acc_strcat("...", HSHR(i),
 			" hands are glowing eerily.\r\n", NULL);
 
@@ -968,7 +968,7 @@ list_char_to_char(struct creature *list, struct creature *ch)
 		if (AFF_FLAGGED(i, AFF_HIDE)
             && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)
             && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-			hide_prob = number(0, i->getLevelBonus(SKILL_HIDE));
+			hide_prob = number(0, i->level_bonus(SKILL_HIDE));
 			hide_roll = number(0, get_skill_bonus(ch, true));
 			if (affected_by_spell(ch, ZEN_AWARENESS))
 				hide_roll += get_skill_bonus(ch, ZEN_AWARENESS) / 4;
@@ -4142,7 +4142,7 @@ ACMD(do_consider)
 	if (!IS_NPC(victim)) {
 		send_to_char(ch, "Well, if you really want to kill another player...\r\n");
 	}
-	diff = victim->getLevelBonus(true) - get_skill_bonus(ch, true);
+	diff = victim->level_bonus(true) - get_skill_bonus(ch, true);
 
 	if (diff <= -30)
 		send_to_char(ch, "It's not even worth the effort...\r\n");

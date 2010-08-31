@@ -331,9 +331,9 @@ check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msg
 		if (ch->equipment[idx] && IS_METAL_TYPE(ch->equipment[idx]))
 			sneak_prob -= ch->equipment[idx]->getWeight();
 
-	sneak_roll = number(0, vict->getLevelBonus(true));
+	sneak_roll = number(0, vict->level_bonus(true));
 	if (affected_by_spell(vict, ZEN_AWARENESS))
-		sneak_roll += vict->getLevelBonus(ZEN_AWARENESS) / 4;
+		sneak_roll += vict->level_bonus(ZEN_AWARENESS) / 4;
 
 	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 		send_to_char(ch, "%s[SNEAK] vict:%s   prob:%d   roll:%d%s\r\n",
