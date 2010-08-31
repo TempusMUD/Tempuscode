@@ -963,5 +963,6 @@ void extract_creature(struct creature *ch);
 int level_bonus(struct creature *ch);
 int skill_bonus(struct creature *ch, int skillnum);
 void remove_all_combat(struct creature *ch);
+bool is_newbie(struct creature *ch);
 
 #endif

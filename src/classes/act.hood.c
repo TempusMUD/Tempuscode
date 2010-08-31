@@ -253,7 +253,7 @@ ACMD(do_drag_char)
     target_room = EXIT(ch, dir)->to_room;
 
     if ((ROOM_FLAGGED(target_room, ROOM_HOUSE)
-         && !House_can_enter(ch, target_room->number))
+         && !can_enter_house(ch, target_room->number))
         || (ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
             && !clan_house_can_enter(ch, target_room))
         || (ROOM_FLAGGED(target_room, ROOM_DEATH))
@@ -354,11 +354,11 @@ ACMD(do_snatch)
 		return;
 	}
 
-	if (isNewbie(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
+	if (is_newbie(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
 		send_to_char(ch, "You cannot snatch from newbies!\r\n");
 		return;
 	}
-	if (!IS_MOB(vict) && isNewbie(ch)) {
+	if (!IS_MOB(vict) && is_newbie(ch)) {
 		send_to_char(ch, "You can't snatch from players. You're a newbie!\r\n");
 		return;
 	}

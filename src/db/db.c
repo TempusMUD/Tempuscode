@@ -51,6 +51,7 @@
 #include "olc.h"
 #include "help.h"
 #include "tmpstr.h"
+#include "accstr.h"
 #include "account.h"
 #include "specs.h"
 #include "language.h"
@@ -90,7 +91,7 @@ int mini_mud = 0;				/* mini-mud mode?                 */
 int no_rent_check = 0;			/* skip rent check on boot?         */
 time_t boot_time = 0;			/* time of mud boot                 */
 time_t last_sunday_time = 0;	/* time of last sunday, for qp regen */
-int restrict = 0;				/* level of game restriction         */
+int game_restrict = 0;         /* level of game restriction         */
 int olc_lock = 0;
 int no_initial_zreset = 0;
 int quest_status = 0;
@@ -413,7 +414,7 @@ boot_db(void)
 	sort_commands();
 	sort_spells();
 	sort_skills();
-	Security_loadGroups();
+	load_security_groups();
 
 	slog("Compiling progs.");
 	compile_all_progs();
@@ -433,8 +434,8 @@ boot_db(void)
         slog("HOUSE: Mini-mud detected. Houses not loading.");
 	} else {
 		slog("HOUSE: Booting houses.");
-		Housing_load();
-		Housing_countObjects();
+		load_houses();
+		count_housed_objects();
 	}
 
 	if (!no_initial_zreset) {
@@ -446,8 +447,8 @@ boot_db(void)
 	}
 
 	slog("Booting help system.");
-    CREATE(Help, struct help_collection, 1);
-	if (LoadIndex(Help))
+    help = make_help_collection();
+	if (help_collection_load_index(help))
 		slog("Help system boot succeeded.");
 	else
 		errlog("Help System Boot FAILED.");
@@ -1320,7 +1321,7 @@ compile_all_progs(void)
         if (MOB_SHARED(mob)->prog)
             prog_compile(NULL, mob, PROG_TYPE_MOBILE);
     }
-    g_hash_table_foreach(mob_prototypes, maybe_compile_prog, 0);
+    g_hash_table_foreach(mob_prototypes, (GHFunc)maybe_compile_prog, 0);
 }
 
 void
@@ -2291,15 +2292,15 @@ vnum_mobile(char *searchname, struct creature *ch)
 
 	acc_string_clear();
 
-    int mobile_matches(gpointer vnum, struct creature *mob, gpointer ignore) {
+    void mobile_matches(gpointer vnum, struct creature *mob, gpointer ignore) {
 		if (namelist_match(searchname, mob->player.name))
-            acc_sprintf("%s%3d. %s[%s%5d%s]%s %s%s\r\n", ++found,
+            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++found,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 				mobile->mob_specials.shared->vnum,
 				CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
 				mobile->player.short_descr, CCNRM(ch, C_NRM));
     }
-    g_hash_table_foreach(mob_prototypes, mobile_matches, 0);
+    g_hash_table_foreach(mob_prototypes, (GHFunc)mobile_matches, 0);
 	if (found)
 		page_string(ch->desc, acc_get_string());
 	return (found);
@@ -2308,12 +2309,11 @@ vnum_mobile(char *searchname, struct creature *ch)
 int
 vnum_object(char *searchname, struct creature *ch)
 {
-	struct obj_data *obj = NULL;
 	int found = 0;
 
 	acc_string_clear();
 
-    int object_matches(gpointer vnum, struct obj_data *obj, gpointer ignore) {
+    void object_matches(gpointer vnum, struct obj_data *obj, gpointer ignore) {
 		if (namelist_match(searchname, obj->aliases)) {
 			sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
 				CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
@@ -2321,7 +2321,7 @@ vnum_object(char *searchname, struct creature *ch)
 				obj->name, CCNRM(ch, C_NRM));
 		}
     }
-    g_hash_table_foreach(obj_prototypes, object_matches, 0);
+    g_hash_table_foreach(obj_prototypes, (GHFunc)object_matches, 0);
 	if (found)
 		page_string(ch->desc, acc_get_string());
 	return (found);
@@ -2373,7 +2373,7 @@ read_mobile(int vnum)
                                        (int)(GET_CASH(mob) * 0.15), -1, -1);
     }
 
-    g_list_prepend(creatures, mob);
+    creatures = g_list_prepend(creatures, mob);
     g_hash_table_insert(creature_map, GINT_TO_POINTER(-MOB_IDNUM(mob)), mob);
 
 	return mob;
@@ -2386,7 +2386,7 @@ int on_load_equip( struct creature *ch, int vnum, char* position, int maxload, i
 bool
 process_load_param( struct creature *ch )
 {
-	char *str = GET_LOAD_PARAM(ch);
+	const char *str = GET_LOAD_PARAM(ch);
     char *line;
 	int mob_id = ch->mob_specials.shared->vnum;
 	int lineno = 0;
@@ -2556,7 +2556,7 @@ randomize_object(struct obj_data *obj)
 			else
 				total_affs++;
 		}
-	normalizeApplies(obj);
+	normalize_applies(obj);
 
 	// Affects
 	for (idx = 0;idx < 32;idx++) {
@@ -2809,7 +2809,7 @@ reset_zone(struct zone_data *zone)
 			GET_MOB_SPEC(tch)(tch, tch, 0, tmp_strdup(""), SPECIAL_RESET);
 		}
 	}
-    g_list_foreach(creatures, send_special_reset, 0);
+    g_list_foreach(creatures, (GFunc)send_special_reset, 0);
 
 	for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S';
 		zonecmd = zonecmd->next, cmd_no++) {
@@ -2860,7 +2860,7 @@ reset_zone(struct zone_data *zone)
 										add_follower(mob, tch);
                                 }
                             }
-                            g_list_foreach(mob->in_room->people, add_follower, 0);
+                            g_list_foreach(mob->in_room->people, (GFunc)add_follower, 0);
                         }
 						if( process_load_param( mob ) ) { // true on death
 							last_cmd = 0;
@@ -3365,7 +3365,7 @@ file_to_string(const char *name, char *buf)
 struct room_data *
 real_room(int vnum)
 {
-	return g_hash_table_lookup(rooms, vnum);
+	return g_hash_table_lookup(rooms, GINT_TO_POINTER(vnum));
 }
 
 struct zone_data *
@@ -3387,13 +3387,13 @@ real_zone(int number)
 struct creature *
 real_mobile_proto(int vnum)
 {
-    return g_hash_table_lookup(mob_prototypes, vnum);
+    return g_hash_table_lookup(mob_prototypes, GINT_TO_POINTER(vnum));
 }
 
 struct obj_data *
 real_object_proto(int vnum)
 {
-    return g_hash_table_lookup(obj_prototypes, vnum);
+    return g_hash_table_lookup(obj_prototypes, GINT_TO_POINTER(vnum));
 }
 
 void

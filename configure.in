@@ -10,6 +10,7 @@ if test -z "${CFLAGS}"; then
    CFLAGS="-g"
 fi
 AC_PROG_CC
+AC_PROG_CC_C99
 
 # Checks for libraries.
 AC_CHECK_POSTGRES

@@ -17,54 +17,51 @@ get_house_file_path( int id )
 
 // Modes used for match_houses
 enum HC_SearchModes { HC_INVALID=0, HC_OWNER, HC_LANDLORD, HC_GUEST };
-enum HouseType { INVALID = 0, PRIVATE, PUBLIC, RENTAL, CLAN };
+enum house_type { INVALID = 0, PRIVATE, PUBLIC, RENTAL, CLAN };
 
 static const unsigned int MAX_HOUSE_GUESTS = 50;
 static const int MAX_HOUSE_ITEMS = 50;
 
-struct House
+struct house
 {
     // unique identifier of this house
     int id;
     // date this house was built
     time_t created;
     // type of ownership: personal, public, rental
-    enum HouseType type;
+    enum house_type type;
     // idnum of house owner's account
-    int ownerID;
+    int owner_id;
     // The slumlord that built the house.
     long landlord;
     // the rate per date of rent charged on this house
-    int rentalRate;
+    int rental_rate;
     // The left over gold amount from selling off items to
     // cover unpaid rent.  This is never given to the char.
-    long rentOverflow;
+    long rent_overflow;
 
     // idnums of house's guests
     // The list of id's of characters allowed to enter this house
-    struct int_list *guests;
+    GList *guests;
     // vnum house rooms
     // The list of room numbers that make up this house
-    struct int_list *rooms;
+    GList *rooms;
 
-    // the reposession notices created when objects are sold
+    // the repossession notices created when objects are sold
     // to cover rent cost.
     struct txt_block_t *repoNotes;
 
 };
 
-struct HouseControl
-{
-		// the last time rent was paid.
-		time_t lastCollection;
-		int topId;
-};
-// The global housing project.
-extern struct HouseControl Housing;
+extern time_t last_house_collection;
+extern int top_house_id;
+extern GList *houses;
 
 #define TOROOM(room, dir) (world[room].dir_option[dir] ? \
 			    world[room].dir_option[dir]->to_room : NOWHERE)
 char* print_room_contents(struct creature *ch, struct room_data *real_house_room, bool showContents);
 int recurs_obj_cost(struct obj_data *obj, bool mode, struct obj_data *top_o);
 int recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o);
+bool can_enter_house(struct creature *ch, room_num room_idnum);
+
 #endif

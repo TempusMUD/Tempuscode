@@ -328,7 +328,7 @@ const char *AN(const char *str);
 #define AFF2_FLAGGED(ch, flag)  (IS_SET(AFF2_FLAGS(ch), (flag)))
 #define AFF3_FLAGGED(ch, flag)  (IS_SET(AFF3_FLAGS(ch), (flag)))
 
-static inline bool
+inline bool
 PRF_FLAGGED( struct creature *ch, int flag )
 {
     if( IS_NPC(ch) ) {
@@ -341,7 +341,7 @@ PRF_FLAGGED( struct creature *ch, int flag )
         return IS_SET(PRF_FLAGS(ch),flag);
     }
 }
-static inline bool
+inline bool
 PRF2_FLAGGED( struct creature *ch, int flag )
 {
     if( IS_NPC(ch) ) {
@@ -422,7 +422,7 @@ PRF2_FLAGGED( struct creature *ch, int flag )
 
 	  /* room utils *********************************************************** */
 
-static inline int
+inline int
 SECT(struct room_data * room)
 {
 	return room->sector_type;
@@ -562,7 +562,7 @@ GET_REPUTATION_RANK(struct creature *ch)
 #define GET_CLAN(ch)                ((ch)->player_specials->saved.clan)
 #define GET_REMORT_GEN(ch) ((ch)->char_specials.saved.remort_generation)
 
-static inline bool IS_REMORT( const struct creature *ch )
+inline bool IS_REMORT( const struct creature *ch )
 {
 	if( ch == NULL )
 		return false;
@@ -996,19 +996,19 @@ bool can_see_room(struct creature *self, struct room_data *room);
                            AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
                            (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
 
-static inline struct room_direction_data *OEXIT( struct obj_data *ch, int dir ) {
+inline struct room_direction_data *OEXIT( struct obj_data *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-static inline struct room_direction_data* EXIT( struct creature *ch, int dir ) {
+inline struct room_direction_data* EXIT( struct creature *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-static inline struct room_direction_data* _2ND_EXIT( struct creature *ch, int dir ) {
+inline struct room_direction_data* _2ND_EXIT( struct creature *ch, int dir ) {
 	return EXIT(ch,dir)->to_room->dir_option[dir];
 }
-static inline struct room_direction_data* _3RD_EXIT( struct creature *ch, int dir ) {
+inline struct room_direction_data* _3RD_EXIT( struct creature *ch, int dir ) {
 	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
 }
-static inline struct room_direction_data* ABS_EXIT( struct room_data *room, int dir ) {
+inline struct room_direction_data* ABS_EXIT( struct room_data *room, int dir ) {
 	return room->dir_option[dir];
 }
 

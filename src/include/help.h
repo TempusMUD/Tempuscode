@@ -70,4 +70,8 @@ void helpitem_show(struct help_item *item,
                    char *buffer,
                    int mode);
 
+extern struct help_collection *help;
+struct help_collection *make_help_collection(void);
+bool help_collection_load_index(struct help_collection *col);
+
 #endif

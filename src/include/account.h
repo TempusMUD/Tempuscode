@@ -92,12 +92,12 @@ void withdraw_future_bank(struct account *account, money_t amt);
 
 void set_password(struct account *account, const char *password);
 
-inline const char* get_login_addr(struct account *account);
-inline const char* get_creation_addr(struct account *account);
+const char* get_login_addr(struct account *account);
+const char* get_creation_addr(struct account *account);
 
-inline time_t get_login_time(struct account *account);
-inline time_t get_creation_time(struct account *account);
-inline time_t get_entry_time(struct account *account);
+time_t get_login_time(struct account *account);
+time_t get_creation_time(struct account *account);
+time_t get_entry_time(struct account *account);
 void update_last_entry(struct account *account);
 
 bool isTrusted(struct account *account, long idnum);

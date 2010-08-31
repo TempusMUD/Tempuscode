@@ -26,6 +26,7 @@
 #include "house.h"
 #include "utils.h"
 #include "accstr.h"
+#include "players.h"
 
 /* extern variables */
 extern struct room_data *world;
