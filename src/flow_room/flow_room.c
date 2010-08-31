@@ -196,7 +196,7 @@ flow_one_creature(struct creature *ch, struct room_data *rnum, int pulse, int di
         || (AFF_FLAGGED(ch, AFF_WATERWALK)
             && FLOW_TYPE(rnum) == F_TYPE_SINKING_SWAMP))
         return;
-    if (!House_can_enter(ch, rnum->number))
+    if (!can_enter_house(ch, rnum->number))
         return;
 
     CHAR_CUR_PULSE(ch) = pulse;
@@ -281,7 +281,7 @@ flow_room(int pulse)
 							check_eq_align(tch);
 						}
 					}
-                    g_list_foreach(rnum->people, apply_evil, 0);
+                    g_list_foreach(rnum->people, (GFunc)apply_evil, 0);
 				}
 				if (zone->flags & ZONE_GOOD_AMBIENCE) {
 					void apply_good(struct creature *tch, gpointer ignore) {
@@ -291,7 +291,7 @@ flow_room(int pulse)
 							check_eq_align(tch);
 						}
 					}
-                    g_list_foreach(rnum->people, apply_good, 0);
+                    g_list_foreach(rnum->people, (GFunc)apply_good, 0);
 				}
 			}
 
@@ -334,7 +334,7 @@ flow_room(int pulse)
 						(!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
 							GET_OBJ_VNUM(obj) != BLOOD_VNUM &&
 							GET_OBJ_VNUM(obj) != ICE_VNUM) ||
-						(get_weight(obj) > number(5, FLOW_SPEED(rnum) * 10) &&
+						(GET_OBJ_WEIGHT(obj) > number(5, FLOW_SPEED(rnum) * 10) &&
 							!number(0, FLOW_SPEED(rnum))))
 						continue;
 

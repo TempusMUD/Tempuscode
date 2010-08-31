@@ -216,7 +216,7 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
 	}
 
 	if (ROOM_FLAGGED(dest, ROOM_HOUSE) && ch
-		&& !House_can_enter(ch, dest->number))
+		&& !can_enter_house(ch, dest->number))
 		return ERR_HOUSE;
 
 	if (ROOM_FLAGGED(dest, ROOM_CLAN_HOUSE) && ch &&
@@ -449,7 +449,7 @@ SPECIAL(vehicle_door)
 		}
 
 		if (ROOM_FLAGGED(vehicle->in_room, ROOM_HOUSE)
-			&& !House_can_enter(ch, vehicle->in_room->number)) {
+			&& !can_enter_house(ch, vehicle->in_room->number)) {
 			send_to_char(ch, "That's private property -- you can't go there.\r\n");
 			return 1;
 		}

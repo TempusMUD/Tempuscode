@@ -2038,7 +2038,7 @@ ACMD(do_loadroom)
 
 		if ((ROOM_FLAGGED(ch->in_room, ROOM_HOUSE | ROOM_CLAN_HOUSE | ROOM_COMFORT) ||
 				GET_LEVEL(ch) >= LVL_AMBASSADOR) &&
-			House_can_enter(ch, ch->in_room->number) &&
+			can_enter_house(ch, ch->in_room->number) &&
 			clan_house_can_enter(ch, ch->in_room)) {
 			GET_HOMEROOM(ch) = ch->in_room->number;
 			send_to_char(ch, "Okay, you will now load in this room.\r\n");

@@ -552,7 +552,7 @@ ASPELL(spell_spacetime_recall)
 		return;
 	}
 
-	if (ROOM_FLAGGED(room, ROOM_HOUSE) && !House_can_enter(ch, room->number)) {
+	if (ROOM_FLAGGED(room, ROOM_HOUSE) && !can_enter_house(ch, room->number)) {
 		send_to_char(ch, "You are unable to enter that place.\r\n");
 		return;
 	}
@@ -653,7 +653,7 @@ room_tele_ok(struct creature *ch, struct room_data *room)
 	if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL))
 		return 0;
 
-	if (ROOM_FLAGGED(room, ROOM_HOUSE) && !House_can_enter(ch, room->number))
+	if (ROOM_FLAGGED(room, ROOM_HOUSE) && !can_enter_house(ch, room->number))
 		return 0;
 
 	if (ROOM_FLAGGED(room, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD)

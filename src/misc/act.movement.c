@@ -468,7 +468,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 	}
 
 	if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_HOUSE) &&
-		!House_can_enter(ch, EXIT(ch, dir)->to_room->number)) {
+		!can_enter_house(ch, EXIT(ch, dir)->to_room->number)) {
 		send_to_char(ch, "That's private property -- no trespassing!\r\n");
 		return 1;
 	}
@@ -1875,7 +1875,7 @@ ACMD(do_enter)
 			&& (!car->in_room
 				|| CAN_WEAR(car, ITEM_WEAR_TAKE)))
 		|| (ROOM_FLAGGED(room, ROOM_HOUSE)
-			&& !House_can_enter(ch, room->number))
+			&& !can_enter_house(ch, room->number))
 		|| (ROOM_FLAGGED(room, ROOM_CLAN_HOUSE)
 			&& !clan_house_can_enter(ch, room))) {
 		act("$p repulses you.", false, ch, car, 0, TO_CHAR);
@@ -2685,7 +2685,7 @@ ACMD(do_translocate)
 			break;
 
 		if (rm->dir_option[dir] && rm->dir_option[dir]->to_room &&
-			(!House_can_enter(ch, rm->dir_option[dir]->to_room->number) ||
+			(!can_enter_house(ch, rm->dir_option[dir]->to_room->number) ||
 				(ROOM_FLAGGED(rm->dir_option[dir]->to_room, ROOM_GODROOM) &&
 					GET_LEVEL(ch) < LVL_CREATOR) ||
 				ROOM_FLAGGED(rm->dir_option[dir]->to_room,
@@ -2884,7 +2884,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
 	}
 
 	if ((ROOM_FLAGGED(theroom, ROOM_HOUSE)
-			&& !House_can_enter(ch, theroom->number))
+			&& !can_enter_house(ch, theroom->number))
 		|| (ROOM_FLAGGED(theroom, ROOM_CLAN_HOUSE)
 			&& !clan_house_can_enter(ch, theroom))) {
 

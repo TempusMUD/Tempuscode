@@ -719,14 +719,14 @@ struct room_data *struct creature_getLoadroom() {
 		load_room = r_frozen_start_room;
 	} else if (GET_LOADROOM(this)) {
 		if ((load_room = real_room(GET_LOADROOM(this))) &&
-			(!House_can_enter(this, load_room->number) ||
+			(!can_enter_house(this, load_room->number) ||
 			!clan_house_can_enter(this, load_room)))
 		{
 			load_room = NULL;
 		}
 	} else if (GET_HOMEROOM(this)) {
 		if ((load_room = real_room(GET_HOMEROOM(this))) &&
-			(!House_can_enter(this, load_room->number) ||
+			(!can_enter_house(this, load_room->number) ||
 			!clan_house_can_enter(this, load_room)))
 		{
 			load_room = NULL;

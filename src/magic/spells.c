@@ -258,7 +258,7 @@ ASPELL(spell_local_teleport)
 			ROOM_FLAGGED(to_room, ROOM_GODROOM | ROOM_NOMAGIC |
 				ROOM_NOTEL | ROOM_NORECALL | ROOM_DEATH) ||
 			(ROOM_FLAGGED(to_room, ROOM_HOUSE) &&
-				!House_can_enter(ch, to_room->number)) ||
+				!can_enter_house(ch, to_room->number)) ||
 			(ROOM_FLAGGED(to_room, ROOM_CLAN_HOUSE) &&
 				!clan_house_can_enter(ch, to_room))));
 
@@ -326,7 +326,7 @@ ASPELL(spell_teleport)
 		if (GET_OBJ_VAL(obj, 2) > 0)
 			GET_OBJ_VAL(obj, 2)--;
 
-		if (!House_can_enter(ch, ch->in_room->number) ||
+		if (!can_enter_house(ch, ch->in_room->number) ||
 			(ROOM_FLAGGED(ch->in_room, ROOM_GODROOM) &&
 				GET_LEVEL(ch) < LVL_CREATOR) ||
 			ROOM_FLAGGED(ch->in_room,
@@ -457,7 +457,7 @@ ASPELL(spell_teleport)
 				(to_room->zone->number == 400 &&
 					to_room->zone != ch->in_room->zone) ||
 				(ROOM_FLAGGED(to_room, ROOM_HOUSE) &&
-					!House_can_enter(ch, to_room->number))));
+					!can_enter_house(ch, to_room->number))));
 
 	if (count >= 1000 || !to_room)
 		to_room = ch->in_room;
@@ -575,7 +575,7 @@ ASPELL(spell_astral_spell)
 				ROOM_CLAN_HOUSE | ROOM_DEATH) ||
 			!can_travel_sector(ch, SECT_TYPE(to_room), 0) ||
 			(ROOM_FLAGGED(to_room, ROOM_HOUSE) &&
-				!House_can_enter(ch, to_room->number))));
+				!can_enter_house(ch, to_room->number))));
 
 	if (count >= 1000 || !to_room)
 		to_room = ch->in_room;
@@ -2156,7 +2156,7 @@ ASPELL(spell_gust_of_wind)
 				(target_room = EXIT(ch, attempt)->to_room) != NULL) {
 				if (CAN_GO(ch, attempt) &&
 					(!ROOM_FLAGGED(target_room, ROOM_HOUSE) ||
-						House_can_enter(ch, target_room->number)) &&
+						can_enter_house(ch, target_room->number)) &&
 					(!ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE) ||
 						clan_house_can_enter(ch, target_room))) {
 					sprintf(buf,
@@ -2233,7 +2233,7 @@ ASPELL(spell_gust_of_wind)
 			if (CAN_GO(victim, attempt)
 				&& !ROOM_FLAGGED(target_room, ROOM_DEATH)
 				&& (!ROOM_FLAGGED(target_room, ROOM_HOUSE)
-					|| House_can_enter(victim, target_room->number))
+					|| can_enter_house(victim, target_room->number))
 				&& (!ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
 					|| clan_house_can_enter(victim, target_room))
 				&& (!ROOM_FLAGGED(target_room, ROOM_NOTEL)
@@ -2312,7 +2312,7 @@ ASPELL(spell_vestigial_rune)
 	else if (GET_OBJ_VAL(obj, 1) && GET_IDNUM(ch) != GET_OBJ_VAL(obj, 1))
 		send_to_char(ch,
 			"This stone is already linked to another sentient being.\r\n");
-	else if (!House_can_enter(ch, ch->in_room->number) ||
+	else if (!can_enter_house(ch, ch->in_room->number) ||
 			(ROOM_FLAGGED(ch->in_room, ROOM_GODROOM)
 				&& GET_LEVEL(ch) < LVL_CREATOR)
 			|| ROOM_FLAGGED(ch->in_room,

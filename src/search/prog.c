@@ -1398,7 +1398,7 @@ prog_trans_creature(struct creature * ch, struct room_data * targ_room)
 {
 	struct room_data *was_in;
 
-	if (!House_can_enter(ch, targ_room->number)
+	if (!can_enter_house(ch, targ_room->number)
 		|| !clan_house_can_enter(ch, targ_room)
 		|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
 			&& !is_group_member(ch, "WizardFull"))) {

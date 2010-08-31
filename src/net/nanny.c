@@ -1501,7 +1501,7 @@ char_to_game(descriptor_data *d)
 		if (!load_room)
 			load_room = d->creature->getLoadroom();
 
-		if (load_room && !House_can_enter(d->creature, load_room->number)) {
+		if (load_room && !can_enter_house(d->creature, load_room->number)) {
 			mudlog(LVL_DEMI, NRM, true,
 				"%s unable to load in house room %d",
 				GET_NAME(d->creature),load_room->number);
