@@ -530,6 +530,7 @@ const char *CURRENCY(struct creature * ch);
 #define GET_ARENAKILLS(ch)		((ch)->player_specials->saved.akills)
 #define GET_PC_DEATHS(ch)       ((ch)->player_specials->saved.deaths)
 #define GET_SEVERITY(ch)		((ch)->player_specials->saved.killer_severity)
+#define SPEED_OF(ch)            ((ch)->player_specials->saved.speed)
 
 int get_reputation(struct creature *ch);
 

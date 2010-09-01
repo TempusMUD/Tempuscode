@@ -88,6 +88,30 @@ ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]
                  search/search.c \
                  social/act.social.c \
                  social/language.c \
+                 specials/demonic_guard.c \
+                 specials/remorter.c \
+                 specials/duke.c \
+                 specials/hell_hunter_spec.c \
+                 specials/spec_assign.c \
+                 specials/spec_procs.c \
+                 specials/styx.c \
+                 structs/creature.c \
+                 structs/creature_io.c \
+                 structs/creature_list.c \
+                 structs/mobile_map.c \
+                 structs/obj_data.c \
+                 structs/object_map.c \
+                 structs/player_table.c \
+                 structs/room_data.c \
+                 util/accstr.c \
+                 util/handler.c \
+                 util/graph.c \
+                 util/modify.c \
+                 util/random.c \
+                 util/sight.c \
+                 util/tmpstr.c \
+                 util/utils.c \
+                 weather/weather.c \
                  specials/Specs/araken_specs/rust_monster.c \
                  specials/Specs/atlas_specs/align_fountains.c \
                  specials/Specs/bugs_specs/monastery_eating.c \
@@ -269,30 +293,6 @@ ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]
                  specials/Specs/utility_specs/typo_util.c \
                  specials/Specs/falling_tower_dt.c \
                  specials/Specs/stepping_stone.c \
-                 specials/demonic_guard.c \
-                 specials/remorter.c \
-                 specials/duke.c \
-                 specials/hell_hunter_spec.c \
-                 specials/spec_assign.c \
-                 specials/spec_procs.c \
-                 specials/styx.c \
-                 structs/creature.c \
-                 structs/creature_io.c \
-                 structs/creature_list.c \
-                 structs/mobile_map.c \
-                 structs/obj_data.c \
-                 structs/object_map.c \
-                 structs/player_table.c \
-                 structs/room_data.c \
-                 util/accstr.c \
-                 util/handler.c \
-                 util/graph.c \
-                 util/modify.c \
-                 util/random.c \
-                 util/sight.c \
-                 util/tmpstr.c \
-                 util/utils.c \
-                 weather/weather.c \
                  include/account.h \
                  include/Mapper.h \
                  include/actions.h \

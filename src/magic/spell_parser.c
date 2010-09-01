@@ -37,7 +37,7 @@
 #include "prog.h"
 #include "language.h"
 
-const char **spells = new const char *[TOP_SPELL_DEFINE + 1];
+char **spells = NULL;
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
 struct bard_song songs[TOP_SPELL_DEFINE + 1];
 struct room_direction_data *knock_door = NULL;
@@ -150,7 +150,9 @@ say_spell(struct creature *ch,
             to_room = "$n looks at $N and makes a calculation.";
         }
 	} else {
-        char *spellname = tongues[TONGUE_ARCANUM].translate(spell_to_str(spellnum), 0);
+        char *spellname = translate_string(TONGUE_ARCANUM,
+                                           spell_to_str(spellnum),
+                                           0);
 
 		if (tobj != NULL && tobj->in_room == ch->in_room) {
             to_char = "You stare at $p and utter the words, '%s'.";
@@ -249,10 +251,10 @@ call_magic(struct creature *caster, struct creature *cvict,
         }
     }
 
-    struct creatureList_iterator it = caster->in_room->people.begin();
-	for (; it != caster->in_room->people.end(); ++it) {
-		if (GET_MOB_PROGOBJ((*it)) != NULL) {
-			if (trigger_prog_spell(*it, PROG_TYPE_MOBILE, caster, spellnum)) {
+	for (GList *it = caster->in_room->people;it;it = it->next) {
+        struct creature *tch = (struct creature *)it->data;
+		if (GET_MOB_PROGOBJ(tch) != NULL) {
+			if (trigger_prog_spell(tch, PROG_TYPE_MOBILE, caster, spellnum)) {
                 return 0;
             }
         }
@@ -283,7 +285,7 @@ call_magic(struct creature *caster, struct creature *cvict,
 	/* stuff to check caster vs. cvict */
 	if (cvict && caster != cvict) {
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
-			!caster->isOkToAttack(cvict, false)) {
+			!isOkToAttack(caster, cvict, false)) {
 			if (SPELL_IS_PSIONIC(spellnum)) {
 				send_to_char(caster, "The Universal Psyche descends on your mind and "
 					"renders you powerless!\r\n");
@@ -321,13 +323,13 @@ call_magic(struct creature *caster, struct creature *cvict,
 			return 0;
 
         if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
-            caster->checkReputations(cvict))
+            checkReputations(caster, cvict))
             return 0;
 
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {
 			check_attack(caster, cvict);
             //Try to make this a little more sane...
-            if (cvict->distrusts(caster) &&
+            if (distrusts(cvict, caster) &&
 				AFF3_FLAGGED(cvict, AFF3_PSISHIELD) &&
                 (SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC)) {
                 bool failed = false;
@@ -338,9 +340,9 @@ call_magic(struct creature *caster, struct creature *cvict,
                     failed = true;
 
                 prob = CHECK_SKILL(caster, spellnum) + GET_INT(caster);
-                prob += caster->level_bonus(spellnum);
+                prob += skill_bonus(caster, spellnum);
 
-                percent = cvict->level_bonus(SPELL_PSISHIELD);
+                percent = skill_bonus(cvict, SPELL_PSISHIELD);
                 percent += number(1, 120);
 
                 if (mag_savingthrow(cvict, GET_LEVEL(caster), SAVING_PSI))
@@ -363,7 +365,7 @@ call_magic(struct creature *caster, struct creature *cvict,
                 }
             }
 		}
-		if (cvict->distrusts(caster)) {
+		if (distrusts(cvict, caster)) {
 			af_ptr = NULL;
 			if (SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum))
 				af_ptr = affected_by_spell(cvict, SPELL_ANTI_MAGIC_SHELL);
@@ -712,17 +714,16 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
 				(GET_OBJ_VAL(obj, 0) * CHECK_SKILL(ch, SKILL_USE_WANDS)) / 100;
 			level = MIN(level, LVL_AMBASSADOR);
 
-			struct room_data *room = ch->in_room;
-			struct creatureList_iterator it = room->people.begin();
-			for (; it != room->people.end(); ++it) {
-				if (ch == *it && spell_info[GET_OBJ_VAL(obj, 3)].violent)
+			for (GList *it = ch->in_room->people;it;it = it->next) {
+                struct creature *tch = (struct creature *)it->data;
+				if (ch == tch && spell_info[GET_OBJ_VAL(obj, 3)].violent)
 					continue;
 				if (level)
-					call_magic(ch, (*it), NULL, NULL, GET_OBJ_VAL(obj, 3),
-						level, CAST_STAFF);
+					call_magic(ch, tch, NULL, NULL, GET_OBJ_VAL(obj, 3),
+                               level, CAST_STAFF, NULL);
 				else
-					call_magic(ch, (*it), NULL, NULL, GET_OBJ_VAL(obj, 3),
-						DEFAULT_STAFF_LVL, CAST_STAFF);
+					call_magic(ch, tch, NULL, NULL, GET_OBJ_VAL(obj, 3),
+                               DEFAULT_STAFF_LVL, CAST_STAFF, NULL);
 			}
 		}
 		break;
@@ -775,7 +776,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
 		GET_OBJ_VAL(obj, 2)--;
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		return (call_magic(ch, tch, tobj, NULL, GET_OBJ_VAL(obj, 3),
-				level ? level : DEFAULT_WAND_LVL, CAST_WAND));
+                           level ? level : DEFAULT_WAND_LVL, CAST_WAND, NULL));
 		break;
 	case ITEM_SCROLL:
 		if (*arg) {
@@ -898,7 +899,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
 			act("You feel a strange sensation as you eat $p...", false,
 				ch, obj, NULL, TO_CHAR);
 			return (call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, 2),
-					GET_OBJ_VAL(obj, 1), CAST_POTION));
+                               GET_OBJ_VAL(obj, 1), CAST_POTION, NULL));
 		}
 		break;
 	case ITEM_POTION:
@@ -1181,7 +1182,7 @@ cast_spell(struct creature *ch, struct creature *tch,
 
 	if (tch && ch != tch && IS_NPC(tch) &&
 		ch->in_room == tch->in_room &&
-		SINFO.violent && !tch->fighting && tGET_POSITION(ch) > POS_SLEEPING &&
+		SINFO.violent && !tch->fighting && GET_POSITION(ch) > POS_SLEEPING &&
 		(!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master)) {
 		int my_return_flags = hit(tch, ch, TYPE_UNDEFINED);
 
@@ -1561,7 +1562,7 @@ ACMD(do_cast)
 		prob += number(35, 55) - GET_INT(ch);
 
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
-		prob += GET_EQ(ch, WEAR_SHIELD)->getWeight();
+		prob += GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD));
 
 	prob += ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
@@ -1570,17 +1571,17 @@ ACMD(do_cast)
 			num_eq++;
 			if (i != WEAR_WIELD && GET_OBJ_TYPE(ch->equipment[i]) == ITEM_ARMOR
 				&& IS_METAL_TYPE(ch->equipment[i])) {
-				metal_wt += ch->equipment[i]->getWeight();
+				metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);
 				if (!metal || !number(0, 8) ||
-					(ch->equipment[i]->getWeight() > metal->getWeight() &&
+					(GET_OBJ_WEIGHT(ch->equipment[i]) > GET_OBJ_WEIGHT(metal) &&
 						!number(0, 1)))
 					metal = ch->equipment[i];
 			}
 			if (ch->implants[i]) {
 				if (IS_METAL_TYPE(ch->equipment[i])) {
-					metal_wt += ch->equipment[i]->getWeight();
+					metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);
 					if (!metal || !number(0, 8) ||
-						(ch->implants[i]->getWeight() > metal->getWeight() &&
+						(GET_OBJ_WEIGHT(ch->implants[i]) > GET_OBJ_WEIGHT(metal) &&
 							!number(0, 1)))
 						metal = ch->implants[i];
 				}
@@ -1595,7 +1596,7 @@ ACMD(do_cast)
 
 	prob -= (NUM_WEARS - num_eq);
 
-	if (tch && tGET_POSITION(ch) == POS_FIGHTING)
+	if (tch && GET_POSITION(ch) == POS_FIGHTING)
 		prob += (GET_LEVEL(tch) >> 3);
 
 	/**** casting probability ends here *****/
@@ -1615,22 +1616,23 @@ ACMD(do_cast)
 				(prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
 				/* misdirect */
 
-				struct creatureList_iterator it = ch->in_room->people.begin();
-				struct creatureList_iterator nit = ch->in_room->people.begin();
-				for (; it != ch->in_room->people.end(); ++it) {
-					++nit;
-					if ((*it) != ch && (*it) != tch &&
-						GET_LEVEL((*it)) < LVL_AMBASSADOR && (!number(0, 4)
-							|| nit != ch->in_room->people.end())) {
+				for (GList *it = ch->in_room->people;it;it = it->next) {
+                    struct creature *new_vict = (struct creature *)it->data;
+                    
+					if (new_vict != ch
+                        && new_vict != tch
+                        && GET_LEVEL(tch) < LVL_AMBASSADOR
+                        && (!number(0, 4) || !it->next)) {
+                        
 						if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch))
 							&& metal && SPELL_IS_MAGIC(spellnum)
 							&& metal_wt > number(5, 80))
 							act("$p has misdirected your spell toward $N!!",
-								false, ch, metal, (*it), TO_CHAR);
+								false, ch, metal, tch, TO_CHAR);
 						else
 							act("Your spell has been misdirected toward $N!!",
-								false, ch, 0, (*it), TO_CHAR);
-						cast_spell(ch, (*it), tobj, &tdir, spellnum);
+								false, ch, 0, tch, TO_CHAR);
+						cast_spell(ch, tch, tobj, &tdir, spellnum, NULL);
 						if (mana > 0)
 							GET_MANA(ch) =
 								MAX(0, MIN(GET_MAX_MANA(ch),
@@ -1652,7 +1654,7 @@ ACMD(do_cast)
 						metal, 0, TO_CHAR);
 				else
 					send_to_char(ch, "Your spell has backfired!!\r\n");
-				cast_spell(ch, ch, tobj, &tdir, spellnum);
+				cast_spell(ch, ch, tobj, &tdir, spellnum, NULL);
 				if (mana > 0)
 					GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) -
 							(mana >> 1)));
@@ -1689,7 +1691,7 @@ ACMD(do_cast)
 		/* cast spell returns 1 on success; subtract mana & set waitstate */
 		//HERE
 	} else {
-		if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
+		if (cast_spell(ch, tch, tobj, &tdir, spellnum, NULL)) {
 			WAIT_STATE(ch, ((3 RL_SEC) - (GET_CLASS(ch) == CLASS_MAGIC_USER ?
 						GET_REMORT_GEN(ch) : 0)));
 			if (mana > 0)
@@ -1789,7 +1791,7 @@ ACMD(do_trigger)
 		prob -= number(35, 55) + GET_INT(ch);
 
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
-		prob -= GET_EQ(ch, WEAR_SHIELD)->getWeight();
+		prob -= GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD));
 
 	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
@@ -1810,7 +1812,7 @@ ACMD(do_trigger)
 		if (SINFO.violent && tch && IS_NPC(tch))
 			hit(tch, ch, TYPE_UNDEFINED);
 	} else {
-		if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
+		if (cast_spell(ch, tch, tobj, &tdir, spellnum, NULL)) {
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			if (mana > 0)
 				GET_MANA(ch) =
@@ -1884,7 +1886,7 @@ ACMD(do_arm)
 		prob -= number(35, 55) + GET_INT(ch);
 
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
-		prob -= GET_EQ(ch, WEAR_SHIELD)->getWeight();
+		prob -= GET_EQ(ch, GET_OBJ_WEIGHT(WEAR_SHIELD));
 
 	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
@@ -2047,7 +2049,7 @@ ACMD(do_alter)
 		if (SINFO.violent && tch && IS_NPC(tch))
 			hit(tch, ch, TYPE_UNDEFINED);
 	} else {
-		if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
+		if (cast_spell(ch, tch, tobj, &tdir, spellnum, NULL)) {
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			if (mana > 0)
 				GET_MANA(ch) =
@@ -2150,7 +2152,7 @@ ACMD(do_perform)
 		if (SINFO.violent && tch && IS_NPC(tch))
 			hit(tch, ch, TYPE_UNDEFINED);
 	} else {
-		if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
+		if (cast_spell(ch, tch, tobj, &tdir, spellnum, NULL)) {
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			if (mana > 0)
 				GET_MANA(ch) =
@@ -2182,11 +2184,11 @@ load_spell(xmlNodePtr node)
     for (int class_idx = 0; class_idx < NUM_CLASSES; class_idx++)
         spell_info[idnum].min_level[class_idx] = LVL_AMBASSADOR;
 
-    spells[idnum] = xmlGetProp(node, "name");
+    spells[idnum] = (char *)xmlGetProp(node, (xmlChar *)"name");
     for (child = node->children;child;child = child->next) {
         if (xmlMatches(child->name, "granted")) {
-            char *class_str = xmlGetProp(child, "class");
-            int level = xmlGetIntProp(child, "level");
+            char *class_str = (char *)xmlGetProp(child, (xmlChar *)"class");
+            int level = xmlGetIntProp(child, "level", 0);
             int gen = xmlGetIntProp(child, "gen", 0);
             int class_idx = parse_player_class(class_str);
 
@@ -2209,11 +2211,11 @@ load_spell(xmlNodePtr node)
             spell_info[idnum].min_level[class_idx] = level;
             spell_info[idnum].gen[class_idx] = gen;
         } else if (xmlMatches(child->name, "manacost")) {
-            spell_info[idnum].mana_max = xmlGetIntProp(child, "initial");
-            spell_info[idnum].mana_change = xmlGetIntProp(child, "level_dec");
-            spell_info[idnum].mana_min = xmlGetIntProp(child, "minimum");
+            spell_info[idnum].mana_max = xmlGetIntProp(child, "initial", 0);
+            spell_info[idnum].mana_change = xmlGetIntProp(child, "level_dec", 0);
+            spell_info[idnum].mana_min = xmlGetIntProp(child, "minimum", 0);
         } else if (xmlMatches(child->name, "position")) {
-            char *pos_str = xmlGetProp(child, "minimum");
+            char *pos_str = (char *)xmlGetProp(child, (xmlChar *)"minimum");
 
             if (!pos_str) {
                 errlog("Required property minimum missing from position element");
@@ -2229,8 +2231,8 @@ load_spell(xmlNodePtr node)
             free(pos_str);
             spell_info[idnum].min_position = pos;
         } else if (xmlMatches(child->name, "target")) {
-            char *type_str = xmlGetProp(child, "type");
-            char *scope_str = xmlGetProp(child, "scope");
+            char *type_str = (char *)xmlGetProp(child, (xmlChar *)"type");
+            char *scope_str = (char *)xmlGetProp(child, (xmlChar *)"scope");
 
             if (!strcmp(type_str, "door")) {
                 spell_info[idnum].targets |= TAR_DOOR;
@@ -2265,7 +2267,7 @@ load_spell(xmlNodePtr node)
             free(type_str);
             free(scope_str);
         } else if (xmlMatches(child->name, "flag")) {
-            char *value_str = xmlGetProp(child, "value");
+            char *value_str = (char *)xmlGetProp(child, (xmlChar *)"value");
 
             if (!strcmp(value_str, "violent")) {
                 spell_info[idnum].violent = true;
@@ -2282,7 +2284,7 @@ load_spell(xmlNodePtr node)
             }
             free(value_str);
 		} else if (xmlMatches(child->name, "instrument")) {
-			char *type_str = xmlGetProp(child, "type");
+			char *type_str = (char *)xmlGetProp(child, (xmlChar *)"type");
 
 			if (!strcmp(type_str, "wind")) {
 				songs[idnum].type = ITEM_WIND;
@@ -2327,7 +2329,7 @@ clear_spells(void)
 
 	for (int spl = 1; spl < TOP_SPELL_DEFINE; spl++) {
         if (spells[spl] != UNUSED_SPELL_NAME)
-            free(const_cast<char *>(spells[spl]));
+            free(spells[spl]);
         spells[spl] = UNUSED_SPELL_NAME;
         for (int class_idx = 0; class_idx < NUM_CLASSES; class_idx++) {
             spell_info[spl].min_level[class_idx] = LVL_GRIMP + 1;
@@ -2360,6 +2362,8 @@ boot_spells(void)
 	xmlNodePtr node;
     int num_spells = 0;
 
+    free(spells);
+    spells = calloc(TOP_SPELL_DEFINE + 1, sizeof(const char *));
     memset(spells, 0, sizeof(char *) * (TOP_SPELL_DEFINE + 1));
     memset(spell_info, 0, sizeof(spell_info));
     memset(songs, 0, sizeof(songs));

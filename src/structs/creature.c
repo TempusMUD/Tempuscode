@@ -31,7 +31,7 @@ void remove_fighting_affects(struct creature *ch);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 
-struct creature_struct creature(bool pc)
+creature_struct creature(bool pc)
     : thing(CREATURE)
 {
     initialize();
@@ -50,7 +50,7 @@ struct creature_struct creature(bool pc)
 	clear();
 }
 
-struct creature_~struct creature(void)
+creature_~struct creature(void)
 {
 	clear();
 
@@ -63,7 +63,7 @@ struct creature_~struct creature(void)
     delete this->language_data;
 }
 
-struct creature_struct creature(const struct creature &c)
+creature_struct creature(const struct creature &c)
     : thing(c)
 {
     // Far as I'm concerned there is NEVER a good reason to copy a player
@@ -91,7 +91,7 @@ struct creature_struct creature(const struct creature &c)
 }
 
 void
-struct creature_checkPosition(void)
+creature_checkPosition(void)
 {
 	if (GET_HIT(this) > 0) {
 		if (getPosition() < POS_STUNNED)
@@ -182,19 +182,19 @@ int struct creature_getPenalizedExperience( int experience, struct creature *vic
 
 //Positive or negative percent modifier based on buyer vs seller charisma.
 int
-struct creature_getCostModifier(struct creature* seller) {
+creature_getCostModifier(struct creature* seller) {
     int cost_modifier = (GET_CHA(seller)-GET_CHA(this))*2;
     return cost_modifier;
 }
 
 int
-struct creature_modifyCarriedWeight(int mod_weight)
+creature_modifyCarriedWeight(int mod_weight)
 {
 	return (setCarriedWeight(getCarriedWeight() + mod_weight));
 }
 
 int
-struct creature_modifyWornWeight(int mod_weight)
+creature_modifyWornWeight(int mod_weight)
 {
 	return (setWornWeight(getWornWeight() + mod_weight));
 }
@@ -206,7 +206,7 @@ char_player_data_modifyWeight(short mod_weight)
 }
 
 int
-struct creature_getSpeed(void)
+creature_getSpeed(void)
 {
 	// if(IS_NPC(this))
 	if (char_specials.saved.act & MOB_ISNPC)
@@ -215,7 +215,7 @@ struct creature_getSpeed(void)
 }
 
 void
-struct creature_setSpeed(int speed)
+creature_setSpeed(int speed)
 {
 	// if(IS_NPC(this))
 	if (char_specials.saved.act & MOB_ISNPC)
@@ -226,7 +226,7 @@ struct creature_setSpeed(int speed)
 }
 
 bool
-struct creature_isNewbie()
+creature_isNewbie()
 {
 	if (char_specials.saved.act & MOB_ISNPC)
 		return false;
@@ -241,7 +241,7 @@ struct creature_isNewbie()
 // Utility function to determine if a char should be affected by sanctuary
 // on a hit by hit level... --N
 bool
-struct creature_affBySanc(struct creature *attacker)
+creature_affBySanc(struct creature *attacker)
 {
 
 	struct creature *ch = this;
@@ -263,7 +263,7 @@ struct creature_affBySanc(struct creature *attacker)
 // Pass in the attacker for conditional reduction such as PROT_GOOD and
 // PROT_EVIL.  Or leave it blank for the characters base reduction --N
 float
-struct creature_getDamReduction(struct creature *attacker)
+creature_getDamReduction(struct creature *attacker)
 {
 	struct creature *ch = this;
 	struct affected_type *af = NULL;
@@ -442,7 +442,7 @@ struct creature_getDamReduction(struct creature *attacker)
 //   return: a number from 1-100 based on level and primary/secondary)
 
 int
-struct creature_level_bonus(bool primary)
+creature_level_bonus(bool primary)
 {
 	int bonus = MIN(50, player.level + 1);
 	short gen = char_specials.saved.remort_generation;
@@ -475,7 +475,7 @@ struct creature_level_bonus(bool primary)
 // return: a number from 1-100 based on level/gen/can learn skill.
 
 int
-struct creature_level_bonus(int skill)
+creature_level_bonus(int skill)
 {
 	// Immorts get full bonus.
 	if( player.level >= 50 )
@@ -523,7 +523,7 @@ struct creature_level_bonus(int skill)
  *  @param new_position the enumerated int position to be set to.
 **/
 bool
-struct creature_setPosition(int new_pos)
+creature_setPosition(int new_pos)
 {
 	if (new_pos == char_specials.getPosition())
 		return false;
@@ -552,7 +552,7 @@ struct creature_setPosition(int new_pos)
  * @param con_state the connection state to change the descriptor to, if one exists
 **/
 void
-struct creature_extract(cxn_state con_state)
+creature_extract(cxn_state con_state)
 {
 	ACMD(do_return);
 	void die_follower(struct creature *ch);
@@ -696,7 +696,7 @@ struct creature_extract(cxn_state con_state)
 
 // erase ch's memory
 void
-struct creature_clearMemory()
+creature_clearMemory()
 {
 	memory_rec *curr, *next;
 
@@ -803,7 +803,7 @@ struct room_data *struct creature_getLoadroom() {
 
 // Called by constructors to initialize
 void
-struct creature_initialize(void)
+creature_initialize(void)
 {
     in_room = NULL;
     carrying = NULL;
@@ -826,7 +826,7 @@ struct creature_initialize(void)
 
 // Free all structures and return to a virginal state
 void
-struct creature_clear(void)
+creature_clear(void)
 {
 	struct creature *tmp_mob;
 	struct alias_data *a;
@@ -956,7 +956,7 @@ struct creature_clear(void)
 }
 
 void
-struct creature_restore(void)
+creature_restore(void)
 {
 	int i;
 
@@ -989,7 +989,7 @@ struct creature_restore(void)
 }
 
 bool
-struct creature_rent(void)
+creature_rent(void)
 {
     removeAllCombat();
 	player_specials->rentcode = RENT_RENTED;
@@ -1013,7 +1013,7 @@ struct creature_rent(void)
 }
 
 bool
-struct creature_cryo(void)
+creature_cryo(void)
 {
 	player_specials->rentcode = RENT_CRYO;
 	player_specials->rent_per_day = 0;
@@ -1032,7 +1032,7 @@ struct creature_cryo(void)
 }
 
 bool
-struct creature_quit(void)
+creature_quit(void)
 {
 	struct obj_data *obj, *next_obj, *next_contained_obj;
 	int pos;
@@ -1097,7 +1097,7 @@ struct creature_quit(void)
 }
 
 bool
-struct creature_idle(void)
+creature_idle(void)
 {
 	if (IS_NPC(this))
 		return false;
@@ -1119,7 +1119,7 @@ struct creature_idle(void)
 }
 
 bool
-struct creature_die(void)
+creature_die(void)
 {
 	struct obj_data *obj, *next_obj;
 	int pos;
@@ -1164,7 +1164,7 @@ struct creature_die(void)
 }
 
 bool
-struct creature_npk_die(void)
+creature_npk_die(void)
 {
     removeAllCombat();
 
@@ -1184,7 +1184,7 @@ struct creature_npk_die(void)
 }
 
 bool
-struct creature_arena_die(void)
+creature_arena_die(void)
 {
     // Remove any combat this character might have been involved in
     // And make sure all defending creatures stop defending
@@ -1214,7 +1214,7 @@ struct creature_arena_die(void)
 }
 
 bool
-struct creature_purge(bool destroy_obj)
+creature_purge(bool destroy_obj)
 {
 	struct obj_data *obj, *next_obj;
 
@@ -1255,7 +1255,7 @@ struct creature_purge(bool destroy_obj)
 }
 
 bool
-struct creature_remort(void)
+creature_remort(void)
 {
 	if (IS_NPC(this))
 		return false;
@@ -1272,7 +1272,7 @@ struct creature_remort(void)
 }
 
 bool
-struct creature_trusts(long idnum)
+creature_trusts(long idnum)
 {
 	if (IS_NPC(this))
 		return false;
@@ -1281,13 +1281,13 @@ struct creature_trusts(long idnum)
 }
 
 bool
-struct creature_distrusts(long idnum)
+creature_distrusts(long idnum)
 {
 	return !trusts(idnum);
 }
 
 bool
-struct creature_trusts(struct creature *ch)
+creature_trusts(struct creature *ch)
 {
 	if (IS_NPC(this))
 		return false;
@@ -1299,13 +1299,13 @@ struct creature_trusts(struct creature *ch)
 }
 
 bool
-struct creature_distrusts(struct creature *ch)
+creature_distrusts(struct creature *ch)
 {
 	return !trusts(ch);
 }
 
 int
-struct creature_get_reputation(void)
+creature_get_reputation(void)
 {
 	struct account *acct;
 
@@ -1322,7 +1322,7 @@ struct creature_get_reputation(void)
 }
 
 void
-struct creature_gain_reputation(int amt)
+creature_gain_reputation(int amt)
 {
 	 struct account *acct;
 
@@ -1341,13 +1341,13 @@ struct creature_gain_reputation(int amt)
 }
 
 void
-struct creature_set_reputation(int amt)
+creature_set_reputation(int amt)
 {
 	player_specials->saved.reputation = MIN(1000, MAX(0, amt));
 }
 
 void
-struct creature_addCombat(struct creature *ch, bool initiated)
+creature_addCombat(struct creature *ch, bool initiated)
 {
     struct creature *defender;
     bool previously_fighting;
@@ -1450,7 +1450,7 @@ struct creature_addCombat(struct creature *ch, bool initiated)
 }
 
 void
-struct creature_removeCombat(struct creature *ch)
+creature_removeCombat(struct creature *ch)
 {
     if (!ch)
         return;
@@ -1473,7 +1473,7 @@ struct creature_removeCombat(struct creature *ch)
 }
 
 void
-struct creature_removeAllCombat()
+creature_removeAllCombat()
 {
     if (!getCombatList()) {
         slog("getCombatList() returned NULL in removeAllCombat()!");
@@ -1492,8 +1492,8 @@ struct creature_removeAllCombat()
     combatList.remove(this);
 }
 
-struct creature *
-struct creature_findCombat(struct creature *ch)
+creature *
+creature_findCombat(struct creature *ch)
 {
     if (!ch || !getCombatList())
         return NULL;
@@ -1509,7 +1509,7 @@ struct creature_findCombat(struct creature *ch)
 
 // This function checks to see if (this) initiated combat with ch
 bool
-struct creature_initiatedCombat(struct creature *ch)
+creature_initiatedCombat(struct creature *ch)
 {
 
     if (ch == NULL || !getCombatList())
@@ -1525,13 +1525,13 @@ struct creature_initiatedCombat(struct creature *ch)
 }
 
 bool
-struct creature_isFighting()
+creature_isFighting()
 {
     return !getCombatList()->empty();
 }
 
 int
-struct creature_numCombatants()
+creature_numCombatants()
 {
     if (!this || !getCombatList())
         return 0;
@@ -1539,8 +1539,8 @@ struct creature_numCombatants()
     return getCombatList()->size();
 }
 
-struct creature *
-struct creature_findRandomCombat()
+creature *
+creature_findRandomCombat()
 {
 
     if (!isFighting())
@@ -1561,7 +1561,7 @@ struct creature_findRandomCombat()
 }
 
 bool
-struct creature_isOkToAttack(struct creature *vict, bool mssg)
+creature_isOkToAttack(struct creature *vict, bool mssg)
 {
     extern int get_hunted_id(int hunter_id);
 
@@ -1729,7 +1729,7 @@ struct creature_isOkToAttack(struct creature *vict, bool mssg)
 }
 
 void
-struct creature_ignite(struct creature *ch)
+creature_ignite(struct creature *ch)
 {
     affected_type af;
 
@@ -1746,13 +1746,13 @@ struct creature_ignite(struct creature *ch)
 }
 
 void
-struct creature_extinguish()
+creature_extinguish()
 {
     affect_from_char(this, SPELL_ABLAZE);
 }
 
 void
-struct creature_stopDefending()
+creature_stopDefending()
 {
     if (!this->isDefending())
         return;
@@ -1772,7 +1772,7 @@ struct creature_stopDefending()
 }
 
 void
-struct creature_startDefending(struct creature *vict)
+creature_startDefending(struct creature *vict)
 {
     if (this->isDefending())
         this->stopDefending();
@@ -1790,7 +1790,7 @@ struct creature_startDefending(struct creature *vict)
 }
 
 void
-struct creature_dismount()
+creature_dismount()
 {
     if (!this->isMounted())
         return;
@@ -1801,7 +1801,7 @@ struct creature_dismount()
 }
 
 void
-struct creature_mount(struct creature *vict)
+creature_mount(struct creature *vict)
 {
     if (this->isMounted())
         return;
@@ -1812,7 +1812,7 @@ struct creature_mount(struct creature *vict)
 }
 
 void
-struct creature_startHunting(struct creature *vict)
+creature_startHunting(struct creature *vict)
 {
 	if (!char_specials.hunting)
 		huntingList.add(this);
@@ -1821,7 +1821,7 @@ struct creature_startHunting(struct creature *vict)
 }
 
 void
-struct creature_stopHunting()
+creature_stopHunting()
 {
     char_specials.hunting = NULL;
 
@@ -1829,7 +1829,7 @@ struct creature_stopHunting()
 }
 
 bool
-struct creature_checkReputations(struct creature *vict)
+creature_checkReputations(struct creature *vict)
 {
     bool ch_msg = false, vict_msg = false;
 

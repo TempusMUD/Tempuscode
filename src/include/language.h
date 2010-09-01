@@ -35,6 +35,7 @@ extern struct tongue *tongues;
 #define GET_TONGUE(ch) ((ch)->language_data->current_language)
 
 char *translate_tongue(struct creature *speaker, struct creature *listener, const char *message);
+char *translate_string(int tongue, const char *str, int accuracy);
 char *make_tongue_str(struct creature *ch, struct creature *to);
 void set_initial_tongue(struct creature * ch);
 void write_tongue_xml(struct creature *ch, FILE *ouf);

@@ -31,6 +31,7 @@
 #include "fight.h"
 #include "obj_data.h"
 #include "specs.h"
+#include "weather.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
@@ -152,8 +153,8 @@ mag_savingthrow(struct creature *ch, int level, int type)
 	if (GET_POSITION(ch) < POS_FIGHTING)
 		save += ((10 - GET_POSITION(ch)) * 4);
 
-	if (ch->getSpeed())
-		save -= (ch->getSpeed() / 8);
+	if (SPEED_OF(ch))
+		save -= (SPEED_OF(ch) / 8);
 
 	if (GET_POSITION(ch) < POS_RESTING)
 		save += 10;
@@ -299,13 +300,13 @@ obj_affect_update(void)
 					// place it back at its proper position
 					ch = obj->worn_by;
 					pos_mode = EQUIP_WORN;
-					pos = obj->getEquipPos();
+					pos = equipment_position_of(obj);
 					if (pos < 0) {
 						pos_mode = EQUIP_IMPLANT;
-						pos = obj->getImplantPos();
+						pos = implant_position_of(obj);
 					}
 					if (pos >= 0) {
-						unequip_char(ch, pos, pos_mode, true);
+						raw_unequip_char(ch, pos, pos_mode);
 						obj_to_char(obj, ch);
 					}
 				} else if (obj->carried_by) {
@@ -325,7 +326,7 @@ obj_affect_update(void)
 						NULL, TO_CHAR);
 			}
 
-			obj->removeAffect(af);
+			remove_obj_affect(obj, af);
 		}
 
 		if (aff_removed) {
@@ -354,9 +355,8 @@ affect_update(void)
 	int METABOLISM = 0;
 	ACMD(do_stand);
 
-	struct creatureList_iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		i = *cit;
+	for (GList *cit = creatures;cit;cit = cit->next) {
+		i = (struct creature *)cit->data;
 
 		hamstring_found = kata_found = berserk_found = assimilate_found = 0;
 
@@ -393,17 +393,17 @@ affect_update(void)
 						if (IS_MOB(i)) {
 							if (IS_MAGE(i) && GET_LEVEL(i) > 32
 								&& GET_MANA(i) > 50)
-								found = cast_spell(i, i, 0, NULL, SPELL_FLY);
+								found = cast_spell(i, i, 0, NULL, SPELL_FLY, NULL);
 							else if (IS_CLERIC(i) && GET_LEVEL(i) > 31
 								&& GET_MANA(i) > 50)
-								found = cast_spell(i, i, 0, NULL, SPELL_AIR_WALK);
+								found = cast_spell(i, i, 0, NULL, SPELL_AIR_WALK, NULL);
 							else if (IS_PHYSIC(i) && GET_LEVEL(i) > 31
 								&& GET_MANA(i) > 50)
 								found =
-									cast_spell(i, i, 0, NULL, SPELL_TIDAL_SPACEWARP);
+									cast_spell(i, i, 0, NULL, SPELL_TIDAL_SPACEWARP, NULL);
 							if (!found) {
 
-								if (!i->in_room->isOpenAir()) {
+								if (!room_is_open_air(i->in_room)) {
 									do_stand(i, tmp_strdup(""), 0, 0, 0);
 								}
 
@@ -563,7 +563,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
 	if (victim == NULL || ch == NULL)
 		return 0;
 
-	if (victim->getPosition() <= POS_DEAD) {
+	if (GET_POSITION(victim) <= POS_DEAD) {
 		errlog("vict is already dead in mag_damage.");
 		return DAM_VICT_KILLED;
 	}
@@ -659,7 +659,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
 			dam = dice(level, 7) + 11;
 
         if (!CHAR_WITHSTANDS_FIRE(ch))
-            victim->ignite(ch);
+            ignite_creature(victim, ch);
 		break;
 	case SPELL_CONE_COLD:
 		audible = true;
@@ -862,7 +862,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         } else if (SPELL_IS_BARD(spellnum) && is_bard) {
 			dam += (dam * (GET_CHA(ch) - 10)) / 45; // 1.25 dam at full cha
             //fortissimo makes bard songs more powerful
-            affected_type *af = NULL;
+            struct affected_type *af = NULL;
             if ((af = affected_by_spell(ch, SONG_FORTISSIMO))) {
                 dam += (dam * af->level)/100; //up to 1.79 dam at gen 10/49
             }
@@ -902,9 +902,9 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
 		}
 		WAIT_STATE(victim, 2 RL_SEC);
 		if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) &&
-			(victim->getPosition() > POS_STANDING
+			(GET_POSITION(victim) > POS_STANDING
 				|| number(1, level / 2) > GET_STR(victim))) {
-			victim->setPosition(POS_RESTING);
+			GET_POSITION(victim) = POS_RESTING;
 			act("The gravity around you suddenly increases, slamming you to the ground!", false, victim, 0, ch, TO_CHAR);
 			act("The gravity around $n suddenly increases, slamming $m to the ground!", true, victim, 0, ch, TO_ROOM);
 		}
@@ -918,12 +918,12 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
 		if (!affected_by_spell(victim, SPELL_PSYCHIC_SURGE) &&
 				!mag_savingthrow(victim, level, SAVING_PSI) &&
 				(!IS_NPC(victim) || !MOB2_FLAGGED(victim, MOB2_NOSTUN)) &&
-				victim->getPosition() > POS_STUNNED) {
-			affected_type af;
+            GET_POSITION(victim) > POS_STUNNED) {
+			struct affected_type af;
 
-            victim->removeCombat(ch);
-            ch->removeCombat(victim);
-			victim->setPosition(POS_STUNNED);
+            removeCombat(victim, ch);
+            removeCombat(ch, victim);
+			GET_POSITION(victim) = POS_STUNNED;
 			WAIT_STATE(victim, 5 RL_SEC);
 			memset(&af, 0, sizeof(af));
 			af.type = SPELL_PSYCHIC_SURGE;
@@ -932,7 +932,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             af.owner = GET_IDNUM(ch);
 			affect_to_char(victim, &af);
 		}
-	} else if (spellnum == SPELL_PSIONIC_SHOCKWAVE && victim->getPosition() > POS_SITTING) {
+	} else if (spellnum == SPELL_PSIONIC_SHOCKWAVE && GET_POSITION(victim) > POS_SITTING) {
 		if (number(5, 25) > GET_DEX(victim) / 3) {
 			act("$N is knocked to the ground by your psionic shockwave!",
 				false, ch, 0, victim, TO_CHAR);
@@ -944,23 +944,23 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
 					false, ch, 0, victim, TO_VICT);
 			act("$N suddenly falls to the ground, clutching $S head!",
 				false, ch, 0, victim, TO_ROOM);
-			victim->setPosition(POS_SITTING);
+			GET_POSITION(victim) = POS_SITTING;
 			WAIT_STATE(victim, 2 RL_SEC);
 		}
 	} else if (spellnum == SPELL_EGO_WHIP
-		&& victim->getPosition() > POS_SITTING) {
+               && GET_POSITION(victim) > POS_SITTING) {
 		if (number(5, 25) > GET_DEX(victim)) {
 			act("You are knocked to the ground by the psychic attack!",
 				false, victim, 0, 0, TO_CHAR);
 			act("$n is knocked to the ground by the psychic attack!",
 				false, victim, 0, 0, TO_ROOM);
-			victim->setPosition(POS_SITTING);
+			GET_POSITION(victim) = POS_SITTING;
 			WAIT_STATE(victim, 2 RL_SEC);
 		}
 	} else if (spellnum == SPELL_CONE_COLD || spellnum == SPELL_HAILSTORM ||
 			spellnum == SPELL_HELL_FROST) {
 		if (AFF2_FLAGGED(victim, AFF2_ABLAZE)) {
-            victim->extinguish();
+            extinguish_creature(victim);
 			act("The flames on your body sizzle out and die.",
 				true, victim, 0, 0, TO_CHAR);
 			act("The flames on $n's body sizzle out and die.",
@@ -1024,15 +1024,15 @@ mag_affects(int level,
     // has some time we should completely remove
     // af and af2 from this function and convert
     // everything to aff_array
-    memset(&af, 0x0, sizeof(affected_type));
-    memset(&af2, 0x0, sizeof(affected_type));
+    memset(&af, 0x0, sizeof(struct affected_type));
+    memset(&af2, 0x0, sizeof(struct affected_type));
 	af.type = af2.type = spellnum;
 	af.location = af2.location = APPLY_NONE;
 	af.level = af2.level = level;
     af.owner = af2.owner = GET_IDNUM(ch);
 
     for (int i = 0; i < 8; i++) {
-        memset(&aff_array[i], 0x0, sizeof(affected_type));
+        memset(&aff_array[i], 0x0, sizeof(struct affected_type));
         aff_array[i].type = spellnum;
         aff_array[i].location = APPLY_NONE;
         aff_array[i].level = level;
@@ -1153,7 +1153,7 @@ mag_affects(int level,
 			send_to_char(ch, "You fail.\r\n");
 			return;
 		}
-        if (ch->checkReputations(victim))
+        if (checkReputations(ch, victim))
             return;
 
 		af.location = APPLY_HITROLL;
@@ -1186,12 +1186,12 @@ mag_affects(int level,
 			hit(victim, ch, TYPE_UNDEFINED);
 			return;
 		}
-        if (ch->checkReputations(victim))
+        if (checkReputations(ch, victim))
             return;
 
-        victim->removeCombat(ch);
-        ch->removeCombat(victim);
-		victim->setPosition(POS_STUNNED);
+        removeCombat(victim, ch);
+        removeCombat(ch, victim);
+		GET_POSITION(victim) = POS_STUNNED;
 		WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 		to_room = "$n suddenly looks stunned!";
 		to_vict = "You have been stunned!";
@@ -1276,7 +1276,7 @@ mag_affects(int level,
 		break;
 	case SPELL_AIR_WALK:
 	case SPELL_FLY:
-		if (victim->getPosition() <= POS_SLEEPING) {
+		if (GET_POSITION(victim) <= POS_SLEEPING) {
 			act("$E is in no position to be flying!", false, ch, 0, victim,
 				TO_CHAR);
 			return;
@@ -1286,7 +1286,7 @@ mag_affects(int level,
 		accum_duration = true;
 		to_vict = "Your feet lift lightly from the ground.";
 		to_room = "$n begins to hover above the ground.";
-		victim->setPosition(POS_FLYING);
+		GET_POSITION(victim) = POS_FLYING;
 		break;
 	case SPELL_HASTE:
 		af.duration = (level / 4);
@@ -1473,7 +1473,7 @@ mag_affects(int level,
 			return;
 		}
 
-        if (ch->checkReputations(victim))
+        if (checkReputations(ch, victim))
             return;
 
 		af.duration = 1 + (level / 4);
@@ -1486,7 +1486,7 @@ mag_affects(int level,
 
 	case SPELL_PROT_FROM_EVIL:
 		if (IS_EVIL(victim)) {
-            if (ch->checkReputations(victim))
+            if (checkReputations(ch, victim))
                 return;
 
 			to_vict = "You feel terrible!";
@@ -1528,7 +1528,7 @@ mag_affects(int level,
 
 	case SPELL_PROT_FROM_GOOD:
 		if (IS_GOOD(victim)) {
-            if (ch->checkReputations(victim))
+            if (checkReputations(ch, victim))
                 return;
 
 			to_vict = "You feel terrible!";
@@ -1629,17 +1629,17 @@ mag_affects(int level,
 		if (MOB_FLAGGED(victim, MOB_NOSLEEP) || IS_UNDEAD(victim))
 			return;
 
-        if (ch->checkReputations(victim))
+        if (checkReputations(ch, victim))
             return;
 
 		af.duration = 4 + level / 10;
 		af.bitvector = AFF_SLEEP;
 
-		if (victim->getPosition() > POS_SLEEPING) {
+		if (GET_POSITION(victim) > POS_SLEEPING) {
 			act("You feel very sleepy...ZZzzzz...", false, victim, 0, 0,
 				TO_CHAR);
 			act("$n goes to sleep.", true, victim, 0, 0, TO_ROOM);
-			victim->setPosition(POS_SLEEPING);
+			GET_POSITION(victim) = POS_SLEEPING;
 		}
 		break;
 
@@ -1739,7 +1739,7 @@ mag_affects(int level,
 		af.location = APPLY_HITROLL;
 		af.bitvector = AFF_CONFUSION;
 
-		if (victim->getPosition() > POS_SLEEPING)
+		if (GET_POSITION(victim) > POS_SLEEPING)
 			to_room = "$n stops in $s tracks and stares off into space.";
 		WAIT_STATE(victim, PULSE_VIOLENCE * 2);
 		to_vict = "You suddenly feel very confused!";
@@ -1754,7 +1754,7 @@ mag_affects(int level,
 		break;
 
 	case SPELL_FEAR:
-        if (ch->checkReputations(victim))
+        if (checkReputations(ch, victim))
             return;
 
 		if (IS_UNDEAD(victim) || IS_DRAGON(victim) || IS_DEVIL(victim)) {
@@ -1820,7 +1820,7 @@ mag_affects(int level,
 		break;
 
 	case SPELL_VERTIGO:
-        if (ch->checkReputations(victim))
+        if (checkReputations(ch, victim))
             return;
 
 		af.modifier = -(2 + (level / 10));
@@ -1938,7 +1938,7 @@ mag_affects(int level,
 		break;
 
 	case SPELL_GRAVITY_WELL:
-        if (ch->checkReputations(victim))
+        if (checkReputations(ch, victim))
             return;
 		af.duration = (level / 8);
 		af.location = APPLY_STR;
@@ -2169,7 +2169,7 @@ mag_affects(int level,
 		accum_duration = true;
 		to_vict = "Your feet lift lightly from the ground.";
 		to_room = "$n begins to hover above the ground.";
-		victim->setPosition(POS_FLYING);
+		GET_POSITION(victim) = POS_FLYING;
 		break;
 
 		//
@@ -2509,7 +2509,7 @@ mag_affects(int level,
 		aff_array[0].duration = 1 + skill_bonus(ch, SONG_WHITE_NOISE) / 25;
 		aff_array[0].bitvector = AFF_CONFUSION;
 
-		if (victim->getPosition() > POS_SLEEPING)
+		if (GET_POSITION(victim) > POS_SLEEPING)
 			to_room = "$n stops suddenly and stares around as if confused.";
 		to_vict = "You suddenly feel very confused!";
 		WAIT_STATE(victim, PULSE_VIOLENCE * 2);
@@ -2532,7 +2532,7 @@ mag_affects(int level,
 		aff_array[0].modifier = -(4 + (skill_bonus(ch, SONG_IRRESISTABLE_DANCE) / 20));
 		aff_array[0].location = APPLY_HITROLL;
 
-        if (victim->getPosition() > POS_SITTING) {
+        if (GET_POSITION(victim) > POS_SITTING) {
             to_vict = "You begin to dance uncontrollably!";
             to_room = "$n begins to dance uncontrollably!";
         }
@@ -2573,7 +2573,7 @@ mag_affects(int level,
 		break;
 
 	case SONG_UNLADEN_SWALLOW_SONG:
-		if (victim->getPosition() <= POS_SLEEPING) {
+		if (GET_POSITION(victim) <= POS_SLEEPING) {
 			act("$N is asleep and probably should not fly right now.", false, ch, 0, victim,
 				TO_CHAR);
 			return;
@@ -2584,7 +2584,7 @@ mag_affects(int level,
 		accum_duration = true;
 		to_vict = "The music lifts you off your feet and sustains you.";
 		to_room = "$n is lifted by the music and held suspended.";
-		victim->setPosition(POS_FLYING);
+		GET_POSITION(victim) = POS_FLYING;
 		break;
 
     case SONG_POWER_OVERTURE:
@@ -2646,9 +2646,11 @@ mag_affects(int level,
         act("$n looks murderous.  You might want to get out of here!", false,
             ch, 0, 0, TO_ROOM);
 
-        struct creatureList_iterator it = ch->in_room->people.begin();
-        for (; it != ch->in_room->people.end(); ++it) {
-            if (ch == (*it) || !can_see_creature(ch, (*it)))
+        
+        for (GList *it = ch->in_room->people;it; it = it->next) {
+            struct creature *tch = (struct creature *)it->data;
+
+            if (ch == tch || !can_see_creature(ch, tch))
                 continue;
 
             int percent = (number(1, 101) - GET_LEVEL(ch));
@@ -2656,12 +2658,12 @@ mag_affects(int level,
                 continue;
             else {
                 act("You attack $N in your berserk rage!!!",
-                    false, ch, 0, (*it), TO_CHAR);
+                    false, ch, 0, tch, TO_CHAR);
                 act("$n attacks you in $s berserk rage!!!",
-                    false, ch, 0, (*it), TO_VICT);
+                    false, ch, 0, tch, TO_VICT);
                 act("$n attacks $N in $s berserk rage!!!",
-                    true, ch, 0, (*it), TO_NOTVICT);
-                hit(ch, (*it), TYPE_UNDEFINED);
+                    true, ch, 0, tch, TO_NOTVICT);
+                hit(ch, tch, TYPE_UNDEFINED);
                 break;
             }
         }
@@ -2810,7 +2812,7 @@ mag_affects(int level,
         GET_HIT(ch) += 50 + MIN(skill_bonus(ch, SONG_MELODY_OF_METTLE), 125);
 
 	if (spellnum == SPELL_FEAR && !mag_savingthrow(victim, level, SAVING_PSI)
-		&& victim->getPosition() > POS_SITTING)
+		&& GET_POSITION(victim) > POS_SITTING)
 		do_flee(victim, tmp_strdup(""), 0, 0, 0);
 
 	// This looks redundant, but serves as a reminder that the damage()
@@ -2959,12 +2961,13 @@ void
 mag_masses(byte level, struct creature *ch, int spellnum, int savetype)
 {
 	int found = 0;
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it) == ch || !(*it)->findCombat(ch))
+    for (GList *it = ch->in_room->people;it; it = it->next) {
+        struct creature *tch = (struct creature *)it->data;
+
+		if (tch == ch || !findCombat(tch, ch))
 			continue;
 		found = true;
-		mag_damage(level, ch, (*it), spellnum, savetype);
+		mag_damage(level, ch, tch, spellnum, savetype);
 	}
 	if (!found)
 		send_to_char(ch,
@@ -2994,16 +2997,19 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
 		return 0;
 
 	if (spellnum == SPELL_MASS_HYSTERIA) {
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (count = 0; it != ch->in_room->people.end(); ++it)
-			if ((*it) != ch && can_see_creature(ch, (*it)))
+        count = 0;
+        for (GList *it = ch->in_room->people;it; it = it->next) {
+            struct creature *tch = (struct creature *)it->data;
+			if (tch != ch && can_see_creature(ch, tch))
 				count++;
+        }
 		if (!count) {
 			send_to_char(ch,
 				"You need some people present to make that effective.\r\n");
 			return 0;
 		}
 	}
+
 	/*
 	 * to add spells to this fn, just add the message here plus an entry
 	 * in mag_damage for the damaging part of the spell.
@@ -3057,16 +3063,15 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
 
 	if (spellnum == SPELL_EARTHQUAKE &&
         (room_is_underwater(ch->in_room)
-				|| ch->in_room->isOpenAir()))
+         || room_is_open_air(ch->in_room)))
 		return 0;
 	if (spellnum == SPELL_METEOR_STORM
         && room_is_underwater(ch->in_room))
 		return 0;
 
 	// check for players if caster is not a pkiller
-    struct creatureList_iterator it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it) {
-        struct creature *vict = *it;
+    for (GList *it = ch->in_room->people;it; it = it->next) {
+        struct creature *vict = (struct creature *)it->data;
 		if (vict == ch)
 			continue;
 		if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
@@ -3085,7 +3090,7 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
             continue;
         }
 
-        if (vict != ch && !ok_to_attack(ch, *it, false)) {
+        if (vict != ch && !ok_to_attack(ch, vict, false)) {
             if (SPELL_IS_PSIONIC(spellnum)) {
                 send_to_char(ch, "The Universal Psyche decends on your "
                              "mind and renders you powerless!\r\n");
@@ -3117,9 +3122,8 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
         }
     }
 
-    it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-        struct creature *vict = *it;
+    for (GList *it = ch->in_room->people;it; it = it->next) {
+        struct creature *vict = (struct creature *)it->data;
 		// skips:
 		//          caster
 		//          nohassle-flagged players (imms)
@@ -3148,7 +3152,7 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
         }
 
 		if (spellnum == SPELL_MASS_HYSTERIA) {
-			call_magic(ch, vict, 0, NULL, SPELL_FEAR, level, CAST_PSIONIC);
+			call_magic(ch, vict, 0, NULL, SPELL_FEAR, level, CAST_PSIONIC, NULL);
 			continue;
 		}
 
@@ -3162,26 +3166,26 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
                 continue;
             }
 			if ((random_number_zero_low(3 + (level / 4)) + 3) > GET_DEX(vict) &&
-				!is_arena_combat(ch, *it) && (obj = vict->carrying)) { //assignment to obj
+				!is_arena_combat(ch, vict) && (obj = vict->carrying)) { //assignment to obj
 				while (obj) {
-					if (can_see_object(*it, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
+					if (can_see_object(vict, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
 						break;
 					obj = obj->next_content;
 				}
 				if (obj) {
 					act("$p is blasted from the hands of $N by the powerful sonic waves!",
-					true, ch, obj, *it,	TO_ROOM);
+					true, ch, obj, vict,	TO_ROOM);
 					act("$p is blasted from your hands by the powerful sonic waves!",
-					true, ch, obj, *it, TO_VICT);
+					true, ch, obj, vict, TO_VICT);
 					act("$p is blasted from the hands of $N by your powerful sonic waves!",
-					true, ch, obj, *it, TO_CHAR);
+					true, ch, obj, vict, TO_CHAR);
 					obj_from_char(obj);
 					obj_to_room(obj, vict->in_room);
 				}
 			}
 		}
         if (spellnum == SONG_LICHS_LYRICS) {
-            mag_affects(level, ch, *it, 0, SONG_LICHS_LYRICS, savetype);
+            mag_affects(level, ch, vict, 0, SONG_LICHS_LYRICS, savetype);
         }
 		int retval = mag_damage(level, ch, vict, spellnum, 1);
 		return_value |= retval;
@@ -3200,10 +3204,9 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
 				act(to_next_room, false, ch, 0, 0, TO_ROOM);
 				adjoin_room = ch->in_room;
 				ch->in_room = was_in;
-
-				struct creatureList_iterator it = adjoin_room->people.begin();
-				for (; it != adjoin_room->people.end(); ++it) {
-                    struct creature *vict = *it;
+                
+				for (GList *it = adjoin_room->people;it; it = it->next) {
+                    struct creature *vict = (struct creature *)it->data;
 					if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR)
 						continue;
 					if (!IS_NPC(ch) && IS_NPC(vict)
@@ -3318,7 +3321,7 @@ mag_summons(int level __attribute__ ((unused)),
 	}
 	for (i = 0; i < num; i++) {
 		mob = read_mobile(mob_num);
-		char_to_room(mob, ch->in_room,false);
+		char_to_room(mob, ch->in_room);
 		IS_CARRYING_W(mob) = 0;
 		IS_CARRYING_N(mob) = 0;
 		SET_BIT(AFF_FLAGS(mob), AFF_CHARM);
@@ -3792,12 +3795,14 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
 
     case SPELL_ATTRACTION_FIELD: {
         {
-            tmp_obj_affect *af = obj->affectedBySpell(SPELL_ITEM_REPULSION_FIELD);
-            if( af != NULL ) {
+            struct tmp_obj_affect *af;
+
+            af = objAffectedBySpell(obj, SPELL_ITEM_REPULSION_FIELD);
+            if (af) {
                 struct affected_type *ra;
 
                 act(item_wear_off_msg[af->type], false, ch, obj, NULL, TO_CHAR);
-                obj->removeAffect( af );
+                remove_obj_affect(obj, af);
                 for (ra = ch->affected; ra; ra = ra->next) {
                     if (ra->type == SPELL_ITEM_REPULSION_FIELD) {
                         affect_remove(ch, ra);
@@ -3810,7 +3815,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         max_attractions = (skill_bonus(ch, SPELL_ATTRACTION_FIELD)*GET_INT(ch)+200)/400;
         max_attractions = MAX(max_attractions,1);
 
-        if (obj->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD)) {
+        if (affectedBySpell(obj, SPELL_ITEM_ATTRACTION_FIELD)) {
             to_char = "$p already has an attraction field!";
             break;
         } else if (count_affect(ch, SPELL_ITEM_ATTRACTION_FIELD) >= max_attractions) {
@@ -3849,12 +3854,14 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
     }
     case SPELL_REPULSION_FIELD:
         {
-            tmp_obj_affect *af = obj->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD);
+            struct tmp_obj_affect *af;
+
+            af = obj_affected_by_spell(obj, SPELL_ITEM_ATTRACTION_FIELD);
             if( af != NULL ) {
                 struct affected_type *ra;
 
                 act(item_wear_off_msg[af->type], false, ch, obj, NULL, TO_CHAR);
-                obj->removeAffect( af );
+                remove_obj_affect(obj, af);
                  for (ra = ch->affected; ra; ra = ra->next) {
                     if (ra->type == SPELL_ITEM_ATTRACTION_FIELD) {
                         affect_remove(ch, ra);
@@ -3867,7 +3874,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         max_repulsions = (skill_bonus(ch, SPELL_REPULSION_FIELD)*GET_INT(ch)+200)/400;
         max_repulsions = MAX(max_repulsions,1);
 
-        if (obj->affectedBySpell(SPELL_ITEM_REPULSION_FIELD)) {
+        if (obj_affected_by_spell(obj, SPELL_ITEM_REPULSION_FIELD)) {
             to_char = "$p already has an repulsion field!";
             break;
         } else if (count_affect(ch, SPELL_ITEM_REPULSION_FIELD) >= max_repulsions) {
@@ -3912,7 +3919,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         break;
 
     case SPELL_DENSIFY:
-        obj->modifyWeight(level + GET_INT(ch));
+        GET_OBJ_WEIGHT(obj) += level + GET_INT(ch);
         to_char = "$p becomes denser.";
         break;
 
@@ -3983,7 +3990,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             break;
         }
 
-        if (obj->affectedBySpell(SPELL_ENVENOM)) {
+        if (obj_affected_by_spell(obj, SPELL_ENVENOM)) {
             to_char = "That weapon is already envenomed!";
             break;
         }
@@ -4010,7 +4017,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             to_char = "You can only brand weapons.";
             break;
         }
-        af = obj->affectedBySpell(SPELL_ELEMENTAL_BRAND);
+        af = obj_affected_by_spell(obj, SPELL_ELEMENTAL_BRAND);
         oaf[0].level = skill_bonus(ch, SPELL_ELEMENTAL_BRAND);
         oaf[0].type = SPELL_ELEMENTAL_BRAND;
         oaf[0].duration = skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 2;
@@ -4052,7 +4059,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
                 if (to_char != NULL)
                     break;
                 oaf[0].weight_mod =
-                    -((int)(obj->getWeight() * 0.10) + skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 25);
+                    -((int)(GET_OBJ_WEIGHT(obj) * 0.10) + skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 25);
                 oaf[0].extra_mod = ITEM3_REQ_RANGER;
                 oaf[0].extra_index = 3;
                 oaf[1].extra_mod = ITEM_MAGIC;
@@ -4151,7 +4158,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
 
     for (int i = 0; i < 5; i++)
         if (oaf[i].type != 0)
-            obj->affectJoin(&oaf[i], dur_mode, val_mode, aff_mode);
+            obj_affect_join(obj, &oaf[i], dur_mode, val_mode, aff_mode);
 }
 
 void
@@ -4168,7 +4175,7 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj,
 			act("Your deity deems $p to be unsuitable for water.",
                 false, ch, obj, 0, TO_CHAR);
 		} else {
-            int dry_weight = obj->getWeight() - GET_OBJ_VAL(obj, 1) / 10;
+            int dry_weight = GET_OBJ_WEIGHT(obj) - GET_OBJ_VAL(obj, 1) / 10;
             // Fill with clear water by default
             int resulting_liquid = LIQ_CLEARWATER;
 
@@ -4191,7 +4198,7 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj,
             // Purify it of poison
             GET_OBJ_VAL(obj, 3) = 0;
             // Update the container's weight
-            obj->obj_flags.setWeight(dry_weight + GET_OBJ_VAL(obj, 1) / 10);
+            GET_OBJ_WEIGHT(obj) = dry_weight + GET_OBJ_VAL(obj, 1) / 10;
 		}
 		break;
 	case SPELL_BLESS:

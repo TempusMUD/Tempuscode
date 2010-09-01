@@ -175,7 +175,7 @@ ACMD(do_crossface)
 	} else {
 
 		dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
-			dice(9, getWeight(weap));
+			dice(9, GET_OBJ_WEIGHT(weap));
 
         wear_num = WEAR_FACE;
         if (!GET_EQ(vict, WEAR_FACE))

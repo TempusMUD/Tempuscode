@@ -3173,7 +3173,7 @@ ACMD(do_refill)
 				TO_CHAR);
 			extract_obj(vial);
 		} else {
-			SET_OBJ_WEIGHT(vial, GET_OBJ_WEIGHT(vial) - 1);
+			GET_OBJ_WEIGHT(vial) = GET_OBJ_WEIGHT(vial) - 1;
 
 			if (GET_OBJ_WEIGHT(vial) <= 0) {
 				act("$P has been exhausted.", false, ch, syr, vial, TO_CHAR);
