@@ -856,7 +856,7 @@ ACMD(do_econvert)
 	}
 
 	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-		!is_group_member(ch, SECURITY_WIZARDFULL)) {
+		!is_named_role_member(ch, SECURITY_WIZARDFULL)) {
 		send_to_char(ch, "You can't econvert a player's corpse while it still has objects in it.");
 		return;
 	}

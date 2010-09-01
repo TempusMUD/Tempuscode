@@ -791,9 +791,9 @@ account_deny_char_entry(struct account *account, struct creature *ch)
     struct creature *tch;
 
     // Admins and full wizards can multi-play all they want
-    if (is_group_member(ch, "WizardFull"))
+    if (is_named_role_member(ch, "WizardFull"))
         return false;
-    if (is_group_member(ch, "AdminFull"))
+    if (is_named_role_member(ch, "AdminFull"))
         return false;
 
     bool override = false;
@@ -802,14 +802,14 @@ account_deny_char_entry(struct account *account, struct creature *ch)
     void check_existing_char(struct creature *tch, gpointer ignore) {
         if (tch->account == account) {
             // Admins and full wizards can multi-play all they want
-            if (is_group_member(tch, "WizardFull"))
+            if (is_named_role_member(tch, "WizardFull"))
                 override = true;
-            if (is_group_member(tch, "AdminFull"))
+            if (is_named_role_member(tch, "AdminFull"))
                 override = true;
             // builder can have on a tester and vice versa.
-            if (is_group_member(ch, "OLC") && isTester(tch))
+            if (is_named_role_member(ch, "OLC") && isTester(tch))
                 override = true;
-            if (isTester(ch) && is_group_member(tch, "OLC"))
+            if (isTester(ch) && is_named_role_member(tch, "OLC"))
                 override = true;
             // We have a non-immortal already in the game, so they don't
             // get to come in

@@ -117,7 +117,7 @@ char_can_enroll(struct creature *ch, struct creature *vict, struct clan_data *cl
         return false;
     }
 
-    if (is_group_member(ch, "Clan"))
+    if (is_authorized(ch, EDIT_CLAN, NULL))
         return true;
     // Enrollment conditions that don't apply to clan administrators
     else if (PLR_FLAGGED(vict, PLR_FROZEN))
@@ -147,7 +147,7 @@ char_can_dismiss(struct creature *ch, struct creature *vict, struct clan_data *c
         send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
     else if (AFF_FLAGGED(ch, AFF_CHARM))
 		send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-    else if (is_group_member(ch, "Clan"))
+    else if (is_authorized(ch, EDIT_CLAN, NULL))
         return true;
     // Dismissal conditions that don't apply to clan administrators
     else if (!clan)
@@ -182,7 +182,7 @@ char_can_promote(struct creature *ch, struct creature *vict, struct clan_data *c
     else if (vict_member->rank >= clan->top_rank
              && PLR_FLAGGED(vict, PLR_CLAN_LEADER))
 		send_to_char(ch, "That person is already at the top rank.\r\n");
-    else if (is_group_member(ch, "Clan"))
+    else if (is_authorized(ch, EDIT_CLAN, NULL))
         return true;
     // Promotion conditions that don't apply to clan administrators
     else if (!clan)
@@ -214,7 +214,7 @@ ACMD(do_enroll)
 
 	member_str = tmp_getword(&argument);
 
-	if (is_group_member(ch, "Clan")) {
+	if (is_authorized(ch, EDIT_CLAN, NULL)) {
 		char *clan_str = tmp_getword(&argument);
 
 		if (!*clan_str) {
@@ -268,7 +268,7 @@ ACMD(do_dismiss)
 	arg = tmp_getword(&argument);
 	skip_spaces(&argument);
 
-	if (!clan && !is_group_member(ch, "Clan")) {
+	if (!clan && !is_authorized(ch, EDIT_CLAN, NULL)) {
 		send_to_char(ch, "Try joining a clan first.\r\n");
 		return;
 	} else if (!*arg) {
@@ -450,7 +450,7 @@ ACMD(do_demote)
 		act("$N is not properly installed in the clan.\r\n",
 			false, ch, 0, vict, TO_CHAR);
 	} else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
-		&& !is_group_member(ch, "Clan")) {
+		&& !is_authorized(ch, EDIT_CLAN, NULL)) {
 		send_to_char(ch, "You are unable to demote.\r\n");
 	} else if (member2->rank >= member1->rank
 		|| PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
@@ -810,17 +810,16 @@ real_clanmember(long idnum, struct clan_data *clan)
 
 typedef struct cedit_command_data {
 	const char *keyword;
-	int level;
+	enum privilege priv;
 } cedit_command_data;
 
 cedit_command_data cedit_keys[] = {
-	{"create", 1},
-	{"delete", 1},
-	{"set", 0},
-	{"show", 0},
-	{"add", 0},
-	{"remove", 0},
-	{"sort", 1},
+	{"create", CREATE_CLAN},
+	{"delete", DESTROY_CLAN},
+	{"set", EDIT_CLAN},
+	{"show", EDIT_CLAN},
+	{"add", EDIT_CLAN},
+	{"remove", EDIT_CLAN},
 	{NULL, 0}
 };
 
@@ -848,14 +847,8 @@ ACMD(do_cedit)
 		return;
 	}
 
-	if (!is_group_member(ch, "Clan")) {
-		send_to_char(ch, "Sorry, you can't use the cedit command.\r\n");
-	}
-
-	if (cedit_keys[cedit_command].level == 1
-		&& !is_group_member(ch, "WizardFull")) {
+	if (!is_authorized(ch, cedit_keys[cedit_command].priv, NULL)) {
 		send_to_char(ch, "Sorry, you can't use that cedit command.\r\n");
-		return;
 	}
 
 	arg1 = tmp_getword(&argument);
@@ -1615,7 +1608,7 @@ clan_house_can_enter(struct creature *ch, struct room_data *room)
 		return 1;
 	if (GET_LEVEL(ch) >= LVL_DEMI)
 		return 1;
-	if (is_group_member(ch, "Clan"))
+	if (is_authorized(ch, EDIT_CLAN, NULL))
 		return 1;
 	if (!(ch_clan = real_clan(GET_CLAN(ch))))
 		return 0;

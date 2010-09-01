@@ -74,7 +74,7 @@ struct command_info {
     ACMD(*command_pointer);
 	sh_int minimum_level;
 	int subcmd;
-	int group_count;
+	int role_count;
 	unsigned long usage;
 };
 
@@ -114,14 +114,14 @@ struct alias_data {
 struct show_struct {
 	const char *cmd;
 	const char level;
-	const char *group;
+	const char *role;
 };
 struct set_struct {
 	const char *cmd;
 	char level;
 	char pcnpc;
 	char type;
-	const char *group;
+	const char *role;
 };
 
 /*

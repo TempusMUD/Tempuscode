@@ -323,9 +323,9 @@ can_enter_house(struct creature *ch, room_num room_vnum)
 	if (!house)
 		return true;
 
-	if (is_group_member(ch, "House")
-		|| is_group_member(ch, "AdminBasic")
-		|| is_group_member(ch, "WizardFull"))
+	if (is_named_role_member(ch, "House")
+		|| is_named_role_member(ch, "AdminBasic")
+		|| is_named_role_member(ch, "WizardFull"))
 		return true;
 
 	if (IS_NPC(ch)) {
@@ -364,7 +364,7 @@ can_edit_house(struct creature *c, struct house *house)
 {
 	if (house == NULL)
 		return false;
-	return is_group_member(c, "House");
+	return is_named_role_member(c, "House");
 }
 
 bool
@@ -1751,7 +1751,7 @@ ACMD(do_hcontrol)
 {
 	char *action_str;
 
-	if (!is_group_member(ch, "House")) {
+	if (!is_named_role_member(ch, "House")) {
 		send_to_char(ch, "You aren't able to edit houses!\r\n");
 		return;
 	}
@@ -1763,7 +1763,7 @@ ACMD(do_hcontrol)
 		send_to_char(ch, "Saved.\r\n");
 		slog("HOUSE: Saved by %s.", GET_NAME(ch));
 	} else if (is_abbrev(action_str, "recount")) {
-		if (is_group_member(ch, "Coder")) {
+		if (is_named_role_member(ch, "Coder")) {
 			update_objects_housed_count();
 			slog("HOUSE: Re-Counted by %s.", GET_NAME(ch));
 			send_to_char(ch, "Objs recounted.\r\n");
@@ -1803,7 +1803,7 @@ ACMD(do_hcontrol)
 	}
     else if (is_abbrev(action_str, "reload")) {
 
-        if (!is_group_member(ch, "Coder")) {
+        if (!is_named_role_member(ch, "Coder")) {
             send_to_char(ch, "What are you thinking? You don't even _LOOK_ like a coder.\r\n");
             return;
         }
@@ -1833,7 +1833,7 @@ ACMD(do_house)
 		return;
 	}
 
-	if (!house->owner_id == GET_IDNUM(ch) && !is_group_member(ch, "House")) {
+	if (!house->owner_id == GET_IDNUM(ch) && !is_named_role_member(ch, "House")) {
 		send_to_char(ch, "Only the owner can set guests.\r\n");
 		return;
 	}

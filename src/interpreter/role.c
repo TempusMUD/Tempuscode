@@ -5,8 +5,6 @@
 #include <string.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-// Undefine CHAR to avoid collisions
-#undef CHAR
 #include "xml_utils.h"
 // Tempus includes
 #include "structs.h"
@@ -15,425 +13,362 @@
 #include "interpreter.h"
 #include "comm.h"
 #include "security.h"
-#include "tokenizer.h"
 #include "screen.h"
-#include "player_table.h"
+#include "players.h"
 #include "accstr.h"
 
 /*
- * The Security Namespace Group function definitions.
+ * The Security Namespace Role function definitions.
  */
-namespace Security {
-    /** The global container of Group objects. **/
-    list<Group> groups;
+/** The global container of Role objects. **/
+GList *roles;
 
-    char buf[MAX_STRING_LENGTH + 1];
+void
+security_log(const char* msg, const char* name)
+{
+    slog("<SECURITY> %s : %s", msg, name);
+}
 
-    void log( const char* msg, const char* name ) {
-        slog("<SECURITY> %s : %s", msg, name);
+struct role *
+role_by_name(const char *name)
+{
+    gint role_matches(struct role *role, const char *name) {
+        return strcasecmp(role->name, name);
     }
+    
+    return (struct role *)g_list_find_custom(roles,
+                                             (GCompareFunc)role_matches,
+                                             (gconstpointer)name);
+}
 
-    void log( const char* msg, const long id ) {
-        slog("<SECURITY> %s : %ld", msg, id );
-    }
+/* sets this role's description */
+void
+set_role_description(struct role *role, const char *desc)
+{
+    if (role->description != NULL)
+        free(role->description);
+    role->description = strdup(desc);
+}
 
-    /* sets this group's description */
-    void Group_setDescription(const char *desc) {
-        if( _description != NULL )
-            free(_description);
-        _description = strdup(desc);
-    }
+// These membership checks should be binary searches.
+bool
+is_role_member(struct role *role, long player)
+{
+    return g_list_find(role->members, GINT_TO_POINTER(player));
+}
 
-    // These membership checks should be binary searches.
-    bool Group_member( long player ) {
-        return binary_search(members.begin(), members.end(), player);
-    }
-    bool Group_member(  struct creature *ch ) {
-        return member(GET_IDNUM(ch));
-    }
-    bool Group_member( const command_info *command ) {
-        return binary_search( commands.begin(), commands.end(), command );
-    }
-    bool Group_givesAccess(  struct creature *ch, const command_info *command ) {
-        return ( member(ch) && member(command) );
-    }
+bool
+is_role_command(struct role *role, const struct command_info *command)
+{
+    return g_list_find(role->commands, command);
+}
 
-    /* sets the name of the group that can admin this group. */
-    void Group_setAdminGroup(const char *group) {
-		if (_adminGroup != NULL)
-			free(_adminGroup);
-        _adminGroup = strdup(group);
-    }
+bool
+role_gives_access(struct role *role,
+                  struct creature *ch,
+                  const struct command_info *command)
+{
+    return (is_role_member(role, GET_IDNUM(ch)) && is_role_command(role, command));
+}
 
-    /* sprintf's a one line desc of this group into out */
-    void Group_sendString(struct creature *ch) {
-        const char *nrm = CCNRM(ch,C_NRM);
-        const char *cyn = CCCYN(ch,C_NRM);
-        const char *grn = CCGRN(ch,C_NRM);
+/* sets the name of the role that can admin this role. */
+void
+set_role_admin_role(struct role *role, const char *role_name)
+{
+    if (role->admin_role != NULL)
+        free(role->admin_role);
+    role->admin_role = strdup(role_name);
+}
 
+/* sprintf's a one line desc of this role into out */
+void
+send_role_linedesc(struct role *role,struct creature *ch)
+{
+    const char *nrm = CCNRM(ch,C_NRM);
+    const char *cyn = CCCYN(ch,C_NRM);
+    const char *grn = CCGRN(ch,C_NRM);
+
+    send_to_char(ch,
+                 "%s%15s %s[%s%4d%s] [%s%4d%s]%s - %s\r\n",
+                 grn, role->name, cyn,
+                 nrm, g_list_length(role->commands), cyn,
+                 nrm, g_list_length(role->members), cyn,
+                 nrm, role->description);
+}
+
+/* Sends a list of this role's members to the given character. */
+bool
+send_role_members(struct role *role, struct creature *ch)
+{
+    int pos = 1;
+    send_to_char(ch, "Members:\r\n");
+    for(GList *it = role->members; it; it = it->next) {
         send_to_char(ch,
-                "%s%15s %s[%s%4zd%s] [%s%4zd%s]%s - %s\r\n",
-                grn, _name, cyn,
-                nrm, commands.size(), cyn,
-                nrm, members.size(), cyn,
-                nrm, _description );
-    }
-
-    /* sends a multi-line status of this group to ch */
-    void Group_sendStatus( struct creature *ch ) {
-        const char *nrm = CCNRM(ch,C_NRM);
-        const char *cyn = CCCYN(ch,C_NRM);
-        const char *grn = CCGRN(ch,C_NRM);
-
-        send_to_char(ch,
-                "Name: %s%s%s [%s%4zd%s][%s%4zd%s]%s\r\n",
-                grn, _name, cyn,
-                nrm, commands.size(), cyn,
-                nrm, members.size(), cyn,
-                nrm);
-        send_to_char(ch,
-                "Admin Group: %s%s%s\r\n",
-                grn,
-                _adminGroup ? _adminGroup : "None",
-                nrm);
-        send_to_char(ch,
-                "Description: %s\r\n",
-                _description);
-        sendCommandList( ch );
-        sendMemberList( ch );
-    }
-
-    /* Adds a command to this group. Fails if already added. */
-    bool Group_addCommand( command_info *command ) {
-        if( member( command ) )
-            return false;
-        command->group_count += 1;
-        commands.push_back(command);
-        sort( commands.begin(), commands.end() );
-        return true;
-    }
-
-    /* Removes a command from this group. Fails if not a member. */
-    bool Group_removeCommand( command_info *command ) {
-        vector<command_info *>_iterator it;
-        it = find(commands.begin(), commands.end(), command);
-        if( it == commands.end() )
-            return false;
-
-        // Remove the command
-        commands.erase(it);
-
-        // Remove the group bit from the command
-        command->group_count -= 1;
-        return true;
-    }
-
-    /* Removes a member from this group by player name. Fails if not a member. */
-    bool Group_removeMember( const char *name ) {
-        long id = playerIndex.getID(name);
-        if( id < 0 )
-            return false;
-        return removeMember(id);
-    }
-
-    /* Removes a member from this group by player id. Fails if not a member. */
-    bool Group_removeMember( long player ) {
-        vector<long>_iterator it;
-        it = find( members.begin(), members.end(), player );
-        if( it == members.end() )
-            return false;
-        members.erase(it);
-
-        sort( members.begin(), members.end() );
-        return true;
-    }
-
-    /* Adds a member to this group by name. Fails if already added. */
-    bool Group_addMember( const char *name ) {
-        long id = playerIndex.getID(name);
-        if( id < 0 )
-            return false;
-
-        return addMember(id);
-    }
-
-    /* Adds a member to this group by player id. Fails if already added. */
-    bool Group_addMember( long player ) {
-        if( member(player) )
-            return true;
-        members.push_back(player);
-
-        sort( members.begin(), members.end() );
-        return true;
-    }
-
-	bool Group_sendPublicMember( struct creature *ch, char* prefix ) {
-		if( members.size() == 0 )
-			return false;
-		const char* name = playerIndex.getName(members[0]);
-		if(!name)
-			return false;
-        acc_strcat(prefix, CCYEL_BLD(ch, C_NRM), name, CCNRM(ch, C_NRM), NULL);
-		return true;
-	}
-
-    /* Sends a list of this group's members to the given character. */
-    bool Group_sendPublicMemberList( struct creature *ch, const char *title, const char *adminGroup ) {
-        vector<long>_iterator it;
-        int pos = 0;
-		const char *name;
-		Group* group = NULL;
-		bool admin = false;
-
-		if (members.empty())
-			return false;
-
-		if( Security_isGroup(adminGroup) )
-			group = &( Security_getGroup(adminGroup) );
-
-		acc_sprintf("\r\n\r\n        %s%s%s\r\n",
-				CCYEL(ch,C_NRM), title, CCNRM(ch,C_NRM) );
-		acc_sprintf("    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
-
-            CCCYN(ch,C_NRM), CCNRM(ch,C_NRM) );
-        acc_strcat("        ", NULL);
-
-		it = members.begin();
-        for( ; it != members.end(); ++it ) {
-			name = playerIndex.getName(*it);
-			if (!name)
-				continue;
-			admin = (group != NULL) && (group->member(*it));
-			if(! admin )
-				continue;
-            acc_sprintf("%s%-15s%s",
-                        admin ? CCYEL_BLD(ch,C_NRM) : "",
-                        name,
-                        admin ? CCNRM(ch,C_NRM) : "");
-			pos++;
-            if (pos > 3 ) {
-                pos = 0;
-                acc_strcat("\r\n        ", NULL);
-            }
-        }
-
-		it = members.begin();
-        for( ; it != members.end(); ++it ) {
-			name = playerIndex.getName(*it);
-			if (!name)
-				continue;
-			admin = (group != NULL) && (group->member(*it));
-			if( admin )
-				continue;
-            acc_sprintf("%s%-15s%s",
-                        admin ? CCYEL_BLD(ch,C_NRM) : "",
-                        name,
-                        admin ? CCNRM(ch,C_NRM) : "");
-			pos++;
-            if (pos > 3 ) {
-                pos = 0;
-                acc_strcat("\r\n        ", NULL);
-            }
-        }
-        return true;
-    }
-
-    /* Sends a list of this group's members to the given character. */
-    bool Group_sendMemberList( struct creature *ch ) {
-        int pos = 1;
-        vector<long>_iterator it = members.begin();
-        send_to_char(ch, "Members:\r\n");
-        for( ; it != members.end(); ++it ) {
-            send_to_char(ch,
-                    "%s[%s%6ld%s] %s%-15s%s",
-                    CCCYN(ch,C_NRM),
-                    CCNRM(ch,C_NRM),
-                    *it,
-                    CCCYN(ch,C_NRM),
-                    CCGRN(ch,C_NRM),
-                    playerIndex.getName(*it),
-                    CCNRM(ch,C_NRM)
-                    );
-            if( pos++ % 3 == 0 ) {
-                pos = 1;
-                send_to_char(ch, "\r\n");
-            }
-        }
-        if( pos != 1 )
+                     "%s[%s%6d%s] %s%-15s%s",
+                     CCCYN(ch,C_NRM),
+                     CCNRM(ch,C_NRM),
+                     GPOINTER_TO_INT(it->data),
+                     CCCYN(ch,C_NRM),
+                     CCGRN(ch,C_NRM),
+                     player_name_by_idnum(GPOINTER_TO_INT(it->data)),
+                     CCNRM(ch,C_NRM)
+           );
+        if (pos++ % 3 == 0) {
+            pos = 1;
             send_to_char(ch, "\r\n");
-        return true;
-    }
-
-    /* Sends a list of this group's members to the given character. */
-    bool Group_sendCommandList( struct creature *ch, bool prefix) {
-        int pos = 1;
-        vector<command_info*>_iterator it = commands.begin();
-        if( prefix )
-            send_to_char(ch, "Commands:\r\n");
-        for( int i=1 ; it != commands.end(); ++it, ++i ) {
-            send_to_char(ch,
-                    "%s[%s%4d%s] %s%-15s",
-                    CCCYN(ch,C_NRM),
-                    CCNRM(ch,C_NRM),
-                    i,
-                    CCCYN(ch,C_NRM),
-                    CCGRN(ch,C_NRM),
-                    (*it)->command);
-            if( pos++ % 3 == 0 ) {
-                pos = 1;
-                send_to_char(ch, "\r\n");
-            }
         }
-        if( pos != 1 )
+    }
+    if (pos != 1)
+        send_to_char(ch, "\r\n");
+    return true;
+}
+
+/* Sends a list of this role's commands to the given character. */
+bool
+send_role_commands(struct role *role, struct creature *ch, bool prefix)
+{
+    GList *it = role->commands;
+    int i = 1;
+    int pos = 1;
+    if (prefix)
+        send_to_char(ch, "Commands:\r\n");
+    for (; it; it = it->next, ++i) {
+        send_to_char(ch,
+                     "%s[%s%4d%s] %s%-15s",
+                     CCCYN(ch,C_NRM),
+                     CCNRM(ch,C_NRM),
+                     i,
+                     CCCYN(ch,C_NRM),
+                     CCGRN(ch,C_NRM),
+                     ((struct command_info *)it->data)->command);
+        if (pos++ % 3 == 0) {
+            pos = 1;
             send_to_char(ch, "\r\n");
-        send_to_char(ch, "%s", CCNRM(ch,C_NRM));
-        return true;
+        }
+    }
+    if (pos != 1)
+        send_to_char(ch, "\r\n");
+    send_to_char(ch, "%s", CCNRM(ch,C_NRM));
+    return true;
+}
+
+/* sends a multi-line status of this role to ch */
+void
+send_role_status(struct role *role, struct creature *ch)
+{
+    const char *nrm = CCNRM(ch,C_NRM);
+    const char *cyn = CCCYN(ch,C_NRM);
+    const char *grn = CCGRN(ch,C_NRM);
+
+    send_to_char(ch,
+                 "Name: %s%s%s [%s%4d%s][%s%4d%s]%s\r\n",
+                 grn, role->name, cyn,
+                 nrm, g_list_length(role->commands), cyn,
+                 nrm, g_list_length(role->members), cyn,
+                 nrm);
+    send_to_char(ch,
+                 "Admin Role: %s%s%s\r\n",
+                 grn,
+                 role->admin_role ? role->admin_role : "None",
+                 nrm);
+    send_to_char(ch,
+                 "Description: %s\r\n",
+                 role->description);
+    send_role_commands(role, ch, false);
+    send_role_members(role, ch);
+}
+
+/* Adds a command to this role. Fails if already added. */
+bool
+add_role_command(struct role *role, struct command_info *command)
+{
+    if (is_role_command(role, command))
+        return false;
+    command->role_count += 1;
+    role->commands = g_list_prepend(role->commands, command);
+    return true;
+}
+
+/* Removes a command from this role. Fails if not a member. */
+bool
+remove_role_command(struct role *role, struct command_info *command)
+{
+    if (!is_role_command(role, command))
+        return false;
+
+    role->commands = g_list_remove(role->commands, command);
+    command->role_count -= 1;
+    return true;
+}
+
+/* Removes a member from this role by player id. Fails if not a member. */
+bool
+remove_role_member(struct role *role, long player)
+{
+    if (!is_role_member(role, player))
+        return false;
+
+    role->members = g_list_remove(role->members, GINT_TO_POINTER(player));
+
+    return true;
+}
+
+/* Adds a member to this role by player id. Fails if already added. */
+bool
+add_role_member(struct role *role, long player)
+{
+    if (is_role_member(role, player))
+        return false;
+
+    role->members = g_list_prepend(role->members, GINT_TO_POINTER(player));
+
+    return true;
+}
+
+/* Sends a list of this role's members to the given character. */
+bool
+send_role_member_list(struct role *role,
+                      struct creature *ch,
+                      const char *title,
+                      const char *admin_role_name)
+{
+    int pos = 0;
+    const char *name;
+    struct role *admin_role = NULL;
+
+    if (!role->members)
+        return false;
+
+    admin_role = role_by_name(admin_role_name);
+
+    acc_sprintf("\r\n\r\n        %s%s%s\r\n",
+				CCYEL(ch,C_NRM), title, CCNRM(ch,C_NRM));
+    acc_sprintf("    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
+
+                CCCYN(ch,C_NRM), CCNRM(ch,C_NRM));
+    acc_strcat("        ", NULL);
+
+
+    for(GList *it = role->members; it; it = it->next) {
+        name = player_name_by_idnum(GPOINTER_TO_INT(it->data));
+        if (!name)
+            continue;
+        if (role && is_role_member(role, GPOINTER_TO_INT(it->data)))
+            acc_sprintf("%s%-15s%s",
+                        CCYEL_BLD(ch,C_NRM), name, CCNRM(ch,C_NRM));
+        else
+            acc_sprintf("%-15s", name);
+        pos++;
+        if (pos > 3) {
+            pos = 0;
+            acc_strcat("\r\n        ", NULL);
+        }
     }
 
-    /*
-     * Makes a copy of name
-     */
-    Group_Group( const char *name ) : commands(), members() {
-        _name = strdup(name);
+    return true;
+}
 
-        _description = strdup("No description");
-        _adminGroup = NULL;
-    }
+struct role *
+make_role(const char *name,
+          const char *description,
+          const char *admin_role)
+{
+    struct role *role;
 
-    /*
-     * Makes a complete copy of the Group
-     */
-    Group_Group( const Group &g ) : commands(), members() {
-        _name = NULL;
-        _description = NULL;
-        _adminGroup = NULL;
-        (*this) = g;
-    }
+    CREATE(role, struct role, 1);
+    if (name)
+        role->name = strdup(name);
+    if (description)
+        role->description = strdup(description);
+    if (admin_role)
+        role->admin_role = strdup(admin_role);
 
-    /*
-     * does not make a copy of name or desc.
-     */
-    Group_Group( char *name, char *description ) : commands(), members() {
-        _name = name;
-        _description = description;
-        _adminGroup = NULL;
-    }
+    return role;
+}
 
-    /*
-     *  Loads a group from the given xmlnode;
-     *  Intended for reading from a file
-     */
-    Group_Group( xmlNodePtr node ) {
-        // properties
-        _name = xmlGetProp(node, "Name");
-        _description = xmlGetProp(node, "Description");
-        _adminGroup = xmlGetProp(node, "Admin");
-        long member;
-        char *command;
-        // commands & members
-        node = node->xmlChildrenNode;
-        while (node != NULL) {
-            if ((xmlMatches(node->name, "Member"))) {
-                member = xmlGetLongProp(node, "ID");
-                if( member == 0 || !playerIndex.exists(member) ) {
-                    log("Invalid PID not loaded.",member);
-                } else {
-                    addMember(member);
-                }
+void
+free_role(struct role *role)
+{
+    free(role->name);
+    free(role->description);
+    free(role->admin_role);
+    g_list_free(role->commands);
+    g_list_free(role->members);
+    free(role);
+}
+
+/*
+ *  Loads a role from the given xmlnode;
+ *  Intended for reading from a file
+ */
+struct role *
+load_role_from_xml(xmlNodePtr node)
+{
+    struct role *role;
+
+    role = make_role(NULL, NULL, NULL);
+
+    // properties
+    role->name = (char *)xmlGetProp(node, (xmlChar *)"Name");
+    role->description = (char *)xmlGetProp(node, (xmlChar *)"Description");
+    role->admin_role = (char *)xmlGetProp(node, (xmlChar *)"Admin");
+
+    long member;
+    char *command;
+    // commands & members
+    node = node->xmlChildrenNode;
+    while (node != NULL) {
+        if ((xmlMatches(node->name, "Member"))) {
+            member = xmlGetLongProp(node, "ID", 0);
+            if (member == 0 || !player_idnum_exists(member)) {
+                errlog("Invalid PID %ld not loaded.", member);
+            } else {
+                add_role_member(role, member);
             }
-            if ((xmlMatches(node->name, "Command"))) {
-                command = xmlGetProp(node, "Name");
-                int index = find_command( command );
-                if( index == -1 ) {
-                    trace("Group(xmlNodePtr): command not found", command);
-                } else {
-                    addCommand( &cmd_info[index] );
-                }
-				free(command);
+        }
+        if ((xmlMatches(node->name, "Command"))) {
+            command = (char *)xmlGetProp(node, (xmlChar *)"Name");
+            int index = find_command(command);
+            if (index == -1) {
+                errlog("Role(xmlNodePtr): command %s not found", command);
+            } else {
+                add_role_command(role, &cmd_info[index]);
             }
-            node = node->next;
+            free(command);
+        }
+        node = node->next;
+    }
+
+    return role;
+}
+
+/*
+ * Create the required xmlnodes to recreate this role
+ */
+bool
+save_role_to_xml(struct role *role, xmlNodePtr parent)
+{
+    xmlNodePtr node = NULL;
+
+    parent = xmlNewChild(parent, NULL, (const xmlChar *)"Role", NULL);
+    xmlSetProp(parent, (xmlChar *)"Name", (xmlChar *)role->name);
+    xmlSetProp(parent, (xmlChar *)"Description", (xmlChar *)role->description);
+    xmlSetProp(parent, (xmlChar *)"Admin", (xmlChar *)role->admin_role);
+
+    for(GList *cit = role->commands; cit; cit = cit->next) {
+        node = xmlNewChild(parent, NULL, (const xmlChar *)"Command", NULL);
+        struct command_info *cmd = (struct command_info *)cit->data;
+        xmlSetProp(node, (xmlChar *)"Name", (const xmlChar *)cmd->command);
+    }
+    for(GList *cit = role->members; cit; cit = cit->next) {
+        node = xmlNewChild(parent, NULL, (const xmlChar *)"Member", NULL);
+        char *name = player_name_by_idnum(GPOINTER_TO_INT(cit->data));
+        char *id_str = tmp_sprintf("%d", GPOINTER_TO_INT(cit->data));
+        if (name) {
+            xmlSetProp(node, (xmlChar *)"Name", (xmlChar *)name);
+            xmlSetProp(node, (xmlChar *)"ID", (xmlChar *)id_str);
         }
     }
-
-    /*
-     * Assignment operator
-     */
-    Group &Group_operator=( const Group &g ) {
-        // Clean out old data
-        if( _name != NULL )
-            free(_name);
-        if( _description != NULL )
-            free(_description);
-        if( _adminGroup != NULL )
-            free(_adminGroup);
-        // Copy in new data
-        _name = strdup(g._name);
-        if( g._description != NULL )
-            _description = strdup(g._description);
-        if( g._adminGroup != NULL )
-            _adminGroup = strdup(g._adminGroup);
-        members = g.members;
-        commands = g.commands;
-        return *this;
-    }
-
-    /*
-     * Create the required xmlnodes to recreate this group
-     */
-    bool Group_save( xmlNodePtr parent ) {
-        xmlNodePtr node = NULL;
-
-        parent = xmlNewChild( parent, NULL, (const xmlChar *)"Group", NULL );
-        xmlSetProp( parent , "Name", _name );
-        xmlSetProp( parent , "Description", _description );
-        xmlSetProp( parent , "Admin", _adminGroup );
-
-        vector<command_info*>_iterator cit = commands.begin();
-        for( ; cit != commands.end(); ++cit ) {
-            node = xmlNewChild( parent, NULL, (const xmlChar *)"Command", NULL );
-            xmlSetProp( node, "Name", (*cit)->command );
-        }
-        vector<long>_iterator mit = members.begin();
-        for( ; mit != members.end(); ++mit ) {
-            node = xmlNewChild( parent, NULL, (const xmlChar *)"Member", NULL );
-            const char* name = playerIndex.getName(*mit);
-            if( name == NULL ) {
-                log("Invalid PID not saved.",*mit);
-                continue;
-            }
-            xmlSetProp( node, "Name", playerIndex.getName(*mit) );
-            xmlSetProp( node, "ID", *mit );
-        }
-        return true;
-    }
-
-    /**
-     * Clear out this group's data for shutdown.
-     */
-    void Group_clear() {
-        commands.erase(commands.begin(),commands.end());
-        members.erase( members.begin(), members.end() );
-    }
-
-    /*
-     *
-     */
-    Group_~Group() {
-        while( commands.begin() != commands.end() ) {
-            removeCommand( *( commands.begin() ) );
-        }
-        members.erase( members.begin(), members.end() );
-
-        if( _description != NULL )
-            free(_description);
-        _description = NULL;
-
-        if( _name != NULL )
-            free(_name);
-        _name = NULL;
-
-        if( _adminGroup != NULL )
-            free(_adminGroup);
-        _adminGroup = NULL;
-    }
+        
+    return true;
 }

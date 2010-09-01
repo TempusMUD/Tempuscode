@@ -41,9 +41,11 @@
 #include "comm.h"
 #include "vehicle.h"
 #include "handler.h"
+#include "screen.h"
 #include "security.h"
 #include "tmpstr.h"
 #include "clan.h"
+#include "players.h"
 
 extern struct room_data *world;
 

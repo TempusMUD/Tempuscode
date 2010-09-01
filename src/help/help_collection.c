@@ -229,7 +229,7 @@ help_collection_edit_item(struct help_collection *col, struct creature *ch, int 
 	// See if you can edit it before you do....
 	struct help_item *cur;
 
-	if(! is_group_member( ch, "Help" ) ) {
+	if(! is_named_role_member( ch, "Help" ) ) {
 		send_to_char(ch, "You cannot edit help files.\r\n");
 	}
     cur = col->items;
