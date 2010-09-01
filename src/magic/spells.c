@@ -37,10 +37,9 @@
 #include "char_class.h"
 #include "fight.h"
 #include "materials.h"
-#include "tokenizer.h"
 #include "tmpstr.h"
 #include "house.h"
-#include "player_table.h"
+#include "players.h"
 
 extern struct obj_data *object_list;
 
@@ -74,7 +73,7 @@ teleport_not_ok(struct creature *ch, struct creature *vict, int level)
 			vict->desc->input_mode == CXN_NETWORK)
 		return true;
 
-	if (vict->trusts(ch))
+	if (trusts(vict, ch))
 		return false;
 
 	return mag_savingthrow(vict, level, SAVING_SPELL);
@@ -127,7 +126,7 @@ ASPELL(spell_recall)
 		return;
 	}
 
-    load_room = victim->getLoadroom();
+    load_room = real_room(GET_LOADROOM(victim));
 
 	if (!load_room || !victim->in_room) {
 		errlog("NULL load_room or victim->in_room in spell_recall.");
@@ -209,7 +208,7 @@ ASPELL(spell_local_teleport)
         return;
     }
     if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
-        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        victim->in_room->zone->pk_style == ZONE_NO_PK) {
         act("You feel strange as $n attempts to teleport you.",
             false, ch, 0, victim, TO_VICT);
         act("You fail.  $N is in a !PK zone!.",
@@ -337,8 +336,8 @@ ASPELL(spell_teleport)
 				"Your gut wrenches as you are slung violently through spacetime.\r\n");
 			act("$n is jerked violently back into the void!", false, ch, 0, 0,
 				TO_ROOM);
-			char_from_room(ch,false);
-			char_to_room(ch, was_in, false);
+			char_from_room(ch);
+			char_to_room_nospec(ch, was_in);
 
 			act("$n reappears, clenching $s gut in pain.",
 				false, ch, 0, 0, TO_ROOM);
@@ -389,7 +388,7 @@ ASPELL(spell_teleport)
 		GET_PLANE(ch->in_room) == PLANE_DOOM ||
 		ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)) {
 		call_magic(ch, victim, 0, NULL, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
-			CAST_SPELL);
+                   CAST_SPELL, NULL);
 		return;
 	}
 
@@ -401,7 +400,7 @@ ASPELL(spell_teleport)
         return;
     }
     if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
-        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        victim->in_room->zone->pk_style == ZONE_NO_PK) {
         act("You feel strange as $n attempts to teleport you.",
             false, ch, 0, victim, TO_VICT);
         act("You fail.  $N is in a !PK zone!.",
@@ -511,7 +510,7 @@ ASPELL(spell_astral_spell)
 	if (ch->in_room->zone->number == 400 || GET_PLANE(ch->in_room) ==
 		PLANE_DOOM || ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)) {
 		call_magic(ch, victim, 0, NULL, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
-			CAST_SPELL);
+                   CAST_SPELL, NULL);
 		return;
 	}
 
@@ -523,7 +522,7 @@ ASPELL(spell_astral_spell)
         return;
     }
     if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
-        victim->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        victim->in_room->zone->pk_style == ZONE_NO_PK) {
         act("You feel strange as $n attempts to send you into the astral.",
             false, ch, 0, victim, TO_VICT);
         act("You fail.  $N is in a !PK zone!.",
@@ -542,7 +541,7 @@ ASPELL(spell_astral_spell)
 		return;
 	}
 
-    if (IS_PC(victim) && victim->distrusts(ch)) {
+    if (IS_PC(victim) && distrusts(victim, ch)) {
 		send_to_char(ch, "They must trust you to be sent to the astral plane.\r\n");
 		return;
 	}
@@ -625,7 +624,7 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	if (IS_PC(victim) && victim->distrusts(ch)) {
+	if (IS_PC(victim) && distrusts(victim, ch)) {
 		send_to_char(ch, "They must trust you to be summoned to this place.\r\n");
 		return;
 	}
@@ -633,7 +632,7 @@ ASPELL(spell_summon)
 		send_to_char(ch, "This magic cannot penetrate here!\r\n");
 		return;
 	}
-	if (ch->in_room->people.size() >= (unsigned)ch->in_room->max_occupancy) {
+	if (g_list_length(ch->in_room->people) >= (unsigned)ch->in_room->max_occupancy) {
 		send_to_char(ch, "This room is too crowded to summon anyone!\r\n");
 		return;
 	}
@@ -745,11 +744,12 @@ ASPELL(spell_summon)
 
 		}
 	}
-	struct creatureList_iterator it = victim->in_room->people.begin();
-	for (; it != victim->in_room->people.end(); ++it)
-		if (AFF3_FLAGGED((*it), AFF3_SHROUD_OBSCUREMENT))
+	for (GList *it = victim->in_room->people;it;it = it->next) {
+        struct creature *tch = (struct creature *)it->data;
+		if (AFF3_FLAGGED(tch, AFF3_SHROUD_OBSCUREMENT))
 			prob +=
-				((*it) == victim ? GET_LEVEL((*it)) : (GET_LEVEL((*it)) >> 1));
+				(tch == victim ? GET_LEVEL(tch) : (GET_LEVEL(tch) >> 1));
+    }
 
 	if (GET_PLANE(victim->in_room) != GET_PLANE(ch->in_room))
 		prob += GET_LEVEL(victim) >> 1;
@@ -799,6 +799,7 @@ ASPELL(spell_locate_object)
 	*buf = *buf2 = '\0';
 
 	// Grab the search terms
+
 	Tokenizer tokens(locate_buf, ' ');
 	while (term_count <= MAX_LOCATE_TERMS && tokens.next(terms[term_count])) {
 		term_count++;
@@ -1728,11 +1729,12 @@ ASPELL(spell_clairvoyance)
 			false, ch, 0, victim, TO_CHAR);
 		return;
 	}
-	struct creatureList_iterator it = victim->in_room->people.begin();
-	for (; it != victim->in_room->people.end(); ++it)
-		if (AFF3_FLAGGED((*it), AFF3_SHROUD_OBSCUREMENT))
-			prob += ((*it) == (*it) ? (GET_LEVEL((*it)) << 1) :
-				(GET_LEVEL((*it))));
+	for (GList *it = victim->in_room->people;it;it = it->next) {
+        struct creature *tch = (struct creature *)it->data;
+		if (AFF3_FLAGGED(tch, AFF3_SHROUD_OBSCUREMENT))
+			prob += (tch == tch ? (GET_LEVEL(tch) << 1) :
+				(GET_LEVEL(tch)));
+    }
 
 	if (GET_PLANE(victim->in_room) != GET_PLANE(ch->in_room))
 		prob += GET_LEVEL(victim) >> 1;
@@ -2197,7 +2199,7 @@ ASPELL(spell_gust_of_wind)
         return;
 
     if (IS_PC(ch) && IS_PC(victim) &&
-        victim->in_room->zone->getPKStyle() == ZONE_NO_PK)
+        victim->in_room->zone->pk_style == ZONE_NO_PK)
         return;
 
 	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
@@ -2587,7 +2589,7 @@ ASPELL(spell_animate_dead)
 	}
 
     if (IS_PC(ch) && CORPSE_IDNUM(obj) > 0 &&
-        ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK) {
+        ch->in_room->zone->pk_style == ZONE_NEUTRAL_PK) {
         send_to_char(ch, "You cannot cast that here.\r\n");
         return;
     }
@@ -3021,38 +3023,38 @@ ASPELL(spell_sun_ray)
     }
 	// check for players if caster is not a pkiller
 	if (!IS_NPC(ch)) {
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if (ch == *it)
+        for (GList *it = victim->in_room->people;it;it = it->next) {
+            struct creature *tch = (struct creature *)it->data;
+			if (ch == tch)
 				continue;
 			if (!PRF2_FLAGGED(ch, PRF2_PKILLER)
-                && !IS_NPC((*it))
-                && IS_UNDEAD((*it))) {
+                && !IS_NPC(tch)
+                && IS_UNDEAD(tch)) {
 				act("You cannot do this, because this action might cause harm to $N,\r\n"
                     "and you have not chosen to be a Pkiller.\r\n"
                     "You can toggle this with the command 'pkiller'.",
-                    false, ch, 0, *it, TO_CHAR );
+                    false, ch, 0, tch, TO_CHAR );
 				return;
 			}
-            if (IS_UNDEAD(*it) && !ok_to_attack(ch, *it))
+            if (IS_UNDEAD(tch) && !ok_to_attack(ch, tch))
 				return;
 		}
 	}
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (ch == (*it)
-            || PRF_FLAGGED((*it), PRF_NOHASSLE)
-            || !IS_UNDEAD(*it)
-            || !ok_to_attack(ch, *it))
+    for (GList *it = victim->in_room->people;it;it = it->next) {
+        struct creature *tch = (struct creature *)it->data;
+		if (ch == (tch)
+            || PRF_FLAGGED((tch), PRF_NOHASSLE)
+            || !IS_UNDEAD(tch)
+            || !ok_to_attack(ch, tch))
             continue;
 
         dam = dice(level, 18) + level;
-        if( IS_EVIL((*it)) )
-            dam += ( GET_ALIGNMENT(ch) - GET_ALIGNMENT((*it)) )/4;
+        if( IS_EVIL((tch)) )
+            dam += ( GET_ALIGNMENT(ch) - GET_ALIGNMENT((tch)) )/4;
 
-        if( !damage(ch, (*it), dam, TYPE_ABLAZE, -1) ) {
-            if (!AFF_FLAGGED(*it, AFF_BLIND) &&
-                !MOB_FLAGGED(*it, MOB_NOBLIND)) {
+        if( !damage(ch, (tch), dam, TYPE_ABLAZE, -1) ) {
+            if (!AFF_FLAGGED(tch, AFF_BLIND) &&
+                !MOB_FLAGGED(tch, MOB_NOBLIND)) {
 
                 struct affected_type af, af2;
                 af.is_instant = af2.is_instant = 0;
@@ -3068,19 +3070,19 @@ ASPELL(spell_sun_ray)
                 af2.duration = 2;
                 af2.bitvector = AFF_BLIND;
                 af2.owner = GET_IDNUM(ch);
-                affect_join(*it, &af, false, false, false, false);
+                affect_join(tch, &af, false, false, false, false);
                 if (af2.bitvector || af2.location)
-                    affect_join((*it), &af2, false, false, false, false);
+                    affect_join((tch), &af2, false, false, false, false);
 
                 act("$n cries out in pain, clutching $s eyes!",
-                    false, (*it), NULL, ch, TO_ROOM);
+                    false, (tch), NULL, ch, TO_ROOM);
                 act("You begin to scream as the flames of light sear out your eyes!",
-                    false, ch, NULL, (*it), TO_VICT);
+                    false, ch, NULL, (tch), TO_VICT);
             } else {
                 act("$n screams in agony!",
-                    false, (*it), NULL, ch, TO_ROOM);
+                    false, (tch), NULL, ch, TO_ROOM);
                 act("You cry out in pain as the flames of light consume your body!",
-                    false, ch, NULL, (*it), TO_VICT);
+                    false, ch, NULL, (tch), TO_VICT);
             }
         }
     }
@@ -3101,16 +3103,16 @@ ASPELL(spell_inferno)
 	if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
 		struct creatureList_iterator it = ch->in_room->people.begin();
 		for (; it != ch->in_room->people.end(); ++it) {
-			if (ch == *it)
+			if (ch == tch)
 				continue;
-			if (!is_arena_combat(ch, (*it)) && !IS_NPC((*it))) {
+			if (!is_arena_combat(ch, (tch)) && !IS_NPC((tch))) {
 				act("You cannot do this, because this action might cause harm to $N,\r\n"
                     "and you have not chosen to be a Pkiller.\r\n"
                     "You can toggle this with the command 'pkiller'.",
                     false, ch, 0, vict, TO_CHAR);
 				return;
 			}
-            if (!ok_to_attack(ch, *it))
+            if (!ok_to_attack(ch, tch))
 				return;
 		}
 	}
@@ -3124,16 +3126,15 @@ ASPELL(spell_inferno)
 		affect_to_room(ch->in_room, &rm_aff);
 
 	}
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (ch == *it)
+    for (GList *it = victim->in_room->people;it;it = it->next) {
+        struct creature *tch = (struct creature *)it->data;
+		if (ch == tch)
 			continue;
 
-		if (PRF_FLAGGED((*it), PRF_NOHASSLE))
+		if (PRF_FLAGGED((tch), PRF_NOHASSLE))
 			continue;
 
-		damage(ch, (*it), dice(level, 6) + (level << 2), TYPE_ABLAZE, -1);
-
+		damage(ch, (tch), dice(level, 6) + (level << 2), TYPE_ABLAZE, -1);
 	}
 
 }
