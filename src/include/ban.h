@@ -15,38 +15,12 @@
 typedef char namestring[MAX_NAME_LENGTH];
 
 struct ban_entry {
-    ban_entry(void) {
-        _site[0] = _name[0] = _reason[0] = _message[0] = '\0';
-        _type = _date = 0;
-    }
-    ban_entry(const ban_entry &o) {
-        strcpy(_site, o._site);
-        strcpy(_name, o._name);
-        strcpy(_reason, o._reason);
-        strcpy(_message, o._message);
-        _type = o._type;
-        _date = o._date;
-    }
-    ban_entry(const char *site,
-              int type,
-              time_t date,
-              const char *name,
-              const char *reason,
-              const char *message) {
-        strcpy(_site, site);
-        strcpy(_name, name);
-        strcpy(_reason, reason);
-        strcpy(_message, message);
-        _type = type;
-        _date = date;
-    }
-
-	char _site[BANNED_SITE_LENGTH + 1];
-	int _type;
-	time_t _date;
-	char _name[MAX_NAME_LENGTH + 1];
-	char _reason[BANNED_REASON_LENGTH + 1];
-	char _message[MAX_INPUT_LENGTH + 1];
+	char site[BANNED_SITE_LENGTH + 1];
+	int type;
+	time_t date;
+	char name[MAX_NAME_LENGTH + 1];
+	char reason[BANNED_REASON_LENGTH + 1];
+	char message[MAX_INPUT_LENGTH + 1];
 };
 
 extern namestring *nasty_list;

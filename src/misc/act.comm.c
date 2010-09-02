@@ -19,6 +19,7 @@
 #include "config.h"
 #endif
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -32,7 +33,6 @@
 #include "db.h"
 #include "editor.h"
 #include "screen.h"
-#include "creature_list.h"
 #include "clan.h"
 #include "security.h"
 #include "tmpstr.h"
@@ -262,10 +262,8 @@ perform_tell(struct creature *ch, struct creature *vict, const char *arg)
 	act(act_str, false, ch, 0, vict, TO_VICT | TO_SLEEP);
 
     if (PLR_FLAGGED(vict, PLR_AFK)
-        && std_find(AFK_NOTIFIES(vict).begin(),
-                     AFK_NOTIFIES(vict).end(),
-                     GET_IDNUM(ch)) == AFK_NOTIFIES(vict).end()) {
-        AFK_NOTIFIES(vict).push_back(GET_IDNUM(ch));
+        && g_list_find(AFK_NOTIFIES(vict), GINT_TO_POINTER(GET_IDNUM(ch)))) {
+        AFK_NOTIFIES(vict) = g_list_prepend(AFK_NOTIFIES(vict), GINT_TO_POINTER(GET_IDNUM(ch)));
         if (AFK_REASON(vict))
             act(tmp_sprintf("$N is away from the keyboard: %s",
                             AFK_REASON(vict)),
@@ -336,7 +334,6 @@ ACMD(do_tell)
 
 ACMD(do_reply)
 {
-	struct creatureList_iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
 	if (GET_LAST_TELL_FROM(ch) == NOBODY) {
@@ -349,46 +346,42 @@ ACMD(do_reply)
 	}
 	/*
 	 * Make sure the person you're replying to is still playing by searching
-	 * for them.  Note, now last tell is stored as player IDnum instead of
-	 * a pointer, which is much better because it's safer, plus will still
-	 * work if someone logs out and back in again.
+	 * for them.
 	 */
 
-	while (tch != characterList.end() && GET_IDNUM(*tch) != GET_LAST_TELL_FROM(ch))
-		++tch;
+    struct creature *tch = get_char_in_world_by_idnum(GET_LAST_TELL_FROM(ch));
 
-	if (tch == characterList.end())
+	if (!tch)
 		send_to_char(ch, "They are no longer playing.\r\n");
 	else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
 		send_to_char(ch,
 			"You can't tell other people while you have notell on.\r\n");
-	else if (!IS_NPC(*tch) && (*tch)->desc == NULL)
+	else if (!IS_NPC(tch) && tch->desc == NULL)
 		send_to_char(ch, "They are linkless at the moment.\r\n");
-	else if (PLR_FLAGGED(*tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
+	else if (PLR_FLAGGED(tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
 		send_to_char(ch, "They are writing at the moment.\r\n");
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
-		&& GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(*tch) < LVL_GRGOD
-		&& ch->in_room != (*tch)->in_room)
+		&& GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(tch) < LVL_GRGOD
+		&& ch->in_room != tch->in_room)
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
 	else {
-		if (!CAN_SEND_TELL(ch, (*tch)) && !CAN_SEND_TELL((*tch), ch)) {
+		if (!CAN_SEND_TELL(ch, tch) && !CAN_SEND_TELL((tch), ch)) {
 			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
-					affected_by_spell((*tch), SPELL_TELEPATHY))) {
+					affected_by_spell((tch), SPELL_TELEPATHY))) {
 				act("Your telepathic voice cannot reach $M.",
-					false, ch, 0, (*tch), TO_CHAR);
+					false, ch, 0, tch, TO_CHAR);
 				return;
 			}
 
 			WAIT_STATE(ch, 1 RL_SEC);
 		}
 
-		perform_tell(ch, (*tch), argument);
+		perform_tell(ch, tch, argument);
 	}
 }
 
 ACMD(do_retell)
 {
-	struct creatureList_iterator tch = characterList.begin();
 	skip_spaces(&argument);
 
 	if (GET_LAST_TELL_TO(ch) == NOBODY) {
@@ -400,35 +393,34 @@ ACMD(do_retell)
 		return;
 	}
 
-	while (tch != characterList.end() && GET_IDNUM(*tch) != GET_LAST_TELL_TO(ch))
-		++tch;
+    struct creature *tch = get_char_in_world_by_idnum(GET_LAST_TELL_TO(ch));
 
-	if (tch == characterList.end())
+	if (!tch)
 		send_to_char(ch, "They are no longer playing.\r\n");
 	else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
 		send_to_char(ch,
 			"You can't tell other people while you have notell on.\r\n");
-	else if (!IS_NPC(*tch) && (*tch)->desc == NULL)
+	else if (!IS_NPC(tch) && tch->desc == NULL)
 		send_to_char(ch, "They are linkless at the moment.\r\n");
-	else if (PLR_FLAGGED(*tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
+	else if (PLR_FLAGGED(tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
 		send_to_char(ch, "They are writing at the moment.\r\n");
 	else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
-		&& GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(*tch) < LVL_GRGOD
-		&& ch->in_room != (*tch)->in_room)
+		&& GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(tch) < LVL_GRGOD
+		&& ch->in_room != tch->in_room)
 		send_to_char(ch, "The walls seem to absorb your words.\r\n");
 	else {
-		if (!CAN_SEND_TELL(ch, (*tch)) && !CAN_SEND_TELL((*tch), ch)) {
+		if (!CAN_SEND_TELL(ch, tch) && !CAN_SEND_TELL((tch), ch)) {
 			if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
-					affected_by_spell((*tch), SPELL_TELEPATHY))) {
+					affected_by_spell((tch), SPELL_TELEPATHY))) {
 				act("Your telepathic voice cannot reach $M.",
-					false, ch, 0, (*tch), TO_CHAR);
+					false, ch, 0, tch, TO_CHAR);
 				return;
 			}
 
 			WAIT_STATE(ch, 1 RL_SEC);
 		}
 
-		perform_tell(ch, (*tch), argument);
+		perform_tell(ch, tch, argument);
 	}
 }
 
@@ -563,10 +555,10 @@ ACMD(do_page)
 /**********************************************************************
  * generalized communication func, originally by Fred C. Merkel (Torg) *
   *********************************************************************/
-const bool INTERPLANAR = false;
-const bool PLANAR = true;
-const bool NOT_EMOTE = false;
-const bool IS_EMOTE = true;
+#define INTERPLANAR  false
+#define PLANAR       true
+#define NOT_EMOTE    false
+#define IS_EMOTE     true
 
 struct channel_info_t {
 	const char *name;
@@ -580,7 +572,7 @@ struct channel_info_t {
 	const char *msg_muted;
 };
 
-static const channel_info_t channels[] = {
+struct channel_info_t channels[] = {
 	{ "holler", 2, PRF2_NOHOLLER, INTERPLANAR, NOT_EMOTE,
       "&Y", "&r",
       "Ha!  You are noholler buddy.",
@@ -667,7 +659,7 @@ ACMD(do_gen_comm)
 {
 	extern int level_can_shout;
 	extern int holler_move_cost;
-	const channel_info_t *chan;
+	const struct channel_info_t *chan;
 	struct descriptor_data *i;
 	struct clan_data *clan;
 	const char *str, *sub_channel_desc;
@@ -800,7 +792,7 @@ ACMD(do_gen_comm)
 	eff_class = GET_CLASS(ch);
 	eff_clan = GET_CLAN(ch);
 
-	if (subcmd == SCMD_GUILDSAY && is_group_member(ch, "AdminBasic") && *argument == '>') {
+	if (subcmd == SCMD_GUILDSAY && is_named_role_member(ch, "AdminBasic") && *argument == '>') {
 		char *class_str, *tmp_arg;
 
 		tmp_arg = argument + 1;
@@ -842,7 +834,7 @@ ACMD(do_gen_comm)
 	}
 
 	if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
-		if (is_group_member(ch, "AdminBasic") && *argument == '>') {
+		if (is_named_role_member(ch, "AdminBasic") && *argument == '>') {
 			char *tmp_arg;
 
 			tmp_arg = argument + 1;
@@ -973,12 +965,12 @@ ACMD(do_gen_comm)
 				continue;
 
 			if (subcmd == SCMD_DREAM &&
-					i->creature->getPosition() != POS_SLEEPING)
+                GET_POSITION(i->creature) != POS_SLEEPING)
 				continue;
 
 			if (subcmd == SCMD_SHOUT &&
 				((ch->in_room->zone != i->creature->in_room->zone) ||
-					i->creature->getPosition() < POS_RESTING))
+                 GET_POSITION(i->creature) < POS_RESTING))
 				continue;
 
 			if (subcmd == SCMD_PETITION && i->creature != ch)
