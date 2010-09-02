@@ -551,8 +551,8 @@ GET_REPUTATION_RANK(struct creature *ch)
 	return (get_reputation(ch) / 100) + 1;
 }
 
-#define GET_PAGE_LENGTH(ch)     ((ch->desc) ? ch->desc->account->get_term_height():0)
-#define GET_PAGE_WIDTH(ch)     ((ch->desc) ? ch->desc->account->get_term_width():0)
+#define GET_PAGE_LENGTH(ch)     ((ch->desc) ? ch->desc->account->term_height:0)
+#define GET_PAGE_WIDTH(ch)     ((ch->desc) ? ch->desc->account->term_width:0)
 #define GET_INVIS_LVL(ch)        ((ch)->player_specials->saved.invis_level)
 #define GET_BROKE(ch)           ((ch)->player_specials->saved.broken_component)
 #define GET_OLD_CLASS(ch)       ((ch)->player_specials->saved.old_char_class)

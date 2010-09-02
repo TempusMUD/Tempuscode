@@ -88,9 +88,11 @@
 #define TIME_PAST			TIME_MODRIAN
 #define TIME_FUTURE			TIME_ELECTRO
 
-static const int ZONE_NO_PK       = 0;
-static const int ZONE_NEUTRAL_PK  = 1;
-static const int ZONE_CHAOTIC_PK  = 2;
+enum {
+    ZONE_NO_PK       = 0,
+    ZONE_NEUTRAL_PK  = 1,
+    ZONE_CHAOTIC_PK  = 2,
+};
 
 /* zone definition structure. for the 'zone-table'   */
 struct zone_data {

@@ -226,7 +226,7 @@ add_role_member(struct role *role, long player)
 }
 
 /* Sends a list of this role's members to the given character. */
-bool
+void
 send_role_member_list(struct role *role,
                       struct creature *ch,
                       const char *title,
@@ -237,7 +237,7 @@ send_role_member_list(struct role *role,
     struct role *admin_role = NULL;
 
     if (!role->members)
-        return false;
+        return;
 
     admin_role = role_by_name(admin_role_name);
 
@@ -264,8 +264,6 @@ send_role_member_list(struct role *role,
             acc_strcat("\r\n        ", NULL);
         }
     }
-
-    return true;
 }
 
 struct role *

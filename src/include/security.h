@@ -59,6 +59,7 @@ enum privilege {
     CREATE_CLAN,
     DESTROY_CLAN,
     EDIT_CLAN,
+    SEE_FULL_WHOLIST,
     COMMAND,
     SET,
     SHOW
@@ -81,5 +82,10 @@ bool remove_role_command(struct role *role, struct command_info *command);
 bool remove_role_member(struct role *role, long player);
 void send_role_status(struct role *role, struct creature *ch);
 void free_role(struct role *role);
+struct role *role_by_name(const char *name);
+void send_role_member_list(struct role *role,
+                           struct creature *ch,
+                           const char *title,
+                           const char *admin_role_name);
 
 #endif

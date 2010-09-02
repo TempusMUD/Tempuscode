@@ -65,5 +65,7 @@ int recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o);
 bool can_enter_house(struct creature *ch, room_num room_idnum);
 void load_houses(void);
 void update_objects_housed_count(void);
+struct house *find_house_by_idnum(int idnum);
+struct house *find_house_by_room(room_num room_idnum);
 
 #endif

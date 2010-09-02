@@ -24,10 +24,10 @@ extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1];
 // Returns a tmpstr allocated char* containing an appropriate ANSI
 // color code for the given target struct creature (tch) with the given
 // recipient struct creature(ch)'s color settings in mind.
-const char* get_char_class_color_code( struct creature *ch, struct creature *tch, int char_class );
+const char *get_char_class_color_code( struct creature *ch, struct creature *tch, int char_class );
 // Returns a const char* containing an appropriate '&c' color code for the given
 // target struct creature (tch) suitable for use with send_to_desc.
-const char* get_char_class_color( struct creature *tch, int char_class);
+const char *get_char_class_color( struct creature *tch, int char_class);
 
 int invalid_char_class(struct creature *ch, struct obj_data *obj);
 void gain_skill_prof(struct creature *ch, int skl);

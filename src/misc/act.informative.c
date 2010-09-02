@@ -745,6 +745,8 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
 	}
 }
 
+struct creature *findRandomCombat(struct creature *ch);
+
 const char *
 desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 {
@@ -810,24 +812,24 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 		else
 			desc = tmp_strcat(tmp_capitalize(desc), " exists here.", NULL);
 	} else if (GET_POSITION(i) == POS_FIGHTING) {
-		if (!i->isFighting())
+		if (!isFighting(i))
 			desc = tmp_sprintf("%s is here, fighting thin air!", desc);
-		else if (i->findRandomCombat() == ch)
+		else if (findRandomCombat(i) == ch)
 			desc = tmp_sprintf("%s is here, fighting YOU!", desc);
-		else if (i->findRandomCombat()->in_room == i->in_room)
+		else if (findRandomCombat(i)->in_room == i->in_room)
 			desc = tmp_sprintf("%s is here, fighting %s!", desc,
-				PERS(i->findRandomCombat(), ch));
+				PERS(findRandomCombat(i), ch));
 		else
 			desc = tmp_sprintf("%s is here, fighting someone who already left!",
 				desc);
 	} else if (GET_POSITION(i) == POS_MOUNTED) {
-		if (!i->isMounted())
+		if (!MOUNTED_BY(i))
 			desc = tmp_sprintf("%s is here, mounted on thin air!", desc);
-		else if (i->isMounted() == ch)
+		else if (MOUNTED_BY(i) == ch)
 			desc = tmp_sprintf("%s is here, mounted on YOU.  Heh heh...", desc);
-		else if (i->isMounted()->in_room == i->in_room)
+		else if (MOUNTED_BY(i)->in_room == i->in_room)
 			desc = tmp_sprintf("%s is here, mounted on %s.", desc,
-				PERS(i->isMounted(), ch));
+				PERS(MOUNTED_BY(i), ch));
 		else
 			desc = tmp_sprintf("%s is here, mounted on someone who already left!",
 				desc);
@@ -897,7 +899,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 	if (MOB2_FLAGGED(i, MOB2_UNAPPROVED))
 		appr = tmp_sprintf(" %s(!appr)", CCRED(ch, C_NRM));
 
-    if ((IS_NPC(i) && (GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester())) &&
+    if ((IS_NPC(i) && (GET_LEVEL(ch) >= LVL_IMMORT || isTester(ch))) &&
             PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)) {
     	vnum = tmp_sprintf(" %s%s<%s%d%s>%s",
 			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -912,7 +914,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 }
 
 void
-list_char_to_char(struct creature *list, struct creature *ch)
+list_char_to_char(GList *list, struct creature *ch)
 {
 	struct creature *i;
 	bool is_group = false;
@@ -923,9 +925,8 @@ list_char_to_char(struct creature *list, struct creature *ch)
 	if (list == NULL)
 		return;
 
-	struct creatureList_iterator it = list->in_room->people.begin();
-	for (; it != list->in_room->people.end(); ++it) {
-		i = *it;
+	for (GList *it = list;it;it = it->next) {
+        i = (struct creature *)it->data;
 		is_group = false;
 		if (ch == i)
 			continue;
@@ -968,8 +969,8 @@ list_char_to_char(struct creature *list, struct creature *ch)
 		if (AFF_FLAGGED(i, AFF_HIDE)
             && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)
             && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-			hide_prob = number(0, i->level_bonus(SKILL_HIDE));
-			hide_roll = number(0, skill_bonus(ch, true));
+			hide_prob = number(0, skill_bonus(i, SKILL_HIDE));
+			hide_roll = number(0, level_bonus(ch, true));
 			if (affected_by_spell(ch, ZEN_AWARENESS))
 				hide_roll += skill_bonus(ch, ZEN_AWARENESS) / 4;
 
@@ -1060,7 +1061,7 @@ do_auto_exits(struct creature *ch, struct room_data *room)
 
 /* functions and macros for 'scan' command */
 void
-list_scanned_chars(struct creature *list, struct creature *ch, int distance, int door)
+list_scanned_chars(GList *list, struct creature *ch, int distance, int door)
 {
 	const char *how_far[] = {
 		"close by",
@@ -1075,14 +1076,14 @@ list_scanned_chars(struct creature *list, struct creature *ch, int distance, int
 
 	/* this loop is a quick, easy way to help make a grammatical sentence
 	   (i.e., "You see x, x, y, and z." with commas, "and", etc.) */
-	struct creatureList_iterator it = list->in_room->people.begin();
-	for (; it != list->in_room->people.end(); ++it) {
+    for (GList *it = list;it;it = it->next) {
+        struct creature *tch = (struct creature *)it->data;
 
 		/* put any other conditions for scanning someone in this if statement -
 		   i.e., if (can_see_creature(ch, i) && condition2 && condition3) or whatever */
 
-		if (can_see_creature(ch, (*it)) && ch != (*it) &&
-			(!AFF_FLAGGED((*it), AFF_SNEAK | AFF_HIDE) ||
+		if (can_see_creature(ch, tch) && ch != tch &&
+			(!AFF_FLAGGED(tch, AFF_SNEAK | AFF_HIDE) ||
 				PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 			count++;
 	}
@@ -1091,18 +1092,18 @@ list_scanned_chars(struct creature *list, struct creature *ch, int distance, int
 		return;
 
     acc_string_clear();
-	it = list->in_room->people.begin();
-	for (; it != list->in_room->people.end(); ++it) {
+	for (GList *it = list;it;it = it->next) {
+        struct creature *tch = (struct creature *)it->data;
 		/* make sure to add changes to the if statement above to this
 		   one also, using or's to join them.. i.e.,
            if (!can_see_creature(ch, i) || !condition2 || !condition3) */
 
-		if (!can_see_creature(ch, (*it)) || ch == (*it) ||
-			((AFF_FLAGGED((*it), AFF_SNEAK | AFF_HIDE)) &&
+		if (!can_see_creature(ch, tch) || ch == tch ||
+			((AFF_FLAGGED(tch, AFF_SNEAK | AFF_HIDE)) &&
 				!PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 			continue;
         acc_sprintf("%s%s%s",
-                    CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, (*it)),
+                    CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, tch),
                     CCNRM(ch, C_NRM));
 
 		if (--count > 1)
@@ -1296,9 +1297,9 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
         if (room->max_occupancy < 256)
             acc_sprintf(" [ Max: %d ]", room->max_occupancy);
 
-        struct house *house = find_house_by_Room(room->number);
+        struct house *house = find_house_by_room(room->number);
         if (house)
-            acc_sprintf(" [ House: %d ]", house->getID());
+            acc_sprintf(" [ House: %d ]", house->id);
 	} else {
 		acc_sprintf("%s", room->name);
 	}
@@ -1323,7 +1324,7 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
 			acc_sprintf("%s", aff->description);
 
    /* Zone PK type */
-    switch (room->zone->getPKStyle()) {
+    switch (room->zone->pk_style) {
     case ZONE_NO_PK:
         acc_sprintf("%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
                      CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -1609,7 +1610,7 @@ look_in_direction(struct creature *ch, int dir)
 				send_to_char(ch, "You see the swampy ground below your feet.\r\n");
 			else if (room_is_watery(ch->in_room))
 				send_to_char(ch, "You see the water below you.\r\n");
-			else if (ch->in_room->isOpenAir()) {
+			else if (room_is_open_air(ch->in_room)) {
 				if (ch->in_room->sector_type == SECT_FLYING ||
 					ch->in_room->sector_type == SECT_ELEMENTAL_AIR)
 					send_to_char(ch, "Below your feet is thin air.\r\n");
@@ -1681,12 +1682,12 @@ look_in_obj(struct creature *ch, char *arg)
 			else if (real_room(ROOM_NUMBER(obj)) != NULL) {
                 acc_sprintf("Inside %s you see:\r\n", OBJS(obj, ch));
 				room_was_in = ch->in_room;
-				char_from_room(ch,false);
-				char_to_room(ch, real_room(ROOM_NUMBER(obj)),false);
+				char_from_room_nospec(ch);
+				char_to_room_nospec(ch, real_room(ROOM_NUMBER(obj)));
 				list_char_to_char(ch->in_room->people, ch);
 				act("$n looks in from the outside.", false, ch, 0, 0, TO_ROOM);
-				char_from_room(ch,false);
-				char_to_room(ch, room_was_in,false);
+				char_from_room_nospec(ch);
+				char_to_room_nospec(ch, room_was_in);
 			}
 		} else if (GET_OBJ_TYPE(obj) == ITEM_PIPE) {
 			if (GET_OBJ_VAL(obj, 0))
@@ -1711,7 +1712,7 @@ look_in_obj(struct creature *ch, char *arg)
 }
 
 char *
-find_exdesc(char *word, struct extra_descr_data *list, int find_exact = 0)
+find_exdesc(char *word, struct extra_descr_data *list, int find_exact)
 {
 	struct extra_descr_data *i;
 
@@ -1767,7 +1768,7 @@ look_at_target(struct creature *ch, char *arg, int cmd)
 		arg = strchr(arg, '.') + 1;
 
 	/* Does the argument match an extra desc in the room? */
-	if ((desc = find_exdesc(arg, ch->in_room->ex_description)) != NULL) {
+	if ((desc = find_exdesc(arg, ch->in_room->ex_description, false)) != NULL) {
 		page_string(ch->desc, desc);
 		return;
 	}
@@ -1787,7 +1788,7 @@ look_at_target(struct creature *ch, char *arg, int cmd)
 			(GET_OBJ_VAL(GET_EQ(ch, j), 3) != -999 ||
 				isname(arg, GET_EQ(ch, j)->aliases)))
 			if ((desc =
-					find_exdesc(arg, GET_EQ(ch, j)->ex_description)) != NULL) {
+					find_exdesc(arg, GET_EQ(ch, j)->ex_description, false)) != NULL) {
 				page_string(ch->desc, desc);
 				found = bits = 1;
 				found_obj = GET_EQ(ch, j);
@@ -1796,7 +1797,7 @@ look_at_target(struct creature *ch, char *arg, int cmd)
 	for (obj = ch->carrying; obj && !found; obj = obj->next_content) {
 		if (can_see_object(ch, obj) &&
 			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->aliases)))
-			if ((desc = find_exdesc(arg, obj->ex_description)) != NULL) {
+			if ((desc = find_exdesc(arg, obj->ex_description, false)) != NULL) {
 				page_string(ch->desc, desc);
 				found = bits = 1;
 				found_obj = obj;
@@ -1808,7 +1809,7 @@ look_at_target(struct creature *ch, char *arg, int cmd)
 	for (obj = ch->in_room->contents; obj && !found; obj = obj->next_content)
 		if (can_see_object(ch, obj) &&
 			(GET_OBJ_VAL(obj, 3) != -999 || isname(arg, obj->aliases)))
-			if ((desc = find_exdesc(arg, obj->ex_description)) != NULL) {
+			if ((desc = find_exdesc(arg, obj->ex_description, false)) != NULL) {
 				page_string(ch->desc, desc);
 				found = bits = 1;
 				found_obj = obj;
@@ -1880,7 +1881,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 				act("$n glances sidelong at $N.", true, ch, 0, found_char,
 					TO_NOTVICT);
 
-				if (IS_NPC(found_char) && !(found_char->isFighting())
+				if (IS_NPC(found_char) && !(isFighting(found_char))
 					&& AWAKE(found_char) && (!found_char->master
 						|| found_char->master != ch)) {
 					if (IS_ANIMAL(found_char) || IS_BUGBEAR(found_char)
@@ -1931,7 +1932,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 							number(GET_LEVEL(ch) >> 1, GET_LEVEL(ch))) &&
 						!PRF_FLAGGED(ch, PRF_NOHASSLE)) {
 						if (GET_POSITION(found_char) >= POS_SITTING) {
-							if (found_char->isOkToAttack(ch, false))
+							if (isOkToAttack(found_char, ch, false))
 								hit(found_char, ch, TYPE_UNDEFINED);
 						} else
 							do_stand(found_char, tmp_strdup(""), 0, 0, 0);
@@ -1955,10 +1956,11 @@ ACMD(do_listen)
 		send_to_char(ch, "%s", ch->in_room->sounds);
 		return;
 	}
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((*it)->isFighting()) {
-			fighting_vict = *it;
+	for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = (struct creature *)it->data;
+
+		if (isFighting(tch)) {
+			fighting_vict = tch;
 			break;
 		}
 	}
@@ -2048,16 +2050,12 @@ ACMD(do_listen)
 					!IS_SET(ch->in_room->dir_option[i]->exit_info,
 						EX_CLOSED)) {
 
-					struct creatureList_iterator end =
-						ch->in_room->dir_option[i]->to_room->people.end();
-					struct creatureList_iterator it =
-						ch->in_room->dir_option[i]->to_room->people.begin();
-					for (; it != end; ++it) {
-						fighting_vict = *it;
-						if ((fighting_vict->isFighting()))
-							break;
-					}
-					if (fighting_vict && !number(0, 1)) {
+                    gint found_fighting(struct creature *tch, gpointer ignore) {
+                        return (isFighting(tch)) ? 0:-1;
+                    }
+                    GList *found = g_list_find_custom(ch->in_room->dir_option[i]->to_room->people, 0, (GCompareFunc)found_fighting);
+
+					if (found && !number(0, 1)) {
 						send_to_char(ch, "You hear sounds of battle from %s.\r\n",
 							from_dirs[rev_dir[i]]);
 						return;
@@ -2198,7 +2196,7 @@ ACMD(do_qpoints)
 		send_to_char(ch, "You have %d quest point%s to award.\r\n", qp,
 			(qp == 1) ? "" : "s");
 	} else {
-		qp = ch->account->get_quest_points();
+		qp = ch->account->quest_points;
 		send_to_char(ch, "You have %d quest point%s.\r\n", qp,
 			(qp == 1) ? "" : "s");
 	}
@@ -2362,7 +2360,7 @@ acc_append_affects(struct creature *ch, byte mode)
     // vampiric regeneration
 
 	if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
-		if ((name = playerIndex.getName(af->modifier)))
+		if ((name = player_name_by_idnum(af->modifier)))
 			acc_sprintf(
 				"You are under the effects of %s's vampiric regeneration.\r\n",
 				name);
@@ -2371,7 +2369,7 @@ acc_append_affects(struct creature *ch, byte mode)
 	}
 
 	if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
-		if ((name = playerIndex.getName(af->modifier)))
+		if ((name = player_name_by_idnum(af->modifier)))
 			acc_strcat("You are under the effects of ", name,
 				"'s locust regeneration.\r\n", NULL);
 		else
@@ -2764,7 +2762,7 @@ ACMD(do_score)
 			reputation_msg[GET_REPUTATION_RANK(ch)], "-\r\n", NULL);
 		if (get_hunted_id(GET_IDNUM(ch)))
 			acc_sprintf("You are registered to bounty hunt %s.\r\n",
-				playerIndex.getName(get_hunted_id(GET_IDNUM(ch))));
+				player_name_by_idnum(get_hunted_id(GET_IDNUM(ch))));
 
 	}
 	acc_sprintf("You are currently speaking %s.\r\n",
@@ -2822,9 +2820,9 @@ ACMD(do_score)
 				"You are fighting thin air.", CCNRM(ch, C_NRM), "\r\n", NULL);
 		break;
 	case POS_MOUNTED:
-		if (ch->isMounted())
+		if (MOUNTED_BY(ch))
 			acc_strcat(CCGRN(ch, C_NRM), "You are mounted on ",
-				PERS(ch->isMounted(), ch), ".", CCNRM(ch, C_NRM), "\r\n", NULL);
+				PERS(MOUNTED_BY(ch), ch), ".", CCNRM(ch, C_NRM), "\r\n", NULL);
 		else
 			acc_strcat(CCGRN(ch, C_NRM), "You are mounted on the thin air!?",
 				CCNRM(ch, C_NRM), "\r\n", NULL);
@@ -3148,178 +3146,173 @@ ACMD(do_weather)
 }
 
 //generates a formatted string representation of a player for the who list
-string
-whoString(struct creature *ch, struct creature *target) {
-	ostringstream out;
+void
+who_string(struct creature *ch, struct creature *target) 
+{
 	int len = strlen(BADGE(target));
 
 	//show badge
 	if (GET_LEVEL(target) >= LVL_AMBASSADOR) {
-		out << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << '[' << CCGRN(ch, C_NRM);
-        out << tmp_pad(' ', (MAX_BADGE_LENGTH - len) / 2);
-		out << BADGE(target);
-		out << tmp_pad(' ', (MAX_BADGE_LENGTH - len + 1) / 2);
-        out << CCNRM(ch, C_NRM) << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << ']';
-	} else if (target->isTester()) {
-		out << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << '[' << CCGRN(ch, C_NRM);
-		out << "TESTING";
-        out << CCNRM(ch, C_NRM) << CCBLD(ch, C_NRM) << CCYEL(ch, C_NRM) << ']';
-	} else { //show level/class
-		out << CCGRN(ch, C_NRM) << '[';
-        if (PRF2_FLAGGED(target, PRF2_ANONYMOUS) && !is_group_member(ch, Security::ADMINBASIC)) {
-			out << CCCYN(ch, C_NRM) << "--";
-		} else if (is_group_member(ch, Security::ADMINBASIC)) {
-			if (PRF2_FLAGGED(target, PRF2_ANONYMOUS)) {
-				out << CCRED(ch, C_NRM);
-			} else {
-				out << CCNRM(ch, C_NRM);
-			}
-			if (GET_LEVEL(target) < 10) {
-				out << ' ';
-			}
-			out << (int)GET_LEVEL(target) << CCCYN(ch, C_NRM) << '(' << CCNRM(ch, C_NRM);
-			if (GET_REMORT_GEN(target) < 10) {
-				out << ' ';
-			}
-			out << (int)GET_REMORT_GEN(target) << CCCYN(ch, C_NRM) << ')' << CCNRM(ch, C_NRM);
-		} else {
-			out << CCNRM(ch, C_NRM);
-			if (GET_LEVEL(target) < 10) {
-				out << ' ';
-			}
-			out << (int)GET_LEVEL(target);
+        acc_sprintf("%s%s[%s%s%s%s%s]",
+                    CCBLD(ch, C_NRM), CCYEL(ch, C_NRM), CCGRN(ch, C_NRM),
+                    tmp_pad(' ', (MAX_BADGE_LENGTH - len) / 2),
+                    BADGE(target),
+                    tmp_pad(' ', (MAX_BADGE_LENGTH - len + 1) / 2),
+                    CCYEL(ch, C_NRM));
+	} else if (isTester(target)) {
+        acc_sprintf("%s%s[%sTESTING%s]",
+                    CCBLD(ch, C_NRM), CCYEL(ch, C_NRM), CCGRN(ch, C_NRM),
+                    CCYEL(ch, C_NRM));
+	} else {
+         //show level/class
+        if (is_authorized(ch, SEE_FULL_WHOLIST, NULL)) {
+            char *col = CCNRM(ch, C_NRM);
+
+            if (PRF2_FLAGGED(target, PRF2_ANONYMOUS))
+                col = CCRED(ch, C_NRM);
+            acc_sprintf("%s[%s%2d%s(%s%2d%s) ",
+                        CCGRN(ch, C_NRM), col, GET_LEVEL(target),
+                        CCCYN(ch, C_NRM),
+                        CCNRM(ch, C_NRM),
+                        GET_REMORT_GEN(target),
+                        CCCYN(ch, C_NRM));
+        } else if (PRF2_FLAGGED(target, PRF2_ANONYMOUS)) {
+            acc_sprintf("%s[%s--", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+        } else {
+            acc_sprintf("%s[%s%2d",
+                        CCGRN(ch, C_NRM),
+                        CCNRM(ch, C_NRM),
+                        GET_LEVEL(target));
 		}
-		out << ' ' << get_char_class_color(ch, target, GET_CLASS(target));
-		out << char_class_abbrevs[(int)GET_CLASS(target)];
-        out << CCNRM(ch, C_NRM) << CCGRN(ch, C_NRM) << ']';
+        acc_sprintf(" %s%s%s%s]",
+                    get_char_class_color_code(ch, target, GET_CLASS(target)),
+                    char_class_abbrevs[(int)GET_CLASS(target)],
+                    CCNRM(ch, C_NRM),
+                    CCGRN(ch, C_NRM)) ;
 	}
 
-	//name
+	// name
     if (GET_LEVEL(target) >= LVL_AMBASSADOR) {
-        out << CCNRM(ch, C_NRM) << CCGRN(ch, C_NRM);
+        acc_sprintf("%s%s %s%s",
+                    CCNRM(ch, C_NRM),
+                    CCGRN(ch, C_NRM),
+                    GET_NAME(target),
+                    GET_TITLE(target));
     } else {
-        out << CCNRM(ch, C_NRM);
+        acc_sprintf("%s %s%s",
+                    CCNRM(ch, C_NRM),
+                    GET_NAME(target),
+                    GET_TITLE(target));
     }
-
-    out << ' ' << GET_NAME(target) << GET_TITLE(target);
-
-	return out.str();
 }
 
 //generates a formatted string representation of a player for the who list
-string
-whoFlagsString(struct creature *ch, struct creature *target) {
-	ostringstream out;
-
+void
+who_flags(struct creature *ch, struct creature *target)
+{
 	//nowho
 	if (PRF2_FLAGGED(target, PRF2_NOWHO)) {
-		out << CCRED(ch, C_NRM) << " (nowho)"  << CCNRM(ch, C_NRM);
+        acc_strcat(CCRED(ch, C_NRM), " (nowho)", CCNRM(ch, C_NRM), NULL);
 	}
 
 	//clan badge
 	if (real_clan(GET_CLAN(target))) {
-		if (PRF2_FLAGGED(target, PRF2_CLAN_HIDE)) {
-			if (is_group_member(ch, Security::ADMINBASIC)) {
-				out << CCCYN(ch, C_NRM) << ")" << real_clan(GET_CLAN(target))->name;
-				out << '(' << CCNRM(ch, C_NRM);
-			}
-		} else {
-			out << CCCYN(ch, C_NRM) << ' ' << real_clan(GET_CLAN(target))->badge << CCNRM(ch, C_NRM);
-		}
+		if (!PRF2_FLAGGED(target, PRF2_CLAN_HIDE)) {
+            acc_sprintf(" %s)%s(%s",
+                        CCCYN(ch, C_NRM),
+                        real_clan(GET_CLAN(target))->badge,
+                        CCNRM(ch, C_NRM));
+			
+		} else if (is_authorized(ch, SEE_FULL_WHOLIST, NULL)) {
+            acc_sprintf(" %s%s%s",
+                        CCCYN(ch, C_NRM),
+                        real_clan(GET_CLAN(target))->name,
+                        CCNRM(ch, C_NRM));
+        }
 	}
 
 	//imm invis
 	if (GET_INVIS_LVL(target) && IS_IMMORT(ch)) {
-		out << ' ' << CCBLU(ch, C_NRM) << '(' << CCMAG(ch, C_NRM) << 'i' << GET_INVIS_LVL(target);
-		out << CCBLU(ch, C_NRM) << ')' << CCNRM(ch, C_NRM);
+        acc_sprintf(" %s(%s%d%s)",
+                    CCBLU(ch, C_NRM),
+                    CCMAG(ch, C_NRM),
+                    GET_INVIS_LVL(target),
+                    CCBLU(ch, C_NRM));
 	}
 
-	//mailing
 	if (PLR_FLAGGED(target, PLR_MAILING)) {
-		out << CCGRN(ch, C_NRM) << " (mailing)" << CCNRM(ch, C_NRM);
+        acc_sprintf(" %s(mailing)", CCGRN(ch, C_NRM));
 	} else if (PLR_FLAGGED(target, PLR_WRITING)) { //writing
-		out << CCGRN(ch, C_NRM) << " (writing)" << CCNRM(ch, C_NRM);
-	}
-
-	//creating
-	if (PLR_FLAGGED(target, PLR_OLC)) {
-		out << CCGRN(ch, C_NRM) << " (creating)" << CCNRM(ch, C_NRM);
+        acc_sprintf(" %s(writing)", CCGRN(ch, C_NRM));
+	} else if (PLR_FLAGGED(target, PLR_OLC)) {
+        acc_sprintf(" %s(creating)", CCGRN(ch, C_NRM));
 	}
 
 	//deaf
 	if (PRF_FLAGGED(target, PRF_DEAF)) {
-		out << CCBLU(ch, C_NRM) << " (deaf)" << CCNRM(ch, C_NRM);
+        acc_sprintf(" %s(deaf)", CCBLU(ch, C_NRM));
 	}
 
 	//notell
 	if (PRF_FLAGGED(target, PRF_NOTELL)) {
-		out << CCBLU(ch, C_NRM) << " (notell)" << CCNRM(ch, C_NRM);
+        acc_sprintf(" %s(notell)", CCBLU(ch, C_NRM));
 	}
 
 	//questing
 	if (GET_QUEST(target)) {
-		out << CCYEL_BLD(ch, C_NRM) << " (quest)" << CCNRM(ch, C_NRM);
+        acc_sprintf(" %s(quest)", CCYEL_BLD(ch, C_NRM));
 	}
 
 	//afk
 	if (PLR_FLAGGED(target, PLR_AFK)) {
-        out << CCGRN(ch, C_NRM) << " (afk)" << CCNRM(ch, C_NRM);
+        acc_sprintf(" %s(afk)", CCGRN(ch, C_NRM));
 	}
 
 	//thief
 	if (PLR_FLAGGED(target, PLR_THIEF)) {
-		out << CCRED(ch, C_NRM) << " (THIEF)" << CCNRM(ch, C_NRM);
+        acc_sprintf(" %s(THIEF)", CCRED(ch, C_NRM));
 	}
 
 	//killer
 	if (PLR_FLAGGED(target, PLR_KILLER)) {
-		out << CCRED(ch, C_NRM) << " (KILLER)" << CCNRM(ch, C_NRM);
+        acc_sprintf(" %s(KILLER)", CCRED(ch, C_NRM));
 	}
-
-	return out.str();
 }
 
-string
-whoKillsString(struct creature *ch, struct creature *target) {
-	ostringstream out;
-
-	out << CCRED_BLD(ch, C_NRM) << " *" << GET_PKILLS(target) << " KILLS* -";
-	out << reputation_msg[GET_REPUTATION_RANK(target)] << "-" << CCNRM(ch, C_NRM);
-
-	return out.str();
+void
+who_kills(struct creature *ch, struct creature *target)
+{
+    acc_sprintf(" %s*%d KILLS*", CCRED_BLD(ch, C_NRM), GET_PKILLS(target));
+    acc_sprintf(" -%s-", reputation_msg[GET_REPUTATION_RANK(target)]);
 }
 
-struct WhoListComparator {
-		bool operator()(struct creature *a, struct creature *b)
-		{
-			time_t now, time_a, time_b;
+bool
+who_list_compare(struct creature *a, struct creature *b)
+{
+    time_t now, time_a, time_b;
 
-			// immorts on top by level,
-			// then testers, then by gen, then by level
-			// then by time played
-			if (IS_IMMORT(a) || IS_IMMORT(b))
-				return GET_LEVEL(a) > GET_LEVEL(b);
-			if (a->isTester())
-				return true;
-			if (GET_REMORT_GEN(a) != GET_REMORT_GEN(b))
-				return GET_REMORT_GEN(a) > GET_REMORT_GEN(b);
-			if (GET_LEVEL(a) != GET_LEVEL(b))
-				return GET_LEVEL(a) > GET_LEVEL(b);
+    // immorts on top by level,
+    // then testers, then by gen, then by level
+    // then by time played
+    if (IS_IMMORT(a) || IS_IMMORT(b))
+        return GET_LEVEL(a) > GET_LEVEL(b);
+    if (isTester(a))
+        return true;
+    if (GET_REMORT_GEN(a) != GET_REMORT_GEN(b))
+        return GET_REMORT_GEN(a) > GET_REMORT_GEN(b);
+    if (GET_LEVEL(a) != GET_LEVEL(b))
+        return GET_LEVEL(a) > GET_LEVEL(b);
 
-			now = time(0);
-			time_a = now - a->player.time.logon + a->player.time.played;
-			time_b = now - b->player.time.logon + b->player.time.played;
-			return time_a > time_b;
-		}
-};
+    now = time(0);
+    time_a = now - a->player.time.logon + a->player.time.played;
+    time_b = now - b->player.time.logon + b->player.time.played;
+    return time_a > time_b;
+}
 
 ACMD(do_who)
 {
 
 	struct descriptor_data *d;
-	ostringstream out;
-	std_vector<struct creature *> immortals, testers, players;
-	std_vector<struct creature *>::iterator cit;
 	struct creature *curr;
 	int playerTotal=0, immTotal=0;
 	const char *tester_s="s";
@@ -3327,75 +3320,75 @@ ACMD(do_who)
 	bool classes=false, clan=false;
 	bool mage=false, thief=false, ranger=false, knight=false, cleric=false, barbarian=false;
 	bool bard=false, monk=false, physic=false, cyborg=false, psionic=false, mercenary=false;
-    clan_data *realClan = NULL;
+    struct clan_data *real_clan = NULL;
+    char *arg;
 
-	string args = argument;
-
-    if (args.find("zone") != string_npos) {
-		zone = true;
-	}
-	if (args.find("plane") != string_npos) {
-		plane = true;
-	}
-	if (args.find("time") != string_npos) {
-		time = true;
-	}
-	if (args.find("kills") != string_npos) {
-		kills = true;
-	}
-	if (args.find("noflags") != string_npos) {
-		noflags = true;
-	}
-	if (args.find("class") != string_npos) {
-		classes = true;
-		if (args.find("mag") != string_npos) {
-			mage = true;
-		}
-		if (args.find("thi") != string_npos) {
-			thief = true;
-		}
-		if (args.find("ran") != string_npos) {
-			ranger = true;
-		}
-		if (args.find("kni") != string_npos) {
-			knight = true;
-		}
-		if (args.find("cle") != string_npos) {
-			cleric = true;
-		}
-		if (args.find("barb") != string_npos) {
-			barbarian = true;
-		}
-		if (args.find("bard") != string_npos) {
-			bard = true;
-		}
-		if (args.find("mon") != string_npos) {
-			monk = true;
-		}
-		if (args.find("phy") != string_npos) {
-			physic = true;
-		}
-		if (args.find("cyb") != string_npos || args.find("borg") != string::npos) {
-			cyborg = true;
-		}
-		if (args.find("psi") != string_npos) {
-			psionic = true;
-		}
-		if (args.find("mer") != string_npos) {
-			mercenary = true;
-		}
-	}
-	if (args.find("clan") != string_npos) {
-		clan = true;
-        string_size_type start = args.find(' ', args.find("clan"));
-        string_size_type end = args.find(' ', start+1);
-        if (start == string_npos || start == end) {
-            realClan = NULL;
-        } else {
-            char *clanName = tmp_strdup(args.substr(start, end).c_str());
-            realClan = clan_by_name(clanName);
+    for (arg = tmp_getword(&argument);arg;arg = tmp_getword(&argument)) {
+        if (!strcmp(arg, "zone")) {
+            zone = true;
         }
-	}
+        if (!strcmp(arg, "plane")) {
+            plane = true;
+        }
+        if (!strcmp(arg, "time")) {
+            time = true;
+        }
+        if (!strcmp(arg, "kills")) {
+            kills = true;
+        }
+        if (!strcmp(arg, "noflags")) {
+            noflags = true;
+        }
+        if (!strcmp(arg, "class")) {
+            classes = true;
+            if (!strcmp(arg, "mag")) {
+                mage = true;
+            }
+            if (!strcmp(arg, "thi")) {
+                thief = true;
+            }
+            if (!strcmp(arg, "ran")) {
+                ranger = true;
+            }
+            if (!strcmp(arg, "kni")) {
+                knight = true;
+            }
+            if (!strcmp(arg, "cle")) {
+                cleric = true;
+            }
+            if (!strcmp(arg, "barb")) {
+                barbarian = true;
+            }
+            if (!strcmp(arg, "bard")) {
+                bard = true;
+            }
+            if (!strcmp(arg, "mon")) {
+                monk = true;
+            }
+            if (!strcmp(arg, "phy")) {
+                physic = true;
+            }
+            if (!strcmp(arg, "cyb") || !strcmp(arg, "borg")) {
+                cyborg = true;
+            }
+            if (!strcmp(arg, "psi")) {
+                psionic = true;
+            }
+            if (!strcmp(arg, "mer")) {
+                mercenary = true;
+            }
+        }
+        if (!strcmp(arg, "clan")) {
+            arg = tmp_getword(&argument);
+            if (arg) {
+                real_clan = clan_by_name(arg);
+                if (real_clan)
+                    clan = true;
+            }
+        }
+    }
+
+    acc_string_clear();
 
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->original) {
@@ -3412,7 +3405,7 @@ ACMD(do_who)
         }
 
 		//update the total number of players first
-		if (GET_LEVEL(curr) < LVL_AMBASSADOR && !curr->isTester()) {
+		if (GET_LEVEL(curr) < LVL_AMBASSADOR && !isTester(curr)) {
 			playerTotal++;
 		} else if (GET_LEVEL(curr) >= LVL_AMBASSADOR) {
             immTotal++;
@@ -3451,11 +3444,12 @@ ACMD(do_who)
 			continue;
 		}
 		//clans
-		if (clan && (realClan != NULL)) {
+		if (clan && real_clan) {
 			//not in clan
-			if (realClan->number != GET_CLAN(curr) ||
+			if (real_clan->number != GET_CLAN(curr) ||
 			//not able to see the clan
-			(PRF2_FLAGGED(curr, PRF2_CLAN_HIDE) && !is_group_member(ch, Security::ADMINBASIC))) {
+                (PRF2_FLAGGED(curr, PRF2_CLAN_HIDE)
+                 && !is_authorized(ch, SEE_FULL_WHOLIST, NULL))) {
 				continue;
 			}
 		}
@@ -3475,7 +3469,7 @@ ACMD(do_who)
 
 		if (GET_LEVEL(curr) >= LVL_AMBASSADOR)
 			immortals.push_back(curr);
-		else if (curr->isTester())
+		else if (isTester(curr))
 			testers.push_back(curr);
 		else
 			players.push_back(curr);
@@ -3488,7 +3482,7 @@ ACMD(do_who)
 	out << CCNRM(ch, C_SPR) << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
 	out << "Visible Players of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
 	out << "      **************" << CCNRM(ch, C_SPR) << "\r\n";
-	out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+	out << (IS_NPC(ch) ? "" : (ch->get_compact_level(account) > 1) ? "" : "\r\n");
 	for (cit = immortals.begin();cit != immortals.end();++cit) {
 		curr = *cit;
 		out << whoString(ch, curr);
@@ -3500,7 +3494,7 @@ ACMD(do_who)
 		}
 		out << "\r\n";
 	}
-	if (IS_IMMORT(ch) || ch->isTester()) {
+	if (IS_IMMORT(ch) || isTester(ch)) {
 		for (cit = testers.begin();cit != testers.end();++cit) {
 			curr = *cit;
 			out << whoString(ch, curr);
@@ -3529,9 +3523,9 @@ ACMD(do_who)
 	if (testers.size() == 1)
 		tester_s="";
 
-	out << (IS_NPC(ch) ? "" : (ch->account->get_compact_level() > 1) ? "" : "\r\n");
+	out << (IS_NPC(ch) ? "" : (ch->account->compact_level > 1) ? "" : "\r\n");
 	out << immortals.size() << " of " << immTotal << " immortals";
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR || ch->isTester()) {
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR || isTester(ch)) {
 		out << ", " << testers.size() << " tester" << tester_s << ",";
 	}
 	out << " and " << players.size() << " of " << playerTotal << " players displayed.\r\n";
@@ -4142,7 +4136,7 @@ ACMD(do_consider)
 	if (!IS_NPC(victim)) {
 		send_to_char(ch, "Well, if you really want to kill another player...\r\n");
 	}
-	diff = victim->level_bonus(true) - skill_bonus(ch, true);
+	diff = level_bonus(victim, true) - skill_bonus(ch, true);
 
 	if (diff <= -30)
 		send_to_char(ch, "It's not even worth the effort...\r\n");
@@ -4286,7 +4280,7 @@ ACMD(do_pkiller)
                     return;
                 }
 
-                ch->gain_reputation(5);
+                gain_reputation(ch, 5);
             }
 			SET_BIT(PRF2_FLAGS(ch), PRF2_PKILLER);
 		} else if (strcasecmp(arg,"off") == 0) {
@@ -4316,14 +4310,14 @@ ACMD(do_compact)
 
 	if (!*arg) {
 		send_to_char(ch, "Your current compact level is %s.\r\n",
-			compact_levels[ch->account->get_compact_level()]);
+			compact_levels[ch->account->compact_level]);
 		return;
 	}
 	if (((tp = search_block(arg, compact_levels, false)) == -1)) {
 		send_to_char(ch, "Usage: compact { off | minimal | partial | full }\r\n");
 		return;
 	}
-	ch->account->set_compact_level(tp);
+	ch->account->compact_level = tp;
 
 	send_to_char(ch, "Your %scompact setting%s is now %s%s%s%s.\r\n", CCRED(ch, C_SPR),
 		CCNRM(ch, C_OFF), CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), compact_levels[tp],
@@ -4348,7 +4342,7 @@ ACMD(do_color)
 		send_to_char(ch, "Usage: color { none | sparse | normal | complete }\r\n");
 		return;
 	}
-	ch->account->set_ansi_level(tp);
+	ch->account->ansi_level = tp;
 
 	send_to_char(ch, "Your color is now %s%s%s%s.\r\n",
 		CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), ansi_levels[tp], CCNRM(ch, C_NRM));
@@ -4423,7 +4417,7 @@ show_all_toggles(struct creature *ch)
 		YESNO(PRF2_FLAGGED(ch, PRF2_AUTOPROMPT)),
 		ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
         (IS_NPC(ch) ? "mob" :
-		compact_levels[ch->account->get_compact_level()]),
+		compact_levels[ch->account->compact_level]),
 		YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
 		tmp_sprintf("%dx%d",
 			    GET_PAGE_LENGTH(ch),
@@ -4553,7 +4547,7 @@ ACMD(do_commands)
 			continue;
 		if (level < cmd_info[i].minimum_level)
 			continue;
-        if (!Security_canAccess(ch, &cmd_info[i]))
+        if (!is_authorized(ch, COMMAND, &cmd_info[i]))
             continue;
 		if (wizhelp && (cmd_info[i].minimum_level < LVL_AMBASSADOR))
 			continue;
@@ -4750,14 +4744,18 @@ ACMD(do_wizlist)
                 "                   %s--------------------------%s\r\n",
                 CCBLU(ch,C_NRM),CCBLU_BLD(ch,C_NRM),
                 CCNRM(ch,C_NRM));
-
-    getGroup("Wizlist_Architects").sendPublicMemberList(ch, "Architects", "OLCAdmin");
-    getGroup("Wizlist_Blders").sendPublicMemberList(ch, "Builders");
-    getGroup("Wizlist_Coders").sendPublicMemberList(ch, "Implementors", "CoderAdmin");
-    getGroup("Wizlist_Quests").sendPublicMemberList(ch, "Questors", "QuestorAdmin");
-    getGroup("Wizlist_Admins").sendPublicMemberList(ch, "Administrators", "WizardAdmin");
-    getGroup("Wizlist_Elders").sendPublicMemberList(ch, "Elder Gods", "GroupsAdmin");
-    getGroup("Wizlist_Founders").sendPublicMemberList(ch, "Founders");
+    send_role_member_list(role_by_name("Wizlist_Architects"), ch,
+                                       "Architects", "OLCAdmin");
+    send_role_member_list(role_by_name("Wizlist_Blders"), ch,
+                                       "Builders", NULL);
+    send_role_member_list(role_by_name("Wizlist_Coders"), ch,
+                                       "Implementors", "CoderAdmin");
+    send_role_member_list(role_by_name("Wizlist_Quests"), ch,
+                                       "Questors", "QuestorAdmin");
+    send_role_member_list(role_by_name("Wizlist_Elders"), ch,
+                                       "Elder Gods", "GroupsAdmin");
+    send_role_member_list(role_by_name("Wizlist_Founders"), ch,
+                                       "Founders", NULL);
 
 	acc_strcat("\r\n\r\n", NULL);
 

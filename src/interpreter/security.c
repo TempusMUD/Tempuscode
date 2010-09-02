@@ -159,6 +159,9 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case EDIT_CLAN:
         return is_named_role_member(ch, "Clan");
 
+    case SEE_FULL_WHOLIST:
+        return is_named_role_member(ch, "AdminBasic");
+
     case COMMAND:
         if (GET_LEVEL(ch) <= command->minimum_level)
             return false;

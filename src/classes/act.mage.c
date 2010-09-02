@@ -163,7 +163,7 @@ ACMD(do_teach)
                     "in the symbols: '\n");
             return;
         } else {
-            skill_str = tmp_getquoted((const char **)&argument);
+            skill_str = tmp_getquoted(&argument);
         }
     } else {
         s = strrchr(argument, ' ');

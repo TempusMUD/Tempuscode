@@ -960,9 +960,12 @@ GHashTable *creature_map = NULL;
 
 struct creature *random_opponent(struct creature *ch);
 void extract_creature(struct creature *ch);
-int level_bonus(struct creature *ch);
+int level_bonus(struct creature *ch, bool primary);
 int skill_bonus(struct creature *ch, int skillnum);
 void remove_all_combat(struct creature *ch);
 bool is_newbie(struct creature *ch);
-
+void removeCombat(struct creature *ch, struct creature *vict);
+void removeAllCombat(struct creature *ch);
+struct creature *findRandomCombat(struct creature *ch);
+					
 #endif
