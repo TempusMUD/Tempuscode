@@ -45,10 +45,10 @@
 #include "char_class.h"
 #include "tmpstr.h"
 #include "accstr.h"
-#include "tokenizer.h"
-#include "player_table.h"
+#include "players.h"
 #include "language.h"
 #include "house.h"
+#include "weather.h"
 
 /* extern variables */
 extern int mini_mud;
@@ -99,7 +99,7 @@ extern const char *wear_implantpos[];
 extern const char *moon_sky_types[];
 extern const char *soilage_bits[];
 extern const char *wear_description[];
-extern const weap_spec_info weap_spec_char_class[];
+extern const struct weap_spec_info weap_spec_char_class[];
 
 int isbanned(char *hostname, char *blocking_hostname);
 char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
@@ -216,7 +216,7 @@ show_obj_bits(struct obj_data *object, struct creature *ch)
               || IS_OBJ_TYPE(object, ITEM_DRINKCON)
               || IS_OBJ_TYPE(object, ITEM_FOUNTAIN))
              && GET_OBJ_VAL(object, 3))
-            || object->affectedBySpell(SPELL_ENVENOM)))
+            || obj_affected_by_spell(object, SPELL_ENVENOM)))
         acc_sprintf(" %s(poisoned)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN) ||
         (IS_CLERIC(ch) && AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))) {
@@ -263,18 +263,18 @@ show_obj_bits(struct obj_data *object, struct creature *ch)
     if (OBJ_SOILED(object, SOIL_ACID))
         acc_sprintf(" %s(acid covered)%s",
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-    if ( object->shared->owner_id != 0 )
+    if ( object->shared->owner_id != 0)
         acc_sprintf(" %s(protected)%s",
                     CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
-    if( object->tmp_affects != NULL ) {
-        if( object->affectedBySpell(SPELL_ITEM_REPULSION_FIELD) != NULL ) {
+    if (object->tmp_affects != NULL) {
+        if (obj_affected_by_spell(object, SPELL_ITEM_REPULSION_FIELD) != NULL) {
             acc_sprintf(" %s(repulsive)%s",
                         CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
-        } else if( object->affectedBySpell(SPELL_ITEM_ATTRACTION_FIELD) != NULL ) {
+        } else if (obj_affected_by_spell(object, SPELL_ITEM_ATTRACTION_FIELD) != NULL) {
             acc_sprintf(" %s(attractive)%s",
                         CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
         }
-        if( object->affectedBySpell(SPELL_ELEMENTAL_BRAND) != NULL ) {
+        if (obj_affected_by_spell(object, SPELL_ELEMENTAL_BRAND) != NULL) {
             acc_sprintf(" %s(%sbranded%s)%s",
                         CCRED(ch, C_SPR),
                         CCGRN(ch, C_SPR),
@@ -282,7 +282,7 @@ show_obj_bits(struct obj_data *object, struct creature *ch)
                         CCNRM(ch, C_SPR));
         }
     }
-    if ((GET_LEVEL(ch) >= LVL_IMMORT || ch->isTester()) &&
+    if ((GET_LEVEL(ch) >= LVL_IMMORT || is_tester(ch)) &&
         PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)) {
         acc_sprintf(" %s<%s%d%s>%s",
                     CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -603,7 +603,7 @@ desc_char_trailers(struct creature *ch, struct creature *i)
 			" body is completely transparent.\r\n", NULL);
 
 	if (affected_by_spell(i, SKILL_KATA) &&
-			i->level_bonus(SKILL_KATA) >= 50)
+        skill_bonus(i, SKILL_KATA) >= 50)
 		acc_strcat("...", HSHR(i),
 			" hands are glowing eerily.\r\n", NULL);
 
@@ -772,7 +772,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 		return "";
 
 	if (!IS_NPC(ch) && MOB2_FLAGGED(i, MOB2_UNAPPROVED) &&
-			!(PRF_FLAGGED(ch, PRF_HOLYLIGHT) || ch->isTester()))
+			!(PRF_FLAGGED(ch, PRF_HOLYLIGHT) || isTester(ch)))
 		return "";
 
 	if (IS_NPC(i)) {
@@ -780,7 +780,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 	} else if (affected_by_spell(i, SKILL_DISGUISE)) {
 		desc = tmp_capitalize(GET_DISGUISED_NAME(ch, i));
 	} else
-		desc = tmp_strcat(i->player.name, GET_TITLE(i));
+		desc = tmp_strcat(i->player.name, GET_TITLE(i), NULL);
 
 	if (!IS_NPC(i)) {
 		if (!i->desc)
@@ -804,12 +804,12 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
         }
 	}
 
-	if (IS_NPC(i) && i->getPosition() == GET_DEFAULT_POS(i)) {
+	if (IS_NPC(i) && GET_POSITION(i) == GET_DEFAULT_POS(i)) {
 		if (i->player.long_descr)
 			desc = i->player.long_descr;
 		else
-			desc = tmp_strcat(tmp_capitalize(desc), " exists here.");
-	} else if (i->getPosition() == POS_FIGHTING) {
+			desc = tmp_strcat(tmp_capitalize(desc), " exists here.", NULL);
+	} else if (GET_POSITION(i) == POS_FIGHTING) {
 		if (!i->isFighting())
 			desc = tmp_sprintf("%s is here, fighting thin air!", desc);
 		else if (i->findRandomCombat() == ch)
@@ -820,7 +820,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 		else
 			desc = tmp_sprintf("%s is here, fighting someone who already left!",
 				desc);
-	} else if (i->getPosition() == POS_MOUNTED) {
+	} else if (GET_POSITION(i) == POS_MOUNTED) {
 		if (!i->isMounted())
 			desc = tmp_sprintf("%s is here, mounted on thin air!", desc);
 		else if (i->isMounted() == ch)
@@ -831,29 +831,29 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 		else
 			desc = tmp_sprintf("%s is here, mounted on someone who already left!",
 				desc);
-	} else if (AFF2_FLAGGED(i, AFF2_MEDITATE) && i->getPosition() == POS_SITTING)
-		desc = tmp_strcat(desc, " is meditating here.");
+	} else if (AFF2_FLAGGED(i, AFF2_MEDITATE) && GET_POSITION(i) == POS_SITTING)
+		desc = tmp_strcat(desc, " is meditating here.", NULL);
 	else if (AFF_FLAGGED(i, AFF_HIDE))
-		desc = tmp_strcat(desc, " is hiding here.");
+		desc = tmp_strcat(desc, " is hiding here.", NULL);
 	else if (AFF3_FLAGGED(i, AFF3_STASIS)
-		&& i->getPosition() == POS_SLEEPING)
-		desc = tmp_strcat(desc, " is lying here in a static state.");
+		&& GET_POSITION(i) == POS_SLEEPING)
+		desc = tmp_strcat(desc, " is lying here in a static state.", NULL);
 	else if ((SECT_TYPE(i->in_room) == SECT_WATER_NOSWIM ||
 			SECT_TYPE(i->in_room) == SECT_WATER_SWIM ||
 			SECT_TYPE(i->in_room) == SECT_FIRE_RIVER) &&
 		(!AFF_FLAGGED(i, AFF_WATERWALK)
 			|| GET_POSITION(ch) < POS_STANDING))
-		desc = tmp_strcat(desc, " is swimming here.");
-	else if (room_is_underwater(i->in_room) && i->getPosition() > POS_RESTING)
-		desc = tmp_strcat(desc, " is swimming here.");
+		desc = tmp_strcat(desc, " is swimming here.", NULL);
+	else if (room_is_underwater(i->in_room) && GET_POSITION(i) > POS_RESTING)
+		desc = tmp_strcat(desc, " is swimming here.", NULL);
 	else if (SECT_TYPE(i->in_room) == SECT_PITCH_PIT
-             && i->getPosition() < POS_FLYING)
-		desc = tmp_strcat(desc, " struggles in the pitch.");
+             && GET_POSITION(i) < POS_FLYING)
+		desc = tmp_strcat(desc, " struggles in the pitch.", NULL);
 	else if (SECT_TYPE(i->in_room) == SECT_PITCH_SUB)
-		desc = tmp_strcat(desc, " struggles blindly in the pitch.");
+		desc = tmp_strcat(desc, " struggles blindly in the pitch.", NULL);
 	else
-		desc = tmp_strcat(desc, positions[(int)MAX(0, MIN(i->getPosition(),
-						POS_SWIMMING))]);
+		desc = tmp_strcat(desc, positions[(int)MAX(0, MIN(GET_POSITION(i),
+                                                          POS_SWIMMING))], NULL);
 
 	if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
         const char *align_color;
@@ -997,8 +997,8 @@ list_char_to_char(struct creature *list, struct creature *ch)
 		}
 	}
 
-	if( unseen &&
-		(AFF_FLAGGED(ch, AFF_SENSE_LIFE) || affected_by_spell(ch, SKILL_HYPERSCAN)) )
+	if (unseen &&
+		(AFF_FLAGGED(ch, AFF_SENSE_LIFE) || affected_by_spell(ch, SKILL_HYPERSCAN)))
 	{
 		acc_sprintf("%s", CCMAG(ch, C_NRM));
 		if (unseen == 1)
@@ -1296,7 +1296,7 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
         if (room->max_occupancy < 256)
             acc_sprintf(" [ Max: %d ]", room->max_occupancy);
 
-        House *house = Housing.findHouseByRoom(room->number);
+        struct house *house = find_house_by_Room(room->number);
         if (house)
             acc_sprintf(" [ House: %d ]", house->getID());
 	} else {
@@ -1930,7 +1930,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 						(GET_MORALE(found_char) >
 							number(GET_LEVEL(ch) >> 1, GET_LEVEL(ch))) &&
 						!PRF_FLAGGED(ch, PRF_NOHASSLE)) {
-						if (found_char->getPosition() >= POS_SITTING) {
+						if (GET_POSITION(found_char) >= POS_SITTING) {
 							if (found_char->isOkToAttack(ch, false))
 								hit(found_char, ch, TYPE_UNDEFINED);
 						} else
@@ -2172,7 +2172,7 @@ ACMD(do_examine)
 				false, ch, tmp_object, 0, TO_CHAR);
 
 		sprintf(buf, "$p seems to be in %s condition.",
-                obj_cond_color(tmp_object, ch) );
+                obj_cond_color(tmp_object, ch));
 		act(buf, false, ch, tmp_object, 0, TO_CHAR);
 
 		if (IS_OBJ_TYPE(tmp_object, ITEM_CIGARETTE)) {
@@ -2900,7 +2900,7 @@ ACMD(do_equipment)
 			else
 				send_to_char(ch, "You're totally naked!\r\n");
 			return;
-		} else if( *argument && is_abbrev(argument, "all")) {
+		} else if (*argument && is_abbrev(argument, "all")) {
 			show_all = true;
 		}
 
@@ -2972,7 +2972,7 @@ ACMD(do_equipment)
 			else
 				send_to_char(ch, "You don't have any implants.\r\n");
 			return;
-		} else if( *argument && is_abbrev(argument, "all")) {
+		} else if (*argument && is_abbrev(argument, "all")) {
 			show_all = true;
 		}
 
@@ -3220,7 +3220,7 @@ whoFlagsString(struct creature *ch, struct creature *target) {
 	if (real_clan(GET_CLAN(target))) {
 		if (PRF2_FLAGGED(target, PRF2_CLAN_HIDE)) {
 			if (is_group_member(ch, Security::ADMINBASIC)) {
-				out << CCCYN(ch, C_NRM) << " )" << real_clan(GET_CLAN(target))->name;
+				out << CCCYN(ch, C_NRM) << ")" << real_clan(GET_CLAN(target))->name;
 				out << '(' << CCNRM(ch, C_NRM);
 			}
 		} else {
@@ -3782,7 +3782,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
             return;
         }
 
-        if( house_only && no_house ) {
+        if (house_only && no_house) {
             send_to_char(ch, "Nothing exists both inside and outside a house.\r\n");
             return;
         }
@@ -3809,13 +3809,13 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
 
         if(!no_object) {
             for (num = 0, k = object_list; k; k = k->next) {
-                if(! can_see_object(ch, k) )
+                if(! can_see_object(ch, k))
                     continue;
-                if( house_only && !isInHouse(k) )
+                if (house_only && !isInHouse(k))
                     continue;
-                if( no_house && isInHouse(k) )
+                if (no_house && isInHouse(k))
                     continue;
-                if( isWhereMatch(required, excluded, k) ) {
+                if (isWhereMatch(required, excluded, k)) {
                     found = 1;
                     main_buf[0] = '\0';
                     print_object_location(++num, k, ch, true, main_buf);
@@ -4276,8 +4276,8 @@ ACMD(do_pkiller)
 
 	char *arg = tmp_getword(&argument);
 
-	if( *arg ) {
-		if( strcasecmp(arg,"on") == 0 ) {
+	if (*arg) {
+		if (strcasecmp(arg,"on") == 0) {
             if (GET_REPUTATION(ch) <= 0) {
                 arg = tmp_getword(&argument);
                 if (strcasecmp(arg, "yes")) {
@@ -4289,7 +4289,7 @@ ACMD(do_pkiller)
                 ch->gain_reputation(5);
             }
 			SET_BIT(PRF2_FLAGS(ch), PRF2_PKILLER);
-		} else if( strcasecmp(arg,"off") == 0 ) {
+		} else if (strcasecmp(arg,"off") == 0) {
 			REMOVE_BIT(PRF2_FLAGS(ch), PRF2_PKILLER);
 		} else {
 			send_to_char(ch, "Usage: pkiller { Off | On [yes]}\r\n");
@@ -4298,7 +4298,7 @@ ACMD(do_pkiller)
 	}
 
 	const char *color = CCCYN(ch, C_NRM);
-	if( PRF2_FLAGGED(ch, PRF2_PKILLER) )
+	if (PRF2_FLAGGED(ch, PRF2_PKILLER))
 		color = CCRED(ch, C_SPR);
 
 	send_to_char(ch, "Your current pkiller status is: %s%s%s\r\n",
@@ -4749,14 +4749,14 @@ ACMD(do_wizlist)
     acc_sprintf("\r\n                   %sThe Immortals of TempusMUD\r\n"
                 "                   %s--------------------------%s\r\n",
                 CCBLU(ch,C_NRM),CCBLU_BLD(ch,C_NRM),
-                CCNRM(ch,C_NRM) );
+                CCNRM(ch,C_NRM));
 
     getGroup("Wizlist_Architects").sendPublicMemberList(ch, "Architects", "OLCAdmin");
     getGroup("Wizlist_Blders").sendPublicMemberList(ch, "Builders");
     getGroup("Wizlist_Coders").sendPublicMemberList(ch, "Implementors", "CoderAdmin");
-    getGroup("Wizlist_Quests").sendPublicMemberList(ch, "Questors", "QuestorAdmin" );
+    getGroup("Wizlist_Quests").sendPublicMemberList(ch, "Questors", "QuestorAdmin");
     getGroup("Wizlist_Admins").sendPublicMemberList(ch, "Administrators", "WizardAdmin");
-    getGroup("Wizlist_Elders").sendPublicMemberList(ch, "Elder Gods", "GroupsAdmin" );
+    getGroup("Wizlist_Elders").sendPublicMemberList(ch, "Elder Gods", "GroupsAdmin");
     getGroup("Wizlist_Founders").sendPublicMemberList(ch, "Founders");
 
 	acc_strcat("\r\n\r\n", NULL);
@@ -4783,21 +4783,21 @@ ACMD(do_areas)
                     && zone->max_gen >= GET_REMORT_GEN(ch))) {
             // name
             acc_strcat((found_one) ? "\r\n":"", CCCYN(ch, C_NRM),
-                        zone->name, CCNRM(ch, C_NRM), "\r\n", NULL );
+                        zone->name, CCNRM(ch, C_NRM), "\r\n", NULL);
 
             // min/max level
-            if( zone->min_lvl == 1 && zone->max_lvl == 49 &&
-                zone->min_gen == 0 && zone->max_gen == 10 ) {
-                acc_strcat("[ All Levels ]\r\n", NULL );
-            } else if( zone->min_gen > 0 || zone->max_gen > 0 ) {
+            if (zone->min_lvl == 1 && zone->max_lvl == 49 &&
+                zone->min_gen == 0 && zone->max_gen == 10) {
+                acc_strcat("[ All Levels ]\r\n", NULL);
+            } else if (zone->min_gen > 0 || zone->max_gen > 0) {
                 // [ Level 12 Generation 2 to Level 20 Generation 10 ]
                 acc_sprintf("[ Level %d Gen %d to Level %d Gen %d ]\r\n",
                             zone->min_lvl, zone->min_gen,
-                            zone->max_lvl, zone->max_gen );
+                            zone->max_lvl, zone->max_gen);
             } else {
                 // [ Level 12 to Level 20 ]
                 acc_sprintf("[ Level %d to Level %d ]\r\n",
-                            zone->min_lvl, zone->max_lvl );
+                            zone->min_lvl, zone->max_lvl);
             }
             // desc
             acc_strcat( zone->public_desc, NULL);
