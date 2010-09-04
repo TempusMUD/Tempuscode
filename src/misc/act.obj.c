@@ -40,10 +40,10 @@
 #include "fight.h"
 #include "security.h"
 #include "tmpstr.h"
-#include "player_table.h"
+#include "players.h"
 #include "prog.h"
 #include "actions.h"
-#include "object_map.h"
+#include "screen.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -66,7 +66,7 @@ ACMD(do_split);
 const long MONEY_LOG_LIMIT = 50000000;
 
 struct obj_data *
-get_random_uncovered_implant(struct creature * ch, int type = -1)
+get_random_uncovered_implant(struct creature * ch, int type)
 {
 	int possibles = 0;
 	int implant = 0;
@@ -117,9 +117,10 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
 
 	int ret = 0;
 	int dam = 0;
+    bool loaded = false;
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) ||
-        ch->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+        ch->in_room->zone->pk_style == ZONE_NO_PK) {
         act("$p feels rather warm to the touch, and shudders violently.",
             false, ch, obj, 0, TO_CHAR);
         return 0;
@@ -140,13 +141,12 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
 	struct creature *killer = get_char_in_world_by_idnum(obj_id);
 
 	// load the bastich from file.
-    struct creature cbuf(true);
 	if (!killer) {
-		cbuf.clear();
-		if (cbuf.loadFromXML(obj_id)) {
-			killer = &cbuf;
-			cbuf.account = struct account_retrieve(playerIndex.getstruct accountID(obj_id));
-		}
+        killer = load_player_from_xml(obj_id);
+        if (killer) {
+            killer->account = account_by_id(player_account_by_idnum(obj_id));
+            loaded = true;
+        }
 	}
 
 	// the piece o shit has a bogus killer idnum on it!
@@ -159,7 +159,10 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
 	ret = damage(killer, ch, dam, SPELL_WARDING_SIGIL, WEAR_HANDS);
 
 	// save the sonuvabitch to file
-	killer->saveToXML();
+	save_player_to_xml(killer);
+
+    if (loaded)
+        free_creature(killer);
 
 	GET_OBJ_SIGIL_IDNUM(obj) = GET_OBJ_SIGIL_LEVEL(obj) = 0;
 
@@ -205,7 +208,7 @@ consolidate_char_money(struct creature *ch)
 		next_obj = obj->next_content;
 
 		if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
-            if (OBJ_APPROVED(obj) || is_group_member(ch, "WizardFull")) {
+            if (OBJ_APPROVED(obj) || is_named_role_member(ch, "WizardFull")) {
                 if (GET_OBJ_VAL(obj, 1) == 1)
                     num_credits += GET_OBJ_VAL(obj, 0);
                 else
@@ -260,7 +263,7 @@ activate_char_quad(struct creature *ch)
 		next_obj = obj->next_content;
 
 		if (GET_OBJ_VNUM(obj) == QUAD_VNUM) {
-			call_magic(ch, ch, NULL, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP, CAST_SPELL);
+			call_magic(ch, ch, NULL, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP, CAST_SPELL, NULL);
 			extract_obj(obj);
 			slog("%s got the Quad Damage at %d.", GET_NAME(ch),
 				ch->in_room->number);
@@ -373,9 +376,7 @@ perform_put(struct creature *ch, struct obj_data *obj,
 
 		return false;
 	} else {
-
-		if (cont->getContainedWeight() + obj->getWeight() > GET_OBJ_VAL(cont,
-				0))
+		if (weigh_contained_objs(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0))
 			act("$p won't fit in $P.", false, ch, obj, cont, TO_CHAR);
 		else if (IS_OBJ_STAT(obj, ITEM_NODROP)
                  && GET_LEVEL(ch) < LVL_TIMEGOD
@@ -538,7 +539,7 @@ can_take_obj(struct creature *ch, struct obj_data *obj, bool check_weight,
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 		sprintf(buf, "$p: you can't carry that many items.");
 	} else if (check_weight
-		&& (IS_CARRYING_W(ch) + obj->getWeight()) > CAN_CARRY_W(ch)) {
+		&& (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)) {
 		sprintf(buf, "$p: you can't carry that much weight.");
 	} else if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && GET_LEVEL(ch) < LVL_GOD) {
 		sprintf(buf, "$p: you can't take that!");
@@ -630,10 +631,10 @@ perform_get_from_container(struct creature * ch,
 
 		if (GET_OBJ_VAL(cont, 3)
             && CORPSE_IDNUM(cont) > 0
-            && playerIndex.exists(CORPSE_IDNUM(cont))
+            && player_idnum_exists(CORPSE_IDNUM(cont))
             && CORPSE_IDNUM(cont) != GET_IDNUM(ch)
             && (!ch->account ||
-                playerIndex.getstruct accountID(CORPSE_IDNUM(cont)) != ch->account->get_idnum())) {
+                player_account_by_idnum(CORPSE_IDNUM(cont)) != ch->account->id)) {
 			mudlog(LVL_DEMI, CMP, true,
 				"%s looted %s from %s.", GET_NAME(ch),
 				obj->name, cont->name);
@@ -641,14 +642,14 @@ perform_get_from_container(struct creature * ch,
 
         // Also resave corpse file at this point
         if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0 &&
-            playerIndex.exists(CORPSE_IDNUM(cont))) {
+            player_idnum_exists(CORPSE_IDNUM(cont))) {
             char *fname;
             FILE *corpse_file;
 
             fname = get_corpse_file_path(CORPSE_IDNUM(cont));
             if ((corpse_file = fopen(fname, "w+")) != NULL) {
                 fprintf(corpse_file, "<corpse>");
-                cont->saveToXML(corpse_file);
+                save_object_to_xml(cont, corpse_file);
                 fprintf(corpse_file, "</corpse>");
                 fclose(corpse_file);
             }
@@ -686,7 +687,7 @@ perform_autoloot(struct creature *ch, struct obj_data *corpse)
         return;
 
     // Can't loot player corpses in NPK zones
-    if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
+    if (ch->in_room->zone->pk_style == ZONE_NEUTRAL_PK &&
         !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
         IS_CORPSE(corpse) &&
         CORPSE_IDNUM(corpse) != GET_IDNUM(ch) &&
@@ -772,7 +773,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
 		}
 
         if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) != GET_IDNUM(ch) &&
-            ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
+            ch->in_room->zone->pk_style == ZONE_NEUTRAL_PK &&
             !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
             CORPSE_IDNUM(cont) > 0) {
             send_to_char(ch, "You may not loot corpses in NPK zones.\r\n");
@@ -798,7 +799,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
 	//
 
 	else {
-        if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
+        if (ch->in_room->zone->pk_style == ZONE_NEUTRAL_PK &&
             !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
             IS_CORPSE(cont) &&
             CORPSE_IDNUM(cont) != GET_IDNUM(ch) &&
@@ -982,7 +983,7 @@ get_from_room(struct creature *ch, char *arg)
         if (IS_CORPSE(obj)
             && CORPSE_IDNUM(obj) != GET_IDNUM(ch)
             && GET_LEVEL(ch) < LVL_AMBASSADOR
-            && ch->in_room->zone->getPKStyle() != ZONE_CHAOTIC_PK
+            && ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK
             && IS_PC(ch)
             && CORPSE_IDNUM(obj) > 0) {
             send_to_char(ch, "You can only take PC corpses in CPK zones!\r\n");
@@ -1020,7 +1021,7 @@ get_from_room(struct creature *ch, char *arg)
 
             if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) != GET_IDNUM(ch) &&
                 GET_LEVEL(ch) < LVL_AMBASSADOR &&
-                ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK &&
+                ch->in_room->zone->pk_style == ZONE_NEUTRAL_PK &&
                 IS_PC(ch) && CORPSE_IDNUM(obj) > 0) {
                 send_to_char(ch, "You can't take corpses in NPK zones!\r\n");
                 continue;
@@ -1349,7 +1350,7 @@ bool
 is_undisposable(struct creature *ch, const char *cmdstr, struct obj_data *obj, bool display)
 {
 	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-		!is_group_member(ch, Security::WIZARDFULL)) {
+		!is_named_role_member(ch, SECURITY_WIZARDFULL)) {
 		send_to_char(ch, "You can't %s a player's corpse while it still has objects in it.\r\n", cmdstr);
 		return true;
 	}
@@ -1379,7 +1380,6 @@ perform_drop(struct creature *ch, struct obj_data *obj,
 	byte mode, const char *sname, struct room_data *RDR, int display)
 {
 	int value;
-	string sbuf;
 
 	if (!obj)
 		return 0;
@@ -1412,7 +1412,7 @@ perform_drop(struct creature *ch, struct obj_data *obj,
 	case SCMD_DROP:
         obj_from_char(obj);
 		obj_to_room(obj, ch->in_room);
-		if (ch->in_room->isOpenAir() &&
+		if (room_is_open_air(ch->in_room) &&
 			EXIT(ch, DOWN) &&
 			EXIT(ch, DOWN)->to_room &&
 			!IS_SET(EXIT(ch, DOWN)->exit_info, EX_CLOSED)) {
@@ -1693,7 +1693,7 @@ perform_give(struct creature *ch, struct creature *vict,
 		act("$N seems to have $S hands full.", false, ch, 0, vict, TO_CHAR);
 		return 0;
 	}
-	if (obj->getWeight() + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
+	if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
 		act("$E can't carry that much weight.", false, ch, 0, vict, TO_CHAR);
 		return 0;
 	}
@@ -1720,7 +1720,7 @@ perform_give(struct creature *ch, struct creature *vict,
 				&& (CHECK_SKILL(vict, SKILL_DEMOLITIONS) < number(10, 50)
 					|| (obj->contains && IS_FUSE(obj->contains)
 						&& FUSE_STATE(obj->contains)))) {
-				if (!vict->isFighting()
+				if (!isFighting(vict)
 					&& CHECK_SKILL(vict, SKILL_DEMOLITIONS) > number(40, 60))
 					if (FUSE_IS_BURN(obj->contains))
 						do_extinguish(vict, fname(obj->aliases), 0, 0, 0);
@@ -1766,7 +1766,7 @@ perform_plant(struct creature *ch, struct creature *vict,
 		act("$N seems to have $S hands full.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	if (obj->getWeight() + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
+	if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
 		act("$E can't carry that much weight.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
@@ -1823,7 +1823,7 @@ transfer_money(struct creature *from, struct creature *to, money_t amt, int curr
 		return;
 	}
 
-	if (!plant && GET_LEVEL(from) < LVL_IMMORT && to->getPosition() <= POS_SLEEPING) {
+	if (!plant && GET_LEVEL(from) < LVL_IMMORT && GET_POSITION(to) <= POS_SLEEPING) {
 		act("$E is currently unconscious.", false, from, 0, to, TO_CHAR);
 		return;
 	}
@@ -1863,9 +1863,9 @@ transfer_money(struct creature *from, struct creature *to, money_t amt, int curr
 			GET_NAME(to), to->in_room->number, to->in_room->name);
 
 	if (IS_PC(from))
-		from->saveToXML();
+		save_player_to_xml(from);
 	if (IS_PC(to))
-		to->saveToXML();
+		save_player_to_xml(to);
 }
 
 ACMD(do_give)
@@ -2156,9 +2156,9 @@ ACMD(do_drink)
 	}
 
 	if ((GET_OBJ_VAL(temp, 1) != -1) && (GET_OBJ_VNUM(temp) != -1)) {
-        weight = real_object_proto(GET_OBJ_VNUM(temp))->getWeight();
+        weight = GET_OBJ_WEIGHT(real_object_proto(GET_OBJ_VNUM(temp)));
         weight += GET_OBJ_VAL(temp, 1) / 10;
-        temp->obj_flags.setWeight(weight);
+        GET_OBJ_WEIGHT(temp) = weight;
     }
 
 	drunk = (int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount;
@@ -2457,9 +2457,9 @@ ACMD(do_pour)
 			GET_OBJ_VAL(from_obj, 2) = 0;
 			GET_OBJ_VAL(from_obj, 3) = 0;
             if (GET_OBJ_VNUM(from_obj) != -1) {
-                weight = real_object_proto(GET_OBJ_VNUM(from_obj))->getWeight();
+                weight = GET_OBJ_WEIGHT(real_object_proto(GET_OBJ_VNUM(from_obj)));
                 weight += GET_OBJ_VAL(from_obj, 1) / 10;
-                from_obj->obj_flags.setWeight(weight);
+                GET_OBJ_WEIGHT(from_obj) = weight;
             }
             name_from_drinkcon(from_obj, GET_OBJ_VAL(from_obj, 2));
 
@@ -2533,13 +2533,13 @@ ACMD(do_pour)
 
 	/* And the weight boogie */
     if ((GET_OBJ_VNUM(from_obj)) != -1 && (GET_OBJ_VNUM(to_obj) != -1)) {
-        weight = real_object_proto(GET_OBJ_VNUM(from_obj))->getWeight();
+        weight = GET_OBJ_WEIGHT(real_object_proto(GET_OBJ_VNUM(from_obj)));
         weight += GET_OBJ_VAL(from_obj, 1) / 10;
-        from_obj->obj_flags.setWeight(weight);
+        GET_OBJ_WEIGHT(from_obj) = weight;
 
-        weight = real_object_proto(GET_OBJ_VNUM(to_obj))->getWeight();
+        weight = GET_OBJ_WEIGHT(real_object_proto(GET_OBJ_VNUM(to_obj)));
         weight += GET_OBJ_VAL(to_obj, 1) / 10;
-        to_obj->obj_flags.setWeight(weight);
+        GET_OBJ_WEIGHT(to_obj) = weight;
     }
 
 	return;
@@ -2743,13 +2743,13 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
 	}
 	// If the shield's too heavy, they cant make good use of it.
 	if (where == WEAR_SHIELD
-		&& obj->getWeight() >
+		&& GET_OBJ_WEIGHT(obj) >
 		1.5 * str_app[STRENGTH_APPLY_INDEX(ch)].wield_w) {
 		send_to_char(ch, "It's too damn heavy.\r\n");
 		return 0;
 	}
 	if (!OBJ_APPROVED(obj) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
-		!ch->isTester()) {
+		!isTester(ch)) {
 		act("$p has not been approved for mortal use.",
 			false, ch, obj, 0, TO_CHAR);
 		return 0;
@@ -2769,7 +2769,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
 	if( IS_PC(ch) && obj->shared->owner_id != 0 &&
 				obj->shared->owner_id != GET_IDNUM(ch) )
 	{
-		const char* name = playerIndex.getName(obj->shared->owner_id);
+		const char* name = player_name_by_idnum(obj->shared->owner_id);
 		char *msg = tmp_sprintf("$p can only be used by %s.",
 								name ? name : "someone else" );
 		act(msg, false, ch, obj, 0, TO_CHAR);
@@ -2973,7 +2973,7 @@ ACCMD(do_wield)
 		return;
 	}
 
-	if (obj->getWeight() > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w) {
+	if (GET_OBJ_WEIGHT(obj) > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w) {
 		send_to_char(ch, "It's too damn heavy.\r\n");
 		return;
 	}
@@ -3018,10 +3018,9 @@ ACCMD(do_wield)
 			&& IS_ANY_GUN(obj))
 			perform_wear(ch, obj, WEAR_WIELD_2);
 
-		else if (GET_EQ(ch, WEAR_WIELD)->getWeight() <= 6 ?
-			(obj->getWeight() > GET_EQ(ch, WEAR_WIELD)->getWeight()) :
-			(obj->getWeight() > (GET_EQ(ch, WEAR_WIELD)->getWeight() >> 1))
-			)
+		else if (GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD)) <= 6 ?
+                 (GET_OBJ_WEIGHT(obj) > GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) :
+                 (GET_OBJ_WEIGHT(obj) > GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD)) / 2))
 			send_to_char(ch,
 				"Your secondary weapon must weigh less than half of your primary weapon,\r\nif your primary weighs more than 6 lbs.\r\n");
 		else
@@ -3223,7 +3222,7 @@ prototype_obj_value(struct obj_data *obj)
 	case ITEM_CONTAINER:
 		value += GET_OBJ_VAL(obj, 0);
 		value <<= 2;
-		value += ((30 - obj->getWeight()) >> 2);
+		value += ((30 - GET_OBJ_WEIGHT(obj)) >> 2);
 		if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))
 			value += 100;
 		if (GET_OBJ_VAL(obj, 2)) {
@@ -3286,17 +3285,17 @@ prototype_obj_value(struct obj_data *obj)
 		if (CAN_WEAR(obj, ITEM_WEAR_BODY)) {
 			value *= 3;
 			prev_value = value;
-			value += ((50 - obj->getWeight()) << 3);
+			value += ((50 - GET_OBJ_WEIGHT(obj)) << 3);
 			value = (prev_value + value) >> 1;
 		} else if (CAN_WEAR(obj, ITEM_WEAR_HEAD)
 			|| CAN_WEAR(obj, ITEM_WEAR_LEGS)) {
 			value *= 2;
 			prev_value = value;
-			value += ((25 - obj->getWeight()) << 3);
+			value += ((25 - GET_OBJ_WEIGHT(obj)) << 3);
 			value = (prev_value + value) >> 1;
 		} else {
 			prev_value = value;
-			value += ((25 - obj->getWeight()) << 3);
+			value += ((25 - GET_OBJ_WEIGHT(obj)) << 3);
 			value = (prev_value + value) >> 1;
 		}
 		if (IS_IMPLANT(obj))
@@ -3422,7 +3421,7 @@ set_maxdamage(struct obj_data *obj)
 
 	int dam = 0;
 
-	dam = (obj->getWeight() >> 1);
+	dam = (GET_OBJ_WEIGHT(obj) >> 1);
 
 	if (IS_LEATHER_TYPE(obj))
 		dam *= 3;
@@ -3909,7 +3908,6 @@ ACMD(do_sacrifice)
 	struct creature *orig_char;
 	struct obj_data *obj;
 	int mana;
-	string sbuf;
 
 	skip_spaces(&argument);
 
@@ -3921,7 +3919,7 @@ ACMD(do_sacrifice)
 		send_to_char(ch, "You can't find any '%s' in the room.\r\n", argument);
 		return;
 	}
-	if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && !is_group_member(ch, Security::WIZARDFULL)) {
+	if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && !is_named_role_member(ch, SECURITY_WIZARDFULL)) {
 		send_to_char(ch, "You can't sacrifice that.\r\n");
 		return;
 	}
@@ -3934,9 +3932,9 @@ ACMD(do_sacrifice)
 	if (IS_CORPSE(obj)) {
 		orig_char = load_corpse_owner(obj);
 		if (orig_char) {
-			mana = number(1, orig_char->level_bonus(true));
+			mana = number(1, level_bonus(orig_char, true));
 			if (IS_PC(orig_char))
-				delete orig_char;
+				free_creature(orig_char);
 		} else
 			mana = 0;
 	} else
@@ -3977,7 +3975,7 @@ ACMD(do_empty)
 
 	if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
 		if (!*arg2)
-			do_pour(ch, tmp_strcat(argument, " out"), 0, 0, 0);
+			do_pour(ch, tmp_strcat(argument, " out", NULL), 0, 0, 0);
 		else
 			do_pour(ch, argument, 0, 0, 0);
 		return;
@@ -3996,7 +3994,7 @@ ACMD(do_empty)
 	}
 
     if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && CORPSE_IDNUM(obj) != GET_IDNUM(ch) &&
-		!is_group_member(ch, Security::WIZARDFULL)) {
+		!is_named_role_member(ch, SECURITY_WIZARDFULL)) {
 		send_to_char(ch, "You can't empty a player's corpse.");
 		return;
 	}
@@ -4080,7 +4078,7 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
 				o = next_obj->next_content;
 				if (!(IS_OBJ_STAT(next_obj, ITEM_NODROP)) &&
 					(IS_SET(GET_OBJ_WEAR(next_obj), ITEM_WEAR_TAKE))) {
-					if (container->getWeight() + next_obj->getWeight() >
+					if (GET_OBJ_WEIGHT(container) + GET_OBJ_WEIGHT(next_obj) >
 						GET_OBJ_VAL(container, 0)) {
 						can_fit = false;
 					}

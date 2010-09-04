@@ -985,7 +985,7 @@ bool can_see_object(struct creature *self, struct obj_data *obj);
 bool can_see_room(struct creature *self, struct room_data *room);
 
 #define CAN_CARRY_OBJ(ch,obj)  \
-   (((IS_CARRYING_W(ch) + obj->getWeight()) <= CAN_CARRY_W(ch)) &&   \
+    (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) && \
     ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
 
 #define CAN_GET_OBJ(ch, obj)   \
