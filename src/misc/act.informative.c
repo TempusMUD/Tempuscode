@@ -54,7 +54,6 @@
 extern int mini_mud;
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
-extern GList *characterList;
 
 extern struct obj_data *object_list;
 //extern const struct command_info cmd_info[];
@@ -3783,7 +3782,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
 
 		if(!no_mob) {
             GList *cit;
-            for (cit = characterList;cit;cit = cit->next) {
+            for (cit = creatures;cit;cit = cit->next) {
                 i = cit->data;
                 if (can_see_creature(ch, i)
                     && i->in_room

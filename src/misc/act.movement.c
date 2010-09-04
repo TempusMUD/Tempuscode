@@ -33,6 +33,9 @@
 #include "security.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "screen.h"
+#include "weather.h"
+#include "assert.h"
 
 /* external vars  */
 extern struct descriptor_data *descriptor_list;
@@ -47,7 +50,7 @@ extern struct obj_data *object_list;
 extern struct creatureList mountedList;
 
 /* external functs */
-long special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+long special(struct creature *ch, int cmd, int subcmd, char *arg, enum special_mode spec_mode);
 int find_eq_pos(struct creature *ch, struct obj_data *obj, char *arg);
 int clan_house_can_enter(struct creature *ch, struct room_data *room);
 int general_search(struct creature *ch, struct special_search_data *srch,
@@ -144,17 +147,17 @@ can_travel_sector(struct creature *ch, int sector_type, bool active)
 				if (!GET_OBJ_VAL(obj->aux_obj, 1)) {
 					act("A warning indicator reads: $p fully depleted.",
 						false, ch, obj->aux_obj, 0, TO_CHAR);
-					ch->setBreathCount(0);
+					setBreathCount(ch, 0);
 				} else if (GET_OBJ_VAL(obj->aux_obj, 1) == 5)
 					act("A warning indicator reads: $p air level low.",
 						false, ch, obj->aux_obj, 0, TO_CHAR);
 			}
 			return true;
 		}
-		ch->modifyBreathCount(1);
+		modifyBreathCount(ch, 1);
 
-		if (ch->getBreathCount() < ch->getBreathThreshold() &&
-			ch->getBreathCount() > (ch->getBreathThreshold() - 2)) {
+		if (getBreathCount(ch) < getBreathThreshold(ch) &&
+			getBreathCount(ch) > (getBreathThreshold(ch) - 2)) {
 			send_to_char(ch, "You are running out of breath.\r\n");
 			return true;
 		}
@@ -187,18 +190,54 @@ int
 room_count(struct creature *ch, struct room_data *room)
 {
 	int i = 0;
-	struct creatureList_iterator it = room->people.begin();
-	for (; it != room->people.end(); ++it) {
-		if (IS_NPC((*it)) || (GET_INVIS_LVL((*it)) <= GET_LEVEL(ch))) {
-			if (GET_HEIGHT((*it)) > 1000)
+	for (GList *it = room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
+		if (IS_NPC(tch) || (GET_INVIS_LVL(tch) <= GET_LEVEL(ch))) {
+			if (GET_HEIGHT(tch) > 1000)
 				i += 3;
-			else if (GET_HEIGHT((*it)) > 500)
+			else if (GET_HEIGHT(tch) > 500)
 				i += 2;
 			else
 				i += 1;
 		}
 	}
-	return (i);
+	return i;
+}
+
+int
+creature_occupancy(struct creature *ch)
+{
+    if (IS_PC(ch) && IS_IMMORT(ch))
+        return 0;
+    else if (GET_HEIGHT(ch) > 1000)
+        return 3;
+    else if (GET_HEIGHT(ch) > 500)
+        return 2;
+    else if (GET_HEIGHT(ch) > 50)
+        return 1;
+
+    return 0;
+}
+
+bool
+will_fit_in_room(struct creature *ch, struct room_data *room)
+{
+	int i = 0;
+
+    // If you're mounted, the size of the mount determines how much
+    // space you take up, not your own size
+    if (MOUNTED_BY(ch))
+        i += creature_occupancy(MOUNTED_BY(ch));
+    else
+        i += creature_occupancy(ch);
+
+	for (GList *it = room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+        i += creature_occupancy(tch);
+	}
+
+	return (i < MAX_OCCUPANTS(room));
 }
 
 void
@@ -282,7 +321,7 @@ check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msg
 	int idx;
 
 	// No one sees invisible immortal or tester movements
-	if (!can_see_creature(vict, ch) && (IS_IMMORT(ch) || ch->isTester()))
+	if (!can_see_creature(vict, ch) && (IS_IMMORT(ch) || isTester(ch)))
 		return SNEAK_OK;
 
 	// No one can fool an immortal (except an invisible immortal)
@@ -329,16 +368,16 @@ check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msg
 
 	for (idx = 0; idx < NUM_WEARS; idx++)
 		if (ch->equipment[idx] && IS_METAL_TYPE(ch->equipment[idx]))
-			sneak_prob -= ch->equipment[idx]->getWeight();
+			sneak_prob -= GET_OBJ_WEIGHT(ch->equipment[idx]);
 
-	sneak_roll = number(0, vict->level_bonus(true));
+	sneak_roll = number(0, level_bonus(vict, true));
 	if (affected_by_spell(vict, ZEN_AWARENESS))
-		sneak_roll += vict->level_bonus(ZEN_AWARENESS) / 4;
+		sneak_roll += level_bonus(vict, ZEN_AWARENESS) / 4;
 
 	if (PRF2_FLAGGED(ch, PRF2_DEBUG))
 		send_to_char(ch, "%s[SNEAK] vict:%s   prob:%d   roll:%d%s\r\n",
-			CCCYN(ch, C_NRM), GET_NAME(vict), sneak_prob, sneak_roll,
-			CCNRM(ch, C_NRM));
+                     CCCYN(ch, C_NRM), GET_NAME(vict), sneak_prob, sneak_roll,
+                     CCNRM(ch, C_NRM));
 
 	// Vampires have no chance of accidentally failing to sneak
 	if (!IS_VAMPIRE(ch) || IS_VAMPIRE(vict)) {
@@ -395,10 +434,10 @@ do_simple_move(struct creature *ch, int dir, int mode,
 	int need_specials_check)
 {
 
-	int need_movement, i, has_boat = 0, wait_state = 0;
+	int need_movement, has_boat = 0, wait_state = 0;
 	struct room_data *was_in;
 	struct obj_data *obj = NULL, *next_obj = NULL, *car = NULL, *c_obj = NULL;
-	struct creature *tch, *mount = ch->isMounted();
+	struct creature *mount = MOUNTED_BY(ch);
 	int found = 0;
 	struct special_search_data *srch = NULL;
 	struct affected_type *af_ptr = NULL;
@@ -406,7 +445,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 
 	if (mount && ch->in_room != mount->in_room) {
 		REMOVE_BIT(AFF2_FLAGS(mount), AFF2_MOUNTED);
-		ch->dismount();
+		dismount(ch);
 		mount = NULL;
 	}
 
@@ -474,7 +513,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 	}
 
 	if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_GODROOM)
-		&& !is_group_member(ch, "WizardFull")) {
+		&& !is_authorized(ch, ENTER_GODROOM, NULL)) {
 		send_to_char(ch, "You cannot set foot in that Ultracosmic place.\r\n");
 		return 1;
 	}
@@ -507,14 +546,17 @@ do_simple_move(struct creature *ch, int dir, int mode,
 		}
 	}
 	/* if this room or the one we're going to needs wings, check for one */
-	if (ch->in_room->isOpenAir() && GET_POSITION(ch) != POS_FLYING &&
-			(!ch->isMounted() || ch->isMounted()->getPosition() != POS_FLYING)) {
+	if (room_is_open_air(ch->in_room)
+        && GET_POSITION(ch) != POS_FLYING
+        && (!MOUNTED_BY(ch) || GET_POSITION(MOUNTED_BY(ch)) != POS_FLYING)) {
 		send_to_char(ch, "You scramble wildly for a grasp of thin air.\r\n");
 		return 1;
 	}
-	if (EXIT(ch, dir)->to_room->isOpenAir() && !NOGRAV_ZONE(ch->in_room->zone)
-			&& GET_POSITION(ch) != POS_FLYING && mode != MOVE_JUMP &&
-			(!ch->isMounted() || ch->isMounted()->getPosition() != POS_FLYING)) {
+	if (room_is_open_air(EXIT(ch, dir)->to_room)
+        && !NOGRAV_ZONE(ch->in_room->zone)
+        && GET_POSITION(ch) != POS_FLYING
+        && mode != MOVE_JUMP &&
+        (!MOUNTED_BY(ch) || GET_POSITION(MOUNTED_BY(ch)) != POS_FLYING)) {
 		send_to_char(ch, "You need to be flying to go there.\r\n");
 		if (dir != UP)
 			send_to_char(ch, "You can 'jump' in that direction however...\r\n");
@@ -522,7 +564,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 	}
 
 	if (dir == UP && mode == MOVE_JUMP
-			&& EXIT(ch, dir)->to_room->isOpenAir()) {
+        && room_is_open_air(EXIT(ch, dir)->to_room)) {
 		send_to_char(ch, "You jump up in the air and land on your feet.\r\n");
 		act("$n jumps up into the air and lands on $s feet.\r\n",
 			false, ch, 0, 0, TO_ROOM);
@@ -540,9 +582,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 	}
 
 	/* check room count */
-	if ((i = EXIT(ch, dir)->to_room->people.size())
-		>= MAX_OCCUPANTS(EXIT(ch, dir)->to_room) ||
-		(mount && (i >= MAX_OCCUPANTS(EXIT(ch, dir)->to_room) - 2))) {
+	if (will_fit_in_room(ch, EXIT(ch, dir)->to_room)) {
 		send_to_char(ch, "It is too crowded there to enter.\r\n");
 		return 1;
 	}
@@ -609,11 +649,10 @@ do_simple_move(struct creature *ch, int dir, int mode,
 
     // At this point we're definately going to move.  Let's iterate though
     // the people in the room and make sure that no one is fighting us.
-    struct creatureList_iterator it;
-    it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it) {
-        if ((*it)->findCombat(ch))
-            (*it)->removeCombat(ch);
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+        if (findCombat(tch, ch))
+            removeCombat(tch, ch);
     }
 
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_NPC(ch))
@@ -636,8 +675,8 @@ do_simple_move(struct creature *ch, int dir, int mode,
 		sprintf(buf, "$n retreats %sward.", dirs[dir]);
 	} else if (mode == MOVE_CRAWL) {
 		sprintf(buf, "$n crawls slowly %sward.", dirs[dir]);
-	} else if (GET_POSITION(ch) == POS_FLYING || ch->in_room->isOpenAir()
-		|| EXIT(ch, dir)->to_room->isOpenAir()) {
+	} else if (GET_POSITION(ch) == POS_FLYING || room_is_open_air(ch->in_room)
+               || room_is_open_air(EXIT(ch, dir)->to_room)) {
 		sprintf(buf, "$n flies %s.", to_dirs[dir]);
 	} else if (ch->in_room->sector_type == SECT_ASTRAL) {
 		sprintf(buf, "$n travels what seems to be %sward.", to_dirs[dir]);
@@ -729,15 +768,14 @@ do_simple_move(struct creature *ch, int dir, int mode,
 		sprintf(buf + strlen(buf) - 1, ", carrying $N.");
 	if (blur_msg) {
 		if (mount && !AFF_FLAGGED(ch, AFF_BLUR))
-			blur_msg = tmp_strcat(blur_msg, ", carrying $N.");
+			blur_msg = tmp_strcat(blur_msg, ", carrying $N.", NULL);
 		else
-			blur_msg = tmp_strcat(blur_msg, ".");
+			blur_msg = tmp_strcat(blur_msg, ".", NULL);
 	}
 
-	it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		tch = *it;
-		if ((*it) == ch || !AWAKE((*it)))
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+		if (tch == ch || !AWAKE(tch))
 			continue;
 		if (check_sneak(ch, tch, true, true) == SNEAK_FAILED) {
 			if (blur_msg && !PRF_FLAGGED(tch, PRF_HOLYLIGHT) &&
@@ -761,9 +799,8 @@ do_simple_move(struct creature *ch, int dir, int mode,
 				&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
 				&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
 				&& c_obj->in_room) {
-				it = c_obj->in_room->people.begin();
-				for (; it != c_obj->in_room->people.end(); ++it) {
-					tch = *it;
+                for (GList *it = c_obj->in_room->people;it;it = it->next) {
+                    struct creature *tch = it->data;
 					if (ch == tch)
 						continue;
 
@@ -793,9 +830,9 @@ do_simple_move(struct creature *ch, int dir, int mode,
 				(was_in->sector_type == SECT_WATER_NOSWIM &&
 					!AFF_FLAGGED(ch, AFF_WATERWALK)) ||
 				was_in->sector_type == SECT_PITCH_SUB) ? "swim" :
-			(was_in->isOpenAir() ||
+			(room_is_open_air(was_in) ||
 				GET_POSITION(ch) == POS_FLYING) ? "fly" :
-			ch->isMounted() ? "ride" : "pass",
+			MOUNTED_BY(ch) ? "ride" : "pass",
 			IS_SET(was_in->dir_option[dir]->exit_info, EX_CLOSED) ?
 			"closed" : "open", fname(was_in->dir_option[dir]->keyword));
 	}
@@ -839,13 +876,13 @@ do_simple_move(struct creature *ch, int dir, int mode,
 	if (!IS_NPC(ch) && ch->in_room->zone != was_in->zone)
 		ch->in_room->zone->enter_count++;
 
-    if (was_in->zone->getPKStyle() != ch->in_room->zone->getPKStyle()) {
-        if (ch->in_room->zone->getPKStyle() == ZONE_NEUTRAL_PK) {
+    if (was_in->zone->pk_style != ch->in_room->zone->pk_style) {
+        if (ch->in_room->zone->pk_style == ZONE_NEUTRAL_PK) {
             send_to_char(ch, "%s%sYou have just entered a "
                          "neutral PK zone.%s\r\n", CCBLD(ch, C_CMP),
                          CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
         }
-        if (ch->in_room->zone->getPKStyle() == ZONE_CHAOTIC_PK) {
+        if (ch->in_room->zone->pk_style == ZONE_CHAOTIC_PK) {
             send_to_char(ch, "%s%sYou have just entered a "
                          "chaotic PK zone.%s\r\n", CCBLD(ch, C_CMP),
                          CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -872,7 +909,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 		sprintf(buf, "$n is dragged in from %s.", from_dirs[dir]);
 	} else if (mode == MOVE_CRAWL) {
 		sprintf(buf, "$n crawls slowly in from %s.", from_dirs[dir]);
-	} else if (GET_POSITION(ch) == POS_FLYING || ch->in_room->isOpenAir()) {
+	} else if (GET_POSITION(ch) == POS_FLYING || room_is_open_air(ch->in_room)) {
 		if (!AFF2_FLAGGED(ch, AFF2_ABLAZE))
 			sprintf(buf, "$n flies in from %s.", from_dirs[dir]);
 		else
@@ -969,14 +1006,13 @@ do_simple_move(struct creature *ch, int dir, int mode,
 		sprintf(buf + strlen(buf) - 1, ", carrying $N.");
 	if (blur_msg) {
 		if (mount && !AFF_FLAGGED(ch, AFF_BLUR))
-			blur_msg = tmp_strcat(blur_msg, ", carrying $N.");
+			blur_msg = tmp_strcat(blur_msg, ", carrying $N.", NULL);
 		else
-			blur_msg = tmp_strcat(blur_msg, ".");
+			blur_msg = tmp_strcat(blur_msg, ".", NULL);
 	}
 
-	it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		tch = *it;
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
 		if (tch == ch)
 			continue;
 
@@ -1006,9 +1042,8 @@ do_simple_move(struct creature *ch, int dir, int mode,
 				&& ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
 				&& GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
 				&& c_obj->in_room) {
-				it = c_obj->in_room->people.begin();
-				for (; it != c_obj->in_room->people.end(); ++it) {
-					tch = *it;
+                for (GList *it = c_obj->in_room->people;it;it = it->next) {
+                    struct creature *tch = it->data;
 					if (ch == tch)
 						continue;
 
@@ -1043,18 +1078,18 @@ do_simple_move(struct creature *ch, int dir, int mode,
 
 	if (room_is_underwater(ch->in_room)) {
         if (room_is_underwater(was_in)) {
-			ch->modifyBreathCount(1);
+			modifyBreathCount(ch, 1);
 		} else {
 			send_to_char(ch, "You are now submerged in water.\r\n");
-			ch->setBreathCount(0);
+			setBreathCount(ch, 0);
 		}
 	}
 	if (ch->in_room->sector_type == SECT_WATER_NOSWIM) {
 		if (was_in->sector_type != SECT_UNDERWATER &&
 			was_in->sector_type != SECT_WATER_NOSWIM) {
-			ch->setBreathCount(0);
+			setBreathCount(ch, 0);
 		} else {
-			ch->modifyBreathCount(2);
+			modifyBreathCount(ch, 2);
 		}
 	}
 	//
@@ -1135,7 +1170,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 			ch->in_room->sector_type == SECT_WATER_NOSWIM ||
 			ch->in_room->sector_type == SECT_WATER_SWIM) {
 
-		} else if (ch->in_room->isOpenAir()) {
+		} else if (room_is_open_air(ch->in_room)) {
 			if (GET_DEX(ch) + number(0, 10) < GET_OBJ_TIMER(obj)) {
 				if (apply_soil_to_char(ch, NULL, SOIL_BLOOD, WEAR_RANDOM))
 					send_to_char(ch, "You fly through the mist of blood.\r\n");
@@ -1162,11 +1197,11 @@ do_simple_move(struct creature *ch, int dir, int mode,
 		log_death_trap(ch);
 		death_cry(ch);
 		// extract it, leaving it's eq and such in the dt.
-		ch->die();
+		creature_die(ch);
 		if (was_in->number == 34004) {
 			for (obj = was_in->contents; obj; obj = next_obj) {
 				next_obj = obj->next_content;
-				damage_eq(NULL, obj, dice(10, 100));
+				damage_eq(NULL, obj, dice(10, 100), -1);
 			}
 		}
 		return 2;
@@ -1219,14 +1254,14 @@ perform_move(struct creature *ch, int dir, int mode, int need_specials_check)
 			||
 				(GET_COND(ch, DRUNK) > GET_CON(ch) &&
 					(number(0, GET_COND(ch, DRUNK)) > GET_DEX(ch))))) {
-		if (GET_POSITION(ch) == POS_MOUNTED && ch->isMounted() &&
+		if (GET_POSITION(ch) == POS_MOUNTED && MOUNTED_BY(ch) &&
 				CHECK_SKILL(ch, SKILL_RIDING) < number(50, 150)) {
 			act("$n sways and falls from the back of $N!",
-				true, ch, 0, ch->isMounted(), TO_ROOM);
+				true, ch, 0, MOUNTED_BY(ch), TO_ROOM);
 			act("You sway and fall from the back of $N!",
-				false, ch, 0, ch->isMounted(), TO_CHAR);
-			REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
-            ch->dismount();
+				false, ch, 0, MOUNTED_BY(ch), TO_CHAR);
+			REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
+            dismount(ch);
 			GET_POSITION(ch) = POS_SITTING;
 		} else if (GET_POSITION(ch) == POS_FLYING) {
 			act("You lose control and begin to fall!", false, ch, 0, 0,
@@ -1324,22 +1359,29 @@ perform_move(struct creature *ch, int dir, int mode, int need_specials_check)
         // iterating twice over the list, storing the visibility into
         // a FIFO of booleans.  It may seem like overkill, but this
         // caused some player confusion.
-        std_queue<bool> visibility;
+        GQueue *visibility = NULL;
+
+        visibility = g_queue_new();
 
         for (k = ch->followers; k; k = k->next) {
-            visibility.push(can_see_creature(k->follower, ch));
+            g_queue_push_tail(visibility,
+                              GINT_TO_POINTER(can_see_creature(k->follower, ch)));
         }
 
 		int retval = 0;
-		if ((retval = do_simple_move(ch, dir, mode, need_specials_check)) != 0)
+		if ((retval = do_simple_move(ch, dir, mode, need_specials_check)) != 0) {
+            g_queue_free(visibility);
 			return retval;
+        }
 
 		for (k = ch->followers; k; k = next) {
 			next = k->next;
+            bool visible = GPOINTER_TO_INT(g_queue_pop_head(visibility));
+
 			if ((was_in == k->follower->in_room) &&
 				!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING)
-				&& (k->follower->getPosition() >= POS_STANDING)
-				&& visibility.front()) {
+				&& (GET_POSITION(k->follower) >= POS_STANDING)
+				&& visible) {
                 const char *msg = "You follow $N.\r\n";
                 // These conditions match those in check_sight_room() in sight.cc
                 if (room_is_dark(ch->in_room) && !has_dark_sight(k->follower))
@@ -1353,14 +1395,14 @@ perform_move(struct creature *ch, int dir, int mode, int need_specials_check)
                 act(msg, false, k->follower, 0, ch, TO_CHAR);
                 perform_move(k->follower, dir, MOVE_NORM, 1);
 			}
-            visibility.pop();
 		}
         // We should have used up all the visibility items
-        assert(visibility.empty());
+        assert(g_queue_is_empty(visibility));
+        g_queue_free(visibility);
 		return 0;
 	}
 
-	return 1;
+    return 1;
 }
 
 ACMD(do_move)
@@ -1825,7 +1867,7 @@ ACMD(do_enter)
 			return;
 		}
 
-		if (room->people.size() >= (unsigned)MAX_OCCUPANTS(room)) {
+		if (will_fit_in_room(ch, room)) {
 			act("$p is already full of people.", false, ch,
 				car, 0, TO_CHAR);
 			return;
@@ -1856,7 +1898,7 @@ ACMD(do_enter)
 	if (ROOM_NUMBER(car))
 		room = real_room(ROOM_NUMBER(car));
 	else
-		room = ch->getLoadroom();
+		room = getLoadroom(ch);
 
 	if (!room) {
 		send_to_char(ch,
@@ -1869,11 +1911,9 @@ ACMD(do_enter)
 		return;
 	}
 
-	if ((ROOM_FLAGGED(room, ROOM_GODROOM)
-			&& !is_group_member(ch, "WizardFull"))
+	if ((ROOM_FLAGGED(room, ROOM_GODROOM) && !is_authorized(ch, ENTER_GODROOM, NULL))
 		|| (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)
-			&& (!car->in_room
-				|| CAN_WEAR(car, ITEM_WEAR_TAKE)))
+			&& (!car->in_room || CAN_WEAR(car, ITEM_WEAR_TAKE)))
 		|| (ROOM_FLAGGED(room, ROOM_HOUSE)
 			&& !can_enter_house(ch, room->number))
 		|| (ROOM_FLAGGED(room, ROOM_CLAN_HOUSE)
@@ -1884,7 +1924,7 @@ ACMD(do_enter)
 		return;
 	}
 
-	if (room->people.size() >= (unsigned)MAX_OCCUPANTS(room)) {
+	if (will_fit_in_room(ch, room)) {
 		act("You are unable to enter $p!", false, ch, car, 0, TO_CHAR);
 		return;
 	}
@@ -2041,7 +2081,7 @@ ACMD(do_stand)
 		if (IS_RACE(ch, RACE_GASEOUS)) {
 			send_to_char(ch, "You don't have legs.\r\n");
 			break;
-		} else if (ch->in_room->isOpenAir()) {
+		} else if (room_is_open_air(ch->in_room)) {
 			act("You can't stand on air, silly!", false, ch, 0, 0, TO_CHAR);
 			break;
 		} else if ((ch->in_room->sector_type == SECT_WATER_NOSWIM)
@@ -2153,13 +2193,13 @@ ACMD(do_fly)
 		act("You are already in flight.", false, ch, 0, 0, TO_CHAR);
 		break;
 	case POS_MOUNTED:
-		if (ch->isMounted()) {
-			act("You rise off of $N.", false, ch, 0, ch->isMounted(), TO_CHAR);
-			act("$n rises off of you.", false, ch, 0, ch->isMounted(), TO_VICT);
-			act("$n rises off of $N.", false, ch, 0, ch->isMounted(), TO_NOTVICT);
-			REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
+		if (MOUNTED_BY(ch)) {
+			act("You rise off of $N.", false, ch, 0, MOUNTED_BY(ch), TO_CHAR);
+			act("$n rises off of you.", false, ch, 0, MOUNTED_BY(ch), TO_VICT);
+			act("$n rises off of $N.", false, ch, 0, MOUNTED_BY(ch), TO_NOTVICT);
+			REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
 		}
-		ch->dismount();
+		dismount(ch);
 		GET_POSITION(ch) = POS_FLYING;
 		break;
 	default:
@@ -2199,7 +2239,7 @@ ACMD(do_sit)
 			TO_CHAR);
 		break;
 	case POS_MOUNTED:
-		act("You are already seated on $N.", false, ch, 0, ch->isMounted(), TO_CHAR);
+		act("You are already seated on $N.", false, ch, 0, MOUNTED_BY(ch), TO_CHAR);
 		break;
 	default:
 		act("You stop floating around, and sit down.", false, ch, 0, 0,
@@ -2239,7 +2279,7 @@ ACMD(do_rest)
 		act("You better not try that while flying.", false, ch, 0, 0, TO_CHAR);
 		break;
 	case POS_MOUNTED:
-		act("You had better get off of $N first.", false, ch, 0, ch->isMounted(), TO_CHAR);
+		act("You had better get off of $N first.", false, ch, 0, MOUNTED_BY(ch), TO_CHAR);
 		break;
 	default:
 		act("You stop floating around, and stop to rest your tired bones.",
@@ -2278,9 +2318,9 @@ ACMD(do_sleep)
 		send_to_char(ch, "That's a really bad idea while flying!\r\n");
 		break;
 	case POS_MOUNTED:
-		if (ch->isMounted())
+		if (MOUNTED_BY(ch))
 			act("Better not sleep while mounted on $N.", false, ch, 0,
-				ch->isMounted(), TO_CHAR);
+				MOUNTED_BY(ch), TO_CHAR);
 		else {
 			send_to_char(ch,
 				"You totter around bowlegged... better try that again!\r\n");
@@ -2405,7 +2445,7 @@ ACMD(do_mount)
 		send_to_char(ch, "What do you wish to mount?\r\n");
 		return;
 	}
-	if (ch->isMounted() == vict) {
+	if (MOUNTED_BY(ch) == vict) {
 		act("You are already mounted on $M.", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
@@ -2413,7 +2453,7 @@ ACMD(do_mount)
 		send_to_char(ch, "Are you some kind of fool, or what!?\r\n");
 		return;
 	}
-	if(ch->isMounted()) {
+	if(MOUNTED_BY(ch)) {
 		send_to_char(ch, "You'll have to dismount first.\r\n");
 		return;
 	}
@@ -2423,11 +2463,11 @@ ACMD(do_mount)
 		return;
 	}
 	if (AFF2_FLAGGED(vict, AFF2_MOUNTED)) {
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			if ((*it)->isMounted() == vict) {
+		for (GList *it = ch->in_room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+			if (MOUNTED_BY(tch) == vict) {
 				send_to_char(ch, "But %s is already mounted on %s!\r\n",
-					PERS((*it), ch), PERS(vict, ch));
+                             PERS(tch, ch), PERS(vict, ch));
 				return;
 			}
 		}
@@ -2448,10 +2488,6 @@ ACMD(do_mount)
 		send_to_char(ch, "You cannot mount up indoors.\r\n");
 		return;
 	}
-	if (ch->in_room->people.size() >= (unsigned)ch->in_room->max_occupancy) {
-		send_to_char(ch, "It is to crowded here to mount up.\r\n");
-		return;
-	}
 	if (GET_MOVE(ch) < 5) {
 		send_to_char(ch, "You are too exhausted.\r\n");
 		return;
@@ -2466,7 +2502,7 @@ ACMD(do_mount)
 		GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 5);
 	} else {
 		GET_POSITION(ch) = POS_MOUNTED;
-		ch->mount(vict);
+		mount(ch, vict);
 		SET_BIT(AFF2_FLAGS(vict), AFF2_MOUNTED);
 		gain_skill_prof(ch, SKILL_RIDING);
 	}
@@ -2474,15 +2510,15 @@ ACMD(do_mount)
 
 ACMD(do_dismount)
 {
-	if (!ch->isMounted()) {
+	if (!MOUNTED_BY(ch)) {
 		send_to_char(ch, "You're not even mounted!\r\n");
 		return;
 	} else {
-		act("You skillfully dismount $N.", false, ch, 0, ch->isMounted(), TO_CHAR);
-		act("$n skillfully dismounts $N.", false, ch, 0, ch->isMounted(), TO_ROOM);
+		act("You skillfully dismount $N.", false, ch, 0, MOUNTED_BY(ch), TO_CHAR);
+		act("$n skillfully dismounts $N.", false, ch, 0, MOUNTED_BY(ch), TO_ROOM);
 		GET_POSITION(ch) = POS_STANDING;
-		REMOVE_BIT(AFF2_FLAGS(ch->isMounted()), AFF2_MOUNTED);
-        ch->dismount();
+		REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
+        dismount(ch);
 		return;
 	}
 }
@@ -2596,14 +2632,14 @@ ACMD(do_defend)
 	}
 
 	if (targ == ch) {
-		if (ch->isDefending())
-            ch->stopDefending();
+		if (isDefending(ch))
+            stopDefending(ch);
 		else
 			send_to_char(ch, "You aren't defending anyone except yourself.\r\n");
 		return;
 	}
 
-	if (ch->isDefending() == targ) {
+	if (isDefending(ch) == targ) {
 		act("You are already defending $M.", false, ch, 0, targ, TO_CHAR);
 		return;
 	}
@@ -2612,9 +2648,9 @@ ACMD(do_defend)
 			TO_CHAR);
 	} else {
 		if (targ == ch) {
-			ch->stopDefending();
+			stopDefending(ch);
 		} else {
-            ch->startDefending(targ);
+            startDefending(ch, targ);
 		}
 	}
 }
@@ -2733,7 +2769,7 @@ ACMD(do_translocate)
 		send_to_char(ch,
 			"You go too far, rematerializing inside solid matter!!\r\n"
 			"Better luck next time...\r\n");
-		ch->die();
+		creature_die(ch);
 		return;
 	} else {
 		if( !char_from_room(ch) || !char_to_room(ch, rm) )
@@ -2751,11 +2787,11 @@ ACMD(do_translocate)
 			GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			log_death_trap(ch);
 			death_cry(ch);
-			ch->die();
+			creature_die(ch);
 			if (rm->number == 34004) {
 				for (obj = rm->contents; obj; obj = next_obj) {
 					next_obj = obj->next_content;
-					damage_eq(NULL, obj, dice(10, 100));
+					damage_eq(NULL, obj, dice(10, 100), -1);
 				}
 			}
 		}
@@ -2782,10 +2818,10 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
 
 	// a character can drag an object twice the weight of his maximum
 	// encumberance + a little luck
-	drag_wait = MAX(1, (obj->getWeight() / 100));
+	drag_wait = MAX(1, (GET_OBJ_WEIGHT(obj) / 100));
 	drag_wait = MIN(drag_wait, 3);
 
-	mvm_cost = MAX(15, (obj->getWeight() / 30));
+	mvm_cost = MAX(15, (GET_OBJ_WEIGHT(obj) / 30));
 	mvm_cost = MIN(mvm_cost, 30);
 
 	max_drag = (2 * str_app[GET_STR(ch)].carry_w) + (dice(1, (2 * GET_LEVEL(ch))));
@@ -2794,7 +2830,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
 		max_drag += (3 * CHECK_SKILL(ch, SKILL_DRAG));
 	}
 
-	if ((obj->getWeight()) > max_drag || (GET_MOVE(ch) < 50)) {
+	if ((GET_OBJ_WEIGHT(obj)) > max_drag || (GET_MOVE(ch) < 50)) {
 		send_to_char(ch, "You don't have the strength to drag %s.\r\n",
 			obj->name);
 		WAIT_STATE(ch, 1 RL_SEC);
@@ -2848,7 +2884,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
 		return 0;
 	}
 
-	if ((obj->getWeight()) > max_drag) {
+	if ((GET_OBJ_WEIGHT(obj)) > max_drag) {
 		send_to_char(ch, "You don't have the strength to drag %s.",
 			obj->name);
 		WAIT_STATE(ch, 1 RL_SEC);

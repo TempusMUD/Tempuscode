@@ -165,6 +165,9 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case FULL_IMMORT_WHERE:
         return is_named_role_member(ch, "Questor,AdminBasic,WizardBasic");
 
+    case ENTER_GODROOM:
+        return is_named_role_member(ch, "WizardFull");
+
     case COMMAND:
         if (GET_LEVEL(ch) <= command->minimum_level)
             return false;
