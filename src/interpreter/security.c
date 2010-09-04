@@ -162,6 +162,9 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case SEE_FULL_WHOLIST:
         return is_named_role_member(ch, "AdminBasic");
 
+    case FULL_IMMORT_WHERE:
+        return is_named_role_member(ch, "Questor,AdminBasic,WizardBasic");
+
     case COMMAND:
         if (GET_LEVEL(ch) <= command->minimum_level)
             return false;
@@ -245,7 +248,7 @@ send_role_list(struct creature *ch) {
                  cyn,
                  nrm);
 
-        
+
     for (GList *it = roles; it; it = it->next) {
         struct role *role = (struct role *)it->data;
         send_role_linedesc(role, ch);
@@ -401,7 +404,7 @@ ACCMD(do_access)
                 }
                 token = tmp_getword(&argument);
             } while (token);
-                
+
             break;
         case 1: // addcmd
             token = tmp_getword(&argument);
@@ -424,7 +427,7 @@ ACCMD(do_access)
                     sql_exec("insert into srole_commands (srole, command) "
                              "values (%d, '%s')",
                              role->id, cmd_info[command_idx].command);
-        
+
                     slog("Security:  command %s added to role '%s' by %s.",
                          cmd_info[command_idx].command,
                          role->name,
@@ -447,7 +450,7 @@ ACCMD(do_access)
                 send_to_char(ch, "The admin role you specified isn't a role.\r\n");
                 return;
             }
-                
+
             set_role_admin_role(role, token);
             sql_exec("update sroles set admin=%d where idnum=%d",
                      role->id, admin_role->id);
@@ -481,7 +484,7 @@ ACCMD(do_access)
                 send_to_char(ch, "That role already exists.\r\n");
                 return;
             }
-                
+
             if (make_role(token, NULL, NULL)) {
                 PGresult *res;
                 int role_id;
@@ -607,7 +610,7 @@ ACCMD(do_access)
                     sql_exec("delete from srole_commands "
                              "where srole = %d and command='%s') ",
                              role->id, cmd_info[command_idx].command);
-        
+
                     slog("Security:  command %s removed from role '%s' by %s.",
                          cmd_info[command_idx].command,
                          role->name,
@@ -646,7 +649,7 @@ ACCMD(do_access)
                 send_to_char(ch, "That's not a role.\r\n");
                 return;
             }
-            
+
             send_role_status(role, ch);
             break;
         default:

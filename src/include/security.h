@@ -60,6 +60,7 @@ enum privilege {
     DESTROY_CLAN,
     EDIT_CLAN,
     SEE_FULL_WHOLIST,
+    FULL_IMMORT_WHERE,
     COMMAND,
     SET,
     SHOW

@@ -54,7 +54,7 @@
 extern int mini_mud;
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
-extern struct creatureList characterList;
+extern GList *characterList;
 
 extern struct obj_data *object_list;
 //extern const struct command_info cmd_info[];
@@ -1452,7 +1452,6 @@ look_in_direction(struct creature *ch, int dir)
 				send_to_char(ch,
 					"It's too dark there to see anything special.\r\n");
 			else {
-
 				/* now list characters & objects */
 				acc_sprintf("%s", CCGRN(ch, C_NRM));
 				list_obj_to_char(EXNUMB->contents, ch, SHOW_OBJ_ROOM, false);
@@ -3147,7 +3146,7 @@ ACMD(do_weather)
 
 //generates a formatted string representation of a player for the who list
 void
-who_string(struct creature *ch, struct creature *target) 
+who_string(struct creature *ch, struct creature *target)
 {
 	int len = strlen(BADGE(target));
 
@@ -3222,7 +3221,7 @@ who_flags(struct creature *ch, struct creature *target)
                         CCCYN(ch, C_NRM),
                         real_clan(GET_CLAN(target))->badge,
                         CCNRM(ch, C_NRM));
-			
+
 		} else if (is_authorized(ch, SEE_FULL_WHOLIST, NULL)) {
             acc_sprintf(" %s%s%s",
                         CCCYN(ch, C_NRM),
@@ -3314,14 +3313,14 @@ ACMD(do_who)
 
 	struct descriptor_data *d;
 	struct creature *curr;
-	int playerTotal=0, immTotal=0;
-	const char *tester_s="s";
+	int playerTotal = 0, testerTotal = 0, immTotal = 0;
 	bool zone=false, plane=false, time=false, kills=false, noflags=false;
 	bool classes=false, clan=false;
 	bool mage=false, thief=false, ranger=false, knight=false, cleric=false, barbarian=false;
 	bool bard=false, monk=false, physic=false, cyborg=false, psionic=false, mercenary=false;
     struct clan_data *real_clan = NULL;
     char *arg;
+    GList *immortals, *testers, *players;
 
     for (arg = tmp_getword(&argument);arg;arg = tmp_getword(&argument)) {
         if (!strcmp(arg, "zone")) {
@@ -3405,9 +3404,11 @@ ACMD(do_who)
         }
 
 		//update the total number of players first
-		if (GET_LEVEL(curr) < LVL_AMBASSADOR && !isTester(curr)) {
+        if (isTester(curr)) {
+            testerTotal++;
+		} else if (GET_LEVEL(curr) < LVL_AMBASSADOR) {
 			playerTotal++;
-		} else if (GET_LEVEL(curr) >= LVL_AMBASSADOR) {
+		} else {
             immTotal++;
         }
 
@@ -3468,68 +3469,78 @@ ACMD(do_who)
 		/////////////////END CONDITIONS/////////////////////////
 
 		if (GET_LEVEL(curr) >= LVL_AMBASSADOR)
-			immortals.push_back(curr);
+			immortals = g_list_prepend(immortals, curr);
 		else if (isTester(curr))
-			testers.push_back(curr);
+            testers = g_list_prepend(testers, curr);
 		else
-			players.push_back(curr);
+            players = g_list_prepend(players, curr);
 	}
 
-	std_sort(immortals.begin(), immortals.end(), WhoListComparator());
-	std_sort(testers.begin(), testers.end(), WhoListComparator());
-	std_sort(players.begin(), players.end(), WhoListComparator());
+    immortals = g_list_sort(immortals, (GCompareFunc)who_list_compare);
+	testers = g_list_sort(testers, (GCompareFunc)who_list_compare);
+	players = g_list_sort(players, (GCompareFunc)who_list_compare);
 
-	out << CCNRM(ch, C_SPR) << CCBLD(ch, C_CMP) << "**************      " << CCGRN(ch, C_NRM);
-	out << "Visible Players of TEMPUS" << CCNRM(ch, C_NRM) << CCBLD(ch, C_CMP);
-	out << "      **************" << CCNRM(ch, C_SPR) << "\r\n";
-	out << (IS_NPC(ch) ? "" : (ch->get_compact_level(account) > 1) ? "" : "\r\n");
-	for (cit = immortals.begin();cit != immortals.end();++cit) {
-		curr = *cit;
-		out << whoString(ch, curr);
+    acc_strcat(CCNRM(ch, C_SPR), CCBLD(ch, C_CMP), "**************      ",
+               CCGRN(ch, C_NRM), "Visible Players of TEMPUS",
+               CCNRM(ch, C_NRM), CCBLD(ch, C_CMP), "      **************",
+               CCNRM(ch, C_SPR), "\r\n",
+               (IS_NPC(ch) || ch->account->compact_level > 1) ? "" : "\r\n",
+               NULL);
+	for (GList *cit = immortals;cit;cit = cit->next) {
+		curr = (struct creature *)cit;;
+		who_string(ch, curr);
 		if (!noflags) {
-			out << whoFlagsString(ch, curr);
+			who_flags(ch, curr);
 		}
 		if (kills) {
-			out << whoKillsString(ch, curr);
+			who_kills(ch, curr);
 		}
-		out << "\r\n";
+        acc_strcat("\r\n", NULL);
 	}
 	if (IS_IMMORT(ch) || isTester(ch)) {
-		for (cit = testers.begin();cit != testers.end();++cit) {
-			curr = *cit;
-			out << whoString(ch, curr);
+        for (GList *cit = testers;cit;cit = cit->next) {
+            curr = (struct creature *)cit;;
+			who_string(ch, curr);
 			if (!noflags) {
-				out << whoFlagsString(ch, curr);
+				who_flags(ch, curr);
 			}
 			if (kills) {
-				out << whoKillsString(ch, curr);
+				who_kills(ch, curr);
 			}
-			out << "\r\n";
+            acc_strcat("\r\n", NULL);
 		}
 	}
-	for (cit = players.begin();cit != players.end();++cit) {
-		curr = *cit;
-		out << whoString(ch, curr);
+    for (GList *cit = players;cit;cit = cit->next) {
+        curr = (struct creature *)cit;;
+		who_string(ch, curr);
 		if (!noflags) {
-			out << whoFlagsString(ch, curr);
+			who_flags(ch, curr);
 		}
 		if (kills) {
-			out << whoKillsString(ch, curr);
+			who_kills(ch, curr);
 		}
-		out << "\r\n";
+        acc_strcat("\r\n", NULL);
 	}
 
 	//determine plurality of nouns
-	if (testers.size() == 1)
-		tester_s="";
-
-	out << (IS_NPC(ch) ? "" : (ch->account->compact_level > 1) ? "" : "\r\n");
-	out << immortals.size() << " of " << immTotal << " immortals";
+    if (IS_PC(ch) && ch->account->compact_level <= 1)
+        acc_strcat("\r\n", NULL);
+    acc_sprintf("%d of %d immortal%s",
+                g_list_length(immortals),
+                immTotal,
+                (!immortals || immortals->next) ? "s":"");
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR || isTester(ch)) {
-		out << ", " << testers.size() << " tester" << tester_s << ",";
+        acc_sprintf("%d of %d tester%s", g_list_length(testers),
+                    testerTotal,
+                    (!testers || testers->next) ? "s":"");
 	}
-	out << " and " << players.size() << " of " << playerTotal << " players displayed.\r\n";
-	page_string(ch->desc, out.str().c_str());
+    acc_sprintf("and %d of %d player%s displayed.\r\n", g_list_length(players),
+                playerTotal,
+                (!players || players->next) ? "s":"");
+	page_string(ch->desc, acc_get_string());
+    g_list_free(immortals);
+    g_list_free(testers);
+    g_list_free(players);
 }
 
 /* Generic page_string function for displaying text */
@@ -3570,8 +3581,8 @@ ACMD(do_gen_ps)
 }
 
 void
-print_object_location(int num, struct obj_data *obj,
-	struct creature *ch, int recur, char *to_buf)
+acc_print_object_location(int num, struct obj_data *obj,
+                          struct creature *ch, int recur)
 {
 	if ((obj->carried_by && GET_INVIS_LVL(obj->carried_by) > GET_LEVEL(ch)) ||
 		(obj->in_obj && obj->in_obj->carried_by &&
@@ -3582,46 +3593,39 @@ print_object_location(int num, struct obj_data *obj,
 		return;
 
 	if (num > 0)
-		sprintf(buf, "%sO%s%3d. %s%-25s%s - ", CCGRN_BLD(ch, C_NRM), CCNRM(ch,
+		acc_sprintf("%sO%s%3d. %s%-25s%s - ", CCGRN_BLD(ch, C_NRM), CCNRM(ch,
 				C_NRM), num, CCGRN(ch, C_NRM), obj->name,
 			CCNRM(ch, C_NRM));
 	else
-		sprintf(buf, "%33s", " - ");
-
-	strncat(to_buf, buf, MAX_STRING_LENGTH - 1);
+		acc_sprintf("%33s", " - ");
 
 	if (obj->in_room != NULL) {
-		sprintf(buf, "%s[%s%5d%s] %s%s%s\r\n",
+		acc_sprintf("%s[%s%5d%s] %s%s%s\r\n",
 			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 			obj->in_room->number, CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
 			obj->in_room->name, CCNRM(ch, C_NRM));
 	} else if (obj->carried_by) {
-		sprintf(buf, "carried by %s%s%s [%s%5d%s]%s\r\n",
+		acc_sprintf("carried by %s%s%s [%s%5d%s]%s\r\n",
 			CCYEL(ch, C_NRM), PERS(obj->carried_by, ch),
 			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 			obj->carried_by->in_room->number, CCGRN(ch, C_NRM), CCNRM(ch,
 				C_NRM));
 	} else if (obj->worn_by) {
-		sprintf(buf, "worn by %s%s%s [%s%5d%s]%s\r\n",
+		acc_sprintf("worn by %s%s%s [%s%5d%s]%s\r\n",
 			CCYEL(ch, C_NRM), PERS(obj->worn_by, ch),
 			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->worn_by->in_room->number,
 			CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	} else if (obj->in_obj) {
-		sprintf(buf, "inside %s%s%s%s\r\n",
+		acc_sprintf("inside %s%s%s%s\r\n",
 			CCGRN(ch, C_NRM), obj->in_obj->name,
 			CCNRM(ch, C_NRM), (recur ? ", which is" : " "));
-		strncat(to_buf, buf, MAX_STRING_LENGTH - 1);
-
 		if (recur)
-			print_object_location(0, obj->in_obj, ch, recur, to_buf);
+			acc_print_object_location(0, obj->in_obj, ch, recur);
 		return;
 	} else {
-		sprintf(buf, "%sin an unknown location%s\r\n",
+		acc_sprintf("%sin an unknown location%s\r\n",
 			CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	}
-
-	strncat(to_buf, buf, MAX_STRING_LENGTH - 1);
-	to_buf[MAX_STRING_LENGTH - 1] = '\0';
 }
 
 /**
@@ -3634,19 +3638,23 @@ print_object_location(int num, struct obj_data *obj,
  *
 **/
 
-bool isWhereMatch( const list<char *> &req, const list<char *> &exc, struct obj_data *thing) {
-    list<char *>_const_iterator reqit, excit;
+bool
+object_matches_terms(GList *req,GList *exc, struct obj_data *obj)
+{
+    GList *it;
 
-	if (!thing->aliases)
-		return false;
+    if (!obj->aliases)
+        return false;
 
-    for(reqit = req.begin(); reqit != req.end(); reqit++) {
-        if(!isname(*reqit, thing->aliases))
+    for(it = req;it; it = it->next) {
+        if(!isname((char *)it->data, obj->aliases)) {
             return false;
+        }
     }
-    for(excit = exc.begin(); excit != exc.end(); excit++) {
-        if(isname(*excit, thing->aliases))
+    for(it = exc;it; it = it->next) {
+        if(isname((char *)it->data, obj->aliases)) {
             return false;
+        }
     }
     return true;
 }
@@ -3661,16 +3669,17 @@ bool isWhereMatch( const list<char *> &req, const list<char *> &exc, struct obj_
  *
 **/
 bool
-isWhereMatch( const list<char *> &req, const list<char *> &exc, struct creature *mob) {
-    list<char *>_const_iterator reqit, excit;
+creature_matches_terms(GList *req,GList *exc, struct creature *mob)
+{
+    GList *it;
 
-    for(reqit = req.begin(); reqit != req.end(); reqit++) {
-        if(!isname(*reqit, mob->player.name)) {
+    for(it = req;it; it = it->next) {
+        if(!isname((char *)it->data, mob->player.name)) {
             return false;
         }
     }
-    for(excit = exc.begin(); excit != exc.end(); excit++) {
-        if(isname(*excit, mob->player.name)) {
+    for(it = exc;it; it = it->next) {
+        if(isname((char *)it->data, mob->player.name)) {
             return false;
         }
     }
@@ -3686,25 +3695,16 @@ isWhereMatch( const list<char *> &req, const list<char *> &exc, struct creature 
 **/
 
 bool
-isInHouse( struct obj_data *obj) {
-    //if in_obj isn't null, it's still inside a container.
-    if(obj->in_obj == NULL) {
-        //container is being carried, not in house
-        if(obj->in_room == NULL) {
-            return false;
-        }
-        if(ROOM_FLAGGED(obj->in_room, ROOM_HOUSE)) {
-            return true;
-        }
-        //container lying on the ground outside a house
-        else {
-            return false;
-        }
-    }
-    //still inside a container, call again
-    else {
-        return isInHouse(obj->in_obj);
-    }
+obj_in_house(struct obj_data *obj)
+{
+
+    if (obj->in_obj)
+        return obj_in_house(obj->in_obj);
+
+    if (!obj->in_room)
+        return false;
+
+    return ROOM_FLAGGED(obj->in_room, ROOM_HOUSE);
 }
 
 void
@@ -3714,64 +3714,64 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
 	register struct obj_data *k;
 	struct descriptor_data *d;
 	int num = 0, found = 0;
-	char main_buf[MAX_STRING_LENGTH];
-	char arg1[MAX_INPUT_LENGTH];
-    Tokenizer arguments(arg);
-    list<char *> required, excluded;
     bool house_only, no_house, no_mob, no_object;
+    GList *required, *excluded;
+    char *arg1;
 
     house_only = no_house = no_mob = no_object = false;
 
-	arg1[0] = '\0';
-	if (!arguments.hasNext() || !show_morts) {
-		strcpy(main_buf, "Players\r\n-------\r\n");
+    acc_string_clear();
+    skip_spaces(&arg);
+	if (!*arg || !show_morts) {
+		acc_strcat("Players\r\n-------\r\n", NULL);
 		for (d = descriptor_list; d; d = d->next) {
-			if (STATE(d) == CXN_PLAYING) {
-				i = (d->original ? d->original : d->creature);
-				if (i && can_see_creature(ch, i) && (i->in_room != NULL) &&	(show_morts || IS_IMMORT(i))) {
-					if (d->original)
-						sprintf(buf,
-							"%s%-20s%s - %s[%s%5d%s]%s %s%s%s %s(in %s)%s\r\n",
-							(GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,
-									C_NRM) : ""), GET_NAME(i),
-							(GET_LEVEL(i) >= LVL_AMBASSADOR ? CCNRM(ch,
-									C_NRM) : ""), CCGRN(ch, C_NRM), CCNRM(ch,
-								C_NRM), d->creature->in_room->number,
-							CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch,
-								C_NRM), d->creature->in_room->name, CCNRM(ch,
-								C_NRM), CCRED(ch, C_CMP),
-							GET_NAME(d->creature), CCNRM(ch, C_CMP));
-					else
-						sprintf(buf, "%s%-20s%s - %s[%s%5d%s]%s %s%s%s\r\n",
-							(GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,
-									C_NRM) : ""), GET_NAME(i),
-							(GET_LEVEL(i) >= LVL_AMBASSADOR ? CCNRM(ch,
-									C_NRM) : ""), CCGRN(ch, C_NRM), CCNRM(ch,
-								C_NRM), i->in_room->number, CCGRN(ch, C_NRM),
-							CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-							i->in_room->name, CCNRM(ch, C_NRM));
-					strcat(main_buf, buf);
-				}
-			}
-		}
-		page_string(ch->desc, main_buf);
-	} else {
-        while(arguments.next(arg1)) {
-            if(arg1[0] == '!') {
-                excluded.push_back(tmp_strdup(arg1 + 1));
+			if (STATE(d) != CXN_PLAYING)
+                return;
+            i = (d->original ? d->original : d->creature);
+            if (i
+                && can_see_creature(ch, i)
+                && (i->in_room != NULL)
+                && (show_morts || IS_IMMORT(i))) {
+                if (d->original)
+                    acc_sprintf("%s%-20s%s - %s[%s%5d%s]%s %s%s%s %s(in %s)%s\r\n",
+                                (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch, C_NRM) : ""),
+                                GET_NAME(i),
+                                (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCNRM(ch, C_NRM) : ""),
+                                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                                d->creature->in_room->number,
+                                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                                d->creature->in_room->name,
+                                CCNRM(ch, C_NRM), CCRED(ch, C_CMP),
+                                GET_NAME(d->creature),
+                                CCNRM(ch, C_CMP));
+                else
+                    acc_sprintf("%s%-20s%s - %s[%s%5d%s]%s %s%s%s\r\n",
+                                (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch, C_NRM) : ""),
+                                GET_NAME(i),
+                                (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCNRM(ch, C_NRM) : ""),
+                                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                                i->in_room->number,
+                                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                                i->in_room->name, CCNRM(ch, C_NRM));
             }
-            else if(arg1[0] == '-') {
+		}
+		page_string(ch->desc, acc_get_string());
+	} else {
+        arg1 = tmp_getword(&arg);
+        while(arg1) {
+            if(arg1[0] == '!') {
+                excluded = g_list_prepend(excluded, tmp_strdup(arg1 + 1));
+            } else if(arg1[0] == '-') {
                 if(is_abbrev(arg1, "-nomob")) no_mob = true;
                 if(is_abbrev(arg1, "-noobject")) no_object = true;
                 if(is_abbrev(arg1, "-nohouse")) no_house = true;
                 if(is_abbrev(arg1, "-house")) house_only = true;
-            }
-            else {
-                required.push_back(tmp_strdup(arg1));
+            } else {
+                required = g_list_prepend(required, tmp_strdup(arg1 + 1));
             }
         }
 
-	    if(required.empty()) { //if there are no required fields don't search
+	    if(!required) { //if there are no required fields don't search
             send_to_char(ch, "You're going to have to be a bit more specific than that.\r\n");
             return;
         }
@@ -3781,57 +3781,43 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
             return;
         }
 
-		list <string> outList;
-
 		if(!no_mob) {
-            struct creatureList_iterator cit = characterList.begin();
-            for (; cit != characterList.end(); ++cit) {
-                i = *cit;
-                if (can_see_creature(ch, i) && i->in_room && isWhereMatch(required, excluded, i) &&
-                    (GET_MOB_SPEC(i) != fate || GET_LEVEL(ch) >= LVL_SPIRIT)) {
+            GList *cit;
+            for (cit = characterList;cit;cit = cit->next) {
+                i = cit->data;
+                if (can_see_creature(ch, i)
+                    && i->in_room
+                    && creature_matches_terms(required, excluded, i)
+                    && (GET_MOB_SPEC(i) != fate
+                        || GET_LEVEL(ch) >= LVL_SPIRIT)) {
                     found = 1;
-                    sprintf(buf, "%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
+                    acc_sprintf("%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
                         CCRED_BLD(ch, NRM), CCNRM(ch, NRM), ++num,
                         CCYEL(ch, C_NRM), GET_NAME(i), CCNRM(ch, C_NRM),
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), i->in_room->number,
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
                         i->in_room->name, CCNRM(ch, C_NRM));
-                    outList.push_back(buf);
                 }
             }
         }
 
         if(!no_object) {
             for (num = 0, k = object_list; k; k = k->next) {
-                if(! can_see_object(ch, k))
+                if(!can_see_object(ch, k))
                     continue;
-                if (house_only && !isInHouse(k))
+                if (house_only && !obj_in_house(k))
                     continue;
-                if (no_house && isInHouse(k))
+                if (no_house && obj_in_house(k))
                     continue;
-                if (isWhereMatch(required, excluded, k)) {
+                if (object_matches_terms(required, excluded, k)) {
                     found = 1;
-                    main_buf[0] = '\0';
-                    print_object_location(++num, k, ch, true, main_buf);
-                    outList.push_back(main_buf);
+                    acc_print_object_location(++num, k, ch, true);
                 }
             }
         }
 
 		if (found) {
-			main_buf[0] = '\0';
-			list <string>_iterator it = outList.begin();
-			int space = MAX_STRING_LENGTH - 128;
-			for (; it != outList.end(); it++) {
-				space -= (*it).length();
-				if (space <= 0) {
-					strcat(main_buf,
-						"\r\n****** Buffer size exceeded. Use more specific search terms. ******\r\n");
-					break;
-				}
-				strcat(main_buf, (*it).c_str());
-			}
-			page_string(ch->desc, main_buf);
+			page_string(ch->desc, acc_get_string());
 		} else {
 			send_to_char(ch, "Couldn't find any such thing.\r\n");
 		}
@@ -3842,21 +3828,20 @@ ACMD(do_where)
 {
 	skip_spaces(&argument);
 
-	if (is_group_member(ch, "Questor,AdminBasic,WizardBasic") ||
-		(IS_MOB(ch) && ch->desc && ch->desc->original &&
-			is_group_member(ch->desc->original, "Questor,AdminBasic,WizardBasic")))
-	  perform_immort_where(ch, argument, true);
-	else if (IS_IMMORT(ch)) {
-	  perform_immort_where(ch, argument, false);
+    if (is_authorized(ch, FULL_IMMORT_WHERE, NULL)) {
+        perform_immort_where(ch, argument, true);
+    } else if (IS_IMMORT(ch)) {
+        perform_immort_where(ch, argument, false);
 	} else {
-
 		send_to_char(ch, "You are located: %s%s%s\r\nIn: %s%s%s.\r\n",
-			CCGRN(ch, C_NRM), (room_is_dark(ch->in_room) && !has_dark_sight(ch)) ?
-			"In a very dark place." :
-			ch->in_room->name, CCNRM(ch, C_NRM),
-			CCGRN(ch, C_NRM), (room_is_dark(ch->in_room) && !has_dark_sight(ch)) ?
-			"You can't tell for sure." :
-			ch->in_room->zone->name, CCNRM(ch, C_NRM));
+                     CCGRN(ch, C_NRM),
+                     (room_is_dark(ch->in_room) && !has_dark_sight(ch)) ?
+                     "In a very dark place." : ch->in_room->name,
+                     CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
+                     (room_is_dark(ch->in_room) && !has_dark_sight(ch)) ?
+                     "You can't tell for sure." : ch->in_room->zone->name,
+                     CCNRM(ch, C_NRM));
+
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW))
 			send_to_char(ch, "This place is beyond the reach of law.\r\n");
 		if (!IS_APPR(ch->in_room->zone)) {
