@@ -44,7 +44,7 @@
 #include "fight.h"
 #include "char_class.h"
 #include "security.h"
-#include "player_table.h"
+#include "players.h"
 
 /* extern variables */
 extern struct descriptor_data *descriptor_list;
@@ -55,10 +55,10 @@ extern int log_cmds;
 extern int jet_stream_state;
 
 int check_mob_reaction(struct creature *ch, struct creature *vict);
-void set_desc_state(cxn_state state,struct descriptor_data *d );
+void set_desc_state(enum cxn_state state,struct descriptor_data *d );
 void look_at_target(struct creature *ch, char *arg, int cmd);
 int find_door(struct creature *ch, char *type, char *dir,
-	const char *cmdname);
+              const char *cmdname);
 void weather_change(void);
 int drag_object(struct creature *ch, struct obj_data *obj, char *argument);
 void ice_room(struct room_data *room, int amount);
@@ -117,9 +117,9 @@ ACMD(do_quit)
 		}
 
 		if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR ||
-			ch->isTester()) {
+			isTester(ch)) {
 			if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-				mlog(Security_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+				mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has departed from the known multiverse",
 					GET_NAME(ch));
 				act("$n steps out of the universe.", true, ch, 0, 0, TO_ROOM);
@@ -127,11 +127,11 @@ ACMD(do_quit)
 			} else {
 				send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
 				act("$n flickers out of reality.", true, ch, 0, 0, TO_ROOM);
-				mlog(Security_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+				mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has left the game%s", GET_NAME(ch),
-					ch->isTester() ? " (tester)" : " naked");
+					isTester(ch) ? " (tester)" : " naked");
 			}
-			ch->rent();
+			rent(ch);
 		} else if ((ch->carrying || IS_WEARING_W(ch)) &&
 			!ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) &&
 			strncasecmp(argument, "yes", 3)) {
@@ -152,7 +152,7 @@ ACMD(do_quit)
 			if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 				cost = calc_daily_rent(ch, 1, NULL, false);
 
-				if(ch->displayUnrentables())
+				if(displayUnrentables(ch))
 					return;
 
 				if (cost < 0) {
@@ -160,30 +160,30 @@ ACMD(do_quit)
 					return;
 				}
 
-				mlog(Security_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+				mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has left the game from house, room %d",
 					GET_NAME(ch), ch->in_room->number);
 				send_to_char(ch, "You smoothly slip out of existence.\r\n");
 				act("$n smoothly slips out of existence and is gone.",
 					true, ch, 0, 0, TO_ROOM);
-				ch->rent();
+				rent(ch);
 			} else {
 				send_to_char(ch,
 					"\r\nVery well %s.  You drop all your things and vanish!\r\n",
 					GET_NAME(ch));
 				act("$n disappears, leaving all $s equipment behind!",
 					true, ch, 0, 0, TO_ROOM);
-				mlog(Security_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+				mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s (%d) has quit the game, EQ drop at %d",
 					GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
-				ch->quit();
+				quit(ch);
 			}
 		} else {
 			send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
 			act("$n flickers out of reality.", true, ch, 0, 0, TO_ROOM);
-			mlog(Security_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+			mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 				"%s has left the game naked", GET_NAME(ch));
-			ch->quit();
+			quit(ch);
 		}
 	}
 }
@@ -197,11 +197,11 @@ ACMD(do_save)
 		send_to_char(ch, "Saving %s.\r\n", GET_NAME(ch));
 	}
 	save_player_to_xml(ch);
-	ch->crashSave();
+	crashSave(ch);
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
-		House* house = Housing.findHouseByRoom( ch->in_room->number );
+		struct house *house = find_house_by_room( ch->in_room->number );
 		if( house != NULL )
-			house->save();
+			save_house(house);
 	}
 }
 
@@ -343,8 +343,8 @@ ACMD(do_title)
 	else if (strstr(argument, "(") || strstr(argument, ")"))
 		send_to_char(ch, "Titles can't contain the ( or ) characters.\r\n");
 	else if (strlen(argument) > MAX_TITLE_LENGTH) {
-		send_to_char(ch, "Sorry, titles can't be longer than %zd characters.\r\n",
-			MAX_TITLE_LENGTH);
+		send_to_char(ch, "Sorry, titles can't be longer than %d characters.\r\n",
+                     MAX_TITLE_LENGTH);
 	} else {
 		set_title(ch, argument);
 		send_to_char(ch, "Okay, you're now %s%s.\r\n", GET_NAME(ch),
@@ -792,7 +792,7 @@ ACMD(do_use)
 		return;
 	}
 
-	mag_objectmagic(ch, mag_item, buf);
+	mag_objectmagic(ch, mag_item, buf, NULL);
 }
 
 ACMD(do_wimpy)
@@ -1336,13 +1336,14 @@ ACMD(do_afk)
         // Afk with a reason always keeps afk
         skip_spaces(&argument);
         if (strlen(argument) > MAX_AFK_LENGTH) {
-            send_to_char(ch, "Your afk reason must be limited to %zd characters.\r\n", MAX_AFK_LENGTH);
+            send_to_char(ch, "Your afk reason must be limited to %d characters.\r\n", MAX_AFK_LENGTH);
             return;
         }
 
         free(AFK_REASON(ch));
         AFK_REASON(ch) = strdup(argument);
-        AFK_NOTIFIES(ch).clear();
+        g_list_free(AFK_NOTIFIES(ch));
+        AFK_NOTIFIES(ch) = NULL;
         SET_BIT(PLR_FLAGS(ch), PLR_AFK);
         send_to_char(ch, "You are now afk: %s.\r\n", argument);
         act(tmp_sprintf("$n has gone away from the keyboard: %s", argument),
@@ -1351,7 +1352,8 @@ ACMD(do_afk)
         // Leaving afk
         free(AFK_REASON(ch));
         AFK_REASON(ch) = NULL;
-        AFK_NOTIFIES(ch).clear();
+        g_list_free(AFK_NOTIFIES(ch));
+        AFK_NOTIFIES(ch) = NULL;
         REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
         send_to_char(ch, "You have returned to the keyboard.\r\n");
         act("$n has returned to the keyboard", false, ch, 0, 0, TO_ROOM);
@@ -1359,7 +1361,8 @@ ACMD(do_afk)
         // Afk with no reason
         free(AFK_REASON(ch));
         AFK_REASON(ch) = NULL;
-        AFK_NOTIFIES(ch).clear();
+        g_list_free(AFK_NOTIFIES(ch));
+        AFK_NOTIFIES(ch) = NULL;
         send_to_char(ch, "You are now afk.  When you move again, you will no longer be.\r\n");
         SET_BIT(PLR_FLAGS(ch), PLR_AFK);
         act("$n has gone away from the keyboard.", false, ch, 0, 0, TO_ROOM);
@@ -1560,7 +1563,7 @@ ACMD(do_screen)
     if(!*argument) {
         // Handle the no argument option
         send_to_char(ch, "Your current screen length is: %d lines.\r\n",
-            ch->desc->account->get_term_height());
+            ch->desc->account->term_height);
         return;
     }
 
@@ -1590,7 +1593,7 @@ ACMD(do_screen)
 
     // Now change the validated values
     if (*height_str) {
-        ch->desc->account->set_term_height(new_height);
+        ch->desc->account->term_height = new_height;
         if (GET_PAGE_LENGTH(ch)) {
             send_to_char(ch, "Your screen length will now be %d lines.\r\n",
                          GET_PAGE_LENGTH(ch));
@@ -1599,7 +1602,7 @@ ACMD(do_screen)
         }
     }
     if (*width_str) {
-        ch->desc->account->set_term_width(new_width);
+        ch->desc->account->term_width = new_width;
         if (GET_PAGE_WIDTH(ch)) {
             send_to_char(ch, "Your screen width will now be %d characters.\r\n",
                          GET_PAGE_WIDTH(ch));
@@ -1763,7 +1766,7 @@ ACMD(do_throw)
             calc_thaco = calculate_thaco(ch, target_vict, NULL) + 10;
             calc_thaco -= (CHECK_SKILL(ch, SKILL_THROWING) / 10);
             if (!IS_OBJ_STAT2(obj, ITEM2_THROWN_WEAPON))
-                calc_thaco += 2 * obj->getWeight();
+                calc_thaco += 2 * GET_OBJ_WEIGHT(obj);
 
             victim_ac = GET_AC(target_vict) / 10;
             victim_ac = MAX(-10, victim_ac);	/* -10 is lowest */
@@ -1792,7 +1795,7 @@ ACMD(do_throw)
                     obj_to_room(obj, ch->in_room);
                 }
             } else if (GET_OBJ_TYPE(obj) == ITEM_WEAPON
-                       && ok_to_attack(ch, target_vict)) {
+                       && ok_to_attack(ch, target_vict, false)) {
                 // Hit throw with a weapon
                 damage(ch, target_vict,
                        dice(GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)) +
@@ -1875,7 +1878,7 @@ ACMD(do_feed)
         send_to_char(ch, "Feed who to what?\r\n");
     else if (!(food = get_obj_in_list_vis(ch, arg1, ch->carrying)))
         send_to_char(ch, "You don't have that food.\r\n");
-    else if (!((vict = ch->isMounted()) &&
+    else if (!((vict = MOUNTED_BY(ch)) &&
             isname(arg2, vict->player.name)) &&
         !(vict = get_char_room_vis(ch, arg2)))
         send_to_char(ch, "No-one around by that name.\r\n");
@@ -1921,8 +1924,8 @@ ACMD(do_weigh)
 		true, ch, obj, 0, TO_ROOM);
 
 	send_to_char(ch, "It seems to weigh about %d pounds.\r\n",
-		(obj->getWeight() + number(-(obj->getWeight() / GET_INT(ch)),
-				obj->getWeight() / GET_INT(ch))));
+		(GET_OBJ_WEIGHT(obj) + number(-(GET_OBJ_WEIGHT(obj) / GET_INT(ch)),
+				GET_OBJ_WEIGHT(obj) / GET_INT(ch))));
 }
 
 ACMD(do_knock)
@@ -1971,9 +1974,9 @@ ACMD(do_knock)
 			if ((other_room = real_room(ROOM_NUMBER(obj)))
 				&& other_room->people) {
 				act("$N knocks on the outside of $p.", false,
-					other_room->people, obj, ch, TO_NOTVICT);
+					other_room->people->data, obj, ch, TO_NOTVICT);
 				act("$N knocks on the outside of $p.", false,
-					other_room->people, obj, ch, TO_CHAR);
+					other_room->people->data, obj, ch, TO_CHAR);
 			}
 		}
 		return;
@@ -2001,8 +2004,8 @@ ACMD(do_knock)
 
 			sprintf(buf, "Someone knocks on the %s from the other side.",
 				dname);
-			act(buf, false, other_room->people, 0, 0, TO_CHAR | TO_SLEEP);
-			act(buf, false, other_room->people, 0, 0, TO_ROOM | TO_SLEEP);
+			act(buf, false, other_room->people->data, 0, 0, TO_CHAR | TO_SLEEP);
+			act(buf, false, other_room->people->data, 0, 0, TO_ROOM | TO_SLEEP);
 		}
 		return;
 	}
@@ -2074,9 +2077,9 @@ ACMD(do_gasify)
 		true, ch, 0, 0, TO_ROOM);
 	send_to_char(ch, "You become gaseous.\r\n");
 
-	char_to_room(gas, ch->in_room,false);
-	char_from_room(ch,false);
-	char_to_room(ch, tank,false);
+	char_to_room_nospec(gas, ch->in_room);
+	char_from_room(ch);
+	char_to_room(ch, tank);
 
 	ch->desc->creature = gas;
 	ch->desc->original = ch;
@@ -2293,41 +2296,41 @@ ACMD(do_trust)
 	}
 
 	if (!*argument) {
-		if (ch->account->trustsNobody()) {
+		if (!ch->account->trusted) {
 			send_to_char(ch, "You don't trust anyone right now.\r\n");
 			return;
 		}
 		send_to_char(ch, "Trusted friends:\r\n");
-		ch->account->displayTrusted(ch);
+		account_display_trusted(ch, ch->account);
 		return;
 	}
 
-	if (!playerIndex.exists(argument)) {
+	if (!player_name_exists(argument)) {
 		send_to_char(ch, "That player doesn't exist.\r\n");
 		return;
 	}
 
-	idnum = playerIndex.getID(argument);
+	idnum = player_idnum_by_name(argument);
 
 	if (idnum == GET_IDNUM(ch)) {
 		send_to_char(ch, "Don't you already trust yourself?\r\n");
 		return;
 	}
 
-	if (ch->account->get_idnum() == playerIndex.getstruct accountID(idnum)) {
+	if (ch->account->id == player_account_by_idnum(idnum)) {
 		send_to_char(ch, "You automatically trust characters in your own account.\r\n");
 		return;
 	}
 
-	if (ch->trusts(idnum)) {
+	if (trusts(ch, idnum)) {
 		send_to_char(ch, "You already trust %s.\r\n",
-			playerIndex.getName(idnum));
+			player_name_by_idnum(idnum));
 		return;
 	}
 
-	ch->account->trust(idnum);
+	account_trust(ch->account, idnum);
 	send_to_char(ch, "%s is now a trusted friend to you.\r\n",
-		playerIndex.getName(idnum));
+		player_name_by_idnum(idnum));
 }
 
 ACMD(do_distrust)
@@ -2346,30 +2349,30 @@ ACMD(do_distrust)
 		return;
 	}
 
-	if (!playerIndex.exists(argument)) {
+	if (!player_name_exists(argument)) {
 		send_to_char(ch, "That player doesn't exist.\r\n");
 		return;
 	}
 
-	idnum = playerIndex.getID(argument);
+	idnum = player_idnum_by_name(argument);
 	if (idnum == GET_IDNUM(ch)) {
 		send_to_char(ch, "If you can't trust yourself, who can you trust?\r\n");
 		return;
 	}
 
-	if (ch->account->get_idnum() == playerIndex.getstruct accountID(idnum)) {
+	if (ch->account->id == player_account_by_idnum(idnum)) {
 		send_to_char(ch, "You can't distrust characters in your own account.\r\n");
 		return;
 	}
 
-	if (ch->distrusts(idnum)) {
+	if (distrusts(ch, idnum)) {
 		send_to_char(ch, "You already don't trust %s.\r\n",
-			playerIndex.getName(idnum));
+			player_name_by_idnum(idnum));
 		return;
 	}
 
-	ch->account->distrust(idnum);
+	account_distrust(ch->account, idnum);
 	send_to_char(ch, "You are no longer trusting of %s.\r\n",
-		playerIndex.getName(idnum));
+		player_name_by_idnum(idnum));
 }
 
