@@ -207,8 +207,8 @@ flow_one_creature(struct creature *ch, struct room_data *rnum, int pulse, int di
     act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TOCHAR], to_dirs[dir]),
         false, ch, 0, 0, TO_CHAR);
 
-    char_from_room(ch);
-    char_to_room(ch, ABS_EXIT(rnum, dir)->to_room);
+    char_from_room(ch, true);
+    char_to_room(ch, ABS_EXIT(rnum, dir)->to_room, true);
     look_at_room(ch, ch->in_room, 0);
     act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]),
         true, ch, 0, 0, TO_ROOM);

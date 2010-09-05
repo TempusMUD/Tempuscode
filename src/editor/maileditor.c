@@ -25,6 +25,7 @@
 #include "comm.h"
 #include "bomb.h"
 #include "handler.h"
+#include "players.h"
 
 struct maileditor_data {
     struct mail_recipient_data *mail_to;

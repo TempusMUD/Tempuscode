@@ -158,8 +158,8 @@ ASPELL(spell_recall)
 					false, ch, 0, victim, TO_VICT);
 				act("$N is suddenly sucked into an astral void.",
 					true, ch, 0, victim, TO_NOTVICT);
-				char_from_room(victim);
-				char_to_room(victim, targ_room);
+				char_from_room(victim, true);
+				char_to_room(victim, targ_room, true);
 				act("$N is suddenly pulled into the Astral Plane!",
 					true, ch, 0, victim, TO_NOTVICT);
 				look_at_room(victim, victim->in_room, 0);
@@ -173,8 +173,8 @@ ASPELL(spell_recall)
 		load_room->zone->enter_count++;
 
 	act("$n disappears.", true, victim, 0, 0, TO_ROOM);
-	char_from_room(victim);
-	char_to_room(victim, load_room);
+	char_from_room(victim, true);
+	char_to_room(victim, load_room, true);
 	act("$n appears in the middle of the room.", true, victim, 0, 0, TO_ROOM);
 	look_at_room(victim, victim->in_room, 0);
 }
@@ -268,8 +268,8 @@ ASPELL(spell_local_teleport)
 		false, victim, 0, 0, TO_ROOM);
 	send_to_char(victim, "Your vision slowly fades to blackness...\r\n");
 	send_to_char(victim, "A new scene unfolds before you!\r\n\r\n");
-	char_from_room(victim);
-	char_to_room(victim, to_room);
+	char_from_room(victim, true);
+	char_to_room(victim, to_room, true);
 	act("$n appears out of a whirling flash.", false, victim, 0, 0, TO_ROOM);
 	look_at_room(victim, victim->in_room, 0);
 }
@@ -315,8 +315,8 @@ ASPELL(spell_teleport)
 			TO_ROOM);
 
 		was_in = ch->in_room;
-		char_from_room(ch);
-		char_to_room(ch, load_room);
+		char_from_room(ch, true);
+		char_to_room(ch, load_room, true);
 		load_room->zone->enter_count++;
 
 		act("$n slowly fades into view, $p brightly glowing.",
@@ -336,8 +336,8 @@ ASPELL(spell_teleport)
 				"Your gut wrenches as you are slung violently through spacetime.\r\n");
 			act("$n is jerked violently back into the void!", false, ch, 0, 0,
 				TO_ROOM);
-			char_from_room(ch);
-			char_to_room_nospec(ch, was_in);
+			char_from_room(ch, false);
+			char_to_room(ch, was_in, false);
 
 			act("$n reappears, clenching $s gut in pain.",
 				false, ch, 0, 0, TO_ROOM);
@@ -465,8 +465,8 @@ ASPELL(spell_teleport)
 		false, victim, 0, 0, TO_ROOM);
 	send_to_char(victim, "Your vision slowly fades to blackness...\r\n");
 	send_to_char(victim, "A new scene unfolds before you!\r\n\r\n");
-	char_from_room(victim);
-	char_to_room(victim, to_room);
+	char_from_room(victim, true);
+	char_to_room(victim, to_room, true);
 	act("$n slowly fades into existence.", true, victim, 0, 0, TO_ROOM);
 	look_at_room(victim, victim->in_room, 0);
 }
@@ -586,8 +586,8 @@ ASPELL(spell_astral_spell)
 		false, victim, 0, 0, TO_ROOM);
 	send_to_char(victim, "Your vision slowly fades to blackness...\r\n");
 	send_to_char(victim, "A new scene unfolds before you!\r\n\r\n");
-	char_from_room(victim);
-	char_to_room(victim, to_room);
+	char_from_room(victim, true);
+	char_to_room(victim, to_room, true);
 	act("$n slowly fades into existence from another plane.",
 		true, victim, 0, 0, TO_ROOM);
 	look_at_room(victim, victim->in_room, 0);
@@ -727,8 +727,8 @@ ASPELL(spell_summon)
 					act("$n attempts to summon you, but something goes wrong!!\r\n" "You are send hurtling into the Astral Plane!!", false, ch, 0, victim, TO_VICT);
 					act("$N is suddenly sucked into an astral void.",
 						true, ch, 0, victim, TO_NOTVICT);
-					char_from_room(victim);
-					char_to_room(victim, targ_room);
+					char_from_room(victim, true);
+					char_to_room(victim, targ_room, true);
 					act("$N is suddenly pulled into the Astral Plane!",
 						true, ch, 0, victim, TO_NOTVICT);
 					look_at_room(victim, victim->in_room, 0);
@@ -764,8 +764,8 @@ ASPELL(spell_summon)
 
 	act("$n disappears suddenly.", true, victim, 0, 0, TO_ROOM);
 
-	char_from_room(victim);
-	char_to_room(victim, ch->in_room);
+	char_from_room(victim, true);
+	char_to_room(victim, ch->in_room, true);
 
 	act("$n arrives suddenly.", true, victim, 0, 0, TO_ROOM);
 	act("$n has summoned you!", false, ch, 0, victim, TO_VICT);
@@ -1803,7 +1803,7 @@ ASPELL(spell_conjure_elemental)
     GET_MAX_HIT(elemental) = MIN((int)(GET_MAX_HIT(elemental) * mult), 30000);
     GET_HIT(elemental) = GET_MAX_HIT(elemental);
 
-	char_to_room(elemental, ch->in_room);
+	char_to_room(elemental, ch->in_room, true);
 	act("You have conjured $N from $S home plane!",
 		false, ch, 0, elemental, TO_CHAR);
 	act("$n has conjured $N from $S home plane!",
@@ -2028,7 +2028,7 @@ ASPELL(spell_sword)
 		return;
 	}
 
-	char_to_room_nospec(sword, ch->in_room);
+	char_to_room(sword, ch->in_room, true);
 	act("You have conjured $N from the ethereal plane!", false, ch, 0, sword,
 		TO_CHAR);
 	act("$n has conjured $N from the ethereal plane!", false, ch, 0, sword,
@@ -2250,8 +2250,8 @@ ASPELL(spell_gust_of_wind)
 					act(buf, true, ch, 0, victim, TO_CHAR);
 					send_to_char(victim, "A sudden gust of wind blows you to the %s!",
 						dirs[attempt]);
-					char_from_room(victim);
-					char_to_room(victim, target_room);
+					char_from_room(victim, true);
+					char_to_room(victim, target_room, true);
 					look_at_room(victim, victim->in_room, 0);
 					sprintf(buf,
 						"$n is blown in on a gust of wind from the %s!",
@@ -3585,7 +3585,7 @@ load_familiar(struct creature *ch, int sect_type, int type)
 	if (!result)
 		return NULL;
 
-	char_to_room(result, ch->in_room);
+	char_to_room(result, ch->in_room, true);
 	if (to_char)
 		act(to_room, false, result, 0, ch, TO_CHAR);
 	if (to_room)

@@ -2646,7 +2646,7 @@ mag_affects(int level,
         act("$n looks murderous.  You might want to get out of here!", false,
             ch, 0, 0, TO_ROOM);
 
-        
+
         for (GList *it = ch->in_room->people;it; it = it->next) {
             struct creature *tch = (struct creature *)it->data;
 
@@ -3204,7 +3204,7 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
 				act(to_next_room, false, ch, 0, 0, TO_ROOM);
 				adjoin_room = ch->in_room;
 				ch->in_room = was_in;
-                
+
 				for (GList *it = adjoin_room->people;it; it = it->next) {
                     struct creature *vict = (struct creature *)it->data;
 					if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR)
@@ -3321,7 +3321,7 @@ mag_summons(int level __attribute__ ((unused)),
 	}
 	for (i = 0; i < num; i++) {
 		mob = read_mobile(mob_num);
-		char_to_room(mob, ch->in_room);
+		char_to_room(mob, ch->in_room, true);
 		IS_CARRYING_W(mob) = 0;
 		IS_CARRYING_N(mob) = 0;
 		SET_BIT(AFF_FLAGS(mob), AFF_CHARM);

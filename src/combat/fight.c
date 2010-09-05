@@ -128,7 +128,7 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 		if (GET_MOB_PROGOBJ(tch) != NULL && tch != ch)
             trigger_prog_death(tch, PROG_TYPE_MOBILE, ch);
     }
-    g_list_foreach(ch->in_room->people, trigger_mobile_prog, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)trigger_mobile_prog, 0);
 
     // Create the corpse itself
 	corpse = make_corpse(ch, killer, attacktype);
@@ -278,7 +278,7 @@ group_gain(struct creature *ch, struct creature *victim)
 			}
 		}
 	}
-    g_list_foreach(ch->in_room->people, count_pc_members, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)count_pc_members, 0);
 
     void dole_out_exp(struct creature *tch, gpointer ignore) {
 		if (AFF_FLAGGED(tch, AFF_GROUP) &&
@@ -299,7 +299,7 @@ group_gain(struct creature *ch, struct creature *victim)
 			perform_gain_kill_exp(tch, victim, mult+mult_mod);
 		}
 	}
-    g_list_foreach(ch->in_room->people, dole_out_exp, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)dole_out_exp, 0);
 }
 
 struct kill_record *tally_kill_record(struct creature *ch, struct creature *victim);
@@ -2116,8 +2116,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
 			removeAllCombat(victim);
 			removeCombat(ch, victim);
 		}
-		char_from_room(victim);
-		char_to_room(victim, zone_table->world);
+		char_from_room(victim, true);
+		char_to_room(victim, zone_table->world, false);
 		act("$n is carried in by divine forces.", false, victim, 0, 0,
 			TO_ROOM);
 	}

@@ -849,7 +849,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 			"boiling pitch");
 	}
 
-	if(!char_from_room(ch) )
+	if(!char_from_room(ch, true))
 		return 2;
 
 	update_trail(ch, was_in, dir, TRAIL_EXIT);
@@ -857,7 +857,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 	if (mode == MOVE_RETREAT)
 		send_to_char(ch, "You beat a hasty retreat %s.\r\n", to_dirs[dir]);
 
-	if(!char_to_room(ch, was_in->dir_option[dir]->to_room) )
+	if (!char_to_room(ch, was_in->dir_option[dir]->to_room, true))
 		return 2;
 
 	update_trail(ch, ch->in_room, rev_dir[dir], TRAIL_ENTER);
@@ -889,8 +889,8 @@ do_simple_move(struct creature *ch, int dir, int mode,
         }
     }
 	if (mount) {
-		char_from_room(mount);
-		if(!char_to_room(mount, ch->in_room) )
+		char_from_room(mount, false);
+		if(!char_to_room(mount, ch->in_room, false) )
 			return 2;
 	}
 
@@ -1875,7 +1875,7 @@ ACMD(do_enter)
 
 		act("$n climbs into $p.", true, ch, car, 0, TO_ROOM);
 		act("You climb into $p.", true, ch, car, 0, TO_CHAR);
-		if( !char_from_room(ch) || !char_to_room(ch, room) )
+		if( !char_from_room(ch, true) || !char_to_room(ch, room, true) )
 			return;
 		look_at_room(ch, ch->in_room, 0);
 		act("$n has climbed into $p.", false, ch, car, 0, TO_ROOM);
@@ -1948,7 +1948,7 @@ ACMD(do_enter)
 		room->zone->enter_count++;
 
 	was_in = ch->in_room;
-	if( !char_from_room(ch) || !char_to_room(ch, room) )
+	if( !char_from_room(ch, true) || !char_to_room(ch, room, true) )
 		return;
 	look_at_room(ch, ch->in_room, 0);
 	if (GET_OBJ_VNUM(car) == 42504)	// astral mansion
@@ -2772,7 +2772,7 @@ ACMD(do_translocate)
 		creature_die(ch);
 		return;
 	} else {
-		if( !char_from_room(ch) || !char_to_room(ch, rm) )
+		if( !char_from_room(ch, true) || !char_to_room(ch, rm, true) )
 			return;
 		act(TL_APPEAR, true, ch, 0, 0, TO_ROOM);
 		gain_skill_prof(ch, subcmd);

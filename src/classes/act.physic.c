@@ -498,7 +498,7 @@ ASPELL(spell_quantum_rift)
 		if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM
 			&& GET_OBJ_VAL(o, 2) == GET_IDNUM(ch)
 			&& !o->in_room->people) {
-			struct creature *occupant = g_list_first(o->in_room->people);
+			struct creature *occupant = o->in_room->people->data;
 			act("$p collapses in on itself.", true, occupant, o, 0, TO_CHAR);
 			act("$p collapses in on itself.", true, occupant, o, 0, TO_ROOM);
 			extract_obj(o);
@@ -558,9 +558,9 @@ ASPELL(spell_spacetime_recall)
 	}
 
 	act("$n fades from view and disappears.", true, ch, 0, 0, TO_ROOM);
-	char_from_room(ch);
+	char_from_room(ch, true);
 	send_to_char(ch, "You shift through space and time:\r\n");
-	char_to_room(ch, room);
+	char_to_room(ch, room, true);
 	look_at_room(ch, room, 0);
 	act("$n fades into view from some other place and time.", true, ch, 0, 0,
 		TO_ROOM);
@@ -776,8 +776,8 @@ ASPELL(spell_time_warp)
 		zone->time_frame == TIME_ELECTRO ? "future" :
 		zone->time_frame == TIME_MODRIAN ? "past" : "unknown");
 
-	char_from_room(ch);
-	char_to_room(ch, to_room);
+	char_from_room(ch, true);
+	char_to_room(ch, to_room, true);
 	look_at_room(ch, to_room, 0);
 
 	act(tmp_sprintf("$n fades silently in from the %s.",
@@ -799,7 +799,7 @@ recurs_econvert_points(struct obj_data *obj, bool top)
 	if (!obj)
 		return 0;
 
-	int num_points = getWeight(obj);
+	int num_points = GET_OBJ_WEIGHT(obj);
 
 	switch (GET_OBJ_TYPE(obj)) {
 		// double points for money
@@ -1042,13 +1042,12 @@ ASPELL(spell_emp_pulse)
 		return;
 	}
 	// Make sure non-pkillers don't get killer flags.
-    struct creature *tch;
     int invalid_target(struct creature *tch, gpointer ignore) {
 		if (tch != ch && !ok_to_attack(ch, tch, true))
             return 0;
         return -1;
 	}
-    if (g_list_find_custom(ch->in_room->people, 0, invalid_target))
+    if (g_list_find_custom(ch->in_room->people, 0, (GCompareFunc)invalid_target))
         return;
 
 	send_to_room("An electromagnetic pulse jolts the room!\r\n", ch->in_room);
@@ -1057,7 +1056,7 @@ ASPELL(spell_emp_pulse)
 		if (tch != ch && GET_LEVEL(tch) < LVL_IMMORT)
 			do_emp_pulse_char(ch, tch);
     }
-    g_list_foreach(ch->in_room->people, do_jolt, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)do_jolt, 0);
 
 	if (ch->in_room->contents)
 		do_emp_pulse_olist(ch->in_room->contents, ch, NULL);

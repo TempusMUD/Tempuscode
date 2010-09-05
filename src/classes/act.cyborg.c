@@ -991,8 +991,8 @@ ACMD(do_activate)
 				act("$n flips a switch on $p and fades out of existence.",
 					true, ch, obj, 0, TO_ROOM);
 
-				char_from_room(ch);
-				char_to_room(ch, targ_room);
+				char_from_room(ch, true);
+				char_to_room(ch, targ_room, true);
 
 				send_to_char(ch,
 					"A buzzing fills your ears as you materialize...\r\n");

@@ -749,7 +749,7 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
 	}
 
 	acc_sprintf("Item weighs around %d lbs, and is made of %s.\n",
-		getWeight(obj), material_names[GET_OBJ_MATERIAL(obj)]);
+		GET_OBJ_WEIGHT(obj), material_names[GET_OBJ_MATERIAL(obj)]);
 
 	if (skill_lvl > 100)
 		cost = 0;

@@ -72,9 +72,8 @@ struct creature *get_char_room(char *name, struct room_data *room);
 struct creature *get_char(char *name);
 struct creature *get_char_in_world_by_idnum(int nr);
 
-bool char_from_room(struct creature *ch);
-bool char_to_room(struct creature *ch, struct room_data *room);
-bool char_to_room_nospec(struct creature *ch, struct room_data *room);
+bool char_from_room(struct creature *ch, bool check_specials);
+bool char_to_room(struct creature *ch, struct room_data *room, bool check_specials);
 
 /* find if character can see */
 struct creature *get_char_room_vis(struct creature *ch, const char *name);

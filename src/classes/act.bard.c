@@ -262,7 +262,7 @@ ASPELL(song_instant_audience)
         GET_MAX_HIT(member) = MIN((int)(GET_MAX_HIT(member) * mult), 30000);
         GET_HIT(member) = GET_MAX_HIT(member);
 
-        char_to_room_nospec(member, ch->in_room);
+        char_to_room(member, ch->in_room, false);
         SET_BIT(MOB_FLAGS(member), MOB_PET);
 
         if (member->master)
