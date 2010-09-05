@@ -8,6 +8,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#include <glib.h>
 #include "defs.h"
 #include "constants.h"
 
@@ -108,7 +109,7 @@ struct descriptor_data {
 	struct creature *creature;	/* linked to char           */
 	struct creature *original;	/* original char if switched        */
 	struct descriptor_data *snooping;	/* Who is this char snooping   */
-    struct creature *snoop_by;
+    GList *snoop_by;
 	struct descriptor_data *next;	/* link to next descriptor     */
 };
 

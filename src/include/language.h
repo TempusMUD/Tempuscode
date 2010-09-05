@@ -29,7 +29,7 @@ struct tongue {
     char *nospeak_msg;
 };
 
-extern struct tongue *tongues;
+extern GHashTable *tongues;
 
 #define GET_LANG_HEARD(ch) ((ch)->language_data->languages_heard)
 #define GET_TONGUE(ch) ((ch)->language_data->current_language)

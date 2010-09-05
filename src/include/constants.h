@@ -193,6 +193,7 @@ extern const char tattoo_pos_order[];
 extern const char *material_names[];
 extern const int weapon_proficiencies[];
 extern const char *soilage_bits[];
+extern const char *grievance_kind_descs[];
 
 extern const char *trail_flags[];
 extern const char *spell_bits[];

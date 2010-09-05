@@ -784,8 +784,8 @@ static const size_t MAX_RECENT_KILLS = 100;
 static const int EXPLORE_BONUS_KILL_LIMIT = 10;
 static const int EXPLORE_BONUS_PERCENT = 25;
 
-struct KillRecord {
-    int _vnum, _times;
+struct kill_record {
+    int vnum, times;
 };
 
 enum grievance_kind { MURDER, THEFT, ATTACK };
@@ -944,6 +944,7 @@ struct creature {
 	struct obj_data *equipment[NUM_WEARS];	/* Equipment array               */
 	struct obj_data *implants[NUM_WEARS];
     struct obj_data *tattoos[NUM_WEARS];
+    struct prog_state_data *prog_state;
 
 	struct obj_data *carrying;	/* Head of list                  */
 	struct descriptor_data *desc;	/* NULL for mobiles              */
@@ -967,5 +968,6 @@ bool is_newbie(struct creature *ch);
 void removeCombat(struct creature *ch, struct creature *vict);
 void removeAllCombat(struct creature *ch);
 struct creature *findRandomCombat(struct creature *ch);
-					
+bool isFighting(struct creature *ch);
+
 #endif

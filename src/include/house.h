@@ -66,6 +66,9 @@ bool can_enter_house(struct creature *ch, room_num room_idnum);
 void load_houses(void);
 void update_objects_housed_count(void);
 struct house *find_house_by_idnum(int idnum);
+struct house *find_house_by_owner(int idnum);
 struct house *find_house_by_room(room_num room_idnum);
+void collect_housing_rent(void);
+void save_houses(void);
 
 #endif

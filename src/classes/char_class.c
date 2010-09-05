@@ -1417,7 +1417,7 @@ char_class_race_hit_bonus(struct creature *ch, struct creature *vict)
 			IS_GIANT(vict) || (GET_HEIGHT(vict) > 2 * GET_HEIGHT(ch))));
     // Dwarven dislike of water or heights
 	bonus -= (IS_DWARF(ch) && (room_is_watery(ch->in_room)
-                               || room_is_openair(ch->in_room)));
+                               || room_is_open_air(ch->in_room)));
     // Thieves operating in the dark
 	bonus += (IS_THIEF(ch) && room_is_dark(ch->in_room));
     // Rangers like being outside
