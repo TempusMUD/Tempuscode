@@ -128,45 +128,45 @@ show_char_class_menu(struct descriptor_data *d, bool remort)
 	left_col = right_col = tmp_strdup("");
 	if (valid_class_race(ch, CLASS_MAGE, remort))
 		left_col = tmp_strcat(left_col,
-			"&gMage&n\r\n    Delver in Magical Arts\r\n");
+			"&gMage&n\r\n    Delver in Magical Arts\r\n", NULL);
 	if (valid_class_race(ch, CLASS_BARB, remort))
 		left_col = tmp_strcat(left_col,
-			"&gBarbarian&n\r\n    Uncivilized Warrior\r\n");
+			"&gBarbarian&n\r\n    Uncivilized Warrior\r\n", NULL);
 	if (valid_class_race(ch, CLASS_KNIGHT, remort) &&
 			GET_CLASS(ch) != CLASS_MONK)
 		left_col = tmp_strcat(left_col,
-			"&gKnight&n\r\n    Defender of the Faith\r\n");
+			"&gKnight&n\r\n    Defender of the Faith\r\n", NULL);
 	if (valid_class_race(ch, CLASS_RANGER, remort))
 		left_col = tmp_strcat(left_col,
-			"&gRanger&n\r\n    Roamer of Worlds\r\n");
+			"&gRanger&n\r\n    Roamer of Worlds\r\n", NULL);
 	if (valid_class_race(ch, CLASS_CLERIC, remort) &&
 			GET_CLASS(ch) != CLASS_MONK)
 		left_col = tmp_strcat(left_col,
-			"&gCleric&n\r\n    Servant of Deity\r\n");
+			"&gCleric&n\r\n    Servant of Deity\r\n", NULL);
 	if (valid_class_race(ch, CLASS_THIEF, remort))
 		left_col = tmp_strcat(left_col,
-			"&gThief&n\r\n    Stealthy Rogue\r\n");
+			"&gThief&n\r\n    Stealthy Rogue\r\n", NULL);
 	if (valid_class_race(ch, CLASS_BARD, remort))
 		left_col = tmp_strcat(left_col,
-			"&gBard&n\r\n    Roguish Performer\r\n");
+			"&gBard&n\r\n    Roguish Performer\r\n", NULL);
 
 	// Print future classes
 	if (valid_class_race(ch, CLASS_CYBORG, remort))
 		right_col = tmp_strcat(right_col,
-			"&gCyborg&n\r\n    The Electronically Advanced\r\n");
+			"&gCyborg&n\r\n    The Electronically Advanced\r\n", NULL);
 	if (valid_class_race(ch, CLASS_PSIONIC, remort))
 		right_col = tmp_strcat(right_col,
-			"&gPsionic&n\r\n    Mind Traveller\r\n");
+			"&gPsionic&n\r\n    Mind Traveller\r\n", NULL);
 	if (valid_class_race(ch, CLASS_MERCENARY, remort))
 		right_col = tmp_strcat(right_col,
-			"&gMercenary&n\r\n    Gun for Hire\r\n");
+			"&gMercenary&n\r\n    Gun for Hire\r\n", NULL);
 	if (valid_class_race(ch, CLASS_PHYSIC, remort))
 		right_col = tmp_strcat(right_col,
-			"&gPhysic&n\r\n    Alterer of Universal Laws\r\n");
+			"&gPhysic&n\r\n    Alterer of Universal Laws\r\n", NULL);
 	if (valid_class_race(ch, CLASS_MONK, remort) &&
 			GET_CLASS(ch) != CLASS_KNIGHT && GET_CLASS(ch) != CLASS_CLERIC)
 		right_col = tmp_strcat(right_col,
-			"&gMonk&n\r\n    Philosophical Warrior\r\n");
+			"&gMonk&n\r\n    Philosophical Warrior\r\n", NULL);
 	do {
 		left_line = tmp_getline(&left_col);
 		if (!left_line)
@@ -204,7 +204,7 @@ parse_pc_race(struct descriptor_data *d, char *arg)
 }
 
 void
-show_pc_race_help(descriptor_data *d, char *arg)
+show_pc_race_help(struct descriptor_data *d, char *arg)
 {
 	char *race_str;
 
@@ -227,7 +227,7 @@ show_pc_race_help(descriptor_data *d, char *arg)
 }
 
 void
-show_pc_class_help(descriptor_data *d, char *arg)
+show_pc_class_help(struct descriptor_data *d, char *arg)
 {
 	char *class_str;
 

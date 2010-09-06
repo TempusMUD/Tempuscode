@@ -39,6 +39,8 @@
 #include "prog.h"
 #include "materials.h"
 #include "language.h"
+#include "weather.h"
+#include "players.h"
 
 extern struct obj_data *object_list;
 extern struct room_data *world;
@@ -471,7 +473,7 @@ gain_condition(struct creature *ch, int condition, int value)
 int
 check_idling(struct creature *ch)
 {
-	void set_desc_state(cxn_state state, struct descriptor_data *d);
+	void set_desc_state(enum cxn_state state, struct descriptor_data *d);
 
 	if (++(ch->char_specials.timer) > 1 && ch->desc)
 		ch->desc->repeat_cmd_count = 0;
@@ -498,7 +500,7 @@ check_idling(struct creature *ch)
 					ch->desc->creature = NULL;
 					ch->desc = NULL;
 				}
-				ch->idle();
+				idle(ch);
 				return true;
 			}
 		}
@@ -509,14 +511,11 @@ check_idling(struct creature *ch)
 void
 save_all_players(void)
 {
-	struct creature *i;
-
-	struct creatureList_iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		i = *cit;
-		if (!IS_NPC(i))
-			i->crashSave();
-	}
+    for (GList *cit = creatures;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+        if (IS_PC(tch))
+            save_player_to_xml(tch);
+    }
 }
 
 /* Update PCs, NPCs, objects, and shadow zones */
@@ -525,7 +524,6 @@ point_update(void)
 {
 	void update_char_objects(struct creature *ch);	/* handler.c */
 	void extract_obj(struct obj_data *obj);	/* handler.c */
-	register struct creature *i;
 	register struct obj_data *j, *next_thing, *jj, *next_thing2;
 	struct room_data *rm;
 	struct zone_data *zone;
@@ -548,40 +546,41 @@ point_update(void)
 	}
 
 	/* characters */
-	struct creatureList_iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		i = *cit;
+	for (GList *cit = creatures;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
 
         full = 1;
         thirst = 1;
         drunk = 1;
         //reputation should slowly decrease when not in a house, clan, arena, or afk
-        if (IS_PC(i) &&
-            !ROOM_FLAGGED(i->in_room, ROOM_ARENA) &&
-            !ROOM_FLAGGED(i->in_room, ROOM_CLAN_HOUSE) &&
-            !ROOM_FLAGGED(i->in_room, ROOM_HOUSE) &&
-            !ROOM_FLAGGED(i->in_room, ROOM_PEACEFUL) &&
-            !PLR_FLAGGED(i, PLR_AFK) &&
-            GET_REPUTATION(i) > 1 &&
+        if (IS_PC(tch) &&
+            !ROOM_FLAGGED(tch->in_room, ROOM_ARENA) &&
+            !ROOM_FLAGGED(tch->in_room, ROOM_CLAN_HOUSE) &&
+            !ROOM_FLAGGED(tch->in_room, ROOM_HOUSE) &&
+            !ROOM_FLAGGED(tch->in_room, ROOM_PEACEFUL) &&
+            !PLR_FLAGGED(tch, PLR_AFK) &&
+            GET_REPUTATION(tch) > 1 &&
             number(0, 153) == 0)
-                i->gain_reputation(-1);
+                gain_reputation(tch, -1);
 
-		if (i->getPosition() >= POS_STUNNED) {
-			GET_HIT(i) = MIN(GET_HIT(i) + hit_gain(i), GET_MAX_HIT(i));
-			GET_MANA(i) = MIN(GET_MANA(i) + mana_gain(i), GET_MAX_MANA(i));
-			GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_MAX_MOVE(i));
+		if (GET_POSITION(tch) >= POS_STUNNED) {
+			GET_HIT(tch) = MIN(GET_HIT(tch) + hit_gain(tch), GET_MAX_HIT(tch));
+			GET_MANA(tch) = MIN(GET_MANA(tch) + mana_gain(tch), GET_MAX_MANA(tch));
+			GET_MOVE(tch) = MIN(GET_MOVE(tch) + move_gain(tch), GET_MAX_MOVE(tch));
 
-			if (AFF_FLAGGED(i, AFF_POISON) &&
-				damage(i, i, dice(4, 11) + (affected_by_spell(i,
-							SPELL_METABOLISM) ? dice(4, 3) : 0), SPELL_POISON,
-					-1))
+			if (AFF_FLAGGED(tch, AFF_POISON) &&
+				damage(tch, tch,
+                       dice(4, 11)
+                       + (affected_by_spell(tch, SPELL_METABOLISM) ? dice(4, 3) : 0),
+                       SPELL_POISON,
+                       -1))
 				continue;
 
-			if (i->getPosition() <= POS_STUNNED)
-				update_pos(i);
+			if (GET_POSITION(tch) <= POS_STUNNED)
+				update_pos(tch);
 
-			if (IS_SICK(i)
-                && affected_by_spell(i, SPELL_SICKNESS)
+			if (IS_SICK(tch)
+                && affected_by_spell(tch, SPELL_SICKNESS)
 				&& !number(0, 4)) {
                 // You lose a lot when you puke
                 full = 10;
@@ -589,144 +588,145 @@ point_update(void)
 				switch (number(0, 6)) {
 				case 0:
                     act("You puke all over the place.",
-                        true, i, 0, 0, TO_CHAR);
-					act("$n pukes all over the place.", false, i, 0, 0,
+                        true, tch, 0, 0, TO_CHAR);
+					act("$n pukes all over the place.", false, tch, 0, 0,
 						TO_ROOM);
 					break;
 				case 1:
                     act("You vomit uncontrollably.",
-                        true, i, 0, 0, TO_CHAR);
-					act("$n vomits uncontrollably.", false, i, 0, 0, TO_ROOM);
+                        true, tch, 0, 0, TO_CHAR);
+					act("$n vomits uncontrollably.", false, tch, 0, 0, TO_ROOM);
 					break;
 
 				case 2:
                     act("You begin to regurgitate steaming bile.",
-                        true, i, 0, 0, TO_CHAR);
-					act("$n begins to regurgitate steaming bile.", false, i, 0,
+                        true, tch, 0, 0, TO_CHAR);
+					act("$n begins to regurgitate steaming bile.", false, tch, 0,
 						0, TO_ROOM);
 					break;
 
 				case 3:
                     act("You are violently overcome with a fit of dry heaving.",
-                        true, i, 0, 0, TO_CHAR);
+                        true, tch, 0, 0, TO_CHAR);
 					act("$n is violently overcome with a fit of dry heaving.",
-						false, i, 0, 0, TO_ROOM);
+						false, tch, 0, 0, TO_ROOM);
 					break;
 
 				case 4:
                     act("You begin to retch.",
-                        true, i, 0, 0, TO_CHAR);
-					act("$n begins to retch.", false, i, 0, 0, TO_ROOM);
+                        true, tch, 0, 0, TO_CHAR);
+					act("$n begins to retch.", false, tch, 0, 0, TO_ROOM);
 					break;
 
 				case 5:
                     act("You violently eject your lunch!",
-                        true, i, 0, 0, TO_CHAR);
-					act("$n violently ejects $s lunch!", false, i, 0, 0,
+                        true, tch, 0, 0, TO_CHAR);
+					act("$n violently ejects $s lunch!", false, tch, 0, 0,
 						TO_ROOM);
 					break;
 
 				default:
                     act("You begin an extended session of tossing your cookies.",
-                        true, i, 0, 0, TO_CHAR);
+                        true, tch, 0, 0, TO_CHAR);
 					act("$n begins an extended session of tossing $s cookies.",
-						false, i, 0, 0, TO_ROOM);
+						false, tch, 0, 0, TO_ROOM);
 					break;
 				}
 			}
-		} else if ((i->getPosition() == POS_INCAP
-				|| i->getPosition() == POS_MORTALLYW)) {
+		} else if ((GET_POSITION(tch) == POS_INCAP
+				|| GET_POSITION(tch) == POS_MORTALLYW)) {
 			// If they've been healed since they were incapacitated,
 			//  Update thier position appropriately.
-			if (GET_HIT(i) > -11) {
-				if (GET_HIT(i) > 0) {
-					i->setPosition(POS_RESTING);
-				} else if (GET_HIT(i) > -3) {
-					i->setPosition(POS_STUNNED);
-				} else if (GET_HIT(i) > -6) {
-					i->setPosition(POS_INCAP);
+			if (GET_HIT(tch) > -11) {
+				if (GET_HIT(tch) > 0) {
+					GET_POSITION(tch) = POS_RESTING;
+				} else if (GET_HIT(tch) > -3) {
+					GET_POSITION(tch) = POS_STUNNED;
+				} else if (GET_HIT(tch) > -6) {
+					GET_POSITION(tch) = POS_INCAP;
 				} else {
-					i->setPosition(POS_MORTALLYW);
+					GET_POSITION(tch) = POS_MORTALLYW;
 				}
 			}
             // No longer shall struct creatures die of blood loss.
             // We will now heal them slowly instead.
-            if (i->getPosition() == POS_INCAP)
-                GET_HIT(i) += 2;
-            else if (i->getPosition() == POS_MORTALLYW)
-                GET_HIT(i) += 1;
+            if (GET_POSITION(tch) == POS_INCAP)
+                GET_HIT(tch) += 2;
+            else if (GET_POSITION(tch) == POS_MORTALLYW)
+                GET_HIT(tch) += 1;
 
 			continue;
 		}
 
 		// progs
-		if (IS_NPC(i) && GET_MOB_PROGOBJ(i))
-			trigger_prog_tick(i, PROG_TYPE_MOBILE);
+		if (IS_NPC(tch) && GET_MOB_PROGOBJ(tch))
+			trigger_prog_tick(tch, PROG_TYPE_MOBILE);
 
-		if (!IS_NPC(i)) {
-			update_char_objects(i);
-			if (check_idling(i))
+		if (!IS_NPC(tch)) {
+			update_char_objects(tch);
+			if (check_idling(tch))
 				continue;
-		} else if (i->char_specials.timer)
-			i->char_specials.timer -= 1;
+		} else if (tch->char_specials.timer)
+			tch->char_specials.timer -= 1;
 
-        while (!GET_LANG_HEARD(i).empty()) {
-            int lang = GET_LANG_HEARD(i).front();
-            if (number(0, 600) < GET_INT(i) + GET_WIS(i) + GET_CHA(i))
-                SET_TONGUE(i, lang, CHECK_TONGUE(i, lang) + 1);
-            GET_LANG_HEARD(i).pop_front();
+        while (!GET_LANG_HEARD(tch)) {
+            int lang = GPOINTER_TO_INT(GET_LANG_HEARD(tch)->data);
+            if (number(0, 600) < GET_INT(tch) + GET_WIS(tch) + GET_CHA(tch))
+                SET_TONGUE(tch, lang, CHECK_TONGUE(tch, lang) + 1);
+            GET_LANG_HEARD(tch) = g_list_delete_link(GET_LANG_HEARD(tch),
+                                                   GET_LANG_HEARD(tch));
         }
 
-		if (affected_by_spell(i, SPELL_METABOLISM))
+		if (affected_by_spell(tch, SPELL_METABOLISM))
 			full += 1;
 
-		if (IS_CYBORG(i)) {
-			if (AFF3_FLAGGED(i, AFF3_STASIS))
+		if (IS_CYBORG(tch)) {
+			if (AFF3_FLAGGED(tch, AFF3_STASIS))
 				full >>= 2;
-			else if (GET_LEVEL(i) > number(10, 60))
+			else if (GET_LEVEL(tch) > number(10, 60))
 				full >>= 1;
 		}
 
-		gain_condition(i, FULL, -full);
+		gain_condition(tch, FULL, -full);
 
-		if (SECT_TYPE(i->in_room) == SECT_DESERT)
+		if (SECT_TYPE(tch->in_room) == SECT_DESERT)
 			thirst += 2;
-		if (ROOM_FLAGGED(i->in_room, ROOM_FLAME_FILLED))
+		if (ROOM_FLAGGED(tch->in_room, ROOM_FLAME_FILLED))
 			thirst += 2;
-		if (affected_by_spell(i, SPELL_METABOLISM))
+		if (affected_by_spell(tch, SPELL_METABOLISM))
 			thirst += 1;
-		if (IS_CYBORG(i)) {
-			if (AFF3_FLAGGED(i, AFF3_STASIS))
+		if (IS_CYBORG(tch)) {
+			if (AFF3_FLAGGED(tch, AFF3_STASIS))
 				thirst >>= 2;
-			else if (GET_LEVEL(i) > number(10, 60))
+			else if (GET_LEVEL(tch) > number(10, 60))
 				thirst >>= 1;
 		}
 
-		gain_condition(i, THIRST, -thirst);
+		gain_condition(tch, THIRST, -thirst);
 
-		if (IS_MONK(i))
+		if (IS_MONK(tch))
 			drunk += 1;
-		if (IS_CYBORG(i))
+		if (IS_CYBORG(tch))
 			drunk += 2;
-		if (affected_by_spell(i, SPELL_METABOLISM))
+		if (affected_by_spell(tch, SPELL_METABOLISM))
 			drunk += 1;
 
-		gain_condition(i, DRUNK, -drunk);
+		gain_condition(tch, DRUNK, -drunk);
         /* player frozen */
-		if (PLR_FLAGGED(i, PLR_FROZEN) && i->player_specials->thaw_time > -1) {
+		if (PLR_FLAGGED(tch, PLR_FROZEN) && tch->player_specials->thaw_time > -1) {
 			time_t now;
 
 			now = time(NULL);
 
-			if (now > i->player_specials->thaw_time) {
-				REMOVE_BIT(PLR_FLAGS(i), PLR_FROZEN);
-				i->player_specials->thaw_time = 0;
-                i->saveToXML();
-				mudlog(MAX(LVL_POWER, GET_INVIS_LVL(i)), BRF, true,
-					   "(GC) %s un-frozen by timeout.", GET_NAME(i));
-				send_to_char(i, "You thaw out and can move again.\r\n");
+			if (now > tch->player_specials->thaw_time) {
+				PLR_FLAGS(tch) = REMOVE_BIT(PLR_FLAGS(tch), PLR_FROZEN);
+				tch->player_specials->thaw_time = 0;
+                save_player_to_xml(tch);
+				mudlog(MAX(LVL_POWER, GET_INVIS_LVL(tch)), BRF, true,
+					   "(GC) %s un-frozen by timeout.", GET_NAME(tch));
+				send_to_char(tch, "You thaw out and can move again.\r\n");
 				act("$n has thawed out and can move again.",
-					false, i, 0, 0, TO_ROOM);
+					false, tch, 0, 0, TO_ROOM);
 			}
 		}
 	}
@@ -792,8 +792,8 @@ point_update(void)
                         msg = "$p decays into nothing before your eyes.";
                     }
 
-                    act(msg, true, j->in_room->people, j, 0, TO_ROOM);
-                    act(msg, true, j->in_room->people, j, 0, TO_CHAR);
+                    act(msg, true, j->in_room->people->data, j, 0, TO_ROOM);
+                    act(msg, true, j->in_room->people->data, j, 0, TO_CHAR);
                 }
 
 				for (jj = j->contains; jj; jj = next_thing2) {
@@ -816,9 +816,9 @@ point_update(void)
 						SET_BIT(jj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
 
 						if (!IS_OBJ_TYPE(jj, ITEM_ARMOR))
-							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 2));
+							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) / 4), -1);
 						else
-							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 1));
+							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) / 2), -1);
 					}
 				}
 				extract_obj(j);
@@ -837,9 +837,9 @@ point_update(void)
 						false, j->carried_by, j, 0, TO_CHAR);
 				else if ((j->in_room != NULL) && (j->in_room->people)) {
 					act("$p collapses into nothing.",
-						true, j->in_room->people, j, 0, TO_ROOM);
+						true, j->in_room->people->data, j, 0, TO_ROOM);
 					act("$p collapses into nothing.",
-						true, j->in_room->people, j, 0, TO_CHAR);
+						true, j->in_room->people->data, j, 0, TO_CHAR);
 				}
 				// drop out the (damaged) implants
 				for (jj = j->contains; jj; jj = next_thing2) {
@@ -861,9 +861,9 @@ point_update(void)
 					if (IS_IMPLANT(jj) && !CAN_WEAR(jj, ITEM_WEAR_TAKE)) {
 						SET_BIT(jj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
 						if (!IS_OBJ_TYPE(jj, ITEM_ARMOR))
-							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 1));
+							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) / 2), -1);
 						else
-							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) >> 2));
+							damage_eq(NULL, jj, (GET_OBJ_DAM(jj) / 4), -1);
 					}
 				}
 				extract_obj(j);
@@ -878,9 +878,9 @@ point_update(void)
 			if (GET_OBJ_TIMER(j) <= 0) {
 				if (j->action_desc && j->in_room) {
 					act("$p collapses in on itself.",
-						true, j->in_room->people, j, 0, TO_CHAR);
+						true, j->in_room->people->data, j, 0, TO_CHAR);
 					act("$p collapses in on itself.",
-						true, j->in_room->people, j, 0, TO_ROOM);
+						true, j->in_room->people->data, j, 0, TO_ROOM);
 				}
 				extract_obj(j);
 			}
@@ -901,9 +901,9 @@ point_update(void)
 				if (GET_OBJ_TIMER(j) <= 0) {
 					if (j->action_desc) {
 						act("$p melts and is gone.",
-							true, j->in_room->people, j, 0, TO_CHAR);
+							true, j->in_room->people->data, j, 0, TO_CHAR);
 						act("$p melts and is gone.",
-							true, j->in_room->people, j, 0, TO_ROOM);
+							true, j->in_room->people->data, j, 0, TO_ROOM);
 					}
 					extract_obj(j);
 				}
@@ -942,9 +942,9 @@ point_update(void)
 						false, j->worn_by, j, 0, TO_CHAR);
 				else if ((j->in_room != NULL) && (j->in_room->people)) {
 					act("$p slowly fades out of existence.",
-						true, j->in_room->people, j, 0, TO_ROOM);
+						true, j->in_room->people->data, j, 0, TO_ROOM);
 					act("$p slowly fades out of existence.",
-						true, j->in_room->people, j, 0, TO_CHAR);
+						true, j->in_room->people->data, j, 0, TO_CHAR);
 				}
 				for (jj = j->contains; jj; jj = next_thing2) {
 					next_thing2 = jj->next_content;	/* Next in inventory */
