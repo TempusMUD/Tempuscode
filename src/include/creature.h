@@ -673,12 +673,10 @@ enum immortal_level {
 /* char-related structures ************************************************/
 
 /* memory structure for characters */
-struct memory_rec_struct {
+struct memory_rec {
 	long id;
-	struct memory_rec_struct *next;
+	struct memory_rec *next;
 };
-
-typedef struct memory_rec_struct memory_rec;
 
 /* These data contain information about a players time data */
 struct time_data {
@@ -893,7 +891,7 @@ struct mob_shared_data {
 
 /* Specials used by NPCs, not PCs */
 struct mob_special_data {
-    	memory_rec *memory;			/* List of attackers to remember           */
+    struct memory_rec *memory;			/* List of attackers to remember           */
 	void *func_data;			// Mobile-specific data used for specials
 	struct mob_shared_data *shared;
 	int wait_state;				/* Wait state for bashed mobs           */

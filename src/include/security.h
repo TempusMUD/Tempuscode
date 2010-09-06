@@ -63,8 +63,9 @@ enum privilege {
     FULL_IMMORT_WHERE,
     ENTER_GODROOM,
     COMMAND,
+    SHOW,
     SET,
-    SHOW
+    ASET,
 };
 
 bool is_authorized(struct creature *ch, enum privilege priv, void *target);

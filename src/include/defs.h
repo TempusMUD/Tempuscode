@@ -14,7 +14,7 @@ typedef signed short int sh_int;
 typedef unsigned short int ush_int;
 typedef char byte;
 
-typedef long long money_t;
+typedef long long int money_t;
 
 typedef int room_num;
 typedef int obj_num;

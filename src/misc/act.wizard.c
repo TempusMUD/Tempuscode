@@ -61,6 +61,7 @@
 #include "voice.h"
 #include "weather.h"
 #include "players.h"
+#include "quest.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -751,7 +752,7 @@ do_stat_memory(struct creature *ch)
 
 #undef CHARADD
 
-static void
+void
 do_stat_zone(struct creature *ch, struct zone_data *zone)
 {
     struct obj_data *obj;
@@ -779,6 +780,7 @@ do_stat_zone(struct creature *ch, struct zone_data *zone)
             numm++;
             av_lev += GET_LEVEL(tch);
         }
+    }
 
     if (numm)
         av_lev /= numm;
@@ -1857,11 +1859,11 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                 k->char_specials.timer);
     } else if (k->in_room) {
         acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
-            position_types[GET_POSITION(k)],
-            CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-            (isFighting(k) ? GET_NAME(findRandomCombat(k)) : "N"),
-            CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-            isHunting(k) ? PERS(isHunting(k), ch) : "N");
+                    position_types[(int)GET_POSITION(k)],
+                    CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+                    (isFighting(k) ? GET_NAME(findRandomCombat(k)) : "N"),
+                    CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+                    isHunting(k) ? PERS(isHunting(k), ch) : "N");
     }
     if (k->desc)
         acc_sprintf(", Connected: %s, Idle [%d]\r\n",
@@ -4107,7 +4109,7 @@ show_player(struct creature *ch, char *value)
         sprintf(remort_desc, "/%s",
             char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
-    sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d",
+    sprintf(buf, "Player: [%ld] %-12s Act[%d] (%s) [%2d %s %s%s]  Gen: %d",
             GET_IDNUM(vict), GET_NAME(vict),
             player_account_by_idnum(GET_IDNUM(vict)),
             genders[(int)GET_SEX(vict)], GET_LEVEL(vict),
@@ -4117,7 +4119,7 @@ show_player(struct creature *ch, char *value)
     sprintf(buf,
             "%sAu: %-8lld  Cr: %-8lld  Past: %-8lld  Fut: %-8lld\r\n",
             buf, GET_GOLD(vict), GET_CASH(vict),
-                 GET_BANK_PAST(vict), GET_FUTURE_BANK(vict) );
+                 GET_PAST_BANK(vict), GET_FUTURE_BANK(vict) );
     // Trim and fit the date to show year but not seconds.
     strcpy(birth, ctime(&vict->player.time.birth));
 	memmove(birth + 16, birth + 19, strlen(birth + 19) + 1);
@@ -4235,9 +4237,9 @@ show_topzones(struct creature *ch, char *value)
         }
     }
 
-    g_list_sort(zone_list, (GCompareFunc)top_zone_comparator);
+    zone_list = g_list_sort(zone_list, (GCompareFunc)top_zone_comparator);
     if (reverse)
-        g_list_reverse(zone_list);
+        zone_list = g_list_reverse(zone_list);
 
     num_zones = MIN((int)g_list_length(zone_list), num_zones);
 
@@ -4513,7 +4515,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos, int mod
 
             if (g_list_length(mob_names) >= (unsigned int)num) {
                 show_room_append(ch, room, mode,
-                                 tmp_sprintf("[%2zd]", g_list_length(mob_names)));
+                                 tmp_sprintf("[%2d]", g_list_length(mob_names)));
                 found = 1;
                 for (str_it = mob_names; str_it;str_it = str_it->next)
                     acc_sprintf("\t%s%s%s\r\n", CCYEL(ch, C_NRM),
@@ -4741,74 +4743,69 @@ void
 show_mlevels(struct creature *ch, char *value, char *arg)
 {
 
-    int remort = 0;
-    int expand = 0;
-    int count[50];
+    bool remort = false;
+    bool detailed = false;
+    int count[50] = { 0 };
     int i, j;
     int max = 0;
     int to = 0;
     struct creature *mob = NULL;
-    char arg1[MAX_INPUT_LENGTH];
+    char *arg1;
+
     if (!*value) {
         send_to_char(ch, MLEVELS_USAGE);
         return;
     }
 
-    skip_spaces(&arg);
-    if (*arg) {
-        while (1) {
-            arg = one_argument(arg, arg1);
-            if (!*arg1)
-                break;
-            if (!strcmp(arg1, "remort"))
-                remort = 1;
-            else if (!strcmp(arg1, "expand"))
-                expand = 1;
-            else {
-                send_to_char(ch, "Unknown option: '%s'\r\n%s", arg1,
-                    MLEVELS_USAGE);
-            }
+    for (arg1 = tmp_getword(&arg);arg1;arg1 = tmp_getword(&arg)) {
+        if (!strcmp(arg1, "remort"))
+            remort = true;
+        else if (!strcmp(arg1, "detailed"))
+            detailed = true;
+        else {
+            send_to_char(ch, "Unknown option: '%s'\r\n%s", arg1,
+                         MLEVELS_USAGE);
         }
     }
 
-    for (i = 0; i < 50; i++)
-        count[i] = 0;
+    acc_string_clear();
 
-    sprintf(buf, "Mlevels for %s", remort ? "remort " : "mortal ");
+    acc_sprintf("Mlevels for %s", remort ? "remort " : "mortal ");
     // scan the existing mobs
     if (!strcmp(value, "real")) {
-        strcat(buf, "real mobiles:\r\n");
-        MobileMap_iterator mit = mobilePrototypes.begin();
-        for (; mit != mobilePrototypes.end(); ++mit) {
-            mob = mit->second;
-            if (IS_NPC(mob) && GET_LEVEL(mob) < 50 &&
-                ((remort && IS_REMORT(mob)) || (!remort && !IS_REMORT(mob)))) {
-                if (expand)
+        acc_strcat("real mobiles:\r\n", NULL);
+        for (GList *mit = creatures;mit;mit = mit->next) {
+            mob = mit->data;
+            if (IS_NPC(mob)
+                && GET_LEVEL(mob) < 50
+                && ((remort && IS_REMORT(mob))
+                    || (!remort && !IS_REMORT(mob)))) {
+                if (detailed)
                     count[(int)GET_LEVEL(mob)]++;
                 else
                     count[(int)(GET_LEVEL(mob) / 5)]++;
             }
         }
     } else if (!strcmp(value, "proto")) {
-        strcat(buf, "mobile protos:\r\n");
-        MobileMap_iterator mit = mobilePrototypes.begin();
-        for (; mit != mobilePrototypes.end(); ++mit) {
-            mob = mit->second;
-            if (GET_LEVEL(mob) < 50 &&
-                ((remort && IS_REMORT(mob)) || (!remort && !IS_REMORT(mob)))) {
-                if (expand)
+        acc_strcat("mobile protos:\r\n", NULL);
+        void count_mob_protos(gpointer vnum, struct creature *mob, gpointer ignore) {
+            if (GET_LEVEL(mob) < 50
+                && ((remort && IS_REMORT(mob))
+                    || (!remort && !IS_REMORT(mob)))) {
+                if (detailed)
                     count[(int)GET_LEVEL(mob)]++;
                 else
                     count[(int)(GET_LEVEL(mob) / 5)]++;
             }
         }
+        g_hash_table_foreach(mob_prototypes, (GHFunc)count_mob_protos, NULL);
     } else {
         send_to_char(ch, "First argument must be either 'real' or 'proto'\r\n");
         send_to_char(ch, MLEVELS_USAGE);
         return;
     }
 
-    if (expand)
+    if (detailed)
         to = 50;
     else
         to = 10;
@@ -4823,8 +4820,8 @@ show_mlevels(struct creature *ch, char *value, char *arg)
         send_to_char(ch, "There are no mobiles?\r\n");
         return;
     }
-    // print the long, expanded list
-    if (expand) {
+    // print the long, detailed list
+    if (detailed) {
 
         for (i = 0; i < 50; i++) {
             to = (count[i] * 60) / max;
@@ -4833,12 +4830,11 @@ show_mlevels(struct creature *ch, char *value, char *arg)
             for (j = 0; j < to; j++)
                 strcat(buf2, "+");
 
-            sprintf(buf, "%s%2d] %-60s %5d\r\n", buf, i, buf2, count[i]);
+            acc_sprintf("%2d] %-60s %5d\r\n", i, buf2, count[i]);
         }
     }
     // print the smaller list
     else {
-
         for (i = 0; i < 10; i++) {
 
             to = (count[i] * 60) / max;
@@ -4847,12 +4843,12 @@ show_mlevels(struct creature *ch, char *value, char *arg)
             for (j = 0; j < to; j++)
                 strcat(buf2, "+");
 
-            sprintf(buf, "%s%2d-%2d] %-60s %5d\r\n", buf, i * 5,
+            acc_sprintf("%2d-%2d] %-60s %5d\r\n", i * 5,
                 (i + 1) * 5 - 1, buf2, count[i]);
         }
     }
 
-    page_string(ch->desc, buf);
+    page_string(ch->desc, acc_get_string());
 }
 
 void
@@ -4871,18 +4867,19 @@ acc_print_zone(struct creature *ch, struct zone_data *zone)
 void
 show_zones(struct creature *ch, char *arg, char *value)
 {
-    Tokenizer tokens(arg);
     struct zone_data *zone;
 
     acc_string_clear();
 
+    skip_spaces(&arg);
     if (!*value) {
         acc_print_zone(ch, ch->in_room->zone);
     } else if (is_number(value)) {    // show a range ( from a to b )
         int a = atoi(value);
         int b = a;
 
-        if (tokens.next(value))
+        value = tmp_getword(&arg);
+        if (value)
             b = atoi(value);
 
         for (zone = zone_table; zone; zone = zone->next)
@@ -4893,9 +4890,10 @@ show_zones(struct creature *ch, char *arg, char *value)
             send_to_char(ch, "That is not a valid zone.\r\n");
             return;
         }
-    } else if (strcasecmp("owner", value) == 0 && tokens.next(value)) {
+    } else if (strcasecmp("owner", value) == 0 && *arg) {
         int owner_id;
 
+        value = tmp_getword(&arg);
         if (is_number(value)) {
             owner_id = atoi(value);
         } else {
@@ -4910,9 +4908,10 @@ show_zones(struct creature *ch, char *arg, char *value)
             if (owner_id == zone->owner_idnum
                 || owner_id == zone->co_owner_idnum)
                 acc_print_zone(ch, zone);
-    } else if (strcasecmp("co-owner", value) == 0 && tokens.next(value)) {    // Show by name
+    } else if (strcasecmp("co-owner", value) == 0 && *arg) {    // Show by name
         int owner_id;
 
+        value = tmp_getword(&arg);
         if (is_number(value)) {
             owner_id = atoi(value);
         } else {
@@ -5044,27 +5043,26 @@ ACMD(do_show)
     struct room_data *room = NULL, *tmp_room = NULL;
     char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH];
     struct creature *mob = NULL;
-    struct creatureList_iterator cit;
-    MobileMap_iterator mit;
-    ObjectMap_iterator oi;
+    GList *protos, *mit, *cit, *oi;
 
     void show_shops(struct creature *ch, char *value);
 
     skip_spaces(&argument);
     if (!*argument) {
-        vector <string> cmdlist;
+        GList *cmdlist = NULL;
         send_to_char(ch, "Show options:\r\n");
         for (j = 0, i = 1; fields[i].level; i++) {
-            if (Security_canAccess(ch, fields[i])) {
-                cmdlist.push_back(fields[i].cmd);
+            if (is_authorized(ch, SHOW, &fields[i])) {
+                cmdlist = g_list_prepend(cmdlist, (gpointer)fields[i].cmd);
             }
         }
-        sort(cmdlist.begin(), cmdlist.end());
-        for (j = 0, i = 1; i < (int)(cmdlist.size()); i++) {
-            send_to_char(ch, "%-15s%s", cmdlist[i].c_str(),
-                (!(++j % 5) ? "\r\n" : ""));
+        cmdlist = g_list_sort(cmdlist, (GCompareFunc)strcasecmp);
+        for (GList *it = cmdlist;it;it = it->next) {
+            send_to_char(ch, "%-15s%s", (char *)it->data,
+                         (!(++j % 5) ? "\r\n" : ""));
         }
 
+        g_list_free(cmdlist);
         send_to_char(ch, "\r\n");
         return;
     }
@@ -5075,7 +5073,7 @@ ACMD(do_show)
         if (!strncmp(field, fields[l].cmd, strlen(field)))
             break;
 
-    if (!Security_canAccess(ch, fields[l])) {
+    if (!is_authorized(ch, SHOW, &fields[l])) {
         send_to_char(ch, "You do not have that power.\r\n");
         return;
     }
@@ -5184,16 +5182,15 @@ ACMD(do_show)
                 send_to_char(ch,
                     "Getting that data from file requires basic administrative rights.\r\n");
             } else {
-                vict = new struct creature(true);
 				if (!player_name_exists(value))
                     send_to_char(ch, "There is no such player.\r\n");
-                else if (!vict->loadFromXML(player_idnum_by_name(value)))
+                else if (!(vict = load_player_from_xml(player_idnum_by_name(value))))
 					send_to_char(ch, "Error loading player.\r\n");
 				else if (GET_LEVEL(vict) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
 					send_to_char(ch, "Sorry, you can't do that.\r\n");
 				else
 					list_skills_to_char(ch, vict);
-				delete vict;
+                free_creature(vict);
                 vict = NULL;
             }
         } else if (IS_MOB(vict)) {
@@ -5246,13 +5243,14 @@ ACMD(do_show)
         show_zoneusage(ch, value);
         break;
     case 19:                    // topzones
-        show_topzones(ch, tmp_strcat(value, arg));
+        show_topzones(ch, tmp_strcat(value, arg, NULL));
         break;
     case 20:                    /* nomaterial */
         strcpy(buf, "Objects without material types:\r\n");
-        oi = objectPrototypes.begin();
-        for (i = 1; oi != objectPrototypes.end(); ++oi) {
-            obj = oi->second;
+        protos = g_hash_table_get_values(obj_prototypes);
+
+        for (i = 1, oi = protos;oi;oi = oi->next) {
+            obj = oi->data;
             if (GET_OBJ_MATERIAL(obj) == MAT_NONE &&
                 !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
                 if (strlen(buf) > (MAX_STRING_LENGTH - 130)) {
@@ -5265,6 +5263,7 @@ ACMD(do_show)
                 i++;
             }
         }
+        g_list_free(protos);
         page_string(ch->desc, buf);
         break;
 
@@ -5419,11 +5418,11 @@ ACMD(do_show)
             return;
         }
         strcpy(buf, "Mobs with exp in given range:\r\n");
-        mit = mobilePrototypes.begin();
-        for (; mit != mobilePrototypes.end(); ++mit) {
-            mob = mit->second;
+        protos = g_hash_table_get_values(mob_prototypes);
+        for (mit = protos;mit;mit = mit->next) {
+            mob = mit->data;
             percent = GET_EXP(mob) * 100;
-            if ((j = mobile_experience(mob)))
+            if ((j = mobile_experience(mob, NULL)))
                 percent /= j;
             else
                 percent = 0;
@@ -5446,6 +5445,7 @@ ACMD(do_show)
                     percent, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
             }
         }
+        g_list_free(protos);
         page_string(ch->desc, buf);
         break;
 
@@ -5461,9 +5461,9 @@ ACMD(do_show)
         }
 
         strcpy(buf, "");
-        oi = objectPrototypes.begin();
-        for (; oi != objectPrototypes.end(); ++oi) {
-            obj = oi->second;
+        protos = g_hash_table_get_values(obj_prototypes);
+        for (oi = protos;oi;oi = oi->next) {
+            obj = oi->data;
             if (obj->shared->number >= k) {
                 if (strlen(buf) + 256 > MAX_STRING_LENGTH) {
                     strcat(buf, "**OVERFOW**\r\n");
@@ -5484,6 +5484,7 @@ ACMD(do_show)
         break;
 
     case 32: {                   /* fighting */
+        /*
         strcpy(buf, "Fighting characters:\r\n");
 
         CombatDataList_iterator it;
@@ -5517,15 +5518,15 @@ ACMD(do_show)
         }
 
         page_string(ch->desc, buf);
+        */
         break;
     }
     case 33:                    /* quad */
 
         strcpy(buf, "Characters with Quad Damage:\r\n");
 
-        cit = characterList.begin();
-        for (; cit != characterList.end(); ++cit) {
-            vict = *cit;
+        for (cit = creatures;cit;cit = cit->next) {
+            vict = cit->data;
 
             if (!can_see_creature(ch, vict)
                 || !affected_by_spell(vict, SPELL_QUAD_DAMAGE))
@@ -5549,10 +5550,9 @@ ACMD(do_show)
     case 35:                    /* hunting */
 
         strcpy(buf, "Characters hunting:\r\n");
-        cit = characterList.begin();
-        for (; cit != characterList.end(); ++cit) {
-            vict = *cit;
-            if (!vict->isHunting() || !vict->isHunting()->in_room
+        for (cit = creatures;cit;cit = cit->next) {
+            vict = cit->data;
+            if (!MOB_HUNTING(vict) || !MOB_HUNTING(vict)->in_room
                 || !can_see_creature(ch, vict))
                 continue;
 
@@ -5561,7 +5561,7 @@ ACMD(do_show)
 
             sprintf(buf, "%s %3d. %23s [%5d] ---> %20s [%5d]\r\n", buf, ++i,
                 GET_NAME(vict), vict->in_room->number,
-                GET_NAME(vict->isHunting()), vict->isHunting()->in_room->number);
+                GET_NAME(MOB_HUNTING(vict)), MOB_HUNTING(vict)->in_room->number);
         }
 
         page_string(ch->desc, buf);
@@ -5737,17 +5737,6 @@ ACMD(do_show)
 
 ACMD(do_set)
 {
-    int i, l, tp;
-    struct room_data *room;
-    struct creature *vict = NULL, *vict2 = NULL;
-    struct creature *cbuf = NULL;
-    char *field, *name;
-    char *arg1, *arg2;
-    int on = 0, off = 0, value = 0;
-    char is_file = 0, is_mob = 0, is_player = 0;
-    int parse_char_class(char *arg);
-    int parse_race(char *arg);
-
     static struct set_struct fields[] = {
         {"brief", LVL_IMMORT, PC, BINARY, "WizardFull"},    /* 0 */
         {"invstart", LVL_IMMORT, PC, BINARY, "WizardFull"},    /* 1 */
@@ -5854,6 +5843,16 @@ ACMD(do_set)
         {"\n", 0, BOTH, MISC, ""}
     };
 
+    int i, l, tp;
+    struct room_data *room;
+    struct creature *vict = NULL, *vict2 = NULL;
+    char *field, *name;
+    char *arg1, *arg2;
+    int on = 0, off = 0, value = 0;
+    char is_file = 0, is_mob = 0, is_player = 0;
+    int parse_char_class(char *arg);
+    int parse_race(char *arg);
+
     name = tmp_getword(&argument);
     if (!strcmp(name, "file")) {
         is_file = 1;
@@ -5868,22 +5867,22 @@ ACMD(do_set)
     field = tmp_getword(&argument);
 
     if (!*name || !*field) {
+        GList *cmdlist = NULL;
+        int j;
         send_to_char(ch, "Usage: set <victim> <field> <value>\r\n");
-        vector <string> cmdlist;
-        for (i = 0; fields[i].level != 0; i++) {
-            if (!Security_canAccess(ch, fields[i]))
-                continue;
-            cmdlist.push_back(fields[i].cmd);
+        for (j = 0, i = 1; fields[i].level; i++) {
+            if (is_authorized(ch, SET, &fields[i])) {
+                cmdlist = g_list_prepend(cmdlist, (gpointer)fields[i].cmd);
+            }
         }
-        sort(cmdlist.begin(), cmdlist.end());
-
-        for (i = 0, l = 1; i < (int)(cmdlist.size()); i++) {
-            send_to_char(ch, "%12s%s", cmdlist[i].c_str(),
-                ((l++) % 5) ? " " : "\n");
+        cmdlist = g_list_sort(cmdlist, (GCompareFunc)strcasecmp);
+        for (GList *it = cmdlist;it;it = it->next) {
+            send_to_char(ch, "%-15s%s", (char *)it->data,
+                         (!(++j % 5) ? "\r\n" : ""));
         }
 
-        if ((l - 1) % 5)
-            send_to_char(ch, "\r\n");
+        g_list_free(cmdlist);
+        send_to_char(ch, "\r\n");
         return;
     }
     if (!is_file) {
@@ -5904,18 +5903,15 @@ ACMD(do_set)
             }
         }
     } else if (is_file) {
-        cbuf = new struct creature(true);
 		vict = NULL;
 		if (!player_name_exists(name))
             send_to_char(ch, "There is no such player.\r\n");
-		else if (!cbuf->loadFromXML(player_idnum_by_name(name)))
+		else if (!(vict = load_player_from_xml(player_idnum_by_name(name))))
 			send_to_char(ch, "Error loading player file.\r\n");
-		else if (GET_LEVEL(cbuf) >= GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
+		else if (GET_LEVEL(vict) >= GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
 			send_to_char(ch, "Sorry, you can't do that.\r\n");
-        else
-            vict = cbuf;
-		if (vict != cbuf) {
-			delete cbuf;
+
+		if (!vict) {
 			return;
 		}
     }
@@ -5937,7 +5933,7 @@ ACMD(do_set)
         return;
     }
 
-    if (!Security_canAccess(ch, fields[l]) && subcmd != SCMD_TESTER_SET) {
+    if (!is_authorized(ch, SET, &fields[l]) && subcmd != SCMD_TESTER_SET) {
         send_to_char(ch, "You do not have that power.\r\n");
         return;
     }
@@ -6199,7 +6195,10 @@ ACMD(do_set)
 			argument);
 
 		free(GET_NAME(vict));
-		GET_NAME(vict) = strdup(argument);
+        if (IS_NPC(vict))
+            vict->player.short_descr = strdup(argument);
+        else
+            (ch)->player.name = strdup(argument);
 		// Set name
 		if (IS_PC(vict)) {
 			sql_exec("update players set name='%s' where idnum=%ld",
@@ -6291,10 +6290,11 @@ ACMD(do_set)
         break;
     case 52:
         SET_OR_REMOVE(PRF_FLAGS(vict), PRF_NOSNOOP);
-        if (!is_file && vict->desc->snoop_by.size()) {
-            for (unsigned x = 0; x < vict->desc->snoop_by.size(); x++) {
-                send_to_char(vict->desc->snoop_by[x]->creature, "Your snooping session has ended.\r\n");
-                stop_snooping(vict->desc->snoop_by[x]->creature);
+        if (!is_file && vict->desc->snoop_by) {
+            for (GList *x = vict->desc->snoop_by;x;x = x->next) {
+                struct descriptor_data *d = x->data;
+                send_to_char(d->creature, "Your snooping session has ended.\r\n");
+                stop_snooping(d->creature);
             }
         }
         break;
@@ -6339,7 +6339,7 @@ ACMD(do_set)
         if (!(vict2 = get_char_vis(ch, argument))) {
             send_to_char(ch, "No such target character around.\r\n");
         } else {
-            vict->startHunting(vict2);
+            startHunting(vict, vict2);
             send_to_char(ch, "%s now hunts %s.\r\n", GET_NAME(vict),
                 GET_NAME(vict2));
         }
@@ -6348,7 +6348,7 @@ ACMD(do_set)
         if (!(vict2 = get_char_vis(ch, argument))) {
             send_to_char(ch, "No such target character around.\r\n");
         } else {
-            vict->addCombat(vict2, false);
+            addCombat(vict, vict2, false);
             send_to_char(ch, "%s is now fighting %s.\r\n", GET_NAME(vict),
                 GET_NAME(vict2));
         }
@@ -6521,7 +6521,7 @@ ACMD(do_set)
 		send_to_char(ch, "Disabled.  Use the 'delete' command.\r\n");
 		break;
     case 97:                    // Set Speed
-        vict->setSpeed(RANGE(0, 100));
+        setSpeed(vict, RANGE(0, 100));
         break;
     case 98:
         if(!argument || !*argument) {
@@ -6553,7 +6553,7 @@ ACMD(do_set)
         break;
 
     case 100:
-        vict->set_reputation(RANGE(0, 1000));
+        set_reputation(vict, RANGE(0, 1000));
         break;
     case 101:
         arg1 = tmp_getword(&argument);
@@ -6592,11 +6592,11 @@ ACMD(do_set)
     } else
         send_to_char(ch, "%s\r\n", buf);
 
-    if (!IS_NPC(vict))
+    if (IS_PC(vict))
         save_player_to_xml(vict);
 
     if (is_file) {
-        delete cbuf;
+        free_creature(vict);
         send_to_char(ch, "Saved in file.\r\n");
     }
 }
@@ -6623,30 +6623,28 @@ ACMD(do_aset)
 
     if (!*name || !*field) {
         send_to_char(ch, "Usage: aset <victim> <field> <value>\r\n");
-        vector <string> cmdlist;
+        GList *cmdlist;
         for (i = 0; fields[i].level != 0; i++) {
-            if (!Security_canAccess(ch, fields[i]))
+            if (!is_authorized(ch, ASET, &fields[i]))
                 continue;
-            cmdlist.push_back(fields[i].cmd);
+            cmdlist = g_list_prepend(cmdlist, (gpointer)fields[i].cmd);
         }
-        sort(cmdlist.begin(), cmdlist.end());
-
-        for (i = 0, l = 1; i < (int)(cmdlist.size()); i++) {
-            send_to_char(ch, "%12s%s", cmdlist[i].c_str(),
-                ((l++) % 5) ? " " : "\n");
+        cmdlist = g_list_sort(cmdlist, (GCompareFunc)strcmp);
+        for (GList *it = cmdlist;it;it = it->next) {
+            send_to_char(ch, "%12s%s", (char *)it->data,
+                         (!(++l % 5) ? "\r\n" : ""));
         }
-
         if ((l - 1) % 5)
             send_to_char(ch, "\r\n");
         return;
     }
 
 	if (*name == '.')
-		account = account_by_id(player_account_by_idnum(name + 1));
+		account = account_by_id(player_account_by_name(name + 1));
 	else if (is_number(name))
 		account = account_by_id(atoi(name));
 	else
-		account = account_by_id(name);
+		account = account_by_name(name);
 
 	if (!account) {
 		send_to_char(ch, "There is no such account.\r\n");
@@ -6658,13 +6656,8 @@ ACMD(do_aset)
             break;
     }
 
-    if (GET_LEVEL(ch) < fields[l].level && subcmd != SCMD_TESTER_SET ) {
+    if (!is_authorized(ch, ASET, &fields[l])) {
         send_to_char(ch, "You are not able to perform this godly deed!\r\n");
-        return;
-    }
-
-    if (!Security_canAccess(ch, fields[l]) && subcmd != SCMD_TESTER_SET) {
-        send_to_char(ch, "You do not have that power.\r\n");
         return;
     }
 
@@ -6687,7 +6680,7 @@ ACMD(do_aset)
     case 0:
 		account->bank_past = value; break;
 	case 1:
-		account->future_bank = value; break;
+		account->bank_future = value; break;
 	case 2:
 		account->reputation = value; break;
 	case 3:
@@ -6701,19 +6694,19 @@ ACMD(do_aset)
         slog("(GC) %s set password for account %s[%d]",
              GET_NAME(ch),
              account->name,
-             account->idnum);
+             account->id);
 		break;
     case 6:
         free(account->email);
         account->email = strdup(argument);
         sprintf(buf, "Email for account %s[%d] has been set to <%s>",
                 account->name,
-                account->idnum,
+                account->id,
                 account->email);
         slog("(GC) %s set email for account %s[%d] to %s",
              GET_NAME(ch),
              account->name,
-             account->idnum,
+             account->id,
              account->email);
         break;
     case 7:
@@ -6728,7 +6721,7 @@ ACMD(do_aset)
              GET_NAME(ch),
              fields[l].cmd,
              account->name,
-             account->idnum,
+             account->id,
              ONOFF(on));
         send_to_char(ch, "%s %s for %s.\r\n", fields[l].cmd, ONOFF(on),
 			account->name);
@@ -6737,7 +6730,7 @@ ACMD(do_aset)
              GET_NAME(ch),
              fields[l].cmd,
              account->name,
-             account->idnum,
+             account->id,
              value);
         send_to_char(ch, "%s's %s set to %d.\r\n", account->name,
             fields[l].cmd, value);
@@ -6943,12 +6936,11 @@ ACMD(do_mlist)
     }
 
 	acc_string_clear();
-    MobileMap_iterator mit = mobilePrototypes.begin();
-    struct creature *mob;
-    for (;
-        mit != mobilePrototypes.end()
-        && ((mit->second)->mob_specials.shared->vnum <= last); ++mit) {
-        mob = mit->second;
+
+    GList *protos = g_hash_table_get_values(mob_prototypes);
+    for (GList *mit = protos;mit;mit = mit->next) {
+        struct creature *mob = mit->data;
+
         if (mob->mob_specials.shared->vnum >= first)
 		  acc_sprintf("%5d. %s[%s%5d%s]%s %-40s%s  [%2d] <%3d> %s%s\r\n",
 					  ++found,
@@ -6965,6 +6957,8 @@ ACMD(do_mlist)
 					  GET_MOB_PROG(mob) ? "(prog)" : "");
     }
 
+    g_list_free(protos);
+
     if (!found)
         send_to_char(ch, "No mobiles were found in those parameters.\r\n");
     else
@@ -6973,7 +6967,6 @@ ACMD(do_mlist)
 
 ACMD(do_olist)
 {
-    struct obj_data *obj = NULL;
     int first, last, found = 0;
 
     two_arguments(argument, buf, buf2);
@@ -7001,10 +6994,9 @@ ACMD(do_olist)
 
 	acc_string_clear();
 
-    ObjectMap_iterator oi;
-    for (oi = objectPrototypes.lower_bound(first);
-         oi != objectPrototypes.upper_bound(last); ++oi) {
-        obj = oi->second;
+    GList *protos = g_hash_table_get_values(obj_prototypes);
+    for (GList *oit = protos;oit;oit = oit->next) {
+        struct obj_data *obj = oit->data;
         acc_sprintf("%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
             CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
             CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
@@ -7016,7 +7008,7 @@ ACMD(do_olist)
     if (!found)
         send_to_char(ch, "No objects were found in those parameters.\r\n");
     else
-	  page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_rename)
@@ -7080,35 +7072,38 @@ ACMD(do_addname)
 {
     struct obj_data *obj;
     struct creature *vict = NULL;
-    char new_name[MAX_INPUT_LENGTH];
-    Tokenizer args(argument);
+    char *new_name, *arg;
 
-    if(!args.hasNext()) {
+    skip_spaces(&argument);
+
+    if(!*argument) {
         send_to_char(ch, "Addname usage: addname <target> <strings>\r\n");
         return;
     }
 
-    args.next(arg);
+    arg = tmp_getword(&argument);
 
-    if(!args.hasNext()) {
+    if(!*argument) {
         send_to_char(ch, "What name keywords do you want to add?\r\b");
         return;
     }
 
-    while(args.next(new_name)) {
-
-        if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
-            vict = get_char_room_vis(ch, arg);
-            if (!(vict)) {
-                if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-                    send_to_char(ch, "No such object or mobile around.\r\n");
-                    return;
-                }
-            } else if (!IS_NPC(vict)) {
-                send_to_char(ch, "You can do this only with NPC's.\r\n");
+    if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
+        vict = get_char_room_vis(ch, arg);
+        if (!(vict)) {
+            if (!(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+                send_to_char(ch, "No such object or mobile around.\r\n");
                 return;
             }
+        } else if (!IS_NPC(vict)) {
+            send_to_char(ch, "You can do this only with NPC's.\r\n");
+            return;
         }
+    }
+
+    for (new_name = tmp_getword(&argument);
+         new_name;
+         new_name = tmp_getword(&argument)) {
 
         if (strlen(new_name) >= MAX_INPUT_LENGTH) {
             send_to_char(ch, "Name: \'%s\' too long.\r\n", new_name);
@@ -7117,22 +7112,23 @@ ACMD(do_addname)
         //check to see if the name is already in the list
 
         if (obj) {
-
-            if(strstr(obj->aliases, new_name) != NULL) {
+            if (isname_exact(new_name, obj->aliases)) {
                 send_to_char(ch, "Name: \'%s\' is already an alias.\r\n", new_name);
                 continue;
             }
             snprintf(buf, EXDSCR_LENGTH, "%s %s", obj->aliases, new_name);
             obj->aliases = strdup(buf);
         } else if (vict) {
-            if(strstr(vict->player.name, new_name) != NULL) {
+            if(isname_exact(new_name, vict->player.name)) {
                 send_to_char(ch, "Name: \'%s\' is already an alias.\r\n", new_name);
                 continue;
             }
 
             sprintf(buf, "%s ", new_name);
             strcat(buf, vict->player.name);
-            vict->player.name = strdup(buf);
+            vict->player.name = strdup(tmp_sprintf("%s %s",
+                                                   vict->player.name,
+                                                   new_name));
         }
     }
     send_to_char(ch, "Okay, you do it.\r\n");
@@ -7264,9 +7260,8 @@ ACMD(do_mudwipe)
         send_to_char(ch, "Done.  trails retired\r\n");
     }
     if (mode == 3) {
-        struct creatureList_iterator cit = characterList.begin();
-        for (; cit != characterList.end(); ++cit) {
-            mob = *cit;
+        for (GList *cit = creatures;cit;cit = cit->next) {
+            mob = cit->data;
             if (!IS_NPC(mob))
                 continue;
             for (obj = mob->carrying; obj; obj = obj_tmp) {
@@ -7280,10 +7275,10 @@ ACMD(do_mudwipe)
         send_to_char(ch, "DONE.  Mobiles cleared of objects.\r\n");
     }
     if (mode == 3 || mode == 2 || mode == 0) {
-        struct creatureList_iterator mit = characterList.begin();
-        for (; mit != characterList.end(); ++mit) {
-            if (IS_NPC(*mit)) {
-                (*mit)->purge(true);
+        for (GList *cit = creatures;cit;cit = cit->next) {
+            mob = cit->data;
+            if (IS_NPC(mob)) {
+                purge(mob, true);
             }
         }
         send_to_char(ch, "DONE.  Mud cleaned of all mobiles.\r\n");
@@ -7332,13 +7327,13 @@ ACMD(do_zonepurge)
             if (ROOM_FLAGGED(rm, ROOM_GODROOM) || ROOM_FLAGGED(rm, ROOM_HOUSE))
                 continue;
 
-            struct creatureList_iterator it = rm->people.begin();
-            for (; it != rm->people.end(); ++it) {
+            for (GList *it = rm->people;it;it = it->next) {
+                struct creature *tch = it->data;
                 if (IS_MOB(tch)) {
-                    tch->purge(true);
+                    purge(tch, true);
                     mob_count++;
                 } else {
-                    send_to_char(*it, "You feel a rush of heat wash over you!\r\n");
+                    send_to_char(tch, "You feel a rush of heat wash over you!\r\n");
                 }
             }
 
@@ -7375,9 +7370,9 @@ ACMD(do_searchfor)
     struct creature *mob = NULL;
     struct obj_data *obj = NULL;
     byte mob_found = false, obj_found = false;
-    struct creatureList_iterator cit = characterList.begin();
-    for (; cit != characterList.end(); ++cit) {
-        mob = *cit;
+
+    for (GList *cit = creatures;cit;cit = cit->next) {
+            mob = cit->data;
         if (!mob->in_room) {
             mob_found = true;
             send_to_char(ch, "Char out of room: %s,  Master is: %s.\r\n",
@@ -7465,7 +7460,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
     int i, j, k, l, command;
     struct creature *mob = NULL;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-    MobileMap_iterator mit;
+
     if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
         send_to_char(ch,
             "Show mobiles:  utility to search the mobile prototype list.\r\n"
@@ -7476,20 +7471,20 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
         return;
     }
 
+    GList *protos = g_hash_table_get_values(mob_prototypes);
+    GList *cit = protos;
+
     switch (command) {
     case 0:                    /* hitroll */
         if (!*arg) {
             send_to_char(ch, "What hitroll minimum?\r\n");
-            return;
+            goto escape;
         }
         k = atoi(arg);
 
         sprintf(buf, "Mobs with hitroll greater than %d:r\n", k);
-        mit = mobilePrototypes.begin();
-        for (i = 0;
-            (mit != mobilePrototypes.end()
-                && strlen(buf) < (MAX_STRING_LENGTH - 128)); ++mit) {
-            mob = mit->second;
+        for (i = 0;cit && strlen(buf) < (MAX_STRING_LENGTH - 128); cit = cit->next) {
+            mob = cit->data;
             if (GET_HITROLL(mob) >= k)
                 sprintf(buf,
                     "%s %3d. [%5d] %-30s (%2d) %2d\r\n",
@@ -7502,7 +7497,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
         arg = two_arguments(arg, arg1, arg2);
         if (!*arg1) {
             send_to_char(ch, "What gold minimum?\r\n");
-            return;
+            goto escape;
         }
         k = atoi(arg1);
 
@@ -7512,11 +7507,8 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             j = 0;
 
         sprintf(buf, "Mobs with gold greater than %d:r\n", k);
-        mit = mobilePrototypes.begin();
-        for (i = 0;
-            (mit != mobilePrototypes.end()
-                && strlen(buf) < (MAX_STRING_LENGTH - 128)); ++mit) {
-            mob = mit->second;
+        for (i = 0;cit && strlen(buf) < (MAX_STRING_LENGTH - 128); cit = cit->next) {
+            mob = cit->data;
 
             if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
                 continue;
@@ -7533,7 +7525,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
 
         if (!*arg) {
             send_to_char(ch, "Show mobiles with what flag?\r\n");
-            return;
+            goto escape;
         }
 
         skip_spaces(&arg);
@@ -7541,16 +7533,15 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
         if ((!(i = 1) || (j = search_block(arg, action_bits_desc, 0)) < 0) &&
             (!(i = 2) || (j = search_block(arg, action2_bits_desc, 0)) < 0)) {
             send_to_char(ch, "There is no mobile flag '%s'.\r\n", arg);
-            return;
+            goto escape;
         }
 
         sprintf(buf, "Mobiles with flag %s%s%s:\r\n", CCYEL(ch, C_NRM),
             (i == 1) ? action_bits_desc[j] : action2_bits_desc[j],
             CCNRM(ch, C_NRM));
 
-        mit = mobilePrototypes.begin();
-        for (k = 0; mit != mobilePrototypes.end(); ++mit) {
-            mob = mit->second;
+        for (k = 0;cit; cit = cit->next) {
+            mob = cit->data;
 
             if ((i == 1 && MOB_FLAGGED(mob, (1 << j))) ||
                 (i == 2 && MOB2_FLAGGED(mob, (1 << j)))) {
@@ -7568,7 +7559,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
         }
 
         page_string(ch->desc, buf);
-        return;
+        break;
     case 4:                    /* extreme gold */
 
         if (GET_LEVEL(ch) < LVL_GOD)
@@ -7578,7 +7569,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
         if (!*arg1) {
             send_to_char(ch,
                 "Usage: show mob extreme <gold | cash> [multiplier]\r\n");
-            return;
+            goto escape;
         }
 
         if (is_abbrev(arg1, "gold"))
@@ -7590,7 +7581,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
                 "You must specify gold or cash.  '%s' is not valid.\r\n",
                 arg1);
             send_to_char(ch, "%s", buf);
-            return;
+            goto escape;
         }
 
         if (!*arg2)
@@ -7601,9 +7592,8 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
         sprintf(buf, "Mobs with extreme %s >= (level * %d):\r\n",
             i ? "cash" : "gold", l);
 
-        mit = mobilePrototypes.begin();
-        for (k = 0; mit != mobilePrototypes.end(); ++mit) {
-            mob = mit->second;
+        for (k = 0;cit; cit = cit->next) {
+            mob = cit->data;
             if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
                 continue;
 
@@ -7627,22 +7617,21 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
 
         if (!*arg) {
             send_to_char(ch, "Show mobiles with what special?\r\n");
-            return;
+            goto escape;
         }
 
         skip_spaces(&arg);
 
         if ((i = find_spec_index_arg(arg)) < 0) {
             send_to_char(ch, "Type show specials for a valid list.\r\n");
-            return;
+            goto escape;
         }
 
         sprintf(buf, "Mobiles with special %s%s%s:\r\n", CCYEL(ch, C_NRM),
             spec_list[i].tag, CCNRM(ch, C_NRM));
 
-        mit = mobilePrototypes.begin();
-        for (j = 0; mit != mobilePrototypes.end(); ++mit) {
-            mob = mit->second;
+        for (j = 0;cit; cit = cit->next) {
+            mob = cit->data;
             if (spec_list[i].func == GET_MOB_SPEC(mob)) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
@@ -7656,28 +7645,26 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             }
         }
         page_string(ch->desc, buf);
-        return;
 
         break;
     case 6:  // race
         if( !*arg){
             send_to_char(ch, "Show mobiles with what race?\r\n");
-            return;
+            goto escape;
 
         }
         skip_spaces(&arg);
 
         if ((i = search_block(arg, player_race, false)) < 0) {
             send_to_char(ch, "Type olchelp race for a valid list.\r\n");
-            return;
+            goto escape;
         }
 
         sprintf(buf, "Mobiles with race %s%s%s:\r\n", CCYEL(ch, C_NRM),
             player_race[i], CCNRM(ch, C_NRM));
 
-        mit = mobilePrototypes.begin();
-        for (j = 0; mit != mobilePrototypes.end(); ++mit) {
-            mob = mit->second;
+        for (j = 0;cit; cit = cit->next) {
+            mob = cit->data;
             if ( i == GET_RACE(mob)) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
@@ -7691,26 +7678,25 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             }
         }
         page_string(ch->desc, buf);
-        return;
+        break;
     case 7:  // class
         if( !*arg){
             send_to_char(ch, "Show mobiles with what class?\r\n");
-            return;
+            goto escape;
 
         }
         skip_spaces(&arg);
 
         if ((i = search_block(arg, class_names, false)) < 0) {
             send_to_char(ch, "Type olchelp class for a valid list.\r\n");
-            return;
+            goto escape;
         }
 
         sprintf(buf, "Mobiles with class %s%s%s:\r\n", CCYEL(ch, C_NRM),
             class_names[i], CCNRM(ch, C_NRM));
 
-        mit = mobilePrototypes.begin();
-        for (j = 0; mit != mobilePrototypes.end(); ++mit) {
-            mob = mit->second;
+        for (j = 0;cit; cit = cit->next) {
+            mob = cit->data;
             if ( i == GET_CLASS(mob) || mob->player.remort_char_class == i ) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
@@ -7724,11 +7710,14 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             }
         }
         page_string(ch->desc, buf);
-        return;
+        break;
     default:
         send_to_char(ch, "DOH!!!!\r\n");
         break;
     }
+
+escape:
+    g_list_free(protos);
 }
 
 ACMD(do_xlag)
@@ -7770,10 +7759,10 @@ ACMD(do_peace)
 {
     bool found = 0;
 
-    struct creatureList_iterator it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
         found = 1;
-        tch->removeAllCombat();
+        removeAllCombat(tch);
     }
 
     if (!found)
@@ -7813,7 +7802,7 @@ ACMD(do_severtell)
 ACMD(do_qpreload)
 {
 
-    qp_reload();
+    qp_reload(0);
     send_to_char(ch, "Reloading Quest Points.\r\n");
     mudlog(LVL_GRGOD, NRM, true, "(GC) %s has reloaded QP", GET_NAME(ch));
 
@@ -7891,14 +7880,17 @@ load_single_zone(int zone_num)
 
 ACMD(do_coderutil)
 {
-    Tokenizer tokens(argument);
 	int idx, cmd_num, len = 0;
-    char token[MAX_INPUT_LENGTH];
+    char *token;
 
-    if(!tokens.next(token)) {
+    skip_spaces(&argument);
+
+    if(!*argument) {
         send_to_char( ch, "%s", CODER_UTIL_USAGE );
         return;
     }
+    token = tmp_getword(&argument);
+
     if (strcmp(token, "tick") == 0) {
         point_update();
 		send_to_char(ch, "*tick*\r\n");
@@ -7906,7 +7898,7 @@ ACMD(do_coderutil)
 		last_sunday_time = time(0);
 		send_to_char(ch, "Ok, it's now Sunday (kinda).\r\n");
 	} else if (strcmp(token, "recalc") == 0) {
-		tokens.next(token);
+        token = tmp_getword(&argument);
 		recalc_all_mobs(ch, token);
 	} else if (strcmp(token, "cmdusage") == 0) {
 		for (idx = 1;idx < num_of_cmds;idx++) {
@@ -7940,15 +7932,14 @@ ACMD(do_coderutil)
 	} else if (strcmp(token, "verify") == 0) {
 		verify_tempus_integrity(ch);
 	} else if (strcmp(token, "chaos") == 0) {
-		struct creatureList_iterator cit = characterList.begin();
-
-		for (;cit != characterList.end();++cit) {
+		for (GList *cit = creatures;cit;cit = cit->next) {
+            struct creature *tch = cit->data;
 			int ret_flags;
 			struct creature *attacked;
             int old_mob2_flags = MOB2_FLAGS(tch);
 
             MOB2_FLAGS(tch) |= MOB2_ATK_MOBS;
-			perform_barb_berserk(*cit, &attacked, &ret_flags);
+			perform_barb_berserk(tch, &attacked, &ret_flags);
             MOB2_FLAGS(tch) = old_mob2_flags;
 		}
 		send_to_char(ch, "The entire world goes mad...\r\n");
@@ -7957,7 +7948,7 @@ ACMD(do_coderutil)
         int zone_num;
         struct zone_data *zone;
 
-        tokens.next(token);
+        token = tmp_getword(&argument);
         if (!is_number(token)) {
             send_to_char(ch, "You must specify a zone number.\r\n");
             return;
@@ -7978,10 +7969,10 @@ ACMD(do_coderutil)
         }
     } else if (strcmp(token, "progstat") == 0) {
         void *owner;
-        extern prog_env *prog_list;
-        unsigned char *prog_get_obj(void *owner, prog_evt_type owner_type);
+        extern struct prog_env *prog_list;
+        unsigned char *prog_get_obj(void *owner, enum prog_evt_type owner_type);
 
-        tokens.next(token);
+        token = tmp_getword(&argument);
         if (!strcmp(token, "room")) {
             owner = ch->in_room;
         } else {
@@ -7998,7 +7989,7 @@ ACMD(do_coderutil)
         acc_sprintf("--------- --------- --------------- ---- ----------------------------\r\n");
         const char *prog_event_kind_desc[] = {"command", "idle", "fight", "give", "enter", "leave", "load", "tick", "spell", "combat", "death", "dying"};
 
-        for (prog_env *prog = prog_list;prog;prog = prog->next) {
+        for (struct prog_env *prog = prog_list;prog;prog = prog->next) {
             if (prog->owner == owner) {
                 unsigned char *exec = prog_get_obj(prog->owner, prog->owner_type);
                 int cmd = *((short *)(exec + prog->exec_pt));
@@ -8013,90 +8004,6 @@ ACMD(do_coderutil)
             }
         }
         page_string(ch->desc, acc_get_string());
-    } else if (strcmp(token, "inplayify") == 0) {
-        void save_zone(struct creature *ch, struct zone_data *zone);
-
-        std_list<int> zones_todo;
-        std_list<const char *> reasons;
-        int zone_count = 0;
-        int zone_num;
-
-        // Initialize known zones
-        zones_todo.push_back(30); reasons.push_back("preloaded");
-        zones_todo.push_back(300); reasons.push_back("preloaded");
-
-        // Set all zones to be not in-game
-		for (struct zone_data *zone = zone_table;zone;zone = zone->next)
-            REMOVE_BIT(zone->flags, ZONE_INPLAY);
-
-        // Iterate through known in-game zones
-        while (!zones_todo.empty()) {
-            zone_num = zones_todo.front();
-            const char *reason = reasons.front();
-            zones_todo.pop_front();
-            reasons.pop_front();
-            struct zone_data *zone = real_zone(zone_num);
-
-            SET_BIT(zone->flags, ZONE_INPLAY);
-            send_to_char(ch, "%3d %s %s\r\n",
-                         zone->number,
-                         reason,
-                         zone->name);
-            zone_count++;
-            // Iterate through rooms of each zone
-            for (struct room_data *room = zone->world, j = 0; room; room = room->next) {
-                // Check exits for different zone
-                for (int i = 0; i < NUM_DIRS; i++) {
-                    if (room->dir_option[i]
-                        && room->dir_option[i]->to_room
-                        && room->dir_option[i]->to_room->zone != zone
-                        && !ZONE_FLAGGED(room->dir_option[i]->to_room->zone, ZONE_INPLAY)) {
-                        SET_BIT(room->dir_option[i]->to_room->zone->flags, ZONE_INPLAY);
-                        zones_todo.push_back(room->dir_option[i]->to_room->zone->number);
-                        reasons.push_back(tmp_sprintf("room-exit   %5d", room->number));
-                    }
-                }
-
-                // Check searches for different zone
-                for (special_search_data *srch = room->search; srch; srch = srch->next) {
-                    if (srch->command == SEARCH_COM_TRANSPORT) {
-                        struct room_data *targ_room = real_room(srch->arg[0]);
-                        if (targ_room
-                            && targ_room->zone != zone
-                            && !ZONE_FLAGGED(targ_room->zone, ZONE_INPLAY)) {
-                            SET_BIT(targ_room->zone->flags, ZONE_INPLAY);
-                            zones_todo.push_back(targ_room->zone->number);
-                            reasons.push_back(tmp_sprintf("room-search %5d", room->number));
-                        }
-                    }
-                }
-
-            }
-
-            // Iterate through loaded portals of each zone
-            for (struct reset_com *cmd = zone->cmd; cmd; cmd = cmd->next) {
-                if (cmd->command == 'O') {
-                    struct obj_data *obj = real_object_proto(cmd->arg1);
-                    if (obj
-                        && IS_OBJ_TYPE(obj, ITEM_PORTAL)
-                        && GET_OBJ_VAL(obj, 0)) {
-                        struct room_data *room = real_room(GET_OBJ_VAL(obj, 0));
-                        if (room
-                            && room->zone != zone
-                            && !ZONE_FLAGGED(room->zone, ZONE_INPLAY)) {
-                            SET_BIT(room->zone->flags, ZONE_INPLAY);
-                            zones_todo.push_back(room->zone->number);
-                            reasons.push_back(tmp_sprintf("portal      %5d", cmd->arg3));
-                        }
-                    }
-                }
-            }
-        }
-
-        send_to_char(ch, "Found %d zones in game.\r\n", zone_count);
-        // Save changes to the zone, object, and mobile files
-		for (struct zone_data *zone = zone_table;zone;zone = zone->next)
-            save_zone(ch, zone);
     } else
         send_to_char(ch, "%s", CODER_UTIL_USAGE);
 }
@@ -8112,15 +8019,14 @@ const char* ACCOUNT_USAGE =
                     ;
 ACMD(do_account)
 {
-
-    Tokenizer tokens(argument);
-    char token[MAX_INPUT_LENGTH];
+    char *token;
 	int account_id = 0;
 	long vict_id = 0;
 	struct account *account = NULL;
 	struct creature *vict;
 
-    if(!tokens.next(token)) {
+    token = tmp_getword(&argument);
+    if(!token) {
         send_to_char( ch, "%s", ACCOUNT_USAGE );
         return;
     }
@@ -8132,16 +8038,18 @@ ACMD(do_account)
 	} else if (strcmp(token, "movechar") == 0) {
 		struct account *dst_account;
 
-		if (!tokens.next(token)) {
+        token = tmp_getword(&argument);
+		if (!token) {
 			send_to_char(ch, "Specify a character id.\r\n");
 			return;
 		}
 		vict_id = atol(token);
-		if (!player_name_exists(vict_id)) {
+		if (!player_idnum_exists(vict_id)) {
 			send_to_char(ch, "That player does not exist.\r\n");
 			return;
 		}
-		if (!tokens.next(token)) {
+        token = tmp_getword(&argument);
+		if (!token) {
 			send_to_char(ch, "Specify an account id.\r\n");
 			return;
 		}
@@ -8150,12 +8058,12 @@ ACMD(do_account)
 		account = account_by_id(account_id);
 
         account_id = atoi(token);
-		if (!struct account_exists(account_id)) {
+		dst_account = account_by_id(account_id);
+		if (!dst_account) {
             send_to_char(ch, "That account does not exist.\r\n");
             return;
         }
-        dst_account = account_by_id(account_id);
-		account->move_char(vict_id, dst_account);
+        account_move_char(account, vict_id, dst_account);
 
 		// Update descriptor
 		vict = get_char_in_world_by_idnum(vict_id);
@@ -8167,13 +8075,15 @@ ACMD(do_account)
 			account->name, account->id,
 			dst_account->name, dst_account->id);
 	} else if (strcmp(token, "exhume") == 0) {
-		if(!tokens.next(token) ) {
+        token = tmp_getword(&argument);
+		if(!token) {
 			send_to_char(ch, "Specify an account id.\r\n");
 			return;
 		}
 		account_id = atoi(token);
 
-		if(!tokens.next(token) ) {
+        token = tmp_getword(&argument);
+		if(!token) {
 			send_to_char(ch, "Specify a character id.\r\n");
 			return;
 		}
@@ -8183,9 +8093,10 @@ ACMD(do_account)
 			send_to_char(ch, "No such account: %d\r\n",account_id);
 			return;
 		}
-		account->exhume_char(ch, vict_id);
+		account_exhume_char(account, ch, vict_id);
 	} else if (strcmp(token, "reload") == 0) {
-		if(!tokens.next(token) ) {
+        token = tmp_getword(&argument);
+		if(!token) {
 			send_to_char(ch, "Specify an account id.\r\n");
 			return;
 		}
@@ -8197,7 +8108,7 @@ ACMD(do_account)
 			return;
 		}
 
-		if (account->reload())
+		if (account_reload(account))
 			send_to_char(ch, "struct account successfully reloaded from db\r\n");
 		else
 			send_to_char(ch, "Error: struct account could not be reloaded\r\n");
@@ -8271,7 +8182,7 @@ ACMD(do_tester)
     byte tcmd;
     int i;
 
-    if( ! ch->isTester() || GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
+    if( !isTester(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
         send_to_char(ch, "You are not a tester.\r\n");
         return;
     }
@@ -8403,7 +8314,8 @@ ACMD(do_tester)
     return;
 }
 
-int do_freeze_char(char *argument, struct creature *vict, struct creature *ch)
+int
+do_freeze_char(char *argument, struct creature *vict, struct creature *ch)
 {
     static const int ONE_MINUTE = 60;
     static const int ONE_HOUR   = 3600;
@@ -8695,7 +8607,7 @@ ACMD(do_delete)
 		return;
 	}
 
-	acct_id = player_account_by_idnum(name);
+	acct_id = player_account_by_name(name);
 	acct = account_by_id(acct_id);
 	if (!acct) {
 		errlog("Victim found without account");
@@ -8707,9 +8619,8 @@ ACMD(do_delete)
 	vict = get_char_in_world_by_idnum(vict_id);
 	from_file = !vict;
 	if (from_file) {
-		vict = new struct creature(true);
-		if (!vict->loadFromXML(vict_id)) {
-			delete vict;
+		vict = load_player_from_xml(vict_id);
+		if (!vict) {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
 		}
@@ -8717,8 +8628,8 @@ ACMD(do_delete)
 
 	tmp_name = tmp_strdup(GET_NAME(vict));
 
-	acct->delete_char(vict);
-    acct->reload();
+	account_delete_char(acct, vict);
+    account_reload(acct);
 
 	send_to_char(ch, "Character '%s' has been deleted from account %s.\r\n",
 		tmp_name, acct->name);
@@ -8728,10 +8639,10 @@ ACMD(do_delete)
 		tmp_name,
 		vict_id,
 		acct->name,
-		acct->idnum);
+		acct->id);
 
 	if (from_file)
-		delete vict;
+        free_creature(vict);
 }
 
 ACMD(do_badge)
@@ -8741,7 +8652,7 @@ ACMD(do_badge)
 	if (IS_NPC(ch))
 		send_to_char(ch, "You've got no badge.\r\n");
 	else if (strlen(argument) > MAX_BADGE_LENGTH) {
-		send_to_char(ch, "Sorry, badges can't be longer than %zd characters.\r\n",
+		send_to_char(ch, "Sorry, badges can't be longer than %d characters.\r\n",
                      MAX_BADGE_LENGTH);
 	} else {
 		strcpy(BADGE(ch), argument);
@@ -8779,8 +8690,8 @@ check_log(struct creature *ch, const char *fmt, ...)
         x++;
     }
 
-	mlog(Security_NOONE, LVL_AMBASSADOR, NRM, true, "CHECK: %s", msg);
-	mlog(Security_NOONE, LVL_AMBASSADOR, NRM, true,
+	mlog(SECURITY_NOONE, LVL_AMBASSADOR, NRM, true, "CHECK: %s", msg);
+	mlog(SECURITY_NOONE, LVL_AMBASSADOR, NRM, true,
 		"TRACE: %s", backtrace_str);
 }
 
@@ -8792,22 +8703,21 @@ check_ptr(struct creature *ch __attribute__ ((unused)),
           int vnum __attribute__ ((unused)))
 {
 #ifdef MEMTRACK
-	dbg_mem_blk *mem;
+	struct dbg_mem_blk *mem;
 
 	if (!ptr)
 		return true;
 
-        mem = dbg_get_block(ptr);
-        if (!mem) {
-            check_log(ch, "Invalid pointer found in %s %d", str, vnum);
-            return false;
-        }
+    mem = dbg_get_block(ptr);
+    if (!mem) {
+        check_log(ch, "Invalid pointer found in %s %d", str, vnum);
+        return false;
+    }
 
-        if (expected_len > 0 && mem->size != expected_len) {
-            check_log(ch, "Expected block of size %d, got size %d in %s %d",
-                      expected_len, mem->size, str, vnum);
-            return false;
-        }
+    if (expected_len > 0 && mem->size != expected_len) {
+        check_log(ch, "Expected block of size %d, got size %d in %s %d",
+                  expected_len, mem->size, str, vnum);
+        return false;
     }
 	return true;
 #else
@@ -8818,21 +8728,21 @@ check_ptr(struct creature *ch __attribute__ ((unused)),
 void
 verify_tempus_integrity(struct creature *ch)
 {
-	MobileMap_iterator mit;
-    struct creatureList_iterator cit;
+    GList *protos, *mit, *cit, *oit;
 	struct creature *vict;
 	struct obj_data *obj, *contained;
 	struct room_data *room;
 	struct zone_data *zone;
-	extra_descr_data *cur_exdesc;
-	memory_rec_struct *cur_mem;
+	struct extra_descr_data *cur_exdesc;
+	struct memory_rec *cur_mem;
 	const char *err;
-    tmp_obj_affect *obj_aff;
+    struct tmp_obj_affect *obj_aff;
     int idx;
 
 	// Check prototype mobs
-	for (mit = mobilePrototypes.begin();mit != mobilePrototypes.end();mit++) {
-		vict = mit->second;
+    protos = g_hash_table_get_values(mob_prototypes);
+    for (mit = protos;mit;mit = mit->next) {
+        vict = mit->data;
 
 		if (!vict->player.name)
 			check_log(ch, "Alias of creature proto #%d (%s) is NULL!",
@@ -8852,13 +8762,13 @@ verify_tempus_integrity(struct creature *ch)
 
 		// Loop through memory
 		for (cur_mem = vict->mob_specials.memory;cur_mem;cur_mem = cur_mem->next) {
-			if (!check_ptr(ch, cur_mem, sizeof(memory_rec_struct),
+			if (!check_ptr(ch, cur_mem, sizeof(struct memory_rec),
 					"memory of creature proto", MOB_IDNUM(vict)))
 				break;
 		}
 		// Mobile shared structure
 		if (check_ptr(ch, vict->mob_specials.func_data,
-				sizeof(mob_shared_data), "shared struct of creature proto",
+				sizeof(struct mob_shared_data), "shared struct of creature proto",
 				MOB_IDNUM(vict))) {
 
 			check_ptr(ch, vict->mob_specials.shared->move_buf, 0,
@@ -8873,11 +8783,12 @@ verify_tempus_integrity(struct creature *ch)
 			check_log(ch, "Prototype of prototype is not itself on mob %d",
 				MOB_IDNUM(vict));
 	}
+    g_list_free(protos);
 
 	// Check prototype objects
-    ObjectMap_iterator oi = objectPrototypes.begin();
-    for (; oi != objectPrototypes.end(); ++oi) {
-        obj = oi->second;
+    protos = g_hash_table_get_values(obj_prototypes);
+    for (oit = protos;oit;oit = oit->next) {
+        obj = oit->data;
 		check_ptr(ch, obj, sizeof(struct obj_data),
 			"object proto", -1);
 		check_ptr(ch, obj->name, 0,
@@ -8889,7 +8800,7 @@ verify_tempus_integrity(struct creature *ch)
 		check_ptr(ch, obj->action_desc, 0,
 			"action desc of object proto", GET_OBJ_VNUM(obj));
 		for (cur_exdesc = obj->ex_description;cur_exdesc;cur_exdesc = cur_exdesc->next) {
-			if (!check_ptr(ch, cur_exdesc, sizeof(extra_descr_data),
+			if (!check_ptr(ch, cur_exdesc, sizeof(struct extra_descr_data),
 					"extradesc of object proto", GET_OBJ_VNUM(obj)))
 				break;
 			check_ptr(ch, cur_exdesc->keyword, 0,
@@ -8897,11 +8808,13 @@ verify_tempus_integrity(struct creature *ch)
 			check_ptr(ch, cur_exdesc->description, 0,
 				"description of extradesc of object proto", GET_OBJ_VNUM(obj));
 		}
-		check_ptr(ch, obj->shared, sizeof(obj_shared_data),
+		check_ptr(ch, obj->shared, sizeof(struct obj_shared_data),
 			"shared struct of object proto", GET_OBJ_VNUM(obj));
 		check_ptr(ch, obj->shared->func_param, 0,
 			"func param of object proto", GET_OBJ_VNUM(obj));
 	}
+
+    g_list_free(protos);
 
 	// Check rooms
 	for (zone = zone_table;zone;zone = zone->next) {
@@ -8913,7 +8826,7 @@ verify_tempus_integrity(struct creature *ch)
 			check_ptr(ch, room->sounds, 0,
 				"sounds of room", room->number);
 			for (cur_exdesc = room->ex_description;cur_exdesc;cur_exdesc = cur_exdesc->next) {
-				if (!check_ptr(ch, cur_exdesc, sizeof(extra_descr_data),
+				if (!check_ptr(ch, cur_exdesc, sizeof(struct extra_descr_data),
 						"extradesc of room", room->number))
 					break;
 				check_ptr(ch, cur_exdesc->keyword, 0,
@@ -8923,7 +8836,7 @@ verify_tempus_integrity(struct creature *ch)
 			}
 			if (ABS_EXIT(room, NORTH)
 					&& check_ptr(ch, ABS_EXIT(room, NORTH),
-					sizeof(room_direction_data),
+					sizeof(struct room_direction_data),
 					"north exit of room", room->number)) {
 				check_ptr(ch, ABS_EXIT(room, NORTH)->general_description, 0,
 					"description of north exit of room", room->number);
@@ -8934,7 +8847,7 @@ verify_tempus_integrity(struct creature *ch)
 			}
 			if (ABS_EXIT(room, SOUTH)
 					&& check_ptr(ch, ABS_EXIT(room, SOUTH),
-					sizeof(room_direction_data),
+					sizeof(struct room_direction_data),
 					"south exit of room", room->number)) {
 				check_ptr(ch, ABS_EXIT(room, SOUTH)->general_description, 0,
 					"description of south exit of room", room->number);
@@ -8945,7 +8858,7 @@ verify_tempus_integrity(struct creature *ch)
 			}
 			if (ABS_EXIT(room, EAST)
 					&& check_ptr(ch, ABS_EXIT(room, EAST),
-					sizeof(room_direction_data),
+					sizeof(struct room_direction_data),
 					"east exit of room", room->number)) {
 				check_ptr(ch, ABS_EXIT(room, EAST)->general_description, 0,
 					"description of east exit of room", room->number);
@@ -8956,7 +8869,7 @@ verify_tempus_integrity(struct creature *ch)
 			}
 			if (ABS_EXIT(room, WEST)
 					&& check_ptr(ch, ABS_EXIT(room, WEST),
-					sizeof(room_direction_data),
+					sizeof(struct room_direction_data),
 					"west exit of room", room->number)) {
 				check_ptr(ch, ABS_EXIT(room, WEST)->general_description, 0,
 					"description of west exit of room", room->number);
@@ -8967,7 +8880,7 @@ verify_tempus_integrity(struct creature *ch)
 			}
 			if (ABS_EXIT(room, UP)
 					&& check_ptr(ch, ABS_EXIT(room, UP),
-					sizeof(room_direction_data),
+					sizeof(struct room_direction_data),
 					"up exit of room", room->number)) {
 				check_ptr(ch, ABS_EXIT(room, UP)->general_description, 0,
 					"description of up exit of room", room->number);
@@ -8978,7 +8891,7 @@ verify_tempus_integrity(struct creature *ch)
 			}
 			if (ABS_EXIT(room, DOWN)
 					&& check_ptr(ch, ABS_EXIT(room, DOWN),
-					sizeof(room_direction_data),
+					sizeof(struct room_direction_data),
 					"down exit of room", room->number)) {
 				check_ptr(ch, ABS_EXIT(room, DOWN)->general_description, 0,
 					"description of down exit of room", room->number);
@@ -8989,7 +8902,7 @@ verify_tempus_integrity(struct creature *ch)
 			}
 			if (ABS_EXIT(room, PAST)
 					&& check_ptr(ch, ABS_EXIT(room, PAST),
-					sizeof(room_direction_data),
+					sizeof(struct room_direction_data),
 					"past exit of room", room->number)) {
 				check_ptr(ch, ABS_EXIT(room, PAST)->general_description, 0,
 					"description of past exit of room", room->number);
@@ -9000,7 +8913,7 @@ verify_tempus_integrity(struct creature *ch)
 			}
 			if (ABS_EXIT(room, FUTURE)
 					&& check_ptr(ch, ABS_EXIT(room, FUTURE),
-					sizeof(room_direction_data),
+					sizeof(struct room_direction_data),
 					"future exit of room", room->number)) {
 				check_ptr(ch, ABS_EXIT(room, FUTURE)->general_description, 0,
 					"description of future exit of room", room->number);
@@ -9034,10 +8947,8 @@ verify_tempus_integrity(struct creature *ch)
 
 	// Check zones
 	// Check mobiles in game
-    for (cit = characterList.begin();
-         cit != characterList.end();
-         ++cit) {
-        vict = *cit;
+    for (cit = creatures;cit;cit = cit->next) {
+        vict = cit->data;
 
         check_ptr(ch, vict, sizeof(struct creature),
                              "mobile", GET_MOB_VNUM(vict));
@@ -9094,7 +9005,7 @@ verify_tempus_integrity(struct creature *ch)
         check_ptr(ch, obj->action_desc, 0,
                              "action desc of object", obj->unique_id);
         for (cur_exdesc = obj->ex_description;cur_exdesc;cur_exdesc = cur_exdesc->next) {
-            if (!check_ptr(ch, cur_exdesc, sizeof(extra_descr_data),
+            if (!check_ptr(ch, cur_exdesc, sizeof(struct extra_descr_data),
                                       "extradesc of obj", obj->unique_id))
                 break;
             check_ptr(ch, cur_exdesc->keyword, 0,
@@ -9103,7 +9014,7 @@ verify_tempus_integrity(struct creature *ch)
                                  "description of extradesc of room", obj->unique_id);
         }
 
-        check_ptr(ch, obj->shared, sizeof(obj_shared_data),
+        check_ptr(ch, obj->shared, sizeof(struct obj_shared_data),
                              "shared data of object", obj->unique_id);
         check_ptr(ch, obj->in_room, sizeof(struct room_data),
                              "room location of object", obj->unique_id);
@@ -9140,7 +9051,7 @@ verify_tempus_integrity(struct creature *ch)
         for (obj_aff = obj->tmp_affects;
              obj_aff;
              obj_aff = obj_aff->next) {
-            if (!check_ptr(ch, obj_aff, sizeof(tmp_obj_affect),
+            if (!check_ptr(ch, obj_aff, sizeof(struct tmp_obj_affect),
                            "tmp obj affect in object", obj->unique_id))
                 break;
         }

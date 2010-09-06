@@ -3329,7 +3329,7 @@ ASPELL(spell_dispel_magic)
 
 ASPELL(spell_distraction)
 {
-	memory_rec *curr, *next_curr;
+	struct memory_rec *curr, *next_curr;
 
 	if (!IS_NPC(victim)) {
 		send_to_char(ch, "This trigger cannot be used against other players.\r\n");
