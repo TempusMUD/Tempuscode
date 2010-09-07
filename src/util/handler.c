@@ -2681,14 +2681,21 @@ int parse_char_class(char *);
 int parse_race(char *);
 
 bool
-Reaction_add_reaction(decision_t action, char *arg)
+add_reaction(struct reaction *reaction, char *arg)
 {
 	char *tmp;
 	clan_data *clan;
 	char *condition;
 	char new_reaction[3];
+    char *action_str;
+	decision_t action;
 
-	if (action != ALLOW && action != DENY)
+	action_str = tmp_getword(&config);
+	if (!strcmp(action_str, "allow"))
+		action = ALLOW;
+	else if (!strcmp(action_str, "deny"))
+		action = DENY;
+	else
 		return false;
 
 	new_reaction[0] = (action == ALLOW) ? 0x10:0x00;
@@ -2746,25 +2753,8 @@ Reaction_add_reaction(decision_t action, char *arg)
 	return true;
 }
 
-bool
-Reaction_add_reaction(char *config)
-{
-	char *action_str;
-	decision_t action;
-
-	action_str = tmp_getword(&config);
-	if (!strcmp(action_str, "allow"))
-		action = ALLOW;
-	else if (!strcmp(action_str, "deny"))
-		action = DENY;
-	else
-		return false;
-
-	return add_reaction(action, config);
-}
-
 decision_t
-Reaction_react(struct creature *ch)
+react(struct reaction *reaction, struct creature *ch)
 {
 	char *read_pt;
 	bool match, wantmatch;

@@ -18,7 +18,7 @@ SPECIAL(guard)
 {
 	struct creature *self = (struct creature *)me;
 	int cmd_idx, lineno, dir = -1;
-	Reaction reaction;
+	struct reaction reaction;
 	const char *to_vict = "You are blocked by $n.";
 	const char *to_room = "$N is blocked by $n.";
 	char *str, *line, *param_key, *dir_str, *room_str;
@@ -30,7 +30,7 @@ SPECIAL(guard)
 	// movement commands
 	if (!GET_MOB_PARAM(self)
 			|| (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
-			|| (spec_mode == SPECIAL_TICK && !self->isFighting())
+			|| (spec_mode == SPECIAL_TICK && !isFighting(self))
 			|| (spec_mode == SPECIAL_CMD && !IS_MOVE(cmd)))
 		return 0;
 
@@ -38,7 +38,7 @@ SPECIAL(guard)
 	for (line = tmp_getline(&str), lineno = 1; line;
 			line = tmp_getline(&str), lineno++) {
 
-		if (reaction.add_reaction(line))
+		if (add_reaction(reaction, line))
 			continue;
 
 		param_key = tmp_getword(&line);
@@ -54,7 +54,7 @@ SPECIAL(guard)
 					break;
 				}
 			}
-			cmd_idx = find_command(dir_str, true);
+			cmd_idx = find_command(dir_str);
 			if (cmd_idx == -1 || !IS_MOVE(cmd_idx)) {
 				err = "a bad direction";
 				break;
@@ -83,8 +83,8 @@ SPECIAL(guard)
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
-		if (callsforhelp && !number(0, 10) && self->isFighting()) {
-			call_for_help(self, self->findRandomCombat());
+		if (callsforhelp && !number(0, 10) && isFighting(self)) {
+			call_for_help(self, findRandomCombat(self));
 			return true;
 		}
 
@@ -107,7 +107,7 @@ SPECIAL(guard)
                 perform_say_to(self, ch, "Sorry.  I'm broken, but a god has already been notified.");
 			}
 		}
-	} else if (ch == self || IS_IMMORT(ch) || ALLOW == reaction.react(ch))
+	} else if (ch == self || IS_IMMORT(ch) || ALLOW == react(reaction, ch))
 		return false;
 
 	// If we're a fallible guard, check to see if they can get past us
@@ -115,7 +115,7 @@ SPECIAL(guard)
 		return false;
 
 	// Guards must be at least standing to be able to block people
-	if (self->getPosition() <= POS_SITTING)
+	if (GET_POSITION(self) <= POS_SITTING)
 		return false;
 
 	// Petrified guards can't do much
@@ -127,11 +127,11 @@ SPECIAL(guard)
 	act(to_room, false, self, 0, ch, TO_NOTVICT);
 	if (!err
 			&& attack
-			&& !self->isFighting()
+			&& !isFighting(self)
 			&& IS_PC(ch)
 			&& !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
-        self->addCombat(ch, false);
-        ch->addCombat(self, false);
+        addCombat(self, ch, false);
+        addCombat(ch, self, false);
     }
 
 	WAIT_STATE(ch, 1 RL_SEC);

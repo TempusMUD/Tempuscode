@@ -87,6 +87,11 @@ enum decision_t {
 	DENY,
 };
 
+struct reaction {
+    char *reaction;
+};
+
+
 /* undefine MAX and MIN so that our functions are used instead */
 #ifdef MAX
 #undef MAX
