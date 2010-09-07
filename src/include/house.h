@@ -69,6 +69,7 @@ struct house *find_house_by_idnum(int idnum);
 struct house *find_house_by_owner(int idnum);
 struct house *find_house_by_room(room_num room_idnum);
 void collect_housing_rent(void);
+bool save_house(struct house *house);
 void save_houses(void);
 
 #endif

@@ -18,10 +18,10 @@
 
 SPECIAL(artisan);
 
-static int cmd_slap, cmd_smirk, cmd_cry;
-vector<Craftshop *> shop_list;
+int cmd_slap, cmd_smirk, cmd_cry;
+GList *shop_list;
 
-struct CraftComponent {
+struct craft_component {
 	int item;
 	int material;
 	int weight;
@@ -29,131 +29,96 @@ struct CraftComponent {
 	int amount;
 };
 
-struct CraftItem {
-    CraftItem() : required() {
-        vnum = 0;
-        cost = 999999999;
-        fail_pct = 100;
-    }
-    ~CraftItem(void) {
-        vector<CraftComponent*>_iterator cmp;
-        for (cmp = required.begin();cmp != required.end();cmp++) {
-            delete (*cmp);
-        }
-        required.clear();
-    }
-    char *next_requirement(struct creature *keeper);
-    struct obj_data *create(struct creature *keeper, struct creature *recipient);
-
+struct craft_item {
     int vnum;	// object to be offered when all components are held
     long cost; // -1 means to use default cost
     int fail_pct;
-    vector<CraftComponent *> required;
+    GList *required;
 };
 
-/**
- * Loads the Craftshop described by the given xml node.
- * If the sho has already been created, it is reinitialized.
-**/
-void
-load_craft_shop(xmlNodePtr node)
+struct obj_data *create(struct craft_item *item,
+                        struct creature *keeper,
+                        struct creature *recipient);
+char *next_crafting_requirement(struct craft_item *item, struct creature *keeper);
+
+struct craft_shop *
+craft_shop_by_id(int idnum)
 {
-    Craftshop *shop = NULL;
-    int id = xmlGetIntProp(node,"id");
-
-	vector<Craftshop *>_iterator it;
-
-	for (it = shop_list.begin(); it != shop_list.end(); ++it) {
-        if( (*it)->getID() == id ) {
-            shop = (*it);
-            break;
-        }
+    gint shop_id_matches(gpointer vnum, struct craft_shop *shop, gpointer ignore) {
+        return (shop->id == GPOINTER_TO_INT(vnum)) ? 0:-1;
     }
-    if( shop != NULL ) {
-        shop->load(node);
-    } else {
-        shop = new Craftshop(node);
-    }
-	shop_list.push_back(shop);
+    GList *it;
+    it = g_list_find_custom(shop_list, 0, (GCompareFunc)shop_id_matches);
+    return (it) ? it->data:NULL;
 }
 
+struct craft_shop *
+craft_shop_by_keeper(struct creature *keeper)
+{
+    gint shop_keeper_matches(gpointer vnum, struct craft_shop *shop, gpointer ignore) {
+        return (shop->keeper_vnum == GET_MOB_VNUM(keeper)
+                && shop->room == keeper->in_room->number) ? 0:-1;
+    }
+    GList *it;
+    it = g_list_find_custom(shop_list, 0, (GCompareFunc)shop_keeper_matches);
+    return (it) ? it->data:NULL;
+}
+
+
 /**
- * loads the CraftItem described by the given xml node.
+ * loads the craft_item described by the given xml node.
  * Does not reinit the item. Always creates a new item.
 **/
 void
-Craftshop_parse_item(xmlNodePtr node)
+craft_shop_parse_item(struct craft_shop *shop, xmlNodePtr node)
 {
 	xmlNodePtr sub_node;
-	CraftItem *new_item;
-	CraftComponent *compon;
+	struct craft_item *new_item;
+	struct craft_component *compon;
 
-	new_item = new CraftItem();
-	new_item->vnum = xmlGetIntProp(node, "vnum");
-	new_item->cost = xmlGetIntProp(node, "cost");
+    CREATE(new_item, struct craft_item, 1);
+	new_item->vnum = xmlGetIntProp(node, "vnum", 0);
+	new_item->cost = xmlGetIntProp(node, "cost", 0);
     new_item->fail_pct = xmlGetIntProp(node, "failure", 0);
 	for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
 		if (xmlMatches(sub_node->name, "requires")) {
-			compon = new CraftComponent;
-			compon->item = xmlGetIntProp(sub_node, "item");
-			compon->material = xmlGetIntProp(sub_node, "material");
-			compon->weight = xmlGetIntProp(sub_node, "weight");
-			compon->value = xmlGetIntProp(sub_node, "value");
-			compon->amount = xmlGetIntProp(sub_node, "amount");
-			new_item->required.insert(new_item->required.end(), compon);
+            CREATE(compon, struct craft_component, 1);
+			compon->item = xmlGetIntProp(sub_node, "item", 0);
+			compon->material = xmlGetIntProp(sub_node, "material", 0);
+			compon->weight = xmlGetIntProp(sub_node, "weight", 0);
+			compon->value = xmlGetIntProp(sub_node, "value", 0);
+			compon->amount = xmlGetIntProp(sub_node, "amount", 0);
+            new_item->required = g_list_prepend(new_item->required, compon);
 		} else if (!xmlMatches(sub_node->name, "text")) {
 			errlog("Invalid XML tag '%s' while parsing craftshop item",
 				(const char *)sub_node->name);
 		}
 	}
-	items.push_back(new_item);
+    new_item->required = g_list_reverse(new_item->required);
+    shop->items = g_list_prepend(shop->items, new_item);
 	return;
 }
 
 /**
- * creates and initializes a new Craftshop. Wee.
-**/
-Craftshop_Craftshop(xmlNodePtr node)
-: items()
-{
-    id = xmlGetIntProp(node, "id");
-    load( node );
-}
-
-/**
- * destructor for the craftshop
-**/
-Craftshop_~Craftshop(void)
-{
-    vector<CraftItem*>_iterator item;
-    for (item = items.begin();item != items.end();item++) {
-        delete (*item);
-	}
-    items.clear();
-}
-
-/**
- * Loads this Craftshop's data from the given xml node.
+ * Loads this craft_shop's data from the given xml node.
 **/
 void
-Craftshop_load( xmlNodePtr node )
+craft_shop_load(struct craft_shop *shop, xmlNodePtr node)
 {
     xmlNodePtr sub_node;
 	xmlChar *prop;
-    room = xmlGetIntProp(node, "room");
-    keeper_vnum = xmlGetIntProp(node, "keeper");
+    shop->room = xmlGetIntProp(node, "room", 0);
+    shop->keeper_vnum = xmlGetIntProp(node, "keeper", 0);
 
     // Remove all the currently stored items.
-    vector<CraftItem*>_iterator item;
-    for (item = items.begin();item != items.end();item++) {
-        delete (*item);
-	}
-    items.clear();
+    g_list_foreach(shop->items, (GFunc)free, 0);
+    g_list_free(shop->items);
+
     // Load the described items and thier info.
 	for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
 		prop = NULL;
 		if (xmlMatches(sub_node->name, "item")) {
-			parse_item(sub_node);
+			craft_shop_parse_item(shop, sub_node);
 		} else if (!xmlMatches(sub_node->name, "text")) {
 			errlog("Invalid XML tag '%s' while parsing craftshop",
 				(const char *)sub_node->name);
@@ -161,31 +126,40 @@ Craftshop_load( xmlNodePtr node )
 	}
 }
 
-Craftshop *
-Craftshop_find(struct creature *keeper)
+/**
+ * Loads the craft_shop described by the given xml node.
+ * If the sho has already been created, it is reinitialized.
+**/
+void
+load_craft_shop(xmlNodePtr node)
 {
-	vector<Craftshop *>_iterator shop;
+    struct craft_shop *shop = NULL;
+    int id = xmlGetIntProp(node, "id", -1);
 
-	for (shop = shop_list.begin(); shop != shop_list.end(); shop++)
-		if (keeper->mob_specials.shared->vnum == (*shop)->keeper_vnum &&
-				keeper->in_room->number == (*shop)->room)
-			return *shop;
-
-	return NULL;
+    shop = craft_shop_by_id(id);
+    if (!shop) {
+        CREATE(shop, struct craft_shop, 1);
+        craft_shop_load(shop, node);
+        shop_list = g_list_prepend(shop_list, shop);
+    } else {
+        craft_shop_load(shop, node);
+    }
 }
 
 char *
-CraftItem_next_requirement(struct creature *keeper)
+craft_item_next_requirement(struct craft_item *item, struct creature *keeper)
 {
+    struct craft_component *compon;
 	struct obj_data *obj;
-	vector<CraftComponent *>_iterator compon;
+	GList *it;
 
-	for (compon = required.begin();compon != required.end();compon++ ) {
+	for (it = item->required;it;it = it->next) {
+        compon = it->data;
 		// Item components are all we support right now
-		if ((*compon)->item) {
-			obj = get_obj_in_list_num(compon[0]->item, keeper->carrying);
+		if (compon->item) {
+			obj = get_obj_in_list_num(compon->item, keeper->carrying);
 			if (!obj) {
-				obj = real_object_proto(compon[0]->item);
+				obj = real_object_proto(compon->item);
 				return tmp_strdup(obj->name);
 			}
 		} else {
@@ -197,37 +171,44 @@ CraftItem_next_requirement(struct creature *keeper)
 }
 
 struct obj_data *
-CraftItem_create(struct creature *keeper, struct creature *recipient)
+craft_item_create(struct craft_item *item,
+                  struct creature *keeper,
+                  struct creature *recipient)
 {
+    struct craft_component *compon;
 	struct obj_data *obj;
-	vector<CraftComponent *>_iterator compon;
+	GList *it;
 
-	for (compon = required.begin();compon != required.end();compon++ ) {
+	for (it = item->required;it;it = it->next) {
+        compon = it->data;
 		// Item components are all we support right now
-		if ((*compon)->item) {
-			obj = get_obj_in_list_num(compon[0]->item, keeper->carrying);
+		if (compon->item) {
+			obj = get_obj_in_list_num(compon->item, keeper->carrying);
 			if (!obj) {
-				errlog("craft_remove_prereqs called without all prereqs");
+                errlog("craft_remove_prereqs called without all prereqs");
 				return NULL;
 			}
-			obj_from_char(obj);
+            obj_from_char(obj);
 			extract_obj(obj);
 		} else {
 			errlog("Unimplemented requirement in artisan");
-			return NULL;
 		}
 	}
 
-	if (fail_pct && number(0, 100) < fail_pct)
+	if (item->fail_pct && number(0, 100) < item->fail_pct)
 		return NULL;
 
-	obj = read_object(vnum);
+	obj = read_object(item->vnum);
 	obj_to_char(obj, recipient);
 	return obj;
 }
 
 char *
-list_commission_item(struct creature *ch, struct creature *keeper, int idx, CraftItem *item, char *msg)
+list_commission_item(struct creature *ch,
+                     struct creature *keeper,
+                     int idx,
+                     struct craft_item *item,
+                     char *msg)
 {
 	struct obj_data *obj;
 	char *needed;
@@ -237,7 +218,7 @@ list_commission_item(struct creature *ch, struct creature *keeper, int idx, Craf
 	item_prefix = tmp_sprintf("%3d%s)%s",
 		idx, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	// We have to find out what we need.
-	if (item->next_requirement(keeper))
+	if (craft_item_next_requirement(item, keeper))
 		needed = tmp_strcat(CCRED(ch, C_NRM), "Unavailable", CCNRM(ch, C_NRM), NULL);
 	else
 		needed = tmp_strcat(CCGRN(ch, C_NRM), " Available ", CCNRM(ch, C_NRM), NULL);
@@ -246,29 +227,30 @@ list_commission_item(struct creature *ch, struct creature *keeper, int idx, Craf
 		item_prefix,
 		needed,
 		CAP(tmp_strdup(obj->name)),
-		item->cost+(item->cost*ch->getCostModifier(keeper))/100);
+                       item->cost+(item->cost*getCostModifier(ch, keeper))/100);
 
 }
 
 // sends a simple status message to the given struct creature.
 void
-Craftshop_sendStatus( struct creature *ch ) {
+send_craft_shop_status(struct craft_shop *shop, struct creature *ch ) {
     const char *name = "<not loaded>";
-    struct creature *keeper = real_mobile_proto(keeper_vnum);
+    struct creature *keeper = real_mobile_proto(shop->keeper_vnum);
     if( keeper != NULL )
         name = GET_NAME(keeper);
-    send_to_char(ch, "[%6d] %15s [%6d] ( %zd items )\r\n",
-                    id, name, keeper_vnum, items.size() );
+    send_to_char(ch, "[%6d] %15s [%6d] ( %d items )\r\n",
+                 shop->id, name, shop->keeper_vnum, g_list_length(shop->items));
 }
 
 // Lists the items for sale.
 void
-Craftshop_list(struct creature *keeper, struct creature *ch)
+craft_shop_list(struct craft_shop *shop, struct creature *keeper, struct creature *ch)
 {
-	vector<CraftItem *>_iterator item;
+	GList *it;
+    struct craft_item *item;
 	int idx = 0;
 
-	if (items.empty()) {
+	if (!shop->items) {
 		perform_say_to(keeper, ch, "I'm not in business right now.");
 		return;
 	}
@@ -278,9 +260,10 @@ Craftshop_list(struct creature *keeper, struct creature *ch)
 		" ##               Item                                               Cost\r\n-------------------------------------------------------------------------\r\n",
 		CCNRM(ch, C_NRM),
 		NULL);
-	for (item = items.begin();item != items.end();item++) {
+	for (it = shop->items;it;it = it->next) {
+        item = it->data;
 		idx++;
-		msg = list_commission_item(ch, keeper, idx, *item, msg);
+		msg = list_commission_item(ch, keeper, idx, item, msg);
 	}
 
 	page_string(ch->desc, msg);
@@ -288,12 +271,16 @@ Craftshop_list(struct creature *keeper, struct creature *ch)
 
 // Attempts to purchase an item from keeper for ch.
 void
-Craftshop_buy(struct creature *keeper, struct creature *ch, char *arguments)
+craft_shop_buy(struct craft_shop *shop,
+               struct creature *keeper,
+               struct creature *ch,
+               char *arguments)
 {
-	vector<CraftItem *>_iterator item_itr;
-	CraftItem *item;
+	GList *item_itr;
+	struct craft_item *item;
 	struct obj_data *obj;
 	char *arg, *msg, *needed_str;
+
     arg = tmp_getword(&arguments);
 
 	item = NULL;
@@ -306,14 +293,13 @@ Craftshop_buy(struct creature *keeper, struct creature *ch, char *arguments)
             perform_say_to(keeper, ch, "That's not a proper item!");
             return;
         }
-		if ((unsigned int)num < items.size())
-			item = items[num];
+		if ((unsigned int)num < g_list_length(shop->items))
+			item = g_list_nth_data(shop->items, num);
 	} else {
-		for (item_itr= items.begin();item_itr!= items.end();item_itr++) {
-			if (isname(arg, real_object_proto((*item_itr)->vnum)->aliases)) {
-				item = *item_itr;
+		for (item_itr= shop->items;item_itr;item_itr = item_itr->next) {
+            item = item_itr->data;
+			if (isname(arg, real_object_proto(item->vnum)->aliases))
 				break;
-			}
 		}
 	}
 
@@ -322,9 +308,9 @@ Craftshop_buy(struct creature *keeper, struct creature *ch, char *arguments)
 		return;
 	}
 
-    long modCost = item->cost+(item->cost*ch->getCostModifier(keeper))/100;
+    long modCost = item->cost+(item->cost*getCostModifier(ch, keeper))/100;
 
-	needed_str = item->next_requirement(keeper);
+	needed_str = craft_item_next_requirement(item, keeper);
 	if (needed_str) {
 		msg = tmp_sprintf("I don't have the necessary materials.");
 		perform_say_to(keeper, ch, msg);
@@ -347,14 +333,14 @@ Craftshop_buy(struct creature *keeper, struct creature *ch, char *arguments)
 		return;
 	}
 
-	if (IS_CARRYING_W(ch) + real_object_proto(item->vnum)->getWeight() > CAN_CARRY_W(ch)) {
+	if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(real_object_proto(item->vnum)) > CAN_CARRY_W(ch)) {
 		msg = tmp_sprintf("You can't carry any more weight.");
 		perform_say_to(keeper, ch, msg);
 		return;
 	}
 
 	GET_GOLD(ch) -= modCost;
-	obj = item->create(keeper, ch);
+	obj = craft_item_create(item, keeper, ch);
 
 	if (!obj) {
 		msg = tmp_sprintf("I am sorry.  I failed to make it and I used up all my materials.");
@@ -365,19 +351,19 @@ Craftshop_buy(struct creature *keeper, struct creature *ch, char *arguments)
 	send_to_char(ch, "You buy %s for %ld gold.\r\n", obj->name, modCost);
 	switch (number(0, 20)) {
 		case 0:
-			msg = tmp_strcat(GET_NAME(ch), " Glad to do business with you");
+			msg = tmp_strcat(GET_NAME(ch), " Glad to do business with you", NULL);
 			break;
 		case 1:
-			msg = tmp_strcat(GET_NAME(ch), " Come back soon!");
+			msg = tmp_strcat(GET_NAME(ch), " Come back soon!", NULL);
 			break;
 		case 2:
-			msg = tmp_strcat(GET_NAME(ch), " Have a nice day.");
+			msg = tmp_strcat(GET_NAME(ch), " Have a nice day.", NULL);
 			break;
 		case 3:
-			msg = tmp_strcat(GET_NAME(ch), " Thanks, and come again!");
+			msg = tmp_strcat(GET_NAME(ch), " Thanks, and come again!", NULL);
 			break;
 		case 4:
-			msg = tmp_strcat(GET_NAME(ch), " Nice doing business with you");
+			msg = tmp_strcat(GET_NAME(ch), " Nice doing business with you", NULL);
 			break;
 		default:
 			msg = NULL;
@@ -390,15 +376,17 @@ Craftshop_buy(struct creature *keeper, struct creature *ch, char *arguments)
 void
 assign_artisans(void)
 {
-	vector<Craftshop *>_iterator shop;
+    GList *it;
+    struct craft_shop *shop;
 	struct creature *mob;
 
-	for (shop = shop_list.begin(); shop != shop_list.end(); shop++) {
-		mob = real_mobile_proto((*shop)->keeper_vnum);
+	for (it = shop_list;it;it = it->next) {
+        shop = it->data;
+		mob = real_mobile_proto(shop->keeper_vnum);
 		if (mob)
 			mob->mob_specials.shared->func = artisan;
 		else
-			errlog("Artisan mob %d not found!", (*shop)->keeper_vnum);
+			errlog("Artisan mob %d not found!", shop->keeper_vnum);
 	}
 
 	cmd_slap = find_command("slap");
@@ -410,7 +398,7 @@ SPECIAL(artisan)
 {
 	struct creature *keeper = (struct creature *)me;
 	char *msg;
-	Craftshop *shop;
+	struct craft_shop *shop;
 
 	if (spec_mode != SPECIAL_CMD)
 		return false;
@@ -429,7 +417,7 @@ SPECIAL(artisan)
 	if (!CMD_IS("list") && !CMD_IS("buy") && !CMD_IS("sell") && !CMD_IS("status"))
 		return false;
 
-	shop = Craftshop_find(keeper);
+	shop = craft_shop_by_keeper(keeper);
 
 	if (!shop || shop->room != keeper->in_room->number) {
 		msg = tmp_sprintf("Sorry!  I don't have my tools!");
@@ -448,16 +436,16 @@ SPECIAL(artisan)
 */
 
 	if (CMD_IS("list")) {
-		shop->list(keeper, ch);
+		craft_shop_list(shop, keeper, ch);
 	} else if (CMD_IS("buy")) {
-		shop->buy(keeper, ch, argument);
+		craft_shop_buy(shop, keeper, ch, argument);
 	} else if (CMD_IS("sell")) {
 		msg = tmp_sprintf("I don't buy things, I make them.");
 		perform_say_to(keeper, ch, msg);
-    } else if( CMD_IS("status") && is_group_member(ch,"Coder") ) {
-        vector<Craftshop *>_iterator shop;
-        for (shop = shop_list.begin(); shop != shop_list.end(); shop++) {
-            (*shop)->sendStatus(ch);
+    } else if( CMD_IS("status") && is_named_role_member(ch,"Coder") ) {
+        GList *it;
+        for (it = shop_list;it;it = it->next) {
+            send_craft_shop_status(((struct craft_shop *)it->data), ch);
         }
 	} else {
 		return false;

@@ -174,7 +174,7 @@ update_pos(struct creature *victim)
 			if (GET_POSITION(victim) < POS_FIGHTING) {
 				if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) ||
 					number(1, 20) < GET_STR(victim)) {
-					if (GET_POSITION(victim) = POS_FIGHTING) {
+					if (GET_POSITION(victim) == POS_FIGHTING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(A)", true, victim, 0, 0,
 							TO_ROOM);
@@ -201,7 +201,7 @@ update_pos(struct creature *victim)
 			else if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
 				&& GET_POSITION(victim) < POS_FIGHTING) {
 				if (victim->fighting) {
-					if (GET_POSITION(victim) = POS_FIGHTING) {
+					if (GET_POSITION(victim) == POS_FIGHTING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(B1)", true, victim, 0,
 							0, TO_ROOM);
@@ -212,7 +212,7 @@ update_pos(struct creature *victim)
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
 				} else {
-					if (GET_POSITION(victim) = POS_STANDING) {
+					if (GET_POSITION(victim) == POS_STANDING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_STANDING.(B2)", true, victim, 0,
 							0, TO_ROOM);
@@ -225,7 +225,7 @@ update_pos(struct creature *victim)
 			} else if (number(1, 20) < GET_STR(victim)
 				&& GET_POSITION(victim) < POS_FIGHTING) {
 				if (victim->fighting) {
-					if (GET_POSITION(victim) = POS_FIGHTING) {
+					if (GET_POSITION(victim) == POS_FIGHTING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_FIGHTING.(C1)", true, victim, 0,
 							0, TO_ROOM);
@@ -236,7 +236,7 @@ update_pos(struct creature *victim)
 						WAIT_STATE(victim, PULSE_VIOLENCE);
 					}
 				} else {
-					if (GET_POSITION(victim) = POS_STANDING) {
+					if (GET_POSITION(victim) == POS_STANDING) {
 #ifdef DEBUG_POSITION
 						act("$n moves to POS_STANDING.(C2)", true, victim, 0,
 							0, TO_ROOM);
@@ -1417,7 +1417,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
             fname = get_corpse_file_path(CORPSE_IDNUM(corpse));
             if ((corpse_file = fopen(fname, "w+")) != NULL) {
                 fprintf(corpse_file, "<corpse>");
-                saveObjToXML(corpse_file, corpse);
+                save_object_to_xml(corpse, corpse_file);
                 fprintf(corpse_file, "</corpse>");
                 fclose(corpse_file);
             }

@@ -291,7 +291,7 @@ ACMD(do_whirlwind)
             continue;
 		if( GET_OBJ_TYPE(obj) == ITEM_ARMOR ) {
             if(IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
-                percent += getWeight(obj);
+                percent += GET_OBJ_WEIGHT(obj);
             }
         }
     }
@@ -357,7 +357,6 @@ ACMD(do_whirlwind)
 
 		//attack up to hits-1 more victims at random
 		int i=1;
-        struct creature *tch;
         bool killed_first = false;
 
         void smack_creature(struct creature *tch, gpointer ignore) {
@@ -376,7 +375,7 @@ ACMD(do_whirlwind)
                 GET_MOVE(ch) -= 3;
             }
         }
-        g_list_foreach(ch->in_room->people, smack_creature, 0);
+        g_list_foreach(ch->in_room->people, (GFunc)smack_creature, 0);
 
         if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
             return;
@@ -479,7 +478,7 @@ ACMD(do_combo)
             continue;
 		if( GET_OBJ_TYPE(obj) == ITEM_ARMOR ) {
             if(IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
-                percent += getWeight(obj);
+                percent += GET_OBJ_WEIGHT(obj);
             }
         }
     }
@@ -652,7 +651,7 @@ ACMD(do_pinch)
 		if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
 			(IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) ||
 				IS_WOOD_TYPE(ovict)))
-			percent += getWeight(ovict);
+			percent += GET_OBJ_WEIGHT(ovict);
 
 	if (IS_PUDDING(vict) || IS_SLIME(vict))
 		prob = 0;
@@ -984,11 +983,11 @@ ACMD(do_evade)
 	prob = CHECK_SKILL(ch, SKILL_EVASION);
 
 	if ((obj = GET_EQ(ch, WEAR_BODY)) && GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
-		prob -= getWeight(obj) / 2;
+		prob -= GET_OBJ_WEIGHT(obj) / 2;
 		prob -= GET_OBJ_VAL(obj, 0) * 3;
 	}
 	if ((obj = GET_EQ(ch, WEAR_LEGS)) && GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
-		prob -= getWeight(obj);
+		prob -= GET_OBJ_WEIGHT(obj);
 		prob -= GET_OBJ_VAL(obj, 0) * 2;
 	}
 	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.6))

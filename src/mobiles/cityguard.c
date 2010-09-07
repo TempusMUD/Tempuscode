@@ -14,13 +14,14 @@
 #include "screen.h"
 #include "utils.h"
 #include "specs.h"
+#include "players.h"
 
 struct cityguard_data {
 	int targ_room;
 };
 
 // Tracks the characters who are currently under arrest by cityguards
-memory_rec *under_arrest = NULL;
+struct memory_rec *under_arrest = NULL;
 
 SPECIAL(cityguard);
 SPECIAL(guard);
@@ -38,24 +39,25 @@ SPECIAL(guard);
 void
 summon_cityguards(struct room_data *room)
 {
-	struct creatureList_iterator it;
-	cityguard_data *data;
+	GList *it;
+	struct cityguard_data *data;
 	int distance;
 
 	// Now get about half the cityguards in the zone to respond
-	for (it = characterList.begin(); it != characterList.end();it++) {
-		if (!(*it)->in_room || (*it)->in_room->zone != room->zone)
+	for (it = creatures;it;it = it->next) {
+        struct creature *tch = it->data;
+		if (!tch->in_room || tch->in_room->zone != room->zone)
 			continue;
-		if ((*it)->in_room == room)
+		if (tch->in_room == room)
 			continue;
-		if (GET_MOB_SPEC((*it)) != cityguard)
+		if (GET_MOB_SPEC(tch) != cityguard)
 			continue;
 		// the closer they are, the more likely they are to respond
-		distance = find_distance((*it)->in_room, room);
+		distance = find_distance(tch->in_room, room);
 		if (distance < 1)
 			continue;
 		if (number(1, distance / 2) == 1) {
-			data = (cityguard_data *)((*it)->mob_specials.func_data);
+			data = (struct cityguard_data *)(tch->mob_specials.func_data);
 			if (data && !data->targ_room)
 				data->targ_room = room->number;
 		}
@@ -65,7 +67,7 @@ summon_cityguards(struct room_data *room)
 bool
 char_is_arrested(struct creature *ch)
 {
-	memory_rec_struct *cur_mem;
+	struct memory_rec *cur_mem;
 
 	if (IS_NPC(ch))
 		return false;
@@ -80,7 +82,7 @@ char_is_arrested(struct creature *ch)
 void
 char_under_arrest(struct creature *ch)
 {
-	memory_rec_struct *new_mem;
+	struct memory_rec *new_mem;
 
 	if (IS_NPC(ch))
 		return;
@@ -88,7 +90,7 @@ char_under_arrest(struct creature *ch)
 	if (char_is_arrested(ch))
 		return;
 
-	CREATE(new_mem, memory_rec_struct, 1);
+	CREATE(new_mem, struct memory_rec, 1);
 	new_mem->id = GET_IDNUM(ch);
 	new_mem->next = under_arrest;
 	under_arrest = new_mem;
@@ -97,7 +99,7 @@ char_under_arrest(struct creature *ch)
 void
 char_arrest_pardoned(struct creature *ch)
 {
-	memory_rec_struct *cur_mem, *next_mem;
+	struct memory_rec *cur_mem, *next_mem;
 
 	if (IS_NPC(ch) || !under_arrest)
 		return;
@@ -163,11 +165,11 @@ call_for_help(struct creature *ch, struct creature *attacker)
 void
 breakup_fight(struct creature *ch, struct creature *vict1, struct creature *vict2)
 {
-	struct creatureList_iterator it;
+	GList *it;
 	struct creature *tch;
 
-	for (it = ch->in_room->people.begin();it != ch->in_room->people.end();it++) {
-		tch = *it;
+	for (it = ch->in_room->people;it;it = it->next) {
+		tch = it->data;
 		if (tch == ch)
 			send_to_char(tch,
 				"You break up the fight between %s and %s.\r\n",
@@ -187,8 +189,8 @@ breakup_fight(struct creature *ch, struct creature *vict1, struct creature *vict
 
 	}
 
-	vict1->removeCombat(vict2);
-	vict2->removeCombat(vict1);
+	removeCombat(vict1, vict2);
+	removeCombat(vict2, vict1);
 }
 
 int
@@ -203,7 +205,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 	while (count < 12) {
 		count++;
 		cell_room = real_room(jail_cells[number(0, 5)]);
-		if (cell_room == NULL || !cell_room->people.empty())
+		if (cell_room == NULL || !cell_room->people)
 			continue;
 
 		break;
@@ -247,9 +249,9 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 		if (locker->contains) {
 			act("$n removes all your gear and stores it in a strongbox.",
 				false, ch, 0, vict, TO_VICT);
-			House* house = Housing.findHouseByRoom( locker->in_room->number );
-			if( house != NULL )
-				house->save();
+			struct house *house = find_house_by_room(locker->in_room->number);
+			if (house)
+				save_house(house);
 		} else {
 			extract_obj(locker);
 		}
@@ -273,8 +275,8 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 	GET_POSITION(vict) = POS_RESTING;
 	act("You wake up in jail, your head pounding.", false, vict, 0, 0, TO_CHAR);
 
-	if (ch->isHunting() && ch->isHunting() == vict)
-        ch->stopHunting();
+	if (isHunting(ch) && isHunting(ch) == vict)
+        stopHunting(ch);
 
 	if ((torch = read_object(3030)))
 		obj_to_char(torch, vict);
@@ -284,7 +286,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 		GET_NAME(ch), ch->in_room->number);
 
 	if (IS_NPC(vict))
-		vict->purge(true);
+		purge(vict, true);
 	else
 		save_player_to_xml(vict);
 	return 1;
@@ -293,8 +295,8 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 int
 drag_char_to_jail(struct creature *ch, struct creature *vict, struct room_data *jail_room)
 {
-	struct creatureList_iterator it;
-	cityguard_data *data;
+	GList *it;
+	struct cityguard_data *data;
 	int dir;
 
 	if ((IS_MOB(vict) && GET_MOB_SPEC(ch) == GET_MOB_SPEC(vict)) || !jail_room)
@@ -327,9 +329,10 @@ drag_char_to_jail(struct creature *ch, struct creature *vict, struct room_data *
 		ch, 0, vict, TO_NOTVICT);
 
 	// Get other guards to follow
-	for (it = ch->in_room->people.begin(); it != ch->in_room->people.end();it++) {
-		if (IS_NPC(*it) && GET_MOB_SPEC(*it) == cityguard) {
-			data = (cityguard_data *)(*it)->mob_specials.func_data;
+	for (it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+		if (IS_NPC(tch) && GET_MOB_SPEC(tch) == cityguard) {
+			data = (struct cityguard_data *)(tch)->mob_specials.func_data;
 			if (data)
 				data->targ_room = EXIT(vict, dir)->to_room->number;
 		}
@@ -349,17 +352,6 @@ drag_char_to_jail(struct creature *ch, struct creature *vict, struct room_data *
 bool
 is_fighting_cityguard(struct creature *ch)
 {
-    CombatDataList_iterator li;
-
-    if (ch == NULL)
-        return false;
-    li = ch->getCombatList()->begin();
-    for (; li != ch->getCombatList()->end(); ++li) {
-        if (IS_NPC(li->getOpponent()) &&
-            GET_MOB_SPEC(li->getOpponent()) == cityguard)
-            return true;
-    }
-
     return false;
 }
 
@@ -367,13 +359,13 @@ SPECIAL(cityguard)
 {
 	struct creature *self = (struct creature *)me;
 	struct creature *tch, *target = NULL, *new_guard;
-	cityguard_data *data;
+	struct cityguard_data *data;
 	char *str, *line, *param_key;
 	int action, dir;
 	int jail_num = 0, hq_num = 0;
 	struct room_data *room;
 	bool lawful;
-	struct creatureList_iterator it;
+	GList *it;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_DEATH)
 		return 0;
@@ -389,9 +381,9 @@ SPECIAL(cityguard)
 		}
 	}
 
-	data = (cityguard_data *)(self->mob_specials.func_data);
+	data = (struct cityguard_data *)(self->mob_specials.func_data);
 	if (!data) {
-		CREATE(data, cityguard_data, 1);
+		CREATE(data, struct cityguard_data, 1);
 		data->targ_room = 0;
 		self->mob_specials.func_data = data;
 	}
@@ -412,10 +404,10 @@ SPECIAL(cityguard)
 				if (!strcmp(param_key, "deathspawn")) {
 					new_guard = read_mobile(atoi(line));
 					if (new_guard) {
-						CREATE(data, cityguard_data, 1);
+						CREATE(data, struct cityguard_data, 1);
 						new_guard->mob_specials.func_data = data;
 						data->targ_room = self->in_room->number;
-						char_to_room(new_guard, room);
+						char_to_room(new_guard, room, true);
 					}
 				}
 			}
@@ -428,14 +420,14 @@ SPECIAL(cityguard)
 		return false;
 
 	// We're fighting someone - call for help
-	if (self->isFighting()) {
-		tch = self->findRandomCombat();
+	if (isFighting(self)) {
+		tch = findRandomCombat(self);
 
 		// Save the newbies from themselves
 		if (GET_LEVEL(tch) < 20 && GET_REMORT_GEN(tch) == 0) {
 			perform_say(self, "declare", "Here now!");
-			self->removeCombat(tch);
-			tch->removeCombat(self);
+			removeCombat(self, tch);
+			removeCombat(tch, self);
 			return true;
 		}
 
@@ -476,12 +468,10 @@ SPECIAL(cityguard)
 	action = 0;
 	lawful = !ZONE_FLAGGED(self->in_room->zone, ZONE_NOLAW);
 
-	tch = NULL;
-	it = self->in_room->people.begin();
-	for (; it != self->in_room->people.end(); ++it) {
-		tch = *it;
+	for (it = self->in_room->people;it;it = it->next) {
+		tch = it->data;
 		if (action < 5 && is_fighting_cityguard(tch) &&
-            self->isOkToAttack(tch, false)) {
+            isOkToAttack(self, tch, false)) {
 			action = 5;
 			target = tch;
 		}
@@ -490,8 +480,8 @@ SPECIAL(cityguard)
 						|| char_is_arrested(tch))
 				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
-				&& tGET_POSITION(ch) > POS_SLEEPING
-                && self->isOkToAttack(tch, false)
+				&& GET_POSITION(ch) > POS_SLEEPING
+            && isOkToAttack(self, tch, false)
 				) {
 			action = 4;
 			target = tch;
@@ -499,7 +489,7 @@ SPECIAL(cityguard)
 		if (action < 3
 				&& ((lawful && IS_CRIMINAL(tch))
 						|| char_is_arrested(tch))
-				&& tGET_POSITION(ch) <= POS_SLEEPING
+				&& GET_POSITION(ch) <= POS_SLEEPING
 				&& (GET_LEVEL(tch) >= 20 || GET_REMORT_GEN(tch) > 0)) {
 			action = 3;
 			target = tch;
@@ -607,14 +597,14 @@ SPECIAL(cityguard)
 			perform_say(self, "declare", "Here now!");
             break;
 		}
-        struct creature *vict = target->findRandomCombat();
+        struct creature *vict = findRandomCombat(target);
         if (vict)
 		    breakup_fight(self, target, vict);
 		return true;
     }
 	case 3:
 		// drag criminal to jail
-		if (target->getPosition() < POS_FIGHTING
+		if (GET_POSITION(target) < POS_FIGHTING
             && !GET_QUEST(ch)
             && jail_num > 0)
 			drag_char_to_jail(self, target, real_room(jail_num));

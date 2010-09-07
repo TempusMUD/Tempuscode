@@ -1,14 +1,14 @@
 #ifndef _VENDOR_H_
 #define _VENDOR_H_
 
-struct craftitem;
+struct craft_item;
 struct reaction;
 
-struct craftshop {
+struct craft_shop {
+        int id;
 		int room;
 		int keeper_vnum;
-		struct craftitem *items;
-        int id;
+		GList *items;
 };
 
 /** Loads and/or creates the Craftshop described by the given node. **/

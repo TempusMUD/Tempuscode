@@ -1,6 +1,7 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 
+#include <stdbool.h>
 #include "defs.h"
 /* ************************************************************************
 *   File: interpreter.h                                 Part of CircleMUD *
@@ -18,6 +19,7 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
+
 #define ACMD(name)  \
    void (name)(__attribute__ ((unused)) struct creature *ch, \
    	__attribute__ ((unused)) char *argument, \
@@ -31,6 +33,9 @@
    __attribute__ ((unused)) int cmd, \
    __attribute__ ((unused)) int subcmd, \
    __attribute__ ((unused)) int *return_flags)
+
+struct creature;
+struct descriptor_data;
 
 void command_interpreter(struct creature *ch, const char *argument);
 int search_block(const char *arg, const char **list, bool exact);

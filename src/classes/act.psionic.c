@@ -238,7 +238,7 @@ nullpsi_is_advisable(struct creature *vict)
         if (SPELL_IS_PSIONIC(af->type)
             && !SPELL_FLAGGED(af->type, MAG_DAMAGE)
             && !spell_info[af->type].violent
-            && !spell_info[af->type].targets & TAR_UNPLEASANT)
+            && !(spell_info[af->type].targets & TAR_UNPLEASANT))
             return true;
     }
     return false;
