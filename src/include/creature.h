@@ -967,5 +967,6 @@ void removeCombat(struct creature *ch, struct creature *vict);
 void removeAllCombat(struct creature *ch);
 struct creature *findRandomCombat(struct creature *ch);
 bool isFighting(struct creature *ch);
+void free_creature(struct creature *ch);
 
 #endif

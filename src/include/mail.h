@@ -54,7 +54,7 @@ void postmaster_receive_mail(struct creature *ch, struct creature *mailman);
 void string_add(struct descriptor_data *d, char *str);
 
 // Mail system internal functions.
-int has_mail(long recipient);
+bool has_mail(long recipient);
 int store_mail(long to_id, long from_id, const char *txt, GList *cc_list,
                struct obj_data *obj_list);
 int receive_mail(struct creature * ch, GList *olist);
