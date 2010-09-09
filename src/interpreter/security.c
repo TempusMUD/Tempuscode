@@ -18,6 +18,7 @@
 #include "security.h"
 #include "boards.h"
 #include "players.h"
+#include "house.h"
 
  /**
   *
@@ -135,6 +136,8 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     struct command_info *command = (struct command_info *)target;
     struct show_struct *show_cmd = (struct show_struct *)target;
     struct set_struct *set_cmd = (struct set_struct *)target;
+    struct zone_data *zone = (struct zone_data *)target;
+    struct house *house = (struct house *)target;
 
     if (GET_LEVEL(ch) == LVL_GRIMP)
         return true;
@@ -168,6 +171,26 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case ENTER_GODROOM:
         return is_named_role_member(ch, "WizardFull");
 
+    case WORLDWRITE:
+        return is_named_role_member(ch, "OLCWorldWrite");
+
+    case EDIT_ZONE:
+        return (zone->owner_idnum == GET_IDNUM(ch)
+                || zone->co_owner_idnum == GET_IDNUM(ch)
+                || (is_named_role_member(ch, "OLCProofer") && !IS_APPR(zone))
+                || (is_named_role_member(ch, "OLCWorldWrite")
+                    && PRF2_FLAGGED(ch,PRF2_WORLDWRITE)));
+
+    case APPROVE_ZONE:
+        return is_named_role_member(ch, "OLCApproval");
+
+    case UNAPPROVE_ZONE:
+        return is_named_role_member(ch, "OLCApproval");
+
+    case EDIT_HOUSE:
+        return (house->owner_id == GET_IDNUM(ch)
+                || is_named_role_member(ch, "House"));
+
     case COMMAND:
         if (GET_LEVEL(ch) <= command->minimum_level)
             return false;
@@ -192,7 +215,7 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
             return true;
         if (is_named_role_member(ch, set_cmd->role))
             return true;
-    return false;
+        return false;
 
     case SHOW:
         if(show_cmd->level > GET_LEVEL(ch))
@@ -204,7 +227,18 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
         if (is_named_role_member(ch, show_cmd->role))
             return true;
         return false;
+
+    case ASET:
+        if(set_cmd->level > GET_LEVEL(ch))
+            return false;
+        if (*(set_cmd->role) =='\0')
+            return true;
+        if (set_cmd->role == SECURITY_EVERYONE)
+            return true;
+        if (is_named_role_member(ch, set_cmd->role))
+            return true;
     }
+
     return false;
 }
 
@@ -487,8 +521,8 @@ ACCMD(do_access)
                 send_to_char(ch, "That role already exists.\r\n");
                 return;
             }
-
-            if (make_role(token, NULL, NULL)) {
+            role = make_role(token, NULL, NULL);
+            if (role) {
                 PGresult *res;
                 int role_id;
 

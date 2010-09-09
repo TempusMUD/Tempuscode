@@ -43,20 +43,10 @@
 #include "guns.h"
 #include "char_class.h"
 #include "language.h"
-#include "mobile_map.h"
-#include "object_map.h"
-#include "mobile_map.h"
 #include "fight.h"
 
 extern const char *language_names[];
 extern const char *race_language[][2];
-bool
-OLCIMP(struct creature * ch)
-{
-	if (is_group_member(ch, "OLCWorldWrite"))
-		return true;
-	return false;
-}
 
 #define NUM_POSITIONS 11
 
@@ -219,8 +209,7 @@ void do_clear_room(struct creature *ch);
 void do_clear_olc_object(struct creature *ch);
 void do_clear_olc_mob(struct creature *ch);
 
-char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
-	0);
+char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact);
 
 const char *olc_commands[] = {
 	"rsave",					/* save wld file */
@@ -278,7 +267,7 @@ const char *olc_commands[] = {
 };
 
 struct extra_descr_data *
-locate_exdesc(char *word, struct extra_descr_data *list, int exact = 0)
+locate_exdesc(char *word, struct extra_descr_data *list, int exact)
 {
 
 	struct extra_descr_data *i;
@@ -350,7 +339,7 @@ ACMD(do_olc)
 	}
 
 	if (olc_command != 8 && olc_command != 10) {	/* help? */
-		if (!CAN_EDIT_ZONE(ch, ch->in_room->zone)) {
+		if (!is_authorized(ch, EDIT_ZONE, ch->in_room->zone)) {
 			if( OLCIMP(ch) && !PRF2_FLAGGED(ch,PRF2_WORLDWRITE) ) {
 				send_to_char(ch, "You seem to have forgotten something.\r\n");
 			} else {
@@ -423,7 +412,7 @@ ACMD(do_olc)
 			return;
 		}
 		if (!EXIT(ch, edir)) {
-			CREATE(EXIT(ch, edir), struct room_direction_data, 1);
+			CREATE(ch->in_room->dir_option[edir], struct room_direction_data, 1);
 			EXIT(ch, edir)->to_room = NULL;
 		} else if (is_abbrev(buf, "remove")) {
 			if (EXIT(ch, edir)->general_description)
@@ -431,7 +420,7 @@ ACMD(do_olc)
 			if (EXIT(ch, edir)->keyword)
 				free(EXIT(ch, edir)->keyword);
 			free(EXIT(ch, edir));
-			EXIT(ch, edir) = NULL;
+			ch->in_room->dir_option[edir] = NULL;
 			send_to_char(ch, "Exit removed.\r\n");
 			return;
 		}
@@ -455,7 +444,7 @@ ACMD(do_olc)
 				act("$n begins to edit an exit description.", true, ch, 0, 0,
 					TO_ROOM);
 			}
-			start_editing_text(ch->desc, &EXIT(ch, edir)->general_description);
+			start_editing_text(ch->desc, &EXIT(ch, edir)->general_description, 4096);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 			return;
 		} else if (is_abbrev(buf, "keywords")) {
@@ -505,11 +494,11 @@ ACMD(do_olc)
 				one_way = true;
 			EXIT(ch, edir)->to_room = room;
 			if (!one_way && !ABS_EXIT(room, rev_dir[edir])) {
-				if (!CAN_EDIT_ZONE(ch, room->zone)) {
+				if (!is_authorized(ch, EDIT_ZONE, room->zone)) {
 					send_to_char(ch,
 						"To room set.  Unable to create return exit.\r\n");
 				} else {
-					CREATE(ABS_EXIT(room, rev_dir[edir]),
+					CREATE(room->dir_option[rev_dir[edir]],
 						struct room_direction_data, 1);
 					ABS_EXIT(room, rev_dir[edir])->to_room = ch->in_room;
 					send_to_char(ch,
@@ -517,7 +506,7 @@ ACMD(do_olc)
 				}
 			} else if (!one_way &&
 				ABS_EXIT(room, rev_dir[edir])->to_room == NULL) {
-				if (!CAN_EDIT_ZONE(ch, room->zone)) {
+				if (!is_authorized(ch, EDIT_ZONE, room->zone)) {
 					send_to_char(ch,
 						"To room set.  Unable to set return exit.\r\n");
 				} else {
@@ -559,7 +548,7 @@ ACMD(do_olc)
 			one_argument(argument, arg1);
 			for (j = atoi(arg1), zone = zone_table; zone; zone = zone->next) {
 				if (zone->number == j) {
-					if (CAN_EDIT_ZONE(ch, zone)) {
+					if (is_authorized(ch, EDIT_ZONE, zone)) {
 						if (!IS_SET(zone->flags, ZONE_LOCKED))
 							send_to_char(ch,
 								"That zone is currently unlocked.\r\n");
@@ -599,7 +588,7 @@ ACMD(do_olc)
 			one_argument(argument, arg1);
 			for (j = atoi(arg1), zone = zone_table; zone; zone = zone->next) {
 				if (zone->number == j) {
-					if (CAN_EDIT_ZONE(ch, zone)) {
+					if (is_authorized(ch, EDIT_ZONE, zone)) {
 						if (IS_SET(zone->flags, ZONE_LOCKED))
 							send_to_char(ch, "That zone is already locked.\r\n");
 						else {
@@ -685,7 +674,7 @@ ACMD(do_olc)
 					return;
 				}
 
-				if (!CAN_EDIT_ZONE(ch, zone)) {
+				if (!is_authorized(ch, EDIT_ZONE, zone)) {
 					send_to_char(ch,
 						"You do not have permission to edit those objects.\r\n");
 					return;
@@ -780,7 +769,7 @@ ACMD(do_olc)
 
 			return;
 		} else if (is_abbrev(buf, "create")) {
-			if (find_exdesc(argument, obj_p->ex_description)) {
+			if (find_exdesc(argument, obj_p->ex_description, false)) {
 				send_to_char(ch,
 					"An extra description already exists with that keyword.\r\n"
 					"Use the 'olc rexdesc remove' command to remove it, or the\r\n"
@@ -792,7 +781,7 @@ ACMD(do_olc)
 			ndesc->next = obj_p->ex_description;
 			obj_p->ex_description = ndesc;
 
-			start_editing_text(ch->desc, &obj_p->ex_description->description);
+			start_editing_text(ch->desc, &obj_p->ex_description->description, 4096);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
 			act("$n begins to write an object description.",
@@ -805,7 +794,7 @@ ACMD(do_olc)
 			return;
 		} else if (is_abbrev(buf, "edit")) {
 			if ((desc = locate_exdesc(argument, obj_p->ex_description, 1))) {
-				start_editing_text(ch->desc, &desc->description);
+				start_editing_text(ch->desc, &desc->description, 4096);
 				SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 				UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
 				act("$n begins to write an object description.",
@@ -945,7 +934,7 @@ ACMD(do_olc)
 		obj_p->obj_flags.material = tmp_obj->obj_flags.material;
 		obj_p->obj_flags.max_dam = tmp_obj->obj_flags.max_dam;
 		obj_p->obj_flags.damage = tmp_obj->obj_flags.damage;
-		obj_p->setWeight(tmp_obj->getWeight());
+		obj_p->obj_flags.weight = tmp_obj->obj_flags.weight;
 		obj_p->shared->cost = tmp_obj->shared->cost;
 		obj_p->shared->cost_per_day = tmp_obj->shared->cost_per_day;
 		obj_p->shared->func = NULL;
@@ -1531,7 +1520,7 @@ ACMD(do_olc)
 			send_to_char(ch, "Hmm.  There's no zone attached to it.\r\n");
 			break;
 		}
-		if (!CAN_EDIT_ZONE(ch, zone)) {
+		if (!is_authorized(ch, EDIT_ZONE, zone)) {
 			send_to_char(ch, "You can't edit that zone.\r\n");
 			break;
 		}
@@ -1614,7 +1603,6 @@ recalc_all_mobs(struct creature *ch, const char *argument)
 
 	struct creature *mob;
 	struct zone_data *zone;
-	MobileMap_iterator mit = mobilePrototypes.begin();
 	int count = 0;
 	FILE *outfile = NULL;
 	bool exptest = false;
@@ -1648,8 +1636,10 @@ recalc_all_mobs(struct creature *ch, const char *argument)
 				"id", "name", "old","new","base","fact" );
 	}
 	// Iterate through mobiles
-	for (;mit != mobilePrototypes.end(); ++mit) {
-		mob = mit->second;
+    GHashTableIter iter;
+    int vnum;
+    g_hash_table_iter_init(&iter, mob_prototypes);
+    while (g_hash_table_iter_next(&iter, (gpointer)&vnum, (gpointer)&mob)) {
 		for (zone = zone_table;zone;zone = zone->next)
 			if (GET_MOB_VNUM(mob) >= zone->number * 100 &&
 					GET_MOB_VNUM(mob) <= zone->top)
@@ -1666,7 +1656,7 @@ recalc_all_mobs(struct creature *ch, const char *argument)
 			mobile_experience(mob, outfile);
 		} else {
 			recalculate_based_on_level(mob);
-			GET_EXP(mob) = mobile_experience(mob);
+			GET_EXP(mob) = mobile_experience(mob, NULL);
 		}
 		count++;
 	}
@@ -2298,10 +2288,9 @@ ACMD(do_unapprove)
         last = ch->in_room->zone->top;
 
         if (*arg3 && (is_abbrev(arg3, "mob") || is_abbrev(arg3, "all"))) {
-            MobileMap_iterator mit = mobilePrototypes.begin();
-            for (mit = mobilePrototypes.lower_bound(first);
-                 mit != mobilePrototypes.upper_bound(last); ++mit) {
-                mob = mit->second;
+            for (int vnum = first;vnum <= last;vnum++) {
+                mob = (struct creature *)g_hash_table_lookup(mob_prototypes,
+                                                             GINT_TO_POINTER(vnum));
                 SET_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
             }
 		    save_mobs(ch, zone);
@@ -2310,10 +2299,10 @@ ACMD(do_unapprove)
 			    zone->number, zone->name);
         }
         if (*arg3 && (is_abbrev(arg3, "object") || is_abbrev(arg3, "all"))) {
-            ObjectMap_iterator oi;
-            for (oi = objectPrototypes.lower_bound(first);
-                 oi != objectPrototypes.upper_bound(last); ++oi) {
-                obj = oi->second;
+            for (int vnum = first;vnum <= last;vnum++) {
+                obj = (struct obj_data *)g_hash_table_lookup(obj_prototypes,
+                                                             GINT_TO_POINTER(vnum));
+
 		        SET_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
 
             }
@@ -2344,8 +2333,7 @@ ACMD(do_unapprove)
 			return;
 		}
 
-		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !is_group_member(ch, "OLCApproval")) {
+		if (!is_authorized(ch, UNAPPROVE_ZONE, zone)) {
 			send_to_char(ch, "You can't unapprove this, BEANHEAD!\r\n");
 			return;
 		}
@@ -2383,8 +2371,7 @@ ACMD(do_unapprove)
 			return;
 		}
 
-		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !is_group_member(ch, "OLCApproval")) {
+		if (!is_authorized(ch, UNAPPROVE_ZONE, zone)) {
 			send_to_char(ch, "You can't unapprove this, BEANHEAD!\r\n");
 			return;
 		}
@@ -2469,25 +2456,22 @@ ACMD(do_approve)
         last = ch->in_room->zone->top;
 
         if (*arg3 && (is_abbrev(arg3, "mob") || is_abbrev(arg3, "all"))) {
-            MobileMap_iterator mit = mobilePrototypes.begin();
-            for (mit = mobilePrototypes.lower_bound(first);
-                 mit != mobilePrototypes.upper_bound(last); ++mit) {
-                mob = mit->second;
+            for (int vnum = first;vnum <= last;vnum++) {
+                mob = (struct creature *)g_hash_table_lookup(mob_prototypes,
+                                                             GINT_TO_POINTER(vnum));
                 REMOVE_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
             }
-		    save_mobs(ch, zone);
+
+            save_mobs(ch, zone);
             send_to_char(ch, "Mobs approve for full inclusion in the game.\r\n");
             slog("%s approved mobs in zone [%d] %s.", GET_NAME(ch), zone->number,
                 zone->name);
         }
         if (*arg3 && (is_abbrev(arg3, "object") || is_abbrev(arg3, "all"))) {
-            ObjectMap_iterator oi;
-            struct obj_data *obj;
-            for (oi = objectPrototypes.lower_bound(first);
-                 oi != objectPrototypes.upper_bound(last); ++oi) {
-                obj = oi->second;
-		        REMOVE_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
-
+            for (int vnum = first;vnum <= last;vnum++) {
+                obj = (struct obj_data *)g_hash_table_lookup(obj_prototypes,
+                                                             GINT_TO_POINTER(vnum));
+                REMOVE_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
             }
 		    save_objs(ch, zone);
             send_to_char(ch, "Objects approved for full inclusion in the game.\r\n");
@@ -2516,8 +2500,7 @@ ACMD(do_approve)
 			return;
 		}
 
-		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !is_group_member(ch, "OLCApproval")) {
+		if (!is_authorized(ch, APPROVE_ZONE, zone)) {
 			send_to_char(ch, "You can't approve your own objects, silly.\r\n");
 			return;
 		}
@@ -2555,8 +2538,7 @@ ACMD(do_approve)
 			return;
 		}
 
-		if (!CAN_EDIT_ZONE(ch, zone) && !OLCIMP(ch)
-			&& !is_group_member(ch, "OLCApproval")) {
+		if (!is_authorized(ch, APPROVE_ZONE, zone)) {
 			send_to_char(ch, "You can't approve your own mobiles, silly.\r\n");
 			return;
 		}
@@ -2577,32 +2559,12 @@ ACMD(do_approve)
 	}
 }
 
-/** Could this person edit this zone if it were unapproved. **/
-bool
-CAN_EDIT_ZONE(struct creature *ch, struct zone_data * zone)
-{
-	if (is_group_member(ch, "OLCWorldWrite")
-		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
-		return true;
-
-	if (is_group_member(ch, "OLCProofer") && !IS_APPR(zone))
-		return true;
-
-	if (zone->owner_idnum == GET_IDNUM(ch))
-		return true;
-
-	if (zone->co_owner_idnum == GET_IDNUM(ch))
-		return true;
-
-	return false;
-}
-
 /** Can this person edit this zone given these bits set on it. **/
 bool
 OLC_EDIT_OK(struct creature *ch, struct zone_data * zone, int bits)
 {
 
-	if (is_group_member(ch, "OLCWorldWrite")
+	if (is_named_role_member(ch, "OLCWorldWrite")
 		&& PRF2_FLAGGED(ch,PRF2_WORLDWRITE))
 		return true;
 

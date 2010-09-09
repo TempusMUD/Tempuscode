@@ -24,8 +24,8 @@
 #include "screen.h"
 #include "flow_room.h"
 #include "paths.h"
-#include "player_table.h"
-#include "mobile_map.h"
+#include "players.h"
+#include "weather.h"
 
 const char *olc_zset_keys[] = {
 	"name",
@@ -1952,7 +1952,7 @@ do_zset_command(struct creature *ch, char *argument)
 		return;
 		break;
 	case 2:					/*  top   */
-		if(! is_group_member(ch, "OLCWorldWrite") ) {
+		if(!is_named_role_member(ch, "OLCWorldWrite") ) {
 			send_to_char(ch, "You cannot alter zones in this way.\r\n");
 			return;
 		}
@@ -2011,7 +2011,7 @@ do_zset_command(struct creature *ch, char *argument)
 			send_to_char(ch, "Zone owner set to: None\r\n");
 			SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 		} else {
-			if ((zone->owner_idnum = playerIndex.getID(argument)) < 0) {
+			if ((zone->owner_idnum = player_idnum_by_name(argument)) < 0) {
 				send_to_char(ch, "No such player in the file.\r\n");
 				return;
 			} else {
@@ -2162,14 +2162,11 @@ do_zset_command(struct creature *ch, char *argument)
 			else {
 				j = zone->number * 100;
 				k = zone->top;
-				MobileMap_iterator mit = mobilePrototypes.begin();
-				for (; mit != mobilePrototypes.end(); ++mit) {
-					vict = mit->second;
-					if (GET_MOB_VNUM(vict) > k)
-						break;
-					if (GET_MOB_VNUM(vict) < j)
-						continue;
-					totexp = mobile_experience(vict);
+                for (int vnum = j;vnum <=k;vnum++) {
+                    vict = g_hash_table_lookup(mob_prototypes, GINT_TO_POINTER(vnum));
+                    if (!vict)
+                        continue;
+					totexp = mobile_experience(vict, NULL);
 					totexp += (int)(totexp * (float)i / 100);
 
 					GET_EXP(vict) = totexp;
@@ -2184,7 +2181,7 @@ do_zset_command(struct creature *ch, char *argument)
 				send_to_char(ch, "Zone co-owner set to: None\r\n");
 				SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 			} else {
-				if ((zone->co_owner_idnum = playerIndex.getID(argument)) < 0) {
+				if ((zone->co_owner_idnum = player_idnum_by_name(argument)) < 0) {
 					send_to_char(ch, "No such player in the file.\r\n");
 					return;
 				} else {
@@ -2340,7 +2337,7 @@ do_zset_command(struct creature *ch, char *argument)
 		else
 			act("$n starts to write a zone description.", true, ch, 0, 0,
 				TO_ROOM);
-		start_editing_text(ch->desc, &zone->public_desc);
+		start_editing_text(ch->desc, &zone->public_desc, 4096);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		break;
 	case 20:	// private description
@@ -2350,7 +2347,7 @@ do_zset_command(struct creature *ch, char *argument)
 		else
 			act("$n starts to write a zone description.", true, ch, 0, 0,
 				TO_ROOM);
-		start_editing_text(ch->desc, &zone->private_desc);
+		start_editing_text(ch->desc, &zone->private_desc, 4096);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
         break;
     case 21:    // pk_style

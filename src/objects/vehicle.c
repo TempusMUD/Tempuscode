@@ -200,9 +200,9 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
 
 	cur_car = car;
 
-	if (!EXIT(car, dir) || !(dest = EXIT(car, dir)->to_room))
+	if (!OEXIT(car, dir) || !(dest = OEXIT(car, dir)->to_room))
 		return ERR_NULL_DEST;
-	if (IS_SET(EXIT(car, dir)->exit_info, EX_CLOSED))
+	if (IS_SET(OEXIT(car, dir)->exit_info, EX_CLOSED))
 		return ERR_CLOSED_EX;
 
 	if (engine && !IS_ENGINE(engine))
@@ -263,11 +263,11 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
 
 	act(abuf, false, 0, car, 0, TO_ROOM | ACT_HIDECAR);
 
-	if (car->action_desc && CAN_GO(car, dir) &&
-		(other_rm = EXIT(car, dir)->to_room) && other_rm->people) {
+	if (car->action_desc && OCAN_GO(car, dir) &&
+		(other_rm = OEXIT(car, dir)->to_room) && other_rm->people) {
 		sprintf(buf, "%s %s.", car->action_desc, from_dirs[dir]);
-		act(buf, false, other_rm->people, car, 0, TO_ROOM);
-		act(buf, false, other_rm->people, car, 0, TO_CHAR);
+		act(buf, false, other_rm->people->data, car, 0, TO_ROOM);
+		act(buf, false, other_rm->people->data, car, 0, TO_CHAR);
 	}
 
 	if (ch) {
@@ -286,8 +286,8 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
         }
 	} else if ((other_rm = real_room(ROOM_NUMBER(car))) && other_rm->people) {
 		sprintf(buf, "$p travels %s.", to_dirs[dir]);
-		act(buf, false, other_rm->people, car, 0, TO_ROOM);
-		act(buf, false, other_rm->people, car, 0, TO_CHAR);
+		act(buf, false, other_rm->people->data, car, 0, TO_ROOM);
+		act(buf, false, other_rm->people->data, car, 0, TO_CHAR);
 	}
 
 	if (engine) {
@@ -299,9 +299,9 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
 			}
 			if (car->in_room->people) {
 				act("$p sputters and dies.",
-					false, car->in_room->people, engine, 0, TO_CHAR);
+					false, car->in_room->people->data, engine, 0, TO_CHAR);
 				act("$p sputters and dies.",
-					false, car->in_room->people, engine, 0, TO_ROOM);
+					false, car->in_room->people->data, engine, 0, TO_ROOM);
 			}
 
 			if (ENGINE_ON(engine))
@@ -368,10 +368,10 @@ ACMD(do_install)
 	if ((room = real_room(ROOM_NUMBER(car))) && room->people) {
 		act("$n opens the hood of the car.\r\n"
 			"$n installs $p and closes the hood.",
-			false, ch, engine, room->people, TO_VICT);
+			false, ch, engine, room->people->data, TO_VICT);
 		act("$n opens the hood of the car.\r\n"
 			"$n installs $p and closes the hood.",
-			false, ch, engine, room->people, TO_NOTVICT);
+			false, ch, engine, room->people->data, TO_NOTVICT);
 	}
 }
 
@@ -414,9 +414,9 @@ ACMD(do_uninstall)
 
 	if ((room = real_room(ROOM_NUMBER(car))) && room->people) {
 		act("$n opens the hood of the car and removes $p.",
-			false, ch, engine, room->people, TO_VICT);
+			false, ch, engine, room->people->data, TO_VICT);
 		act("$n opens the hood of the car and removes $p.",
-			false, ch, engine, room->people, TO_NOTVICT);
+			false, ch, engine, room->people->data, TO_NOTVICT);
 	}
 }
 

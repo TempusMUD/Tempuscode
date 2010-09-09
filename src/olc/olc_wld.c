@@ -28,11 +28,11 @@
 #include "specs.h"
 #include "house.h"
 #include "tmpstr.h"
-#include "player_table.h"
+#include "players.h"
 #include "prog.h"
 #include "accstr.h"
 
-extern std_map<int,struct room_data*> rooms;
+extern GHashTable *rooms;
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;
 extern int top_of_world;
@@ -46,8 +46,7 @@ long asciiflag_conv(char *buf);
 void num2str(char *str, int num);
 void do_stat_object(struct creature *ch, struct obj_data *obj);
 
-char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
-	0);
+char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
 extern struct extra_descr_data *locate_exdesc(char *word,
 	struct extra_descr_data *list, int exact);
 
@@ -120,31 +119,31 @@ write_wld_index(struct creature *ch, struct zone_data *zone)
 int
 check_room_cstrings(struct room_data *room)
 {
-	remove_from_cstring(room->name);
-	remove_from_cstring(room->description);
+	remove_from_cstring(room->name, '~', '?');
+	remove_from_cstring(room->description, '~', '?');
 
 	for (int i = 0; i < NUM_DIRS; i++) {
 		if (room->dir_option[i]) {
-			remove_from_cstring(room->dir_option[i]->general_description);
-			remove_from_cstring(room->dir_option[i]->keyword);
+			remove_from_cstring(room->dir_option[i]->general_description, '~', '?');
+			remove_from_cstring(room->dir_option[i]->keyword, '~', '?');
 		}
 	}
 
 	for (struct extra_descr_data * desc = room->ex_description; desc;
 		desc = desc->next) {
-		remove_from_cstring(desc->description);
-		remove_from_cstring(desc->keyword);
+		remove_from_cstring(desc->description, '~', '?');
+		remove_from_cstring(desc->keyword, '~', '?');
 	}
 
 	for (struct special_search_data * search = room->search; search;
 		search = search->next) {
-		remove_from_cstring(search->command_keys);
-		remove_from_cstring(search->to_room);
-		remove_from_cstring(search->to_vict);
-		remove_from_cstring(search->to_remote);
+		remove_from_cstring(search->command_keys, '~', '?');
+		remove_from_cstring(search->to_room, '~', '?');
+		remove_from_cstring(search->to_vict, '~', '?');
+		remove_from_cstring(search->to_remote, '~', '?');
 	}
 
-	remove_from_cstring(room->sounds);
+	remove_from_cstring(room->sounds, '~', '?');
 
 	return 0;
 }
@@ -418,7 +417,9 @@ do_create_room(struct creature *ch, int vnum)
 				break;
 		}
 	}
-	new_rm = new struct room_data(vnum, zone);
+    CREATE(new_rm, struct room_data, 1);
+    new_rm->number = vnum;
+    new_rm->zone = zone;
 	new_rm->name = strdup("A Freshly Made Room");
 
 	if (rm) {
@@ -429,7 +430,7 @@ do_create_room(struct creature *ch, int vnum)
 		zone->world = new_rm;
 	}
 
-    rooms[vnum] = new_rm;
+    g_hash_table_insert(rooms, GINT_TO_POINTER(vnum), new_rm);
 	top_of_world++;
 
 	return (new_rm);
@@ -484,9 +485,8 @@ do_destroy_room(struct creature *ch, int vnum)
 			}
 		}
 	}
-	struct creatureList_iterator it = rm->people.begin();
-	for (; it != rm->people.end(); ++it) {
-		vict = *it;
+    for (GList *it = rm->people;it;it = it->next) {
+		vict = it->data;
 		send_to_char(vict,
 			"The room in which you exist is suddenly removed from reality!\r\n");
 		char_from_room(vict,false);
@@ -567,7 +567,7 @@ do_destroy_room(struct creature *ch, int vnum)
 					t_rm->dir_option[i]->to_room = NULL;
 
 	top_of_world--;
-	delete rm;
+	free_room(rm);
 	return 0;
 }
 
@@ -789,7 +789,7 @@ do_olc_rset(struct creature *ch, char *argument)
 			act("$n begins to write a room description.", true, ch, 0, 0,
 				TO_ROOM);
 		}
-		start_editing_text(ch->desc, &ch->in_room->description);
+		start_editing_text(ch->desc, &ch->in_room->description, 4096);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		break;
 
@@ -873,7 +873,7 @@ do_olc_rset(struct creature *ch, char *argument)
 		} else {
 			act("$n begins to edit a sound.", true, ch, 0, 0, TO_ROOM);
 		}
-		start_editing_text(ch->desc, &ch->in_room->sounds);
+		start_editing_text(ch->desc, &ch->in_room->sounds, 4096);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		break;
 	case 5:					/*  flow  */
@@ -967,7 +967,7 @@ do_olc_rset(struct creature *ch, char *argument)
 		if (!GET_ROOM_SPEC(ch->in_room)) {
 			send_to_char(ch, "You should set a special first!\r\n");
 		} else {
-			start_editing_text(ch->desc, &ch->in_room->func_param);
+			start_editing_text(ch->desc, &ch->in_room->func_param, 4096);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 			act("$n begins to write a room spec param.", true, ch, 0, 0,
 				TO_ROOM);
@@ -1039,7 +1039,7 @@ do_olc_rexdesc(struct creature *ch, char *argument, bool is_hedit)
 		ch->in_room->ex_description = ndesc;
 
 		start_editing_text(ch->desc,
-                           &ch->in_room->ex_description->description);
+                           &ch->in_room->ex_description->description, 4096);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
 		act("$n begins to write an extra description.", true, ch, 0, 0,
@@ -1047,7 +1047,7 @@ do_olc_rexdesc(struct creature *ch, char *argument, bool is_hedit)
 		return;
 	} else if (is_abbrev(buf, "edit")) {
 		if ((desc = locate_exdesc(argument, ch->in_room->ex_description, 1))) {
-			start_editing_text(ch->desc, &desc->description);
+			start_editing_text(ch->desc, &desc->description, 4096);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 			act("$n begins to write an extra description.", true, ch, 0, 0,
 				TO_ROOM);
@@ -1116,19 +1116,19 @@ ACMD(do_hedit)
 		return;
 	}
 
-    House *house = Housing.findHouseByRoom(ch->in_room->number);
+    struct house *house = find_house_by_room(ch->in_room->number);
 	if( house == NULL ) {
 		send_to_char(ch, "Um.. this house seems to be screwed up.\r\n");
         slog("HEDIT: Unable to find house for room %d.",ch->in_room->number);
 		return;
 	}
 
-	if( !house->isOwner(ch) && !is_group_member(ch, "House") ) {
+	if (is_authorized(ch, EDIT_HOUSE, house)) {
 		send_to_char(ch, "Only the owner can edit the house.\r\n");
 		return;
 	}
 
-	if( house->getType() == House_RENTAL ) {
+	if( house->type == RENTAL ) {
 		send_to_char(ch, "You cannot edit rental houses.\r\n");
 		return;
 	}
@@ -1187,13 +1187,12 @@ ACMD(do_hedit)
 
 		if (brief) {
 			acc_strcat("-- House Room --------------------- Items ------- Cost\r\n", NULL);
-            for( unsigned int i = 0; i < house->getRoomCount(); i++ )
-            {
+            for(GList *rit = house->rooms;rit;rit = rit->next) {
                 int cost = 0;
                 int num = 0;
-				if (local && house->getRoom(i) != ch->in_room->number)
+				if (local && GPOINTER_TO_INT(rit->data) != ch->in_room->number)
 					continue;
-                struct room_data* room = real_room( house->getRoom(i) );
+                struct room_data* room = real_room(GPOINTER_TO_INT(rit->data));
 				if( room == NULL ) {
 					errlog(" house room does not exist!");
 					continue;
@@ -1202,8 +1201,8 @@ ACMD(do_hedit)
 				for( struct obj_data *o = room->contents; o; o = o->next_content)
 					num += recurs_obj_contents(o, NULL);
 
-                num = house->calcObjectCount(room);
-                cost = house->calcRentCost(room);
+                num = count_objects_in_room(room);
+                cost = room_rent_cost(house, room);
 				tot_cost += cost;
 				tot_num += num;
 				acc_sprintf("%s%-30s%s      %s%5d%s   %10d\r\n",
@@ -1221,7 +1220,7 @@ ACMD(do_hedit)
 		if (local) {
 			page_string(ch->desc, print_room_contents(ch,ch->in_room, true));
 		} else {
-			house->listRooms(ch,true);
+			list_house_rooms(house, ch,true);
         }
 		break;
     }

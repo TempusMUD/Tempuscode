@@ -74,5 +74,8 @@ bool save_house(struct house *house);
 void save_houses(void);
 int repo_note_count(struct house *house);
 void house_notify_repossession(struct house *house, struct creature *ch);
+int room_rent_cost(struct house *house, struct room_data *room);
+int count_objects_in_room(struct room_data *room);
+void list_house_rooms(struct house *house, struct creature *ch, bool show_contents);
 
 #endif

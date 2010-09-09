@@ -27,8 +27,7 @@
 #include "spells.h"
 #include "materials.h"
 #include "specs.h"
-#include "player_table.h"
-#include "object_map.h"
+#include "players.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
@@ -44,14 +43,13 @@ void do_stat_object(struct creature *ch, struct obj_data *obj);
 
 int prototype_obj_value(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
-char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
-	0);
+char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
 
-int add_path_to_vehicle(struct obj_data *obj, char *name);
+int add_path_to_vehicle(struct obj_data *obj, int vnum);
 int choose_material(struct obj_data *obj);
 
 struct extra_descr_data *locate_exdesc(char *word,
-	struct extra_descr_data *list, int exact = 0);
+	struct extra_descr_data *list, bool exact);
 
 const char *olc_oset_keys[] = {
 	"alias",
@@ -186,10 +184,9 @@ save_objs(struct creature *ch, struct zone_data *zone)
 	low = zone->number * 100;
 	high = zone->top;
 
-    ObjectMap_iterator oi;
-    for (oi = objectPrototypes.lower_bound(low);
-         oi != objectPrototypes.upper_bound(high); oi++) {
-        obj = oi->second;
+    for (int vnum = low;vnum <= high;vnum++) {
+        obj = (struct obj_data *)g_hash_table_lookup(obj_prototypes,
+                                                     GINT_TO_POINTER(vnum));
 		fprintf(file, "#%d\n", obj->shared->vnum);
 		if (obj->aliases)
 			fprintf(file, "%s", obj->aliases);
@@ -237,7 +234,7 @@ save_objs(struct creature *ch, struct zone_data *zone)
 		fprintf(file, "%d %d %d\n", obj->obj_flags.material,
 			obj->obj_flags.max_dam, obj->obj_flags.damage);
 
-		fprintf(file, "%d %d %d %d\n", obj->getWeight(),
+		fprintf(file, "%d %d %d %d\n", GET_OBJ_WEIGHT(obj),
 			obj->shared->cost, obj->shared->cost_per_day, obj->obj_flags.timer);
 
 		desc = obj->ex_description;
@@ -359,7 +356,6 @@ do_create_obj(struct creature *ch, int vnum)
 	}
 
 	CREATE(new_obj, struct obj_data, 1);
-	new_obj->clear();
 	CREATE(new_obj->shared, struct obj_shared_data, 1);
 	new_obj->shared->vnum = vnum;
 	new_obj->shared->number = 0;
@@ -375,7 +371,7 @@ do_create_obj(struct creature *ch, int vnum)
 	new_obj->obj_flags.wear_flags = 0;
 	new_obj->obj_flags.extra_flags = 0;
 	new_obj->obj_flags.extra2_flags = 0;
-	new_obj->setWeight(0);
+	new_obj->obj_flags.weight = 0;
 	new_obj->shared->cost = 0;
 	new_obj->shared->cost_per_day = 0;
 	new_obj->obj_flags.timer = 0;
@@ -398,8 +394,7 @@ do_create_obj(struct creature *ch, int vnum)
 
 	new_obj->in_room = NULL;
 
-    if (!objectPrototypes.add(new_obj))
-        raise(SIGSEGV);
+    g_hash_table_insert(obj_prototypes, GINT_TO_POINTER(vnum), new_obj);
 
 	return (new_obj);
 }
@@ -442,7 +437,7 @@ do_destroy_object(struct creature *ch, int vnum)
 			extract_obj(temp);
 	}
 
-    objectPrototypes.remove(obj);
+    g_hash_table_remove(obj_prototypes, GINT_TO_POINTER(GET_OBJ_VNUM(obj)));
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->creature && GET_OLC_OBJ(d->creature) == obj) {
@@ -586,7 +581,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 			obj_p->ex_description = ndesc;
 			desc = obj_p->ex_description;
 		}
-		start_editing_text(ch->desc, &desc->description);
+		start_editing_text(ch->desc, &desc->description, 4096);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
 		if (subcmd == OLC_OSET)
@@ -832,7 +827,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 				send_to_char(ch, "Object weight out of range.\r\n");
 				return;
 			} else {
-				obj_p->setWeight(i);
+				GET_OBJ_WEIGHT(obj_p) = i;
 				send_to_char(ch, "Object %d weight set to %d.\r\n",
 					obj_p->shared->vnum, i);
 			}
@@ -912,7 +907,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 			}
 		}
 
-        obj_p->normalizeApplies();
+        normalizeApplies(obj_p);
 
 		if (k >= MAX_OBJ_AFFECT) {
 			if (j)
@@ -948,7 +943,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
 	case 17:  /***** action_desc *****/
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-		start_editing_text(ch->desc, &obj_p->action_desc);
+		start_editing_text(ch->desc, &obj_p->action_desc, 4096);
 		break;
 
 	case 18: /** special **/
@@ -1093,7 +1088,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 		}
 
 		// It's ok.  Let em set it.
-		start_editing_text(ch->desc, &obj_p->shared->func_param);
+		start_editing_text(ch->desc, &obj_p->shared->func_param, 4096);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a object spec param.", true, ch, 0, 0,
 			TO_ROOM);
@@ -1107,12 +1102,12 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 			if( id == 0 ) {
 				obj_p->shared->owner_id = 0;
 				send_to_char(ch, "Owner removed.\r\n");
-			} else if(! playerIndex.exists(id) ) {
+			} else if (!player_idnum_exists(id) ) {
 				send_to_char(ch,"There is no player with id %ld.\r\n",id);
 			} else {
 				obj_p->shared->owner_id = id;
 				send_to_char(ch, "Object %d owner set to %s[%ld].\r\n",
-					obj_p->shared->vnum, playerIndex.getName(id), id);
+					obj_p->shared->vnum, player_name_by_idnum(id), id);
 			}
 		}
 		break;
@@ -1207,7 +1202,7 @@ do_clear_olc_object(struct creature *ch)
 	obj_p->obj_flags.material = 0;
 	obj_p->obj_flags.max_dam = 0;
 	obj_p->obj_flags.damage = 0;
-	obj_p->setWeight(0);
+	obj_p->obj_flags.weight = 0;
 	obj_p->shared->cost = 0;
 	obj_p->shared->cost_per_day = 0;
 

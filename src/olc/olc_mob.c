@@ -113,6 +113,23 @@ const char *olc_mset_keys[] = {
 	"\n"
 };
 
+#define UPDATE_MOBLIST_NAMES(mob_p, tmp_mob, _item)                     \
+    for (GList *cit = creatures;cit;cit = cit->next) {                  \
+        tmp_mob = cit->data;                                            \
+        if (IS_NPC(tmp_mob)                                             \
+            && GET_MOB_VNUM(tmp_mob) == GET_MOB_VNUM(mob_p)             \
+            && !MOB2_FLAGGED(tmp_mob, MOB2_RENAMED))                    \
+            (tmp_mob)_item = (mob_p)_item;                              \
+    }
+
+#define UPDATE_MOBLIST(mob_p, tmp_mob, _item)                           \
+    for (GList *cit = creatures;cit;cit = cit->next) {                  \
+        tmp_mob = cit->data;                                            \
+        if (IS_NPC(tmp_mob)                                             \
+            && GET_MOB_VNUM(tmp_mob) == GET_MOB_VNUM(mob_p))            \
+            (tmp_mob)_item = (mob_p)_item;                              \
+    }
+
 struct creature *
 do_create_mob(struct creature *ch, int vnum)
 {
@@ -147,8 +164,7 @@ do_create_mob(struct creature *ch, int vnum)
 		return NULL;
 	}
 
-    new_mob = new struct creature(false);
-
+    CREATE(new_mob, struct creature, 1);
 	CREATE(new_mob->mob_specials.shared, struct mob_shared_data, 1);
 	new_mob->mob_specials.shared->vnum = vnum;
 	new_mob->mob_specials.shared->number = 0;
@@ -235,8 +251,7 @@ do_create_mob(struct creature *ch, int vnum)
 	new_mob->desc = NULL;
 	new_mob->in_room = NULL;
 
-	if (!mobilePrototypes.add(new_mob))
-        raise(SIGSEGV);
+    g_hash_table_insert(mob_prototypes, GINT_TO_POINTER(vnum), new_mob);
 
 	return (new_mob);
 }
@@ -412,12 +427,12 @@ do_mob_mset(struct creature *ch, char *argument)
 				act("$n begins to edit a mobile description.", true, ch, 0, 0,
 					TO_ROOM);
 			}
-			start_editing_text(ch->desc, &mob_p->player.description);
+			start_editing_text(ch->desc, &mob_p->player.description, 8000);
 			SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-			struct creatureList_iterator cit = characterList.begin();
-			for (; cit != characterList.end(); ++cit) {
-				if (GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(mob_p)) {
-					(*cit)->player.description = NULL;
+            for (GList *cit = creatures;cit;cit = cit->next) {
+                struct creature *tch = cit->data;
+				if (GET_MOB_VNUM(tch) == GET_MOB_VNUM(mob_p)) {
+					tch->player.description = NULL;
 					break;
 				}
 			}
@@ -891,7 +906,7 @@ do_mob_mset(struct creature *ch, char *argument)
 			if ((i = search_block(arg2, position_types, false)) < 0) {
 				send_to_char(ch, "Invalid position, '%s'.\r\n", arg2);
 			} else {
-				mob_p->setPosition(i);
+				GET_POSITION(mob_p) = i;
 				send_to_char(ch, "Mobile position set.\r\n");
 			}
 			break;
@@ -1105,7 +1120,7 @@ do_mob_mset(struct creature *ch, char *argument)
 		}
 
 		// It's ok.  Let em set it.
-		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->func_param);
+		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->func_param, 8192);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a mobile spec param.", true, ch, 0, 0,
 			TO_ROOM);
@@ -1123,7 +1138,7 @@ do_mob_mset(struct creature *ch, char *argument)
 
 		}
 	case 49:
-		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->load_param);
+		start_editing_text(ch->desc, &MOB_SHARED(mob_p)->load_param, 8192);
 		SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 		act("$n begins to write a mobile load param.", true, ch, 0, 0, TO_ROOM);
 		break;
@@ -1195,7 +1210,7 @@ do_mob_mset(struct creature *ch, char *argument)
 	}
 
 	if (mset_command != 25)		/*mob exp */
-		GET_EXP(mob_p) = mobile_experience(mob_p);
+		GET_EXP(mob_p) = mobile_experience(mob_p, NULL);
 
 	for (zone = zone_table; zone; zone = zone->next)
 		if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
@@ -1309,14 +1324,10 @@ save_mobs(struct creature *ch, struct zone_data *zone)
 
 	low = zone->number * 100;
 	high = zone->top;
-
-	MobileMap_iterator mit = mobilePrototypes.begin();
-	for (; mit != mobilePrototypes.end(); ++mit) {
-		mob = mit->second;
-		if (mob->mob_specials.shared->vnum < low)
-			continue;
-		if (mob->mob_specials.shared->vnum > high)
-			break;
+    for (int vnum = low;vnum <= high;vnum++) {
+        mob = g_hash_table_lookup(mob_prototypes, GINT_TO_POINTER(vnum));
+        if (!mob)
+            continue;
 
 		if (mob->mob_specials.shared->attack_type != 0 ||
 			GET_STR(mob) != 11 ||
@@ -1393,7 +1404,7 @@ save_mobs(struct creature *ch, struct zone_data *zone)
 		fprintf(file, "%lld %d %d %d\n", GET_GOLD(mob),
 			GET_EXP(mob), GET_RACE(mob), GET_CLASS(mob));
 
-		fprintf(file, "%d %d %d %d\n", mob->getPosition(),
+		fprintf(file, "%d %d %d %d\n", GET_POSITION(mob),
 			GET_DEFAULT_POS(mob),
 			GET_SEX(mob), mob->mob_specials.shared->attack_type);
 
@@ -1422,10 +1433,15 @@ save_mobs(struct creature *ch, struct zone_data *zone)
 				fprintf(file, "Height: %d\n", GET_HEIGHT(mob));
             if (GET_TONGUE(mob) != 0)
                 fprintf(file, "CurTongue: %d\n", GET_TONGUE(mob));
-            map<int, Tongue>_iterator it = tongues.begin();
-            for (;it != tongues.end();++it)
-                if (CHECK_TONGUE(mob, it->first))
-                    fprintf(file, "KnownTongue: %d\n", it->first);
+
+            GHashTableIter iter;
+            gpointer key, val;
+            g_hash_table_iter_init(&iter, tongues);
+            while (g_hash_table_iter_next(&iter, &key, &val)) {
+                if (CHECK_TONGUE(mob, GPOINTER_TO_INT(key)))
+                    fprintf(file, "KnownTongue: %d\n", GPOINTER_TO_INT(key));
+            }
+
 			if (GET_VOICE(mob) != 0)
 				fprintf(file, "Voice: %d\n", GET_VOICE(mob));
 			if (GET_CASH(mob) != 0)
@@ -1513,7 +1529,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
 	struct zone_data *zone = NULL;
 	struct creature *mob = NULL;
 	struct descriptor_data *d = NULL;
-	struct memory_rec_struct *mem_r = NULL;
+	struct memory_rec *mem_r = NULL;
 
 	if (!(mob = real_mobile_proto(vnum))) {
 		send_to_char(ch, "ERROR: That mobile does not exist.\r\n");
@@ -1537,13 +1553,13 @@ do_destroy_mobile(struct creature *ch, int vnum)
 			GET_NAME(ch), GET_MOB_VNUM(mob));
 		return 1;
 	}
-	struct creatureList_iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		if (GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(mob))
-			(*cit)->purge(false);
+	for (GList *cit = creatures;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (GET_MOB_VNUM(tch) == GET_MOB_VNUM(mob))
+			purge(tch, false);
 	}
-	mobilePrototypes.remove(mob);
 
+    g_hash_table_remove(mob_prototypes, GINT_TO_POINTER(GET_MOB_VNUM(mob)));
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->creature && GET_OLC_MOB(d->creature) == mob) {
 			GET_OLC_MOB(d->creature) = NULL;
@@ -1587,7 +1603,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
 		free(mob->mob_specials.shared);
 	}
 
-	delete mob;
+	free_creature(mob);
 	return 0;
 }
 
@@ -1938,10 +1954,10 @@ olc_mimic_mob(struct creature *ch,
 {
 
 	if (mode) {					/* (mode) => mimicing prototype... else real mob */
-		struct creatureList_iterator cit = characterList.begin();
-		for (; cit != characterList.end(); ++cit) {
-			if (IS_NPC((*cit)) && GET_MOB_VNUM((*cit)) == GET_MOB_VNUM(targ))
-				(*cit)->purge(false);
+        for (GList *cit = creatures;cit;cit = cit->next) {
+            struct creature *tch = cit->data;
+			if (IS_NPC(tch) && GET_MOB_VNUM(tch) == GET_MOB_VNUM(targ))
+				purge(tch, false);
 		}
 	}
 

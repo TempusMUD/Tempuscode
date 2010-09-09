@@ -303,10 +303,10 @@ do_destroy_search(struct creature *ch, char *arg)
 		send_to_char(ch, "World olc is not approved for this zone.\r\n");
 		return 0;
 	}
-	struct creatureList_iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		if (GET_OLC_SRCH((*cit)) == srch)
-			GET_OLC_SRCH((*cit)) = NULL;
+    for (GList *cit = creatures;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (GET_OLC_SRCH(tch) == srch)
+			GET_OLC_SRCH(tch) = NULL;
 	}
 	REMOVE_FROM_LIST(srch, ch->in_room->search, next);
 	if (srch->command_keys)
@@ -359,7 +359,7 @@ set_char_xedit(struct creature *ch, char *argument)
 void
 acc_format_search_data(struct creature *ch,
                        struct room_data *room,
-                       special_search_data *cur_search)
+                       struct special_search_data *cur_search)
 {
 	struct obj_data *obj = NULL;
 	struct creature *mob = NULL;
