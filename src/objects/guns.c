@@ -20,6 +20,7 @@
 #include "materials.h"
 #include "char_class.h"
 #include "guns.h"
+#include "obj_data.h"
 
 const char *gun_types[] = {
 	"none",
@@ -132,7 +133,7 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
 
 		if (MAX_LOAD(gun)) {
 			if (gun->contains) {
-                count = gun->getNumContained();
+                count = count_contained_objs(gun);
 				sprintf(buf, "$p is loaded with %s[%d/%d]%s cartridge%s",
 					QGRN, count, MAX_LOAD(gun), QNRM, count == 1 ? "" : "s");
 			} else
@@ -140,7 +141,7 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
 		} else if (!gun->contains)
 			strcpy(buf, "$p is not loaded.");
 		else {
-            count = gun->contains->getNumContained();
+            count = count_contained_objs(gun->contains);
 			sprintf(buf, "$p is loaded with $P,\r\n"
 				"which contains %s[%d/%d]%s cartridge%s",
 				QGRN, count, MAX_LOAD(gun->contains), QNRM,

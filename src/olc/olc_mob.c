@@ -14,7 +14,6 @@
 #include <string.h>
 #include <errno.h>
 #include "structs.h"
-#include "creature_list.h"
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
@@ -28,7 +27,6 @@
 #include "flow_room.h"
 #include "specs.h"
 #include "language.h"
-#include "mobile_map.h"
 #include "voice.h"
 
 extern struct zone_data *zone_table;
@@ -50,9 +48,9 @@ void num2str(char *str, int num);
 void set_physical_attribs(struct creature *ch);
 void do_stat_character(struct creature *ch, struct creature *k, const char *options);
 struct extra_descr_data *locate_exdesc(char *word,
-	struct extra_descr_data *list, int exact = 0);
+	struct extra_descr_data *list, int exact);
 void set_move_buffer(struct creature *ch);
-char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact = 0);
+char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact);
 
 // locals
 static char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
@@ -148,19 +146,8 @@ do_create_mob(struct creature *ch, int vnum)
 		send_to_char(ch, "Mobile OLC is not approved for this zone.\r\n");
 		return NULL;
 	}
-	MobileMap_iterator mit = mobilePrototypes.begin();
-	MobileMap_iterator nit;
-	for (; mit != mobilePrototypes.end(); ++mit) {
-		mob = mit->second;
-		nit = mit;
-		++nit;
-		if (vnum > mob->mob_specials.shared->vnum &&
-			(nit != mobilePrototypes.end() ||
-				vnum < (nit->second)->mob_specials.shared->vnum))
-			break;
 
-	}
-	new_mob = new struct creature(false);
+    new_mob = new struct creature(false);
 
 	CREATE(new_mob->mob_specials.shared, struct mob_shared_data, 1);
 	new_mob->mob_specials.shared->vnum = vnum;

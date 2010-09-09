@@ -226,9 +226,9 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
 			damage_type = TYPE_CRUSH;
 			break;
 		}
-		if (!(room->people.empty())) {
-			act(buf, false, *(room->people.begin()), 0, 0, TO_CHAR | TO_SLEEP);
-			act(buf, false, *(room->people.begin()), 0, 0, TO_ROOM | TO_SLEEP);
+		if (room->people) {
+			act(buf, false, room->people->data, 0, 0, TO_CHAR | TO_SLEEP);
+			act(buf, false, room->people->data, 0, 0, TO_ROOM | TO_SLEEP);
 		}
 	} else {
 
@@ -254,7 +254,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
 					REMOVE_BIT(room->dir_option[dir]->to_room->
 						dir_option[rev_dir[dir]]->exit_info, EX_CLOSED);
 				REMOVE_BIT(room->dir_option[dir]->exit_info, EX_CLOSED);
-				if (!(room->people.empty())) {
+				if (room->people) {
 					sprintf(buf,
 						"The %s %s blown open from the other side!\r\n", dname,
 						ISARE(dname));
@@ -332,14 +332,12 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
 	if (!dam)
 		return;
 
-    struct creatureList_iterator it;
     //make sure we really do want to do damage in this room
-    it = room->people.begin();
-	for (; it != room->people.end(); ++it) {
-		vict = (*it);
+	for (GList *it = room->people;it;it = it->next) {
+		vict = it->data;
         if (damager
             && damager != vict
-            && !damager->isOkToAttack(vict,false)) {
+            && !isOkToAttack(damager, vict,false)) {
             //display the message to everyone in victs room except damager
             act("A divine shield flashes into existence protecting you from $N's bomb.",
                 false, vict, NULL, damager, TO_NOTVICT);
@@ -351,15 +349,13 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
         }
     }
 
-    it = room->people.begin();
-
-    for (; it != room->people.end(); ++it) {
-		vict = (*it);
+    for (GList *it = room->people;it;it = it->next) {
+		vict = it->data;
 
         if (vict == precious_vict)
             continue;
 
-        if (damager->checkReputations(vict))
+        if (checkReputations(damager, vict))
             continue;
 
 		if (damage(damager, vict, dam, damage_type, WEAR_RANDOM))
@@ -367,7 +363,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
 
 		if (bomb_type == BOMB_INCENDIARY &&
 			!CHAR_WITHSTANDS_FIRE(vict) && !AFF2_FLAGGED(vict, AFF2_ABLAZE))
-            vict->ignite(damager);
+            ignite(vict, damager);
 
 		if ((bomb_type == BOMB_ARTIFACT || bomb_type == BOMB_FLASH) &&
 			AWAKE(vict) && GET_LEVEL(vict) < LVL_AMBASSADOR &&
@@ -482,7 +478,7 @@ struct obj_data *
 detonate_bomb(struct obj_data *bomb)
 {
 
-	struct room_data *room = bomb->find_room();
+	struct room_data *room = find_object_room(bomb);
 	struct creature *ch = bomb->carried_by;
 	struct obj_data *cont = bomb->in_obj, *next_obj = NULL;
 	struct bomb_radius_list *rad_elem = NULL, *next_elem = NULL;
@@ -500,7 +496,7 @@ detonate_bomb(struct obj_data *bomb)
 	dam_object = bomb;
 
 	if (ch) {
-        if (damager->checkReputations(ch)) {
+        if (checkReputations(damager, ch)) {
             act(tmp_sprintf("$p fizzles and dies in %s!", (internal ? "body!" :
                     (cont ? "$P" : "your inventory"))),
                 false, ch, bomb, cont, TO_CHAR);
@@ -538,8 +534,10 @@ detonate_bomb(struct obj_data *bomb)
 			cont = cont->in_obj;
 
 		ch = (cont->worn_by ? cont->worn_by : cont->carried_by);
-		damage_eq(NULL, cont, dice(MIN(100, BOMB_POWER(bomb)),
-				BOMB_POWER(bomb)));
+		damage_eq(NULL,
+                  cont,
+                  dice(MIN(100, BOMB_POWER(bomb)), BOMB_POWER(bomb)),
+                  -1);
 	}
 
 	if ((cont || internal) && BOMB_IS_FLASH(bomb))
@@ -556,9 +554,15 @@ detonate_bomb(struct obj_data *bomb)
 	for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 		next_elem = rad_elem->next;
 
-		bomb_damage_room(damager, BOMB_IDNUM(bomb), bomb->name, BOMB_TYPE(bomb),
-			BOMB_POWER(bomb), rad_elem->room, find_first_step(rad_elem->room,
-				room, GOD_TRACK), rad_elem->power);
+		bomb_damage_room(damager,
+                         BOMB_IDNUM(bomb),
+                         bomb->name,
+                         BOMB_TYPE(bomb),
+                         BOMB_POWER(bomb),
+                         rad_elem->room,
+                         find_first_step(rad_elem->room, room, GOD_TRACK),
+                         rad_elem->power,
+                         NULL);
 		free(rad_elem);
 		bomb_rooms = next_elem;
 
@@ -639,11 +643,15 @@ engage_self_destruct(struct creature *ch)
 	for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
 		next_elem = rad_elem->next;
 
-		bomb_damage_room(NULL, GET_IDNUM(ch), GET_NAME(ch),
-			SKILL_SELF_DESTRUCT,
-			level,
-			rad_elem->room,
-			find_first_step(rad_elem->room, room, GOD_TRACK), rad_elem->power);
+		bomb_damage_room(NULL,
+                         GET_IDNUM(ch),
+                         GET_NAME(ch),
+                         SKILL_SELF_DESTRUCT,
+                         level,
+                         rad_elem->room,
+                         find_first_step(rad_elem->room, room, GOD_TRACK),
+                         rad_elem->power,
+                         NULL);
 		free(rad_elem);
 		bomb_rooms = next_elem;
 
@@ -784,7 +792,8 @@ sound_gunshots(struct room_data *room, int type, int power, int num)
 
 		bomb_rooms = bomb_rooms->next;
 
-		if (rad_elem->room && !(rad_elem->room->people.empty())
+		if (rad_elem->room
+            && rad_elem->room->people
 			&& rad_elem->room != room) {
 			if ((dir = find_first_step(rad_elem->room, room, GOD_TRACK)) >= 0)
 				dir = rev_dir[dir];

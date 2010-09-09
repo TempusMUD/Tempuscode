@@ -30,6 +30,7 @@
 #include "vehicle.h"
 #include "house.h"
 #include "clan.h"
+#include "weather.h"
 
 /*   external vars  */
 extern struct room_data *world;
@@ -278,10 +279,11 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
 		else
 			send_to_room("You see as you drive up: \r\n", ch->in_room);
 
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it)
-			if (AWAKE((*it)))
-				look_at_room((*it), car->in_room, 0);
+		for (GList *it = ch->in_room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+			if (AWAKE(tch))
+				look_at_room(tch, car->in_room, 0);
+        }
 	} else if ((other_rm = real_room(ROOM_NUMBER(car))) && other_rm->people) {
 		sprintf(buf, "$p travels %s.", to_dirs[dir]);
 		act(buf, false, other_rm->people, car, 0, TO_ROOM);
@@ -463,8 +465,8 @@ SPECIAL(vehicle_door)
 
 		act("You climb out of $p.", false, ch, vehicle, 0, TO_CHAR);
 		act("$n climbs out of $p.", false, ch, vehicle, 0, TO_ROOM);
-		char_from_room(ch);
-		char_to_room(ch, vehicle->in_room);
+		char_from_room(ch, true);
+		char_to_room(ch, vehicle->in_room, true);
 		look_at_room(ch, ch->in_room, 0);
 		act("$n has climbed out of $p.", true, ch, vehicle, 0, TO_ROOM);
 		GET_POSITION(ch) = POS_STANDING;
@@ -591,9 +593,8 @@ SPECIAL(vehicle_console)
 				"You have to put the console IN the vehicle to use it.\r\n");
 			return 1;
 		}
-		struct creatureList_iterator it = console->in_room->people.begin();
-		for (; it != console->in_room->people.end(); ++it) {
-			driver = *it;
+		for (GList *it = console->in_room->people;it;it = it->next) {
+            struct creature *driver = it->data;
 			if ((V_CONSOLE_IDNUM(console) > 0 &&
 					GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
 				(V_CONSOLE_IDNUM(console) < 0 &&
