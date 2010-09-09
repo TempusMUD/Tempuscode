@@ -14,15 +14,15 @@ struct craft_shop {
 /** Loads and/or creates the Craftshop described by the given node. **/
 void load_craft_shop(xmlNodePtr node);
 
-struct shoptime {
+struct shop_time {
 	int start, end;
 };
 
-struct shopdata {
+struct shop_data {
 	long room;				// Room of self
-	struct int_list *item_list;	// list of produced items
-	struct int_list *item_types;	// list of types of items self deals in
-	struct shoptime *closed_hours;
+	GList *item_list;	// list of produced items
+	GList *item_types;	// list of types of items self deals in
+	GList *closed_hours;
 	const char *msg_denied;		// Message sent to those of wrong race, creed, etc
 	const char *msg_badobj;		// Attempt to sell invalid obj to self
 	const char *msg_sell_noobj;	// Attempt to sell missing obj to player
@@ -45,6 +45,6 @@ struct shopdata {
 };
 
 SPECIAL(vendor);
-const char *vendor_parse_param(char *param, struct shopdata *shop, int *err_line);
+const char *vendor_parse_param(char *param, struct shop_data *shop, int *err_line);
 
 #endif

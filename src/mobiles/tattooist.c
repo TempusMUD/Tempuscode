@@ -27,7 +27,7 @@ void call_for_help(struct creature *ch, struct creature *attacker);
 bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
 struct obj_data *vendor_resolve_hash(struct creature *self, char *obj_str);
 struct obj_data *vendor_resolve_name(struct creature *self, char *obj_str);
-void vendor_appraise(struct creature *ch, struct obj_data *obj, struct creature *self, ShopData *shop);
+void vendor_appraise(struct creature *ch, struct obj_data *obj, struct creature *self, struct shop_data *shop);
 
 static void
 tattooist_show_pos(struct creature * me, struct creature * ch, struct obj_data * obj)
@@ -61,7 +61,7 @@ tattooist_get_value(struct obj_data *obj, int percent, int costModifier)
 }
 
 static void
-tattooist_sell(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
+tattooist_sell(struct creature *ch, char *arg, struct creature *self, struct shop_data *shop)
 {
 	struct obj_data *obj;
 	char *obj_str;
@@ -136,14 +136,14 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self, ShopData *
         }
     }
 
-    cost = tattooist_get_value(obj, shop->markup, ch->getCostModifier(self));
+    cost = tattooist_get_value(obj, shop->markup, getCostModifier(ch, self));
 	switch (shop->currency) {
 	case 0:
 		amt_carried = GET_GOLD(ch); break;
 	case 1:
 		amt_carried = GET_CASH(ch); break;
 	case 2:
-		amt_carried = ch->account->get_quest_points(); break;
+		amt_carried = ch->account->quest_points; break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		amt_carried = 0;
@@ -169,7 +169,7 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self, ShopData *
 		currency_str = "creds";
 		break;
 	case 2:
-		ch->account->set_quest_points(ch->account->get_quest_points() - cost);
+		ch->account->quest_points -= cost;
 		currency_str = "quest points";
 		break;
 	default:
@@ -205,9 +205,9 @@ tattooist_list_obj(struct creature *ch, struct obj_data *obj, int idx, int cost)
 	obj_desc = obj->name;
 	if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN)) {
 		if (IS_OBJ_STAT(obj, ITEM_BLESS))
-			obj_desc = tmp_strcat(obj_desc, " (holy aura)");
+			obj_desc = tmp_strcat(obj_desc, " (holy aura)", NULL);
 		if (IS_OBJ_STAT(obj, ITEM_DAMNED))
-			obj_desc = tmp_strcat(obj_desc, " (unholy aura)");
+			obj_desc = tmp_strcat(obj_desc, " (unholy aura)", NULL);
 	}
 
 	obj_desc = tmp_capitalize(obj_desc);
@@ -216,7 +216,7 @@ tattooist_list_obj(struct creature *ch, struct obj_data *obj, int idx, int cost)
 }
 
 static void
-tattooist_list(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
+tattooist_list(struct creature *ch, char *arg, struct creature *self, struct shop_data *shop)
 {
 	struct obj_data *cur_obj;
 	int idx;
@@ -249,8 +249,10 @@ tattooist_list(struct creature *ch, char *arg, struct creature *self, ShopData *
 	idx = 1;
 	for (cur_obj = self->carrying;cur_obj;cur_obj = cur_obj->next_content) {
         if (!*arg || namelist_match(arg, cur_obj->aliases)) {
-            cost = tattooist_get_value(cur_obj, shop->markup, ch->getCostModifier(self));
-            msg = tmp_strcat(msg, tattooist_list_obj(ch, cur_obj, idx, cost));
+            cost = tattooist_get_value(cur_obj, shop->markup, getCostModifier(ch, self));
+            msg = tmp_strcat(msg,
+                             tattooist_list_obj(ch, cur_obj, idx, cost),
+                             NULL);
             idx++;
         }
 	}
@@ -265,15 +267,15 @@ SPECIAL(tattooist)
 	char *config;
     const char *err = NULL;
 	int err_line;
-	ShopData *shop;
+	struct shop_data *shop;
 
 	config = GET_MOB_PARAM(self);
 	if (!config)
 		return 0;
 
-	shop = (ShopData *)self->mob_specials.func_data;
+	shop = (struct shop_data *)self->mob_specials.func_data;
 	if (!shop) {
-		CREATE(shop, ShopData, 1);
+		CREATE(shop, struct shop_data, 1);
 		err = vendor_parse_param(config, shop, &err_line);
 		self->mob_specials.func_data = shop;
 	}
@@ -284,7 +286,7 @@ SPECIAL(tattooist)
 		return 1;
 
 	if (spec_mode == SPECIAL_TICK) {
-        struct creature *target = self->findRandomCombat();
+        struct creature *target = findRandomCombat(self);
 		if (target && shop->call_for_help && !number(0, 4)) {
 			call_for_help(self, target);
 			return 1;
@@ -334,20 +336,22 @@ SPECIAL(tattooist)
 		return true;
 	}
 
-	if (!shop->closed_hours.empty()) {
-		vector<ShopTime>_iterator shop_time;
+	if (!shop->closed_hours) {
+		GList *it;
 		struct time_info_data local_time;
 
 		set_local_time(self->in_room->zone, &local_time);
-		for (shop_time = shop->closed_hours.begin();shop_time != shop->closed_hours.end();shop_time++)
+		for (it = shop->closed_hours;it;it = it->next){
+            struct shop_time *shop_time = it->data;
 			if (local_time.hours >= shop_time->start &&
 					local_time.hours < shop_time->end ) {
 				perform_say_to(self, ch, shop->msg_closed);
 				return true;
 			}
+        }
 	}
 
-	if (shop->reaction.react(ch) != ALLOW) {
+	if (react(shop->reaction, ch) != ALLOW) {
 		perform_say_to(self, ch, shop->msg_denied);
 		return true;
 	}

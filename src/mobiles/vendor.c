@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "vendor.h"
 #include "specs.h"
+#include "players.h"
 
 const int MAX_ITEMS = 10;
 const unsigned int MIN_COST = 12;
@@ -43,13 +44,12 @@ vendor_log(const char *fmt, ...)
 }
 
 static bool
-vendor_is_produced(struct obj_data *obj, ShopData *shop)
+vendor_is_produced(struct obj_data *obj, struct shop_data *shop)
 {
-	vector<int>_iterator it;
-
-	for (it = shop->item_list.begin();it != shop->item_list.end();it++)
-		if (GET_OBJ_VNUM(obj) == *it)
-			return same_obj(real_object_proto(*it), obj);
+	for (GList *it = shop->item_list;it;it = it->next)
+		if (GET_OBJ_VNUM(obj) == GPOINTER_TO_INT(it->data))
+			return same_obj(real_object_proto(GPOINTER_TO_INT(it->data)),
+                            obj);
 
 	return false;
 }
@@ -77,7 +77,7 @@ vendor_inventory(struct obj_data *obj, struct obj_data *obj_list)
 }
 
 static bool
-vendor_invalid_buy(struct creature *self, struct creature *ch, ShopData *shop, struct obj_data *obj)
+vendor_invalid_buy(struct creature *self, struct creature *ch, struct shop_data *shop, struct obj_data *obj)
 {
 	if (IS_OBJ_STAT(obj, ITEM_NOSELL) ||
 			!OBJ_APPROVED(obj)|| obj->shared->owner_id != 0 ) {
@@ -90,12 +90,12 @@ vendor_invalid_buy(struct creature *self, struct creature *ch, ShopData *shop, s
 		return true;
     }
 
-	if (shop->item_types.size() > 0) {
-		vector<int>_iterator it;
+	if (shop->item_types) {
 		bool accepted = false;
-		for (it = shop->item_types.begin();it != shop->item_types.end();it++) {
-			if ((*it & 0xFF) == GET_OBJ_TYPE(obj) || (*it & 0xFF) == 0) {
-				accepted = *it >> 8;
+		for (GList *it = shop->item_types;it;it = it->next) {
+			if ((GPOINTER_TO_INT(it->data) & 0xFF) == GET_OBJ_TYPE(obj)
+                || (GPOINTER_TO_INT(it->data) & 0xFF) == 0) {
+				accepted = GPOINTER_TO_INT(it->data) >> 8;
 				break;
 			}
 		}
@@ -207,7 +207,7 @@ vendor_resolve_name(struct creature *self, char *obj_str)
 }
 
 void
-vendor_appraise(struct creature *ch, struct obj_data *obj, struct creature *self, ShopData *shop)
+vendor_appraise(struct creature *ch, struct obj_data *obj, struct creature *self, struct shop_data *shop)
 {
 	const char *currency_str;
 	const unsigned long cost = 2000;
@@ -246,7 +246,7 @@ vendor_appraise(struct creature *ch, struct obj_data *obj, struct creature *self
 			currency_str = "creds";
 			break;
 		case 2:
-			ch->account->set_quest_points(ch->account->get_quest_points() - cost);
+			ch->account->quest_points -= cost;
 			currency_str = "quest points";
 			break;
 		default:
@@ -267,7 +267,7 @@ vendor_appraise(struct creature *ch, struct obj_data *obj, struct creature *self
 }
 
 static void
-vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
+vendor_sell(struct creature *ch, char *arg, struct creature *self, struct shop_data *shop)
 {
 	struct obj_data *obj, *next_obj;
 	char *obj_str, *msg;
@@ -343,7 +343,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 
 	cost = vendor_get_value(obj,
                             shop->markup,
-                            ch->getCostModifier(self),
+                            getCostModifier(ch, self),
                             shop->currency);
 	switch (shop->currency) {
 	case 0:
@@ -351,7 +351,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 	case 1:
 		amt_carried = GET_CASH(ch); break;
 	case 2:
-		amt_carried = ch->account->get_quest_points(); break;
+		amt_carried = ch->account->quest_points; break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		amt_carried = 0;
@@ -376,7 +376,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 		return;
 	}
 
-	if (IS_CARRYING_W(ch) + obj->getWeight() > CAN_CARRY_W(ch)) {
+	if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
 		switch (number(0,2)) {
 		case 0:
 			perform_say_to(self, ch, "You can't carry any more weight.");
@@ -392,11 +392,11 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 	}
 
 	if ((IS_CARRYING_N(ch) + num > CAN_CARRY_N(ch) ||
-			IS_CARRYING_W(ch) + obj->getWeight() * num > CAN_CARRY_W(ch)) &&
-			obj->getWeight() > 0) {
+			IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) * num > CAN_CARRY_W(ch)) &&
+			GET_OBJ_WEIGHT(obj) > 0) {
 		num = MIN(num, CAN_CARRY_N(ch) - IS_CARRYING_N(ch));
 		num = MIN(num, (CAN_CARRY_W(ch) - IS_CARRYING_W(ch))
-			/ obj->getWeight());
+			/ GET_OBJ_WEIGHT(obj));
 		perform_say_to(self, ch,
 			tmp_sprintf("You can only carry %d.", num));
 	}
@@ -413,7 +413,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 		currency_str = "creds";
 		break;
 	case 2:
-		ch->account->set_quest_points(ch->account->get_quest_points() - (cost * num));
+		ch->account->quest_points -= (cost * num);
 		currency_str = "quest points";
 		break;
 	default:
@@ -462,7 +462,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 }
 
 static void
-vendor_buy(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
+vendor_buy(struct creature *ch, char *arg, struct creature *self, struct shop_data *shop)
 {
 	struct obj_data *obj, *next_obj;
 	char *obj_str;
@@ -524,7 +524,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self, ShopData *shop
 	}
 	cost = vendor_get_value(obj,
                             shop->markdown,
-                            self->getCostModifier(ch),
+                            getCostModifier(self, ch),
                             shop->currency);
 	amt_carried = (shop->currency) ? GET_CASH(self):GET_GOLD(self);
 
@@ -587,26 +587,26 @@ vendor_list_obj(struct creature *ch, struct obj_data *obj, int cnt, int idx, int
 			liquid_to_str(GET_OBJ_VAL(obj,2)), NULL);
 	if ((GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) &&
 			GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1))
-		obj_desc = tmp_strcat(obj_desc, " (partially used)");
+		obj_desc = tmp_strcat(obj_desc, " (partially used)", NULL);
 	if (OBJ_REINFORCED(obj))
-		obj_desc = tmp_strcat(obj_desc, " [reinforced]");
+		obj_desc = tmp_strcat(obj_desc, " [reinforced]", NULL);
 	if (OBJ_ENHANCED(obj))
-		obj_desc = tmp_strcat(obj_desc, " |augmented|");
+		obj_desc = tmp_strcat(obj_desc, " |augmented|", NULL);
 	if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
-		obj_desc = tmp_strcat(obj_desc, " <broken>");
+		obj_desc = tmp_strcat(obj_desc, " <broken>", NULL);
 	if (IS_OBJ_STAT(obj, ITEM_HUM))
-		obj_desc = tmp_strcat(obj_desc, " (humming)");
+		obj_desc = tmp_strcat(obj_desc, " (humming)", NULL);
 	if (IS_OBJ_STAT(obj, ITEM_GLOW))
-		obj_desc = tmp_strcat(obj_desc, " (glowing)");
+		obj_desc = tmp_strcat(obj_desc, " (glowing)", NULL);
 	if (IS_OBJ_STAT(obj, ITEM_INVISIBLE))
-		obj_desc = tmp_strcat(obj_desc, " (invisible)");
+		obj_desc = tmp_strcat(obj_desc, " (invisible)", NULL);
 	if (IS_OBJ_STAT(obj, ITEM_TRANSPARENT))
-		obj_desc = tmp_strcat(obj_desc, " (transparent)");
+		obj_desc = tmp_strcat(obj_desc, " (transparent)", NULL);
 	if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN)) {
 		if (IS_OBJ_STAT(obj, ITEM_BLESS))
-			obj_desc = tmp_strcat(obj_desc, " (holy aura)");
+			obj_desc = tmp_strcat(obj_desc, " (holy aura)", NULL);
 		if (IS_OBJ_STAT(obj, ITEM_DAMNED))
-			obj_desc = tmp_strcat(obj_desc, " (unholy aura)");
+			obj_desc = tmp_strcat(obj_desc, " (unholy aura)", NULL);
 	}
 
 	obj_desc = tmp_capitalize(obj_desc);
@@ -621,7 +621,7 @@ vendor_list_obj(struct creature *ch, struct obj_data *obj, int cnt, int idx, int
 }
 
 static void
-vendor_list(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
+vendor_list(struct creature *ch, char *arg, struct creature *self, struct shop_data *shop)
 {
 	struct obj_data *cur_obj, *last_obj;
 	int idx, cnt;
@@ -663,9 +663,12 @@ vendor_list(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 				if (!*arg || namelist_match(arg, last_obj->aliases)) {
 					cost = vendor_get_value(last_obj,
                                             shop->markup,
-                                            ch->getCostModifier(self),
+                                            getCostModifier(ch, self),
                                             shop->currency);
-                    msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx, cost));
+                    msg = tmp_strcat(msg,
+                                     vendor_list_obj(ch, last_obj, cnt,
+                                                     idx, cost),
+                                     NULL);
                 }
 				cnt = 1;
 				idx++;
@@ -680,8 +683,9 @@ vendor_list(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 			msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
 				vendor_get_value(last_obj,
                                  shop->markup,
-                                 ch->getCostModifier(self),
-                                 shop->currency)));
+                                 getCostModifier(ch, self),
+                                 shop->currency)),
+                NULL);
 	}
 
 	act("$n peruses the shop's wares.", false, ch, 0, 0, TO_ROOM);
@@ -689,7 +693,7 @@ vendor_list(struct creature *ch, char *arg, struct creature *self, ShopData *sho
 }
 
 static void
-vendor_value(struct creature *ch, char *arg, struct creature *self, ShopData *shop)
+vendor_value(struct creature *ch, char *arg, struct creature *self, struct shop_data *shop)
 {
 	struct obj_data *obj;
 	char *obj_str;
@@ -717,14 +721,14 @@ vendor_value(struct creature *ch, char *arg, struct creature *self, ShopData *sh
 
 	cost = vendor_get_value(obj,
                             shop->markdown,
-                            self->getCostModifier(ch),
+                            getCostModifier(self, ch),
                             shop->currency);
 
 	perform_say_to(self, ch, tmp_sprintf("I'll give you %lu %s for it!", cost, shop->currency ? "creds":"gold"));
 }
 
 static void
-vendor_revenue(struct creature *self, ShopData *shop)
+vendor_revenue(struct creature *self, struct shop_data *shop)
 {
 	struct creature *vkeeper;
 	long cur_money, max_money;
@@ -742,7 +746,7 @@ vendor_revenue(struct creature *self, ShopData *shop)
 }
 
 const char *
-vendor_parse_param(char *param, ShopData *shop, int *err_line)
+vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
 {
 	char *line, *param_key;
 	const char *err = NULL;
@@ -770,7 +774,7 @@ vendor_parse_param(char *param, ShopData *shop, int *err_line)
 
 	while ((line = tmp_getline(&param)) != NULL) {
 		lineno++;
-		if (shop->reaction.add_reaction(line))
+		if (add_reaction(shop->reaction, line))
 			continue;
 
 		param_key = tmp_getword(&line);
@@ -782,7 +786,8 @@ vendor_parse_param(char *param, ShopData *shop, int *err_line)
 				err = "nonexistent produced item";
 				break;
 			}
-			shop->item_list.push_back(atoi(line));
+			shop->item_list = g_list_prepend(shop->item_list,
+                                             GINT_TO_POINTER(atoi(line)));
 		} else if (!strcmp(param_key, "accept")) {
 			if (strcmp(line, "all")) {
 				val = search_block(line, item_types, 0);
@@ -792,7 +797,8 @@ vendor_parse_param(char *param, ShopData *shop, int *err_line)
 				}
 			} else
 				val = 0;
-			shop->item_types.push_back( 1 << 8 | val);
+			shop->item_list = g_list_prepend(shop->item_list,
+                                             GINT_TO_POINTER(1 << 8 | val));
 		} else if (!strcmp(param_key, "refuse")) {
 			if (strcmp(line, "all")) {
 				val = search_block(line, item_types, 0);
@@ -802,7 +808,8 @@ vendor_parse_param(char *param, ShopData *shop, int *err_line)
 				}
 			} else
 				val = 0;
-			shop->item_types.push_back( 0 << 8 | val);
+            shop->item_list = g_list_prepend(shop->item_list,
+                                             GINT_TO_POINTER(0 << 8 | val));
 		} else if (!strcmp(param_key, "denied-msg")) {
 			shop->msg_denied = strdup(line);
 		} else if (!strcmp(param_key, "keeper-broke-msg")) {
@@ -824,7 +831,7 @@ vendor_parse_param(char *param, ShopData *shop, int *err_line)
 		} else if (!strcmp(param_key, "temper-cmd")) {
 			shop->cmd_temper = strdup(line);
 		} else if (!strcmp(param_key, "closed-hours")) {
-			ShopTime time;
+			struct shop_time time;
 
 			time.start = atoi(tmp_getword(&line));
 			time.end = atoi(tmp_getword(&line));
@@ -832,8 +839,13 @@ vendor_parse_param(char *param, ShopData *shop, int *err_line)
 				err = "an out of bounds closing hour";
 			else if (time.end < 0 || time.end > 24)
 				err = "an out of bounds opening hour";
-			else
-				shop->closed_hours.push_back(time);
+			else {
+                struct shop_time *new_time;
+                CREATE(new_time, struct shop_time, 1);
+                *new_time = time;
+                shop->closed_hours = g_list_prepend(shop->closed_hours,
+                                                    new_time);
+            }
 		} else if (!strcmp(param_key, "markup")) {
 			shop->markup= atoi(line);
 			if (shop->markup <= 0 ||  shop->markup > 1000) {
@@ -896,15 +908,15 @@ SPECIAL(vendor)
 	char *config;
     const char *err = NULL;
 	int err_line;
-	ShopData *shop;
+	struct shop_data *shop;
 
 	config = GET_MOB_PARAM(self);
 	if (!config)
 		return 0;
 
-	shop = (ShopData *)self->mob_specials.func_data;
+	shop = (struct shop_data *)self->mob_specials.func_data;
 	if (!shop) {
-		CREATE(shop, ShopData, 1);
+		CREATE(shop, struct shop_data, 1);
 		err = vendor_parse_param(config, shop, &err_line);
 		self->mob_specials.func_data = shop;
 	}
@@ -929,7 +941,7 @@ SPECIAL(vendor)
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
-        struct creature *target = self->findRandomCombat();
+        struct creature *target = findRandomCombat(self);
 		if (target && shop->call_for_help && !number(0, 4)) {
 			call_for_help(self, target);
 			return 1;
@@ -981,20 +993,22 @@ SPECIAL(vendor)
 		return true;
 	}
 
-	if (!shop->closed_hours.empty()) {
-		vector<ShopTime>_iterator shop_time;
+	if (shop->closed_hours) {
+		GList *it;
 		struct time_info_data local_time;
 
 		set_local_time(self->in_room->zone, &local_time);
-		for (shop_time = shop->closed_hours.begin();shop_time != shop->closed_hours.end();shop_time++)
+		for (it = shop->closed_hours;it;it = it->next) {
+            struct shop_time *shop_time = it->data;
 			if (local_time.hours >= shop_time->start &&
 					local_time.hours < shop_time->end ) {
 				perform_say_to(self, ch, shop->msg_closed);
 				return true;
 			}
+        }
 	}
 
-	if (shop->reaction.react(ch) != ALLOW) {
+	if (react(shop->reaction, ch) != ALLOW) {
 		perform_say_to(self, ch, shop->msg_denied);
 		return true;
 	}

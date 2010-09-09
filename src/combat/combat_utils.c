@@ -69,13 +69,13 @@ ok_damage_vendor(struct creature *ch, struct creature *victim)
 	if (IS_NPC(victim)
         && (MOB2_FLAGGED(victim, MOB2_SELLER)
             || victim->mob_specials.shared->func == vendor)) {
-        struct shopdata *shop = (struct shopdata *)victim->mob_specials.func_data;
+        struct shop_data *shop = (struct shop_data *)victim->mob_specials.func_data;
 
 		if (!GET_MOB_PARAM(victim))
 			return false;
 
         if (!shop) {
-            CREATE(shop, struct shopdata, 1);
+            CREATE(shop, struct shop_data, 1);
             vendor_parse_param(GET_MOB_PARAM(victim), shop, NULL);
             victim->mob_specials.func_data = shop;
         }
