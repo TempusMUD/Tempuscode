@@ -73,5 +73,8 @@ void helpitem_show(struct help_item *item,
 extern struct help_collection *help;
 struct help_collection *make_help_collection(void);
 bool help_collection_load_index(struct help_collection *col);
+struct help_item *help_collection_find_item_by_id(struct help_collection *col,
+                                                  int id);
+bool helpitem_loadtext(struct help_item *item);
 
 #endif

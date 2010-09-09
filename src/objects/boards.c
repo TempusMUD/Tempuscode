@@ -27,15 +27,15 @@ struct board_data {
     const char *deny_edit;
 	const char *deny_remove;
 	const char *not_author;
-	Reaction *read_perms;
-	Reaction *post_perms;
-    Reaction *edit_perms;
-	Reaction *remove_perms;
+	struct reaction *read_perms;
+	struct reaction *post_perms;
+    struct reaction *edit_perms;
+	struct reaction *remove_perms;
 };
-void gen_board_write(board_data *board, struct creature *ch, char *argument);
-void gen_board_delete(board_data *board, struct creature *ch, char *argument);
-void gen_board_read(board_data *board, struct creature *ch, char *argument);
-void gen_board_list(board_data *board, struct creature *ch);
+void gen_board_write(struct board_data *board, struct creature *ch, char *argument);
+void gen_board_delete(struct board_data *board, struct creature *ch, char *argument);
+void gen_board_read(struct board_data *board, struct creature *ch, char *argument);
+void gen_board_list(struct board_data *board, struct creature *ch);
 
 void
 gen_board_save(struct creature *ch, const char *board, int idnum, const char *subject, const char *body)
@@ -76,7 +76,7 @@ gen_board_show(struct creature *ch)
 }
 
 void
-gen_board_write(board_data *board, struct creature *ch, char *argument)
+gen_board_write(struct board_data *board, struct creature *ch, char *argument)
 {
 	struct creature *player;
 
@@ -89,7 +89,7 @@ gen_board_write(board_data *board, struct creature *ch, char *argument)
 		return;
 	}
 
-	if (ALLOW != board->post_perms->react(player)) {
+	if (ALLOW != react(board->post_perms, player)) {
 		send_to_char(ch, "%s\r\n", board->deny_post);
 		return;
 	}
@@ -105,7 +105,7 @@ gen_board_write(board_data *board, struct creature *ch, char *argument)
 }
 
 void
-gen_board_edit(board_data *board, struct creature *ch, char *argument)
+gen_board_edit(struct board_data *board, struct creature *ch, char *argument)
 {
     struct creature *player;
     PGresult *res;
@@ -120,7 +120,7 @@ gen_board_edit(board_data *board, struct creature *ch, char *argument)
 		return;
 	}
 
-	if (ALLOW != board->edit_perms->react(player)) {
+	if (ALLOW != react(board->edit_perms, player)) {
 		send_to_char(ch, "%s\r\n", board->deny_edit);
 		return;
 	}
@@ -147,7 +147,7 @@ gen_board_edit(board_data *board, struct creature *ch, char *argument)
 }
 
 void
-gen_board_remove(board_data *board, struct creature *ch, char *argument)
+gen_board_remove(struct board_data *board, struct creature *ch, char *argument)
 {
 	struct creature *player;
 	PGresult *res;
@@ -176,14 +176,14 @@ gen_board_remove(board_data *board, struct creature *ch, char *argument)
 		return;
 	}
 
-	if (ALLOW != board->read_perms->react(player)
-			|| ALLOW != board->post_perms->react(player)) {
+	if (ALLOW != react(board->read_perms, player)
+        || ALLOW != react(board->post_perms, player)) {
 		send_to_char(ch, "%s\r\n", board->deny_remove);
 		return;
 	}
 
 	if (GET_IDNUM(player) != atol(PQgetvalue(res, 0, 1)) &&
-			ALLOW != board->remove_perms->react(player)) {
+        ALLOW != react(board->remove_perms, player)) {
 		send_to_char(ch, "%s\r\n", board->not_author);
 		return;
 	}
@@ -196,7 +196,7 @@ gen_board_remove(board_data *board, struct creature *ch, char *argument)
 }
 
 void
-gen_board_read(board_data *board, struct creature *ch, char *argument)
+gen_board_read(struct board_data *board, struct creature *ch, char *argument)
 {
 	struct creature *player;
 	PGresult *res;
@@ -213,7 +213,7 @@ gen_board_read(board_data *board, struct creature *ch, char *argument)
 		return;
 	}
 
-	if (ALLOW != board->read_perms->react(player)) {
+	if (ALLOW != react(board->read_perms, player)) {
 		send_to_char(ch, "%s\r\n", board->deny_read);
 		return;
 	}
@@ -245,7 +245,7 @@ gen_board_read(board_data *board, struct creature *ch, char *argument)
 }
 
 void
-gen_board_list(board_data *board, struct creature *ch)
+gen_board_list(struct board_data *board, struct creature *ch)
 {
 	PGresult *res;
 	char time_buf[30];
@@ -281,20 +281,20 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
 {
 	char *line, *param_key;
 	const char *err = NULL;
-	board_data *board;
+	struct board_data *board;
 	int lineno = 0;
 
-	CREATE(board, board_data, 1);
+	CREATE(board, struct board_data, 1);
 	board->name = "world";
 	board->deny_read = "Try as you might, you cannot bring yourself to read this board.";
 	board->deny_post = "Try as you might, you cannot bring yourself to write on this board.";
 	board->deny_edit = "Try as you might, you cannot bring yourself to edit this board.";
 	board->deny_remove = "Try as you might, you cannot bring yourself to delete anything on this board.";
 	board->not_author = "You can only delete your own posts on this board.";
-	board->read_perms = new Reaction;
-	board->post_perms = new Reaction;
-	board->edit_perms = new Reaction;
-	board->remove_perms = new Reaction;
+    CREATE(board->read_perms, struct reaction, 1);
+    CREATE(board->post_perms, struct reaction, 1);
+    CREATE(board->edit_perms, struct reaction, 1);
+    CREATE(board->remove_perms, struct reaction, 1);
 
 	while ((line = tmp_getline(&param)) != NULL) {
 		lineno++;
@@ -314,22 +314,22 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
 		else if (!strcmp(param_key, "not-author"))
 			board->not_author = strdup(line);
 		else if (!strcmp(param_key, "read")) {
-			if (!board->read_perms->add_reaction(line)) {
+			if (!add_reaction(board->read_perms, line)) {
 				err = "invalid read permission";
 				break;
 			}
 		} else if (!strcmp(param_key, "post")) {
-			if (!board->post_perms->add_reaction(line)) {
+			if (!add_reaction(board->post_perms, line)) {
 				err = "invalid post permission";
 				break;
 			}
 		} else if (!strcmp(param_key, "edit")) {
-			if (!board->edit_perms->add_reaction(line)) {
+			if (!add_reaction(board->edit_perms, line)) {
 				err = "invalid edit permission";
 				break;
 			}
 		} else if (!strcmp(param_key, "remove")) {
-			if (!board->remove_perms->add_reaction(line)) {
+			if (!add_reaction(board->remove_perms, line)) {
 				err = "invalid delete permission";
 				break;
 			}
@@ -340,10 +340,10 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
 	}
 
 	if (err) {
-		delete board->read_perms;
-		delete board->post_perms;
-        delete board->edit_perms;
-		delete board->remove_perms;
+		free_reaction(board->read_perms);
+		free_reaction(board->post_perms);
+        free_reaction(board->edit_perms);
+		free_reaction(board->remove_perms);
 		free(board);
 	} else
 		self->func_data = board;
@@ -357,7 +357,7 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
 SPECIAL(gen_board)
 {
 	struct obj_data *self = (struct obj_data *)me;
-	board_data *board;
+	struct board_data *board;
 	const char *err;
     char *arg;
 	int err_line;
@@ -395,7 +395,7 @@ SPECIAL(gen_board)
 		return 0;
 
 	// Just what kind of a board is this, anyway?
-	board = (board_data *)GET_OBJ_DATA(self);
+	board = (struct board_data *)GET_OBJ_DATA(self);
 	if (!board) {
 		if (!GET_OBJ_PARAM(self)) {
 			send_to_char(ch, "This board has not been set up yet.\r\n");
@@ -417,7 +417,7 @@ SPECIAL(gen_board)
 			}
 			return 1;
 		}
-		board = (board_data *)GET_OBJ_DATA(self);
+		board = (struct board_data *)GET_OBJ_DATA(self);
 	}
 
 	if (CMD_IS("write"))

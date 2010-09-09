@@ -55,7 +55,7 @@
 #include "desc_data.h"
 #include "tmpstr.h"
 #include "accstr.h"
-#include "player_table.h"
+#include "players.h"
 #include "prog.h"
 #include "quest.h"
 #include "language.h"
@@ -64,8 +64,8 @@
 #include "quest.h"
 
 /* externs */
-extern HelpCollection *Help;
-extern int restrict;
+extern struct help_collection *Help;
+extern int restrict_mud;
 extern int mini_mud;
 extern int olc_lock;
 extern int no_rent_check;
@@ -77,7 +77,6 @@ extern unsigned int MAX_PLAYERS;
 extern int MAX_DESCRIPTORS_AVAILABLE;
 extern struct obj_data *cur_car;
 extern struct zone_data *default_quad_zone;
-extern char help[];
 extern struct obj_data *object_list;
 bool production_mode = false;	// Run in production mode
 
@@ -107,7 +106,7 @@ extern int autosave_time;		/* see config.c */
 struct timeval null_time;		/* zero-valued time structure */
 
 /* functions in this file */
-int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
+int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 void flush_q(struct txt_q *queue);
 void init_game(int port);
 void signal_setup(void);
@@ -141,7 +140,7 @@ void flow_room(int pulse);
 void path_activity();
 void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);
-void show_string(struct descriptor_data *d, char *input);
+void show_string(struct descriptor_data *d);
 void verify_environment(void);
 void weather_and_time(void);
 void autosave_zones(int SAVE_TYPE);
@@ -194,7 +193,7 @@ main(int argc, char **argv)
                             &option_idx)) != -1) {
         switch (c) {
 		case 'b':
-			restrict = 50;
+			restrict_mud = 50;
 			slog("Wizlock 50");
 			break;
 		case 'm':
@@ -211,7 +210,7 @@ main(int argc, char **argv)
 			slog("Quick boot mode -- rent check supressed.");
 			break;
 		case 'r':
-			restrict = 1;
+			restrict_mud = 1;
 			slog("Restricting game -- no new players allowed.");
 			break;
 		case 's':
@@ -367,7 +366,7 @@ init_game(int port)
 		close_socket(descriptor_list);
 
     save_quests();
-	Security_shutdown();
+	security_shutdown();
 
 	if (circle_reboot) {
 		slog("Rebooting.");
@@ -621,7 +620,7 @@ game_loop(int mother_desc)
                 IS_PLAYING(d) &&
                 IS_PC(d->creature) &&
                 PLR_FLAGGED(d->creature, PLR_CRASH))
-				d->creature->crashSave();
+				save_player_to_xml(d->creature);
 		}
 
         /* Update progs triggered by user input that have not run yet */
@@ -658,7 +657,7 @@ game_loop(int mother_desc)
             obj_affect_update();
 			point_update();
 			descriptor_update();
-			Help->Sync();
+			help_collection_sync(help);
 			save_quests();
 		}
 		if (auto_save) {
@@ -667,9 +666,9 @@ game_loop(int mother_desc)
 					mins_since_crashsave = 0;
 					save_all_players();
 				}
-				Housing.collectRent();
-				Housing.save();
-				Housing.countObjects();
+				collect_housing_rent();
+				save_houses();
+				update_objects_housed_count();
 			}
 		}
 
@@ -700,8 +699,8 @@ game_loop(int mother_desc)
 				send_to_all(buf);
 			} else if (shutdown_count <= 0) {
 				save_all_players();
-				Housing.collectRent();
-				Housing.save();
+				collect_housing_rent();
+				save_houses();
 				xmlCleanupParser();
 
 				autosave_zones(ZONE_RESETSAVE);
@@ -730,7 +729,7 @@ game_loop(int mother_desc)
 					(shutdown_mode == SHUTDOWN_DIE
 						|| shutdown_mode ==
 						SHUTDOWN_DIE) ? "Shutdown" : "Reboot",
-					playerIndex.getName(shutdown_idnum));
+                     player_name_by_idnum(shutdown_idnum));
 				circle_shutdown = true;
 				for (d = descriptor_list; d; d = d->next)
 					if (FD_ISSET(d->descriptor, &output_set) && *(d->output))
@@ -743,15 +742,15 @@ game_loop(int mother_desc)
 			// New output crlf
 			if (d->creature
 					&& d->output[0]
-					&& d->account->get_compact_level() < 2)
+					&& d->account->compact_level < 2)
 				SEND_TO_Q("\r\n", d);
 			if (d->need_prompt) {
 				send_prompt(d);
 				// After prompt crlf
 				if (d->creature
 						&& d->output[0]
-						&& (d->account->get_compact_level() == 0
-							|| d->account->get_compact_level() == 2))
+						&& (d->account->compact_level == 0
+							|| d->account->compact_level == 2))
 					SEND_TO_Q("\r\n", d);
 				d->need_prompt = 0;
 			}
@@ -939,8 +938,8 @@ write_to_output(const char *txt, struct descriptor_data *t)
 		t->need_prompt = true;
 		// New output crlf
 		if (!t->account
-				|| t->account->get_compact_level() == 1
-				|| t->account->get_compact_level() == 3)
+				|| t->account->compact_level == 1
+				|| t->account->compact_level == 3)
 			write_to_output("\r\n", t);
 	}
 
@@ -1047,7 +1046,7 @@ new_descriptor(int s)
     int bantype = isbanned(newd->host, buf2);
 
 	/* Log new connections - probably unnecessary, but you may want it */
-	mlog(Security_ADMINBASIC, LVL_GOD, CMP, true,
+	mlog(SECURITY_ADMINBASIC, LVL_GOD, CMP, true,
 		"New connection from [%s]%s%s",
 		newd->host,
 		(bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
@@ -1092,15 +1091,16 @@ process_output(struct descriptor_data *d)
 		result = write_to_descriptor(d->descriptor, "**OVERFLOW**");
 
 	/* handle snooping: prepend "% " and send to snooper */
-	if (d->snoop_by.size() && d->creature && !IS_NPC(d->creature)) {
-        for (unsigned x = 0; x < d->snoop_by.size(); x++) {
-            SEND_TO_Q(CCRED(d->snoop_by[x]->creature, C_NRM), d->snoop_by[x]);
-            SEND_TO_Q("{ ", d->snoop_by[x]);
-            SEND_TO_Q(CCNRM(d->snoop_by[x]->creature, C_NRM), d->snoop_by[x]);
-            SEND_TO_Q(d->output, d->snoop_by[x]);
-            SEND_TO_Q(CCRED(d->snoop_by[x]->creature, C_NRM), d->snoop_by[x]);
-            SEND_TO_Q(" } ", d->snoop_by[x]);
-            SEND_TO_Q(CCNRM(d->snoop_by[x]->creature, C_NRM), d->snoop_by[x]);
+	if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
+        for (GList *x = d->snoop_by;x; x = x->next) {
+            struct descriptor_data *td = x->data;
+            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
+            SEND_TO_Q("{ ", td);
+            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
+            SEND_TO_Q(d->output, td);
+            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
+            SEND_TO_Q(" } ", td);
+            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
         }
 	}
 	/*
@@ -1235,15 +1235,16 @@ process_input(struct descriptor_data *t)
 			if (write_to_descriptor(t->descriptor, buffer) < 0)
 				return -1;
 		}
-		if (t->snoop_by.size() && t->creature && !IS_NPC(t->creature)) {
-            for (unsigned x = 0; x < t->snoop_by.size(); x++) {
-                SEND_TO_Q(CCRED(t->snoop_by[x]->creature, C_NRM), t->snoop_by[x]);
-                SEND_TO_Q("[ ", t->snoop_by[x]);
-                SEND_TO_Q(CCNRM(t->snoop_by[x]->creature, C_NRM), t->snoop_by[x]);
-                SEND_TO_Q(tmp, t->snoop_by[x]);
-                SEND_TO_Q(CCRED(t->snoop_by[x]->creature, C_NRM), t->snoop_by[x]);
-                SEND_TO_Q(" ]\r\n", t->snoop_by[x]);
-                SEND_TO_Q(CCNRM(t->snoop_by[x]->creature, C_NRM), t->snoop_by[x]);
+		if (t->snoop_by && t->creature && !IS_NPC(t->creature)) {
+            for (GList *x = t->snoop_by;x; x = x->next) {
+                struct descriptor_data *td = x->data;
+                SEND_TO_Q(CCRED(td->creature, C_NRM), td);
+                SEND_TO_Q("[ ", td);
+                SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
+                SEND_TO_Q(tmp, td);
+                SEND_TO_Q(CCRED(td->creature, C_NRM), td);
+                SEND_TO_Q(" ]\r\n", td);
+                SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
             }
 		}
 
@@ -1366,24 +1367,21 @@ void
 close_socket(struct descriptor_data *d)
 {
 	struct descriptor_data *temp;
-	vector<descriptor_data *>_iterator vi;
 
     close(d->descriptor);
 	flush_queues(d);
 
 	// Forget those this descriptor is snooping
-	if (d->snooping) {
-	  vi = find(d->snooping->snoop_by.begin(), d->snooping->snoop_by.end(), d);
-	  if (vi != d->snooping->snoop_by.end())
-		d->snooping->snoop_by.erase(vi);
-    }
+	if (d->snooping)
+        d->snooping->snoop_by = g_list_remove(d->snooping->snoop_by, d);
 
 	// Forget those snooping on this descriptor
-    for (unsigned x = 0; x < d->snoop_by.size(); x++) {
-        SEND_TO_Q("Your victim is no longer among us.\r\n", d->snoop_by[x]);
-		d->snoop_by[x]->snooping = NULL;
+    for (GList *x = d->snoop_by;x; x = x->next) {
+        struct descriptor_data *td = x->data;
+        SEND_TO_Q("Your victim is no longer among us.\r\n", td);
+		td->snooping = NULL;
     }
-
+    
 	if (d->original) {
 		d->creature->desc = NULL;
 		d->creature = d->original;
@@ -1393,30 +1391,30 @@ close_socket(struct descriptor_data *d)
 
 	// Cancel any text editing
 	if (d->text_editor)
-        d->text_editor->Finish(false);
+        editor_finish(d->text_editor, false);
 
 	if (d->creature && d->creature->in_room) {
 	  // Lost link in-game
 		d->creature->player.time.logon = time(0);
-		d->creature->saveToXML();
+		save_player_to_xml(d->creature);
 		act("$n has lost $s link.", true, d->creature, 0, 0, TO_ROOM);
-		mlog(Security_ADMINBASIC,
+		mlog(SECURITY_ADMINBASIC,
 			 MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)),
 			 NRM, false, "Closing link to: %s [%s] ", GET_NAME(d->creature),
 			d->host);
-		d->account->logout(d, true);
+		account_logout(d->account, d, true);
 		d->creature->desc = NULL;
 		GET_OLC_OBJ(d->creature) = NULL;
 	} else if (d->account) {
 		if (d->creature) {
-			d->creature->saveToXML();
-			delete d->creature;
+			save_player_to_xml(d->creature);
+			free_creature(d->creature);
 			d->creature = NULL;
 		}
-		mlog(Security_ADMINBASIC, LVL_AMBASSADOR, NRM, false,
+		mlog(SECURITY_ADMINBASIC, LVL_AMBASSADOR, NRM, false,
                 "%s[%d] logging off from %s",
-                d->account->get_name(), d->account->get_idnum(), d->host);
-		d->account->logout(d, false);
+                d->account->name, d->account->id, d->host);
+		account_logout(d->account, d, false);
 	} else {
 		slog("Losing descriptor without account");
     }
@@ -1462,7 +1460,7 @@ checkpointing(int sig __attribute__ ((unused)))
 {
 	if (!tics) {
 		errlog("CHECKPOINT shutdown: tics not updated");
-		slog("Last command: %s %s.", playerIndex.getName(last_cmd[0].idnum),
+		slog("Last command: %s %s.", player_name_by_idnum(last_cmd[0].idnum),
 			last_cmd[0].string);
 		raise(SIGSEGV);
 	} else
@@ -1478,7 +1476,7 @@ unrestrict_game(int sig __attribute__ ((unused)))
 	mudlog(LVL_AMBASSADOR, BRF, true,
 		"Received SIGUSR2 - completely unrestricting game (emergent)");
 	ban_list = NULL;
-	restrict = 0;
+	restrict_mud = 0;
 	num_invalid = 0;
 }
 
@@ -1585,7 +1583,7 @@ send_to_char(struct creature *ch, const char *str, ...)
 }
 
 void
-send_to_desc(descriptor_data *d, const char *str, ...)
+send_to_desc(struct descriptor_data *d, const char *str, ...)
 {
 	char *msg_str, *read_pt;
 	va_list args;
@@ -1608,11 +1606,11 @@ send_to_desc(descriptor_data *d, const char *str, ...)
 		if (*read_pt == '&') {
 			*read_pt++ = '\0';
 			SEND_TO_Q(msg_str, d);
-			if (d->account && d->account->get_ansi_level() > 0) {
+			if (d->account && d->account->ansi_level > 0) {
 				if (isupper(*read_pt)) {
 					*read_pt = tolower(*read_pt);
 						// A few extra normal tags never hurt anyone...
-					if (d->account->get_ansi_level() > 2)
+					if (d->account->ansi_level > 2)
 						SEND_TO_Q(KBLD, d);
 				}
 				switch (*read_pt) {
@@ -1798,9 +1796,9 @@ send_to_room(const char *messg, struct room_data *room)
 
 	if (!room || !messg)
 		return;
-	struct creatureList_iterator it = room->people.begin();
-	for (; it != room->people.end(); ++it) {
-		i = *it;
+	
+	for (GList *it = room->people;it;it = it->next) {
+		i = it->data;
 		if (i->desc && !PLR_FLAGGED(i, PLR_OLC | PLR_WRITING | PLR_MAILING))
 			SEND_TO_Q(messg, i->desc);
 	}
@@ -1813,9 +1811,8 @@ send_to_room(const char *messg, struct room_data *room)
 						(IS_V_WINDOW(obj) && !CAR_CLOSED(obj))) &&
 					ROOM_NUMBER(obj) == ROOM_NUMBER(o) &&
 					GET_OBJ_VNUM(o) == V_CAR_VNUM(obj) && obj->in_room) {
-					it = obj->in_room->people.begin();
-					for (; it != obj->in_room->people.end(); ++it) {
-						i = *it;
+                    for (GList *it = obj->in_room->people;it;it = it->next) {
+                        i = it->data;
 						if (i->desc
 							&& !PLR_FLAGGED(i,
 								PLR_OLC | PLR_WRITING | PLR_MAILING))
@@ -1837,9 +1834,10 @@ send_to_room(const char *messg, struct room_data *room)
 			if (ABS_EXIT(room, j) && ABS_EXIT(room, j)->to_room &&
 				room != ABS_EXIT(room, j)->to_room &&
 				!IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
-				it = ABS_EXIT(room, j)->to_room->people.begin();
-				for (; it != ABS_EXIT(room, j)->to_room->people.end(); ++it) {
-					i = *it;
+                for (GList *it = ABS_EXIT(room, j)->to_room->people;
+                     it;
+                     it = it->next) {
+                    i = it->data;
 					if (i->desc && !PLR_FLAGGED(i, PLR_OLC))
 						SEND_TO_Q(str, i->desc);
 				}
@@ -1944,7 +1942,7 @@ make_act_str(const char *orig,
              char *buf,
              struct creature *ch,
              struct obj_data *obj,
-             struct void *vict_obj,
+             void *vict_obj,
              struct creature *to)
 {
     const char *s = orig;
@@ -1958,7 +1956,7 @@ make_act_str(const char *orig,
 				i = PERS(ch, to);
 				break;
 			case 'N':
-				CHECK_NULL(vict_obj, PERS(vict_obj->to_c(), to));
+				CHECK_NULL(vict_obj, PERS((struct creature *)vict_obj, to));
 				break;
 			case 't':
 				i = (ch==to)?"you":PERS(ch, to);
@@ -1967,35 +1965,35 @@ make_act_str(const char *orig,
 				if (ch==vict_obj) {
 					if (vict_obj==to)
 						i = "yourself";
-					else if (IS_MALE(vict_obj->to_c()))
+					else if (IS_MALE((struct creature *)vict_obj))
 						i = "himself";
-					else if (IS_FEMALE(vict_obj->to_c()))
+					else if (IS_FEMALE((struct creature *)vict_obj))
 						i = "herself";
 					else
 						i = "itself";
 				} else if (to==vict_obj) {
 					i = "you";
 				} else {
-					CHECK_NULL(vict_obj, PERS(vict_obj->to_c(), to));
+					CHECK_NULL(vict_obj, PERS((struct creature *)vict_obj, to));
 				}
 				break;
 			case 'm':
 				i = HMHR(ch);
 				break;
 			case 'M':
-				CHECK_NULL(vict_obj, HMHR(vict_obj->to_c()));
+				CHECK_NULL(vict_obj, HMHR((struct creature *)vict_obj));
 				break;
 			case 's':
 				i = HSHR(ch);
 				break;
 			case 'S':
-				CHECK_NULL(vict_obj, HSHR(vict_obj->to_c()));
+				CHECK_NULL(vict_obj, HSHR((struct creature *)vict_obj));
 				break;
 			case 'e':
 				i = HSSH(ch);
 				break;
 			case 'E':
-				CHECK_NULL(vict_obj, HSSH(vict_obj->to_c()));
+				CHECK_NULL(vict_obj, HSSH((struct creature *)vict_obj));
 				break;
 			case 'o':
 				CHECK_NULL(obj, OBJN(obj, to));
@@ -2019,12 +2017,12 @@ make_act_str(const char *orig,
 						s++;
 				} else {
 					s++;
-					i = tmp_strdup(s, "}");
+					i = tmp_strdupt(s, "}");
 					s += strlen(i);
 				}
 				break;
 			case 'A':
-				CHECK_NULL(vict_obj, SANA(vict_obj->to_o()));
+				CHECK_NULL(vict_obj, SANA((struct obj_data *)vict_obj));
 				break;
             case '%':
                 i = (ch == to) ? "":"s";
@@ -2185,7 +2183,7 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
 		type &= ~TO_SLEEP;
 
     if (vict_obj && (type & TO_VICT_RM)) {
-        room = (vict_obj->to_c())->in_room;
+        room = ((struct creature *)vict_obj)->in_room;
         type &= ~TO_VICT_RM;
     }
 
@@ -2200,8 +2198,8 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
 		return;
 	}
 	if (type == TO_VICT) {
-        if (vict_obj && SENDOK(vict_obj->to_c()))
-            perform_act(str, ch, obj, vict_obj, vict_obj->to_c(), 0);
+        if (vict_obj && SENDOK((struct creature *)vict_obj))
+            perform_act(str, ch, obj, vict_obj, (struct creature *)vict_obj, 0);
 		return;
 	}
 	/* ASSUMPTION: at this point we know type must be TO_NOTVICT TO_ROOM,
@@ -2219,14 +2217,14 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
 		raise(SIGSEGV);
 		return;
 	}
-	struct creatureList_iterator it = room->people.begin();
-	for (; it != room->people.end(); ++it) {
-		if (!pred(ch, obj, vict_obj, (*it), 0))
+	for (GList *it = room->people;it;it = it->next) {
+		struct creature *tch = it->data;
+		if (!pred(ch, obj, vict_obj, tch, 0))
 			continue;
-		if (SENDOK((*it)) &&
-			!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
-			((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
-			perform_act(str, ch, obj, vict_obj, (*it), 0);
+		if (SENDOK(tch) &&
+			!(hide_invisible && ch && !can_see_creature(tch, ch)) &&
+			(tch != ch) && (type == TO_ROOM || (tch != vict_obj)))
+			perform_act(str, ch, obj, vict_obj, tch, 0);
 	}
 
 	/** check for vehicles in the room **/
@@ -2237,16 +2235,15 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
 						(IS_OBJ_TYPE(o2, ITEM_V_WINDOW) && !CAR_CLOSED(o2))) &&
 					ROOM_NUMBER(o2) == ROOM_NUMBER(o) &&
 					GET_OBJ_VNUM(o) == V_CAR_VNUM(o2) && o2->in_room) {
-
-					it = o2->in_room->people.begin();
-					for (; it != o2->in_room->people.end(); ++it) {
-						if (!pred(ch, obj, vict_obj, (*it), 1))
+                    for (GList *it = o2->in_room->people;it;it = it->next) {
+                        struct creature *tch = it->data;
+						if (!pred(ch, obj, vict_obj, tch, 1))
 							continue;
-						if (SENDOK((*it)) &&
-							!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
-							((*it) != ch) && (type == TO_ROOM
-								|| ((*it) != vict_obj))) {
-							perform_act(str, ch, obj, vict_obj, (*it), 1);
+						if (SENDOK(tch) &&
+							!(hide_invisible && ch && !can_see_creature(tch, ch)) &&
+							(tch != ch) && (type == TO_ROOM
+								|| (tch != vict_obj))) {
+							perform_act(str, ch, obj, vict_obj, tch, 1);
 						}
 					}
 					break;
@@ -2266,14 +2263,17 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
 				room != ABS_EXIT(room, j)->to_room &&
 				!IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
 
-				it = ABS_EXIT(room, j)->to_room->people.begin();
-				for (; it != ABS_EXIT(room, j)->to_room->people.end(); ++it) {
-					if (!pred(ch, obj, vict_obj, (*it), 2))
+                for (GList *it = ABS_EXIT(room, j)->to_room->people;
+                     it;
+                     it = it->next) {
+                    struct creature *tch = it->data;
+
+					if (!pred(ch, obj, vict_obj, tch, 2))
 						continue;
-					if (SENDOK((*it)) &&
-						!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
-						((*it) != ch) && (type == TO_ROOM || ((*it) != vict_obj)))
-						perform_act(str, ch, obj, vict_obj, (*it), 2);
+					if (SENDOK(tch) &&
+						!(hide_invisible && ch && !can_see_creature(tch, ch)) &&
+						(tch != ch) && (type == TO_ROOM || (tch != vict_obj)))
+						perform_act(str, ch, obj, vict_obj, tch, 2);
 				}
 			}
 		}
@@ -2283,14 +2283,15 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
 		if (GET_OBJ_TYPE(o) == ITEM_CAMERA && o->in_room) {
 			room = real_room(GET_OBJ_VAL(o, 0));
 			if (room) {
-				it = room->people.begin();
-				for (; it != room->people.end(); ++it) {
-					if (!pred(ch, obj, vict_obj, (*it), 3))
+                for (GList *it = room->people; it; it = it->next) {
+                    struct creature *tch = it->data;
+
+					if (!pred(ch, obj, vict_obj, tch, 3))
 						continue;
-					if (SENDOK((*it)) &&
-						!(hide_invisible && ch && !can_see_creature((*it), ch)) &&
-						((*it) != ch) && ((*it) != vict_obj))
-						perform_act(str, ch, obj, vict_obj, (*it), 3);
+					if (SENDOK(tch) &&
+						!(hide_invisible && ch && !can_see_creature(tch, ch)) &&
+						(tch != ch) && (tch != vict_obj))
+						perform_act(str, ch, obj, vict_obj, tch, 3);
 				}
 			}
 		}
@@ -2417,7 +2418,7 @@ descriptor_update(void)
 
 		if (d->idle >= 10 && STATE(d) != CXN_PLAYING
 			&& STATE(d) != CXN_NETWORK) {
-			mlog(Security_ADMINBASIC, LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
+			mlog(SECURITY_ADMINBASIC, LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
 			SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
 			set_desc_state(CXN_DISCONNECT, d);
 		}

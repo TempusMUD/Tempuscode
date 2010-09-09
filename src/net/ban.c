@@ -39,7 +39,7 @@
 #include "tmpstr.h"
 #include "security.h"
 
-std_list<ban_entry> ban_list;
+GList *ban_list = NULL;
 
 const char *ban_types[] = {
 	"no",
@@ -52,44 +52,45 @@ const char *ban_types[] = {
 void
 load_banned_entry(xmlNodePtr node)
 {
-    ban_entry ban;
+    struct ban_entry *ban;
     xmlNodePtr child;
     char *text;
 
+    CREATE(ban, struct ban_entry, 1);
     for (child = node->children;child;child = child->next) {
         if (xmlMatches(child->name, "site")) {
             text = (char *)xmlNodeGetContent(child);
-            strcpy(ban._site, text);
+            strcpy(ban->site, text);
             free(text);
         } else if (xmlMatches(child->name, "name")) {
             text = (char *)xmlNodeGetContent(child);
-            strcpy(ban._name, text);
+            strcpy(ban->name, text);
             free(text);
         } else if (xmlMatches(child->name, "reason")) {
             text = (char *)xmlNodeGetContent(child);
-            strcpy(ban._reason, text);
+            strcpy(ban->reason, text);
             free(text);
         } else if (xmlMatches(child->name, "message")) {
             text = (char *)xmlNodeGetContent(child);
-            strcpy(ban._message, text);
+            strcpy(ban->message, text);
             free(text);
         } else if (xmlMatches(child->name, "type")) {
             text = (char *)xmlNodeGetContent(child);
             if (!strcmp(text, "all"))
-                ban._type = BAN_ALL;
+                ban->type = BAN_ALL;
             else if (!strcmp(text, "select"))
-                ban._type = BAN_SELECT;
+                ban->type = BAN_SELECT;
             else if (!strcmp(text, "new"))
-                ban._type = BAN_NEW;
+                ban->type = BAN_NEW;
             free(text);
         } else if (xmlMatches(child->name, "date")) {
             text = (char *)xmlNodeGetContent(child);
-            ban._date = atol(text);
+            ban->date = atol(text);
             free(text);
         }
     }
 
-    ban_list.push_back(ban);
+    ban_list = g_list_prepend(ban_list, ban);
 }
 
 void
@@ -98,7 +99,9 @@ load_banned(void)
 	xmlDocPtr doc;
 	xmlNodePtr node;
 
-    ban_list.clear();
+    g_list_foreach(ban_list, (GFunc)free, 0);
+    g_list_free(ban_list);
+    ban_list = NULL;
 
     doc = xmlParseFile(BAN_FILE);
     if (!doc) {
@@ -124,18 +127,18 @@ load_banned(void)
 int
 isbanned(char *hostname, char *blocking_hostname)
 {
-    std_list<ban_entry>::iterator node = ban_list.begin();
-	int i = BAN_NOT;
+    int i = BAN_NOT;
 
 	if (!hostname || !*hostname)
 		return BAN_NOT;
 
     hostname = tmp_tolower(hostname);
 
-    for (;node != ban_list.end();++node) {
-        if (!strncmp(hostname, node->_site, strlen(node->_site))) {
-            i = MAX(i, node->_type);
-            strcpy(blocking_hostname, node->_reason);
+    for (GList *it = ban_list;it;it = it->next) {
+        struct ban_entry *node = it->data;
+        if (!strncmp(hostname, node->site, strlen(node->site))) {
+            i = MAX(i, node->type);
+            strcpy(blocking_hostname, node->reason);
         }
     }
 
@@ -146,26 +149,28 @@ bool
 check_ban_all(int desc, char *hostname)
 {
     int write_to_descriptor(int desc, const char *txt);
-    std_list<ban_entry>::iterator node = ban_list.begin();
+    struct ban_entry *node = NULL;
 
 	if (!hostname || !*(hostname))
 		return false;
 
     hostname = tmp_tolower(hostname);
 
-    for (;node != ban_list.end();++node)
-        if (node->_type == BAN_ALL
-            && !strncmp(hostname, node->_site, strlen(node->_site)))
+    for (GList *it = ban_list;it;it = it->next) {
+        struct ban_entry *node = it->data;
+        if (node->type == BAN_ALL
+            && !strncmp(hostname, node->site, strlen(node->site)))
             break;
+    }
 
-    if (node == ban_list.end())
+    if (node)
         return false;
 
     write_to_descriptor(desc, "*******************************************************************************\r\n");
     write_to_descriptor(desc, "                               T E M P U S  M U D\r\n");
     write_to_descriptor(desc, "*******************************************************************************\r\n");
-    if (node->_message[0]) {
-        write_to_descriptor(desc, tmp_gsub(node->_message, "\n", "\r\n"));
+    if (node->message[0]) {
+        write_to_descriptor(desc, tmp_gsub(node->message, "\n", "\r\n"));
     } else {
         write_to_descriptor(desc,
                             "       We're sorry, we have been forced to ban your IP address.\r\n"
@@ -178,10 +183,10 @@ check_ban_all(int desc, char *hostname)
                             "\r\n");
     }
 
-    mlog(Security_ADMINBASIC, LVL_GOD, CMP, true,
+    mlog(SECURITY_ADMINBASIC, LVL_GOD, CMP, true,
          "Connection attempt denied from [%s]%s",
          hostname,
-         (node->_reason[0]) ? tmp_sprintf(" (%s)", node->_reason):"");
+         (node->reason[0]) ? tmp_sprintf(" (%s)", node->reason):"");
 
     return true;
 }
@@ -196,17 +201,17 @@ write_ban_list(void)
 		return;
 	}
     fprintf(fl, "<banlist>\n");
-    std_list<ban_entry>::iterator node = ban_list.begin();
-    for (;node != ban_list.end();++node) {
+    for (GList *it = ban_list;it;it = it->next) {
+        struct ban_entry *node = it->data;
         fprintf(fl, "  <banned>\n");
-        fprintf(fl, "    <site>%s</site>\n", node->_site);
-        fprintf(fl, "    <name>%s</name>\n", node->_name);
-        if (node->_reason[0])
-            fprintf(fl, "    <reason>%s</reason>\n", node->_reason);
-        if (node->_message[0])
-            fprintf(fl, "    <message>%s</message>\n", node->_message);
-        fprintf(fl, "    <date>%ld</date>\n", (long)node->_date);
-        fprintf(fl, "    <type>%s</type>\n", ban_types[node->_type]);
+        fprintf(fl, "    <site>%s</site>\n", node->site);
+        fprintf(fl, "    <name>%s</name>\n", node->name);
+        if (node->reason[0])
+            fprintf(fl, "    <reason>%s</reason>\n", node->reason);
+        if (node->message[0])
+            fprintf(fl, "    <message>%s</message>\n", node->message);
+        fprintf(fl, "    <date>%ld</date>\n", (long)node->date);
+        fprintf(fl, "    <type>%s</type>\n", ban_types[node->type]);
         fprintf(fl, "  </banned>\n");
     }
     fprintf(fl, "</banlist>\n");
@@ -217,14 +222,21 @@ write_ban_list(void)
 void
 perform_ban(int flag, const char *site, const char *name, const char *reason)
 {
-    ban_list.push_back(ban_entry(site, flag, time(0), name, reason, ""));
+    struct ban_entry *ban;
+    CREATE(ban, struct ban_entry, 1);
+    strcpy(ban->site, site);
+    ban->type = flag;
+    ban->date = time(0);
+    strcpy(ban->name, name);
+    strcpy(ban->reason, reason);
+    ban_list = g_list_append(ban_list, ban);
 	write_ban_list();
 }
 
 void
 show_bans(struct creature *ch)
 {
-    if (ban_list.empty()) {
+    if (ban_list) {
         send_to_char(ch, "No sites are banned.\r\n");
         return;
     }
@@ -234,17 +246,17 @@ show_bans(struct creature *ch)
     acc_strcat("* Site             Date            Banned by   Reason\r\n",
                "- ---------------  --------------  ----------  -------------------------------\r\n", NULL);
 
-    std_list<ban_entry>::iterator node = ban_list.begin();
-    for (;node != ban_list.end();++node) {
+    for (GList *it = ban_list;it;it = it->next) {
+        struct ban_entry *node = it->data;
         char timestr[30];
 
-        if (node->_date) {
-            strftime(timestr, 29, "%a %m/%d/%Y", localtime(&node->_date));
+        if (node->date) {
+            strftime(timestr, 29, "%a %m/%d/%Y", localtime(&node->date));
         } else
             strcpy(timestr, "Unknown");
         acc_sprintf("%c %-15s  %-14s  %-10s  %-30s\r\n",
-				toupper(ban_types[node->_type][0]), node->_site,
-				timestr, node->_name, node->_reason);
+				toupper(ban_types[node->type][0]), node->site,
+				timestr, node->name, node->reason);
     }
     page_string(ch->desc, acc_get_string());
 }
@@ -273,9 +285,9 @@ ACMD(do_ban)
 		return;
 	}
 
-    std_list<ban_entry>::iterator node = ban_list.begin();
-    for (;node != ban_list.end();++node) {
-		if (!strcasecmp(node->_site, site)) {
+    for (GList *it = ban_list;it;it = it->next) {
+        struct ban_entry *node = it->data;
+		if (!strcasecmp(node->site, site)) {
 			send_to_char(ch,
 				"That site has already been banned -- unban it to change the ban type.\r\n");
 			return;
@@ -302,27 +314,30 @@ ACMD(do_ban)
 ACMD(do_unban)
 {
 	char site[MAX_INPUT_LENGTH];
+    struct ban_entry *node = NULL;
 
 	one_argument(argument, site);
 	if (!*site) {
 		send_to_char(ch, "A site to unban might help.\r\n");
 		return;
 	}
-    std_list<ban_entry>::iterator node = ban_list.begin();
-    for (;node != ban_list.end();++node)
-		if (!strcasecmp(node->_site, site))
+    for (GList *it = ban_list;it;it = it->next) {
+        struct ban_entry *node = it->data;
+		if (!strcasecmp(node->site, site))
             break;
+    }
 
-	if (node == ban_list.end()) {
+	if (node) {
 		send_to_char(ch, "That site is not currently banned.\r\n");
 		return;
 	}
 	send_to_char(ch, "Site unbanned.\r\n");
 	mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
 		"%s removed the %s-player ban on %s.",
-		GET_NAME(ch), ban_types[node->_type], node->_site);
+		GET_NAME(ch), ban_types[node->type], node->site);
 
-    ban_list.erase(node);
+    ban_list = g_list_remove(ban_list, node);
+    free(node);
 
 	write_ban_list();
 }

@@ -42,7 +42,7 @@ extern struct descriptor_data *descriptor_list;
 void set_desc_state(int state,struct descriptor_data *d );
 
 void
-perform_net_help(descriptor_data *d) {
+perform_net_help(struct descriptor_data *d) {
 	SEND_TO_Q("       System Help\r\n",d);
 	SEND_TO_Q("------------------------------------------------------------------\r\n",d);
 	SEND_TO_Q("            logout - disconnects from network\r\n", d);
@@ -60,7 +60,7 @@ perform_net_help(descriptor_data *d) {
 }
 
 void
-perform_net_write(descriptor_data *d,char *arg) {
+perform_net_write(struct descriptor_data *d,char *arg) {
 	char targ[MAX_INPUT_LENGTH];
 	char msg[MAX_INPUT_LENGTH];
 	struct creature *vict;
@@ -88,8 +88,8 @@ perform_net_write(descriptor_data *d,char *arg) {
 }
 
 void
-perform_net_wall(descriptor_data *d,char *arg) {
-	descriptor_data *r_d;
+perform_net_wall(struct descriptor_data *d,char *arg) {
+	struct descriptor_data *r_d;
 
 	if ( !*arg ) {
 		SEND_TO_Q("Usage: wall <message>\r\n",d);
@@ -106,7 +106,7 @@ perform_net_wall(descriptor_data *d,char *arg) {
 }
 
 void
-perform_net_load(descriptor_data *d,char *arg)
+perform_net_load(struct descriptor_data *d,char *arg)
 {
 	int skill_num, percent;
 	long int cost;
@@ -139,14 +139,14 @@ perform_net_load(descriptor_data *d,char *arg)
 
 	cost = GET_SKILL_COST(d->creature, skill_num);
 	send_to_desc(d, "Program cost: %10ld  struct account balance; %lld\r\n",
-		cost, d->account->get_future_bank());
+		cost, d->account->bank_future);
 
-	if (d->account->get_future_bank() < cost) {
+	if (d->account->bank_future < cost) {
 		send_to_desc(d, "Error: insufficient funds in your account\r\n");
 		return;
 	}
 
-	d->account->withdraw_future_bank(cost);
+	withdraw_future_bank(d->account, cost);
 	percent = MIN(MAXGAIN(d->creature),
 				  MAX(MINGAIN(d->creature),
 					  INT_APP(GET_INT(d->creature))));
@@ -231,7 +231,7 @@ perform_net_list(struct creature *ch)
 }
 
 void
-handle_network(descriptor_data *d,char *arg) {
+handle_network(struct descriptor_data *d,char *arg) {
 	char arg1[MAX_INPUT_LENGTH];
 
 	if (!*arg)

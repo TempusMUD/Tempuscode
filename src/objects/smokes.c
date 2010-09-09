@@ -23,6 +23,7 @@
 #include "clan.h"
 #include "char_class.h"
 #include "bomb.h"
+#include "weather.h"
 
 struct obj_data *
 roll_joint(struct obj_data *tobac, struct obj_data *paper)
@@ -53,7 +54,7 @@ roll_joint(struct obj_data *tobac, struct obj_data *paper)
 	obj->ex_description = new_descr;
 
 	GET_OBJ_TYPE(obj) = ITEM_CIGARETTE;
-	GET_OBJ_VAL(obj, 0) = 3 + (tobac->getWeight() * 3);
+	GET_OBJ_VAL(obj, 0) = 3 + (GET_OBJ_WEIGHT(tobac) * 3);
 	GET_OBJ_VAL(obj, 1) = GET_OBJ_VAL(tobac, 2);
 	GET_OBJ_VAL(obj, 2) = SMOKE_TYPE(tobac);
 	GET_OBJ_WEAR(obj) = ITEM_WEAR_TAKE + ITEM_WEAR_HOLD;
@@ -92,7 +93,7 @@ ACMD(do_roll)
 	} else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {
 		send_to_char(ch, "You can't roll %s in %s!\r\n", tobac->name,
 			paper->name);
-	} else if (tobac->getWeight() > (paper->getWeight() + 3)) {
+	} else if (GET_OBJ_WEIGHT(tobac) > (GET_OBJ_WEIGHT(paper) + 3)) {
 		act("$p is too big to fit in $P.", false, ch, tobac, paper, TO_CHAR);
 	} else {
 		send_to_char(ch, "You roll up %s in %s.\r\n", tobac->name,
@@ -224,7 +225,7 @@ perform_smoke(struct creature *ch, int type)
 		affect_join(ch, &af, accum_dur, true, accum_affect, true);
 
 	if (spell && lev)
-		call_magic(ch, ch, 0, NULL, spell, (int)lev, CAST_CHEM);
+		call_magic(ch, ch, 0, NULL, spell, (int)lev, CAST_CHEM, NULL);
 
 	WAIT_STATE(ch, 6);
 
@@ -451,7 +452,7 @@ ACMD(do_extinguish)
 			send_to_char(ch, "You succeed in putting out the flames.  WHEW!\r\n");
 			act("$n hastily extinguishes the flames which cover $s body.",
 				false, ch, 0, 0, TO_ROOM);
-            ch->extinguish();
+            extinguish(ch);
 		}
 	return;
 	}
@@ -503,7 +504,7 @@ ACMD(do_extinguish)
 				vict, TO_VICT);
 			act("$n hastily extinguishes the flames on $N's body.", false, ch,
 				0, vict, TO_NOTVICT);
-            vict->extinguish();
+            extinguish(vict);
 		}
 	}
 }
@@ -535,7 +536,7 @@ ACMD(do_ignite)
 			TO_NOTVICT);
 		act("You are suddenly consumed in burning flames!!!", false, ch, 0,
 			vict, TO_VICT);
-        vict->ignite(ch);
+        ignite(vict, ch);
 	}
 	return;
 }

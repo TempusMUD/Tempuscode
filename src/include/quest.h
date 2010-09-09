@@ -107,4 +107,6 @@ void do_quest_leave(struct creature *ch, char *argument);
 void do_quest_current(struct creature *ch, char *argument);
 void do_quest_ignore(struct creature *ch, char *argument);
 
+bool is_playing_quest(long id, struct quest *quest);
+
 #endif

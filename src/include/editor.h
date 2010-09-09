@@ -53,4 +53,9 @@ void start_editing_poll(struct descriptor_data *d,
                         const char *header);
 void start_editing_file(struct descriptor_data *d,
                         const char *fname);
+void editor_handle_input(struct editor *editor, char *input);
+void editor_send_prompt(struct editor *editor);
+void emit_editor_startup(struct editor *editor);
+
+
 #endif

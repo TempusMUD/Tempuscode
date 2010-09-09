@@ -315,6 +315,17 @@ find_house_by_owner(int idnum)
                                               (GCompareFunc)house_has_owner);
 }
 
+struct house*
+find_house_by_clan(int idnum)
+{
+    bool house_has_owner(struct house *house, gpointer ignore) {
+        return (house->type == CLAN &&
+                house->owner_id == idnum) ? -1:0;
+    }
+    return (struct house *)g_list_find_custom(houses, NULL,
+                                              (GCompareFunc)house_has_owner);
+}
+
 /* note: arg passed must be house vnum, so there. */
 bool
 can_enter_house(struct creature *ch, room_num room_vnum)

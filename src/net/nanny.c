@@ -40,10 +40,11 @@
 #include "bomb.h"
 #include "security.h"
 #include "quest.h"
-#include "player_table.h"
+#include "players.h"
 #include "language.h"
 #include "accstr.h"
 #include "help.h"
+#include "weather.h"
 
 extern char *motd;
 extern char *ansi_motd;
@@ -55,12 +56,11 @@ extern char *WELC_MESSG;
 extern char *START_MESSG;
 extern struct descriptor_data *descriptor_list;
 extern int top_of_p_table;
-extern int restrict;
+extern int restrict_mud;
 extern int num_of_houses;
 extern int mini_mud;
 extern int log_cmds;
 extern struct spell_info_type spell_info[];
-extern struct house_control_rec house_control[];
 extern int shutdown_count;
 extern const char *language_names[];
 
@@ -72,24 +72,24 @@ void handle_network(struct descriptor_data *d,char *arg);
 int general_search(struct creature *ch, struct special_search_data *srch, int mode);
 void roll_real_abils(struct creature * ch);
 void print_attributes_to_buf(struct creature *ch, char *buff);
-void show_character_detail(descriptor_data *d);
+void show_character_detail(struct descriptor_data *d);
 void push_command_onto_list(struct creature *ch, char *comm);
 void flush_q(struct txt_q *queue);
 int _parse_name(char *arg, char *name);
 char *diag_conditions(struct creature *ch);
 int perform_alias(struct descriptor_data *d, char *orig);
-int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length = MAX_INPUT_LENGTH );
+int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 int parse_player_class(char *arg);
 void save_all_players(void);
 
 // internal functions
-void set_desc_state(cxn_state state,struct descriptor_data *d );
+void set_desc_state(enum cxn_state state,struct descriptor_data *d);
 void echo_on(struct descriptor_data * d);
 void echo_off(struct descriptor_data * d);
-void char_to_game(descriptor_data *d);
+void char_to_game(struct descriptor_data *d);
 
 void notify_cleric_moon(struct creature *ch);
-void send_menu(descriptor_data *d);
+void send_menu(struct descriptor_data *d);
 
 int check_newbie_ban(struct descriptor_data *desc);
 void
@@ -101,7 +101,7 @@ handle_input(struct descriptor_data *d)
 	int char_id;
 	int i;
 
-	if (!get_from_q(&d->input, arg, &aliased))
+	if (!get_from_q(&d->input, arg, &aliased, sizeof(arg)))
 		return;
 
 	// we need a prompt here
@@ -110,7 +110,7 @@ handle_input(struct descriptor_data *d)
 	d->idle = 0;
 
 	if (d->text_editor) {
-		d->text_editor->Process(arg);
+		editor_handle_input(d->text_editor, arg);
 		return;
 	}
 
@@ -132,7 +132,7 @@ handle_input(struct descriptor_data *d)
 		}
 		// run it through aliasing system
 		if (!aliased && perform_alias(d, arg))
-			get_from_q(&d->input, arg, &aliased);
+			get_from_q(&d->input, arg, &aliased, sizeof(arg));
 		// send it to interpreter
 		command_interpreter(d->creature, arg);
 		break;
@@ -142,11 +142,11 @@ handle_input(struct descriptor_data *d)
 			break;
 		}
 		if (strcasecmp(arg, "new")) {
-			d->account = struct account_retrieve(arg);
+			d->account = account_by_name(arg);
 			if (d->account) {
                 if (!production_mode) {
-                    d->account->login(d);
-                } else if (d->account->has_password())
+                    account_login(d->account, d);
+                } else if (account_has_password(d->account))
 					set_desc_state(CXN_ACCOUNT_PW, d);
 				else
 					set_desc_state(CXN_PW_PROMPT, d);
@@ -156,10 +156,10 @@ handle_input(struct descriptor_data *d)
 			set_desc_state(CXN_ACCOUNT_PROMPT, d);
 		break;
 	case CXN_ACCOUNT_PW:
-		if (!d->account->authenticate(arg)) {
+		if (!account_authenticate(d->account, arg)) {
 			slog("PASSWORD: account %s[%d] failed to authenticate. [%s]",
-				d->account->get_name(),
-				d->account->get_idnum(),
+				d->account->name,
+				d->account->id,
 				d->host);
             d->wait = (2 + d->bad_pws) RL_SEC;
             d->bad_pws += 1;
@@ -171,20 +171,20 @@ handle_input(struct descriptor_data *d)
                 send_to_desc(d, "Invalid password.\r\n");
                 set_desc_state(CXN_ACCOUNT_LOGIN, d);
             }
-        } else if (d->account->is_banned()) {
+        } else if (d->account->banned) {
             slog("Autobanning IP address of account %s[%d]",
-                 d->account->get_name(),
-                 d->account->get_idnum());
+                 d->account->name,
+                 d->account->id);
             perform_ban(BAN_ALL, d->host, "autoban",
-                        tmp_sprintf("account %s", d->account->get_name()));
-            d->account->login(d);
+                        tmp_sprintf("account %s", d->account->name));
+            account_login(d->account, d);
         } else {
-			d->account->login(d);
+			account_login(d->account, d);
 		}
 		break;
 	case CXN_ACCOUNT_PROMPT:
 		if (is_valid_name(arg)) {
-			d->account = struct account_retrieve(arg);
+			d->account = account_by_name(arg);
 
 			if (!d->account) {
 				set_desc_state(CXN_ACCOUNT_VERIFY, d);
@@ -200,7 +200,7 @@ handle_input(struct descriptor_data *d)
 	case CXN_ACCOUNT_VERIFY:
 		switch (tolower(arg[0])) {
 		case 'y':
-    		d->account = struct account_create(d->mode_data, d);
+    		d->account = account_create(d->mode_data, d);
 			set_desc_state(CXN_ANSI_PROMPT, d);
 			break;
 		case 'n':
@@ -217,7 +217,7 @@ handle_input(struct descriptor_data *d)
 			return;
 		}
 
-		d->account->set_ansi_level(i);
+        d->account->ansi_level = i;
 		set_desc_state(CXN_COMPACT_PROMPT, d);
 		break;
 	case CXN_COMPACT_PROMPT:
@@ -227,22 +227,23 @@ handle_input(struct descriptor_data *d)
 			return;
 		}
 
-		d->account->set_compact_level(i);
+        d->account->compact_level = i;
 		set_desc_state(CXN_EMAIL_PROMPT, d);
 		break;
 	case CXN_EMAIL_PROMPT:
-		d->account->set_email_addr(arg);
+        free(d->account->email);
+        d->account->email = strdup(arg);
 		set_desc_state(CXN_PW_PROMPT, d);
 		break;
 	case CXN_PW_PROMPT:
 		if (arg[0]) {
-			d->account->set_password(arg);
+			set_password(d->account, arg);
 			set_desc_state(CXN_PW_VERIFY, d);
 		} else
 			send_to_desc(d, "Sorry.  You MUST enter a password.\r\n");
 		break;
 	case CXN_PW_VERIFY:
-		if (!d->account->authenticate(arg)) {
+		if (!account_authenticate(d->account, arg)) {
 			send_to_desc(d, "Passwords did not match.  Please try again.\r\n");
 			set_desc_state(CXN_PW_PROMPT, d);
 		} else {
@@ -266,7 +267,7 @@ handle_input(struct descriptor_data *d)
 			set_desc_state(CXN_DISCONNECT, d);
 			break;
 		case 'c':
-            if (d->account->chars_available() <= 0) {
+            if (account_chars_available(d->account) <= 0) {
                 send_to_desc(d, "\r\nNo more characters can be "
                                 "created on this account.  Please keep "
                                 "\r\nin mind that it is a violation of "
@@ -278,58 +279,57 @@ handle_input(struct descriptor_data *d)
 			}
 			break;
 		case 'd':
-			if (!d->account->invalid_char_index(2)) {
+			if (!account_invalid_char_index(d->account, 2)) {
 				set_desc_state(CXN_DELETE_PROMPT, d);
-			} else if (!d->account->invalid_char_index(1)) {
-				char_id = d->account->get_char_by_index(1);
-				d->creature = new struct creature(true);
-				d->creature->desc = d;
-				if (d->creature->loadFromXML(char_id)) {
+			} else if (!account_invalid_char_index(d->account, 1)) {
+				char_id = account_get_char_by_index(d->account, 1);
+                d->creature = load_player_from_xml(char_id);
+				if (d->creature) {
+                    d->creature->desc = d;
 					set_desc_state(CXN_DELETE_PW, d);
 				} else {
                     errlog("loading character %d to delete.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
-					delete d->creature;
+					free_creature(d->creature);
 					d->creature = NULL;
 				}
 			} else
 				send_to_desc(d, "\r\nThat isn't a valid command.\r\n\r\n");
 			break;
 		case 'e':
-			if (!d->account->invalid_char_index(2)) {
+			if (!account_invalid_char_index(d->account, 2)) {
 				set_desc_state(CXN_EDIT_PROMPT, d);
-			} else if (!d->account->invalid_char_index(1)) {
-				char_id = d->account->get_char_by_index(1);
-				d->creature = new struct creature(true);
-				d->creature->desc = d;
-				if (d->creature->loadFromXML(char_id)) {
+			} else if (!account_invalid_char_index(d->account, 1)) {
+				char_id = account_get_char_by_index(d->account, 1);
+				d->creature = load_player_from_xml(char_id);
+				if (d->creature) {
+                    d->creature->desc = d;
 					set_desc_state(CXN_EDIT_DESC, d);
 				} else {
                     errlog("loading character %d to edit it's description.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
-					delete d->creature;
+					free_creature(d->creature);
 					d->creature = NULL;
 				}
 			} else
 				send_to_desc(d, "\r\nThat isn't a valid command.\r\n\r\n");
 			break;
         case 's':
-			if (!d->account->invalid_char_index(2)) {
+			if (!account_invalid_char_index(d->account, 2)) {
 				set_desc_state(CXN_DETAILS_PROMPT, d);
-			} else if (!d->account->invalid_char_index(1)) {
-				char_id = d->account->get_char_by_index(1);
-				d->creature = new struct creature(true);
-				d->creature->desc = d;
-				if (d->creature->loadFromXML(char_id)) {
-					d->creature->desc = d;
+			} else if (!account_invalid_char_index(d->account, 1)) {
+				char_id = account_get_char_by_index(d->account, 1);
+				d->creature = load_player_from_xml(char_id);
+				if (d->creature) {
+                    d->creature->desc = d;
 					show_character_detail(d);
-					delete d->creature;
+                    free_creature(d->creature);
 					d->creature = NULL;
 					set_desc_state(CXN_WAIT_MENU, d);
 				} else {
                     errlog("loading character %d to show statistics.", char_id);
 					send_to_desc(d, "\r\nThere was an error loading the character.\r\n\r\n");
-					delete d->creature;
+					free_creature(d->creature);
 					d->creature = NULL;
 				}
 			} else
@@ -349,20 +349,20 @@ handle_input(struct descriptor_data *d)
 				break;
 			}
 
-			if (d->account->invalid_char_index(atoi(arg))) {
+			if (account_invalid_char_index(d->account, atoi(arg))) {
 				send_to_desc(d, "\r\nThat character selection doesn't exist.\r\n\r\n");
 				return;
 			}
 
 			// Try to reconnect to an existing creature first
-			char_id = d->account->get_char_by_index(atoi(arg));
+			char_id = account_get_char_by_index(d->account, atoi(arg));
 			d->creature = get_char_in_world_by_idnum(char_id);
 
 			if (d->creature) {
 				REMOVE_BIT(PLR_FLAGS(d->creature), PLR_WRITING | PLR_OLC |
 					PLR_MAILING | PLR_AFK);
 				if (d->creature->desc) {
-					descriptor_data *other_desc = d->creature->desc;
+					struct descriptor_data *other_desc = d->creature->desc;
 
 					send_to_desc(other_desc, "You have logged on from another location!\r\n");
                     // This descriptor should be closed immediately to prevent
@@ -371,12 +371,12 @@ handle_input(struct descriptor_data *d)
 					set_desc_state(CXN_DISCONNECT, other_desc);
 					other_desc->creature = NULL;
 					send_to_desc(d, "\r\n\r\nYou take over your own body, already in use!\r\n");
-					mlog(Security_ADMINBASIC, GET_INVIS_LVL(d->creature),
+					mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(d->creature),
 						NRM, true,
 						"%s has reconnected", GET_NAME(d->creature));
 				} else {
 					d->creature->desc = d;
-					mlog(Security_ADMINBASIC, GET_INVIS_LVL(d->creature),
+					mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(d->creature),
 						NRM, true,
 						"%s has reconnected from linkless",
 						GET_NAME(d->creature));
@@ -388,52 +388,53 @@ handle_input(struct descriptor_data *d)
 				return;
 			}
 
-			d->creature = new struct creature(true);
-			d->creature->desc = d;
-			d->creature->account = d->account;
-
-			if (!d->creature->loadFromXML(char_id)) {
-				mlog(Security_ADMINBASIC, LVL_IMMORT, CMP, true,
+			d->creature = load_player_from_xml(char_id);
+			
+			if (!d->creature) {
+				mlog(SECURITY_ADMINBASIC, LVL_IMMORT, CMP, true,
 					"Character %d didn't load from account '%s'",
-					char_id, d->account->get_name());
+					char_id, d->account->name);
 
 				send_to_desc(d, "Sorry.  There was an error processing your request.\r\n");
 				send_to_desc(d, "The gods are not ignorant of your plight.\r\n\r\n");
-				delete d->creature;
-				d->creature = NULL;
 				return;
 			}
 
-			// If they were in the middle of something important
+			d->creature->desc = d;
+			d->creature->account = d->account;
+
+            // If they were in the middle of something important
 			if (d->creature->player_specials->desc_mode != CXN_UNKNOWN) {
 				set_desc_state(d->creature->player_specials->desc_mode, d);
 				return;
 			}
 
-			if (production_mode && d->account->deny_char_entry(d->creature)) {
+			if (production_mode && account_deny_char_entry(d->account, d->creature)) {
 				send_to_desc(d, "You can't have another character in the game right now.\r\n");
-				delete d->creature;
+				free_creature(d->creature);
 				d->creature = NULL;
 				return;
 			}
 
-            if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR && GET_LEVEL(d->creature) < LVL_POWER) {
-                struct creature *tmp_ch = new struct creature(true);
-                for (int idx=1; !d->account->invalid_char_index(idx); idx++) {
-                    tmp_ch->clear();
-                    tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
-                    if (GET_LEVEL(tmp_ch) < LVL_POWER && GET_QUEST(tmp_ch) &&
-                       GET_IDNUM(d->creature) != GET_IDNUM(tmp_ch)) {
-                        send_to_desc(d, "You can't log on an immortal while %s is in a quest.\r\n", GET_NAME(tmp_ch));
-                        delete d->creature;
+            if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR
+                && GET_LEVEL(d->creature) < LVL_POWER) {
+                struct creature *tmp_ch;
+
+                for (int idx=1; !account_invalid_char_index(d->account, idx); idx++) {
+                    tmp_ch = load_player_from_xml(account_get_char_by_index(d->account, idx));
+                    if (GET_LEVEL(tmp_ch) < LVL_POWER
+                        && GET_QUEST(tmp_ch)
+                        && GET_IDNUM(d->creature) != GET_IDNUM(tmp_ch)) {
+                        send_to_desc(d, "You can't log on an immortal "
+                                     "while %s is in a quest.\r\n",
+                                     GET_NAME(tmp_ch));
+                        free_creature(d->creature);
                         d->creature = NULL;
-                        delete tmp_ch;
-                        tmp_ch = NULL;
+                        free_creature(tmp_ch);
                         return;
                     }
                 }
-                delete tmp_ch;
-                tmp_ch = NULL;
+                free_creature(tmp_ch);
             }
 
 			char_to_game(d);
@@ -447,7 +448,7 @@ handle_input(struct descriptor_data *d)
 			return;
 		}
 
-		if (playerIndex.exists(arg)) {
+		if (player_name_exists(arg)) {
 			send_to_desc(d, "\r\nThat character name is already taken.\r\n\r\n");
 			return;
 		}
@@ -464,7 +465,7 @@ handle_input(struct descriptor_data *d)
 			return;
 		}
 
-		d->creature = d->account->create_char(arg);
+		d->creature = account_create_char(d->account, arg);
 		if (!d->creature) {
 			errlog("Expected creature, got NULL during char creation");
 			send_to_desc(d, "\r\nSorry, there was an error creating your character.\r\n\r\n");
@@ -576,8 +577,8 @@ handle_input(struct descriptor_data *d)
 				   GET_NAME(d->creature), GET_REMORT_GEN(d->creature),
 				   class_names[(int)GET_CLASS(d->creature)],
 				   class_names[(int)GET_REMORT_CLASS(d->creature)]);
-				d->creature->saveToXML();
-				set_desc_state( CXN_MENU,d );
+            save_player_to_xml(d->creature);
+            set_desc_state( CXN_MENU,d );
 		}
 		break;
 	case CXN_ALIGN_PROMPT:
@@ -631,30 +632,30 @@ handle_input(struct descriptor_data *d)
 			break;
 		} else if (is_abbrev(arg, "keep")) {
 			set_desc_state( CXN_EDIT_DESC,d );
-			mlog(Security_ADMINBASIC, LVL_IMMORT, NRM, true,
+			mlog(SECURITY_ADMINBASIC, LVL_IMMORT, NRM, true,
 				"%s[%d] has created new character %s[%ld]",
-					d->account->get_name(), d->account->get_idnum(),
+					d->account->name, d->account->id,
                     GET_NAME(d->creature), GET_IDNUM(d->creature) );
 			d->creature->player_specials->rentcode = RENT_NEW_CHAR;
             calculate_height_weight( d->creature );
-			d->creature->saveToXML();
+			save_player_to_xml(d->creature);
 		} else
 			SEND_TO_Q("\r\nYou must type 'reroll' or 'keep'.\r\n\r\n", d);
 		break;
 	case CXN_EDIT_DESC:
 		break;
 	case CXN_DELETE_PROMPT:
-		if (d->account->invalid_char_index(atoi(arg))) {
+		if (account_invalid_char_index(d->account, atoi(arg))) {
 			send_to_desc(d, "\r\nThat character selection doesn't exist.\r\n\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
 			return;
 		}
 
-		char_id = d->account->get_char_by_index(atoi(arg));
+		char_id = account_get_char_by_index(d->account, atoi(arg));
 		d->creature = get_char_in_world_by_idnum(char_id);
 		if (!d->creature) {
-			d->creature = new struct creature(true);
-			if (!d->creature->loadFromXML(char_id)) {
+			d->creature = load_player_from_xml(char_id);
+			if (!d->creature) {
 				send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
 				set_desc_state(CXN_WAIT_MENU, d);
 				return;
@@ -664,16 +665,15 @@ handle_input(struct descriptor_data *d)
 		set_desc_state(CXN_DELETE_PW, d);
 		break;
 	case CXN_EDIT_PROMPT:
-		if (d->account->invalid_char_index(atoi(arg))) {
+		if (account_invalid_char_index(d->account, atoi(arg))) {
 			send_to_desc(d, "\r\nThat character selection doesn't exist.\r\n\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
 			return;
 		}
 
-		char_id = d->account->get_char_by_index(atoi(arg));
-		d->creature = new struct creature(true);
-		d->creature->desc = d;
-		if (!d->creature->loadFromXML(char_id)) {
+		char_id = account_get_char_by_index(d->account, atoi(arg));
+        d->creature = load_player_from_xml(char_id);
+		if (!d->creature) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
 			return;
@@ -683,7 +683,7 @@ handle_input(struct descriptor_data *d)
 		set_desc_state(CXN_EDIT_DESC, d);
 		break;
 	case CXN_DELETE_PW:
-		if (d->account->authenticate(arg)) {
+		if (account_authenticate(d->account, arg)) {
 			set_desc_state(CXN_DELETE_VERIFY, d);
 			return;
 		}
@@ -691,7 +691,7 @@ handle_input(struct descriptor_data *d)
 		send_to_desc(d, "\r\n\r\n              &yWrong password!  %s will not be deleted.\r\n",
 			GET_NAME(d->creature));
 		if (!d->creature->in_room)
-			delete d->creature;
+			free_creature(d->creature);
 
 		d->creature = NULL;
 		set_desc_state(CXN_WAIT_MENU, d);
@@ -701,7 +701,7 @@ handle_input(struct descriptor_data *d)
 			send_to_desc(d, "\r\n              &yDelete cancelled.  %s will not be deleted.\r\n\r\n",
 				GET_NAME(d->creature));
 			if (!d->creature->in_room)
-				delete d->creature;
+				free_creature(d->creature);
 
 			d->creature = NULL;
 			set_desc_state(CXN_WAIT_MENU, d);
@@ -710,19 +710,19 @@ handle_input(struct descriptor_data *d)
 
 		send_to_desc(d, "\r\n              &y%s has been deleted.&n\r\n\r\n", GET_NAME(d->creature));
 		slog("%s[%d] has deleted character %s[%ld]",
-				d->account->get_name(), d->account->get_idnum(),
+				d->account->name, d->account->id,
 				GET_NAME(d->creature), GET_IDNUM(d->creature) );
 		if (d->creature->in_room) {
 			// if the character is already in the game, delete_char will
 			// handle it
-			d->account->delete_char(d->creature);
+			account_delete_char(d->account, d->creature);
 		} else {
 			// if the character was loaded, we need to delete it "manually"
-			d->account->delete_char(d->creature);
-			delete d->creature;
+			account_delete_char(d->account, d->creature);
+			free_creature(d->creature);
 		}
 		d->creature = NULL;
-        d->account->reload();
+        account_reload(d->account);
 		set_desc_state(CXN_WAIT_MENU, d);
 		break;
 	case CXN_AFTERLIFE:
@@ -734,7 +734,7 @@ handle_input(struct descriptor_data *d)
 	case CXN_NETWORK:
 		handle_network(d, arg); break;
 	case CXN_OLDPW_PROMPT:
-		if (d->account->authenticate(arg)) {
+		if (account_authenticate(d->account, arg)) {
 			set_desc_state(CXN_NEWPW_PROMPT, d);
 			return;
 		}
@@ -744,7 +744,7 @@ handle_input(struct descriptor_data *d)
 		break;
 	case CXN_NEWPW_PROMPT:
 		if (arg[0]) {
-			d->account->set_password(arg);
+			set_password(d->account, arg);
 			set_desc_state(CXN_NEWPW_VERIFY, d);
 		} else {
 			send_to_desc(d, "\r\nPassword change cancelled!\r\n\r\n");
@@ -755,7 +755,7 @@ handle_input(struct descriptor_data *d)
 		if (!arg[0]) {
 			send_to_desc(d, "\r\nPassword change cancelled!\r\n\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
-		} if (!d->account->authenticate(arg)) {
+		} if (!account_authenticate(d->account, arg)) {
 			send_to_desc(d, "\r\nPasswords did not match.  Please try again.\r\n\r\n");
 			set_desc_state(CXN_PW_PROMPT, d);
 		} else {
@@ -772,16 +772,15 @@ handle_input(struct descriptor_data *d)
 			set_desc_state(CXN_MENU, d);
 		break;
     case CXN_DETAILS_PROMPT:
-		if (d->account->invalid_char_index(atoi(arg))) {
+		if (account_invalid_char_index(d->account, atoi(arg))) {
 			send_to_desc(d, "\r\nThat character selection doesn't exist.\r\n\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
 			return;
 		}
 
-		char_id = d->account->get_char_by_index(atoi(arg));
-		d->creature = new struct creature(true);
-		d->creature->desc = d;
-		if (!d->creature->loadFromXML(char_id)) {
+		char_id = account_get_char_by_index(d->account, atoi(arg));
+        d->creature = load_player_from_xml(char_id);
+		if (!d->creature) {
 			send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
 			set_desc_state(CXN_WAIT_MENU, d);
 			return;
@@ -789,7 +788,7 @@ handle_input(struct descriptor_data *d)
 
 		d->creature->desc = d;
 		show_character_detail(d);
-		delete d->creature;
+		free_creature(d->creature);
 		d->creature = NULL;
 		set_desc_state(CXN_WAIT_MENU, d);
         break;
@@ -815,7 +814,7 @@ handle_input(struct descriptor_data *d)
 }
 
 void
-send_prompt(descriptor_data *d)
+send_prompt(struct descriptor_data *d)
 {
     extern bool production_mode;
 	char prompt[MAX_INPUT_LENGTH];
@@ -827,7 +826,7 @@ send_prompt(descriptor_data *d)
 
 	// Check for the text editor being used
 	if (d->creature && d->text_editor) {
-        d->text_editor->SendPrompt();
+        editor_send_prompt(d->text_editor);
 		d->need_prompt = false;
 		return;
 	}
@@ -910,10 +909,10 @@ send_prompt(descriptor_data *d)
             }
         }
 
-		if (d->creature->isFighting() &&
+		if (isFighting(d->creature) &&
 			PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE))
 			sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->creature, C_NRM),
-					diag_conditions(d->creature->findRandomCombat()),
+					diag_conditions(findRandomCombat(d->creature)),
 					CCNRM(d->creature, C_NRM));
 
 		sprintf(prompt, "%s%s%s>%s ", prompt, CCWHT(d->creature, C_NRM),
@@ -1016,10 +1015,9 @@ send_prompt(descriptor_data *d)
 }
 
 void
-send_menu(descriptor_data *d)
+send_menu(struct descriptor_data *d)
 {
-    extern HelpCollection *Help;
-    HelpItem *policy;
+    struct help_item *policy;
 	struct creature *tmp_ch;
 	int idx;
 
@@ -1103,11 +1101,11 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "\e[H\e[J");
         acc_string_clear();
         acc_sprintf("%s\r\n                             POLICY\r\n*******************************************************************************%s\r\n",
-                    (d->account->get_ansi_level() >= C_NRM) ? KCYN:"",
-                    (d->account->get_ansi_level() >= C_NRM) ? KNRM:"");
-        policy = Help->find_item_by_id(667);
+                    (d->account->ansi_level >= C_NRM) ? KCYN:"",
+                    (d->account->ansi_level >= C_NRM) ? KNRM:"");
+        policy = help_collection_find_item_by_id(help, 667);
         if (!policy->text)
-            policy->LoadText();
+            helpitem_loadtext(policy);
         acc_strcat(policy->text, NULL);
 		page_string(d, acc_get_string());
         break;
@@ -1115,11 +1113,11 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "\e[H\e[J");
 		send_to_desc(d, "\r\n&c                                 CHARACTER CREATION\r\n*******************************************************************************&n\r\n");
 		send_to_desc(d, "\r\n    Now that you have created your account, you probably want to create a\r\ncharacter to play on the mud.  This character will be your persona on the\r\nmud, allowing you to interact with other people and things.  You may press\r\nreturn at any time to cancel the creation of your character.\r\n\r\n");
-		if (d->account->get_char_count())
+		if (account_get_char_count(d->account))
 			send_to_desc(d, "You have %d character%s in your account, you may create up to %d more.\r\n\r\n",
-				d->account->get_char_count(),
-				d->account->get_char_count()==1 ? "" : "s",
-				d->account->chars_available());
+				account_get_char_count(d->account),
+				account_get_char_count(d->account)==1 ? "" : "s",
+				account_chars_available(d->account));
 		break;
 	case CXN_SEX_PROMPT:
 		send_to_desc(d, "\e[H\e[J");
@@ -1169,7 +1167,7 @@ send_menu(descriptor_data *d)
 				  "size, as well as your race and gender, by looking at you.  What\r\n"
 				  "else is noticable about your character?\r\n\r\n");
         if( d->text_editor ) {
-            d->text_editor->SendStartupMessage();
+            emit_editor_startup(d->text_editor);
             send_to_desc(d, "\r\n");
         }
 
@@ -1177,8 +1175,8 @@ send_menu(descriptor_data *d)
 	case CXN_MENU:
 		// If we have a creature, save and offload
 		if (d->creature) {
-			d->creature->saveToXML();
-			delete d->creature;
+			save_player_to_xml(d->creature);
+			free_creature(d->creature);
 			d->creature = NULL;
 		}
 
@@ -1188,22 +1186,22 @@ send_menu(descriptor_data *d)
 			"&n&b|                                 &YT E M P U S&n                                 &b|\r\n"
 			"&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
 
-		if (d->account->get_char_count() > 0) {
+		if (account_get_char_count(d->account) > 0) {
 			show_account_chars(d,
 				d->account,
 				false,
-				(d->account->get_char_count() > 5));
+				(account_get_char_count(d->account) > 5));
 			send_to_desc(d, "\r\nYou have %d character%s in your account, you may create up to %d more.\r\n",
-				d->account->get_char_count(),
-				d->account->get_char_count()==1 ? "" : "s",
-				d->account->chars_available());
+				account_get_char_count(d->account),
+				account_get_char_count(d->account)==1 ? "" : "s",
+				account_chars_available(d->account));
 		}
         send_to_desc(d, "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
-			d->account->get_past_bank(), d->account->get_future_bank());
+			d->account->bank_past, d->account->bank_future);
 
 		send_to_desc(d, "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
 	    send_to_desc(d, "    &b[&yC&b] &cCreate a new character");
-        if (d->account->get_char_count() > 0) {
+        if (account_get_char_count(d->account) > 0) {
 			send_to_desc(d, "           &b[&yS&b] &cShow character details\r\n");
 			send_to_desc(d, "    &b[&yE&b] &cEdit a character's description   &b[&yD&b] &cDelete an existing character\r\n");
 		} else {
@@ -1212,13 +1210,13 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "\r\n                            &b[&yL&b] &cLog out of the game&n\r\n");
 
 		// Helpful items for those people with only one character
-		if (d->account->get_char_count() == 0) {
+		if (account_get_char_count(d->account) == 0) {
 			send_to_desc(d,
 "\r\n      This menu is your account menu, where you can manage your account,\r\n"
 "      and enter the game.  You currently have no characters associated with\r\n"
 "      your account.  To create a character, type 'c' and press return.\r\n");
 
-		} else if (d->account->get_char_count() == 1) {
+		} else if (account_get_char_count(d->account) == 1) {
 			send_to_desc(d,
 "\r\n      This menu is your account menu, where you can manage your account,\r\n"
 "      and enter the game.  Your characters are listed at the top.  To\r\n"
@@ -1232,10 +1230,8 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&r\r\n                                DELETE CHARACTER\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
-		tmp_ch = new struct creature(true);
-		while (!d->account->invalid_char_index(idx)) {
-			tmp_ch->clear();
-			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
+		while (!account_invalid_char_index(d->account, idx)) {
+            tmp_ch = load_player_from_xml(account_get_char_by_index(d->account, idx));
 			send_to_desc(d, "    &r[&y%2d&r] &y%-20s %10s %10s %6s %s\r\n",
 				idx, GET_NAME(tmp_ch),
 				player_race[(int)GET_RACE(tmp_ch)],
@@ -1243,8 +1239,8 @@ send_menu(descriptor_data *d)
 				genders[(int)GET_SEX(tmp_ch)],
 				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new");
 			idx++;
+            free_creature(tmp_ch);
 		}
-		delete tmp_ch;
 		send_to_desc(d, "&n\r\n");
 		break;
 	case CXN_EDIT_PROMPT:
@@ -1252,10 +1248,8 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&c\r\n                         EDIT CHARACTER DESCRIPTION\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
-		tmp_ch = new struct creature(true);
-		while (!d->account->invalid_char_index(idx)) {
-			tmp_ch->clear();
-			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
+		while (!account_invalid_char_index(d->account, idx)) {
+            tmp_ch = load_player_from_xml(account_get_char_by_index(d->account, idx));
 			send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
 				idx, GET_NAME(tmp_ch),
 				player_race[(int)GET_RACE(tmp_ch)],
@@ -1263,8 +1257,8 @@ send_menu(descriptor_data *d)
 				genders[(int)GET_SEX(tmp_ch)],
 				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new");
 			idx++;
+            free_creature(tmp_ch);
 		}
-		delete tmp_ch;
 		send_to_desc(d, "&n\r\n");
 		break;
 	case CXN_DETAILS_PROMPT:
@@ -1272,10 +1266,8 @@ send_menu(descriptor_data *d)
 		send_to_desc(d, "&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
 
 		idx = 1;
-		tmp_ch = new struct creature(true);
-		while (!d->account->invalid_char_index(idx)) {
-			tmp_ch->clear();
-			tmp_ch->loadFromXML(d->account->get_char_by_index(idx));
+		while (!account_invalid_char_index(d->account, idx)) {
+            tmp_ch = load_player_from_xml(account_get_char_by_index(d->account, idx));
 			send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
 				idx, GET_NAME(tmp_ch),
 				player_race[(int)GET_RACE(tmp_ch)],
@@ -1283,8 +1275,8 @@ send_menu(descriptor_data *d)
 				genders[(int)GET_SEX(tmp_ch)],
 				GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d", GET_LEVEL(tmp_ch)):"&m new");
 			idx++;
+            free_creature(tmp_ch);
 		}
-		delete tmp_ch;
 		send_to_desc(d, "&n\r\n");
 		break;
 	case CXN_NETWORK:
@@ -1296,8 +1288,8 @@ send_menu(descriptor_data *d)
 	case CXN_VIEW_BG:
 		send_to_desc(d, "\e[H\e[J");
 		page_string(d, tmp_sprintf("%s\r\n                                   BACKGROUND\r\n*******************************************************************************%s\r\n%s",
-				(d->account->get_ansi_level() >= C_NRM) ? KCYN:"",
-				(d->account->get_ansi_level() >= C_NRM) ? KNRM:"",
+				(d->account->ansi_level >= C_NRM) ? KCYN:"",
+				(d->account->ansi_level >= C_NRM) ? KNRM:"",
 				background));
 		// If there's no showstr_point, they finished already
 		if (!d->showstr_point)
@@ -1320,13 +1312,13 @@ send_menu(descriptor_data *d)
 }
 
 void
-set_desc_state(cxn_state state,struct descriptor_data *d)
+set_desc_state(enum cxn_state state,struct descriptor_data *d)
 	{
 	if (d->account)
 		slog("Link [%s] for account %s[%d] changing mode to %s",
 			d->host,
-			d->account->get_name(),
-			d->account->get_idnum(),
+			d->account->name,
+			d->account->id,
 			strlist_aref(state, desc_modes));
 	else
 		slog("Link [%s] changing mode to %s",
@@ -1358,9 +1350,9 @@ set_desc_state(cxn_state state,struct descriptor_data *d)
 	}
 
     if (d->original)
-        d->original->saveToXML();
+        save_player_to_xml(d->original);
     else if (d->creature)
-		d->creature->saveToXML();
+		save_player_to_xml(d->creature);
 
     send_menu(d);
 
@@ -1448,14 +1440,14 @@ reset_char(struct creature *ch)
 }
 
 void
-char_to_game(descriptor_data *d)
+char_to_game(struct descriptor_data *d)
 {
 	struct clan_data* clan_by_owner( int idnum );
 	struct descriptor_data *k, *next;
 	struct room_data *load_room = NULL;
 	time_t now = time(0);
 	const char *notes = "";
-    Quest *quest;
+    struct quest *quest;
 
 	// this code is to prevent people from multiply logging in
 	for (k = descriptor_list; k; k = next) {
@@ -1499,7 +1491,7 @@ char_to_game(descriptor_data *d)
 		if (!load_room && GET_HOMEROOM(d->creature))
 			load_room = real_room(GET_HOMEROOM(d->creature));
 		if (!load_room)
-			load_room = d->creature->getLoadroom();
+			load_room = getLoadroom(d->creature);
 
 		if (load_room && !can_enter_house(d->creature, load_room->number)) {
 			mudlog(LVL_DEMI, NRM, true,
@@ -1520,9 +1512,9 @@ char_to_game(descriptor_data *d)
 										   LVL_LUCIFER : GET_LEVEL(d->creature));
 
 		// Now load objects onto character
-		switch (d->creature->unrent()) {
+		switch (unrent(d->creature)) {
 			case -1:
-				notes = tmp_strcat(notes, "Your equipment could not be loaded.\r\n\r\n");
+				notes = tmp_strcat(notes, "Your equipment could not be loaded.\r\n\r\n", NULL);
 				mudlog(LVL_IMMORT, CMP, true, "%s's equipment could not be loaded.",
 					GET_NAME(d->creature));
 				break;
@@ -1534,7 +1526,7 @@ char_to_game(descriptor_data *d)
 				break;
 			case 2:
 				notes = tmp_strcat(notes, "\r\n\007You could not afford your rent!\r\n"
-					 "Some of your possessions have been sold to cover your bill!\r\n");
+                                   "Some of your possessions have been sold to cover your bill!\r\n", NULL);
 				break;
 			case 3:
 				load_room = real_room(number(10919, 10921));
@@ -1542,7 +1534,7 @@ char_to_game(descriptor_data *d)
 					errlog("Can't send %s to jail - jail doesn't exist!",
 						GET_NAME(d->creature));
 				}
-				notes = tmp_strcat(notes, "\r\nYou were unable to pay your rent and have been put in JAIL!\r\n");
+				notes = tmp_strcat(notes, "\r\nYou were unable to pay your rent and have been put in JAIL!\r\n", NULL);
 				break;
 			default:
 				errlog("Can't happen at %s:%d", __FILE__, __LINE__);
@@ -1552,8 +1544,8 @@ char_to_game(descriptor_data *d)
 		GET_LOADROOM(d->creature) = 0;
 
         // Do we need to load up his corpse?
-        if (d->creature->checkLoadCorpse()) {
-            d->creature->loadCorpse();
+        if (checkLoadCorpse(d->creature)) {
+            loadCorpse(d->creature);
         }
 
 	} else { // otherwise null the loadroom
@@ -1570,28 +1562,30 @@ char_to_game(descriptor_data *d)
 			GET_NAME(d->creature), GET_QUEST_ALLOWANCE(d->creature),
 			GET_IMMORT_QP(d->creature));
 		GET_IMMORT_QP(d->creature) = GET_QUEST_ALLOWANCE(d->creature);
-		notes = tmp_strcat(notes, "Your quest points have been restored!\r\n");
+		notes = tmp_strcat(notes, "Your quest points have been restored!\r\n", NULL);
 	}
 
     // if their rep is 0 and they are >= gen 5 they gain 5 rep
-	if (GET_REMORT_GEN(d->creature) >= 1 && d->creature->get_reputation() == 0) {
-        d->creature->gain_reputation(5);
-        notes = tmp_strcat(notes, "You are no longer innocent because you have reached your first generation.\r\n");
+	if (GET_REMORT_GEN(d->creature) >= 1 && get_reputation(d->creature) == 0) {
+        gain_reputation(d->creature, 5);
+        notes = tmp_strcat(notes, "You are no longer innocent because you have reached your first generation.\r\n", NULL);
     }
 
 	d->creature->player.time.logon = now;
-	d->creature->saveToXML();
+	save_player_to_xml(d->creature);
 	send_to_char(d->creature, "%s%s%s%s",
 		CCRED(d->creature, C_NRM), CCBLD(d->creature, C_NRM), WELC_MESSG,
 		CCNRM(d->creature, C_NRM));
 
-	characterList.add(d->creature);
-    characterMap[GET_IDNUM(d->creature)] = d->creature;
+	creatures = g_list_prepend(creatures, d->creature);
+    g_hash_table_insert(creature_map,
+                        GINT_TO_POINTER(GET_IDNUM(d->creature)),
+                        d->creature);
 
 	if(!load_room)
-		load_room = d->creature->getLoadroom();
+		load_room = getLoadroom(d->creature);
 
-	char_to_room(d->creature, load_room);
+	char_to_room(d->creature, load_room, true);
 	load_room->zone->enter_count++;
 	show_mud_date_to_char(d->creature);
 	SEND_TO_Q("\r\n", d);
@@ -1608,16 +1602,16 @@ char_to_game(descriptor_data *d)
 				GET_NAME(d->creature)));
 		do_start(d->creature, 0);
     } else {
-		mlog(Security_ADMINBASIC, GET_INVIS_LVL(d->creature), NRM, true,
+		mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(d->creature), NRM, true,
 			"%s has entered the game in room #%d%s",
              GET_NAME(d->creature),
              d->creature->in_room->number,
-             d->account->is_banned() ? " [BANNED]":"");
+             (d->account->banned) ? " [BANNED]":"");
 		act("$n has entered the game.", true, d->creature, 0, 0, TO_ROOM);
 	}
 
     // Wait 5-15 seconds before kicking them off for being banned
-    if (d->account->is_banned() && !d->ban_dc_counter)
+    if (d->account->banned && !d->ban_dc_counter)
         d->ban_dc_counter = number(5 RL_SEC, 15 RL_SEC);
 
 	look_at_room(d->creature, d->creature->in_room, 0);
@@ -1625,11 +1619,11 @@ char_to_game(descriptor_data *d)
 	// Remove the quest prf flag (for who list) if they're
 	// not in an active quest.
 	if (GET_QUEST(d->creature)) {
-		Quest *quest = quest_by_vnum( GET_QUEST(d->creature) );
+		struct quest *quest = quest_by_vnum( GET_QUEST(d->creature) );
 		if (GET_QUEST(d->creature) == 0 ||
 				quest == NULL ||
-				quest->getEnded() != 0 ||
-				!quest->isPlaying(GET_IDNUM(d->creature))) {
+				quest->ended != 0 ||
+            !is_playing_quest(GET_IDNUM(d->creature), quest)) {
 			slog("%s removed from quest %d",
 				  GET_NAME(d->creature), GET_QUEST(d->creature) );
 			GET_QUEST(d->creature) = 0;
@@ -1657,16 +1651,16 @@ char_to_game(descriptor_data *d)
 	check_dyntext_updates(d->creature, CHECKDYN_UNRENT);
 
 	// Check for house reposessions
-	House *house = Housing.findHouseByOwner( d->creature->getstruct accountID() );
-	if( house != NULL && house->getRepoNoteCount() > 0 )
-		house->notifyReposession( d->creature );
+	struct house *house = find_house_by_owner(d->creature->account->id);
+	if( house != NULL && repo_note_count(house) > 0 )
+		house_notify_repossession(house, d->creature);
 
 	if( GET_CLAN(d->creature) != 0 ) {
-		clan_data *clan = clan_by_owner( GET_IDNUM(d->creature) );
+		struct clan_data *clan = clan_by_owner( GET_IDNUM(d->creature) );
 		if( clan != NULL ) {
-			house = Housing.findHouseByOwner( clan->number, false );
-			if( house != NULL && house->getRepoNoteCount() > 0 ) {
-				house->notifyReposession( d->creature );
+            house = find_house_by_clan(clan->number);
+			if( house != NULL && repo_note_count(house) > 0 ) {
+                house_notify_repossession(house, d->creature);
 			}
 		}
 	}
@@ -1678,7 +1672,7 @@ char_to_game(descriptor_data *d)
 				"\r\n\007\007_ NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
 				shutdown_count, shutdown_count == 1 ? "" : "s"), d);
 
-	d->account->update_last_entry();
+	account_update_last_entry(d->account);
 }
 
 /* *************************************************************************
@@ -1686,7 +1680,7 @@ char_to_game(descriptor_data *d)
 ************************************************************************* */
 
 void
-show_character_detail(descriptor_data *d)
+show_character_detail(struct descriptor_data *d)
 {
 	struct creature *ch = d->creature;
 	struct time_info_data playing_time;
@@ -1739,7 +1733,7 @@ show_character_detail(descriptor_data *d)
 }
 
 void
-show_account_chars(descriptor_data *d, struct account *acct, bool immort, bool brief)
+show_account_chars(struct descriptor_data *d, struct account *acct, bool immort, bool brief)
 {
 	const char *class_str, *status_str, *mail_str;
 	const char *sex_color = "";
@@ -1761,14 +1755,11 @@ show_account_chars(descriptor_data *d, struct account *acct, bool immort, bool b
 	}
 
 	idx = 1;
-	tmp_ch = new struct creature(true);
-	while (!acct->invalid_char_index(idx)) {
-
-		tmp_ch->clear();
-
-		if (!tmp_ch->loadFromXML(acct->get_char_by_index(idx))) {
+	while (!account_invalid_char_index(acct, idx)) {
+        tmp_ch = load_player_from_xml(account_get_char_by_index(acct, idx));
+		if (!tmp_ch) {
 			send_to_desc(d, "&R------ BAD PROBLEMS ------  PLEASE REPORT ------[%ld]&n\r\n",
-                         acct->get_char_by_index(idx));
+                         account_get_char_by_index(acct, idx));
 			idx++;
 			continue;
 		}
@@ -1890,12 +1881,10 @@ show_account_chars(descriptor_data *d, struct account *acct, bool immort, bool b
 			else
 				send_to_desc(d, " ");
 		}
-
+        free_creature(tmp_ch);
 	}
 	if (brief && !(idx & 1))
         send_to_desc(d, "\r\n");
-
-	delete tmp_ch;
 }
 
 int check_newbie_ban(struct descriptor_data *desc)
@@ -1916,7 +1905,7 @@ int check_newbie_ban(struct descriptor_data *desc)
                            "name and your character name(s)\r\n\tso we can siteok "
                            "your IP.  We apologize for the inconvenience,\r\n\tand "
                            "we hope to see you soon!");
-        mlog(Security_ADMINBASIC, LVL_GOD, CMP, true,
+        mlog(SECURITY_ADMINBASIC, LVL_GOD, CMP, true,
              "struct account creation denied from [%s]", desc->host);
         return BAN_NEW;
     }
