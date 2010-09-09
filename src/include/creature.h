@@ -929,7 +929,7 @@ struct char_language_data {
 struct creature {
 	struct room_data *in_room;	/* Location (real room number)      */
 
-    struct creature *fighting; /* list of combats for this char */
+    GList *fighting; /* list of combats for this char */
 	struct char_player_data player;	/* Normal data                   */
 	struct char_ability_data real_abils;	/* Abilities without modifiers   */
 	struct char_ability_data aff_abils;	/* Abils with spells/stones/etc  */

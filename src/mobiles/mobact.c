@@ -2660,10 +2660,8 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 		}
 	}
 
-    list <CharCombat>_iterator li;
-    li = ch->getCombatList()->begin();
-    for (; li != ch->getCombatList()->end(); ++li)
-	    if (detect_opponent_master(ch, li->getOpponent()))
+    for (GList *li = ch->fighting;li;li = li->next)
+	    if (detect_opponent_master(ch, li->data))
 		    return 0;
 
 	/* Here go the fighting Routines */
@@ -2726,10 +2724,10 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 						struct creature *was_fighting = random_opponent(ch);
 
                         remove_all_combat(ch);
-                        struct creatureList_iterator ci = ch->in_room->people.begin();
-                        for (; ci != ch->in_room->people.end(); ++ci) {
-                            if ((*ci)->findCombat(ch)) {
-                                (*ci)->removeCombat(ch);
+                        
+                        for (GList *ci = ch->in_room->people;ci;ci = ci->next) {
+                            if (findCombat(ci->data, ch)) {
+                                removeCombat(ci->data, ch);
                             }
                         }
 
@@ -2749,7 +2747,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 							false, ch, 0, 0, TO_ROOM);
 
                         if (was_fighting)
-						    ch->startHunting(was_fighting);
+						    startHunting(ch, was_fighting);
 						return 0;
 					}
 				}
@@ -2759,9 +2757,9 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 
 		else if (random_binary()) {
 			act("$n releases a deafening scream!!", false, ch, 0, 0, TO_ROOM);
-            CombatDataList_iterator li = ch->getCombatList()->begin();
-            for (; li != ch->getCombatList()->end(); ++li) {
-			    call_magic(ch, li->getOpponent(), 0, NULL, SPELL_FEAR, GET_LEVEL(ch),
+            
+            for (GList *li = ch->fighting;li;li = li->next) {
+			    call_magic(ch, li->data, 0, NULL, SPELL_FEAR, GET_LEVEL(ch),
                            CAST_BREATH, &return_flags);
             }
 			return return_flags;
@@ -2865,9 +2863,9 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 		if (random_fractional_5()) {
 			act("$n begins to secrete a disgustingly malodorous oil!",
 				false, ch, 0, 0, TO_ROOM);
-			struct creatureList_iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-                struct creature *tch = *it;
+			
+			for (GList *it = ch->in_room->people;it;it = it->next) {
+                struct creature *tch = it->data;
 				if (!IS_TROG(tch)
                     && !IS_UNDEAD(tch)
                     && !IS_ELEMENTAL(tch)
@@ -2893,9 +2891,9 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 	if (IS_DRAGON(ch)) {
 		if (random_number_zero_low(GET_LEVEL(ch)) > 10) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", false, ch, 0, 0, TO_ROOM);
-            CombatDataList_iterator it = ch->getCombatList()->begin();
-            for (; it != ch->getCombatList()->end(); it++) {
-                vict = it->getOpponent();
+            
+            for (GList *it = ch->fighting;it;it = it->next) {
+                vict = it->data;
                 if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
                     !AFF_FLAGGED(vict, AFF_CONFIDENCE)) {
                     do_flee(vict, tmp_strdup(""), 0, 0, 0);
@@ -2911,7 +2909,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 			damage(ch, vict, random_number_zero_low(GET_LEVEL(ch)), TYPE_CLAW,
                    WEAR_RANDOM);
 			return 0;
-		} else if (random_fractional_4() && ch->findCombat(vict)) {
+		} else if (random_fractional_4() && findCombat(ch, vict)) {
 			damage(ch, vict, random_number_zero_low(GET_LEVEL(ch)), TYPE_CLAW,
                    WEAR_RANDOM);
 			return 0;
@@ -3314,7 +3312,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 void
 remember(struct creature *ch, struct creature *victim)
 {
-	memory_rec *tmp;
+	struct memory_rec *tmp;
 	int present = false;
 
 	if (!IS_NPC(ch) || (!MOB2_FLAGGED(ch, MOB2_ATK_MOBS) && IS_NPC(victim)))
@@ -3325,7 +3323,7 @@ remember(struct creature *ch, struct creature *victim)
 			present = true;
 
 	if (!present) {
-		CREATE(tmp, memory_rec, 1);
+		CREATE(tmp, struct memory_rec, 1);
 		tmp->next = MEMORY(ch);
 		tmp->id = GET_IDNUM(victim);
 		MEMORY(ch) = tmp;
@@ -3336,7 +3334,7 @@ remember(struct creature *ch, struct creature *victim)
 void
 forget(struct creature *ch, struct creature *victim)
 {
-	memory_rec *curr, *prev = NULL;
+	struct memory_rec *curr, *prev = NULL;
 
 	if (!(curr = MEMORY(ch)))
 		return;
@@ -3359,7 +3357,7 @@ forget(struct creature *ch, struct creature *victim)
 int
 char_in_memory(struct creature *victim, struct creature *rememberer)
 {
-	memory_rec *names;
+	struct memory_rec *names;
 
 	for (names = MEMORY(rememberer); names; names = names->next)
 		if (names->id == GET_IDNUM(victim))
@@ -3381,9 +3379,9 @@ mob_fight_slaad(struct creature *ch, struct creature *precious_vict)
 
     if (!(vict = choose_opponent(ch, precious_vict)))
         return 0;
-    struct creatureList_iterator it = ch->in_room->people.begin();
-    for (; it != ch->in_room->people.end(); ++it)
-        if (IS_SLAAD((*it)))
+    
+    for (GList *it = ch->in_room->people; it; ++it)
+        if (IS_SLAAD((struct creature *)(it->data)))
             num++;
 
     switch (GET_CLASS(ch)) {
@@ -3499,7 +3497,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-    num = ch->fighting;
+    num = g_list_length(ch->fighting);
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -3524,9 +3522,9 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
 		return 0;
 
 	// see how many devils are already in the room
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (num = 12; it != ch->in_room->people.end(); ++it)
-		if (IS_DEVIL((*it)))
+	num = 12;
+	for (GList *it = ch->in_room->people;it;it = it->next)
+		if (IS_DEVIL((struct creature *)it->data))
 			num++;
 
 	// less chance of gating for psionic devils with mana
@@ -3586,10 +3584,12 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
 	case CLASS_ARCH:
 		if (random_number_zero_low(GET_LEVEL(ch)) > 30) {
 			act("You feel a wave of sheer terror wash over you as $n approaches!", false, ch, 0, 0, TO_ROOM);
-			struct creatureList_iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end() && *it != ch; ++it) {
-				vict = *it;
-				if (vict->findCombat(ch) &&
+			
+			for (GList *it = ch->in_room->people;
+                 it && it->data != ch;
+                 it = it->next) {
+				vict = it->data;
+				if (findCombat(vict, ch) &&
 					GET_LEVEL(vict) < LVL_AMBASSADOR &&
 					!mag_savingthrow(vict, GET_LEVEL(ch) << 2, SAVING_SPELL) &&
 					!AFF_FLAGGED(vict, AFF_CONFIDENCE))
@@ -3676,7 +3676,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	num = ch->fighting;
+	num = g_list_length(ch->fighting);
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -3696,10 +3696,12 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
 	}
 
 	// see how many celestials are already in the room
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (num = 0; it != ch->in_room->people.end(); ++it)
-		if (GET_RACE(*it) == RACE_CELESTIAL || GET_RACE(*it) == RACE_ARCHON)
+	num = 0;
+	for (GList *it = ch->in_room->people; it; it = it->next) {
+        struct creature *tch = it->data;
+		if (GET_RACE(tch) == RACE_CELESTIAL || GET_RACE(tch) == RACE_ARCHON)
 			num++;
+    }
 
 	// less chance of gating for psionic celeestials with mana
 	if (IS_PSIONIC(ch) && GET_MANA(ch) > 100)
@@ -3815,7 +3817,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-	num = ch->fighting;
+	num = g_list_length(ch->fighting);
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -3835,9 +3837,10 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
 	}
 
 	// see how many guardinal are already in the room
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (num = 0; it != ch->in_room->people.end(); ++it)
-		if (GET_RACE(*it) == RACE_GUARDINAL)
+	
+    num = 0;
+	for (GList *it = ch->in_room->people;it;it = it->next)
+		if (GET_RACE((struct creature *)it->data) == RACE_GUARDINAL)
 			num++;
 
 	// less chance of gating for psionic celeestials with mana
@@ -3963,7 +3966,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
 		return return_flags;
 	}
 	// see if we're fighting more than 1 person, if so, blast the room
-    num = ch->fighting;
+    num = g_list_length(ch->fighting);
 
 	if (num > 1 && GET_LEVEL(ch) > (random_number_zero_low(50) + 30)) {
 		WAIT_STATE(ch, 3 RL_SEC);
@@ -3987,9 +3990,10 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
 	}
 
 	// see how many demon are already in the room
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (num = 0; it != ch->in_room->people.end(); ++it)
-		if (GET_RACE(*it) == RACE_DEMON)
+	
+    num = 0;
+	for (GList *it = ch->in_room->people;it;it = it->next)
+		if (GET_RACE((struct creature *)it->data) == RACE_DEMON)
 			num++;
 
 	// less chance of gating for psionic celeestials with mana

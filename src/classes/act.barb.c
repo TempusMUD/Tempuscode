@@ -90,7 +90,7 @@ perform_barb_berserk(struct creature *ch,
 {
     gint select_victim(struct creature *tch, struct creature *ignore) {
         if (tch == ch
-            || tch->fighting != ch
+            || tch->fighting->data != ch
             || PRF_FLAGGED(tch, PRF_NOHASSLE)
             || (IS_NPC(ch)
                 && IS_NPC(tch)
@@ -303,7 +303,7 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
             // find a new victim
             gint select_victim(struct creature *tch, struct creature *ignore) {
                 if (tch == ch
-                    || tch->fighting != ch
+                    || tch->fighting->data != ch
                     || PRF_FLAGGED(tch, PRF_NOHASSLE)
                     || (IS_NPC(ch)
                         && IS_NPC(tch)
@@ -330,7 +330,7 @@ ACMD(do_cleave)
 	arg = tmp_getword(&argument);
 
     if( !*arg ) {
-        vict = ch->fighting;
+        vict = ch->fighting->data;
     } else {
         vict = get_char_room_vis(ch, arg);
     }
