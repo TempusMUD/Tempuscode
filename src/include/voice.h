@@ -45,8 +45,8 @@ struct voice_responses {
 };
 
 struct voice {
-    int _idnum;
-    char * _name;
+    int idnum;
+    char * name;
     GHashTable *emits;
 };
 
