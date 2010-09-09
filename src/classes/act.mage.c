@@ -347,18 +347,23 @@ mage_damaging_attack(struct creature * ch, struct creature * vict)
 }
 
 bool
-dispel_is_advisable(struct creature * vict)
+dispel_is_advisable(struct creature *vict)
 {
-    // Return true if magical buffs are found
-    struct affected_type *af;
-    for (af = vict->affected; af; af = af->next) {
-        if ((SPELL_IS_MAGIC(af->type) || SPELL_IS_DIVINE(af->type))
-            && !SPELL_FLAGGED(af->type, MAG_DAMAGE)
-            && !spell_info[af->type].violent
-            && !(spell_info[af->type].targets & TAR_UNPLEASANT))
-            return true;
+    int blessings = 0;
+    int curses = 0;
+
+    // Return true if magical debuffs are found
+    for (struct affected_type *af = vict->affected;af;af = af->next) {
+        if (SPELL_IS_MAGIC(af->type) || SPELL_IS_DIVINE(af->type)) {
+            if (!SPELL_FLAGGED(af->type, MAG_DAMAGE)
+                && !spell_info[af->type].violent
+                && !(spell_info[af->type].targets & TAR_UNPLEASANT))
+                blessings++;
+            else
+                curses++;
+        }
     }
-    return false;
+    return (blessings > curses * 2);
 }
 
 void

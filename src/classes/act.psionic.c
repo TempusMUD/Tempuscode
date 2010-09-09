@@ -230,16 +230,21 @@ calculate_mob_aggression(struct creature *ch, struct creature *vict)
 bool
 nullpsi_is_advisable(struct creature * vict)
 {
-    // Return true if psion buffs are found
-    struct affected_type *af;
-    for (af = vict->affected; af; af = af->next) {
-        if (SPELL_IS_PSIONIC(af->type)
-            && !SPELL_FLAGGED(af->type, MAG_DAMAGE)
-            && !spell_info[af->type].violent
-            && !(spell_info[af->type].targets & TAR_UNPLEASANT))
-            return true;
+    int blessings = 0;
+    int curses = 0;
+
+    // Return true if psionic debuffs are found
+    for (struct affected_type *af = vict->affected;af;af = af->next) {
+        if (SPELL_IS_PSIONIC(af->type)) {
+            if (!SPELL_FLAGGED(af->type, MAG_DAMAGE)
+                && !spell_info[af->type].violent
+                && !(spell_info[af->type].targets & TAR_UNPLEASANT))
+                blessings++;
+            else
+                curses++;
+        }
     }
-    return false;
+    return (blessings > curses * 2);
 }
 
 void
