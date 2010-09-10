@@ -1968,7 +1968,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         const char* name = "None";
         struct quest *quest = quest_by_vnum( GET_QUEST(k) );
 
-        if( quest != NULL && is_playing_quest(GET_IDNUM(k), quest))
+        if( quest != NULL && is_playing_quest(quest, GET_IDNUM(k)))
             name = quest->name;
         acc_sprintf("Quest [%d]: \'%s\'\r\n", GET_QUEST(k), name);
     }
@@ -6678,15 +6678,15 @@ ACMD(do_aset)
 
     switch (l) {
     case 0:
-		account->bank_past = value; break;
+		account_set_past_bank(account, value); break;
 	case 1:
-		account->bank_future = value; break;
+		account_set_future_bank(account, value); break;
 	case 2:
-		account->reputation = value; break;
+		account_set_reputation(account, value); break;
 	case 3:
-		account->quest_points = value; break;
+		account_set_quest_points(account, value); break;
 	case 4:
-	    account->quest_banned = on; break;
+	    account_set_quest_banned(account, on); break;
 	case 5:
 		account_set_password(account, argument);
 		sprintf(buf, "Password for account %s[%d] has been set.",

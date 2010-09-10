@@ -90,6 +90,9 @@ void deposit_future_bank(struct account *account, money_t amt);
 void withdraw_past_bank(struct account *account, money_t amt);
 void withdraw_future_bank(struct account *account, money_t amt);
 
+void account_set_quest_points(struct account *account, int qp);
+void account_set_quest_banned(struct account *account, bool banned);
+
 void set_password(struct account *account, const char *password);
 
 const char* get_login_addr(struct account *account);

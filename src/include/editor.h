@@ -25,7 +25,11 @@ struct editor {
                           unsigned int start_line,
                           int line_count);
     void (*sendmodalhelp)(struct editor *editor); // send mode-specific command help
+    bool (*is_editing)(struct editor *editor, char **buffer);
 };
+
+
+int check_editors(struct creature *ch, char *buffer);
 
 struct editor *make_editor(struct descriptor_data *d, int max);
 void editor_import(struct editor *editor, const char *text);

@@ -26,6 +26,8 @@ struct creature;
 struct room_data;
 struct zone_data;
 struct obj_data;
+struct descriptor_data;
+struct txt_q;
 
 /* comm.c */
 void send_to_all(const char *messg);

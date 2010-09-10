@@ -246,7 +246,7 @@ vendor_appraise(struct creature *ch, struct obj_data *obj, struct creature *self
 			currency_str = "creds";
 			break;
 		case 2:
-			ch->account->quest_points -= cost;
+			account_set_quest_points(ch->account, ch->account->quest_points -= cost);
 			currency_str = "quest points";
 			break;
 		default:
@@ -413,7 +413,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self, struct shop_d
 		currency_str = "creds";
 		break;
 	case 2:
-		ch->account->quest_points -= (cost * num);
+		account_set_quest_points(ch->account, ch->account->quest_points - (cost * num));
 		currency_str = "quest points";
 		break;
 	default:

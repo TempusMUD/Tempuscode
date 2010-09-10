@@ -32,9 +32,6 @@
 
 // external variables
 
-// external functions
-int check_editors(struct creature *ch, char **buffer);	// quest.c
-
 // local variables
 dynamic_text_file *dyntext_list = NULL;
 
@@ -432,7 +429,7 @@ dyntext_edit_ok(struct creature *ch, dynamic_text_file * dyntext)
 			return 1;
 	}
 
-	return (!check_editors(ch, &(dyntext->tmp_buffer)));
+	return !check_editors(ch, dyntext->tmp_buffer);
 }
 
 int

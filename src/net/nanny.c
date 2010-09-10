@@ -217,7 +217,7 @@ handle_input(struct descriptor_data *d)
 			return;
 		}
 
-        d->account->ansi_level = i;
+        account_set_ansi_level(d->account, i);
 		set_desc_state(CXN_COMPACT_PROMPT, d);
 		break;
 	case CXN_COMPACT_PROMPT:
@@ -227,12 +227,12 @@ handle_input(struct descriptor_data *d)
 			return;
 		}
 
-        d->account->compact_level = i;
+        account_set_compact_level(d->account, i);
 		set_desc_state(CXN_EMAIL_PROMPT, d);
 		break;
 	case CXN_EMAIL_PROMPT:
         free(d->account->email);
-        d->account->email = strdup(arg);
+        account_set_email(d->account, arg);
 		set_desc_state(CXN_PW_PROMPT, d);
 		break;
 	case CXN_PW_PROMPT:
@@ -389,7 +389,7 @@ handle_input(struct descriptor_data *d)
 			}
 
 			d->creature = load_player_from_xml(char_id);
-			
+
 			if (!d->creature) {
 				mlog(SECURITY_ADMINBASIC, LVL_IMMORT, CMP, true,
 					"Character %d didn't load from account '%s'",
@@ -1623,7 +1623,7 @@ char_to_game(struct descriptor_data *d)
 		if (GET_QUEST(d->creature) == 0 ||
 				quest == NULL ||
 				quest->ended != 0 ||
-            !is_playing_quest(GET_IDNUM(d->creature), quest)) {
+            !is_playing_quest(quest, GET_IDNUM(d->creature))) {
 			slog("%s removed from quest %d",
 				  GET_NAME(d->creature), GET_QUEST(d->creature) );
 			GET_QUEST(d->creature) = 0;

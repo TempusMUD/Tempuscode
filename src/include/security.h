@@ -67,6 +67,7 @@ enum privilege {
     APPROVE_ZONE,
     UNAPPROVE_ZONE,
     EDIT_HOUSE,
+    EDIT_QUEST,
     COMMAND,
     SHOW,
     SET,

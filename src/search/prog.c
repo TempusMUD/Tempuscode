@@ -33,54 +33,54 @@ int loop_fence = 0;
 extern char locate_buf[256];
 
 #define DEFPROGHANDLER(cmd, env, evt, args) \
-    void prog_do_##cmd(prog_env *env __attribute__ ((unused)), \
-                       prog_evt *evt __attribute__ ((unused)), \
+    void prog_do_##cmd(struct prog_env *env __attribute__ ((unused)), \
+                       struct prog_evt *evt __attribute__ ((unused)), \
                        char *args __attribute__ ((unused)))
 
 // Prog command prototypes
-static void prog_do_before(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_handle(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_after(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_require(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_unless(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_do(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_silently(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_force(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_pause(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_walkto(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_driveto(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_halt(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_target(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_nuke(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_trans(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_set(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_let(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_oload(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_mload(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_opurge(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_giveexp(prog_env *env, prog_evt *evt, char *args);
-static void prog_do_randomly(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_or(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_resume(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_echo(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_mobflag(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_ldesc(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_damage(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_spell(prog_env *env, prog_evt *evt, char *args);
-static void prog_do_doorset(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_doorexit(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_selfpurge(prog_env * env, prog_evt * evt, char *args);
-static void prog_do_compare_cmd(prog_env *env, prog_evt *evt, char *args);
-static void prog_do_cond_next_handler(prog_env *env, prog_evt *evt, char *args);
-static void prog_do_compare_obj_vnum(prog_env *env, prog_evt *evt, char *args);
-static void prog_do_clear_cond(prog_env *env, prog_evt *evt, char *args);
-static void prog_do_trace(prog_env *env, prog_evt *evt, char *args);
+static void prog_do_before(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_handle(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_after(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_require(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_unless(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_do(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_silently(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_force(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_pause(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_walkto(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_driveto(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_halt(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_target(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_nuke(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_trans(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_set(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_let(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_oload(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_mload(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_opurge(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_giveexp(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_randomly(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_or(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_resume(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_echo(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_mobflag(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_ldesc(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_damage(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_spell(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_doorset(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_doorexit(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_selfpurge(struct prog_env * env, struct prog_evt * evt, char *args);
+static void prog_do_compare_cmd(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_cond_next_handler(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_compare_obj_vnum(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_clear_cond(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_trace(struct prog_env *env, struct prog_evt *evt, char *args);
 
 //external prototypes
 struct creature *real_mobile_proto(int vnum);
 struct obj_data *real_object_proto(int vnum);
 
-prog_command prog_cmds[] = {
+struct prog_command prog_cmds[] = {
     {"!ENDOFPROG!", false, prog_do_halt },
 	{"halt", false, prog_do_halt},
 	{"resume", false, prog_do_resume},
@@ -123,14 +123,14 @@ prog_command prog_cmds[] = {
 };
 
 unsigned char *
-prog_get_obj(void *owner, prog_evt_type owner_type)
+prog_get_obj(void *owner, enum prog_evt_type owner_type)
 {
 	switch (owner_type) {
 	case PROG_TYPE_OBJECT:
 		break;
 	case PROG_TYPE_MOBILE:
-		if (owner->to_c()) {
-			return GET_MOB_PROGOBJ((owner->to_c()));
+		if (((struct creature *)owner)) {
+			return GET_MOB_PROGOBJ((((struct creature *)owner)));
 		} else {
 			errlog("Mobile Prog with no owner - Can't happen at %s:%d",
 				__FILE__, __LINE__);
@@ -146,13 +146,13 @@ prog_get_obj(void *owner, prog_evt_type owner_type)
 }
 
 char *
-prog_get_desc(prog_env *env)
+prog_get_desc(struct prog_env *env)
 {
 	switch (env->owner_type) {
 	case PROG_TYPE_OBJECT:
 		return tmp_sprintf("object %d", GET_OBJ_VNUM((struct obj_data *)env->owner));
 	case PROG_TYPE_MOBILE:
-		return tmp_sprintf("mobile %d", GET_MOB_VNUM(env->owner->to_c()));
+		return tmp_sprintf("mobile %d", GET_MOB_VNUM((struct creature *)env->owner));
 	case PROG_TYPE_ROOM:
 		return tmp_sprintf("room %d", ((struct room_data *)env->owner)->number);
 	default:
@@ -163,9 +163,9 @@ prog_get_desc(prog_env *env)
 }
 
 int
-prog_event_handler(void *owner, prog_evt_type owner_type,
-                   prog_evt_phase phase,
-                   prog_evt_kind kind)
+prog_event_handler(void *owner, enum prog_evt_type owner_type,
+                   enum prog_evt_phase phase,
+                   enum prog_evt_kind kind)
 {
     unsigned char *obj = prog_get_obj(owner, owner_type);
 
@@ -175,7 +175,7 @@ prog_event_handler(void *owner, prog_evt_type owner_type,
 }
 
 static void
-prog_next_handler(prog_env * env, bool use_resume)
+prog_next_handler(struct prog_env * env, bool use_resume)
 {
     unsigned char *prog;
 
@@ -212,15 +212,15 @@ DEFPROGHANDLER(after, env, evt, args)
 }
 
 struct room_data *
-prog_get_owner_room(prog_env *env)
+prog_get_owner_room(struct prog_env *env)
 {
     switch (env->owner_type) {
     case PROG_TYPE_MOBILE:
-        return (env->owner->to_c())->in_room;
+        return ((struct creature *)env->owner)->in_room;
     case PROG_TYPE_ROOM:
         return ((struct room_data *)env->owner);
     case PROG_TYPE_OBJECT:
-        return ((struct obj_data *)env->owner)->find_room();
+        return find_room((struct obj_data *)env->owner);
     default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
     }
@@ -229,7 +229,7 @@ prog_get_owner_room(prog_env *env)
 }
 
 static void
-prog_send_debug(prog_env *env, const char *msg)
+prog_send_debug(struct prog_env *env, const char *msg)
 {
     struct room_data *room = prog_get_owner_room(env);
 
@@ -245,7 +245,7 @@ prog_send_debug(prog_env *env, const char *msg)
 }
 
 struct prog_var *
-prog_get_var(prog_env *env, const char *key, bool exact)
+prog_get_var(struct prog_env *env, const char *key, bool exact)
 {
 	struct prog_var *cur_var;
 
@@ -272,7 +272,7 @@ prog_get_var(prog_env *env, const char *key, bool exact)
 }
 
 static void
-prog_set_var(prog_env *env, bool local, const char *key, const char *arg)
+prog_set_var(struct prog_env *env, bool local, const char *key, const char *arg)
 {
 	prog_state_data *state;
 	prog_var *var;
@@ -315,7 +315,7 @@ prog_set_var(prog_env *env, bool local, const char *key, const char *arg)
 }
 
 static void
-prog_set_target(prog_env *env, struct creature *target)
+prog_set_target(struct prog_env *env, struct creature *target)
 {
     if (env->tracing) {
         if (target)
@@ -332,7 +332,7 @@ prog_set_target(prog_env *env, struct creature *target)
 }
 
 bool
-prog_var_equal(prog_env *env, char *key, char *arg)
+prog_var_equal(struct prog_env *env, char *key, char *arg)
 {
 	struct prog_var *var;
 
@@ -343,7 +343,7 @@ prog_var_equal(prog_env *env, char *key, char *arg)
 }
 
 char *
-prog_expand_vars(prog_env *env, char *args)
+prog_expand_vars(struct prog_env *env, char *args)
 {
     char *search_pt = strchr(args, '$');
     const char *result = "";
@@ -424,7 +424,7 @@ prog_get_alias_list(char *args)
 }
 
 bool
-prog_eval_alias(prog_evt *evt, char *args)
+prog_eval_alias(struct prog_evt *evt, char *args)
 {
     char *alias_list = NULL;
     bool result = false;
@@ -448,7 +448,7 @@ prog_eval_alias(prog_evt *evt, char *args)
 }
 
 bool
-prog_eval_keyword(prog_evt *evt, char *args) {
+prog_eval_keyword(struct prog_evt *evt, char *args) {
     bool result = false;
     char *str, *arg;
 
@@ -468,7 +468,7 @@ prog_eval_keyword(prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_abbrev(prog_evt *evt, char *args) {
+prog_eval_abbrev(struct prog_evt *evt, char *args) {
     bool result = false;
     char *str, *arg;
 
@@ -498,7 +498,7 @@ prog_eval_abbrev(prog_evt *evt, char *args) {
 }
 
 bool
-prog_eval_holding(prog_env *env, char *args) {
+prog_eval_holding(struct prog_env *env, char *args) {
     bool result = false;
 	int vnum;
 	struct obj_data *obj = NULL;
@@ -549,7 +549,7 @@ prog_eval_phase(char *args) {
 }
 
 bool
-prog_eval_class(prog_env *env, char *args) {
+prog_eval_class(struct prog_env *env, char *args) {
     bool result = false;
     // Required class
     char *rclass = tmp_tolower(args);
@@ -576,7 +576,7 @@ prog_eval_class(prog_env *env, char *args) {
 }
 
 bool
-prog_eval_vnum(prog_env *env, char *args) {
+prog_eval_vnum(struct prog_env *env, char *args) {
     bool result = false;
     char *arg;
 
@@ -596,7 +596,7 @@ prog_eval_vnum(prog_env *env, char *args) {
 }
 
 bool
-prog_eval_level(prog_env *env, char *args) {
+prog_eval_level(struct prog_env *env, char *args) {
     bool result = false;
     char *arg;
 
@@ -615,7 +615,7 @@ prog_eval_level(prog_env *env, char *args) {
 }
 
 bool
-prog_eval_gen(prog_env *env, char *args) {
+prog_eval_gen(struct prog_env *env, char *args) {
     bool result = false;
     char *arg;
 
@@ -634,7 +634,7 @@ prog_eval_gen(prog_env *env, char *args) {
 }
 
 bool
-prog_eval_tar_holding(prog_env *env, char *args) {
+prog_eval_tar_holding(struct prog_env *env, char *args) {
     bool result = false;
     struct obj_data *obj;
     int vnum;
@@ -655,7 +655,7 @@ prog_eval_tar_holding(prog_env *env, char *args) {
 }
 
 bool
-prog_eval_wearing(prog_env *env, char *args) {
+prog_eval_wearing(struct prog_env *env, char *args) {
     bool result = false;
     int vnum;
 
@@ -677,7 +677,7 @@ prog_eval_wearing(prog_env *env, char *args) {
 // 3 lines or less, you can add it inline here.  Otherwise
 // factor it out into a function
 bool
-prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
+prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
 {
 	char *arg;
 	bool result = false, not_flag = false;
@@ -735,7 +735,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
                         args, prog_get_desc(env));
                 result = false;
             } else {
-                result = (pos == env->owner->to_c()->getPosition());
+                result = (pos == env->((struct creature *)owner)->getPosition());
             }
         }
     } else if (!strcasecmp(arg, "room")) {
@@ -783,7 +783,7 @@ prog_eval_condition(prog_env * env, prog_evt * evt, char *args)
 		}
 		else if (!strcasecmp(arg, "visible")) {
 			if (env->owner_type == PROG_TYPE_MOBILE)
-				result = can_see_creature(env->owner->to_c(), env->target);
+				result = can_see_creature(env->((struct creature *)owner), env->target);
 			else
 				result = true;
 		}
@@ -869,11 +869,11 @@ DEFPROGHANDLER(target, env, evt, args)
 	if (!strcasecmp(arg, "random")) {
         if (!strcasecmp(tmp_getword(&args), "player"))
             new_target = (env->owner_type == PROG_TYPE_MOBILE) ?
-                get_player_random_vis(env->owner->to_c(), room) :
+                get_player_random_vis(env->((struct creature *)owner), room) :
                 get_player_random(room);
         else
             new_target = (env->owner_type == PROG_TYPE_MOBILE) ?
-                get_char_random_vis(env->owner->to_c(), room) :
+                get_char_random_vis(env->((struct creature *)owner), room) :
                 get_char_random(room);
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
@@ -1182,7 +1182,7 @@ DEFPROGHANDLER(spell, env, evt, args)
         caster = (obj->worn_by) ? obj->worn_by : obj->carried_by;
         break;
     case PROG_TYPE_MOBILE:
-        caster = env->owner->to_c();
+        caster = env->((struct creature *)owner);
         break;
     case PROG_TYPE_ROOM:
         caster = NULL;
@@ -1386,7 +1386,7 @@ DEFPROGHANDLER(cond_next_handler, env, evt, args)
 
 DEFPROGHANDLER(nuke, env, evt, args)
 {
-	struct prog_env *cur_prog;
+	struct struct prog_env *cur_prog;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
 		if (cur_prog != env && cur_prog->owner == env->owner)
@@ -1562,7 +1562,7 @@ DEFPROGHANDLER(oload, env, evt, args)
 	case PROG_TYPE_ROOM:
 		obj->creator = ((struct room_data *)env->owner)->number; break;
 	case PROG_TYPE_MOBILE:
-		obj->creator = GET_MOB_VNUM(env->owner->to_c()); break;
+		obj->creator = GET_MOB_VNUM(env->((struct creature *)owner)); break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
@@ -1712,7 +1712,7 @@ DEFPROGHANDLER(giveexp, env, evt, args)
         switch (env->owner_type) {
         case PROG_TYPE_MOBILE:
             owner_type = "mobile";
-            num = GET_MOB_VNUM(env->owner->to_c());
+            num = GET_MOB_VNUM(env->((struct creature *)owner));
             break;
         case PROG_TYPE_OBJECT:
             owner_type = "object";
@@ -1748,7 +1748,7 @@ DEFPROGHANDLER(echo, env, evt, args)
     room = prog_get_owner_room(env);
     switch (env->owner_type) {
     case PROG_TYPE_MOBILE:
-        ch = (env->owner->to_c()); break;
+        ch = (env->((struct creature *)owner)); break;
     case PROG_TYPE_OBJECT:
         obj = ((struct obj_data *)env->owner); break;
     case PROG_TYPE_ROOM:
@@ -1787,13 +1787,13 @@ DEFPROGHANDLER(echo, env, evt, args)
 }
 
 static void
-prog_emit_trace(prog_env *env, int cmd, const char *arg)
+prog_emit_trace(struct prog_env *env, int cmd, const char *arg)
 {
     prog_send_debug(env, tmp_sprintf("%s %s", prog_cmds[cmd].str, arg));
 }
 
 static void
-prog_execute(prog_env *env)
+prog_execute(struct prog_env *env)
 {
 	unsigned char *exec;
     int cmd, arg_addr;
@@ -1852,10 +1852,10 @@ prog_execute(prog_env *env)
         env->exec_pt = -1;
 }
 
-prog_env *
-prog_start(prog_evt_type owner_type, void *owner, struct creature * target, prog_evt * evt)
+struct prog_env *
+prog_start(enum prog_evt_type owner_type, void *owner, struct creature * target, struct prog_evt * evt)
 {
-	prog_env *new_prog;
+	struct prog_env *new_prog;
     int initial_exec_pt;
 
     initial_exec_pt = prog_event_handler(owner, owner_type, evt->phase, evt->kind);
@@ -1866,7 +1866,7 @@ prog_start(prog_evt_type owner_type, void *owner, struct creature * target, prog
 		new_prog = free_progs;
 		free_progs = free_progs->next;
 	} else {
-		CREATE(new_prog, struct prog_env, 1);
+		CREATE(new_prog, struct struct prog_env, 1);
 	}
 	new_prog->next = prog_list;
 	prog_list = new_prog;
@@ -1889,9 +1889,9 @@ prog_start(prog_evt_type owner_type, void *owner, struct creature * target, prog
 }
 
 static void
-prog_free(struct prog_env *prog)
+prog_free(struct struct prog_env *prog)
 {
-	struct prog_env *prev_prog;
+	struct struct prog_env *prev_prog;
 
 	if (prog_list == prog) {
 		prog_list = prog->next;
@@ -1915,7 +1915,7 @@ prog_free(struct prog_env *prog)
 void
 destroy_attached_progs(void *owner)
 {
-	struct prog_env *cur_prog;
+	struct struct prog_env *cur_prog;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
 		if (cur_prog->owner == owner ||
@@ -1929,7 +1929,7 @@ destroy_attached_progs(void *owner)
 void
 prog_unreference_object(struct obj_data *obj)
 {
-	struct prog_env *cur_prog;
+	struct struct prog_env *cur_prog;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
 		if (cur_prog->evt.object_type == PROG_TYPE_OBJECT
@@ -1941,7 +1941,7 @@ prog_unreference_object(struct obj_data *obj)
 }
 
 static void
-report_prog_loop(void *owner, prog_evt_type owner_type, struct creature *ch, const char *where)
+report_prog_loop(void *owner, enum prog_evt_type owner_type, struct creature *ch, const char *where)
 {
     const char *owner_desc = "<unknown>";
     const char *ch_desc = "<unknown>";
@@ -1950,7 +1950,7 @@ report_prog_loop(void *owner, prog_evt_type owner_type, struct creature *ch, con
 	case PROG_TYPE_OBJECT:
         owner_desc = tmp_sprintf("object %d", GET_OBJ_VNUM((struct obj_data *)owner)); break;
 	case PROG_TYPE_MOBILE:
-		owner_desc = tmp_sprintf("mobile %d", GET_MOB_VNUM(owner->to_c())); break;
+		owner_desc = tmp_sprintf("mobile %d", GET_MOB_VNUM(((struct creature *)owner))); break;
 	case PROG_TYPE_ROOM:
 		owner_desc = tmp_sprintf("room %d", ((struct room_data *)owner)->number); break;
 	default:
@@ -1970,11 +1970,11 @@ report_prog_loop(void *owner, prog_evt_type owner_type, struct creature *ch, con
 }
 
 bool
-trigger_prog_cmd(void *owner, prog_evt_type owner_type, struct creature * ch, int cmd,
+trigger_prog_cmd(void *owner, enum prog_evt_type owner_type, struct creature * ch, int cmd,
 	char *argument)
 {
-	prog_env *env, *handler_env;
-	prog_evt evt;
+	struct prog_env *env, *handler_env;
+	struct prog_evt evt;
 	bool handled = false;
 
 	if (ch == owner)
@@ -2032,10 +2032,10 @@ trigger_prog_cmd(void *owner, prog_evt_type owner_type, struct creature * ch, in
 }
 
 bool
-trigger_prog_spell(void *owner, prog_evt_type owner_type, struct creature * ch, int cmd)
+trigger_prog_spell(void *owner, enum prog_evt_type owner_type, struct creature * ch, int cmd)
 {
-	prog_env *env, *handler_env;
-	prog_evt evt;
+	struct prog_env *env, *handler_env;
+	struct prog_evt evt;
 	bool handled = false;
 
 	if (ch == owner)
@@ -2094,11 +2094,11 @@ trigger_prog_spell(void *owner, prog_evt_type owner_type, struct creature * ch, 
 }
 
 bool
-trigger_prog_move(void *owner, prog_evt_type owner_type, struct creature * ch,
+trigger_prog_move(void *owner, enum prog_evt_type owner_type, struct creature * ch,
 	special_mode mode)
 {
-	prog_env *env, *handler_env;
-	prog_evt evt;
+	struct prog_env *env, *handler_env;
+	struct prog_evt evt;
 	bool handled = false;
 
 	if (ch == owner)
@@ -2161,8 +2161,8 @@ trigger_prog_move(void *owner, prog_evt_type owner_type, struct creature * ch,
 void
 trigger_prog_fight(struct creature * ch, struct creature * self)
 {
-	prog_env *env;
-	prog_evt evt;
+	struct prog_env *env;
+	struct prog_evt evt;
 
 	if (!self || !self->in_room || !GET_MOB_PROG(self))
 		return;
@@ -2183,8 +2183,8 @@ trigger_prog_fight(struct creature * ch, struct creature * self)
 void
 trigger_prog_dying(struct creature *owner, struct creature *killer)
 {
-	prog_env *env;
-	prog_evt evt;
+	struct prog_env *env;
+	struct prog_evt evt;
 
     if (!prog_get_obj(owner, PROG_TYPE_MOBILE))
         return;
@@ -2212,10 +2212,10 @@ trigger_prog_dying(struct creature *owner, struct creature *killer)
 }
 
 void
-trigger_prog_death(void *owner, prog_evt_type owner_type, struct creature *doomed)
+trigger_prog_death(void *owner, enum prog_evt_type owner_type, struct creature *doomed)
 {
-	prog_env *env;
-	prog_evt evt;
+	struct prog_env *env;
+	struct prog_evt evt;
 
     if (!prog_get_obj(owner, owner_type))
         return;
@@ -2250,8 +2250,8 @@ trigger_prog_death(void *owner, prog_evt_type owner_type, struct creature *doome
 void
 trigger_prog_give(struct creature * ch, struct creature * self, struct obj_data *obj)
 {
-	prog_env *env;
-	prog_evt evt;
+	struct prog_env *env;
+	struct prog_evt evt;
 
 	if (!self || !self->in_room || !GET_MOB_PROGOBJ(self))
 		return;
@@ -2274,10 +2274,10 @@ trigger_prog_give(struct creature * ch, struct creature * self, struct obj_data 
 }
 
 void
-trigger_prog_idle(void *owner, prog_evt_type owner_type)
+trigger_prog_idle(void *owner, enum prog_evt_type owner_type)
 {
-	prog_env *env;
-	prog_evt evt;
+	struct prog_env *env;
+	struct prog_evt evt;
 
     if (!prog_get_obj(owner, owner_type))
         return;
@@ -2301,10 +2301,10 @@ trigger_prog_idle(void *owner, prog_evt_type owner_type)
 
 //handles idle combat actions
 void
-trigger_prog_combat(void *owner, prog_evt_type owner_type)
+trigger_prog_combat(void *owner, enum prog_evt_type owner_type)
 {
-	prog_env *env;
-	prog_evt evt;
+	struct prog_env *env;
+	struct prog_evt evt;
 
     if (!prog_get_obj(owner, owner_type))
         return;
@@ -2329,8 +2329,8 @@ trigger_prog_combat(void *owner, prog_evt_type owner_type)
 void
 trigger_prog_load(struct creature * owner)
 {
-	prog_env *env;
-	prog_evt evt;
+	struct prog_env *env;
+	struct prog_evt evt;
 
 	// Do we have a mobile program?
 	if (!GET_MOB_PROGOBJ(owner))
@@ -2349,10 +2349,10 @@ trigger_prog_load(struct creature * owner)
 }
 
 void
-trigger_prog_tick(void *owner, prog_evt_type owner_type)
+trigger_prog_tick(void *owner, enum prog_evt_type owner_type)
 {
-	prog_env *env;
-	prog_evt evt;
+	struct prog_env *env;
+	struct prog_evt evt;
 
     if (!prog_get_obj(owner, owner_type))
         return;
@@ -2404,7 +2404,7 @@ prog_unmark_rooms(void)
 static void
 prog_execute_and_mark(void)
 {
-	struct prog_env *cur_prog;
+	struct struct prog_env *cur_prog;
 
 	// Execute progs and mark them as non-idle
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
@@ -2424,7 +2424,7 @@ prog_execute_and_mark(void)
 static void
 prog_free_terminated(void)
 {
-	struct prog_env *cur_prog, *next_prog;
+	struct struct prog_env *cur_prog, *next_prog;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = next_prog) {
 		next_prog = cur_prog->next;
@@ -2484,7 +2484,7 @@ prog_update(void)
 void
 prog_update_pending(void)
 {
-	struct prog_env *cur_prog;
+	struct struct prog_env *cur_prog;
 
 	if (!prog_list)
 		return;
@@ -2499,7 +2499,7 @@ int
 prog_count(bool total)
 {
 	int result = 0;
-	prog_env *cur_env;
+	struct prog_env *cur_env;
 
 	for (cur_env = prog_list; cur_env; cur_env = cur_env->next)
 		if (total || cur_env->exec_pt > 0)
@@ -2511,7 +2511,7 @@ int
 free_prog_count(void)
 {
 	int result = 0;
-	prog_env *cur_env;
+	struct prog_env *cur_env;
 
 	for (cur_env = free_progs; cur_env; cur_env = cur_env->next)
 		result++;

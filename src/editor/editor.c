@@ -46,10 +46,10 @@ editor_import(struct editor *editor, const char *text)
         editor->lines = g_list_prepend(editor->lines,
                                        g_string_new(*strp));
     }
-    g_freestrv(strv);
+    g_strfreev(strv);
 
-    g_list_reverse(editor->original);
-    g_list_reverse(editor->lines);
+    editor->original = g_list_reverse(editor->original);
+    editor->lines = g_list_reverse(editor->lines);
 }
 
 void
@@ -72,10 +72,16 @@ emit_editor_startup(struct editor *editor)
     send_to_desc(editor->desc, "&C7&n\r\n");
 }
 
+gint
+editor_line_count(struct editor *editor)
+{
+    return editor_line_count(editor);
+}
+
 void
 editor_send_prompt(struct editor *editor)
 {
-    send_to_desc(editor->desc, "%3zd&b]&n ", editor_line_count(editor) + 1);
+    send_to_desc(editor->desc, "%3d&b]&n ", editor_line_count(editor) + 1);
 }
 
 int
@@ -86,7 +92,7 @@ editor_buffer_size(struct editor *editor)
     void count_string_len(GString *str, gpointer ignore) {
         len += str->len + 1;
     }
-    g_list_foreach(editor->lines, count_string_len, 0);
+    g_list_foreach(editor->lines, (GFunc)count_string_len, 0);
 
     return len;
 }
@@ -211,12 +217,6 @@ bool
 editor_is_full(struct editor *editor, char *line)
 {
     return (strlen(line) + editor_buffer_size(editor) > editor->max_size);
-}
-
-gint
-editor_line_count(struct editor *editor)
-{
-    return editor_line_count(editor);
 }
 
 void
@@ -803,4 +803,22 @@ make_editor(struct descriptor_data *d, int max)
     editor->sendmodalhelp = editor_sendmodalhelp;
 
     return editor;
+}
+
+
+bool
+already_being_edited(struct creature *ch, char *buffer)
+{
+	struct descriptor_data *d = NULL;
+
+	for (d = descriptor_list; d; d = d->next) {
+		if (d->text_editor
+            && d->text_editor->is_editing
+            && d->text_editor->is_editing(d->text_editor, buffer)) {
+			send_to_char(ch, "%s is already editing that buffer.\r\n",
+                         d->creature ? PERS(d->creature, ch) : "BOGUSMAN");
+			return true;
+		}
+	}
+	return false;
 }

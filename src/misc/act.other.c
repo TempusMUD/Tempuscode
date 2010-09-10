@@ -1593,7 +1593,7 @@ ACMD(do_screen)
 
     // Now change the validated values
     if (*height_str) {
-        ch->desc->account->term_height = new_height;
+        account_set_term_height(ch->account, new_height);
         if (GET_PAGE_LENGTH(ch)) {
             send_to_char(ch, "Your screen length will now be %d lines.\r\n",
                          GET_PAGE_LENGTH(ch));
@@ -1602,7 +1602,7 @@ ACMD(do_screen)
         }
     }
     if (*width_str) {
-        ch->desc->account->term_width = new_width;
+        account_set_term_width(ch->account, new_width);
         if (GET_PAGE_WIDTH(ch)) {
             send_to_char(ch, "Your screen width will now be %d characters.\r\n",
                          GET_PAGE_WIDTH(ch));

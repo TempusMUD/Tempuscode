@@ -169,7 +169,7 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self, struct sho
 		currency_str = "creds";
 		break;
 	case 2:
-		ch->account->quest_points -= cost;
+		account_set_quest_points(ch->account, ch->account->quest_points - cost);
 		currency_str = "quest points";
 		break;
 	default:

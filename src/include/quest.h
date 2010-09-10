@@ -68,8 +68,8 @@ struct quest {
 		long owner_id;
 		time_t started;
 		time_t ended;
-		struct qplayer_data *players;
-		struct qplayer_data *bans;
+		GList *players;
+		GList *bans;
 		int flags;
 		char *name;
 		char *description;
@@ -94,7 +94,6 @@ void qlog(struct creature *ch, const char *str, int type, int level, int file);
 struct creature *check_char_vis(struct creature *ch, char *name);
 void list_quest_players(struct creature *ch, struct quest *quest, char *outbuf);
 int boot_quests(void);
-int check_editors(struct creature *ch, char **buffer);
 void save_quests();
 
 // quest subfunctions and utils
@@ -107,6 +106,6 @@ void do_quest_leave(struct creature *ch, char *argument);
 void do_quest_current(struct creature *ch, char *argument);
 void do_quest_ignore(struct creature *ch, char *argument);
 
-bool is_playing_quest(long id, struct quest *quest);
+bool is_playing_quest(struct quest *quest, int id);
 
 #endif
