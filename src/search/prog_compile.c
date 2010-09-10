@@ -20,8 +20,8 @@ enum prog_token_kind {
 };
 
 struct prog_token {
-    prog_token_kind kind;   // kind of prog_token
-    prog_token *next;       // next prog_token in list
+    enum prog_token_kind kind;   // kind of prog_token
+    struct prog_token *next;       // next prog_token in list
     int linenum;            // line number this token occurs in
     // prog_token data
     union {
@@ -31,7 +31,7 @@ struct prog_token {
 };
 
 struct prog_code_block {
-    prog_code_block *next;
+    struct prog_code_block *next;
     unsigned short code_seg[MAX_STRING_LENGTH];
     unsigned short *code_pt;
     char data_seg[MAX_STRING_LENGTH];
@@ -42,12 +42,12 @@ struct prog_compiler_state {
     struct creature *ch;               // Player doing the compiling
     char *prog_text;            // Text to be compiled
     void *owner;                // Owner of the prog
-    prog_evt_type owner_type;   // Owner type of the prog
-    prog_token *token_list;     // The prog converted to a list of tokens
-    prog_token *token_tail;     // End of list of tokens, for appending
-    prog_token *cur_token;      // The token under inspection
-    prog_code_block *code;      // The current code block being compiled
-    prog_code_block *handlers[PROG_PHASE_COUNT][PROG_EVT_COUNT]; // entry table for event handlers
+    enum prog_evt_type owner_type;   // Owner type of the prog
+    struct prog_token *token_list;     // The prog converted to a list of tokens
+    struct prog_token *token_tail;     // End of list of tokens, for appending
+    struct prog_token *cur_token;      // The token under inspection
+    struct prog_code_block *code;      // The current code block being compiled
+    struct prog_code_block *handlers[PROG_PHASE_COUNT][PROG_EVT_COUNT]; // entry table for event handlers
     int error;                  // true if a fatal error has occurred
 };
 
@@ -58,26 +58,26 @@ const char *prog_event_strs[] = {
 };
 
 // Function prototypes
-void prog_compile_error(prog_compiler_state *compiler,
+void prog_compile_error(struct prog_compiler_state *compiler,
                    int linenum,
                    const char *str,
                    ...)
 	__attribute__ ((format (printf, 3, 4)));
-void prog_compile_warning(prog_compiler_state *compiler,
+void prog_compile_warning(struct prog_compiler_state *compiler,
                      int linenum,
                      const char *str,
                      ...)
 	__attribute__ ((format (printf, 3, 4)));
 
 char *
-prog_get_text(void *owner, prog_evt_type owner_type)
+prog_get_text(void *owner, enum prog_evt_type owner_type)
 {
 	switch (owner_type) {
 	case PROG_TYPE_OBJECT:
 		break;
 	case PROG_TYPE_MOBILE:
 		if (owner) {
-			return GET_MOB_PROG((owner->to_c()));
+			return GET_MOB_PROG(((struct creature *)owner));
 		} else {
 			errlog("Mobile Prog with no owner - Can't happen at %s:%d",
 				__FILE__, __LINE__);
@@ -92,7 +92,7 @@ prog_get_text(void *owner, prog_evt_type owner_type)
 }
 
 void
-prog_compile_message(prog_compiler_state *compiler,
+prog_compile_message(struct prog_compiler_state *compiler,
                     int level,
                     int linenum,
                     const char *str,
@@ -111,7 +111,7 @@ prog_compile_message(prog_compiler_state *compiler,
     switch (compiler->owner_type) {
     case PROG_TYPE_MOBILE:
         place = tmp_sprintf("mobile %d%s",
-                            GET_MOB_VNUM(compiler->owner->to_c()),
+                            GET_MOB_VNUM(((struct creature *)compiler->owner)),
                             linestr);
         break;
     case PROG_TYPE_ROOM:
@@ -140,7 +140,7 @@ prog_compile_message(prog_compiler_state *compiler,
 }
 
 void
-prog_compile_error(prog_compiler_state *compiler,
+prog_compile_error(struct prog_compiler_state *compiler,
                    int linenum,
                    const char *str,
                    ...)
@@ -155,7 +155,7 @@ prog_compile_error(prog_compiler_state *compiler,
 }
 
 void
-prog_compile_warning(prog_compiler_state *compiler,
+prog_compile_warning(struct prog_compiler_state *compiler,
                      int linenum,
                      const char *str,
                      ...)
@@ -168,21 +168,20 @@ prog_compile_warning(prog_compiler_state *compiler,
 }
 
 bool
-prog_push_new_token(prog_compiler_state *compiler,
-                    prog_token_kind kind,
+prog_push_new_token(struct prog_compiler_state *compiler,
+                    enum prog_token_kind kind,
                     int linenum,
                     const char *value)
 {
-    prog_token *new_token;
+    struct prog_token *new_token;
 
-    new_token = new prog_token;
+    CREATE(new_token, struct prog_token, 1);
     if (!new_token) {
         prog_compile_error(compiler,
                            compiler->cur_token->linenum,
                            "Out of memory while creating symbol");
         return false;
     }
-    memset(new_token, 0, sizeof(prog_token));
 
     new_token->kind = kind;
     new_token->linenum = linenum;
@@ -201,7 +200,7 @@ prog_push_new_token(prog_compiler_state *compiler,
         prog_compile_error(compiler,
                            compiler->cur_token->linenum,
                            "Internal Compiler Error #194");
-        delete new_token;
+        free(new_token);
         return false;
     }
 
@@ -214,15 +213,15 @@ prog_push_new_token(prog_compiler_state *compiler,
 }
 
 void
-prog_free_compiler(prog_compiler_state *compiler)
+prog_free_compiler(struct prog_compiler_state *compiler)
 {
-    prog_token *next_token, *cur_token;
-    prog_code_block *cur_code, *next_code;
+    struct prog_token *next_token, *cur_token;
+    struct prog_code_block *cur_code, *next_code;
     int phase_idx, event_idx;
 
     for (cur_token = compiler->token_list;cur_token;cur_token = next_token) {
         next_token = cur_token->next;
-        delete cur_token;
+        free(cur_token);
     }
 
     for (phase_idx = 0;phase_idx < PROG_PHASE_COUNT;phase_idx++)
@@ -231,7 +230,7 @@ prog_free_compiler(prog_compiler_state *compiler)
                  cur_code;
                  cur_code = next_code) {
                 next_code = cur_code->next;
-                delete cur_code;
+                free(cur_code);
             }
 }
 
@@ -241,7 +240,7 @@ prog_free_compiler(prog_compiler_state *compiler)
 // Given the prog text, return a list of prog_tokens.  Returns NULL
 // on error.
 bool
-prog_lexify(prog_compiler_state *compiler)
+prog_lexify(struct prog_compiler_state *compiler)
 {
     const char *cmd_str;
     char *line_start, *line_end, *line;
@@ -263,7 +262,7 @@ prog_lexify(prog_compiler_state *compiler)
             line_end++;
 
         // Grab a temporary version of the line
-        line = tmp_strcat(line, tmp_substr(line_start, 0, line_end - line_start - 1));
+        line = tmp_strcat(line, tmp_substr(line_start, 0, line_end - line_start - 1), NULL);
         // If the line ends with a backslash, do nothing and the next
         // line will be appended.  If it doesn't, we can process the
         // line now
@@ -322,7 +321,7 @@ prog_lexify(prog_compiler_state *compiler)
 }
 
 void
-prog_compiler_emit(prog_compiler_state *compiler, int instr, void *data, size_t data_len)
+prog_compiler_emit(struct prog_compiler_state *compiler, int instr, void *data, size_t data_len)
 {
 	*compiler->code->code_pt++ = instr;
 	if (data_len) {
@@ -335,9 +334,9 @@ prog_compiler_emit(prog_compiler_state *compiler, int instr, void *data, size_t 
 }
 
 void
-prog_compile_statement(prog_compiler_state *compiler)
+prog_compile_statement(struct prog_compiler_state *compiler)
 {
-    prog_command *cmd;
+    struct prog_command *cmd;
 
     switch (compiler->cur_token->kind) {
     case PROG_TOKEN_EOL:
@@ -398,9 +397,9 @@ prog_compile_statement(prog_compiler_state *compiler)
 }
 
 void
-prog_compile_handler(prog_compiler_state *compiler)
+prog_compile_handler(struct prog_compiler_state *compiler)
 {
-    prog_token *cmd_token;
+    struct prog_token *cmd_token;
     int phase, event, cmd;
     char *arg, *args;
 
@@ -412,8 +411,7 @@ prog_compile_handler(prog_compiler_state *compiler)
     }
 
     // Set up new code block
-    compiler->code = new prog_code_block;
-    memset(compiler->code, 0, sizeof(prog_code_block));
+    CREATE(compiler->code, struct prog_code_block, 1);
     compiler->code->next = NULL;
     compiler->code->code_pt = compiler->code->code_seg;
     compiler->code->data_pt = compiler->code->data_seg;
@@ -561,7 +559,7 @@ prog_compile_handler(prog_compiler_state *compiler)
     // If an entry in the event handler table already exists, append
     // the new code to the end
     if (compiler->handlers[phase][event]) {
-        prog_code_block *prev_block;
+        struct prog_code_block *prev_block;
 
         prev_block = compiler->handlers[phase][event];
         while (prev_block->next)
@@ -576,7 +574,7 @@ prog_compile_handler(prog_compiler_state *compiler)
     return;
 
 err:
-    delete compiler->code;
+    free(compiler->code);
     compiler->code = NULL;
 }
 
@@ -616,9 +614,9 @@ prog_display_obj(struct creature *ch, unsigned char *exec)
 }
 
 unsigned char *
-prog_map_to_block(prog_compiler_state *compiler)
+prog_map_to_block(struct prog_compiler_state *compiler)
 {
-    prog_code_block *cur_code;
+    struct prog_code_block *cur_code;
     unsigned char *block;
     unsigned short *code_pt;
     int code_len, data_len, block_len;
@@ -649,8 +647,7 @@ prog_map_to_block(prog_compiler_state *compiler)
     block_len += code_len * sizeof(unsigned short) + data_len;
 
     // Allocate result block and clear it
-    block = new unsigned char[block_len];
-    memset(block, 0, block_len);
+    CREATE(block, unsigned char, block_len);
 
     // Assign initial offsets
     code_offset = PROG_PHASE_COUNT * PROG_EVT_COUNT * sizeof(short);
@@ -701,9 +698,9 @@ unsigned char *
 prog_compile_prog(struct creature *ch,
                   char *prog_text,
                   void *owner,
-                  prog_evt_type owner_type)
+                  enum prog_evt_type owner_type)
 {
-    prog_compiler_state state;
+    struct prog_compiler_state state;
     unsigned char *obj = NULL;
 
     if (!prog_text || !*prog_text)
@@ -754,7 +751,7 @@ error:
 }
 
 void
-prog_compile(struct creature *ch, void *owner, prog_evt_type owner_type)
+prog_compile(struct creature *ch, void *owner, enum prog_evt_type owner_type)
 {
     char *prog;
     unsigned char *obj;
@@ -768,11 +765,11 @@ prog_compile(struct creature *ch, void *owner, prog_evt_type owner_type)
     // Set the object code of the owner
     switch (owner_type) {
     case PROG_TYPE_MOBILE:
-        delete [] owner->to_c()->mob_specials.shared->progobj;
-        owner->to_c()->mob_specials.shared->progobj = obj;
+        free(((struct creature *)owner)->mob_specials.shared->progobj);
+        ((struct creature *)owner)->mob_specials.shared->progobj = obj;
         break;
     case PROG_TYPE_ROOM:
-        delete [] ((struct room_data *)owner)->progobj;
+        free(((struct room_data *)owner)->progobj);
         ((struct room_data *)owner)->progobj = obj;
         break;
     case PROG_TYPE_OBJECT:
