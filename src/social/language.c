@@ -29,113 +29,111 @@
 #include "language.h"
 #include "accstr.h"
 
-Tongue_Tongue(void)
-    :_idnum(0), _name(NULL), _syllables(NULL), _syllable_count(0), _nospeak_msg(NULL)
+struct tongue *
+make_tongue(void)
 {
+    struct tongue *tongue;
+
+    CREATE(tongue, struct tongue, 1);
     for (int c = 0;c < 256;c++)
-        _letters[c] = c;
-}
+        tongue->letters[c] = c;
 
-Tongue_Tongue(const Tongue &o)
-{
-    *this = o;
-}
-
-Tongue_~Tongue(void)
-{
-    free(_name);
-    free(_nospeak_msg);
-    delete [] _syllables;
-}
-
-Tongue &
-Tongue_operator=(const Tongue &o)
-{
-    _idnum = o._idnum;
-    _syllable_count = o._syllable_count;
-    _name = (o._name) ? strdup(o._name):NULL;
-    _nospeak_msg = (o._nospeak_msg) ? strdup(o._nospeak_msg):NULL;
-    if (_syllable_count) {
-        _syllables = new trans_pair[_syllable_count];
-        memcpy(_syllables, o._syllables, sizeof(trans_pair) * _syllable_count);
-    } else {
-        _syllables = NULL;
-    }
-    memcpy(_letters, o._letters, sizeof(_letters));
-
-    return *this;
+    return tongue;
 }
 
 void
-Tongue_clear(void)
+free_tongue(struct tongue *tongue)
 {
-    _idnum = 0;
-    free(_name);
-    _name = NULL;
-    free(_nospeak_msg);
-    _nospeak_msg = NULL;
-    delete [] _syllables;
-    _syllables = NULL;
-    _syllable_count = 0;
-    for (int c = 0;c < 256;c++)
-        _letters[c] = c;
+    free(tongue->name);
+    free(tongue->nospeak_msg);
+    free(tongue->syllables);
+    free(tongue);
 }
 
-bool
-Tongue_load(xmlNodePtr node)
+struct tongue *
+load_tongue(xmlNodePtr node)
 {
+    struct tongue *tongue;
     xmlNodePtr child;
 
-    clear();
+    tongue = make_tongue();
 
-    _idnum = xmlGetIntProp(node, "idnum");
-    _name = xmlGetProp(node, "name");
+    tongue->idnum = xmlGetIntProp(node, "idnum", 0);
+    tongue->name = (char *)xmlGetProp(node, (xmlChar *)"name");
 
     for (child = node->children;child;child = child->next)
         if (xmlMatches(child->name, "syllable"))
-            _syllable_count++;
+            tongue->syllable_count++;
 
-    _syllables = new trans_pair[_syllable_count];
+    CREATE(tongue->syllables, struct trans_pair, tongue->syllable_count);
 
     int syllable_idx = 0;
     for (child = node->children;child;child = child->next) {
         if (xmlMatches(child->name, "syllable")) {
             char *s;
-            s = xmlGetProp(child, "pattern");
-            strcpy(_syllables[syllable_idx]._pattern, s);
+            s = (char *)xmlGetProp(child, (xmlChar *)"pattern");
+            strcpy(tongue->syllables[syllable_idx].pattern, s);
             free(s);
-            s = xmlGetProp(child, "replacement");
-            strcpy(_syllables[syllable_idx]._replacement, s);
+            s = (char *)xmlGetProp(child, (xmlChar *)"replacement");
+            strcpy(tongue->syllables[syllable_idx].replacement, s);
             free(s);
             syllable_idx++;
         } else if (xmlMatches(child->name, "letter")) {
-            char *pattern = xmlGetProp(child, "pattern");
-            char *replace = xmlGetProp(child, "replacement");
+            char *pattern = (char *)xmlGetProp(child, (xmlChar *)"pattern");
+            char *replace = (char *)xmlGetProp(child, (xmlChar *)"replacement");
 
-            _letters[tolower(*pattern)] = tolower(*replace);
-            _letters[toupper(*pattern)] = toupper(*replace);
+            tongue->letters[tolower(*pattern)] = tolower(*replace);
+            tongue->letters[toupper(*pattern)] = toupper(*replace);
             free(pattern);
             free(replace);
         } else if (xmlMatches(child->name, "nospeak")) {
-			_nospeak_msg = (char *)xmlNodeGetContent(child);
+			tongue->nospeak_msg = (char *)xmlNodeGetContent(child);
         }
     }
-    return true;
+
+    return tongue;
 }
 
 char *
-Tongue_translate(const char *phrase, int amount)
+translate_word(struct tongue *tongue, char *word)
+{
+	char *arg;
+	bool found = false;
+
+	arg = tmp_strdup(word);
+
+	for (int x = 0; x < tongue->syllable_count; x++) {
+		found = false;
+		if (!strcmp(arg, tongue->syllables[x].pattern)) {
+			found = true;
+			arg = tmp_strdup(tongue->syllables[x].replacement);
+			break;
+		}
+	}
+
+	if (!found) {
+        int length = strlen(word);
+		for (int x = 0; x < length; x++)
+            arg[x] = tongue->letters[(int)arg[x]];
+		arg[length] = 0;
+	}
+
+	return arg;
+}
+
+char *
+translate_with_tongue(struct tongue *tongue, const char *phrase, int amount)
 {
 	char *arg = NULL, *outbuf = NULL;
 
-    if (!strcmp(phrase, "") || !_syllables || amount == 100)
+    if (!strcmp(phrase, "") || !tongue->syllables || amount == 100)
         return tmp_strdup(phrase);
 
 	while (*phrase) {
 		arg = tmp_gettoken(&phrase);
 
         if (number(1, 100) > amount)
-            arg = translate_word(arg);
+            arg = translate_word(tongue, arg);
 
 		if (outbuf)
 			outbuf = tmp_strcat(outbuf, " ", arg, NULL);
@@ -146,34 +144,7 @@ Tongue_translate(const char *phrase, int amount)
 	return outbuf;
 }
 
-char *
-Tongue_translate_word(char *word)
-{
-	char *arg;
-	bool found = false;
-
-	arg = tmp_strdup(word);
-
-	for (int x = 0; x < _syllable_count; x++) {
-		found = false;
-		if (!strcmp(arg, _syllables[x]._pattern)) {
-			found = true;
-			arg = tmp_strdup(_syllables[x]._replacement);
-			break;
-		}
-	}
-
-	if (!found) {
-        int length = strlen(word);
-		for (int x = 0; x < length; x++)
-            arg[x] = _letters[(int)arg[x]];
-		arg[length] = 0;
-	}
-
-	return arg;
-}
-
-std_map<int,Tongue> tongues;
+GHashTable *tongues;
 
 extern const char *player_race[];
 
@@ -271,29 +242,52 @@ boot_tongues(void)
     while (node) {
         // Parse different nodes here.
         if (xmlMatches(node->name, "tongue")) {
-            int idnum = xmlGetIntProp(node, "idnum");
-            Tongue lang;
+            int idnum = xmlGetIntProp(node, "idnum", 0);
+            struct tongue *lang;
 
-            if (lang.load(node))
-                tongues[idnum] = lang;
+            lang = load_tongue(node);
+            if (lang)
+                g_hash_table_insert(tongues, GINT_TO_POINTER(idnum), lang);
         }
         node = node->next;
     }
 
     xmlFreeDoc(doc);
 
-    slog("%zd tongues loaded", tongues.size());
+    slog("%d tongues loaded", g_hash_table_size(tongues));
 }
 
 int
 find_tongue_idx_by_name(const char *tongue_name)
 {
-    map<int, Tongue>_iterator it = tongues.begin();
-    for (;it != tongues.end();++it)
-        if (is_abbrev(tongue_name, it->second._name))
-            return it->first;
+    GHashTableIter iter;
+    gpointer key, val;
 
-	return TONGUE_NONE;
+    g_hash_table_iter_init(&iter, tongues);
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        int vnum = GPOINTER_TO_INT(key);
+        struct tongue *tongue = val;
+
+        if (is_abbrev(tongue_name, tongue->name))
+            return vnum;
+    }
+    return TONGUE_NONE;
+}
+
+struct tongue *
+find_tongue_by_name(const char *tongue_name)
+{
+    GHashTableIter iter;
+    gpointer key, val;
+
+    g_hash_table_iter_init(&iter, tongues);
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct tongue *tongue = val;
+
+        if (is_abbrev(tongue_name, tongue->name))
+            return tongue;
+    }
+    return NULL;
 }
 
 int
@@ -317,54 +311,46 @@ racial_tongue(int race_idx)
 
 ACMD(do_speak_tongue)
 {
-	char *tongue;
-	int tongue_idx;
+    struct tongue *tongue;
+	char *tongue_name;
 
 	if (!*argument) {
-		send_to_char(ch, "You are currently speaking %s.\r\n",
-                     tongues[GET_TONGUE(ch)]._name);
+        tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER(GET_TONGUE(ch)));
+		send_to_char(ch, "You are currently speaking %s.\r\n", tongue->name);
 		return;
 	}
 
-	tongue = tmp_getword(&argument);
-	if (isname(tongue, "common")) {
+	tongue_name = tmp_getword(&argument);
+	if (isname(tongue_name, "common")) {
 		GET_TONGUE(ch) = TONGUE_COMMON;
 		send_to_char(ch, "Ok, you're now speaking common.\r\n");
 		return;
 	}
 
     // Find the tongue they want
-    tongue_idx = -1;
-    map<int, Tongue>_iterator it = tongues.begin();
-    for (;it != tongues.end();++it) {
-        if (is_abbrev(tongue, it->second._name)) {
-            tongue_idx = it->first;
-            break;
-        }
-    }
-
-	if (tongue_idx < 0) {
+    tongue = find_tongue_by_name(tongue_name);
+	if (!tongue) {
 		send_to_char(ch, "That's not a tongue!\r\n");
 		return;
 	}
 
-    if (tongues[tongue_idx]._nospeak_msg) {
-        send_to_char(ch, "%s\r\n", tongues[tongue_idx]._nospeak_msg);
+    if (tongue->nospeak_msg) {
+        send_to_char(ch, "%s\r\n", tongue->nospeak_msg);
         return;
     }
 
-	if (CHECK_TONGUE(ch, tongue_idx) > 75) {
-		GET_TONGUE(ch) = tongue_idx;
+	if (CHECK_TONGUE(ch, tongue->idnum) > 75) {
+		GET_TONGUE(ch) = tongue->idnum;
 		send_to_char(ch, "Ok, you're now speaking %s.\r\n",
-                     tongues[tongue_idx]._name);
-    } else if (CHECK_TONGUE(ch, tongue_idx) > 50) {
-		GET_TONGUE(ch) = tongue_idx;
+                     tongue->name);
+    } else if (CHECK_TONGUE(ch, tongue->idnum) > 50) {
+		GET_TONGUE(ch) = tongue->idnum;
 		send_to_char(ch, "Ok, you're now trying to speak %s.\r\n",
-                     tongues[tongue_idx]._name);
-    } else if (CHECK_TONGUE(ch, tongue_idx) > 25) {
-		GET_TONGUE(ch) = tongue_idx;
+                     tongue->name);
+    } else if (CHECK_TONGUE(ch, tongue->idnum) > 25) {
+		GET_TONGUE(ch) = tongue->idnum;
 		send_to_char(ch, "Ok, you're now trying to speak %s (badly).\r\n",
-                     tongues[tongue_idx]._name);
+                     tongue->name);
 	} else
 		send_to_char(ch, "You don't know that tongue well enough to speak it.\r\n");
 }
@@ -398,32 +384,41 @@ fluency_desc(struct creature *ch, int tongue_idx)
 
 ACMD(do_show_languages)
 {
+    struct tongue *tongue;
+
+    tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER(GET_TONGUE(ch)));
+
     acc_string_clear();
 	acc_sprintf("%sYou are currently speaking:  %s%s\r\n\r\n",
                 CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                tongues[GET_TONGUE(ch)]._name);
+                tongue->name);
 
     acc_sprintf("%s%sYou know of the following languages:%s\r\n",
                 CCYEL(ch, C_CMP), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR));
 
-    map<int, Tongue>_iterator it = tongues.begin();
-    for (;it != tongues.end();++it) {
-        if (CHECK_TONGUE(ch, it->first)) {
+    GHashTableIter iter;
+    gpointer key, val;
+
+    g_hash_table_iter_init(&iter, tongues);
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        int vnum = GPOINTER_TO_INT(key);
+        struct tongue *tongue = val;
+        if (CHECK_TONGUE(ch, vnum)) {
 			if (IS_IMMORT(ch)) {
 				acc_sprintf("%s%3d. %-30s %s%-17s%s%s\r\n",
                             CCCYN(ch, C_NRM),
-                            it->first,
-                            it->second._name,
+                            vnum,
+                            tongue->name,
                             CCBLD(ch, C_SPR),
-                            fluency_desc(ch, it->first),
+                            fluency_desc(ch, vnum),
                             tmp_sprintf("%s[%3d]%s", CCYEL(ch, C_NRM),
-                                        CHECK_TONGUE(ch, it->first),
+                                        CHECK_TONGUE(ch, vnum),
                                         CCNRM(ch, C_NRM)),
                             CCNRM(ch, C_SPR));
 			} else {
 				acc_sprintf("%s%-30s %s%s%s\r\n",
-					CCCYN(ch, C_NRM), it->second._name, CCBLD(ch, C_SPR),
-					fluency_desc(ch, it->first), CCNRM(ch, C_SPR));
+					CCCYN(ch, C_NRM), tongue->name, CCBLD(ch, C_SPR),
+					fluency_desc(ch, vnum), CCNRM(ch, C_SPR));
 			}
         }
     }
@@ -456,7 +451,10 @@ set_initial_tongue(struct creature * ch)
 const char *
 tongue_name(int tongue_idx)
 {
-    return tongues[tongue_idx]._name;
+    struct tongue *tongue;
+
+    tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER(tongue_idx));
+    return (tongue) ? tongue->name:NULL;
 }
 
 char *
@@ -467,8 +465,8 @@ make_tongue_str(struct creature *ch, struct creature *to)
     if (lang == TONGUE_COMMON || !CHECK_TONGUE(to, lang))
         return tmp_strdup("");
     if (CHECK_TONGUE(ch, lang) < 50 && CHECK_TONGUE(to, lang) > 50)
-        return tmp_sprintf(" in broken %s", tongues[lang]._name);
-    return tmp_sprintf(" in %s", tongues[lang]._name);
+        return tmp_sprintf(" in broken %s", tongue_name(lang));
+    return tmp_sprintf(" in %s", tongue_name(lang));
 }
 
 char *
@@ -490,50 +488,60 @@ translate_tongue(struct creature *speaker, struct creature *listener, const char
     if (CHECK_TONGUE(speaker, lang) > 75 &&
         CHECK_TONGUE(listener, lang) < 100 &&
         speaker != listener) {
-        std_list<int>::iterator result;
+        GList *result = g_list_find(GET_LANG_HEARD(listener), GINT_TO_POINTER(lang));
 
-        result = std_find(GET_LANG_HEARD(listener).begin(),
-                           GET_LANG_HEARD(listener).end(),
-                           lang);
-        if (result == GET_LANG_HEARD(listener).end())
-            GET_LANG_HEARD(listener).push_front(lang);
+        if (!result)
+            GET_LANG_HEARD(listener) = g_list_prepend(GET_LANG_HEARD(listener),
+                                                      GINT_TO_POINTER(lang));
     }
 
-    return tongues[lang].translate(message,
-                                   MIN(CHECK_TONGUE(speaker, lang),
-                                       CHECK_TONGUE(listener, lang)));
+    struct tongue *tongue;
+
+    tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER(lang));
+    return translate_with_tongue(tongue,
+                                 message,
+                                 MIN(CHECK_TONGUE(speaker, lang),
+                                     CHECK_TONGUE(listener, lang)));
 }
 
 void
 write_tongue_xml(struct creature *ch, FILE *ouf)
 {
-    map<int, Tongue>_iterator it = tongues.begin();
-    for (;it != tongues.end();++it) {
-        if (CHECK_TONGUE(ch, it->first))
+    GHashTableIter iter;
+    gpointer key, val;
+
+    g_hash_table_iter_init(&iter, tongues);
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        int vnum = GPOINTER_TO_INT(key);
+        struct tongue *tongue = val;
+        if (CHECK_TONGUE(ch, vnum))
             fprintf(ouf, "<tongue name=\"%s\" level=\"%d\"/>\n",
-                    it->second._name, CHECK_TONGUE(ch, it->first));
+                    tongue->name, CHECK_TONGUE(ch, vnum));
     }
 }
 
 void
 show_language_help(struct creature *ch)
 {
+    GHashTableIter iter;
+    gpointer key, val;
+
     acc_string_clear();
 
     acc_sprintf("LANGUAGES:\r\n");
 
-    map<int, Tongue>_iterator it = tongues.begin();
-    for (;it != tongues.end();++it) {
-        Tongue &tongue = it->second;
+    g_hash_table_iter_init(&iter, tongues);
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct tongue *tongue = val;
 
         acc_sprintf("%2d         %s%-10s     [ %s",
-                    tongue._idnum,
+                    tongue->idnum,
                     CCCYN(ch, C_NRM),
-                    tongue._name,
+                    tongue->name,
                     CCNRM(ch, C_NRM));
         bool printed = false;
         for (int y = 0; *race_tongue[y][0] != '\n'; y++) {
-            if (!strcmp(race_tongue[y][1], tongue._name)) {
+            if (!strcmp(race_tongue[y][1], tongue->name)) {
                 if (printed)
                     acc_strcat(", ", NULL);
                 acc_strcat(race_tongue[y][0], NULL);

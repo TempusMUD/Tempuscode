@@ -93,7 +93,7 @@ find_action(int cmd)
 ACMD(do_mood)
 {
 	skip_spaces(&argument);
-	GET_MOOD(ch) = tmp_strcat(" ", cmd_info[cmd].command);
+	GET_MOOD(ch) = tmp_strcat(" ", cmd_info[cmd].command, NULL);
     if (!*argument) {
         send_to_char(ch, "%s what?!?\r\n",
                 tmp_capitalize(cmd_info[cmd].command));
@@ -337,8 +337,7 @@ boot_social_messages(void)
 	/* count socials & allocate space */
     list_top = count_hash_records(fl);
     rewind(fl);
-    soc_mess_list = new social_messg[MAX_SOCIALS];
-	memset(soc_mess_list, 0, sizeof(social_messg) * MAX_SOCIALS);
+    CREATE(soc_mess_list, struct social_messg, MAX_SOCIALS);
 
 	/* now read 'em */
 	for (;;) {
@@ -399,7 +398,7 @@ boot_social_messages(void)
 			if (soc_mess_list[i].act_nr < soc_mess_list[min_pos].act_nr)
 				min_pos = i;
 		if (idx != min_pos) {
-            social_messg temp;
+            struct social_messg temp;
 
 			temp = soc_mess_list[idx];
 			soc_mess_list[idx] = soc_mess_list[min_pos];
