@@ -33,18 +33,18 @@
 #include "login.h"
 #include "house.h"
 #include "fight.h"
-#include "player_table.h"
+#include "players.h"
 #include "security.h"
 
 struct criminal_rec {
-	criminal_rec *next;
+	struct criminal_rec *next;
 	int idnum;
 	int grace;
 };
 #define DEMONIC_BASE 90
 #define ARCHONIC_BASE 100
 
-criminal_rec *criminal_list = NULL;
+struct criminal_rec *criminal_list = NULL;
 /*   external vars  */
 bool
 perform_get_from_room(struct creature * ch,
@@ -67,12 +67,12 @@ summon_criminal_demons(struct creature *vict)
 			errlog("Unable to load mob in demonic_overmind");
 			return false;
 		}
-		mob->startHunting(vict);
+		startHunting(mob, vict);
 		SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
 		CREATE(mob->mob_specials.func_data, int, 1);
 		*((int *)mob->mob_specials.func_data) = GET_IDNUM(vict);
 
-		char_to_room(mob, vict->in_room);
+		char_to_room(mob, vict->in_room, true);
 		act("The air suddenly cracks open and $n steps out!", false,
 			mob, 0, 0, TO_ROOM);
 	}
@@ -93,8 +93,8 @@ summon_criminal_demons(struct creature *vict)
 SPECIAL(demonic_overmind)
 {
 	struct creature *vict;
-	criminal_rec *cur_rec;
-	descriptor_data *cur_desc;
+	struct criminal_rec *cur_rec;
+	struct descriptor_data *cur_desc;
 	bool summoned = false;
 
 	if (spec_mode == SPECIAL_TICK) {
@@ -141,7 +141,7 @@ SPECIAL(demonic_overmind)
 			// well enough.
 
 			if (!cur_rec) {
-				cur_rec = new criminal_rec;
+                CREATE(cur_rec, struct criminal_rec, 1);
 				cur_rec->idnum = GET_IDNUM(vict);
 				cur_rec->grace = number(162000, 360000);
 				cur_rec->next = criminal_list;
@@ -177,7 +177,7 @@ SPECIAL(demonic_overmind)
 			"-------------------------  -----\r\n");
 		for (cur_rec = criminal_list;cur_rec;cur_rec = cur_rec->next)
 			send_to_char(ch, "%-25s  %4d\r\n",
-				playerIndex.getName(cur_rec->idnum), cur_rec->grace);
+				player_name_by_idnum(cur_rec->idnum), cur_rec->grace);
 
 		return true;
 	}
@@ -215,18 +215,18 @@ SPECIAL(demonic_guard)
 	vict_id = *((int *)self->mob_specials.func_data);
 
 	ch = get_char_in_world_by_idnum(vict_id);
-	if (!ch || !self->isHunting() || GET_REPUTATION(ch) < 700) {
+	if (!ch || !MOB_HUNTING(self) || GET_REPUTATION(ch) < 700) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			false, self, 0, 0, TO_ROOM);
-		self->purge(true);
+		purge(self, true);
 		return true;
 	}
 
-	if (self->isHunting()->in_room->zone != self->in_room->zone) {
+	if (MOB_HUNTING(self)->in_room->zone != self->in_room->zone) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			false, self, 0, 0, TO_ROOM);
-		char_from_room(self);
-		char_to_room(self, self->isHunting()->in_room);
+		char_from_room(self, true);
+		char_to_room(self, MOB_HUNTING(self)->in_room, true);
 		act("The air suddenly cracks open and $n steps out!",
 			false, self, 0, 0, TO_ROOM);
 		return true;

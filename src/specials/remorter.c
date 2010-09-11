@@ -36,218 +36,8 @@
 #include "xml_utils.h"
 #include "remorter.h"
 
-int do_fail_remort_test(Quiz *quiz, struct creature *ch);
-int do_pass_remort_test(Quiz *quiz, struct creature *ch);
-int do_pre_test(struct creature *ch);
-
-SPECIAL(remorter)
-{
-	static Quiz quiz;
-	int value, level;
-    char arg2[128];
-
-	if (spec_mode != SPECIAL_CMD)
-		return false;
-	if (!cmd)
-		return 0;
-
-	if (CMD_IS("help") && GET_LEVEL(ch) >= LVL_IMMORT) {
-		send_to_char(ch, "Valid Commands:\r\n");
-		send_to_char(ch, "Status - Shows current test state.\r\n");
-		send_to_char(ch, "Reload - Resets test to waiting state.\r\n");
-		return 1;
-	}
-	if (CMD_IS("status") && GET_LEVEL(ch) >= LVL_IMMORT) {
-		quiz.sendStatus(ch);
-		return 1;
-	}
-	if (CMD_IS("reload") && GET_LEVEL(ch) >= LVL_IMMORT) {
-		act("$n conjures a new remort test from thin air!", true,
-			(struct creature *) me, 0, 0, TO_ROOM);
-		quiz.reset();
-		send_to_char(ch, "Remort test reset.\r\n");
-		return 1;
-	}
-
-	if (!CMD_IS("say") && !CMD_IS("'") && GET_LEVEL(ch) < LVL_IMMORT) {
-		send_to_char(ch, "Use the 'say' command to take the test.\r\n"
-                	"If you want to leave, just say 'goodbye'.\r\n");
-		return 1;
-	}
-
-	if (IS_NPC(ch) || (quiz.inProgress() && !quiz.isStudent(ch)) ||
-		GET_LEVEL(ch) >= LVL_IMMORT)
-		return 0;
-
-	if (GET_EXP(ch) < exp_scale[LVL_AMBASSADOR] ||
-		GET_LEVEL(ch) < (LVL_AMBASSADOR - 1)) {
-		send_to_char(ch, "Piss off.  Come back when you are bigger.\r\n");
-		struct room_data *room = ch->getLoadroom();
-        if( room == NULL )
-            room = real_room(3061);// modrian dump
-		act("$n disappears in a mushroom cloud.", false, ch, 0, 0,TO_ROOM);
-		char_from_room(ch,false);
-		char_to_room(ch, room,false);
-		act("$n arrives from a puff of smoke.", false, ch, 0, 0, TO_ROOM);
-		act("$n has transferred you!", false, (struct creature *) me, 0, ch, TO_VICT);
-		look_at_room(ch, room, 0);
-		return 1;
-	}
-
-	skip_spaces(&argument);
-    argument = two_arguments(argument, arg1, arg2);
-
-	if (!*arg1) {
-		if (quiz.inProgress()) {
-			if (quiz.isStudent(ch)) {
-				send_to_char(ch, "Please speak clearly.\r\n");
-				quiz.sendQuestion(ch);
-			} else {
-				send_to_char(ch,
-					"Can it scumbag. Someone is trying to concentrate.\r\n"
-                	"If you want to leave, just say 'goodbye'.\r\n");
-			}
-		} else {
-			send_to_char(ch, "You must say 'remort' to begin or 'goodbye' to leave.\r\n");
-		}
-		return 1;
-	}
-	if (!quiz.inProgress() && isname_exact(arg1, "goodbye")) {
-		struct room_data *room = ch->getLoadroom();
-        if( room == NULL )
-            room = real_room(3061);// modrian dump
-
-		if (room == NULL) {
-			send_to_char(ch, "There is nowhere to send you.\r\n");
-			return 1;
-		} else {
-			send_to_char(ch, "Very well, coward.\r\n");
-			act("$n disappears in a mushroom cloud.", false, ch, 0, 0,TO_ROOM);
-			char_from_room(ch,false);
-			char_to_room(ch, room,false);
-			act("$n arrives from a puff of smoke.", false, ch, 0, 0, TO_ROOM);
-			act("$n has transferred you!", false, (struct creature *) me, 0, ch, TO_VICT);
-			look_at_room(ch, room, 0);
-			return 1;
-		}
-	} else if (isname_exact(arg1, "remort")) {
-		if (quiz.inProgress()) {
-			send_to_char(ch, "This test is already in progress.\r\n");
-			quiz.sendQuestion(ch);
-			return 1;
-		} else if (isname_exact(arg2, "bribe")) {
-            value = GET_GOLD(ch);
-            level = MIN(10,3 + GET_REMORT_GEN(ch));
-            if (value < level * 7000000) {
-                send_to_char(ch, "The remorter laughs and spits on your shoes!\r\n"
-                                 "Try a real bribe next time!\r\n");
-                return 1;
-            }
-
-            GET_GOLD(ch) = 0;
-            do_pre_test(ch);
-
-            send_to_char(ch, "The remorter looks around skeptically.\r\n"
-                             "Ok, but if you tell anyone I did this for you\r\n"
-                             "I'll hunt you down like the cheating dog you are!\r\n");
-			slog("%s paid off the remorter with a bribe of %d",GET_NAME(ch), value );
-            return do_pass_remort_test(&quiz, ch);
-        }
-	} else if (!quiz.inProgress()) {
-		send_to_char(ch,
-			"You must say 'remort' to begin or 'goodbye' to leave.\r\n");
-		return 1;
-	}
-
-	value = GET_GOLD(ch);
-
-	if (!quiz.inProgress()) {
-
-		level = MIN(10, 3 + GET_REMORT_GEN(ch));
-
-		if (value < level * 5000000) {
-			send_to_char(ch,
-				"You do not have sufficient sacrifice to do this.\r\n");
-			send_to_char(ch,
-				"The required sacrifice must be worth %d coins.\r\n"
-				"You have only brought a %d coin value.\r\n", level * 5000000,
-				value);
-			return 1;
-		}
-
-		value = MIN(level * 5000000, GET_GOLD(ch));
-		GET_GOLD(ch) -= value;
-
-        do_pre_test(ch);
-
-        send_to_char(ch, "Your sacrifice has been accepted.\r\n");
-        return do_pass_remort_test(&quiz, ch);
-		/*
-        send_to_char(ch, "Your sacrifice has been accepted.\r\n"
-			"You must now answer as many questions as possible.\r\n"
-			"The first word of your answer is the one that counts.\r\n"
-			"Answer me by using say <answer>\r\n"
-			"If you forget the question, type say, without an answer.\r\n");
-		quiz.reset(ch);
-		quiz.sendQuestion(ch);
-		return 1;*/
-	}
-
-	if (quiz.makeGuess(ch, arg1)) {
-		send_to_char(ch, "%s%sThat is correct.%s\r\n",
-			CCBLD(ch, C_NRM), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-	}
-    else {
-		send_to_char(ch, "%sThat is incorrect.%s\r\n",
-			CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-	}
-
-	if (!quiz.isComplete()) {
-		quiz.nextQuestion();
-		quiz.sendQuestion(ch);
-		return 1;
-	}
-    else {
-        // *******    TEST COMPLETE.  YAY.
-		// Save the char and its implants but not its eq
-		save_player_to_xml(ch);
-
-		if (!quiz.isPassing())
-            return do_fail_remort_test(&quiz, ch);
-        else
-            return do_pass_remort_test(&quiz, ch);
-	}
-}
-
-int do_fail_remort_test(Quiz *quiz, struct creature *ch)
-{
-	send_to_char(ch, "The test is over.\r\n");
-	send_to_char(ch, "Your answers were only %d percent correct.\r\n"
-		         //"You must be able to answer %d percent correctly.\r\n"
-		         "You are unable to remort at this time.\r\n", quiz->getScore());
-	char *msg = tmp_sprintf( "%s has failed remort test at gen %d.",
-							 GET_NAME(ch), GET_REMORT_GEN(ch));
-	mudlog(LVL_ELEMENT, NRM, false, "%s", msg);
-	quiz->log(msg);
-	quiz->logScore();
-	REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
-	quiz->reset();
-
-    struct room_data *load_room = ch->getLoadroom();
-    if( load_room == NULL )
-        load_room = real_room(3061);//modrian dumps
-
-    send_to_char(ch, "You have been banished from the chamber!\r\n");
-    act("$n is banished from the chamber!", false, ch, 0, 0, TO_ROOM);
-    GET_POSITION(ch) = POS_RESTING;
-    char_from_room(ch,false);
-    char_to_room(ch, load_room,false);
-    act("$n appears with a bright flash of light!", false, ch, 0, 0, TO_ROOM);
-
-	return 1;
-}
-
-int do_pass_remort_test(Quiz *quiz, struct creature *ch)
+int
+do_pass_remort_test(struct creature *ch)
 {
 	int i;
 
@@ -271,64 +61,116 @@ int do_pass_remort_test(Quiz *quiz, struct creature *ch)
 
 	// Give em another gen
 	if (GET_REMORT_GEN(ch) == 10)
-		ch->account->set_quest_points(ch->account->get_quest_points() + 1);
+		account_set_quest_points(ch->account, ch->account->quest_points + 1);
     else
         GET_REMORT_GEN(ch)++;
 
     // At gen 1 they enter the world of pk, like it or not
     if (GET_REMORT_GEN(ch) >= 1 && GET_REPUTATION(ch) <= 0)
-        ch->gain_reputation(5);
+        gain_reputation(ch, 5);
 	// Whack thier remort invis
 	GET_WIMP_LEV(ch) = 0;	// wimpy
 	GET_TOT_DAM(ch) = 0;	// cyborg damage
 
 	// Tell everyone that they remorted
-	char *msg = tmp_sprintf( "%s completed gen %d remort test with score %d",
-			GET_NAME(ch), GET_REMORT_GEN(ch), quiz->getScore());
+	char *msg = tmp_sprintf( "%s completed gen %d remort test",
+                             GET_NAME(ch), GET_REMORT_GEN(ch));
 	mudlog(LVL_IMMORT, BRF, false, "%s", msg);
-	quiz->log(msg);
-	quiz->logScore();
 
 	REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
-	quiz->reset();
 
 	// Save the char and its implants but not its eq
-	ch->remort();
+	remort(ch);
 
 	return 1;
 }
 
-int do_pre_test(struct creature *ch)
+SPECIAL(remorter)
 {
-    int i;
+	int value, level;
 
-	struct obj_data *obj = NULL, *next_obj = NULL;
+	if (spec_mode != SPECIAL_CMD)
+		return false;
+	if (!cmd)
+		return 0;
 
-	for (obj = ch->carrying; obj; obj = next_obj) {
-		next_obj = obj->next_content;
-		extract_obj(obj);
+	if (CMD_IS("help") && GET_LEVEL(ch) >= LVL_IMMORT) {
+		send_to_char(ch, "Valid Commands:\r\n");
+		send_to_char(ch, "Status - Shows current test state.\r\n");
+		send_to_char(ch, "Reload - Resets test to waiting state.\r\n");
+		return 1;
 	}
 
-	for (i = 0; i < NUM_WEARS; i++) {
-		if ((obj = GET_EQ(ch, i))) {
-			extract_obj(GET_EQ(ch, i));
+	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT)
+		return 0;
+
+	if (GET_EXP(ch) < exp_scale[LVL_AMBASSADOR] ||
+		GET_LEVEL(ch) < (LVL_AMBASSADOR - 1)) {
+		send_to_char(ch, "Piss off.  Come back when you are bigger.\r\n");
+		struct room_data *room = real_room(GET_LOADROOM(ch));
+        if( room == NULL )
+            room = real_room(3061);// modrian dump
+		act("$n disappears in a mushroom cloud.", false, ch, 0, 0,TO_ROOM);
+		char_from_room(ch,false);
+		char_to_room(ch, room,false);
+		act("$n arrives from a puff of smoke.", false, ch, 0, 0, TO_ROOM);
+		act("$n has transferred you!", false, (struct creature *) me, 0, ch, TO_VICT);
+		look_at_room(ch, room, 0);
+		return 1;
+	}
+
+	skip_spaces(&argument);
+    char *arg1 = tmp_getword(&argument);
+    char *arg2 = tmp_getword(&argument);
+
+	if (!*arg1) {
+        send_to_char(ch, "You must say 'remort' to begin or 'goodbye' to leave.\r\n");
+		return 1;
+	}
+	if (isname_exact(arg1, "goodbye")) {
+		struct room_data *room = GET_LOADROOM(ch);
+        if( room == NULL )
+            room = real_room(3061);// modrian dump
+
+		if (room == NULL) {
+			send_to_char(ch, "There is nowhere to send you.\r\n");
+			return 1;
+		} else {
+			send_to_char(ch, "Very well, coward.\r\n");
+			act("$n disappears in a mushroom cloud.", false, ch, 0, 0,TO_ROOM);
+			char_from_room(ch,false);
+			char_to_room(ch, room,false);
+			act("$n arrives from a puff of smoke.", false, ch, 0, 0, TO_ROOM);
+			act("$n has transferred you!", false, (struct creature *) me, 0, ch, TO_VICT);
+			look_at_room(ch, room, 0);
+			return 1;
 		}
+	} else if (!isname_exact(arg1, "remort")) {
+		send_to_char(ch,
+			"You must say 'remort' to begin or 'goodbye' to leave.\r\n");
+		return 1;
 	}
 
-	while (ch->affected)
-		   affect_remove(ch, ch->affected);
+	value = GET_GOLD(ch);
 
-	for (obj = ch->in_room->contents; obj; obj = next_obj) {
-		 next_obj = obj->next_content;
-		 extract_obj(obj);
-	}
+    level = MIN(10, 3 + GET_REMORT_GEN(ch));
 
-	if (GET_COND(ch, FULL) >= 0)
-		GET_COND(ch, FULL) = 24;
-	if (GET_COND(ch, THIRST) >= 0)
-		GET_COND(ch, THIRST) = 24;
+    if (value < level * 5000000) {
+        send_to_char(ch,
+                     "You do not have sufficient sacrifice to do this.\r\n");
+        send_to_char(ch,
+                     "The required sacrifice must be worth %d coins.\r\n"
+                     "You have only brought a %d coin value.\r\n", level * 5000000,
+                     value);
+        return 1;
+    }
 
-	SET_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+    value = MIN(level * 5000000, GET_GOLD(ch));
+    GET_GOLD(ch) -= value;
 
-    return 1;
+    do_pre_test(ch);
+
+    send_to_char(ch, "Your sacrifice has been accepted.\r\n");
+    return do_pass_remort_test(ch);
 }
+
