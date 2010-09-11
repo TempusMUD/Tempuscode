@@ -48,20 +48,17 @@ bool process_load_param( struct creature *ch );
 
 int
 search_trans_character(struct creature * ch,
-	special_search_data * srch,
+	struct special_search_data * srch,
 	struct room_data * targ_room)
 {
 	struct room_data *was_in;
 
-	if (!can_enter_house(ch, targ_room->number) ||
-		!clan_house_can_enter(ch, targ_room) ||
-		(ROOM_FLAGGED(targ_room, ROOM_GODROOM) &&
-			!is_group_member(ch, "WizardFull")))
+	if (!is_authorized(ch, ENTER_ROOM, targ_room))
 		return 0;
 
 	was_in = ch->in_room;
-	char_from_room(ch);
-	char_to_room(ch, targ_room);
+	char_from_room(ch, true);
+	char_to_room(ch, targ_room, true);
 	ch->in_room->zone->enter_count++;
     if (!SRCH_FLAGGED(srch, SRCH_NO_LOOK))
 	    look_at_room(ch, ch->in_room, 0);
@@ -86,7 +83,7 @@ search_trans_character(struct creature * ch,
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			log_death_trap(ch);
 			death_cry(ch);
-			ch->die();
+			creature_die(ch);
 			return 2;
 		} else {
 			mudlog(LVL_GOD, NRM, true,
@@ -106,7 +103,7 @@ search_trans_character(struct creature * ch,
 }
 
 inline void
-SRCH_LOG(struct creature *ch, special_search_data *srch)
+SRCH_LOG(struct creature *ch, struct special_search_data *srch)
 {
 	if (!ZONE_FLAGGED( ch->in_room->zone, ZONE_SEARCH_APPROVED)
 			&& GET_LEVEL( ch ) < LVL_GOD )
@@ -184,7 +181,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 		obj_to_room(obj, targ_room);
 		if (srch->to_remote)
-			act(srch->to_remote, false, targ_room->people, obj, mob, TO_ROOM);
+			act(srch->to_remote, false, targ_room->people->data, obj, mob, TO_ROOM);
 		break;
 
 	case SEARCH_COM_MOBILE:
@@ -211,7 +208,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 			// Mobile Died in load_param
 		} else {
 			if (srch->to_remote)
-				act(srch->to_remote, false, targ_room->people, obj, mob, TO_ROOM);
+				act(srch->to_remote, false, targ_room->people->data, obj, mob, TO_ROOM);
 			if (GET_MOB_PROGOBJ(mob))
 				trigger_prog_load(mob);
 		}
@@ -274,12 +271,8 @@ general_search(struct creature *ch, struct special_search_data *srch,
 			return 0;
 		}
 		if (srch->arg[1] == -1 || srch->arg[1] == 0) {
-			if (!can_enter_house(ch, targ_room->number)
-				|| !clan_house_can_enter(ch, targ_room)
-				|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
-					&& !is_group_member(ch, "WizardFull"))) {
+            if (!is_authorized(ch, ENTER_ROOM, targ_room))
 				return 0;
-			}
 
 			if (srch->to_room)
 				act(srch->to_room, false, ch, obj, mob, TO_ROOM);
@@ -290,8 +283,8 @@ general_search(struct creature *ch, struct special_search_data *srch,
 
 			SRCH_LOG(ch, srch);	// don't log trans searches for now
 
-			char_from_room(ch);
-			char_to_room(ch, targ_room);
+			char_from_room(ch, true);
+			char_to_room(ch, targ_room, true);
 			ch->in_room->zone->enter_count++;
             if (!SRCH_FLAGGED(srch, SRCH_NO_LOOK))
 			    look_at_room(ch, ch->in_room, 0);
@@ -320,7 +313,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 				if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
 					log_death_trap(ch);
 					death_cry(ch);
-					ch->die();
+					creature_die(ch);
 					return 2;
 				} else {
 					mudlog(LVL_GOD, NRM, true,
@@ -345,9 +338,9 @@ general_search(struct creature *ch, struct special_search_data *srch,
 				send_to_char(ch, "Okay.\r\n");
 
 			if (srch->to_remote && targ_room->people) {
-				act(srch->to_remote, false, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people->data, obj, mob,
 					TO_ROOM);
-				act(srch->to_remote, false, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people->data, obj, mob,
 					TO_CHAR);
 			}
 
@@ -355,9 +348,8 @@ general_search(struct creature *ch, struct special_search_data *srch,
 			struct room_data *src_room = ch->in_room;
 			rc = search_trans_character(ch, srch, targ_room);
 
-			struct creatureList_iterator it = src_room->people.begin();
-			for (; it != src_room->people.end(); ++it) {
-				mob = *it;
+            for (GList *it = src_room->people;it;it = it->next) {
+				mob = it->data;
 				if (srch->to_room)
 					act(srch->to_room, false, ch, obj, mob, TO_VICT);
 				if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
@@ -452,12 +444,12 @@ general_search(struct creature *ch, struct special_search_data *srch,
 		}
 
 		if (srch->to_remote) {
-			if (targ_room != ch->in_room && targ_room->people.size() > 0) {
-				act(srch->to_remote, false, targ_room->people, obj, ch,
+			if (targ_room != ch->in_room && targ_room->people) {
+				act(srch->to_remote, false, targ_room->people->data, obj, ch,
 					TO_NOTVICT);
 			}
 			if (other_rm && other_rm != ch->in_room && other_rm->people) {
-				act(srch->to_remote, false, other_rm->people, obj, ch,
+				act(srch->to_remote, false, other_rm->people->data, obj, ch,
 					TO_NOTVICT);
 			}
 		}
@@ -497,15 +489,14 @@ general_search(struct creature *ch, struct special_search_data *srch,
 		if (targ_room) {
 
 			if (srch->to_remote && ch->in_room != targ_room
-				&& targ_room->people.size() > 0) {
-				act(srch->to_remote, false, targ_room->people, obj, mob,
+				&& targ_room->people) {
+				act(srch->to_remote, false, targ_room->people->data, obj, mob,
 					TO_ROOM);
-				act(srch->to_remote, false, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people->data, obj, mob,
 					TO_CHAR);
 			}
-			struct creatureList_iterator it = targ_room->people.begin();
-			for (; it != targ_room->people.end(); ++it) {
-				mob = *it;
+            for (GList *it = targ_room->people;it;it = it->next) {
+				mob = it->data;
 
 				if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
 					continue;
@@ -523,19 +514,20 @@ general_search(struct creature *ch, struct special_search_data *srch,
 						break;
 				} else {
 					call_magic(ch, mob, 0, NULL, srch->arg[2], srch->arg[0],
-						(SPELL_IS_MAGIC(srch->arg[2]) ||
-							SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
-						(SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
-						(SPELL_IS_PSIONIC(srch->arg[2])) ? CAST_PSIONIC :
-						CAST_ROD);
+                               (SPELL_IS_MAGIC(srch->arg[2]) ||
+                                SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
+                               (SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
+                               (SPELL_IS_PSIONIC(srch->arg[2])) ? CAST_PSIONIC :
+                               CAST_ROD, NULL);
 				}
 			}
 		} else if (!targ_room && !affected_by_spell(ch, srch->arg[2]))
 			call_magic(ch, ch, 0, NULL, srch->arg[2], srch->arg[0],
-				(SPELL_IS_MAGIC(srch->arg[2]) ||
-					SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
-				(SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
-				(SPELL_IS_PSIONIC(srch->arg[2])) ? CAST_PSIONIC : CAST_ROD);
+                       (SPELL_IS_MAGIC(srch->arg[2]) ||
+                        SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
+                       (SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
+                       (SPELL_IS_PSIONIC(srch->arg[2])) ? CAST_PSIONIC : CAST_ROD,
+                       NULL);
 
 		search_nomessage = 0;
 
@@ -578,15 +570,14 @@ general_search(struct creature *ch, struct special_search_data *srch,
 		if (targ_room) {
 
 			if (srch->to_remote && ch->in_room != targ_room
-				&& targ_room->people.size() > 0) {
-				act(srch->to_remote, false, targ_room->people, obj, mob,
+				&& targ_room->people > 0) {
+				act(srch->to_remote, false, targ_room->people->data, obj, mob,
 					TO_ROOM);
-				act(srch->to_remote, false, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people->data, obj, mob,
 					TO_CHAR);
 			}
-			struct creatureList_iterator it = targ_room->people.begin();
-			for (mob = NULL; it != targ_room->people.end(); ++it) {
-				mob = *it;
+            for (GList *it = targ_room->people;it;it = it->next) {
+				mob = it->data;
 
 				if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
 					continue;
@@ -626,10 +617,10 @@ general_search(struct creature *ch, struct special_search_data *srch,
 
 			if (srch->to_room)
 				act(srch->to_room, false, ch, obj, mob, TO_ROOM);
-			if (srch->to_remote && targ_room->people.size() > 0) {
-				act(srch->to_remote, false, targ_room->people, obj, mob,
+			if (srch->to_remote && targ_room->people) {
+				act(srch->to_remote, false, targ_room->people->data, obj, mob,
 					TO_ROOM);
-				act(srch->to_remote, false, targ_room->people, obj, mob,
+				act(srch->to_remote, false, targ_room->people->data, obj, mob,
 					TO_CHAR);
 			}
 			if (srch->to_vict)
@@ -641,9 +632,8 @@ general_search(struct creature *ch, struct special_search_data *srch,
 				&& !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
 				SET_BIT(srch->flags, SRCH_TRIPPED);
 
-			struct creatureList_iterator it = other_rm->people.begin();
-			for (; it != other_rm->people.end(); ++it) {
-				mob = *it;
+            for (GList *it = other_rm->people;it;it = it->next) {
+				mob = it->data;
 				if (!IS_NPC(mob))
 					continue;
 				if (other_rm != targ_room) {
@@ -653,7 +643,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 					act("$n suddenly appears.", true, mob, 0, 0, TO_ROOM);
 				}
 				if (srch->arg[2])
-					mob->startHunting(ch);
+					startHunting(mob, ch);
 			}
 
 			if (!IS_SET(srch->flags, SRCH_IGNORE))
@@ -685,9 +675,9 @@ general_search(struct creature *ch, struct special_search_data *srch,
 
 		if ((targ_room = real_room(srch->arg[1])) &&
 			srch->to_remote && ch->in_room != targ_room
-			&& targ_room->people.size() > 0) {
-			act(srch->to_remote, false, targ_room->people, obj, mob, TO_ROOM);
-			act(srch->to_remote, false, targ_room->people, obj, mob, TO_CHAR);
+			&& targ_room->people) {
+			act(srch->to_remote, false, targ_room->people->data, obj, mob, TO_ROOM);
+			act(srch->to_remote, false, targ_room->people->data, obj, mob, TO_CHAR);
 		}
 
 		break;

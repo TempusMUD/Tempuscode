@@ -19,6 +19,7 @@
 #include "boards.h"
 #include "players.h"
 #include "house.h"
+#include "clan.h"
 
  /**
   *
@@ -138,6 +139,7 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     struct set_struct *set_cmd = (struct set_struct *)target;
     struct zone_data *zone = (struct zone_data *)target;
     struct house *house = (struct house *)target;
+    struct room_data *room = (struct room_data *)target;
 
     if (GET_LEVEL(ch) == LVL_GRIMP)
         return true;
@@ -168,8 +170,11 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case FULL_IMMORT_WHERE:
         return is_named_role_member(ch, "Questor,AdminBasic,WizardBasic");
 
-    case ENTER_GODROOM:
-        return is_named_role_member(ch, "WizardFull");
+    case ENTER_ROOM:
+        return (can_enter_house(ch, room->number)
+                && clan_house_can_enter(ch, room)
+                && (!ROOM_FLAGGED(room, ROOM_GODROOM)
+                    || is_named_role_member(ch, "WizardFull")));
 
     case WORLDWRITE:
         return is_named_role_member(ch, "OLCWorldWrite");
@@ -190,6 +195,9 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case EDIT_HOUSE:
         return (house->owner_id == GET_IDNUM(ch)
                 || is_named_role_member(ch, "House"));
+
+    case EDIT_QUEST:
+        return is_named_role_member(ch, "Quest");
 
     case COMMAND:
         if (GET_LEVEL(ch) <= command->minimum_level)

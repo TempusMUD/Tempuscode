@@ -512,8 +512,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 		return 1;
 	}
 
-	if (IS_SET(ROOM_FLAGS(EXIT(ch, dir)->to_room), ROOM_GODROOM)
-		&& !is_authorized(ch, ENTER_GODROOM, NULL)) {
+	if (!is_authorized(ch, ENTER_ROOM, EXIT(ch, dir)->to_room)) {
 		send_to_char(ch, "You cannot set foot in that Ultracosmic place.\r\n");
 		return 1;
 	}
@@ -1911,7 +1910,7 @@ ACMD(do_enter)
 		return;
 	}
 
-	if ((ROOM_FLAGGED(room, ROOM_GODROOM) && !is_authorized(ch, ENTER_GODROOM, NULL))
+	if (!is_authorized(ch, ENTER_ROOM, room)
 		|| (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)
 			&& (!car->in_room || CAN_WEAR(car, ITEM_WEAR_TAKE)))
 		|| (ROOM_FLAGGED(room, ROOM_HOUSE)

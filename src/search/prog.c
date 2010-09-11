@@ -26,6 +26,7 @@
 #include "house.h"
 #include "prog.h"
 #include "clan.h"
+#include "weather.h"
 
 struct prog_env *free_progs = NULL;
 struct prog_env *prog_list = NULL;
@@ -162,6 +163,39 @@ prog_get_desc(struct prog_env *env)
 	return tmp_strdup("");
 }
 
+struct prog_state_data *
+prog_get_prog_state(struct prog_env *env)
+{
+	switch (env->owner_type) {
+	case PROG_TYPE_OBJECT:
+		return NULL;
+	case PROG_TYPE_MOBILE:
+		return ((struct creature *)env->owner)->prog_state;
+	case PROG_TYPE_ROOM:
+		return ((struct room_data *)env->owner)->prog_state;
+	default:
+		break;
+	}
+	errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+    return NULL;
+}
+
+void
+prog_set_prog_state(struct prog_env *env, struct prog_state_data *state)
+{
+	switch (env->owner_type) {
+	case PROG_TYPE_OBJECT:
+		return;
+	case PROG_TYPE_MOBILE:
+		((struct creature *)env->owner)->prog_state = state;
+	case PROG_TYPE_ROOM:
+		((struct room_data *)env->owner)->prog_state = state;
+	default:
+        errlog("Can't happen at %s:%d", __FILE__, __LINE__);
+		break;
+	}
+}
+
 int
 prog_event_handler(void *owner, enum prog_evt_type owner_type,
                    enum prog_evt_phase phase,
@@ -233,10 +267,8 @@ prog_send_debug(struct prog_env *env, const char *msg)
 {
     struct room_data *room = prog_get_owner_room(env);
 
-    for (struct creatureList_iterator cit = room->people.begin();
-         cit != room->people.end();
-         ++cit) {
-        struct creature *ch = *cit;
+    for (GList *cit = room->people; cit; cit = cit->next) {
+        struct creature *ch = cit->data;
 
         if (PRF2_FLAGGED(ch, PRF2_DEBUG))
             send_to_char(ch, "%sprog x%p_ %s%s\r\n",
@@ -254,8 +286,8 @@ prog_get_var(struct prog_env *env, const char *key, bool exact)
             for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
                 if (!strcmp(cur_var->key, key))
                     return cur_var;
-        if (env->owner->prog_state)
-            for (cur_var = env->owner->prog_state->var_list; cur_var; cur_var = cur_var->next)
+        if (prog_get_prog_state(env))
+            for (cur_var = prog_get_prog_state(env)->var_list; cur_var; cur_var = cur_var->next)
                 if (!strcmp(cur_var->key, key))
                     return cur_var;
     } else {
@@ -263,8 +295,8 @@ prog_get_var(struct prog_env *env, const char *key, bool exact)
             for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next)
                 if (!strncmp(cur_var->key, key, strlen(cur_var->key)))
                     return cur_var;
-        if (env->owner->prog_state)
-            for (cur_var = env->owner->prog_state->var_list; cur_var; cur_var = cur_var->next)
+        if (prog_get_prog_state(env))
+            for (cur_var = prog_get_prog_state(env)->var_list; cur_var; cur_var = cur_var->next)
                 if (!strncmp(cur_var->key, key, strlen(cur_var->key)))
                     return cur_var;
     }
@@ -274,27 +306,27 @@ prog_get_var(struct prog_env *env, const char *key, bool exact)
 static void
 prog_set_var(struct prog_env *env, bool local, const char *key, const char *arg)
 {
-	prog_state_data *state;
-	prog_var *var;
+	struct prog_state_data *state;
+	struct prog_var *var;
 
     if (local) {
         state = env->state;
         if (!state) {
-            CREATE(env->state, prog_state_data, 1);
-            state = env->state;
+            CREATE(state, struct prog_state_data, 1);
+            env->state = state;
         }
     } else {
-        state = env->owner->prog_state;
+        state = prog_get_prog_state(env);
         if (!state) {
-            CREATE(env->owner->prog_state, prog_state_data, 1);
-            state = env->owner->prog_state;
+            CREATE(state, struct prog_state_data, 1);
+            prog_set_prog_state(env, state);
         }
     }
 
     var = prog_get_var(env, key, true);
 
 	if (!var) {
-		CREATE(var, prog_var, 1);
+		CREATE(var, struct prog_var, 1);
 		strcpy(var->key, key);
 
         // Sort by key length descending so inexact matches will work
@@ -303,7 +335,7 @@ prog_set_var(struct prog_env *env, bool local, const char *key, const char *arg)
             var->next = state->var_list;
             state->var_list = var;
         } else {
-            prog_var *prev_var = state->var_list;
+            struct prog_var *prev_var = state->var_list;
             while (prev_var->next && strlen(prev_var->next->key) < strlen(key))
                 prev_var = prev_var->next;
             var->next = prev_var->next;
@@ -353,7 +385,7 @@ prog_expand_vars(struct prog_env *env, char *args)
         return args;
 
     while (search_pt) {
-        result = tmp_strcat(result, tmp_substr(args, 0, search_pt - args - 1));
+        result = tmp_strcat(result, tmp_substr(args, 0, search_pt - args - 1), NULL);
         args = search_pt + 1;
         if (*args == '$') {
             // Double dollar expands to simple dollar sign
@@ -484,7 +516,7 @@ prog_eval_abbrev(struct prog_evt *evt, char *args) {
                     memcpy(len_ptr, len_ptr + 1, strlen(args) - len - 1);
                     args[strlen(args) - 1] = 0;
                 }
-                if (is_abbrev(arg, args, len)) {
+                if (is_abbrevn(arg, args, len)) {
                     result = true;
                     break;
                 }
@@ -700,14 +732,14 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
         result = prog_eval_abbrev(evt, args);
 	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
-			&& ((struct creature *) env->owner)->isFighting());
+                  && isFighting((struct creature *) env->owner));
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {
         arg = tmp_gettoken(&args);
         result = prog_var_equal(env, arg, args);
         if (env->tracing) {
-            prog_var *var = prog_get_var(env, arg, true);
+            struct prog_var *var = prog_get_var(env, arg, true);
             prog_send_debug(env,
                             tmp_sprintf("('%s' %s '%s')",
                                         (var) ? var->value:"(null)",
@@ -735,7 +767,7 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
                         args, prog_get_desc(env));
                 result = false;
             } else {
-                result = (pos == env->((struct creature *)owner)->getPosition());
+                result = (pos == GET_POSITION(((struct creature *)env->owner)));
             }
         }
     } else if (!strcasecmp(arg, "room")) {
@@ -758,7 +790,7 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
                         args, prog_get_desc(env));
                 result = false;
             }
-            result = (pos == env->target->getPosition());
+            result = (pos == GET_POSITION(env->target));
         }
         else if (!strcasecmp(arg, "player")) {
 			result = env->target && IS_PC(env->target);
@@ -783,7 +815,7 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
 		}
 		else if (!strcasecmp(arg, "visible")) {
 			if (env->owner_type == PROG_TYPE_MOBILE)
-				result = can_see_creature(env->((struct creature *)owner), env->target);
+				result = can_see_creature(((struct creature *)env->owner), env->target);
 			else
 				result = true;
 		}
@@ -869,16 +901,16 @@ DEFPROGHANDLER(target, env, evt, args)
 	if (!strcasecmp(arg, "random")) {
         if (!strcasecmp(tmp_getword(&args), "player"))
             new_target = (env->owner_type == PROG_TYPE_MOBILE) ?
-                get_player_random_vis(env->((struct creature *)owner), room) :
+                get_player_random_vis(((struct creature *)env->owner), room) :
                 get_player_random(room);
         else
             new_target = (env->owner_type == PROG_TYPE_MOBILE) ?
-                get_char_random_vis(env->((struct creature *)owner), room) :
+                get_char_random_vis(((struct creature *)env->owner), room) :
                 get_char_random(room);
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
 		case PROG_TYPE_MOBILE:
-			new_target = ((struct creature *) env->owner)->findRandomCombat();
+			new_target = findRandomCombat((struct creature *) env->owner);
 			break;
 		default:
 			new_target = NULL;
@@ -940,7 +972,7 @@ DEFPROGHANDLER(driveto, env, evt, args)
 	struct obj_data *console, *vehicle, *engine;
 	struct creature *ch;
 	struct room_data *target_room;
-	room_direction_data *exit;
+	struct room_direction_data *exit;
 	int dir, pause;
 
 	if (env->owner_type != PROG_TYPE_MOBILE)
@@ -1094,7 +1126,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 			break;
 		case PROG_TYPE_MOBILE:
 			mob = (struct creature *) env->owner;
-            if (mob->getPosition() > POS_DEAD)
+            if (GET_POSITION(mob) > POS_DEAD)
                 damage(NULL, mob, damage_amt, damage_type, WEAR_RANDOM);
 			break;
 		case PROG_TYPE_ROOM:
@@ -1110,7 +1142,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 			search_nomessage = false;
 			return;
 		}
-        if (env->target->getPosition() > POS_DEAD)
+        if (GET_POSITION(env->target) > POS_DEAD)
             damage(NULL, env->target, damage_amt, damage_type, WEAR_RANDOM);
 		search_nomessage = false;
 		return;
@@ -1131,12 +1163,13 @@ DEFPROGHANDLER(damage, env, evt, args)
 		zerrlog(room->zone, "Bad *damage argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (struct creatureList_iterator it = room->people.begin();
-		it != room->people.end(); ++it)
-		if ((!players || IS_PC(*it)) &&
-            (!mobs || IS_NPC(*it)) &&
-            (*it)->getPosition() > POS_DEAD)
-			damage(NULL, *it, damage_amt, damage_type, WEAR_RANDOM);
+	for (GList *it = room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+		if ((!players || IS_PC(tch)) &&
+            (!mobs || IS_NPC(tch)) &&
+            GET_POSITION(tch) > POS_DEAD)
+			damage(NULL, tch, damage_amt, damage_type, WEAR_RANDOM);
+    }
 	search_nomessage = false;
 }
 
@@ -1182,7 +1215,7 @@ DEFPROGHANDLER(spell, env, evt, args)
         caster = (obj->worn_by) ? obj->worn_by : obj->carried_by;
         break;
     case PROG_TYPE_MOBILE:
-        caster = env->((struct creature *)owner);
+        caster = ((struct creature *)env->owner);
         break;
     case PROG_TYPE_ROOM:
         caster = NULL;
@@ -1201,7 +1234,7 @@ DEFPROGHANDLER(spell, env, evt, args)
                        spell_num, spell_lvl, spell_type, NULL);
 			break;
 		case PROG_TYPE_MOBILE:
-            if (caster->getPosition() > POS_DEAD
+            if (GET_POSITION(caster) > POS_DEAD
                 && !affected_by_spell(caster, spell_num))
                 call_magic(caster, caster, NULL, NULL,
                            spell_num, spell_lvl, spell_type,
@@ -1220,7 +1253,7 @@ DEFPROGHANDLER(spell, env, evt, args)
 			search_nomessage = false;
 			return;
 		}
-        if (env->target->getPosition() > POS_DEAD
+        if (GET_POSITION(env->target) > POS_DEAD
             && !affected_by_spell(env->target, spell_num))
             call_magic(caster ? caster:(env->target),
                        env->target,
@@ -1246,15 +1279,16 @@ DEFPROGHANDLER(spell, env, evt, args)
 		zerrlog(room->zone, "Bad *spell argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (struct creatureList_iterator it = room->people.begin();
-		it != room->people.end(); ++it)
-		if ((!players || IS_PC(*it)) &&
-            (!mobs || IS_NPC(*it)) &&
-            (*it)->getPosition() > POS_DEAD &&
-            !affected_by_spell(*it, spell_num))
-            call_magic(caster ? caster:(*it), *it, NULL, NULL,
+    for (GList *it = room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+		if ((!players || IS_PC(tch)) &&
+            (!mobs || IS_NPC(tch)) &&
+            GET_POSITION(tch) > POS_DEAD &&
+            !affected_by_spell(tch, spell_num))
+            call_magic(caster ? caster:(tch), tch, NULL, NULL,
                        spell_num, spell_lvl, spell_type,
                        NULL);
+    }
 	search_nomessage = false;
 }
 
@@ -1292,14 +1326,14 @@ DEFPROGHANDLER(doorset, env, evt, args)
 	}
 
 	if (!ABS_EXIT(room, dir)) {
-		CREATE(ABS_EXIT(room, dir), struct room_direction_data, 1);
-		ABS_EXIT(room, dir)->to_room = NULL;
+		CREATE(room->dir_option[dir], struct room_direction_data, 1);
+		room->dir_option[dir]->to_room = NULL;
 	}
 
 	if (op)
-		ABS_EXIT(room, dir)->exit_info |= flags;
+		room->dir_option[dir]->exit_info |= flags;
 	else
-		ABS_EXIT(room, dir)->exit_info &= ~flags;
+		room->dir_option[dir]->exit_info &= ~flags;
 }
 
 DEFPROGHANDLER(doorexit, env, evt, args)
@@ -1326,16 +1360,16 @@ DEFPROGHANDLER(doorexit, env, evt, args)
         if (!target_room)
             return;
 
-        if (!ABS_EXIT(room, dir))
-            CREATE(ABS_EXIT(room, dir), struct room_direction_data, 1);
+        if (!room->dir_option[dir])
+            CREATE(room->dir_option[dir], struct room_direction_data, 1);
     } else if (!strcasecmp("none", arg)) {
         target_room = NULL;
     } else {
         return;
     }
 
-    if (ABS_EXIT(room, dir) || target_room)
-        ABS_EXIT(room, dir)->to_room = target_room;
+    if (room->dir_option[dir] || target_room)
+        room->dir_option[dir]->to_room = target_room;
 }
 
 DEFPROGHANDLER(selfpurge, env, evt, args)
@@ -1345,7 +1379,7 @@ DEFPROGHANDLER(selfpurge, env, evt, args)
 		env->exec_pt = -1;
 
         if (evt->kind != PROG_EVT_DYING)
-            ((struct creature *) env->owner)->purge(true);
+            purge((struct creature *) env->owner, true);
 		env->owner = NULL;
 	}
 }
@@ -1353,7 +1387,7 @@ DEFPROGHANDLER(selfpurge, env, evt, args)
 DEFPROGHANDLER(hunt, env, evt, args)
 {
 	if (env->owner_type == PROG_TYPE_MOBILE && env->target) {
-		((struct creature *) env->owner)->startHunting(env->target);
+		startHunting((struct creature *) env->owner, env->target);
 	}
 }
 
@@ -1375,7 +1409,7 @@ DEFPROGHANDLER(compare_obj_vnum, env, evt, args)
 	if (!env->condition)
 		env->condition = (evt->object_type == PROG_TYPE_OBJECT
 						&& evt->object
-						&& ((struct obj_data *)evt->object)->getVnum() == *((int *)args));
+						&& GET_OBJ_VNUM((struct obj_data *)evt->object) == *((int *)args));
 }
 
 DEFPROGHANDLER(cond_next_handler, env, evt, args)
@@ -1386,7 +1420,7 @@ DEFPROGHANDLER(cond_next_handler, env, evt, args)
 
 DEFPROGHANDLER(nuke, env, evt, args)
 {
-	struct struct prog_env *cur_prog;
+	struct prog_env *cur_prog;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
 		if (cur_prog != env && cur_prog->owner == env->owner)
@@ -1398,16 +1432,12 @@ prog_trans_creature(struct creature * ch, struct room_data * targ_room)
 {
 	struct room_data *was_in;
 
-	if (!can_enter_house(ch, targ_room->number)
-		|| !clan_house_can_enter(ch, targ_room)
-		|| (ROOM_FLAGGED(targ_room, ROOM_GODROOM)
-			&& !is_group_member(ch, "WizardFull"))) {
+    if (!is_authorized(ch, ENTER_ROOM, targ_room))
 		return;
-	}
 
 	was_in = ch->in_room;
-	char_from_room(ch);
-	char_to_room(ch, targ_room);
+	char_from_room(ch, true);
+	char_to_room(ch, targ_room, true);
 	targ_room->zone->enter_count++;
 
 	// Immortal following
@@ -1428,7 +1458,7 @@ prog_trans_creature(struct creature * ch, struct room_data * targ_room)
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			log_death_trap(ch);
 			death_cry(ch);
-			ch->die();
+			creature_die(ch);
 		} else {
 			mudlog(LVL_GOD, NRM, true,
 				"(GC) %s trans-searched into deathtrap %d.",
@@ -1465,7 +1495,7 @@ DEFPROGHANDLER(trans, env, evt, args)
 			else if (obj->worn_by)
 				unequip_char(obj->worn_by, obj->worn_on,
 					(obj == GET_EQ(obj->worn_by, obj->worn_on) ?
-						EQUIP_WORN : EQUIP_IMPLANT), false);
+						EQUIP_WORN : EQUIP_IMPLANT));
 			else if (obj->in_obj)
 				obj_from_obj(obj);
 
@@ -1503,10 +1533,11 @@ DEFPROGHANDLER(trans, env, evt, args)
 		zerrlog(room->zone, "Bad *trans argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (struct creatureList_iterator it = room->people.begin();
-		it != room->people.end(); ++it)
-		if ((!players || IS_PC(*it)) && (!mobs || IS_NPC(*it)))
-			prog_trans_creature(*it, targ_room);
+	for (GList *it = room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+		if ((!players || IS_PC(tch)) && (!mobs || IS_NPC(tch)))
+			prog_trans_creature(tch, targ_room);
+    }
 }
 
 // Set the value for an owner-scoped variable
@@ -1562,7 +1593,7 @@ DEFPROGHANDLER(oload, env, evt, args)
 	case PROG_TYPE_ROOM:
 		obj->creator = ((struct room_data *)env->owner)->number; break;
 	case PROG_TYPE_MOBILE:
-		obj->creator = GET_MOB_VNUM(env->((struct creature *)owner)); break;
+		obj->creator = GET_MOB_VNUM(((struct creature *)env->owner)); break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
@@ -1633,7 +1664,7 @@ DEFPROGHANDLER(mload, env, evt, args)
 
 	if (max_load == -1 || mob->mob_specials.shared->number < max_load) {
 		mob = read_mobile(vnum);
-		char_to_room(mob, room);
+		char_to_room(mob, room, true);
 		if (GET_MOB_PROG(mob))
 			trigger_prog_load(mob);
 	}
@@ -1712,7 +1743,7 @@ DEFPROGHANDLER(giveexp, env, evt, args)
         switch (env->owner_type) {
         case PROG_TYPE_MOBILE:
             owner_type = "mobile";
-            num = GET_MOB_VNUM(env->((struct creature *)owner));
+            num = GET_MOB_VNUM(((struct creature *)env->owner));
             break;
         case PROG_TYPE_OBJECT:
             owner_type = "object";
@@ -1748,16 +1779,16 @@ DEFPROGHANDLER(echo, env, evt, args)
     room = prog_get_owner_room(env);
     switch (env->owner_type) {
     case PROG_TYPE_MOBILE:
-        ch = (env->((struct creature *)owner)); break;
+        ch = ((struct creature *)env->owner); break;
     case PROG_TYPE_OBJECT:
         obj = ((struct obj_data *)env->owner); break;
     case PROG_TYPE_ROOM:
 		// if there's noone in the room and it's not a zecho,
         // no point in echoing
-		if (room->people.empty() && strcasecmp(arg, "zone"))
+		if (!room->people && strcasecmp(arg, "zone"))
 			return;
 		// we just pick the top guy off the people list for rooms.
-		ch = *(((struct room_data *) env->owner)->people.begin());
+		ch = ((struct room_data *) env->owner)->people->data;
         break;
     default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__); break;
@@ -1866,7 +1897,7 @@ prog_start(enum prog_evt_type owner_type, void *owner, struct creature * target,
 		new_prog = free_progs;
 		free_progs = free_progs->next;
 	} else {
-		CREATE(new_prog, struct struct prog_env, 1);
+		CREATE(new_prog, struct prog_env, 1);
 	}
 	new_prog->next = prog_list;
 	prog_list = new_prog;
@@ -1889,9 +1920,9 @@ prog_start(enum prog_evt_type owner_type, void *owner, struct creature * target,
 }
 
 static void
-prog_free(struct struct prog_env *prog)
+prog_free(struct prog_env *prog)
 {
-	struct struct prog_env *prev_prog;
+	struct prog_env *prev_prog;
 
 	if (prog_list == prog) {
 		prog_list = prog->next;
@@ -1915,7 +1946,7 @@ prog_free(struct struct prog_env *prog)
 void
 destroy_attached_progs(void *owner)
 {
-	struct struct prog_env *cur_prog;
+	struct prog_env *cur_prog;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
 		if (cur_prog->owner == owner ||
@@ -1929,7 +1960,7 @@ destroy_attached_progs(void *owner)
 void
 prog_unreference_object(struct obj_data *obj)
 {
-	struct struct prog_env *cur_prog;
+	struct prog_env *cur_prog;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
 		if (cur_prog->evt.object_type == PROG_TYPE_OBJECT
@@ -2095,7 +2126,7 @@ trigger_prog_spell(void *owner, enum prog_evt_type owner_type, struct creature *
 
 bool
 trigger_prog_move(void *owner, enum prog_evt_type owner_type, struct creature * ch,
-	special_mode mode)
+	enum special_mode mode)
 {
 	struct prog_env *env, *handler_env;
 	struct prog_evt evt;
@@ -2376,12 +2407,11 @@ trigger_prog_tick(void *owner, enum prog_evt_type owner_type)
 static void
 prog_unmark_mobiles(void)
 {
-	struct creatureList_iterator cit, end;
-
 	// Unmark mobiles
-    end = characterList.end();
-	for (cit = characterList.begin();cit != end;++cit)
-		(*cit)->prog_marker = 0;
+    for (GList *it = creatures;it;it = it->next) {
+        struct creature *tch = it->data;
+        tch->prog_marker = 0;
+    }
 }
 
 static void
@@ -2404,7 +2434,7 @@ prog_unmark_rooms(void)
 static void
 prog_execute_and_mark(void)
 {
-	struct struct prog_env *cur_prog;
+	struct prog_env *cur_prog;
 
 	// Execute progs and mark them as non-idle
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
@@ -2416,7 +2446,11 @@ prog_execute_and_mark(void)
 			continue;
 		}
 
-        cur_prog->owner->prog_marker = 1;
+        if (cur_prog->owner_type == PROG_TYPE_MOBILE)
+            ((struct creature *)cur_prog->owner)->prog_marker = 1;
+        else
+            ((struct room_data *)cur_prog->owner)->prog_marker = 1;
+
 		prog_execute(cur_prog);
 	}
 }
@@ -2424,7 +2458,7 @@ prog_execute_and_mark(void)
 static void
 prog_free_terminated(void)
 {
-	struct struct prog_env *cur_prog, *next_prog;
+	struct prog_env *cur_prog, *next_prog;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = next_prog) {
 		next_prog = cur_prog->next;
@@ -2436,11 +2470,8 @@ prog_free_terminated(void)
 static void
 prog_trigger_idle_mobs(void)
 {
-	struct creatureList_iterator cit, end;
-
-    end = characterList.end();
-	for (cit = characterList.begin();cit != end;++cit) {
-        struct creature *ch = *cit;
+	for (GList *cit = creatures;cit;cit = cit->next) {
+        struct creature *ch = cit->data;;
 		if (ch->prog_marker || !GET_MOB_PROGOBJ(ch))
 			continue;
 		else if (ch->fighting)
@@ -2484,7 +2515,7 @@ prog_update(void)
 void
 prog_update_pending(void)
 {
-	struct struct prog_env *cur_prog;
+	struct prog_env *cur_prog;
 
 	if (!prog_list)
 		return;
@@ -2519,7 +2550,7 @@ free_prog_count(void)
 }
 
 void
-prog_state_free(prog_state_data * state)
+prog_state_free(struct prog_state_data *state)
 {
 	struct prog_var *cur_var, *next_var;
 

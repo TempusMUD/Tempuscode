@@ -950,6 +950,8 @@ struct creature {
 
 	struct follow_type *followers;	/* List of chars followers       */
 	struct creature *master;	/* Who is char following?        */
+
+    int prog_marker;
 };
 
 /* ====================================================================== */
