@@ -18,7 +18,7 @@ SPECIAL(red_highlord)
 	struct obj_data *blade = NULL, *container = NULL;
 	struct creature *vict = NULL, *tmp_vict = NULL;
 
-	if (cmd || ch->fighting || ch->isHunting()
+	if (cmd || ch->fighting || MOB_HUNTING(ch)
 		|| GET_POSITION(ch) <= POS_SLEEPING)
 		return 0;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)

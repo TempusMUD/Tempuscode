@@ -1855,7 +1855,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                 (isFighting(k) ? GET_NAME(findRandomCombat(k)) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-                isHunting(k) ? PERS(isHunting(k), ch) : "N",
+                MOB_HUNTING(k) ? PERS(MOB_HUNTING(k), ch) : "N",
                 k->char_specials.timer);
     } else if (k->in_room) {
         acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
@@ -1863,7 +1863,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                     CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                     (isFighting(k) ? GET_NAME(findRandomCombat(k)) : "N"),
                     CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-                    isHunting(k) ? PERS(isHunting(k), ch) : "N");
+                    MOB_HUNTING(k) ? PERS(MOB_HUNTING(k), ch) : "N");
     }
     if (k->desc)
         acc_sprintf(", Connected: %s, Idle [%d]\r\n",

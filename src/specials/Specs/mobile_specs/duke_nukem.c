@@ -39,14 +39,14 @@ SPECIAL(duke_nukem)
 		return 0;
 	}
 
-	if (duke->isHunting() && can_see_creature(duke, duke->isHunting())) {
+	if (MOB_HUNTING(duke) && can_see_creature(duke, MOB_HUNTING(duke))) {
 		if (!number(0, 10))
-			perform_tell(duke, duke->isHunting(),
+			perform_tell(duke, MOB_HUNTING(duke),
 				"What are you, some bottom feeding, scum sucking algae eater?");
 		else if (!number(0, 10))
-			perform_tell(duke, duke->isHunting(), "Come get some.");
+			perform_tell(duke, MOB_HUNTING(duke), "Come get some.");
 		else if (!number(0, 10))
-			perform_tell(duke, duke->isHunting(),
+			perform_tell(duke, MOB_HUNTING(duke),
 				"I'll rip off your head and shit down your neck.");
 		return 0;
 	}

@@ -603,7 +603,7 @@ creature_extract(cxn_state con_state)
     }
 
 	for (cit = huntingList.begin(); cit != huntingList.end(); ++cit) {
-		if (this == (*cit)->isHunting())
+		if (this == MOB_HUNTING(*cit))
 			(*cit)->stopHunting();
    	}
 

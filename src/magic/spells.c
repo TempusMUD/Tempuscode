@@ -3336,7 +3336,7 @@ ASPELL(spell_distraction)
 		return;
 	}
 
-	if (!MEMORY(victim) && !isHunting(victim)) {
+	if (!MEMORY(victim) && !MOB_HUNTING(victim)) {
 		send_to_char(ch, "Nothing happens.\r\n");
 		return;
 	}

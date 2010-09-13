@@ -733,7 +733,7 @@ burn_update_creature(struct creature *ch)
             return;
 
     /* Hunter Mobs */
-    if (isHunting(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
+    if (MOB_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
         GET_POSITION(ch) > POS_SITTING && !GET_MOB_WAIT(ch)) {
         if (MOB_FLAGGED(ch, MOB_WIMPY)) {
             if ((GET_HIT(ch) < MIN(500, GET_MAX_HIT(ch)) * 0.80)
@@ -2134,7 +2134,7 @@ single_mobile_activity(struct creature *ch)
         // end for vict
 
         /** scan surrounding rooms **/
-        if (!isHunting(ch) && GET_POSITION(ch) > POS_FIGHTING &&
+        if (!MOB_HUNTING(ch) && GET_POSITION(ch) > POS_FIGHTING &&
             !MOB_FLAGGED(ch, MOB_SENTINEL) &&
             (GET_LEVEL(ch) + GET_MORALE(ch) > (random_number_zero_low(120) + 50)
              || IS_TARRASQUE(ch))) {
@@ -2238,7 +2238,7 @@ single_mobile_activity(struct creature *ch)
 
     /* Mob Movement -- Lair */
     if (GET_MOB_LAIR(ch) > 0 && ch->in_room->number != GET_MOB_LAIR(ch) &&
-        !isHunting(ch) &&
+        !MOB_HUNTING(ch) &&
         (room = real_room(GET_MOB_LAIR(ch))) &&
         ((dir = find_first_step(ch->in_room, room, STD_TRACK)) >= 0) &&
         MOB_CAN_GO(ch, dir) &&
@@ -2467,7 +2467,7 @@ single_mobile_activity(struct creature *ch)
     //
 
     if (GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
-        if (!isHunting(ch)) {
+        if (!MOB_HUNTING(ch)) {
             act("$n dematerializes, removing the chill from the air.",
                 true, ch, 0, 0, TO_ROOM);
             purge(ch, true);

@@ -275,7 +275,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 	GET_POSITION(vict) = POS_RESTING;
 	act("You wake up in jail, your head pounding.", false, vict, 0, 0, TO_CHAR);
 
-	if (isHunting(ch) && isHunting(ch) == vict)
+	if (MOB_HUNTING(ch) && MOB_HUNTING(ch) == vict)
         stopHunting(ch);
 
 	if ((torch = read_object(3030)))

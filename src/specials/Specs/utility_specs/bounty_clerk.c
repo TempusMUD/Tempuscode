@@ -6,7 +6,19 @@ struct hunt_data {
 		int vict_id;			// idnum of the hunted
 };
 
-vector <hunt_data> hunt_list;
+struct hunt_data *
+make_hunt_data(int hunt_id, int vict)
+{
+    struct hunt_data *data;
+
+    CREATE(data, struct hunt_data, 1);
+    data->idnum = hunt_id;
+    data->vict_id = vict;
+
+    return data;
+}
+
+GList *hunt_list;
 
 void
 load_bounty_data(void)
@@ -19,10 +31,11 @@ load_bounty_data(void)
 	if (count < 1)
 		return;
 
-	for (idx = 0;idx < count;idx++)
-		hunt_list.push_back(hunt_data(
-			atoi(PQgetvalue(res, idx, 0)),
-			atoi(PQgetvalue(res, idx, 1))));
+	for (idx = 0;idx < count;idx++) {
+        hunt_list = g_list_prepend(hunt_list, make_hunt_data(
+                                       atoi(PQgetvalue(res, idx, 0)),
+                                       atoi(PQgetvalue(res, idx, 1))));
+    }
 }
 
 void

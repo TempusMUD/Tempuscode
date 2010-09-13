@@ -603,18 +603,18 @@ hunt_victim(struct creature *ch)
 	int dir;
 	byte found;
 
-	if (!ch || !ch->isHunting())
+	if (!ch || !MOB_HUNTING(ch))
 		return;
 
-	if (!ch->isHunting()->in_room) {
-		errlog(" hunting ! ch->isHunting()->in_room !!");
+	if (!MOB_HUNTING(ch)->in_room) {
+		errlog(" hunting ! MOB_HUNTING(ch)->in_room !!");
 		return;
 	}
 
 	/* make sure the char still exists */
 	struct creatureList_iterator cit = characterList.begin();
 	for (found = 0; cit != characterList.end() && !found; ++cit) {
-		if (ch->isHunting() == (*cit))
+		if (MOB_HUNTING(ch) == (*cit))
 			found = 1;
 	}
 	if (!found) {
@@ -624,42 +624,42 @@ hunt_victim(struct creature *ch)
 		}
 		return;
 	}
-	if (GET_LEVEL(ch->isHunting()) >= LVL_AMBASSADOR) {
+	if (GET_LEVEL(MOB_HUNTING(ch)) >= LVL_AMBASSADOR) {
         ch->stopHunting();
 		return;
 	}
-	if (ch->findCombat(ch->isHunting()))
+	if (ch->findCombat(MOB_HUNTING(ch)))
 		return;
 
-	if (ch->in_room == ch->isHunting()->in_room &&
-		!ch->fighting && can_see_creature(ch, ch->isHunting()) &&
-		!PLR_FLAGGED(ch->isHunting(), PLR_WRITING | PLR_OLC) &&
-		(!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE)) ||
-			CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))) {
-		if (ok_to_attack(ch, ch->isHunting(), false) && !check_infiltrate(ch->isHunting(), ch)) {
-			best_initial_attack(ch, ch->isHunting());
+	if (ch->in_room == MOB_HUNTING(ch)->in_room &&
+		!ch->fighting && can_see_creature(ch, MOB_HUNTING(ch)) &&
+		!PLR_FLAGGED(MOB_HUNTING(ch), PLR_WRITING | PLR_OLC) &&
+		(!(af_ptr = affected_by_spell(MOB_HUNTING(ch), SKILL_DISGUISE)) ||
+			CAN_DETECT_DISGUISE(ch, MOB_HUNTING(ch), af_ptr->duration))) {
+		if (ok_to_attack(ch, MOB_HUNTING(ch), false) && !check_infiltrate(MOB_HUNTING(ch), ch)) {
+			best_initial_attack(ch, MOB_HUNTING(ch));
 		}
 		return;
 	}
 	if (IS_CLERIC(ch) || IS_MAGE(ch)) {
-		if (ch->isHunting()->in_room && can_see_creature(ch, ch->isHunting()) &&
-			ok_to_attack(ch, ch->isHunting(), false)) {
+		if (MOB_HUNTING(ch)->in_room && can_see_creature(ch, MOB_HUNTING(ch)) &&
+			ok_to_attack(ch, MOB_HUNTING(ch), false)) {
 			if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) ||
 				(IS_MAGE(ch) && GET_LEVEL(ch) > 27)) {
 				if (GET_MANA(ch) < mag_manacost(ch, SPELL_SUMMON)) {
-					cast_spell(ch, ch->isHunting(), 0, NULL, SPELL_SUMMON);
+					cast_spell(ch, MOB_HUNTING(ch), 0, NULL, SPELL_SUMMON);
                     return;
 				}
 			}
 		}
 	}
 
-    if (!AFF_FLAGGED(ch->isHunting(), AFF_NOTRACK) ||
+    if (!AFF_FLAGGED(MOB_HUNTING(ch), AFF_NOTRACK) ||
         (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPIRIT_TRACKER))) {
-        dir = find_first_step(ch->in_room, ch->isHunting()->in_room, STD_TRACK);
+        dir = find_first_step(ch->in_room, MOB_HUNTING(ch)->in_room, STD_TRACK);
 
         //misdirection melisma
-        affected_type *misdirection = affected_by_spell(ch->isHunting(), SONG_MISDIRECTION_MELISMA);
+        affected_type *misdirection = affected_by_spell(MOB_HUNTING(ch), SONG_MISDIRECTION_MELISMA);
         if (misdirection && misdirection->level + 40 > random_number_zero_low(150)) {
             int total = 0;
             int dirs[NUM_OF_DIRS];
@@ -667,10 +667,10 @@ hunt_victim(struct creature *ch)
             memset(dirs, -1, sizeof(dirs));
 
             for (int idx = 0; idx < NUM_OF_DIRS; idx++) {
-                if (ch->isHunting()->in_room->dir_option[idx] &&
-                    ch->isHunting()->in_room->dir_option[idx]->to_room &&
-                    ch->isHunting()->in_room->dir_option[idx]->to_room !=
-                    ch->isHunting()->in_room) {
+                if (MOB_HUNTING(ch)->in_room->dir_option[idx] &&
+                    MOB_HUNTING(ch)->in_room->dir_option[idx]->to_room &&
+                    MOB_HUNTING(ch)->in_room->dir_option[idx]->to_room !=
+                    MOB_HUNTING(ch)->in_room) {
                         dirs[total] = idx;
                         total++;
                 }
@@ -681,8 +681,8 @@ hunt_victim(struct creature *ch)
 		dir = -1;
     }
 	if (dir < 0
-        || find_distance(ch->in_room, ch->isHunting()->in_room) > GET_INT(ch)) {
-        emit_voice(ch, ch->isHunting(), VOICE_HUNT_LOST);
+        || find_distance(ch->in_room, MOB_HUNTING(ch)->in_room) > GET_INT(ch)) {
+        emit_voice(ch, MOB_HUNTING(ch), VOICE_HUNT_LOST);
 		ch->stopHunting();
 		return;
 	}
@@ -691,26 +691,26 @@ hunt_victim(struct creature *ch)
         return;
     }
 
-    if ((ch->in_room == ch->isHunting()->in_room) && can_see_creature(ch, ch->isHunting())
-        && (!(af_ptr = affected_by_spell(ch->isHunting(), SKILL_DISGUISE))
-            || CAN_DETECT_DISGUISE(ch, ch->isHunting(), af_ptr->duration))
-        && !check_infiltrate(ch->isHunting(), ch)) {
-        if (ok_to_attack(ch, ch->isHunting(), false)
-            && !PLR_FLAGGED(ch->isHunting(), PLR_OLC | PLR_WRITING)) {
+    if ((ch->in_room == MOB_HUNTING(ch)->in_room) && can_see_creature(ch, MOB_HUNTING(ch))
+        && (!(af_ptr = affected_by_spell(MOB_HUNTING(ch), SKILL_DISGUISE))
+            || CAN_DETECT_DISGUISE(ch, MOB_HUNTING(ch), af_ptr->duration))
+        && !check_infiltrate(MOB_HUNTING(ch), ch)) {
+        if (ok_to_attack(ch, MOB_HUNTING(ch), false)
+            && !PLR_FLAGGED(MOB_HUNTING(ch), PLR_OLC | PLR_WRITING)) {
             if (GET_POSITION(ch) >= POS_STANDING && !ch->fighting) {
-                emit_voice(ch, ch->isHunting(), VOICE_HUNT_FOUND);
-                best_initial_attack(ch, ch->isHunting());
+                emit_voice(ch, MOB_HUNTING(ch), VOICE_HUNT_FOUND);
+                best_initial_attack(ch, MOB_HUNTING(ch));
                 return;
             }
         }
-    } else if (ch->in_room == ch->isHunting()->in_room) {
+    } else if (ch->in_room == MOB_HUNTING(ch)->in_room) {
         if (!number(0, 10))
-            emit_voice(ch, ch->isHunting(), VOICE_HUNT_UNSEEN);
+            emit_voice(ch, MOB_HUNTING(ch), VOICE_HUNT_UNSEEN);
         return;
     } else {
         if (!MOB2_FLAGGED(ch, MOB2_SILENT_HUNTER) &&
-            (GET_LEVEL(ch) + number(1, 12)) > GET_LEVEL(ch->isHunting())) {
-            emit_voice(ch, ch->isHunting(), VOICE_HUNT_TAUNT);
+            (GET_LEVEL(ch) + number(1, 12)) > GET_LEVEL(MOB_HUNTING(ch))) {
+            emit_voice(ch, MOB_HUNTING(ch), VOICE_HUNT_TAUNT);
         }
     }
 }
