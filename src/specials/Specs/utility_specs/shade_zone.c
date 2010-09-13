@@ -18,12 +18,14 @@ void
 move_chars(struct room_data * from, struct room_data * to)
 {
 	struct creature *ch = NULL;
-	struct creatureList_iterator it = from->people.begin();
-	for (; it != from->people.end(); ++it) {
-		ch = *it;
+    GList *old_people = g_list_copy(from->people);
+
+    for (GList *it = old_people;it;it = it->next) {
+        ch = it->data;
 		char_from_room(ch, false);
 		char_to_room(ch, to, false);
 	}
+    g_list_free(old_people);
 }
 
 // Connects the "dir" exit of link room to dest_room

@@ -15,27 +15,26 @@ SPECIAL(newbie_healer)
 	if (cmd)
 		return 0;
 
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		i = *it;
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+		i = it->data;
 		if (i == ch)
 			continue;
 		if (IS_NPC(i)) {
 			act("$n banishes $N!", false, ch, 0, i, TO_ROOM);
-			i->purge(false);
+			purge(i, false);
 			continue;
 		}
 		if (!IS_NPC(i) && GET_LEVEL(i) < 5 && !number(0, GET_LEVEL(i))) {
 			if (GET_HIT(i) < GET_MAX_HIT(i))
-				cast_spell(ch, i, 0, NULL, SPELL_CURE_CRITIC);
+				cast_spell(ch, i, 0, NULL, SPELL_CURE_CRITIC, NULL);
 			else if (AFF_FLAGGED(i, AFF_POISON))
-				cast_spell(ch, i, 0, NULL, SPELL_REMOVE_POISON);
+				cast_spell(ch, i, 0, NULL, SPELL_REMOVE_POISON, NULL);
 			else if (!affected_by_spell(i, SPELL_BLESS))
-				cast_spell(ch, i, 0, NULL, SPELL_BLESS);
+				cast_spell(ch, i, 0, NULL, SPELL_BLESS, NULL);
 			else if (!affected_by_spell(i, SPELL_ARMOR))
-				cast_spell(ch, i, 0, NULL, SPELL_ARMOR);
+				cast_spell(ch, i, 0, NULL, SPELL_ARMOR, NULL);
 			else if (!affected_by_spell(i, SPELL_DETECT_MAGIC))
-				cast_spell(ch, i, 0, NULL, SPELL_DETECT_MAGIC);
+				cast_spell(ch, i, 0, NULL, SPELL_DETECT_MAGIC, NULL);
 			else
 				return 0;
 			return 1;
@@ -44,7 +43,7 @@ SPECIAL(newbie_healer)
 	for (p = ch->carrying; p; p = p->next_content) {
 		act("$p.", false, ch, p, 0, TO_CHAR);
 		if (GET_OBJ_TYPE(p) == ITEM_WORN)
-			cast_spell(ch, 0, p, NULL, SPELL_MAGICAL_VESTMENT);
+			cast_spell(ch, 0, p, NULL, SPELL_MAGICAL_VESTMENT, NULL);
 		else
 			send_to_char(ch, "No WEAR.\r\n");
 		do_drop(ch, fname(p->aliases), 0, 0, 0);

@@ -58,7 +58,7 @@ SPECIAL(jail_locker)
 			* GET_LEVEL(ch)
 			* (GET_REMORT_GEN(ch) + 1)
 			* 50);
-    cost += (cost*ch->getCostModifier(self))/100;
+    cost += (cost*getCostModifier(ch, self))/100;
 
 	if (CMD_IS("offer")) {
 		perform_say(ch, "say", "How much will it cost to get my stuff back, sir?");
@@ -130,9 +130,9 @@ SPECIAL(jail_locker)
 	slog("%s received jail impound at %d.", GET_NAME(ch),
 		ch->in_room->number);
 
-	House* house = Housing.findHouseByRoom( jail_room->number );
+	struct house *house = find_house_by_room( jail_room->number );
 	if( house != NULL )
-		house->save();
+		save_house(house);
 	save_player_to_xml(ch);
 	return 1;
 }

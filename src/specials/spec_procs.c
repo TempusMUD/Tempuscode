@@ -43,6 +43,7 @@
 #include "tmpstr.h"
 #include "accstr.h"
 #include "players.h"
+#include "weather.h"
 
 /*   external vars  */
 extern struct descriptor_data *descriptor_list;

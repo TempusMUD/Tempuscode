@@ -10,7 +10,6 @@
 
 ACMD(do_follow);
 ACMD(do_rescue);
-bool affected_by_spell( struct char_data *ch, byte skill );
 int cast_spell(struct creature *ch, struct creature *tch,
                struct obj_data *tobj, int *tdir, int spellnum, int *return_flags);
 
@@ -25,7 +24,7 @@ struct angel_data {
 	unsigned long flags;
 };
 
-list<angel_data *> angels;
+GList *angels = NULL;
 
 struct angel_chat_data {
 	int char_class;             // class restriction of response
@@ -34,7 +33,7 @@ struct angel_chat_data {
 	const char *response;		// the actual response
 };
 
-angel_chat_data angel_chat[] = {
+struct angel_chat_data angel_chat[] = {
     // Game mechanics
 	{ CLASS_NONE, 100, "what hitpoints", "respond Hitpoints are a measure of how much punishment you can take before you die.  When your hitpoints hit zero, you go unconscious and are easily slain." },
 	{ CLASS_MAGE, 100, "what mana", "respond Mana is a measure of the amount of psycho-spiritual energy you possess.  You use it for casting spells." },
@@ -197,7 +196,7 @@ struct angel_spell_data {
     const char *text;
 };
 
-angel_spell_data angel_spells[] = {
+struct angel_spell_data angel_spells[] = {
     { SPELL_DETECT_INVIS, "This spell will allow you to see invisible "
                           "objects and creatures." },
     { SPELL_RETINA, "This spell will allow you to see transparent objects and creatures." },
@@ -275,14 +274,14 @@ angel_find_path_to_room(struct creature *angel, struct room_data *dest, struct a
 void
 guardian_angel_action(struct creature *angel, const char *action)
 {
-	angel_data *data = (angel_data *)angel->mob_specials.func_data;
+	struct angel_data *data = (struct angel_data *)angel->mob_specials.func_data;
 	free(data->action);
 	data->action = strdup(action);
 	data->counter = 0;
 }
 
 void
-angel_do_respond(struct creature *self, angel_data *data, const char *message)
+angel_do_respond(struct creature *self, struct angel_data *data, const char *message)
 {
 	struct creature *target = get_char_in_world_by_idnum(data->respond_to);
 
@@ -295,7 +294,7 @@ angel_do_respond(struct creature *self, angel_data *data, const char *message)
 }
 
 int
-angel_do_action(struct creature *self, struct creature *charge, angel_data *data)
+angel_do_action(struct creature *self, struct creature *charge, struct angel_data *data)
 {
 	char *cmd, *action;
     int return_flags = 0;
@@ -358,17 +357,15 @@ angel_do_action(struct creature *self, struct creature *charge, angel_data *data
 			act("$n shrugs $s shoulders and disappears!", false,
 				self, 0, 0, TO_ROOM);
 
-			list<angel_data *>_iterator li = angels.begin();
-			for (; li != angels.end(); ++li) {
-				if (data->charge_id == (*li)->charge_id) {
-					// We have to do something after this because we're about to
-					// fux0r this iterator.  So, since we already know there can
-					// only be one matching entry, let's just end the loop.
-					angels.erase(li);
-					li = angels.end();
-				}
+            for (GList *li = angels;li;li = li->next) {
+                struct angel_data *angel = li->data;
+				if (data->charge_id == angel->charge_id) {
+                    free(angel);
+                    angels = g_list_remove(angels, angel);
+                    break;
+                }
 			}
-			self->purge(true);
+			purge(self, true);
 			return 1;
 		}
 	}
@@ -379,7 +376,7 @@ angel_do_action(struct creature *self, struct creature *charge, angel_data *data
 }
 
 int
-angel_check_charge(struct creature *self, struct creature *charge, angel_data *data)
+angel_check_charge(struct creature *self, struct creature *charge, struct angel_data *data)
 {
     int return_flags = 0;
 
@@ -389,8 +386,8 @@ angel_check_charge(struct creature *self, struct creature *charge, angel_data *d
 	if (self->in_room != charge->in_room) {
 		act("$n disappears in a bright flash of light!", false,
 			self, 0, 0, TO_ROOM);
-		char_from_room(self);
-		char_to_room(self, charge->in_room);
+		char_from_room(self, true);
+		char_to_room(self, charge->in_room, true);
 		act("$n appears in a bright flash of light!", false,
 			self, 0, 0, TO_ROOM);
         do_follow(self, GET_NAME(charge), 0, 0, 0);
@@ -398,13 +395,13 @@ angel_check_charge(struct creature *self, struct creature *charge, angel_data *d
 	}
 
 	// First check for mortal danger
-    if (GET_HIT(charge) < 15 && charge->isFighting()) {
+    if (GET_HIT(charge) < 15 && isFighting(charge)) {
         SET_BIT(data->flags, ANGEL_DANGER);
 		perform_say(self, "yell", "Banzaiiiii!  To the rescue!");
         do_rescue(self, GET_NAME(charge), 0, 0, 0);
         return 1;
     }
-    else if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && charge->isFighting()) {
+    else if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && isFighting(charge)) {
 		if (!IS_SET(data->flags, ANGEL_DANGER)) {
 			perform_say(self, "yell", "Flee!  Flee for your life!");
 			SET_BIT(data->flags, ANGEL_DANGER);
@@ -415,11 +412,11 @@ angel_check_charge(struct creature *self, struct creature *charge, angel_data *d
 	}
 
 	// Everything below here only applies to not fighting
-	if (charge->isFighting())
+	if (isFighting(charge))
 		return 0;
 
 	if ((!GET_COND(charge, FULL) || !GET_COND(charge, THIRST))
-			&& !IS_SET(data->flags, ANGEL_CONSUME)) {
+        && !IS_SET(data->flags, ANGEL_CONSUME)) {
 		perform_say_to(self, charge, "You regenerate hitpoints, mana, and move much faster if you aren't hungry or thirsty.");
 		SET_BIT(data->flags, ANGEL_CONSUME);
 		return 1;
@@ -435,7 +432,7 @@ angel_check_charge(struct creature *self, struct creature *charge, angel_data *d
 
 	// Check to see if they need to rest
 	if (!IS_SET(data->flags, ANGEL_LOWPOINTS)
-			&& charge->getPosition() > POS_FIGHTING) {
+        && GET_POSITION(charge) > POS_FIGHTING) {
 
 		if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4) {
 			perform_say_to(self, charge, "You're running low on hit points.  Maybe you should rest or sleep to regain them faster.");
@@ -498,9 +495,9 @@ angel_check_charge(struct creature *self, struct creature *charge, angel_data *d
 void
 assign_angel(struct creature *angel, struct creature *ch)
 {
-    angel_data *data;
+    struct angel_data *data;
 
-	CREATE(data, angel_data, 1);
+	CREATE(data, struct angel_data, 1);
     angel->mob_specials.func_data = data;
     data->angel = angel;
     data->charge_id = GET_IDNUM(ch);
@@ -511,20 +508,20 @@ assign_angel(struct creature *angel, struct creature *ch)
 	GET_SEX(angel) = GET_SEX(ch);
 
 	if (angel->in_room)
-		char_from_room(angel);
+		char_from_room(angel, false);
     char_to_room(angel, ch->in_room, false);
 
     do_follow(angel, GET_NAME(ch), 0, 0, 0);
 
-    angels.push_back(data);
+    angels = g_list_prepend(angels, data);
 }
 
 SPECIAL(guardian_angel)
 {
 	ACMD(do_whisper);
 	struct creature *self = (struct creature *)me;
-	angel_data *data = (angel_data *)self->mob_specials.func_data;
-	angel_chat_data *cur_chat;
+	struct angel_data *data = (struct angel_data *)self->mob_specials.func_data;
+	struct angel_chat_data *cur_chat;
 	struct creature *charge;
 	char *arg;
 
@@ -533,7 +530,7 @@ SPECIAL(guardian_angel)
 			send_to_char(ch, "Angel status\r\n------------\r\n");
 			if (data) {
 				send_to_char(ch, "Charge: %s [%ld]\r\n",
-					playerIndex.getName(data->charge_id), data->charge_id);
+					player_name_by_idnum(data->charge_id), data->charge_id);
 				send_to_char(ch, "Counter: %d\r\nAction: %s\r\n",
 					data->counter, data->action);
 			} else {
@@ -590,7 +587,7 @@ SPECIAL(guardian_angel)
 		perform_tell(self, charge, "I see you can get along without my help.  Jerk.");
 		act("$n disappears in a bright flash of light!",
 			false, self, 0, 0, TO_ROOM);
-		self->purge(true);
+		purge(self, true);
 		return 1;
 	}
 
@@ -603,8 +600,8 @@ SPECIAL(guardian_angel)
 	// the 'say' command and they're the only creature in the room
 	arg = argument;
 	if (cmd_info[cmd].command_pointer == do_whisper ||
-			CMD_IS(">") || CMD_IS("sayto") ||
-			ch->in_room->people.size() > 2) {
+        CMD_IS(">") || CMD_IS("sayto") ||
+        g_list_nth(ch->in_room->people, 3)) {
 		if (!isname_exact(tmp_getword(&arg), self->player.name))
 			return 0;
 	}

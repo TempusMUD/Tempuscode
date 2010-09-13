@@ -10,11 +10,11 @@ SPECIAL(newbie_fly)
 		return 0;
 	if (cmd || ch->fighting)
 		return 0;
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (AFF_FLAGGED((*it), AFF_INFLIGHT) || !can_see_creature(ch, (*it)))
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+		if (AFF_FLAGGED(tch, AFF_INFLIGHT) || !can_see_creature(ch, tch))
 			continue;
-		cast_spell(ch, (*it), 0, NULL, SPELL_FLY);
+		cast_spell(ch, tch, 0, NULL, SPELL_FLY, NULL);
 		return 1;
 	}
 	return 0;

@@ -31,16 +31,18 @@ SPECIAL(newbie_fodder)
 	count = 0;
 	for (idx = NEWBIE_ROOM_MIN;idx < NEWBIE_ROOM_MAX;idx++) {
 		struct room_data *room;
-		struct creatureList_iterator it;
 
 		room = real_room(idx);
 		if (!room)
 			continue;
 
-		for(it = room->people.begin();it != room->people.end();it++)
-			if (IS_PC(*it))
+        struct creature *tch = NULL;
+		for (GList *it = ch->in_room->people;it;it = it->next) {
+            tch = it->data;
+			if (IS_PC(tch))
 				break;
-		if (it != room->people.end())
+        }
+		if (!tch)
 			continue;
 
 		if (!number(0, count))

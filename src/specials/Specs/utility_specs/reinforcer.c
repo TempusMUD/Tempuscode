@@ -52,7 +52,7 @@ SPECIAL(reinforcer)
 	}
 
 	cost = GET_OBJ_COST(obj);
-    cost += (cost*ch->getCostModifier(keeper))/100;
+    cost += (cost*getCostModifier(ch, keeper))/100;
 
 	sprintf(buf2, "It will cost you %d %s to have %s reinforced.",
 		cost, ch->in_room->zone->time_frame == TIME_ELECTRO ? "credits" :
@@ -89,7 +89,7 @@ SPECIAL(reinforcer)
 	SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_REINFORCED);
 	GET_OBJ_MAX_DAM(obj) += (GET_OBJ_MAX_DAM(obj) >> 2);
 	GET_OBJ_DAM(obj) += (GET_OBJ_DAM(obj) >> 2);
-	obj->modifyWeight(1);
+	GET_OBJ_WEIGHT(obj) += 1;
 	WAIT_STATE(ch, 5 RL_SEC);
 	save_player_to_xml(ch);
 

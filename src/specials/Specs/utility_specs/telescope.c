@@ -11,8 +11,7 @@
    You must set value 3 of the scope to be -999.
 */
 
-char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact =
-	0);
+char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact);
 
 SPECIAL(telescope)
 {
@@ -31,7 +30,7 @@ SPECIAL(telescope)
 	if (!isname(arg1, scope->aliases))
 		return 0;
 
-	if ((desc = find_exdesc(arg2, scope->ex_description)) != NULL) {
+	if ((desc = find_exdesc(arg2, scope->ex_description, false)) != NULL) {
 		page_string(ch->desc, desc);
 	} else
 		act("You cannot look at that with $p.", false, ch, scope, 0, TO_CHAR);

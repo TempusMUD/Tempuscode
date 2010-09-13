@@ -157,7 +157,7 @@ SPECIAL(unholy_square)
 		if (winner)
 			sprintf(buf,
 				"%sWinner is [%d] %s.\r\n"
-				"Won at %s.\r\n", buf, winner, playerIndex.getName(winner),
+				"Won at %s.\r\n", buf, winner, player_name_by_idnum(winner),
 				ctime(&wintime));
 
 		return 1;

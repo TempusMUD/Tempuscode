@@ -34,10 +34,10 @@ SPECIAL(fate_cauldron)
 	} else {
 		fateid = FATE_VNUM_HIGH;
 	}
-	struct creatureList_iterator cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		if (GET_MOB_VNUM((*cit)) == fateid) {
-			fate = *cit;
+    for (GList *it = creatures;it;it = it->next) {
+		struct creature *tch = it->data;
+		if (GET_MOB_VNUM(tch) == fateid) {
+			fate = tch;
 			break;
 		}
 	}

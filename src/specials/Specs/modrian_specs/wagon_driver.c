@@ -32,17 +32,17 @@ SPECIAL(wagon_driver)
 	}
 
 	for (dir = 0; dir <= 3; dir++) {
-		if (EXIT(i, dir) && EXIT(i, dir)->to_room != NULL &&
+		if (OEXIT(i, dir) && OEXIT(i, dir)->to_room != NULL &&
 			(i->in_room->sector_type ==
-				EXIT(i, dir)->to_room->sector_type) && CAN_GO(i, dir)
+				OEXIT(i, dir)->to_room->sector_type) && OCAN_GO(i, dir)
 			&& !number(0, 4)
-			&& !ROOM_FLAGGED(EXIT(i, dir)->to_room, ROOM_INDOORS))
+			&& !ROOM_FLAGGED(OEXIT(i, dir)->to_room, ROOM_INDOORS))
 			break;
 	}
-	if ((dir == 4) || !CAN_GO(i, dir))
+	if ((dir == 4) || !OCAN_GO(i, dir))
 		return 0;
 	else {
-		destination = EXIT(i, dir)->to_room;
+		destination = OEXIT(i, dir)->to_room;
 
 		act("$n twitches the reins.", true, driver, 0, 0, TO_ROOM);
 		act("The wagon driver twitches the reins.", true, 0, i, 0, TO_ROOM);

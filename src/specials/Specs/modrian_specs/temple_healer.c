@@ -13,14 +13,14 @@ SPECIAL(temple_healer)
 	if (spec_mode != SPECIAL_TICK)
 		return false;
 
-    if (self->isFighting()) {
-		vict = self->findRandomCombat();
+    if (isFighting(self)) {
+		vict = findRandomCombat(self);
 
 		if (vict->in_room == self->in_room) {
 			switch (number(0, 20)) {
 			case 0:
 				perform_say(self, "say", "Now you pay!!");
-				cast_spell(self, vict, NULL, NULL, SPELL_FLAME_STRIKE);
+				cast_spell(self, vict, NULL, NULL, SPELL_FLAME_STRIKE, NULL);
 				return true;
 			case 1:
 			case 2:
@@ -31,18 +31,18 @@ SPECIAL(temple_healer)
 			case 7:
 				if (!AFF_FLAGGED(self, AFF_SANCTUARY)) {
 					perform_say(self, "say", "Guiharia, aid me now!!");
-					call_magic(self, self, NULL, NULL, SPELL_SANCTUARY, 50, CAST_SPELL);
+					call_magic(self, self, NULL, NULL, SPELL_SANCTUARY, 50, CAST_SPELL, NULL);
 					return true;
 				}
 			case 8:
-				cast_spell(self, self, NULL, NULL, SPELL_GREATER_HEAL);
+				cast_spell(self, self, NULL, NULL, SPELL_GREATER_HEAL, NULL);
 				return true;
 			}
 			return false;
 		}
 	}
 
-	if (self->getPosition() != POS_FIGHTING && !self->isFighting()) {
+	if (GET_POSITION(self) != POS_FIGHTING && !isFighting(self)) {
 		switch (number(0, 18)) {
 		case 0:
 			perform_say(self, "say", "Rest here, adventurer.  Your wounds will be tended.");
@@ -62,9 +62,8 @@ SPECIAL(temple_healer)
 		case 12:
 		case 13:{
 				found = false;
-				struct creatureList_iterator it = self->in_room->people.begin();
-				for (; it != self->in_room->people.end() && !found; ++it) {
-					vict = *it;
+                for (GList *it = self->in_room->people;it && !found;it = it->next) {
+					vict = it->data;
 					if (self == vict || !can_see_creature(self, vict) || !number(0, 2))
 						continue;
 					if (GET_MOB_VNUM(self) == 11000 && IS_EVIL(vict)) {
@@ -90,10 +89,10 @@ SPECIAL(temple_healer)
 							TO_NOTVICT);
 
 						cast_spell(self, vict, 0, NULL,
-							GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
-							GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
-							GET_LEVEL(vict) <=
-							30 ? SPELL_HEAL : SPELL_GREATER_HEAL);
+                                   GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
+                                   GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
+                                   GET_LEVEL(vict) <=
+                                   30 ? SPELL_HEAL : SPELL_GREATER_HEAL, NULL);
 					} else
 						continue;
 
@@ -104,10 +103,8 @@ SPECIAL(temple_healer)
 		case 14:
 		case 15:
 		case 16:{
-
-				struct creatureList_iterator it = self->in_room->people.begin();
-				for (; it != self->in_room->people.end() && !found; ++it) {
-					vict = *it;
+                for (GList *it = self->in_room->people;it && !found;it = it->next) {
+					vict = it->data;
 					if (self == vict || IS_NPC(vict) || !can_see_creature(self, vict)
 						|| !number(0, 2))
 						continue;
@@ -121,10 +118,10 @@ SPECIAL(temple_healer)
 
 						if (IS_POISONED(vict))
 							call_magic(self, vict, 0, NULL, SPELL_REMOVE_POISON,
-								GET_LEVEL(self), CAST_SPELL);
+                                       GET_LEVEL(self), CAST_SPELL, NULL);
 						if (IS_SICK(vict))
 							call_magic(self, vict, 0, NULL, SPELL_REMOVE_SICKNESS,
-								GET_LEVEL(self), CAST_SPELL);
+                                       GET_LEVEL(self), CAST_SPELL, NULL);
 						return true;
 					}
 				}
@@ -133,9 +130,8 @@ SPECIAL(temple_healer)
 		case 17:
 		case 18:{
 				found = false;
-				struct creatureList_iterator it = self->in_room->people.begin();
-				for (; it != self->in_room->people.end() && !found; ++it) {
-					vict = *it;
+                for (GList *it = self->in_room->people;it && !found;it = it->next) {
+					vict = it->data;
 
 					if (self == vict || IS_NPC(vict) || !can_see_creature(self, vict)
 						|| !number(0, 2))
@@ -150,7 +146,7 @@ SPECIAL(temple_healer)
 						act("You touch the eyes of $N.", false, self, 0, vict,
 							TO_CHAR);
 						call_magic(self, vict, 0, NULL, SPELL_CURE_BLIND,
-							GET_LEVEL(self), CAST_SPELL);
+                                   GET_LEVEL(self), CAST_SPELL, NULL);
 						return true;
 
 					}

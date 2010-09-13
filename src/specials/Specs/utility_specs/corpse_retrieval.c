@@ -16,8 +16,8 @@ SPECIAL(corpse_retrieval)
 	int amt_carried;
 
 	if (spec_mode == SPECIAL_TICK) {
-		if (((struct creature *)me)->isFighting() && !number(0, 4)) {
-			call_for_help(retriever, retriever->findRandomCombat());
+		if (isFighting((struct creature *)me) && !number(0, 4)) {
+			call_for_help(retriever, findRandomCombat(retriever));
 			return 1;
 		}
 		return 0;
@@ -56,7 +56,7 @@ SPECIAL(corpse_retrieval)
 	} else {
 		price = GET_LEVEL(ch) * 100;
 	}
-    price += (price*ch->getCostModifier(retriever))/100;
+    price += (price*getCostModifier(ch, retriever))/100;
 
 	if (retriever->in_room->zone->time_frame == TIME_ELECTRO) {
 		amt_carried = GET_CASH(ch);

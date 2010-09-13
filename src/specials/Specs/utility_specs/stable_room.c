@@ -18,12 +18,12 @@ SPECIAL(stable_room)
 
 	if (CMD_IS("list")) {
 		send_to_char(ch, "Available mounts are:\r\n");
-		struct creatureList_iterator it = pet_room->people.begin();
-		for (; it != pet_room->people.end(); ++it) {
-			if(! IS_NPC((*it)) )
+        for (GList *it = pet_room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+			if(! IS_NPC(tch) )
 				continue;
-			send_to_char(ch, "%8d - %s\r\n", 3 * GET_EXP((*it)),
-				GET_NAME((*it)));
+			send_to_char(ch, "%8d - %s\r\n", 3 * GET_EXP(tch),
+				GET_NAME(tch));
 		}
 		return (true);
 	} else if (CMD_IS("buy")) {
@@ -100,8 +100,8 @@ SPECIAL(stable_room)
 		if (CMD_IS("value"))
 			return 1;
 
-		if (ch->isMounted() && ch->isMounted() == pet) {
-		    ch->dismount();
+		if (MOUNTED_BY(ch) && MOUNTED_BY(ch) == pet) {
+		    dismount(ch);
 			REMOVE_BIT(AFF2_FLAGS(pet), AFF2_MOUNTED);
 			GET_POSITION(ch) = POS_STANDING;
 		}
@@ -115,11 +115,11 @@ SPECIAL(stable_room)
 
 		char_from_room(pet, false);
 		char_to_room(pet, pet_room, false);
-		struct creatureList_iterator it = pet_room->people.begin();
-		for (; it != pet_room->people.end(); ++it) {
-			if ((*it) != pet && IS_NPC((*it))
-				&& GET_MOB_VNUM((*it)) == GET_MOB_VNUM(pet)) {
-				(*it)->purge(true);
+		for (GList *it = pet_room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+			if (tch != pet && IS_NPC(tch)
+				&& GET_MOB_VNUM(tch) == GET_MOB_VNUM(pet)) {
+				purge(tch, true);
 				return 1;
 			}
 		}

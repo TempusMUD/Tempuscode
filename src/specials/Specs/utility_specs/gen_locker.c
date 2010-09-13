@@ -37,7 +37,7 @@ SPECIAL(gen_locker)
 		cost_factor = 75;
 	}
 
-    cost_factor += (cost_factor*ch->getCostModifier(atten))/100;
+    cost_factor += (cost_factor*getCostModifier(ch, atten))/100;
 
 	skip_spaces(&argument);
 
@@ -213,9 +213,9 @@ SPECIAL(gen_locker)
 		else
 			GET_GOLD(ch) -= cost_factor * 10;
 
-		House* house = Housing.findHouseByRoom( locker->in_room->number );
+		struct house* house = find_house_by_room( locker->in_room->number );
 		if( house != NULL )
-			house->save();
+			save_house(house);
 		save_player_to_xml(ch);
 
 		act("$n takes all your things and locks them in a locker.", false,
@@ -306,9 +306,9 @@ SPECIAL(gen_locker)
 		GET_OBJ_VAL(locker, 1) = 0;
 		GET_OBJ_VAL(locker, 2) = 0;
 
-		House* house = Housing.findHouseByRoom( locker->in_room->number );
+		struct house* house = find_house_by_room( locker->in_room->number );
 		if( house != NULL )
-			house->save();
+			save_house(house);
 		save_player_to_xml(ch);
 
 		act("$n opens a locker and gives you all your things.",

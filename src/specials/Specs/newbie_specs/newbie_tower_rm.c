@@ -4,10 +4,10 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 #include "help.h"
-extern HelpCollection *Help;
+extern struct help_collection *help;
 SPECIAL(newbie_tower_rm)
 {
-	HelpItem *cur = NULL;
+	struct help_item *cur = NULL;
 
 	ACMD(do_hcollect_help);
 	one_argument(argument, arg);
@@ -19,9 +19,9 @@ SPECIAL(newbie_tower_rm)
 		if (!strncasecmp(arg, "plate", 5) ||
 			!strncasecmp(arg, "at plate", 8) ||
 			!strncasecmp(arg, "map", 3) || !strncasecmp(arg, "at map", 6)) {
-			cur = Help->find_item_by_id(196);
+			cur = help_collection_find_item_by_id(help, 196);
 			if (cur) {
-				cur->Show(ch, buf, 2);
+				helpitem_show(cur, ch, buf, 2);
 				page_string(ch->desc, buf);
 			}
 			/*
@@ -35,9 +35,9 @@ SPECIAL(newbie_tower_rm)
 	}
 	if (CMD_IS("examine")) {
 		if (!strncasecmp(arg, "plate", 5)) {
-			cur = Help->find_item_by_id(196);
+			cur = help_collection_find_item_by_id(help, 196);
 			if (cur) {
-				cur->Show(ch, buf, 2);
+				helpitem_show(cur, ch, buf, 2);
 				page_string(ch->desc, buf);
 			}
 			return 1;
