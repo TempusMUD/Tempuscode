@@ -2,7 +2,6 @@
 #include "config.h"
 #endif
 
-#include "player_table.h"
 #include "utils.h"
 #include "db.h"
 

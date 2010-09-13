@@ -97,11 +97,8 @@ ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]
                  specials/styx.c \
                  structs/creature.c \
                  structs/creature_io.c \
-                 structs/creature_list.c \
-                 structs/mobile_map.c \
                  structs/obj_data.c \
-                 structs/object_map.c \
-                 structs/player_table.c \
+                 structs/players.c \
                  structs/room_data.c \
                  util/accstr.c \
                  util/handler.c \
@@ -328,7 +325,7 @@ ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]
                  include/mobact.h \
                  include/mobile_map.h \
                  include/obj_data.h \
-                 include/player_table.h \
+                 include/players.h \
                  include/object_map.h \
                  include/olc.h \
                  include/paths.h \
